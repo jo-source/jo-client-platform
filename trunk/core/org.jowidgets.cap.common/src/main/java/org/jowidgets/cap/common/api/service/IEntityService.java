@@ -31,10 +31,17 @@ package org.jowidgets.cap.common.api.service;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
 import org.jowidgets.service.api.IServiceId;
 
-
 public interface IEntityService {
 
-	IServiceId<IEntityService> ID = new IServiceId<IEntityService>() {};
+	IServiceId<IEntityService> ID = new IServiceId<IEntityService>() {
+
+		private static final long serialVersionUID = -2168587261300503405L;
+
+		@Override
+		public Class<IEntityService> getServiceType() {
+			return IEntityService.class;
+		}
+	};
 
 	<BEAN_TYPE> IBeanDtoDescriptor<BEAN_TYPE> getDescriptor(Class<BEAN_TYPE> beanType);
 

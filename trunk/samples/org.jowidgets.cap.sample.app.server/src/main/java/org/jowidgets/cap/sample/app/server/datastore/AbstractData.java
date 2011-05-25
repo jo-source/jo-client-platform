@@ -105,7 +105,6 @@ public abstract class AbstractData<DATA_TYPE extends IBean> implements IBeanAcce
 		return result;
 	}
 
-	@Override
 	public DATA_TYPE getBean(final IBeanKey key) {
 		Assert.paramNotNull(key, "key");
 		return getData(key.getId());

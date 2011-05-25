@@ -32,7 +32,6 @@ import org.jowidgets.cap.common.api.service.IExecutorService;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.util.types.Null;
 
-
 public final class UserComponentExecutorServices {
 
 	public static final IServiceId<IExecutorService<Null>> CHANGE_GENDER = createId();
@@ -41,7 +40,15 @@ public final class UserComponentExecutorServices {
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	private static <SERVICE_ID_TYPE extends IServiceId<?>> SERVICE_ID_TYPE createId() {
-		return (SERVICE_ID_TYPE) new IServiceId() {};
+		return (SERVICE_ID_TYPE) new IServiceId() {
+
+			private static final long serialVersionUID = 6642426059495514397L;
+
+			@Override
+			public Class<IExecutorService> getServiceType() {
+				return IExecutorService.class;
+			}
+		};
 	}
 
 }

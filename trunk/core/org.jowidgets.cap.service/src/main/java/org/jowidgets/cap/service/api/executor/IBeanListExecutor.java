@@ -28,14 +28,12 @@
 
 package org.jowidgets.cap.service.api.executor;
 
-import java.util.Collection;
 import java.util.List;
 
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 
+public interface IBeanListExecutor<BEAN_TYPE, PARAMETER_TYPE> {
 
-public interface IBeanCollectionExecutor<BEAN_TYPE, PARAMETER_TYPE> {
-
-	List<BEAN_TYPE> execute(Collection<? extends BEAN_TYPE> data, PARAMETER_TYPE parameter, IExecutionCallback executionCallback);
+	List<BEAN_TYPE> execute(List<? extends BEAN_TYPE> data, PARAMETER_TYPE parameter, IExecutionCallback executionCallback);
 
 }
