@@ -46,7 +46,7 @@ import org.jowidgets.cap.common.api.service.IExecutorService;
 import org.jowidgets.cap.service.api.DataServiceToolkit;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
-import org.jowidgets.cap.service.api.executor.IBeanCollectionExecutor;
+import org.jowidgets.cap.service.api.executor.IBeanListExecutor;
 import org.jowidgets.cap.service.api.executor.IBeanExecutor;
 import org.jowidgets.util.Assert;
 
@@ -111,7 +111,7 @@ final class ExecutorServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE> implements 
 			checkBeans(keys, beans);
 		}
 
-		if (executor instanceof IBeanCollectionExecutor) {
+		if (executor instanceof IBeanListExecutor) {
 			return executeBeanCollection(beans, parameter, keys, executionCallback);
 		}
 		else if (executor instanceof IBeanExecutor) {
@@ -154,7 +154,7 @@ final class ExecutorServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE> implements 
 			checkExecutableStates(beans, keys);
 		}
 
-		final IBeanCollectionExecutor<BEAN_TYPE, PARAM_TYPE> beanCollectionExecutor = (IBeanCollectionExecutor<BEAN_TYPE, PARAM_TYPE>) executor;
+		final IBeanListExecutor<BEAN_TYPE, PARAM_TYPE> beanCollectionExecutor = (IBeanListExecutor<BEAN_TYPE, PARAM_TYPE>) executor;
 		final List<? extends BEAN_TYPE> executionResult = beanCollectionExecutor.execute(beans, parameter, executionCallback);
 
 		return dtoFactory.createDtos(executionResult);

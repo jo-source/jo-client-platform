@@ -41,7 +41,7 @@ public interface IExecutorServiceBuilder<BEAN_TYPE extends IBean, PARAM_TYPE> {
 		IBeanExecutor<? extends BEAN_TYPE, ? extends PARAM_TYPE> beanExecutor);
 
 	IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> setExecutor(
-		IBeanCollectionExecutor<? extends BEAN_TYPE, ? extends PARAM_TYPE> beanCollectionExecutor);
+		IBeanListExecutor<? extends BEAN_TYPE, ? extends PARAM_TYPE> beanCollectionExecutor);
 
 	IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> setExecutableChecker(IExecutableChecker<? extends BEAN_TYPE> executableChecker);
 

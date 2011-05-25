@@ -32,7 +32,6 @@ import java.util.GregorianCalendar;
 
 import org.jowidgets.cap.sample.app.server.entity.User;
 
-
 public final class UserData extends AbstractData<User> {
 
 	protected static final Long JOE_ESTRADA_ID = nextId();
@@ -128,6 +127,11 @@ public final class UserData extends AbstractData<User> {
 		final User result = new User(nextId());
 		add(result);
 		return result;
+	}
+
+	@Override
+	public void flush() {
+
 	}
 
 }
