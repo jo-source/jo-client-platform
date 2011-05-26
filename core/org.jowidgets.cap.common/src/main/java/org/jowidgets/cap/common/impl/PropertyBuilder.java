@@ -26,13 +26,12 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.impl.bean;
+package org.jowidgets.cap.common.impl;
 
 import org.jowidgets.cap.common.api.bean.IProperty;
-import org.jowidgets.cap.common.api.bean.IPropertyBuilder;
 import org.jowidgets.util.Assert;
 
-public final class PropertyBuilder implements IPropertyBuilder {
+final class PropertyBuilder {
 
 	private String name;
 	private String labelDefault;
@@ -46,7 +45,7 @@ public final class PropertyBuilder implements IPropertyBuilder {
 	private boolean sortable;
 	private boolean filterable;
 
-	public PropertyBuilder() {
+	PropertyBuilder() {
 		this.visibleDefault = true;
 		this.mandatoryDefault = false;
 		this.readonly = false;
@@ -54,69 +53,58 @@ public final class PropertyBuilder implements IPropertyBuilder {
 		this.filterable = true;
 	}
 
-	@Override
-	public IPropertyBuilder setName(final String name) {
+	PropertyBuilder setName(final String name) {
 		Assert.paramNotEmpty(name, "name");
 		this.name = name;
 		return this;
 	}
 
-	@Override
-	public IPropertyBuilder setLabel(final String labelDefault) {
+	PropertyBuilder setLabel(final String labelDefault) {
 		this.labelDefault = labelDefault;
 		return this;
 	}
 
-	@Override
-	public IPropertyBuilder setLabelLong(final String labelLongDefault) {
+	PropertyBuilder setLabelLong(final String labelLongDefault) {
 		this.labelLongDefault = labelLongDefault;
 		return this;
 	}
 
-	@Override
-	public IPropertyBuilder setDescription(final String descriptionDefault) {
+	PropertyBuilder setDescription(final String descriptionDefault) {
 		this.descriptionDefault = descriptionDefault;
 		return this;
 	}
 
-	@Override
-	public IPropertyBuilder setVisible(final boolean visibleDefault) {
+	PropertyBuilder setVisible(final boolean visibleDefault) {
 		this.visibleDefault = visibleDefault;
 		return this;
 	}
 
-	@Override
-	public IPropertyBuilder setMandatory(final boolean mandatoryDefault) {
+	PropertyBuilder setMandatory(final boolean mandatoryDefault) {
 		this.mandatoryDefault = mandatoryDefault;
 		return this;
 	}
 
-	@Override
-	public IPropertyBuilder setValueType(final Class<?> valueType) {
+	PropertyBuilder setValueType(final Class<?> valueType) {
 		this.valueType = valueType;
 		return this;
 	}
 
-	@Override
-	public IPropertyBuilder setElementValueType(final Class<?> elementValueType) {
+	PropertyBuilder setElementValueType(final Class<?> elementValueType) {
 		this.elementValueType = elementValueType;
 		return this;
 	}
 
-	@Override
-	public IPropertyBuilder setReadonly(final boolean readonly) {
+	PropertyBuilder setReadonly(final boolean readonly) {
 		this.readonly = readonly;
 		return this;
 	}
 
-	@Override
-	public IPropertyBuilder setSortable(final boolean sortable) {
+	PropertyBuilder setSortable(final boolean sortable) {
 		this.sortable = sortable;
 		return this;
 	}
 
-	@Override
-	public IPropertyBuilder setFilterable(final boolean filterable) {
+	PropertyBuilder setFilterable(final boolean filterable) {
 		this.filterable = filterable;
 		return this;
 	}
@@ -130,8 +118,7 @@ public final class PropertyBuilder implements IPropertyBuilder {
 		}
 	}
 
-	@Override
-	public IProperty build() {
+	IProperty build() {
 		return new PropertyImpl(
 			name,
 			getLabelDefault(),

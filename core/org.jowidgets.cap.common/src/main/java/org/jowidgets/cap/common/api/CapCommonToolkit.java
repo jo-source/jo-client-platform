@@ -35,49 +35,44 @@ import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptorBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanKeyBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanModificationBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanPropertyBuilder;
-import org.jowidgets.cap.common.api.bean.IPropertyBuilder;
-import org.jowidgets.cap.common.impl.DefaultDataCommonToolkit;
+import org.jowidgets.cap.common.impl.DefaultCapCommonToolkit;
 
-public final class DataCommonToolkit {
+public final class CapCommonToolkit {
 
-	private static IDataCommonToolkit dataCommonToolkit;
+	private static ICapCommonToolkit dataCommonToolkit;
 
-	private DataCommonToolkit() {}
+	private CapCommonToolkit() {}
 
-	public static IDataCommonToolkit getInstance() {
+	public static ICapCommonToolkit getInstance() {
 		if (dataCommonToolkit == null) {
-			dataCommonToolkit = new DefaultDataCommonToolkit();
+			dataCommonToolkit = new DefaultCapCommonToolkit();
 		}
 		return dataCommonToolkit;
 	}
 
-	public static IPropertyBuilder createPropertyBuilder() {
-		return getInstance().createPropertyBuilder();
+	public static IBeanPropertyBuilder beanPropertyBuilder(final Class<?> beanType, final String propertyName) {
+		return getInstance().propertyBuilder(beanType, propertyName);
 	}
 
-	public static IBeanPropertyBuilder createBeanPropertyBuilder(final Class<?> beanType, final String propertyName) {
-		return getInstance().createBeanPropertyBuilder(beanType, propertyName);
-	}
-
-	public static <BEAN_TYPE extends IBean> IBeanDtoDescriptorBuilder<BEAN_TYPE> createDtoDescriptorBuilder(
+	public static <BEAN_TYPE extends IBean> IBeanDtoDescriptorBuilder<BEAN_TYPE> dtoDescriptorBuilder(
 		final Class<? extends BEAN_TYPE> beanType) {
-		return getInstance().createDtoDescriptorBuilder(beanType);
+		return getInstance().dtoDescriptorBuilder(beanType);
 	}
 
-	public static IBeanDtoBuilder createDtoBuilder() {
-		return getInstance().createDtoBuilder();
+	public static IBeanDtoBuilder dtoBuilder() {
+		return getInstance().dtoBuilder();
 	}
 
-	public static IBeanDataBuilder createBeanDataBuilder() {
-		return getInstance().createBeanDataBuilder();
+	public static IBeanDataBuilder beanDataBuilder() {
+		return getInstance().beanDataBuilder();
 	}
 
-	public static IBeanKeyBuilder createBeanKeyBuilder() {
-		return getInstance().createBeanKeyBuilder();
+	public static IBeanKeyBuilder beanKeyBuilder() {
+		return getInstance().beanKeyBuilder();
 	}
 
-	public static IBeanModificationBuilder createBeanModificationBuilder() {
-		return getInstance().createBeanModificationBuilder();
+	public static IBeanModificationBuilder beanModificationBuilder() {
+		return getInstance().beanModificationBuilder();
 	}
 
 }

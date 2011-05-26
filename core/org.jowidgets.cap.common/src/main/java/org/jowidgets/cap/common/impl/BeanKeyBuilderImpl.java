@@ -26,55 +26,35 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.impl.bean;
+package org.jowidgets.cap.common.impl;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.jowidgets.cap.common.api.bean.IBeanDto;
-import org.jowidgets.cap.common.api.bean.IBeanDtoBuilder;
+import org.jowidgets.cap.common.api.bean.IBeanKey;
+import org.jowidgets.cap.common.api.bean.IBeanKeyBuilder;
 import org.jowidgets.util.Assert;
-import org.jowidgets.util.builder.AbstractSingleUseBuilder;
 
-public final class BeanDtoBuilder extends AbstractSingleUseBuilder<IBeanDto> implements IBeanDtoBuilder {
+final class BeanKeyBuilderImpl implements IBeanKeyBuilder {
 
 	private Object id;
 	private long version;
-	private String persistenceClassname;
-	private final Map<String, Object> propertyMap;
 
-	public BeanDtoBuilder() {
-		this.propertyMap = new HashMap<String, Object>();
-	}
+	BeanKeyBuilderImpl() {}
 
 	@Override
-	public IBeanDtoBuilder setId(final Object id) {
+	public IBeanKeyBuilder setId(final Object id) {
+		Assert.paramNotNull(id, "id");
 		this.id = id;
 		return this;
 	}
 
 	@Override
-	public IBeanDtoBuilder setVersion(final long version) {
+	public IBeanKeyBuilder setVersion(final long version) {
 		this.version = version;
 		return this;
 	}
 
 	@Override
-	public IBeanDtoBuilder setPersistenceClassName(final String persistenceClassname) {
-		this.persistenceClassname = persistenceClassname;
-		return this;
-	}
-
-	@Override
-	public IBeanDtoBuilder setValue(final String propertyName, final Object value) {
-		Assert.paramNotEmpty(propertyName, "propertyName");
-		propertyMap.put(propertyName, value);
-		return this;
-	}
-
-	@Override
-	public IBeanDto doBuild() {
-		return new BeanDtoImpl(id, version, persistenceClassname, propertyMap);
+	public IBeanKey build() {
+		return new BeanKeyImpl(id, version);
 	}
 
 }

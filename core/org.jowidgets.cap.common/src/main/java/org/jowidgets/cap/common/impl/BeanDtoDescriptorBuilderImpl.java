@@ -28,59 +28,41 @@
 
 package org.jowidgets.cap.common.impl;
 
-import org.jowidgets.cap.common.api.IDataCommonToolkit;
+import java.util.LinkedList;
+import java.util.List;
+
 import org.jowidgets.cap.common.api.bean.IBean;
-import org.jowidgets.cap.common.api.bean.IBeanDataBuilder;
-import org.jowidgets.cap.common.api.bean.IBeanDtoBuilder;
+import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptorBuilder;
-import org.jowidgets.cap.common.api.bean.IBeanKeyBuilder;
-import org.jowidgets.cap.common.api.bean.IBeanModificationBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanPropertyBuilder;
-import org.jowidgets.cap.common.api.bean.IPropertyBuilder;
-import org.jowidgets.cap.common.impl.bean.BeanDataBuilder;
-import org.jowidgets.cap.common.impl.bean.BeanDtoBuilder;
-import org.jowidgets.cap.common.impl.bean.BeanDtoDescriptorBuilder;
-import org.jowidgets.cap.common.impl.bean.BeanKeyBuilder;
-import org.jowidgets.cap.common.impl.bean.BeanModificationBuilder;
-import org.jowidgets.cap.common.impl.bean.BeanPropertyBuilder;
-import org.jowidgets.cap.common.impl.bean.PropertyBuilder;
+import org.jowidgets.cap.common.api.bean.IProperty;
+import org.jowidgets.util.Assert;
 
-public final class DefaultDataCommonToolkit implements IDataCommonToolkit {
+final class BeanDtoDescriptorBuilderImpl<BEAN_TYPE extends IBean> implements IBeanDtoDescriptorBuilder<BEAN_TYPE> {
 
-	@Override
-	public IPropertyBuilder createPropertyBuilder() {
-		return new PropertyBuilder();
+	private final Class<? extends BEAN_TYPE> beanType;
+	private final List<IProperty> properties;
+
+	BeanDtoDescriptorBuilderImpl(final Class<? extends BEAN_TYPE> beanType) {
+		this.beanType = beanType;
+		this.properties = new LinkedList<IProperty>();
 	}
 
 	@Override
-	public IBeanPropertyBuilder createBeanPropertyBuilder(final Class<?> beanType, final String propertyName) {
-		return new BeanPropertyBuilder(beanType, propertyName);
+	public IBeanPropertyBuilder propertyBuilder(final String propertyName) {
+		Assert.paramNotEmpty(propertyName, "propertyName");
+		return new BeanPropertyBuilderImpl(beanType, propertyName);
 	}
 
 	@Override
-	public IBeanDtoBuilder createDtoBuilder() {
-		return new BeanDtoBuilder();
+	public IBeanDtoDescriptorBuilder<BEAN_TYPE> addProperty(final IBeanPropertyBuilder builder) {
+		properties.add(builder.build());
+		return this;
 	}
 
 	@Override
-	public <BEAN_TYPE extends IBean> IBeanDtoDescriptorBuilder<BEAN_TYPE> createDtoDescriptorBuilder(
-		final Class<? extends BEAN_TYPE> beanType) {
-		return new BeanDtoDescriptorBuilder<BEAN_TYPE>(beanType);
-	}
-
-	@Override
-	public IBeanDataBuilder createBeanDataBuilder() {
-		return new BeanDataBuilder();
-	}
-
-	@Override
-	public IBeanKeyBuilder createBeanKeyBuilder() {
-		return new BeanKeyBuilder();
-	}
-
-	@Override
-	public IBeanModificationBuilder createBeanModificationBuilder() {
-		return new BeanModificationBuilder();
+	public IBeanDtoDescriptor<BEAN_TYPE> build() {
+		return new BeanDtoDescriptorImpl<BEAN_TYPE>(beanType, properties);
 	}
 
 }
