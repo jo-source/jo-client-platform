@@ -36,7 +36,7 @@ public final class BeanDtoBuilder implements IBeanDtoBuilder {
 
 	private final IBeanDtoBuilder builder;
 
-	private BeanDtoBuilder() {
+	public BeanDtoBuilder() {
 		super();
 		this.builder = CapCommonToolkit.dtoBuilder();
 	}
