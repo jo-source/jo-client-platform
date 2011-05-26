@@ -40,17 +40,17 @@ import org.jowidgets.cap.service.api.entity.IEntityServiceBuilder;
 import org.jowidgets.cap.service.api.executor.IExecutorServiceBuilder;
 import org.jowidgets.cap.service.api.refresh.IRefreshServiceBuilder;
 import org.jowidgets.cap.service.api.updater.IUpdaterServiceBuilder;
-import org.jowidgets.cap.service.impl.DefaultDataServiceToolkit;
+import org.jowidgets.cap.service.impl.DefaultCapServiceToolkit;
 
-public final class DataServiceToolkit {
+public final class CapServiceToolkit {
 
-	private static IDataServiceToolkit dataServiceToolkit;
+	private static ICapServiceToolkit dataServiceToolkit;
 
-	private DataServiceToolkit() {}
+	private CapServiceToolkit() {}
 
-	public static IDataServiceToolkit getInstance() {
+	public static ICapServiceToolkit getInstance() {
 		if (dataServiceToolkit == null) {
-			dataServiceToolkit = new DefaultDataServiceToolkit();
+			dataServiceToolkit = new DefaultCapServiceToolkit();
 		}
 		return dataServiceToolkit;
 	}

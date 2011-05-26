@@ -26,69 +26,27 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.impl;
+package org.jowidgets.cap.ui.api.toolkit;
 
 import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
 import org.jowidgets.cap.ui.api.bean.IBeanKeyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
 import org.jowidgets.cap.ui.api.executor.IExecutionTaskFactory;
 import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
-import org.jowidgets.cap.ui.api.toolkit.IDataUiToolkit;
 import org.jowidgets.cap.ui.api.widgets.IDataApiBluePrintFactory;
-import org.jowidgets.cap.ui.impl.attribute.AttributeToolkit;
-import org.jowidgets.cap.ui.impl.bean.BeanKeyFactory;
-import org.jowidgets.cap.ui.impl.bean.DataBeanFactory;
-import org.jowidgets.cap.ui.impl.executor.ExecutionTaskFactory;
-import org.jowidgets.cap.ui.impl.table.BeanTableModelBuilder;
-import org.jowidgets.cap.ui.impl.widgets.DataApiBluePrintFactory;
 
-public final class DefaultDataUiToolkit implements IDataUiToolkit {
+public interface ICapUiToolkit {
 
-	private IDataApiBluePrintFactory bluePrintFactory;
-	private IExecutionTaskFactory executionTaskFactory;
-	private IBeanKeyFactory beanKeyFactory;
-	private IAttributeToolkit attributeToolkit;
+	IDataApiBluePrintFactory getBluePrintFactory();
 
-	@Override
-	public IDataApiBluePrintFactory getBluePrintFactory() {
-		if (bluePrintFactory == null) {
-			bluePrintFactory = new DataApiBluePrintFactory();
-		}
-		return bluePrintFactory;
-	}
+	IExecutionTaskFactory getExecutionTaskFactory();
 
-	@Override
-	public IExecutionTaskFactory getExecutionTaskFactory() {
-		if (executionTaskFactory == null) {
-			executionTaskFactory = new ExecutionTaskFactory();
-		}
-		return executionTaskFactory;
-	}
+	IAttributeToolkit getAttributeToolkit();
 
-	@Override
-	public IAttributeToolkit getAttributeToolkit() {
-		if (attributeToolkit == null) {
-			attributeToolkit = new AttributeToolkit();
-		}
-		return attributeToolkit;
-	}
+	<BEAN_TYPE> IBeanProxyFactory<BEAN_TYPE> createBeanProxyFactory(Class<? extends BEAN_TYPE> beanType);
 
-	@Override
-	public <BEAN_TYPE> IBeanProxyFactory<BEAN_TYPE> createBeanProxyFactory(final Class<? extends BEAN_TYPE> beanType) {
-		return new DataBeanFactory<BEAN_TYPE>(beanType);
-	}
+	IBeanKeyFactory getBeanKeyFactory();
 
-	@Override
-	public IBeanKeyFactory getBeanKeyFactory() {
-		if (beanKeyFactory == null) {
-			beanKeyFactory = new BeanKeyFactory();
-		}
-		return beanKeyFactory;
-	}
-
-	@Override
-	public <BEAN_TYPE> IBeanTableModelBuilder<BEAN_TYPE> createBeanTableModelBuilder(final Class<BEAN_TYPE> beanType) {
-		return new BeanTableModelBuilder<BEAN_TYPE>(beanType);
-	}
+	<BEAN_TYPE> IBeanTableModelBuilder<BEAN_TYPE> createBeanTableModelBuilder(Class<BEAN_TYPE> beanType);
 
 }

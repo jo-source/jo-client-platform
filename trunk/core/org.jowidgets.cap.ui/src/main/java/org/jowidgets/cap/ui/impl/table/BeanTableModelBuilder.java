@@ -44,7 +44,7 @@ import org.jowidgets.cap.ui.api.model.LinkType;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
 import org.jowidgets.cap.ui.api.table.IReaderParameterProvider;
-import org.jowidgets.cap.ui.api.toolkit.DataUiToolkit;
+import org.jowidgets.cap.ui.api.toolkit.CapUiToolkit;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.api.ServiceProvider;
 import org.jowidgets.util.Assert;
@@ -77,7 +77,7 @@ public final class BeanTableModelBuilder<BEAN_TYPE> implements IBeanTableModelBu
 			}
 			final IBeanDtoDescriptor<BEAN_TYPE> beanDtoDescriptor = entityService.getDescriptor(beanType);
 			if (beanDtoDescriptor != null) {
-				this.attributes = DataUiToolkit.getAttributeToolkit().createAttributes(beanDtoDescriptor.getProperties());
+				this.attributes = CapUiToolkit.getAttributeToolkit().createAttributes(beanDtoDescriptor.getProperties());
 			}
 		}
 	}

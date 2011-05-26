@@ -39,7 +39,7 @@ import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.exception.DeletedBeanException;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.service.IRefreshService;
-import org.jowidgets.cap.service.api.DataServiceToolkit;
+import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 
@@ -59,7 +59,7 @@ final class RefreshServiceImpl<BEAN_TYPE extends IBean> implements IRefreshServi
 
 		this.beanAccess = (IBeanAccess<BEAN_TYPE>) beanAccess;
 		this.allowDeletedBeans = allowDeletedBeans;
-		this.dtoFactory = DataServiceToolkit.createDtoFactory(beanType, propertyNames);
+		this.dtoFactory = CapServiceToolkit.createDtoFactory(beanType, propertyNames);
 	}
 
 	@Override

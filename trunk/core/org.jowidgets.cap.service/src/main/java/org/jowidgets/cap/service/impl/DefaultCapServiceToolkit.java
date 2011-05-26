@@ -32,7 +32,7 @@ import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
-import org.jowidgets.cap.service.api.IDataServiceToolkit;
+import org.jowidgets.cap.service.api.ICapServiceToolkit;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.cap.service.api.bean.IBeanInitializer;
@@ -50,7 +50,7 @@ import org.jowidgets.cap.service.impl.service.ExecutorServiceBuilder;
 import org.jowidgets.cap.service.impl.service.RefreshServiceBuilder;
 import org.jowidgets.cap.service.impl.service.UpdaterServiceBuilder;
 
-public final class DefaultDataServiceToolkit implements IDataServiceToolkit {
+public final class DefaultCapServiceToolkit implements ICapServiceToolkit {
 
 	@Override
 	public IEntityServiceBuilder createEntityServiceBuilder() {

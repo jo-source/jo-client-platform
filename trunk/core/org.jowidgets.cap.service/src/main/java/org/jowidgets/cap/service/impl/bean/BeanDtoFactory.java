@@ -40,7 +40,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.jowidgets.cap.common.api.DataCommonToolkit;
+import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanDtoBuilder;
@@ -88,7 +88,7 @@ public class BeanDtoFactory<BEAN_TYPE extends IBean> implements IBeanDtoFactory<
 	@Override
 	public IBeanDto createDto(final BEAN_TYPE bean) {
 		Assert.paramNotNull(bean, "bean");
-		final IBeanDtoBuilder builder = DataCommonToolkit.createDtoBuilder();
+		final IBeanDtoBuilder builder = CapCommonToolkit.dtoBuilder();
 		builder.setId(bean.getId());
 		builder.setVersion(bean.getVersion());
 		builder.setPersistenceClassName(persistenceClassName);

@@ -36,7 +36,7 @@ import org.jowidgets.cap.sample.app.common.entity.IUser;
 import org.jowidgets.cap.sample.app.server.datastore.AbstractData;
 import org.jowidgets.cap.sample.app.server.service.creator.CreatorService;
 import org.jowidgets.cap.sample.app.server.service.deleter.DeleterService;
-import org.jowidgets.cap.service.api.DataServiceToolkit;
+import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.entity.IBeanServicesProviderBuilder;
 import org.jowidgets.cap.service.api.refresh.IRefreshServiceBuilder;
 import org.jowidgets.cap.service.api.updater.IUpdaterServiceBuilder;
@@ -48,7 +48,7 @@ public final class BeanServicesProvider<BEAN_TYPE extends IBean> {
 
 	public BeanServicesProvider(final AbstractData<? extends BEAN_TYPE> data, final List<String> properties) {
 
-		final IBeanServicesProviderBuilder<IUser> builder = DataServiceToolkit.createBeanServicesProviderBuilder();
+		final IBeanServicesProviderBuilder<IUser> builder = CapServiceToolkit.createBeanServicesProviderBuilder();
 
 		//creator service
 		builder.setCreatorService(new CreatorService<BEAN_TYPE>(data, properties));
@@ -57,12 +57,12 @@ public final class BeanServicesProvider<BEAN_TYPE extends IBean> {
 		builder.setDeleterService(new DeleterService(data));
 
 		//updater service
-		final IUpdaterServiceBuilder<BEAN_TYPE> updaterBuilder = DataServiceToolkit.createUpdaterServiceBuilder(data);
+		final IUpdaterServiceBuilder<BEAN_TYPE> updaterBuilder = CapServiceToolkit.createUpdaterServiceBuilder(data);
 		updaterBuilder.setPropertyNames(properties);
 		builder.setUpdaterService(updaterBuilder.build());
 
 		//refresh service
-		final IRefreshServiceBuilder<BEAN_TYPE> refreshBuilder = DataServiceToolkit.createRefreshServiceBuilder(data);
+		final IRefreshServiceBuilder<BEAN_TYPE> refreshBuilder = CapServiceToolkit.createRefreshServiceBuilder(data);
 		refreshBuilder.setPropertyNames(properties);
 		builder.setRefreshService(refreshBuilder.build());
 

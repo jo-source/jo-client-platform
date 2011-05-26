@@ -38,13 +38,13 @@ import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.sample.app.common.entity.IUser;
 import org.jowidgets.cap.sample.app.server.datastore.DataStore;
-import org.jowidgets.cap.service.api.DataServiceToolkit;
+import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 
 
 public class AllUsersReaderService implements IReaderService<Integer> {
 
-	private static final IBeanDtoFactory<IUser> BEAN_FACTORY = DataServiceToolkit.createDtoFactory(
+	private static final IBeanDtoFactory<IUser> BEAN_FACTORY = CapServiceToolkit.createDtoFactory(
 			IUser.class,
 			IUser.ALL_PROPERTIES);
 
@@ -58,7 +58,7 @@ public class AllUsersReaderService implements IReaderService<Integer> {
 		final Integer delay,
 		IExecutionCallback executionCallback) {
 
-		executionCallback = DataServiceToolkit.createDelayedExecutionCallback(executionCallback);
+		executionCallback = CapServiceToolkit.createDelayedExecutionCallback(executionCallback);
 
 		final List<IBeanDto> result = BEAN_FACTORY.createDtos(DataStore.getPersons().getAllData(firstRow, maxRows));
 

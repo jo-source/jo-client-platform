@@ -47,7 +47,7 @@ import org.jowidgets.cap.ui.api.attribute.IAttributeModifier;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
 import org.jowidgets.cap.ui.api.table.IReaderParameterProvider;
-import org.jowidgets.cap.ui.api.toolkit.DataUiToolkit;
+import org.jowidgets.cap.ui.api.toolkit.CapUiToolkit;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.cap.ui.api.widgets.IDataApiBluePrintFactory;
 import org.jowidgets.common.types.AlignmentHorizontal;
@@ -71,11 +71,11 @@ public class UserTableView extends AbstractView {
 
 		final IBluePrintFactory bpf = Toolkit.getBluePrintFactory();
 
-		final IBeanTableModelBuilder<IUser> builder = DataUiToolkit.createBeanTableModelBuilder(IUser.class);
+		final IBeanTableModelBuilder<IUser> builder = CapUiToolkit.createBeanTableModelBuilder(IUser.class);
 
 		final List<IProperty> properties = ServiceProvider.getService(IEntityService.ID).getDescriptor(IUser.class).getProperties();
 
-		final IAttributeCollectionModifierBuilder modifierBuilder = DataUiToolkit.getAttributeToolkit().createAttributeCollectionModifierBuilder();
+		final IAttributeCollectionModifierBuilder modifierBuilder = CapUiToolkit.getAttributeToolkit().createAttributeCollectionModifierBuilder();
 		modifierBuilder.addModifier(IUser.GENDER_PROPERTY, new IAttributeModifier() {
 			@Override
 			public void modify(final IProperty sourceProperty, final IAttributeBuilder<?> attributeBuilder) {
@@ -84,7 +84,7 @@ public class UserTableView extends AbstractView {
 		});
 		modifierBuilder.addDefaultEditableModifier(true);
 
-		final List<IAttribute<Object>> attributes = DataUiToolkit.getAttributeToolkit().createAttributes(
+		final List<IAttribute<Object>> attributes = CapUiToolkit.getAttributeToolkit().createAttributes(
 				properties,
 				modifierBuilder.build());
 
@@ -104,7 +104,7 @@ public class UserTableView extends AbstractView {
 
 		context.getContainer().setLayout(MigLayoutFactory.growingInnerCellLayout());
 
-		final IDataApiBluePrintFactory dbpf = DataUiToolkit.getBluePrintFactory();
+		final IDataApiBluePrintFactory dbpf = CapUiToolkit.getBluePrintFactory();
 
 		final IBeanTable<IUser> table = context.getContainer().add(
 				dbpf.beanTable(beanTableModel),

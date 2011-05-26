@@ -38,7 +38,7 @@ import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.service.ICreatorService;
 import org.jowidgets.cap.sample.app.server.datastore.AbstractData;
-import org.jowidgets.cap.service.api.DataServiceToolkit;
+import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.cap.service.api.bean.IBeanInitializer;
 import org.jowidgets.util.Assert;
@@ -52,8 +52,8 @@ public class CreatorService<BEAN_TYPE extends IBean> implements ICreatorService 
 	public CreatorService(final AbstractData<? extends BEAN_TYPE> data, final List<String> propertyNames) {
 		Assert.paramNotNull(data, "data");
 		this.data = data;
-		this.dtoFactory = DataServiceToolkit.createDtoFactory(data.getBeanType(), propertyNames);
-		this.beanInitializer = DataServiceToolkit.createBeanInitializer(data.getBeanType(), propertyNames);
+		this.dtoFactory = CapServiceToolkit.createDtoFactory(data.getBeanType(), propertyNames);
+		this.beanInitializer = CapServiceToolkit.createBeanInitializer(data.getBeanType(), propertyNames);
 	}
 
 	@Override

@@ -37,7 +37,7 @@ import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IAttributeBuilder;
 import org.jowidgets.cap.ui.api.attribute.IAttributeGroup;
 import org.jowidgets.cap.ui.api.attribute.IControlPanelProvider;
-import org.jowidgets.cap.ui.api.toolkit.DataUiToolkit;
+import org.jowidgets.cap.ui.api.toolkit.CapUiToolkit;
 import org.jowidgets.common.types.AlignmentHorizontal;
 import org.jowidgets.util.Assert;
 
@@ -237,12 +237,12 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 	private IControlPanelProvider<? extends ELEMENT_VALUE_TYPE> getDefaultControlPanel() {
 		if (defaultControlPanel == null) {
 			if (Collection.class.isAssignableFrom(valueType)) {
-				return DataUiToolkit.getAttributeToolkit().createControlPanelProvider(
+				return CapUiToolkit.getAttributeToolkit().createControlPanelProvider(
 						(Class<? extends Collection<? extends ELEMENT_VALUE_TYPE>>) valueType,
 						elementValueType);
 			}
 			else {
-				return DataUiToolkit.getAttributeToolkit().createControlPanelProvider(elementValueType);
+				return CapUiToolkit.getAttributeToolkit().createControlPanelProvider(elementValueType);
 			}
 		}
 		return defaultControlPanel;
