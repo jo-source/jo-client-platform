@@ -87,7 +87,7 @@ public final class ExecutorServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE> impl
 		this.delayedExecutionCallback = delayedExecutionCallback;
 		this.executionCallbackDelay = executionCallbackDelay;
 
-		this.dtoFactory = CapServiceToolkit.createDtoFactory(beanType, propertyNames);
+		this.dtoFactory = CapServiceToolkit.dtoFactory(beanType, propertyNames);
 	}
 
 	@Override
@@ -99,7 +99,7 @@ public final class ExecutorServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE> impl
 		Assert.paramNotNull(keys, "beanInfos");
 
 		if (delayedExecutionCallback) {
-			executionCallback = CapServiceToolkit.createDelayedExecutionCallback(executionCallback, executionCallbackDelay);
+			executionCallback = CapServiceToolkit.delayedExecutionCallback(executionCallback, executionCallbackDelay);
 		}
 
 		final List<BEAN_TYPE> beans = beanAccess.getBeans(keys);

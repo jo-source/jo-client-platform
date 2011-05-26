@@ -54,54 +54,54 @@ import org.jowidgets.service.api.IServiceRegistry;
 public final class DefaultCapServiceToolkit implements ICapServiceToolkit {
 
 	@Override
-	public IEntityServiceBuilder createEntityServiceBuilder() {
+	public IEntityServiceBuilder entityServiceBuilder() {
 		return new EntityServiceBuilder();
 	}
 
 	@Override
-	public <BEAN_TYPE> IBeanServicesProviderBuilder<BEAN_TYPE> createBeanServicesProviderBuilder(final IServiceRegistry registry) {
+	public <BEAN_TYPE> IBeanServicesProviderBuilder<BEAN_TYPE> beanServicesProviderBuilder(final IServiceRegistry registry) {
 		return new BeanServicesProviderBuilder<BEAN_TYPE>(registry);
 	}
 
 	@Override
-	public <BEAN_TYPE extends IBean> IBeanDtoFactory<BEAN_TYPE> createDtoFactory(
+	public <BEAN_TYPE extends IBean> IBeanDtoFactory<BEAN_TYPE> dtoFactory(
 		final Class<? extends BEAN_TYPE> beanType,
 		final List<String> propertyNames) {
 		return new BeanDtoFactory<BEAN_TYPE>(beanType, propertyNames);
 	}
 
 	@Override
-	public <BEAN_TYPE extends IBean> IBeanInitializer<BEAN_TYPE> createBeanInitializer(
+	public <BEAN_TYPE extends IBean> IBeanInitializer<BEAN_TYPE> beanInitializer(
 		final Class<? extends BEAN_TYPE> beanType,
 		final List<String> propertyNames) {
 		return new BeanInitializer<BEAN_TYPE>(beanType, propertyNames);
 	}
 
 	@Override
-	public <BEAN_TYPE extends IBean, PARAM_TYPE> IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> createExecutorServiceBuilder(
+	public <BEAN_TYPE extends IBean, PARAM_TYPE> IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> executorServiceBuilder(
 		final IBeanAccess<? extends BEAN_TYPE> beanAccess) {
 		return new ExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE>(beanAccess);
 	}
 
 	@Override
-	public <BEAN_TYPE extends IBean> IUpdaterServiceBuilder<BEAN_TYPE> createUpdaterServiceBuilder(
+	public <BEAN_TYPE extends IBean> IUpdaterServiceBuilder<BEAN_TYPE> updaterServiceBuilder(
 		final IBeanAccess<? extends BEAN_TYPE> beanAccess) {
 		return new UpdaterServiceBuilder<BEAN_TYPE>(beanAccess);
 	}
 
 	@Override
-	public <BEAN_TYPE extends IBean> IRefreshServiceBuilder<BEAN_TYPE> createRefreshServiceBuilder(
+	public <BEAN_TYPE extends IBean> IRefreshServiceBuilder<BEAN_TYPE> refreshServiceBuilder(
 		final IBeanAccess<? extends BEAN_TYPE> beanAccess) {
 		return new RefreshServiceBuilder<BEAN_TYPE>(beanAccess);
 	}
 
 	@Override
-	public IExecutionCallback createDelayedExecutionCallback(final IExecutionCallback executionCallback, final Long delay) {
+	public IExecutionCallback delayedExecutionCallback(final IExecutionCallback executionCallback, final Long delay) {
 		return new DelayedExecutionCallback(executionCallback, delay);
 	}
 
 	@Override
-	public IExecutionCallback createDelayedExecutionCallback(final IExecutionCallback executionCallback) {
+	public IExecutionCallback delayedExecutionCallback(final IExecutionCallback executionCallback) {
 		return new DelayedExecutionCallback(executionCallback);
 	}
 

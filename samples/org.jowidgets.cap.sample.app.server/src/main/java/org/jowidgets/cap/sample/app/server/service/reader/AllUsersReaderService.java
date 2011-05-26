@@ -43,7 +43,7 @@ import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 
 public class AllUsersReaderService implements IReaderService<Integer> {
 
-	private static final IBeanDtoFactory<IUser> BEAN_FACTORY = CapServiceToolkit.createDtoFactory(
+	private static final IBeanDtoFactory<IUser> BEAN_FACTORY = CapServiceToolkit.dtoFactory(
 			IUser.class,
 			IUser.ALL_PROPERTIES);
 

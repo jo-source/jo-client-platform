@@ -51,7 +51,7 @@ public final class BeanServicesProvider<BEAN_TYPE extends IBean> {
 		final AbstractData<? extends BEAN_TYPE> data,
 		final List<String> properties) {
 
-		final IBeanServicesProviderBuilder<IUser> builder = CapServiceToolkit.createBeanServicesProviderBuilder(registry);
+		final IBeanServicesProviderBuilder<IUser> builder = CapServiceToolkit.beanServicesProviderBuilder(registry);
 
 		//creator service
 		builder.setCreatorService(new CreatorService<BEAN_TYPE>(data, properties));
@@ -60,12 +60,12 @@ public final class BeanServicesProvider<BEAN_TYPE extends IBean> {
 		builder.setDeleterService(new DeleterService(data));
 
 		//updater service
-		final IUpdaterServiceBuilder<BEAN_TYPE> updaterBuilder = CapServiceToolkit.createUpdaterServiceBuilder(data);
+		final IUpdaterServiceBuilder<BEAN_TYPE> updaterBuilder = CapServiceToolkit.updaterServiceBuilder(data);
 		updaterBuilder.setPropertyNames(properties);
 		builder.setUpdaterService(updaterBuilder.build());
 
 		//refresh service
-		final IRefreshServiceBuilder<BEAN_TYPE> refreshBuilder = CapServiceToolkit.createRefreshServiceBuilder(data);
+		final IRefreshServiceBuilder<BEAN_TYPE> refreshBuilder = CapServiceToolkit.refreshServiceBuilder(data);
 		refreshBuilder.setPropertyNames(properties);
 		builder.setRefreshService(refreshBuilder.build());
 

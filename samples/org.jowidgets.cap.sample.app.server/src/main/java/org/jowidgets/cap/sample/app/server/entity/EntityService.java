@@ -41,7 +41,7 @@ public class EntityService {
 	private final IEntityService entityService;
 
 	public EntityService(final IServiceRegistry registry) {
-		final IEntityServiceBuilder builder = CapServiceToolkit.createEntityServiceBuilder();
+		final IEntityServiceBuilder builder = CapServiceToolkit.entityServiceBuilder();
 
 		//IUser
 		final IBeanDtoDescriptor<IUser> descriptor = new UserDtoDescriptorService().getDescriptor();

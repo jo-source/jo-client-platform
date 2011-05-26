@@ -56,47 +56,47 @@ public final class CapServiceToolkit {
 		return dataServiceToolkit;
 	}
 
-	public static IEntityServiceBuilder createEntityServiceBuilder() {
-		return getInstance().createEntityServiceBuilder();
+	public static IEntityServiceBuilder entityServiceBuilder() {
+		return getInstance().entityServiceBuilder();
 	}
 
-	public static <BEAN_TYPE> IBeanServicesProviderBuilder<BEAN_TYPE> createBeanServicesProviderBuilder(
+	public static <BEAN_TYPE> IBeanServicesProviderBuilder<BEAN_TYPE> beanServicesProviderBuilder(
 		final IServiceRegistry registry) {
-		return getInstance().createBeanServicesProviderBuilder(registry);
+		return getInstance().beanServicesProviderBuilder(registry);
 	}
 
-	public static <BEAN_TYPE extends IBean> IBeanInitializer<BEAN_TYPE> createBeanInitializer(
+	public static <BEAN_TYPE extends IBean> IBeanInitializer<BEAN_TYPE> beanInitializer(
 		final Class<? extends BEAN_TYPE> beanType,
 		final List<String> propertyNames) {
-		return getInstance().createBeanInitializer(beanType, propertyNames);
+		return getInstance().beanInitializer(beanType, propertyNames);
 	}
 
-	public static <BEAN_TYPE extends IBean> IBeanDtoFactory<BEAN_TYPE> createDtoFactory(
+	public static <BEAN_TYPE extends IBean> IBeanDtoFactory<BEAN_TYPE> dtoFactory(
 		final Class<? extends BEAN_TYPE> beanType,
 		final List<String> propertyNames) {
-		return getInstance().createDtoFactory(beanType, propertyNames);
+		return getInstance().dtoFactory(beanType, propertyNames);
 	}
 
-	public static <BEAN_TYPE extends IBean, PARAM_TYPE> IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> createExecutorServiceBuilder(
+	public static <BEAN_TYPE extends IBean, PARAM_TYPE> IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> executorServiceBuilder(
 		final IBeanAccess<? extends BEAN_TYPE> beanAccess) {
-		return getInstance().createExecutorServiceBuilder(beanAccess);
+		return getInstance().executorServiceBuilder(beanAccess);
 	}
 
-	public static <BEAN_TYPE extends IBean> IUpdaterServiceBuilder<BEAN_TYPE> createUpdaterServiceBuilder(
+	public static <BEAN_TYPE extends IBean> IUpdaterServiceBuilder<BEAN_TYPE> updaterServiceBuilder(
 		final IBeanAccess<? extends BEAN_TYPE> beanAccess) {
-		return getInstance().createUpdaterServiceBuilder(beanAccess);
+		return getInstance().updaterServiceBuilder(beanAccess);
 	}
 
-	public static <BEAN_TYPE extends IBean> IRefreshServiceBuilder<BEAN_TYPE> createRefreshServiceBuilder(
+	public static <BEAN_TYPE extends IBean> IRefreshServiceBuilder<BEAN_TYPE> refreshServiceBuilder(
 		final IBeanAccess<? extends BEAN_TYPE> beanAccess) {
-		return getInstance().createRefreshServiceBuilder(beanAccess);
+		return getInstance().refreshServiceBuilder(beanAccess);
 	}
 
-	public static IExecutionCallback createDelayedExecutionCallback(final IExecutionCallback executionCallback, final Long delay) {
-		return getInstance().createDelayedExecutionCallback(executionCallback, delay);
+	public static IExecutionCallback delayedExecutionCallback(final IExecutionCallback executionCallback, final Long delay) {
+		return getInstance().delayedExecutionCallback(executionCallback, delay);
 	}
 
-	public static IExecutionCallback createDelayedExecutionCallback(final IExecutionCallback executionCallback) {
-		return getInstance().createDelayedExecutionCallback(executionCallback);
+	public static IExecutionCallback delayedExecutionCallback(final IExecutionCallback executionCallback) {
+		return getInstance().delayedExecutionCallback(executionCallback);
 	}
 }
