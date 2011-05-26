@@ -41,7 +41,7 @@ import org.jowidgets.cap.service.api.executor.IExecutorServiceBuilder;
 import org.jowidgets.cap.service.api.refresh.IRefreshServiceBuilder;
 import org.jowidgets.cap.service.api.updater.IUpdaterServiceBuilder;
 
-public interface IDataServiceToolkit {
+public interface ICapServiceToolkit {
 
 	IEntityServiceBuilder createEntityServiceBuilder();
 

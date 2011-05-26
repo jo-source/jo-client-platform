@@ -61,7 +61,7 @@ import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
 import org.jowidgets.cap.ui.api.model.LinkType;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.table.IReaderParameterProvider;
-import org.jowidgets.cap.ui.api.toolkit.DataUiToolkit;
+import org.jowidgets.cap.ui.api.toolkit.CapUiToolkit;
 import org.jowidgets.common.image.IImageConstant;
 import org.jowidgets.common.model.ITableCell;
 import org.jowidgets.tools.model.table.AbstractTableDataModel;
@@ -142,7 +142,7 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 		this.pageSize = DEFAULT_PAGE_SIZE;
 		this.rowCount = 0;
 		this.maxPageIndex = 0;
-		this.beanProxyFactory = DataUiToolkit.createBeanProxyFactory(beanType);
+		this.beanProxyFactory = CapUiToolkit.createBeanProxyFactory(beanType);
 		this.dummyBeanProxy = beanProxyFactory.createProxy(createDummyBeanDto());
 
 		//model creation
@@ -473,7 +473,7 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 					System.out.println("Load page start: " + pageIndex);
 					//CHECKSTYLE:ON
 
-					executionTask = DataUiToolkit.getExecutionTaskFactory().create();
+					executionTask = CapUiToolkit.getExecutionTaskFactory().create();
 
 					final List<IBeanDto> beanDtos;
 					try {

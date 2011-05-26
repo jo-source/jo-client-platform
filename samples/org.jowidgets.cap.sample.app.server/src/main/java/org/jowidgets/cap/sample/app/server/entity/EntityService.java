@@ -32,7 +32,7 @@ import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
 import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.sample.app.common.entity.IUser;
 import org.jowidgets.cap.sample.app.server.datastore.DataStore;
-import org.jowidgets.cap.service.api.DataServiceToolkit;
+import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.entity.IEntityServiceBuilder;
 
 
@@ -41,7 +41,7 @@ public class EntityService {
 	private final IEntityService entityService;
 
 	public EntityService() {
-		final IEntityServiceBuilder builder = DataServiceToolkit.createEntityServiceBuilder();
+		final IEntityServiceBuilder builder = CapServiceToolkit.createEntityServiceBuilder();
 
 		//IUser
 		final IBeanDtoDescriptor<IUser> descriptor = new UserDtoDescriptorService().getDescriptor();

@@ -42,7 +42,7 @@ import org.jowidgets.cap.sample.app.server.datastore.DataStore;
 import org.jowidgets.cap.sample.app.server.entity.EntityService;
 import org.jowidgets.cap.sample.app.server.service.executor.ChangeGenderExecutor;
 import org.jowidgets.cap.sample.app.server.service.reader.AllUsersReaderService;
-import org.jowidgets.cap.service.api.DataServiceToolkit;
+import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
 import org.jowidgets.cap.service.api.executor.IBeanExecutor;
 import org.jowidgets.cap.service.api.executor.IExecutorServiceBuilder;
@@ -79,7 +79,7 @@ public class ServiceRegistry extends DefaultServiceRegistry {
 		final IBeanAccess<? extends BEAN_TYPE> beanAccess,
 		final List<String> propertyNames) {
 
-		final IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> builder = DataServiceToolkit.createExecutorServiceBuilder(beanAccess);
+		final IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> builder = CapServiceToolkit.createExecutorServiceBuilder(beanAccess);
 		builder.setExecutor(beanExecutor);
 		builder.setExecutableChecker(executableChecker);
 		builder.setPropertieNames(propertyNames);

@@ -37,18 +37,18 @@ import org.jowidgets.cap.ui.api.executor.IExecutionTaskFactory;
 import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IDataApiBluePrintFactory;
-import org.jowidgets.cap.ui.impl.DefaultDataUiToolkit;
+import org.jowidgets.cap.ui.impl.DefaultCapUiToolkit;
 import org.jowidgets.cap.ui.impl.widgets.BeanTableFactory;
 import org.jowidgets.common.types.TableSelectionPolicy;
 import org.jowidgets.common.widgets.factory.IGenericWidgetFactory;
 
-public final class DataUiToolkit {
+public final class CapUiToolkit {
 
-	private static IDataUiToolkit dataUiToolkit = createDefaultInstance();
+	private static ICapUiToolkit dataUiToolkit = createDefaultInstance();
 
-	private DataUiToolkit() {}
+	private CapUiToolkit() {}
 
-	public static IDataUiToolkit getInstance() {
+	public static ICapUiToolkit getInstance() {
 		return dataUiToolkit;
 	}
 
@@ -76,9 +76,9 @@ public final class DataUiToolkit {
 		return getInstance().createBeanTableModelBuilder(beanType);
 	}
 
-	private static IDataUiToolkit createDefaultInstance() {
+	private static ICapUiToolkit createDefaultInstance() {
 		registerWidgets();
-		return new DefaultDataUiToolkit();
+		return new DefaultCapUiToolkit();
 	}
 
 	@SuppressWarnings("unchecked")

@@ -76,8 +76,8 @@ public final class ExecutorServiceBuilder<BEAN_TYPE extends IBean, PARAM_TYPE> i
 
 	@Override
 	public IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> setExecutor(
-		final IBeanListExecutor<? extends BEAN_TYPE, ? extends PARAM_TYPE> beanCollectionExecutor) {
-		this.executor = beanCollectionExecutor;
+		final IBeanListExecutor<? extends BEAN_TYPE, ? extends PARAM_TYPE> beanListExecutor) {
+		this.executor = beanListExecutor;
 		return this;
 	}
 

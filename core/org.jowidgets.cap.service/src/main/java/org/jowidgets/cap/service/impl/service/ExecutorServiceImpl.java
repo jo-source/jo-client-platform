@@ -43,7 +43,7 @@ import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.execution.IExecutableState;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.service.IExecutorService;
-import org.jowidgets.cap.service.api.DataServiceToolkit;
+import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.cap.service.api.executor.IBeanExecutor;
@@ -87,7 +87,7 @@ final class ExecutorServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE> implements 
 		this.delayedExecutionCallback = delayedExecutionCallback;
 		this.executionCallbackDelay = executionCallbackDelay;
 
-		this.dtoFactory = DataServiceToolkit.createDtoFactory(beanType, propertyNames);
+		this.dtoFactory = CapServiceToolkit.createDtoFactory(beanType, propertyNames);
 	}
 
 	@Override
@@ -99,7 +99,7 @@ final class ExecutorServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE> implements 
 		Assert.paramNotNull(keys, "beanInfos");
 
 		if (delayedExecutionCallback) {
-			executionCallback = DataServiceToolkit.createDelayedExecutionCallback(executionCallback, executionCallbackDelay);
+			executionCallback = CapServiceToolkit.createDelayedExecutionCallback(executionCallback, executionCallbackDelay);
 		}
 
 		final List<BEAN_TYPE> beans = beanAccess.getBeans(keys);

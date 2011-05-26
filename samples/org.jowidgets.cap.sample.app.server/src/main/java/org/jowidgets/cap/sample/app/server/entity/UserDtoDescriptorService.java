@@ -28,21 +28,20 @@
 
 package org.jowidgets.cap.sample.app.server.entity;
 
+import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
+import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptorBuilder;
+import org.jowidgets.cap.common.api.bean.IBeanPropertyBuilder;
 import org.jowidgets.cap.common.api.service.IDtoDescriptorService;
 import org.jowidgets.cap.sample.app.common.entity.IUser;
-import org.jowidgets.cap.service.api.DataServiceToolkit;
-import org.jowidgets.cap.service.api.bean.IBeanDtoDescriptorBuilder;
-import org.jowidgets.cap.service.api.bean.IBeanPropertyBuilder;
-
 
 public class UserDtoDescriptorService implements IDtoDescriptorService<IUser> {
 
 	private final IBeanDtoDescriptor<IUser> descriptor;
 
 	public UserDtoDescriptorService() {
-		final IBeanDtoDescriptorBuilder<IUser> descrBuilder = DataServiceToolkit.createDtoDescriptorBuilder(IUser.class);
+		final IBeanDtoDescriptorBuilder<IUser> descrBuilder = CapCommonToolkit.dtoDescriptorBuilder(IUser.class);
 
 		IBeanPropertyBuilder propBuilder = descrBuilder.propertyBuilder(IUser.NAME_PROPERTY);
 		propBuilder.setLabel("Name").setDescription("The name of the user");
