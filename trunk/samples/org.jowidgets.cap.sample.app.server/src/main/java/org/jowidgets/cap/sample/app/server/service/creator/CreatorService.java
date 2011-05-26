@@ -52,8 +52,8 @@ public class CreatorService<BEAN_TYPE extends IBean> implements ICreatorService 
 	public CreatorService(final AbstractData<? extends BEAN_TYPE> data, final List<String> propertyNames) {
 		Assert.paramNotNull(data, "data");
 		this.data = data;
-		this.dtoFactory = CapServiceToolkit.createDtoFactory(data.getBeanType(), propertyNames);
-		this.beanInitializer = CapServiceToolkit.createBeanInitializer(data.getBeanType(), propertyNames);
+		this.dtoFactory = CapServiceToolkit.dtoFactory(data.getBeanType(), propertyNames);
+		this.beanInitializer = CapServiceToolkit.beanInitializer(data.getBeanType(), propertyNames);
 	}
 
 	@Override

@@ -58,7 +58,7 @@ public final class RefreshServiceImpl<BEAN_TYPE extends IBean> implements IRefre
 
 		this.beanAccess = (IBeanAccess<BEAN_TYPE>) beanAccess;
 		this.allowDeletedBeans = allowDeletedBeans;
-		this.dtoFactory = CapServiceToolkit.createDtoFactory(beanType, propertyNames);
+		this.dtoFactory = CapServiceToolkit.dtoFactory(beanType, propertyNames);
 	}
 
 	@Override

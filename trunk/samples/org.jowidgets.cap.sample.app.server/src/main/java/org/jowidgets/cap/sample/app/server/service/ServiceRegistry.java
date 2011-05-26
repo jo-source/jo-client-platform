@@ -78,7 +78,7 @@ public class ServiceRegistry extends DefaultServiceRegistry {
 		final IBeanAccess<? extends BEAN_TYPE> beanAccess,
 		final List<String> propertyNames) {
 
-		final IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> builder = CapServiceToolkit.createExecutorServiceBuilder(beanAccess);
+		final IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> builder = CapServiceToolkit.executorServiceBuilder(beanAccess);
 		builder.setExecutor(beanExecutor);
 		builder.setExecutableChecker(executableChecker);
 		builder.setPropertieNames(propertyNames);

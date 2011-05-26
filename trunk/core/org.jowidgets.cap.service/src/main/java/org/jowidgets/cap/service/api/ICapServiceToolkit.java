@@ -44,29 +44,29 @@ import org.jowidgets.service.api.IServiceRegistry;
 
 public interface ICapServiceToolkit {
 
-	IEntityServiceBuilder createEntityServiceBuilder();
+	IEntityServiceBuilder entityServiceBuilder();
 
-	<BEAN_TYPE> IBeanServicesProviderBuilder<BEAN_TYPE> createBeanServicesProviderBuilder(IServiceRegistry registry);
+	<BEAN_TYPE> IBeanServicesProviderBuilder<BEAN_TYPE> beanServicesProviderBuilder(IServiceRegistry registry);
 
-	<BEAN_TYPE extends IBean> IBeanDtoFactory<BEAN_TYPE> createDtoFactory(
+	<BEAN_TYPE extends IBean> IBeanDtoFactory<BEAN_TYPE> dtoFactory(
 		Class<? extends BEAN_TYPE> beanType,
 		List<String> propertyNames);
 
-	<BEAN_TYPE extends IBean> IBeanInitializer<BEAN_TYPE> createBeanInitializer(
+	<BEAN_TYPE extends IBean> IBeanInitializer<BEAN_TYPE> beanInitializer(
 		Class<? extends BEAN_TYPE> beanType,
 		List<String> propertyNames);
 
-	<BEAN_TYPE extends IBean, PARAM_TYPE> IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> createExecutorServiceBuilder(
+	<BEAN_TYPE extends IBean, PARAM_TYPE> IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> executorServiceBuilder(
 		IBeanAccess<? extends BEAN_TYPE> beanAccess);
 
-	<BEAN_TYPE extends IBean> IUpdaterServiceBuilder<BEAN_TYPE> createUpdaterServiceBuilder(
+	<BEAN_TYPE extends IBean> IUpdaterServiceBuilder<BEAN_TYPE> updaterServiceBuilder(
 		IBeanAccess<? extends BEAN_TYPE> beanAccess);
 
-	<BEAN_TYPE extends IBean> IRefreshServiceBuilder<BEAN_TYPE> createRefreshServiceBuilder(
+	<BEAN_TYPE extends IBean> IRefreshServiceBuilder<BEAN_TYPE> refreshServiceBuilder(
 		IBeanAccess<? extends BEAN_TYPE> beanAccess);
 
-	IExecutionCallback createDelayedExecutionCallback(IExecutionCallback executionCallback, Long delay);
+	IExecutionCallback delayedExecutionCallback(IExecutionCallback executionCallback, Long delay);
 
-	IExecutionCallback createDelayedExecutionCallback(IExecutionCallback executionCallback);
+	IExecutionCallback delayedExecutionCallback(IExecutionCallback executionCallback);
 
 }
