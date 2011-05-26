@@ -40,15 +40,18 @@ import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.entity.IBeanServicesProviderBuilder;
 import org.jowidgets.cap.service.api.refresh.IRefreshServiceBuilder;
 import org.jowidgets.cap.service.api.updater.IUpdaterServiceBuilder;
-
+import org.jowidgets.service.api.IServiceRegistry;
 
 public final class BeanServicesProvider<BEAN_TYPE extends IBean> {
 
 	private final IBeanServicesProvider<IUser> beanServicesProvider;
 
-	public BeanServicesProvider(final AbstractData<? extends BEAN_TYPE> data, final List<String> properties) {
+	public BeanServicesProvider(
+		final IServiceRegistry registry,
+		final AbstractData<? extends BEAN_TYPE> data,
+		final List<String> properties) {
 
-		final IBeanServicesProviderBuilder<IUser> builder = CapServiceToolkit.createBeanServicesProviderBuilder();
+		final IBeanServicesProviderBuilder<IUser> builder = CapServiceToolkit.createBeanServicesProviderBuilder(registry);
 
 		//creator service
 		builder.setCreatorService(new CreatorService<BEAN_TYPE>(data, properties));

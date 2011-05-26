@@ -28,12 +28,15 @@
 
 package org.jowidgets.cap.common.impl;
 
+import java.io.Serializable;
 import java.util.Collection;
 
 import org.jowidgets.cap.common.api.bean.IProperty;
 import org.jowidgets.util.Assert;
 
-final class PropertyImpl implements IProperty {
+final class PropertyImpl implements IProperty, Serializable {
+
+	private static final long serialVersionUID = -6994592225239239349L;
 
 	private final String name;
 	private final String labelDefault;

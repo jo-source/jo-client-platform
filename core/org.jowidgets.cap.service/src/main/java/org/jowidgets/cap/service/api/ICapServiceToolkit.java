@@ -40,12 +40,13 @@ import org.jowidgets.cap.service.api.entity.IEntityServiceBuilder;
 import org.jowidgets.cap.service.api.executor.IExecutorServiceBuilder;
 import org.jowidgets.cap.service.api.refresh.IRefreshServiceBuilder;
 import org.jowidgets.cap.service.api.updater.IUpdaterServiceBuilder;
+import org.jowidgets.service.api.IServiceRegistry;
 
 public interface ICapServiceToolkit {
 
 	IEntityServiceBuilder createEntityServiceBuilder();
 
-	<BEAN_TYPE> IBeanServicesProviderBuilder<BEAN_TYPE> createBeanServicesProviderBuilder();
+	<BEAN_TYPE> IBeanServicesProviderBuilder<BEAN_TYPE> createBeanServicesProviderBuilder(IServiceRegistry registry);
 
 	<BEAN_TYPE extends IBean> IBeanDtoFactory<BEAN_TYPE> createDtoFactory(
 		Class<? extends BEAN_TYPE> beanType,

@@ -28,9 +28,8 @@
 
 package org.jowidgets.service.api;
 
-import java.io.Serializable;
 
-public interface IServiceId<SERVICE_TYPE> extends Serializable {
+public interface IServiceId<SERVICE_TYPE> {
 
 	Class<SERVICE_TYPE> getServiceType();
 

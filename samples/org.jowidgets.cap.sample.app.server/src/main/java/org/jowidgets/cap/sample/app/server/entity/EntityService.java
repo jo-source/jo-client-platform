@@ -34,18 +34,19 @@ import org.jowidgets.cap.sample.app.common.entity.IUser;
 import org.jowidgets.cap.sample.app.server.datastore.DataStore;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.entity.IEntityServiceBuilder;
-
+import org.jowidgets.service.api.IServiceRegistry;
 
 public class EntityService {
 
 	private final IEntityService entityService;
 
-	public EntityService() {
+	public EntityService(final IServiceRegistry registry) {
 		final IEntityServiceBuilder builder = CapServiceToolkit.createEntityServiceBuilder();
 
 		//IUser
 		final IBeanDtoDescriptor<IUser> descriptor = new UserDtoDescriptorService().getDescriptor();
 		final BeanServicesProvider<IUser> beanServicesProvider = new BeanServicesProvider<IUser>(
+			registry,
 			DataStore.getPersons(),
 			IUser.ALL_PROPERTIES);
 
