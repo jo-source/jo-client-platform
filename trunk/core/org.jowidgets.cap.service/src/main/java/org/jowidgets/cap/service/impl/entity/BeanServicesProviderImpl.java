@@ -28,49 +28,64 @@
 
 package org.jowidgets.cap.service.impl.entity;
 
+import java.io.Serializable;
+import java.util.UUID;
+
 import org.jowidgets.cap.common.api.service.IBeanServicesProvider;
 import org.jowidgets.cap.common.api.service.ICreatorService;
 import org.jowidgets.cap.common.api.service.IDeleterService;
 import org.jowidgets.cap.common.api.service.IRefreshService;
 import org.jowidgets.cap.common.api.service.IUpdaterService;
+import org.jowidgets.service.api.IServiceId;
+import org.jowidgets.service.api.IServiceRegistry;
+import org.jowidgets.service.api.ServiceProvider;
+import org.jowidgets.service.tools.ServiceId;
 
-final class BeanServicesProviderImpl<BEAN_TYPE> implements IBeanServicesProvider<BEAN_TYPE> {
+final class BeanServicesProviderImpl<BEAN_TYPE> implements IBeanServicesProvider<BEAN_TYPE>, Serializable {
 
-	private final ICreatorService creatorService;
-	private final IRefreshService refreshService;
-	private final IUpdaterService updaterService;
-	private final IDeleterService deleterService;
+	private static final long serialVersionUID = -8588074689307098706L;
+
+	private final IServiceId<ICreatorService> creatorServiceId;
+	private final IServiceId<IRefreshService> refreshServiceId;
+	private final IServiceId<IUpdaterService> updaterServiceId;
+	private final IServiceId<IDeleterService> deleterServiceId;
 
 	BeanServicesProviderImpl(
+		final IServiceRegistry serviceRegistry,
 		final ICreatorService creatorService,
 		final IRefreshService refreshService,
 		final IUpdaterService updaterService,
 		final IDeleterService deleterService) {
 
-		this.creatorService = creatorService;
-		this.refreshService = refreshService;
-		this.updaterService = updaterService;
-		this.deleterService = deleterService;
+		this.creatorServiceId = new ServiceId<ICreatorService>(UUID.randomUUID(), ICreatorService.class);
+		this.refreshServiceId = new ServiceId<IRefreshService>(UUID.randomUUID(), IRefreshService.class);
+		this.updaterServiceId = new ServiceId<IUpdaterService>(UUID.randomUUID(), IUpdaterService.class);
+		this.deleterServiceId = new ServiceId<IDeleterService>(UUID.randomUUID(), IDeleterService.class);
+
+		serviceRegistry.register(creatorServiceId, creatorService);
+		serviceRegistry.register(refreshServiceId, refreshService);
+		serviceRegistry.register(updaterServiceId, updaterService);
+		serviceRegistry.register(deleterServiceId, deleterService);
 	}
 
 	@Override
 	public ICreatorService creatorService() {
-		return creatorService;
+		return ServiceProvider.getService(creatorServiceId);
 	}
 
 	@Override
 	public IRefreshService refreshService() {
-		return refreshService;
+		return ServiceProvider.getService(refreshServiceId);
 	}
 
 	@Override
 	public IUpdaterService updaterService() {
-		return updaterService;
+		return ServiceProvider.getService(updaterServiceId);
 	}
 
 	@Override
 	public IDeleterService deleterService() {
-		return deleterService;
+		return ServiceProvider.getService(deleterServiceId);
 	}
 
 }

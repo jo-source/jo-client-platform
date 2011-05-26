@@ -36,7 +36,7 @@ import org.jowidgets.cap.common.api.service.IBeanServicesProvider;
 import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.util.Assert;
 
-final class EntityServiceImpl implements IEntityService {
+public final class EntityServiceImpl implements IEntityService {
 
 	private final Map<Class<?>, IBeanDtoDescriptor<?>> descriptors;
 	private final Map<Class<?>, IBeanServicesProvider<?>> beanServices;

@@ -29,26 +29,18 @@
 package org.jowidgets.cap.sample.app.common.service.executor;
 
 import org.jowidgets.cap.common.api.service.IExecutorService;
+import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.service.api.IServiceId;
+import org.jowidgets.service.tools.ServiceId;
 import org.jowidgets.util.types.Null;
 
 public final class UserComponentExecutorServices {
 
-	public static final IServiceId<IExecutorService<Null>> CHANGE_GENDER = createId();
+	@SuppressWarnings("unchecked")
+	public static final IServiceId<IExecutorService<Null>> CHANGE_GENDER = new ServiceId<IExecutorService<Null>>(
+		UserComponentExecutorServices.class.getName() + "_CHANGE_GENDER",
+		(Class<? extends IExecutorService<Null>>) IReaderService.class);
 
 	private UserComponentExecutorServices() {};
-
-	@SuppressWarnings({"unchecked", "rawtypes"})
-	private static <SERVICE_ID_TYPE extends IServiceId<?>> SERVICE_ID_TYPE createId() {
-		return (SERVICE_ID_TYPE) new IServiceId() {
-
-			private static final long serialVersionUID = 6642426059495514397L;
-
-			@Override
-			public Class<IExecutorService> getServiceType() {
-				return IExecutorService.class;
-			}
-		};
-	}
 
 }

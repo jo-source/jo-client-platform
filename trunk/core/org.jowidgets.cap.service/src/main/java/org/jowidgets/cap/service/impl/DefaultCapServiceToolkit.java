@@ -49,6 +49,7 @@ import org.jowidgets.cap.service.impl.execution.DelayedExecutionCallback;
 import org.jowidgets.cap.service.impl.service.ExecutorServiceBuilder;
 import org.jowidgets.cap.service.impl.service.RefreshServiceBuilder;
 import org.jowidgets.cap.service.impl.service.UpdaterServiceBuilder;
+import org.jowidgets.service.api.IServiceRegistry;
 
 public final class DefaultCapServiceToolkit implements ICapServiceToolkit {
 
@@ -58,8 +59,8 @@ public final class DefaultCapServiceToolkit implements ICapServiceToolkit {
 	}
 
 	@Override
-	public <BEAN_TYPE> IBeanServicesProviderBuilder<BEAN_TYPE> createBeanServicesProviderBuilder() {
-		return new BeanServicesProviderBuilder<BEAN_TYPE>();
+	public <BEAN_TYPE> IBeanServicesProviderBuilder<BEAN_TYPE> createBeanServicesProviderBuilder(final IServiceRegistry registry) {
+		return new BeanServicesProviderBuilder<BEAN_TYPE>(registry);
 	}
 
 	@Override

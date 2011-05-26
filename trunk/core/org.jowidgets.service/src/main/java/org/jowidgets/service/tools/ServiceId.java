@@ -26,18 +26,62 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.api.service;
+package org.jowidgets.service.tools;
 
-import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
+import java.io.Serializable;
+
 import org.jowidgets.service.api.IServiceId;
-import org.jowidgets.service.tools.ServiceId;
+import org.jowidgets.util.Assert;
 
-public interface IEntityService {
+public final class ServiceId<SERVICE_TYPE> implements IServiceId<SERVICE_TYPE>, Serializable {
 
-	IServiceId<IEntityService> ID = new ServiceId<IEntityService>(IEntityService.class.getName(), IEntityService.class);
+	private static final long serialVersionUID = 8635227860113992430L;
 
-	<BEAN_TYPE> IBeanDtoDescriptor<BEAN_TYPE> getDescriptor(Class<BEAN_TYPE> beanType);
+	private final Object id;
+	private final Class<? extends SERVICE_TYPE> serviceType;
 
-	<BEAN_TYPE> IBeanServicesProvider<BEAN_TYPE> getBeanServices(Class<BEAN_TYPE> beanType);
+	public ServiceId(final Object id, final Class<? extends SERVICE_TYPE> serviceType) {
+		Assert.paramNotNull(serviceType, "serviceType");
+		Assert.paramNotNull(id, "id");
+		this.serviceType = serviceType;
+		this.id = id;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public Class<SERVICE_TYPE> getServiceType() {
+		return (Class<SERVICE_TYPE>) serviceType;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(final Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		final ServiceId<?> other = (ServiceId<?>) obj;
+		if (id == null) {
+			if (other.id != null) {
+				return false;
+			}
+		}
+		else if (!id.equals(other.id)) {
+			return false;
+		}
+		return true;
+	}
 
 }

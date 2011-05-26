@@ -30,25 +30,15 @@ package org.jowidgets.cap.sample.app.common.service.reader;
 
 import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.service.api.IServiceId;
+import org.jowidgets.service.tools.ServiceId;
 
 public final class UserReaderServices {
 
-	public static final IServiceId<IReaderService<Integer>> ALL_USERS = createId();
+	@SuppressWarnings("unchecked")
+	public static final IServiceId<IReaderService<Integer>> ALL_USERS = new ServiceId<IReaderService<Integer>>(
+		UserReaderServices.class.getName() + "_ALL_USERS",
+		(Class<? extends IReaderService<Integer>>) IReaderService.class);
 
 	private UserReaderServices() {}
-
-	@SuppressWarnings({"unchecked", "rawtypes"})
-	private static <SERVICE_ID_TYPE extends IServiceId<?>> SERVICE_ID_TYPE createId() {
-		return (SERVICE_ID_TYPE) new IServiceId() {
-
-			private static final long serialVersionUID = 9218930401931234876L;
-
-			@Override
-			public Class getServiceType() {
-				return IReaderService.class;
-			}
-
-		};
-	}
 
 }

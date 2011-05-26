@@ -34,14 +34,22 @@ import org.jowidgets.cap.common.api.service.IDeleterService;
 import org.jowidgets.cap.common.api.service.IRefreshService;
 import org.jowidgets.cap.common.api.service.IUpdaterService;
 import org.jowidgets.cap.service.api.entity.IBeanServicesProviderBuilder;
-
+import org.jowidgets.service.api.IServiceRegistry;
+import org.jowidgets.util.Assert;
 
 public final class BeanServicesProviderBuilder<BEAN_TYPE> implements IBeanServicesProviderBuilder<BEAN_TYPE> {
+
+	private final IServiceRegistry registry;
 
 	private ICreatorService creatorService;
 	private IRefreshService refreshService;
 	private IUpdaterService updaterService;
 	private IDeleterService deleterService;
+
+	public BeanServicesProviderBuilder(final IServiceRegistry registry) {
+		Assert.paramNotNull(registry, "registry");
+		this.registry = registry;
+	}
 
 	@Override
 	public IBeanServicesProviderBuilder<BEAN_TYPE> setCreatorService(final ICreatorService creatorService) {
@@ -69,7 +77,7 @@ public final class BeanServicesProviderBuilder<BEAN_TYPE> implements IBeanServic
 
 	@Override
 	public IBeanServicesProvider<BEAN_TYPE> build() {
-		return new BeanServicesProviderImpl<BEAN_TYPE>(creatorService, refreshService, updaterService, deleterService);
+		return new BeanServicesProviderImpl<BEAN_TYPE>(registry, creatorService, refreshService, updaterService, deleterService);
 	}
 
 }

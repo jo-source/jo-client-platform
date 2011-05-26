@@ -49,13 +49,12 @@ import org.jowidgets.cap.service.api.executor.IExecutorServiceBuilder;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.impl.DefaultServiceRegistry;
 
-
 public class ServiceRegistry extends DefaultServiceRegistry {
 
 	public ServiceRegistry() {
 		super();
 
-		register(IEntityService.ID, new EntityService().getEntityService());
+		register(IEntityService.ID, new EntityService(this).getEntityService());
 
 		register(UserReaderServices.ALL_USERS, new AllUsersReaderService());
 

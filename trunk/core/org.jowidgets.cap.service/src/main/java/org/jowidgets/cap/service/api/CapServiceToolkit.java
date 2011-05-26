@@ -41,6 +41,7 @@ import org.jowidgets.cap.service.api.executor.IExecutorServiceBuilder;
 import org.jowidgets.cap.service.api.refresh.IRefreshServiceBuilder;
 import org.jowidgets.cap.service.api.updater.IUpdaterServiceBuilder;
 import org.jowidgets.cap.service.impl.DefaultCapServiceToolkit;
+import org.jowidgets.service.api.IServiceRegistry;
 
 public final class CapServiceToolkit {
 
@@ -59,8 +60,9 @@ public final class CapServiceToolkit {
 		return getInstance().createEntityServiceBuilder();
 	}
 
-	public static <BEAN_TYPE> IBeanServicesProviderBuilder<BEAN_TYPE> createBeanServicesProviderBuilder() {
-		return getInstance().createBeanServicesProviderBuilder();
+	public static <BEAN_TYPE> IBeanServicesProviderBuilder<BEAN_TYPE> createBeanServicesProviderBuilder(
+		final IServiceRegistry registry) {
+		return getInstance().createBeanServicesProviderBuilder(registry);
 	}
 
 	public static <BEAN_TYPE extends IBean> IBeanInitializer<BEAN_TYPE> createBeanInitializer(
