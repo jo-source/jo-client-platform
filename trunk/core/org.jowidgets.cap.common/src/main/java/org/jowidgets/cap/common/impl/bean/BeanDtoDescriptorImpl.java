@@ -26,32 +26,35 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.impl.bean;
+package org.jowidgets.cap.common.impl.bean;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Collections;
+import java.util.List;
 
-import org.jowidgets.cap.common.api.bean.IBeanData;
-import org.jowidgets.cap.ui.api.bean.IBeanDataBuilder;
+import org.jowidgets.cap.common.api.bean.IBean;
+import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
+import org.jowidgets.cap.common.api.bean.IProperty;
 
 
-public final class BeanDataBuilder implements IBeanDataBuilder {
+final class BeanDtoDescriptorImpl<BEAN_TYPE extends IBean> implements IBeanDtoDescriptor<BEAN_TYPE> {
 
-	private final HashMap<String, Object> map;
-
-	public BeanDataBuilder() {
-		this.map = new HashMap<String, Object>();
-	}
-
-	@Override
-	public IBeanDataBuilder setProperty(final String propertyName, final Object property) {
-		map.put(propertyName, property);
-		return this;
-	}
+	private final List<IProperty> unodifiableProperties;
+	private final Class<BEAN_TYPE> beanType;
 
 	@SuppressWarnings("unchecked")
-	@Override
-	public IBeanData build() {
-		return new BeanData((Map<String, Object>) (map.clone()));
+	BeanDtoDescriptorImpl(final Class<? extends BEAN_TYPE> beanType, final List<IProperty> properties) {
+		this.beanType = (Class<BEAN_TYPE>) beanType;
+		this.unodifiableProperties = Collections.unmodifiableList(properties);
 	}
+
+	@Override
+	public List<IProperty> getProperties() {
+		return unodifiableProperties;
+	}
+
+	@Override
+	public Class<BEAN_TYPE> getBeanType() {
+		return beanType;
+	}
+
 }

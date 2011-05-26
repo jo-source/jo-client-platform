@@ -46,8 +46,8 @@ import org.jowidgets.cap.common.api.service.IExecutorService;
 import org.jowidgets.cap.service.api.DataServiceToolkit;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
-import org.jowidgets.cap.service.api.executor.IBeanListExecutor;
 import org.jowidgets.cap.service.api.executor.IBeanExecutor;
+import org.jowidgets.cap.service.api.executor.IBeanListExecutor;
 import org.jowidgets.util.Assert;
 
 final class ExecutorServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE> implements IExecutorService<PARAM_TYPE> {
@@ -124,19 +124,19 @@ final class ExecutorServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE> implements 
 
 	private void checkBeans(final List<? extends IBeanKey> keys, final List<BEAN_TYPE> beans) {
 		//put beans into map to access them faster at the next step
-		final Map<Object, IBeanKey> beanMap = new HashMap<Object, IBeanKey>();
-		for (final IBeanKey key : keys) {
-			beanMap.put(key.getId(), key);
+		final Map<Object, BEAN_TYPE> beanMap = new HashMap<Object, BEAN_TYPE>();
+		for (final BEAN_TYPE bean : beans) {
+			beanMap.put(bean.getId(), bean);
 		}
 
 		//check if beans are deleted or stale
-		for (final IBean bean : beans) {
-			final IBeanKey key = beanMap.get(bean.getId());
-			if (!allowDeletedBeans && key == null) {
+		for (final IBeanKey key : keys) {
+			final BEAN_TYPE bean = beanMap.get(key.getId());
+			if (!allowDeletedBeans && bean == null) {
 				throw new DeletedBeanException(key);
 			}
 			else {
-				if (!allowDeletedBeans && key.getVersion() != bean.getVersion()) {
+				if (!allowStaleBeans && key.getVersion() != bean.getVersion()) {
 					throw new StaleBeanException(key);
 				}
 			}
@@ -156,7 +156,7 @@ final class ExecutorServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE> implements 
 
 		final IBeanListExecutor<BEAN_TYPE, PARAM_TYPE> beanCollectionExecutor = (IBeanListExecutor<BEAN_TYPE, PARAM_TYPE>) executor;
 		final List<? extends BEAN_TYPE> executionResult = beanCollectionExecutor.execute(beans, parameter, executionCallback);
-
+		beanAccess.flush();
 		return dtoFactory.createDtos(executionResult);
 	}
 
@@ -175,6 +175,7 @@ final class ExecutorServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE> implements 
 				checkExecutableState(bean, keys);
 			}
 			final BEAN_TYPE executionResult = beanExecutor.execute(bean, parameter, executionCallback);
+			beanAccess.flush();
 			if (executionResult != null) {
 				result.add(dtoFactory.createDto(executionResult));
 			}

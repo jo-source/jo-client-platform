@@ -26,7 +26,7 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.impl.bean;
+package org.jowidgets.cap.common.impl.bean;
 
 import java.util.Map;
 

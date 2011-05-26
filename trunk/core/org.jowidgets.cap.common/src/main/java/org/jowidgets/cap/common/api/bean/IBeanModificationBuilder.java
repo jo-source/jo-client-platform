@@ -26,16 +26,20 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.api.bean;
+package org.jowidgets.cap.common.api.bean;
 
-import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
+public interface IBeanModificationBuilder {
 
-public interface IBeanDtoDescriptorBuilder<BEAN_TYPE> {
+	IBeanModificationBuilder setId(Object id);
 
-	IBeanPropertyBuilder propertyBuilder(String propertyName);
+	IBeanModificationBuilder setVersion(long version);
 
-	IBeanDtoDescriptorBuilder<BEAN_TYPE> addProperty(IBeanPropertyBuilder builder);
+	IBeanModificationBuilder setBeanDto(IBeanDto beanDto);
 
-	IBeanDtoDescriptor<BEAN_TYPE> build();
+	IBeanModificationBuilder setPropertyName(String propertyName);
+
+	IBeanModificationBuilder setNewValue(Object newValue);
+
+	IBeanModification build();
 
 }

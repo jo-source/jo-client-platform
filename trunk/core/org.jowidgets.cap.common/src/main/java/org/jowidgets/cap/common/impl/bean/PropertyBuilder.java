@@ -26,10 +26,10 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.impl.bean;
+package org.jowidgets.cap.common.impl.bean;
 
 import org.jowidgets.cap.common.api.bean.IProperty;
-import org.jowidgets.cap.service.api.bean.IPropertyBuilder;
+import org.jowidgets.cap.common.api.bean.IPropertyBuilder;
 import org.jowidgets.util.Assert;
 
 public final class PropertyBuilder implements IPropertyBuilder {

@@ -26,27 +26,43 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.toolkit;
+package org.jowidgets.cap.common.impl.bean;
 
-import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
-import org.jowidgets.cap.ui.api.bean.IBeanKeyFactory;
-import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
-import org.jowidgets.cap.ui.api.executor.IExecutionTaskFactory;
-import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
-import org.jowidgets.cap.ui.api.widgets.IDataApiBluePrintFactory;
+import java.util.LinkedList;
+import java.util.List;
 
-public interface IDataUiToolkit {
+import org.jowidgets.cap.common.api.bean.IBean;
+import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
+import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptorBuilder;
+import org.jowidgets.cap.common.api.bean.IBeanPropertyBuilder;
+import org.jowidgets.cap.common.api.bean.IProperty;
+import org.jowidgets.util.Assert;
 
-	IDataApiBluePrintFactory getBluePrintFactory();
+public final class BeanDtoDescriptorBuilder<BEAN_TYPE extends IBean> implements IBeanDtoDescriptorBuilder<BEAN_TYPE> {
 
-	IExecutionTaskFactory getExecutionTaskFactory();
+	private final Class<? extends BEAN_TYPE> beanType;
+	private final List<IProperty> properties;
 
-	IAttributeToolkit getAttributeToolkit();
+	public BeanDtoDescriptorBuilder(final Class<? extends BEAN_TYPE> beanType) {
+		this.beanType = beanType;
+		this.properties = new LinkedList<IProperty>();
+	}
 
-	<BEAN_TYPE> IBeanProxyFactory<BEAN_TYPE> createBeanProxyFactory(Class<? extends BEAN_TYPE> beanType);
+	@Override
+	public IBeanPropertyBuilder propertyBuilder(final String propertyName) {
+		Assert.paramNotEmpty(propertyName, "propertyName");
+		return new BeanPropertyBuilder(beanType, propertyName);
+	}
 
-	IBeanKeyFactory getBeanKeyFactory();
+	@Override
+	public IBeanDtoDescriptorBuilder<BEAN_TYPE> addProperty(final IBeanPropertyBuilder builder) {
+		properties.add(builder.build());
+		return this;
+	}
 
-	<BEAN_TYPE> IBeanTableModelBuilder<BEAN_TYPE> createBeanTableModelBuilder(Class<BEAN_TYPE> beanType);
+	@Override
+	public IBeanDtoDescriptor<BEAN_TYPE> build() {
+		return new BeanDtoDescriptorImpl<BEAN_TYPE>(beanType, properties);
+	}
 
 }

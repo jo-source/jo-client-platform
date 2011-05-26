@@ -26,28 +26,57 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.api.bean;
+package org.jowidgets.cap.common.impl.bean;
 
-import org.jowidgets.cap.common.api.bean.IProperty;
+import org.jowidgets.cap.common.api.bean.IBeanDto;
+import org.jowidgets.cap.common.api.bean.IBeanModification;
+import org.jowidgets.cap.common.api.bean.IBeanModificationBuilder;
+import org.jowidgets.util.Assert;
 
-public interface IBeanPropertyBuilder {
+public class BeanModificationBuilder implements IBeanModificationBuilder {
 
-	IBeanPropertyBuilder setLabel(String labelDefault);
+	private Object id;
+	private long version;
+	private String propertyName;
+	private Object newValue;
 
-	IBeanPropertyBuilder setLabelLong(String labelLongDefault);
+	@Override
+	public IBeanModificationBuilder setId(final Object id) {
+		Assert.paramNotNull(id, "id");
+		this.id = id;
+		return this;
+	}
 
-	IBeanPropertyBuilder setDescription(String descriptionDefault);
+	@Override
+	public IBeanModificationBuilder setVersion(final long version) {
+		this.version = version;
+		return this;
+	}
 
-	IBeanPropertyBuilder setVisible(boolean visibleDefault);
+	@Override
+	public IBeanModificationBuilder setPropertyName(final String propertyName) {
+		Assert.paramNotEmpty(propertyName, propertyName);
+		this.propertyName = propertyName;
+		return this;
+	}
 
-	IBeanPropertyBuilder setMandatory(boolean mandatoryDefault);
+	@Override
+	public IBeanModificationBuilder setNewValue(final Object newValue) {
+		this.newValue = newValue;
+		return this;
+	}
 
-	IBeanPropertyBuilder setElementValueType(Class<?> elementValueType);
+	@Override
+	public IBeanModificationBuilder setBeanDto(final IBeanDto beanDto) {
+		Assert.paramNotNull(beanDto, "beanDto");
+		setId(beanDto.getId());
+		setVersion(beanDto.getVersion());
+		return null;
+	}
 
-	IBeanPropertyBuilder setSortable(boolean sortable);
-
-	IBeanPropertyBuilder setFilterable(boolean filterable);
-
-	IProperty build();
+	@Override
+	public IBeanModification build() {
+		return new BeanModificationImpl(id, version, propertyName, newValue);
+	}
 
 }

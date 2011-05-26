@@ -34,23 +34,15 @@ import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.service.api.IDataServiceToolkit;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
-import org.jowidgets.cap.service.api.bean.IBeanDtoBuilder;
-import org.jowidgets.cap.service.api.bean.IBeanDtoDescriptorBuilder;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.cap.service.api.bean.IBeanInitializer;
-import org.jowidgets.cap.service.api.bean.IBeanPropertyBuilder;
-import org.jowidgets.cap.service.api.bean.IPropertyBuilder;
 import org.jowidgets.cap.service.api.entity.IBeanServicesProviderBuilder;
 import org.jowidgets.cap.service.api.entity.IEntityServiceBuilder;
 import org.jowidgets.cap.service.api.executor.IExecutorServiceBuilder;
 import org.jowidgets.cap.service.api.refresh.IRefreshServiceBuilder;
 import org.jowidgets.cap.service.api.updater.IUpdaterServiceBuilder;
-import org.jowidgets.cap.service.impl.bean.BeanDtoBuilder;
-import org.jowidgets.cap.service.impl.bean.BeanDtoDescriptorBuilder;
 import org.jowidgets.cap.service.impl.bean.BeanDtoFactory;
 import org.jowidgets.cap.service.impl.bean.BeanInitializer;
-import org.jowidgets.cap.service.impl.bean.BeanPropertyBuilder;
-import org.jowidgets.cap.service.impl.bean.PropertyBuilder;
 import org.jowidgets.cap.service.impl.entity.BeanServicesProviderBuilder;
 import org.jowidgets.cap.service.impl.entity.EntityServiceBuilder;
 import org.jowidgets.cap.service.impl.execution.DelayedExecutionCallback;
@@ -58,33 +50,11 @@ import org.jowidgets.cap.service.impl.service.ExecutorServiceBuilder;
 import org.jowidgets.cap.service.impl.service.RefreshServiceBuilder;
 import org.jowidgets.cap.service.impl.service.UpdaterServiceBuilder;
 
-
 public final class DefaultDataServiceToolkit implements IDataServiceToolkit {
-
-	@Override
-	public IPropertyBuilder createPropertyBuilder() {
-		return new PropertyBuilder();
-	}
 
 	@Override
 	public IEntityServiceBuilder createEntityServiceBuilder() {
 		return new EntityServiceBuilder();
-	}
-
-	@Override
-	public IBeanPropertyBuilder createBeanPropertyBuilder(final Class<?> beanType, final String propertyName) {
-		return new BeanPropertyBuilder(beanType, propertyName);
-	}
-
-	@Override
-	public IBeanDtoBuilder createDtoBuilder() {
-		return new BeanDtoBuilder();
-	}
-
-	@Override
-	public <BEAN_TYPE extends IBean> IBeanDtoDescriptorBuilder<BEAN_TYPE> createDtoDescriptorBuilder(
-		final Class<? extends BEAN_TYPE> beanType) {
-		return new BeanDtoDescriptorBuilder<BEAN_TYPE>(beanType);
 	}
 
 	@Override

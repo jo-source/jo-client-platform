@@ -26,27 +26,55 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.toolkit;
+package org.jowidgets.cap.common.impl.bean;
 
-import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
-import org.jowidgets.cap.ui.api.bean.IBeanKeyFactory;
-import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
-import org.jowidgets.cap.ui.api.executor.IExecutionTaskFactory;
-import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
-import org.jowidgets.cap.ui.api.widgets.IDataApiBluePrintFactory;
+import java.util.HashMap;
+import java.util.Map;
 
-public interface IDataUiToolkit {
+import org.jowidgets.cap.common.api.bean.IBeanDto;
+import org.jowidgets.cap.common.api.bean.IBeanDtoBuilder;
+import org.jowidgets.util.Assert;
+import org.jowidgets.util.builder.AbstractSingleUseBuilder;
 
-	IDataApiBluePrintFactory getBluePrintFactory();
+public final class BeanDtoBuilder extends AbstractSingleUseBuilder<IBeanDto> implements IBeanDtoBuilder {
 
-	IExecutionTaskFactory getExecutionTaskFactory();
+	private Object id;
+	private long version;
+	private String persistenceClassname;
+	private final Map<String, Object> propertyMap;
 
-	IAttributeToolkit getAttributeToolkit();
+	public BeanDtoBuilder() {
+		this.propertyMap = new HashMap<String, Object>();
+	}
 
-	<BEAN_TYPE> IBeanProxyFactory<BEAN_TYPE> createBeanProxyFactory(Class<? extends BEAN_TYPE> beanType);
+	@Override
+	public IBeanDtoBuilder setId(final Object id) {
+		this.id = id;
+		return this;
+	}
 
-	IBeanKeyFactory getBeanKeyFactory();
+	@Override
+	public IBeanDtoBuilder setVersion(final long version) {
+		this.version = version;
+		return this;
+	}
 
-	<BEAN_TYPE> IBeanTableModelBuilder<BEAN_TYPE> createBeanTableModelBuilder(Class<BEAN_TYPE> beanType);
+	@Override
+	public IBeanDtoBuilder setPersistenceClassName(final String persistenceClassname) {
+		this.persistenceClassname = persistenceClassname;
+		return this;
+	}
+
+	@Override
+	public IBeanDtoBuilder setValue(final String propertyName, final Object value) {
+		Assert.paramNotEmpty(propertyName, "propertyName");
+		propertyMap.put(propertyName, value);
+		return this;
+	}
+
+	@Override
+	public IBeanDto doBuild() {
+		return new BeanDtoImpl(id, version, persistenceClassname, propertyMap);
+	}
 
 }

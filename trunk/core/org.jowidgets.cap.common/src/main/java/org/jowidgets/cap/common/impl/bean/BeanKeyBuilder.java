@@ -26,44 +26,33 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.impl.bean;
+package org.jowidgets.cap.common.impl.bean;
 
-import java.util.LinkedList;
-import java.util.List;
-
-import org.jowidgets.cap.common.api.bean.IBean;
-import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
-import org.jowidgets.cap.common.api.bean.IProperty;
-import org.jowidgets.cap.service.api.DataServiceToolkit;
-import org.jowidgets.cap.service.api.bean.IBeanDtoDescriptorBuilder;
-import org.jowidgets.cap.service.api.bean.IBeanPropertyBuilder;
+import org.jowidgets.cap.common.api.bean.IBeanKey;
+import org.jowidgets.cap.common.api.bean.IBeanKeyBuilder;
 import org.jowidgets.util.Assert;
 
-public final class BeanDtoDescriptorBuilder<BEAN_TYPE extends IBean> implements IBeanDtoDescriptorBuilder<BEAN_TYPE> {
+public final class BeanKeyBuilder implements IBeanKeyBuilder {
 
-	private final Class<? extends BEAN_TYPE> beanType;
-	private final List<IProperty> properties;
-
-	public BeanDtoDescriptorBuilder(final Class<? extends BEAN_TYPE> beanType) {
-		this.beanType = beanType;
-		this.properties = new LinkedList<IProperty>();
-	}
+	private Object id;
+	private long version;
 
 	@Override
-	public IBeanPropertyBuilder propertyBuilder(final String propertyName) {
-		Assert.paramNotEmpty(propertyName, "propertyName");
-		return DataServiceToolkit.createBeanPropertyBuilder(beanType, propertyName);
-	}
-
-	@Override
-	public IBeanDtoDescriptorBuilder<BEAN_TYPE> addProperty(final IBeanPropertyBuilder builder) {
-		properties.add(builder.build());
+	public IBeanKeyBuilder setId(final Object id) {
+		Assert.paramNotNull(id, "id");
+		this.id = id;
 		return this;
 	}
 
 	@Override
-	public IBeanDtoDescriptor<BEAN_TYPE> build() {
-		return new BeanDtoDescriptorImpl<BEAN_TYPE>(beanType, properties);
+	public IBeanKeyBuilder setVersion(final long version) {
+		this.version = version;
+		return this;
+	}
+
+	@Override
+	public IBeanKey build() {
+		return new BeanKeyImpl(id, version);
 	}
 
 }

@@ -26,20 +26,28 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.api.bean;
+package org.jowidgets.cap.common.api.bean;
 
-import org.jowidgets.cap.common.api.bean.IBeanDto;
+import org.jowidgets.cap.common.api.bean.IProperty;
 
-public interface IBeanDtoBuilder {
+public interface IBeanPropertyBuilder {
 
-	IBeanDtoBuilder setId(Object id);
+	IBeanPropertyBuilder setLabel(String labelDefault);
 
-	IBeanDtoBuilder setVersion(final long version);
+	IBeanPropertyBuilder setLabelLong(String labelLongDefault);
 
-	IBeanDtoBuilder setPersistenceClassName(final String persistenceClassname);
+	IBeanPropertyBuilder setDescription(String descriptionDefault);
 
-	IBeanDtoBuilder setValue(String propertyName, Object value);
+	IBeanPropertyBuilder setVisible(boolean visibleDefault);
 
-	IBeanDto build();
+	IBeanPropertyBuilder setMandatory(boolean mandatoryDefault);
+
+	IBeanPropertyBuilder setElementValueType(Class<?> elementValueType);
+
+	IBeanPropertyBuilder setSortable(boolean sortable);
+
+	IBeanPropertyBuilder setFilterable(boolean filterable);
+
+	IProperty build();
 
 }

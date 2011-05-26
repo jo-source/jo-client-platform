@@ -29,7 +29,6 @@
 package org.jowidgets.cap.ui.impl;
 
 import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
-import org.jowidgets.cap.ui.api.bean.IBeanDataBuilder;
 import org.jowidgets.cap.ui.api.bean.IBeanKeyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
 import org.jowidgets.cap.ui.api.executor.IExecutionTaskFactory;
@@ -37,7 +36,6 @@ import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
 import org.jowidgets.cap.ui.api.toolkit.IDataUiToolkit;
 import org.jowidgets.cap.ui.api.widgets.IDataApiBluePrintFactory;
 import org.jowidgets.cap.ui.impl.attribute.AttributeToolkit;
-import org.jowidgets.cap.ui.impl.bean.BeanDataBuilder;
 import org.jowidgets.cap.ui.impl.bean.BeanKeyFactory;
 import org.jowidgets.cap.ui.impl.bean.DataBeanFactory;
 import org.jowidgets.cap.ui.impl.executor.ExecutionTaskFactory;
@@ -49,7 +47,6 @@ public final class DefaultDataUiToolkit implements IDataUiToolkit {
 	private IDataApiBluePrintFactory bluePrintFactory;
 	private IExecutionTaskFactory executionTaskFactory;
 	private IBeanKeyFactory beanKeyFactory;
-	private IBeanDataBuilder beanDataBuilder;
 	private IAttributeToolkit attributeToolkit;
 
 	@Override
@@ -87,14 +84,6 @@ public final class DefaultDataUiToolkit implements IDataUiToolkit {
 			beanKeyFactory = new BeanKeyFactory();
 		}
 		return beanKeyFactory;
-	}
-
-	@Override
-	public IBeanDataBuilder getBeanDataBuilder() {
-		if (beanDataBuilder == null) {
-			beanDataBuilder = new BeanDataBuilder();
-		}
-		return beanDataBuilder;
 	}
 
 	@Override

@@ -33,8 +33,10 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jowidgets.cap.common.api.DataCommonToolkit;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanModification;
+import org.jowidgets.cap.common.api.bean.IBeanModificationBuilder;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.NullCompatibleEquivalence;
@@ -90,7 +92,9 @@ final class BeanProxyImpl<BEAN_TYPE> extends PropertyChangeObservable implements
 			firePropertyChange(this, propertyName, currentValue, newValue);
 		}
 		else if (!NullCompatibleEquivalence.equals(currentValue, newValue)) {
-			modifications.put(propertyName, new BeanModification(beanDto, propertyName, newValue));
+			final IBeanModificationBuilder modBuilder = DataCommonToolkit.createBeanModificationBuilder();
+			modBuilder.setBeanDto(beanDto).setPropertyName(propertyName).setNewValue(newValue);
+			modifications.put(propertyName, modBuilder.build());
 			firePropertyChange(this, propertyName, currentValue, newValue);
 		}
 	}

@@ -31,7 +31,6 @@ package org.jowidgets.cap.ui.api.toolkit;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.widgets.blueprint.defaults.IDefaultInitializer;
 import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
-import org.jowidgets.cap.ui.api.bean.IBeanDataBuilder;
 import org.jowidgets.cap.ui.api.bean.IBeanKeyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
 import org.jowidgets.cap.ui.api.executor.IExecutionTaskFactory;
@@ -42,7 +41,6 @@ import org.jowidgets.cap.ui.impl.DefaultDataUiToolkit;
 import org.jowidgets.cap.ui.impl.widgets.BeanTableFactory;
 import org.jowidgets.common.types.TableSelectionPolicy;
 import org.jowidgets.common.widgets.factory.IGenericWidgetFactory;
-
 
 public final class DataUiToolkit {
 
@@ -72,10 +70,6 @@ public final class DataUiToolkit {
 
 	public static IBeanKeyFactory getBeanKeyFactory() {
 		return getInstance().getBeanKeyFactory();
-	}
-
-	public static IBeanDataBuilder getBeanDataBuilder() {
-		return getInstance().getBeanDataBuilder();
 	}
 
 	public static <BEAN_TYPE> IBeanTableModelBuilder<BEAN_TYPE> createBeanTableModelBuilder(final Class<BEAN_TYPE> beanType) {
