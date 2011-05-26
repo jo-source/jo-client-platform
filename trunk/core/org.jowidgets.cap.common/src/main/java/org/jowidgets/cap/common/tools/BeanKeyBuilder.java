@@ -26,57 +26,35 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.impl.bean;
+package org.jowidgets.cap.common.tools;
 
-import org.jowidgets.cap.common.api.bean.IBeanDto;
-import org.jowidgets.cap.common.api.bean.IBeanModification;
-import org.jowidgets.cap.common.api.bean.IBeanModificationBuilder;
-import org.jowidgets.util.Assert;
+import org.jowidgets.cap.common.api.CapCommonToolkit;
+import org.jowidgets.cap.common.api.bean.IBeanKey;
+import org.jowidgets.cap.common.api.bean.IBeanKeyBuilder;
 
-public class BeanModificationBuilder implements IBeanModificationBuilder {
+public final class BeanKeyBuilder implements IBeanKeyBuilder {
 
-	private Object id;
-	private long version;
-	private String propertyName;
-	private Object newValue;
+	private final IBeanKeyBuilder builder;
+
+	public BeanKeyBuilder() {
+		this.builder = CapCommonToolkit.beanKeyBuilder();
+	}
 
 	@Override
-	public IBeanModificationBuilder setId(final Object id) {
-		Assert.paramNotNull(id, "id");
-		this.id = id;
+	public IBeanKeyBuilder setId(final Object id) {
+		builder.setId(id);
 		return this;
 	}
 
 	@Override
-	public IBeanModificationBuilder setVersion(final long version) {
-		this.version = version;
+	public IBeanKeyBuilder setVersion(final long version) {
+		builder.setVersion(version);
 		return this;
 	}
 
 	@Override
-	public IBeanModificationBuilder setPropertyName(final String propertyName) {
-		Assert.paramNotEmpty(propertyName, propertyName);
-		this.propertyName = propertyName;
-		return this;
-	}
-
-	@Override
-	public IBeanModificationBuilder setNewValue(final Object newValue) {
-		this.newValue = newValue;
-		return this;
-	}
-
-	@Override
-	public IBeanModificationBuilder setBeanDto(final IBeanDto beanDto) {
-		Assert.paramNotNull(beanDto, "beanDto");
-		setId(beanDto.getId());
-		setVersion(beanDto.getVersion());
-		return null;
-	}
-
-	@Override
-	public IBeanModification build() {
-		return new BeanModificationImpl(id, version, propertyName, newValue);
+	public IBeanKey build() {
+		return builder.build();
 	}
 
 }

@@ -26,7 +26,7 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.impl.bean;
+package org.jowidgets.cap.common.impl;
 
 import java.util.Collection;
 

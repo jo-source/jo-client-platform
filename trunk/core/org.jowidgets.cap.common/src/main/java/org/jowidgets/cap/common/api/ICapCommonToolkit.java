@@ -26,35 +26,28 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.impl.bean;
-
-import java.util.Collections;
-import java.util.List;
+package org.jowidgets.cap.common.api;
 
 import org.jowidgets.cap.common.api.bean.IBean;
-import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
-import org.jowidgets.cap.common.api.bean.IProperty;
+import org.jowidgets.cap.common.api.bean.IBeanDataBuilder;
+import org.jowidgets.cap.common.api.bean.IBeanDtoBuilder;
+import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptorBuilder;
+import org.jowidgets.cap.common.api.bean.IBeanKeyBuilder;
+import org.jowidgets.cap.common.api.bean.IBeanModificationBuilder;
+import org.jowidgets.cap.common.api.bean.IBeanPropertyBuilder;
 
+public interface ICapCommonToolkit {
 
-final class BeanDtoDescriptorImpl<BEAN_TYPE extends IBean> implements IBeanDtoDescriptor<BEAN_TYPE> {
+	IBeanPropertyBuilder propertyBuilder(Class<?> beanType, String propertyName);
 
-	private final List<IProperty> unodifiableProperties;
-	private final Class<BEAN_TYPE> beanType;
+	<BEAN_TYPE extends IBean> IBeanDtoDescriptorBuilder<BEAN_TYPE> dtoDescriptorBuilder(Class<? extends BEAN_TYPE> beanType);
 
-	@SuppressWarnings("unchecked")
-	BeanDtoDescriptorImpl(final Class<? extends BEAN_TYPE> beanType, final List<IProperty> properties) {
-		this.beanType = (Class<BEAN_TYPE>) beanType;
-		this.unodifiableProperties = Collections.unmodifiableList(properties);
-	}
+	IBeanDtoBuilder dtoBuilder();
 
-	@Override
-	public List<IProperty> getProperties() {
-		return unodifiableProperties;
-	}
+	IBeanDataBuilder beanDataBuilder();
 
-	@Override
-	public Class<BEAN_TYPE> getBeanType() {
-		return beanType;
-	}
+	IBeanKeyBuilder beanKeyBuilder();
+
+	IBeanModificationBuilder beanModificationBuilder();
 
 }

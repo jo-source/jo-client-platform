@@ -26,49 +26,36 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.impl.bean;
+package org.jowidgets.cap.common.tools;
 
 import java.io.Serializable;
 
-import org.jowidgets.cap.common.api.bean.IBeanModification;
-import org.jowidgets.util.Assert;
+import org.jowidgets.cap.common.api.CapCommonToolkit;
+import org.jowidgets.cap.common.api.bean.IBeanKey;
+import org.jowidgets.cap.common.api.bean.IBeanKeyBuilder;
 
-final class BeanModificationImpl implements IBeanModification, Serializable {
+public final class BeanKey implements IBeanKey, Serializable {
 
-	private static final long serialVersionUID = 8780660825215040481L;
+	private static final long serialVersionUID = -2187638080064448186L;
 
-	private final Object id;
-	private final long version;
-	private final String property;
-	private final Object newValue;
+	private final IBeanKey key;
 
-	BeanModificationImpl(final Object id, final long version, final String property, final Object newValue) {
-		Assert.paramNotNull(id, "id");
-		Assert.paramNotEmpty(property, "property");
-		this.id = id;
-		this.version = version;
-		this.property = property;
-		this.newValue = newValue;
+	public BeanKey(final Object id, final long version) {
+		this(CapCommonToolkit.beanKeyBuilder().setId(id).setVersion(version));
+	}
+
+	private BeanKey(final IBeanKeyBuilder builder) {
+		this.key = builder.build();
 	}
 
 	@Override
 	public Object getId() {
-		return id;
+		return key.getId();
 	}
 
 	@Override
 	public long getVersion() {
-		return version;
-	}
-
-	@Override
-	public String getPropertyName() {
-		return property;
-	}
-
-	@Override
-	public Object getNewValue() {
-		return newValue;
+		return key.getVersion();
 	}
 
 }

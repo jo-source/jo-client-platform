@@ -26,43 +26,59 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.impl.bean;
+package org.jowidgets.cap.common.impl;
 
-import java.util.LinkedList;
-import java.util.List;
-
-import org.jowidgets.cap.common.api.bean.IBean;
-import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
-import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptorBuilder;
-import org.jowidgets.cap.common.api.bean.IBeanPropertyBuilder;
-import org.jowidgets.cap.common.api.bean.IProperty;
+import org.jowidgets.cap.common.api.bean.IBeanDto;
+import org.jowidgets.cap.common.api.bean.IBeanModification;
+import org.jowidgets.cap.common.api.bean.IBeanModificationBuilder;
 import org.jowidgets.util.Assert;
 
-public final class BeanDtoDescriptorBuilder<BEAN_TYPE extends IBean> implements IBeanDtoDescriptorBuilder<BEAN_TYPE> {
+final class BeanModificationBuilderImpl implements IBeanModificationBuilder {
 
-	private final Class<? extends BEAN_TYPE> beanType;
-	private final List<IProperty> properties;
+	private Object id;
+	private long version;
+	private String propertyName;
+	private Object newValue;
 
-	public BeanDtoDescriptorBuilder(final Class<? extends BEAN_TYPE> beanType) {
-		this.beanType = beanType;
-		this.properties = new LinkedList<IProperty>();
-	}
-
-	@Override
-	public IBeanPropertyBuilder propertyBuilder(final String propertyName) {
-		Assert.paramNotEmpty(propertyName, "propertyName");
-		return new BeanPropertyBuilder(beanType, propertyName);
-	}
+	BeanModificationBuilderImpl() {}
 
 	@Override
-	public IBeanDtoDescriptorBuilder<BEAN_TYPE> addProperty(final IBeanPropertyBuilder builder) {
-		properties.add(builder.build());
+	public IBeanModificationBuilder setId(final Object id) {
+		Assert.paramNotNull(id, "id");
+		this.id = id;
 		return this;
 	}
 
 	@Override
-	public IBeanDtoDescriptor<BEAN_TYPE> build() {
-		return new BeanDtoDescriptorImpl<BEAN_TYPE>(beanType, properties);
+	public IBeanModificationBuilder setVersion(final long version) {
+		this.version = version;
+		return this;
+	}
+
+	@Override
+	public IBeanModificationBuilder setPropertyName(final String propertyName) {
+		Assert.paramNotEmpty(propertyName, propertyName);
+		this.propertyName = propertyName;
+		return this;
+	}
+
+	@Override
+	public IBeanModificationBuilder setNewValue(final Object newValue) {
+		this.newValue = newValue;
+		return this;
+	}
+
+	@Override
+	public IBeanModificationBuilder setBeanDto(final IBeanDto beanDto) {
+		Assert.paramNotNull(beanDto, "beanDto");
+		setId(beanDto.getId());
+		setVersion(beanDto.getVersion());
+		return null;
+	}
+
+	@Override
+	public IBeanModification build() {
+		return new BeanModificationImpl(id, version, propertyName, newValue);
 	}
 
 }

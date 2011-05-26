@@ -26,8 +26,9 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.api;
+package org.jowidgets.cap.common.impl;
 
+import org.jowidgets.cap.common.api.ICapCommonToolkit;
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanDataBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanDtoBuilder;
@@ -35,22 +36,38 @@ import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptorBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanKeyBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanModificationBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanPropertyBuilder;
-import org.jowidgets.cap.common.api.bean.IPropertyBuilder;
 
-public interface IDataCommonToolkit {
+public final class DefaultCapCommonToolkit implements ICapCommonToolkit {
 
-	IPropertyBuilder createPropertyBuilder();
+	@Override
+	public IBeanPropertyBuilder propertyBuilder(final Class<?> beanType, final String propertyName) {
+		return new BeanPropertyBuilderImpl(beanType, propertyName);
+	}
 
-	IBeanPropertyBuilder createBeanPropertyBuilder(Class<?> beanType, String propertyName);
+	@Override
+	public IBeanDtoBuilder dtoBuilder() {
+		return new BeanDtoBuilderImpl();
+	}
 
-	<BEAN_TYPE extends IBean> IBeanDtoDescriptorBuilder<BEAN_TYPE> createDtoDescriptorBuilder(Class<? extends BEAN_TYPE> beanType);
+	@Override
+	public <BEAN_TYPE extends IBean> IBeanDtoDescriptorBuilder<BEAN_TYPE> dtoDescriptorBuilder(
+		final Class<? extends BEAN_TYPE> beanType) {
+		return new BeanDtoDescriptorBuilderImpl<BEAN_TYPE>(beanType);
+	}
 
-	IBeanDtoBuilder createDtoBuilder();
+	@Override
+	public IBeanDataBuilder beanDataBuilder() {
+		return new BeanDataBuilderImpl();
+	}
 
-	IBeanDataBuilder createBeanDataBuilder();
+	@Override
+	public IBeanKeyBuilder beanKeyBuilder() {
+		return new BeanKeyBuilderImpl();
+	}
 
-	IBeanKeyBuilder createBeanKeyBuilder();
-
-	IBeanModificationBuilder createBeanModificationBuilder();
+	@Override
+	public IBeanModificationBuilder beanModificationBuilder() {
+		return new BeanModificationBuilderImpl();
+	}
 
 }

@@ -26,31 +26,34 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.impl.bean;
+package org.jowidgets.cap.common.impl;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.io.Serializable;
 
-import org.jowidgets.cap.common.api.bean.IBeanData;
-import org.jowidgets.cap.common.api.bean.IBeanDataBuilder;
+import org.jowidgets.cap.common.api.bean.IBeanKey;
+import org.jowidgets.util.Assert;
 
-public final class BeanDataBuilder implements IBeanDataBuilder {
+final class BeanKeyImpl implements IBeanKey, Serializable {
 
-	private final HashMap<String, Object> map;
+	private static final long serialVersionUID = -2616441778488059878L;
 
-	public BeanDataBuilder() {
-		this.map = new HashMap<String, Object>();
+	private final Object id;
+	private final long version;
+
+	BeanKeyImpl(final Object id, final long version) {
+		Assert.paramNotNull(id, "id");
+		this.id = id;
+		this.version = version;
 	}
 
 	@Override
-	public IBeanDataBuilder setProperty(final String propertyName, final Object property) {
-		map.put(propertyName, property);
-		return this;
+	public Object getId() {
+		return id;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public IBeanData build() {
-		return new BeanDataImpl((Map<String, Object>) (map.clone()));
+	public long getVersion() {
+		return version;
 	}
+
 }

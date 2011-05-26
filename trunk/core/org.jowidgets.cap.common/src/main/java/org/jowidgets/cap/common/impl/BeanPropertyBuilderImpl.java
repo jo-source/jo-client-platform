@@ -26,7 +26,7 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.impl.bean;
+package org.jowidgets.cap.common.impl;
 
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
@@ -37,14 +37,13 @@ import java.util.Collection;
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanPropertyBuilder;
 import org.jowidgets.cap.common.api.bean.IProperty;
-import org.jowidgets.cap.common.api.bean.IPropertyBuilder;
 import org.jowidgets.util.Assert;
 
-public final class BeanPropertyBuilder implements IBeanPropertyBuilder {
+final class BeanPropertyBuilderImpl implements IBeanPropertyBuilder {
 
-	private final IPropertyBuilder propertyBuilder;
+	private final PropertyBuilder propertyBuilder;
 
-	public BeanPropertyBuilder(final Class<?> beanType, final String propertyName) {
+	BeanPropertyBuilderImpl(final Class<?> beanType, final String propertyName) {
 		Assert.paramNotNull(beanType, "beanType");
 		Assert.paramNotEmpty(propertyName, "propertyName");
 
