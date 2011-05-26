@@ -40,10 +40,11 @@ public final class ServiceId<SERVICE_TYPE> implements IServiceId<SERVICE_TYPE>, 
 	private final Object id;
 	private final Class<? extends SERVICE_TYPE> serviceType;
 
-	public ServiceId(final Object id, final Class<? extends SERVICE_TYPE> serviceType) {
+	@SuppressWarnings("unchecked")
+	public ServiceId(final Object id, final Class<?> serviceType) {
 		Assert.paramNotNull(serviceType, "serviceType");
 		Assert.paramNotNull(id, "id");
-		this.serviceType = serviceType;
+		this.serviceType = (Class<? extends SERVICE_TYPE>) serviceType;
 		this.id = id;
 	}
 
