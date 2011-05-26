@@ -26,53 +26,14 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.impl.bean;
+package org.jowidgets.cap.common.api.bean;
 
-import java.io.Serializable;
+public interface IBeanKeyBuilder {
 
-import org.jowidgets.cap.common.api.bean.IBeanDto;
-import org.jowidgets.cap.common.api.bean.IBeanModification;
-import org.jowidgets.util.Assert;
+	IBeanKeyBuilder setId(Object id);
 
-final class BeanModification implements IBeanModification, Serializable {
+	IBeanKeyBuilder setVersion(long version);
 
-	private static final long serialVersionUID = 8780660825215040481L;
-
-	private final Object id;
-	private final long version;
-	private final String property;
-	private final Object newValue;
-
-	BeanModification(final IBeanDto beanDto, final String property, final Object newValue) {
-		this(beanDto.getId(), beanDto.getVersion(), property, newValue);
-	}
-
-	BeanModification(final Object id, final long version, final String property, final Object newValue) {
-		Assert.paramNotEmpty(property, "property");
-		this.id = id;
-		this.version = version;
-		this.property = property;
-		this.newValue = newValue;
-	}
-
-	@Override
-	public Object getId() {
-		return id;
-	}
-
-	@Override
-	public long getVersion() {
-		return version;
-	}
-
-	@Override
-	public String getPropertyName() {
-		return property;
-	}
-
-	@Override
-	public Object getNewValue() {
-		return newValue;
-	}
+	IBeanKey build();
 
 }

@@ -26,34 +26,34 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.api.bean;
+package org.jowidgets.cap.common.impl.bean;
 
-import org.jowidgets.cap.common.api.bean.IProperty;
+import java.io.Serializable;
 
-public interface IPropertyBuilder {
+import org.jowidgets.cap.common.api.bean.IBeanKey;
+import org.jowidgets.util.Assert;
 
-	IPropertyBuilder setName(String name);
+final class BeanKeyImpl implements IBeanKey, Serializable {
 
-	IPropertyBuilder setLabel(String labelDefault);
+	private static final long serialVersionUID = -2616441778488059878L;
 
-	IPropertyBuilder setLabelLong(String labelLongDefault);
+	private final Object id;
+	private final long version;
 
-	IPropertyBuilder setDescription(String descriptionDefault);
+	BeanKeyImpl(final Object id, final long version) {
+		Assert.paramNotNull(id, "id");
+		this.id = id;
+		this.version = version;
+	}
 
-	IPropertyBuilder setVisible(boolean visibleDefault);
+	@Override
+	public Object getId() {
+		return id;
+	}
 
-	IPropertyBuilder setMandatory(boolean mandatoryDefault);
-
-	IPropertyBuilder setValueType(Class<?> valueType);
-
-	IPropertyBuilder setElementValueType(Class<?> elementValueType);
-
-	IPropertyBuilder setReadonly(boolean readonly);
-
-	IPropertyBuilder setSortable(boolean sortable);
-
-	IPropertyBuilder setFilterable(boolean filterable);
-
-	IProperty build();
+	@Override
+	public long getVersion() {
+		return version;
+	}
 
 }

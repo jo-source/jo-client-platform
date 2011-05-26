@@ -33,32 +33,19 @@ import java.util.List;
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
-import org.jowidgets.cap.service.api.bean.IBeanDtoBuilder;
-import org.jowidgets.cap.service.api.bean.IBeanDtoDescriptorBuilder;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.cap.service.api.bean.IBeanInitializer;
-import org.jowidgets.cap.service.api.bean.IBeanPropertyBuilder;
-import org.jowidgets.cap.service.api.bean.IPropertyBuilder;
 import org.jowidgets.cap.service.api.entity.IBeanServicesProviderBuilder;
 import org.jowidgets.cap.service.api.entity.IEntityServiceBuilder;
 import org.jowidgets.cap.service.api.executor.IExecutorServiceBuilder;
 import org.jowidgets.cap.service.api.refresh.IRefreshServiceBuilder;
 import org.jowidgets.cap.service.api.updater.IUpdaterServiceBuilder;
 
-
 public interface IDataServiceToolkit {
-
-	IPropertyBuilder createPropertyBuilder();
 
 	IEntityServiceBuilder createEntityServiceBuilder();
 
-	IBeanPropertyBuilder createBeanPropertyBuilder(Class<?> beanType, String propertyName);
-
-	<BEAN_TYPE extends IBean> IBeanDtoDescriptorBuilder<BEAN_TYPE> createDtoDescriptorBuilder(Class<? extends BEAN_TYPE> beanType);
-
 	<BEAN_TYPE> IBeanServicesProviderBuilder<BEAN_TYPE> createBeanServicesProviderBuilder();
-
-	IBeanDtoBuilder createDtoBuilder();
 
 	<BEAN_TYPE extends IBean> IBeanDtoFactory<BEAN_TYPE> createDtoFactory(
 		Class<? extends BEAN_TYPE> beanType,

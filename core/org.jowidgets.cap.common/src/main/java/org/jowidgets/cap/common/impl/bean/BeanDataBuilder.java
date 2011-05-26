@@ -26,27 +26,31 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.toolkit;
+package org.jowidgets.cap.common.impl.bean;
 
-import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
-import org.jowidgets.cap.ui.api.bean.IBeanKeyFactory;
-import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
-import org.jowidgets.cap.ui.api.executor.IExecutionTaskFactory;
-import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
-import org.jowidgets.cap.ui.api.widgets.IDataApiBluePrintFactory;
+import java.util.HashMap;
+import java.util.Map;
 
-public interface IDataUiToolkit {
+import org.jowidgets.cap.common.api.bean.IBeanData;
+import org.jowidgets.cap.common.api.bean.IBeanDataBuilder;
 
-	IDataApiBluePrintFactory getBluePrintFactory();
+public final class BeanDataBuilder implements IBeanDataBuilder {
 
-	IExecutionTaskFactory getExecutionTaskFactory();
+	private final HashMap<String, Object> map;
 
-	IAttributeToolkit getAttributeToolkit();
+	public BeanDataBuilder() {
+		this.map = new HashMap<String, Object>();
+	}
 
-	<BEAN_TYPE> IBeanProxyFactory<BEAN_TYPE> createBeanProxyFactory(Class<? extends BEAN_TYPE> beanType);
+	@Override
+	public IBeanDataBuilder setProperty(final String propertyName, final Object property) {
+		map.put(propertyName, property);
+		return this;
+	}
 
-	IBeanKeyFactory getBeanKeyFactory();
-
-	<BEAN_TYPE> IBeanTableModelBuilder<BEAN_TYPE> createBeanTableModelBuilder(Class<BEAN_TYPE> beanType);
-
+	@SuppressWarnings("unchecked")
+	@Override
+	public IBeanData build() {
+		return new BeanDataImpl((Map<String, Object>) (map.clone()));
+	}
 }

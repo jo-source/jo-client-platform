@@ -33,19 +33,14 @@ import java.util.List;
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
-import org.jowidgets.cap.service.api.bean.IBeanDtoBuilder;
-import org.jowidgets.cap.service.api.bean.IBeanDtoDescriptorBuilder;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.cap.service.api.bean.IBeanInitializer;
-import org.jowidgets.cap.service.api.bean.IBeanPropertyBuilder;
-import org.jowidgets.cap.service.api.bean.IPropertyBuilder;
 import org.jowidgets.cap.service.api.entity.IBeanServicesProviderBuilder;
 import org.jowidgets.cap.service.api.entity.IEntityServiceBuilder;
 import org.jowidgets.cap.service.api.executor.IExecutorServiceBuilder;
 import org.jowidgets.cap.service.api.refresh.IRefreshServiceBuilder;
 import org.jowidgets.cap.service.api.updater.IUpdaterServiceBuilder;
 import org.jowidgets.cap.service.impl.DefaultDataServiceToolkit;
-
 
 public final class DataServiceToolkit {
 
@@ -64,19 +59,6 @@ public final class DataServiceToolkit {
 		return getInstance().createEntityServiceBuilder();
 	}
 
-	public static IPropertyBuilder createPropertyBuilder() {
-		return getInstance().createPropertyBuilder();
-	}
-
-	public static IBeanPropertyBuilder createBeanPropertyBuilder(final Class<?> beanType, final String propertyName) {
-		return getInstance().createBeanPropertyBuilder(beanType, propertyName);
-	}
-
-	public static <BEAN_TYPE extends IBean> IBeanDtoDescriptorBuilder<BEAN_TYPE> createDtoDescriptorBuilder(
-		final Class<? extends BEAN_TYPE> beanType) {
-		return getInstance().createDtoDescriptorBuilder(beanType);
-	}
-
 	public static <BEAN_TYPE> IBeanServicesProviderBuilder<BEAN_TYPE> createBeanServicesProviderBuilder() {
 		return getInstance().createBeanServicesProviderBuilder();
 	}
@@ -85,10 +67,6 @@ public final class DataServiceToolkit {
 		final Class<? extends BEAN_TYPE> beanType,
 		final List<String> propertyNames) {
 		return getInstance().createBeanInitializer(beanType, propertyNames);
-	}
-
-	public static IBeanDtoBuilder createDtoBuilder() {
-		return getInstance().createDtoBuilder();
 	}
 
 	public static <BEAN_TYPE extends IBean> IBeanDtoFactory<BEAN_TYPE> createDtoFactory(

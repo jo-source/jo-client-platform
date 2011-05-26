@@ -26,35 +26,34 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.impl.bean;
+package org.jowidgets.cap.common.api.bean;
 
-import java.util.Collections;
-import java.util.List;
-
-import org.jowidgets.cap.common.api.bean.IBean;
-import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
 import org.jowidgets.cap.common.api.bean.IProperty;
 
+public interface IPropertyBuilder {
 
-final class BeanDtoDescriptorImpl<BEAN_TYPE extends IBean> implements IBeanDtoDescriptor<BEAN_TYPE> {
+	IPropertyBuilder setName(String name);
 
-	private final List<IProperty> unodifiableProperties;
-	private final Class<BEAN_TYPE> beanType;
+	IPropertyBuilder setLabel(String labelDefault);
 
-	@SuppressWarnings("unchecked")
-	BeanDtoDescriptorImpl(final Class<? extends BEAN_TYPE> beanType, final List<IProperty> properties) {
-		this.beanType = (Class<BEAN_TYPE>) beanType;
-		this.unodifiableProperties = Collections.unmodifiableList(properties);
-	}
+	IPropertyBuilder setLabelLong(String labelLongDefault);
 
-	@Override
-	public List<IProperty> getProperties() {
-		return unodifiableProperties;
-	}
+	IPropertyBuilder setDescription(String descriptionDefault);
 
-	@Override
-	public Class<BEAN_TYPE> getBeanType() {
-		return beanType;
-	}
+	IPropertyBuilder setVisible(boolean visibleDefault);
+
+	IPropertyBuilder setMandatory(boolean mandatoryDefault);
+
+	IPropertyBuilder setValueType(Class<?> valueType);
+
+	IPropertyBuilder setElementValueType(Class<?> elementValueType);
+
+	IPropertyBuilder setReadonly(boolean readonly);
+
+	IPropertyBuilder setSortable(boolean sortable);
+
+	IPropertyBuilder setFilterable(boolean filterable);
+
+	IProperty build();
 
 }

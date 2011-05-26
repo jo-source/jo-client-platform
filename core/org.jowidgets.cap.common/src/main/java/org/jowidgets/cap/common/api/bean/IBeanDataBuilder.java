@@ -26,28 +26,14 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.impl.bean;
-
-import java.io.Serializable;
-import java.util.Map;
+package org.jowidgets.cap.common.api.bean;
 
 import org.jowidgets.cap.common.api.bean.IBeanData;
 
+public interface IBeanDataBuilder {
 
-class BeanData implements IBeanData, Serializable {
+	IBeanDataBuilder setProperty(String propertyName, Object propertyValue);
 
-	private static final long serialVersionUID = -5127934611388638581L;
-
-	private final Map<String, Object> map;
-
-	BeanData(final Map<String, Object> map) {
-		super();
-		this.map = map;
-	}
-
-	@Override
-	public Object getValue(final String propertyName) {
-		return map.get(propertyName);
-	}
+	IBeanData build();
 
 }

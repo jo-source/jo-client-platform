@@ -26,27 +26,16 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.toolkit;
+package org.jowidgets.cap.common.api.bean;
 
-import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
-import org.jowidgets.cap.ui.api.bean.IBeanKeyFactory;
-import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
-import org.jowidgets.cap.ui.api.executor.IExecutionTaskFactory;
-import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
-import org.jowidgets.cap.ui.api.widgets.IDataApiBluePrintFactory;
+import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
 
-public interface IDataUiToolkit {
+public interface IBeanDtoDescriptorBuilder<BEAN_TYPE> {
 
-	IDataApiBluePrintFactory getBluePrintFactory();
+	IBeanPropertyBuilder propertyBuilder(String propertyName);
 
-	IExecutionTaskFactory getExecutionTaskFactory();
+	IBeanDtoDescriptorBuilder<BEAN_TYPE> addProperty(IBeanPropertyBuilder builder);
 
-	IAttributeToolkit getAttributeToolkit();
-
-	<BEAN_TYPE> IBeanProxyFactory<BEAN_TYPE> createBeanProxyFactory(Class<? extends BEAN_TYPE> beanType);
-
-	IBeanKeyFactory getBeanKeyFactory();
-
-	<BEAN_TYPE> IBeanTableModelBuilder<BEAN_TYPE> createBeanTableModelBuilder(Class<BEAN_TYPE> beanType);
+	IBeanDtoDescriptor<BEAN_TYPE> build();
 
 }

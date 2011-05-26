@@ -26,34 +26,29 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.impl.bean;
+package org.jowidgets.cap.common.impl.bean;
 
 import java.io.Serializable;
 
-import org.jowidgets.cap.common.api.bean.IBeanDto;
-import org.jowidgets.cap.common.api.bean.IBeanKey;
-import org.jowidgets.cap.ui.api.bean.IBeanProxy;
+import org.jowidgets.cap.common.api.bean.IBeanModification;
 import org.jowidgets.util.Assert;
 
-final class BeanKey implements IBeanKey, Serializable {
+final class BeanModificationImpl implements IBeanModification, Serializable {
 
-	private static final long serialVersionUID = -2616441778488059878L;
+	private static final long serialVersionUID = 8780660825215040481L;
 
 	private final Object id;
 	private final long version;
+	private final String property;
+	private final Object newValue;
 
-	BeanKey(final IBeanDto beanDto) {
-		this(beanDto.getId(), beanDto.getVersion());
-	}
-
-	BeanKey(final IBeanProxy<?> beanProxy) {
-		this(beanProxy.getId(), beanProxy.getVersion());
-	}
-
-	BeanKey(final Object id, final long version) {
+	BeanModificationImpl(final Object id, final long version, final String property, final Object newValue) {
 		Assert.paramNotNull(id, "id");
+		Assert.paramNotEmpty(property, "property");
 		this.id = id;
 		this.version = version;
+		this.property = property;
+		this.newValue = newValue;
 	}
 
 	@Override
@@ -64,6 +59,16 @@ final class BeanKey implements IBeanKey, Serializable {
 	@Override
 	public long getVersion() {
 		return version;
+	}
+
+	@Override
+	public String getPropertyName() {
+		return property;
+	}
+
+	@Override
+	public Object getNewValue() {
+		return newValue;
 	}
 
 }

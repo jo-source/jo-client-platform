@@ -32,8 +32,10 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.jowidgets.cap.common.api.DataCommonToolkit;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
+import org.jowidgets.cap.common.api.bean.IBeanKeyBuilder;
 import org.jowidgets.cap.ui.api.bean.IBeanKeyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.util.Assert;
@@ -54,7 +56,8 @@ public final class BeanKeyFactory implements IBeanKeyFactory {
 
 	@Override
 	public IBeanKey createKey(final IBeanProxy<?> beanProxy) {
-		return new BeanKey(beanProxy);
+		final IBeanKeyBuilder builder = DataCommonToolkit.createBeanKeyBuilder();
+		return builder.setId(beanProxy.getId()).setVersion(beanProxy.getVersion()).build();
 	}
 
 	@Override
@@ -71,7 +74,8 @@ public final class BeanKeyFactory implements IBeanKeyFactory {
 
 	@Override
 	public IBeanKey createKeyFromDto(final IBeanDto beanDto) {
-		return new BeanKey(beanDto);
+		final IBeanKeyBuilder builder = DataCommonToolkit.createBeanKeyBuilder();
+		return builder.setId(beanDto.getId()).setVersion(beanDto.getVersion()).build();
 	}
 
 }
