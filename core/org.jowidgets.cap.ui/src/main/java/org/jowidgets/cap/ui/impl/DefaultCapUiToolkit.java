@@ -28,12 +28,12 @@
 
 package org.jowidgets.cap.ui.impl;
 
+import org.jowidgets.cap.ui.api.ICapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
 import org.jowidgets.cap.ui.api.bean.IBeanKeyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
 import org.jowidgets.cap.ui.api.executor.IExecutionTaskFactory;
 import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
-import org.jowidgets.cap.ui.api.toolkit.ICapUiToolkit;
 import org.jowidgets.cap.ui.api.widgets.IDataApiBluePrintFactory;
 import org.jowidgets.cap.ui.impl.attribute.AttributeToolkit;
 import org.jowidgets.cap.ui.impl.bean.BeanKeyFactory;
