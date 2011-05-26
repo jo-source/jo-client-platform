@@ -33,11 +33,11 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IProperty;
+import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IAttributeBuilder;
 import org.jowidgets.cap.ui.api.attribute.IAttributeGroup;
 import org.jowidgets.cap.ui.api.attribute.IControlPanelProvider;
-import org.jowidgets.cap.ui.api.toolkit.CapUiToolkit;
 import org.jowidgets.common.types.AlignmentHorizontal;
 import org.jowidgets.util.Assert;
 
