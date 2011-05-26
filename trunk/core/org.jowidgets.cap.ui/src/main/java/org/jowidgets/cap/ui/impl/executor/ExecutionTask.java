@@ -36,13 +36,13 @@ import java.util.UUID;
 
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IExecutionCallbackListener;
+import org.jowidgets.cap.common.api.execution.IExecutionTask;
+import org.jowidgets.cap.common.api.execution.IExecutionTaskListener;
 import org.jowidgets.cap.common.api.execution.IUserQuestionCallback;
 import org.jowidgets.cap.common.api.execution.UserQuestionResult;
-import org.jowidgets.cap.ui.api.executor.IExecutionTask;
-import org.jowidgets.cap.ui.api.executor.IExecutionTaskListener;
 import org.jowidgets.util.Assert;
 
-final class ExecutionTask implements IExecutionTask {
+public final class ExecutionTask implements IExecutionTask {
 
 	private final String id;
 	private final List<ExecutionTask> subExecutions;

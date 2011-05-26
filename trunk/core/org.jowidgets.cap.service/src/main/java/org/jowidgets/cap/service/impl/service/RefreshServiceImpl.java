@@ -43,8 +43,7 @@ import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 
-
-final class RefreshServiceImpl<BEAN_TYPE extends IBean> implements IRefreshService {
+public final class RefreshServiceImpl<BEAN_TYPE extends IBean> implements IRefreshService {
 
 	private final IBeanAccess<BEAN_TYPE> beanAccess;
 	private final IBeanDtoFactory<BEAN_TYPE> dtoFactory;

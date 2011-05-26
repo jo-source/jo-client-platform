@@ -50,7 +50,7 @@ import org.jowidgets.cap.service.api.executor.IBeanExecutor;
 import org.jowidgets.cap.service.api.executor.IBeanListExecutor;
 import org.jowidgets.util.Assert;
 
-final class ExecutorServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE> implements IExecutorService<PARAM_TYPE> {
+public final class ExecutorServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE> implements IExecutorService<PARAM_TYPE> {
 
 	private final IBeanAccess<BEAN_TYPE> beanAccess;
 	private final Object executor;

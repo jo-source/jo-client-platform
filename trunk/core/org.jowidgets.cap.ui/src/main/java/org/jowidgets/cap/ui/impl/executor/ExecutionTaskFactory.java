@@ -28,7 +28,7 @@
 
 package org.jowidgets.cap.ui.impl.executor;
 
-import org.jowidgets.cap.ui.api.executor.IExecutionTask;
+import org.jowidgets.cap.common.api.execution.IExecutionTask;
 import org.jowidgets.cap.ui.api.executor.IExecutionTaskFactory;
 
 public final class ExecutionTaskFactory implements IExecutionTaskFactory {

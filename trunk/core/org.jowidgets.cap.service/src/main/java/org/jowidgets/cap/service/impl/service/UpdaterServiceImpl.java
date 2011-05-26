@@ -49,8 +49,7 @@ import org.jowidgets.cap.common.api.service.IExecutorService;
 import org.jowidgets.cap.common.api.service.IUpdaterService;
 import org.jowidgets.cap.service.api.executor.IBeanExecutor;
 
-
-final class UpdaterServiceImpl<BEAN_TYPE extends IBean> implements IUpdaterService {
+public final class UpdaterServiceImpl<BEAN_TYPE extends IBean> implements IUpdaterService {
 
 	private final IExecutorService<Collection<? extends IBeanModification>> executorService;
 
