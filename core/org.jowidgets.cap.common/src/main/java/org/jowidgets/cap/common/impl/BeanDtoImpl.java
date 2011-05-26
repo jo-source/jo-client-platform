@@ -28,13 +28,16 @@
 
 package org.jowidgets.cap.common.impl;
 
+import java.io.Serializable;
 import java.util.Map;
 
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.util.Assert;
 
-class BeanDtoImpl implements IBeanDto {
+class BeanDtoImpl implements IBeanDto, Serializable {
+
+	private static final long serialVersionUID = -7085159195317664441L;
 
 	private final Object id;
 	private final long version;

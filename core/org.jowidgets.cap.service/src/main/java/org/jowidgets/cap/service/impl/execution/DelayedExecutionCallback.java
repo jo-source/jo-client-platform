@@ -37,7 +37,7 @@ import org.jowidgets.cap.common.api.execution.IUserQuestionCallback;
 import org.jowidgets.cap.common.api.execution.UserQuestionResult;
 import org.jowidgets.util.Assert;
 
-public class DelayedExecutionCallback implements IExecutionCallback {
+public class DelayedExecutionCallback implements IExecutionCallback, IExecutionCallbackListener {
 
 	private static final long DEFAULT_DELAY = 200;
 
@@ -108,25 +108,22 @@ public class DelayedExecutionCallback implements IExecutionCallback {
 		this.updaterThread.setDaemon(true);
 		this.updaterThread.start();
 
-		final IExecutionCallbackListener executionCallbackListener = new IExecutionCallbackListener() {
-			@Override
-			public void executionCanceled() {
-				canceled = true;
-				fireCanceled();
-				updaterThread.interrupt();
-			}
+		this.executionCallback.addExecutionCallbackListener(this);
+	}
 
-			@Override
-			public void onDispose() {
-				disposed = true;
-				fireOnDispose();
-				executionCallback.removeExecutionCallbackListener(this);
-				updaterThread.interrupt();
-			}
+	@Override
+	public void executionCanceled() {
+		canceled = true;
+		fireCanceled();
+		updaterThread.interrupt();
+	}
 
-		};
-
-		this.executionCallback.addExecutionCallbackListener(executionCallbackListener);
+	@Override
+	public void onDispose() {
+		disposed = true;
+		fireOnDispose();
+		executionCallback.removeExecutionCallbackListener(this);
+		updaterThread.interrupt();
 	}
 
 	@Override
@@ -187,13 +184,13 @@ public class DelayedExecutionCallback implements IExecutionCallback {
 		executionCallbackListeners.remove(listener);
 	}
 
-	private void fireCanceled() {
+	public void fireCanceled() {
 		for (final IExecutionCallbackListener listener : executionCallbackListeners) {
 			listener.executionCanceled();
 		}
 	}
 
-	private void fireOnDispose() {
+	public void fireOnDispose() {
 		for (final IExecutionCallbackListener listener : executionCallbackListeners) {
 			listener.onDispose();
 		}
