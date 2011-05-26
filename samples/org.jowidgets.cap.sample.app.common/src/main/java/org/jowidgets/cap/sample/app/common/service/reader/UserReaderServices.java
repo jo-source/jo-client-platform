@@ -34,10 +34,9 @@ import org.jowidgets.service.tools.ServiceId;
 
 public final class UserReaderServices {
 
-	@SuppressWarnings("unchecked")
 	public static final IServiceId<IReaderService<Integer>> ALL_USERS = new ServiceId<IReaderService<Integer>>(
 		UserReaderServices.class.getName() + "_ALL_USERS",
-		(Class<? extends IReaderService<Integer>>) IReaderService.class);
+		IReaderService.class);
 
 	private UserReaderServices() {}
 

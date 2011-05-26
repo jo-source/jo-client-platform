@@ -36,10 +36,9 @@ import org.jowidgets.util.types.Null;
 
 public final class UserComponentExecutorServices {
 
-	@SuppressWarnings("unchecked")
 	public static final IServiceId<IExecutorService<Null>> CHANGE_GENDER = new ServiceId<IExecutorService<Null>>(
 		UserComponentExecutorServices.class.getName() + "_CHANGE_GENDER",
-		(Class<? extends IExecutorService<Null>>) IReaderService.class);
+		IReaderService.class);
 
 	private UserComponentExecutorServices() {};
 
