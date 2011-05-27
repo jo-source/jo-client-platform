@@ -29,6 +29,11 @@
 			<artifactId>org.jowidgets.workbench.tools</artifactId>
 			<version>${jowidgets.version}</version>
 		</dependency>
+		<dependency>
+            <groupId>org.jowidgets</groupId>
+            <artifactId>org.jowidgets.examples.common</artifactId>
+            <version>${jowidgets.version}</version>
+        </dependency>
 	</dependencies>
 
 	<build>

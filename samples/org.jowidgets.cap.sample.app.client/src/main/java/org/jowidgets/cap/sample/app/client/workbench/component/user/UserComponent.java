@@ -28,8 +28,18 @@
 
 package org.jowidgets.cap.sample.app.client.workbench.component.user;
 
+import org.jowidgets.cap.sample.app.client.attribute.UserAttributesFactory;
+import org.jowidgets.cap.sample.app.client.workbench.command.WorkbenchActions;
 import org.jowidgets.cap.sample.app.client.workbench.component.user.view.UserDetailView;
 import org.jowidgets.cap.sample.app.client.workbench.component.user.view.UserTableView;
+import org.jowidgets.cap.sample.app.common.entity.IUser;
+import org.jowidgets.cap.sample.app.common.service.reader.UserReaderServices;
+import org.jowidgets.cap.ui.api.CapUiToolkit;
+import org.jowidgets.cap.ui.api.table.IBeanTableModel;
+import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
+import org.jowidgets.cap.ui.api.table.IReaderParameterProvider;
+import org.jowidgets.common.types.IVetoable;
+import org.jowidgets.util.ValueHolder;
 import org.jowidgets.workbench.api.IComponent;
 import org.jowidgets.workbench.api.IComponentContext;
 import org.jowidgets.workbench.api.IView;
@@ -39,14 +49,19 @@ import org.jowidgets.workbench.tools.AbstractComponent;
 
 public class UserComponent extends AbstractComponent implements IComponent {
 
+	private final ValueHolder<Integer> delayParameter;
+	private final IBeanTableModel<IUser> userTableModel;
+
 	public UserComponent(final IComponentNodeModel componentNodeModel, final IComponentContext componentContext) {
 		componentContext.setLayout(new UserComponentDefaultLayout().getLayout());
+		this.delayParameter = new ValueHolder<Integer>(Integer.valueOf(0));
+		this.userTableModel = createUserTableModel();
 	}
 
 	@Override
 	public IView createView(final String viewId, final IViewContext context) {
 		if (UserTableView.ID.equals(viewId)) {
-			return new UserTableView(context);
+			return new UserTableView(context, userTableModel, delayParameter);
 		}
 		else if (UserDetailView.ID.equals(viewId)) {
 			return new UserDetailView(context);
@@ -58,5 +73,33 @@ public class UserComponent extends AbstractComponent implements IComponent {
 
 	@Override
 	public void onDispose() {}
+
+	@Override
+	public void onActivation() {
+		WorkbenchActions.SAVE_ACTION.addDataModel(userTableModel);
+		WorkbenchActions.UNDO_ACTION.addDataModel(userTableModel);
+	}
+
+	@Override
+	public void onDeactivation(final IVetoable vetoable) {
+		WorkbenchActions.SAVE_ACTION.removeDataModel(userTableModel);
+		WorkbenchActions.UNDO_ACTION.removeDataModel(userTableModel);
+	}
+
+	private IBeanTableModel<IUser> createUserTableModel() {
+		final IBeanTableModelBuilder<IUser> builder = CapUiToolkit.createBeanTableModelBuilder(IUser.class);
+		builder.setAttributes(new UserAttributesFactory().create());
+		builder.setReaderService(UserReaderServices.ALL_USERS, createReaderParameterProvider());
+		return builder.build();
+	}
+
+	private IReaderParameterProvider<Integer> createReaderParameterProvider() {
+		return new IReaderParameterProvider<Integer>() {
+			@Override
+			public Integer getParameter() {
+				return delayParameter.get();
+			}
+		};
+	}
 
 }

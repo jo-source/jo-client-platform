@@ -31,6 +31,7 @@ package org.jowidgets.cap.sample.app.client.workbench;
 import org.jowidgets.cap.sample.app.client.workbench.application.SampleApplication;
 import org.jowidgets.cap.sample.app.client.workbench.command.WorkbenchActions;
 import org.jowidgets.common.types.Dimension;
+import org.jowidgets.examples.common.icons.DemoIconsInitializer;
 import org.jowidgets.workbench.api.IWorkbench;
 import org.jowidgets.workbench.toolkit.api.IWorkbenchModel;
 import org.jowidgets.workbench.toolkit.api.IWorkbenchModelBuilder;
@@ -43,14 +44,17 @@ public class SampleWorkbench {
 	private final IWorkbenchModel model;
 
 	public SampleWorkbench() {
+		DemoIconsInitializer.initialize();
+
 		final IWorkbenchModelBuilder builder = new WorkbenchModelBuilder();
 		builder.setInitialDimension(new Dimension(1024, 768));
 		builder.setLabel("Data api sample app");
 
 		this.model = builder.build();
 		this.model.addApplication(new SampleApplication().getModel());
-		this.model.getToolBar().addAction(WorkbenchActions.SAVE_ACTION);
+
 		this.model.getToolBar().addAction(WorkbenchActions.UNDO_ACTION);
+		this.model.getToolBar().addAction(WorkbenchActions.SAVE_ACTION);
 
 		this.workbench = WorkbenchToolkit.getWorkbenchPartFactory().workbench(model);
 
