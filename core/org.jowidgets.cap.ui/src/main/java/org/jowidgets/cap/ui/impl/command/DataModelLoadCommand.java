@@ -31,15 +31,15 @@ package org.jowidgets.cap.ui.impl.command;
 import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.cap.ui.api.model.IDataModel;
 
-public class DataModelUndoCommand extends AbstractDataModelCommand {
+public class DataModelLoadCommand extends AbstractDataModelCommand {
 
-	DataModelUndoCommand() {
-		super(true);
+	DataModelLoadCommand() {
+		super(false);
 	}
 
 	@Override
 	void execute(final IDataModel dataModel, final IExecutionContext executionContext) {
-		dataModel.undoModifications();
+		dataModel.loadData();
 	}
 
 }

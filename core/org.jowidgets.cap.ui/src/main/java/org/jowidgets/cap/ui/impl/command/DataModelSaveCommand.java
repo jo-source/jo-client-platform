@@ -33,6 +33,10 @@ import org.jowidgets.cap.ui.api.model.IDataModel;
 
 public class DataModelSaveCommand extends AbstractDataModelCommand {
 
+	DataModelSaveCommand() {
+		super(true);
+	}
+
 	@Override
 	void execute(final IDataModel dataModel, final IExecutionContext executionContext) {
 		dataModel.saveModifications();

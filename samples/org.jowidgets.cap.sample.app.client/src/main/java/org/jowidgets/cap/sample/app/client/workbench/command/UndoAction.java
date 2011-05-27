@@ -31,6 +31,7 @@ package org.jowidgets.cap.sample.app.client.workbench.command;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.command.IDataModelAction;
 import org.jowidgets.cap.ui.api.command.IDataModelActionBuilder;
+import org.jowidgets.common.types.Modifier;
 import org.jowidgets.examples.common.icons.SilkIcons;
 
 final class UndoAction {
@@ -40,6 +41,7 @@ final class UndoAction {
 	UndoAction() {
 		final IDataModelActionBuilder builder = CapUiToolkit.getActionFactory().dataModelUndoActionBuilder();
 		builder.setIcon(SilkIcons.ARROW_UNDO);
+		builder.setAccelerator('Z', Modifier.CTRL);
 		action = builder.build();
 	}
 

@@ -45,6 +45,11 @@ public class ActionFactory implements IActionFactory {
 	}
 
 	@Override
+	public IDataModelAction dataModelLoadAction() {
+		return dataModelLoadActionBuilder().build();
+	}
+
+	@Override
 	public IDataModelActionBuilder dataModelSaveActionBuilder() {
 		final IDataModelActionBuilder builder = new DataModelActionBuilder(new DataModelSaveCommand());
 		builder.setText("Save"); //TODO MG i18n
@@ -55,6 +60,13 @@ public class ActionFactory implements IActionFactory {
 	public IDataModelActionBuilder dataModelUndoActionBuilder() {
 		final IDataModelActionBuilder builder = new DataModelActionBuilder(new DataModelUndoCommand());
 		builder.setText("Undo"); //TODO MG i18n
+		return builder;
+	}
+
+	@Override
+	public IDataModelActionBuilder dataModelLoadActionBuilder() {
+		final IDataModelActionBuilder builder = new DataModelActionBuilder(new DataModelLoadCommand());
+		builder.setText("Reload"); //TODO MG i18n
 		return builder;
 	}
 

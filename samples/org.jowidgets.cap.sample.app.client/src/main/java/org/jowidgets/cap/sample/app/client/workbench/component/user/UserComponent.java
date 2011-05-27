@@ -76,12 +76,14 @@ public class UserComponent extends AbstractComponent implements IComponent {
 
 	@Override
 	public void onActivation() {
+		WorkbenchActions.LOAD_ACTION.addDataModel(userTableModel);
 		WorkbenchActions.SAVE_ACTION.addDataModel(userTableModel);
 		WorkbenchActions.UNDO_ACTION.addDataModel(userTableModel);
 	}
 
 	@Override
 	public void onDeactivation(final IVetoable vetoable) {
+		WorkbenchActions.LOAD_ACTION.removeDataModel(userTableModel);
 		WorkbenchActions.SAVE_ACTION.removeDataModel(userTableModel);
 		WorkbenchActions.UNDO_ACTION.removeDataModel(userTableModel);
 	}

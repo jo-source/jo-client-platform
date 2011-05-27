@@ -30,6 +30,10 @@ package org.jowidgets.cap.ui.api.command;
 
 public interface IActionFactory {
 
+	IDataModelAction dataModelLoadAction();
+
+	IDataModelActionBuilder dataModelLoadActionBuilder();
+
 	IDataModelAction dataModelSaveAction();
 
 	IDataModelActionBuilder dataModelSaveActionBuilder();
