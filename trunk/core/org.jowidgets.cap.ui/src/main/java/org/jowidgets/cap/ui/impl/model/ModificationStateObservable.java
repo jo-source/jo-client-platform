@@ -26,19 +26,35 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample.app.server.service.executor;
+package org.jowidgets.cap.ui.impl.model;
 
-import org.jowidgets.cap.common.api.execution.IExecutionCallback;
-import org.jowidgets.cap.sample.app.server.entity.User;
-import org.jowidgets.cap.service.api.executor.IBeanExecutor;
-import org.jowidgets.util.types.Null;
+import java.util.HashSet;
+import java.util.Set;
 
-public class ChangeGenderExecutor implements IBeanExecutor<User, Null> {
+import org.jowidgets.cap.ui.api.model.IModificationStateListener;
+import org.jowidgets.cap.ui.api.model.IModificationStateObservable;
 
-	@Override
-	public User execute(final User user, final Null parameter, final IExecutionCallback executionCallback) {
-		user.setGender("F");
-		return user;
+public class ModificationStateObservable implements IModificationStateObservable {
+
+	private final Set<IModificationStateListener> listeners;
+
+	public ModificationStateObservable() {
+		this.listeners = new HashSet<IModificationStateListener>();
 	}
 
+	@Override
+	public final void addModificationStateListener(final IModificationStateListener listener) {
+		listeners.add(listener);
+	}
+
+	@Override
+	public final void removeModificationStateListener(final IModificationStateListener listener) {
+		listeners.remove(listener);
+	}
+
+	public final void fireModificationStateChanged() {
+		for (final IModificationStateListener listener : listeners) {
+			listener.modificationStateChanged();
+		}
+	}
 }

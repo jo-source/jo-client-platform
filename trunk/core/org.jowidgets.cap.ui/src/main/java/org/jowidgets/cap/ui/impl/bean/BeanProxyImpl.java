@@ -38,23 +38,29 @@ import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanModification;
 import org.jowidgets.cap.common.api.bean.IBeanModificationBuilder;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
+import org.jowidgets.cap.ui.api.bean.IBeansModificationRegistry;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.NullCompatibleEquivalence;
 
 final class BeanProxyImpl<BEAN_TYPE> extends PropertyChangeObservable implements IBeanProxy<BEAN_TYPE> {
 
-	private final IBeanDto beanDto;
 	private final Class<? extends BEAN_TYPE> beanType;
 	private final Map<String, IBeanModification> modifications;
+	private final IBeansModificationRegistry<BEAN_TYPE> modificationRegistry;
 
+	private IBeanDto beanDto;
 	private BEAN_TYPE proxy;
 
-	public BeanProxyImpl(final IBeanDto beanDto, final Class<? extends BEAN_TYPE> beanType) {
+	public BeanProxyImpl(
+		final IBeanDto beanDto,
+		final Class<? extends BEAN_TYPE> beanType,
+		final IBeansModificationRegistry<BEAN_TYPE> modificationRegistry) {
 		Assert.paramNotNull(beanDto, "beanDto");
 		Assert.paramNotNull(beanType, "beanType");
 
 		this.beanDto = beanDto;
 		this.beanType = beanType;
+		this.modificationRegistry = modificationRegistry;
 		this.modifications = new HashMap<String, IBeanModification>();
 	}
 
@@ -90,13 +96,22 @@ final class BeanProxyImpl<BEAN_TYPE> extends PropertyChangeObservable implements
 		if (NullCompatibleEquivalence.equals(originalValue, newValue)) {
 			modifications.remove(propertyName);
 			firePropertyChange(this, propertyName, currentValue, newValue);
+			modificationRegistry.remove(this);
 		}
 		else if (!NullCompatibleEquivalence.equals(currentValue, newValue)) {
 			final IBeanModificationBuilder modBuilder = CapCommonToolkit.beanModificationBuilder();
 			modBuilder.setBeanDto(beanDto).setPropertyName(propertyName).setNewValue(newValue);
 			modifications.put(propertyName, modBuilder.build());
 			firePropertyChange(this, propertyName, currentValue, newValue);
+			modificationRegistry.add(this);
 		}
+	}
+
+	@Override
+	public void setBeanDto(final IBeanDto beanDto) {
+		modifications.clear();
+		modificationRegistry.remove(this);
+		this.beanDto = beanDto;
 	}
 
 	@Override
@@ -112,6 +127,7 @@ final class BeanProxyImpl<BEAN_TYPE> extends PropertyChangeObservable implements
 	@Override
 	public void undoModifications() {
 		modifications.clear();
+		modificationRegistry.remove(this);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -128,7 +144,7 @@ final class BeanProxyImpl<BEAN_TYPE> extends PropertyChangeObservable implements
 
 	@Override
 	public String toString() {
-		return "DataBeanImpl [beanDto=" + beanDto + ", beanType=" + beanType + ", modifications=" + modifications + "]";
+		return "BeanProxyImpl [beanDto=" + beanDto + ", beanType=" + beanType + ", modifications=" + modifications + "]";
 	}
 
 	@Override

@@ -31,9 +31,11 @@ package org.jowidgets.cap.ui.impl.table;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.jowidgets.api.color.Colors;
 import org.jowidgets.api.convert.IObjectLabelConverter;
@@ -45,6 +47,7 @@ import org.jowidgets.api.model.table.ITableModelFactory;
 import org.jowidgets.api.threads.IUiThreadAccess;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
+import org.jowidgets.cap.common.api.bean.IBeanModification;
 import org.jowidgets.cap.common.api.execution.IExecutionTask;
 import org.jowidgets.cap.common.api.filter.IFilter;
 import org.jowidgets.cap.common.api.service.ICreatorService;
@@ -57,8 +60,10 @@ import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
+import org.jowidgets.cap.ui.api.bean.IBeansModificationBuffer;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
+import org.jowidgets.cap.ui.api.model.IModificationStateListener;
 import org.jowidgets.cap.ui.api.model.LinkType;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.table.IReaderParameterProvider;
@@ -84,6 +89,7 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 
 	private final IBeanProxy<BEAN_TYPE> dummyBeanProxy;
 	private final IBeanProxyFactory<BEAN_TYPE> beanProxyFactory;
+	private final IBeansModificationBuffer<BEAN_TYPE> modificationBuffer;
 	private final ArrayList<IAttribute<Object>> attributes;
 	private final IReaderService<Object> readerService;
 	private final IReaderParameterProvider<Object> paramProvider;
@@ -142,7 +148,8 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 		this.pageSize = DEFAULT_PAGE_SIZE;
 		this.rowCount = 0;
 		this.maxPageIndex = 0;
-		this.beanProxyFactory = CapUiToolkit.createBeanProxyFactory(beanType);
+		this.modificationBuffer = CapUiToolkit.createBeansModificationBuffer();
+		this.beanProxyFactory = CapUiToolkit.createBeanProxyFactory(beanType, modificationBuffer);
 		this.dummyBeanProxy = beanProxyFactory.createProxy(createDummyBeanDto());
 
 		//model creation
@@ -169,6 +176,57 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 		data.clear();
 		loadPage(0);
 		dataModel.fireDataChanged();
+	}
+
+	@Override
+	public void saveModifications() {
+		final Set<IBeanProxy<BEAN_TYPE>> modifiedBeans = modificationBuffer.getModifiedBeans();
+
+		final List<IBeanModification> modifications = new LinkedList<IBeanModification>();
+
+		for (final IBeanProxy<BEAN_TYPE> bean : modifiedBeans) {
+			modifications.addAll(bean.getModifications());
+		}
+
+		final List<IBeanDto> updateResult = updaterService.update(modifications, CapUiToolkit.getExecutionTaskFactory().create());
+		final Map<Object, IBeanDto> updateMap = new HashMap<Object, IBeanDto>();
+		for (final IBeanDto beanDto : updateResult) {
+			updateMap.put(beanDto.getId(), beanDto);
+		}
+
+		for (final IBeanProxy<BEAN_TYPE> bean : new HashSet<IBeanProxy<BEAN_TYPE>>(modifiedBeans)) {
+			final IBeanDto updatedBean = updateMap.get(bean.getId());
+			if (updatedBean != null) {
+				bean.setBeanDto(updatedBean);
+			}
+			//TODO MG //else {}
+		}
+
+		dataModel.fireDataChanged();
+	}
+
+	@Override
+	public void undoModifications() {
+		for (final IBeanProxy<BEAN_TYPE> bean : new HashSet<IBeanProxy<BEAN_TYPE>>(modificationBuffer.getModifiedBeans())) {
+			bean.undoModifications();
+		}
+		modificationBuffer.clear();
+		dataModel.fireDataChanged();
+	}
+
+	@Override
+	public boolean hasModifications() {
+		return modificationBuffer.hasModifications();
+	}
+
+	@Override
+	public void addModificationStateListener(final IModificationStateListener listener) {
+		modificationBuffer.addModificationStateListener(listener);
+	}
+
+	@Override
+	public void removeModificationStateListener(final IModificationStateListener listener) {
+		modificationBuffer.removeModificationStateListener(listener);
 	}
 
 	@Override

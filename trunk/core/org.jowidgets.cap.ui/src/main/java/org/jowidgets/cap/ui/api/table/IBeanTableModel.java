@@ -37,15 +37,11 @@ import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
+import org.jowidgets.cap.ui.api.model.IDataModel;
 
-
-public interface IBeanTableModel<BEAN_TYPE> extends IBeanListModel<BEAN_TYPE> {
+public interface IBeanTableModel<BEAN_TYPE> extends IDataModel, IBeanListModel<BEAN_TYPE> {
 
 	ITableModel getTableModel();
-
-	void loadData();
-
-	void clearData();
 
 	int getRowCount();
 

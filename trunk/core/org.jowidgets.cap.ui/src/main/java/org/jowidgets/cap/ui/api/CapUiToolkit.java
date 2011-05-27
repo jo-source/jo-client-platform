@@ -33,6 +33,8 @@ import org.jowidgets.api.widgets.blueprint.defaults.IDefaultInitializer;
 import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
 import org.jowidgets.cap.ui.api.bean.IBeanKeyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
+import org.jowidgets.cap.ui.api.bean.IBeansModificationBuffer;
+import org.jowidgets.cap.ui.api.bean.IBeansModificationRegistry;
 import org.jowidgets.cap.ui.api.executor.IExecutionTaskFactory;
 import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
@@ -64,8 +66,14 @@ public final class CapUiToolkit {
 		return getInstance().getAttributeToolkit();
 	}
 
-	public static <BEAN_TYPE> IBeanProxyFactory<BEAN_TYPE> createBeanProxyFactory(final Class<? extends BEAN_TYPE> proxyType) {
-		return getInstance().createBeanProxyFactory(proxyType);
+	public static <BEAN_TYPE> IBeansModificationBuffer<BEAN_TYPE> createBeansModificationBuffer() {
+		return getInstance().createBeansModificationBuffer();
+	}
+
+	public static <BEAN_TYPE> IBeanProxyFactory<BEAN_TYPE> createBeanProxyFactory(
+		final Class<? extends BEAN_TYPE> proxyType,
+		final IBeansModificationRegistry<BEAN_TYPE> modificationRegistry) {
+		return getInstance().createBeanProxyFactory(proxyType, modificationRegistry);
 	}
 
 	public static IBeanKeyFactory getBeanKeyFactory() {

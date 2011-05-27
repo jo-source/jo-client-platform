@@ -30,6 +30,13 @@ package org.jowidgets.cap.sample.app.client.workbench.component.user.view;
 
 import java.util.List;
 
+import org.jowidgets.api.command.EnabledState;
+import org.jowidgets.api.command.IAction;
+import org.jowidgets.api.command.IActionBuilder;
+import org.jowidgets.api.command.ICommandExecutor;
+import org.jowidgets.api.command.IEnabledChecker;
+import org.jowidgets.api.command.IEnabledState;
+import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.api.model.item.IActionItemModel;
 import org.jowidgets.api.model.item.IContainerContentCreator;
 import org.jowidgets.api.toolkit.Toolkit;
@@ -45,6 +52,7 @@ import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IAttributeBuilder;
 import org.jowidgets.cap.ui.api.attribute.IAttributeCollectionModifierBuilder;
 import org.jowidgets.cap.ui.api.attribute.IAttributeModifier;
+import org.jowidgets.cap.ui.api.model.IModificationStateListener;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
 import org.jowidgets.cap.ui.api.table.IReaderParameterProvider;
@@ -54,16 +62,19 @@ import org.jowidgets.common.types.AlignmentHorizontal;
 import org.jowidgets.common.widgets.controler.IActionListener;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
 import org.jowidgets.service.api.ServiceProvider;
+import org.jowidgets.tools.command.ActionBuilder;
+import org.jowidgets.tools.command.EnabledChecker;
 import org.jowidgets.tools.layout.MigLayoutFactory;
 import org.jowidgets.workbench.api.IViewContext;
 import org.jowidgets.workbench.tools.AbstractView;
-
 
 public class UserTableView extends AbstractView {
 
 	public static final String ID = UserTableView.class.getName();
 	public static final String DEFAULT_LABEL = "Users";
 	public static final String DEFAULT_TOOLTIP = "Table of all users";
+
+	private final IBeanTableModel<IUser> beanTableModel;
 
 	private IInputField<Integer> delayField;
 
@@ -100,7 +111,7 @@ public class UserTableView extends AbstractView {
 			}
 		});
 
-		final IBeanTableModel<IUser> beanTableModel = builder.build();
+		this.beanTableModel = builder.build();
 
 		context.getContainer().setLayout(MigLayoutFactory.growingInnerCellLayout());
 
@@ -124,7 +135,7 @@ public class UserTableView extends AbstractView {
 				container.setLayout(new MigLayoutDescriptor("[][100!]", "0[]0"));
 				container.add(bpf.textLabel("Delay (ms)"), "");
 				delayField = container.add(bpf.inputFieldIntegerNumber(), "w 100!");
-				delayField.setValue(1000);
+				delayField.setValue(0);
 			}
 
 			@Override
@@ -147,7 +158,52 @@ public class UserTableView extends AbstractView {
 			}
 		});
 
-		beanTableModel.loadData();
+		context.getToolBar().addAction(createSaveAction());
+		context.getToolBar().addAction(createUndoAction());
 
+		beanTableModel.loadData();
+	}
+
+	private IAction createSaveAction() {
+		final IActionBuilder builder = new ActionBuilder();
+		builder.setText("Save");
+
+		builder.setCommand(new ICommandExecutor() {
+			@Override
+			public void execute(final IExecutionContext executionContext) throws Exception {
+				beanTableModel.saveModifications();
+			}
+		}, createModificationStateChecker());
+		return builder.build();
+	}
+
+	private IAction createUndoAction() {
+		final IActionBuilder builder = new ActionBuilder();
+		builder.setText("Undo");
+		builder.setCommand(new ICommandExecutor() {
+			@Override
+			public void execute(final IExecutionContext executionContext) throws Exception {
+				beanTableModel.undoModifications();
+			}
+		}, createModificationStateChecker());
+		return builder.build();
+	}
+
+	private IEnabledChecker createModificationStateChecker() {
+		final EnabledChecker enabledChecker = new EnabledChecker();
+		final IEnabledState disabledState = EnabledState.disabled("There are no data changes");
+		enabledChecker.setEnabledState(disabledState);
+		beanTableModel.addModificationStateListener(new IModificationStateListener() {
+			@Override
+			public void modificationStateChanged() {
+				if (beanTableModel.hasModifications()) {
+					enabledChecker.setEnabledState(EnabledState.ENABLED);
+				}
+				else {
+					enabledChecker.setEnabledState(disabledState);
+				}
+			}
+		});
+		return enabledChecker;
 	}
 }
