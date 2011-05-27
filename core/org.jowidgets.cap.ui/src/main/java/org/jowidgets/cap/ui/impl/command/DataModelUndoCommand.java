@@ -26,19 +26,16 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample.app.common.service.executor;
+package org.jowidgets.cap.ui.impl.command;
 
-import org.jowidgets.cap.common.api.service.IExecutorService;
-import org.jowidgets.service.api.IServiceId;
-import org.jowidgets.service.tools.ServiceId;
-import org.jowidgets.util.types.Null;
+import org.jowidgets.api.command.IExecutionContext;
+import org.jowidgets.cap.ui.api.model.IDataModel;
 
-public final class UserComponentExecutorServices {
+public class DataModelUndoCommand extends AbstractDataModelCommand {
 
-	public static final IServiceId<IExecutorService<Null>> CHANGE_GENDER = new ServiceId<IExecutorService<Null>>(
-		UserComponentExecutorServices.class.getName() + "_CHANGE_GENDER",
-		IExecutorService.class);
-
-	private UserComponentExecutorServices() {};
+	@Override
+	void execute(final IDataModel dataModel, final IExecutionContext executionContext) {
+		dataModel.undoModifications();
+	}
 
 }

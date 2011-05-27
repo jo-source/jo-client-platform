@@ -26,12 +26,16 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.widgets;
+package org.jowidgets.cap.ui.impl.command;
 
-import org.jowidgets.cap.ui.api.table.IBeanTableModel;
+import org.jowidgets.api.command.IExecutionContext;
+import org.jowidgets.cap.ui.api.model.IDataModel;
 
-public interface IDataApiBluePrintFactory {
+public class DataModelSaveCommand extends AbstractDataModelCommand {
 
-	<BEAN_TYPE> IBeanTableBluePrint<BEAN_TYPE> beanTable(IBeanTableModel<BEAN_TYPE> model);
+	@Override
+	void execute(final IDataModel dataModel, final IExecutionContext executionContext) {
+		dataModel.saveModifications();
+	}
 
 }

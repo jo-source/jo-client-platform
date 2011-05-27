@@ -26,19 +26,36 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample.app.common.service.executor;
+package org.jowidgets.cap.sample.app.client.attribute;
 
-import org.jowidgets.cap.common.api.service.IExecutorService;
-import org.jowidgets.service.api.IServiceId;
-import org.jowidgets.service.tools.ServiceId;
-import org.jowidgets.util.types.Null;
+import java.util.List;
 
-public final class UserComponentExecutorServices {
+import org.jowidgets.cap.common.api.bean.IProperty;
+import org.jowidgets.cap.common.api.service.IEntityService;
+import org.jowidgets.cap.sample.app.common.entity.IUser;
+import org.jowidgets.cap.ui.api.CapUiToolkit;
+import org.jowidgets.cap.ui.api.attribute.IAttribute;
+import org.jowidgets.cap.ui.api.attribute.IAttributeBuilder;
+import org.jowidgets.cap.ui.api.attribute.IAttributeCollectionModifierBuilder;
+import org.jowidgets.cap.ui.api.attribute.IAttributeModifier;
+import org.jowidgets.common.types.AlignmentHorizontal;
+import org.jowidgets.service.api.ServiceProvider;
 
-	public static final IServiceId<IExecutorService<Null>> CHANGE_GENDER = new ServiceId<IExecutorService<Null>>(
-		UserComponentExecutorServices.class.getName() + "_CHANGE_GENDER",
-		IExecutorService.class);
+public class UserAttributesFactory {
 
-	private UserComponentExecutorServices() {};
+	public List<IAttribute<Object>> create() {
+		final List<IProperty> properties = ServiceProvider.getService(IEntityService.ID).getDescriptor(IUser.class).getProperties();
+
+		final IAttributeCollectionModifierBuilder modifierBuilder = CapUiToolkit.getAttributeToolkit().createAttributeCollectionModifierBuilder();
+		modifierBuilder.addModifier(IUser.GENDER_PROPERTY, new IAttributeModifier() {
+			@Override
+			public void modify(final IProperty sourceProperty, final IAttributeBuilder<?> attributeBuilder) {
+				attributeBuilder.setTableAlignment(AlignmentHorizontal.CENTER);
+			}
+		});
+		modifierBuilder.addDefaultEditableModifier(true);
+
+		return CapUiToolkit.getAttributeToolkit().createAttributes(properties, modifierBuilder.build());
+	}
 
 }
