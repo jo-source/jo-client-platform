@@ -28,7 +28,6 @@
 
 package org.jowidgets.cap.sample.app.client.workbench.component.user.view;
 
-import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.model.item.IActionItemModel;
 import org.jowidgets.api.model.item.IContainerContentCreator;
 import org.jowidgets.api.toolkit.Toolkit;
@@ -36,10 +35,10 @@ import org.jowidgets.api.widgets.IContainer;
 import org.jowidgets.api.widgets.IInputField;
 import org.jowidgets.api.widgets.blueprint.factory.IBluePrintFactory;
 import org.jowidgets.cap.sample.app.client.attribute.UserAttributesFactory;
+import org.jowidgets.cap.sample.app.client.workbench.command.WorkbenchActions;
 import org.jowidgets.cap.sample.app.common.entity.IUser;
 import org.jowidgets.cap.sample.app.common.service.reader.UserReaderServices;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
-import org.jowidgets.cap.ui.api.command.IDataModelAction;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
 import org.jowidgets.cap.ui.api.table.IReaderParameterProvider;
@@ -117,8 +116,8 @@ public class UserTableView extends AbstractView {
 			}
 		});
 
-		context.getToolBar().addAction(createSaveAction());
-		context.getToolBar().addAction(createUndoAction());
+		WorkbenchActions.SAVE_ACTION.addDataModel(beanTableModel);
+		WorkbenchActions.UNDO_ACTION.addDataModel(beanTableModel);
 
 		beanTableModel.loadData();
 	}
@@ -133,18 +132,6 @@ public class UserTableView extends AbstractView {
 				return null;
 			}
 		};
-	}
-
-	private IAction createSaveAction() {
-		final IDataModelAction result = CapUiToolkit.getActionFactory().dataModelSaveAction();
-		result.addDataModel(beanTableModel);
-		return result;
-	}
-
-	private IAction createUndoAction() {
-		final IDataModelAction result = CapUiToolkit.getActionFactory().dataModelUndoAction();
-		result.addDataModel(beanTableModel);
-		return result;
 	}
 
 }

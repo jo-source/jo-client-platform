@@ -37,7 +37,6 @@ import org.jowidgets.workbench.api.IViewContext;
 import org.jowidgets.workbench.toolkit.api.IComponentNodeModel;
 import org.jowidgets.workbench.tools.AbstractComponent;
 
-
 public class UserComponent extends AbstractComponent implements IComponent {
 
 	public UserComponent(final IComponentNodeModel componentNodeModel, final IComponentContext componentContext) {
