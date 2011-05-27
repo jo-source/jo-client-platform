@@ -31,6 +31,7 @@ package org.jowidgets.cap.sample.app.client.workbench.command;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.command.IDataModelAction;
 import org.jowidgets.cap.ui.api.command.IDataModelActionBuilder;
+import org.jowidgets.examples.common.icons.SilkIcons;
 
 final class SaveAction {
 
@@ -38,6 +39,7 @@ final class SaveAction {
 
 	SaveAction() {
 		final IDataModelActionBuilder builder = CapUiToolkit.getActionFactory().dataModelSaveActionBuilder();
+		builder.setIcon(SilkIcons.DISK);
 		action = builder.build();
 	}
 

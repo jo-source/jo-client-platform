@@ -61,20 +61,7 @@ abstract class AbstractDataModelCommand implements ICommand, ICommandExecutor, I
 		this.modificationStateListener = new IModificationStateListener() {
 			@Override
 			public void modificationStateChanged() {
-				boolean modifications = false;
-				for (final IDataModel dataModel : dataModels) {
-					modifications = modifications || dataModel.hasModifications();
-				}
-				if (lastModifications != modifications) {
-					lastModifications = modifications;
-					if (modifications) {
-						enabledChecker.setEnabledState(EnabledState.ENABLED);
-					}
-					else {
-						//TODO MG i18n
-						enabledChecker.setEnabledState(EnabledState.disabled("There is no data modified"));
-					}
-				}
+				checkModificationState();
 			}
 		};
 	}
@@ -86,6 +73,7 @@ abstract class AbstractDataModelCommand implements ICommand, ICommandExecutor, I
 		if (!dataModels.contains(dataModel)) {
 			dataModels.add(dataModel);
 			dataModel.addModificationStateListener(modificationStateListener);
+			checkModificationState();
 		}
 	}
 
@@ -94,6 +82,7 @@ abstract class AbstractDataModelCommand implements ICommand, ICommandExecutor, I
 		if (dataModels.contains(dataModel)) {
 			dataModels.remove(dataModel);
 			dataModel.removeModificationStateListener(modificationStateListener);
+			checkModificationState();
 		}
 	}
 
@@ -132,6 +121,23 @@ abstract class AbstractDataModelCommand implements ICommand, ICommandExecutor, I
 	@Override
 	public final IExceptionHandler getExceptionHandler() {
 		return null;
+	}
+
+	private void checkModificationState() {
+		boolean modifications = false;
+		for (final IDataModel dataModel : dataModels) {
+			modifications = modifications || dataModel.hasModifications();
+		}
+		if (lastModifications != modifications) {
+			lastModifications = modifications;
+			if (modifications) {
+				enabledChecker.setEnabledState(EnabledState.ENABLED);
+			}
+			else {
+				//TODO MG i18n
+				enabledChecker.setEnabledState(EnabledState.disabled("There is no data modified"));
+			}
+		}
 	}
 
 }
