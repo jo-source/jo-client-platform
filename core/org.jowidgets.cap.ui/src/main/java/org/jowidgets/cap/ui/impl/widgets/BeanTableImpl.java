@@ -51,7 +51,6 @@ import org.jowidgets.common.widgets.controler.ITableSelectionListener;
 import org.jowidgets.tools.controler.TableCellEditorAdapter;
 import org.jowidgets.tools.widgets.wrapper.ControlWrapper;
 
-
 final class BeanTableImpl<BEAN_TYPE> extends ControlWrapper implements IBeanTable<BEAN_TYPE> {
 
 	private final IBeanTableModel<BEAN_TYPE> model;
@@ -68,8 +67,9 @@ final class BeanTableImpl<BEAN_TYPE> extends ControlWrapper implements IBeanTabl
 				final IAttribute<Object> attribute = model.getAttribute(event.getColumnIndex());
 				if (bean != null && attribute != null && !attribute.isCollectionType()) {
 					final IStringObjectConverter<Object> converter = attribute.getDefaultControlPanel().getStringObjectConverter();
-					if (converter != null && converter.getStringValidator() != null) {
-						if (converter.getStringValidator().validate(event.getCurrentText()).isOk()) {
+					if (converter != null) {
+						if (converter.getStringValidator() == null
+							|| converter.getStringValidator().validate(event.getCurrentText()).isOk()) {
 							final Object value = converter.convertToObject(event.getCurrentText());
 							bean.setValue(attribute.getPropertyName(), value);
 						}
