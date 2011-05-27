@@ -26,38 +26,23 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample.app.client.workbench;
+package org.jowidgets.cap.sample.app.client.workbench.command;
 
-import org.jowidgets.cap.sample.app.client.workbench.application.SampleApplication;
-import org.jowidgets.cap.sample.app.client.workbench.command.WorkbenchActions;
-import org.jowidgets.common.types.Dimension;
-import org.jowidgets.workbench.api.IWorkbench;
-import org.jowidgets.workbench.toolkit.api.IWorkbenchModel;
-import org.jowidgets.workbench.toolkit.api.IWorkbenchModelBuilder;
-import org.jowidgets.workbench.toolkit.api.WorkbenchToolkit;
-import org.jowidgets.workbench.tools.WorkbenchModelBuilder;
+import org.jowidgets.cap.ui.api.CapUiToolkit;
+import org.jowidgets.cap.ui.api.command.IDataModelAction;
+import org.jowidgets.cap.ui.api.command.IDataModelActionBuilder;
 
-public class SampleWorkbench {
+final class SaveAction {
 
-	private final IWorkbench workbench;
-	private final IWorkbenchModel model;
+	private final IDataModelAction action;
 
-	public SampleWorkbench() {
-		final IWorkbenchModelBuilder builder = new WorkbenchModelBuilder();
-		builder.setInitialDimension(new Dimension(1024, 768));
-		builder.setLabel("Data api sample app");
-
-		this.model = builder.build();
-		this.model.addApplication(new SampleApplication().getModel());
-		this.model.getToolBar().addAction(WorkbenchActions.SAVE_ACTION);
-		this.model.getToolBar().addAction(WorkbenchActions.UNDO_ACTION);
-
-		this.workbench = WorkbenchToolkit.getWorkbenchPartFactory().workbench(model);
-
+	SaveAction() {
+		final IDataModelActionBuilder builder = CapUiToolkit.getActionFactory().dataModelSaveActionBuilder();
+		action = builder.build();
 	}
 
-	public IWorkbench getWorkbench() {
-		return workbench;
+	IDataModelAction getAction() {
+		return action;
 	}
 
 }
