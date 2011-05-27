@@ -26,29 +26,15 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.impl.widgets;
+package org.jowidgets.cap.ui.api.command;
 
-import org.jowidgets.api.toolkit.Toolkit;
-import org.jowidgets.api.widgets.blueprint.factory.IBluePrintFactory;
-import org.jowidgets.cap.ui.api.table.IBeanTableModel;
-import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
-import org.jowidgets.cap.ui.api.widgets.IDataApiBluePrintFactory;
-import org.jowidgets.util.Assert;
+import org.jowidgets.api.command.IAction;
+import org.jowidgets.cap.ui.api.model.IDataModel;
 
-public final class DataApiBluePrintFactory implements IDataApiBluePrintFactory {
+public interface IDataModelAction extends IAction {
 
-	private final IBluePrintFactory bluePrintFactory;
+	void addDataModel(IDataModel dataModel);
 
-	public DataApiBluePrintFactory() {
-		this.bluePrintFactory = Toolkit.getBluePrintFactory();
-	}
+	void removeDataModel(IDataModel dataModel);
 
-	@Override
-	public <BEAN_TYPE> IBeanTableBluePrint<BEAN_TYPE> beanTable(final IBeanTableModel<BEAN_TYPE> model) {
-		Assert.paramNotNull(model, "model");
-		@SuppressWarnings("unchecked")
-		final IBeanTableBluePrint<BEAN_TYPE> result = bluePrintFactory.bluePrint(IBeanTableBluePrint.class);
-		result.setModel(model);
-		return result;
-	}
 }

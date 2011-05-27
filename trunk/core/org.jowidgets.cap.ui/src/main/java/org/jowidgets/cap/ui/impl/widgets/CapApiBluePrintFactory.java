@@ -26,19 +26,29 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample.app.common.service.executor;
+package org.jowidgets.cap.ui.impl.widgets;
 
-import org.jowidgets.cap.common.api.service.IExecutorService;
-import org.jowidgets.service.api.IServiceId;
-import org.jowidgets.service.tools.ServiceId;
-import org.jowidgets.util.types.Null;
+import org.jowidgets.api.toolkit.Toolkit;
+import org.jowidgets.api.widgets.blueprint.factory.IBluePrintFactory;
+import org.jowidgets.cap.ui.api.table.IBeanTableModel;
+import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
+import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
+import org.jowidgets.util.Assert;
 
-public final class UserComponentExecutorServices {
+public final class CapApiBluePrintFactory implements ICapApiBluePrintFactory {
 
-	public static final IServiceId<IExecutorService<Null>> CHANGE_GENDER = new ServiceId<IExecutorService<Null>>(
-		UserComponentExecutorServices.class.getName() + "_CHANGE_GENDER",
-		IExecutorService.class);
+	private final IBluePrintFactory bluePrintFactory;
 
-	private UserComponentExecutorServices() {};
+	public CapApiBluePrintFactory() {
+		this.bluePrintFactory = Toolkit.getBluePrintFactory();
+	}
 
+	@Override
+	public <BEAN_TYPE> IBeanTableBluePrint<BEAN_TYPE> beanTable(final IBeanTableModel<BEAN_TYPE> model) {
+		Assert.paramNotNull(model, "model");
+		@SuppressWarnings("unchecked")
+		final IBeanTableBluePrint<BEAN_TYPE> result = bluePrintFactory.bluePrint(IBeanTableBluePrint.class);
+		result.setModel(model);
+		return result;
+	}
 }

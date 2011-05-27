@@ -28,42 +28,25 @@
 
 package org.jowidgets.cap.sample.app.client.workbench.component.user.view;
 
-import java.util.List;
-
-import org.jowidgets.api.command.EnabledState;
 import org.jowidgets.api.command.IAction;
-import org.jowidgets.api.command.IActionBuilder;
-import org.jowidgets.api.command.ICommandExecutor;
-import org.jowidgets.api.command.IEnabledChecker;
-import org.jowidgets.api.command.IEnabledState;
-import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.api.model.item.IActionItemModel;
 import org.jowidgets.api.model.item.IContainerContentCreator;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.widgets.IContainer;
 import org.jowidgets.api.widgets.IInputField;
 import org.jowidgets.api.widgets.blueprint.factory.IBluePrintFactory;
-import org.jowidgets.cap.common.api.bean.IProperty;
-import org.jowidgets.cap.common.api.service.IEntityService;
+import org.jowidgets.cap.sample.app.client.attribute.UserAttributesFactory;
 import org.jowidgets.cap.sample.app.common.entity.IUser;
 import org.jowidgets.cap.sample.app.common.service.reader.UserReaderServices;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
-import org.jowidgets.cap.ui.api.attribute.IAttribute;
-import org.jowidgets.cap.ui.api.attribute.IAttributeBuilder;
-import org.jowidgets.cap.ui.api.attribute.IAttributeCollectionModifierBuilder;
-import org.jowidgets.cap.ui.api.attribute.IAttributeModifier;
-import org.jowidgets.cap.ui.api.model.IModificationStateListener;
+import org.jowidgets.cap.ui.api.command.IDataModelAction;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
 import org.jowidgets.cap.ui.api.table.IReaderParameterProvider;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
-import org.jowidgets.cap.ui.api.widgets.IDataApiBluePrintFactory;
-import org.jowidgets.common.types.AlignmentHorizontal;
+import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
 import org.jowidgets.common.widgets.controler.IActionListener;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
-import org.jowidgets.service.api.ServiceProvider;
-import org.jowidgets.tools.command.ActionBuilder;
-import org.jowidgets.tools.command.EnabledChecker;
 import org.jowidgets.tools.layout.MigLayoutFactory;
 import org.jowidgets.workbench.api.IViewContext;
 import org.jowidgets.workbench.tools.AbstractView;
@@ -84,41 +67,17 @@ public class UserTableView extends AbstractView {
 
 		final IBeanTableModelBuilder<IUser> builder = CapUiToolkit.createBeanTableModelBuilder(IUser.class);
 
-		final List<IProperty> properties = ServiceProvider.getService(IEntityService.ID).getDescriptor(IUser.class).getProperties();
-
-		final IAttributeCollectionModifierBuilder modifierBuilder = CapUiToolkit.getAttributeToolkit().createAttributeCollectionModifierBuilder();
-		modifierBuilder.addModifier(IUser.GENDER_PROPERTY, new IAttributeModifier() {
-			@Override
-			public void modify(final IProperty sourceProperty, final IAttributeBuilder<?> attributeBuilder) {
-				attributeBuilder.setTableAlignment(AlignmentHorizontal.CENTER);
-			}
-		});
-		modifierBuilder.addDefaultEditableModifier(true);
-
-		final List<IAttribute<Object>> attributes = CapUiToolkit.getAttributeToolkit().createAttributes(
-				properties,
-				modifierBuilder.build());
-
-		builder.setAttributes(attributes);
-		builder.setReaderService(UserReaderServices.ALL_USERS, new IReaderParameterProvider<Integer>() {
-
-			@Override
-			public Integer getParameter() {
-				if (delayField != null) {
-					return delayField.getValue();
-				}
-				return null;
-			}
-		});
+		builder.setAttributes(new UserAttributesFactory().create());
+		builder.setReaderService(UserReaderServices.ALL_USERS, createReaderParameterProvider());
 
 		this.beanTableModel = builder.build();
 
 		context.getContainer().setLayout(MigLayoutFactory.growingInnerCellLayout());
 
-		final IDataApiBluePrintFactory dbpf = CapUiToolkit.getBluePrintFactory();
+		final ICapApiBluePrintFactory capBpf = CapUiToolkit.getBluePrintFactory();
 
 		final IBeanTable<IUser> table = context.getContainer().add(
-				dbpf.beanTable(beanTableModel),
+				capBpf.beanTable(beanTableModel),
 				MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
 
 		final IActionItemModel reloadAction = context.getToolBar().addActionItem("Reload", "Reload the data");
@@ -164,46 +123,28 @@ public class UserTableView extends AbstractView {
 		beanTableModel.loadData();
 	}
 
-	private IAction createSaveAction() {
-		final IActionBuilder builder = new ActionBuilder();
-		builder.setText("Save");
-
-		builder.setCommand(new ICommandExecutor() {
+	private IReaderParameterProvider<Integer> createReaderParameterProvider() {
+		return new IReaderParameterProvider<Integer>() {
 			@Override
-			public void execute(final IExecutionContext executionContext) throws Exception {
-				beanTableModel.saveModifications();
+			public Integer getParameter() {
+				if (delayField != null) {
+					return delayField.getValue();
+				}
+				return null;
 			}
-		}, createModificationStateChecker());
-		return builder.build();
+		};
+	}
+
+	private IAction createSaveAction() {
+		final IDataModelAction result = CapUiToolkit.getActionFactory().dataModelSaveAction();
+		result.addDataModel(beanTableModel);
+		return result;
 	}
 
 	private IAction createUndoAction() {
-		final IActionBuilder builder = new ActionBuilder();
-		builder.setText("Undo");
-		builder.setCommand(new ICommandExecutor() {
-			@Override
-			public void execute(final IExecutionContext executionContext) throws Exception {
-				beanTableModel.undoModifications();
-			}
-		}, createModificationStateChecker());
-		return builder.build();
+		final IDataModelAction result = CapUiToolkit.getActionFactory().dataModelUndoAction();
+		result.addDataModel(beanTableModel);
+		return result;
 	}
 
-	private IEnabledChecker createModificationStateChecker() {
-		final EnabledChecker enabledChecker = new EnabledChecker();
-		final IEnabledState disabledState = EnabledState.disabled("There are no data changes");
-		enabledChecker.setEnabledState(disabledState);
-		beanTableModel.addModificationStateListener(new IModificationStateListener() {
-			@Override
-			public void modificationStateChanged() {
-				if (beanTableModel.hasModifications()) {
-					enabledChecker.setEnabledState(EnabledState.ENABLED);
-				}
-				else {
-					enabledChecker.setEnabledState(disabledState);
-				}
-			}
-		});
-		return enabledChecker;
-	}
 }

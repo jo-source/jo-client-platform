@@ -26,19 +26,46 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample.app.common.service.executor;
+package org.jowidgets.cap.ui.api.command;
 
-import org.jowidgets.cap.common.api.service.IExecutorService;
-import org.jowidgets.service.api.IServiceId;
-import org.jowidgets.service.tools.ServiceId;
-import org.jowidgets.util.types.Null;
+import org.jowidgets.api.command.IExceptionHandler;
+import org.jowidgets.common.image.IImageConstant;
+import org.jowidgets.common.types.Accelerator;
+import org.jowidgets.common.types.Modifier;
+import org.jowidgets.common.types.VirtualKey;
 
-public final class UserComponentExecutorServices {
+public interface IDataModelActionBuilder {
 
-	public static final IServiceId<IExecutorService<Null>> CHANGE_GENDER = new ServiceId<IExecutorService<Null>>(
-		UserComponentExecutorServices.class.getName() + "_CHANGE_GENDER",
-		IExecutorService.class);
+	IDataModelActionBuilder setText(String text);
 
-	private UserComponentExecutorServices() {};
+	IDataModelActionBuilder setToolTipText(final String toolTipText);
+
+	IDataModelActionBuilder setIcon(IImageConstant icon);
+
+	IDataModelActionBuilder setMnemonic(final Character mnemonic);
+
+	IDataModelActionBuilder setMnemonic(final char mnemonic);
+
+	IDataModelActionBuilder setAccelerator(Accelerator accelerator);
+
+	IDataModelActionBuilder setAccelerator(final char key, final Modifier... modifier);
+
+	IDataModelActionBuilder setAccelerator(final VirtualKey virtualKey, final Modifier... modifier);
+
+	/**
+	 * Set's the ExceptionHandler of the action. The actions ExceptionHandler handles exceptions that are not
+	 * handled by the command's exception handler.
+	 * 
+	 * The actions ExceptionHandler should be implemented independently of the current command. If exception handling
+	 * is command specific, the commands exception handler should be used for that.
+	 * 
+	 * If no exception handler is set, a default handler will be used for the action.
+	 * 
+	 * @param exceptionHandler The ExceptionHandler to set
+	 * @return this instance
+	 */
+	IDataModelActionBuilder setActionExceptionHandler(IExceptionHandler exceptionHandler);
+
+	IDataModelAction build();
 
 }

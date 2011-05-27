@@ -26,19 +26,36 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample.app.common.service.executor;
+package org.jowidgets.cap.ui.impl.command;
 
-import org.jowidgets.cap.common.api.service.IExecutorService;
-import org.jowidgets.service.api.IServiceId;
-import org.jowidgets.service.tools.ServiceId;
-import org.jowidgets.util.types.Null;
+import org.jowidgets.cap.ui.api.command.IActionFactory;
+import org.jowidgets.cap.ui.api.command.IDataModelAction;
+import org.jowidgets.cap.ui.api.command.IDataModelActionBuilder;
 
-public final class UserComponentExecutorServices {
+public class ActionFactory implements IActionFactory {
 
-	public static final IServiceId<IExecutorService<Null>> CHANGE_GENDER = new ServiceId<IExecutorService<Null>>(
-		UserComponentExecutorServices.class.getName() + "_CHANGE_GENDER",
-		IExecutorService.class);
+	@Override
+	public IDataModelAction dataModelSaveAction() {
+		return dataModelSaveActionBuilder().build();
+	}
 
-	private UserComponentExecutorServices() {};
+	@Override
+	public IDataModelAction dataModelUndoAction() {
+		return dataModelUndoActionBuilder().build();
+	}
+
+	@Override
+	public IDataModelActionBuilder dataModelSaveActionBuilder() {
+		final IDataModelActionBuilder builder = new DataModelActionBuilder(new DataModelSaveCommand());
+		builder.setText("Save"); //TODO MG i18n
+		return builder;
+	}
+
+	@Override
+	public IDataModelActionBuilder dataModelUndoActionBuilder() {
+		final IDataModelActionBuilder builder = new DataModelActionBuilder(new DataModelUndoCommand());
+		builder.setText("Undo"); //TODO MG i18n
+		return builder;
+	}
 
 }
