@@ -26,33 +26,64 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api;
+package org.jowidgets.cap.ui.impl.bean;
 
-import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
-import org.jowidgets.cap.ui.api.bean.IBeanKeyFactory;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+
+import org.jowidgets.cap.common.api.bean.IBeanDto;
+import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
-import org.jowidgets.cap.ui.api.bean.IBeansModificationBuffer;
 import org.jowidgets.cap.ui.api.bean.IBeansModificationRegistry;
-import org.jowidgets.cap.ui.api.executor.IExecutionTaskFactory;
-import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
-import org.jowidgets.cap.ui.api.widgets.IDataApiBluePrintFactory;
+import org.jowidgets.util.Assert;
 
-public interface ICapUiToolkit {
+public final class BeanProxyFactory<BEAN_TYPE> implements IBeanProxyFactory<BEAN_TYPE> {
 
-	IDataApiBluePrintFactory getBluePrintFactory();
+	private final Class<? extends BEAN_TYPE> beanType;
+	private final IBeansModificationRegistry<BEAN_TYPE> modificationRegistry;
 
-	IExecutionTaskFactory getExecutionTaskFactory();
+	public BeanProxyFactory(
+		final Class<? extends BEAN_TYPE> beanType,
+		final IBeansModificationRegistry<BEAN_TYPE> modificationRegistry) {
+		this.beanType = beanType;
+		this.modificationRegistry = modificationRegistry;
+	}
 
-	IAttributeToolkit getAttributeToolkit();
+	@Override
+	public List<IBeanProxy<BEAN_TYPE>> createProxies(final Collection<? extends IBeanDto> beanDtos) {
+		Assert.paramNotNull(beanDtos, "beanDtos");
+		final List<IBeanProxy<BEAN_TYPE>> result = new LinkedList<IBeanProxy<BEAN_TYPE>>();
+		for (final IBeanDto beanDto : beanDtos) {
+			result.add(createProxy(beanDto));
+		}
+		return result;
+	}
 
-	<BEAN_TYPE> IBeansModificationBuffer<BEAN_TYPE> createBeansModificationBuffer();
+	@Override
+	public IBeanProxy<BEAN_TYPE> createProxy(final IBeanDto beanDto) {
+		return new BeanProxyImpl<BEAN_TYPE>(beanDto, beanType, modificationRegistry);
+	}
 
-	<BEAN_TYPE> IBeanProxyFactory<BEAN_TYPE> createBeanProxyFactory(
-		Class<? extends BEAN_TYPE> beanType,
-		IBeansModificationRegistry<BEAN_TYPE> modificationRegistry);
+	@Override
+	public IBeanProxy<BEAN_TYPE> createProxy() {
+		return new BeanProxyImpl<BEAN_TYPE>(new IBeanDto() {
 
-	IBeanKeyFactory getBeanKeyFactory();
+			@Override
+			public Object getValue(final String propertyName) {
+				return null;
+			}
 
-	<BEAN_TYPE> IBeanTableModelBuilder<BEAN_TYPE> createBeanTableModelBuilder(Class<BEAN_TYPE> beanType);
+			@Override
+			public long getVersion() {
+				return 0;
+			}
+
+			@Override
+			public Object getId() {
+				return null;
+			}
+		}, beanType, modificationRegistry);
+	}
 
 }

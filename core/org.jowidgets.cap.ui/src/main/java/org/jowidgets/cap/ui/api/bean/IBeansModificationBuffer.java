@@ -26,59 +26,18 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.impl.bean;
+package org.jowidgets.cap.ui.api.bean;
 
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.Set;
 
-import org.jowidgets.cap.common.api.bean.IBeanDto;
-import org.jowidgets.cap.ui.api.bean.IBeanProxy;
-import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
-import org.jowidgets.util.Assert;
+import org.jowidgets.cap.ui.api.model.IModificationStateObservable;
 
-public final class DataBeanFactory<BEAN_TYPE> implements IBeanProxyFactory<BEAN_TYPE> {
+public interface IBeansModificationBuffer<BEAN_TYPE> extends IBeansModificationRegistry<BEAN_TYPE>, IModificationStateObservable {
 
-	private final Class<? extends BEAN_TYPE> beanType;
+	Set<IBeanProxy<BEAN_TYPE>> getModifiedBeans();
 
-	public DataBeanFactory(final Class<? extends BEAN_TYPE> beanType) {
-		this.beanType = beanType;
-	}
+	boolean hasModifications();
 
-	@Override
-	public List<IBeanProxy<BEAN_TYPE>> createProxies(final Collection<? extends IBeanDto> beanDtos) {
-		Assert.paramNotNull(beanDtos, "beanDtos");
-		final List<IBeanProxy<BEAN_TYPE>> result = new LinkedList<IBeanProxy<BEAN_TYPE>>();
-		for (final IBeanDto beanDto : beanDtos) {
-			result.add(createProxy(beanDto));
-		}
-		return result;
-	}
-
-	@Override
-	public IBeanProxy<BEAN_TYPE> createProxy(final IBeanDto beanDto) {
-		return new BeanProxyImpl<BEAN_TYPE>(beanDto, beanType);
-	}
-
-	@Override
-	public IBeanProxy<BEAN_TYPE> createProxy() {
-		return new BeanProxyImpl<BEAN_TYPE>(new IBeanDto() {
-
-			@Override
-			public Object getValue(final String propertyName) {
-				return null;
-			}
-
-			@Override
-			public long getVersion() {
-				return 0;
-			}
-
-			@Override
-			public Object getId() {
-				return null;
-			}
-		}, beanType);
-	}
+	void clear();
 
 }

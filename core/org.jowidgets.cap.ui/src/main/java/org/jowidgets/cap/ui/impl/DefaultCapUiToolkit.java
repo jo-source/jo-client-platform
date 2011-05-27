@@ -32,12 +32,15 @@ import org.jowidgets.cap.ui.api.ICapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
 import org.jowidgets.cap.ui.api.bean.IBeanKeyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
+import org.jowidgets.cap.ui.api.bean.IBeansModificationBuffer;
+import org.jowidgets.cap.ui.api.bean.IBeansModificationRegistry;
 import org.jowidgets.cap.ui.api.executor.IExecutionTaskFactory;
 import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
 import org.jowidgets.cap.ui.api.widgets.IDataApiBluePrintFactory;
 import org.jowidgets.cap.ui.impl.attribute.AttributeToolkit;
 import org.jowidgets.cap.ui.impl.bean.BeanKeyFactory;
-import org.jowidgets.cap.ui.impl.bean.DataBeanFactory;
+import org.jowidgets.cap.ui.impl.bean.BeanProxyFactory;
+import org.jowidgets.cap.ui.impl.bean.BeansModificationBuffer;
 import org.jowidgets.cap.ui.impl.executor.ExecutionTaskFactory;
 import org.jowidgets.cap.ui.impl.table.BeanTableModelBuilder;
 import org.jowidgets.cap.ui.impl.widgets.DataApiBluePrintFactory;
@@ -74,8 +77,15 @@ public final class DefaultCapUiToolkit implements ICapUiToolkit {
 	}
 
 	@Override
-	public <BEAN_TYPE> IBeanProxyFactory<BEAN_TYPE> createBeanProxyFactory(final Class<? extends BEAN_TYPE> beanType) {
-		return new DataBeanFactory<BEAN_TYPE>(beanType);
+	public <BEAN_TYPE> IBeansModificationBuffer<BEAN_TYPE> createBeansModificationBuffer() {
+		return new BeansModificationBuffer<BEAN_TYPE>();
+	}
+
+	@Override
+	public <BEAN_TYPE> IBeanProxyFactory<BEAN_TYPE> createBeanProxyFactory(
+		final Class<? extends BEAN_TYPE> beanType,
+		final IBeansModificationRegistry<BEAN_TYPE> modificationRegistry) {
+		return new BeanProxyFactory<BEAN_TYPE>(beanType, modificationRegistry);
 	}
 
 	@Override

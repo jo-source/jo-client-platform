@@ -26,19 +26,59 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample.app.server.service.executor;
+package org.jowidgets.cap.ui.impl.bean;
 
-import org.jowidgets.cap.common.api.execution.IExecutionCallback;
-import org.jowidgets.cap.sample.app.server.entity.User;
-import org.jowidgets.cap.service.api.executor.IBeanExecutor;
-import org.jowidgets.util.types.Null;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
-public class ChangeGenderExecutor implements IBeanExecutor<User, Null> {
+import org.jowidgets.cap.ui.api.bean.IBeanProxy;
+import org.jowidgets.cap.ui.api.bean.IBeansModificationBuffer;
+import org.jowidgets.cap.ui.impl.model.ModificationStateObservable;
+import org.jowidgets.util.Assert;
+
+public class BeansModificationBuffer<BEAN_TYPE> extends ModificationStateObservable implements
+		IBeansModificationBuffer<BEAN_TYPE> {
+
+	private final Set<IBeanProxy<BEAN_TYPE>> modifiedBeans;
+
+	public BeansModificationBuffer() {
+		this.modifiedBeans = new HashSet<IBeanProxy<BEAN_TYPE>>();
+	}
 
 	@Override
-	public User execute(final User user, final Null parameter, final IExecutionCallback executionCallback) {
-		user.setGender("F");
-		return user;
+	public void add(final IBeanProxy<BEAN_TYPE> bean) {
+		Assert.paramNotNull(bean, "bean");
+		final boolean lastHasModifications = hasModifications();
+		modifiedBeans.add(bean);
+		if (lastHasModifications != hasModifications()) {
+			fireModificationStateChanged();
+		}
+	}
+
+	@Override
+	public void remove(final IBeanProxy<BEAN_TYPE> bean) {
+		Assert.paramNotNull(bean, "bean");
+		final boolean lastHasModifications = hasModifications();
+		modifiedBeans.remove(bean);
+		if (lastHasModifications != hasModifications()) {
+			fireModificationStateChanged();
+		}
+	}
+
+	@Override
+	public Set<IBeanProxy<BEAN_TYPE>> getModifiedBeans() {
+		return Collections.unmodifiableSet(modifiedBeans);
+	}
+
+	@Override
+	public boolean hasModifications() {
+		return !modifiedBeans.isEmpty();
+	}
+
+	@Override
+	public void clear() {
+		modifiedBeans.clear();
 	}
 
 }

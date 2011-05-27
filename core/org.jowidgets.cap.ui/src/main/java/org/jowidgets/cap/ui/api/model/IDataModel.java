@@ -26,19 +26,18 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample.app.server.service.executor;
+package org.jowidgets.cap.ui.api.model;
 
-import org.jowidgets.cap.common.api.execution.IExecutionCallback;
-import org.jowidgets.cap.sample.app.server.entity.User;
-import org.jowidgets.cap.service.api.executor.IBeanExecutor;
-import org.jowidgets.util.types.Null;
+public interface IDataModel extends IModificationStateObservable {
 
-public class ChangeGenderExecutor implements IBeanExecutor<User, Null> {
+	void loadData();
 
-	@Override
-	public User execute(final User user, final Null parameter, final IExecutionCallback executionCallback) {
-		user.setGender("F");
-		return user;
-	}
+	void clearData();
+
+	void saveModifications();
+
+	void undoModifications();
+
+	boolean hasModifications();
 
 }

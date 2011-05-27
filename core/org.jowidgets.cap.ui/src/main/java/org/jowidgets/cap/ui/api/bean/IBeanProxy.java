@@ -33,10 +33,11 @@ import java.util.Collection;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanModification;
 
-
 public interface IBeanProxy<BEAN_TYPE> extends IBeanDto, IPropertyChangeObservable {
 
 	void setValue(String propertyName, Object value);
+
+	void setBeanDto(IBeanDto beanDto);
 
 	Collection<IBeanModification> getModifications();
 
