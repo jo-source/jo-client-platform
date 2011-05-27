@@ -73,7 +73,7 @@ final class BeanModificationBuilderImpl implements IBeanModificationBuilder {
 		Assert.paramNotNull(beanDto, "beanDto");
 		setId(beanDto.getId());
 		setVersion(beanDto.getVersion());
-		return null;
+		return this;
 	}
 
 	@Override
