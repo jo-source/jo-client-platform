@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.sample.app.client.workbench;
 
+import org.jowidgets.api.model.item.IMenuModel;
 import org.jowidgets.cap.sample.app.client.workbench.application.SampleApplication;
 import org.jowidgets.cap.sample.app.client.workbench.command.WorkbenchActions;
 import org.jowidgets.common.types.Dimension;
@@ -53,8 +54,16 @@ public class SampleWorkbench {
 		this.model = builder.build();
 		this.model.addApplication(new SampleApplication().getModel());
 
+		this.model.getToolBar().addAction(WorkbenchActions.LOAD_ACTION);
+		this.model.getToolBar().addSeparator();
 		this.model.getToolBar().addAction(WorkbenchActions.UNDO_ACTION);
 		this.model.getToolBar().addAction(WorkbenchActions.SAVE_ACTION);
+
+		final IMenuModel dataMenu = this.model.getMenuBar().addMenu("Data");
+		dataMenu.addAction(WorkbenchActions.LOAD_ACTION);
+		dataMenu.addSeparator();
+		dataMenu.addAction(WorkbenchActions.UNDO_ACTION);
+		dataMenu.addAction(WorkbenchActions.SAVE_ACTION);
 
 		this.workbench = WorkbenchToolkit.getWorkbenchPartFactory().workbench(model);
 

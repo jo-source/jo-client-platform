@@ -73,25 +73,11 @@ public class UserTableView extends AbstractView {
 		this.table = container.add(CapUiToolkit.getBluePrintFactory().beanTable(beanTableModel));
 
 		final IToolBarModel toolBar = context.getToolBar();
-		toolBar.addAction(createReloadAction());
 		toolBar.addContainer(createDelayFieldCreator());
 		toolBar.addAction(createClearAction());
 		toolBar.addAction(createPackAction());
 
 		beanTableModel.loadData();
-	}
-
-	private IAction createReloadAction() {
-		final IActionBuilder builder = Toolkit.getActionBuilderFactory().create();
-		builder.setText("Reload").setToolTipText("Reload the data");
-		builder.setIcon(SilkIcons.ARROW_REFRESH);
-		builder.setCommand(new ICommandExecutor() {
-			@Override
-			public void execute(final IExecutionContext executionContext) throws Exception {
-				beanTableModel.loadData();
-			}
-		});
-		return builder.build();
 	}
 
 	private IAction createClearAction() {
@@ -122,6 +108,7 @@ public class UserTableView extends AbstractView {
 	private IContainerContentCreator createDelayFieldCreator() {
 		final IBluePrintFactory bpf = Toolkit.getBluePrintFactory();
 		return new IContainerContentCreator() {
+
 			@Override
 			public void createContent(final IContainer container) {
 				container.setLayout(new MigLayoutDescriptor("[][100!]", "0[]0"));

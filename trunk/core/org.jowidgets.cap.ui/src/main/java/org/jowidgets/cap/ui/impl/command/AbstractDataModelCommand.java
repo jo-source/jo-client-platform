@@ -46,16 +46,23 @@ import org.jowidgets.util.Assert;
 
 abstract class AbstractDataModelCommand implements ICommand, ICommandExecutor, IEnabledChecker {
 
+	//TODO i18n
+	private static final IEnabledState NO_MODIFICATIONS_STATE = EnabledState.disabled("There is no data modified");
+	private static final IEnabledState NO_DATA_NODE_STATE = EnabledState.disabled("There is no data node selected");
+
 	private final Set<IDataModel> dataModels;
 	private final EnabledChecker enabledChecker;
 	private final IModificationStateListener modificationStateListener;
+	private final boolean modificationCheck;
 
 	private boolean lastModifications;
 
-	AbstractDataModelCommand() {
+	AbstractDataModelCommand(final boolean modificationCheck) {
 		this.dataModels = new HashSet<IDataModel>();
 		this.enabledChecker = new EnabledChecker();
-		enabledChecker.setEnabledState(EnabledState.DISABLED);
+		this.modificationCheck = modificationCheck;
+
+		enabledChecker.setEnabledState(NO_DATA_NODE_STATE);
 
 		this.lastModifications = false;
 		this.modificationStateListener = new IModificationStateListener() {
@@ -124,18 +131,28 @@ abstract class AbstractDataModelCommand implements ICommand, ICommandExecutor, I
 	}
 
 	private void checkModificationState() {
-		boolean modifications = false;
-		for (final IDataModel dataModel : dataModels) {
-			modifications = modifications || dataModel.hasModifications();
+		if (dataModels.size() == 0) {
+			enabledChecker.setEnabledState(NO_DATA_NODE_STATE);
+			return;
 		}
-		if (lastModifications != modifications) {
-			lastModifications = modifications;
-			if (modifications) {
-				enabledChecker.setEnabledState(EnabledState.ENABLED);
+		else if (!modificationCheck) {
+			enabledChecker.setEnabledState(EnabledState.ENABLED);
+			return;
+		}
+		else {
+			boolean modifications = false;
+			for (final IDataModel dataModel : dataModels) {
+				modifications = modifications || dataModel.hasModifications();
 			}
-			else {
-				//TODO MG i18n
-				enabledChecker.setEnabledState(EnabledState.disabled("There is no data modified"));
+			if (lastModifications != modifications) {
+				lastModifications = modifications;
+				if (modifications) {
+					enabledChecker.setEnabledState(EnabledState.ENABLED);
+				}
+				else {
+					//TODO MG i18n
+					enabledChecker.setEnabledState(NO_MODIFICATIONS_STATE);
+				}
 			}
 		}
 	}

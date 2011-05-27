@@ -32,6 +32,7 @@ import org.jowidgets.cap.ui.api.command.IDataModelAction;
 
 public final class WorkbenchActions {
 
+	public static final IDataModelAction LOAD_ACTION = new LoadAction().getAction();
 	public static final IDataModelAction SAVE_ACTION = new SaveAction().getAction();
 	public static final IDataModelAction UNDO_ACTION = new UndoAction().getAction();
 

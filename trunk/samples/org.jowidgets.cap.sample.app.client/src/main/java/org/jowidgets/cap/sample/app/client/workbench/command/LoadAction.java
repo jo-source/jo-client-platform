@@ -26,20 +26,25 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.impl.command;
+package org.jowidgets.cap.sample.app.client.workbench.command;
 
-import org.jowidgets.api.command.IExecutionContext;
-import org.jowidgets.cap.ui.api.model.IDataModel;
+import org.jowidgets.cap.ui.api.CapUiToolkit;
+import org.jowidgets.cap.ui.api.command.IDataModelAction;
+import org.jowidgets.cap.ui.api.command.IDataModelActionBuilder;
+import org.jowidgets.examples.common.icons.SilkIcons;
 
-public class DataModelUndoCommand extends AbstractDataModelCommand {
+final class LoadAction {
 
-	DataModelUndoCommand() {
-		super(true);
+	private final IDataModelAction action;
+
+	LoadAction() {
+		final IDataModelActionBuilder builder = CapUiToolkit.getActionFactory().dataModelLoadActionBuilder();
+		builder.setIcon(SilkIcons.ARROW_REFRESH);
+		action = builder.build();
 	}
 
-	@Override
-	void execute(final IDataModel dataModel, final IExecutionContext executionContext) {
-		dataModel.undoModifications();
+	IDataModelAction getAction() {
+		return action;
 	}
 
 }
