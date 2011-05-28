@@ -42,6 +42,8 @@ import org.jowidgets.cap.common.api.bean.IBeanModification;
 import org.jowidgets.cap.common.api.bean.IBeanModificationBuilder;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeansModificationRegistry;
+import org.jowidgets.cap.ui.api.model.IModificationStateListener;
+import org.jowidgets.cap.ui.impl.model.ModificationStateObservable;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.NullCompatibleEquivalence;
 
@@ -51,6 +53,7 @@ final class BeanProxyImpl<BEAN_TYPE> extends PropertyChangeObservable implements
 	private final Map<String, IBeanModification> modifications;
 	private final IBeansModificationRegistry<BEAN_TYPE> modificationRegistry;
 	private final List<PropertyChangeEvent> accruedChangeEvents;
+	private final ModificationStateObservable modificationStateObservable;
 
 	private boolean inProcess;
 	private IBeanDto beanDto;
@@ -69,6 +72,7 @@ final class BeanProxyImpl<BEAN_TYPE> extends PropertyChangeObservable implements
 		this.modificationRegistry = modificationRegistry;
 		this.modifications = new HashMap<String, IBeanModification>();
 		this.accruedChangeEvents = new LinkedList<PropertyChangeEvent>();
+		this.modificationStateObservable = new ModificationStateObservable();
 	}
 
 	@Override
@@ -103,8 +107,9 @@ final class BeanProxyImpl<BEAN_TYPE> extends PropertyChangeObservable implements
 		if (NullCompatibleEquivalence.equals(originalValue, newValue)) {
 			modifications.remove(propertyName);
 			propertyChange(this, propertyName, currentValue, newValue);
-			if (!inProcess && !hasModifications()) {
+			if (!inProcess && !hasModifications() && modificationRegistry.contains(beanDto.getId())) {
 				modificationRegistry.remove(this);
+				modificationStateObservable.fireModificationStateChanged();
 			}
 		}
 		else if (!NullCompatibleEquivalence.equals(currentValue, newValue)) {
@@ -112,8 +117,9 @@ final class BeanProxyImpl<BEAN_TYPE> extends PropertyChangeObservable implements
 			modBuilder.setBeanDto(beanDto).setPropertyName(propertyName).setNewValue(newValue);
 			modifications.put(propertyName, modBuilder.build());
 			propertyChange(this, propertyName, currentValue, newValue);
-			if (!inProcess) {
+			if (!inProcess && !modificationRegistry.contains(beanDto.getId())) {
 				modificationRegistry.add(this);
+				modificationStateObservable.fireModificationStateChanged();
 			}
 		}
 	}
@@ -124,9 +130,16 @@ final class BeanProxyImpl<BEAN_TYPE> extends PropertyChangeObservable implements
 		if (!this.beanDto.getId().equals(beanDto.getId())) {
 			throw new IllegalArgumentException("The given parameter 'beanDto' must have the same id than this proxy");
 		}
+
 		modifications.clear();
-		modificationRegistry.remove(this);
-		this.beanDto = beanDto;
+		if (modificationRegistry.contains(beanDto.getId())) {
+			modificationRegistry.remove(this);
+			this.beanDto = beanDto;
+			modificationStateObservable.fireModificationStateChanged();
+		}
+		else {
+			this.beanDto = beanDto;
+		}
 	}
 
 	@Override
@@ -142,7 +155,10 @@ final class BeanProxyImpl<BEAN_TYPE> extends PropertyChangeObservable implements
 	@Override
 	public void undoModifications() {
 		modifications.clear();
-		modificationRegistry.remove(this);
+		if (modificationRegistry.contains(beanDto.getId())) {
+			modificationRegistry.remove(this);
+			modificationStateObservable.fireModificationStateChanged();
+		}
 	}
 
 	@SuppressWarnings("unchecked")
@@ -171,13 +187,25 @@ final class BeanProxyImpl<BEAN_TYPE> extends PropertyChangeObservable implements
 				firePropertyChange(event);
 			}
 			accruedChangeEvents.clear();
-			if (hasModifications()) {
+			if (hasModifications() && !modificationRegistry.contains(beanDto.getId())) {
 				modificationRegistry.add(this);
+				modificationStateObservable.fireModificationStateChanged();
 			}
-			else {
+			else if (!hasModifications() && modificationRegistry.contains(beanDto.getId())) {
 				modificationRegistry.remove(this);
+				modificationStateObservable.fireModificationStateChanged();
 			}
 		}
+	}
+
+	@Override
+	public void addModificationStateListener(final IModificationStateListener listener) {
+		modificationStateObservable.addModificationStateListener(listener);
+	}
+
+	@Override
+	public void removeModificationStateListener(final IModificationStateListener listener) {
+		modificationStateObservable.removeModificationStateListener(listener);
 	}
 
 	private void propertyChange(final Object source, final String propertyName, final Object oldValue, final Object newValue) {

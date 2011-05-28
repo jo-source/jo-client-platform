@@ -43,6 +43,8 @@ import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.service.IExecutorService;
 import org.jowidgets.cap.common.api.service.IParameterProviderService;
 import org.jowidgets.cap.ui.api.command.IExecutorActionBuilder;
+import org.jowidgets.cap.ui.api.executor.BeanModificationStatePolicy;
+import org.jowidgets.cap.ui.api.executor.BeanSelectionPolicy;
 import org.jowidgets.cap.ui.api.executor.IExecutionInterceptor;
 import org.jowidgets.cap.ui.api.executor.IExecutor;
 import org.jowidgets.cap.ui.api.executor.IExecutorJob;
@@ -62,19 +64,28 @@ final class ExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> extends AbstractSingleU
 
 	private final IBeanListModel<BEAN_TYPE> listModel;
 	private final IActionBuilder builder;
+	private final List<IExecutableChecker<Object>> executableCheckers;
+	private final List<IEnabledChecker> enabledCheckers;
 	private final List<Object> parameterProviders;
 	private final List<IExecutionInterceptor> executionInterceptors;
 
 	private PARAM_TYPE defaultParameter;
 	private Object executor;
 	private IExceptionHandler exceptionHandler;
+	private BeanSelectionPolicy beanSelectionPolicy;
+	private BeanModificationStatePolicy beanModificationStatePolicy;
 
 	ExecutorActionBuilder(final IBeanListModel<BEAN_TYPE> listModel) {
 		Assert.paramNotNull(listModel, "listModel");
 		this.listModel = listModel;
 		this.builder = Toolkit.getActionBuilderFactory().create();
+		this.executableCheckers = new LinkedList<IExecutableChecker<Object>>();
+		this.enabledCheckers = new LinkedList<IEnabledChecker>();
 		this.parameterProviders = new LinkedList<Object>();
 		this.executionInterceptors = new LinkedList<IExecutionInterceptor>();
+
+		this.beanSelectionPolicy = BeanSelectionPolicy.SINGLE_SELECTION;
+		this.beanModificationStatePolicy = BeanModificationStatePolicy.NO_MODIFICATION;
 
 		//TODO MG add better default exception handler
 		this.exceptionHandler = new IExceptionHandler() {
@@ -169,24 +180,28 @@ final class ExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> extends AbstractSingleU
 	@Override
 	public IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> addParameterProvider(
 		final IServiceId<IParameterProviderService<PARAM_TYPE>> serviceId) {
+		Assert.paramNotNull(serviceId, "serviceId");
 		addParameterProvider(ServiceProvider.getService(serviceId));
 		return this;
 	}
 
 	@Override
 	public IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setExecutor(final IExecutor<BEAN_TYPE, PARAM_TYPE> executor) {
+		Assert.paramNotNull(executor, "executor");
 		this.executor = executor;
 		return this;
 	}
 
 	@Override
 	public IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setExecutor(final IExecutorJob<BEAN_TYPE, PARAM_TYPE> executorJob) {
+		Assert.paramNotNull(executorJob, "executorJob");
 		this.executor = executorJob;
 		return this;
 	}
 
 	@Override
 	public IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setExecutor(final IExecutorService<PARAM_TYPE> excecuterService) {
+		Assert.paramNotNull(excecuterService, "excecuterService");
 		this.executor = excecuterService;
 		return this;
 	}
@@ -194,19 +209,36 @@ final class ExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> extends AbstractSingleU
 	@Override
 	public IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setExecutor(
 		final IServiceId<IExecutorService<PARAM_TYPE>> excecuterServiceId) {
+		Assert.paramNotNull(excecuterServiceId, "excecuterServiceId");
 		setExecutor(ServiceProvider.getService(excecuterServiceId));
 		return this;
 	}
 
 	@Override
-	public IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> addEnabledChecker(final IEnabledChecker enabledChecker) {
-
+	public IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setSelectionPolicy(final BeanSelectionPolicy policy) {
+		Assert.paramNotNull(policy, "policy");
+		this.beanSelectionPolicy = policy;
 		return this;
 	}
 
 	@Override
-	public IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> addEnabledChecker(final IExecutableChecker<BEAN_TYPE> executableChecker) {
+	public IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setModificationPolicy(final BeanModificationStatePolicy policy) {
+		Assert.paramNotNull(policy, "policy");
+		this.beanModificationStatePolicy = policy;
+		return this;
+	}
 
+	@Override
+	public IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> addEnabledChecker(final IEnabledChecker enabledChecker) {
+		enabledCheckers.add(enabledChecker);
+		return this;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> addExecutableChecker(
+		final IExecutableChecker<BEAN_TYPE> executableChecker) {
+		executableCheckers.add((IExecutableChecker<Object>) executableChecker);
 		return this;
 	}
 
@@ -226,6 +258,10 @@ final class ExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> extends AbstractSingleU
 	public IAction doBuild() {
 		final ExecutorCommand command = new ExecutorCommand(
 			listModel,
+			beanSelectionPolicy,
+			beanModificationStatePolicy,
+			enabledCheckers,
+			executableCheckers,
 			exceptionHandler,
 			parameterProviders,
 			executionInterceptors,

@@ -28,6 +28,8 @@
 
 package org.jowidgets.cap.ui.impl.command;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -41,34 +43,58 @@ import org.jowidgets.api.command.IEnabledChecker;
 import org.jowidgets.api.command.IEnabledState;
 import org.jowidgets.api.command.IExceptionHandler;
 import org.jowidgets.api.command.IExecutionContext;
+import org.jowidgets.api.controler.IChangeListener;
 import org.jowidgets.api.threads.IUiThreadAccess;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
+import org.jowidgets.cap.common.api.execution.IExecutableChecker;
+import org.jowidgets.cap.common.api.execution.IExecutableState;
 import org.jowidgets.cap.common.api.execution.IExecutionTask;
 import org.jowidgets.cap.common.api.service.IExecutorService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.bean.IBeanKeyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
+import org.jowidgets.cap.ui.api.executor.BeanModificationStatePolicy;
+import org.jowidgets.cap.ui.api.executor.BeanSelectionPolicy;
 import org.jowidgets.cap.ui.api.executor.IExecutionInterceptor;
 import org.jowidgets.cap.ui.api.executor.IExecutor;
 import org.jowidgets.cap.ui.api.executor.IExecutorJob;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
+import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
+import org.jowidgets.cap.ui.api.model.IModificationStateListener;
 import org.jowidgets.tools.controler.ChangeObservable;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 final class ExecutorCommand extends ChangeObservable implements ICommand, ICommandExecutor, IEnabledChecker, IExceptionHandler {
 
+	//TODO i18n
+	private static final IEnabledState IS_IN_PROGRESS_STATE = EnabledState.disabled("There is some other execution in progress with the data");
+	private static final IEnabledState SINGLE_SELECTION_STATE = EnabledState.disabled("There must be selected exactly one record");
+	private static final IEnabledState MULTI_SELECTION_STATE = EnabledState.disabled("There must be selected at least one record");
+	private static final IEnabledState NO_SELECTION_STATE = EnabledState.disabled("There must not be selected any record");
+	private static final IEnabledState UNSAVED_DATA_STATE = EnabledState.disabled("There record has unsaved data");
+
 	private final IBeanListModel<Object> listModel;
+	private final List<IExecutableChecker<Object>> executableCheckers;
+	private final List<IEnabledChecker> enabledCheckers;
 	private final IExceptionHandler exceptionHandler;
 	private final List<Object> parameterProviders;
 	private final List<IExecutionInterceptor> executionInterceptors;
+	private final BeanSelectionPolicy beanSelectionPolicy;
+	private final BeanModificationStatePolicy beanModificationStatePolicy;
 
 	private final Object defaultParameter;
 	private final Object executor;
 
+	private List<IBeanProxy> lastSelection;
+
 	ExecutorCommand(
 		final IBeanListModel listModel,
+		final BeanSelectionPolicy beanSelectionPolicy,
+		final BeanModificationStatePolicy beanModificationStatePolicy,
+		final List<IEnabledChecker> enabledCheckers,
+		final List<IExecutableChecker<Object>> executableCheckers,
 		final IExceptionHandler exceptionHandler,
 		final List<Object> parameterProviders,
 		final List<IExecutionInterceptor> executionInterceptors,
@@ -76,11 +102,67 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 		final Object executor) {
 		super();
 		this.listModel = listModel;
+		this.beanSelectionPolicy = beanSelectionPolicy;
+		this.beanModificationStatePolicy = beanModificationStatePolicy;
+		this.enabledCheckers = enabledCheckers;
+		this.executableCheckers = executableCheckers;
 		this.exceptionHandler = exceptionHandler;
 		this.parameterProviders = parameterProviders;
 		this.executionInterceptors = executionInterceptors;
 		this.defaultParameter = defaultParameter;
 		this.executor = executor;
+		this.lastSelection = getSelectedBeans();
+
+		final IChangeListener changeListener = new IChangeListener() {
+			@Override
+			public void changedEvent() {
+				fireChangedEvent();
+			}
+		};
+
+		for (final IEnabledChecker enabledChecker : enabledCheckers) {
+			enabledChecker.addChangeListener(changeListener);
+		}
+
+		//TODO MG enabled checks must be done better performance
+		final PropertyChangeListener propertyChangeListener = new PropertyChangeListener() {
+			@Override
+			public void propertyChange(final PropertyChangeEvent evt) {
+				fireChangedEvent();
+			}
+		};
+
+		final IModificationStateListener modificationStateListener = new IModificationStateListener() {
+			@Override
+			public void modificationStateChanged() {
+				fireChangedEvent();
+			}
+		};
+
+		listModel.addBeanListModelListener(new IBeanListModelListener() {
+
+			@Override
+			public void selectionChanged() {
+
+				for (final IBeanProxy bean : lastSelection) {
+					bean.removePropertyChangeListener(propertyChangeListener);
+				}
+
+				final List<IBeanProxy> selectedBeans = getSelectedBeans();
+
+				for (final IBeanProxy bean : selectedBeans) {
+					bean.addPropertyChangeListener(propertyChangeListener);
+					bean.addModificationStateListener(modificationStateListener);
+				}
+
+				lastSelection = selectedBeans;
+
+				fireChangedEvent();
+			}
+
+			@Override
+			public void beansChanged() {}
+		});
 	}
 
 	@Override
@@ -105,7 +187,38 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 
 	@Override
 	public IEnabledState getEnabledState() {
-		//TODO MG
+		//TODO MG enabled checks must be done better performance
+
+		if (BeanSelectionPolicy.SINGLE_SELECTION == beanSelectionPolicy && lastSelection.size() != 1) {
+			return SINGLE_SELECTION_STATE;
+		}
+		else if (BeanSelectionPolicy.MULTI_SELECTION == beanSelectionPolicy && lastSelection.size() < 1) {
+			return MULTI_SELECTION_STATE;
+		}
+		else if (BeanSelectionPolicy.NO_SELECTION == beanSelectionPolicy && lastSelection.size() > 0) {
+			return NO_SELECTION_STATE;
+		}
+		for (final IEnabledChecker enabledChecker : enabledCheckers) {
+			final IEnabledState result = enabledChecker.getEnabledState();
+			if (!result.isEnabled()) {
+				return result;
+			}
+		}
+		for (final IExecutableChecker executableChecker : executableCheckers) {
+			for (final IBeanProxy bean : lastSelection) {
+				if (bean.isInProcess()) {
+					return IS_IN_PROGRESS_STATE;
+				}
+				else if (BeanModificationStatePolicy.NO_MODIFICATION == beanModificationStatePolicy && bean.hasModifications()) {
+					return UNSAVED_DATA_STATE;
+				}
+				final IExecutableState result = executableChecker.getExecutableState(bean.getBean());
+				if (!result.isExecutable()) {
+					return EnabledState.disabled(result.getReason());
+				}
+			}
+		}
+
 		return EnabledState.ENABLED;
 	}
 
@@ -124,9 +237,20 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 			bean.setInProcess(true);
 		}
 
+		listModel.fireBeansChanged();
+		fireChangedEvent();
+
 		final Thread thread = new Thread(new ExecutorRunnable(beans, executionContext));
 		thread.setDaemon(true);
 		thread.start();
+	}
+
+	private List<IBeanProxy> getSelectedBeans() {
+		final List<IBeanProxy> result = new LinkedList<IBeanProxy>();
+		for (final Integer index : listModel.getSelection()) {
+			result.add(listModel.getBean(index.intValue()));
+		}
+		return result;
 	}
 
 	private class ExecutorRunnable implements Runnable {
@@ -171,16 +295,16 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 				final IExecutorService executorService = (IExecutorService) executor;
 				final IBeanKeyFactory beanKeyFactory = CapUiToolkit.getBeanKeyFactory();
 				final List<IBeanKey> keys = beanKeyFactory.createKeys((Collection<? extends IBeanProxy<?>>) beans);
-				List<IBeanDto> exeuctionResult = null;
+				List<IBeanDto> executionResult = null;
 				try {
-					exeuctionResult = executorService.execute(keys, executionParameter, executionTask);
-					invokeAfterExecutionLater(exeuctionResult);
+					executionResult = executorService.execute(keys, executionParameter, executionTask);
+					invokeAfterExecutionLater(executionResult);
 				}
 				catch (final Exception e) {
 					invokeOnExceptionLater(e);
 				}
 				finally {
-					invokeAfterExecutionLater(exeuctionResult);
+					invokeAfterExecutionLater(executionResult);
 				}
 			}
 			else if (executor instanceof IExecutorJob) {
@@ -255,6 +379,8 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 			}
 
 			listModel.fireBeansChanged();
+
+			fireChangedEvent();
 
 		}
 

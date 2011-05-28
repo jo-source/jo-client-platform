@@ -67,8 +67,10 @@ import org.jowidgets.cap.ui.api.model.IModificationStateListener;
 import org.jowidgets.cap.ui.api.model.LinkType;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.table.IReaderParameterProvider;
+import org.jowidgets.cap.ui.impl.model.BeanListModelObservable;
 import org.jowidgets.common.image.IImageConstant;
 import org.jowidgets.common.model.ITableCell;
+import org.jowidgets.tools.controler.TableDataModelAdapter;
 import org.jowidgets.tools.model.table.AbstractTableDataModel;
 import org.jowidgets.tools.model.table.DefaultTableColumnBuilder;
 import org.jowidgets.tools.model.table.TableCellBuilder;
@@ -98,6 +100,8 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 	private final IRefreshService refreshService;
 	private final IUpdaterService updaterService;
 	private final IDeleterService deleterService;
+
+	private final BeanListModelObservable beanListModelObservable;
 
 	private final IDefaultTableColumnModel columnModel;
 	private final AbstractTableDataModel dataModel;
@@ -152,6 +156,7 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 		this.beanProxyFactory = CapUiToolkit.createBeanProxyFactory(beanType, modificationBuffer);
 		this.dummyBeanProxy = beanProxyFactory.createProxy(createDummyBeanDto());
 		this.dummyBeanProxy.setInProcess(true);
+		this.beanListModelObservable = new BeanListModelObservable();
 
 		//model creation
 		this.columnModel = createColumnModel(attributes);
@@ -266,10 +271,14 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 	}
 
 	@Override
-	public void addBeanListModelListener(final IBeanListModelListener listener) {}
+	public void addBeanListModelListener(final IBeanListModelListener listener) {
+		beanListModelObservable.addBeanListModelListener(listener);
+	}
 
 	@Override
-	public void removeBeanListModelListener(final IBeanListModelListener listener) {}
+	public void removeBeanListModelListener(final IBeanListModelListener listener) {
+		beanListModelObservable.removeBeanListModelListener(listener);
+	}
 
 	@Override
 	public ITableModel getTableModel() {
@@ -454,6 +463,16 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 				return cellBuilder;
 			}
 		};
+
+		result.addDataModelListener(new TableDataModelAdapter() {
+
+			@Override
+			public void selectionChanged() {
+				beanListModelObservable.fireSelectionChanged();
+			}
+
+		});
+
 		return result;
 	}
 
