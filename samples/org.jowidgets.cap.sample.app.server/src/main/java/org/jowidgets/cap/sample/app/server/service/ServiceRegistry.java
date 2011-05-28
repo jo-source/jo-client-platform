@@ -40,6 +40,7 @@ import org.jowidgets.cap.sample.app.common.service.executor.UserComponentExecuto
 import org.jowidgets.cap.sample.app.common.service.reader.UserReaderServices;
 import org.jowidgets.cap.sample.app.server.datastore.DataStore;
 import org.jowidgets.cap.sample.app.server.entity.EntityService;
+import org.jowidgets.cap.sample.app.server.service.executor.ChangeBirthdayExecutor;
 import org.jowidgets.cap.sample.app.server.service.executor.ChangeGenderExecutor;
 import org.jowidgets.cap.sample.app.server.service.reader.AllUsersReaderService;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
@@ -62,6 +63,8 @@ public class ServiceRegistry extends DefaultServiceRegistry {
 				UserComponentExecutorServices.CHANGE_GENDER,
 				new ChangeGenderExecutor(),
 				new ChangeGenderExecutableChecker());
+
+		registerPersonExecutor(UserComponentExecutorServices.CHANGE_BIRTHDAY, new ChangeBirthdayExecutor(), null);
 	}
 
 	private <BEAN_TYPE extends IBean, PARAM_TYPE> void registerPersonExecutor(

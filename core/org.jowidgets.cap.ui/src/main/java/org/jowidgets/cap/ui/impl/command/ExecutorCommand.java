@@ -60,10 +60,15 @@ import org.jowidgets.cap.ui.api.executor.BeanSelectionPolicy;
 import org.jowidgets.cap.ui.api.executor.IExecutionInterceptor;
 import org.jowidgets.cap.ui.api.executor.IExecutor;
 import org.jowidgets.cap.ui.api.executor.IExecutorJob;
+import org.jowidgets.cap.ui.api.executor.IParameterProvider;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
 import org.jowidgets.cap.ui.api.model.IModificationStateListener;
 import org.jowidgets.tools.controler.ChangeObservable;
+import org.jowidgets.util.ValueHolder;
+import org.jowidgets.util.maybe.IMaybe;
+import org.jowidgets.util.maybe.Nothing;
+import org.jowidgets.util.maybe.Some;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 final class ExecutorCommand extends ChangeObservable implements ICommand, ICommandExecutor, IEnabledChecker, IExceptionHandler {
@@ -272,7 +277,14 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 		public void run() {
 			Object parameter = defaultParameter;
 			for (final Object parameterProvider : parameterProviders) {
-				parameter = getParameter(parameterProvider, parameter, beans);
+				final IMaybe paramResult = getParameter(parameterProvider, parameter, beans);
+				if (paramResult.isNothing()) {
+					invokeAfterExecutionLater(null);
+					return;
+				}
+				else {
+					parameter = paramResult.getValue();
+				}
 			}
 
 			final Object executionParameter = parameter;
@@ -321,9 +333,29 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 			}
 		}
 
-		private Object getParameter(final Object parameterProvider, final Object defaultParameter, final List<IBeanProxy> beans) {
-			//TODO MG implement getParameter
-			return defaultParameter;
+		private IMaybe getParameter(final Object parameterProvider, final Object defaultParameter, final List<IBeanProxy> beans) {
+			if (parameterProvider instanceof IParameterProvider) {
+				final IParameterProvider theParameterProvider = (IParameterProvider) parameterProvider;
+				try {
+					final ValueHolder<IMaybe> result = new ValueHolder<IMaybe>(Nothing.getInstance());
+					uiThreadAccess.invokeAndWait(new Runnable() {
+						@Override
+						public void run() {
+							try {
+								result.set(theParameterProvider.getParameter(executionContext, beans, defaultParameter));
+							}
+							catch (final Exception e) {
+								onExecption(e);
+							}
+						}
+					});
+					return result.get();
+				}
+				catch (final InterruptedException e) {
+					invokeOnExceptionLater(e);
+				}
+			}
+			return new Some(defaultParameter);
 		}
 
 		private void invokeOnExceptionLater(final Exception exception) {

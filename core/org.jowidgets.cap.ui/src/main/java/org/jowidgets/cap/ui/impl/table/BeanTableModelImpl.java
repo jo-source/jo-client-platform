@@ -177,8 +177,8 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 	@Override
 	public void loadData() {
 		modificationBuffer.clear();
-		//rowCount = readerService.count(null, null, null, null);
-		rowCount = 0;
+		rowCount = readerService.count(null, null, null, null);
+		//rowCount = 0;
 		dataCleared = false;
 		maxPageIndex = 0;
 		data.clear();

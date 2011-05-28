@@ -26,25 +26,20 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample.app.common.service.executor;
+package org.jowidgets.cap.sample.app.server.service.executor;
 
 import java.util.Date;
 
-import org.jowidgets.cap.common.api.service.IExecutorService;
-import org.jowidgets.service.api.IServiceId;
-import org.jowidgets.service.tools.ServiceId;
-import org.jowidgets.util.types.Null;
+import org.jowidgets.cap.common.api.execution.IExecutionCallback;
+import org.jowidgets.cap.sample.app.server.entity.User;
+import org.jowidgets.cap.service.api.executor.IBeanExecutor;
 
-public final class UserComponentExecutorServices {
+public class ChangeBirthdayExecutor implements IBeanExecutor<User, Date> {
 
-	public static final IServiceId<IExecutorService<Null>> CHANGE_GENDER = new ServiceId<IExecutorService<Null>>(
-		UserComponentExecutorServices.class.getName() + "_CHANGE_GENDER",
-		IExecutorService.class);
-
-	public static final IServiceId<IExecutorService<Date>> CHANGE_BIRTHDAY = new ServiceId<IExecutorService<Date>>(
-		UserComponentExecutorServices.class.getName() + "_CHANGE_BIRTHDAY",
-		IExecutorService.class);
-
-	private UserComponentExecutorServices() {};
+	@Override
+	public User execute(final User user, final Date parameter, final IExecutionCallback executionCallback) {
+		user.setDateOfBirth(parameter);
+		return user;
+	}
 
 }

@@ -39,6 +39,7 @@ import org.jowidgets.api.widgets.IContainer;
 import org.jowidgets.api.widgets.IInputField;
 import org.jowidgets.api.widgets.IPopupMenu;
 import org.jowidgets.api.widgets.blueprint.factory.IBluePrintFactory;
+import org.jowidgets.cap.sample.app.client.workbench.component.user.command.ChangeBirthdayAction;
 import org.jowidgets.cap.sample.app.client.workbench.component.user.command.ChangeGenderAction;
 import org.jowidgets.cap.sample.app.common.entity.IUser;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
@@ -83,6 +84,7 @@ public class UserTableView extends AbstractView {
 
 		final IPopupMenu popupMenu = table.createPopupMenu();
 		popupMenu.addAction(new ChangeGenderAction(tableModel));
+		popupMenu.addAction(new ChangeBirthdayAction(tableModel));
 
 		table.addTableCellPopupDetectionListener(new ITableCellPopupDetectionListener() {
 			@Override
