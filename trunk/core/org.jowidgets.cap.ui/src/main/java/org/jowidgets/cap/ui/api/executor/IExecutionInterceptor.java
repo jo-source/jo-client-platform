@@ -28,6 +28,8 @@
 
 package org.jowidgets.cap.ui.api.executor;
 
+import org.jowidgets.api.command.IExecutionContext;
+
 public interface IExecutionInterceptor {
 
 	/**
@@ -35,10 +37,10 @@ public interface IExecutionInterceptor {
 	 * 
 	 * @return true, if the execution should be continued, false otherwise
 	 */
-	boolean beforeExecution();
+	boolean beforeExecution(IExecutionContext executionContext);
 
 	/**
 	 * Will be invoked, after the execution has been occurred
 	 */
-	void afterExecution();
+	void afterExecution(IExecutionContext executionContext);
 }
