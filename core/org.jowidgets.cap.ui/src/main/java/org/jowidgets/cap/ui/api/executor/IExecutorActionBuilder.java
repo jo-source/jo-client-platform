@@ -39,7 +39,6 @@ import org.jowidgets.common.types.Accelerator;
 import org.jowidgets.common.types.Modifier;
 import org.jowidgets.service.api.IServiceId;
 
-
 public interface IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> {
 
 	IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setText(String text);
@@ -81,7 +80,7 @@ public interface IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> {
 
 	IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> addEnabledChecker(IExecutableChecker<BEAN_TYPE> executableChecker);
 
-	IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setExecutionCallback(IExecutionResultCallback<BEAN_TYPE> executionCallback);
+	IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setExecutionInterceptor(IExecutionInterceptor interceptor);
 
 	IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setExceptionHandler(IExceptionHandler exceptionHandler);
 

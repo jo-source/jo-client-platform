@@ -151,6 +151,7 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 		this.modificationBuffer = CapUiToolkit.createBeansModificationBuffer();
 		this.beanProxyFactory = CapUiToolkit.createBeanProxyFactory(beanType, modificationBuffer);
 		this.dummyBeanProxy = beanProxyFactory.createProxy(createDummyBeanDto());
+		this.dummyBeanProxy.setInProcess(true);
 
 		//model creation
 		this.columnModel = createColumnModel(attributes);
@@ -164,13 +165,15 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 		maxPageIndex = 0;
 		dataCleared = true;
 		data.clear();
+		modificationBuffer.clear();
 		dataModel.fireDataChanged();
 	}
 
 	@Override
 	public void loadData() {
-		rowCount = readerService.count(null, null, null, null);
-		//rowCount = 0;
+		modificationBuffer.clear();
+		//rowCount = readerService.count(null, null, null, null);
+		rowCount = 0;
 		dataCleared = false;
 		maxPageIndex = 0;
 		data.clear();
@@ -197,7 +200,7 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 		for (final IBeanProxy<BEAN_TYPE> bean : new HashSet<IBeanProxy<BEAN_TYPE>>(modifiedBeans)) {
 			final IBeanDto updatedBean = updateMap.get(bean.getId());
 			if (updatedBean != null) {
-				bean.setBeanDto(updatedBean);
+				bean.update(updatedBean);
 			}
 			//TODO MG //else {}
 		}

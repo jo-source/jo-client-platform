@@ -34,7 +34,6 @@ import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 
-
 public interface IExecutorJob<BEAN_TYPE, PARAMETER_TYPE> {
 
 	/**
@@ -47,10 +46,8 @@ public interface IExecutorJob<BEAN_TYPE, PARAMETER_TYPE> {
 	 * @param beans the beans to get the parameter for
 	 * @param defaultParameter The default parameter
 	 * @param executionCallback The execution call back
-	 * 
-	 * @return The result of the execution
 	 */
-	List<IBeanProxy<BEAN_TYPE>> execute(
+	void execute(
 		IExecutionContext executionContext,
 		List<IBeanProxy<BEAN_TYPE>> beans,
 		PARAMETER_TYPE defaultParameter,

@@ -37,13 +37,17 @@ public interface IBeanProxy<BEAN_TYPE> extends IBeanDto, IPropertyChangeObservab
 
 	void setValue(String propertyName, Object value);
 
-	void setBeanDto(IBeanDto beanDto);
+	void update(IBeanDto beanDto);
 
 	Collection<IBeanModification> getModifications();
 
 	boolean hasModifications();
 
 	void undoModifications();
+
+	boolean isInProcess();
+
+	void setInProcess(boolean inProcess);
 
 	BEAN_TYPE getBean();
 }
