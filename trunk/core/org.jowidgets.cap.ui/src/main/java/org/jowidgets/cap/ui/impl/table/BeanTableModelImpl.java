@@ -233,6 +233,11 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 	}
 
 	@Override
+	public void fireBeansChanged() {
+		dataModel.fireDataChanged();
+	}
+
+	@Override
 	public IBeanProxy<BEAN_TYPE> getBean(final int rowIndex) {
 		final int pageIndex = getPage(rowIndex);
 		final ArrayList<IBeanProxy<BEAN_TYPE>> page = data.get(Integer.valueOf(pageIndex));

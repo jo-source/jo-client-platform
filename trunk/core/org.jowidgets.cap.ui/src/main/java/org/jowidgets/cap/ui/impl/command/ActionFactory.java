@@ -31,6 +31,8 @@ package org.jowidgets.cap.ui.impl.command;
 import org.jowidgets.cap.ui.api.command.IActionFactory;
 import org.jowidgets.cap.ui.api.command.IDataModelAction;
 import org.jowidgets.cap.ui.api.command.IDataModelActionBuilder;
+import org.jowidgets.cap.ui.api.command.IExecutorActionBuilder;
+import org.jowidgets.cap.ui.api.model.IBeanListModel;
 
 public class ActionFactory implements IActionFactory {
 
@@ -68,6 +70,12 @@ public class ActionFactory implements IActionFactory {
 		final IDataModelActionBuilder builder = new DataModelActionBuilder(new DataModelLoadCommand());
 		builder.setText("Reload"); //TODO MG i18n
 		return builder;
+	}
+
+	@Override
+	public <BEAN_TYPE, PARAM_TYPE> IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> executorActionBuilder(
+		final IBeanListModel<BEAN_TYPE> model) {
+		return new ExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE>(model);
 	}
 
 }

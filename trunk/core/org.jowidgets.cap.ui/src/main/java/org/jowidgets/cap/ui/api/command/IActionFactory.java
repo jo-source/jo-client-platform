@@ -28,6 +28,8 @@
 
 package org.jowidgets.cap.ui.api.command;
 
+import org.jowidgets.cap.ui.api.model.IBeanListModel;
+
 public interface IActionFactory {
 
 	IDataModelAction dataModelLoadAction();
@@ -41,5 +43,7 @@ public interface IActionFactory {
 	IDataModelAction dataModelUndoAction();
 
 	IDataModelActionBuilder dataModelUndoActionBuilder();
+
+	<BEAN_TYPE, PARAM_TYPE> IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> executorActionBuilder(IBeanListModel<BEAN_TYPE> model);
 
 }

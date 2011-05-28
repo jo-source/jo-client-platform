@@ -32,20 +32,24 @@ import org.jowidgets.api.command.IAction;
 import org.jowidgets.cap.sample.app.common.entity.IUser;
 import org.jowidgets.cap.sample.app.common.service.executor.ChangeGenderExecutableChecker;
 import org.jowidgets.cap.sample.app.common.service.executor.UserComponentExecutorServices;
+import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.command.IExecutorActionBuilder;
+import org.jowidgets.cap.ui.api.model.IBeanListModel;
+import org.jowidgets.examples.common.icons.SilkIcons;
 import org.jowidgets.tools.command.ActionWrapper;
 import org.jowidgets.util.types.Null;
 
 public class ChangeGenderAction extends ActionWrapper {
 
-	public ChangeGenderAction() {
-		super(create());
+	public ChangeGenderAction(final IBeanListModel<IUser> model) {
+		super(create(model));
 	}
 
-	@SuppressWarnings("null")
-	private static IAction create() {
-		final IExecutorActionBuilder<IUser, Null> builder = null;
+	private static IAction create(final IBeanListModel<IUser> model) {
+		final IExecutorActionBuilder<IUser, Null> builder = CapUiToolkit.getActionFactory().executorActionBuilder(model);
 		builder.setText("Change Gender");
+		builder.setToolTipText("Changes the gender of the selected person(s)");
+		builder.setIcon(SilkIcons.CUT_RED);
 		builder.setExecutor(UserComponentExecutorServices.CHANGE_GENDER);
 		builder.addEnabledChecker(new ChangeGenderExecutableChecker());
 		return builder.build();
