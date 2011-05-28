@@ -246,13 +246,18 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 	}
 
 	@Override
-	public IAttribute<Object> getAttribute(final int columnIndex) {
-		return attributes.get(columnIndex);
+	public void addBean(final int index, final IBeanProxy<BEAN_TYPE> bean) {
+		// TODO MG implement addBean
 	}
 
 	@Override
-	public List<IBeanProxy<BEAN_TYPE>> getSelectedBeans() {
-		return null;
+	public void removeBean(final int index) {
+		// TODO MG implement removeBean
+	}
+
+	@Override
+	public IAttribute<Object> getAttribute(final int columnIndex) {
+		return attributes.get(columnIndex);
 	}
 
 	@Override
@@ -267,25 +272,28 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 	}
 
 	@Override
-	public int getRowCount() {
+	public int getSize() {
 		return rowCount;
 	}
 
 	@Override
 	public ArrayList<Integer> getSelection() {
-		return null;
+		return tableModel.getSelection();
 	}
 
 	@Override
-	public void setSelection(final List<Integer> selection) {}
+	public void setSelection(final List<Integer> selection) {
+		tableModel.setSelection(selection);
+	}
 
 	@Override
 	public IBeanProxy<BEAN_TYPE> getFirstSelectedBean() {
+		final ArrayList<Integer> selection = getSelection();
+		if (selection != null && selection.size() > 0) {
+			return getBean(selection.get(0).intValue());
+		}
 		return null;
 	}
-
-	@Override
-	public void setSelectedBeans(final List<IBeanProxy<BEAN_TYPE>> selectedBeans) {}
 
 	@Override
 	public void setFilter(final String id, final IFilter filter) {}
@@ -369,6 +377,11 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 					else {
 						cellBuilder = createCellBuilder(rowIndex, columnIndex, attribute, value);
 					}
+
+					if (bean.isInProcess()) {
+						cellBuilder.setForegroundColor(Colors.DISABLED);
+					}
+
 					return cellBuilder.build();
 				}
 			}
@@ -418,7 +431,6 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 			private ITableCellBuilder createDummyCellBuilder(final int rowIndex, final int columnIndex) {
 				final ITableCellBuilder cellBuilder = createDefaultCellBuilder(rowIndex, columnIndex);
 				cellBuilder.setText("...").setToolTipText("Data will be loaded in background");
-				cellBuilder.setForegroundColor(Colors.DISABLED);
 				return cellBuilder;
 			}
 

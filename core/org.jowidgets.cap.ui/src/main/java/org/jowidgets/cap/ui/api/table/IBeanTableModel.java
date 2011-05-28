@@ -43,19 +43,14 @@ public interface IBeanTableModel<BEAN_TYPE> extends IDataModel, IBeanListModel<B
 
 	ITableModel getTableModel();
 
-	int getRowCount();
-
-	IBeanProxy<BEAN_TYPE> getBean(int rowIndex);
-
 	IAttribute<Object> getAttribute(int columnIndex);
 
+	@Override
 	ArrayList<Integer> getSelection();
 
 	void setSelection(List<Integer> selection);
 
 	IBeanProxy<BEAN_TYPE> getFirstSelectedBean();
-
-	void setSelectedBeans(List<IBeanProxy<BEAN_TYPE>> selectedBeans);
 
 	void setFilter(String id, IFilter filter);
 
