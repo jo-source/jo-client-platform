@@ -26,14 +26,42 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.bean;
+package org.jowidgets.cap.ui.impl.model;
 
-public interface IBeansModificationRegistry<BEAN_TYPE> {
+import java.util.HashSet;
+import java.util.Set;
 
-	boolean contains(Object id);
+import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
+import org.jowidgets.cap.ui.api.model.IBeanListModelObservable;
 
-	void add(IBeanProxy<BEAN_TYPE> bean);
+public class BeanListModelObservable implements IBeanListModelObservable {
 
-	void remove(IBeanProxy<BEAN_TYPE> bean);
+	private final Set<IBeanListModelListener> listeners;
+
+	public BeanListModelObservable() {
+		this.listeners = new HashSet<IBeanListModelListener>();
+	}
+
+	@Override
+	public void addBeanListModelListener(final IBeanListModelListener listener) {
+		listeners.add(listener);
+	}
+
+	@Override
+	public void removeBeanListModelListener(final IBeanListModelListener listener) {
+		listeners.remove(listener);
+	}
+
+	public void fireBeansChanged() {
+		for (final IBeanListModelListener listener : listeners) {
+			listener.beansChanged();
+		}
+	}
+
+	public void fireSelectionChanged() {
+		for (final IBeanListModelListener listener : listeners) {
+			listener.selectionChanged();
+		}
+	}
 
 }

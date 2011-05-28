@@ -26,14 +26,12 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.bean;
+package org.jowidgets.cap.ui.api.executor;
 
-public interface IBeansModificationRegistry<BEAN_TYPE> {
+public enum BeanModificationStatePolicy {
 
-	boolean contains(Object id);
+	NO_MODIFICATION,
 
-	void add(IBeanProxy<BEAN_TYPE> bean);
-
-	void remove(IBeanProxy<BEAN_TYPE> bean);
+	ANY_MODIFICATION;
 
 }

@@ -72,6 +72,17 @@ public class BeansModificationBuffer<BEAN_TYPE> extends ModificationStateObserva
 	}
 
 	@Override
+	public boolean contains(final Object id) {
+		Assert.paramNotNull(id, "id");
+		for (final IBeanProxy<BEAN_TYPE> bean : modifiedBeans) {
+			if (id.equals(bean.getId())) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	@Override
 	public boolean hasModifications() {
 		return !modifiedBeans.isEmpty();
 	}
