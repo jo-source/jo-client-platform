@@ -28,13 +28,20 @@
 
 package org.jowidgets.cap.ui.api.model;
 
-import java.util.List;
+import java.util.ArrayList;
 
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 
-
 public interface IBeanListModel<BEAN_TYPE> extends IBeanListModelObservable {
 
-	List<IBeanProxy<BEAN_TYPE>> getSelectedBeans();
+	int getSize();
+
+	IBeanProxy<BEAN_TYPE> getBean(int index);
+
+	void removeBean(int index);
+
+	void addBean(int index, IBeanProxy<BEAN_TYPE> bean);
+
+	ArrayList<Integer> getSelection();
 
 }

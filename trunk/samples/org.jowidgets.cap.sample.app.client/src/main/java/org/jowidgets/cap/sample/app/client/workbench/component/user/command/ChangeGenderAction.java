@@ -28,20 +28,13 @@
 
 package org.jowidgets.cap.sample.app.client.workbench.component.user.command;
 
-import java.util.List;
-
 import org.jowidgets.api.command.IAction;
-import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.cap.sample.app.common.entity.IUser;
 import org.jowidgets.cap.sample.app.common.service.executor.ChangeGenderExecutableChecker;
 import org.jowidgets.cap.sample.app.common.service.executor.UserComponentExecutorServices;
-import org.jowidgets.cap.ui.api.bean.IBeanProxy;
-import org.jowidgets.cap.ui.api.executor.IExecutorActionBuilder;
-import org.jowidgets.cap.ui.api.executor.IParameterProvider;
+import org.jowidgets.cap.ui.api.command.IExecutorActionBuilder;
 import org.jowidgets.tools.command.ActionWrapper;
-import org.jowidgets.util.maybe.IMaybe;
 import org.jowidgets.util.types.Null;
-
 
 public class ChangeGenderAction extends ActionWrapper {
 
@@ -54,17 +47,6 @@ public class ChangeGenderAction extends ActionWrapper {
 		final IExecutorActionBuilder<IUser, Null> builder = null;
 		builder.setText("Change Gender");
 		builder.setExecutor(UserComponentExecutorServices.CHANGE_GENDER);
-		builder.addParameterProvider(new IParameterProvider<IUser, Null>() {
-
-			@Override
-			public IMaybe<Null> getParameter(
-				final IExecutionContext executionContext,
-				final List<IBeanProxy<IUser>> beans,
-				final Null defaultParameter) {
-				return Null.SOME_NULL;
-			}
-
-		});
 		builder.addEnabledChecker(new ChangeGenderExecutableChecker());
 		return builder.build();
 	}
