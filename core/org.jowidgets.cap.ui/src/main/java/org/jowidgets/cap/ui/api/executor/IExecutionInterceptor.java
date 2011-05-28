@@ -30,7 +30,15 @@ package org.jowidgets.cap.ui.api.executor;
 
 public interface IExecutionInterceptor {
 
-	void beforeExecution();
+	/**
+	 * Will be invoked before the execution occurs
+	 * 
+	 * @return true, if the execution should be continued, false otherwise
+	 */
+	boolean beforeExecution();
 
+	/**
+	 * Will be invoked, after the execution has been occurred
+	 */
 	void afterExecution();
 }

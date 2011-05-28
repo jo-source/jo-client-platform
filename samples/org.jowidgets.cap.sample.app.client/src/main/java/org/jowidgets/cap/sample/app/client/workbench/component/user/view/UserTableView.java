@@ -37,12 +37,16 @@ import org.jowidgets.api.model.item.IToolBarModel;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.widgets.IContainer;
 import org.jowidgets.api.widgets.IInputField;
+import org.jowidgets.api.widgets.IPopupMenu;
 import org.jowidgets.api.widgets.blueprint.factory.IBluePrintFactory;
+import org.jowidgets.cap.sample.app.client.workbench.component.user.command.ChangeGenderAction;
 import org.jowidgets.cap.sample.app.common.entity.IUser;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.common.widgets.controler.IInputListener;
+import org.jowidgets.common.widgets.controler.ITableCellPopupDetectionListener;
+import org.jowidgets.common.widgets.controler.ITableCellPopupEvent;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
 import org.jowidgets.examples.common.icons.SilkIcons;
 import org.jowidgets.util.ValueHolder;
@@ -76,6 +80,16 @@ public class UserTableView extends AbstractView {
 		toolBar.addContainer(createDelayFieldCreator());
 		toolBar.addAction(createClearAction());
 		toolBar.addAction(createPackAction());
+
+		final IPopupMenu popupMenu = table.createPopupMenu();
+		popupMenu.addAction(new ChangeGenderAction(tableModel));
+
+		table.addTableCellPopupDetectionListener(new ITableCellPopupDetectionListener() {
+			@Override
+			public void popupDetected(final ITableCellPopupEvent event) {
+				popupMenu.show(event.getPosition());
+			}
+		});
 
 		beanTableModel.loadData();
 	}

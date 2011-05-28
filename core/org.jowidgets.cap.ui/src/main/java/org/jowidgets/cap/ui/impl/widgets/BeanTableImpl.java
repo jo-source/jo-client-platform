@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.jowidgets.api.convert.IStringObjectConverter;
+import org.jowidgets.api.model.item.IMenuModel;
 import org.jowidgets.api.widgets.ITable;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
@@ -78,6 +79,7 @@ final class BeanTableImpl<BEAN_TYPE> extends ControlWrapper implements IBeanTabl
 			}
 
 		});
+
 	}
 
 	@Override
@@ -228,6 +230,11 @@ final class BeanTableImpl<BEAN_TYPE> extends ControlWrapper implements IBeanTabl
 	@Override
 	public void removeTableColumnPopupDetectionListener(final ITableColumnPopupDetectionListener listener) {
 		getWidget().removeTableColumnPopupDetectionListener(listener);
+	}
+
+	@Override
+	public IMenuModel getMenu() {
+		return null;
 	}
 
 }

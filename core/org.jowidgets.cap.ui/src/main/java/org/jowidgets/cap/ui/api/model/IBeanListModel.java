@@ -44,4 +44,6 @@ public interface IBeanListModel<BEAN_TYPE> extends IBeanListModelObservable {
 
 	ArrayList<Integer> getSelection();
 
+	void fireBeansChanged();
+
 }

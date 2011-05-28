@@ -28,8 +28,11 @@
 
 package org.jowidgets.cap.ui.api.widgets;
 
+import org.jowidgets.api.model.item.IMenuModel;
 import org.jowidgets.api.widgets.ITable;
 
 public interface IBeanTable<BEAN_TYPE> extends ITable {
+
+	IMenuModel getMenu();
 
 }
