@@ -29,11 +29,17 @@
 package org.jowidgets.cap.sample.app.client.workbench.component.user.command;
 
 import org.jowidgets.api.command.IAction;
+import org.jowidgets.api.command.IExecutionContext;
+import org.jowidgets.api.image.Icons;
+import org.jowidgets.api.toolkit.Toolkit;
+import org.jowidgets.api.types.QuestionResult;
 import org.jowidgets.cap.sample.app.common.entity.IUser;
 import org.jowidgets.cap.sample.app.common.service.executor.ChangeGenderExecutableChecker;
 import org.jowidgets.cap.sample.app.common.service.executor.UserComponentExecutorServices;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.command.IExecutorActionBuilder;
+import org.jowidgets.cap.ui.api.executor.BeanSelectionPolicy;
+import org.jowidgets.cap.ui.api.executor.IExecutionInterceptor;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.examples.common.icons.SilkIcons;
 import org.jowidgets.tools.command.ActionWrapper;
@@ -50,8 +56,42 @@ public class ChangeGenderAction extends ActionWrapper {
 		builder.setText("Change Gender");
 		builder.setToolTipText("Changes the gender of the selected person(s)");
 		builder.setIcon(SilkIcons.CUT_RED);
+		builder.setSelectionPolicy(BeanSelectionPolicy.MULTI_SELECTION);
 		builder.setExecutor(UserComponentExecutorServices.CHANGE_GENDER);
-		builder.addEnabledChecker(new ChangeGenderExecutableChecker());
+		builder.addExecutableChecker(new ChangeGenderExecutableChecker());
+		builder.addExecutionInterceptor(new IExecutionInterceptor() {
+
+			@Override
+			public boolean beforeExecution(final IExecutionContext executionContext) {
+				final IAction action = executionContext.getAction();
+				final int size = model.getSelection().size();
+				final String question;
+				if (size == 1) {
+					final IUser bean = model.getBean(model.getSelection().get(0)).getBean();
+					question = "Would you really like to change the gender of '"
+						+ bean.getName()
+						+ " "
+						+ bean.getLastName()
+						+ "'?\n This could not be undone!";
+				}
+				else {
+					question = "Would you really like to change the gender of '"
+						+ size
+						+ "' Persons?\n This could not be undone!";
+				}
+				final QuestionResult result = Toolkit.getQuestionPane().askYesNoQuestion(
+						action.getText(),
+						action.getIcon(),
+						question,
+						QuestionResult.NO,
+						Icons.QUESTION);
+				return result == QuestionResult.YES;
+			}
+
+			@Override
+			public void afterExecution(final IExecutionContext executionContext) {}
+
+		});
 		return builder.build();
 	}
 }

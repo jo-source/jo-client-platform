@@ -225,7 +225,7 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 	@Override
 	public void execute(final IExecutionContext executionContext) throws Exception {
 		for (final IExecutionInterceptor interceptor : executionInterceptors) {
-			if (!interceptor.beforeExecution()) {
+			if (!interceptor.beforeExecution(executionContext)) {
 				return;
 			}
 		}
@@ -375,7 +375,7 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 			}
 
 			for (final IExecutionInterceptor interceptor : executionInterceptors) {
-				interceptor.afterExecution();
+				interceptor.afterExecution(executionContext);
 			}
 
 			listModel.fireBeansChanged();
