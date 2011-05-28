@@ -60,7 +60,7 @@ public class ChangeBirthdayAction extends ActionWrapper {
 
 	private static IAction create(final IBeanListModel<IUser> model) {
 		final IExecutorActionBuilder<IUser, Date> builder = CapUiToolkit.getActionFactory().executorActionBuilder(model);
-		builder.setText("Change Birtday");
+		builder.setText("Change Birthday");
 		builder.setToolTipText("Changes the birthday of the selected person");
 		builder.setIcon(SilkIcons.USER_EDIT);
 		builder.setSelectionPolicy(BeanSelectionPolicy.SINGLE_SELECTION);
@@ -71,9 +71,9 @@ public class ChangeBirthdayAction extends ActionWrapper {
 				final IExecutionContext executionContext,
 				final List<IBeanProxy<IUser>> beans,
 				final Date defaultParameter) throws Exception {
-				final IInputDialog<Date> inputDialog = createInputDialog(executionContext, defaultParameter);
+				final IInputDialog<Date> inputDialog = createInputDialog(executionContext);
 				inputDialog.setVisible(true);
-				if (inputDialog.isOkPressed() && inputDialog.getValue() != null) {
+				if (inputDialog.isOkPressed()) {
 					return new Some<Date>(inputDialog.getValue());
 				}
 				return Nothing.getInstance();
@@ -85,15 +85,12 @@ public class ChangeBirthdayAction extends ActionWrapper {
 		return builder.build();
 	}
 
-	private static IInputDialog<Date> createInputDialog(final IExecutionContext executionContext, final Date defaultDate) {
+	private static IInputDialog<Date> createInputDialog(final IExecutionContext executionContext) {
 		final IBluePrintFactory bpf = Toolkit.getBluePrintFactory();
-
 		final SingleControlContent<Date> content = new SingleControlContent<Date>("Date of Birth", bpf.inputFieldDate(), 200);
 		final IInputDialogBluePrint<Date> inputDialogBp = bpf.inputDialog(content).setExecutionContext(executionContext);
-
 		inputDialogBp.setMissingInputText("Please input the new date of birth!");
 		inputDialogBp.setResizable(false);
-		inputDialogBp.setValue(defaultDate);
 		return Toolkit.getActiveWindow().createChildWindow(inputDialogBp);
 	}
 }
