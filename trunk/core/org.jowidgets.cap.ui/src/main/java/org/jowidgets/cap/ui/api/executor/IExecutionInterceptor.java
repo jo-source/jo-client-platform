@@ -28,12 +28,9 @@
 
 package org.jowidgets.cap.ui.api.executor;
 
-import java.util.List;
+public interface IExecutionInterceptor {
 
-import org.jowidgets.cap.ui.api.bean.IBeanProxy;
+	void beforeExecution();
 
-
-public interface IExecutionResultCallback<BEAN_TYPE> {
-
-	void executionFinished(List<IBeanProxy<BEAN_TYPE>> executionResult);
+	void afterExecution();
 }

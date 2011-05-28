@@ -33,7 +33,6 @@ import java.util.List;
 import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 
-
 public interface IExecutor<BEAN_TYPE, PARAMETER_TYPE> {
 
 	/**
@@ -47,13 +46,8 @@ public interface IExecutor<BEAN_TYPE, PARAMETER_TYPE> {
 	 * @param beans the beans to get the parameter for
 	 * @param defaultParameter The default parameter
 	 * 
-	 * @return The result of the execution
-	 * 
 	 * @see IExecutorJob, IExecutorService
 	 */
-	List<IBeanProxy<BEAN_TYPE>> execute(
-		IExecutionContext executionContext,
-		List<IBeanProxy<BEAN_TYPE>> beans,
-		PARAMETER_TYPE defaultParameter) throws Exception;
+	void execute(IExecutionContext executionContext, List<IBeanProxy<BEAN_TYPE>> beans, PARAMETER_TYPE defaultParameter) throws Exception;
 
 }

@@ -28,9 +28,12 @@
 
 package org.jowidgets.cap.ui.impl.bean;
 
+import java.beans.PropertyChangeEvent;
 import java.lang.reflect.Proxy;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import org.jowidgets.cap.common.api.CapCommonToolkit;
@@ -47,7 +50,9 @@ final class BeanProxyImpl<BEAN_TYPE> extends PropertyChangeObservable implements
 	private final Class<? extends BEAN_TYPE> beanType;
 	private final Map<String, IBeanModification> modifications;
 	private final IBeansModificationRegistry<BEAN_TYPE> modificationRegistry;
+	private final List<PropertyChangeEvent> accruedChangeEvents;
 
+	private boolean inProcess;
 	private IBeanDto beanDto;
 	private BEAN_TYPE proxy;
 
@@ -58,10 +63,12 @@ final class BeanProxyImpl<BEAN_TYPE> extends PropertyChangeObservable implements
 		Assert.paramNotNull(beanDto, "beanDto");
 		Assert.paramNotNull(beanType, "beanType");
 
+		this.inProcess = false;
 		this.beanDto = beanDto;
 		this.beanType = beanType;
 		this.modificationRegistry = modificationRegistry;
 		this.modifications = new HashMap<String, IBeanModification>();
+		this.accruedChangeEvents = new LinkedList<PropertyChangeEvent>();
 	}
 
 	@Override
@@ -95,20 +102,28 @@ final class BeanProxyImpl<BEAN_TYPE> extends PropertyChangeObservable implements
 		//set to the original value
 		if (NullCompatibleEquivalence.equals(originalValue, newValue)) {
 			modifications.remove(propertyName);
-			firePropertyChange(this, propertyName, currentValue, newValue);
-			modificationRegistry.remove(this);
+			propertyChange(this, propertyName, currentValue, newValue);
+			if (!inProcess && !hasModifications()) {
+				modificationRegistry.remove(this);
+			}
 		}
 		else if (!NullCompatibleEquivalence.equals(currentValue, newValue)) {
 			final IBeanModificationBuilder modBuilder = CapCommonToolkit.beanModificationBuilder();
 			modBuilder.setBeanDto(beanDto).setPropertyName(propertyName).setNewValue(newValue);
 			modifications.put(propertyName, modBuilder.build());
-			firePropertyChange(this, propertyName, currentValue, newValue);
-			modificationRegistry.add(this);
+			propertyChange(this, propertyName, currentValue, newValue);
+			if (!inProcess) {
+				modificationRegistry.add(this);
+			}
 		}
 	}
 
 	@Override
-	public void setBeanDto(final IBeanDto beanDto) {
+	public void update(final IBeanDto beanDto) {
+		Assert.paramNotNull(beanDto, "beanDto");
+		if (!this.beanDto.getId().equals(beanDto.getId())) {
+			throw new IllegalArgumentException("The given parameter 'beanDto' must have the same id than this proxy");
+		}
 		modifications.clear();
 		modificationRegistry.remove(this);
 		this.beanDto = beanDto;
@@ -143,8 +158,49 @@ final class BeanProxyImpl<BEAN_TYPE> extends PropertyChangeObservable implements
 	}
 
 	@Override
+	public boolean isInProcess() {
+		return inProcess;
+	}
+
+	@Override
+	public void setInProcess(final boolean inProcess) {
+		this.inProcess = inProcess;
+		if (!inProcess) {
+			for (final PropertyChangeEvent event : accruedChangeEvents) {
+				//TODO MG remove inner change events (leave only first and last event for each property)
+				firePropertyChange(event);
+			}
+			accruedChangeEvents.clear();
+			if (hasModifications()) {
+				modificationRegistry.add(this);
+			}
+			else {
+				modificationRegistry.remove(this);
+			}
+		}
+	}
+
+	private void propertyChange(final Object source, final String propertyName, final Object oldValue, final Object newValue) {
+		final PropertyChangeEvent event = new PropertyChangeEvent(source, propertyName, oldValue, newValue);
+		if (inProcess) {
+			accruedChangeEvents.add(event);
+		}
+		else {
+			firePropertyChange(event);
+		}
+	}
+
+	@Override
 	public String toString() {
-		return "BeanProxyImpl [beanDto=" + beanDto + ", beanType=" + beanType + ", modifications=" + modifications + "]";
+		return "BeanProxyImpl [beanType="
+			+ beanType
+			+ ", modifications="
+			+ modifications
+			+ ", inProcess="
+			+ inProcess
+			+ ", beanDto="
+			+ beanDto
+			+ "]";
 	}
 
 	@Override
