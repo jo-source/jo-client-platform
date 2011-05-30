@@ -37,7 +37,7 @@ import org.jowidgets.cap.common.api.execution.IUserQuestionCallback;
 import org.jowidgets.cap.common.api.execution.UserQuestionResult;
 import org.jowidgets.util.Assert;
 
-public class DelayedExecutionCallback implements IExecutionCallback, IExecutionCallbackListener {
+public class DelayedExecutionCallback implements IExecutionCallback {
 
 	private static final long DEFAULT_DELAY = 200;
 
@@ -45,6 +45,7 @@ public class DelayedExecutionCallback implements IExecutionCallback, IExecutionC
 	private final long delay;
 	private final Set<IExecutionCallbackListener> executionCallbackListeners;
 	private final Thread updaterThread;
+	private final IExecutionCallbackListener executionCallbackListener;
 
 	private boolean canceled;
 	private boolean finished;
@@ -108,22 +109,8 @@ public class DelayedExecutionCallback implements IExecutionCallback, IExecutionC
 		this.updaterThread.setDaemon(true);
 		this.updaterThread.start();
 
-		this.executionCallback.addExecutionCallbackListener(this);
-	}
-
-	@Override
-	public void executionCanceled() {
-		canceled = true;
-		fireCanceled();
-		updaterThread.interrupt();
-	}
-
-	@Override
-	public void onDispose() {
-		disposed = true;
-		fireOnDispose();
-		executionCallback.removeExecutionCallbackListener(this);
-		updaterThread.interrupt();
+		this.executionCallbackListener = new ExecutionCallbackListener();
+		this.executionCallback.addExecutionCallbackListener(executionCallbackListener);
 	}
 
 	@Override
@@ -198,6 +185,23 @@ public class DelayedExecutionCallback implements IExecutionCallback, IExecutionC
 	public void fireOnDispose() {
 		for (final IExecutionCallbackListener listener : executionCallbackListeners) {
 			listener.onDispose();
+		}
+	}
+
+	public final class ExecutionCallbackListener implements IExecutionCallbackListener {
+		@Override
+		public void executionCanceled() {
+			canceled = true;
+			fireCanceled();
+			updaterThread.interrupt();
+		}
+
+		@Override
+		public void onDispose() {
+			disposed = true;
+			fireOnDispose();
+			executionCallback.removeExecutionCallbackListener(executionCallbackListener);
+			updaterThread.interrupt();
 		}
 	}
 

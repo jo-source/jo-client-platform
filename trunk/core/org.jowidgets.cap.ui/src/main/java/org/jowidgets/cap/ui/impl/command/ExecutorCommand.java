@@ -47,6 +47,7 @@ import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.api.controler.IChangeListener;
 import org.jowidgets.api.threads.IUiThreadAccess;
 import org.jowidgets.api.toolkit.Toolkit;
+import org.jowidgets.api.types.QuestionResult;
 import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
@@ -54,6 +55,7 @@ import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.execution.IExecutableState;
 import org.jowidgets.cap.common.api.execution.IExecutionTask;
 import org.jowidgets.cap.common.api.execution.IExecutionTaskListener;
+import org.jowidgets.cap.common.api.execution.UserQuestionResult;
 import org.jowidgets.cap.common.api.service.IExecutorService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.bean.IBeanKeyFactory;
@@ -284,6 +286,7 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 	}
 
 	private IExecutionTask createExecutionTask() {
+		final IUiThreadAccess uiThreadAccess = Toolkit.getUiThreadAccess();
 		final IExecutionTask executionTask = CapCommonToolkit.executionTaskFactory().create();
 
 		//TODO MG remove this later
@@ -297,7 +300,29 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 			}
 
 			@Override
-			public void userQuestionAsked() {}
+			public void userQuestionAsked() {
+				final ValueHolder<QuestionResult> resultHolder = new ValueHolder<QuestionResult>();
+				try {
+					uiThreadAccess.invokeAndWait(new Runnable() {
+						@Override
+						public void run() {
+							final QuestionResult result = Toolkit.getQuestionPane().askYesNoQuestion(
+									executionTask.getUserQuestion());
+							resultHolder.set(result);
+						}
+					});
+				}
+				catch (final InterruptedException e) {
+					executionTask.setQuestionResult(UserQuestionResult.NO);
+				}
+
+				if (QuestionResult.YES == resultHolder.get()) {
+					executionTask.setQuestionResult(UserQuestionResult.YES);
+				}
+				else {
+					executionTask.setQuestionResult(UserQuestionResult.NO);
+				}
+			}
 
 			@Override
 			public void totalStepCountChanged() {}
