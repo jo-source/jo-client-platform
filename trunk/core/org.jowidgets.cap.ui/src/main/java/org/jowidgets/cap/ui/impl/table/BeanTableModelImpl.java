@@ -90,7 +90,6 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 	private final Map<Integer, ArrayList<IBeanProxy<BEAN_TYPE>>> data;
 	private final LinkedList<PageLoader> currentPageLoaders;
 
-	private final IBeanProxy<BEAN_TYPE> dummyBeanProxy;
 	private final IBeanProxyFactory<BEAN_TYPE> beanProxyFactory;
 	private final IBeansModificationBuffer<BEAN_TYPE> modificationBuffer;
 	private final ArrayList<IAttribute<Object>> attributes;
@@ -155,8 +154,6 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 		this.maxPageIndex = 0;
 		this.modificationBuffer = CapUiToolkit.createBeansModificationBuffer();
 		this.beanProxyFactory = CapUiToolkit.createBeanProxyFactory(beanType, modificationBuffer);
-		this.dummyBeanProxy = beanProxyFactory.createProxy(createDummyBeanDto());
-		this.dummyBeanProxy.setInProcess(true);
 		this.beanListModelObservable = new BeanListModelObservable();
 
 		//model creation
@@ -393,7 +390,7 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 						cellBuilder = createCellBuilder(rowIndex, columnIndex, attribute, value);
 					}
 
-					if (bean.isInProcess()) {
+					if (bean.getExecutionTask() != null) {
 						cellBuilder.setForegroundColor(Colors.DISABLED);
 					}
 
@@ -488,6 +485,7 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 		private ArrayList<IBeanProxy<BEAN_TYPE>> page;
 
 		private IExecutionTask executionTask;
+		private IBeanProxy<BEAN_TYPE> dummyBeanProxy;
 
 		PageLoader(final int pageIndex) {
 			this.pageIndex = pageIndex;
@@ -497,6 +495,10 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 		void loadPage() {
 			page = new ArrayList<IBeanProxy<BEAN_TYPE>>();
 			data.put(Integer.valueOf(pageIndex), page);
+
+			dummyBeanProxy = beanProxyFactory.createProxy(createDummyBeanDto());
+			executionTask = CapCommonToolkit.executionTaskFactory().create();
+			dummyBeanProxy.setExecutionTask(executionTask);
 
 			for (int i = 0; i < pageSize; i++) {
 				page.add(dummyBeanProxy);
@@ -571,8 +573,6 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 					System.out.println("Load page start: " + pageIndex);
 					//CHECKSTYLE:ON
 
-					executionTask = CapCommonToolkit.executionTaskFactory().create();
-
 					final List<IBeanDto> beanDtos;
 					try {
 						beanDtos = BeanTableModelImpl.this.readerService.read(
@@ -620,6 +620,17 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 										index++;
 									}
 								}
+
+								//TODO MG remove this hacky stuff later
+								if (page.size() > 0) {
+									dummyBeanProxy.update(createCopyBeanDto(page.get(0)));
+									dummyBeanProxy.setExecutionTask(null);
+								}
+								else {
+									dummyBeanProxy.update(createNullBeanDto());
+									dummyBeanProxy.setExecutionTask(null);
+								}
+
 								dataModel.fireDataChanged();
 
 								//CHECKSTYLE:OFF
@@ -632,7 +643,6 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 				}
 			};
 		}
-
 	}
 
 	private interface IDummyValue {}
@@ -642,6 +652,44 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 			@Override
 			public Object getValue(final String propertyName) {
 				return DUMMY_VALUE;
+			}
+
+			@Override
+			public Object getId() {
+				return DUMMY_VALUE;
+			}
+
+			@Override
+			public long getVersion() {
+				return 0;
+			}
+		};
+	}
+
+	private static IBeanDto createNullBeanDto() {
+		return new IBeanDto() {
+			@Override
+			public Object getValue(final String propertyName) {
+				return null;
+			}
+
+			@Override
+			public Object getId() {
+				return DUMMY_VALUE;
+			}
+
+			@Override
+			public long getVersion() {
+				return 0;
+			}
+		};
+	}
+
+	private static IBeanDto createCopyBeanDto(final IBeanProxy<?> proxy) {
+		return new IBeanDto() {
+			@Override
+			public Object getValue(final String propertyName) {
+				return proxy.getValue(propertyName);
 			}
 
 			@Override

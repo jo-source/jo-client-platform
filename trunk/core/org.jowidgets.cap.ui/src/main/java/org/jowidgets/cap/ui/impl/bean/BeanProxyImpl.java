@@ -40,6 +40,7 @@ import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanModification;
 import org.jowidgets.cap.common.api.bean.IBeanModificationBuilder;
+import org.jowidgets.cap.common.api.execution.IExecutionTask;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeansModificationRegistry;
 import org.jowidgets.cap.ui.api.bean.IProcessStateListener;
@@ -57,7 +58,7 @@ final class BeanProxyImpl<BEAN_TYPE> extends PropertyChangeObservable implements
 	private final ModificationStateObservable modificationStateObservable;
 	private final ProcessStateObservable processStateObservable;
 
-	private boolean inProcess;
+	private IExecutionTask executionTask;
 	private IBeanDto beanDto;
 	private BEAN_TYPE proxy;
 
@@ -68,7 +69,6 @@ final class BeanProxyImpl<BEAN_TYPE> extends PropertyChangeObservable implements
 		Assert.paramNotNull(beanDto, "beanDto");
 		Assert.paramNotNull(beanType, "beanType");
 
-		this.inProcess = false;
 		this.beanDto = beanDto;
 		this.beanType = beanType;
 		this.modificationRegistry = modificationRegistry;
@@ -110,7 +110,7 @@ final class BeanProxyImpl<BEAN_TYPE> extends PropertyChangeObservable implements
 		if (NullCompatibleEquivalence.equals(originalValue, newValue)) {
 			modifications.remove(propertyName);
 			propertyChange(this, propertyName, currentValue, newValue);
-			if (!inProcess && !hasModifications() && modificationRegistry.contains(beanDto.getId())) {
+			if (executionTask == null && !hasModifications() && modificationRegistry.contains(beanDto.getId())) {
 				modificationRegistry.remove(this);
 				modificationStateObservable.fireModificationStateChanged();
 			}
@@ -120,7 +120,7 @@ final class BeanProxyImpl<BEAN_TYPE> extends PropertyChangeObservable implements
 			modBuilder.setBeanDto(beanDto).setPropertyName(propertyName).setNewValue(newValue);
 			modifications.put(propertyName, modBuilder.build());
 			propertyChange(this, propertyName, currentValue, newValue);
-			if (!inProcess && !modificationRegistry.contains(beanDto.getId())) {
+			if (executionTask == null && !modificationRegistry.contains(beanDto.getId())) {
 				modificationRegistry.add(this);
 				modificationStateObservable.fireModificationStateChanged();
 			}
@@ -177,16 +177,16 @@ final class BeanProxyImpl<BEAN_TYPE> extends PropertyChangeObservable implements
 	}
 
 	@Override
-	public boolean isInProcess() {
-		return inProcess;
+	public IExecutionTask getExecutionTask() {
+		return executionTask;
 	}
 
 	@Override
-	public void setInProcess(final boolean inProcess) {
-		if (this.inProcess != inProcess) {
-			this.inProcess = inProcess;
+	public void setExecutionTask(final IExecutionTask executionTask) {
+		if (!NullCompatibleEquivalence.equals(this.executionTask, executionTask)) {
+			this.executionTask = executionTask;
 			processStateObservable.fireProcessStateChanged();
-			if (!inProcess) {
+			if (executionTask == null) {
 				for (final PropertyChangeEvent event : accruedChangeEvents) {
 					//TODO MG remove inner change events (leave only first and last event for each property)
 					firePropertyChange(event);
@@ -226,7 +226,7 @@ final class BeanProxyImpl<BEAN_TYPE> extends PropertyChangeObservable implements
 
 	private void propertyChange(final Object source, final String propertyName, final Object oldValue, final Object newValue) {
 		final PropertyChangeEvent event = new PropertyChangeEvent(source, propertyName, oldValue, newValue);
-		if (inProcess) {
+		if (executionTask != null) {
 			accruedChangeEvents.add(event);
 		}
 		else {
@@ -240,10 +240,12 @@ final class BeanProxyImpl<BEAN_TYPE> extends PropertyChangeObservable implements
 			+ beanType
 			+ ", modifications="
 			+ modifications
-			+ ", inProcess="
-			+ inProcess
+			+ ", executionTask="
+			+ executionTask
 			+ ", beanDto="
 			+ beanDto
+			+ ", proxy="
+			+ proxy
 			+ "]";
 	}
 

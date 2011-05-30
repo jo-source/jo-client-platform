@@ -227,7 +227,7 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 			}
 		}
 		for (final IBeanProxy bean : lastSelection) {
-			if (bean.isInProcess()) {
+			if (bean.getExecutionTask() != null) {
 				return IS_IN_PROCESS_STATE;
 			}
 			else if (BeanModificationStatePolicy.NO_MODIFICATION == beanModificationStatePolicy && bean.hasModifications()) {
@@ -256,23 +256,71 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 		for (final Integer index : listModel.getSelection()) {
 			final IBeanProxy<Object> bean = listModel.getBean(index.intValue());
 			beans.add(bean);
-			bean.setInProcess(true);
 		}
 
-		listModel.fireBeansChanged();
-
 		if (BeanExecutionPolicy.SERIAL == beanListExecutionPolicy) {
-			final Thread thread = new Thread(new ExecutorRunnable(beans, executionContext));
+			final IExecutionTask executionTask = createExecutionTask();
+			for (final IBeanProxy bean : beans) {
+				bean.setExecutionTask(executionTask);
+			}
+			listModel.fireBeansChanged();
+			final Thread thread = new Thread(new ExecutorRunnable(beans, executionContext, executionTask));
 			thread.setDaemon(true);
 			thread.start();
 		}
 		else {
 			for (final IBeanProxy bean : beans) {
-				final Thread thread = new Thread(new ExecutorRunnable(Collections.singletonList(bean), executionContext));
+				final IExecutionTask executionTask = createExecutionTask();
+				bean.setExecutionTask(executionTask);
+				final Thread thread = new Thread(new ExecutorRunnable(
+					Collections.singletonList(bean),
+					executionContext,
+					executionTask));
 				thread.setDaemon(true);
 				thread.start();
+				listModel.fireBeansChanged();
 			}
 		}
+	}
+
+	private IExecutionTask createExecutionTask() {
+		final IExecutionTask executionTask = CapCommonToolkit.executionTaskFactory().create();
+
+		//TODO MG remove this later
+		executionTask.addExecutionTaskListener(new IExecutionTaskListener() {
+
+			@Override
+			public void worked() {
+				//CHECKSTYLE:OFF
+				System.out.println("WORKED " + executionTask.getWorked());
+				//CHECKSTYLE:ON
+			}
+
+			@Override
+			public void userQuestionAsked() {}
+
+			@Override
+			public void totalStepCountChanged() {}
+
+			@Override
+			public void subExecutionAdded(final IExecutionTask executionTask) {}
+
+			@Override
+			public void finished() {
+				//CHECKSTYLE:OFF
+				System.out.println("FINISHED " + executionTask.isFinshed());
+				//CHECKSTYLE:ON
+			}
+
+			@Override
+			public void descriptionChanged() {
+				//CHECKSTYLE:OFF
+				System.out.println("DESCRIPTION CHANGED " + executionTask.getDescription());
+				//CHECKSTYLE:ON
+			}
+		});
+
+		return executionTask;
 	}
 
 	private List<IBeanProxy> getSelectedBeans() {
@@ -290,46 +338,16 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 		private final List<IBeanProxy> beans;
 		private final IExecutionTask executionTask;
 
-		ExecutorRunnable(final List<IBeanProxy> beans, final IExecutionContext executionContext) {
+		ExecutorRunnable(
+			final List<IBeanProxy> beans,
+			final IExecutionContext executionContext,
+			final IExecutionTask executionTask) {
 			super();
 			this.uiThreadAccess = Toolkit.getUiThreadAccess();
-			this.executionTask = CapCommonToolkit.executionTaskFactory().create();
 
-			//TODO MG remove this later
-			this.executionTask.addExecutionTaskListener(new IExecutionTaskListener() {
-
-				@Override
-				public void worked() {
-					//CHECKSTYLE:OFF
-					System.out.println("WORKED " + executionTask.getWorked());
-					//CHECKSTYLE:ON
-				}
-
-				@Override
-				public void userQuestionAsked() {}
-
-				@Override
-				public void totalStepCountChanged() {}
-
-				@Override
-				public void subExecutionAdded(final IExecutionTask executionTask) {}
-
-				@Override
-				public void finished() {
-					//CHECKSTYLE:OFF
-					System.out.println("FINISHED " + executionTask.isFinshed());
-					//CHECKSTYLE:ON
-				}
-
-				@Override
-				public void descriptionChanged() {
-					//CHECKSTYLE:OFF
-					System.out.println("DESCRIPTION CHANGED " + executionTask.getDescription());
-					//CHECKSTYLE:ON
-				}
-			});
 			this.beans = beans;
 			this.executionContext = executionContext;
+			this.executionTask = executionTask;
 		}
 
 		@Override
@@ -375,6 +393,9 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 					invokeOnExceptionLater(e);
 				}
 				finally {
+					if (!executionTask.isCanceled()) {
+						executionTask.dispose();
+					}
 					invokeAfterExecutionLater(executionResult);
 				}
 			}
@@ -387,6 +408,9 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 					invokeOnExceptionLater(e);
 				}
 				finally {
+					if (!executionTask.isCanceled()) {
+						executionTask.dispose();
+					}
 					invokeAfterExecutionLater(null);
 				}
 			}
@@ -463,7 +487,7 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 			}
 
 			for (final IBeanProxy bean : beans) {
-				bean.setInProcess(false);
+				bean.setExecutionTask(null);
 			}
 
 			for (final IExecutionInterceptor interceptor : executionInterceptors) {
