@@ -26,12 +26,16 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.executor;
+package org.jowidgets.cap.common.impl;
 
 import org.jowidgets.cap.common.api.execution.IExecutionTask;
+import org.jowidgets.cap.common.api.execution.IExecutionTaskFactory;
 
-public interface IExecutionTaskFactory {
+final class ExecutionTaskFactory implements IExecutionTaskFactory {
 
-	IExecutionTask create();
+	@Override
+	public IExecutionTask create() {
+		return new ExecutionTask();
+	}
 
 }

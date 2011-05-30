@@ -42,6 +42,7 @@ import org.jowidgets.cap.sample.app.server.datastore.DataStore;
 import org.jowidgets.cap.sample.app.server.entity.EntityService;
 import org.jowidgets.cap.sample.app.server.service.executor.ChangeBirthdayExecutor;
 import org.jowidgets.cap.sample.app.server.service.executor.ChangeGenderExecutor;
+import org.jowidgets.cap.sample.app.server.service.executor.LongLastingExecutor;
 import org.jowidgets.cap.sample.app.server.service.reader.AllUsersReaderService;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
@@ -64,7 +65,14 @@ public class ServiceRegistry extends DefaultServiceRegistry {
 				new ChangeGenderExecutor(),
 				new ChangeGenderExecutableChecker());
 
-		registerPersonExecutor(UserComponentExecutorServices.CHANGE_BIRTHDAY, new ChangeBirthdayExecutor(), null);
+		registerPersonExecutor(UserComponentExecutorServices.CHANGE_BIRTHDAY, new ChangeBirthdayExecutor());
+		registerPersonExecutor(UserComponentExecutorServices.LONG_LASTING, new LongLastingExecutor());
+	}
+
+	private <BEAN_TYPE extends IBean, PARAM_TYPE> void registerPersonExecutor(
+		final IServiceId<? extends IExecutorService<PARAM_TYPE>> id,
+		final IBeanExecutor<? extends BEAN_TYPE, PARAM_TYPE> beanExecutor) {
+		registerPersonExecutor(id, beanExecutor, null);
 	}
 
 	private <BEAN_TYPE extends IBean, PARAM_TYPE> void registerPersonExecutor(

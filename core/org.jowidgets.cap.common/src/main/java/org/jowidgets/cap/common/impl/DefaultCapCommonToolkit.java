@@ -36,8 +36,11 @@ import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptorBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanKeyBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanModificationBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanPropertyBuilder;
+import org.jowidgets.cap.common.api.execution.IExecutionTaskFactory;
 
 public final class DefaultCapCommonToolkit implements ICapCommonToolkit {
+
+	private IExecutionTaskFactory executionTaskFactory;
 
 	@Override
 	public IBeanPropertyBuilder propertyBuilder(final Class<?> beanType, final String propertyName) {
@@ -68,6 +71,14 @@ public final class DefaultCapCommonToolkit implements ICapCommonToolkit {
 	@Override
 	public IBeanModificationBuilder beanModificationBuilder() {
 		return new BeanModificationBuilderImpl();
+	}
+
+	@Override
+	public IExecutionTaskFactory executionTaskFactory() {
+		if (executionTaskFactory == null) {
+			executionTaskFactory = new ExecutionTaskFactory();
+		}
+		return executionTaskFactory;
 	}
 
 }

@@ -43,9 +43,7 @@ import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 
 public class AllUsersReaderService implements IReaderService<Integer> {
 
-	private static final IBeanDtoFactory<IUser> BEAN_FACTORY = CapServiceToolkit.dtoFactory(
-			IUser.class,
-			IUser.ALL_PROPERTIES);
+	private static final IBeanDtoFactory<IUser> BEAN_FACTORY = CapServiceToolkit.dtoFactory(IUser.class, IUser.ALL_PROPERTIES);
 
 	@Override
 	public List<IBeanDto> read(
@@ -58,7 +56,7 @@ public class AllUsersReaderService implements IReaderService<Integer> {
 		final IExecutionCallback executionCallback) {
 
 		//TODO MG this will currently not work
-		//executionCallback = CapServiceToolkit.createDelayedExecutionCallback(executionCallback);
+		//executionCallback = CapServiceToolkit.delayedExecutionCallback(executionCallback);
 
 		final List<IBeanDto> result = BEAN_FACTORY.createDtos(DataStore.getPersons().getAllData(firstRow, maxRows));
 

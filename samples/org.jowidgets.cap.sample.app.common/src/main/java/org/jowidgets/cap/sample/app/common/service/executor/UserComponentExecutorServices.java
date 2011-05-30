@@ -37,14 +37,16 @@ import org.jowidgets.util.types.Null;
 
 public final class UserComponentExecutorServices {
 
-	public static final IServiceId<IExecutorService<Null>> CHANGE_GENDER = new ServiceId<IExecutorService<Null>>(
-		UserComponentExecutorServices.class.getName() + "_CHANGE_GENDER",
-		IExecutorService.class);
-
-	public static final IServiceId<IExecutorService<Date>> CHANGE_BIRTHDAY = new ServiceId<IExecutorService<Date>>(
-		UserComponentExecutorServices.class.getName() + "_CHANGE_BIRTHDAY",
-		IExecutorService.class);
+	public static final IServiceId<IExecutorService<Null>> CHANGE_GENDER = createId("CHANGE_GENDER");
+	public static final IServiceId<IExecutorService<Date>> CHANGE_BIRTHDAY = createId("CHANGE_BIRTHDAY");
+	public static final IServiceId<IExecutorService<Null>> LONG_LASTING = createId("LONG_LASTING");
 
 	private UserComponentExecutorServices() {};
+
+	private static <PARAMETER_TYPE> IServiceId<IExecutorService<PARAMETER_TYPE>> createId(final String subId) {
+		return new ServiceId<IExecutorService<PARAMETER_TYPE>>(
+			UserComponentExecutorServices.class.getName() + "_" + subId,
+			IExecutorService.class);
+	}
 
 }

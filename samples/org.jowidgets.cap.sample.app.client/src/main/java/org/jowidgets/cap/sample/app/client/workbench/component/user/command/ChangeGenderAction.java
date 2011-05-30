@@ -54,7 +54,7 @@ public class ChangeGenderAction extends ActionWrapper {
 
 	private static IAction create(final IBeanListModel<IUser> model) {
 		final IExecutorActionBuilder<IUser, Null> builder = CapUiToolkit.getActionFactory().executorActionBuilder(model);
-		builder.setText("Change Gender");
+		builder.setText("Change gender");
 		builder.setToolTipText("Changes the gender of the selected person(s)");
 		builder.setIcon(SilkIcons.CUT_RED);
 		builder.setSelectionPolicy(BeanSelectionPolicy.MULTI_SELECTION);

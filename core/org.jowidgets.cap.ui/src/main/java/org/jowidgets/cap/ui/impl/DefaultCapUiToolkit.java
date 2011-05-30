@@ -35,7 +35,6 @@ import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeansModificationBuffer;
 import org.jowidgets.cap.ui.api.bean.IBeansModificationRegistry;
 import org.jowidgets.cap.ui.api.command.IActionFactory;
-import org.jowidgets.cap.ui.api.executor.IExecutionTaskFactory;
 import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
 import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
 import org.jowidgets.cap.ui.impl.attribute.AttributeToolkit;
@@ -43,7 +42,6 @@ import org.jowidgets.cap.ui.impl.bean.BeanKeyFactory;
 import org.jowidgets.cap.ui.impl.bean.BeanProxyFactory;
 import org.jowidgets.cap.ui.impl.bean.BeansModificationBuffer;
 import org.jowidgets.cap.ui.impl.command.ActionFactory;
-import org.jowidgets.cap.ui.impl.executor.ExecutionTaskFactory;
 import org.jowidgets.cap.ui.impl.table.BeanTableModelBuilder;
 import org.jowidgets.cap.ui.impl.widgets.CapApiBluePrintFactory;
 
@@ -51,7 +49,6 @@ public final class DefaultCapUiToolkit implements ICapUiToolkit {
 
 	private ICapApiBluePrintFactory bluePrintFactory;
 	private IActionFactory commandFactory;
-	private IExecutionTaskFactory executionTaskFactory;
 	private IBeanKeyFactory beanKeyFactory;
 	private IAttributeToolkit attributeToolkit;
 
@@ -69,14 +66,6 @@ public final class DefaultCapUiToolkit implements ICapUiToolkit {
 			commandFactory = new ActionFactory();
 		}
 		return commandFactory;
-	}
-
-	@Override
-	public IExecutionTaskFactory getExecutionTaskFactory() {
-		if (executionTaskFactory == null) {
-			executionTaskFactory = new ExecutionTaskFactory();
-		}
-		return executionTaskFactory;
 	}
 
 	@Override

@@ -28,69 +28,32 @@
 
 package org.jowidgets.cap.sample.app.client.workbench.component.user.command;
 
-import java.util.Date;
-import java.util.List;
-
 import org.jowidgets.api.command.IAction;
-import org.jowidgets.api.command.IExecutionContext;
-import org.jowidgets.api.toolkit.Toolkit;
-import org.jowidgets.api.widgets.IInputDialog;
-import org.jowidgets.api.widgets.blueprint.IInputDialogBluePrint;
-import org.jowidgets.api.widgets.blueprint.factory.IBluePrintFactory;
 import org.jowidgets.cap.sample.app.common.entity.IUser;
 import org.jowidgets.cap.sample.app.common.service.executor.UserComponentExecutorServices;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
-import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.command.IExecutorActionBuilder;
+import org.jowidgets.cap.ui.api.executor.BeanExecutionPolicy;
 import org.jowidgets.cap.ui.api.executor.BeanSelectionPolicy;
-import org.jowidgets.cap.ui.api.executor.IParameterProvider;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.examples.common.icons.SilkIcons;
 import org.jowidgets.tools.command.ActionWrapper;
-import org.jowidgets.tools.content.SingleControlContent;
-import org.jowidgets.util.maybe.IMaybe;
-import org.jowidgets.util.maybe.Nothing;
-import org.jowidgets.util.maybe.Some;
+import org.jowidgets.util.types.Null;
 
-public class ChangeBirthdayAction extends ActionWrapper {
+public class LongLastingAction extends ActionWrapper {
 
-	public ChangeBirthdayAction(final IBeanListModel<IUser> model) {
+	public LongLastingAction(final IBeanListModel<IUser> model) {
 		super(create(model));
 	}
 
 	private static IAction create(final IBeanListModel<IUser> model) {
-		final IExecutorActionBuilder<IUser, Date> builder = CapUiToolkit.getActionFactory().executorActionBuilder(model);
-		builder.setText("Change day of birth");
-		builder.setToolTipText("Changes the day of birth of the selected person");
-		builder.setIcon(SilkIcons.USER_EDIT);
-		builder.setSelectionPolicy(BeanSelectionPolicy.SINGLE_SELECTION);
-
-		builder.addParameterProvider(new IParameterProvider<IUser, Date>() {
-			@Override
-			public IMaybe<Date> getParameter(
-				final IExecutionContext executionContext,
-				final List<IBeanProxy<IUser>> beans,
-				final Date defaultParameter) throws Exception {
-				final IInputDialog<Date> inputDialog = createInputDialog(executionContext);
-				inputDialog.setVisible(true);
-				if (inputDialog.isOkPressed()) {
-					return new Some<Date>(inputDialog.getValue());
-				}
-				return Nothing.getInstance();
-			}
-		});
-
-		builder.setExecutor(UserComponentExecutorServices.CHANGE_BIRTHDAY);
-
+		final IExecutorActionBuilder<IUser, Null> builder = CapUiToolkit.getActionFactory().executorActionBuilder(model);
+		builder.setText("Long lasting test");
+		builder.setToolTipText("Test a long lasting execution on the selected person(s)");
+		builder.setIcon(SilkIcons.TIME);
+		builder.setSelectionPolicy(BeanSelectionPolicy.MULTI_SELECTION);
+		builder.setExecutionPolicy(BeanExecutionPolicy.PARALLEL);
+		builder.setExecutor(UserComponentExecutorServices.LONG_LASTING);
 		return builder.build();
-	}
-
-	private static IInputDialog<Date> createInputDialog(final IExecutionContext executionContext) {
-		final IBluePrintFactory bpf = Toolkit.getBluePrintFactory();
-		final SingleControlContent<Date> content = new SingleControlContent<Date>("Date of Birth", bpf.inputFieldDate(), 200);
-		final IInputDialogBluePrint<Date> inputDialogBp = bpf.inputDialog(content).setExecutionContext(executionContext);
-		inputDialogBp.setMissingInputText("Please input the new date of birth!");
-		inputDialogBp.setResizable(false);
-		return Toolkit.getActiveWindow().createChildWindow(inputDialogBp);
 	}
 }

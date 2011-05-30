@@ -46,6 +46,7 @@ import org.jowidgets.api.model.table.ITableModel;
 import org.jowidgets.api.model.table.ITableModelFactory;
 import org.jowidgets.api.threads.IUiThreadAccess;
 import org.jowidgets.api.toolkit.Toolkit;
+import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanModification;
 import org.jowidgets.cap.common.api.execution.IExecutionTask;
@@ -196,7 +197,7 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 			modifications.addAll(bean.getModifications());
 		}
 
-		final List<IBeanDto> updateResult = updaterService.update(modifications, CapUiToolkit.getExecutionTaskFactory().create());
+		final List<IBeanDto> updateResult = updaterService.update(modifications, CapCommonToolkit.executionTaskFactory().create());
 		final Map<Object, IBeanDto> updateMap = new HashMap<Object, IBeanDto>();
 		for (final IBeanDto beanDto : updateResult) {
 			updateMap.put(beanDto.getId(), beanDto);
@@ -570,7 +571,7 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 					System.out.println("Load page start: " + pageIndex);
 					//CHECKSTYLE:ON
 
-					executionTask = CapUiToolkit.getExecutionTaskFactory().create();
+					executionTask = CapCommonToolkit.executionTaskFactory().create();
 
 					final List<IBeanDto> beanDtos;
 					try {

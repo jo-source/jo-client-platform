@@ -35,6 +35,7 @@ import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptorBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanKeyBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanModificationBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanPropertyBuilder;
+import org.jowidgets.cap.common.api.execution.IExecutionTaskFactory;
 import org.jowidgets.cap.common.impl.DefaultCapCommonToolkit;
 
 public final class CapCommonToolkit {
@@ -73,6 +74,10 @@ public final class CapCommonToolkit {
 
 	public static IBeanModificationBuilder beanModificationBuilder() {
 		return getInstance().beanModificationBuilder();
+	}
+
+	public static IExecutionTaskFactory executionTaskFactory() {
+		return getInstance().executionTaskFactory();
 	}
 
 }
