@@ -64,7 +64,9 @@ public final class ExecutorServiceBuilder<BEAN_TYPE extends IBean, PARAM_TYPE> i
 
 		this.allowDeletedBeans = false;
 		this.allowStaleBeans = false;
-		this.delayedExecutionCallback = true;
+
+		//TODO MG change this to true later
+		this.delayedExecutionCallback = false;
 	}
 
 	@Override

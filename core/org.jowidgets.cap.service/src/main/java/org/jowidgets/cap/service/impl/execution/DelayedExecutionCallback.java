@@ -81,28 +81,26 @@ public class DelayedExecutionCallback implements IExecutionCallback, IExecutionC
 			@Override
 			public void run() {
 				while (true && !finished && !canceled && !disposed) {
-
 					try {
 						Thread.sleep(DelayedExecutionCallback.this.delay);
+
+						if (description != null && !description.equals(lastDescription)) {
+							executionCallback.setDescription(description);
+							lastDescription = description;
+						}
+						if (totalStepCount != null && !totalStepCount.equals(lastTotalStepCount)) {
+							executionCallback.setTotalStepCount(totalStepCount.intValue());
+							lastTotalStepCount = totalStepCount;
+						}
+						if (worked != null && !worked.equals(lastWorked)) {
+							final int last = lastWorked != null ? lastWorked.intValue() : 0;
+							executionCallback.worked(worked.intValue() - last);
+							lastWorked = worked;
+						}
 					}
 					catch (final InterruptedException e) {
 						break;
 					}
-
-					if (description != null && !description.equals(lastDescription)) {
-						executionCallback.setDescription(description);
-						lastDescription = description;
-					}
-					if (totalStepCount != null && !totalStepCount.equals(lastTotalStepCount)) {
-						executionCallback.setTotalStepCount(totalStepCount.intValue());
-						lastTotalStepCount = totalStepCount;
-					}
-					if (worked != null && !worked.equals(lastWorked)) {
-						final int last = lastWorked != null ? lastWorked.intValue() : 0;
-						executionCallback.worked(worked.intValue() - last);
-						lastWorked = worked;
-					}
-
 				}
 			}
 		});
