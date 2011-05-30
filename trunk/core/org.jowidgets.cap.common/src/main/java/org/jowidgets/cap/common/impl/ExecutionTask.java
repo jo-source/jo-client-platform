@@ -91,7 +91,7 @@ public final class ExecutionTask implements IExecutionTask, Serializable {
 
 	@Override
 	public void worked(final int stepCount) {
-		this.worked = stepCount;
+		this.worked = worked + stepCount;
 		fireWorked();
 	}
 
