@@ -28,18 +28,34 @@
 
 package org.jowidgets.cap.sample.app.server.service.executor;
 
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
+import org.jowidgets.cap.common.api.execution.UserQuestionResult;
 import org.jowidgets.cap.sample.app.server.entity.User;
 import org.jowidgets.cap.service.api.executor.IBeanExecutor;
 
 public class ChangeBirthdayExecutor implements IBeanExecutor<User, Date> {
 
 	@Override
-	public User execute(final User user, final Date parameter, final IExecutionCallback executionCallback) {
-		user.setDateOfBirth(parameter);
+	public User execute(final User user, final Date date, final IExecutionCallback executionCallback) {
+		if (isDateInFuture(date)) {
+			final UserQuestionResult questionResult = executionCallback.userQuestion("The birthday is in the future?\nDo you really want to set the date?");
+			if (UserQuestionResult.NO == questionResult) {
+				return user;
+			}
+		}
+		user.setDateOfBirth(date);
 		return user;
+	}
+
+	private boolean isDateInFuture(final Date date) {
+		final Calendar now = new GregorianCalendar();
+		final Calendar birthday = new GregorianCalendar();
+		birthday.setTime(date);
+		return birthday.after(now);
 	}
 
 }

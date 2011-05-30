@@ -135,10 +135,11 @@ public final class ExecutionTask implements IExecutionTask, Serializable {
 
 		userQuestionWaitThread.setDaemon(true);
 		userQuestionWaitThread.start();
+		fireUserQuestionAsked();
 		try {
 			userQuestionWaitThread.join();
 		}
-		catch (final InterruptedException e) {
+		catch (final Exception e) {
 		}
 
 		final UserQuestionResult result = userQuestionResult;
@@ -305,7 +306,7 @@ public final class ExecutionTask implements IExecutionTask, Serializable {
 
 	private void fireUserQuestionAsked() {
 		for (final IExecutionTaskListener listener : executionTaskListeners) {
-			listener.finished();
+			listener.userQuestionAsked();
 		}
 	}
 

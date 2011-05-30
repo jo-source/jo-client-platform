@@ -41,7 +41,6 @@ public class LongLastingExecutor implements IBeanExecutor<User, Null> {
 
 	@Override
 	public User execute(final User user, final Null parameter, final IExecutionCallback executionCallback) {
-
 		executionCallback.setTotalStepCount(OUTER_LOOP_COUNT * 3);
 		executionCallback.setDescription("Does some execution with '" + user.getName() + " " + user.getLastName() + "' ");
 		for (int i = 0; i < OUTER_LOOP_COUNT && !executionCallback.isCanceled(); i++) {
