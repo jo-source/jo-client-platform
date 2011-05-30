@@ -38,6 +38,7 @@ import org.jowidgets.cap.sample.app.common.service.executor.ChangeGenderExecutab
 import org.jowidgets.cap.sample.app.common.service.executor.UserComponentExecutorServices;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.command.IExecutorActionBuilder;
+import org.jowidgets.cap.ui.api.executor.BeanExecutionPolicy;
 import org.jowidgets.cap.ui.api.executor.BeanSelectionPolicy;
 import org.jowidgets.cap.ui.api.executor.IExecutionInterceptor;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
@@ -57,6 +58,7 @@ public class ChangeGenderAction extends ActionWrapper {
 		builder.setToolTipText("Changes the gender of the selected person(s)");
 		builder.setIcon(SilkIcons.CUT_RED);
 		builder.setSelectionPolicy(BeanSelectionPolicy.MULTI_SELECTION);
+		builder.setExecutionPolicy(BeanExecutionPolicy.PARALLEL);
 		builder.setExecutor(UserComponentExecutorServices.CHANGE_GENDER);
 		builder.addExecutableChecker(new ChangeGenderExecutableChecker());
 		builder.addExecutionInterceptor(new IExecutionInterceptor() {

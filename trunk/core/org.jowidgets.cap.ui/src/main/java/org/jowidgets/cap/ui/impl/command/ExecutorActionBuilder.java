@@ -43,6 +43,7 @@ import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.service.IExecutorService;
 import org.jowidgets.cap.common.api.service.IParameterProviderService;
 import org.jowidgets.cap.ui.api.command.IExecutorActionBuilder;
+import org.jowidgets.cap.ui.api.executor.BeanExecutionPolicy;
 import org.jowidgets.cap.ui.api.executor.BeanModificationStatePolicy;
 import org.jowidgets.cap.ui.api.executor.BeanSelectionPolicy;
 import org.jowidgets.cap.ui.api.executor.IExecutionInterceptor;
@@ -72,6 +73,7 @@ final class ExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> extends AbstractSingleU
 	private PARAM_TYPE defaultParameter;
 	private Object executor;
 	private IExceptionHandler exceptionHandler;
+	private BeanExecutionPolicy beanListExecutionPolicy;
 	private BeanSelectionPolicy beanSelectionPolicy;
 	private BeanModificationStatePolicy beanModificationStatePolicy;
 
@@ -86,6 +88,7 @@ final class ExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> extends AbstractSingleU
 
 		this.beanSelectionPolicy = BeanSelectionPolicy.SINGLE_SELECTION;
 		this.beanModificationStatePolicy = BeanModificationStatePolicy.NO_MODIFICATION;
+		this.beanListExecutionPolicy = BeanExecutionPolicy.PARALLEL;
 
 		//TODO MG add better default exception handler
 		this.exceptionHandler = new IExceptionHandler() {
@@ -215,6 +218,13 @@ final class ExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> extends AbstractSingleU
 	}
 
 	@Override
+	public IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setExecutionPolicy(final BeanExecutionPolicy policy) {
+		Assert.paramNotNull(policy, "policy");
+		this.beanListExecutionPolicy = policy;
+		return this;
+	}
+
+	@Override
 	public IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setSelectionPolicy(final BeanSelectionPolicy policy) {
 		Assert.paramNotNull(policy, "policy");
 		this.beanSelectionPolicy = policy;
@@ -258,6 +268,7 @@ final class ExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> extends AbstractSingleU
 	public IAction doBuild() {
 		final ExecutorCommand command = new ExecutorCommand(
 			listModel,
+			beanListExecutionPolicy,
 			beanSelectionPolicy,
 			beanModificationStatePolicy,
 			enabledCheckers,

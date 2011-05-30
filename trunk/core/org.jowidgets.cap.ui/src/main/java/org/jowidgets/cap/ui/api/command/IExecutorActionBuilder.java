@@ -34,8 +34,9 @@ import org.jowidgets.api.command.IExceptionHandler;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.service.IExecutorService;
 import org.jowidgets.cap.common.api.service.IParameterProviderService;
-import org.jowidgets.cap.ui.api.executor.BeanSelectionPolicy;
+import org.jowidgets.cap.ui.api.executor.BeanExecutionPolicy;
 import org.jowidgets.cap.ui.api.executor.BeanModificationStatePolicy;
+import org.jowidgets.cap.ui.api.executor.BeanSelectionPolicy;
 import org.jowidgets.cap.ui.api.executor.IExecutionInterceptor;
 import org.jowidgets.cap.ui.api.executor.IExecutor;
 import org.jowidgets.cap.ui.api.executor.IExecutorJob;
@@ -82,6 +83,8 @@ public interface IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> {
 	IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setExecutor(IExecutorService<PARAM_TYPE> excecuterService);
 
 	IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setExecutor(IServiceId<IExecutorService<PARAM_TYPE>> excecuterServiceId);
+
+	IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setExecutionPolicy(BeanExecutionPolicy policy);
 
 	IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setSelectionPolicy(BeanSelectionPolicy policy);
 

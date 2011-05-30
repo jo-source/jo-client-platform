@@ -31,6 +31,7 @@ package org.jowidgets.cap.ui.impl.command;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -56,6 +57,7 @@ import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.bean.IBeanKeyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IProcessStateListener;
+import org.jowidgets.cap.ui.api.executor.BeanExecutionPolicy;
 import org.jowidgets.cap.ui.api.executor.BeanModificationStatePolicy;
 import org.jowidgets.cap.ui.api.executor.BeanSelectionPolicy;
 import org.jowidgets.cap.ui.api.executor.IExecutionInterceptor;
@@ -87,6 +89,7 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 	private final IExceptionHandler exceptionHandler;
 	private final List<Object> parameterProviders;
 	private final List<IExecutionInterceptor> executionInterceptors;
+	private final BeanExecutionPolicy beanListExecutionPolicy;
 	private final BeanSelectionPolicy beanSelectionPolicy;
 	private final BeanModificationStatePolicy beanModificationStatePolicy;
 
@@ -97,6 +100,7 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 
 	ExecutorCommand(
 		final IBeanListModel listModel,
+		final BeanExecutionPolicy beanListExecutionPolicy,
 		final BeanSelectionPolicy beanSelectionPolicy,
 		final BeanModificationStatePolicy beanModificationStatePolicy,
 		final List<IEnabledChecker> enabledCheckers,
@@ -108,6 +112,7 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 		final Object executor) {
 		super();
 		this.listModel = listModel;
+		this.beanListExecutionPolicy = beanListExecutionPolicy;
 		this.beanSelectionPolicy = beanSelectionPolicy;
 		this.beanModificationStatePolicy = beanModificationStatePolicy;
 		this.enabledCheckers = enabledCheckers;
@@ -254,9 +259,18 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 
 		listModel.fireBeansChanged();
 
-		final Thread thread = new Thread(new ExecutorRunnable(beans, executionContext));
-		thread.setDaemon(true);
-		thread.start();
+		if (BeanExecutionPolicy.SERIAL == beanListExecutionPolicy) {
+			final Thread thread = new Thread(new ExecutorRunnable(beans, executionContext));
+			thread.setDaemon(true);
+			thread.start();
+		}
+		else {
+			for (final IBeanProxy bean : beans) {
+				final Thread thread = new Thread(new ExecutorRunnable(Collections.singletonList(bean), executionContext));
+				thread.setDaemon(true);
+				thread.start();
+			}
+		}
 	}
 
 	private List<IBeanProxy> getSelectedBeans() {
