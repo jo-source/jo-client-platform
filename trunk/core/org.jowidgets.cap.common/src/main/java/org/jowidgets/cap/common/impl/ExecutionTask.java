@@ -26,8 +26,9 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.impl.executor;
+package org.jowidgets.cap.common.impl;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -42,7 +43,9 @@ import org.jowidgets.cap.common.api.execution.IUserQuestionCallback;
 import org.jowidgets.cap.common.api.execution.UserQuestionResult;
 import org.jowidgets.util.Assert;
 
-public final class ExecutionTask implements IExecutionTask {
+public final class ExecutionTask implements IExecutionTask, Serializable {
+
+	private static final long serialVersionUID = 5949541700454226560L;
 
 	private final String id;
 	private final List<ExecutionTask> subExecutions;

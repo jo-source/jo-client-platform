@@ -47,6 +47,7 @@ import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.api.controler.IChangeListener;
 import org.jowidgets.api.threads.IUiThreadAccess;
 import org.jowidgets.api.toolkit.Toolkit;
+import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
@@ -291,7 +292,7 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 		ExecutorRunnable(final List<IBeanProxy> beans, final IExecutionContext executionContext) {
 			super();
 			this.uiThreadAccess = Toolkit.getUiThreadAccess();
-			this.executionTask = CapUiToolkit.getExecutionTaskFactory().create();
+			this.executionTask = CapCommonToolkit.executionTaskFactory().create();
 			this.beans = beans;
 			this.executionContext = executionContext;
 		}
