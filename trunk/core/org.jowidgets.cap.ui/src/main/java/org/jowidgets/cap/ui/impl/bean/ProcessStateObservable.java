@@ -26,33 +26,36 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.bean;
+package org.jowidgets.cap.ui.impl.bean;
 
-import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
-import org.jowidgets.cap.common.api.bean.IBeanDto;
-import org.jowidgets.cap.common.api.bean.IBeanModification;
-import org.jowidgets.cap.ui.api.model.IModificationStateObservable;
+import org.jowidgets.cap.ui.api.bean.IProcessStateListener;
+import org.jowidgets.cap.ui.api.bean.IProcessStateObservable;
 
-public interface IBeanProxy<BEAN_TYPE> extends
-		IBeanDto,
-		IPropertyChangeObservable,
-		IModificationStateObservable,
-		IProcessStateObservable {
+public class ProcessStateObservable implements IProcessStateObservable {
 
-	void setValue(String propertyName, Object value);
+	private final Set<IProcessStateListener> listeners;
 
-	void update(IBeanDto beanDto);
+	public ProcessStateObservable() {
+		this.listeners = new HashSet<IProcessStateListener>();
+	}
 
-	Collection<IBeanModification> getModifications();
+	@Override
+	public final void addProcessStateListener(final IProcessStateListener listener) {
+		listeners.add(listener);
+	}
 
-	boolean hasModifications();
+	@Override
+	public final void removeProcessStateListener(final IProcessStateListener listener) {
+		listeners.remove(listener);
+	}
 
-	void undoModifications();
+	public final void fireProcessStateChanged() {
+		for (final IProcessStateListener listener : listeners) {
+			listener.processStateChanged();
+		}
+	}
 
-	boolean isInProcess();
-
-	void setInProcess(boolean inProcess);
-
-	BEAN_TYPE getBean();
 }
