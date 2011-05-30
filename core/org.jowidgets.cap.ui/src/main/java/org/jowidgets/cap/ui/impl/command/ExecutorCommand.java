@@ -53,6 +53,7 @@ import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.execution.IExecutableState;
 import org.jowidgets.cap.common.api.execution.IExecutionTask;
+import org.jowidgets.cap.common.api.execution.IExecutionTaskListener;
 import org.jowidgets.cap.common.api.service.IExecutorService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.bean.IBeanKeyFactory;
@@ -293,6 +294,40 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 			super();
 			this.uiThreadAccess = Toolkit.getUiThreadAccess();
 			this.executionTask = CapCommonToolkit.executionTaskFactory().create();
+
+			//TODO MG remove this later
+			this.executionTask.addExecutionTaskListener(new IExecutionTaskListener() {
+
+				@Override
+				public void worked() {
+					//CHECKSTYLE:OFF
+					System.out.println("WORKED " + executionTask.getWorked());
+					//CHECKSTYLE:ON
+				}
+
+				@Override
+				public void userQuestionAsked() {}
+
+				@Override
+				public void totalStepCountChanged() {}
+
+				@Override
+				public void subExecutionAdded(final IExecutionTask executionTask) {}
+
+				@Override
+				public void finished() {
+					//CHECKSTYLE:OFF
+					System.out.println("FINISHED " + executionTask.isFinshed());
+					//CHECKSTYLE:ON
+				}
+
+				@Override
+				public void descriptionChanged() {
+					//CHECKSTYLE:OFF
+					System.out.println("DESCRIPTION CHANGED " + executionTask.getDescription());
+					//CHECKSTYLE:ON
+				}
+			});
 			this.beans = beans;
 			this.executionContext = executionContext;
 		}

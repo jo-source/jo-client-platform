@@ -103,6 +103,9 @@ final class ExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> extends AbstractSingleU
 				}
 				else {
 					Toolkit.getMessagePane().showError(action.getText(), action.getIcon(), exception.getMessage());
+					//CHECKSTYLE:OFF
+					exception.printStackTrace();
+					//CHECKSTYLE:ON
 				}
 			}
 		};

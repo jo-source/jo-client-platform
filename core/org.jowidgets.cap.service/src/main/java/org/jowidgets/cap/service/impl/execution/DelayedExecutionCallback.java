@@ -89,18 +89,20 @@ public class DelayedExecutionCallback implements IExecutionCallback, IExecutionC
 						break;
 					}
 
+					if (description != null && !description.equals(lastDescription)) {
+						executionCallback.setDescription(description);
+						lastDescription = description;
+					}
 					if (totalStepCount != null && !totalStepCount.equals(lastTotalStepCount)) {
 						executionCallback.setTotalStepCount(totalStepCount.intValue());
 						lastTotalStepCount = totalStepCount;
 					}
 					if (worked != null && !worked.equals(lastWorked)) {
-						executionCallback.worked(worked.intValue());
+						final int last = lastWorked != null ? lastWorked.intValue() : 0;
+						executionCallback.worked(worked.intValue() - last);
 						lastWorked = worked;
 					}
-					if (description != null && !description.equals(lastDescription)) {
-						executionCallback.setDescription(description);
-						lastDescription = description;
-					}
+
 				}
 			}
 		});
@@ -138,7 +140,12 @@ public class DelayedExecutionCallback implements IExecutionCallback, IExecutionC
 
 	@Override
 	public void worked(final int stepCount) {
-		this.worked = Integer.valueOf(stepCount);
+		if (worked == null) {
+			this.worked = Integer.valueOf(stepCount);
+		}
+		else {
+			this.worked = Integer.valueOf(stepCount + worked.intValue());
+		}
 	}
 
 	@Override
