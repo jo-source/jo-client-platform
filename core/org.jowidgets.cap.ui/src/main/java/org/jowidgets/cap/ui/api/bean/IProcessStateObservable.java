@@ -28,31 +28,10 @@
 
 package org.jowidgets.cap.ui.api.bean;
 
-import java.util.Collection;
+public interface IProcessStateObservable {
 
-import org.jowidgets.cap.common.api.bean.IBeanDto;
-import org.jowidgets.cap.common.api.bean.IBeanModification;
-import org.jowidgets.cap.ui.api.model.IModificationStateObservable;
+	void addProcessStateListener(IProcessStateListener listener);
 
-public interface IBeanProxy<BEAN_TYPE> extends
-		IBeanDto,
-		IPropertyChangeObservable,
-		IModificationStateObservable,
-		IProcessStateObservable {
+	void removeProcessStateListener(IProcessStateListener listener);
 
-	void setValue(String propertyName, Object value);
-
-	void update(IBeanDto beanDto);
-
-	Collection<IBeanModification> getModifications();
-
-	boolean hasModifications();
-
-	void undoModifications();
-
-	boolean isInProcess();
-
-	void setInProcess(boolean inProcess);
-
-	BEAN_TYPE getBean();
 }
