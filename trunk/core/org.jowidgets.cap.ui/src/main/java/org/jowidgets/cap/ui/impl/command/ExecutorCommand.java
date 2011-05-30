@@ -414,6 +414,7 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 					invokeOnExceptionLater(e);
 				}
 			}
+			//TODO MG else if IParameterProviderService or IParameterProviderJob
 			return new Some(defaultParameter);
 		}
 
