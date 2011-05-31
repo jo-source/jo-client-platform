@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.common.impl;
 
+import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.bean.IBeanKeyBuilder;
 import org.jowidgets.util.Assert;
@@ -49,6 +50,14 @@ final class BeanKeyBuilderImpl implements IBeanKeyBuilder {
 	@Override
 	public IBeanKeyBuilder setVersion(final long version) {
 		this.version = version;
+		return this;
+	}
+
+	@Override
+	public IBeanKeyBuilder setBeanDto(final IBeanDto beanDto) {
+		Assert.paramNotNull(beanDto, "beanDto");
+		setId(beanDto.getId());
+		setVersion(beanDto.getVersion());
 		return this;
 	}
 
