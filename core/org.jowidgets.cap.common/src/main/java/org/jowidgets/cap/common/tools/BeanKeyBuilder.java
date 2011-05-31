@@ -29,6 +29,7 @@
 package org.jowidgets.cap.common.tools;
 
 import org.jowidgets.cap.common.api.CapCommonToolkit;
+import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.bean.IBeanKeyBuilder;
 
@@ -49,6 +50,12 @@ public final class BeanKeyBuilder implements IBeanKeyBuilder {
 	@Override
 	public IBeanKeyBuilder setVersion(final long version) {
 		builder.setVersion(version);
+		return this;
+	}
+
+	@Override
+	public IBeanKeyBuilder setBeanDto(final IBeanDto beanDto) {
+		builder.setBeanDto(beanDto);
 		return this;
 	}
 

@@ -34,6 +34,8 @@ public interface IBeanKeyBuilder {
 
 	IBeanKeyBuilder setVersion(long version);
 
+	IBeanKeyBuilder setBeanDto(IBeanDto beanDto);
+
 	IBeanKey build();
 
 }
