@@ -42,7 +42,7 @@ public class ChangeBirthdayExecutor implements IBeanExecutor<User, Date> {
 	@Override
 	public User execute(final User user, final Date date, final IExecutionCallback executionCallback) {
 		if (isDateInFuture(date)) {
-			final UserQuestionResult questionResult = executionCallback.userQuestion("The birthday is in the future?\nDo you really want to set the date?");
+			final UserQuestionResult questionResult = executionCallback.userQuestion("The birthday is in the future!\nDo you really want to set the date?");
 			if (UserQuestionResult.NO == questionResult) {
 				return user;
 			}
