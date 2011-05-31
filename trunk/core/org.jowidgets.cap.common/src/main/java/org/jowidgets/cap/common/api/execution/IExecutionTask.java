@@ -30,8 +30,6 @@ package org.jowidgets.cap.common.api.execution;
 
 import java.util.List;
 
-import org.jowidgets.service.api.Callback;
-
 public interface IExecutionTask extends IExecutionCallback {
 
 	/**
@@ -110,8 +108,8 @@ public interface IExecutionTask extends IExecutionCallback {
 	 */
 	List<IExecutionTask> getSubExecutions();
 
-	void addExecutionTaskListener(@Callback IExecutionTaskListener listener);
+	void addExecutionTaskListener(IExecutionTaskListener listener);
 
-	void removeExecutionTaskListener(@Callback IExecutionTaskListener listener);
+	void removeExecutionTaskListener(IExecutionTaskListener listener);
 
 }
