@@ -26,7 +26,7 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.impl.service;
+package org.jowidgets.cap.service.impl;
 
 import java.util.HashMap;
 import java.util.LinkedList;

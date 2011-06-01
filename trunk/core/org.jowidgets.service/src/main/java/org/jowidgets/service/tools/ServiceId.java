@@ -59,7 +59,7 @@ public final class ServiceId<SERVICE_TYPE> implements IServiceId<SERVICE_TYPE>, 
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		result = prime * result + (serviceType.hashCode());
+		result = prime * result + (serviceType.getName().hashCode());
 		return result;
 	}
 
@@ -88,7 +88,7 @@ public final class ServiceId<SERVICE_TYPE> implements IServiceId<SERVICE_TYPE>, 
 				return false;
 			}
 		}
-		else if (!serviceType.equals(other.serviceType)) {
+		else if (!serviceType.getName().equals(other.serviceType.getName())) {
 			return false;
 		}
 		return true;

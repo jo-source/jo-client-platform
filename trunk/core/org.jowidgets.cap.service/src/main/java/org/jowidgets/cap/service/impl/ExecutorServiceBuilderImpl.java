@@ -26,7 +26,7 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.impl.service;
+package org.jowidgets.cap.service.impl;
 
 import java.util.Collections;
 import java.util.List;
@@ -41,8 +41,7 @@ import org.jowidgets.cap.service.api.executor.IBeanListExecutor;
 import org.jowidgets.cap.service.api.executor.IExecutorServiceBuilder;
 import org.jowidgets.util.Assert;
 
-public final class ExecutorServiceBuilder<BEAN_TYPE extends IBean, PARAM_TYPE> implements
-		IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> {
+final class ExecutorServiceBuilderImpl<BEAN_TYPE extends IBean, PARAM_TYPE> implements IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> {
 
 	private final Class<? extends BEAN_TYPE> beanType;
 	private final IBeanAccess<? extends BEAN_TYPE> beanAccess;
@@ -55,7 +54,7 @@ public final class ExecutorServiceBuilder<BEAN_TYPE extends IBean, PARAM_TYPE> i
 	private Long executionCallbackDelay;
 	private boolean delayedExecutionCallback;
 
-	public ExecutorServiceBuilder(final IBeanAccess<? extends BEAN_TYPE> beanAccess) {
+	ExecutorServiceBuilderImpl(final IBeanAccess<? extends BEAN_TYPE> beanAccess) {
 		Assert.paramNotNull(beanAccess, "beanAccess");
 		Assert.paramNotNull(beanAccess.getBeanType(), "beanAccess.getBeanType()");
 

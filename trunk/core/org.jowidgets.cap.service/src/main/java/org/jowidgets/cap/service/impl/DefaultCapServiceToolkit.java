@@ -42,14 +42,6 @@ import org.jowidgets.cap.service.api.entity.IEntityServiceBuilder;
 import org.jowidgets.cap.service.api.executor.IExecutorServiceBuilder;
 import org.jowidgets.cap.service.api.refresh.IRefreshServiceBuilder;
 import org.jowidgets.cap.service.api.updater.IUpdaterServiceBuilder;
-import org.jowidgets.cap.service.impl.bean.BeanDtoFactory;
-import org.jowidgets.cap.service.impl.bean.BeanInitializer;
-import org.jowidgets.cap.service.impl.entity.BeanServicesProviderBuilder;
-import org.jowidgets.cap.service.impl.entity.EntityServiceBuilder;
-import org.jowidgets.cap.service.impl.execution.DelayedExecutionCallback;
-import org.jowidgets.cap.service.impl.service.ExecutorServiceBuilder;
-import org.jowidgets.cap.service.impl.service.RefreshServiceBuilder;
-import org.jowidgets.cap.service.impl.service.UpdaterServiceBuilder;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.api.IServiceRegistry;
 
@@ -57,7 +49,7 @@ public final class DefaultCapServiceToolkit implements ICapServiceToolkit {
 
 	@Override
 	public IEntityServiceBuilder entityServiceBuilder() {
-		return new EntityServiceBuilder();
+		return new EntityServiceBuilderImpl();
 	}
 
 	@Override
@@ -65,39 +57,39 @@ public final class DefaultCapServiceToolkit implements ICapServiceToolkit {
 		final IServiceRegistry registry,
 		final IServiceId<IEntityService> entityServiceId,
 		final Class<? extends BEAN_TYPE> beanType) {
-		return new BeanServicesProviderBuilder<BEAN_TYPE>(registry, entityServiceId, beanType);
+		return new BeanServicesProviderBuilderImpl<BEAN_TYPE>(registry, entityServiceId, beanType);
 	}
 
 	@Override
 	public <BEAN_TYPE extends IBean> IBeanDtoFactory<BEAN_TYPE> dtoFactory(
 		final Class<? extends BEAN_TYPE> beanType,
 		final List<String> propertyNames) {
-		return new BeanDtoFactory<BEAN_TYPE>(beanType, propertyNames);
+		return new BeanDtoFactoryImpl<BEAN_TYPE>(beanType, propertyNames);
 	}
 
 	@Override
 	public <BEAN_TYPE extends IBean> IBeanInitializer<BEAN_TYPE> beanInitializer(
 		final Class<? extends BEAN_TYPE> beanType,
 		final List<String> propertyNames) {
-		return new BeanInitializer<BEAN_TYPE>(beanType, propertyNames);
+		return new BeanInitializerImpl<BEAN_TYPE>(beanType, propertyNames);
 	}
 
 	@Override
 	public <BEAN_TYPE extends IBean, PARAM_TYPE> IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> executorServiceBuilder(
 		final IBeanAccess<? extends BEAN_TYPE> beanAccess) {
-		return new ExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE>(beanAccess);
+		return new ExecutorServiceBuilderImpl<BEAN_TYPE, PARAM_TYPE>(beanAccess);
 	}
 
 	@Override
 	public <BEAN_TYPE extends IBean> IUpdaterServiceBuilder<BEAN_TYPE> updaterServiceBuilder(
 		final IBeanAccess<? extends BEAN_TYPE> beanAccess) {
-		return new UpdaterServiceBuilder<BEAN_TYPE>(beanAccess);
+		return new UpdaterServiceBuilderImpl<BEAN_TYPE>(beanAccess);
 	}
 
 	@Override
 	public <BEAN_TYPE extends IBean> IRefreshServiceBuilder<BEAN_TYPE> refreshServiceBuilder(
 		final IBeanAccess<? extends BEAN_TYPE> beanAccess) {
-		return new RefreshServiceBuilder<BEAN_TYPE>(beanAccess);
+		return new RefreshServiceBuilderImpl<BEAN_TYPE>(beanAccess);
 	}
 
 	@Override

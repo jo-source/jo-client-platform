@@ -26,7 +26,7 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.impl.service;
+package org.jowidgets.cap.service.impl;
 
 import java.beans.BeanInfo;
 import java.beans.Introspector;
@@ -53,7 +53,7 @@ public final class UpdaterServiceImpl<BEAN_TYPE extends IBean> implements IUpdat
 
 	private final IExecutorService<Collection<? extends IBeanModification>> executorService;
 
-	UpdaterServiceImpl(final ExecutorServiceBuilder<BEAN_TYPE, Collection<? extends IBeanModification>> executorServiceBuilder) {
+	UpdaterServiceImpl(final ExecutorServiceBuilderImpl<BEAN_TYPE, Collection<? extends IBeanModification>> executorServiceBuilder) {
 
 		final Collection<String> propertyNames = executorServiceBuilder.getPropertyNames();
 		final Map<String, Method> methods = new HashMap<String, Method>();

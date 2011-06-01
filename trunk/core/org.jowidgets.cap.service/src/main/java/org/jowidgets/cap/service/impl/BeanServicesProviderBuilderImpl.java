@@ -26,7 +26,7 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.impl.entity;
+package org.jowidgets.cap.service.impl;
 
 import org.jowidgets.cap.common.api.service.IBeanServicesProvider;
 import org.jowidgets.cap.common.api.service.ICreatorService;
@@ -39,7 +39,7 @@ import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.api.IServiceRegistry;
 import org.jowidgets.util.Assert;
 
-public final class BeanServicesProviderBuilder<BEAN_TYPE> implements IBeanServicesProviderBuilder<BEAN_TYPE> {
+final class BeanServicesProviderBuilderImpl<BEAN_TYPE> implements IBeanServicesProviderBuilder<BEAN_TYPE> {
 
 	private final IServiceRegistry registry;
 	private final IServiceId<IEntityService> entityServiceId;
@@ -50,7 +50,7 @@ public final class BeanServicesProviderBuilder<BEAN_TYPE> implements IBeanServic
 	private IUpdaterService updaterService;
 	private IDeleterService deleterService;
 
-	public BeanServicesProviderBuilder(
+	BeanServicesProviderBuilderImpl(
 		final IServiceRegistry registry,
 		final IServiceId<IEntityService> entityServiceId,
 		final Class<? extends BEAN_TYPE> beanType) {

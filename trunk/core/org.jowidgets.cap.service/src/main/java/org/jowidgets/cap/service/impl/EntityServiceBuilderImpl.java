@@ -26,7 +26,7 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.impl.entity;
+package org.jowidgets.cap.service.impl;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -37,12 +37,12 @@ import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.service.api.entity.IEntityServiceBuilder;
 import org.jowidgets.util.Assert;
 
-public final class EntityServiceBuilder implements IEntityServiceBuilder {
+final class EntityServiceBuilderImpl implements IEntityServiceBuilder {
 
 	private final Map<Class<?>, IBeanDtoDescriptor<?>> descriptors;
 	private final Map<Class<?>, IBeanServicesProvider<?>> beanServices;
 
-	public EntityServiceBuilder() {
+	EntityServiceBuilderImpl() {
 		this.descriptors = new HashMap<Class<?>, IBeanDtoDescriptor<?>>();
 		this.beanServices = new HashMap<Class<?>, IBeanServicesProvider<?>>();
 	}
