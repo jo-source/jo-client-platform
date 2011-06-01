@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, grossmann
+ * Copyright (c) 2011, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,29 +26,43 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.impl.widgets;
+package org.jowidgets.cap.ui.impl;
 
-import org.jowidgets.api.toolkit.Toolkit;
-import org.jowidgets.api.widgets.ITable;
-import org.jowidgets.api.widgets.blueprint.ITableBluePrint;
-import org.jowidgets.api.widgets.blueprint.factory.IBluePrintFactory;
-import org.jowidgets.cap.ui.api.table.IBeanTableModel;
-import org.jowidgets.cap.ui.api.widgets.IBeanTable;
-import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
-import org.jowidgets.common.widgets.factory.IWidgetFactory;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.HashSet;
+import java.util.Set;
 
-public final class BeanTableFactory implements IWidgetFactory<IBeanTable<? extends Object>, IBeanTableBluePrint<Object>> {
+import org.jowidgets.cap.ui.api.bean.IPropertyChangeObservable;
+import org.jowidgets.util.Assert;
+
+class PropertyChangeObservable implements IPropertyChangeObservable {
+
+	private final Set<PropertyChangeListener> listeners;
+
+	PropertyChangeObservable() {
+		this.listeners = new HashSet<PropertyChangeListener>();
+	}
 
 	@Override
-	public IBeanTable<Object> create(final Object parentUiReference, final IBeanTableBluePrint<Object> bluePrint) {
-
-		final IBeanTableModel<Object> model = bluePrint.getModel();
-
-		final IBluePrintFactory bpf = Toolkit.getBluePrintFactory();
-		final ITableBluePrint tableBp = bpf.table(model.getTableModel());
-		tableBp.setSetup(bluePrint);
-		final ITable table = Toolkit.getWidgetFactory().create(parentUiReference, tableBp);
-
-		return new BeanTableImpl<Object>(table, bluePrint);
+	public final void addPropertyChangeListener(final PropertyChangeListener listener) {
+		listeners.add(listener);
 	}
+
+	@Override
+	public final void removePropertyChangeListener(final PropertyChangeListener listener) {
+		listeners.remove(listener);
+	}
+
+	final void firePropertyChange(final PropertyChangeEvent event) {
+		Assert.paramNotNull(event, "event");
+		for (final PropertyChangeListener listener : listeners) {
+			listener.propertyChange(event);
+		}
+	}
+
+	final void firePropertyChange(final Object source, final String propertyName, final Object oldValue, final Object newValue) {
+		firePropertyChange(new PropertyChangeEvent(source, propertyName, oldValue, newValue));
+	}
+
 }

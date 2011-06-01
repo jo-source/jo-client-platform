@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, grossmann
+ * Copyright (c) 2011, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,29 +26,35 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.impl.widgets;
+package org.jowidgets.cap.ui.impl;
 
-import org.jowidgets.api.toolkit.Toolkit;
-import org.jowidgets.api.widgets.ITable;
-import org.jowidgets.api.widgets.blueprint.ITableBluePrint;
-import org.jowidgets.api.widgets.blueprint.factory.IBluePrintFactory;
-import org.jowidgets.cap.ui.api.table.IBeanTableModel;
-import org.jowidgets.cap.ui.api.widgets.IBeanTable;
-import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
-import org.jowidgets.common.widgets.factory.IWidgetFactory;
+import java.util.HashSet;
+import java.util.Set;
 
-public final class BeanTableFactory implements IWidgetFactory<IBeanTable<? extends Object>, IBeanTableBluePrint<Object>> {
+import org.jowidgets.cap.ui.api.model.IModificationStateListener;
+import org.jowidgets.cap.ui.api.model.IModificationStateObservable;
+
+class ModificationStateObservable implements IModificationStateObservable {
+
+	private final Set<IModificationStateListener> listeners;
+
+	ModificationStateObservable() {
+		this.listeners = new HashSet<IModificationStateListener>();
+	}
 
 	@Override
-	public IBeanTable<Object> create(final Object parentUiReference, final IBeanTableBluePrint<Object> bluePrint) {
+	public final void addModificationStateListener(final IModificationStateListener listener) {
+		listeners.add(listener);
+	}
 
-		final IBeanTableModel<Object> model = bluePrint.getModel();
+	@Override
+	public final void removeModificationStateListener(final IModificationStateListener listener) {
+		listeners.remove(listener);
+	}
 
-		final IBluePrintFactory bpf = Toolkit.getBluePrintFactory();
-		final ITableBluePrint tableBp = bpf.table(model.getTableModel());
-		tableBp.setSetup(bluePrint);
-		final ITable table = Toolkit.getWidgetFactory().create(parentUiReference, tableBp);
-
-		return new BeanTableImpl<Object>(table, bluePrint);
+	public final void fireModificationStateChanged() {
+		for (final IModificationStateListener listener : listeners) {
+			listener.modificationStateChanged();
+		}
 	}
 }
