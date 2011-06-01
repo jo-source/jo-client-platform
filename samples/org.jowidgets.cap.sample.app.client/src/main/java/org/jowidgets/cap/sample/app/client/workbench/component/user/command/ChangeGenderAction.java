@@ -60,6 +60,7 @@ public class ChangeGenderAction extends ActionWrapper {
 		builder.setSelectionPolicy(BeanSelectionPolicy.MULTI_SELECTION);
 		builder.setExecutionPolicy(BeanExecutionPolicy.PARALLEL);
 		builder.setExecutor(UserComponentExecutorServices.CHANGE_GENDER);
+		//TODO MG get checker from service (id oder so)
 		builder.addExecutableChecker(new ChangeGenderExecutableChecker());
 		builder.addExecutionInterceptor(new IExecutionInterceptor() {
 

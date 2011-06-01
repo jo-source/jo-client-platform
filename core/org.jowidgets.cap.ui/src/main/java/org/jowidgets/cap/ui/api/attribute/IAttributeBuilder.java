@@ -28,40 +28,10 @@
 
 package org.jowidgets.cap.ui.api.attribute;
 
-import org.jowidgets.common.types.AlignmentHorizontal;
 
-public interface IAttributeBuilder<ELEMENT_VALUE_TYPE> {
+public interface IAttributeBuilder<ELEMENT_VALUE_TYPE> extends IAttributeBluePrint<ELEMENT_VALUE_TYPE> {
 
 	IAttributeBuilder<ELEMENT_VALUE_TYPE> setPropertyName(String propertyName);
-
-	IAttributeBuilder<ELEMENT_VALUE_TYPE> setLabel(String label);
-
-	IAttributeBuilder<ELEMENT_VALUE_TYPE> setLabelLong(String labelLong);
-
-	IAttributeBuilder<ELEMENT_VALUE_TYPE> setDescription(String description);
-
-	IAttributeBuilder<ELEMENT_VALUE_TYPE> setVisible(boolean visible);
-
-	IAttributeBuilder<ELEMENT_VALUE_TYPE> setEditable(boolean editable);
-
-	IAttributeBuilder<ELEMENT_VALUE_TYPE> setReadonly(boolean readonly);
-
-	IAttributeBuilder<ELEMENT_VALUE_TYPE> setMandatory(boolean mandatory);
-
-	IAttributeBuilder<ELEMENT_VALUE_TYPE> setTableAlignment(AlignmentHorizontal alignment);
-
-	IAttributeBuilder<ELEMENT_VALUE_TYPE> setTableColumnWidth(int width);
-
-	IAttributeBuilder<ELEMENT_VALUE_TYPE> setGroup(IAttributeGroup group);
-
-	IAttributeBuilder<ELEMENT_VALUE_TYPE> setSortable(boolean sortable);
-
-	IAttributeBuilder<ELEMENT_VALUE_TYPE> setFilterable(boolean filterable);
-
-	IAttributeBuilder<ELEMENT_VALUE_TYPE> setDefaultControlPanel(
-		IControlPanelProvider<? extends ELEMENT_VALUE_TYPE> defaultControlPanel);
-
-	IAttributeBuilder<ELEMENT_VALUE_TYPE> addControlPanel(IControlPanelProvider<? extends ELEMENT_VALUE_TYPE> controlPanel);
 
 	IAttribute<ELEMENT_VALUE_TYPE> build();
 

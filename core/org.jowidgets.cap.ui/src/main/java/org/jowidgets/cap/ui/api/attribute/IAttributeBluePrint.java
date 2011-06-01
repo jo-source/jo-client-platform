@@ -26,29 +26,39 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample.app.client.attribute;
+package org.jowidgets.cap.ui.api.attribute;
 
-import java.util.List;
-
-import org.jowidgets.cap.common.api.bean.IProperty;
-import org.jowidgets.cap.common.api.service.IEntityService;
-import org.jowidgets.cap.sample.app.common.entity.IUser;
-import org.jowidgets.cap.ui.api.CapUiToolkit;
-import org.jowidgets.cap.ui.api.attribute.IAttribute;
-import org.jowidgets.cap.ui.api.attribute.IAttributeCollectionModifierBuilder;
 import org.jowidgets.common.types.AlignmentHorizontal;
-import org.jowidgets.service.api.ServiceProvider;
 
-public class UserAttributesFactory {
+public interface IAttributeBluePrint<ELEMENT_VALUE_TYPE> {
 
-	public List<IAttribute<Object>> create() {
-		final List<IProperty> properties = ServiceProvider.getService(IEntityService.ID).getDescriptor(IUser.class).getProperties();
+	IAttributeBluePrint<ELEMENT_VALUE_TYPE> setLabel(String label);
 
-		final IAttributeCollectionModifierBuilder modifierBuilder = CapUiToolkit.getAttributeToolkit().createAttributeCollectionModifierBuilder();
-		modifierBuilder.addModifier(IUser.GENDER_PROPERTY).setTableAlignment(AlignmentHorizontal.CENTER);
-		modifierBuilder.addDefaultEditableModifier(true);
+	IAttributeBluePrint<ELEMENT_VALUE_TYPE> setLabelLong(String labelLong);
 
-		return CapUiToolkit.getAttributeToolkit().createAttributes(properties, modifierBuilder.build());
-	}
+	IAttributeBluePrint<ELEMENT_VALUE_TYPE> setDescription(String description);
+
+	IAttributeBluePrint<ELEMENT_VALUE_TYPE> setVisible(boolean visible);
+
+	IAttributeBluePrint<ELEMENT_VALUE_TYPE> setEditable(boolean editable);
+
+	IAttributeBluePrint<ELEMENT_VALUE_TYPE> setReadonly(boolean readonly);
+
+	IAttributeBluePrint<ELEMENT_VALUE_TYPE> setMandatory(boolean mandatory);
+
+	IAttributeBluePrint<ELEMENT_VALUE_TYPE> setTableAlignment(AlignmentHorizontal alignment);
+
+	IAttributeBluePrint<ELEMENT_VALUE_TYPE> setTableColumnWidth(int width);
+
+	IAttributeBluePrint<ELEMENT_VALUE_TYPE> setGroup(IAttributeGroup group);
+
+	IAttributeBluePrint<ELEMENT_VALUE_TYPE> setSortable(boolean sortable);
+
+	IAttributeBluePrint<ELEMENT_VALUE_TYPE> setFilterable(boolean filterable);
+
+	IAttributeBluePrint<ELEMENT_VALUE_TYPE> setDefaultControlPanel(
+		IControlPanelProvider<? extends ELEMENT_VALUE_TYPE> defaultControlPanel);
+
+	IAttributeBluePrint<ELEMENT_VALUE_TYPE> addControlPanel(IControlPanelProvider<? extends ELEMENT_VALUE_TYPE> controlPanel);
 
 }

@@ -45,12 +45,11 @@ public class EntityService {
 
 		//IUser
 		final IBeanDtoDescriptor<IUser> descriptor = new UserDtoDescriptorService().getDescriptor();
-		final BeanServicesProvider<IUser> beanServicesProvider = new BeanServicesProvider<IUser>(
+		final BeanServicesProvider<IUser> userServicesProvider = new BeanServicesProvider<IUser>(
 			registry,
 			DataStore.getPersons(),
 			IUser.ALL_PROPERTIES);
-
-		builder.add(descriptor, beanServicesProvider.getServices());
+		builder.add(descriptor, userServicesProvider.getServices());
 
 		this.entityService = builder.build();
 	}

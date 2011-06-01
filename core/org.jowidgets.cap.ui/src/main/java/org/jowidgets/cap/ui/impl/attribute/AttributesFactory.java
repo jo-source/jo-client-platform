@@ -91,6 +91,7 @@ final class AttributesFactory {
 		return result;
 	}
 
+	@SuppressWarnings({"unchecked", "rawtypes"})
 	private IAttribute<Object> applyCollectionModifier(
 		final IProperty property,
 		final IAttributeBuilder<Object> attributeBuilder,
@@ -102,7 +103,7 @@ final class AttributesFactory {
 		}
 
 		//apply property modifier
-		final List<IAttributeModifier> modifierList = attributeCollectionModifier.getModifiers().get(property.getName());
+		final List<IAttributeModifier<?>> modifierList = attributeCollectionModifier.getModifiers().get(property.getName());
 		if (modifierList != null) {
 			for (final IAttributeModifier modifier : modifierList) {
 				modifier.modify(property, attributeBuilder);

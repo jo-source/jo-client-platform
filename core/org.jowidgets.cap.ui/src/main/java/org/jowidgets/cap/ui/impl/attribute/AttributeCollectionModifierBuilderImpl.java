@@ -38,7 +38,7 @@ import java.util.Set;
 
 import org.jowidgets.cap.common.api.bean.IProperty;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
-import org.jowidgets.cap.ui.api.attribute.IAttributeBuilder;
+import org.jowidgets.cap.ui.api.attribute.IAttributeBluePrint;
 import org.jowidgets.cap.ui.api.attribute.IAttributeCollectionModifier;
 import org.jowidgets.cap.ui.api.attribute.IAttributeCollectionModifierBuilder;
 import org.jowidgets.cap.ui.api.attribute.IAttributeFilter;
@@ -48,13 +48,15 @@ import org.jowidgets.util.Assert;
 final class AttributeCollectionModifierBuilderImpl implements IAttributeCollectionModifierBuilder {
 
 	private final Set<IAttributeFilter> filters;
-	private final List<IAttributeModifier> defaultModifiers;
-	private final Map<String, List<IAttributeModifier>> modifiers;
+	private final List<IAttributeModifier<Object>> defaultModifiers;
+	private final Map<String, List<IAttributeModifier<Object>>> modifiers;
+	private final List<AttributeModifierBluePrint<?>> modifierBluePrints;
 
 	AttributeCollectionModifierBuilderImpl() {
 		this.filters = new HashSet<IAttributeFilter>();
-		this.defaultModifiers = new LinkedList<IAttributeModifier>();
-		this.modifiers = new HashMap<String, List<IAttributeModifier>>();
+		this.defaultModifiers = new LinkedList<IAttributeModifier<Object>>();
+		this.modifiers = new HashMap<String, List<IAttributeModifier<Object>>>();
+		this.modifierBluePrints = new LinkedList<AttributeModifierBluePrint<?>>();
 	}
 
 	@Override
@@ -128,23 +130,24 @@ final class AttributeCollectionModifierBuilderImpl implements IAttributeCollecti
 		return this;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public IAttributeCollectionModifierBuilder addDefaultModifier(final IAttributeModifier modifier) {
+	public IAttributeCollectionModifierBuilder addDefaultModifier(final IAttributeModifier<?> modifier) {
 		Assert.paramNotNull(modifier, "modifier");
-		defaultModifiers.add(modifier);
+		defaultModifiers.add((IAttributeModifier<Object>) modifier);
 		return this;
 	}
 
 	@Override
 	public IAttributeCollectionModifierBuilder addDefaultEditableModifier(final boolean editable) {
-		addDefaultModifier(new IAttributeModifier() {
+		addDefaultModifier(new IAttributeModifier<Object>() {
 			@Override
-			public void modify(final IProperty sourceProperty, final IAttributeBuilder<?> attributeBuilder) {
+			public void modify(final IProperty sourceProperty, final IAttributeBluePrint<Object> attributeBluePrint) {
 				if (editable) {
-					attributeBuilder.setEditable(!sourceProperty.isReadonly());
+					attributeBluePrint.setEditable(!sourceProperty.isReadonly());
 				}
 				else {
-					attributeBuilder.setEditable(false);
+					attributeBluePrint.setEditable(false);
 				}
 			}
 		});
@@ -153,30 +156,50 @@ final class AttributeCollectionModifierBuilderImpl implements IAttributeCollecti
 
 	@Override
 	public IAttributeCollectionModifierBuilder addDefaultVisibleModifier(final boolean visible) {
-		addDefaultModifier(new IAttributeModifier() {
+		addDefaultModifier(new IAttributeModifier<Object>() {
 			@Override
-			public void modify(final IProperty sourceProperty, final IAttributeBuilder<?> attributeBuilder) {
-				attributeBuilder.setVisible(visible);
+			public void modify(final IProperty sourceProperty, final IAttributeBluePrint<Object> attributeBluePrint) {
+				attributeBluePrint.setVisible(visible);
 			}
 		});
 		return this;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public IAttributeCollectionModifierBuilder addModifier(final String propertyName, final IAttributeModifier modifier) {
+	public <ELEMENT_VALUE_TYPE> IAttributeCollectionModifierBuilder addModifier(
+		final String propertyName,
+		final IAttributeModifier<ELEMENT_VALUE_TYPE> modifier) {
 		Assert.paramNotEmpty(propertyName, "propertyName");
 		Assert.paramNotNull(modifier, "modifier");
-		List<IAttributeModifier> modifierList = modifiers.get(propertyName);
+		List<IAttributeModifier<Object>> modifierList = modifiers.get(propertyName);
 		if (modifierList == null) {
-			modifierList = new LinkedList<IAttributeModifier>();
+			modifierList = new LinkedList<IAttributeModifier<Object>>();
 			modifiers.put(propertyName, modifierList);
 		}
-		modifierList.add(modifier);
+		modifierList.add((IAttributeModifier<Object>) modifier);
 		return this;
 	}
 
 	@Override
+	public <ELEMENT_VALUE_TYPE> IAttributeBluePrint<ELEMENT_VALUE_TYPE> addModifier(final String propertyName) {
+		final AttributeModifierBluePrint<ELEMENT_VALUE_TYPE> attributeModifierBluePrint = new AttributeModifierBluePrint<ELEMENT_VALUE_TYPE>();
+		addModifier(propertyName, new IAttributeModifier<ELEMENT_VALUE_TYPE>() {
+			@Override
+			public void modify(final IProperty sourceProperty, final IAttributeBluePrint<ELEMENT_VALUE_TYPE> attributeBluePrint) {
+				attributeModifierBluePrint.modify(attributeBluePrint);
+			}
+		});
+		modifierBluePrints.add(attributeModifierBluePrint);
+		return attributeModifierBluePrint;
+	}
+
+	@Override
 	public IAttributeCollectionModifier build() {
+		for (final AttributeModifierBluePrint<?> attributeModifierBluePrint : modifierBluePrints) {
+			attributeModifierBluePrint.setExhausted();
+		}
+		modifierBluePrints.clear();
 		return new AttributeCollectionModifierImpl(filters, defaultModifiers, modifiers);
 	}
 

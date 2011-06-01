@@ -40,21 +40,22 @@ import org.jowidgets.cap.ui.api.attribute.IAttributeCollectionModifier;
 import org.jowidgets.cap.ui.api.attribute.IAttributeFilter;
 import org.jowidgets.cap.ui.api.attribute.IAttributeModifier;
 
-
 final class AttributeCollectionModifierImpl implements IAttributeCollectionModifier {
 
 	private final Set<IAttributeFilter> filters;
-	private final List<IAttributeModifier> defaultModifiers;
-	private final Map<String, List<IAttributeModifier>> modifiers;
+	private final List<IAttributeModifier<?>> defaultModifiers;
+	@SuppressWarnings("rawtypes")
+	private final Map modifiers;
 
+	@SuppressWarnings({"unchecked", "rawtypes"})
 	AttributeCollectionModifierImpl(
 		final Set<IAttributeFilter> filters,
-		final List<IAttributeModifier> defaultModifiers,
-		final Map<String, List<IAttributeModifier>> modifiers) {
+		final List<IAttributeModifier<Object>> defaultModifiers,
+		final Map<String, List<IAttributeModifier<Object>>> modifiers) {
 
 		this.filters = Collections.unmodifiableSet(new HashSet<IAttributeFilter>(filters));
-		this.defaultModifiers = Collections.unmodifiableList(new LinkedList<IAttributeModifier>(defaultModifiers));
-		this.modifiers = Collections.unmodifiableMap(new HashMap<String, List<IAttributeModifier>>(modifiers));
+		this.defaultModifiers = Collections.unmodifiableList(new LinkedList<IAttributeModifier<?>>(defaultModifiers));
+		this.modifiers = Collections.unmodifiableMap(new HashMap(modifiers));
 	}
 
 	@Override
@@ -63,12 +64,13 @@ final class AttributeCollectionModifierImpl implements IAttributeCollectionModif
 	}
 
 	@Override
-	public List<IAttributeModifier> getDefaultModifiers() {
+	public List<IAttributeModifier<?>> getDefaultModifiers() {
 		return defaultModifiers;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public Map<String, List<IAttributeModifier>> getModifiers() {
+	public Map<String, List<IAttributeModifier<?>>> getModifiers() {
 		return modifiers;
 	}
 

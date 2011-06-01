@@ -92,7 +92,7 @@ public class ServiceRegistry extends DefaultServiceRegistry {
 		final IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> builder = CapServiceToolkit.executorServiceBuilder(beanAccess);
 		builder.setExecutor(beanExecutor);
 		builder.setExecutableChecker(executableChecker);
-		builder.setPropertieNames(propertyNames);
+		builder.setPropertyNames(propertyNames);
 
 		register(id, builder.build());
 	}

@@ -30,8 +30,8 @@ package org.jowidgets.cap.ui.api.attribute;
 
 import org.jowidgets.cap.common.api.bean.IProperty;
 
-public interface IAttributeModifier {
+public interface IAttributeModifier<ELEMENT_VALUE_TYPE> {
 
-	void modify(IProperty sourceProperty, IAttributeBuilder<?> attributeBuilder);
+	void modify(IProperty sourceProperty, IAttributeBluePrint<ELEMENT_VALUE_TYPE> attributeBluePrint);
 
 }
