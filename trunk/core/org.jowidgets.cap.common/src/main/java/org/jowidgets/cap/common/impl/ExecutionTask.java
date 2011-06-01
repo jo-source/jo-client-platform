@@ -65,6 +65,7 @@ public final class ExecutionTask implements IExecutionTask, Serializable {
 	private UserQuestionResult userQuestionResult;
 	private Thread userQuestionWaitThread;
 
+	//TODO move to client module
 	ExecutionTask() {
 		this(true, null);
 	}
@@ -118,7 +119,6 @@ public final class ExecutionTask implements IExecutionTask, Serializable {
 		Assert.paramNotNull(question, "question");
 		this.userQuestion = question;
 		userQuestionWaitThread = new Thread(new Runnable() {
-
 			@Override
 			public void run() {
 				while (true) {
@@ -126,10 +126,10 @@ public final class ExecutionTask implements IExecutionTask, Serializable {
 						Thread.sleep(10000);
 					}
 					catch (final InterruptedException e) {
+						Thread.currentThread().interrupt();
 						break;
 					}
 				}
-
 			}
 		});
 
@@ -171,10 +171,12 @@ public final class ExecutionTask implements IExecutionTask, Serializable {
 
 		if (userQuestionCallback != null) {
 			userQuestionCallback.questionAnswered(result);
+			//TODO MG is this necessary?
 			userQuestionCallback = null;
 		}
 		else if (userQuestionWaitThread != null) {
 			userQuestionWaitThread.interrupt();
+			//TODO MG is this necessary?
 			userQuestionWaitThread = null;
 		}
 		else {
