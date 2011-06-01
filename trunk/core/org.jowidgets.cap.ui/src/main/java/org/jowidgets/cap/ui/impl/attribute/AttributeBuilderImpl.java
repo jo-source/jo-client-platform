@@ -41,7 +41,6 @@ import org.jowidgets.cap.ui.api.attribute.IControlPanelProvider;
 import org.jowidgets.common.types.AlignmentHorizontal;
 import org.jowidgets.util.Assert;
 
-
 final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilder<ELEMENT_VALUE_TYPE> {
 
 	private String propertyName;

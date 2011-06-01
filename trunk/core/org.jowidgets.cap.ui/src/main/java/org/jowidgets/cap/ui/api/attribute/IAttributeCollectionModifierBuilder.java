@@ -44,13 +44,24 @@ public interface IAttributeCollectionModifierBuilder {
 
 	IAttributeCollectionModifierBuilder addAcceptEditableAttributesFilter();
 
-	IAttributeCollectionModifierBuilder addDefaultModifier(IAttributeModifier modifier);
+	IAttributeCollectionModifierBuilder addDefaultModifier(IAttributeModifier<?> modifier);
 
 	IAttributeCollectionModifierBuilder addDefaultEditableModifier(boolean editable);
 
 	IAttributeCollectionModifierBuilder addDefaultVisibleModifier(boolean visible);
 
-	IAttributeCollectionModifierBuilder addModifier(String propertyName, IAttributeModifier modifier);
+	<ELEMENT_VALUE_TYPE> IAttributeCollectionModifierBuilder addModifier(
+		String propertyName,
+		IAttributeModifier<ELEMENT_VALUE_TYPE> modifier);
+
+	/**
+	 * Adds a modifier. The modification that should be done could be made on the returned IAttributeBluePrint
+	 * 
+	 * @param <ELEMENT_VALUE_TYPE>
+	 * @param propertyName The property to add the modifier for
+	 * @return A bluePrint to make the modifications on.
+	 */
+	<ELEMENT_VALUE_TYPE> IAttributeBluePrint<ELEMENT_VALUE_TYPE> addModifier(String propertyName);
 
 	IAttributeCollectionModifier build();
 

@@ -57,6 +57,7 @@ final class BeanServicesProviderImpl<BEAN_TYPE> implements IBeanServicesProvider
 		final IUpdaterService updaterService,
 		final IDeleterService deleterService) {
 
+		//TODO id at restart or cluster node change, e.g. use id as combination of service and bean type
 		this.creatorServiceId = new ServiceId<ICreatorService>(UUID.randomUUID(), ICreatorService.class);
 		this.refreshServiceId = new ServiceId<IRefreshService>(UUID.randomUUID(), IRefreshService.class);
 		this.updaterServiceId = new ServiceId<IUpdaterService>(UUID.randomUUID(), IUpdaterService.class);

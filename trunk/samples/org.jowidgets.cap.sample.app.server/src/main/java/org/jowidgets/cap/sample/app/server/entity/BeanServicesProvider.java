@@ -32,7 +32,6 @@ import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.service.IBeanServicesProvider;
-import org.jowidgets.cap.sample.app.common.entity.IUser;
 import org.jowidgets.cap.sample.app.server.datastore.AbstractData;
 import org.jowidgets.cap.sample.app.server.service.creator.CreatorService;
 import org.jowidgets.cap.sample.app.server.service.deleter.DeleterService;
@@ -44,14 +43,14 @@ import org.jowidgets.service.api.IServiceRegistry;
 
 public final class BeanServicesProvider<BEAN_TYPE extends IBean> {
 
-	private final IBeanServicesProvider<IUser> beanServicesProvider;
+	private final IBeanServicesProvider<BEAN_TYPE> beanServicesProvider;
 
 	public BeanServicesProvider(
 		final IServiceRegistry registry,
 		final AbstractData<? extends BEAN_TYPE> data,
 		final List<String> properties) {
 
-		final IBeanServicesProviderBuilder<IUser> builder = CapServiceToolkit.beanServicesProviderBuilder(registry);
+		final IBeanServicesProviderBuilder<BEAN_TYPE> builder = CapServiceToolkit.beanServicesProviderBuilder(registry);
 
 		//creator service
 		builder.setCreatorService(new CreatorService<BEAN_TYPE>(data, properties));
@@ -72,7 +71,7 @@ public final class BeanServicesProvider<BEAN_TYPE extends IBean> {
 		this.beanServicesProvider = builder.build();
 	}
 
-	public IBeanServicesProvider<IUser> getServices() {
+	public IBeanServicesProvider<BEAN_TYPE> getServices() {
 		return beanServicesProvider;
 	}
 

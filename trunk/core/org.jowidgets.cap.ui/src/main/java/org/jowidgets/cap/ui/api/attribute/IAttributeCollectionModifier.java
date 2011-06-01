@@ -40,14 +40,14 @@ public interface IAttributeCollectionModifier {
 	 * 
 	 * @return The default modifiers or an empty list
 	 */
-	List<IAttributeModifier> getDefaultModifiers();
+	List<IAttributeModifier<?>> getDefaultModifiers();
 
 	/**
 	 * Gets a list of modifiers for defined property names (the key of the map is the property name)
 	 * 
 	 * @return The modifiers for defined property names
 	 */
-	Map<String, List<IAttributeModifier>> getModifiers();
+	Map<String, List<IAttributeModifier<?>>> getModifiers();
 
 	/**
 	 * Gets a set of filters that could be used to filter attributes out.
