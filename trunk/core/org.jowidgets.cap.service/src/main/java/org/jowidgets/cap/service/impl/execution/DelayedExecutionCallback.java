@@ -81,7 +81,7 @@ public class DelayedExecutionCallback implements IExecutionCallback {
 
 			@Override
 			public void run() {
-				while (true && !finished && !canceled && !disposed) {
+				while (!finished && !canceled && !disposed) {
 					try {
 						Thread.sleep(DelayedExecutionCallback.this.delay);
 
@@ -100,6 +100,7 @@ public class DelayedExecutionCallback implements IExecutionCallback {
 						}
 					}
 					catch (final InterruptedException e) {
+						Thread.currentThread().interrupt();
 						break;
 					}
 				}
