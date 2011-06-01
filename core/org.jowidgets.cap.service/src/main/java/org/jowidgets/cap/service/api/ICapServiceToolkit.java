@@ -32,6 +32,7 @@ import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
+import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.cap.service.api.bean.IBeanInitializer;
@@ -40,13 +41,17 @@ import org.jowidgets.cap.service.api.entity.IEntityServiceBuilder;
 import org.jowidgets.cap.service.api.executor.IExecutorServiceBuilder;
 import org.jowidgets.cap.service.api.refresh.IRefreshServiceBuilder;
 import org.jowidgets.cap.service.api.updater.IUpdaterServiceBuilder;
+import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.api.IServiceRegistry;
 
 public interface ICapServiceToolkit {
 
 	IEntityServiceBuilder entityServiceBuilder();
 
-	<BEAN_TYPE> IBeanServicesProviderBuilder<BEAN_TYPE> beanServicesProviderBuilder(IServiceRegistry registry);
+	<BEAN_TYPE> IBeanServicesProviderBuilder<BEAN_TYPE> beanServicesProviderBuilder(
+		IServiceRegistry registry,
+		IServiceId<IEntityService> entityServiceId,
+		Class<? extends BEAN_TYPE> beanType);
 
 	<BEAN_TYPE extends IBean> IBeanDtoFactory<BEAN_TYPE> dtoFactory(
 		Class<? extends BEAN_TYPE> beanType,
@@ -59,11 +64,9 @@ public interface ICapServiceToolkit {
 	<BEAN_TYPE extends IBean, PARAM_TYPE> IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> executorServiceBuilder(
 		IBeanAccess<? extends BEAN_TYPE> beanAccess);
 
-	<BEAN_TYPE extends IBean> IUpdaterServiceBuilder<BEAN_TYPE> updaterServiceBuilder(
-		IBeanAccess<? extends BEAN_TYPE> beanAccess);
+	<BEAN_TYPE extends IBean> IUpdaterServiceBuilder<BEAN_TYPE> updaterServiceBuilder(IBeanAccess<? extends BEAN_TYPE> beanAccess);
 
-	<BEAN_TYPE extends IBean> IRefreshServiceBuilder<BEAN_TYPE> refreshServiceBuilder(
-		IBeanAccess<? extends BEAN_TYPE> beanAccess);
+	<BEAN_TYPE extends IBean> IRefreshServiceBuilder<BEAN_TYPE> refreshServiceBuilder(IBeanAccess<? extends BEAN_TYPE> beanAccess);
 
 	IExecutionCallback delayedExecutionCallback(IExecutionCallback executionCallback, Long delay);
 
