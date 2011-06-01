@@ -32,6 +32,7 @@ import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
+import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.service.api.ICapServiceToolkit;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
@@ -49,6 +50,7 @@ import org.jowidgets.cap.service.impl.execution.DelayedExecutionCallback;
 import org.jowidgets.cap.service.impl.service.ExecutorServiceBuilder;
 import org.jowidgets.cap.service.impl.service.RefreshServiceBuilder;
 import org.jowidgets.cap.service.impl.service.UpdaterServiceBuilder;
+import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.api.IServiceRegistry;
 
 public final class DefaultCapServiceToolkit implements ICapServiceToolkit {
@@ -59,8 +61,11 @@ public final class DefaultCapServiceToolkit implements ICapServiceToolkit {
 	}
 
 	@Override
-	public <BEAN_TYPE> IBeanServicesProviderBuilder<BEAN_TYPE> beanServicesProviderBuilder(final IServiceRegistry registry) {
-		return new BeanServicesProviderBuilder<BEAN_TYPE>(registry);
+	public <BEAN_TYPE> IBeanServicesProviderBuilder<BEAN_TYPE> beanServicesProviderBuilder(
+		final IServiceRegistry registry,
+		final IServiceId<IEntityService> entityServiceId,
+		final Class<? extends BEAN_TYPE> beanType) {
+		return new BeanServicesProviderBuilder<BEAN_TYPE>(registry, entityServiceId, beanType);
 	}
 
 	@Override

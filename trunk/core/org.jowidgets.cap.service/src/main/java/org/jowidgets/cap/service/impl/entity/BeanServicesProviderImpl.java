@@ -29,17 +29,18 @@
 package org.jowidgets.cap.service.impl.entity;
 
 import java.io.Serializable;
-import java.util.UUID;
 
 import org.jowidgets.cap.common.api.service.IBeanServicesProvider;
 import org.jowidgets.cap.common.api.service.ICreatorService;
 import org.jowidgets.cap.common.api.service.IDeleterService;
+import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.common.api.service.IRefreshService;
 import org.jowidgets.cap.common.api.service.IUpdaterService;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.api.IServiceRegistry;
 import org.jowidgets.service.api.ServiceProvider;
 import org.jowidgets.service.tools.ServiceId;
+import org.jowidgets.util.Assert;
 
 final class BeanServicesProviderImpl<BEAN_TYPE> implements IBeanServicesProvider<BEAN_TYPE>, Serializable {
 
@@ -52,16 +53,36 @@ final class BeanServicesProviderImpl<BEAN_TYPE> implements IBeanServicesProvider
 
 	BeanServicesProviderImpl(
 		final IServiceRegistry serviceRegistry,
+		final IServiceId<IEntityService> entityServiceId,
+		final Class<? extends BEAN_TYPE> beanType,
 		final ICreatorService creatorService,
 		final IRefreshService refreshService,
 		final IUpdaterService updaterService,
 		final IDeleterService deleterService) {
 
-		//TODO id at restart or cluster node change, e.g. use id as combination of service and bean type
-		this.creatorServiceId = new ServiceId<ICreatorService>(UUID.randomUUID(), ICreatorService.class);
-		this.refreshServiceId = new ServiceId<IRefreshService>(UUID.randomUUID(), IRefreshService.class);
-		this.updaterServiceId = new ServiceId<IUpdaterService>(UUID.randomUUID(), IUpdaterService.class);
-		this.deleterServiceId = new ServiceId<IDeleterService>(UUID.randomUUID(), IDeleterService.class);
+		Assert.paramNotNull(serviceRegistry, "serviceRegistry");
+		Assert.paramNotNull(entityServiceId, "entityServiceId");
+		Assert.paramNotNull(beanType, "beanType");
+		Assert.paramNotNull(creatorService, "creatorService");
+		Assert.paramNotNull(refreshService, "refreshService");
+		Assert.paramNotNull(updaterService, "updaterService");
+		Assert.paramNotNull(deleterService, "deleterService");
+
+		this.creatorServiceId = new ServiceId<ICreatorService>(
+			new Id(entityServiceId, beanType, ICreatorService.class),
+			ICreatorService.class);
+
+		this.refreshServiceId = new ServiceId<IRefreshService>(
+			new Id(entityServiceId, beanType, IRefreshService.class),
+			IRefreshService.class);
+
+		this.updaterServiceId = new ServiceId<IUpdaterService>(
+			new Id(entityServiceId, beanType, IUpdaterService.class),
+			IUpdaterService.class);
+
+		this.deleterServiceId = new ServiceId<IDeleterService>(
+			new Id(entityServiceId, beanType, IDeleterService.class),
+			IDeleterService.class);
 
 		serviceRegistry.register(creatorServiceId, creatorService);
 		serviceRegistry.register(refreshServiceId, refreshService);
@@ -89,4 +110,79 @@ final class BeanServicesProviderImpl<BEAN_TYPE> implements IBeanServicesProvider
 		return ServiceProvider.getService(deleterServiceId);
 	}
 
+	private final class Id {
+
+		private final IServiceId<IEntityService> entityServiceId;
+		private final Class<? extends BEAN_TYPE> beanType;
+		private final Object service;
+
+		private Id(
+			final IServiceId<IEntityService> entityServiceId,
+			final Class<? extends BEAN_TYPE> beanType,
+			final Object service) {
+			super();
+			this.entityServiceId = entityServiceId;
+			this.beanType = beanType;
+			this.service = service;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + getOuterType().hashCode();
+			result = prime * result + ((beanType == null) ? 0 : beanType.hashCode());
+			result = prime * result + ((entityServiceId == null) ? 0 : entityServiceId.hashCode());
+			result = prime * result + ((service == null) ? 0 : service.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(final Object obj) {
+			if (this == obj) {
+				return true;
+			}
+			if (obj == null) {
+				return false;
+			}
+			if (getClass() != obj.getClass()) {
+				return false;
+			}
+			@SuppressWarnings("unchecked")
+			final Id other = (Id) obj;
+			if (!getOuterType().equals(other.getOuterType())) {
+				return false;
+			}
+			if (beanType == null) {
+				if (other.beanType != null) {
+					return false;
+				}
+			}
+			else if (!beanType.equals(other.beanType)) {
+				return false;
+			}
+			if (entityServiceId == null) {
+				if (other.entityServiceId != null) {
+					return false;
+				}
+			}
+			else if (!entityServiceId.equals(other.entityServiceId)) {
+				return false;
+			}
+			if (service == null) {
+				if (other.service != null) {
+					return false;
+				}
+			}
+			else if (!service.equals(other.service)) {
+				return false;
+			}
+			return true;
+		}
+
+		private BeanServicesProviderImpl<?> getOuterType() {
+			return BeanServicesProviderImpl.this;
+		}
+
+	}
 }

@@ -31,24 +31,33 @@ package org.jowidgets.cap.service.impl.entity;
 import org.jowidgets.cap.common.api.service.IBeanServicesProvider;
 import org.jowidgets.cap.common.api.service.ICreatorService;
 import org.jowidgets.cap.common.api.service.IDeleterService;
+import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.common.api.service.IRefreshService;
 import org.jowidgets.cap.common.api.service.IUpdaterService;
 import org.jowidgets.cap.service.api.entity.IBeanServicesProviderBuilder;
+import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.api.IServiceRegistry;
 import org.jowidgets.util.Assert;
 
 public final class BeanServicesProviderBuilder<BEAN_TYPE> implements IBeanServicesProviderBuilder<BEAN_TYPE> {
 
 	private final IServiceRegistry registry;
+	private final IServiceId<IEntityService> entityServiceId;
+	private final Class<? extends BEAN_TYPE> beanType;
 
 	private ICreatorService creatorService;
 	private IRefreshService refreshService;
 	private IUpdaterService updaterService;
 	private IDeleterService deleterService;
 
-	public BeanServicesProviderBuilder(final IServiceRegistry registry) {
+	public BeanServicesProviderBuilder(
+		final IServiceRegistry registry,
+		final IServiceId<IEntityService> entityServiceId,
+		final Class<? extends BEAN_TYPE> beanType) {
 		Assert.paramNotNull(registry, "registry");
 		this.registry = registry;
+		this.entityServiceId = entityServiceId;
+		this.beanType = beanType;
 	}
 
 	@Override
@@ -77,7 +86,14 @@ public final class BeanServicesProviderBuilder<BEAN_TYPE> implements IBeanServic
 
 	@Override
 	public IBeanServicesProvider<BEAN_TYPE> build() {
-		return new BeanServicesProviderImpl<BEAN_TYPE>(registry, creatorService, refreshService, updaterService, deleterService);
+		return new BeanServicesProviderImpl<BEAN_TYPE>(
+			registry,
+			entityServiceId,
+			beanType,
+			creatorService,
+			refreshService,
+			updaterService,
+			deleterService);
 	}
 
 }
