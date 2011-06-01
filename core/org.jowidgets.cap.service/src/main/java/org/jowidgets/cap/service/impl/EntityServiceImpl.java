@@ -26,59 +26,40 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.impl.service;
+package org.jowidgets.cap.service.impl;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
-import org.jowidgets.cap.common.api.bean.IBean;
-import org.jowidgets.cap.common.api.service.IRefreshService;
-import org.jowidgets.cap.service.api.bean.IBeanAccess;
-import org.jowidgets.cap.service.api.refresh.IRefreshServiceBuilder;
+import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
+import org.jowidgets.cap.common.api.service.IBeanServicesProvider;
+import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.util.Assert;
 
-public final class RefreshServiceBuilder<BEAN_TYPE extends IBean> implements IRefreshServiceBuilder<BEAN_TYPE> {
+public final class EntityServiceImpl implements IEntityService {
 
-	private final Class<? extends BEAN_TYPE> beanType;
-	private final IBeanAccess<? extends BEAN_TYPE> beanAccess;
+	private final Map<Class<?>, IBeanDtoDescriptor<?>> descriptors;
+	private final Map<Class<?>, IBeanServicesProvider<?>> beanServices;
 
-	private List<String> propertyNames;
-	private boolean allowDeletedBeans;
-
-	public RefreshServiceBuilder(final IBeanAccess<? extends BEAN_TYPE> beanAccess) {
-		Assert.paramNotNull(beanAccess, "beanAccess");
-		Assert.paramNotNull(beanAccess.getBeanType(), "beanAccess.getBeanType()");
-
-		this.beanType = beanAccess.getBeanType();
-		this.beanAccess = beanAccess;
-
-		this.allowDeletedBeans = true;
+	EntityServiceImpl(
+		final Map<Class<?>, IBeanDtoDescriptor<?>> descriptors,
+		final Map<Class<?>, IBeanServicesProvider<?>> beanServices) {
+		Assert.paramNotNull(descriptors, "descriptors");
+		Assert.paramNotNull(beanServices, "beanServices");
+		this.descriptors = new HashMap<Class<?>, IBeanDtoDescriptor<?>>(descriptors);
+		this.beanServices = new HashMap<Class<?>, IBeanServicesProvider<?>>(beanServices);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public IRefreshServiceBuilder<BEAN_TYPE> setPropertyNames(final List<String> propertyNames) {
-		this.propertyNames = propertyNames;
-		return this;
+	public <BEAN_TYPE> IBeanDtoDescriptor<BEAN_TYPE> getDescriptor(final Class<BEAN_TYPE> beanType) {
+		return (IBeanDtoDescriptor<BEAN_TYPE>) descriptors.get(beanType);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public IRefreshServiceBuilder<BEAN_TYPE> setAllowDeletedBeans(final boolean allowDeletedBeans) {
-		this.allowDeletedBeans = allowDeletedBeans;
-		return this;
-	}
-
-	protected List<String> getPropertyNames() {
-		if (propertyNames == null) {
-			return Collections.emptyList();
-		}
-		else {
-			return propertyNames;
-		}
-	}
-
-	@Override
-	public IRefreshService build() {
-		return new RefreshServiceImpl<IBean>(beanType, beanAccess, getPropertyNames(), allowDeletedBeans);
+	public <BEAN_TYPE> IBeanServicesProvider<BEAN_TYPE> getBeanServices(final Class<BEAN_TYPE> beanType) {
+		return (IBeanServicesProvider<BEAN_TYPE>) beanServices.get(beanType);
 	}
 
 }

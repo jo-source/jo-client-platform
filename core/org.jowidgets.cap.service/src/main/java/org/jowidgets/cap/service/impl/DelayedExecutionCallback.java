@@ -26,7 +26,7 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.impl.execution;
+package org.jowidgets.cap.service.impl;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -37,7 +37,7 @@ import org.jowidgets.cap.common.api.execution.IUserQuestionCallback;
 import org.jowidgets.cap.common.api.execution.UserQuestionResult;
 import org.jowidgets.util.Assert;
 
-public class DelayedExecutionCallback implements IExecutionCallback {
+final class DelayedExecutionCallback implements IExecutionCallback {
 
 	private static final long DEFAULT_DELAY = 200;
 
@@ -60,11 +60,11 @@ public class DelayedExecutionCallback implements IExecutionCallback {
 	private String lastDescription;
 	private String description;
 
-	public DelayedExecutionCallback(final IExecutionCallback executionCallback) {
+	DelayedExecutionCallback(final IExecutionCallback executionCallback) {
 		this(executionCallback, null);
 	}
 
-	public DelayedExecutionCallback(final IExecutionCallback executionCallback, final Long delay) {
+	DelayedExecutionCallback(final IExecutionCallback executionCallback, final Long delay) {
 		Assert.paramNotNull(executionCallback, "executionCallback");
 		this.executionCallback = executionCallback;
 		this.executionCallbackListeners = new HashSet<IExecutionCallbackListener>();

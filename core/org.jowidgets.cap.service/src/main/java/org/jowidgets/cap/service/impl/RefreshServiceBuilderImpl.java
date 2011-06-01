@@ -26,54 +26,59 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.impl.service;
+package org.jowidgets.cap.service.impl;
 
-import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IBean;
-import org.jowidgets.cap.common.api.bean.IBeanModification;
-import org.jowidgets.cap.common.api.execution.IExecutableChecker;
-import org.jowidgets.cap.common.api.service.IUpdaterService;
+import org.jowidgets.cap.common.api.service.IRefreshService;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
-import org.jowidgets.cap.service.api.updater.IUpdaterServiceBuilder;
+import org.jowidgets.cap.service.api.refresh.IRefreshServiceBuilder;
+import org.jowidgets.util.Assert;
 
+final class RefreshServiceBuilderImpl<BEAN_TYPE extends IBean> implements IRefreshServiceBuilder<BEAN_TYPE> {
 
-public final class UpdaterServiceBuilder<BEAN_TYPE extends IBean> implements IUpdaterServiceBuilder<BEAN_TYPE> {
+	private final Class<? extends BEAN_TYPE> beanType;
+	private final IBeanAccess<? extends BEAN_TYPE> beanAccess;
 
-	private final ExecutorServiceBuilder<BEAN_TYPE, Collection<? extends IBeanModification>> dataExecutorServiceBuilder;
+	private List<String> propertyNames;
+	private boolean allowDeletedBeans;
 
-	public UpdaterServiceBuilder(final IBeanAccess<? extends BEAN_TYPE> beanAccess) {
-		this.dataExecutorServiceBuilder = new ExecutorServiceBuilder<BEAN_TYPE, Collection<? extends IBeanModification>>(
-			beanAccess);
+	RefreshServiceBuilderImpl(final IBeanAccess<? extends BEAN_TYPE> beanAccess) {
+		Assert.paramNotNull(beanAccess, "beanAccess");
+		Assert.paramNotNull(beanAccess.getBeanType(), "beanAccess.getBeanType()");
+
+		this.beanType = beanAccess.getBeanType();
+		this.beanAccess = beanAccess;
+
+		this.allowDeletedBeans = true;
 	}
 
 	@Override
-	public IUpdaterServiceBuilder<BEAN_TYPE> setExecutableChecker(final IExecutableChecker<? extends BEAN_TYPE> executableChecker) {
-		dataExecutorServiceBuilder.setExecutableChecker(executableChecker);
+	public IRefreshServiceBuilder<BEAN_TYPE> setPropertyNames(final List<String> propertyNames) {
+		this.propertyNames = propertyNames;
 		return this;
 	}
 
 	@Override
-	public IUpdaterServiceBuilder<BEAN_TYPE> setPropertyNames(final List<String> propertyNames) {
-		dataExecutorServiceBuilder.setPropertyNames(propertyNames);
+	public IRefreshServiceBuilder<BEAN_TYPE> setAllowDeletedBeans(final boolean allowDeletedBeans) {
+		this.allowDeletedBeans = allowDeletedBeans;
 		return this;
 	}
 
-	@Override
-	public IUpdaterServiceBuilder<BEAN_TYPE> setAllowDeletedBeans(final boolean allowDeletedBeans) {
-		dataExecutorServiceBuilder.setAllowDeletedBeans(allowDeletedBeans);
-		return this;
+	protected List<String> getPropertyNames() {
+		if (propertyNames == null) {
+			return Collections.emptyList();
+		}
+		else {
+			return propertyNames;
+		}
 	}
 
 	@Override
-	public IUpdaterServiceBuilder<BEAN_TYPE> setAllowStaleBeans(final boolean allowStaleBeans) {
-		dataExecutorServiceBuilder.setAllowStaleBeans(allowStaleBeans);
-		return this;
+	public IRefreshService build() {
+		return new RefreshServiceImpl<IBean>(beanType, beanAccess, getPropertyNames(), allowDeletedBeans);
 	}
 
-	@Override
-	public IUpdaterService build() {
-		return new UpdaterServiceImpl<BEAN_TYPE>(dataExecutorServiceBuilder);
-	}
 }

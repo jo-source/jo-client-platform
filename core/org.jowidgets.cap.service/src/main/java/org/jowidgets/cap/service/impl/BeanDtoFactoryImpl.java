@@ -26,7 +26,7 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.impl.bean;
+package org.jowidgets.cap.service.impl;
 
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
@@ -35,53 +35,71 @@ import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.bean.IBean;
-import org.jowidgets.cap.common.api.bean.IBeanData;
-import org.jowidgets.cap.service.api.bean.IBeanInitializer;
+import org.jowidgets.cap.common.api.bean.IBeanDto;
+import org.jowidgets.cap.common.api.bean.IBeanDtoBuilder;
+import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.util.Assert;
 
-public final class BeanInitializer<BEAN_TYPE extends IBean> implements IBeanInitializer<BEAN_TYPE> {
+final class BeanDtoFactoryImpl<BEAN_TYPE extends IBean> implements IBeanDtoFactory<BEAN_TYPE> {
 
 	private final Map<String, Method> methods;
+	private final String persistenceClassName;
 
-	public BeanInitializer(final Class<? extends BEAN_TYPE> beanType, final Collection<String> propertyNames) {
+	BeanDtoFactoryImpl(final Class<? extends IBean> beanType, final List<String> propertyNames) {
+
 		Assert.paramNotNull(beanType, "beanType");
 		Assert.paramNotNull(propertyNames, "propertyNames");
 
 		this.methods = new HashMap<String, Method>();
+		this.persistenceClassName = beanType.getName();
 
 		try {
 			final BeanInfo beanInfo = Introspector.getBeanInfo(beanType);
 			for (final PropertyDescriptor propertyDescriptor : beanInfo.getPropertyDescriptors()) {
 				final String propertyName = propertyDescriptor.getName();
 				if (propertyNames.contains(propertyName)) {
-					final Method writeMethod = propertyDescriptor.getWriteMethod();
-					if (writeMethod != null) {
-						methods.put(propertyName, propertyDescriptor.getWriteMethod());
-					}
+					methods.put(propertyName, propertyDescriptor.getReadMethod());
 				}
 			}
 		}
 		catch (final IntrospectionException e) {
 			throw new RuntimeException(e);
 		}
+
 	}
 
 	@Override
-	public void initialize(final BEAN_TYPE bean, final IBeanData beanData) {
-		Assert.paramNotNull(bean, "bean");
-		Assert.paramNotNull(beanData, "beanData");
+	public List<IBeanDto> createDtos(final Collection<? extends BEAN_TYPE> beans) {
+		Assert.paramNotNull(beans, "beans");
+		final List<IBeanDto> result = new LinkedList<IBeanDto>();
+		for (final BEAN_TYPE bean : beans) {
+			result.add(createDto(bean));
+		}
+		return result;
+	}
 
-		for (final Entry<String, Method> entry : methods.entrySet()) {
+	@Override
+	public IBeanDto createDto(final BEAN_TYPE bean) {
+		Assert.paramNotNull(bean, "bean");
+		final IBeanDtoBuilder builder = CapCommonToolkit.dtoBuilder();
+		builder.setId(bean.getId());
+		builder.setVersion(bean.getVersion());
+		builder.setPersistenceClassName(persistenceClassName);
+		for (final Entry<String, Method> methodEntry : methods.entrySet()) {
 			try {
-				entry.getValue().invoke(bean, beanData.getValue(entry.getKey()));
+				builder.setValue(methodEntry.getKey(), methodEntry.getValue().invoke(bean));
 			}
 			catch (final Exception e) {
-				throw new RuntimeException("Error while setting property '" + entry.getKey() + "' on bean '" + bean + "'.", e);
+				throw new RuntimeException(e);
 			}
 		}
+		return builder.build();
 	}
 }

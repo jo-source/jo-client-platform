@@ -132,6 +132,10 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 		Assert.paramNotNull(attributes, "attributes");
 		Assert.paramNotNull(readerService, "readerService");
 		Assert.paramNotNull(paramProvider, "paramProvider");
+		Assert.paramNotNull(creatorService, "creatorService");
+		Assert.paramNotNull(refreshService, "refreshService");
+		Assert.paramNotNull(updaterService, "updaterService");
+		Assert.paramNotNull(deleterService, "deleterService");
 		if (parent != null) {
 			Assert.paramNotNull(linkType, "linkType");
 		}
