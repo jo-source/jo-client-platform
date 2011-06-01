@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, grossmann
+ * Copyright (c) 2011, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,29 +26,49 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.impl.widgets;
+package org.jowidgets.cap.ui.impl;
 
-import org.jowidgets.api.toolkit.Toolkit;
-import org.jowidgets.api.widgets.ITable;
-import org.jowidgets.api.widgets.blueprint.ITableBluePrint;
-import org.jowidgets.api.widgets.blueprint.factory.IBluePrintFactory;
-import org.jowidgets.cap.ui.api.table.IBeanTableModel;
-import org.jowidgets.cap.ui.api.widgets.IBeanTable;
-import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
-import org.jowidgets.common.widgets.factory.IWidgetFactory;
+import org.jowidgets.cap.ui.api.attribute.IAttributeConfig;
+import org.jowidgets.common.types.AlignmentHorizontal;
 
-public final class BeanTableFactory implements IWidgetFactory<IBeanTable<? extends Object>, IBeanTableBluePrint<Object>> {
+
+final class AttributeConfigImpl implements IAttributeConfig {
+
+	private final Boolean visible;
+	private final String displayFormatId;
+	private final AlignmentHorizontal tableAlignment;
+	private final Integer tableWidth;
+
+	AttributeConfigImpl(
+		final Boolean visible,
+		final String displayFormatId,
+		final AlignmentHorizontal tableAlignment,
+		final Integer tableWidth) {
+
+		this.visible = visible;
+		this.displayFormatId = displayFormatId;
+		this.tableAlignment = tableAlignment;
+		this.tableWidth = tableWidth;
+	}
 
 	@Override
-	public IBeanTable<Object> create(final Object parentUiReference, final IBeanTableBluePrint<Object> bluePrint) {
-
-		final IBeanTableModel<Object> model = bluePrint.getModel();
-
-		final IBluePrintFactory bpf = Toolkit.getBluePrintFactory();
-		final ITableBluePrint tableBp = bpf.table(model.getTableModel());
-		tableBp.setSetup(bluePrint);
-		final ITable table = Toolkit.getWidgetFactory().create(parentUiReference, tableBp);
-
-		return new BeanTableImpl<Object>(table, bluePrint);
+	public Boolean isVisible() {
+		return visible;
 	}
+
+	@Override
+	public String getDisplayFormatId() {
+		return displayFormatId;
+	}
+
+	@Override
+	public AlignmentHorizontal getTableAlignment() {
+		return tableAlignment;
+	}
+
+	@Override
+	public Integer getTableWidth() {
+		return tableWidth;
+	}
+
 }

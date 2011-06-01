@@ -56,7 +56,7 @@ final class BeanTableImpl<BEAN_TYPE> extends ControlWrapper implements IBeanTabl
 
 	private final IBeanTableModel<BEAN_TYPE> model;
 
-	public BeanTableImpl(final ITable table, final IBeanTableBluePrint<BEAN_TYPE> bluePrint) {
+	BeanTableImpl(final ITable table, final IBeanTableBluePrint<BEAN_TYPE> bluePrint) {
 		super(table);
 		this.model = bluePrint.getModel();
 
