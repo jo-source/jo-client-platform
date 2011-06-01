@@ -91,7 +91,7 @@ public final class ExecutorServiceBuilder<BEAN_TYPE extends IBean, PARAM_TYPE> i
 	}
 
 	@Override
-	public IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> setPropertieNames(final List<String> propertyNames) {
+	public IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> setPropertyNames(final List<String> propertyNames) {
 		this.propertyNames = propertyNames;
 		return this;
 	}
