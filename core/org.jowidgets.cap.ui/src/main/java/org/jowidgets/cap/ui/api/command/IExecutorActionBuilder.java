@@ -84,6 +84,7 @@ public interface IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> {
 
 	IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setExecutor(IServiceId<IExecutorService<PARAM_TYPE>> excecuterServiceId);
 
+	//TODO MG setMaxJobSize
 	IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setExecutionPolicy(BeanExecutionPolicy policy);
 
 	IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setSelectionPolicy(BeanSelectionPolicy policy);
