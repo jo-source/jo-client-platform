@@ -56,7 +56,7 @@ public final class UpdaterServiceBuilder<BEAN_TYPE extends IBean> implements IUp
 
 	@Override
 	public IUpdaterServiceBuilder<BEAN_TYPE> setPropertyNames(final List<String> propertyNames) {
-		dataExecutorServiceBuilder.setPropertieNames(propertyNames);
+		dataExecutorServiceBuilder.setPropertyNames(propertyNames);
 		return this;
 	}
 
