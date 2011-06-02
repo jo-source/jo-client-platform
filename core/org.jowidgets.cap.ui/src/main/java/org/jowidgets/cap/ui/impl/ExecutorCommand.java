@@ -408,7 +408,7 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 			else if (executor instanceof IExecutorService) {
 				final IExecutorService executorService = (IExecutorService) executor;
 				final IBeanKeyFactory beanKeyFactory = CapUiToolkit.getBeanKeyFactory();
-				final List<IBeanKey> keys = beanKeyFactory.createKeys((Collection<? extends IBeanProxy<?>>) beans);
+				final List<IBeanKey> keys = beanKeyFactory.createKeys((Collection) beans);
 				List<IBeanDto> executionResult = null;
 				try {
 					executionResult = executorService.execute(keys, executionParameter, executionTask);
