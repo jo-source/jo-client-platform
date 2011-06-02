@@ -41,7 +41,8 @@ import org.jowidgets.cap.service.api.executor.IBeanListExecutor;
 import org.jowidgets.cap.service.api.executor.IExecutorServiceBuilder;
 import org.jowidgets.util.Assert;
 
-final class ExecutorServiceBuilderImpl<BEAN_TYPE extends IBean, PARAM_TYPE> implements IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> {
+final class ExecutorServiceBuilderImpl<BEAN_TYPE extends IBean, PARAM_TYPE> implements
+		IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> {
 
 	private final Class<? extends BEAN_TYPE> beanType;
 	private final IBeanAccess<? extends BEAN_TYPE> beanAccess;
@@ -64,8 +65,7 @@ final class ExecutorServiceBuilderImpl<BEAN_TYPE extends IBean, PARAM_TYPE> impl
 		this.allowDeletedBeans = false;
 		this.allowStaleBeans = false;
 
-		//TODO MG change this to true later
-		this.delayedExecutionCallback = false;
+		this.delayedExecutionCallback = true;
 	}
 
 	@Override
