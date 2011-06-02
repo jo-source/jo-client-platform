@@ -27,41 +27,19 @@
  */
 package org.jowidgets.cap.sample.app.client.starter.standalone.rwt;
 
-import java.util.UUID;
-
-import org.eclipse.rwt.RWT;
-import org.eclipse.rwt.lifecycle.IEntryPoint;
-import org.eclipse.rwt.lifecycle.UICallBack;
-import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.cap.sample.app.client.workbench.SampleWorkbench;
+import org.jowidgets.spi.impl.rwt.RwtEntryPoint;
 import org.jowidgets.workbench.impl.WorkbenchRunner;
 
+public final class RwtStarter extends RwtEntryPoint {
 
-public final class RwtStarter implements IEntryPoint {
-
-	@Override
-	public int createUI() {
-		try {
-			if (!Toolkit.isInitialized()) {
-				Toolkit.initialize(new RwtToolkitProvider());
-			}
-
-			final String uuid = UUID.randomUUID().toString();
-			UICallBack.activate(uuid);
-
-			try {
+	public RwtStarter() {
+		super(new Runnable() {
+			@Override
+			public void run() {
 				new WorkbenchRunner().run(new SampleWorkbench().getWorkbench());
 			}
-
-			finally {
-				UICallBack.deactivate(uuid);
-			}
-
-			return 0;
-		}
-
-		finally {
-			RWT.getRequest().getSession().invalidate();
-		}
+		});
 	}
+
 }
