@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.service.impl;
 
+import java.lang.reflect.UndeclaredThrowableException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -98,6 +99,15 @@ final class DelayedExecutionCallback implements IExecutionCallback {
 							executionCallback.worked(worked.intValue() - last);
 							lastWorked = worked;
 						}
+					}
+					catch (final UndeclaredThrowableException e) {
+						final Throwable t = e.getCause();
+						if (t instanceof InterruptedException) {
+							// thrown when remote call is interrupted
+							Thread.currentThread().interrupt();
+							break;
+						}
+						throw e;
 					}
 					catch (final InterruptedException e) {
 						Thread.currentThread().interrupt();
