@@ -67,6 +67,7 @@ import org.jowidgets.cap.ui.api.execution.IExecutionTaskListener;
 import org.jowidgets.cap.ui.api.execution.IExecutor;
 import org.jowidgets.cap.ui.api.execution.IExecutorJob;
 import org.jowidgets.cap.ui.api.execution.IParameterProvider;
+import org.jowidgets.cap.ui.api.execution.IUserAnswerCallback;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
 import org.jowidgets.cap.ui.api.model.IModificationStateListener;
@@ -299,28 +300,28 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 			}
 
 			@Override
-			public void userQuestionAsked() {
+			public void userQuestionAsked(final String question, final IUserAnswerCallback callback) {
 				final ValueHolder<QuestionResult> resultHolder = new ValueHolder<QuestionResult>();
 				try {
 					uiThreadAccess.invokeAndWait(new Runnable() {
 						@Override
 						public void run() {
-							final QuestionResult result = Toolkit.getQuestionPane().askYesNoQuestion(
-									executionTask.getUserQuestion());
+							final QuestionResult result = Toolkit.getQuestionPane().askYesNoQuestion(question);
 							resultHolder.set(result);
 						}
 					});
 				}
 				catch (final InterruptedException e) {
-					executionTask.setQuestionResult(UserQuestionResult.NO);
+					callback.setQuestionResult(UserQuestionResult.NO);
 				}
 
 				if (QuestionResult.YES == resultHolder.get()) {
-					executionTask.setQuestionResult(UserQuestionResult.YES);
+					callback.setQuestionResult(UserQuestionResult.YES);
 				}
 				else {
-					executionTask.setQuestionResult(UserQuestionResult.NO);
+					callback.setQuestionResult(UserQuestionResult.NO);
 				}
+
 			}
 
 			@Override
@@ -346,6 +347,7 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 				System.out.println("DESCRIPTION CHANGED " + description);
 				//CHECKSTYLE:ON
 			}
+
 		});
 
 		return executionTask;

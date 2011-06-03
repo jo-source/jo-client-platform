@@ -31,7 +31,6 @@ package org.jowidgets.cap.ui.api.execution;
 import java.util.List;
 
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
-import org.jowidgets.cap.common.api.execution.UserQuestionResult;
 
 public interface IExecutionTask extends IExecutionCallback {
 
@@ -89,22 +88,6 @@ public interface IExecutionTask extends IExecutionCallback {
 	 * @return True if the execution was finished
 	 */
 	boolean isFinshed();
-
-	/**
-	 * Gets a question that should be offered to the user the execution ask.
-	 * Questions should be answered by the user and the result should be set with
-	 * {@link IExecutionTask#setQuestionResult(UserQuestionResult)}.
-	 * 
-	 * @return A question to the user or null, if no question should be offered to the user
-	 */
-	String getUserQuestion();
-
-	/**
-	 * Sets the result of a user question. After that, the method {@link IExecutionTask#getUserQuestion()} will return null.
-	 * 
-	 * @param result The result of the user question
-	 */
-	void setQuestionResult(UserQuestionResult result);
 
 	/**
 	 * @return all sub execution task of this task

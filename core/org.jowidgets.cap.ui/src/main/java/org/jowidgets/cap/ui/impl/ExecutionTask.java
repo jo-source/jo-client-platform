@@ -41,9 +41,10 @@ import org.jowidgets.cap.common.api.execution.IUserQuestionCallback;
 import org.jowidgets.cap.common.api.execution.UserQuestionResult;
 import org.jowidgets.cap.ui.api.execution.IExecutionTask;
 import org.jowidgets.cap.ui.api.execution.IExecutionTaskListener;
+import org.jowidgets.cap.ui.api.execution.IUserAnswerCallback;
 import org.jowidgets.util.Assert;
 
-public final class ExecutionTask implements IExecutionTask, Serializable {
+public final class ExecutionTask implements IExecutionTask, IUserAnswerCallback, Serializable {
 
 	private static final long serialVersionUID = 5949541700454226560L;
 
@@ -156,11 +157,6 @@ public final class ExecutionTask implements IExecutionTask, Serializable {
 		this.userQuestionCallback = userQuestionCallback;
 
 		fireUserQuestionAsked();
-	}
-
-	@Override
-	public String getUserQuestion() {
-		return userQuestion;
 	}
 
 	@Override
@@ -307,7 +303,7 @@ public final class ExecutionTask implements IExecutionTask, Serializable {
 
 	private void fireUserQuestionAsked() {
 		for (final IExecutionTaskListener listener : executionTaskListeners) {
-			listener.userQuestionAsked();
+			listener.userQuestionAsked(userQuestion, this);
 		}
 	}
 
