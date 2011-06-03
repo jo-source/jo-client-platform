@@ -38,11 +38,10 @@ import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.sample.app.common.entity.IUser;
 import org.jowidgets.cap.sample.app.server.datastore.DataStore;
-import org.jowidgets.util.types.Null;
 
 public class AllUsersReaderService implements IReaderService<Integer> {
 
-	private final IReaderService<Null> readerService;
+	private final IReaderService<Void> readerService;
 
 	public AllUsersReaderService() {
 		this.readerService = new ReaderService<IUser>(DataStore.getPersons(), IUser.ALL_PROPERTIES);

@@ -48,7 +48,6 @@ import org.jowidgets.cap.ui.api.table.IReaderParameterProvider;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.api.ServiceProvider;
 import org.jowidgets.util.Assert;
-import org.jowidgets.util.types.Null;
 
 final class BeanTableModelBuilderImpl<BEAN_TYPE> implements IBeanTableModelBuilder<BEAN_TYPE> {
 
@@ -83,7 +82,7 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> implements IBeanTableModelBuild
 	}
 
 	@Override
-	public IBeanTableModelBuilder<BEAN_TYPE> setReaderService(final IReaderService<Null> readerService) {
+	public IBeanTableModelBuilder<BEAN_TYPE> setReaderService(final IReaderService<Void> readerService) {
 		Assert.paramNotNull(readerService, "readerService");
 
 		this.readerService = readerService;
@@ -98,7 +97,7 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> implements IBeanTableModelBuild
 	}
 
 	@Override
-	public IBeanTableModelBuilder<BEAN_TYPE> setReaderService(final IServiceId<IReaderService<Null>> readerServiceId) {
+	public IBeanTableModelBuilder<BEAN_TYPE> setReaderService(final IServiceId<IReaderService<Void>> readerServiceId) {
 		Assert.paramNotNull(readerServiceId, "readerServiceId");
 		return setReaderService(ServiceProvider.getService(readerServiceId));
 	}
@@ -126,7 +125,7 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> implements IBeanTableModelBuild
 	@Override
 	public IBeanTableModelBuilder<BEAN_TYPE> setEntityServices(final IBeanServicesProvider<BEAN_TYPE> entityServicesProvider) {
 		Assert.paramNotNull(entityServicesProvider, "entityServicesProvider");
-		final IReaderService<Null> entitityReaderService = entityServicesProvider.readerService();
+		final IReaderService<Void> entitityReaderService = entityServicesProvider.readerService();
 		if (entitityReaderService != null) {
 			setReaderService(entitityReaderService);
 		}

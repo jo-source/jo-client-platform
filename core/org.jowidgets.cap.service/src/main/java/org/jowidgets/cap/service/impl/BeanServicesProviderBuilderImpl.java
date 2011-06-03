@@ -39,7 +39,6 @@ import org.jowidgets.cap.service.api.entity.IBeanServicesProviderBuilder;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.api.IServiceRegistry;
 import org.jowidgets.util.Assert;
-import org.jowidgets.util.types.Null;
 
 final class BeanServicesProviderBuilderImpl<BEAN_TYPE> implements IBeanServicesProviderBuilder<BEAN_TYPE> {
 
@@ -47,7 +46,7 @@ final class BeanServicesProviderBuilderImpl<BEAN_TYPE> implements IBeanServicesP
 	private final IServiceId<IEntityService> entityServiceId;
 	private final Class<? extends BEAN_TYPE> beanType;
 
-	private IReaderService<Null> readerService;
+	private IReaderService<Void> readerService;
 	private ICreatorService creatorService;
 	private IRefreshService refreshService;
 	private IUpdaterService updaterService;
@@ -64,7 +63,7 @@ final class BeanServicesProviderBuilderImpl<BEAN_TYPE> implements IBeanServicesP
 	}
 
 	@Override
-	public IBeanServicesProviderBuilder<BEAN_TYPE> setReaderService(final IReaderService<Null> readerService) {
+	public IBeanServicesProviderBuilder<BEAN_TYPE> setReaderService(final IReaderService<Void> readerService) {
 		this.readerService = readerService;
 		return this;
 	}

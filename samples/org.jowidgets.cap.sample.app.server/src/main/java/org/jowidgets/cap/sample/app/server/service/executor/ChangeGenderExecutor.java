@@ -31,12 +31,11 @@ package org.jowidgets.cap.sample.app.server.service.executor;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.sample.app.server.entity.User;
 import org.jowidgets.cap.service.api.executor.IBeanExecutor;
-import org.jowidgets.util.types.Null;
 
-public class ChangeGenderExecutor implements IBeanExecutor<User, Null> {
+public class ChangeGenderExecutor implements IBeanExecutor<User, Void> {
 
 	@Override
-	public User execute(final User user, final Null parameter, final IExecutionCallback executionCallback) {
+	public User execute(final User user, final Void parameter, final IExecutionCallback executionCallback) {
 		user.setGender("F");
 		return user;
 	}

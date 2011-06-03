@@ -40,14 +40,12 @@ import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.model.LinkType;
 import org.jowidgets.service.api.IServiceId;
-import org.jowidgets.util.types.Null;
-
 
 public interface IBeanTableModelBuilder<BEAN_TYPE> {
 
-	IBeanTableModelBuilder<BEAN_TYPE> setReaderService(IReaderService<Null> readerService);
+	IBeanTableModelBuilder<BEAN_TYPE> setReaderService(IReaderService<Void> readerService);
 
-	IBeanTableModelBuilder<BEAN_TYPE> setReaderService(IServiceId<IReaderService<Null>> readerServiceId);
+	IBeanTableModelBuilder<BEAN_TYPE> setReaderService(IServiceId<IReaderService<Void>> readerServiceId);
 
 	<PARAM_TYPE> IBeanTableModelBuilder<BEAN_TYPE> setReaderService(
 		final IReaderService<PARAM_TYPE> readerService,

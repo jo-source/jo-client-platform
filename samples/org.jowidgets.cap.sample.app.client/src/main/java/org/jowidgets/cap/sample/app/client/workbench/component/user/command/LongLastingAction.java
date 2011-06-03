@@ -38,7 +38,6 @@ import org.jowidgets.cap.ui.api.executor.BeanSelectionPolicy;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.examples.common.icons.SilkIcons;
 import org.jowidgets.tools.command.ActionWrapper;
-import org.jowidgets.util.types.Null;
 
 public class LongLastingAction extends ActionWrapper {
 
@@ -47,7 +46,7 @@ public class LongLastingAction extends ActionWrapper {
 	}
 
 	private static IAction create(final IBeanListModel<IUser> model) {
-		final IExecutorActionBuilder<IUser, Null> builder = CapUiToolkit.getActionFactory().executorActionBuilder(model);
+		final IExecutorActionBuilder<IUser, Void> builder = CapUiToolkit.getActionFactory().executorActionBuilder(model);
 		builder.setText("Long lasting test");
 		builder.setToolTipText("Test a long lasting execution on the selected person(s)");
 		builder.setIcon(SilkIcons.TIME);
