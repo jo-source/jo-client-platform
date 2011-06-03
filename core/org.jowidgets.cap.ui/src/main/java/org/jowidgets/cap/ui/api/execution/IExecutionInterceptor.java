@@ -44,6 +44,4 @@ public interface IExecutionInterceptor {
 	 */
 	void afterExecution(IExecutionContext executionContext);
 
-	////TODO MG , MW review interceptor pattern
-	//void intercept(IExecutionContext executionContext, Runnable runnable);
 }
