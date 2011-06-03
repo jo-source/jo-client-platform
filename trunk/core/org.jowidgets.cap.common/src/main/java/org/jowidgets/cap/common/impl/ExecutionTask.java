@@ -284,19 +284,19 @@ public final class ExecutionTask implements IExecutionTask, Serializable {
 
 	void fireDescriptionChanged() {
 		for (final IExecutionTaskListener listener : executionTaskListeners) {
-			listener.descriptionChanged();
+			listener.descriptionChanged(getDescription());
 		}
 	}
 
 	void fireTotalStepCountChanged() {
 		for (final IExecutionTaskListener listener : executionTaskListeners) {
-			listener.totalStepCountChanged();
+			listener.totalStepCountChanged(getTotalStepCount());
 		}
 	}
 
 	void fireWorked() {
 		for (final IExecutionTaskListener listener : executionTaskListeners) {
-			listener.worked();
+			listener.worked(getWorked());
 		}
 	}
 

@@ -66,9 +66,9 @@ public interface IExecutionCallback {
 	/**
 	 * Sets the description of what this executor will do now
 	 * 
-	 * @param descritpion The description of what this executor will do now
+	 * @param description The description of what this executor will do now
 	 */
-	void setDescription(String descritpion);
+	void setDescription(String description);
 
 	/**
 	 * Marks this execution as finished. After that it could no longer be canceled.

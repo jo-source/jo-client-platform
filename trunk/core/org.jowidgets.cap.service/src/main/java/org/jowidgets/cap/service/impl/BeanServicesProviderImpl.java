@@ -34,6 +34,7 @@ import org.jowidgets.cap.common.api.service.IBeanServicesProvider;
 import org.jowidgets.cap.common.api.service.ICreatorService;
 import org.jowidgets.cap.common.api.service.IDeleterService;
 import org.jowidgets.cap.common.api.service.IEntityService;
+import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.common.api.service.IRefreshService;
 import org.jowidgets.cap.common.api.service.IUpdaterService;
 import org.jowidgets.service.api.IServiceId;
@@ -41,11 +42,13 @@ import org.jowidgets.service.api.IServiceRegistry;
 import org.jowidgets.service.api.ServiceProvider;
 import org.jowidgets.service.tools.ServiceId;
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.types.Null;
 
 final class BeanServicesProviderImpl<BEAN_TYPE> implements IBeanServicesProvider<BEAN_TYPE>, Serializable {
 
 	private static final long serialVersionUID = -8588074689307098706L;
 
+	private final IServiceId<IReaderService<Null>> readerServiceId;
 	private final IServiceId<ICreatorService> creatorServiceId;
 	private final IServiceId<IRefreshService> refreshServiceId;
 	private final IServiceId<IUpdaterService> updaterServiceId;
@@ -55,6 +58,7 @@ final class BeanServicesProviderImpl<BEAN_TYPE> implements IBeanServicesProvider
 		final IServiceRegistry serviceRegistry,
 		final IServiceId<IEntityService> entityServiceId,
 		final Class<? extends BEAN_TYPE> beanType,
+		final IReaderService<Null> readerService,
 		final ICreatorService creatorService,
 		final IRefreshService refreshService,
 		final IUpdaterService updaterService,
@@ -63,50 +67,94 @@ final class BeanServicesProviderImpl<BEAN_TYPE> implements IBeanServicesProvider
 		Assert.paramNotNull(serviceRegistry, "serviceRegistry");
 		Assert.paramNotNull(entityServiceId, "entityServiceId");
 		Assert.paramNotNull(beanType, "beanType");
-		Assert.paramNotNull(creatorService, "creatorService");
-		Assert.paramNotNull(refreshService, "refreshService");
-		Assert.paramNotNull(updaterService, "updaterService");
-		Assert.paramNotNull(deleterService, "deleterService");
 
-		this.creatorServiceId = new ServiceId<ICreatorService>(new Id(
-			entityServiceId,
-			beanType.getName(),
-			ICreatorService.class.getName()), ICreatorService.class);
+		if (readerService != null) {
+			this.readerServiceId = new ServiceId<IReaderService<Null>>(new Id(
+				entityServiceId,
+				beanType.getName(),
+				IReaderService.class.getName()), IReaderService.class);
+			serviceRegistry.register(readerServiceId, readerService);
+		}
+		else {
+			this.readerServiceId = null;
+		}
 
-		this.refreshServiceId = new ServiceId<IRefreshService>(new Id(
-			entityServiceId,
-			beanType.getName(),
-			IRefreshService.class.getName()), IRefreshService.class);
+		if (creatorService != null) {
+			this.creatorServiceId = new ServiceId<ICreatorService>(new Id(
+				entityServiceId,
+				beanType.getName(),
+				ICreatorService.class.getName()), ICreatorService.class);
+			serviceRegistry.register(creatorServiceId, creatorService);
+		}
+		else {
+			this.creatorServiceId = null;
+		}
 
-		this.updaterServiceId = new ServiceId<IUpdaterService>(new Id(
-			entityServiceId,
-			beanType.getName(),
-			IUpdaterService.class.getName()), IUpdaterService.class);
+		if (refreshService != null) {
+			this.refreshServiceId = new ServiceId<IRefreshService>(new Id(
+				entityServiceId,
+				beanType.getName(),
+				IRefreshService.class.getName()), IRefreshService.class);
+			serviceRegistry.register(refreshServiceId, refreshService);
+		}
+		else {
+			this.refreshServiceId = null;
+		}
 
-		this.deleterServiceId = new ServiceId<IDeleterService>(new Id(
-			entityServiceId,
-			beanType.getName(),
-			IDeleterService.class.getName()), IDeleterService.class);
+		if (updaterService != null) {
+			this.updaterServiceId = new ServiceId<IUpdaterService>(new Id(
+				entityServiceId,
+				beanType.getName(),
+				IUpdaterService.class.getName()), IUpdaterService.class);
+			serviceRegistry.register(updaterServiceId, updaterService);
+		}
+		else {
+			updaterServiceId = null;
+		}
 
-		serviceRegistry.register(creatorServiceId, creatorService);
-		serviceRegistry.register(refreshServiceId, refreshService);
-		serviceRegistry.register(updaterServiceId, updaterService);
-		serviceRegistry.register(deleterServiceId, deleterService);
+		if (deleterService != null) {
+			this.deleterServiceId = new ServiceId<IDeleterService>(new Id(
+				entityServiceId,
+				beanType.getName(),
+				IDeleterService.class.getName()), IDeleterService.class);
+			serviceRegistry.register(deleterServiceId, deleterService);
+		}
+		else {
+			this.deleterServiceId = null;
+		}
+
+	}
+
+	@Override
+	public IReaderService<Null> readerService() {
+		if (readerServiceId != null) {
+			return ServiceProvider.getService(readerServiceId);
+		}
+		return null;
 	}
 
 	@Override
 	public ICreatorService creatorService() {
-		return ServiceProvider.getService(creatorServiceId);
+		if (creatorServiceId != null) {
+			return ServiceProvider.getService(creatorServiceId);
+		}
+		return null;
 	}
 
 	@Override
 	public IRefreshService refreshService() {
-		return ServiceProvider.getService(refreshServiceId);
+		if (refreshServiceId != null) {
+			return ServiceProvider.getService(refreshServiceId);
+		}
+		return null;
 	}
 
 	@Override
 	public IUpdaterService updaterService() {
-		return ServiceProvider.getService(updaterServiceId);
+		if (updaterServiceId != null) {
+			return ServiceProvider.getService(updaterServiceId);
+		}
+		return null;
 	}
 
 	@Override
