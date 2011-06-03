@@ -49,7 +49,7 @@ public class SampleWorkbench {
 
 		final IWorkbenchModelBuilder builder = new WorkbenchModelBuilder();
 		builder.setInitialDimension(new Dimension(1024, 768));
-		builder.setLabel("Data api sample app");
+		builder.setLabel("cap api sample app");
 
 		this.model = builder.build();
 		this.model.addApplication(new SampleApplication().getModel());
@@ -66,7 +66,6 @@ public class SampleWorkbench {
 		dataMenu.addAction(WorkbenchActions.SAVE_ACTION);
 
 		this.workbench = WorkbenchToolkit.getWorkbenchPartFactory().workbench(model);
-
 	}
 
 	public IWorkbench getWorkbench() {
