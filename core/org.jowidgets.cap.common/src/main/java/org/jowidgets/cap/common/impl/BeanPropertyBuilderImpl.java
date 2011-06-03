@@ -80,7 +80,7 @@ final class BeanPropertyBuilderImpl implements IBeanPropertyBuilder {
 					propertyBuilder.setReadonly(propertyDescriptor.getWriteMethod() == null);
 				}
 			}
-			//TODO take respect of the super classes and implemented interfaces
+			//TODO MG take respect of the super classes and implemented interfaces
 		}
 	}
 
