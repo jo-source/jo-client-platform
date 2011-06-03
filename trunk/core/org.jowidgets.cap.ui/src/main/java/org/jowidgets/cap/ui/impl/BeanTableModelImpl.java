@@ -46,10 +46,8 @@ import org.jowidgets.api.model.table.ITableModel;
 import org.jowidgets.api.model.table.ITableModelFactory;
 import org.jowidgets.api.threads.IUiThreadAccess;
 import org.jowidgets.api.toolkit.Toolkit;
-import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanModification;
-import org.jowidgets.cap.common.api.execution.IExecutionTask;
 import org.jowidgets.cap.common.api.filter.IFilter;
 import org.jowidgets.cap.common.api.service.ICreatorService;
 import org.jowidgets.cap.common.api.service.IDeleterService;
@@ -62,6 +60,7 @@ import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeansModificationBuffer;
+import org.jowidgets.cap.ui.api.executor.IExecutionTask;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
 import org.jowidgets.cap.ui.api.model.IModificationStateListener;
@@ -197,7 +196,7 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 			modifications.addAll(bean.getModifications());
 		}
 
-		final List<IBeanDto> updateResult = updaterService.update(modifications, CapCommonToolkit.executionTaskFactory().create());
+		final List<IBeanDto> updateResult = updaterService.update(modifications, CapUiToolkit.executionTaskFactory().create());
 		final Map<Object, IBeanDto> updateMap = new HashMap<Object, IBeanDto>();
 		for (final IBeanDto beanDto : updateResult) {
 			updateMap.put(beanDto.getId(), beanDto);
@@ -500,7 +499,7 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 			data.put(Integer.valueOf(pageIndex), page);
 
 			dummyBeanProxy = beanProxyFactory.createProxy(createDummyBeanDto());
-			executionTask = CapCommonToolkit.executionTaskFactory().create();
+			executionTask = CapUiToolkit.executionTaskFactory().create();
 			dummyBeanProxy.setExecutionTask(executionTask);
 
 			for (int i = 0; i < pageSize; i++) {

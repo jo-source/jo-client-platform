@@ -26,9 +26,12 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.api.execution;
+package org.jowidgets.cap.ui.api.executor;
 
 import java.util.List;
+
+import org.jowidgets.cap.common.api.execution.IExecutionCallback;
+import org.jowidgets.cap.common.api.execution.UserQuestionResult;
 
 public interface IExecutionTask extends IExecutionCallback {
 

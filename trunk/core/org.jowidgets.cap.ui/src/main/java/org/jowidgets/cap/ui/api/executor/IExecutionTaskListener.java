@@ -26,7 +26,7 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.api.execution;
+package org.jowidgets.cap.ui.api.executor;
 
 public interface IExecutionTaskListener {
 
