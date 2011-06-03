@@ -30,14 +30,16 @@ package org.jowidgets.cap.common.api.execution;
 
 public interface IExecutionTaskListener {
 
-	void descriptionChanged();
+	void descriptionChanged(String decription);
 
-	void totalStepCountChanged();
+	void totalStepCountChanged(int totalStepCount);
 
-	void worked();
+	void worked(int totalWorked);
 
 	void finished();
 
+	//TODO get an object here, that could handle the question, e.g. 
+	// void userQuestionAsked(String question, IAnswerCallback answerCallback)
 	void userQuestionAsked();
 
 	void subExecutionAdded(IExecutionTask executionTask);

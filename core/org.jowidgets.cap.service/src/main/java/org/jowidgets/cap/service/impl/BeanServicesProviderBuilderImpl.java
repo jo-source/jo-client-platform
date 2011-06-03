@@ -32,12 +32,14 @@ import org.jowidgets.cap.common.api.service.IBeanServicesProvider;
 import org.jowidgets.cap.common.api.service.ICreatorService;
 import org.jowidgets.cap.common.api.service.IDeleterService;
 import org.jowidgets.cap.common.api.service.IEntityService;
+import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.common.api.service.IRefreshService;
 import org.jowidgets.cap.common.api.service.IUpdaterService;
 import org.jowidgets.cap.service.api.entity.IBeanServicesProviderBuilder;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.api.IServiceRegistry;
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.types.Null;
 
 final class BeanServicesProviderBuilderImpl<BEAN_TYPE> implements IBeanServicesProviderBuilder<BEAN_TYPE> {
 
@@ -45,6 +47,7 @@ final class BeanServicesProviderBuilderImpl<BEAN_TYPE> implements IBeanServicesP
 	private final IServiceId<IEntityService> entityServiceId;
 	private final Class<? extends BEAN_TYPE> beanType;
 
+	private IReaderService<Null> readerService;
 	private ICreatorService creatorService;
 	private IRefreshService refreshService;
 	private IUpdaterService updaterService;
@@ -58,6 +61,12 @@ final class BeanServicesProviderBuilderImpl<BEAN_TYPE> implements IBeanServicesP
 		this.registry = registry;
 		this.entityServiceId = entityServiceId;
 		this.beanType = beanType;
+	}
+
+	@Override
+	public IBeanServicesProviderBuilder<BEAN_TYPE> setReaderService(final IReaderService<Null> readerService) {
+		this.readerService = readerService;
+		return this;
 	}
 
 	@Override
@@ -90,6 +99,7 @@ final class BeanServicesProviderBuilderImpl<BEAN_TYPE> implements IBeanServicesP
 			registry,
 			entityServiceId,
 			beanType,
+			readerService,
 			creatorService,
 			refreshService,
 			updaterService,

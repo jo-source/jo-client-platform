@@ -31,10 +31,14 @@ package org.jowidgets.cap.service.api.entity;
 import org.jowidgets.cap.common.api.service.IBeanServicesProvider;
 import org.jowidgets.cap.common.api.service.ICreatorService;
 import org.jowidgets.cap.common.api.service.IDeleterService;
+import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.common.api.service.IRefreshService;
 import org.jowidgets.cap.common.api.service.IUpdaterService;
+import org.jowidgets.util.types.Null;
 
 public interface IBeanServicesProviderBuilder<BEAN_TYPE> {
+
+	IBeanServicesProviderBuilder<BEAN_TYPE> setReaderService(IReaderService<Null> readerService);
 
 	IBeanServicesProviderBuilder<BEAN_TYPE> setCreatorService(ICreatorService creatorService);
 

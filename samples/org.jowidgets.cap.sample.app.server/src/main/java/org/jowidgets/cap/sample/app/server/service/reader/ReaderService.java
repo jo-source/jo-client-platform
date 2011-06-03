@@ -30,72 +30,57 @@ package org.jowidgets.cap.sample.app.server.service.reader;
 
 import java.util.List;
 
+import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.filter.IFilter;
 import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.common.api.sort.ISort;
-import org.jowidgets.cap.sample.app.common.entity.IUser;
-import org.jowidgets.cap.sample.app.server.datastore.DataStore;
+import org.jowidgets.cap.sample.app.server.datastore.AbstractData;
+import org.jowidgets.cap.service.api.CapServiceToolkit;
+import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.util.types.Null;
 
-public class AllUsersReaderService implements IReaderService<Integer> {
+public class ReaderService<BEAN_TYPE extends IBean> implements IReaderService<Null> {
 
-	private final IReaderService<Null> readerService;
+	private final IBeanDtoFactory<BEAN_TYPE> beanFactory;
+	private final AbstractData<? extends BEAN_TYPE> data;
 
-	public AllUsersReaderService() {
-		this.readerService = new ReaderService<IUser>(DataStore.getPersons(), IUser.ALL_PROPERTIES);
+	public ReaderService(final AbstractData<? extends BEAN_TYPE> data, final List<String> propertyNames) {
+		this.beanFactory = CapServiceToolkit.dtoFactory(data.getBeanType(), propertyNames);
+		this.data = data;
 	}
 
 	@Override
 	public List<IBeanDto> read(
-		final List<? extends IBeanKey> parentBeanKeys,
+		final List<? extends IBeanKey> parentBeans,
 		final IFilter filter,
-		final List<? extends ISort> sorting,
+		final List<? extends ISort> sortedProperties,
 		final int firstRow,
 		final int maxRows,
-		final Integer delay,
-		final IExecutionCallback executionCallback) {
+		final Null parameter,
+		IExecutionCallback executionCallback) {
 
-		final List<IBeanDto> result = readerService.read(
-				parentBeanKeys,
-				filter,
-				sorting,
-				firstRow,
-				maxRows,
-				null,
-				executionCallback);
+		executionCallback = CapServiceToolkit.delayedExecutionCallback(executionCallback);
 
-		if (delay != null) {
-			try {
-				if (delay.intValue() > 100) {
-					final int sleepTime = delay.intValue() / 100;
-					for (int i = 0; i < 100 && !executionCallback.isCanceled(); i++) {
-						Thread.sleep(sleepTime);
-					}
-				}
-				else {
-					Thread.sleep(delay.intValue());
-				}
-			}
+		final List<IBeanDto> result = beanFactory.createDtos(data.getAllData(firstRow, maxRows));
 
-			catch (final InterruptedException e) {
-				throw new RuntimeException(e);
-			}
-		}
+		//TODO apply filter and sort
 
 		return result;
 	}
 
 	@Override
 	public int count(
-		final List<? extends IBeanKey> parentBeanKeys,
+		final List<? extends IBeanKey> parentBeans,
 		final IFilter filter,
-		final Integer delay,
+		final Null parameter,
 		final IExecutionCallback executionCallback) {
 
-		return readerService.count(parentBeanKeys, filter, null, executionCallback);
+		//TODO apply filter
+
+		return data.getAllData().size();
 	}
 
 }

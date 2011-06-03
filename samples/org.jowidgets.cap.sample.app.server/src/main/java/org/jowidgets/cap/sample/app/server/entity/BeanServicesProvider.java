@@ -36,6 +36,7 @@ import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.sample.app.server.datastore.AbstractData;
 import org.jowidgets.cap.sample.app.server.service.creator.CreatorService;
 import org.jowidgets.cap.sample.app.server.service.deleter.DeleterService;
+import org.jowidgets.cap.sample.app.server.service.reader.ReaderService;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.entity.IBeanServicesProviderBuilder;
 import org.jowidgets.cap.service.api.refresh.IRefreshServiceBuilder;
@@ -64,6 +65,9 @@ public final class BeanServicesProvider<BEAN_TYPE extends IBean> {
 				registry,
 				entityServiceId,
 				data.getBeanType());
+
+		//reader service
+		builder.setReaderService(new ReaderService<BEAN_TYPE>(data, properties));
 
 		//creator service
 		builder.setCreatorService(new CreatorService<BEAN_TYPE>(data, properties));

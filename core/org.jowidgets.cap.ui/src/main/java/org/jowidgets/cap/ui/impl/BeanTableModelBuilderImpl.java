@@ -126,6 +126,10 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> implements IBeanTableModelBuild
 	@Override
 	public IBeanTableModelBuilder<BEAN_TYPE> setEntityServices(final IBeanServicesProvider<BEAN_TYPE> entityServicesProvider) {
 		Assert.paramNotNull(entityServicesProvider, "entityServicesProvider");
+		final IReaderService<Null> entitityReaderService = entityServicesProvider.readerService();
+		if (entitityReaderService != null) {
+			setReaderService(entitityReaderService);
+		}
 		this.creatorService = entityServicesProvider.creatorService();
 		this.refreshService = entityServicesProvider.refreshService();
 		this.updaterService = entityServicesProvider.updaterService();

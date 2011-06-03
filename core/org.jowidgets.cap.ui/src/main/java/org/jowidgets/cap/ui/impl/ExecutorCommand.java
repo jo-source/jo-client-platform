@@ -293,9 +293,9 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 		executionTask.addExecutionTaskListener(new IExecutionTaskListener() {
 
 			@Override
-			public void worked() {
+			public void worked(final int totalWorked) {
 				//CHECKSTYLE:OFF
-				System.out.println("WORKED " + executionTask.getWorked());
+				System.out.println("WORKED " + totalWorked);
 				//CHECKSTYLE:ON
 			}
 
@@ -325,7 +325,11 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 			}
 
 			@Override
-			public void totalStepCountChanged() {}
+			public void totalStepCountChanged(final int totalStepCount) {
+				//CHECKSTYLE:OFF
+				System.out.println("TOTAL STEP COUNT " + totalStepCount);
+				//CHECKSTYLE:ON
+			}
 
 			@Override
 			public void subExecutionAdded(final IExecutionTask executionTask) {}
@@ -338,9 +342,9 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 			}
 
 			@Override
-			public void descriptionChanged() {
+			public void descriptionChanged(final String description) {
 				//CHECKSTYLE:OFF
-				System.out.println("DESCRIPTION CHANGED " + executionTask.getDescription());
+				System.out.println("DESCRIPTION CHANGED " + description);
 				//CHECKSTYLE:ON
 			}
 		});
