@@ -38,7 +38,7 @@ public interface IExecutionTaskListener {
 
 	void finished();
 
-	//TODO get an object here, that could handle the question, e.g. 
+	//TODO MG get an object here, that could handle the question, e.g. 
 	// void userQuestionAsked(String question, IAnswerCallback answerCallback)
 	void userQuestionAsked();
 
