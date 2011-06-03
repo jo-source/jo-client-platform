@@ -28,18 +28,10 @@
 
 package org.jowidgets.cap.ui.api.execution;
 
-public interface IExecutionTaskListener {
+import org.jowidgets.cap.common.api.execution.UserQuestionResult;
 
-	void descriptionChanged(String decription);
+public interface IUserAnswerCallback {
 
-	void totalStepCountChanged(int totalStepCount);
-
-	void worked(int totalWorked);
-
-	void finished();
-
-	void userQuestionAsked(String question, IUserAnswerCallback callback);
-
-	void subExecutionAdded(IExecutionTask executionTask);
+	void setQuestionResult(UserQuestionResult result);
 
 }
