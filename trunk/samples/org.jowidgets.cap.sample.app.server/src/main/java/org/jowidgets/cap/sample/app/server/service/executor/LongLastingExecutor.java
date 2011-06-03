@@ -31,16 +31,15 @@ package org.jowidgets.cap.sample.app.server.service.executor;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.sample.app.server.entity.User;
 import org.jowidgets.cap.service.api.executor.IBeanExecutor;
-import org.jowidgets.util.types.Null;
 
-public class LongLastingExecutor implements IBeanExecutor<User, Null> {
+public class LongLastingExecutor implements IBeanExecutor<User, Void> {
 
 	private static final int OUTER_LOOP_COUNT = 10;
 	private static final int INNER_LOOP_COUNT = 20;
 	private static final long DELAY = 20;
 
 	@Override
-	public User execute(final User user, final Null parameter, final IExecutionCallback executionCallback) {
+	public User execute(final User user, final Void parameter, final IExecutionCallback executionCallback) {
 		executionCallback.setTotalStepCount(OUTER_LOOP_COUNT * 3);
 		executionCallback.setDescription("Does some execution with '" + user.getName() + " " + user.getLastName() + "' ");
 		for (int i = 0; i < OUTER_LOOP_COUNT && !executionCallback.isCanceled(); i++) {

@@ -40,9 +40,8 @@ import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.sample.app.server.datastore.AbstractData;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
-import org.jowidgets.util.types.Null;
 
-public class ReaderService<BEAN_TYPE extends IBean> implements IReaderService<Null> {
+public class ReaderService<BEAN_TYPE extends IBean> implements IReaderService<Void> {
 
 	private final IBeanDtoFactory<BEAN_TYPE> beanFactory;
 	private final AbstractData<? extends BEAN_TYPE> data;
@@ -59,7 +58,7 @@ public class ReaderService<BEAN_TYPE extends IBean> implements IReaderService<Nu
 		final List<? extends ISort> sortedProperties,
 		final int firstRow,
 		final int maxRows,
-		final Null parameter,
+		final Void parameter,
 		IExecutionCallback executionCallback) {
 
 		executionCallback = CapServiceToolkit.delayedExecutionCallback(executionCallback);
@@ -75,7 +74,7 @@ public class ReaderService<BEAN_TYPE extends IBean> implements IReaderService<Nu
 	public int count(
 		final List<? extends IBeanKey> parentBeans,
 		final IFilter filter,
-		final Null parameter,
+		final Void parameter,
 		final IExecutionCallback executionCallback) {
 
 		//TODO apply filter

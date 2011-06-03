@@ -42,13 +42,12 @@ import org.jowidgets.service.api.IServiceRegistry;
 import org.jowidgets.service.api.ServiceProvider;
 import org.jowidgets.service.tools.ServiceId;
 import org.jowidgets.util.Assert;
-import org.jowidgets.util.types.Null;
 
 final class BeanServicesProviderImpl<BEAN_TYPE> implements IBeanServicesProvider<BEAN_TYPE>, Serializable {
 
 	private static final long serialVersionUID = -8588074689307098706L;
 
-	private final IServiceId<IReaderService<Null>> readerServiceId;
+	private final IServiceId<IReaderService<Void>> readerServiceId;
 	private final IServiceId<ICreatorService> creatorServiceId;
 	private final IServiceId<IRefreshService> refreshServiceId;
 	private final IServiceId<IUpdaterService> updaterServiceId;
@@ -58,7 +57,7 @@ final class BeanServicesProviderImpl<BEAN_TYPE> implements IBeanServicesProvider
 		final IServiceRegistry serviceRegistry,
 		final IServiceId<IEntityService> entityServiceId,
 		final Class<? extends BEAN_TYPE> beanType,
-		final IReaderService<Null> readerService,
+		final IReaderService<Void> readerService,
 		final ICreatorService creatorService,
 		final IRefreshService refreshService,
 		final IUpdaterService updaterService,
@@ -69,7 +68,7 @@ final class BeanServicesProviderImpl<BEAN_TYPE> implements IBeanServicesProvider
 		Assert.paramNotNull(beanType, "beanType");
 
 		if (readerService != null) {
-			this.readerServiceId = new ServiceId<IReaderService<Null>>(new Id(
+			this.readerServiceId = new ServiceId<IReaderService<Void>>(new Id(
 				entityServiceId,
 				beanType.getName(),
 				IReaderService.class.getName()), IReaderService.class);
@@ -126,7 +125,7 @@ final class BeanServicesProviderImpl<BEAN_TYPE> implements IBeanServicesProvider
 	}
 
 	@Override
-	public IReaderService<Null> readerService() {
+	public IReaderService<Void> readerService() {
 		if (readerServiceId != null) {
 			return ServiceProvider.getService(readerServiceId);
 		}

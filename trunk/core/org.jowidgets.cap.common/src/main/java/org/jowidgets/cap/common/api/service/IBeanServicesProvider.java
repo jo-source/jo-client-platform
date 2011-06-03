@@ -28,11 +28,10 @@
 
 package org.jowidgets.cap.common.api.service;
 
-import org.jowidgets.util.types.Null;
 
 public interface IBeanServicesProvider<BEAN_TYPE> {
 
-	IReaderService<Null> readerService();
+	IReaderService<Void> readerService();
 
 	ICreatorService creatorService();
 
