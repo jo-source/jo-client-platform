@@ -48,13 +48,10 @@ import org.jowidgets.api.controler.IChangeListener;
 import org.jowidgets.api.threads.IUiThreadAccess;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.types.QuestionResult;
-import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.execution.IExecutableState;
-import org.jowidgets.cap.common.api.execution.IExecutionTask;
-import org.jowidgets.cap.common.api.execution.IExecutionTaskListener;
 import org.jowidgets.cap.common.api.execution.UserQuestionResult;
 import org.jowidgets.cap.common.api.service.IExecutorService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
@@ -65,6 +62,8 @@ import org.jowidgets.cap.ui.api.executor.BeanExecutionPolicy;
 import org.jowidgets.cap.ui.api.executor.BeanModificationStatePolicy;
 import org.jowidgets.cap.ui.api.executor.BeanSelectionPolicy;
 import org.jowidgets.cap.ui.api.executor.IExecutionInterceptor;
+import org.jowidgets.cap.ui.api.executor.IExecutionTask;
+import org.jowidgets.cap.ui.api.executor.IExecutionTaskListener;
 import org.jowidgets.cap.ui.api.executor.IExecutor;
 import org.jowidgets.cap.ui.api.executor.IExecutorJob;
 import org.jowidgets.cap.ui.api.executor.IParameterProvider;
@@ -287,7 +286,7 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 
 	private IExecutionTask createExecutionTask() {
 		final IUiThreadAccess uiThreadAccess = Toolkit.getUiThreadAccess();
-		final IExecutionTask executionTask = CapCommonToolkit.executionTaskFactory().create();
+		final IExecutionTask executionTask = CapUiToolkit.executionTaskFactory().create();
 
 		//TODO MG remove this later
 		executionTask.addExecutionTaskListener(new IExecutionTaskListener() {

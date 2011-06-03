@@ -26,7 +26,7 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.impl;
+package org.jowidgets.cap.ui.impl;
 
 import java.io.Serializable;
 import java.util.HashSet;
@@ -37,10 +37,10 @@ import java.util.UUID;
 
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IExecutionCallbackListener;
-import org.jowidgets.cap.common.api.execution.IExecutionTask;
-import org.jowidgets.cap.common.api.execution.IExecutionTaskListener;
 import org.jowidgets.cap.common.api.execution.IUserQuestionCallback;
 import org.jowidgets.cap.common.api.execution.UserQuestionResult;
+import org.jowidgets.cap.ui.api.executor.IExecutionTask;
+import org.jowidgets.cap.ui.api.executor.IExecutionTaskListener;
 import org.jowidgets.util.Assert;
 
 public final class ExecutionTask implements IExecutionTask, Serializable {
@@ -65,7 +65,6 @@ public final class ExecutionTask implements IExecutionTask, Serializable {
 	private UserQuestionResult userQuestionResult;
 	private Thread userQuestionWaitThread;
 
-	//TODO move to client module
 	ExecutionTask() {
 		this(true, null);
 	}

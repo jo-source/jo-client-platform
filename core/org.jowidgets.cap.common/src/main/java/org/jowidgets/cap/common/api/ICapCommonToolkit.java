@@ -35,7 +35,6 @@ import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptorBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanKeyBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanModificationBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanPropertyBuilder;
-import org.jowidgets.cap.common.api.execution.IExecutionTaskFactory;
 
 public interface ICapCommonToolkit {
 
@@ -50,7 +49,5 @@ public interface ICapCommonToolkit {
 	IBeanKeyBuilder beanKeyBuilder();
 
 	IBeanModificationBuilder beanModificationBuilder();
-
-	IExecutionTaskFactory executionTaskFactory();
 
 }
