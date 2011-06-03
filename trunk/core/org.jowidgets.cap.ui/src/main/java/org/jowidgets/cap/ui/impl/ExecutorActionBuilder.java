@@ -109,6 +109,7 @@ final class ExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> extends AbstractSingleU
 				}
 			}
 		};
+
 	}
 
 	@Override
@@ -243,6 +244,7 @@ final class ExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> extends AbstractSingleU
 
 	@Override
 	public IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> addEnabledChecker(final IEnabledChecker enabledChecker) {
+		Assert.paramNotNull(enabledChecker, "enabledChecker");
 		enabledCheckers.add(enabledChecker);
 		return this;
 	}
@@ -251,12 +253,14 @@ final class ExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> extends AbstractSingleU
 	@Override
 	public IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> addExecutableChecker(
 		final IExecutableChecker<BEAN_TYPE> executableChecker) {
+		Assert.paramNotNull(executableChecker, "executableChecker");
 		executableCheckers.add((IExecutableChecker<Object>) executableChecker);
 		return this;
 	}
 
 	@Override
 	public IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> addExecutionInterceptor(final IExecutionInterceptor interceptor) {
+		Assert.paramNotNull(interceptor, "interceptor");
 		executionInterceptors.add(interceptor);
 		return this;
 	}
