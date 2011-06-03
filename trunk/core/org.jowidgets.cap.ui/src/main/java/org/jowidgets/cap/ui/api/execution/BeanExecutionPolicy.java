@@ -26,33 +26,21 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.executor;
+package org.jowidgets.cap.ui.api.execution;
 
-import java.util.List;
-
-import org.jowidgets.api.command.IExecutionContext;
-import org.jowidgets.cap.ui.api.bean.IBeanProxy;
-import org.jowidgets.util.maybe.IMaybe;
-
-
-public interface IParameterProvider<BEAN_TYPE, PARAMETER_TYPE> {
+public enum BeanExecutionPolicy {
 
 	/**
-	 * Gets the parameter for the execution, probably an user input from an input dialog.
-	 * 
-	 * REMARK: The parameter provider will be invoked in the ui thread, so do not make long lasting
-	 * things here to avoid that the ui freezes.
-	 * For long lasting things use the IParameterProviderJob or IParameterProviderService instead
-	 * 
-	 * @param executionContext The execution context of the action
-	 * @param beans the beans to get the parameter for
-	 * @param defaultParameter The default parameter
-	 * 
-	 * @return Some parameter or Nothing if the user canceled
+	 * All beans are executed with one executor-(-job/-service).
+	 * The executor gets a list of the beans to execute. This is the default.
 	 */
-	IMaybe<PARAMETER_TYPE> getParameter(
-		IExecutionContext executionContext,
-		List<IBeanProxy<BEAN_TYPE>> beans,
-		PARAMETER_TYPE defaultParameter) throws Exception;
+	SERIAL,
 
+	/**
+	 * For each bean in the list of beans, an own executor-(-job/-service) will be used. This policy could only
+	 * be used, if the executions of the beans are independent.
+	 * In the parallel mode, each execution has its own thread that will be executed parallel with the other threads.
+	 * So for long lasting executions, the performance may be improved.
+	 */
+	PARALLEL;
 }

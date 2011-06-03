@@ -43,7 +43,7 @@ import org.jowidgets.cap.common.api.bean.IBeanModificationBuilder;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeansModificationRegistry;
 import org.jowidgets.cap.ui.api.bean.IProcessStateListener;
-import org.jowidgets.cap.ui.api.executor.IExecutionTask;
+import org.jowidgets.cap.ui.api.execution.IExecutionTask;
 import org.jowidgets.cap.ui.api.model.IModificationStateListener;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.NullCompatibleEquivalence;

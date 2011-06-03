@@ -26,21 +26,34 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.executor;
+package org.jowidgets.cap.ui.api.execution;
 
-public enum BeanExecutionPolicy {
+import java.util.List;
+
+import org.jowidgets.api.command.IExecutionContext;
+import org.jowidgets.cap.common.api.execution.IExecutionCallback;
+import org.jowidgets.cap.ui.api.bean.IBeanProxy;
+
+
+public interface IParameterProviderJob<BEAN_TYPE, PARAMETER_TYPE> {
 
 	/**
-	 * All beans are executed with one executor-(-job/-service).
-	 * The executor gets a list of the beans to execute. This is the default.
+	 * Gets the parameter for the execution.
+	 * 
+	 * REMARK: The job will be invoked in an separate WORKER THREAD, so do not make GUI stuff
+	 * here, or use invokeLater() or invokeAndWait() then.
+	 * 
+	 * @param executionContext The execution context of the action
+	 * @param beans the beans to get the parameter for
+	 * @param defaultParameter The default parameter
+	 * @param executionCallback The execution call back
+	 * 
+	 * @return The parameter, may be null
 	 */
-	SERIAL,
+	PARAMETER_TYPE getParameter(
+		IExecutionContext executionContext,
+		List<IBeanProxy<BEAN_TYPE>> beans,
+		PARAMETER_TYPE defaultParameter,
+		IExecutionCallback executionCallback) throws Exception;
 
-	/**
-	 * For each bean in the list of beans, an own executor-(-job/-service) will be used. This policy could only
-	 * be used, if the executions of the beans are independent.
-	 * In the parallel mode, each execution has its own thread that will be executed parallel with the other threads.
-	 * So for long lasting executions, the performance may be improved.
-	 */
-	PARALLEL;
 }

@@ -26,24 +26,10 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.executor;
+package org.jowidgets.cap.ui.api.execution;
 
-import org.jowidgets.api.command.IExecutionContext;
+public interface IExecutionTaskFactory {
 
-public interface IExecutionInterceptor {
+	IExecutionTask create();
 
-	/**
-	 * Will be invoked before the execution occurs
-	 * 
-	 * @return true, if the execution should be continued, false otherwise
-	 */
-	boolean beforeExecution(IExecutionContext executionContext);
-
-	/**
-	 * Will be invoked, after the execution has been occurred
-	 */
-	void afterExecution(IExecutionContext executionContext);
-
-	////TODO MG , MW review interceptor pattern
-	//void intercept(IExecutionContext executionContext, Runnable runnable);
 }

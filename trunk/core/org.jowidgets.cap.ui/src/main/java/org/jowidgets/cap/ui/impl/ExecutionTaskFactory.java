@@ -28,8 +28,8 @@
 
 package org.jowidgets.cap.ui.impl;
 
-import org.jowidgets.cap.ui.api.executor.IExecutionTask;
-import org.jowidgets.cap.ui.api.executor.IExecutionTaskFactory;
+import org.jowidgets.cap.ui.api.execution.IExecutionTask;
+import org.jowidgets.cap.ui.api.execution.IExecutionTaskFactory;
 
 final class ExecutionTaskFactory implements IExecutionTaskFactory {
 

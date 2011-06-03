@@ -26,22 +26,28 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.executor;
+package org.jowidgets.cap.ui.api.execution;
 
-public interface IExecutionTaskListener {
+import java.util.List;
 
-	void descriptionChanged(String decription);
+import org.jowidgets.api.command.IExecutionContext;
+import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 
-	void totalStepCountChanged(int totalStepCount);
+public interface IExecutor<BEAN_TYPE, PARAMETER_TYPE> {
 
-	void worked(int totalWorked);
-
-	void finished();
-
-	//TODO MG get an object here, that could handle the question, e.g. 
-	// void userQuestionAsked(String question, IAnswerCallback answerCallback)
-	void userQuestionAsked();
-
-	void subExecutionAdded(IExecutionTask executionTask);
+	/**
+	 * Do some execution for the given beans and parameter in the ui thread.
+	 * 
+	 * REMARK: The executor will be invoked in the ui thread, so do not make long lasting
+	 * things here to avoid that the ui freezes.
+	 * For long lasting executions use the IExecutorJob or IExecutorService instead
+	 * 
+	 * @param executionContext The execution context of the action
+	 * @param beans the beans to get the parameter for
+	 * @param defaultParameter The default parameter
+	 * 
+	 * @see IExecutorJob, IExecutorService
+	 */
+	void execute(IExecutionContext executionContext, List<IBeanProxy<BEAN_TYPE>> beans, PARAMETER_TYPE defaultParameter) throws Exception;
 
 }

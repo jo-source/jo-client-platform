@@ -26,10 +26,33 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.executor;
+package org.jowidgets.cap.ui.api.execution;
 
-public interface IExecutionTaskFactory {
+import java.util.List;
 
-	IExecutionTask create();
+import org.jowidgets.api.command.IExecutionContext;
+import org.jowidgets.cap.ui.api.bean.IBeanProxy;
+import org.jowidgets.util.maybe.IMaybe;
+
+
+public interface IParameterProvider<BEAN_TYPE, PARAMETER_TYPE> {
+
+	/**
+	 * Gets the parameter for the execution, probably an user input from an input dialog.
+	 * 
+	 * REMARK: The parameter provider will be invoked in the ui thread, so do not make long lasting
+	 * things here to avoid that the ui freezes.
+	 * For long lasting things use the IParameterProviderJob or IParameterProviderService instead
+	 * 
+	 * @param executionContext The execution context of the action
+	 * @param beans the beans to get the parameter for
+	 * @param defaultParameter The default parameter
+	 * 
+	 * @return Some parameter or Nothing if the user canceled
+	 */
+	IMaybe<PARAMETER_TYPE> getParameter(
+		IExecutionContext executionContext,
+		List<IBeanProxy<BEAN_TYPE>> beans,
+		PARAMETER_TYPE defaultParameter) throws Exception;
 
 }

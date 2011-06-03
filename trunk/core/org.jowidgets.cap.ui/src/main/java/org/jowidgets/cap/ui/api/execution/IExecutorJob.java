@@ -26,7 +26,7 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.executor;
+package org.jowidgets.cap.ui.api.execution;
 
 import java.util.List;
 
@@ -34,11 +34,10 @@ import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 
-
-public interface IParameterProviderJob<BEAN_TYPE, PARAMETER_TYPE> {
+public interface IExecutorJob<BEAN_TYPE, PARAMETER_TYPE> {
 
 	/**
-	 * Gets the parameter for the execution.
+	 * Do some execution for the given beans and parameter in an worker thread.
 	 * 
 	 * REMARK: The job will be invoked in an separate WORKER THREAD, so do not make GUI stuff
 	 * here, or use invokeLater() or invokeAndWait() then.
@@ -47,10 +46,8 @@ public interface IParameterProviderJob<BEAN_TYPE, PARAMETER_TYPE> {
 	 * @param beans the beans to get the parameter for
 	 * @param defaultParameter The default parameter
 	 * @param executionCallback The execution call back
-	 * 
-	 * @return The parameter, may be null
 	 */
-	PARAMETER_TYPE getParameter(
+	void execute(
 		IExecutionContext executionContext,
 		List<IBeanProxy<BEAN_TYPE>> beans,
 		PARAMETER_TYPE defaultParameter,
