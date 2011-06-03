@@ -42,8 +42,8 @@ import org.jowidgets.cap.sample.app.common.service.executor.UserComponentExecuto
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.command.IExecutorActionBuilder;
-import org.jowidgets.cap.ui.api.executor.BeanSelectionPolicy;
-import org.jowidgets.cap.ui.api.executor.IParameterProvider;
+import org.jowidgets.cap.ui.api.execution.BeanSelectionPolicy;
+import org.jowidgets.cap.ui.api.execution.IParameterProvider;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.examples.common.icons.SilkIcons;
 import org.jowidgets.tools.command.ActionWrapper;

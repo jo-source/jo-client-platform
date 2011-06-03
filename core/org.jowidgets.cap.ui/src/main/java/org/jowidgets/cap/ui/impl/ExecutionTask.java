@@ -39,8 +39,8 @@ import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IExecutionCallbackListener;
 import org.jowidgets.cap.common.api.execution.IUserQuestionCallback;
 import org.jowidgets.cap.common.api.execution.UserQuestionResult;
-import org.jowidgets.cap.ui.api.executor.IExecutionTask;
-import org.jowidgets.cap.ui.api.executor.IExecutionTaskListener;
+import org.jowidgets.cap.ui.api.execution.IExecutionTask;
+import org.jowidgets.cap.ui.api.execution.IExecutionTaskListener;
 import org.jowidgets.util.Assert;
 
 public final class ExecutionTask implements IExecutionTask, Serializable {

@@ -38,9 +38,9 @@ import org.jowidgets.cap.sample.app.common.service.executor.ChangeGenderExecutab
 import org.jowidgets.cap.sample.app.common.service.executor.UserComponentExecutorServices;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.command.IExecutorActionBuilder;
-import org.jowidgets.cap.ui.api.executor.BeanExecutionPolicy;
-import org.jowidgets.cap.ui.api.executor.BeanSelectionPolicy;
-import org.jowidgets.cap.ui.api.executor.IExecutionInterceptor;
+import org.jowidgets.cap.ui.api.execution.BeanExecutionPolicy;
+import org.jowidgets.cap.ui.api.execution.BeanSelectionPolicy;
+import org.jowidgets.cap.ui.api.execution.IExecutionInterceptor;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.examples.common.icons.SilkIcons;
 import org.jowidgets.tools.command.ActionWrapper;

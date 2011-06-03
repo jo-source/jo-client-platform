@@ -26,31 +26,24 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.executor;
-
-import java.util.List;
+package org.jowidgets.cap.ui.api.execution;
 
 import org.jowidgets.api.command.IExecutionContext;
-import org.jowidgets.cap.common.api.execution.IExecutionCallback;
-import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 
-public interface IExecutorJob<BEAN_TYPE, PARAMETER_TYPE> {
+public interface IExecutionInterceptor {
 
 	/**
-	 * Do some execution for the given beans and parameter in an worker thread.
+	 * Will be invoked before the execution occurs
 	 * 
-	 * REMARK: The job will be invoked in an separate WORKER THREAD, so do not make GUI stuff
-	 * here, or use invokeLater() or invokeAndWait() then.
-	 * 
-	 * @param executionContext The execution context of the action
-	 * @param beans the beans to get the parameter for
-	 * @param defaultParameter The default parameter
-	 * @param executionCallback The execution call back
+	 * @return true, if the execution should be continued, false otherwise
 	 */
-	void execute(
-		IExecutionContext executionContext,
-		List<IBeanProxy<BEAN_TYPE>> beans,
-		PARAMETER_TYPE defaultParameter,
-		IExecutionCallback executionCallback) throws Exception;
+	boolean beforeExecution(IExecutionContext executionContext);
 
+	/**
+	 * Will be invoked, after the execution has been occurred
+	 */
+	void afterExecution(IExecutionContext executionContext);
+
+	////TODO MG , MW review interceptor pattern
+	//void intercept(IExecutionContext executionContext, Runnable runnable);
 }
