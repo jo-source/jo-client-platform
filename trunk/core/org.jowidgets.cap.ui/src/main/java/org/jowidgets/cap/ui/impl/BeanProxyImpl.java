@@ -39,6 +39,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.jowidgets.api.threads.IUiThreadAccess;
+import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanModification;
@@ -47,6 +49,8 @@ import org.jowidgets.cap.ui.api.bean.IBeanModificationStateListener;
 import org.jowidgets.cap.ui.api.bean.IBeanProcessStateListener;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.execution.IExecutionTask;
+import org.jowidgets.cap.ui.api.execution.IExecutionTaskListener;
+import org.jowidgets.cap.ui.tools.execution.ExecutionTaskAdapter;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.NullCompatibleEquivalence;
 
@@ -57,8 +61,11 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE> {
 	private final PropertyChangeObservable propertyChangeObservable;
 	private final BeanModificationStateObservable<BEAN_TYPE> modificationStateObservable;
 	private final BeanProcessStateObservable<BEAN_TYPE> processStateObservable;
+	private final IExecutionTaskListener executionTaskListener;
+	private final IUiThreadAccess uiThreadAccess;
 
 	private IExecutionTask executionTask;
+	private String lastProgress;
 	private IBeanDto beanDto;
 	private BEAN_TYPE proxy;
 
@@ -72,6 +79,25 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE> {
 		this.propertyChangeObservable = new PropertyChangeObservable();
 		this.modificationStateObservable = new BeanModificationStateObservable<BEAN_TYPE>();
 		this.processStateObservable = new BeanProcessStateObservable<BEAN_TYPE>();
+		this.uiThreadAccess = Toolkit.getUiThreadAccess();
+		this.executionTaskListener = new ExecutionTaskAdapter() {
+
+			@Override
+			public void worked(final int totalWorked) {
+				fireProgressPropertyChangeChanged();
+			}
+
+			@Override
+			public void totalStepCountChanged(final int totalStepCount) {
+				fireProgressPropertyChangeChanged();
+			}
+
+			@Override
+			public void finished() {
+				fireProgressPropertyChangeChanged();
+			}
+
+		};
 	}
 
 	@Override
@@ -92,6 +118,9 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE> {
 	@Override
 	public Object getValue(final String propertyName) {
 		Assert.paramNotNull(propertyName, "propertyName");
+		if (propertyName == IBeanProxy.META_PROPERTY_PROGRESS) {
+			return getProgress();
+		}
 		if (modifications.containsKey(propertyName)) {
 			return modifications.get(propertyName).getNewValue();
 		}
@@ -193,7 +222,13 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE> {
 	@Override
 	public void setExecutionTask(final IExecutionTask executionTask) {
 		if (!NullCompatibleEquivalence.equals(this.executionTask, executionTask)) {
+			if (this.executionTask != null) {
+				this.executionTask.removeExecutionTaskListener(executionTaskListener);
+			}
 			this.executionTask = executionTask;
+			if (this.executionTask != null) {
+				this.executionTask.addExecutionTaskListener(executionTaskListener);
+			}
 			processStateObservable.fireProcessStateChanged(this);
 		}
 	}
@@ -238,6 +273,32 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE> {
 		proxy = null;
 	}
 
+	private String getProgress() {
+		String result;
+		try {
+			final Integer worked = executionTask.getWorked();
+			final Integer total = executionTask.getTotalStepCount();
+			if (total != null) {
+				if (worked == null) {
+					result = "0%";
+				}
+				else {
+					final double percent = (((double) worked) * 100) / total;
+					result = "" + Math.round(percent) + "%";
+				}
+			}
+			else {
+				result = "?";
+			}
+		}
+		catch (final Exception exception) {
+			result = null;
+		}
+
+		lastProgress = result;
+		return result;
+	}
+
 	private List<PropertyChangeEvent> getPropertyChangesForClear() {
 		final List<PropertyChangeEvent> result = new LinkedList<PropertyChangeEvent>();
 		for (final Entry<String, IBeanModification> modificationEntry : modifications.entrySet()) {
@@ -261,6 +322,16 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE> {
 			}
 		}
 		return result;
+	}
+
+	private void fireProgressPropertyChangeChanged() {
+		uiThreadAccess.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				propertyChange(BeanProxyImpl.this, IBeanProxy.META_PROPERTY_PROGRESS, lastProgress, getProgress());
+			}
+		});
+
 	}
 
 	private void firePropertyChangeEvents(final List<PropertyChangeEvent> events) {

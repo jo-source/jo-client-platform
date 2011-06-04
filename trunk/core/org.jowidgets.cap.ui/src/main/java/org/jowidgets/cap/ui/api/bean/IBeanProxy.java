@@ -40,6 +40,8 @@ public interface IBeanProxy<BEAN_TYPE> extends
 		IBeanModificationStateObservable<BEAN_TYPE>,
 		IBeanProcessStateObservable<BEAN_TYPE> {
 
+	String META_PROPERTY_PROGRESS = IBeanProxy.class.getName() + "_META_PROPERTY_PROGRESS";
+
 	void setValue(String propertyName, Object value);
 
 	void update(IBeanDto beanDto);

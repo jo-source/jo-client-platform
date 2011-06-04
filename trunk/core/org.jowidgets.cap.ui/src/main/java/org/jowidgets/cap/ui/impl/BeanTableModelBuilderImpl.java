@@ -40,6 +40,8 @@ import org.jowidgets.cap.common.api.service.IRefreshService;
 import org.jowidgets.cap.common.api.service.IUpdaterService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
+import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
+import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.model.LinkType;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
@@ -58,6 +60,7 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> implements IBeanTableModelBuild
 	private IBeanListModel<?> parent;
 	private LinkType linkType;
 	private List<IAttribute<Object>> attributes;
+	private String[] metaPropertyNames;
 
 	private ICreatorService creatorService;
 	private IRefreshService refreshService;
@@ -67,6 +70,8 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> implements IBeanTableModelBuild
 	BeanTableModelBuilderImpl(final Class<BEAN_TYPE> beanType) {
 		Assert.paramNotNull(beanType, "beanType");
 		this.beanType = beanType;
+
+		this.metaPropertyNames = new String[] {IBeanProxy.META_PROPERTY_PROGRESS};
 
 		final IEntityService entityService = ServiceProvider.getService(IEntityService.ID);
 		if (entityService != null) {
@@ -211,10 +216,27 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> implements IBeanTableModelBuild
 	}
 
 	@Override
+	public IBeanTableModelBuilder<BEAN_TYPE> setMetaAttributes(final String... metaPropertyNames) {
+		this.metaPropertyNames = metaPropertyNames;
+		return null;
+	}
+
+	private List<IAttribute<Object>> getAttributes() {
+		final List<IAttribute<Object>> result = this.attributes;
+		if (metaPropertyNames != null) {
+			final IAttributeToolkit attributeToolkit = CapUiToolkit.getAttributeToolkit();
+			for (final String metaPropertyName : metaPropertyNames) {
+				result.add(attributeToolkit.createMetaAttribute(metaPropertyName));
+			}
+		}
+		return result;
+	}
+
+	@Override
 	public IBeanTableModel<BEAN_TYPE> build() {
 		return new BeanTableModelImpl<BEAN_TYPE>(
 			beanType,
-			attributes,
+			getAttributes(),
 			readerService,
 			readerParameterProvider,
 			creatorService,

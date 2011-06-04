@@ -39,6 +39,8 @@ import org.jowidgets.cap.ui.api.attribute.IAttributeCollectionModifierBuilder;
 import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
 import org.jowidgets.cap.ui.api.attribute.IControlPanelProvider;
 import org.jowidgets.cap.ui.api.attribute.IControlPanelProviderBuilder;
+import org.jowidgets.cap.ui.api.bean.IBeanProxy;
+import org.jowidgets.util.Assert;
 
 final class AttributeToolkitImpl implements IAttributeToolkit {
 
@@ -93,6 +95,27 @@ final class AttributeToolkitImpl implements IAttributeToolkit {
 	@Override
 	public List<IAttribute<Object>> createAttributesCopy(final Collection<? extends IAttribute<?>> attributes) {
 		return attributesFactory.createAttributesCopy(attributes, null);
+	}
+
+	@Override
+	public IAttribute<Object> createMetaAttribute(final String propertyName) {
+		return createMetaAttributeBuilder(propertyName).build();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public IAttributeBuilder<Object> createMetaAttributeBuilder(final String propertyName) {
+		Assert.paramNotNull(propertyName, "propertyName");
+
+		if (IBeanProxy.META_PROPERTY_PROGRESS.equals(propertyName)) {
+			@SuppressWarnings("rawtypes")
+			final IAttributeBuilder builder = new AttributeBuilderImpl(String.class);
+			builder.setPropertyName(IBeanProxy.META_PROPERTY_PROGRESS);
+			builder.setLabel("Progress").setDescription("Shows the progress of running executions on the data");
+			builder.setEditable(false).setSortable(false).setFilterable(false);
+			return builder;
+		}
+		throw new IllegalArgumentException("The meta property name '" + propertyName + "' is not known");
 	}
 
 	@Override

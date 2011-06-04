@@ -26,30 +26,30 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample.app.client.attribute;
+package org.jowidgets.cap.ui.tools.execution;
 
-import java.util.List;
+import org.jowidgets.cap.ui.api.execution.IExecutionTask;
+import org.jowidgets.cap.ui.api.execution.IExecutionTaskListener;
+import org.jowidgets.cap.ui.api.execution.IUserAnswerCallback;
 
-import org.jowidgets.cap.common.api.bean.IProperty;
-import org.jowidgets.cap.common.api.service.IEntityService;
-import org.jowidgets.cap.sample.app.common.entity.IUser;
-import org.jowidgets.cap.ui.api.CapUiToolkit;
-import org.jowidgets.cap.ui.api.attribute.IAttribute;
-import org.jowidgets.cap.ui.api.attribute.IAttributeCollectionModifierBuilder;
-import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
-import org.jowidgets.common.types.AlignmentHorizontal;
-import org.jowidgets.service.api.ServiceProvider;
+public class ExecutionTaskAdapter implements IExecutionTaskListener {
 
-public class UserAttributesFactory {
+	@Override
+	public void descriptionChanged(final String decription) {}
 
-	public List<IAttribute<Object>> create() {
-		final List<IProperty> properties = ServiceProvider.getService(IEntityService.ID).getDescriptor(IUser.class).getProperties();
-		final IAttributeToolkit attributeToolkit = CapUiToolkit.getAttributeToolkit();
+	@Override
+	public void totalStepCountChanged(final int totalStepCount) {}
 
-		final IAttributeCollectionModifierBuilder modifierBuilder = attributeToolkit.createAttributeCollectionModifierBuilder();
-		modifierBuilder.addModifier(IUser.GENDER_PROPERTY).setTableAlignment(AlignmentHorizontal.CENTER).setEditable(false);
-		modifierBuilder.addDefaultEditableModifier(true);
+	@Override
+	public void worked(final int totalWorked) {}
 
-		return CapUiToolkit.getAttributeToolkit().createAttributes(properties, modifierBuilder.build());
-	}
+	@Override
+	public void finished() {}
+
+	@Override
+	public void userQuestionAsked(final String question, final IUserAnswerCallback callback) {}
+
+	@Override
+	public void subExecutionAdded(final IExecutionTask executionTask) {}
+
 }
