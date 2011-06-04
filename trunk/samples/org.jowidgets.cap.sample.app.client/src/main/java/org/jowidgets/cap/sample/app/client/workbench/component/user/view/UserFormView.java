@@ -36,6 +36,7 @@ import org.jowidgets.api.widgets.IContainer;
 import org.jowidgets.api.widgets.IInputField;
 import org.jowidgets.api.widgets.blueprint.factory.IBluePrintFactory;
 import org.jowidgets.cap.sample.app.common.entity.IUser;
+import org.jowidgets.cap.ui.api.bean.IBeanProcessStateListener;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.tools.model.BeanListModelAdapter;
@@ -44,9 +45,9 @@ import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
 import org.jowidgets.workbench.api.IViewContext;
 import org.jowidgets.workbench.tools.AbstractView;
 
-public class UserDetailView extends AbstractView {
+public class UserFormView extends AbstractView {
 
-	public static final String ID = UserDetailView.class.getName();
+	public static final String ID = UserFormView.class.getName();
 	public static final String DEFAULT_LABEL = "User details";
 	public static final String DEFAULT_TOOLTIP = "Formular with user details";
 
@@ -56,15 +57,15 @@ public class UserDetailView extends AbstractView {
 	private final IInputListener nameListener;
 	private final IInputListener lastNameListener;
 
-	public UserDetailView(final IViewContext context, final IBeanTableModel<IUser> tableModel) {
+	public UserFormView(final IViewContext context, final IBeanTableModel<IUser> tableModel) {
 		final IBluePrintFactory bpf = Toolkit.getBluePrintFactory();
 		final IContainer container = context.getContainer();
 		container.setLayout(new MigLayoutDescriptor("[][grow]", "[][]"));
 
-		container.add(bpf.textLabel("Name"));
+		container.add(bpf.textLabel("Name"), "alignx r");
 		nameField = container.add(bpf.inputFieldString(), "growx, wrap");
 
-		container.add(bpf.textLabel("Lastname"));
+		container.add(bpf.textLabel("Lastname"), "alignx r");
 		lastNameField = container.add(bpf.inputFieldString(), "growx");
 
 		currentBean = tableModel.getFirstSelectedBean();
@@ -72,6 +73,13 @@ public class UserDetailView extends AbstractView {
 		final PropertyChangeListener propertyChangeListener = new PropertyChangeListener() {
 			@Override
 			public void propertyChange(final PropertyChangeEvent evt) {
+				setBeanOnFields();
+			}
+		};
+
+		final IBeanProcessStateListener<IUser> processStateListener = new IBeanProcessStateListener<IUser>() {
+			@Override
+			public void processStateChanged(final IBeanProxy<IUser> bean) {
 				setBeanOnFields();
 			}
 		};
@@ -105,9 +113,13 @@ public class UserDetailView extends AbstractView {
 			public void selectionChanged() {
 				if (currentBean != null) {
 					currentBean.removePropertyChangeListener(propertyChangeListener);
+					currentBean.removeProcessStateListener(processStateListener);
 				}
 				currentBean = tableModel.getFirstSelectedBean();
-				currentBean.addPropertyChangeListener(propertyChangeListener);
+				if (currentBean != null) {
+					currentBean.addPropertyChangeListener(propertyChangeListener);
+					currentBean.addProcessStateListener(processStateListener);
+				}
 				setBeanOnFields();
 			}
 		});
@@ -120,16 +132,22 @@ public class UserDetailView extends AbstractView {
 		lastNameField.removeInputListener(lastNameListener);
 		nameField.removeInputListener(nameListener);
 		if (currentBean != null) {
-			nameField.setEditable(true);
-			lastNameField.setEditable(true);
+			if (currentBean.hasExecution()) {
+				nameField.setEnabled(false);
+				lastNameField.setEnabled(false);
+			}
+			else {
+				nameField.setEnabled(true);
+				lastNameField.setEnabled(true);
+			}
 			nameField.setValue(currentBean.getBean().getName());
 			lastNameField.setValue(currentBean.getBean().getLastName());
 		}
 		else {
 			nameField.setValue(null);
 			lastNameField.setValue(null);
-			nameField.setEditable(false);
-			lastNameField.setEditable(false);
+			nameField.setEnabled(false);
+			lastNameField.setEnabled(false);
 		}
 		lastNameField.addInputListener(lastNameListener);
 		nameField.addInputListener(nameListener);

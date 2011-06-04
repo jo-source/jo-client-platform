@@ -28,10 +28,14 @@
 
 package org.jowidgets.cap.common.api.bean;
 
+import java.util.Set;
+
 public interface IBeanDto extends IBeanData {
 
 	Object getId();
 
 	long getVersion();
+
+	Set<String> getPropertyNames();
 
 }

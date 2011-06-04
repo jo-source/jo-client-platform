@@ -32,6 +32,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -694,6 +695,11 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 			public long getVersion() {
 				return 0;
 			}
+
+			@Override
+			public Set<String> getPropertyNames() {
+				return Collections.emptySet();
+			}
 		};
 	}
 
@@ -713,6 +719,11 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 			public long getVersion() {
 				return 0;
 			}
+
+			@Override
+			public Set<String> getPropertyNames() {
+				return Collections.emptySet();
+			}
 		};
 	}
 
@@ -721,6 +732,11 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 			@Override
 			public Object getValue(final String propertyName) {
 				return proxy.getValue(propertyName);
+			}
+
+			@Override
+			public Set<String> getPropertyNames() {
+				return proxy.getPropertyNames();
 			}
 
 			@Override

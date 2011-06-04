@@ -29,8 +29,10 @@
 package org.jowidgets.cap.ui.impl;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
@@ -78,6 +80,11 @@ final class BeanProxyFactoryImpl<BEAN_TYPE> implements IBeanProxyFactory<BEAN_TY
 			@Override
 			public Object getId() {
 				return null;
+			}
+
+			@Override
+			public Set<String> getPropertyNames() {
+				return Collections.emptySet();
 			}
 		}, beanType);
 	}
