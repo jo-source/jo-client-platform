@@ -41,46 +41,54 @@ import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.api.controler.IChangeListener;
 import org.jowidgets.cap.ui.api.model.IDataModel;
 import org.jowidgets.cap.ui.api.model.IModificationStateListener;
+import org.jowidgets.cap.ui.api.model.IProcessStateListener;
 import org.jowidgets.tools.command.EnabledChecker;
 import org.jowidgets.util.Assert;
 
 abstract class AbstractDataModelCommand implements ICommand, ICommandExecutor, IEnabledChecker {
 
 	//TODO i18n
-	private static final IEnabledState NO_MODIFICATIONS_STATE = EnabledState.disabled("There is no data modified");
+	static final IEnabledState NO_MODIFICATIONS_STATE = EnabledState.disabled("There is no data modified");
+	static final IEnabledState IN_PROCESS_STATE = EnabledState.disabled("The data is in process");
 	private static final IEnabledState NO_DATA_NODE_STATE = EnabledState.disabled("There is no data node selected");
 
 	private final Set<IDataModel> dataModels;
 	private final EnabledChecker enabledChecker;
 	private final IModificationStateListener modificationStateListener;
-	private final boolean modificationCheck;
+	private final IProcessStateListener processStateListener;
 
-	private boolean lastModifications;
-
-	AbstractDataModelCommand(final boolean modificationCheck) {
+	AbstractDataModelCommand() {
 		this.dataModels = new HashSet<IDataModel>();
 		this.enabledChecker = new EnabledChecker();
-		this.modificationCheck = modificationCheck;
 
 		enabledChecker.setEnabledState(NO_DATA_NODE_STATE);
 
-		this.lastModifications = false;
 		this.modificationStateListener = new IModificationStateListener() {
 			@Override
 			public void modificationStateChanged() {
-				checkModificationState();
+				checkEnabledState();
+			}
+		};
+
+		this.processStateListener = new IProcessStateListener() {
+			@Override
+			public void processStateChanged() {
+				checkEnabledState();
 			}
 		};
 	}
 
 	abstract void execute(IDataModel dataModel, final IExecutionContext executionContext);
 
+	abstract IEnabledState getEnabledState(IDataModel model);
+
 	final void addDataModel(final IDataModel dataModel) {
 		Assert.paramNotNull(dataModel, "dataModel");
 		if (!dataModels.contains(dataModel)) {
 			dataModels.add(dataModel);
 			dataModel.addModificationStateListener(modificationStateListener);
-			checkModificationState();
+			dataModel.addProcessStateListener(processStateListener);
+			checkEnabledState();
 		}
 	}
 
@@ -89,7 +97,8 @@ abstract class AbstractDataModelCommand implements ICommand, ICommandExecutor, I
 		if (dataModels.contains(dataModel)) {
 			dataModels.remove(dataModel);
 			dataModel.removeModificationStateListener(modificationStateListener);
-			checkModificationState();
+			dataModel.removeProcessStateListener(processStateListener);
+			checkEnabledState();
 		}
 	}
 
@@ -130,30 +139,20 @@ abstract class AbstractDataModelCommand implements ICommand, ICommandExecutor, I
 		return null;
 	}
 
-	private void checkModificationState() {
+	private void checkEnabledState() {
 		if (dataModels.size() == 0) {
 			enabledChecker.setEnabledState(NO_DATA_NODE_STATE);
 			return;
 		}
-		else if (!modificationCheck) {
-			enabledChecker.setEnabledState(EnabledState.ENABLED);
-			return;
-		}
 		else {
-			boolean modifications = false;
 			for (final IDataModel dataModel : dataModels) {
-				modifications = modifications || dataModel.isDirty();
-			}
-			if (lastModifications != modifications) {
-				lastModifications = modifications;
-				if (modifications) {
-					enabledChecker.setEnabledState(EnabledState.ENABLED);
-				}
-				else {
-					//TODO MG i18n
-					enabledChecker.setEnabledState(NO_MODIFICATIONS_STATE);
+				final IEnabledState enabledState = getEnabledState(dataModel);
+				if (!enabledState.isEnabled()) {
+					enabledChecker.setEnabledState(EnabledState.disabled(enabledState.getReason()));
+					return;
 				}
 			}
+			enabledChecker.setEnabledState(EnabledState.ENABLED);
 		}
 	}
 
