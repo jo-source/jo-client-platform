@@ -522,6 +522,7 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 			dummyBeanProxy = beanProxyFactory.createProxy(createDummyBeanDto());
 			executionTask = CapUiToolkit.executionTaskFactory().create();
 			dummyBeanProxy.setExecutionTask(executionTask);
+			beansStateTracker.register(dummyBeanProxy);
 
 			for (int i = 0; i < pageSize; i++) {
 				page.add(dummyBeanProxy);
@@ -560,6 +561,8 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 					dataModel.fireRowsChanged(changedIndices);
 
 					currentPageLoaders.remove(this);
+					dummyBeanProxy.setExecutionTask(null);
+					beansStateTracker.unregister(dummyBeanProxy);
 				}
 			});
 		}
@@ -646,15 +649,8 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 									}
 								}
 
-								//TODO MG remove this hacky stuff later
-								if (page.size() > 0) {
-									dummyBeanProxy.update(createCopyBeanDto(page.get(0)));
-									dummyBeanProxy.setExecutionTask(null);
-								}
-								else {
-									dummyBeanProxy.update(createNullBeanDto());
-									dummyBeanProxy.setExecutionTask(null);
-								}
+								dummyBeanProxy.setExecutionTask(null);
+								beansStateTracker.unregister(dummyBeanProxy);
 
 								dataModel.fireDataChanged();
 

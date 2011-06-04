@@ -102,7 +102,7 @@ public final class ExecutorServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE> impl
 			executionCallback = CapServiceToolkit.delayedExecutionCallback(executionCallback, executionCallbackDelay);
 		}
 
-		final List<BEAN_TYPE> beans = beanAccess.getBeans(keys);
+		final List<BEAN_TYPE> beans = beanAccess.getBeans(keys, executionCallback);
 
 		if (!allowStaleBeans) {
 			checkBeans(keys, beans);

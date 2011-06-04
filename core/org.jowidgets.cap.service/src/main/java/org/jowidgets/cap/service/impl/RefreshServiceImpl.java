@@ -64,7 +64,7 @@ public final class RefreshServiceImpl<BEAN_TYPE extends IBean> implements IRefre
 	@Override
 	public List<IBeanDto> refresh(final Collection<? extends IBeanKey> beanKeys, final IExecutionCallback executionCallback) {
 
-		final List<BEAN_TYPE> beans = beanAccess.getBeans(beanKeys);
+		final List<BEAN_TYPE> beans = beanAccess.getBeans(beanKeys, executionCallback);
 
 		if (!allowDeletedBeans && beans.size() != beanKeys.size()) {
 			checkBeans(beanKeys, beans);

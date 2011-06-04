@@ -37,6 +37,7 @@ import java.util.Map;
 
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
+import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
 import org.jowidgets.util.Assert;
 
@@ -93,7 +94,7 @@ public abstract class AbstractData<DATA_TYPE extends IBean> implements IBeanAcce
 	}
 
 	@Override
-	public List<DATA_TYPE> getBeans(final Collection<? extends IBeanKey> keys) {
+	public List<DATA_TYPE> getBeans(final Collection<? extends IBeanKey> keys, final IExecutionCallback executionCallback) {
 		Assert.paramNotNull(keys, "keys");
 		final List<DATA_TYPE> result = new LinkedList<DATA_TYPE>();
 		for (final IBeanKey key : keys) {
