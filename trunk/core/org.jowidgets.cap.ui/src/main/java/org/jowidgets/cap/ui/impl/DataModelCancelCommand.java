@@ -26,29 +26,30 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample.app.client.attribute;
+package org.jowidgets.cap.ui.impl;
 
-import java.util.List;
+import org.jowidgets.api.command.EnabledState;
+import org.jowidgets.api.command.IEnabledState;
+import org.jowidgets.api.command.IExecutionContext;
+import org.jowidgets.cap.ui.api.model.IDataModel;
 
-import org.jowidgets.cap.common.api.bean.IProperty;
-import org.jowidgets.cap.common.api.service.IEntityService;
-import org.jowidgets.cap.sample.app.common.entity.IUser;
-import org.jowidgets.cap.ui.api.CapUiToolkit;
-import org.jowidgets.cap.ui.api.attribute.IAttribute;
-import org.jowidgets.cap.ui.api.attribute.IAttributeCollectionModifierBuilder;
-import org.jowidgets.common.types.AlignmentHorizontal;
-import org.jowidgets.service.api.ServiceProvider;
+final class DataModelCancelCommand extends AbstractDataModelCommand {
 
-public class UserAttributesFactory {
+	DataModelCancelCommand() {
+		super();
+	}
 
-	public List<IAttribute<Object>> create() {
-		final List<IProperty> properties = ServiceProvider.getService(IEntityService.ID).getDescriptor(IUser.class).getProperties();
+	@Override
+	void execute(final IDataModel dataModel, final IExecutionContext executionContext) {
+		dataModel.cancelExecutions();
+	}
 
-		final IAttributeCollectionModifierBuilder modifierBuilder = CapUiToolkit.getAttributeToolkit().createAttributeCollectionModifierBuilder();
-		modifierBuilder.addModifier(IUser.GENDER_PROPERTY).setTableAlignment(AlignmentHorizontal.CENTER).setEditable(false);
-		modifierBuilder.addDefaultEditableModifier(true);
-
-		return CapUiToolkit.getAttributeToolkit().createAttributes(properties, modifierBuilder.build());
+	@Override
+	IEnabledState getEnabledState(final IDataModel model) {
+		if (!model.hasExecutions()) {
+			return AbstractDataModelCommand.NOT_IN_PROCESS_STATE;
+		}
+		return EnabledState.ENABLED;
 	}
 
 }

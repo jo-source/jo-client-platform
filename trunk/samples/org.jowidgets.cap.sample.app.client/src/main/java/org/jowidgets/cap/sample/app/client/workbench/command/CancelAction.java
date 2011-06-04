@@ -26,29 +26,25 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample.app.client.attribute;
+package org.jowidgets.cap.sample.app.client.workbench.command;
 
-import java.util.List;
-
-import org.jowidgets.cap.common.api.bean.IProperty;
-import org.jowidgets.cap.common.api.service.IEntityService;
-import org.jowidgets.cap.sample.app.common.entity.IUser;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
-import org.jowidgets.cap.ui.api.attribute.IAttribute;
-import org.jowidgets.cap.ui.api.attribute.IAttributeCollectionModifierBuilder;
-import org.jowidgets.common.types.AlignmentHorizontal;
-import org.jowidgets.service.api.ServiceProvider;
+import org.jowidgets.cap.ui.api.command.IDataModelAction;
+import org.jowidgets.cap.ui.api.command.IDataModelActionBuilder;
+import org.jowidgets.examples.common.icons.SilkIcons;
 
-public class UserAttributesFactory {
+final class CancelAction {
 
-	public List<IAttribute<Object>> create() {
-		final List<IProperty> properties = ServiceProvider.getService(IEntityService.ID).getDescriptor(IUser.class).getProperties();
+	private final IDataModelAction action;
 
-		final IAttributeCollectionModifierBuilder modifierBuilder = CapUiToolkit.getAttributeToolkit().createAttributeCollectionModifierBuilder();
-		modifierBuilder.addModifier(IUser.GENDER_PROPERTY).setTableAlignment(AlignmentHorizontal.CENTER).setEditable(false);
-		modifierBuilder.addDefaultEditableModifier(true);
+	CancelAction() {
+		final IDataModelActionBuilder builder = CapUiToolkit.getActionFactory().dataModelCancelActionBuilder();
+		builder.setIcon(SilkIcons.CANCEL);
+		action = builder.build();
+	}
 
-		return CapUiToolkit.getAttributeToolkit().createAttributes(properties, modifierBuilder.build());
+	IDataModelAction getAction() {
+		return action;
 	}
 
 }

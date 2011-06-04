@@ -54,6 +54,18 @@ final class ActionFactoryImpl implements IActionFactory {
 	}
 
 	@Override
+	public IDataModelAction dataModelCancelAction() {
+		return dataModelCancelActionBuilder().build();
+	}
+
+	@Override
+	public IDataModelActionBuilder dataModelCancelActionBuilder() {
+		final IDataModelActionBuilder builder = new DataModelActionBuilderImpl(new DataModelCancelCommand());
+		builder.setText("Cancel"); //TODO MG i18n
+		return builder;
+	}
+
+	@Override
 	public IDataModelActionBuilder dataModelSaveActionBuilder() {
 		final IDataModelActionBuilder builder = new DataModelActionBuilderImpl(new DataModelSaveCommand());
 		builder.setText("Save"); //TODO MG i18n

@@ -35,6 +35,7 @@ public final class WorkbenchActions {
 	public static final IDataModelAction LOAD_ACTION = new LoadAction().getAction();
 	public static final IDataModelAction SAVE_ACTION = new SaveAction().getAction();
 	public static final IDataModelAction UNDO_ACTION = new UndoAction().getAction();
+	public static final IDataModelAction CANCEL_ACTION = new CancelAction().getAction();
 
 	private WorkbenchActions() {}
 

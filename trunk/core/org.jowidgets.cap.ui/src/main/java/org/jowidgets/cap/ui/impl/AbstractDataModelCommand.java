@@ -50,6 +50,7 @@ abstract class AbstractDataModelCommand implements ICommand, ICommandExecutor, I
 	//TODO i18n
 	static final IEnabledState NO_MODIFICATIONS_STATE = EnabledState.disabled("There is no data modified");
 	static final IEnabledState IN_PROCESS_STATE = EnabledState.disabled("The data is in process");
+	static final IEnabledState NOT_IN_PROCESS_STATE = EnabledState.disabled("There is no data in process");
 	private static final IEnabledState NO_DATA_NODE_STATE = EnabledState.disabled("There is no data node selected");
 
 	private final Set<IDataModel> dataModels;
