@@ -33,7 +33,6 @@ import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IProperty;
 
-
 public interface IAttributeToolkit {
 
 	<ELEMENT_VALUE_TYPE> IAttributeBuilder<ELEMENT_VALUE_TYPE> createAttributeBuilder(
@@ -58,6 +57,10 @@ public interface IAttributeToolkit {
 		IAttributeCollectionModifier attributeCollectionModifier);
 
 	List<IAttribute<Object>> createAttributesCopy(Collection<? extends IAttribute<?>> attributes);
+
+	IAttribute<Object> createMetaAttribute(String propertyName);
+
+	IAttributeBuilder<Object> createMetaAttributeBuilder(String propertyName);
 
 	<ELEMENT_VALUE_TYPE> IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> createControlPanelProviderBuilder(
 		Class<? extends ELEMENT_VALUE_TYPE> elementValueType);

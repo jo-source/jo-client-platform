@@ -80,6 +80,8 @@ public interface IBeanTableModelBuilder<BEAN_TYPE> {
 
 	IBeanTableModelBuilder<BEAN_TYPE> setAttributes(List<? extends IAttribute<?>> attributes);
 
+	IBeanTableModelBuilder<BEAN_TYPE> setMetaAttributes(String... metaPropertyNames);
+
 	IBeanTableModel<BEAN_TYPE> build();
 
 }
