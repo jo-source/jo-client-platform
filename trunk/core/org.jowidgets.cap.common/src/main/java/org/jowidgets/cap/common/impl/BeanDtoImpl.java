@@ -83,7 +83,6 @@ class BeanDtoImpl implements IBeanDto, Serializable {
 		int result = 1;
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		result = prime * result + ((persistenceClassname == null) ? 0 : persistenceClassname.hashCode());
-		result = prime * result + (int) (version ^ (version >>> 32));
 		return result;
 	}
 
@@ -113,9 +112,6 @@ class BeanDtoImpl implements IBeanDto, Serializable {
 			}
 		}
 		else if (!persistenceClassname.equals(other.persistenceClassname)) {
-			return false;
-		}
-		if (version != other.version) {
 			return false;
 		}
 		return true;
