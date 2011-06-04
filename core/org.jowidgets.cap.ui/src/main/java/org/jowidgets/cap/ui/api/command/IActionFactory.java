@@ -44,6 +44,10 @@ public interface IActionFactory {
 
 	IDataModelActionBuilder dataModelUndoActionBuilder();
 
+	IDataModelAction dataModelCancelAction();
+
+	IDataModelActionBuilder dataModelCancelActionBuilder();
+
 	<BEAN_TYPE, PARAM_TYPE> IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> executorActionBuilder(IBeanListModel<BEAN_TYPE> model);
 
 }

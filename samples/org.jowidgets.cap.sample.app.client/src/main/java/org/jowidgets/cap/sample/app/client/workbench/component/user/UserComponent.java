@@ -79,6 +79,7 @@ public class UserComponent extends AbstractComponent implements IComponent {
 		WorkbenchActions.LOAD_ACTION.addDataModel(userTableModel);
 		WorkbenchActions.SAVE_ACTION.addDataModel(userTableModel);
 		WorkbenchActions.UNDO_ACTION.addDataModel(userTableModel);
+		WorkbenchActions.CANCEL_ACTION.addDataModel(userTableModel);
 	}
 
 	@Override
@@ -86,6 +87,7 @@ public class UserComponent extends AbstractComponent implements IComponent {
 		WorkbenchActions.LOAD_ACTION.removeDataModel(userTableModel);
 		WorkbenchActions.SAVE_ACTION.removeDataModel(userTableModel);
 		WorkbenchActions.UNDO_ACTION.removeDataModel(userTableModel);
+		WorkbenchActions.CANCEL_ACTION.removeDataModel(userTableModel);
 	}
 
 	private IBeanTableModel<IUser> createUserTableModel() {

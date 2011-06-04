@@ -55,12 +55,14 @@ public class SampleWorkbench {
 		this.model.addApplication(new SampleApplication().getModel());
 
 		this.model.getToolBar().addAction(WorkbenchActions.LOAD_ACTION);
+		this.model.getToolBar().addAction(WorkbenchActions.CANCEL_ACTION);
 		this.model.getToolBar().addSeparator();
 		this.model.getToolBar().addAction(WorkbenchActions.UNDO_ACTION);
 		this.model.getToolBar().addAction(WorkbenchActions.SAVE_ACTION);
 
 		final IMenuModel dataMenu = this.model.getMenuBar().addMenu("Data");
 		dataMenu.addAction(WorkbenchActions.LOAD_ACTION);
+		dataMenu.addAction(WorkbenchActions.CANCEL_ACTION);
 		dataMenu.addSeparator();
 		dataMenu.addAction(WorkbenchActions.UNDO_ACTION);
 		dataMenu.addAction(WorkbenchActions.SAVE_ACTION);
