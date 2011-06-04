@@ -72,4 +72,6 @@ public interface ICapServiceToolkit {
 
 	IExecutionCallback delayedExecutionCallback(IExecutionCallback executionCallback);
 
+	void checkCanceled(IExecutionCallback executionCallback);
+
 }

@@ -102,31 +102,43 @@ public final class ExecutorServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE> impl
 			executionCallback = CapServiceToolkit.delayedExecutionCallback(executionCallback, executionCallbackDelay);
 		}
 
+		CapServiceToolkit.checkCanceled(executionCallback);
+
 		final List<BEAN_TYPE> beans = beanAccess.getBeans(keys, executionCallback);
 
+		CapServiceToolkit.checkCanceled(executionCallback);
+
 		if (!allowStaleBeans) {
-			checkBeans(keys, beans);
+			checkBeans(keys, beans, executionCallback);
 		}
 		else if (!allowDeletedBeans && beans.size() != keys.size()) {
-			checkBeans(keys, beans);
+			checkBeans(keys, beans, executionCallback);
 		}
 
 		if (executor instanceof IBeanListExecutor) {
-			return executeBeanCollection(beans, parameter, keys, executionCallback);
+			final List<IBeanDto> result = executeBeanList(beans, parameter, keys, executionCallback);
+			CapServiceToolkit.checkCanceled(executionCallback);
+			return result;
 		}
 		else if (executor instanceof IBeanExecutor) {
-			return execute(beans, parameter, keys, executionCallback);
+			final List<IBeanDto> result = execute(beans, parameter, keys, executionCallback);
+			CapServiceToolkit.checkCanceled(executionCallback);
+			return result;
 		}
 		else {
 			throw new IllegalStateException("Data executor type '" + executor + "' is not supported");
 		}
 	}
 
-	private void checkBeans(final List<? extends IBeanKey> keys, final List<BEAN_TYPE> beans) {
+	private void checkBeans(
+		final List<? extends IBeanKey> keys,
+		final List<BEAN_TYPE> beans,
+		final IExecutionCallback executionCallback) {
 		//put beans into map to access them faster at the next step
 		final Map<Object, BEAN_TYPE> beanMap = new HashMap<Object, BEAN_TYPE>();
 		for (final BEAN_TYPE bean : beans) {
 			beanMap.put(bean.getId(), bean);
+			CapServiceToolkit.checkCanceled(executionCallback);
 		}
 
 		//check if beans are deleted or stale
@@ -140,22 +152,24 @@ public final class ExecutorServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE> impl
 					throw new StaleBeanException(key);
 				}
 			}
+			CapServiceToolkit.checkCanceled(executionCallback);
 		}
 	}
 
 	@SuppressWarnings("unchecked")
-	private List<IBeanDto> executeBeanCollection(
+	private List<IBeanDto> executeBeanList(
 		final List<BEAN_TYPE> beans,
 		final PARAM_TYPE parameter,
 		final List<? extends IBeanKey> keys,
 		final IExecutionCallback executionCallback) {
 
 		if (executableChecker != null) {
-			checkExecutableStates(beans, keys);
+			checkExecutableStates(beans, keys, executionCallback);
 		}
 
 		final IBeanListExecutor<BEAN_TYPE, PARAM_TYPE> beanCollectionExecutor = (IBeanListExecutor<BEAN_TYPE, PARAM_TYPE>) executor;
 		final List<? extends BEAN_TYPE> executionResult = beanCollectionExecutor.execute(beans, parameter, executionCallback);
+		CapServiceToolkit.checkCanceled(executionCallback);
 		beanAccess.flush();
 		return dtoFactory.createDtos(executionResult);
 	}
@@ -172,44 +186,54 @@ public final class ExecutorServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE> impl
 		final List<IBeanDto> result = new LinkedList<IBeanDto>();
 		for (final BEAN_TYPE bean : beans) {
 			if (executableChecker != null) {
-				checkExecutableState(bean, keys);
+				checkExecutableState(bean, keys, executionCallback);
 			}
 			final BEAN_TYPE executionResult = beanExecutor.execute(bean, parameter, executionCallback);
+			CapServiceToolkit.checkCanceled(executionCallback);
 			beanAccess.flush();
 			if (executionResult != null) {
 				result.add(dtoFactory.createDto(executionResult));
 			}
+			CapServiceToolkit.checkCanceled(executionCallback);
 		}
 		return result;
 	}
 
-	private void checkExecutableStates(final List<BEAN_TYPE> beans, final List<? extends IBeanKey> keys) {
+	private void checkExecutableStates(
+		final List<BEAN_TYPE> beans,
+		final List<? extends IBeanKey> keys,
+		final IExecutionCallback executionCallback) {
 		for (final BEAN_TYPE bean : beans) {
 			final IExecutableState executableState = executableChecker.getExecutableState(bean);
 			if (!executableState.isExecutable()) {
 				throw new ExecutableCheckException(
-					findKey(keys, bean),
+					findKey(keys, bean, executionCallback),
 					"Executable check could not pass on service execution for bean '" + bean + "'",
 					executableState.getReason());
 			}
+			CapServiceToolkit.checkCanceled(executionCallback);
 		}
 	}
 
-	private void checkExecutableState(final BEAN_TYPE bean, final List<? extends IBeanKey> keys) {
+	private void checkExecutableState(
+		final BEAN_TYPE bean,
+		final List<? extends IBeanKey> keys,
+		final IExecutionCallback executionCallback) {
 		final IExecutableState executableState = executableChecker.getExecutableState(bean);
 		if (!executableState.isExecutable()) {
 			throw new ExecutableCheckException(
-				findKey(keys, bean),
+				findKey(keys, bean, executionCallback),
 				"Executable check could not pass on service execution for bean '" + bean + "'",
 				executableState.getReason());
 		}
 	}
 
-	private IBeanKey findKey(final List<? extends IBeanKey> keys, final IBean bean) {
+	private IBeanKey findKey(final List<? extends IBeanKey> keys, final IBean bean, final IExecutionCallback executionCallback) {
 		for (final IBeanKey key : keys) {
 			if (key.getId().equals(bean.getId())) {
 				return key;
 			}
+			CapServiceToolkit.checkCanceled(executionCallback);
 		}
 		throw new IllegalStateException("Could not find key for bean '"
 			+ bean
