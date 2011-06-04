@@ -32,8 +32,7 @@ import org.jowidgets.cap.ui.api.ICapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
 import org.jowidgets.cap.ui.api.bean.IBeanKeyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
-import org.jowidgets.cap.ui.api.bean.IBeansModificationBuffer;
-import org.jowidgets.cap.ui.api.bean.IBeansModificationRegistry;
+import org.jowidgets.cap.ui.api.bean.IBeansStateTracker;
 import org.jowidgets.cap.ui.api.command.IActionFactory;
 import org.jowidgets.cap.ui.api.execution.IExecutionTaskFactory;
 import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
@@ -72,15 +71,13 @@ public final class DefaultCapUiToolkit implements ICapUiToolkit {
 	}
 
 	@Override
-	public <BEAN_TYPE> IBeansModificationBuffer<BEAN_TYPE> createBeansModificationBuffer() {
-		return new BeansModificationBufferImpl<BEAN_TYPE>();
+	public <BEAN_TYPE> IBeansStateTracker<BEAN_TYPE> createBeansStateTracker() {
+		return new BeansStateTrackerImpl<BEAN_TYPE>();
 	}
 
 	@Override
-	public <BEAN_TYPE> IBeanProxyFactory<BEAN_TYPE> createBeanProxyFactory(
-		final Class<? extends BEAN_TYPE> beanType,
-		final IBeansModificationRegistry<BEAN_TYPE> modificationRegistry) {
-		return new BeanProxyFactoryImpl<BEAN_TYPE>(beanType, modificationRegistry);
+	public <BEAN_TYPE> IBeanProxyFactory<BEAN_TYPE> createBeanProxyFactory(final Class<? extends BEAN_TYPE> beanType) {
+		return new BeanProxyFactoryImpl<BEAN_TYPE>(beanType);
 	}
 
 	@Override

@@ -28,66 +28,35 @@
 
 package org.jowidgets.cap.ui.impl;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.jowidgets.cap.ui.api.bean.IBeanProcessStateListener;
+import org.jowidgets.cap.ui.api.bean.IBeanProcessStateObservable;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
-import org.jowidgets.cap.ui.api.bean.IBeansModificationBuffer;
-import org.jowidgets.util.Assert;
 
-final class BeansModificationBufferImpl<BEAN_TYPE> extends ModificationStateObservable implements IBeansModificationBuffer<BEAN_TYPE> {
+class BeanProcessStateObservable<BEAN_TYPE> implements IBeanProcessStateObservable<BEAN_TYPE> {
 
-	private final Set<IBeanProxy<BEAN_TYPE>> modifiedBeans;
+	private final Set<IBeanProcessStateListener<BEAN_TYPE>> listeners;
 
-	BeansModificationBufferImpl() {
-		this.modifiedBeans = new HashSet<IBeanProxy<BEAN_TYPE>>();
+	BeanProcessStateObservable() {
+		this.listeners = new HashSet<IBeanProcessStateListener<BEAN_TYPE>>();
 	}
 
 	@Override
-	public void add(final IBeanProxy<BEAN_TYPE> bean) {
-		Assert.paramNotNull(bean, "bean");
-		final boolean lastHasModifications = hasModifications();
-		modifiedBeans.add(bean);
-		if (lastHasModifications != hasModifications()) {
-			fireModificationStateChanged();
+	public final void addProcessStateListener(final IBeanProcessStateListener<BEAN_TYPE> listener) {
+		listeners.add(listener);
+	}
+
+	@Override
+	public final void removeProcessStateListener(final IBeanProcessStateListener<BEAN_TYPE> listener) {
+		listeners.remove(listener);
+	}
+
+	public final void fireProcessStateChanged(final IBeanProxy<BEAN_TYPE> bean) {
+		for (final IBeanProcessStateListener<BEAN_TYPE> listener : listeners) {
+			listener.processStateChanged(bean);
 		}
-	}
-
-	@Override
-	public void remove(final IBeanProxy<BEAN_TYPE> bean) {
-		Assert.paramNotNull(bean, "bean");
-		final boolean lastHasModifications = hasModifications();
-		modifiedBeans.remove(bean);
-		if (lastHasModifications != hasModifications()) {
-			fireModificationStateChanged();
-		}
-	}
-
-	@Override
-	public Set<IBeanProxy<BEAN_TYPE>> getModifiedBeans() {
-		return Collections.unmodifiableSet(modifiedBeans);
-	}
-
-	@Override
-	public boolean contains(final Object id) {
-		Assert.paramNotNull(id, "id");
-		for (final IBeanProxy<BEAN_TYPE> bean : modifiedBeans) {
-			if (id.equals(bean.getId())) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	@Override
-	public boolean hasModifications() {
-		return !modifiedBeans.isEmpty();
-	}
-
-	@Override
-	public void clear() {
-		modifiedBeans.clear();
 	}
 
 }

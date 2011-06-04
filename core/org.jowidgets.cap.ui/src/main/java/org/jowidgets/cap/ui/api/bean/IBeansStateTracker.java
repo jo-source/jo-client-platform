@@ -26,22 +26,31 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.model;
+package org.jowidgets.cap.ui.api.bean;
 
-public interface IDataModel extends IModificationStateObservable, IProcessStateObservable {
+import java.util.Set;
 
-	void load();
+import org.jowidgets.cap.ui.api.model.IModificationStateObservable;
+import org.jowidgets.cap.ui.api.model.IProcessStateObservable;
 
-	void clear();
+public interface IBeansStateTracker<BEAN_TYPE> extends IModificationStateObservable, IProcessStateObservable {
 
-	void save();
+	void register(IBeanProxy<BEAN_TYPE> bean);
 
-	void undo();
+	void unregister(IBeanProxy<BEAN_TYPE> bean);
 
-	boolean isDirty();
+	Set<IBeanProxy<BEAN_TYPE>> getModifiedBeans();
 
-	boolean hasExecutions();
+	boolean hasModifiedBeans();
+
+	void undoModifications();
+
+	Set<IBeanProxy<BEAN_TYPE>> getExecutingBeans();
+
+	boolean hasExecutingBeans();
 
 	void cancelExecutions();
+
+	void clear();
 
 }

@@ -39,7 +39,7 @@ final class DataModelUndoCommand extends AbstractDataModelCommand {
 
 	@Override
 	void execute(final IDataModel dataModel, final IExecutionContext executionContext) {
-		dataModel.undoModifications();
+		dataModel.undo();
 	}
 
 }

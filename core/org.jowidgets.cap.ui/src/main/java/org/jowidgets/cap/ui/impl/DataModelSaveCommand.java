@@ -39,7 +39,7 @@ final class DataModelSaveCommand extends AbstractDataModelCommand {
 
 	@Override
 	void execute(final IDataModel dataModel, final IExecutionContext executionContext) {
-		dataModel.saveModifications();
+		dataModel.save();
 	}
 
 }

@@ -26,22 +26,10 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.model;
+package org.jowidgets.cap.ui.api.bean;
 
-public interface IDataModel extends IModificationStateObservable, IProcessStateObservable {
+public interface IBeanProcessStateListener<BEAN_TYPE> {
 
-	void load();
-
-	void clear();
-
-	void save();
-
-	void undo();
-
-	boolean isDirty();
-
-	boolean hasExecutions();
-
-	void cancelExecutions();
+	void processStateChanged(IBeanProxy<BEAN_TYPE> bean);
 
 }

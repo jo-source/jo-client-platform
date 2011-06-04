@@ -33,8 +33,7 @@ import org.jowidgets.api.widgets.blueprint.defaults.IDefaultInitializer;
 import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
 import org.jowidgets.cap.ui.api.bean.IBeanKeyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
-import org.jowidgets.cap.ui.api.bean.IBeansModificationBuffer;
-import org.jowidgets.cap.ui.api.bean.IBeansModificationRegistry;
+import org.jowidgets.cap.ui.api.bean.IBeansStateTracker;
 import org.jowidgets.cap.ui.api.command.IActionFactory;
 import org.jowidgets.cap.ui.api.execution.IExecutionTaskFactory;
 import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
@@ -71,14 +70,12 @@ public final class CapUiToolkit {
 		return getInstance().executionTaskFactory();
 	}
 
-	public static <BEAN_TYPE> IBeansModificationBuffer<BEAN_TYPE> createBeansModificationBuffer() {
-		return getInstance().createBeansModificationBuffer();
+	public static <BEAN_TYPE> IBeansStateTracker<BEAN_TYPE> createBeansStateTracker() {
+		return getInstance().createBeansStateTracker();
 	}
 
-	public static <BEAN_TYPE> IBeanProxyFactory<BEAN_TYPE> createBeanProxyFactory(
-		final Class<? extends BEAN_TYPE> proxyType,
-		final IBeansModificationRegistry<BEAN_TYPE> modificationRegistry) {
-		return getInstance().createBeanProxyFactory(proxyType, modificationRegistry);
+	public static <BEAN_TYPE> IBeanProxyFactory<BEAN_TYPE> createBeanProxyFactory(final Class<? extends BEAN_TYPE> proxyType) {
+		return getInstance().createBeanProxyFactory(proxyType);
 	}
 
 	public static IBeanKeyFactory getBeanKeyFactory() {

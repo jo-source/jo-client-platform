@@ -31,8 +31,7 @@ package org.jowidgets.cap.ui.api;
 import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
 import org.jowidgets.cap.ui.api.bean.IBeanKeyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
-import org.jowidgets.cap.ui.api.bean.IBeansModificationBuffer;
-import org.jowidgets.cap.ui.api.bean.IBeansModificationRegistry;
+import org.jowidgets.cap.ui.api.bean.IBeansStateTracker;
 import org.jowidgets.cap.ui.api.command.IActionFactory;
 import org.jowidgets.cap.ui.api.execution.IExecutionTaskFactory;
 import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
@@ -48,11 +47,9 @@ public interface ICapUiToolkit {
 
 	IExecutionTaskFactory executionTaskFactory();
 
-	<BEAN_TYPE> IBeansModificationBuffer<BEAN_TYPE> createBeansModificationBuffer();
+	<BEAN_TYPE> IBeansStateTracker<BEAN_TYPE> createBeansStateTracker();
 
-	<BEAN_TYPE> IBeanProxyFactory<BEAN_TYPE> createBeanProxyFactory(
-		Class<? extends BEAN_TYPE> beanType,
-		IBeansModificationRegistry<BEAN_TYPE> modificationRegistry);
+	<BEAN_TYPE> IBeanProxyFactory<BEAN_TYPE> createBeanProxyFactory(Class<? extends BEAN_TYPE> beanType);
 
 	IBeanKeyFactory getBeanKeyFactory();
 

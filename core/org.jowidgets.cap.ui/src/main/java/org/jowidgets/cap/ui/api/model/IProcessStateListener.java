@@ -26,12 +26,10 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.bean;
+package org.jowidgets.cap.ui.api.model;
 
-public interface IProcessStateObservable {
+public interface IProcessStateListener {
 
-	void addProcessStateListener(IProcessStateListener listener);
-
-	void removeProcessStateListener(IProcessStateListener listener);
+	void processStateChanged();
 
 }
