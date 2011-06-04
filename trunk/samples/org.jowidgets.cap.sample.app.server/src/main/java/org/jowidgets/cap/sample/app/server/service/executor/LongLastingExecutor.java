@@ -65,8 +65,9 @@ public class LongLastingExecutor implements IBeanExecutor<User, Void> {
 			}
 			executionCallback.worked(3);
 		}
-
-		user.setName(user.getName());
+		if (!executionCallback.isCanceled()) {
+			user.setName(user.getName());
+		}
 		return user;
 	}
 }
