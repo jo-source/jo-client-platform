@@ -28,13 +28,15 @@
 
 package org.jowidgets.cap.ui.impl;
 
+import org.jowidgets.api.command.EnabledState;
+import org.jowidgets.api.command.IEnabledState;
 import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.cap.ui.api.model.IDataModel;
 
 final class DataModelUndoCommand extends AbstractDataModelCommand {
 
 	DataModelUndoCommand() {
-		super(true);
+		super();
 	}
 
 	@Override
@@ -42,4 +44,11 @@ final class DataModelUndoCommand extends AbstractDataModelCommand {
 		dataModel.undo();
 	}
 
+	@Override
+	IEnabledState getEnabledState(final IDataModel model) {
+		if (!model.isDirty()) {
+			return AbstractDataModelCommand.NO_MODIFICATIONS_STATE;
+		}
+		return EnabledState.ENABLED;
+	}
 }
