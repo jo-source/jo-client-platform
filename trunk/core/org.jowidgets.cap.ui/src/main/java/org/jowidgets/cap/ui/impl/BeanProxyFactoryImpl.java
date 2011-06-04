@@ -35,21 +35,15 @@ import java.util.List;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
-import org.jowidgets.cap.ui.api.bean.IBeansModificationRegistry;
 import org.jowidgets.util.Assert;
 
 final class BeanProxyFactoryImpl<BEAN_TYPE> implements IBeanProxyFactory<BEAN_TYPE> {
 
 	private final Class<? extends BEAN_TYPE> beanType;
-	private final IBeansModificationRegistry<BEAN_TYPE> modificationRegistry;
 
-	BeanProxyFactoryImpl(
-		final Class<? extends BEAN_TYPE> beanType,
-		final IBeansModificationRegistry<BEAN_TYPE> modificationRegistry) {
+	BeanProxyFactoryImpl(final Class<? extends BEAN_TYPE> beanType) {
 		Assert.paramNotNull(beanType, "beanType");
-		Assert.paramNotNull(modificationRegistry, "modificationRegistry");
 		this.beanType = beanType;
-		this.modificationRegistry = modificationRegistry;
 	}
 
 	@Override
@@ -64,7 +58,7 @@ final class BeanProxyFactoryImpl<BEAN_TYPE> implements IBeanProxyFactory<BEAN_TY
 
 	@Override
 	public IBeanProxy<BEAN_TYPE> createProxy(final IBeanDto beanDto) {
-		return new BeanProxyImpl<BEAN_TYPE>(beanDto, beanType, modificationRegistry);
+		return new BeanProxyImpl<BEAN_TYPE>(beanDto, beanType);
 	}
 
 	@Override
@@ -85,7 +79,7 @@ final class BeanProxyFactoryImpl<BEAN_TYPE> implements IBeanProxyFactory<BEAN_TY
 			public Object getId() {
 				return null;
 			}
-		}, beanType, modificationRegistry);
+		}, beanType);
 	}
 
 }

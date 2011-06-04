@@ -95,7 +95,7 @@ public class UserTableView extends AbstractView {
 			}
 		});
 
-		beanTableModel.loadData();
+		beanTableModel.load();
 	}
 
 	private IAction createClearAction() {
@@ -104,7 +104,7 @@ public class UserTableView extends AbstractView {
 		builder.setCommand(new ICommandExecutor() {
 			@Override
 			public void execute(final IExecutionContext executionContext) throws Exception {
-				beanTableModel.clearData();
+				beanTableModel.clear();
 			}
 		});
 		return builder.build();

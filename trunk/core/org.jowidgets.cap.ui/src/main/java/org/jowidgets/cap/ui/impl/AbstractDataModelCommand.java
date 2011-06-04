@@ -142,7 +142,7 @@ abstract class AbstractDataModelCommand implements ICommand, ICommandExecutor, I
 		else {
 			boolean modifications = false;
 			for (final IDataModel dataModel : dataModels) {
-				modifications = modifications || dataModel.hasModifications();
+				modifications = modifications || dataModel.isDirty();
 			}
 			if (lastModifications != modifications) {
 				lastModifications = modifications;

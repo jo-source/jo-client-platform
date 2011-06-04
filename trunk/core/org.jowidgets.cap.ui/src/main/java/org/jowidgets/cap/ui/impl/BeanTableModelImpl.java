@@ -59,11 +59,12 @@ import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
-import org.jowidgets.cap.ui.api.bean.IBeansModificationBuffer;
+import org.jowidgets.cap.ui.api.bean.IBeansStateTracker;
 import org.jowidgets.cap.ui.api.execution.IExecutionTask;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
 import org.jowidgets.cap.ui.api.model.IModificationStateListener;
+import org.jowidgets.cap.ui.api.model.IProcessStateListener;
 import org.jowidgets.cap.ui.api.model.LinkType;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.table.IReaderParameterProvider;
@@ -89,7 +90,7 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 	private final LinkedList<PageLoader> currentPageLoaders;
 
 	private final IBeanProxyFactory<BEAN_TYPE> beanProxyFactory;
-	private final IBeansModificationBuffer<BEAN_TYPE> modificationBuffer;
+	private final IBeansStateTracker<BEAN_TYPE> beansStateTracker;
 	private final ArrayList<IAttribute<Object>> attributes;
 	private final IReaderService<Object> readerService;
 	private final IReaderParameterProvider<Object> paramProvider;
@@ -154,8 +155,8 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 		this.pageSize = DEFAULT_PAGE_SIZE;
 		this.rowCount = 0;
 		this.maxPageIndex = 0;
-		this.modificationBuffer = CapUiToolkit.createBeansModificationBuffer();
-		this.beanProxyFactory = CapUiToolkit.createBeanProxyFactory(beanType, modificationBuffer);
+		this.beansStateTracker = CapUiToolkit.createBeansStateTracker();
+		this.beanProxyFactory = CapUiToolkit.createBeanProxyFactory(beanType);
 		this.beanListModelObservable = new BeanListModelObservable();
 
 		//model creation
@@ -165,18 +166,18 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 	}
 
 	@Override
-	public void clearData() {
+	public void clear() {
 		rowCount = 0;
 		maxPageIndex = 0;
 		dataCleared = true;
 		data.clear();
-		modificationBuffer.clear();
+		beansStateTracker.clear();
 		dataModel.fireDataChanged();
 	}
 
 	@Override
-	public void loadData() {
-		modificationBuffer.clear();
+	public void load() {
+		beansStateTracker.clear();
 		rowCount = readerService.count(null, null, null, null);
 		//rowCount = 0;
 		dataCleared = false;
@@ -187,8 +188,8 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 	}
 
 	@Override
-	public void saveModifications() {
-		final Set<IBeanProxy<BEAN_TYPE>> modifiedBeans = modificationBuffer.getModifiedBeans();
+	public void save() {
+		final Set<IBeanProxy<BEAN_TYPE>> modifiedBeans = beansStateTracker.getModifiedBeans();
 
 		final List<IBeanModification> modifications = new LinkedList<IBeanModification>();
 
@@ -214,27 +215,47 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 	}
 
 	@Override
-	public void undoModifications() {
-		for (final IBeanProxy<BEAN_TYPE> bean : new HashSet<IBeanProxy<BEAN_TYPE>>(modificationBuffer.getModifiedBeans())) {
+	public void undo() {
+		for (final IBeanProxy<BEAN_TYPE> bean : new HashSet<IBeanProxy<BEAN_TYPE>>(beansStateTracker.getModifiedBeans())) {
 			bean.undoModifications();
 		}
-		modificationBuffer.clear();
+		beansStateTracker.clear();
 		dataModel.fireDataChanged();
 	}
 
 	@Override
-	public boolean hasModifications() {
-		return modificationBuffer.hasModifications();
+	public boolean isDirty() {
+		return beansStateTracker.hasModifiedBeans();
 	}
 
 	@Override
 	public void addModificationStateListener(final IModificationStateListener listener) {
-		modificationBuffer.addModificationStateListener(listener);
+		beansStateTracker.addModificationStateListener(listener);
 	}
 
 	@Override
 	public void removeModificationStateListener(final IModificationStateListener listener) {
-		modificationBuffer.removeModificationStateListener(listener);
+		beansStateTracker.removeModificationStateListener(listener);
+	}
+
+	@Override
+	public boolean hasExecutions() {
+		return beansStateTracker.hasExecutingBeans();
+	}
+
+	@Override
+	public void cancelExecutions() {
+		beansStateTracker.cancelExecutions();
+	}
+
+	@Override
+	public void addProcessStateListener(final IProcessStateListener listener) {
+		beansStateTracker.addProcessStateListener(listener);
+	}
+
+	@Override
+	public void removeProcessStateListener(final IProcessStateListener listener) {
+		beansStateTracker.removeProcessStateListener(listener);
 	}
 
 	@Override
@@ -618,7 +639,9 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 								int index = 0;
 								for (final IBeanDto beanDto : beanDtos) {
 									if (index < pageSize) {
-										page.add(beanProxyFactory.createProxy(beanDto));
+										final IBeanProxy<BEAN_TYPE> beanProxy = beanProxyFactory.createProxy(beanDto);
+										page.add(beanProxy);
+										beansStateTracker.register(beanProxy);
 										index++;
 									}
 								}

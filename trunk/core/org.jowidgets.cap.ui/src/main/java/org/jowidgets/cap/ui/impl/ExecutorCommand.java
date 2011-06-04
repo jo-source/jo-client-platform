@@ -56,8 +56,9 @@ import org.jowidgets.cap.common.api.execution.UserQuestionResult;
 import org.jowidgets.cap.common.api.service.IExecutorService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.bean.IBeanKeyFactory;
+import org.jowidgets.cap.ui.api.bean.IBeanModificationStateListener;
+import org.jowidgets.cap.ui.api.bean.IBeanProcessStateListener;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
-import org.jowidgets.cap.ui.api.bean.IProcessStateListener;
 import org.jowidgets.cap.ui.api.execution.BeanExecutionPolicy;
 import org.jowidgets.cap.ui.api.execution.BeanModificationStatePolicy;
 import org.jowidgets.cap.ui.api.execution.BeanSelectionPolicy;
@@ -70,7 +71,6 @@ import org.jowidgets.cap.ui.api.execution.IParameterProvider;
 import org.jowidgets.cap.ui.api.execution.IUserAnswerCallback;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
-import org.jowidgets.cap.ui.api.model.IModificationStateListener;
 import org.jowidgets.tools.controler.ChangeObservable;
 import org.jowidgets.util.ValueHolder;
 import org.jowidgets.util.maybe.IMaybe;
@@ -147,16 +147,16 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 			}
 		};
 
-		final IModificationStateListener modificationStateListener = new IModificationStateListener() {
+		final IBeanModificationStateListener modificationStateListener = new IBeanModificationStateListener<Object>() {
 			@Override
-			public void modificationStateChanged() {
+			public void modificationStateChanged(final IBeanProxy<Object> bean) {
 				fireChangedEvent();
 			}
 		};
 
-		final IProcessStateListener processStateListener = new IProcessStateListener() {
+		final IBeanProcessStateListener processStateListener = new IBeanProcessStateListener<Object>() {
 			@Override
-			public void processStateChanged() {
+			public void processStateChanged(final IBeanProxy<Object> bean) {
 				fireChangedEvent();
 			}
 		};

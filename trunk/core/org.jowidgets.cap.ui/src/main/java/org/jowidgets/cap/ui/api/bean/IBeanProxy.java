@@ -33,13 +33,12 @@ import java.util.Collection;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanModification;
 import org.jowidgets.cap.ui.api.execution.IExecutionTask;
-import org.jowidgets.cap.ui.api.model.IModificationStateObservable;
 
 public interface IBeanProxy<BEAN_TYPE> extends
 		IBeanDto,
 		IPropertyChangeObservable,
-		IModificationStateObservable,
-		IProcessStateObservable {
+		IBeanModificationStateObservable<BEAN_TYPE>,
+		IBeanProcessStateObservable<BEAN_TYPE> {
 
 	void setValue(String propertyName, Object value);
 
@@ -52,6 +51,8 @@ public interface IBeanProxy<BEAN_TYPE> extends
 	void undoModifications();
 
 	IExecutionTask getExecutionTask();
+
+	boolean hasExecution();
 
 	void setExecutionTask(IExecutionTask executionTask);
 

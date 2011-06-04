@@ -28,8 +28,10 @@
 
 package org.jowidgets.cap.ui.api.bean;
 
-public interface IProcessStateListener {
+public interface IBeanModificationStateObservable<BEAN_TYPE> {
 
-	void processStateChanged();
+	void addModificationStateListener(IBeanModificationStateListener<BEAN_TYPE> listener);
+
+	void removeModificationStateListener(IBeanModificationStateListener<BEAN_TYPE> listener);
 
 }

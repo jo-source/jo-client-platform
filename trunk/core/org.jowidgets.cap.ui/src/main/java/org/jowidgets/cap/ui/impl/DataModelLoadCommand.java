@@ -39,7 +39,7 @@ final class DataModelLoadCommand extends AbstractDataModelCommand {
 
 	@Override
 	void execute(final IDataModel dataModel, final IExecutionContext executionContext) {
-		dataModel.loadData();
+		dataModel.load();
 	}
 
 }

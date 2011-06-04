@@ -26,18 +26,12 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.bean;
+package org.jowidgets.cap.ui.api.model;
 
-import java.util.Set;
+public interface IProcessStateObservable {
 
-import org.jowidgets.cap.ui.api.model.IModificationStateObservable;
+	void addProcessStateListener(IProcessStateListener listener);
 
-public interface IBeansModificationBuffer<BEAN_TYPE> extends IBeansModificationRegistry<BEAN_TYPE>, IModificationStateObservable {
-
-	Set<IBeanProxy<BEAN_TYPE>> getModifiedBeans();
-
-	boolean hasModifications();
-
-	void clear();
+	void removeProcessStateListener(IProcessStateListener listener);
 
 }

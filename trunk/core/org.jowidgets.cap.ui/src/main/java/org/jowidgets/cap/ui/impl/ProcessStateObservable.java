@@ -31,8 +31,8 @@ package org.jowidgets.cap.ui.impl;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.jowidgets.cap.ui.api.bean.IProcessStateListener;
-import org.jowidgets.cap.ui.api.bean.IProcessStateObservable;
+import org.jowidgets.cap.ui.api.model.IProcessStateListener;
+import org.jowidgets.cap.ui.api.model.IProcessStateObservable;
 
 class ProcessStateObservable implements IProcessStateObservable {
 
@@ -57,5 +57,4 @@ class ProcessStateObservable implements IProcessStateObservable {
 			listener.processStateChanged();
 		}
 	}
-
 }
