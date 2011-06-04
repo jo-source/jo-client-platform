@@ -109,7 +109,7 @@ public interface IExecutionCallback {
 	 * @param cancelable If true, the sub execution could be canceled by the user separately
 	 * @return The execution handle of the sub execution
 	 */
-	//TODO MG - HW - MW The result must also be a proxy, use @Callback for the return type here?
+	@Callback
 	IExecutionCallback createSubExecution(int stepProportion, boolean cancelable);
 
 	void addExecutionCallbackListener(@Callback IExecutionCallbackListener listener);
