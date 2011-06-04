@@ -29,6 +29,7 @@
 package org.jowidgets.cap.ui.impl;
 
 import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.lang.reflect.Proxy;
 import java.util.Collection;
 import java.util.HashMap;
@@ -45,10 +46,11 @@ import org.jowidgets.cap.ui.api.execution.IExecutionTask;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.NullCompatibleEquivalence;
 
-final class BeanProxyImpl<BEAN_TYPE> extends PropertyChangeObservable implements IBeanProxy<BEAN_TYPE> {
+final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE> {
 
 	private final Class<? extends BEAN_TYPE> beanType;
 	private final Map<String, IBeanModification> modifications;
+	private final PropertyChangeObservable propertyChangeObservable;
 	private final BeanModificationStateObservable<BEAN_TYPE> modificationStateObservable;
 	private final BeanProcessStateObservable<BEAN_TYPE> processStateObservable;
 
@@ -63,6 +65,7 @@ final class BeanProxyImpl<BEAN_TYPE> extends PropertyChangeObservable implements
 		this.beanDto = beanDto;
 		this.beanType = beanType;
 		this.modifications = new HashMap<String, IBeanModification>();
+		this.propertyChangeObservable = new PropertyChangeObservable();
 		this.modificationStateObservable = new BeanModificationStateObservable<BEAN_TYPE>();
 		this.processStateObservable = new BeanProcessStateObservable<BEAN_TYPE>();
 	}
@@ -183,6 +186,16 @@ final class BeanProxyImpl<BEAN_TYPE> extends PropertyChangeObservable implements
 	}
 
 	@Override
+	public void addPropertyChangeListener(final PropertyChangeListener listener) {
+		propertyChangeObservable.addPropertyChangeListener(listener);
+	}
+
+	@Override
+	public void removePropertyChangeListener(final PropertyChangeListener listener) {
+		propertyChangeObservable.removePropertyChangeListener(listener);
+	}
+
+	@Override
 	public void addModificationStateListener(final IBeanModificationStateListener<BEAN_TYPE> listener) {
 		modificationStateObservable.addModificationStateListener(listener);
 	}
@@ -202,9 +215,19 @@ final class BeanProxyImpl<BEAN_TYPE> extends PropertyChangeObservable implements
 		processStateObservable.removeProcessStateListener(listener);
 	}
 
+	@Override
+	public void dispose() {
+		modifications.clear();
+		modificationStateObservable.dispose();
+		processStateObservable.dispose();
+		executionTask = null;
+		beanDto = null;
+		proxy = null;
+	}
+
 	private void propertyChange(final Object source, final String propertyName, final Object oldValue, final Object newValue) {
 		final PropertyChangeEvent event = new PropertyChangeEvent(source, propertyName, oldValue, newValue);
-		firePropertyChange(event);
+		propertyChangeObservable.firePropertyChange(event);
 	}
 
 	@Override

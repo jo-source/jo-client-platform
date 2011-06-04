@@ -28,6 +28,8 @@
 
 package org.jowidgets.cap.ui.impl;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -640,11 +642,19 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 
 								page.clear();
 								int index = 0;
+								final int pageOffset = pageSize * pageIndex;
 								for (final IBeanDto beanDto : beanDtos) {
 									if (index < pageSize) {
 										final IBeanProxy<BEAN_TYPE> beanProxy = beanProxyFactory.createProxy(beanDto);
 										page.add(beanProxy);
 										beansStateTracker.register(beanProxy);
+										final int rowNr = pageOffset + index;
+										beanProxy.addPropertyChangeListener(new PropertyChangeListener() {
+											@Override
+											public void propertyChange(final PropertyChangeEvent evt) {
+												dataModel.fireRowsChanged(new int[] {rowNr});
+											}
+										});
 										index++;
 									}
 								}

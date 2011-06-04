@@ -26,40 +26,16 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.impl;
+package org.jowidgets.cap.ui.tools.model;
 
-import java.util.HashSet;
-import java.util.Set;
+import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
 
-import org.jowidgets.cap.ui.api.bean.IBeanModificationStateListener;
-import org.jowidgets.cap.ui.api.bean.IBeanModificationStateObservable;
-import org.jowidgets.cap.ui.api.bean.IBeanProxy;
-
-class BeanModificationStateObservable<BEAN_TYPE> implements IBeanModificationStateObservable<BEAN_TYPE> {
-
-	private final Set<IBeanModificationStateListener<BEAN_TYPE>> listeners;
-
-	BeanModificationStateObservable() {
-		this.listeners = new HashSet<IBeanModificationStateListener<BEAN_TYPE>>();
-	}
+public class BeanListModelAdapter implements IBeanListModelListener {
 
 	@Override
-	public final void addModificationStateListener(final IBeanModificationStateListener<BEAN_TYPE> listener) {
-		listeners.add(listener);
-	}
+	public void beansChanged() {}
 
 	@Override
-	public final void removeModificationStateListener(final IBeanModificationStateListener<BEAN_TYPE> listener) {
-		listeners.remove(listener);
-	}
+	public void selectionChanged() {}
 
-	public final void fireModificationStateChanged(final IBeanProxy<BEAN_TYPE> bean) {
-		for (final IBeanModificationStateListener<BEAN_TYPE> listener : listeners) {
-			listener.modificationStateChanged(bean);
-		}
-	}
-
-	public final void dispose() {
-		listeners.clear();
-	}
 }
