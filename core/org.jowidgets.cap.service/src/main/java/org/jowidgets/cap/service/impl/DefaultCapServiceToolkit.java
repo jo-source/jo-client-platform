@@ -31,6 +31,7 @@ package org.jowidgets.cap.service.impl;
 import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IBean;
+import org.jowidgets.cap.common.api.exception.ServiceCanceledException;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.service.api.ICapServiceToolkit;
@@ -100,6 +101,13 @@ public final class DefaultCapServiceToolkit implements ICapServiceToolkit {
 	@Override
 	public IExecutionCallback delayedExecutionCallback(final IExecutionCallback executionCallback) {
 		return new DelayedExecutionCallback(executionCallback);
+	}
+
+	@Override
+	public void checkCanceled(final IExecutionCallback executionCallback) {
+		if (executionCallback != null && executionCallback.isCanceled()) {
+			throw new ServiceCanceledException();
+		}
 	}
 
 }

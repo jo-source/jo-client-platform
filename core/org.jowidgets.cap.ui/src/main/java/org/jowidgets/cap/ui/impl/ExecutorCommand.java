@@ -54,6 +54,7 @@ import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.execution.IExecutableState;
 import org.jowidgets.cap.common.api.execution.UserQuestionResult;
 import org.jowidgets.cap.common.api.service.IExecutorService;
+import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.bean.IBeanKeyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeanModificationStateListener;
@@ -385,7 +386,7 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 			Object parameter = defaultParameter;
 			for (final Object parameterProvider : parameterProviders) {
 				final IMaybe paramResult = getParameter(parameterProvider, parameter, beans);
-				if (paramResult.isNothing()) {
+				if (paramResult.isNothing() || executionTask.isCanceled()) {
 					invokeAfterExecutionLater(null);
 					return;
 				}
@@ -395,6 +396,10 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 			}
 
 			final Object executionParameter = parameter;
+			if (executionTask.isCanceled()) {
+				invokeAfterExecutionLater(null);
+				return;
+			}
 			if (executor instanceof IExecutor) {
 				uiThreadAccess.invokeLater(new Runnable() {
 					@Override
@@ -402,6 +407,7 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 						final IExecutor theExecutor = (IExecutor) executor;
 						try {
 							theExecutor.execute(executionContext, beans, executionParameter);
+							CapServiceToolkit.checkCanceled(executionTask);
 						}
 						catch (final Exception exception) {
 							onExecption(exception);
@@ -417,6 +423,7 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 				List<IBeanDto> executionResult = null;
 				try {
 					executionResult = executorService.execute(keys, executionParameter, executionTask);
+					CapServiceToolkit.checkCanceled(executionTask);
 					invokeAfterExecutionLater(executionResult);
 				}
 				catch (final Exception e) {
@@ -433,6 +440,7 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 				final IExecutorJob executorJob = (IExecutorJob) executor;
 				try {
 					executorJob.execute(executionContext, beans, parameter, executionTask);
+					CapServiceToolkit.checkCanceled(executionTask);
 				}
 				catch (final Exception e) {
 					invokeOnExceptionLater(e);

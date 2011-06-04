@@ -103,4 +103,8 @@ public final class CapServiceToolkit {
 	public static IExecutionCallback delayedExecutionCallback(final IExecutionCallback executionCallback) {
 		return getInstance().delayedExecutionCallback(executionCallback);
 	}
+
+	public static void checkCanceled(final IExecutionCallback executionCallback) {
+		getInstance().checkCanceled(executionCallback);
+	}
 }
