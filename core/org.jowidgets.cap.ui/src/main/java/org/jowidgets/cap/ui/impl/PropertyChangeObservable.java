@@ -65,4 +65,8 @@ class PropertyChangeObservable implements IPropertyChangeObservable {
 		firePropertyChange(new PropertyChangeEvent(source, propertyName, oldValue, newValue));
 	}
 
+	public final void dispose() {
+		listeners.clear();
+	}
+
 }

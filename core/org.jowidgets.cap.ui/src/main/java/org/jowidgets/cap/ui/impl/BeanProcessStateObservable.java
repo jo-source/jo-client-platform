@@ -59,4 +59,8 @@ class BeanProcessStateObservable<BEAN_TYPE> implements IBeanProcessStateObservab
 		}
 	}
 
+	public final void dispose() {
+		listeners.clear();
+	}
+
 }

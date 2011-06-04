@@ -64,7 +64,7 @@ public class UserComponent extends AbstractComponent implements IComponent {
 			return new UserTableView(context, userTableModel, delayParameter);
 		}
 		else if (UserDetailView.ID.equals(viewId)) {
-			return new UserDetailView(context);
+			return new UserDetailView(context, userTableModel);
 		}
 		else {
 			throw new IllegalArgumentException("View id '" + viewId + "' is not known.");

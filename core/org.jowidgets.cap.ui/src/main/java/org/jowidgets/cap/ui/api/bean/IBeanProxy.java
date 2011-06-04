@@ -56,5 +56,7 @@ public interface IBeanProxy<BEAN_TYPE> extends
 
 	void setExecutionTask(IExecutionTask executionTask);
 
+	void dispose();
+
 	BEAN_TYPE getBean();
 }
