@@ -50,6 +50,7 @@ import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.types.QuestionResult;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
+import org.jowidgets.cap.common.api.exception.ServiceCanceledException;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.execution.IExecutableState;
 import org.jowidgets.cap.common.api.execution.UserQuestionResult;
@@ -490,6 +491,9 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 		}
 
 		private void onExecption(final Exception exception) {
+			if (exception instanceof ServiceCanceledException) {
+				return;
+			}
 			try {
 				handleException(executionContext, exception);
 			}

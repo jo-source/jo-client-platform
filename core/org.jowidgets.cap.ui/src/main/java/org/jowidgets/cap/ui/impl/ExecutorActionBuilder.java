@@ -38,7 +38,6 @@ import org.jowidgets.api.command.IEnabledChecker;
 import org.jowidgets.api.command.IExceptionHandler;
 import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.api.toolkit.Toolkit;
-import org.jowidgets.cap.common.api.exception.ServiceCanceledException;
 import org.jowidgets.cap.common.api.exception.ServiceException;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.service.IExecutorService;
@@ -96,11 +95,7 @@ final class ExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> extends AbstractSingleU
 			@Override
 			public void handleException(final IExecutionContext executionContext, final Exception exception) throws Exception {
 				final IAction action = executionContext.getAction();
-				if (exception instanceof ServiceCanceledException) {
-					//Service was canceled by user
-					return;
-				}
-				else if (exception instanceof ServiceException) {
+				if (exception instanceof ServiceException) {
 					Toolkit.getMessagePane().showInfo(
 							action.getText(),
 							action.getIcon(),
