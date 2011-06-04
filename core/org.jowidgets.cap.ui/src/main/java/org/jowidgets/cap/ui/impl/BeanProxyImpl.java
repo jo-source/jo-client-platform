@@ -33,7 +33,11 @@ import java.beans.PropertyChangeListener;
 import java.lang.reflect.Proxy;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
@@ -68,6 +72,11 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE> {
 		this.propertyChangeObservable = new PropertyChangeObservable();
 		this.modificationStateObservable = new BeanModificationStateObservable<BEAN_TYPE>();
 		this.processStateObservable = new BeanProcessStateObservable<BEAN_TYPE>();
+	}
+
+	@Override
+	public Set<String> getPropertyNames() {
+		return beanDto.getPropertyNames();
 	}
 
 	@Override
@@ -124,13 +133,15 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE> {
 	@Override
 	public void update(final IBeanDto beanDto) {
 		Assert.paramNotNull(beanDto, "beanDto");
-		if (!this.beanDto.getId().equals(beanDto.getId())) {
-			throw new IllegalArgumentException("The given parameter 'beanDto' must have the same id than this proxy");
+		if (!this.beanDto.equals(beanDto)) {
+			throw new IllegalArgumentException("The given parameter 'beanDto' must have the same id and type than this proxy");
 		}
 
 		final boolean oldModificationState = hasModifications();
-		modifications.clear();
+		final List<PropertyChangeEvent> propertyChangeEvents = getPropertyChangesForUpdate(beanDto);
 		this.beanDto = beanDto;
+		modifications.clear();
+		firePropertyChangeEvents(propertyChangeEvents);
 		if (oldModificationState) {
 			modificationStateObservable.fireModificationStateChanged(this);
 		}
@@ -149,7 +160,9 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE> {
 	@Override
 	public void undoModifications() {
 		final boolean oldModificationState = hasModifications();
+		final List<PropertyChangeEvent> propertyChangeEvents = getPropertyChangesForClear();
 		modifications.clear();
+		firePropertyChangeEvents(propertyChangeEvents);
 		if (oldModificationState) {
 			modificationStateObservable.fireModificationStateChanged(this);
 		}
@@ -223,6 +236,37 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE> {
 		executionTask = null;
 		beanDto = null;
 		proxy = null;
+	}
+
+	private List<PropertyChangeEvent> getPropertyChangesForClear() {
+		final List<PropertyChangeEvent> result = new LinkedList<PropertyChangeEvent>();
+		for (final Entry<String, IBeanModification> modificationEntry : modifications.entrySet()) {
+			final String propertyName = modificationEntry.getKey();
+			result.add(new PropertyChangeEvent(
+				this,
+				propertyName,
+				modificationEntry.getValue().getNewValue(),
+				beanDto.getValue(propertyName)));
+		}
+		return result;
+	}
+
+	private List<PropertyChangeEvent> getPropertyChangesForUpdate(final IBeanDto beanDto) {
+		final List<PropertyChangeEvent> result = new LinkedList<PropertyChangeEvent>();
+		for (final String propertyName : this.beanDto.getPropertyNames()) {
+			final Object oldValue = getValue(propertyName);
+			final Object newValue = beanDto.getValue(propertyName);
+			if (!NullCompatibleEquivalence.equals(oldValue, newValue)) {
+				result.add(new PropertyChangeEvent(this, propertyName, oldValue, newValue));
+			}
+		}
+		return result;
+	}
+
+	private void firePropertyChangeEvents(final List<PropertyChangeEvent> events) {
+		for (final PropertyChangeEvent event : events) {
+			propertyChangeObservable.firePropertyChange(event);
+		}
 	}
 
 	private void propertyChange(final Object source, final String propertyName, final Object oldValue, final Object newValue) {

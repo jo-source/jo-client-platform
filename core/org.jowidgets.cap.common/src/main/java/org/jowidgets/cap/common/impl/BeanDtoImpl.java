@@ -29,7 +29,9 @@
 package org.jowidgets.cap.common.impl;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
@@ -40,7 +42,6 @@ class BeanDtoImpl implements IBeanDto, Serializable {
 	private static final long serialVersionUID = -7085159195317664441L;
 
 	private final Object id;
-	private final long version;
 	private final String persistenceClassname;
 	private final Map<String, Object> beanData;
 
@@ -48,33 +49,38 @@ class BeanDtoImpl implements IBeanDto, Serializable {
 		Assert.paramNotEmpty(persistenceClassname, "persistenceClassname");
 		Assert.paramNotNull(beanData, "beanData");
 		this.id = id;
-		this.version = version;
 		this.persistenceClassname = persistenceClassname;
 		this.beanData = beanData;
+
+		beanData.put(IBean.ID_PROPERTY, id);
+		beanData.put(IBean.VERSION_PROPERTY, version);
 	}
 
 	@Override
 	public Object getValue(final String propertyName) {
 		Assert.paramNotEmpty(propertyName, "propertyName");
-		if (IBean.ID_PROPERTY.equals(propertyName)) {
-			return getId();
-		}
-		else if (IBean.VERSION_PROPERTY.equals(propertyName)) {
-			return getVersion();
-		}
-		else {
-			return beanData.get(propertyName);
-		}
+		return beanData.get(propertyName);
+	}
+
+	@Override
+	public Set<String> getPropertyNames() {
+		return Collections.unmodifiableSet(beanData.keySet());
 	}
 
 	@Override
 	public Object getId() {
-		return id;
+		return getValue(IBean.ID_PROPERTY);
 	}
 
 	@Override
 	public long getVersion() {
-		return version;
+		final Object result = getValue(IBean.VERSION_PROPERTY);
+		if (result instanceof Long) {
+			return ((Long) getValue(IBean.VERSION_PROPERTY)).longValue();
+		}
+		else {
+			return 0;
+		}
 	}
 
 	@Override
@@ -122,7 +128,7 @@ class BeanDtoImpl implements IBeanDto, Serializable {
 		return "BeanDtoImpl [id="
 			+ id
 			+ ", version="
-			+ version
+			+ getVersion()
 			+ ", persistenceClassname="
 			+ persistenceClassname
 			+ ", beanData="
