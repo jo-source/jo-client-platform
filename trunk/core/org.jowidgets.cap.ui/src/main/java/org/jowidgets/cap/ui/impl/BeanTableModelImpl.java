@@ -249,6 +249,7 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 	@Override
 	public void cancelExecutions() {
 		beansStateTracker.cancelExecutions();
+		fireBeansChanged();
 	}
 
 	@Override
