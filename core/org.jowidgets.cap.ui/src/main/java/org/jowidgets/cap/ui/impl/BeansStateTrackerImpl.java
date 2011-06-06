@@ -136,14 +136,27 @@ final class BeansStateTrackerImpl<BEAN_TYPE> implements IBeansStateTracker<BEAN_
 
 	@Override
 	public void cancelExecutions() {
+		final Set<IExecutionTask> tasks = new HashSet<IExecutionTask>();
 		for (final IBeanProxy<BEAN_TYPE> bean : new HashSet<IBeanProxy<BEAN_TYPE>>(processingBeans)) {
-			final IExecutionTask task = bean.getExecutionTask();
-			if (task != null && !task.isCanceled() && !task.isFinshed()) {
-				task.cancel();
-			}
+			tasks.add(bean.getExecutionTask());
 			bean.setExecutionTask(null);
 		}
 		processingBeans.clear();
+
+		for (final IExecutionTask task : tasks) {
+			if (task != null && !task.isCanceled() && !task.isFinshed()) {
+				final Runnable runnable = new Runnable() {
+					@Override
+					public void run() {
+						task.cancel();
+					}
+				};
+				final Thread thread = new Thread(runnable);
+				thread.setDaemon(true);
+				thread.start();
+			}
+		}
+
 	}
 
 	@Override

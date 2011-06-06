@@ -206,7 +206,7 @@ public final class ExecutionTask implements IExecutionTask, IUserAnswerCallback,
 	public void cancel() {
 		this.canceled = true;
 		fireCanceled();
-		for (final IExecutionTask subExecution : subExecutions) {
+		for (final IExecutionTask subExecution : new LinkedList<IExecutionTask>(subExecutions)) {
 			subExecution.cancel();
 		}
 		dispose();
