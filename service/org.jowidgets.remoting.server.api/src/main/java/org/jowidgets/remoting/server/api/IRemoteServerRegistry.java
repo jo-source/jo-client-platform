@@ -28,9 +28,9 @@
 
 package org.jowidgets.remoting.server.api;
 
-import org.jowidgets.remoting.common.ICancelService;
-import org.jowidgets.remoting.common.IRemoteMethod;
-import org.jowidgets.remoting.common.IUserQuestionResultService;
+import org.jowidgets.remoting.common.api.ICancelService;
+import org.jowidgets.remoting.common.api.IRemoteMethod;
+import org.jowidgets.remoting.common.api.IUserQuestionResultService;
 
 public interface IRemoteServerRegistry {
 

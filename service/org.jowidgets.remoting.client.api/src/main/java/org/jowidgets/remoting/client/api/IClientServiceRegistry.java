@@ -28,7 +28,7 @@
 
 package org.jowidgets.remoting.client.api;
 
-import org.jowidgets.remoting.common.IInvocationCallbackService;
+import org.jowidgets.remoting.common.api.IInvocationCallbackService;
 
 public interface IClientServiceRegistry {
 

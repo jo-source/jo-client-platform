@@ -31,10 +31,10 @@ package org.jowidgets.remoting.impl.local;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.jowidgets.remoting.common.ICancelService;
-import org.jowidgets.remoting.common.IInvocationCallbackService;
-import org.jowidgets.remoting.common.IRemoteMethod;
-import org.jowidgets.remoting.common.IUserQuestionResultService;
+import org.jowidgets.remoting.common.api.ICancelService;
+import org.jowidgets.remoting.common.api.IInvocationCallbackService;
+import org.jowidgets.remoting.common.api.IRemoteMethod;
+import org.jowidgets.remoting.common.api.IUserQuestionResultService;
 import org.jowidgets.remoting.server.api.IRemoteServer;
 import org.jowidgets.remoting.server.api.IRemoteServerRegistry;
 import org.jowidgets.util.Assert;

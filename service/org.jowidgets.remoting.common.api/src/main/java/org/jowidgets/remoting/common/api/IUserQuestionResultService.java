@@ -26,16 +26,10 @@
  * DAMAGE.
  */
 
-package org.jowidgets.remoting.common;
+package org.jowidgets.remoting.common.api;
 
-public interface IInvocationCallbackService {
+public interface IUserQuestionResultService {
 
-	void setProgress(Object invocationId, Object progress);
-
-	void userQuestion(Object invocationId, Object serverId, Object questionId, Object question);
-
-	void finished(Object invocationId, Object result);
-
-	void exeption(Object invocationId, Throwable exception);
+	void setResult(Object questionId, Object result);
 
 }

@@ -26,7 +26,7 @@
  * DAMAGE.
  */
 
-package org.jowidgets.remoting.common;
+package org.jowidgets.remoting.common.api;
 
 public interface IRemoteMethod {
 
