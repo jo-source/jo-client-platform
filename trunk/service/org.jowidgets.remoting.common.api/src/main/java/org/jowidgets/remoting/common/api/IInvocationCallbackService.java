@@ -26,10 +26,16 @@
  * DAMAGE.
  */
 
-package org.jowidgets.remoting.common;
+package org.jowidgets.remoting.common.api;
 
-public interface ICancelService {
+public interface IInvocationCallbackService {
 
-	void canceled(Object invocationId);
+	void setProgress(Object invocationId, Object progress);
+
+	void userQuestion(Object invocationId, Object serverId, Object questionId, Object question);
+
+	void finished(Object invocationId, Object result);
+
+	void exeption(Object invocationId, Throwable exception);
 
 }
