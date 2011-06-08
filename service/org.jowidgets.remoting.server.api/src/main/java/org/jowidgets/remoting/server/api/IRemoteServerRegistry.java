@@ -29,12 +29,12 @@
 package org.jowidgets.remoting.server.api;
 
 import org.jowidgets.remoting.common.api.ICancelService;
-import org.jowidgets.remoting.common.api.IRemoteMethod;
+import org.jowidgets.remoting.common.api.IMethod;
 import org.jowidgets.remoting.common.api.IUserQuestionResultService;
 
 public interface IRemoteServerRegistry {
 
-	void register(String methodName, IRemoteMethod method);
+	void register(String methodName, IMethod method);
 
 	void register(ICancelService cancelService);
 

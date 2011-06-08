@@ -26,10 +26,60 @@
  * DAMAGE.
  */
 
-package org.jowidgets.remoting.common.api;
+package org.jowidgets.remoting.service.client.impl;
 
-public interface IRemoteMethod extends IMethod {
+import org.jowidgets.remoting.service.common.api.IInvocationResultCallback;
+import org.jowidgets.remoting.service.common.api.IProgressCallback;
+import org.jowidgets.remoting.service.common.api.IUserQuestionCallback;
 
-	Object getServerId();
+@SuppressWarnings({"rawtypes", "unchecked"})
+final class MethodInvocationContext {
+
+	private final Object serverId;
+	private final IInvocationResultCallback resultCallback;
+	private final IProgressCallback progressCallback;
+	private final IUserQuestionCallback userQuestionCallback;
+	private final long timeout;
+	private final long timestamp;
+
+	MethodInvocationContext(
+		final Object serverId,
+		final IInvocationResultCallback<?> resultCallback,
+		final IProgressCallback<?> progressCallback,
+		final IUserQuestionCallback<?, ?> userQuestionCallback,
+		final long timeout,
+		final long timestamp) {
+
+		this.serverId = serverId;
+		this.resultCallback = resultCallback;
+		this.progressCallback = progressCallback;
+		this.userQuestionCallback = userQuestionCallback;
+		this.timeout = timeout;
+		this.timestamp = timestamp;
+	}
+
+	IInvocationResultCallback<Object> getResultCallback() {
+		return resultCallback;
+	}
+
+	IProgressCallback<Object> getProgressCallback() {
+		return progressCallback;
+	}
+
+	IUserQuestionCallback<Object, Object> getUserQuestionCallback() {
+		return userQuestionCallback;
+	}
+
+	long getTimeout() {
+		return timeout;
+	}
+
+	long getTimestamp() {
+		return timestamp;
+	}
+
+	Object getServerId() {
+		return serverId;
+	}
 
 }

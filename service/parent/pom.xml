@@ -19,7 +19,12 @@
 		<module>../org.jowidgets.remoting.common.api</module>	
 		<module>../org.jowidgets.remoting.client.api</module>
 		<module>../org.jowidgets.remoting.server.api</module>
-		<module>../org.jowidgets.remoting.impl.local</module>		
+		<module>../org.jowidgets.remoting.impl.local</module>
+		<module>../org.jowidgets.remoting.service.common.api</module>	
+		<module>../org.jowidgets.remoting.service.server.api</module>
+		<module>../org.jowidgets.remoting.service.client.api</module>	
+		<module>../org.jowidgets.remoting.service.server.impl</module>
+		<module>../org.jowidgets.remoting.service.client.impl</module>				
 	</modules>
 
 </project>

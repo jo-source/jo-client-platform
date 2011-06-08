@@ -26,10 +26,12 @@
  * DAMAGE.
  */
 
-package org.jowidgets.remoting.common.api;
+package org.jowidgets.remoting.service.server.api;
 
-public interface IRemoteMethod extends IMethod {
+import org.jowidgets.remoting.service.common.api.IRemoteMethodService;
 
-	Object getServerId();
+public interface IRemoteServiceServerRegistry {
+
+	void register(final String methodName, final IRemoteMethodService<?, ?, ?, ?, ?> method);
 
 }

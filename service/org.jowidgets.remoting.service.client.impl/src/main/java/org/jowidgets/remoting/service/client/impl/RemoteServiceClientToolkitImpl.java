@@ -26,10 +26,34 @@
  * DAMAGE.
  */
 
-package org.jowidgets.remoting.common.api;
+package org.jowidgets.remoting.service.client.impl;
 
-public interface IRemoteMethod extends IMethod {
+import java.util.UUID;
 
-	Object getServerId();
+import org.jowidgets.remoting.client.api.RemoteClientToolkit;
+import org.jowidgets.remoting.service.client.api.IRemoteServiceClient;
+import org.jowidgets.remoting.service.client.api.IRemoteServiceClientBuilder;
+import org.jowidgets.remoting.service.client.api.IRemoteServiceClientToolkit;
+
+public final class RemoteServiceClientToolkitImpl implements IRemoteServiceClientToolkit {
+
+	private final InvocationCallbackService invocationCallbackService;
+	private final Object clientId;
+
+	public RemoteServiceClientToolkitImpl() {
+		this.clientId = UUID.randomUUID();
+		this.invocationCallbackService = new InvocationCallbackService();
+		RemoteClientToolkit.getRegistry().register(invocationCallbackService);
+	}
+
+	@Override
+	public IRemoteServiceClient getClient() {
+		return getClientBuilder().build();
+	}
+
+	@Override
+	public IRemoteServiceClientBuilder getClientBuilder() {
+		return new RemoteServiceClientBuilder(clientId, invocationCallbackService);
+	}
 
 }

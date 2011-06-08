@@ -26,10 +26,37 @@
  * DAMAGE.
  */
 
-package org.jowidgets.remoting.common.api;
+package org.jowidgets.remoting.service.server.impl;
 
-public interface IRemoteMethod extends IMethod {
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
-	Object getServerId();
+import org.jowidgets.remoting.common.api.IUserQuestionResultService;
+import org.jowidgets.remoting.service.common.api.IUserQuestionResultCallback;
+import org.jowidgets.util.Assert;
+
+final class UserQuestionResultService implements IUserQuestionResultService {
+
+	private final Map<Object, IUserQuestionResultCallback<Object>> questionResultCallbacks;
+
+	UserQuestionResultService() {
+		this.questionResultCallbacks = new ConcurrentHashMap<Object, IUserQuestionResultCallback<Object>>();
+	}
+
+	@Override
+	public void setResult(final Object questionId, final Object result) {
+		Assert.paramNotNull(questionId, "questionId");
+		final IUserQuestionResultCallback<Object> userQuestionResultCallback = questionResultCallbacks.get(questionId);
+		if (userQuestionResultCallback != null) {
+			userQuestionResultCallback.setResult(result);
+		}
+	}
+
+	Object register(final IUserQuestionResultCallback<Object> callback) {
+		final Object questionId = UUID.randomUUID();
+		questionResultCallbacks.put(questionId, callback);
+		return questionId;
+	}
 
 }
