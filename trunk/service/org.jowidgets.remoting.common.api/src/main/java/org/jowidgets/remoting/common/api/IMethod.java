@@ -28,8 +28,8 @@
 
 package org.jowidgets.remoting.common.api;
 
-public interface IRemoteMethod extends IMethod {
+public interface IMethod {
 
-	Object getServerId();
+	void invoke(Object clientId, Object invocationId, Object parameter);
 
 }

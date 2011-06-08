@@ -26,10 +26,10 @@
  * DAMAGE.
  */
 
-package org.jowidgets.remoting.common.api;
+package org.jowidgets.remoting.service.common.api;
 
-public interface IRemoteMethod extends IMethod {
+public interface ICancelListener {
 
-	Object getServerId();
+	void canceled();
 
 }

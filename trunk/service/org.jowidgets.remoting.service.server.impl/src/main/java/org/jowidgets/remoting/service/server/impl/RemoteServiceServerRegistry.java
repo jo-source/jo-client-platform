@@ -26,10 +26,32 @@
  * DAMAGE.
  */
 
-package org.jowidgets.remoting.common.api;
+package org.jowidgets.remoting.service.server.impl;
 
-public interface IRemoteMethod extends IMethod {
+import org.jowidgets.remoting.common.api.IMethod;
+import org.jowidgets.remoting.server.api.IRemoteServer;
+import org.jowidgets.remoting.server.api.IRemoteServerRegistry;
+import org.jowidgets.remoting.server.api.RemoteServerToolkit;
+import org.jowidgets.remoting.service.common.api.IRemoteMethodService;
+import org.jowidgets.remoting.service.server.api.IRemoteServiceServerRegistry;
 
-	Object getServerId();
+final class RemoteServiceServerRegistry implements IRemoteServiceServerRegistry {
 
+	private final IRemoteServer remoteServer;
+	private final IRemoteServerRegistry remoteServerRegistry;
+	private final CancelService cancelService;
+	private final UserQuestionResultService userQuestionResultService;
+
+	RemoteServiceServerRegistry(final CancelService cancelService, final UserQuestionResultService userQuestionResultService) {
+		this.remoteServer = RemoteServerToolkit.getServer();
+		this.remoteServerRegistry = RemoteServerToolkit.getRegistry();
+		this.cancelService = cancelService;
+		this.userQuestionResultService = userQuestionResultService;
+	}
+
+	@Override
+	public void register(final String methodName, final IRemoteMethodService<?, ?, ?, ?, ?> methodService) {
+		final IMethod remoteMethod = new RemoteMethod(remoteServer, cancelService, userQuestionResultService, methodService);
+		remoteServerRegistry.register(methodName, remoteMethod);
+	}
 }

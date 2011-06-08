@@ -26,10 +26,16 @@
  * DAMAGE.
  */
 
-package org.jowidgets.remoting.common.api;
+package org.jowidgets.remoting.service.client.api;
 
-public interface IRemoteMethod extends IMethod {
+import java.util.concurrent.ExecutorService;
 
-	Object getServerId();
+public interface IRemoteServiceClientBuilder {
+
+	IRemoteServiceClientBuilder setDefaultTimeout(long timeout);
+
+	IRemoteServiceClientBuilder setExecutorService(ExecutorService executorService);
+
+	IRemoteServiceClient build();
 
 }

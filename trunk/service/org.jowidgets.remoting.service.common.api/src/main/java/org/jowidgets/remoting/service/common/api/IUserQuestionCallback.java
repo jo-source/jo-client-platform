@@ -26,10 +26,10 @@
  * DAMAGE.
  */
 
-package org.jowidgets.remoting.common.api;
+package org.jowidgets.remoting.service.common.api;
 
-public interface IRemoteMethod extends IMethod {
+public interface IUserQuestionCallback<QUESTION_TYPE, QUESTION_RESULT_TYPE> {
 
-	Object getServerId();
+	void userQuestion(IUserQuestionResultCallback<QUESTION_RESULT_TYPE> callback, QUESTION_TYPE question);
 
 }

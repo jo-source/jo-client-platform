@@ -32,7 +32,7 @@ public interface IInvocationCallbackService {
 
 	void setProgress(Object invocationId, Object progress);
 
-	void userQuestion(Object invocationId, Object serverId, Object questionId, Object question);
+	void userQuestion(Object invocationId, Object questionId, Object question);
 
 	void finished(Object invocationId, Object result);
 

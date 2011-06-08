@@ -26,10 +26,23 @@
  * DAMAGE.
  */
 
-package org.jowidgets.remoting.common.api;
+package org.jowidgets.remoting.service.common.api;
 
-public interface IRemoteMethod extends IMethod {
+public interface IRemoteMethodService<RESULT_TYPE, PROGRESS_TYPE, QUESTION_TYPE, QUESTION_RESULT_TYPE, PARAMETER_TYPE> {
 
-	Object getServerId();
+	/**
+	 * Do the invocation. This methods blocks until the invocation was finished. If this invocation creates sub thread,
+	 * this invocation must not return before the last sub thread has been finished.
+	 * 
+	 * @param resultCallback
+	 * @param progressCallback
+	 * @param userQuestionCallback
+	 * @param parameter
+	 */
+	void invoke(
+		IInvocationResultCallback<RESULT_TYPE> resultCallback,
+		IProgressCallback<PROGRESS_TYPE> progressCallback,
+		IUserQuestionCallback<QUESTION_TYPE, QUESTION_RESULT_TYPE> userQuestionCallback,
+		PARAMETER_TYPE parameter);
 
 }

@@ -30,9 +30,11 @@ package org.jowidgets.remoting.impl.local;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import org.jowidgets.remoting.common.api.ICancelService;
 import org.jowidgets.remoting.common.api.IInvocationCallbackService;
+import org.jowidgets.remoting.common.api.IMethod;
 import org.jowidgets.remoting.common.api.IRemoteMethod;
 import org.jowidgets.remoting.common.api.IUserQuestionResultService;
 import org.jowidgets.remoting.server.api.IRemoteServer;
@@ -46,16 +48,30 @@ final class RemoteServer implements IRemoteServer, IRemoteServerRegistry {
 	private final Map<String, IRemoteMethod> methods;
 	private ICancelService cancelService;
 	private IUserQuestionResultService userQuestionResultService;
+	private final Object serverId;
 
 	private RemoteServer() {
 		this.methods = new HashMap<String, IRemoteMethod>();
+		this.serverId = UUID.randomUUID();
 	}
 
 	@Override
-	public void register(final String methodName, final IRemoteMethod method) {
+	public void register(final String methodName, final IMethod method) {
 		Assert.paramNotNull(methodName, "methodName");
 		Assert.paramNotNull(method, "method");
-		methods.put(methodName, method);
+		final IRemoteMethod remoteMethod = new IRemoteMethod() {
+
+			@Override
+			public void invoke(final Object clientId, final Object invocationId, final Object parameter) {
+				method.invoke(clientId, invocationId, parameter);
+			}
+
+			@Override
+			public Object getServerId() {
+				return serverId;
+			}
+		};
+		methods.put(methodName, remoteMethod);
 	}
 
 	@Override
