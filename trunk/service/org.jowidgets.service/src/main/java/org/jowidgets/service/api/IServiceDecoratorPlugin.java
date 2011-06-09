@@ -28,10 +28,24 @@
 
 package org.jowidgets.service.api;
 
-public interface IServiceRegistry {
+import org.jowidgets.util.IDecorator;
 
-	void addServiceDecorator(final IServiceDecoratorPlugin serviceDecoratorPlugin);
+public interface IServiceDecoratorPlugin {
 
-	<SERVICE_TYPE> void register(final IServiceId<? extends SERVICE_TYPE> id, final SERVICE_TYPE service);
+	/**
+	 * Gets a default decorator that decorates all service. The default decorator may be null
+	 * 
+	 * @return a default decorator or null
+	 */
+	IDecorator<Object> getDefaultDecorator();
+
+	/**
+	 * Gets a decorator for a specific service.
+	 * 
+	 * @param <SERVICE_TYPE> The type of the service to decorate
+	 * @param type The type of the service to decorate
+	 * @return The decorated service
+	 */
+	<SERVICE_TYPE> IDecorator<SERVICE_TYPE> getDecorator(Class<? extends SERVICE_TYPE> type);
 
 }
