@@ -28,21 +28,20 @@
 
 package org.jowidgets.remoting.service.common.api;
 
-public interface IRemoteMethodService<RESULT_TYPE, PROGRESS_TYPE, QUESTION_TYPE, QUESTION_RESULT_TYPE, PARAMETER_TYPE> {
+public interface IRemoteMethodService<RESULT_TYPE, INTERIM_RESPONSE_TYPE, REQUEST_TYPE, RESPONSE_TYPE, PARAMETER_TYPE> {
 
 	/**
-	 * Do the invocation. This methods blocks until the invocation was finished. If this invocation creates sub thread,
-	 * this invocation must not return before the last sub thread has been finished.
+	 * Do the invocation.
 	 * 
 	 * @param resultCallback
-	 * @param progressCallback
-	 * @param userQuestionCallback
+	 * @param interimResponseCallback
+	 * @param interimRequestCallback
 	 * @param parameter
 	 */
 	void invoke(
-		IInvocationResultCallback<RESULT_TYPE> resultCallback,
-		IProgressCallback<PROGRESS_TYPE> progressCallback,
-		IUserQuestionCallback<QUESTION_TYPE, QUESTION_RESULT_TYPE> userQuestionCallback,
+		IInvocationCallback<RESULT_TYPE> resultCallback,
+		IInterimResponseCallback<INTERIM_RESPONSE_TYPE> interimResponseCallback,
+		IInterimRequestCallback<REQUEST_TYPE, RESPONSE_TYPE> interimRequestCallback,
 		PARAMETER_TYPE parameter);
 
 }

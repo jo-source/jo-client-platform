@@ -31,109 +31,68 @@ package org.jowidgets.remoting.service.client.impl;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import org.jowidgets.remoting.client.api.IRemoteClient;
 import org.jowidgets.remoting.client.api.RemoteClientToolkit;
 import org.jowidgets.remoting.common.api.ICancelService;
 import org.jowidgets.remoting.common.api.IInvocationCallbackService;
 import org.jowidgets.remoting.service.common.api.ICancelListener;
-import org.jowidgets.remoting.service.common.api.IInvocationResultCallback;
-import org.jowidgets.remoting.service.common.api.IProgressCallback;
-import org.jowidgets.remoting.service.common.api.IUserQuestionCallback;
-import org.jowidgets.remoting.service.common.api.IUserQuestionResultCallback;
+import org.jowidgets.remoting.service.common.api.IInterimRequestCallback;
+import org.jowidgets.remoting.service.common.api.IInterimResponseCallback;
+import org.jowidgets.remoting.service.common.api.IInvocationCallback;
 
 final class InvocationCallbackService implements IInvocationCallbackService {
 
 	private final Map<Object, MethodInvocationContext> invocationContexts;
-	private final ExecutorService executorService;
 
 	InvocationCallbackService() {
 		this.invocationContexts = new ConcurrentHashMap<Object, MethodInvocationContext>();
-		this.executorService = Executors.newFixedThreadPool(100);
 	}
 
 	@Override
-	public void setProgress(final Object invocationId, final Object progress) {
-		executorService.execute(getProgressRunnable(invocationId, progress));
+	public void interimResponse(final Object invocationId, final Object progress) {
+		final MethodInvocationContext context = invocationContexts.get(invocationId);
+		if (context != null && context.getInterimResponseCallback() != null) {
+			context.getInterimResponseCallback().response(progress);
+		}
 	}
 
 	@Override
-	public void userQuestion(final Object invocationId, final Object questionId, final Object question) {
-		executorService.execute(getQuestionRunnable(invocationId, questionId, question));
+	public void interimRequest(final Object invocationId, final Object questionId, final Object question) {
+		final MethodInvocationContext context = invocationContexts.get(invocationId);
+		if (context != null && context.getInterimRequestCallback() != null) {
+			final IInterimResponseCallback<Object> resultCallback = new IInterimResponseCallback<Object>() {
+				@Override
+				public void response(final Object result) {
+					RemoteClientToolkit.getClient().getResponseService(context.getServerId());
+				}
+			};
+			context.getInterimRequestCallback().request(resultCallback, question);
+		}
 	}
 
 	@Override
 	public void finished(final Object invocationId, final Object result) {
-		executorService.execute(getFinishedRunnable(invocationId, result));
+		final MethodInvocationContext context = invocationContexts.get(invocationId);
+		if (context != null && context.getResultCallback() != null) {
+			context.getResultCallback().finished(result);
+			invocationContexts.remove(invocationId);
+		}
 	}
 
 	@Override
 	public void exeption(final Object invocationId, final Throwable exception) {
-		executorService.execute(getExceptionRunnable(invocationId, exception));
-	}
-
-	private Runnable getProgressRunnable(final Object invocationId, final Object progress) {
-		return new Runnable() {
-			@Override
-			public void run() {
-				final MethodInvocationContext context = invocationContexts.get(invocationId);
-				if (context != null && context.getProgressCallback() != null) {
-					context.getProgressCallback().setProgress(progress);
-				}
-			}
-		};
-	}
-
-	private Runnable getFinishedRunnable(final Object invocationId, final Object result) {
-		return new Runnable() {
-			@Override
-			public void run() {
-				final MethodInvocationContext context = invocationContexts.get(invocationId);
-				if (context != null && context.getResultCallback() != null) {
-					context.getResultCallback().finished(result);
-					invocationContexts.remove(invocationId);
-				}
-			}
-		};
-	}
-
-	private Runnable getExceptionRunnable(final Object invocationId, final Throwable exception) {
-		return new Runnable() {
-			@Override
-			public void run() {
-				final MethodInvocationContext context = invocationContexts.get(invocationId);
-				if (context != null && context.getResultCallback() != null) {
-					context.getResultCallback().exeption(exception);
-					invocationContexts.remove(invocationId);
-				}
-			}
-		};
-	}
-
-	private Runnable getQuestionRunnable(final Object invocationId, final Object questionId, final Object question) {
-		return new Runnable() {
-			@Override
-			public void run() {
-				final MethodInvocationContext context = invocationContexts.get(invocationId);
-				if (context != null && context.getUserQuestionCallback() != null) {
-					final IUserQuestionResultCallback<Object> resultCallback = new IUserQuestionResultCallback<Object>() {
-						@Override
-						public void setResult(final Object result) {
-							RemoteClientToolkit.getClient().getQuestionResultService(context.getServerId());
-						}
-					};
-					context.getUserQuestionCallback().userQuestion(resultCallback, question);
-				}
-			}
-		};
+		final MethodInvocationContext context = invocationContexts.get(invocationId);
+		if (context != null && context.getResultCallback() != null) {
+			context.getResultCallback().exeption(exception);
+			invocationContexts.remove(invocationId);
+		}
 	}
 
 	Object registerInvocation(
-		final IInvocationResultCallback<?> resultCallback,
-		final IProgressCallback<?> progressCallback,
-		final IUserQuestionCallback<?, ?> userQuestionCallback,
+		final IInvocationCallback<?> invocationCallback,
+		final IInterimResponseCallback<?> interimResponseCallback,
+		final IInterimRequestCallback<?, ?> interimRequestCallback,
 		final long timeout,
 		final Object serverId,
 		final IRemoteClient remoteClient) {
@@ -142,25 +101,20 @@ final class InvocationCallbackService implements IInvocationCallbackService {
 
 		final MethodInvocationContext methodInvocation = new MethodInvocationContext(
 			serverId,
-			resultCallback,
-			progressCallback,
-			userQuestionCallback,
+			invocationCallback,
+			interimResponseCallback,
+			interimRequestCallback,
 			timeout,
 			System.currentTimeMillis());
 
-		if (progressCallback != null) {
-			progressCallback.addCancelListener(new ICancelListener() {
+		if (invocationCallback != null) {
+			invocationCallback.addCancelListener(new ICancelListener() {
 				@Override
 				public void canceled() {
-					executorService.execute(new Runnable() {
-						@Override
-						public void run() {
-							final ICancelService cancelService = remoteClient.getCancelService(serverId);
-							if (cancelService != null) {
-								cancelService.canceled(invocationId);
-							}
-						}
-					});
+					final ICancelService cancelService = remoteClient.getCancelService(serverId);
+					if (cancelService != null) {
+						cancelService.canceled(invocationId);
+					}
 				}
 			});
 		}

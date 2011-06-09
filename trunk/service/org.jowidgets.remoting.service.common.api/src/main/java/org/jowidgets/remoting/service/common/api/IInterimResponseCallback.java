@@ -28,10 +28,8 @@
 
 package org.jowidgets.remoting.service.common.api;
 
-public interface IProgressCallback<PROGRESS_TYPE> {
+public interface IInterimResponseCallback<RESPONSE_TYPE> {
 
-	void addCancelListener(ICancelListener cancelListener);
-
-	void setProgress(PROGRESS_TYPE progress);
+	void response(RESPONSE_TYPE response);
 
 }

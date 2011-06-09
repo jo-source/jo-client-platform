@@ -34,7 +34,7 @@ import org.jowidgets.remoting.common.api.ICancelService;
 import org.jowidgets.remoting.common.api.IInvocationCallbackService;
 import org.jowidgets.remoting.common.api.IMethod;
 import org.jowidgets.remoting.common.api.IRemoteMethod;
-import org.jowidgets.remoting.common.api.IUserQuestionResultService;
+import org.jowidgets.remoting.common.api.IResponseService;
 import org.jowidgets.remoting.server.api.IRemoteServer;
 import org.jowidgets.remoting.server.api.IRemoteServerRegistry;
 
@@ -51,7 +51,7 @@ public final class LocalRemoting implements IRemoteClient, IClientServiceRegistr
 	}
 
 	@Override
-	public void register(final IUserQuestionResultService resultService) {
+	public void register(final IResponseService resultService) {
 		RemoteServer.getInstance().register(resultService);
 	}
 
@@ -76,7 +76,7 @@ public final class LocalRemoting implements IRemoteClient, IClientServiceRegistr
 	}
 
 	@Override
-	public IUserQuestionResultService getQuestionResultService(final Object serverId) {
-		return RemoteClient.getInstance().getQuestionResultService(serverId);
+	public IResponseService getResponseService(final Object serverId) {
+		return RemoteClient.getInstance().getResponseService(serverId);
 	}
 }

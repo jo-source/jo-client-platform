@@ -32,10 +32,9 @@ import org.jowidgets.remoting.service.common.api.IRemoteMethodService;
 
 public interface IRemoteServiceClient {
 
-	<RES, PROG, QUEST, QUEST_RES, PARAM> IRemoteMethodService<RES, PROG, QUEST, QUEST_RES, PARAM> getMethodService(
-		String methodName);
+	<RES, INT_RES, REQ, RESP, PARAM> IRemoteMethodService<RES, INT_RES, REQ, RESP, PARAM> getMethodService(String methodName);
 
-	<RES, PROG, QUEST, QUEST_RES, PARAM> IRemoteMethodService<RES, PROG, QUEST, QUEST_RES, PARAM> getMethodService(
+	<RES, INT_RES, REQ, RESP, PARAM> IRemoteMethodService<RES, INT_RES, REQ, RESP, PARAM> getMethodService(
 		String methodName,
 		long timeout);
 

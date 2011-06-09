@@ -26,10 +26,37 @@
  * DAMAGE.
  */
 
-package org.jowidgets.remoting.service.common.api;
+package org.jowidgets.remoting.service.server.impl;
 
-public interface IUserQuestionCallback<QUESTION_TYPE, QUESTION_RESULT_TYPE> {
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
-	void userQuestion(IUserQuestionResultCallback<QUESTION_RESULT_TYPE> callback, QUESTION_TYPE question);
+import org.jowidgets.remoting.common.api.IResponseService;
+import org.jowidgets.remoting.service.common.api.IInterimResponseCallback;
+import org.jowidgets.util.Assert;
+
+final class ResponseService implements IResponseService {
+
+	private final Map<Object, IInterimResponseCallback<Object>> interimResponseCallback;
+
+	ResponseService() {
+		this.interimResponseCallback = new ConcurrentHashMap<Object, IInterimResponseCallback<Object>>();
+	}
+
+	@Override
+	public void response(final Object requestId, final Object result) {
+		Assert.paramNotNull(requestId, "requestId");
+		final IInterimResponseCallback<Object> responseCallback = interimResponseCallback.get(requestId);
+		if (responseCallback != null) {
+			responseCallback.response(result);
+		}
+	}
+
+	Object register(final IInterimResponseCallback<Object> callback) {
+		final Object questionId = UUID.randomUUID();
+		interimResponseCallback.put(questionId, callback);
+		return questionId;
+	}
 
 }

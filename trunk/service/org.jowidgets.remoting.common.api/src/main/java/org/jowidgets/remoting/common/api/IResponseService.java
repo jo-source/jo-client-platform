@@ -28,8 +28,8 @@
 
 package org.jowidgets.remoting.common.api;
 
-public interface IUserQuestionResultService {
+public interface IResponseService {
 
-	void setResult(Object questionId, Object result);
+	void response(Object requestId, Object response);
 
 }

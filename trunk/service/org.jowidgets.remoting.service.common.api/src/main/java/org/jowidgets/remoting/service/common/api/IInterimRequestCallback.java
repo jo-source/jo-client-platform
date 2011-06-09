@@ -28,12 +28,8 @@
 
 package org.jowidgets.remoting.service.common.api;
 
-public interface IInvocationResultCallback<RESULT_TYPE> {
+public interface IInterimRequestCallback<REQUEST_TYPE, RESPONSE_TYPE> {
 
-	void finished(RESULT_TYPE result);
-
-	void exeption(Throwable exception);
-
-	void timeout();
+	void request(IInterimResponseCallback<RESPONSE_TYPE> callback, REQUEST_TYPE request);
 
 }

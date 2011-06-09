@@ -28,46 +28,46 @@
 
 package org.jowidgets.remoting.service.client.impl;
 
-import org.jowidgets.remoting.service.common.api.IInvocationResultCallback;
-import org.jowidgets.remoting.service.common.api.IProgressCallback;
-import org.jowidgets.remoting.service.common.api.IUserQuestionCallback;
+import org.jowidgets.remoting.service.common.api.IInvocationCallback;
+import org.jowidgets.remoting.service.common.api.IInterimResponseCallback;
+import org.jowidgets.remoting.service.common.api.IInterimRequestCallback;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 final class MethodInvocationContext {
 
 	private final Object serverId;
-	private final IInvocationResultCallback resultCallback;
-	private final IProgressCallback progressCallback;
-	private final IUserQuestionCallback userQuestionCallback;
+	private final IInvocationCallback invocationCallback;
+	private final IInterimResponseCallback interimResponseCallback;
+	private final IInterimRequestCallback interimRequestCallback;
 	private final long timeout;
 	private final long timestamp;
 
 	MethodInvocationContext(
 		final Object serverId,
-		final IInvocationResultCallback<?> resultCallback,
-		final IProgressCallback<?> progressCallback,
-		final IUserQuestionCallback<?, ?> userQuestionCallback,
+		final IInvocationCallback<?> invocationCallback,
+		final IInterimResponseCallback<?> interimResponseCallback,
+		final IInterimRequestCallback<?, ?> interimRequestCalbback,
 		final long timeout,
 		final long timestamp) {
 
 		this.serverId = serverId;
-		this.resultCallback = resultCallback;
-		this.progressCallback = progressCallback;
-		this.userQuestionCallback = userQuestionCallback;
+		this.invocationCallback = invocationCallback;
+		this.interimResponseCallback = interimResponseCallback;
+		this.interimRequestCallback = interimRequestCalbback;
 		this.timeout = timeout;
 		this.timestamp = timestamp;
 	}
 
-	IInvocationResultCallback<Object> getResultCallback() {
-		return resultCallback;
+	IInvocationCallback<Object> getResultCallback() {
+		return invocationCallback;
 	}
 
-	IProgressCallback<Object> getProgressCallback() {
-		return progressCallback;
+	IInterimResponseCallback<Object> getInterimResponseCallback() {
+		return interimResponseCallback;
 	}
 
-	IUserQuestionCallback<Object, Object> getUserQuestionCallback() {
-		return userQuestionCallback;
+	IInterimRequestCallback<Object, Object> getInterimRequestCallback() {
+		return interimRequestCallback;
 	}
 
 	long getTimeout() {

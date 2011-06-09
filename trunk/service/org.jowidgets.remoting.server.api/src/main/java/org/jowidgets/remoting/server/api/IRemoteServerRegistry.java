@@ -30,7 +30,7 @@ package org.jowidgets.remoting.server.api;
 
 import org.jowidgets.remoting.common.api.ICancelService;
 import org.jowidgets.remoting.common.api.IMethod;
-import org.jowidgets.remoting.common.api.IUserQuestionResultService;
+import org.jowidgets.remoting.common.api.IResponseService;
 
 public interface IRemoteServerRegistry {
 
@@ -38,6 +38,6 @@ public interface IRemoteServerRegistry {
 
 	void register(ICancelService cancelService);
 
-	void register(IUserQuestionResultService resultService);
+	void register(IResponseService responseService);
 
 }

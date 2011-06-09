@@ -28,16 +28,14 @@
 
 package org.jowidgets.remoting.service.client.impl;
 
-import java.util.concurrent.ExecutorService;
-
 import org.jowidgets.remoting.client.api.IRemoteClient;
 import org.jowidgets.remoting.client.api.RemoteClientToolkit;
 import org.jowidgets.remoting.common.api.IRemoteMethod;
 import org.jowidgets.remoting.service.client.api.IRemoteServiceClient;
-import org.jowidgets.remoting.service.common.api.IInvocationResultCallback;
-import org.jowidgets.remoting.service.common.api.IProgressCallback;
+import org.jowidgets.remoting.service.common.api.IInterimRequestCallback;
+import org.jowidgets.remoting.service.common.api.IInterimResponseCallback;
+import org.jowidgets.remoting.service.common.api.IInvocationCallback;
 import org.jowidgets.remoting.service.common.api.IRemoteMethodService;
-import org.jowidgets.remoting.service.common.api.IUserQuestionCallback;
 import org.jowidgets.util.Assert;
 
 final class RemoteServiceClient implements IRemoteServiceClient {
@@ -46,18 +44,12 @@ final class RemoteServiceClient implements IRemoteServiceClient {
 	private final IRemoteClient remoteClient;
 	private final Object clientId;
 	private final InvocationCallbackService invocationCallbackService;
-	private final ExecutorService executorService;
 
-	RemoteServiceClient(
-		final Object clientId,
-		final InvocationCallbackService invocationCallbackService,
-		final ExecutorService executorService,
-		final long defaulTimeout) {
+	RemoteServiceClient(final Object clientId, final InvocationCallbackService invocationCallbackService, final long defaulTimeout) {
 		super();
 		this.defaulTimeout = defaulTimeout;
 		this.clientId = clientId;
 		this.invocationCallbackService = invocationCallbackService;
-		this.executorService = executorService;
 		this.remoteClient = RemoteClientToolkit.getClient();
 	}
 
@@ -77,34 +69,28 @@ final class RemoteServiceClient implements IRemoteServiceClient {
 
 			@Override
 			public void invoke(
-				final IInvocationResultCallback<RES> resultCallback,
-				final IProgressCallback<PROG> progressCallback,
-				final IUserQuestionCallback<QUEST, QUEST_RES> userQuestionCallback,
+				final IInvocationCallback<RES> invocationCallback,
+				final IInterimResponseCallback<PROG> interimResponseCallback,
+				final IInterimRequestCallback<QUEST, QUEST_RES> interimRequestCallback,
 				final PARAM parameter) {
 
-				executorService.execute(new Runnable() {
-					@Override
-					public void run() {
-						final IRemoteMethod remoteMethod = remoteClient.getMethod(methodName);
-						if (remoteMethod == null) {
-							if (resultCallback != null) {
-								resultCallback.exeption(new IllegalArgumentException(
-									"No remote method registered for method name '" + methodName + "'."));
-							}
-						}
-						else {
-							final Object invocationId = invocationCallbackService.registerInvocation(
-									resultCallback,
-									progressCallback,
-									userQuestionCallback,
-									timeout,
-									remoteMethod.getServerId(),
-									remoteClient);
-
-							remoteMethod.invoke(clientId, invocationId, parameter);
-						}
+				final IRemoteMethod remoteMethod = remoteClient.getMethod(methodName);
+				if (remoteMethod == null) {
+					if (invocationCallback != null) {
+						throw new IllegalArgumentException("No remote method registered for method name '" + methodName + "'.");
 					}
-				});
+				}
+				else {
+					final Object invocationId = invocationCallbackService.registerInvocation(
+							invocationCallback,
+							interimResponseCallback,
+							interimRequestCallback,
+							timeout,
+							remoteMethod.getServerId(),
+							remoteClient);
+
+					remoteMethod.invoke(clientId, invocationId, parameter);
+				}
 
 			}
 		};
