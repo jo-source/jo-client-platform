@@ -28,10 +28,11 @@
 
 package org.jowidgets.service.api;
 
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.ServiceLoader;
+import java.util.Set;
 
-import org.jowidgets.service.impl.CompositeServiceProviderHolder;
 import org.jowidgets.util.Assert;
 
 public final class ServiceProvider {
@@ -65,4 +66,47 @@ public final class ServiceProvider {
 		return getInstance().get(id);
 	}
 
+	private static class CompositeServiceProviderHolder implements IServiceProviderHolder {
+
+		private final Set<IServiceProviderHolder> serviceProviderHolders;
+
+		private final IServiceProvider serviceProvider;
+
+		CompositeServiceProviderHolder() {
+			this.serviceProviderHolders = new HashSet<IServiceProviderHolder>();
+
+			this.serviceProvider = new IServiceProvider() {
+
+				@Override
+				public Set<IServiceId<?>> getAvailableServices() {
+					final Set<IServiceId<?>> result = new HashSet<IServiceId<?>>();
+					for (final IServiceProviderHolder serviceToolkit : serviceProviderHolders) {
+						result.addAll(serviceToolkit.getServiceProvider().getAvailableServices());
+					}
+					return result;
+				}
+
+				@Override
+				public <SERVICE_TYPE> SERVICE_TYPE get(final IServiceId<SERVICE_TYPE> id) {
+					for (final IServiceProviderHolder serviceToolkit : serviceProviderHolders) {
+						final IServiceProvider provider = serviceToolkit.getServiceProvider();
+						if (provider.getAvailableServices().contains(id)) {
+							return provider.get(id);
+						}
+					}
+					return null;
+				}
+			};
+		}
+
+		void add(final IServiceProviderHolder holder) {
+			//TODO proof: service must not be available more than once
+			serviceProviderHolders.add(holder);
+		}
+
+		@Override
+		public IServiceProvider getServiceProvider() {
+			return serviceProvider;
+		}
+	}
 }

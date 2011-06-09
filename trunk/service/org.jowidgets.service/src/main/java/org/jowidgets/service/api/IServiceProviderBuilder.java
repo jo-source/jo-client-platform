@@ -26,14 +26,12 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample.app.server.service;
+package org.jowidgets.service.api;
 
-import org.jowidgets.service.tools.DefaultServiceProviderHolder;
+public interface IServiceProviderBuilder extends IServiceRegistry {
 
-public class ServiceProviderHolder extends DefaultServiceProviderHolder {
+	IServiceProviderBuilder addServiceDecorator(final IServicesDecoratorProvider decorator);
 
-	public ServiceProviderHolder() {
-		super(new SampleServiceProviderBuilder());
-	}
+	IServiceProvider build();
 
 }

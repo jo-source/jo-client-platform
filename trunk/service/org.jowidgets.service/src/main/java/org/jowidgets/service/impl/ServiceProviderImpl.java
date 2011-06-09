@@ -28,22 +28,31 @@
 
 package org.jowidgets.service.impl;
 
+import java.util.Map;
+import java.util.Set;
+
+import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.api.IServiceProvider;
-import org.jowidgets.service.api.IServiceProviderHolder;
 import org.jowidgets.util.Assert;
 
-public class DefaultServiceProviderHolder implements IServiceProviderHolder {
+final class ServiceProviderImpl implements IServiceProvider {
 
-	private final IServiceProvider serviceProvider;
+	private final Map<IServiceId<? extends Object>, Object> services;
 
-	public DefaultServiceProviderHolder(final IServiceProvider serviceProvider) {
-		Assert.paramNotNull(serviceProvider, "serviceProvider");
-		this.serviceProvider = serviceProvider;
+	ServiceProviderImpl(final Map<IServiceId<? extends Object>, Object> services) {
+		this.services = services;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public <SERVICE_TYPE> SERVICE_TYPE get(final IServiceId<SERVICE_TYPE> id) {
+		Assert.paramNotNull(id, "id");
+		return (SERVICE_TYPE) services.get(id);
 	}
 
 	@Override
-	public final IServiceProvider getServiceProvider() {
-		return serviceProvider;
+	public Set<IServiceId<?>> getAvailableServices() {
+		return services.keySet();
 	}
 
 }

@@ -26,14 +26,26 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample.app.server.service;
+package org.jowidgets.service.api;
 
-import org.jowidgets.service.tools.DefaultServiceProviderHolder;
+import org.jowidgets.util.IDecorator;
 
-public class ServiceProviderHolder extends DefaultServiceProviderHolder {
+public interface IServicesDecoratorProvider {
 
-	public ServiceProviderHolder() {
-		super(new SampleServiceProviderBuilder());
-	}
+	/**
+	 * Gets a default decorator that decorates all service. The default decorator may be null
+	 * 
+	 * @return a default decorator or null
+	 */
+	IDecorator<Object> getDefaultDecorator();
+
+	/**
+	 * Gets a decorator for a specific service.
+	 * 
+	 * @param <SERVICE_TYPE> The type of the service to decorate
+	 * @param type The type of the service to decorate
+	 * @return The decorated service
+	 */
+	<SERVICE_TYPE> IDecorator<SERVICE_TYPE> getDecorator(Class<? extends SERVICE_TYPE> type);
 
 }

@@ -28,54 +28,20 @@
 
 package org.jowidgets.service.impl;
 
-import java.util.HashSet;
-import java.util.Set;
+import org.jowidgets.service.api.IServiceProviderBuilder;
+import org.jowidgets.service.api.IServiceToolkit;
+import org.jowidgets.service.api.IServicesDecoratorProviderBuilder;
 
-import org.jowidgets.service.api.IServiceId;
-import org.jowidgets.service.api.IServiceProvider;
-import org.jowidgets.service.api.IServiceProviderHolder;
+public final class DefaultServiceToolkit implements IServiceToolkit {
 
-
-public class CompositeServiceProviderHolder implements IServiceProviderHolder {
-
-	private final Set<IServiceProviderHolder> serviceProviderHolders;
-
-	private final IServiceProvider serviceProvider;
-
-	public CompositeServiceProviderHolder() {
-		this.serviceProviderHolders = new HashSet<IServiceProviderHolder>();
-
-		this.serviceProvider = new IServiceProvider() {
-
-			@Override
-			public Set<IServiceId<?>> getAvailableServices() {
-				final Set<IServiceId<?>> result = new HashSet<IServiceId<?>>();
-				for (final IServiceProviderHolder serviceToolkit : serviceProviderHolders) {
-					result.addAll(serviceToolkit.getServiceProvider().getAvailableServices());
-				}
-				return result;
-			}
-
-			@Override
-			public <SERVICE_TYPE> SERVICE_TYPE get(final IServiceId<SERVICE_TYPE> id) {
-				for (final IServiceProviderHolder serviceToolkit : serviceProviderHolders) {
-					final IServiceProvider provider = serviceToolkit.getServiceProvider();
-					if (provider.getAvailableServices().contains(id)) {
-						return provider.get(id);
-					}
-				}
-				return null;
-			}
-		};
-	}
-
-	public void add(final IServiceProviderHolder holder) {
-		//TODO proof: service must not be available more than once
-		serviceProviderHolders.add(holder);
+	@Override
+	public IServiceProviderBuilder serviceProviderBuilder() {
+		return new ServiceProviderBuilderImpl();
 	}
 
 	@Override
-	public IServiceProvider getServiceProvider() {
-		return serviceProvider;
+	public IServicesDecoratorProviderBuilder serviceDecoratorProviderBuilder() {
+		return null;
 	}
+
 }

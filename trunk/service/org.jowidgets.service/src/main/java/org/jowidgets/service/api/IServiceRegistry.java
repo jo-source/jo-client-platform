@@ -30,8 +30,6 @@ package org.jowidgets.service.api;
 
 public interface IServiceRegistry {
 
-	void addServiceDecorator(final IServiceDecoratorPlugin serviceDecoratorPlugin);
-
-	<SERVICE_TYPE> void register(final IServiceId<? extends SERVICE_TYPE> id, final SERVICE_TYPE service);
+	<SERVICE_TYPE> void addService(final IServiceId<? extends SERVICE_TYPE> id, final SERVICE_TYPE service);
 
 }
