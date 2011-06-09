@@ -33,85 +33,77 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.ServiceLoader;
-import java.util.Set;
 
-import org.jowidgets.service.api.IServiceDecoratorPlugin;
+import org.jowidgets.service.api.IServicesDecoratorProvider;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.api.IServiceProvider;
-import org.jowidgets.service.api.IServiceRegistry;
+import org.jowidgets.service.api.IServiceProviderBuilder;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.IDecorator;
+import org.jowidgets.util.builder.AbstractSingleUseBuilder;
 
-public class DefaultServiceRegistry implements IServiceRegistry, IServiceProvider {
+@SuppressWarnings({"unchecked", "rawtypes"})
+final class ServiceProviderBuilderImpl extends AbstractSingleUseBuilder<IServiceProvider> implements IServiceProviderBuilder {
 
-	private final Map<IServiceId<?>, Object> services;
-	private final Map<IServiceId<?>, Object> decoratedServices;
-	private final List<IServiceDecoratorPlugin> serviceDecorators;
+	private final Map<IServiceId<? extends Object>, Object> services;
+	private final List<IServicesDecoratorProvider> serviceDecorators;
 
-	public DefaultServiceRegistry() {
-		this.services = new HashMap<IServiceId<?>, Object>();
-		this.decoratedServices = new HashMap<IServiceId<?>, Object>();
+	ServiceProviderBuilderImpl() {
+		this.services = new HashMap<IServiceId<? extends Object>, Object>();
 		this.serviceDecorators = getRegisteredServicesDecorators();
 	}
 
 	@Override
-	public synchronized void addServiceDecorator(final IServiceDecoratorPlugin serviceDecoratorPlugin) {
-		serviceDecorators.add(serviceDecoratorPlugin);
-		decoratedServices.clear();
+	public IServiceProviderBuilder addServiceDecorator(final IServicesDecoratorProvider serviceDecorator) {
+		Assert.paramNotNull(serviceDecorator, "serviceDecorator");
+		serviceDecorators.add(serviceDecorator);
+		return this;
 	}
 
 	@Override
-	public final <SERVICE_TYPE> SERVICE_TYPE get(final IServiceId<SERVICE_TYPE> id) {
-		return getDecoratedService(id);
-	}
-
-	@Override
-	public final <SERVICE_TYPE> void register(final IServiceId<? extends SERVICE_TYPE> id, final SERVICE_TYPE service) {
+	public <SERVICE_TYPE> void addService(final IServiceId<? extends SERVICE_TYPE> id, final SERVICE_TYPE service) {
 		Assert.paramNotNull(id, "id");
 		Assert.paramNotNull(service, "service");
 		services.put(id, service);
-
 	}
 
 	@Override
-	public final Set<IServiceId<?>> getAvailableServices() {
-		return services.keySet();
+	protected IServiceProvider doBuild() {
+		final Map<IServiceId<?>, Object> decoratedServices = new HashMap<IServiceId<?>, Object>();
+		for (final Entry<IServiceId<? extends Object>, Object> entry : services.entrySet()) {
+			final IServiceId<? extends Object> id = entry.getKey();
+			decoratedServices.put(id, getDecoratedService(id, entry.getValue()));
+		}
+		return new ServiceProviderImpl(services);
 	}
 
-	@SuppressWarnings("unchecked")
-	private <SERVICE_TYPE> SERVICE_TYPE getDecoratedService(final IServiceId<SERVICE_TYPE> id) {
-		Assert.paramNotNull(id, "id");
-		SERVICE_TYPE result = (SERVICE_TYPE) decoratedServices.get(id);
-		if (result == null) {
-			result = (SERVICE_TYPE) services.get(id);
-			if (result != null) {
-				for (final IServiceDecoratorPlugin serviceDecorator : new LinkedList<IServiceDecoratorPlugin>(serviceDecorators)) {
-					final IDecorator<Object> defaultDecorator = serviceDecorator.getDefaultDecorator();
-					if (defaultDecorator != null) {
-						defaultDecorator.decorate(result);
-					}
-					final IDecorator<SERVICE_TYPE> decorator = serviceDecorator.getDecorator(id.getServiceType());
-					if (decorator != null) {
-						result = decorator.decorate(result);
-					}
+	private Object getDecoratedService(final IServiceId id, Object result) {
+		if (result != null) {
+			for (final IServicesDecoratorProvider serviceDecorator : new LinkedList<IServicesDecoratorProvider>(serviceDecorators)) {
+				final IDecorator<Object> defaultDecorator = serviceDecorator.getDefaultDecorator();
+				if (defaultDecorator != null) {
+					result = defaultDecorator.decorate(result);
+				}
+				final IDecorator<Object> decorator = serviceDecorator.getDecorator(id.getServiceType());
+				if (decorator != null) {
+					result = decorator.decorate(result);
 				}
 			}
-			decoratedServices.put(id, result);
 		}
 		return result;
 	}
 
-	private List<IServiceDecoratorPlugin> getRegisteredServicesDecorators() {
-		final List<IServiceDecoratorPlugin> result = new LinkedList<IServiceDecoratorPlugin>();
-		final ServiceLoader<IServiceDecoratorPlugin> widgetServiceLoader = ServiceLoader.load(IServiceDecoratorPlugin.class);
+	private List<IServicesDecoratorProvider> getRegisteredServicesDecorators() {
+		final List<IServicesDecoratorProvider> result = new LinkedList<IServicesDecoratorProvider>();
+		final ServiceLoader<IServicesDecoratorProvider> widgetServiceLoader = ServiceLoader.load(IServicesDecoratorProvider.class);
 		if (widgetServiceLoader != null) {
-			final Iterator<IServiceDecoratorPlugin> iterator = widgetServiceLoader.iterator();
+			final Iterator<IServicesDecoratorProvider> iterator = widgetServiceLoader.iterator();
 			while (iterator.hasNext()) {
 				result.add(iterator.next());
 			}
 		}
 		return result;
 	}
-
 }

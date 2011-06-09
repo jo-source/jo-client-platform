@@ -26,14 +26,29 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample.app.server.service;
+package org.jowidgets.service.tools;
 
-import org.jowidgets.service.tools.DefaultServiceProviderHolder;
+import org.jowidgets.service.api.IServiceProvider;
+import org.jowidgets.service.api.IServiceProviderBuilder;
+import org.jowidgets.service.api.IServiceProviderHolder;
+import org.jowidgets.util.Assert;
 
-public class ServiceProviderHolder extends DefaultServiceProviderHolder {
+public class DefaultServiceProviderHolder implements IServiceProviderHolder {
 
-	public ServiceProviderHolder() {
-		super(new SampleServiceProviderBuilder());
+	private final IServiceProvider serviceProvider;
+
+	public DefaultServiceProviderHolder(final IServiceProviderBuilder serviceProviderBuilder) {
+		this(serviceProviderBuilder.build());
+	}
+
+	public DefaultServiceProviderHolder(final IServiceProvider serviceProvider) {
+		Assert.paramNotNull(serviceProvider, "serviceProvider");
+		this.serviceProvider = serviceProvider;
+	}
+
+	@Override
+	public final IServiceProvider getServiceProvider() {
+		return serviceProvider;
 	}
 
 }

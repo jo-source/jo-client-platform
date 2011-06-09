@@ -72,7 +72,7 @@ final class BeanServicesProviderImpl<BEAN_TYPE> implements IBeanServicesProvider
 				entityServiceId,
 				beanType.getName(),
 				IReaderService.class.getName()), IReaderService.class);
-			serviceRegistry.register(readerServiceId, readerService);
+			serviceRegistry.addService(readerServiceId, readerService);
 		}
 		else {
 			this.readerServiceId = null;
@@ -83,7 +83,7 @@ final class BeanServicesProviderImpl<BEAN_TYPE> implements IBeanServicesProvider
 				entityServiceId,
 				beanType.getName(),
 				ICreatorService.class.getName()), ICreatorService.class);
-			serviceRegistry.register(creatorServiceId, creatorService);
+			serviceRegistry.addService(creatorServiceId, creatorService);
 		}
 		else {
 			this.creatorServiceId = null;
@@ -94,7 +94,7 @@ final class BeanServicesProviderImpl<BEAN_TYPE> implements IBeanServicesProvider
 				entityServiceId,
 				beanType.getName(),
 				IRefreshService.class.getName()), IRefreshService.class);
-			serviceRegistry.register(refreshServiceId, refreshService);
+			serviceRegistry.addService(refreshServiceId, refreshService);
 		}
 		else {
 			this.refreshServiceId = null;
@@ -105,7 +105,7 @@ final class BeanServicesProviderImpl<BEAN_TYPE> implements IBeanServicesProvider
 				entityServiceId,
 				beanType.getName(),
 				IUpdaterService.class.getName()), IUpdaterService.class);
-			serviceRegistry.register(updaterServiceId, updaterService);
+			serviceRegistry.addService(updaterServiceId, updaterService);
 		}
 		else {
 			updaterServiceId = null;
@@ -116,7 +116,7 @@ final class BeanServicesProviderImpl<BEAN_TYPE> implements IBeanServicesProvider
 				entityServiceId,
 				beanType.getName(),
 				IDeleterService.class.getName()), IDeleterService.class);
-			serviceRegistry.register(deleterServiceId, deleterService);
+			serviceRegistry.addService(deleterServiceId, deleterService);
 		}
 		else {
 			this.deleterServiceId = null;

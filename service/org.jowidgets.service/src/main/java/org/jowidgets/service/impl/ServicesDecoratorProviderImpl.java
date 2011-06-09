@@ -26,14 +26,36 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample.app.server.service;
+package org.jowidgets.service.impl;
 
-import org.jowidgets.service.tools.DefaultServiceProviderHolder;
+import java.util.HashMap;
+import java.util.Map;
 
-public class ServiceProviderHolder extends DefaultServiceProviderHolder {
+import org.jowidgets.service.api.IServicesDecoratorProvider;
+import org.jowidgets.util.Assert;
+import org.jowidgets.util.IDecorator;
 
-	public ServiceProviderHolder() {
-		super(new SampleServiceProviderBuilder());
+@SuppressWarnings({"rawtypes", "unchecked"})
+class ServicesDecoratorProviderImpl implements IServicesDecoratorProvider {
+
+	private final IDecorator<Object> defaultDecorator;
+	private final Map<Class, IDecorator> decorators;
+
+	ServicesDecoratorProviderImpl(final IDecorator<Object> defaultDecorator, final Map<Class<?>, IDecorator<?>> decorators) {
+		super();
+		this.defaultDecorator = defaultDecorator;
+		this.decorators = new HashMap<Class, IDecorator>(decorators);
+	}
+
+	@Override
+	public IDecorator<Object> getDefaultDecorator() {
+		return defaultDecorator;
+	}
+
+	@Override
+	public <SERVICE_TYPE> IDecorator<SERVICE_TYPE> getDecorator(final Class<? extends SERVICE_TYPE> type) {
+		Assert.paramNotNull(type, "type");
+		return decorators.get(type);
 	}
 
 }

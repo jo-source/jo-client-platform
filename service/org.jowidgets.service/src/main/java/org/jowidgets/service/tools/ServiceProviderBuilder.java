@@ -26,26 +26,36 @@
  * DAMAGE.
  */
 
-package org.jowidgets.service.api;
+package org.jowidgets.service.tools;
 
-import org.jowidgets.util.IDecorator;
+import org.jowidgets.service.api.IServicesDecoratorProvider;
+import org.jowidgets.service.api.IServiceId;
+import org.jowidgets.service.api.IServiceProvider;
+import org.jowidgets.service.api.IServiceProviderBuilder;
+import org.jowidgets.service.api.ServiceToolkit;
 
-public interface IServiceDecoratorPlugin {
+public class ServiceProviderBuilder implements IServiceProviderBuilder {
 
-	/**
-	 * Gets a default decorator that decorates all service. The default decorator may be null
-	 * 
-	 * @return a default decorator or null
-	 */
-	IDecorator<Object> getDefaultDecorator();
+	private final IServiceProviderBuilder builder;
 
-	/**
-	 * Gets a decorator for a specific service.
-	 * 
-	 * @param <SERVICE_TYPE> The type of the service to decorate
-	 * @param type The type of the service to decorate
-	 * @return The decorated service
-	 */
-	<SERVICE_TYPE> IDecorator<SERVICE_TYPE> getDecorator(Class<? extends SERVICE_TYPE> type);
+	public ServiceProviderBuilder() {
+		this.builder = ServiceToolkit.serviceProviderBuilder();
+	}
+
+	@Override
+	public final <SERVICE_TYPE> void addService(final IServiceId<? extends SERVICE_TYPE> id, final SERVICE_TYPE service) {
+		builder.addService(id, service);
+	}
+
+	@Override
+	public final IServiceProviderBuilder addServiceDecorator(final IServicesDecoratorProvider decorator) {
+		builder.addServiceDecorator(decorator);
+		return this;
+	}
+
+	@Override
+	public final IServiceProvider build() {
+		return builder.build();
+	}
 
 }
