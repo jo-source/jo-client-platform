@@ -32,7 +32,7 @@ public interface IResultCallback<RESULT_TYPE> {
 
 	void finished(RESULT_TYPE result);
 
-	void exeption(Throwable exception);
+	void exception(Throwable exception);
 
 	void timeout();
 
