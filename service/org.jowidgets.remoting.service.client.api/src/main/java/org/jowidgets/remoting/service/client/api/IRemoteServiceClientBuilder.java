@@ -28,13 +28,10 @@
 
 package org.jowidgets.remoting.service.client.api;
 
-import java.util.concurrent.ExecutorService;
 
 public interface IRemoteServiceClientBuilder {
 
 	IRemoteServiceClientBuilder setDefaultTimeout(long timeout);
-
-	IRemoteServiceClientBuilder setExecutorService(ExecutorService executorService);
 
 	IRemoteServiceClient build();
 

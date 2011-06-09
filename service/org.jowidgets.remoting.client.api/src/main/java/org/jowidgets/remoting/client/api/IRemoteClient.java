@@ -30,7 +30,7 @@ package org.jowidgets.remoting.client.api;
 
 import org.jowidgets.remoting.common.api.ICancelService;
 import org.jowidgets.remoting.common.api.IRemoteMethod;
-import org.jowidgets.remoting.common.api.IUserQuestionResultService;
+import org.jowidgets.remoting.common.api.IResponseService;
 
 public interface IRemoteClient {
 
@@ -38,6 +38,6 @@ public interface IRemoteClient {
 
 	ICancelService getCancelService(Object serverId);
 
-	IUserQuestionResultService getQuestionResultService(Object serverId);
+	IResponseService getResponseService(Object serverId);
 
 }

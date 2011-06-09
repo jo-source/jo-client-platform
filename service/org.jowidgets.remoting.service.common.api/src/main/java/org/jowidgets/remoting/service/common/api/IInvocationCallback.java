@@ -26,37 +26,16 @@
  * DAMAGE.
  */
 
-package org.jowidgets.remoting.service.server.impl;
+package org.jowidgets.remoting.service.common.api;
 
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
+public interface IInvocationCallback<RESULT_TYPE> {
 
-import org.jowidgets.remoting.common.api.IUserQuestionResultService;
-import org.jowidgets.remoting.service.common.api.IUserQuestionResultCallback;
-import org.jowidgets.util.Assert;
+	void addCancelListener(ICancelListener cancelListener);
 
-final class UserQuestionResultService implements IUserQuestionResultService {
+	void finished(RESULT_TYPE result);
 
-	private final Map<Object, IUserQuestionResultCallback<Object>> questionResultCallbacks;
+	void exeption(Throwable exception);
 
-	UserQuestionResultService() {
-		this.questionResultCallbacks = new ConcurrentHashMap<Object, IUserQuestionResultCallback<Object>>();
-	}
-
-	@Override
-	public void setResult(final Object questionId, final Object result) {
-		Assert.paramNotNull(questionId, "questionId");
-		final IUserQuestionResultCallback<Object> userQuestionResultCallback = questionResultCallbacks.get(questionId);
-		if (userQuestionResultCallback != null) {
-			userQuestionResultCallback.setResult(result);
-		}
-	}
-
-	Object register(final IUserQuestionResultCallback<Object> callback) {
-		final Object questionId = UUID.randomUUID();
-		questionResultCallbacks.put(questionId, callback);
-		return questionId;
-	}
+	void timeout();
 
 }

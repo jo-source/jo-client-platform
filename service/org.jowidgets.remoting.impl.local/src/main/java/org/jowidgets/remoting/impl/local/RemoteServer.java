@@ -36,7 +36,7 @@ import org.jowidgets.remoting.common.api.ICancelService;
 import org.jowidgets.remoting.common.api.IInvocationCallbackService;
 import org.jowidgets.remoting.common.api.IMethod;
 import org.jowidgets.remoting.common.api.IRemoteMethod;
-import org.jowidgets.remoting.common.api.IUserQuestionResultService;
+import org.jowidgets.remoting.common.api.IResponseService;
 import org.jowidgets.remoting.server.api.IRemoteServer;
 import org.jowidgets.remoting.server.api.IRemoteServerRegistry;
 import org.jowidgets.util.Assert;
@@ -47,7 +47,7 @@ final class RemoteServer implements IRemoteServer, IRemoteServerRegistry {
 
 	private final Map<String, IRemoteMethod> methods;
 	private ICancelService cancelService;
-	private IUserQuestionResultService userQuestionResultService;
+	private IResponseService responseService;
 	private final Object serverId;
 
 	private RemoteServer() {
@@ -81,9 +81,9 @@ final class RemoteServer implements IRemoteServer, IRemoteServerRegistry {
 	}
 
 	@Override
-	public void register(final IUserQuestionResultService resultService) {
-		Assert.paramNotNull(resultService, "resultService");
-		this.userQuestionResultService = resultService;
+	public void register(final IResponseService responseService) {
+		Assert.paramNotNull(responseService, "responseService");
+		this.responseService = responseService;
 	}
 
 	@Override
@@ -100,8 +100,8 @@ final class RemoteServer implements IRemoteServer, IRemoteServerRegistry {
 		return cancelService;
 	}
 
-	IUserQuestionResultService getUserQuestionResultService() {
-		return userQuestionResultService;
+	IResponseService getResponseService() {
+		return responseService;
 	}
 
 	public static RemoteServer getInstance() {

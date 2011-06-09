@@ -40,18 +40,18 @@ final class RemoteServiceServerRegistry implements IRemoteServiceServerRegistry 
 	private final IRemoteServer remoteServer;
 	private final IRemoteServerRegistry remoteServerRegistry;
 	private final CancelService cancelService;
-	private final UserQuestionResultService userQuestionResultService;
+	private final ResponseService responseService;
 
-	RemoteServiceServerRegistry(final CancelService cancelService, final UserQuestionResultService userQuestionResultService) {
+	RemoteServiceServerRegistry(final CancelService cancelService, final ResponseService responseService) {
 		this.remoteServer = RemoteServerToolkit.getServer();
 		this.remoteServerRegistry = RemoteServerToolkit.getRegistry();
 		this.cancelService = cancelService;
-		this.userQuestionResultService = userQuestionResultService;
+		this.responseService = responseService;
 	}
 
 	@Override
 	public void register(final String methodName, final IRemoteMethodService<?, ?, ?, ?, ?> methodService) {
-		final IMethod remoteMethod = new RemoteMethod(remoteServer, cancelService, userQuestionResultService, methodService);
+		final IMethod remoteMethod = new Method(remoteServer, cancelService, responseService, methodService);
 		remoteServerRegistry.register(methodName, remoteMethod);
 	}
 }

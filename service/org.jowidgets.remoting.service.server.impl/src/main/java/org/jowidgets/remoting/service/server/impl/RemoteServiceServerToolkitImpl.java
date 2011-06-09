@@ -35,14 +35,14 @@ import org.jowidgets.remoting.service.server.api.IRemoteServiceServerToolkit;
 public final class RemoteServiceServerToolkitImpl implements IRemoteServiceServerToolkit {
 
 	private final CancelService cancelService;
-	private final UserQuestionResultService userQuestionResultService;
+	private final ResponseService userQuestionResultService;
 	private final IRemoteServiceServerRegistry serverRegistry;
 
 	RemoteServiceServerToolkitImpl() {
 		this.cancelService = new CancelService();
 		RemoteServerToolkit.getRegistry().register(cancelService);
 
-		this.userQuestionResultService = new UserQuestionResultService();
+		this.userQuestionResultService = new ResponseService();
 		RemoteServerToolkit.getRegistry().register(userQuestionResultService);
 
 		this.serverRegistry = new RemoteServiceServerRegistry(cancelService, userQuestionResultService);

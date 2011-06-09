@@ -34,29 +34,28 @@ import org.jowidgets.remoting.common.api.IInvocationCallbackService;
 import org.jowidgets.remoting.common.api.IMethod;
 import org.jowidgets.remoting.server.api.IRemoteServer;
 import org.jowidgets.remoting.service.common.api.ICancelListener;
-import org.jowidgets.remoting.service.common.api.IInvocationResultCallback;
-import org.jowidgets.remoting.service.common.api.IProgressCallback;
+import org.jowidgets.remoting.service.common.api.IInterimRequestCallback;
+import org.jowidgets.remoting.service.common.api.IInterimResponseCallback;
+import org.jowidgets.remoting.service.common.api.IInvocationCallback;
 import org.jowidgets.remoting.service.common.api.IRemoteMethodService;
-import org.jowidgets.remoting.service.common.api.IUserQuestionCallback;
-import org.jowidgets.remoting.service.common.api.IUserQuestionResultCallback;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
-public class RemoteMethod implements IMethod {
+public class Method implements IMethod {
 
 	private final IRemoteServer remoteServer;
 	private final CancelService cancelService;
-	private final UserQuestionResultService userQuestionResultService;
+	private final ResponseService responseService;
 	private final IRemoteMethodService remoteMethodService;
 
-	RemoteMethod(
+	Method(
 		final IRemoteServer remoteServer,
 		final CancelService cancelService,
-		final UserQuestionResultService userQuestionResultService,
+		final ResponseService responseService,
 		final IRemoteMethodService remoteMethodService) {
 		super();
 		this.remoteServer = remoteServer;
 		this.cancelService = cancelService;
-		this.userQuestionResultService = userQuestionResultService;
+		this.responseService = responseService;
 		this.remoteMethodService = remoteMethodService;
 	}
 
@@ -65,47 +64,53 @@ public class RemoteMethod implements IMethod {
 
 		final IInvocationCallbackService invocationCallbackService = remoteServer.getInvocationCallback(clientId);
 
-		final IInvocationResultCallback<Object> resultCallback = new IInvocationResultCallback<Object>() {
+		final IInvocationCallback<Object> invocationCallback = new IInvocationCallback<Object>() {
 
-			@Override
-			public void finished(final Object result) {
-				invocationCallbackService.finished(invocationId, result);
-			}
-
-			@Override
-			public void exeption(final Throwable exception) {
-				invocationCallbackService.exeption(invocationId, exception);
-			}
-
-			@Override
-			public void timeout() {
-				invocationCallbackService.exeption(invocationId, new TimeoutException());
-			}
-		};
-
-		final IProgressCallback<Object> progressCallback = new IProgressCallback<Object>() {
 			@Override
 			public void addCancelListener(final ICancelListener cancelListener) {
 				cancelService.registerCancelListener(invocationId, cancelListener);
 			}
 
 			@Override
-			public void setProgress(final Object progress) {
-				invocationCallbackService.setProgress(invocationId, progress);
+			public void finished(final Object result) {
+				invocationCallbackService.finished(invocationId, result);
+				cancelService.unregisterInvocation(invocationId);
 			}
-		};
 
-		final IUserQuestionCallback<Object, Object> userQuestionCallback = new IUserQuestionCallback<Object, Object>() {
 			@Override
-			public void userQuestion(final IUserQuestionResultCallback<Object> callback, final Object question) {
-				final Object userQuestionId = userQuestionResultService.register(callback);
-				invocationCallbackService.userQuestion(invocationId, userQuestionId, question);
+			public void exeption(final Throwable exception) {
+				invocationCallbackService.exeption(invocationId, exception);
+				cancelService.unregisterInvocation(invocationId);
+			}
+
+			@Override
+			public void timeout() {
+				invocationCallbackService.exeption(invocationId, new TimeoutException());
+				cancelService.unregisterInvocation(invocationId);
 			}
 		};
 
-		remoteMethodService.invoke(resultCallback, progressCallback, userQuestionCallback, parameter);
+		final IInterimResponseCallback<Object> interimResponseCallback = new IInterimResponseCallback<Object>() {
+			@Override
+			public void response(final Object progress) {
+				invocationCallbackService.interimResponse(invocationId, progress);
+			}
+		};
 
-		cancelService.unregisterInvocation(invocationId);
+		final IInterimRequestCallback<Object, Object> interimRequestCallback = new IInterimRequestCallback<Object, Object>() {
+			@Override
+			public void request(final IInterimResponseCallback<Object> callback, final Object question) {
+				final Object userQuestionId = responseService.register(callback);
+				invocationCallbackService.interimRequest(invocationId, userQuestionId, question);
+			}
+		};
+
+		try {
+			remoteMethodService.invoke(invocationCallback, interimResponseCallback, interimRequestCallback, parameter);
+		}
+		catch (final Exception e) {
+			invocationCallback.exeption(e);
+		}
 	}
 
 }

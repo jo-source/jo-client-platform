@@ -28,9 +28,6 @@
 
 package org.jowidgets.remoting.service.client.impl;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 import org.jowidgets.remoting.service.client.api.IRemoteServiceClient;
 import org.jowidgets.remoting.service.client.api.IRemoteServiceClientBuilder;
 import org.jowidgets.util.Assert;
@@ -43,7 +40,6 @@ final class RemoteServiceClientBuilder implements IRemoteServiceClientBuilder {
 	private final Object clientId;
 
 	private long defaulTimeout;
-	private ExecutorService executorService;
 
 	RemoteServiceClientBuilder(final Object clientId, final InvocationCallbackService invocationCallbackService) {
 		Assert.paramNotNull(invocationCallbackService, "invocationCallbackService");
@@ -59,24 +55,8 @@ final class RemoteServiceClientBuilder implements IRemoteServiceClientBuilder {
 	}
 
 	@Override
-	public IRemoteServiceClientBuilder setExecutorService(final ExecutorService executorService) {
-		Assert.paramNotNull(executorService, "executorService");
-		this.executorService = executorService;
-		return this;
-	}
-
-	private ExecutorService getExecutorService() {
-		if (executorService != null) {
-			return executorService;
-		}
-		else {
-			return Executors.newFixedThreadPool(100);
-		}
-	}
-
-	@Override
 	public IRemoteServiceClient build() {
-		return new RemoteServiceClient(clientId, invocationCallbackService, getExecutorService(), defaulTimeout);
+		return new RemoteServiceClient(clientId, invocationCallbackService, defaulTimeout);
 	}
 
 }

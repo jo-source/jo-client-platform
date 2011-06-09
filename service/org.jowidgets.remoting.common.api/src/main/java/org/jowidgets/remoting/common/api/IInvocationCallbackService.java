@@ -30,9 +30,9 @@ package org.jowidgets.remoting.common.api;
 
 public interface IInvocationCallbackService {
 
-	void setProgress(Object invocationId, Object progress);
+	void interimResponse(Object invocationId, Object response);
 
-	void userQuestion(Object invocationId, Object questionId, Object question);
+	void interimRequest(Object invocationId, Object requestId, Object request);
 
 	void finished(Object invocationId, Object result);
 
