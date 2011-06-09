@@ -28,7 +28,7 @@
 
 package org.jowidgets.cap.common.api.execution;
 
-public interface IResultCallback<RESULT_TYPE> {
+public interface IExecutionResultCallback<RESULT_TYPE> {
 
 	void finished(RESULT_TYPE result);
 
