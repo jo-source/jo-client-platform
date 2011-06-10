@@ -2,9 +2,9 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>org.jowidgets</groupId>
-	<artifactId>org.jowidgets.remoting.common.api</artifactId>
+	<artifactId>org.jowidgets.invocation.service.common.api</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>org.jowidgets.remoting.common.api</name>
+	<name>org.jowidgets.invocation.service.common.api</name>
 
 	<parent>
 		<groupId>org.jowidgets</groupId>

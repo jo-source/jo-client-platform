@@ -2,9 +2,9 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>org.jowidgets</groupId>
-	<artifactId>org.jowidgets.remoting.service.client.api</artifactId>
+	<artifactId>org.jowidgets.invocation.service.server.impl</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>org.jowidgets.remoting.service.client.api</name>
+	<name>org.jowidgets.invocation.service.server.impl</name>
 
 	<parent>
 		<groupId>org.jowidgets</groupId>
@@ -14,9 +14,19 @@
 	</parent>
 
 	<dependencies>
+	    <dependency>
+            <groupId>org.jowidgets</groupId>
+            <artifactId>org.jowidgets.util</artifactId>
+            <version>${jowidgets.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.jowidgets</groupId>
-            <artifactId>org.jowidgets.remoting.service.common.api</artifactId>
+            <artifactId>org.jowidgets.invocation.service.server.api</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+		<dependency>
+            <groupId>org.jowidgets</groupId>
+            <artifactId>org.jowidgets.invocation.server.api</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
     </dependencies>
@@ -28,7 +38,7 @@
 				<artifactId>maven-bundle-plugin</artifactId>
 				<configuration>
 					<instructions>
-						<Require-Bundle>org.jowidgets.remoting.service.common.api</Require-Bundle>
+						<Require-Bundle>org.jowidgets.invocation.service.server.api,org.jowidgets.invocation.server.api</Require-Bundle>
 					</instructions>
 				</configuration>
 			</plugin>
