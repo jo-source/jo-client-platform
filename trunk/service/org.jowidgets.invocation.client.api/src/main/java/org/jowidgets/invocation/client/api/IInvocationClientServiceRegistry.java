@@ -26,18 +26,12 @@
  * DAMAGE.
  */
 
-package org.jowidgets.invocation.server.api;
+package org.jowidgets.invocation.client.api;
 
-import org.jowidgets.invocation.common.api.ICancelService;
-import org.jowidgets.invocation.common.api.IMethod;
-import org.jowidgets.invocation.common.api.IResponseService;
+import org.jowidgets.invocation.common.api.IInvocationCallbackService;
 
-public interface IServerServiceRegistry {
+public interface IInvocationClientServiceRegistry {
 
-	void register(String methodName, IMethod method);
-
-	void register(ICancelService cancelService);
-
-	void register(IResponseService responseService);
+	void register(IInvocationCallbackService callbackService);
 
 }

@@ -76,7 +76,7 @@ public final class InvocationServerToolkit {
 		return getInstance().getServer();
 	}
 
-	public static IServerServiceRegistry getRegistry() {
+	public static IInvocationServerServiceRegistry getRegistry() {
 		return getInstance().getRegistry();
 	}
 }

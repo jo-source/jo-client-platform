@@ -32,6 +32,6 @@ public interface IInvocationServerToolkit {
 
 	IInvocationServer getServer();
 
-	IServerServiceRegistry getRegistry();
+	IInvocationServerServiceRegistry getRegistry();
 
 }

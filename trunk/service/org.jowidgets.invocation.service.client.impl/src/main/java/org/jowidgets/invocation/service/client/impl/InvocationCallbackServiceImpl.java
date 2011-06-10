@@ -41,17 +41,17 @@ import org.jowidgets.invocation.service.common.api.IInterimRequestCallback;
 import org.jowidgets.invocation.service.common.api.IInterimResponseCallback;
 import org.jowidgets.invocation.service.common.api.IInvocationCallback;
 
-final class InvocationCallbackService implements IInvocationCallbackService {
+final class InvocationCallbackServiceImpl implements IInvocationCallbackService {
 
-	private final Map<Object, MethodInvocationContext> invocationContexts;
+	private final Map<Object, InvocationContext> invocationContexts;
 
-	InvocationCallbackService() {
-		this.invocationContexts = new ConcurrentHashMap<Object, MethodInvocationContext>();
+	InvocationCallbackServiceImpl() {
+		this.invocationContexts = new ConcurrentHashMap<Object, InvocationContext>();
 	}
 
 	@Override
 	public void interimResponse(final Object invocationId, final Object progress) {
-		final MethodInvocationContext context = invocationContexts.get(invocationId);
+		final InvocationContext context = invocationContexts.get(invocationId);
 		if (context != null && context.getInterimResponseCallback() != null) {
 			context.getInterimResponseCallback().response(progress);
 		}
@@ -59,7 +59,7 @@ final class InvocationCallbackService implements IInvocationCallbackService {
 
 	@Override
 	public void interimRequest(final Object invocationId, final Object questionId, final Object question) {
-		final MethodInvocationContext context = invocationContexts.get(invocationId);
+		final InvocationContext context = invocationContexts.get(invocationId);
 		if (context != null && context.getInterimRequestCallback() != null) {
 			final IInterimResponseCallback<Object> resultCallback = new IInterimResponseCallback<Object>() {
 				@Override
@@ -73,7 +73,7 @@ final class InvocationCallbackService implements IInvocationCallbackService {
 
 	@Override
 	public void finished(final Object invocationId, final Object result) {
-		final MethodInvocationContext context = invocationContexts.get(invocationId);
+		final InvocationContext context = invocationContexts.get(invocationId);
 		if (context != null && context.getResultCallback() != null) {
 			context.getResultCallback().finished(result);
 			invocationContexts.remove(invocationId);
@@ -82,7 +82,7 @@ final class InvocationCallbackService implements IInvocationCallbackService {
 
 	@Override
 	public void exeption(final Object invocationId, final Throwable exception) {
-		final MethodInvocationContext context = invocationContexts.get(invocationId);
+		final InvocationContext context = invocationContexts.get(invocationId);
 		if (context != null && context.getResultCallback() != null) {
 			context.getResultCallback().exeption(exception);
 			invocationContexts.remove(invocationId);
@@ -99,13 +99,12 @@ final class InvocationCallbackService implements IInvocationCallbackService {
 
 		final Object invocationId = UUID.randomUUID();
 
-		final MethodInvocationContext methodInvocation = new MethodInvocationContext(
+		final InvocationContext invocationContext = new InvocationContext(
 			serverId,
 			invocationCallback,
 			interimResponseCallback,
 			interimRequestCallback,
-			timeout,
-			System.currentTimeMillis());
+			timeout);
 
 		if (invocationCallback != null) {
 			invocationCallback.addCancelListener(new ICancelListener() {
@@ -119,7 +118,7 @@ final class InvocationCallbackService implements IInvocationCallbackService {
 			});
 		}
 
-		invocationContexts.put(invocationId, methodInvocation);
+		invocationContexts.put(invocationId, invocationContext);
 
 		return invocationId;
 	}

@@ -26,47 +26,47 @@
  * DAMAGE.
  */
 
-package org.jowidgets.invocation.service.client.api;
+package org.jowidgets.invocation.service.server.api;
 
 import java.util.Iterator;
 import java.util.ServiceLoader;
 
-public final class RemoteServiceClientToolkit {
+public final class InvocationServiceServerToolkit {
 
-	private static IRemoteServiceClientToolkit toolkit;
+	private static IInvocationServiceServerToolkit toolkit;
 
-	private RemoteServiceClientToolkit() {}
+	private InvocationServiceServerToolkit() {}
 
-	public static void initialize(final IRemoteServiceClientToolkit toolkit) {
+	public static void initialize(final IInvocationServiceServerToolkit toolkit) {
 		if (toolkit == null) {
 			throw new IllegalArgumentException("The parameter 'toolkit' must not be null");
 		}
-		if (RemoteServiceClientToolkit.toolkit != null) {
+		if (InvocationServiceServerToolkit.toolkit != null) {
 			throw new IllegalStateException("Toolkit is already initialized");
 		}
-		RemoteServiceClientToolkit.toolkit = toolkit;
+		InvocationServiceServerToolkit.toolkit = toolkit;
 	}
 
 	public static boolean isInitialized() {
 		return toolkit != null;
 	}
 
-	public static synchronized IRemoteServiceClientToolkit getInstance() {
+	public static synchronized IInvocationServiceServerToolkit getInstance() {
 		if (toolkit == null) {
-			final ServiceLoader<IRemoteServiceClientToolkit> toolkitProviderLoader = ServiceLoader.load(IRemoteServiceClientToolkit.class);
-			final Iterator<IRemoteServiceClientToolkit> iterator = toolkitProviderLoader.iterator();
+			final ServiceLoader<IInvocationServiceServerToolkit> toolkitProviderLoader = ServiceLoader.load(IInvocationServiceServerToolkit.class);
+			final Iterator<IInvocationServiceServerToolkit> iterator = toolkitProviderLoader.iterator();
 
 			if (!iterator.hasNext()) {
 				throw new IllegalStateException("No implementation found for '"
-					+ IRemoteServiceClientToolkit.class.getName()
+					+ IInvocationServiceServerToolkit.class.getName()
 					+ "'");
 			}
 
-			RemoteServiceClientToolkit.toolkit = iterator.next();
+			InvocationServiceServerToolkit.toolkit = iterator.next();
 
 			if (iterator.hasNext()) {
 				throw new IllegalStateException("More than one implementation found for '"
-					+ IRemoteServiceClientToolkit.class.getName()
+					+ IInvocationServiceServerToolkit.class.getName()
 					+ "'");
 			}
 
@@ -74,12 +74,7 @@ public final class RemoteServiceClientToolkit {
 		return toolkit;
 	}
 
-	public static IRemoteServiceClient getClient() {
-		return getInstance().getClient();
+	public static IInvocationServiceServerRegistry getRegistry() {
+		return getInstance().getServiceRegistry();
 	}
-
-	public static IRemoteServiceClientBuilder getClientBuilder() {
-		return getInstance().getClientBuilder();
-	}
-
 }

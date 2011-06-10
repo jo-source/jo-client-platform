@@ -28,54 +28,35 @@
 
 package org.jowidgets.invocation.service.server.impl;
 
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.jowidgets.invocation.common.api.ICancelService;
-import org.jowidgets.invocation.service.common.api.ICancelListener;
+import org.jowidgets.invocation.common.api.IResponseService;
+import org.jowidgets.invocation.service.common.api.IInterimResponseCallback;
 import org.jowidgets.util.Assert;
 
-final class CancelService implements ICancelService {
+final class ResponseServiceImpl implements IResponseService {
 
-	private final Map<Object, Set<ICancelListener>> cancelListeners;
+	private final Map<Object, IInterimResponseCallback<Object>> interimResponseCallback;
 
-	CancelService() {
-		cancelListeners = new ConcurrentHashMap<Object, Set<ICancelListener>>();
+	ResponseServiceImpl() {
+		this.interimResponseCallback = new ConcurrentHashMap<Object, IInterimResponseCallback<Object>>();
 	}
 
 	@Override
-	public void canceled(final Object invocationId) {
-		Assert.paramNotNull(invocationId, "invocationId");
-		final Set<ICancelListener> cancelListenerSet = cancelListeners.get(invocationId);
-		if (cancelListenerSet != null) {
-			for (final ICancelListener cancelListener : cancelListenerSet) {
-				cancelListener.canceled();
-			}
-		}
-		cancelListeners.remove(invocationId);
-	}
-
-	synchronized void registerInvocation(final Object invocationId) {
-		Assert.paramNotNull(invocationId, "invocationId");
-		cancelListeners.put(invocationId, new HashSet<ICancelListener>());
-	}
-
-	synchronized void registerCancelListener(final Object invocationId, final ICancelListener cancelListener) {
-		Assert.paramNotNull(invocationId, "invocationId");
-		Assert.paramNotNull(cancelListener, "cancelListener");
-		final Set<ICancelListener> cancelListenerSet = cancelListeners.get(invocationId);
-		if (cancelListenerSet != null) {
-			cancelListenerSet.add(cancelListener);
-		}
-		else {
-			cancelListener.canceled();
+	public void response(final Object requestId, final Object result) {
+		Assert.paramNotNull(requestId, "requestId");
+		final IInterimResponseCallback<Object> responseCallback = interimResponseCallback.get(requestId);
+		if (responseCallback != null) {
+			responseCallback.response(result);
 		}
 	}
 
-	synchronized void unregisterInvocation(final Object invocationId) {
-		Assert.paramNotNull(invocationId, "invocationId");
-		cancelListeners.remove(invocationId);
+	Object register(final IInterimResponseCallback<Object> callback) {
+		final Object questionId = UUID.randomUUID();
+		interimResponseCallback.put(questionId, callback);
+		return questionId;
 	}
+
 }

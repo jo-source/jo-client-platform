@@ -26,37 +26,37 @@
  * DAMAGE.
  */
 
-package org.jowidgets.invocation.service.server.impl;
+package org.jowidgets.invocation.service.client.impl;
 
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-
-import org.jowidgets.invocation.common.api.IResponseService;
-import org.jowidgets.invocation.service.common.api.IInterimResponseCallback;
+import org.jowidgets.invocation.service.client.api.IInvocationServiceClient;
+import org.jowidgets.invocation.service.client.api.IInvocationServiceClientBuilder;
 import org.jowidgets.util.Assert;
 
-final class ResponseService implements IResponseService {
+final class InvocationServiceClientBuilderImpl implements IInvocationServiceClientBuilder {
 
-	private final Map<Object, IInterimResponseCallback<Object>> interimResponseCallback;
+	private static final long DEFAULT_TIMEOUT = 900000;//15 minutes
 
-	ResponseService() {
-		this.interimResponseCallback = new ConcurrentHashMap<Object, IInterimResponseCallback<Object>>();
+	private final InvocationCallbackServiceImpl invocationCallbackService;
+	private final Object clientId;
+
+	private long defaulTimeout;
+
+	InvocationServiceClientBuilderImpl(final Object clientId, final InvocationCallbackServiceImpl invocationCallbackService) {
+		Assert.paramNotNull(invocationCallbackService, "invocationCallbackService");
+		this.defaulTimeout = DEFAULT_TIMEOUT;
+		this.invocationCallbackService = invocationCallbackService;
+		this.clientId = clientId;
 	}
 
 	@Override
-	public void response(final Object requestId, final Object result) {
-		Assert.paramNotNull(requestId, "requestId");
-		final IInterimResponseCallback<Object> responseCallback = interimResponseCallback.get(requestId);
-		if (responseCallback != null) {
-			responseCallback.response(result);
-		}
+	public IInvocationServiceClientBuilder setDefaultTimeout(final long timeout) {
+		this.defaulTimeout = timeout;
+		return this;
 	}
 
-	Object register(final IInterimResponseCallback<Object> callback) {
-		final Object questionId = UUID.randomUUID();
-		interimResponseCallback.put(questionId, callback);
-		return questionId;
+	@Override
+	public IInvocationServiceClient build() {
+		return new InvocationServiceClientImpl(clientId, invocationCallbackService, defaulTimeout);
 	}
 
 }

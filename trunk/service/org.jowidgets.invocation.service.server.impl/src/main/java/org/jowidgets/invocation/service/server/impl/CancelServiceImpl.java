@@ -26,51 +26,56 @@
  * DAMAGE.
  */
 
-package org.jowidgets.invocation.impl.local;
+package org.jowidgets.invocation.service.server.impl;
 
-import org.jowidgets.invocation.client.api.IInvocationClientServiceRegistry;
-import org.jowidgets.invocation.client.api.IInvocationClient;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.jowidgets.invocation.common.api.ICancelService;
-import org.jowidgets.invocation.common.api.IInvocationCallbackService;
-import org.jowidgets.invocation.common.api.IServerMethod;
-import org.jowidgets.invocation.common.api.IResponseService;
+import org.jowidgets.invocation.service.common.api.ICancelListener;
 import org.jowidgets.util.Assert;
 
-final class InvocationClient implements IInvocationClient, IInvocationClientServiceRegistry {
+final class CancelServiceImpl implements ICancelService {
 
-	private static final InvocationClient INSTANCE = new InvocationClient();
+	private final Map<Object, Set<ICancelListener>> cancelListeners;
 
-	private IInvocationCallbackService callbackService;
-
-	private InvocationClient() {}
-
-	@Override
-	public void register(final IInvocationCallbackService callbackService) {
-		Assert.paramNotNull(callbackService, "callbackService");
-		this.callbackService = callbackService;
+	CancelServiceImpl() {
+		cancelListeners = new ConcurrentHashMap<Object, Set<ICancelListener>>();
 	}
 
 	@Override
-	public IServerMethod getMethod(final String methodName) {
-		return InvocationServer.getInstance().getMethod(methodName);
+	public void canceled(final Object invocationId) {
+		Assert.paramNotNull(invocationId, "invocationId");
+		final Set<ICancelListener> cancelListenerSet = cancelListeners.get(invocationId);
+		if (cancelListenerSet != null) {
+			for (final ICancelListener cancelListener : cancelListenerSet) {
+				cancelListener.canceled();
+			}
+		}
+		cancelListeners.remove(invocationId);
 	}
 
-	@Override
-	public ICancelService getCancelService(final Object serverId) {
-		return InvocationServer.getInstance().getCancelService();
+	synchronized void registerInvocation(final Object invocationId) {
+		Assert.paramNotNull(invocationId, "invocationId");
+		cancelListeners.put(invocationId, new HashSet<ICancelListener>());
 	}
 
-	@Override
-	public IResponseService getResponseService(final Object serverId) {
-		return InvocationServer.getInstance().getResponseService();
+	synchronized void registerCancelListener(final Object invocationId, final ICancelListener cancelListener) {
+		Assert.paramNotNull(invocationId, "invocationId");
+		Assert.paramNotNull(cancelListener, "cancelListener");
+		final Set<ICancelListener> cancelListenerSet = cancelListeners.get(invocationId);
+		if (cancelListenerSet != null) {
+			cancelListenerSet.add(cancelListener);
+		}
+		else {
+			cancelListener.canceled();
+		}
 	}
 
-	IInvocationCallbackService getCallbackService() {
-		return callbackService;
+	synchronized void unregisterInvocation(final Object invocationId) {
+		Assert.paramNotNull(invocationId, "invocationId");
+		cancelListeners.remove(invocationId);
 	}
-
-	public static InvocationClient getInstance() {
-		return INSTANCE;
-	}
-
 }

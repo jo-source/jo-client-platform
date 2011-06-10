@@ -26,32 +26,12 @@
  * DAMAGE.
  */
 
-package org.jowidgets.invocation.service.server.impl;
+package org.jowidgets.invocation.service.server.api;
 
-import org.jowidgets.invocation.common.api.IMethod;
-import org.jowidgets.invocation.server.api.IInvocationServer;
-import org.jowidgets.invocation.server.api.IServerServiceRegistry;
-import org.jowidgets.invocation.server.api.InvocationServerToolkit;
-import org.jowidgets.invocation.service.common.api.IRemoteMethodService;
-import org.jowidgets.invocation.service.server.api.IRemoteServiceServerRegistry;
+import org.jowidgets.invocation.service.common.api.IMethodInvocationService;
 
-final class RemoteServiceServerRegistry implements IRemoteServiceServerRegistry {
+public interface IInvocationServiceServerRegistry {
 
-	private final IInvocationServer invocationServer;
-	private final IServerServiceRegistry remoteServerRegistry;
-	private final CancelService cancelService;
-	private final ResponseService responseService;
+	void register(final String methodName, final IMethodInvocationService<?, ?, ?, ?, ?> method);
 
-	RemoteServiceServerRegistry(final CancelService cancelService, final ResponseService responseService) {
-		this.invocationServer = InvocationServerToolkit.getServer();
-		this.remoteServerRegistry = InvocationServerToolkit.getRegistry();
-		this.cancelService = cancelService;
-		this.responseService = responseService;
-	}
-
-	@Override
-	public void register(final String methodName, final IRemoteMethodService<?, ?, ?, ?, ?> methodService) {
-		final IMethod remoteMethod = new Method(invocationServer, cancelService, responseService, methodService);
-		remoteServerRegistry.register(methodName, remoteMethod);
-	}
 }

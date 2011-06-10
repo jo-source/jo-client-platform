@@ -26,12 +26,12 @@
  * DAMAGE.
  */
 
-package org.jowidgets.invocation.service.server.api;
+package org.jowidgets.invocation.service.client.api;
 
-import org.jowidgets.invocation.service.common.api.IRemoteMethodService;
+public interface IInvocationServiceClientToolkit {
 
-public interface IRemoteServiceServerRegistry {
+	IInvocationServiceClient getClient();
 
-	void register(final String methodName, final IRemoteMethodService<?, ?, ?, ?, ?> method);
+	IInvocationServiceClientBuilder getClientBuilder();
 
 }

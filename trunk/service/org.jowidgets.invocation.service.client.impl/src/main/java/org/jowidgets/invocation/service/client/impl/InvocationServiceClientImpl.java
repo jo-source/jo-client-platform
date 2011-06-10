@@ -31,21 +31,24 @@ package org.jowidgets.invocation.service.client.impl;
 import org.jowidgets.invocation.client.api.IInvocationClient;
 import org.jowidgets.invocation.client.api.InvocationClientToolkit;
 import org.jowidgets.invocation.common.api.IServerMethod;
-import org.jowidgets.invocation.service.client.api.IRemoteServiceClient;
+import org.jowidgets.invocation.service.client.api.IInvocationServiceClient;
 import org.jowidgets.invocation.service.common.api.IInterimRequestCallback;
 import org.jowidgets.invocation.service.common.api.IInterimResponseCallback;
 import org.jowidgets.invocation.service.common.api.IInvocationCallback;
-import org.jowidgets.invocation.service.common.api.IRemoteMethodService;
+import org.jowidgets.invocation.service.common.api.IMethodInvocationService;
 import org.jowidgets.util.Assert;
 
-final class RemoteServiceClient implements IRemoteServiceClient {
+final class InvocationServiceClientImpl implements IInvocationServiceClient {
 
 	private final long defaulTimeout;
 	private final IInvocationClient invocationClient;
 	private final Object clientId;
-	private final InvocationCallbackService invocationCallbackService;
+	private final InvocationCallbackServiceImpl invocationCallbackService;
 
-	RemoteServiceClient(final Object clientId, final InvocationCallbackService invocationCallbackService, final long defaulTimeout) {
+	InvocationServiceClientImpl(
+		final Object clientId,
+		final InvocationCallbackServiceImpl invocationCallbackService,
+		final long defaulTimeout) {
 		super();
 		this.defaulTimeout = defaulTimeout;
 		this.clientId = clientId;
@@ -54,18 +57,18 @@ final class RemoteServiceClient implements IRemoteServiceClient {
 	}
 
 	@Override
-	public <RES, PROG, QUEST, QUEST_RES, PARAM> IRemoteMethodService<RES, PROG, QUEST, QUEST_RES, PARAM> getMethodService(
+	public <RES, PROG, QUEST, QUEST_RES, PARAM> IMethodInvocationService<RES, PROG, QUEST, QUEST_RES, PARAM> getMethodService(
 		final String methodName) {
 		return getMethodService(methodName, defaulTimeout);
 	}
 
 	@Override
-	public <RES, PROG, QUEST, QUEST_RES, PARAM> IRemoteMethodService<RES, PROG, QUEST, QUEST_RES, PARAM> getMethodService(
+	public <RES, PROG, QUEST, QUEST_RES, PARAM> IMethodInvocationService<RES, PROG, QUEST, QUEST_RES, PARAM> getMethodService(
 		final String methodName,
 		final long timeout) {
 		Assert.paramNotNull(methodName, "methodName");
 
-		return new IRemoteMethodService<RES, PROG, QUEST, QUEST_RES, PARAM>() {
+		return new IMethodInvocationService<RES, PROG, QUEST, QUEST_RES, PARAM>() {
 
 			@Override
 			public void invoke(
@@ -74,11 +77,9 @@ final class RemoteServiceClient implements IRemoteServiceClient {
 				final IInterimRequestCallback<QUEST, QUEST_RES> interimRequestCallback,
 				final PARAM parameter) {
 
-				final IServerMethod remoteMethod = invocationClient.getMethod(methodName);
-				if (remoteMethod == null) {
-					if (invocationCallback != null) {
-						throw new IllegalArgumentException("No remote method registered for method name '" + methodName + "'.");
-					}
+				final IServerMethod serverMethod = invocationClient.getMethod(methodName);
+				if (serverMethod == null) {
+					throw new IllegalArgumentException("No server method registered for method name '" + methodName + "'.");
 				}
 				else {
 					final Object invocationId = invocationCallbackService.registerInvocation(
@@ -86,10 +87,10 @@ final class RemoteServiceClient implements IRemoteServiceClient {
 							interimResponseCallback,
 							interimRequestCallback,
 							timeout,
-							remoteMethod.getServerId(),
+							serverMethod.getServerId(),
 							invocationClient);
 
-					remoteMethod.invoke(clientId, invocationId, parameter);
+					serverMethod.invoke(clientId, invocationId, parameter);
 				}
 
 			}

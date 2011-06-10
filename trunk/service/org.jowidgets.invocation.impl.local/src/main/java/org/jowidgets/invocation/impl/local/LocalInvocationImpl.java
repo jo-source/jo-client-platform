@@ -28,7 +28,7 @@
 
 package org.jowidgets.invocation.impl.local;
 
-import org.jowidgets.invocation.client.api.IClientServiceRegistry;
+import org.jowidgets.invocation.client.api.IInvocationClientServiceRegistry;
 import org.jowidgets.invocation.client.api.IInvocationClient;
 import org.jowidgets.invocation.common.api.ICancelService;
 import org.jowidgets.invocation.common.api.IInvocationCallbackService;
@@ -36,9 +36,9 @@ import org.jowidgets.invocation.common.api.IMethod;
 import org.jowidgets.invocation.common.api.IServerMethod;
 import org.jowidgets.invocation.common.api.IResponseService;
 import org.jowidgets.invocation.server.api.IInvocationServer;
-import org.jowidgets.invocation.server.api.IServerServiceRegistry;
+import org.jowidgets.invocation.server.api.IInvocationServerServiceRegistry;
 
-public final class LocalInvocationImpl implements IInvocationClient, IClientServiceRegistry, IInvocationServer, IServerServiceRegistry {
+public final class LocalInvocationImpl implements IInvocationClient, IInvocationClientServiceRegistry, IInvocationServer, IInvocationServerServiceRegistry {
 
 	@Override
 	public void register(final String methodName, final IMethod method) {
