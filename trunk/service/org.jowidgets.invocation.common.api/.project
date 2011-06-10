@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>org.jowidgets.remoting.service.client.impl</name>
+	<name>org.jowidgets.invocation.common.api</name>
 	<comment></comment>
 	<projects>
 	</projects>

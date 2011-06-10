@@ -16,15 +16,15 @@
 	
 	<modules>
 		<module>../org.jowidgets.service</module>
-		<module>../org.jowidgets.remoting.common.api</module>	
-		<module>../org.jowidgets.remoting.client.api</module>
-		<module>../org.jowidgets.remoting.server.api</module>
-		<module>../org.jowidgets.remoting.impl.local</module>
-		<module>../org.jowidgets.remoting.service.common.api</module>	
-		<module>../org.jowidgets.remoting.service.server.api</module>
-		<module>../org.jowidgets.remoting.service.client.api</module>	
-		<module>../org.jowidgets.remoting.service.server.impl</module>
-		<module>../org.jowidgets.remoting.service.client.impl</module>				
+		<module>../org.jowidgets.invocation.common.api</module>	
+		<module>../org.jowidgets.invocation.client.api</module>
+		<module>../org.jowidgets.invocation.server.api</module>
+		<module>../org.jowidgets.invocation.impl.local</module>
+		<module>../org.jowidgets.invocation.service.common.api</module>	
+		<module>../org.jowidgets.invocation.service.server.api</module>
+		<module>../org.jowidgets.invocation.service.client.api</module>	
+		<module>../org.jowidgets.invocation.service.server.impl</module>
+		<module>../org.jowidgets.invocation.service.client.impl</module>				
 	</modules>
 
 </project>
