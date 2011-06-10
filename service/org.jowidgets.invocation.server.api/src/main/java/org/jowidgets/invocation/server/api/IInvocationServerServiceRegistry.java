@@ -26,34 +26,18 @@
  * DAMAGE.
  */
 
-package org.jowidgets.invocation.service.client.impl;
+package org.jowidgets.invocation.server.api;
 
-import java.util.UUID;
+import org.jowidgets.invocation.common.api.ICancelService;
+import org.jowidgets.invocation.common.api.IMethod;
+import org.jowidgets.invocation.common.api.IResponseService;
 
-import org.jowidgets.invocation.client.api.InvocationClientToolkit;
-import org.jowidgets.invocation.service.client.api.IRemoteServiceClient;
-import org.jowidgets.invocation.service.client.api.IRemoteServiceClientBuilder;
-import org.jowidgets.invocation.service.client.api.IRemoteServiceClientToolkit;
+public interface IInvocationServerServiceRegistry {
 
-public final class RemoteServiceClientToolkitImpl implements IRemoteServiceClientToolkit {
+	void register(String methodName, IMethod method);
 
-	private final InvocationCallbackService invocationCallbackService;
-	private final Object clientId;
+	void register(ICancelService cancelService);
 
-	public RemoteServiceClientToolkitImpl() {
-		this.clientId = UUID.randomUUID();
-		this.invocationCallbackService = new InvocationCallbackService();
-		InvocationClientToolkit.getRegistry().register(invocationCallbackService);
-	}
-
-	@Override
-	public IRemoteServiceClient getClient() {
-		return getClientBuilder().build();
-	}
-
-	@Override
-	public IRemoteServiceClientBuilder getClientBuilder() {
-		return new RemoteServiceClientBuilder(clientId, invocationCallbackService);
-	}
+	void register(IResponseService responseService);
 
 }

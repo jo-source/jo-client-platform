@@ -76,7 +76,7 @@ public final class InvocationClientToolkit {
 		return getInstance().getClient();
 	}
 
-	public static IClientServiceRegistry getRegistry() {
+	public static IInvocationClientServiceRegistry getRegistry() {
 		return getInstance().getRegistry();
 	}
 

@@ -38,10 +38,10 @@ import org.jowidgets.invocation.common.api.IMethod;
 import org.jowidgets.invocation.common.api.IServerMethod;
 import org.jowidgets.invocation.common.api.IResponseService;
 import org.jowidgets.invocation.server.api.IInvocationServer;
-import org.jowidgets.invocation.server.api.IServerServiceRegistry;
+import org.jowidgets.invocation.server.api.IInvocationServerServiceRegistry;
 import org.jowidgets.util.Assert;
 
-final class InvocationServer implements IInvocationServer, IServerServiceRegistry {
+final class InvocationServer implements IInvocationServer, IInvocationServerServiceRegistry {
 
 	private static final InvocationServer INSTANCE = new InvocationServer();
 

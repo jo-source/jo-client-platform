@@ -26,22 +26,31 @@
  * DAMAGE.
  */
 
-package org.jowidgets.invocation.service.common.api;
+package org.jowidgets.invocation.service.server.impl;
 
-public interface IRemoteMethodService<RESULT_TYPE, INTERIM_RESPONSE_TYPE, REQUEST_TYPE, RESPONSE_TYPE, PARAMETER_TYPE> {
+import org.jowidgets.invocation.server.api.InvocationServerToolkit;
+import org.jowidgets.invocation.service.server.api.IInvocationServiceServerRegistry;
+import org.jowidgets.invocation.service.server.api.IInvocationServiceServerToolkit;
 
-	/**
-	 * Do the invocation.
-	 * 
-	 * @param resultCallback
-	 * @param interimResponseCallback
-	 * @param interimRequestCallback
-	 * @param parameter
-	 */
-	void invoke(
-		IInvocationCallback<RESULT_TYPE> resultCallback,
-		IInterimResponseCallback<INTERIM_RESPONSE_TYPE> interimResponseCallback,
-		IInterimRequestCallback<REQUEST_TYPE, RESPONSE_TYPE> interimRequestCallback,
-		PARAMETER_TYPE parameter);
+public final class InvocationServiceServerToolkitImpl implements IInvocationServiceServerToolkit {
+
+	private final CancelServiceImpl cancelService;
+	private final ResponseServiceImpl userQuestionResultService;
+	private final IInvocationServiceServerRegistry serverRegistry;
+
+	InvocationServiceServerToolkitImpl() {
+		this.cancelService = new CancelServiceImpl();
+		InvocationServerToolkit.getRegistry().register(cancelService);
+
+		this.userQuestionResultService = new ResponseServiceImpl();
+		InvocationServerToolkit.getRegistry().register(userQuestionResultService);
+
+		this.serverRegistry = new InvocationServiceServerRegistryImpl(cancelService, userQuestionResultService);
+	}
+
+	@Override
+	public IInvocationServiceServerRegistry getServiceRegistry() {
+		return serverRegistry;
+	}
 
 }

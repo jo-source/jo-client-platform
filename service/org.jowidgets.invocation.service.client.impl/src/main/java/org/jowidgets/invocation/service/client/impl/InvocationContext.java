@@ -26,51 +26,59 @@
  * DAMAGE.
  */
 
-package org.jowidgets.invocation.impl.local;
+package org.jowidgets.invocation.service.client.impl;
 
-import org.jowidgets.invocation.client.api.IInvocationClientServiceRegistry;
-import org.jowidgets.invocation.client.api.IInvocationClient;
-import org.jowidgets.invocation.common.api.ICancelService;
-import org.jowidgets.invocation.common.api.IInvocationCallbackService;
-import org.jowidgets.invocation.common.api.IServerMethod;
-import org.jowidgets.invocation.common.api.IResponseService;
-import org.jowidgets.util.Assert;
+import org.jowidgets.invocation.service.common.api.IInterimRequestCallback;
+import org.jowidgets.invocation.service.common.api.IInterimResponseCallback;
+import org.jowidgets.invocation.service.common.api.IInvocationCallback;
 
-final class InvocationClient implements IInvocationClient, IInvocationClientServiceRegistry {
+@SuppressWarnings({"rawtypes", "unchecked"})
+final class InvocationContext {
 
-	private static final InvocationClient INSTANCE = new InvocationClient();
+	private final Object serverId;
+	private final IInvocationCallback invocationCallback;
+	private final IInterimResponseCallback interimResponseCallback;
+	private final IInterimRequestCallback interimRequestCallback;
+	private final long timeout;
+	private final long timestamp;
 
-	private IInvocationCallbackService callbackService;
+	InvocationContext(
+		final Object serverId,
+		final IInvocationCallback<?> invocationCallback,
+		final IInterimResponseCallback<?> interimResponseCallback,
+		final IInterimRequestCallback<?, ?> interimRequestCalbback,
+		final long timeout) {
 
-	private InvocationClient() {}
-
-	@Override
-	public void register(final IInvocationCallbackService callbackService) {
-		Assert.paramNotNull(callbackService, "callbackService");
-		this.callbackService = callbackService;
+		this.serverId = serverId;
+		this.invocationCallback = invocationCallback;
+		this.interimResponseCallback = interimResponseCallback;
+		this.interimRequestCallback = interimRequestCalbback;
+		this.timeout = timeout;
+		this.timestamp = System.currentTimeMillis();
 	}
 
-	@Override
-	public IServerMethod getMethod(final String methodName) {
-		return InvocationServer.getInstance().getMethod(methodName);
+	IInvocationCallback<Object> getResultCallback() {
+		return invocationCallback;
 	}
 
-	@Override
-	public ICancelService getCancelService(final Object serverId) {
-		return InvocationServer.getInstance().getCancelService();
+	IInterimResponseCallback<Object> getInterimResponseCallback() {
+		return interimResponseCallback;
 	}
 
-	@Override
-	public IResponseService getResponseService(final Object serverId) {
-		return InvocationServer.getInstance().getResponseService();
+	IInterimRequestCallback<Object, Object> getInterimRequestCallback() {
+		return interimRequestCallback;
 	}
 
-	IInvocationCallbackService getCallbackService() {
-		return callbackService;
+	long getTimeout() {
+		return timeout;
 	}
 
-	public static InvocationClient getInstance() {
-		return INSTANCE;
+	long getTimestamp() {
+		return timestamp;
+	}
+
+	Object getServerId() {
+		return serverId;
 	}
 
 }

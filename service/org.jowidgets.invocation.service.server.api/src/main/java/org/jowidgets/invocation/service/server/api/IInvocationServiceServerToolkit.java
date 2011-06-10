@@ -26,31 +26,10 @@
  * DAMAGE.
  */
 
-package org.jowidgets.invocation.service.server.impl;
+package org.jowidgets.invocation.service.server.api;
 
-import org.jowidgets.invocation.server.api.InvocationServerToolkit;
-import org.jowidgets.invocation.service.server.api.IRemoteServiceServerRegistry;
-import org.jowidgets.invocation.service.server.api.IRemoteServiceServerToolkit;
+public interface IInvocationServiceServerToolkit {
 
-public final class RemoteServiceServerToolkitImpl implements IRemoteServiceServerToolkit {
-
-	private final CancelService cancelService;
-	private final ResponseService userQuestionResultService;
-	private final IRemoteServiceServerRegistry serverRegistry;
-
-	RemoteServiceServerToolkitImpl() {
-		this.cancelService = new CancelService();
-		InvocationServerToolkit.getRegistry().register(cancelService);
-
-		this.userQuestionResultService = new ResponseService();
-		InvocationServerToolkit.getRegistry().register(userQuestionResultService);
-
-		this.serverRegistry = new RemoteServiceServerRegistry(cancelService, userQuestionResultService);
-	}
-
-	@Override
-	public IRemoteServiceServerRegistry getServiceRegistry() {
-		return serverRegistry;
-	}
+	IInvocationServiceServerRegistry getServiceRegistry();
 
 }

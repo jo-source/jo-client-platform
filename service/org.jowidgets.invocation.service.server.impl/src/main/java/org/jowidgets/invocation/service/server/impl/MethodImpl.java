@@ -37,26 +37,26 @@ import org.jowidgets.invocation.service.common.api.ICancelListener;
 import org.jowidgets.invocation.service.common.api.IInterimRequestCallback;
 import org.jowidgets.invocation.service.common.api.IInterimResponseCallback;
 import org.jowidgets.invocation.service.common.api.IInvocationCallback;
-import org.jowidgets.invocation.service.common.api.IRemoteMethodService;
+import org.jowidgets.invocation.service.common.api.IMethodInvocationService;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
-public class Method implements IMethod {
+public class MethodImpl implements IMethod {
 
 	private final IInvocationServer invocationServer;
-	private final CancelService cancelService;
-	private final ResponseService responseService;
-	private final IRemoteMethodService remoteMethodService;
+	private final CancelServiceImpl cancelService;
+	private final ResponseServiceImpl responseService;
+	private final IMethodInvocationService methodInvocationService;
 
-	Method(
+	MethodImpl(
 		final IInvocationServer invocationServer,
-		final CancelService cancelService,
-		final ResponseService responseService,
-		final IRemoteMethodService remoteMethodService) {
+		final CancelServiceImpl cancelService,
+		final ResponseServiceImpl responseService,
+		final IMethodInvocationService methodInvocationService) {
 		super();
 		this.invocationServer = invocationServer;
 		this.cancelService = cancelService;
 		this.responseService = responseService;
-		this.remoteMethodService = remoteMethodService;
+		this.methodInvocationService = methodInvocationService;
 	}
 
 	@Override
@@ -106,7 +106,7 @@ public class Method implements IMethod {
 		};
 
 		try {
-			remoteMethodService.invoke(invocationCallback, interimResponseCallback, interimRequestCallback, parameter);
+			methodInvocationService.invoke(invocationCallback, interimResponseCallback, interimRequestCallback, parameter);
 		}
 		catch (final Exception e) {
 			invocationCallback.exeption(e);

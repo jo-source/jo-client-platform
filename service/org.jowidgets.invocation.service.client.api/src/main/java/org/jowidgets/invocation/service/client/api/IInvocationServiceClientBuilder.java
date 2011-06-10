@@ -26,37 +26,13 @@
  * DAMAGE.
  */
 
-package org.jowidgets.invocation.service.client.impl;
+package org.jowidgets.invocation.service.client.api;
 
-import org.jowidgets.invocation.service.client.api.IRemoteServiceClient;
-import org.jowidgets.invocation.service.client.api.IRemoteServiceClientBuilder;
-import org.jowidgets.util.Assert;
 
-final class RemoteServiceClientBuilder implements IRemoteServiceClientBuilder {
+public interface IInvocationServiceClientBuilder {
 
-	private static final long DEFAULT_TIMEOUT = 900000;//15 minutes
+	IInvocationServiceClientBuilder setDefaultTimeout(long timeout);
 
-	private final InvocationCallbackService invocationCallbackService;
-	private final Object clientId;
-
-	private long defaulTimeout;
-
-	RemoteServiceClientBuilder(final Object clientId, final InvocationCallbackService invocationCallbackService) {
-		Assert.paramNotNull(invocationCallbackService, "invocationCallbackService");
-		this.defaulTimeout = DEFAULT_TIMEOUT;
-		this.invocationCallbackService = invocationCallbackService;
-		this.clientId = clientId;
-	}
-
-	@Override
-	public IRemoteServiceClientBuilder setDefaultTimeout(final long timeout) {
-		this.defaulTimeout = timeout;
-		return this;
-	}
-
-	@Override
-	public IRemoteServiceClient build() {
-		return new RemoteServiceClient(clientId, invocationCallbackService, defaulTimeout);
-	}
+	IInvocationServiceClient build();
 
 }

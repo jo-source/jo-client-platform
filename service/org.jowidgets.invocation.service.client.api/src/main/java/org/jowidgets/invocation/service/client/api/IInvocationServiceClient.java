@@ -26,10 +26,16 @@
  * DAMAGE.
  */
 
-package org.jowidgets.invocation.service.server.api;
+package org.jowidgets.invocation.service.client.api;
 
-public interface IRemoteServiceServerToolkit {
+import org.jowidgets.invocation.service.common.api.IMethodInvocationService;
 
-	IRemoteServiceServerRegistry getServiceRegistry();
+public interface IInvocationServiceClient {
+
+	<RES, INT_RES, REQ, RESP, PARAM> IMethodInvocationService<RES, INT_RES, REQ, RESP, PARAM> getMethodService(String methodName);
+
+	<RES, INT_RES, REQ, RESP, PARAM> IMethodInvocationService<RES, INT_RES, REQ, RESP, PARAM> getMethodService(
+		String methodName,
+		long timeout);
 
 }

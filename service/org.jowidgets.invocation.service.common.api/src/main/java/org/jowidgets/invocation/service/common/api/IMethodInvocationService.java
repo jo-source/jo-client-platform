@@ -26,13 +26,22 @@
  * DAMAGE.
  */
 
-package org.jowidgets.invocation.service.client.api;
+package org.jowidgets.invocation.service.common.api;
 
+public interface IMethodInvocationService<RESULT_TYPE, INTERIM_RESPONSE_TYPE, REQUEST_TYPE, RESPONSE_TYPE, PARAMETER_TYPE> {
 
-public interface IRemoteServiceClientBuilder {
-
-	IRemoteServiceClientBuilder setDefaultTimeout(long timeout);
-
-	IRemoteServiceClient build();
+	/**
+	 * Do the invocation.
+	 * 
+	 * @param resultCallback
+	 * @param interimResponseCallback
+	 * @param interimRequestCallback
+	 * @param parameter
+	 */
+	void invoke(
+		IInvocationCallback<RESULT_TYPE> resultCallback,
+		IInterimResponseCallback<INTERIM_RESPONSE_TYPE> interimResponseCallback,
+		IInterimRequestCallback<REQUEST_TYPE, RESPONSE_TYPE> interimRequestCallback,
+		PARAMETER_TYPE parameter);
 
 }
