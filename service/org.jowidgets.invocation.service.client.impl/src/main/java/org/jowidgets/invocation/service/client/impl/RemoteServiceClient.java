@@ -28,9 +28,9 @@
 
 package org.jowidgets.invocation.service.client.impl;
 
-import org.jowidgets.invocation.client.api.IRemoteClient;
-import org.jowidgets.invocation.client.api.RemoteClientToolkit;
-import org.jowidgets.invocation.common.api.IRemoteMethod;
+import org.jowidgets.invocation.client.api.IInvocationClient;
+import org.jowidgets.invocation.client.api.InvocationClientToolkit;
+import org.jowidgets.invocation.common.api.IServerMethod;
 import org.jowidgets.invocation.service.client.api.IRemoteServiceClient;
 import org.jowidgets.invocation.service.common.api.IInterimRequestCallback;
 import org.jowidgets.invocation.service.common.api.IInterimResponseCallback;
@@ -41,7 +41,7 @@ import org.jowidgets.util.Assert;
 final class RemoteServiceClient implements IRemoteServiceClient {
 
 	private final long defaulTimeout;
-	private final IRemoteClient remoteClient;
+	private final IInvocationClient invocationClient;
 	private final Object clientId;
 	private final InvocationCallbackService invocationCallbackService;
 
@@ -50,7 +50,7 @@ final class RemoteServiceClient implements IRemoteServiceClient {
 		this.defaulTimeout = defaulTimeout;
 		this.clientId = clientId;
 		this.invocationCallbackService = invocationCallbackService;
-		this.remoteClient = RemoteClientToolkit.getClient();
+		this.invocationClient = InvocationClientToolkit.getClient();
 	}
 
 	@Override
@@ -74,7 +74,7 @@ final class RemoteServiceClient implements IRemoteServiceClient {
 				final IInterimRequestCallback<QUEST, QUEST_RES> interimRequestCallback,
 				final PARAM parameter) {
 
-				final IRemoteMethod remoteMethod = remoteClient.getMethod(methodName);
+				final IServerMethod remoteMethod = invocationClient.getMethod(methodName);
 				if (remoteMethod == null) {
 					if (invocationCallback != null) {
 						throw new IllegalArgumentException("No remote method registered for method name '" + methodName + "'.");
@@ -87,7 +87,7 @@ final class RemoteServiceClient implements IRemoteServiceClient {
 							interimRequestCallback,
 							timeout,
 							remoteMethod.getServerId(),
-							remoteClient);
+							invocationClient);
 
 					remoteMethod.invoke(clientId, invocationId, parameter);
 				}

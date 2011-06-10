@@ -26,18 +26,12 @@
  * DAMAGE.
  */
 
-package org.jowidgets.invocation.client.api;
+package org.jowidgets.invocation.server.api;
 
-import org.jowidgets.invocation.common.api.ICancelService;
-import org.jowidgets.invocation.common.api.IRemoteMethod;
-import org.jowidgets.invocation.common.api.IResponseService;
+import org.jowidgets.invocation.common.api.IInvocationCallbackService;
 
-public interface IRemoteClient {
+public interface IInvocationServer {
 
-	IRemoteMethod getMethod(String methodName);
-
-	ICancelService getCancelService(Object serverId);
-
-	IResponseService getResponseService(Object serverId);
+	IInvocationCallbackService getInvocationCallback(Object clientId);
 
 }

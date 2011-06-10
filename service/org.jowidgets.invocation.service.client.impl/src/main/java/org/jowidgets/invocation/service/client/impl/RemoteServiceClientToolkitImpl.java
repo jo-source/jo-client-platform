@@ -30,7 +30,7 @@ package org.jowidgets.invocation.service.client.impl;
 
 import java.util.UUID;
 
-import org.jowidgets.invocation.client.api.RemoteClientToolkit;
+import org.jowidgets.invocation.client.api.InvocationClientToolkit;
 import org.jowidgets.invocation.service.client.api.IRemoteServiceClient;
 import org.jowidgets.invocation.service.client.api.IRemoteServiceClientBuilder;
 import org.jowidgets.invocation.service.client.api.IRemoteServiceClientToolkit;
@@ -43,7 +43,7 @@ public final class RemoteServiceClientToolkitImpl implements IRemoteServiceClien
 	public RemoteServiceClientToolkitImpl() {
 		this.clientId = UUID.randomUUID();
 		this.invocationCallbackService = new InvocationCallbackService();
-		RemoteClientToolkit.getRegistry().register(invocationCallbackService);
+		InvocationClientToolkit.getRegistry().register(invocationCallbackService);
 	}
 
 	@Override

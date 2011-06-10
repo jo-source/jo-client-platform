@@ -26,51 +26,18 @@
  * DAMAGE.
  */
 
-package org.jowidgets.invocation.impl.local;
+package org.jowidgets.invocation.client.api;
 
-import org.jowidgets.invocation.client.api.IClientServiceRegistry;
-import org.jowidgets.invocation.client.api.IRemoteClient;
 import org.jowidgets.invocation.common.api.ICancelService;
-import org.jowidgets.invocation.common.api.IInvocationCallbackService;
-import org.jowidgets.invocation.common.api.IRemoteMethod;
+import org.jowidgets.invocation.common.api.IServerMethod;
 import org.jowidgets.invocation.common.api.IResponseService;
-import org.jowidgets.util.Assert;
 
-final class RemoteClient implements IRemoteClient, IClientServiceRegistry {
+public interface IInvocationClient {
 
-	private static final RemoteClient INSTANCE = new RemoteClient();
+	IServerMethod getMethod(String methodName);
 
-	private IInvocationCallbackService callbackService;
+	ICancelService getCancelService(Object serverId);
 
-	private RemoteClient() {}
-
-	@Override
-	public void register(final IInvocationCallbackService callbackService) {
-		Assert.paramNotNull(callbackService, "callbackService");
-		this.callbackService = callbackService;
-	}
-
-	@Override
-	public IRemoteMethod getMethod(final String methodName) {
-		return RemoteServer.getInstance().getMethod(methodName);
-	}
-
-	@Override
-	public ICancelService getCancelService(final Object serverId) {
-		return RemoteServer.getInstance().getCancelService();
-	}
-
-	@Override
-	public IResponseService getResponseService(final Object serverId) {
-		return RemoteServer.getInstance().getResponseService();
-	}
-
-	IInvocationCallbackService getCallbackService() {
-		return callbackService;
-	}
-
-	public static RemoteClient getInstance() {
-		return INSTANCE;
-	}
+	IResponseService getResponseService(Object serverId);
 
 }

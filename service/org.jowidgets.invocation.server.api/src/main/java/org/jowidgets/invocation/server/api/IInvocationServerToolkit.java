@@ -28,10 +28,10 @@
 
 package org.jowidgets.invocation.server.api;
 
-import org.jowidgets.invocation.common.api.IInvocationCallbackService;
+public interface IInvocationServerToolkit {
 
-public interface IRemoteServer {
+	IInvocationServer getServer();
 
-	IInvocationCallbackService getInvocationCallback(Object clientId);
+	IServerServiceRegistry getRegistry();
 
 }

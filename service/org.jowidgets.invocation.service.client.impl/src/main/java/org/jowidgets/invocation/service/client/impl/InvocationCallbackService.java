@@ -32,8 +32,8 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.jowidgets.invocation.client.api.IRemoteClient;
-import org.jowidgets.invocation.client.api.RemoteClientToolkit;
+import org.jowidgets.invocation.client.api.IInvocationClient;
+import org.jowidgets.invocation.client.api.InvocationClientToolkit;
 import org.jowidgets.invocation.common.api.ICancelService;
 import org.jowidgets.invocation.common.api.IInvocationCallbackService;
 import org.jowidgets.invocation.service.common.api.ICancelListener;
@@ -64,7 +64,7 @@ final class InvocationCallbackService implements IInvocationCallbackService {
 			final IInterimResponseCallback<Object> resultCallback = new IInterimResponseCallback<Object>() {
 				@Override
 				public void response(final Object result) {
-					RemoteClientToolkit.getClient().getResponseService(context.getServerId());
+					InvocationClientToolkit.getClient().getResponseService(context.getServerId());
 				}
 			};
 			context.getInterimRequestCallback().request(resultCallback, question);
@@ -95,7 +95,7 @@ final class InvocationCallbackService implements IInvocationCallbackService {
 		final IInterimRequestCallback<?, ?> interimRequestCallback,
 		final long timeout,
 		final Object serverId,
-		final IRemoteClient remoteClient) {
+		final IInvocationClient invocationClient) {
 
 		final Object invocationId = UUID.randomUUID();
 
@@ -111,7 +111,7 @@ final class InvocationCallbackService implements IInvocationCallbackService {
 			invocationCallback.addCancelListener(new ICancelListener() {
 				@Override
 				public void canceled() {
-					final ICancelService cancelService = remoteClient.getCancelService(serverId);
+					final ICancelService cancelService = invocationClient.getCancelService(serverId);
 					if (cancelService != null) {
 						cancelService.canceled(invocationId);
 					}
