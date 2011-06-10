@@ -26,10 +26,18 @@
  * DAMAGE.
  */
 
-package org.jowidgets.invocation.common.api;
+package org.jowidgets.invocation.server.api;
 
-public interface IRemoteMethod extends IMethod {
+import org.jowidgets.invocation.common.api.ICancelService;
+import org.jowidgets.invocation.common.api.IMethod;
+import org.jowidgets.invocation.common.api.IResponseService;
 
-	Object getServerId();
+public interface IServerServiceRegistry {
+
+	void register(String methodName, IMethod method);
+
+	void register(ICancelService cancelService);
+
+	void register(IResponseService responseService);
 
 }

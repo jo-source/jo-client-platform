@@ -29,29 +29,29 @@
 package org.jowidgets.invocation.service.server.impl;
 
 import org.jowidgets.invocation.common.api.IMethod;
-import org.jowidgets.invocation.server.api.IRemoteServer;
-import org.jowidgets.invocation.server.api.IRemoteServerRegistry;
-import org.jowidgets.invocation.server.api.RemoteServerToolkit;
+import org.jowidgets.invocation.server.api.IInvocationServer;
+import org.jowidgets.invocation.server.api.IServerServiceRegistry;
+import org.jowidgets.invocation.server.api.InvocationServerToolkit;
 import org.jowidgets.invocation.service.common.api.IRemoteMethodService;
 import org.jowidgets.invocation.service.server.api.IRemoteServiceServerRegistry;
 
 final class RemoteServiceServerRegistry implements IRemoteServiceServerRegistry {
 
-	private final IRemoteServer remoteServer;
-	private final IRemoteServerRegistry remoteServerRegistry;
+	private final IInvocationServer invocationServer;
+	private final IServerServiceRegistry remoteServerRegistry;
 	private final CancelService cancelService;
 	private final ResponseService responseService;
 
 	RemoteServiceServerRegistry(final CancelService cancelService, final ResponseService responseService) {
-		this.remoteServer = RemoteServerToolkit.getServer();
-		this.remoteServerRegistry = RemoteServerToolkit.getRegistry();
+		this.invocationServer = InvocationServerToolkit.getServer();
+		this.remoteServerRegistry = InvocationServerToolkit.getRegistry();
 		this.cancelService = cancelService;
 		this.responseService = responseService;
 	}
 
 	@Override
 	public void register(final String methodName, final IRemoteMethodService<?, ?, ?, ?, ?> methodService) {
-		final IMethod remoteMethod = new Method(remoteServer, cancelService, responseService, methodService);
+		final IMethod remoteMethod = new Method(invocationServer, cancelService, responseService, methodService);
 		remoteServerRegistry.register(methodName, remoteMethod);
 	}
 }

@@ -32,7 +32,7 @@ import java.util.concurrent.TimeoutException;
 
 import org.jowidgets.invocation.common.api.IInvocationCallbackService;
 import org.jowidgets.invocation.common.api.IMethod;
-import org.jowidgets.invocation.server.api.IRemoteServer;
+import org.jowidgets.invocation.server.api.IInvocationServer;
 import org.jowidgets.invocation.service.common.api.ICancelListener;
 import org.jowidgets.invocation.service.common.api.IInterimRequestCallback;
 import org.jowidgets.invocation.service.common.api.IInterimResponseCallback;
@@ -42,18 +42,18 @@ import org.jowidgets.invocation.service.common.api.IRemoteMethodService;
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class Method implements IMethod {
 
-	private final IRemoteServer remoteServer;
+	private final IInvocationServer invocationServer;
 	private final CancelService cancelService;
 	private final ResponseService responseService;
 	private final IRemoteMethodService remoteMethodService;
 
 	Method(
-		final IRemoteServer remoteServer,
+		final IInvocationServer invocationServer,
 		final CancelService cancelService,
 		final ResponseService responseService,
 		final IRemoteMethodService remoteMethodService) {
 		super();
-		this.remoteServer = remoteServer;
+		this.invocationServer = invocationServer;
 		this.cancelService = cancelService;
 		this.responseService = responseService;
 		this.remoteMethodService = remoteMethodService;
@@ -62,7 +62,7 @@ public class Method implements IMethod {
 	@Override
 	public void invoke(final Object clientId, final Object invocationId, final Object parameter) {
 
-		final IInvocationCallbackService invocationCallbackService = remoteServer.getInvocationCallback(clientId);
+		final IInvocationCallbackService invocationCallbackService = invocationServer.getInvocationCallback(clientId);
 
 		final IInvocationCallback<Object> invocationCallback = new IInvocationCallback<Object>() {
 

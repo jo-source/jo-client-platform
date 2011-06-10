@@ -28,7 +28,7 @@
 
 package org.jowidgets.invocation.service.server.impl;
 
-import org.jowidgets.invocation.server.api.RemoteServerToolkit;
+import org.jowidgets.invocation.server.api.InvocationServerToolkit;
 import org.jowidgets.invocation.service.server.api.IRemoteServiceServerRegistry;
 import org.jowidgets.invocation.service.server.api.IRemoteServiceServerToolkit;
 
@@ -40,10 +40,10 @@ public final class RemoteServiceServerToolkitImpl implements IRemoteServiceServe
 
 	RemoteServiceServerToolkitImpl() {
 		this.cancelService = new CancelService();
-		RemoteServerToolkit.getRegistry().register(cancelService);
+		InvocationServerToolkit.getRegistry().register(cancelService);
 
 		this.userQuestionResultService = new ResponseService();
-		RemoteServerToolkit.getRegistry().register(userQuestionResultService);
+		InvocationServerToolkit.getRegistry().register(userQuestionResultService);
 
 		this.serverRegistry = new RemoteServiceServerRegistry(cancelService, userQuestionResultService);
 	}

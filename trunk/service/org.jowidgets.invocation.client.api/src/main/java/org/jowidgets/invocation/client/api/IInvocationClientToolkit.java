@@ -26,12 +26,12 @@
  * DAMAGE.
  */
 
-package org.jowidgets.invocation.server.api;
+package org.jowidgets.invocation.client.api;
 
-public interface IRemoteServerToolkit {
+public interface IInvocationClientToolkit {
 
-	IRemoteServer getServer();
+	IInvocationClient getClient();
 
-	IRemoteServerRegistry getRegistry();
+	IClientServiceRegistry getRegistry();
 
 }

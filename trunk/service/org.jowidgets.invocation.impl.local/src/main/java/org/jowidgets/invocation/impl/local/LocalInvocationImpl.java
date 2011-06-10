@@ -28,84 +28,55 @@
 
 package org.jowidgets.invocation.impl.local;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
+import org.jowidgets.invocation.client.api.IClientServiceRegistry;
+import org.jowidgets.invocation.client.api.IInvocationClient;
 import org.jowidgets.invocation.common.api.ICancelService;
 import org.jowidgets.invocation.common.api.IInvocationCallbackService;
 import org.jowidgets.invocation.common.api.IMethod;
-import org.jowidgets.invocation.common.api.IRemoteMethod;
+import org.jowidgets.invocation.common.api.IServerMethod;
 import org.jowidgets.invocation.common.api.IResponseService;
-import org.jowidgets.invocation.server.api.IRemoteServer;
-import org.jowidgets.invocation.server.api.IRemoteServerRegistry;
-import org.jowidgets.util.Assert;
+import org.jowidgets.invocation.server.api.IInvocationServer;
+import org.jowidgets.invocation.server.api.IServerServiceRegistry;
 
-final class RemoteServer implements IRemoteServer, IRemoteServerRegistry {
-
-	private static final RemoteServer INSTANCE = new RemoteServer();
-
-	private final Map<String, IRemoteMethod> methods;
-	private ICancelService cancelService;
-	private IResponseService responseService;
-	private final Object serverId;
-
-	private RemoteServer() {
-		this.methods = new HashMap<String, IRemoteMethod>();
-		this.serverId = UUID.randomUUID();
-	}
+public final class LocalInvocationImpl implements IInvocationClient, IClientServiceRegistry, IInvocationServer, IServerServiceRegistry {
 
 	@Override
 	public void register(final String methodName, final IMethod method) {
-		Assert.paramNotNull(methodName, "methodName");
-		Assert.paramNotNull(method, "method");
-		final IRemoteMethod remoteMethod = new IRemoteMethod() {
-
-			@Override
-			public void invoke(final Object clientId, final Object invocationId, final Object parameter) {
-				method.invoke(clientId, invocationId, parameter);
-			}
-
-			@Override
-			public Object getServerId() {
-				return serverId;
-			}
-		};
-		methods.put(methodName, remoteMethod);
+		InvocationServer.getInstance().register(methodName, method);
 	}
 
 	@Override
 	public void register(final ICancelService cancelService) {
-		Assert.paramNotNull(cancelService, "cancelService");
-		this.cancelService = cancelService;
+		InvocationServer.getInstance().register(cancelService);
 	}
 
 	@Override
-	public void register(final IResponseService responseService) {
-		Assert.paramNotNull(responseService, "responseService");
-		this.responseService = responseService;
+	public void register(final IResponseService resultService) {
+		InvocationServer.getInstance().register(resultService);
 	}
 
 	@Override
 	public IInvocationCallbackService getInvocationCallback(final Object clientId) {
-		return RemoteClient.getInstance().getCallbackService();
+		return InvocationServer.getInstance().getInvocationCallback(clientId);
 	}
 
-	IRemoteMethod getMethod(final String methodName) {
-		Assert.paramNotNull(methodName, "methodName");
-		return methods.get(methodName);
+	@Override
+	public void register(final IInvocationCallbackService callbackService) {
+		InvocationClient.getInstance().register(callbackService);
 	}
 
-	ICancelService getCancelService() {
-		return cancelService;
+	@Override
+	public IServerMethod getMethod(final String methodName) {
+		return InvocationClient.getInstance().getMethod(methodName);
 	}
 
-	IResponseService getResponseService() {
-		return responseService;
+	@Override
+	public ICancelService getCancelService(final Object serverId) {
+		return InvocationClient.getInstance().getCancelService(serverId);
 	}
 
-	public static RemoteServer getInstance() {
-		return INSTANCE;
+	@Override
+	public IResponseService getResponseService(final Object serverId) {
+		return InvocationClient.getInstance().getResponseService(serverId);
 	}
-
 }

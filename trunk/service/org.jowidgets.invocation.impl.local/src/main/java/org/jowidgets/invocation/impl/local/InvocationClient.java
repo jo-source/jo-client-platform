@@ -26,12 +26,51 @@
  * DAMAGE.
  */
 
-package org.jowidgets.invocation.client.api;
+package org.jowidgets.invocation.impl.local;
 
-public interface IRemoteClientToolkit {
+import org.jowidgets.invocation.client.api.IClientServiceRegistry;
+import org.jowidgets.invocation.client.api.IInvocationClient;
+import org.jowidgets.invocation.common.api.ICancelService;
+import org.jowidgets.invocation.common.api.IInvocationCallbackService;
+import org.jowidgets.invocation.common.api.IServerMethod;
+import org.jowidgets.invocation.common.api.IResponseService;
+import org.jowidgets.util.Assert;
 
-	IRemoteClient getClient();
+final class InvocationClient implements IInvocationClient, IClientServiceRegistry {
 
-	IClientServiceRegistry getRegistry();
+	private static final InvocationClient INSTANCE = new InvocationClient();
+
+	private IInvocationCallbackService callbackService;
+
+	private InvocationClient() {}
+
+	@Override
+	public void register(final IInvocationCallbackService callbackService) {
+		Assert.paramNotNull(callbackService, "callbackService");
+		this.callbackService = callbackService;
+	}
+
+	@Override
+	public IServerMethod getMethod(final String methodName) {
+		return InvocationServer.getInstance().getMethod(methodName);
+	}
+
+	@Override
+	public ICancelService getCancelService(final Object serverId) {
+		return InvocationServer.getInstance().getCancelService();
+	}
+
+	@Override
+	public IResponseService getResponseService(final Object serverId) {
+		return InvocationServer.getInstance().getResponseService();
+	}
+
+	IInvocationCallbackService getCallbackService() {
+		return callbackService;
+	}
+
+	public static InvocationClient getInstance() {
+		return INSTANCE;
+	}
 
 }
