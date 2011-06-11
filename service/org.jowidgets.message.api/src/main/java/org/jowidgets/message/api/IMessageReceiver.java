@@ -34,8 +34,8 @@ public interface IMessageReceiver {
 	 * Callback to handle a message.
 	 * 
 	 * @param message
-	 * @param replyPeerId
+	 * @param replyPeer
 	 */
-	void onMessage(Object message, Object replyPeerId);
+	void onMessage(Object message, Object replyPeer);
 
 }
