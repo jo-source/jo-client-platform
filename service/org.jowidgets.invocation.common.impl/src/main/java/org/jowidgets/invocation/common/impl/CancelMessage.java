@@ -26,28 +26,23 @@
  * DAMAGE.
  */
 
-package org.jowidgets.message.api;
+package org.jowidgets.invocation.common.impl;
 
-public interface IMessageChannel {
+import java.io.Serializable;
 
-	/**
-	 * Sends a message to a receiver. This call will not block, even if the server is not available
-	 * 
-	 * @param message
-	 *            The message to send.
-	 * 
-	 * @param exceptionCallback
-	 *            The callback that will be invoked, when a client side exception was thrown, e.g.
-	 *            server is not available.
-	 *            Remark: Handling of server sided exceptions must be handles on higher layers
-	 */
-	void send(final Object message, IExceptionCallback exceptionCallback);
+public final class CancelMessage implements Serializable {
 
-	/**
-	 * Gets the peer of the underlying server
-	 * 
-	 * @return the peer
-	 */
-	Object getServerPeer();
+	private static final long serialVersionUID = -4205299138579625114L;
+
+	private final Object invocationId;
+
+	public CancelMessage(final Object invocationId) {
+		super();
+		this.invocationId = invocationId;
+	}
+
+	public Object getInvocationId() {
+		return invocationId;
+	}
 
 }

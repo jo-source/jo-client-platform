@@ -28,34 +28,49 @@
 
 package org.jowidgets.invocation.client.impl;
 
-import org.jowidgets.invocation.client.api.IInvocationClient;
 import org.jowidgets.invocation.client.api.IInvocationClientServiceRegistry;
-import org.jowidgets.invocation.client.api.IInvocationClientToolkit;
-import org.jowidgets.invocation.common.impl.MessageBrokerId;
-import org.jowidgets.message.api.IMessageReceiver;
-import org.jowidgets.message.api.MessageToolkit;
+import org.jowidgets.invocation.common.api.IInvocationCallbackService;
+import org.jowidgets.invocation.common.impl.ExceptionMessage;
+import org.jowidgets.invocation.common.impl.FinishedMessage;
+import org.jowidgets.invocation.common.impl.InterimRequestMessage;
+import org.jowidgets.invocation.common.impl.InterimResponseMessage;
+import org.jowidgets.util.Assert;
 
-public final class DefaultInvocationClientToolkit implements IInvocationClientToolkit {
+final class InvocationClientServiceRegistryImpl implements IInvocationClientServiceRegistry {
 
-	private final InvocationClientServiceRegistryImpl invocationClientServiceRegistry;
-	private final IInvocationClient invocationClient;
-
-	public DefaultInvocationClientToolkit() {
-		this.invocationClientServiceRegistry = new InvocationClientServiceRegistryImpl();
-		this.invocationClient = new InvocationClientImpl(invocationClientServiceRegistry);
-
-		final IMessageReceiver messageReceiver = new InvocationCallbackMessageReceiver(invocationClientServiceRegistry);
-		MessageToolkit.setReceiver(MessageBrokerId.INVOCATION_IMPL_BROKER_ID, messageReceiver);
-	}
+	private IInvocationCallbackService invocationCallbackService;
 
 	@Override
-	public IInvocationClient getClient() {
-		return invocationClient;
+	public void register(final IInvocationCallbackService callbackService) {
+		Assert.paramNotNull(callbackService, "invocationCallbackService");
+		this.invocationCallbackService = callbackService;
 	}
 
-	@Override
-	public IInvocationClientServiceRegistry getClientRegistry() {
-		return invocationClientServiceRegistry;
+	void onException(final ExceptionMessage message) {
+		onException(message.getInvocationId(), message.getException());
 	}
 
+	void onException(final Object invocationId, final Throwable exception) {
+		if (invocationCallbackService != null) {
+			invocationCallbackService.exeption(invocationId, exception);
+		}
+	}
+
+	void onFinished(final FinishedMessage message) {
+		if (invocationCallbackService != null) {
+			invocationCallbackService.finished(message.getInvocationId(), message.getResult());
+		}
+	}
+
+	void onInterimResponse(final InterimResponseMessage message) {
+		if (invocationCallbackService != null) {
+			invocationCallbackService.interimResponse(message.getInvocationId(), message.getResponse());
+		}
+	}
+
+	void onInterimRequest(final InterimRequestMessage message) {
+		if (invocationCallbackService != null) {
+			invocationCallbackService.interimRequest(message.getInvocationId(), message.getRequestId(), message.getRequest());
+		}
+	}
 }

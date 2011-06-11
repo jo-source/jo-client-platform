@@ -26,28 +26,23 @@
  * DAMAGE.
  */
 
-package org.jowidgets.message.api;
+package org.jowidgets.invocation.client.impl;
 
-public interface IMessageChannel {
+import org.jowidgets.message.api.IExceptionCallback;
 
-	/**
-	 * Sends a message to a receiver. This call will not block, even if the server is not available
-	 * 
-	 * @param message
-	 *            The message to send.
-	 * 
-	 * @param exceptionCallback
-	 *            The callback that will be invoked, when a client side exception was thrown, e.g.
-	 *            server is not available.
-	 *            Remark: Handling of server sided exceptions must be handles on higher layers
-	 */
-	void send(final Object message, IExceptionCallback exceptionCallback);
+final class ExceptionCallback implements IExceptionCallback {
 
-	/**
-	 * Gets the peer of the underlying server
-	 * 
-	 * @return the peer
-	 */
-	Object getServerPeer();
+	private final InvocationClientServiceRegistryImpl invocationClientServiceRegistry;
+	private final Object invocationId;
 
+	ExceptionCallback(final InvocationClientServiceRegistryImpl invocationClientServiceRegistry, final Object invocationId) {
+		super();
+		this.invocationClientServiceRegistry = invocationClientServiceRegistry;
+		this.invocationId = invocationId;
+	}
+
+	@Override
+	public void exception(final Throwable throwable) {
+		invocationClientServiceRegistry.onException(invocationId, throwable);
+	}
 }

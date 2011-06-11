@@ -87,6 +87,11 @@ final class MessageChannel implements IMessageChannel {
 				}
 			}
 		});
-
 	}
+
+	@Override
+	public Object getServerPeer() {
+		return serverPeer;
+	}
+
 }

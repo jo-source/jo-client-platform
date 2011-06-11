@@ -30,6 +30,6 @@ package org.jowidgets.invocation.common.api;
 
 public interface IResponseService {
 
-	void response(Object requestId, Object response);
+	void response(final Object invocationId, Object requestId, Object response);
 
 }
