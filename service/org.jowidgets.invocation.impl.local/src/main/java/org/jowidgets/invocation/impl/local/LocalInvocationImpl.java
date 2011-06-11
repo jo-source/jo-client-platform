@@ -28,17 +28,25 @@
 
 package org.jowidgets.invocation.impl.local;
 
-import org.jowidgets.invocation.client.api.IInvocationClientServiceRegistry;
 import org.jowidgets.invocation.client.api.IInvocationClient;
+import org.jowidgets.invocation.client.api.IInvocationClientServiceRegistry;
+import org.jowidgets.invocation.client.api.IInvocationClientToolkit;
 import org.jowidgets.invocation.common.api.ICancelService;
 import org.jowidgets.invocation.common.api.IInvocationCallbackService;
 import org.jowidgets.invocation.common.api.IMethod;
-import org.jowidgets.invocation.common.api.IServerMethod;
 import org.jowidgets.invocation.common.api.IResponseService;
+import org.jowidgets.invocation.common.api.IServerMethod;
 import org.jowidgets.invocation.server.api.IInvocationServer;
 import org.jowidgets.invocation.server.api.IInvocationServerServiceRegistry;
+import org.jowidgets.invocation.server.api.IInvocationServerToolkit;
 
-public final class LocalInvocationImpl implements IInvocationClient, IInvocationClientServiceRegistry, IInvocationServer, IInvocationServerServiceRegistry {
+public final class LocalInvocationImpl implements
+		IInvocationClient,
+		IInvocationClientServiceRegistry,
+		IInvocationServer,
+		IInvocationServerServiceRegistry,
+		IInvocationClientToolkit,
+		IInvocationServerToolkit {
 
 	@Override
 	public void register(final String methodName, final IMethod method) {
@@ -79,4 +87,25 @@ public final class LocalInvocationImpl implements IInvocationClient, IInvocation
 	public IResponseService getResponseService(final Object serverId) {
 		return InvocationClient.getInstance().getResponseService(serverId);
 	}
+
+	@Override
+	public IInvocationServer getServer() {
+		return this;
+	}
+
+	@Override
+	public IInvocationClient getClient() {
+		return this;
+	}
+
+	@Override
+	public IInvocationClientServiceRegistry getClientRegistry() {
+		return this;
+	}
+
+	@Override
+	public IInvocationServerServiceRegistry getServerRegistry() {
+		return this;
+	}
+
 }
