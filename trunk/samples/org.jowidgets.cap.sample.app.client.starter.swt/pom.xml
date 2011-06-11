@@ -25,10 +25,10 @@
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
-			<groupId>org.jowidgets</groupId>
-			<artifactId>org.jowidgets.invocation.impl.local</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
+            <groupId>org.jowidgets</groupId>
+            <artifactId>org.jowidgets.invocation.client.impl</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
 		<dependency>
             <groupId>org.jowidgets</groupId>
             <artifactId>org.jowidgets.message.impl.p2p.simple</artifactId>

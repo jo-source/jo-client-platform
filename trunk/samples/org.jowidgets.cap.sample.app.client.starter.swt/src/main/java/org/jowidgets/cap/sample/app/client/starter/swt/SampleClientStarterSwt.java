@@ -29,7 +29,7 @@
 package org.jowidgets.cap.sample.app.client.starter.swt;
 
 import org.jowidgets.cap.sample.app.client.workbench.SampleWorkbench;
-import org.jowidgets.cap.sample.app.common.message.BrokerIds;
+import org.jowidgets.invocation.common.impl.MessageBrokerId;
 import org.jowidgets.message.api.MessageToolkit;
 import org.jowidgets.message.impl.p2p.simple.MessageBrokerBuilder;
 import org.jowidgets.spi.impl.swt.options.SwtOptions;
@@ -40,7 +40,7 @@ public final class SampleClientStarterSwt {
 	private SampleClientStarterSwt() {}
 
 	public static void main(final String[] args) throws Exception {
-		final MessageBrokerBuilder builder = new MessageBrokerBuilder(BrokerIds.DEFAULT_MESSAGE_BROKER_ID);
+		final MessageBrokerBuilder builder = new MessageBrokerBuilder(MessageBrokerId.INVOCATION_IMPL_BROKER_ID);
 		builder.setHost("127.0.0.1");
 		builder.setPort(5661);
 		builder.setServerHost("127.0.0.1");
