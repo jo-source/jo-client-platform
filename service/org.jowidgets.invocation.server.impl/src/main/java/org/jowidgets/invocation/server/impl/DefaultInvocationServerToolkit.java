@@ -26,26 +26,24 @@
  * DAMAGE.
  */
 
-package org.jowidgets.message.api;
+package org.jowidgets.invocation.server.impl;
 
-public interface IMessageClient {
+import org.jowidgets.invocation.server.api.IInvocationServer;
+import org.jowidgets.invocation.server.api.IInvocationServerServiceRegistry;
+import org.jowidgets.invocation.server.api.IInvocationServerToolkit;
 
-	/**
-	 * Gets the default message channel
-	 * 
-	 * @return The default message channel
-	 */
-	IMessageChannel getMessageChannel();
+public class DefaultInvocationServerToolkit implements IInvocationServerToolkit {
 
-	/**
-	 * Gets a message channel for a defined peer
-	 * The type of the peer depends on the implementation
-	 * of this api.
-	 * 
-	 * @param peer The peer to get the channel for
-	 * 
-	 * @return A message channel for the defined peer, never null
-	 */
-	IMessageChannel getMessageChannel(Object peer);
+	@Override
+	public IInvocationServer getServer() {
+		// TODO 
+		return null;
+	}
+
+	@Override
+	public IInvocationServerServiceRegistry getServerRegistry() {
+		// TODO
+		return null;
+	}
 
 }
