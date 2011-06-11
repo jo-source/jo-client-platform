@@ -55,8 +55,8 @@ public final class MessageBrokerBuilder {
 		this.brokerId = brokerId;
 		this.port = -1;
 		this.serverPort = -1;
-		this.sendExecutor = Executors.newFixedThreadPool(100);
-		this.receiveExecutor = Executors.newFixedThreadPool(100);
+		this.sendExecutor = Executors.newFixedThreadPool(50);
+		this.receiveExecutor = Executors.newFixedThreadPool(50);
 	}
 
 	public MessageBrokerBuilder setHost(final String host) {
