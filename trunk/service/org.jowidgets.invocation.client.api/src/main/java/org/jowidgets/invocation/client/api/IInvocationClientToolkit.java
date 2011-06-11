@@ -32,6 +32,6 @@ public interface IInvocationClientToolkit {
 
 	IInvocationClient getClient();
 
-	IInvocationClientServiceRegistry getRegistry();
+	IInvocationClientServiceRegistry getClientRegistry();
 
 }

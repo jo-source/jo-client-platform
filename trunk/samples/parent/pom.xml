@@ -21,6 +21,9 @@
 		<module>../org.jowidgets.cap.sample.app.client.starter.standalone.swing</module>
 		<module>../org.jowidgets.cap.sample.app.client.starter.standalone.swt</module>
 		<module>../org.jowidgets.cap.sample.app.client.starter.standalone.rwt</module>
+		<module>../org.jowidgets.cap.sample.app.client.starter.swing</module>
+		<module>../org.jowidgets.cap.sample.app.client.starter.swt</module>
+		<module>../org.jowidgets.cap.sample.app.server.starter</module>
 	</modules>
 
 </project>

@@ -18,6 +18,9 @@
 		<module>../org.jowidgets.cap.common</module>
 		<module>../org.jowidgets.cap.service</module>
 		<module>../org.jowidgets.cap.ui</module>
+		<module>../org.jowidgets.cap.invocation.common</module>
+		<module>../org.jowidgets.cap.invocation.client</module>
+		<module>../org.jowidgets.cap.invocation.server</module>
 	</modules>
 
 </project>

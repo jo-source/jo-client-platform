@@ -26,14 +26,18 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.api.execution;
+package org.jowidgets.message.api;
 
-public interface IExecutionResultCallback<RESULT_TYPE> {
+public interface IMessageChannel {
 
-	void finished(RESULT_TYPE result);
-
-	void exception(Throwable exception);
-
-	void timeout();
+	/**
+	 * Sends a message to a receiver. This call will not block, even if the server is not available
+	 * 
+	 * @param message The message to send.
+	 * @param exceptionCallback The callback that will be invoked, when a client side exception was thrown, e.g.
+	 *            server is not available.
+	 *            Remark: Handling of server sided exceptions must be handles on higher levels
+	 */
+	void send(final Object message, IExceptionCallback exceptionCallback);
 
 }
