@@ -28,7 +28,7 @@
 
 package org.jowidgets.cap.sample.app.server.starter;
 
-import org.jowidgets.cap.sample.app.common.message.BrokerIds;
+import org.jowidgets.invocation.common.impl.MessageBrokerId;
 import org.jowidgets.message.api.IMessageClient;
 import org.jowidgets.message.api.IMessageReceiver;
 import org.jowidgets.message.api.MessageToolkit;
@@ -39,15 +39,15 @@ public final class SampleServerStarter {
 	private SampleServerStarter() {}
 
 	public static void main(final String[] args) {
-		final MessageBrokerBuilder builder = new MessageBrokerBuilder(BrokerIds.DEFAULT_MESSAGE_BROKER_ID);
+		final MessageBrokerBuilder builder = new MessageBrokerBuilder(MessageBrokerId.INVOCATION_IMPL_BROKER_ID);
 		builder.setHost("127.0.0.1");
 		builder.setPort(5660);
 		MessageToolkit.addBrokerClient(builder.buildClient());
 		MessageToolkit.addBrokerServer(builder.buildServer());
 
-		final IMessageClient client = MessageToolkit.getClient(BrokerIds.DEFAULT_MESSAGE_BROKER_ID);
+		final IMessageClient client = MessageToolkit.getClient(MessageBrokerId.INVOCATION_IMPL_BROKER_ID);
 
-		MessageToolkit.setReceiver(BrokerIds.DEFAULT_MESSAGE_BROKER_ID, new IMessageReceiver() {
+		MessageToolkit.setReceiver(MessageBrokerId.INVOCATION_IMPL_BROKER_ID, new IMessageReceiver() {
 			@Override
 			public void onMessage(final Object message, final Object replyPeerId) {
 				//CHECKSTYLE:OFF

@@ -26,7 +26,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.jowidgets</groupId>
-			<artifactId>org.jowidgets.invocation.impl.local</artifactId>
+			<artifactId>org.jowidgets.invocation.server.impl</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
