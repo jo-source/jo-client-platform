@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.sample.app.server.starter;
 
+import org.jowidgets.cap.invocation.server.CapServerServicePublisher;
 import org.jowidgets.invocation.common.impl.MessageBrokerId;
 import org.jowidgets.message.api.MessageToolkit;
 import org.jowidgets.message.impl.p2p.simple.MessageBrokerBuilder;
@@ -42,6 +43,8 @@ public final class SampleServerStarter {
 		builder.setPort(5660);
 		MessageToolkit.addBrokerClient(builder.buildClient());
 		MessageToolkit.addBrokerServer(builder.buildServer());
+
+		new CapServerServicePublisher().publishServices();
 
 		//CHECKSTYLE:OFF
 		System.out.println("Sample server started");
