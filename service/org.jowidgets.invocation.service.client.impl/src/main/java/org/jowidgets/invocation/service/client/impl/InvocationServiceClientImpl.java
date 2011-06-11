@@ -42,16 +42,11 @@ final class InvocationServiceClientImpl implements IInvocationServiceClient {
 
 	private final long defaulTimeout;
 	private final IInvocationClient invocationClient;
-	private final Object clientId;
 	private final InvocationCallbackServiceImpl invocationCallbackService;
 
-	InvocationServiceClientImpl(
-		final Object clientId,
-		final InvocationCallbackServiceImpl invocationCallbackService,
-		final long defaulTimeout) {
+	InvocationServiceClientImpl(final InvocationCallbackServiceImpl invocationCallbackService, final long defaulTimeout) {
 		super();
 		this.defaulTimeout = defaulTimeout;
-		this.clientId = clientId;
 		this.invocationCallbackService = invocationCallbackService;
 		this.invocationClient = InvocationClientToolkit.getClient();
 	}
@@ -90,7 +85,7 @@ final class InvocationServiceClientImpl implements IInvocationServiceClient {
 							serverMethod.getServerId(),
 							invocationClient);
 
-					serverMethod.invoke(clientId, invocationId, parameter);
+					serverMethod.invoke(invocationId, parameter);
 				}
 
 			}

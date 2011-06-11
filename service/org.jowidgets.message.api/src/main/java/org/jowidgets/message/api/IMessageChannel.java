@@ -50,4 +50,11 @@ public interface IMessageChannel {
 	 */
 	Object getServerPeer();
 
+	/**
+	 * Gets the peer of the underlying client
+	 * 
+	 * @return the peer
+	 */
+	Object getClientPeer();
+
 }

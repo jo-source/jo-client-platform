@@ -38,7 +38,7 @@ public final class InvocationServiceServerToolkitImpl implements IInvocationServ
 	private final ResponseServiceImpl userQuestionResultService;
 	private final IInvocationServiceServerRegistry serverRegistry;
 
-	InvocationServiceServerToolkitImpl() {
+	public InvocationServiceServerToolkitImpl() {
 		this.cancelService = new CancelServiceImpl();
 		InvocationServerToolkit.getRegistry().register(cancelService);
 
