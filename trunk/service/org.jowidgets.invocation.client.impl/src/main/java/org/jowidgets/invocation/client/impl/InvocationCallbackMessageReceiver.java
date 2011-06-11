@@ -26,28 +26,35 @@
  * DAMAGE.
  */
 
-package org.jowidgets.message.api;
+package org.jowidgets.invocation.client.impl;
 
-public interface IMessageChannel {
+import org.jowidgets.invocation.common.impl.ExceptionMessage;
+import org.jowidgets.invocation.common.impl.FinishedMessage;
+import org.jowidgets.invocation.common.impl.InterimRequestMessage;
+import org.jowidgets.invocation.common.impl.InterimResponseMessage;
+import org.jowidgets.message.api.IMessageReceiver;
 
-	/**
-	 * Sends a message to a receiver. This call will not block, even if the server is not available
-	 * 
-	 * @param message
-	 *            The message to send.
-	 * 
-	 * @param exceptionCallback
-	 *            The callback that will be invoked, when a client side exception was thrown, e.g.
-	 *            server is not available.
-	 *            Remark: Handling of server sided exceptions must be handles on higher layers
-	 */
-	void send(final Object message, IExceptionCallback exceptionCallback);
+public class InvocationCallbackMessageReceiver implements IMessageReceiver {
 
-	/**
-	 * Gets the peer of the underlying server
-	 * 
-	 * @return the peer
-	 */
-	Object getServerPeer();
+	private final InvocationClientServiceRegistryImpl invocationClientServiceRegistry;
 
+	InvocationCallbackMessageReceiver(final InvocationClientServiceRegistryImpl invocationClientServiceRegistry) {
+		this.invocationClientServiceRegistry = invocationClientServiceRegistry;
+	}
+
+	@Override
+	public void onMessage(final Object message, final Object replyPeer) {
+		if (message instanceof FinishedMessage) {
+			invocationClientServiceRegistry.onFinished((FinishedMessage) message);
+		}
+		else if (message instanceof ExceptionMessage) {
+			invocationClientServiceRegistry.onException((ExceptionMessage) message);
+		}
+		else if (message instanceof InterimResponseMessage) {
+			invocationClientServiceRegistry.onInterimResponse((InterimResponseMessage) message);
+		}
+		else if (message instanceof InterimRequestMessage) {
+			invocationClientServiceRegistry.onInterimRequest((InterimRequestMessage) message);
+		}
+	}
 }

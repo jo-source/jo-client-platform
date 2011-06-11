@@ -45,18 +45,18 @@ final class ResponseServiceImpl implements IResponseService {
 	}
 
 	@Override
-	public void response(final Object requestId, final Object result) {
+	public void response(final Object invocationId, final Object requestId, final Object response) {
 		Assert.paramNotNull(requestId, "requestId");
 		final IInterimResponseCallback<Object> responseCallback = interimResponseCallback.get(requestId);
 		if (responseCallback != null) {
-			responseCallback.response(result);
+			responseCallback.response(response);
 		}
 	}
 
 	Object register(final IInterimResponseCallback<Object> callback) {
-		final Object questionId = UUID.randomUUID();
-		interimResponseCallback.put(questionId, callback);
-		return questionId;
+		final Object requestId = UUID.randomUUID();
+		interimResponseCallback.put(requestId, callback);
+		return requestId;
 	}
 
 }

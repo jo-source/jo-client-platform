@@ -58,16 +58,19 @@ final class InvocationCallbackServiceImpl implements IInvocationCallbackService 
 	}
 
 	@Override
-	public void interimRequest(final Object invocationId, final Object questionId, final Object question) {
+	public void interimRequest(final Object invocationId, final Object requestId, final Object request) {
 		final InvocationContext context = invocationContexts.get(invocationId);
 		if (context != null && context.getInterimRequestCallback() != null) {
 			final IInterimResponseCallback<Object> resultCallback = new IInterimResponseCallback<Object>() {
 				@Override
-				public void response(final Object result) {
-					InvocationClientToolkit.getClient().getResponseService(context.getServerId());
+				public void response(final Object response) {
+					InvocationClientToolkit.getClient().getResponseService(context.getServerId()).response(
+							invocationId,
+							requestId,
+							response);
 				}
 			};
-			context.getInterimRequestCallback().request(resultCallback, question);
+			context.getInterimRequestCallback().request(resultCallback, request);
 		}
 	}
 

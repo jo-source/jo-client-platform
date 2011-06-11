@@ -100,8 +100,8 @@ public class MethodImpl implements IMethod {
 		final IInterimRequestCallback<Object, Object> interimRequestCallback = new IInterimRequestCallback<Object, Object>() {
 			@Override
 			public void request(final IInterimResponseCallback<Object> callback, final Object question) {
-				final Object userQuestionId = responseService.register(callback);
-				invocationCallbackService.interimRequest(invocationId, userQuestionId, question);
+				final Object requestId = responseService.register(callback);
+				invocationCallbackService.interimRequest(invocationId, requestId, question);
 			}
 		};
 

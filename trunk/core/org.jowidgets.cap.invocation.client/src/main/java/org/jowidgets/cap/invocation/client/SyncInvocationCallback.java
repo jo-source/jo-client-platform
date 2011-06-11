@@ -31,13 +31,15 @@ package org.jowidgets.cap.invocation.client;
 import org.jowidgets.invocation.service.common.api.ICancelListener;
 import org.jowidgets.invocation.service.common.api.IInvocationCallback;
 
-public final class SyncInvocationCallback<RESULT_TYPE> implements IInvocationCallback<RESULT_TYPE> {
+final class SyncInvocationCallback<RESULT_TYPE> implements IInvocationCallback<RESULT_TYPE> {
 
 	private RESULT_TYPE result;
 	private Throwable exception;
 	private boolean timeout;
 
 	private Thread currentThread;
+
+	SyncInvocationCallback() {}
 
 	@Override
 	public void addCancelListener(final ICancelListener cancelListener) {}
@@ -62,14 +64,14 @@ public final class SyncInvocationCallback<RESULT_TYPE> implements IInvocationCal
 
 	private void unblock() {
 		if (currentThread != null) {
-			currentThread.notify();
+			currentThread.interrupt();
 		}
 	}
 
-	public RESULT_TYPE getResultSynchronious() {
+	RESULT_TYPE getResultSynchronious() {
 		this.currentThread = Thread.currentThread();
 		try {
-			currentThread.wait();
+			Thread.sleep(100000000);
 		}
 		catch (final InterruptedException e) {
 
@@ -82,5 +84,4 @@ public final class SyncInvocationCallback<RESULT_TYPE> implements IInvocationCal
 		}
 		return result;
 	}
-
 }
