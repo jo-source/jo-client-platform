@@ -28,8 +28,17 @@
 
 package org.jowidgets.cap.invocation.client;
 
+import java.util.List;
 import java.util.Set;
 
+import org.jowidgets.cap.common.api.bean.IBeanDto;
+import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
+import org.jowidgets.cap.common.api.bean.IBeanKey;
+import org.jowidgets.cap.common.api.execution.IExecutionCallback;
+import org.jowidgets.cap.common.api.execution.UserQuestionResult;
+import org.jowidgets.cap.common.api.service.IBeanServicesProvider;
+import org.jowidgets.cap.common.api.service.IEntityService;
+import org.jowidgets.cap.common.api.service.IExecutorService;
 import org.jowidgets.cap.invocation.common.CapInvocationMethodNames;
 import org.jowidgets.invocation.service.client.api.IInvocationServiceClient;
 import org.jowidgets.invocation.service.client.api.InvocationServiceClientToolkit;
@@ -65,8 +74,40 @@ final class CapClientServiceProviderBuilder extends ServiceProviderBuilder {
 	}
 
 	private Object getService(final Class<?> serviceType) {
-		//CHECKSTYLE:OFF
-		System.out.println(serviceType.getName());
+		//TODO only for test purpose
+		if (serviceType.isAssignableFrom(IExecutorService.class)) {
+			return new IExecutorService<Object>() {
+				@Override
+				public List<IBeanDto> execute(
+					final List<? extends IBeanKey> beanKeys,
+					final Object parameter,
+					final IExecutionCallback executionCallback) {
+
+					final IInvocationServiceClient invocationServiceClient = InvocationServiceClientToolkit.getClient();
+					final IMethodInvocationService<List<IBeanDto>, Void, String, UserQuestionResult, Object> methodService;
+					methodService = invocationServiceClient.getMethodService(CapInvocationMethodNames.EXECUTOR_SERVICE_EXECUTE);
+
+					final SyncInvocationCallback<List<IBeanDto>> invocationCallback = new SyncInvocationCallback<List<IBeanDto>>();
+					methodService.invoke(invocationCallback, null, null, parameter);
+
+					return invocationCallback.getResultSynchronious();
+				}
+			};
+		}
+		else if (serviceType.isAssignableFrom(IEntityService.class)) {
+			return new IEntityService() {
+
+				@Override
+				public <BEAN_TYPE> IBeanDtoDescriptor<BEAN_TYPE> getDescriptor(final Class<BEAN_TYPE> beanType) {
+					return null;
+				}
+
+				@Override
+				public <BEAN_TYPE> IBeanServicesProvider<BEAN_TYPE> getBeanServices(final Class<BEAN_TYPE> beanType) {
+					return null;
+				}
+			};
+		}
 		return new Object();
 	}
 }
