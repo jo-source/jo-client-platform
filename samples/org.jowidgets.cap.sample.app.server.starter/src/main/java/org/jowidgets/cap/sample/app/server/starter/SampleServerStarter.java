@@ -29,8 +29,6 @@
 package org.jowidgets.cap.sample.app.server.starter;
 
 import org.jowidgets.invocation.common.impl.MessageBrokerId;
-import org.jowidgets.message.api.IMessageClient;
-import org.jowidgets.message.api.IMessageReceiver;
 import org.jowidgets.message.api.MessageToolkit;
 import org.jowidgets.message.impl.p2p.simple.MessageBrokerBuilder;
 
@@ -44,18 +42,6 @@ public final class SampleServerStarter {
 		builder.setPort(5660);
 		MessageToolkit.addBrokerClient(builder.buildClient());
 		MessageToolkit.addBrokerServer(builder.buildServer());
-
-		final IMessageClient client = MessageToolkit.getClient(MessageBrokerId.INVOCATION_IMPL_BROKER_ID);
-
-		MessageToolkit.setReceiver(MessageBrokerId.INVOCATION_IMPL_BROKER_ID, new IMessageReceiver() {
-			@Override
-			public void onMessage(final Object message, final Object replyPeerId) {
-				//CHECKSTYLE:OFF
-				System.out.println(message);
-				//CHECKSTYLE:ON
-				client.getMessageChannel(replyPeerId).send("Response on: " + message, null);
-			}
-		});
 
 		//CHECKSTYLE:OFF
 		System.out.println("Sample server started");
