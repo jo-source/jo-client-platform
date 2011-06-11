@@ -19,6 +19,11 @@
             <artifactId>org.jowidgets.invocation.server.api</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>org.jowidgets</groupId>
+            <artifactId>org.jowidgets.message.api</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
 		<dependency>
             <groupId>org.jowidgets</groupId>
             <artifactId>org.jowidgets.invocation.common.impl</artifactId>
@@ -33,7 +38,7 @@
 				<artifactId>maven-bundle-plugin</artifactId>
 				<configuration>
 					<instructions>
-						<Require-Bundle>org.jowidgets.invocation.server.api, org.jowidgets.invocation.common.impl</Require-Bundle>
+						<Require-Bundle>org.jowidgets.invocation.server.api, org.jowidgets.message.api, org.jowidgets.invocation.common.impl</Require-Bundle>
 					</instructions>
 				</configuration>
 			</plugin>

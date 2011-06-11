@@ -28,33 +28,50 @@
 
 package org.jowidgets.invocation.server.impl;
 
+import org.jowidgets.invocation.common.api.IInvocationCallbackService;
+import org.jowidgets.invocation.common.impl.ExceptionMessage;
+import org.jowidgets.invocation.common.impl.FinishedMessage;
+import org.jowidgets.invocation.common.impl.InterimRequestMessage;
+import org.jowidgets.invocation.common.impl.InterimResponseMessage;
 import org.jowidgets.invocation.common.impl.MessageBrokerId;
 import org.jowidgets.invocation.server.api.IInvocationServer;
-import org.jowidgets.invocation.server.api.IInvocationServerServiceRegistry;
-import org.jowidgets.invocation.server.api.IInvocationServerToolkit;
-import org.jowidgets.message.api.IMessageReceiver;
+import org.jowidgets.message.api.IMessageChannel;
+import org.jowidgets.message.api.IMessageClient;
 import org.jowidgets.message.api.MessageToolkit;
 
-public final class DefaultInvocationServerToolkit implements IInvocationServerToolkit {
+public class InvocationServerImpl implements IInvocationServer {
 
-	private final InvocationServerServiceRegistryImpl invocationServerServiceRegistry;
-	private final InvocationServerImpl invocationServerImpl;
+	private final IMessageClient messageClient;
 
-	DefaultInvocationServerToolkit() {
-		this.invocationServerImpl = new InvocationServerImpl();
-		this.invocationServerServiceRegistry = new InvocationServerServiceRegistryImpl();
-		final IMessageReceiver messageReceiver = new InvocationServerMessageReceiver(invocationServerServiceRegistry);
-		MessageToolkit.setReceiver(MessageBrokerId.INVOCATION_IMPL_BROKER_ID, messageReceiver);
+	InvocationServerImpl() {
+		this.messageClient = MessageToolkit.getClient(MessageBrokerId.INVOCATION_IMPL_BROKER_ID);
 	}
 
 	@Override
-	public IInvocationServer getServer() {
-		return invocationServerImpl;
-	}
+	public IInvocationCallbackService getInvocationCallback(final Object clientId) {
+		final IMessageChannel messageChannel = messageClient.getMessageChannel(clientId);
+		return new IInvocationCallbackService() {
 
-	@Override
-	public IInvocationServerServiceRegistry getServerRegistry() {
-		return invocationServerServiceRegistry;
+			@Override
+			public void interimResponse(final Object invocationId, final Object response) {
+				messageChannel.send(new InterimResponseMessage(invocationId, response), null);
+			}
+
+			@Override
+			public void interimRequest(final Object invocationId, final Object requestId, final Object request) {
+				messageChannel.send(new InterimRequestMessage(invocationId, requestId, request), null);
+			}
+
+			@Override
+			public void finished(final Object invocationId, final Object result) {
+				messageChannel.send(new FinishedMessage(invocationId, result), null);
+			}
+
+			@Override
+			public void exeption(final Object invocationId, final Throwable exception) {
+				messageChannel.send(new ExceptionMessage(invocationId, exception), null);
+			}
+		};
 	}
 
 }

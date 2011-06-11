@@ -57,7 +57,7 @@ class InvocationClientImpl implements IInvocationClient {
 
 			@Override
 			public void invoke(final Object clientId, final Object invocationId, final Object parameter) {
-				final MethodInvocationMessage message = new MethodInvocationMessage(clientId, invocationId, parameter);
+				final MethodInvocationMessage message = new MethodInvocationMessage(clientId, invocationId, methodName, parameter);
 				messageChannel.send(message, new ExceptionCallback(invocationClientServiceRegistry, invocationId));
 			}
 

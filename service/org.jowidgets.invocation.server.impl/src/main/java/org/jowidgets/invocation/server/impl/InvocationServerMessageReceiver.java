@@ -26,45 +26,32 @@
  * DAMAGE.
  */
 
-package org.jowidgets.invocation.common.impl;
+package org.jowidgets.invocation.server.impl;
 
-import java.io.Serializable;
+import org.jowidgets.invocation.common.impl.CancelMessage;
+import org.jowidgets.invocation.common.impl.MethodInvocationMessage;
+import org.jowidgets.invocation.common.impl.ResponseMessage;
+import org.jowidgets.message.api.IMessageReceiver;
 
-public final class MethodInvocationMessage implements Serializable {
+final class InvocationServerMessageReceiver implements IMessageReceiver {
 
-	private static final long serialVersionUID = -4205299138579625114L;
+	private final InvocationServerServiceRegistryImpl invocationServerServiceRegistry;
 
-	private final Object clientId;
-	private final Object invocationId;
-	private final String methodName;
-	private final Object parameter;
-
-	public MethodInvocationMessage(
-		final Object clientId,
-		final Object invocationId,
-		final String methodName,
-		final Object parameter) {
-		super();
-		this.clientId = clientId;
-		this.invocationId = invocationId;
-		this.methodName = methodName;
-		this.parameter = parameter;
+	InvocationServerMessageReceiver(final InvocationServerServiceRegistryImpl invocationServerServiceRegistry) {
+		this.invocationServerServiceRegistry = invocationServerServiceRegistry;
 	}
 
-	public Object getClientId() {
-		return clientId;
-	}
-
-	public Object getInvocationId() {
-		return invocationId;
-	}
-
-	public String getMethodName() {
-		return methodName;
-	}
-
-	public Object getParameter() {
-		return parameter;
+	@Override
+	public void onMessage(final Object message, final Object replyPeer) {
+		if (message instanceof MethodInvocationMessage) {
+			invocationServerServiceRegistry.onMethodInvocation((MethodInvocationMessage) message);
+		}
+		else if (message instanceof CancelMessage) {
+			invocationServerServiceRegistry.onCancel((CancelMessage) message);
+		}
+		else if (message instanceof ResponseMessage) {
+			invocationServerServiceRegistry.onResponse((ResponseMessage) message);
+		}
 	}
 
 }
