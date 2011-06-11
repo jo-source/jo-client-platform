@@ -21,6 +21,9 @@
 		<module>../org.jowidgets.invocation.common.api</module>	
 		<module>../org.jowidgets.invocation.client.api</module>
 		<module>../org.jowidgets.invocation.server.api</module>
+		<module>../org.jowidgets.invocation.common.impl</module>	
+		<module>../org.jowidgets.invocation.client.impl</module>
+		<module>../org.jowidgets.invocation.server.impl</module>
 		<module>../org.jowidgets.invocation.impl.local</module>
 		<module>../org.jowidgets.invocation.service.common.api</module>	
 		<module>../org.jowidgets.invocation.service.server.api</module>

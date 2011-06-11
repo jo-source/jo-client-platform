@@ -26,26 +26,12 @@
  * DAMAGE.
  */
 
-package org.jowidgets.message.api;
+package org.jowidgets.invocation.common.impl;
 
-public interface IMessageClient {
+public final class MessageBrokerId {
 
-	/**
-	 * Gets the default message channel
-	 * 
-	 * @return The default message channel
-	 */
-	IMessageChannel getMessageChannel();
+	public static final String INVOCATION_IMPL_BROKER_ID = MessageBrokerId.class.getName() + "_INVOCATION_IMPL_BROKER_ID";
 
-	/**
-	 * Gets a message channel for a defined peer
-	 * The type of the peer depends on the implementation
-	 * of this api.
-	 * 
-	 * @param peer The peer to get the channel for
-	 * 
-	 * @return A message channel for the defined peer, never null
-	 */
-	IMessageChannel getMessageChannel(Object peer);
+	private MessageBrokerId() {}
 
 }
