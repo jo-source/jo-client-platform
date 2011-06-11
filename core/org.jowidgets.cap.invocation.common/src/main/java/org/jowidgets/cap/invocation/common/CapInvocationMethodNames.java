@@ -28,9 +28,12 @@
 
 package org.jowidgets.cap.invocation.common;
 
+import org.jowidgets.cap.common.api.service.IExecutorService;
+
 public final class CapInvocationMethodNames {
 
 	public static final String SERVICE_LOCATOR_METHOD_NAME = CapInvocationMethodNames.class.getName() + "_SERVICE_LOCATOR_METHOD";
+	public static final String EXECUTOR_SERVICE_EXECUTE = IExecutorService.class.getName() + "_EXECUTOR_SERVICE_EXECUTE";
 
 	private CapInvocationMethodNames() {}
 

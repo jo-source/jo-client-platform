@@ -13,6 +13,14 @@
 		<relativePath>../parent/pom.xml</relativePath>
 	</parent>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.jowidgets</groupId>
+            <artifactId>org.jowidgets.cap.common</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
+
 	<build>
 		<plugins>
 			<plugin>

@@ -33,13 +33,13 @@ public interface IMethodInvocationService<RESULT_TYPE, INTERIM_RESPONSE_TYPE, RE
 	/**
 	 * Do the invocation.
 	 * 
-	 * @param resultCallback
+	 * @param invocationCallback
 	 * @param interimResponseCallback
 	 * @param interimRequestCallback
 	 * @param parameter
 	 */
 	void invoke(
-		IInvocationCallback<RESULT_TYPE> resultCallback,
+		IInvocationCallback<RESULT_TYPE> invocationCallback,
 		IInterimResponseCallback<INTERIM_RESPONSE_TYPE> interimResponseCallback,
 		IInterimRequestCallback<REQUEST_TYPE, RESPONSE_TYPE> interimRequestCallback,
 		PARAMETER_TYPE parameter);
