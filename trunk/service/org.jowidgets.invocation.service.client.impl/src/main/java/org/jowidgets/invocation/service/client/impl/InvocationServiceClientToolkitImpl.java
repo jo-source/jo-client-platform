@@ -28,8 +28,6 @@
 
 package org.jowidgets.invocation.service.client.impl;
 
-import java.util.UUID;
-
 import org.jowidgets.invocation.client.api.InvocationClientToolkit;
 import org.jowidgets.invocation.service.client.api.IInvocationServiceClient;
 import org.jowidgets.invocation.service.client.api.IInvocationServiceClientBuilder;
@@ -38,10 +36,8 @@ import org.jowidgets.invocation.service.client.api.IInvocationServiceClientToolk
 public final class InvocationServiceClientToolkitImpl implements IInvocationServiceClientToolkit {
 
 	private final InvocationCallbackServiceImpl invocationCallbackService;
-	private final Object clientId;
 
 	public InvocationServiceClientToolkitImpl() {
-		this.clientId = UUID.randomUUID();
 		this.invocationCallbackService = new InvocationCallbackServiceImpl();
 		InvocationClientToolkit.getRegistry().register(invocationCallbackService);
 	}
@@ -53,7 +49,7 @@ public final class InvocationServiceClientToolkitImpl implements IInvocationServ
 
 	@Override
 	public IInvocationServiceClientBuilder getClientBuilder() {
-		return new InvocationServiceClientBuilderImpl(clientId, invocationCallbackService);
+		return new InvocationServiceClientBuilderImpl(invocationCallbackService);
 	}
 
 }

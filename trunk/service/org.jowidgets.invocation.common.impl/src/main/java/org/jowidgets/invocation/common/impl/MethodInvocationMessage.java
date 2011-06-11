@@ -34,25 +34,25 @@ public final class MethodInvocationMessage implements Serializable {
 
 	private static final long serialVersionUID = -4205299138579625114L;
 
-	private final Object clientId;
+	private final Object replyPeer;
 	private final Object invocationId;
 	private final String methodName;
 	private final Object parameter;
 
 	public MethodInvocationMessage(
-		final Object clientId,
+		final Object replyPeer,
 		final Object invocationId,
 		final String methodName,
 		final Object parameter) {
 		super();
-		this.clientId = clientId;
+		this.replyPeer = replyPeer;
 		this.invocationId = invocationId;
 		this.methodName = methodName;
 		this.parameter = parameter;
 	}
 
-	public Object getClientId() {
-		return clientId;
+	public Object getReplyPeer() {
+		return replyPeer;
 	}
 
 	public Object getInvocationId() {

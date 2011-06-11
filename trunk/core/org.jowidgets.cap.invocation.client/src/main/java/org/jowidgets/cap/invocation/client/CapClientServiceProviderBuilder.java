@@ -28,13 +28,13 @@
 
 package org.jowidgets.cap.invocation.client;
 
-import java.util.List;
+import java.util.Set;
 
 import org.jowidgets.cap.invocation.common.CapInvocationMethodNames;
 import org.jowidgets.invocation.service.client.api.IInvocationServiceClient;
 import org.jowidgets.invocation.service.client.api.InvocationServiceClientToolkit;
 import org.jowidgets.invocation.service.common.api.IMethodInvocationService;
-import org.jowidgets.service.tools.ServiceId;
+import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.tools.ServiceProviderBuilder;
 
 final class CapClientServiceProviderBuilder extends ServiceProviderBuilder {
@@ -42,30 +42,31 @@ final class CapClientServiceProviderBuilder extends ServiceProviderBuilder {
 	public CapClientServiceProviderBuilder() {
 		super();
 		final IInvocationServiceClient invocationServiceClient = InvocationServiceClientToolkit.getClient();
-		final IMethodInvocationService<List<ServiceId<Object>>, Void, Void, Void, Void> methodService;
+		final IMethodInvocationService<Set<IServiceId<?>>, Void, Void, Void, Void> methodService;
 		methodService = invocationServiceClient.getMethodService(CapInvocationMethodNames.SERVICE_LOCATOR_METHOD_NAME);
 
-		final SyncInvocationCallback<List<ServiceId<Object>>> invocationCallback = new SyncInvocationCallback<List<ServiceId<Object>>>();
+		final SyncInvocationCallback<Set<IServiceId<?>>> invocationCallback = new SyncInvocationCallback<Set<IServiceId<?>>>();
 
 		methodService.invoke(invocationCallback, null, null, null);
 
 		addServices(invocationCallback.getResultSynchronious());
 	}
 
-	private void addServices(final List<ServiceId<Object>> serviceIds) {
-		for (final ServiceId<Object> serviceId : serviceIds) {
+	private void addServices(final Set<IServiceId<?>> serviceIds) {
+		for (final IServiceId<?> serviceId : serviceIds) {
 			addService(serviceId);
 		}
 	}
 
-	private void addService(final ServiceId<Object> serviceId) {
+	private void addService(final IServiceId<?> serviceId) {
 		final Class<?> serviceType = serviceId.getServiceType();
 		final Object service = getService(serviceType);
 		addService(serviceId, service);
 	}
 
 	private Object getService(final Class<?> serviceType) {
-		//TODO
+		//CHECKSTYLE:OFF
+		System.out.println(serviceType.getName());
 		return new Object();
 	}
 }

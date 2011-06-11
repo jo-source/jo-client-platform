@@ -72,7 +72,7 @@ public class InvocationServerServiceRegistryImpl implements IInvocationServerSer
 
 	public void onMethodInvocation(final MethodInvocationMessage message) {
 		final IMethod method = methods.get(message.getMethodName());
-		method.invoke(message.getClientId(), message.getInvocationId(), message.getParameter());
+		method.invoke(message.getReplyPeer(), message.getInvocationId(), message.getParameter());
 	}
 
 	void onCancel(final CancelMessage message) {

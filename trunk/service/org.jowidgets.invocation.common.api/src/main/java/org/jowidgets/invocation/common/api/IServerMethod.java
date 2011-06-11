@@ -28,7 +28,9 @@
 
 package org.jowidgets.invocation.common.api;
 
-public interface IServerMethod extends IMethod {
+public interface IServerMethod {
+
+	void invoke(Object invocationId, Object parameter);
 
 	Object getServerId();
 

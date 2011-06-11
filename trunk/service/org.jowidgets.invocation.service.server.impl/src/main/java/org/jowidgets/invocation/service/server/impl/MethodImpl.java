@@ -60,9 +60,9 @@ public class MethodImpl implements IMethod {
 	}
 
 	@Override
-	public void invoke(final Object clientId, final Object invocationId, final Object parameter) {
+	public void invoke(final Object replyPeer, final Object invocationId, final Object parameter) {
 
-		final IInvocationCallbackService invocationCallbackService = invocationServer.getInvocationCallback(clientId);
+		final IInvocationCallbackService invocationCallbackService = invocationServer.getInvocationCallback(replyPeer);
 
 		final IInvocationCallback<Object> invocationCallback = new IInvocationCallback<Object>() {
 

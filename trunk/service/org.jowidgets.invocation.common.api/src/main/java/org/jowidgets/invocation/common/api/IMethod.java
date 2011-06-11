@@ -30,6 +30,6 @@ package org.jowidgets.invocation.common.api;
 
 public interface IMethod {
 
-	void invoke(Object clientId, Object invocationId, Object parameter);
+	void invoke(Object replyPeer, Object invocationId, Object parameter);
 
 }

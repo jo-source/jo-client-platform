@@ -40,7 +40,7 @@ public final class DefaultInvocationServerToolkit implements IInvocationServerTo
 	private final InvocationServerServiceRegistryImpl invocationServerServiceRegistry;
 	private final InvocationServerImpl invocationServerImpl;
 
-	DefaultInvocationServerToolkit() {
+	public DefaultInvocationServerToolkit() {
 		this.invocationServerImpl = new InvocationServerImpl();
 		this.invocationServerServiceRegistry = new InvocationServerServiceRegistryImpl();
 		final IMessageReceiver messageReceiver = new InvocationServerMessageReceiver(invocationServerServiceRegistry);

@@ -14,9 +14,19 @@
 	</parent>
 
 	<dependencies>
+	   <dependency>
+            <groupId>org.jowidgets</groupId>
+            <artifactId>org.jowidgets.service</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
         <dependency>
             <groupId>org.jowidgets</groupId>
             <artifactId>org.jowidgets.cap.invocation.common</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jowidgets</groupId>
+            <artifactId>org.jowidgets.invocation.service.server.api</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
     </dependencies>
