@@ -112,6 +112,11 @@ public final class MessageToolkit {
 			if (messageBrokerServer != null) {
 				messageBrokerServer.setMessageReceiver(receiver);
 			}
+			else {
+				throw new IllegalArgumentException("No broker server found for parameter 'brokerId' with value '"
+					+ brokerId
+					+ "'");
+			}
 		}
 	}
 }
