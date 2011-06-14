@@ -30,7 +30,7 @@ package org.jowidgets.invocation.service.client.impl;
 
 import org.jowidgets.invocation.client.api.IInvocationClient;
 import org.jowidgets.invocation.client.api.InvocationClientToolkit;
-import org.jowidgets.invocation.common.api.IServerMethod;
+import org.jowidgets.invocation.common.api.IMethod;
 import org.jowidgets.invocation.service.client.api.IInvocationServiceClient;
 import org.jowidgets.invocation.service.common.api.IInterimRequestCallback;
 import org.jowidgets.invocation.service.common.api.IInterimResponseCallback;
@@ -52,28 +52,28 @@ final class InvocationServiceClientImpl implements IInvocationServiceClient {
 	}
 
 	@Override
-	public <RES, PROG, QUEST, QUEST_RES, PARAM> IMethodInvocationService<RES, PROG, QUEST, QUEST_RES, PARAM> getMethodService(
+	public <RES, INT_RES, REQ, RESP, PARAM> IMethodInvocationService<RES, INT_RES, REQ, RESP, PARAM> getMethodService(
 		final String methodName) {
 		return getMethodService(methodName, defaulTimeout);
 	}
 
 	@Override
-	public <RES, PROG, QUEST, QUEST_RES, PARAM> IMethodInvocationService<RES, PROG, QUEST, QUEST_RES, PARAM> getMethodService(
+	public <RES, INT_RES, REQ, RESP, PARAM> IMethodInvocationService<RES, INT_RES, REQ, RESP, PARAM> getMethodService(
 		final String methodName,
 		final long timeout) {
 		Assert.paramNotNull(methodName, "methodName");
 
-		return new IMethodInvocationService<RES, PROG, QUEST, QUEST_RES, PARAM>() {
+		return new IMethodInvocationService<RES, INT_RES, REQ, RESP, PARAM>() {
 
 			@Override
 			public void invoke(
 				final IInvocationCallback<RES> invocationCallback,
-				final IInterimResponseCallback<PROG> interimResponseCallback,
-				final IInterimRequestCallback<QUEST, QUEST_RES> interimRequestCallback,
+				final IInterimResponseCallback<INT_RES> interimResponseCallback,
+				final IInterimRequestCallback<REQ, RESP> interimRequestCallback,
 				final PARAM parameter) {
 
-				final IServerMethod serverMethod = invocationClient.getMethod(methodName);
-				if (serverMethod == null) {
+				final IMethod method = invocationClient.getMethod(methodName);
+				if (method == null) {
 					throw new IllegalArgumentException("No server method registered for method name '" + methodName + "'.");
 				}
 				else {
@@ -82,10 +82,9 @@ final class InvocationServiceClientImpl implements IInvocationServiceClient {
 							interimResponseCallback,
 							interimRequestCallback,
 							timeout,
-							serverMethod.getServerId(),
 							invocationClient);
 
-					serverMethod.invoke(invocationId, parameter);
+					method.invoke(invocationId, parameter);
 				}
 
 			}

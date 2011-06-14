@@ -26,12 +26,56 @@
  * DAMAGE.
  */
 
-package org.jowidgets.message.api;
+package org.jowidgets.invocation.client.impl;
 
-public interface IMessageProducerBroker {
+final class TimeStampedObject<OBJECT_TYPE> {
 
-	Object getBrokerId();
+	private final OBJECT_TYPE object;
+	private final long timestamp;
 
-	IMessageProducer getProducer();
+	public TimeStampedObject(final OBJECT_TYPE object) {
+		this.object = object;
+		this.timestamp = System.currentTimeMillis();
+	}
+
+	OBJECT_TYPE getObject() {
+		return object;
+	}
+
+	long getTimestamp() {
+		return timestamp;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((object == null) ? 0 : object.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(final Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		@SuppressWarnings("rawtypes")
+		final TimeStampedObject other = (TimeStampedObject) obj;
+		if (object == null) {
+			if (other.object != null) {
+				return false;
+			}
+		}
+		else if (!object.equals(other.object)) {
+			return false;
+		}
+		return true;
+	}
 
 }

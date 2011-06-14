@@ -31,20 +31,16 @@ package org.jowidgets.message.api;
 public interface IMessageChannel {
 
 	/**
-	 * Sends a message to a receiver. This call will not block, even if the server is not available
+	 * Sends a message to a receiver. This call will not block, even if the receiver is not available
 	 * 
 	 * @param message
 	 *            The message to send.
 	 * 
 	 * @param exceptionCallback
-	 *            The callback that will be invoked, when a client side exception was thrown, e.g.
+	 *            The callback that will be invoked, when a producer side exception was thrown, e.g.
 	 *            server is not available.
-	 *            Remark: Handling of server sided exceptions must be handles on higher layers
+	 *            Remark: Handling of receiver sided exceptions must be handles on higher layers
 	 */
 	void send(final Object message, IExceptionCallback exceptionCallback);
-
-	Object getReceiver();
-
-	Object getProducer();
 
 }

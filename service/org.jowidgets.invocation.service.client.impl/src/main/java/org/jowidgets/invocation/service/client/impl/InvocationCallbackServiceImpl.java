@@ -64,10 +64,7 @@ final class InvocationCallbackServiceImpl implements IInvocationCallbackService 
 			final IInterimResponseCallback<Object> resultCallback = new IInterimResponseCallback<Object>() {
 				@Override
 				public void response(final Object response) {
-					InvocationClientToolkit.getClient().getResponseService(context.getServerId()).response(
-							invocationId,
-							requestId,
-							response);
+					InvocationClientToolkit.getClient().getResponseService().response(invocationId, requestId, response);
 				}
 			};
 			context.getInterimRequestCallback().request(resultCallback, request);
@@ -97,13 +94,11 @@ final class InvocationCallbackServiceImpl implements IInvocationCallbackService 
 		final IInterimResponseCallback<?> interimResponseCallback,
 		final IInterimRequestCallback<?, ?> interimRequestCallback,
 		final long timeout,
-		final Object serverId,
 		final IInvocationClient invocationClient) {
 
 		final Object invocationId = UUID.randomUUID();
 
 		final InvocationContext invocationContext = new InvocationContext(
-			serverId,
 			invocationCallback,
 			interimResponseCallback,
 			interimRequestCallback,
@@ -113,7 +108,7 @@ final class InvocationCallbackServiceImpl implements IInvocationCallbackService 
 			invocationCallback.addCancelListener(new ICancelListener() {
 				@Override
 				public void canceled() {
-					final ICancelService cancelService = invocationClient.getCancelService(serverId);
+					final ICancelService cancelService = invocationClient.getCancelService();
 					if (cancelService != null) {
 						cancelService.canceled(invocationId);
 					}

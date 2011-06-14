@@ -30,30 +30,33 @@ package org.jowidgets.message.impl.p2p.simple;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import org.jowidgets.message.api.IMessageReceiverBroker;
 import org.jowidgets.message.api.IMessageReceiver;
+import org.jowidgets.message.api.IMessageReceiverBroker;
 
 public class MessageReceiverBroker implements IMessageReceiverBroker {
 
 	private final Object brokerId;
 	private final Peer peer;
 	private final Executor receiveExecutor;
-	private final BlockingQueue<Message> messages;
+	private final Executor sendExecutor;
+	private final BlockingQueue<QueuedMessage> messages;
 
 	private IMessageReceiver receiver;
 
-	MessageReceiverBroker(final Object brokerId, final Peer peer, final Executor receiveExecutor) {
+	MessageReceiverBroker(final Object brokerId, final Peer peer, final Executor sendExecutor, final Executor receiveExecutor) {
 		super();
 		this.brokerId = brokerId;
 		this.peer = peer;
+		this.sendExecutor = sendExecutor;
 		this.receiveExecutor = receiveExecutor;
-		this.messages = new LinkedBlockingQueue<Message>();
+		this.messages = new LinkedBlockingQueue<QueuedMessage>();
 		start();
 	}
 
@@ -78,12 +81,12 @@ public class MessageReceiverBroker implements IMessageReceiverBroker {
 			public void run() {
 				while (true) {
 					try {
-						final Message message = messages.take();
+						final QueuedMessage message = messages.take();
 						receiveExecutor.execute(new Runnable() {
 							@Override
 							public void run() {
 								if (receiver != null) {
-									receiver.onMessage(message.getContent(), message.getReplyPeer());
+									receiver.onMessage(message.getMessage(), message.getReplyChannel());
 								}
 							}
 						});
@@ -109,9 +112,15 @@ public class MessageReceiverBroker implements IMessageReceiverBroker {
 							client = serverSocket.accept();
 							ooi = new ObjectInputStream(client.getInputStream());
 							final Object object = ooi.readObject();
+
 							if (object instanceof Message) {
-								messages.add((Message) object);
+								final Message message = (Message) object;
+								final InetAddress inetAddress = client.getInetAddress();
+								final Peer replyPeer = new Peer(inetAddress.getHostName(), message.getReplyPort());
+								final MessageChannel replyChannel = new MessageChannel(peer, replyPeer, sendExecutor);
+								messages.add(new QueuedMessage(message.getContent(), replyChannel));
 							}
+
 						}
 						catch (final Exception e) {
 						}

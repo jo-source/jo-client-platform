@@ -41,8 +41,7 @@ public final class SampleServerStarter {
 		final MessageBrokerBuilder builder = new MessageBrokerBuilder(MessageBrokerId.INVOCATION_IMPL_BROKER_ID);
 		builder.setHost("127.0.0.1");
 		builder.setPort(5660);
-		MessageToolkit.addBrokerClient(builder.buildClient());
-		MessageToolkit.addBrokerServer(builder.buildServer());
+		MessageToolkit.addReceiverBroker(builder.buildReceiver());
 
 		new CapServerServicePublisher().publishServices();
 

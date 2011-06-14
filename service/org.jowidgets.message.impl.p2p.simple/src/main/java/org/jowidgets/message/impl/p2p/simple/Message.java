@@ -32,22 +32,23 @@ import java.io.Serializable;
 
 final class Message implements Serializable {
 
-	private static final long serialVersionUID = -2117654603310021608L;
+	private static final long serialVersionUID = 4720863623478291259L;
 
-	private final Peer replyPeer;
 	private final Object content;
+	private final int replyPort;
 
-	Message(final Peer replyPeer, final Object content) {
-		this.replyPeer = replyPeer;
+	Message(final Object content, final int replyPort) {
+		super();
 		this.content = content;
-	}
-
-	Peer getReplyPeer() {
-		return replyPeer;
+		this.replyPort = replyPort;
 	}
 
 	Object getContent() {
 		return content;
+	}
+
+	int getReplyPort() {
+		return replyPort;
 	}
 
 }

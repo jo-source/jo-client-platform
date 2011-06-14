@@ -28,50 +28,84 @@
 
 package org.jowidgets.invocation.server.impl;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.jowidgets.invocation.common.api.IInvocationCallbackService;
 import org.jowidgets.invocation.common.impl.ExceptionMessage;
 import org.jowidgets.invocation.common.impl.FinishedMessage;
 import org.jowidgets.invocation.common.impl.InterimRequestMessage;
 import org.jowidgets.invocation.common.impl.InterimResponseMessage;
-import org.jowidgets.invocation.common.impl.MessageBrokerId;
 import org.jowidgets.invocation.server.api.IInvocationServer;
+import org.jowidgets.message.api.IExceptionCallback;
 import org.jowidgets.message.api.IMessageChannel;
-import org.jowidgets.message.api.IMessageProducer;
-import org.jowidgets.message.api.MessageToolkit;
+import org.jowidgets.util.Assert;
 
-public class InvocationServerImpl implements IInvocationServer {
+public final class InvocationServerImpl implements IInvocationServer {
 
-	private final IMessageProducer messageClient;
+	//TODO MG remove invocations with timeout from the map
+	private final Map<Object, MethodInvocation> methodInvocations;
+	private final IInvocationCallbackService invocationCallbackService;
 
 	InvocationServerImpl() {
-		this.messageClient = MessageToolkit.getProducer(MessageBrokerId.INVOCATION_IMPL_BROKER_ID);
-	}
-
-	@Override
-	public IInvocationCallbackService getInvocationCallback(final Object clientId) {
-		final IMessageChannel messageChannel = messageClient.getMessageChannel(clientId);
-		return new IInvocationCallbackService() {
+		this.methodInvocations = new ConcurrentHashMap<Object, MethodInvocation>();
+		this.invocationCallbackService = new IInvocationCallbackService() {
 
 			@Override
 			public void interimResponse(final Object invocationId, final Object response) {
-				messageChannel.send(new InterimResponseMessage(invocationId, response), null);
+				getMessageChannel(invocationId).send(new InterimResponseMessage(invocationId, response), null);
 			}
 
 			@Override
 			public void interimRequest(final Object invocationId, final Object requestId, final Object request) {
-				messageChannel.send(new InterimRequestMessage(invocationId, requestId, request), null);
+				getMessageChannel(invocationId).send(new InterimRequestMessage(invocationId, requestId, request), null);
 			}
 
 			@Override
 			public void finished(final Object invocationId, final Object result) {
-				messageChannel.send(new FinishedMessage(invocationId, result), null);
+				getMessageChannel(invocationId).send(new FinishedMessage(invocationId, result), null);
+				methodInvocations.remove(invocationId);
 			}
 
 			@Override
 			public void exeption(final Object invocationId, final Throwable exception) {
-				messageChannel.send(new ExceptionMessage(invocationId, exception), null);
+				getMessageChannel(invocationId).send(new ExceptionMessage(invocationId, exception), null);
+				methodInvocations.remove(invocationId);
 			}
 		};
+	}
+
+	@Override
+	public IInvocationCallbackService getInvocationCallbackService() {
+		return invocationCallbackService;
+	}
+
+	void registerInvocation(final Object invocationId, final IMessageChannel replyChannel) {
+		Assert.paramNotNull(invocationId, "invocationId");
+		Assert.paramNotNull(replyChannel, "replyChannel");
+		methodInvocations.put(invocationId, new MethodInvocation(invocationId, replyChannel));
+	}
+
+	void unregisterInvocation(final Object invocationId) {
+		Assert.paramNotNull(invocationId, "invocationId");
+		methodInvocations.remove(invocationId);
+	}
+
+	IMessageChannel getMessageChannel(final Object invocationId) {
+		final MethodInvocation methodInvocation = methodInvocations.get(invocationId);
+		if (methodInvocation != null) {
+			return methodInvocation.getReplyChannel();
+		}
+		else {
+			return new IMessageChannel() {
+				@Override
+				public void send(final Object message, final IExceptionCallback exceptionCallback) {
+					exceptionCallback.exception(new IllegalStateException("No message channel is registered for invocationId '"
+						+ invocationId
+						+ "'"));
+				}
+			};
+		}
 	}
 
 }

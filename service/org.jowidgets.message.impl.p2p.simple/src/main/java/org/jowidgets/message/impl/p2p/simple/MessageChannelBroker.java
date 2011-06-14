@@ -31,34 +31,29 @@ package org.jowidgets.message.impl.p2p.simple;
 import java.util.concurrent.Executor;
 
 import org.jowidgets.message.api.IMessageChannel;
-import org.jowidgets.message.api.IMessageProducer;
+import org.jowidgets.message.api.IMessageChannelBroker;
 import org.jowidgets.util.Assert;
 
-final class MessageProducer implements IMessageProducer {
+final class MessageChannelBroker implements IMessageChannelBroker {
 
-	private final Peer clientPeer;
-	private final Peer serverPeer;
-	private final Executor sendExecutor;
+	private final Object brokerId;
+	private final IMessageChannel messageProducer;
 
-	MessageProducer(final Peer clientPeer, final Peer serverPeer, final Executor sendExecutor) {
-		Assert.paramNotNull(clientPeer, "clientPeer");
-		Assert.paramNotNull(serverPeer, "serverPeer");
-		Assert.paramNotNull(sendExecutor, "sendExecutor");
-		this.clientPeer = clientPeer;
-		this.serverPeer = serverPeer;
-		this.sendExecutor = sendExecutor;
+	public MessageChannelBroker(final Object brokerId, final Peer peer, final Peer receiverPeer, final Executor executor) {
+		Assert.paramNotNull(brokerId, "brokerId");
+		Assert.paramNotNull(executor, "executor");
+		this.brokerId = brokerId;
+		this.messageProducer = new MessageChannel(peer, receiverPeer, executor);
 	}
 
 	@Override
-	public IMessageChannel getMessageChannel() {
-		return getMessageChannel(serverPeer);
+	public Object getBrokerId() {
+		return brokerId;
 	}
 
 	@Override
-	public IMessageChannel getMessageChannel(final Object peerId) {
-		Assert.paramNotNull(peerId, "peerId");
-		Assert.paramHasType(peerId, Peer.class, "peerId");
-		return new MessageChannel(clientPeer, (Peer) peerId, sendExecutor);
+	public IMessageChannel getChannel() {
+		return messageProducer;
 	}
 
 }

@@ -26,33 +26,22 @@
  * DAMAGE.
  */
 
-package org.jowidgets.message.impl.p2p.simple;
+package org.jowidgets.invocation.common.impl;
 
-import java.util.concurrent.Executor;
+import java.io.Serializable;
 
-import org.jowidgets.message.api.IMessageProducerBroker;
-import org.jowidgets.message.api.IMessageProducer;
-import org.jowidgets.util.Assert;
+public final class AcknowledgeMessage implements Serializable {
 
-final class MessageProducerBroker implements IMessageProducerBroker {
+	private static final long serialVersionUID = -2420370598980702491L;
 
-	private final Object brokerId;
-	private final IMessageProducer messageClient;
+	private final Object invocationId;
 
-	public MessageProducerBroker(final Object brokerId, final Peer clientPeer, final Peer serverPeer, final Executor executor) {
-		Assert.paramNotNull(brokerId, "brokerId");
-		this.brokerId = brokerId;
-		this.messageClient = new MessageProducer(clientPeer, serverPeer, executor);
+	public AcknowledgeMessage(final Object invocationId) {
+		this.invocationId = invocationId;
 	}
 
-	@Override
-	public Object getBrokerId() {
-		return brokerId;
-	}
-
-	@Override
-	public IMessageProducer getProducer() {
-		return messageClient;
+	public Object getInvocationId() {
+		return invocationId;
 	}
 
 }

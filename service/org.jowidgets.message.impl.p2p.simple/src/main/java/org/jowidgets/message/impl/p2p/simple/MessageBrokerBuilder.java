@@ -33,20 +33,20 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-import org.jowidgets.message.api.IMessageProducerBroker;
+import org.jowidgets.message.api.IMessageChannelBroker;
 import org.jowidgets.message.api.IMessageReceiverBroker;
 import org.jowidgets.util.Assert;
 
 public final class MessageBrokerBuilder {
 
-	private static final Set<Object> KNOWN_SERVER_BROKERS = new HashSet<Object>();
+	private static final Set<Object> KNOWN_RECEIVER_BROKERS = new HashSet<Object>();
 
 	private final Object brokerId;
 
 	private String host;
 	private int port;
-	private String serverHost;
-	private int serverPort;
+	private String receiverHost;
+	private int receiverPort;
 	private Executor sendExecutor;
 	private Executor receiveExecutor;
 
@@ -54,7 +54,7 @@ public final class MessageBrokerBuilder {
 		Assert.paramNotNull(brokerId, "brokerId");
 		this.brokerId = brokerId;
 		this.port = -1;
-		this.serverPort = -1;
+		this.receiverPort = -1;
 		this.sendExecutor = Executors.newFixedThreadPool(50);
 		this.receiveExecutor = Executors.newFixedThreadPool(50);
 	}
@@ -71,15 +71,15 @@ public final class MessageBrokerBuilder {
 		return this;
 	}
 
-	public MessageBrokerBuilder setServerHost(final String host) {
+	public MessageBrokerBuilder setReceiverHost(final String host) {
 		Assert.paramNotNull(host, "host");
-		this.serverHost = host;
+		this.receiverHost = host;
 		return this;
 	}
 
-	public MessageBrokerBuilder setServerPort(final int port) {
+	public MessageBrokerBuilder setReceiverPort(final int port) {
 		Assert.paramNotNull(port, "port");
-		this.serverPort = port;
+		this.receiverPort = port;
 		return this;
 	}
 
@@ -95,16 +95,20 @@ public final class MessageBrokerBuilder {
 		return this;
 	}
 
-	public IMessageProducerBroker buildClient() {
-		return new MessageProducerBroker(brokerId, new Peer(host, port), new Peer(serverHost, serverPort), sendExecutor);
+	public IMessageChannelBroker buildChannel() {
+		return new MessageChannelBroker(brokerId, new Peer(host, port), new Peer(receiverHost, receiverPort), sendExecutor);
 	}
 
-	public synchronized IMessageReceiverBroker buildServer() {
-		if (KNOWN_SERVER_BROKERS.contains(brokerId)) {
-			throw new IllegalStateException("An server broker with the id '" + brokerId + "' was already created");
+	public synchronized IMessageReceiverBroker buildReceiver() {
+		if (KNOWN_RECEIVER_BROKERS.contains(brokerId)) {
+			throw new IllegalStateException("An receiver broker with the id '" + brokerId + "' was already created");
 		}
-		final IMessageReceiverBroker result = new MessageReceiverBroker(brokerId, new Peer(host, port), receiveExecutor);
-		KNOWN_SERVER_BROKERS.add(brokerId);
+		final IMessageReceiverBroker result = new MessageReceiverBroker(
+			brokerId,
+			new Peer(host, port),
+			sendExecutor,
+			receiveExecutor);
+		KNOWN_RECEIVER_BROKERS.add(brokerId);
 		return result;
 	}
 }

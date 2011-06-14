@@ -43,10 +43,10 @@ public final class SampleClientStarterSwt {
 		final MessageBrokerBuilder builder = new MessageBrokerBuilder(MessageBrokerId.INVOCATION_IMPL_BROKER_ID);
 		builder.setHost("127.0.0.1");
 		builder.setPort(5661);
-		builder.setServerHost("127.0.0.1");
-		builder.setServerPort(5660);
-		MessageToolkit.addBrokerClient(builder.buildClient());
-		MessageToolkit.addBrokerServer(builder.buildServer());
+		builder.setReceiverHost("127.0.0.1");
+		builder.setReceiverPort(5660);
+		MessageToolkit.addChannelBroker(builder.buildChannel());
+		MessageToolkit.addReceiverBroker(builder.buildReceiver());
 
 		SwtOptions.setClassicTabs(true);
 		new WorkbenchRunner().run(new SampleWorkbench().getWorkbench());

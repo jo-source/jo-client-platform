@@ -38,13 +38,16 @@ import org.jowidgets.message.api.MessageToolkit;
 public final class DefaultInvocationClientToolkit implements IInvocationClientToolkit {
 
 	private final InvocationClientServiceRegistryImpl invocationClientServiceRegistry;
-	private final IInvocationClient invocationClient;
+	private final InvocationClientImpl invocationClient;
 
 	public DefaultInvocationClientToolkit() {
 		this.invocationClientServiceRegistry = new InvocationClientServiceRegistryImpl();
 		this.invocationClient = new InvocationClientImpl(invocationClientServiceRegistry);
 
-		final IMessageReceiver messageReceiver = new InvocationCallbackMessageReceiver(invocationClientServiceRegistry);
+		final IMessageReceiver messageReceiver = new InvocationCallbackMessageReceiver(
+			invocationClient,
+			invocationClientServiceRegistry);
+
 		MessageToolkit.setReceiver(MessageBrokerId.INVOCATION_IMPL_BROKER_ID, messageReceiver);
 	}
 

@@ -35,7 +35,6 @@ import org.jowidgets.invocation.service.common.api.IInvocationCallback;
 @SuppressWarnings({"rawtypes", "unchecked"})
 final class InvocationContext {
 
-	private final Object serverId;
 	private final IInvocationCallback invocationCallback;
 	private final IInterimResponseCallback interimResponseCallback;
 	private final IInterimRequestCallback interimRequestCallback;
@@ -43,13 +42,11 @@ final class InvocationContext {
 	private final long timestamp;
 
 	InvocationContext(
-		final Object serverId,
 		final IInvocationCallback<?> invocationCallback,
 		final IInterimResponseCallback<?> interimResponseCallback,
 		final IInterimRequestCallback<?, ?> interimRequestCalbback,
 		final long timeout) {
 
-		this.serverId = serverId;
 		this.invocationCallback = invocationCallback;
 		this.interimResponseCallback = interimResponseCallback;
 		this.interimRequestCallback = interimRequestCalbback;
@@ -75,10 +72,6 @@ final class InvocationContext {
 
 	long getTimestamp() {
 		return timestamp;
-	}
-
-	Object getServerId() {
-		return serverId;
 	}
 
 }
