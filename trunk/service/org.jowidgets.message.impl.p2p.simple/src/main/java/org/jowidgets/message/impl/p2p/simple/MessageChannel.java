@@ -90,12 +90,12 @@ final class MessageChannel implements IMessageChannel {
 	}
 
 	@Override
-	public Object getServerPeer() {
+	public Object getReceiver() {
 		return serverPeer;
 	}
 
 	@Override
-	public Object getClientPeer() {
+	public Object getProducer() {
 		return clientPeer;
 	}
 

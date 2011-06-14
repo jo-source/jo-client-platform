@@ -26,39 +26,26 @@
  * DAMAGE.
  */
 
-package org.jowidgets.message.impl.p2p.simple;
+package org.jowidgets.message.api;
 
-import java.util.concurrent.Executor;
+public interface IMessageProducer {
 
-import org.jowidgets.message.api.IMessageChannel;
-import org.jowidgets.message.api.IMessageClient;
-import org.jowidgets.util.Assert;
+	/**
+	 * Gets the default message channel
+	 * 
+	 * @return The default message channel
+	 */
+	IMessageChannel getMessageChannel();
 
-final class MessageClient implements IMessageClient {
-
-	private final Peer clientPeer;
-	private final Peer serverPeer;
-	private final Executor sendExecutor;
-
-	MessageClient(final Peer clientPeer, final Peer serverPeer, final Executor sendExecutor) {
-		Assert.paramNotNull(clientPeer, "clientPeer");
-		Assert.paramNotNull(serverPeer, "serverPeer");
-		Assert.paramNotNull(sendExecutor, "sendExecutor");
-		this.clientPeer = clientPeer;
-		this.serverPeer = serverPeer;
-		this.sendExecutor = sendExecutor;
-	}
-
-	@Override
-	public IMessageChannel getMessageChannel() {
-		return getMessageChannel(serverPeer);
-	}
-
-	@Override
-	public IMessageChannel getMessageChannel(final Object peerId) {
-		Assert.paramNotNull(peerId, "peerId");
-		Assert.paramHasType(peerId, Peer.class, "peerId");
-		return new MessageChannel(clientPeer, (Peer) peerId, sendExecutor);
-	}
+	/**
+	 * Gets a message channel for a defined peer
+	 * The type of the peer depends on the implementation
+	 * of this api.
+	 * 
+	 * @param peer The peer to get the channel for
+	 * 
+	 * @return A message channel for the defined peer, never null
+	 */
+	IMessageChannel getMessageChannel(Object peer);
 
 }

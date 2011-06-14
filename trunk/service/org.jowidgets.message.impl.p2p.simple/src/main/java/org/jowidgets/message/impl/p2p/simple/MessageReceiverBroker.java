@@ -36,10 +36,10 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import org.jowidgets.message.api.IMessageBrokerServer;
+import org.jowidgets.message.api.IMessageReceiverBroker;
 import org.jowidgets.message.api.IMessageReceiver;
 
-public class MessageBrokerServer implements IMessageBrokerServer {
+public class MessageReceiverBroker implements IMessageReceiverBroker {
 
 	private final Object brokerId;
 	private final Peer peer;
@@ -48,7 +48,7 @@ public class MessageBrokerServer implements IMessageBrokerServer {
 
 	private IMessageReceiver receiver;
 
-	MessageBrokerServer(final Object brokerId, final Peer peer, final Executor receiveExecutor) {
+	MessageReceiverBroker(final Object brokerId, final Peer peer, final Executor receiveExecutor) {
 		super();
 		this.brokerId = brokerId;
 		this.peer = peer;
@@ -63,7 +63,7 @@ public class MessageBrokerServer implements IMessageBrokerServer {
 	}
 
 	@Override
-	public void setMessageReceiver(final IMessageReceiver receiver) {
+	public void setReceiver(final IMessageReceiver receiver) {
 		this.receiver = receiver;
 	}
 

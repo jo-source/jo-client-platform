@@ -26,33 +26,12 @@
  * DAMAGE.
  */
 
-package org.jowidgets.message.impl.p2p.simple;
+package org.jowidgets.message.api;
 
-import java.util.concurrent.Executor;
+public interface IMessageReceiverBroker {
 
-import org.jowidgets.message.api.IMessageBrokerClient;
-import org.jowidgets.message.api.IMessageClient;
-import org.jowidgets.util.Assert;
+	Object getBrokerId();
 
-final class MessageBrokerClient implements IMessageBrokerClient {
-
-	private final Object brokerId;
-	private final IMessageClient messageClient;
-
-	public MessageBrokerClient(final Object brokerId, final Peer clientPeer, final Peer serverPeer, final Executor executor) {
-		Assert.paramNotNull(brokerId, "brokerId");
-		this.brokerId = brokerId;
-		this.messageClient = new MessageClient(clientPeer, serverPeer, executor);
-	}
-
-	@Override
-	public Object getBrokerId() {
-		return brokerId;
-	}
-
-	@Override
-	public IMessageClient getClient() {
-		return messageClient;
-	}
+	void setReceiver(IMessageReceiver receiver);
 
 }

@@ -33,8 +33,8 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-import org.jowidgets.message.api.IMessageBrokerClient;
-import org.jowidgets.message.api.IMessageBrokerServer;
+import org.jowidgets.message.api.IMessageProducerBroker;
+import org.jowidgets.message.api.IMessageReceiverBroker;
 import org.jowidgets.util.Assert;
 
 public final class MessageBrokerBuilder {
@@ -95,15 +95,15 @@ public final class MessageBrokerBuilder {
 		return this;
 	}
 
-	public IMessageBrokerClient buildClient() {
-		return new MessageBrokerClient(brokerId, new Peer(host, port), new Peer(serverHost, serverPort), sendExecutor);
+	public IMessageProducerBroker buildClient() {
+		return new MessageProducerBroker(brokerId, new Peer(host, port), new Peer(serverHost, serverPort), sendExecutor);
 	}
 
-	public synchronized IMessageBrokerServer buildServer() {
+	public synchronized IMessageReceiverBroker buildServer() {
 		if (KNOWN_SERVER_BROKERS.contains(brokerId)) {
 			throw new IllegalStateException("An server broker with the id '" + brokerId + "' was already created");
 		}
-		final IMessageBrokerServer result = new MessageBrokerServer(brokerId, new Peer(host, port), receiveExecutor);
+		final IMessageReceiverBroker result = new MessageReceiverBroker(brokerId, new Peer(host, port), receiveExecutor);
 		KNOWN_SERVER_BROKERS.add(brokerId);
 		return result;
 	}

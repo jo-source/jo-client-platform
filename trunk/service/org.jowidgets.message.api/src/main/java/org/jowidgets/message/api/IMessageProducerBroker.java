@@ -28,24 +28,10 @@
 
 package org.jowidgets.message.api;
 
-public interface IMessageClient {
+public interface IMessageProducerBroker {
 
-	/**
-	 * Gets the default message channel
-	 * 
-	 * @return The default message channel
-	 */
-	IMessageChannel getMessageChannel();
+	Object getBrokerId();
 
-	/**
-	 * Gets a message channel for a defined peer
-	 * The type of the peer depends on the implementation
-	 * of this api.
-	 * 
-	 * @param peer The peer to get the channel for
-	 * 
-	 * @return A message channel for the defined peer, never null
-	 */
-	IMessageChannel getMessageChannel(Object peer);
+	IMessageProducer getProducer();
 
 }
