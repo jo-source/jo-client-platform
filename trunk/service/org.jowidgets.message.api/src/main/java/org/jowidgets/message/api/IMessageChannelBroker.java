@@ -26,18 +26,12 @@
  * DAMAGE.
  */
 
-package org.jowidgets.invocation.client.api;
+package org.jowidgets.message.api;
 
-import org.jowidgets.invocation.common.api.ICancelService;
-import org.jowidgets.invocation.common.api.IMethod;
-import org.jowidgets.invocation.common.api.IResponseService;
+public interface IMessageChannelBroker {
 
-public interface IInvocationClient {
+	Object getBrokerId();
 
-	IMethod getMethod(String methodName);
-
-	ICancelService getCancelService();
-
-	IResponseService getResponseService();
+	IMessageChannel getChannel();
 
 }

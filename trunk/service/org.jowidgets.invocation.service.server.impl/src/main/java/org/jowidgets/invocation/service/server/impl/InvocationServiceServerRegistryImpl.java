@@ -51,7 +51,7 @@ final class InvocationServiceServerRegistryImpl implements IInvocationServiceSer
 
 	@Override
 	public void register(final String methodName, final IMethodInvocationService<?, ?, ?, ?, ?> methodService) {
-		final IMethod remoteMethod = new MethodImpl(invocationServer, cancelService, responseService, methodService);
-		invocationServerServiceRegistry.register(methodName, remoteMethod);
+		final IMethod method = new MethodImpl(invocationServer, cancelService, responseService, methodService);
+		invocationServerServiceRegistry.register(methodName, method);
 	}
 }

@@ -45,8 +45,6 @@ public class CapServerServicePublisher {
 	public void publishServices() {
 		final IInvocationServiceServerRegistry invocationServiceRegistry = InvocationServiceServerToolkit.getRegistry();
 
-		final Set<IServiceId<?>> services = ServiceProvider.getInstance().getAvailableServices();
-
 		final IMethodInvocationService<Set<IServiceId<?>>, Void, Void, Void, Void> methodService = new IMethodInvocationService<Set<IServiceId<?>>, Void, Void, Void, Void>() {
 			@Override
 			public void invoke(
@@ -54,7 +52,7 @@ public class CapServerServicePublisher {
 				final IInterimResponseCallback<Void> interimResponseCallback,
 				final IInterimRequestCallback<Void, Void> interimRequestCallback,
 				final Void parameter) {
-				resultCallback.finished(services);
+				resultCallback.finished(ServiceProvider.getInstance().getAvailableServices());
 			}
 		};
 

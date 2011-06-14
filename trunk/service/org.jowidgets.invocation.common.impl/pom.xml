@@ -21,6 +21,11 @@
         </dependency>
         <dependency>
             <groupId>org.jowidgets</groupId>
+            <artifactId>org.jowidgets.message.api</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jowidgets</groupId>
             <artifactId>org.jowidgets.invocation.common.api</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>

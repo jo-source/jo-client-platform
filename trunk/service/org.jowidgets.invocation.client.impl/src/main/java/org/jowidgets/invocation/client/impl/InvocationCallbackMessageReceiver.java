@@ -28,23 +28,33 @@
 
 package org.jowidgets.invocation.client.impl;
 
+import org.jowidgets.invocation.common.impl.AcknowledgeMessage;
 import org.jowidgets.invocation.common.impl.ExceptionMessage;
 import org.jowidgets.invocation.common.impl.FinishedMessage;
 import org.jowidgets.invocation.common.impl.InterimRequestMessage;
 import org.jowidgets.invocation.common.impl.InterimResponseMessage;
+import org.jowidgets.message.api.IMessageChannel;
 import org.jowidgets.message.api.IMessageReceiver;
 
 public class InvocationCallbackMessageReceiver implements IMessageReceiver {
 
 	private final InvocationClientServiceRegistryImpl invocationClientServiceRegistry;
+	private final InvocationClientImpl invocationClient;
 
-	InvocationCallbackMessageReceiver(final InvocationClientServiceRegistryImpl invocationClientServiceRegistry) {
+	InvocationCallbackMessageReceiver(
+		final InvocationClientImpl invocationClient,
+		final InvocationClientServiceRegistryImpl invocationClientServiceRegistry) {
+		this.invocationClient = invocationClient;
 		this.invocationClientServiceRegistry = invocationClientServiceRegistry;
 	}
 
 	@Override
-	public void onMessage(final Object message, final Object replyPeer) {
-		if (message instanceof FinishedMessage) {
+	public void onMessage(final Object message, final IMessageChannel replyChannel) {
+		if (message instanceof AcknowledgeMessage) {
+			final AcknowledgeMessage acknowledgeMessage = (AcknowledgeMessage) message;
+			invocationClient.registerAcknowledge(acknowledgeMessage.getInvocationId(), replyChannel);
+		}
+		else if (message instanceof FinishedMessage) {
 			invocationClientServiceRegistry.onFinished((FinishedMessage) message);
 		}
 		else if (message instanceof ExceptionMessage) {
@@ -57,4 +67,5 @@ public class InvocationCallbackMessageReceiver implements IMessageReceiver {
 			invocationClientServiceRegistry.onInterimRequest((InterimRequestMessage) message);
 		}
 	}
+
 }

@@ -37,7 +37,7 @@ public final class MessageToolkit {
 
 	private static final IMessageToolkit INSTANCE = new MessageToolkitImpl();
 
-	private static Map<Object, IMessageProducer> messageProducerBrokers = getProducers();
+	private static Map<Object, IMessageChannel> messageChannelBrokers = getChannels();
 	private static Map<Object, IMessageReceiverBroker> messageReceiverBrokers = getReceivers();
 
 	private MessageToolkit() {}
@@ -46,35 +46,35 @@ public final class MessageToolkit {
 		return INSTANCE;
 	}
 
-	public static synchronized void addBrokerClient(final IMessageProducerBroker producer) {
-		if (producer == null) {
-			throw new IllegalArgumentException("Parameter 'producer' must not be null");
+	public static synchronized void addChannelBroker(final IMessageChannelBroker channelBroker) {
+		if (channelBroker == null) {
+			throw new IllegalArgumentException("Parameter 'channelBroker' must not be null");
 		}
-		messageProducerBrokers.put(producer.getBrokerId(), producer.getProducer());
+		messageChannelBrokers.put(channelBroker.getBrokerId(), channelBroker.getChannel());
 	}
 
-	public static synchronized void addBrokerServer(final IMessageReceiverBroker receiver) {
+	public static synchronized void addReceiverBroker(final IMessageReceiverBroker receiver) {
 		if (receiver == null) {
 			throw new IllegalArgumentException("Parameter 'receiver' must not be null");
 		}
 		messageReceiverBrokers.put(receiver.getBrokerId(), receiver);
 	}
 
-	public static IMessageProducer getProducer(final Object brokerId) {
-		return getInstance().getProducer(brokerId);
+	public static IMessageChannel getChannel(final Object brokerId) {
+		return getInstance().getChannel(brokerId);
 	}
 
 	public static void setReceiver(final Object brokerId, final IMessageReceiver receiver) {
 		getInstance().setReceiver(brokerId, receiver);
 	}
 
-	private static Map<Object, IMessageProducer> getProducers() {
-		final Map<Object, IMessageProducer> result = new ConcurrentHashMap<Object, IMessageProducer>();
-		final ServiceLoader<IMessageProducerBroker> widgetServiceLoader = ServiceLoader.load(IMessageProducerBroker.class);
-		final Iterator<IMessageProducerBroker> iterator = widgetServiceLoader.iterator();
+	private static Map<Object, IMessageChannel> getChannels() {
+		final Map<Object, IMessageChannel> result = new ConcurrentHashMap<Object, IMessageChannel>();
+		final ServiceLoader<IMessageChannelBroker> widgetServiceLoader = ServiceLoader.load(IMessageChannelBroker.class);
+		final Iterator<IMessageChannelBroker> iterator = widgetServiceLoader.iterator();
 		while (iterator.hasNext()) {
-			final IMessageProducerBroker messageBrokerClient = iterator.next();
-			result.put(messageBrokerClient.getBrokerId(), messageBrokerClient.getProducer());
+			final IMessageChannelBroker messageChannelBroker = iterator.next();
+			result.put(messageChannelBroker.getBrokerId(), messageChannelBroker.getChannel());
 		}
 		return result;
 	}
@@ -84,8 +84,8 @@ public final class MessageToolkit {
 		final ServiceLoader<IMessageReceiverBroker> widgetServiceLoader = ServiceLoader.load(IMessageReceiverBroker.class);
 		final Iterator<IMessageReceiverBroker> iterator = widgetServiceLoader.iterator();
 		while (iterator.hasNext()) {
-			final IMessageReceiverBroker messageBrokerServer = iterator.next();
-			result.put(messageBrokerServer.getBrokerId(), messageBrokerServer);
+			final IMessageReceiverBroker messageReceiverBroker = iterator.next();
+			result.put(messageReceiverBroker.getBrokerId(), messageReceiverBroker);
 		}
 		return result;
 	}
@@ -93,11 +93,11 @@ public final class MessageToolkit {
 	private static class MessageToolkitImpl implements IMessageToolkit {
 
 		@Override
-		public IMessageProducer getProducer(final Object brokerId) {
+		public IMessageChannel getChannel(final Object brokerId) {
 			if (brokerId == null) {
 				throw new IllegalArgumentException("Parameter 'brokerId' must not be null");
 			}
-			return messageProducerBrokers.get(brokerId);
+			return messageChannelBrokers.get(brokerId);
 		}
 
 		@Override

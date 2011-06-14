@@ -30,7 +30,7 @@ package org.jowidgets.message.api;
 
 public interface IMessageToolkit {
 
-	IMessageProducer getProducer(Object brokerId);
+	IMessageChannel getChannel(Object brokerId);
 
 	void setReceiver(Object brokerId, IMessageReceiver receiver);
 

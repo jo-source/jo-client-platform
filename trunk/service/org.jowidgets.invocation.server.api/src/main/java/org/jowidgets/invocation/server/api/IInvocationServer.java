@@ -32,6 +32,6 @@ import org.jowidgets.invocation.common.api.IInvocationCallbackService;
 
 public interface IInvocationServer {
 
-	IInvocationCallbackService getInvocationCallback(Object peer);
+	IInvocationCallbackService getInvocationCallbackService();
 
 }

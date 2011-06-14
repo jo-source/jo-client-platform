@@ -38,20 +38,19 @@ import org.jowidgets.util.Assert;
 
 final class MessageChannel implements IMessageChannel {
 
-	private final Peer clientPeer;
-	private final Peer serverPeer;
+	private final Peer peer;
+	private final Peer receiverPeer;
 	private final Executor sendExecutor;
 
-	MessageChannel(final Peer clientPeer, final Peer serverPeer, final Executor sendExecutor) {
-		Assert.paramNotNull(clientPeer, "clientPeer");
-		Assert.paramNotNull(serverPeer, "serverPeer");
+	MessageChannel(final Peer peer, final Peer receiverPeer, final Executor sendExecutor) {
+		Assert.paramNotNull(receiverPeer, "receiverPeer");
 		Assert.paramNotNull(sendExecutor, "sendExecutor");
-		Assert.paramNotNull(serverPeer.getHost(), "serverPeer.getHost()");
-		if (serverPeer.getPort() == -1) {
+		Assert.paramNotNull(receiverPeer.getHost(), "receiverPeer.getHost()");
+		if (receiverPeer.getPort() == -1) {
 			throw new IllegalArgumentException("The parameter 'serverPeer.getPort()' must not be undefined");
 		}
-		this.clientPeer = clientPeer;
-		this.serverPeer = serverPeer;
+		this.peer = peer;
+		this.receiverPeer = receiverPeer;
 		this.sendExecutor = sendExecutor;
 	}
 
@@ -60,13 +59,12 @@ final class MessageChannel implements IMessageChannel {
 		sendExecutor.execute(new Runnable() {
 			@Override
 			public void run() {
-				final Message p2pMessage = new Message(clientPeer, message);
 				Socket socket = null;
 				ObjectOutputStream oos = null;
 				try {
-					socket = new Socket(serverPeer.getHost(), serverPeer.getPort());
+					socket = new Socket(receiverPeer.getHost(), receiverPeer.getPort());
 					oos = new ObjectOutputStream(socket.getOutputStream());
-					oos.writeObject(p2pMessage);
+					oos.writeObject(new Message(message, peer.getPort()));
 				}
 				catch (final Exception e) {
 					if (exceptionCallback != null) {
@@ -87,16 +85,6 @@ final class MessageChannel implements IMessageChannel {
 				}
 			}
 		});
-	}
-
-	@Override
-	public Object getReceiver() {
-		return serverPeer;
-	}
-
-	@Override
-	public Object getProducer() {
-		return clientPeer;
 	}
 
 }

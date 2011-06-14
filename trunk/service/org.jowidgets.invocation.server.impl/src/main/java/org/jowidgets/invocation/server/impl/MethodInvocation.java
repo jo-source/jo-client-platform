@@ -26,12 +26,32 @@
  * DAMAGE.
  */
 
-package org.jowidgets.invocation.common.api;
+package org.jowidgets.invocation.server.impl;
 
-public interface IServerMethod {
+import org.jowidgets.message.api.IMessageChannel;
 
-	void invoke(Object invocationId, Object parameter);
+public final class MethodInvocation {
 
-	Object getServerId();
+	private final Object invocationId;
+	private final IMessageChannel replyChannel;
+	private final long timestamp;
+
+	public MethodInvocation(final Object invocationId, final IMessageChannel replyChannel) {
+		this.invocationId = invocationId;
+		this.replyChannel = replyChannel;
+		this.timestamp = System.currentTimeMillis();
+	}
+
+	public Object getInvocationId() {
+		return invocationId;
+	}
+
+	public IMessageChannel getReplyChannel() {
+		return replyChannel;
+	}
+
+	public long getTimestamp() {
+		return timestamp;
+	}
 
 }

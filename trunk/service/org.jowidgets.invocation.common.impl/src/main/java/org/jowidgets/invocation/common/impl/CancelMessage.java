@@ -37,7 +37,6 @@ public final class CancelMessage implements Serializable {
 	private final Object invocationId;
 
 	public CancelMessage(final Object invocationId) {
-		super();
 		this.invocationId = invocationId;
 	}
 

@@ -28,30 +28,51 @@
 
 package org.jowidgets.invocation.server.impl;
 
+import org.jowidgets.invocation.common.impl.AcknowledgeMessage;
 import org.jowidgets.invocation.common.impl.CancelMessage;
 import org.jowidgets.invocation.common.impl.MethodInvocationMessage;
 import org.jowidgets.invocation.common.impl.ResponseMessage;
+import org.jowidgets.message.api.IExceptionCallback;
+import org.jowidgets.message.api.IMessageChannel;
 import org.jowidgets.message.api.IMessageReceiver;
 
 final class InvocationServerMessageReceiver implements IMessageReceiver {
 
 	private final InvocationServerServiceRegistryImpl invocationServerServiceRegistry;
+	private final InvocationServerImpl invocationServer;
 
-	InvocationServerMessageReceiver(final InvocationServerServiceRegistryImpl invocationServerServiceRegistry) {
+	InvocationServerMessageReceiver(
+		final InvocationServerImpl invocationServer,
+		final InvocationServerServiceRegistryImpl invocationServerServiceRegistry) {
 		this.invocationServerServiceRegistry = invocationServerServiceRegistry;
+		this.invocationServer = invocationServer;
 	}
 
 	@Override
-	public void onMessage(final Object message, final Object replyPeer) {
+	public void onMessage(final Object message, final IMessageChannel replyChannel) {
 		if (message instanceof MethodInvocationMessage) {
+			final MethodInvocationMessage invocationMessage = (MethodInvocationMessage) message;
+			final Object invocationId = invocationMessage.getInvocationId();
+			invocationServer.registerInvocation(invocationId, replyChannel);
+
+			final IExceptionCallback exceptionCallback = new IExceptionCallback() {
+				@Override
+				public void exception(final Throwable throwable) {
+					invocationServer.unregisterInvocation(invocationId);
+					invocationServerServiceRegistry.onCancel(invocationId);
+				}
+			};
+
+			replyChannel.send(new AcknowledgeMessage(invocationId), exceptionCallback);
 			invocationServerServiceRegistry.onMethodInvocation((MethodInvocationMessage) message);
 		}
 		else if (message instanceof CancelMessage) {
-			invocationServerServiceRegistry.onCancel((CancelMessage) message);
+			final CancelMessage cancelMessage = (CancelMessage) message;
+			invocationServerServiceRegistry.onCancel(cancelMessage);
+			invocationServer.unregisterInvocation(cancelMessage.getInvocationId());
 		}
 		else if (message instanceof ResponseMessage) {
 			invocationServerServiceRegistry.onResponse((ResponseMessage) message);
 		}
 	}
-
 }
