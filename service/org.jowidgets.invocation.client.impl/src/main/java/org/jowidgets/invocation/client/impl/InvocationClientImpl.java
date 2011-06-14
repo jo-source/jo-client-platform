@@ -37,16 +37,16 @@ import org.jowidgets.invocation.common.impl.MessageBrokerId;
 import org.jowidgets.invocation.common.impl.MethodInvocationMessage;
 import org.jowidgets.invocation.common.impl.ResponseMessage;
 import org.jowidgets.message.api.IMessageChannel;
-import org.jowidgets.message.api.IMessageClient;
+import org.jowidgets.message.api.IMessageProducer;
 import org.jowidgets.message.api.MessageToolkit;
 
 class InvocationClientImpl implements IInvocationClient {
 
 	private final InvocationClientServiceRegistryImpl invocationClientServiceRegistry;
-	private final IMessageClient messageClient;
+	private final IMessageProducer messageClient;
 
 	InvocationClientImpl(final InvocationClientServiceRegistryImpl invocationClientServiceRegistry) {
-		this.messageClient = MessageToolkit.getClient(MessageBrokerId.INVOCATION_IMPL_BROKER_ID);
+		this.messageClient = MessageToolkit.getProducer(MessageBrokerId.INVOCATION_IMPL_BROKER_ID);
 		this.invocationClientServiceRegistry = invocationClientServiceRegistry;
 	}
 
@@ -58,7 +58,7 @@ class InvocationClientImpl implements IInvocationClient {
 			@Override
 			public void invoke(final Object invocationId, final Object parameter) {
 				final MethodInvocationMessage message = new MethodInvocationMessage(
-					messageChannel.getClientPeer(),
+					messageChannel.getProducer(),
 					invocationId,
 					methodName,
 					parameter);
@@ -67,7 +67,7 @@ class InvocationClientImpl implements IInvocationClient {
 
 			@Override
 			public Object getServerId() {
-				return messageChannel.getServerPeer();
+				return messageChannel.getReceiver();
 			}
 		};
 	}

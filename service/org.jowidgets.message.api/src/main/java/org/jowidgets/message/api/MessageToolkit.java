@@ -37,8 +37,8 @@ public final class MessageToolkit {
 
 	private static final IMessageToolkit INSTANCE = new MessageToolkitImpl();
 
-	private static Map<Object, IMessageClient> messageBrokerClients = getClients();
-	private static Map<Object, IMessageBrokerServer> messageBrokerServers = getServer();
+	private static Map<Object, IMessageProducer> messageProducerBrokers = getProducers();
+	private static Map<Object, IMessageReceiverBroker> messageReceiverBrokers = getReceivers();
 
 	private MessageToolkit() {}
 
@@ -46,45 +46,45 @@ public final class MessageToolkit {
 		return INSTANCE;
 	}
 
-	public static synchronized void addBrokerClient(final IMessageBrokerClient client) {
-		if (client == null) {
-			throw new IllegalArgumentException("Parameter 'client' must not be null");
+	public static synchronized void addBrokerClient(final IMessageProducerBroker producer) {
+		if (producer == null) {
+			throw new IllegalArgumentException("Parameter 'producer' must not be null");
 		}
-		messageBrokerClients.put(client.getBrokerId(), client.getClient());
+		messageProducerBrokers.put(producer.getBrokerId(), producer.getProducer());
 	}
 
-	public static synchronized void addBrokerServer(final IMessageBrokerServer server) {
-		if (server == null) {
-			throw new IllegalArgumentException("Parameter 'server' must not be null");
+	public static synchronized void addBrokerServer(final IMessageReceiverBroker receiver) {
+		if (receiver == null) {
+			throw new IllegalArgumentException("Parameter 'receiver' must not be null");
 		}
-		messageBrokerServers.put(server.getBrokerId(), server);
+		messageReceiverBrokers.put(receiver.getBrokerId(), receiver);
 	}
 
-	public static IMessageClient getClient(final Object brokerId) {
-		return getInstance().getClient(brokerId);
+	public static IMessageProducer getProducer(final Object brokerId) {
+		return getInstance().getProducer(brokerId);
 	}
 
 	public static void setReceiver(final Object brokerId, final IMessageReceiver receiver) {
 		getInstance().setReceiver(brokerId, receiver);
 	}
 
-	private static Map<Object, IMessageClient> getClients() {
-		final Map<Object, IMessageClient> result = new ConcurrentHashMap<Object, IMessageClient>();
-		final ServiceLoader<IMessageBrokerClient> widgetServiceLoader = ServiceLoader.load(IMessageBrokerClient.class);
-		final Iterator<IMessageBrokerClient> iterator = widgetServiceLoader.iterator();
+	private static Map<Object, IMessageProducer> getProducers() {
+		final Map<Object, IMessageProducer> result = new ConcurrentHashMap<Object, IMessageProducer>();
+		final ServiceLoader<IMessageProducerBroker> widgetServiceLoader = ServiceLoader.load(IMessageProducerBroker.class);
+		final Iterator<IMessageProducerBroker> iterator = widgetServiceLoader.iterator();
 		while (iterator.hasNext()) {
-			final IMessageBrokerClient messageBrokerClient = iterator.next();
-			result.put(messageBrokerClient.getBrokerId(), messageBrokerClient.getClient());
+			final IMessageProducerBroker messageBrokerClient = iterator.next();
+			result.put(messageBrokerClient.getBrokerId(), messageBrokerClient.getProducer());
 		}
 		return result;
 	}
 
-	private static Map<Object, IMessageBrokerServer> getServer() {
-		final Map<Object, IMessageBrokerServer> result = new ConcurrentHashMap<Object, IMessageBrokerServer>();
-		final ServiceLoader<IMessageBrokerServer> widgetServiceLoader = ServiceLoader.load(IMessageBrokerServer.class);
-		final Iterator<IMessageBrokerServer> iterator = widgetServiceLoader.iterator();
+	private static Map<Object, IMessageReceiverBroker> getReceivers() {
+		final Map<Object, IMessageReceiverBroker> result = new ConcurrentHashMap<Object, IMessageReceiverBroker>();
+		final ServiceLoader<IMessageReceiverBroker> widgetServiceLoader = ServiceLoader.load(IMessageReceiverBroker.class);
+		final Iterator<IMessageReceiverBroker> iterator = widgetServiceLoader.iterator();
 		while (iterator.hasNext()) {
-			final IMessageBrokerServer messageBrokerServer = iterator.next();
+			final IMessageReceiverBroker messageBrokerServer = iterator.next();
 			result.put(messageBrokerServer.getBrokerId(), messageBrokerServer);
 		}
 		return result;
@@ -93,11 +93,11 @@ public final class MessageToolkit {
 	private static class MessageToolkitImpl implements IMessageToolkit {
 
 		@Override
-		public IMessageClient getClient(final Object brokerId) {
+		public IMessageProducer getProducer(final Object brokerId) {
 			if (brokerId == null) {
 				throw new IllegalArgumentException("Parameter 'brokerId' must not be null");
 			}
-			return messageBrokerClients.get(brokerId);
+			return messageProducerBrokers.get(brokerId);
 		}
 
 		@Override
@@ -108,9 +108,9 @@ public final class MessageToolkit {
 			if (receiver == null) {
 				throw new IllegalArgumentException("Parameter 'receiver' must not be null");
 			}
-			final IMessageBrokerServer messageBrokerServer = messageBrokerServers.get(brokerId);
+			final IMessageReceiverBroker messageBrokerServer = messageReceiverBrokers.get(brokerId);
 			if (messageBrokerServer != null) {
-				messageBrokerServer.setMessageReceiver(receiver);
+				messageBrokerServer.setReceiver(receiver);
 			}
 			else {
 				throw new IllegalArgumentException("No broker server found for parameter 'brokerId' with value '"

@@ -26,12 +26,39 @@
  * DAMAGE.
  */
 
-package org.jowidgets.message.api;
+package org.jowidgets.message.impl.p2p.simple;
 
-public interface IMessageBrokerServer {
+import java.util.concurrent.Executor;
 
-	Object getBrokerId();
+import org.jowidgets.message.api.IMessageChannel;
+import org.jowidgets.message.api.IMessageProducer;
+import org.jowidgets.util.Assert;
 
-	void setMessageReceiver(IMessageReceiver receiver);
+final class MessageProducer implements IMessageProducer {
+
+	private final Peer clientPeer;
+	private final Peer serverPeer;
+	private final Executor sendExecutor;
+
+	MessageProducer(final Peer clientPeer, final Peer serverPeer, final Executor sendExecutor) {
+		Assert.paramNotNull(clientPeer, "clientPeer");
+		Assert.paramNotNull(serverPeer, "serverPeer");
+		Assert.paramNotNull(sendExecutor, "sendExecutor");
+		this.clientPeer = clientPeer;
+		this.serverPeer = serverPeer;
+		this.sendExecutor = sendExecutor;
+	}
+
+	@Override
+	public IMessageChannel getMessageChannel() {
+		return getMessageChannel(serverPeer);
+	}
+
+	@Override
+	public IMessageChannel getMessageChannel(final Object peerId) {
+		Assert.paramNotNull(peerId, "peerId");
+		Assert.paramHasType(peerId, Peer.class, "peerId");
+		return new MessageChannel(clientPeer, (Peer) peerId, sendExecutor);
+	}
 
 }

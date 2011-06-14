@@ -43,18 +43,8 @@ public interface IMessageChannel {
 	 */
 	void send(final Object message, IExceptionCallback exceptionCallback);
 
-	/**
-	 * Gets the peer of the underlying server
-	 * 
-	 * @return the peer
-	 */
-	Object getServerPeer();
+	Object getReceiver();
 
-	/**
-	 * Gets the peer of the underlying client
-	 * 
-	 * @return the peer
-	 */
-	Object getClientPeer();
+	Object getProducer();
 
 }
