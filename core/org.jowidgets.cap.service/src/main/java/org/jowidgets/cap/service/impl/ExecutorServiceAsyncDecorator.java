@@ -26,45 +26,52 @@
  * DAMAGE.
  */
 
-package org.jowidgets.service.impl;
+package org.jowidgets.cap.service.impl;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
+import java.util.concurrent.Executor;
 
-import org.jowidgets.service.api.IServicesDecoratorProvider;
-import org.jowidgets.service.api.IServicesDecoratorProviderBuilder;
+import org.jowidgets.cap.common.api.bean.IBeanDto;
+import org.jowidgets.cap.common.api.bean.IBeanKey;
+import org.jowidgets.cap.common.api.execution.IExecutionCallback;
+import org.jowidgets.cap.common.api.execution.IResultCallback;
+import org.jowidgets.cap.common.api.service.IExecutorService;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.IDecorator;
 
-class ServicesDecoratorProviderBuilderImpl implements IServicesDecoratorProviderBuilder {
+final class ExecutorServiceAsyncDecorator implements IDecorator<IExecutorService<Object>> {
 
-	private final Map<Class<?>, IDecorator<?>> decorators;
-	private IDecorator<Object> defaultDecorator;
+	private final Executor executor;
 
-	ServicesDecoratorProviderBuilderImpl() {
-		this.decorators = new HashMap<Class<?>, IDecorator<?>>();
+	ExecutorServiceAsyncDecorator(final Executor executor) {
+		this.executor = executor;
 	}
 
 	@Override
-	public IServicesDecoratorProviderBuilder setDefaultDecorator(final IDecorator<Object> decorator) {
-		Assert.paramNotNull(decorator, "decorator");
-		this.defaultDecorator = decorator;
-		return this;
-	}
+	public IExecutorService<Object> decorate(final IExecutorService<Object> original) {
+		Assert.paramNotNull(original, "original");
+		return new IExecutorService<Object>() {
 
-	@Override
-	public <SERVICE_TYPE> IServicesDecoratorProviderBuilder setServiceDecorator(
-		final Class<?> type,
-		final IDecorator<SERVICE_TYPE> decorator) {
-		Assert.paramNotNull(type, "type");
-		Assert.paramNotNull(decorator, "decorator");
-		decorators.put(type, decorator);
-		return this;
-	}
+			@Override
+			public void execute(
+				final IResultCallback<List<IBeanDto>> result,
+				final List<? extends IBeanKey> beanKeys,
+				final Object parameter,
+				final IExecutionCallback executionCallback) {
 
-	@Override
-	public IServicesDecoratorProvider build() {
-		return new ServicesDecoratorProviderImpl(defaultDecorator, decorators);
-	}
+				executor.execute(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							original.execute(result, beanKeys, parameter, executionCallback);
+						}
+						catch (final Exception exception) {
+							result.exception(exception);
+						}
+					}
+				});
 
+			}
+		};
+	}
 }

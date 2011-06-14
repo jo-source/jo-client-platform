@@ -34,9 +34,7 @@ public interface IServicesDecoratorProviderBuilder {
 
 	IServicesDecoratorProviderBuilder setDefaultDecorator(IDecorator<Object> decorator);
 
-	<SERVICE_TYPE> IServicesDecoratorProviderBuilder setServiceDecorator(
-		Class<? extends SERVICE_TYPE> type,
-		IDecorator<SERVICE_TYPE> decorator);
+	<SERVICE_TYPE> IServicesDecoratorProviderBuilder setServiceDecorator(Class<?> type, IDecorator<SERVICE_TYPE> decorator);
 
 	IServicesDecoratorProvider build();
 

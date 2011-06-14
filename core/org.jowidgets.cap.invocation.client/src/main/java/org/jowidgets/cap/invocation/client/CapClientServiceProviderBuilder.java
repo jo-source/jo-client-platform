@@ -35,6 +35,8 @@ import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
+import org.jowidgets.cap.common.api.execution.IExecutionCallbackListener;
+import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.execution.UserQuestionResult;
 import org.jowidgets.cap.common.api.service.IBeanServicesProvider;
 import org.jowidgets.cap.common.api.service.IEntityService;
@@ -42,6 +44,8 @@ import org.jowidgets.cap.common.api.service.IExecutorService;
 import org.jowidgets.cap.invocation.common.CapInvocationMethodNames;
 import org.jowidgets.invocation.service.client.api.IInvocationServiceClient;
 import org.jowidgets.invocation.service.client.api.InvocationServiceClientToolkit;
+import org.jowidgets.invocation.service.common.api.ICancelListener;
+import org.jowidgets.invocation.service.common.api.IInvocationCallback;
 import org.jowidgets.invocation.service.common.api.IMethodInvocationService;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.tools.ServiceProviderBuilder;
@@ -78,7 +82,8 @@ final class CapClientServiceProviderBuilder extends ServiceProviderBuilder {
 		if (serviceType.isAssignableFrom(IExecutorService.class)) {
 			return new IExecutorService<Object>() {
 				@Override
-				public List<IBeanDto> execute(
+				public void execute(
+					final IResultCallback<List<IBeanDto>> resultCallback,
 					final List<? extends IBeanKey> beanKeys,
 					final Object parameter,
 					final IExecutionCallback executionCallback) {
@@ -87,10 +92,40 @@ final class CapClientServiceProviderBuilder extends ServiceProviderBuilder {
 					final IMethodInvocationService<List<IBeanDto>, Void, String, UserQuestionResult, Object> methodService;
 					methodService = invocationServiceClient.getMethodService(CapInvocationMethodNames.EXECUTOR_SERVICE_EXECUTE);
 
-					final SyncInvocationCallback<List<IBeanDto>> invocationCallback = new SyncInvocationCallback<List<IBeanDto>>();
+					final IInvocationCallback<List<IBeanDto>> invocationCallback = new IInvocationCallback<List<IBeanDto>>() {
+
+						@Override
+						public void addCancelListener(final ICancelListener cancelListener) {
+							executionCallback.addExecutionCallbackListener(new IExecutionCallbackListener() {
+								@Override
+								public void onDispose() {
+									cancelListener.canceled();
+								}
+
+								@Override
+								public void executionCanceled() {
+									cancelListener.canceled();
+								}
+							});
+						}
+
+						@Override
+						public void finished(final List<IBeanDto> result) {
+							resultCallback.finished(result);
+						}
+
+						@Override
+						public void exeption(final Throwable exception) {
+							resultCallback.exception(exception);
+						}
+
+						@Override
+						public void timeout() {
+							resultCallback.timeout();
+						}
+					};
 					methodService.invoke(invocationCallback, null, null, parameter);
 
-					return invocationCallback.getResultSynchronious();
 				}
 			};
 		}

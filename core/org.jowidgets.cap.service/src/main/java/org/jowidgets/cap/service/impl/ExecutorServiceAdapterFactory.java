@@ -26,45 +26,20 @@
  * DAMAGE.
  */
 
-package org.jowidgets.service.impl;
+package org.jowidgets.cap.service.impl;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.jowidgets.service.api.IServicesDecoratorProvider;
-import org.jowidgets.service.api.IServicesDecoratorProviderBuilder;
+import org.jowidgets.cap.common.api.service.IExecutorService;
+import org.jowidgets.cap.service.api.executor.ISyncExecutorService;
 import org.jowidgets.util.Assert;
-import org.jowidgets.util.IDecorator;
+import org.jowidgets.util.IAdapterFactory;
 
-class ServicesDecoratorProviderBuilderImpl implements IServicesDecoratorProviderBuilder {
-
-	private final Map<Class<?>, IDecorator<?>> decorators;
-	private IDecorator<Object> defaultDecorator;
-
-	ServicesDecoratorProviderBuilderImpl() {
-		this.decorators = new HashMap<Class<?>, IDecorator<?>>();
-	}
+final class ExecutorServiceAdapterFactory<PARAM_TYPE> implements
+		IAdapterFactory<IExecutorService<PARAM_TYPE>, ISyncExecutorService<PARAM_TYPE>> {
 
 	@Override
-	public IServicesDecoratorProviderBuilder setDefaultDecorator(final IDecorator<Object> decorator) {
-		Assert.paramNotNull(decorator, "decorator");
-		this.defaultDecorator = decorator;
-		return this;
-	}
-
-	@Override
-	public <SERVICE_TYPE> IServicesDecoratorProviderBuilder setServiceDecorator(
-		final Class<?> type,
-		final IDecorator<SERVICE_TYPE> decorator) {
-		Assert.paramNotNull(type, "type");
-		Assert.paramNotNull(decorator, "decorator");
-		decorators.put(type, decorator);
-		return this;
-	}
-
-	@Override
-	public IServicesDecoratorProvider build() {
-		return new ServicesDecoratorProviderImpl(defaultDecorator, decorators);
+	public IExecutorService<PARAM_TYPE> createAdapter(final ISyncExecutorService<PARAM_TYPE> adapted) {
+		Assert.paramNotNull(adapted, "adapted");
+		return new ExecutorServiceAdapter<PARAM_TYPE>(adapted);
 	}
 
 }
