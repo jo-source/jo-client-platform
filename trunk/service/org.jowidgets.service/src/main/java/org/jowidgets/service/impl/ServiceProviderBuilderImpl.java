@@ -36,10 +36,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.ServiceLoader;
 
-import org.jowidgets.service.api.IServicesDecoratorProvider;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.api.IServiceProvider;
 import org.jowidgets.service.api.IServiceProviderBuilder;
+import org.jowidgets.service.api.IServicesDecoratorProvider;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.IDecorator;
 import org.jowidgets.util.builder.AbstractSingleUseBuilder;
@@ -76,7 +76,7 @@ final class ServiceProviderBuilderImpl extends AbstractSingleUseBuilder<IService
 			final IServiceId<? extends Object> id = entry.getKey();
 			decoratedServices.put(id, getDecoratedService(id, entry.getValue()));
 		}
-		return new ServiceProviderImpl(services);
+		return new ServiceProviderImpl(decoratedServices);
 	}
 
 	private Object getDecoratedService(final IServiceId id, Object result) {

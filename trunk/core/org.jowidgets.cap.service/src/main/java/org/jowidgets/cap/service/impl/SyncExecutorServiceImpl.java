@@ -42,15 +42,15 @@ import org.jowidgets.cap.common.api.exception.StaleBeanException;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.execution.IExecutableState;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
-import org.jowidgets.cap.common.api.service.IExecutorService;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.cap.service.api.executor.IBeanExecutor;
 import org.jowidgets.cap.service.api.executor.IBeanListExecutor;
+import org.jowidgets.cap.service.api.executor.ISyncExecutorService;
 import org.jowidgets.util.Assert;
 
-public final class ExecutorServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE> implements IExecutorService<PARAM_TYPE> {
+public final class SyncExecutorServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE> implements ISyncExecutorService<PARAM_TYPE> {
 
 	private final IBeanAccess<BEAN_TYPE> beanAccess;
 	private final Object executor;
@@ -63,7 +63,7 @@ public final class ExecutorServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE> impl
 	private final IBeanDtoFactory<BEAN_TYPE> dtoFactory;
 
 	@SuppressWarnings("unchecked")
-	ExecutorServiceImpl(
+	SyncExecutorServiceImpl(
 		final Class<? extends BEAN_TYPE> beanType,
 		final IBeanAccess<? extends BEAN_TYPE> beanAccess,
 		final Object executor,

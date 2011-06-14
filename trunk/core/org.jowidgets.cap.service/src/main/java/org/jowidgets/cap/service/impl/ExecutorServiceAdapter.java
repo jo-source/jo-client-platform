@@ -26,45 +26,38 @@
  * DAMAGE.
  */
 
-package org.jowidgets.service.impl;
+package org.jowidgets.cap.service.impl;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
-import org.jowidgets.service.api.IServicesDecoratorProvider;
-import org.jowidgets.service.api.IServicesDecoratorProviderBuilder;
-import org.jowidgets.util.Assert;
-import org.jowidgets.util.IDecorator;
+import org.jowidgets.cap.common.api.bean.IBeanDto;
+import org.jowidgets.cap.common.api.bean.IBeanKey;
+import org.jowidgets.cap.common.api.execution.IExecutionCallback;
+import org.jowidgets.cap.common.api.execution.IResultCallback;
+import org.jowidgets.cap.common.api.service.IExecutorService;
+import org.jowidgets.cap.service.api.executor.ISyncExecutorService;
 
-class ServicesDecoratorProviderBuilderImpl implements IServicesDecoratorProviderBuilder {
+final class ExecutorServiceAdapter<PARAM_TYPE> implements IExecutorService<PARAM_TYPE> {
 
-	private final Map<Class<?>, IDecorator<?>> decorators;
-	private IDecorator<Object> defaultDecorator;
+	private final ISyncExecutorService<PARAM_TYPE> syncExecutorService;
 
-	ServicesDecoratorProviderBuilderImpl() {
-		this.decorators = new HashMap<Class<?>, IDecorator<?>>();
+	ExecutorServiceAdapter(final ISyncExecutorService<PARAM_TYPE> syncExecutorService) {
+		this.syncExecutorService = syncExecutorService;
 	}
 
 	@Override
-	public IServicesDecoratorProviderBuilder setDefaultDecorator(final IDecorator<Object> decorator) {
-		Assert.paramNotNull(decorator, "decorator");
-		this.defaultDecorator = decorator;
-		return this;
-	}
-
-	@Override
-	public <SERVICE_TYPE> IServicesDecoratorProviderBuilder setServiceDecorator(
-		final Class<?> type,
-		final IDecorator<SERVICE_TYPE> decorator) {
-		Assert.paramNotNull(type, "type");
-		Assert.paramNotNull(decorator, "decorator");
-		decorators.put(type, decorator);
-		return this;
-	}
-
-	@Override
-	public IServicesDecoratorProvider build() {
-		return new ServicesDecoratorProviderImpl(defaultDecorator, decorators);
+	public void execute(
+		final IResultCallback<List<IBeanDto>> resultCallback,
+		final List<? extends IBeanKey> beanKeys,
+		final PARAM_TYPE parameter,
+		final IExecutionCallback executionCallback) {
+		try {
+			final List<IBeanDto> result = syncExecutorService.execute(beanKeys, parameter, executionCallback);
+			resultCallback.finished(result);
+		}
+		catch (final Exception exception) {
+			resultCallback.exception(exception);
+		}
 	}
 
 }

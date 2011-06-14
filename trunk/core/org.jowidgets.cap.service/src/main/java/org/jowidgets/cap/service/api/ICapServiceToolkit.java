@@ -33,9 +33,11 @@ import java.util.List;
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.service.IEntityService;
+import org.jowidgets.cap.service.api.adapter.IAdapterFactoryProvider;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.cap.service.api.bean.IBeanInitializer;
+import org.jowidgets.cap.service.api.decorator.IDecoratorProviderFactory;
 import org.jowidgets.cap.service.api.entity.IBeanServicesProviderBuilder;
 import org.jowidgets.cap.service.api.entity.IEntityServiceBuilder;
 import org.jowidgets.cap.service.api.executor.IExecutorServiceBuilder;
@@ -60,6 +62,10 @@ public interface ICapServiceToolkit {
 	<BEAN_TYPE extends IBean> IBeanInitializer<BEAN_TYPE> beanInitializer(
 		Class<? extends BEAN_TYPE> beanType,
 		List<String> propertyNames);
+
+	IAdapterFactoryProvider adapterFactoryProvider();
+
+	IDecoratorProviderFactory serviceDecoratorProvider();
 
 	<BEAN_TYPE extends IBean, PARAM_TYPE> IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> executorServiceBuilder(
 		IBeanAccess<? extends BEAN_TYPE> beanAccess);

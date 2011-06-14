@@ -26,45 +26,17 @@
  * DAMAGE.
  */
 
-package org.jowidgets.service.impl;
+package org.jowidgets.cap.service.api.executor;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
-import org.jowidgets.service.api.IServicesDecoratorProvider;
-import org.jowidgets.service.api.IServicesDecoratorProviderBuilder;
-import org.jowidgets.util.Assert;
-import org.jowidgets.util.IDecorator;
+import org.jowidgets.cap.common.api.bean.IBeanDto;
+import org.jowidgets.cap.common.api.bean.IBeanKey;
+import org.jowidgets.cap.common.api.execution.IExecutionCallback;
+import org.jowidgets.service.api.Callback;
 
-class ServicesDecoratorProviderBuilderImpl implements IServicesDecoratorProviderBuilder {
+public interface ISyncExecutorService<PARAM_TYPE> {
 
-	private final Map<Class<?>, IDecorator<?>> decorators;
-	private IDecorator<Object> defaultDecorator;
-
-	ServicesDecoratorProviderBuilderImpl() {
-		this.decorators = new HashMap<Class<?>, IDecorator<?>>();
-	}
-
-	@Override
-	public IServicesDecoratorProviderBuilder setDefaultDecorator(final IDecorator<Object> decorator) {
-		Assert.paramNotNull(decorator, "decorator");
-		this.defaultDecorator = decorator;
-		return this;
-	}
-
-	@Override
-	public <SERVICE_TYPE> IServicesDecoratorProviderBuilder setServiceDecorator(
-		final Class<?> type,
-		final IDecorator<SERVICE_TYPE> decorator) {
-		Assert.paramNotNull(type, "type");
-		Assert.paramNotNull(decorator, "decorator");
-		decorators.put(type, decorator);
-		return this;
-	}
-
-	@Override
-	public IServicesDecoratorProvider build() {
-		return new ServicesDecoratorProviderImpl(defaultDecorator, decorators);
-	}
+	List<IBeanDto> execute(List<? extends IBeanKey> beanKeys, PARAM_TYPE parameter, @Callback IExecutionCallback executionCallback);
 
 }

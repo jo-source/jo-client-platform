@@ -35,11 +35,15 @@ import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.service.IExecutorService;
+import org.jowidgets.cap.service.api.CapServiceToolkit;
+import org.jowidgets.cap.service.api.adapter.IAdapterFactoryProvider;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
 import org.jowidgets.cap.service.api.executor.IBeanExecutor;
 import org.jowidgets.cap.service.api.executor.IBeanListExecutor;
 import org.jowidgets.cap.service.api.executor.IExecutorServiceBuilder;
+import org.jowidgets.cap.service.api.executor.ISyncExecutorService;
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.IAdapterFactory;
 
 final class ExecutorServiceBuilderImpl<BEAN_TYPE extends IBean, PARAM_TYPE> implements
 		IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> {
@@ -135,6 +139,13 @@ final class ExecutorServiceBuilderImpl<BEAN_TYPE extends IBean, PARAM_TYPE> impl
 
 	@Override
 	public IExecutorService<PARAM_TYPE> build() {
+		final IAdapterFactoryProvider afp = CapServiceToolkit.adapterFactoryProvider();
+		final IAdapterFactory<IExecutorService<PARAM_TYPE>, ISyncExecutorService<PARAM_TYPE>> executorAdapterFactory = afp.executorAdapterFactory();
+		return executorAdapterFactory.createAdapter(buildSyncExecuterService());
+	}
+
+	@Override
+	public ISyncExecutorService<PARAM_TYPE> buildSyncExecuterService() {
 		if (executor == null) {
 			executor = new IBeanExecutor<BEAN_TYPE, Object>() {
 				@Override
@@ -144,7 +155,7 @@ final class ExecutorServiceBuilderImpl<BEAN_TYPE extends IBean, PARAM_TYPE> impl
 			};
 		}
 
-		return new ExecutorServiceImpl<BEAN_TYPE, PARAM_TYPE>(
+		return new SyncExecutorServiceImpl<BEAN_TYPE, PARAM_TYPE>(
 			beanType,
 			beanAccess,
 			executor,

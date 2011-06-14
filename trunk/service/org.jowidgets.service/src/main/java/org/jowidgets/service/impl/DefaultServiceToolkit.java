@@ -41,7 +41,7 @@ public final class DefaultServiceToolkit implements IServiceToolkit {
 
 	@Override
 	public IServicesDecoratorProviderBuilder serviceDecoratorProviderBuilder() {
-		return null;
+		return new ServicesDecoratorProviderBuilderImpl();
 	}
 
 }

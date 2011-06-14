@@ -35,9 +35,11 @@ import org.jowidgets.cap.common.api.exception.ServiceCanceledException;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.service.api.ICapServiceToolkit;
+import org.jowidgets.cap.service.api.adapter.IAdapterFactoryProvider;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.cap.service.api.bean.IBeanInitializer;
+import org.jowidgets.cap.service.api.decorator.IDecoratorProviderFactory;
 import org.jowidgets.cap.service.api.entity.IBeanServicesProviderBuilder;
 import org.jowidgets.cap.service.api.entity.IEntityServiceBuilder;
 import org.jowidgets.cap.service.api.executor.IExecutorServiceBuilder;
@@ -47,6 +49,14 @@ import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.api.IServiceRegistry;
 
 public final class DefaultCapServiceToolkit implements ICapServiceToolkit {
+
+	private final IAdapterFactoryProvider adapterFactoryProvider;
+	private final IDecoratorProviderFactory decoratorProviderFactory;
+
+	public DefaultCapServiceToolkit() {
+		this.adapterFactoryProvider = new AdapterFactoryProviderImpl();
+		this.decoratorProviderFactory = new DecoratorProviderFactoryImpl();
+	}
 
 	@Override
 	public IEntityServiceBuilder entityServiceBuilder() {
@@ -108,6 +118,16 @@ public final class DefaultCapServiceToolkit implements ICapServiceToolkit {
 		if (executionCallback != null && executionCallback.isCanceled()) {
 			throw new ServiceCanceledException();
 		}
+	}
+
+	@Override
+	public IAdapterFactoryProvider adapterFactoryProvider() {
+		return adapterFactoryProvider;
+	}
+
+	@Override
+	public IDecoratorProviderFactory serviceDecoratorProvider() {
+		return decoratorProviderFactory;
 	}
 
 }

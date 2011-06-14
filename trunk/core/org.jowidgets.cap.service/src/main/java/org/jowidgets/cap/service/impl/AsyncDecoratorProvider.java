@@ -26,45 +26,39 @@
  * DAMAGE.
  */
 
-package org.jowidgets.service.impl;
+package org.jowidgets.cap.service.impl;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.Executor;
 
+import org.jowidgets.cap.common.api.service.IExecutorService;
 import org.jowidgets.service.api.IServicesDecoratorProvider;
 import org.jowidgets.service.api.IServicesDecoratorProviderBuilder;
+import org.jowidgets.service.api.ServiceToolkit;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.IDecorator;
 
-class ServicesDecoratorProviderBuilderImpl implements IServicesDecoratorProviderBuilder {
+final class AsyncDecoratorProvider implements IServicesDecoratorProvider {
 
-	private final Map<Class<?>, IDecorator<?>> decorators;
-	private IDecorator<Object> defaultDecorator;
+	private final IServicesDecoratorProvider servicesDecoratorProvider;
 
-	ServicesDecoratorProviderBuilderImpl() {
-		this.decorators = new HashMap<Class<?>, IDecorator<?>>();
+	AsyncDecoratorProvider(final Executor executor) {
+		Assert.paramNotNull(executor, "executor");
+
+		final IServicesDecoratorProviderBuilder builder = ServiceToolkit.serviceDecoratorProviderBuilder();
+
+		builder.setServiceDecorator(IExecutorService.class, new ExecutorServiceAsyncDecorator(executor));
+
+		this.servicesDecoratorProvider = builder.build();
 	}
 
 	@Override
-	public IServicesDecoratorProviderBuilder setDefaultDecorator(final IDecorator<Object> decorator) {
-		Assert.paramNotNull(decorator, "decorator");
-		this.defaultDecorator = decorator;
-		return this;
+	public IDecorator<Object> getDefaultDecorator() {
+		return servicesDecoratorProvider.getDefaultDecorator();
 	}
 
 	@Override
-	public <SERVICE_TYPE> IServicesDecoratorProviderBuilder setServiceDecorator(
-		final Class<?> type,
-		final IDecorator<SERVICE_TYPE> decorator) {
-		Assert.paramNotNull(type, "type");
-		Assert.paramNotNull(decorator, "decorator");
-		decorators.put(type, decorator);
-		return this;
-	}
-
-	@Override
-	public IServicesDecoratorProvider build() {
-		return new ServicesDecoratorProviderImpl(defaultDecorator, decorators);
+	public <SERVICE_TYPE> IDecorator<SERVICE_TYPE> getDecorator(final Class<? extends SERVICE_TYPE> type) {
+		return servicesDecoratorProvider.getDecorator(type);
 	}
 
 }

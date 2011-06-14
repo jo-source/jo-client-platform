@@ -53,6 +53,7 @@ import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.exception.ServiceCanceledException;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.execution.IExecutableState;
+import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.execution.UserQuestionResult;
 import org.jowidgets.cap.common.api.service.IExecutorService;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
@@ -421,21 +422,26 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 				final IExecutorService executorService = (IExecutorService) executor;
 				final IBeanKeyFactory beanKeyFactory = CapUiToolkit.getBeanKeyFactory();
 				final List<IBeanKey> keys = beanKeyFactory.createKeys((Collection) beans);
-				List<IBeanDto> executionResult = null;
-				try {
-					executionResult = executorService.execute(keys, executionParameter, executionTask);
-					CapServiceToolkit.checkCanceled(executionTask);
-					invokeAfterExecutionLater(executionResult);
-				}
-				catch (final Exception e) {
-					invokeOnExceptionLater(e);
-				}
-				finally {
-					if (!executionTask.isCanceled()) {
-						executionTask.dispose();
+
+				final IResultCallback<List<IBeanDto>> resultCallback = new IResultCallback<List<IBeanDto>>() {
+
+					@Override
+					public void finished(final List<IBeanDto> result) {
+						invokeAfterExecutionLater(result);
 					}
-					invokeAfterExecutionLater(executionResult);
-				}
+
+					@Override
+					public void exception(final Throwable exception) {
+						invokeOnExceptionLater(exception);
+					}
+
+					@Override
+					public void timeout() {
+						invokeOnExceptionLater(new RuntimeException("Execution timeout"));
+					}
+				};
+				executorService.execute(resultCallback, keys, executionParameter, executionTask);
+
 			}
 			else if (executor instanceof IExecutorJob) {
 				final IExecutorJob executorJob = (IExecutorJob) executor;
@@ -481,7 +487,7 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 			return new Some(defaultParameter);
 		}
 
-		private void invokeOnExceptionLater(final Exception exception) {
+		private void invokeOnExceptionLater(final Throwable exception) {
 			uiThreadAccess.invokeLater(new Runnable() {
 				@Override
 				public void run() {
@@ -490,12 +496,17 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 			});
 		}
 
-		private void onExecption(final Exception exception) {
+		private void onExecption(final Throwable exception) {
 			if (exception instanceof ServiceCanceledException) {
 				return;
 			}
 			try {
-				handleException(executionContext, exception);
+				if (exception instanceof Exception) {
+					handleException(executionContext, (Exception) exception);
+				}
+				else {
+					throw new RuntimeException(exception);
+				}
 			}
 			catch (final Exception e) {
 				throw new RuntimeException(e);

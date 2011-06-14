@@ -26,45 +26,29 @@
  * DAMAGE.
  */
 
-package org.jowidgets.service.impl;
-
-import java.util.HashMap;
-import java.util.Map;
+package org.jowidgets.service.tools;
 
 import org.jowidgets.service.api.IServicesDecoratorProvider;
-import org.jowidgets.service.api.IServicesDecoratorProviderBuilder;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.IDecorator;
 
-class ServicesDecoratorProviderBuilderImpl implements IServicesDecoratorProviderBuilder {
+public class ServiceDecoratorProviderWrapper implements IServicesDecoratorProvider {
 
-	private final Map<Class<?>, IDecorator<?>> decorators;
-	private IDecorator<Object> defaultDecorator;
+	private final IServicesDecoratorProvider servicesDecoratorProvider;
 
-	ServicesDecoratorProviderBuilderImpl() {
-		this.decorators = new HashMap<Class<?>, IDecorator<?>>();
+	public ServiceDecoratorProviderWrapper(final IServicesDecoratorProvider servicesDecoratorProvider) {
+		Assert.paramNotNull(servicesDecoratorProvider, "servicesDecoratorProvider");
+		this.servicesDecoratorProvider = servicesDecoratorProvider;
 	}
 
 	@Override
-	public IServicesDecoratorProviderBuilder setDefaultDecorator(final IDecorator<Object> decorator) {
-		Assert.paramNotNull(decorator, "decorator");
-		this.defaultDecorator = decorator;
-		return this;
+	public final IDecorator<Object> getDefaultDecorator() {
+		return servicesDecoratorProvider.getDefaultDecorator();
 	}
 
 	@Override
-	public <SERVICE_TYPE> IServicesDecoratorProviderBuilder setServiceDecorator(
-		final Class<?> type,
-		final IDecorator<SERVICE_TYPE> decorator) {
-		Assert.paramNotNull(type, "type");
-		Assert.paramNotNull(decorator, "decorator");
-		decorators.put(type, decorator);
-		return this;
-	}
-
-	@Override
-	public IServicesDecoratorProvider build() {
-		return new ServicesDecoratorProviderImpl(defaultDecorator, decorators);
+	public final <SERVICE_TYPE> IDecorator<SERVICE_TYPE> getDecorator(final Class<? extends SERVICE_TYPE> type) {
+		return servicesDecoratorProvider.getDecorator(type);
 	}
 
 }
