@@ -31,11 +31,8 @@ package org.jowidgets.cap.ui.impl;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import org.jowidgets.api.command.EnabledState;
 import org.jowidgets.api.command.ICommand;
@@ -47,16 +44,14 @@ import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.api.controler.IChangeListener;
 import org.jowidgets.api.threads.IUiThreadAccess;
 import org.jowidgets.api.toolkit.Toolkit;
-import org.jowidgets.api.types.QuestionResult;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
-import org.jowidgets.cap.common.api.exception.ServiceCanceledException;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.execution.IExecutableState;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
-import org.jowidgets.cap.common.api.execution.UserQuestionResult;
 import org.jowidgets.cap.common.api.service.IExecutorService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
+import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
 import org.jowidgets.cap.ui.api.bean.IBeanKeyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeanModificationStateListener;
 import org.jowidgets.cap.ui.api.bean.IBeanProcessStateListener;
@@ -66,10 +61,8 @@ import org.jowidgets.cap.ui.api.execution.BeanModificationStatePolicy;
 import org.jowidgets.cap.ui.api.execution.BeanSelectionPolicy;
 import org.jowidgets.cap.ui.api.execution.IExecutionInterceptor;
 import org.jowidgets.cap.ui.api.execution.IExecutionTask;
-import org.jowidgets.cap.ui.api.execution.IExecutionTaskListener;
 import org.jowidgets.cap.ui.api.execution.IExecutor;
 import org.jowidgets.cap.ui.api.execution.IParameterProvider;
-import org.jowidgets.cap.ui.api.execution.IUserAnswerCallback;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
 import org.jowidgets.tools.controler.ChangeObservable;
@@ -79,7 +72,7 @@ import org.jowidgets.util.maybe.Nothing;
 import org.jowidgets.util.maybe.Some;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
-final class ExecutorCommand extends ChangeObservable implements ICommand, ICommandExecutor, IEnabledChecker, IExceptionHandler {
+final class ExecutorCommand extends ChangeObservable implements ICommand, ICommandExecutor, IEnabledChecker {
 
 	//TODO i18n
 	private static final IEnabledState IS_IN_PROCESS_STATE = EnabledState.disabled("There is some other execution in process");
@@ -91,7 +84,6 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 	private final IBeanListModel<Object> listModel;
 	private final List<IExecutableChecker<Object>> executableCheckers;
 	private final List<IEnabledChecker> enabledCheckers;
-	private final IExceptionHandler exceptionHandler;
 	private final List<Object> parameterProviders;
 	private final List<IExecutionInterceptor> executionInterceptors;
 	private final BeanExecutionPolicy beanListExecutionPolicy;
@@ -100,6 +92,7 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 
 	private final Object defaultParameter;
 	private final Object executor;
+	private final IBeanExceptionConverter beanExceptionConverter;
 
 	private List<IBeanProxy> lastSelection;
 
@@ -110,7 +103,7 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 		final BeanModificationStatePolicy beanModificationStatePolicy,
 		final List<IEnabledChecker> enabledCheckers,
 		final List<IExecutableChecker<Object>> executableCheckers,
-		final IExceptionHandler exceptionHandler,
+		final IBeanExceptionConverter beanExceptionConverter,
 		final List<Object> parameterProviders,
 		final List<IExecutionInterceptor> executionInterceptors,
 		final Object defaultParameter,
@@ -122,7 +115,7 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 		this.beanModificationStatePolicy = beanModificationStatePolicy;
 		this.enabledCheckers = enabledCheckers;
 		this.executableCheckers = executableCheckers;
-		this.exceptionHandler = exceptionHandler;
+		this.beanExceptionConverter = beanExceptionConverter;
 		this.parameterProviders = parameterProviders;
 		this.executionInterceptors = executionInterceptors;
 		this.defaultParameter = defaultParameter;
@@ -203,12 +196,7 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 
 	@Override
 	public IExceptionHandler getExceptionHandler() {
-		return this;
-	}
-
-	@Override
-	public void handleException(final IExecutionContext executionContext, final Exception exception) throws Exception {
-		exceptionHandler.handleException(executionContext, exception);
+		return null;
 	}
 
 	@Override
@@ -261,90 +249,16 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 			beans.add(bean);
 		}
 
-		if (BeanExecutionPolicy.SERIAL == beanListExecutionPolicy) {
-			final IExecutionTask executionTask = createExecutionTask();
-			for (final IBeanProxy bean : beans) {
-				bean.setExecutionTask(executionTask);
-			}
-			listModel.fireBeansChanged();
-			new Execution(beans, executionContext, executionTask).execute();
+		final BeanListExecutionHelper executionHelper = new BeanListExecutionHelper(
+			listModel,
+			beans,
+			beanListExecutionPolicy,
+			beanExceptionConverter);
+
+		for (final List<IBeanProxy> preparedBeans : executionHelper.prepareExecutions()) {
+			new Execution(preparedBeans, executionContext, executionHelper).execute();
 		}
-		else {
-			for (final IBeanProxy bean : beans) {
-				final IExecutionTask executionTask = createExecutionTask();
-				bean.setExecutionTask(executionTask);
-				listModel.fireBeansChanged();
-				new Execution(Collections.singletonList(bean), executionContext, executionTask).execute();
-			}
-		}
-	}
 
-	private IExecutionTask createExecutionTask() {
-		final IUiThreadAccess uiThreadAccess = Toolkit.getUiThreadAccess();
-		final IExecutionTask executionTask = CapUiToolkit.executionTaskFactory().create();
-
-		//TODO MG remove this later
-		executionTask.addExecutionTaskListener(new IExecutionTaskListener() {
-
-			@Override
-			public void worked(final int totalWorked) {
-				//CHECKSTYLE:OFF
-				System.out.println("WORKED " + totalWorked);
-				//CHECKSTYLE:ON
-			}
-
-			@Override
-			public void userQuestionAsked(final String question, final IUserAnswerCallback callback) {
-				final ValueHolder<QuestionResult> resultHolder = new ValueHolder<QuestionResult>();
-				try {
-					uiThreadAccess.invokeAndWait(new Runnable() {
-						@Override
-						public void run() {
-							final QuestionResult result = Toolkit.getQuestionPane().askYesNoQuestion(question);
-							resultHolder.set(result);
-						}
-					});
-				}
-				catch (final InterruptedException e) {
-					callback.setQuestionResult(UserQuestionResult.NO);
-				}
-
-				if (QuestionResult.YES == resultHolder.get()) {
-					callback.setQuestionResult(UserQuestionResult.YES);
-				}
-				else {
-					callback.setQuestionResult(UserQuestionResult.NO);
-				}
-
-			}
-
-			@Override
-			public void totalStepCountChanged(final int totalStepCount) {
-				//CHECKSTYLE:OFF
-				System.out.println("TOTAL STEP COUNT " + totalStepCount);
-				//CHECKSTYLE:ON
-			}
-
-			@Override
-			public void subExecutionAdded(final IExecutionTask executionTask) {}
-
-			@Override
-			public void finished() {
-				//CHECKSTYLE:OFF
-				System.out.println("FINISHED " + executionTask.isFinshed());
-				//CHECKSTYLE:ON
-			}
-
-			@Override
-			public void descriptionChanged(final String description) {
-				//CHECKSTYLE:OFF
-				System.out.println("DESCRIPTION CHANGED " + description);
-				//CHECKSTYLE:ON
-			}
-
-		});
-
-		return executionTask;
 	}
 
 	private List<IBeanProxy> getSelectedBeans() {
@@ -358,17 +272,27 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 	private class Execution {
 
 		private final IExecutionContext executionContext;
-		private final IUiThreadAccess uiThreadAccess;
 		private final List<IBeanProxy> beans;
+		private final BeanListExecutionHelper executionHelper;
 		private final IExecutionTask executionTask;
+		private final IUiThreadAccess uiThreadAccess;
 
-		Execution(final List<IBeanProxy> beans, final IExecutionContext executionContext, final IExecutionTask executionTask) {
-			super();
-			this.uiThreadAccess = Toolkit.getUiThreadAccess();
+		Execution(
+			final List<IBeanProxy> beans,
+			final IExecutionContext executionContext,
+			final BeanListExecutionHelper executionHelper) {
 
 			this.beans = beans;
 			this.executionContext = executionContext;
-			this.executionTask = executionTask;
+			this.executionHelper = executionHelper;
+			this.uiThreadAccess = Toolkit.getUiThreadAccess();
+
+			if (beans.size() > 0) {
+				executionTask = beans.get(0).getExecutionTask();
+			}
+			else {
+				executionTask = executionHelper.createExecutionTask();
+			}
 		}
 
 		public void execute() {
@@ -376,7 +300,7 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 			for (final Object parameterProvider : parameterProviders) {
 				final IMaybe paramResult = getParameter(parameterProvider, parameter, beans);
 				if (paramResult.isNothing() || executionTask.isCanceled()) {
-					afterExecution(null);
+					executionHelper.afterExecution(beans, null);
 					return;
 				}
 				else {
@@ -384,45 +308,55 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 				}
 			}
 
-			final Object executionParameter = parameter;
 			if (executionTask.isCanceled()) {
-				afterExecution(null);
+				executionHelper.afterExecution(beans, null);
 				return;
 			}
 			if (executor instanceof IExecutor) {
 				final IExecutor theExecutor = (IExecutor) executor;
 				try {
-					theExecutor.execute(executionContext, beans, executionParameter);
+					theExecutor.execute(executionContext, beans, parameter);
+					executionHelper.afterExecution(beans, null);
 				}
 				catch (final Exception exception) {
-					onExecption(exception);
+					executionHelper.onExecption(beans, exception);
 				}
-				afterExecution(null);
-
 			}
 			else if (executor instanceof IExecutorService) {
 				final IExecutorService executorService = (IExecutorService) executor;
 				final IBeanKeyFactory beanKeyFactory = CapUiToolkit.getBeanKeyFactory();
 				final List<IBeanKey> keys = beanKeyFactory.createKeys((Collection) beans);
 
+				final IResultCallback<List<IBeanDto>> helperCallback = executionHelper.createResultCallback(beans);
 				final IResultCallback<List<IBeanDto>> resultCallback = new IResultCallback<List<IBeanDto>>() {
 
 					@Override
 					public void finished(final List<IBeanDto> result) {
-						invokeAfterExecutionLater(result);
+						helperCallback.finished(result);
+						for (final IExecutionInterceptor interceptor : executionInterceptors) {
+							helperCallback.finished(result);
+							uiThreadAccess.invokeLater(new Runnable() {
+								@Override
+								public void run() {
+									interceptor.afterExecution(executionContext);
+								}
+							});
+						}
 					}
 
 					@Override
 					public void exception(final Throwable exception) {
-						invokeOnExceptionLater(exception);
+						helperCallback.exception(exception);
 					}
 
 					@Override
 					public void timeout() {
-						invokeOnExceptionLater(new RuntimeException("Execution timeout"));
+						helperCallback.timeout();
 					}
+
 				};
-				executorService.execute(resultCallback, keys, executionParameter, executionTask);
+
+				executorService.execute(resultCallback, keys, parameter, executionTask);
 			}
 		}
 
@@ -434,76 +368,12 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 					result.set(theParameterProvider.getParameter(executionContext, beans, defaultParameter));
 				}
 				catch (final Exception e) {
-					onExecption(e);
+					executionHelper.onExecption(beans, e);
 				}
 				return result.get();
 			}
 			//TODO MG else if IParameterProviderService 
 			return new Some(defaultParameter);
-		}
-
-		private void invokeOnExceptionLater(final Throwable exception) {
-			uiThreadAccess.invokeLater(new Runnable() {
-				@Override
-				public void run() {
-					onExecption(exception);
-				}
-			});
-		}
-
-		private void onExecption(final Throwable exception) {
-			if (exception instanceof ServiceCanceledException) {
-				return;
-			}
-			try {
-				if (exception instanceof Exception) {
-					handleException(executionContext, (Exception) exception);
-				}
-				else {
-					throw new RuntimeException(exception);
-				}
-			}
-			catch (final Exception e) {
-				throw new RuntimeException(e);
-			}
-		}
-
-		private void invokeAfterExecutionLater(final List<IBeanDto> result) {
-			uiThreadAccess.invokeLater(new Runnable() {
-				@Override
-				public void run() {
-					afterExecution(result);
-				}
-			});
-		}
-
-		private void afterExecution(final List<IBeanDto> result) {
-
-			if (result != null) {
-				final Map<Object, IBeanDto> resultMap = new HashMap<Object, IBeanDto>();
-				for (final IBeanDto beanDto : result) {
-					resultMap.put(beanDto.getId(), beanDto);
-				}
-
-				for (final IBeanProxy bean : beans) {
-					final IBeanDto updatedBean = resultMap.get(bean.getId());
-					if (updatedBean != null) {
-						bean.update(updatedBean);
-					}
-					//TODO MG //else {}
-				}
-			}
-
-			for (final IBeanProxy bean : beans) {
-				bean.setExecutionTask(null);
-			}
-
-			for (final IExecutionInterceptor interceptor : executionInterceptors) {
-				interceptor.afterExecution(executionContext);
-			}
-
-			listModel.fireBeansChanged();
-
 		}
 
 	}

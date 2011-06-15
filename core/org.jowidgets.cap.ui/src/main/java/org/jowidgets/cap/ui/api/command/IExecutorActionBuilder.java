@@ -30,10 +30,10 @@ package org.jowidgets.cap.ui.api.command;
 
 import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.command.IEnabledChecker;
-import org.jowidgets.api.command.IExceptionHandler;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.service.IExecutorService;
 import org.jowidgets.cap.common.api.service.IParameterProviderService;
+import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
 import org.jowidgets.cap.ui.api.execution.BeanExecutionPolicy;
 import org.jowidgets.cap.ui.api.execution.BeanModificationStatePolicy;
 import org.jowidgets.cap.ui.api.execution.BeanSelectionPolicy;
@@ -90,7 +90,7 @@ public interface IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> {
 
 	IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> addExecutionInterceptor(IExecutionInterceptor interceptor);
 
-	IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setExceptionHandler(IExceptionHandler exceptionHandler);
+	IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setExceptionConverter(IBeanExceptionConverter exceptionConverter);
 
 	IAction build();
 

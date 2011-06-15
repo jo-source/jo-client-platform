@@ -35,13 +35,11 @@ import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.command.IActionBuilder;
 import org.jowidgets.api.command.ICommand;
 import org.jowidgets.api.command.IEnabledChecker;
-import org.jowidgets.api.command.IExceptionHandler;
-import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.api.toolkit.Toolkit;
-import org.jowidgets.cap.common.api.exception.ServiceException;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.service.IExecutorService;
 import org.jowidgets.cap.common.api.service.IParameterProviderService;
+import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
 import org.jowidgets.cap.ui.api.command.IExecutorActionBuilder;
 import org.jowidgets.cap.ui.api.execution.BeanExecutionPolicy;
 import org.jowidgets.cap.ui.api.execution.BeanModificationStatePolicy;
@@ -70,7 +68,7 @@ final class ExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> extends AbstractSingleU
 
 	private PARAM_TYPE defaultParameter;
 	private Object executor;
-	private IExceptionHandler exceptionHandler;
+	private IBeanExceptionConverter exceptionConverter;
 	private BeanExecutionPolicy beanListExecutionPolicy;
 	private BeanSelectionPolicy beanSelectionPolicy;
 	private BeanModificationStatePolicy beanModificationStatePolicy;
@@ -88,29 +86,7 @@ final class ExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> extends AbstractSingleU
 		this.beanModificationStatePolicy = BeanModificationStatePolicy.NO_MODIFICATION;
 		this.beanListExecutionPolicy = BeanExecutionPolicy.PARALLEL;
 
-		//TODO MG add better default exception handler
-		this.exceptionHandler = new IExceptionHandler() {
-			@Override
-			public void handleException(final IExecutionContext executionContext, final Exception exception) throws Exception {
-				final IAction action = executionContext.getAction();
-				if (exception instanceof ServiceException) {
-					Toolkit.getMessagePane().showInfo(
-							action.getText(),
-							action.getIcon(),
-							((ServiceException) exception).getUserMessage());
-					//CHECKSTYLE:OFF
-					exception.printStackTrace();
-					//CHECKSTYLE:ON
-				}
-				else {
-					Toolkit.getMessagePane().showError(action.getText(), action.getIcon(), exception.getMessage());
-					//CHECKSTYLE:OFF
-					exception.printStackTrace();
-					//CHECKSTYLE:ON
-				}
-			}
-		};
-
+		this.exceptionConverter = new DefaultBeanExceptionConverter();
 	}
 
 	@Override
@@ -252,8 +228,9 @@ final class ExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> extends AbstractSingleU
 	}
 
 	@Override
-	public IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setExceptionHandler(final IExceptionHandler exceptionHandler) {
-		this.exceptionHandler = exceptionHandler;
+	public IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setExceptionConverter(final IBeanExceptionConverter exceptionConverter) {
+		Assert.paramNotNull(exceptionConverter, "exceptionConverter");
+		this.exceptionConverter = exceptionConverter;
 		return this;
 	}
 
@@ -266,7 +243,7 @@ final class ExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> extends AbstractSingleU
 			beanModificationStatePolicy,
 			enabledCheckers,
 			executableCheckers,
-			exceptionHandler,
+			exceptionConverter,
 			parameterProviders,
 			executionInterceptors,
 			defaultParameter,
