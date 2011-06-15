@@ -21,7 +21,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.jowidgets</groupId>
-			<artifactId>org.jowidgets.cap.service</artifactId>
+			<artifactId>org.jowidgets.cap.common</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
@@ -38,7 +38,7 @@
 				<artifactId>maven-bundle-plugin</artifactId>
 				<configuration>
 					<instructions>
-						<Require-Bundle>org.jowidgets.tools, org.jowidgets.service, org.jowidgets.cap.service</Require-Bundle>
+						<Require-Bundle>org.jowidgets.tools, org.jowidgets.common, org.jowidgets.cap.service</Require-Bundle>
 					</instructions>
 				</configuration>
 			</plugin>
