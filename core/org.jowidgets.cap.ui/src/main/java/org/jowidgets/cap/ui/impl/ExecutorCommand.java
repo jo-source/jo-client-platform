@@ -56,7 +56,6 @@ import org.jowidgets.cap.common.api.execution.IExecutableState;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.execution.UserQuestionResult;
 import org.jowidgets.cap.common.api.service.IExecutorService;
-import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.bean.IBeanKeyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeanModificationStateListener;
@@ -394,7 +393,6 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 				final IExecutor theExecutor = (IExecutor) executor;
 				try {
 					theExecutor.execute(executionContext, beans, executionParameter);
-					CapServiceToolkit.checkCanceled(executionTask);
 				}
 				catch (final Exception exception) {
 					onExecption(exception);
