@@ -35,7 +35,7 @@ public class StaleBeanException extends ServiceException {
 	private static final long serialVersionUID = -7579908469741974763L;
 
 	public StaleBeanException(final IBeanKey staleBean) {
-		super(staleBean);
+		this(staleBean, "The bean with the key '" + staleBean + "' is stale.");
 	}
 
 	public StaleBeanException(final IBeanKey staleBean, final String message) {

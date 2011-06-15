@@ -98,6 +98,9 @@ final class ExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> extends AbstractSingleU
 							action.getText(),
 							action.getIcon(),
 							((ServiceException) exception).getUserMessage());
+					//CHECKSTYLE:OFF
+					exception.printStackTrace();
+					//CHECKSTYLE:ON
 				}
 				else {
 					Toolkit.getMessagePane().showError(action.getText(), action.getIcon(), exception.getMessage());

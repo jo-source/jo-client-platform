@@ -56,4 +56,9 @@ final class BeanKeyImpl implements IBeanKey, Serializable {
 		return version;
 	}
 
+	@Override
+	public String toString() {
+		return "BeanKeyImpl [id=" + id + ", version=" + version + "]";
+	}
+
 }
