@@ -69,7 +69,6 @@ import org.jowidgets.cap.ui.api.execution.IExecutionInterceptor;
 import org.jowidgets.cap.ui.api.execution.IExecutionTask;
 import org.jowidgets.cap.ui.api.execution.IExecutionTaskListener;
 import org.jowidgets.cap.ui.api.execution.IExecutor;
-import org.jowidgets.cap.ui.api.execution.IExecutorJob;
 import org.jowidgets.cap.ui.api.execution.IParameterProvider;
 import org.jowidgets.cap.ui.api.execution.IUserAnswerCallback;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
@@ -443,22 +442,6 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 				executorService.execute(resultCallback, keys, executionParameter, executionTask);
 
 			}
-			else if (executor instanceof IExecutorJob) {
-				final IExecutorJob executorJob = (IExecutorJob) executor;
-				try {
-					executorJob.execute(executionContext, beans, parameter, executionTask);
-					CapServiceToolkit.checkCanceled(executionTask);
-				}
-				catch (final Exception e) {
-					invokeOnExceptionLater(e);
-				}
-				finally {
-					if (!executionTask.isCanceled()) {
-						executionTask.dispose();
-					}
-					invokeAfterExecutionLater(null);
-				}
-			}
 		}
 
 		private IMaybe getParameter(final Object parameterProvider, final Object defaultParameter, final List<IBeanProxy> beans) {
@@ -483,7 +466,7 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 					invokeOnExceptionLater(e);
 				}
 			}
-			//TODO MG else if IParameterProviderService or IParameterProviderJob
+			//TODO MG else if IParameterProviderService 
 			return new Some(defaultParameter);
 		}
 

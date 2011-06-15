@@ -48,9 +48,7 @@ import org.jowidgets.cap.ui.api.execution.BeanModificationStatePolicy;
 import org.jowidgets.cap.ui.api.execution.BeanSelectionPolicy;
 import org.jowidgets.cap.ui.api.execution.IExecutionInterceptor;
 import org.jowidgets.cap.ui.api.execution.IExecutor;
-import org.jowidgets.cap.ui.api.execution.IExecutorJob;
 import org.jowidgets.cap.ui.api.execution.IParameterProvider;
-import org.jowidgets.cap.ui.api.execution.IParameterProviderJob;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.common.image.IImageConstant;
 import org.jowidgets.common.types.Accelerator;
@@ -170,14 +168,6 @@ final class ExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> extends AbstractSingleU
 
 	@Override
 	public IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> addParameterProvider(
-		final IParameterProviderJob<BEAN_TYPE, PARAM_TYPE> parameterProviderJob) {
-		Assert.paramNotNull(parameterProviderJob, "parameterProviderJob");
-		parameterProviders.add(parameterProviderJob);
-		return this;
-	}
-
-	@Override
-	public IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> addParameterProvider(
 		final IParameterProviderService<PARAM_TYPE> parameterProviderService) {
 		Assert.paramNotNull(parameterProviderService, "parameterProviderService");
 		parameterProviders.add(parameterProviderService);
@@ -196,13 +186,6 @@ final class ExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> extends AbstractSingleU
 	public IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setExecutor(final IExecutor<BEAN_TYPE, PARAM_TYPE> executor) {
 		Assert.paramNotNull(executor, "executor");
 		this.executor = executor;
-		return this;
-	}
-
-	@Override
-	public IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setExecutor(final IExecutorJob<BEAN_TYPE, PARAM_TYPE> executorJob) {
-		Assert.paramNotNull(executorJob, "executorJob");
-		this.executor = executorJob;
 		return this;
 	}
 
