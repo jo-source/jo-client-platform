@@ -51,6 +51,7 @@ import org.jowidgets.api.threads.IUiThreadAccess;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanModification;
+import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.filter.IFilter;
 import org.jowidgets.cap.common.api.service.ICreatorService;
 import org.jowidgets.cap.common.api.service.IDeleterService;
@@ -58,12 +59,12 @@ import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.common.api.service.IRefreshService;
 import org.jowidgets.cap.common.api.service.IUpdaterService;
 import org.jowidgets.cap.common.api.sort.ISort;
-import org.jowidgets.cap.common.tools.execution.SyncResultCallback;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeansStateTracker;
+import org.jowidgets.cap.ui.api.execution.BeanExecutionPolicy;
 import org.jowidgets.cap.ui.api.execution.IExecutionTask;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
@@ -175,13 +176,13 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 		maxPageIndex = 0;
 		dataCleared = true;
 		data.clear();
-		beansStateTracker.clear();
+		beansStateTracker.clearAll();
 		dataModel.fireDataChanged();
 	}
 
 	@Override
 	public void load() {
-		beansStateTracker.clear();
+		beansStateTracker.clearAll();
 		rowCount = readerService.count(null, null, null, null);
 		//rowCount = 0;
 		dataCleared = false;
@@ -191,37 +192,63 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 		dataModel.fireDataChanged();
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Override
 	public void save() {
 		final Set<IBeanProxy<BEAN_TYPE>> modifiedBeans = beansStateTracker.getModifiedBeans();
 
-		final List<IBeanModification> modifications = new LinkedList<IBeanModification>();
+		final BeanListExecutionHelper executionHelper = new BeanListExecutionHelper(
+			this,
+			modifiedBeans,
+			BeanExecutionPolicy.SERIAL,
+			new DefaultBeanExceptionConverter());
 
-		for (final IBeanProxy<BEAN_TYPE> bean : modifiedBeans) {
-			modifications.addAll(bean.getModifications());
-		}
+		final IUiThreadAccess uiThreadAccess = Toolkit.getUiThreadAccess();
 
-		final SyncResultCallback<List<IBeanDto>> resultCallback = new SyncResultCallback<List<IBeanDto>>();
+		for (final List<IBeanProxy> preparedBeans : executionHelper.prepareExecutions()) {
+			if (preparedBeans.size() > 0) {
+				final IExecutionTask executionTask = preparedBeans.get(0).getExecutionTask();
+				if (executionTask != null) {
+					final List<IBeanModification> modifications = new LinkedList<IBeanModification>();
+					for (final IBeanProxy<BEAN_TYPE> bean : preparedBeans) {
+						modifications.addAll(bean.getModifications());
+						beansStateTracker.unregister(bean);
+					}
+					final IResultCallback<List<IBeanDto>> helperCallback = executionHelper.createResultCallback(preparedBeans);
+					final IResultCallback<List<IBeanDto>> resultCallback = new IResultCallback<List<IBeanDto>>() {
+						@Override
+						public void finished(final List<IBeanDto> result) {
+							helperCallback.finished(result);
+							registerBeans();
+						}
 
-		updaterService.update(resultCallback, modifications, CapUiToolkit.executionTaskFactory().create());
+						@Override
+						public void exception(final Throwable exception) {
+							helperCallback.exception(exception);
+							registerBeans();
+						}
 
-		//TODO make this invocation asynchronous
-		final List<IBeanDto> updateResult = resultCallback.getResultSynchronious();
+						@Override
+						public void timeout() {
+							helperCallback.timeout();
+							registerBeans();
+						}
 
-		final Map<Object, IBeanDto> updateMap = new HashMap<Object, IBeanDto>();
-		for (final IBeanDto beanDto : updateResult) {
-			updateMap.put(beanDto.getId(), beanDto);
-		}
-
-		for (final IBeanProxy<BEAN_TYPE> bean : new HashSet<IBeanProxy<BEAN_TYPE>>(modifiedBeans)) {
-			final IBeanDto updatedBean = updateMap.get(bean.getId());
-			if (updatedBean != null) {
-				bean.update(updatedBean);
+						private void registerBeans() {
+							uiThreadAccess.invokeLater(new Runnable() {
+								@Override
+								public void run() {
+									for (final IBeanProxy<BEAN_TYPE> bean : preparedBeans) {
+										beansStateTracker.register(bean);
+									}
+								}
+							});
+						}
+					};
+					updaterService.update(resultCallback, modifications, executionTask);
+				}
 			}
-			//TODO MG //else {}
 		}
-
-		dataModel.fireDataChanged();
 	}
 
 	@Override
@@ -229,7 +256,7 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 		for (final IBeanProxy<BEAN_TYPE> bean : new HashSet<IBeanProxy<BEAN_TYPE>>(beansStateTracker.getModifiedBeans())) {
 			bean.undoModifications();
 		}
-		beansStateTracker.clear();
+		beansStateTracker.clearModifications();
 		dataModel.fireDataChanged();
 	}
 

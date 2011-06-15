@@ -45,9 +45,11 @@ import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanModification;
 import org.jowidgets.cap.common.api.bean.IBeanModificationBuilder;
+import org.jowidgets.cap.ui.api.bean.BeanStateType;
 import org.jowidgets.cap.ui.api.bean.IBeanModificationStateListener;
 import org.jowidgets.cap.ui.api.bean.IBeanProcessStateListener;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
+import org.jowidgets.cap.ui.api.bean.IBeanState;
 import org.jowidgets.cap.ui.api.execution.IExecutionTask;
 import org.jowidgets.cap.ui.api.execution.IExecutionTaskListener;
 import org.jowidgets.cap.ui.tools.execution.ExecutionTaskAdapter;
@@ -56,8 +58,11 @@ import org.jowidgets.util.NullCompatibleEquivalence;
 
 final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE> {
 
+	private static final IBeanState OK_STATE = createOkState();
+
 	private final Class<? extends BEAN_TYPE> beanType;
 	private final Map<String, IBeanModification> modifications;
+	private final Map<String, IBeanModification> undoneModifications;
 	private final PropertyChangeObservable propertyChangeObservable;
 	private final BeanModificationStateObservable<BEAN_TYPE> modificationStateObservable;
 	private final BeanProcessStateObservable<BEAN_TYPE> processStateObservable;
@@ -65,6 +70,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE> {
 	private final IUiThreadAccess uiThreadAccess;
 
 	private IExecutionTask executionTask;
+	private IBeanState state;
 	private String lastProgress;
 	private IBeanDto beanDto;
 	private BEAN_TYPE proxy;
@@ -76,6 +82,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE> {
 		this.beanDto = beanDto;
 		this.beanType = beanType;
 		this.modifications = new HashMap<String, IBeanModification>();
+		this.undoneModifications = new HashMap<String, IBeanModification>();
 		this.propertyChangeObservable = new PropertyChangeObservable();
 		this.modificationStateObservable = new BeanModificationStateObservable<BEAN_TYPE>();
 		this.processStateObservable = new BeanProcessStateObservable<BEAN_TYPE>();
@@ -132,6 +139,8 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE> {
 	@Override
 	public void setValue(final String propertyName, final Object newValue) {
 		Assert.paramNotNull(propertyName, "propertyName");
+
+		undoneModifications.clear();
 
 		final Object originalValue = beanDto.getValue(propertyName);
 		final Object currentValue = getValue(propertyName);
@@ -190,9 +199,28 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE> {
 	public void undoModifications() {
 		final boolean oldModificationState = hasModifications();
 		final List<PropertyChangeEvent> propertyChangeEvents = getPropertyChangesForClear();
+		undoneModifications.clear();
+		for (final Entry<String, IBeanModification> entry : modifications.entrySet()) {
+			undoneModifications.put(entry.getKey(), entry.getValue());
+		}
 		modifications.clear();
 		firePropertyChangeEvents(propertyChangeEvents);
 		if (oldModificationState) {
+			modificationStateObservable.fireModificationStateChanged(this);
+		}
+	}
+
+	@Override
+	public void redoModifications() {
+		final boolean oldModificationState = hasModifications();
+		final List<PropertyChangeEvent> propertyChangeEvents = getPropertyChangesForUndo();
+		for (final Entry<String, IBeanModification> entry : undoneModifications.entrySet()) {
+			modifications.put(entry.getKey(), entry.getValue());
+		}
+		undoneModifications.clear();
+		final boolean newModificationState = hasModifications();
+		firePropertyChangeEvents(propertyChangeEvents);
+		if (oldModificationState != newModificationState) {
 			modificationStateObservable.fireModificationStateChanged(this);
 		}
 	}
@@ -231,6 +259,24 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE> {
 			}
 			processStateObservable.fireProcessStateChanged(this);
 		}
+	}
+
+	@Override
+	public void setState(final IBeanState state) {
+		this.state = state;
+	}
+
+	@Override
+	public IBeanState getState() {
+		if (state != null) {
+			return state;
+		}
+		return OK_STATE;
+	}
+
+	@Override
+	public void clearState() {
+		state = null;
 	}
 
 	@Override
@@ -312,6 +358,19 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE> {
 		return result;
 	}
 
+	private List<PropertyChangeEvent> getPropertyChangesForUndo() {
+		final List<PropertyChangeEvent> result = new LinkedList<PropertyChangeEvent>();
+		for (final Entry<String, IBeanModification> modificationEntry : undoneModifications.entrySet()) {
+			final String propertyName = modificationEntry.getKey();
+			result.add(new PropertyChangeEvent(
+				this,
+				propertyName,
+				modificationEntry.getValue().getNewValue(),
+				beanDto.getValue(propertyName)));
+		}
+		return result;
+	}
+
 	private List<PropertyChangeEvent> getPropertyChangesForUpdate(final IBeanDto beanDto) {
 		final List<PropertyChangeEvent> result = new LinkedList<PropertyChangeEvent>();
 		for (final String propertyName : this.beanDto.getPropertyNames()) {
@@ -376,6 +435,26 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE> {
 		else {
 			return beanDto.equals(((BeanProxyImpl<?>) obj).beanDto);
 		}
+	}
+
+	private static IBeanState createOkState() {
+		return new IBeanState() {
+
+			@Override
+			public String getUserMessage() {
+				return "";
+			}
+
+			@Override
+			public BeanStateType getType() {
+				return BeanStateType.OK;
+			}
+
+			@Override
+			public Throwable getException() {
+				return null;
+			}
+		};
 	}
 
 }

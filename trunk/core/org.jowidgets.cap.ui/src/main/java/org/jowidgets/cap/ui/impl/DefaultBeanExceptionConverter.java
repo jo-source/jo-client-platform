@@ -26,47 +26,61 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.bean;
+package org.jowidgets.cap.ui.impl;
 
-import java.util.Collection;
+import org.jowidgets.cap.common.api.exception.ServiceException;
+import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
+import org.jowidgets.cap.ui.api.bean.IBeanState;
+import org.jowidgets.cap.ui.api.bean.BeanStateType;
 
-import org.jowidgets.cap.common.api.bean.IBeanDto;
-import org.jowidgets.cap.common.api.bean.IBeanModification;
-import org.jowidgets.cap.ui.api.execution.IExecutionTask;
+//TODO MG implement better converter
+final class DefaultBeanExceptionConverter implements IBeanExceptionConverter {
 
-public interface IBeanProxy<BEAN_TYPE> extends
-		IBeanDto,
-		IPropertyChangeObservable,
-		IBeanModificationStateObservable<BEAN_TYPE>,
-		IBeanProcessStateObservable<BEAN_TYPE> {
+	@Override
+	public IBeanState convert(final Throwable throwable) {
+		//CHECKSTYLE:OFF
+		throwable.printStackTrace();
+		//CHECKSTYLE:ON
+		if (throwable instanceof ServiceException) {
+			return new IBeanState() {
 
-	String META_PROPERTY_PROGRESS = IBeanProxy.class.getName() + "_META_PROPERTY_PROGRESS";
+				@Override
+				public BeanStateType getType() {
+					return BeanStateType.EXCEPTION;
+				}
 
-	void setValue(String propertyName, Object value);
+				@Override
+				public String getUserMessage() {
+					return ((ServiceException) throwable).getUserMessage();
+				}
 
-	void update(IBeanDto beanDto);
+				@Override
+				public Throwable getException() {
+					return throwable;
+				}
 
-	Collection<IBeanModification> getModifications();
+			};
+		}
+		else {
+			return new IBeanState() {
 
-	boolean hasModifications();
+				@Override
+				public BeanStateType getType() {
+					return BeanStateType.ERROR;
+				}
 
-	void undoModifications();
+				@Override
+				public String getUserMessage() {
+					return "An error has been occurred";
+				}
 
-	void redoModifications();
+				@Override
+				public Throwable getException() {
+					return throwable;
+				}
 
-	IExecutionTask getExecutionTask();
+			};
+		}
+	}
 
-	boolean hasExecution();
-
-	void setExecutionTask(IExecutionTask executionTask);
-
-	void setState(IBeanState state);
-
-	IBeanState getState();
-
-	void clearState();
-
-	void dispose();
-
-	BEAN_TYPE getBean();
 }

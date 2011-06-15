@@ -33,6 +33,7 @@ import java.util.concurrent.Executors;
 
 import org.jowidgets.cap.service.api.decorator.IDecoratorProviderFactory;
 import org.jowidgets.service.api.IServicesDecoratorProvider;
+import org.jowidgets.util.concurrent.DaemonThreadFactory;
 
 final class DecoratorProviderFactoryImpl implements IDecoratorProviderFactory {
 
@@ -40,7 +41,7 @@ final class DecoratorProviderFactoryImpl implements IDecoratorProviderFactory {
 
 	@Override
 	public IServicesDecoratorProvider asyncDecoratorProvider() {
-		return new AsyncDecoratorProvider(Executors.newFixedThreadPool(50));
+		return new AsyncDecoratorProvider(Executors.newFixedThreadPool(50, new DaemonThreadFactory()));
 	}
 
 	@Override

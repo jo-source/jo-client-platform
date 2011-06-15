@@ -53,7 +53,8 @@ public final class SyncUpdaterServiceImpl<BEAN_TYPE extends IBean> implements IS
 
 	private final ISyncExecutorService<Collection<? extends IBeanModification>> executorService;
 
-	SyncUpdaterServiceImpl(final ExecutorServiceBuilderImpl<BEAN_TYPE, Collection<? extends IBeanModification>> executorServiceBuilder) {
+	SyncUpdaterServiceImpl(
+		final ExecutorServiceBuilderImpl<BEAN_TYPE, Collection<? extends IBeanModification>> executorServiceBuilder) {
 
 		final Collection<String> propertyNames = executorServiceBuilder.getPropertyNames();
 		final Map<String, Method> methods = new HashMap<String, Method>();
@@ -114,6 +115,7 @@ public final class SyncUpdaterServiceImpl<BEAN_TYPE extends IBean> implements IS
 			final List<? extends IBeanKey> keysList = Collections.singletonList(modificationList.iterator().next());
 			result.addAll(executorService.execute(keysList, modificationList, executionCallback));
 		}
+
 		return result;
 	}
 

@@ -160,8 +160,13 @@ final class BeansStateTrackerImpl<BEAN_TYPE> implements IBeansStateTracker<BEAN_
 	}
 
 	@Override
-	public void clear() {
+	public void clearModifications() {
 		modifiedBeans.clear();
+	}
+
+	@Override
+	public void clearAll() {
+		clearModifications();
 		processingBeans.clear();
 	}
 
