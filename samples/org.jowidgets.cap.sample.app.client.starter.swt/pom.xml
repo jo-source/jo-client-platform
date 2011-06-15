@@ -31,7 +31,7 @@
         </dependency>
 		<dependency>
             <groupId>org.jowidgets</groupId>
-            <artifactId>org.jowidgets.message.impl.p2p.simple</artifactId>
+            <artifactId>org.jowidgets.message.impl.socket</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
 		<dependency>

@@ -31,7 +31,7 @@ package org.jowidgets.cap.sample.app.server.starter;
 import org.jowidgets.cap.invocation.server.CapServerServicePublisher;
 import org.jowidgets.invocation.common.impl.MessageBrokerId;
 import org.jowidgets.message.api.MessageToolkit;
-import org.jowidgets.message.impl.p2p.simple.MessageBrokerBuilder;
+import org.jowidgets.message.impl.socket.MessageBrokerBuilder;
 
 public final class SampleServerStarter {
 
