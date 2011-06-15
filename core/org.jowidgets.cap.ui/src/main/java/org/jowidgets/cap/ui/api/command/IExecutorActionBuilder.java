@@ -39,9 +39,7 @@ import org.jowidgets.cap.ui.api.execution.BeanModificationStatePolicy;
 import org.jowidgets.cap.ui.api.execution.BeanSelectionPolicy;
 import org.jowidgets.cap.ui.api.execution.IExecutionInterceptor;
 import org.jowidgets.cap.ui.api.execution.IExecutor;
-import org.jowidgets.cap.ui.api.execution.IExecutorJob;
 import org.jowidgets.cap.ui.api.execution.IParameterProvider;
-import org.jowidgets.cap.ui.api.execution.IParameterProviderJob;
 import org.jowidgets.common.image.IImageConstant;
 import org.jowidgets.common.types.Accelerator;
 import org.jowidgets.common.types.Modifier;
@@ -69,9 +67,6 @@ public interface IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> {
 	IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> addParameterProvider(IParameterProvider<BEAN_TYPE, PARAM_TYPE> parameterProvider);
 
 	IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> addParameterProvider(
-		IParameterProviderJob<BEAN_TYPE, PARAM_TYPE> parameterProviderJob);
-
-	IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> addParameterProvider(
 		IParameterProviderService<PARAM_TYPE> parameterProviderService);
 
 	IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> addParameterProvider(
@@ -79,13 +74,10 @@ public interface IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> {
 
 	IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setExecutor(IExecutor<BEAN_TYPE, PARAM_TYPE> executor);
 
-	IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setExecutor(IExecutorJob<BEAN_TYPE, PARAM_TYPE> executorJob);
-
 	IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setExecutor(IExecutorService<PARAM_TYPE> excecuterService);
 
 	IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setExecutor(IServiceId<IExecutorService<PARAM_TYPE>> excecuterServiceId);
 
-	//TODO MG setMaxJobSize
 	IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setExecutionPolicy(BeanExecutionPolicy policy);
 
 	IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setSelectionPolicy(BeanSelectionPolicy policy);
