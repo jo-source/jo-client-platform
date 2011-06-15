@@ -39,6 +39,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import org.jowidgets.message.api.IMessageReceiver;
 import org.jowidgets.message.api.IMessageReceiverBroker;
+import org.jowidgets.message.api.MessageToolkit;
 
 public class MessageReceiverBroker implements IMessageReceiverBroker {
 
@@ -123,6 +124,7 @@ public class MessageReceiverBroker implements IMessageReceiverBroker {
 
 						}
 						catch (final Exception e) {
+							MessageToolkit.handleExceptions(brokerId, e);
 						}
 						finally {
 							try {

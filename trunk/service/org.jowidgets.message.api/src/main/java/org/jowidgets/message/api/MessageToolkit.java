@@ -28,9 +28,11 @@
 
 package org.jowidgets.message.api;
 
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.ServiceLoader;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public final class MessageToolkit {
@@ -39,6 +41,7 @@ public final class MessageToolkit {
 
 	private static Map<Object, IMessageChannel> messageChannelBrokers = getChannels();
 	private static Map<Object, IMessageReceiverBroker> messageReceiverBrokers = getReceivers();
+	private static Map<Object, Set<IExceptionCallback>> exceptionCallbacks = new ConcurrentHashMap<Object, Set<IExceptionCallback>>();
 
 	private MessageToolkit() {}
 
@@ -60,12 +63,52 @@ public final class MessageToolkit {
 		messageReceiverBrokers.put(receiver.getBrokerId(), receiver);
 	}
 
+	public static synchronized void addExceptionCallback(final Object brokerId, final IExceptionCallback exceptionCallback) {
+		if (exceptionCallback == null) {
+			throw new IllegalArgumentException("Parameter 'exceptionCallback' must not be null");
+		}
+		if (brokerId == null) {
+			throw new IllegalArgumentException("Parameter 'brokerId' must not be null");
+		}
+		Set<IExceptionCallback> callbacks = exceptionCallbacks.get(brokerId);
+		if (callbacks == null) {
+			callbacks = new HashSet<IExceptionCallback>();
+			exceptionCallbacks.put(brokerId, callbacks);
+		}
+		callbacks.add(exceptionCallback);
+	}
+
+	public static synchronized void removeExceptionCallback(final Object brokerId, final IExceptionCallback exceptionCallback) {
+		if (exceptionCallback == null) {
+			throw new IllegalArgumentException("Parameter 'exceptionCallback' must not be null");
+		}
+		if (brokerId == null) {
+			throw new IllegalArgumentException("Parameter 'brokerId' must not be null");
+		}
+		final Set<IExceptionCallback> callbacks = exceptionCallbacks.get(brokerId);
+		if (callbacks != null) {
+			callbacks.remove(exceptionCallback);
+		}
+	}
+
 	public static IMessageChannel getChannel(final Object brokerId) {
 		return getInstance().getChannel(brokerId);
 	}
 
 	public static void setReceiver(final Object brokerId, final IMessageReceiver receiver) {
 		getInstance().setReceiver(brokerId, receiver);
+	}
+
+	public static void handleExceptions(final Object brokerId, final Throwable throwable) {
+		if (brokerId == null) {
+			throw new IllegalArgumentException("Parameter 'brokerId' must not be null");
+		}
+		if (throwable == null) {
+			throw new IllegalArgumentException("Parameter 'throwable' must not be null");
+		}
+		for (final IExceptionCallback exceptionCallback : getExceptionCallbacks(brokerId)) {
+			exceptionCallback.exception(throwable);
+		}
 	}
 
 	private static Map<Object, IMessageChannel> getChannels() {
@@ -86,6 +129,18 @@ public final class MessageToolkit {
 		while (iterator.hasNext()) {
 			final IMessageReceiverBroker messageReceiverBroker = iterator.next();
 			result.put(messageReceiverBroker.getBrokerId(), messageReceiverBroker);
+		}
+		return result;
+	}
+
+	private static Set<IExceptionCallback> getExceptionCallbacks(final Object brokerId) {
+		if (brokerId == null) {
+			throw new IllegalArgumentException("Parameter 'brokerId' must not be null");
+		}
+		final Set<IExceptionCallback> result = new HashSet<IExceptionCallback>();
+		final Set<IExceptionCallback> callbacks = exceptionCallbacks.get(brokerId);
+		if (callbacks != null) {
+			result.addAll(callbacks);
 		}
 		return result;
 	}
@@ -118,5 +173,6 @@ public final class MessageToolkit {
 					+ "'");
 			}
 		}
+
 	}
 }
