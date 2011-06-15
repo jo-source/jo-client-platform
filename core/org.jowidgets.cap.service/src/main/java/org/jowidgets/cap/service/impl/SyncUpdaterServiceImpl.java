@@ -45,15 +45,15 @@ import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.bean.IBeanModification;
 import org.jowidgets.cap.common.api.exception.ServiceException;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
-import org.jowidgets.cap.common.api.service.IUpdaterService;
 import org.jowidgets.cap.service.api.executor.IBeanExecutor;
 import org.jowidgets.cap.service.api.executor.ISyncExecutorService;
+import org.jowidgets.cap.service.api.updater.ISyncUpdaterService;
 
-public final class UpdaterServiceImpl<BEAN_TYPE extends IBean> implements IUpdaterService {
+public final class SyncUpdaterServiceImpl<BEAN_TYPE extends IBean> implements ISyncUpdaterService {
 
 	private final ISyncExecutorService<Collection<? extends IBeanModification>> executorService;
 
-	UpdaterServiceImpl(final ExecutorServiceBuilderImpl<BEAN_TYPE, Collection<? extends IBeanModification>> executorServiceBuilder) {
+	SyncUpdaterServiceImpl(final ExecutorServiceBuilderImpl<BEAN_TYPE, Collection<? extends IBeanModification>> executorServiceBuilder) {
 
 		final Collection<String> propertyNames = executorServiceBuilder.getPropertyNames();
 		final Map<String, Method> methods = new HashMap<String, Method>();
@@ -99,7 +99,7 @@ public final class UpdaterServiceImpl<BEAN_TYPE extends IBean> implements IUpdat
 			}
 		});
 
-		this.executorService = executorServiceBuilder.buildSyncExecuterService();
+		this.executorService = executorServiceBuilder.buildSyncService();
 	}
 
 	@Override

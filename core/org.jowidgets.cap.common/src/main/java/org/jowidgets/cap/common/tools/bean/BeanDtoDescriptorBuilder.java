@@ -26,36 +26,36 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.impl;
+package org.jowidgets.cap.common.tools.bean;
 
-import org.jowidgets.cap.common.api.service.IExecutorService;
-import org.jowidgets.cap.common.api.service.IUpdaterService;
-import org.jowidgets.cap.service.api.adapter.IAdapterFactoryProvider;
-import org.jowidgets.cap.service.api.executor.ISyncExecutorService;
-import org.jowidgets.cap.service.api.updater.ISyncUpdaterService;
-import org.jowidgets.util.IAdapterFactory;
+import org.jowidgets.cap.common.api.CapCommonToolkit;
+import org.jowidgets.cap.common.api.bean.IBean;
+import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
+import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptorBuilder;
+import org.jowidgets.cap.common.api.bean.IBeanPropertyBuilder;
 
-final class AdapterFactoryProviderImpl implements IAdapterFactoryProvider {
+public final class BeanDtoDescriptorBuilder<BEAN_TYPE extends IBean> implements IBeanDtoDescriptorBuilder<BEAN_TYPE> {
 
-	@SuppressWarnings("rawtypes")
-	private final ExecutorServiceAdapterFactory executorServiceAdapterFactory;
-	private final UpdaterServiceAdapterFactory updaterServiceAdapterFactory;
+	private final IBeanDtoDescriptorBuilder<BEAN_TYPE> builder;
 
-	@SuppressWarnings("rawtypes")
-	AdapterFactoryProviderImpl() {
-		this.executorServiceAdapterFactory = new ExecutorServiceAdapterFactory();
-		this.updaterServiceAdapterFactory = new UpdaterServiceAdapterFactory();
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public <PARAM_TYPE> IAdapterFactory<IExecutorService<PARAM_TYPE>, ISyncExecutorService<PARAM_TYPE>> executor() {
-		return executorServiceAdapterFactory;
+	public BeanDtoDescriptorBuilder(final Class<? extends BEAN_TYPE> beanType) {
+		this.builder = CapCommonToolkit.dtoDescriptorBuilder(beanType);
 	}
 
 	@Override
-	public IAdapterFactory<IUpdaterService, ISyncUpdaterService> updater() {
-		return updaterServiceAdapterFactory;
+	public IBeanPropertyBuilder propertyBuilder(final String propertyName) {
+		return builder.propertyBuilder(propertyName);
+	}
+
+	@Override
+	public IBeanDtoDescriptorBuilder<BEAN_TYPE> addProperty(final IBeanPropertyBuilder builder) {
+		this.builder.addProperty(builder);
+		return this;
+	}
+
+	@Override
+	public IBeanDtoDescriptor<BEAN_TYPE> build() {
+		return builder.build();
 	}
 
 }

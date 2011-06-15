@@ -31,6 +31,7 @@ package org.jowidgets.cap.service.impl;
 import java.util.concurrent.Executor;
 
 import org.jowidgets.cap.common.api.service.IExecutorService;
+import org.jowidgets.cap.common.api.service.IUpdaterService;
 import org.jowidgets.service.api.IServicesDecoratorProvider;
 import org.jowidgets.service.api.IServicesDecoratorProviderBuilder;
 import org.jowidgets.service.api.ServiceToolkit;
@@ -47,6 +48,7 @@ final class AsyncDecoratorProvider implements IServicesDecoratorProvider {
 		final IServicesDecoratorProviderBuilder builder = ServiceToolkit.serviceDecoratorProviderBuilder();
 
 		builder.setServiceDecorator(IExecutorService.class, new ExecutorServiceAsyncDecorator(executor));
+		builder.setServiceDecorator(IUpdaterService.class, new UpdaterServiceAsyncDecorator(executor));
 
 		this.servicesDecoratorProvider = builder.build();
 	}

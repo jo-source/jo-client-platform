@@ -26,36 +26,42 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.impl;
+package org.jowidgets.cap.common.tools.bean;
 
-import org.jowidgets.cap.common.api.service.IExecutorService;
-import org.jowidgets.cap.common.api.service.IUpdaterService;
-import org.jowidgets.cap.service.api.adapter.IAdapterFactoryProvider;
-import org.jowidgets.cap.service.api.executor.ISyncExecutorService;
-import org.jowidgets.cap.service.api.updater.ISyncUpdaterService;
-import org.jowidgets.util.IAdapterFactory;
+import org.jowidgets.cap.common.api.CapCommonToolkit;
+import org.jowidgets.cap.common.api.bean.IBeanDto;
+import org.jowidgets.cap.common.api.bean.IBeanKey;
+import org.jowidgets.cap.common.api.bean.IBeanKeyBuilder;
 
-final class AdapterFactoryProviderImpl implements IAdapterFactoryProvider {
+public final class BeanKeyBuilder implements IBeanKeyBuilder {
 
-	@SuppressWarnings("rawtypes")
-	private final ExecutorServiceAdapterFactory executorServiceAdapterFactory;
-	private final UpdaterServiceAdapterFactory updaterServiceAdapterFactory;
+	private final IBeanKeyBuilder builder;
 
-	@SuppressWarnings("rawtypes")
-	AdapterFactoryProviderImpl() {
-		this.executorServiceAdapterFactory = new ExecutorServiceAdapterFactory();
-		this.updaterServiceAdapterFactory = new UpdaterServiceAdapterFactory();
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public <PARAM_TYPE> IAdapterFactory<IExecutorService<PARAM_TYPE>, ISyncExecutorService<PARAM_TYPE>> executor() {
-		return executorServiceAdapterFactory;
+	public BeanKeyBuilder() {
+		this.builder = CapCommonToolkit.beanKeyBuilder();
 	}
 
 	@Override
-	public IAdapterFactory<IUpdaterService, ISyncUpdaterService> updater() {
-		return updaterServiceAdapterFactory;
+	public IBeanKeyBuilder setId(final Object id) {
+		builder.setId(id);
+		return this;
+	}
+
+	@Override
+	public IBeanKeyBuilder setVersion(final long version) {
+		builder.setVersion(version);
+		return this;
+	}
+
+	@Override
+	public IBeanKeyBuilder setBeanDto(final IBeanDto beanDto) {
+		builder.setBeanDto(beanDto);
+		return this;
+	}
+
+	@Override
+	public IBeanKey build() {
+		return builder.build();
 	}
 
 }

@@ -26,36 +26,18 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.tools;
+package org.jowidgets.cap.service.impl;
 
-import java.io.Serializable;
+import org.jowidgets.cap.common.api.service.IUpdaterService;
+import org.jowidgets.cap.service.api.updater.ISyncUpdaterService;
+import org.jowidgets.util.Assert;
+import org.jowidgets.util.IAdapterFactory;
 
-import org.jowidgets.cap.common.api.CapCommonToolkit;
-import org.jowidgets.cap.common.api.bean.IBeanKey;
-import org.jowidgets.cap.common.api.bean.IBeanKeyBuilder;
-
-public final class BeanKey implements IBeanKey, Serializable {
-
-	private static final long serialVersionUID = -2187638080064448186L;
-
-	private final IBeanKey key;
-
-	public BeanKey(final Object id, final long version) {
-		this(CapCommonToolkit.beanKeyBuilder().setId(id).setVersion(version));
-	}
-
-	private BeanKey(final IBeanKeyBuilder builder) {
-		this.key = builder.build();
-	}
+final class UpdaterServiceAdapterFactory implements IAdapterFactory<IUpdaterService, ISyncUpdaterService> {
 
 	@Override
-	public Object getId() {
-		return key.getId();
+	public IUpdaterService createAdapter(final ISyncUpdaterService adaptee) {
+		Assert.paramNotNull(adaptee, "adaptee");
+		return new UpdaterServiceAdapter(adaptee);
 	}
-
-	@Override
-	public long getVersion() {
-		return key.getVersion();
-	}
-
 }

@@ -35,8 +35,12 @@ import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanModification;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.service.IUpdaterService;
+import org.jowidgets.cap.service.api.CapServiceToolkit;
+import org.jowidgets.cap.service.api.adapter.IAdapterFactoryProvider;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
+import org.jowidgets.cap.service.api.updater.ISyncUpdaterService;
 import org.jowidgets.cap.service.api.updater.IUpdaterServiceBuilder;
+import org.jowidgets.util.IAdapterFactory;
 
 final class UpdaterServiceBuilderImpl<BEAN_TYPE extends IBean> implements IUpdaterServiceBuilder<BEAN_TYPE> {
 
@@ -72,7 +76,14 @@ final class UpdaterServiceBuilderImpl<BEAN_TYPE extends IBean> implements IUpdat
 	}
 
 	@Override
+	public ISyncUpdaterService buildSyncService() {
+		return new SyncUpdaterServiceImpl<BEAN_TYPE>(dataExecutorServiceBuilder);
+	}
+
+	@Override
 	public IUpdaterService build() {
-		return new UpdaterServiceImpl<BEAN_TYPE>(dataExecutorServiceBuilder);
+		final IAdapterFactoryProvider afp = CapServiceToolkit.adapterFactoryProvider();
+		final IAdapterFactory<IUpdaterService, ISyncUpdaterService> adapterFactory = afp.updater();
+		return adapterFactory.createAdapter(buildSyncService());
 	}
 }

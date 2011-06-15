@@ -29,11 +29,15 @@
 package org.jowidgets.cap.service.api.adapter;
 
 import org.jowidgets.cap.common.api.service.IExecutorService;
+import org.jowidgets.cap.common.api.service.IUpdaterService;
 import org.jowidgets.cap.service.api.executor.ISyncExecutorService;
+import org.jowidgets.cap.service.api.updater.ISyncUpdaterService;
 import org.jowidgets.util.IAdapterFactory;
 
 public interface IAdapterFactoryProvider {
 
-	<PARAM_TYPE> IAdapterFactory<IExecutorService<PARAM_TYPE>, ISyncExecutorService<PARAM_TYPE>> executorAdapterFactory();
+	<PARAM_TYPE> IAdapterFactory<IExecutorService<PARAM_TYPE>, ISyncExecutorService<PARAM_TYPE>> executor();
+
+	IAdapterFactory<IUpdaterService, ISyncUpdaterService> updater();
 
 }

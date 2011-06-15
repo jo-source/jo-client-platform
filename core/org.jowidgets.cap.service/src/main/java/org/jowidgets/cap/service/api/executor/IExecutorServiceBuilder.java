@@ -54,7 +54,7 @@ public interface IExecutorServiceBuilder<BEAN_TYPE extends IBean, PARAM_TYPE> {
 
 	IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> setDelayedExecutionCallback(boolean delayedCallback);
 
-	ISyncExecutorService<PARAM_TYPE> buildSyncExecuterService();
+	ISyncExecutorService<PARAM_TYPE> buildSyncService();
 
 	IExecutorService<PARAM_TYPE> build();
 

@@ -26,30 +26,51 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.tools;
+package org.jowidgets.cap.service.impl;
 
-import org.jowidgets.cap.common.api.CapCommonToolkit;
-import org.jowidgets.cap.common.api.bean.IBeanData;
-import org.jowidgets.cap.common.api.bean.IBeanDataBuilder;
+import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.Executor;
 
-public final class BeanDataBuilder implements IBeanDataBuilder {
+import org.jowidgets.cap.common.api.bean.IBeanDto;
+import org.jowidgets.cap.common.api.bean.IBeanModification;
+import org.jowidgets.cap.common.api.execution.IExecutionCallback;
+import org.jowidgets.cap.common.api.execution.IResultCallback;
+import org.jowidgets.cap.common.api.service.IUpdaterService;
+import org.jowidgets.util.Assert;
+import org.jowidgets.util.IDecorator;
 
-	private final IBeanDataBuilder builder;
+final class UpdaterServiceAsyncDecorator implements IDecorator<IUpdaterService> {
 
-	public BeanDataBuilder() {
-		super();
-		this.builder = CapCommonToolkit.beanDataBuilder();
+	private final Executor executor;
+
+	UpdaterServiceAsyncDecorator(final Executor executor) {
+		this.executor = executor;
 	}
 
 	@Override
-	public IBeanDataBuilder setProperty(final String propertyName, final Object propertyValue) {
-		builder.setProperty(propertyName, propertyValue);
-		return this;
-	}
+	public IUpdaterService decorate(final IUpdaterService original) {
+		Assert.paramNotNull(original, "original");
+		return new IUpdaterService() {
 
-	@Override
-	public IBeanData build() {
-		return builder.build();
-	}
+			@Override
+			public void update(
+				final IResultCallback<List<IBeanDto>> result,
+				final Collection<? extends IBeanModification> modifications,
+				final IExecutionCallback executionCallback) {
+				executor.execute(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							original.update(result, modifications, executionCallback);
+						}
+						catch (final Exception exception) {
+							result.exception(exception);
+						}
+					}
+				});
 
+			}
+		};
+	}
 }
