@@ -87,7 +87,7 @@ public class InvocationServerServiceRegistryImpl implements IInvocationServerSer
 
 	void onResponse(final ResponseMessage message) {
 		if (responseService != null) {
-			responseService.response(message.getInvocationId(), message.getRequestId(), message.getResponse());
+			responseService.response(message.getRequestId(), message.getResponse());
 		}
 	}
 

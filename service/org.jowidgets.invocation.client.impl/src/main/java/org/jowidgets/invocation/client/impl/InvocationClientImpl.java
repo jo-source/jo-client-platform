@@ -42,6 +42,7 @@ import org.jowidgets.invocation.common.impl.ResponseMessage;
 import org.jowidgets.message.api.IMessageChannel;
 import org.jowidgets.message.api.MessageToolkit;
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.Tuple;
 
 class InvocationClientImpl implements IInvocationClient {
 
@@ -49,7 +50,7 @@ class InvocationClientImpl implements IInvocationClient {
 	private final Map<Object, TimeStampedObject<Object>> invokedInvocations;
 	private final Map<Object, TimeStampedObject<Object>> canceledInvocations;
 	private final Map<Object, TimeStampedObject<IMessageChannel>> acknowledgedInvocations;
-	private final Map<Object, TimeStampedObject<IMessageChannel>> interimRequests;
+	private final Map<Object, TimeStampedObject<Tuple<Object, IMessageChannel>>> interimRequests;
 
 	private final InvocationClientServiceRegistryImpl invocationClientServiceRegistry;
 	private final IMessageChannel messageChannel;
@@ -58,7 +59,7 @@ class InvocationClientImpl implements IInvocationClient {
 		this.invokedInvocations = new ConcurrentHashMap<Object, TimeStampedObject<Object>>();
 		this.canceledInvocations = new ConcurrentHashMap<Object, TimeStampedObject<Object>>();
 		this.acknowledgedInvocations = new ConcurrentHashMap<Object, TimeStampedObject<IMessageChannel>>();
-		this.interimRequests = new ConcurrentHashMap<Object, TimeStampedObject<IMessageChannel>>();
+		this.interimRequests = new ConcurrentHashMap<Object, TimeStampedObject<Tuple<Object, IMessageChannel>>>();
 
 		this.messageChannel = MessageToolkit.getChannel(MessageBrokerId.INVOCATION_IMPL_BROKER_ID);
 		this.invocationClientServiceRegistry = invocationClientServiceRegistry;
@@ -99,18 +100,16 @@ class InvocationClientImpl implements IInvocationClient {
 	public IResponseService getResponseService() {
 		return new IResponseService() {
 			@Override
-			public void response(final Object invocationId, final Object requestId, final Object response) {
-				Assert.paramNotNull(invocationId, "invocationId");
+			public void response(final Object requestId, final Object response) {
 				Assert.paramNotNull(requestId, "requestId");
-				final TimeStampedObject<IMessageChannel> resonseChannel = interimRequests.remove(invocationId);
-				if (resonseChannel != null) {
-					final ResponseMessage message = new ResponseMessage(invocationId, requestId, response);
-					resonseChannel.getObject().send(message, new ExceptionCallback(invocationClientServiceRegistry, invocationId));
+				final TimeStampedObject<Tuple<Object, IMessageChannel>> request = interimRequests.remove(requestId);
+				if (request != null) {
+					final Tuple<Object, IMessageChannel> tuple = request.getObject();
+					final ResponseMessage message = new ResponseMessage(requestId, response);
+					tuple.getSecond().send(message, new ExceptionCallback(invocationClientServiceRegistry, tuple.getFirst()));
 				}
 				else {
-					invocationClientServiceRegistry.onException(invocationId, new IllegalStateException("The request id '"
-						+ requestId
-						+ "' is not known"));
+					throw new IllegalStateException("The request id '" + requestId + "' is not known");
 				}
 			}
 		};
@@ -126,8 +125,9 @@ class InvocationClientImpl implements IInvocationClient {
 		}
 	}
 
-	void registerInterimRequest(final Object requestId, final IMessageChannel replyChannel) {
-		interimRequests.put(requestId, new TimeStampedObject<IMessageChannel>(replyChannel));
+	void registerInterimRequest(final Object invocationId, final Object requestId, final IMessageChannel replyChannel) {
+		final Tuple<Object, IMessageChannel> tuple = new Tuple<Object, IMessageChannel>(invocationId, replyChannel);
+		interimRequests.put(requestId, new TimeStampedObject<Tuple<Object, IMessageChannel>>(tuple));
 	}
 
 }
