@@ -28,6 +28,7 @@
 
 package org.jowidgets.message.api;
 
+
 public interface IMessageToolkit {
 
 	IMessageChannel getChannel(Object brokerId);
