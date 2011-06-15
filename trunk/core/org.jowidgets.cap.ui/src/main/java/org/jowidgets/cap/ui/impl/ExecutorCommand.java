@@ -268,21 +268,14 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 				bean.setExecutionTask(executionTask);
 			}
 			listModel.fireBeansChanged();
-			final Thread thread = new Thread(new ExecutorRunnable(beans, executionContext, executionTask));
-			thread.setDaemon(true);
-			thread.start();
+			new Execution(beans, executionContext, executionTask).execute();
 		}
 		else {
 			for (final IBeanProxy bean : beans) {
 				final IExecutionTask executionTask = createExecutionTask();
 				bean.setExecutionTask(executionTask);
-				final Thread thread = new Thread(new ExecutorRunnable(
-					Collections.singletonList(bean),
-					executionContext,
-					executionTask));
-				thread.setDaemon(true);
-				thread.start();
 				listModel.fireBeansChanged();
+				new Execution(Collections.singletonList(bean), executionContext, executionTask).execute();
 			}
 		}
 	}
@@ -363,17 +356,14 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 		return result;
 	}
 
-	private class ExecutorRunnable implements Runnable {
+	private class Execution {
 
 		private final IExecutionContext executionContext;
 		private final IUiThreadAccess uiThreadAccess;
 		private final List<IBeanProxy> beans;
 		private final IExecutionTask executionTask;
 
-		ExecutorRunnable(
-			final List<IBeanProxy> beans,
-			final IExecutionContext executionContext,
-			final IExecutionTask executionTask) {
+		Execution(final List<IBeanProxy> beans, final IExecutionContext executionContext, final IExecutionTask executionTask) {
 			super();
 			this.uiThreadAccess = Toolkit.getUiThreadAccess();
 
@@ -382,13 +372,12 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 			this.executionTask = executionTask;
 		}
 
-		@Override
-		public void run() {
+		public void execute() {
 			Object parameter = defaultParameter;
 			for (final Object parameterProvider : parameterProviders) {
 				final IMaybe paramResult = getParameter(parameterProvider, parameter, beans);
 				if (paramResult.isNothing() || executionTask.isCanceled()) {
-					invokeAfterExecutionLater(null);
+					afterExecution(null);
 					return;
 				}
 				else {
@@ -398,24 +387,20 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 
 			final Object executionParameter = parameter;
 			if (executionTask.isCanceled()) {
-				invokeAfterExecutionLater(null);
+				afterExecution(null);
 				return;
 			}
 			if (executor instanceof IExecutor) {
-				uiThreadAccess.invokeLater(new Runnable() {
-					@Override
-					public void run() {
-						final IExecutor theExecutor = (IExecutor) executor;
-						try {
-							theExecutor.execute(executionContext, beans, executionParameter);
-							CapServiceToolkit.checkCanceled(executionTask);
-						}
-						catch (final Exception exception) {
-							onExecption(exception);
-						}
-						afterExecution(null);
-					}
-				});
+				final IExecutor theExecutor = (IExecutor) executor;
+				try {
+					theExecutor.execute(executionContext, beans, executionParameter);
+					CapServiceToolkit.checkCanceled(executionTask);
+				}
+				catch (final Exception exception) {
+					onExecption(exception);
+				}
+				afterExecution(null);
+
 			}
 			else if (executor instanceof IExecutorService) {
 				final IExecutorService executorService = (IExecutorService) executor;
@@ -440,31 +425,20 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 					}
 				};
 				executorService.execute(resultCallback, keys, executionParameter, executionTask);
-
 			}
 		}
 
 		private IMaybe getParameter(final Object parameterProvider, final Object defaultParameter, final List<IBeanProxy> beans) {
 			if (parameterProvider instanceof IParameterProvider) {
 				final IParameterProvider theParameterProvider = (IParameterProvider) parameterProvider;
+				final ValueHolder<IMaybe> result = new ValueHolder<IMaybe>(Nothing.getInstance());
 				try {
-					final ValueHolder<IMaybe> result = new ValueHolder<IMaybe>(Nothing.getInstance());
-					uiThreadAccess.invokeAndWait(new Runnable() {
-						@Override
-						public void run() {
-							try {
-								result.set(theParameterProvider.getParameter(executionContext, beans, defaultParameter));
-							}
-							catch (final Exception e) {
-								onExecption(e);
-							}
-						}
-					});
-					return result.get();
+					result.set(theParameterProvider.getParameter(executionContext, beans, defaultParameter));
 				}
-				catch (final InterruptedException e) {
-					invokeOnExceptionLater(e);
+				catch (final Exception e) {
+					onExecption(e);
 				}
+				return result.get();
 			}
 			//TODO MG else if IParameterProviderService 
 			return new Some(defaultParameter);
