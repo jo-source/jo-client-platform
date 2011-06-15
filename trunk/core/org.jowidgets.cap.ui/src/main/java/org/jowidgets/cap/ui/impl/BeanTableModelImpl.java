@@ -58,6 +58,7 @@ import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.common.api.service.IRefreshService;
 import org.jowidgets.cap.common.api.service.IUpdaterService;
 import org.jowidgets.cap.common.api.sort.ISort;
+import org.jowidgets.cap.common.tools.execution.SyncResultCallback;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
@@ -200,7 +201,13 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 			modifications.addAll(bean.getModifications());
 		}
 
-		final List<IBeanDto> updateResult = updaterService.update(modifications, CapUiToolkit.executionTaskFactory().create());
+		final SyncResultCallback<List<IBeanDto>> resultCallback = new SyncResultCallback<List<IBeanDto>>();
+
+		updaterService.update(resultCallback, modifications, CapUiToolkit.executionTaskFactory().create());
+
+		//TODO make this invocation asynchronous
+		final List<IBeanDto> updateResult = resultCallback.getResultSynchronious();
+
 		final Map<Object, IBeanDto> updateMap = new HashMap<Object, IBeanDto>();
 		for (final IBeanDto beanDto : updateResult) {
 			updateMap.put(beanDto.getId(), beanDto);

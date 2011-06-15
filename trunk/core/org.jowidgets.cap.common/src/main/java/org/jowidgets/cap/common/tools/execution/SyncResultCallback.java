@@ -26,36 +26,59 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.impl;
+package org.jowidgets.cap.common.tools.execution;
 
-import org.jowidgets.cap.common.api.service.IExecutorService;
-import org.jowidgets.cap.common.api.service.IUpdaterService;
-import org.jowidgets.cap.service.api.adapter.IAdapterFactoryProvider;
-import org.jowidgets.cap.service.api.executor.ISyncExecutorService;
-import org.jowidgets.cap.service.api.updater.ISyncUpdaterService;
-import org.jowidgets.util.IAdapterFactory;
+import org.jowidgets.cap.common.api.execution.IResultCallback;
 
-final class AdapterFactoryProviderImpl implements IAdapterFactoryProvider {
+public final class SyncResultCallback<RESULT_TYPE> implements IResultCallback<RESULT_TYPE> {
 
-	@SuppressWarnings("rawtypes")
-	private final ExecutorServiceAdapterFactory executorServiceAdapterFactory;
-	private final UpdaterServiceAdapterFactory updaterServiceAdapterFactory;
+	private RESULT_TYPE result;
+	private Throwable exception;
+	private boolean timeout;
 
-	@SuppressWarnings("rawtypes")
-	AdapterFactoryProviderImpl() {
-		this.executorServiceAdapterFactory = new ExecutorServiceAdapterFactory();
-		this.updaterServiceAdapterFactory = new UpdaterServiceAdapterFactory();
-	}
+	private Thread currentThread;
 
-	@SuppressWarnings("unchecked")
+	public SyncResultCallback() {}
+
 	@Override
-	public <PARAM_TYPE> IAdapterFactory<IExecutorService<PARAM_TYPE>, ISyncExecutorService<PARAM_TYPE>> executor() {
-		return executorServiceAdapterFactory;
+	public void finished(final RESULT_TYPE result) {
+		this.result = result;
+		unblock();
 	}
 
 	@Override
-	public IAdapterFactory<IUpdaterService, ISyncUpdaterService> updater() {
-		return updaterServiceAdapterFactory;
+	public void exception(final Throwable exception) {
+		this.exception = exception;
+		unblock();
+	}
+
+	@Override
+	public void timeout() {
+		this.timeout = true;
+		unblock();
+	}
+
+	public RESULT_TYPE getResultSynchronious() {
+		this.currentThread = Thread.currentThread();
+		try {
+			Thread.sleep(100000000);
+		}
+		catch (final InterruptedException e) {
+
+		}
+		if (exception != null) {
+			throw new RuntimeException(exception);
+		}
+		if (timeout) {
+			throw new RuntimeException("Timeout while waiting on result");
+		}
+		return result;
+	}
+
+	private void unblock() {
+		if (currentThread != null) {
+			currentThread.interrupt();
+		}
 	}
 
 }

@@ -28,34 +28,37 @@
 
 package org.jowidgets.cap.service.impl;
 
-import org.jowidgets.cap.common.api.service.IExecutorService;
+import java.util.Collection;
+import java.util.List;
+
+import org.jowidgets.cap.common.api.bean.IBeanDto;
+import org.jowidgets.cap.common.api.bean.IBeanModification;
+import org.jowidgets.cap.common.api.execution.IExecutionCallback;
+import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.service.IUpdaterService;
-import org.jowidgets.cap.service.api.adapter.IAdapterFactoryProvider;
-import org.jowidgets.cap.service.api.executor.ISyncExecutorService;
 import org.jowidgets.cap.service.api.updater.ISyncUpdaterService;
-import org.jowidgets.util.IAdapterFactory;
 
-final class AdapterFactoryProviderImpl implements IAdapterFactoryProvider {
+final class UpdaterServiceAdapter implements IUpdaterService {
 
-	@SuppressWarnings("rawtypes")
-	private final ExecutorServiceAdapterFactory executorServiceAdapterFactory;
-	private final UpdaterServiceAdapterFactory updaterServiceAdapterFactory;
+	private final ISyncUpdaterService adaptee;
 
-	@SuppressWarnings("rawtypes")
-	AdapterFactoryProviderImpl() {
-		this.executorServiceAdapterFactory = new ExecutorServiceAdapterFactory();
-		this.updaterServiceAdapterFactory = new UpdaterServiceAdapterFactory();
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public <PARAM_TYPE> IAdapterFactory<IExecutorService<PARAM_TYPE>, ISyncExecutorService<PARAM_TYPE>> executor() {
-		return executorServiceAdapterFactory;
+	UpdaterServiceAdapter(final ISyncUpdaterService adaptee) {
+		this.adaptee = adaptee;
 	}
 
 	@Override
-	public IAdapterFactory<IUpdaterService, ISyncUpdaterService> updater() {
-		return updaterServiceAdapterFactory;
+	public void update(
+		final IResultCallback<List<IBeanDto>> resultCallback,
+		final Collection<? extends IBeanModification> modifications,
+		final IExecutionCallback executionCallback) {
+		try {
+			final List<IBeanDto> result = adaptee.update(modifications, executionCallback);
+			resultCallback.finished(result);
+		}
+		catch (final Exception exception) {
+			resultCallback.exception(exception);
+		}
+
 	}
 
 }

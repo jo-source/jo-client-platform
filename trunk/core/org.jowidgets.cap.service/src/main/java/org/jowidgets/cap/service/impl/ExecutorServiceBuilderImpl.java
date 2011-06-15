@@ -140,12 +140,12 @@ final class ExecutorServiceBuilderImpl<BEAN_TYPE extends IBean, PARAM_TYPE> impl
 	@Override
 	public IExecutorService<PARAM_TYPE> build() {
 		final IAdapterFactoryProvider afp = CapServiceToolkit.adapterFactoryProvider();
-		final IAdapterFactory<IExecutorService<PARAM_TYPE>, ISyncExecutorService<PARAM_TYPE>> executorAdapterFactory = afp.executorAdapterFactory();
-		return executorAdapterFactory.createAdapter(buildSyncExecuterService());
+		final IAdapterFactory<IExecutorService<PARAM_TYPE>, ISyncExecutorService<PARAM_TYPE>> executorAdapterFactory = afp.executor();
+		return executorAdapterFactory.createAdapter(buildSyncService());
 	}
 
 	@Override
-	public ISyncExecutorService<PARAM_TYPE> buildSyncExecuterService() {
+	public ISyncExecutorService<PARAM_TYPE> buildSyncService() {
 		if (executor == null) {
 			executor = new IBeanExecutor<BEAN_TYPE, Object>() {
 				@Override

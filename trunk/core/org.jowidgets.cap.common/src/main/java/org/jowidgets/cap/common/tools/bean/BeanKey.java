@@ -26,54 +26,36 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.tools;
+package org.jowidgets.cap.common.tools.bean;
+
+import java.io.Serializable;
 
 import org.jowidgets.cap.common.api.CapCommonToolkit;
-import org.jowidgets.cap.common.api.bean.IBeanDto;
-import org.jowidgets.cap.common.api.bean.IBeanModification;
-import org.jowidgets.cap.common.api.bean.IBeanModificationBuilder;
+import org.jowidgets.cap.common.api.bean.IBeanKey;
+import org.jowidgets.cap.common.api.bean.IBeanKeyBuilder;
 
-public final class BeanModificationBuilder implements IBeanModificationBuilder {
+public final class BeanKey implements IBeanKey, Serializable {
 
-	private final IBeanModificationBuilder builder;
+	private static final long serialVersionUID = -2187638080064448186L;
 
-	private BeanModificationBuilder() {
-		this.builder = CapCommonToolkit.beanModificationBuilder();
+	private final IBeanKey key;
+
+	public BeanKey(final Object id, final long version) {
+		this(CapCommonToolkit.beanKeyBuilder().setId(id).setVersion(version));
+	}
+
+	private BeanKey(final IBeanKeyBuilder builder) {
+		this.key = builder.build();
 	}
 
 	@Override
-	public IBeanModificationBuilder setId(final Object id) {
-		builder.setId(id);
-		return this;
+	public Object getId() {
+		return key.getId();
 	}
 
 	@Override
-	public IBeanModificationBuilder setVersion(final long version) {
-		builder.setVersion(version);
-		return this;
-	}
-
-	@Override
-	public IBeanModificationBuilder setBeanDto(final IBeanDto beanDto) {
-		builder.setBeanDto(beanDto);
-		return this;
-	}
-
-	@Override
-	public IBeanModificationBuilder setPropertyName(final String propertyName) {
-		builder.setPropertyName(propertyName);
-		return this;
-	}
-
-	@Override
-	public IBeanModificationBuilder setNewValue(final Object newValue) {
-		builder.setNewValue(newValue);
-		return this;
-	}
-
-	@Override
-	public IBeanModification build() {
-		return builder.build();
+	public long getVersion() {
+		return key.getVersion();
 	}
 
 }

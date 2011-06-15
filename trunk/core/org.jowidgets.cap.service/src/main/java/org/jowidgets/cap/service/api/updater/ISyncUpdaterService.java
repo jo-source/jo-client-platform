@@ -26,42 +26,18 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.tools;
+package org.jowidgets.cap.service.api.updater;
 
-import org.jowidgets.cap.common.api.CapCommonToolkit;
+import java.util.Collection;
+import java.util.List;
+
 import org.jowidgets.cap.common.api.bean.IBeanDto;
-import org.jowidgets.cap.common.api.bean.IBeanKey;
-import org.jowidgets.cap.common.api.bean.IBeanKeyBuilder;
+import org.jowidgets.cap.common.api.bean.IBeanModification;
+import org.jowidgets.cap.common.api.execution.IExecutionCallback;
+import org.jowidgets.service.api.Callback;
 
-public final class BeanKeyBuilder implements IBeanKeyBuilder {
+public interface ISyncUpdaterService {
 
-	private final IBeanKeyBuilder builder;
-
-	public BeanKeyBuilder() {
-		this.builder = CapCommonToolkit.beanKeyBuilder();
-	}
-
-	@Override
-	public IBeanKeyBuilder setId(final Object id) {
-		builder.setId(id);
-		return this;
-	}
-
-	@Override
-	public IBeanKeyBuilder setVersion(final long version) {
-		builder.setVersion(version);
-		return this;
-	}
-
-	@Override
-	public IBeanKeyBuilder setBeanDto(final IBeanDto beanDto) {
-		builder.setBeanDto(beanDto);
-		return this;
-	}
-
-	@Override
-	public IBeanKey build() {
-		return builder.build();
-	}
+	List<IBeanDto> update(Collection<? extends IBeanModification> modifications, @Callback IExecutionCallback executionCallback);
 
 }

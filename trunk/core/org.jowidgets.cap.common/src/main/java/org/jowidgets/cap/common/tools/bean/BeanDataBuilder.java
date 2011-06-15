@@ -26,35 +26,29 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.tools;
+package org.jowidgets.cap.common.tools.bean;
 
 import org.jowidgets.cap.common.api.CapCommonToolkit;
-import org.jowidgets.cap.common.api.bean.IBean;
-import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
-import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptorBuilder;
-import org.jowidgets.cap.common.api.bean.IBeanPropertyBuilder;
+import org.jowidgets.cap.common.api.bean.IBeanData;
+import org.jowidgets.cap.common.api.bean.IBeanDataBuilder;
 
-public final class BeanDtoDescriptorBuilder<BEAN_TYPE extends IBean> implements IBeanDtoDescriptorBuilder<BEAN_TYPE> {
+public final class BeanDataBuilder implements IBeanDataBuilder {
 
-	private final IBeanDtoDescriptorBuilder<BEAN_TYPE> builder;
+	private final IBeanDataBuilder builder;
 
-	public BeanDtoDescriptorBuilder(final Class<? extends BEAN_TYPE> beanType) {
-		this.builder = CapCommonToolkit.dtoDescriptorBuilder(beanType);
+	public BeanDataBuilder() {
+		super();
+		this.builder = CapCommonToolkit.beanDataBuilder();
 	}
 
 	@Override
-	public IBeanPropertyBuilder propertyBuilder(final String propertyName) {
-		return builder.propertyBuilder(propertyName);
-	}
-
-	@Override
-	public IBeanDtoDescriptorBuilder<BEAN_TYPE> addProperty(final IBeanPropertyBuilder builder) {
-		this.builder.addProperty(builder);
+	public IBeanDataBuilder setProperty(final String propertyName, final Object propertyValue) {
+		builder.setProperty(propertyName, propertyValue);
 		return this;
 	}
 
 	@Override
-	public IBeanDtoDescriptor<BEAN_TYPE> build() {
+	public IBeanData build() {
 		return builder.build();
 	}
 
