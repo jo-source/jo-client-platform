@@ -45,7 +45,7 @@ final class ResponseServiceImpl implements IResponseService {
 	}
 
 	@Override
-	public void response(final Object invocationId, final Object requestId, final Object response) {
+	public void response(final Object requestId, final Object response) {
 		Assert.paramNotNull(requestId, "requestId");
 		final IInterimResponseCallback<Object> responseCallback = interimResponseCallback.get(requestId);
 		if (responseCallback != null) {

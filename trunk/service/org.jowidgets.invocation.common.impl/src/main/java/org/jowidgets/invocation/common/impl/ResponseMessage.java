@@ -34,19 +34,13 @@ public final class ResponseMessage implements Serializable {
 
 	private static final long serialVersionUID = -4205299138579625114L;
 
-	private final Object invocationId;
 	private final Object requestId;
 	private final Object response;
 
-	public ResponseMessage(final Object invocationId, final Object requestId, final Object response) {
+	public ResponseMessage(final Object requestId, final Object response) {
 		super();
-		this.invocationId = invocationId;
 		this.requestId = requestId;
 		this.response = response;
-	}
-
-	public Object getInvocationId() {
-		return invocationId;
 	}
 
 	public Object getRequestId() {

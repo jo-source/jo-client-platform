@@ -64,8 +64,12 @@ public class InvocationCallbackMessageReceiver implements IMessageReceiver {
 			invocationClientServiceRegistry.onInterimResponse((InterimResponseMessage) message);
 		}
 		else if (message instanceof InterimRequestMessage) {
+			final InterimRequestMessage interimRequestMessage = (InterimRequestMessage) message;
+			invocationClient.registerInterimRequest(
+					interimRequestMessage.getInvocationId(),
+					interimRequestMessage.getRequestId(),
+					replyChannel);
 			invocationClientServiceRegistry.onInterimRequest((InterimRequestMessage) message);
 		}
 	}
-
 }
