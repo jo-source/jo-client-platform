@@ -28,12 +28,23 @@
 
 package org.jowidgets.cap.ui.api.bean;
 
-public interface IBeanState {
+import org.jowidgets.common.image.IImageConstant;
 
-	BeanStateType getType();
+public interface IBeanMessageFix {
 
-	String getUserMessage();
+	Object getType();
 
-	Throwable getException();
+	String getLabel();
+
+	String getDescription();
+
+	IImageConstant getIcon();
+
+	/**
+	 * Gets the execution. The execution will be executed in the event dispatcher thread.
+	 * 
+	 * @return The execution of the fix, must no be null.
+	 */
+	Runnable getExecution();
 
 }

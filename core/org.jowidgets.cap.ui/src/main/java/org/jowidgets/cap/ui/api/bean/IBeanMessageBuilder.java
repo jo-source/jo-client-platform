@@ -28,8 +28,18 @@
 
 package org.jowidgets.cap.ui.api.bean;
 
-public interface IBeanExceptionConverter {
+public interface IBeanMessageBuilder {
 
-	IBeanState convert(Throwable throwable);
+	IBeanMessageBuilder setMessage(String message);
+
+	IBeanMessageBuilder setDescription(String description);
+
+	IBeanMessageBuilder setException(Throwable exception);
+
+	IBeanMessageBuilder addFix(IBeanMessageFix fix);
+
+	IBeanMessageBuilder setFixMandatory(boolean mandatory);
+
+	IBeanMessage build();
 
 }

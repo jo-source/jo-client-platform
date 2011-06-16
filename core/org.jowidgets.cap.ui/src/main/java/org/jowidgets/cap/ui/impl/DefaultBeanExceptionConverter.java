@@ -28,59 +28,72 @@
 
 package org.jowidgets.cap.ui.impl;
 
+import java.util.List;
+
+import org.jowidgets.cap.common.api.bean.IBeanKey;
+import org.jowidgets.cap.common.api.exception.DeletedBeanException;
+import org.jowidgets.cap.common.api.exception.ExecutableCheckException;
 import org.jowidgets.cap.common.api.exception.ServiceException;
-import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
-import org.jowidgets.cap.ui.api.bean.IBeanState;
-import org.jowidgets.cap.ui.api.bean.BeanStateType;
+import org.jowidgets.cap.common.api.exception.StaleBeanException;
+import org.jowidgets.cap.ui.api.bean.BeanMessageType;
+import org.jowidgets.cap.ui.api.bean.IBeanExecptionConverter;
+import org.jowidgets.cap.ui.api.bean.IBeanMessage;
+import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 
 //TODO MG implement better converter
-final class DefaultBeanExceptionConverter implements IBeanExceptionConverter {
+final class DefaultBeanExceptionConverter implements IBeanExecptionConverter {
 
 	@Override
-	public IBeanState convert(final Throwable throwable) {
+	public IBeanMessage convert(
+		final List<IBeanProxy<?>> processedBeans,
+		final IBeanProxy<?> destinationBean,
+		final Throwable throwable) {
 		//CHECKSTYLE:OFF
 		throwable.printStackTrace();
 		//CHECKSTYLE:ON
 		if (throwable instanceof ServiceException) {
-			return new IBeanState() {
-
-				@Override
-				public BeanStateType getType() {
-					return BeanStateType.EXCEPTION;
+			final ServiceException serviceException = ((ServiceException) throwable);
+			final IBeanKey exceptionBean = serviceException.getBeanKey();
+			String message = serviceException.getUserMessage();
+			if (serviceException instanceof ExecutableCheckException) {
+				if (message == null) {
+					if (destinationBean.getId().equals(exceptionBean.getId())) {
+						message = "Executable check failed!";
+					}
+					else {
+						message = "Executable check of the bean '" + serviceException.getBeanKey().getId() + "' failed!";
+					}
 				}
-
-				@Override
-				public String getUserMessage() {
-					return ((ServiceException) throwable).getUserMessage();
+				return new BeanMessage(BeanMessageType.WARNING, message, throwable);
+			}
+			else if (serviceException instanceof StaleBeanException) {
+				if (message == null) {
+					if (destinationBean.getId().equals(exceptionBean.getId())) {
+						message = "Stale data!";
+					}
+					else {
+						message = "Stale data (id= '" + serviceException.getBeanKey().getId() + "')!";
+					}
 				}
-
-				@Override
-				public Throwable getException() {
-					return throwable;
+				return new BeanMessage(BeanMessageType.ERROR, message, throwable);
+			}
+			else if (serviceException instanceof DeletedBeanException) {
+				if (message == null) {
+					if (destinationBean.getId().equals(exceptionBean.getId())) {
+						message = "Deleted data!";
+					}
+					else {
+						message = "Deleted data (id= '" + serviceException.getBeanKey().getId() + "')!";
+					}
 				}
-
-			};
+				return new BeanMessage(BeanMessageType.ERROR, message, throwable);
+			}
+			else {
+				return new BeanMessage(BeanMessageType.ERROR, "Undefined runtime exception!", throwable);
+			}
 		}
 		else {
-			return new IBeanState() {
-
-				@Override
-				public BeanStateType getType() {
-					return BeanStateType.ERROR;
-				}
-
-				@Override
-				public String getUserMessage() {
-					return "An error has been occurred";
-				}
-
-				@Override
-				public Throwable getException() {
-					return throwable;
-				}
-
-			};
+			return new BeanMessage(BeanMessageType.ERROR, "Undefined runtime exception!", throwable);
 		}
 	}
-
 }

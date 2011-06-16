@@ -28,49 +28,20 @@
 
 package org.jowidgets.cap.ui.api.bean;
 
-import java.util.Collection;
-import java.util.List;
+import org.jowidgets.common.image.IImageConstant;
 
-import org.jowidgets.cap.common.api.bean.IBeanDto;
-import org.jowidgets.cap.common.api.bean.IBeanModification;
-import org.jowidgets.cap.ui.api.execution.IExecutionTask;
+public interface IBeanMessageFixBuilder {
 
-public interface IBeanProxy<BEAN_TYPE> extends
-		IBeanDto,
-		IPropertyChangeObservable,
-		IBeanModificationStateObservable<BEAN_TYPE>,
-		IBeanProcessStateObservable<BEAN_TYPE> {
+	IBeanMessageFixBuilder setType(Object type);
 
-	String META_PROPERTY_PROGRESS = IBeanProxy.class.getName() + "_META_PROPERTY_PROGRESS";
-	String META_PROPERTY_MESSAGES = IBeanProxy.class.getName() + "_META_PROPERTY_MESSAGES";
+	IBeanMessageFixBuilder setLabel(String label);
 
-	void setValue(String propertyName, Object value);
+	IBeanMessageFixBuilder setDescription(String decription);
 
-	void update(IBeanDto beanDto);
+	IBeanMessageFixBuilder setIcon(IImageConstant icon);
 
-	Collection<IBeanModification> getModifications();
+	IBeanMessageFixBuilder setExecution(Runnable execution);
 
-	boolean hasModifications();
+	IBeanMessageFix build();
 
-	void undoModifications();
-
-	void redoModifications();
-
-	IExecutionTask getExecutionTask();
-
-	boolean hasExecution();
-
-	void setExecutionTask(IExecutionTask executionTask);
-
-	void addMessage(IBeanMessage state);
-
-	List<IBeanMessage> getMessages();
-
-	IBeanMessage getFirstWorstMessage();
-
-	void clearMessages();
-
-	void dispose();
-
-	BEAN_TYPE getBean();
 }

@@ -28,12 +28,19 @@
 
 package org.jowidgets.cap.ui.api.bean;
 
-public enum BeanStateType {
+import org.jowidgets.util.Assert;
 
-	OK,
+public enum BeanMessageType {
+
 	INFO,
 	WARNING,
-	EXCEPTION,
 	ERROR;
 
+	public boolean equalOrWorse(final BeanMessageType beanMessageType) {
+		Assert.paramNotNull(beanMessageType, "beanMessageType");
+		if (this == beanMessageType) {
+			return true;
+		}
+		return false;
+	}
 }

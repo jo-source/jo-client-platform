@@ -75,9 +75,7 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 		this.elementValueType = elementValueType;
 	}
 
-	ControlPanelProviderBuilderImpl(
-		final Class<? extends Collection<? extends ELEMENT_VALUE_TYPE>> valueType,
-		final Class<? extends ELEMENT_VALUE_TYPE> elementValueType) {
+	ControlPanelProviderBuilderImpl(final Class<?> valueType, final Class<? extends ELEMENT_VALUE_TYPE> elementValueType) {
 		this();
 		Assert.paramNotNull(valueType, "valueType");
 		Assert.paramNotNull(elementValueType, "elementValueType");
