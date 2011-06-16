@@ -47,6 +47,7 @@ import org.jowidgets.cap.common.api.bean.IBeanModification;
 import org.jowidgets.cap.common.api.bean.IBeanModificationBuilder;
 import org.jowidgets.cap.ui.api.bean.BeanMessageType;
 import org.jowidgets.cap.ui.api.bean.IBeanMessage;
+import org.jowidgets.cap.ui.api.bean.IBeanMessageStateListener;
 import org.jowidgets.cap.ui.api.bean.IBeanModificationStateListener;
 import org.jowidgets.cap.ui.api.bean.IBeanProcessStateListener;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
@@ -63,6 +64,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE> {
 	private final Map<String, IBeanModification> undoneModifications;
 	private final PropertyChangeObservable propertyChangeObservable;
 	private final BeanModificationStateObservable<BEAN_TYPE> modificationStateObservable;
+	private final BeanMessageStateObservable<BEAN_TYPE> messageStateObservable;
 	private final BeanProcessStateObservable<BEAN_TYPE> processStateObservable;
 	private final IExecutionTaskListener executionTaskListener;
 	private final Map<BeanMessageType, List<IBeanMessage>> messagesMap;
@@ -86,6 +88,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE> {
 		this.propertyChangeObservable = new PropertyChangeObservable();
 		this.modificationStateObservable = new BeanModificationStateObservable<BEAN_TYPE>();
 		this.processStateObservable = new BeanProcessStateObservable<BEAN_TYPE>();
+		this.messageStateObservable = new BeanMessageStateObservable<BEAN_TYPE>();
 
 		this.messagesMap = new HashMap<BeanMessageType, List<IBeanMessage>>();
 		messagesMap.put(BeanMessageType.INFO, new LinkedList<IBeanMessage>());
@@ -281,6 +284,8 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE> {
 		messagesMap.get(message.getType()).add(0, message);
 
 		propertyChange(BeanProxyImpl.this, IBeanProxy.META_PROPERTY_MESSAGES, lastMessages, getMessages());
+
+		messageStateObservable.fireMessageStateChanged(this);
 	}
 
 	@Override
@@ -298,6 +303,27 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE> {
 	}
 
 	@Override
+	public IBeanMessage getFirstWorstMandatoryMessage() {
+		IBeanMessage result = getFirstMandatoryMessage((messagesMap.get(BeanMessageType.ERROR)));
+		if (result == null) {
+			result = getFirstMandatoryMessage((messagesMap.get(BeanMessageType.WARNING)));
+		}
+		if (result == null) {
+			result = getFirstMandatoryMessage((messagesMap.get(BeanMessageType.INFO)));
+		}
+		return result;
+	}
+
+	private IBeanMessage getFirstMandatoryMessage(final List<IBeanMessage> beanMessages) {
+		for (final IBeanMessage message : beanMessages) {
+			if (message.isFixMandatory()) {
+				return message;
+			}
+		}
+		return null;
+	}
+
+	@Override
 	public List<IBeanMessage> getMessages() {
 		return new LinkedList<IBeanMessage>(messagesList);
 	}
@@ -308,6 +334,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE> {
 		messagesMap.get(BeanMessageType.INFO).clear();
 		messagesMap.get(BeanMessageType.WARNING).clear();
 		messagesMap.get(BeanMessageType.ERROR).clear();
+		messageStateObservable.fireMessageStateChanged(this);
 	}
 
 	@Override
@@ -341,10 +368,21 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE> {
 	}
 
 	@Override
+	public void addMessageStateListener(final IBeanMessageStateListener<BEAN_TYPE> listener) {
+		messageStateObservable.addMessageStateListener(listener);
+	}
+
+	@Override
+	public void removeMessageStateListener(final IBeanMessageStateListener<BEAN_TYPE> listener) {
+		messageStateObservable.removeMessageStateListener(listener);
+	}
+
+	@Override
 	public void dispose() {
 		modifications.clear();
 		modificationStateObservable.dispose();
 		processStateObservable.dispose();
+		messageStateObservable.dispose();
 		executionTask = null;
 		beanDto = null;
 		proxy = null;

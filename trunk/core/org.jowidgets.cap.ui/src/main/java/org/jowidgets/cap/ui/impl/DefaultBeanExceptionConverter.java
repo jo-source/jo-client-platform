@@ -75,7 +75,7 @@ final class DefaultBeanExceptionConverter implements IBeanExecptionConverter {
 						message = "Stale data (id= '" + serviceException.getBeanKey().getId() + "')!";
 					}
 				}
-				return new BeanMessageImpl(BeanMessageType.ERROR, message, throwable);
+				return new BeanMessageImpl(BeanMessageType.WARNING, message, throwable);
 			}
 			else if (serviceException instanceof DeletedBeanException) {
 				if (message == null) {

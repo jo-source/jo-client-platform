@@ -28,27 +28,8 @@
 
 package org.jowidgets.cap.ui.api.bean;
 
-import org.jowidgets.util.Assert;
+public interface IBeanMessageStateListener<BEAN_TYPE> {
 
-public enum BeanMessageType {
+	void messageStateChanged(IBeanProxy<BEAN_TYPE> bean);
 
-	INFO,
-	WARNING,
-	ERROR;
-
-	public boolean equalOrWorse(final BeanMessageType beanMessageType) {
-		Assert.paramNotNull(beanMessageType, "beanMessageType");
-		if (beanMessageType == ERROR) {
-			return this == ERROR;
-		}
-		else if (beanMessageType == WARNING) {
-			return this == WARNING || this == ERROR;
-		}
-		else if (beanMessageType == INFO) {
-			return this == INFO || this == WARNING || this == ERROR;
-		}
-		else {
-			throw new IllegalArgumentException("The bean message type '" + beanMessageType + "' is not known");
-		}
-	}
 }

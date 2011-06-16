@@ -26,29 +26,26 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.bean;
+package org.jowidgets.cap.ui.api.execution;
 
-import org.jowidgets.util.Assert;
+public enum BeanMessageStatePolicy {
 
-public enum BeanMessageType {
+	/** The bean must not have any message */
+	NO_MESSAGE,
 
-	INFO,
-	WARNING,
-	ERROR;
+	/** The bean must not have any message, where the fix is mandatory */
+	NO_MESSAGE_MANDATORY,
 
-	public boolean equalOrWorse(final BeanMessageType beanMessageType) {
-		Assert.paramNotNull(beanMessageType, "beanMessageType");
-		if (beanMessageType == ERROR) {
-			return this == ERROR;
-		}
-		else if (beanMessageType == WARNING) {
-			return this == WARNING || this == ERROR;
-		}
-		else if (beanMessageType == INFO) {
-			return this == INFO || this == WARNING || this == ERROR;
-		}
-		else {
-			throw new IllegalArgumentException("The bean message type '" + beanMessageType + "' is not known");
-		}
-	}
+	/** The bean must not have any WARNING or ERROR message */
+	NO_WARNING_OR_ERROR,
+
+	/** The bean must not have any WARNING or ERROR message, where the fix is mandatory */
+	NO_WARNING_OR_ERROR_MANDATORY,
+
+	/** The bean must not have any ERROR message */
+	NO_ERROR,
+
+	/** The bean must not have any ERROR message, where the fix is mandatory */
+	NO_ERROR_MANDATORY;
+
 }
