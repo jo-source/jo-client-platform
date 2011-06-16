@@ -35,6 +35,7 @@ import org.jowidgets.cap.common.api.service.IExecutorService;
 import org.jowidgets.cap.common.api.service.IParameterProviderService;
 import org.jowidgets.cap.ui.api.bean.IBeanExecptionConverter;
 import org.jowidgets.cap.ui.api.execution.BeanExecutionPolicy;
+import org.jowidgets.cap.ui.api.execution.BeanMessageStatePolicy;
 import org.jowidgets.cap.ui.api.execution.BeanModificationStatePolicy;
 import org.jowidgets.cap.ui.api.execution.BeanSelectionPolicy;
 import org.jowidgets.cap.ui.api.execution.IExecutionInterceptor;
@@ -83,6 +84,8 @@ public interface IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> {
 	IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setSelectionPolicy(BeanSelectionPolicy policy);
 
 	IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setModificationPolicy(BeanModificationStatePolicy policy);
+
+	IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setMessageStatePolicy(BeanMessageStatePolicy policy);
 
 	IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> addEnabledChecker(IEnabledChecker enabledChecker);
 

@@ -39,7 +39,8 @@ public interface IBeanProxy<BEAN_TYPE> extends
 		IBeanDto,
 		IPropertyChangeObservable,
 		IBeanModificationStateObservable<BEAN_TYPE>,
-		IBeanProcessStateObservable<BEAN_TYPE> {
+		IBeanProcessStateObservable<BEAN_TYPE>,
+		IBeanMessageStateObservable<BEAN_TYPE> {
 
 	String META_PROPERTY_PROGRESS = IBeanProxy.class.getName() + "_META_PROPERTY_PROGRESS";
 	String META_PROPERTY_MESSAGES = IBeanProxy.class.getName() + "_META_PROPERTY_MESSAGES";
@@ -67,6 +68,8 @@ public interface IBeanProxy<BEAN_TYPE> extends
 	List<IBeanMessage> getMessages();
 
 	IBeanMessage getFirstWorstMessage();
+
+	IBeanMessage getFirstWorstMandatoryMessage();
 
 	void clearMessages();
 

@@ -39,6 +39,7 @@ import org.jowidgets.api.threads.IUiThreadAccess;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.types.QuestionResult;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
+import org.jowidgets.cap.common.api.exception.ServiceCanceledException;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.execution.UserQuestionResult;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
@@ -163,7 +164,12 @@ final class BeanListExecutionHelper {
 
 	void onExecption(final List<IBeanProxy<?>> executedBeans, final Throwable exception) {
 		for (final IBeanProxy<?> bean : executedBeans) {
-			bean.addMessage(exceptionConverter.convert(executedBeans, bean, exception));
+			final IExecutionTask executionTask = bean.getExecutionTask();
+			final boolean canceled = (exception instanceof ServiceCanceledException)
+				|| (executionTask != null && executionTask.isCanceled());
+			if (!canceled) {
+				bean.addMessage(exceptionConverter.convert(executedBeans, bean, exception));
+			}
 			bean.setExecutionTask(null);
 		}
 		listModel.fireBeansChanged();

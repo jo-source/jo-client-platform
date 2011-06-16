@@ -26,29 +26,40 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.bean;
+package org.jowidgets.cap.ui.impl;
 
-import org.jowidgets.util.Assert;
+import java.util.HashSet;
+import java.util.Set;
 
-public enum BeanMessageType {
+import org.jowidgets.cap.ui.api.bean.IBeanMessageStateListener;
+import org.jowidgets.cap.ui.api.bean.IBeanMessageStateObservable;
+import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 
-	INFO,
-	WARNING,
-	ERROR;
+class BeanMessageStateObservable<BEAN_TYPE> implements IBeanMessageStateObservable<BEAN_TYPE> {
 
-	public boolean equalOrWorse(final BeanMessageType beanMessageType) {
-		Assert.paramNotNull(beanMessageType, "beanMessageType");
-		if (beanMessageType == ERROR) {
-			return this == ERROR;
+	private final Set<IBeanMessageStateListener<BEAN_TYPE>> listeners;
+
+	BeanMessageStateObservable() {
+		this.listeners = new HashSet<IBeanMessageStateListener<BEAN_TYPE>>();
+	}
+
+	@Override
+	public final void addMessageStateListener(final IBeanMessageStateListener<BEAN_TYPE> listener) {
+		listeners.add(listener);
+	}
+
+	@Override
+	public final void removeMessageStateListener(final IBeanMessageStateListener<BEAN_TYPE> listener) {
+		listeners.remove(listener);
+	}
+
+	public final void fireMessageStateChanged(final IBeanProxy<BEAN_TYPE> bean) {
+		for (final IBeanMessageStateListener<BEAN_TYPE> listener : listeners) {
+			listener.messageStateChanged(bean);
 		}
-		else if (beanMessageType == WARNING) {
-			return this == WARNING || this == ERROR;
-		}
-		else if (beanMessageType == INFO) {
-			return this == INFO || this == WARNING || this == ERROR;
-		}
-		else {
-			throw new IllegalArgumentException("The bean message type '" + beanMessageType + "' is not known");
-		}
+	}
+
+	public final void dispose() {
+		listeners.clear();
 	}
 }

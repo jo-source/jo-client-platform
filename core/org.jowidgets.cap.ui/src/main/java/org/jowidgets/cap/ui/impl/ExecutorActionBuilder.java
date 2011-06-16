@@ -42,6 +42,7 @@ import org.jowidgets.cap.common.api.service.IParameterProviderService;
 import org.jowidgets.cap.ui.api.bean.IBeanExecptionConverter;
 import org.jowidgets.cap.ui.api.command.IExecutorActionBuilder;
 import org.jowidgets.cap.ui.api.execution.BeanExecutionPolicy;
+import org.jowidgets.cap.ui.api.execution.BeanMessageStatePolicy;
 import org.jowidgets.cap.ui.api.execution.BeanModificationStatePolicy;
 import org.jowidgets.cap.ui.api.execution.BeanSelectionPolicy;
 import org.jowidgets.cap.ui.api.execution.IExecutionInterceptor;
@@ -72,6 +73,7 @@ final class ExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> extends AbstractSingleU
 	private BeanExecutionPolicy beanListExecutionPolicy;
 	private BeanSelectionPolicy beanSelectionPolicy;
 	private BeanModificationStatePolicy beanModificationStatePolicy;
+	private BeanMessageStatePolicy beanMessageStatePolicy;
 
 	ExecutorActionBuilder(final IBeanListModel<BEAN_TYPE> listModel) {
 		Assert.paramNotNull(listModel, "listModel");
@@ -84,6 +86,7 @@ final class ExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> extends AbstractSingleU
 
 		this.beanSelectionPolicy = BeanSelectionPolicy.SINGLE_SELECTION;
 		this.beanModificationStatePolicy = BeanModificationStatePolicy.NO_MODIFICATION;
+		this.beanMessageStatePolicy = BeanMessageStatePolicy.NO_WARNING_OR_ERROR;
 		this.beanListExecutionPolicy = BeanExecutionPolicy.PARALLEL;
 
 		this.exceptionConverter = new DefaultBeanExceptionConverter();
@@ -205,6 +208,13 @@ final class ExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> extends AbstractSingleU
 	}
 
 	@Override
+	public IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setMessageStatePolicy(final BeanMessageStatePolicy policy) {
+		Assert.paramNotNull(policy, "policy");
+		this.beanMessageStatePolicy = policy;
+		return this;
+	}
+
+	@Override
 	public IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> addEnabledChecker(final IEnabledChecker enabledChecker) {
 		Assert.paramNotNull(enabledChecker, "enabledChecker");
 		enabledCheckers.add(enabledChecker);
@@ -241,6 +251,7 @@ final class ExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> extends AbstractSingleU
 			beanListExecutionPolicy,
 			beanSelectionPolicy,
 			beanModificationStatePolicy,
+			beanMessageStatePolicy,
 			enabledCheckers,
 			executableCheckers,
 			exceptionConverter,

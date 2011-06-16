@@ -50,12 +50,16 @@ import org.jowidgets.cap.common.api.execution.IExecutableState;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.service.IExecutorService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
+import org.jowidgets.cap.ui.api.bean.BeanMessageType;
 import org.jowidgets.cap.ui.api.bean.IBeanExecptionConverter;
 import org.jowidgets.cap.ui.api.bean.IBeanKeyFactory;
+import org.jowidgets.cap.ui.api.bean.IBeanMessage;
+import org.jowidgets.cap.ui.api.bean.IBeanMessageStateListener;
 import org.jowidgets.cap.ui.api.bean.IBeanModificationStateListener;
 import org.jowidgets.cap.ui.api.bean.IBeanProcessStateListener;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.execution.BeanExecutionPolicy;
+import org.jowidgets.cap.ui.api.execution.BeanMessageStatePolicy;
 import org.jowidgets.cap.ui.api.execution.BeanModificationStatePolicy;
 import org.jowidgets.cap.ui.api.execution.BeanSelectionPolicy;
 import org.jowidgets.cap.ui.api.execution.IExecutionInterceptor;
@@ -79,6 +83,7 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 	private static final IEnabledState MULTI_SELECTION_STATE = EnabledState.disabled("There must be selected at least one record");
 	private static final IEnabledState NO_SELECTION_STATE = EnabledState.disabled("There must not be selected any record");
 	private static final IEnabledState UNSAVED_DATA_STATE = EnabledState.disabled("There record has unsaved data");
+	private static final IEnabledState UNHANDLED_MESSAGES_STATE = EnabledState.disabled("There are unhandled messages");
 
 	private final IBeanListModel<Object> listModel;
 	private final List<IExecutableChecker<Object>> executableCheckers;
@@ -88,6 +93,7 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 	private final BeanExecutionPolicy beanListExecutionPolicy;
 	private final BeanSelectionPolicy beanSelectionPolicy;
 	private final BeanModificationStatePolicy beanModificationStatePolicy;
+	private final BeanMessageStatePolicy beanMessageStatePolicy;
 
 	private final Object defaultParameter;
 	private final Object executor;
@@ -100,6 +106,7 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 		final BeanExecutionPolicy beanListExecutionPolicy,
 		final BeanSelectionPolicy beanSelectionPolicy,
 		final BeanModificationStatePolicy beanModificationStatePolicy,
+		final BeanMessageStatePolicy beanMessageStatePolicy,
 		final List<IEnabledChecker> enabledCheckers,
 		final List<IExecutableChecker<Object>> executableCheckers,
 		final IBeanExecptionConverter beanExceptionConverter,
@@ -112,6 +119,7 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 		this.beanListExecutionPolicy = beanListExecutionPolicy;
 		this.beanSelectionPolicy = beanSelectionPolicy;
 		this.beanModificationStatePolicy = beanModificationStatePolicy;
+		this.beanMessageStatePolicy = beanMessageStatePolicy;
 		this.enabledCheckers = enabledCheckers;
 		this.executableCheckers = executableCheckers;
 		this.beanExceptionConverter = beanExceptionConverter;
@@ -154,6 +162,13 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 			}
 		};
 
+		final IBeanMessageStateListener messageStateListener = new IBeanMessageStateListener<Object>() {
+			@Override
+			public void messageStateChanged(final IBeanProxy<Object> bean) {
+				fireChangedEvent();
+			}
+		};
+
 		listModel.addBeanListModelListener(new IBeanListModelListener() {
 
 			@Override
@@ -163,6 +178,7 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 					bean.removeProcessStateListener(processStateListener);
 					bean.removePropertyChangeListener(propertyChangeListener);
 					bean.removeModificationStateListener(modificationStateListener);
+					bean.removeMessageStateListener(messageStateListener);
 				}
 
 				final List<IBeanProxy> selectedBeans = getSelectedBeans();
@@ -171,6 +187,7 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 					bean.addProcessStateListener(processStateListener);
 					bean.addPropertyChangeListener(propertyChangeListener);
 					bean.addModificationStateListener(modificationStateListener);
+					bean.addMessageStateListener(messageStateListener);
 				}
 
 				lastSelection = selectedBeans;
@@ -217,11 +234,39 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 			}
 		}
 		for (final IBeanProxy bean : lastSelection) {
+			final IBeanMessage worstMessage = bean.getFirstWorstMessage();
+			final IBeanMessage worstMandatoryMessage = bean.getFirstWorstMandatoryMessage();
 			if (bean.getExecutionTask() != null) {
 				return IS_IN_PROCESS_STATE;
 			}
+			else if (BeanMessageStatePolicy.NO_MESSAGE == beanMessageStatePolicy && worstMessage != null) {
+				return UNHANDLED_MESSAGES_STATE;
+			}
+			else if (BeanMessageStatePolicy.NO_MESSAGE_MANDATORY == beanMessageStatePolicy && worstMandatoryMessage != null) {
+				return UNHANDLED_MESSAGES_STATE;
+			}
 			else if (BeanModificationStatePolicy.NO_MODIFICATION == beanModificationStatePolicy && bean.hasModifications()) {
 				return UNSAVED_DATA_STATE;
+			}
+			else if (BeanMessageStatePolicy.NO_WARNING_OR_ERROR == beanMessageStatePolicy
+				&& worstMessage != null
+				&& worstMessage.getType().equalOrWorse(BeanMessageType.WARNING)) {
+				return UNHANDLED_MESSAGES_STATE;
+			}
+			else if (BeanMessageStatePolicy.NO_WARNING_OR_ERROR_MANDATORY == beanMessageStatePolicy
+				&& worstMandatoryMessage != null
+				&& worstMandatoryMessage.getType().equalOrWorse(BeanMessageType.WARNING)) {
+				return UNHANDLED_MESSAGES_STATE;
+			}
+			else if (BeanMessageStatePolicy.NO_ERROR == beanMessageStatePolicy
+				&& worstMessage != null
+				&& worstMessage.getType() == BeanMessageType.ERROR) {
+				return UNHANDLED_MESSAGES_STATE;
+			}
+			else if (BeanMessageStatePolicy.NO_ERROR_MANDATORY == beanMessageStatePolicy
+				&& worstMandatoryMessage != null
+				&& worstMandatoryMessage.getType() == BeanMessageType.ERROR) {
+				return UNHANDLED_MESSAGES_STATE;
 			}
 			for (final IExecutableChecker executableChecker : executableCheckers) {
 				final IExecutableState result = executableChecker.getExecutableState(bean.getBean());
