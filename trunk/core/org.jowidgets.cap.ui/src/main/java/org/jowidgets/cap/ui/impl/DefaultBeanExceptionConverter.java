@@ -64,7 +64,7 @@ final class DefaultBeanExceptionConverter implements IBeanExecptionConverter {
 						message = "Executable check of the bean '" + serviceException.getBeanKey().getId() + "' failed!";
 					}
 				}
-				return new BeanMessage(BeanMessageType.WARNING, message, throwable);
+				return new BeanMessageImpl(BeanMessageType.WARNING, message, throwable);
 			}
 			else if (serviceException instanceof StaleBeanException) {
 				if (message == null) {
@@ -75,7 +75,7 @@ final class DefaultBeanExceptionConverter implements IBeanExecptionConverter {
 						message = "Stale data (id= '" + serviceException.getBeanKey().getId() + "')!";
 					}
 				}
-				return new BeanMessage(BeanMessageType.ERROR, message, throwable);
+				return new BeanMessageImpl(BeanMessageType.ERROR, message, throwable);
 			}
 			else if (serviceException instanceof DeletedBeanException) {
 				if (message == null) {
@@ -86,14 +86,14 @@ final class DefaultBeanExceptionConverter implements IBeanExecptionConverter {
 						message = "Deleted data (id= '" + serviceException.getBeanKey().getId() + "')!";
 					}
 				}
-				return new BeanMessage(BeanMessageType.ERROR, message, throwable);
+				return new BeanMessageImpl(BeanMessageType.ERROR, message, throwable);
 			}
 			else {
-				return new BeanMessage(BeanMessageType.ERROR, "Undefined runtime exception!", throwable);
+				return new BeanMessageImpl(BeanMessageType.ERROR, "Undefined runtime exception!", throwable);
 			}
 		}
 		else {
-			return new BeanMessage(BeanMessageType.ERROR, "Undefined runtime exception!", throwable);
+			return new BeanMessageImpl(BeanMessageType.ERROR, "Undefined runtime exception!", throwable);
 		}
 	}
 }

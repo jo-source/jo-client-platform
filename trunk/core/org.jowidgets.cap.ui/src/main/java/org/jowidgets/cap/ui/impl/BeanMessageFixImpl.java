@@ -28,90 +28,58 @@
 
 package org.jowidgets.cap.ui.impl;
 
-import java.util.Collections;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-
-import org.jowidgets.cap.ui.api.bean.BeanMessageType;
-import org.jowidgets.cap.ui.api.bean.IBeanMessage;
 import org.jowidgets.cap.ui.api.bean.IBeanMessageFix;
+import org.jowidgets.common.image.IImageConstant;
 import org.jowidgets.util.Assert;
 
-final class BeanMessage implements IBeanMessage {
+final class BeanMessageFixImpl implements IBeanMessageFix {
 
-	private final BeanMessageType type;
-	private final String message;
+	private final Object type;
+	private final String label;
 	private final String description;
-	private final Throwable exception;
-	private final Date timestamp;
-	private final boolean fixMandatory;
-	private final List<IBeanMessageFix> fixes;
+	private final IImageConstant icon;
+	private final Runnable execution;
 
-	BeanMessage(final BeanMessageType type, final String message) {
-		this(type, message, null, null, new LinkedList<IBeanMessageFix>(), false);
-	}
-
-	BeanMessage(final BeanMessageType type, final String message, final Throwable exception) {
-		this(type, message, null, exception, new LinkedList<IBeanMessageFix>(), false);
-	}
-
-	BeanMessage(
-		final BeanMessageType type,
-		final String message,
+	BeanMessageFixImpl(
+		final Object type,
+		final String label,
 		final String description,
-		final Throwable exception,
-		final List<IBeanMessageFix> fixes,
-		final boolean fixMandatory) {
-		Assert.paramNotNull(type, "type");
-		Assert.paramNotNull(fixes, "fixes");
+		final IImageConstant icon,
+		final Runnable execution) {
+
+		Assert.paramNotNull(label, "label");
+		Assert.paramNotNull(execution, "execution");
+
 		this.type = type;
-		this.message = message;
+		this.label = label;
 		this.description = description;
-		this.exception = exception;
-		this.fixes = Collections.unmodifiableList(new LinkedList<IBeanMessageFix>(fixes));
-		this.fixMandatory = fixMandatory;
-		this.timestamp = new Date();
+		this.icon = icon;
+		this.execution = execution;
 	}
 
 	@Override
-	public BeanMessageType getType() {
+	public Object getType() {
 		return type;
 	}
 
 	@Override
-	public String getMessage() {
-		return message;
-	}
-
-	@Override
-	public Throwable getException() {
-		return exception;
-	}
-
-	@Override
-	public Date getTimestamp() {
-		return timestamp;
-	}
-
-	@Override
-	public String toString() {
-		return type + ": " + message;
-	}
-
-	@Override
-	public boolean isFixMandatory() {
-		return fixMandatory;
-	}
-
-	@Override
-	public List<IBeanMessageFix> getFixes() {
-		return fixes;
+	public String getLabel() {
+		return label;
 	}
 
 	@Override
 	public String getDescription() {
 		return description;
+	}
+
+	@Override
+	public IImageConstant getIcon() {
+		return icon;
+	}
+
+	@Override
+	public Runnable getExecution() {
+		return execution;
 	}
 
 }
