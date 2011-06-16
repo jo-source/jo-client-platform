@@ -28,49 +28,10 @@
 
 package org.jowidgets.cap.ui.api.bean;
 
-import java.util.Collection;
 import java.util.List;
 
-import org.jowidgets.cap.common.api.bean.IBeanDto;
-import org.jowidgets.cap.common.api.bean.IBeanModification;
-import org.jowidgets.cap.ui.api.execution.IExecutionTask;
+public interface IBeanExecptionConverter {
 
-public interface IBeanProxy<BEAN_TYPE> extends
-		IBeanDto,
-		IPropertyChangeObservable,
-		IBeanModificationStateObservable<BEAN_TYPE>,
-		IBeanProcessStateObservable<BEAN_TYPE> {
+	IBeanMessage convert(List<IBeanProxy<?>> processedBeans, IBeanProxy<?> destinationBean, Throwable throwable);
 
-	String META_PROPERTY_PROGRESS = IBeanProxy.class.getName() + "_META_PROPERTY_PROGRESS";
-	String META_PROPERTY_MESSAGES = IBeanProxy.class.getName() + "_META_PROPERTY_MESSAGES";
-
-	void setValue(String propertyName, Object value);
-
-	void update(IBeanDto beanDto);
-
-	Collection<IBeanModification> getModifications();
-
-	boolean hasModifications();
-
-	void undoModifications();
-
-	void redoModifications();
-
-	IExecutionTask getExecutionTask();
-
-	boolean hasExecution();
-
-	void setExecutionTask(IExecutionTask executionTask);
-
-	void addMessage(IBeanMessage state);
-
-	List<IBeanMessage> getMessages();
-
-	IBeanMessage getFirstWorstMessage();
-
-	void clearMessages();
-
-	void dispose();
-
-	BEAN_TYPE getBean();
 }

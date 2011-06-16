@@ -71,7 +71,7 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> implements IBeanTableModelBuild
 		Assert.paramNotNull(beanType, "beanType");
 		this.beanType = beanType;
 
-		this.metaPropertyNames = new String[] {IBeanProxy.META_PROPERTY_PROGRESS};
+		this.metaPropertyNames = new String[] {IBeanProxy.META_PROPERTY_PROGRESS, IBeanProxy.META_PROPERTY_MESSAGES};
 
 		final IEntityService entityService = ServiceProvider.getService(IEntityService.ID);
 		if (entityService != null) {

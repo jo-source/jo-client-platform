@@ -39,7 +39,7 @@ public interface IAttributeToolkit {
 		Class<? extends ELEMENT_VALUE_TYPE> elementValueType);
 
 	<ELEMENT_VALUE_TYPE> IAttributeBuilder<ELEMENT_VALUE_TYPE> createAttributeBuilder(
-		Class<? extends Collection<? extends ELEMENT_VALUE_TYPE>> valueType,
+		Class<?> valueType,
 		Class<? extends ELEMENT_VALUE_TYPE> elementValueType);
 
 	<ELEMENT_VALUE_TYPE> IAttributeBuilder<ELEMENT_VALUE_TYPE> createAttributeBuilder(IProperty property);
@@ -66,14 +66,14 @@ public interface IAttributeToolkit {
 		Class<? extends ELEMENT_VALUE_TYPE> elementValueType);
 
 	<ELEMENT_VALUE_TYPE> IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> createControlPanelProviderBuilder(
-		Class<? extends Collection<? extends ELEMENT_VALUE_TYPE>> valueType,
+		Class<?> valueType,
 		Class<? extends ELEMENT_VALUE_TYPE> elementValueType);
 
 	<ELEMENT_VALUE_TYPE> IControlPanelProvider<ELEMENT_VALUE_TYPE> createControlPanelProvider(
 		Class<? extends ELEMENT_VALUE_TYPE> elementValueType);
 
 	<ELEMENT_VALUE_TYPE> IControlPanelProvider<ELEMENT_VALUE_TYPE> createControlPanelProvider(
-		Class<? extends Collection<? extends ELEMENT_VALUE_TYPE>> valueType,
+		Class<?> valueType,
 		Class<? extends ELEMENT_VALUE_TYPE> elementValueType);
 
 }

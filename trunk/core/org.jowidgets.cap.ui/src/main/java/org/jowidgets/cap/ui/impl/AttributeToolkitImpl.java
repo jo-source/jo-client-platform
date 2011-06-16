@@ -32,6 +32,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IProperty;
+import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IAttributeBuilder;
 import org.jowidgets.cap.ui.api.attribute.IAttributeCollectionModifier;
@@ -39,6 +40,7 @@ import org.jowidgets.cap.ui.api.attribute.IAttributeCollectionModifierBuilder;
 import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
 import org.jowidgets.cap.ui.api.attribute.IControlPanelProvider;
 import org.jowidgets.cap.ui.api.attribute.IControlPanelProviderBuilder;
+import org.jowidgets.cap.ui.api.bean.IBeanMessage;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.util.Assert;
 
@@ -58,7 +60,7 @@ final class AttributeToolkitImpl implements IAttributeToolkit {
 
 	@Override
 	public <ELEMENT_VALUE_TYPE> IAttributeBuilder<ELEMENT_VALUE_TYPE> createAttributeBuilder(
-		final Class<? extends Collection<? extends ELEMENT_VALUE_TYPE>> valueType,
+		final Class<?> valueType,
 		final Class<? extends ELEMENT_VALUE_TYPE> elementValueType) {
 		return new AttributeBuilderImpl<ELEMENT_VALUE_TYPE>(valueType, elementValueType);
 	}
@@ -115,6 +117,22 @@ final class AttributeToolkitImpl implements IAttributeToolkit {
 			builder.setEditable(false).setSortable(false).setFilterable(false);
 			return builder;
 		}
+		else if (IBeanProxy.META_PROPERTY_MESSAGES.equals(propertyName)) {
+			@SuppressWarnings("rawtypes")
+			final IAttributeBuilder builder = new AttributeBuilderImpl(List.class, IBeanMessage.class);
+			builder.setPropertyName(IBeanProxy.META_PROPERTY_MESSAGES);
+			builder.setLabel("Messages").setDescription("Shows the messages of the data");
+			builder.setEditable(false).setSortable(false).setFilterable(false);
+
+			final IControlPanelProviderBuilder<IBeanMessage> panelBuilder = CapUiToolkit.getAttributeToolkit().createControlPanelProviderBuilder(
+					List.class,
+					IBeanMessage.class);
+			panelBuilder.setObjectLabelConverter(new BeanMessageLabelConverter());
+
+			builder.setDefaultControlPanel(panelBuilder.build());
+
+			return builder;
+		}
 		throw new IllegalArgumentException("The meta property name '" + propertyName + "' is not known");
 	}
 
@@ -126,7 +144,7 @@ final class AttributeToolkitImpl implements IAttributeToolkit {
 
 	@Override
 	public <ELEMENT_VALUE_TYPE> IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> createControlPanelProviderBuilder(
-		final Class<? extends Collection<? extends ELEMENT_VALUE_TYPE>> valueType,
+		final Class<?> valueType,
 		final Class<? extends ELEMENT_VALUE_TYPE> elementValueType) {
 		return new ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE>(valueType, elementValueType);
 	}
@@ -139,7 +157,7 @@ final class AttributeToolkitImpl implements IAttributeToolkit {
 
 	@Override
 	public <ELEMENT_VALUE_TYPE> IControlPanelProvider<ELEMENT_VALUE_TYPE> createControlPanelProvider(
-		final Class<? extends Collection<? extends ELEMENT_VALUE_TYPE>> valueType,
+		final Class<?> valueType,
 		final Class<? extends ELEMENT_VALUE_TYPE> elementValueType) {
 		return new ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE>(valueType, elementValueType).build();
 	}

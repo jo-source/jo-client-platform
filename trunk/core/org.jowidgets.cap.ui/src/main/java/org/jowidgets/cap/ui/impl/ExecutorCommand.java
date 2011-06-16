@@ -30,7 +30,6 @@ package org.jowidgets.cap.ui.impl;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -51,7 +50,7 @@ import org.jowidgets.cap.common.api.execution.IExecutableState;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.service.IExecutorService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
-import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
+import org.jowidgets.cap.ui.api.bean.IBeanExecptionConverter;
 import org.jowidgets.cap.ui.api.bean.IBeanKeyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeanModificationStateListener;
 import org.jowidgets.cap.ui.api.bean.IBeanProcessStateListener;
@@ -92,7 +91,7 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 
 	private final Object defaultParameter;
 	private final Object executor;
-	private final IBeanExceptionConverter beanExceptionConverter;
+	private final IBeanExecptionConverter beanExceptionConverter;
 
 	private List<IBeanProxy> lastSelection;
 
@@ -103,7 +102,7 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 		final BeanModificationStatePolicy beanModificationStatePolicy,
 		final List<IEnabledChecker> enabledCheckers,
 		final List<IExecutableChecker<Object>> executableCheckers,
-		final IBeanExceptionConverter beanExceptionConverter,
+		final IBeanExecptionConverter beanExceptionConverter,
 		final List<Object> parameterProviders,
 		final List<IExecutionInterceptor> executionInterceptors,
 		final Object defaultParameter,
@@ -255,7 +254,7 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 			beanListExecutionPolicy,
 			beanExceptionConverter);
 
-		for (final List<IBeanProxy> preparedBeans : executionHelper.prepareExecutions()) {
+		for (final List<IBeanProxy<?>> preparedBeans : executionHelper.prepareExecutions()) {
 			new Execution(preparedBeans, executionContext, executionHelper).execute();
 		}
 
@@ -272,13 +271,13 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 	private class Execution {
 
 		private final IExecutionContext executionContext;
-		private final List<IBeanProxy> beans;
+		private final List<IBeanProxy<?>> beans;
 		private final BeanListExecutionHelper executionHelper;
 		private final IExecutionTask executionTask;
 		private final IUiThreadAccess uiThreadAccess;
 
 		Execution(
-			final List<IBeanProxy> beans,
+			final List<IBeanProxy<?>> beans,
 			final IExecutionContext executionContext,
 			final BeanListExecutionHelper executionHelper) {
 
@@ -325,7 +324,7 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 			else if (executor instanceof IExecutorService) {
 				final IExecutorService executorService = (IExecutorService) executor;
 				final IBeanKeyFactory beanKeyFactory = CapUiToolkit.getBeanKeyFactory();
-				final List<IBeanKey> keys = beanKeyFactory.createKeys((Collection) beans);
+				final List<IBeanKey> keys = beanKeyFactory.createKeys(beans);
 
 				final IResultCallback<List<IBeanDto>> helperCallback = executionHelper.createResultCallback(beans);
 				final IResultCallback<List<IBeanDto>> resultCallback = new IResultCallback<List<IBeanDto>>() {
@@ -360,7 +359,7 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 			}
 		}
 
-		private IMaybe getParameter(final Object parameterProvider, final Object defaultParameter, final List<IBeanProxy> beans) {
+		private IMaybe getParameter(final Object parameterProvider, final Object defaultParameter, final List<IBeanProxy<?>> beans) {
 			if (parameterProvider instanceof IParameterProvider) {
 				final IParameterProvider theParameterProvider = (IParameterProvider) parameterProvider;
 				final ValueHolder<IMaybe> result = new ValueHolder<IMaybe>(Nothing.getInstance());

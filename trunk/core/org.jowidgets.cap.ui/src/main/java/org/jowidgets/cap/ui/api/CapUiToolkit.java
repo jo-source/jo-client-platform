@@ -31,7 +31,10 @@ package org.jowidgets.cap.ui.api;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.widgets.blueprint.defaults.IDefaultInitializer;
 import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
+import org.jowidgets.cap.ui.api.bean.BeanMessageType;
 import org.jowidgets.cap.ui.api.bean.IBeanKeyFactory;
+import org.jowidgets.cap.ui.api.bean.IBeanMessageBuilder;
+import org.jowidgets.cap.ui.api.bean.IBeanMessageFixBuilder;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeansStateTracker;
 import org.jowidgets.cap.ui.api.command.IActionFactory;
@@ -84,6 +87,14 @@ public final class CapUiToolkit {
 
 	public static <BEAN_TYPE> IBeanTableModelBuilder<BEAN_TYPE> createBeanTableModelBuilder(final Class<BEAN_TYPE> beanType) {
 		return getInstance().createBeanTableModelBuilder(beanType);
+	}
+
+	public static IBeanMessageBuilder beanMessageBuilder(final BeanMessageType type) {
+		return getInstance().beanMessageBuilder(type);
+	}
+
+	public static IBeanMessageFixBuilder beanMessageFixBuilder() {
+		return getInstance().beanMessageFixBuilder();
 	}
 
 	private static ICapUiToolkit createDefaultInstance() {

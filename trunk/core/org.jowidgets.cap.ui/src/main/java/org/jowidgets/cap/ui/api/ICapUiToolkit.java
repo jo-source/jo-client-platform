@@ -29,7 +29,10 @@
 package org.jowidgets.cap.ui.api;
 
 import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
+import org.jowidgets.cap.ui.api.bean.BeanMessageType;
 import org.jowidgets.cap.ui.api.bean.IBeanKeyFactory;
+import org.jowidgets.cap.ui.api.bean.IBeanMessageBuilder;
+import org.jowidgets.cap.ui.api.bean.IBeanMessageFixBuilder;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeansStateTracker;
 import org.jowidgets.cap.ui.api.command.IActionFactory;
@@ -54,5 +57,9 @@ public interface ICapUiToolkit {
 	IBeanKeyFactory getBeanKeyFactory();
 
 	<BEAN_TYPE> IBeanTableModelBuilder<BEAN_TYPE> createBeanTableModelBuilder(Class<BEAN_TYPE> beanType);
+
+	IBeanMessageBuilder beanMessageBuilder(BeanMessageType type);
+
+	IBeanMessageFixBuilder beanMessageFixBuilder();
 
 }

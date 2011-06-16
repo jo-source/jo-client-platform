@@ -42,9 +42,8 @@ import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.execution.UserQuestionResult;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
-import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
+import org.jowidgets.cap.ui.api.bean.IBeanExecptionConverter;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
-import org.jowidgets.cap.ui.api.bean.IBeanState;
 import org.jowidgets.cap.ui.api.execution.BeanExecutionPolicy;
 import org.jowidgets.cap.ui.api.execution.IExecutionTask;
 import org.jowidgets.cap.ui.api.execution.IExecutionTaskListener;
@@ -57,7 +56,7 @@ final class BeanListExecutionHelper {
 
 	private final IBeanListModel<Object> listModel;
 	private final Collection<? extends IBeanProxy> beans;
-	private final IBeanExceptionConverter exceptionConverter;
+	private final IBeanExecptionConverter exceptionConverter;
 	private final BeanExecutionPolicy beanExecutionPolicy;
 	private final IUiThreadAccess uiThreadAccess;
 
@@ -65,7 +64,7 @@ final class BeanListExecutionHelper {
 		final IBeanListModel listModel,
 		final Collection<? extends IBeanProxy> beans,
 		final BeanExecutionPolicy beanExecutionPolicy,
-		final IBeanExceptionConverter exceptionConverter) {
+		final IBeanExecptionConverter exceptionConverter) {
 		super();
 		this.listModel = listModel;
 		this.beans = beans;
@@ -74,12 +73,12 @@ final class BeanListExecutionHelper {
 		this.uiThreadAccess = Toolkit.getUiThreadAccess();
 	}
 
-	List<List<IBeanProxy>> prepareExecutions() {
-		final List<List<IBeanProxy>> result = new LinkedList<List<IBeanProxy>>();
+	List<List<IBeanProxy<?>>> prepareExecutions() {
+		final List<List<IBeanProxy<?>>> result = new LinkedList<List<IBeanProxy<?>>>();
 
 		if (BeanExecutionPolicy.SERIAL == beanExecutionPolicy) {
 			final IExecutionTask executionTask = createExecutionTask();
-			final List<IBeanProxy> subList = new LinkedList<IBeanProxy>();
+			final List<IBeanProxy<?>> subList = new LinkedList<IBeanProxy<?>>();
 			result.add(subList);
 			for (final IBeanProxy bean : beans) {
 				if (bean.getExecutionTask() == null) {
@@ -90,7 +89,7 @@ final class BeanListExecutionHelper {
 		}
 		else {
 			for (final IBeanProxy bean : beans) {
-				final List<IBeanProxy> subList = new LinkedList<IBeanProxy>();
+				final List<IBeanProxy<?>> subList = new LinkedList<IBeanProxy<?>>();
 				result.add(subList);
 				if (bean.getExecutionTask() == null) {
 					final IExecutionTask executionTask = createExecutionTask();
@@ -103,7 +102,7 @@ final class BeanListExecutionHelper {
 		return result;
 	}
 
-	IResultCallback<List<IBeanDto>> createResultCallback(final List<IBeanProxy> beansToExecute) {
+	IResultCallback<List<IBeanDto>> createResultCallback(final List<IBeanProxy<?>> beansToExecute) {
 		return new IResultCallback<List<IBeanDto>>() {
 			@Override
 			public void finished(final List<IBeanDto> result) {
@@ -122,7 +121,7 @@ final class BeanListExecutionHelper {
 		};
 	}
 
-	void invokeAfterExecutionLater(final List<IBeanProxy> executedBeans, final List<IBeanDto> result) {
+	void invokeAfterExecutionLater(final List<IBeanProxy<?>> executedBeans, final List<IBeanDto> result) {
 		uiThreadAccess.invokeLater(new Runnable() {
 			@Override
 			public void run() {
@@ -131,7 +130,7 @@ final class BeanListExecutionHelper {
 		});
 	}
 
-	void afterExecution(final List<IBeanProxy> executedBeans, final List<IBeanDto> result) {
+	void afterExecution(final List<IBeanProxy<?>> executedBeans, final List<IBeanDto> result) {
 		if (result != null) {
 			final Map<Object, IBeanDto> resultMap = new HashMap<Object, IBeanDto>();
 			for (final IBeanDto beanDto : result) {
@@ -153,7 +152,7 @@ final class BeanListExecutionHelper {
 		listModel.fireBeansChanged();
 	}
 
-	void invokeOnExceptionLater(final List<IBeanProxy> executedBeans, final Throwable exception) {
+	void invokeOnExceptionLater(final List<IBeanProxy<?>> executedBeans, final Throwable exception) {
 		uiThreadAccess.invokeLater(new Runnable() {
 			@Override
 			public void run() {
@@ -162,10 +161,9 @@ final class BeanListExecutionHelper {
 		});
 	}
 
-	void onExecption(final List<IBeanProxy> executedBeans, final Throwable exception) {
-		final IBeanState beanState = exceptionConverter.convert(exception);
-		for (final IBeanProxy bean : executedBeans) {
-			bean.setState(beanState);
+	void onExecption(final List<IBeanProxy<?>> executedBeans, final Throwable exception) {
+		for (final IBeanProxy<?> bean : executedBeans) {
+			bean.addMessage(exceptionConverter.convert(executedBeans, bean, exception));
 			bean.setExecutionTask(null);
 		}
 		listModel.fireBeansChanged();

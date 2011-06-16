@@ -28,49 +28,23 @@
 
 package org.jowidgets.cap.ui.api.bean;
 
-import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
-import org.jowidgets.cap.common.api.bean.IBeanDto;
-import org.jowidgets.cap.common.api.bean.IBeanModification;
-import org.jowidgets.cap.ui.api.execution.IExecutionTask;
+public interface IBeanMessage {
 
-public interface IBeanProxy<BEAN_TYPE> extends
-		IBeanDto,
-		IPropertyChangeObservable,
-		IBeanModificationStateObservable<BEAN_TYPE>,
-		IBeanProcessStateObservable<BEAN_TYPE> {
+	BeanMessageType getType();
 
-	String META_PROPERTY_PROGRESS = IBeanProxy.class.getName() + "_META_PROPERTY_PROGRESS";
-	String META_PROPERTY_MESSAGES = IBeanProxy.class.getName() + "_META_PROPERTY_MESSAGES";
+	String getMessage();
 
-	void setValue(String propertyName, Object value);
+	String getDescription();
 
-	void update(IBeanDto beanDto);
+	Throwable getException();
 
-	Collection<IBeanModification> getModifications();
+	Date getTimestamp();
 
-	boolean hasModifications();
+	boolean isFixMandatory();
 
-	void undoModifications();
+	List<IBeanMessageFix> getFixes();
 
-	void redoModifications();
-
-	IExecutionTask getExecutionTask();
-
-	boolean hasExecution();
-
-	void setExecutionTask(IExecutionTask executionTask);
-
-	void addMessage(IBeanMessage state);
-
-	List<IBeanMessage> getMessages();
-
-	IBeanMessage getFirstWorstMessage();
-
-	void clearMessages();
-
-	void dispose();
-
-	BEAN_TYPE getBean();
 }

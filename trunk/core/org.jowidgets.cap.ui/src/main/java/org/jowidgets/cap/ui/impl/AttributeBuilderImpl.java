@@ -73,9 +73,7 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 		this.valueType = elementValueType;
 	}
 
-	public AttributeBuilderImpl(
-		final Class<? extends Collection<? extends ELEMENT_VALUE_TYPE>> valueType,
-		final Class<? extends ELEMENT_VALUE_TYPE> elementValueType) {
+	public AttributeBuilderImpl(final Class<?> valueType, final Class<? extends ELEMENT_VALUE_TYPE> elementValueType) {
 		this();
 		Assert.paramNotNull(valueType, "valueType");
 		Assert.paramNotNull(elementValueType, "elementValueType");
@@ -232,13 +230,10 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 		return this;
 	}
 
-	@SuppressWarnings("unchecked")
 	private IControlPanelProvider<? extends ELEMENT_VALUE_TYPE> getDefaultControlPanel() {
 		if (defaultControlPanel == null) {
 			if (Collection.class.isAssignableFrom(valueType)) {
-				return CapUiToolkit.getAttributeToolkit().createControlPanelProvider(
-						(Class<? extends Collection<? extends ELEMENT_VALUE_TYPE>>) valueType,
-						elementValueType);
+				return CapUiToolkit.getAttributeToolkit().createControlPanelProvider(valueType, elementValueType);
 			}
 			else {
 				return CapUiToolkit.getAttributeToolkit().createControlPanelProvider(elementValueType);

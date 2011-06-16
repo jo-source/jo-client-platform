@@ -26,51 +26,45 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.bean;
+package org.jowidgets.cap.ui.impl;
 
-import java.util.Collection;
-import java.util.List;
+import org.jowidgets.api.convert.IObjectLabelConverter;
+import org.jowidgets.api.image.IconsSmall;
+import org.jowidgets.cap.ui.api.bean.BeanMessageType;
+import org.jowidgets.cap.ui.api.bean.IBeanMessage;
+import org.jowidgets.common.image.IImageConstant;
 
-import org.jowidgets.cap.common.api.bean.IBeanDto;
-import org.jowidgets.cap.common.api.bean.IBeanModification;
-import org.jowidgets.cap.ui.api.execution.IExecutionTask;
+final class BeanMessageLabelConverter implements IObjectLabelConverter<IBeanMessage> {
 
-public interface IBeanProxy<BEAN_TYPE> extends
-		IBeanDto,
-		IPropertyChangeObservable,
-		IBeanModificationStateObservable<BEAN_TYPE>,
-		IBeanProcessStateObservable<BEAN_TYPE> {
+	BeanMessageLabelConverter() {}
 
-	String META_PROPERTY_PROGRESS = IBeanProxy.class.getName() + "_META_PROPERTY_PROGRESS";
-	String META_PROPERTY_MESSAGES = IBeanProxy.class.getName() + "_META_PROPERTY_MESSAGES";
+	@Override
+	public String getDescription(final IBeanMessage value) {
+		return null;
+	}
 
-	void setValue(String propertyName, Object value);
+	@Override
+	public String convertToString(final IBeanMessage value) {
+		if (value != null) {
+			return value.getMessage();
+		}
+		return null;
+	}
 
-	void update(IBeanDto beanDto);
+	@Override
+	public IImageConstant getIcon(final IBeanMessage value) {
+		if (value != null) {
+			if (BeanMessageType.INFO == value.getType()) {
+				return IconsSmall.INFO;
+			}
+			else if (BeanMessageType.WARNING == value.getType()) {
+				return IconsSmall.WARNING;
+			}
+			else {
+				return IconsSmall.ERROR;
+			}
+		}
+		return null;
+	}
 
-	Collection<IBeanModification> getModifications();
-
-	boolean hasModifications();
-
-	void undoModifications();
-
-	void redoModifications();
-
-	IExecutionTask getExecutionTask();
-
-	boolean hasExecution();
-
-	void setExecutionTask(IExecutionTask executionTask);
-
-	void addMessage(IBeanMessage state);
-
-	List<IBeanMessage> getMessages();
-
-	IBeanMessage getFirstWorstMessage();
-
-	void clearMessages();
-
-	void dispose();
-
-	BEAN_TYPE getBean();
 }

@@ -61,6 +61,8 @@ import org.jowidgets.cap.common.api.service.IUpdaterService;
 import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
+import org.jowidgets.cap.ui.api.bean.BeanMessageType;
+import org.jowidgets.cap.ui.api.bean.IBeanMessage;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeansStateTracker;
@@ -192,7 +194,7 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 		dataModel.fireDataChanged();
 	}
 
-	@SuppressWarnings("rawtypes")
+	@SuppressWarnings("unchecked")
 	@Override
 	public void save() {
 		final Set<IBeanProxy<BEAN_TYPE>> modifiedBeans = beansStateTracker.getModifiedBeans();
@@ -205,14 +207,14 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 
 		final IUiThreadAccess uiThreadAccess = Toolkit.getUiThreadAccess();
 
-		for (final List<IBeanProxy> preparedBeans : executionHelper.prepareExecutions()) {
+		for (final List<IBeanProxy<?>> preparedBeans : executionHelper.prepareExecutions()) {
 			if (preparedBeans.size() > 0) {
 				final IExecutionTask executionTask = preparedBeans.get(0).getExecutionTask();
 				if (executionTask != null) {
 					final List<IBeanModification> modifications = new LinkedList<IBeanModification>();
-					for (final IBeanProxy<BEAN_TYPE> bean : preparedBeans) {
+					for (final IBeanProxy<?> bean : preparedBeans) {
 						modifications.addAll(bean.getModifications());
-						beansStateTracker.unregister(bean);
+						beansStateTracker.unregister((IBeanProxy<BEAN_TYPE>) bean);
 					}
 					final IResultCallback<List<IBeanDto>> helperCallback = executionHelper.createResultCallback(preparedBeans);
 					final IResultCallback<List<IBeanDto>> resultCallback = new IResultCallback<List<IBeanDto>>() {
@@ -238,8 +240,8 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 							uiThreadAccess.invokeLater(new Runnable() {
 								@Override
 								public void run() {
-									for (final IBeanProxy<BEAN_TYPE> bean : preparedBeans) {
-										beansStateTracker.register(bean);
+									for (final IBeanProxy<?> bean : preparedBeans) {
+										beansStateTracker.register((IBeanProxy<BEAN_TYPE>) bean);
 									}
 								}
 							});
@@ -451,8 +453,12 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 						cellBuilder = createCellBuilder(rowIndex, columnIndex, attribute, value);
 					}
 
+					final IBeanMessage message = bean.getFirstWorstMessage();
 					if (bean.getExecutionTask() != null) {
 						cellBuilder.setForegroundColor(Colors.DISABLED);
+					}
+					else if (message != null && (message.getType() == BeanMessageType.ERROR)) {
+						cellBuilder.setForegroundColor(Colors.ERROR);
 					}
 
 					return cellBuilder.build();
@@ -484,12 +490,13 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 							text = converter.convertToString(firstElement);
 						}
 						toolTipText = converter.getDescription(firstElement);
+						icon = null;
 					}
 					else {
 						text = null;
 						toolTipText = null;
+						icon = null;
 					}
-					icon = null;
 				}
 				else {
 					text = converter.convertToString(value);
