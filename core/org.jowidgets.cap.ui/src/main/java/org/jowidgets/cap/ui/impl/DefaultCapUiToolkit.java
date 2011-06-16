@@ -112,8 +112,7 @@ public final class DefaultCapUiToolkit implements ICapUiToolkit {
 
 	@Override
 	public IBeanMessageFixBuilder beanMessageFixBuilder() {
-		//TODO MG implement beanMessageBuilder
-		return null;
+		return new BeanMessageFixBuilderImpl();
 	}
 
 }
