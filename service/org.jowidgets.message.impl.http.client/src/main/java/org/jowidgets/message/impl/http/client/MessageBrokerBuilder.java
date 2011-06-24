@@ -29,6 +29,7 @@ package org.jowidgets.message.impl.http.client;
 
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.jowidgets.util.Assert;
 
 public final class MessageBrokerBuilder {
@@ -56,7 +57,8 @@ public final class MessageBrokerBuilder {
 	}
 
 	public IMessageBroker build() {
-		return new MessageBroker(brokerId, url, httpClient == null ? new DefaultHttpClient() : httpClient);
+		return new MessageBroker(brokerId, url, httpClient == null
+				? new DefaultHttpClient(new ThreadSafeClientConnManager()) : httpClient);
 	}
 
 }
