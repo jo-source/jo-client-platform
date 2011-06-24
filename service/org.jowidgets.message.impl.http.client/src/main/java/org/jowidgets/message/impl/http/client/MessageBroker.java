@@ -38,8 +38,6 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
@@ -50,12 +48,11 @@ import org.apache.http.entity.ByteArrayEntity;
 import org.jowidgets.message.api.IExceptionCallback;
 import org.jowidgets.message.api.IMessageChannel;
 import org.jowidgets.message.api.IMessageReceiver;
+import org.jowidgets.message.api.MessageToolkit;
 import org.jowidgets.util.concurrent.DaemonThreadFactory;
 
-// TODO: HW,MG review exception handling and logging
+// TODO: HW,MG review exception handling
 final class MessageBroker implements IMessageBroker, IMessageChannel {
-
-	private static final Log LOG = LogFactory.getLog(MessageBroker.class);
 
 	private static final class DeferredMessage {
 		private final Object message;
@@ -197,7 +194,7 @@ final class MessageBroker implements IMessageBroker, IMessageChannel {
 									});
 								}
 								catch (final ClassNotFoundException e) {
-									LOG.error("cannot deliver message to receiver", e);
+									MessageToolkit.handleExceptions(brokerId, e);
 								}
 							}
 						}
@@ -207,7 +204,7 @@ final class MessageBroker implements IMessageBroker, IMessageChannel {
 					}
 				}
 				catch (final IOException e) {
-					LOG.error("receiving messages failed", e);
+					MessageToolkit.handleExceptions(brokerId, e);
 					Thread.sleep(10000);
 				}
 			}
