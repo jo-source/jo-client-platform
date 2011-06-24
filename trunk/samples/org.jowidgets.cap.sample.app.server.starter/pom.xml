@@ -31,13 +31,18 @@
 		</dependency>
 		<dependency>
             <groupId>org.jowidgets</groupId>
-            <artifactId>org.jowidgets.message.impl.socket</artifactId>
+            <artifactId>org.jowidgets.message.impl.http.server</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
 		<dependency>
 			<groupId>org.jowidgets</groupId>
 			<artifactId>org.jowidgets.cap.sample.app.server</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.jetty</groupId>
+			<artifactId>jetty-servlet</artifactId>
+			<version>7.4.2.v20110526</version>
 		</dependency>
 	</dependencies>
 

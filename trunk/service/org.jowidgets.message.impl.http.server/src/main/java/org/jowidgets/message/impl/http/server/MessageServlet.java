@@ -78,20 +78,25 @@ public final class MessageServlet extends HttpServlet implements IMessageReceive
 
 	@Override
 	protected void doGet(final HttpServletRequest req, final HttpServletResponse resp) throws ServletException, IOException {
+		final ObjectOutputStream oos = new ObjectOutputStream(resp.getOutputStream());
+
 		final HttpSession session = req.getSession();
 		if (session.isNew()) {
 			// return immediately to send new session id to client
-			new ObjectOutputStream(resp.getOutputStream()).writeInt(0);
-			return;
+			oos.writeInt(0);
+
+		}
+		else {
+			final IConnection conn = getConnection(session);
+			final List<Object> messages = conn.pollMessages(pollInterval);
+			oos.writeInt(messages.size());
+			for (final Object msg : messages) {
+				oos.flush();
+				oos.writeObject(msg);
+			}
 		}
 
-		final IConnection conn = getConnection(session);
-		final List<Object> messages = conn.pollMessages(pollInterval);
-		final ObjectOutputStream oos = new ObjectOutputStream(resp.getOutputStream());
-		oos.write(messages.size());
-		for (final Object msg : messages) {
-			oos.writeObject(msg);
-		}
+		oos.flush();
 	}
 
 	@Override

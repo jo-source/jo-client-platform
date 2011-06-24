@@ -33,7 +33,8 @@ import javax.swing.UIManager;
 import org.jowidgets.cap.sample.app.client.workbench.SampleWorkbench;
 import org.jowidgets.invocation.common.impl.MessageBrokerId;
 import org.jowidgets.message.api.MessageToolkit;
-import org.jowidgets.message.impl.socket.MessageBrokerBuilder;
+import org.jowidgets.message.impl.http.client.IMessageBroker;
+import org.jowidgets.message.impl.http.client.MessageBrokerBuilder;
 import org.jowidgets.workbench.impl.WorkbenchRunner;
 
 public final class SampleClientStarterSwing {
@@ -41,13 +42,10 @@ public final class SampleClientStarterSwing {
 	private SampleClientStarterSwing() {}
 
 	public static void main(final String[] args) throws Exception {
-		final MessageBrokerBuilder builder = new MessageBrokerBuilder(MessageBrokerId.INVOCATION_IMPL_BROKER_ID);
-		builder.setHost("127.0.0.1");
-		builder.setPort(5661);
-		builder.setReceiverHost("127.0.0.1");
-		builder.setReceiverPort(5660);
-		MessageToolkit.addChannelBroker(builder.buildChannel());
-		MessageToolkit.addReceiverBroker(builder.buildReceiver());
+		final IMessageBroker messageBroker = new MessageBrokerBuilder(MessageBrokerId.INVOCATION_IMPL_BROKER_ID).setUrl(
+				"http://localhost:8080/").build();
+		MessageToolkit.addChannelBroker(messageBroker);
+		MessageToolkit.addReceiverBroker(messageBroker);
 
 		UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		System.setProperty("apple.laf.useScreenMenuBar", "true");
