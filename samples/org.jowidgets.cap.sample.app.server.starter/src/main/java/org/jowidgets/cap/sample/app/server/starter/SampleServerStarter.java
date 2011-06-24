@@ -28,32 +28,29 @@
 
 package org.jowidgets.cap.sample.app.server.starter;
 
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
 import org.jowidgets.cap.invocation.server.CapServerServicePublisher;
 import org.jowidgets.invocation.common.impl.MessageBrokerId;
 import org.jowidgets.message.api.MessageToolkit;
-import org.jowidgets.message.impl.socket.MessageBrokerBuilder;
+import org.jowidgets.message.impl.http.server.MessageServlet;
 
 public final class SampleServerStarter {
 
 	private SampleServerStarter() {}
 
-	public static void main(final String[] args) {
-		final MessageBrokerBuilder builder = new MessageBrokerBuilder(MessageBrokerId.INVOCATION_IMPL_BROKER_ID);
-		builder.setHost("127.0.0.1");
-		builder.setPort(5660);
-		MessageToolkit.addReceiverBroker(builder.buildReceiver());
+	public static void main(final String[] args) throws Exception {
+		final MessageServlet servlet = new MessageServlet(MessageBrokerId.INVOCATION_IMPL_BROKER_ID);
+		MessageToolkit.addReceiverBroker(servlet);
 
 		new CapServerServicePublisher().publishServices();
 
-		//CHECKSTYLE:OFF
-		System.out.println("Sample server started");
-		//CHECKSTYLE:ON
-		while (true) {
-			try {
-				Thread.sleep(1000000000);
-			}
-			catch (final InterruptedException e) {
-			}
-		}
+		final Server server = new Server(8080);
+		final ServletContextHandler root = new ServletContextHandler(ServletContextHandler.SESSIONS);
+		root.addServlet(new ServletHolder(servlet), "/");
+		server.setHandler(root);
+		server.start();
+		server.join();
 	}
 }
