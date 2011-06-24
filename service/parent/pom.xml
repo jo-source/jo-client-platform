@@ -17,6 +17,8 @@
 	<modules>
 		<module>../org.jowidgets.service</module>
 		<module>../org.jowidgets.message.api</module>
+		<module>../org.jowidgets.message.impl.http.client</module>	
+		<module>../org.jowidgets.message.impl.http.server</module>	
 		<module>../org.jowidgets.message.impl.socket</module>	
 		<module>../org.jowidgets.invocation.common.api</module>	
 		<module>../org.jowidgets.invocation.client.api</module>
