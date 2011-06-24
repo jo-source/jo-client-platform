@@ -2,10 +2,10 @@
 
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.jowidgets</groupId>
-	<artifactId>org.jowidgets.cap.service.parent</artifactId>
+	<artifactId>org.jowidgets.service.parent</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
-	<name>org.jowidgets.cap.service.parent</name>
+	<name>org.jowidgets.service.parent</name>
 	
 	<parent>
 		<groupId>org.jowidgets</groupId>
