@@ -26,20 +26,37 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.api.service;
+package org.jowidgets.cap.service.impl;
 
 import java.util.Collection;
 
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
-import org.jowidgets.service.api.Callback;
+import org.jowidgets.cap.common.api.service.IDeleterService;
+import org.jowidgets.cap.service.api.deleter.ISyncDeleterService;
 
-public interface IDeleterService {
+final class DeleterServiceAdapter implements IDeleterService {
 
-	void delete(
-		IResultCallback<Void> result,
-		Collection<? extends IBeanKey> beanKeys,
-		@Callback IExecutionCallback executionCallback);
+	private final ISyncDeleterService adaptee;
+
+	DeleterServiceAdapter(final ISyncDeleterService adaptee) {
+		this.adaptee = adaptee;
+	}
+
+	@Override
+	public void delete(
+		final IResultCallback<Void> resultCallback,
+		final Collection<? extends IBeanKey> beanKeys,
+		final IExecutionCallback executionCallback) {
+		try {
+			adaptee.delete(beanKeys, executionCallback);
+			resultCallback.finished(null);
+		}
+		catch (final Exception exception) {
+			resultCallback.exception(exception);
+		}
+
+	}
 
 }

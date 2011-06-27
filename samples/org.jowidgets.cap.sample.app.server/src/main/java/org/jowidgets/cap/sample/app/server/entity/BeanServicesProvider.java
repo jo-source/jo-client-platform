@@ -35,7 +35,7 @@ import org.jowidgets.cap.common.api.service.IBeanServicesProvider;
 import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.sample.app.server.datastore.AbstractData;
 import org.jowidgets.cap.sample.app.server.service.creator.SyncCreatorService;
-import org.jowidgets.cap.sample.app.server.service.deleter.DeleterService;
+import org.jowidgets.cap.sample.app.server.service.deleter.SyncDeleterService;
 import org.jowidgets.cap.sample.app.server.service.reader.SyncReaderService;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.entity.IBeanServicesProviderBuilder;
@@ -73,7 +73,7 @@ public final class BeanServicesProvider<BEAN_TYPE extends IBean> {
 		builder.setCreatorService(new SyncCreatorService<BEAN_TYPE>(data, properties));
 
 		//deleter service
-		builder.setDeleterService(new DeleterService(data));
+		builder.setDeleterService(new SyncDeleterService(data));
 
 		//updater service
 		final IUpdaterServiceBuilder<BEAN_TYPE> updaterBuilder = CapServiceToolkit.updaterServiceBuilder(data);

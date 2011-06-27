@@ -26,48 +26,17 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample.app.server.service.deleter;
+package org.jowidgets.cap.service.api.deleter;
 
 import java.util.Collection;
 
-import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
-import org.jowidgets.cap.common.api.exception.DeletedBeanException;
-import org.jowidgets.cap.common.api.exception.StaleBeanException;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
-import org.jowidgets.cap.common.api.service.IDeleterService;
-import org.jowidgets.cap.sample.app.server.datastore.AbstractData;
-import org.jowidgets.util.Assert;
+import org.jowidgets.service.api.Callback;
 
-public class DeleterService implements IDeleterService {
 
-	private final AbstractData<?> data;
-	private final boolean allowDeletedData;
-	private final boolean allowStaleData;
+public interface ISyncDeleterService {
 
-	public DeleterService(final AbstractData<?> data) {
-		this(data, true, true);
-	}
+	void delete(Collection<? extends IBeanKey> beanKeys, @Callback IExecutionCallback executionCallback);
 
-	public DeleterService(final AbstractData<?> data, final boolean allowDeletedData, final boolean allowStaleData) {
-		Assert.paramNotNull(data, "data");
-
-		this.data = data;
-		this.allowDeletedData = allowDeletedData;
-		this.allowStaleData = allowStaleData;
-	}
-
-	@Override
-	public void delete(final Collection<? extends IBeanKey> keys, final IExecutionCallback executionCallback) {
-		for (final IBeanKey key : keys) {
-			final IBean bean = data.getData(key.getId());
-			if (!allowDeletedData && bean == null) {
-				throw new DeletedBeanException(key);
-			}
-			if (!allowStaleData && bean.getVersion() != key.getVersion()) {
-				throw new StaleBeanException(key);
-			}
-			data.deleteData(key.getId());
-		}
-	}
 }

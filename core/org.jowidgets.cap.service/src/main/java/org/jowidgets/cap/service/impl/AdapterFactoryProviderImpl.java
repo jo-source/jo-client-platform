@@ -29,11 +29,13 @@
 package org.jowidgets.cap.service.impl;
 
 import org.jowidgets.cap.common.api.service.ICreatorService;
+import org.jowidgets.cap.common.api.service.IDeleterService;
 import org.jowidgets.cap.common.api.service.IExecutorService;
 import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.common.api.service.IUpdaterService;
 import org.jowidgets.cap.service.api.adapter.IAdapterFactoryProvider;
 import org.jowidgets.cap.service.api.creator.ISyncCreatorService;
+import org.jowidgets.cap.service.api.deleter.ISyncDeleterService;
 import org.jowidgets.cap.service.api.executor.ISyncExecutorService;
 import org.jowidgets.cap.service.api.reader.ISyncReaderService;
 import org.jowidgets.cap.service.api.updater.ISyncUpdaterService;
@@ -46,12 +48,14 @@ final class AdapterFactoryProviderImpl implements IAdapterFactoryProvider {
 	private final ReaderServiceAdapterFactory readerServiceAdapterFactory;
 	private final UpdaterServiceAdapterFactory updaterServiceAdapterFactory;
 	private final CreatorServiceAdapterFactory creatorServiceAdapterFactory;
+	private final DeleterServiceAdapterFactory deleterServiceAdapterFactory;
 
 	AdapterFactoryProviderImpl() {
 		this.executorServiceAdapterFactory = new ExecutorServiceAdapterFactory();
 		this.readerServiceAdapterFactory = new ReaderServiceAdapterFactory();
 		this.updaterServiceAdapterFactory = new UpdaterServiceAdapterFactory();
 		this.creatorServiceAdapterFactory = new CreatorServiceAdapterFactory();
+		this.deleterServiceAdapterFactory = new DeleterServiceAdapterFactory();
 	}
 
 	@Override
@@ -72,6 +76,11 @@ final class AdapterFactoryProviderImpl implements IAdapterFactoryProvider {
 	@Override
 	public IAdapterFactory<ICreatorService, ISyncCreatorService> creator() {
 		return creatorServiceAdapterFactory;
+	}
+
+	@Override
+	public IAdapterFactory<IDeleterService, ISyncDeleterService> deleter() {
+		return deleterServiceAdapterFactory;
 	}
 
 }

@@ -26,20 +26,18 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.api.service;
+package org.jowidgets.cap.service.impl;
 
-import java.util.Collection;
+import org.jowidgets.cap.common.api.service.IDeleterService;
+import org.jowidgets.cap.service.api.deleter.ISyncDeleterService;
+import org.jowidgets.util.Assert;
+import org.jowidgets.util.IAdapterFactory;
 
-import org.jowidgets.cap.common.api.bean.IBeanKey;
-import org.jowidgets.cap.common.api.execution.IExecutionCallback;
-import org.jowidgets.cap.common.api.execution.IResultCallback;
-import org.jowidgets.service.api.Callback;
+final class DeleterServiceAdapterFactory implements IAdapterFactory<IDeleterService, ISyncDeleterService> {
 
-public interface IDeleterService {
-
-	void delete(
-		IResultCallback<Void> result,
-		Collection<? extends IBeanKey> beanKeys,
-		@Callback IExecutionCallback executionCallback);
-
+	@Override
+	public IDeleterService createAdapter(final ISyncDeleterService adaptee) {
+		Assert.paramNotNull(adaptee, "adaptee");
+		return new DeleterServiceAdapter(adaptee);
+	}
 }
