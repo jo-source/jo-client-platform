@@ -27,39 +27,63 @@
  */
 package org.jowidgets.cap.service.impl.jpa;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import org.jowidgets.cap.common.api.bean.IBean;
+import org.jowidgets.cap.common.api.bean.IBeanData;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
-import org.jowidgets.cap.common.api.service.IDeleterService;
+import org.jowidgets.cap.common.api.service.ICreatorService;
 import org.jowidgets.cap.common.api.service.IExecutorService;
 import org.jowidgets.cap.common.tools.execution.SyncResultCallback;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
-import org.jowidgets.cap.service.api.executor.IBeanExecutor;
+import org.jowidgets.cap.service.api.bean.IBeanInitializer;
+import org.jowidgets.cap.service.api.executor.IBeanListExecutor;
 
-public final class JpaDeleterService implements IDeleterService {
+public final class JpaDataCreatorService implements ICreatorService {
 
-	private final IExecutorService<?> executorService;
+	private final IBeanInitializer<IBean> beanInitializer;
+	private final IExecutorService<Object> executorService;
 
 	@PersistenceContext
 	private EntityManager entityManager;
 
-	public JpaDeleterService(final IBeanAccess<? extends IBean> beanProvider) {
-		executorService = CapServiceToolkit.executorServiceBuilder(beanProvider).setAllowDeletedBeans(true).setAllowStaleBeans(
-				true).setExecutor(new IBeanExecutor<IBean, Object>() {
-			@Override
-			public IBean execute(final IBean data, final Object parameter, final IExecutionCallback executionHandle) {
-				entityManager.remove(data);
-				return null;
-			}
-		}).build();
+	public JpaDataCreatorService(final IBeanAccess<? extends IBean> beanProvider, final List<String> propertyNames) {
+		beanInitializer = CapServiceToolkit.beanInitializer(beanProvider.getBeanType(), propertyNames);
+		executorService = CapServiceToolkit.executorServiceBuilder(beanProvider).setPropertyNames(propertyNames).setExecutor(
+				new IBeanListExecutor<IBean, Collection<? extends IBeanData>>() {
+					@Override
+					public List<IBean> execute(
+						final List<? extends IBean> data,
+						final Collection<? extends IBeanData> beansData,
+						final IExecutionCallback executionCallback) {
+						final List<IBean> result = new LinkedList<IBean>();
+						for (final IBeanData beanData : beansData) {
+							final IBean bean;
+							try {
+								bean = beanProvider.getBeanType().newInstance();
+							}
+							catch (final InstantiationException e) {
+								throw new RuntimeException(e);
+							}
+							catch (final IllegalAccessException e) {
+								throw new RuntimeException(e);
+							}
+							beanInitializer.initialize(bean, beanData);
+							entityManager.persist(bean);
+							result.add(bean);
+						}
+						return result;
+					}
+				}).build();
 	}
 
 	public void setEntityManager(final EntityManager entityManager) {
@@ -67,11 +91,10 @@ public final class JpaDeleterService implements IDeleterService {
 	}
 
 	@Override
-	public void delete(final Collection<? extends IBeanKey> beanKeys, final IExecutionCallback executionCallback) {
-		// TODO HW,MG is this a synchronous call?
+	public List<IBeanDto> create(final Collection<? extends IBeanData> beansData, final IExecutionCallback executionCallback) {
 		final SyncResultCallback<List<IBeanDto>> result = new SyncResultCallback<List<IBeanDto>>();
-		executorService.execute(result, (List<? extends IBeanKey>) beanKeys, null, executionCallback);
-		result.getResultSynchronious();
+		executorService.execute(result, new ArrayList<IBeanKey>(), beansData, executionCallback);
+		return result.getResultSynchronious();
 	}
 
 }
