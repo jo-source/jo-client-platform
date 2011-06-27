@@ -47,8 +47,8 @@ import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.filter.IFilter;
 import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
+import org.jowidgets.cap.service.api.adapter.ISyncReaderService;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
-import org.jowidgets.cap.service.api.reader.ISyncReaderService;
 import org.jowidgets.util.concurrent.DaemonThreadFactory;
 
 //TODO HW check if implementation should better implement IReaderService instead of ISyncReaderService

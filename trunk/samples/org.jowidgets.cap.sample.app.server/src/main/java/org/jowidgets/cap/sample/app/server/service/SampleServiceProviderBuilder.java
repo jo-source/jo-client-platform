@@ -46,10 +46,10 @@ import org.jowidgets.cap.sample.app.server.service.executor.ChangeGenderExecutor
 import org.jowidgets.cap.sample.app.server.service.executor.LongLastingExecutor;
 import org.jowidgets.cap.sample.app.server.service.reader.AllUsersReaderService;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
+import org.jowidgets.cap.service.api.adapter.ISyncReaderService;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
 import org.jowidgets.cap.service.api.executor.IBeanExecutor;
 import org.jowidgets.cap.service.api.executor.IExecutorServiceBuilder;
-import org.jowidgets.cap.service.api.reader.ISyncReaderService;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.tools.ServiceProviderBuilder;
 import org.jowidgets.util.IAdapterFactory;

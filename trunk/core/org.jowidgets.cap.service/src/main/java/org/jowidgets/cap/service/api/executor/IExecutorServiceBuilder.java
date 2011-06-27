@@ -33,6 +33,7 @@ import java.util.List;
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.service.IExecutorService;
+import org.jowidgets.cap.service.api.adapter.ISyncExecutorService;
 
 public interface IExecutorServiceBuilder<BEAN_TYPE extends IBean, PARAM_TYPE> {
 

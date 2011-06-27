@@ -26,32 +26,38 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.api.reader;
+package org.jowidgets.cap.service.impl;
 
 import java.util.List;
 
-import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
-import org.jowidgets.cap.common.api.filter.IFilter;
-import org.jowidgets.cap.common.api.sort.ISort;
-import org.jowidgets.service.api.Callback;
+import org.jowidgets.cap.common.api.execution.IResultCallback;
+import org.jowidgets.cap.common.api.service.IParameterProviderService;
+import org.jowidgets.cap.service.api.adapter.ISyncParameterProviderService;
 
-public interface ISyncReaderService<PARAM_TYPE> {
+final class ParameterProviderServiceAdapter<PARAM_TYPE> implements IParameterProviderService<PARAM_TYPE> {
 
-	List<IBeanDto> read(
-		List<? extends IBeanKey> parentBeanKeys,
-		IFilter filter,
-		List<? extends ISort> sorting,
-		int firstRow,
-		int maxRows,
-		PARAM_TYPE parameter,
-		@Callback IExecutionCallback executionCallback);
+	private final ISyncParameterProviderService<PARAM_TYPE> adaptee;
 
-	int count(
-		List<? extends IBeanKey> parentBeanKeys,
-		IFilter filter,
-		PARAM_TYPE parameter,
-		@Callback IExecutionCallback executionCallback);
+	ParameterProviderServiceAdapter(final ISyncParameterProviderService<PARAM_TYPE> adaptee) {
+		this.adaptee = adaptee;
+	}
+
+	@Override
+	public void getParameter(
+		final IResultCallback<PARAM_TYPE> resultCallback,
+		final List<? extends IBeanKey> beanKeys,
+		final PARAM_TYPE defaultParameter,
+		final IExecutionCallback executionCallback) {
+		try {
+			final PARAM_TYPE result = adaptee.getParameter(beanKeys, defaultParameter, executionCallback);
+			resultCallback.finished(result);
+		}
+		catch (final Exception exception) {
+			resultCallback.exception(exception);
+		}
+
+	}
 
 }

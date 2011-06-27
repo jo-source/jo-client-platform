@@ -36,7 +36,7 @@ import org.jowidgets.cap.common.api.exception.DeletedBeanException;
 import org.jowidgets.cap.common.api.exception.StaleBeanException;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.sample.app.server.datastore.AbstractData;
-import org.jowidgets.cap.service.api.deleter.ISyncDeleterService;
+import org.jowidgets.cap.service.api.adapter.ISyncDeleterService;
 import org.jowidgets.util.Assert;
 
 public class SyncDeleterService implements ISyncDeleterService {

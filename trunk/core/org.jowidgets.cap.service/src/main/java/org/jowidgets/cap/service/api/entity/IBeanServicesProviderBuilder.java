@@ -34,11 +34,11 @@ import org.jowidgets.cap.common.api.service.IDeleterService;
 import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.common.api.service.IRefreshService;
 import org.jowidgets.cap.common.api.service.IUpdaterService;
-import org.jowidgets.cap.service.api.creator.ISyncCreatorService;
-import org.jowidgets.cap.service.api.deleter.ISyncDeleterService;
-import org.jowidgets.cap.service.api.reader.ISyncReaderService;
-import org.jowidgets.cap.service.api.refresh.ISyncRefreshService;
-import org.jowidgets.cap.service.api.updater.ISyncUpdaterService;
+import org.jowidgets.cap.service.api.adapter.ISyncCreatorService;
+import org.jowidgets.cap.service.api.adapter.ISyncDeleterService;
+import org.jowidgets.cap.service.api.adapter.ISyncReaderService;
+import org.jowidgets.cap.service.api.adapter.ISyncRefreshService;
+import org.jowidgets.cap.service.api.adapter.ISyncUpdaterService;
 
 public interface IBeanServicesProviderBuilder<BEAN_TYPE> {
 

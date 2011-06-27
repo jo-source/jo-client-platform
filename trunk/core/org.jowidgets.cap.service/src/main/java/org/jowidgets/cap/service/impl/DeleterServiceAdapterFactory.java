@@ -29,7 +29,7 @@
 package org.jowidgets.cap.service.impl;
 
 import org.jowidgets.cap.common.api.service.IDeleterService;
-import org.jowidgets.cap.service.api.deleter.ISyncDeleterService;
+import org.jowidgets.cap.service.api.adapter.ISyncDeleterService;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.IAdapterFactory;
 

@@ -32,6 +32,7 @@ import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.service.IRefreshService;
+import org.jowidgets.cap.service.api.adapter.ISyncRefreshService;
 
 public interface IRefreshServiceBuilder<BEAN_TYPE extends IBean> {
 

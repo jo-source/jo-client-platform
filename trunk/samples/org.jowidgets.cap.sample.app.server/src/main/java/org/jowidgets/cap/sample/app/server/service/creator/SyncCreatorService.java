@@ -38,9 +38,9 @@ import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.sample.app.server.datastore.AbstractData;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
+import org.jowidgets.cap.service.api.adapter.ISyncCreatorService;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.cap.service.api.bean.IBeanInitializer;
-import org.jowidgets.cap.service.api.creator.ISyncCreatorService;
 import org.jowidgets.util.Assert;
 
 public class SyncCreatorService<BEAN_TYPE extends IBean> implements ISyncCreatorService {

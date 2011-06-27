@@ -26,67 +26,19 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.impl;
+package org.jowidgets.cap.service.api.adapter;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
-import org.jowidgets.cap.common.api.execution.IResultCallback;
-import org.jowidgets.cap.common.api.filter.IFilter;
-import org.jowidgets.cap.common.api.service.IReaderService;
-import org.jowidgets.cap.common.api.sort.ISort;
-import org.jowidgets.cap.service.api.adapter.ISyncReaderService;
+import org.jowidgets.service.api.Callback;
 
-final class ReaderServiceAdapter<PARAM_TYPE> implements IReaderService<PARAM_TYPE> {
 
-	private final ISyncReaderService<PARAM_TYPE> syncReaderService;
+public interface ISyncRefreshService {
 
-	ReaderServiceAdapter(final ISyncReaderService<PARAM_TYPE> syncExecutorService) {
-		this.syncReaderService = syncExecutorService;
-	}
-
-	@Override
-	public void read(
-		final IResultCallback<List<IBeanDto>> resultCallback,
-		final List<? extends IBeanKey> parentBeanKeys,
-		final IFilter filter,
-		final List<? extends ISort> sorting,
-		final int firstRow,
-		final int maxRows,
-		final PARAM_TYPE parameter,
-		final IExecutionCallback executionCallback) {
-		try {
-			final List<IBeanDto> result = syncReaderService.read(
-					parentBeanKeys,
-					filter,
-					sorting,
-					firstRow,
-					maxRows,
-					parameter,
-					executionCallback);
-			resultCallback.finished(result);
-		}
-		catch (final Exception exception) {
-			resultCallback.exception(exception);
-		}
-	}
-
-	@Override
-	public void count(
-		final IResultCallback<Integer> resultCallback,
-		final List<? extends IBeanKey> parentBeanKeys,
-		final IFilter filter,
-		final PARAM_TYPE parameter,
-		final IExecutionCallback executionCallback) {
-		try {
-			final Integer result = syncReaderService.count(parentBeanKeys, filter, parameter, executionCallback);
-			resultCallback.finished(result);
-		}
-		catch (final Exception exception) {
-			resultCallback.exception(exception);
-		}
-	}
+	List<IBeanDto> refresh(Collection<? extends IBeanKey> beanKeys, @Callback IExecutionCallback executionCallback);
 
 }

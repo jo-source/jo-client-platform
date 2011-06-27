@@ -40,8 +40,8 @@ import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.service.IExecutorService;
 import org.jowidgets.cap.common.tools.execution.SyncResultCallback;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
+import org.jowidgets.cap.service.api.adapter.ISyncDeleterService;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
-import org.jowidgets.cap.service.api.deleter.ISyncDeleterService;
 import org.jowidgets.cap.service.api.executor.IBeanExecutor;
 
 //TODO HW check if implementation should better implement IDeleterService instead of ISyncDeleterService

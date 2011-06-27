@@ -36,7 +36,7 @@ import org.jowidgets.cap.common.api.bean.IBeanModification;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.service.IUpdaterService;
-import org.jowidgets.cap.service.api.updater.ISyncUpdaterService;
+import org.jowidgets.cap.service.api.adapter.ISyncUpdaterService;
 
 final class UpdaterServiceAdapter implements IUpdaterService {
 

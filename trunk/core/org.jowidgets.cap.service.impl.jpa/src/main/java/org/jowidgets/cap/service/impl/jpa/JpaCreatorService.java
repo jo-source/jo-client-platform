@@ -43,9 +43,9 @@ import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.service.IExecutorService;
 import org.jowidgets.cap.common.tools.execution.SyncResultCallback;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
+import org.jowidgets.cap.service.api.adapter.ISyncCreatorService;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
 import org.jowidgets.cap.service.api.bean.IBeanInitializer;
-import org.jowidgets.cap.service.api.creator.ISyncCreatorService;
 import org.jowidgets.cap.service.api.executor.IBeanListExecutor;
 
 //TODO HW check if implementation should better implement ICreatorService instead of ISyncCreatorService

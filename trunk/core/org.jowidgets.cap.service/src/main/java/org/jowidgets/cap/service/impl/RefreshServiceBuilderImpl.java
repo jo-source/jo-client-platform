@@ -35,9 +35,9 @@ import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.service.IRefreshService;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.adapter.IAdapterFactoryProvider;
+import org.jowidgets.cap.service.api.adapter.ISyncRefreshService;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
 import org.jowidgets.cap.service.api.refresh.IRefreshServiceBuilder;
-import org.jowidgets.cap.service.api.refresh.ISyncRefreshService;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.IAdapterFactory;
 

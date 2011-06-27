@@ -26,17 +26,18 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.api.executor;
+package org.jowidgets.cap.service.api.adapter;
 
 import java.util.List;
 
-import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
-import org.jowidgets.service.api.Callback;
 
-public interface ISyncExecutorService<PARAM_TYPE> {
+public interface ISyncParameterProviderService<PARAMETER_TYPE> {
 
-	List<IBeanDto> execute(List<? extends IBeanKey> beanKeys, PARAM_TYPE parameter, @Callback IExecutionCallback executionCallback);
+	PARAMETER_TYPE getParameter(
+		List<? extends IBeanKey> beanKeys,
+		PARAMETER_TYPE defaultParameter,
+		IExecutionCallback executionCallback);
 
 }

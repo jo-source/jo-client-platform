@@ -28,7 +28,6 @@
 
 package org.jowidgets.cap.common.api.execution;
 
-import org.jowidgets.service.api.Callback;
 
 public interface IExecutionCallback {
 
@@ -100,7 +99,7 @@ public interface IExecutionCallback {
 	 * @param callback The call back that will be invoked, after the user has answered the question
 	 * 
 	 */
-	void userQuestion(String question, @Callback IUserQuestionCallback callback);
+	void userQuestion(String question, IUserQuestionCallback callback);
 
 	/**
 	 * Creates a sub execution from this execution.
@@ -109,11 +108,10 @@ public interface IExecutionCallback {
 	 * @param cancelable If true, the sub execution could be canceled by the user separately
 	 * @return The execution handle of the sub execution
 	 */
-	@Callback
 	IExecutionCallback createSubExecution(int stepProportion, boolean cancelable);
 
-	void addExecutionCallbackListener(@Callback IExecutionCallbackListener listener);
+	void addExecutionCallbackListener(IExecutionCallbackListener listener);
 
-	void removeExecutionCallbackListener(@Callback IExecutionCallbackListener listener);
+	void removeExecutionCallbackListener(IExecutionCallbackListener listener);
 
 }

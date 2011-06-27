@@ -37,7 +37,7 @@ import org.jowidgets.cap.common.api.filter.IFilter;
 import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.sample.app.common.entity.IUser;
 import org.jowidgets.cap.sample.app.server.datastore.DataStore;
-import org.jowidgets.cap.service.api.reader.ISyncReaderService;
+import org.jowidgets.cap.service.api.adapter.ISyncReaderService;
 
 public class AllUsersReaderService implements ISyncReaderService<Integer> {
 

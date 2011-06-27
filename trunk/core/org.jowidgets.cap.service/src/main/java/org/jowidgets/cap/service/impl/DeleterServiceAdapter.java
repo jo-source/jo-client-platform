@@ -34,7 +34,7 @@ import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.service.IDeleterService;
-import org.jowidgets.cap.service.api.deleter.ISyncDeleterService;
+import org.jowidgets.cap.service.api.adapter.ISyncDeleterService;
 
 final class DeleterServiceAdapter implements IDeleterService {
 

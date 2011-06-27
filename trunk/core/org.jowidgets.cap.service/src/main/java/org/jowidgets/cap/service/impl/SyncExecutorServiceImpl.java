@@ -43,11 +43,11 @@ import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.execution.IExecutableState;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
+import org.jowidgets.cap.service.api.adapter.ISyncExecutorService;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.cap.service.api.executor.IBeanExecutor;
 import org.jowidgets.cap.service.api.executor.IBeanListExecutor;
-import org.jowidgets.cap.service.api.executor.ISyncExecutorService;
 import org.jowidgets.util.Assert;
 
 public final class SyncExecutorServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE> implements ISyncExecutorService<PARAM_TYPE> {

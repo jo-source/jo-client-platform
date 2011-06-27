@@ -29,7 +29,7 @@
 package org.jowidgets.cap.service.impl;
 
 import org.jowidgets.cap.common.api.service.IReaderService;
-import org.jowidgets.cap.service.api.reader.ISyncReaderService;
+import org.jowidgets.cap.service.api.adapter.ISyncReaderService;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.IAdapterFactory;
 
