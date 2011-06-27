@@ -49,13 +49,14 @@ import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
+import org.jowidgets.util.concurrent.DaemonThreadFactory;
 
 public final class JpaReaderService<BEAN_TYPE extends IBean, PARAMETER_TYPE> implements IReaderService<PARAMETER_TYPE> {
 
 	private final Class<? extends BEAN_TYPE> beanType;
 	private final IQueryCreator<PARAMETER_TYPE> queryCreator;
 	private final IBeanDtoFactory<BEAN_TYPE> dtoFactory;
-	private final Executor executor = Executors.newCachedThreadPool();
+	private final Executor executor = Executors.newCachedThreadPool(new DaemonThreadFactory());
 
 	@PersistenceContext
 	private EntityManager entityManager;
