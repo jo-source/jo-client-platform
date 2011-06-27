@@ -76,7 +76,7 @@ public final class JpaReaderService<BEAN_TYPE extends IBean, PARAMETER_TYPE> imp
 	}
 
 	@Override
-	public java.util.List<IBeanDto> read(
+	public List<IBeanDto> read(
 		final List<? extends IBeanKey> parentBeanKeys,
 		final IFilter filter,
 		final List<? extends ISort> sorting,
