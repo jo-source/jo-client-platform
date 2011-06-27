@@ -38,19 +38,19 @@ import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.exception.DeletedBeanException;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
-import org.jowidgets.cap.common.api.service.IRefreshService;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
+import org.jowidgets.cap.service.api.refresh.ISyncRefreshService;
 
-public final class RefreshServiceImpl<BEAN_TYPE extends IBean> implements IRefreshService {
+public final class SyncRefreshServiceImpl<BEAN_TYPE extends IBean> implements ISyncRefreshService {
 
 	private final IBeanAccess<BEAN_TYPE> beanAccess;
 	private final IBeanDtoFactory<BEAN_TYPE> dtoFactory;
 	private final boolean allowDeletedBeans;
 
 	@SuppressWarnings("unchecked")
-	RefreshServiceImpl(
+	SyncRefreshServiceImpl(
 		final Class<? extends BEAN_TYPE> beanType,
 		final IBeanAccess<? extends BEAN_TYPE> beanAccess,
 		final List<String> propertyNames,

@@ -26,21 +26,50 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.api.service;
+package org.jowidgets.cap.service.impl;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.Executor;
 
-import org.jowidgets.cap.common.api.bean.IBeanData;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
+import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
+import org.jowidgets.cap.common.api.service.IRefreshService;
+import org.jowidgets.util.Assert;
+import org.jowidgets.util.IDecorator;
 
-public interface ICreatorService {
+final class RefreshServiceAsyncDecorator implements IDecorator<IRefreshService> {
 
-	void create(
-		IResultCallback<List<IBeanDto>> result,
-		Collection<? extends IBeanData> beansData,
-		IExecutionCallback executionCallback);
+	private final Executor executor;
 
+	RefreshServiceAsyncDecorator(final Executor executor) {
+		this.executor = executor;
+	}
+
+	@Override
+	public IRefreshService decorate(final IRefreshService original) {
+		Assert.paramNotNull(original, "original");
+		return new IRefreshService() {
+			@Override
+			public void refresh(
+				final IResultCallback<List<IBeanDto>> result,
+				final Collection<? extends IBeanKey> beanKeys,
+				final IExecutionCallback executionCallback) {
+				executor.execute(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							original.refresh(result, beanKeys, executionCallback);
+						}
+						catch (final Exception exception) {
+							result.exception(exception);
+						}
+					}
+				});
+			}
+		};
+
+	}
 }

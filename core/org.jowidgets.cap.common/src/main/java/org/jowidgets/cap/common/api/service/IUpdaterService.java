@@ -35,13 +35,12 @@ import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanModification;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
-import org.jowidgets.service.api.Callback;
 
 public interface IUpdaterService {
 
 	void update(
 		IResultCallback<List<IBeanDto>> result,
 		Collection<? extends IBeanModification> modifications,
-		@Callback IExecutionCallback executionCallback);
+		IExecutionCallback executionCallback);
 
 }

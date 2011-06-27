@@ -33,13 +33,9 @@ import java.util.Collection;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
-import org.jowidgets.service.api.Callback;
 
 public interface IDeleterService {
 
-	void delete(
-		IResultCallback<Void> result,
-		Collection<? extends IBeanKey> beanKeys,
-		@Callback IExecutionCallback executionCallback);
+	void delete(IResultCallback<Void> result, Collection<? extends IBeanKey> beanKeys, IExecutionCallback executionCallback);
 
 }

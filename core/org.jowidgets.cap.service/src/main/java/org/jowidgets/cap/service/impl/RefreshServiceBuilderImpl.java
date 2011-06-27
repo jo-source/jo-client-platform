@@ -33,9 +33,13 @@ import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.service.IRefreshService;
+import org.jowidgets.cap.service.api.CapServiceToolkit;
+import org.jowidgets.cap.service.api.adapter.IAdapterFactoryProvider;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
 import org.jowidgets.cap.service.api.refresh.IRefreshServiceBuilder;
+import org.jowidgets.cap.service.api.refresh.ISyncRefreshService;
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.IAdapterFactory;
 
 final class RefreshServiceBuilderImpl<BEAN_TYPE extends IBean> implements IRefreshServiceBuilder<BEAN_TYPE> {
 
@@ -78,7 +82,14 @@ final class RefreshServiceBuilderImpl<BEAN_TYPE extends IBean> implements IRefre
 
 	@Override
 	public IRefreshService build() {
-		return new RefreshServiceImpl<IBean>(beanType, beanAccess, getPropertyNames(), allowDeletedBeans);
+		final IAdapterFactoryProvider afp = CapServiceToolkit.adapterFactoryProvider();
+		final IAdapterFactory<IRefreshService, ISyncRefreshService> adapterFactory = afp.refresh();
+		return adapterFactory.createAdapter(buildSyncService());
+	}
+
+	@Override
+	public ISyncRefreshService buildSyncService() {
+		return new SyncRefreshServiceImpl<IBean>(beanType, beanAccess, getPropertyNames(), allowDeletedBeans);
 	}
 
 }

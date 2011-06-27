@@ -32,13 +32,12 @@ import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
-import org.jowidgets.service.api.Callback;
 
 public interface IParameterProviderService<PARAMETER_TYPE> {
 
 	PARAMETER_TYPE getParameter(
 		List<? extends IBeanKey> beanKeys,
 		PARAMETER_TYPE defaultParameter,
-		@Callback IExecutionCallback executionCallback);
+		IExecutionCallback executionCallback);
 
 }

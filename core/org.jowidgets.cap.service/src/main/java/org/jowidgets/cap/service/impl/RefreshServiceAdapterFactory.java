@@ -26,21 +26,18 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.api.service;
+package org.jowidgets.cap.service.impl;
 
-import java.util.Collection;
-import java.util.List;
+import org.jowidgets.cap.common.api.service.IRefreshService;
+import org.jowidgets.cap.service.api.refresh.ISyncRefreshService;
+import org.jowidgets.util.Assert;
+import org.jowidgets.util.IAdapterFactory;
 
-import org.jowidgets.cap.common.api.bean.IBeanData;
-import org.jowidgets.cap.common.api.bean.IBeanDto;
-import org.jowidgets.cap.common.api.execution.IExecutionCallback;
-import org.jowidgets.cap.common.api.execution.IResultCallback;
+final class RefreshServiceAdapterFactory implements IAdapterFactory<IRefreshService, ISyncRefreshService> {
 
-public interface ICreatorService {
-
-	void create(
-		IResultCallback<List<IBeanDto>> result,
-		Collection<? extends IBeanData> beansData,
-		IExecutionCallback executionCallback);
-
+	@Override
+	public IRefreshService createAdapter(final ISyncRefreshService adaptee) {
+		Assert.paramNotNull(adaptee, "adaptee");
+		return new RefreshServiceAdapter(adaptee);
+	}
 }

@@ -40,6 +40,7 @@ import org.jowidgets.cap.service.api.creator.ISyncCreatorService;
 import org.jowidgets.cap.service.api.deleter.ISyncDeleterService;
 import org.jowidgets.cap.service.api.entity.IBeanServicesProviderBuilder;
 import org.jowidgets.cap.service.api.reader.ISyncReaderService;
+import org.jowidgets.cap.service.api.refresh.ISyncRefreshService;
 import org.jowidgets.cap.service.api.updater.ISyncUpdaterService;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.api.IServiceRegistry;
@@ -100,6 +101,12 @@ final class BeanServicesProviderBuilderImpl<BEAN_TYPE> implements IBeanServicesP
 		Assert.paramNotNull(refreshService, "refreshService");
 		this.refreshService = refreshService;
 		return this;
+	}
+
+	@Override
+	public IBeanServicesProviderBuilder<BEAN_TYPE> setRefreshService(final ISyncRefreshService refreshService) {
+		Assert.paramNotNull(refreshService, "refreshService");
+		return setRefreshService(CapServiceToolkit.adapterFactoryProvider().refresh().createAdapter(refreshService));
 	}
 
 	@Override
