@@ -23,6 +23,11 @@
 	<dependencies>
 		<dependency>
 			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.util</artifactId>
+			<version>${jowidgets.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
 			<artifactId>org.jowidgets.cap.service</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
