@@ -32,12 +32,14 @@ import org.jowidgets.cap.common.api.service.ICreatorService;
 import org.jowidgets.cap.common.api.service.IDeleterService;
 import org.jowidgets.cap.common.api.service.IExecutorService;
 import org.jowidgets.cap.common.api.service.IReaderService;
+import org.jowidgets.cap.common.api.service.IRefreshService;
 import org.jowidgets.cap.common.api.service.IUpdaterService;
 import org.jowidgets.cap.service.api.adapter.IAdapterFactoryProvider;
 import org.jowidgets.cap.service.api.creator.ISyncCreatorService;
 import org.jowidgets.cap.service.api.deleter.ISyncDeleterService;
 import org.jowidgets.cap.service.api.executor.ISyncExecutorService;
 import org.jowidgets.cap.service.api.reader.ISyncReaderService;
+import org.jowidgets.cap.service.api.refresh.ISyncRefreshService;
 import org.jowidgets.cap.service.api.updater.ISyncUpdaterService;
 import org.jowidgets.util.IAdapterFactory;
 
@@ -49,6 +51,7 @@ final class AdapterFactoryProviderImpl implements IAdapterFactoryProvider {
 	private final UpdaterServiceAdapterFactory updaterServiceAdapterFactory;
 	private final CreatorServiceAdapterFactory creatorServiceAdapterFactory;
 	private final DeleterServiceAdapterFactory deleterServiceAdapterFactory;
+	private final RefreshServiceAdapterFactory refreshServiceAdapterFactory;
 
 	AdapterFactoryProviderImpl() {
 		this.executorServiceAdapterFactory = new ExecutorServiceAdapterFactory();
@@ -56,6 +59,7 @@ final class AdapterFactoryProviderImpl implements IAdapterFactoryProvider {
 		this.updaterServiceAdapterFactory = new UpdaterServiceAdapterFactory();
 		this.creatorServiceAdapterFactory = new CreatorServiceAdapterFactory();
 		this.deleterServiceAdapterFactory = new DeleterServiceAdapterFactory();
+		this.refreshServiceAdapterFactory = new RefreshServiceAdapterFactory();
 	}
 
 	@Override
@@ -71,6 +75,11 @@ final class AdapterFactoryProviderImpl implements IAdapterFactoryProvider {
 	@Override
 	public <PARAM_TYPE> IAdapterFactory<IReaderService<PARAM_TYPE>, ISyncReaderService<PARAM_TYPE>> reader() {
 		return readerServiceAdapterFactory;
+	}
+
+	@Override
+	public IAdapterFactory<IRefreshService, ISyncRefreshService> refresh() {
+		return refreshServiceAdapterFactory;
 	}
 
 	@Override

@@ -36,7 +36,6 @@ import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.filter.IFilter;
 import org.jowidgets.cap.common.api.sort.ISort;
-import org.jowidgets.service.api.Callback;
 
 public interface IReaderService<PARAM_TYPE> {
 
@@ -48,13 +47,13 @@ public interface IReaderService<PARAM_TYPE> {
 		int firstRow,
 		int maxRows,
 		PARAM_TYPE parameter,
-		@Callback IExecutionCallback executionCallback);
+		IExecutionCallback executionCallback);
 
 	void count(
 		IResultCallback<Integer> result,
 		List<? extends IBeanKey> parentBeanKeys,
 		IFilter filter,
 		PARAM_TYPE parameter,
-		@Callback IExecutionCallback executionCallback);
+		IExecutionCallback executionCallback);
 
 }

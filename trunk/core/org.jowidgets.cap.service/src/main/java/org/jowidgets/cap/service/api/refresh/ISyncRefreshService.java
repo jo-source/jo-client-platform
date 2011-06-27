@@ -26,21 +26,19 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.api.service;
+package org.jowidgets.cap.service.api.refresh;
 
 import java.util.Collection;
 import java.util.List;
 
-import org.jowidgets.cap.common.api.bean.IBeanData;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
+import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
-import org.jowidgets.cap.common.api.execution.IResultCallback;
+import org.jowidgets.service.api.Callback;
 
-public interface ICreatorService {
 
-	void create(
-		IResultCallback<List<IBeanDto>> result,
-		Collection<? extends IBeanData> beansData,
-		IExecutionCallback executionCallback);
+public interface ISyncRefreshService {
+
+	List<IBeanDto> refresh(Collection<? extends IBeanKey> beanKeys, @Callback IExecutionCallback executionCallback);
 
 }

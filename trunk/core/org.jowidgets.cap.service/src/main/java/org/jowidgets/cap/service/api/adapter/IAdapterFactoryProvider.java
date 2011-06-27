@@ -32,11 +32,13 @@ import org.jowidgets.cap.common.api.service.ICreatorService;
 import org.jowidgets.cap.common.api.service.IDeleterService;
 import org.jowidgets.cap.common.api.service.IExecutorService;
 import org.jowidgets.cap.common.api.service.IReaderService;
+import org.jowidgets.cap.common.api.service.IRefreshService;
 import org.jowidgets.cap.common.api.service.IUpdaterService;
 import org.jowidgets.cap.service.api.creator.ISyncCreatorService;
 import org.jowidgets.cap.service.api.deleter.ISyncDeleterService;
 import org.jowidgets.cap.service.api.executor.ISyncExecutorService;
 import org.jowidgets.cap.service.api.reader.ISyncReaderService;
+import org.jowidgets.cap.service.api.refresh.ISyncRefreshService;
 import org.jowidgets.cap.service.api.updater.ISyncUpdaterService;
 import org.jowidgets.util.IAdapterFactory;
 
@@ -47,6 +49,8 @@ public interface IAdapterFactoryProvider {
 	IAdapterFactory<ICreatorService, ISyncCreatorService> creator();
 
 	<PARAM_TYPE> IAdapterFactory<IReaderService<PARAM_TYPE>, ISyncReaderService<PARAM_TYPE>> reader();
+
+	IAdapterFactory<IRefreshService, ISyncRefreshService> refresh();
 
 	IAdapterFactory<IUpdaterService, ISyncUpdaterService> updater();
 

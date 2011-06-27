@@ -34,7 +34,6 @@ import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
-import org.jowidgets.service.api.Callback;
 
 public interface IExecutorService<PARAM_TYPE> {
 
@@ -42,6 +41,6 @@ public interface IExecutorService<PARAM_TYPE> {
 		IResultCallback<List<IBeanDto>> result,
 		List<? extends IBeanKey> beanKeys,
 		PARAM_TYPE parameter,
-		@Callback IExecutionCallback executionCallback);
+		IExecutionCallback executionCallback);
 
 }

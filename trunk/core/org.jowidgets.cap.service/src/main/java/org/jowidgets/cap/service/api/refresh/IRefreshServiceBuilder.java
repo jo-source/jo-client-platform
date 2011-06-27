@@ -33,12 +33,13 @@ import java.util.List;
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.service.IRefreshService;
 
-
 public interface IRefreshServiceBuilder<BEAN_TYPE extends IBean> {
 
 	IRefreshServiceBuilder<BEAN_TYPE> setPropertyNames(final List<String> propertyNames);
 
 	IRefreshServiceBuilder<BEAN_TYPE> setAllowDeletedBeans(boolean allowDeletedBeans);
+
+	ISyncRefreshService buildSyncService();
 
 	IRefreshService build();
 

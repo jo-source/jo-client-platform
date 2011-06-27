@@ -34,11 +34,13 @@ import java.util.List;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
-import org.jowidgets.service.api.Callback;
-
+import org.jowidgets.cap.common.api.execution.IResultCallback;
 
 public interface IRefreshService {
 
-	List<IBeanDto> refresh(Collection<? extends IBeanKey> beanKeys, @Callback IExecutionCallback executionCallback);
+	void refresh(
+		IResultCallback<List<IBeanDto>> result,
+		Collection<? extends IBeanKey> beanKeys,
+		IExecutionCallback executionCallback);
 
 }
