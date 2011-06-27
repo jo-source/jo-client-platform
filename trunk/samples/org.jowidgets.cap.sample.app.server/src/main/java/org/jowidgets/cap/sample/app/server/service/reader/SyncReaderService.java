@@ -26,35 +26,60 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.api.service;
+package org.jowidgets.cap.sample.app.server.service.reader;
 
 import java.util.List;
 
+import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
-import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.filter.IFilter;
 import org.jowidgets.cap.common.api.sort.ISort;
-import org.jowidgets.service.api.Callback;
+import org.jowidgets.cap.sample.app.server.datastore.AbstractData;
+import org.jowidgets.cap.service.api.CapServiceToolkit;
+import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
+import org.jowidgets.cap.service.api.reader.ISyncReaderService;
 
-public interface IReaderService<PARAM_TYPE> {
+public class SyncReaderService<BEAN_TYPE extends IBean> implements ISyncReaderService<Void> {
 
-	void read(
-		final IResultCallback<List<IBeanDto>> result,
-		List<? extends IBeanKey> parentBeanKeys,
-		IFilter filter,
-		List<? extends ISort> sorting,
-		int firstRow,
-		int maxRows,
-		PARAM_TYPE parameter,
-		@Callback IExecutionCallback executionCallback);
+	private final IBeanDtoFactory<BEAN_TYPE> beanFactory;
+	private final AbstractData<? extends BEAN_TYPE> data;
 
-	void count(
-		final IResultCallback<Integer> result,
-		List<? extends IBeanKey> parentBeanKeys,
-		IFilter filter,
-		PARAM_TYPE parameter,
-		@Callback IExecutionCallback executionCallback);
+	public SyncReaderService(final AbstractData<? extends BEAN_TYPE> data, final List<String> propertyNames) {
+		this.beanFactory = CapServiceToolkit.dtoFactory(data.getBeanType(), propertyNames);
+		this.data = data;
+	}
+
+	@Override
+	public List<IBeanDto> read(
+		final List<? extends IBeanKey> parentBeans,
+		final IFilter filter,
+		final List<? extends ISort> sortedProperties,
+		final int firstRow,
+		final int maxRows,
+		final Void parameter,
+		IExecutionCallback executionCallback) {
+
+		executionCallback = CapServiceToolkit.delayedExecutionCallback(executionCallback);
+
+		final List<IBeanDto> result = beanFactory.createDtos(data.getAllData(firstRow, maxRows));
+
+		//TODO apply filter and sort
+
+		return result;
+	}
+
+	@Override
+	public int count(
+		final List<? extends IBeanKey> parentBeans,
+		final IFilter filter,
+		final Void parameter,
+		final IExecutionCallback executionCallback) {
+
+		//TODO apply filter
+
+		return data.getAllData().size();
+	}
 
 }

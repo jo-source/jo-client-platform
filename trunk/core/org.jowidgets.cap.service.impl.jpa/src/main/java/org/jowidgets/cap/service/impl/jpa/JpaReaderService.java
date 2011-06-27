@@ -45,13 +45,14 @@ import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.filter.IFilter;
-import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
+import org.jowidgets.cap.service.api.reader.ISyncReaderService;
 import org.jowidgets.util.concurrent.DaemonThreadFactory;
 
-public final class JpaReaderService<BEAN_TYPE extends IBean, PARAMETER_TYPE> implements IReaderService<PARAMETER_TYPE> {
+//TODO HW check if implementation should better implement IReaderService instead of ISyncReaderService
+public final class JpaReaderService<BEAN_TYPE extends IBean, PARAMETER_TYPE> implements ISyncReaderService<PARAMETER_TYPE> {
 
 	private final Class<? extends BEAN_TYPE> beanType;
 	private final IQueryCreator<PARAMETER_TYPE> queryCreator;

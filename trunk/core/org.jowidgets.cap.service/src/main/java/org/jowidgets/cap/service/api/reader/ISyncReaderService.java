@@ -26,60 +26,32 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample.app.server.service.reader;
+package org.jowidgets.cap.service.api.reader;
 
 import java.util.List;
 
-import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.filter.IFilter;
-import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.common.api.sort.ISort;
-import org.jowidgets.cap.sample.app.server.datastore.AbstractData;
-import org.jowidgets.cap.service.api.CapServiceToolkit;
-import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
+import org.jowidgets.service.api.Callback;
 
-public class ReaderService<BEAN_TYPE extends IBean> implements IReaderService<Void> {
+public interface ISyncReaderService<PARAM_TYPE> {
 
-	private final IBeanDtoFactory<BEAN_TYPE> beanFactory;
-	private final AbstractData<? extends BEAN_TYPE> data;
+	List<IBeanDto> read(
+		List<? extends IBeanKey> parentBeanKeys,
+		IFilter filter,
+		List<? extends ISort> sorting,
+		int firstRow,
+		int maxRows,
+		PARAM_TYPE parameter,
+		@Callback IExecutionCallback executionCallback);
 
-	public ReaderService(final AbstractData<? extends BEAN_TYPE> data, final List<String> propertyNames) {
-		this.beanFactory = CapServiceToolkit.dtoFactory(data.getBeanType(), propertyNames);
-		this.data = data;
-	}
-
-	@Override
-	public List<IBeanDto> read(
-		final List<? extends IBeanKey> parentBeans,
-		final IFilter filter,
-		final List<? extends ISort> sortedProperties,
-		final int firstRow,
-		final int maxRows,
-		final Void parameter,
-		IExecutionCallback executionCallback) {
-
-		executionCallback = CapServiceToolkit.delayedExecutionCallback(executionCallback);
-
-		final List<IBeanDto> result = beanFactory.createDtos(data.getAllData(firstRow, maxRows));
-
-		//TODO apply filter and sort
-
-		return result;
-	}
-
-	@Override
-	public int count(
-		final List<? extends IBeanKey> parentBeans,
-		final IFilter filter,
-		final Void parameter,
-		final IExecutionCallback executionCallback) {
-
-		//TODO apply filter
-
-		return data.getAllData().size();
-	}
+	int count(
+		List<? extends IBeanKey> parentBeanKeys,
+		IFilter filter,
+		PARAM_TYPE parameter,
+		@Callback IExecutionCallback executionCallback);
 
 }

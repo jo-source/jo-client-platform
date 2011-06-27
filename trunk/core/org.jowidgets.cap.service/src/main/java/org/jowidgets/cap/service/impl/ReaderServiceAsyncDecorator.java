@@ -26,35 +26,89 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.api.service;
+package org.jowidgets.cap.service.impl;
 
 import java.util.List;
+import java.util.concurrent.Executor;
 
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.filter.IFilter;
+import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.common.api.sort.ISort;
-import org.jowidgets.service.api.Callback;
+import org.jowidgets.util.Assert;
+import org.jowidgets.util.IDecorator;
 
-public interface IReaderService<PARAM_TYPE> {
+final class ReaderServiceAsyncDecorator implements IDecorator<IReaderService<Object>> {
 
-	void read(
-		final IResultCallback<List<IBeanDto>> result,
-		List<? extends IBeanKey> parentBeanKeys,
-		IFilter filter,
-		List<? extends ISort> sorting,
-		int firstRow,
-		int maxRows,
-		PARAM_TYPE parameter,
-		@Callback IExecutionCallback executionCallback);
+	private final Executor executor;
 
-	void count(
-		final IResultCallback<Integer> result,
-		List<? extends IBeanKey> parentBeanKeys,
-		IFilter filter,
-		PARAM_TYPE parameter,
-		@Callback IExecutionCallback executionCallback);
+	ReaderServiceAsyncDecorator(final Executor executor) {
+		this.executor = executor;
+	}
 
+	@Override
+	public IReaderService<Object> decorate(final IReaderService<Object> original) {
+		Assert.paramNotNull(original, "original");
+		return new IReaderService<Object>() {
+
+			@Override
+			public void read(
+				final IResultCallback<List<IBeanDto>> result,
+				final List<? extends IBeanKey> parentBeanKeys,
+				final IFilter filter,
+				final List<? extends ISort> sorting,
+				final int firstRow,
+				final int maxRows,
+				final Object parameter,
+				final IExecutionCallback executionCallback) {
+
+				executor.execute(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							original.read(
+									result,
+									parentBeanKeys,
+									filter,
+									sorting,
+									firstRow,
+									maxRows,
+									parameter,
+									executionCallback);
+						}
+						catch (final Exception exception) {
+							result.exception(exception);
+						}
+					}
+				});
+
+			}
+
+			@Override
+			public void count(
+				final IResultCallback<Integer> result,
+				final List<? extends IBeanKey> parentBeanKeys,
+				final IFilter filter,
+				final Object parameter,
+				final IExecutionCallback executionCallback) {
+
+				executor.execute(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							original.count(result, parentBeanKeys, filter, parameter, executionCallback);
+						}
+						catch (final Exception exception) {
+							result.exception(exception);
+						}
+					}
+				});
+
+			}
+		};
+
+	}
 }

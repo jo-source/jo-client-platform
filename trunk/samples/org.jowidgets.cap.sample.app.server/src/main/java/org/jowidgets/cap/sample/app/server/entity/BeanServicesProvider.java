@@ -33,16 +33,19 @@ import java.util.List;
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.service.IBeanServicesProvider;
 import org.jowidgets.cap.common.api.service.IEntityService;
+import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.sample.app.server.datastore.AbstractData;
 import org.jowidgets.cap.sample.app.server.service.creator.CreatorService;
 import org.jowidgets.cap.sample.app.server.service.deleter.DeleterService;
-import org.jowidgets.cap.sample.app.server.service.reader.ReaderService;
+import org.jowidgets.cap.sample.app.server.service.reader.SyncReaderService;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.entity.IBeanServicesProviderBuilder;
+import org.jowidgets.cap.service.api.reader.ISyncReaderService;
 import org.jowidgets.cap.service.api.refresh.IRefreshServiceBuilder;
 import org.jowidgets.cap.service.api.updater.IUpdaterServiceBuilder;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.api.IServiceRegistry;
+import org.jowidgets.util.IAdapterFactory;
 
 public final class BeanServicesProvider<BEAN_TYPE extends IBean> {
 
@@ -67,7 +70,8 @@ public final class BeanServicesProvider<BEAN_TYPE extends IBean> {
 				data.getBeanType());
 
 		//reader service
-		builder.setReaderService(new ReaderService<BEAN_TYPE>(data, properties));
+		final IAdapterFactory<IReaderService<Void>, ISyncReaderService<Void>> readerAdapterFactory = CapServiceToolkit.adapterFactoryProvider().reader();
+		builder.setReaderService(readerAdapterFactory.createAdapter(new SyncReaderService<BEAN_TYPE>(data, properties)));
 
 		//creator service
 		builder.setCreatorService(new CreatorService<BEAN_TYPE>(data, properties));

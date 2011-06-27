@@ -28,41 +28,65 @@
 
 package org.jowidgets.cap.service.impl;
 
-import org.jowidgets.cap.common.api.service.IExecutorService;
+import java.util.List;
+
+import org.jowidgets.cap.common.api.bean.IBeanDto;
+import org.jowidgets.cap.common.api.bean.IBeanKey;
+import org.jowidgets.cap.common.api.execution.IExecutionCallback;
+import org.jowidgets.cap.common.api.execution.IResultCallback;
+import org.jowidgets.cap.common.api.filter.IFilter;
 import org.jowidgets.cap.common.api.service.IReaderService;
-import org.jowidgets.cap.common.api.service.IUpdaterService;
-import org.jowidgets.cap.service.api.adapter.IAdapterFactoryProvider;
-import org.jowidgets.cap.service.api.executor.ISyncExecutorService;
+import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.service.api.reader.ISyncReaderService;
-import org.jowidgets.cap.service.api.updater.ISyncUpdaterService;
-import org.jowidgets.util.IAdapterFactory;
 
-@SuppressWarnings({"rawtypes", "unchecked"})
-final class AdapterFactoryProviderImpl implements IAdapterFactoryProvider {
+final class ReaderServiceAdapter<PARAM_TYPE> implements IReaderService<PARAM_TYPE> {
 
-	private final ExecutorServiceAdapterFactory executorServiceAdapterFactory;
-	private final ReaderServiceAdapterFactory readerServiceAdapterFactory;
-	private final UpdaterServiceAdapterFactory updaterServiceAdapterFactory;
+	private final ISyncReaderService<PARAM_TYPE> syncReaderService;
 
-	AdapterFactoryProviderImpl() {
-		this.executorServiceAdapterFactory = new ExecutorServiceAdapterFactory();
-		this.readerServiceAdapterFactory = new ReaderServiceAdapterFactory();
-		this.updaterServiceAdapterFactory = new UpdaterServiceAdapterFactory();
+	ReaderServiceAdapter(final ISyncReaderService<PARAM_TYPE> syncExecutorService) {
+		this.syncReaderService = syncExecutorService;
 	}
 
 	@Override
-	public <PARAM_TYPE> IAdapterFactory<IExecutorService<PARAM_TYPE>, ISyncExecutorService<PARAM_TYPE>> executor() {
-		return executorServiceAdapterFactory;
+	public void read(
+		final IResultCallback<List<IBeanDto>> resultCallback,
+		final List<? extends IBeanKey> parentBeanKeys,
+		final IFilter filter,
+		final List<? extends ISort> sorting,
+		final int firstRow,
+		final int maxRows,
+		final PARAM_TYPE parameter,
+		final IExecutionCallback executionCallback) {
+		try {
+			final List<IBeanDto> result = syncReaderService.read(
+					parentBeanKeys,
+					filter,
+					sorting,
+					firstRow,
+					maxRows,
+					parameter,
+					executionCallback);
+			resultCallback.finished(result);
+		}
+		catch (final Exception exception) {
+			resultCallback.exception(exception);
+		}
 	}
 
 	@Override
-	public IAdapterFactory<IUpdaterService, ISyncUpdaterService> updater() {
-		return updaterServiceAdapterFactory;
-	}
-
-	@Override
-	public <PARAM_TYPE> IAdapterFactory<IReaderService<PARAM_TYPE>, ISyncReaderService<PARAM_TYPE>> reader() {
-		return readerServiceAdapterFactory;
+	public void count(
+		final IResultCallback<Integer> resultCallback,
+		final List<? extends IBeanKey> parentBeanKeys,
+		final IFilter filter,
+		final PARAM_TYPE parameter,
+		final IExecutionCallback executionCallback) {
+		try {
+			final Integer result = syncReaderService.count(parentBeanKeys, filter, parameter, executionCallback);
+			resultCallback.finished(result);
+		}
+		catch (final Exception exception) {
+			resultCallback.exception(exception);
+		}
 	}
 
 }

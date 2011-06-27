@@ -26,33 +26,20 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.api.entity;
+package org.jowidgets.cap.service.impl;
 
-import org.jowidgets.cap.common.api.service.IBeanServicesProvider;
-import org.jowidgets.cap.common.api.service.ICreatorService;
-import org.jowidgets.cap.common.api.service.IDeleterService;
 import org.jowidgets.cap.common.api.service.IReaderService;
-import org.jowidgets.cap.common.api.service.IRefreshService;
-import org.jowidgets.cap.common.api.service.IUpdaterService;
 import org.jowidgets.cap.service.api.reader.ISyncReaderService;
-import org.jowidgets.cap.service.api.updater.ISyncUpdaterService;
+import org.jowidgets.util.Assert;
+import org.jowidgets.util.IAdapterFactory;
 
-public interface IBeanServicesProviderBuilder<BEAN_TYPE> {
+final class ReaderServiceAdapterFactory<PARAM_TYPE> implements
+		IAdapterFactory<IReaderService<PARAM_TYPE>, ISyncReaderService<PARAM_TYPE>> {
 
-	IBeanServicesProviderBuilder<BEAN_TYPE> setReaderService(IReaderService<Void> readerService);
-
-	IBeanServicesProviderBuilder<BEAN_TYPE> setReaderService(ISyncReaderService<Void> readerService);
-
-	IBeanServicesProviderBuilder<BEAN_TYPE> setCreatorService(ICreatorService creatorService);
-
-	IBeanServicesProviderBuilder<BEAN_TYPE> setRefreshService(IRefreshService refreshService);
-
-	IBeanServicesProviderBuilder<BEAN_TYPE> setUpdaterService(IUpdaterService updaterService);
-
-	IBeanServicesProviderBuilder<BEAN_TYPE> setUpdaterService(ISyncUpdaterService updaterService);
-
-	IBeanServicesProviderBuilder<BEAN_TYPE> setDeleterService(IDeleterService deleterService);
-
-	IBeanServicesProvider<BEAN_TYPE> build();
+	@Override
+	public IReaderService<PARAM_TYPE> createAdapter(final ISyncReaderService<PARAM_TYPE> adapted) {
+		Assert.paramNotNull(adapted, "adapted");
+		return new ReaderServiceAdapter<PARAM_TYPE>(adapted);
+	}
 
 }
