@@ -41,15 +41,15 @@ public interface IQueryCreator<PARAMETER_TYPE> {
 	Query createReadQuery(
 		final EntityManager entityManager,
 		final Class<?> persistenceClass,
-		final List<? extends IBeanKey> parentBeans,
+		final List<? extends IBeanKey> parentBeanKeys,
 		final IFilter filter,
-		final List<? extends ISort> sortedProperties,
+		final List<? extends ISort> sorting,
 		final PARAMETER_TYPE parameter);
 
 	Query createCountQuery(
 		final EntityManager entityManager,
 		final Class<?> persistenceClass,
-		final List<? extends IBeanKey> parentBeans,
+		final List<? extends IBeanKey> parentBeanKeys,
 		final IFilter filter,
 		final PARAMETER_TYPE parameter);
 
