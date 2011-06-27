@@ -34,17 +34,17 @@ import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.filter.IFilter;
-import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.sample.app.common.entity.IUser;
 import org.jowidgets.cap.sample.app.server.datastore.DataStore;
+import org.jowidgets.cap.service.api.reader.ISyncReaderService;
 
-public class AllUsersReaderService implements IReaderService<Integer> {
+public class AllUsersReaderService implements ISyncReaderService<Integer> {
 
-	private final IReaderService<Void> readerService;
+	private final ISyncReaderService<Void> readerService;
 
 	public AllUsersReaderService() {
-		this.readerService = new ReaderService<IUser>(DataStore.getPersons(), IUser.ALL_PROPERTIES);
+		this.readerService = new SyncReaderService<IUser>(DataStore.getPersons(), IUser.ALL_PROPERTIES);
 	}
 
 	@Override

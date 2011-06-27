@@ -34,6 +34,7 @@ import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.common.api.service.IExecutorService;
+import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.sample.app.common.entity.IUser;
 import org.jowidgets.cap.sample.app.common.service.executor.ChangeGenderExecutableChecker;
 import org.jowidgets.cap.sample.app.common.service.executor.UserComponentExecutorServices;
@@ -48,8 +49,10 @@ import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
 import org.jowidgets.cap.service.api.executor.IBeanExecutor;
 import org.jowidgets.cap.service.api.executor.IExecutorServiceBuilder;
+import org.jowidgets.cap.service.api.reader.ISyncReaderService;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.tools.ServiceProviderBuilder;
+import org.jowidgets.util.IAdapterFactory;
 
 public class SampleServiceProviderBuilder extends ServiceProviderBuilder {
 
@@ -58,7 +61,7 @@ public class SampleServiceProviderBuilder extends ServiceProviderBuilder {
 
 		addService(IEntityService.ID, new EntityService(this).getEntityService());
 
-		addService(UserReaderServices.ALL_USERS, new AllUsersReaderService());
+		addReader(UserReaderServices.ALL_USERS, new AllUsersReaderService());
 
 		addPersonExecutor(
 				UserComponentExecutorServices.CHANGE_GENDER,
@@ -80,6 +83,14 @@ public class SampleServiceProviderBuilder extends ServiceProviderBuilder {
 		final IBeanExecutor<? extends BEAN_TYPE, PARAM_TYPE> beanExecutor,
 		final IExecutableChecker<? extends BEAN_TYPE> executableChecker) {
 		addExecutor(id, beanExecutor, executableChecker, DataStore.getPersonsBeanProvider(), IUser.ALL_PROPERTIES);
+	}
+
+	private <PARAM_TYPE> void addReader(
+		final IServiceId<? extends IReaderService<PARAM_TYPE>> id,
+		final ISyncReaderService<PARAM_TYPE> readerService) {
+		final IAdapterFactory<IReaderService<PARAM_TYPE>, ISyncReaderService<PARAM_TYPE>> adapterFactoryProvider;
+		adapterFactoryProvider = CapServiceToolkit.adapterFactoryProvider().reader();
+		addService(id, adapterFactoryProvider.createAdapter(readerService));
 	}
 
 	private <BEAN_TYPE extends IBean, PARAM_TYPE> void addExecutor(

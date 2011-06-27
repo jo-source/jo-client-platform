@@ -59,6 +59,7 @@ import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.common.api.service.IRefreshService;
 import org.jowidgets.cap.common.api.service.IUpdaterService;
 import org.jowidgets.cap.common.api.sort.ISort;
+import org.jowidgets.cap.common.tools.execution.SyncResultCallback;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.bean.BeanMessageType;
@@ -185,7 +186,10 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 	@Override
 	public void load() {
 		beansStateTracker.clearAll();
-		rowCount = readerService.count(null, null, null, null);
+		//TODO MG make async call
+		final SyncResultCallback<Integer> resultCallback = new SyncResultCallback<Integer>();
+		readerService.count(resultCallback, null, null, null, null);
+		rowCount = resultCallback.getResultSynchronious();
 		//rowCount = 0;
 		dataCleared = false;
 		maxPageIndex = 0;
@@ -646,7 +650,10 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 
 					final List<IBeanDto> beanDtos;
 					try {
-						beanDtos = BeanTableModelImpl.this.readerService.read(
+						//TODO MG make async call
+						final SyncResultCallback<List<IBeanDto>> resultCallback = new SyncResultCallback<List<IBeanDto>>();
+						BeanTableModelImpl.this.readerService.read(
+								resultCallback,
 								null,
 								null,
 								null,
@@ -654,6 +661,7 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 								pageSize + 1,
 								parameter,
 								executionTask);
+						beanDtos = resultCallback.getResultSynchronious();
 					}
 					catch (final Exception e) {
 						removePageLater();
