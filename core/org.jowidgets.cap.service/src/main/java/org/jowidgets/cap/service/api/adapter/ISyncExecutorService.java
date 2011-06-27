@@ -33,10 +33,9 @@ import java.util.List;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
-import org.jowidgets.service.api.Callback;
 
 public interface ISyncExecutorService<PARAM_TYPE> {
 
-	List<IBeanDto> execute(List<? extends IBeanKey> beanKeys, PARAM_TYPE parameter, @Callback IExecutionCallback executionCallback);
+	List<IBeanDto> execute(List<? extends IBeanKey> beanKeys, PARAM_TYPE parameter, IExecutionCallback executionCallback);
 
 }

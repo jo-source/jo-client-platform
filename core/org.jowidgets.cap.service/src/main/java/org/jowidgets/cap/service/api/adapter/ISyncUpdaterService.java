@@ -34,10 +34,9 @@ import java.util.List;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanModification;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
-import org.jowidgets.service.api.Callback;
 
 public interface ISyncUpdaterService {
 
-	List<IBeanDto> update(Collection<? extends IBeanModification> modifications, @Callback IExecutionCallback executionCallback);
+	List<IBeanDto> update(Collection<? extends IBeanModification> modifications, IExecutionCallback executionCallback);
 
 }

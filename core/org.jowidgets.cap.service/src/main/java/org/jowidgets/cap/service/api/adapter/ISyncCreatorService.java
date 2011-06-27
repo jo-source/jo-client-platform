@@ -34,11 +34,9 @@ import java.util.List;
 import org.jowidgets.cap.common.api.bean.IBeanData;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
-import org.jowidgets.service.api.Callback;
-
 
 public interface ISyncCreatorService {
 
-	List<IBeanDto> create(Collection<? extends IBeanData> beansData, @Callback IExecutionCallback executionCallback);
+	List<IBeanDto> create(Collection<? extends IBeanData> beansData, IExecutionCallback executionCallback);
 
 }

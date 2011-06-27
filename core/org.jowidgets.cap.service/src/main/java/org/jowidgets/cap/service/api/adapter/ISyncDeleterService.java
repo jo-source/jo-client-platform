@@ -32,11 +32,9 @@ import java.util.Collection;
 
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
-import org.jowidgets.service.api.Callback;
-
 
 public interface ISyncDeleterService {
 
-	void delete(Collection<? extends IBeanKey> beanKeys, @Callback IExecutionCallback executionCallback);
+	void delete(Collection<? extends IBeanKey> beanKeys, IExecutionCallback executionCallback);
 
 }

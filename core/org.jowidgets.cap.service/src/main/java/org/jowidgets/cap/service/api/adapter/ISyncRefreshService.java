@@ -34,11 +34,9 @@ import java.util.List;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
-import org.jowidgets.service.api.Callback;
-
 
 public interface ISyncRefreshService {
 
-	List<IBeanDto> refresh(Collection<? extends IBeanKey> beanKeys, @Callback IExecutionCallback executionCallback);
+	List<IBeanDto> refresh(Collection<? extends IBeanKey> beanKeys, IExecutionCallback executionCallback);
 
 }
