@@ -36,7 +36,7 @@ import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.service.IRefreshService;
-import org.jowidgets.cap.service.api.refresh.ISyncRefreshService;
+import org.jowidgets.cap.service.api.adapter.ISyncRefreshService;
 
 final class RefreshServiceAdapter implements IRefreshService {
 

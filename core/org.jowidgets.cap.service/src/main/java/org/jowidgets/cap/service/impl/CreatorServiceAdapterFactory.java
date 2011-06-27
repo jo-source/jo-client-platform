@@ -29,7 +29,7 @@
 package org.jowidgets.cap.service.impl;
 
 import org.jowidgets.cap.common.api.service.ICreatorService;
-import org.jowidgets.cap.service.api.creator.ISyncCreatorService;
+import org.jowidgets.cap.service.api.adapter.ISyncCreatorService;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.IAdapterFactory;
 

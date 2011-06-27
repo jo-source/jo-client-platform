@@ -37,11 +37,11 @@ import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.service.IExecutorService;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.adapter.IAdapterFactoryProvider;
+import org.jowidgets.cap.service.api.adapter.ISyncExecutorService;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
 import org.jowidgets.cap.service.api.executor.IBeanExecutor;
 import org.jowidgets.cap.service.api.executor.IBeanListExecutor;
 import org.jowidgets.cap.service.api.executor.IExecutorServiceBuilder;
-import org.jowidgets.cap.service.api.executor.ISyncExecutorService;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.IAdapterFactory;
 

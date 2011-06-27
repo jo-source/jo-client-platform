@@ -26,18 +26,20 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.api.updater;
+package org.jowidgets.cap.service.impl;
 
-import java.util.Collection;
-import java.util.List;
+import org.jowidgets.cap.common.api.service.IParameterProviderService;
+import org.jowidgets.cap.service.api.adapter.ISyncParameterProviderService;
+import org.jowidgets.util.Assert;
+import org.jowidgets.util.IAdapterFactory;
 
-import org.jowidgets.cap.common.api.bean.IBeanDto;
-import org.jowidgets.cap.common.api.bean.IBeanModification;
-import org.jowidgets.cap.common.api.execution.IExecutionCallback;
-import org.jowidgets.service.api.Callback;
+final class ParameterProviderServiceAdapterFactory<PARAM_TYPE> implements
+		IAdapterFactory<IParameterProviderService<PARAM_TYPE>, ISyncParameterProviderService<PARAM_TYPE>> {
 
-public interface ISyncUpdaterService {
-
-	List<IBeanDto> update(Collection<? extends IBeanModification> modifications, @Callback IExecutionCallback executionCallback);
+	@Override
+	public IParameterProviderService<PARAM_TYPE> createAdapter(final ISyncParameterProviderService<PARAM_TYPE> adaptee) {
+		Assert.paramNotNull(adaptee, "adaptee");
+		return new ParameterProviderServiceAdapter<PARAM_TYPE>(adaptee);
+	}
 
 }

@@ -36,7 +36,7 @@ import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.service.ICreatorService;
-import org.jowidgets.cap.service.api.creator.ISyncCreatorService;
+import org.jowidgets.cap.service.api.adapter.ISyncCreatorService;
 
 final class CreatorServiceAdapter implements ICreatorService {
 

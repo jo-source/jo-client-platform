@@ -29,64 +29,45 @@
 package org.jowidgets.cap.service.impl;
 
 import java.util.List;
+import java.util.concurrent.Executor;
 
-import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
-import org.jowidgets.cap.common.api.filter.IFilter;
-import org.jowidgets.cap.common.api.service.IReaderService;
-import org.jowidgets.cap.common.api.sort.ISort;
-import org.jowidgets.cap.service.api.adapter.ISyncReaderService;
+import org.jowidgets.cap.common.api.service.IParameterProviderService;
+import org.jowidgets.util.Assert;
+import org.jowidgets.util.IDecorator;
 
-final class ReaderServiceAdapter<PARAM_TYPE> implements IReaderService<PARAM_TYPE> {
+final class ParameterProviderServiceAsyncDecorator implements IDecorator<IParameterProviderService<Object>> {
 
-	private final ISyncReaderService<PARAM_TYPE> syncReaderService;
+	private final Executor executor;
 
-	ReaderServiceAdapter(final ISyncReaderService<PARAM_TYPE> syncExecutorService) {
-		this.syncReaderService = syncExecutorService;
+	ParameterProviderServiceAsyncDecorator(final Executor executor) {
+		this.executor = executor;
 	}
 
 	@Override
-	public void read(
-		final IResultCallback<List<IBeanDto>> resultCallback,
-		final List<? extends IBeanKey> parentBeanKeys,
-		final IFilter filter,
-		final List<? extends ISort> sorting,
-		final int firstRow,
-		final int maxRows,
-		final PARAM_TYPE parameter,
-		final IExecutionCallback executionCallback) {
-		try {
-			final List<IBeanDto> result = syncReaderService.read(
-					parentBeanKeys,
-					filter,
-					sorting,
-					firstRow,
-					maxRows,
-					parameter,
-					executionCallback);
-			resultCallback.finished(result);
-		}
-		catch (final Exception exception) {
-			resultCallback.exception(exception);
-		}
+	public IParameterProviderService<Object> decorate(final IParameterProviderService<Object> original) {
+		Assert.paramNotNull(original, "original");
+		return new IParameterProviderService<Object>() {
+			@Override
+			public void getParameter(
+				final IResultCallback<Object> result,
+				final List<? extends IBeanKey> beanKeys,
+				final Object defaultParameter,
+				final IExecutionCallback executionCallback) {
+				executor.execute(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							original.getParameter(result, beanKeys, defaultParameter, executionCallback);
+						}
+						catch (final Exception exception) {
+							result.exception(exception);
+						}
+					}
+				});
+			}
+		};
 	}
-
-	@Override
-	public void count(
-		final IResultCallback<Integer> resultCallback,
-		final List<? extends IBeanKey> parentBeanKeys,
-		final IFilter filter,
-		final PARAM_TYPE parameter,
-		final IExecutionCallback executionCallback) {
-		try {
-			final Integer result = syncReaderService.count(parentBeanKeys, filter, parameter, executionCallback);
-			resultCallback.finished(result);
-		}
-		catch (final Exception exception) {
-			resultCallback.exception(exception);
-		}
-	}
-
 }

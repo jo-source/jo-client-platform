@@ -35,7 +35,7 @@ import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.service.IExecutorService;
-import org.jowidgets.cap.service.api.executor.ISyncExecutorService;
+import org.jowidgets.cap.service.api.adapter.ISyncExecutorService;
 
 final class ExecutorServiceAdapter<PARAM_TYPE> implements IExecutorService<PARAM_TYPE> {
 

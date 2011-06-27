@@ -26,32 +26,19 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.execution;
+package org.jowidgets.cap.service.api.adapter;
 
+import java.util.Collection;
 import java.util.List;
 
-import org.jowidgets.api.command.IExecutionContext;
-import org.jowidgets.cap.ui.api.bean.IBeanProxy;
-import org.jowidgets.util.maybe.IMaybe;
+import org.jowidgets.cap.common.api.bean.IBeanData;
+import org.jowidgets.cap.common.api.bean.IBeanDto;
+import org.jowidgets.cap.common.api.execution.IExecutionCallback;
+import org.jowidgets.service.api.Callback;
 
-public interface IParameterProvider<BEAN_TYPE, PARAMETER_TYPE> {
 
-	/**
-	 * Gets the parameter for the execution, probably an user input from an input dialog.
-	 * 
-	 * REMARK: The parameter provider will be invoked in the ui thread, so do not make long lasting
-	 * things here to avoid that the ui freezes.
-	 * For long lasting things use the IParameterProviderService instead
-	 * 
-	 * @param executionContext The execution context of the action
-	 * @param beans the beans to get the parameter for
-	 * @param defaultParameter The default parameter
-	 * 
-	 * @return Some parameter or Nothing if the user canceled
-	 */
-	IMaybe<PARAMETER_TYPE> getParameter(
-		IExecutionContext executionContext,
-		List<IBeanProxy<BEAN_TYPE>> beans,
-		PARAMETER_TYPE defaultParameter) throws Exception;
+public interface ISyncCreatorService {
+
+	List<IBeanDto> create(Collection<? extends IBeanData> beansData, @Callback IExecutionCallback executionCallback);
 
 }

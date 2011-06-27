@@ -45,9 +45,9 @@ import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.bean.IBeanModification;
 import org.jowidgets.cap.common.api.exception.ServiceException;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
+import org.jowidgets.cap.service.api.adapter.ISyncExecutorService;
+import org.jowidgets.cap.service.api.adapter.ISyncUpdaterService;
 import org.jowidgets.cap.service.api.executor.IBeanExecutor;
-import org.jowidgets.cap.service.api.executor.ISyncExecutorService;
-import org.jowidgets.cap.service.api.updater.ISyncUpdaterService;
 
 public final class SyncUpdaterServiceImpl<BEAN_TYPE extends IBean> implements ISyncUpdaterService {
 

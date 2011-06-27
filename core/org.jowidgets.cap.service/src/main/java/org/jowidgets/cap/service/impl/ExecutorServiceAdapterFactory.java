@@ -29,7 +29,7 @@
 package org.jowidgets.cap.service.impl;
 
 import org.jowidgets.cap.common.api.service.IExecutorService;
-import org.jowidgets.cap.service.api.executor.ISyncExecutorService;
+import org.jowidgets.cap.service.api.adapter.ISyncExecutorService;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.IAdapterFactory;
 
@@ -37,9 +37,9 @@ final class ExecutorServiceAdapterFactory<PARAM_TYPE> implements
 		IAdapterFactory<IExecutorService<PARAM_TYPE>, ISyncExecutorService<PARAM_TYPE>> {
 
 	@Override
-	public IExecutorService<PARAM_TYPE> createAdapter(final ISyncExecutorService<PARAM_TYPE> adapted) {
-		Assert.paramNotNull(adapted, "adapted");
-		return new ExecutorServiceAdapter<PARAM_TYPE>(adapted);
+	public IExecutorService<PARAM_TYPE> createAdapter(final ISyncExecutorService<PARAM_TYPE> adaptee) {
+		Assert.paramNotNull(adaptee, "adaptee");
+		return new ExecutorServiceAdapter<PARAM_TYPE>(adaptee);
 	}
 
 }

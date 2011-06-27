@@ -38,8 +38,8 @@ import org.jowidgets.cap.common.api.filter.IFilter;
 import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.sample.app.server.datastore.AbstractData;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
+import org.jowidgets.cap.service.api.adapter.ISyncReaderService;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
-import org.jowidgets.cap.service.api.reader.ISyncReaderService;
 
 public class SyncReaderService<BEAN_TYPE extends IBean> implements ISyncReaderService<Void> {
 

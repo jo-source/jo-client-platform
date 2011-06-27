@@ -29,7 +29,7 @@
 package org.jowidgets.cap.service.impl;
 
 import org.jowidgets.cap.common.api.service.IRefreshService;
-import org.jowidgets.cap.service.api.refresh.ISyncRefreshService;
+import org.jowidgets.cap.service.api.adapter.ISyncRefreshService;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.IAdapterFactory;
 

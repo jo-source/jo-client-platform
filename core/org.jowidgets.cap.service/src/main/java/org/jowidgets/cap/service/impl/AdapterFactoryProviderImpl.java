@@ -31,16 +31,18 @@ package org.jowidgets.cap.service.impl;
 import org.jowidgets.cap.common.api.service.ICreatorService;
 import org.jowidgets.cap.common.api.service.IDeleterService;
 import org.jowidgets.cap.common.api.service.IExecutorService;
+import org.jowidgets.cap.common.api.service.IParameterProviderService;
 import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.common.api.service.IRefreshService;
 import org.jowidgets.cap.common.api.service.IUpdaterService;
 import org.jowidgets.cap.service.api.adapter.IAdapterFactoryProvider;
-import org.jowidgets.cap.service.api.creator.ISyncCreatorService;
-import org.jowidgets.cap.service.api.deleter.ISyncDeleterService;
-import org.jowidgets.cap.service.api.executor.ISyncExecutorService;
-import org.jowidgets.cap.service.api.reader.ISyncReaderService;
-import org.jowidgets.cap.service.api.refresh.ISyncRefreshService;
-import org.jowidgets.cap.service.api.updater.ISyncUpdaterService;
+import org.jowidgets.cap.service.api.adapter.ISyncCreatorService;
+import org.jowidgets.cap.service.api.adapter.ISyncDeleterService;
+import org.jowidgets.cap.service.api.adapter.ISyncExecutorService;
+import org.jowidgets.cap.service.api.adapter.ISyncParameterProviderService;
+import org.jowidgets.cap.service.api.adapter.ISyncReaderService;
+import org.jowidgets.cap.service.api.adapter.ISyncRefreshService;
+import org.jowidgets.cap.service.api.adapter.ISyncUpdaterService;
 import org.jowidgets.util.IAdapterFactory;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
@@ -52,9 +54,11 @@ final class AdapterFactoryProviderImpl implements IAdapterFactoryProvider {
 	private final CreatorServiceAdapterFactory creatorServiceAdapterFactory;
 	private final DeleterServiceAdapterFactory deleterServiceAdapterFactory;
 	private final RefreshServiceAdapterFactory refreshServiceAdapterFactory;
+	private final ParameterProviderServiceAdapterFactory parameterProviderServiceAdapterFactory;
 
 	AdapterFactoryProviderImpl() {
 		this.executorServiceAdapterFactory = new ExecutorServiceAdapterFactory();
+		this.parameterProviderServiceAdapterFactory = new ParameterProviderServiceAdapterFactory();
 		this.readerServiceAdapterFactory = new ReaderServiceAdapterFactory();
 		this.updaterServiceAdapterFactory = new UpdaterServiceAdapterFactory();
 		this.creatorServiceAdapterFactory = new CreatorServiceAdapterFactory();
@@ -65,6 +69,11 @@ final class AdapterFactoryProviderImpl implements IAdapterFactoryProvider {
 	@Override
 	public <PARAM_TYPE> IAdapterFactory<IExecutorService<PARAM_TYPE>, ISyncExecutorService<PARAM_TYPE>> executor() {
 		return executorServiceAdapterFactory;
+	}
+
+	@Override
+	public <PARAM_TYPE> IAdapterFactory<IParameterProviderService<PARAM_TYPE>, ISyncParameterProviderService<PARAM_TYPE>> parameterProvider() {
+		return parameterProviderServiceAdapterFactory;
 	}
 
 	@Override

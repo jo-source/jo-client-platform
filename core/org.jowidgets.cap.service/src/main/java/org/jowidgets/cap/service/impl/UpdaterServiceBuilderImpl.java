@@ -37,8 +37,8 @@ import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.service.IUpdaterService;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.adapter.IAdapterFactoryProvider;
+import org.jowidgets.cap.service.api.adapter.ISyncUpdaterService;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
-import org.jowidgets.cap.service.api.updater.ISyncUpdaterService;
 import org.jowidgets.cap.service.api.updater.IUpdaterServiceBuilder;
 import org.jowidgets.util.IAdapterFactory;
 
