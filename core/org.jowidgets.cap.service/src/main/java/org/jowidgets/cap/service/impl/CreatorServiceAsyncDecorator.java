@@ -26,26 +26,49 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.api.adapter;
+package org.jowidgets.cap.service.impl;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.Executor;
+
+import org.jowidgets.cap.common.api.bean.IBeanData;
+import org.jowidgets.cap.common.api.bean.IBeanDto;
+import org.jowidgets.cap.common.api.execution.IExecutionCallback;
+import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.service.ICreatorService;
-import org.jowidgets.cap.common.api.service.IExecutorService;
-import org.jowidgets.cap.common.api.service.IReaderService;
-import org.jowidgets.cap.common.api.service.IUpdaterService;
-import org.jowidgets.cap.service.api.creator.ISyncCreatorService;
-import org.jowidgets.cap.service.api.executor.ISyncExecutorService;
-import org.jowidgets.cap.service.api.reader.ISyncReaderService;
-import org.jowidgets.cap.service.api.updater.ISyncUpdaterService;
-import org.jowidgets.util.IAdapterFactory;
+import org.jowidgets.util.Assert;
+import org.jowidgets.util.IDecorator;
 
-public interface IAdapterFactoryProvider {
+final class CreatorServiceAsyncDecorator implements IDecorator<ICreatorService> {
 
-	<PARAM_TYPE> IAdapterFactory<IExecutorService<PARAM_TYPE>, ISyncExecutorService<PARAM_TYPE>> executor();
+	private final Executor executor;
 
-	<PARAM_TYPE> IAdapterFactory<IReaderService<PARAM_TYPE>, ISyncReaderService<PARAM_TYPE>> reader();
+	CreatorServiceAsyncDecorator(final Executor executor) {
+		this.executor = executor;
+	}
 
-	IAdapterFactory<IUpdaterService, ISyncUpdaterService> updater();
-
-	IAdapterFactory<ICreatorService, ISyncCreatorService> creator();
-
+	@Override
+	public ICreatorService decorate(final ICreatorService original) {
+		Assert.paramNotNull(original, "original");
+		return new ICreatorService() {
+			@Override
+			public void create(
+				final IResultCallback<List<IBeanDto>> result,
+				final Collection<? extends IBeanData> beansData,
+				final IExecutionCallback executionCallback) {
+				executor.execute(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							original.create(result, beansData, executionCallback);
+						}
+						catch (final Exception exception) {
+							result.exception(exception);
+						}
+					}
+				});
+			}
+		};
+	}
 }

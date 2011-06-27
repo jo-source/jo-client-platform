@@ -26,26 +26,19 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.api.adapter;
+package org.jowidgets.cap.service.api.creator;
 
-import org.jowidgets.cap.common.api.service.ICreatorService;
-import org.jowidgets.cap.common.api.service.IExecutorService;
-import org.jowidgets.cap.common.api.service.IReaderService;
-import org.jowidgets.cap.common.api.service.IUpdaterService;
-import org.jowidgets.cap.service.api.creator.ISyncCreatorService;
-import org.jowidgets.cap.service.api.executor.ISyncExecutorService;
-import org.jowidgets.cap.service.api.reader.ISyncReaderService;
-import org.jowidgets.cap.service.api.updater.ISyncUpdaterService;
-import org.jowidgets.util.IAdapterFactory;
+import java.util.Collection;
+import java.util.List;
 
-public interface IAdapterFactoryProvider {
+import org.jowidgets.cap.common.api.bean.IBeanData;
+import org.jowidgets.cap.common.api.bean.IBeanDto;
+import org.jowidgets.cap.common.api.execution.IExecutionCallback;
+import org.jowidgets.service.api.Callback;
 
-	<PARAM_TYPE> IAdapterFactory<IExecutorService<PARAM_TYPE>, ISyncExecutorService<PARAM_TYPE>> executor();
 
-	<PARAM_TYPE> IAdapterFactory<IReaderService<PARAM_TYPE>, ISyncReaderService<PARAM_TYPE>> reader();
+public interface ISyncCreatorService {
 
-	IAdapterFactory<IUpdaterService, ISyncUpdaterService> updater();
-
-	IAdapterFactory<ICreatorService, ISyncCreatorService> creator();
+	List<IBeanDto> create(Collection<? extends IBeanData> beansData, @Callback IExecutionCallback executionCallback);
 
 }

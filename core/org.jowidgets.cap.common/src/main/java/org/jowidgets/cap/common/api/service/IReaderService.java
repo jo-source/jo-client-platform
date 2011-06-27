@@ -41,7 +41,7 @@ import org.jowidgets.service.api.Callback;
 public interface IReaderService<PARAM_TYPE> {
 
 	void read(
-		final IResultCallback<List<IBeanDto>> result,
+		IResultCallback<List<IBeanDto>> result,
 		List<? extends IBeanKey> parentBeanKeys,
 		IFilter filter,
 		List<? extends ISort> sorting,
@@ -51,7 +51,7 @@ public interface IReaderService<PARAM_TYPE> {
 		@Callback IExecutionCallback executionCallback);
 
 	void count(
-		final IResultCallback<Integer> result,
+		IResultCallback<Integer> result,
 		List<? extends IBeanKey> parentBeanKeys,
 		IFilter filter,
 		PARAM_TYPE parameter,

@@ -34,6 +34,7 @@ import org.jowidgets.cap.common.api.service.IDeleterService;
 import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.common.api.service.IRefreshService;
 import org.jowidgets.cap.common.api.service.IUpdaterService;
+import org.jowidgets.cap.service.api.creator.ISyncCreatorService;
 import org.jowidgets.cap.service.api.reader.ISyncReaderService;
 import org.jowidgets.cap.service.api.updater.ISyncUpdaterService;
 
@@ -44,6 +45,8 @@ public interface IBeanServicesProviderBuilder<BEAN_TYPE> {
 	IBeanServicesProviderBuilder<BEAN_TYPE> setReaderService(ISyncReaderService<Void> readerService);
 
 	IBeanServicesProviderBuilder<BEAN_TYPE> setCreatorService(ICreatorService creatorService);
+
+	IBeanServicesProviderBuilder<BEAN_TYPE> setCreatorService(ISyncCreatorService creatorService);
 
 	IBeanServicesProviderBuilder<BEAN_TYPE> setRefreshService(IRefreshService refreshService);
 

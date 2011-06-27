@@ -39,7 +39,7 @@ import org.jowidgets.service.api.Callback;
 public interface IExecutorService<PARAM_TYPE> {
 
 	void execute(
-		final IResultCallback<List<IBeanDto>> result,
+		IResultCallback<List<IBeanDto>> result,
 		List<? extends IBeanKey> beanKeys,
 		PARAM_TYPE parameter,
 		@Callback IExecutionCallback executionCallback);

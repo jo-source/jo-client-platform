@@ -40,7 +40,7 @@ import org.jowidgets.service.api.Callback;
 public interface IUpdaterService {
 
 	void update(
-		final IResultCallback<List<IBeanDto>> result,
+		IResultCallback<List<IBeanDto>> result,
 		Collection<? extends IBeanModification> modifications,
 		@Callback IExecutionCallback executionCallback);
 
