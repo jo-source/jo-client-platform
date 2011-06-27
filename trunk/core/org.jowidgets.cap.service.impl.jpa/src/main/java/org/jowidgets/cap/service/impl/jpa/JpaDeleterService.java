@@ -69,7 +69,6 @@ public final class JpaDeleterService implements ISyncDeleterService {
 
 	@Override
 	public void delete(final Collection<? extends IBeanKey> beanKeys, final IExecutionCallback executionCallback) {
-		// TODO HW,MG is this a synchronous call?
 		final SyncResultCallback<List<IBeanDto>> result = new SyncResultCallback<List<IBeanDto>>();
 		executorService.execute(result, (List<? extends IBeanKey>) beanKeys, null, executionCallback);
 		result.getResultSynchronious();
