@@ -38,7 +38,7 @@ import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.service.ICreatorService;
 import org.jowidgets.cap.service.api.adapter.ISyncCreatorService;
 
-final class CreatorServiceAdapter implements ICreatorService {
+public final class CreatorServiceAdapter implements ICreatorService {
 
 	private final ISyncCreatorService adaptee;
 

@@ -28,10 +28,15 @@
 
 package org.jowidgets.cap.invocation.client;
 
+import org.jowidgets.cap.common.api.exception.ServiceCanceledException;
+import org.jowidgets.cap.common.api.execution.IExecutionCallback;
+import org.jowidgets.cap.common.api.execution.IExecutionCallbackListener;
 import org.jowidgets.invocation.service.common.api.ICancelListener;
 import org.jowidgets.invocation.service.common.api.IInvocationCallback;
 
 final class SyncInvocationCallback<RESULT_TYPE> implements IInvocationCallback<RESULT_TYPE> {
+
+	private final IExecutionCallback executionCallback;
 
 	private RESULT_TYPE result;
 	private Throwable exception;
@@ -39,10 +44,43 @@ final class SyncInvocationCallback<RESULT_TYPE> implements IInvocationCallback<R
 
 	private Thread currentThread;
 
-	SyncInvocationCallback() {}
+	SyncInvocationCallback() {
+		this(null);
+	}
+
+	SyncInvocationCallback(final IExecutionCallback executionCallback) {
+		this.executionCallback = executionCallback;
+		if (executionCallback != null) {
+			executionCallback.addExecutionCallbackListener(new IExecutionCallbackListener() {
+				@Override
+				public void onDispose() {
+					exeption(new ServiceCanceledException());
+				}
+
+				@Override
+				public void executionCanceled() {
+					exeption(new ServiceCanceledException());
+				}
+			});
+		}
+	}
 
 	@Override
-	public void addCancelListener(final ICancelListener cancelListener) {}
+	public void addCancelListener(final ICancelListener cancelListener) {
+		if (executionCallback != null) {
+			executionCallback.addExecutionCallbackListener(new IExecutionCallbackListener() {
+				@Override
+				public void onDispose() {
+					cancelListener.canceled();
+				}
+
+				@Override
+				public void executionCanceled() {
+					cancelListener.canceled();
+				}
+			});
+		}
+	}
 
 	@Override
 	public void finished(final RESULT_TYPE result) {

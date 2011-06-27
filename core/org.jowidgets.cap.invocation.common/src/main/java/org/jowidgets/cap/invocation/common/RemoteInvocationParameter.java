@@ -26,39 +26,60 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.impl;
+package org.jowidgets.cap.invocation.common;
 
-import java.util.Collection;
-import java.util.List;
+import java.io.Serializable;
+import java.util.Arrays;
 
-import org.jowidgets.cap.common.api.bean.IBeanDto;
-import org.jowidgets.cap.common.api.bean.IBeanModification;
-import org.jowidgets.cap.common.api.execution.IExecutionCallback;
-import org.jowidgets.cap.common.api.execution.IResultCallback;
-import org.jowidgets.cap.common.api.service.IUpdaterService;
-import org.jowidgets.cap.service.api.adapter.ISyncUpdaterService;
+import org.jowidgets.service.api.IServiceId;
 
-public final class UpdaterServiceAdapter implements IUpdaterService {
+public final class RemoteInvocationParameter implements Serializable {
 
-	private final ISyncUpdaterService adaptee;
+	private static final long serialVersionUID = -6189040527110482891L;
 
-	UpdaterServiceAdapter(final ISyncUpdaterService adaptee) {
-		this.adaptee = adaptee;
+	private final IServiceId<?> serviceId;
+	private final String methodName;
+	private final Class<?>[] parameterTypes;
+	private final Object[] arguments;
+
+	public RemoteInvocationParameter(
+		final IServiceId<?> serviceId,
+		final String methodName,
+		final Class<?>[] parameterTypes,
+		final Object[] arguments) {
+		this.serviceId = serviceId;
+		this.methodName = methodName;
+		this.parameterTypes = parameterTypes;
+		this.arguments = arguments;
+	}
+
+	public IServiceId<?> getServiceId() {
+		return serviceId;
+	}
+
+	public String getMethodName() {
+		return methodName;
+	}
+
+	public Class<?>[] getParameterTypes() {
+		return parameterTypes;
+	}
+
+	public Object[] getArguments() {
+		return arguments;
 	}
 
 	@Override
-	public void update(
-		final IResultCallback<List<IBeanDto>> resultCallback,
-		final Collection<? extends IBeanModification> modifications,
-		final IExecutionCallback executionCallback) {
-		try {
-			final List<IBeanDto> result = adaptee.update(modifications, executionCallback);
-			resultCallback.finished(result);
-		}
-		catch (final Exception exception) {
-			resultCallback.exception(exception);
-		}
-
+	public String toString() {
+		return "RemoteInvocationParameter [serviceId="
+			+ serviceId
+			+ ", methodName="
+			+ methodName
+			+ ", parameterTypes="
+			+ Arrays.toString(parameterTypes)
+			+ ", arguments="
+			+ Arrays.toString(arguments)
+			+ "]";
 	}
 
 }

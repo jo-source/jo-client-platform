@@ -26,39 +26,32 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.impl;
+package org.jowidgets.cap.invocation.server;
 
-import java.util.Collection;
-import java.util.List;
+import java.util.Set;
 
-import org.jowidgets.cap.common.api.bean.IBeanDto;
-import org.jowidgets.cap.common.api.bean.IBeanModification;
-import org.jowidgets.cap.common.api.execution.IExecutionCallback;
-import org.jowidgets.cap.common.api.execution.IResultCallback;
-import org.jowidgets.cap.common.api.service.IUpdaterService;
-import org.jowidgets.cap.service.api.adapter.ISyncUpdaterService;
+import org.jowidgets.invocation.service.common.api.IInterimRequestCallback;
+import org.jowidgets.invocation.service.common.api.IInterimResponseCallback;
+import org.jowidgets.invocation.service.common.api.IInvocationCallback;
+import org.jowidgets.invocation.service.common.api.IMethodInvocationService;
+import org.jowidgets.service.api.IServiceId;
+import org.jowidgets.service.api.ServiceProvider;
 
-public final class UpdaterServiceAdapter implements IUpdaterService {
+final class ServiceLocatorMethod implements IMethodInvocationService<Set<IServiceId<?>>, Void, Void, Void, Void> {
 
-	private final ISyncUpdaterService adaptee;
+	private final Set<IServiceId<?>> availableServices;
 
-	UpdaterServiceAdapter(final ISyncUpdaterService adaptee) {
-		this.adaptee = adaptee;
+	ServiceLocatorMethod() {
+		this.availableServices = ServiceProvider.getAvailableServices();
 	}
 
 	@Override
-	public void update(
-		final IResultCallback<List<IBeanDto>> resultCallback,
-		final Collection<? extends IBeanModification> modifications,
-		final IExecutionCallback executionCallback) {
-		try {
-			final List<IBeanDto> result = adaptee.update(modifications, executionCallback);
-			resultCallback.finished(result);
-		}
-		catch (final Exception exception) {
-			resultCallback.exception(exception);
-		}
-
+	public void invoke(
+		final IInvocationCallback<Set<IServiceId<?>>> invocationCallback,
+		final IInterimResponseCallback<Void> interimResponseCallback,
+		final IInterimRequestCallback<Void, Void> interimRequestCallback,
+		final Void parameter) {
+		invocationCallback.finished(availableServices);
 	}
 
 }

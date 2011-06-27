@@ -36,7 +36,7 @@ import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.service.IParameterProviderService;
 import org.jowidgets.cap.service.api.adapter.ISyncParameterProviderService;
 
-final class ParameterProviderServiceAdapter<PARAM_TYPE> implements IParameterProviderService<PARAM_TYPE> {
+public final class ParameterProviderServiceAdapter<PARAM_TYPE> implements IParameterProviderService<PARAM_TYPE> {
 
 	private final ISyncParameterProviderService<PARAM_TYPE> adaptee;
 

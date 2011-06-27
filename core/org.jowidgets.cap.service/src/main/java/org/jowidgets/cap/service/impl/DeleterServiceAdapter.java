@@ -36,7 +36,7 @@ import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.service.IDeleterService;
 import org.jowidgets.cap.service.api.adapter.ISyncDeleterService;
 
-final class DeleterServiceAdapter implements IDeleterService {
+public final class DeleterServiceAdapter implements IDeleterService {
 
 	private final ISyncDeleterService adaptee;
 
