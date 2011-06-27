@@ -43,20 +43,22 @@ import org.jowidgets.service.api.ServiceProvider;
 public class CapServerServicePublisher {
 
 	public void publishServices() {
+		final Set<IServiceId<?>> availableServices = ServiceProvider.getAvailableServices();
+
 		final IInvocationServiceServerRegistry invocationServiceRegistry = InvocationServiceServerToolkit.getRegistry();
 
-		final IMethodInvocationService<Set<IServiceId<?>>, Void, Void, Void, Void> methodService = new IMethodInvocationService<Set<IServiceId<?>>, Void, Void, Void, Void>() {
+		final IMethodInvocationService<Set<IServiceId<?>>, Void, Void, Void, Void> serviceLocatorMethod = new IMethodInvocationService<Set<IServiceId<?>>, Void, Void, Void, Void>() {
 			@Override
 			public void invoke(
 				final IInvocationCallback<Set<IServiceId<?>>> resultCallback,
 				final IInterimResponseCallback<Void> interimResponseCallback,
 				final IInterimRequestCallback<Void, Void> interimRequestCallback,
 				final Void parameter) {
-				resultCallback.finished(ServiceProvider.getInstance().getAvailableServices());
+				resultCallback.finished(availableServices);
 			}
 		};
 
-		invocationServiceRegistry.register(CapInvocationMethodNames.SERVICE_LOCATOR_METHOD_NAME, methodService);
-
+		invocationServiceRegistry.register(CapInvocationMethodNames.SERVICE_LOCATOR_METHOD_NAME, serviceLocatorMethod);
 	}
+
 }
