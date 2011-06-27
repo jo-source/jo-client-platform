@@ -37,14 +37,15 @@ import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
-import org.jowidgets.cap.common.api.service.IDeleterService;
 import org.jowidgets.cap.common.api.service.IExecutorService;
 import org.jowidgets.cap.common.tools.execution.SyncResultCallback;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
+import org.jowidgets.cap.service.api.deleter.ISyncDeleterService;
 import org.jowidgets.cap.service.api.executor.IBeanExecutor;
 
-public final class JpaDeleterService implements IDeleterService {
+//TODO HW check if implementation should better implement IDeleterService instead of ISyncDeleterService
+public final class JpaDeleterService implements ISyncDeleterService {
 
 	private final IExecutorService<?> executorService;
 

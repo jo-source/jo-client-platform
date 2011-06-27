@@ -37,6 +37,7 @@ import org.jowidgets.cap.common.api.service.IRefreshService;
 import org.jowidgets.cap.common.api.service.IUpdaterService;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.creator.ISyncCreatorService;
+import org.jowidgets.cap.service.api.deleter.ISyncDeleterService;
 import org.jowidgets.cap.service.api.entity.IBeanServicesProviderBuilder;
 import org.jowidgets.cap.service.api.reader.ISyncReaderService;
 import org.jowidgets.cap.service.api.updater.ISyncUpdaterService;
@@ -119,6 +120,12 @@ final class BeanServicesProviderBuilderImpl<BEAN_TYPE> implements IBeanServicesP
 		Assert.paramNotNull(deleterService, "deleterService");
 		this.deleterService = deleterService;
 		return this;
+	}
+
+	@Override
+	public IBeanServicesProviderBuilder<BEAN_TYPE> setDeleterService(final ISyncDeleterService deleterService) {
+		Assert.paramNotNull(deleterService, "deleterService");
+		return setDeleterService(CapServiceToolkit.adapterFactoryProvider().deleter().createAdapter(deleterService));
 	}
 
 	@Override

@@ -26,20 +26,47 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.api.service;
+package org.jowidgets.cap.service.impl;
 
 import java.util.Collection;
+import java.util.concurrent.Executor;
 
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
-import org.jowidgets.service.api.Callback;
+import org.jowidgets.cap.common.api.service.IDeleterService;
+import org.jowidgets.util.Assert;
+import org.jowidgets.util.IDecorator;
 
-public interface IDeleterService {
+final class DeleterServiceAsyncDecorator implements IDecorator<IDeleterService> {
 
-	void delete(
-		IResultCallback<Void> result,
-		Collection<? extends IBeanKey> beanKeys,
-		@Callback IExecutionCallback executionCallback);
+	private final Executor executor;
 
+	DeleterServiceAsyncDecorator(final Executor executor) {
+		this.executor = executor;
+	}
+
+	@Override
+	public IDeleterService decorate(final IDeleterService original) {
+		Assert.paramNotNull(original, "original");
+		return new IDeleterService() {
+			@Override
+			public void delete(
+				final IResultCallback<Void> result,
+				final Collection<? extends IBeanKey> beanKeys,
+				final IExecutionCallback executionCallback) {
+				executor.execute(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							original.delete(result, beanKeys, executionCallback);
+						}
+						catch (final Exception exception) {
+							result.exception(exception);
+						}
+					}
+				});
+			}
+		};
+	}
 }
