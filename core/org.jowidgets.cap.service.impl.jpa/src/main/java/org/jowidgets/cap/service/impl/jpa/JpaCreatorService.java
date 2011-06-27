@@ -48,7 +48,7 @@ import org.jowidgets.cap.service.api.bean.IBeanAccess;
 import org.jowidgets.cap.service.api.bean.IBeanInitializer;
 import org.jowidgets.cap.service.api.executor.IBeanListExecutor;
 
-public final class JpaDataCreatorService implements ICreatorService {
+public final class JpaCreatorService implements ICreatorService {
 
 	private final IBeanInitializer<IBean> beanInitializer;
 	private final IExecutorService<Object> executorService;
@@ -56,7 +56,7 @@ public final class JpaDataCreatorService implements ICreatorService {
 	@PersistenceContext
 	private EntityManager entityManager;
 
-	public JpaDataCreatorService(final IBeanAccess<? extends IBean> beanProvider, final List<String> propertyNames) {
+	public JpaCreatorService(final IBeanAccess<? extends IBean> beanProvider, final List<String> propertyNames) {
 		beanInitializer = CapServiceToolkit.beanInitializer(beanProvider.getBeanType(), propertyNames);
 		executorService = CapServiceToolkit.executorServiceBuilder(beanProvider).setPropertyNames(propertyNames).setExecutor(
 				new IBeanListExecutor<IBean, Collection<? extends IBeanData>>() {
