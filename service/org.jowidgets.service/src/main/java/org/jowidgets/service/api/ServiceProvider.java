@@ -62,6 +62,10 @@ public final class ServiceProvider {
 		return getCompositeServiceProviderHolder().getServiceProvider();
 	}
 
+	public static Set<IServiceId<?>> getAvailableServices() {
+		return getInstance().getAvailableServices();
+	}
+
 	public static <SERVICE_TYPE> SERVICE_TYPE getService(final IServiceId<SERVICE_TYPE> id) {
 		return getInstance().get(id);
 	}

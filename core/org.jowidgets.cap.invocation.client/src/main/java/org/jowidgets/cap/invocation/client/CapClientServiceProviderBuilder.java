@@ -28,26 +28,15 @@
 
 package org.jowidgets.cap.invocation.client;
 
-import java.util.List;
+import java.lang.reflect.Proxy;
 import java.util.Set;
 
-import org.jowidgets.cap.common.api.bean.IBeanDto;
-import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
-import org.jowidgets.cap.common.api.bean.IBeanKey;
-import org.jowidgets.cap.common.api.execution.IExecutionCallback;
-import org.jowidgets.cap.common.api.execution.IExecutionCallbackListener;
-import org.jowidgets.cap.common.api.execution.IResultCallback;
-import org.jowidgets.cap.common.api.execution.UserQuestionResult;
-import org.jowidgets.cap.common.api.service.IBeanServicesProvider;
-import org.jowidgets.cap.common.api.service.IEntityService;
-import org.jowidgets.cap.common.api.service.IExecutorService;
 import org.jowidgets.cap.invocation.common.CapInvocationMethodNames;
 import org.jowidgets.invocation.service.client.api.IInvocationServiceClient;
 import org.jowidgets.invocation.service.client.api.InvocationServiceClientToolkit;
-import org.jowidgets.invocation.service.common.api.ICancelListener;
-import org.jowidgets.invocation.service.common.api.IInvocationCallback;
 import org.jowidgets.invocation.service.common.api.IMethodInvocationService;
 import org.jowidgets.service.api.IServiceId;
+import org.jowidgets.service.tools.ServiceId;
 import org.jowidgets.service.tools.ServiceProviderBuilder;
 
 final class CapClientServiceProviderBuilder extends ServiceProviderBuilder {
@@ -72,77 +61,79 @@ final class CapClientServiceProviderBuilder extends ServiceProviderBuilder {
 	}
 
 	private void addService(final IServiceId<?> serviceId) {
-		final Class<?> serviceType = serviceId.getServiceType();
-		final Object service = getService(serviceType);
-		addService(serviceId, service);
+		addService(serviceId, getService(serviceId));
 	}
 
-	private Object getService(final Class<?> serviceType) {
+	private Object getService(final IServiceId<?> serviceId) {
+
+		final Class<?> serviceType = serviceId.getServiceType();
+		return Proxy.newProxyInstance(serviceType.getClassLoader(), new Class[] {serviceType}, new RemoteMethodInvocationHandler(
+			(ServiceId<?>) serviceId));
+
 		//TODO only for test purpose
-		if (serviceType.isAssignableFrom(IExecutorService.class)) {
-			return new IExecutorService<Object>() {
-				@Override
-				public void execute(
-					final IResultCallback<List<IBeanDto>> resultCallback,
-					final List<? extends IBeanKey> beanKeys,
-					final Object parameter,
-					final IExecutionCallback executionCallback) {
-
-					final IInvocationServiceClient invocationServiceClient = InvocationServiceClientToolkit.getClient();
-					final IMethodInvocationService<List<IBeanDto>, Void, String, UserQuestionResult, Object> methodService;
-					methodService = invocationServiceClient.getMethodService(CapInvocationMethodNames.EXECUTOR_SERVICE_EXECUTE);
-
-					final IInvocationCallback<List<IBeanDto>> invocationCallback = new IInvocationCallback<List<IBeanDto>>() {
-
-						@Override
-						public void addCancelListener(final ICancelListener cancelListener) {
-							executionCallback.addExecutionCallbackListener(new IExecutionCallbackListener() {
-								@Override
-								public void onDispose() {
-									cancelListener.canceled();
-								}
-
-								@Override
-								public void executionCanceled() {
-									cancelListener.canceled();
-								}
-							});
-						}
-
-						@Override
-						public void finished(final List<IBeanDto> result) {
-							resultCallback.finished(result);
-						}
-
-						@Override
-						public void exeption(final Throwable exception) {
-							resultCallback.exception(exception);
-						}
-
-						@Override
-						public void timeout() {
-							resultCallback.timeout();
-						}
-					};
-					methodService.invoke(invocationCallback, null, null, parameter);
-
-				}
-			};
-		}
-		else if (serviceType.isAssignableFrom(IEntityService.class)) {
-			return new IEntityService() {
-
-				@Override
-				public <BEAN_TYPE> IBeanDtoDescriptor<BEAN_TYPE> getDescriptor(final Class<BEAN_TYPE> beanType) {
-					return null;
-				}
-
-				@Override
-				public <BEAN_TYPE> IBeanServicesProvider<BEAN_TYPE> getBeanServices(final Class<BEAN_TYPE> beanType) {
-					return null;
-				}
-			};
-		}
-		return new Object();
+		//		if (serviceId.getServiceType().isAssignableFrom(IExecutorService.class)) {
+		//			return new IExecutorService<Object>() {
+		//				@Override
+		//				public void execute(
+		//					final IResultCallback<List<IBeanDto>> resultCallback,
+		//					final List<? extends IBeanKey> beanKeys,
+		//					final Object parameter,
+		//					final IExecutionCallback executionCallback) {
+		//
+		//					final IInvocationServiceClient invocationServiceClient = InvocationServiceClientToolkit.getClient();
+		//					final IMethodInvocationService<List<IBeanDto>, Void, String, UserQuestionResult, Object> methodService;
+		//					methodService = invocationServiceClient.getMethodService(CapInvocationMethodNames.EXECUTOR_SERVICE_EXECUTE);
+		//
+		//					final IInvocationCallback<List<IBeanDto>> invocationCallback = new IInvocationCallback<List<IBeanDto>>() {
+		//
+		//						@Override
+		//						public void addCancelListener(final ICancelListener cancelListener) {
+		//							executionCallback.addExecutionCallbackListener(new IExecutionCallbackListener() {
+		//								@Override
+		//								public void onDispose() {
+		//									cancelListener.canceled();
+		//								}
+		//
+		//								@Override
+		//								public void executionCanceled() {
+		//									cancelListener.canceled();
+		//								}
+		//							});
+		//						}
+		//
+		//						@Override
+		//						public void finished(final List<IBeanDto> result) {
+		//							resultCallback.finished(result);
+		//						}
+		//
+		//						@Override
+		//						public void exeption(final Throwable exception) {
+		//							resultCallback.exception(exception);
+		//						}
+		//
+		//						@Override
+		//						public void timeout() {
+		//							resultCallback.timeout();
+		//						}
+		//					};
+		//					methodService.invoke(invocationCallback, null, null, parameter);
+		//
+		//				}
+		//			};
+		//		}
+		//		else if (serviceId.getServiceType().isAssignableFrom(IEntityService.class)) {
+		//			return new IEntityService() {
+		//
+		//				@Override
+		//				public <BEAN_TYPE> IBeanDtoDescriptor<BEAN_TYPE> getDescriptor(final Class<BEAN_TYPE> beanType) {
+		//					return null;
+		//				}
+		//
+		//				@Override
+		//				public <BEAN_TYPE> IBeanServicesProvider<BEAN_TYPE> getBeanServices(final Class<BEAN_TYPE> beanType) {
+		//					return null;
+		//				}
+		//			};
+		//		}
 	}
 }
