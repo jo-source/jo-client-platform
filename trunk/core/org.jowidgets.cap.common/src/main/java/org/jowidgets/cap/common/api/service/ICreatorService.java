@@ -34,11 +34,14 @@ import java.util.List;
 import org.jowidgets.cap.common.api.bean.IBeanData;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
+import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.service.api.Callback;
-
 
 public interface ICreatorService {
 
-	List<IBeanDto> create(Collection<? extends IBeanData> beansData, @Callback IExecutionCallback executionCallback);
+	void create(
+		IResultCallback<List<IBeanDto>> result,
+		Collection<? extends IBeanData> beansData,
+		@Callback IExecutionCallback executionCallback);
 
 }

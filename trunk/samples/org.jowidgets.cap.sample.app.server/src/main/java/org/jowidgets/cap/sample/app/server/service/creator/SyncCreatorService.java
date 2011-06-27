@@ -36,20 +36,20 @@ import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanData;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
-import org.jowidgets.cap.common.api.service.ICreatorService;
 import org.jowidgets.cap.sample.app.server.datastore.AbstractData;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.cap.service.api.bean.IBeanInitializer;
+import org.jowidgets.cap.service.api.creator.ISyncCreatorService;
 import org.jowidgets.util.Assert;
 
-public class CreatorService<BEAN_TYPE extends IBean> implements ICreatorService {
+public class SyncCreatorService<BEAN_TYPE extends IBean> implements ISyncCreatorService {
 
 	private final AbstractData<? extends BEAN_TYPE> data;
 	private final IBeanDtoFactory<BEAN_TYPE> dtoFactory;
 	private final IBeanInitializer<BEAN_TYPE> beanInitializer;
 
-	public CreatorService(final AbstractData<? extends BEAN_TYPE> data, final List<String> propertyNames) {
+	public SyncCreatorService(final AbstractData<? extends BEAN_TYPE> data, final List<String> propertyNames) {
 		Assert.paramNotNull(data, "data");
 		this.data = data;
 		this.dtoFactory = CapServiceToolkit.dtoFactory(data.getBeanType(), propertyNames);

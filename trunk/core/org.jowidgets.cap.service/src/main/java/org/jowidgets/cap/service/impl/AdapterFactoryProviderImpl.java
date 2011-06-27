@@ -28,10 +28,12 @@
 
 package org.jowidgets.cap.service.impl;
 
+import org.jowidgets.cap.common.api.service.ICreatorService;
 import org.jowidgets.cap.common.api.service.IExecutorService;
 import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.common.api.service.IUpdaterService;
 import org.jowidgets.cap.service.api.adapter.IAdapterFactoryProvider;
+import org.jowidgets.cap.service.api.creator.ISyncCreatorService;
 import org.jowidgets.cap.service.api.executor.ISyncExecutorService;
 import org.jowidgets.cap.service.api.reader.ISyncReaderService;
 import org.jowidgets.cap.service.api.updater.ISyncUpdaterService;
@@ -43,11 +45,13 @@ final class AdapterFactoryProviderImpl implements IAdapterFactoryProvider {
 	private final ExecutorServiceAdapterFactory executorServiceAdapterFactory;
 	private final ReaderServiceAdapterFactory readerServiceAdapterFactory;
 	private final UpdaterServiceAdapterFactory updaterServiceAdapterFactory;
+	private final CreatorServiceAdapterFactory creatorServiceAdapterFactory;
 
 	AdapterFactoryProviderImpl() {
 		this.executorServiceAdapterFactory = new ExecutorServiceAdapterFactory();
 		this.readerServiceAdapterFactory = new ReaderServiceAdapterFactory();
 		this.updaterServiceAdapterFactory = new UpdaterServiceAdapterFactory();
+		this.creatorServiceAdapterFactory = new CreatorServiceAdapterFactory();
 	}
 
 	@Override
@@ -63,6 +67,11 @@ final class AdapterFactoryProviderImpl implements IAdapterFactoryProvider {
 	@Override
 	public <PARAM_TYPE> IAdapterFactory<IReaderService<PARAM_TYPE>, ISyncReaderService<PARAM_TYPE>> reader() {
 		return readerServiceAdapterFactory;
+	}
+
+	@Override
+	public IAdapterFactory<ICreatorService, ISyncCreatorService> creator() {
+		return creatorServiceAdapterFactory;
 	}
 
 }
