@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.service.impl.jpa.jpql;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -182,11 +183,13 @@ public class CriteriaQueryCreator implements IQueryCreator<Object> {
 				// TODO HW handle collection properties
 				return criteriaBuilder.equal(path, filter.getParameters()[0]);
 			case EMPTY:
+				// TODO HW handle empty strings
 				// TODO HW handle collection properties
-				return criteriaBuilder.isNull(path);
-			case CONTAINS_ALL:
+				return path.isNull();
 			case CONTAINS_ANY:
-				// TODO HW implement collection operations
+				return path.in((Collection<?>) filter.getParameters()[0]);
+			case CONTAINS_ALL:
+				// TODO HW add support for CONTAINS_ALL
 			default:
 				throw new IllegalArgumentException("unsupported operator: " + filter.getOperator());
 		}
