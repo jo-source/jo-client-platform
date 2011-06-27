@@ -121,7 +121,7 @@ public class CriteriaQueryCreator implements IQueryCreator<Object> {
 		}
 
 		if (filter != null) {
-			query.where(createFilterExpression(criteriaBuilder, bean, filter));
+			query.where(createFilterExpression(criteriaBuilder, bean, query, filter));
 		}
 
 		return bean;
@@ -130,13 +130,14 @@ public class CriteriaQueryCreator implements IQueryCreator<Object> {
 	private Expression<Boolean> createFilterExpression(
 		final CriteriaBuilder criteriaBuilder,
 		final Root<?> bean,
+		final CriteriaQuery<?> query,
 		final IFilter filter) {
 		final Expression<Boolean> expr;
 		if (filter instanceof IArithmeticFilter) {
-			expr = createFilterExpression(criteriaBuilder, bean, (IArithmeticFilter) filter);
+			expr = createFilterExpression(criteriaBuilder, bean, query, (IArithmeticFilter) filter);
 		}
 		else if (filter instanceof IBooleanFilter) {
-			expr = createFilterExpression(criteriaBuilder, bean, (IBooleanFilter) filter);
+			expr = createFilterExpression(criteriaBuilder, bean, query, (IBooleanFilter) filter);
 		}
 		else {
 			throw new IllegalArgumentException("unsupported filter type: " + filter.getClass().getName());
@@ -151,6 +152,7 @@ public class CriteriaQueryCreator implements IQueryCreator<Object> {
 	private Expression<Boolean> createFilterExpression(
 		final CriteriaBuilder criteriaBuilder,
 		final Root<?> bean,
+		final CriteriaQuery<?> query,
 		final IArithmeticFilter filter) {
 		final Path<?> path = bean.get(filter.getPropertyName());
 		switch (filter.getOperator()) {
@@ -160,19 +162,27 @@ public class CriteriaQueryCreator implements IQueryCreator<Object> {
 						criteriaBuilder.literal((Comparable<Object>) filter.getParameters()[0]),
 						criteriaBuilder.literal((Comparable<Object>) filter.getParameters()[1]));
 			case GREATER:
-				return criteriaBuilder.gt((Path<Number>) path, criteriaBuilder.literal((Number) filter.getParameters()[0]));
+				return criteriaBuilder.greaterThan(
+						(Path<Comparable<Object>>) path,
+						criteriaBuilder.literal((Comparable<Object>) filter.getParameters()[0]));
 			case GREATER_EQUAL:
-				return criteriaBuilder.ge((Path<Number>) path, criteriaBuilder.literal((Number) filter.getParameters()[0]));
+				return criteriaBuilder.greaterThanOrEqualTo(
+						(Path<Comparable<Object>>) path,
+						criteriaBuilder.literal((Comparable<Object>) filter.getParameters()[0]));
 			case LESS:
-				return criteriaBuilder.lt((Path<Number>) path, criteriaBuilder.literal((Number) filter.getParameters()[0]));
+				return criteriaBuilder.lessThan(
+						(Path<Comparable<Object>>) path,
+						criteriaBuilder.literal((Comparable<Object>) filter.getParameters()[0]));
 			case LESS_EQUAL:
-				return criteriaBuilder.le((Path<Number>) path, criteriaBuilder.literal((Number) filter.getParameters()[0]));
+				return criteriaBuilder.lessThanOrEqualTo(
+						(Path<Comparable<Object>>) path,
+						criteriaBuilder.literal((Comparable<Object>) filter.getParameters()[0]));
 			case EQUAL:
 				// TODO HW handle null argument?
-				// TODO HW handle collection property
+				// TODO HW handle collection properties
 				return criteriaBuilder.equal(path, filter.getParameters()[0]);
 			case EMPTY:
-				// TODO HW handle collection property
+				// TODO HW handle collection properties
 				return criteriaBuilder.isNull(path);
 			case CONTAINS_ALL:
 			case CONTAINS_ANY:
@@ -185,6 +195,7 @@ public class CriteriaQueryCreator implements IQueryCreator<Object> {
 	private Expression<Boolean> createFilterExpression(
 		final CriteriaBuilder criteriaBuilder,
 		final Root<?> bean,
+		final CriteriaQuery<?> query,
 		final IBooleanFilter filter) {
 		if (filter.getFilters().size() == 0) {
 			return criteriaBuilder.literal(filter.getOperator() == BooleanOperator.AND);
@@ -205,8 +216,8 @@ public class CriteriaQueryCreator implements IQueryCreator<Object> {
 				return filter.getFilters().subList(1, filter.getFilters().size());
 			}
 		};
-		final Expression<Boolean> expr1 = createFilterExpression(criteriaBuilder, bean, filter.getFilters().get(0));
-		final Expression<Boolean> expr2 = createFilterExpression(criteriaBuilder, bean, next);
+		final Expression<Boolean> expr1 = createFilterExpression(criteriaBuilder, bean, query, filter.getFilters().get(0));
+		final Expression<Boolean> expr2 = createFilterExpression(criteriaBuilder, bean, query, next);
 		if (filter.getOperator() == BooleanOperator.AND) {
 			return criteriaBuilder.and(expr1, expr2);
 		}
