@@ -31,9 +31,9 @@ package org.jowidgets.cap.service.tools;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.service.tools.ServiceDecoratorProviderWrapper;
 
-public class AsncServiceDecoratorProvider extends ServiceDecoratorProviderWrapper {
+public class AsyncServiceDecoratorProvider extends ServiceDecoratorProviderWrapper {
 
-	public AsncServiceDecoratorProvider() {
+	public AsyncServiceDecoratorProvider() {
 		super(CapServiceToolkit.serviceDecoratorProvider().asyncDecoratorProvider());
 	}
 
