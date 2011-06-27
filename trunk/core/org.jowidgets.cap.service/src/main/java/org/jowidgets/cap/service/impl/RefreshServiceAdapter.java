@@ -38,7 +38,7 @@ import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.service.IRefreshService;
 import org.jowidgets.cap.service.api.adapter.ISyncRefreshService;
 
-final class RefreshServiceAdapter implements IRefreshService {
+public final class RefreshServiceAdapter implements IRefreshService {
 
 	private final ISyncRefreshService adaptee;
 

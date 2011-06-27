@@ -26,39 +26,52 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.impl;
+package org.jowidgets.cap.invocation.server;
 
-import java.util.Collection;
-import java.util.List;
-
-import org.jowidgets.cap.common.api.bean.IBeanDto;
-import org.jowidgets.cap.common.api.bean.IBeanModification;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
-import org.jowidgets.cap.common.api.execution.IResultCallback;
-import org.jowidgets.cap.common.api.service.IUpdaterService;
-import org.jowidgets.cap.service.api.adapter.ISyncUpdaterService;
+import org.jowidgets.cap.common.api.execution.IExecutionCallbackListener;
+import org.jowidgets.cap.common.api.execution.IUserQuestionCallback;
+import org.jowidgets.cap.common.api.execution.UserQuestionResult;
 
-public final class UpdaterServiceAdapter implements IUpdaterService {
+public class DummyExecutionCallback implements IExecutionCallback {
 
-	private final ISyncUpdaterService adaptee;
-
-	UpdaterServiceAdapter(final ISyncUpdaterService adaptee) {
-		this.adaptee = adaptee;
+	@Override
+	public boolean isCanceled() {
+		return false;
 	}
 
 	@Override
-	public void update(
-		final IResultCallback<List<IBeanDto>> resultCallback,
-		final Collection<? extends IBeanModification> modifications,
-		final IExecutionCallback executionCallback) {
-		try {
-			final List<IBeanDto> result = adaptee.update(modifications, executionCallback);
-			resultCallback.finished(result);
-		}
-		catch (final Exception exception) {
-			resultCallback.exception(exception);
-		}
+	public void setTotalStepCount(final int stepCount) {}
 
+	@Override
+	public void worked(final int stepCount) {}
+
+	@Override
+	public void workedOne() {}
+
+	@Override
+	public void setDescription(final String description) {}
+
+	@Override
+	public void finshed() {}
+
+	@Override
+	public UserQuestionResult userQuestion(final String question) {
+		return null;
 	}
+
+	@Override
+	public void userQuestion(final String question, final IUserQuestionCallback callback) {}
+
+	@Override
+	public IExecutionCallback createSubExecution(final int stepProportion, final boolean cancelable) {
+		return new DummyExecutionCallback();
+	}
+
+	@Override
+	public void addExecutionCallbackListener(final IExecutionCallbackListener listener) {}
+
+	@Override
+	public void removeExecutionCallbackListener(final IExecutionCallbackListener listener) {}
 
 }

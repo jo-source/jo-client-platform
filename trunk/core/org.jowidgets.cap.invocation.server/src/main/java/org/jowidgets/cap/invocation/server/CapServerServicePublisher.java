@@ -28,37 +28,17 @@
 
 package org.jowidgets.cap.invocation.server;
 
-import java.util.Set;
-
 import org.jowidgets.cap.invocation.common.CapInvocationMethodNames;
-import org.jowidgets.invocation.service.common.api.IInterimRequestCallback;
-import org.jowidgets.invocation.service.common.api.IInterimResponseCallback;
-import org.jowidgets.invocation.service.common.api.IInvocationCallback;
-import org.jowidgets.invocation.service.common.api.IMethodInvocationService;
 import org.jowidgets.invocation.service.server.api.IInvocationServiceServerRegistry;
 import org.jowidgets.invocation.service.server.api.InvocationServiceServerToolkit;
-import org.jowidgets.service.api.IServiceId;
-import org.jowidgets.service.api.ServiceProvider;
 
 public class CapServerServicePublisher {
 
 	public void publishServices() {
-		final Set<IServiceId<?>> availableServices = ServiceProvider.getAvailableServices();
 
 		final IInvocationServiceServerRegistry invocationServiceRegistry = InvocationServiceServerToolkit.getRegistry();
 
-		final IMethodInvocationService<Set<IServiceId<?>>, Void, Void, Void, Void> serviceLocatorMethod = new IMethodInvocationService<Set<IServiceId<?>>, Void, Void, Void, Void>() {
-			@Override
-			public void invoke(
-				final IInvocationCallback<Set<IServiceId<?>>> resultCallback,
-				final IInterimResponseCallback<Void> interimResponseCallback,
-				final IInterimRequestCallback<Void, Void> interimRequestCallback,
-				final Void parameter) {
-				resultCallback.finished(availableServices);
-			}
-		};
-
-		invocationServiceRegistry.register(CapInvocationMethodNames.SERVICE_LOCATOR_METHOD_NAME, serviceLocatorMethod);
+		invocationServiceRegistry.register(CapInvocationMethodNames.SERVICE_LOCATOR_METHOD_NAME, new ServiceLocatorMethod());
+		invocationServiceRegistry.register(CapInvocationMethodNames.GENERIC_REMOTE_METHOD_NAME, new GenericRemoteMethod());
 	}
-
 }

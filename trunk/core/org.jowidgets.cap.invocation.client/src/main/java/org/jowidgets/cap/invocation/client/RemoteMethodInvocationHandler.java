@@ -31,16 +31,29 @@ package org.jowidgets.cap.invocation.client;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
+import org.jowidgets.cap.common.api.execution.IExecutionCallback;
+import org.jowidgets.cap.common.api.execution.IExecutionCallbackListener;
+import org.jowidgets.cap.common.api.execution.IResultCallback;
+import org.jowidgets.cap.common.api.execution.UserQuestionResult;
+import org.jowidgets.cap.invocation.common.CapInvocationMethodNames;
+import org.jowidgets.cap.invocation.common.RemoteInvocationParameter;
+import org.jowidgets.invocation.service.client.api.IInvocationServiceClient;
+import org.jowidgets.invocation.service.client.api.InvocationServiceClientToolkit;
+import org.jowidgets.invocation.service.common.api.ICancelListener;
+import org.jowidgets.invocation.service.common.api.IInvocationCallback;
+import org.jowidgets.invocation.service.common.api.IMethodInvocationService;
 import org.jowidgets.service.tools.ServiceId;
 import org.jowidgets.util.Assert;
 
 final class RemoteMethodInvocationHandler implements InvocationHandler {
 
 	private final ServiceId<?> serviceId;
+	private final IInvocationServiceClient invocationServiceClient;
 
 	RemoteMethodInvocationHandler(final ServiceId<?> serviceId) {
 		Assert.paramNotNull(serviceId, "serviceId");
 		this.serviceId = serviceId;
+		this.invocationServiceClient = InvocationServiceClientToolkit.getClient();
 	}
 
 	@Override
@@ -70,13 +83,144 @@ final class RemoteMethodInvocationHandler implements InvocationHandler {
 			return serviceId.hashCode();
 		}
 		else {
-			//CHECKSTYLE:OFF
-			System.out.println("Invoked on Proxy:" + method.getName());
-			//CHECKSTYLE:ON
 
-			//TODO implement remote invocation
-			return null;
+			final Class<?>[] parameterTypes = method.getParameterTypes();
+
+			final Object[] filteredArgs = getFilteredArgs(args);
+
+			final RemoteInvocationParameter parameter = new RemoteInvocationParameter(
+				serviceId,
+				method.getName(),
+				parameterTypes,
+				filteredArgs);
+
+			final int resultCallbackIndex = getFirstResultCallbackIndex(parameterTypes);
+			@SuppressWarnings("unchecked")
+			final IResultCallback<Object> resultCallback = (IResultCallback<Object>) (resultCallbackIndex != -1
+					? args[resultCallbackIndex] : null);
+
+			final int executionCallbackIndex = getFirstExecutionCallbackIndex(parameterTypes);
+			final IExecutionCallback executionCallback = (IExecutionCallback) (executionCallbackIndex != -1
+					? args[executionCallbackIndex] : null);
+
+			if (resultCallback != null) {
+				invokeAsync(resultCallback, parameter, executionCallback);
+				return null;
+			}
+			else if (method.getReturnType() == void.class) {
+				invokeAsync(resultCallback, parameter, executionCallback);
+				return null;
+			}
+			else {
+				return invokeSync(parameter, executionCallback);
+			}
+
 		}
+	}
 
+	private Object invokeSync(final RemoteInvocationParameter parameter, final IExecutionCallback executionCallback) {
+		final SyncInvocationCallback<Object> syncInvocationCallback = new SyncInvocationCallback<Object>(executionCallback);
+		invokeMethod(syncInvocationCallback, parameter);
+		return syncInvocationCallback.getResultSynchronious();
+	}
+
+	private void invokeAsync(
+		final IResultCallback<Object> resultCallback,
+		final RemoteInvocationParameter parameter,
+		final IExecutionCallback executionCallback) {
+		final IInvocationCallback<Object> invocationCallback = new IInvocationCallback<Object>() {
+
+			@Override
+			public void addCancelListener(final ICancelListener cancelListener) {
+				if (executionCallback != null) {
+					executionCallback.addExecutionCallbackListener(new IExecutionCallbackListener() {
+						@Override
+						public void onDispose() {
+							cancelListener.canceled();
+						}
+
+						@Override
+						public void executionCanceled() {
+							cancelListener.canceled();
+						}
+					});
+				}
+			}
+
+			@Override
+			public void finished(final Object result) {
+				if (resultCallback != null) {
+					resultCallback.finished(result);
+				}
+			}
+
+			@Override
+			public void exeption(final Throwable exception) {
+				if (resultCallback != null) {
+					resultCallback.exception(exception);
+				}
+			}
+
+			@Override
+			public void timeout() {
+				if (resultCallback != null) {
+					resultCallback.timeout();
+				}
+			}
+		};
+
+		invokeMethod(invocationCallback, parameter);
+	}
+
+	private void invokeMethod(final IInvocationCallback<Object> invocationCallback, final RemoteInvocationParameter parameter) {
+		final IMethodInvocationService<Object, Void, String, UserQuestionResult, RemoteInvocationParameter> methodService;
+		methodService = invocationServiceClient.getMethodService(CapInvocationMethodNames.GENERIC_REMOTE_METHOD_NAME);
+		methodService.invoke(invocationCallback, null, null, parameter);
+	}
+
+	private int getFirstResultCallbackIndex(final Class<?>[] paramTypes) {
+		if (paramTypes != null) {
+			for (int i = 0; i < paramTypes.length; i++) {
+				if (IResultCallback.class.isAssignableFrom(paramTypes[i])) {
+					return i;
+				}
+			}
+		}
+		return -1;
+	}
+
+	private int getFirstExecutionCallbackIndex(final Class<?>[] paramTypes) {
+		if (paramTypes != null) {
+			for (int i = 0; i < paramTypes.length; i++) {
+				if (IExecutionCallback.class.isAssignableFrom(paramTypes[i])) {
+					return i;
+				}
+			}
+		}
+		return -1;
+	}
+
+	/**
+	 * Filter the callback arguments
+	 * 
+	 * @param args The args to filter
+	 * @return the filtered args
+	 */
+	private Object[] getFilteredArgs(final Object[] args) {
+		if (args != null) {
+			final Object[] result = new Object[args.length];
+			for (int i = 0; i < args.length; i++) {
+				if (args[i] instanceof IResultCallback || args[i] instanceof IExecutionCallback) {
+					result[i] = null;
+				}
+				else {
+					result[i] = args[i];
+				}
+			}
+			return result;
+		}
+		else {
+			return new Object[0];
+		}
 	}
 }

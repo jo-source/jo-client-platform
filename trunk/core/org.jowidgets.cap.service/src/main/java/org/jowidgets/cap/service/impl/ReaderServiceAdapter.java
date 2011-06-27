@@ -39,7 +39,7 @@ import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.service.api.adapter.ISyncReaderService;
 
-final class ReaderServiceAdapter<PARAM_TYPE> implements IReaderService<PARAM_TYPE> {
+public final class ReaderServiceAdapter<PARAM_TYPE> implements IReaderService<PARAM_TYPE> {
 
 	private final ISyncReaderService<PARAM_TYPE> syncReaderService;
 

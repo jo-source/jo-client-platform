@@ -37,7 +37,7 @@ import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.service.IExecutorService;
 import org.jowidgets.cap.service.api.adapter.ISyncExecutorService;
 
-final class ExecutorServiceAdapter<PARAM_TYPE> implements IExecutorService<PARAM_TYPE> {
+public final class ExecutorServiceAdapter<PARAM_TYPE> implements IExecutorService<PARAM_TYPE> {
 
 	private final ISyncExecutorService<PARAM_TYPE> syncExecutorService;
 
