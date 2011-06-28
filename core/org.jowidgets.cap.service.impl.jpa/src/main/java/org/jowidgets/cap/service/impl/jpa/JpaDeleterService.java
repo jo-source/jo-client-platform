@@ -37,15 +37,14 @@ import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
+import org.jowidgets.cap.common.api.execution.IResultCallback;
+import org.jowidgets.cap.common.api.service.IDeleterService;
 import org.jowidgets.cap.common.api.service.IExecutorService;
-import org.jowidgets.cap.common.tools.execution.SyncResultCallback;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
-import org.jowidgets.cap.service.api.adapter.ISyncDeleterService;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
 import org.jowidgets.cap.service.api.executor.IBeanExecutor;
 
-//TODO HW check if implementation should better implement IDeleterService instead of ISyncDeleterService
-public final class JpaDeleterService implements ISyncDeleterService {
+public final class JpaDeleterService implements IDeleterService {
 
 	private final IExecutorService<?> executorService;
 
@@ -68,10 +67,26 @@ public final class JpaDeleterService implements ISyncDeleterService {
 	}
 
 	@Override
-	public void delete(final Collection<? extends IBeanKey> beanKeys, final IExecutionCallback executionCallback) {
-		final SyncResultCallback<List<IBeanDto>> result = new SyncResultCallback<List<IBeanDto>>();
-		executorService.execute(result, (List<? extends IBeanKey>) beanKeys, null, executionCallback);
-		result.getResultSynchronious();
+	public void delete(
+		final IResultCallback<Void> resultCallback,
+		final Collection<? extends IBeanKey> beanKeys,
+		final IExecutionCallback executionCallback) {
+		executorService.execute(new IResultCallback<List<IBeanDto>>() {
+			@Override
+			public void exception(final Throwable exception) {
+				resultCallback.exception(exception);
+			}
+
+			@Override
+			public void finished(final List<IBeanDto> result) {
+				resultCallback.finished(null);
+			}
+
+			@Override
+			public void timeout() {
+				resultCallback.timeout();
+			}
+		}, (List<? extends IBeanKey>) beanKeys, null, executionCallback);
 	}
 
 }
