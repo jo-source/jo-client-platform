@@ -69,7 +69,7 @@ final class ExecutorServiceBuilderImpl<BEAN_TYPE extends IBean, PARAM_TYPE> impl
 		this.allowDeletedBeans = false;
 		this.allowStaleBeans = false;
 
-		this.delayedExecutionCallback = true;
+		this.delayedExecutionCallback = false;
 	}
 
 	@Override

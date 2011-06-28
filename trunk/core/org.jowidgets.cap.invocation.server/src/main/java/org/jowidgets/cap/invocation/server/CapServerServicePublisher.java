@@ -34,11 +34,18 @@ import org.jowidgets.invocation.service.server.api.InvocationServiceServerToolki
 
 public class CapServerServicePublisher {
 
+	private static final long DEFAULT_PROGRESS_DELAY = 500;
+
 	public void publishServices() {
+		publishServices(DEFAULT_PROGRESS_DELAY);
+	}
+
+	public void publishServices(final long progressDelay) {
 
 		final IInvocationServiceServerRegistry invocationServiceRegistry = InvocationServiceServerToolkit.getRegistry();
 
 		invocationServiceRegistry.register(CapInvocationMethodNames.SERVICE_LOCATOR_METHOD_NAME, new ServiceLocatorMethod());
-		invocationServiceRegistry.register(CapInvocationMethodNames.GENERIC_REMOTE_METHOD_NAME, new GenericRemoteMethod());
+		invocationServiceRegistry.register(CapInvocationMethodNames.GENERIC_REMOTE_METHOD_NAME, new GenericRemoteMethod(
+			progressDelay));
 	}
 }

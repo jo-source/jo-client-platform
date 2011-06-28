@@ -31,6 +31,9 @@ package org.jowidgets.cap.invocation.server;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IExecutionCallbackListener;
@@ -48,19 +51,30 @@ final class ServerExecutionCallback implements IExecutionCallback {
 	private final IInterimResponseCallback<Progress> interimResponseCallback;
 	private final Set<IExecutionCallbackListener> executionCallbackListeners;
 
+	private final long progressDelay;
+	private final Timer timer;
+	private final AtomicBoolean isTimerSheduled;
+
 	private boolean canceled;
+	private Integer totalStepCount;
+	private Integer totalWorked;
+	private String description;
+	private boolean finished;
 
 	ServerExecutionCallback(
+		final long progressDelay,
 		final IInvocationCallback<Object> invocationCallback,
 		final IInterimResponseCallback<Progress> interimResponseCallback) {
 
 		Assert.paramNotNull(invocationCallback, "invocationCallback");
 		Assert.paramNotNull(interimResponseCallback, "interimResponseCallback");
+		this.progressDelay = progressDelay;
 		this.invocationCallback = invocationCallback;
 		this.interimResponseCallback = interimResponseCallback;
 		this.executionCallbackListeners = new HashSet<IExecutionCallbackListener>();
 
 		this.canceled = false;
+		this.totalWorked = Integer.valueOf(0);
 
 		invocationCallback.addCancelListener(new ICancelListener() {
 			@Override
@@ -73,6 +87,9 @@ final class ServerExecutionCallback implements IExecutionCallback {
 			}
 		});
 
+		this.timer = new Timer();
+		this.isTimerSheduled = new AtomicBoolean(false);
+
 	}
 
 	@Override
@@ -81,19 +98,33 @@ final class ServerExecutionCallback implements IExecutionCallback {
 	}
 
 	@Override
-	public void setTotalStepCount(final int stepCount) {}
+	public synchronized void setTotalStepCount(final int stepCount) {
+		this.totalStepCount = stepCount;
+		setDirty();
+	}
 
 	@Override
-	public void worked(final int stepCount) {}
+	public synchronized void worked(final int stepCount) {
+		this.totalWorked = this.totalWorked + stepCount;
+		setDirty();
+	}
 
 	@Override
-	public void workedOne() {}
+	public synchronized void workedOne() {
+		worked(1);
+	}
 
 	@Override
-	public void setDescription(final String description) {}
+	public synchronized void setDescription(final String description) {
+		this.description = description;
+		setDirty();
+	}
 
 	@Override
-	public void finshed() {}
+	public void finshed() {
+		this.finished = true;
+		setDirty();
+	}
 
 	@Override
 	public UserQuestionResult userQuestion(final String question) {
@@ -105,7 +136,12 @@ final class ServerExecutionCallback implements IExecutionCallback {
 
 	@Override
 	public IExecutionCallback createSubExecution(final int stepProportion, final boolean cancelable) {
-		return new ServerExecutionCallback(invocationCallback, interimResponseCallback);
+		return new ServerExecutionCallback(progressDelay, invocationCallback, new IInterimResponseCallback<Progress>() {
+			@Override
+			public void response(final Progress response) {
+				//TODO implement sub progress
+			}
+		});
 	}
 
 	@Override
@@ -120,4 +156,16 @@ final class ServerExecutionCallback implements IExecutionCallback {
 		executionCallbackListeners.remove(listener);
 	}
 
+	private void setDirty() {
+		if (!isTimerSheduled.getAndSet(true)) {
+			timer.schedule(new TimerTask() {
+				@Override
+				public void run() {
+					isTimerSheduled.set(false);
+					final Progress progress = new Progress(totalStepCount, totalWorked, description, finished);
+					interimResponseCallback.response(progress);
+				}
+			}, progressDelay);
+		}
+	}
 }
