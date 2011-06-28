@@ -28,28 +28,63 @@
 
 package org.jowidgets.cap.invocation.client;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.invocation.common.Progress;
 import org.jowidgets.invocation.service.common.api.IInterimResponseCallback;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.NullCompatibleEquivalence;
+import org.jowidgets.util.Tuple;
+import org.jowidgets.util.ValueHolder;
 
 final class ProgressResponseCallback implements IInterimResponseCallback<Progress> {
 
 	private final IExecutionCallback executionCallback;
+	private final Map<Object, Tuple<ValueHolder<Progress>, IExecutionCallback>> subCallbacks;
 
 	private Progress lastProgress;
 
 	ProgressResponseCallback(final IExecutionCallback executionCallback) {
 		Assert.paramNotNull(executionCallback, "executionCallback");
 		this.executionCallback = executionCallback;
-
+		this.subCallbacks = new HashMap<Object, Tuple<ValueHolder<Progress>, IExecutionCallback>>();
 		this.lastProgress = new Progress();
 	}
 
 	@Override
 	public void response(final Progress progress) {
+		setSubProgress(progress, executionCallback);
 
+		setProgress(progress, lastProgress, executionCallback);
+		this.lastProgress = progress;
+	}
+
+	private void setSubProgress(final Progress progress, final IExecutionCallback executionCallback) {
+		for (final Progress subProgress : progress.getSubProgressList()) {
+			//set the subProgress recursively
+			setSubProgress(subProgress, executionCallback);
+
+			//check if the task id is already registered
+			Tuple<ValueHolder<Progress>, IExecutionCallback> subCallback = subCallbacks.get(subProgress.getTaskId());
+
+			//if not, create a sub execution
+			if (subCallback == null) {
+				final ValueHolder<Progress> newProgress = new ValueHolder<Progress>(new Progress());
+				subCallback = new Tuple<ValueHolder<Progress>, IExecutionCallback>(
+					newProgress,
+					executionCallback.createSubExecution(subProgress.getStepProportion()));
+				subCallbacks.put(subProgress.getTaskId(), subCallback);
+			}
+
+			//set the progress on the execution callback and set the last progress to the current progress
+			setProgress(subProgress, subCallback.getFirst().get(), subCallback.getSecond());
+			subCallback.getFirst().set(subProgress);
+		}
+	}
+
+	private void setProgress(final Progress progress, final Progress lastProgress, final IExecutionCallback executionCallback) {
 		if (!NullCompatibleEquivalence.equals(progress.getDescription(), lastProgress.getDescription())) {
 			executionCallback.setDescription(progress.getDescription());
 		}
@@ -67,7 +102,6 @@ final class ProgressResponseCallback implements IInterimResponseCallback<Progres
 			executionCallback.finshed();
 		}
 
-		this.lastProgress = progress;
-
 	}
+
 }

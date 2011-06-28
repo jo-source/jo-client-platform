@@ -40,6 +40,7 @@ public final class Progress implements Serializable {
 
 	private final Object taskId;
 
+	private final Integer stepProportion;
 	private final Integer totalStepCount;
 	private final Integer totalWorked;
 	private final String description;
@@ -47,11 +48,12 @@ public final class Progress implements Serializable {
 	private final List<Progress> subProgress;
 
 	public Progress() {
-		this(null, null, null, null, false, new LinkedList<Progress>());
+		this(null, null, null, null, null, false, new LinkedList<Progress>());
 	}
 
 	public Progress(
 		final Object taskId,
+		final Integer stepProportion,
 		final Integer totalStepCount,
 		final Integer totalWorked,
 		final String description,
@@ -59,6 +61,7 @@ public final class Progress implements Serializable {
 		final List<Progress> subProgress) {
 		Assert.paramNotNull(subProgress, "subProgress");
 		this.taskId = taskId;
+		this.stepProportion = stepProportion;
 		this.totalStepCount = totalStepCount;
 		this.totalWorked = totalWorked;
 		this.description = description;
@@ -68,6 +71,10 @@ public final class Progress implements Serializable {
 
 	public Object getTaskId() {
 		return taskId;
+	}
+
+	public Integer getStepProportion() {
+		return stepProportion;
 	}
 
 	public Integer getTotalStepCount() {
@@ -86,7 +93,7 @@ public final class Progress implements Serializable {
 		return finished;
 	}
 
-	public List<Progress> getSubProgress() {
+	public List<Progress> getSubProgressList() {
 		return subProgress;
 	}
 
@@ -94,6 +101,8 @@ public final class Progress implements Serializable {
 	public String toString() {
 		return "Progress [taskId="
 			+ taskId
+			+ ", stepProportion="
+			+ stepProportion
 			+ ", totalStepCount="
 			+ totalStepCount
 			+ ", totalWorked="

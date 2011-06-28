@@ -94,7 +94,6 @@ final class ServerExecutionCallback implements IExecutionCallback {
 		});
 
 		this.isProgressScheduled = new AtomicBoolean(false);
-
 	}
 
 	@Override
@@ -141,7 +140,7 @@ final class ServerExecutionCallback implements IExecutionCallback {
 
 	@Override
 	public IExecutionCallback createSubExecution(final int stepProportion) {
-		final ServerSubExecutionCallback result = new ServerSubExecutionCallback(this, null);
+		final ServerSubExecutionCallback result = new ServerSubExecutionCallback(stepProportion, this, null);
 		subCallbacks.add(result);
 		return result;
 	}
@@ -172,6 +171,7 @@ final class ServerExecutionCallback implements IExecutionCallback {
 						}
 					}
 					final Progress progress = new Progress(
+						null,
 						null,
 						totalStepCount,
 						totalWorked,
