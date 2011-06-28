@@ -32,6 +32,7 @@ import java.lang.reflect.Method;
 
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
+import org.jowidgets.cap.invocation.common.Progress;
 import org.jowidgets.cap.invocation.common.RemoteInvocationParameter;
 import org.jowidgets.invocation.service.common.api.IInterimRequestCallback;
 import org.jowidgets.invocation.service.common.api.IInterimResponseCallback;
@@ -39,12 +40,12 @@ import org.jowidgets.invocation.service.common.api.IInvocationCallback;
 import org.jowidgets.invocation.service.common.api.IMethodInvocationService;
 import org.jowidgets.service.api.ServiceProvider;
 
-final class GenericRemoteMethod implements IMethodInvocationService<Object, Void, Void, Void, RemoteInvocationParameter> {
+final class GenericRemoteMethod implements IMethodInvocationService<Object, Progress, Void, Void, RemoteInvocationParameter> {
 
 	@Override
 	public void invoke(
 		final IInvocationCallback<Object> invocationCallback,
-		final IInterimResponseCallback<Void> interimResponseCallback,
+		final IInterimResponseCallback<Progress> interimResponseCallback,
 		final IInterimRequestCallback<Void, Void> interimRequestCallback,
 		final RemoteInvocationParameter parameter) {
 		try {
@@ -80,7 +81,9 @@ final class GenericRemoteMethod implements IMethodInvocationService<Object, Void
 
 						final int executionCallbackIndex = getFirstExecutionCallbackIndex(parameter.getParameterTypes());
 						if (executionCallbackIndex != -1) {
-							parameter.getArguments()[executionCallbackIndex] = new DummyExecutionCallback();
+							parameter.getArguments()[executionCallbackIndex] = new ServerExecutionCallback(
+								invocationCallback,
+								interimResponseCallback);
 						}
 
 						method.invoke(service, parameter.getArguments());

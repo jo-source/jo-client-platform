@@ -26,52 +26,16 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.invocation.server;
+package org.jowidgets.cap.invocation.client;
 
-import org.jowidgets.cap.common.api.execution.IExecutionCallback;
-import org.jowidgets.cap.common.api.execution.IExecutionCallbackListener;
-import org.jowidgets.cap.common.api.execution.IUserQuestionCallback;
-import org.jowidgets.cap.common.api.execution.UserQuestionResult;
+import org.jowidgets.cap.invocation.common.Progress;
+import org.jowidgets.invocation.service.common.api.IInterimResponseCallback;
 
-public class DummyExecutionCallback implements IExecutionCallback {
+final class DummyProgressResponseCallback implements IInterimResponseCallback<Progress> {
 
-	@Override
-	public boolean isCanceled() {
-		return false;
-	}
+	DummyProgressResponseCallback() {}
 
 	@Override
-	public void setTotalStepCount(final int stepCount) {}
-
-	@Override
-	public void worked(final int stepCount) {}
-
-	@Override
-	public void workedOne() {}
-
-	@Override
-	public void setDescription(final String description) {}
-
-	@Override
-	public void finshed() {}
-
-	@Override
-	public UserQuestionResult userQuestion(final String question) {
-		return null;
-	}
-
-	@Override
-	public void userQuestion(final String question, final IUserQuestionCallback callback) {}
-
-	@Override
-	public IExecutionCallback createSubExecution(final int stepProportion, final boolean cancelable) {
-		return new DummyExecutionCallback();
-	}
-
-	@Override
-	public void addExecutionCallbackListener(final IExecutionCallbackListener listener) {}
-
-	@Override
-	public void removeExecutionCallbackListener(final IExecutionCallbackListener listener) {}
+	public void response(final Progress response) {}
 
 }
