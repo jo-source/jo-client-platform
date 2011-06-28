@@ -122,9 +122,17 @@ final class MessageBroker implements IMessageBroker, IMessageChannel {
 					request.setEntity(new ByteArrayEntity(data));
 					try {
 						final HttpResponse response = httpClient.execute(request);
-						final StatusLine statusLine = response.getStatusLine();
-						if (statusLine.getStatusCode() != 200) {
-							throw new IOException("Invalid HTTP response: " + statusLine);
+						try {
+							final StatusLine statusLine = response.getStatusLine();
+							if (statusLine.getStatusCode() != 200) {
+								throw new IOException("Invalid HTTP response: " + statusLine);
+							}
+						}
+						finally {
+							final HttpEntity entity = response.getEntity();
+							if (entity != null) {
+								entity.getContent().close();
+							}
 						}
 					}
 					catch (final IOException e) {
@@ -177,13 +185,13 @@ final class MessageBroker implements IMessageBroker, IMessageChannel {
 				try {
 					final HttpResponse response = httpClient.execute(new HttpGet(url));
 					final StatusLine statusLine = response.getStatusLine();
-					if (statusLine.getStatusCode() != 200) {
-						throw new IOException("Invalid HTTP response: " + statusLine);
-					}
 					final HttpEntity entity = response.getEntity();
 					if (entity != null) {
 						final InputStream is = entity.getContent();
 						try {
+							if (statusLine.getStatusCode() != 200) {
+								throw new IOException("Invalid HTTP response: " + statusLine);
+							}
 							final ObjectInputStream ois = new ObjectInputStream(is);
 							final int num = ois.readInt();
 							for (int i = 0; i < num; i++) {
