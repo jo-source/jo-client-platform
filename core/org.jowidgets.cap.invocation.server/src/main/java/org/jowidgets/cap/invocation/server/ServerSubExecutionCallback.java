@@ -47,6 +47,7 @@ final class ServerSubExecutionCallback implements IExecutionCallback {
 	private final ServerExecutionCallback rootCallback;
 	private final ServerSubExecutionCallback parentCallback;
 	private final List<ServerSubExecutionCallback> subCallbacks;
+	private final int stepProportion;
 
 	private final AtomicBoolean dirty;
 
@@ -55,8 +56,12 @@ final class ServerSubExecutionCallback implements IExecutionCallback {
 	private String description;
 	private boolean finished;
 
-	ServerSubExecutionCallback(final ServerExecutionCallback rootCallback, final ServerSubExecutionCallback parentCallback) {
+	ServerSubExecutionCallback(
+		final int stepProportion,
+		final ServerExecutionCallback rootCallback,
+		final ServerSubExecutionCallback parentCallback) {
 		Assert.paramNotNull(rootCallback, "rootCallback");
+		this.stepProportion = stepProportion;
 		this.rootCallback = rootCallback;
 		this.parentCallback = parentCallback;
 		this.id = UUID.randomUUID();
@@ -111,7 +116,7 @@ final class ServerSubExecutionCallback implements IExecutionCallback {
 
 	@Override
 	public IExecutionCallback createSubExecution(final int stepProportion) {
-		final ServerSubExecutionCallback result = new ServerSubExecutionCallback(rootCallback, this);
+		final ServerSubExecutionCallback result = new ServerSubExecutionCallback(stepProportion, rootCallback, this);
 		subCallbacks.add(result);
 		return result;
 	}
@@ -140,7 +145,7 @@ final class ServerSubExecutionCallback implements IExecutionCallback {
 					subProgressList.add(subProgress);
 				}
 			}
-			return new Progress(id, totalStepCount, totalWorked, description, finished, subProgressList);
+			return new Progress(id, stepProportion, totalStepCount, totalWorked, description, finished, subProgressList);
 		}
 		else {
 			return null;
