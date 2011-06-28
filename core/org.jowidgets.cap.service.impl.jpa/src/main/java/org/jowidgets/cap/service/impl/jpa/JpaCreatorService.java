@@ -40,16 +40,15 @@ import org.jowidgets.cap.common.api.bean.IBeanData;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
+import org.jowidgets.cap.common.api.execution.IResultCallback;
+import org.jowidgets.cap.common.api.service.ICreatorService;
 import org.jowidgets.cap.common.api.service.IExecutorService;
-import org.jowidgets.cap.common.tools.execution.SyncResultCallback;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
-import org.jowidgets.cap.service.api.adapter.ISyncCreatorService;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
 import org.jowidgets.cap.service.api.bean.IBeanInitializer;
 import org.jowidgets.cap.service.api.executor.IBeanListExecutor;
 
-//TODO HW check if implementation should better implement ICreatorService instead of ISyncCreatorService
-public final class JpaCreatorService implements ISyncCreatorService {
+public final class JpaCreatorService implements ICreatorService {
 
 	private final IBeanInitializer<IBean> beanInitializer;
 	private final IExecutorService<Object> executorService;
@@ -92,10 +91,11 @@ public final class JpaCreatorService implements ISyncCreatorService {
 	}
 
 	@Override
-	public List<IBeanDto> create(final Collection<? extends IBeanData> beansData, final IExecutionCallback executionCallback) {
-		final SyncResultCallback<List<IBeanDto>> result = new SyncResultCallback<List<IBeanDto>>();
+	public void create(
+		final IResultCallback<List<IBeanDto>> result,
+		final Collection<? extends IBeanData> beansData,
+		final IExecutionCallback executionCallback) {
 		executorService.execute(result, new ArrayList<IBeanKey>(), beansData, executionCallback);
-		return result.getResultSynchronious();
 	}
 
 }
