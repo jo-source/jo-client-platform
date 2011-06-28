@@ -177,69 +177,80 @@ final class BeanListExecutionHelper {
 
 	IExecutionTask createExecutionTask() {
 		final IExecutionTask executionTask = CapUiToolkit.executionTaskFactory().create();
-
-		//TODO MG remove this later
-		executionTask.addExecutionTaskListener(new IExecutionTaskListener() {
-
-			@Override
-			public void worked(final int totalWorked) {
-				//CHECKSTYLE:OFF
-				System.out.println("WORKED " + totalWorked);
-				//CHECKSTYLE:ON
-			}
-
-			@Override
-			public void userQuestionAsked(final String question, final IUserAnswerCallback callback) {
-				final ValueHolder<QuestionResult> resultHolder = new ValueHolder<QuestionResult>();
-				try {
-					uiThreadAccess.invokeAndWait(new Runnable() {
-						@Override
-						public void run() {
-							final QuestionResult result = Toolkit.getQuestionPane().askYesNoQuestion(question);
-							resultHolder.set(result);
-						}
-					});
-				}
-				catch (final InterruptedException e) {
-					callback.setQuestionResult(UserQuestionResult.NO);
-				}
-
-				if (QuestionResult.YES == resultHolder.get()) {
-					callback.setQuestionResult(UserQuestionResult.YES);
-				}
-				else {
-					callback.setQuestionResult(UserQuestionResult.NO);
-				}
-
-			}
-
-			@Override
-			public void totalStepCountChanged(final int totalStepCount) {
-				//CHECKSTYLE:OFF
-				System.out.println("TOTAL STEP COUNT " + totalStepCount);
-				//CHECKSTYLE:ON
-			}
-
-			@Override
-			public void subExecutionAdded(final IExecutionTask executionTask) {}
-
-			@Override
-			public void finished() {
-				//CHECKSTYLE:OFF
-				System.out.println("FINISHED " + executionTask.isFinshed());
-				//CHECKSTYLE:ON
-			}
-
-			@Override
-			public void descriptionChanged(final String description) {
-				//CHECKSTYLE:OFF
-				System.out.println("DESCRIPTION CHANGED " + description);
-				//CHECKSTYLE:ON
-			}
-
-		});
-
+		executionTask.addExecutionTaskListener(new ExecutionTaskMonitor(executionTask));
 		return executionTask;
+	}
+
+	//TODO MG remove this later
+	private class ExecutionTaskMonitor implements IExecutionTaskListener {
+
+		private final IExecutionTask executionTask;
+
+		ExecutionTaskMonitor(final IExecutionTask executionTask) {
+			this.executionTask = executionTask;
+		}
+
+		@Override
+		public void worked(final int totalWorked) {
+			//CHECKSTYLE:OFF
+			System.out.println("WORKED " + totalWorked);
+			//CHECKSTYLE:ON
+		}
+
+		@Override
+		public void userQuestionAsked(final String question, final IUserAnswerCallback callback) {
+			final ValueHolder<QuestionResult> resultHolder = new ValueHolder<QuestionResult>();
+			try {
+				uiThreadAccess.invokeAndWait(new Runnable() {
+					@Override
+					public void run() {
+						final QuestionResult result = Toolkit.getQuestionPane().askYesNoQuestion(question);
+						resultHolder.set(result);
+					}
+				});
+			}
+			catch (final InterruptedException e) {
+				callback.setQuestionResult(UserQuestionResult.NO);
+			}
+
+			if (QuestionResult.YES == resultHolder.get()) {
+				callback.setQuestionResult(UserQuestionResult.YES);
+			}
+			else {
+				callback.setQuestionResult(UserQuestionResult.NO);
+			}
+
+		}
+
+		@Override
+		public void totalStepCountChanged(final int totalStepCount) {
+			//CHECKSTYLE:OFF
+			System.out.println("TOTAL STEP COUNT " + totalStepCount);
+			//CHECKSTYLE:ON
+		}
+
+		@Override
+		public void subExecutionAdded(final IExecutionTask executionTask) {
+			//CHECKSTYLE:OFF
+			System.out.println("SUB EXECUTION TASK ADDED ");
+			//CHECKSTYLE:ON
+			executionTask.addExecutionTaskListener(new ExecutionTaskMonitor(executionTask));
+		}
+
+		@Override
+		public void finished() {
+			//CHECKSTYLE:OFF
+			System.out.println("FINISHED " + executionTask.isFinshed());
+			//CHECKSTYLE:ON
+		}
+
+		@Override
+		public void descriptionChanged(final String description) {
+			//CHECKSTYLE:OFF
+			System.out.println("DESCRIPTION CHANGED " + description);
+			//CHECKSTYLE:ON
+		}
+
 	}
 
 }
