@@ -28,7 +28,6 @@
 
 package org.jowidgets.cap.common.api.execution;
 
-
 public interface IExecutionCallback {
 
 	/**
@@ -105,10 +104,9 @@ public interface IExecutionCallback {
 	 * Creates a sub execution from this execution.
 	 * 
 	 * @param stepProportion The number of steps the sub execution contributes to this execution.
-	 * @param cancelable If true, the sub execution could be canceled by the user separately
 	 * @return The execution handle of the sub execution
 	 */
-	IExecutionCallback createSubExecution(int stepProportion, boolean cancelable);
+	IExecutionCallback createSubExecution(int stepProportion);
 
 	void addExecutionCallbackListener(IExecutionCallbackListener listener);
 

@@ -29,21 +29,45 @@
 package org.jowidgets.cap.invocation.common;
 
 import java.io.Serializable;
+import java.util.LinkedList;
+import java.util.List;
+
+import org.jowidgets.util.Assert;
 
 public final class Progress implements Serializable {
 
 	private static final long serialVersionUID = 8822619729853039106L;
 
+	private final Object taskId;
+
 	private final Integer totalStepCount;
 	private final Integer totalWorked;
 	private final String description;
 	private final boolean finished;
+	private final List<Progress> subProgress;
 
-	public Progress(final Integer totalStepCount, final Integer totalWorked, final String description, final boolean finished) {
+	public Progress() {
+		this(null, null, null, null, false, new LinkedList<Progress>());
+	}
+
+	public Progress(
+		final Object taskId,
+		final Integer totalStepCount,
+		final Integer totalWorked,
+		final String description,
+		final boolean finished,
+		final List<Progress> subProgress) {
+		Assert.paramNotNull(subProgress, "subProgress");
+		this.taskId = taskId;
 		this.totalStepCount = totalStepCount;
 		this.totalWorked = totalWorked;
 		this.description = description;
 		this.finished = finished;
+		this.subProgress = subProgress;
+	}
+
+	public Object getTaskId() {
+		return taskId;
 	}
 
 	public Integer getTotalStepCount() {
@@ -62,9 +86,15 @@ public final class Progress implements Serializable {
 		return finished;
 	}
 
+	public List<Progress> getSubProgress() {
+		return subProgress;
+	}
+
 	@Override
 	public String toString() {
-		return "Progress [totalStepCount="
+		return "Progress [taskId="
+			+ taskId
+			+ ", totalStepCount="
 			+ totalStepCount
 			+ ", totalWorked="
 			+ totalWorked
@@ -72,6 +102,8 @@ public final class Progress implements Serializable {
 			+ description
 			+ ", finished="
 			+ finished
+			+ ", subProgress="
+			+ subProgress
 			+ "]";
 	}
 

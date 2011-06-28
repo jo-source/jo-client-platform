@@ -44,11 +44,12 @@ final class ProgressResponseCallback implements IInterimResponseCallback<Progres
 		Assert.paramNotNull(executionCallback, "executionCallback");
 		this.executionCallback = executionCallback;
 
-		this.lastProgress = new Progress(null, null, null, false);
+		this.lastProgress = new Progress();
 	}
 
 	@Override
 	public void response(final Progress progress) {
+
 		if (!NullCompatibleEquivalence.equals(progress.getDescription(), lastProgress.getDescription())) {
 			executionCallback.setDescription(progress.getDescription());
 		}
@@ -65,7 +66,7 @@ final class ProgressResponseCallback implements IInterimResponseCallback<Progres
 		if (progress.isFinished() != lastProgress.isFinished()) {
 			executionCallback.finshed();
 		}
-		
+
 		this.lastProgress = progress;
 
 	}

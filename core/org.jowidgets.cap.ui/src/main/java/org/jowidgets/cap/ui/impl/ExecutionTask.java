@@ -180,8 +180,8 @@ public final class ExecutionTask implements IExecutionTask, IUserAnswerCallback,
 	}
 
 	@Override
-	public IExecutionCallback createSubExecution(final int stepProportion, final boolean cancelable) {
-		final ExecutionTask result = new ExecutionTask(cancelable, Integer.valueOf(stepProportion));
+	public IExecutionCallback createSubExecution(final int stepProportion) {
+		final ExecutionTask result = new ExecutionTask(false, Integer.valueOf(stepProportion));
 		subExecutions.add(result);
 		fireSubExecutionAdded(result);
 		return result;
