@@ -64,6 +64,8 @@ public class MethodImpl implements IMethod {
 
 		final IInvocationCallbackService invocationCallbackService = invocationServer.getInvocationCallbackService();
 
+		cancelService.registerInvocation(invocationId);
+
 		final IInvocationCallback<Object> invocationCallback = new IInvocationCallback<Object>() {
 
 			@Override
