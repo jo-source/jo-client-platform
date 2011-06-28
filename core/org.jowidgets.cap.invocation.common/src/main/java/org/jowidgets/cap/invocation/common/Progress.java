@@ -30,9 +30,49 @@ package org.jowidgets.cap.invocation.common;
 
 import java.io.Serializable;
 
-//CHECKSTYLE:OFF
 public final class Progress implements Serializable {
 
 	private static final long serialVersionUID = 8822619729853039106L;
+
+	private final Integer totalStepCount;
+	private final Integer totalWorked;
+	private final String description;
+	private final boolean finished;
+
+	public Progress(final Integer totalStepCount, final Integer totalWorked, final String description, final boolean finished) {
+		this.totalStepCount = totalStepCount;
+		this.totalWorked = totalWorked;
+		this.description = description;
+		this.finished = finished;
+	}
+
+	public Integer getTotalStepCount() {
+		return totalStepCount;
+	}
+
+	public Integer getTotalWorked() {
+		return totalWorked;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public boolean isFinished() {
+		return finished;
+	}
+
+	@Override
+	public String toString() {
+		return "Progress [totalStepCount="
+			+ totalStepCount
+			+ ", totalWorked="
+			+ totalWorked
+			+ ", description="
+			+ description
+			+ ", finished="
+			+ finished
+			+ "]";
+	}
 
 }

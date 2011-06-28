@@ -42,6 +42,12 @@ import org.jowidgets.service.api.ServiceProvider;
 
 final class GenericRemoteMethod implements IMethodInvocationService<Object, Progress, Void, Void, RemoteInvocationParameter> {
 
+	private final long progressDelay;
+
+	GenericRemoteMethod(final long progressDelay) {
+		this.progressDelay = progressDelay;
+	}
+
 	@Override
 	public void invoke(
 		final IInvocationCallback<Object> invocationCallback,
@@ -82,6 +88,7 @@ final class GenericRemoteMethod implements IMethodInvocationService<Object, Prog
 						final int executionCallbackIndex = getFirstExecutionCallbackIndex(parameter.getParameterTypes());
 						if (executionCallbackIndex != -1) {
 							parameter.getArguments()[executionCallbackIndex] = new ServerExecutionCallback(
+								progressDelay,
 								invocationCallback,
 								interimResponseCallback);
 						}

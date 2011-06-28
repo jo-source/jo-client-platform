@@ -32,20 +32,41 @@ import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.invocation.common.Progress;
 import org.jowidgets.invocation.service.common.api.IInterimResponseCallback;
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.NullCompatibleEquivalence;
 
 final class ProgressResponseCallback implements IInterimResponseCallback<Progress> {
 
-	@SuppressWarnings("unused")
 	private final IExecutionCallback executionCallback;
+
+	private Progress lastProgress;
 
 	ProgressResponseCallback(final IExecutionCallback executionCallback) {
 		Assert.paramNotNull(executionCallback, "executionCallback");
 		this.executionCallback = executionCallback;
+
+		this.lastProgress = new Progress(null, null, null, false);
 	}
 
 	@Override
-	public void response(final Progress response) {
+	public void response(final Progress progress) {
+		if (!NullCompatibleEquivalence.equals(progress.getDescription(), lastProgress.getDescription())) {
+			executionCallback.setDescription(progress.getDescription());
+		}
+		if (!NullCompatibleEquivalence.equals(progress.getTotalStepCount(), lastProgress.getTotalStepCount())) {
+			executionCallback.setTotalStepCount(progress.getTotalStepCount());
+		}
+		if (progress.getTotalWorked() != null) {
+			final int lastWorked = lastProgress.getTotalWorked() != null ? lastProgress.getTotalWorked().intValue() : 0;
+			final int worked = progress.getTotalWorked() != null ? progress.getTotalWorked().intValue() : 0;
+			if (worked > lastWorked) {
+				executionCallback.worked(worked - lastWorked);
+			}
+		}
+		if (progress.isFinished() != lastProgress.isFinished()) {
+			executionCallback.finshed();
+		}
+		
+		this.lastProgress = progress;
 
 	}
-
 }
