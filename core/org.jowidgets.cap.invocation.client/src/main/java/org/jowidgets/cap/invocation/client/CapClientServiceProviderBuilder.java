@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.invocation.client;
 
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.util.Set;
 
@@ -66,7 +67,7 @@ final class CapClientServiceProviderBuilder extends ServiceProviderBuilder {
 
 	private Object getService(final IServiceId<?> serviceId) {
 		final Class<?> serviceType = serviceId.getServiceType();
-		return Proxy.newProxyInstance(serviceType.getClassLoader(), new Class[] {serviceType}, new RemoteMethodInvocationHandler(
-			(ServiceId<?>) serviceId));
+		final InvocationHandler invocationHandler = new RemoteMethodInvocationHandler((ServiceId<?>) serviceId);
+		return Proxy.newProxyInstance(serviceType.getClassLoader(), new Class[] {serviceType}, invocationHandler);
 	}
 }
