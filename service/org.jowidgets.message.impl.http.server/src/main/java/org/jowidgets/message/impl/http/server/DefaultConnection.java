@@ -31,17 +31,21 @@ package org.jowidgets.message.impl.http.server;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import org.jowidgets.message.api.IExceptionCallback;
 import org.jowidgets.message.api.IMessageChannel;
 import org.jowidgets.message.api.IMessageReceiver;
+import org.jowidgets.util.concurrent.DaemonThreadFactory;
 
 final class DefaultConnection implements IConnection, IMessageChannel {
 
 	private final IMessageReceiver receiver;
 	private final BlockingQueue<Object> queue = new LinkedBlockingQueue<Object>();
+	private final Executor executor = Executors.newCachedThreadPool(new DaemonThreadFactory());
 
 	public DefaultConnection(final IMessageReceiver receiver) {
 		this.receiver = receiver;
@@ -50,7 +54,12 @@ final class DefaultConnection implements IConnection, IMessageChannel {
 	@Override
 	public void onMessage(final Object msg) {
 		if (receiver != null) {
-			receiver.onMessage(msg, this);
+			executor.execute(new Runnable() {
+				@Override
+				public void run() {
+					receiver.onMessage(msg, DefaultConnection.this);
+				}
+			});
 		}
 	}
 
