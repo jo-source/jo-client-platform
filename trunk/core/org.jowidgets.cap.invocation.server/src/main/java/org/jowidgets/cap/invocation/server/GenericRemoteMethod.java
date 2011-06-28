@@ -64,44 +64,13 @@ final class GenericRemoteMethod implements
 			if (service != null) {
 				final Method method = service.getClass().getMethod(parameter.getMethodName(), parameter.getParameterTypes());
 				if (method != null) {
-					if (method.getReturnType() != void.class) {
-						final Object result = method.invoke(service, parameter.getArguments());
-						invocationCallback.finished(result);
-					}
-					else {
-						final int resultCallbackIndex = getFirstResultCallbackIndex(parameter.getParameterTypes());
-						if (resultCallbackIndex != -1) {
-							parameter.getArguments()[resultCallbackIndex] = new IResultCallback<Object>() {
-
-								@Override
-								public void finished(final Object result) {
-									invocationCallback.finished(result);
-								}
-
-								@Override
-								public void exception(final Throwable exception) {
-									invocationCallback.exeption(exception);
-								}
-
-								@Override
-								public void timeout() {
-									invocationCallback.exeption(new RuntimeException("Timeout exception"));
-								}
-							};
-						}
-
-						final int executionCallbackIndex = getFirstExecutionCallbackIndex(parameter.getParameterTypes());
-						if (executionCallbackIndex != -1) {
-							parameter.getArguments()[executionCallbackIndex] = new ServerExecutionCallback(
-								scheduledExecutorService,
-								progressDelay,
-								invocationCallback,
-								interimResponseCallback,
-								interimRequestCallback);
-						}
-
-						method.invoke(service, parameter.getArguments());
-					}
+					invokeMethodOnService(
+							service,
+							method,
+							invocationCallback,
+							interimResponseCallback,
+							interimRequestCallback,
+							parameter);
 				}
 				else {
 					throw new IllegalArgumentException("No method found for '"
@@ -118,13 +87,44 @@ final class GenericRemoteMethod implements
 		catch (final Exception exception) {
 			invocationCallback.exeption(exception);
 		}
-
 	}
 
-	private int getFirstResultCallbackIndex(final Class<?>[] paramTypes) {
+	public void invokeMethodOnService(
+		final Object service,
+		final Method method,
+		final IInvocationCallback<Object> invocationCallback,
+		final IInterimResponseCallback<Progress> interimResponseCallback,
+		final IInterimRequestCallback<String, UserQuestionResult> interimRequestCallback,
+		final RemoteInvocationParameter parameter) throws Exception {
+
+		final Class<?>[] parameterTypes = parameter.getParameterTypes();
+		final Object[] arguments = parameter.getArguments();
+
+		final int executionCallbackIndex = getFirstMatchingIndex(IExecutionCallback.class, parameterTypes);
+		if (executionCallbackIndex != -1) {
+			arguments[executionCallbackIndex] = new ServerExecutionCallback(
+				scheduledExecutorService,
+				progressDelay,
+				invocationCallback,
+				interimResponseCallback,
+				interimRequestCallback);
+		}
+
+		final int resultCallbackIndex = getFirstMatchingIndex(IResultCallback.class, parameterTypes);
+		if (resultCallbackIndex == -1) {
+			final Object result = method.invoke(service, arguments);
+			invocationCallback.finished(result);
+		}
+		else {
+			arguments[resultCallbackIndex] = new ServerResultCallback(invocationCallback);
+			method.invoke(service, arguments);
+		}
+	}
+
+	private int getFirstMatchingIndex(final Class<?> interfaceType, final Class<?>[] paramTypes) {
 		if (paramTypes != null) {
 			for (int i = 0; i < paramTypes.length; i++) {
-				if (IResultCallback.class.isAssignableFrom(paramTypes[i])) {
+				if (interfaceType.isAssignableFrom(paramTypes[i])) {
 					return i;
 				}
 			}
@@ -132,14 +132,4 @@ final class GenericRemoteMethod implements
 		return -1;
 	}
 
-	private int getFirstExecutionCallbackIndex(final Class<?>[] paramTypes) {
-		if (paramTypes != null) {
-			for (int i = 0; i < paramTypes.length; i++) {
-				if (IExecutionCallback.class.isAssignableFrom(paramTypes[i])) {
-					return i;
-				}
-			}
-		}
-		return -1;
-	}
 }
