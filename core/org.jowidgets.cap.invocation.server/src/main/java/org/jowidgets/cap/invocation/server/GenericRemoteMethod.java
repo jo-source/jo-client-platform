@@ -33,6 +33,7 @@ import java.util.concurrent.ScheduledExecutorService;
 
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
+import org.jowidgets.cap.common.api.execution.UserQuestionResult;
 import org.jowidgets.cap.invocation.common.Progress;
 import org.jowidgets.cap.invocation.common.RemoteInvocationParameter;
 import org.jowidgets.invocation.service.common.api.IInterimRequestCallback;
@@ -41,7 +42,8 @@ import org.jowidgets.invocation.service.common.api.IInvocationCallback;
 import org.jowidgets.invocation.service.common.api.IMethodInvocationService;
 import org.jowidgets.service.api.ServiceProvider;
 
-final class GenericRemoteMethod implements IMethodInvocationService<Object, Progress, Void, Void, RemoteInvocationParameter> {
+final class GenericRemoteMethod implements
+		IMethodInvocationService<Object, Progress, String, UserQuestionResult, RemoteInvocationParameter> {
 
 	private final long progressDelay;
 	private final ScheduledExecutorService scheduledExecutorService;
@@ -55,7 +57,7 @@ final class GenericRemoteMethod implements IMethodInvocationService<Object, Prog
 	public void invoke(
 		final IInvocationCallback<Object> invocationCallback,
 		final IInterimResponseCallback<Progress> interimResponseCallback,
-		final IInterimRequestCallback<Void, Void> interimRequestCallback,
+		final IInterimRequestCallback<String, UserQuestionResult> interimRequestCallback,
 		final RemoteInvocationParameter parameter) {
 		try {
 			final Object service = ServiceProvider.getService(parameter.getServiceId());
@@ -94,7 +96,8 @@ final class GenericRemoteMethod implements IMethodInvocationService<Object, Prog
 								scheduledExecutorService,
 								progressDelay,
 								invocationCallback,
-								interimResponseCallback);
+								interimResponseCallback,
+								interimRequestCallback);
 						}
 
 						method.invoke(service, parameter.getArguments());
