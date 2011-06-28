@@ -36,9 +36,11 @@ import org.jowidgets.invocation.common.impl.ExceptionMessage;
 import org.jowidgets.invocation.common.impl.FinishedMessage;
 import org.jowidgets.invocation.common.impl.InterimRequestMessage;
 import org.jowidgets.invocation.common.impl.InterimResponseMessage;
+import org.jowidgets.invocation.common.impl.MessageBrokerId;
 import org.jowidgets.invocation.server.api.IInvocationServer;
 import org.jowidgets.message.api.IExceptionCallback;
 import org.jowidgets.message.api.IMessageChannel;
+import org.jowidgets.message.api.MessageToolkit;
 import org.jowidgets.util.Assert;
 
 public final class InvocationServerImpl implements IInvocationServer {
@@ -100,9 +102,14 @@ public final class InvocationServerImpl implements IInvocationServer {
 			return new IMessageChannel() {
 				@Override
 				public void send(final Object message, final IExceptionCallback exceptionCallback) {
-					exceptionCallback.exception(new IllegalStateException("No message channel is registered for invocationId '"
-						+ invocationId
-						+ "'"));
+					if (exceptionCallback != null) {
+						exceptionCallback.exception(new IllegalStateException(
+							"No message channel is registered for invocationId '" + invocationId + "'"));
+					}
+					else {
+						MessageToolkit.handleExceptions(MessageBrokerId.INVOCATION_IMPL_BROKER_ID, new IllegalStateException(
+							"No message channel is registered for invocationId '" + invocationId + "'"));
+					}
 				}
 			};
 		}
