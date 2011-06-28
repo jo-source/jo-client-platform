@@ -32,35 +32,35 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import org.jowidgets.message.api.IExceptionCallback;
 import org.jowidgets.message.api.IMessageChannel;
 import org.jowidgets.message.api.IMessageReceiver;
-import org.jowidgets.util.concurrent.DaemonThreadFactory;
+import org.jowidgets.util.Assert;
 
 final class DefaultConnection implements IConnection, IMessageChannel {
 
 	private final IMessageReceiver receiver;
+	private final Executor executor;
 	private final BlockingQueue<Object> queue = new LinkedBlockingQueue<Object>();
-	private final Executor executor = Executors.newCachedThreadPool(new DaemonThreadFactory());
 
-	public DefaultConnection(final IMessageReceiver receiver) {
+	public DefaultConnection(final IMessageReceiver receiver, final Executor executor) {
+		Assert.paramNotNull(receiver, "receiver");
+		Assert.paramNotNull(executor, "executor");
 		this.receiver = receiver;
+		this.executor = executor;
 	}
 
 	@Override
 	public void onMessage(final Object msg) {
-		if (receiver != null) {
-			executor.execute(new Runnable() {
-				@Override
-				public void run() {
-					receiver.onMessage(msg, DefaultConnection.this);
-				}
-			});
-		}
+		executor.execute(new Runnable() {
+			@Override
+			public void run() {
+				receiver.onMessage(msg, DefaultConnection.this);
+			}
+		});
 	}
 
 	@Override

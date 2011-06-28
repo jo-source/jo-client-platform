@@ -28,13 +28,25 @@
 
 package org.jowidgets.message.impl.http.server;
 
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+
 import org.jowidgets.message.api.IMessageReceiver;
+import org.jowidgets.util.Assert;
+import org.jowidgets.util.concurrent.DaemonThreadFactory;
 
 final class DefaultConnectionFactory implements IConnectionFactory {
 
+	private Executor executor = Executors.newCachedThreadPool(new DaemonThreadFactory());
+
+	public void setExecutor(final Executor executor) {
+		Assert.paramNotNull(executor, "executor");
+		this.executor = executor;
+	}
+
 	@Override
 	public IConnection createConnection(final IMessageReceiver receiver) {
-		return new DefaultConnection(receiver);
+		return new DefaultConnection(receiver, executor);
 	}
 
 }
