@@ -29,6 +29,7 @@
 package org.jowidgets.cap.invocation.server;
 
 import java.lang.reflect.Method;
+import java.util.concurrent.ScheduledExecutorService;
 
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
@@ -43,8 +44,10 @@ import org.jowidgets.service.api.ServiceProvider;
 final class GenericRemoteMethod implements IMethodInvocationService<Object, Progress, Void, Void, RemoteInvocationParameter> {
 
 	private final long progressDelay;
+	private final ScheduledExecutorService scheduledExecutorService;
 
-	GenericRemoteMethod(final long progressDelay) {
+	GenericRemoteMethod(final ScheduledExecutorService scheduledExecutorService, final long progressDelay) {
+		this.scheduledExecutorService = scheduledExecutorService;
 		this.progressDelay = progressDelay;
 	}
 
@@ -88,6 +91,7 @@ final class GenericRemoteMethod implements IMethodInvocationService<Object, Prog
 						final int executionCallbackIndex = getFirstExecutionCallbackIndex(parameter.getParameterTypes());
 						if (executionCallbackIndex != -1) {
 							parameter.getArguments()[executionCallbackIndex] = new ServerExecutionCallback(
+								scheduledExecutorService,
 								progressDelay,
 								invocationCallback,
 								interimResponseCallback);

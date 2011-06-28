@@ -28,6 +28,9 @@
 
 package org.jowidgets.cap.invocation.server;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+
 import org.jowidgets.cap.invocation.common.CapInvocationMethodNames;
 import org.jowidgets.invocation.service.server.api.IInvocationServiceServerRegistry;
 import org.jowidgets.invocation.service.server.api.InvocationServiceServerToolkit;
@@ -37,15 +40,16 @@ public class CapServerServicePublisher {
 	private static final long DEFAULT_PROGRESS_DELAY = 500;
 
 	public void publishServices() {
-		publishServices(DEFAULT_PROGRESS_DELAY);
+		publishServices(Executors.newScheduledThreadPool(50), DEFAULT_PROGRESS_DELAY);
 	}
 
-	public void publishServices(final long progressDelay) {
+	public void publishServices(final ScheduledExecutorService scheduledExecutorService, final long progressDelay) {
 
 		final IInvocationServiceServerRegistry invocationServiceRegistry = InvocationServiceServerToolkit.getRegistry();
 
 		invocationServiceRegistry.register(CapInvocationMethodNames.SERVICE_LOCATOR_METHOD_NAME, new ServiceLocatorMethod());
 		invocationServiceRegistry.register(CapInvocationMethodNames.GENERIC_REMOTE_METHOD_NAME, new GenericRemoteMethod(
+			scheduledExecutorService,
 			progressDelay));
 	}
 }
