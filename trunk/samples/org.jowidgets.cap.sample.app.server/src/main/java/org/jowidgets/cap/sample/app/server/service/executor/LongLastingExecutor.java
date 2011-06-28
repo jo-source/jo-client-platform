@@ -43,11 +43,11 @@ public class LongLastingExecutor implements IBeanExecutor<User, Void> {
 		executionCallback.setTotalStepCount(OUTER_LOOP_COUNT * 3);
 		executionCallback.setDescription("Does some execution with '" + user.getName() + " " + user.getLastName() + "' ");
 		for (int i = 0; i < OUTER_LOOP_COUNT && !executionCallback.isCanceled(); i++) {
-			final IExecutionCallback subExecution1 = executionCallback.createSubExecution(1, false);
+			final IExecutionCallback subExecution1 = executionCallback.createSubExecution(1);
 			subExecution1.setTotalStepCount(INNER_LOOP_COUNT);
 			subExecution1.setDescription("Some parallel sub execution");
 
-			final IExecutionCallback subExecution2 = executionCallback.createSubExecution(2, false);
+			final IExecutionCallback subExecution2 = executionCallback.createSubExecution(2);
 			subExecution2.setDescription("Some other parallel sub execution");
 			subExecution2.setTotalStepCount(INNER_LOOP_COUNT * 2);
 

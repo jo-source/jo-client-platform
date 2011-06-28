@@ -173,8 +173,8 @@ final class DelayedExecutionCallback implements IExecutionCallback {
 	}
 
 	@Override
-	public IExecutionCallback createSubExecution(final int stepProportion, final boolean cancelable) {
-		final IExecutionCallback callback = executionCallback.createSubExecution(stepProportion, cancelable);
+	public IExecutionCallback createSubExecution(final int stepProportion) {
+		final IExecutionCallback callback = executionCallback.createSubExecution(stepProportion);
 		return new DelayedExecutionCallback(callback, delay);
 	}
 

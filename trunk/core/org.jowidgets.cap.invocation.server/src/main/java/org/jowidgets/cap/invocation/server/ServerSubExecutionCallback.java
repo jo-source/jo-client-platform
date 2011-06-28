@@ -28,12 +28,9 @@
 
 package org.jowidgets.cap.invocation.server;
 
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
@@ -41,65 +38,36 @@ import org.jowidgets.cap.common.api.execution.IExecutionCallbackListener;
 import org.jowidgets.cap.common.api.execution.IUserQuestionCallback;
 import org.jowidgets.cap.common.api.execution.UserQuestionResult;
 import org.jowidgets.cap.invocation.common.Progress;
-import org.jowidgets.invocation.service.common.api.ICancelListener;
-import org.jowidgets.invocation.service.common.api.IInterimResponseCallback;
-import org.jowidgets.invocation.service.common.api.IInvocationCallback;
 import org.jowidgets.util.Assert;
 
-final class ServerExecutionCallback implements IExecutionCallback {
+final class ServerSubExecutionCallback implements IExecutionCallback {
 
-	private final IInterimResponseCallback<Progress> interimResponseCallback;
-	private final Set<IExecutionCallbackListener> executionCallbackListeners;
+	private final Object id;
 
-	private final ScheduledExecutorService scheduledExecutorService;
-	private final long progressDelay;
-	private final AtomicBoolean isProgressScheduled;
-
+	private final ServerExecutionCallback rootCallback;
+	private final ServerSubExecutionCallback parentCallback;
 	private final List<ServerSubExecutionCallback> subCallbacks;
 
-	private boolean canceled;
+	private final AtomicBoolean dirty;
+
 	private Integer totalStepCount;
 	private Integer totalWorked;
 	private String description;
 	private boolean finished;
 
-	ServerExecutionCallback(
-		final ScheduledExecutorService scheduledExecutorService,
-		final long progressDelay,
-		final IInvocationCallback<Object> invocationCallback,
-		final IInterimResponseCallback<Progress> interimResponseCallback) {
-
-		Assert.paramNotNull(scheduledExecutorService, "scheduledExecutorService");
-		Assert.paramNotNull(invocationCallback, "invocationCallback");
-		Assert.paramNotNull(interimResponseCallback, "interimResponseCallback");
-
-		this.progressDelay = progressDelay;
-		this.scheduledExecutorService = scheduledExecutorService;
-		this.interimResponseCallback = interimResponseCallback;
-		this.executionCallbackListeners = new HashSet<IExecutionCallbackListener>();
+	ServerSubExecutionCallback(final ServerExecutionCallback rootCallback, final ServerSubExecutionCallback parentCallback) {
+		Assert.paramNotNull(rootCallback, "rootCallback");
+		this.rootCallback = rootCallback;
+		this.parentCallback = parentCallback;
+		this.id = UUID.randomUUID();
+		this.dirty = new AtomicBoolean();
 		this.subCallbacks = new LinkedList<ServerSubExecutionCallback>();
-
-		this.canceled = false;
 		this.totalWorked = Integer.valueOf(0);
-
-		invocationCallback.addCancelListener(new ICancelListener() {
-			@Override
-			public void canceled() {
-				canceled = true;
-				for (final IExecutionCallbackListener listener : new LinkedList<IExecutionCallbackListener>(
-					executionCallbackListeners)) {
-					listener.executionCanceled();
-				}
-			}
-		});
-
-		this.isProgressScheduled = new AtomicBoolean(false);
-
 	}
 
 	@Override
 	public boolean isCanceled() {
-		return canceled;
+		return rootCallback.isCanceled();
 	}
 
 	@Override
@@ -133,54 +101,58 @@ final class ServerExecutionCallback implements IExecutionCallback {
 
 	@Override
 	public UserQuestionResult userQuestion(final String question) {
-		return null;
+		return rootCallback.userQuestion(question);
 	}
 
 	@Override
-	public void userQuestion(final String question, final IUserQuestionCallback callback) {}
+	public void userQuestion(final String question, final IUserQuestionCallback callback) {
+		rootCallback.userQuestion(question);
+	}
 
 	@Override
 	public IExecutionCallback createSubExecution(final int stepProportion) {
-		final ServerSubExecutionCallback result = new ServerSubExecutionCallback(this, null);
+		final ServerSubExecutionCallback result = new ServerSubExecutionCallback(rootCallback, this);
 		subCallbacks.add(result);
 		return result;
 	}
 
 	@Override
 	public void addExecutionCallbackListener(final IExecutionCallbackListener listener) {
-		Assert.paramNotNull(listener, "listener");
-		executionCallbackListeners.add(listener);
+		rootCallback.addExecutionCallbackListener(listener);
 	}
 
 	@Override
 	public void removeExecutionCallbackListener(final IExecutionCallbackListener listener) {
-		Assert.paramNotNull(listener, "listener");
-		executionCallbackListeners.remove(listener);
+		rootCallback.removeExecutionCallbackListener(listener);
 	}
 
-	void setDirty() {
-		if (isProgressScheduled.compareAndSet(false, true)) {
-			scheduledExecutorService.schedule(new Runnable() {
-				@Override
-				public void run() {
-					isProgressScheduled.set(false);
-					final List<Progress> subProgressList = new LinkedList<Progress>();
-					for (final ServerSubExecutionCallback subCallback : subCallbacks) {
-						final Progress subProgress = subCallback.readProgress();
-						if (subProgress != null) {
-							subProgressList.add(subProgress);
-						}
-					}
-					final Progress progress = new Progress(
-						null,
-						totalStepCount,
-						totalWorked,
-						description,
-						finished,
-						subProgressList);
-					interimResponseCallback.response(progress);
+	/**
+	 * Reads the progress and sets the dirty flag to false.
+	 * 
+	 * @return the current progress
+	 */
+	Progress readProgress() {
+		if (dirty.compareAndSet(true, false)) {
+			final List<Progress> subProgressList = new LinkedList<Progress>();
+			for (final ServerSubExecutionCallback subCallback : subCallbacks) {
+				final Progress subProgress = subCallback.readProgress();
+				if (subProgress != null) {
+					subProgressList.add(subProgress);
 				}
-			}, progressDelay, TimeUnit.MILLISECONDS);
+			}
+			return new Progress(id, totalStepCount, totalWorked, description, finished, subProgressList);
+		}
+		else {
+			return null;
 		}
 	}
+
+	private void setDirty() {
+		dirty.set(true);
+		if (parentCallback != null) {
+			parentCallback.setDirty();
+		}
+		rootCallback.setDirty();
+	}
+
 }
