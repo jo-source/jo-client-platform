@@ -39,6 +39,7 @@ import org.jowidgets.cap.invocation.common.Progress;
 import org.jowidgets.cap.invocation.common.RemoteInvocationParameter;
 import org.jowidgets.invocation.service.client.api.IInvocationServiceClient;
 import org.jowidgets.invocation.service.client.api.InvocationServiceClientToolkit;
+import org.jowidgets.invocation.service.common.api.IInterimRequestCallback;
 import org.jowidgets.invocation.service.common.api.IInterimResponseCallback;
 import org.jowidgets.invocation.service.common.api.IInvocationCallback;
 import org.jowidgets.invocation.service.common.api.IMethodInvocationService;
@@ -108,49 +109,55 @@ final class RemoteMethodInvocationHandler implements InvocationHandler {
 				? args[executionCallbackIndex] : null);
 
 		final IInterimResponseCallback<Progress> interimResponseCallback;
+		final IInterimRequestCallback<String, UserQuestionResult> interimRequestCallback;
 		if (executionCallback != null) {
 			interimResponseCallback = new ProgressResponseCallback(executionCallback);
+			interimRequestCallback = new UserQuestionRequestCallback(executionCallback);
 		}
 		else {
 			interimResponseCallback = new DummyProgressResponseCallback();
+			interimRequestCallback = new DummyUserQuestionRequestCallback(resultCallback);
 		}
 
 		if (resultCallback != null) {
-			invokeAsync(resultCallback, interimResponseCallback, parameter, executionCallback);
+			invokeAsync(resultCallback, interimResponseCallback, interimRequestCallback, parameter, executionCallback);
 			return null;
 		}
 		else {
-			return invokeSync(interimResponseCallback, parameter, executionCallback);
+			return invokeSync(interimResponseCallback, interimRequestCallback, parameter, executionCallback);
 		}
 	}
 
 	private Object invokeSync(
 		final IInterimResponseCallback<Progress> interimResponseCallback,
+		final IInterimRequestCallback<String, UserQuestionResult> interimRequestCallback,
 		final RemoteInvocationParameter parameter,
 		final IExecutionCallback executionCallback) {
 
 		final SyncInvocationCallback<Object> syncInvocationCallback = new SyncInvocationCallback<Object>(executionCallback);
-		invokeMethod(syncInvocationCallback, interimResponseCallback, parameter);
+		invokeMethod(syncInvocationCallback, interimResponseCallback, interimRequestCallback, parameter);
 		return syncInvocationCallback.getResultSynchronious();
 	}
 
 	private void invokeAsync(
 		final IResultCallback<Object> resultCallback,
 		final IInterimResponseCallback<Progress> interimResponseCallback,
+		final IInterimRequestCallback<String, UserQuestionResult> interimRequestCallback,
 		final RemoteInvocationParameter parameter,
 		final IExecutionCallback executionCallback) {
 
 		final IInvocationCallback<Object> invocationCallback = new InvocationCallback<Object>(resultCallback, executionCallback);
-		invokeMethod(invocationCallback, interimResponseCallback, parameter);
+		invokeMethod(invocationCallback, interimResponseCallback, interimRequestCallback, parameter);
 	}
 
 	private void invokeMethod(
 		final IInvocationCallback<Object> invocationCallback,
 		final IInterimResponseCallback<Progress> interimResponseCallback,
+		final IInterimRequestCallback<String, UserQuestionResult> interimRequestCallback,
 		final RemoteInvocationParameter parameter) {
 		final IMethodInvocationService<Object, Progress, String, UserQuestionResult, RemoteInvocationParameter> methodService;
 		methodService = invocationServiceClient.getMethodService(CapInvocationMethodNames.GENERIC_REMOTE_METHOD_NAME);
-		methodService.invoke(invocationCallback, interimResponseCallback, null, parameter);
+		methodService.invoke(invocationCallback, interimResponseCallback, interimRequestCallback, parameter);
 	}
 
 	private int getFirstResultCallbackIndex(final Class<?>[] paramTypes) {

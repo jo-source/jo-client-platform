@@ -35,6 +35,9 @@ import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IExecutionCallbackListener;
@@ -42,13 +45,16 @@ import org.jowidgets.cap.common.api.execution.IUserQuestionCallback;
 import org.jowidgets.cap.common.api.execution.UserQuestionResult;
 import org.jowidgets.cap.invocation.common.Progress;
 import org.jowidgets.invocation.service.common.api.ICancelListener;
+import org.jowidgets.invocation.service.common.api.IInterimRequestCallback;
 import org.jowidgets.invocation.service.common.api.IInterimResponseCallback;
 import org.jowidgets.invocation.service.common.api.IInvocationCallback;
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.ValueHolder;
 
 final class ServerExecutionCallback implements IExecutionCallback {
 
 	private final IInterimResponseCallback<Progress> interimResponseCallback;
+	private final IInterimRequestCallback<String, UserQuestionResult> interimRequestCallback;
 	private final Set<IExecutionCallbackListener> executionCallbackListeners;
 
 	private final ScheduledExecutorService scheduledExecutorService;
@@ -67,7 +73,8 @@ final class ServerExecutionCallback implements IExecutionCallback {
 		final ScheduledExecutorService scheduledExecutorService,
 		final long progressDelay,
 		final IInvocationCallback<Object> invocationCallback,
-		final IInterimResponseCallback<Progress> interimResponseCallback) {
+		final IInterimResponseCallback<Progress> interimResponseCallback,
+		final IInterimRequestCallback<String, UserQuestionResult> interimRequestCallback) {
 
 		Assert.paramNotNull(scheduledExecutorService, "scheduledExecutorService");
 		Assert.paramNotNull(invocationCallback, "invocationCallback");
@@ -76,6 +83,7 @@ final class ServerExecutionCallback implements IExecutionCallback {
 		this.progressDelay = progressDelay;
 		this.scheduledExecutorService = scheduledExecutorService;
 		this.interimResponseCallback = interimResponseCallback;
+		this.interimRequestCallback = interimRequestCallback;
 		this.executionCallbackListeners = new HashSet<IExecutionCallbackListener>();
 		this.subCallbacks = new LinkedList<ServerSubExecutionCallback>();
 
@@ -132,11 +140,37 @@ final class ServerExecutionCallback implements IExecutionCallback {
 
 	@Override
 	public UserQuestionResult userQuestion(final String question) {
-		return null;
+		final ValueHolder<UserQuestionResult> result = new ValueHolder<UserQuestionResult>();
+		final Lock lock = new ReentrantLock();
+		final Condition condition = lock.newCondition();
+
+		interimRequestCallback.request(new IInterimResponseCallback<UserQuestionResult>() {
+			@Override
+			public void response(final UserQuestionResult response) {
+				result.set(response);
+				lock.lock();
+				condition.signal();
+				lock.unlock();
+			}
+
+		}, question);
+
+		lock.lock();
+		condition.awaitUninterruptibly();
+		lock.unlock();
+
+		return result.get();
 	}
 
 	@Override
-	public void userQuestion(final String question, final IUserQuestionCallback callback) {}
+	public void userQuestion(final String question, final IUserQuestionCallback callback) {
+		interimRequestCallback.request(new IInterimResponseCallback<UserQuestionResult>() {
+			@Override
+			public void response(final UserQuestionResult response) {
+				callback.questionAnswered(response);
+			}
+		}, question);
+	}
 
 	@Override
 	public IExecutionCallback createSubExecution(final int stepProportion) {
