@@ -83,38 +83,36 @@ final class RemoteMethodInvocationHandler implements InvocationHandler {
 			return serviceId.hashCode();
 		}
 		else {
+			return invokeRemoteMethod(proxy, method, args);
+		}
+	}
 
-			final Class<?>[] parameterTypes = method.getParameterTypes();
+	private Object invokeRemoteMethod(final Object proxy, final Method method, final Object[] args) {
+		final Class<?>[] parameterTypes = method.getParameterTypes();
 
-			final Object[] filteredArgs = getFilteredArgs(args);
+		final Object[] filteredArgs = getFilteredArgs(args);
 
-			final RemoteInvocationParameter parameter = new RemoteInvocationParameter(
-				serviceId,
-				method.getName(),
-				parameterTypes,
-				filteredArgs);
+		final RemoteInvocationParameter parameter = new RemoteInvocationParameter(
+			serviceId,
+			method.getName(),
+			parameterTypes,
+			filteredArgs);
 
-			final int resultCallbackIndex = getFirstResultCallbackIndex(parameterTypes);
-			@SuppressWarnings("unchecked")
-			final IResultCallback<Object> resultCallback = (IResultCallback<Object>) (resultCallbackIndex != -1
-					? args[resultCallbackIndex] : null);
+		final int resultCallbackIndex = getFirstResultCallbackIndex(parameterTypes);
+		@SuppressWarnings("unchecked")
+		final IResultCallback<Object> resultCallback = (IResultCallback<Object>) (resultCallbackIndex != -1
+				? args[resultCallbackIndex] : null);
 
-			final int executionCallbackIndex = getFirstExecutionCallbackIndex(parameterTypes);
-			final IExecutionCallback executionCallback = (IExecutionCallback) (executionCallbackIndex != -1
-					? args[executionCallbackIndex] : null);
+		final int executionCallbackIndex = getFirstExecutionCallbackIndex(parameterTypes);
+		final IExecutionCallback executionCallback = (IExecutionCallback) (executionCallbackIndex != -1
+				? args[executionCallbackIndex] : null);
 
-			if (resultCallback != null) {
-				invokeAsync(resultCallback, parameter, executionCallback);
-				return null;
-			}
-			else if (method.getReturnType() == void.class) {
-				invokeAsync(resultCallback, parameter, executionCallback);
-				return null;
-			}
-			else {
-				return invokeSync(parameter, executionCallback);
-			}
-
+		if (resultCallback != null) {
+			invokeAsync(resultCallback, parameter, executionCallback);
+			return null;
+		}
+		else {
+			return invokeSync(parameter, executionCallback);
 		}
 	}
 
