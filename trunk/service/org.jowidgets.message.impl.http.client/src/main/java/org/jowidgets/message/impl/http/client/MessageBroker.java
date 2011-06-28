@@ -51,7 +51,6 @@ import org.jowidgets.message.api.IMessageReceiver;
 import org.jowidgets.message.api.MessageToolkit;
 import org.jowidgets.util.concurrent.DaemonThreadFactory;
 
-// TODO: HW,MG review exception handling
 final class MessageBroker implements IMessageBroker, IMessageChannel {
 
 	private static final class DeferredMessage {
@@ -132,6 +131,9 @@ final class MessageBroker implements IMessageBroker, IMessageChannel {
 						if (msg.exceptionCallback != null) {
 							msg.exceptionCallback.exception(e);
 						}
+						else {
+							MessageToolkit.handleExceptions(brokerId, e);
+						}
 						// sleep more, because of network problems
 						Thread.sleep(10000);
 					}
@@ -139,6 +141,9 @@ final class MessageBroker implements IMessageBroker, IMessageChannel {
 				catch (final Throwable t) {
 					if (msg.exceptionCallback != null) {
 						msg.exceptionCallback.exception(t);
+					}
+					else {
+						MessageToolkit.handleExceptions(brokerId, t);
 					}
 					Thread.sleep(10);
 				}
