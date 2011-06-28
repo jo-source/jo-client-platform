@@ -46,7 +46,7 @@ final class DummyUserQuestionRequestCallback implements IInterimRequestCallback<
 		callback.response(UserQuestionResult.NO);
 		if (resultCallback != null) {
 			resultCallback.exception(new RuntimeException(
-				"User questin asked but no execution callback was set for the service. Question was answered with 'NO'."));
+				"User question asked but no execution callback was set for the service. Question was answered with 'NO'."));
 		}
 
 	}

@@ -28,28 +28,30 @@
 
 package org.jowidgets.cap.invocation.server;
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
+import org.jowidgets.cap.common.api.execution.IResultCallback;
+import org.jowidgets.invocation.service.common.api.IInvocationCallback;
 
-import org.jowidgets.cap.invocation.common.CapInvocationMethodNames;
-import org.jowidgets.invocation.service.server.api.IInvocationServiceServerRegistry;
-import org.jowidgets.invocation.service.server.api.InvocationServiceServerToolkit;
+final class ServerResultCallback implements IResultCallback<Object> {
 
-public class CapServerServicePublisher {
+	private final IInvocationCallback<Object> invocationCallback;
 
-	private static final long DEFAULT_PROGRESS_DELAY = 500;
-
-	public void publishServices() {
-		publishServices(Executors.newScheduledThreadPool(50), DEFAULT_PROGRESS_DELAY);
+	ServerResultCallback(final IInvocationCallback<Object> invocationCallback) {
+		this.invocationCallback = invocationCallback;
 	}
 
-	public void publishServices(final ScheduledExecutorService progressExecutor, final long progressDelay) {
-
-		final IInvocationServiceServerRegistry registry = InvocationServiceServerToolkit.getRegistry();
-
-		registry.register(CapInvocationMethodNames.SERVICE_LOCATOR_METHOD_NAME, new ServiceLocatorMethod());
-		registry.register(CapInvocationMethodNames.GENERIC_REMOTE_METHOD_NAME, new GenericRemoteMethod(
-			progressExecutor,
-			progressDelay));
+	@Override
+	public void finished(final Object result) {
+		invocationCallback.finished(result);
 	}
+
+	@Override
+	public void exception(final Throwable exception) {
+		invocationCallback.exeption(exception);
+	}
+
+	@Override
+	public void timeout() {
+		invocationCallback.exeption(new RuntimeException("Timeout exception"));
+	}
+
 }

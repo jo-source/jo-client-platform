@@ -42,16 +42,13 @@ import org.jowidgets.service.tools.ServiceProviderBuilder;
 
 final class CapClientServiceProviderBuilder extends ServiceProviderBuilder {
 
-	public CapClientServiceProviderBuilder() {
+	CapClientServiceProviderBuilder() {
 		super();
 		final IInvocationServiceClient invocationServiceClient = InvocationServiceClientToolkit.getClient();
 		final IMethodInvocationService<Set<IServiceId<?>>, Void, Void, Void, Void> methodService;
 		methodService = invocationServiceClient.getMethodService(CapInvocationMethodNames.SERVICE_LOCATOR_METHOD_NAME);
-
 		final SyncInvocationCallback<Set<IServiceId<?>>> invocationCallback = new SyncInvocationCallback<Set<IServiceId<?>>>();
-
 		methodService.invoke(invocationCallback, null, null, null);
-
 		addServices(invocationCallback.getResultSynchronious());
 	}
 

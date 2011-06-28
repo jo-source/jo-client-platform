@@ -91,22 +91,8 @@ final class RemoteMethodInvocationHandler implements InvocationHandler {
 	private Object invokeRemoteMethod(final Object proxy, final Method method, final Object[] args) {
 		final Class<?>[] parameterTypes = method.getParameterTypes();
 
-		final Object[] filteredArgs = getFilteredArgs(args);
-
-		final RemoteInvocationParameter parameter = new RemoteInvocationParameter(
-			serviceId,
-			method.getName(),
-			parameterTypes,
-			filteredArgs);
-
-		final int resultCallbackIndex = getFirstResultCallbackIndex(parameterTypes);
-		@SuppressWarnings("unchecked")
-		final IResultCallback<Object> resultCallback = (IResultCallback<Object>) (resultCallbackIndex != -1
-				? args[resultCallbackIndex] : null);
-
-		final int executionCallbackIndex = getFirstExecutionCallbackIndex(parameterTypes);
-		final IExecutionCallback executionCallback = (IExecutionCallback) (executionCallbackIndex != -1
-				? args[executionCallbackIndex] : null);
+		final IResultCallback<Object> resultCallback = getResultCallback(parameterTypes, args);
+		final IExecutionCallback executionCallback = getExecutionCallback(parameterTypes, args);
 
 		final IInterimResponseCallback<Progress> interimResponseCallback;
 		final IInterimRequestCallback<String, UserQuestionResult> interimRequestCallback;
@@ -118,6 +104,12 @@ final class RemoteMethodInvocationHandler implements InvocationHandler {
 			interimResponseCallback = new DummyProgressResponseCallback();
 			interimRequestCallback = new DummyUserQuestionRequestCallback(resultCallback);
 		}
+
+		final RemoteInvocationParameter parameter = new RemoteInvocationParameter(
+			serviceId,
+			method.getName(),
+			parameterTypes,
+			getFilteredArgs(args));
 
 		if (resultCallback != null) {
 			invokeAsync(resultCallback, interimResponseCallback, interimRequestCallback, parameter, executionCallback);
@@ -155,26 +147,27 @@ final class RemoteMethodInvocationHandler implements InvocationHandler {
 		final IInterimResponseCallback<Progress> interimResponseCallback,
 		final IInterimRequestCallback<String, UserQuestionResult> interimRequestCallback,
 		final RemoteInvocationParameter parameter) {
+
 		final IMethodInvocationService<Object, Progress, String, UserQuestionResult, RemoteInvocationParameter> methodService;
 		methodService = invocationServiceClient.getMethodService(CapInvocationMethodNames.GENERIC_REMOTE_METHOD_NAME);
 		methodService.invoke(invocationCallback, interimResponseCallback, interimRequestCallback, parameter);
 	}
 
-	private int getFirstResultCallbackIndex(final Class<?>[] paramTypes) {
-		if (paramTypes != null) {
-			for (int i = 0; i < paramTypes.length; i++) {
-				if (IResultCallback.class.isAssignableFrom(paramTypes[i])) {
-					return i;
-				}
-			}
-		}
-		return -1;
+	@SuppressWarnings("unchecked")
+	private IResultCallback<Object> getResultCallback(final Class<?>[] parameterTypes, final Object[] args) {
+		final int index = getFirstMatchingIndex(IResultCallback.class, parameterTypes);
+		return (IResultCallback<Object>) (index != -1 ? args[index] : null);
 	}
 
-	private int getFirstExecutionCallbackIndex(final Class<?>[] paramTypes) {
+	private IExecutionCallback getExecutionCallback(final Class<?>[] parameterTypes, final Object[] args) {
+		final int index = getFirstMatchingIndex(IExecutionCallback.class, parameterTypes);
+		return (IExecutionCallback) (index != -1 ? args[index] : null);
+	}
+
+	private int getFirstMatchingIndex(final Class<?> interfaceType, final Class<?>[] paramTypes) {
 		if (paramTypes != null) {
 			for (int i = 0; i < paramTypes.length; i++) {
-				if (IExecutionCallback.class.isAssignableFrom(paramTypes[i])) {
+				if (interfaceType.isAssignableFrom(paramTypes[i])) {
 					return i;
 				}
 			}
