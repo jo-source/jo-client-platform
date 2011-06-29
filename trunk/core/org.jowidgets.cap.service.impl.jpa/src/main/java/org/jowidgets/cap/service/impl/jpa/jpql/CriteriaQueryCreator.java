@@ -39,8 +39,8 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Path;
+import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import javax.swing.SortOrder;
 
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.filter.BooleanOperator;
@@ -48,9 +48,12 @@ import org.jowidgets.cap.common.api.filter.IArithmeticFilter;
 import org.jowidgets.cap.common.api.filter.IBooleanFilter;
 import org.jowidgets.cap.common.api.filter.IFilter;
 import org.jowidgets.cap.common.api.sort.ISort;
+import org.jowidgets.cap.common.api.sort.SortOrder;
 import org.jowidgets.cap.service.impl.jpa.IQueryCreator;
 import org.jowidgets.util.Assert;
 
+// TODO HRW add base criteria (with alias resolving, e.g. #current_user#)
+// TODO HRW add optional case insensitive string comparison
 public class CriteriaQueryCreator implements IQueryCreator<Object> {
 
 	private String parentPropertyName = "parent";
@@ -76,7 +79,7 @@ public class CriteriaQueryCreator implements IQueryCreator<Object> {
 
 		if (sorting != null) {
 			for (final ISort sort : sorting) {
-				if (sort.getSortOrder() == SortOrder.ASCENDING) {
+				if (sort.getSortOrder() == SortOrder.ASC) {
 					query.orderBy(criteriaBuilder.asc(bean.get(sort.getPropertyName())));
 				}
 				else {
@@ -118,7 +121,13 @@ public class CriteriaQueryCreator implements IQueryCreator<Object> {
 			for (final IBeanKey parentBeanKey : parentBeanKeys) {
 				parentIds.add(parentBeanKey.getId());
 			}
-			query.where(bean.get(parentPropertyName + ".id").in(parentIds));
+			final Path<?> parentPath = bean.get(parentPropertyName);
+			final Class<?> parentType = bean.getJavaType();
+			final Root<?> parentBean = query.from(parentType);
+			final Predicate p1 = criteriaBuilder.equal(parentPath, parentBean);
+			final Predicate p2 = parentBean.get("id").in(parentIds);
+			query.where(criteriaBuilder.and(p1, p2));
+			// TODO HRW fix query with parent bean keys
 		}
 
 		if (filter != null) {
@@ -179,9 +188,16 @@ public class CriteriaQueryCreator implements IQueryCreator<Object> {
 						(Path<Comparable<Object>>) path,
 						criteriaBuilder.literal((Comparable<Object>) filter.getParameters()[0]));
 			case EQUAL:
-				// TODO HW handle null argument?
 				// TODO HW handle collection properties
-				return criteriaBuilder.equal(path, filter.getParameters()[0]);
+				final Object arg = filter.getParameters()[0];
+				if (arg instanceof String) {
+					final String s = (String) arg;
+					if (s.contains("*") || s.contains("%")) {
+						return criteriaBuilder.like((Path<String>) path, s.replace("*", "%"));
+					}
+				}
+				// TODO HW handle null argument?
+				return criteriaBuilder.equal(path, arg);
 			case EMPTY:
 				// TODO HW handle empty strings
 				// TODO HW handle collection properties
