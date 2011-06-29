@@ -28,57 +28,56 @@
 
 package org.jowidgets.cap.common.tools.execution;
 
+import java.util.concurrent.CountDownLatch;
+
 import org.jowidgets.cap.common.api.execution.IResultCallback;
 
 public final class SyncResultCallback<RESULT_TYPE> implements IResultCallback<RESULT_TYPE> {
 
-	private RESULT_TYPE result;
-	private Throwable exception;
-	private boolean timeout;
+	private volatile RESULT_TYPE result;
+	private volatile Throwable exception;
+	private volatile boolean timeout;
 
-	private Thread currentThread;
-
-	public SyncResultCallback() {}
+	private final CountDownLatch latch = new CountDownLatch(1);
 
 	@Override
 	public void finished(final RESULT_TYPE result) {
 		this.result = result;
-		unblock();
+		latch.countDown();
 	}
 
 	@Override
 	public void exception(final Throwable exception) {
 		this.exception = exception;
-		unblock();
+		latch.countDown();
 	}
 
 	@Override
 	public void timeout() {
-		this.timeout = true;
-		unblock();
+		timeout = true;
+		latch.countDown();
 	}
 
 	public RESULT_TYPE getResultSynchronious() {
-		this.currentThread = Thread.currentThread();
 		try {
-			Thread.sleep(100000000);
+			latch.await();
 		}
 		catch (final InterruptedException e) {
-
+			throw new RuntimeException(e);
 		}
 		if (exception != null) {
+			if (exception instanceof RuntimeException) {
+				throw (RuntimeException) exception;
+			}
+			if (exception instanceof Error) {
+				throw (Error) exception;
+			}
 			throw new RuntimeException(exception);
 		}
 		if (timeout) {
 			throw new RuntimeException("Timeout while waiting on result");
 		}
 		return result;
-	}
-
-	private void unblock() {
-		if (currentThread != null) {
-			currentThread.interrupt();
-		}
 	}
 
 }
