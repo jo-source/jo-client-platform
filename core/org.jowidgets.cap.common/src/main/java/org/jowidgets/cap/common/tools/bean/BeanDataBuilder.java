@@ -28,6 +28,8 @@
 
 package org.jowidgets.cap.common.tools.bean;
 
+import java.util.Map;
+
 import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.bean.IBeanData;
 import org.jowidgets.cap.common.api.bean.IBeanDataBuilder;
@@ -44,6 +46,12 @@ public final class BeanDataBuilder implements IBeanDataBuilder {
 	@Override
 	public IBeanDataBuilder setProperty(final String propertyName, final Object propertyValue) {
 		builder.setProperty(propertyName, propertyValue);
+		return this;
+	}
+
+	@Override
+	public IBeanDataBuilder setProperties(final Map<String, ? extends Object> properties) {
+		builder.setProperties(properties);
 		return this;
 	}
 

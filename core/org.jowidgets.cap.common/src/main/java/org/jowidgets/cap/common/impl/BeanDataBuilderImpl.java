@@ -48,6 +48,14 @@ final class BeanDataBuilderImpl implements IBeanDataBuilder {
 		return this;
 	}
 
+	@Override
+	public IBeanDataBuilder setProperties(final Map<String, ? extends Object> properties) {
+		if (properties != null) {
+			map.putAll(properties);
+		}
+		return this;
+	}
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public IBeanData build() {

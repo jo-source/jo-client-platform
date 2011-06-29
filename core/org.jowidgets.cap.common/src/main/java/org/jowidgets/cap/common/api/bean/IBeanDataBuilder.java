@@ -28,11 +28,13 @@
 
 package org.jowidgets.cap.common.api.bean;
 
-import org.jowidgets.cap.common.api.bean.IBeanData;
+import java.util.Map;
 
 public interface IBeanDataBuilder {
 
 	IBeanDataBuilder setProperty(String propertyName, Object propertyValue);
+
+	IBeanDataBuilder setProperties(Map<String, ? extends Object> properties);
 
 	IBeanData build();
 
