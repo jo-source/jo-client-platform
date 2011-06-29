@@ -52,18 +52,18 @@ import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.util.concurrent.DaemonThreadFactory;
 
 //TODO HW check if implementation should better implement IReaderService instead of ISyncReaderService
-public final class JpaReaderService<BEAN_TYPE extends IBean, PARAMETER_TYPE> implements ISyncReaderService<PARAMETER_TYPE> {
+public final class JpaReaderService<PARAMETER_TYPE> implements ISyncReaderService<PARAMETER_TYPE> {
 
-	private final Class<? extends BEAN_TYPE> beanType;
+	private final Class<? extends IBean> beanType;
 	private final IQueryCreator<PARAMETER_TYPE> queryCreator;
-	private final IBeanDtoFactory<BEAN_TYPE> dtoFactory;
+	private final IBeanDtoFactory<IBean> dtoFactory;
 	private final Executor executor = Executors.newCachedThreadPool(new DaemonThreadFactory());
 
 	@PersistenceContext
 	private EntityManager entityManager;
 
 	public JpaReaderService(
-		final Class<? extends BEAN_TYPE> beanType,
+		final Class<? extends IBean> beanType,
 		final IQueryCreator<PARAMETER_TYPE> queryCreator,
 		final List<String> propertyNames) {
 		this.beanType = beanType;
@@ -93,7 +93,7 @@ public final class JpaReaderService<BEAN_TYPE extends IBean, PARAMETER_TYPE> imp
 			@Override
 			public List<IBeanDto> call() throws Exception {
 				@SuppressWarnings("unchecked")
-				final List<BEAN_TYPE> result = query.getResultList();
+				final List<IBean> result = query.getResultList();
 				if (result != null) {
 					return dtoFactory.createDtos(result);
 				}
