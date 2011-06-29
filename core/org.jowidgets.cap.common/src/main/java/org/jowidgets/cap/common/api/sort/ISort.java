@@ -28,8 +28,6 @@
 
 package org.jowidgets.cap.common.api.sort;
 
-import javax.swing.SortOrder;
-
 public interface ISort {
 
 	String getPropertyName();
