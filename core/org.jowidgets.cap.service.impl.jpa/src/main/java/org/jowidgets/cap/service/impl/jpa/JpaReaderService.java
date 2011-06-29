@@ -103,7 +103,8 @@ public final class JpaReaderService<PARAMETER_TYPE> implements IReaderService<PA
 				return null;
 			}
 		},
-				result);
+				result,
+				executionCallback);
 	}
 
 	@Override
@@ -120,15 +121,19 @@ public final class JpaReaderService<PARAMETER_TYPE> implements IReaderService<PA
 				final Query query = queryCreator.createCountQuery(entityManager, beanType, parentBeanKeys, filter, parameter);
 				return ((Number) query.getSingleResult()).intValue();
 			}
-		}, result);
+		}, result, executionCallback);
 	}
 
-	private <T> void execAsync(final Callable<T> callable, final IResultCallback<T> resultCallback) {
+	private <T> void execAsync(
+		final Callable<T> callable,
+		final IResultCallback<T> resultCallback,
+		final IExecutionCallback executionCallback) {
 		executor.execute(new Runnable() {
 			@Override
 			public void run() {
 				try {
 					final T result = callable.call();
+					CapServiceToolkit.checkCanceled(executionCallback);
 					resultCallback.finished(result);
 				}
 				catch (final Throwable t) {
