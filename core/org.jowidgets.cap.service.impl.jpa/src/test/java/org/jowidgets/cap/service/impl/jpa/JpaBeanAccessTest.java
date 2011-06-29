@@ -44,7 +44,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class JpaBeanProviderTest extends AbstractJpaTest {
+public class JpaBeanAccessTest extends AbstractJpaTest {
 
 	private JpaBeanAccess<Person> personBeanProvider;
 	private JpaBeanAccess<Job> jobBeanProvider;
