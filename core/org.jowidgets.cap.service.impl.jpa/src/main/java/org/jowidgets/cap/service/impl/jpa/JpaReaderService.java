@@ -29,12 +29,8 @@ package org.jowidgets.cap.service.impl.jpa;
 
 import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import java.util.concurrent.FutureTask;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -44,15 +40,15 @@ import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
+import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.filter.IFilter;
+import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
-import org.jowidgets.cap.service.api.adapter.ISyncReaderService;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.util.concurrent.DaemonThreadFactory;
 
-//TODO HW check if implementation should better implement IReaderService instead of ISyncReaderService
-public final class JpaReaderService<PARAMETER_TYPE> implements ISyncReaderService<PARAMETER_TYPE> {
+public final class JpaReaderService<PARAMETER_TYPE> implements IReaderService<PARAMETER_TYPE> {
 
 	private final Class<? extends IBean> beanType;
 	private final IQueryCreator<PARAMETER_TYPE> queryCreator;
@@ -76,7 +72,8 @@ public final class JpaReaderService<PARAMETER_TYPE> implements ISyncReaderServic
 	}
 
 	@Override
-	public List<IBeanDto> read(
+	public void read(
+		final IResultCallback<List<IBeanDto>> result,
 		final List<? extends IBeanKey> parentBeanKeys,
 		final IFilter filter,
 		final List<? extends ISort> sorting,
@@ -85,13 +82,19 @@ public final class JpaReaderService<PARAMETER_TYPE> implements ISyncReaderServic
 		final PARAMETER_TYPE parameter,
 		final IExecutionCallback executionCallback) {
 
-		final Query query = queryCreator.createReadQuery(entityManager, beanType, parentBeanKeys, filter, sorting, parameter);
-		query.setFirstResult(firstRow);
-		query.setMaxResults(maxRows);
-
-		return executeCancelableCallable(new Callable<List<IBeanDto>>() {
+		execAsync(new Callable<List<IBeanDto>>() {
 			@Override
-			public List<IBeanDto> call() throws Exception {
+			public List<IBeanDto> call() {
+				final Query query = queryCreator.createReadQuery(
+						entityManager,
+						beanType,
+						parentBeanKeys,
+						filter,
+						sorting,
+						parameter);
+				query.setFirstResult(firstRow);
+				query.setMaxResults(maxRows);
+
 				@SuppressWarnings("unchecked")
 				final List<IBean> result = query.getResultList();
 				if (result != null) {
@@ -99,56 +102,40 @@ public final class JpaReaderService<PARAMETER_TYPE> implements ISyncReaderServic
 				}
 				return null;
 			}
-		}, executionCallback);
+		},
+				result);
 	}
 
 	@Override
-	public int count(
+	public void count(
+		final IResultCallback<Integer> result,
 		final List<? extends IBeanKey> parentBeanKeys,
 		final IFilter filter,
 		final PARAMETER_TYPE parameter,
 		final IExecutionCallback executionCallback) {
 
-		final Query query = queryCreator.createCountQuery(entityManager, beanType, parentBeanKeys, filter, parameter);
-
-		return executeCancelableCallable(new Callable<Integer>() {
+		execAsync(new Callable<Integer>() {
 			@Override
-			public Integer call() throws Exception {
+			public Integer call() {
+				final Query query = queryCreator.createCountQuery(entityManager, beanType, parentBeanKeys, filter, parameter);
 				return ((Number) query.getSingleResult()).intValue();
 			}
-		}, executionCallback);
+		}, result);
 	}
 
-	private <T> T executeCancelableCallable(final Callable<T> callable, final IExecutionCallback executionHandle) {
-		final FutureTask<T> task = new FutureTask<T>(callable);
-		executor.execute(task);
-		try {
-			for (;;) {
+	private <T> void execAsync(final Callable<T> callable, final IResultCallback<T> resultCallback) {
+		executor.execute(new Runnable() {
+			@Override
+			public void run() {
 				try {
-					return task.get(100, TimeUnit.MILLISECONDS);
+					final T result = callable.call();
+					resultCallback.finished(result);
 				}
-				catch (final TimeoutException e) {
-					if (executionHandle.isCanceled()) {
-						// TODO HW cancel query (there is no JPA call for this!)
-						return null;
-					}
+				catch (final Throwable t) {
+					resultCallback.exception(t);
 				}
 			}
-		}
-		catch (final InterruptedException e) {
-			Thread.currentThread().interrupt();
-			return null;
-		}
-		catch (final ExecutionException e) {
-			final Throwable cause = e.getCause();
-			if (cause instanceof Error) {
-				throw (Error) cause;
-			}
-			if (cause instanceof RuntimeException) {
-				throw (RuntimeException) cause;
-			}
-			throw new RuntimeException(cause);
-		}
+		});
 	}
 
 }
