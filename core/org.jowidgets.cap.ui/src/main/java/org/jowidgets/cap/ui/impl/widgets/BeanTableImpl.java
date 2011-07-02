@@ -87,16 +87,10 @@ final class BeanTableImpl<BEAN_TYPE> extends ControlWrapper implements IBeanTabl
 		table.addTableColumnListener(new TableColumnAdapter() {
 			@Override
 			public void mouseClicked(final ITableColumnMouseEvent event) {
-				//CHECKSTYLE:OFF
-				System.out.println(event);
-				//CHECKSTYLE:ON
-
 				final IAttribute<?> attribute = model.getAttribute(event.getColumnIndex());
 				if (attribute != null && attribute.isSortable()) {
 					final ISortModel sortModel = model.getSortModel();
-
 					final String propertyName = attribute.getPropertyName();
-
 					if (event.getModifiers().contains(Modifier.CTRL)) {
 						sortModel.addOrToggleCurrentProperty(propertyName);
 					}
