@@ -28,58 +28,75 @@
 
 package org.jowidgets.cap.common.impl;
 
-import org.jowidgets.cap.common.api.ICapCommonToolkit;
-import org.jowidgets.cap.common.api.bean.IBean;
-import org.jowidgets.cap.common.api.bean.IBeanDataBuilder;
-import org.jowidgets.cap.common.api.bean.IBeanDtoBuilder;
-import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptorBuilder;
-import org.jowidgets.cap.common.api.bean.IBeanKeyBuilder;
-import org.jowidgets.cap.common.api.bean.IBeanModificationBuilder;
-import org.jowidgets.cap.common.api.bean.IBeanPropertyBuilder;
-import org.jowidgets.cap.common.api.sort.ISortFactory;
+import java.io.Serializable;
 
-public final class DefaultCapCommonToolkit implements ICapCommonToolkit {
+import org.jowidgets.cap.common.api.sort.ISort;
+import org.jowidgets.cap.common.api.sort.SortOrder;
+import org.jowidgets.util.Assert;
 
-	private final ISortFactory sortFactory;
+final class SortImpl implements ISort, Serializable {
 
-	public DefaultCapCommonToolkit() {
-		this.sortFactory = new SortFactoryImpl();
+	private static final long serialVersionUID = 5277453179305936888L;
+
+	private final String propertyName;
+
+	private final SortOrder sortOrder;
+
+	SortImpl(final String propertyName, final SortOrder order) {
+		Assert.paramNotNull(propertyName, "propertyName");
+		Assert.paramNotNull(order, "sortOrder");
+		this.propertyName = propertyName;
+		this.sortOrder = order;
 	}
 
 	@Override
-	public IBeanPropertyBuilder propertyBuilder(final Class<?> beanType, final String propertyName) {
-		return new BeanPropertyBuilderImpl(beanType, propertyName);
+	public String getPropertyName() {
+		return propertyName;
 	}
 
 	@Override
-	public IBeanDtoBuilder dtoBuilder() {
-		return new BeanDtoBuilderImpl();
+	public SortOrder getSortOrder() {
+		return sortOrder;
 	}
 
 	@Override
-	public <BEAN_TYPE extends IBean> IBeanDtoDescriptorBuilder<BEAN_TYPE> dtoDescriptorBuilder(
-		final Class<? extends BEAN_TYPE> beanType) {
-		return new BeanDtoDescriptorBuilderImpl<BEAN_TYPE>(beanType);
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((propertyName == null) ? 0 : propertyName.hashCode());
+		result = prime * result + ((sortOrder == null) ? 0 : sortOrder.hashCode());
+		return result;
 	}
 
 	@Override
-	public IBeanDataBuilder beanDataBuilder() {
-		return new BeanDataBuilderImpl();
+	public boolean equals(final Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (!(obj instanceof ISort)) {
+			return false;
+		}
+		final ISort other = (ISort) obj;
+		if (propertyName == null) {
+			if (other.getPropertyName() != null) {
+				return false;
+			}
+		}
+		else if (!propertyName.equals(other.getPropertyName())) {
+			return false;
+		}
+		if (sortOrder != other.getSortOrder()) {
+			return false;
+		}
+		return true;
 	}
 
 	@Override
-	public IBeanKeyBuilder beanKeyBuilder() {
-		return new BeanKeyBuilderImpl();
-	}
-
-	@Override
-	public IBeanModificationBuilder beanModificationBuilder() {
-		return new BeanModificationBuilderImpl();
-	}
-
-	@Override
-	public ISortFactory sortFactory() {
-		return sortFactory;
+	public String toString() {
+		return "SortImpl [propertyName=" + propertyName + ", sortOrder=" + sortOrder + "]";
 	}
 
 }

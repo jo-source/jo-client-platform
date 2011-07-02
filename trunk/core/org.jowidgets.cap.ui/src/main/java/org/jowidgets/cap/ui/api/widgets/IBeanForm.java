@@ -26,38 +26,11 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.table;
+package org.jowidgets.cap.ui.api.widgets;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.jowidgets.api.model.table.ITableModel;
-import org.jowidgets.cap.common.api.filter.IFilter;
-import org.jowidgets.cap.ui.api.attribute.IAttribute;
+import org.jowidgets.api.widgets.IInputControl;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
-import org.jowidgets.cap.ui.api.model.IBeanListModel;
-import org.jowidgets.cap.ui.api.model.IDataModel;
-import org.jowidgets.cap.ui.api.sort.ISortModel;
 
-public interface IBeanTableModel<BEAN_TYPE> extends IDataModel, IBeanListModel<BEAN_TYPE> {
-
-	ITableModel getTableModel();
-
-	IAttribute<Object> getAttribute(int columnIndex);
-
-	@Override
-	ArrayList<Integer> getSelection();
-
-	void setSelection(List<Integer> selection);
-
-	IBeanProxy<BEAN_TYPE> getFirstSelectedBean();
-
-	void setFilter(String id, IFilter filter);
-
-	ISortModel getSortModel();
-
-	void setPageSize(int pageSize);
-
-	void setActive(boolean active);
+public interface IBeanForm<BEAN_TYPE> extends IInputControl<IBeanProxy<BEAN_TYPE>> {
 
 }

@@ -26,38 +26,27 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.table;
+package org.jowidgets.cap.ui.api.sort;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.jowidgets.cap.common.api.sort.SortOrder;
 
-import org.jowidgets.api.model.table.ITableModel;
-import org.jowidgets.cap.common.api.filter.IFilter;
-import org.jowidgets.cap.ui.api.attribute.IAttribute;
-import org.jowidgets.cap.ui.api.bean.IBeanProxy;
-import org.jowidgets.cap.ui.api.model.IBeanListModel;
-import org.jowidgets.cap.ui.api.model.IDataModel;
-import org.jowidgets.cap.ui.api.sort.ISortModel;
+public interface IPropertySort {
 
-public interface IBeanTableModel<BEAN_TYPE> extends IDataModel, IBeanListModel<BEAN_TYPE> {
+	/**
+	 * @return True if the property is sorted, false otherwise
+	 */
+	boolean isSorted();
 
-	ITableModel getTableModel();
+	/**
+	 * Gets the sort order of the property.
+	 * 
+	 * @return The SortOrder of the property or null, if the property is not sorted
+	 */
+	SortOrder getSortOrder();
 
-	IAttribute<Object> getAttribute(int columnIndex);
-
-	@Override
-	ArrayList<Integer> getSelection();
-
-	void setSelection(List<Integer> selection);
-
-	IBeanProxy<BEAN_TYPE> getFirstSelectedBean();
-
-	void setFilter(String id, IFilter filter);
-
-	ISortModel getSortModel();
-
-	void setPageSize(int pageSize);
-
-	void setActive(boolean active);
+	/**
+	 * @return The index of the sort or -1 if the property is not sorted
+	 */
+	int getSortIndex();
 
 }

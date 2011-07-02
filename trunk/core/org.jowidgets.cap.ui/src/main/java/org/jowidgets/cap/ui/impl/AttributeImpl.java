@@ -33,15 +33,14 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.jowidgets.api.controler.IChangeListener;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IAttributeConfig;
 import org.jowidgets.cap.ui.api.attribute.IAttributeGroup;
 import org.jowidgets.cap.ui.api.attribute.IControlPanelProvider;
 import org.jowidgets.common.types.AlignmentHorizontal;
-import org.jowidgets.tools.controler.ChangeObservable;
 import org.jowidgets.util.Assert;
-
+import org.jowidgets.util.event.ChangeObservable;
+import org.jowidgets.util.event.IChangeListener;
 
 final class AttributeImpl<ELEMENT_VALUE_TYPE> implements IAttribute<ELEMENT_VALUE_TYPE> {
 

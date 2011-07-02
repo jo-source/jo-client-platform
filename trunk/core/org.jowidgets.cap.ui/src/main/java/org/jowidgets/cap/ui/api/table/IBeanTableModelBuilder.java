@@ -39,6 +39,7 @@ import org.jowidgets.cap.common.api.service.IUpdaterService;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.model.LinkType;
+import org.jowidgets.cap.ui.api.sort.ISortModelConfig;
 import org.jowidgets.service.api.IServiceId;
 
 public interface IBeanTableModelBuilder<BEAN_TYPE> {
@@ -81,6 +82,8 @@ public interface IBeanTableModelBuilder<BEAN_TYPE> {
 	IBeanTableModelBuilder<BEAN_TYPE> setAttributes(List<? extends IAttribute<?>> attributes);
 
 	IBeanTableModelBuilder<BEAN_TYPE> setMetaAttributes(String... metaPropertyNames);
+
+	IBeanTableModelBuilder<BEAN_TYPE> setSorting(ISortModelConfig sorting);
 
 	IBeanTableModel<BEAN_TYPE> build();
 

@@ -36,10 +36,12 @@ import org.jowidgets.api.model.item.IMenuModel;
 import org.jowidgets.api.widgets.ITable;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
+import org.jowidgets.cap.ui.api.sort.ISortModel;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
 import org.jowidgets.common.types.Dimension;
+import org.jowidgets.common.types.Modifier;
 import org.jowidgets.common.types.Position;
 import org.jowidgets.common.types.TablePackPolicy;
 import org.jowidgets.common.widgets.controler.ITableCellEditEvent;
@@ -47,9 +49,11 @@ import org.jowidgets.common.widgets.controler.ITableCellEditorListener;
 import org.jowidgets.common.widgets.controler.ITableCellListener;
 import org.jowidgets.common.widgets.controler.ITableCellPopupDetectionListener;
 import org.jowidgets.common.widgets.controler.ITableColumnListener;
+import org.jowidgets.common.widgets.controler.ITableColumnMouseEvent;
 import org.jowidgets.common.widgets.controler.ITableColumnPopupDetectionListener;
 import org.jowidgets.common.widgets.controler.ITableSelectionListener;
 import org.jowidgets.tools.controler.TableCellEditorAdapter;
+import org.jowidgets.tools.controler.TableColumnAdapter;
 import org.jowidgets.tools.widgets.wrapper.ControlWrapper;
 
 final class BeanTableImpl<BEAN_TYPE> extends ControlWrapper implements IBeanTable<BEAN_TYPE> {
@@ -78,6 +82,29 @@ final class BeanTableImpl<BEAN_TYPE> extends ControlWrapper implements IBeanTabl
 				}
 			}
 
+		});
+
+		table.addTableColumnListener(new TableColumnAdapter() {
+			@Override
+			public void mouseClicked(final ITableColumnMouseEvent event) {
+				//CHECKSTYLE:OFF
+				System.out.println(event);
+				//CHECKSTYLE:ON
+
+				final IAttribute<?> attribute = model.getAttribute(event.getColumnIndex());
+				if (attribute != null && attribute.isSortable()) {
+					final ISortModel sortModel = model.getSortModel();
+
+					final String propertyName = attribute.getPropertyName();
+
+					if (event.getModifiers().contains(Modifier.CTRL)) {
+						sortModel.addOrToggleCurrentProperty(propertyName);
+					}
+					else {
+						sortModel.setOrToggleCurrentProperty(propertyName);
+					}
+				}
+			}
 		});
 
 	}

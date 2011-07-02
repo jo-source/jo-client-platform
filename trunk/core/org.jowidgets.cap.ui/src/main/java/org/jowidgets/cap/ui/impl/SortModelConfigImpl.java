@@ -26,38 +26,40 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.table;
+package org.jowidgets.cap.ui.impl;
 
-import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
-import org.jowidgets.api.model.table.ITableModel;
-import org.jowidgets.cap.common.api.filter.IFilter;
-import org.jowidgets.cap.ui.api.attribute.IAttribute;
-import org.jowidgets.cap.ui.api.bean.IBeanProxy;
-import org.jowidgets.cap.ui.api.model.IBeanListModel;
-import org.jowidgets.cap.ui.api.model.IDataModel;
-import org.jowidgets.cap.ui.api.sort.ISortModel;
+import org.jowidgets.cap.common.api.sort.ISort;
+import org.jowidgets.cap.ui.api.sort.ISortModelConfig;
+import org.jowidgets.util.Assert;
 
-public interface IBeanTableModel<BEAN_TYPE> extends IDataModel, IBeanListModel<BEAN_TYPE> {
+final class SortModelConfigImpl implements ISortModelConfig {
 
-	ITableModel getTableModel();
+	private final List<ISort> currentSorting;
+	private final List<ISort> defaultSorting;
 
-	IAttribute<Object> getAttribute(int columnIndex);
+	SortModelConfigImpl() {
+		this(new LinkedList<ISort>(), new LinkedList<ISort>());
+	}
+
+	SortModelConfigImpl(final List<? extends ISort> defaultSorting, final List<? extends ISort> currentSorting) {
+		Assert.paramNotNull(defaultSorting, "defaultSorting");
+		Assert.paramNotNull(currentSorting, "currentSorting");
+		this.currentSorting = Collections.unmodifiableList(new LinkedList<ISort>(currentSorting));
+		this.defaultSorting = Collections.unmodifiableList(new LinkedList<ISort>(defaultSorting));
+	}
 
 	@Override
-	ArrayList<Integer> getSelection();
+	public List<ISort> getCurrentSorting() {
+		return currentSorting;
+	}
 
-	void setSelection(List<Integer> selection);
-
-	IBeanProxy<BEAN_TYPE> getFirstSelectedBean();
-
-	void setFilter(String id, IFilter filter);
-
-	ISortModel getSortModel();
-
-	void setPageSize(int pageSize);
-
-	void setActive(boolean active);
+	@Override
+	public List<ISort> getDefaultSorting() {
+		return defaultSorting;
+	}
 
 }
