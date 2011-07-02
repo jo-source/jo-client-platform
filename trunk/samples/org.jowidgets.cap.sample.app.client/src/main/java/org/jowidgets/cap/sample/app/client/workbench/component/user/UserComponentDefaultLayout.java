@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.sample.app.client.workbench.component.user;
 
+import org.jowidgets.cap.sample.app.client.workbench.component.user.view.UserDetailView;
 import org.jowidgets.cap.sample.app.client.workbench.component.user.view.UserFormView;
 import org.jowidgets.cap.sample.app.client.workbench.component.user.view.UserTableView;
 import org.jowidgets.workbench.api.ILayout;
@@ -37,7 +38,6 @@ import org.jowidgets.workbench.toolkit.api.ISplitLayoutBuilder;
 import org.jowidgets.workbench.tools.FolderLayoutBuilder;
 import org.jowidgets.workbench.tools.LayoutBuilder;
 import org.jowidgets.workbench.tools.SplitLayoutBuilder;
-
 
 public class UserComponentDefaultLayout {
 
@@ -74,6 +74,7 @@ public class UserComponentDefaultLayout {
 	private IFolderLayoutBuilder createDetailFolder() {
 		final IFolderLayoutBuilder result = new FolderLayoutBuilder(DETAIL_FOLDER_ID);
 		result.addView(UserFormView.ID, UserFormView.DEFAULT_LABEL, UserFormView.DEFAULT_TOOLTIP);
+		result.addView(UserDetailView.ID, UserDetailView.DEFAULT_LABEL, UserDetailView.DEFAULT_TOOLTIP);
 		return result;
 	}
 

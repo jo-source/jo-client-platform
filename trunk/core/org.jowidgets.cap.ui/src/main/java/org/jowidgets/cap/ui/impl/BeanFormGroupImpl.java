@@ -28,43 +28,39 @@
 
 package org.jowidgets.cap.ui.impl;
 
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
-import org.jowidgets.api.toolkit.Toolkit;
-import org.jowidgets.api.widgets.blueprint.factory.IBluePrintFactory;
-import org.jowidgets.cap.ui.api.CapUiToolkit;
-import org.jowidgets.cap.ui.api.attribute.IAttribute;
-import org.jowidgets.cap.ui.api.table.IBeanTableModel;
-import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
-import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
-import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
-import org.jowidgets.util.Assert;
+import org.jowidgets.cap.ui.api.form.BeanFormGroupRendering;
+import org.jowidgets.cap.ui.api.form.IBeanFormGroup;
+import org.jowidgets.cap.ui.api.form.IBeanFormProperty;
 
-final class CapApiBluePrintFactory implements ICapApiBluePrintFactory {
+final class BeanFormGroupImpl implements IBeanFormGroup {
 
-	private final IBluePrintFactory bluePrintFactory;
+	private final List<IBeanFormProperty> properties;
+	private final String label;
+	private final BeanFormGroupRendering rendering;
 
-	CapApiBluePrintFactory() {
-		this.bluePrintFactory = Toolkit.getBluePrintFactory();
+	BeanFormGroupImpl(final List<IBeanFormProperty> properties, final String label, final BeanFormGroupRendering rendering) {
+		this.properties = Collections.unmodifiableList(new LinkedList<IBeanFormProperty>(properties));
+		this.label = label;
+		this.rendering = rendering;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public <BEAN_TYPE> IBeanTableBluePrint<BEAN_TYPE> beanTable(final IBeanTableModel<BEAN_TYPE> model) {
-		Assert.paramNotNull(model, "model");
-		final IBeanTableBluePrint<BEAN_TYPE> result = bluePrintFactory.bluePrint(IBeanTableBluePrint.class);
-		result.setModel(model);
-		return result;
+	public String getLabel() {
+		return label;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public <BEAN_TYPE> IBeanFormBluePrint<BEAN_TYPE> beanForm(final List<? extends IAttribute<?>> attributes) {
-		Assert.paramNotNull(attributes, "attributes");
-		final IBeanFormBluePrint<BEAN_TYPE> result = bluePrintFactory.bluePrint(IBeanFormBluePrint.class);
-		result.setAttributes(attributes);
-		result.setLayout(CapUiToolkit.beanFormToolkit().layoutBuilder().addGroups(attributes).build());
-		return bluePrintFactory.bluePrint(IBeanFormBluePrint.class);
+	public BeanFormGroupRendering getRendering() {
+		return rendering;
+	}
+
+	@Override
+	public List<IBeanFormProperty> getProperties() {
+		return properties;
 	}
 
 }

@@ -28,6 +28,12 @@
 
 package org.jowidgets.cap.ui.api.form;
 
-public interface IBeanFormLayoutBuilderFactory {
+public interface IBeanFormToolkit {
+
+	IBeanFormLayoutBuilder layoutBuilder();
+
+	IBeanFormGroupBuilder groupBuilder();
+
+	IBeanFormPropertyBuilder propertyBuilder();
 
 }

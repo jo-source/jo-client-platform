@@ -30,14 +30,14 @@ package org.jowidgets.cap.ui.api.form;
 
 import java.util.List;
 
-import org.jowidgets.api.widgets.descriptor.setup.IValidationLabelSetup;
-
 public interface IBeanFormLayout {
 
 	int getColumnCount();
 
-	IValidationLabelSetup getValidationLabel();
+	Integer getColumnMinSize(int column);
 
-	List<IBeanFormProperty> getProperties();
+	Integer getColumnMaxSize(int column);
+
+	List<IBeanFormGroup> getGroups();
 
 }

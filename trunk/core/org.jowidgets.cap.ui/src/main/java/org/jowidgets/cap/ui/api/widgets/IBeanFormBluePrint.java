@@ -42,11 +42,11 @@ import org.jowidgets.common.widgets.descriptor.setup.mandatory.Mandatory;
 public interface IBeanFormBluePrint<BEAN_TYPE> extends
 		IComponentSetup,
 		IComponentSetupBuilder<IBeanFormBluePrint<BEAN_TYPE>>,
-		IWidgetDescriptor<IBeanTable<BEAN_TYPE>> {
+		IWidgetDescriptor<IBeanForm<BEAN_TYPE>> {
 
 	IBeanFormBluePrint<BEAN_TYPE> setLayout(IBeanFormLayout layout);
 
-	IBeanFormBluePrint<BEAN_TYPE> setAttributes(Collection<IAttribute<?>> attributes);
+	IBeanFormBluePrint<BEAN_TYPE> setAttributes(Collection<? extends IAttribute<?>> attributes);
 
 	IBeanFormBluePrint<BEAN_TYPE> setAutoResetValidation(final boolean autoResetValidation);
 

@@ -28,25 +28,15 @@
 
 package org.jowidgets.cap.ui.api.form;
 
-import java.util.Collection;
+public enum BeanFormGroupRendering {
 
-import org.jowidgets.cap.ui.api.attribute.IAttribute;
+	/** The group information will not be rendered at all, default for single group forms */
+	NONE,
 
-public interface IBeanFormLayoutBuilder {
+	/** The group information will be rendered with a (titled) divider, default for multi group forms */
+	DIVIDER,
 
-	IBeanFormLayoutBuilder setColumnCount(int columnCount);
+	/** The group information will be rendered with a (titled) border */
+	BORDER;
 
-	IBeanFormLayoutBuilder setColumnMinSize(int columnIndex, int minSize);
-
-	IBeanFormLayoutBuilder setColumnMaxSize(int columnIndex, int maxSize);
-
-	IBeanFormLayoutBuilder addGroup(IBeanFormGroup group);
-
-	IBeanFormLayoutBuilder addGroup(IBeanFormGroupBuilder groupBuilder);
-
-	IBeanFormLayoutBuilder addGroups(Collection<? extends IAttribute<?>> attributes);
-
-	IBeanFormLayoutBuilder addGroups(Collection<? extends IAttribute<?>> attributes, IBeanFormPropertyBuilder defaultBuilder);
-
-	IBeanFormLayout build();
 }

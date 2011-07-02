@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2010, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,45 +26,30 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.impl;
-
-import java.util.List;
+package org.jowidgets.cap.ui.impl.widgets;
 
 import org.jowidgets.api.toolkit.Toolkit;
+import org.jowidgets.api.widgets.IInputComposite;
+import org.jowidgets.api.widgets.blueprint.IInputCompositeBluePrint;
 import org.jowidgets.api.widgets.blueprint.factory.IBluePrintFactory;
-import org.jowidgets.cap.ui.api.CapUiToolkit;
-import org.jowidgets.cap.ui.api.attribute.IAttribute;
-import org.jowidgets.cap.ui.api.table.IBeanTableModel;
+import org.jowidgets.cap.ui.api.bean.IBeanProxy;
+import org.jowidgets.cap.ui.api.widgets.IBeanForm;
 import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
-import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
-import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
-import org.jowidgets.util.Assert;
+import org.jowidgets.common.widgets.factory.IWidgetFactory;
 
-final class CapApiBluePrintFactory implements ICapApiBluePrintFactory {
+public final class BeanFormFactory implements IWidgetFactory<IBeanForm<? extends Object>, IBeanFormBluePrint<Object>> {
 
-	private final IBluePrintFactory bluePrintFactory;
-
-	CapApiBluePrintFactory() {
-		this.bluePrintFactory = Toolkit.getBluePrintFactory();
-	}
-
-	@SuppressWarnings("unchecked")
 	@Override
-	public <BEAN_TYPE> IBeanTableBluePrint<BEAN_TYPE> beanTable(final IBeanTableModel<BEAN_TYPE> model) {
-		Assert.paramNotNull(model, "model");
-		final IBeanTableBluePrint<BEAN_TYPE> result = bluePrintFactory.bluePrint(IBeanTableBluePrint.class);
-		result.setModel(model);
-		return result;
-	}
+	public IBeanForm<Object> create(final Object parentUiReference, final IBeanFormBluePrint<Object> bluePrint) {
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public <BEAN_TYPE> IBeanFormBluePrint<BEAN_TYPE> beanForm(final List<? extends IAttribute<?>> attributes) {
-		Assert.paramNotNull(attributes, "attributes");
-		final IBeanFormBluePrint<BEAN_TYPE> result = bluePrintFactory.bluePrint(IBeanFormBluePrint.class);
-		result.setAttributes(attributes);
-		result.setLayout(CapUiToolkit.beanFormToolkit().layoutBuilder().addGroups(attributes).build());
-		return bluePrintFactory.bluePrint(IBeanFormBluePrint.class);
-	}
+		final IBluePrintFactory bpf = Toolkit.getBluePrintFactory();
+		final BeanFormContentCreator<Object> beanFormContentCreator = new BeanFormContentCreator<Object>(bluePrint);
+		final IInputCompositeBluePrint<IBeanProxy<Object>> inputCompositeBp = bpf.inputComposite(beanFormContentCreator);
+		inputCompositeBp.setSetup(bluePrint);
+		final IInputComposite<IBeanProxy<Object>> inputComposite = Toolkit.getWidgetFactory().create(
+				parentUiReference,
+				inputCompositeBp);
 
+		return new BeanFormImpl<Object>(inputComposite, bluePrint);
+	}
 }
