@@ -33,6 +33,7 @@ import org.jowidgets.workbench.impl.WorkbenchRunner;
 
 public final class RwtStarter extends RwtEntryPoint {
 
+	//StartUrl: http://127.0.0.1:8080/org.jowidgets.cap.sample.app.starter.rwt/RwtDemo
 	public RwtStarter() {
 		super(new Runnable() {
 			@Override
