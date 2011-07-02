@@ -38,12 +38,12 @@ import org.jowidgets.api.command.IEnabledChecker;
 import org.jowidgets.api.command.IEnabledState;
 import org.jowidgets.api.command.IExceptionHandler;
 import org.jowidgets.api.command.IExecutionContext;
-import org.jowidgets.api.controler.IChangeListener;
 import org.jowidgets.cap.ui.api.model.IDataModel;
 import org.jowidgets.cap.ui.api.model.IModificationStateListener;
 import org.jowidgets.cap.ui.api.model.IProcessStateListener;
 import org.jowidgets.tools.command.EnabledChecker;
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.event.IChangeListener;
 
 abstract class AbstractDataModelCommand implements ICommand, ICommandExecutor, IEnabledChecker {
 

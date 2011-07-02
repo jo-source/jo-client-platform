@@ -30,8 +30,8 @@ package org.jowidgets.cap.ui.api.attribute;
 
 import java.util.List;
 
-import org.jowidgets.api.controler.IChangeObservable;
 import org.jowidgets.common.types.AlignmentHorizontal;
+import org.jowidgets.util.event.IChangeObservable;
 
 public interface IAttribute<ELEMENT_VALUE_TYPE> extends IChangeObservable {
 

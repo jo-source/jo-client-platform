@@ -39,6 +39,7 @@ import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeansStateTracker;
 import org.jowidgets.cap.ui.api.command.IActionFactory;
 import org.jowidgets.cap.ui.api.execution.IExecutionTaskFactory;
+import org.jowidgets.cap.ui.api.sort.ISortModelConfigBuilder;
 import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
 import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
@@ -95,6 +96,10 @@ public final class CapUiToolkit {
 
 	public static IBeanMessageFixBuilder beanMessageFixBuilder() {
 		return getInstance().beanMessageFixBuilder();
+	}
+
+	public static ISortModelConfigBuilder sortModelConfigBuilder() {
+		return getInstance().sortModelConfigBuilder();
 	}
 
 	private static ICapUiToolkit createDefaultInstance() {

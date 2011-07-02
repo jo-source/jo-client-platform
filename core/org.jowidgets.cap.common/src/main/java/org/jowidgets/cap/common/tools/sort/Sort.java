@@ -26,38 +26,47 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.table;
+package org.jowidgets.cap.common.tools.sort;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.Serializable;
 
-import org.jowidgets.api.model.table.ITableModel;
-import org.jowidgets.cap.common.api.filter.IFilter;
-import org.jowidgets.cap.ui.api.attribute.IAttribute;
-import org.jowidgets.cap.ui.api.bean.IBeanProxy;
-import org.jowidgets.cap.ui.api.model.IBeanListModel;
-import org.jowidgets.cap.ui.api.model.IDataModel;
-import org.jowidgets.cap.ui.api.sort.ISortModel;
+import org.jowidgets.cap.common.api.CapCommonToolkit;
+import org.jowidgets.cap.common.api.sort.ISort;
+import org.jowidgets.cap.common.api.sort.SortOrder;
 
-public interface IBeanTableModel<BEAN_TYPE> extends IDataModel, IBeanListModel<BEAN_TYPE> {
+public final class Sort implements ISort, Serializable {
 
-	ITableModel getTableModel();
+	private static final long serialVersionUID = -4075542564328922876L;
 
-	IAttribute<Object> getAttribute(int columnIndex);
+	private final ISort sort;
+
+	public Sort(final String propertyName, final SortOrder sortOrder) {
+		this.sort = CapCommonToolkit.sortFactory().create(propertyName, sortOrder);
+	}
 
 	@Override
-	ArrayList<Integer> getSelection();
+	public String getPropertyName() {
+		return sort.getPropertyName();
+	}
 
-	void setSelection(List<Integer> selection);
+	@Override
+	public SortOrder getSortOrder() {
+		return sort.getSortOrder();
+	}
 
-	IBeanProxy<BEAN_TYPE> getFirstSelectedBean();
+	@Override
+	public int hashCode() {
+		return sort.hashCode();
+	}
 
-	void setFilter(String id, IFilter filter);
+	@Override
+	public boolean equals(final Object obj) {
+		return sort.equals(obj);
+	}
 
-	ISortModel getSortModel();
-
-	void setPageSize(int pageSize);
-
-	void setActive(boolean active);
+	@Override
+	public String toString() {
+		return sort.toString();
+	}
 
 }

@@ -26,38 +26,49 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.table;
+package org.jowidgets.cap.ui.impl;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.jowidgets.cap.common.api.sort.SortOrder;
+import org.jowidgets.cap.ui.api.sort.IPropertySort;
 
-import org.jowidgets.api.model.table.ITableModel;
-import org.jowidgets.cap.common.api.filter.IFilter;
-import org.jowidgets.cap.ui.api.attribute.IAttribute;
-import org.jowidgets.cap.ui.api.bean.IBeanProxy;
-import org.jowidgets.cap.ui.api.model.IBeanListModel;
-import org.jowidgets.cap.ui.api.model.IDataModel;
-import org.jowidgets.cap.ui.api.sort.ISortModel;
+final class PropertySortImpl implements IPropertySort {
 
-public interface IBeanTableModel<BEAN_TYPE> extends IDataModel, IBeanListModel<BEAN_TYPE> {
+	private final boolean isSorted;
+	private final int sortIndex;
+	private final SortOrder sortOrder;
 
-	ITableModel getTableModel();
+	PropertySortImpl() {
+		this(false, -1, null);
+	}
 
-	IAttribute<Object> getAttribute(int columnIndex);
+	PropertySortImpl(final int sortIndex, final SortOrder sortOrder) {
+		this(true, sortIndex, sortOrder);
+	}
+
+	private PropertySortImpl(final boolean isSorted, final int sortIndex, final SortOrder sortOrder) {
+		this.isSorted = isSorted;
+		this.sortIndex = sortIndex;
+		this.sortOrder = sortOrder;
+	}
 
 	@Override
-	ArrayList<Integer> getSelection();
+	public boolean isSorted() {
+		return isSorted;
+	}
 
-	void setSelection(List<Integer> selection);
+	@Override
+	public SortOrder getSortOrder() {
+		return sortOrder;
+	}
 
-	IBeanProxy<BEAN_TYPE> getFirstSelectedBean();
+	@Override
+	public int getSortIndex() {
+		return sortIndex;
+	}
 
-	void setFilter(String id, IFilter filter);
-
-	ISortModel getSortModel();
-
-	void setPageSize(int pageSize);
-
-	void setActive(boolean active);
+	@Override
+	public String toString() {
+		return "PropertySortImpl [isSorted=" + isSorted + ", sortIndex=" + sortIndex + ", sortOrder=" + sortOrder + "]";
+	}
 
 }

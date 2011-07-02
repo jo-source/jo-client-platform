@@ -40,7 +40,6 @@ import org.jowidgets.api.command.IEnabledChecker;
 import org.jowidgets.api.command.IEnabledState;
 import org.jowidgets.api.command.IExceptionHandler;
 import org.jowidgets.api.command.IExecutionContext;
-import org.jowidgets.api.controler.IChangeListener;
 import org.jowidgets.api.threads.IUiThreadAccess;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
@@ -68,8 +67,9 @@ import org.jowidgets.cap.ui.api.execution.IExecutor;
 import org.jowidgets.cap.ui.api.execution.IParameterProvider;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
-import org.jowidgets.tools.controler.ChangeObservable;
 import org.jowidgets.util.ValueHolder;
+import org.jowidgets.util.event.ChangeObservable;
+import org.jowidgets.util.event.IChangeListener;
 import org.jowidgets.util.maybe.IMaybe;
 import org.jowidgets.util.maybe.Nothing;
 import org.jowidgets.util.maybe.Some;
@@ -131,7 +131,7 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 
 		final IChangeListener changeListener = new IChangeListener() {
 			@Override
-			public void changedEvent() {
+			public void changed() {
 				fireChangedEvent();
 			}
 		};

@@ -26,38 +26,54 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.table;
+package org.jowidgets.cap.ui.api.widgets;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 
-import org.jowidgets.api.model.table.ITableModel;
-import org.jowidgets.cap.common.api.filter.IFilter;
+import org.jowidgets.api.widgets.blueprint.builder.IComponentSetupBuilder;
+import org.jowidgets.api.widgets.descriptor.IValidationLabelDescriptor;
+import org.jowidgets.api.widgets.descriptor.setup.IComponentSetup;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
-import org.jowidgets.cap.ui.api.bean.IBeanProxy;
-import org.jowidgets.cap.ui.api.model.IBeanListModel;
-import org.jowidgets.cap.ui.api.model.IDataModel;
-import org.jowidgets.cap.ui.api.sort.ISortModel;
+import org.jowidgets.cap.ui.api.form.IBeanFormLayout;
+import org.jowidgets.common.types.Border;
+import org.jowidgets.common.widgets.descriptor.IWidgetDescriptor;
+import org.jowidgets.common.widgets.descriptor.setup.mandatory.Mandatory;
 
-public interface IBeanTableModel<BEAN_TYPE> extends IDataModel, IBeanListModel<BEAN_TYPE> {
+public interface IBeanFormBluePrint<BEAN_TYPE> extends
+		IComponentSetup,
+		IComponentSetupBuilder<IBeanFormBluePrint<BEAN_TYPE>>,
+		IWidgetDescriptor<IBeanTable<BEAN_TYPE>> {
 
-	ITableModel getTableModel();
+	IBeanFormBluePrint<BEAN_TYPE> setLayout(IBeanFormLayout layout);
 
-	IAttribute<Object> getAttribute(int columnIndex);
+	IBeanFormBluePrint<BEAN_TYPE> setAttributes(Collection<IAttribute<?>> attributes);
 
-	@Override
-	ArrayList<Integer> getSelection();
+	IBeanFormBluePrint<BEAN_TYPE> setAutoResetValidation(final boolean autoResetValidation);
 
-	void setSelection(List<Integer> selection);
+	IBeanFormBluePrint<BEAN_TYPE> setContentScrolled(final boolean scrolledContent);
 
-	IBeanProxy<BEAN_TYPE> getFirstSelectedBean();
+	IBeanFormBluePrint<BEAN_TYPE> setBorder(Border border);
 
-	void setFilter(String id, IFilter filter);
+	IBeanFormBluePrint<BEAN_TYPE> setContentBorder(Border border);
 
-	ISortModel getSortModel();
+	IBeanFormBluePrint<BEAN_TYPE> setValidationLabel(final IValidationLabelDescriptor validationLabelDescriptor);
 
-	void setPageSize(int pageSize);
+	@Mandatory
+	IBeanFormLayout getLayout();
 
-	void setActive(boolean active);
+	@Mandatory
+	Collection<IAttribute<?>> getAttributes();
+
+	@Mandatory
+	boolean isAutoResetValidation();
+
+	@Mandatory
+	boolean isContentScrolled();
+
+	Border getBorder();
+
+	Border getContentBorder();
+
+	IValidationLabelDescriptor getValidationLabel();
 
 }

@@ -42,6 +42,8 @@ import java.util.Set;
 
 import org.jowidgets.api.color.Colors;
 import org.jowidgets.api.convert.IObjectLabelConverter;
+import org.jowidgets.api.image.IconsSmall;
+import org.jowidgets.api.model.table.IDefaultTableColumn;
 import org.jowidgets.api.model.table.IDefaultTableColumnBuilder;
 import org.jowidgets.api.model.table.IDefaultTableColumnModel;
 import org.jowidgets.api.model.table.ITableCellBuilder;
@@ -58,7 +60,7 @@ import org.jowidgets.cap.common.api.service.IDeleterService;
 import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.common.api.service.IRefreshService;
 import org.jowidgets.cap.common.api.service.IUpdaterService;
-import org.jowidgets.cap.common.api.sort.ISort;
+import org.jowidgets.cap.common.api.sort.SortOrder;
 import org.jowidgets.cap.common.tools.execution.SyncResultCallback;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
@@ -74,6 +76,9 @@ import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
 import org.jowidgets.cap.ui.api.model.IModificationStateListener;
 import org.jowidgets.cap.ui.api.model.IProcessStateListener;
 import org.jowidgets.cap.ui.api.model.LinkType;
+import org.jowidgets.cap.ui.api.sort.IPropertySort;
+import org.jowidgets.cap.ui.api.sort.ISortModel;
+import org.jowidgets.cap.ui.api.sort.ISortModelConfig;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.table.IReaderParameterProvider;
 import org.jowidgets.common.image.IImageConstant;
@@ -84,6 +89,7 @@ import org.jowidgets.tools.model.table.DefaultTableColumnBuilder;
 import org.jowidgets.tools.model.table.TableCellBuilder;
 import org.jowidgets.tools.model.table.TableModel;
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.event.IChangeListener;
 
 @SuppressWarnings("unused")
 class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
@@ -102,6 +108,7 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 	private final ArrayList<IAttribute<Object>> attributes;
 	private final IReaderService<Object> readerService;
 	private final IReaderParameterProvider<Object> paramProvider;
+	private final ISortModel sortModel;
 
 	private final ICreatorService creatorService;
 	private final IRefreshService refreshService;
@@ -125,6 +132,7 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 	BeanTableModelImpl(
 		final Class<? extends BEAN_TYPE> beanType,
 		final List<IAttribute<Object>> attributes,
+		final ISortModelConfig sortModelConfig,
 		final IReaderService<? extends Object> readerService,
 		final IReaderParameterProvider<? extends Object> paramProvider,
 		final ICreatorService creatorService,
@@ -159,6 +167,7 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 		//fields initialize
 		this.data = new HashMap<Integer, ArrayList<IBeanProxy<BEAN_TYPE>>>();
 		this.currentPageLoaders = new LinkedList<PageLoader>();
+		this.sortModel = new SortModelImpl();
 		this.dataCleared = true;
 		this.pageSize = DEFAULT_PAGE_SIZE;
 		this.rowCount = 0;
@@ -171,6 +180,16 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 		this.columnModel = createColumnModel(attributes);
 		this.dataModel = createDataModel();
 		this.tableModel = new TableModel(columnModel, dataModel);
+
+		sortModel.setConfig(sortModelConfig);
+		sortModel.addChangeListener(new IChangeListener() {
+			@Override
+			public void changed() {
+				updateColumnModel();
+				load();
+			}
+		});
+		updateColumnModel();
 	}
 
 	@Override
@@ -378,7 +397,9 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 	public void setFilter(final String id, final IFilter filter) {}
 
 	@Override
-	public void setSorting(final List<? extends ISort> sorting) {}
+	public ISortModel getSortModel() {
+		return sortModel;
+	}
 
 	@Override
 	public void setPageSize(final int pageSize) {
@@ -418,6 +439,39 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 		}
 
 		return result;
+	}
+
+	private void updateColumnModel() {
+		int index = 0;
+		final boolean cascaded = sortModel.getSorting().size() > 1;
+		for (final IDefaultTableColumn column : columnModel.getColumns()) {
+			final IAttribute<?> attribute = getAttribute(index);
+			if (attribute != null) {
+				final IPropertySort propertySort = sortModel.getPropertySort(attribute.getPropertyName());
+				if (propertySort.isSorted()) {
+					if (propertySort.getSortOrder() == SortOrder.ASC) {
+						column.setIcon(IconsSmall.TABLE_SORT_ASC);
+					}
+					else if (propertySort.getSortOrder() == SortOrder.DESC) {
+						column.setIcon(IconsSmall.TABLE_SORT_DESC);
+					}
+					else {
+						column.setIcon(null);
+					}
+					if (cascaded) {
+						column.setText("(" + (propertySort.getSortIndex() + 1) + ") " + attribute.getLabel());
+					}
+					else {
+						column.setText(attribute.getLabel());
+					}
+				}
+				else {
+					column.setText(attribute.getLabel());
+					column.setIcon(null);
+				}
+			}
+			index++;
+		}
 	}
 
 	private AbstractTableDataModel createDataModel() {
@@ -652,15 +706,8 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 					try {
 						//TODO MG make async call
 						final SyncResultCallback<List<IBeanDto>> resultCallback = new SyncResultCallback<List<IBeanDto>>();
-						BeanTableModelImpl.this.readerService.read(
-								resultCallback,
-								null,
-								null,
-								null,
-								pageIndex * pageSize,
-								pageSize + 1,
-								parameter,
-								executionTask);
+						BeanTableModelImpl.this.readerService.read(resultCallback, null, null, sortModel.getSorting(), pageIndex
+							* pageSize, pageSize + 1, parameter, executionTask);
 						beanDtos = resultCallback.getResultSynchronious();
 					}
 					catch (final Exception e) {

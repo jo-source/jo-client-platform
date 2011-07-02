@@ -44,6 +44,7 @@ import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.model.LinkType;
+import org.jowidgets.cap.ui.api.sort.ISortModelConfig;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
 import org.jowidgets.cap.ui.api.table.IReaderParameterProvider;
@@ -67,6 +68,8 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> implements IBeanTableModelBuild
 	private IUpdaterService updaterService;
 	private IDeleterService deleterService;
 
+	private ISortModelConfig sortModelConfig;
+
 	BeanTableModelBuilderImpl(final Class<BEAN_TYPE> beanType) {
 		Assert.paramNotNull(beanType, "beanType");
 		this.beanType = beanType;
@@ -84,6 +87,8 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> implements IBeanTableModelBuild
 				this.attributes = CapUiToolkit.getAttributeToolkit().createAttributes(beanDtoDescriptor.getProperties());
 			}
 		}
+
+		this.sortModelConfig = new SortModelConfigImpl();
 	}
 
 	@Override
@@ -218,7 +223,14 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> implements IBeanTableModelBuild
 	@Override
 	public IBeanTableModelBuilder<BEAN_TYPE> setMetaAttributes(final String... metaPropertyNames) {
 		this.metaPropertyNames = metaPropertyNames;
-		return null;
+		return this;
+	}
+
+	@Override
+	public IBeanTableModelBuilder<BEAN_TYPE> setSorting(final ISortModelConfig sorting) {
+		Assert.paramNotNull(sorting, "sorting");
+		this.sortModelConfig = sorting;
+		return this;
 	}
 
 	private List<IAttribute<Object>> getAttributes() {
@@ -237,6 +249,7 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> implements IBeanTableModelBuild
 		return new BeanTableModelImpl<BEAN_TYPE>(
 			beanType,
 			getAttributes(),
+			sortModelConfig,
 			readerService,
 			readerParameterProvider,
 			creatorService,
