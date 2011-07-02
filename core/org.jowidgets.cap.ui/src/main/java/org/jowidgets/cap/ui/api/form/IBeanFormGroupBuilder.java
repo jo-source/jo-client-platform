@@ -26,45 +26,31 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.impl;
+package org.jowidgets.cap.ui.api.form;
 
-import java.util.List;
+import java.util.Collection;
 
-import org.jowidgets.api.toolkit.Toolkit;
-import org.jowidgets.api.widgets.blueprint.factory.IBluePrintFactory;
-import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
-import org.jowidgets.cap.ui.api.table.IBeanTableModel;
-import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
-import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
-import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
-import org.jowidgets.util.Assert;
 
-final class CapApiBluePrintFactory implements ICapApiBluePrintFactory {
+public interface IBeanFormGroupBuilder {
 
-	private final IBluePrintFactory bluePrintFactory;
+	IBeanFormGroupBuilder setLabel(String label);
 
-	CapApiBluePrintFactory() {
-		this.bluePrintFactory = Toolkit.getBluePrintFactory();
-	}
+	IBeanFormGroupBuilder setRendering(BeanFormGroupRendering rendering);
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public <BEAN_TYPE> IBeanTableBluePrint<BEAN_TYPE> beanTable(final IBeanTableModel<BEAN_TYPE> model) {
-		Assert.paramNotNull(model, "model");
-		final IBeanTableBluePrint<BEAN_TYPE> result = bluePrintFactory.bluePrint(IBeanTableBluePrint.class);
-		result.setModel(model);
-		return result;
-	}
+	IBeanFormGroupBuilder addProperty(String property);
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public <BEAN_TYPE> IBeanFormBluePrint<BEAN_TYPE> beanForm(final List<? extends IAttribute<?>> attributes) {
-		Assert.paramNotNull(attributes, "attributes");
-		final IBeanFormBluePrint<BEAN_TYPE> result = bluePrintFactory.bluePrint(IBeanFormBluePrint.class);
-		result.setAttributes(attributes);
-		result.setLayout(CapUiToolkit.beanFormToolkit().layoutBuilder().addGroups(attributes).build());
-		return bluePrintFactory.bluePrint(IBeanFormBluePrint.class);
-	}
+	IBeanFormGroupBuilder addProperty(String property, int rowSpan, int columnSpan);
 
+	IBeanFormGroupBuilder addProperty(IBeanFormProperty property);
+
+	IBeanFormGroupBuilder addProperty(IBeanFormPropertyBuilder propertyBuilder);
+
+	IBeanFormGroupBuilder addProperties(Collection<IAttribute<?>> attributes);
+
+	IBeanFormGroupBuilder addProperties(Collection<IAttribute<?>> attributes, IBeanFormPropertyBuilder defaultBuilder);
+
+	IBeanFormGroupBuilder changeProperty(String oldProperty, IBeanFormProperty newProperty);
+
+	IBeanFormGroup build();
 }

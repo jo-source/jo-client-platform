@@ -26,45 +26,40 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.impl;
-
-import java.util.List;
+package org.jowidgets.cap.ui.impl.widgets;
 
 import org.jowidgets.api.toolkit.Toolkit;
-import org.jowidgets.api.widgets.blueprint.factory.IBluePrintFactory;
-import org.jowidgets.cap.ui.api.CapUiToolkit;
-import org.jowidgets.cap.ui.api.attribute.IAttribute;
-import org.jowidgets.cap.ui.api.table.IBeanTableModel;
+import org.jowidgets.api.validation.ValidationResult;
+import org.jowidgets.api.widgets.content.IInputContentContainer;
+import org.jowidgets.api.widgets.content.IInputContentCreator;
+import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
-import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
-import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
-import org.jowidgets.util.Assert;
 
-final class CapApiBluePrintFactory implements ICapApiBluePrintFactory {
+class BeanFormContentCreator<BEAN_TYPE> implements IInputContentCreator<IBeanProxy<BEAN_TYPE>> {
 
-	private final IBluePrintFactory bluePrintFactory;
+	BeanFormContentCreator(final IBeanFormBluePrint<BEAN_TYPE> bluePrint) {}
 
-	CapApiBluePrintFactory() {
-		this.bluePrintFactory = Toolkit.getBluePrintFactory();
+	@Override
+	public void setValue(final IBeanProxy<BEAN_TYPE> value) {}
+
+	@Override
+	public IBeanProxy<BEAN_TYPE> getValue() {
+		return null;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public <BEAN_TYPE> IBeanTableBluePrint<BEAN_TYPE> beanTable(final IBeanTableModel<BEAN_TYPE> model) {
-		Assert.paramNotNull(model, "model");
-		final IBeanTableBluePrint<BEAN_TYPE> result = bluePrintFactory.bluePrint(IBeanTableBluePrint.class);
-		result.setModel(model);
-		return result;
+	public ValidationResult validate() {
+		return new ValidationResult();
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public <BEAN_TYPE> IBeanFormBluePrint<BEAN_TYPE> beanForm(final List<? extends IAttribute<?>> attributes) {
-		Assert.paramNotNull(attributes, "attributes");
-		final IBeanFormBluePrint<BEAN_TYPE> result = bluePrintFactory.bluePrint(IBeanFormBluePrint.class);
-		result.setAttributes(attributes);
-		result.setLayout(CapUiToolkit.beanFormToolkit().layoutBuilder().addGroups(attributes).build());
-		return bluePrintFactory.bluePrint(IBeanFormBluePrint.class);
+	public void createContent(final IInputContentContainer contentContainer) {
+		contentContainer.add(Toolkit.getBluePrintFactory().textLabel("TODO"));
+	}
+
+	@Override
+	public boolean isMandatory() {
+		return false;
 	}
 
 }

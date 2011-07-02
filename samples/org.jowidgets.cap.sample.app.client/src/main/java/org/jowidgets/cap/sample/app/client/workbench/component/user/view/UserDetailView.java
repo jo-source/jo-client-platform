@@ -26,45 +26,32 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.impl;
-
-import java.util.List;
+package org.jowidgets.cap.sample.app.client.workbench.component.user.view;
 
 import org.jowidgets.api.toolkit.Toolkit;
-import org.jowidgets.api.widgets.blueprint.factory.IBluePrintFactory;
+import org.jowidgets.api.widgets.IContainer;
+import org.jowidgets.cap.sample.app.client.attribute.UserAttributesFactory;
+import org.jowidgets.cap.sample.app.common.entity.IUser;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
-import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
+import org.jowidgets.cap.ui.api.widgets.IBeanForm;
 import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
-import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
-import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
-import org.jowidgets.util.Assert;
+import org.jowidgets.workbench.api.IViewContext;
+import org.jowidgets.workbench.tools.AbstractView;
 
-final class CapApiBluePrintFactory implements ICapApiBluePrintFactory {
+public class UserDetailView extends AbstractView {
 
-	private final IBluePrintFactory bluePrintFactory;
+	public static final String ID = UserDetailView.class.getName();
+	public static final String DEFAULT_LABEL = "User details";
+	public static final String DEFAULT_TOOLTIP = "Formular with user details";
 
-	CapApiBluePrintFactory() {
-		this.bluePrintFactory = Toolkit.getBluePrintFactory();
-	}
+	public UserDetailView(final IViewContext context, final IBeanTableModel<IUser> tableModel) {
+		final IContainer container = context.getContainer();
+		container.setLayout(Toolkit.getLayoutFactoryProvider().fillLayout());
+		final IBeanFormBluePrint<IUser> formBp = CapUiToolkit.getBluePrintFactory().beanForm(new UserAttributesFactory().create());
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public <BEAN_TYPE> IBeanTableBluePrint<BEAN_TYPE> beanTable(final IBeanTableModel<BEAN_TYPE> model) {
-		Assert.paramNotNull(model, "model");
-		final IBeanTableBluePrint<BEAN_TYPE> result = bluePrintFactory.bluePrint(IBeanTableBluePrint.class);
-		result.setModel(model);
-		return result;
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public <BEAN_TYPE> IBeanFormBluePrint<BEAN_TYPE> beanForm(final List<? extends IAttribute<?>> attributes) {
-		Assert.paramNotNull(attributes, "attributes");
-		final IBeanFormBluePrint<BEAN_TYPE> result = bluePrintFactory.bluePrint(IBeanFormBluePrint.class);
-		result.setAttributes(attributes);
-		result.setLayout(CapUiToolkit.beanFormToolkit().layoutBuilder().addGroups(attributes).build());
-		return bluePrintFactory.bluePrint(IBeanFormBluePrint.class);
+		@SuppressWarnings("unused")
+		final IBeanForm<IUser> userForm = container.add(formBp);
 	}
 
 }

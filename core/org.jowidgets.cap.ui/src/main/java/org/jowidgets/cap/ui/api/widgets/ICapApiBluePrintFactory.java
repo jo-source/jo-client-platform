@@ -28,10 +28,15 @@
 
 package org.jowidgets.cap.ui.api.widgets;
 
+import java.util.List;
+
+import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 
 public interface ICapApiBluePrintFactory {
 
 	<BEAN_TYPE> IBeanTableBluePrint<BEAN_TYPE> beanTable(IBeanTableModel<BEAN_TYPE> model);
+
+	<BEAN_TYPE> IBeanFormBluePrint<BEAN_TYPE> beanForm(final List<? extends IAttribute<?>> attributes);
 
 }

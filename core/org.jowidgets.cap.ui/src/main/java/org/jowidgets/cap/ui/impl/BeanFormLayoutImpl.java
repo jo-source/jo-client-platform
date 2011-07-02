@@ -28,43 +28,51 @@
 
 package org.jowidgets.cap.ui.impl;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
-import org.jowidgets.api.toolkit.Toolkit;
-import org.jowidgets.api.widgets.blueprint.factory.IBluePrintFactory;
-import org.jowidgets.cap.ui.api.CapUiToolkit;
-import org.jowidgets.cap.ui.api.attribute.IAttribute;
-import org.jowidgets.cap.ui.api.table.IBeanTableModel;
-import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
-import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
-import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
-import org.jowidgets.util.Assert;
+import org.jowidgets.cap.ui.api.form.IBeanFormGroup;
+import org.jowidgets.cap.ui.api.form.IBeanFormLayout;
 
-final class CapApiBluePrintFactory implements ICapApiBluePrintFactory {
+final class BeanFormLayoutImpl implements IBeanFormLayout {
 
-	private final IBluePrintFactory bluePrintFactory;
+	private final int columnCount;
+	private final List<IBeanFormGroup> groups;
+	private final Map<Integer, Integer> minSizes;
+	private final Map<Integer, Integer> maxSizes;
 
-	CapApiBluePrintFactory() {
-		this.bluePrintFactory = Toolkit.getBluePrintFactory();
+	BeanFormLayoutImpl(
+		final int columnCount,
+		final List<IBeanFormGroup> groups,
+		final Map<Integer, Integer> minSizes,
+		final Map<Integer, Integer> maxSizes) {
+		this.columnCount = columnCount;
+		this.groups = Collections.unmodifiableList(new LinkedList<IBeanFormGroup>(groups));
+		this.minSizes = new HashMap<Integer, Integer>(minSizes);
+		this.maxSizes = new HashMap<Integer, Integer>(maxSizes);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public <BEAN_TYPE> IBeanTableBluePrint<BEAN_TYPE> beanTable(final IBeanTableModel<BEAN_TYPE> model) {
-		Assert.paramNotNull(model, "model");
-		final IBeanTableBluePrint<BEAN_TYPE> result = bluePrintFactory.bluePrint(IBeanTableBluePrint.class);
-		result.setModel(model);
-		return result;
+	public int getColumnCount() {
+		return columnCount;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public <BEAN_TYPE> IBeanFormBluePrint<BEAN_TYPE> beanForm(final List<? extends IAttribute<?>> attributes) {
-		Assert.paramNotNull(attributes, "attributes");
-		final IBeanFormBluePrint<BEAN_TYPE> result = bluePrintFactory.bluePrint(IBeanFormBluePrint.class);
-		result.setAttributes(attributes);
-		result.setLayout(CapUiToolkit.beanFormToolkit().layoutBuilder().addGroups(attributes).build());
-		return bluePrintFactory.bluePrint(IBeanFormBluePrint.class);
+	public Integer getColumnMinSize(final int column) {
+		return minSizes.get(Integer.valueOf(column));
+	}
+
+	@Override
+	public Integer getColumnMaxSize(final int column) {
+		return maxSizes.get(Integer.valueOf(column));
+	}
+
+	@Override
+	public List<IBeanFormGroup> getGroups() {
+		return groups;
 	}
 
 }

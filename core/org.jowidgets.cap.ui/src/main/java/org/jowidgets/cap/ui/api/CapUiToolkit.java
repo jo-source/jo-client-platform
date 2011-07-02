@@ -39,11 +39,14 @@ import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeansStateTracker;
 import org.jowidgets.cap.ui.api.command.IActionFactory;
 import org.jowidgets.cap.ui.api.execution.IExecutionTaskFactory;
+import org.jowidgets.cap.ui.api.form.IBeanFormToolkit;
 import org.jowidgets.cap.ui.api.sort.ISortModelConfigBuilder;
 import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
+import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
 import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
 import org.jowidgets.cap.ui.impl.DefaultCapUiToolkit;
+import org.jowidgets.cap.ui.impl.widgets.BeanFormFactory;
 import org.jowidgets.cap.ui.impl.widgets.BeanTableFactory;
 import org.jowidgets.common.types.TableSelectionPolicy;
 import org.jowidgets.common.widgets.factory.IGenericWidgetFactory;
@@ -102,6 +105,10 @@ public final class CapUiToolkit {
 		return getInstance().sortModelConfigBuilder();
 	}
 
+	public static IBeanFormToolkit beanFormToolkit() {
+		return getInstance().beanFormToolkit();
+	}
+
 	private static ICapUiToolkit createDefaultInstance() {
 		registerWidgets();
 		return new DefaultCapUiToolkit();
@@ -111,6 +118,7 @@ public final class CapUiToolkit {
 	private static void registerWidgets() {
 		final IGenericWidgetFactory genericWidgetFactory = Toolkit.getWidgetFactory();
 		genericWidgetFactory.register(IBeanTableBluePrint.class, new BeanTableFactory());
+		genericWidgetFactory.register(IBeanFormBluePrint.class, new BeanFormFactory());
 
 		Toolkit.getBluePrintFactory().addDefaultsInitializer(
 				IBeanTableBluePrint.class,
@@ -121,6 +129,18 @@ public final class CapUiToolkit {
 						bluePrint.setSelectionPolicy(TableSelectionPolicy.MULTI_ROW_SELECTION);
 						bluePrint.setColumnsMoveable(true);
 						bluePrint.setColumnsResizeable(true);
+					}
+				});
+
+		Toolkit.getBluePrintFactory().addDefaultsInitializer(
+				IBeanFormBluePrint.class,
+				new IDefaultInitializer<IBeanFormBluePrint<?>>() {
+
+					@Override
+					public void initialize(final IBeanFormBluePrint<?> bluePrint) {
+						bluePrint.setAutoResetValidation(true);
+						bluePrint.setContentScrolled(true);
+						bluePrint.setValidationLabel(Toolkit.getBluePrintFactory().validationLabel());
 					}
 				});
 	}

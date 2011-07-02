@@ -42,6 +42,10 @@ public interface IBeanFormProperty {
 
 	int getRowCount();
 
+	int getColumnSpan();
+
+	int getColumnCount();
+
 	AlignmentHorizontal getLabelAlignmentHorizontal();
 
 	AlignmentHorizontal getPropertyAlignmentHorizontal();
@@ -52,6 +56,6 @@ public interface IBeanFormProperty {
 
 	IValidationLabelSetup getValidationLabel();
 
-	int getValidationLabelMinSize();
+	Integer getValidationLabelMinSize();
 
 }

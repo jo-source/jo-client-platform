@@ -30,6 +30,7 @@ package org.jowidgets.cap.sample.app.client.workbench.component.user;
 
 import org.jowidgets.cap.sample.app.client.attribute.UserAttributesFactory;
 import org.jowidgets.cap.sample.app.client.workbench.command.WorkbenchActions;
+import org.jowidgets.cap.sample.app.client.workbench.component.user.view.UserDetailView;
 import org.jowidgets.cap.sample.app.client.workbench.component.user.view.UserFormView;
 import org.jowidgets.cap.sample.app.client.workbench.component.user.view.UserTableView;
 import org.jowidgets.cap.sample.app.common.entity.IUser;
@@ -65,6 +66,9 @@ public class UserComponent extends AbstractComponent implements IComponent {
 		}
 		else if (UserFormView.ID.equals(viewId)) {
 			return new UserFormView(context, userTableModel);
+		}
+		else if (UserDetailView.ID.equals(viewId)) {
+			return new UserDetailView(context, userTableModel);
 		}
 		else {
 			throw new IllegalArgumentException("View id '" + viewId + "' is not known.");
