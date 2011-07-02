@@ -2,10 +2,10 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>org.jowidgets</groupId>
-	<artifactId>org.jowidgets.cap.sample.app.client.starter.standalone.rwt</artifactId>
+	<artifactId>org.jowidgets.cap.sample.app.starter.rwt</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>war</packaging>
-	<name>org.jowidgets.cap.sample.app.client.starter.standalone.rwt</name>
+	<name>org.jowidgets.cap.sample.app.starter.rwt</name>
 
 	<parent>
 		<groupId>org.jowidgets</groupId>

@@ -25,7 +25,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
-package org.jowidgets.cap.sample.app.client.starter.standalone.rwt;
+package org.jowidgets.cap.sample.app.starter.rwt;
 
 import org.jowidgets.cap.sample.app.client.workbench.SampleWorkbench;
 import org.jowidgets.spi.impl.rwt.RwtEntryPoint;
