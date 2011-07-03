@@ -37,12 +37,15 @@ import org.jowidgets.api.convert.IObjectStringConverter;
 import org.jowidgets.api.convert.IStringObjectConverter;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.widgets.IInputControl;
+import org.jowidgets.api.widgets.blueprint.factory.IBluePrintFactory;
 import org.jowidgets.cap.common.api.filter.IFilter;
 import org.jowidgets.cap.ui.api.attribute.IArithmeticOperatorProvider;
 import org.jowidgets.cap.ui.api.attribute.IControlPanelProvider;
 import org.jowidgets.cap.ui.api.attribute.IControlPanelProviderBuilder;
 import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
+import org.jowidgets.common.widgets.factory.ICustomWidgetFactory;
 import org.jowidgets.tools.converter.AbstractObjectLabelConverter;
+import org.jowidgets.tools.converter.Converter;
 import org.jowidgets.util.Assert;
 
 final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> {
@@ -218,9 +221,21 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 	}
 
 	private ICustomWidgetCreator<IInputControl<? extends ELEMENT_VALUE_TYPE>> getControlCreator() {
-		//		if (controlCreator == null) {
-		//			//TODO create by element value type
-		//		}
+		final IObjectLabelConverter<ELEMENT_VALUE_TYPE> objectLabelConv = getObjectLabelConverter();
+		final IStringObjectConverter<ELEMENT_VALUE_TYPE> stringObjectConv = getStringObjectConverter();
+		if (controlCreator == null && objectLabelConv != null && stringObjectConv != null) {
+			controlCreator = new ICustomWidgetCreator<IInputControl<? extends ELEMENT_VALUE_TYPE>>() {
+				@Override
+				public IInputControl<? extends ELEMENT_VALUE_TYPE> create(
+					final ICustomWidgetFactory<IInputControl<? extends ELEMENT_VALUE_TYPE>> widgetFactory) {
+					final IBluePrintFactory bpf = Toolkit.getBluePrintFactory();
+					final IConverter<ELEMENT_VALUE_TYPE> converter = new Converter<ELEMENT_VALUE_TYPE>(
+						objectLabelConv,
+						stringObjectConv);
+					return widgetFactory.create(bpf.inputField(converter));
+				}
+			};
+		}
 		return controlCreator;
 	}
 

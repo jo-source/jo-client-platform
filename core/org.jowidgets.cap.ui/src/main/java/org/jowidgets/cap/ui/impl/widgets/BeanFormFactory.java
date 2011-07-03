@@ -41,11 +41,15 @@ public final class BeanFormFactory implements IWidgetFactory<IBeanForm<? extends
 
 	@Override
 	public IBeanForm<Object> create(final Object parentUiReference, final IBeanFormBluePrint<Object> bluePrint) {
-
 		final IBluePrintFactory bpf = Toolkit.getBluePrintFactory();
-		final BeanFormContentCreator<Object> beanFormContentCreator = new BeanFormContentCreator<Object>(bluePrint);
+
+		final BeanFormContentCreator<Object> beanFormContentCreator = new BeanFormContentCreator<Object>(
+			bluePrint.getLayout(),
+			bluePrint.getAttributes());
+
 		final IInputCompositeBluePrint<IBeanProxy<Object>> inputCompositeBp = bpf.inputComposite(beanFormContentCreator);
 		inputCompositeBp.setSetup(bluePrint);
+
 		final IInputComposite<IBeanProxy<Object>> inputComposite = Toolkit.getWidgetFactory().create(
 				parentUiReference,
 				inputCompositeBp);

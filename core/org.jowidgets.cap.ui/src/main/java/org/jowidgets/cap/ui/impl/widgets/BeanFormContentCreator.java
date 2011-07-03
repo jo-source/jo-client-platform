@@ -28,23 +28,65 @@
 
 package org.jowidgets.cap.ui.impl.widgets;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.validation.ValidationResult;
+import org.jowidgets.api.widgets.IInputControl;
+import org.jowidgets.api.widgets.IValidationLabel;
+import org.jowidgets.api.widgets.blueprint.IValidationLabelBluePrint;
+import org.jowidgets.api.widgets.blueprint.factory.IBluePrintFactory;
 import org.jowidgets.api.widgets.content.IInputContentContainer;
 import org.jowidgets.api.widgets.content.IInputContentCreator;
+import org.jowidgets.cap.ui.api.attribute.IAttribute;
+import org.jowidgets.cap.ui.api.attribute.IControlPanelProvider;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
-import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
+import org.jowidgets.cap.ui.api.form.IBeanFormGroup;
+import org.jowidgets.cap.ui.api.form.IBeanFormLayout;
+import org.jowidgets.cap.ui.api.form.IBeanFormProperty;
+import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
+import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
 
 class BeanFormContentCreator<BEAN_TYPE> implements IInputContentCreator<IBeanProxy<BEAN_TYPE>> {
 
-	BeanFormContentCreator(final IBeanFormBluePrint<BEAN_TYPE> bluePrint) {}
+	private final IBeanFormLayout layout;
+	private final Map<String, IAttribute<Object>> attributes;
+	private final Map<String, IInputControl<Object>> controls;
+
+	private IBeanProxy<BEAN_TYPE> bean;
+
+	@SuppressWarnings("unchecked")
+	BeanFormContentCreator(final IBeanFormLayout layout, final Collection<? extends IAttribute<?>> attributes) {
+		this.layout = layout;
+		this.attributes = new HashMap<String, IAttribute<Object>>();
+		this.controls = new HashMap<String, IInputControl<Object>>();
+
+		for (final IAttribute<?> attribute : attributes) {
+			this.attributes.put(attribute.getPropertyName(), (IAttribute<Object>) attribute);
+		}
+	}
 
 	@Override
-	public void setValue(final IBeanProxy<BEAN_TYPE> value) {}
+	public void setValue(final IBeanProxy<BEAN_TYPE> bean) {
+		this.bean = bean;
+		if (bean == null) {
+			for (final IInputControl<Object> control : controls.values()) {
+				control.setValue(null);
+			}
+		}
+		else {
+			for (final Entry<String, IInputControl<Object>> entry : controls.entrySet()) {
+				entry.getValue().setValue(bean.getValue(entry.getKey()));
+			}
+		}
+	}
 
 	@Override
 	public IBeanProxy<BEAN_TYPE> getValue() {
-		return null;
+		return bean;
 	}
 
 	@Override
@@ -53,8 +95,49 @@ class BeanFormContentCreator<BEAN_TYPE> implements IInputContentCreator<IBeanPro
 	}
 
 	@Override
-	public void createContent(final IInputContentContainer contentContainer) {
-		contentContainer.add(Toolkit.getBluePrintFactory().textLabel("TODO"));
+	public void createContent(final IInputContentContainer container) {
+		final IBluePrintFactory bpf = Toolkit.getBluePrintFactory();
+
+		//TODO MG this must be done with respect of the defined layout
+		container.setLayout(new MigLayoutDescriptor("[]8[grow][]", ""));
+		for (final IBeanFormGroup group : layout.getGroups()) {
+			for (final IBeanFormProperty property : group.getProperties()) {
+
+				final String propertyName = property.getPropertyName();
+				final IAttribute<Object> attribute = attributes.get(propertyName);
+
+				final ICustomWidgetCreator<IInputControl<Object>> widgetCreator = getWidgetCreator(attribute);
+				if (widgetCreator != null) {
+					//add label
+					container.add(bpf.textLabel(attribute.getLabel()).alignRight(), "alignx r, sg lg");
+
+					//add control
+					final IInputControl<Object> control = container.add(widgetCreator, "growx");
+					container.registerInputWidget(attribute.getLabel(), control);
+					controls.put(propertyName, control);
+
+					//add validation label
+					final IValidationLabelBluePrint validationLabelBp = bpf.validationLabel();
+					validationLabelBp.setSetup(property.getValidationLabel());
+					final IValidationLabel validationLabel = container.add(validationLabelBp, "w 20::, wrap");
+					validationLabel.registerInputWidget(control);
+				}
+			}
+		}
+	}
+
+	@SuppressWarnings({"rawtypes", "unchecked"})
+	private ICustomWidgetCreator<IInputControl<Object>> getWidgetCreator(final IAttribute<Object> attribute) {
+		final IControlPanelProvider<Object> controlPanel = attribute.getDefaultControlPanel();
+
+		final ICustomWidgetCreator controlCreator;
+		if (attribute.isCollectionType()) {
+			controlCreator = controlPanel.getCollectionControlCreator();
+		}
+		else {
+			controlCreator = controlPanel.getControlCreator();
+		}
+		return controlCreator;
 	}
 
 	@Override
