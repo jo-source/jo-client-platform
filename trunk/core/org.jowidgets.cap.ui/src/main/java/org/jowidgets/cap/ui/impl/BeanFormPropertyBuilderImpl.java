@@ -69,7 +69,7 @@ final class BeanFormPropertyBuilderImpl implements IBeanFormPropertyBuilder {
 
 	@Override
 	public IBeanFormPropertyBuilder setPropertyName(final String name) {
-		Assert.paramNotEmpty(propertyName, "propertyName");
+		Assert.paramNotEmpty(name, "name");
 		this.propertyName = name;
 		return this;
 	}

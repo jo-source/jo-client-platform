@@ -64,7 +64,7 @@ final class CapApiBluePrintFactory implements ICapApiBluePrintFactory {
 		final IBeanFormBluePrint<BEAN_TYPE> result = bluePrintFactory.bluePrint(IBeanFormBluePrint.class);
 		result.setAttributes(attributes);
 		result.setLayout(CapUiToolkit.beanFormToolkit().layoutBuilder().addGroups(attributes).build());
-		return bluePrintFactory.bluePrint(IBeanFormBluePrint.class);
+		return result;
 	}
 
 }

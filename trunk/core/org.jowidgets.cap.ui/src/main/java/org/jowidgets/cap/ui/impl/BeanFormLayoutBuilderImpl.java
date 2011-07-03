@@ -123,6 +123,8 @@ final class BeanFormLayoutBuilderImpl implements IBeanFormLayoutBuilder {
 				final String newGroupLabel = group != null ? group.getLabel() : null;
 				groupBuilder = CapUiToolkit.beanFormToolkit().groupBuilder().setLabel(newGroupLabel);
 			}
+			defaultBuilder.setPropertyName(attribute.getPropertyName());
+			groupBuilder.addProperty(defaultBuilder);
 		}
 		if (groupBuilder != null) {
 			addGroup(groupBuilder);
