@@ -34,6 +34,10 @@ import java.util.List;
 import java.util.Set;
 
 import javax.persistence.EntityManager;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.filter.ArithmeticOperator;
@@ -48,6 +52,7 @@ import org.jowidgets.cap.common.tools.execution.SyncResultCallback;
 import org.jowidgets.cap.service.impl.jpa.entity.Job;
 import org.jowidgets.cap.service.impl.jpa.entity.Person;
 import org.jowidgets.cap.service.impl.jpa.jpql.CriteriaQueryCreator;
+import org.jowidgets.cap.service.impl.jpa.jpql.IPredicateCreator;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -73,6 +78,8 @@ public class JpaReaderServiceTest extends AbstractJpaTest {
 
 	private JpaReaderService<Object> allPersonsReader;
 	private JpaReaderService<Object> allJobsReader;
+	private JpaReaderService<Object> currentUserJobsReader;
+	private String currentUser;
 
 	@Before
 	public void setUp() {
@@ -96,6 +103,21 @@ public class JpaReaderServiceTest extends AbstractJpaTest {
 		allJobsQueryCreator.setParentPropertyName("owner");
 		allJobsReader = new JpaReaderService<Object>(Job.class, allJobsQueryCreator, jobPropertyNames);
 		allJobsReader.setEntityManager(entityManager);
+
+		currentUser = null;
+		final CriteriaQueryCreator currentUserJobsQueryCreator = new CriteriaQueryCreator();
+		currentUserJobsQueryCreator.setParentPropertyName("owner");
+		currentUserJobsQueryCreator.setPredicateCreator(new IPredicateCreator() {
+			@Override
+			public Predicate createPredicate(
+				final CriteriaBuilder criteriaBuilder,
+				final Root<?> bean,
+				final CriteriaQuery<?> query) {
+				return criteriaBuilder.equal(bean.get("owner").get("name"), currentUser);
+			}
+		});
+		currentUserJobsReader = new JpaReaderService<Object>(Job.class, currentUserJobsQueryCreator, jobPropertyNames);
+		currentUserJobsReader.setEntityManager(entityManager);
 	}
 
 	@Test
@@ -253,6 +275,29 @@ public class JpaReaderServiceTest extends AbstractJpaTest {
 		Assert.assertEquals(2, dtos.size());
 		res = new SyncResultCallback<List<IBeanDto>>();
 		allJobsReader.read(res, Collections.singletonList(new BeanKey(4L, 0)), ALL, null, 0, Integer.MAX_VALUE, null, null);
+		dtos = res.getResultSynchronious();
+		Assert.assertNotNull(dtos);
+		Assert.assertEquals(0, dtos.size());
+	}
+
+	@Test
+	public void testReadCurrentUsersJobs() {
+		SyncResultCallback<List<IBeanDto>> res = new SyncResultCallback<List<IBeanDto>>();
+		currentUserJobsReader.read(res, null, ALL, null, 0, Integer.MAX_VALUE, null, null);
+		List<IBeanDto> dtos = res.getResultSynchronious();
+		Assert.assertNotNull(dtos);
+		Assert.assertEquals(0, dtos.size());
+
+		currentUser = "Harald";
+		res = new SyncResultCallback<List<IBeanDto>>();
+		currentUserJobsReader.read(res, null, ALL, null, 0, Integer.MAX_VALUE, null, null);
+		dtos = res.getResultSynchronious();
+		Assert.assertNotNull(dtos);
+		Assert.assertEquals(2, dtos.size());
+
+		currentUser = "Ingo";
+		res = new SyncResultCallback<List<IBeanDto>>();
+		currentUserJobsReader.read(res, null, ALL, null, 0, Integer.MAX_VALUE, null, null);
 		dtos = res.getResultSynchronious();
 		Assert.assertNotNull(dtos);
 		Assert.assertEquals(0, dtos.size());
