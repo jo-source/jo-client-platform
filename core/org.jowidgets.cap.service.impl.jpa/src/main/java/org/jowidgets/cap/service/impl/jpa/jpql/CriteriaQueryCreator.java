@@ -30,6 +30,7 @@ package org.jowidgets.cap.service.impl.jpa.jpql;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -38,6 +39,7 @@ import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
@@ -78,14 +80,16 @@ public class CriteriaQueryCreator implements IQueryCreator<Object> {
 		final Root<?> bean = fillQuery(query, criteriaBuilder, persistenceClass, parentBeanKeys, filter);
 
 		if (sorting != null) {
+			final List<Order> order = new LinkedList<Order>();
 			for (final ISort sort : sorting) {
 				if (sort.getSortOrder() == SortOrder.ASC) {
-					query.orderBy(criteriaBuilder.asc(bean.get(sort.getPropertyName())));
+					order.add(criteriaBuilder.asc(bean.get(sort.getPropertyName())));
 				}
 				else {
-					query.orderBy(criteriaBuilder.desc(bean.get(sort.getPropertyName())));
+					order.add(criteriaBuilder.desc(bean.get(sort.getPropertyName())));
 				}
 			}
+			query.orderBy(order);
 		}
 
 		return entityManager.createQuery(query);
