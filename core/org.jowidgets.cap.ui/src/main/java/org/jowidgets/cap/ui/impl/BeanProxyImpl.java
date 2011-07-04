@@ -30,6 +30,7 @@ package org.jowidgets.cap.ui.impl;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Proxy;
 import java.util.Collection;
 import java.util.HashMap;
@@ -41,6 +42,9 @@ import java.util.Set;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import javax.validation.metadata.ConstraintDescriptor;
 
 import org.jowidgets.api.threads.IUiThreadAccess;
 import org.jowidgets.api.toolkit.Toolkit;
@@ -275,7 +279,25 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE> {
 				propertyName,
 				value);
 		for (final ConstraintViolation<BEAN_TYPE> violation : beanValidationResult) {
+			final ConstraintDescriptor<?> descriptor = violation.getConstraintDescriptor();
+			final Annotation annotation = descriptor.getAnnotation();
+			if (annotation != null) {
+				if (NotNull.class.equals(annotation.annotationType())) {
+					result.addValidationInfoError(violation.getMessage());
+					break;
+				}
+				else if (Size.class.equals(annotation.annotationType())) {
+					final Object invalidValue = violation.getInvalidValue();
+					if (invalidValue instanceof String) {
+						if (((String) invalidValue).trim().isEmpty()) {
+							result.addValidationInfoError(violation.getMessage());
+							break;
+						}
+					}
+				}
+			}
 			result.addValidationError(violation.getMessage());
+
 		}
 		return result;
 	}
