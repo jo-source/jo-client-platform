@@ -64,6 +64,10 @@ public class CriteriaQueryCreator implements IQueryCreator<Object> {
 		this.parentPropertyName = parentPropertyName;
 	}
 
+	public void setPredicateCreator(final IPredicateCreator predicateCreator) {
+		this.predicateCreator = predicateCreator;
+	}
+
 	@Override
 	public Query createReadQuery(
 		final EntityManager entityManager,
@@ -200,7 +204,6 @@ public class CriteriaQueryCreator implements IQueryCreator<Object> {
 						return criteriaBuilder.like((Path<String>) path, s.replace("*", "%"));
 					}
 				}
-				// TODO HW handle null argument?
 				return criteriaBuilder.equal(path, arg);
 			case EMPTY:
 				// TODO HW handle empty strings
