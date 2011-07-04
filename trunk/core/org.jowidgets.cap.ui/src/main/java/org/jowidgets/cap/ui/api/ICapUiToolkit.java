@@ -28,6 +28,8 @@
 
 package org.jowidgets.cap.ui.api;
 
+import javax.validation.Validator;
+
 import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
 import org.jowidgets.cap.ui.api.bean.BeanMessageType;
 import org.jowidgets.cap.ui.api.bean.IBeanKeyFactory;
@@ -67,5 +69,7 @@ public interface ICapUiToolkit {
 	ISortModelConfigBuilder sortModelConfigBuilder();
 
 	IBeanFormToolkit beanFormToolkit();
+
+	Validator getBeanValidator();
 
 }

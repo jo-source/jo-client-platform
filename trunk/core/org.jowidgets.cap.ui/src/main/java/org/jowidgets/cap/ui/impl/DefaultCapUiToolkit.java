@@ -28,6 +28,9 @@
 
 package org.jowidgets.cap.ui.impl;
 
+import javax.validation.Validation;
+import javax.validation.Validator;
+
 import org.jowidgets.cap.ui.api.ICapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
 import org.jowidgets.cap.ui.api.bean.BeanMessageType;
@@ -50,6 +53,7 @@ public final class DefaultCapUiToolkit implements ICapUiToolkit {
 	private IExecutionTaskFactory executionTaskFactory;
 	private IBeanKeyFactory beanKeyFactory;
 	private IAttributeToolkit attributeToolkit;
+	private Validator beanValidator;
 
 	@Override
 	public ICapApiBluePrintFactory getBluePrintFactory() {
@@ -124,6 +128,14 @@ public final class DefaultCapUiToolkit implements ICapUiToolkit {
 	@Override
 	public IBeanFormToolkit beanFormToolkit() {
 		return new BeanFormToolkitImpl();
+	}
+
+	@Override
+	public Validator getBeanValidator() {
+		if (beanValidator == null) {
+			beanValidator = Validation.buildDefaultValidatorFactory().getValidator();
+		}
+		return beanValidator;
 	}
 
 }

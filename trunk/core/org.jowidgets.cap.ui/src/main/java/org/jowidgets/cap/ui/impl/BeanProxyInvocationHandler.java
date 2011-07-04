@@ -31,6 +31,8 @@ package org.jowidgets.cap.ui.impl;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
+import org.jowidgets.cap.common.api.bean.IBean;
+
 final class BeanProxyInvocationHandler implements InvocationHandler {
 
 	private final BeanProxyImpl<?> dataBean;
@@ -61,7 +63,12 @@ final class BeanProxyInvocationHandler implements InvocationHandler {
 			if (args == null || args.length != 1) {
 				throw new IllegalStateException("Method equals must have exactly one argument");
 			}
-			return dataBean.equals(args[0]);
+			if (args[0] instanceof IBean) {
+				return dataBean.getId().equals(((IBean) args[0]).getId());
+			}
+			else {
+				return false;
+			}
 		}
 		if (method.getName().equals("hashCode")) {
 			return dataBean.hashCode();

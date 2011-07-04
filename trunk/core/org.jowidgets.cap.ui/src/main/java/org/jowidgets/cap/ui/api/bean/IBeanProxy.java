@@ -31,6 +31,7 @@ package org.jowidgets.cap.ui.api.bean;
 import java.util.Collection;
 import java.util.List;
 
+import org.jowidgets.api.validation.ValidationResult;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanModification;
 import org.jowidgets.cap.ui.api.execution.IExecutionTask;
@@ -46,6 +47,12 @@ public interface IBeanProxy<BEAN_TYPE> extends
 	String META_PROPERTY_MESSAGES = IBeanProxy.class.getName() + "_META_PROPERTY_MESSAGES";
 
 	void setValue(String propertyName, Object value);
+
+	ValidationResult validate();
+
+	ValidationResult validate(String propertyName);
+
+	ValidationResult validate(String propertyName, Object value);
 
 	void update(IBeanDto beanDto);
 
