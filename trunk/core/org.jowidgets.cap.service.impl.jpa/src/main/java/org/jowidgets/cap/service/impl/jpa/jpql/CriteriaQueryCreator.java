@@ -38,7 +38,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
@@ -119,6 +118,7 @@ public class CriteriaQueryCreator implements IQueryCreator<Object> {
 		final IFilter filter) {
 
 		final Root<?> bean = query.from(persistenceClass);
+		final List<Predicate> predicates = new LinkedList<Predicate>();
 
 		if (parentBeanKeys != null) {
 			final Set<Object> parentIds = new HashSet<Object>();
@@ -130,40 +130,42 @@ public class CriteriaQueryCreator implements IQueryCreator<Object> {
 			final Root<?> parentBean = query.from(parentType);
 			final Predicate p1 = criteriaBuilder.equal(parentPath, parentBean);
 			final Predicate p2 = parentBean.get("id").in(parentIds);
-			query.where(criteriaBuilder.and(p1, p2));
+			predicates.add(p1);
+			predicates.add(p2);
 			// TODO HRW fix query with parent bean keys
 		}
 
 		if (filter != null) {
-			query.where(createFilterExpression(criteriaBuilder, bean, query, filter));
+			predicates.add(createFilterPredicate(criteriaBuilder, bean, query, filter));
 		}
 
+		query.where(predicates.toArray(new Predicate[0]));
 		return bean;
 	}
 
-	private Expression<Boolean> createFilterExpression(
+	private Predicate createFilterPredicate(
 		final CriteriaBuilder criteriaBuilder,
 		final Root<?> bean,
 		final CriteriaQuery<?> query,
 		final IFilter filter) {
-		final Expression<Boolean> expr;
+		final Predicate predicate;
 		if (filter instanceof IArithmeticFilter) {
-			expr = createFilterExpression(criteriaBuilder, bean, query, (IArithmeticFilter) filter);
+			predicate = createFilterPredicate(criteriaBuilder, bean, query, (IArithmeticFilter) filter);
 		}
 		else if (filter instanceof IBooleanFilter) {
-			expr = createFilterExpression(criteriaBuilder, bean, query, (IBooleanFilter) filter);
+			predicate = createFilterPredicate(criteriaBuilder, bean, query, (IBooleanFilter) filter);
 		}
 		else {
 			throw new IllegalArgumentException("unsupported filter type: " + filter.getClass().getName());
 		}
 		if (filter.isInverted()) {
-			return criteriaBuilder.not(expr);
+			return criteriaBuilder.not(predicate);
 		}
-		return expr;
+		return predicate;
 	}
 
 	@SuppressWarnings("unchecked")
-	private Expression<Boolean> createFilterExpression(
+	private Predicate createFilterPredicate(
 		final CriteriaBuilder criteriaBuilder,
 		final Root<?> bean,
 		final CriteriaQuery<?> query,
@@ -215,36 +217,20 @@ public class CriteriaQueryCreator implements IQueryCreator<Object> {
 		}
 	}
 
-	private Expression<Boolean> createFilterExpression(
+	private Predicate createFilterPredicate(
 		final CriteriaBuilder criteriaBuilder,
 		final Root<?> bean,
 		final CriteriaQuery<?> query,
 		final IBooleanFilter filter) {
-		if (filter.getFilters().size() == 0) {
-			return criteriaBuilder.literal(filter.getOperator() == BooleanOperator.AND);
+		final List<Predicate> predicates = new LinkedList<Predicate>();
+		for (final IFilter subFilter : filter.getFilters()) {
+			final Predicate predicate = createFilterPredicate(criteriaBuilder, bean, query, subFilter);
+			predicates.add(predicate);
 		}
-		final IBooleanFilter next = new IBooleanFilter() {
-			@Override
-			public boolean isInverted() {
-				return false;
-			}
-
-			@Override
-			public BooleanOperator getOperator() {
-				return filter.getOperator();
-			}
-
-			@Override
-			public List<IFilter> getFilters() {
-				return filter.getFilters().subList(1, filter.getFilters().size());
-			}
-		};
-		final Expression<Boolean> expr1 = createFilterExpression(criteriaBuilder, bean, query, filter.getFilters().get(0));
-		final Expression<Boolean> expr2 = createFilterExpression(criteriaBuilder, bean, query, next);
 		if (filter.getOperator() == BooleanOperator.AND) {
-			return criteriaBuilder.and(expr1, expr2);
+			return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
 		}
-		return criteriaBuilder.or(expr1, expr2);
+		return criteriaBuilder.or(predicates.toArray(new Predicate[0]));
 	}
 
 }
