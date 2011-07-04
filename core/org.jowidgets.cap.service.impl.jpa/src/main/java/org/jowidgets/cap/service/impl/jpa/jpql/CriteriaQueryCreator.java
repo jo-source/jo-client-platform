@@ -206,8 +206,10 @@ public class CriteriaQueryCreator implements IQueryCreator<Object> {
 				}
 				return criteriaBuilder.equal(path, arg);
 			case EMPTY:
-				// TODO HW handle empty strings
 				// TODO HW handle collection properties
+				if (path.getJavaType() == String.class) {
+					return criteriaBuilder.or(path.isNull(), criteriaBuilder.equal(path, ""));
+				}
 				return path.isNull();
 			case CONTAINS_ANY:
 				return path.in((Collection<?>) filter.getParameters()[0]);
