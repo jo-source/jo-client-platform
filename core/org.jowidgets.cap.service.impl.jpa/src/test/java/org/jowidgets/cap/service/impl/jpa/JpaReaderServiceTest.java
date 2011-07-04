@@ -50,7 +50,6 @@ import org.jowidgets.cap.service.impl.jpa.entity.Person;
 import org.jowidgets.cap.service.impl.jpa.jpql.CriteriaQueryCreator;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class JpaReaderServiceTest extends AbstractJpaTest {
@@ -246,7 +245,6 @@ public class JpaReaderServiceTest extends AbstractJpaTest {
 	}
 
 	@Test
-	@Ignore
 	public void testReadParentJobs() {
 		SyncResultCallback<List<IBeanDto>> res = new SyncResultCallback<List<IBeanDto>>();
 		allJobsReader.read(res, Collections.singletonList(new BeanKey(1L, 0)), ALL, null, 0, Integer.MAX_VALUE, null, null);
