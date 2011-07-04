@@ -42,9 +42,14 @@ import org.jowidgets.service.api.ServiceProvider;
 
 public class UserAttributesFactory {
 
-	public List<IAttribute<Object>> create() {
-		final List<IProperty> properties = ServiceProvider.getService(IEntityService.ID).getDescriptor(IUser.class).getProperties();
-		final IAttributeToolkit attributeToolkit = CapUiToolkit.getAttributeToolkit();
+	private final IAttributeToolkit attributeToolkit;
+
+	public UserAttributesFactory() {
+		this.attributeToolkit = CapUiToolkit.getAttributeToolkit();
+	}
+
+	public List<IAttribute<Object>> tableAttributes() {
+		final List<IProperty> properties = createProperties();
 
 		final IAttributeCollectionModifierBuilder modifierBuilder = attributeToolkit.createAttributeCollectionModifierBuilder();
 		modifierBuilder.addModifier(IUser.GENDER_PROPERTY).setTableAlignment(AlignmentHorizontal.CENTER).setEditable(false);
@@ -52,4 +57,18 @@ public class UserAttributesFactory {
 
 		return CapUiToolkit.getAttributeToolkit().createAttributes(properties, modifierBuilder.build());
 	}
+
+	public List<IAttribute<Object>> formAttributes() {
+		final List<IAttribute<Object>> attributes = tableAttributes();
+
+		final IAttributeCollectionModifierBuilder modifierBuilder = attributeToolkit.createAttributeCollectionModifierBuilder();
+		modifierBuilder.addAcceptEditableAttributesFilter();
+
+		return CapUiToolkit.getAttributeToolkit().createAttributesCopy(attributes, modifierBuilder.build());
+	}
+
+	private List<IProperty> createProperties() {
+		return ServiceProvider.getService(IEntityService.ID).getDescriptor(IUser.class).getProperties();
+	}
+
 }

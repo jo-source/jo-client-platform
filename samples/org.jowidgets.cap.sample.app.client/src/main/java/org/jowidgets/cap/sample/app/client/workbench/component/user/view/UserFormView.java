@@ -94,6 +94,7 @@ public class UserFormView extends AbstractView {
 				}
 			}
 		};
+
 		nameField.addInputListener(nameListener);
 
 		lastNameListener = new IInputListener() {

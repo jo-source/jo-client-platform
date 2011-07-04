@@ -209,6 +209,12 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE> {
 	}
 
 	@Override
+	public boolean isModified(final String propertyName) {
+		Assert.paramNotNull(propertyName, "propertyName");
+		return modifications.containsKey(propertyName);
+	}
+
+	@Override
 	public void undoModifications() {
 		final boolean oldModificationState = hasModifications();
 		final List<PropertyChangeEvent> propertyChangeEvents = getPropertyChangesForClear();

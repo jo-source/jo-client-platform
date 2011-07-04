@@ -29,6 +29,7 @@
 package org.jowidgets.cap.ui.api;
 
 import org.jowidgets.api.toolkit.Toolkit;
+import org.jowidgets.api.widgets.blueprint.IValidationLabelBluePrint;
 import org.jowidgets.api.widgets.blueprint.defaults.IDefaultInitializer;
 import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
 import org.jowidgets.cap.ui.api.bean.BeanMessageType;
@@ -140,7 +141,8 @@ public final class CapUiToolkit {
 					public void initialize(final IBeanFormBluePrint<?> bluePrint) {
 						bluePrint.setAutoResetValidation(true);
 						bluePrint.setContentScrolled(true);
-						bluePrint.setValidationLabel(Toolkit.getBluePrintFactory().validationLabel());
+						final IValidationLabelBluePrint validationLabelBp = Toolkit.getBluePrintFactory().validationLabel();
+						bluePrint.setValidationLabel(validationLabelBp);
 					}
 				});
 	}
