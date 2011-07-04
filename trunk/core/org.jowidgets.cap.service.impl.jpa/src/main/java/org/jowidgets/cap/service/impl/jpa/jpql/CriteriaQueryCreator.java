@@ -53,11 +53,11 @@ import org.jowidgets.cap.common.api.sort.SortOrder;
 import org.jowidgets.cap.service.impl.jpa.IQueryCreator;
 import org.jowidgets.util.Assert;
 
-// TODO HRW add base criteria (with alias resolving, e.g. #current_user#)
 // TODO HRW add optional case insensitive string comparison
 public class CriteriaQueryCreator implements IQueryCreator<Object> {
 
 	private String parentPropertyName = "parent";
+	private IPredicateCreator predicateCreator;
 
 	public void setParentPropertyName(final String parentPropertyName) {
 		Assert.paramNotNull(parentPropertyName, "parentPropertyName");
@@ -120,19 +120,17 @@ public class CriteriaQueryCreator implements IQueryCreator<Object> {
 		final Root<?> bean = query.from(persistenceClass);
 		final List<Predicate> predicates = new LinkedList<Predicate>();
 
+		if (predicateCreator != null) {
+			predicates.add(predicateCreator.createPredicate(criteriaBuilder, bean, query));
+		}
+
 		if (parentBeanKeys != null) {
 			final Set<Object> parentIds = new HashSet<Object>();
 			for (final IBeanKey parentBeanKey : parentBeanKeys) {
 				parentIds.add(parentBeanKey.getId());
 			}
 			final Path<?> parentPath = bean.get(parentPropertyName);
-			final Class<?> parentType = bean.getJavaType();
-			final Root<?> parentBean = query.from(parentType);
-			final Predicate p1 = criteriaBuilder.equal(parentPath, parentBean);
-			final Predicate p2 = parentBean.get("id").in(parentIds);
-			predicates.add(p1);
-			predicates.add(p2);
-			// TODO HRW fix query with parent bean keys
+			predicates.add(parentPath.get("id").in(parentIds));
 		}
 
 		if (filter != null) {
