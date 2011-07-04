@@ -73,8 +73,8 @@ public class UserComponentDefaultLayout {
 
 	private IFolderLayoutBuilder createDetailFolder() {
 		final IFolderLayoutBuilder result = new FolderLayoutBuilder(DETAIL_FOLDER_ID);
-		result.addView(UserFormView.ID, UserFormView.DEFAULT_LABEL, UserFormView.DEFAULT_TOOLTIP);
 		result.addView(UserDetailView.ID, UserDetailView.DEFAULT_LABEL, UserDetailView.DEFAULT_TOOLTIP);
+		result.addView(UserFormView.ID, UserFormView.DEFAULT_LABEL, UserFormView.DEFAULT_TOOLTIP);
 		return result;
 	}
 

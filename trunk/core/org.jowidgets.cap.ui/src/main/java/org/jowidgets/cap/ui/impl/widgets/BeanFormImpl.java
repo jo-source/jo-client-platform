@@ -33,14 +33,18 @@ import org.jowidgets.api.validation.ValidationResult;
 import org.jowidgets.api.widgets.IInputComposite;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.widgets.IBeanForm;
-import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
 import org.jowidgets.common.widgets.controler.IInputListener;
 import org.jowidgets.tools.widgets.wrapper.ControlWrapper;
 
 final class BeanFormImpl<BEAN_TYPE> extends ControlWrapper implements IBeanForm<BEAN_TYPE> {
 
-	BeanFormImpl(final IInputComposite<IBeanProxy<BEAN_TYPE>> composite, final IBeanFormBluePrint<BEAN_TYPE> bluePrint) {
+	private final BeanFormContentCreator<Object> beanFormContentCreator;
+
+	BeanFormImpl(
+		final IInputComposite<IBeanProxy<BEAN_TYPE>> composite,
+		final BeanFormContentCreator<Object> beanFormContentCreator) {
 		super(composite);
+		this.beanFormContentCreator = beanFormContentCreator;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -97,6 +101,12 @@ final class BeanFormImpl<BEAN_TYPE> extends ControlWrapper implements IBeanForm<
 	@Override
 	public void removeInputListener(final IInputListener listener) {
 		getWidget().removeInputListener(listener);
+	}
+
+	@Override
+	public void resetValidation() {
+		getWidget().resetValidation();
+		beanFormContentCreator.resetValidation();
 	}
 
 }

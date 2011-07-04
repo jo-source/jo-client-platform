@@ -54,6 +54,6 @@ public final class BeanFormFactory implements IWidgetFactory<IBeanForm<? extends
 				parentUiReference,
 				inputCompositeBp);
 
-		return new BeanFormImpl<Object>(inputComposite, bluePrint);
+		return new BeanFormImpl<Object>(inputComposite, beanFormContentCreator);
 	}
 }

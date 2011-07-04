@@ -31,6 +31,7 @@ package org.jowidgets.cap.ui.impl;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.Set;
 
 import org.jowidgets.cap.ui.api.bean.IPropertyChangeObservable;
@@ -56,7 +57,7 @@ class PropertyChangeObservable implements IPropertyChangeObservable {
 
 	final void firePropertyChange(final PropertyChangeEvent event) {
 		Assert.paramNotNull(event, "event");
-		for (final PropertyChangeListener listener : listeners) {
+		for (final PropertyChangeListener listener : new LinkedList<PropertyChangeListener>(listeners)) {
 			listener.propertyChange(event);
 		}
 	}

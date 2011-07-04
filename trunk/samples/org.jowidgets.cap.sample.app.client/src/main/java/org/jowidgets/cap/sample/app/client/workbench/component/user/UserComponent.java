@@ -96,7 +96,7 @@ public class UserComponent extends AbstractComponent implements IComponent {
 
 	private IBeanTableModel<IUser> createUserTableModel() {
 		final IBeanTableModelBuilder<IUser> builder = CapUiToolkit.createBeanTableModelBuilder(IUser.class);
-		builder.setAttributes(new UserAttributesFactory().create());
+		builder.setAttributes(new UserAttributesFactory().tableAttributes());
 		builder.setReaderService(UserReaderServices.ALL_USERS, createReaderParameterProvider());
 		return builder.build();
 	}

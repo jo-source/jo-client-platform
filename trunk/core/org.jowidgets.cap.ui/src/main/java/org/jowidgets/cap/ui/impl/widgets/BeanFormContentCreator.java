@@ -28,6 +28,8 @@
 
 package org.jowidgets.cap.ui.impl.widgets;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -47,14 +49,20 @@ import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.form.IBeanFormGroup;
 import org.jowidgets.cap.ui.api.form.IBeanFormLayout;
 import org.jowidgets.cap.ui.api.form.IBeanFormProperty;
+import org.jowidgets.common.widgets.controler.IInputListener;
 import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
+import org.jowidgets.tools.validation.MandatoryInfoValidator;
 
 class BeanFormContentCreator<BEAN_TYPE> implements IInputContentCreator<IBeanProxy<BEAN_TYPE>> {
 
 	private final IBeanFormLayout layout;
 	private final Map<String, IAttribute<Object>> attributes;
 	private final Map<String, IInputControl<Object>> controls;
+	private final Map<String, IInputListener> inputListeners;
+	private final Map<String, IValidationLabel> validationLabels;
+	private final PropertyChangeListener propertyChangeListener;
+	private final IBluePrintFactory bpf;
 
 	private IBeanProxy<BEAN_TYPE> bean;
 
@@ -63,6 +71,10 @@ class BeanFormContentCreator<BEAN_TYPE> implements IInputContentCreator<IBeanPro
 		this.layout = layout;
 		this.attributes = new HashMap<String, IAttribute<Object>>();
 		this.controls = new HashMap<String, IInputControl<Object>>();
+		this.inputListeners = new HashMap<String, IInputListener>();
+		this.validationLabels = new HashMap<String, IValidationLabel>();
+		this.propertyChangeListener = new BeanPropertyChangeListener();
+		this.bpf = Toolkit.getBluePrintFactory();
 
 		for (final IAttribute<?> attribute : attributes) {
 			this.attributes.put(attribute.getPropertyName(), (IAttribute<Object>) attribute);
@@ -70,33 +82,7 @@ class BeanFormContentCreator<BEAN_TYPE> implements IInputContentCreator<IBeanPro
 	}
 
 	@Override
-	public void setValue(final IBeanProxy<BEAN_TYPE> bean) {
-		this.bean = bean;
-		if (bean == null) {
-			for (final IInputControl<Object> control : controls.values()) {
-				control.setValue(null);
-			}
-		}
-		else {
-			for (final Entry<String, IInputControl<Object>> entry : controls.entrySet()) {
-				entry.getValue().setValue(bean.getValue(entry.getKey()));
-			}
-		}
-	}
-
-	@Override
-	public IBeanProxy<BEAN_TYPE> getValue() {
-		return bean;
-	}
-
-	@Override
-	public ValidationResult validate() {
-		return new ValidationResult();
-	}
-
-	@Override
 	public void createContent(final IInputContentContainer container) {
-		final IBluePrintFactory bpf = Toolkit.getBluePrintFactory();
 
 		//TODO MG this must be done with respect of the defined layout
 		container.setLayout(new MigLayoutDescriptor("[]8[grow][]", ""));
@@ -113,7 +99,12 @@ class BeanFormContentCreator<BEAN_TYPE> implements IInputContentCreator<IBeanPro
 
 					//add control
 					final IInputControl<Object> control = container.add(widgetCreator, "growx");
+					if (attribute.isMandatory()) {
+						control.addValidator(new MandatoryInfoValidator<Object>("Must not be empty"));
+					}
+					control.setEnabled(false);
 					container.registerInputWidget(attribute.getLabel(), control);
+					inputListeners.put(propertyName, new InputListener(propertyName, control));
 					controls.put(propertyName, control);
 
 					//add validation label
@@ -121,8 +112,58 @@ class BeanFormContentCreator<BEAN_TYPE> implements IInputContentCreator<IBeanPro
 					validationLabelBp.setSetup(property.getValidationLabel());
 					final IValidationLabel validationLabel = container.add(validationLabelBp, "w 20::, wrap");
 					validationLabel.registerInputWidget(control);
+					validationLabels.put(propertyName, validationLabel);
 				}
 			}
+		}
+	}
+
+	@Override
+	public void setValue(final IBeanProxy<BEAN_TYPE> bean) {
+		if (this.bean != null) {
+			this.bean.removePropertyChangeListener(propertyChangeListener);
+		}
+
+		this.bean = bean;
+		if (bean == null) {
+			for (final IInputControl<Object> control : controls.values()) {
+				control.setValue(null);
+				control.setEnabled(false);
+			}
+		}
+		else {
+			for (final Entry<String, IInputControl<Object>> entry : controls.entrySet()) {
+				final IAttribute<?> attribute = attributes.get(entry.getKey());
+				final String propertyName = attribute.getPropertyName();
+				final IInputControl<Object> control = entry.getValue();
+				control.removeInputListener(inputListeners.get(propertyName));
+				control.setValue(bean.getValue(entry.getKey()));
+				control.setEnabled(attribute.isEditable());
+				control.addInputListener(inputListeners.get(propertyName));
+			}
+			bean.addPropertyChangeListener(propertyChangeListener);
+		}
+		resetValidation();
+	}
+
+	@Override
+	public IBeanProxy<BEAN_TYPE> getValue() {
+		return bean;
+	}
+
+	@Override
+	public ValidationResult validate() {
+		return new ValidationResult();
+	}
+
+	@Override
+	public boolean isMandatory() {
+		return false;
+	}
+
+	public void resetValidation() {
+		for (final IValidationLabel validationLabel : validationLabels.values()) {
+			validationLabel.resetValidation();
 		}
 	}
 
@@ -140,9 +181,40 @@ class BeanFormContentCreator<BEAN_TYPE> implements IInputContentCreator<IBeanPro
 		return controlCreator;
 	}
 
-	@Override
-	public boolean isMandatory() {
-		return false;
+	private final class BeanPropertyChangeListener implements PropertyChangeListener {
+
+		@Override
+		public void propertyChange(final PropertyChangeEvent evt) {
+			if (bean != null) {
+				final IInputControl<Object> control = controls.get(evt.getPropertyName());
+				if (control != null) {
+					control.setValue(evt.getNewValue());
+					if (!bean.isModified(evt.getPropertyName())) {
+						validationLabels.get(evt.getPropertyName()).resetValidation();
+					}
+				}
+			}
+		}
+
 	}
 
+	private final class InputListener implements IInputListener {
+
+		private final String propertyName;
+		private final IInputControl<Object> control;
+
+		private InputListener(final String propertyName, final IInputControl<Object> control) {
+			this.propertyName = propertyName;
+			this.control = control;
+		}
+
+		@Override
+		public void inputChanged() {
+			if (bean != null) {
+				bean.removePropertyChangeListener(propertyChangeListener);
+				bean.setValue(propertyName, control.getValue());
+				bean.addPropertyChangeListener(propertyChangeListener);
+			}
+		}
+	}
 }

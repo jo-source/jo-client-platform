@@ -33,4 +33,6 @@ import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 
 public interface IBeanForm<BEAN_TYPE> extends IInputControl<IBeanProxy<BEAN_TYPE>> {
 
+	void resetValidation();
+
 }

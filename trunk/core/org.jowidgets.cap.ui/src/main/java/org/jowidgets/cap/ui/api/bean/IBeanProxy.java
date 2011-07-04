@@ -53,6 +53,8 @@ public interface IBeanProxy<BEAN_TYPE> extends
 
 	boolean hasModifications();
 
+	boolean isModified(String propertyName);
+
 	void undoModifications();
 
 	void redoModifications();
