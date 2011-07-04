@@ -58,7 +58,6 @@ import org.jowidgets.common.widgets.controler.IInputListener;
 import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
 import org.jowidgets.tools.controler.InputObservable;
-import org.jowidgets.tools.validation.MandatoryInfoValidator;
 import org.jowidgets.tools.widgets.wrapper.ControlWrapper;
 
 final class BeanFormImpl<BEAN_TYPE> extends ControlWrapper implements IBeanForm<BEAN_TYPE> {
@@ -215,9 +214,6 @@ final class BeanFormImpl<BEAN_TYPE> extends ControlWrapper implements IBeanForm<
 
 					//add control
 					final IInputControl<Object> control = container.add(widgetCreator, "growx");
-					if (attribute.isMandatory()) {
-						control.addValidator(new MandatoryInfoValidator<Object>("Must not be empty"));
-					}
 					control.addValidator(new IValidator<Object>() {
 						@Override
 						public ValidationResult validate(final Object value) {
