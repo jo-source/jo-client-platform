@@ -32,8 +32,10 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.jowidgets.cap.common.api.bean.IBean;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
+import org.jowidgets.cap.common.api.bean.IBean;
 
 public interface IUser extends IBean {
 
@@ -58,10 +60,14 @@ public interface IUser extends IBean {
 		}
 	};
 
+	@NotNull
+	@Size(min = 1, max = 50)
 	String getName();
 
 	void setName(final String name);
 
+	@NotNull
+	@Size(min = 1, max = 50)
 	String getLastName();
 
 	void setLastName(final String lastName);

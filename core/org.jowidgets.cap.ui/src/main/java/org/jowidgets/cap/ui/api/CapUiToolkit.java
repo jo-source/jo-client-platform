@@ -28,6 +28,8 @@
 
 package org.jowidgets.cap.ui.api;
 
+import javax.validation.Validator;
+
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.widgets.blueprint.IValidationLabelBluePrint;
 import org.jowidgets.api.widgets.blueprint.defaults.IDefaultInitializer;
@@ -108,6 +110,10 @@ public final class CapUiToolkit {
 
 	public static IBeanFormToolkit beanFormToolkit() {
 		return getInstance().beanFormToolkit();
+	}
+
+	public static Validator getBeanValidator() {
+		return getInstance().getBeanValidator();
 	}
 
 	private static ICapUiToolkit createDefaultInstance() {

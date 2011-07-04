@@ -39,12 +39,17 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.Validator;
+
 import org.jowidgets.api.threads.IUiThreadAccess;
 import org.jowidgets.api.toolkit.Toolkit;
+import org.jowidgets.api.validation.ValidationResult;
 import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanModification;
 import org.jowidgets.cap.common.api.bean.IBeanModificationBuilder;
+import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.bean.BeanMessageType;
 import org.jowidgets.cap.ui.api.bean.IBeanMessage;
 import org.jowidgets.cap.ui.api.bean.IBeanMessageStateListener;
@@ -70,6 +75,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE> {
 	private final Map<BeanMessageType, List<IBeanMessage>> messagesMap;
 	private final List<IBeanMessage> messagesList;
 	private final IUiThreadAccess uiThreadAccess;
+	private final Validator validator;
 
 	private IExecutionTask executionTask;
 
@@ -89,6 +95,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE> {
 		this.modificationStateObservable = new BeanModificationStateObservable<BEAN_TYPE>();
 		this.processStateObservable = new BeanProcessStateObservable<BEAN_TYPE>();
 		this.messageStateObservable = new BeanMessageStateObservable<BEAN_TYPE>();
+		this.validator = CapUiToolkit.getBeanValidator();
 
 		this.messagesMap = new HashMap<BeanMessageType, List<IBeanMessage>>();
 		messagesMap.put(BeanMessageType.INFO, new LinkedList<IBeanMessage>());
@@ -242,6 +249,35 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE> {
 		if (oldModificationState != newModificationState) {
 			modificationStateObservable.fireModificationStateChanged(this);
 		}
+	}
+
+	@Override
+	public ValidationResult validate() {
+		final ValidationResult result = new ValidationResult();
+		for (final String propertyName : getPropertyNames()) {
+			result.addValidationResult(validate(propertyName).copyAndSetContext(propertyName));
+		}
+		return null;
+	}
+
+	@Override
+	public ValidationResult validate(final String propertyName) {
+		return validate(propertyName, getValue(propertyName));
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public ValidationResult validate(final String propertyName, final Object value) {
+		Assert.paramNotNull(propertyName, "propertyName");
+		final ValidationResult result = new ValidationResult();
+		final Set<ConstraintViolation<BEAN_TYPE>> beanValidationResult = validator.validateValue(
+				(Class<BEAN_TYPE>) beanType,
+				propertyName,
+				value);
+		for (final ConstraintViolation<BEAN_TYPE> violation : beanValidationResult) {
+			result.addValidationError(violation.getMessage());
+		}
+		return result;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -493,8 +529,6 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE> {
 			+ executionTask
 			+ ", beanDto="
 			+ beanDto
-			+ ", proxy="
-			+ proxy
 			+ "]";
 	}
 
@@ -511,8 +545,11 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE> {
 		if (obj == null) {
 			return false;
 		}
+		else if (obj instanceof IBeanProxy) {
+			return beanDto.getId().equals(((IBeanProxy<?>) obj).getId());
+		}
 		else {
-			return beanDto.equals(((BeanProxyImpl<?>) obj).beanDto);
+			return false;
 		}
 	}
 

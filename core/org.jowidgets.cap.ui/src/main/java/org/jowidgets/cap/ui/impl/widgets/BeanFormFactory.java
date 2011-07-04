@@ -29,10 +29,8 @@
 package org.jowidgets.cap.ui.impl.widgets;
 
 import org.jowidgets.api.toolkit.Toolkit;
-import org.jowidgets.api.widgets.IInputComposite;
-import org.jowidgets.api.widgets.blueprint.IInputCompositeBluePrint;
+import org.jowidgets.api.widgets.IComposite;
 import org.jowidgets.api.widgets.blueprint.factory.IBluePrintFactory;
-import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.widgets.IBeanForm;
 import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
 import org.jowidgets.common.widgets.factory.IWidgetFactory;
@@ -42,18 +40,7 @@ public final class BeanFormFactory implements IWidgetFactory<IBeanForm<? extends
 	@Override
 	public IBeanForm<Object> create(final Object parentUiReference, final IBeanFormBluePrint<Object> bluePrint) {
 		final IBluePrintFactory bpf = Toolkit.getBluePrintFactory();
-
-		final BeanFormContentCreator<Object> beanFormContentCreator = new BeanFormContentCreator<Object>(
-			bluePrint.getLayout(),
-			bluePrint.getAttributes());
-
-		final IInputCompositeBluePrint<IBeanProxy<Object>> inputCompositeBp = bpf.inputComposite(beanFormContentCreator);
-		inputCompositeBp.setSetup(bluePrint);
-
-		final IInputComposite<IBeanProxy<Object>> inputComposite = Toolkit.getWidgetFactory().create(
-				parentUiReference,
-				inputCompositeBp);
-
-		return new BeanFormImpl<Object>(inputComposite, beanFormContentCreator);
+		final IComposite composite = Toolkit.getWidgetFactory().create(parentUiReference, bpf.composite());
+		return new BeanFormImpl<Object>(composite, bluePrint);
 	}
 }
