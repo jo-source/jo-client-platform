@@ -219,8 +219,7 @@ final class BeanFormImpl<BEAN_TYPE> extends ControlWrapper implements IBeanForm<
 						public ValidationResult validate(final Object value) {
 							final ValidationResult result = new ValidationResult();
 							if (bean != null) {
-								final ValidationResult beanValidationResult = bean.validate(propertyName, value);
-								result.addValidationResult(beanValidationResult.copyAndSetContext(attribute.getLabel()));
+								result.addValidationResult(bean.validate(propertyName, value));
 							}
 							return result;
 						}
@@ -288,6 +287,7 @@ final class BeanFormImpl<BEAN_TYPE> extends ControlWrapper implements IBeanForm<
 				bean.setValue(propertyName, control.getValue());
 				getWidget().layoutBegin();
 				inputObservable.fireInputChanged();
+				mainValidationLabel.redraw();
 				getWidget().layoutEnd();
 				bean.addPropertyChangeListener(propertyChangeListener);
 			}
