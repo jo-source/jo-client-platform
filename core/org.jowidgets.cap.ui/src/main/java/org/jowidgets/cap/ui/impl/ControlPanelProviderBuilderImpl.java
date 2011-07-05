@@ -244,7 +244,7 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 				controlCreator = new ICustomWidgetCreator() {
 					@Override
 					public IInputControl create(final ICustomWidgetFactory widgetFactory) {
-						return (IInputControl) widgetFactory.create(bpf.checkBox());
+						return widgetFactory.create(bpf.checkBox());
 					}
 				};
 			}
@@ -252,8 +252,7 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 				if (valueRange.getValues().isEmpty()) {
 					controlCreator = new ICustomWidgetCreator<IInputControl<? extends ELEMENT_VALUE_TYPE>>() {
 						@Override
-						public IInputControl<? extends ELEMENT_VALUE_TYPE> create(
-							final ICustomWidgetFactory<IInputControl<? extends ELEMENT_VALUE_TYPE>> widgetFactory) {
+						public IInputControl<? extends ELEMENT_VALUE_TYPE> create(final ICustomWidgetFactory widgetFactory) {
 							final IConverter<ELEMENT_VALUE_TYPE> converter = new Converter<ELEMENT_VALUE_TYPE>(
 								objectLabelConv,
 								stringObjectConv);
@@ -264,8 +263,7 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 				else {
 					controlCreator = new ICustomWidgetCreator<IInputControl<? extends ELEMENT_VALUE_TYPE>>() {
 						@Override
-						public IInputControl<? extends ELEMENT_VALUE_TYPE> create(
-							final ICustomWidgetFactory<IInputControl<? extends ELEMENT_VALUE_TYPE>> widgetFactory) {
+						public IInputControl<? extends ELEMENT_VALUE_TYPE> create(final ICustomWidgetFactory widgetFactory) {
 							final IConverter<ELEMENT_VALUE_TYPE> converter = new Converter<ELEMENT_VALUE_TYPE>(
 								objectLabelConv,
 								stringObjectConv);
