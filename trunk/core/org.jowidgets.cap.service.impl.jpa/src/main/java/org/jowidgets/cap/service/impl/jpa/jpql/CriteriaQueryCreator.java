@@ -195,6 +195,8 @@ public final class CriteriaQueryCreator implements IQueryCreator<Object> {
 		catch (final Exception e) {
 			isCollection = false;
 		}
+		// queries for collection attributes causes duplicate results
+		query.distinct(isCollection);
 		switch (filter.getOperator()) {
 			case BETWEEN:
 				return criteriaBuilder.between(
@@ -218,28 +220,22 @@ public final class CriteriaQueryCreator implements IQueryCreator<Object> {
 						(Path<Comparable<Object>>) path,
 						criteriaBuilder.literal((Comparable<Object>) filter.getParameters()[0]));
 			case EQUAL:
-				query.distinct(isCollection);
 				Expression<?> expr = path;
 				Object arg = filter.getParameters()[0];
-				boolean useLike = false;
 				if (arg instanceof String && path.getJavaType() == String.class) {
-					final String s = (String) arg;
-					if (s.contains("*") || s.contains("%")) {
-						useLike = true;
-						arg = s.replace("*", "%");
-					}
+					String s = (String) arg;
 					if (caseInsensitve) {
 						expr = criteriaBuilder.upper((Expression<String>) expr);
-						arg = ((String) arg).toUpperCase();
+						s = s.toUpperCase();
+						arg = s;
 					}
-				}
-				if (useLike) {
-					return criteriaBuilder.like((Expression<String>) expr, (String) arg);
+					if (s.contains("*") || s.contains("%")) {
+						return criteriaBuilder.like((Expression<String>) expr, s.replace('*', '%'));
+					}
 				}
 				return criteriaBuilder.equal(expr, arg);
 			case EMPTY:
 				if (isCollection) {
-					query.distinct(true);
 					// TODO HRW fix query for empty collections
 					return criteriaBuilder.isEmpty((Expression<Collection<?>>) path);
 					//					final Join<?, ?> join = bean.join(filter.getPropertyName(), JoinType.LEFT);
@@ -253,9 +249,15 @@ public final class CriteriaQueryCreator implements IQueryCreator<Object> {
 				}
 				return path.isNull();
 			case CONTAINS_ANY:
-				// TODO HRW evaluate case insensitive flag	
-				query.distinct(true);
-				return path.in((Collection<?>) filter.getParameters()[0]);
+				final Collection<?> params = (Collection<?>) filter.getParameters()[0];
+				if (caseInsensitve && path.getJavaType() == String.class) {
+					final Collection<String> newParams = new HashSet<String>();
+					for (final Object p : params) {
+						newParams.add(String.valueOf(p).toUpperCase());
+					}
+					return criteriaBuilder.upper((Expression<String>) path).in(newParams);
+				}
+				return path.in(params);
 			case CONTAINS_ALL:
 				// TODO HRW add support for CONTAINS_ALL
 			default:
