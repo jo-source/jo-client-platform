@@ -123,17 +123,19 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 		return this;
 	}
 
+	@SuppressWarnings({"unchecked", "rawtypes"})
 	@Override
 	public IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> setObjectLabelConverter(
-		final IObjectLabelConverter<ELEMENT_VALUE_TYPE> objectLabelConverter) {
+		final IObjectLabelConverter objectLabelConverter) {
 		this.objectStringConverter = null;
 		this.objectLabelConverter = objectLabelConverter;
 		return this;
 	}
 
+	@SuppressWarnings({"unchecked", "rawtypes"})
 	@Override
 	public IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> setObjectLabelConverter(
-		final IObjectStringConverter<ELEMENT_VALUE_TYPE> objectStringConverter) {
+		final IObjectStringConverter objectStringConverter) {
 		this.objectLabelConverter = null;
 		this.objectStringConverter = objectStringConverter;
 		return null;

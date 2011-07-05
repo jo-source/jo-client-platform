@@ -47,10 +47,10 @@ public interface IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> {
 	IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> setDisplayFormatDescription(final String description);
 
 	IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> setObjectLabelConverter(
-		final IObjectLabelConverter<ELEMENT_VALUE_TYPE> objectLabelConverter);
+		final IObjectLabelConverter<? extends ELEMENT_VALUE_TYPE> objectLabelConverter);
 
 	IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> setObjectLabelConverter(
-		final IObjectStringConverter<ELEMENT_VALUE_TYPE> objectStringConverter);
+		final IObjectStringConverter<? extends ELEMENT_VALUE_TYPE> objectStringConverter);
 
 	IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> setStringObjectConverter(
 		final IStringObjectConverter<ELEMENT_VALUE_TYPE> stringObjectConverter);
