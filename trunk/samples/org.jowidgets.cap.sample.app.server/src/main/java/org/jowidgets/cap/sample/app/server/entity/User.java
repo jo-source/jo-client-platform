@@ -44,6 +44,8 @@ public class User extends AbstractBean implements IUser {
 	private Date dateOfBirth;
 	private String gender;
 	private List<String> languages;
+	private boolean admin;
+	private Boolean married;
 
 	public User(final Long id) {
 		super(id);
@@ -125,6 +127,26 @@ public class User extends AbstractBean implements IUser {
 			this.languages.clear();
 		}
 		increaseVersion();
+	}
+
+	@Override
+	public boolean getAdmin() {
+		return admin;
+	}
+
+	@Override
+	public void setAdmin(final boolean admin) {
+		this.admin = admin;
+	}
+
+	@Override
+	public Boolean getMarried() {
+		return married;
+	}
+
+	@Override
+	public void setMarried(final Boolean married) {
+		this.married = married;
 	}
 
 	public void addLanguage(final String language) {

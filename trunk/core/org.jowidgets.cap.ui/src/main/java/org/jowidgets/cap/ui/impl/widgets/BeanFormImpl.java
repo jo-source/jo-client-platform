@@ -141,7 +141,8 @@ final class BeanFormImpl<BEAN_TYPE> extends ControlWrapper implements IBeanForm<
 				final IInputControl<Object> control = entry.getValue();
 				control.removeInputListener(inputListeners.get(propertyName));
 				control.setValue(bean.getValue(entry.getKey()));
-				control.setEnabled(attribute.isEditable());
+				control.setEnabled(true);
+				control.setEditable(attribute.isEditable());
 				control.addInputListener(inputListeners.get(propertyName));
 			}
 			bean.addPropertyChangeListener(propertyChangeListener);

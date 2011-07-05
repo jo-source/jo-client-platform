@@ -57,6 +57,10 @@ public class UserDtoDescriptorService implements IDtoDescriptorService<IUser> {
 		propBuilder.setLabel("Gender").setDescription("The gender of the user");
 		descrBuilder.addProperty(propBuilder);
 
+		propBuilder = descrBuilder.propertyBuilder(IUser.ADMIN_PROPERTY);
+		propBuilder.setLabel("Admin").setDescription("Determines if the user is an administrator");
+		descrBuilder.addProperty(propBuilder);
+
 		propBuilder = descrBuilder.propertyBuilder(IUser.DATE_OF_BIRTH_PROPERTY);
 		propBuilder.setLabel("Date of Birth").setDescription("The users date of birth");
 		descrBuilder.addProperty(propBuilder);
@@ -68,6 +72,10 @@ public class UserDtoDescriptorService implements IDtoDescriptorService<IUser> {
 		propBuilder = descrBuilder.propertyBuilder(IUser.LANGUAGES_PROPERTY);
 		propBuilder.setLabel("Languages").setDescription("The languages the user speaks");
 		propBuilder.setElementValueType(String.class).setSortable(false);
+		descrBuilder.addProperty(propBuilder);
+
+		propBuilder = descrBuilder.propertyBuilder(IUser.MARIED_PROPERTY);
+		propBuilder.setLabel("Maried").setDescription("Determines if the user is maried");
 		descrBuilder.addProperty(propBuilder);
 
 		propBuilder = descrBuilder.propertyBuilder(IBean.ID_PROPERTY);
