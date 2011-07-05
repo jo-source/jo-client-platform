@@ -28,6 +28,7 @@
 package org.jowidgets.cap.service.impl.jpa;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -388,6 +389,169 @@ public class JpaReaderServiceTest extends AbstractJpaTest {
 			}
 		}, null, 0, Integer.MAX_VALUE, null, null);
 		final List<IBeanDto> dtos = res.getResultSynchronious();
+		Assert.assertNotNull(dtos);
+		Assert.assertEquals(1, dtos.size());
+	}
+
+	@Test
+	public void testReadAllPersonsWithContainsAny() {
+		SyncResultCallback<List<IBeanDto>> res = new SyncResultCallback<List<IBeanDto>>();
+		allPersonsReader.read(res, null, new IArithmeticFilter() {
+			@Override
+			public boolean isInverted() {
+				return false;
+			}
+
+			@Override
+			public String getPropertyName() {
+				return "jobTitles";
+			}
+
+			@Override
+			public ArithmeticOperator getOperator() {
+				return ArithmeticOperator.CONTAINS_ANY;
+			}
+
+			@Override
+			public Object[] getParameters() {
+				return new Object[] {Arrays.asList("Husband", "Teacher")};
+			}
+		}, null, 0, Integer.MAX_VALUE, null, null);
+		List<IBeanDto> dtos = res.getResultSynchronious();
+		Assert.assertNotNull(dtos);
+		Assert.assertEquals(1, dtos.size());
+
+		res = new SyncResultCallback<List<IBeanDto>>();
+		allPersonsReader.read(res, null, new IArithmeticFilter() {
+			@Override
+			public boolean isInverted() {
+				return false;
+			}
+
+			@Override
+			public String getPropertyName() {
+				return "jobTitles";
+			}
+
+			@Override
+			public ArithmeticOperator getOperator() {
+				return ArithmeticOperator.CONTAINS_ANY;
+			}
+
+			@Override
+			public Object[] getParameters() {
+				return new Object[] {Collections.singleton("Husband")};
+			}
+		}, null, 0, Integer.MAX_VALUE, null, null);
+		dtos = res.getResultSynchronious();
+		Assert.assertNotNull(dtos);
+		Assert.assertEquals(1, dtos.size());
+
+		res = new SyncResultCallback<List<IBeanDto>>();
+		allPersonsReader.read(res, null, new IArithmeticFilter() {
+			@Override
+			public boolean isInverted() {
+				return false;
+			}
+
+			@Override
+			public String getPropertyName() {
+				return "jobTitles";
+			}
+
+			@Override
+			public ArithmeticOperator getOperator() {
+				return ArithmeticOperator.CONTAINS_ANY;
+			}
+
+			@Override
+			public Object[] getParameters() {
+				return new Object[] {Collections.singleton("Teacher")};
+			}
+		}, null, 0, Integer.MAX_VALUE, null, null);
+		dtos = res.getResultSynchronious();
+		Assert.assertNotNull(dtos);
+		Assert.assertEquals(0, dtos.size());
+	}
+
+	@Test
+	@Ignore
+	public void testReadAllPersonsWithContainsAll() {
+		SyncResultCallback<List<IBeanDto>> res = new SyncResultCallback<List<IBeanDto>>();
+		allPersonsReader.read(res, null, new IArithmeticFilter() {
+			@Override
+			public boolean isInverted() {
+				return false;
+			}
+
+			@Override
+			public String getPropertyName() {
+				return "jobTitles";
+			}
+
+			@Override
+			public ArithmeticOperator getOperator() {
+				return ArithmeticOperator.CONTAINS_ALL;
+			}
+
+			@Override
+			public Object[] getParameters() {
+				return new Object[] {Arrays.asList("Husband", "Teacher")};
+			}
+		}, null, 0, Integer.MAX_VALUE, null, null);
+		List<IBeanDto> dtos = res.getResultSynchronious();
+		Assert.assertNotNull(dtos);
+		Assert.assertEquals(0, dtos.size());
+
+		res = new SyncResultCallback<List<IBeanDto>>();
+		allPersonsReader.read(res, null, new IArithmeticFilter() {
+			@Override
+			public boolean isInverted() {
+				return false;
+			}
+
+			@Override
+			public String getPropertyName() {
+				return "jobTitles";
+			}
+
+			@Override
+			public ArithmeticOperator getOperator() {
+				return ArithmeticOperator.CONTAINS_ALL;
+			}
+
+			@Override
+			public Object[] getParameters() {
+				return new Object[] {Collections.singleton("Husband")};
+			}
+		}, null, 0, Integer.MAX_VALUE, null, null);
+		dtos = res.getResultSynchronious();
+		Assert.assertNotNull(dtos);
+		Assert.assertEquals(1, dtos.size());
+
+		res = new SyncResultCallback<List<IBeanDto>>();
+		allPersonsReader.read(res, null, new IArithmeticFilter() {
+			@Override
+			public boolean isInverted() {
+				return false;
+			}
+
+			@Override
+			public String getPropertyName() {
+				return "jobTitles";
+			}
+
+			@Override
+			public ArithmeticOperator getOperator() {
+				return ArithmeticOperator.CONTAINS_ALL;
+			}
+
+			@Override
+			public Object[] getParameters() {
+				return new Object[] {Arrays.asList("Husband", "Software Developer")};
+			}
+		}, null, 0, Integer.MAX_VALUE, null, null);
+		dtos = res.getResultSynchronious();
 		Assert.assertNotNull(dtos);
 		Assert.assertEquals(1, dtos.size());
 	}
