@@ -26,77 +26,14 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample.app.common.entity;
+package org.jowidgets.cap.common.api.bean;
 
-import java.util.Date;
-import java.util.LinkedList;
 import java.util.List;
 
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
+public interface IValueRange {
 
-import org.jowidgets.cap.common.api.bean.IBean;
+	List<? extends Object> getValues();
 
-public interface IUser extends IBean {
-
-	String NAME_PROPERTY = "name";
-	String LAST_NAME_PROPERTY = "lastName";
-	String DATE_OF_BIRTH_PROPERTY = "dateOfBirth";
-	String AGE_PROPERTY = "age";
-	String GENDER_PROPERTY = "gender";
-	String LANGUAGES_PROPERTY = "languages";
-	String ADMIN_PROPERTY = "admin";
-	String MARIED_PROPERTY = "married";
-
-	List<String> ALL_PROPERTIES = new LinkedList<String>() {
-		private static final long serialVersionUID = 1L;
-		{
-			add(NAME_PROPERTY);
-			add(LAST_NAME_PROPERTY);
-			add(DATE_OF_BIRTH_PROPERTY);
-			add(AGE_PROPERTY);
-			add(GENDER_PROPERTY);
-			add(ADMIN_PROPERTY);
-			add(LANGUAGES_PROPERTY);
-			add(MARIED_PROPERTY);
-			add(IBean.ID_PROPERTY);
-			add(IBean.VERSION_PROPERTY);
-		}
-	};
-
-	@NotNull
-	@Size(min = 1, max = 50)
-	String getName();
-
-	void setName(final String name);
-
-	@NotNull
-	@Size(min = 1, max = 50)
-	String getLastName();
-
-	void setLastName(final String lastName);
-
-	Date getDateOfBirth();
-
-	Integer getAge();
-
-	void setDateOfBirth(final Date dateOfBirth);
-
-	String getGender();
-
-	void setGender(final String gender);
-
-	List<String> getLanguages();
-
-	void setLanguages(List<String> languages);
-
-	@NotNull
-	boolean getAdmin();
-
-	void setAdmin(boolean admin);
-
-	Boolean getMarried();
-
-	void setMarried(Boolean married);
+	boolean isOpen();
 
 }

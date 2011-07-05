@@ -220,21 +220,32 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 		return stringObjectConverter;
 	}
 
+	@SuppressWarnings({"rawtypes", "unchecked"})
 	private ICustomWidgetCreator<IInputControl<? extends ELEMENT_VALUE_TYPE>> getControlCreator() {
-		final IObjectLabelConverter<ELEMENT_VALUE_TYPE> objectLabelConv = getObjectLabelConverter();
-		final IStringObjectConverter<ELEMENT_VALUE_TYPE> stringObjectConv = getStringObjectConverter();
-		if (controlCreator == null && objectLabelConv != null && stringObjectConv != null) {
-			controlCreator = new ICustomWidgetCreator<IInputControl<? extends ELEMENT_VALUE_TYPE>>() {
-				@Override
-				public IInputControl<? extends ELEMENT_VALUE_TYPE> create(
-					final ICustomWidgetFactory<IInputControl<? extends ELEMENT_VALUE_TYPE>> widgetFactory) {
-					final IBluePrintFactory bpf = Toolkit.getBluePrintFactory();
-					final IConverter<ELEMENT_VALUE_TYPE> converter = new Converter<ELEMENT_VALUE_TYPE>(
-						objectLabelConv,
-						stringObjectConv);
-					return widgetFactory.create(bpf.inputField(converter));
-				}
-			};
+		if (controlCreator == null) {
+			final IBluePrintFactory bpf = Toolkit.getBluePrintFactory();
+			final IObjectLabelConverter<ELEMENT_VALUE_TYPE> objectLabelConv = getObjectLabelConverter();
+			final IStringObjectConverter<ELEMENT_VALUE_TYPE> stringObjectConv = getStringObjectConverter();
+			if (elementValueType.equals(boolean.class)) {
+				controlCreator = new ICustomWidgetCreator() {
+					@Override
+					public IInputControl create(final ICustomWidgetFactory widgetFactory) {
+						return (IInputControl) widgetFactory.create(bpf.checkBox());
+					}
+				};
+			}
+			else if (objectLabelConv != null && stringObjectConv != null) {
+				controlCreator = new ICustomWidgetCreator<IInputControl<? extends ELEMENT_VALUE_TYPE>>() {
+					@Override
+					public IInputControl<? extends ELEMENT_VALUE_TYPE> create(
+						final ICustomWidgetFactory<IInputControl<? extends ELEMENT_VALUE_TYPE>> widgetFactory) {
+						final IConverter<ELEMENT_VALUE_TYPE> converter = new Converter<ELEMENT_VALUE_TYPE>(
+							objectLabelConv,
+							stringObjectConv);
+						return widgetFactory.create(bpf.inputField(converter));
+					}
+				};
+			}
 		}
 		return controlCreator;
 	}

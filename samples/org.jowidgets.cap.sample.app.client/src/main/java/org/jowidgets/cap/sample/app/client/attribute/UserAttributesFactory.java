@@ -53,6 +53,9 @@ public class UserAttributesFactory {
 
 		final IAttributeCollectionModifierBuilder modifierBuilder = attributeToolkit.createAttributeCollectionModifierBuilder();
 		modifierBuilder.addModifier(IUser.GENDER_PROPERTY).setTableAlignment(AlignmentHorizontal.CENTER).setEditable(false);
+		modifierBuilder.addModifier(IUser.ADMIN_PROPERTY).setTableAlignment(AlignmentHorizontal.CENTER);
+		modifierBuilder.addModifier(IUser.MARIED_PROPERTY).setTableAlignment(AlignmentHorizontal.CENTER);
+		modifierBuilder.addModifier(IUser.AGE_PROPERTY).setTableAlignment(AlignmentHorizontal.CENTER);
 		modifierBuilder.addDefaultEditableModifier(true);
 
 		return attributeToolkit.createAttributes(properties, modifierBuilder.build());
