@@ -187,16 +187,13 @@ public final class CriteriaQueryCreator implements IQueryCreator<Object> {
 		final Root<?> bean,
 		final CriteriaQuery<?> query,
 		final IArithmeticFilter filter) {
+
 		final Path<?> path = bean.get(filter.getPropertyName());
-		boolean isCollection;
-		try {
-			isCollection = bean.fetch(filter.getPropertyName()).getAttribute().isCollection();
-		}
-		catch (final Exception e) {
-			isCollection = false;
-		}
+
+		final boolean isCollection = bean.getModel().getAttribute(filter.getPropertyName()).isCollection();
 		// queries for collection attributes causes duplicate results
 		query.distinct(isCollection);
+
 		switch (filter.getOperator()) {
 			case BETWEEN:
 				return criteriaBuilder.between(
@@ -236,13 +233,7 @@ public final class CriteriaQueryCreator implements IQueryCreator<Object> {
 				return criteriaBuilder.equal(expr, arg);
 			case EMPTY:
 				if (isCollection) {
-					// TODO HRW fix query for empty collections
 					return criteriaBuilder.isEmpty((Expression<Collection<?>>) path);
-					//					final Join<?, ?> join = bean.join(filter.getPropertyName(), JoinType.LEFT);
-					//					final Subquery<Long> subQuery = query.subquery(Long.class);
-					//					final Root<?> thingy = subQuery.from(bean.getJavaType());
-					//					subQuery.select(criteriaBuilder.count(thingy)).where(criteriaBuilder.equal(thingy, path));
-					//					return criteriaBuilder.equal(subQuery, 0);
 				}
 				if (path.getJavaType() == String.class) {
 					return criteriaBuilder.or(path.isNull(), criteriaBuilder.equal(path, ""));
