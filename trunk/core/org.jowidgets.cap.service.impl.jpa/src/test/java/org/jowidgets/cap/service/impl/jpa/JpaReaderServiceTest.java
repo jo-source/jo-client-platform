@@ -79,6 +79,7 @@ public class JpaReaderServiceTest extends AbstractJpaTest {
 	};
 
 	private JpaReaderService<Object> allPersonsReader;
+	private JpaReaderService<Object> caseInsensitivePersonsReader;
 	private JpaReaderService<Object> allJobsReader;
 	private JpaReaderService<Object> currentUserJobsReader;
 	private String currentUser;
@@ -96,6 +97,11 @@ public class JpaReaderServiceTest extends AbstractJpaTest {
 		final CriteriaQueryCreator allPersonsQueryCreator = new CriteriaQueryCreator(Person.class);
 		allPersonsReader = new JpaReaderService<Object>(allPersonsQueryCreator, personPropertyNames);
 		allPersonsReader.setEntityManager(entityManager);
+
+		final CriteriaQueryCreator caseInsensitivePersonsQueryCreator = new CriteriaQueryCreator(Person.class);
+		caseInsensitivePersonsQueryCreator.setCaseInsensitve(true);
+		caseInsensitivePersonsReader = new JpaReaderService<Object>(caseInsensitivePersonsQueryCreator, personPropertyNames);
+		caseInsensitivePersonsReader.setEntityManager(entityManager);
 
 		final List<String> jobPropertyNames = new ArrayList<String>();
 		personPropertyNames.add("title");
@@ -552,6 +558,93 @@ public class JpaReaderServiceTest extends AbstractJpaTest {
 			}
 		}, null, 0, Integer.MAX_VALUE, null, null);
 		dtos = res.getResultSynchronious();
+		Assert.assertNotNull(dtos);
+		Assert.assertEquals(1, dtos.size());
+	}
+
+	@Test
+	public void testQueryPersonByCaseInsensitiveName() {
+		final SyncResultCallback<List<IBeanDto>> res = new SyncResultCallback<List<IBeanDto>>();
+		caseInsensitivePersonsReader.read(res, null, new IArithmeticFilter() {
+			@Override
+			public boolean isInverted() {
+				return false;
+			}
+
+			@Override
+			public String getPropertyName() {
+				return "name";
+			}
+
+			@Override
+			public ArithmeticOperator getOperator() {
+				return ArithmeticOperator.EQUAL;
+			}
+
+			@Override
+			public Object[] getParameters() {
+				return new Object[] {"harald"};
+			}
+		}, null, 0, Integer.MAX_VALUE, null, null);
+		final List<IBeanDto> dtos = res.getResultSynchronious();
+		Assert.assertNotNull(dtos);
+		Assert.assertEquals(1, dtos.size());
+	}
+
+	@Test
+	public void testQueryPersonByCaseInsensitiveJobTitle() {
+		final SyncResultCallback<List<IBeanDto>> res = new SyncResultCallback<List<IBeanDto>>();
+		caseInsensitivePersonsReader.read(res, null, new IArithmeticFilter() {
+			@Override
+			public boolean isInverted() {
+				return false;
+			}
+
+			@Override
+			public String getPropertyName() {
+				return "jobTitles";
+			}
+
+			@Override
+			public ArithmeticOperator getOperator() {
+				return ArithmeticOperator.EQUAL;
+			}
+
+			@Override
+			public Object[] getParameters() {
+				return new Object[] {"husband"};
+			}
+		}, null, 0, Integer.MAX_VALUE, null, null);
+		final List<IBeanDto> dtos = res.getResultSynchronious();
+		Assert.assertNotNull(dtos);
+		Assert.assertEquals(1, dtos.size());
+	}
+
+	@Test
+	public void testQueryPersonByCaseInsensitiveJobTitleWildcard() {
+		final SyncResultCallback<List<IBeanDto>> res = new SyncResultCallback<List<IBeanDto>>();
+		caseInsensitivePersonsReader.read(res, null, new IArithmeticFilter() {
+			@Override
+			public boolean isInverted() {
+				return false;
+			}
+
+			@Override
+			public String getPropertyName() {
+				return "name";
+			}
+
+			@Override
+			public ArithmeticOperator getOperator() {
+				return ArithmeticOperator.EQUAL;
+			}
+
+			@Override
+			public Object[] getParameters() {
+				return new Object[] {"h*"};
+			}
+		}, null, 0, Integer.MAX_VALUE, null, null);
+		final List<IBeanDto> dtos = res.getResultSynchronious();
 		Assert.assertNotNull(dtos);
 		Assert.assertEquals(1, dtos.size());
 	}
