@@ -148,7 +148,6 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 		Assert.paramNotNull(readerService, "readerService");
 		Assert.paramNotNull(paramProvider, "paramProvider");
 		Assert.paramNotNull(creatorService, "creatorService");
-		Assert.paramNotNull(refreshService, "refreshService");
 		Assert.paramNotNull(updaterService, "updaterService");
 		Assert.paramNotNull(deleterService, "deleterService");
 		if (parent != null) {
@@ -208,7 +207,10 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 		//TODO MG make async call
 		final SyncResultCallback<Integer> resultCallback = new SyncResultCallback<Integer>();
 		readerService.count(resultCallback, null, null, null, null);
-		rowCount = resultCallback.getResultSynchronious();
+		final Integer rowCountResult = resultCallback.getResultSynchronious();
+		if (rowCountResult != null) {
+			rowCountResult.intValue();
+		}
 		//rowCount = 0;
 		dataCleared = false;
 		maxPageIndex = 0;
