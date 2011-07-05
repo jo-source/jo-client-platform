@@ -38,6 +38,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
@@ -173,6 +174,7 @@ public class CriteriaQueryCreator implements IQueryCreator<Object> {
 		final CriteriaQuery<?> query,
 		final IArithmeticFilter filter) {
 		final Path<?> path = bean.get(filter.getPropertyName());
+		final boolean isCollection = bean.fetch(filter.getPropertyName()).getAttribute().isCollection();
 		switch (filter.getOperator()) {
 			case BETWEEN:
 				return criteriaBuilder.between(
@@ -196,7 +198,7 @@ public class CriteriaQueryCreator implements IQueryCreator<Object> {
 						(Path<Comparable<Object>>) path,
 						criteriaBuilder.literal((Comparable<Object>) filter.getParameters()[0]));
 			case EQUAL:
-				// TODO HW handle collection properties
+				query.distinct(isCollection);
 				final Object arg = filter.getParameters()[0];
 				if (arg instanceof String) {
 					final String s = (String) arg;
@@ -206,7 +208,16 @@ public class CriteriaQueryCreator implements IQueryCreator<Object> {
 				}
 				return criteriaBuilder.equal(path, arg);
 			case EMPTY:
-				// TODO HW handle collection properties
+				if (isCollection) {
+					query.distinct(true);
+					// TODO HRW fix query for empty collections
+					return criteriaBuilder.isEmpty((Expression<Collection<?>>) path);
+					//					final Join<?, ?> join = bean.join(filter.getPropertyName(), JoinType.LEFT);
+					//					final Subquery<Long> subQuery = query.subquery(Long.class);
+					//					final Root<?> thingy = subQuery.from(bean.getJavaType());
+					//					subQuery.select(criteriaBuilder.count(thingy)).where(criteriaBuilder.equal(thingy, path));
+					//					return criteriaBuilder.equal(subQuery, 0);
+				}
 				if (path.getJavaType() == String.class) {
 					return criteriaBuilder.or(path.isNull(), criteriaBuilder.equal(path, ""));
 				}
@@ -214,7 +225,7 @@ public class CriteriaQueryCreator implements IQueryCreator<Object> {
 			case CONTAINS_ANY:
 				return path.in((Collection<?>) filter.getParameters()[0]);
 			case CONTAINS_ALL:
-				// TODO HW add support for CONTAINS_ALL
+				// TODO HRW add support for CONTAINS_ALL
 			default:
 				throw new IllegalArgumentException("unsupported operator: " + filter.getOperator());
 		}
