@@ -55,6 +55,7 @@ import org.jowidgets.cap.service.impl.jpa.jpql.CriteriaQueryCreator;
 import org.jowidgets.cap.service.impl.jpa.jpql.IPredicateCreator;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class JpaReaderServiceTest extends AbstractJpaTest {
@@ -301,6 +302,94 @@ public class JpaReaderServiceTest extends AbstractJpaTest {
 		dtos = res.getResultSynchronious();
 		Assert.assertNotNull(dtos);
 		Assert.assertEquals(0, dtos.size());
+	}
+
+	@Test
+	@Ignore
+	public void testReadAllPersonsWithoutJob() {
+		final SyncResultCallback<List<IBeanDto>> res = new SyncResultCallback<List<IBeanDto>>();
+		allPersonsReader.read(res, null, new IArithmeticFilter() {
+			@Override
+			public boolean isInverted() {
+				return false;
+			}
+
+			@Override
+			public String getPropertyName() {
+				return "jobTitles";
+			}
+
+			@Override
+			public ArithmeticOperator getOperator() {
+				return ArithmeticOperator.EMPTY;
+			}
+
+			@Override
+			public Object[] getParameters() {
+				return new Object[0];
+			}
+		}, null, 0, Integer.MAX_VALUE, null, null);
+		final List<IBeanDto> dtos = res.getResultSynchronious();
+		Assert.assertNotNull(dtos);
+		Assert.assertEquals(2, dtos.size());
+	}
+
+	@Test
+	public void testReadAllPersonsWithAnyJob() {
+		final SyncResultCallback<List<IBeanDto>> res = new SyncResultCallback<List<IBeanDto>>();
+		allPersonsReader.read(res, null, new IArithmeticFilter() {
+			@Override
+			public boolean isInverted() {
+				return true;
+			}
+
+			@Override
+			public String getPropertyName() {
+				return "jobTitles";
+			}
+
+			@Override
+			public ArithmeticOperator getOperator() {
+				return ArithmeticOperator.EMPTY;
+			}
+
+			@Override
+			public Object[] getParameters() {
+				return new Object[0];
+			}
+		}, null, 0, Integer.MAX_VALUE, null, null);
+		final List<IBeanDto> dtos = res.getResultSynchronious();
+		Assert.assertNotNull(dtos);
+		Assert.assertEquals(1, dtos.size());
+	}
+
+	@Test
+	public void testReadAllPersonsWithAnyJobWildcard() {
+		final SyncResultCallback<List<IBeanDto>> res = new SyncResultCallback<List<IBeanDto>>();
+		allPersonsReader.read(res, null, new IArithmeticFilter() {
+			@Override
+			public boolean isInverted() {
+				return false;
+			}
+
+			@Override
+			public String getPropertyName() {
+				return "jobTitles";
+			}
+
+			@Override
+			public ArithmeticOperator getOperator() {
+				return ArithmeticOperator.EQUAL;
+			}
+
+			@Override
+			public Object[] getParameters() {
+				return new Object[] {"%"};
+			}
+		}, null, 0, Integer.MAX_VALUE, null, null);
+		final List<IBeanDto> dtos = res.getResultSynchronious();
+		Assert.assertNotNull(dtos);
+		Assert.assertEquals(1, dtos.size());
 	}
 
 }
