@@ -55,13 +55,13 @@ import org.jowidgets.cap.common.api.sort.SortOrder;
 import org.jowidgets.cap.service.impl.jpa.IQueryCreator;
 import org.jowidgets.util.Assert;
 
-// TODO HRW add optional case insensitive string comparison
-public class CriteriaQueryCreator implements IQueryCreator<Object> {
+public final class CriteriaQueryCreator implements IQueryCreator<Object> {
 
 	private final Class<? extends IBean> persistenceClass;
 
 	private String parentPropertyName = "parent";
 	private IPredicateCreator predicateCreator;
+	private boolean caseInsensitve;
 
 	public CriteriaQueryCreator(final Class<? extends IBean> persistenceClass) {
 		this.persistenceClass = persistenceClass;
@@ -79,6 +79,10 @@ public class CriteriaQueryCreator implements IQueryCreator<Object> {
 
 	public void setPredicateCreator(final IPredicateCreator predicateCreator) {
 		this.predicateCreator = predicateCreator;
+	}
+
+	public void setCaseInsensitve(final boolean caseInsensitve) {
+		this.caseInsensitve = caseInsensitve;
 	}
 
 	@Override
@@ -211,6 +215,7 @@ public class CriteriaQueryCreator implements IQueryCreator<Object> {
 				query.distinct(isCollection);
 				final Object arg = filter.getParameters()[0];
 				if (arg instanceof String) {
+					// TODO HRW evaluate case insensitive flag	
 					final String s = (String) arg;
 					if (s.contains("*") || s.contains("%")) {
 						return criteriaBuilder.like((Path<String>) path, s.replace("*", "%"));
@@ -233,6 +238,8 @@ public class CriteriaQueryCreator implements IQueryCreator<Object> {
 				}
 				return path.isNull();
 			case CONTAINS_ANY:
+				// TODO HRW evaluate case insensitive flag	
+				query.distinct(true);
 				return path.in((Collection<?>) filter.getParameters()[0]);
 			case CONTAINS_ALL:
 				// TODO HRW add support for CONTAINS_ALL
