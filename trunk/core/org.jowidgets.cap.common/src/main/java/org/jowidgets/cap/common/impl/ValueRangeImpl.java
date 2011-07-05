@@ -26,38 +26,38 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.api.bean;
+package org.jowidgets.cap.common.impl;
 
+import java.io.Serializable;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 
-public interface IBeanPropertyBuilder {
+import org.jowidgets.cap.common.api.bean.IValueRange;
+import org.jowidgets.util.Assert;
 
-	IBeanPropertyBuilder setLabel(String labelDefault);
+final class ValueRangeImpl implements IValueRange, Serializable {
 
-	IBeanPropertyBuilder setValueRange(IValueRange valueRange);
+	private static final long serialVersionUID = -7976858425639626511L;
 
-	IBeanPropertyBuilder setValueRange(boolean open, Collection<? extends Object> values);
+	private final List<Object> values;
+	private final boolean open;
 
-	IBeanPropertyBuilder setValueRange(Collection<? extends Object> values);
+	ValueRangeImpl(final Collection<? extends Object> values, final boolean open) {
+		Assert.paramNotNull(values, "values");
+		this.values = Collections.unmodifiableList(new LinkedList<Object>(values));
+		this.open = open;
+	}
 
-	IBeanPropertyBuilder setValueRange(boolean open, Object... values);
+	@Override
+	public List<Object> getValues() {
+		return values;
+	}
 
-	IBeanPropertyBuilder setValueRange(Object... values);
-
-	IBeanPropertyBuilder setLabelLong(String labelLongDefault);
-
-	IBeanPropertyBuilder setDescription(String descriptionDefault);
-
-	IBeanPropertyBuilder setVisible(boolean visibleDefault);
-
-	IBeanPropertyBuilder setMandatory(boolean mandatoryDefault);
-
-	IBeanPropertyBuilder setElementValueType(Class<?> elementValueType);
-
-	IBeanPropertyBuilder setSortable(boolean sortable);
-
-	IBeanPropertyBuilder setFilterable(boolean filterable);
-
-	IProperty build();
+	@Override
+	public boolean isOpen() {
+		return open;
+	}
 
 }

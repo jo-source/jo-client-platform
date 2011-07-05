@@ -33,6 +33,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IProperty;
+import org.jowidgets.cap.common.api.bean.IValueRange;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IAttributeBuilder;
 import org.jowidgets.cap.ui.api.attribute.IAttributeCollectionModifier;
@@ -124,6 +125,11 @@ final class AttributesFactory {
 
 	private IProperty createProperty(final IAttribute<?> attribute) {
 		return new IProperty() {
+
+			@Override
+			public IValueRange getValueRange() {
+				return attribute.getValueRange();
+			}
 
 			@Override
 			public boolean isVisibleDefault() {

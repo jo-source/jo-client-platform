@@ -29,6 +29,7 @@
 package org.jowidgets.cap.ui.impl;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.jowidgets.api.convert.IConverter;
 import org.jowidgets.api.convert.IConverterProvider;
@@ -37,7 +38,10 @@ import org.jowidgets.api.convert.IObjectStringConverter;
 import org.jowidgets.api.convert.IStringObjectConverter;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.widgets.IInputControl;
+import org.jowidgets.api.widgets.blueprint.IComboBoxBluePrint;
+import org.jowidgets.api.widgets.blueprint.IComboBoxSelectionBluePrint;
 import org.jowidgets.api.widgets.blueprint.factory.IBluePrintFactory;
+import org.jowidgets.cap.common.api.bean.IValueRange;
 import org.jowidgets.cap.common.api.filter.IFilter;
 import org.jowidgets.cap.ui.api.attribute.IArithmeticOperatorProvider;
 import org.jowidgets.cap.ui.api.attribute.IControlPanelProvider;
@@ -52,6 +56,8 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 
 	private static final String DEFAULT_DISPLAY_FORMAT_ID = ControlPanelProviderBuilderImpl.class.getName() + "_DEFAULT_ID";
 	private static final String DEFAULT_DISPLAY_NAME = "Default";
+
+	private final IValueRange valueRange;
 
 	@SuppressWarnings("unused")
 	private Class<?> valueType;
@@ -68,8 +74,8 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 	private ICustomWidgetCreator<IInputControl<? extends ELEMENT_VALUE_TYPE>> controlCreator;
 	private ICustomWidgetCreator<IInputControl<Collection<? extends ELEMENT_VALUE_TYPE>>> collectionControlCreator;
 
-	ControlPanelProviderBuilderImpl(final Class<? extends ELEMENT_VALUE_TYPE> elementValueType) {
-		this();
+	ControlPanelProviderBuilderImpl(final Class<? extends ELEMENT_VALUE_TYPE> elementValueType, final IValueRange valueRange) {
+		this(valueRange);
 		Assert.paramNotNull(elementValueType, "elementValueType");
 		if (Collection.class.isAssignableFrom(elementValueType)) {
 			throw new IllegalArgumentException("The parameter 'elementValueType' must not be a 'Collection'");
@@ -78,16 +84,21 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 		this.elementValueType = elementValueType;
 	}
 
-	ControlPanelProviderBuilderImpl(final Class<?> valueType, final Class<? extends ELEMENT_VALUE_TYPE> elementValueType) {
-		this();
+	ControlPanelProviderBuilderImpl(
+		final Class<?> valueType,
+		final Class<? extends ELEMENT_VALUE_TYPE> elementValueType,
+		final IValueRange valueRange) {
+		this(valueRange);
 		Assert.paramNotNull(valueType, "valueType");
 		Assert.paramNotNull(elementValueType, "elementValueType");
 		this.valueType = valueType;
 		this.elementValueType = elementValueType;
 	}
 
-	private ControlPanelProviderBuilderImpl() {
+	private ControlPanelProviderBuilderImpl(final IValueRange valueRange) {
 		super();
+		Assert.paramNotNull(valueRange, "valueRange");
+		this.valueRange = valueRange;
 		this.displayFormatId = DEFAULT_DISPLAY_FORMAT_ID;
 		this.displayFormatName = DEFAULT_DISPLAY_NAME;
 	}
@@ -135,8 +146,9 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 		return this;
 	}
 
+	@SuppressWarnings({"rawtypes", "unchecked"})
 	@Override
-	public IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> setConverter(final IConverter<ELEMENT_VALUE_TYPE> converter) {
+	public IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> setConverter(final IConverter converter) {
 		this.objectLabelConverter = null;
 		this.objectStringConverter = converter;
 		this.stringObjectConverter = converter;
@@ -235,16 +247,39 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 				};
 			}
 			else if (objectLabelConv != null && stringObjectConv != null) {
-				controlCreator = new ICustomWidgetCreator<IInputControl<? extends ELEMENT_VALUE_TYPE>>() {
-					@Override
-					public IInputControl<? extends ELEMENT_VALUE_TYPE> create(
-						final ICustomWidgetFactory<IInputControl<? extends ELEMENT_VALUE_TYPE>> widgetFactory) {
-						final IConverter<ELEMENT_VALUE_TYPE> converter = new Converter<ELEMENT_VALUE_TYPE>(
-							objectLabelConv,
-							stringObjectConv);
-						return widgetFactory.create(bpf.inputField(converter));
-					}
-				};
+				if (valueRange.getValues().isEmpty()) {
+					controlCreator = new ICustomWidgetCreator<IInputControl<? extends ELEMENT_VALUE_TYPE>>() {
+						@Override
+						public IInputControl<? extends ELEMENT_VALUE_TYPE> create(
+							final ICustomWidgetFactory<IInputControl<? extends ELEMENT_VALUE_TYPE>> widgetFactory) {
+							final IConverter<ELEMENT_VALUE_TYPE> converter = new Converter<ELEMENT_VALUE_TYPE>(
+								objectLabelConv,
+								stringObjectConv);
+							return widgetFactory.create(bpf.inputField(converter));
+						}
+					};
+				}
+				else {
+					controlCreator = new ICustomWidgetCreator<IInputControl<? extends ELEMENT_VALUE_TYPE>>() {
+						@Override
+						public IInputControl<? extends ELEMENT_VALUE_TYPE> create(
+							final ICustomWidgetFactory<IInputControl<? extends ELEMENT_VALUE_TYPE>> widgetFactory) {
+							final IConverter<ELEMENT_VALUE_TYPE> converter = new Converter<ELEMENT_VALUE_TYPE>(
+								objectLabelConv,
+								stringObjectConv);
+							if (valueRange.isOpen()) {
+								final IComboBoxBluePrint<ELEMENT_VALUE_TYPE> comboBp = bpf.comboBox(converter);
+								comboBp.setElements((List<ELEMENT_VALUE_TYPE>) valueRange.getValues());
+								return widgetFactory.create(comboBp);
+							}
+							else {
+								final IComboBoxSelectionBluePrint<ELEMENT_VALUE_TYPE> comboBp = bpf.comboBoxSelection(converter);
+								comboBp.setElements((List<ELEMENT_VALUE_TYPE>) valueRange.getValues());
+								return widgetFactory.create(comboBp);
+							}
+						}
+					};
+				}
 			}
 		}
 		return controlCreator;

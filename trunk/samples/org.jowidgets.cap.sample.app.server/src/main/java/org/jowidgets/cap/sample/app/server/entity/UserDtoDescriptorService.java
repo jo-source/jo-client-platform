@@ -55,6 +55,7 @@ public class UserDtoDescriptorService implements IDtoDescriptorService<IUser> {
 
 		propBuilder = descrBuilder.propertyBuilder(IUser.GENDER_PROPERTY);
 		propBuilder.setLabel("Gender").setDescription("The gender of the user");
+		propBuilder.setValueRange("M", "F");
 		descrBuilder.addProperty(propBuilder);
 
 		propBuilder = descrBuilder.propertyBuilder(IUser.ADMIN_PROPERTY);

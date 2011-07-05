@@ -33,6 +33,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.jowidgets.cap.common.api.bean.IValueRange;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IAttributeConfig;
 import org.jowidgets.cap.ui.api.attribute.IAttributeGroup;
@@ -47,6 +48,7 @@ final class AttributeImpl<ELEMENT_VALUE_TYPE> implements IAttribute<ELEMENT_VALU
 	private final ChangeObservable changeObservable;
 
 	private final String propertyName;
+	private final IValueRange valueRange;
 	private final String label;
 	private final String labelLong;
 	private final String description;
@@ -69,6 +71,7 @@ final class AttributeImpl<ELEMENT_VALUE_TYPE> implements IAttribute<ELEMENT_VALU
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	AttributeImpl(
 		final String propertyName,
+		final IValueRange valueRange,
 		final String label,
 		final String labelLong,
 		final String description,
@@ -87,6 +90,7 @@ final class AttributeImpl<ELEMENT_VALUE_TYPE> implements IAttribute<ELEMENT_VALU
 		final List<IControlPanelProvider<? extends ELEMENT_VALUE_TYPE>> controlPanels) {
 
 		Assert.paramNotEmpty(propertyName, "propertyName");
+		Assert.paramNotNull(valueRange, "valueRange");
 		Assert.paramNotEmpty(label, "label");
 		Assert.paramNotNull(tableAlignment, "tableAlignment");
 		Assert.paramNotNull(valueType, "valueType");
@@ -110,6 +114,7 @@ final class AttributeImpl<ELEMENT_VALUE_TYPE> implements IAttribute<ELEMENT_VALU
 		this.changeObservable = new ChangeObservable();
 
 		this.propertyName = propertyName;
+		this.valueRange = valueRange;
 		this.label = label;
 		this.labelLong = labelLong;
 		this.description = description;
@@ -136,6 +141,11 @@ final class AttributeImpl<ELEMENT_VALUE_TYPE> implements IAttribute<ELEMENT_VALU
 	@Override
 	public String getPropertyName() {
 		return propertyName;
+	}
+
+	@Override
+	public IValueRange getValueRange() {
+		return valueRange;
 	}
 
 	@Override

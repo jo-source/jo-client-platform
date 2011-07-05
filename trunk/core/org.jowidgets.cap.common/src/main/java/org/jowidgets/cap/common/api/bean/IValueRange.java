@@ -32,7 +32,7 @@ import java.util.List;
 
 public interface IValueRange {
 
-	List<? extends Object> getValues();
+	List<Object> getValues();
 
 	boolean isOpen();
 

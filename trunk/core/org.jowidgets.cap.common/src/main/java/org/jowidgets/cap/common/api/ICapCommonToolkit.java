@@ -35,11 +35,14 @@ import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptorBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanKeyBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanModificationBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanPropertyBuilder;
+import org.jowidgets.cap.common.api.bean.IValueRangeFactory;
 import org.jowidgets.cap.common.api.sort.ISortFactory;
 
 public interface ICapCommonToolkit {
 
 	IBeanPropertyBuilder propertyBuilder(Class<?> beanType, String propertyName);
+
+	IValueRangeFactory valueRangeFactory();
 
 	<BEAN_TYPE extends IBean> IBeanDtoDescriptorBuilder<BEAN_TYPE> dtoDescriptorBuilder(Class<? extends BEAN_TYPE> beanType);
 

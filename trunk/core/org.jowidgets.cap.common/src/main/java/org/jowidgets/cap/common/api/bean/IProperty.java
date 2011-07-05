@@ -36,6 +36,11 @@ public interface IProperty {
 	String getName();
 
 	/**
+	 * @return The value range, never null
+	 */
+	IValueRange getValueRange();
+
+	/**
 	 * @return Gets the i18n default label of the property in a short version, never null
 	 */
 	String getLabelDefault();
