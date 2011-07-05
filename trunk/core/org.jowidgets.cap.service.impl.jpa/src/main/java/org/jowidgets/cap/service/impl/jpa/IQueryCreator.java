@@ -32,6 +32,7 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
+import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.filter.IFilter;
 import org.jowidgets.cap.common.api.sort.ISort;
@@ -40,7 +41,6 @@ public interface IQueryCreator<PARAMETER_TYPE> {
 
 	Query createReadQuery(
 		final EntityManager entityManager,
-		final Class<?> persistenceClass,
 		final List<? extends IBeanKey> parentBeanKeys,
 		final IFilter filter,
 		final List<? extends ISort> sorting,
@@ -48,9 +48,10 @@ public interface IQueryCreator<PARAMETER_TYPE> {
 
 	Query createCountQuery(
 		final EntityManager entityManager,
-		final Class<?> persistenceClass,
 		final List<? extends IBeanKey> parentBeanKeys,
 		final IFilter filter,
 		final PARAMETER_TYPE parameter);
+
+	Class<? extends IBean> getPersistenceClass();
 
 }

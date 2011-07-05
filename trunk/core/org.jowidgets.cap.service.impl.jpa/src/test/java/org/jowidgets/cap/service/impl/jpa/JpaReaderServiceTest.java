@@ -92,21 +92,21 @@ public class JpaReaderServiceTest extends AbstractJpaTest {
 		personPropertyNames.add("triState");
 		personPropertyNames.add("birthday");
 		personPropertyNames.add("jobTitles");
-		final CriteriaQueryCreator allPersonsQueryCreator = new CriteriaQueryCreator();
-		allPersonsReader = new JpaReaderService<Object>(Person.class, allPersonsQueryCreator, personPropertyNames);
+		final CriteriaQueryCreator allPersonsQueryCreator = new CriteriaQueryCreator(Person.class);
+		allPersonsReader = new JpaReaderService<Object>(allPersonsQueryCreator, personPropertyNames);
 		allPersonsReader.setEntityManager(entityManager);
 
 		final List<String> jobPropertyNames = new ArrayList<String>();
 		personPropertyNames.add("title");
 		personPropertyNames.add("salary");
 		personPropertyNames.add("personName");
-		final CriteriaQueryCreator allJobsQueryCreator = new CriteriaQueryCreator();
+		final CriteriaQueryCreator allJobsQueryCreator = new CriteriaQueryCreator(Job.class);
 		allJobsQueryCreator.setParentPropertyName("owner");
-		allJobsReader = new JpaReaderService<Object>(Job.class, allJobsQueryCreator, jobPropertyNames);
+		allJobsReader = new JpaReaderService<Object>(allJobsQueryCreator, jobPropertyNames);
 		allJobsReader.setEntityManager(entityManager);
 
 		currentUser = null;
-		final CriteriaQueryCreator currentUserJobsQueryCreator = new CriteriaQueryCreator();
+		final CriteriaQueryCreator currentUserJobsQueryCreator = new CriteriaQueryCreator(Job.class);
 		currentUserJobsQueryCreator.setParentPropertyName("owner");
 		currentUserJobsQueryCreator.setPredicateCreator(new IPredicateCreator() {
 			@Override
@@ -117,7 +117,7 @@ public class JpaReaderServiceTest extends AbstractJpaTest {
 				return criteriaBuilder.equal(bean.get("owner").get("name"), currentUser);
 			}
 		});
-		currentUserJobsReader = new JpaReaderService<Object>(Job.class, currentUserJobsQueryCreator, jobPropertyNames);
+		currentUserJobsReader = new JpaReaderService<Object>(currentUserJobsQueryCreator, jobPropertyNames);
 		currentUserJobsReader.setEntityManager(entityManager);
 	}
 

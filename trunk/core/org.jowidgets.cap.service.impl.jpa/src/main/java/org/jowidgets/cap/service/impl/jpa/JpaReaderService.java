@@ -50,7 +50,6 @@ import org.jowidgets.util.concurrent.DaemonThreadFactory;
 
 public final class JpaReaderService<PARAMETER_TYPE> implements IReaderService<PARAMETER_TYPE> {
 
-	private final Class<? extends IBean> beanType;
 	private final IQueryCreator<PARAMETER_TYPE> queryCreator;
 	private final IBeanDtoFactory<IBean> dtoFactory;
 	private final Executor executor = Executors.newCachedThreadPool(new DaemonThreadFactory());
@@ -58,13 +57,9 @@ public final class JpaReaderService<PARAMETER_TYPE> implements IReaderService<PA
 	@PersistenceContext
 	private EntityManager entityManager;
 
-	public JpaReaderService(
-		final Class<? extends IBean> beanType,
-		final IQueryCreator<PARAMETER_TYPE> queryCreator,
-		final List<String> propertyNames) {
-		this.beanType = beanType;
+	public JpaReaderService(final IQueryCreator<PARAMETER_TYPE> queryCreator, final List<String> propertyNames) {
 		this.queryCreator = queryCreator;
-		this.dtoFactory = CapServiceToolkit.dtoFactory(beanType, propertyNames);
+		this.dtoFactory = CapServiceToolkit.dtoFactory(queryCreator.getPersistenceClass(), propertyNames);
 	}
 
 	public void setEntityManager(final EntityManager entityManager) {
@@ -85,13 +80,7 @@ public final class JpaReaderService<PARAMETER_TYPE> implements IReaderService<PA
 		execAsync(new Callable<List<IBeanDto>>() {
 			@Override
 			public List<IBeanDto> call() {
-				final Query query = queryCreator.createReadQuery(
-						entityManager,
-						beanType,
-						parentBeanKeys,
-						filter,
-						sorting,
-						parameter);
+				final Query query = queryCreator.createReadQuery(entityManager, parentBeanKeys, filter, sorting, parameter);
 				query.setFirstResult(firstRow);
 				query.setMaxResults(maxRows);
 
@@ -102,9 +91,7 @@ public final class JpaReaderService<PARAMETER_TYPE> implements IReaderService<PA
 				}
 				return null;
 			}
-		},
-				result,
-				executionCallback);
+		}, result, executionCallback);
 	}
 
 	@Override
@@ -118,7 +105,7 @@ public final class JpaReaderService<PARAMETER_TYPE> implements IReaderService<PA
 		execAsync(new Callable<Integer>() {
 			@Override
 			public Integer call() {
-				final Query query = queryCreator.createCountQuery(entityManager, beanType, parentBeanKeys, filter, parameter);
+				final Query query = queryCreator.createCountQuery(entityManager, parentBeanKeys, filter, parameter);
 				return ((Number) query.getSingleResult()).intValue();
 			}
 		}, result, executionCallback);

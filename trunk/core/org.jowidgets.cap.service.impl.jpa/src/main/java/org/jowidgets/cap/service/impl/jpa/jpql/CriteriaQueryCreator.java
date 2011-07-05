@@ -44,6 +44,7 @@ import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.filter.BooleanOperator;
 import org.jowidgets.cap.common.api.filter.IArithmeticFilter;
@@ -57,8 +58,19 @@ import org.jowidgets.util.Assert;
 // TODO HRW add optional case insensitive string comparison
 public class CriteriaQueryCreator implements IQueryCreator<Object> {
 
+	private final Class<? extends IBean> persistenceClass;
+
 	private String parentPropertyName = "parent";
 	private IPredicateCreator predicateCreator;
+
+	public CriteriaQueryCreator(final Class<? extends IBean> persistenceClass) {
+		this.persistenceClass = persistenceClass;
+	}
+
+	@Override
+	public Class<? extends IBean> getPersistenceClass() {
+		return persistenceClass;
+	}
 
 	public void setParentPropertyName(final String parentPropertyName) {
 		Assert.paramNotNull(parentPropertyName, "parentPropertyName");
@@ -72,7 +84,6 @@ public class CriteriaQueryCreator implements IQueryCreator<Object> {
 	@Override
 	public Query createReadQuery(
 		final EntityManager entityManager,
-		final Class<?> persistenceClass,
 		final List<? extends IBeanKey> parentBeanKeys,
 		final IFilter filter,
 		final List<? extends ISort> sorting,
@@ -102,7 +113,6 @@ public class CriteriaQueryCreator implements IQueryCreator<Object> {
 	@Override
 	public Query createCountQuery(
 		final EntityManager entityManager,
-		final Class<?> persistenceClass,
 		final List<? extends IBeanKey> parentBeanKeys,
 		final IFilter filter,
 		final Object parameter) {
