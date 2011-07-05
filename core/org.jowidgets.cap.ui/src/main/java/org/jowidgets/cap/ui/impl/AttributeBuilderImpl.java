@@ -32,9 +32,12 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.bean.IProperty;
+import org.jowidgets.cap.common.api.bean.IValueRange;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
+import org.jowidgets.cap.ui.api.attribute.IAttributeBluePrint;
 import org.jowidgets.cap.ui.api.attribute.IAttributeBuilder;
 import org.jowidgets.cap.ui.api.attribute.IAttributeGroup;
 import org.jowidgets.cap.ui.api.attribute.IControlPanelProvider;
@@ -44,6 +47,7 @@ import org.jowidgets.util.Assert;
 final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilder<ELEMENT_VALUE_TYPE> {
 
 	private String propertyName;
+	private IValueRange valueRange;
 	private String label;
 	private String labelLong;
 	private String description;
@@ -85,6 +89,7 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 		this();
 		Assert.paramNotNull(attribute, "attribute");
 		this.propertyName = attribute.getPropertyName();
+		this.valueRange = attribute.getValueRange();
 		this.label = attribute.getLabel();
 		this.labelLong = attribute.getLabelLong();
 		this.description = attribute.getDescription();
@@ -110,6 +115,7 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 		this.valueType = property.getValueType();
 		this.elementValueType = (Class<? extends ELEMENT_VALUE_TYPE>) property.getElementValueType();
 		this.propertyName = property.getName();
+		this.valueRange = property.getValueRange();
 		this.label = property.getLabelDefault();
 		this.labelLong = property.getLabelLongDefault();
 		this.description = property.getDescriptionDefault();
@@ -123,6 +129,7 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 
 	private AttributeBuilderImpl() {
 		this.controlPanels = new LinkedList<IControlPanelProvider<? extends ELEMENT_VALUE_TYPE>>();
+		this.valueRange = CapCommonToolkit.valueRangeFactory().create();
 		this.visible = true;
 		this.mandatory = false;
 		this.editable = true;
@@ -138,6 +145,26 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 		Assert.paramNotEmpty(propertyName, "propertyName");
 		this.propertyName = propertyName;
 		return this;
+	}
+
+	@Override
+	public IAttributeBluePrint<ELEMENT_VALUE_TYPE> setValueRange(final IValueRange valueRange) {
+		Assert.paramNotNull(valueRange, "valueRange");
+		this.valueRange = valueRange;
+		return this;
+	}
+
+	@Override
+	public IAttributeBluePrint<ELEMENT_VALUE_TYPE> setValueRange(
+		final Collection<? extends ELEMENT_VALUE_TYPE> values,
+		final boolean open) {
+		Assert.paramNotNull(values, "values");
+		return setValueRange(CapCommonToolkit.valueRangeFactory().create(values, open));
+	}
+
+	@Override
+	public IAttributeBluePrint<ELEMENT_VALUE_TYPE> setValueRange(final Collection<? extends ELEMENT_VALUE_TYPE> values) {
+		return setValueRange(values, false);
 	}
 
 	@Override
@@ -233,10 +260,10 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 	private IControlPanelProvider<? extends ELEMENT_VALUE_TYPE> getDefaultControlPanel() {
 		if (defaultControlPanel == null) {
 			if (Collection.class.isAssignableFrom(valueType)) {
-				return CapUiToolkit.getAttributeToolkit().createControlPanelProvider(valueType, elementValueType);
+				return CapUiToolkit.getAttributeToolkit().createControlPanelProvider(valueType, elementValueType, valueRange);
 			}
 			else {
-				return CapUiToolkit.getAttributeToolkit().createControlPanelProvider(elementValueType);
+				return CapUiToolkit.getAttributeToolkit().createControlPanelProvider(elementValueType, valueRange);
 			}
 		}
 		return defaultControlPanel;
@@ -247,6 +274,7 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 	public IAttribute<ELEMENT_VALUE_TYPE> build() {
 		return new AttributeImpl<ELEMENT_VALUE_TYPE>(
 			propertyName,
+			valueRange,
 			label,
 			labelLong,
 			description,

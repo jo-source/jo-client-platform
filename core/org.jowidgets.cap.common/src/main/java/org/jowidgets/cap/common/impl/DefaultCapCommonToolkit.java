@@ -36,14 +36,17 @@ import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptorBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanKeyBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanModificationBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanPropertyBuilder;
+import org.jowidgets.cap.common.api.bean.IValueRangeFactory;
 import org.jowidgets.cap.common.api.sort.ISortFactory;
 
 public final class DefaultCapCommonToolkit implements ICapCommonToolkit {
 
 	private final ISortFactory sortFactory;
+	private final IValueRangeFactory valueRangeFactory;
 
 	public DefaultCapCommonToolkit() {
 		this.sortFactory = new SortFactoryImpl();
+		this.valueRangeFactory = new ValueRangeFactoryImpl();
 	}
 
 	@Override
@@ -80,6 +83,11 @@ public final class DefaultCapCommonToolkit implements ICapCommonToolkit {
 	@Override
 	public ISortFactory sortFactory() {
 		return sortFactory;
+	}
+
+	@Override
+	public IValueRangeFactory valueRangeFactory() {
+		return valueRangeFactory;
 	}
 
 }

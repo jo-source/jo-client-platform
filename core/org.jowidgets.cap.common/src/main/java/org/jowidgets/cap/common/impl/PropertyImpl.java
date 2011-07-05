@@ -32,6 +32,7 @@ import java.io.Serializable;
 import java.util.Collection;
 
 import org.jowidgets.cap.common.api.bean.IProperty;
+import org.jowidgets.cap.common.api.bean.IValueRange;
 import org.jowidgets.util.Assert;
 
 final class PropertyImpl implements IProperty, Serializable {
@@ -39,6 +40,7 @@ final class PropertyImpl implements IProperty, Serializable {
 	private static final long serialVersionUID = -6994592225239239349L;
 
 	private final String name;
+	private final IValueRange valueRange;
 	private final String labelDefault;
 	private final String labelLongDefault;
 	private final String descriptionDefault;
@@ -52,6 +54,7 @@ final class PropertyImpl implements IProperty, Serializable {
 
 	PropertyImpl(
 		final String name,
+		final IValueRange valueRange,
 		final String labelDefault,
 		final String labelLongDefault,
 		final String descriptionDefault,
@@ -64,6 +67,7 @@ final class PropertyImpl implements IProperty, Serializable {
 		final boolean filterable) {
 
 		Assert.paramNotEmpty(name, "name");
+		Assert.paramNotNull(valueRange, "valueRange");
 		Assert.paramNotEmpty(labelDefault, "labelDefault");
 		Assert.paramNotNull(valueType, "valueType");
 		Assert.paramNotNull(elementValueType, "elementValueType");
@@ -73,6 +77,7 @@ final class PropertyImpl implements IProperty, Serializable {
 		}
 
 		this.name = name;
+		this.valueRange = valueRange;
 		this.labelDefault = labelDefault;
 		this.labelLongDefault = labelLongDefault;
 		this.descriptionDefault = descriptionDefault;
@@ -88,6 +93,11 @@ final class PropertyImpl implements IProperty, Serializable {
 	@Override
 	public String getName() {
 		return name;
+	}
+
+	@Override
+	public IValueRange getValueRange() {
+		return valueRange;
 	}
 
 	@Override

@@ -30,34 +30,12 @@ package org.jowidgets.cap.common.api.bean;
 
 import java.util.Collection;
 
-public interface IBeanPropertyBuilder {
+public interface IValueRangeFactory {
 
-	IBeanPropertyBuilder setLabel(String labelDefault);
+	IValueRange create(Collection<? extends Object> values, boolean open);
 
-	IBeanPropertyBuilder setValueRange(IValueRange valueRange);
+	IValueRange create(Collection<? extends Object> values);
 
-	IBeanPropertyBuilder setValueRange(boolean open, Collection<? extends Object> values);
-
-	IBeanPropertyBuilder setValueRange(Collection<? extends Object> values);
-
-	IBeanPropertyBuilder setValueRange(boolean open, Object... values);
-
-	IBeanPropertyBuilder setValueRange(Object... values);
-
-	IBeanPropertyBuilder setLabelLong(String labelLongDefault);
-
-	IBeanPropertyBuilder setDescription(String descriptionDefault);
-
-	IBeanPropertyBuilder setVisible(boolean visibleDefault);
-
-	IBeanPropertyBuilder setMandatory(boolean mandatoryDefault);
-
-	IBeanPropertyBuilder setElementValueType(Class<?> elementValueType);
-
-	IBeanPropertyBuilder setSortable(boolean sortable);
-
-	IBeanPropertyBuilder setFilterable(boolean filterable);
-
-	IProperty build();
+	IValueRange create();
 
 }

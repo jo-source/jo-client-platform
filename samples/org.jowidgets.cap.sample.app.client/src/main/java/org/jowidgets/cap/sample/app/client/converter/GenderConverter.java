@@ -26,38 +26,35 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.api.bean;
+package org.jowidgets.cap.sample.app.client.converter;
 
-import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
-public interface IBeanPropertyBuilder {
+import org.jowidgets.api.convert.IConverter;
+import org.jowidgets.tools.converter.MapConverter;
 
-	IBeanPropertyBuilder setLabel(String labelDefault);
+public final class GenderConverter {
 
-	IBeanPropertyBuilder setValueRange(IValueRange valueRange);
+	private final IConverter<String> converter;
 
-	IBeanPropertyBuilder setValueRange(boolean open, Collection<? extends Object> values);
+	public GenderConverter() {
+		final Map<String, String> objectToString = new HashMap<String, String>();
+		objectToString.put("M", "Male");
+		objectToString.put("F", "Female");
+		objectToString.put(null, "");
 
-	IBeanPropertyBuilder setValueRange(Collection<? extends Object> values);
+		final Map<String, String> stringToObject = new HashMap<String, String>();
+		stringToObject.put("Male", "M");
+		stringToObject.put("male", "M");
+		stringToObject.put("Female", "F");
+		stringToObject.put("female", "F");
 
-	IBeanPropertyBuilder setValueRange(boolean open, Object... values);
+		this.converter = new MapConverter<String>(objectToString, stringToObject, "Must be 'Male' or 'Female'");
+	}
 
-	IBeanPropertyBuilder setValueRange(Object... values);
-
-	IBeanPropertyBuilder setLabelLong(String labelLongDefault);
-
-	IBeanPropertyBuilder setDescription(String descriptionDefault);
-
-	IBeanPropertyBuilder setVisible(boolean visibleDefault);
-
-	IBeanPropertyBuilder setMandatory(boolean mandatoryDefault);
-
-	IBeanPropertyBuilder setElementValueType(Class<?> elementValueType);
-
-	IBeanPropertyBuilder setSortable(boolean sortable);
-
-	IBeanPropertyBuilder setFilterable(boolean filterable);
-
-	IProperty build();
+	public IConverter<String> getConverter() {
+		return converter;
+	}
 
 }

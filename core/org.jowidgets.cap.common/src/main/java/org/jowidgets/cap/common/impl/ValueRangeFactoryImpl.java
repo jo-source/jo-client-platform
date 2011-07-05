@@ -26,38 +26,29 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.api.bean;
+package org.jowidgets.cap.common.impl;
 
 import java.util.Collection;
+import java.util.Collections;
 
-public interface IBeanPropertyBuilder {
+import org.jowidgets.cap.common.api.bean.IValueRange;
+import org.jowidgets.cap.common.api.bean.IValueRangeFactory;
 
-	IBeanPropertyBuilder setLabel(String labelDefault);
+final class ValueRangeFactoryImpl implements IValueRangeFactory {
 
-	IBeanPropertyBuilder setValueRange(IValueRange valueRange);
+	@Override
+	public IValueRange create(final Collection<? extends Object> values, final boolean open) {
+		return new ValueRangeImpl(values, open);
+	}
 
-	IBeanPropertyBuilder setValueRange(boolean open, Collection<? extends Object> values);
+	@Override
+	public IValueRange create(final Collection<? extends Object> values) {
+		return new ValueRangeImpl(values, false);
+	}
 
-	IBeanPropertyBuilder setValueRange(Collection<? extends Object> values);
-
-	IBeanPropertyBuilder setValueRange(boolean open, Object... values);
-
-	IBeanPropertyBuilder setValueRange(Object... values);
-
-	IBeanPropertyBuilder setLabelLong(String labelLongDefault);
-
-	IBeanPropertyBuilder setDescription(String descriptionDefault);
-
-	IBeanPropertyBuilder setVisible(boolean visibleDefault);
-
-	IBeanPropertyBuilder setMandatory(boolean mandatoryDefault);
-
-	IBeanPropertyBuilder setElementValueType(Class<?> elementValueType);
-
-	IBeanPropertyBuilder setSortable(boolean sortable);
-
-	IBeanPropertyBuilder setFilterable(boolean filterable);
-
-	IProperty build();
+	@Override
+	public IValueRange create() {
+		return new ValueRangeImpl(Collections.emptyList(), true);
+	}
 
 }

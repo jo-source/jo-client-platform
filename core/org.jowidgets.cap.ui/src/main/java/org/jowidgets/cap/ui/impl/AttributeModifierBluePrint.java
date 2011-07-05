@@ -28,9 +28,12 @@
 
 package org.jowidgets.cap.ui.impl;
 
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.jowidgets.cap.common.api.CapCommonToolkit;
+import org.jowidgets.cap.common.api.bean.IValueRange;
 import org.jowidgets.cap.ui.api.attribute.IAttributeBluePrint;
 import org.jowidgets.cap.ui.api.attribute.IAttributeGroup;
 import org.jowidgets.cap.ui.api.attribute.IControlPanelProvider;
@@ -40,7 +43,7 @@ import org.jowidgets.util.Assert;
 final class AttributeModifierBluePrint<ELEMENT_VALUE_TYPE> implements IAttributeBluePrint<ELEMENT_VALUE_TYPE> {
 
 	private boolean exhausted;
-
+	private IValueRange valueRange;
 	private String label;
 	private String labelLong;
 	private String description;
@@ -62,6 +65,26 @@ final class AttributeModifierBluePrint<ELEMENT_VALUE_TYPE> implements IAttribute
 	AttributeModifierBluePrint() {
 		this.controlPanels = new LinkedList();
 		this.exhausted = false;
+	}
+
+	@Override
+	public IAttributeBluePrint<ELEMENT_VALUE_TYPE> setValueRange(final IValueRange valueRange) {
+		Assert.paramNotNull(valueRange, "valueRange");
+		this.valueRange = valueRange;
+		return this;
+	}
+
+	@Override
+	public IAttributeBluePrint<ELEMENT_VALUE_TYPE> setValueRange(
+		final Collection<? extends ELEMENT_VALUE_TYPE> values,
+		final boolean open) {
+		Assert.paramNotNull(values, "values");
+		return setValueRange(CapCommonToolkit.valueRangeFactory().create(values, open));
+	}
+
+	@Override
+	public IAttributeBluePrint<ELEMENT_VALUE_TYPE> setValueRange(final Collection<? extends ELEMENT_VALUE_TYPE> values) {
+		return setValueRange(values, false);
 	}
 
 	@Override
@@ -180,6 +203,9 @@ final class AttributeModifierBluePrint<ELEMENT_VALUE_TYPE> implements IAttribute
 
 	@SuppressWarnings("unchecked")
 	void modify(final IAttributeBluePrint<ELEMENT_VALUE_TYPE> attributeBluePrint) {
+		if (valueRange != null) {
+			attributeBluePrint.setValueRange(valueRange);
+		}
 		if (label != null) {
 			attributeBluePrint.setLabel(label);
 		}

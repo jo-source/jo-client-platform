@@ -28,11 +28,22 @@
 
 package org.jowidgets.cap.ui.api.attribute;
 
+import java.util.Collection;
+
+import org.jowidgets.cap.common.api.bean.IValueRange;
 import org.jowidgets.common.types.AlignmentHorizontal;
 
 public interface IAttributeBluePrint<ELEMENT_VALUE_TYPE> {
 
 	IAttributeBluePrint<ELEMENT_VALUE_TYPE> setLabel(String label);
+
+	IAttributeBluePrint<ELEMENT_VALUE_TYPE> setValueRange(IValueRange valueRange);
+
+	IAttributeBluePrint<ELEMENT_VALUE_TYPE> setValueRange(
+		final Collection<? extends ELEMENT_VALUE_TYPE> values,
+		final boolean open);
+
+	IAttributeBluePrint<ELEMENT_VALUE_TYPE> setValueRange(final Collection<? extends ELEMENT_VALUE_TYPE> values);
 
 	IAttributeBluePrint<ELEMENT_VALUE_TYPE> setLabelLong(String labelLong);
 

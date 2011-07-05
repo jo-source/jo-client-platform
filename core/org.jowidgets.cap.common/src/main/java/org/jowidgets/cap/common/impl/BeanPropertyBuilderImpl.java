@@ -32,11 +32,13 @@ import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
+import java.util.Arrays;
 import java.util.Collection;
 
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanPropertyBuilder;
 import org.jowidgets.cap.common.api.bean.IProperty;
+import org.jowidgets.cap.common.api.bean.IValueRange;
 import org.jowidgets.util.Assert;
 
 final class BeanPropertyBuilderImpl implements IBeanPropertyBuilder {
@@ -82,6 +84,34 @@ final class BeanPropertyBuilderImpl implements IBeanPropertyBuilder {
 			}
 			//TODO MG take respect of the super classes and implemented interfaces
 		}
+	}
+
+	@Override
+	public IBeanPropertyBuilder setValueRange(final IValueRange valueRange) {
+		propertyBuilder.setValueRange(valueRange);
+		return this;
+	}
+
+	@Override
+	public IBeanPropertyBuilder setValueRange(final boolean open, final Collection<? extends Object> values) {
+		propertyBuilder.setValueRange(open, values);
+		return this;
+	}
+
+	@Override
+	public IBeanPropertyBuilder setValueRange(final Collection<? extends Object> values) {
+		propertyBuilder.setValueRange(values);
+		return this;
+	}
+
+	@Override
+	public IBeanPropertyBuilder setValueRange(final boolean open, final Object... values) {
+		return setValueRange(open, Arrays.asList(values));
+	}
+
+	@Override
+	public IBeanPropertyBuilder setValueRange(final Object... values) {
+		return setValueRange(Arrays.asList(values));
 	}
 
 	@Override

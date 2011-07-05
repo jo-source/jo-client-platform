@@ -32,11 +32,15 @@ import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IProperty;
 import org.jowidgets.cap.common.api.service.IEntityService;
+import org.jowidgets.cap.sample.app.client.converter.GenderConverter;
 import org.jowidgets.cap.sample.app.common.entity.IUser;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
+import org.jowidgets.cap.ui.api.attribute.IAttributeBluePrint;
 import org.jowidgets.cap.ui.api.attribute.IAttributeCollectionModifierBuilder;
+import org.jowidgets.cap.ui.api.attribute.IAttributeModifier;
 import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
+import org.jowidgets.cap.ui.api.attribute.IControlPanelProviderBuilder;
 import org.jowidgets.common.types.AlignmentHorizontal;
 import org.jowidgets.service.api.ServiceProvider;
 
@@ -52,11 +56,25 @@ public class UserAttributesFactory {
 		final List<IProperty> properties = createProperties();
 
 		final IAttributeCollectionModifierBuilder modifierBuilder = attributeToolkit.createAttributeCollectionModifierBuilder();
-		modifierBuilder.addModifier(IUser.GENDER_PROPERTY).setTableAlignment(AlignmentHorizontal.CENTER).setEditable(false);
+
+		modifierBuilder.addDefaultEditableModifier(true);
+
+		modifierBuilder.addModifier(IUser.GENDER_PROPERTY, new IAttributeModifier<Object>() {
+			@Override
+			public void modify(final IProperty source, final IAttributeBluePrint<Object> bluePrint) {
+				final IControlPanelProviderBuilder<Object> controlBuilder = attributeToolkit.createControlPanelProviderBuilder(
+						source.getValueType(),
+						source.getElementValueType(),
+						source.getValueRange());
+
+				controlBuilder.setConverter(new GenderConverter().getConverter());
+				bluePrint.setDefaultControlPanel(controlBuilder.build());
+			}
+		});
+
 		modifierBuilder.addModifier(IUser.ADMIN_PROPERTY).setTableAlignment(AlignmentHorizontal.CENTER);
 		modifierBuilder.addModifier(IUser.MARIED_PROPERTY).setTableAlignment(AlignmentHorizontal.CENTER);
 		modifierBuilder.addModifier(IUser.AGE_PROPERTY).setTableAlignment(AlignmentHorizontal.CENTER);
-		modifierBuilder.addDefaultEditableModifier(true);
 
 		return attributeToolkit.createAttributes(properties, modifierBuilder.build());
 	}

@@ -28,12 +28,17 @@
 
 package org.jowidgets.cap.common.impl;
 
+import java.util.Collection;
+import java.util.Collections;
+
 import org.jowidgets.cap.common.api.bean.IProperty;
+import org.jowidgets.cap.common.api.bean.IValueRange;
 import org.jowidgets.util.Assert;
 
 final class PropertyBuilder {
 
 	private String name;
+	private IValueRange valueRange;
 	private String labelDefault;
 	private String labelLongDefault;
 	private String descriptionDefault;
@@ -51,12 +56,27 @@ final class PropertyBuilder {
 		this.readonly = false;
 		this.sortable = true;
 		this.filterable = true;
+		this.valueRange = new ValueRangeImpl(Collections.emptyList(), true);
 	}
 
 	PropertyBuilder setName(final String name) {
 		Assert.paramNotEmpty(name, "name");
 		this.name = name;
 		return this;
+	}
+
+	PropertyBuilder setValueRange(final IValueRange valueRange) {
+		Assert.paramNotNull(valueRange, "valueRange");
+		this.valueRange = valueRange;
+		return this;
+	}
+
+	PropertyBuilder setValueRange(final boolean open, final Collection<? extends Object> values) {
+		return setValueRange(new ValueRangeImpl(values, open));
+	}
+
+	PropertyBuilder setValueRange(final Collection<? extends Object> values) {
+		return setValueRange(false, values);
 	}
 
 	PropertyBuilder setLabel(final String labelDefault) {
@@ -121,6 +141,7 @@ final class PropertyBuilder {
 	IProperty build() {
 		return new PropertyImpl(
 			name,
+			valueRange,
 			getLabelDefault(),
 			labelLongDefault,
 			descriptionDefault,

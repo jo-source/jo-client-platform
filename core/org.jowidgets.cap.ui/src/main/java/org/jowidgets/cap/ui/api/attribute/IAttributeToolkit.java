@@ -32,6 +32,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IProperty;
+import org.jowidgets.cap.common.api.bean.IValueRange;
 
 public interface IAttributeToolkit {
 
@@ -63,17 +64,21 @@ public interface IAttributeToolkit {
 	IAttributeBuilder<Object> createMetaAttributeBuilder(String propertyName);
 
 	<ELEMENT_VALUE_TYPE> IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> createControlPanelProviderBuilder(
-		Class<? extends ELEMENT_VALUE_TYPE> elementValueType);
+		Class<? extends ELEMENT_VALUE_TYPE> elementValueType,
+		IValueRange valueRange);
 
 	<ELEMENT_VALUE_TYPE> IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> createControlPanelProviderBuilder(
 		Class<?> valueType,
-		Class<? extends ELEMENT_VALUE_TYPE> elementValueType);
+		Class<? extends ELEMENT_VALUE_TYPE> elementValueType,
+		IValueRange valueRange);
 
 	<ELEMENT_VALUE_TYPE> IControlPanelProvider<ELEMENT_VALUE_TYPE> createControlPanelProvider(
-		Class<? extends ELEMENT_VALUE_TYPE> elementValueType);
+		Class<? extends ELEMENT_VALUE_TYPE> elementValueType,
+		IValueRange valueRange);
 
 	<ELEMENT_VALUE_TYPE> IControlPanelProvider<ELEMENT_VALUE_TYPE> createControlPanelProvider(
 		Class<?> valueType,
-		Class<? extends ELEMENT_VALUE_TYPE> elementValueType);
+		Class<? extends ELEMENT_VALUE_TYPE> elementValueType,
+		IValueRange valueRange);
 
 }
