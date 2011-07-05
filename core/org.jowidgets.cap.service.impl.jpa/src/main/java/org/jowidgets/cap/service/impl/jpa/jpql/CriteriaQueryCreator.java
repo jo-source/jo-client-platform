@@ -188,7 +188,13 @@ public final class CriteriaQueryCreator implements IQueryCreator<Object> {
 		final CriteriaQuery<?> query,
 		final IArithmeticFilter filter) {
 		final Path<?> path = bean.get(filter.getPropertyName());
-		final boolean isCollection = bean.fetch(filter.getPropertyName()).getAttribute().isCollection();
+		boolean isCollection;
+		try {
+			isCollection = bean.fetch(filter.getPropertyName()).getAttribute().isCollection();
+		}
+		catch (final Exception e) {
+			isCollection = false;
+		}
 		switch (filter.getOperator()) {
 			case BETWEEN:
 				return criteriaBuilder.between(
@@ -213,15 +219,24 @@ public final class CriteriaQueryCreator implements IQueryCreator<Object> {
 						criteriaBuilder.literal((Comparable<Object>) filter.getParameters()[0]));
 			case EQUAL:
 				query.distinct(isCollection);
-				final Object arg = filter.getParameters()[0];
-				if (arg instanceof String) {
-					// TODO HRW evaluate case insensitive flag	
+				Expression<?> expr = path;
+				Object arg = filter.getParameters()[0];
+				boolean useLike = false;
+				if (arg instanceof String && path.getJavaType() == String.class) {
 					final String s = (String) arg;
 					if (s.contains("*") || s.contains("%")) {
-						return criteriaBuilder.like((Path<String>) path, s.replace("*", "%"));
+						useLike = true;
+						arg = s.replace("*", "%");
+					}
+					if (caseInsensitve) {
+						expr = criteriaBuilder.upper((Expression<String>) expr);
+						arg = ((String) arg).toUpperCase();
 					}
 				}
-				return criteriaBuilder.equal(path, arg);
+				if (useLike) {
+					return criteriaBuilder.like((Expression<String>) expr, (String) arg);
+				}
+				return criteriaBuilder.equal(expr, arg);
 			case EMPTY:
 				if (isCollection) {
 					query.distinct(true);
