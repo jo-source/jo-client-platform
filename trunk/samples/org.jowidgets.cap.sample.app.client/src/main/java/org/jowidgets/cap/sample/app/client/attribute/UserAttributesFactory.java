@@ -55,7 +55,7 @@ public class UserAttributesFactory {
 		modifierBuilder.addModifier(IUser.GENDER_PROPERTY).setTableAlignment(AlignmentHorizontal.CENTER).setEditable(false);
 		modifierBuilder.addDefaultEditableModifier(true);
 
-		return CapUiToolkit.getAttributeToolkit().createAttributes(properties, modifierBuilder.build());
+		return attributeToolkit.createAttributes(properties, modifierBuilder.build());
 	}
 
 	public List<IAttribute<Object>> formAttributes() {
@@ -64,7 +64,7 @@ public class UserAttributesFactory {
 		final IAttributeCollectionModifierBuilder modifierBuilder = attributeToolkit.createAttributeCollectionModifierBuilder();
 		modifierBuilder.addAcceptEditableAttributesFilter();
 
-		return CapUiToolkit.getAttributeToolkit().createAttributesCopy(attributes, modifierBuilder.build());
+		return attributeToolkit.createAttributesCopy(attributes, modifierBuilder.build());
 	}
 
 	private List<IProperty> createProperties() {
