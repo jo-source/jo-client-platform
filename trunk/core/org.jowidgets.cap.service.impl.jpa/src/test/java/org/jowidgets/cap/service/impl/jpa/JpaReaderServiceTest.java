@@ -179,7 +179,6 @@ public class JpaReaderServiceTest extends AbstractJpaTest {
 
 			@Override
 			public SortOrder getSortOrder() {
-				// TODO Auto-generated method stub
 				return SortOrder.ASC;
 			}
 		}), 0, Integer.MAX_VALUE, null, null);
@@ -312,7 +311,6 @@ public class JpaReaderServiceTest extends AbstractJpaTest {
 	}
 
 	@Test
-	@Ignore
 	public void testReadAllPersonsWithoutJob() {
 		final SyncResultCallback<List<IBeanDto>> res = new SyncResultCallback<List<IBeanDto>>();
 		allPersonsReader.read(res, null, new IArithmeticFilter() {
