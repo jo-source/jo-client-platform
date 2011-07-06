@@ -33,7 +33,6 @@ import org.jowidgets.cap.sample1.common.service.reader.UserReaderServices;
 import org.jowidgets.cap.sample1.ui.attribute.UserAttributesFactory;
 import org.jowidgets.cap.sample1.ui.workbench.command.WorkbenchActions;
 import org.jowidgets.cap.sample1.ui.workbench.component.user.view.UserDetailView;
-import org.jowidgets.cap.sample1.ui.workbench.component.user.view.UserFormView;
 import org.jowidgets.cap.sample1.ui.workbench.component.user.view.UserTableView;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
@@ -63,9 +62,6 @@ public class UserComponent extends AbstractComponent implements IComponent {
 	public IView createView(final String viewId, final IViewContext context) {
 		if (UserTableView.ID.equals(viewId)) {
 			return new UserTableView(context, userTableModel, delayParameter);
-		}
-		else if (UserFormView.ID.equals(viewId)) {
-			return new UserFormView(context, userTableModel);
 		}
 		else if (UserDetailView.ID.equals(viewId)) {
 			return new UserDetailView(context, userTableModel);
