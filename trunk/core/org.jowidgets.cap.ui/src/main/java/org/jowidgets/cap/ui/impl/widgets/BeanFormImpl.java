@@ -34,7 +34,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.jowidgets.api.layout.BorderLayoutConstraints;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.validation.IValidator;
 import org.jowidgets.api.validation.ValidationResult;
@@ -58,6 +57,7 @@ import org.jowidgets.common.widgets.controler.IInputListener;
 import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
 import org.jowidgets.tools.controler.InputObservable;
+import org.jowidgets.tools.layout.MigLayoutFactory;
 import org.jowidgets.tools.widgets.wrapper.ControlWrapper;
 
 final class BeanFormImpl<BEAN_TYPE> extends ControlWrapper implements IBeanForm<BEAN_TYPE> {
@@ -92,12 +92,13 @@ final class BeanFormImpl<BEAN_TYPE> extends ControlWrapper implements IBeanForm<
 			this.attributes.put(attribute.getPropertyName(), (IAttribute<Object>) attribute);
 		}
 
-		composite.setLayout(Toolkit.getLayoutFactoryProvider().borderLayoutBuilder().gap(5).margin(5).build());
-		this.mainValidationLabel = composite.add(bluePrint.getValidationLabel(), BorderLayoutConstraints.TOP);
+		composite.setLayout(new MigLayoutDescriptor("0[grow]0", "0[][grow]0"));
+		final String contentConstraints = "growx, growy, w 30::, h 20::, wrap";
+		this.mainValidationLabel = composite.add(bluePrint.getValidationLabel(), contentConstraints);
 		mainValidationLabel.setMinSize(new Dimension(20, 20));
 		mainValidationLabel.registerInputWidget(this);
 
-		final IScrollComposite contentPane = composite.add(bpf.scrollComposite(), BorderLayoutConstraints.CENTER);
+		final IScrollComposite contentPane = composite.add(bpf.scrollComposite(), MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
 		createContent(contentPane);
 	}
 
@@ -201,7 +202,7 @@ final class BeanFormImpl<BEAN_TYPE> extends ControlWrapper implements IBeanForm<
 	private void createContent(final IContainer container) {
 
 		//TODO MG this must be done with respect of the defined layout
-		container.setLayout(new MigLayoutDescriptor("[]8[grow][]", ""));
+		container.setLayout(new MigLayoutDescriptor("0[]8[grow][]0", ""));
 		for (final IBeanFormGroup group : layout.getGroups()) {
 			for (final IBeanFormProperty property : group.getProperties()) {
 
@@ -232,7 +233,7 @@ final class BeanFormImpl<BEAN_TYPE> extends ControlWrapper implements IBeanForm<
 					//add validation label
 					final IValidationLabelBluePrint validationLabelBp = bpf.validationLabel();
 					validationLabelBp.setSetup(property.getValidationLabel());
-					final IValidationLabel validationLabel = container.add(validationLabelBp, "w 20::, wrap");
+					final IValidationLabel validationLabel = container.add(validationLabelBp, "w 25::, wrap");
 					validationLabel.registerInputWidget(control);
 					validationLabels.put(propertyName, validationLabel);
 				}
