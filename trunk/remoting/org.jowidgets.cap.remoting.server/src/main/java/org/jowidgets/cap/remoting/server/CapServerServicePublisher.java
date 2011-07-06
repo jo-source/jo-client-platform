@@ -26,31 +26,30 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample.app.server.starter;
+package org.jowidgets.cap.remoting.server;
 
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
-import org.jowidgets.cap.remoting.server.CapServerServicePublisher;
-import org.jowidgets.invocation.common.impl.MessageBrokerId;
-import org.jowidgets.message.api.MessageToolkit;
-import org.jowidgets.message.impl.http.server.MessageServlet;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
-public final class SampleServerStarter {
+import org.jowidgets.cap.remoting.common.CapInvocationMethodNames;
+import org.jowidgets.invocation.service.server.api.IInvocationServiceServerRegistry;
+import org.jowidgets.invocation.service.server.api.InvocationServiceServerToolkit;
 
-	private SampleServerStarter() {}
+public class CapServerServicePublisher {
 
-	public static void main(final String[] args) throws Exception {
-		final MessageServlet servlet = new MessageServlet(MessageBrokerId.INVOCATION_IMPL_BROKER_ID);
-		MessageToolkit.addReceiverBroker(servlet);
+	private static final long DEFAULT_PROGRESS_DELAY = 500;
 
-		new CapServerServicePublisher().publishServices();
+	public void publishServices() {
+		publishServices(Executors.newScheduledThreadPool(50), DEFAULT_PROGRESS_DELAY);
+	}
 
-		final Server server = new Server(8080);
-		final ServletContextHandler root = new ServletContextHandler(ServletContextHandler.SESSIONS);
-		root.addServlet(new ServletHolder(servlet), "/");
-		server.setHandler(root);
-		server.start();
-		server.join();
+	public void publishServices(final ScheduledExecutorService progressExecutor, final long progressDelay) {
+
+		final IInvocationServiceServerRegistry registry = InvocationServiceServerToolkit.getRegistry();
+
+		registry.register(CapInvocationMethodNames.SERVICE_LOCATOR_METHOD_NAME, new ServiceLocatorMethod());
+		registry.register(CapInvocationMethodNames.GENERIC_REMOTE_METHOD_NAME, new GenericRemoteMethod(
+			progressExecutor,
+			progressDelay));
 	}
 }

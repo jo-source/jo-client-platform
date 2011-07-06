@@ -26,31 +26,14 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample.app.server.starter;
+package org.jowidgets.cap.remoting.client;
 
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
-import org.jowidgets.cap.remoting.server.CapServerServicePublisher;
-import org.jowidgets.invocation.common.impl.MessageBrokerId;
-import org.jowidgets.message.api.MessageToolkit;
-import org.jowidgets.message.impl.http.server.MessageServlet;
+import org.jowidgets.service.tools.DefaultServiceProviderHolder;
 
-public final class SampleServerStarter {
+public class ServiceProviderHolder extends DefaultServiceProviderHolder {
 
-	private SampleServerStarter() {}
-
-	public static void main(final String[] args) throws Exception {
-		final MessageServlet servlet = new MessageServlet(MessageBrokerId.INVOCATION_IMPL_BROKER_ID);
-		MessageToolkit.addReceiverBroker(servlet);
-
-		new CapServerServicePublisher().publishServices();
-
-		final Server server = new Server(8080);
-		final ServletContextHandler root = new ServletContextHandler(ServletContextHandler.SESSIONS);
-		root.addServlet(new ServletHolder(servlet), "/");
-		server.setHandler(root);
-		server.start();
-		server.join();
+	public ServiceProviderHolder() {
+		super(new CapClientServiceProviderBuilder());
 	}
+
 }

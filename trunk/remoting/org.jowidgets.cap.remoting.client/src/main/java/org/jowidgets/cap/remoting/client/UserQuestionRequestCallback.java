@@ -26,31 +26,33 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample.app.server.starter;
+package org.jowidgets.cap.remoting.client;
 
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
-import org.jowidgets.cap.remoting.server.CapServerServicePublisher;
-import org.jowidgets.invocation.common.impl.MessageBrokerId;
-import org.jowidgets.message.api.MessageToolkit;
-import org.jowidgets.message.impl.http.server.MessageServlet;
+import org.jowidgets.cap.common.api.execution.IExecutionCallback;
+import org.jowidgets.cap.common.api.execution.IUserQuestionCallback;
+import org.jowidgets.cap.common.api.execution.UserQuestionResult;
+import org.jowidgets.invocation.service.common.api.IInterimRequestCallback;
+import org.jowidgets.invocation.service.common.api.IInterimResponseCallback;
+import org.jowidgets.util.Assert;
 
-public final class SampleServerStarter {
+final class UserQuestionRequestCallback implements IInterimRequestCallback<String, UserQuestionResult> {
 
-	private SampleServerStarter() {}
+	private final IExecutionCallback executionCallback;
 
-	public static void main(final String[] args) throws Exception {
-		final MessageServlet servlet = new MessageServlet(MessageBrokerId.INVOCATION_IMPL_BROKER_ID);
-		MessageToolkit.addReceiverBroker(servlet);
-
-		new CapServerServicePublisher().publishServices();
-
-		final Server server = new Server(8080);
-		final ServletContextHandler root = new ServletContextHandler(ServletContextHandler.SESSIONS);
-		root.addServlet(new ServletHolder(servlet), "/");
-		server.setHandler(root);
-		server.start();
-		server.join();
+	UserQuestionRequestCallback(final IExecutionCallback executionCallback) {
+		Assert.paramNotNull(executionCallback, "executionCallback");
+		this.executionCallback = executionCallback;
 	}
+
+	@Override
+	public void request(final IInterimResponseCallback<UserQuestionResult> callback, final String request) {
+		executionCallback.userQuestion(request, new IUserQuestionCallback() {
+			@Override
+			public void questionAnswered(final UserQuestionResult result) {
+				callback.response(result);
+			}
+		});
+
+	}
+
 }

@@ -26,31 +26,32 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample.app.server.starter;
+package org.jowidgets.cap.remoting.server;
 
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
-import org.jowidgets.cap.remoting.server.CapServerServicePublisher;
-import org.jowidgets.invocation.common.impl.MessageBrokerId;
-import org.jowidgets.message.api.MessageToolkit;
-import org.jowidgets.message.impl.http.server.MessageServlet;
+import java.util.Set;
 
-public final class SampleServerStarter {
+import org.jowidgets.invocation.service.common.api.IInterimRequestCallback;
+import org.jowidgets.invocation.service.common.api.IInterimResponseCallback;
+import org.jowidgets.invocation.service.common.api.IInvocationCallback;
+import org.jowidgets.invocation.service.common.api.IMethodInvocationService;
+import org.jowidgets.service.api.IServiceId;
+import org.jowidgets.service.api.ServiceProvider;
 
-	private SampleServerStarter() {}
+final class ServiceLocatorMethod implements IMethodInvocationService<Set<IServiceId<?>>, Void, Void, Void, Void> {
 
-	public static void main(final String[] args) throws Exception {
-		final MessageServlet servlet = new MessageServlet(MessageBrokerId.INVOCATION_IMPL_BROKER_ID);
-		MessageToolkit.addReceiverBroker(servlet);
+	private final Set<IServiceId<?>> availableServices;
 
-		new CapServerServicePublisher().publishServices();
-
-		final Server server = new Server(8080);
-		final ServletContextHandler root = new ServletContextHandler(ServletContextHandler.SESSIONS);
-		root.addServlet(new ServletHolder(servlet), "/");
-		server.setHandler(root);
-		server.start();
-		server.join();
+	ServiceLocatorMethod() {
+		this.availableServices = ServiceProvider.getAvailableServices();
 	}
+
+	@Override
+	public void invoke(
+		final IInvocationCallback<Set<IServiceId<?>>> invocationCallback,
+		final IInterimResponseCallback<Void> interimResponseCallback,
+		final IInterimRequestCallback<Void, Void> interimRequestCallback,
+		final Void parameter) {
+		invocationCallback.finished(availableServices);
+	}
+
 }
