@@ -28,12 +28,12 @@
 
 package org.jowidgets.message.impl.http.server;
 
-import java.util.List;
+public interface IExecutionInterceptor<CONTEXT_TYPE> {
 
-public interface IConnection {
+	CONTEXT_TYPE getExecutionContext();
 
-	<T> void onMessage(final Object msg, IExecutionInterceptor<T> executionInterceptor);
+	void beforeExecution(CONTEXT_TYPE executionContext);
 
-	List<Object> pollMessages(final long pollInterval);
+	void afterExecution();
 
 }

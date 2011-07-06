@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, H.Westphal
+ * Copyright (c) 2011, HWestphal
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -28,12 +28,17 @@
 
 package org.jowidgets.message.impl.http.server;
 
-import java.util.List;
+class DefaultExecutionInterceptor implements IExecutionInterceptor<Void> {
 
-public interface IConnection {
+	@Override
+	public Void getExecutionContext() {
+		return null;
+	}
 
-	<T> void onMessage(final Object msg, IExecutionInterceptor<T> executionInterceptor);
+	@Override
+	public void beforeExecution(final Void executionContext) {}
 
-	List<Object> pollMessages(final long pollInterval);
+	@Override
+	public void afterExecution() {}
 
 }
