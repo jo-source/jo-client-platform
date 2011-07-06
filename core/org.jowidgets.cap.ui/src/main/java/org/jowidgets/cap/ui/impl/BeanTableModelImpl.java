@@ -209,7 +209,7 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 		readerService.count(resultCallback, null, null, null, null);
 		final Integer rowCountResult = resultCallback.getResultSynchronious();
 		if (rowCountResult != null) {
-			rowCountResult.intValue();
+			rowCount = rowCountResult.intValue();
 		}
 		//rowCount = 0;
 		dataCleared = false;

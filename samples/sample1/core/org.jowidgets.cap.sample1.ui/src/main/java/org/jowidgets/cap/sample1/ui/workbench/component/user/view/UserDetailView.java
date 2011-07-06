@@ -52,7 +52,7 @@ public class UserDetailView extends AbstractView {
 
 	public UserDetailView(final IViewContext context, final IBeanListModel<IUser> parentModel) {
 		final IContainer container = context.getContainer();
-		container.setLayout(Toolkit.getLayoutFactoryProvider().fillLayoutBuilder().margin(5).build());
+		container.setLayout(Toolkit.getLayoutFactoryProvider().fillLayoutBuilder().margin(10).build());
 		final List<IAttribute<Object>> attributes = new UserAttributesFactory().formAttributes();
 		final IBeanFormBluePrint<IUser> formBp = CapUiToolkit.getBluePrintFactory().beanForm(attributes);
 

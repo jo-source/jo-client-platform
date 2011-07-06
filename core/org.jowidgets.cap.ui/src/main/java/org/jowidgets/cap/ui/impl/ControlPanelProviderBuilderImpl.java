@@ -248,6 +248,16 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 					}
 				};
 			}
+			else if (elementValueType.equals(Boolean.class)) {
+				controlCreator = new ICustomWidgetCreator() {
+					@Override
+					public IInputControl create(final ICustomWidgetFactory widgetFactory) {
+						final IComboBoxSelectionBluePrint<Boolean> cmbBp = bpf.comboBoxSelection(Toolkit.getConverterProvider().boolYesNoLong());
+						cmbBp.setElements(null, Boolean.TRUE, Boolean.FALSE);
+						return widgetFactory.create(cmbBp);
+					}
+				};
+			}
 			else if (objectLabelConv != null && stringObjectConv != null) {
 				if (valueRange.getValues().isEmpty()) {
 					controlCreator = new ICustomWidgetCreator<IInputControl<? extends ELEMENT_VALUE_TYPE>>() {
