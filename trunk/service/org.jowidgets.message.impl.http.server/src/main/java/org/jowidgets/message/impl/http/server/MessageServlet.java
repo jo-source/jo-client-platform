@@ -50,6 +50,7 @@ public final class MessageServlet extends HttpServlet implements IMessageReceive
 	private final String brokerId;
 	private long pollInterval = 10000;
 	private IConnectionFactory connectionFactory = new DefaultConnectionFactory();
+	private IExecutionInterceptor<?> executionInterceptor = new DefaultExecutionInterceptor();
 	private volatile IMessageReceiver receiver;
 
 	public MessageServlet(final String brokerId) {
@@ -69,6 +70,11 @@ public final class MessageServlet extends HttpServlet implements IMessageReceive
 	public void setConnectionFactory(final IConnectionFactory connectionFactory) {
 		Assert.paramNotNull(connectionFactory, "connectionFactory");
 		this.connectionFactory = connectionFactory;
+	}
+
+	public void setExecutionInterceptor(final IExecutionInterceptor<?> executionInterceptor) {
+		Assert.paramNotNull(executionInterceptor, "executionInterceptor");
+		this.executionInterceptor = executionInterceptor;
 	}
 
 	@Override
@@ -108,7 +114,7 @@ public final class MessageServlet extends HttpServlet implements IMessageReceive
 		final IConnection conn = getConnection(session);
 		try {
 			final Object msg = new ObjectInputStream(req.getInputStream()).readObject();
-			conn.onMessage(msg);
+			conn.onMessage(msg, executionInterceptor);
 		}
 		catch (final ClassNotFoundException e) {
 			throw new ServletException(e);

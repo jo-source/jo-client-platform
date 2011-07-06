@@ -54,11 +54,18 @@ final class DefaultConnection implements IConnection, IMessageChannel {
 	}
 
 	@Override
-	public void onMessage(final Object msg) {
+	public <T> void onMessage(final Object msg, final IExecutionInterceptor<T> executionInterceptor) {
+		final T context = executionInterceptor.getExecutionContext();
 		executor.execute(new Runnable() {
 			@Override
 			public void run() {
-				receiver.onMessage(msg, DefaultConnection.this);
+				executionInterceptor.beforeExecution(context);
+				try {
+					receiver.onMessage(msg, DefaultConnection.this);
+				}
+				finally {
+					executionInterceptor.afterExecution();
+				}
 			}
 		});
 	}
