@@ -26,31 +26,14 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample.app.server.starter;
+package org.jowidgets.cap.remoting.common;
 
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
-import org.jowidgets.cap.remoting.server.CapServerServicePublisher;
-import org.jowidgets.invocation.common.impl.MessageBrokerId;
-import org.jowidgets.message.api.MessageToolkit;
-import org.jowidgets.message.impl.http.server.MessageServlet;
+public final class CapInvocationMethodNames {
 
-public final class SampleServerStarter {
+	public static final String SERVICE_LOCATOR_METHOD_NAME = CapInvocationMethodNames.class.getName() + "_SERVICE_LOCATOR_METHOD";
+	public static final String GENERIC_REMOTE_METHOD_NAME = CapInvocationMethodNames.class.getName()
+		+ "_GENERIC_REMOTE_METHOD_NAME";
 
-	private SampleServerStarter() {}
+	private CapInvocationMethodNames() {}
 
-	public static void main(final String[] args) throws Exception {
-		final MessageServlet servlet = new MessageServlet(MessageBrokerId.INVOCATION_IMPL_BROKER_ID);
-		MessageToolkit.addReceiverBroker(servlet);
-
-		new CapServerServicePublisher().publishServices();
-
-		final Server server = new Server(8080);
-		final ServletContextHandler root = new ServletContextHandler(ServletContextHandler.SESSIONS);
-		root.addServlet(new ServletHolder(servlet), "/");
-		server.setHandler(root);
-		server.start();
-		server.join();
-	}
 }

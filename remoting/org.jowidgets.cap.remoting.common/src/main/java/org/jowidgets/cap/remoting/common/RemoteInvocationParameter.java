@@ -26,31 +26,60 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample.app.server.starter;
+package org.jowidgets.cap.remoting.common;
 
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
-import org.jowidgets.cap.remoting.server.CapServerServicePublisher;
-import org.jowidgets.invocation.common.impl.MessageBrokerId;
-import org.jowidgets.message.api.MessageToolkit;
-import org.jowidgets.message.impl.http.server.MessageServlet;
+import java.io.Serializable;
+import java.util.Arrays;
 
-public final class SampleServerStarter {
+import org.jowidgets.service.api.IServiceId;
 
-	private SampleServerStarter() {}
+public final class RemoteInvocationParameter implements Serializable {
 
-	public static void main(final String[] args) throws Exception {
-		final MessageServlet servlet = new MessageServlet(MessageBrokerId.INVOCATION_IMPL_BROKER_ID);
-		MessageToolkit.addReceiverBroker(servlet);
+	private static final long serialVersionUID = -6189040527110482891L;
 
-		new CapServerServicePublisher().publishServices();
+	private final IServiceId<?> serviceId;
+	private final String methodName;
+	private final Class<?>[] parameterTypes;
+	private final Object[] arguments;
 
-		final Server server = new Server(8080);
-		final ServletContextHandler root = new ServletContextHandler(ServletContextHandler.SESSIONS);
-		root.addServlet(new ServletHolder(servlet), "/");
-		server.setHandler(root);
-		server.start();
-		server.join();
+	public RemoteInvocationParameter(
+		final IServiceId<?> serviceId,
+		final String methodName,
+		final Class<?>[] parameterTypes,
+		final Object[] arguments) {
+		this.serviceId = serviceId;
+		this.methodName = methodName;
+		this.parameterTypes = parameterTypes;
+		this.arguments = arguments;
 	}
+
+	public IServiceId<?> getServiceId() {
+		return serviceId;
+	}
+
+	public String getMethodName() {
+		return methodName;
+	}
+
+	public Class<?>[] getParameterTypes() {
+		return parameterTypes;
+	}
+
+	public Object[] getArguments() {
+		return arguments;
+	}
+
+	@Override
+	public String toString() {
+		return "RemoteInvocationParameter [serviceId="
+			+ serviceId
+			+ ", methodName="
+			+ methodName
+			+ ", parameterTypes="
+			+ Arrays.toString(parameterTypes)
+			+ ", arguments="
+			+ Arrays.toString(arguments)
+			+ "]";
+	}
+
 }

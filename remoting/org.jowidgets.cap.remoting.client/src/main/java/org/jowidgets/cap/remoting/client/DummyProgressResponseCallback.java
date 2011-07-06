@@ -26,31 +26,16 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample.app.server.starter;
+package org.jowidgets.cap.remoting.client;
 
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
-import org.jowidgets.cap.remoting.server.CapServerServicePublisher;
-import org.jowidgets.invocation.common.impl.MessageBrokerId;
-import org.jowidgets.message.api.MessageToolkit;
-import org.jowidgets.message.impl.http.server.MessageServlet;
+import org.jowidgets.cap.remoting.common.Progress;
+import org.jowidgets.invocation.service.common.api.IInterimResponseCallback;
 
-public final class SampleServerStarter {
+final class DummyProgressResponseCallback implements IInterimResponseCallback<Progress> {
 
-	private SampleServerStarter() {}
+	DummyProgressResponseCallback() {}
 
-	public static void main(final String[] args) throws Exception {
-		final MessageServlet servlet = new MessageServlet(MessageBrokerId.INVOCATION_IMPL_BROKER_ID);
-		MessageToolkit.addReceiverBroker(servlet);
+	@Override
+	public void response(final Progress response) {}
 
-		new CapServerServicePublisher().publishServices();
-
-		final Server server = new Server(8080);
-		final ServletContextHandler root = new ServletContextHandler(ServletContextHandler.SESSIONS);
-		root.addServlet(new ServletHolder(servlet), "/");
-		server.setHandler(root);
-		server.start();
-		server.join();
-	}
 }

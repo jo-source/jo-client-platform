@@ -2,10 +2,10 @@
 
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.jowidgets</groupId>
-	<artifactId>org.jowidgets.cap.core.parent</artifactId>
+	<artifactId>org.jowidgets.cap.remoting.parent</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
-	<name>org.jowidgets.cap.core.parent</name>
+	<name>org.jowidgets.cap.remoting.parent</name>
 	
 	<parent>
 		<groupId>org.jowidgets</groupId>
@@ -15,10 +15,9 @@
 	</parent>
 	
 	<modules>	
-		<module>../org.jowidgets.cap.common</module>
-		<module>../org.jowidgets.cap.service</module>
-		<module>../org.jowidgets.cap.service.impl.jpa</module>
-		<module>../org.jowidgets.cap.ui</module>
+		<module>../org.jowidgets.cap.remoting.common</module>
+		<module>../org.jowidgets.cap.remoting.client</module>
+		<module>../org.jowidgets.cap.remoting.server</module>
 	</modules>
 
 </project>

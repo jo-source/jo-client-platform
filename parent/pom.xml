@@ -17,6 +17,7 @@
 
 	<modules>
 	    <module>../core/parent</module>
+		<module>../remoting/parent</module>
 		<module>../service/parent</module>
 		<module>../samples/parent</module>
 	</modules>

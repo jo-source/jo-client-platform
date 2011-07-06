@@ -26,31 +26,32 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample.app.server.starter;
+package org.jowidgets.cap.remoting.server;
 
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
-import org.jowidgets.cap.remoting.server.CapServerServicePublisher;
-import org.jowidgets.invocation.common.impl.MessageBrokerId;
-import org.jowidgets.message.api.MessageToolkit;
-import org.jowidgets.message.impl.http.server.MessageServlet;
+import org.jowidgets.cap.common.api.execution.IResultCallback;
+import org.jowidgets.invocation.service.common.api.IInvocationCallback;
 
-public final class SampleServerStarter {
+final class ServerResultCallback implements IResultCallback<Object> {
 
-	private SampleServerStarter() {}
+	private final IInvocationCallback<Object> invocationCallback;
 
-	public static void main(final String[] args) throws Exception {
-		final MessageServlet servlet = new MessageServlet(MessageBrokerId.INVOCATION_IMPL_BROKER_ID);
-		MessageToolkit.addReceiverBroker(servlet);
-
-		new CapServerServicePublisher().publishServices();
-
-		final Server server = new Server(8080);
-		final ServletContextHandler root = new ServletContextHandler(ServletContextHandler.SESSIONS);
-		root.addServlet(new ServletHolder(servlet), "/");
-		server.setHandler(root);
-		server.start();
-		server.join();
+	ServerResultCallback(final IInvocationCallback<Object> invocationCallback) {
+		this.invocationCallback = invocationCallback;
 	}
+
+	@Override
+	public void finished(final Object result) {
+		invocationCallback.finished(result);
+	}
+
+	@Override
+	public void exception(final Throwable exception) {
+		invocationCallback.exeption(exception);
+	}
+
+	@Override
+	public void timeout() {
+		invocationCallback.exeption(new RuntimeException("Timeout exception"));
+	}
+
 }

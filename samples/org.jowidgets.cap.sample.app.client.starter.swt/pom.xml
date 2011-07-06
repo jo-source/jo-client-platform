@@ -16,7 +16,7 @@
 	<dependencies>
 	    <dependency>
 			<groupId>org.jowidgets</groupId>
-			<artifactId>org.jowidgets.cap.invocation.client</artifactId>
+			<artifactId>org.jowidgets.cap.remoting.client</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
