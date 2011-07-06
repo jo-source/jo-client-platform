@@ -29,9 +29,11 @@
 package org.jowidgets.cap.service.impl.jpa.jpql;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.EntityManager;
@@ -49,6 +51,7 @@ import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.filter.BooleanOperator;
 import org.jowidgets.cap.common.api.filter.IArithmeticFilter;
 import org.jowidgets.cap.common.api.filter.IBooleanFilter;
+import org.jowidgets.cap.common.api.filter.ICustomFilter;
 import org.jowidgets.cap.common.api.filter.IFilter;
 import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.common.api.sort.SortOrder;
@@ -62,6 +65,7 @@ public final class CriteriaQueryCreator implements IQueryCreator<Object> {
 	private String parentPropertyName = "parent";
 	private IPredicateCreator predicateCreator;
 	private boolean caseInsensitve;
+	private Map<String, ? extends ICustomFilterPredicateCreator> customFilterPredicateCreators = Collections.emptyMap();
 
 	public CriteriaQueryCreator(final Class<? extends IBean> persistenceClass) {
 		this.persistenceClass = persistenceClass;
@@ -83,6 +87,12 @@ public final class CriteriaQueryCreator implements IQueryCreator<Object> {
 
 	public void setCaseInsensitve(final boolean caseInsensitve) {
 		this.caseInsensitve = caseInsensitve;
+	}
+
+	public void setCustomFilterPredicateCreators(
+		final Map<String, ? extends ICustomFilterPredicateCreator> customFilterPredicateCreators) {
+		Assert.paramNotNull(customFilterPredicateCreators, "customFilterPredicateCreators");
+		this.customFilterPredicateCreators = customFilterPredicateCreators;
 	}
 
 	@Override
@@ -172,6 +182,16 @@ public final class CriteriaQueryCreator implements IQueryCreator<Object> {
 		else if (filter instanceof IBooleanFilter) {
 			predicate = createFilterPredicate(criteriaBuilder, bean, query, (IBooleanFilter) filter);
 		}
+		else if (filter instanceof ICustomFilter) {
+			final ICustomFilter customFilter = (ICustomFilter) filter;
+			final ICustomFilterPredicateCreator customFilterPredicateCreator = customFilterPredicateCreators.get(customFilter.getFilterType());
+			if (customFilterPredicateCreator != null) {
+				predicate = customFilterPredicateCreator.createPredicate(criteriaBuilder, bean, query, customFilter);
+			}
+			else {
+				throw new IllegalArgumentException("unsupported custom filter type: " + customFilter.getFilterType());
+			}
+		}
 		else {
 			throw new IllegalArgumentException("unsupported filter type: " + filter.getClass().getName());
 		}
@@ -191,32 +211,34 @@ public final class CriteriaQueryCreator implements IQueryCreator<Object> {
 		final Path<?> path = bean.get(filter.getPropertyName());
 
 		final boolean isCollection = bean.getModel().getAttribute(filter.getPropertyName()).isCollection();
-		// queries for collection attributes causes duplicate results
+		// queries for collection attributes cause duplicate results
 		query.distinct(isCollection);
 
 		switch (filter.getOperator()) {
 			case BETWEEN:
 				return criteriaBuilder.between(
-						(Path<Comparable<Object>>) path,
+						(Expression<Comparable<Object>>) path,
 						criteriaBuilder.literal((Comparable<Object>) filter.getParameters()[0]),
 						criteriaBuilder.literal((Comparable<Object>) filter.getParameters()[1]));
 			case GREATER:
 				return criteriaBuilder.greaterThan(
-						(Path<Comparable<Object>>) path,
+						(Expression<Comparable<Object>>) path,
 						criteriaBuilder.literal((Comparable<Object>) filter.getParameters()[0]));
 			case GREATER_EQUAL:
 				return criteriaBuilder.greaterThanOrEqualTo(
-						(Path<Comparable<Object>>) path,
+						(Expression<Comparable<Object>>) path,
 						criteriaBuilder.literal((Comparable<Object>) filter.getParameters()[0]));
 			case LESS:
 				return criteriaBuilder.lessThan(
-						(Path<Comparable<Object>>) path,
+						(Expression<Comparable<Object>>) path,
 						criteriaBuilder.literal((Comparable<Object>) filter.getParameters()[0]));
 			case LESS_EQUAL:
 				return criteriaBuilder.lessThanOrEqualTo(
-						(Path<Comparable<Object>>) path,
+						(Expression<Comparable<Object>>) path,
 						criteriaBuilder.literal((Comparable<Object>) filter.getParameters()[0]));
-			case EQUAL:
+				// CHECKSTYLE:OFF
+			case EQUAL: {
+				// CHECKSTYLE:ON
 				Expression<?> expr = path;
 				Object arg = filter.getParameters()[0];
 				if (arg instanceof String && path.getJavaType() == String.class) {
@@ -231,6 +253,7 @@ public final class CriteriaQueryCreator implements IQueryCreator<Object> {
 					}
 				}
 				return criteriaBuilder.equal(expr, arg);
+			}
 			case EMPTY:
 				if (isCollection) {
 					return criteriaBuilder.isEmpty((Expression<Collection<?>>) path);
@@ -239,7 +262,9 @@ public final class CriteriaQueryCreator implements IQueryCreator<Object> {
 					return criteriaBuilder.or(path.isNull(), criteriaBuilder.equal(path, ""));
 				}
 				return path.isNull();
-			case CONTAINS_ANY:
+				// CHECKSTYLE:OFF
+			case CONTAINS_ANY: {
+				// CHECKSTYLE:ON
 				final Collection<?> params = (Collection<?>) filter.getParameters()[0];
 				if (caseInsensitve && path.getJavaType() == String.class) {
 					final Collection<String> newParams = new HashSet<String>();
@@ -249,8 +274,26 @@ public final class CriteriaQueryCreator implements IQueryCreator<Object> {
 					return criteriaBuilder.upper((Expression<String>) path).in(newParams);
 				}
 				return path.in(params);
-			case CONTAINS_ALL:
-				// TODO HRW add support for CONTAINS_ALL
+			}
+				// CHECKSTYLE:OFF
+			case CONTAINS_ALL: {
+				// CHECKSTYLE:ON
+				final Collection<?> params = (Collection<?>) filter.getParameters()[0];
+				final Collection<Object> newParams = new HashSet<Object>();
+				final boolean toUpper = caseInsensitve && path.getJavaType() == String.class;
+				for (final Object p : params) {
+					if (p != null) {
+						if (toUpper) {
+							newParams.add(p.toString().toUpperCase());
+						}
+						else {
+							newParams.add(p);
+						}
+					}
+				}
+				// TODO HRW make CONTAINS_ALL queries work
+				throw new UnsupportedOperationException("CONTAINS_ALL not yet implemented");
+			}
 			default:
 				throw new IllegalArgumentException("unsupported operator: " + filter.getOperator());
 		}
