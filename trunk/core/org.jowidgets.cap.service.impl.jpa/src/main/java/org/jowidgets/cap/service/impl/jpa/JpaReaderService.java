@@ -29,8 +29,6 @@ package org.jowidgets.cap.service.impl.jpa;
 
 import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -46,13 +44,11 @@ import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
-import org.jowidgets.util.concurrent.DaemonThreadFactory;
 
 public final class JpaReaderService<PARAMETER_TYPE> implements IReaderService<PARAMETER_TYPE> {
 
 	private final IQueryCreator<PARAMETER_TYPE> queryCreator;
 	private final IBeanDtoFactory<IBean> dtoFactory;
-	private final Executor executor = Executors.newCachedThreadPool(new DaemonThreadFactory());
 
 	@PersistenceContext
 	private EntityManager entityManager;
@@ -77,7 +73,7 @@ public final class JpaReaderService<PARAMETER_TYPE> implements IReaderService<PA
 		final PARAMETER_TYPE parameter,
 		final IExecutionCallback executionCallback) {
 
-		execAsync(new Callable<List<IBeanDto>>() {
+		execute(new Callable<List<IBeanDto>>() {
 			@Override
 			public List<IBeanDto> call() {
 				final Query query = queryCreator.createReadQuery(entityManager, parentBeanKeys, filter, sorting, parameter);
@@ -102,7 +98,7 @@ public final class JpaReaderService<PARAMETER_TYPE> implements IReaderService<PA
 		final PARAMETER_TYPE parameter,
 		final IExecutionCallback executionCallback) {
 
-		execAsync(new Callable<Integer>() {
+		execute(new Callable<Integer>() {
 			@Override
 			public Integer call() {
 				final Query query = queryCreator.createCountQuery(entityManager, parentBeanKeys, filter, parameter);
@@ -111,23 +107,18 @@ public final class JpaReaderService<PARAMETER_TYPE> implements IReaderService<PA
 		}, result, executionCallback);
 	}
 
-	private <T> void execAsync(
+	private <T> void execute(
 		final Callable<T> callable,
 		final IResultCallback<T> resultCallback,
 		final IExecutionCallback executionCallback) {
-		executor.execute(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					final T result = callable.call();
-					CapServiceToolkit.checkCanceled(executionCallback);
-					resultCallback.finished(result);
-				}
-				catch (final Throwable t) {
-					resultCallback.exception(t);
-				}
-			}
-		});
+		try {
+			final T result = callable.call();
+			CapServiceToolkit.checkCanceled(executionCallback);
+			resultCallback.finished(result);
+		}
+		catch (final Throwable t) {
+			resultCallback.exception(t);
+		}
 	}
 
 }
