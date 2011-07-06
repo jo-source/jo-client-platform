@@ -212,8 +212,6 @@ public final class CriteriaQueryCreator implements IQueryCreator<Object> {
 		final Path<?> path = bean.get(filter.getPropertyName());
 
 		final boolean isCollection = bean.getModel().getAttribute(filter.getPropertyName()).isCollection();
-		// queries for collection attributes cause duplicate results
-		query.distinct(isCollection);
 
 		switch (filter.getOperator()) {
 			case BETWEEN:
@@ -250,6 +248,8 @@ public final class CriteriaQueryCreator implements IQueryCreator<Object> {
 						arg = s;
 					}
 					if (s.contains("*") || s.contains("%")) {
+						// like queries for collection attributes cause duplicate results
+						query.distinct(isCollection);
 						return criteriaBuilder.like((Expression<String>) expr, s.replace('*', '%'));
 					}
 				}
