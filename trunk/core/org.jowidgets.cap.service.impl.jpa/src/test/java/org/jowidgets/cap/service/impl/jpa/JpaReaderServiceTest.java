@@ -37,6 +37,8 @@ import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
@@ -45,6 +47,7 @@ import org.jowidgets.cap.common.api.filter.ArithmeticOperator;
 import org.jowidgets.cap.common.api.filter.BooleanOperator;
 import org.jowidgets.cap.common.api.filter.IArithmeticFilter;
 import org.jowidgets.cap.common.api.filter.IBooleanFilter;
+import org.jowidgets.cap.common.api.filter.ICustomFilter;
 import org.jowidgets.cap.common.api.filter.IFilter;
 import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.common.api.sort.SortOrder;
@@ -53,6 +56,7 @@ import org.jowidgets.cap.common.tools.execution.SyncResultCallback;
 import org.jowidgets.cap.service.impl.jpa.entity.Job;
 import org.jowidgets.cap.service.impl.jpa.entity.Person;
 import org.jowidgets.cap.service.impl.jpa.jpql.CriteriaQueryCreator;
+import org.jowidgets.cap.service.impl.jpa.jpql.ICustomFilterPredicateCreator;
 import org.jowidgets.cap.service.impl.jpa.jpql.IPredicateCreator;
 import org.junit.Assert;
 import org.junit.Before;
@@ -80,6 +84,7 @@ public class JpaReaderServiceTest extends AbstractJpaTest {
 
 	private JpaReaderService<Object> allPersonsReader;
 	private JpaReaderService<Object> caseInsensitivePersonsReader;
+	private JpaReaderService<Object> customPersonsReader;
 	private JpaReaderService<Object> allJobsReader;
 	private JpaReaderService<Object> currentUserJobsReader;
 	private String currentUser;
@@ -102,6 +107,25 @@ public class JpaReaderServiceTest extends AbstractJpaTest {
 		caseInsensitivePersonsQueryCreator.setCaseInsensitve(true);
 		caseInsensitivePersonsReader = new JpaReaderService<Object>(caseInsensitivePersonsQueryCreator, personPropertyNames);
 		caseInsensitivePersonsReader.setEntityManager(entityManager);
+
+		final CriteriaQueryCreator customPersonsQueryCreator = new CriteriaQueryCreator(Person.class);
+		customPersonsQueryCreator.setCustomFilterPredicateCreators(Collections.singletonMap(
+				"LEN",
+				new ICustomFilterPredicateCreator() {
+					@SuppressWarnings("unchecked")
+					@Override
+					public Predicate createPredicate(
+						final CriteriaBuilder criteriaBuilder,
+						final Root<?> bean,
+						final CriteriaQuery<?> query,
+						final ICustomFilter filter) {
+						final Path<?> property = bean.get(filter.getPropertyName());
+						final Integer len = (Integer) filter.getValue();
+						return criteriaBuilder.equal(criteriaBuilder.length((Expression<String>) property), len);
+					}
+				}));
+		customPersonsReader = new JpaReaderService<Object>(customPersonsQueryCreator, personPropertyNames);
+		customPersonsReader.setEntityManager(entityManager);
 
 		final List<String> jobPropertyNames = new ArrayList<String>();
 		personPropertyNames.add("title");
@@ -705,4 +729,85 @@ public class JpaReaderServiceTest extends AbstractJpaTest {
 		Assert.assertEquals(2, dtos.size());
 	}
 
+	@Test
+	public void testQueryPersonByCustomFilter() {
+		SyncResultCallback<List<IBeanDto>> res = new SyncResultCallback<List<IBeanDto>>();
+		customPersonsReader.read(res, null, new ICustomFilter() {
+			@Override
+			public boolean isInverted() {
+				return false;
+			}
+
+			@Override
+			public String getFilterType() {
+				return "LEN";
+			}
+
+			@Override
+			public String getPropertyName() {
+				return "name";
+			}
+
+			@Override
+			public Object getValue() {
+				return 4;
+			}
+		}, null, 0, Integer.MAX_VALUE, null, null);
+		List<IBeanDto> dtos = res.getResultSynchronious();
+		Assert.assertNotNull(dtos);
+		Assert.assertEquals(1, dtos.size());
+
+		res = new SyncResultCallback<List<IBeanDto>>();
+		customPersonsReader.read(res, null, new ICustomFilter() {
+			@Override
+			public boolean isInverted() {
+				return false;
+			}
+
+			@Override
+			public String getFilterType() {
+				return "LEN";
+			}
+
+			@Override
+			public String getPropertyName() {
+				return "name";
+			}
+
+			@Override
+			public Object getValue() {
+				return 5;
+			}
+		}, null, 0, Integer.MAX_VALUE, null, null);
+		dtos = res.getResultSynchronious();
+		Assert.assertNotNull(dtos);
+		Assert.assertEquals(0, dtos.size());
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testQueryPersonByUnknownCustomFilter() {
+		final SyncResultCallback<List<IBeanDto>> res = new SyncResultCallback<List<IBeanDto>>();
+		customPersonsReader.read(res, null, new ICustomFilter() {
+			@Override
+			public boolean isInverted() {
+				return false;
+			}
+
+			@Override
+			public String getFilterType() {
+				return "FOO";
+			}
+
+			@Override
+			public String getPropertyName() {
+				return "name";
+			}
+
+			@Override
+			public Object getValue() {
+				return null;
+			}
+		}, null, 0, Integer.MAX_VALUE, null, null);
+		res.getResultSynchronious();
+	}
 }
