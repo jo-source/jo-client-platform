@@ -43,6 +43,7 @@ public class User extends AbstractBean implements IUser {
 	private String lastName;
 	private Date dateOfBirth;
 	private String gender;
+	private String country;
 	private List<String> languages;
 	private boolean admin;
 	private Boolean married;
@@ -111,6 +112,16 @@ public class User extends AbstractBean implements IUser {
 	public void setGender(final String gender) {
 		this.gender = gender;
 		increaseVersion();
+	}
+
+	@Override
+	public String getCountry() {
+		return country;
+	}
+
+	@Override
+	public void setCountry(final String country) {
+		this.country = country;
 	}
 
 	@Override

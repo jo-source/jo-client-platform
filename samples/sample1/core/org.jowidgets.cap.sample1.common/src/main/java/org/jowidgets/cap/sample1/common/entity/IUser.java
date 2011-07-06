@@ -44,6 +44,7 @@ public interface IUser extends IBean {
 	String DATE_OF_BIRTH_PROPERTY = "dateOfBirth";
 	String AGE_PROPERTY = "age";
 	String GENDER_PROPERTY = "gender";
+	String COUNTRY_PROPERTY = "country";
 	String LANGUAGES_PROPERTY = "languages";
 	String ADMIN_PROPERTY = "admin";
 	String MARIED_PROPERTY = "married";
@@ -57,6 +58,7 @@ public interface IUser extends IBean {
 			add(AGE_PROPERTY);
 			add(GENDER_PROPERTY);
 			add(ADMIN_PROPERTY);
+			add(COUNTRY_PROPERTY);
 			add(LANGUAGES_PROPERTY);
 			add(MARIED_PROPERTY);
 			add(IBean.ID_PROPERTY);
@@ -85,6 +87,10 @@ public interface IUser extends IBean {
 	String getGender();
 
 	void setGender(final String gender);
+
+	String getCountry();
+
+	void setCountry(String country);
 
 	List<String> getLanguages();
 
