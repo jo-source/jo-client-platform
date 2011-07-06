@@ -51,6 +51,8 @@ public final class UserData extends AbstractData<User> {
 		user.setDateOfBirth(new GregorianCalendar(1972, 3, 22).getTime());
 		user.setGender("M");
 		user.addLanguage("English");
+		user.setCountry("Spain");
+		user.setMarried(Boolean.TRUE);
 		add(user);
 
 		user = new User(SANDRA_MAYER_ID);
@@ -60,6 +62,8 @@ public final class UserData extends AbstractData<User> {
 		user.setGender("F");
 		user.addLanguage("English");
 		user.addLanguage("German");
+		user.setCountry("Germany");
+		user.setMarried(Boolean.FALSE);
 		add(user);
 
 		user = new User(PETE_BROWN_ID);
@@ -69,6 +73,8 @@ public final class UserData extends AbstractData<User> {
 		user.setGender("M");
 		user.addLanguage("English");
 		user.addLanguage("French");
+		user.setAdmin(true);
+		user.setCountry("USA");
 		add(user);
 
 		user = new User(MARTIN_SMITH_ID);
@@ -78,6 +84,7 @@ public final class UserData extends AbstractData<User> {
 		user.setGender("M");
 		user.addLanguage("English");
 		user.addLanguage("Spanish");
+		user.setCountry("Italy");
 		add(user);
 
 		user = new User(MARTY_MILLER_ID);
@@ -86,6 +93,8 @@ public final class UserData extends AbstractData<User> {
 		user.setDateOfBirth(new GregorianCalendar(1934, 12, 24).getTime());
 		user.setGender("M");
 		user.addLanguage("English");
+		user.setCountry("Spain");
+		user.setMarried(Boolean.FALSE);
 		add(user);
 
 		user = new User(APRIL_WINTER_ID);
@@ -104,6 +113,9 @@ public final class UserData extends AbstractData<User> {
 		user.setDateOfBirth(new GregorianCalendar(1943, 2, 19).getTime());
 		user.setGender("M");
 		user.addLanguage("English");
+		user.setAdmin(true);
+		user.setMarried(Boolean.TRUE);
+		user.setCountry("USA");
 		add(user);
 
 		for (int i = 0; i < 200000; i++) {

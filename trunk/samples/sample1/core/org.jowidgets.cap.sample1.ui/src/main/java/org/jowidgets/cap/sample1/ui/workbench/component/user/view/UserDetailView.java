@@ -31,7 +31,6 @@ package org.jowidgets.cap.sample1.ui.workbench.component.user.view;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.widgets.IContainer;
 import org.jowidgets.cap.sample1.common.entity.IUser;
 import org.jowidgets.cap.sample1.ui.attribute.UserAttributesFactory;
@@ -41,6 +40,7 @@ import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
 import org.jowidgets.cap.ui.api.widgets.IBeanForm;
 import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
+import org.jowidgets.tools.layout.MigLayoutFactory;
 import org.jowidgets.workbench.api.IViewContext;
 import org.jowidgets.workbench.tools.AbstractView;
 
@@ -52,11 +52,11 @@ public class UserDetailView extends AbstractView {
 
 	public UserDetailView(final IViewContext context, final IBeanListModel<IUser> parentModel) {
 		final IContainer container = context.getContainer();
-		container.setLayout(Toolkit.getLayoutFactoryProvider().fillLayoutBuilder().margin(10).build());
+		container.setLayout(MigLayoutFactory.growingCellLayout());
 		final List<IAttribute<Object>> attributes = new UserAttributesFactory().formAttributes();
 		final IBeanFormBluePrint<IUser> formBp = CapUiToolkit.getBluePrintFactory().beanForm(attributes);
 
-		final IBeanForm<IUser> userForm = container.add(formBp);
+		final IBeanForm<IUser> userForm = container.add(formBp, MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
 
 		parentModel.addBeanListModelListener(new IBeanListModelListener() {
 
