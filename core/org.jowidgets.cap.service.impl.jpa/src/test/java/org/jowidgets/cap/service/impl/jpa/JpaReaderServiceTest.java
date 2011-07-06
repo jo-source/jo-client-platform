@@ -60,7 +60,6 @@ import org.jowidgets.cap.service.impl.jpa.jpql.ICustomFilterPredicateCreator;
 import org.jowidgets.cap.service.impl.jpa.jpql.IPredicateCreator;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class JpaReaderServiceTest extends AbstractJpaTest {
@@ -503,7 +502,6 @@ public class JpaReaderServiceTest extends AbstractJpaTest {
 	}
 
 	@Test
-	@Ignore
 	public void testReadAllPersonsWithContainsAll() {
 		SyncResultCallback<List<IBeanDto>> res = new SyncResultCallback<List<IBeanDto>>();
 		allPersonsReader.read(res, null, new IArithmeticFilter() {
@@ -577,6 +575,87 @@ public class JpaReaderServiceTest extends AbstractJpaTest {
 			@Override
 			public Object[] getParameters() {
 				return new Object[] {Arrays.asList("Husband", "Software Developer")};
+			}
+		}, null, 0, Integer.MAX_VALUE, null, null);
+		dtos = res.getResultSynchronious();
+		Assert.assertNotNull(dtos);
+		Assert.assertEquals(1, dtos.size());
+	}
+
+	@Test
+	public void testReadAllPersonsWithContainsAllCaseInsensitive() {
+		SyncResultCallback<List<IBeanDto>> res = new SyncResultCallback<List<IBeanDto>>();
+		caseInsensitivePersonsReader.read(res, null, new IArithmeticFilter() {
+			@Override
+			public boolean isInverted() {
+				return false;
+			}
+
+			@Override
+			public String getPropertyName() {
+				return "jobTitles";
+			}
+
+			@Override
+			public ArithmeticOperator getOperator() {
+				return ArithmeticOperator.CONTAINS_ALL;
+			}
+
+			@Override
+			public Object[] getParameters() {
+				return new Object[] {Arrays.asList("husband", "teacher")};
+			}
+		}, null, 0, Integer.MAX_VALUE, null, null);
+		List<IBeanDto> dtos = res.getResultSynchronious();
+		Assert.assertNotNull(dtos);
+		Assert.assertEquals(0, dtos.size());
+
+		res = new SyncResultCallback<List<IBeanDto>>();
+		caseInsensitivePersonsReader.read(res, null, new IArithmeticFilter() {
+			@Override
+			public boolean isInverted() {
+				return false;
+			}
+
+			@Override
+			public String getPropertyName() {
+				return "jobTitles";
+			}
+
+			@Override
+			public ArithmeticOperator getOperator() {
+				return ArithmeticOperator.CONTAINS_ALL;
+			}
+
+			@Override
+			public Object[] getParameters() {
+				return new Object[] {Collections.singleton("husband")};
+			}
+		}, null, 0, Integer.MAX_VALUE, null, null);
+		dtos = res.getResultSynchronious();
+		Assert.assertNotNull(dtos);
+		Assert.assertEquals(1, dtos.size());
+
+		res = new SyncResultCallback<List<IBeanDto>>();
+		caseInsensitivePersonsReader.read(res, null, new IArithmeticFilter() {
+			@Override
+			public boolean isInverted() {
+				return false;
+			}
+
+			@Override
+			public String getPropertyName() {
+				return "jobTitles";
+			}
+
+			@Override
+			public ArithmeticOperator getOperator() {
+				return ArithmeticOperator.CONTAINS_ALL;
+			}
+
+			@Override
+			public Object[] getParameters() {
+				return new Object[] {Arrays.asList("husband", "software developer")};
 			}
 		}, null, 0, Integer.MAX_VALUE, null, null);
 		dtos = res.getResultSynchronious();
@@ -810,4 +889,5 @@ public class JpaReaderServiceTest extends AbstractJpaTest {
 		}, null, 0, Integer.MAX_VALUE, null, null);
 		res.getResultSynchronious();
 	}
+
 }

@@ -45,6 +45,7 @@ import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Subquery;
 
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
@@ -291,8 +292,10 @@ public final class CriteriaQueryCreator implements IQueryCreator<Object> {
 						}
 					}
 				}
-				// TODO HRW make CONTAINS_ALL queries work
-				throw new UnsupportedOperationException("CONTAINS_ALL not yet implemented");
+				final Subquery<Long> subquery = query.subquery(Long.class);
+				subquery.select(criteriaBuilder.count(criteriaBuilder.literal(1))).where(
+						(toUpper ? criteriaBuilder.upper((Expression<String>) path) : path).in(newParams));
+				return criteriaBuilder.ge(subquery, newParams.size());
 			}
 			default:
 				throw new IllegalArgumentException("unsupported operator: " + filter.getOperator());
