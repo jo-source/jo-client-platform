@@ -357,6 +357,11 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 	}
 
 	@Override
+	public int getColumnCount() {
+		return attributes.size();
+	}
+
+	@Override
 	public void addBeanListModelListener(final IBeanListModelListener listener) {
 		beanListModelObservable.addBeanListModelListener(listener);
 	}
@@ -431,6 +436,7 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 		final ITableModelFactory tableModelFactory = Toolkit.getModelFactoryProvider().getTableModelFactory();
 
 		final IDefaultTableColumnModel result = tableModelFactory.columnModel();
+		int columnIndex = 0;
 		for (final IAttribute<Object> attribute : attributes) {
 			final IDefaultTableColumnBuilder columnBuilder = new DefaultTableColumnBuilder();
 			columnBuilder.setText(attribute.getLabel());
@@ -438,6 +444,16 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 			columnBuilder.setWidth(attribute.getTableWidth());
 			columnBuilder.setAlignment(attribute.getTableAlignment());
 			result.addColumn(columnBuilder);
+
+			final int currentColumnIndex = columnIndex;
+			attribute.addChangeListener(new IChangeListener() {
+				@Override
+				public void changed() {
+					//TODO NM implement visibility change
+					//result.getColumn(currentColumnIndex).setVisible(attribute.isVisible());
+				}
+			});
+			columnIndex++;
 		}
 
 		return result;
