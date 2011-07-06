@@ -49,6 +49,8 @@ import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.common.widgets.controler.IInputListener;
 import org.jowidgets.common.widgets.controler.ITableCellPopupDetectionListener;
 import org.jowidgets.common.widgets.controler.ITableCellPopupEvent;
+import org.jowidgets.common.widgets.controler.ITableColumnPopupDetectionListener;
+import org.jowidgets.common.widgets.controler.ITableColumnPopupEvent;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
 import org.jowidgets.examples.common.icons.SilkIcons;
 import org.jowidgets.util.ValueHolder;
@@ -66,11 +68,13 @@ public class UserTableView extends AbstractView {
 	private final ValueHolder<Integer> parameter;
 
 	private IInputField<Integer> delayField;
+	private int popupColumn;
 
 	public UserTableView(final IViewContext context, final IBeanTableModel<IUser> tableModel, final ValueHolder<Integer> parameter) {
 
 		this.beanTableModel = tableModel;
 		this.parameter = parameter;
+		this.popupColumn = -1;
 
 		final IContainer container = context.getContainer();
 
@@ -95,7 +99,45 @@ public class UserTableView extends AbstractView {
 			}
 		});
 
+		final IPopupMenu columnPopupMenu = table.createPopupMenu();
+		columnPopupMenu.addAction(createHideColumnAction(beanTableModel));
+		columnPopupMenu.addAction(createUnhideAllColumnAction(beanTableModel));
+
+		table.addTableColumnPopupDetectionListener(new ITableColumnPopupDetectionListener() {
+			@Override
+			public void popupDetected(final ITableColumnPopupEvent event) {
+				popupColumn = event.getColumnIndex();
+				columnPopupMenu.show(event.getPosition());
+			}
+		});
+
 		beanTableModel.load();
+	}
+
+	private IAction createHideColumnAction(final IBeanTableModel<IUser> beanTableModel) {
+		final IActionBuilder builder = Toolkit.getActionBuilderFactory().create();
+		builder.setText("Hide column");
+		builder.setCommand(new ICommandExecutor() {
+			@Override
+			public void execute(final IExecutionContext executionContext) throws Exception {
+				beanTableModel.getAttribute(popupColumn).setVisible(false);
+			}
+		});
+		return builder.build();
+	}
+
+	private IAction createUnhideAllColumnAction(final IBeanTableModel<IUser> beanTableModel) {
+		final IActionBuilder builder = Toolkit.getActionBuilderFactory().create();
+		builder.setText("Unhide all columns");
+		builder.setCommand(new ICommandExecutor() {
+			@Override
+			public void execute(final IExecutionContext executionContext) throws Exception {
+				for (int i = 0; i < beanTableModel.getColumnCount(); i++) {
+					beanTableModel.getAttribute(i).setVisible(true);
+				}
+			}
+		});
+		return builder.build();
 	}
 
 	private IAction createClearAction() {
