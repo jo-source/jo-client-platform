@@ -27,24 +27,22 @@
  */
 package org.jowidgets.cap.service.impl.jpa;
 
-import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.logging.LogManager;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
-import org.eclipse.persistence.sessions.Session;
 import org.jowidgets.cap.service.impl.jpa.entity.Job;
 import org.jowidgets.cap.service.impl.jpa.entity.Person;
 import org.junit.After;
 import org.junit.Before;
 import org.slf4j.bridge.SLF4JBridgeHandler;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 
 public abstract class AbstractJpaTest {
 
@@ -60,28 +58,12 @@ public abstract class AbstractJpaTest {
 		entityManagerFactory = Persistence.createEntityManagerFactory("test");
 		final EntityManager em = createEntityManager();
 		try {
-			initSchema(em);
 			initData(em);
 		}
 		finally {
 			em.close();
 		}
 		entityManagerFactory.getCache().evictAll();
-	}
-
-	private void initSchema(final EntityManager em) throws SQLException {
-		final Session session = em.unwrap(Session.class);
-		final Connection conn = (Connection) session.getLogin().connectToDatasource(null, session);
-		try {
-			final ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
-			populator.setIgnoreFailedDrops(true);
-			populator.addScript(new ClassPathResource("/dropSchema.ddl"));
-			populator.addScript(new ClassPathResource("/createSchema.ddl"));
-			populator.populate(conn);
-		}
-		finally {
-			conn.close();
-		}
 	}
 
 	private void initData(final EntityManager em) {
@@ -110,6 +92,7 @@ public abstract class AbstractJpaTest {
 		ingo.setPoints(20);
 		ingo.setBirthday(date(2005, 11, 23));
 		ingo.setTriState(true);
+		ingo.setTags(new HashSet<String>(Arrays.asList("lego", "playmobil")));
 		em.persist(ingo);
 
 		// 5

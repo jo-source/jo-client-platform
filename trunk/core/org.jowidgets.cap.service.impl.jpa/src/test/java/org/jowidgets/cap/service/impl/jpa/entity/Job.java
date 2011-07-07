@@ -27,19 +27,15 @@
  */
 package org.jowidgets.cap.service.impl.jpa.entity;
 
-import java.util.List;
-
 import javax.persistence.Basic;
-import javax.persistence.CollectionTable;
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Version;
+
+import org.jowidgets.cap.service.impl.jpa.jpql.QueryPath;
 
 @Entity
 public class Job implements IJob {
@@ -57,18 +53,8 @@ public class Job implements IJob {
 	@Basic
 	private int salary;
 
-	@SuppressWarnings("unused")
 	@ManyToOne(optional = false, fetch = FetchType.LAZY)
 	private Person owner;
-
-	@SuppressWarnings("unused")
-	@Column(name = "OWNER_ID", insertable = false, updatable = false)
-	private Long ownerId;
-
-	@ElementCollection
-	@CollectionTable(name = "V_PERSON", joinColumns = @JoinColumn(name = "ID", referencedColumnName = "OWNER_ID"))
-	@Column(name = "NAME", insertable = false, updatable = false)
-	private List<String> personName;
 
 	@SuppressWarnings("unused")
 	private Job() {}
@@ -88,8 +74,9 @@ public class Job implements IJob {
 	}
 
 	@Override
+	@QueryPath("owner.name")
 	public String getPersonName() {
-		return personName.get(0);
+		return owner.getName();
 	}
 
 	@Override
@@ -110,6 +97,12 @@ public class Job implements IJob {
 	@Override
 	public long getVersion() {
 		return version;
+	}
+
+	@Override
+	@QueryPath("owner.triState")
+	public Boolean getPersonState() {
+		return owner.getTriState();
 	}
 
 }

@@ -25,17 +25,16 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
-package org.jowidgets.cap.service.impl.jpa.h2;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+package org.jowidgets.cap.service.impl.jpa.jpql;
 
-import org.h2.tools.TriggerAdapter;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-public final class IgnoreTrigger extends TriggerAdapter {
-
-	@Override
-	public void fire(final Connection conn, final ResultSet oldRow, final ResultSet newRow) throws SQLException {}
-
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+public @interface QueryPath {
+	String value();
 }

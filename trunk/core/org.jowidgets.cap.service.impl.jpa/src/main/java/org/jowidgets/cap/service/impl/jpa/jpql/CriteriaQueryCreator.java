@@ -28,11 +28,15 @@
 
 package org.jowidgets.cap.service.impl.jpa.jpql;
 
+import java.beans.IntrospectionException;
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -41,11 +45,13 @@ import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
+import javax.persistence.metamodel.Attribute;
 
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
@@ -187,7 +193,11 @@ public final class CriteriaQueryCreator implements IQueryCreator<Object> {
 			final ICustomFilter customFilter = (ICustomFilter) filter;
 			final ICustomFilterPredicateCreator customFilterPredicateCreator = customFilterPredicateCreators.get(customFilter.getFilterType());
 			if (customFilterPredicateCreator != null) {
-				predicate = customFilterPredicateCreator.createPredicate(criteriaBuilder, bean, query, customFilter);
+				predicate = customFilterPredicateCreator.createPredicate(
+						criteriaBuilder,
+						getPath(bean, customFilter.getPropertyName()),
+						query,
+						customFilter.getValue());
 			}
 			else {
 				throw new IllegalArgumentException("unsupported custom filter type: " + customFilter.getFilterType());
@@ -202,6 +212,37 @@ public final class CriteriaQueryCreator implements IQueryCreator<Object> {
 		return predicate;
 	}
 
+	private Path<?> getPath(final Root<?> bean, final String propertyName) {
+		try {
+			return bean.get(propertyName);
+		}
+		catch (final IllegalArgumentException iae) {
+			// check for QueryPath annotation
+			final Class<?> beanClass = bean.getJavaType();
+			try {
+				final PropertyDescriptor descriptor = new PropertyDescriptor(propertyName, beanClass, "is"
+					+ propertyName.substring(0, 1).toUpperCase(Locale.ENGLISH)
+					+ propertyName.substring(1), null);
+				final Method readMethod = descriptor.getReadMethod();
+				final QueryPath queryPath = readMethod.getAnnotation(QueryPath.class);
+				if (queryPath != null) {
+					final String[] segments = queryPath.value().split("\\.");
+					if (segments.length >= 1) {
+						Path<?> path = bean;
+						for (final String segment : segments) {
+							path = path.get(segment);
+						}
+						return path;
+					}
+				}
+			}
+			catch (final IntrospectionException e) {
+				throw iae;
+			}
+			throw iae;
+		}
+	}
+
 	@SuppressWarnings("unchecked")
 	private Predicate createFilterPredicate(
 		final CriteriaBuilder criteriaBuilder,
@@ -209,9 +250,9 @@ public final class CriteriaQueryCreator implements IQueryCreator<Object> {
 		final CriteriaQuery<?> query,
 		final IArithmeticFilter filter) {
 
-		final Path<?> path = bean.get(filter.getPropertyName());
-
-		final boolean isCollection = bean.getModel().getAttribute(filter.getPropertyName()).isCollection();
+		final Path<?> path = getPath(bean, filter.getPropertyName());
+		final boolean isCollection = ((Attribute<?, ?>) path.getModel()).isCollection();
+		final boolean isJoined = path.getParentPath() instanceof Join;
 
 		switch (filter.getOperator()) {
 			case BETWEEN:
@@ -249,13 +290,16 @@ public final class CriteriaQueryCreator implements IQueryCreator<Object> {
 					}
 					if (s.contains("*") || s.contains("%")) {
 						// like queries for collection attributes cause duplicate results
-						query.distinct(isCollection);
+						query.distinct(query.isDistinct() || isJoined || isCollection);
 						return criteriaBuilder.like((Expression<String>) expr, s.replace('*', '%'));
 					}
 				}
 				return criteriaBuilder.equal(expr, arg);
 			}
 			case EMPTY:
+				if (isJoined && ((Attribute<?, ?>) path.getParentPath().getModel()).isCollection()) {
+					return criteriaBuilder.isEmpty((Expression<Collection<?>>) path.getParentPath());
+				}
 				if (isCollection) {
 					return criteriaBuilder.isEmpty((Expression<Collection<?>>) path);
 				}
