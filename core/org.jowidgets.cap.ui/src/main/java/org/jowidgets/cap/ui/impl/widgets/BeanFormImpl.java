@@ -35,8 +35,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.jowidgets.api.toolkit.Toolkit;
-import org.jowidgets.api.validation.IValidator;
-import org.jowidgets.api.validation.ValidationResult;
 import org.jowidgets.api.widgets.IComposite;
 import org.jowidgets.api.widgets.IContainer;
 import org.jowidgets.api.widgets.IInputControl;
@@ -59,6 +57,10 @@ import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
 import org.jowidgets.tools.controler.InputObservable;
 import org.jowidgets.tools.layout.MigLayoutFactory;
 import org.jowidgets.tools.widgets.wrapper.ControlWrapper;
+import org.jowidgets.validation.IValidationResult;
+import org.jowidgets.validation.IValidationResultBuilder;
+import org.jowidgets.validation.IValidator;
+import org.jowidgets.validation.ValidationResult;
 
 final class BeanFormImpl<BEAN_TYPE> extends ControlWrapper implements IBeanForm<BEAN_TYPE> {
 
@@ -162,18 +164,18 @@ final class BeanFormImpl<BEAN_TYPE> extends ControlWrapper implements IBeanForm<
 	}
 
 	@Override
-	public ValidationResult validate() {
-		final ValidationResult result = new ValidationResult();
+	public IValidationResult validate() {
+		final IValidationResultBuilder builder = ValidationResult.builder();
 		for (final Entry<String, IInputControl<Object>> controlEntry : controls.entrySet()) {
 			final String propertyName = controlEntry.getKey();
 			final IInputControl<Object> control = controlEntry.getValue();
 			final IAttribute<?> attribute = attributes.get(propertyName);
 			final String label = attribute.getLabel();
-			final ValidationResult validationResult = control.validate();
-			result.addValidationResult(validationResult.copyAndSetContext(label));
+			final IValidationResult validationResult = control.validate();
+			builder.addResult(label, validationResult);
 		}
 
-		return result;
+		return builder.build();
 	}
 
 	@Override
@@ -218,12 +220,11 @@ final class BeanFormImpl<BEAN_TYPE> extends ControlWrapper implements IBeanForm<
 					final IInputControl<Object> control = container.add(widgetCreator, "growx");
 					control.addValidator(new IValidator<Object>() {
 						@Override
-						public ValidationResult validate(final Object value) {
-							final ValidationResult result = new ValidationResult();
+						public IValidationResult validate(final Object value) {
 							if (bean != null) {
-								result.addValidationResult(bean.validate(propertyName, value));
+								return bean.validate(propertyName, value);
 							}
-							return result;
+							return ValidationResult.ok();
 						}
 					});
 					control.setEnabled(false);

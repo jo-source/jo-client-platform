@@ -31,10 +31,10 @@ package org.jowidgets.cap.ui.api.bean;
 import java.util.Collection;
 import java.util.List;
 
-import org.jowidgets.api.validation.ValidationResult;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanModification;
 import org.jowidgets.cap.ui.api.execution.IExecutionTask;
+import org.jowidgets.validation.IValidationResult;
 
 public interface IBeanProxy<BEAN_TYPE> extends
 		IBeanDto,
@@ -48,11 +48,11 @@ public interface IBeanProxy<BEAN_TYPE> extends
 
 	void setValue(String propertyName, Object value);
 
-	ValidationResult validate();
+	IValidationResult validate();
 
-	ValidationResult validate(String propertyName);
+	IValidationResult validate(String propertyName);
 
-	ValidationResult validate(String propertyName, Object value);
+	IValidationResult validate(String propertyName, Object value);
 
 	void update(IBeanDto beanDto);
 
