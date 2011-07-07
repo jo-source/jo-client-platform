@@ -449,8 +449,7 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 			attribute.addChangeListener(new IChangeListener() {
 				@Override
 				public void changed() {
-					//TODO NM implement visibility change
-					//result.getColumn(currentColumnIndex).setVisible(attribute.isVisible());
+					result.getColumn(currentColumnIndex).setVisible(attribute.isVisible());
 				}
 			});
 			columnIndex++;
