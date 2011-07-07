@@ -187,7 +187,11 @@ public final class CriteriaQueryCreator implements IQueryCreator<Object> {
 			final ICustomFilter customFilter = (ICustomFilter) filter;
 			final ICustomFilterPredicateCreator customFilterPredicateCreator = customFilterPredicateCreators.get(customFilter.getFilterType());
 			if (customFilterPredicateCreator != null) {
-				predicate = customFilterPredicateCreator.createPredicate(criteriaBuilder, bean, query, customFilter);
+				predicate = customFilterPredicateCreator.createPredicate(
+						criteriaBuilder,
+						getPath(bean, customFilter.getPropertyName()),
+						query,
+						customFilter.getValue());
 			}
 			else {
 				throw new IllegalArgumentException("unsupported custom filter type: " + customFilter.getFilterType());
@@ -202,6 +206,10 @@ public final class CriteriaQueryCreator implements IQueryCreator<Object> {
 		return predicate;
 	}
 
+	private Path<?> getPath(final Root<?> bean, final String propertyName) {
+		return bean.get(propertyName);
+	}
+
 	@SuppressWarnings("unchecked")
 	private Predicate createFilterPredicate(
 		final CriteriaBuilder criteriaBuilder,
@@ -209,7 +217,7 @@ public final class CriteriaQueryCreator implements IQueryCreator<Object> {
 		final CriteriaQuery<?> query,
 		final IArithmeticFilter filter) {
 
-		final Path<?> path = bean.get(filter.getPropertyName());
+		final Path<?> path = getPath(bean, filter.getPropertyName());
 
 		final boolean isCollection = bean.getModel().getAttribute(filter.getPropertyName()).isCollection();
 

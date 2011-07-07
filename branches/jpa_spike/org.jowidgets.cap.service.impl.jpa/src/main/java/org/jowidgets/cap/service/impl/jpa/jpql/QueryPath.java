@@ -25,78 +25,16 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
-package org.jowidgets.cap.service.impl.jpa.entity;
 
-import javax.persistence.Basic;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.Version;
+package org.jowidgets.cap.service.impl.jpa.jpql;
 
-import org.jowidgets.cap.service.impl.jpa.jpql.QueryPath;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-@Entity
-public class Job implements IJob {
-
-	@Id
-	@GeneratedValue
-	private Long id;
-
-	@Version
-	private long version;
-
-	@Basic
-	private String title;
-
-	@Basic
-	private int salary;
-
-	@ManyToOne(optional = false, fetch = FetchType.LAZY)
-	private Person owner;
-
-	@SuppressWarnings("unused")
-	private Job() {}
-
-	public Job(final Person owner) {
-		this.owner = owner;
-	}
-
-	@Override
-	public String getTitle() {
-		return title;
-	}
-
-	@Override
-	public void setTitle(final String title) {
-		this.title = title;
-	}
-
-	@Override
-	@QueryPath("owner.name")
-	public String getPersonName() {
-		return owner.getName();
-	}
-
-	@Override
-	public int getSalary() {
-		return salary;
-	}
-
-	@Override
-	public void setSalary(final int salary) {
-		this.salary = salary;
-	}
-
-	@Override
-	public Long getId() {
-		return id;
-	}
-
-	@Override
-	public long getVersion() {
-		return version;
-	}
-
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+public @interface QueryPath {
+	String value();
 }

@@ -115,13 +115,12 @@ public class JpaReaderServiceTest extends AbstractJpaTest {
 					@Override
 					public Predicate createPredicate(
 						final CriteriaBuilder criteriaBuilder,
-						final Root<?> bean,
+						final Path<?> path,
 						final CriteriaQuery<?> query,
-						final ICustomFilter filter) {
-						final Path<?> property = bean.get(filter.getPropertyName());
-						final Integer len = (Integer) filter.getValue();
-						return criteriaBuilder.equal(criteriaBuilder.length((Expression<String>) property), len);
+						final Object value) {
+						return criteriaBuilder.equal(criteriaBuilder.length((Expression<String>) path), value);
 					}
+
 				}));
 		customPersonsReader = new JpaReaderService<Object>(customPersonsQueryCreator, personPropertyNames);
 		customPersonsReader.setEntityManager(entityManager);

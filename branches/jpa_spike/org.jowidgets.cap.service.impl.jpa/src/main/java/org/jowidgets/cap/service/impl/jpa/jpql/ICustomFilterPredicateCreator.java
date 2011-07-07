@@ -30,13 +30,11 @@ package org.jowidgets.cap.service.impl.jpa.jpql;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-
-import org.jowidgets.cap.common.api.filter.ICustomFilter;
 
 public interface ICustomFilterPredicateCreator {
 
-	Predicate createPredicate(CriteriaBuilder criteriaBuilder, Root<?> bean, CriteriaQuery<?> query, ICustomFilter filter);
+	Predicate createPredicate(CriteriaBuilder criteriaBuilder, Path<?> path, CriteriaQuery<?> query, Object value);
 
 }

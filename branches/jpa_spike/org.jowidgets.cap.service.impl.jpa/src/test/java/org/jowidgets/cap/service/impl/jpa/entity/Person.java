@@ -41,6 +41,8 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Version;
 
+import org.jowidgets.cap.service.impl.jpa.jpql.QueryPath;
+
 @Entity
 public class Person implements IPerson {
 
@@ -118,6 +120,7 @@ public class Person implements IPerson {
 	}
 
 	@Override
+	@QueryPath("jobs.title")
 	public Set<String> getJobTitles() {
 		final Set<String> jobTitles = new HashSet<String>();
 		for (final Job job : jobs) {
