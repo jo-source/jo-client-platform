@@ -9,7 +9,7 @@
 
 	<parent>
 		<groupId>org.jowidgets</groupId>
-		<artifactId>org.jowidgets.cap.parent</artifactId>
+		<artifactId>org.jowidgets.cap.samples.parent</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 		<relativePath>../../parent/pom.xml</relativePath>
 	</parent>
