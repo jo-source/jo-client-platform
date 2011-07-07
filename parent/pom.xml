@@ -111,7 +111,7 @@
 						<configuration>
 							<manifestLocation>META-INF</manifestLocation>
 							<instructions>
-								<Export-Package>!*.internal;</Export-Package>
+								<Export-Package>!*.internal;org.jowidgets.*</Export-Package>
 								<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
 							</instructions>
 						</configuration>
