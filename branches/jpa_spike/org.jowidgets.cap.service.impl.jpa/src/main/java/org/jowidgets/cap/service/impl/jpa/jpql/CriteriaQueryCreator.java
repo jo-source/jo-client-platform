@@ -45,6 +45,7 @@ import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
@@ -251,7 +252,7 @@ public final class CriteriaQueryCreator implements IQueryCreator<Object> {
 
 		final Path<?> path = getPath(bean, filter.getPropertyName());
 		final boolean isCollection = ((Attribute<?, ?>) path.getModel()).isCollection();
-		final boolean isJoined = path.getParentPath().getParentPath() != null;
+		final boolean isJoined = path.getParentPath() instanceof Join;
 
 		switch (filter.getOperator()) {
 			case BETWEEN:
@@ -296,7 +297,7 @@ public final class CriteriaQueryCreator implements IQueryCreator<Object> {
 				return criteriaBuilder.equal(expr, arg);
 			}
 			case EMPTY:
-				if (isJoined) {
+				if (isJoined && ((Attribute<?, ?>) path.getParentPath().getModel()).isCollection()) {
 					return criteriaBuilder.isEmpty((Expression<Collection<?>>) path.getParentPath());
 				}
 				if (isCollection) {

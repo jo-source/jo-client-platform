@@ -94,10 +94,6 @@ public class JpaReaderServiceTest extends AbstractJpaTest {
 
 		final List<String> personPropertyNames = new ArrayList<String>();
 		personPropertyNames.add("name");
-		personPropertyNames.add("points");
-		personPropertyNames.add("triState");
-		personPropertyNames.add("birthday");
-		personPropertyNames.add("jobTitles");
 		final CriteriaQueryCreator allPersonsQueryCreator = new CriteriaQueryCreator(Person.class);
 		allPersonsReader = new JpaReaderService<Object>(allPersonsQueryCreator, personPropertyNames);
 		allPersonsReader.setEntityManager(entityManager);
@@ -126,9 +122,6 @@ public class JpaReaderServiceTest extends AbstractJpaTest {
 		customPersonsReader.setEntityManager(entityManager);
 
 		final List<String> jobPropertyNames = new ArrayList<String>();
-		personPropertyNames.add("title");
-		personPropertyNames.add("salary");
-		personPropertyNames.add("personName");
 		final CriteriaQueryCreator allJobsQueryCreator = new CriteriaQueryCreator(Job.class);
 		allJobsQueryCreator.setParentPropertyName("owner");
 		allJobsReader = new JpaReaderService<Object>(allJobsQueryCreator, jobPropertyNames);
