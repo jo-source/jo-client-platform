@@ -250,8 +250,8 @@ public final class CriteriaQueryCreator implements IQueryCreator<Object> {
 		final IArithmeticFilter filter) {
 
 		final Path<?> path = getPath(bean, filter.getPropertyName());
-		final boolean isCollection = path.getParentPath().getParentPath() != null
-			|| ((Attribute<?, ?>) path.getModel()).isCollection();
+		final boolean isCollection = ((Attribute<?, ?>) path.getModel()).isCollection();
+		final boolean isComplex = path.getParentPath().getParentPath() != null;
 
 		switch (filter.getOperator()) {
 			case BETWEEN:
@@ -289,13 +289,16 @@ public final class CriteriaQueryCreator implements IQueryCreator<Object> {
 					}
 					if (s.contains("*") || s.contains("%")) {
 						// like queries for collection attributes cause duplicate results
-						query.distinct(isCollection);
+						query.distinct(isCollection || isComplex);
 						return criteriaBuilder.like((Expression<String>) expr, s.replace('*', '%'));
 					}
 				}
 				return criteriaBuilder.equal(expr, arg);
 			}
 			case EMPTY:
+				if (isComplex) {
+					return criteriaBuilder.isEmpty((Expression<Collection<?>>) path.getParentPath());
+				}
 				if (isCollection) {
 					return criteriaBuilder.isEmpty((Expression<Collection<?>>) path);
 				}

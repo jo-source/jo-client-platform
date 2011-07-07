@@ -28,8 +28,10 @@
 package org.jowidgets.cap.service.impl.jpa;
 
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.logging.LogManager;
 
 import javax.persistence.EntityManager;
@@ -90,6 +92,7 @@ public abstract class AbstractJpaTest {
 		ingo.setPoints(20);
 		ingo.setBirthday(date(2005, 11, 23));
 		ingo.setTriState(true);
+		ingo.setTags(new HashSet<String>(Arrays.asList("lego", "playmobil")));
 		em.persist(ingo);
 
 		// 5

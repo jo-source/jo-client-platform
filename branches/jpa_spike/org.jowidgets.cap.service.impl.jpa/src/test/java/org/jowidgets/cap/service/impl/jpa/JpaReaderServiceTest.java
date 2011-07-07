@@ -98,6 +98,7 @@ public class JpaReaderServiceTest extends AbstractJpaTest {
 		personPropertyNames.add("triState");
 		personPropertyNames.add("birthday");
 		personPropertyNames.add("jobTitles");
+		personPropertyNames.add("tags");
 		final CriteriaQueryCreator allPersonsQueryCreator = new CriteriaQueryCreator(Person.class);
 		allPersonsReader = new JpaReaderService<Object>(allPersonsQueryCreator, personPropertyNames);
 		allPersonsReader.setEntityManager(entityManager);
@@ -918,4 +919,109 @@ public class JpaReaderServiceTest extends AbstractJpaTest {
 		res.getResultSynchronious();
 	}
 
+	@Test
+	public void testPersonByTag() {
+		final SyncResultCallback<List<IBeanDto>> res = new SyncResultCallback<List<IBeanDto>>();
+		caseInsensitivePersonsReader.read(res, null, new IArithmeticFilter() {
+			@Override
+			public boolean isInverted() {
+				return false;
+			}
+
+			@Override
+			public String getPropertyName() {
+				return "tags";
+			}
+
+			@Override
+			public ArithmeticOperator getOperator() {
+				return ArithmeticOperator.EQUAL;
+			}
+
+			@Override
+			public Object[] getParameters() {
+				return new Object[] {"lego"};
+			}
+		}, null, 0, Integer.MAX_VALUE, null, null);
+		final List<IBeanDto> dtos = res.getResultSynchronious();
+		Assert.assertNotNull(dtos);
+		Assert.assertEquals(1, dtos.size());
+	}
+
+	@Test
+	public void testPersonByTagWildcard() {
+		final SyncResultCallback<List<IBeanDto>> res = new SyncResultCallback<List<IBeanDto>>();
+		caseInsensitivePersonsReader.read(res, null, new IArithmeticFilter() {
+			@Override
+			public boolean isInverted() {
+				return false;
+			}
+
+			@Override
+			public String getPropertyName() {
+				return "tags";
+			}
+
+			@Override
+			public ArithmeticOperator getOperator() {
+				return ArithmeticOperator.EQUAL;
+			}
+
+			@Override
+			public Object[] getParameters() {
+				return new Object[] {"%l%"};
+			}
+		}, null, 0, Integer.MAX_VALUE, null, null);
+		final List<IBeanDto> dtos = res.getResultSynchronious();
+		Assert.assertNotNull(dtos);
+		Assert.assertEquals(1, dtos.size());
+	}
+
+	@Test
+	public void testPersonsWithEmptyTags() {
+		final SyncResultCallback<List<IBeanDto>> res = new SyncResultCallback<List<IBeanDto>>();
+		caseInsensitivePersonsReader.read(res, null, new IArithmeticFilter() {
+			@Override
+			public boolean isInverted() {
+				return false;
+			}
+
+			@Override
+			public String getPropertyName() {
+				return "tags";
+			}
+
+			@Override
+			public ArithmeticOperator getOperator() {
+				return ArithmeticOperator.EMPTY;
+			}
+
+			@Override
+			public Object[] getParameters() {
+				return null;
+			}
+		}, null, 0, Integer.MAX_VALUE, null, null);
+		final List<IBeanDto> dtos = res.getResultSynchronious();
+		Assert.assertNotNull(dtos);
+		Assert.assertEquals(2, dtos.size());
+	}
+
+	@Test
+	public void testPersonsOrderedByTags() {
+		final SyncResultCallback<List<IBeanDto>> res = new SyncResultCallback<List<IBeanDto>>();
+		caseInsensitivePersonsReader.read(res, null, ALL, Collections.singletonList(new ISort() {
+			@Override
+			public String getPropertyName() {
+				return "tags";
+			}
+
+			@Override
+			public SortOrder getSortOrder() {
+				return SortOrder.ASC;
+			}
+		}), 0, Integer.MAX_VALUE, null, null);
+		final List<IBeanDto> dtos = res.getResultSynchronious();
+		Assert.assertNotNull(dtos);
+		Assert.assertEquals(3, dtos.size());
+	}
 }

@@ -33,6 +33,7 @@ import java.util.Set;
 
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -68,6 +69,9 @@ public class Person implements IPerson {
 
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "owner")
 	private Set<Job> jobs = new HashSet<Job>();
+
+	@ElementCollection
+	private Set<String> tags;
 
 	@Override
 	public String getName() {
@@ -135,6 +139,16 @@ public class Person implements IPerson {
 
 	public void setJobs(final Set<Job> jobs) {
 		this.jobs = jobs;
+	}
+
+	@Override
+	public Set<String> getTags() {
+		return tags;
+	}
+
+	@Override
+	public void setTags(final Set<String> tags) {
+		this.tags = tags;
 	}
 
 }

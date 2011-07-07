@@ -64,4 +64,8 @@ public interface IPerson extends IBean {
 
 	void setBirthday(Date birthday);
 
+	Set<String> getTags();
+
+	void setTags(Set<String> tags);
+
 }
