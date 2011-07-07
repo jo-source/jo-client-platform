@@ -420,6 +420,35 @@ public class JpaReaderServiceTest extends AbstractJpaTest {
 	}
 
 	@Test
+	public void testReadAllJobsWithAnyOwnerWildcard() {
+		final SyncResultCallback<List<IBeanDto>> res = new SyncResultCallback<List<IBeanDto>>();
+		allJobsReader.read(res, null, new IArithmeticFilter() {
+			@Override
+			public boolean isInverted() {
+				return false;
+			}
+
+			@Override
+			public String getPropertyName() {
+				return "personName";
+			}
+
+			@Override
+			public ArithmeticOperator getOperator() {
+				return ArithmeticOperator.EQUAL;
+			}
+
+			@Override
+			public Object[] getParameters() {
+				return new Object[] {"%"};
+			}
+		}, null, 0, Integer.MAX_VALUE, null, null);
+		final List<IBeanDto> dtos = res.getResultSynchronious();
+		Assert.assertNotNull(dtos);
+		Assert.assertEquals(2, dtos.size());
+	}
+
+	@Test
 	public void testReadAllPersonsWithContainsAny() {
 		SyncResultCallback<List<IBeanDto>> res = new SyncResultCallback<List<IBeanDto>>();
 		allPersonsReader.read(res, null, new IArithmeticFilter() {

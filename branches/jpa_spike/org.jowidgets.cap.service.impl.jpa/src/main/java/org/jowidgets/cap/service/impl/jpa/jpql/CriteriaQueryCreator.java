@@ -28,11 +28,15 @@
 
 package org.jowidgets.cap.service.impl.jpa.jpql;
 
+import java.beans.IntrospectionException;
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -46,6 +50,7 @@ import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
+import javax.persistence.metamodel.Attribute;
 
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
@@ -207,7 +212,34 @@ public final class CriteriaQueryCreator implements IQueryCreator<Object> {
 	}
 
 	private Path<?> getPath(final Root<?> bean, final String propertyName) {
-		return bean.get(propertyName);
+		try {
+			return bean.get(propertyName);
+		}
+		catch (final IllegalArgumentException iae) {
+			// check for QueryPath annotation
+			final Class<?> beanClass = bean.getJavaType();
+			try {
+				final PropertyDescriptor descriptor = new PropertyDescriptor(propertyName, beanClass, "is"
+					+ propertyName.substring(0, 1).toUpperCase(Locale.ENGLISH)
+					+ propertyName.substring(1), null);
+				final Method readMethod = descriptor.getReadMethod();
+				final QueryPath queryPath = readMethod.getAnnotation(QueryPath.class);
+				if (queryPath != null) {
+					final String[] segments = queryPath.value().split("\\.");
+					if (segments.length >= 1) {
+						Path<?> path = bean;
+						for (final String segment : segments) {
+							path = path.get(segment);
+						}
+						return path;
+					}
+				}
+			}
+			catch (final IntrospectionException e) {
+				throw iae;
+			}
+			throw iae;
+		}
 	}
 
 	@SuppressWarnings("unchecked")
@@ -218,8 +250,8 @@ public final class CriteriaQueryCreator implements IQueryCreator<Object> {
 		final IArithmeticFilter filter) {
 
 		final Path<?> path = getPath(bean, filter.getPropertyName());
-
-		final boolean isCollection = bean.getModel().getAttribute(filter.getPropertyName()).isCollection();
+		final boolean isCollection = path.getParentPath().getParentPath() != null
+			|| ((Attribute<?, ?>) path.getModel()).isCollection();
 
 		switch (filter.getOperator()) {
 			case BETWEEN:
