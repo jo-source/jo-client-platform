@@ -33,17 +33,16 @@ import java.util.Set;
 
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
-import javax.persistence.CollectionTable;
-import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Version;
+
+import org.jowidgets.cap.service.impl.jpa.jpql.QueryPath;
 
 @Entity
 public class Person implements IPerson {
@@ -58,11 +57,6 @@ public class Person implements IPerson {
 	@Basic
 	private String name;
 
-	@ElementCollection
-	@CollectionTable(name = "JOB", joinColumns = @JoinColumn(name = "OWNER_ID"))
-	@Column(name = "TITLE", insertable = false, updatable = false)
-	private Set<String> jobTitles;
-
 	@Basic
 	private int points;
 
@@ -75,6 +69,9 @@ public class Person implements IPerson {
 
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "owner")
 	private Set<Job> jobs = new HashSet<Job>();
+
+	@ElementCollection
+	private Set<String> tags;
 
 	@Override
 	public String getName() {
@@ -127,7 +124,12 @@ public class Person implements IPerson {
 	}
 
 	@Override
+	@QueryPath("jobs.title")
 	public Set<String> getJobTitles() {
+		final Set<String> jobTitles = new HashSet<String>();
+		for (final Job job : jobs) {
+			jobTitles.add(job.getTitle());
+		}
 		return jobTitles;
 	}
 
@@ -137,6 +139,16 @@ public class Person implements IPerson {
 
 	public void setJobs(final Set<Job> jobs) {
 		this.jobs = jobs;
+	}
+
+	@Override
+	public Set<String> getTags() {
+		return tags;
+	}
+
+	@Override
+	public void setTags(final Set<String> tags) {
+		this.tags = tags;
 	}
 
 }
