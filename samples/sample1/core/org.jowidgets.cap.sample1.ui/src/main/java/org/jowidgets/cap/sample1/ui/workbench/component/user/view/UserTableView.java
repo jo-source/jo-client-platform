@@ -120,7 +120,22 @@ public class UserTableView extends AbstractView {
 		builder.setCommand(new ICommandExecutor() {
 			@Override
 			public void execute(final IExecutionContext executionContext) throws Exception {
-				beanTableModel.getAttribute(popupColumn).setVisible(false);
+				// translate logical index from view to model
+				// popupColumn is the logical index of the visible table columns
+				int visibleCount = 0;
+				for (int i = 0; i < beanTableModel.getColumnCount(); i++) {
+					// count visible bean table columns and check, if the colums match 
+					if (beanTableModel.getAttribute(i).isVisible()) {
+						if (visibleCount == popupColumn) {
+							//CHECKSTYLE:OFF
+							System.out.println("hide bean column " + i);
+							//CHECKSTYLE:ON
+							beanTableModel.getAttribute(i).setVisible(false);
+							break;
+						}
+						visibleCount++;
+					}
+				}
 			}
 		});
 		return builder.build();
