@@ -48,7 +48,6 @@ import javax.validation.metadata.ConstraintDescriptor;
 
 import org.jowidgets.api.threads.IUiThreadAccess;
 import org.jowidgets.api.toolkit.Toolkit;
-import org.jowidgets.api.validation.ValidationResult;
 import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanModification;
@@ -65,6 +64,9 @@ import org.jowidgets.cap.ui.api.execution.IExecutionTaskListener;
 import org.jowidgets.cap.ui.tools.execution.ExecutionTaskAdapter;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.NullCompatibleEquivalence;
+import org.jowidgets.validation.IValidationResult;
+import org.jowidgets.validation.IValidationResultBuilder;
+import org.jowidgets.validation.ValidationResult;
 
 final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE> {
 
@@ -256,24 +258,24 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE> {
 	}
 
 	@Override
-	public ValidationResult validate() {
-		final ValidationResult result = new ValidationResult();
+	public IValidationResult validate() {
+		final IValidationResultBuilder builder = ValidationResult.builder();
 		for (final String propertyName : getPropertyNames()) {
-			result.addValidationResult(validate(propertyName).copyAndSetContext(propertyName));
+			builder.addResult(propertyName, validate(propertyName));
 		}
-		return null;
+		return builder.build();
 	}
 
 	@Override
-	public ValidationResult validate(final String propertyName) {
+	public IValidationResult validate(final String propertyName) {
 		return validate(propertyName, getValue(propertyName));
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public ValidationResult validate(final String propertyName, final Object value) {
+	public IValidationResult validate(final String propertyName, final Object value) {
 		Assert.paramNotNull(propertyName, "propertyName");
-		final ValidationResult result = new ValidationResult();
+		final IValidationResultBuilder builder = ValidationResult.builder();
 		final Set<ConstraintViolation<BEAN_TYPE>> beanValidationResult = validator.validateValue(
 				(Class<BEAN_TYPE>) beanType,
 				propertyName,
@@ -283,23 +285,23 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE> {
 			final Annotation annotation = descriptor.getAnnotation();
 			if (annotation != null) {
 				if (NotNull.class.equals(annotation.annotationType())) {
-					result.addValidationInfoError(violation.getMessage());
+					builder.addInfoError(violation.getMessage());
 					break;
 				}
 				else if (Size.class.equals(annotation.annotationType())) {
 					final Object invalidValue = violation.getInvalidValue();
 					if (invalidValue instanceof String) {
 						if (((String) invalidValue).trim().isEmpty()) {
-							result.addValidationInfoError(violation.getMessage());
+							builder.addInfoError(violation.getMessage());
 							break;
 						}
 					}
 				}
 			}
-			result.addValidationError(violation.getMessage());
+			builder.addError(violation.getMessage());
 
 		}
-		return result;
+		return builder.build();
 	}
 
 	@SuppressWarnings("unchecked")

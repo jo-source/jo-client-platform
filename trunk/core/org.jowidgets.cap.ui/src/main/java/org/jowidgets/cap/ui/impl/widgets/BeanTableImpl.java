@@ -74,7 +74,7 @@ final class BeanTableImpl<BEAN_TYPE> extends ControlWrapper implements IBeanTabl
 					final IStringObjectConverter<Object> converter = attribute.getDefaultControlPanel().getStringObjectConverter();
 					if (converter != null) {
 						if (converter.getStringValidator() == null
-							|| converter.getStringValidator().validate(event.getCurrentText()).isOk()) {
+							|| converter.getStringValidator().validate(event.getCurrentText()).isValid()) {
 							final Object value = converter.convertToObject(event.getCurrentText());
 							bean.setValue(attribute.getPropertyName(), value);
 						}
