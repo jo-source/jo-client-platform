@@ -98,7 +98,6 @@ public class JpaReaderServiceTest extends AbstractJpaTest {
 		personPropertyNames.add("triState");
 		personPropertyNames.add("birthday");
 		personPropertyNames.add("jobTitles");
-		personPropertyNames.add("tags");
 		final CriteriaQueryCreator allPersonsQueryCreator = new CriteriaQueryCreator(Person.class);
 		allPersonsReader = new JpaReaderService<Object>(allPersonsQueryCreator, personPropertyNames);
 		allPersonsReader.setEntityManager(entityManager);
@@ -1007,21 +1006,90 @@ public class JpaReaderServiceTest extends AbstractJpaTest {
 	}
 
 	@Test
-	public void testPersonsOrderedByTags() {
+	public void testReadAllJobsForEmptyPersonState() {
 		final SyncResultCallback<List<IBeanDto>> res = new SyncResultCallback<List<IBeanDto>>();
-		caseInsensitivePersonsReader.read(res, null, ALL, Collections.singletonList(new ISort() {
+		allJobsReader.read(res, null, new IArithmeticFilter() {
 			@Override
-			public String getPropertyName() {
-				return "tags";
+			public boolean isInverted() {
+				return false;
 			}
 
 			@Override
-			public SortOrder getSortOrder() {
-				return SortOrder.ASC;
+			public String getPropertyName() {
+				return "personState";
 			}
-		}), 0, Integer.MAX_VALUE, null, null);
+
+			@Override
+			public ArithmeticOperator getOperator() {
+				return ArithmeticOperator.EMPTY;
+			}
+
+			@Override
+			public Object[] getParameters() {
+				return null;
+			}
+		}, null, 0, Integer.MAX_VALUE, null, null);
 		final List<IBeanDto> dtos = res.getResultSynchronious();
 		Assert.assertNotNull(dtos);
-		Assert.assertEquals(3, dtos.size());
+		Assert.assertEquals(2, dtos.size());
 	}
+
+	@Test
+	public void testReadAllJobsForNullPersonState() {
+		final SyncResultCallback<List<IBeanDto>> res = new SyncResultCallback<List<IBeanDto>>();
+		allJobsReader.read(res, null, new IArithmeticFilter() {
+			@Override
+			public boolean isInverted() {
+				return false;
+			}
+
+			@Override
+			public String getPropertyName() {
+				return "personState";
+			}
+
+			@Override
+			public ArithmeticOperator getOperator() {
+				return ArithmeticOperator.EQUAL;
+			}
+
+			@Override
+			public Object[] getParameters() {
+				return new Object[1];
+			}
+		}, null, 0, Integer.MAX_VALUE, null, null);
+		final List<IBeanDto> dtos = res.getResultSynchronious();
+		Assert.assertNotNull(dtos);
+		Assert.assertEquals(2, dtos.size());
+	}
+
+	@Test
+	public void testReadAllJobsForTruePersonState() {
+		final SyncResultCallback<List<IBeanDto>> res = new SyncResultCallback<List<IBeanDto>>();
+		allJobsReader.read(res, null, new IArithmeticFilter() {
+			@Override
+			public boolean isInverted() {
+				return false;
+			}
+
+			@Override
+			public String getPropertyName() {
+				return "personState";
+			}
+
+			@Override
+			public ArithmeticOperator getOperator() {
+				return ArithmeticOperator.EQUAL;
+			}
+
+			@Override
+			public Object[] getParameters() {
+				return new Object[] {true};
+			}
+		}, null, 0, Integer.MAX_VALUE, null, null);
+		final List<IBeanDto> dtos = res.getResultSynchronious();
+		Assert.assertNotNull(dtos);
+		Assert.assertEquals(0, dtos.size());
+	}
+
 }

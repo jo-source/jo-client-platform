@@ -48,4 +48,6 @@ public interface IJob extends IBean {
 
 	void setSalary(int salary);
 
+	Boolean getPersonState();
+
 }

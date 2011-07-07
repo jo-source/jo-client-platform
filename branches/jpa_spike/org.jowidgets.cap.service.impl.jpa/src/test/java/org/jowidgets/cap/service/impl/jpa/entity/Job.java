@@ -99,4 +99,10 @@ public class Job implements IJob {
 		return version;
 	}
 
+	@Override
+	@QueryPath("owner.triState")
+	public Boolean getPersonState() {
+		return owner.getTriState();
+	}
+
 }
