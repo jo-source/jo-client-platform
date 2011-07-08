@@ -19,6 +19,7 @@
 	    <module>../core/parent</module>
 		<module>../remoting/parent</module>
 		<module>../service/parent</module>
+		<module>../addons/parent</module>
 		<module>../samples/parent</module>
 	</modules>
 
