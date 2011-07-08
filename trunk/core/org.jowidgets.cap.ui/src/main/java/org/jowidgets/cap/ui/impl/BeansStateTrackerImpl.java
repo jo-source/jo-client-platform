@@ -39,6 +39,8 @@ import org.jowidgets.cap.ui.api.bean.IBeansStateTracker;
 import org.jowidgets.cap.ui.api.execution.IExecutionTask;
 import org.jowidgets.cap.ui.api.model.IModificationStateListener;
 import org.jowidgets.cap.ui.api.model.IProcessStateListener;
+import org.jowidgets.cap.ui.tools.model.ModificationStateObservable;
+import org.jowidgets.cap.ui.tools.model.ProcessStateObservable;
 import org.jowidgets.util.Assert;
 
 final class BeansStateTrackerImpl<BEAN_TYPE> implements IBeansStateTracker<BEAN_TYPE> {

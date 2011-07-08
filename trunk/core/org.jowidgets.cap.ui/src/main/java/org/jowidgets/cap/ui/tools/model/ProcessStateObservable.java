@@ -26,35 +26,35 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.impl;
+package org.jowidgets.cap.ui.tools.model;
 
 import java.util.HashSet;
 import java.util.Set;
 
-import org.jowidgets.cap.ui.api.model.IModificationStateListener;
-import org.jowidgets.cap.ui.api.model.IModificationStateObservable;
+import org.jowidgets.cap.ui.api.model.IProcessStateListener;
+import org.jowidgets.cap.ui.api.model.IProcessStateObservable;
 
-class ModificationStateObservable implements IModificationStateObservable {
+public class ProcessStateObservable implements IProcessStateObservable {
 
-	private final Set<IModificationStateListener> listeners;
+	private final Set<IProcessStateListener> listeners;
 
-	ModificationStateObservable() {
-		this.listeners = new HashSet<IModificationStateListener>();
+	public ProcessStateObservable() {
+		this.listeners = new HashSet<IProcessStateListener>();
 	}
 
 	@Override
-	public final void addModificationStateListener(final IModificationStateListener listener) {
+	public final void addProcessStateListener(final IProcessStateListener listener) {
 		listeners.add(listener);
 	}
 
 	@Override
-	public final void removeModificationStateListener(final IModificationStateListener listener) {
+	public final void removeProcessStateListener(final IProcessStateListener listener) {
 		listeners.remove(listener);
 	}
 
-	public final void fireModificationStateChanged() {
-		for (final IModificationStateListener listener : listeners) {
-			listener.modificationStateChanged();
+	public final void fireProcessStateChanged() {
+		for (final IProcessStateListener listener : listeners) {
+			listener.processStateChanged();
 		}
 	}
 }
