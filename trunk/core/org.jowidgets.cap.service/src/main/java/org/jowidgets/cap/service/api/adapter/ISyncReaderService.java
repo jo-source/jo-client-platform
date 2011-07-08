@@ -47,6 +47,10 @@ public interface ISyncReaderService<PARAM_TYPE> {
 		PARAM_TYPE parameter,
 		IExecutionCallback executionCallback);
 
-	int count(List<? extends IBeanKey> parentBeanKeys, IFilter filter, PARAM_TYPE parameter, IExecutionCallback executionCallback);
+	Integer count(
+		List<? extends IBeanKey> parentBeanKeys,
+		IFilter filter,
+		PARAM_TYPE parameter,
+		IExecutionCallback executionCallback);
 
 }

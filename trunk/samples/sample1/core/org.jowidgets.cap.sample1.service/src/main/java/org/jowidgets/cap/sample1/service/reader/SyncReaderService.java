@@ -71,7 +71,7 @@ public class SyncReaderService<BEAN_TYPE extends IBean> implements ISyncReaderSe
 	}
 
 	@Override
-	public int count(
+	public Integer count(
 		final List<? extends IBeanKey> parentBeans,
 		final IFilter filter,
 		final Void parameter,
@@ -79,7 +79,7 @@ public class SyncReaderService<BEAN_TYPE extends IBean> implements ISyncReaderSe
 
 		//TODO apply filter
 
-		return data.getAllData().size();
+		return Integer.valueOf(data.getAllData().size());
 	}
 
 }

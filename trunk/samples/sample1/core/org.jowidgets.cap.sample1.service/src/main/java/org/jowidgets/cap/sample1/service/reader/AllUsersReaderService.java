@@ -88,13 +88,13 @@ public class AllUsersReaderService implements ISyncReaderService<Integer> {
 	}
 
 	@Override
-	public int count(
+	public Integer count(
 		final List<? extends IBeanKey> parentBeanKeys,
 		final IFilter filter,
 		final Integer delay,
 		final IExecutionCallback executionCallback) {
 
-		return readerService.count(parentBeanKeys, filter, null, executionCallback);
+		return Integer.valueOf(readerService.count(parentBeanKeys, filter, null, executionCallback));
 	}
 
 }
