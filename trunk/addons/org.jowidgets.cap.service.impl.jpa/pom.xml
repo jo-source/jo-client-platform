@@ -8,7 +8,7 @@
 
 	<parent>
 		<groupId>org.jowidgets</groupId>
-		<artifactId>org.jowidgets.cap.core.parent</artifactId>
+		<artifactId>org.jowidgets.cap.addons.parent</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 		<relativePath>../parent/pom.xml</relativePath>
 	</parent>
