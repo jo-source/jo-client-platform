@@ -261,7 +261,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE> {
 	public IValidationResult validate() {
 		final IValidationResultBuilder builder = ValidationResult.builder();
 		for (final String propertyName : getPropertyNames()) {
-			builder.addResult(propertyName, validate(propertyName));
+			builder.addResult(validate(propertyName).withContext(propertyName));
 		}
 		return builder.build();
 	}

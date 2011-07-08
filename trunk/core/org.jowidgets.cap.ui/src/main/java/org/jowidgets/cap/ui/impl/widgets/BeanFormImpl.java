@@ -172,7 +172,7 @@ final class BeanFormImpl<BEAN_TYPE> extends ControlWrapper implements IBeanForm<
 			final IAttribute<?> attribute = attributes.get(propertyName);
 			final String label = attribute.getLabel();
 			final IValidationResult validationResult = control.validate();
-			builder.addResult(label, validationResult);
+			builder.addResult(validationResult.withContext(label));
 		}
 
 		return builder.build();
