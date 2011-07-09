@@ -58,7 +58,7 @@ final class SyncInvocationCallback<RESULT_TYPE> implements IInvocationCallback<R
 				}
 
 				@Override
-				public void executionCanceled() {
+				public void canceled() {
 					exeption(new ServiceCanceledException());
 				}
 			});
@@ -75,7 +75,7 @@ final class SyncInvocationCallback<RESULT_TYPE> implements IInvocationCallback<R
 				}
 
 				@Override
-				public void executionCanceled() {
+				public void canceled() {
 					cancelListener.canceled();
 				}
 			});

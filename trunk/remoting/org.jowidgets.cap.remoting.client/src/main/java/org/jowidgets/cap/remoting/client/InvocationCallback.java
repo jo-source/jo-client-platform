@@ -54,7 +54,7 @@ final class InvocationCallback<RESULT_TYPE> implements IInvocationCallback<RESUL
 				}
 
 				@Override
-				public void executionCanceled() {
+				public void canceled() {
 					cancelListener.canceled();
 				}
 			});

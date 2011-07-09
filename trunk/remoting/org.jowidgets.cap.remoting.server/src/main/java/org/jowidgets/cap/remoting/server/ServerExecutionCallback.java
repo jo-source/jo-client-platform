@@ -96,7 +96,7 @@ final class ServerExecutionCallback implements IExecutionCallback {
 				canceled = true;
 				for (final IExecutionCallbackListener listener : new LinkedList<IExecutionCallbackListener>(
 					executionCallbackListeners)) {
-					listener.executionCanceled();
+					listener.canceled();
 				}
 			}
 		});

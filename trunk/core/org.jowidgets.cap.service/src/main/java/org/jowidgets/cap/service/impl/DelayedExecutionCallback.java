@@ -190,7 +190,7 @@ final class DelayedExecutionCallback implements IExecutionCallback {
 
 	public void fireCanceled() {
 		for (final IExecutionCallbackListener listener : executionCallbackListeners) {
-			listener.executionCanceled();
+			listener.canceled();
 		}
 	}
 
@@ -202,7 +202,7 @@ final class DelayedExecutionCallback implements IExecutionCallback {
 
 	public final class ExecutionCallbackListener implements IExecutionCallbackListener {
 		@Override
-		public void executionCanceled() {
+		public void canceled() {
 			canceled = true;
 			fireCanceled();
 			updaterThread.interrupt();
