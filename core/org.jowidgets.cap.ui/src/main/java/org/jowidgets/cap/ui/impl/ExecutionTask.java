@@ -111,7 +111,6 @@ public final class ExecutionTask implements IExecutionTask, IUserAnswerCallback,
 	public void finshed() {
 		this.finished = true;
 		fireFinished();
-		dispose();
 	}
 
 	@Override
@@ -209,15 +208,6 @@ public final class ExecutionTask implements IExecutionTask, IUserAnswerCallback,
 		for (final IExecutionTask subExecution : new LinkedList<IExecutionTask>(subExecutions)) {
 			subExecution.cancel();
 		}
-		dispose();
-	}
-
-	@Override
-	public void dispose() {
-		fireOnDispose();
-		for (final IExecutionTask subExecution : subExecutions) {
-			subExecution.dispose();
-		}
 	}
 
 	@Override
@@ -268,12 +258,6 @@ public final class ExecutionTask implements IExecutionTask, IUserAnswerCallback,
 	private void fireCanceled() {
 		for (final IExecutionCallbackListener listener : executionCallbackListeners) {
 			listener.canceled();
-		}
-	}
-
-	private void fireOnDispose() {
-		for (final IExecutionCallbackListener listener : executionCallbackListeners) {
-			listener.onDispose();
 		}
 	}
 

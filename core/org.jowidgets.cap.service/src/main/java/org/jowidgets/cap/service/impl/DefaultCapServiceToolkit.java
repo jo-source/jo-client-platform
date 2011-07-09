@@ -29,6 +29,8 @@
 package org.jowidgets.cap.service.impl;
 
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.exception.ServiceCanceledException;
@@ -47,15 +49,18 @@ import org.jowidgets.cap.service.api.refresh.IRefreshServiceBuilder;
 import org.jowidgets.cap.service.api.updater.IUpdaterServiceBuilder;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.api.IServiceRegistry;
+import org.jowidgets.util.concurrent.DaemonThreadFactory;
 
 public final class DefaultCapServiceToolkit implements ICapServiceToolkit {
 
 	private final IAdapterFactoryProvider adapterFactoryProvider;
 	private final IDecoratorProviderFactory decoratorProviderFactory;
+	private final ScheduledExecutorService scheduledExecutorService;
 
 	public DefaultCapServiceToolkit() {
 		this.adapterFactoryProvider = new AdapterFactoryProviderImpl();
 		this.decoratorProviderFactory = new DecoratorProviderFactoryImpl();
+		this.scheduledExecutorService = Executors.newScheduledThreadPool(20, new DaemonThreadFactory());
 	}
 
 	@Override
@@ -104,13 +109,16 @@ public final class DefaultCapServiceToolkit implements ICapServiceToolkit {
 	}
 
 	@Override
-	public IExecutionCallback delayedExecutionCallback(final IExecutionCallback executionCallback, final Long delay) {
-		return new DelayedExecutionCallback(executionCallback, delay);
+	public IExecutionCallback delayedExecutionCallback(
+		final IExecutionCallback executionCallback,
+		final ScheduledExecutorService scheduledExecutorService,
+		final Long delay) {
+		return new DelayedExecutionCallback(executionCallback, scheduledExecutorService, delay);
 	}
 
 	@Override
 	public IExecutionCallback delayedExecutionCallback(final IExecutionCallback executionCallback) {
-		return new DelayedExecutionCallback(executionCallback);
+		return delayedExecutionCallback(executionCallback, scheduledExecutorService, null);
 	}
 
 	@Override

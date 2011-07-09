@@ -29,6 +29,7 @@
 package org.jowidgets.cap.service.impl;
 
 import java.util.concurrent.Executor;
+import java.util.concurrent.ScheduledExecutorService;
 
 import org.jowidgets.service.api.IServicesDecoratorProvider;
 import org.jowidgets.util.Assert;
@@ -37,10 +38,18 @@ import org.jowidgets.util.IDecorator;
 final class AsyncDecoratorProvider implements IServicesDecoratorProvider {
 
 	private final Executor executor;
+	private final ScheduledExecutorService scheduledExecutorService;
+	private final Long executionCallbackDelay;
 
-	AsyncDecoratorProvider(final Executor executor) {
+	AsyncDecoratorProvider(
+		final Executor executor,
+		final ScheduledExecutorService scheduledExecutorService,
+		final Long executionCallbackDelay) {
 		Assert.paramNotNull(executor, "executor");
+		Assert.paramNotNull(scheduledExecutorService, "scheduledExecutorService");
 		this.executor = executor;
+		this.scheduledExecutorService = scheduledExecutorService;
+		this.executionCallbackDelay = executionCallbackDelay;
 	}
 
 	@Override
@@ -51,7 +60,11 @@ final class AsyncDecoratorProvider implements IServicesDecoratorProvider {
 	@SuppressWarnings("unchecked")
 	@Override
 	public <SERVICE_TYPE> IDecorator<SERVICE_TYPE> getDecorator(final Class<? extends SERVICE_TYPE> type) {
-		return (IDecorator<SERVICE_TYPE>) new GenericServiceAsyncDecorator(type, executor);
+		return (IDecorator<SERVICE_TYPE>) new GenericServiceAsyncDecorator(
+			type,
+			executor,
+			scheduledExecutorService,
+			executionCallbackDelay);
 	}
 
 }

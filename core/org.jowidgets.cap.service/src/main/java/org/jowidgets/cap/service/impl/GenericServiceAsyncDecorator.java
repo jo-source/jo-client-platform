@@ -32,20 +32,30 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ScheduledExecutorService;
 
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
+import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.IDecorator;
 
 final class GenericServiceAsyncDecorator implements IDecorator<Object> {
 
+	private final Long executionCallbackDelay;
 	private final Executor executor;
+	private final ScheduledExecutorService scheduledExecutorService;
 	private final Class<?> serviceType;
 
-	GenericServiceAsyncDecorator(final Class<?> serviceType, final Executor executor) {
+	GenericServiceAsyncDecorator(
+		final Class<?> serviceType,
+		final Executor executor,
+		final ScheduledExecutorService scheduledExecutorService,
+		final Long executionCallbackDelay) {
 		this.serviceType = serviceType;
 		this.executor = executor;
+		this.scheduledExecutorService = scheduledExecutorService;
+		this.executionCallbackDelay = executionCallbackDelay;
 	}
 
 	@Override
@@ -83,7 +93,22 @@ final class GenericServiceAsyncDecorator implements IDecorator<Object> {
 			}
 			else {
 				final int executionCallbackIndex = getFirstMatchingIndex(IExecutionCallback.class, parameterTypes);
-				final IExecutionCallback executionCallback = (IExecutionCallback) args[executionCallbackIndex];
+				final IExecutionCallback executionCallback;
+				if (executionCallbackIndex != -1) {
+					if (executionCallbackDelay != null && args[executionCallbackIndex] != null) {
+						executionCallback = CapServiceToolkit.delayedExecutionCallback(
+								(IExecutionCallback) args[executionCallbackIndex],
+								scheduledExecutorService,
+								executionCallbackDelay);
+						args[executionCallbackIndex] = executionCallback;
+					}
+					else {
+						executionCallback = (IExecutionCallback) args[executionCallbackIndex];
+					}
+				}
+				else {
+					executionCallback = null;
+				}
 
 				@SuppressWarnings("unchecked")
 				final IResultCallback<Object> resultCallback = (IResultCallback<Object>) args[resultCallbackIndex];

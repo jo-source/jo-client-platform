@@ -32,6 +32,4 @@ public interface IExecutionCallbackListener {
 
 	void canceled();
 
-	void onDispose();
-
 }

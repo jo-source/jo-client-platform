@@ -29,6 +29,7 @@
 package org.jowidgets.cap.service.api;
 
 import java.util.List;
+import java.util.concurrent.ScheduledExecutorService;
 
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
@@ -74,7 +75,10 @@ public interface ICapServiceToolkit {
 
 	<BEAN_TYPE extends IBean> IRefreshServiceBuilder<BEAN_TYPE> refreshServiceBuilder(IBeanAccess<? extends BEAN_TYPE> beanAccess);
 
-	IExecutionCallback delayedExecutionCallback(IExecutionCallback executionCallback, Long delay);
+	IExecutionCallback delayedExecutionCallback(
+		IExecutionCallback executionCallback,
+		final ScheduledExecutorService scheduledExecutorService,
+		Long delay);
 
 	IExecutionCallback delayedExecutionCallback(IExecutionCallback executionCallback);
 

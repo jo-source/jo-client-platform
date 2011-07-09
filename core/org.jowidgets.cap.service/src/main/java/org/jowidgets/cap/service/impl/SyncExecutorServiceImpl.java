@@ -57,8 +57,6 @@ public final class SyncExecutorServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE> 
 	private final IExecutableChecker<BEAN_TYPE> executableChecker;
 	private final boolean allowDeletedBeans;
 	private final boolean allowStaleBeans;
-	private final boolean delayedExecutionCallback;
-	private final Long executionCallbackDelay;
 
 	private final IBeanDtoFactory<BEAN_TYPE> dtoFactory;
 
@@ -70,9 +68,7 @@ public final class SyncExecutorServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE> 
 		final IExecutableChecker<? extends BEAN_TYPE> executableChecker,
 		final List<String> propertyNames,
 		final boolean allowDeletedBeans,
-		final boolean allowStaleBeans,
-		final boolean delayedExecutionCallback,
-		final Long executionCallbackDelay) {
+		final boolean allowStaleBeans) {
 
 		Assert.paramNotNull(beanType, "beanType");
 		Assert.paramNotNull(beanAccess, "beanAccess");
@@ -84,8 +80,6 @@ public final class SyncExecutorServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE> 
 		this.executableChecker = (IExecutableChecker<BEAN_TYPE>) executableChecker;
 		this.allowDeletedBeans = allowDeletedBeans;
 		this.allowStaleBeans = allowStaleBeans;
-		this.delayedExecutionCallback = delayedExecutionCallback;
-		this.executionCallbackDelay = executionCallbackDelay;
 
 		this.dtoFactory = CapServiceToolkit.dtoFactory(beanType, propertyNames);
 	}
@@ -94,13 +88,9 @@ public final class SyncExecutorServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE> 
 	public List<IBeanDto> execute(
 		final List<? extends IBeanKey> keys,
 		final PARAM_TYPE parameter,
-		IExecutionCallback executionCallback) {
+		final IExecutionCallback executionCallback) {
 
 		Assert.paramNotNull(keys, "beanInfos");
-
-		if (delayedExecutionCallback) {
-			executionCallback = CapServiceToolkit.delayedExecutionCallback(executionCallback, executionCallbackDelay);
-		}
 
 		CapServiceToolkit.checkCanceled(executionCallback);
 

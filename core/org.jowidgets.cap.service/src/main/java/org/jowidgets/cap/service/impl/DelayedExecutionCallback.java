@@ -28,9 +28,11 @@
 
 package org.jowidgets.cap.service.impl;
 
-import java.lang.reflect.UndeclaredThrowableException;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IExecutionCallbackListener;
@@ -38,7 +40,6 @@ import org.jowidgets.cap.common.api.execution.IUserQuestionCallback;
 import org.jowidgets.cap.common.api.execution.UserQuestionResult;
 import org.jowidgets.util.Assert;
 
-//TODO Review MG - MW, maybe its better to have one thread to update all tasks
 final class DelayedExecutionCallback implements IExecutionCallback {
 
 	private static final long DEFAULT_DELAY = 200;
@@ -46,12 +47,11 @@ final class DelayedExecutionCallback implements IExecutionCallback {
 	private final IExecutionCallback executionCallback;
 	private final long delay;
 	private final Set<IExecutionCallbackListener> executionCallbackListeners;
-	private final Thread updaterThread;
 	private final IExecutionCallbackListener executionCallbackListener;
+	private final ScheduledExecutorService scheduledExecutorService;
+	private final AtomicBoolean isProgressScheduled;
 
 	private boolean canceled;
-	private boolean finished;
-	private boolean disposed;
 
 	private Integer lastTotalStepCount;
 	private Integer totalStepCount;
@@ -62,12 +62,16 @@ final class DelayedExecutionCallback implements IExecutionCallback {
 	private String lastDescription;
 	private String description;
 
-	DelayedExecutionCallback(final IExecutionCallback executionCallback) {
-		this(executionCallback, null);
+	DelayedExecutionCallback(final IExecutionCallback executionCallback, final ScheduledExecutorService scheduledExecutorService) {
+		this(executionCallback, scheduledExecutorService, null);
 	}
 
-	DelayedExecutionCallback(final IExecutionCallback executionCallback, final Long delay) {
+	DelayedExecutionCallback(
+		final IExecutionCallback executionCallback,
+		final ScheduledExecutorService scheduledExecutorService,
+		final Long delay) {
 		Assert.paramNotNull(executionCallback, "executionCallback");
+		Assert.paramNotNull(scheduledExecutorService, "scheduledExecutorService");
 		this.executionCallback = executionCallback;
 		this.executionCallbackListeners = new HashSet<IExecutionCallbackListener>();
 		this.canceled = executionCallback.isCanceled();
@@ -79,47 +83,8 @@ final class DelayedExecutionCallback implements IExecutionCallback {
 			this.delay = DEFAULT_DELAY;
 		}
 
-		this.updaterThread = new Thread(new Runnable() {
-
-			@Override
-			public void run() {
-				while (!finished && !canceled && !disposed) {
-					try {
-						Thread.sleep(DelayedExecutionCallback.this.delay);
-
-						if (description != null && !description.equals(lastDescription)) {
-							executionCallback.setDescription(description);
-							lastDescription = description;
-						}
-						if (totalStepCount != null && !totalStepCount.equals(lastTotalStepCount)) {
-							executionCallback.setTotalStepCount(totalStepCount.intValue());
-							lastTotalStepCount = totalStepCount;
-						}
-						if (worked != null && !worked.equals(lastWorked)) {
-							final int last = lastWorked != null ? lastWorked.intValue() : 0;
-							executionCallback.worked(worked.intValue() - last);
-							lastWorked = worked;
-						}
-					}
-					catch (final UndeclaredThrowableException e) {
-						final Throwable t = e.getCause();
-						if (t instanceof InterruptedException) {
-							// thrown when remote call is interrupted
-							Thread.currentThread().interrupt();
-							break;
-						}
-						throw e;
-					}
-					catch (final InterruptedException e) {
-						Thread.currentThread().interrupt();
-						break;
-					}
-				}
-			}
-		});
-
-		this.updaterThread.setDaemon(true);
-		this.updaterThread.start();
+		this.scheduledExecutorService = scheduledExecutorService;
+		this.isProgressScheduled = new AtomicBoolean(false);
 
 		this.executionCallbackListener = new ExecutionCallbackListener();
 		this.executionCallback.addExecutionCallbackListener(executionCallbackListener);
@@ -131,18 +96,20 @@ final class DelayedExecutionCallback implements IExecutionCallback {
 	}
 
 	@Override
-	public void setTotalStepCount(final int stepCount) {
+	public synchronized void setTotalStepCount(final int stepCount) {
 		this.totalStepCount = Integer.valueOf(stepCount);
+		setDirty();
 	}
 
 	@Override
-	public void worked(final int stepCount) {
+	public synchronized void worked(final int stepCount) {
 		if (worked == null) {
 			this.worked = Integer.valueOf(stepCount);
 		}
 		else {
 			this.worked = Integer.valueOf(stepCount + worked.intValue());
 		}
+		setDirty();
 	}
 
 	@Override
@@ -151,14 +118,13 @@ final class DelayedExecutionCallback implements IExecutionCallback {
 	}
 
 	@Override
-	public void setDescription(final String descritpion) {
+	public synchronized void setDescription(final String descritpion) {
 		this.description = descritpion;
+		setDirty();
 	}
 
 	@Override
 	public void finshed() {
-		this.finished = true;
-		updaterThread.interrupt();
 		executionCallback.finshed();
 	}
 
@@ -175,7 +141,7 @@ final class DelayedExecutionCallback implements IExecutionCallback {
 	@Override
 	public IExecutionCallback createSubExecution(final int stepProportion) {
 		final IExecutionCallback callback = executionCallback.createSubExecution(stepProportion);
-		return new DelayedExecutionCallback(callback, delay);
+		return new DelayedExecutionCallback(callback, scheduledExecutorService, delay);
 	}
 
 	@Override
@@ -194,9 +160,27 @@ final class DelayedExecutionCallback implements IExecutionCallback {
 		}
 	}
 
-	public void fireOnDispose() {
-		for (final IExecutionCallbackListener listener : executionCallbackListeners) {
-			listener.onDispose();
+	void setDirty() {
+		if (isProgressScheduled.compareAndSet(false, true)) {
+			scheduledExecutorService.schedule(new Runnable() {
+				@Override
+				public void run() {
+					isProgressScheduled.set(false);
+					if (description != null && !description.equals(lastDescription)) {
+						executionCallback.setDescription(description);
+						lastDescription = description;
+					}
+					if (totalStepCount != null && !totalStepCount.equals(lastTotalStepCount)) {
+						executionCallback.setTotalStepCount(totalStepCount.intValue());
+						lastTotalStepCount = totalStepCount;
+					}
+					if (worked != null && !worked.equals(lastWorked)) {
+						final int last = lastWorked != null ? lastWorked.intValue() : 0;
+						executionCallback.worked(worked.intValue() - last);
+						lastWorked = worked;
+					}
+				}
+			}, delay, TimeUnit.MILLISECONDS);
 		}
 	}
 
@@ -205,15 +189,6 @@ final class DelayedExecutionCallback implements IExecutionCallback {
 		public void canceled() {
 			canceled = true;
 			fireCanceled();
-			updaterThread.interrupt();
-		}
-
-		@Override
-		public void onDispose() {
-			disposed = true;
-			fireOnDispose();
-			executionCallback.removeExecutionCallbackListener(executionCallbackListener);
-			updaterThread.interrupt();
 		}
 	}
 
