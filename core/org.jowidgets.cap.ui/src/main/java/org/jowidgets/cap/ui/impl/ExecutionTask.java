@@ -267,7 +267,7 @@ public final class ExecutionTask implements IExecutionTask, IUserAnswerCallback,
 
 	private void fireCanceled() {
 		for (final IExecutionCallbackListener listener : executionCallbackListeners) {
-			listener.executionCanceled();
+			listener.canceled();
 		}
 	}
 

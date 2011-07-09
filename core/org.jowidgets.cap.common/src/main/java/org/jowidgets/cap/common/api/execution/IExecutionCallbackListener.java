@@ -30,7 +30,7 @@ package org.jowidgets.cap.common.api.execution;
 
 public interface IExecutionCallbackListener {
 
-	void executionCanceled();
+	void canceled();
 
 	void onDispose();
 
