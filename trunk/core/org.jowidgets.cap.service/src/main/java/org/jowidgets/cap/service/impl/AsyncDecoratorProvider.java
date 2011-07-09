@@ -30,47 +30,28 @@ package org.jowidgets.cap.service.impl;
 
 import java.util.concurrent.Executor;
 
-import org.jowidgets.cap.common.api.service.ICreatorService;
-import org.jowidgets.cap.common.api.service.IDeleterService;
-import org.jowidgets.cap.common.api.service.IExecutorService;
-import org.jowidgets.cap.common.api.service.IParameterProviderService;
-import org.jowidgets.cap.common.api.service.IReaderService;
-import org.jowidgets.cap.common.api.service.IRefreshService;
-import org.jowidgets.cap.common.api.service.IUpdaterService;
 import org.jowidgets.service.api.IServicesDecoratorProvider;
-import org.jowidgets.service.api.IServicesDecoratorProviderBuilder;
-import org.jowidgets.service.api.ServiceToolkit;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.IDecorator;
 
 final class AsyncDecoratorProvider implements IServicesDecoratorProvider {
 
-	private final IServicesDecoratorProvider servicesDecoratorProvider;
+	private final Executor executor;
 
 	AsyncDecoratorProvider(final Executor executor) {
 		Assert.paramNotNull(executor, "executor");
-
-		final IServicesDecoratorProviderBuilder builder = ServiceToolkit.serviceDecoratorProviderBuilder();
-
-		builder.setServiceDecorator(ICreatorService.class, new CreatorServiceAsyncDecorator(executor));
-		builder.setServiceDecorator(IReaderService.class, new ReaderServiceAsyncDecorator(executor));
-		builder.setServiceDecorator(IRefreshService.class, new RefreshServiceAsyncDecorator(executor));
-		builder.setServiceDecorator(IUpdaterService.class, new UpdaterServiceAsyncDecorator(executor));
-		builder.setServiceDecorator(IExecutorService.class, new ExecutorServiceAsyncDecorator(executor));
-		builder.setServiceDecorator(IParameterProviderService.class, new ParameterProviderServiceAsyncDecorator(executor));
-		builder.setServiceDecorator(IDeleterService.class, new DeleterServiceAsyncDecorator(executor));
-
-		this.servicesDecoratorProvider = builder.build();
+		this.executor = executor;
 	}
 
 	@Override
 	public IDecorator<Object> getDefaultDecorator() {
-		return servicesDecoratorProvider.getDefaultDecorator();
+		return null;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public <SERVICE_TYPE> IDecorator<SERVICE_TYPE> getDecorator(final Class<? extends SERVICE_TYPE> type) {
-		return servicesDecoratorProvider.getDecorator(type);
+		return (IDecorator<SERVICE_TYPE>) new GenericServiceAsyncDecorator(type, executor);
 	}
 
 }
