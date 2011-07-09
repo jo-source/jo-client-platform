@@ -29,12 +29,18 @@
 package org.jowidgets.cap.service.api.decorator;
 
 import java.util.concurrent.Executor;
+import java.util.concurrent.ScheduledExecutorService;
 
 import org.jowidgets.service.api.IServicesDecoratorProvider;
 
 public interface IDecoratorProviderFactory {
 
-	IServicesDecoratorProvider asyncDecoratorProvider(Executor executor);
+	IServicesDecoratorProvider asyncDecoratorProvider(
+		Executor executor,
+		ScheduledExecutorService scheduledExecutorService,
+		Long executorCallbackDelay);
+
+	IServicesDecoratorProvider asyncDecoratorProvider(Long executorCallbackDelay);
 
 	IServicesDecoratorProvider asyncDecoratorProvider();
 

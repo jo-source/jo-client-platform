@@ -732,9 +732,6 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 						//TODO to proper error handling here
 						throw (new RuntimeException(e));
 					}
-					finally {
-						executionTask.dispose();
-					}
 
 					if (canceled || executionTask.isCanceled()) {
 						removePageLater();

@@ -30,6 +30,7 @@ package org.jowidgets.cap.service.impl;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 import org.jowidgets.cap.service.api.decorator.IDecoratorProviderFactory;
 import org.jowidgets.service.api.IServicesDecoratorProvider;
@@ -37,16 +38,30 @@ import org.jowidgets.util.concurrent.DaemonThreadFactory;
 
 final class DecoratorProviderFactoryImpl implements IDecoratorProviderFactory {
 
-	DecoratorProviderFactoryImpl() {}
+	private final Executor executor;
+	private final ScheduledExecutorService scheduledExecutorService;
 
-	@Override
-	public IServicesDecoratorProvider asyncDecoratorProvider() {
-		return new AsyncDecoratorProvider(Executors.newFixedThreadPool(50, new DaemonThreadFactory()));
+	DecoratorProviderFactoryImpl() {
+		this.executor = Executors.newFixedThreadPool(50, new DaemonThreadFactory());
+		this.scheduledExecutorService = Executors.newScheduledThreadPool(20, new DaemonThreadFactory());
 	}
 
 	@Override
-	public IServicesDecoratorProvider asyncDecoratorProvider(final Executor executor) {
-		return new AsyncDecoratorProvider(executor);
+	public IServicesDecoratorProvider asyncDecoratorProvider(
+		final Executor executor,
+		final ScheduledExecutorService scheduledExecutorService,
+		final Long executorCallbackDelay) {
+		return new AsyncDecoratorProvider(executor, scheduledExecutorService, executorCallbackDelay);
+	}
+
+	@Override
+	public IServicesDecoratorProvider asyncDecoratorProvider(final Long executorCallbackDelay) {
+		return asyncDecoratorProvider(executor, scheduledExecutorService, executorCallbackDelay);
+	}
+
+	@Override
+	public IServicesDecoratorProvider asyncDecoratorProvider() {
+		return asyncDecoratorProvider(null);
 	}
 
 }

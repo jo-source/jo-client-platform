@@ -58,11 +58,6 @@ public interface IExecutionTask extends IExecutionCallback {
 	void cancel();
 
 	/**
-	 * Disposes the task.
-	 */
-	void dispose();
-
-	/**
 	 * Gets the total number of steps this execution has. If this value is not set, the
 	 * execution is indeterminate (leads to an indeterminate progress bar)
 	 * 

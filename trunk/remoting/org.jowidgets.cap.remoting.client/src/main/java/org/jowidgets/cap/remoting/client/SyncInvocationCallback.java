@@ -53,11 +53,6 @@ final class SyncInvocationCallback<RESULT_TYPE> implements IInvocationCallback<R
 		if (executionCallback != null) {
 			executionCallback.addExecutionCallbackListener(new IExecutionCallbackListener() {
 				@Override
-				public void onDispose() {
-					exeption(new ServiceCanceledException());
-				}
-
-				@Override
 				public void canceled() {
 					exeption(new ServiceCanceledException());
 				}
@@ -69,11 +64,6 @@ final class SyncInvocationCallback<RESULT_TYPE> implements IInvocationCallback<R
 	public void addCancelListener(final ICancelListener cancelListener) {
 		if (executionCallback != null) {
 			executionCallback.addExecutionCallbackListener(new IExecutionCallbackListener() {
-				@Override
-				public void onDispose() {
-					cancelListener.canceled();
-				}
-
 				@Override
 				public void canceled() {
 					cancelListener.canceled();

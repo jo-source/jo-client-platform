@@ -56,8 +56,6 @@ final class ExecutorServiceBuilderImpl<BEAN_TYPE extends IBean, PARAM_TYPE> impl
 	private List<String> propertyNames;
 	private boolean allowDeletedBeans;
 	private boolean allowStaleBeans;
-	private Long executionCallbackDelay;
-	private boolean delayedExecutionCallback;
 
 	ExecutorServiceBuilderImpl(final IBeanAccess<? extends BEAN_TYPE> beanAccess) {
 		Assert.paramNotNull(beanAccess, "beanAccess");
@@ -68,8 +66,6 @@ final class ExecutorServiceBuilderImpl<BEAN_TYPE extends IBean, PARAM_TYPE> impl
 
 		this.allowDeletedBeans = false;
 		this.allowStaleBeans = false;
-
-		this.delayedExecutionCallback = false;
 	}
 
 	@Override
@@ -111,19 +107,6 @@ final class ExecutorServiceBuilderImpl<BEAN_TYPE extends IBean, PARAM_TYPE> impl
 		return this;
 	}
 
-	@Override
-	public IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> setExecutionCallbackDelay(final long delay) {
-		this.delayedExecutionCallback = true;
-		this.executionCallbackDelay = Long.valueOf(delay);
-		return this;
-	}
-
-	@Override
-	public IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> setDelayedExecutionCallback(final boolean delayedCallback) {
-		this.delayedExecutionCallback = delayedCallback;
-		return this;
-	}
-
 	public Class<? extends BEAN_TYPE> getBeanType() {
 		return beanType;
 	}
@@ -162,9 +145,7 @@ final class ExecutorServiceBuilderImpl<BEAN_TYPE extends IBean, PARAM_TYPE> impl
 			executableChecker,
 			getPropertyNames(),
 			allowDeletedBeans,
-			allowStaleBeans,
-			delayedExecutionCallback,
-			executionCallbackDelay);
+			allowStaleBeans);
 	}
 
 }

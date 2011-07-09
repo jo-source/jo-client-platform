@@ -49,11 +49,6 @@ final class InvocationCallback<RESULT_TYPE> implements IInvocationCallback<RESUL
 		if (executionCallback != null) {
 			executionCallback.addExecutionCallbackListener(new IExecutionCallbackListener() {
 				@Override
-				public void onDispose() {
-					cancelListener.canceled();
-				}
-
-				@Override
 				public void canceled() {
 					cancelListener.canceled();
 				}
