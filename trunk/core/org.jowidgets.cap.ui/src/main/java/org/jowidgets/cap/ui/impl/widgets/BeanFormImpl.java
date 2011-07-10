@@ -39,8 +39,8 @@ import org.jowidgets.api.widgets.IComposite;
 import org.jowidgets.api.widgets.IContainer;
 import org.jowidgets.api.widgets.IInputControl;
 import org.jowidgets.api.widgets.IScrollComposite;
-import org.jowidgets.api.widgets.IValidationLabel;
-import org.jowidgets.api.widgets.blueprint.IValidationLabelBluePrint;
+import org.jowidgets.api.widgets.IValidationResultLabel;
+import org.jowidgets.api.widgets.blueprint.IValidationResultLabelBluePrint;
 import org.jowidgets.api.widgets.blueprint.factory.IBluePrintFactory;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IControlPanelProvider;
@@ -59,6 +59,7 @@ import org.jowidgets.tools.layout.MigLayoutFactory;
 import org.jowidgets.tools.widgets.wrapper.ControlWrapper;
 import org.jowidgets.validation.IValidationResult;
 import org.jowidgets.validation.IValidationResultBuilder;
+import org.jowidgets.validation.IValidationConditionListener;
 import org.jowidgets.validation.IValidator;
 import org.jowidgets.validation.ValidationResult;
 
@@ -68,14 +69,13 @@ final class BeanFormImpl<BEAN_TYPE> extends ControlWrapper implements IBeanForm<
 	private final Map<String, IAttribute<Object>> attributes;
 	private final Map<String, IInputControl<Object>> controls;
 	private final Map<String, IInputListener> inputListeners;
-	private final Map<String, IValidationLabel> validationLabels;
+	private final Map<String, IValidationResultLabel> validationLabels;
 	private final PropertyChangeListener propertyChangeListener;
 	private final IBluePrintFactory bpf;
 	private final InputObservable inputObservable;
 
-	private final IValidationLabel mainValidationLabel;
+	private final IValidationResultLabel mainValidationLabel;
 
-	private boolean mandatory;
 	private IBeanProxy<BEAN_TYPE> bean;
 
 	@SuppressWarnings("unchecked")
@@ -85,7 +85,7 @@ final class BeanFormImpl<BEAN_TYPE> extends ControlWrapper implements IBeanForm<
 		this.attributes = new HashMap<String, IAttribute<Object>>();
 		this.controls = new HashMap<String, IInputControl<Object>>();
 		this.inputListeners = new HashMap<String, IInputListener>();
-		this.validationLabels = new HashMap<String, IValidationLabel>();
+		this.validationLabels = new HashMap<String, IValidationResultLabel>();
 		this.propertyChangeListener = new BeanPropertyChangeListener();
 		this.inputObservable = new InputObservable();
 		this.bpf = Toolkit.getBluePrintFactory();
@@ -98,7 +98,6 @@ final class BeanFormImpl<BEAN_TYPE> extends ControlWrapper implements IBeanForm<
 		final String contentConstraints = "growx, growy, w 30::, h 20::, wrap";
 		this.mainValidationLabel = composite.add(bluePrint.getValidationLabel(), contentConstraints);
 		mainValidationLabel.setMinSize(new Dimension(20, 20));
-		mainValidationLabel.registerInputWidget(this);
 
 		final IScrollComposite contentPane = composite.add(bpf.scrollComposite(), MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
 		createContent(contentPane);
@@ -107,21 +106,6 @@ final class BeanFormImpl<BEAN_TYPE> extends ControlWrapper implements IBeanForm<
 	@Override
 	protected IComposite getWidget() {
 		return (IComposite) super.getWidget();
-	}
-
-	@Override
-	public boolean isEmpty() {
-		return false;
-	}
-
-	@Override
-	public boolean isMandatory() {
-		return mandatory;
-	}
-
-	@Override
-	public void setMandatory(final boolean mandatory) {
-		this.mandatory = mandatory;
 	}
 
 	@Override
@@ -184,6 +168,16 @@ final class BeanFormImpl<BEAN_TYPE> extends ControlWrapper implements IBeanForm<
 	}
 
 	@Override
+	public void addValidationConditionListener(final IValidationConditionListener listener) {
+		// TODO MG implement addValidationStateListener
+	}
+
+	@Override
+	public void removeValidationConditionListener(final IValidationConditionListener listener) {
+		// TODO MG implement removeValidationStateListener
+	}
+
+	@Override
 	public void addInputListener(final IInputListener listener) {
 		inputObservable.addInputListener(listener);
 	}
@@ -195,9 +189,9 @@ final class BeanFormImpl<BEAN_TYPE> extends ControlWrapper implements IBeanForm<
 
 	@Override
 	public void resetValidation() {
-		mainValidationLabel.resetValidation();
-		for (final IValidationLabel validationLabel : validationLabels.values()) {
-			validationLabel.resetValidation();
+		mainValidationLabel.setEmpty();
+		for (final IValidationResultLabel validationLabel : validationLabels.values()) {
+			validationLabel.setEmpty();
 		}
 	}
 
@@ -232,10 +226,9 @@ final class BeanFormImpl<BEAN_TYPE> extends ControlWrapper implements IBeanForm<
 					controls.put(propertyName, control);
 
 					//add validation label
-					final IValidationLabelBluePrint validationLabelBp = bpf.validationLabel();
+					final IValidationResultLabelBluePrint validationLabelBp = bpf.validationResultLabel();
 					validationLabelBp.setSetup(property.getValidationLabel());
-					final IValidationLabel validationLabel = container.add(validationLabelBp, "w 25::, wrap");
-					validationLabel.registerInputWidget(control);
+					final IValidationResultLabel validationLabel = container.add(validationLabelBp, "w 25::, wrap");
 					validationLabels.put(propertyName, validationLabel);
 				}
 			}
@@ -265,7 +258,7 @@ final class BeanFormImpl<BEAN_TYPE> extends ControlWrapper implements IBeanForm<
 				if (control != null) {
 					control.setValue(evt.getNewValue());
 					if (!bean.isModified(evt.getPropertyName())) {
-						validationLabels.get(evt.getPropertyName()).resetValidation();
+						validationLabels.get(evt.getPropertyName()).setEmpty();
 					}
 				}
 			}

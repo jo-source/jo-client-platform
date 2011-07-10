@@ -89,7 +89,7 @@ public class ChangeBirthdayAction extends ActionWrapper {
 		final IBluePrintFactory bpf = Toolkit.getBluePrintFactory();
 		final SingleControlContent<Date> content = new SingleControlContent<Date>("Date of Birth", bpf.inputFieldDate(), 200);
 		final IInputDialogBluePrint<Date> inputDialogBp = bpf.inputDialog(content).setExecutionContext(executionContext);
-		inputDialogBp.setMissingInputText("Please input the new date of birth!");
+		inputDialogBp.setMissingInputHint("Please input the new date of birth!");
 		inputDialogBp.setResizable(false);
 		return Toolkit.getActiveWindow().createChildWindow(inputDialogBp);
 	}

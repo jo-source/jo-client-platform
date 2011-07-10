@@ -29,7 +29,7 @@
 package org.jowidgets.cap.ui.impl;
 
 import org.jowidgets.api.toolkit.Toolkit;
-import org.jowidgets.api.widgets.blueprint.IValidationLabelBluePrint;
+import org.jowidgets.api.widgets.blueprint.IValidationResultLabelBluePrint;
 import org.jowidgets.api.widgets.descriptor.setup.IValidationLabelSetup;
 import org.jowidgets.cap.ui.api.form.IBeanFormProperty;
 import org.jowidgets.cap.ui.api.form.IBeanFormPropertyBuilder;
@@ -150,8 +150,7 @@ final class BeanFormPropertyBuilderImpl implements IBeanFormPropertyBuilder {
 	}
 
 	private IValidationLabelSetup createDefaultValidationLabelSetup() {
-		final IValidationLabelBluePrint result = Toolkit.getBluePrintFactory().validationLabel();
-		result.setMissingInputText("");
+		final IValidationResultLabelBluePrint result = Toolkit.getBluePrintFactory().validationResultLabel();
 		result.setShowValidationMessage(false);
 		return result;
 	}
