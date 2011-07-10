@@ -34,7 +34,7 @@ import org.jowidgets.service.tools.ServiceDecoratorProviderWrapper;
 public class AsyncServiceDecoratorProvider extends ServiceDecoratorProviderWrapper {
 
 	public AsyncServiceDecoratorProvider() {
-		super(CapServiceToolkit.serviceDecoratorProvider().asyncDecoratorProvider(500L));
+		super(CapServiceToolkit.serviceDecoratorProvider().asyncDecoratorProvider(200L));
 	}
 
 }
