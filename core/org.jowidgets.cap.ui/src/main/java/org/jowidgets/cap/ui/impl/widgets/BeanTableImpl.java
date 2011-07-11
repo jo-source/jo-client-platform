@@ -87,9 +87,8 @@ final class BeanTableImpl<BEAN_TYPE> extends ControlWrapper implements IBeanTabl
 		table.addTableColumnListener(new TableColumnAdapter() {
 			@Override
 			public void mouseClicked(final ITableColumnMouseEvent event) {
-				final int modelColumn = viewToInternal(event.getColumnIndex());
+				final int modelColumn = event.getColumnIndex();
 				if (modelColumn < 0) {
-					// error
 					return;
 				}
 
@@ -262,21 +261,5 @@ final class BeanTableImpl<BEAN_TYPE> extends ControlWrapper implements IBeanTabl
 	@Override
 	public IMenuModel getMenu() {
 		return null;
-	}
-
-	// TODO NM improve: map column index to internal indicies
-	private int viewToInternal(final int columnIndex) {
-		int visibleCount = 0;
-		for (int i = 0; i < model.getColumnCount(); i++) {
-			// count visible bean table columns and check, if the colums match 
-			if (model.getAttribute(i).isVisible()) {
-				if (visibleCount == columnIndex) {
-					return i;
-				}
-				visibleCount++;
-			}
-		}
-
-		return -1;
 	}
 }
