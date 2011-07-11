@@ -29,10 +29,6 @@
 package org.jowidgets.cap.sample1.starter.client.swt;
 
 import org.jowidgets.cap.sample1.ui.workbench.SampleWorkbench;
-import org.jowidgets.invocation.common.impl.MessageBrokerId;
-import org.jowidgets.message.api.MessageToolkit;
-import org.jowidgets.message.impl.http.client.IMessageBroker;
-import org.jowidgets.message.impl.http.client.MessageBrokerBuilder;
 import org.jowidgets.spi.impl.swt.options.SwtOptions;
 import org.jowidgets.workbench.impl.WorkbenchRunner;
 
@@ -41,11 +37,6 @@ public final class Sample1StarterClientSwt {
 	private Sample1StarterClientSwt() {}
 
 	public static void main(final String[] args) throws Exception {
-		final IMessageBroker messageBroker = new MessageBrokerBuilder(MessageBrokerId.INVOCATION_IMPL_BROKER_ID).setUrl(
-				"http://localhost:8080/").build();
-		MessageToolkit.addChannelBroker(messageBroker);
-		MessageToolkit.addReceiverBroker(messageBroker);
-
 		SwtOptions.setClassicTabs(true);
 		new WorkbenchRunner().run(new SampleWorkbench().getWorkbench());
 	}

@@ -16,38 +16,8 @@
 	<dependencies>
 	    <dependency>
 			<groupId>org.jowidgets</groupId>
-			<artifactId>org.jowidgets.cap.remoting.client</artifactId>
+			<artifactId>org.jowidgets.cap.sample1.starter.client.common</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>org.jowidgets</groupId>
-			<artifactId>org.jowidgets.invocation.service.client.impl</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-            <groupId>org.jowidgets</groupId>
-            <artifactId>org.jowidgets.invocation.client.impl</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
-		<dependency>
-            <groupId>org.jowidgets</groupId>
-            <artifactId>org.jowidgets.message.impl.http.client</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
-		<dependency>
-			<groupId>org.jowidgets</groupId>
-			<artifactId>org.jowidgets.cap.sample1.ui</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>org.jowidgets</groupId>
-			<artifactId>org.jowidgets.impl</artifactId>
-			<version>${jowidgets.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.jowidgets</groupId>
-			<artifactId>org.jowidgets.workbench.impl</artifactId>
-			<version>${jowidgets.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.jowidgets</groupId>
