@@ -16,6 +16,7 @@
 	
 	<modules>
 		<module>../org.jowidgets.service</module>
+		<module>../org.jowidgets.security</module>
 		<module>../org.jowidgets.message.api</module>
 		<module>../org.jowidgets.message.impl.http.client</module>	
 		<module>../org.jowidgets.message.impl.http.server</module>	
