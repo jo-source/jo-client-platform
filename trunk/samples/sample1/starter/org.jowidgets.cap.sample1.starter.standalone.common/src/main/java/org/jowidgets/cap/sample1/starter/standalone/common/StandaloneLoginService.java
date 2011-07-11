@@ -26,23 +26,32 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample1.starter.client.swing;
+package org.jowidgets.cap.sample1.starter.standalone.common;
 
-import javax.swing.UIManager;
+import org.jowidgets.api.login.ILoginInterceptor;
+import org.jowidgets.api.login.ILoginResultCallback;
+import org.jowidgets.api.toolkit.Toolkit;
+import org.jowidgets.cap.ui.api.login.ILoginService;
+import org.jowidgets.security.api.SecurityToolkit;
+import org.jowidgets.security.tools.DefaultSecurityContext;
 
-import org.jowidgets.cap.sample1.ui.workbench.SampleWorkbench;
-import org.jowidgets.spi.impl.swing.options.SwingOptions;
-import org.jowidgets.workbench.impl.WorkbenchRunner;
+public class StandaloneLoginService implements ILoginService {
 
-public final class Sample1StarterClientSwing {
-
-	private Sample1StarterClientSwing() {}
-
-	public static void main(final String[] args) throws Exception {
-		UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		System.setProperty("apple.laf.useScreenMenuBar", "true");
-		SwingOptions.setJoWidgetsTabLayout(true);
-		new WorkbenchRunner().run(new SampleWorkbench().getWorkbench());
+	@Override
+	public boolean doLogin() {
+		final ILoginInterceptor loginInterceptor = new ILoginInterceptor() {
+			@Override
+			public void login(final ILoginResultCallback resultCallback, final String username, final String password) {
+				SecurityToolkit.setSecurityContext(new DefaultSecurityContext(username, password));
+				resultCallback.granted();
+			}
+		};
+		if (Toolkit.login(loginInterceptor).isLoggedOn()) {
+			return true;
+		}
+		else {
+			return false;
+		}
 	}
 
 }

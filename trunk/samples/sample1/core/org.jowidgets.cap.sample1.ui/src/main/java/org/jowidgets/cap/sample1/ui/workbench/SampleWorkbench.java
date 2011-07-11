@@ -31,8 +31,11 @@ package org.jowidgets.cap.sample1.ui.workbench;
 import org.jowidgets.api.model.item.IMenuModel;
 import org.jowidgets.cap.sample1.ui.workbench.application.SampleApplication;
 import org.jowidgets.cap.sample1.ui.workbench.command.WorkbenchActions;
+import org.jowidgets.cap.ui.api.login.LoginService;
 import org.jowidgets.common.types.Dimension;
+import org.jowidgets.common.types.IVetoable;
 import org.jowidgets.examples.common.icons.DemoIconsInitializer;
+import org.jowidgets.workbench.api.ILoginCallback;
 import org.jowidgets.workbench.api.IWorkbench;
 import org.jowidgets.workbench.toolkit.api.IWorkbenchModel;
 import org.jowidgets.workbench.toolkit.api.IWorkbenchModelBuilder;
@@ -50,6 +53,15 @@ public class SampleWorkbench {
 		final IWorkbenchModelBuilder builder = new WorkbenchModelBuilder();
 		builder.setInitialDimension(new Dimension(1024, 768));
 		builder.setLabel("cap api sample app");
+		builder.setLoginCallback(new ILoginCallback() {
+			@Override
+			public void onLogin(final IVetoable vetoable) {
+				final boolean doLogin = LoginService.doLogin();
+				if (!doLogin) {
+					vetoable.veto();
+				}
+			}
+		});
 
 		this.model = builder.build();
 		this.model.addApplication(new SampleApplication().getModel());

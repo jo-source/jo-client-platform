@@ -26,23 +26,40 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample1.starter.client.swing;
+package org.jowidgets.cap.sample1.starter.client.common;
 
-import javax.swing.UIManager;
+import org.jowidgets.api.login.ILoginInterceptor;
+import org.jowidgets.api.login.ILoginResultCallback;
+import org.jowidgets.api.toolkit.Toolkit;
+import org.jowidgets.cap.ui.api.login.ILoginService;
+import org.jowidgets.invocation.common.impl.MessageBrokerId;
+import org.jowidgets.message.api.MessageToolkit;
+import org.jowidgets.message.impl.http.client.IMessageBroker;
+import org.jowidgets.message.impl.http.client.MessageBrokerBuilder;
 
-import org.jowidgets.cap.sample1.ui.workbench.SampleWorkbench;
-import org.jowidgets.spi.impl.swing.options.SwingOptions;
-import org.jowidgets.workbench.impl.WorkbenchRunner;
+public class RemoteLoginService implements ILoginService {
 
-public final class Sample1StarterClientSwing {
+	@Override
+	public boolean doLogin() {
+		final ILoginInterceptor loginInterceptor = new ILoginInterceptor() {
+			@Override
+			public void login(final ILoginResultCallback resultCallback, final String username, final String password) {
+				final MessageBrokerBuilder builder = new MessageBrokerBuilder(MessageBrokerId.INVOCATION_IMPL_BROKER_ID);
+				final IMessageBroker messageBroker = builder.setUrl("http://localhost:8080/").build();
 
-	private Sample1StarterClientSwing() {}
+				//TODO set user name and password on broker builder
 
-	public static void main(final String[] args) throws Exception {
-		UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		System.setProperty("apple.laf.useScreenMenuBar", "true");
-		SwingOptions.setJoWidgetsTabLayout(true);
-		new WorkbenchRunner().run(new SampleWorkbench().getWorkbench());
+				MessageToolkit.addChannelBroker(messageBroker);
+				MessageToolkit.addReceiverBroker(messageBroker);
+				resultCallback.granted();
+			}
+		};
+		if (Toolkit.login(loginInterceptor).isLoggedOn()) {
+			return true;
+		}
+		else {
+			return false;
+		}
 	}
 
 }
