@@ -565,7 +565,7 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 							text = converter.convertToString(firstElement);
 						}
 						toolTipText = converter.getDescription(firstElement);
-						icon = null;
+						icon = IconsSmall.INFO;
 					}
 					else {
 						text = null;

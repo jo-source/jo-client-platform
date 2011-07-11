@@ -128,7 +128,7 @@ public class UserTableView extends AbstractView {
 					if (beanTableModel.getAttribute(i).isVisible()) {
 						if (visibleCount == popupColumn) {
 							//CHECKSTYLE:OFF
-							System.out.println("hide bean column " + i);
+							System.out.println("hide bean column " + i + " [" + beanTableModel.getAttribute(i).getLabel() + "]");
 							//CHECKSTYLE:ON
 							beanTableModel.getAttribute(i).setVisible(false);
 							break;
