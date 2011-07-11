@@ -87,7 +87,13 @@ final class BeanTableImpl<BEAN_TYPE> extends ControlWrapper implements IBeanTabl
 		table.addTableColumnListener(new TableColumnAdapter() {
 			@Override
 			public void mouseClicked(final ITableColumnMouseEvent event) {
-				final IAttribute<?> attribute = model.getAttribute(event.getColumnIndex());
+				final int modelColumn = viewToInternal(event.getColumnIndex());
+				if (modelColumn < 0) {
+					// error
+					return;
+				}
+
+				final IAttribute<?> attribute = model.getAttribute(modelColumn);
 				if (attribute != null && attribute.isSortable()) {
 					final ISortModel sortModel = model.getSortModel();
 					final String propertyName = attribute.getPropertyName();
@@ -258,4 +264,19 @@ final class BeanTableImpl<BEAN_TYPE> extends ControlWrapper implements IBeanTabl
 		return null;
 	}
 
+	// TODO NM improve: map column index to internal indicies
+	private int viewToInternal(final int columnIndex) {
+		int visibleCount = 0;
+		for (int i = 0; i < model.getColumnCount(); i++) {
+			// count visible bean table columns and check, if the colums match 
+			if (model.getAttribute(i).isVisible()) {
+				if (visibleCount == columnIndex) {
+					return i;
+				}
+				visibleCount++;
+			}
+		}
+
+		return -1;
+	}
 }
