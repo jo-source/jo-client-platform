@@ -74,7 +74,6 @@ public final class SecurityToolkit {
 		else {
 			return new DefaultSecurityServiceHolder<Object>();
 		}
-
 	}
 
 }
