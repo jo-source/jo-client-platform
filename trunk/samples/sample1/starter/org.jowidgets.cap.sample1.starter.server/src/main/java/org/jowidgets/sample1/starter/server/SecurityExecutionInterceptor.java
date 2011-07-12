@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2011, Claudia
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,39 +26,29 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample1.starter.client.common;
+package org.jowidgets.sample1.starter.server;
 
-import org.jowidgets.api.login.ILoginInterceptor;
-import org.jowidgets.api.login.ILoginResultCallback;
-import org.jowidgets.api.toolkit.Toolkit;
-import org.jowidgets.cap.ui.api.login.ILoginService;
-import org.jowidgets.invocation.common.impl.MessageBrokerId;
-import org.jowidgets.message.api.MessageToolkit;
-import org.jowidgets.message.impl.http.client.IMessageBroker;
-import org.jowidgets.message.impl.http.client.MessageBrokerBuilder;
+import org.jowidgets.message.impl.http.server.IExecutionInterceptor;
+import org.jowidgets.security.api.SecurityToolkit;
 
-public class RemoteLoginService implements ILoginService {
+final class SecurityExecutionInterceptor implements IExecutionInterceptor<Object> {
 
 	@Override
-	public boolean doLogin() {
-		final ILoginInterceptor loginInterceptor = new ILoginInterceptor() {
-			@Override
-			public void login(final ILoginResultCallback resultCallback, final String username, final String password) {
-				final MessageBrokerBuilder builder = new MessageBrokerBuilder(MessageBrokerId.INVOCATION_IMPL_BROKER_ID);
-				final IMessageBroker messageBroker = builder.setUrl("http://localhost:8080/").setUsername(username).setPassword(
-						password).build();
-				MessageToolkit.addChannelBroker(messageBroker);
-				MessageToolkit.addReceiverBroker(messageBroker);
-				// TODO get and set authenticated security context
-				resultCallback.granted();
-			}
-		};
-		if (Toolkit.login(loginInterceptor).isLoggedOn()) {
-			return true;
-		}
-		else {
-			return false;
-		}
+	public Object getExecutionContext() {
+		return SecurityToolkit.getSecurityContext();
+	}
+
+	@Override
+	public void beforeExecution(final Object executionContext) {
+		// CHECKSTYLE:OFF
+		System.err.println("Current execution context: " + executionContext);
+		// CHECKSTYLE:ON
+		SecurityToolkit.setSecurityContext(executionContext);
+	}
+
+	@Override
+	public void afterExecution() {
+		SecurityToolkit.clearSecurityContext();
 	}
 
 }

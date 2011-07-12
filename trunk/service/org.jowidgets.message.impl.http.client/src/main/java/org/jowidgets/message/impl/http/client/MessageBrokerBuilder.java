@@ -27,6 +27,8 @@
  */
 package org.jowidgets.message.impl.http.client;
 
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
@@ -36,7 +38,9 @@ public final class MessageBrokerBuilder {
 
 	private final Object brokerId;
 
-	private String url = "http://localhost:8080/";
+	private String url;
+	private String username;
+	private String password;
 	private HttpClient httpClient;
 
 	public MessageBrokerBuilder(final Object brokerId) {
@@ -50,6 +54,18 @@ public final class MessageBrokerBuilder {
 		return this;
 	}
 
+	public MessageBrokerBuilder setUsername(final String username) {
+		Assert.paramNotNull(username, "username");
+		this.username = username;
+		return this;
+	}
+
+	public MessageBrokerBuilder setPassword(final String password) {
+		Assert.paramNotNull(password, "password");
+		this.password = password;
+		return this;
+	}
+
 	public MessageBrokerBuilder setHttpClient(final HttpClient httpClient) {
 		Assert.paramNotNull(httpClient, "httpClient");
 		this.httpClient = httpClient;
@@ -57,8 +73,25 @@ public final class MessageBrokerBuilder {
 	}
 
 	public IMessageBroker build() {
-		return new MessageBroker(brokerId, url, httpClient == null
-				? new DefaultHttpClient(new ThreadSafeClientConnManager()) : httpClient);
+		if (url == null) {
+			throw new IllegalStateException("url must be set");
+		}
+		if (httpClient != null && username != null) {
+			throw new IllegalStateException("username must not be set with httpClient set");
+		}
+		final HttpClient client;
+		if (httpClient != null) {
+			client = httpClient;
+		}
+		else {
+			final DefaultHttpClient defaultClient = new DefaultHttpClient(new ThreadSafeClientConnManager());
+			client = defaultClient;
+			if (username != null) {
+				defaultClient.getCredentialsProvider().setCredentials(
+						AuthScope.ANY,
+						new UsernamePasswordCredentials(username, password));
+			}
+		}
+		return new MessageBroker(brokerId, url, client);
 	}
-
 }
