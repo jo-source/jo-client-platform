@@ -32,7 +32,7 @@ import org.jowidgets.security.api.ISecurityService;
 
 public class DefaultSecurityService<CONTEXT_TYPE> implements ISecurityService<CONTEXT_TYPE> {
 
-	private CONTEXT_TYPE context;
+	private volatile CONTEXT_TYPE context;
 
 	@Override
 	public CONTEXT_TYPE getSecurityContext() {
@@ -40,12 +40,12 @@ public class DefaultSecurityService<CONTEXT_TYPE> implements ISecurityService<CO
 	}
 
 	@Override
-	public synchronized void setSecurityContext(final CONTEXT_TYPE context) {
+	public void setSecurityContext(final CONTEXT_TYPE context) {
 		this.context = context;
 	}
 
 	@Override
-	public synchronized void clearSecurityContext() {
+	public void clearSecurityContext() {
 		this.context = null;
 	}
 
