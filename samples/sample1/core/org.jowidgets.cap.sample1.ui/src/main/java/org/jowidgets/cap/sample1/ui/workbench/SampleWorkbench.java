@@ -52,7 +52,7 @@ public class SampleWorkbench {
 
 		final IWorkbenchModelBuilder builder = new WorkbenchModelBuilder();
 		builder.setInitialDimension(new Dimension(1024, 768));
-		builder.setLabel("cap api sample app");
+		builder.setLabel("Sample application 1");
 		builder.setLoginCallback(new ILoginCallback() {
 			@Override
 			public void onLogin(final IVetoable vetoable) {
