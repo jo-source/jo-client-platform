@@ -42,6 +42,7 @@ public class StandaloneLoginService implements ILoginService {
 		final ILoginInterceptor loginInterceptor = new ILoginInterceptor() {
 			@Override
 			public void login(final ILoginResultCallback resultCallback, final String username, final String password) {
+				// TODO authorize with credentials
 				SecurityToolkit.setSecurityContext(new DefaultSecurityContext(username, password));
 				resultCallback.granted();
 			}

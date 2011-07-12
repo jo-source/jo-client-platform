@@ -48,7 +48,7 @@ public final class DefaultSecurityContext {
 
 	@Override
 	public String toString() {
-		return "GinnoSecurityContext [username=" + username + ", password=" + password + "]";
+		return "DefaultSecurityContext [username=" + username + ", password=" + password + "]";
 	}
 
 	@Override
