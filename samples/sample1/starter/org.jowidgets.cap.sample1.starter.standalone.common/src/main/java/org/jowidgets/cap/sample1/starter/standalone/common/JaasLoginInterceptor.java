@@ -85,7 +85,7 @@ public class JaasLoginInterceptor implements ILoginInterceptor {
 							}
 						}
 						else {
-							throw new IllegalArgumentException("unsupported callback type: " + callbacks[i].getClass().getName());
+							throw new UnsupportedCallbackException(callbacks[i]);
 						}
 					}
 				}
