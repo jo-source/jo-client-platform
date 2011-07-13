@@ -120,13 +120,6 @@ public class UserTableView extends AbstractView {
 		builder.setCommand(new ICommandExecutor() {
 			@Override
 			public void execute(final IExecutionContext executionContext) throws Exception {
-				//CHECKSTYLE:OFF
-				System.out.println("hide bean column "
-					+ popupColumn
-					+ " ["
-					+ beanTableModel.getAttribute(popupColumn).getLabel()
-					+ "]");
-				//CHECKSTYLE:ON
 				beanTableModel.getAttribute(popupColumn).setVisible(false);
 			}
 		});
