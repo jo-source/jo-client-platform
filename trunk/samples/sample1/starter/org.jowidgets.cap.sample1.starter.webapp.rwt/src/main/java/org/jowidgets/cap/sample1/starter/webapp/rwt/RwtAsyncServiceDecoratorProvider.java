@@ -28,40 +28,41 @@
 
 package org.jowidgets.cap.sample1.starter.webapp.rwt;
 
-import org.jowidgets.api.login.ILoginInterceptor;
-import org.jowidgets.api.login.ILoginResultCallback;
-import org.jowidgets.api.threads.IUiThreadAccess;
-import org.jowidgets.api.toolkit.Toolkit;
-import org.jowidgets.cap.ui.api.login.ILoginService;
+import org.jowidgets.cap.service.api.CapServiceToolkit;
+import org.jowidgets.cap.service.api.decorator.IAsyncDecoratorProviderBuilder;
+import org.jowidgets.cap.service.api.decorator.IExecutionInterceptor;
 import org.jowidgets.security.api.SecurityToolkit;
 import org.jowidgets.security.tools.DefaultSecurityContext;
+import org.jowidgets.service.api.IServicesDecoratorProvider;
+import org.jowidgets.service.tools.ServiceDecoratorProviderWrapper;
 
-public class RwtLoginService implements ILoginService {
+public class RwtAsyncServiceDecoratorProvider extends ServiceDecoratorProviderWrapper {
 
-	@Override
-	public boolean doLogin() {
-		final IUiThreadAccess uiThreadAccess = Toolkit.getUiThreadAccess();
-		final ILoginInterceptor loginInterceptor = new ILoginInterceptor() {
-			@Override
-			public void login(final ILoginResultCallback resultCallback, final String username, final String password) {
-
-				//TODO check login here
-
-				resultCallback.granted();
-				uiThreadAccess.invokeLater(new Runnable() {
-					@Override
-					public void run() {
-						SecurityToolkit.setSecurityContext(new DefaultSecurityContext(username));
-					}
-				});
-			}
-		};
-		if (Toolkit.getLoginPane().login("Application1", loginInterceptor).isLoggedOn()) {
-			return true;
-		}
-		else {
-			return false;
-		}
+	public RwtAsyncServiceDecoratorProvider() {
+		super(createServicesDecoratorProvider());
 	}
 
+	private static IServicesDecoratorProvider createServicesDecoratorProvider() {
+		final IAsyncDecoratorProviderBuilder builder = CapServiceToolkit.serviceDecoratorProvider().asyncDecoratorProviderBuilder();
+		builder.setExecutorCallbackDelay(200L);
+		builder.setExecutionInterceptor(new IExecutionInterceptor<DefaultSecurityContext>() {
+
+			@Override
+			public DefaultSecurityContext getExecutionContext() {
+				return SecurityToolkit.getSecurityContext();
+			}
+
+			@Override
+			public void beforeExecution(final DefaultSecurityContext executionContext) {
+				SecurityToolkit.setSecurityContext(executionContext);
+			}
+
+			@Override
+			public void afterExecution() {
+				SecurityToolkit.clearSecurityContext();
+			}
+
+		});
+		return builder.build();
+	}
 }
