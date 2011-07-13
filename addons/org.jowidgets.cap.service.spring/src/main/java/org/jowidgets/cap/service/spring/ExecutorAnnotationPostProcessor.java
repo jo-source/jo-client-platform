@@ -61,7 +61,7 @@ import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.ReflectionUtils.MethodCallback;
 
-public class ExecutorAnnotationPostProcessor implements BeanFactoryPostProcessor {
+public final class ExecutorAnnotationPostProcessor implements BeanFactoryPostProcessor {
 
 	private final IBeanAccess<?> beanAccess;
 	private final List<String> propertyNames;

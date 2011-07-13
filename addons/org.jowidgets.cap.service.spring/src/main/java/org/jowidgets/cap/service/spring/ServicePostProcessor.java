@@ -38,7 +38,7 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 
-public class ServicePostProcessor implements BeanPostProcessor, ApplicationContextAware {
+public final class ServicePostProcessor implements BeanPostProcessor, ApplicationContextAware {
 
 	private final ExpressionParser expressionParser = new SpelExpressionParser();
 	private ConfigurableListableBeanFactory beanFactory;
