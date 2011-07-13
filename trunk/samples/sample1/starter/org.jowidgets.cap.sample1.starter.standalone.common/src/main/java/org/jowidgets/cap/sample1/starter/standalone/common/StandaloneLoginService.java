@@ -44,21 +44,21 @@ public class StandaloneLoginService implements ILoginService {
 			public void login(final ILoginResultCallback resultCallback, final String username, final String password) {
 				// TODO authorize with credentials
 				SecurityToolkit.setSecurityContext(new DefaultSecurityContext(username, password));
-				//				try {
-				//					Thread.sleep(10000);
-				//				}
-				//				catch (final InterruptedException e) {
-				//				}
-				//				if ("admin".equals(username) && "admin".equals(password)) {
-				//					resultCallback.granted();
-				//				}
-				//				else {
-				//					resultCallback.denied("Login incorrect");
-				//				}
-				resultCallback.granted();
+				try {
+					Thread.sleep(3000);
+				}
+				catch (final InterruptedException e) {
+				}
+				if ("admin".equals(username) && "admin".equals(password)) {
+					resultCallback.granted();
+				}
+				else {
+					resultCallback.denied("Login incorrect");
+				}
+				//resultCallback.granted();
 			}
 		};
-		if (Toolkit.login("Application1 login", loginInterceptor).isLoggedOn()) {
+		if (Toolkit.getLoginPane().login("Application1 login", loginInterceptor).isLoggedOn()) {
 			return true;
 		}
 		else {
