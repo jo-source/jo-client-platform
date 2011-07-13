@@ -48,7 +48,7 @@ public interface IExecutionTask extends IExecutionCallback {
 	Integer getStepProportion();
 
 	/**
-	 * @return True if this execution task could be canceled by the user, false otherwise
+	 * @return True if this execution task can be canceled by the user, false otherwise
 	 */
 	boolean isCancelable();
 

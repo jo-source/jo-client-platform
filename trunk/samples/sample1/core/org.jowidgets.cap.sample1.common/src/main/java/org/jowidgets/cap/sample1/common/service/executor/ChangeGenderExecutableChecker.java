@@ -36,13 +36,12 @@ import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.execution.IExecutableState;
 import org.jowidgets.cap.sample1.common.entity.IUser;
 
-
 public class ChangeGenderExecutableChecker implements IExecutableChecker<IUser> {
 
 	@Override
 	public IExecutableState getExecutableState(final IUser user) {
 		if (user.getGender().equals("F")) {
-			return ExecutableState.notExecutable("Could not change the gender of a female person with scissors!");
+			return ExecutableState.notExecutable("Can not change the gender of a female person with scissors!");
 		}
 		else {
 			return ExecutableState.EXECUTABLE;

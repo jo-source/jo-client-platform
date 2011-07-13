@@ -74,12 +74,10 @@ public class ChangeGenderAction extends ActionWrapper {
 						+ bean.getName()
 						+ " "
 						+ bean.getLastName()
-						+ "'?\n This could not be undone!";
+						+ "'?\n This can't be undone!";
 				}
 				else {
-					question = "Would you really like to change the gender of '"
-						+ size
-						+ "' Persons?\n This could not be undone!";
+					question = "Would you really like to change the gender of '" + size + "' Persons?\n This can't be undone!";
 				}
 				final QuestionResult result = Toolkit.getQuestionPane().askYesNoQuestion(
 						action.getText(),
