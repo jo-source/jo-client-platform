@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2011, H.Westphal
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -28,52 +28,33 @@
 
 package org.jowidgets.security.tools;
 
-public final class DefaultSecurityContext {
+import org.jowidgets.security.api.ISecurityService;
+import org.jowidgets.security.api.ISecurityServiceHolder;
 
-	private final String username;
+public final class ThreadLocalSecurityServiceHolder<CONTEXT_TYPE> implements
+		ISecurityServiceHolder<CONTEXT_TYPE>,
+		ISecurityService<CONTEXT_TYPE> {
 
-	public DefaultSecurityContext(final String username) {
-		this.username = username;
-	}
+	private final ThreadLocal<CONTEXT_TYPE> context = new ThreadLocal<CONTEXT_TYPE>();
 
-	public String getUsername() {
-		return username;
+	@Override
+	public ISecurityService<CONTEXT_TYPE> getSecurityService() {
+		return this;
 	}
 
 	@Override
-	public String toString() {
-		return "DefaultSecurityContext [username=" + username + "]";
+	public CONTEXT_TYPE getSecurityContext() {
+		return context.get();
 	}
 
 	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((username == null) ? 0 : username.hashCode());
-		return result;
+	public void setSecurityContext(final CONTEXT_TYPE ctx) {
+		context.set(ctx);
 	}
 
 	@Override
-	public boolean equals(final Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (obj == null) {
-			return false;
-		}
-		if (getClass() != obj.getClass()) {
-			return false;
-		}
-		final DefaultSecurityContext other = (DefaultSecurityContext) obj;
-		if (username == null) {
-			if (other.username != null) {
-				return false;
-			}
-		}
-		else if (!username.equals(other.username)) {
-			return false;
-		}
-		return true;
+	public void clearSecurityContext() {
+		context.remove();
 	}
 
 }
