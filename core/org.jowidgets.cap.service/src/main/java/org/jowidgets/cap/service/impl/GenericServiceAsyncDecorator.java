@@ -37,6 +37,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
+import org.jowidgets.cap.service.api.decorator.IExecutionInterceptor;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.IDecorator;
 
@@ -46,16 +47,36 @@ final class GenericServiceAsyncDecorator implements IDecorator<Object> {
 	private final Executor executor;
 	private final ScheduledExecutorService scheduledExecutorService;
 	private final Class<?> serviceType;
+	private final IExecutionInterceptor<Object> executionInterceptor;
 
 	GenericServiceAsyncDecorator(
 		final Class<?> serviceType,
 		final Executor executor,
 		final ScheduledExecutorService scheduledExecutorService,
-		final Long executionCallbackDelay) {
+		final Long executionCallbackDelay,
+		final IExecutionInterceptor<Object> executionInterceptor) {
 		this.serviceType = serviceType;
 		this.executor = executor;
 		this.scheduledExecutorService = scheduledExecutorService;
 		this.executionCallbackDelay = executionCallbackDelay;
+
+		if (executionInterceptor != null) {
+			this.executionInterceptor = executionInterceptor;
+		}
+		else {
+			this.executionInterceptor = new IExecutionInterceptor<Object>() {
+				@Override
+				public Object getExecutionContext() {
+					return null;
+				}
+
+				@Override
+				public void beforeExecution(final Object executionContext) {}
+
+				@Override
+				public void afterExecution() {}
+			};
+		}
 	}
 
 	@Override
@@ -120,14 +141,19 @@ final class GenericServiceAsyncDecorator implements IDecorator<Object> {
 		}
 
 		private void invokeAsync(final IResultCallback<Object> resultCallback, final Method method, final Object[] args) {
+			final Object executionContext = executionInterceptor.getExecutionContext();
 			executor.execute(new Runnable() {
 				@Override
 				public void run() {
 					try {
+						executionInterceptor.beforeExecution(executionContext);
 						method.invoke(original, args);
 					}
 					catch (final Exception exception) {
 						resultCallback.exception(exception);
+					}
+					finally {
+						executionInterceptor.afterExecution();
 					}
 				}
 			});

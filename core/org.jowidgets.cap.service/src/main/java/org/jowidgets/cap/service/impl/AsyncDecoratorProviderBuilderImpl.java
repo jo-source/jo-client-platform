@@ -29,53 +29,52 @@
 package org.jowidgets.cap.service.impl;
 
 import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.jowidgets.cap.service.api.decorator.IAsyncDecoratorProviderBuilder;
-import org.jowidgets.cap.service.api.decorator.IDecoratorProviderFactory;
+import org.jowidgets.cap.service.api.decorator.IExecutionInterceptor;
 import org.jowidgets.service.api.IServicesDecoratorProvider;
-import org.jowidgets.util.Assert;
-import org.jowidgets.util.concurrent.DaemonThreadFactory;
 
-final class DecoratorProviderFactoryImpl implements IDecoratorProviderFactory {
+final class AsyncDecoratorProviderBuilderImpl implements IAsyncDecoratorProviderBuilder {
 
-	private final Executor executor;
-	private final ScheduledExecutorService scheduledExecutorService;
+	private Executor executor;
+	private ScheduledExecutorService scheduledExecutorService;
+	private Long executorCallbackDelay;
+	private IExecutionInterceptor<Object> executionInterceptor;
 
-	DecoratorProviderFactoryImpl() {
-		this.executor = Executors.newFixedThreadPool(50, new DaemonThreadFactory());
-		this.scheduledExecutorService = Executors.newScheduledThreadPool(20, new DaemonThreadFactory());
+	AsyncDecoratorProviderBuilderImpl(final Executor executor, final ScheduledExecutorService scheduledExecutorService) {
+		this.executor = executor;
+		this.scheduledExecutorService = scheduledExecutorService;
 	}
 
 	@Override
-	public IServicesDecoratorProvider asyncDecoratorProvider(
-		final Executor executor,
-		final ScheduledExecutorService scheduledExecutorService,
-		final Long executorCallbackDelay) {
-		Assert.paramNotNull(executor, "executor");
-		Assert.paramNotNull(scheduledExecutorService, "scheduledExecutorService");
-		Assert.paramNotNull(executorCallbackDelay, "executorCallbackDelay");
-		final IAsyncDecoratorProviderBuilder builder = asyncDecoratorProviderBuilder().setExecutor(executor);
-		builder.setDelayExecutor(scheduledExecutorService);
-		builder.setExecutorCallbackDelay(Long.valueOf(executorCallbackDelay));
-		return builder.build();
+	public IAsyncDecoratorProviderBuilder setExecutor(final Executor executor) {
+		this.executor = executor;
+		return this;
 	}
 
 	@Override
-	public IServicesDecoratorProvider asyncDecoratorProvider(final Long executorCallbackDelay) {
-		Assert.paramNotNull(executorCallbackDelay, "executorCallbackDelay");
-		return asyncDecoratorProviderBuilder().setExecutorCallbackDelay(executorCallbackDelay.longValue()).build();
+	public IAsyncDecoratorProviderBuilder setDelayExecutor(final ScheduledExecutorService executorService) {
+		this.scheduledExecutorService = executorService;
+		return this;
 	}
 
 	@Override
-	public IServicesDecoratorProvider asyncDecoratorProvider() {
-		return asyncDecoratorProviderBuilder().build();
+	public IAsyncDecoratorProviderBuilder setExecutorCallbackDelay(final long delay) {
+		this.executorCallbackDelay = Long.valueOf(delay);
+		return this;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public IAsyncDecoratorProviderBuilder setExecutionInterceptor(final IExecutionInterceptor<?> executionInterceptor) {
+		this.executionInterceptor = (IExecutionInterceptor<Object>) executionInterceptor;
+		return this;
 	}
 
 	@Override
-	public IAsyncDecoratorProviderBuilder asyncDecoratorProviderBuilder() {
-		return new AsyncDecoratorProviderBuilderImpl(executor, scheduledExecutorService);
+	public IServicesDecoratorProvider build() {
+		return new AsyncDecoratorProvider(executor, scheduledExecutorService, executorCallbackDelay, executionInterceptor);
 	}
 
 }
