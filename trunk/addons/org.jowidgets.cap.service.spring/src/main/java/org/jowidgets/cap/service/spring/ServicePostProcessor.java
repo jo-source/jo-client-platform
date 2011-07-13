@@ -61,7 +61,7 @@ public final class ServicePostProcessor implements BeanPostProcessor, Applicatio
 
 	private void registerService(final Object bean, final String serviceIdExpression) {
 		final IServiceId<?> serviceId = expressionParser.parseExpression(serviceIdExpression).getValue(IServiceId.class);
-		// TODO register bean as service
+		ServiceProvider.getInstance().addService(serviceId, bean);
 	}
 
 	@Override
