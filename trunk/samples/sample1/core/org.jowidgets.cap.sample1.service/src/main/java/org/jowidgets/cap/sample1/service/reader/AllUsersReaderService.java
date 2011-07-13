@@ -75,7 +75,7 @@ public class AllUsersReaderService implements ISyncReaderService<Integer> {
 					}
 				}
 				else {
-					Thread.sleep(delay.intValue());
+					Thread.sleep(Math.max(delay.intValue(), 0));
 				}
 			}
 
