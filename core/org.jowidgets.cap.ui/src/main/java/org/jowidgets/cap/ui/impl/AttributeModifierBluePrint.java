@@ -193,7 +193,7 @@ final class AttributeModifierBluePrint<ELEMENT_VALUE_TYPE> implements IAttribute
 
 	private void checkExhausted() {
 		if (exhausted) {
-			throw new IllegalStateException("This blueprint is exhausted and could not be used for any further modfications.");
+			throw new IllegalStateException("This blueprint is exhausted and can not be used for any further modfications.");
 		}
 	}
 

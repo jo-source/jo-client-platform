@@ -37,7 +37,7 @@ public enum BeanExecutionPolicy {
 	SERIAL,
 
 	/**
-	 * For each bean in the list of beans, an own executor-(-job/-service) will be used. This policy could only
+	 * For each bean in the list of beans, an own executor-(-job/-service) will be used. This policy can only
 	 * be used, if the executions of the beans are independent.
 	 * In the parallel mode, each execution has its own thread that will be executed parallel with the other threads.
 	 * So for long lasting executions, the performance may be improved.

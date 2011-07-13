@@ -50,7 +50,7 @@ public interface IAttributeCollectionModifier {
 	Map<String, List<IAttributeModifier<?>>> getModifiers();
 
 	/**
-	 * Gets a set of filters that could be used to filter attributes out.
+	 * Gets a set of filters that can be used to filter attributes out.
 	 * The filter will be applied after all modifiers have been applied
 	 * 
 	 * @return The set of filters (may be empty but not null)

@@ -69,7 +69,7 @@ public interface IExecutionCallback {
 	void setDescription(String description);
 
 	/**
-	 * Marks this execution as finished. After that it could no longer be canceled.
+	 * Marks this execution as finished. After that it can no longer be canceled.
 	 */
 	void finshed();
 
@@ -91,7 +91,7 @@ public interface IExecutionCallback {
 	 * Remark: This method does not block, but therefore the given call back
 	 * will be invoked, after the user has answered the question.
 	 * 
-	 * Implementors could assume, that the call back will be invoked in any
+	 * Implementors can assume, that the call back will be invoked in any
 	 * usual case where no exception has been occurred (e.g. client server problems)
 	 * 
 	 * @param question The question to ask the user.

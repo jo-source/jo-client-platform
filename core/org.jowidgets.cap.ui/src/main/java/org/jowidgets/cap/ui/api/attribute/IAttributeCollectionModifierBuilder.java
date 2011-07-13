@@ -55,7 +55,7 @@ public interface IAttributeCollectionModifierBuilder {
 		IAttributeModifier<ELEMENT_VALUE_TYPE> modifier);
 
 	/**
-	 * Adds a modifier. The modification that should be done could be made on the returned IAttributeBluePrint
+	 * Adds a modifier. The modification that should be done can be made on the returned IAttributeBluePrint
 	 * 
 	 * @param <ELEMENT_VALUE_TYPE>
 	 * @param propertyName The property to add the modifier for
