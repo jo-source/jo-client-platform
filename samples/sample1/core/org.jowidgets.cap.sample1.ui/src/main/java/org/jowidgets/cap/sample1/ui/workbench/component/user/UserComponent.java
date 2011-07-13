@@ -76,18 +76,18 @@ public class UserComponent extends AbstractComponent implements IComponent {
 
 	@Override
 	public void onActivation() {
-		WorkbenchActions.LOAD_ACTION.addDataModel(userTableModel);
-		WorkbenchActions.SAVE_ACTION.addDataModel(userTableModel);
-		WorkbenchActions.UNDO_ACTION.addDataModel(userTableModel);
-		WorkbenchActions.CANCEL_ACTION.addDataModel(userTableModel);
+		WorkbenchActions.loadAction().addDataModel(userTableModel);
+		WorkbenchActions.saveAction().addDataModel(userTableModel);
+		WorkbenchActions.undoAction().addDataModel(userTableModel);
+		WorkbenchActions.cancelAction().addDataModel(userTableModel);
 	}
 
 	@Override
 	public void onDeactivation(final IVetoable vetoable) {
-		WorkbenchActions.LOAD_ACTION.removeDataModel(userTableModel);
-		WorkbenchActions.SAVE_ACTION.removeDataModel(userTableModel);
-		WorkbenchActions.UNDO_ACTION.removeDataModel(userTableModel);
-		WorkbenchActions.CANCEL_ACTION.removeDataModel(userTableModel);
+		WorkbenchActions.loadAction().removeDataModel(userTableModel);
+		WorkbenchActions.saveAction().removeDataModel(userTableModel);
+		WorkbenchActions.undoAction().removeDataModel(userTableModel);
+		WorkbenchActions.cancelAction().removeDataModel(userTableModel);
 	}
 
 	private IBeanTableModel<IUser> createUserTableModel() {
