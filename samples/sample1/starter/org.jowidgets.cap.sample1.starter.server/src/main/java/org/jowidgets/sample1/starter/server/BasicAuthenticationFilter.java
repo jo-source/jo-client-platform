@@ -67,9 +67,10 @@ final class BasicAuthenticationFilter implements Filter {
 			final int i = credentials.indexOf(':');
 			if (i > 0) {
 				final String username = credentials.substring(0, i);
+				@SuppressWarnings("unused")
 				final String password = credentials.substring(i + 1);
 				// TODO perform authentication
-				SecurityToolkit.setSecurityContext(new DefaultSecurityContext(username, password));
+				SecurityToolkit.setSecurityContext(new DefaultSecurityContext(username));
 				try {
 					chain.doFilter(request, response);
 					return;

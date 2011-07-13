@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, H.Westphal
+ * Copyright (c) 2011, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,35 +26,32 @@
  * DAMAGE.
  */
 
-package org.jowidgets.sample1.starter.server;
+package org.jowidgets.cap.sample1.starter.webapp.rwt;
 
-import org.jowidgets.security.api.ISecurityService;
-import org.jowidgets.security.api.ISecurityServiceHolder;
+import org.jowidgets.api.login.ILoginInterceptor;
+import org.jowidgets.api.login.ILoginResultCallback;
+import org.jowidgets.api.toolkit.Toolkit;
+import org.jowidgets.cap.ui.api.login.ILoginService;
+import org.jowidgets.security.api.SecurityToolkit;
+import org.jowidgets.security.tools.DefaultSecurityContext;
 
-public final class ThreadLocalSecurityServiceHolder<CONTEXT_TYPE> implements
-		ISecurityServiceHolder<CONTEXT_TYPE>,
-		ISecurityService<CONTEXT_TYPE> {
-
-	private final ThreadLocal<CONTEXT_TYPE> context = new ThreadLocal<CONTEXT_TYPE>();
-
-	@Override
-	public ISecurityService<CONTEXT_TYPE> getSecurityService() {
-		return this;
-	}
+public class RwtLoginService implements ILoginService {
 
 	@Override
-	public CONTEXT_TYPE getSecurityContext() {
-		return context.get();
-	}
-
-	@Override
-	public void setSecurityContext(final CONTEXT_TYPE ctx) {
-		context.set(ctx);
-	}
-
-	@Override
-	public void clearSecurityContext() {
-		context.remove();
+	public boolean doLogin() {
+		final ILoginInterceptor loginInterceptor = new ILoginInterceptor() {
+			@Override
+			public void login(final ILoginResultCallback resultCallback, final String username, final String password) {
+				SecurityToolkit.setSecurityContext(new DefaultSecurityContext(username));
+				resultCallback.granted();
+			}
+		};
+		if (Toolkit.getLoginPane().login("Application1", loginInterceptor).isLoggedOn()) {
+			return true;
+		}
+		else {
+			return false;
+		}
 	}
 
 }
