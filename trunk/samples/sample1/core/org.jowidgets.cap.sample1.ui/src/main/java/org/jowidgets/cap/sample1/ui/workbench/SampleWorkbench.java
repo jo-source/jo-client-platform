@@ -66,18 +66,18 @@ public class SampleWorkbench {
 		this.model = builder.build();
 		this.model.addApplication(new SampleApplication().getModel());
 
-		this.model.getToolBar().addAction(WorkbenchActions.LOAD_ACTION);
-		this.model.getToolBar().addAction(WorkbenchActions.CANCEL_ACTION);
+		this.model.getToolBar().addAction(WorkbenchActions.loadAction());
+		this.model.getToolBar().addAction(WorkbenchActions.cancelAction());
 		this.model.getToolBar().addSeparator();
-		this.model.getToolBar().addAction(WorkbenchActions.UNDO_ACTION);
-		this.model.getToolBar().addAction(WorkbenchActions.SAVE_ACTION);
+		this.model.getToolBar().addAction(WorkbenchActions.undoAction());
+		this.model.getToolBar().addAction(WorkbenchActions.saveAction());
 
 		final IMenuModel dataMenu = this.model.getMenuBar().addMenu("Data");
-		dataMenu.addAction(WorkbenchActions.LOAD_ACTION);
-		dataMenu.addAction(WorkbenchActions.CANCEL_ACTION);
+		dataMenu.addAction(WorkbenchActions.loadAction());
+		dataMenu.addAction(WorkbenchActions.cancelAction());
 		dataMenu.addSeparator();
-		dataMenu.addAction(WorkbenchActions.UNDO_ACTION);
-		dataMenu.addAction(WorkbenchActions.SAVE_ACTION);
+		dataMenu.addAction(WorkbenchActions.undoAction());
+		dataMenu.addAction(WorkbenchActions.saveAction());
 
 		this.workbench = WorkbenchToolkit.getWorkbenchPartFactory().workbench(model);
 	}

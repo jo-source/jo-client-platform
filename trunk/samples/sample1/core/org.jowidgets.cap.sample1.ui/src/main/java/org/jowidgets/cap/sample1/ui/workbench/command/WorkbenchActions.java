@@ -32,11 +32,39 @@ import org.jowidgets.cap.ui.api.command.IDataModelAction;
 
 public final class WorkbenchActions {
 
-	public static final IDataModelAction LOAD_ACTION = new LoadAction().getAction();
-	public static final IDataModelAction SAVE_ACTION = new SaveAction().getAction();
-	public static final IDataModelAction UNDO_ACTION = new UndoAction().getAction();
-	public static final IDataModelAction CANCEL_ACTION = new CancelAction().getAction();
+	private static ThreadLocal<IDataModelAction> loadAction = new ThreadLocal<IDataModelAction>();
+	private static ThreadLocal<IDataModelAction> saveAction = new ThreadLocal<IDataModelAction>();
+	private static ThreadLocal<IDataModelAction> undoAction = new ThreadLocal<IDataModelAction>();
+	private static ThreadLocal<IDataModelAction> cancelAction = new ThreadLocal<IDataModelAction>();
 
 	private WorkbenchActions() {}
+
+	public static IDataModelAction loadAction() {
+		if (loadAction.get() == null) {
+			loadAction.set(new LoadAction().getAction());
+		}
+		return loadAction.get();
+	}
+
+	public static IDataModelAction saveAction() {
+		if (saveAction.get() == null) {
+			saveAction.set(new SaveAction().getAction());
+		}
+		return saveAction.get();
+	}
+
+	public static IDataModelAction undoAction() {
+		if (undoAction.get() == null) {
+			undoAction.set(new UndoAction().getAction());
+		}
+		return undoAction.get();
+	}
+
+	public static IDataModelAction cancelAction() {
+		if (cancelAction.get() == null) {
+			cancelAction.set(new CancelAction().getAction());
+		}
+		return cancelAction.get();
+	}
 
 }
