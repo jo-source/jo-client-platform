@@ -93,7 +93,7 @@ public class JaasLoginInterceptor implements ILoginInterceptor {
 			loginContext.login();
 			final Subject subject = loginContext.getSubject();
 			if (subject != null) {
-				SecurityToolkit.setSecurityContext(new DefaultSecurityContext(username, password));
+				SecurityToolkit.setSecurityContext(new DefaultSecurityContext(username));
 				resultCallback.granted();
 				return;
 			}

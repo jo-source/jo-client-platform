@@ -45,11 +45,10 @@ public class RemoteLoginService implements ILoginService {
 			@Override
 			public void login(final ILoginResultCallback resultCallback, final String username, final String password) {
 				final MessageBrokerBuilder builder = new MessageBrokerBuilder(MessageBrokerId.INVOCATION_IMPL_BROKER_ID);
-				final IMessageBroker messageBroker = builder.setUrl("http://localhost:8080/").setUsername(username).setPassword(
-						password).build();
+				builder.setUrl("http://localhost:8080/").setUsername(username).setPassword(password);
+				final IMessageBroker messageBroker = builder.build();
 				MessageToolkit.addChannelBroker(messageBroker);
 				MessageToolkit.addReceiverBroker(messageBroker);
-				// TODO get and set authenticated security context
 				resultCallback.granted();
 			}
 		};

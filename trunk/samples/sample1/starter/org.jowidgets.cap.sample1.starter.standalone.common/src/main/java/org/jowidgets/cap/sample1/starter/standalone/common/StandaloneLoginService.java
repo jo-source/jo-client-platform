@@ -43,7 +43,7 @@ public class StandaloneLoginService implements ILoginService {
 			@Override
 			public void login(final ILoginResultCallback resultCallback, final String username, final String password) {
 				// TODO authorize with credentials
-				SecurityToolkit.setSecurityContext(new DefaultSecurityContext(username, password));
+				SecurityToolkit.setSecurityContext(new DefaultSecurityContext(username));
 				try {
 					Thread.sleep(3000);
 				}
@@ -58,7 +58,7 @@ public class StandaloneLoginService implements ILoginService {
 				//resultCallback.granted();
 			}
 		};
-		if (Toolkit.getLoginPane().login("Application1 login", loginInterceptor).isLoggedOn()) {
+		if (Toolkit.getLoginPane().login("Application1", loginInterceptor).isLoggedOn()) {
 			return true;
 		}
 		else {
