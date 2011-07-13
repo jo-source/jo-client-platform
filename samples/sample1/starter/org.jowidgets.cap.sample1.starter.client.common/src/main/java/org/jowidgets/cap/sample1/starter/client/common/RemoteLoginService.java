@@ -53,7 +53,7 @@ public class RemoteLoginService implements ILoginService {
 				resultCallback.granted();
 			}
 		};
-		if (Toolkit.login(loginInterceptor).isLoggedOn()) {
+		if (Toolkit.getLoginPane().login(loginInterceptor).isLoggedOn()) {
 			return true;
 		}
 		else {
