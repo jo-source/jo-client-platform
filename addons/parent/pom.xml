@@ -16,6 +16,7 @@
 	
 	<modules>
 		<module>../org.jowidgets.cap.service.impl.jpa</module>
+		<module>../org.jowidgets.cap.service.spring</module>
 	</modules>
 
 </project>
