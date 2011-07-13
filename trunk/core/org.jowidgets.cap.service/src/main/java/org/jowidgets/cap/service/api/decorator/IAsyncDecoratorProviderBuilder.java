@@ -33,17 +33,16 @@ import java.util.concurrent.ScheduledExecutorService;
 
 import org.jowidgets.service.api.IServicesDecoratorProvider;
 
-public interface IDecoratorProviderFactory {
+public interface IAsyncDecoratorProviderBuilder {
 
-	IServicesDecoratorProvider asyncDecoratorProvider(
-		Executor executor,
-		ScheduledExecutorService scheduledExecutorService,
-		Long executorCallbackDelay);
+	IAsyncDecoratorProviderBuilder setExecutor(Executor executor);
 
-	IServicesDecoratorProvider asyncDecoratorProvider(Long executorCallbackDelay);
+	IAsyncDecoratorProviderBuilder setDelayExecutor(ScheduledExecutorService executorService);
 
-	IServicesDecoratorProvider asyncDecoratorProvider();
+	IAsyncDecoratorProviderBuilder setExecutorCallbackDelay(long delay);
 
-	IAsyncDecoratorProviderBuilder asyncDecoratorProviderBuilder();
+	IAsyncDecoratorProviderBuilder setExecutionInterceptor(IExecutionInterceptor<?> executionInterceptor);
+
+	IServicesDecoratorProvider build();
 
 }

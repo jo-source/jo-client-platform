@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2011, H.Westphal
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -28,22 +28,12 @@
 
 package org.jowidgets.cap.service.api.decorator;
 
-import java.util.concurrent.Executor;
-import java.util.concurrent.ScheduledExecutorService;
+public interface IExecutionInterceptor<CONTEXT_TYPE> {
 
-import org.jowidgets.service.api.IServicesDecoratorProvider;
+	CONTEXT_TYPE getExecutionContext();
 
-public interface IDecoratorProviderFactory {
+	void beforeExecution(CONTEXT_TYPE executionContext);
 
-	IServicesDecoratorProvider asyncDecoratorProvider(
-		Executor executor,
-		ScheduledExecutorService scheduledExecutorService,
-		Long executorCallbackDelay);
-
-	IServicesDecoratorProvider asyncDecoratorProvider(Long executorCallbackDelay);
-
-	IServicesDecoratorProvider asyncDecoratorProvider();
-
-	IAsyncDecoratorProviderBuilder asyncDecoratorProviderBuilder();
+	void afterExecution();
 
 }
