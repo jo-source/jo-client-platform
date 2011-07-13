@@ -54,14 +54,15 @@ public final class ServicePostProcessor implements BeanPostProcessor, Applicatio
 			}
 		}
 		if (serviceId != null) {
-			registerService(bean, serviceId);
+			registerService(beanName, serviceId);
 		}
 		return bean;
 	}
 
-	private void registerService(final Object bean, final String serviceIdExpression) {
+	private void registerService(final String beanName, final String serviceIdExpression) {
 		final IServiceId<?> serviceId = expressionParser.parseExpression(serviceIdExpression).getValue(IServiceId.class);
-		ServiceProvider.getInstance().addService(serviceId, bean);
+		// TODO register a lazy bean proxy
+		ServiceProvider.getInstance().addService(serviceId, beanFactory.getBean(beanName));
 	}
 
 	@Override
