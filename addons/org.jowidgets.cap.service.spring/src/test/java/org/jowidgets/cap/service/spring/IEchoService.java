@@ -28,14 +28,8 @@
 
 package org.jowidgets.cap.service.spring;
 
-import org.jowidgets.service.api.IServiceProvider;
-import org.jowidgets.service.api.IServiceProviderHolder;
+public interface IEchoService {
 
-public class ServiceProviderHolder implements IServiceProviderHolder {
-
-	@Override
-	public IServiceProvider getServiceProvider() {
-		return ServiceProvider.getInstance();
-	}
+	String echo(final String msg);
 
 }

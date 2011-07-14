@@ -147,7 +147,7 @@ public final class ExecutorAnnotationPostProcessor implements BeanFactoryPostPro
 				registry.registerBeanDefinition(newBeanName, beanDefinition);
 
 				final IServiceId serviceId = new ServiceId(executorAnnotation.id(), IExecutorService.class);
-				ServiceProvider.getInstance().addService(
+				SpringServiceProvider.getInstance().addService(
 						serviceId,
 						beanProxyFactory.createProxy(newBeanName, IExecutorService.class));
 			}

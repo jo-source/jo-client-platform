@@ -29,49 +29,13 @@
 package org.jowidgets.cap.service.spring;
 
 import org.jowidgets.cap.service.api.annotation.CapService;
-import org.jowidgets.service.api.IServiceId;
-import org.jowidgets.service.tools.ServiceId;
-import org.springframework.beans.factory.ListableBeanFactory;
-import org.springframework.beans.factory.NoSuchBeanDefinitionException;
-import org.springframework.beans.factory.config.BeanPostProcessor;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 
-public final class ServicePostProcessor implements BeanPostProcessor, ApplicationContextAware {
-
-	private ListableBeanFactory beanFactory;
-	private BeanProxyFactory beanProxyFactory;
+@CapService(id = "echo")
+public class EchoService implements IEchoService {
 
 	@Override
-	public Object postProcessAfterInitialization(final Object bean, final String beanName) {
-		try {
-			final CapService serviceAnnotation = beanFactory.findAnnotationOnBean(beanName, CapService.class);
-			if (serviceAnnotation != null) {
-				final Class<?> serviceType;
-				if (serviceAnnotation.type() != void.class) {
-					serviceType = serviceAnnotation.type();
-				}
-				else {
-					serviceType = bean.getClass().getInterfaces()[0];
-				}
-				final IServiceId<Object> serviceId = new ServiceId<Object>(serviceAnnotation.id(), serviceType);
-				SpringServiceProvider.getInstance().addService(serviceId, beanProxyFactory.createProxy(beanName, serviceType));
-			}
-		}
-		catch (final NoSuchBeanDefinitionException e) {
-		}
-		return bean;
-	}
-
-	@Override
-	public Object postProcessBeforeInitialization(final Object bean, final String beanName) {
-		return bean;
-	}
-
-	@Override
-	public void setApplicationContext(final ApplicationContext applicationContext) {
-		beanFactory = applicationContext;
-		beanProxyFactory = new BeanProxyFactory(beanFactory);
+	public String echo(final String msg) {
+		return msg;
 	}
 
 }
