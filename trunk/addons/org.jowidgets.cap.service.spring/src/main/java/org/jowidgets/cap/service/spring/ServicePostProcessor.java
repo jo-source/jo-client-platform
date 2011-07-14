@@ -36,7 +36,6 @@ import java.lang.reflect.Proxy;
 import org.jowidgets.cap.service.api.annotation.CapService;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.tools.ServiceId;
-import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ApplicationContext;
@@ -48,23 +47,17 @@ public final class ServicePostProcessor implements BeanPostProcessor, Applicatio
 
 	@Override
 	public Object postProcessAfterInitialization(final Object bean, final String beanName) {
-		final BeanDefinition beanDefinition = beanFactory.getBeanDefinition(beanName);
-		IServiceId<?> serviceId = (IServiceId<?>) beanDefinition.getAttribute("serviceId");
-		if (serviceId == null) {
-			final CapService serviceAnnotation = beanFactory.findAnnotationOnBean(beanName, CapService.class);
-			if (serviceAnnotation != null) {
-				final Class<?> serviceType;
-				if (serviceAnnotation.type() != void.class) {
-					serviceType = serviceAnnotation.type();
-				}
-				else {
-					serviceType = bean.getClass().getInterfaces()[0];
-				}
-				serviceId = new ServiceId<Object>(serviceAnnotation.id(), serviceType);
+		final CapService serviceAnnotation = beanFactory.findAnnotationOnBean(beanName, CapService.class);
+		if (serviceAnnotation != null) {
+			final Class<?> serviceType;
+			if (serviceAnnotation.type() != void.class) {
+				serviceType = serviceAnnotation.type();
 			}
-		}
-		if (serviceId != null) {
-			ServiceProvider.getInstance().addService(serviceId, createProxy(serviceId.getServiceType(), beanName));
+			else {
+				serviceType = bean.getClass().getInterfaces()[0];
+			}
+			final IServiceId<?> serviceId = new ServiceId<Object>(serviceAnnotation.id(), serviceType);
+			ServiceProvider.getInstance().addService(serviceId, createProxy(serviceType, beanName));
 		}
 		return bean;
 	}

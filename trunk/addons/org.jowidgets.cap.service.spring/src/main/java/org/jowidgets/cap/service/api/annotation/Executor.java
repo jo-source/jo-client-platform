@@ -38,6 +38,8 @@ import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface Executor {
+	String id();
+
 	Class<? extends IExecutableChecker<?>> checker() default DefaultExecutableChecker.class;
 
 	boolean allowStaleBeans() default false;
