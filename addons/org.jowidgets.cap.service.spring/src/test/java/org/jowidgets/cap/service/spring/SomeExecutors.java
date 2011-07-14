@@ -54,4 +54,9 @@ public class SomeExecutors {
 		}
 	}
 
+	@Executor(id = "changeFirstAndLastName")
+	public void changeName(final User user, final String firstName, final String lastName) {
+		user.setName(firstName + " " + lastName);
+	}
+
 }

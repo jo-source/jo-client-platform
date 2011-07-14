@@ -91,4 +91,18 @@ public class ExecutorAnnotationPostProcessorTest {
 		Assert.assertEquals("Hans", dto.getValue("name"));
 	}
 
+	@Test
+	public void testChangeFirstAndLastName() {
+		final IExecutorService<String[]> service = ServiceProvider.getService(new ServiceId<IExecutorService<String[]>>(
+			"changeFirstAndLastName",
+			IExecutorService.class));
+		final SyncResultCallback<List<IBeanDto>> result = new SyncResultCallback<List<IBeanDto>>();
+		service.execute(result, Collections.singletonList(new BeanKey(0, 0)), new String[] {"Hans", "Hansen"}, null);
+		final List<IBeanDto> dtos = result.getResultSynchronious();
+		Assert.assertNotNull(dtos);
+		Assert.assertEquals(1, dtos.size());
+		final IBeanDto dto = dtos.get(0);
+		Assert.assertEquals("Hans Hansen", dto.getValue("name"));
+	}
+
 }
