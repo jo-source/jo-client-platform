@@ -30,12 +30,11 @@ package org.jowidgets.cap.service.spring;
 
 import org.jowidgets.cap.service.api.annotation.CapService;
 
-@CapService(id = "extendedEcho", type = IEchoService.class)
-public class ExtendedEchoService extends EchoService {
+@CapService(id = "brokenEcho", type = IEchoService.class)
+public class BrokenEchoService {
 
-	@Override
 	public String echo(final String msg) {
-		return String.valueOf(super.echo(msg)).toUpperCase();
+		return msg;
 	}
 
 }

@@ -59,4 +59,11 @@ public class ServicePostProcessorTest {
 		Assert.assertEquals("BLA", service.echo("bla"));
 	}
 
+	@Test(expected = IllegalArgumentException.class)
+	public void testBrokenEchoService() {
+		final IEchoService service = ServiceProvider.getService(new ServiceId<IEchoService>("brokenEcho", IEchoService.class));
+		Assert.assertNotNull(service);
+		service.echo("bla");
+	}
+
 }
