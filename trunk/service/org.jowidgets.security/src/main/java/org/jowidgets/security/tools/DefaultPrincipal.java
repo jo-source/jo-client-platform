@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, H.Westphal
+ * Copyright (c) 2011, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,29 +26,58 @@
  * DAMAGE.
  */
 
-package org.jowidgets.sample1.starter.server;
+package org.jowidgets.security.tools;
 
-import org.jowidgets.message.impl.http.server.IExecutionInterceptor;
-import org.jowidgets.security.api.SecurityContextHolder;
+import java.io.Serializable;
 
-final class SecurityExecutionInterceptor implements IExecutionInterceptor<Object> {
+public final class DefaultPrincipal implements Serializable {
 
-	@Override
-	public Object getExecutionContext() {
-		return SecurityContextHolder.getSecurityContext();
+	private static final long serialVersionUID = 7568678347480658843L;
+
+	private final String username;
+
+	public DefaultPrincipal(final String username) {
+		this.username = username;
+	}
+
+	public String getUsername() {
+		return username;
 	}
 
 	@Override
-	public void beforeExecution(final Object executionContext) {
-		// CHECKSTYLE:OFF
-		System.out.println("Current execution context: " + executionContext);
-		// CHECKSTYLE:ON
-		SecurityContextHolder.setSecurityContext(executionContext);
+	public String toString() {
+		return "DefaultPrincipal [username=" + username + "]";
 	}
 
 	@Override
-	public void afterExecution() {
-		SecurityContextHolder.clearSecurityContext();
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((username == null) ? 0 : username.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(final Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		final DefaultPrincipal other = (DefaultPrincipal) obj;
+		if (username == null) {
+			if (other.username != null) {
+				return false;
+			}
+		}
+		else if (!username.equals(other.username)) {
+			return false;
+		}
+		return true;
 	}
 
 }

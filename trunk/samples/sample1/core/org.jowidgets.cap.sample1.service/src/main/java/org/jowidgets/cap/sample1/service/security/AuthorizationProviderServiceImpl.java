@@ -26,19 +26,23 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.api.service;
+package org.jowidgets.cap.sample1.service.security;
 
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
-import org.jowidgets.service.api.IServiceId;
-import org.jowidgets.service.tools.ServiceId;
+import org.jowidgets.cap.common.api.service.IAuthorizationProviderService;
+import org.jowidgets.security.api.SecurityContextHolder;
+import org.jowidgets.security.tools.DefaultPrincipal;
 
-public interface IAuthenticationProviderService<PRINCIPAL_TYPE> {
+public class AuthorizationProviderServiceImpl implements IAuthorizationProviderService<DefaultPrincipal> {
 
-	IServiceId<IEntityService> ID = new ServiceId<IEntityService>(
-		IAuthenticationProviderService.class.getName(),
-		IAuthenticationProviderService.class);
-
-	void authenticate(final IResultCallback<PRINCIPAL_TYPE> result, final IExecutionCallback executionCallback);
-
+	@Override
+	public void getPrincipal(final IResultCallback<DefaultPrincipal> result, final IExecutionCallback executionCallback) {
+		try {
+			result.finished((DefaultPrincipal) SecurityContextHolder.getSecurityContext());
+		}
+		catch (final Exception exception) {
+			result.exception(exception);
+		}
+	}
 }

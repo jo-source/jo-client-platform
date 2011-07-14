@@ -32,8 +32,11 @@ import org.jowidgets.api.login.ILoginInterceptor;
 import org.jowidgets.api.login.ILoginResultCallback;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.cap.ui.api.login.ILoginService;
-import org.jowidgets.security.api.SecurityContext;
-import org.jowidgets.security.tools.DefaultSecurityContext;
+import org.jowidgets.security.api.AuthenticationService;
+import org.jowidgets.security.api.AuthorizationService;
+import org.jowidgets.security.api.SecurityContextHolder;
+import org.jowidgets.security.tools.DefaultCredentials;
+import org.jowidgets.security.tools.DefaultPrincipal;
 
 public class StandaloneLoginService implements ILoginService {
 
@@ -43,21 +46,30 @@ public class StandaloneLoginService implements ILoginService {
 			@Override
 			public void login(final ILoginResultCallback resultCallback, final String username, final String password) {
 
-				// TODO authorize with credentials
-
-				SecurityContext.setSecurityContext(new DefaultSecurityContext(username));
 				try {
 					Thread.sleep(3000);
 				}
 				catch (final InterruptedException e) {
 				}
-				if ("admin".equals(username) && "admin".equals(password)) {
-					resultCallback.granted();
+
+				DefaultPrincipal principal = AuthenticationService.authenticate(new DefaultCredentials(username, password));
+				if (principal != null) {
+					principal = AuthorizationService.authorize(principal);
+					if (principal != null) {
+						SecurityContextHolder.setSecurityContext(principal);
+						//CHECKSTYLE:OFF
+						System.out.println("Logged on as: " + principal);
+						//CHECKSTYLE:ON
+						resultCallback.granted();
+					}
+					else {
+						resultCallback.denied("User not authorized");
+					}
 				}
 				else {
 					resultCallback.denied("Login incorrect");
 				}
-				//resultCallback.granted();
+
 			}
 		};
 		if (Toolkit.getLoginPane().login("Application1", loginInterceptor).isLoggedOn()) {

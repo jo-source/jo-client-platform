@@ -33,8 +33,11 @@ import org.jowidgets.api.login.ILoginResultCallback;
 import org.jowidgets.api.threads.IUiThreadAccess;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.cap.ui.api.login.ILoginService;
-import org.jowidgets.security.api.SecurityContext;
-import org.jowidgets.security.tools.DefaultSecurityContext;
+import org.jowidgets.security.api.AuthenticationService;
+import org.jowidgets.security.api.AuthorizationService;
+import org.jowidgets.security.api.SecurityContextHolder;
+import org.jowidgets.security.tools.DefaultCredentials;
+import org.jowidgets.security.tools.DefaultPrincipal;
 
 public class RwtLoginService implements ILoginService {
 
@@ -45,15 +48,29 @@ public class RwtLoginService implements ILoginService {
 			@Override
 			public void login(final ILoginResultCallback resultCallback, final String username, final String password) {
 
-				//TODO check login here
-
-				resultCallback.granted();
-				uiThreadAccess.invokeLater(new Runnable() {
-					@Override
-					public void run() {
-						SecurityContext.setSecurityContext(new DefaultSecurityContext(username));
+				DefaultPrincipal principal = AuthenticationService.authenticate(new DefaultCredentials(username, password));
+				if (principal != null) {
+					principal = AuthorizationService.authorize(principal);
+					if (principal != null) {
+						resultCallback.granted();
+						uiThreadAccess.invokeLater(new Runnable() {
+							@Override
+							public void run() {
+								SecurityContextHolder.setSecurityContext(new DefaultPrincipal(username));
+								//CHECKSTYLE:OFF
+								System.out.println("LOGGED ON AS: " + SecurityContextHolder.getSecurityContext());
+								//CHECKSTYLE:ON
+							}
+						});
 					}
-				});
+					else {
+						resultCallback.denied("User not authorized");
+					}
+				}
+				else {
+					resultCallback.denied("Login incorrect");
+				}
+
 			}
 		};
 		if (Toolkit.getLoginPane().login("Application1", loginInterceptor).isLoggedOn()) {
@@ -63,5 +80,4 @@ public class RwtLoginService implements ILoginService {
 			return false;
 		}
 	}
-
 }

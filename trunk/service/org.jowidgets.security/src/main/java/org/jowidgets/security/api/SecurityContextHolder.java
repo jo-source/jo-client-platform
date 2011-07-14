@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, H.Westphal
+ * Copyright (c) 2011, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,29 +26,51 @@
  * DAMAGE.
  */
 
-package org.jowidgets.sample1.starter.server;
+package org.jowidgets.security.api;
 
-import org.jowidgets.message.impl.http.server.IExecutionInterceptor;
-import org.jowidgets.security.api.SecurityContextHolder;
+import java.util.Iterator;
+import java.util.ServiceLoader;
 
-final class SecurityExecutionInterceptor implements IExecutionInterceptor<Object> {
+import org.jowidgets.security.impl.DefaultSecurityContextHolder;
 
-	@Override
-	public Object getExecutionContext() {
-		return SecurityContextHolder.getSecurityContext();
+@SuppressWarnings({"rawtypes", "unchecked"})
+public final class SecurityContextHolder {
+
+	private static final ISecurityContextHolder HOLDER = createSecurityContextHolder();
+
+	private SecurityContextHolder() {}
+
+	public static <CONTEXT_TYPE> ISecurityContextHolder<CONTEXT_TYPE> getSecurityContextHolder() {
+		return HOLDER;
 	}
 
-	@Override
-	public void beforeExecution(final Object executionContext) {
-		// CHECKSTYLE:OFF
-		System.out.println("Current execution context: " + executionContext);
-		// CHECKSTYLE:ON
-		SecurityContextHolder.setSecurityContext(executionContext);
+	public static <CONTEXT_TYPE> CONTEXT_TYPE getSecurityContext() {
+		return (CONTEXT_TYPE) HOLDER.getSecurityContext();
 	}
 
-	@Override
-	public void afterExecution() {
-		SecurityContextHolder.clearSecurityContext();
+	public static <CONTEXT_TYPE> void setSecurityContext(final CONTEXT_TYPE context) {
+		HOLDER.setSecurityContext(context);
+	}
+
+	public static <CONTEXT_TYPE> void clearSecurityContext() {
+		HOLDER.clearSecurityContext();
+	}
+
+	private static ISecurityContextHolder createSecurityContextHolder() {
+		final ServiceLoader<ISecurityContextHolder> serviceLoader = ServiceLoader.load(ISecurityContextHolder.class);
+		final Iterator<ISecurityContextHolder> iterator = serviceLoader.iterator();
+		if (iterator.hasNext()) {
+			final ISecurityContextHolder result = iterator.next();
+			if (iterator.hasNext()) {
+				throw new IllegalStateException("More than one implementation found for '"
+					+ ISecurityContextHolder.class.getName()
+					+ "'");
+			}
+			return result;
+		}
+		else {
+			return new DefaultSecurityContextHolder<Object>();
+		}
 	}
 
 }

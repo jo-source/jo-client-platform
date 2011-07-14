@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, H.Westphal
+ * Copyright (c) 2011, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,29 +26,19 @@
  * DAMAGE.
  */
 
-package org.jowidgets.sample1.starter.server;
+package org.jowidgets.cap.sample1.common.service.security;
 
-import org.jowidgets.message.impl.http.server.IExecutionInterceptor;
-import org.jowidgets.security.api.SecurityContextHolder;
+import org.jowidgets.cap.common.api.service.IAuthorizationProviderService;
+import org.jowidgets.security.tools.DefaultPrincipal;
+import org.jowidgets.service.api.IServiceId;
+import org.jowidgets.service.tools.ServiceId;
 
-final class SecurityExecutionInterceptor implements IExecutionInterceptor<Object> {
+public final class AuthorizationProviderServiceId {
 
-	@Override
-	public Object getExecutionContext() {
-		return SecurityContextHolder.getSecurityContext();
-	}
+	public static final IServiceId<IAuthorizationProviderService<DefaultPrincipal>> ID = new ServiceId<IAuthorizationProviderService<DefaultPrincipal>>(
+		AuthorizationProviderServiceId.class.getName() + "ID",
+		IAuthorizationProviderService.class);
 
-	@Override
-	public void beforeExecution(final Object executionContext) {
-		// CHECKSTYLE:OFF
-		System.out.println("Current execution context: " + executionContext);
-		// CHECKSTYLE:ON
-		SecurityContextHolder.setSecurityContext(executionContext);
-	}
-
-	@Override
-	public void afterExecution() {
-		SecurityContextHolder.clearSecurityContext();
-	}
+	private AuthorizationProviderServiceId() {}
 
 }

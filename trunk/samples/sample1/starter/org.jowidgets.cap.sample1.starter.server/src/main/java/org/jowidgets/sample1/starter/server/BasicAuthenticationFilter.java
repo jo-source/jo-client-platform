@@ -41,8 +41,11 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.jetty.http.HttpHeaders;
 import org.eclipse.jetty.util.B64Code;
-import org.jowidgets.security.api.SecurityContext;
-import org.jowidgets.security.tools.DefaultSecurityContext;
+import org.jowidgets.security.api.AuthenticationService;
+import org.jowidgets.security.api.AuthorizationService;
+import org.jowidgets.security.api.SecurityContextHolder;
+import org.jowidgets.security.tools.DefaultCredentials;
+import org.jowidgets.security.tools.DefaultPrincipal;
 
 final class BasicAuthenticationFilter implements Filter {
 
@@ -67,16 +70,27 @@ final class BasicAuthenticationFilter implements Filter {
 			final int i = credentials.indexOf(':');
 			if (i > 0) {
 				final String username = credentials.substring(0, i);
-				@SuppressWarnings("unused")
 				final String password = credentials.substring(i + 1);
-				// TODO perform authentication
-				SecurityContext.setSecurityContext(new DefaultSecurityContext(username));
+
+				DefaultPrincipal principal = AuthenticationService.authenticate(new DefaultCredentials(username, password));
+				if (principal != null) {
+					principal = AuthorizationService.authorize(principal);
+					if (principal != null) {
+						SecurityContextHolder.setSecurityContext(principal);
+					}
+					else {
+						throw new RuntimeException("User not authorized");
+					}
+				}
+				else {
+					throw new RuntimeException("User not authenticated");
+				}
 				try {
 					chain.doFilter(request, response);
 					return;
 				}
 				finally {
-					SecurityContext.clearSecurityContext();
+					SecurityContextHolder.clearSecurityContext();
 				}
 			}
 		}

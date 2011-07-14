@@ -49,7 +49,56 @@ public class RemoteLoginService implements ILoginService {
 				final IMessageBroker messageBroker = builder.build();
 				MessageToolkit.addChannelBroker(messageBroker);
 				MessageToolkit.addReceiverBroker(messageBroker);
+
+				//				IAuthorizationProviderService<DefaultPrincipal> authorizationService;
+				//				try {
+				//					authorizationService = ServiceProvider.getService(AuthorizationProviderServiceId.ID);
+				//				}
+				//				catch (final Throwable e) {
+				//					resultCallback.denied("Not authorized");
+				//					return;
+				//				}
+				//				if (authorizationService == null) {
+				//					resultCallback.denied("Authorization service not available");
+				//					return;
+				//				}
+				//
+				//				final IResultCallback<DefaultPrincipal> authorizationResult = new IResultCallback<DefaultPrincipal>() {
+				//
+				//					@Override
+				//					public void finished(final DefaultPrincipal result) {
+				//						if (result != null) {
+				//							SecurityContextHolder.setSecurityContext(result);
+				//							//CHECKSTYLE:OFF
+				//							System.out.println("AUTHORIZED AS: " + result);
+				//							//CHECKSTYLE:ON
+				//							resultCallback.granted();
+				//						}
+				//					}
+				//
+				//					@Override
+				//					public void exception(final Throwable exception) {
+				//						resultCallback.denied(exception.getLocalizedMessage());
+				//					}
+				//
+				//					@Override
+				//					public void timeout() {
+				//						resultCallback.denied("Timeout");
+				//					}
+				//				};
+				//
+				//				final IExecutionTask executionTask = CapUiToolkit.executionTaskFactory().create();
+				//				resultCallback.addCancelListener(new ILoginCancelListener() {
+				//					@Override
+				//					public void canceled() {
+				//						executionTask.cancel();
+				//					}
+				//				});
+				//
+				//				authorizationService.getPrincipal(authorizationResult, executionTask);
+
 				resultCallback.granted();
+
 			}
 		};
 		if (Toolkit.getLoginPane().login("Application1 ", loginInterceptor).isLoggedOn()) {
@@ -59,5 +108,4 @@ public class RemoteLoginService implements ILoginService {
 			return false;
 		}
 	}
-
 }

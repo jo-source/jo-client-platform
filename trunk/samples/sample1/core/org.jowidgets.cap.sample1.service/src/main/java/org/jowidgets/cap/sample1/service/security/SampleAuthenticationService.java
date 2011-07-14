@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, H.Westphal
+ * Copyright (c) 2011, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,29 +26,26 @@
  * DAMAGE.
  */
 
-package org.jowidgets.sample1.starter.server;
+package org.jowidgets.cap.sample1.service.security;
 
-import org.jowidgets.message.impl.http.server.IExecutionInterceptor;
-import org.jowidgets.security.api.SecurityContextHolder;
+import org.jowidgets.security.api.IAuthenticationService;
+import org.jowidgets.security.tools.DefaultCredentials;
+import org.jowidgets.security.tools.DefaultPrincipal;
+import org.jowidgets.util.EmptyCheck;
 
-final class SecurityExecutionInterceptor implements IExecutionInterceptor<Object> {
-
-	@Override
-	public Object getExecutionContext() {
-		return SecurityContextHolder.getSecurityContext();
-	}
+public class SampleAuthenticationService implements IAuthenticationService<DefaultPrincipal, DefaultCredentials> {
 
 	@Override
-	public void beforeExecution(final Object executionContext) {
-		// CHECKSTYLE:OFF
-		System.out.println("Current execution context: " + executionContext);
-		// CHECKSTYLE:ON
-		SecurityContextHolder.setSecurityContext(executionContext);
+	public DefaultPrincipal authenticate(final DefaultCredentials credentials) {
+		if ("admin".equals(credentials.getUsername()) && "admin".equals(credentials.getPassword())) {
+			return new DefaultPrincipal(credentials.getUsername());
+		}
+		else if ("jo".equals(credentials.getUsername()) && "miller".equals(credentials.getPassword())) {
+			return new DefaultPrincipal(credentials.getUsername());
+		}
+		else if (EmptyCheck.isEmpty(credentials.getUsername()) && EmptyCheck.isEmpty(credentials.getPassword())) {
+			return new DefaultPrincipal("guest");
+		}
+		return null;
 	}
-
-	@Override
-	public void afterExecution() {
-		SecurityContextHolder.clearSecurityContext();
-	}
-
 }

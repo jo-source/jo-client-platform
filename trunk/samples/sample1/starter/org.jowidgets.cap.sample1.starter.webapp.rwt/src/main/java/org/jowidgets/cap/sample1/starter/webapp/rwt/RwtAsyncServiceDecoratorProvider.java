@@ -31,8 +31,8 @@ package org.jowidgets.cap.sample1.starter.webapp.rwt;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.decorator.IAsyncDecoratorProviderBuilder;
 import org.jowidgets.cap.service.api.decorator.IExecutionInterceptor;
-import org.jowidgets.security.api.SecurityContext;
-import org.jowidgets.security.tools.DefaultSecurityContext;
+import org.jowidgets.security.api.SecurityContextHolder;
+import org.jowidgets.security.tools.DefaultPrincipal;
 import org.jowidgets.service.api.IServicesDecoratorProvider;
 import org.jowidgets.service.tools.ServiceDecoratorProviderWrapper;
 
@@ -45,21 +45,21 @@ public class RwtAsyncServiceDecoratorProvider extends ServiceDecoratorProviderWr
 	private static IServicesDecoratorProvider createServicesDecoratorProvider() {
 		final IAsyncDecoratorProviderBuilder builder = CapServiceToolkit.serviceDecoratorProvider().asyncDecoratorProviderBuilder();
 		builder.setExecutorCallbackDelay(200L);
-		builder.setExecutionInterceptor(new IExecutionInterceptor<DefaultSecurityContext>() {
+		builder.setExecutionInterceptor(new IExecutionInterceptor<DefaultPrincipal>() {
 
 			@Override
-			public DefaultSecurityContext getExecutionContext() {
-				return SecurityContext.getSecurityContext();
+			public DefaultPrincipal getExecutionContext() {
+				return SecurityContextHolder.getSecurityContext();
 			}
 
 			@Override
-			public void beforeExecution(final DefaultSecurityContext executionContext) {
-				SecurityContext.setSecurityContext(executionContext);
+			public void beforeExecution(final DefaultPrincipal executionContext) {
+				SecurityContextHolder.setSecurityContext(executionContext);
 			}
 
 			@Override
 			public void afterExecution() {
-				SecurityContext.clearSecurityContext();
+				SecurityContextHolder.clearSecurityContext();
 			}
 
 		});
