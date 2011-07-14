@@ -31,12 +31,11 @@ import java.util.Collections;
 
 import javax.persistence.EntityManager;
 
-import junit.framework.Assert;
-
 import org.jowidgets.cap.common.tools.bean.BeanKey;
 import org.jowidgets.cap.common.tools.execution.SyncResultCallback;
 import org.jowidgets.cap.service.impl.jpa.entity.Job;
 import org.jowidgets.cap.service.impl.jpa.entity.Person;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
