@@ -158,7 +158,7 @@ public final class ExecutorAnnotationPostProcessor implements BeanFactoryPostPro
 
 	private Object createExecutorProxy(final Object bean, final Method method) {
 		final boolean voidMethod = method.getReturnType() == void.class;
-		// TODO determine values
+		// TODO HW determine values
 		final boolean singleExecutor = true;
 		final Integer dataArgPosition = null;
 		final Integer callbackArgPosition = null;
@@ -168,6 +168,7 @@ public final class ExecutorAnnotationPostProcessor implements BeanFactoryPostPro
 
 		if (singleExecutor) {
 			return new IBeanExecutor<IBean, Object>() {
+				@SuppressWarnings("unused")
 				@Override
 				public IBean execute(final IBean data, final Object parameter, final IExecutionCallback executionCallback) {
 					if (dataArgPosition != null) {
