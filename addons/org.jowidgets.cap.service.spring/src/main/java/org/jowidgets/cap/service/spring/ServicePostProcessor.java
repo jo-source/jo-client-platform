@@ -28,6 +28,11 @@
 
 package org.jowidgets.cap.service.spring;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+
 import org.jowidgets.cap.service.api.annotation.Service;
 import org.jowidgets.service.api.IServiceId;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -61,8 +66,26 @@ public final class ServicePostProcessor implements BeanPostProcessor, Applicatio
 
 	private void registerService(final String beanName, final String serviceIdExpression) {
 		final IServiceId<?> serviceId = expressionParser.parseExpression(serviceIdExpression).getValue(IServiceId.class);
-		// TODO register a lazy bean proxy
-		ServiceProvider.getInstance().addService(serviceId, beanFactory.getBean(beanName));
+		ServiceProvider.getInstance().addService(serviceId, createProxy(beanName));
+	}
+
+	private Object createProxy(final String beanName) {
+		final Class<?> beanClass = beanFactory.getBean(beanName).getClass();
+		return Proxy.newProxyInstance(beanClass.getClassLoader(), beanClass.getInterfaces(), new InvocationHandler() {
+			@Override
+			public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
+				try {
+					return method.invoke(beanFactory.getBean(beanName), args);
+				}
+				catch (final InvocationTargetException e) {
+					final Throwable cause = e.getCause();
+					if (cause != null) {
+						throw cause;
+					}
+					throw e;
+				}
+			}
+		});
 	}
 
 	@Override
