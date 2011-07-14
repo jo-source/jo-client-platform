@@ -28,8 +28,12 @@
 
 package org.jowidgets.cap.ui.api;
 
+import java.util.Map;
+import java.util.WeakHashMap;
+
 import javax.validation.Validator;
 
+import org.jowidgets.api.toolkit.IToolkit;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.widgets.blueprint.IValidationResultLabelBluePrint;
 import org.jowidgets.api.widgets.blueprint.defaults.IDefaultInitializer;
@@ -56,12 +60,18 @@ import org.jowidgets.common.widgets.factory.IGenericWidgetFactory;
 
 public final class CapUiToolkit {
 
-	private static ICapUiToolkit dataUiToolkit = createDefaultInstance();
+	private static Map<IToolkit, ICapUiToolkit> toolkits = new WeakHashMap<IToolkit, ICapUiToolkit>();
 
 	private CapUiToolkit() {}
 
 	public static ICapUiToolkit getInstance() {
-		return dataUiToolkit;
+		final IToolkit currentToolkit = Toolkit.getInstance();
+		ICapUiToolkit result = toolkits.get(currentToolkit);
+		if (result == null) {
+			result = createDefaultInstance(currentToolkit);
+			toolkits.put(currentToolkit, result);
+		}
+		return result;
 	}
 
 	public static ICapApiBluePrintFactory getBluePrintFactory() {
@@ -116,18 +126,18 @@ public final class CapUiToolkit {
 		return getInstance().getBeanValidator();
 	}
 
-	private static ICapUiToolkit createDefaultInstance() {
-		registerWidgets();
+	private static ICapUiToolkit createDefaultInstance(final IToolkit toolkit) {
+		registerWidgets(toolkit);
 		return new DefaultCapUiToolkit();
 	}
 
 	@SuppressWarnings("unchecked")
-	private static void registerWidgets() {
-		final IGenericWidgetFactory genericWidgetFactory = Toolkit.getWidgetFactory();
+	private static void registerWidgets(final IToolkit toolkit) {
+		final IGenericWidgetFactory genericWidgetFactory = toolkit.getWidgetFactory();
 		genericWidgetFactory.register(IBeanTableBluePrint.class, new BeanTableFactory());
 		genericWidgetFactory.register(IBeanFormBluePrint.class, new BeanFormFactory());
 
-		Toolkit.getBluePrintFactory().addDefaultsInitializer(
+		toolkit.getBluePrintFactory().addDefaultsInitializer(
 				IBeanTableBluePrint.class,
 				new IDefaultInitializer<IBeanTableBluePrint<?>>() {
 
@@ -139,7 +149,7 @@ public final class CapUiToolkit {
 					}
 				});
 
-		Toolkit.getBluePrintFactory().addDefaultsInitializer(
+		toolkit.getBluePrintFactory().addDefaultsInitializer(
 				IBeanFormBluePrint.class,
 				new IDefaultInitializer<IBeanFormBluePrint<?>>() {
 
