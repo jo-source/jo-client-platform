@@ -28,10 +28,9 @@
 
 package org.jowidgets.cap.service.spring;
 
-import junit.framework.Assert;
-
 import org.jowidgets.service.api.ServiceProvider;
 import org.jowidgets.service.tools.ServiceId;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
