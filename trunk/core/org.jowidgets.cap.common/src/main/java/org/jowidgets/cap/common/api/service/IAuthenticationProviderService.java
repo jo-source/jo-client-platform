@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann, H.Westphal
+ * Copyright (c) 2011, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,35 +26,19 @@
  * DAMAGE.
  */
 
-package org.jowidgets.security.tools;
+package org.jowidgets.cap.common.api.service;
 
-import org.jowidgets.security.api.ISecurityService;
-import org.jowidgets.security.api.ISecurityServiceHolder;
+import org.jowidgets.cap.common.api.execution.IExecutionCallback;
+import org.jowidgets.cap.common.api.execution.IResultCallback;
+import org.jowidgets.service.api.IServiceId;
+import org.jowidgets.service.tools.ServiceId;
 
-public final class InheritableThreadLocalSecurityServiceHolder<CONTEXT_TYPE> implements
-		ISecurityServiceHolder<CONTEXT_TYPE>,
-		ISecurityService<CONTEXT_TYPE> {
+public interface IAuthenticationProviderService<PRINCIPAL_TYPE> {
 
-	private final InheritableThreadLocal<CONTEXT_TYPE> context = new InheritableThreadLocal<CONTEXT_TYPE>();
+	IServiceId<IEntityService> ID = new ServiceId<IEntityService>(
+		IAuthenticationProviderService.class.getName(),
+		IAuthenticationProviderService.class);
 
-	@Override
-	public ISecurityService<CONTEXT_TYPE> getSecurityService() {
-		return this;
-	}
-
-	@Override
-	public CONTEXT_TYPE getSecurityContext() {
-		return context.get();
-	}
-
-	@Override
-	public void setSecurityContext(final CONTEXT_TYPE ctx) {
-		context.set(ctx);
-	}
-
-	@Override
-	public void clearSecurityContext() {
-		context.remove();
-	}
+	void authenticate(final IResultCallback<PRINCIPAL_TYPE> result, final IExecutionCallback executionCallback);
 
 }

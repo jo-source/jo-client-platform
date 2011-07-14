@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2011, H.Westphal
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,43 +26,27 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample1.starter.webapp.rwt;
+package org.jowidgets.security.tools;
 
-import org.jowidgets.cap.service.api.CapServiceToolkit;
-import org.jowidgets.cap.service.api.decorator.IAsyncDecoratorProviderBuilder;
-import org.jowidgets.cap.service.api.decorator.IExecutionInterceptor;
-import org.jowidgets.security.api.SecurityContext;
-import org.jowidgets.security.tools.DefaultSecurityContext;
-import org.jowidgets.service.api.IServicesDecoratorProvider;
-import org.jowidgets.service.tools.ServiceDecoratorProviderWrapper;
+import org.jowidgets.security.api.ISecurityContextHolder;
 
-public class RwtAsyncServiceDecoratorProvider extends ServiceDecoratorProviderWrapper {
+public final class ThreadLocalSecurityContextHolder<CONTEXT_TYPE> implements ISecurityContextHolder<CONTEXT_TYPE> {
 
-	public RwtAsyncServiceDecoratorProvider() {
-		super(createServicesDecoratorProvider());
+	private final ThreadLocal<CONTEXT_TYPE> context = new ThreadLocal<CONTEXT_TYPE>();
+
+	@Override
+	public CONTEXT_TYPE getSecurityContext() {
+		return context.get();
 	}
 
-	private static IServicesDecoratorProvider createServicesDecoratorProvider() {
-		final IAsyncDecoratorProviderBuilder builder = CapServiceToolkit.serviceDecoratorProvider().asyncDecoratorProviderBuilder();
-		builder.setExecutorCallbackDelay(200L);
-		builder.setExecutionInterceptor(new IExecutionInterceptor<DefaultSecurityContext>() {
-
-			@Override
-			public DefaultSecurityContext getExecutionContext() {
-				return SecurityContext.getSecurityContext();
-			}
-
-			@Override
-			public void beforeExecution(final DefaultSecurityContext executionContext) {
-				SecurityContext.setSecurityContext(executionContext);
-			}
-
-			@Override
-			public void afterExecution() {
-				SecurityContext.clearSecurityContext();
-			}
-
-		});
-		return builder.build();
+	@Override
+	public void setSecurityContext(final CONTEXT_TYPE ctx) {
+		context.set(ctx);
 	}
+
+	@Override
+	public void clearSecurityContext() {
+		context.remove();
+	}
+
 }

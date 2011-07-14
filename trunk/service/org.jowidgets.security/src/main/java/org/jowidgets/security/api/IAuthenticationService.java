@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, H.Westphal
+ * Copyright (c) 2011, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,35 +26,10 @@
  * DAMAGE.
  */
 
-package org.jowidgets.security.tools;
+package org.jowidgets.security.api;
 
-import org.jowidgets.security.api.ISecurityService;
-import org.jowidgets.security.api.ISecurityServiceHolder;
+public interface IAuthenticationService<PRINCIPAL_TYPE, CREDENTIAL_TYPE> {
 
-public final class ThreadLocalSecurityServiceHolder<CONTEXT_TYPE> implements
-		ISecurityServiceHolder<CONTEXT_TYPE>,
-		ISecurityService<CONTEXT_TYPE> {
-
-	private final ThreadLocal<CONTEXT_TYPE> context = new ThreadLocal<CONTEXT_TYPE>();
-
-	@Override
-	public ISecurityService<CONTEXT_TYPE> getSecurityService() {
-		return this;
-	}
-
-	@Override
-	public CONTEXT_TYPE getSecurityContext() {
-		return context.get();
-	}
-
-	@Override
-	public void setSecurityContext(final CONTEXT_TYPE ctx) {
-		context.set(ctx);
-	}
-
-	@Override
-	public void clearSecurityContext() {
-		context.remove();
-	}
+	PRINCIPAL_TYPE authenticate(CREDENTIAL_TYPE credentials);
 
 }

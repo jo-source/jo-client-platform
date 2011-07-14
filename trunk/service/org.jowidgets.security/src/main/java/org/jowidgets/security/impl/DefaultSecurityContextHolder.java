@@ -26,14 +26,27 @@
  * DAMAGE.
  */
 
-package org.jowidgets.security.api;
+package org.jowidgets.security.impl;
 
-public interface ISecurityService<CONTEXT_TYPE> {
+import org.jowidgets.security.api.ISecurityContextHolder;
 
-	CONTEXT_TYPE getSecurityContext();
+public final class DefaultSecurityContextHolder<CONTEXT_TYPE> implements ISecurityContextHolder<CONTEXT_TYPE> {
 
-	void setSecurityContext(CONTEXT_TYPE context);
+	private volatile CONTEXT_TYPE context;
 
-	void clearSecurityContext();
+	@Override
+	public CONTEXT_TYPE getSecurityContext() {
+		return context;
+	}
+
+	@Override
+	public void setSecurityContext(final CONTEXT_TYPE context) {
+		this.context = context;
+	}
+
+	@Override
+	public void clearSecurityContext() {
+		this.context = null;
+	}
 
 }

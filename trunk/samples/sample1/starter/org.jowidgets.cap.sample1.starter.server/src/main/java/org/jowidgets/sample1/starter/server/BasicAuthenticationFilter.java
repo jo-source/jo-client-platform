@@ -41,7 +41,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.jetty.http.HttpHeaders;
 import org.eclipse.jetty.util.B64Code;
-import org.jowidgets.security.api.SecurityToolkit;
+import org.jowidgets.security.api.SecurityContext;
 import org.jowidgets.security.tools.DefaultSecurityContext;
 
 final class BasicAuthenticationFilter implements Filter {
@@ -70,13 +70,13 @@ final class BasicAuthenticationFilter implements Filter {
 				@SuppressWarnings("unused")
 				final String password = credentials.substring(i + 1);
 				// TODO perform authentication
-				SecurityToolkit.setSecurityContext(new DefaultSecurityContext(username));
+				SecurityContext.setSecurityContext(new DefaultSecurityContext(username));
 				try {
 					chain.doFilter(request, response);
 					return;
 				}
 				finally {
-					SecurityToolkit.clearSecurityContext();
+					SecurityContext.clearSecurityContext();
 				}
 			}
 		}

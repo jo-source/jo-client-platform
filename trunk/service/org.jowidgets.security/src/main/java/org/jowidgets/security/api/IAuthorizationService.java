@@ -26,22 +26,10 @@
  * DAMAGE.
  */
 
-package org.jowidgets.security.impl;
+package org.jowidgets.security.api;
 
-import org.jowidgets.security.api.ISecurityService;
-import org.jowidgets.security.api.ISecurityServiceHolder;
+public interface IAuthorizationService<PRINCIPAL_TYPE> {
 
-public final class DefaultSecurityServiceHolder<CONTEXT_TYPE> implements ISecurityServiceHolder<CONTEXT_TYPE> {
-
-	private final ISecurityService<CONTEXT_TYPE> securityService;
-
-	public DefaultSecurityServiceHolder() {
-		this.securityService = new DefaultSecurityService<CONTEXT_TYPE>();
-	}
-
-	@Override
-	public ISecurityService<CONTEXT_TYPE> getSecurityService() {
-		return securityService;
-	}
+	PRINCIPAL_TYPE authorize(PRINCIPAL_TYPE principal);
 
 }
