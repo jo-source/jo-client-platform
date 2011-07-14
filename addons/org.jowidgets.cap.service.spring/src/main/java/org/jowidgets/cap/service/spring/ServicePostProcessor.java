@@ -53,18 +53,24 @@ public final class ServicePostProcessor implements BeanPostProcessor, Applicatio
 		if (serviceId == null) {
 			final CapService serviceAnnotation = beanFactory.findAnnotationOnBean(beanName, CapService.class);
 			if (serviceAnnotation != null) {
-				serviceId = new ServiceId<Object>(serviceAnnotation.id(), serviceAnnotation.type());
+				final Class<?> serviceType;
+				if (serviceAnnotation.type() != void.class) {
+					serviceType = serviceAnnotation.type();
+				}
+				else {
+					serviceType = bean.getClass().getInterfaces()[0];
+				}
+				serviceId = new ServiceId<Object>(serviceAnnotation.id(), serviceType);
 			}
 		}
 		if (serviceId != null) {
-			ServiceProvider.getInstance().addService(serviceId, createProxy(beanName));
+			ServiceProvider.getInstance().addService(serviceId, createProxy(serviceId.getServiceType(), beanName));
 		}
 		return bean;
 	}
 
-	private Object createProxy(final String beanName) {
-		final Class<?> beanClass = beanFactory.getBean(beanName).getClass();
-		return Proxy.newProxyInstance(beanClass.getClassLoader(), beanClass.getInterfaces(), new InvocationHandler() {
+	private Object createProxy(final Class<?> serviceType, final String beanName) {
+		return Proxy.newProxyInstance(serviceType.getClassLoader(), new Class<?>[] {serviceType}, new InvocationHandler() {
 			@Override
 			public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
 				try {

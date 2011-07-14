@@ -43,10 +43,10 @@ import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.service.IExecutorService;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
+import org.jowidgets.cap.service.api.annotation.CapService;
 import org.jowidgets.cap.service.api.annotation.DefaultExecutableChecker;
 import org.jowidgets.cap.service.api.annotation.Executor;
 import org.jowidgets.cap.service.api.annotation.ExecutorBean;
-import org.jowidgets.cap.service.api.annotation.CapService;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
 import org.jowidgets.cap.service.api.executor.IBeanExecutor;
 import org.jowidgets.cap.service.api.executor.IBeanListExecutor;
@@ -138,9 +138,9 @@ public final class ExecutorAnnotationPostProcessor implements BeanFactoryPostPro
 				final IExecutorService executorService = builder.build();
 
 				final CapService serviceAnnotation = method.getAnnotation(CapService.class);
-				final IServiceId<?> serviceId;
+				final IServiceId serviceId;
 				if (serviceAnnotation != null) {
-					serviceId = new ServiceId<Object>(serviceAnnotation.id(), serviceAnnotation.type());
+					serviceId = new ServiceId(serviceAnnotation.id(), IExecutorService.class);
 				}
 				else {
 					serviceId = null;

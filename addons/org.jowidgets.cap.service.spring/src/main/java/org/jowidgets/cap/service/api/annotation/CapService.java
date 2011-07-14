@@ -38,5 +38,5 @@ import java.lang.annotation.Target;
 public @interface CapService {
 	String id();
 
-	Class<?> type();
+	Class<?> type() default void.class;
 }
