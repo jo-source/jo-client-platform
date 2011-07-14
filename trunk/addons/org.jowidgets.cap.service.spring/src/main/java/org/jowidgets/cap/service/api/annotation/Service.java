@@ -36,5 +36,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.TYPE})
 public @interface Service {
-	String value();
+	String id();
+
+	Class<?> type();
 }

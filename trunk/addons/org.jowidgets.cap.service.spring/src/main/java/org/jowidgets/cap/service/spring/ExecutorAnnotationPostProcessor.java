@@ -51,6 +51,8 @@ import org.jowidgets.cap.service.api.bean.IBeanAccess;
 import org.jowidgets.cap.service.api.executor.IBeanExecutor;
 import org.jowidgets.cap.service.api.executor.IBeanListExecutor;
 import org.jowidgets.cap.service.api.executor.IExecutorServiceBuilder;
+import org.jowidgets.service.api.IServiceId;
+import org.jowidgets.service.tools.ServiceId;
 import org.jowidgets.util.Assert;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -136,9 +138,9 @@ public final class ExecutorAnnotationPostProcessor implements BeanFactoryPostPro
 				final IExecutorService executorService = builder.build();
 
 				final Service serviceAnnotation = method.getAnnotation(Service.class);
-				final String serviceId;
+				final IServiceId<?> serviceId;
 				if (serviceAnnotation != null) {
-					serviceId = serviceAnnotation.value();
+					serviceId = new ServiceId<Object>(serviceAnnotation.id(), serviceAnnotation.type());
 				}
 				else {
 					serviceId = null;

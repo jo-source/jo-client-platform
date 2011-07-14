@@ -35,38 +35,31 @@ import java.lang.reflect.Proxy;
 
 import org.jowidgets.cap.service.api.annotation.Service;
 import org.jowidgets.service.api.IServiceId;
+import org.jowidgets.service.tools.ServiceId;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.expression.ExpressionParser;
-import org.springframework.expression.spel.standard.SpelExpressionParser;
 
 public final class ServicePostProcessor implements BeanPostProcessor, ApplicationContextAware {
 
-	private final ExpressionParser expressionParser = new SpelExpressionParser();
 	private ConfigurableListableBeanFactory beanFactory;
 
 	@Override
 	public Object postProcessAfterInitialization(final Object bean, final String beanName) {
 		final BeanDefinition beanDefinition = beanFactory.getBeanDefinition(beanName);
-		String serviceId = (String) beanDefinition.getAttribute("serviceId");
+		IServiceId<?> serviceId = (IServiceId<?>) beanDefinition.getAttribute("serviceId");
 		if (serviceId == null) {
 			final Service serviceAnnotation = beanFactory.findAnnotationOnBean(beanName, Service.class);
 			if (serviceAnnotation != null) {
-				serviceId = serviceAnnotation.value();
+				serviceId = new ServiceId<Object>(serviceAnnotation.id(), serviceAnnotation.type());
 			}
 		}
 		if (serviceId != null) {
-			registerService(beanName, serviceId);
+			ServiceProvider.getInstance().addService(serviceId, createProxy(beanName));
 		}
 		return bean;
-	}
-
-	private void registerService(final String beanName, final String serviceIdExpression) {
-		final IServiceId<?> serviceId = expressionParser.parseExpression(serviceIdExpression).getValue(IServiceId.class);
-		ServiceProvider.getInstance().addService(serviceId, createProxy(beanName));
 	}
 
 	private Object createProxy(final String beanName) {
