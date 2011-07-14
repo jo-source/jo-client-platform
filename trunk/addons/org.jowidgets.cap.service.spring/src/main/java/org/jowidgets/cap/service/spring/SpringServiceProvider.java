@@ -36,15 +36,15 @@ import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.api.IServiceProvider;
 import org.jowidgets.service.api.IServiceRegistry;
 
-final class ServiceProvider implements IServiceProvider, IServiceRegistry {
+final class SpringServiceProvider implements IServiceProvider, IServiceRegistry {
 
-	private static final ServiceProvider INSTANCE = new ServiceProvider();
+	private static final SpringServiceProvider INSTANCE = new SpringServiceProvider();
 
 	private final Map<IServiceId<?>, Object> services = new ConcurrentHashMap<IServiceId<?>, Object>();
 
-	private ServiceProvider() {}
+	private SpringServiceProvider() {}
 
-	public static ServiceProvider getInstance() {
+	public static SpringServiceProvider getInstance() {
 		return INSTANCE;
 	}
 
