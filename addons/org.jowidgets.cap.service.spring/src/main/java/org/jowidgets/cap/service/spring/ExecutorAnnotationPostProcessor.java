@@ -55,6 +55,7 @@ import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.tools.ServiceId;
 import org.jowidgets.util.Assert;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
@@ -103,6 +104,7 @@ public final class ExecutorAnnotationPostProcessor implements BeanFactoryPostPro
 	@SuppressWarnings({"rawtypes", "unchecked"})
 	@Override
 	public void postProcessBeanFactory(final ConfigurableListableBeanFactory beanFactory) {
+		final BeanProxyFactory beanProxyFactory = new BeanProxyFactory(beanFactory);
 		final Map<String, Object> beans = beanFactory.getBeansWithAnnotation(ExecutorBean.class);
 		for (final Entry<String, Object> entry : beans.entrySet()) {
 			int i = 0;
@@ -110,7 +112,7 @@ public final class ExecutorAnnotationPostProcessor implements BeanFactoryPostPro
 			final Object bean = entry.getValue();
 			final Set<Method> methods = getExecutorMethods(bean);
 			for (final Method method : methods) {
-				final Object proxy = createExecutorProxy(bean, method);
+				final Object proxy = createExecutorProxy(beanFactory, beanName, method);
 				final IExecutorServiceBuilder builder = CapServiceToolkit.executorServiceBuilder(beanAccess);
 				if (proxy instanceof IBeanExecutor) {
 					builder.setExecutor((IBeanExecutor) proxy);
@@ -137,19 +139,22 @@ public final class ExecutorAnnotationPostProcessor implements BeanFactoryPostPro
 
 				final IExecutorService executorService = builder.build();
 
-				final IServiceId serviceId = new ServiceId(executorAnnotation.id(), IExecutorService.class);
-				// TODO HRW register service
-
 				final BeanDefinitionRegistry registry = (BeanDefinitionRegistry) beanFactory;
 				final BeanDefinition beanDefinition = new RootBeanDefinition(TransactionalExecutorService.class);
 				beanDefinition.getConstructorArgumentValues().addIndexedArgumentValue(0, executorService);
 				beanDefinition.setDependsOn(new String[] {beanName});
-				registry.registerBeanDefinition(beanName + "." + i++, beanDefinition);
+				final String newBeanName = beanName + "." + i++;
+				registry.registerBeanDefinition(newBeanName, beanDefinition);
+
+				final IServiceId serviceId = new ServiceId(executorAnnotation.id(), IExecutorService.class);
+				ServiceProvider.getInstance().addService(
+						serviceId,
+						beanProxyFactory.createProxy(newBeanName, IExecutorService.class));
 			}
 		}
 	}
 
-	private Object createExecutorProxy(final Object bean, final Method method) {
+	private Object createExecutorProxy(final BeanFactory beanFactory, final String beanName, final Method method) {
 		final boolean voidMethod = method.getReturnType() == void.class;
 
 		Boolean singleExecutor = null;
@@ -208,7 +213,7 @@ public final class ExecutorAnnotationPostProcessor implements BeanFactoryPostPro
 						}
 					}
 
-					final Object result = ReflectionUtils.invokeMethod(method, bean, args);
+					final Object result = ReflectionUtils.invokeMethod(method, beanFactory.getBean(beanName), args);
 					if (voidMethod) {
 						return data;
 					}
@@ -246,7 +251,7 @@ public final class ExecutorAnnotationPostProcessor implements BeanFactoryPostPro
 						}
 					}
 
-					final Object result = ReflectionUtils.invokeMethod(method, bean, args);
+					final Object result = ReflectionUtils.invokeMethod(method, beanFactory.getBean(beanName), args);
 					if (voidMethod) {
 						return (List<IBean>) data;
 					}

@@ -28,11 +28,6 @@
 
 package org.jowidgets.cap.service.spring;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
-
 import org.jowidgets.cap.service.api.annotation.CapService;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.tools.ServiceId;
@@ -44,6 +39,7 @@ import org.springframework.context.ApplicationContextAware;
 public final class ServicePostProcessor implements BeanPostProcessor, ApplicationContextAware {
 
 	private ConfigurableListableBeanFactory beanFactory;
+	private BeanProxyFactory beanProxyFactory;
 
 	@Override
 	public Object postProcessAfterInitialization(final Object bean, final String beanName) {
@@ -56,28 +52,10 @@ public final class ServicePostProcessor implements BeanPostProcessor, Applicatio
 			else {
 				serviceType = bean.getClass().getInterfaces()[0];
 			}
-			final IServiceId<?> serviceId = new ServiceId<Object>(serviceAnnotation.id(), serviceType);
-			ServiceProvider.getInstance().addService(serviceId, createProxy(serviceType, beanName));
+			final IServiceId<Object> serviceId = new ServiceId<Object>(serviceAnnotation.id(), serviceType);
+			ServiceProvider.getInstance().addService(serviceId, beanProxyFactory.createProxy(beanName, serviceType));
 		}
 		return bean;
-	}
-
-	private Object createProxy(final Class<?> serviceType, final String beanName) {
-		return Proxy.newProxyInstance(serviceType.getClassLoader(), new Class<?>[] {serviceType}, new InvocationHandler() {
-			@Override
-			public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
-				try {
-					return method.invoke(beanFactory.getBean(beanName), args);
-				}
-				catch (final InvocationTargetException e) {
-					final Throwable cause = e.getCause();
-					if (cause != null) {
-						throw cause;
-					}
-					throw e;
-				}
-			}
-		});
 	}
 
 	@Override
@@ -88,6 +66,7 @@ public final class ServicePostProcessor implements BeanPostProcessor, Applicatio
 	@Override
 	public void setApplicationContext(final ApplicationContext applicationContext) {
 		beanFactory = (ConfigurableListableBeanFactory) applicationContext;
+		beanProxyFactory = new BeanProxyFactory(beanFactory);
 	}
 
 }
