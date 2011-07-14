@@ -4,6 +4,8 @@
 
 	<bean class="org.jowidgets.cap.service.spring.EchoService" />
 
+	<bean class="org.jowidgets.cap.service.spring.ExtendedEchoService" />
+
 	<bean class="org.jowidgets.cap.service.spring.ServicePostProcessor" />
 
 </beans>

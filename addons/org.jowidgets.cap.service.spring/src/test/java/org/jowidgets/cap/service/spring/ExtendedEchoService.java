@@ -28,35 +28,14 @@
 
 package org.jowidgets.cap.service.spring;
 
-import junit.framework.Assert;
+import org.jowidgets.cap.service.api.annotation.CapService;
 
-import org.jowidgets.service.api.ServiceProvider;
-import org.jowidgets.service.tools.ServiceId;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+@CapService(id = "extendedEcho", type = IEchoService.class)
+public class ExtendedEchoService extends EchoService {
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration
-public class ServicePostProcessorTest {
-
-	@Test
-	public void testEchoService() {
-		final IEchoService service = ServiceProvider.getService(new ServiceId<IEchoService>("echo", IEchoService.class));
-		Assert.assertEquals("bla", service.echo("bla"));
-	}
-
-	@Test
-	public void testMissingService() {
-		final IEchoService service = ServiceProvider.getService(new ServiceId<IEchoService>("missing", IEchoService.class));
-		Assert.assertNull(service);
-	}
-
-	@Test
-	public void testExtendedEchoService() {
-		final IEchoService service = ServiceProvider.getService(new ServiceId<IEchoService>("extendedEcho", IEchoService.class));
-		Assert.assertEquals("BLA", service.echo("bla"));
+	@Override
+	public String echo(final String msg) {
+		return super.echo(String.valueOf(msg)).toUpperCase();
 	}
 
 }

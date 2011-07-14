@@ -52,6 +52,10 @@ public final class ServicePostProcessor implements BeanPostProcessor, Applicatio
 					serviceType = serviceAnnotation.type();
 				}
 				else {
+					if (bean.getClass().getInterfaces().length == 0) {
+						throw new RuntimeException(beanName
+							+ " must implement at least one interface or type must be set on @CapService annotation");
+					}
 					serviceType = bean.getClass().getInterfaces()[0];
 				}
 				final IServiceId<Object> serviceId = new ServiceId<Object>(serviceAnnotation.id(), serviceType);
