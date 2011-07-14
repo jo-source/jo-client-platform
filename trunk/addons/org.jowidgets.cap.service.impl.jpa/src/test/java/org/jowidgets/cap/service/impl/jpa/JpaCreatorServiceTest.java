@@ -36,12 +36,11 @@ import java.util.Map;
 import javax.persistence.EntityManager;
 import javax.validation.ConstraintViolationException;
 
-import junit.framework.Assert;
-
 import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.tools.execution.SyncResultCallback;
 import org.jowidgets.cap.service.impl.jpa.entity.Person;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
