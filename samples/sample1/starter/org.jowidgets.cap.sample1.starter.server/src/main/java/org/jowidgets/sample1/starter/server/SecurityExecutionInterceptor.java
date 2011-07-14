@@ -29,13 +29,13 @@
 package org.jowidgets.sample1.starter.server;
 
 import org.jowidgets.message.impl.http.server.IExecutionInterceptor;
-import org.jowidgets.security.api.SecurityToolkit;
+import org.jowidgets.security.api.SecurityContext;
 
 final class SecurityExecutionInterceptor implements IExecutionInterceptor<Object> {
 
 	@Override
 	public Object getExecutionContext() {
-		return SecurityToolkit.getSecurityContext();
+		return SecurityContext.getSecurityContext();
 	}
 
 	@Override
@@ -43,12 +43,12 @@ final class SecurityExecutionInterceptor implements IExecutionInterceptor<Object
 		// CHECKSTYLE:OFF
 		System.err.println("Current execution context: " + executionContext);
 		// CHECKSTYLE:ON
-		SecurityToolkit.setSecurityContext(executionContext);
+		SecurityContext.setSecurityContext(executionContext);
 	}
 
 	@Override
 	public void afterExecution() {
-		SecurityToolkit.clearSecurityContext();
+		SecurityContext.clearSecurityContext();
 	}
 
 }

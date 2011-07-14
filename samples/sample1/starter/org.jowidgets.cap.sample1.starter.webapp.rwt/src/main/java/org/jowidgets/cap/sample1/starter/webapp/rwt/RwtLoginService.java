@@ -33,7 +33,7 @@ import org.jowidgets.api.login.ILoginResultCallback;
 import org.jowidgets.api.threads.IUiThreadAccess;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.cap.ui.api.login.ILoginService;
-import org.jowidgets.security.api.SecurityToolkit;
+import org.jowidgets.security.api.SecurityContext;
 import org.jowidgets.security.tools.DefaultSecurityContext;
 
 public class RwtLoginService implements ILoginService {
@@ -51,7 +51,7 @@ public class RwtLoginService implements ILoginService {
 				uiThreadAccess.invokeLater(new Runnable() {
 					@Override
 					public void run() {
-						SecurityToolkit.setSecurityContext(new DefaultSecurityContext(username));
+						SecurityContext.setSecurityContext(new DefaultSecurityContext(username));
 					}
 				});
 			}

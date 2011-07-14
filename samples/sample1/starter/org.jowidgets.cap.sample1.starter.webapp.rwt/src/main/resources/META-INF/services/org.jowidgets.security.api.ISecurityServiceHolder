@@ -1,1 +1,1 @@
-org.jowidgets.security.tools.InheritableThreadLocalSecurityServiceHolder
+org.jowidgets.security.tools.InheritableThreadLocalSecurityContextHolder

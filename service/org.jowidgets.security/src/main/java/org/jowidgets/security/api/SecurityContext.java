@@ -28,8 +28,45 @@
 
 package org.jowidgets.security.api;
 
-public interface ISecurityServiceHolder<CONTEXT_TYPE> {
+import java.util.Iterator;
+import java.util.ServiceLoader;
 
-	ISecurityService<CONTEXT_TYPE> getSecurityService();
+import org.jowidgets.security.impl.DefaultSecurityContextHolder;
+
+@SuppressWarnings({"rawtypes", "unchecked"})
+public final class SecurityContext {
+
+	private static final ISecurityContextHolder HOLDER = createSecurityContextHolder();
+
+	private SecurityContext() {}
+
+	public static <CONTEXT_TYPE> CONTEXT_TYPE getSecurityContext() {
+		return (CONTEXT_TYPE) HOLDER.getSecurityContext();
+	}
+
+	public static <CONTEXT_TYPE> void setSecurityContext(final CONTEXT_TYPE context) {
+		HOLDER.setSecurityContext(context);
+	}
+
+	public static <CONTEXT_TYPE> void clearSecurityContext() {
+		HOLDER.clearSecurityContext();
+	}
+
+	private static ISecurityContextHolder createSecurityContextHolder() {
+		final ServiceLoader<ISecurityContextHolder> serviceLoader = ServiceLoader.load(ISecurityContextHolder.class);
+		final Iterator<ISecurityContextHolder> iterator = serviceLoader.iterator();
+		if (iterator.hasNext()) {
+			final ISecurityContextHolder result = iterator.next();
+			if (iterator.hasNext()) {
+				throw new IllegalStateException("More than one implementation found for '"
+					+ ISecurityContextHolder.class.getName()
+					+ "'");
+			}
+			return result;
+		}
+		else {
+			return new DefaultSecurityContextHolder<Object>();
+		}
+	}
 
 }

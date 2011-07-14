@@ -32,7 +32,7 @@ import org.jowidgets.api.login.ILoginInterceptor;
 import org.jowidgets.api.login.ILoginResultCallback;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.cap.ui.api.login.ILoginService;
-import org.jowidgets.security.api.SecurityToolkit;
+import org.jowidgets.security.api.SecurityContext;
 import org.jowidgets.security.tools.DefaultSecurityContext;
 
 public class StandaloneLoginService implements ILoginService {
@@ -42,8 +42,10 @@ public class StandaloneLoginService implements ILoginService {
 		final ILoginInterceptor loginInterceptor = new ILoginInterceptor() {
 			@Override
 			public void login(final ILoginResultCallback resultCallback, final String username, final String password) {
+
 				// TODO authorize with credentials
-				SecurityToolkit.setSecurityContext(new DefaultSecurityContext(username));
+
+				SecurityContext.setSecurityContext(new DefaultSecurityContext(username));
 				try {
 					Thread.sleep(3000);
 				}

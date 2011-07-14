@@ -38,7 +38,7 @@ import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.sample1.common.entity.IUser;
 import org.jowidgets.cap.sample1.service.datastore.DataStore;
 import org.jowidgets.cap.service.api.adapter.ISyncReaderService;
-import org.jowidgets.security.api.SecurityToolkit;
+import org.jowidgets.security.api.SecurityContext;
 
 public class AllUsersReaderService implements ISyncReaderService<Integer> {
 
@@ -86,7 +86,7 @@ public class AllUsersReaderService implements ISyncReaderService<Integer> {
 		}
 
 		//CHECKSTYLE:OFF
-		System.out.println(SecurityToolkit.getSecurityContext());
+		System.out.println(SecurityContext.getSecurityContext());
 		//CHECKSTYLE:ON
 
 		return result;
