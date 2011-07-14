@@ -43,8 +43,8 @@ import javax.security.auth.login.LoginException;
 
 import org.jowidgets.api.login.ILoginInterceptor;
 import org.jowidgets.api.login.ILoginResultCallback;
-import org.jowidgets.security.api.SecurityContext;
-import org.jowidgets.security.tools.DefaultSecurityContext;
+import org.jowidgets.security.api.SecurityContextHolder;
+import org.jowidgets.security.tools.DefaultPrincipal;
 import org.jowidgets.util.Assert;
 
 public class JaasLoginInterceptor implements ILoginInterceptor {
@@ -93,7 +93,7 @@ public class JaasLoginInterceptor implements ILoginInterceptor {
 			loginContext.login();
 			final Subject subject = loginContext.getSubject();
 			if (subject != null) {
-				SecurityContext.setSecurityContext(new DefaultSecurityContext(username));
+				SecurityContextHolder.setSecurityContext(new DefaultPrincipal(username));
 				resultCallback.granted();
 				return;
 			}

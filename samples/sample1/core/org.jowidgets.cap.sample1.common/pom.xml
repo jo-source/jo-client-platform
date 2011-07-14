@@ -28,7 +28,12 @@
 			<groupId>org.jowidgets</groupId>
 			<artifactId>org.jowidgets.service</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
-		</dependency>	
+		</dependency>
+		<dependency>
+            <groupId>org.jowidgets</groupId>
+            <artifactId>org.jowidgets.security</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>	
 	</dependencies>
 
 </project>

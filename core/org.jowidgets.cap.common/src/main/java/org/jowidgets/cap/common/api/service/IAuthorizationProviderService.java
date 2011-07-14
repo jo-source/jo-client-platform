@@ -26,54 +26,13 @@
  * DAMAGE.
  */
 
-package org.jowidgets.security.tools;
+package org.jowidgets.cap.common.api.service;
 
-public final class DefaultSecurityContext {
+import org.jowidgets.cap.common.api.execution.IExecutionCallback;
+import org.jowidgets.cap.common.api.execution.IResultCallback;
 
-	private final String username;
+public interface IAuthorizationProviderService<PRINCIPAL_TYPE> {
 
-	public DefaultSecurityContext(final String username) {
-		this.username = username;
-	}
-
-	public String getUsername() {
-		return username;
-	}
-
-	@Override
-	public String toString() {
-		return "DefaultSecurityContext [username=" + username + "]";
-	}
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((username == null) ? 0 : username.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(final Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (obj == null) {
-			return false;
-		}
-		if (getClass() != obj.getClass()) {
-			return false;
-		}
-		final DefaultSecurityContext other = (DefaultSecurityContext) obj;
-		if (username == null) {
-			if (other.username != null) {
-				return false;
-			}
-		}
-		else if (!username.equals(other.username)) {
-			return false;
-		}
-		return true;
-	}
+	void getPrincipal(final IResultCallback<PRINCIPAL_TYPE> result, final IExecutionCallback executionCallback);
 
 }

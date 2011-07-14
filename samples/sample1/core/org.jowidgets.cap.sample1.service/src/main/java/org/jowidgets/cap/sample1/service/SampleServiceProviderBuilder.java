@@ -39,12 +39,14 @@ import org.jowidgets.cap.sample1.common.entity.IUser;
 import org.jowidgets.cap.sample1.common.service.executor.ChangeGenderExecutableChecker;
 import org.jowidgets.cap.sample1.common.service.executor.UserComponentExecutorServices;
 import org.jowidgets.cap.sample1.common.service.reader.UserReaderServices;
+import org.jowidgets.cap.sample1.common.service.security.AuthorizationProviderServiceId;
 import org.jowidgets.cap.sample1.service.datastore.DataStore;
 import org.jowidgets.cap.sample1.service.entity.EntityService;
 import org.jowidgets.cap.sample1.service.executor.ChangeBirthdayExecutor;
 import org.jowidgets.cap.sample1.service.executor.ChangeGenderExecutor;
 import org.jowidgets.cap.sample1.service.executor.LongLastingExecutor;
 import org.jowidgets.cap.sample1.service.reader.AllUsersReaderService;
+import org.jowidgets.cap.sample1.service.security.AuthorizationProviderServiceImpl;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.adapter.ISyncReaderService;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
@@ -58,6 +60,8 @@ public class SampleServiceProviderBuilder extends ServiceProviderBuilder {
 
 	public SampleServiceProviderBuilder() {
 		super();
+
+		addService(AuthorizationProviderServiceId.ID, new AuthorizationProviderServiceImpl());
 
 		addService(IEntityService.ID, new EntityService(this).getEntityService());
 

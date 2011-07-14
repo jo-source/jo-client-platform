@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, H.Westphal
+ * Copyright (c) 2011, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,29 +26,46 @@
  * DAMAGE.
  */
 
-package org.jowidgets.sample1.starter.server;
+package org.jowidgets.security.api;
 
-import org.jowidgets.message.impl.http.server.IExecutionInterceptor;
-import org.jowidgets.security.api.SecurityContextHolder;
+import java.util.Iterator;
+import java.util.ServiceLoader;
 
-final class SecurityExecutionInterceptor implements IExecutionInterceptor<Object> {
+@SuppressWarnings({"rawtypes", "unchecked"})
+public final class AuthorizationService {
 
-	@Override
-	public Object getExecutionContext() {
-		return SecurityContextHolder.getSecurityContext();
+	private static final IAuthorizationService AUTHORIZATION_SERVICE = createAuthorizationService();
+
+	private AuthorizationService() {}
+
+	public static <PRINCIPAL_TYPE> IAuthorizationService<PRINCIPAL_TYPE> getAuthorizationService() {
+		return AUTHORIZATION_SERVICE;
 	}
 
-	@Override
-	public void beforeExecution(final Object executionContext) {
-		// CHECKSTYLE:OFF
-		System.out.println("Current execution context: " + executionContext);
-		// CHECKSTYLE:ON
-		SecurityContextHolder.setSecurityContext(executionContext);
+	public static <PRINCIPAL_TYPE> PRINCIPAL_TYPE authorize(final PRINCIPAL_TYPE principal) {
+		final IAuthorizationService<PRINCIPAL_TYPE> authorizationService = getAuthorizationService();
+		return authorizationService.authorize(principal);
 	}
 
-	@Override
-	public void afterExecution() {
-		SecurityContextHolder.clearSecurityContext();
+	private static IAuthorizationService createAuthorizationService() {
+		final ServiceLoader<IAuthorizationService> serviceLoader = ServiceLoader.load(IAuthorizationService.class);
+		final Iterator<IAuthorizationService> iterator = serviceLoader.iterator();
+		if (iterator.hasNext()) {
+			final IAuthorizationService result = iterator.next();
+			if (iterator.hasNext()) {
+				throw new IllegalStateException("More than one implementation found for '"
+					+ IAuthorizationService.class.getName()
+					+ "'");
+			}
+			return result;
+		}
+		else {
+			return new IAuthorizationService() {
+				@Override
+				public Object authorize(final Object principal) {
+					return principal;
+				}
+			};
+		}
 	}
-
 }

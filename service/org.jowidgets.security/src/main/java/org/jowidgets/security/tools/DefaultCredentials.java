@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, H.Westphal
+ * Copyright (c) 2011, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,29 +26,25 @@
  * DAMAGE.
  */
 
-package org.jowidgets.sample1.starter.server;
+package org.jowidgets.security.tools;
 
-import org.jowidgets.message.impl.http.server.IExecutionInterceptor;
-import org.jowidgets.security.api.SecurityContextHolder;
+public final class DefaultCredentials {
 
-final class SecurityExecutionInterceptor implements IExecutionInterceptor<Object> {
+	private final String username;
+	private final String password;
 
-	@Override
-	public Object getExecutionContext() {
-		return SecurityContextHolder.getSecurityContext();
+	public DefaultCredentials(final String username, final String password) {
+		super();
+		this.username = username;
+		this.password = password;
 	}
 
-	@Override
-	public void beforeExecution(final Object executionContext) {
-		// CHECKSTYLE:OFF
-		System.out.println("Current execution context: " + executionContext);
-		// CHECKSTYLE:ON
-		SecurityContextHolder.setSecurityContext(executionContext);
+	public String getUsername() {
+		return username;
 	}
 
-	@Override
-	public void afterExecution() {
-		SecurityContextHolder.clearSecurityContext();
+	public String getPassword() {
+		return password;
 	}
 
 }

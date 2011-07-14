@@ -31,42 +31,47 @@ package org.jowidgets.security.api;
 import java.util.Iterator;
 import java.util.ServiceLoader;
 
-import org.jowidgets.security.impl.DefaultSecurityContextHolder;
+import org.jowidgets.security.tools.DefaultCredentials;
+import org.jowidgets.security.tools.DefaultPrincipal;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
-public final class SecurityContext {
+public final class AuthenticationService {
 
-	private static final ISecurityContextHolder HOLDER = createSecurityContextHolder();
+	private static final IAuthenticationService AUTHENTICATION_SERVICE = createAuthenticationService();
 
-	private SecurityContext() {}
+	private AuthenticationService() {}
 
-	public static <CONTEXT_TYPE> CONTEXT_TYPE getSecurityContext() {
-		return (CONTEXT_TYPE) HOLDER.getSecurityContext();
+	public static <PRINCIPAL_TYPE, CREDENTIAL_TYPE> IAuthenticationService<PRINCIPAL_TYPE, CREDENTIAL_TYPE> getAuthenticationService() {
+		return AUTHENTICATION_SERVICE;
 	}
 
-	public static <CONTEXT_TYPE> void setSecurityContext(final CONTEXT_TYPE context) {
-		HOLDER.setSecurityContext(context);
+	public static <PRINCIPAL_TYPE, CREDENTIAL_TYPE> PRINCIPAL_TYPE authenticate(final CREDENTIAL_TYPE credentials) {
+		final IAuthenticationService<PRINCIPAL_TYPE, CREDENTIAL_TYPE> authenticationService = getAuthenticationService();
+		return authenticationService.authenticate(credentials);
 	}
 
-	public static <CONTEXT_TYPE> void clearSecurityContext() {
-		HOLDER.clearSecurityContext();
-	}
-
-	private static ISecurityContextHolder createSecurityContextHolder() {
-		final ServiceLoader<ISecurityContextHolder> serviceLoader = ServiceLoader.load(ISecurityContextHolder.class);
-		final Iterator<ISecurityContextHolder> iterator = serviceLoader.iterator();
+	private static IAuthenticationService createAuthenticationService() {
+		final ServiceLoader<IAuthenticationService> serviceLoader = ServiceLoader.load(IAuthenticationService.class);
+		final Iterator<IAuthenticationService> iterator = serviceLoader.iterator();
 		if (iterator.hasNext()) {
-			final ISecurityContextHolder result = iterator.next();
+			final IAuthenticationService result = iterator.next();
 			if (iterator.hasNext()) {
 				throw new IllegalStateException("More than one implementation found for '"
-					+ ISecurityContextHolder.class.getName()
+					+ IAuthenticationService.class.getName()
 					+ "'");
 			}
 			return result;
 		}
 		else {
-			return new DefaultSecurityContextHolder<Object>();
+			return new IAuthenticationService() {
+				@Override
+				public Object authenticate(final Object credentials) {
+					if (credentials instanceof DefaultCredentials) {
+						return new DefaultPrincipal(((DefaultCredentials) credentials).getUsername());
+					}
+					return null;
+				}
+			};
 		}
 	}
-
 }
