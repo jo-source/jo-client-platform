@@ -44,7 +44,6 @@ import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.service.IExecutorService;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
-import org.jowidgets.cap.service.api.annotation.CapService;
 import org.jowidgets.cap.service.api.annotation.DefaultExecutableChecker;
 import org.jowidgets.cap.service.api.annotation.Executor;
 import org.jowidgets.cap.service.api.annotation.ExecutorBean;
@@ -138,21 +137,12 @@ public final class ExecutorAnnotationPostProcessor implements BeanFactoryPostPro
 
 				final IExecutorService executorService = builder.build();
 
-				final CapService serviceAnnotation = method.getAnnotation(CapService.class);
-				final IServiceId serviceId;
-				if (serviceAnnotation != null) {
-					serviceId = new ServiceId(serviceAnnotation.id(), IExecutorService.class);
-				}
-				else {
-					serviceId = null;
-				}
+				final IServiceId serviceId = new ServiceId(executorAnnotation.id(), IExecutorService.class);
+				// TODO HRW register service
 
 				final BeanDefinitionRegistry registry = (BeanDefinitionRegistry) beanFactory;
 				final BeanDefinition beanDefinition = new RootBeanDefinition(TransactionalExecutorService.class);
 				beanDefinition.getConstructorArgumentValues().addIndexedArgumentValue(0, executorService);
-				if (serviceId != null) {
-					beanDefinition.setAttribute("serviceId", serviceId);
-				}
 				beanDefinition.setDependsOn(new String[] {beanName});
 				registry.registerBeanDefinition(beanName + "." + i++, beanDefinition);
 			}
