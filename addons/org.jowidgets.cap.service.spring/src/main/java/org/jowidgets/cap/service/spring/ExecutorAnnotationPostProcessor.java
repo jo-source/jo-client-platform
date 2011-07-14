@@ -30,8 +30,9 @@ package org.jowidgets.cap.service.spring;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -160,24 +161,52 @@ public final class ExecutorAnnotationPostProcessor implements BeanFactoryPostPro
 
 	private Object createExecutorProxy(final Object bean, final Method method) {
 		final boolean voidMethod = method.getReturnType() == void.class;
-		// TODO HW determine values
-		final boolean singleExecutor = true;
-		final Integer dataArgPosition = null;
-		final Integer callbackArgPosition = null;
-		final List<Integer> paramArgPositions = Collections.emptyList();
+
+		Boolean singleExecutor = null;
+		Integer dataArgPosition = null;
+		Integer callbackArgPosition = null;
+		final List<Integer> paramArgPositions = new LinkedList<Integer>();
+		for (int i = 0; i < method.getParameterTypes().length; i++) {
+			final Class<?> parameterType = method.getParameterTypes()[i];
+			if (IBean.class.isAssignableFrom(parameterType) && singleExecutor == null) {
+				singleExecutor = true;
+				dataArgPosition = i;
+				continue;
+			}
+
+			if (List.class.isAssignableFrom(parameterType) && singleExecutor == null) {
+				final Type genericParameterType = method.getGenericParameterTypes()[i];
+				if (genericParameterType instanceof ParameterizedType) {
+					final ParameterizedType parameterizedType = (ParameterizedType) genericParameterType;
+					if (IBean.class.isAssignableFrom((Class<?>) parameterizedType.getActualTypeArguments()[0])) {
+						singleExecutor = false;
+						dataArgPosition = i;
+						continue;
+					}
+				}
+			}
+
+			if (parameterType == IExecutionCallback.class) {
+				callbackArgPosition = i;
+				continue;
+			}
+
+			paramArgPositions.add(i);
+		}
 
 		final Object[] args = new Object[method.getParameterTypes().length];
+		final Integer finalDataArgPosition = dataArgPosition;
+		final Integer finalCallbackArgPosition = callbackArgPosition;
 
-		if (singleExecutor) {
+		if (singleExecutor == null || singleExecutor) {
 			return new IBeanExecutor<IBean, Object>() {
-				@SuppressWarnings("unused")
 				@Override
 				public IBean execute(final IBean data, final Object parameter, final IExecutionCallback executionCallback) {
-					if (dataArgPosition != null) {
-						args[dataArgPosition] = data;
+					if (finalDataArgPosition != null) {
+						args[finalDataArgPosition] = data;
 					}
-					if (callbackArgPosition != null) {
-						args[callbackArgPosition] = executionCallback;
+					if (finalCallbackArgPosition != null) {
+						args[finalCallbackArgPosition] = executionCallback;
 					}
 					if (paramArgPositions.size() == 1) {
 						args[paramArgPositions.get(0)] = parameter;
@@ -211,11 +240,11 @@ public final class ExecutorAnnotationPostProcessor implements BeanFactoryPostPro
 						data = new ArrayList<IBean>(data);
 					}
 
-					if (dataArgPosition != null) {
-						args[dataArgPosition] = data;
+					if (finalDataArgPosition != null) {
+						args[finalDataArgPosition] = data;
 					}
-					if (callbackArgPosition != null) {
-						args[callbackArgPosition] = executionCallback;
+					if (finalCallbackArgPosition != null) {
+						args[finalCallbackArgPosition] = executionCallback;
 					}
 					if (paramArgPositions.size() == 1) {
 						args[paramArgPositions.get(0)] = parameter;
