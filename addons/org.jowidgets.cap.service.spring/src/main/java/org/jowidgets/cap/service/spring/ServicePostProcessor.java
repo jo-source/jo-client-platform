@@ -33,7 +33,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
-import org.jowidgets.cap.service.api.annotation.Service;
+import org.jowidgets.cap.service.api.annotation.CapService;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.tools.ServiceId;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -51,7 +51,7 @@ public final class ServicePostProcessor implements BeanPostProcessor, Applicatio
 		final BeanDefinition beanDefinition = beanFactory.getBeanDefinition(beanName);
 		IServiceId<?> serviceId = (IServiceId<?>) beanDefinition.getAttribute("serviceId");
 		if (serviceId == null) {
-			final Service serviceAnnotation = beanFactory.findAnnotationOnBean(beanName, Service.class);
+			final CapService serviceAnnotation = beanFactory.findAnnotationOnBean(beanName, CapService.class);
 			if (serviceAnnotation != null) {
 				serviceId = new ServiceId<Object>(serviceAnnotation.id(), serviceAnnotation.type());
 			}
