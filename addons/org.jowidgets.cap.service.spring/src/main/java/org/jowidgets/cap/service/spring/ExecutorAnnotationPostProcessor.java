@@ -64,6 +64,7 @@ import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.ReflectionUtils.MethodCallback;
 
+// TODO HRW how to match IBeanAccess instances to executors?
 public final class ExecutorAnnotationPostProcessor implements BeanFactoryPostProcessor {
 
 	private final IBeanAccess<?> beanAccess;
