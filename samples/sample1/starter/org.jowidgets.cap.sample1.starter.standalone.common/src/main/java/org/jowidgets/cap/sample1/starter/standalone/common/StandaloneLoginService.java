@@ -46,11 +46,11 @@ public class StandaloneLoginService implements ILoginService {
 			@Override
 			public void login(final ILoginResultCallback resultCallback, final String username, final String password) {
 
-				try {
-					Thread.sleep(3000);
-				}
-				catch (final InterruptedException e) {
-				}
+				//				try {
+				//					Thread.sleep(5000);
+				//				}
+				//				catch (final InterruptedException e) {
+				//				}
 
 				DefaultPrincipal principal = AuthenticationService.authenticate(new DefaultCredentials(username, password));
 				if (principal != null) {

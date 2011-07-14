@@ -44,12 +44,15 @@ public class RemoteLoginService implements ILoginService {
 		final ILoginInterceptor loginInterceptor = new ILoginInterceptor() {
 			@Override
 			public void login(final ILoginResultCallback resultCallback, final String username, final String password) {
+
 				final MessageBrokerBuilder builder = new MessageBrokerBuilder(MessageBrokerId.INVOCATION_IMPL_BROKER_ID);
 				builder.setUrl("http://localhost:8080/").setUsername(username).setPassword(password);
 				final IMessageBroker messageBroker = builder.build();
+
 				MessageToolkit.addChannelBroker(messageBroker);
 				MessageToolkit.addReceiverBroker(messageBroker);
 
+				//TODO MG why does this not work
 				//				IAuthorizationProviderService<DefaultPrincipal> authorizationService;
 				//				try {
 				//					authorizationService = ServiceProvider.getService(AuthorizationProviderServiceId.ID);
