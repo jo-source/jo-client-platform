@@ -46,6 +46,8 @@ public interface IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> {
 
 	IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> setDisplayFormatDescription(final String description);
 
+	IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> setDisplayFormat(final DisplayFormat displayFormat);
+
 	IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> setObjectLabelConverter(
 		final IObjectLabelConverter<? extends ELEMENT_VALUE_TYPE> objectLabelConverter);
 

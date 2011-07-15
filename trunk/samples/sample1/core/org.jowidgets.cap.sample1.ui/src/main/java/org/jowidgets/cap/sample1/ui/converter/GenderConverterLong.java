@@ -26,66 +26,35 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.attribute;
+package org.jowidgets.cap.sample1.ui.converter;
 
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
-import org.jowidgets.cap.common.api.bean.IValueRange;
-import org.jowidgets.common.types.AlignmentHorizontal;
-import org.jowidgets.util.event.IChangeObservable;
+import org.jowidgets.api.convert.IConverter;
+import org.jowidgets.tools.converter.MapConverter;
 
-public interface IAttribute<ELEMENT_VALUE_TYPE> extends IChangeObservable {
+public final class GenderConverterLong {
 
-	String getPropertyName();
+	private final IConverter<String> converter;
 
-	IValueRange getValueRange();
+	public GenderConverterLong() {
+		final Map<String, String> objectToString = new HashMap<String, String>();
+		objectToString.put("M", "Male");
+		objectToString.put("F", "Female");
+		objectToString.put(null, "");
 
-	boolean isSortable();
+		final Map<String, String> stringToObject = new HashMap<String, String>();
+		stringToObject.put("Male", "M");
+		stringToObject.put("male", "M");
+		stringToObject.put("Female", "F");
+		stringToObject.put("female", "F");
 
-	boolean isFilterable();
+		this.converter = new MapConverter<String>(objectToString, stringToObject, "Must be 'Male' or 'Female'");
+	}
 
-	boolean isMandatory();
-
-	boolean isEditable();
-
-	boolean isReadonly();
-
-	IAttributeGroup getGroup();
-
-	String getLabel();
-
-	String getLabelLong();
-
-	String getDescription();
-
-	Class<?> getValueType();
-
-	Class<ELEMENT_VALUE_TYPE> getElementValueType();
-
-	boolean isCollectionType();
-
-	List<IControlPanelProvider<ELEMENT_VALUE_TYPE>> getControlPanels();
-
-	boolean isVisible();
-
-	String getDisplayFormatId();
-
-	AlignmentHorizontal getTableAlignment();
-
-	IControlPanelProvider<ELEMENT_VALUE_TYPE> getCurrentControlPanel();
-
-	int getTableWidth();
-
-	void setVisible(boolean visible);
-
-	void setDisplayFormatId(String id);
-
-	void setTableAlignment(AlignmentHorizontal alignment);
-
-	void setTableWidth(int width);
-
-	IAttributeConfig getConfig();
-
-	void setConfig(IAttributeConfig config);
+	public IConverter<String> getConverter() {
+		return converter;
+	}
 
 }

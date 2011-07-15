@@ -56,7 +56,7 @@ final class AttributeModifierBluePrint<ELEMENT_VALUE_TYPE> implements IAttribute
 	private IAttributeGroup attributeGroup;
 	private Boolean sortable;
 	private Boolean filterable;
-	private IControlPanelProvider<? extends ELEMENT_VALUE_TYPE> defaultControlPanel;
+	private String displayFromatId;
 
 	@SuppressWarnings("rawtypes")
 	private final List controlPanels;
@@ -173,14 +173,6 @@ final class AttributeModifierBluePrint<ELEMENT_VALUE_TYPE> implements IAttribute
 		return this;
 	}
 
-	@Override
-	public IAttributeBluePrint<ELEMENT_VALUE_TYPE> setDefaultControlPanel(
-		final IControlPanelProvider<? extends ELEMENT_VALUE_TYPE> controlPanel) {
-		checkExhausted();
-		this.defaultControlPanel = controlPanel;
-		return this;
-	}
-
 	@SuppressWarnings("unchecked")
 	@Override
 	public IAttributeBluePrint<ELEMENT_VALUE_TYPE> addControlPanel(
@@ -188,6 +180,13 @@ final class AttributeModifierBluePrint<ELEMENT_VALUE_TYPE> implements IAttribute
 		Assert.paramNotNull(controlPanel, "controlPanel");
 		checkExhausted();
 		this.controlPanels.add(controlPanel);
+		return this;
+	}
+
+	@Override
+	public IAttributeBluePrint<ELEMENT_VALUE_TYPE> setDisplayFormatId(final String displayFormatId) {
+		checkExhausted();
+		this.displayFromatId = displayFormatId;
 		return this;
 	}
 
@@ -242,8 +241,8 @@ final class AttributeModifierBluePrint<ELEMENT_VALUE_TYPE> implements IAttribute
 		if (filterable != null) {
 			attributeBluePrint.setFilterable(filterable.booleanValue());
 		}
-		if (defaultControlPanel != null) {
-			attributeBluePrint.setDefaultControlPanel(defaultControlPanel);
+		if (displayFromatId != null) {
+			attributeBluePrint.setDisplayFormatId(displayFromatId);
 		}
 		for (final Object controlPanelProvider : controlPanels) {
 			attributeBluePrint.addControlPanel((IControlPanelProvider<? extends ELEMENT_VALUE_TYPE>) controlPanelProvider);

@@ -33,8 +33,10 @@ import java.util.List;
 import org.jowidgets.cap.common.api.bean.IProperty;
 import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.sample1.common.entity.IUser;
-import org.jowidgets.cap.sample1.ui.converter.GenderConverter;
+import org.jowidgets.cap.sample1.ui.converter.GenderConverterLong;
+import org.jowidgets.cap.sample1.ui.converter.GenderConverterShort;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
+import org.jowidgets.cap.ui.api.attribute.DisplayFormat;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IAttributeBluePrint;
 import org.jowidgets.cap.ui.api.attribute.IAttributeCollectionModifierBuilder;
@@ -62,13 +64,26 @@ public class UserAttributesFactory {
 		modifierBuilder.addModifier(IUser.GENDER_PROPERTY, new IAttributeModifier<Object>() {
 			@Override
 			public void modify(final IProperty source, final IAttributeBluePrint<Object> bluePrint) {
-				final IControlPanelProviderBuilder<Object> controlBuilder = attributeToolkit.createControlPanelProviderBuilder(
+				IControlPanelProviderBuilder<Object> controlBuilder = attributeToolkit.createControlPanelProviderBuilder(
 						source.getValueType(),
 						source.getElementValueType(),
 						source.getValueRange());
 
-				controlBuilder.setConverter(new GenderConverter().getConverter());
-				bluePrint.setDefaultControlPanel(controlBuilder.build());
+				controlBuilder.setConverter(new GenderConverterLong().getConverter());
+				controlBuilder.setDisplayFormat(DisplayFormat.LONG);
+				bluePrint.addControlPanel(controlBuilder.build());
+
+				controlBuilder = attributeToolkit.createControlPanelProviderBuilder(
+						source.getValueType(),
+						source.getElementValueType(),
+						source.getValueRange());
+
+				controlBuilder.setConverter(new GenderConverterShort().getConverter());
+				controlBuilder.setDisplayFormat(DisplayFormat.SHORT);
+				bluePrint.addControlPanel(controlBuilder.build());
+
+				bluePrint.setDisplayFormatId(DisplayFormat.SHORT.getId());
+				bluePrint.setTableAlignment(AlignmentHorizontal.CENTER);
 			}
 		});
 
@@ -84,6 +99,8 @@ public class UserAttributesFactory {
 
 		final IAttributeCollectionModifierBuilder modifierBuilder = attributeToolkit.createAttributeCollectionModifierBuilder();
 		modifierBuilder.addAcceptEditableAttributesFilter();
+
+		modifierBuilder.addModifier(IUser.GENDER_PROPERTY).setDisplayFormatId(DisplayFormat.LONG.getId());
 
 		return attributeToolkit.createAttributesCopy(attributes, modifierBuilder.build());
 	}

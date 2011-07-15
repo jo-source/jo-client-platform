@@ -547,7 +547,7 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 				final Object value) {
 
 				final ITableCellBuilder cellBuilder = createDefaultCellBuilder(rowIndex, columnIndex);
-				final IObjectLabelConverter<Object> converter = attribute.getDefaultControlPanel().getObjectLabelConverter();
+				final IObjectLabelConverter<Object> converter = attribute.getCurrentControlPanel().getObjectLabelConverter();
 
 				String text;
 				String toolTipText;
@@ -598,7 +598,7 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 				final IAttribute<Object> attribute = attributes.get(columnIndex);
 				boolean editable = attribute.isEditable();
 				editable = editable && !attribute.isCollectionType();
-				editable = editable && attribute.getDefaultControlPanel().getStringObjectConverter() != null;
+				editable = editable && attribute.getCurrentControlPanel().getStringObjectConverter() != null;
 				cellBuilder.setEditable(editable);
 
 				return cellBuilder;

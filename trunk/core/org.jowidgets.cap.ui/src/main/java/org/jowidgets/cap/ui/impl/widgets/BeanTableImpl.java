@@ -71,7 +71,7 @@ final class BeanTableImpl<BEAN_TYPE> extends ControlWrapper implements IBeanTabl
 				final IBeanProxy<BEAN_TYPE> bean = model.getBean(event.getRowIndex());
 				final IAttribute<Object> attribute = model.getAttribute(event.getColumnIndex());
 				if (bean != null && attribute != null && !attribute.isCollectionType()) {
-					final IStringObjectConverter<Object> converter = attribute.getDefaultControlPanel().getStringObjectConverter();
+					final IStringObjectConverter<Object> converter = attribute.getCurrentControlPanel().getStringObjectConverter();
 					if (converter != null) {
 						if (converter.getStringValidator() == null
 							|| converter.getStringValidator().validate(event.getCurrentText()).isValid()) {

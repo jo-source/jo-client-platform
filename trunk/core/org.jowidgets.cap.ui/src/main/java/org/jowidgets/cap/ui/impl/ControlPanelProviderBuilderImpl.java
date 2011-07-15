@@ -43,6 +43,7 @@ import org.jowidgets.api.widgets.blueprint.IComboBoxSelectionBluePrint;
 import org.jowidgets.api.widgets.blueprint.factory.IBluePrintFactory;
 import org.jowidgets.cap.common.api.bean.IValueRange;
 import org.jowidgets.cap.common.api.filter.IFilter;
+import org.jowidgets.cap.ui.api.attribute.DisplayFormat;
 import org.jowidgets.cap.ui.api.attribute.IArithmeticOperatorProvider;
 import org.jowidgets.cap.ui.api.attribute.IControlPanelProvider;
 import org.jowidgets.cap.ui.api.attribute.IControlPanelProviderBuilder;
@@ -54,8 +55,8 @@ import org.jowidgets.util.Assert;
 
 final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> {
 
-	private static final String DEFAULT_DISPLAY_FORMAT_ID = ControlPanelProviderBuilderImpl.class.getName() + "_DEFAULT_ID";
-	private static final String DEFAULT_DISPLAY_NAME = "Default";
+	private static final String DEFAULT_DISPLAY_FORMAT_ID = DisplayFormat.DEFAULT.getId();
+	private static final String DEFAULT_DISPLAY_NAME = DisplayFormat.DEFAULT.getName();
 
 	private final IValueRange valueRange;
 
@@ -120,6 +121,15 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 	@Override
 	public IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> setDisplayFormatDescription(final String description) {
 		this.displayFormatDescription = description;
+		return this;
+	}
+
+	@Override
+	public IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> setDisplayFormat(final DisplayFormat displayFormat) {
+		Assert.paramNotNull(displayFormat, "displayFormat");
+		this.displayFormatId = displayFormat.getId();
+		this.displayFormatName = displayFormat.getName();
+		this.displayFormatDescription = displayFormat.getDescription();
 		return this;
 	}
 

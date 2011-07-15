@@ -132,7 +132,7 @@ final class AttributeToolkitImpl implements IAttributeToolkit {
 					CapCommonToolkit.valueRangeFactory().create());
 			panelBuilder.setObjectLabelConverter(new BeanMessageLabelConverter());
 
-			builder.setDefaultControlPanel(panelBuilder.build());
+			builder.addControlPanel(panelBuilder.build());
 
 			return builder;
 		}

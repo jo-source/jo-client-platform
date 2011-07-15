@@ -29,6 +29,7 @@
 package org.jowidgets.cap.ui.impl;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -62,7 +63,7 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 	private boolean filterable;
 	private Class<?> valueType;
 	private Class<? extends ELEMENT_VALUE_TYPE> elementValueType;
-	private IControlPanelProvider<? extends ELEMENT_VALUE_TYPE> defaultControlPanel;
+	private String displayFormatId;
 
 	@SuppressWarnings("rawtypes")
 	private List controlPanels;
@@ -104,8 +105,8 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 		this.filterable = attribute.isFilterable();
 		this.valueType = attribute.getValueType();
 		this.elementValueType = attribute.getElementValueType();
-		this.defaultControlPanel = attribute.getDefaultControlPanel();
-		this.controlPanels = attribute.getSupportedControlPanels();
+		this.displayFormatId = attribute.getDisplayFormatId();
+		this.controlPanels = attribute.getControlPanels();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -241,13 +242,6 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 		return this;
 	}
 
-	@Override
-	public IAttributeBuilder<ELEMENT_VALUE_TYPE> setDefaultControlPanel(
-		final IControlPanelProvider<? extends ELEMENT_VALUE_TYPE> controlPanel) {
-		this.defaultControlPanel = controlPanel;
-		return this;
-	}
-
 	@SuppressWarnings("unchecked")
 	@Override
 	public IAttributeBuilder<ELEMENT_VALUE_TYPE> addControlPanel(
@@ -257,21 +251,45 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 		return this;
 	}
 
-	private IControlPanelProvider<? extends ELEMENT_VALUE_TYPE> getDefaultControlPanel() {
-		if (defaultControlPanel == null) {
+	@Override
+	public IAttributeBluePrint<ELEMENT_VALUE_TYPE> setDisplayFormatId(final String displayFormatId) {
+		this.displayFormatId = displayFormatId;
+		return this;
+	}
+
+	@SuppressWarnings("rawtypes")
+	private List getControlPanels() {
+		if (controlPanels.isEmpty()) {
 			if (Collection.class.isAssignableFrom(valueType)) {
-				return CapUiToolkit.getAttributeToolkit().createControlPanelProvider(valueType, elementValueType, valueRange);
+				return Collections.singletonList(CapUiToolkit.getAttributeToolkit().createControlPanelProvider(
+						valueType,
+						elementValueType,
+						valueRange));
 			}
 			else {
-				return CapUiToolkit.getAttributeToolkit().createControlPanelProvider(elementValueType, valueRange);
+				return Collections.singletonList(CapUiToolkit.getAttributeToolkit().createControlPanelProvider(
+						elementValueType,
+						valueRange));
 			}
 		}
-		return defaultControlPanel;
+		return controlPanels;
+	}
+
+	private String getDisplayFormatId(final List<IControlPanelProvider<? extends ELEMENT_VALUE_TYPE>> controlPanels) {
+		if (displayFormatId == null) {
+			return controlPanels.get(0).getDisplayFormatId();
+		}
+		else {
+			return displayFormatId;
+		}
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public IAttribute<ELEMENT_VALUE_TYPE> build() {
+		final List<IControlPanelProvider<? extends ELEMENT_VALUE_TYPE>> panels = getControlPanels();
+		final String displayFormat = getDisplayFormatId(panels);
+
 		return new AttributeImpl<ELEMENT_VALUE_TYPE>(
 			propertyName,
 			valueRange,
@@ -289,8 +307,7 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 			filterable,
 			valueType,
 			elementValueType,
-			getDefaultControlPanel(),
-			controlPanels);
+			panels,
+			displayFormat);
 	}
-
 }
