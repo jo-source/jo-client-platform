@@ -53,6 +53,8 @@ import org.jowidgets.common.widgets.controler.ITableColumnPopupDetectionListener
 import org.jowidgets.common.widgets.controler.ITableColumnPopupEvent;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
 import org.jowidgets.examples.common.icons.SilkIcons;
+import org.jowidgets.tools.command.ExecutionContextValues;
+import org.jowidgets.util.ITypedKey;
 import org.jowidgets.util.ValueHolder;
 import org.jowidgets.workbench.api.IViewContext;
 import org.jowidgets.workbench.tools.AbstractView;
@@ -62,6 +64,8 @@ public class UserTableView extends AbstractView {
 	public static final String ID = UserTableView.class.getName();
 	public static final String DEFAULT_LABEL = "Users";
 	public static final String DEFAULT_TOOLTIP = "Table of all users";
+
+	private static final ITypedKey<ITableColumnPopupEvent> TABLE_COLUMN_POPUP_EVENT_KEY = new ITypedKey<ITableColumnPopupEvent>() {};
 
 	private final IBeanTableModel<IUser> beanTableModel;
 	private final IBeanTable<IUser> table;
@@ -107,7 +111,9 @@ public class UserTableView extends AbstractView {
 			@Override
 			public void popupDetected(final ITableColumnPopupEvent event) {
 				popupColumn = event.getColumnIndex();
-				columnPopupMenu.show(event.getPosition());
+				final ExecutionContextValues executionContextValues = new ExecutionContextValues();
+				executionContextValues.putValue(TABLE_COLUMN_POPUP_EVENT_KEY, event);
+				columnPopupMenu.show(event.getPosition(), executionContextValues);
 			}
 		});
 
@@ -120,6 +126,8 @@ public class UserTableView extends AbstractView {
 		builder.setCommand(new ICommandExecutor() {
 			@Override
 			public void execute(final IExecutionContext executionContext) throws Exception {
+				@SuppressWarnings("unused")
+				final ITableColumnPopupEvent popupEvent = executionContext.getValue(TABLE_COLUMN_POPUP_EVENT_KEY);
 				beanTableModel.getAttribute(popupColumn).setVisible(false);
 			}
 		});
