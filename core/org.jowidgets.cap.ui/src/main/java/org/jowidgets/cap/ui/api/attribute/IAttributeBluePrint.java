@@ -67,8 +67,16 @@ public interface IAttributeBluePrint<ELEMENT_VALUE_TYPE> {
 
 	IAttributeBluePrint<ELEMENT_VALUE_TYPE> setFilterable(boolean filterable);
 
-	IAttributeBluePrint<ELEMENT_VALUE_TYPE> setDefaultControlPanel(
-		IControlPanelProvider<? extends ELEMENT_VALUE_TYPE> defaultControlPanel);
+	/**
+	 * Sets the display format id.
+	 * 
+	 * If the display format id is not set, the first added control panels id will be used.
+	 * 
+	 * @param displayFormatId The display format to set. A control panel with the display format must exist
+	 * 
+	 * @return This builder
+	 */
+	IAttributeBluePrint<ELEMENT_VALUE_TYPE> setDisplayFormatId(String displayFormatId);
 
 	IAttributeBluePrint<ELEMENT_VALUE_TYPE> addControlPanel(IControlPanelProvider<? extends ELEMENT_VALUE_TYPE> controlPanel);
 

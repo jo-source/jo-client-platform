@@ -237,7 +237,7 @@ final class BeanFormImpl<BEAN_TYPE> extends ControlWrapper implements IBeanForm<
 
 	@SuppressWarnings({"rawtypes", "unchecked"})
 	private ICustomWidgetCreator<IInputControl<Object>> getWidgetCreator(final IAttribute<Object> attribute) {
-		final IControlPanelProvider<Object> controlPanel = attribute.getDefaultControlPanel();
+		final IControlPanelProvider<Object> controlPanel = attribute.getCurrentControlPanel();
 
 		final ICustomWidgetCreator controlCreator;
 		if (attribute.isCollectionType()) {

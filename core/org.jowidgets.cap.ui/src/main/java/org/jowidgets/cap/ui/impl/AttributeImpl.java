@@ -60,7 +60,6 @@ final class AttributeImpl<ELEMENT_VALUE_TYPE> implements IAttribute<ELEMENT_VALU
 	private final boolean filterable;
 	private final Class<?> valueType;
 	private final Class<ELEMENT_VALUE_TYPE> elementValueType;
-	private final IControlPanelProvider<ELEMENT_VALUE_TYPE> defaultControlPanel;
 	private final List<IControlPanelProvider<ELEMENT_VALUE_TYPE>> controlPanels;
 
 	private boolean visible;
@@ -86,8 +85,8 @@ final class AttributeImpl<ELEMENT_VALUE_TYPE> implements IAttribute<ELEMENT_VALU
 		final boolean filterable,
 		final Class<?> valueType,
 		final Class<? extends ELEMENT_VALUE_TYPE> elementValueType,
-		final IControlPanelProvider<? extends ELEMENT_VALUE_TYPE> defaultControlPanel,
-		final List<IControlPanelProvider<? extends ELEMENT_VALUE_TYPE>> controlPanels) {
+		final List<IControlPanelProvider<? extends ELEMENT_VALUE_TYPE>> controlPanels,
+		final String displayFormatId) {
 
 		Assert.paramNotEmpty(propertyName, "propertyName");
 		Assert.paramNotNull(valueRange, "valueRange");
@@ -95,8 +94,8 @@ final class AttributeImpl<ELEMENT_VALUE_TYPE> implements IAttribute<ELEMENT_VALU
 		Assert.paramNotNull(tableAlignment, "tableAlignment");
 		Assert.paramNotNull(valueType, "valueType");
 		Assert.paramNotNull(elementValueType, "elementValueType");
-		Assert.paramNotNull(defaultControlPanel, "defaultControlPanel");
 		Assert.paramNotNull(controlPanels, "controlPanels");
+		Assert.paramNotNull(displayFormatId, "displayFormatId");
 
 		if (Collections.class.isAssignableFrom(elementValueType)) {
 			throw new IllegalArgumentException("The parameter 'elementValueType' must not be a collection but has the type '"
@@ -129,13 +128,9 @@ final class AttributeImpl<ELEMENT_VALUE_TYPE> implements IAttribute<ELEMENT_VALU
 		this.filterable = filterable;
 		this.valueType = valueType;
 		this.elementValueType = (Class<ELEMENT_VALUE_TYPE>) elementValueType;
-		this.defaultControlPanel = (IControlPanelProvider<ELEMENT_VALUE_TYPE>) defaultControlPanel;
-		this.currentControlPanel = this.defaultControlPanel;
 		this.controlPanels = new LinkedList(controlPanels);
 
-		if (!this.controlPanels.contains(defaultControlPanel)) {
-			this.controlPanels.add((IControlPanelProvider<ELEMENT_VALUE_TYPE>) defaultControlPanel);
-		}
+		setDisplayFormatToNewId(displayFormatId);
 	}
 
 	@Override
@@ -224,12 +219,12 @@ final class AttributeImpl<ELEMENT_VALUE_TYPE> implements IAttribute<ELEMENT_VALU
 	}
 
 	@Override
-	public IControlPanelProvider<ELEMENT_VALUE_TYPE> getDefaultControlPanel() {
-		return defaultControlPanel;
+	public IControlPanelProvider<ELEMENT_VALUE_TYPE> getCurrentControlPanel() {
+		return currentControlPanel;
 	}
 
 	@Override
-	public List<IControlPanelProvider<ELEMENT_VALUE_TYPE>> getSupportedControlPanels() {
+	public List<IControlPanelProvider<ELEMENT_VALUE_TYPE>> getControlPanels() {
 		return controlPanels;
 	}
 

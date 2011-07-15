@@ -28,64 +28,33 @@
 
 package org.jowidgets.cap.ui.api.attribute;
 
-import java.util.List;
+public enum DisplayFormat {
 
-import org.jowidgets.cap.common.api.bean.IValueRange;
-import org.jowidgets.common.types.AlignmentHorizontal;
-import org.jowidgets.util.event.IChangeObservable;
+	//TODO i18n
+	DEFAULT(DisplayFormat.class.getName() + "DEFAULT", "Default", null),
+	LONG(DisplayFormat.class.getName() + "LONG", "Long", "Long display format"),
+	SHORT(DisplayFormat.class.getName() + "SHORT", "Short", "Short display format");
 
-public interface IAttribute<ELEMENT_VALUE_TYPE> extends IChangeObservable {
+	private String id;
+	private String name;
+	private String description;
 
-	String getPropertyName();
+	private DisplayFormat(final String id, final String name, final String description) {
+		this.id = id;
+		this.name = name;
+		this.description = description;
+	}
 
-	IValueRange getValueRange();
+	public String getId() {
+		return id;
+	}
 
-	boolean isSortable();
+	public String getName() {
+		return name;
+	}
 
-	boolean isFilterable();
-
-	boolean isMandatory();
-
-	boolean isEditable();
-
-	boolean isReadonly();
-
-	IAttributeGroup getGroup();
-
-	String getLabel();
-
-	String getLabelLong();
-
-	String getDescription();
-
-	Class<?> getValueType();
-
-	Class<ELEMENT_VALUE_TYPE> getElementValueType();
-
-	boolean isCollectionType();
-
-	List<IControlPanelProvider<ELEMENT_VALUE_TYPE>> getControlPanels();
-
-	boolean isVisible();
-
-	String getDisplayFormatId();
-
-	AlignmentHorizontal getTableAlignment();
-
-	IControlPanelProvider<ELEMENT_VALUE_TYPE> getCurrentControlPanel();
-
-	int getTableWidth();
-
-	void setVisible(boolean visible);
-
-	void setDisplayFormatId(String id);
-
-	void setTableAlignment(AlignmentHorizontal alignment);
-
-	void setTableWidth(int width);
-
-	IAttributeConfig getConfig();
-
-	void setConfig(IAttributeConfig config);
+	public String getDescription() {
+		return description;
+	}
 
 }

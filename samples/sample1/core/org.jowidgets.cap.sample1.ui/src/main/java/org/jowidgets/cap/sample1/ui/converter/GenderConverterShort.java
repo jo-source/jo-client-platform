@@ -34,23 +34,23 @@ import java.util.Map;
 import org.jowidgets.api.convert.IConverter;
 import org.jowidgets.tools.converter.MapConverter;
 
-public final class GenderConverter {
+public final class GenderConverterShort {
 
 	private final IConverter<String> converter;
 
-	public GenderConverter() {
+	public GenderConverterShort() {
 		final Map<String, String> objectToString = new HashMap<String, String>();
-		objectToString.put("M", "Male");
-		objectToString.put("F", "Female");
+		objectToString.put("M", "M");
+		objectToString.put("F", "F");
 		objectToString.put(null, "");
 
 		final Map<String, String> stringToObject = new HashMap<String, String>();
-		stringToObject.put("Male", "M");
-		stringToObject.put("male", "M");
-		stringToObject.put("Female", "F");
-		stringToObject.put("female", "F");
+		stringToObject.put("M", "M");
+		stringToObject.put("m", "M");
+		stringToObject.put("F", "F");
+		stringToObject.put("f", "F");
 
-		this.converter = new MapConverter<String>(objectToString, stringToObject, "Must be 'Male' or 'Female'");
+		this.converter = new MapConverter<String>(objectToString, stringToObject, "Must be 'M' or 'F'");
 	}
 
 	public IConverter<String> getConverter() {
