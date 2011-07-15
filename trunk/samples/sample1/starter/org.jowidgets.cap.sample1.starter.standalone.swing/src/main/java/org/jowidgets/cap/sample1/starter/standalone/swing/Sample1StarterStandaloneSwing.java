@@ -42,7 +42,7 @@ public final class Sample1StarterStandaloneSwing {
 		UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		System.setProperty("apple.laf.useScreenMenuBar", "true");
 		SwingOptions.setJoWidgetsTabLayout(true);
-		new WorkbenchRunner().run(new SampleWorkbench().getWorkbench());
+		new WorkbenchRunner().run(new SampleWorkbench());
 	}
 
 }

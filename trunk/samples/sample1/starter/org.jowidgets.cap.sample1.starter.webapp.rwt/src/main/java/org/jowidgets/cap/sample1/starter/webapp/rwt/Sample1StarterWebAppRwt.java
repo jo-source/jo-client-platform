@@ -38,7 +38,7 @@ public final class Sample1StarterWebAppRwt extends RwtEntryPoint {
 		super(new Runnable() {
 			@Override
 			public void run() {
-				new WorkbenchRunner().run(new SampleWorkbench().getWorkbench());
+				new WorkbenchRunner().run(new SampleWorkbench());
 			}
 		});
 	}

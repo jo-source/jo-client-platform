@@ -32,14 +32,13 @@ import org.jowidgets.cap.sample1.ui.workbench.SampleWorkbench;
 import org.jowidgets.spi.impl.swt.options.SwtOptions;
 import org.jowidgets.workbench.impl.WorkbenchRunner;
 
-
 public final class Sample1StarterStandaloneSwt {
 
 	private Sample1StarterStandaloneSwt() {}
 
 	public static void main(final String[] args) throws Exception {
 		SwtOptions.setClassicTabs(true);
-		new WorkbenchRunner().run(new SampleWorkbench().getWorkbench());
+		new WorkbenchRunner().run(new SampleWorkbench());
 	}
 
 }

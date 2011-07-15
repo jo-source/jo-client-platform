@@ -37,17 +37,16 @@ import org.jowidgets.common.types.IVetoable;
 import org.jowidgets.examples.common.icons.DemoIconsInitializer;
 import org.jowidgets.workbench.api.ILoginCallback;
 import org.jowidgets.workbench.api.IWorkbench;
+import org.jowidgets.workbench.api.IWorkbenchFactory;
 import org.jowidgets.workbench.toolkit.api.IWorkbenchModel;
 import org.jowidgets.workbench.toolkit.api.IWorkbenchModelBuilder;
 import org.jowidgets.workbench.toolkit.api.WorkbenchToolkit;
 import org.jowidgets.workbench.tools.WorkbenchModelBuilder;
 
-public class SampleWorkbench {
+public class SampleWorkbench implements IWorkbenchFactory {
 
-	private final IWorkbench workbench;
-	private final IWorkbenchModel model;
-
-	public SampleWorkbench() {
+	@Override
+	public IWorkbench create() {
 		DemoIconsInitializer.initialize();
 
 		final IWorkbenchModelBuilder builder = new WorkbenchModelBuilder();
@@ -63,27 +62,23 @@ public class SampleWorkbench {
 			}
 		});
 
-		this.model = builder.build();
-		this.model.addApplication(new SampleApplication().getModel());
+		final IWorkbenchModel model = builder.build();
+		model.addApplication(new SampleApplication().getModel());
 
-		this.model.getToolBar().addAction(WorkbenchActions.loadAction());
-		this.model.getToolBar().addAction(WorkbenchActions.cancelAction());
-		this.model.getToolBar().addSeparator();
-		this.model.getToolBar().addAction(WorkbenchActions.undoAction());
-		this.model.getToolBar().addAction(WorkbenchActions.saveAction());
+		model.getToolBar().addAction(WorkbenchActions.loadAction());
+		model.getToolBar().addAction(WorkbenchActions.cancelAction());
+		model.getToolBar().addSeparator();
+		model.getToolBar().addAction(WorkbenchActions.undoAction());
+		model.getToolBar().addAction(WorkbenchActions.saveAction());
 
-		final IMenuModel dataMenu = this.model.getMenuBar().addMenu("Data");
+		final IMenuModel dataMenu = model.getMenuBar().addMenu("Data");
 		dataMenu.addAction(WorkbenchActions.loadAction());
 		dataMenu.addAction(WorkbenchActions.cancelAction());
 		dataMenu.addSeparator();
 		dataMenu.addAction(WorkbenchActions.undoAction());
 		dataMenu.addAction(WorkbenchActions.saveAction());
 
-		this.workbench = WorkbenchToolkit.getWorkbenchPartFactory().workbench(model);
-	}
-
-	public IWorkbench getWorkbench() {
-		return workbench;
+		return WorkbenchToolkit.getWorkbenchPartFactory().workbench(model);
 	}
 
 }
