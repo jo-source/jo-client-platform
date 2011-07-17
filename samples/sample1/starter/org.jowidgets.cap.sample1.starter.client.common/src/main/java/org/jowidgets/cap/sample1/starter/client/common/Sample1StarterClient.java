@@ -25,52 +25,28 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
-package org.jowidgets.message.impl.http.client;
 
-import org.apache.http.client.HttpClient;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
-import org.jowidgets.util.Assert;
+package org.jowidgets.cap.sample1.starter.client.common;
 
-public final class MessageBrokerBuilder {
+import org.jowidgets.cap.sample1.ui.workbench.SampleWorkbench;
+import org.jowidgets.invocation.common.impl.MessageBrokerId;
+import org.jowidgets.message.api.MessageToolkit;
+import org.jowidgets.message.impl.http.client.IMessageBroker;
+import org.jowidgets.message.impl.http.client.MessageBrokerBuilder;
+import org.jowidgets.workbench.impl.WorkbenchRunner;
 
-	private final Object brokerId;
+public final class Sample1StarterClient {
 
-	private String url;
-	private HttpClient httpClient;
-	private IHttpRequestInitializer httpRequestInitializer;
+	private Sample1StarterClient() {}
 
-	public MessageBrokerBuilder(final Object brokerId) {
-		Assert.paramNotNull(brokerId, "brokerId");
-		this.brokerId = brokerId;
-	}
+	public static void main(final String[] args) throws Exception {
+		final MessageBrokerBuilder builder = new MessageBrokerBuilder(MessageBrokerId.INVOCATION_IMPL_BROKER_ID);
+		builder.setUrl("http://localhost:8080/").setHttpRequestInitializer(BasicAuthenticationInitializer.getInstance());
+		final IMessageBroker messageBroker = builder.build();
+		MessageToolkit.addChannelBroker(messageBroker);
+		MessageToolkit.addReceiverBroker(messageBroker);
 
-	public MessageBrokerBuilder setUrl(final String url) {
-		Assert.paramNotNull(url, "url");
-		this.url = url;
-		return this;
-	}
-
-	public MessageBrokerBuilder setHttpClient(final HttpClient httpClient) {
-		Assert.paramNotNull(httpClient, "httpClient");
-		this.httpClient = httpClient;
-		return this;
-	}
-
-	public MessageBrokerBuilder setHttpRequestInitializer(final IHttpRequestInitializer httpRequestInitializer) {
-		Assert.paramNotNull(httpRequestInitializer, "httpRequestInitializer");
-		this.httpRequestInitializer = httpRequestInitializer;
-		return this;
-	}
-
-	public IMessageBroker build() {
-		if (url == null) {
-			throw new IllegalStateException("url must be set");
-		}
-		final MessageBroker broker = new MessageBroker(brokerId, url, httpClient == null ? new DefaultHttpClient(
-			new ThreadSafeClientConnManager()) : httpClient);
-		broker.setHttpRequestInitializer(httpRequestInitializer);
-		return broker;
+		new WorkbenchRunner().run(new SampleWorkbench());
 	}
 
 }

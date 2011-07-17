@@ -71,6 +71,8 @@ final class MessageBroker implements IMessageBroker, IMessageChannel {
 			Runtime.getRuntime().availableProcessors() * 2,
 			new DaemonThreadFactory());
 
+	private IHttpRequestInitializer httpRequestInitializer;
+
 	private volatile IMessageReceiver receiver;
 
 	public MessageBroker(final Object brokerId, final String url, final HttpClient httpClient) {
@@ -96,6 +98,10 @@ final class MessageBroker implements IMessageBroker, IMessageChannel {
 		this.receiver = receiver;
 	}
 
+	public void setHttpRequestInitializer(final IHttpRequestInitializer httpRequestInitializer) {
+		this.httpRequestInitializer = httpRequestInitializer;
+	}
+
 	@Override
 	public void send(final Object message, final IExceptionCallback exceptionCallback) {
 		outQueue.add(new DeferredMessage(message, exceptionCallback));
@@ -118,6 +124,9 @@ final class MessageBroker implements IMessageBroker, IMessageChannel {
 				final DeferredMessage msg = outQueue.take();
 				try {
 					final HttpPost request = new HttpPost(url);
+					if (httpRequestInitializer != null) {
+						httpRequestInitializer.initialize(request);
+					}
 					final byte[] data = createMessageData(msg.message);
 					request.setEntity(new ByteArrayEntity(data));
 					try {
@@ -183,7 +192,11 @@ final class MessageBroker implements IMessageBroker, IMessageChannel {
 		try {
 			for (;;) {
 				try {
-					final HttpResponse response = httpClient.execute(new HttpGet(url));
+					final HttpGet request = new HttpGet(url);
+					if (httpRequestInitializer != null) {
+						httpRequestInitializer.initialize(request);
+					}
+					final HttpResponse response = httpClient.execute(request);
 					final StatusLine statusLine = response.getStatusLine();
 					final HttpEntity entity = response.getEntity();
 					if (entity != null) {

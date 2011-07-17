@@ -49,7 +49,11 @@
 			<artifactId>org.jowidgets.workbench.impl</artifactId>
 			<version>${jowidgets.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>commons-codec</groupId>
+			<artifactId>commons-codec</artifactId>
+			<version>1.5</version>
+		</dependency>
 	</dependencies>
-
 	
 </project>

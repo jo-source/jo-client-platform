@@ -52,7 +52,7 @@ public final class Sample1StarterServer {
 		final Server server = new Server(8080);
 		final ServletContextHandler root = new ServletContextHandler(ServletContextHandler.SESSIONS);
 		root.addServlet(new ServletHolder(servlet), "/");
-		root.addFilter(new FilterHolder(new BasicAuthenticationFilter("sample1")), "/", FilterMapping.DEFAULT);
+		root.addFilter(new FilterHolder(new BasicAuthenticationFilter()), "/", FilterMapping.DEFAULT);
 		server.setHandler(root);
 		server.start();
 		server.join();

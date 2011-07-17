@@ -25,52 +25,57 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
-package org.jowidgets.message.impl.http.client;
 
-import org.apache.http.client.HttpClient;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
-import org.jowidgets.util.Assert;
+package org.jowidgets.cap.sample1.starter.client.common;
 
-public final class MessageBrokerBuilder {
+import java.io.UnsupportedEncodingException;
 
-	private final Object brokerId;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.http.HttpRequest;
+import org.jowidgets.message.impl.http.client.IHttpRequestInitializer;
 
-	private String url;
-	private HttpClient httpClient;
-	private IHttpRequestInitializer httpRequestInitializer;
+final class BasicAuthenticationInitializer implements IHttpRequestInitializer {
 
-	public MessageBrokerBuilder(final Object brokerId) {
-		Assert.paramNotNull(brokerId, "brokerId");
-		this.brokerId = brokerId;
+	private static final BasicAuthenticationInitializer INSTANCE = new BasicAuthenticationInitializer();
+
+	private String username;
+	private String password;
+
+	private BasicAuthenticationInitializer() {}
+
+	public static BasicAuthenticationInitializer getInstance() {
+		return INSTANCE;
 	}
 
-	public MessageBrokerBuilder setUrl(final String url) {
-		Assert.paramNotNull(url, "url");
-		this.url = url;
-		return this;
+	public synchronized void setCredentials(final String username, final String password) {
+		this.username = username;
+		this.password = password;
 	}
 
-	public MessageBrokerBuilder setHttpClient(final HttpClient httpClient) {
-		Assert.paramNotNull(httpClient, "httpClient");
-		this.httpClient = httpClient;
-		return this;
+	public synchronized void clearCredentials() {
+		username = null;
+		password = null;
 	}
 
-	public MessageBrokerBuilder setHttpRequestInitializer(final IHttpRequestInitializer httpRequestInitializer) {
-		Assert.paramNotNull(httpRequestInitializer, "httpRequestInitializer");
-		this.httpRequestInitializer = httpRequestInitializer;
-		return this;
-	}
-
-	public IMessageBroker build() {
-		if (url == null) {
-			throw new IllegalStateException("url must be set");
+	@Override
+	public void initialize(final HttpRequest httpRequest) {
+		final String user;
+		final String pwd;
+		synchronized (this) {
+			user = this.username;
+			pwd = this.password;
 		}
-		final MessageBroker broker = new MessageBroker(brokerId, url, httpClient == null ? new DefaultHttpClient(
-			new ThreadSafeClientConnManager()) : httpClient);
-		broker.setHttpRequestInitializer(httpRequestInitializer);
-		return broker;
+		if (user != null && pwd != null) {
+			final String credentials = user + ":" + pwd;
+			final String encodedCredentials;
+			try {
+				encodedCredentials = Base64.encodeBase64String(credentials.getBytes("UTF-8"));
+			}
+			catch (final UnsupportedEncodingException e) {
+				// must not happen
+				throw new Error(e);
+			}
+			httpRequest.setHeader("Authorization", "Basic " + encodedCredentials);
+		}
 	}
-
 }

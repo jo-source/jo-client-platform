@@ -30,9 +30,8 @@ package org.jowidgets.cap.sample1.starter.client.swing;
 
 import javax.swing.UIManager;
 
-import org.jowidgets.cap.sample1.ui.workbench.SampleWorkbench;
+import org.jowidgets.cap.sample1.starter.client.common.Sample1StarterClient;
 import org.jowidgets.spi.impl.swing.options.SwingOptions;
-import org.jowidgets.workbench.impl.WorkbenchRunner;
 
 public final class Sample1StarterClientSwing {
 
@@ -42,7 +41,7 @@ public final class Sample1StarterClientSwing {
 		UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		System.setProperty("apple.laf.useScreenMenuBar", "true");
 		SwingOptions.setJoWidgetsTabLayout(true);
-		new WorkbenchRunner().run(new SampleWorkbench());
+		Sample1StarterClient.main(args);
 	}
 
 }

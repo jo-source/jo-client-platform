@@ -37,23 +37,14 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
-import org.eclipse.jetty.http.HttpHeaders;
-import org.eclipse.jetty.util.B64Code;
+import org.apache.commons.codec.binary.Base64;
 import org.jowidgets.security.api.AuthenticationService;
 import org.jowidgets.security.api.AuthorizationService;
 import org.jowidgets.security.api.SecurityContextHolder;
 import org.jowidgets.security.tools.DefaultCredentials;
-import org.jowidgets.security.tools.DefaultPrincipal;
 
 final class BasicAuthenticationFilter implements Filter {
-
-	private final String realm;
-
-	public BasicAuthenticationFilter(final String realm) {
-		this.realm = realm;
-	}
 
 	@Override
 	public void init(final FilterConfig filterConfig) throws ServletException {}
@@ -61,42 +52,32 @@ final class BasicAuthenticationFilter implements Filter {
 	@Override
 	public void doFilter(final ServletRequest request, final ServletResponse response, final FilterChain chain) throws IOException,
 			ServletException {
-		final HttpServletRequest req = (HttpServletRequest) request;
-		final HttpServletResponse resp = (HttpServletResponse) response;
-		String credentials = req.getHeader(HttpHeaders.AUTHORIZATION);
+		final HttpServletRequest httpRequest = (HttpServletRequest) request;
+		String credentials = httpRequest.getHeader("Authorization");
 		if (credentials != null) {
 			credentials = credentials.substring(credentials.indexOf(' ') + 1);
-			credentials = B64Code.decode(credentials, "UTF-8");
+			credentials = new String(Base64.decodeBase64(credentials), "UTF-8");
 			final int i = credentials.indexOf(':');
 			if (i > 0) {
 				final String username = credentials.substring(0, i);
 				final String password = credentials.substring(i + 1);
-
-				DefaultPrincipal principal = AuthenticationService.authenticate(new DefaultCredentials(username, password));
+				Object principal = AuthenticationService.authenticate(new DefaultCredentials(username, password));
 				if (principal != null) {
 					principal = AuthorizationService.authorize(principal);
 					if (principal != null) {
 						SecurityContextHolder.setSecurityContext(principal);
 					}
-					else {
-						throw new RuntimeException("User not authorized");
-					}
-				}
-				else {
-					throw new RuntimeException("User not authenticated");
-				}
-				try {
-					chain.doFilter(request, response);
-					return;
-				}
-				finally {
-					SecurityContextHolder.clearSecurityContext();
 				}
 			}
 		}
 
-		resp.setHeader(HttpHeaders.WWW_AUTHENTICATE, "basic realm=\"" + realm + '"');
-		resp.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+		try {
+			chain.doFilter(request, response);
+			return;
+		}
+		finally {
+			SecurityContextHolder.clearSecurityContext();
+		}
 	}
 
 	@Override
