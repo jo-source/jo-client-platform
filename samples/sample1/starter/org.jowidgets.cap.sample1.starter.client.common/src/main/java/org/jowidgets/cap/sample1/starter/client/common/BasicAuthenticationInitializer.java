@@ -28,9 +28,8 @@
 
 package org.jowidgets.cap.sample1.starter.client.common;
 
-import java.io.UnsupportedEncodingException;
-
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.binary.StringUtils;
 import org.apache.http.HttpRequest;
 import org.jowidgets.message.impl.http.client.IHttpRequestInitializer;
 
@@ -67,14 +66,7 @@ final class BasicAuthenticationInitializer implements IHttpRequestInitializer {
 		}
 		if (user != null && pwd != null) {
 			final String credentials = user + ":" + pwd;
-			final String encodedCredentials;
-			try {
-				encodedCredentials = Base64.encodeBase64String(credentials.getBytes("UTF-8"));
-			}
-			catch (final UnsupportedEncodingException e) {
-				// must not happen
-				throw new Error(e);
-			}
+			final String encodedCredentials = Base64.encodeBase64String(StringUtils.getBytesUtf8(credentials));
 			httpRequest.setHeader("Authorization", "Basic " + encodedCredentials);
 		}
 	}
