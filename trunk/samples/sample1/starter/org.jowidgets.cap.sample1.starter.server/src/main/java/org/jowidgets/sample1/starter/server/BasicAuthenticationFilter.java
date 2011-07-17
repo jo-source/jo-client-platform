@@ -37,6 +37,7 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.apache.commons.codec.binary.Base64;
 import org.jowidgets.security.api.AuthenticationService;
@@ -46,26 +47,39 @@ import org.jowidgets.security.tools.DefaultCredentials;
 
 final class BasicAuthenticationFilter implements Filter {
 
+	private static final String PRINCIPAL_KEY = BasicAuthenticationFilter.class.getName() + ".principal";
+
 	@Override
 	public void init(final FilterConfig filterConfig) throws ServletException {}
 
 	@Override
 	public void doFilter(final ServletRequest request, final ServletResponse response, final FilterChain chain) throws IOException,
 			ServletException {
+
 		final HttpServletRequest httpRequest = (HttpServletRequest) request;
-		String credentials = httpRequest.getHeader("Authorization");
-		if (credentials != null) {
-			credentials = credentials.substring(credentials.indexOf(' ') + 1);
-			credentials = new String(Base64.decodeBase64(credentials), "UTF-8");
-			final int i = credentials.indexOf(':');
-			if (i > 0) {
-				final String username = credentials.substring(0, i);
-				final String password = credentials.substring(i + 1);
-				Object principal = AuthenticationService.authenticate(new DefaultCredentials(username, password));
-				if (principal != null) {
-					principal = AuthorizationService.authorize(principal);
+		HttpSession session = httpRequest.getSession(false);
+		if (session != null) {
+			final Object principal = session.getAttribute(PRINCIPAL_KEY);
+			if (principal != null) {
+				SecurityContextHolder.setSecurityContext(principal);
+			}
+		}
+
+		if (SecurityContextHolder.getSecurityContext() == null) {
+			String credentials = httpRequest.getHeader("Authorization");
+			if (credentials != null) {
+				credentials = credentials.substring(credentials.indexOf(' ') + 1);
+				credentials = new String(Base64.decodeBase64(credentials), "UTF-8");
+				final int i = credentials.indexOf(':');
+				if (i > 0) {
+					final String username = credentials.substring(0, i);
+					final String password = credentials.substring(i + 1);
+					Object principal = AuthenticationService.authenticate(new DefaultCredentials(username, password));
 					if (principal != null) {
-						SecurityContextHolder.setSecurityContext(principal);
+						principal = AuthorizationService.authorize(principal);
+						if (principal != null) {
+							SecurityContextHolder.setSecurityContext(principal);
+						}
 					}
 				}
 			}
@@ -73,9 +87,15 @@ final class BasicAuthenticationFilter implements Filter {
 
 		try {
 			chain.doFilter(request, response);
-			return;
 		}
 		finally {
+			session = httpRequest.getSession(false);
+			if (session != null) {
+				final Object principal = SecurityContextHolder.getSecurityContext();
+				if (principal != null) {
+					session.setAttribute(PRINCIPAL_KEY, principal);
+				}
+			}
 			SecurityContextHolder.clearSecurityContext();
 		}
 	}
