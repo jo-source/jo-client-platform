@@ -25,52 +25,13 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
+
 package org.jowidgets.message.impl.http.client;
 
-import org.apache.http.client.HttpClient;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
-import org.jowidgets.util.Assert;
+import org.apache.http.HttpRequest;
 
-public final class MessageBrokerBuilder {
+public interface IHttpRequestInitializer {
 
-	private final Object brokerId;
-
-	private String url;
-	private HttpClient httpClient;
-	private IHttpRequestInitializer httpRequestInitializer;
-
-	public MessageBrokerBuilder(final Object brokerId) {
-		Assert.paramNotNull(brokerId, "brokerId");
-		this.brokerId = brokerId;
-	}
-
-	public MessageBrokerBuilder setUrl(final String url) {
-		Assert.paramNotNull(url, "url");
-		this.url = url;
-		return this;
-	}
-
-	public MessageBrokerBuilder setHttpClient(final HttpClient httpClient) {
-		Assert.paramNotNull(httpClient, "httpClient");
-		this.httpClient = httpClient;
-		return this;
-	}
-
-	public MessageBrokerBuilder setHttpRequestInitializer(final IHttpRequestInitializer httpRequestInitializer) {
-		Assert.paramNotNull(httpRequestInitializer, "httpRequestInitializer");
-		this.httpRequestInitializer = httpRequestInitializer;
-		return this;
-	}
-
-	public IMessageBroker build() {
-		if (url == null) {
-			throw new IllegalStateException("url must be set");
-		}
-		final MessageBroker broker = new MessageBroker(brokerId, url, httpClient == null ? new DefaultHttpClient(
-			new ThreadSafeClientConnManager()) : httpClient);
-		broker.setHttpRequestInitializer(httpRequestInitializer);
-		return broker;
-	}
+	void initialize(HttpRequest httpRequest);
 
 }

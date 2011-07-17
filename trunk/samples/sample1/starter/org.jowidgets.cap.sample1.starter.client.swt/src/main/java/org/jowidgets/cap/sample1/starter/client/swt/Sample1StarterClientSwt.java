@@ -28,9 +28,8 @@
 
 package org.jowidgets.cap.sample1.starter.client.swt;
 
-import org.jowidgets.cap.sample1.ui.workbench.SampleWorkbench;
+import org.jowidgets.cap.sample1.starter.client.common.Sample1StarterClient;
 import org.jowidgets.spi.impl.swt.options.SwtOptions;
-import org.jowidgets.workbench.impl.WorkbenchRunner;
 
 public final class Sample1StarterClientSwt {
 
@@ -38,7 +37,7 @@ public final class Sample1StarterClientSwt {
 
 	public static void main(final String[] args) throws Exception {
 		SwtOptions.setClassicTabs(true);
-		new WorkbenchRunner().run(new SampleWorkbench());
+		Sample1StarterClient.main(args);
 	}
 
 }

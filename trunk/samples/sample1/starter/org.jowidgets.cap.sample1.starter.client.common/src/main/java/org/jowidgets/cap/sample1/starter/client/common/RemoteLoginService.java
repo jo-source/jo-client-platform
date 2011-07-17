@@ -28,14 +28,19 @@
 
 package org.jowidgets.cap.sample1.starter.client.common;
 
+import org.jowidgets.api.login.ILoginCancelListener;
 import org.jowidgets.api.login.ILoginInterceptor;
 import org.jowidgets.api.login.ILoginResultCallback;
 import org.jowidgets.api.toolkit.Toolkit;
+import org.jowidgets.cap.common.api.service.IAuthorizationProviderService;
+import org.jowidgets.cap.common.tools.execution.SyncResultCallback;
+import org.jowidgets.cap.sample1.common.service.security.AuthorizationProviderServiceId;
+import org.jowidgets.cap.ui.api.CapUiToolkit;
+import org.jowidgets.cap.ui.api.execution.IExecutionTask;
 import org.jowidgets.cap.ui.api.login.ILoginService;
-import org.jowidgets.invocation.common.impl.MessageBrokerId;
-import org.jowidgets.message.api.MessageToolkit;
-import org.jowidgets.message.impl.http.client.IMessageBroker;
-import org.jowidgets.message.impl.http.client.MessageBrokerBuilder;
+import org.jowidgets.security.api.SecurityContextHolder;
+import org.jowidgets.security.tools.DefaultPrincipal;
+import org.jowidgets.service.api.ServiceProvider;
 
 public class RemoteLoginService implements ILoginService {
 
@@ -44,64 +49,41 @@ public class RemoteLoginService implements ILoginService {
 		final ILoginInterceptor loginInterceptor = new ILoginInterceptor() {
 			@Override
 			public void login(final ILoginResultCallback resultCallback, final String username, final String password) {
+				final IAuthorizationProviderService<DefaultPrincipal> authorizationService = ServiceProvider.getService(AuthorizationProviderServiceId.ID);
+				if (authorizationService == null) {
+					resultCallback.denied("Authorization service not available");
+					return;
+				}
 
-				final MessageBrokerBuilder builder = new MessageBrokerBuilder(MessageBrokerId.INVOCATION_IMPL_BROKER_ID);
-				builder.setUrl("http://localhost:8080/").setUsername(username).setPassword(password);
-				final IMessageBroker messageBroker = builder.build();
+				final SyncResultCallback<DefaultPrincipal> authorizationResult = new SyncResultCallback<DefaultPrincipal>();
+				final IExecutionTask executionTask = CapUiToolkit.executionTaskFactory().create();
+				resultCallback.addCancelListener(new ILoginCancelListener() {
+					@Override
+					public void canceled() {
+						executionTask.cancel();
+					}
+				});
 
-				MessageToolkit.addChannelBroker(messageBroker);
-				MessageToolkit.addReceiverBroker(messageBroker);
-
-				//TODO MG why does this not work
-				//				IAuthorizationProviderService<DefaultPrincipal> authorizationService;
-				//				try {
-				//					authorizationService = ServiceProvider.getService(AuthorizationProviderServiceId.ID);
-				//				}
-				//				catch (final Throwable e) {
-				//					resultCallback.denied("Not authorized");
-				//					return;
-				//				}
-				//				if (authorizationService == null) {
-				//					resultCallback.denied("Authorization service not available");
-				//					return;
-				//				}
-				//
-				//				final IResultCallback<DefaultPrincipal> authorizationResult = new IResultCallback<DefaultPrincipal>() {
-				//
-				//					@Override
-				//					public void finished(final DefaultPrincipal result) {
-				//						if (result != null) {
-				//							SecurityContextHolder.setSecurityContext(result);
-				//							//CHECKSTYLE:OFF
-				//							System.out.println("AUTHORIZED AS: " + result);
-				//							//CHECKSTYLE:ON
-				//							resultCallback.granted();
-				//						}
-				//					}
-				//
-				//					@Override
-				//					public void exception(final Throwable exception) {
-				//						resultCallback.denied(exception.getLocalizedMessage());
-				//					}
-				//
-				//					@Override
-				//					public void timeout() {
-				//						resultCallback.denied("Timeout");
-				//					}
-				//				};
-				//
-				//				final IExecutionTask executionTask = CapUiToolkit.executionTaskFactory().create();
-				//				resultCallback.addCancelListener(new ILoginCancelListener() {
-				//					@Override
-				//					public void canceled() {
-				//						executionTask.cancel();
-				//					}
-				//				});
-				//
-				//				authorizationService.getPrincipal(authorizationResult, executionTask);
-
-				resultCallback.granted();
-
+				BasicAuthenticationInitializer.getInstance().setCredentials(username, password);
+				try {
+					authorizationService.getPrincipal(authorizationResult, executionTask);
+					try {
+						final DefaultPrincipal principal = authorizationResult.getResultSynchronious();
+						if (principal == null) {
+							resultCallback.denied("Login failed");
+						}
+						else {
+							SecurityContextHolder.setSecurityContext(principal);
+							resultCallback.granted();
+						}
+					}
+					catch (final Throwable t) {
+						resultCallback.denied(t.getLocalizedMessage());
+					}
+				}
+				finally {
+					BasicAuthenticationInitializer.getInstance().clearCredentials();
+				}
 			}
 		};
 		if (Toolkit.getLoginPane().login("Application1 ", loginInterceptor).isLoggedOn()) {
