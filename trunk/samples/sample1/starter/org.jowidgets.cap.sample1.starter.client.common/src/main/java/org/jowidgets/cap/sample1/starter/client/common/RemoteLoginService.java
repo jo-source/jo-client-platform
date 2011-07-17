@@ -32,8 +32,8 @@ import org.jowidgets.api.login.ILoginCancelListener;
 import org.jowidgets.api.login.ILoginInterceptor;
 import org.jowidgets.api.login.ILoginResultCallback;
 import org.jowidgets.api.toolkit.Toolkit;
+import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.service.IAuthorizationProviderService;
-import org.jowidgets.cap.common.tools.execution.SyncResultCallback;
 import org.jowidgets.cap.sample1.common.service.security.AuthorizationProviderServiceId;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.execution.IExecutionTask;
@@ -55,7 +55,6 @@ public class RemoteLoginService implements ILoginService {
 					return;
 				}
 
-				final SyncResultCallback<DefaultPrincipal> authorizationResult = new SyncResultCallback<DefaultPrincipal>();
 				final IExecutionTask executionTask = CapUiToolkit.executionTaskFactory().create();
 				resultCallback.addCancelListener(new ILoginCancelListener() {
 					@Override
@@ -65,10 +64,9 @@ public class RemoteLoginService implements ILoginService {
 				});
 
 				BasicAuthenticationInitializer.getInstance().setCredentials(username, password);
-				try {
-					authorizationService.getPrincipal(authorizationResult, executionTask);
-					try {
-						final DefaultPrincipal principal = authorizationResult.getResultSynchronious();
+				authorizationService.getPrincipal(new IResultCallback<DefaultPrincipal>() {
+					@Override
+					public void finished(final DefaultPrincipal principal) {
 						if (principal == null) {
 							resultCallback.denied("Login failed");
 						}
@@ -76,14 +74,21 @@ public class RemoteLoginService implements ILoginService {
 							SecurityContextHolder.setSecurityContext(principal);
 							resultCallback.granted();
 						}
+						BasicAuthenticationInitializer.getInstance().clearCredentials();
 					}
-					catch (final Throwable t) {
-						resultCallback.denied(t.getLocalizedMessage());
+
+					@Override
+					public void timeout() {
+						resultCallback.denied("Timeout");
+						BasicAuthenticationInitializer.getInstance().clearCredentials();
 					}
-				}
-				finally {
-					BasicAuthenticationInitializer.getInstance().clearCredentials();
-				}
+
+					@Override
+					public void exception(final Throwable exception) {
+						resultCallback.denied(exception.getLocalizedMessage());
+						BasicAuthenticationInitializer.getInstance().clearCredentials();
+					}
+				}, executionTask);
 			}
 		};
 		if (Toolkit.getLoginPane().login("Application1 ", loginInterceptor).isLoggedOn()) {
