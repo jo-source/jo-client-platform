@@ -51,7 +51,10 @@ public class DynamicPropertiesBeanReaderService implements ISyncReaderService<Vo
 		final Void param,
 		final IExecutionCallback executionCallback) {
 
-		return (List<IBeanDto>) DataStore.getDynamicPropertiesBeans().getAllData(firstRow, maxRows);
+		@SuppressWarnings("rawtypes")
+		final List result = DataStore.getDynamicPropertiesBeans().getAllData(firstRow, maxRows);
+
+		return result;
 
 	}
 
