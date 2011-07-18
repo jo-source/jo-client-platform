@@ -35,4 +35,6 @@ public interface IBeanTable<BEAN_TYPE> extends ITable {
 
 	IMenuModel getMenu();
 
+	void showSettingsDialog();
+
 }

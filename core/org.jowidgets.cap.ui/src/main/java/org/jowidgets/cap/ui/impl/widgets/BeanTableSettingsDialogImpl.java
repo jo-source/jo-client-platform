@@ -26,54 +26,61 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.impl;
-
-import java.util.List;
+package org.jowidgets.cap.ui.impl.widgets;
 
 import org.jowidgets.api.toolkit.Toolkit;
-import org.jowidgets.api.widgets.blueprint.factory.IBluePrintFactory;
-import org.jowidgets.cap.ui.api.CapUiToolkit;
-import org.jowidgets.cap.ui.api.attribute.IAttribute;
+import org.jowidgets.api.widgets.IButton;
+import org.jowidgets.api.widgets.IFrame;
+import org.jowidgets.cap.ui.api.table.IBeanTableConfig;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
-import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
-import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
+import org.jowidgets.cap.ui.api.widgets.IBeanTableSettingsDialog;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableSettingsDialogBluePrint;
-import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
+import org.jowidgets.common.widgets.controler.IActionListener;
+import org.jowidgets.tools.widgets.wrapper.WindowWrapper;
 import org.jowidgets.util.Assert;
 
-final class CapApiBluePrintFactory implements ICapApiBluePrintFactory {
+final class BeanTableSettingsDialogImpl extends WindowWrapper implements IBeanTableSettingsDialog {
 
-	private final IBluePrintFactory bluePrintFactory;
+	private final IBeanTableModel<?> model;
+	private final IFrame frame;
 
-	CapApiBluePrintFactory() {
-		this.bluePrintFactory = Toolkit.getBluePrintFactory();
+	BeanTableSettingsDialogImpl(final IFrame frame, final IBeanTableSettingsDialogBluePrint setup) {
+		super(frame);
+		Assert.paramNotNull(frame, "frame");
+		Assert.paramNotNull(setup, "setup");
+		Assert.paramNotNull(setup.getModel(), "setup.getModel()");
+
+		this.frame = frame;
+		this.model = setup.getModel();
+
+		final IButton ok = frame.add(Toolkit.getBluePrintFactory().button("Ok"));
+		final IButton cancel = frame.add(Toolkit.getBluePrintFactory().button("Cancel"));
+
+		ok.addActionListener(new IActionListener() {
+			@Override
+			public void actionPerformed() {
+				setVisible(false);
+			}
+		});
+
+		cancel.addActionListener(new IActionListener() {
+			@Override
+			public void actionPerformed() {
+				setVisible(false);
+			}
+		});
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public <BEAN_TYPE> IBeanTableBluePrint<BEAN_TYPE> beanTable(final IBeanTableModel<BEAN_TYPE> model) {
-		Assert.paramNotNull(model, "model");
-		final IBeanTableBluePrint<BEAN_TYPE> result = bluePrintFactory.bluePrint(IBeanTableBluePrint.class);
-		result.setModel(model);
-		return result;
+	public IBeanTableConfig show() {
+		frame.setVisible(true);
+		return model.getConfig();
 	}
 
 	@Override
-	public IBeanTableSettingsDialogBluePrint beanTableSettingsDialog(final IBeanTableModel<?> model) {
-		Assert.paramNotNull(model, "model");
-		final IBeanTableSettingsDialogBluePrint result = bluePrintFactory.bluePrint(IBeanTableSettingsDialogBluePrint.class);
-		result.setModel(model);
-		return result;
-	}
+	public boolean isOkPressed() {
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public <BEAN_TYPE> IBeanFormBluePrint<BEAN_TYPE> beanForm(final List<? extends IAttribute<?>> attributes) {
-		Assert.paramNotNull(attributes, "attributes");
-		final IBeanFormBluePrint<BEAN_TYPE> result = bluePrintFactory.bluePrint(IBeanFormBluePrint.class);
-		result.setAttributes(attributes);
-		result.setLayout(CapUiToolkit.beanFormToolkit().layoutBuilder().addGroups(attributes).build());
-		return result;
+		return false;
 	}
 
 }

@@ -33,13 +33,18 @@ import java.util.List;
 
 import org.jowidgets.api.convert.IStringObjectConverter;
 import org.jowidgets.api.model.item.IMenuModel;
+import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.widgets.ITable;
+import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.sort.ISortModel;
+import org.jowidgets.cap.ui.api.table.IBeanTableConfig;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
+import org.jowidgets.cap.ui.api.widgets.IBeanTableSettingsDialog;
+import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
 import org.jowidgets.common.types.Dimension;
 import org.jowidgets.common.types.Modifier;
 import org.jowidgets.common.types.Position;
@@ -59,6 +64,8 @@ import org.jowidgets.tools.widgets.wrapper.ControlWrapper;
 final class BeanTableImpl<BEAN_TYPE> extends ControlWrapper implements IBeanTable<BEAN_TYPE> {
 
 	private final IBeanTableModel<BEAN_TYPE> model;
+
+	private IBeanTableSettingsDialog settingsDialog;
 
 	BeanTableImpl(final ITable table, final IBeanTableBluePrint<BEAN_TYPE> bluePrint) {
 		super(table);
@@ -111,6 +118,15 @@ final class BeanTableImpl<BEAN_TYPE> extends ControlWrapper implements IBeanTabl
 	@Override
 	protected ITable getWidget() {
 		return (ITable) super.getWidget();
+	}
+
+	@Override
+	public void showSettingsDialog() {
+		final IBeanTableSettingsDialog dialog = getSettingsDialog();
+		final IBeanTableConfig tableConfig = dialog.show();
+		if (dialog.isOkPressed()) {
+			model.setConfig(tableConfig);
+		}
 	}
 
 	@Override
@@ -261,5 +277,13 @@ final class BeanTableImpl<BEAN_TYPE> extends ControlWrapper implements IBeanTabl
 	@Override
 	public IMenuModel getMenu() {
 		return null;
+	}
+
+	private IBeanTableSettingsDialog getSettingsDialog() {
+		if (settingsDialog == null) {
+			final ICapApiBluePrintFactory bpf = CapUiToolkit.bluePrintFactory();
+			settingsDialog = Toolkit.getActiveWindow().createChildWindow(bpf.beanTableSettingsDialog(model));
+		}
+		return settingsDialog;
 	}
 }

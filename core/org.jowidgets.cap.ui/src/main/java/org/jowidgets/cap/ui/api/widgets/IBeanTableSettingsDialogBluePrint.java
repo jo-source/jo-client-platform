@@ -28,17 +28,20 @@
 
 package org.jowidgets.cap.ui.api.widgets;
 
-import java.util.List;
-
-import org.jowidgets.cap.ui.api.attribute.IAttribute;
+import org.jowidgets.api.widgets.blueprint.builder.IComponentSetupBuilder;
+import org.jowidgets.api.widgets.descriptor.setup.IComponentSetup;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
+import org.jowidgets.common.widgets.descriptor.IWidgetDescriptor;
+import org.jowidgets.common.widgets.descriptor.setup.mandatory.Mandatory;
 
-public interface ICapApiBluePrintFactory {
+public interface IBeanTableSettingsDialogBluePrint extends
+		IComponentSetup,
+		IComponentSetupBuilder<IBeanTableSettingsDialogBluePrint>,
+		IWidgetDescriptor<IBeanTableSettingsDialog> {
 
-	<BEAN_TYPE> IBeanTableBluePrint<BEAN_TYPE> beanTable(IBeanTableModel<BEAN_TYPE> model);
+	IBeanTableSettingsDialogBluePrint setModel(IBeanTableModel<?> model);
 
-	IBeanTableSettingsDialogBluePrint beanTableSettingsDialog(IBeanTableModel<?> model);
-
-	<BEAN_TYPE> IBeanFormBluePrint<BEAN_TYPE> beanForm(final List<? extends IAttribute<?>> attributes);
+	@Mandatory
+	IBeanTableModel<?> getModel();
 
 }
