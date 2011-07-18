@@ -34,6 +34,7 @@ import java.util.List;
 
 import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.bean.IValueRange;
+import org.jowidgets.cap.ui.api.attribute.DisplayFormat;
 import org.jowidgets.cap.ui.api.attribute.IAttributeBluePrint;
 import org.jowidgets.cap.ui.api.attribute.IAttributeGroup;
 import org.jowidgets.cap.ui.api.attribute.IControlPanelProvider;
@@ -46,6 +47,7 @@ final class AttributeModifierBluePrint<ELEMENT_VALUE_TYPE> implements IAttribute
 	private IValueRange valueRange;
 	private String label;
 	private String labelLong;
+	private DisplayFormat labelDisplayFormat;
 	private String description;
 	private Boolean visible;
 	private Boolean mandatory;
@@ -99,6 +101,13 @@ final class AttributeModifierBluePrint<ELEMENT_VALUE_TYPE> implements IAttribute
 	public IAttributeBluePrint<ELEMENT_VALUE_TYPE> setLabelLong(final String labelLong) {
 		checkExhausted();
 		this.labelLong = labelLong;
+		return this;
+	}
+
+	@Override
+	public IAttributeBluePrint<ELEMENT_VALUE_TYPE> setLabelDisplayFormat(final DisplayFormat displayFormat) {
+		checkExhausted();
+		this.labelDisplayFormat = displayFormat;
 		return this;
 	}
 
@@ -210,6 +219,9 @@ final class AttributeModifierBluePrint<ELEMENT_VALUE_TYPE> implements IAttribute
 		}
 		if (labelLong != null) {
 			attributeBluePrint.setLabelLong(labelLong);
+		}
+		if (labelDisplayFormat != null) {
+			attributeBluePrint.setLabelDisplayFormat(labelDisplayFormat);
 		}
 		if (description != null) {
 			attributeBluePrint.setDescription(description);

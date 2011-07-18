@@ -67,6 +67,8 @@ public interface IAttributeBluePrint<ELEMENT_VALUE_TYPE> {
 
 	IAttributeBluePrint<ELEMENT_VALUE_TYPE> setFilterable(boolean filterable);
 
+	IAttributeBluePrint<ELEMENT_VALUE_TYPE> setLabelDisplayFormat(DisplayFormat displayFormat);
+
 	/**
 	 * Sets the display format id.
 	 * 

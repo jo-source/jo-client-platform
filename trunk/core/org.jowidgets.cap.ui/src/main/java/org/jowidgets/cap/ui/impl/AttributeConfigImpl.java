@@ -28,24 +28,27 @@
 
 package org.jowidgets.cap.ui.impl;
 
+import org.jowidgets.cap.ui.api.attribute.DisplayFormat;
 import org.jowidgets.cap.ui.api.attribute.IAttributeConfig;
 import org.jowidgets.common.types.AlignmentHorizontal;
-
 
 final class AttributeConfigImpl implements IAttributeConfig {
 
 	private final Boolean visible;
+	private final DisplayFormat labelDisplayFormat;
 	private final String displayFormatId;
 	private final AlignmentHorizontal tableAlignment;
 	private final Integer tableWidth;
 
 	AttributeConfigImpl(
 		final Boolean visible,
+		final DisplayFormat labelDisplayFormat,
 		final String displayFormatId,
 		final AlignmentHorizontal tableAlignment,
 		final Integer tableWidth) {
 
 		this.visible = visible;
+		this.labelDisplayFormat = labelDisplayFormat;
 		this.displayFormatId = displayFormatId;
 		this.tableAlignment = tableAlignment;
 		this.tableWidth = tableWidth;
@@ -54,6 +57,11 @@ final class AttributeConfigImpl implements IAttributeConfig {
 	@Override
 	public Boolean isVisible() {
 		return visible;
+	}
+
+	@Override
+	public DisplayFormat getLabelDisplayFormat() {
+		return labelDisplayFormat;
 	}
 
 	@Override
