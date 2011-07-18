@@ -41,26 +41,29 @@ import org.jowidgets.cap.ui.api.command.IActionFactory;
 import org.jowidgets.cap.ui.api.execution.IExecutionTaskFactory;
 import org.jowidgets.cap.ui.api.form.IBeanFormToolkit;
 import org.jowidgets.cap.ui.api.sort.ISortModelConfigBuilder;
+import org.jowidgets.cap.ui.api.table.IBeanTableConfigBuilder;
 import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
 import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
 
 public interface ICapUiToolkit {
 
-	ICapApiBluePrintFactory getBluePrintFactory();
+	ICapApiBluePrintFactory bluePrintFactory();
 
-	IActionFactory getActionFactory();
+	IActionFactory actionFactory();
 
-	IAttributeToolkit getAttributeToolkit();
+	IAttributeToolkit attributeToolkit();
 
 	IExecutionTaskFactory executionTaskFactory();
 
-	<BEAN_TYPE> IBeansStateTracker<BEAN_TYPE> createBeansStateTracker();
+	<BEAN_TYPE> IBeansStateTracker<BEAN_TYPE> beansStateTracker();
 
-	<BEAN_TYPE> IBeanProxyFactory<BEAN_TYPE> createBeanProxyFactory(Class<? extends BEAN_TYPE> beanType);
+	<BEAN_TYPE> IBeanProxyFactory<BEAN_TYPE> beanProxyFactory(Class<? extends BEAN_TYPE> beanType);
 
-	IBeanKeyFactory getBeanKeyFactory();
+	IBeanKeyFactory beanKeyFactory();
 
-	<BEAN_TYPE> IBeanTableModelBuilder<BEAN_TYPE> createBeanTableModelBuilder(Class<BEAN_TYPE> beanType);
+	<BEAN_TYPE> IBeanTableModelBuilder<BEAN_TYPE> beanTableModelBuilder(Class<BEAN_TYPE> beanType);
+
+	IBeanTableConfigBuilder beanTableConfigBuilder();
 
 	IBeanMessageBuilder beanMessageBuilder(BeanMessageType type);
 
@@ -70,6 +73,6 @@ public interface ICapUiToolkit {
 
 	IBeanFormToolkit beanFormToolkit();
 
-	Validator getBeanValidator();
+	Validator beanValidator();
 
 }

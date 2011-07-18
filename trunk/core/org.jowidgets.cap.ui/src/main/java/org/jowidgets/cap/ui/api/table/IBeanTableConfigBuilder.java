@@ -26,33 +26,31 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample1.ui.workbench.component.user.command;
+package org.jowidgets.cap.ui.api.table;
 
-import org.jowidgets.api.command.IAction;
-import org.jowidgets.cap.sample1.common.entity.IUser;
-import org.jowidgets.cap.sample1.common.service.executor.UserComponentExecutorServices;
-import org.jowidgets.cap.ui.api.CapUiToolkit;
-import org.jowidgets.cap.ui.api.command.IExecutorActionBuilder;
-import org.jowidgets.cap.ui.api.execution.BeanExecutionPolicy;
-import org.jowidgets.cap.ui.api.execution.BeanSelectionPolicy;
-import org.jowidgets.cap.ui.api.model.IBeanListModel;
-import org.jowidgets.examples.common.icons.SilkIcons;
-import org.jowidgets.tools.command.ActionWrapper;
+import java.util.Map;
 
-public class LongLastingAction extends ActionWrapper {
+import org.jowidgets.cap.common.api.filter.IFilter;
+import org.jowidgets.cap.ui.api.attribute.IAttribute;
+import org.jowidgets.cap.ui.api.attribute.IAttributeConfig;
+import org.jowidgets.cap.ui.api.sort.ISortModelConfig;
 
-	public LongLastingAction(final IBeanListModel<IUser> model) {
-		super(create(model));
-	}
+public interface IBeanTableConfigBuilder {
 
-	private static IAction create(final IBeanListModel<IUser> model) {
-		final IExecutorActionBuilder<IUser, Void> builder = CapUiToolkit.actionFactory().executorActionBuilder(model);
-		builder.setText("Long lasting test");
-		builder.setToolTipText("Test a long lasting execution on the selected person(s)");
-		builder.setIcon(SilkIcons.TIME);
-		builder.setSelectionPolicy(BeanSelectionPolicy.MULTI_SELECTION);
-		builder.setExecutionPolicy(BeanExecutionPolicy.PARALLEL);
-		builder.setExecutor(UserComponentExecutorServices.LONG_LASTING);
-		return builder.build();
-	}
+	IBeanTableConfigBuilder setSortModelConfig(ISortModelConfig sortModelConfig);
+
+	IBeanTableConfigBuilder setFilters(Map<String, IFilter> filters);
+
+	IBeanTableConfigBuilder addFilter(String propertyName, IFilter filter);
+
+	IBeanTableConfigBuilder setAttributeConfigs(Map<String, IAttributeConfig> attributeConfigs);
+
+	IBeanTableConfigBuilder addAttributeConfig(String propertyName, IAttributeConfig attributeConfig);
+
+	IBeanTableConfigBuilder addAttributeConfig(IAttribute<?> attribute);
+
+	IBeanTableConfigBuilder setAutoSelection(boolean autoSelection);
+
+	IBeanTableConfig build();
+
 }

@@ -38,7 +38,7 @@ final class CancelAction {
 	private final IDataModelAction action;
 
 	CancelAction() {
-		final IDataModelActionBuilder builder = CapUiToolkit.getActionFactory().dataModelCancelActionBuilder();
+		final IDataModelActionBuilder builder = CapUiToolkit.actionFactory().dataModelCancelActionBuilder();
 		builder.setIcon(SilkIcons.CANCEL);
 		action = builder.build();
 	}

@@ -84,7 +84,7 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> implements IBeanTableModelBuild
 			}
 			final IBeanDtoDescriptor<BEAN_TYPE> beanDtoDescriptor = entityService.getDescriptor(beanType);
 			if (beanDtoDescriptor != null) {
-				this.attributes = CapUiToolkit.getAttributeToolkit().createAttributes(beanDtoDescriptor.getProperties());
+				this.attributes = CapUiToolkit.attributeToolkit().createAttributes(beanDtoDescriptor.getProperties());
 			}
 		}
 
@@ -236,7 +236,7 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> implements IBeanTableModelBuild
 	private List<IAttribute<Object>> getAttributes() {
 		final List<IAttribute<Object>> result = this.attributes;
 		if (metaPropertyNames != null) {
-			final IAttributeToolkit attributeToolkit = CapUiToolkit.getAttributeToolkit();
+			final IAttributeToolkit attributeToolkit = CapUiToolkit.attributeToolkit();
 			for (final String metaPropertyName : metaPropertyNames) {
 				result.add(attributeToolkit.createMetaAttribute(metaPropertyName));
 			}

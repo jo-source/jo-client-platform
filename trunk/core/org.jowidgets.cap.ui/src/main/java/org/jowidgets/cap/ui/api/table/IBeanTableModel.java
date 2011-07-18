@@ -62,4 +62,8 @@ public interface IBeanTableModel<BEAN_TYPE> extends IDataModel, IBeanListModel<B
 
 	void setActive(boolean active);
 
+	void setConfig(IBeanTableConfig config);
+
+	IBeanTableConfig getConfig();
+
 }

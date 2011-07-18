@@ -39,7 +39,7 @@ final class SaveAction {
 	private final IDataModelAction action;
 
 	SaveAction() {
-		final IDataModelActionBuilder builder = CapUiToolkit.getActionFactory().dataModelSaveActionBuilder();
+		final IDataModelActionBuilder builder = CapUiToolkit.actionFactory().dataModelSaveActionBuilder();
 		builder.setIcon(SilkIcons.DISK);
 		builder.setAccelerator('S', Modifier.CTRL);
 		action = builder.build();

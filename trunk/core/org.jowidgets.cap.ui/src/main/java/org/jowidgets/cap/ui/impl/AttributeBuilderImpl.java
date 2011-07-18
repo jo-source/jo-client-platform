@@ -271,13 +271,13 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 	private List getControlPanels() {
 		if (controlPanels.isEmpty()) {
 			if (Collection.class.isAssignableFrom(valueType)) {
-				return Collections.singletonList(CapUiToolkit.getAttributeToolkit().createControlPanelProvider(
+				return Collections.singletonList(CapUiToolkit.attributeToolkit().createControlPanelProvider(
 						valueType,
 						elementValueType,
 						valueRange));
 			}
 			else {
-				return Collections.singletonList(CapUiToolkit.getAttributeToolkit().createControlPanelProvider(
+				return Collections.singletonList(CapUiToolkit.attributeToolkit().createControlPanelProvider(
 						elementValueType,
 						valueRange));
 			}

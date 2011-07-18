@@ -38,7 +38,7 @@ final class LoadAction {
 	private final IDataModelAction action;
 
 	LoadAction() {
-		final IDataModelActionBuilder builder = CapUiToolkit.getActionFactory().dataModelLoadActionBuilder();
+		final IDataModelActionBuilder builder = CapUiToolkit.actionFactory().dataModelLoadActionBuilder();
 		builder.setIcon(SilkIcons.ARROW_REFRESH);
 		action = builder.build();
 	}
