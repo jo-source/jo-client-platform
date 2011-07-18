@@ -37,7 +37,6 @@ import org.jowidgets.api.model.item.IToolBarModel;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.widgets.IContainer;
 import org.jowidgets.api.widgets.IInputField;
-import org.jowidgets.api.widgets.IPopupMenu;
 import org.jowidgets.api.widgets.blueprint.factory.IBluePrintFactory;
 import org.jowidgets.cap.sample1.common.entity.IUser;
 import org.jowidgets.cap.sample1.ui.workbench.component.user.command.ChangeBirthdayAction;
@@ -47,14 +46,8 @@ import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.common.widgets.controler.IInputListener;
-import org.jowidgets.common.widgets.controler.ITableCellPopupDetectionListener;
-import org.jowidgets.common.widgets.controler.ITableCellPopupEvent;
-import org.jowidgets.common.widgets.controler.ITableColumnPopupDetectionListener;
-import org.jowidgets.common.widgets.controler.ITableColumnPopupEvent;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
 import org.jowidgets.examples.common.icons.SilkIcons;
-import org.jowidgets.tools.command.ExecutionContextValues;
-import org.jowidgets.util.ITypedKey;
 import org.jowidgets.util.ValueHolder;
 import org.jowidgets.workbench.api.IViewContext;
 import org.jowidgets.workbench.tools.AbstractView;
@@ -65,20 +58,16 @@ public class UserTableView extends AbstractView {
 	public static final String DEFAULT_LABEL = "Users";
 	public static final String DEFAULT_TOOLTIP = "Table of all users";
 
-	private static final ITypedKey<ITableColumnPopupEvent> TABLE_COLUMN_POPUP_EVENT_KEY = new ITypedKey<ITableColumnPopupEvent>() {};
-
 	private final IBeanTableModel<IUser> beanTableModel;
 	private final IBeanTable<IUser> table;
 	private final ValueHolder<Integer> parameter;
 
 	private IInputField<Integer> delayField;
-	private int popupColumn;
 
 	public UserTableView(final IViewContext context, final IBeanTableModel<IUser> tableModel, final ValueHolder<Integer> parameter) {
 
 		this.beanTableModel = tableModel;
 		this.parameter = parameter;
-		this.popupColumn = -1;
 
 		final IContainer container = context.getContainer();
 
@@ -91,76 +80,11 @@ public class UserTableView extends AbstractView {
 		toolBar.addAction(createClearAction());
 		toolBar.addAction(createPackAction());
 
-		final IPopupMenu popupMenu = table.createPopupMenu();
-		popupMenu.addAction(createSettingsDialogAction(tableModel));
-		popupMenu.addSeparator();
-		popupMenu.addAction(new ChangeGenderAction(tableModel));
-		popupMenu.addAction(new ChangeBirthdayAction(tableModel));
-		popupMenu.addAction(new LongLastingAction(tableModel));
-
-		table.addTableCellPopupDetectionListener(new ITableCellPopupDetectionListener() {
-			@Override
-			public void popupDetected(final ITableCellPopupEvent event) {
-				popupMenu.show(event.getPosition());
-			}
-		});
-
-		final IPopupMenu columnPopupMenu = table.createPopupMenu();
-		columnPopupMenu.addAction(createHideColumnAction(beanTableModel));
-		columnPopupMenu.addAction(createUnhideAllColumnAction(beanTableModel));
-
-		table.addTableColumnPopupDetectionListener(new ITableColumnPopupDetectionListener() {
-			@Override
-			public void popupDetected(final ITableColumnPopupEvent event) {
-				popupColumn = event.getColumnIndex();
-				final ExecutionContextValues executionContextValues = new ExecutionContextValues();
-				executionContextValues.putValue(TABLE_COLUMN_POPUP_EVENT_KEY, event);
-				columnPopupMenu.show(event.getPosition(), executionContextValues);
-			}
-		});
+		table.getCellPopMenu().addAction(new ChangeGenderAction(tableModel));
+		table.getCellPopMenu().addAction(new ChangeBirthdayAction(tableModel));
+		table.getCellPopMenu().addAction(new LongLastingAction(tableModel));
 
 		beanTableModel.load();
-	}
-
-	private IAction createSettingsDialogAction(final IBeanTableModel<?> beanTableModel) {
-		final IActionBuilder builder = Toolkit.getActionBuilderFactory().create();
-		builder.setText("Settings ...");
-		builder.setIcon(SilkIcons.TABLE_EDIT);
-		builder.setCommand(new ICommandExecutor() {
-			@Override
-			public void execute(final IExecutionContext executionContext) throws Exception {
-				table.showSettingsDialog();
-			}
-		});
-		return builder.build();
-	}
-
-	private IAction createHideColumnAction(final IBeanTableModel<IUser> beanTableModel) {
-		final IActionBuilder builder = Toolkit.getActionBuilderFactory().create();
-		builder.setText("Hide column");
-		builder.setCommand(new ICommandExecutor() {
-			@Override
-			public void execute(final IExecutionContext executionContext) throws Exception {
-				@SuppressWarnings("unused")
-				final ITableColumnPopupEvent popupEvent = executionContext.getValue(TABLE_COLUMN_POPUP_EVENT_KEY);
-				beanTableModel.getAttribute(popupColumn).setVisible(false);
-			}
-		});
-		return builder.build();
-	}
-
-	private IAction createUnhideAllColumnAction(final IBeanTableModel<IUser> beanTableModel) {
-		final IActionBuilder builder = Toolkit.getActionBuilderFactory().create();
-		builder.setText("Unhide all columns");
-		builder.setCommand(new ICommandExecutor() {
-			@Override
-			public void execute(final IExecutionContext executionContext) throws Exception {
-				for (int i = 0; i < beanTableModel.getColumnCount(); i++) {
-					beanTableModel.getAttribute(i).setVisible(true);
-				}
-			}
-		});
-		return builder.build();
 	}
 
 	private IAction createClearAction() {

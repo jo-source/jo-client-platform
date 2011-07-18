@@ -35,17 +35,11 @@ import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.api.model.item.IToolBarModel;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.widgets.IContainer;
-import org.jowidgets.api.widgets.IPopupMenu;
 import org.jowidgets.cap.sample1.common.entity.IDynamicPropertiesBean;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
-import org.jowidgets.common.widgets.controler.ITableCellPopupDetectionListener;
-import org.jowidgets.common.widgets.controler.ITableCellPopupEvent;
-import org.jowidgets.common.widgets.controler.ITableColumnPopupDetectionListener;
-import org.jowidgets.common.widgets.controler.ITableColumnPopupEvent;
 import org.jowidgets.examples.common.icons.SilkIcons;
-import org.jowidgets.tools.command.ExecutionContextValues;
 import org.jowidgets.workbench.api.IViewContext;
 import org.jowidgets.workbench.tools.AbstractView;
 
@@ -58,12 +52,9 @@ public class DynamicPropertiesBeanTableView extends AbstractView {
 	private final IBeanTableModel<IDynamicPropertiesBean> beanTableModel;
 	private final IBeanTable<IDynamicPropertiesBean> table;
 
-	private int popupColumn;
-
 	public DynamicPropertiesBeanTableView(final IViewContext context, final IBeanTableModel<IDynamicPropertiesBean> tableModel) {
 
 		this.beanTableModel = tableModel;
-		this.popupColumn = -1;
 
 		final IContainer container = context.getContainer();
 
@@ -75,69 +66,7 @@ public class DynamicPropertiesBeanTableView extends AbstractView {
 		toolBar.addAction(createClearAction());
 		toolBar.addAction(createPackAction());
 
-		final IPopupMenu popupMenu = table.createPopupMenu();
-		popupMenu.addAction(createSettingsDialogAction(tableModel));
-
-		table.addTableCellPopupDetectionListener(new ITableCellPopupDetectionListener() {
-			@Override
-			public void popupDetected(final ITableCellPopupEvent event) {
-				popupMenu.show(event.getPosition());
-			}
-		});
-
-		final IPopupMenu columnPopupMenu = table.createPopupMenu();
-		columnPopupMenu.addAction(createHideColumnAction(beanTableModel));
-		columnPopupMenu.addAction(createUnhideAllColumnAction(beanTableModel));
-
-		table.addTableColumnPopupDetectionListener(new ITableColumnPopupDetectionListener() {
-			@Override
-			public void popupDetected(final ITableColumnPopupEvent event) {
-				popupColumn = event.getColumnIndex();
-				final ExecutionContextValues executionContextValues = new ExecutionContextValues();
-				columnPopupMenu.show(event.getPosition(), executionContextValues);
-			}
-		});
-
 		beanTableModel.load();
-	}
-
-	private IAction createSettingsDialogAction(final IBeanTableModel<?> beanTableModel) {
-		final IActionBuilder builder = Toolkit.getActionBuilderFactory().create();
-		builder.setText("Settings ...");
-		builder.setIcon(SilkIcons.TABLE_EDIT);
-		builder.setCommand(new ICommandExecutor() {
-			@Override
-			public void execute(final IExecutionContext executionContext) throws Exception {
-				table.showSettingsDialog();
-			}
-		});
-		return builder.build();
-	}
-
-	private IAction createHideColumnAction(final IBeanTableModel<?> beanTableModel) {
-		final IActionBuilder builder = Toolkit.getActionBuilderFactory().create();
-		builder.setText("Hide column");
-		builder.setCommand(new ICommandExecutor() {
-			@Override
-			public void execute(final IExecutionContext executionContext) throws Exception {
-				beanTableModel.getAttribute(popupColumn).setVisible(false);
-			}
-		});
-		return builder.build();
-	}
-
-	private IAction createUnhideAllColumnAction(final IBeanTableModel<?> beanTableModel) {
-		final IActionBuilder builder = Toolkit.getActionBuilderFactory().create();
-		builder.setText("Unhide all columns");
-		builder.setCommand(new ICommandExecutor() {
-			@Override
-			public void execute(final IExecutionContext executionContext) throws Exception {
-				for (int i = 0; i < beanTableModel.getColumnCount(); i++) {
-					beanTableModel.getAttribute(i).setVisible(true);
-				}
-			}
-		});
-		return builder.build();
 	}
 
 	private IAction createClearAction() {

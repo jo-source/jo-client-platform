@@ -30,11 +30,22 @@ package org.jowidgets.cap.ui.api.widgets;
 
 import org.jowidgets.api.model.item.IMenuModel;
 import org.jowidgets.api.widgets.ITable;
+import org.jowidgets.cap.ui.api.table.IBeanTableModel;
+import org.jowidgets.common.widgets.controler.ITableCellPopupEvent;
+import org.jowidgets.common.widgets.controler.ITableColumnPopupEvent;
+import org.jowidgets.util.ITypedKey;
 
 public interface IBeanTable<BEAN_TYPE> extends ITable {
 
-	IMenuModel getMenu();
+	ITypedKey<ITableColumnPopupEvent> COLUMN_POPUP_EVENT_CONTEXT_KEY = new ITypedKey<ITableColumnPopupEvent>() {};
+	ITypedKey<ITableCellPopupEvent> CELL_POPUP_EVENT_CONTEXT_KEY = new ITypedKey<ITableCellPopupEvent>() {};
+
+	IMenuModel getCellPopMenu();
+
+	IMenuModel getHeaderPopMenu();
 
 	void showSettingsDialog();
+
+	ITypedKey<IBeanTableModel<BEAN_TYPE>> getTableModelContextKey();
 
 }
