@@ -28,17 +28,20 @@
 
 package org.jowidgets.cap.ui.api.table;
 
-import java.util.List;
+import java.util.Map;
 
-import org.jowidgets.cap.ui.api.attribute.IAttribute;
+import org.jowidgets.cap.common.api.filter.IFilter;
+import org.jowidgets.cap.ui.api.attribute.IAttributeConfig;
 import org.jowidgets.cap.ui.api.sort.ISortModelConfig;
 
-public interface IBeanTableSettingsDialogParameter {
+public interface IBeanTableConfig {
 
 	ISortModelConfig getSortModelConfig();
 
-	List<IAttribute<Object>> getAttributes();
+	Map<String, IFilter> getFilters();
 
-	List<Integer> getColumnPermutation();
+	Map<String, IAttributeConfig> getAttributeConfigs();
+
+	Boolean isAutoSelection();
 
 }

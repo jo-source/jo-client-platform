@@ -38,6 +38,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.jowidgets.api.color.Colors;
@@ -65,6 +66,7 @@ import org.jowidgets.cap.common.tools.execution.SyncResultCallback;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.DisplayFormat;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
+import org.jowidgets.cap.ui.api.attribute.IAttributeConfig;
 import org.jowidgets.cap.ui.api.bean.BeanMessageType;
 import org.jowidgets.cap.ui.api.bean.IBeanMessage;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
@@ -80,6 +82,8 @@ import org.jowidgets.cap.ui.api.model.LinkType;
 import org.jowidgets.cap.ui.api.sort.IPropertySort;
 import org.jowidgets.cap.ui.api.sort.ISortModel;
 import org.jowidgets.cap.ui.api.sort.ISortModelConfig;
+import org.jowidgets.cap.ui.api.table.IBeanTableConfig;
+import org.jowidgets.cap.ui.api.table.IBeanTableConfigBuilder;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.table.IReaderParameterProvider;
 import org.jowidgets.common.image.IImageConstant;
@@ -128,6 +132,7 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 	private int lastLoadingPage;
 	private int lastRenderedRow;
 	private boolean dataCleared;
+	private boolean autoSelection;
 
 	@SuppressWarnings("unchecked")
 	BeanTableModelImpl(
@@ -170,8 +175,8 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 		this.pageSize = DEFAULT_PAGE_SIZE;
 		this.rowCount = 0;
 		this.maxPageIndex = 0;
-		this.beansStateTracker = CapUiToolkit.createBeansStateTracker();
-		this.beanProxyFactory = CapUiToolkit.createBeanProxyFactory(beanType);
+		this.beansStateTracker = CapUiToolkit.beansStateTracker();
+		this.beanProxyFactory = CapUiToolkit.beanProxyFactory(beanType);
 		this.beanListModelObservable = new BeanListModelObservable();
 
 		//model creation
@@ -410,6 +415,45 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 	@Override
 	public void setPageSize(final int pageSize) {
 		this.pageSize = pageSize;
+	}
+
+	@Override
+	public void setConfig(final IBeanTableConfig config) {
+		Assert.paramNotNull(config, "config");
+		final Map<String, IAttributeConfig> attributeConfigs = config.getAttributeConfigs();
+		if (attributeConfigs != null) {
+			for (final IAttribute<Object> attribute : attributes) {
+				final IAttributeConfig attributeConfig = attributeConfigs.get(attribute.getPropertyName());
+				if (attributeConfig != null) {
+					attribute.setConfig(attributeConfig);
+				}
+			}
+		}
+		final Map<String, IFilter> filtersConfig = config.getFilters();
+		if (filtersConfig != null) {
+			for (final Entry<String, IFilter> entry : filtersConfig.entrySet()) {
+				setFilter(entry.getKey(), entry.getValue());
+			}
+		}
+		if (config.getSortModelConfig() != null) {
+			this.sortModel.setConfig(config.getSortModelConfig());
+		}
+		if (config.isAutoSelection() != null) {
+			this.autoSelection = config.isAutoSelection();
+		}
+	}
+
+	@Override
+	public IBeanTableConfig getConfig() {
+		final IBeanTableConfigBuilder builder = CapUiToolkit.beanTableConfigBuilder();
+		for (final IAttribute<Object> attribute : attributes) {
+			builder.addAttributeConfig(attribute);
+		}
+		builder.setAutoSelection(autoSelection);
+		builder.setSortModelConfig(sortModel.getConfig());
+
+		//TODO MG set filter config params
+		return builder.build();
 	}
 
 	@Override

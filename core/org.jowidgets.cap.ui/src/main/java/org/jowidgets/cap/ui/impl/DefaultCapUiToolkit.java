@@ -43,6 +43,7 @@ import org.jowidgets.cap.ui.api.command.IActionFactory;
 import org.jowidgets.cap.ui.api.execution.IExecutionTaskFactory;
 import org.jowidgets.cap.ui.api.form.IBeanFormToolkit;
 import org.jowidgets.cap.ui.api.sort.ISortModelConfigBuilder;
+import org.jowidgets.cap.ui.api.table.IBeanTableConfigBuilder;
 import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
 import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
 
@@ -56,7 +57,7 @@ public final class DefaultCapUiToolkit implements ICapUiToolkit {
 	private Validator beanValidator;
 
 	@Override
-	public ICapApiBluePrintFactory getBluePrintFactory() {
+	public ICapApiBluePrintFactory bluePrintFactory() {
 		if (bluePrintFactory == null) {
 			bluePrintFactory = new CapApiBluePrintFactory();
 		}
@@ -64,7 +65,7 @@ public final class DefaultCapUiToolkit implements ICapUiToolkit {
 	}
 
 	@Override
-	public IActionFactory getActionFactory() {
+	public IActionFactory actionFactory() {
 		if (commandFactory == null) {
 			commandFactory = new ActionFactoryImpl();
 		}
@@ -72,7 +73,7 @@ public final class DefaultCapUiToolkit implements ICapUiToolkit {
 	}
 
 	@Override
-	public IAttributeToolkit getAttributeToolkit() {
+	public IAttributeToolkit attributeToolkit() {
 		if (attributeToolkit == null) {
 			attributeToolkit = new AttributeToolkitImpl();
 		}
@@ -80,17 +81,17 @@ public final class DefaultCapUiToolkit implements ICapUiToolkit {
 	}
 
 	@Override
-	public <BEAN_TYPE> IBeansStateTracker<BEAN_TYPE> createBeansStateTracker() {
+	public <BEAN_TYPE> IBeansStateTracker<BEAN_TYPE> beansStateTracker() {
 		return new BeansStateTrackerImpl<BEAN_TYPE>();
 	}
 
 	@Override
-	public <BEAN_TYPE> IBeanProxyFactory<BEAN_TYPE> createBeanProxyFactory(final Class<? extends BEAN_TYPE> beanType) {
+	public <BEAN_TYPE> IBeanProxyFactory<BEAN_TYPE> beanProxyFactory(final Class<? extends BEAN_TYPE> beanType) {
 		return new BeanProxyFactoryImpl<BEAN_TYPE>(beanType);
 	}
 
 	@Override
-	public IBeanKeyFactory getBeanKeyFactory() {
+	public IBeanKeyFactory beanKeyFactory() {
 		if (beanKeyFactory == null) {
 			beanKeyFactory = new BeanKeyFactoryImpl();
 		}
@@ -106,8 +107,14 @@ public final class DefaultCapUiToolkit implements ICapUiToolkit {
 	}
 
 	@Override
-	public <BEAN_TYPE> IBeanTableModelBuilder<BEAN_TYPE> createBeanTableModelBuilder(final Class<BEAN_TYPE> beanType) {
+	public <BEAN_TYPE> IBeanTableModelBuilder<BEAN_TYPE> beanTableModelBuilder(final Class<BEAN_TYPE> beanType) {
 		return new BeanTableModelBuilderImpl<BEAN_TYPE>(beanType);
+	}
+
+	@Override
+	public IBeanTableConfigBuilder beanTableConfigBuilder() {
+		// TODO NM implement beanTableConfigBuilder()
+		return null;
 	}
 
 	@Override
@@ -131,7 +138,7 @@ public final class DefaultCapUiToolkit implements ICapUiToolkit {
 	}
 
 	@Override
-	public Validator getBeanValidator() {
+	public Validator beanValidator() {
 		if (beanValidator == null) {
 			beanValidator = Validation.buildDefaultValidatorFactory().getValidator();
 		}

@@ -126,7 +126,7 @@ final class AttributeToolkitImpl implements IAttributeToolkit {
 			builder.setLabel("Messages").setDescription("Shows the messages of the data");
 			builder.setEditable(false).setSortable(false).setFilterable(false);
 
-			final IControlPanelProviderBuilder<IBeanMessage> panelBuilder = CapUiToolkit.getAttributeToolkit().createControlPanelProviderBuilder(
+			final IControlPanelProviderBuilder<IBeanMessage> panelBuilder = CapUiToolkit.attributeToolkit().createControlPanelProviderBuilder(
 					List.class,
 					IBeanMessage.class,
 					CapCommonToolkit.valueRangeFactory().create());

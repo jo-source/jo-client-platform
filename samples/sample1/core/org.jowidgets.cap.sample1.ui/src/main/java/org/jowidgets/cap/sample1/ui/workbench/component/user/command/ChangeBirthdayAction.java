@@ -59,7 +59,7 @@ public class ChangeBirthdayAction extends ActionWrapper {
 	}
 
 	private static IAction create(final IBeanListModel<IUser> model) {
-		final IExecutorActionBuilder<IUser, Date> builder = CapUiToolkit.getActionFactory().executorActionBuilder(model);
+		final IExecutorActionBuilder<IUser, Date> builder = CapUiToolkit.actionFactory().executorActionBuilder(model);
 		builder.setText("Change day of birth");
 		builder.setToolTipText("Changes the day of birth of the selected person");
 		builder.setIcon(SilkIcons.USER_EDIT);

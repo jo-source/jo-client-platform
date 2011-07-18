@@ -43,7 +43,7 @@ public class DynamicPropertiesBeanAttributesFactory {
 	private final IAttributeToolkit attributeToolkit;
 
 	public DynamicPropertiesBeanAttributesFactory() {
-		this.attributeToolkit = CapUiToolkit.getAttributeToolkit();
+		this.attributeToolkit = CapUiToolkit.attributeToolkit();
 	}
 
 	public List<IAttribute<String>> tableAttributes() {

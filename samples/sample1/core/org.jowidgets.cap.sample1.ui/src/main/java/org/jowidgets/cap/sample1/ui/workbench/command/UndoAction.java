@@ -39,7 +39,7 @@ final class UndoAction {
 	private final IDataModelAction action;
 
 	UndoAction() {
-		final IDataModelActionBuilder builder = CapUiToolkit.getActionFactory().dataModelUndoActionBuilder();
+		final IDataModelActionBuilder builder = CapUiToolkit.actionFactory().dataModelUndoActionBuilder();
 		builder.setIcon(SilkIcons.ARROW_UNDO);
 		builder.setAccelerator('Z', Modifier.CTRL);
 		action = builder.build();

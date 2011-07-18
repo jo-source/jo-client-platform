@@ -54,7 +54,7 @@ public class UserDetailView extends AbstractView {
 		final IContainer container = context.getContainer();
 		container.setLayout(MigLayoutFactory.growingCellLayout());
 		final List<IAttribute<Object>> attributes = new UserAttributesFactory().formAttributes();
-		final IBeanFormBluePrint<IUser> formBp = CapUiToolkit.getBluePrintFactory().beanForm(attributes);
+		final IBeanFormBluePrint<IUser> formBp = CapUiToolkit.bluePrintFactory().beanForm(attributes);
 
 		final IBeanForm<IUser> userForm = container.add(formBp, MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
 

@@ -26,33 +26,52 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample1.ui.workbench.component.user.command;
+package org.jowidgets.cap.ui.impl;
 
-import org.jowidgets.api.command.IAction;
-import org.jowidgets.cap.sample1.common.entity.IUser;
-import org.jowidgets.cap.sample1.common.service.executor.UserComponentExecutorServices;
-import org.jowidgets.cap.ui.api.CapUiToolkit;
-import org.jowidgets.cap.ui.api.command.IExecutorActionBuilder;
-import org.jowidgets.cap.ui.api.execution.BeanExecutionPolicy;
-import org.jowidgets.cap.ui.api.execution.BeanSelectionPolicy;
-import org.jowidgets.cap.ui.api.model.IBeanListModel;
-import org.jowidgets.examples.common.icons.SilkIcons;
-import org.jowidgets.tools.command.ActionWrapper;
+import java.util.Map;
 
-public class LongLastingAction extends ActionWrapper {
+import org.jowidgets.cap.common.api.filter.IFilter;
+import org.jowidgets.cap.ui.api.attribute.IAttributeConfig;
+import org.jowidgets.cap.ui.api.sort.ISortModelConfig;
+import org.jowidgets.cap.ui.api.table.IBeanTableConfig;
 
-	public LongLastingAction(final IBeanListModel<IUser> model) {
-		super(create(model));
+final class BeanTableConfig implements IBeanTableConfig {
+
+	private final Map<String, IAttributeConfig> attributeConfigs;
+	private final Boolean autoSelection;
+	private final ISortModelConfig sortModelConfig;
+	private final Map<String, IFilter> filters;
+
+	BeanTableConfig(
+		final Map<String, IAttributeConfig> attributeConfigs,
+		final ISortModelConfig sortModelConfig,
+		final Map<String, IFilter> filters,
+		final Boolean autoSelection) {
+		super();
+		this.attributeConfigs = attributeConfigs;
+		this.sortModelConfig = sortModelConfig;
+		this.filters = filters;
+		this.autoSelection = autoSelection;
 	}
 
-	private static IAction create(final IBeanListModel<IUser> model) {
-		final IExecutorActionBuilder<IUser, Void> builder = CapUiToolkit.actionFactory().executorActionBuilder(model);
-		builder.setText("Long lasting test");
-		builder.setToolTipText("Test a long lasting execution on the selected person(s)");
-		builder.setIcon(SilkIcons.TIME);
-		builder.setSelectionPolicy(BeanSelectionPolicy.MULTI_SELECTION);
-		builder.setExecutionPolicy(BeanExecutionPolicy.PARALLEL);
-		builder.setExecutor(UserComponentExecutorServices.LONG_LASTING);
-		return builder.build();
+	@Override
+	public ISortModelConfig getSortModelConfig() {
+		return sortModelConfig;
 	}
+
+	@Override
+	public Map<String, IFilter> getFilters() {
+		return filters;
+	}
+
+	@Override
+	public Map<String, IAttributeConfig> getAttributeConfigs() {
+		return attributeConfigs;
+	}
+
+	@Override
+	public Boolean isAutoSelection() {
+		return autoSelection;
+	}
+
 }

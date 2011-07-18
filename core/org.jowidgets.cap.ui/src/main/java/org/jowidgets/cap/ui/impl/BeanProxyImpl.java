@@ -101,7 +101,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE> {
 		this.modificationStateObservable = new BeanModificationStateObservable<BEAN_TYPE>();
 		this.processStateObservable = new BeanProcessStateObservable<BEAN_TYPE>();
 		this.messageStateObservable = new BeanMessageStateObservable<BEAN_TYPE>();
-		this.validator = CapUiToolkit.getBeanValidator();
+		this.validator = CapUiToolkit.beanValidator();
 
 		this.messagesMap = new HashMap<BeanMessageType, List<IBeanMessage>>();
 		messagesMap.put(BeanMessageType.INFO, new LinkedList<IBeanMessage>());

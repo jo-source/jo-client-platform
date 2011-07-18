@@ -52,7 +52,7 @@ public class ChangeGenderAction extends ActionWrapper {
 	}
 
 	private static IAction create(final IBeanListModel<IUser> model) {
-		final IExecutorActionBuilder<IUser, Void> builder = CapUiToolkit.getActionFactory().executorActionBuilder(model);
+		final IExecutorActionBuilder<IUser, Void> builder = CapUiToolkit.actionFactory().executorActionBuilder(model);
 		builder.setText("Change gender");
 		builder.setToolTipText("Changes the gender of the selected person(s)");
 		builder.setIcon(SilkIcons.CUT_RED);

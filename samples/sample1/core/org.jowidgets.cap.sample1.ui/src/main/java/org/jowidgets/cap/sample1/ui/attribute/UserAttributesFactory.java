@@ -51,7 +51,7 @@ public class UserAttributesFactory {
 	private final IAttributeToolkit attributeToolkit;
 
 	public UserAttributesFactory() {
-		this.attributeToolkit = CapUiToolkit.getAttributeToolkit();
+		this.attributeToolkit = CapUiToolkit.attributeToolkit();
 	}
 
 	public List<IAttribute<Object>> tableAttributes() {

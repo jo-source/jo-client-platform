@@ -83,7 +83,7 @@ public class DynamicPropertiesBeanComponent extends AbstractComponent implements
 	}
 
 	private IBeanTableModel<IDynamicPropertiesBean> createTableModel() {
-		final IBeanTableModelBuilder<IDynamicPropertiesBean> builder = CapUiToolkit.createBeanTableModelBuilder(IDynamicPropertiesBean.class);
+		final IBeanTableModelBuilder<IDynamicPropertiesBean> builder = CapUiToolkit.beanTableModelBuilder(IDynamicPropertiesBean.class);
 		builder.setAttributes(new DynamicPropertiesBeanAttributesFactory().tableAttributes());
 		builder.setReaderService(DynamicPropertiesBeanReaderServices.ALL_BEANS);
 		return builder.build();

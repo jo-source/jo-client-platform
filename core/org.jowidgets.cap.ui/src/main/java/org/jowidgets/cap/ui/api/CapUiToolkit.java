@@ -48,6 +48,7 @@ import org.jowidgets.cap.ui.api.command.IActionFactory;
 import org.jowidgets.cap.ui.api.execution.IExecutionTaskFactory;
 import org.jowidgets.cap.ui.api.form.IBeanFormToolkit;
 import org.jowidgets.cap.ui.api.sort.ISortModelConfigBuilder;
+import org.jowidgets.cap.ui.api.table.IBeanTableConfigBuilder;
 import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
 import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
@@ -74,36 +75,40 @@ public final class CapUiToolkit {
 		return result;
 	}
 
-	public static ICapApiBluePrintFactory getBluePrintFactory() {
-		return getInstance().getBluePrintFactory();
+	public static ICapApiBluePrintFactory bluePrintFactory() {
+		return getInstance().bluePrintFactory();
 	}
 
-	public static IActionFactory getActionFactory() {
-		return getInstance().getActionFactory();
+	public static IActionFactory actionFactory() {
+		return getInstance().actionFactory();
 	}
 
-	public static IAttributeToolkit getAttributeToolkit() {
-		return getInstance().getAttributeToolkit();
+	public static IAttributeToolkit attributeToolkit() {
+		return getInstance().attributeToolkit();
 	}
 
 	public static IExecutionTaskFactory executionTaskFactory() {
 		return getInstance().executionTaskFactory();
 	}
 
-	public static <BEAN_TYPE> IBeansStateTracker<BEAN_TYPE> createBeansStateTracker() {
-		return getInstance().createBeansStateTracker();
+	public static <BEAN_TYPE> IBeansStateTracker<BEAN_TYPE> beansStateTracker() {
+		return getInstance().beansStateTracker();
 	}
 
-	public static <BEAN_TYPE> IBeanProxyFactory<BEAN_TYPE> createBeanProxyFactory(final Class<? extends BEAN_TYPE> proxyType) {
-		return getInstance().createBeanProxyFactory(proxyType);
+	public static <BEAN_TYPE> IBeanProxyFactory<BEAN_TYPE> beanProxyFactory(final Class<? extends BEAN_TYPE> proxyType) {
+		return getInstance().beanProxyFactory(proxyType);
 	}
 
-	public static IBeanKeyFactory getBeanKeyFactory() {
-		return getInstance().getBeanKeyFactory();
+	public static IBeanKeyFactory beanKeyFactory() {
+		return getInstance().beanKeyFactory();
 	}
 
-	public static <BEAN_TYPE> IBeanTableModelBuilder<BEAN_TYPE> createBeanTableModelBuilder(final Class<BEAN_TYPE> beanType) {
-		return getInstance().createBeanTableModelBuilder(beanType);
+	public static <BEAN_TYPE> IBeanTableModelBuilder<BEAN_TYPE> beanTableModelBuilder(final Class<BEAN_TYPE> beanType) {
+		return getInstance().beanTableModelBuilder(beanType);
+	}
+
+	public static IBeanTableConfigBuilder beanTableConfigBuilder() {
+		return getInstance().beanTableConfigBuilder();
 	}
 
 	public static IBeanMessageBuilder beanMessageBuilder(final BeanMessageType type) {
@@ -122,8 +127,8 @@ public final class CapUiToolkit {
 		return getInstance().beanFormToolkit();
 	}
 
-	public static Validator getBeanValidator() {
-		return getInstance().getBeanValidator();
+	public static Validator beanValidator() {
+		return getInstance().beanValidator();
 	}
 
 	private static ICapUiToolkit createDefaultInstance(final IToolkit toolkit) {
