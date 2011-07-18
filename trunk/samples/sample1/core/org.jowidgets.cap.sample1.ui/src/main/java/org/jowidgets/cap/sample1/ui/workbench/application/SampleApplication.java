@@ -28,13 +28,15 @@
 
 package org.jowidgets.cap.sample1.ui.workbench.application;
 
+import org.jowidgets.cap.sample1.ui.workbench.component.dynbeans.DynamicPropertiesBeanComponent;
 import org.jowidgets.cap.sample1.ui.workbench.component.user.UserComponent;
+import org.jowidgets.examples.common.icons.SilkIcons;
+import org.jowidgets.workbench.toolkit.api.IComponentNodeModel;
 import org.jowidgets.workbench.toolkit.api.IComponentNodeModelBuilder;
 import org.jowidgets.workbench.toolkit.api.IWorkbenchApplicationModel;
 import org.jowidgets.workbench.toolkit.api.IWorkbenchApplicationModelBuilder;
 import org.jowidgets.workbench.tools.ComponentNodeModelBuilder;
 import org.jowidgets.workbench.tools.WorkbenchApplicationModelBuilder;
-
 
 public class SampleApplication {
 
@@ -54,13 +56,21 @@ public class SampleApplication {
 	}
 
 	private void createComponentTree(final IWorkbenchApplicationModel model) {
+		final IComponentNodeModel usersFolder = model.addChild("USERS_FOLDER_ID", "Users", SilkIcons.FOLDER);
+
 		final IComponentNodeModelBuilder nodeModelBuilder = new ComponentNodeModelBuilder();
 		nodeModelBuilder.setComponentFactory(UserComponent.class);
 		for (int i = 0; i < 10; i++) {
 			nodeModelBuilder.setId(UserComponent.class.getName() + i);
 			nodeModelBuilder.setLabel("User component " + i);
-			model.addChild(nodeModelBuilder.build());
+			usersFolder.addChild(nodeModelBuilder.build());
 		}
+
+		final IComponentNodeModel miscFolder = model.addChild("MISC_FOLDER_ID", "Misc", SilkIcons.FOLDER);
+		nodeModelBuilder.setComponentFactory(DynamicPropertiesBeanComponent.class);
+		nodeModelBuilder.setId(DynamicPropertiesBeanComponent.class.getName());
+		nodeModelBuilder.setLabel("Dynamic properties beans");
+		miscFolder.addChild(nodeModelBuilder.build());
 	}
 
 }

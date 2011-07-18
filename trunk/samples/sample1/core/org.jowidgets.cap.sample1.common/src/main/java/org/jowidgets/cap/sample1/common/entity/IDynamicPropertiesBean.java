@@ -26,43 +26,25 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample1.service.datastore;
+package org.jowidgets.cap.sample1.common.entity;
 
-public final class DataStore {
+import java.util.ArrayList;
+import java.util.List;
 
-	public static final DataStore INSTANCE = new DataStore();
+import org.jowidgets.cap.common.api.bean.IBean;
+import org.jowidgets.cap.common.api.bean.IBeanDto;
 
-	private final UserData personData;
-	private final DynamicPropertiesBeanData dynamicPropertiesBeanData;
+public interface IDynamicPropertiesBean extends IBean, IBeanDto {
 
-	private DataStore() {
-		super();
-		this.personData = new UserData();
-		this.dynamicPropertiesBeanData = new DynamicPropertiesBeanData();
-	}
+	List<String> ALL_PROPERTIES = new ArrayList<String>() {
+		private static final long serialVersionUID = 1L;
+		{
+			for (int propertyIndex = 0; propertyIndex < 80; propertyIndex++) {
+				add("property" + propertyIndex);
+			}
+		}
+	};
 
-	private UserData getPersonData() {
-		return personData;
-	}
-
-	private DynamicPropertiesBeanData getDynamicPropertiesBeanData() {
-		return dynamicPropertiesBeanData;
-	}
-
-	private static DataStore getInstance() {
-		return INSTANCE;
-	}
-
-	public static UserData getPersons() {
-		return getInstance().getPersonData();
-	}
-
-	public static UserData getPersonsBeanProvider() {
-		return getPersons();
-	}
-
-	public static DynamicPropertiesBeanData getDynamicPropertiesBeans() {
-		return getInstance().getDynamicPropertiesBeanData();
-	}
+	void setValue(String propertyName, Object value);
 
 }
