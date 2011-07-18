@@ -34,6 +34,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IValueRange;
+import org.jowidgets.cap.ui.api.attribute.DisplayFormat;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IAttributeConfig;
 import org.jowidgets.cap.ui.api.attribute.IAttributeGroup;
@@ -51,6 +52,7 @@ final class AttributeImpl<ELEMENT_VALUE_TYPE> implements IAttribute<ELEMENT_VALU
 	private final IValueRange valueRange;
 	private final String label;
 	private final String labelLong;
+	private DisplayFormat labelDisplayFormat;
 	private final String description;
 	private final boolean mandatory;
 	private final boolean editable;
@@ -73,6 +75,7 @@ final class AttributeImpl<ELEMENT_VALUE_TYPE> implements IAttribute<ELEMENT_VALU
 		final IValueRange valueRange,
 		final String label,
 		final String labelLong,
+		final DisplayFormat labelDisplayFormat,
 		final String description,
 		final boolean visible,
 		final boolean mandatory,
@@ -91,6 +94,7 @@ final class AttributeImpl<ELEMENT_VALUE_TYPE> implements IAttribute<ELEMENT_VALU
 		Assert.paramNotEmpty(propertyName, "propertyName");
 		Assert.paramNotNull(valueRange, "valueRange");
 		Assert.paramNotEmpty(label, "label");
+		Assert.paramNotNull(labelDisplayFormat, "labelDisplayFormat");
 		Assert.paramNotNull(tableAlignment, "tableAlignment");
 		Assert.paramNotNull(valueType, "valueType");
 		Assert.paramNotNull(elementValueType, "elementValueType");
@@ -116,6 +120,7 @@ final class AttributeImpl<ELEMENT_VALUE_TYPE> implements IAttribute<ELEMENT_VALU
 		this.valueRange = valueRange;
 		this.label = label;
 		this.labelLong = labelLong;
+		this.labelDisplayFormat = labelDisplayFormat;
 		this.description = description;
 		this.visible = visible;
 		this.mandatory = mandatory;
@@ -229,6 +234,11 @@ final class AttributeImpl<ELEMENT_VALUE_TYPE> implements IAttribute<ELEMENT_VALU
 	}
 
 	@Override
+	public DisplayFormat getLabelDisplayFormat() {
+		return labelDisplayFormat;
+	}
+
+	@Override
 	public String getDisplayFormatId() {
 		return currentControlPanel.getDisplayFormatId();
 	}
@@ -236,6 +246,12 @@ final class AttributeImpl<ELEMENT_VALUE_TYPE> implements IAttribute<ELEMENT_VALU
 	@Override
 	public void setVisible(final boolean visible) {
 		this.visible = visible;
+		changeObservable.fireChangedEvent();
+	}
+
+	@Override
+	public void setLabelDisplayFormat(final DisplayFormat displayFormat) {
+		this.labelDisplayFormat = displayFormat;
 		changeObservable.fireChangedEvent();
 	}
 
@@ -261,6 +277,7 @@ final class AttributeImpl<ELEMENT_VALUE_TYPE> implements IAttribute<ELEMENT_VALU
 	public IAttributeConfig getConfig() {
 		return new AttributeConfigImpl(
 			Boolean.valueOf(visible),
+			labelDisplayFormat,
 			getDisplayFormatId(),
 			tableAlignment,
 			Integer.valueOf(tableColumnWidth));
@@ -271,6 +288,9 @@ final class AttributeImpl<ELEMENT_VALUE_TYPE> implements IAttribute<ELEMENT_VALU
 		Assert.paramNotNull(config, "config");
 		if (config.isVisible() != null) {
 			this.visible = config.isVisible();
+		}
+		if (config.getLabelDisplayFormat() != null) {
+			setLabelDisplayFormat(config.getLabelDisplayFormat());
 		}
 		if (config.getDisplayFormatId() != null) {
 			setDisplayFormatToNewId(config.getDisplayFormatId());

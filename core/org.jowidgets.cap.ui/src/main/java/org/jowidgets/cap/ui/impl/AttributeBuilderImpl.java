@@ -37,6 +37,7 @@ import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.bean.IProperty;
 import org.jowidgets.cap.common.api.bean.IValueRange;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
+import org.jowidgets.cap.ui.api.attribute.DisplayFormat;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IAttributeBluePrint;
 import org.jowidgets.cap.ui.api.attribute.IAttributeBuilder;
@@ -52,6 +53,7 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 	private String label;
 	private String labelLong;
 	private String description;
+	private DisplayFormat labelDisplayFormat;
 	private boolean visible;
 	private boolean mandatory;
 	private boolean editable;
@@ -93,6 +95,7 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 		this.valueRange = attribute.getValueRange();
 		this.label = attribute.getLabel();
 		this.labelLong = attribute.getLabelLong();
+		this.labelDisplayFormat = attribute.getLabelDisplayFormat();
 		this.description = attribute.getDescription();
 		this.visible = attribute.isVisible();
 		this.mandatory = attribute.isMandatory();
@@ -131,6 +134,7 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 	private AttributeBuilderImpl() {
 		this.controlPanels = new LinkedList<IControlPanelProvider<? extends ELEMENT_VALUE_TYPE>>();
 		this.valueRange = CapCommonToolkit.valueRangeFactory().create();
+		this.labelDisplayFormat = DisplayFormat.DEFAULT;
 		this.visible = true;
 		this.mandatory = false;
 		this.editable = true;
@@ -184,6 +188,12 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 	@Override
 	public IAttributeBuilder<ELEMENT_VALUE_TYPE> setDescription(final String description) {
 		this.description = description;
+		return this;
+	}
+
+	@Override
+	public IAttributeBluePrint<ELEMENT_VALUE_TYPE> setLabelDisplayFormat(final DisplayFormat displayFormat) {
+		this.labelDisplayFormat = displayFormat;
 		return this;
 	}
 
@@ -295,6 +305,7 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 			valueRange,
 			label,
 			labelLong,
+			labelDisplayFormat,
 			description,
 			visible,
 			mandatory,

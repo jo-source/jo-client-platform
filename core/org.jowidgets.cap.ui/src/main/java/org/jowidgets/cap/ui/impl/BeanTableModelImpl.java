@@ -63,6 +63,7 @@ import org.jowidgets.cap.common.api.service.IUpdaterService;
 import org.jowidgets.cap.common.api.sort.SortOrder;
 import org.jowidgets.cap.common.tools.execution.SyncResultCallback;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
+import org.jowidgets.cap.ui.api.attribute.DisplayFormat;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.bean.BeanMessageType;
 import org.jowidgets.cap.ui.api.bean.IBeanMessage;
@@ -474,18 +475,27 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 						column.setIcon(null);
 					}
 					if (cascaded) {
-						column.setText("(" + (propertySort.getSortIndex() + 1) + ") " + attribute.getLabel());
+						column.setText("(" + (propertySort.getSortIndex() + 1) + ") " + getLabel(attribute));
 					}
 					else {
-						column.setText(attribute.getLabel());
+						column.setText(getLabel(attribute));
 					}
 				}
 				else {
-					column.setText(attribute.getLabel());
+					column.setText(getLabel(attribute));
 					column.setIcon(null);
 				}
 			}
 			index++;
+		}
+	}
+
+	private String getLabel(final IAttribute<?> attribute) {
+		if (DisplayFormat.LONG == attribute.getLabelDisplayFormat()) {
+			return attribute.getLabelLong();
+		}
+		else {
+			return attribute.getLabel();
 		}
 	}
 

@@ -59,7 +59,7 @@ public class UserDtoDescriptorService implements IDtoDescriptorService<IUser> {
 		descrBuilder.addProperty(propBuilder);
 
 		propBuilder = descrBuilder.propertyBuilder(IUser.DATE_OF_BIRTH_PROPERTY);
-		propBuilder.setLabel("Date of Birth").setDescription("The users date of birth");
+		propBuilder.setLabel("Birthday").setLabelLong("Date of Birth").setDescription("The users date of birth");
 		descrBuilder.addProperty(propBuilder);
 
 		propBuilder = descrBuilder.propertyBuilder(IUser.AGE_PROPERTY);

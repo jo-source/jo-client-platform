@@ -26,20 +26,19 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.attribute;
+package org.jowidgets.cap.ui.api.table;
 
-import org.jowidgets.common.types.AlignmentHorizontal;
+import java.util.List;
 
-public interface IAttributeConfig {
+import org.jowidgets.cap.ui.api.attribute.IAttribute;
+import org.jowidgets.cap.ui.api.sort.ISortModelConfig;
 
-	Boolean isVisible();
+public interface IBeanTableSettingsDialogParameter {
 
-	DisplayFormat getLabelDisplayFormat();
+	ISortModelConfig getSortModelConfig();
 
-	String getDisplayFormatId();
+	List<IAttribute<Object>> getAttributes();
 
-	AlignmentHorizontal getTableAlignment();
-
-	Integer getTableWidth();
+	List<Integer> getColumnPermutation();
 
 }

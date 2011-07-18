@@ -58,6 +58,8 @@ public interface IAttribute<ELEMENT_VALUE_TYPE> extends IChangeObservable {
 
 	String getDescription();
 
+	DisplayFormat getLabelDisplayFormat();
+
 	Class<?> getValueType();
 
 	Class<ELEMENT_VALUE_TYPE> getElementValueType();
@@ -77,6 +79,8 @@ public interface IAttribute<ELEMENT_VALUE_TYPE> extends IChangeObservable {
 	int getTableWidth();
 
 	void setVisible(boolean visible);
+
+	void setLabelDisplayFormat(DisplayFormat displayFormat);
 
 	void setDisplayFormatId(String id);
 
