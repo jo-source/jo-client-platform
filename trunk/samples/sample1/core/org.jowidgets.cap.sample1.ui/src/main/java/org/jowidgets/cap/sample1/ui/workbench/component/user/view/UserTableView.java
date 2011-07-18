@@ -92,6 +92,8 @@ public class UserTableView extends AbstractView {
 		toolBar.addAction(createPackAction());
 
 		final IPopupMenu popupMenu = table.createPopupMenu();
+		popupMenu.addAction(createSettingsDialogAction(tableModel));
+		popupMenu.addSeparator();
 		popupMenu.addAction(new ChangeGenderAction(tableModel));
 		popupMenu.addAction(new ChangeBirthdayAction(tableModel));
 		popupMenu.addAction(new LongLastingAction(tableModel));
@@ -118,6 +120,19 @@ public class UserTableView extends AbstractView {
 		});
 
 		beanTableModel.load();
+	}
+
+	private IAction createSettingsDialogAction(final IBeanTableModel<?> beanTableModel) {
+		final IActionBuilder builder = Toolkit.getActionBuilderFactory().create();
+		builder.setText("Settings ...");
+		builder.setIcon(SilkIcons.TABLE_EDIT);
+		builder.setCommand(new ICommandExecutor() {
+			@Override
+			public void execute(final IExecutionContext executionContext) throws Exception {
+				table.showSettingsDialog();
+			}
+		});
+		return builder.build();
 	}
 
 	private IAction createHideColumnAction(final IBeanTableModel<IUser> beanTableModel) {

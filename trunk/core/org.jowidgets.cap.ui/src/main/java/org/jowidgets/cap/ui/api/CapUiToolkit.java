@@ -52,10 +52,12 @@ import org.jowidgets.cap.ui.api.table.IBeanTableConfigBuilder;
 import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
 import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
+import org.jowidgets.cap.ui.api.widgets.IBeanTableSettingsDialogBluePrint;
 import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
 import org.jowidgets.cap.ui.impl.DefaultCapUiToolkit;
 import org.jowidgets.cap.ui.impl.widgets.BeanFormFactory;
 import org.jowidgets.cap.ui.impl.widgets.BeanTableFactory;
+import org.jowidgets.cap.ui.impl.widgets.BeanTableSettingsDialogFactory;
 import org.jowidgets.common.types.TableSelectionPolicy;
 import org.jowidgets.common.widgets.factory.IGenericWidgetFactory;
 
@@ -141,6 +143,7 @@ public final class CapUiToolkit {
 		final IGenericWidgetFactory genericWidgetFactory = toolkit.getWidgetFactory();
 		genericWidgetFactory.register(IBeanTableBluePrint.class, new BeanTableFactory());
 		genericWidgetFactory.register(IBeanFormBluePrint.class, new BeanFormFactory());
+		genericWidgetFactory.register(IBeanTableSettingsDialogBluePrint.class, new BeanTableSettingsDialogFactory());
 
 		toolkit.getBluePrintFactory().addDefaultsInitializer(
 				IBeanTableBluePrint.class,

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2010, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,19 +26,24 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.widgets;
+package org.jowidgets.cap.ui.impl.widgets;
 
-import java.util.List;
+import org.jowidgets.api.toolkit.Toolkit;
+import org.jowidgets.api.widgets.IFrame;
+import org.jowidgets.api.widgets.blueprint.IDialogBluePrint;
+import org.jowidgets.api.widgets.blueprint.factory.IBluePrintFactory;
+import org.jowidgets.cap.ui.api.widgets.IBeanTableSettingsDialog;
+import org.jowidgets.cap.ui.api.widgets.IBeanTableSettingsDialogBluePrint;
+import org.jowidgets.common.widgets.factory.IWidgetFactory;
 
-import org.jowidgets.cap.ui.api.attribute.IAttribute;
-import org.jowidgets.cap.ui.api.table.IBeanTableModel;
+public final class BeanTableSettingsDialogFactory implements
+		IWidgetFactory<IBeanTableSettingsDialog, IBeanTableSettingsDialogBluePrint> {
 
-public interface ICapApiBluePrintFactory {
-
-	<BEAN_TYPE> IBeanTableBluePrint<BEAN_TYPE> beanTable(IBeanTableModel<BEAN_TYPE> model);
-
-	IBeanTableSettingsDialogBluePrint beanTableSettingsDialog(IBeanTableModel<?> model);
-
-	<BEAN_TYPE> IBeanFormBluePrint<BEAN_TYPE> beanForm(final List<? extends IAttribute<?>> attributes);
-
+	@Override
+	public IBeanTableSettingsDialog create(final Object parentUiReference, final IBeanTableSettingsDialogBluePrint setup) {
+		final IBluePrintFactory bpf = Toolkit.getBluePrintFactory();
+		final IDialogBluePrint dialogBp = bpf.dialog().setCloseable(false);
+		final IFrame frame = Toolkit.getWidgetFactory().create(parentUiReference, dialogBp);
+		return new BeanTableSettingsDialogImpl(frame, setup);
+	}
 }
