@@ -26,43 +26,40 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample1.service.datastore;
+package org.jowidgets.cap.sample1.ui.workbench.component.dynbeans;
 
-public final class DataStore {
+import org.jowidgets.cap.sample1.ui.workbench.component.dynbeans.view.DynamicPropertiesBeanTableView;
+import org.jowidgets.workbench.api.ILayout;
+import org.jowidgets.workbench.toolkit.api.IFolderLayoutBuilder;
+import org.jowidgets.workbench.toolkit.api.ILayoutBuilder;
+import org.jowidgets.workbench.tools.FolderLayoutBuilder;
+import org.jowidgets.workbench.tools.LayoutBuilder;
 
-	public static final DataStore INSTANCE = new DataStore();
+public class DynamicPropertiesBeanComponentDefaultLayout {
 
-	private final UserData personData;
-	private final DynamicPropertiesBeanData dynamicPropertiesBeanData;
+	public static final String DEFAULT_LAYOUT_ID = "DEFAULT_LAYOUT_ID";
+	public static final String MASTER_FOLDER_ID = "MASTER_FOLDER_ID";
+	public static final String DETAIL_FOLDER_ID = "DETAIL_FOLDER_ID";
 
-	private DataStore() {
-		super();
-		this.personData = new UserData();
-		this.dynamicPropertiesBeanData = new DynamicPropertiesBeanData();
+	private final ILayout layout;
+
+	public DynamicPropertiesBeanComponentDefaultLayout() {
+		final ILayoutBuilder builder = new LayoutBuilder();
+		builder.setId(DEFAULT_LAYOUT_ID).setLayoutContainer(createMasterFolder());
+		this.layout = builder.build();
 	}
 
-	private UserData getPersonData() {
-		return personData;
+	public ILayout getLayout() {
+		return layout;
 	}
 
-	private DynamicPropertiesBeanData getDynamicPropertiesBeanData() {
-		return dynamicPropertiesBeanData;
-	}
-
-	private static DataStore getInstance() {
-		return INSTANCE;
-	}
-
-	public static UserData getPersons() {
-		return getInstance().getPersonData();
-	}
-
-	public static UserData getPersonsBeanProvider() {
-		return getPersons();
-	}
-
-	public static DynamicPropertiesBeanData getDynamicPropertiesBeans() {
-		return getInstance().getDynamicPropertiesBeanData();
+	private IFolderLayoutBuilder createMasterFolder() {
+		final IFolderLayoutBuilder result = new FolderLayoutBuilder(MASTER_FOLDER_ID);
+		result.addView(
+				DynamicPropertiesBeanTableView.ID,
+				DynamicPropertiesBeanTableView.DEFAULT_LABEL,
+				DynamicPropertiesBeanTableView.DEFAULT_TOOLTIP);
+		return result;
 	}
 
 }

@@ -26,43 +26,18 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample1.service.datastore;
+package org.jowidgets.cap.sample1.common.service.reader;
 
-public final class DataStore {
+import org.jowidgets.cap.common.api.service.IReaderService;
+import org.jowidgets.service.api.IServiceId;
+import org.jowidgets.service.tools.ServiceId;
 
-	public static final DataStore INSTANCE = new DataStore();
+public final class DynamicPropertiesBeanReaderServices {
 
-	private final UserData personData;
-	private final DynamicPropertiesBeanData dynamicPropertiesBeanData;
+	public static final IServiceId<IReaderService<Void>> ALL_BEANS = new ServiceId<IReaderService<Void>>(
+		DynamicPropertiesBeanReaderServices.class.getName() + "_ALL_BEANS",
+		IReaderService.class);
 
-	private DataStore() {
-		super();
-		this.personData = new UserData();
-		this.dynamicPropertiesBeanData = new DynamicPropertiesBeanData();
-	}
-
-	private UserData getPersonData() {
-		return personData;
-	}
-
-	private DynamicPropertiesBeanData getDynamicPropertiesBeanData() {
-		return dynamicPropertiesBeanData;
-	}
-
-	private static DataStore getInstance() {
-		return INSTANCE;
-	}
-
-	public static UserData getPersons() {
-		return getInstance().getPersonData();
-	}
-
-	public static UserData getPersonsBeanProvider() {
-		return getPersons();
-	}
-
-	public static DynamicPropertiesBeanData getDynamicPropertiesBeans() {
-		return getInstance().getDynamicPropertiesBeanData();
-	}
+	private DynamicPropertiesBeanReaderServices() {}
 
 }

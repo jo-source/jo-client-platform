@@ -26,43 +26,45 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample1.service.datastore;
+package org.jowidgets.cap.sample1.service.entity;
 
-public final class DataStore {
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
-	public static final DataStore INSTANCE = new DataStore();
+import org.jowidgets.cap.sample1.common.entity.IDynamicPropertiesBean;
+import org.jowidgets.util.Assert;
 
-	private final UserData personData;
-	private final DynamicPropertiesBeanData dynamicPropertiesBeanData;
+public class DynamicPropertiesBean extends AbstractBean implements IDynamicPropertiesBean, Serializable {
 
-	private DataStore() {
-		super();
-		this.personData = new UserData();
-		this.dynamicPropertiesBeanData = new DynamicPropertiesBeanData();
+	private static final Set<String> PROPERTIES = new HashSet<String>(IDynamicPropertiesBean.ALL_PROPERTIES);
+
+	private static final long serialVersionUID = -1103247679045455401L;
+
+	private final Map<String, Object> values;
+
+	public DynamicPropertiesBean(final Long id) {
+		super(id);
+		this.values = new HashMap<String, Object>();
 	}
 
-	private UserData getPersonData() {
-		return personData;
+	@Override
+	public Object getValue(final String propertyName) {
+		Assert.paramNotEmpty(propertyName, "propertyName");
+		return values.get(propertyName);
 	}
 
-	private DynamicPropertiesBeanData getDynamicPropertiesBeanData() {
-		return dynamicPropertiesBeanData;
+	@Override
+	public void setValue(final String propertyName, final Object value) {
+		Assert.paramNotEmpty(propertyName, "propertyName");
+		values.put(propertyName, value);
 	}
 
-	private static DataStore getInstance() {
-		return INSTANCE;
-	}
-
-	public static UserData getPersons() {
-		return getInstance().getPersonData();
-	}
-
-	public static UserData getPersonsBeanProvider() {
-		return getPersons();
-	}
-
-	public static DynamicPropertiesBeanData getDynamicPropertiesBeans() {
-		return getInstance().getDynamicPropertiesBeanData();
+	@Override
+	public Set<String> getPropertyNames() {
+		return PROPERTIES;
 	}
 
 }

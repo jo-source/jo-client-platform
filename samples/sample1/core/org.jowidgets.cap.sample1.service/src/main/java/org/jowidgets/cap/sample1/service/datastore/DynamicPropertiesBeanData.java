@@ -28,41 +28,47 @@
 
 package org.jowidgets.cap.sample1.service.datastore;
 
-public final class DataStore {
+import java.util.List;
 
-	public static final DataStore INSTANCE = new DataStore();
+import org.jowidgets.cap.sample1.common.entity.IDynamicPropertiesBean;
+import org.jowidgets.cap.sample1.service.entity.DynamicPropertiesBean;
 
-	private final UserData personData;
-	private final DynamicPropertiesBeanData dynamicPropertiesBeanData;
+public final class DynamicPropertiesBeanData extends AbstractData<DynamicPropertiesBean> {
 
-	private DataStore() {
+	private static final List<String> ALL_PROPERTIES = IDynamicPropertiesBean.ALL_PROPERTIES;
+	private static final long ROW_COUNT = 10000;
+	private static final int COLUMN_COUNT = ALL_PROPERTIES.size();
+
+	public DynamicPropertiesBeanData() {
 		super();
-		this.personData = new UserData();
-		this.dynamicPropertiesBeanData = new DynamicPropertiesBeanData();
+
+		for (int rowIndex = 0; rowIndex < ROW_COUNT; rowIndex++) {
+			final DynamicPropertiesBean bean = new DynamicPropertiesBean(Long.valueOf(nextId()));
+			for (int columnIndex = 0; columnIndex < COLUMN_COUNT; columnIndex++) {
+				bean.setValue(ALL_PROPERTIES.get(columnIndex), "Value (" + rowIndex + "/" + columnIndex + ")");
+			}
+			add(bean);
+		}
 	}
 
-	private UserData getPersonData() {
-		return personData;
+	@Override
+	public Class<DynamicPropertiesBean> getBeanType() {
+		return DynamicPropertiesBean.class;
 	}
 
-	private DynamicPropertiesBeanData getDynamicPropertiesBeanData() {
-		return dynamicPropertiesBeanData;
+	@Override
+	public DynamicPropertiesBean createBean() {
+		final DynamicPropertiesBean bean = new DynamicPropertiesBean(Long.valueOf(nextId()));
+		for (int columnIndex = 0; columnIndex < COLUMN_COUNT; columnIndex++) {
+			bean.setValue(ALL_PROPERTIES.get(columnIndex), "Value (added/" + columnIndex + ")");
+		}
+		add(bean);
+		return bean;
 	}
 
-	private static DataStore getInstance() {
-		return INSTANCE;
-	}
+	@Override
+	public void flush() {
 
-	public static UserData getPersons() {
-		return getInstance().getPersonData();
-	}
-
-	public static UserData getPersonsBeanProvider() {
-		return getPersons();
-	}
-
-	public static DynamicPropertiesBeanData getDynamicPropertiesBeans() {
-		return getInstance().getDynamicPropertiesBeanData();
 	}
 
 }

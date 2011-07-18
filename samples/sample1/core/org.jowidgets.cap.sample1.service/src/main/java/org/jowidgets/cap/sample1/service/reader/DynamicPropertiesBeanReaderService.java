@@ -26,43 +26,43 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample1.service.datastore;
+package org.jowidgets.cap.sample1.service.reader;
 
-public final class DataStore {
+import java.util.List;
 
-	public static final DataStore INSTANCE = new DataStore();
+import org.jowidgets.cap.common.api.bean.IBeanDto;
+import org.jowidgets.cap.common.api.bean.IBeanKey;
+import org.jowidgets.cap.common.api.execution.IExecutionCallback;
+import org.jowidgets.cap.common.api.filter.IFilter;
+import org.jowidgets.cap.common.api.sort.ISort;
+import org.jowidgets.cap.sample1.service.datastore.DataStore;
+import org.jowidgets.cap.service.api.adapter.ISyncReaderService;
 
-	private final UserData personData;
-	private final DynamicPropertiesBeanData dynamicPropertiesBeanData;
+public class DynamicPropertiesBeanReaderService implements ISyncReaderService<Void> {
 
-	private DataStore() {
-		super();
-		this.personData = new UserData();
-		this.dynamicPropertiesBeanData = new DynamicPropertiesBeanData();
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<IBeanDto> read(
+		final List<? extends IBeanKey> parentBeanKeys,
+		final IFilter filter,
+		final List<? extends ISort> sorting,
+		final int firstRow,
+		final int maxRows,
+		final Void param,
+		final IExecutionCallback executionCallback) {
+
+		return (List<IBeanDto>) DataStore.getDynamicPropertiesBeans().getAllData(firstRow, maxRows);
+
 	}
 
-	private UserData getPersonData() {
-		return personData;
-	}
+	@Override
+	public Integer count(
+		final List<? extends IBeanKey> parentBeanKeys,
+		final IFilter filter,
+		final Void param,
+		final IExecutionCallback executionCallback) {
 
-	private DynamicPropertiesBeanData getDynamicPropertiesBeanData() {
-		return dynamicPropertiesBeanData;
-	}
-
-	private static DataStore getInstance() {
-		return INSTANCE;
-	}
-
-	public static UserData getPersons() {
-		return getInstance().getPersonData();
-	}
-
-	public static UserData getPersonsBeanProvider() {
-		return getPersons();
-	}
-
-	public static DynamicPropertiesBeanData getDynamicPropertiesBeans() {
-		return getInstance().getDynamicPropertiesBeanData();
+		return Integer.valueOf(DataStore.getDynamicPropertiesBeans().getAllData().size());
 	}
 
 }
