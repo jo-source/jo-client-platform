@@ -35,7 +35,6 @@ import org.jowidgets.common.types.TableSelectionPolicy;
 import org.jowidgets.common.widgets.descriptor.IWidgetDescriptor;
 import org.jowidgets.common.widgets.descriptor.setup.mandatory.Mandatory;
 
-
 public interface IBeanTableBluePrint<BEAN_TYPE> extends
 		IComponentSetup,
 		IComponentSetupBuilder<IBeanTableBluePrint<BEAN_TYPE>>,
@@ -49,6 +48,8 @@ public interface IBeanTableBluePrint<BEAN_TYPE> extends
 
 	IBeanTableBluePrint<BEAN_TYPE> setColumnsResizeable(boolean columnsResizeable);
 
+	IBeanTableBluePrint<BEAN_TYPE> setDefaultMenus(boolean defaultMenus);
+
 	@Mandatory
 	TableSelectionPolicy getSelectionPolicy();
 
@@ -60,5 +61,8 @@ public interface IBeanTableBluePrint<BEAN_TYPE> extends
 
 	@Mandatory
 	IBeanTableModel<BEAN_TYPE> getModel();
+
+	@Mandatory
+	boolean hasDefaultMenus();
 
 }

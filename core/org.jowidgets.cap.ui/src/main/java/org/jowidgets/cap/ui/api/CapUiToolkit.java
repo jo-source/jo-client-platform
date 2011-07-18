@@ -154,6 +154,7 @@ public final class CapUiToolkit {
 						bluePrint.setSelectionPolicy(TableSelectionPolicy.MULTI_ROW_SELECTION);
 						bluePrint.setColumnsMoveable(true);
 						bluePrint.setColumnsResizeable(true);
+						bluePrint.setDefaultMenus(true);
 					}
 				});
 

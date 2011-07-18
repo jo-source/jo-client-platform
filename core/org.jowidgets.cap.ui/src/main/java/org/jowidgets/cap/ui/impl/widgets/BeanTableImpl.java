@@ -31,9 +31,17 @@ package org.jowidgets.cap.ui.impl.widgets;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jowidgets.api.command.IAction;
+import org.jowidgets.api.command.IActionBuilder;
+import org.jowidgets.api.command.ICommandExecutor;
+import org.jowidgets.api.command.IExecutionContext;
+import org.jowidgets.api.command.IExecutionContextValues;
 import org.jowidgets.api.convert.IStringObjectConverter;
+import org.jowidgets.api.model.item.IActionItemModel;
+import org.jowidgets.api.model.item.IMenuItemModel;
 import org.jowidgets.api.model.item.IMenuModel;
 import org.jowidgets.api.toolkit.Toolkit;
+import org.jowidgets.api.widgets.IPopupMenu;
 import org.jowidgets.api.widgets.ITable;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
@@ -53,23 +61,47 @@ import org.jowidgets.common.widgets.controler.ITableCellEditEvent;
 import org.jowidgets.common.widgets.controler.ITableCellEditorListener;
 import org.jowidgets.common.widgets.controler.ITableCellListener;
 import org.jowidgets.common.widgets.controler.ITableCellPopupDetectionListener;
+import org.jowidgets.common.widgets.controler.ITableCellPopupEvent;
 import org.jowidgets.common.widgets.controler.ITableColumnListener;
 import org.jowidgets.common.widgets.controler.ITableColumnMouseEvent;
 import org.jowidgets.common.widgets.controler.ITableColumnPopupDetectionListener;
+import org.jowidgets.common.widgets.controler.ITableColumnPopupEvent;
 import org.jowidgets.common.widgets.controler.ITableSelectionListener;
+import org.jowidgets.tools.command.ActionWrapper;
+import org.jowidgets.tools.command.ExecutionContextWrapper;
 import org.jowidgets.tools.controler.TableCellEditorAdapter;
 import org.jowidgets.tools.controler.TableColumnAdapter;
+import org.jowidgets.tools.model.item.MenuModel;
 import org.jowidgets.tools.widgets.wrapper.ControlWrapper;
+import org.jowidgets.util.IDecorator;
+import org.jowidgets.util.ITypedKey;
 
 final class BeanTableImpl<BEAN_TYPE> extends ControlWrapper implements IBeanTable<BEAN_TYPE> {
 
 	private final IBeanTableModel<BEAN_TYPE> model;
+	private final ITypedKey<IBeanTableModel<BEAN_TYPE>> modelContextKey;
+	private final IMenuModel cellPopupMenuModel;
+	private final IMenuModel headerPopupMenuModel;
 
 	private IBeanTableSettingsDialog settingsDialog;
+	@SuppressWarnings("unused")
+	private ITableCellPopupEvent currentCellEvent;
+	private ITableColumnPopupEvent currentColumnEvent;
 
 	BeanTableImpl(final ITable table, final IBeanTableBluePrint<BEAN_TYPE> bluePrint) {
 		super(table);
 		this.model = bluePrint.getModel();
+		this.modelContextKey = new ITypedKey<IBeanTableModel<BEAN_TYPE>>() {};
+		this.cellPopupMenuModel = new MenuModel();
+		this.headerPopupMenuModel = new MenuModel();
+
+		if (bluePrint.hasDefaultMenus()) {
+			cellPopupMenuModel.addAction(createSettingsDialogAction(model));
+
+			headerPopupMenuModel.addAction(createHideColumnAction(model));
+			headerPopupMenuModel.addAction(createUnhideAllColumnAction(model));
+
+		}
 
 		table.addTableCellEditorListener(new TableCellEditorAdapter() {
 
@@ -113,6 +145,32 @@ final class BeanTableImpl<BEAN_TYPE> extends ControlWrapper implements IBeanTabl
 			}
 		});
 
+		final IPopupMenu cellPopupMenu = table.createPopupMenu();
+		cellPopupMenu.setModel(cellPopupMenuModel);
+
+		table.addTableCellPopupDetectionListener(new ITableCellPopupDetectionListener() {
+			@Override
+			public void popupDetected(final ITableCellPopupEvent event) {
+				if (cellPopupMenu.getChildren().size() > 0) {
+					currentCellEvent = event;
+					cellPopupMenu.show(event.getPosition());
+				}
+			}
+		});
+
+		final IPopupMenu columnPopupMenu = table.createPopupMenu();
+		columnPopupMenu.setModel(headerPopupMenuModel);
+
+		table.addTableColumnPopupDetectionListener(new ITableColumnPopupDetectionListener() {
+			@Override
+			public void popupDetected(final ITableColumnPopupEvent event) {
+				if (columnPopupMenu.getChildren().size() > 0) {
+					currentColumnEvent = event;
+					columnPopupMenu.show(event.getPosition());
+				}
+			}
+		});
+
 	}
 
 	@Override
@@ -127,6 +185,21 @@ final class BeanTableImpl<BEAN_TYPE> extends ControlWrapper implements IBeanTabl
 		if (dialog.isOkPressed()) {
 			model.setConfig(tableConfig);
 		}
+	}
+
+	@Override
+	public ITypedKey<IBeanTableModel<BEAN_TYPE>> getTableModelContextKey() {
+		return modelContextKey;
+	}
+
+	@Override
+	public IMenuModel getCellPopMenu() {
+		return cellPopupMenuModel;
+	}
+
+	@Override
+	public IMenuModel getHeaderPopMenu() {
+		return headerPopupMenuModel;
 	}
 
 	@Override
@@ -274,9 +347,42 @@ final class BeanTableImpl<BEAN_TYPE> extends ControlWrapper implements IBeanTabl
 		getWidget().removeTableColumnPopupDetectionListener(listener);
 	}
 
-	@Override
-	public IMenuModel getMenu() {
-		return null;
+	private IAction createSettingsDialogAction(final IBeanTableModel<?> beanTableModel) {
+		final IActionBuilder builder = Toolkit.getActionBuilderFactory().create();
+		builder.setText("Settings ...");
+		builder.setCommand(new ICommandExecutor() {
+			@Override
+			public void execute(final IExecutionContext executionContext) throws Exception {
+				showSettingsDialog();
+			}
+		});
+		return builder.build();
+	}
+
+	private IAction createHideColumnAction(final IBeanTableModel<?> beanTableModel) {
+		final IActionBuilder builder = Toolkit.getActionBuilderFactory().create();
+		builder.setText("Hide column");
+		builder.setCommand(new ICommandExecutor() {
+			@Override
+			public void execute(final IExecutionContext executionContext) throws Exception {
+				beanTableModel.getAttribute(currentColumnEvent.getColumnIndex()).setVisible(false);
+			}
+		});
+		return builder.build();
+	}
+
+	private IAction createUnhideAllColumnAction(final IBeanTableModel<?> beanTableModel) {
+		final IActionBuilder builder = Toolkit.getActionBuilderFactory().create();
+		builder.setText("Unhide all columns");
+		builder.setCommand(new ICommandExecutor() {
+			@Override
+			public void execute(final IExecutionContext executionContext) throws Exception {
+				for (int i = 0; i < beanTableModel.getColumnCount(); i++) {
+					beanTableModel.getAttribute(i).setVisible(true);
+				}
+			}
+		});
+		return builder.build();
 	}
 
 	private IBeanTableSettingsDialog getSettingsDialog() {
@@ -285,5 +391,52 @@ final class BeanTableImpl<BEAN_TYPE> extends ControlWrapper implements IBeanTabl
 			settingsDialog = Toolkit.getActiveWindow().createChildWindow(bpf.beanTableSettingsDialog(model));
 		}
 		return settingsDialog;
+	}
+
+	@SuppressWarnings("unused")
+	private IDecorator<IAction> createDecorator(final IExecutionContextValues contextValues) {
+		return new IDecorator<IAction>() {
+			@Override
+			public IAction decorate(final IAction original) {
+				return new ActionWrapper(original) {
+
+					@Override
+					public String getText() {
+						return super.getText() + " decorated";
+					}
+
+					@Override
+					public void execute(final IExecutionContext executionContext) throws Exception {
+						super.execute(getDecoratedExecutionContext(executionContext, contextValues));
+					}
+				};
+			}
+		};
+	}
+
+	private IExecutionContext getDecoratedExecutionContext(
+		final IExecutionContext executionContext,
+		final IExecutionContextValues contextValues) {
+		return new ExecutionContextWrapper(executionContext) {
+			@Override
+			public <VALUE_TYPE> VALUE_TYPE getValue(final ITypedKey<VALUE_TYPE> key) {
+				VALUE_TYPE value = contextValues.getValue(key);
+				if (value == null) {
+					value = executionContext.getValue(key);
+				}
+				return value;
+			}
+		};
+	}
+
+	private void getActionItemModels(final List<IActionItemModel> result, final IMenuModel menuModel) {
+		for (final IMenuItemModel itemModel : menuModel.getChildren()) {
+			if (itemModel instanceof IActionItemModel) {
+				result.add((IActionItemModel) itemModel);
+			}
+			else if (itemModel instanceof IMenuModel) {
+				getActionItemModels(result, (IMenuModel) itemModel);
+			}
+		}
 	}
 }
