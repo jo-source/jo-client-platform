@@ -84,7 +84,7 @@ public class UserTableView extends AbstractView {
 
 		container.setLayout(Toolkit.getLayoutFactoryProvider().fillLayout());
 
-		this.table = container.add(CapUiToolkit.getBluePrintFactory().beanTable(beanTableModel));
+		this.table = container.add(CapUiToolkit.bluePrintFactory().beanTable(beanTableModel));
 
 		final IToolBarModel toolBar = context.getToolBar();
 		toolBar.addContainer(createDelayFieldCreator());
