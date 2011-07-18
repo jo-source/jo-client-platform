@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2011, grossmann, Nikolaus Moll
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -43,6 +43,7 @@ final class BeanTableSettingsDialogImpl extends WindowWrapper implements IBeanTa
 
 	private final IBeanTableModel<?> model;
 	private final IFrame frame;
+	private boolean okPressed;
 
 	BeanTableSettingsDialogImpl(final IFrame frame, final IBeanTableSettingsDialogBluePrint setup) {
 		super(frame);
@@ -52,6 +53,7 @@ final class BeanTableSettingsDialogImpl extends WindowWrapper implements IBeanTa
 
 		this.frame = frame;
 		this.model = setup.getModel();
+		this.okPressed = false;
 
 		final IButton ok = frame.add(Toolkit.getBluePrintFactory().button("Ok"));
 		final IButton cancel = frame.add(Toolkit.getBluePrintFactory().button("Cancel"));
@@ -59,7 +61,9 @@ final class BeanTableSettingsDialogImpl extends WindowWrapper implements IBeanTa
 		ok.addActionListener(new IActionListener() {
 			@Override
 			public void actionPerformed() {
+				okPressed = true;
 				setVisible(false);
+
 			}
 		});
 
@@ -73,14 +77,14 @@ final class BeanTableSettingsDialogImpl extends WindowWrapper implements IBeanTa
 
 	@Override
 	public IBeanTableConfig show() {
+		okPressed = false;
 		frame.setVisible(true);
 		return model.getConfig();
 	}
 
 	@Override
 	public boolean isOkPressed() {
-
-		return false;
+		return okPressed;
 	}
 
 }

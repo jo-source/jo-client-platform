@@ -113,8 +113,7 @@ public final class DefaultCapUiToolkit implements ICapUiToolkit {
 
 	@Override
 	public IBeanTableConfigBuilder beanTableConfigBuilder() {
-		// TODO NM implement beanTableConfigBuilder()
-		return null;
+		return new BeanTableConfigBuilder();
 	}
 
 	@Override
