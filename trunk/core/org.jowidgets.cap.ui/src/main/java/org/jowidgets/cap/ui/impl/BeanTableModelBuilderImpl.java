@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.ui.impl;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
@@ -234,7 +235,7 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> implements IBeanTableModelBuild
 	}
 
 	private List<IAttribute<Object>> getAttributes() {
-		final List<IAttribute<Object>> result = this.attributes;
+		final List<IAttribute<Object>> result = new LinkedList<IAttribute<Object>>(attributes);
 		if (metaPropertyNames != null) {
 			final IAttributeToolkit attributeToolkit = CapUiToolkit.attributeToolkit();
 			for (final String metaPropertyName : metaPropertyNames) {
