@@ -82,7 +82,7 @@ final class BeanTableConfigBuilder implements IBeanTableConfigBuilder {
 		ensureAttributeConfigsMap();
 		this.attributeConfigs.clear();
 		for (final Entry<String, IAttributeConfig> entry : attributeConfigs.entrySet()) {
-			this.attributeConfigs.put(entry.getKey(), entry.getValue());
+			addToAttributeConfigsMap(entry.getKey(), entry.getValue());
 		}
 		return this;
 	}
@@ -93,7 +93,7 @@ final class BeanTableConfigBuilder implements IBeanTableConfigBuilder {
 		Assert.paramNotNull(attributeConfig, "attributeConfig");
 
 		ensureAttributeConfigsMap();
-		attributeConfigs.put(propertyName, attributeConfig);
+		addToAttributeConfigsMap(propertyName, attributeConfig);
 		return this;
 	}
 
@@ -102,7 +102,7 @@ final class BeanTableConfigBuilder implements IBeanTableConfigBuilder {
 		Assert.paramNotNull(attribute, "attribute");
 
 		ensureAttributeConfigsMap();
-		attributeConfigs.put(attribute.getPropertyName(), attribute.getConfig());
+		addToAttributeConfigsMap(attribute.getPropertyName(), attribute.getConfig());
 		return this;
 	}
 
@@ -115,6 +115,10 @@ final class BeanTableConfigBuilder implements IBeanTableConfigBuilder {
 	@Override
 	public IBeanTableConfig build() {
 		return new BeanTableConfig(attributeConfigs, sortModelConfig, filters, autoSelection);
+	}
+
+	private void addToAttributeConfigsMap(final String propertyName, final IAttributeConfig attributeConfig) {
+		attributeConfigs.put(propertyName, attributeConfig);
 	}
 
 	private void ensureFiltersMap() {
