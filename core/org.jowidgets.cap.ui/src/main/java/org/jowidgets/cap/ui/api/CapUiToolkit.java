@@ -33,6 +33,7 @@ import java.util.WeakHashMap;
 
 import javax.validation.Validator;
 
+import org.jowidgets.api.image.IconsSmall;
 import org.jowidgets.api.toolkit.IToolkit;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.widgets.blueprint.IValidationResultLabelBluePrint;
@@ -47,6 +48,7 @@ import org.jowidgets.cap.ui.api.bean.IBeansStateTracker;
 import org.jowidgets.cap.ui.api.command.IActionFactory;
 import org.jowidgets.cap.ui.api.execution.IExecutionTaskFactory;
 import org.jowidgets.cap.ui.api.form.IBeanFormToolkit;
+import org.jowidgets.cap.ui.api.icons.CapIcons;
 import org.jowidgets.cap.ui.api.sort.ISortModelConfigBuilder;
 import org.jowidgets.cap.ui.api.table.IBeanTableConfigBuilder;
 import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
@@ -66,6 +68,10 @@ public final class CapUiToolkit {
 	private static Map<IToolkit, ICapUiToolkit> toolkits = new WeakHashMap<IToolkit, ICapUiToolkit>();
 
 	private CapUiToolkit() {}
+
+	public static void initialize() {
+		getInstance();
+	}
 
 	public static ICapUiToolkit getInstance() {
 		final IToolkit currentToolkit = Toolkit.getInstance();
@@ -144,6 +150,10 @@ public final class CapUiToolkit {
 		genericWidgetFactory.register(IBeanTableBluePrint.class, new BeanTableFactory());
 		genericWidgetFactory.register(IBeanFormBluePrint.class, new BeanFormFactory());
 		genericWidgetFactory.register(IBeanTableSettingsDialogBluePrint.class, new BeanTableSettingsDialogFactory());
+
+		toolkit.getImageRegistry().registerImageConstant(CapIcons.TABLE_HIDE_COLUMN, IconsSmall.SUB);
+		toolkit.getImageRegistry().registerImageConstant(CapIcons.TABLE_UNHIDE_ALL_COLUMNS, IconsSmall.ADD_ALL);
+		toolkit.getImageRegistry().registerImageConstant(CapIcons.TABLE_SETTINGS, IconsSmall.EMPTY);
 
 		toolkit.getBluePrintFactory().addDefaultsInitializer(
 				IBeanTableBluePrint.class,
