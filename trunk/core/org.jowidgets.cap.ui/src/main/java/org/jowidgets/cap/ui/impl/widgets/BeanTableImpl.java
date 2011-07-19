@@ -35,10 +35,7 @@ import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.command.IActionBuilder;
 import org.jowidgets.api.command.ICommandExecutor;
 import org.jowidgets.api.command.IExecutionContext;
-import org.jowidgets.api.command.IExecutionContextValues;
 import org.jowidgets.api.convert.IStringObjectConverter;
-import org.jowidgets.api.model.item.IActionItemModel;
-import org.jowidgets.api.model.item.IMenuItemModel;
 import org.jowidgets.api.model.item.IMenuModel;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.widgets.IPopupMenu;
@@ -79,19 +76,16 @@ import org.jowidgets.util.ITypedKey;
 final class BeanTableImpl<BEAN_TYPE> extends ControlWrapper implements IBeanTable<BEAN_TYPE> {
 
 	private final IBeanTableModel<BEAN_TYPE> model;
-	private final ITypedKey<IBeanTableModel<BEAN_TYPE>> modelContextKey;
 	private final IMenuModel cellPopupMenuModel;
 	private final IMenuModel headerPopupMenuModel;
 
 	private IBeanTableSettingsDialog settingsDialog;
-	@SuppressWarnings("unused")
 	private ITableCellPopupEvent currentCellEvent;
 	private ITableColumnPopupEvent currentColumnEvent;
 
 	BeanTableImpl(final ITable table, final IBeanTableBluePrint<BEAN_TYPE> bluePrint) {
 		super(table);
 		this.model = bluePrint.getModel();
-		this.modelContextKey = new ITypedKey<IBeanTableModel<BEAN_TYPE>>() {};
 		this.cellPopupMenuModel = new MenuModel();
 		this.headerPopupMenuModel = new MenuModel();
 
@@ -147,6 +141,7 @@ final class BeanTableImpl<BEAN_TYPE> extends ControlWrapper implements IBeanTabl
 
 		final IPopupMenu cellPopupMenu = table.createPopupMenu();
 		cellPopupMenu.setModel(cellPopupMenuModel);
+		cellPopupMenuModel.addDecorator(createDecorator(false));
 
 		table.addTableCellPopupDetectionListener(new ITableCellPopupDetectionListener() {
 			@Override
@@ -160,6 +155,7 @@ final class BeanTableImpl<BEAN_TYPE> extends ControlWrapper implements IBeanTabl
 
 		final IPopupMenu columnPopupMenu = table.createPopupMenu();
 		columnPopupMenu.setModel(headerPopupMenuModel);
+		headerPopupMenuModel.addDecorator(createDecorator(true));
 
 		table.addTableColumnPopupDetectionListener(new ITableColumnPopupDetectionListener() {
 			@Override
@@ -185,11 +181,6 @@ final class BeanTableImpl<BEAN_TYPE> extends ControlWrapper implements IBeanTabl
 		if (dialog.isOkPressed()) {
 			model.setConfig(tableConfig);
 		}
-	}
-
-	@Override
-	public ITypedKey<IBeanTableModel<BEAN_TYPE>> getTableModelContextKey() {
-		return modelContextKey;
 	}
 
 	@Override
@@ -393,50 +384,37 @@ final class BeanTableImpl<BEAN_TYPE> extends ControlWrapper implements IBeanTabl
 		return settingsDialog;
 	}
 
-	@SuppressWarnings("unused")
-	private IDecorator<IAction> createDecorator(final IExecutionContextValues contextValues) {
+	private IDecorator<IAction> createDecorator(final boolean header) {
 		return new IDecorator<IAction>() {
 			@Override
 			public IAction decorate(final IAction original) {
 				return new ActionWrapper(original) {
 
 					@Override
-					public String getText() {
-						return super.getText() + " decorated";
-					}
-
-					@Override
 					public void execute(final IExecutionContext executionContext) throws Exception {
-						super.execute(getDecoratedExecutionContext(executionContext, contextValues));
+						super.execute(getDecoratedExecutionContext(executionContext, header));
 					}
 				};
 			}
 		};
 	}
 
-	private IExecutionContext getDecoratedExecutionContext(
-		final IExecutionContext executionContext,
-		final IExecutionContextValues contextValues) {
+	private IExecutionContext getDecoratedExecutionContext(final IExecutionContext executionContext, final boolean header) {
 		return new ExecutionContextWrapper(executionContext) {
+			@SuppressWarnings("unchecked")
 			@Override
 			public <VALUE_TYPE> VALUE_TYPE getValue(final ITypedKey<VALUE_TYPE> key) {
-				VALUE_TYPE value = contextValues.getValue(key);
-				if (value == null) {
-					value = executionContext.getValue(key);
+				if (header && IBeanTable.COLUMN_POPUP_EVENT_CONTEXT_KEY == key) {
+					return (VALUE_TYPE) currentColumnEvent;
 				}
-				return value;
+				else if (IBeanTable.CELL_POPUP_EVENT_CONTEXT_KEY == key) {
+					return (VALUE_TYPE) currentCellEvent;
+				}
+				else {
+					return executionContext.getValue(key);
+				}
 			}
 		};
 	}
 
-	private void getActionItemModels(final List<IActionItemModel> result, final IMenuModel menuModel) {
-		for (final IMenuItemModel itemModel : menuModel.getChildren()) {
-			if (itemModel instanceof IActionItemModel) {
-				result.add((IActionItemModel) itemModel);
-			}
-			else if (itemModel instanceof IMenuModel) {
-				getActionItemModels(result, (IMenuModel) itemModel);
-			}
-		}
-	}
 }
