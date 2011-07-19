@@ -306,23 +306,23 @@ final class BeanTableSettingsDialogImpl extends WindowWrapper implements IBeanTa
 			composite.add(bpF.checkBox());
 
 			// column name display format
-			final IComboBox<String> headerDisplayFormat = composite.add(bpF.comboBox("colname"));
+			final IComboBox<String> headerDisplayFormat = composite.add(bpF.comboBoxSelection("colname"));
 			headerDisplayFormat.setMaxSize(new Dimension(300, 20));
 
 			// value display format
-			final IComboBox<String> valueDisplayFormat = composite.add(bpF.comboBox("value"));
+			final IComboBox<String> valueDisplayFormat = composite.add(bpF.comboBoxSelection("value"));
 			valueDisplayFormat.setMaxSize(new Dimension(300, 20));
 
 			// alignment
-			final IComboBox<String> columnAlignment = composite.add(bpF.comboBox("align"));
+			final IComboBox<String> columnAlignment = composite.add(bpF.comboBoxSelection("align"));
 			columnAlignment.setMaxSize(new Dimension(300, 20));
 
 			// current sorting
-			final IComboBox<String> currentSorting = composite.add(bpF.comboBox("cur sort"));
+			final IComboBox<String> currentSorting = composite.add(bpF.comboBoxSelection("cur sort"));
 			currentSorting.setMaxSize(new Dimension(300, 20));
 
 			// default sorting
-			final IComboBox<String> defaultSorting = composite.add(bpF.comboBox("def sort"));
+			final IComboBox<String> defaultSorting = composite.add(bpF.comboBoxSelection("def sort"));
 			defaultSorting.setMaxSize(new Dimension(300, 20));
 
 			// TODO NM allow column spanning
@@ -339,6 +339,7 @@ final class BeanTableSettingsDialogImpl extends WindowWrapper implements IBeanTa
 		private final int rowHeight;
 		private int lastFrameWidth;
 		private final int[] growPriority;
+		private boolean layoutingEnabled;
 
 		private Dimension minSize;
 		private final Dimension maxSize;
@@ -361,6 +362,8 @@ final class BeanTableSettingsDialogImpl extends WindowWrapper implements IBeanTa
 			this.rowHeight = 30;
 			this.maxSize = new Dimension(Integer.MAX_VALUE, rowHeight);
 			lastFrameWidth = 0;
+
+			layoutingEnabled = true;
 		}
 
 		private Dimension getMinSize() {
@@ -405,6 +408,7 @@ final class BeanTableSettingsDialogImpl extends WindowWrapper implements IBeanTa
 			if (lastFrameWidth == scrollComposite.getSize().getWidth()) {
 				return;
 			}
+			layoutingEnabled = false;
 			lastFrameWidth = scrollComposite.getSize().getWidth();
 
 			final int availableWidth = lastFrameWidth - 20;
@@ -417,7 +421,6 @@ final class BeanTableSettingsDialogImpl extends WindowWrapper implements IBeanTa
 				for (int column = 0; column < columnCount; column++) {
 					usedWidths[column] = minWidths[column];
 				}
-				return;
 			}
 
 			final int growPrioritySum = getArrayWidth(growPriority);
@@ -433,9 +436,12 @@ final class BeanTableSettingsDialogImpl extends WindowWrapper implements IBeanTa
 			}
 			usedWidths[columnCount - 1] = restWidth;
 
-			scrollComposite.layoutBegin();
-			scrollComposite.layoutEnd();
-			scrollComposite.redraw();
+			frame.setRedrawEnabled(false);
+			for (final ColumnBasedLayouter layouter : layouters) {
+				layouter.doLayout();
+			}
+			frame.setRedrawEnabled(true);
+			layoutingEnabled = true;
 		}
 
 		private int getArrayWidth(final int[] widths) {
@@ -459,8 +465,13 @@ final class BeanTableSettingsDialogImpl extends WindowWrapper implements IBeanTa
 
 		@Override
 		public void layout() {
+			if (!manager.layoutingEnabled) {
+				return;
+			}
 			manager.calculateUsedWidths();
+		}
 
+		private void doLayout() {
 			final List<IControl> children = parent.getChildren();
 			int index = 0;
 			int x = manager.gaps[0];
@@ -492,7 +503,7 @@ final class BeanTableSettingsDialogImpl extends WindowWrapper implements IBeanTa
 
 		@Override
 		public void invalidate() {
-			manager.calculateUsedWidths();
+			//manager.calculateUsedWidths();
 		}
 
 		private IControl getControl(final int column) {
