@@ -49,15 +49,15 @@ public final class EntityServiceImpl implements IEntityService {
 	}
 
 	@Override
-	public IBeanDtoDescriptor getDescriptor(final Object entityId) {
-		Assert.paramNotNull(entityId, "entityId");
-		return descriptors.get(entityId);
+	public IBeanDtoDescriptor getDescriptor(final Object entityTypeId) {
+		Assert.paramNotNull(entityTypeId, "entityTypeId");
+		return descriptors.get(entityTypeId);
 	}
 
 	@Override
-	public IBeanServicesProvider getBeanServices(final Object entityId) {
-		Assert.paramNotNull(entityId, "entityId");
-		return beanServices.get(entityId);
+	public IBeanServicesProvider getBeanServices(final Object entityTypeId) {
+		Assert.paramNotNull(entityTypeId, "entityTypeId");
+		return beanServices.get(entityTypeId);
 	}
 
 }

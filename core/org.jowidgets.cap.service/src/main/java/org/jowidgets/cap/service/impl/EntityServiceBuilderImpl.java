@@ -54,14 +54,14 @@ final class EntityServiceBuilderImpl implements IEntityServiceBuilder {
 
 	@Override
 	public <BEAN_TYPE> IEntityServiceBuilder add(
-		final Object entityId,
+		final Object entityTypeId,
 		final IBeanDtoDescriptor descriptor,
 		final IBeanServicesProvider beanServicesProvider) {
 		Assert.paramNotNull(descriptor, "descriptor");
 		Assert.paramNotNull(beanServicesProvider, "beanServicesProvider");
 
-		descriptors.put(entityId, descriptor);
-		beanServices.put(entityId, beanServicesProvider);
+		descriptors.put(entityTypeId, descriptor);
+		beanServices.put(entityTypeId, beanServicesProvider);
 		return this;
 	}
 
