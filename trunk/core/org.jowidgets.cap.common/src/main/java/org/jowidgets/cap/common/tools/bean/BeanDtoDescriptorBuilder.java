@@ -32,7 +32,7 @@ import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptorBuilder;
-import org.jowidgets.cap.common.api.bean.IBeanPropertyBuilder;
+import org.jowidgets.cap.common.api.bean.IBeanPropertyBluePrint;
 
 public final class BeanDtoDescriptorBuilder<BEAN_TYPE extends IBean> implements IBeanDtoDescriptorBuilder<BEAN_TYPE> {
 
@@ -43,14 +43,8 @@ public final class BeanDtoDescriptorBuilder<BEAN_TYPE extends IBean> implements 
 	}
 
 	@Override
-	public IBeanPropertyBuilder propertyBuilder(final String propertyName) {
-		return builder.propertyBuilder(propertyName);
-	}
-
-	@Override
-	public IBeanDtoDescriptorBuilder<BEAN_TYPE> addProperty(final IBeanPropertyBuilder builder) {
-		this.builder.addProperty(builder);
-		return this;
+	public IBeanPropertyBluePrint addProperty(final String propertyName) {
+		return this.builder.addProperty(propertyName);
 	}
 
 	@Override

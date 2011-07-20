@@ -32,7 +32,7 @@ import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptorBuilder;
-import org.jowidgets.cap.common.api.bean.IBeanPropertyBuilder;
+import org.jowidgets.cap.common.api.bean.IBeanPropertyBluePrint;
 import org.jowidgets.cap.common.api.service.IDtoDescriptorService;
 import org.jowidgets.cap.sample1.common.entity.IUser;
 
@@ -41,58 +41,47 @@ public class UserDtoDescriptorService implements IDtoDescriptorService<IUser> {
 	private final IBeanDtoDescriptor<IUser> descriptor;
 
 	public UserDtoDescriptorService() {
-		final IBeanDtoDescriptorBuilder<IUser> descrBuilder = CapCommonToolkit.dtoDescriptorBuilder(IUser.class);
+		final IBeanDtoDescriptorBuilder<IUser> builder = CapCommonToolkit.dtoDescriptorBuilder(IUser.class);
 
-		IBeanPropertyBuilder propBuilder = descrBuilder.propertyBuilder(IUser.NAME_PROPERTY);
-		propBuilder.setLabel("Name").setDescription("The name of the user");
-		propBuilder.setMandatory(true);
-		descrBuilder.addProperty(propBuilder);
+		IBeanPropertyBluePrint propertyBp = builder.addProperty(IUser.NAME_PROPERTY);
+		propertyBp.setLabel("Name").setDescription("The name of the user");
+		propertyBp.setMandatory(true);
 
-		propBuilder = descrBuilder.propertyBuilder(IUser.LAST_NAME_PROPERTY);
-		propBuilder.setLabel("Lastname").setDescription("The lastname of the user");
-		propBuilder.setMandatory(true);
-		descrBuilder.addProperty(propBuilder);
+		propertyBp = builder.addProperty(IUser.LAST_NAME_PROPERTY);
+		propertyBp.setLabel("Lastname").setDescription("The lastname of the user");
+		propertyBp.setMandatory(true);
 
-		propBuilder = descrBuilder.propertyBuilder(IUser.GENDER_PROPERTY);
-		propBuilder.setLabel("Gender").setDescription("The gender of the user");
-		propBuilder.setValueRange("M", "F");
-		descrBuilder.addProperty(propBuilder);
+		propertyBp = builder.addProperty(IUser.GENDER_PROPERTY);
+		propertyBp.setLabel("Gender").setDescription("The gender of the user");
+		propertyBp.setValueRange("M", "F");
 
-		propBuilder = descrBuilder.propertyBuilder(IUser.DATE_OF_BIRTH_PROPERTY);
-		propBuilder.setLabel("Birthday").setLabelLong("Date of Birth").setDescription("The users date of birth");
-		descrBuilder.addProperty(propBuilder);
+		propertyBp = builder.addProperty(IUser.DATE_OF_BIRTH_PROPERTY);
+		propertyBp.setLabel("Birthday").setLabelLong("Date of Birth").setDescription("The users date of birth");
 
-		propBuilder = descrBuilder.propertyBuilder(IUser.AGE_PROPERTY);
-		propBuilder.setLabel("Age").setDescription("The users age");
-		descrBuilder.addProperty(propBuilder);
+		propertyBp = builder.addProperty(IUser.AGE_PROPERTY);
+		propertyBp.setLabel("Age").setDescription("The users age");
 
-		propBuilder = descrBuilder.propertyBuilder(IUser.COUNTRY_PROPERTY);
-		propBuilder.setLabel("Country").setDescription("The country where the user lives");
-		propBuilder.setValueRange(true, "Germany", "Italy", "Spain");
-		descrBuilder.addProperty(propBuilder);
+		propertyBp = builder.addProperty(IUser.COUNTRY_PROPERTY);
+		propertyBp.setLabel("Country").setDescription("The country where the user lives");
+		propertyBp.setValueRange(true, "Germany", "Italy", "Spain");
 
-		propBuilder = descrBuilder.propertyBuilder(IUser.LANGUAGES_PROPERTY);
-		propBuilder.setLabel("Languages").setDescription("The languages the user speaks");
-		propBuilder.setElementValueType(String.class).setSortable(false);
-		descrBuilder.addProperty(propBuilder);
+		propertyBp = builder.addProperty(IUser.LANGUAGES_PROPERTY);
+		propertyBp.setLabel("Languages").setDescription("The languages the user speaks");
+		propertyBp.setElementValueType(String.class).setSortable(false);
 
-		propBuilder = descrBuilder.propertyBuilder(IUser.ADMIN_PROPERTY);
-		propBuilder.setLabel("Admin").setDescription("Determines if the user is an administrator");
-		descrBuilder.addProperty(propBuilder);
+		propertyBp = builder.addProperty(IUser.ADMIN_PROPERTY);
+		propertyBp.setLabel("Admin").setDescription("Determines if the user is an administrator");
 
-		propBuilder = descrBuilder.propertyBuilder(IUser.MARIED_PROPERTY);
-		propBuilder.setLabel("Maried").setDescription("Determines if the user is maried");
-		descrBuilder.addProperty(propBuilder);
+		propertyBp = builder.addProperty(IUser.MARIED_PROPERTY);
+		propertyBp.setLabel("Maried").setDescription("Determines if the user is maried");
 
-		propBuilder = descrBuilder.propertyBuilder(IBean.ID_PROPERTY);
-		propBuilder.setLabel("Id").setDescription("The id of the user");
-		descrBuilder.addProperty(propBuilder);
+		propertyBp = builder.addProperty(IBean.ID_PROPERTY);
+		propertyBp.setLabel("Id").setDescription("The id of the user");
 
-		propBuilder = descrBuilder.propertyBuilder(IBean.VERSION_PROPERTY);
-		propBuilder.setLabel("Version").setDescription("The version of the user record");
-		descrBuilder.addProperty(propBuilder);
+		propertyBp = builder.addProperty(IBean.VERSION_PROPERTY);
+		propertyBp.setLabel("Version").setDescription("The version of the user record");
 
-		descriptor = descrBuilder.build();
+		descriptor = builder.build();
 	}
 
 	@Override
