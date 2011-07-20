@@ -28,14 +28,16 @@
 
 package org.jowidgets.cap.common.impl;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
 import org.jowidgets.cap.common.api.bean.IProperty;
+import org.jowidgets.cap.common.api.bean.IPropertyBuilder;
 import org.jowidgets.cap.common.api.bean.IValueRange;
 import org.jowidgets.util.Assert;
 
-final class PropertyBuilder {
+final class PropertyBuilder implements IPropertyBuilder {
 
 	private String name;
 	private IValueRange valueRange;
@@ -59,72 +61,96 @@ final class PropertyBuilder {
 		this.valueRange = new ValueRangeImpl(Collections.emptyList(), true);
 	}
 
-	PropertyBuilder setName(final String name) {
+	@Override
+	public IPropertyBuilder setName(final String name) {
 		Assert.paramNotEmpty(name, "name");
 		this.name = name;
 		return this;
 	}
 
-	PropertyBuilder setValueRange(final IValueRange valueRange) {
+	@Override
+	public IPropertyBuilder setValueRange(final IValueRange valueRange) {
 		Assert.paramNotNull(valueRange, "valueRange");
 		this.valueRange = valueRange;
 		return this;
 	}
 
-	PropertyBuilder setValueRange(final boolean open, final Collection<? extends Object> values) {
+	@Override
+	public IPropertyBuilder setValueRange(final boolean open, final Collection<? extends Object> values) {
 		return setValueRange(new ValueRangeImpl(values, open));
 	}
 
-	PropertyBuilder setValueRange(final Collection<? extends Object> values) {
+	@Override
+	public IPropertyBuilder setValueRange(final Collection<? extends Object> values) {
 		return setValueRange(false, values);
 	}
 
-	PropertyBuilder setLabel(final String labelDefault) {
+	@Override
+	public IPropertyBuilder setValueRange(final boolean open, final Object... values) {
+		return setValueRange(open, Arrays.asList(values));
+	}
+
+	@Override
+	public IPropertyBuilder setValueRange(final Object... values) {
+		return setValueRange(Arrays.asList(values));
+	}
+
+	@Override
+	public IPropertyBuilder setLabel(final String labelDefault) {
 		this.labelDefault = labelDefault;
 		return this;
 	}
 
-	PropertyBuilder setLabelLong(final String labelLongDefault) {
+	@Override
+	public IPropertyBuilder setLabelLong(final String labelLongDefault) {
 		this.labelLongDefault = labelLongDefault;
 		return this;
 	}
 
-	PropertyBuilder setDescription(final String descriptionDefault) {
+	@Override
+	public IPropertyBuilder setDescription(final String descriptionDefault) {
 		this.descriptionDefault = descriptionDefault;
 		return this;
 	}
 
-	PropertyBuilder setVisible(final boolean visibleDefault) {
+	@Override
+	public IPropertyBuilder setVisible(final boolean visibleDefault) {
 		this.visibleDefault = visibleDefault;
 		return this;
 	}
 
-	PropertyBuilder setMandatory(final boolean mandatoryDefault) {
+	@Override
+	public IPropertyBuilder setMandatory(final boolean mandatoryDefault) {
 		this.mandatoryDefault = mandatoryDefault;
 		return this;
 	}
 
-	PropertyBuilder setValueType(final Class<?> valueType) {
+	@Override
+	public IPropertyBuilder setValueType(final Class<?> valueType) {
 		this.valueType = valueType;
 		return this;
 	}
 
-	PropertyBuilder setElementValueType(final Class<?> elementValueType) {
+	@Override
+	public IPropertyBuilder setElementValueType(final Class<?> elementValueType) {
 		this.elementValueType = elementValueType;
 		return this;
 	}
 
-	PropertyBuilder setReadonly(final boolean readonly) {
+	@Override
+	public IPropertyBuilder setReadonly(final boolean readonly) {
 		this.readonly = readonly;
 		return this;
 	}
 
-	PropertyBuilder setSortable(final boolean sortable) {
+	@Override
+	public IPropertyBuilder setSortable(final boolean sortable) {
 		this.sortable = sortable;
 		return this;
 	}
 
-	PropertyBuilder setFilterable(final boolean filterable) {
+	@Override
+	public IPropertyBuilder setFilterable(final boolean filterable) {
 		this.filterable = filterable;
 		return this;
 	}
@@ -138,7 +164,8 @@ final class PropertyBuilder {
 		}
 	}
 
-	IProperty build() {
+	@Override
+	public IProperty build() {
 		return new PropertyImpl(
 			name,
 			valueRange,

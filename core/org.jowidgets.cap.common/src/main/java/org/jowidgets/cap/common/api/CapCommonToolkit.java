@@ -35,6 +35,7 @@ import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptorBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanKeyBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanModificationBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanPropertyBuilder;
+import org.jowidgets.cap.common.api.bean.IPropertyBuilder;
 import org.jowidgets.cap.common.api.bean.IValueRangeFactory;
 import org.jowidgets.cap.common.api.sort.ISortFactory;
 import org.jowidgets.cap.common.impl.DefaultCapCommonToolkit;
@@ -52,8 +53,12 @@ public final class CapCommonToolkit {
 		return dataCommonToolkit;
 	}
 
+	public static IPropertyBuilder propertyBuilder() {
+		return getInstance().propertyBuilder();
+	}
+
 	public static IBeanPropertyBuilder beanPropertyBuilder(final Class<?> beanType, final String propertyName) {
-		return getInstance().propertyBuilder(beanType, propertyName);
+		return getInstance().beanPropertyBuilder(beanType, propertyName);
 	}
 
 	public static IValueRangeFactory valueRangeFactory() {

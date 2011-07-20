@@ -26,36 +26,36 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.api;
+package org.jowidgets.cap.common.api.bean;
 
-import org.jowidgets.cap.common.api.bean.IBean;
-import org.jowidgets.cap.common.api.bean.IBeanDataBuilder;
-import org.jowidgets.cap.common.api.bean.IBeanDtoBuilder;
-import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptorBuilder;
-import org.jowidgets.cap.common.api.bean.IBeanKeyBuilder;
-import org.jowidgets.cap.common.api.bean.IBeanModificationBuilder;
-import org.jowidgets.cap.common.api.bean.IBeanPropertyBuilder;
-import org.jowidgets.cap.common.api.bean.IPropertyBuilder;
-import org.jowidgets.cap.common.api.bean.IValueRangeFactory;
-import org.jowidgets.cap.common.api.sort.ISortFactory;
+import java.util.Collection;
 
-public interface ICapCommonToolkit {
+public interface IBeanPropertyBluePrint {
 
-	IPropertyBuilder propertyBuilder();
+	IBeanPropertyBluePrint setLabel(String labelDefault);
 
-	IBeanPropertyBuilder beanPropertyBuilder(Class<?> beanType, String propertyName);
+	IBeanPropertyBluePrint setValueRange(IValueRange valueRange);
 
-	IValueRangeFactory valueRangeFactory();
+	IBeanPropertyBluePrint setValueRange(boolean open, Collection<? extends Object> values);
 
-	<BEAN_TYPE extends IBean> IBeanDtoDescriptorBuilder<BEAN_TYPE> dtoDescriptorBuilder(Class<? extends BEAN_TYPE> beanType);
+	IBeanPropertyBluePrint setValueRange(Collection<? extends Object> values);
 
-	IBeanDtoBuilder dtoBuilder();
+	IBeanPropertyBluePrint setValueRange(boolean open, Object... values);
 
-	IBeanDataBuilder beanDataBuilder();
+	IBeanPropertyBluePrint setValueRange(Object... values);
 
-	IBeanKeyBuilder beanKeyBuilder();
+	IBeanPropertyBluePrint setLabelLong(String labelLongDefault);
 
-	IBeanModificationBuilder beanModificationBuilder();
+	IBeanPropertyBluePrint setDescription(String descriptionDefault);
 
-	ISortFactory sortFactory();
+	IBeanPropertyBluePrint setVisible(boolean visibleDefault);
+
+	IBeanPropertyBluePrint setMandatory(boolean mandatoryDefault);
+
+	IBeanPropertyBluePrint setElementValueType(Class<?> elementValueType);
+
+	IBeanPropertyBluePrint setSortable(boolean sortable);
+
+	IBeanPropertyBluePrint setFilterable(boolean filterable);
+
 }
