@@ -26,26 +26,43 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.widgets;
+package org.jowidgets.cap.ui.api.command;
 
-import org.jowidgets.api.model.item.IMenuModel;
-import org.jowidgets.api.widgets.ITable;
-import org.jowidgets.cap.ui.api.table.IBeanTableModel;
-import org.jowidgets.common.widgets.controler.ITableCellPopupEvent;
-import org.jowidgets.common.widgets.controler.ITableColumnPopupEvent;
-import org.jowidgets.util.ITypedKey;
+import org.jowidgets.api.command.IAction;
+import org.jowidgets.api.command.IActionBuilder;
+import org.jowidgets.cap.ui.api.model.IBeanListModel;
+import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 
-public interface IBeanTable<BEAN_TYPE> extends ITable {
+public interface ICapActionFactory {
 
-	ITypedKey<ITableColumnPopupEvent> COLUMN_POPUP_EVENT_CONTEXT_KEY = new ITypedKey<ITableColumnPopupEvent>() {};
-	ITypedKey<ITableCellPopupEvent> CELL_POPUP_EVENT_CONTEXT_KEY = new ITypedKey<ITableCellPopupEvent>() {};
+	IDataModelAction dataModelLoadAction();
 
-	IMenuModel getCellPopMenu();
+	IDataModelActionBuilder dataModelLoadActionBuilder();
 
-	IMenuModel getHeaderPopMenu();
+	IDataModelAction dataModelSaveAction();
 
-	void showSettingsDialog();
+	IDataModelActionBuilder dataModelSaveActionBuilder();
 
-	IBeanTableModel<BEAN_TYPE> getModel();
+	IDataModelAction dataModelUndoAction();
+
+	IDataModelActionBuilder dataModelUndoActionBuilder();
+
+	IDataModelAction dataModelCancelAction();
+
+	IDataModelActionBuilder dataModelCancelActionBuilder();
+
+	IActionBuilder beanTableSettingsActionBuilder(IBeanTable<?> table);
+
+	IAction beanTableSettingsAction(IBeanTable<?> table);
+
+	IActionBuilder beanTableHideColumnActionBuilder(IBeanTable<?> table);
+
+	IAction beanTableHideColumnAction(IBeanTable<?> table);
+
+	IActionBuilder beanTableUnhideColumnsActionBuilder(IBeanTable<?> table);
+
+	IAction beanTableUnhideColumnsAction(IBeanTable<?> table);
+
+	<BEAN_TYPE, PARAM_TYPE> IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> executorActionBuilder(IBeanListModel<BEAN_TYPE> model);
 
 }

@@ -26,28 +26,29 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.command;
+package org.jowidgets.cap.ui.impl;
 
-import org.jowidgets.cap.ui.api.model.IBeanListModel;
+import org.jowidgets.api.command.ICommandExecutor;
+import org.jowidgets.api.command.IExecutionContext;
+import org.jowidgets.cap.ui.api.icons.CapIcons;
+import org.jowidgets.cap.ui.api.widgets.IBeanTable;
+import org.jowidgets.common.widgets.controler.ITableColumnPopupEvent;
+import org.jowidgets.tools.command.ActionBuilder;
 
-public interface IActionFactory {
+final class BeanTableHideColumnActionBuilder extends ActionBuilder {
 
-	IDataModelAction dataModelLoadAction();
-
-	IDataModelActionBuilder dataModelLoadActionBuilder();
-
-	IDataModelAction dataModelSaveAction();
-
-	IDataModelActionBuilder dataModelSaveActionBuilder();
-
-	IDataModelAction dataModelUndoAction();
-
-	IDataModelActionBuilder dataModelUndoActionBuilder();
-
-	IDataModelAction dataModelCancelAction();
-
-	IDataModelActionBuilder dataModelCancelActionBuilder();
-
-	<BEAN_TYPE, PARAM_TYPE> IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> executorActionBuilder(IBeanListModel<BEAN_TYPE> model);
+	BeanTableHideColumnActionBuilder(final IBeanTable<?> table) {
+		super();
+		setText("Hide column");
+		setText("Hides this column");
+		setIcon(CapIcons.TABLE_HIDE_COLUMN);
+		setCommand(new ICommandExecutor() {
+			@Override
+			public void execute(final IExecutionContext executionContext) throws Exception {
+				final ITableColumnPopupEvent columnPopupEvent = executionContext.getValue(IBeanTable.COLUMN_POPUP_EVENT_CONTEXT_KEY);
+				table.getModel().getAttribute(columnPopupEvent.getColumnIndex()).setVisible(false);
+			}
+		});
+	}
 
 }

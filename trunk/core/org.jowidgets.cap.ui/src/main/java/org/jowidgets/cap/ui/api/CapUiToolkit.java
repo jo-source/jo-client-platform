@@ -45,7 +45,7 @@ import org.jowidgets.cap.ui.api.bean.IBeanMessageBuilder;
 import org.jowidgets.cap.ui.api.bean.IBeanMessageFixBuilder;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeansStateTracker;
-import org.jowidgets.cap.ui.api.command.IActionFactory;
+import org.jowidgets.cap.ui.api.command.ICapActionFactory;
 import org.jowidgets.cap.ui.api.execution.IExecutionTaskFactory;
 import org.jowidgets.cap.ui.api.form.IBeanFormToolkit;
 import org.jowidgets.cap.ui.api.icons.CapIcons;
@@ -87,7 +87,7 @@ public final class CapUiToolkit {
 		return getInstance().bluePrintFactory();
 	}
 
-	public static IActionFactory actionFactory() {
+	public static ICapActionFactory actionFactory() {
 		return getInstance().actionFactory();
 	}
 

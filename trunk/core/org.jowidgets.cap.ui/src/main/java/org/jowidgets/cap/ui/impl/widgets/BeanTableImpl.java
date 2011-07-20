@@ -28,11 +28,7 @@
 
 package org.jowidgets.cap.ui.impl.widgets;
 
-import org.jowidgets.api.command.EnabledState;
 import org.jowidgets.api.command.IAction;
-import org.jowidgets.api.command.IActionBuilder;
-import org.jowidgets.api.command.ICommandExecutor;
-import org.jowidgets.api.command.IEnabledState;
 import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.api.convert.IStringObjectConverter;
 import org.jowidgets.api.model.item.IMenuModel;
@@ -42,7 +38,7 @@ import org.jowidgets.api.widgets.ITable;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
-import org.jowidgets.cap.ui.api.icons.CapIcons;
+import org.jowidgets.cap.ui.api.command.ICapActionFactory;
 import org.jowidgets.cap.ui.api.sort.ISortModel;
 import org.jowidgets.cap.ui.api.table.IBeanTableConfig;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
@@ -58,7 +54,6 @@ import org.jowidgets.common.widgets.controler.ITableColumnMouseEvent;
 import org.jowidgets.common.widgets.controler.ITableColumnPopupDetectionListener;
 import org.jowidgets.common.widgets.controler.ITableColumnPopupEvent;
 import org.jowidgets.tools.command.ActionWrapper;
-import org.jowidgets.tools.command.EnabledChecker;
 import org.jowidgets.tools.command.ExecutionContextWrapper;
 import org.jowidgets.tools.controler.TableCellEditorAdapter;
 import org.jowidgets.tools.controler.TableColumnAdapter;
@@ -66,7 +61,6 @@ import org.jowidgets.tools.model.item.MenuModel;
 import org.jowidgets.tools.widgets.wrapper.TableWrapper;
 import org.jowidgets.util.IDecorator;
 import org.jowidgets.util.ITypedKey;
-import org.jowidgets.util.event.IChangeListener;
 
 final class BeanTableImpl<BEAN_TYPE> extends TableWrapper implements IBeanTable<BEAN_TYPE> {
 
@@ -89,13 +83,15 @@ final class BeanTableImpl<BEAN_TYPE> extends TableWrapper implements IBeanTable<
 		table.setPopupMenu(tablePopupMenuModel);
 
 		if (bluePrint.hasDefaultMenus()) {
+			final ICapActionFactory actionFactory = CapUiToolkit.actionFactory();
+
 			//cell popup menu
-			final IAction settingsDialogAction = createSettingsDialogAction(model);
+			final IAction settingsDialogAction = actionFactory.beanTableSettingsAction(this);
 			cellPopupMenuModel.addAction(settingsDialogAction);
 
 			//header popup menu
-			final IAction hideColumnAction = createHideColumnAction(model);
-			final IAction unhideColumnsActions = createUnhideAllColumnAction(model);
+			final IAction hideColumnAction = actionFactory.beanTableHideColumnAction(this);
+			final IAction unhideColumnsActions = actionFactory.beanTableUnhideColumnsAction(this);
 			headerPopupMenuModel.addAction(hideColumnAction);
 			headerPopupMenuModel.addAction(unhideColumnsActions);
 
@@ -145,6 +141,11 @@ final class BeanTableImpl<BEAN_TYPE> extends TableWrapper implements IBeanTable<
 	}
 
 	@Override
+	public IBeanTableModel<BEAN_TYPE> getModel() {
+		return model;
+	}
+
+	@Override
 	public void showSettingsDialog() {
 		final IBeanTableSettingsDialog dialog = getSettingsDialog();
 		final IBeanTableConfig tableConfig = dialog.show();
@@ -163,84 +164,6 @@ final class BeanTableImpl<BEAN_TYPE> extends TableWrapper implements IBeanTable<
 		return headerPopupMenuModel;
 	}
 
-	private IAction createSettingsDialogAction(final IBeanTableModel<?> beanTableModel) {
-		final IActionBuilder builder = Toolkit.getActionBuilderFactory().create();
-		builder.setText("Settings ...");
-		builder.setIcon(CapIcons.TABLE_SETTINGS);
-		builder.setCommand(new ICommandExecutor() {
-			@Override
-			public void execute(final IExecutionContext executionContext) throws Exception {
-				showSettingsDialog();
-			}
-		});
-		return builder.build();
-	}
-
-	private IAction createHideColumnAction(final IBeanTableModel<?> beanTableModel) {
-		final IActionBuilder builder = Toolkit.getActionBuilderFactory().create();
-		builder.setText("Hide column");
-		builder.setIcon(CapIcons.TABLE_HIDE_COLUMN);
-		builder.setCommand(new ICommandExecutor() {
-			@Override
-			public void execute(final IExecutionContext executionContext) throws Exception {
-				beanTableModel.getAttribute(currentColumnEvent.getColumnIndex()).setVisible(false);
-			}
-		});
-		return builder.build();
-	}
-
-	private IAction createUnhideAllColumnAction(final IBeanTableModel<?> beanTableModel) {
-		final IActionBuilder builder = Toolkit.getActionBuilderFactory().create();
-		builder.setText("Unhide all columns");
-		builder.setIcon(CapIcons.TABLE_UNHIDE_ALL_COLUMNS);
-
-		final ICommandExecutor commandExecutor = new ICommandExecutor() {
-			@Override
-			public void execute(final IExecutionContext executionContext) throws Exception {
-				for (int i = 0; i < beanTableModel.getColumnCount(); i++) {
-					beanTableModel.getAttribute(i).setVisible(true);
-				}
-			}
-		};
-
-		final EnabledChecker enabledChecker = new EnabledChecker();
-		enabledChecker.setEnabledState(getUnhideColumnsEnabledState());
-		final IChangeListener changeListener = new IChangeListener() {
-			@Override
-			public void changed() {
-				enabledChecker.setEnabledState(getUnhideColumnsEnabledState());
-			}
-		};
-
-		for (int i = 0; i < beanTableModel.getColumnCount(); i++) {
-			final IAttribute<?> attribute = beanTableModel.getAttribute(i);
-			attribute.addChangeListener(changeListener);
-		}
-
-		builder.setCommand(commandExecutor, enabledChecker);
-
-		return builder.build();
-	}
-
-	private IEnabledState getUnhideColumnsEnabledState() {
-		if (!hasInvisibleColumns()) {
-			return EnabledState.disabled("All columns are visible");
-		}
-		else {
-			return EnabledState.ENABLED;
-		}
-	}
-
-	private boolean hasInvisibleColumns() {
-		for (int i = 0; i < model.getColumnCount(); i++) {
-			final IAttribute<?> attribute = model.getAttribute(i);
-			if (!attribute.isVisible()) {
-				return true;
-			}
-		}
-		return false;
-	}
-
 	private IBeanTableSettingsDialog getSettingsDialog() {
 		if (settingsDialog == null) {
 			final ICapApiBluePrintFactory bpf = CapUiToolkit.bluePrintFactory();
@@ -254,7 +177,6 @@ final class BeanTableImpl<BEAN_TYPE> extends TableWrapper implements IBeanTable<
 			@Override
 			public IAction decorate(final IAction original) {
 				return new ActionWrapper(original) {
-
 					@Override
 					public void execute(final IExecutionContext executionContext) throws Exception {
 						super.execute(getDecoratedExecutionContext(executionContext, header));
