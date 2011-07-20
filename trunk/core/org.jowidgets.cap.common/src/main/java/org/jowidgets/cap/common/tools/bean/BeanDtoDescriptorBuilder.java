@@ -29,16 +29,15 @@
 package org.jowidgets.cap.common.tools.bean;
 
 import org.jowidgets.cap.common.api.CapCommonToolkit;
-import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptorBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanPropertyBluePrint;
 
-public final class BeanDtoDescriptorBuilder<BEAN_TYPE extends IBean> implements IBeanDtoDescriptorBuilder<BEAN_TYPE> {
+public final class BeanDtoDescriptorBuilder implements IBeanDtoDescriptorBuilder {
 
-	private final IBeanDtoDescriptorBuilder<BEAN_TYPE> builder;
+	private final IBeanDtoDescriptorBuilder builder;
 
-	public BeanDtoDescriptorBuilder(final Class<? extends BEAN_TYPE> beanType) {
+	public BeanDtoDescriptorBuilder(final Class<?> beanType) {
 		this.builder = CapCommonToolkit.dtoDescriptorBuilder(beanType);
 	}
 
@@ -48,7 +47,7 @@ public final class BeanDtoDescriptorBuilder<BEAN_TYPE extends IBean> implements 
 	}
 
 	@Override
-	public IBeanDtoDescriptor<BEAN_TYPE> build() {
+	public IBeanDtoDescriptor build() {
 		return builder.build();
 	}
 

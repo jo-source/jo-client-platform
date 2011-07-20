@@ -28,7 +28,6 @@
 
 package org.jowidgets.cap.common.api;
 
-import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanDataBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanDtoBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptorBuilder;
@@ -65,8 +64,7 @@ public final class CapCommonToolkit {
 		return getInstance().valueRangeFactory();
 	}
 
-	public static <BEAN_TYPE extends IBean> IBeanDtoDescriptorBuilder<BEAN_TYPE> dtoDescriptorBuilder(
-		final Class<? extends BEAN_TYPE> beanType) {
+	public static IBeanDtoDescriptorBuilder dtoDescriptorBuilder(final Class<?> beanType) {
 		return getInstance().dtoDescriptorBuilder(beanType);
 	}
 

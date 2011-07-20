@@ -36,8 +36,8 @@ public interface IEntityService {
 
 	IServiceId<IEntityService> ID = new ServiceId<IEntityService>(IEntityService.class.getName(), IEntityService.class);
 
-	<BEAN_TYPE> IBeanDtoDescriptor<BEAN_TYPE> getDescriptor(Class<BEAN_TYPE> beanType);
+	IBeanDtoDescriptor getDescriptor(Object entityTypeId);
 
-	<BEAN_TYPE> IBeanServicesProvider<BEAN_TYPE> getBeanServices(Class<BEAN_TYPE> beanType);
+	IBeanServicesProvider getBeanServices(Object entityTypeId);
 
 }

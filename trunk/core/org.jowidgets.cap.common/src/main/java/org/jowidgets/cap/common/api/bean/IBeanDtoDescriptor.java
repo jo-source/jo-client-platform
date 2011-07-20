@@ -30,16 +30,11 @@ package org.jowidgets.cap.common.api.bean;
 
 import java.util.List;
 
-public interface IBeanDtoDescriptor<BEAN_TYPE> {
+public interface IBeanDtoDescriptor {
 
 	/**
 	 * @return The properties of the bean in the preferred order
 	 */
 	List<IProperty> getProperties();
-
-	/**
-	 * @return The type of the native bean
-	 */
-	Class<BEAN_TYPE> getBeanType();
 
 }

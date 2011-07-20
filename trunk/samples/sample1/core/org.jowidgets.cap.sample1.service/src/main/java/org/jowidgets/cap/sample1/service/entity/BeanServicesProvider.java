@@ -46,7 +46,7 @@ import org.jowidgets.service.api.IServiceRegistry;
 
 public final class BeanServicesProvider<BEAN_TYPE extends IBean> {
 
-	private final IBeanServicesProvider<BEAN_TYPE> beanServicesProvider;
+	private final IBeanServicesProvider beanServicesProvider;
 
 	public BeanServicesProvider(
 		final IServiceRegistry registry,
@@ -61,7 +61,7 @@ public final class BeanServicesProvider<BEAN_TYPE extends IBean> {
 		final AbstractData<? extends BEAN_TYPE> data,
 		final List<String> properties) {
 
-		final IBeanServicesProviderBuilder<BEAN_TYPE> builder = CapServiceToolkit.beanServicesProviderBuilder(
+		final IBeanServicesProviderBuilder builder = CapServiceToolkit.beanServicesProviderBuilder(
 				registry,
 				entityServiceId,
 				data.getBeanType());
@@ -88,7 +88,7 @@ public final class BeanServicesProvider<BEAN_TYPE extends IBean> {
 		this.beanServicesProvider = builder.build();
 	}
 
-	public IBeanServicesProvider<BEAN_TYPE> getServices() {
+	public IBeanServicesProvider getServices() {
 		return beanServicesProvider;
 	}
 

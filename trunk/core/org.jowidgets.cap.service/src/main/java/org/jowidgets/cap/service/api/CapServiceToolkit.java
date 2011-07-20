@@ -65,11 +65,11 @@ public final class CapServiceToolkit {
 		return getInstance().entityServiceBuilder();
 	}
 
-	public static <BEAN_TYPE> IBeanServicesProviderBuilder<BEAN_TYPE> beanServicesProviderBuilder(
+	public static IBeanServicesProviderBuilder beanServicesProviderBuilder(
 		final IServiceRegistry registry,
 		final IServiceId<IEntityService> entityServiceId,
-		final Class<? extends BEAN_TYPE> beanType) {
-		return getInstance().beanServicesProviderBuilder(registry, entityServiceId, beanType);
+		final Object entityId) {
+		return getInstance().beanServicesProviderBuilder(registry, entityServiceId, entityId);
 	}
 
 	public static <BEAN_TYPE extends IBean> IBeanInitializer<BEAN_TYPE> beanInitializer(

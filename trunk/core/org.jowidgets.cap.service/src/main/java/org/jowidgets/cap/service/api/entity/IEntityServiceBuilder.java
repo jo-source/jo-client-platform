@@ -37,7 +37,8 @@ public interface IEntityServiceBuilder {
 	IEntityService build();
 
 	<BEAN_TYPE> IEntityServiceBuilder add(
-		IBeanDtoDescriptor<BEAN_TYPE> descriptor,
-		IBeanServicesProvider<BEAN_TYPE> beanServicesProvider);
+		Object entityId,
+		IBeanDtoDescriptor descriptor,
+		IBeanServicesProvider beanServicesProvider);
 
 }

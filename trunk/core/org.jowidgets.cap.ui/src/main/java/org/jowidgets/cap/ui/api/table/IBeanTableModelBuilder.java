@@ -56,10 +56,9 @@ public interface IBeanTableModelBuilder<BEAN_TYPE> {
 		final IServiceId<IReaderService<PARAM_TYPE>> readerServiceId,
 		IReaderParameterProvider<PARAM_TYPE> paramProvider);
 
-	IBeanTableModelBuilder<BEAN_TYPE> setEntityServices(IBeanServicesProvider<BEAN_TYPE> entityServicesProvider);
+	IBeanTableModelBuilder<BEAN_TYPE> setEntityServices(IBeanServicesProvider beanServicesProvider);
 
-	IBeanTableModelBuilder<BEAN_TYPE> setEntityServices(
-		final IServiceId<IBeanServicesProvider<BEAN_TYPE>> entityServicesProviderId);
+	IBeanTableModelBuilder<BEAN_TYPE> setEntityServices(final IServiceId<IBeanServicesProvider> entityServicesProviderId);
 
 	IBeanTableModelBuilder<BEAN_TYPE> setCreatorService(final ICreatorService creatorService);
 

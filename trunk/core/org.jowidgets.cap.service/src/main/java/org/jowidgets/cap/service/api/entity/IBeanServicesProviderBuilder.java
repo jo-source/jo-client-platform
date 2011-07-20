@@ -40,28 +40,28 @@ import org.jowidgets.cap.service.api.adapter.ISyncReaderService;
 import org.jowidgets.cap.service.api.adapter.ISyncRefreshService;
 import org.jowidgets.cap.service.api.adapter.ISyncUpdaterService;
 
-public interface IBeanServicesProviderBuilder<BEAN_TYPE> {
+public interface IBeanServicesProviderBuilder {
 
-	IBeanServicesProviderBuilder<BEAN_TYPE> setReaderService(IReaderService<Void> readerService);
+	IBeanServicesProviderBuilder setReaderService(IReaderService<Void> readerService);
 
-	IBeanServicesProviderBuilder<BEAN_TYPE> setReaderService(ISyncReaderService<Void> readerService);
+	IBeanServicesProviderBuilder setReaderService(ISyncReaderService<Void> readerService);
 
-	IBeanServicesProviderBuilder<BEAN_TYPE> setCreatorService(ICreatorService creatorService);
+	IBeanServicesProviderBuilder setCreatorService(ICreatorService creatorService);
 
-	IBeanServicesProviderBuilder<BEAN_TYPE> setCreatorService(ISyncCreatorService creatorService);
+	IBeanServicesProviderBuilder setCreatorService(ISyncCreatorService creatorService);
 
-	IBeanServicesProviderBuilder<BEAN_TYPE> setRefreshService(IRefreshService refreshService);
+	IBeanServicesProviderBuilder setRefreshService(IRefreshService refreshService);
 
-	IBeanServicesProviderBuilder<BEAN_TYPE> setRefreshService(ISyncRefreshService refreshService);
+	IBeanServicesProviderBuilder setRefreshService(ISyncRefreshService refreshService);
 
-	IBeanServicesProviderBuilder<BEAN_TYPE> setUpdaterService(IUpdaterService updaterService);
+	IBeanServicesProviderBuilder setUpdaterService(IUpdaterService updaterService);
 
-	IBeanServicesProviderBuilder<BEAN_TYPE> setUpdaterService(ISyncUpdaterService updaterService);
+	IBeanServicesProviderBuilder setUpdaterService(ISyncUpdaterService updaterService);
 
-	IBeanServicesProviderBuilder<BEAN_TYPE> setDeleterService(IDeleterService deleterService);
+	IBeanServicesProviderBuilder setDeleterService(IDeleterService deleterService);
 
-	IBeanServicesProviderBuilder<BEAN_TYPE> setDeleterService(ISyncDeleterService deleterService);
+	IBeanServicesProviderBuilder setDeleterService(ISyncDeleterService deleterService);
 
-	IBeanServicesProvider<BEAN_TYPE> build();
+	IBeanServicesProvider build();
 
 }

@@ -28,7 +28,6 @@
 
 package org.jowidgets.cap.common.api;
 
-import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanDataBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanDtoBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptorBuilder;
@@ -47,7 +46,7 @@ public interface ICapCommonToolkit {
 
 	IValueRangeFactory valueRangeFactory();
 
-	<BEAN_TYPE extends IBean> IBeanDtoDescriptorBuilder<BEAN_TYPE> dtoDescriptorBuilder(Class<? extends BEAN_TYPE> beanType);
+	IBeanDtoDescriptorBuilder dtoDescriptorBuilder(Class<?> beanType);
 
 	IBeanDtoBuilder dtoBuilder();
 

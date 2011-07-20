@@ -30,33 +30,25 @@ package org.jowidgets.cap.common.impl;
 
 import java.io.Serializable;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
-import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
 import org.jowidgets.cap.common.api.bean.IProperty;
 
-final class BeanDtoDescriptorImpl<BEAN_TYPE extends IBean> implements IBeanDtoDescriptor<BEAN_TYPE>, Serializable {
+final class BeanDtoDescriptorImpl implements IBeanDtoDescriptor, Serializable {
 
 	private static final long serialVersionUID = 4875055093925862277L;
 
 	private final List<IProperty> unodifiableProperties;
-	private final Class<BEAN_TYPE> beanType;
 
-	@SuppressWarnings("unchecked")
-	BeanDtoDescriptorImpl(final Class<? extends BEAN_TYPE> beanType, final List<IProperty> properties) {
-		this.beanType = (Class<BEAN_TYPE>) beanType;
-		this.unodifiableProperties = Collections.unmodifiableList(properties);
+	BeanDtoDescriptorImpl(final List<IProperty> properties) {
+		this.unodifiableProperties = Collections.unmodifiableList(new LinkedList<IProperty>(properties));
 	}
 
 	@Override
 	public List<IProperty> getProperties() {
 		return unodifiableProperties;
-	}
-
-	@Override
-	public Class<BEAN_TYPE> getBeanType() {
-		return beanType;
 	}
 
 }

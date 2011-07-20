@@ -28,11 +28,10 @@
 
 package org.jowidgets.cap.common.api.service;
 
-import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
 
-public interface IDtoDescriptorService<BEAN_TYPE extends IBean> {
+public interface IDtoDescriptorService {
 
-	IBeanDtoDescriptor<BEAN_TYPE> getDescriptor();
+	IBeanDtoDescriptor getDescriptor();
 
 }

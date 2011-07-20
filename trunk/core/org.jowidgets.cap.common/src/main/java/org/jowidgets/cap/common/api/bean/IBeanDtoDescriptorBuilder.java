@@ -28,10 +28,10 @@
 
 package org.jowidgets.cap.common.api.bean;
 
-public interface IBeanDtoDescriptorBuilder<BEAN_TYPE> {
+public interface IBeanDtoDescriptorBuilder {
 
 	IBeanPropertyBluePrint addProperty(String propertyName);
 
-	IBeanDtoDescriptor<BEAN_TYPE> build();
+	IBeanDtoDescriptor build();
 
 }

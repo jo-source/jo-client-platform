@@ -79,11 +79,11 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> implements IBeanTableModelBuild
 
 		final IEntityService entityService = ServiceProvider.getService(IEntityService.ID);
 		if (entityService != null) {
-			final IBeanServicesProvider<BEAN_TYPE> entityServicesProvider = entityService.getBeanServices(beanType);
+			final IBeanServicesProvider entityServicesProvider = entityService.getBeanServices(beanType);
 			if (entityServicesProvider != null) {
 				setEntityServices(entityServicesProvider);
 			}
-			final IBeanDtoDescriptor<BEAN_TYPE> beanDtoDescriptor = entityService.getDescriptor(beanType);
+			final IBeanDtoDescriptor beanDtoDescriptor = entityService.getDescriptor(beanType);
 			if (beanDtoDescriptor != null) {
 				this.attributes = CapUiToolkit.attributeToolkit().createAttributes(beanDtoDescriptor.getProperties());
 			}
@@ -134,7 +134,7 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> implements IBeanTableModelBuild
 	}
 
 	@Override
-	public IBeanTableModelBuilder<BEAN_TYPE> setEntityServices(final IBeanServicesProvider<BEAN_TYPE> entityServicesProvider) {
+	public IBeanTableModelBuilder<BEAN_TYPE> setEntityServices(final IBeanServicesProvider entityServicesProvider) {
 		Assert.paramNotNull(entityServicesProvider, "entityServicesProvider");
 		final IReaderService<Void> entitityReaderService = entityServicesProvider.readerService();
 		if (entitityReaderService != null) {
@@ -148,8 +148,7 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> implements IBeanTableModelBuild
 	}
 
 	@Override
-	public IBeanTableModelBuilder<BEAN_TYPE> setEntityServices(
-		final IServiceId<IBeanServicesProvider<BEAN_TYPE>> entityServicesProviderId) {
+	public IBeanTableModelBuilder<BEAN_TYPE> setEntityServices(final IServiceId<IBeanServicesProvider> entityServicesProviderId) {
 		Assert.paramNotNull(entityServicesProviderId, "entityServicesProviderId");
 		return setEntityServices(ServiceProvider.getService(entityServicesProviderId));
 	}

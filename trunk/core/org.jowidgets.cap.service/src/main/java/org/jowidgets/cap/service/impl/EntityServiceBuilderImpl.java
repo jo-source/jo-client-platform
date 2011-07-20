@@ -39,12 +39,12 @@ import org.jowidgets.util.Assert;
 
 final class EntityServiceBuilderImpl implements IEntityServiceBuilder {
 
-	private final Map<Class<?>, IBeanDtoDescriptor<?>> descriptors;
-	private final Map<Class<?>, IBeanServicesProvider<?>> beanServices;
+	private final Map<Object, IBeanDtoDescriptor> descriptors;
+	private final Map<Object, IBeanServicesProvider> beanServices;
 
 	EntityServiceBuilderImpl() {
-		this.descriptors = new HashMap<Class<?>, IBeanDtoDescriptor<?>>();
-		this.beanServices = new HashMap<Class<?>, IBeanServicesProvider<?>>();
+		this.descriptors = new HashMap<Object, IBeanDtoDescriptor>();
+		this.beanServices = new HashMap<Object, IBeanServicesProvider>();
 	}
 
 	@Override
@@ -54,14 +54,14 @@ final class EntityServiceBuilderImpl implements IEntityServiceBuilder {
 
 	@Override
 	public <BEAN_TYPE> IEntityServiceBuilder add(
-		final IBeanDtoDescriptor<BEAN_TYPE> descriptor,
-		final IBeanServicesProvider<BEAN_TYPE> beanServicesProvider) {
+		final Object entityId,
+		final IBeanDtoDescriptor descriptor,
+		final IBeanServicesProvider beanServicesProvider) {
 		Assert.paramNotNull(descriptor, "descriptor");
-		Assert.paramNotNull(descriptor.getBeanType(), "descriptor.getBeanType()");
 		Assert.paramNotNull(beanServicesProvider, "beanServicesProvider");
 
-		descriptors.put(descriptor.getBeanType(), descriptor);
-		beanServices.put(descriptor.getBeanType(), beanServicesProvider);
+		descriptors.put(entityId, descriptor);
+		beanServices.put(entityId, beanServicesProvider);
 		return this;
 	}
 
