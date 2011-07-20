@@ -38,12 +38,15 @@ import org.jowidgets.util.builder.AbstractSingleUseBuilder;
 
 final class BeanDtoBuilderImpl extends AbstractSingleUseBuilder<IBeanDto> implements IBeanDtoBuilder {
 
+	private final Object entityTypeId;
+
 	private Object id;
 	private long version;
-	private String persistenceClassname;
 	private final Map<String, Object> propertyMap;
 
-	BeanDtoBuilderImpl() {
+	BeanDtoBuilderImpl(final Object entityTypeId) {
+		Assert.paramNotNull(entityTypeId, "entityTypeId");
+		this.entityTypeId = entityTypeId;
 		this.propertyMap = new HashMap<String, Object>();
 	}
 
@@ -60,12 +63,6 @@ final class BeanDtoBuilderImpl extends AbstractSingleUseBuilder<IBeanDto> implem
 	}
 
 	@Override
-	public IBeanDtoBuilder setPersistenceClassName(final String persistenceClassname) {
-		this.persistenceClassname = persistenceClassname;
-		return this;
-	}
-
-	@Override
 	public IBeanDtoBuilder setValue(final String propertyName, final Object value) {
 		Assert.paramNotEmpty(propertyName, "propertyName");
 		propertyMap.put(propertyName, value);
@@ -74,7 +71,7 @@ final class BeanDtoBuilderImpl extends AbstractSingleUseBuilder<IBeanDto> implem
 
 	@Override
 	public IBeanDto doBuild() {
-		return new BeanDtoImpl(id, version, persistenceClassname, propertyMap);
+		return new BeanDtoImpl(id, version, entityTypeId, propertyMap);
 	}
 
 }

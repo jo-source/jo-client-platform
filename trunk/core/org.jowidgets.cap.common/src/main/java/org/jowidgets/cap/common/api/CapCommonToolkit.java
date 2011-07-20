@@ -68,8 +68,8 @@ public final class CapCommonToolkit {
 		return getInstance().dtoDescriptorBuilder(beanType);
 	}
 
-	public static IBeanDtoBuilder dtoBuilder() {
-		return getInstance().dtoBuilder();
+	public static IBeanDtoBuilder dtoBuilder(final Object entityTypeId) {
+		return getInstance().dtoBuilder(entityTypeId);
 	}
 
 	public static IBeanDataBuilder beanDataBuilder() {

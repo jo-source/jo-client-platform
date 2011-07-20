@@ -28,14 +28,11 @@
 
 package org.jowidgets.cap.common.api.bean;
 
-
 public interface IBeanDtoBuilder {
 
 	IBeanDtoBuilder setId(Object id);
 
 	IBeanDtoBuilder setVersion(long version);
-
-	IBeanDtoBuilder setPersistenceClassName(String persistenceClassname);
 
 	IBeanDtoBuilder setValue(String propertyName, Object value);
 
