@@ -38,6 +38,8 @@ public interface IBeanModificationBuilder {
 
 	IBeanModificationBuilder setPropertyName(String propertyName);
 
+	IBeanModificationBuilder setOldValue(Object oldValue);
+
 	IBeanModificationBuilder setNewValue(Object newValue);
 
 	IBeanModification build();

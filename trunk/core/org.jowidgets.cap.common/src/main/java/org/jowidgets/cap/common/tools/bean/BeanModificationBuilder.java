@@ -66,6 +66,12 @@ public final class BeanModificationBuilder implements IBeanModificationBuilder {
 	}
 
 	@Override
+	public IBeanModificationBuilder setOldValue(final Object oldValue) {
+		builder.setOldValue(oldValue);
+		return this;
+	}
+
+	@Override
 	public IBeanModificationBuilder setNewValue(final Object newValue) {
 		builder.setNewValue(newValue);
 		return this;

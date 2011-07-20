@@ -32,6 +32,8 @@ public interface IBeanModification extends IBeanKey {
 
 	String getPropertyName();
 
+	Object getOldValue();
+
 	Object getNewValue();
 
 }

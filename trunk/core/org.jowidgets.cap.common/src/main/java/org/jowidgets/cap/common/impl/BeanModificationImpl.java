@@ -40,14 +40,16 @@ final class BeanModificationImpl implements IBeanModification, Serializable {
 	private final Object id;
 	private final long version;
 	private final String property;
+	private final Object oldValue;
 	private final Object newValue;
 
-	BeanModificationImpl(final Object id, final long version, final String property, final Object newValue) {
+	BeanModificationImpl(final Object id, final long version, final String property, final Object oldValue, final Object newValue) {
 		Assert.paramNotNull(id, "id");
 		Assert.paramNotEmpty(property, "property");
 		this.id = id;
 		this.version = version;
 		this.property = property;
+		this.oldValue = oldValue;
 		this.newValue = newValue;
 	}
 
@@ -64,6 +66,11 @@ final class BeanModificationImpl implements IBeanModification, Serializable {
 	@Override
 	public String getPropertyName() {
 		return property;
+	}
+
+	@Override
+	public Object getOldValue() {
+		return oldValue;
 	}
 
 	@Override
