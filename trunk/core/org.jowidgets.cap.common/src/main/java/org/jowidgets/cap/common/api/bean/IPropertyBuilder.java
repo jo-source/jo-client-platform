@@ -26,36 +26,44 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.api;
+package org.jowidgets.cap.common.api.bean;
 
-import org.jowidgets.cap.common.api.bean.IBean;
-import org.jowidgets.cap.common.api.bean.IBeanDataBuilder;
-import org.jowidgets.cap.common.api.bean.IBeanDtoBuilder;
-import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptorBuilder;
-import org.jowidgets.cap.common.api.bean.IBeanKeyBuilder;
-import org.jowidgets.cap.common.api.bean.IBeanModificationBuilder;
-import org.jowidgets.cap.common.api.bean.IBeanPropertyBuilder;
-import org.jowidgets.cap.common.api.bean.IPropertyBuilder;
-import org.jowidgets.cap.common.api.bean.IValueRangeFactory;
-import org.jowidgets.cap.common.api.sort.ISortFactory;
+import java.util.Collection;
 
-public interface ICapCommonToolkit {
+public interface IPropertyBuilder {
 
-	IPropertyBuilder propertyBuilder();
+	IPropertyBuilder setName(String name);
 
-	IBeanPropertyBuilder beanPropertyBuilder(Class<?> beanType, String propertyName);
+	IPropertyBuilder setLabel(String labelDefault);
 
-	IValueRangeFactory valueRangeFactory();
+	IPropertyBuilder setLabelLong(String labelLongDefault);
 
-	<BEAN_TYPE extends IBean> IBeanDtoDescriptorBuilder<BEAN_TYPE> dtoDescriptorBuilder(Class<? extends BEAN_TYPE> beanType);
+	IPropertyBuilder setDescription(String descriptionDefault);
 
-	IBeanDtoBuilder dtoBuilder();
+	IPropertyBuilder setVisible(boolean visibleDefault);
 
-	IBeanDataBuilder beanDataBuilder();
+	IPropertyBuilder setMandatory(boolean mandatoryDefault);
 
-	IBeanKeyBuilder beanKeyBuilder();
+	IPropertyBuilder setValueType(Class<?> valueType);
 
-	IBeanModificationBuilder beanModificationBuilder();
+	IPropertyBuilder setElementValueType(Class<?> elementValueType);
 
-	ISortFactory sortFactory();
+	IPropertyBuilder setReadonly(boolean readonly);
+
+	IPropertyBuilder setValueRange(IValueRange valueRange);
+
+	IPropertyBuilder setValueRange(boolean open, Collection<? extends Object> values);
+
+	IPropertyBuilder setValueRange(Collection<? extends Object> values);
+
+	IPropertyBuilder setValueRange(boolean open, Object... values);
+
+	IPropertyBuilder setValueRange(Object... values);
+
+	IPropertyBuilder setSortable(boolean sortable);
+
+	IPropertyBuilder setFilterable(boolean filterable);
+
+	IProperty build();
+
 }

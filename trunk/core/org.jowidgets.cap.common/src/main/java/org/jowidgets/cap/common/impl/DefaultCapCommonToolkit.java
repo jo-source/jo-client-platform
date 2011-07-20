@@ -36,6 +36,7 @@ import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptorBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanKeyBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanModificationBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanPropertyBuilder;
+import org.jowidgets.cap.common.api.bean.IPropertyBuilder;
 import org.jowidgets.cap.common.api.bean.IValueRangeFactory;
 import org.jowidgets.cap.common.api.sort.ISortFactory;
 
@@ -50,7 +51,12 @@ public final class DefaultCapCommonToolkit implements ICapCommonToolkit {
 	}
 
 	@Override
-	public IBeanPropertyBuilder propertyBuilder(final Class<?> beanType, final String propertyName) {
+	public IPropertyBuilder propertyBuilder() {
+		return new PropertyBuilder();
+	}
+
+	@Override
+	public IBeanPropertyBuilder beanPropertyBuilder(final Class<?> beanType, final String propertyName) {
 		return new BeanPropertyBuilderImpl(beanType, propertyName);
 	}
 
