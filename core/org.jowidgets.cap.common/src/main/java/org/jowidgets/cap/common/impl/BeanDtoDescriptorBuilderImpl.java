@@ -34,34 +34,34 @@ import java.util.List;
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptorBuilder;
-import org.jowidgets.cap.common.api.bean.IBeanPropertyBuilder;
+import org.jowidgets.cap.common.api.bean.IBeanPropertyBluePrint;
 import org.jowidgets.cap.common.api.bean.IProperty;
 import org.jowidgets.util.Assert;
 
 final class BeanDtoDescriptorBuilderImpl<BEAN_TYPE extends IBean> implements IBeanDtoDescriptorBuilder<BEAN_TYPE> {
 
 	private final Class<? extends BEAN_TYPE> beanType;
-	private final List<IProperty> properties;
+	private final List<BeanPropertyBluePrintImpl> bluePrints;
 
 	BeanDtoDescriptorBuilderImpl(final Class<? extends BEAN_TYPE> beanType) {
 		this.beanType = beanType;
-		this.properties = new LinkedList<IProperty>();
+		this.bluePrints = new LinkedList<BeanPropertyBluePrintImpl>();
 	}
 
 	@Override
-	public IBeanPropertyBuilder propertyBuilder(final String propertyName) {
+	public IBeanPropertyBluePrint addProperty(final String propertyName) {
 		Assert.paramNotEmpty(propertyName, "propertyName");
-		return new BeanPropertyBuilderImpl(beanType, propertyName);
-	}
-
-	@Override
-	public IBeanDtoDescriptorBuilder<BEAN_TYPE> addProperty(final IBeanPropertyBuilder builder) {
-		properties.add(builder.build());
-		return this;
+		final BeanPropertyBluePrintImpl bluePrint = new BeanPropertyBluePrintImpl(beanType, propertyName);
+		bluePrints.add(bluePrint);
+		return bluePrint;
 	}
 
 	@Override
 	public IBeanDtoDescriptor<BEAN_TYPE> build() {
+		final List<IProperty> properties = new LinkedList<IProperty>();
+		for (final BeanPropertyBluePrintImpl bluePrint : bluePrints) {
+			properties.add(bluePrint.build());
+		}
 		return new BeanDtoDescriptorImpl<BEAN_TYPE>(beanType, properties);
 	}
 
