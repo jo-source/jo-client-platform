@@ -47,11 +47,11 @@ import org.jowidgets.service.api.IServiceRegistry;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.IAdapterFactory;
 
-final class BeanServicesProviderBuilderImpl<BEAN_TYPE> implements IBeanServicesProviderBuilder<BEAN_TYPE> {
+final class BeanServicesProviderBuilderImpl implements IBeanServicesProviderBuilder {
 
 	private final IServiceRegistry registry;
 	private final IServiceId<IEntityService> entityServiceId;
-	private final Class<? extends BEAN_TYPE> beanType;
+	private final Object entityId;
 
 	private IReaderService<Void> readerService;
 	private ICreatorService creatorService;
@@ -62,85 +62,85 @@ final class BeanServicesProviderBuilderImpl<BEAN_TYPE> implements IBeanServicesP
 	BeanServicesProviderBuilderImpl(
 		final IServiceRegistry registry,
 		final IServiceId<IEntityService> entityServiceId,
-		final Class<? extends BEAN_TYPE> beanType) {
+		final Object entityId) {
 		Assert.paramNotNull(registry, "registry");
 		this.registry = registry;
 		this.entityServiceId = entityServiceId;
-		this.beanType = beanType;
+		this.entityId = entityId;
 	}
 
 	@Override
-	public IBeanServicesProviderBuilder<BEAN_TYPE> setReaderService(final IReaderService<Void> readerService) {
+	public IBeanServicesProviderBuilder setReaderService(final IReaderService<Void> readerService) {
 		Assert.paramNotNull(readerService, "readerService");
 		this.readerService = readerService;
 		return this;
 	}
 
 	@Override
-	public IBeanServicesProviderBuilder<BEAN_TYPE> setReaderService(final ISyncReaderService<Void> readerService) {
+	public IBeanServicesProviderBuilder setReaderService(final ISyncReaderService<Void> readerService) {
 		Assert.paramNotNull(readerService, "readerService");
 		final IAdapterFactory<IReaderService<Void>, ISyncReaderService<Void>> readerAdapterFactory = CapServiceToolkit.adapterFactoryProvider().reader();
 		return setReaderService(readerAdapterFactory.createAdapter(readerService));
 	}
 
 	@Override
-	public IBeanServicesProviderBuilder<BEAN_TYPE> setCreatorService(final ICreatorService creatorService) {
+	public IBeanServicesProviderBuilder setCreatorService(final ICreatorService creatorService) {
 		Assert.paramNotNull(creatorService, "creatorService");
 		this.creatorService = creatorService;
 		return this;
 	}
 
 	@Override
-	public IBeanServicesProviderBuilder<BEAN_TYPE> setCreatorService(final ISyncCreatorService creatorService) {
+	public IBeanServicesProviderBuilder setCreatorService(final ISyncCreatorService creatorService) {
 		Assert.paramNotNull(creatorService, "creatorService");
 		return setCreatorService(CapServiceToolkit.adapterFactoryProvider().creator().createAdapter(creatorService));
 	}
 
 	@Override
-	public IBeanServicesProviderBuilder<BEAN_TYPE> setRefreshService(final IRefreshService refreshService) {
+	public IBeanServicesProviderBuilder setRefreshService(final IRefreshService refreshService) {
 		Assert.paramNotNull(refreshService, "refreshService");
 		this.refreshService = refreshService;
 		return this;
 	}
 
 	@Override
-	public IBeanServicesProviderBuilder<BEAN_TYPE> setRefreshService(final ISyncRefreshService refreshService) {
+	public IBeanServicesProviderBuilder setRefreshService(final ISyncRefreshService refreshService) {
 		Assert.paramNotNull(refreshService, "refreshService");
 		return setRefreshService(CapServiceToolkit.adapterFactoryProvider().refresh().createAdapter(refreshService));
 	}
 
 	@Override
-	public IBeanServicesProviderBuilder<BEAN_TYPE> setUpdaterService(final IUpdaterService updaterService) {
+	public IBeanServicesProviderBuilder setUpdaterService(final IUpdaterService updaterService) {
 		Assert.paramNotNull(updaterService, "updaterService");
 		this.updaterService = updaterService;
 		return this;
 	}
 
 	@Override
-	public IBeanServicesProviderBuilder<BEAN_TYPE> setUpdaterService(final ISyncUpdaterService updaterService) {
+	public IBeanServicesProviderBuilder setUpdaterService(final ISyncUpdaterService updaterService) {
 		Assert.paramNotNull(updaterService, "updaterService");
 		return setUpdaterService(CapServiceToolkit.adapterFactoryProvider().updater().createAdapter(updaterService));
 	}
 
 	@Override
-	public IBeanServicesProviderBuilder<BEAN_TYPE> setDeleterService(final IDeleterService deleterService) {
+	public IBeanServicesProviderBuilder setDeleterService(final IDeleterService deleterService) {
 		Assert.paramNotNull(deleterService, "deleterService");
 		this.deleterService = deleterService;
 		return this;
 	}
 
 	@Override
-	public IBeanServicesProviderBuilder<BEAN_TYPE> setDeleterService(final ISyncDeleterService deleterService) {
+	public IBeanServicesProviderBuilder setDeleterService(final ISyncDeleterService deleterService) {
 		Assert.paramNotNull(deleterService, "deleterService");
 		return setDeleterService(CapServiceToolkit.adapterFactoryProvider().deleter().createAdapter(deleterService));
 	}
 
 	@Override
-	public IBeanServicesProvider<BEAN_TYPE> build() {
-		return new BeanServicesProviderImpl<BEAN_TYPE>(
+	public IBeanServicesProvider build() {
+		return new BeanServicesProviderImpl(
 			registry,
 			entityServiceId,
-			beanType,
+			entityId,
 			readerService,
 			creatorService,
 			refreshService,

@@ -29,7 +29,6 @@
 package org.jowidgets.cap.common.impl;
 
 import org.jowidgets.cap.common.api.ICapCommonToolkit;
-import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanDataBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanDtoBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptorBuilder;
@@ -66,9 +65,8 @@ public final class DefaultCapCommonToolkit implements ICapCommonToolkit {
 	}
 
 	@Override
-	public <BEAN_TYPE extends IBean> IBeanDtoDescriptorBuilder<BEAN_TYPE> dtoDescriptorBuilder(
-		final Class<? extends BEAN_TYPE> beanType) {
-		return new BeanDtoDescriptorBuilderImpl<BEAN_TYPE>(beanType);
+	public IBeanDtoDescriptorBuilder dtoDescriptorBuilder(final Class<?> beanType) {
+		return new BeanDtoDescriptorBuilderImpl(beanType);
 	}
 
 	@Override

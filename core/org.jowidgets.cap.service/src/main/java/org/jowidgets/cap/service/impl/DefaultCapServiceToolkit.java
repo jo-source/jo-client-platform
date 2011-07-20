@@ -69,11 +69,11 @@ public final class DefaultCapServiceToolkit implements ICapServiceToolkit {
 	}
 
 	@Override
-	public <BEAN_TYPE> IBeanServicesProviderBuilder<BEAN_TYPE> beanServicesProviderBuilder(
+	public IBeanServicesProviderBuilder beanServicesProviderBuilder(
 		final IServiceRegistry registry,
 		final IServiceId<IEntityService> entityServiceId,
-		final Class<? extends BEAN_TYPE> beanType) {
-		return new BeanServicesProviderBuilderImpl<BEAN_TYPE>(registry, entityServiceId, beanType);
+		final Object entityId) {
+		return new BeanServicesProviderBuilderImpl(registry, entityServiceId, entityId);
 	}
 
 	@Override

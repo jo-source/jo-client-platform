@@ -36,12 +36,12 @@ import org.jowidgets.cap.common.api.bean.IBeanPropertyBluePrint;
 import org.jowidgets.cap.common.api.service.IDtoDescriptorService;
 import org.jowidgets.cap.sample1.common.entity.IUser;
 
-public class UserDtoDescriptorService implements IDtoDescriptorService<IUser> {
+public class UserDtoDescriptorService implements IDtoDescriptorService {
 
-	private final IBeanDtoDescriptor<IUser> descriptor;
+	private final IBeanDtoDescriptor descriptor;
 
 	public UserDtoDescriptorService() {
-		final IBeanDtoDescriptorBuilder<IUser> builder = CapCommonToolkit.dtoDescriptorBuilder(IUser.class);
+		final IBeanDtoDescriptorBuilder builder = CapCommonToolkit.dtoDescriptorBuilder(IUser.class);
 
 		IBeanPropertyBluePrint propertyBp = builder.addProperty(IUser.NAME_PROPERTY);
 		propertyBp.setLabel("Name").setDescription("The name of the user");
@@ -85,7 +85,7 @@ public class UserDtoDescriptorService implements IDtoDescriptorService<IUser> {
 	}
 
 	@Override
-	public IBeanDtoDescriptor<IUser> getDescriptor() {
+	public IBeanDtoDescriptor getDescriptor() {
 		return descriptor;
 	}
 

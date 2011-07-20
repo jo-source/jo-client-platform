@@ -38,28 +38,26 @@ import org.jowidgets.util.Assert;
 
 public final class EntityServiceImpl implements IEntityService {
 
-	private final Map<Class<?>, IBeanDtoDescriptor<?>> descriptors;
-	private final Map<Class<?>, IBeanServicesProvider<?>> beanServices;
+	private final Map<Object, IBeanDtoDescriptor> descriptors;
+	private final Map<Object, IBeanServicesProvider> beanServices;
 
-	EntityServiceImpl(
-		final Map<Class<?>, IBeanDtoDescriptor<?>> descriptors,
-		final Map<Class<?>, IBeanServicesProvider<?>> beanServices) {
+	EntityServiceImpl(final Map<Object, IBeanDtoDescriptor> descriptors, final Map<Object, IBeanServicesProvider> beanServices) {
 		Assert.paramNotNull(descriptors, "descriptors");
 		Assert.paramNotNull(beanServices, "beanServices");
-		this.descriptors = new HashMap<Class<?>, IBeanDtoDescriptor<?>>(descriptors);
-		this.beanServices = new HashMap<Class<?>, IBeanServicesProvider<?>>(beanServices);
+		this.descriptors = new HashMap<Object, IBeanDtoDescriptor>(descriptors);
+		this.beanServices = new HashMap<Object, IBeanServicesProvider>(beanServices);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public <BEAN_TYPE> IBeanDtoDescriptor<BEAN_TYPE> getDescriptor(final Class<BEAN_TYPE> beanType) {
-		return (IBeanDtoDescriptor<BEAN_TYPE>) descriptors.get(beanType);
+	public IBeanDtoDescriptor getDescriptor(final Object entityId) {
+		Assert.paramNotNull(entityId, "entityId");
+		return descriptors.get(entityId);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public <BEAN_TYPE> IBeanServicesProvider<BEAN_TYPE> getBeanServices(final Class<BEAN_TYPE> beanType) {
-		return (IBeanServicesProvider<BEAN_TYPE>) beanServices.get(beanType);
+	public IBeanServicesProvider getBeanServices(final Object entityId) {
+		Assert.paramNotNull(entityId, "entityId");
+		return beanServices.get(entityId);
 	}
 
 }

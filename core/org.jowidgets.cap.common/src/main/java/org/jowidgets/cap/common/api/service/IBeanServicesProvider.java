@@ -28,8 +28,7 @@
 
 package org.jowidgets.cap.common.api.service;
 
-
-public interface IBeanServicesProvider<BEAN_TYPE> {
+public interface IBeanServicesProvider {
 
 	IReaderService<Void> readerService();
 

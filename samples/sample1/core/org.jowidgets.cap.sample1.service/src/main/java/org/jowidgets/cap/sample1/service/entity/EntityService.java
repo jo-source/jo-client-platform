@@ -44,12 +44,12 @@ public class EntityService {
 		final IEntityServiceBuilder builder = CapServiceToolkit.entityServiceBuilder();
 
 		//IUser
-		final IBeanDtoDescriptor<IUser> descriptor = new UserDtoDescriptorService().getDescriptor();
+		final IBeanDtoDescriptor descriptor = new UserDtoDescriptorService().getDescriptor();
 		final BeanServicesProvider<IUser> userServicesProvider = new BeanServicesProvider<IUser>(
 			registry,
 			DataStore.getPersons(),
 			IUser.ALL_PROPERTIES);
-		builder.add(descriptor, userServicesProvider.getServices());
+		builder.add(IUser.class, descriptor, userServicesProvider.getServices());
 
 		this.entityService = builder.build();
 	}

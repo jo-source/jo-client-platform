@@ -43,7 +43,7 @@ import org.jowidgets.service.api.ServiceProvider;
 import org.jowidgets.service.tools.ServiceId;
 import org.jowidgets.util.Assert;
 
-final class BeanServicesProviderImpl<BEAN_TYPE> implements IBeanServicesProvider<BEAN_TYPE>, Serializable {
+final class BeanServicesProviderImpl implements IBeanServicesProvider, Serializable {
 
 	private static final long serialVersionUID = -8588074689307098706L;
 
@@ -56,7 +56,7 @@ final class BeanServicesProviderImpl<BEAN_TYPE> implements IBeanServicesProvider
 	BeanServicesProviderImpl(
 		final IServiceRegistry serviceRegistry,
 		final IServiceId<IEntityService> entityServiceId,
-		final Class<? extends BEAN_TYPE> beanType,
+		final Object entityId,
 		final IReaderService<Void> readerService,
 		final ICreatorService creatorService,
 		final IRefreshService refreshService,
@@ -65,12 +65,12 @@ final class BeanServicesProviderImpl<BEAN_TYPE> implements IBeanServicesProvider
 
 		Assert.paramNotNull(serviceRegistry, "serviceRegistry");
 		Assert.paramNotNull(entityServiceId, "entityServiceId");
-		Assert.paramNotNull(beanType, "beanType");
+		Assert.paramNotNull(entityId, "entityId");
 
 		if (readerService != null) {
 			this.readerServiceId = new ServiceId<IReaderService<Void>>(new Id(
 				entityServiceId,
-				beanType.getName(),
+				entityId.getClass().getName(),
 				IReaderService.class.getName()), IReaderService.class);
 			serviceRegistry.addService(readerServiceId, readerService);
 		}
@@ -81,7 +81,7 @@ final class BeanServicesProviderImpl<BEAN_TYPE> implements IBeanServicesProvider
 		if (creatorService != null) {
 			this.creatorServiceId = new ServiceId<ICreatorService>(new Id(
 				entityServiceId,
-				beanType.getName(),
+				entityId.getClass().getName(),
 				ICreatorService.class.getName()), ICreatorService.class);
 			serviceRegistry.addService(creatorServiceId, creatorService);
 		}
@@ -92,7 +92,7 @@ final class BeanServicesProviderImpl<BEAN_TYPE> implements IBeanServicesProvider
 		if (refreshService != null) {
 			this.refreshServiceId = new ServiceId<IRefreshService>(new Id(
 				entityServiceId,
-				beanType.getName(),
+				entityId.getClass().getName(),
 				IRefreshService.class.getName()), IRefreshService.class);
 			serviceRegistry.addService(refreshServiceId, refreshService);
 		}
@@ -103,7 +103,7 @@ final class BeanServicesProviderImpl<BEAN_TYPE> implements IBeanServicesProvider
 		if (updaterService != null) {
 			this.updaterServiceId = new ServiceId<IUpdaterService>(new Id(
 				entityServiceId,
-				beanType.getName(),
+				entityId.getClass().getName(),
 				IUpdaterService.class.getName()), IUpdaterService.class);
 			serviceRegistry.addService(updaterServiceId, updaterService);
 		}
@@ -114,7 +114,7 @@ final class BeanServicesProviderImpl<BEAN_TYPE> implements IBeanServicesProvider
 		if (deleterService != null) {
 			this.deleterServiceId = new ServiceId<IDeleterService>(new Id(
 				entityServiceId,
-				beanType.getName(),
+				entityId.getClass().getName(),
 				IDeleterService.class.getName()), IDeleterService.class);
 			serviceRegistry.addService(deleterServiceId, deleterService);
 		}
@@ -166,13 +166,13 @@ final class BeanServicesProviderImpl<BEAN_TYPE> implements IBeanServicesProvider
 		private static final long serialVersionUID = -2049008694890176142L;
 
 		private final IServiceId<IEntityService> entityServiceId;
-		private final String beanType;
+		private final String entityId;
 		private final String service;
 
-		private Id(final IServiceId<IEntityService> entityServiceId, final String beanType, final String service) {
+		private Id(final IServiceId<IEntityService> entityServiceId, final String entityId, final String service) {
 			super();
 			this.entityServiceId = entityServiceId;
-			this.beanType = beanType;
+			this.entityId = entityId;
 			this.service = service;
 		}
 
@@ -180,7 +180,7 @@ final class BeanServicesProviderImpl<BEAN_TYPE> implements IBeanServicesProvider
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + ((beanType == null) ? 0 : beanType.hashCode());
+			result = prime * result + ((entityId == null) ? 0 : entityId.hashCode());
 			result = prime * result + ((entityServiceId == null) ? 0 : entityServiceId.hashCode());
 			result = prime * result + ((service == null) ? 0 : service.hashCode());
 			return result;
@@ -197,14 +197,13 @@ final class BeanServicesProviderImpl<BEAN_TYPE> implements IBeanServicesProvider
 			if (getClass() != obj.getClass()) {
 				return false;
 			}
-			@SuppressWarnings("unchecked")
 			final Id other = (Id) obj;
-			if (beanType == null) {
-				if (other.beanType != null) {
+			if (entityId == null) {
+				if (other.entityId != null) {
 					return false;
 				}
 			}
-			else if (!beanType.equals(other.beanType)) {
+			else if (!entityId.equals(other.entityId)) {
 				return false;
 			}
 			if (entityServiceId == null) {
