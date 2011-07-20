@@ -38,6 +38,7 @@ final class BeanModificationBuilderImpl implements IBeanModificationBuilder {
 	private Object id;
 	private long version;
 	private String propertyName;
+	private Object oldValue;
 	private Object newValue;
 
 	BeanModificationBuilderImpl() {}
@@ -63,6 +64,12 @@ final class BeanModificationBuilderImpl implements IBeanModificationBuilder {
 	}
 
 	@Override
+	public IBeanModificationBuilder setOldValue(final Object oldValue) {
+		this.oldValue = oldValue;
+		return this;
+	}
+
+	@Override
 	public IBeanModificationBuilder setNewValue(final Object newValue) {
 		this.newValue = newValue;
 		return this;
@@ -78,7 +85,7 @@ final class BeanModificationBuilderImpl implements IBeanModificationBuilder {
 
 	@Override
 	public IBeanModification build() {
-		return new BeanModificationImpl(id, version, propertyName, newValue);
+		return new BeanModificationImpl(id, version, propertyName, oldValue, newValue);
 	}
 
 }

@@ -183,7 +183,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE> {
 		}
 		else if (!NullCompatibleEquivalence.equals(currentValue, newValue)) {
 			final IBeanModificationBuilder modBuilder = CapCommonToolkit.beanModificationBuilder();
-			modBuilder.setBeanDto(beanDto).setPropertyName(propertyName).setNewValue(newValue);
+			modBuilder.setBeanDto(beanDto).setPropertyName(propertyName).setOldValue(originalValue).setNewValue(newValue);
 			final boolean oldModificationState = hasModifications();
 			modifications.put(propertyName, modBuilder.build());
 			final boolean newModificationState = hasModifications();
