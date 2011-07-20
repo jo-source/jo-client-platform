@@ -153,7 +153,7 @@ public final class CapUiToolkit {
 
 		toolkit.getImageRegistry().registerImageConstant(CapIcons.TABLE_HIDE_COLUMN, IconsSmall.SUB);
 		toolkit.getImageRegistry().registerImageConstant(CapIcons.TABLE_UNHIDE_ALL_COLUMNS, IconsSmall.ADD_ALL);
-		toolkit.getImageRegistry().registerImageConstant(CapIcons.TABLE_SETTINGS, IconsSmall.EMPTY);
+		toolkit.getImageRegistry().registerImageConstant(CapIcons.TABLE_SETTINGS, IconsSmall.SETTINGS);
 
 		toolkit.getBluePrintFactory().addDefaultsInitializer(
 				IBeanTableBluePrint.class,
