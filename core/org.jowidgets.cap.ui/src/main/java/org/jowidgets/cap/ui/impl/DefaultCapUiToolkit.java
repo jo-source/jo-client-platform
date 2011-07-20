@@ -39,7 +39,7 @@ import org.jowidgets.cap.ui.api.bean.IBeanMessageBuilder;
 import org.jowidgets.cap.ui.api.bean.IBeanMessageFixBuilder;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeansStateTracker;
-import org.jowidgets.cap.ui.api.command.IActionFactory;
+import org.jowidgets.cap.ui.api.command.ICapActionFactory;
 import org.jowidgets.cap.ui.api.execution.IExecutionTaskFactory;
 import org.jowidgets.cap.ui.api.form.IBeanFormToolkit;
 import org.jowidgets.cap.ui.api.sort.ISortModelConfigBuilder;
@@ -50,7 +50,7 @@ import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
 public final class DefaultCapUiToolkit implements ICapUiToolkit {
 
 	private ICapApiBluePrintFactory bluePrintFactory;
-	private IActionFactory commandFactory;
+	private ICapActionFactory commandFactory;
 	private IExecutionTaskFactory executionTaskFactory;
 	private IBeanKeyFactory beanKeyFactory;
 	private IAttributeToolkit attributeToolkit;
@@ -65,9 +65,9 @@ public final class DefaultCapUiToolkit implements ICapUiToolkit {
 	}
 
 	@Override
-	public IActionFactory actionFactory() {
+	public ICapActionFactory actionFactory() {
 		if (commandFactory == null) {
-			commandFactory = new ActionFactoryImpl();
+			commandFactory = new CapActionFactoryImpl();
 		}
 		return commandFactory;
 	}

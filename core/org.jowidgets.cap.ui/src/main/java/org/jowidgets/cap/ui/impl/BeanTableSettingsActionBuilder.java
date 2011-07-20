@@ -26,26 +26,27 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.widgets;
+package org.jowidgets.cap.ui.impl;
 
-import org.jowidgets.api.model.item.IMenuModel;
-import org.jowidgets.api.widgets.ITable;
-import org.jowidgets.cap.ui.api.table.IBeanTableModel;
-import org.jowidgets.common.widgets.controler.ITableCellPopupEvent;
-import org.jowidgets.common.widgets.controler.ITableColumnPopupEvent;
-import org.jowidgets.util.ITypedKey;
+import org.jowidgets.api.command.ICommandExecutor;
+import org.jowidgets.api.command.IExecutionContext;
+import org.jowidgets.cap.ui.api.icons.CapIcons;
+import org.jowidgets.cap.ui.api.widgets.IBeanTable;
+import org.jowidgets.tools.command.ActionBuilder;
 
-public interface IBeanTable<BEAN_TYPE> extends ITable {
+final class BeanTableSettingsActionBuilder extends ActionBuilder {
 
-	ITypedKey<ITableColumnPopupEvent> COLUMN_POPUP_EVENT_CONTEXT_KEY = new ITypedKey<ITableColumnPopupEvent>() {};
-	ITypedKey<ITableCellPopupEvent> CELL_POPUP_EVENT_CONTEXT_KEY = new ITypedKey<ITableCellPopupEvent>() {};
-
-	IMenuModel getCellPopMenu();
-
-	IMenuModel getHeaderPopMenu();
-
-	void showSettingsDialog();
-
-	IBeanTableModel<BEAN_TYPE> getModel();
+	BeanTableSettingsActionBuilder(final IBeanTable<?> table) {
+		super();
+		setText("Settings ...");
+		setToolTipText("Opens the tables settings dialog");
+		setIcon(CapIcons.TABLE_SETTINGS);
+		setCommand(new ICommandExecutor() {
+			@Override
+			public void execute(final IExecutionContext executionContext) throws Exception {
+				table.showSettingsDialog();
+			}
+		});
+	}
 
 }
