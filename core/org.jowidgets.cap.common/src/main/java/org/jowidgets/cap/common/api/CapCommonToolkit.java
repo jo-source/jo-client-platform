@@ -28,12 +28,16 @@
 
 package org.jowidgets.cap.common.api;
 
+import java.util.List;
+
 import org.jowidgets.cap.common.api.bean.IBeanDataBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanDtoBuilder;
+import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptorBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanKeyBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanModificationBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanPropertyBuilder;
+import org.jowidgets.cap.common.api.bean.IProperty;
 import org.jowidgets.cap.common.api.bean.IPropertyBuilder;
 import org.jowidgets.cap.common.api.bean.IValueRangeFactory;
 import org.jowidgets.cap.common.api.sort.ISortFactory;
@@ -66,6 +70,10 @@ public final class CapCommonToolkit {
 
 	public static IBeanDtoDescriptorBuilder dtoDescriptorBuilder(final Class<?> beanType) {
 		return getInstance().dtoDescriptorBuilder(beanType);
+	}
+
+	public static IBeanDtoDescriptor dtoDescriptor(final List<IProperty> properties) {
+		return getInstance().dtoDescriptor(properties);
 	}
 
 	public static IBeanDtoBuilder dtoBuilder(final Object entityTypeId) {

@@ -28,12 +28,16 @@
 
 package org.jowidgets.cap.common.api;
 
+import java.util.Collection;
+
 import org.jowidgets.cap.common.api.bean.IBeanDataBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanDtoBuilder;
+import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptorBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanKeyBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanModificationBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanPropertyBuilder;
+import org.jowidgets.cap.common.api.bean.IProperty;
 import org.jowidgets.cap.common.api.bean.IPropertyBuilder;
 import org.jowidgets.cap.common.api.bean.IValueRangeFactory;
 import org.jowidgets.cap.common.api.sort.ISortFactory;
@@ -47,6 +51,8 @@ public interface ICapCommonToolkit {
 	IValueRangeFactory valueRangeFactory();
 
 	IBeanDtoDescriptorBuilder dtoDescriptorBuilder(Class<?> beanType);
+
+	IBeanDtoDescriptor dtoDescriptor(Collection<IProperty> properties);
 
 	IBeanDtoBuilder dtoBuilder(Object entityTypeId);
 

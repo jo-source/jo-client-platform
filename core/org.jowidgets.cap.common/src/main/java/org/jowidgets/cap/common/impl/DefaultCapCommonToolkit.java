@@ -28,16 +28,21 @@
 
 package org.jowidgets.cap.common.impl;
 
+import java.util.Collection;
+
 import org.jowidgets.cap.common.api.ICapCommonToolkit;
 import org.jowidgets.cap.common.api.bean.IBeanDataBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanDtoBuilder;
+import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptorBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanKeyBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanModificationBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanPropertyBuilder;
+import org.jowidgets.cap.common.api.bean.IProperty;
 import org.jowidgets.cap.common.api.bean.IPropertyBuilder;
 import org.jowidgets.cap.common.api.bean.IValueRangeFactory;
 import org.jowidgets.cap.common.api.sort.ISortFactory;
+import org.jowidgets.util.Assert;
 
 public final class DefaultCapCommonToolkit implements ICapCommonToolkit {
 
@@ -62,6 +67,12 @@ public final class DefaultCapCommonToolkit implements ICapCommonToolkit {
 	@Override
 	public IBeanDtoBuilder dtoBuilder(final Object entityTypeId) {
 		return new BeanDtoBuilderImpl(entityTypeId);
+	}
+
+	@Override
+	public IBeanDtoDescriptor dtoDescriptor(final Collection<IProperty> properties) {
+		Assert.paramNotNull(properties, "properties");
+		return new BeanDtoDescriptorImpl(properties);
 	}
 
 	@Override

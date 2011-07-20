@@ -29,6 +29,7 @@
 package org.jowidgets.cap.common.impl;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -42,7 +43,7 @@ final class BeanDtoDescriptorImpl implements IBeanDtoDescriptor, Serializable {
 
 	private final List<IProperty> unodifiableProperties;
 
-	BeanDtoDescriptorImpl(final List<IProperty> properties) {
+	BeanDtoDescriptorImpl(final Collection<IProperty> properties) {
 		this.unodifiableProperties = Collections.unmodifiableList(new LinkedList<IProperty>(properties));
 	}
 
