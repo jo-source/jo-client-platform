@@ -36,9 +36,8 @@ public final class BeanDtoBuilder implements IBeanDtoBuilder {
 
 	private final IBeanDtoBuilder builder;
 
-	public BeanDtoBuilder() {
-		super();
-		this.builder = CapCommonToolkit.dtoBuilder();
+	public BeanDtoBuilder(final Object entityTypeId) {
+		this.builder = CapCommonToolkit.dtoBuilder(entityTypeId);
 	}
 
 	@Override
@@ -50,12 +49,6 @@ public final class BeanDtoBuilder implements IBeanDtoBuilder {
 	@Override
 	public IBeanDtoBuilder setVersion(final long version) {
 		builder.setVersion(version);
-		return this;
-	}
-
-	@Override
-	public IBeanDtoBuilder setPersistenceClassName(final String persistenceClassname) {
-		builder.setPersistenceClassName(persistenceClassname);
 		return this;
 	}
 

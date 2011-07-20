@@ -42,14 +42,14 @@ class BeanDtoImpl implements IBeanDto, Serializable {
 	private static final long serialVersionUID = -7085159195317664441L;
 
 	private final Object id;
-	private final String persistenceClassname;
+	private final Object entityTypeId;
 	private final Map<String, Object> beanData;
 
-	BeanDtoImpl(final Object id, final long version, final String persistenceClassname, final Map<String, Object> beanData) {
-		Assert.paramNotEmpty(persistenceClassname, "persistenceClassname");
+	BeanDtoImpl(final Object id, final long version, final Object entityTypeId, final Map<String, Object> beanData) {
+		Assert.paramNotNull(entityTypeId, "entityTypeId");
 		Assert.paramNotNull(beanData, "beanData");
 		this.id = id;
-		this.persistenceClassname = persistenceClassname;
+		this.entityTypeId = entityTypeId;
 		this.beanData = beanData;
 
 		beanData.put(IBean.ID_PROPERTY, id);
@@ -87,8 +87,8 @@ class BeanDtoImpl implements IBeanDto, Serializable {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + ((entityTypeId == null) ? 0 : entityTypeId.hashCode());
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		result = prime * result + ((persistenceClassname == null) ? 0 : persistenceClassname.hashCode());
 		return result;
 	}
 
@@ -104,6 +104,14 @@ class BeanDtoImpl implements IBeanDto, Serializable {
 			return false;
 		}
 		final BeanDtoImpl other = (BeanDtoImpl) obj;
+		if (entityTypeId == null) {
+			if (other.entityTypeId != null) {
+				return false;
+			}
+		}
+		else if (!entityTypeId.equals(other.entityTypeId)) {
+			return false;
+		}
 		if (id == null) {
 			if (other.id != null) {
 				return false;
@@ -112,28 +120,12 @@ class BeanDtoImpl implements IBeanDto, Serializable {
 		else if (!id.equals(other.id)) {
 			return false;
 		}
-		if (persistenceClassname == null) {
-			if (other.persistenceClassname != null) {
-				return false;
-			}
-		}
-		else if (!persistenceClassname.equals(other.persistenceClassname)) {
-			return false;
-		}
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return "BeanDtoImpl [id="
-			+ id
-			+ ", version="
-			+ getVersion()
-			+ ", persistenceClassname="
-			+ persistenceClassname
-			+ ", beanData="
-			+ beanData
-			+ "]";
+		return "BeanDtoImpl [id=" + id + ", entityTypeId=" + entityTypeId + ", beanData=" + beanData + "]";
 	}
 
 }

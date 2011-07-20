@@ -48,7 +48,7 @@ public interface ICapCommonToolkit {
 
 	IBeanDtoDescriptorBuilder dtoDescriptorBuilder(Class<?> beanType);
 
-	IBeanDtoBuilder dtoBuilder();
+	IBeanDtoBuilder dtoBuilder(Object entityTypeId);
 
 	IBeanDataBuilder beanDataBuilder();
 

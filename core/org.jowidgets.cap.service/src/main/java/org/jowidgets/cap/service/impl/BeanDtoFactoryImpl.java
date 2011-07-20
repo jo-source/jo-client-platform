@@ -49,16 +49,16 @@ import org.jowidgets.util.Assert;
 
 final class BeanDtoFactoryImpl<BEAN_TYPE extends IBean> implements IBeanDtoFactory<BEAN_TYPE> {
 
+	private final Class<? extends IBean> beanType;
 	private final Map<String, Method> methods;
-	private final String persistenceClassName;
 
 	BeanDtoFactoryImpl(final Class<? extends IBean> beanType, final List<String> propertyNames) {
 
 		Assert.paramNotNull(beanType, "beanType");
 		Assert.paramNotNull(propertyNames, "propertyNames");
 
+		this.beanType = beanType;
 		this.methods = new HashMap<String, Method>();
-		this.persistenceClassName = beanType.getName();
 
 		try {
 			final BeanInfo beanInfo = Introspector.getBeanInfo(beanType);
@@ -88,10 +88,9 @@ final class BeanDtoFactoryImpl<BEAN_TYPE extends IBean> implements IBeanDtoFacto
 	@Override
 	public IBeanDto createDto(final BEAN_TYPE bean) {
 		Assert.paramNotNull(bean, "bean");
-		final IBeanDtoBuilder builder = CapCommonToolkit.dtoBuilder();
+		final IBeanDtoBuilder builder = CapCommonToolkit.dtoBuilder(beanType);
 		builder.setId(bean.getId());
 		builder.setVersion(bean.getVersion());
-		builder.setPersistenceClassName(persistenceClassName);
 		for (final Entry<String, Method> methodEntry : methods.entrySet()) {
 			try {
 				builder.setValue(methodEntry.getKey(), methodEntry.getValue().invoke(bean));
