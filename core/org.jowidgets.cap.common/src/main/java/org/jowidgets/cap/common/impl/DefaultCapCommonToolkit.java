@@ -41,6 +41,7 @@ import org.jowidgets.cap.common.api.bean.IBeanPropertyBuilder;
 import org.jowidgets.cap.common.api.bean.IProperty;
 import org.jowidgets.cap.common.api.bean.IPropertyBuilder;
 import org.jowidgets.cap.common.api.bean.IValueRangeFactory;
+import org.jowidgets.cap.common.api.entity.IEntityClassBuilder;
 import org.jowidgets.cap.common.api.sort.ISortFactory;
 import org.jowidgets.util.Assert;
 
@@ -52,6 +53,11 @@ public final class DefaultCapCommonToolkit implements ICapCommonToolkit {
 	public DefaultCapCommonToolkit() {
 		this.sortFactory = new SortFactoryImpl();
 		this.valueRangeFactory = new ValueRangeFactoryImpl();
+	}
+
+	@Override
+	public IEntityClassBuilder entityClassBuilder() {
+		return new EntityClassBuilderImpl();
 	}
 
 	@Override

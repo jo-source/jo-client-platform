@@ -26,44 +26,60 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.api;
+package org.jowidgets.cap.common.api.entity;
 
 import java.util.Collection;
 
-import org.jowidgets.cap.common.api.bean.IBeanDataBuilder;
-import org.jowidgets.cap.common.api.bean.IBeanDtoBuilder;
-import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
-import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptorBuilder;
-import org.jowidgets.cap.common.api.bean.IBeanKeyBuilder;
-import org.jowidgets.cap.common.api.bean.IBeanModificationBuilder;
-import org.jowidgets.cap.common.api.bean.IBeanPropertyBuilder;
-import org.jowidgets.cap.common.api.bean.IProperty;
-import org.jowidgets.cap.common.api.bean.IPropertyBuilder;
-import org.jowidgets.cap.common.api.bean.IValueRangeFactory;
-import org.jowidgets.cap.common.api.entity.IEntityClassBuilder;
-import org.jowidgets.cap.common.api.sort.ISortFactory;
+public interface IEntityClassBuilder {
 
-public interface ICapCommonToolkit {
+	/**
+	 * Sets the id of the class. This id must be unique for all classes in the same context.
+	 * The id must not be null.
+	 * 
+	 * @param the id to set
+	 * @return the builder
+	 */
+	IEntityClassBuilder setId(Object id);
 
-	IEntityClassBuilder entityClassBuilder();
+	/**
+	 * Sets the label of the class, never null
+	 * 
+	 * @param the label to set
+	 * @return the builder
+	 */
+	IEntityClassBuilder setLabel(String label);
 
-	IPropertyBuilder propertyBuilder();
+	/**
+	 * Sets the decription, may be null
+	 * 
+	 * @param description The description to set
+	 * @return the builder
+	 */
+	IEntityClassBuilder setDescription(final String description);
 
-	IBeanPropertyBuilder beanPropertyBuilder(Class<?> beanType, String propertyName);
+	/**
+	 * Sets the sub classes of this class, may be empty but not null.
+	 * By default, an empty List is set.
+	 * 
+	 * @param subClasses The sub clases to set
+	 * @return the builder
+	 */
+	IEntityClassBuilder setSubClasses(Collection<? extends IEntityClass> subClasses);
 
-	IValueRangeFactory valueRangeFactory();
+	/**
+	 * Adds a sub class to this class
+	 * 
+	 * @param subClass The sub class to add
+	 * @return the builder
+	 */
+	IEntityClassBuilder addSubClass(IEntityClass subClass);
 
-	IBeanDtoDescriptorBuilder dtoDescriptorBuilder(Class<?> beanType);
+	/**
+	 * Builds the entity class. This builder is a single use builder so this
+	 * method could only be invoked once
+	 * 
+	 * @return The builded entity class
+	 */
+	IEntityClass build();
 
-	IBeanDtoDescriptor dtoDescriptor(Collection<IProperty> properties);
-
-	IBeanDtoBuilder dtoBuilder(Object entityTypeId);
-
-	IBeanDataBuilder beanDataBuilder();
-
-	IBeanKeyBuilder beanKeyBuilder();
-
-	IBeanModificationBuilder beanModificationBuilder();
-
-	ISortFactory sortFactory();
 }

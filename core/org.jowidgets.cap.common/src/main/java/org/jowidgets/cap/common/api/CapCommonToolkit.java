@@ -40,6 +40,7 @@ import org.jowidgets.cap.common.api.bean.IBeanPropertyBuilder;
 import org.jowidgets.cap.common.api.bean.IProperty;
 import org.jowidgets.cap.common.api.bean.IPropertyBuilder;
 import org.jowidgets.cap.common.api.bean.IValueRangeFactory;
+import org.jowidgets.cap.common.api.entity.IEntityClassBuilder;
 import org.jowidgets.cap.common.api.sort.ISortFactory;
 import org.jowidgets.cap.common.impl.DefaultCapCommonToolkit;
 
@@ -54,6 +55,10 @@ public final class CapCommonToolkit {
 			dataCommonToolkit = new DefaultCapCommonToolkit();
 		}
 		return dataCommonToolkit;
+	}
+
+	public static IEntityClassBuilder entityClassBuilder() {
+		return getInstance().entityClassBuilder();
 	}
 
 	public static IPropertyBuilder propertyBuilder() {
