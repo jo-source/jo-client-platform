@@ -29,11 +29,13 @@
 package org.jowidgets.cap.sample1.service.entity;
 
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
+import org.jowidgets.cap.common.api.service.IBeanServicesProvider;
 import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.sample1.common.entity.IUser;
-import org.jowidgets.cap.sample1.service.datastore.DataStore;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.entity.IEntityServiceBuilder;
+import org.jowidgets.cap.service.impl.dummy.datastore.EntityDataStore;
+import org.jowidgets.cap.service.impl.dummy.service.DummyServiceFactory;
 import org.jowidgets.service.api.IServiceRegistry;
 
 public class EntityService {
@@ -45,11 +47,11 @@ public class EntityService {
 
 		//IUser
 		final IBeanDtoDescriptor descriptor = new UserDtoDescriptorService().getDescriptor();
-		final BeanServicesProvider<IUser> userServicesProvider = new BeanServicesProvider<IUser>(
-			registry,
-			DataStore.getPersons(),
-			IUser.ALL_PROPERTIES);
-		builder.add(IUser.class, descriptor, userServicesProvider.getServices());
+		final IBeanServicesProvider userServicesProvider = DummyServiceFactory.beanServices(
+				registry,
+				EntityDataStore.getEntityData(IUser.class),
+				IUser.ALL_PROPERTIES);
+		builder.add(IUser.class, descriptor, userServicesProvider);
 
 		this.entityService = builder.build();
 	}

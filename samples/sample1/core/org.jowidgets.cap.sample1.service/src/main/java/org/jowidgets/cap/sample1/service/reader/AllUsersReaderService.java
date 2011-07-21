@@ -30,23 +30,22 @@ package org.jowidgets.cap.sample1.service.reader;
 
 import java.util.List;
 
+import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.filter.IFilter;
 import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.sample1.common.entity.IUser;
-import org.jowidgets.cap.sample1.service.datastore.DataStore;
+import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.adapter.ISyncReaderService;
+import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
+import org.jowidgets.cap.service.impl.dummy.datastore.EntityDataStore;
+import org.jowidgets.cap.service.impl.dummy.datastore.IEntityData;
+import org.jowidgets.cap.service.tools.bean.BeanDtoFactoryHelper;
 import org.jowidgets.security.api.SecurityContextHolder;
 
 public class AllUsersReaderService implements ISyncReaderService<Integer> {
-
-	private final ISyncReaderService<Void> readerService;
-
-	public AllUsersReaderService() {
-		this.readerService = new SyncReaderService<IUser>(DataStore.getPersons(), IUser.ALL_PROPERTIES);
-	}
 
 	@Override
 	public List<IBeanDto> read(
@@ -57,15 +56,6 @@ public class AllUsersReaderService implements ISyncReaderService<Integer> {
 		final int maxRows,
 		final Integer delay,
 		final IExecutionCallback executionCallback) {
-
-		final List<IBeanDto> result = readerService.read(
-				parentBeanKeys,
-				filter,
-				sorting,
-				firstRow,
-				maxRows,
-				null,
-				executionCallback);
 
 		if (delay != null) {
 			try {
@@ -89,7 +79,11 @@ public class AllUsersReaderService implements ISyncReaderService<Integer> {
 		System.out.println(SecurityContextHolder.getSecurityContext());
 		//CHECKSTYLE:ON
 
-		return result;
+		final IEntityData<? extends IBean> entityData = EntityDataStore.getEntityData(IUser.class);
+		final IBeanDtoFactory<IUser> dtoFactory = CapServiceToolkit.dtoFactory(IUser.class, IUser.ALL_PROPERTIES);
+		final List<? extends IBean> allData = entityData.getAllData(firstRow, maxRows);
+		return BeanDtoFactoryHelper.createDtos(dtoFactory, allData);
+
 	}
 
 	@Override
@@ -99,7 +93,7 @@ public class AllUsersReaderService implements ISyncReaderService<Integer> {
 		final Integer delay,
 		final IExecutionCallback executionCallback) {
 
-		return Integer.valueOf(readerService.count(parentBeanKeys, filter, null, executionCallback));
+		return Integer.valueOf(EntityDataStore.getEntityData(IUser.class).getAllData().size());
 	}
 
 }

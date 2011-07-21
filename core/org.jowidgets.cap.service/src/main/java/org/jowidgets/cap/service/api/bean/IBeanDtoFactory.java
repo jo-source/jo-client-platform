@@ -33,8 +33,6 @@ import org.jowidgets.cap.common.api.bean.IBeanDto;
 
 public interface IBeanDtoFactory<BEAN_TYPE extends IBean> {
 
-	//List<IBeanDto> createDtos(Collection<? extends BEAN_TYPE> beans);
-
 	IBeanDto createDto(BEAN_TYPE bean);
 
 }

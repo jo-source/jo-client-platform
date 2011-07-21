@@ -42,7 +42,7 @@ import org.jowidgets.cap.sample1.common.service.executor.UserComponentExecutorSe
 import org.jowidgets.cap.sample1.common.service.reader.DynamicPropertiesBeanReaderServices;
 import org.jowidgets.cap.sample1.common.service.reader.UserReaderServices;
 import org.jowidgets.cap.sample1.common.service.security.AuthorizationProviderServiceId;
-import org.jowidgets.cap.sample1.service.datastore.DataStore;
+import org.jowidgets.cap.sample1.service.datastore.DataStoreInitializer;
 import org.jowidgets.cap.sample1.service.entity.EntityService;
 import org.jowidgets.cap.sample1.service.entity.SampleEntityClassProviderServiceBuilder;
 import org.jowidgets.cap.sample1.service.executor.ChangeBirthdayExecutor;
@@ -56,6 +56,7 @@ import org.jowidgets.cap.service.api.adapter.ISyncReaderService;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
 import org.jowidgets.cap.service.api.executor.IBeanExecutor;
 import org.jowidgets.cap.service.api.executor.IExecutorServiceBuilder;
+import org.jowidgets.cap.service.impl.dummy.datastore.EntityDataStore;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.tools.ServiceProviderBuilder;
 import org.jowidgets.util.IAdapterFactory;
@@ -64,6 +65,8 @@ public class SampleServiceProviderBuilder extends ServiceProviderBuilder {
 
 	public SampleServiceProviderBuilder() {
 		super();
+
+		DataStoreInitializer.initialize();
 
 		addService(AuthorizationProviderServiceId.ID, new AuthorizationProviderServiceImpl());
 
@@ -92,7 +95,7 @@ public class SampleServiceProviderBuilder extends ServiceProviderBuilder {
 		final IServiceId<? extends IExecutorService<PARAM_TYPE>> id,
 		final IBeanExecutor<? extends BEAN_TYPE, PARAM_TYPE> beanExecutor,
 		final IExecutableChecker<? extends BEAN_TYPE> executableChecker) {
-		addExecutor(id, beanExecutor, executableChecker, DataStore.getPersonsBeanProvider(), IUser.ALL_PROPERTIES);
+		addExecutor(id, beanExecutor, executableChecker, EntityDataStore.getEntityData(IUser.class), IUser.ALL_PROPERTIES);
 	}
 
 	private <PARAM_TYPE> void addReader(

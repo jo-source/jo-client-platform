@@ -41,8 +41,9 @@ public final class BeanDtoFactoryHelper {
 
 	private BeanDtoFactoryHelper() {}
 
+	@SuppressWarnings({"unchecked", "rawtypes"})
 	public static <BEAN_TYPE extends IBean> List<IBeanDto> createDtos(
-		final IBeanDtoFactory<BEAN_TYPE> beanDtoFactory,
+		final IBeanDtoFactory<? extends BEAN_TYPE> beanDtoFactory,
 		final Collection<? extends BEAN_TYPE> beans) {
 
 		Assert.paramNotNull(beanDtoFactory, "beanDtoFactory");
@@ -50,7 +51,8 @@ public final class BeanDtoFactoryHelper {
 
 		final List<IBeanDto> result = new LinkedList<IBeanDto>();
 		for (final BEAN_TYPE bean : beans) {
-			result.add(beanDtoFactory.createDto(bean));
+			final IBeanDtoFactory factory = beanDtoFactory;
+			result.add(factory.createDto(bean));
 		}
 		return result;
 	}
