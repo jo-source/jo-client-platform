@@ -35,7 +35,7 @@ import java.util.List;
 import org.jowidgets.cap.common.api.entity.IEntityClass;
 import org.jowidgets.cap.common.api.service.IEntityClassProviderService;
 
-final class EntityClassProviderServiceImpl implements IEntityClassProviderService {
+public final class EntityClassProviderServiceImpl implements IEntityClassProviderService {
 
 	private final List<IEntityClass> entityClasses;
 
