@@ -28,15 +28,11 @@
 
 package org.jowidgets.cap.sample1.starter.standalone.common;
 
-import java.io.IOException;
-import java.util.concurrent.atomic.AtomicReference;
-
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
-import javax.security.auth.callback.TextOutputCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
@@ -57,11 +53,10 @@ public class JaasAuthenticationService implements IAuthenticationService<Default
 
 	@Override
 	public DefaultPrincipal authenticate(final DefaultCredentials credentials) {
-		final AtomicReference<String> loginErrorMessage = new AtomicReference<String>("login failed");
 		try {
 			final LoginContext loginContext = new LoginContext(loginContextName, new CallbackHandler() {
 				@Override
-				public void handle(final Callback[] callbacks) throws IOException, UnsupportedCallbackException {
+				public void handle(final Callback[] callbacks) throws UnsupportedCallbackException {
 					for (int i = 0; i < callbacks.length; i++) {
 						if (callbacks[i] instanceof NameCallback) {
 							final NameCallback nc = (NameCallback) callbacks[i];
@@ -70,12 +65,6 @@ public class JaasAuthenticationService implements IAuthenticationService<Default
 						else if (callbacks[i] instanceof PasswordCallback) {
 							final PasswordCallback pc = (PasswordCallback) callbacks[i];
 							pc.setPassword(credentials.getPassword().toCharArray());
-						}
-						else if (callbacks[i] instanceof TextOutputCallback) {
-							final TextOutputCallback tc = (TextOutputCallback) callbacks[i];
-							if (tc.getMessageType() == TextOutputCallback.ERROR) {
-								loginErrorMessage.set(tc.getMessage());
-							}
 						}
 						else {
 							throw new UnsupportedCallbackException(callbacks[i]);
@@ -90,9 +79,9 @@ public class JaasAuthenticationService implements IAuthenticationService<Default
 			}
 		}
 		catch (final LoginException e) {
-			loginErrorMessage.set(e.getLocalizedMessage());
+			throw new RuntimeException(e);
 		}
-		throw new RuntimeException(loginErrorMessage.get());
+		return null;
 	}
 
 }
