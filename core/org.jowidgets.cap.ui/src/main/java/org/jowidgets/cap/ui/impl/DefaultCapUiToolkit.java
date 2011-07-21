@@ -46,6 +46,8 @@ import org.jowidgets.cap.ui.api.sort.ISortModelConfigBuilder;
 import org.jowidgets.cap.ui.api.table.IBeanTableConfigBuilder;
 import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
 import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
+import org.jowidgets.cap.ui.api.workbench.ICapWorkbenchToolkit;
+import org.jowidgets.cap.ui.impl.workbench.CapWorkbenchToolkitImpl;
 
 public final class DefaultCapUiToolkit implements ICapUiToolkit {
 
@@ -54,6 +56,7 @@ public final class DefaultCapUiToolkit implements ICapUiToolkit {
 	private IExecutionTaskFactory executionTaskFactory;
 	private IBeanKeyFactory beanKeyFactory;
 	private IAttributeToolkit attributeToolkit;
+	private ICapWorkbenchToolkit workbenchToolkit;
 	private Validator beanValidator;
 
 	@Override
@@ -70,6 +73,14 @@ public final class DefaultCapUiToolkit implements ICapUiToolkit {
 			commandFactory = new CapActionFactoryImpl();
 		}
 		return commandFactory;
+	}
+
+	@Override
+	public ICapWorkbenchToolkit workbenchToolkit() {
+		if (workbenchToolkit == null) {
+			workbenchToolkit = new CapWorkbenchToolkitImpl();
+		}
+		return workbenchToolkit;
 	}
 
 	@Override

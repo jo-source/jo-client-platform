@@ -44,6 +44,7 @@ import org.jowidgets.cap.ui.api.sort.ISortModelConfigBuilder;
 import org.jowidgets.cap.ui.api.table.IBeanTableConfigBuilder;
 import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
 import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
+import org.jowidgets.cap.ui.api.workbench.ICapWorkbenchToolkit;
 
 public interface ICapUiToolkit {
 
@@ -52,6 +53,8 @@ public interface ICapUiToolkit {
 	ICapActionFactory actionFactory();
 
 	IAttributeToolkit attributeToolkit();
+
+	ICapWorkbenchToolkit workbenchToolkit();
 
 	IExecutionTaskFactory executionTaskFactory();
 
