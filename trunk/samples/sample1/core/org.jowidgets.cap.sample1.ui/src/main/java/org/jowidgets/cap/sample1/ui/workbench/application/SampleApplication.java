@@ -28,8 +28,11 @@
 
 package org.jowidgets.cap.sample1.ui.workbench.application;
 
+import java.util.List;
+
 import org.jowidgets.cap.sample1.ui.workbench.component.dynbeans.DynamicPropertiesBeanComponent;
 import org.jowidgets.cap.sample1.ui.workbench.component.user.UserComponent;
+import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.examples.common.icons.SilkIcons;
 import org.jowidgets.workbench.toolkit.api.IComponentNodeModel;
 import org.jowidgets.workbench.toolkit.api.IComponentNodeModelBuilder;
@@ -64,6 +67,12 @@ public class SampleApplication {
 			nodeModelBuilder.setId(UserComponent.class.getName() + i);
 			nodeModelBuilder.setLabel("User component " + i);
 			usersFolder.addChild(nodeModelBuilder.build());
+		}
+
+		final IComponentNodeModel entitiesFolder = model.addChild("ENTITIES_FOLDER_ID", "Entities", SilkIcons.DATABASE);
+		final List<IComponentNodeModel> entityNodes = CapUiToolkit.workbenchToolkit().entityComponentNodesFactory().createNodes();
+		for (final IComponentNodeModel entityNode : entityNodes) {
+			entitiesFolder.addChild(entityNode);
 		}
 
 		final IComponentNodeModel miscFolder = model.addChild("MISC_FOLDER_ID", "Misc", SilkIcons.FOLDER);
