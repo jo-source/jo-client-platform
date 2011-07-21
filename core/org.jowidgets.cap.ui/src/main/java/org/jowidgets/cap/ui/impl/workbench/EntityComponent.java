@@ -28,8 +28,13 @@
 
 package org.jowidgets.cap.ui.impl.workbench;
 
+import java.util.LinkedList;
 import java.util.List;
 
+import org.jowidgets.api.command.IAction;
+import org.jowidgets.api.model.item.IActionItemModel;
+import org.jowidgets.api.model.item.IToolBarItemModel;
+import org.jowidgets.api.model.item.IToolBarModel;
 import org.jowidgets.cap.common.api.bean.IProperty;
 import org.jowidgets.cap.common.api.entity.IEntityClass;
 import org.jowidgets.cap.common.api.service.IBeanServicesProvider;
@@ -38,6 +43,7 @@ import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IAttributeCollectionModifierBuilder;
 import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
+import org.jowidgets.cap.ui.api.command.IDataModelAction;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
 import org.jowidgets.common.types.IVetoable;
@@ -55,13 +61,14 @@ public class EntityComponent extends AbstractComponent implements IComponent {
 	private final List<IAttribute<Object>> tableAttributes;
 	private final List<IAttribute<Object>> detailAttributes;
 	private final IEntityClass entityClass;
+	private final List<IDataModelAction> dataModelActions;
 
 	public EntityComponent(
 		final IComponentNodeModel componentNodeModel,
 		final IComponentContext componentContext,
 		final IEntityClass entityClass) {
 
-		componentContext.setLayout(new EntityComponentDefaultLayout(entityClass).getLayout());
+		this.entityClass = entityClass;
 
 		//get the entity service
 		final IEntityService entityService = ServiceProvider.getService(IEntityService.ID);
@@ -80,7 +87,9 @@ public class EntityComponent extends AbstractComponent implements IComponent {
 		final IBeanServicesProvider servicesProvider = entityService.getBeanServices(entityClass.getId());
 
 		this.tableModel = createTableModel(tableAttributes, servicesProvider);
-		this.entityClass = entityClass;
+		this.dataModelActions = getDataModelActions(componentNodeModel);
+
+		componentContext.setLayout(new EntityComponentDefaultLayout(entityClass).getLayout());
 	}
 
 	@Override
@@ -97,22 +106,32 @@ public class EntityComponent extends AbstractComponent implements IComponent {
 	}
 
 	@Override
-	public void onDispose() {}
-
-	@Override
 	public void onActivation() {
-		//		WorkbenchActions.loadAction().addDataModel(userTableModel);
-		//		WorkbenchActions.saveAction().addDataModel(userTableModel);
-		//		WorkbenchActions.undoAction().addDataModel(userTableModel);
-		//		WorkbenchActions.cancelAction().addDataModel(userTableModel);
+		for (final IDataModelAction dataModelAction : dataModelActions) {
+			dataModelAction.addDataModel(tableModel);
+		}
 	}
 
 	@Override
 	public void onDeactivation(final IVetoable vetoable) {
-		//		WorkbenchActions.loadAction().removeDataModel(userTableModel);
-		//		WorkbenchActions.saveAction().removeDataModel(userTableModel);
-		//		WorkbenchActions.undoAction().removeDataModel(userTableModel);
-		//		WorkbenchActions.cancelAction().removeDataModel(userTableModel);
+		for (final IDataModelAction dataModelAction : dataModelActions) {
+			dataModelAction.removeDataModel(tableModel);
+		}
+	}
+
+	private List<IDataModelAction> getDataModelActions(final IComponentNodeModel componentNodeModel) {
+		final IToolBarModel toolBar = componentNodeModel.getApplication().getWorkbench().getToolBar();
+
+		final List<IDataModelAction> result = new LinkedList<IDataModelAction>();
+		for (final IToolBarItemModel item : toolBar.getItems()) {
+			if (item instanceof IActionItemModel) {
+				final IAction action = ((IActionItemModel) item).getAction();
+				if (action instanceof IDataModelAction) {
+					result.add((IDataModelAction) action);
+				}
+			}
+		}
+		return result;
 	}
 
 	private IBeanTableModel<Object> createTableModel(
