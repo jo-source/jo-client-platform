@@ -33,9 +33,7 @@ import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -73,16 +71,6 @@ final class BeanDtoFactoryImpl<BEAN_TYPE extends IBean> implements IBeanDtoFacto
 			throw new RuntimeException(e);
 		}
 
-	}
-
-	@Override
-	public List<IBeanDto> createDtos(final Collection<? extends BEAN_TYPE> beans) {
-		Assert.paramNotNull(beans, "beans");
-		final List<IBeanDto> result = new LinkedList<IBeanDto>();
-		for (final BEAN_TYPE bean : beans) {
-			result.add(createDto(bean));
-		}
-		return result;
 	}
 
 	@Override

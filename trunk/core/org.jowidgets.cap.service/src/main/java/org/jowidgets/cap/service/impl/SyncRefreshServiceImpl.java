@@ -41,6 +41,7 @@ import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.service.api.adapter.ISyncRefreshService;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
+import org.jowidgets.cap.service.tools.bean.BeanDtoFactoryHelper;
 
 public final class SyncRefreshServiceImpl<BEAN_TYPE extends IBean> implements ISyncRefreshService {
 
@@ -68,7 +69,7 @@ public final class SyncRefreshServiceImpl<BEAN_TYPE extends IBean> implements IS
 		if (!allowDeletedBeans && beans.size() != beanKeys.size()) {
 			checkBeans(beanKeys, beans);
 		}
-		return dtoFactory.createDtos(beans);
+		return BeanDtoFactoryHelper.createDtos(dtoFactory, beans);
 	}
 
 	private void checkBeans(final Collection<? extends IBeanKey> beanKeys, final List<BEAN_TYPE> beans) {

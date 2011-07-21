@@ -28,16 +28,12 @@
 
 package org.jowidgets.cap.service.api.bean;
 
-import java.util.Collection;
-import java.util.List;
-
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 
-
 public interface IBeanDtoFactory<BEAN_TYPE extends IBean> {
 
-	List<IBeanDto> createDtos(Collection<? extends BEAN_TYPE> beans);
+	//List<IBeanDto> createDtos(Collection<? extends BEAN_TYPE> beans);
 
 	IBeanDto createDto(BEAN_TYPE bean);
 

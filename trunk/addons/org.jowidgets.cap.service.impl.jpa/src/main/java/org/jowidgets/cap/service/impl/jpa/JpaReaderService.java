@@ -44,6 +44,7 @@ import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
+import org.jowidgets.cap.service.tools.bean.BeanDtoFactoryHelper;
 
 public final class JpaReaderService<PARAMETER_TYPE> implements IReaderService<PARAMETER_TYPE> {
 
@@ -83,7 +84,7 @@ public final class JpaReaderService<PARAMETER_TYPE> implements IReaderService<PA
 				@SuppressWarnings("unchecked")
 				final List<IBean> result = query.getResultList();
 				if (result != null) {
-					return dtoFactory.createDtos(result);
+					return BeanDtoFactoryHelper.createDtos(dtoFactory, result);
 				}
 				return null;
 			}
