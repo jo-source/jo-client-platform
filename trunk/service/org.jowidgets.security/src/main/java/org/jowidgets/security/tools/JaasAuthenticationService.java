@@ -26,9 +26,8 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample1.starter.standalone.common;
+package org.jowidgets.security.tools;
 
-import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.NameCallback;
@@ -38,8 +37,6 @@ import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
 import org.jowidgets.security.api.IAuthenticationService;
-import org.jowidgets.security.tools.DefaultCredentials;
-import org.jowidgets.security.tools.DefaultPrincipal;
 import org.jowidgets.util.Assert;
 
 public class JaasAuthenticationService implements IAuthenticationService<DefaultPrincipal, DefaultCredentials> {
@@ -73,8 +70,7 @@ public class JaasAuthenticationService implements IAuthenticationService<Default
 				}
 			});
 			loginContext.login();
-			final Subject subject = loginContext.getSubject();
-			if (subject != null) {
+			if (loginContext.getSubject() != null) {
 				return new DefaultPrincipal(credentials.getUsername());
 			}
 		}

@@ -13,6 +13,14 @@
 		<relativePath>../parent/pom.xml</relativePath>
 	</parent>
 
+	<dependencies>
+	   <dependency>
+            <groupId>org.jowidgets</groupId>
+            <artifactId>org.jowidgets.util</artifactId>
+            <version>${jowidgets.version}</version>
+        </dependency>
+	</dependencies>
+
 	<build>
 		<plugins>
 			<plugin>
@@ -20,7 +28,7 @@
 				<artifactId>maven-bundle-plugin</artifactId>
 				<configuration>
 					<instructions>
-						<Require-Bundle></Require-Bundle>
+						<Require-Bundle>org.jowidgets.util</Require-Bundle>
 					</instructions>
 				</configuration>
 			</plugin>
