@@ -40,7 +40,7 @@ final class BeanTableHideColumnActionBuilder extends ActionBuilder {
 	BeanTableHideColumnActionBuilder(final IBeanTable<?> table) {
 		super();
 		setText("Hide column");
-		setText("Hides this column");
+		setToolTipText("Hides this column");
 		setIcon(CapIcons.TABLE_HIDE_COLUMN);
 		setCommand(new ICommandExecutor() {
 			@Override

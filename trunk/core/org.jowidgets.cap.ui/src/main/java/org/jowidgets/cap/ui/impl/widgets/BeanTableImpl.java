@@ -90,13 +90,19 @@ final class BeanTableImpl<BEAN_TYPE> extends TableWrapper implements IBeanTable<
 			cellPopupMenuModel.addAction(settingsDialogAction);
 
 			//header popup menu
+			final IAction packAllAction = actionFactory.beanTablePackAllAction(this);
+			final IAction packSelectedAction = actionFactory.beanTablePackSelectedAction(this);
 			final IAction hideColumnAction = actionFactory.beanTableHideColumnAction(this);
 			final IAction unhideColumnsActions = actionFactory.beanTableUnhideColumnsAction(this);
 			headerPopupMenuModel.addAction(hideColumnAction);
 			headerPopupMenuModel.addAction(unhideColumnsActions);
+			headerPopupMenuModel.addSeparator();
+			headerPopupMenuModel.addAction(packAllAction);
+			headerPopupMenuModel.addAction(packSelectedAction);
 
 			//table popup menu
 			tablePopupMenuModel.addAction(unhideColumnsActions);
+			tablePopupMenuModel.addAction(packAllAction);
 			tablePopupMenuModel.addSeparator();
 			tablePopupMenuModel.addAction(settingsDialogAction);
 			table.setPopupMenu(tablePopupMenuModel);

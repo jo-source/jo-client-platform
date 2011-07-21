@@ -124,6 +124,28 @@ final class CapActionFactoryImpl implements ICapActionFactory {
 	}
 
 	@Override
+	public IActionBuilder beanTablePackAllActionBuilder(final IBeanTable<?> table) {
+		Assert.paramNotNull(table, "table");
+		return new BeanTablePackAllActionBuilder(table);
+	}
+
+	@Override
+	public IAction beanTablePackAllAction(final IBeanTable<?> table) {
+		return beanTablePackAllActionBuilder(table).build();
+	}
+
+	@Override
+	public IActionBuilder beanTablePackSelectedActionBuilder(final IBeanTable<?> table) {
+		Assert.paramNotNull(table, "table");
+		return new BeanTablePackSelectedActionBuilder(table);
+	}
+
+	@Override
+	public IAction beanTablePackSelectedAction(final IBeanTable<?> table) {
+		return beanTablePackSelectedActionBuilder(table).build();
+	}
+
+	@Override
 	public <BEAN_TYPE, PARAM_TYPE> IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> executorActionBuilder(
 		final IBeanListModel<BEAN_TYPE> model) {
 		return new ExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE>(model);

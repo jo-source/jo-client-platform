@@ -26,51 +26,25 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.command;
+package org.jowidgets.cap.ui.impl;
 
-import org.jowidgets.api.command.IAction;
-import org.jowidgets.api.command.IActionBuilder;
-import org.jowidgets.cap.ui.api.model.IBeanListModel;
+import org.jowidgets.api.command.ICommandExecutor;
+import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
+import org.jowidgets.tools.command.ActionBuilder;
 
-public interface ICapActionFactory {
+final class BeanTablePackAllActionBuilder extends ActionBuilder {
 
-	IDataModelAction dataModelLoadAction();
-
-	IDataModelActionBuilder dataModelLoadActionBuilder();
-
-	IDataModelAction dataModelSaveAction();
-
-	IDataModelActionBuilder dataModelSaveActionBuilder();
-
-	IDataModelAction dataModelUndoAction();
-
-	IDataModelActionBuilder dataModelUndoActionBuilder();
-
-	IDataModelAction dataModelCancelAction();
-
-	IDataModelActionBuilder dataModelCancelActionBuilder();
-
-	IActionBuilder beanTableSettingsActionBuilder(IBeanTable<?> table);
-
-	IAction beanTableSettingsAction(IBeanTable<?> table);
-
-	IActionBuilder beanTableHideColumnActionBuilder(IBeanTable<?> table);
-
-	IAction beanTableHideColumnAction(IBeanTable<?> table);
-
-	IActionBuilder beanTableUnhideColumnsActionBuilder(IBeanTable<?> table);
-
-	IAction beanTableUnhideColumnsAction(IBeanTable<?> table);
-
-	IActionBuilder beanTablePackAllActionBuilder(IBeanTable<?> table);
-
-	IAction beanTablePackAllAction(IBeanTable<?> table);
-
-	IActionBuilder beanTablePackSelectedActionBuilder(IBeanTable<?> table);
-
-	IAction beanTablePackSelectedAction(IBeanTable<?> table);
-
-	<BEAN_TYPE, PARAM_TYPE> IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> executorActionBuilder(IBeanListModel<BEAN_TYPE> model);
+	BeanTablePackAllActionBuilder(final IBeanTable<?> table) {
+		super();
+		setText("Fit all");
+		setToolTipText("Fits all columns to the propper width");
+		setCommand(new ICommandExecutor() {
+			@Override
+			public void execute(final IExecutionContext executionContext) throws Exception {
+				table.pack();
+			}
+		});
+	}
 
 }
