@@ -32,7 +32,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -111,6 +110,7 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 	private final IBeanProxyFactory<BEAN_TYPE> beanProxyFactory;
 	private final IBeansStateTracker<BEAN_TYPE> beansStateTracker;
 	private final ArrayList<IAttribute<Object>> attributes;
+	private final List<String> propertyNames;
 	private final IReaderService<Object> readerService;
 	private final IReaderParameterProvider<Object> paramProvider;
 	private final ISortModel sortModel;
@@ -168,6 +168,7 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 		this.deleterService = deleterService;
 
 		//fields initialize
+		this.propertyNames = createPropertyNames(attributes);
 		this.data = new HashMap<Integer, ArrayList<IBeanProxy<BEAN_TYPE>>>();
 		this.currentPageLoaders = new LinkedList<PageLoader>();
 		this.sortModel = new SortModelImpl();
@@ -193,6 +194,14 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 			}
 		});
 		updateColumnModel();
+	}
+
+	private static List<String> createPropertyNames(final List<IAttribute<Object>> attributesList) {
+		final List<String> result = new LinkedList<String>();
+		for (final IAttribute<Object> attribute : attributesList) {
+			result.add(attribute.getPropertyName());
+		}
+		return result;
 	}
 
 	@Override
@@ -691,7 +700,7 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 			page = new ArrayList<IBeanProxy<BEAN_TYPE>>();
 			data.put(Integer.valueOf(pageIndex), page);
 
-			dummyBeanProxy = beanProxyFactory.createProxy(createDummyBeanDto());
+			dummyBeanProxy = beanProxyFactory.createProxy(createDummyBeanDto(), propertyNames);
 			executionTask = CapUiToolkit.executionTaskFactory().create();
 			dummyBeanProxy.setExecutionTask(executionTask);
 			beansStateTracker.register(dummyBeanProxy);
@@ -809,7 +818,9 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 								final int pageOffset = pageSize * pageIndex;
 								for (final IBeanDto beanDto : beanDtos) {
 									if (index < pageSize) {
-										final IBeanProxy<BEAN_TYPE> beanProxy = beanProxyFactory.createProxy(beanDto);
+										final IBeanProxy<BEAN_TYPE> beanProxy = beanProxyFactory.createProxy(
+												beanDto,
+												propertyNames);
 										page.add(beanProxy);
 										beansStateTracker.register(beanProxy);
 										final int rowNr = pageOffset + index;
@@ -859,10 +870,6 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 				return 0;
 			}
 
-			@Override
-			public Set<String> getPropertyNames() {
-				return Collections.emptySet();
-			}
 		};
 	}
 
@@ -883,10 +890,6 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 				return 0;
 			}
 
-			@Override
-			public Set<String> getPropertyNames() {
-				return Collections.emptySet();
-			}
 		};
 	}
 
@@ -895,11 +898,6 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 			@Override
 			public Object getValue(final String propertyName) {
 				return proxy.getValue(propertyName);
-			}
-
-			@Override
-			public Set<String> getPropertyNames() {
-				return proxy.getPropertyNames();
 			}
 
 			@Override

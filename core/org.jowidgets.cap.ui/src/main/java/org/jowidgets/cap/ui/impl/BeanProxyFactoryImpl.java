@@ -29,10 +29,8 @@
 package org.jowidgets.cap.ui.impl;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
@@ -49,22 +47,25 @@ final class BeanProxyFactoryImpl<BEAN_TYPE> implements IBeanProxyFactory<BEAN_TY
 	}
 
 	@Override
-	public List<IBeanProxy<BEAN_TYPE>> createProxies(final Collection<? extends IBeanDto> beanDtos) {
+	public List<IBeanProxy<BEAN_TYPE>> createProxies(final Collection<? extends IBeanDto> beanDtos, final List<String> properties) {
 		Assert.paramNotNull(beanDtos, "beanDtos");
+		Assert.paramNotNull(properties, "properties");
 		final List<IBeanProxy<BEAN_TYPE>> result = new LinkedList<IBeanProxy<BEAN_TYPE>>();
 		for (final IBeanDto beanDto : beanDtos) {
-			result.add(createProxy(beanDto));
+			result.add(createProxy(beanDto, properties));
 		}
 		return result;
 	}
 
 	@Override
-	public IBeanProxy<BEAN_TYPE> createProxy(final IBeanDto beanDto) {
-		return new BeanProxyImpl<BEAN_TYPE>(beanDto, beanType);
+	public IBeanProxy<BEAN_TYPE> createProxy(final IBeanDto beanDto, final List<String> properties) {
+		Assert.paramNotNull(beanDto, "beanDto");
+		Assert.paramNotNull(properties, "properties");
+		return new BeanProxyImpl<BEAN_TYPE>(beanDto, beanType, properties);
 	}
 
 	@Override
-	public IBeanProxy<BEAN_TYPE> createProxy() {
+	public IBeanProxy<BEAN_TYPE> createProxy(final List<String> properties) {
 		return new BeanProxyImpl<BEAN_TYPE>(new IBeanDto() {
 
 			@Override
@@ -82,11 +83,7 @@ final class BeanProxyFactoryImpl<BEAN_TYPE> implements IBeanProxyFactory<BEAN_TY
 				return null;
 			}
 
-			@Override
-			public Set<String> getPropertyNames() {
-				return Collections.emptySet();
-			}
-		}, beanType);
+		}, beanType, properties);
 	}
 
 }

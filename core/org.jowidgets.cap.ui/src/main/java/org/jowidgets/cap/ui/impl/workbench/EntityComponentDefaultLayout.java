@@ -45,7 +45,7 @@ public class EntityComponentDefaultLayout {
 
 	//TODO i18n
 	private static final String TABLE_STRING = "table";
-	private static final String DETAILS_STRING = "details";
+	private static final String FORM_STRING = "form";
 
 	private final ILayout layout;
 
@@ -75,7 +75,7 @@ public class EntityComponentDefaultLayout {
 
 	private IFolderLayoutBuilder createDetailFolder(final IEntityClass entityClass) {
 		final IFolderLayoutBuilder result = new FolderLayoutBuilder(DETAIL_FOLDER_ID);
-		result.addView(EntityDetailView.ID, entityClass.getLabel() + " " + DETAILS_STRING, entityClass.getDescription());
+		result.addView(EntityDetailView.ID, entityClass.getLabel() + " " + FORM_STRING, entityClass.getDescription());
 		return result;
 	}
 

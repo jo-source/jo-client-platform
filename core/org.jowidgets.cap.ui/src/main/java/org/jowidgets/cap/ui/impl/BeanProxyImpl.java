@@ -71,6 +71,7 @@ import org.jowidgets.validation.ValidationResult;
 final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE> {
 
 	private final Class<? extends BEAN_TYPE> beanType;
+	private final List<String> properties;
 	private final Map<String, IBeanModification> modifications;
 	private final Map<String, IBeanModification> undoneModifications;
 	private final PropertyChangeObservable propertyChangeObservable;
@@ -89,12 +90,14 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE> {
 	private IBeanDto beanDto;
 	private BEAN_TYPE proxy;
 
-	BeanProxyImpl(final IBeanDto beanDto, final Class<? extends BEAN_TYPE> beanType) {
+	BeanProxyImpl(final IBeanDto beanDto, final Class<? extends BEAN_TYPE> beanType, final List<String> properties) {
 		Assert.paramNotNull(beanDto, "beanDto");
 		Assert.paramNotNull(beanType, "beanType");
+		Assert.paramNotNull(properties, "properties");
 
 		this.beanDto = beanDto;
 		this.beanType = beanType;
+		this.properties = new LinkedList<String>(properties);
 		this.modifications = new HashMap<String, IBeanModification>();
 		this.undoneModifications = new HashMap<String, IBeanModification>();
 		this.propertyChangeObservable = new PropertyChangeObservable();
@@ -128,11 +131,6 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE> {
 			}
 
 		};
-	}
-
-	@Override
-	public Set<String> getPropertyNames() {
-		return beanDto.getPropertyNames();
 	}
 
 	@Override
@@ -260,7 +258,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE> {
 	@Override
 	public IValidationResult validate() {
 		final IValidationResultBuilder builder = ValidationResult.builder();
-		for (final String propertyName : getPropertyNames()) {
+		for (final String propertyName : properties) {
 			builder.addResult(validate(propertyName).withContext(propertyName));
 		}
 		return builder.build();
@@ -508,7 +506,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE> {
 
 	private List<PropertyChangeEvent> getPropertyChangesForUpdate(final IBeanDto beanDto) {
 		final List<PropertyChangeEvent> result = new LinkedList<PropertyChangeEvent>();
-		for (final String propertyName : this.beanDto.getPropertyNames()) {
+		for (final String propertyName : properties) {
 			final Object oldValue = getValue(propertyName);
 			final Object newValue = beanDto.getValue(propertyName);
 			if (!NullCompatibleEquivalence.equals(oldValue, newValue)) {
