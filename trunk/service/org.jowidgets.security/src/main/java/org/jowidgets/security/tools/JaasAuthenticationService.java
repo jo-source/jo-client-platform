@@ -39,7 +39,7 @@ import javax.security.auth.login.LoginException;
 import org.jowidgets.security.api.IAuthenticationService;
 import org.jowidgets.util.Assert;
 
-public class JaasAuthenticationService implements IAuthenticationService<DefaultPrincipal, DefaultCredentials> {
+public final class JaasAuthenticationService implements IAuthenticationService<DefaultPrincipal, DefaultCredentials> {
 
 	private String loginContextName = "default";
 
