@@ -34,6 +34,7 @@ import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.service.IExecutorService;
 import org.jowidgets.cap.service.api.adapter.ISyncExecutorService;
+import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 
 public interface IExecutorServiceBuilder<BEAN_TYPE extends IBean, PARAM_TYPE> {
 
@@ -45,7 +46,9 @@ public interface IExecutorServiceBuilder<BEAN_TYPE extends IBean, PARAM_TYPE> {
 
 	IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> setExecutableChecker(IExecutableChecker<? extends BEAN_TYPE> executableChecker);
 
-	IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> setPropertyNames(List<String> propertyNames);
+	IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> setBeanDtoFactory(IBeanDtoFactory<BEAN_TYPE> beanDtoFactory);
+
+	IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> setBeanDtoFactory(List<String> propertyNames);
 
 	IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> setAllowDeletedBeans(boolean allowDeletedBeans);
 

@@ -39,6 +39,7 @@ import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.adapter.IAdapterFactoryProvider;
 import org.jowidgets.cap.service.api.adapter.ISyncExecutorService;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
+import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.cap.service.api.executor.IBeanExecutor;
 import org.jowidgets.cap.service.api.executor.IBeanListExecutor;
 import org.jowidgets.cap.service.api.executor.IExecutorServiceBuilder;
@@ -53,7 +54,7 @@ final class ExecutorServiceBuilderImpl<BEAN_TYPE extends IBean, PARAM_TYPE> impl
 
 	private Object executor;
 	private IExecutableChecker<? extends BEAN_TYPE> executableChecker;
-	private List<String> propertyNames;
+	private IBeanDtoFactory<BEAN_TYPE> beanDtoFactory;
 	private boolean allowDeletedBeans;
 	private boolean allowStaleBeans;
 
@@ -90,8 +91,16 @@ final class ExecutorServiceBuilderImpl<BEAN_TYPE extends IBean, PARAM_TYPE> impl
 	}
 
 	@Override
-	public IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> setPropertyNames(final List<String> propertyNames) {
-		this.propertyNames = propertyNames;
+	public IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> setBeanDtoFactory(final List<String> propertyNames) {
+		Assert.paramNotNull(propertyNames, "propertyNames");
+		this.beanDtoFactory = CapServiceToolkit.dtoFactory(beanType, propertyNames);
+		return this;
+	}
+
+	@Override
+	public IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> setBeanDtoFactory(final IBeanDtoFactory<BEAN_TYPE> beanDtoFactory) {
+		Assert.paramNotNull(beanDtoFactory, "beanDtoFactory");
+		this.beanDtoFactory = beanDtoFactory;
 		return this;
 	}
 
@@ -111,12 +120,17 @@ final class ExecutorServiceBuilderImpl<BEAN_TYPE extends IBean, PARAM_TYPE> impl
 		return beanType;
 	}
 
-	protected List<String> getPropertyNames() {
-		if (propertyNames == null) {
-			return Collections.emptyList();
+	boolean isAllowStaleBeans() {
+		return allowStaleBeans;
+	}
+
+	private IBeanDtoFactory<BEAN_TYPE> getBeanDtoFactory() {
+		if (beanDtoFactory != null) {
+			return beanDtoFactory;
 		}
 		else {
-			return propertyNames;
+			final List<String> propertyNames = Collections.emptyList();
+			return CapServiceToolkit.dtoFactory(beanType, propertyNames);
 		}
 	}
 
@@ -143,7 +157,7 @@ final class ExecutorServiceBuilderImpl<BEAN_TYPE extends IBean, PARAM_TYPE> impl
 			beanAccess,
 			executor,
 			executableChecker,
-			getPropertyNames(),
+			getBeanDtoFactory(),
 			allowDeletedBeans,
 			allowStaleBeans);
 	}

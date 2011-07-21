@@ -26,25 +26,15 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.api.refresh;
-
-import java.util.List;
+package org.jowidgets.cap.service.api.bean;
 
 import org.jowidgets.cap.common.api.bean.IBean;
-import org.jowidgets.cap.common.api.service.IRefreshService;
-import org.jowidgets.cap.service.api.adapter.ISyncRefreshService;
-import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
+import org.jowidgets.cap.common.api.bean.IBeanModification;
 
-public interface IRefreshServiceBuilder<BEAN_TYPE extends IBean> {
+public interface IBeanModifier<BEAN_TYPE extends IBean> {
 
-	IRefreshServiceBuilder<BEAN_TYPE> setBeanDtoFactory(IBeanDtoFactory<BEAN_TYPE> beanDtoFactory);
+	boolean isPropertyStale(BEAN_TYPE bean, IBeanModification modification);
 
-	IRefreshServiceBuilder<BEAN_TYPE> setBeanDtoFactory(final List<String> propertyNames);
-
-	IRefreshServiceBuilder<BEAN_TYPE> setAllowDeletedBeans(boolean allowDeletedBeans);
-
-	ISyncRefreshService buildSyncService();
-
-	IRefreshService build();
+	void modify(BEAN_TYPE bean, IBeanModification modification);
 
 }

@@ -121,7 +121,7 @@ public final class ExecutorAnnotationPostProcessor implements BeanFactoryPostPro
 				else {
 					builder.setExecutor((IBeanListExecutor) proxy);
 				}
-				builder.setPropertyNames(propertyNames);
+				builder.setBeanDtoFactory(propertyNames);
 
 				final Executor executorAnnotation = method.getAnnotation(Executor.class);
 				builder.setAllowDeletedBeans(executorAnnotation.allowDeletedBeans());

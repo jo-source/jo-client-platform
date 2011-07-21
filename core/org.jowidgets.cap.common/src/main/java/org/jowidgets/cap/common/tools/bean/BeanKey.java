@@ -31,6 +31,7 @@ package org.jowidgets.cap.common.tools.bean;
 import java.io.Serializable;
 
 import org.jowidgets.cap.common.api.CapCommonToolkit;
+import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.bean.IBeanKeyBuilder;
 
@@ -39,6 +40,10 @@ public final class BeanKey implements IBeanKey, Serializable {
 	private static final long serialVersionUID = -2187638080064448186L;
 
 	private final IBeanKey key;
+
+	public BeanKey(final IBean bean) {
+		this(bean.getId(), bean.getVersion());
+	}
 
 	public BeanKey(final Object id, final long version) {
 		this(CapCommonToolkit.beanKeyBuilder().setId(id).setVersion(version));

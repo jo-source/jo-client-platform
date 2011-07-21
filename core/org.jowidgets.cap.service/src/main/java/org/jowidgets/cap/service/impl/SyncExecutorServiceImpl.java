@@ -66,14 +66,14 @@ public final class SyncExecutorServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE> 
 		final IBeanAccess<? extends BEAN_TYPE> beanAccess,
 		final Object executor,
 		final IExecutableChecker<? extends BEAN_TYPE> executableChecker,
-		final List<String> propertyNames,
+		final IBeanDtoFactory<BEAN_TYPE> dtoFactory,
 		final boolean allowDeletedBeans,
 		final boolean allowStaleBeans) {
 
 		Assert.paramNotNull(beanType, "beanType");
 		Assert.paramNotNull(beanAccess, "beanAccess");
 		Assert.paramNotNull(executor, "executor");
-		Assert.paramNotNull(propertyNames, "propertyNames");
+		Assert.paramNotNull(dtoFactory, "dtoFactory");
 
 		this.beanAccess = (IBeanAccess<BEAN_TYPE>) beanAccess;
 		this.executor = executor;
@@ -81,7 +81,7 @@ public final class SyncExecutorServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE> 
 		this.allowDeletedBeans = allowDeletedBeans;
 		this.allowStaleBeans = allowStaleBeans;
 
-		this.dtoFactory = CapServiceToolkit.dtoFactory(beanType, propertyNames);
+		this.dtoFactory = dtoFactory;
 	}
 
 	@Override

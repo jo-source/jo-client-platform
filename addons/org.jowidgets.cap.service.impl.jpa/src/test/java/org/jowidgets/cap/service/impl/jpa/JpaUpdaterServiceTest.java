@@ -62,7 +62,8 @@ public class JpaUpdaterServiceTest extends AbstractJpaTest {
 		propertyNames.add("points");
 		propertyNames.add("triState");
 		propertyNames.add("birthday");
-		dataUpdaterService = CapServiceToolkit.updaterServiceBuilder(personBeanProvider).setPropertyNames(propertyNames).build();
+		dataUpdaterService = CapServiceToolkit.updaterServiceBuilder(personBeanProvider).setBeanDtoFactoryAndBeanModifier(
+				propertyNames).build();
 	}
 
 	@Test
@@ -72,7 +73,7 @@ public class JpaUpdaterServiceTest extends AbstractJpaTest {
 		dataUpdaterService.update(
 				result,
 				Collections.singleton(CapCommonToolkit.beanModificationBuilder().setId(1L).setVersion(1).setPropertyName("name").setNewValue(
-						"Harald-René").build()),
+						"Harald-René").setOldValue("Harald").build()),
 				null);
 		final List<IBeanDto> dtos = result.getResultSynchronious();
 		entityManager.getTransaction().commit();
@@ -96,7 +97,7 @@ public class JpaUpdaterServiceTest extends AbstractJpaTest {
 		dataUpdaterService.update(
 				result,
 				Collections.singleton(CapCommonToolkit.beanModificationBuilder().setId(1L).setVersion(1).setPropertyName("points").setNewValue(
-						1000).build()),
+						1000).setOldValue(0).build()),
 				null);
 		result.getResultSynchronious();
 	}
