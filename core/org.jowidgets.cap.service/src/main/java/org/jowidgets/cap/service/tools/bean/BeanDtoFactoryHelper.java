@@ -26,61 +26,33 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample1.service.reader;
+package org.jowidgets.cap.service.tools.bean;
 
+import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
-import org.jowidgets.cap.common.api.bean.IBeanKey;
-import org.jowidgets.cap.common.api.execution.IExecutionCallback;
-import org.jowidgets.cap.common.api.filter.IFilter;
-import org.jowidgets.cap.common.api.sort.ISort;
-import org.jowidgets.cap.sample1.service.datastore.AbstractData;
-import org.jowidgets.cap.service.api.CapServiceToolkit;
-import org.jowidgets.cap.service.api.adapter.ISyncReaderService;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
-import org.jowidgets.cap.service.tools.bean.BeanDtoFactoryHelper;
+import org.jowidgets.util.Assert;
 
-public class SyncReaderService<BEAN_TYPE extends IBean> implements ISyncReaderService<Void> {
+public final class BeanDtoFactoryHelper {
 
-	private final IBeanDtoFactory<BEAN_TYPE> beanFactory;
-	private final AbstractData<? extends BEAN_TYPE> data;
+	private BeanDtoFactoryHelper() {}
 
-	public SyncReaderService(final AbstractData<? extends BEAN_TYPE> data, final List<String> propertyNames) {
-		this.beanFactory = CapServiceToolkit.dtoFactory(data.getBeanType(), propertyNames);
-		this.data = data;
-	}
+	public static <BEAN_TYPE extends IBean> List<IBeanDto> createDtos(
+		final IBeanDtoFactory<BEAN_TYPE> beanDtoFactory,
+		final Collection<? extends BEAN_TYPE> beans) {
 
-	@Override
-	public List<IBeanDto> read(
-		final List<? extends IBeanKey> parentBeans,
-		final IFilter filter,
-		final List<? extends ISort> sortedProperties,
-		final int firstRow,
-		final int maxRows,
-		final Void parameter,
-		IExecutionCallback executionCallback) {
+		Assert.paramNotNull(beanDtoFactory, "beanDtoFactory");
+		Assert.paramNotNull(beans, "beans");
 
-		executionCallback = CapServiceToolkit.delayedExecutionCallback(executionCallback);
-
-		final List<IBeanDto> result = BeanDtoFactoryHelper.createDtos(beanFactory, data.getAllData(firstRow, maxRows));
-
-		//TODO apply filter and sort
-
+		final List<IBeanDto> result = new LinkedList<IBeanDto>();
+		for (final BEAN_TYPE bean : beans) {
+			result.add(beanDtoFactory.createDto(bean));
+		}
 		return result;
-	}
-
-	@Override
-	public Integer count(
-		final List<? extends IBeanKey> parentBeans,
-		final IFilter filter,
-		final Void parameter,
-		final IExecutionCallback executionCallback) {
-
-		//TODO apply filter
-
-		return Integer.valueOf(data.getAllData().size());
 	}
 
 }

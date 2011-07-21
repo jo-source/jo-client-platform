@@ -48,6 +48,7 @@ import org.jowidgets.cap.service.api.bean.IBeanAccess;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.cap.service.api.executor.IBeanExecutor;
 import org.jowidgets.cap.service.api.executor.IBeanListExecutor;
+import org.jowidgets.cap.service.tools.bean.BeanDtoFactoryHelper;
 import org.jowidgets.util.Assert;
 
 public final class SyncExecutorServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE> implements ISyncExecutorService<PARAM_TYPE> {
@@ -161,7 +162,7 @@ public final class SyncExecutorServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE> 
 		final List<? extends BEAN_TYPE> executionResult = beanCollectionExecutor.execute(beans, parameter, executionCallback);
 		CapServiceToolkit.checkCanceled(executionCallback);
 		beanAccess.flush();
-		return dtoFactory.createDtos(executionResult);
+		return BeanDtoFactoryHelper.createDtos(dtoFactory, executionResult);
 	}
 
 	@SuppressWarnings("unchecked")
