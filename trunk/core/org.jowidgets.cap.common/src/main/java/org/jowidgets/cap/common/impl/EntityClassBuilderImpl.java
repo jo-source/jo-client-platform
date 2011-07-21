@@ -26,44 +26,72 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.api;
+package org.jowidgets.cap.common.impl;
 
 import java.util.Collection;
+import java.util.LinkedList;
 
-import org.jowidgets.cap.common.api.bean.IBeanDataBuilder;
-import org.jowidgets.cap.common.api.bean.IBeanDtoBuilder;
-import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
-import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptorBuilder;
-import org.jowidgets.cap.common.api.bean.IBeanKeyBuilder;
-import org.jowidgets.cap.common.api.bean.IBeanModificationBuilder;
-import org.jowidgets.cap.common.api.bean.IBeanPropertyBuilder;
-import org.jowidgets.cap.common.api.bean.IProperty;
-import org.jowidgets.cap.common.api.bean.IPropertyBuilder;
-import org.jowidgets.cap.common.api.bean.IValueRangeFactory;
+import org.jowidgets.cap.common.api.entity.IEntityClass;
 import org.jowidgets.cap.common.api.entity.IEntityClassBuilder;
-import org.jowidgets.cap.common.api.sort.ISortFactory;
+import org.jowidgets.util.Assert;
+import org.jowidgets.util.builder.AbstractSingleUseBuilder;
 
-public interface ICapCommonToolkit {
+final class EntityClassBuilderImpl extends AbstractSingleUseBuilder<IEntityClass> implements IEntityClassBuilder {
 
-	IEntityClassBuilder entityClassBuilder();
+	@SuppressWarnings("rawtypes")
+	private final Collection subClasses;
 
-	IPropertyBuilder propertyBuilder();
+	private Object id;
+	private String label;
+	private String description;
 
-	IBeanPropertyBuilder beanPropertyBuilder(Class<?> beanType, String propertyName);
+	EntityClassBuilderImpl() {
+		this.subClasses = new LinkedList<IEntityClass>();
+	}
 
-	IValueRangeFactory valueRangeFactory();
+	@Override
+	public IEntityClassBuilder setId(final Object id) {
+		checkExhausted();
+		this.id = id;
+		return this;
+	}
 
-	IBeanDtoDescriptorBuilder dtoDescriptorBuilder(Class<?> beanType);
+	@Override
+	public IEntityClassBuilder setLabel(final String label) {
+		checkExhausted();
+		this.label = label;
+		return this;
+	}
 
-	IBeanDtoDescriptor dtoDescriptor(Collection<IProperty> properties);
+	@Override
+	public IEntityClassBuilder setDescription(final String description) {
+		checkExhausted();
+		this.description = description;
+		return this;
+	}
 
-	IBeanDtoBuilder dtoBuilder(Object entityTypeId);
+	@SuppressWarnings("unchecked")
+	@Override
+	public IEntityClassBuilder setSubClasses(final Collection<? extends IEntityClass> subClasses) {
+		Assert.paramNotNull(subClasses, "subClasses");
+		checkExhausted();
+		this.subClasses.clear();
+		this.subClasses.addAll(subClasses);
+		return this;
+	}
 
-	IBeanDataBuilder beanDataBuilder();
+	@SuppressWarnings("unchecked")
+	@Override
+	public IEntityClassBuilder addSubClass(final IEntityClass subClass) {
+		Assert.paramNotNull(subClass, "subClass");
+		checkExhausted();
+		subClasses.add(subClass);
+		return this;
+	}
 
-	IBeanKeyBuilder beanKeyBuilder();
+	@Override
+	protected IEntityClass doBuild() {
+		return new EntityClassImpl(id, label, description, subClasses);
+	}
 
-	IBeanModificationBuilder beanModificationBuilder();
-
-	ISortFactory sortFactory();
 }
