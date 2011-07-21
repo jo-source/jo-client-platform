@@ -16,7 +16,7 @@
 	<dependencies>
 	    <dependency>
 			<groupId>org.jowidgets</groupId>
-			<artifactId>org.jowidgets.cap.service</artifactId>
+			<artifactId>org.jowidgets.cap.service.impl.dummy</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>

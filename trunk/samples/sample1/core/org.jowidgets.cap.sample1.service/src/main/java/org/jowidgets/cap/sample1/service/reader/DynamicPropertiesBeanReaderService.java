@@ -35,8 +35,9 @@ import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.filter.IFilter;
 import org.jowidgets.cap.common.api.sort.ISort;
-import org.jowidgets.cap.sample1.service.datastore.DataStore;
+import org.jowidgets.cap.sample1.common.entity.IDynamicPropertiesBean;
 import org.jowidgets.cap.service.api.adapter.ISyncReaderService;
+import org.jowidgets.cap.service.impl.dummy.datastore.EntityDataStore;
 
 public class DynamicPropertiesBeanReaderService implements ISyncReaderService<Void> {
 
@@ -52,8 +53,7 @@ public class DynamicPropertiesBeanReaderService implements ISyncReaderService<Vo
 		final IExecutionCallback executionCallback) {
 
 		@SuppressWarnings("rawtypes")
-		final List result = DataStore.getDynamicPropertiesBeans().getAllData(firstRow, maxRows);
-
+		final List result = EntityDataStore.getEntityData(IDynamicPropertiesBean.class).getAllData(firstRow, maxRows);
 		return result;
 
 	}
@@ -65,7 +65,7 @@ public class DynamicPropertiesBeanReaderService implements ISyncReaderService<Vo
 		final Void param,
 		final IExecutionCallback executionCallback) {
 
-		return Integer.valueOf(DataStore.getDynamicPropertiesBeans().getAllData().size());
+		return Integer.valueOf(EntityDataStore.getEntityData(IDynamicPropertiesBean.class).getAllData().size());
 	}
 
 }

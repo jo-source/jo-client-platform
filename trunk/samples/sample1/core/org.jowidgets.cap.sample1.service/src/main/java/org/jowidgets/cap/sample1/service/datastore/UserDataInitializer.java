@@ -30,22 +30,35 @@ package org.jowidgets.cap.sample1.service.datastore;
 
 import java.util.GregorianCalendar;
 
+import org.jowidgets.cap.sample1.common.entity.IUser;
 import org.jowidgets.cap.sample1.service.entity.User;
+import org.jowidgets.cap.service.impl.dummy.datastore.EntityDataFactory;
+import org.jowidgets.cap.service.impl.dummy.datastore.EntityDataStore;
+import org.jowidgets.cap.service.impl.dummy.datastore.IEntityData;
+import org.jowidgets.cap.service.impl.dummy.datastore.IEntityFactory;
 
-public final class UserData extends AbstractData<User> {
+final class UserDataInitializer {
 
-	protected static final Long JOE_ESTRADA_ID = nextId();
-	protected static final Long SANDRA_MAYER_ID = nextId();
-	protected static final Long PETE_BROWN_ID = nextId();
-	protected static final Long MARTIN_SMITH_ID = nextId();
-	protected static final Long MARTY_MILLER_ID = nextId();
-	protected static final Long APRIL_WINTER_ID = nextId();
-	protected static final Long JAMES_MOON_ID = nextId();
+	private UserDataInitializer() {}
 
-	public UserData() {
-		super();
+	public static void initialize() {
 
-		User user = new User(JOE_ESTRADA_ID);
+		final IEntityData<IUser> data = EntityDataFactory.create(new IEntityFactory<IUser>() {
+
+			@Override
+			public IUser createBean(final Long id) {
+				return new User(id);
+			}
+
+			@Override
+			public Class<? extends IUser> getBeanType() {
+				return IUser.class;
+			}
+		});
+
+		EntityDataStore.putEntityData(IUser.class, data);
+
+		User user = new User(data.nextId());
 		user.setName("Joe");
 		user.setLastName("Estrada");
 		user.setDateOfBirth(new GregorianCalendar(1972, 3, 22).getTime());
@@ -53,9 +66,9 @@ public final class UserData extends AbstractData<User> {
 		user.addLanguage("English");
 		user.setCountry("Spain");
 		user.setMarried(Boolean.TRUE);
-		add(user);
+		data.add(user);
 
-		user = new User(SANDRA_MAYER_ID);
+		user = new User(data.nextId());
 		user.setName("Sandra");
 		user.setLastName("Mayer");
 		user.setDateOfBirth(new GregorianCalendar(1951, 4, 11).getTime());
@@ -64,9 +77,9 @@ public final class UserData extends AbstractData<User> {
 		user.addLanguage("German");
 		user.setCountry("Germany");
 		user.setMarried(Boolean.FALSE);
-		add(user);
+		data.add(user);
 
-		user = new User(PETE_BROWN_ID);
+		user = new User(data.nextId());
 		user.setName("Pete");
 		user.setLastName("Brown");
 		user.setDateOfBirth(new GregorianCalendar(1983, 7, 13).getTime());
@@ -75,9 +88,9 @@ public final class UserData extends AbstractData<User> {
 		user.addLanguage("French");
 		user.setAdmin(true);
 		user.setCountry("USA");
-		add(user);
+		data.add(user);
 
-		user = new User(MARTIN_SMITH_ID);
+		user = new User(data.nextId());
 		user.setName("Martin");
 		user.setLastName("Smith");
 		user.setDateOfBirth(new GregorianCalendar(1994, 11, 8).getTime());
@@ -85,9 +98,9 @@ public final class UserData extends AbstractData<User> {
 		user.addLanguage("English");
 		user.addLanguage("Spanish");
 		user.setCountry("Italy");
-		add(user);
+		data.add(user);
 
-		user = new User(MARTY_MILLER_ID);
+		user = new User(data.nextId());
 		user.setName("Marty");
 		user.setLastName("Miller");
 		user.setDateOfBirth(new GregorianCalendar(1934, 12, 24).getTime());
@@ -95,9 +108,9 @@ public final class UserData extends AbstractData<User> {
 		user.addLanguage("English");
 		user.setCountry("Spain");
 		user.setMarried(Boolean.FALSE);
-		add(user);
+		data.add(user);
 
-		user = new User(APRIL_WINTER_ID);
+		user = new User(data.nextId());
 		user.setName("April");
 		user.setLastName("Winter");
 		user.setDateOfBirth(new GregorianCalendar(1978, 5, 23).getTime());
@@ -105,9 +118,9 @@ public final class UserData extends AbstractData<User> {
 		user.addLanguage("English");
 		user.addLanguage("French");
 		user.addLanguage("Spanish");
-		add(user);
+		data.add(user);
 
-		user = new User(JAMES_MOON_ID);
+		user = new User(data.nextId());
 		user.setName("James");
 		user.setLastName("Moon");
 		user.setDateOfBirth(new GregorianCalendar(1943, 2, 19).getTime());
@@ -116,33 +129,16 @@ public final class UserData extends AbstractData<User> {
 		user.setAdmin(true);
 		user.setMarried(Boolean.TRUE);
 		user.setCountry("USA");
-		add(user);
+		data.add(user);
 
 		for (int i = 0; i < 200000; i++) {
-			user = new User(nextId());
+			user = new User(data.nextId());
 			user.setName("Name " + i);
 			user.setLastName("Lastname " + i);
 			user.setDateOfBirth(new GregorianCalendar(1943, 2, 19).getTime());
 			user.setGender("M");
-			add(user);
+			data.add(user);
 		}
-
-	}
-
-	@Override
-	public Class<User> getBeanType() {
-		return User.class;
-	}
-
-	@Override
-	public User createBean() {
-		final User result = new User(nextId());
-		add(result);
-		return result;
-	}
-
-	@Override
-	public void flush() {
 
 	}
 
