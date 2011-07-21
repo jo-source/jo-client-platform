@@ -28,10 +28,6 @@
 
 package org.jowidgets.cap.service.impl;
 
-import java.beans.BeanInfo;
-import java.beans.Introspector;
-import java.beans.PropertyDescriptor;
-import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -43,60 +39,42 @@ import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.bean.IBeanModification;
-import org.jowidgets.cap.common.api.exception.ServiceException;
+import org.jowidgets.cap.common.api.exception.StaleBeanException;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
+import org.jowidgets.cap.common.tools.bean.BeanKey;
 import org.jowidgets.cap.service.api.adapter.ISyncExecutorService;
 import org.jowidgets.cap.service.api.adapter.ISyncUpdaterService;
+import org.jowidgets.cap.service.api.bean.IBeanModifier;
 import org.jowidgets.cap.service.api.executor.IBeanExecutor;
+import org.jowidgets.util.Assert;
 
 public final class SyncUpdaterServiceImpl<BEAN_TYPE extends IBean> implements ISyncUpdaterService {
 
 	private final ISyncExecutorService<Collection<? extends IBeanModification>> executorService;
 
 	SyncUpdaterServiceImpl(
+		final IBeanModifier<BEAN_TYPE> beanModifier,
 		final ExecutorServiceBuilderImpl<BEAN_TYPE, Collection<? extends IBeanModification>> executorServiceBuilder) {
 
-		final Collection<String> propertyNames = executorServiceBuilder.getPropertyNames();
-		final Map<String, Method> methods = new HashMap<String, Method>();
+		Assert.paramNotNull(beanModifier, "beanModifier");
+		Assert.paramNotNull(executorServiceBuilder, "executorServiceBuilder");
 
-		try {
-			final BeanInfo beanInfo = Introspector.getBeanInfo(executorServiceBuilder.getBeanType());
-			for (final PropertyDescriptor propertyDescriptor : beanInfo.getPropertyDescriptors()) {
-				final String propertyName = propertyDescriptor.getName();
-				if (propertyNames.contains(propertyName)) {
-					methods.put(propertyName, propertyDescriptor.getWriteMethod());
-				}
-			}
-		}
-		catch (final Exception e) {
-			throw new RuntimeException(e);
-		}
+		final boolean allowStaleBeans = executorServiceBuilder.isAllowStaleBeans();
 
 		executorServiceBuilder.setExecutor(new IBeanExecutor<BEAN_TYPE, Collection<? extends IBeanModification>>() {
-
 			@Override
 			public BEAN_TYPE execute(
-				final BEAN_TYPE data,
+				final BEAN_TYPE bean,
 				final Collection<? extends IBeanModification> modifications,
 				final IExecutionCallback executionCallback) {
 
 				for (final IBeanModification modification : modifications) {
-					final Method method = methods.get(modification.getPropertyName());
-					if (method != null) {
-						try {
-							method.invoke(data, modification.getNewValue());
-						}
-						catch (final Exception e) {
-							throw new RuntimeException(e);
-						}
+					if (!allowStaleBeans && beanModifier.isPropertyStale(bean, modification)) {
+						throw new StaleBeanException(new BeanKey(bean));
 					}
-					else {
-						throw new ServiceException(modification, "Tryed to set the property '"
-							+ modification.getPropertyName()
-							+ "', but the property is not defined / allowed for this service.");
-					}
+					beanModifier.modify(bean, modification);
 				}
-				return data;
+				return bean;
 			}
 		});
 

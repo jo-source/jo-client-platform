@@ -77,12 +77,12 @@ public final class BeanServicesProvider<BEAN_TYPE extends IBean> {
 
 		//updater service
 		final IUpdaterServiceBuilder<BEAN_TYPE> updaterBuilder = CapServiceToolkit.updaterServiceBuilder(data);
-		updaterBuilder.setPropertyNames(properties);
+		updaterBuilder.setBeanDtoFactoryAndBeanModifier(properties);
 		builder.setUpdaterService(updaterBuilder.build());
 
 		//refresh service
 		final IRefreshServiceBuilder<BEAN_TYPE> refreshBuilder = CapServiceToolkit.refreshServiceBuilder(data);
-		refreshBuilder.setPropertyNames(properties);
+		refreshBuilder.setBeanDtoFactory(properties);
 		builder.setRefreshService(refreshBuilder.build());
 
 		this.beanServicesProvider = builder.build();

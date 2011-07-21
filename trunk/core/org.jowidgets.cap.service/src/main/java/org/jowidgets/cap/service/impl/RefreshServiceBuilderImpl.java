@@ -37,6 +37,7 @@ import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.adapter.IAdapterFactoryProvider;
 import org.jowidgets.cap.service.api.adapter.ISyncRefreshService;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
+import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.cap.service.api.refresh.IRefreshServiceBuilder;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.IAdapterFactory;
@@ -45,8 +46,7 @@ final class RefreshServiceBuilderImpl<BEAN_TYPE extends IBean> implements IRefre
 
 	private final Class<? extends BEAN_TYPE> beanType;
 	private final IBeanAccess<? extends BEAN_TYPE> beanAccess;
-
-	private List<String> propertyNames;
+	private IBeanDtoFactory<BEAN_TYPE> beanDtoFactory;
 	private boolean allowDeletedBeans;
 
 	RefreshServiceBuilderImpl(final IBeanAccess<? extends BEAN_TYPE> beanAccess) {
@@ -60,8 +60,16 @@ final class RefreshServiceBuilderImpl<BEAN_TYPE extends IBean> implements IRefre
 	}
 
 	@Override
-	public IRefreshServiceBuilder<BEAN_TYPE> setPropertyNames(final List<String> propertyNames) {
-		this.propertyNames = propertyNames;
+	public IRefreshServiceBuilder<BEAN_TYPE> setBeanDtoFactory(final List<String> propertyNames) {
+		Assert.paramNotNull(propertyNames, "propertyNames");
+		this.beanDtoFactory = CapServiceToolkit.dtoFactory(beanType, propertyNames);
+		return this;
+	}
+
+	@Override
+	public IRefreshServiceBuilder<BEAN_TYPE> setBeanDtoFactory(final IBeanDtoFactory<BEAN_TYPE> beanDtoFactory) {
+		Assert.paramNotNull(beanDtoFactory, "beanDtoFactory");
+		this.beanDtoFactory = beanDtoFactory;
 		return this;
 	}
 
@@ -71,12 +79,13 @@ final class RefreshServiceBuilderImpl<BEAN_TYPE extends IBean> implements IRefre
 		return this;
 	}
 
-	protected List<String> getPropertyNames() {
-		if (propertyNames == null) {
-			return Collections.emptyList();
+	private IBeanDtoFactory<BEAN_TYPE> getBeanDtoFactory() {
+		if (beanDtoFactory != null) {
+			return beanDtoFactory;
 		}
 		else {
-			return propertyNames;
+			final List<String> propertyNames = Collections.emptyList();
+			return CapServiceToolkit.dtoFactory(beanType, propertyNames);
 		}
 	}
 
@@ -89,7 +98,7 @@ final class RefreshServiceBuilderImpl<BEAN_TYPE extends IBean> implements IRefre
 
 	@Override
 	public ISyncRefreshService buildSyncService() {
-		return new SyncRefreshServiceImpl<IBean>(beanType, beanAccess, getPropertyNames(), allowDeletedBeans);
+		return new SyncRefreshServiceImpl<BEAN_TYPE>(beanType, beanAccess, getBeanDtoFactory(), allowDeletedBeans);
 	}
 
 }

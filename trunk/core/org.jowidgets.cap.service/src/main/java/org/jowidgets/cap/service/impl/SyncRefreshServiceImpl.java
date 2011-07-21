@@ -38,7 +38,6 @@ import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.exception.DeletedBeanException;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
-import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.adapter.ISyncRefreshService;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
@@ -53,12 +52,12 @@ public final class SyncRefreshServiceImpl<BEAN_TYPE extends IBean> implements IS
 	SyncRefreshServiceImpl(
 		final Class<? extends BEAN_TYPE> beanType,
 		final IBeanAccess<? extends BEAN_TYPE> beanAccess,
-		final List<String> propertyNames,
+		final IBeanDtoFactory<BEAN_TYPE> dtoFactory,
 		final boolean allowDeletedBeans) {
 
 		this.beanAccess = (IBeanAccess<BEAN_TYPE>) beanAccess;
 		this.allowDeletedBeans = allowDeletedBeans;
-		this.dtoFactory = CapServiceToolkit.dtoFactory(beanType, propertyNames);
+		this.dtoFactory = dtoFactory;
 	}
 
 	@Override

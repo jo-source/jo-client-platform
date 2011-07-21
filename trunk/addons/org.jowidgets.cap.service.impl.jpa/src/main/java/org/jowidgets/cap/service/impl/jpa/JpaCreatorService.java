@@ -58,7 +58,7 @@ public final class JpaCreatorService implements ICreatorService {
 
 	public JpaCreatorService(final IBeanAccess<? extends IBean> beanProvider, final List<String> propertyNames) {
 		beanInitializer = CapServiceToolkit.beanInitializer(beanProvider.getBeanType(), propertyNames);
-		executorService = CapServiceToolkit.executorServiceBuilder(beanProvider).setPropertyNames(propertyNames).setExecutor(
+		executorService = CapServiceToolkit.executorServiceBuilder(beanProvider).setBeanDtoFactory(propertyNames).setExecutor(
 				new IBeanListExecutor<IBean, Collection<? extends IBeanData>>() {
 					@Override
 					public List<IBean> execute(

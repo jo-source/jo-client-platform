@@ -34,12 +34,18 @@ import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.service.IUpdaterService;
 import org.jowidgets.cap.service.api.adapter.ISyncUpdaterService;
+import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
+import org.jowidgets.cap.service.api.bean.IBeanModifier;
 
 public interface IUpdaterServiceBuilder<BEAN_TYPE extends IBean> {
 
 	IUpdaterServiceBuilder<BEAN_TYPE> setExecutableChecker(IExecutableChecker<? extends BEAN_TYPE> executableChecker);
 
-	IUpdaterServiceBuilder<BEAN_TYPE> setPropertyNames(final List<String> propertyNames);
+	IUpdaterServiceBuilder<BEAN_TYPE> setBeanDtoFactory(IBeanDtoFactory<BEAN_TYPE> beanDtoFactory);
+
+	IUpdaterServiceBuilder<BEAN_TYPE> setBeanModifier(IBeanModifier<BEAN_TYPE> beanModifier);
+
+	IUpdaterServiceBuilder<BEAN_TYPE> setBeanDtoFactoryAndBeanModifier(final List<String> propertyNames);
 
 	IUpdaterServiceBuilder<BEAN_TYPE> setAllowDeletedBeans(boolean allowDeletedBeans);
 

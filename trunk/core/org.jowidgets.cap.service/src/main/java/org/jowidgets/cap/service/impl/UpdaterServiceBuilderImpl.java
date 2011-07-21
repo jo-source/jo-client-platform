@@ -29,6 +29,7 @@
 package org.jowidgets.cap.service.impl;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IBean;
@@ -39,14 +40,21 @@ import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.adapter.IAdapterFactoryProvider;
 import org.jowidgets.cap.service.api.adapter.ISyncUpdaterService;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
+import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
+import org.jowidgets.cap.service.api.bean.IBeanModifier;
 import org.jowidgets.cap.service.api.updater.IUpdaterServiceBuilder;
+import org.jowidgets.util.Assert;
 import org.jowidgets.util.IAdapterFactory;
 
 final class UpdaterServiceBuilderImpl<BEAN_TYPE extends IBean> implements IUpdaterServiceBuilder<BEAN_TYPE> {
 
 	private final ExecutorServiceBuilderImpl<BEAN_TYPE, Collection<? extends IBeanModification>> dataExecutorServiceBuilder;
+	private final IBeanAccess<? extends BEAN_TYPE> beanAccess;
+
+	private IBeanModifier<BEAN_TYPE> beanModifier;
 
 	UpdaterServiceBuilderImpl(final IBeanAccess<? extends BEAN_TYPE> beanAccess) {
+		this.beanAccess = beanAccess;
 		this.dataExecutorServiceBuilder = new ExecutorServiceBuilderImpl<BEAN_TYPE, Collection<? extends IBeanModification>>(
 			beanAccess);
 	}
@@ -58,8 +66,22 @@ final class UpdaterServiceBuilderImpl<BEAN_TYPE extends IBean> implements IUpdat
 	}
 
 	@Override
-	public IUpdaterServiceBuilder<BEAN_TYPE> setPropertyNames(final List<String> propertyNames) {
-		dataExecutorServiceBuilder.setPropertyNames(propertyNames);
+	public IUpdaterServiceBuilder<BEAN_TYPE> setBeanDtoFactory(final IBeanDtoFactory<BEAN_TYPE> beanDtoFactory) {
+		dataExecutorServiceBuilder.setBeanDtoFactory(beanDtoFactory);
+		return this;
+	}
+
+	@Override
+	public IUpdaterServiceBuilder<BEAN_TYPE> setBeanModifier(final IBeanModifier<BEAN_TYPE> beanModifier) {
+		Assert.paramNotNull(beanModifier, "beanModifier");
+		this.beanModifier = beanModifier;
+		return this;
+	}
+
+	@Override
+	public IUpdaterServiceBuilder<BEAN_TYPE> setBeanDtoFactoryAndBeanModifier(final List<String> propertyNames) {
+		dataExecutorServiceBuilder.setBeanDtoFactory(propertyNames);
+		this.beanModifier = CapServiceToolkit.beanModifier(beanAccess.getBeanType(), propertyNames);
 		return this;
 	}
 
@@ -75,9 +97,19 @@ final class UpdaterServiceBuilderImpl<BEAN_TYPE extends IBean> implements IUpdat
 		return this;
 	}
 
+	private IBeanModifier<BEAN_TYPE> getBeanModifier() {
+		if (beanModifier != null) {
+			return beanModifier;
+		}
+		else {
+			final List<String> properties = Collections.emptyList();
+			return CapServiceToolkit.beanModifier(beanAccess.getBeanType(), properties);
+		}
+	}
+
 	@Override
 	public ISyncUpdaterService buildSyncService() {
-		return new SyncUpdaterServiceImpl<BEAN_TYPE>(dataExecutorServiceBuilder);
+		return new SyncUpdaterServiceImpl<BEAN_TYPE>(getBeanModifier(), dataExecutorServiceBuilder);
 	}
 
 	@Override

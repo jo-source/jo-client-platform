@@ -65,7 +65,7 @@ public class JpaExecutorServiceTest extends AbstractJpaTest {
 		propertyNames.add("points");
 		propertyNames.add("triState");
 		propertyNames.add("birthday");
-		singleDataExecutorService = CapServiceToolkit.executorServiceBuilder(personBeanProvider).setPropertyNames(propertyNames).setExecutor(
+		singleDataExecutorService = CapServiceToolkit.executorServiceBuilder(personBeanProvider).setBeanDtoFactory(propertyNames).setExecutor(
 				new IBeanExecutor<Person, Integer>() {
 					@Override
 					public Person execute(final Person data, final Integer parameter, final IExecutionCallback executionHandle) {
@@ -73,7 +73,7 @@ public class JpaExecutorServiceTest extends AbstractJpaTest {
 						return data;
 					};
 				}).build();
-		multiDataExecutorService = CapServiceToolkit.executorServiceBuilder(personBeanProvider).setPropertyNames(propertyNames).setExecutor(
+		multiDataExecutorService = CapServiceToolkit.executorServiceBuilder(personBeanProvider).setBeanDtoFactory(propertyNames).setExecutor(
 				new IBeanListExecutor<Person, Integer>() {
 					@SuppressWarnings("unchecked")
 					@Override
