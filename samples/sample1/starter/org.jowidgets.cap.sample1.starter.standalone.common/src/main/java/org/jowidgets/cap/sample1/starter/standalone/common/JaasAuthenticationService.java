@@ -41,42 +41,35 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
-import org.jowidgets.api.login.ILoginInterceptor;
-import org.jowidgets.api.login.ILoginResultCallback;
-import org.jowidgets.security.api.SecurityContextHolder;
+import org.jowidgets.security.api.IAuthenticationService;
+import org.jowidgets.security.tools.DefaultCredentials;
 import org.jowidgets.security.tools.DefaultPrincipal;
 import org.jowidgets.util.Assert;
 
-public class JaasLoginInterceptor implements ILoginInterceptor {
+public class JaasAuthenticationService implements IAuthenticationService<DefaultPrincipal, DefaultCredentials> {
 
-	private String jaasLoginContextName = "default";
-	private String defaultErrorMessage = "Login failed (reason unknown)";
+	private String loginContextName = "default";
 
-	public void setJaasLoginContextName(final String jaasLoginContextName) {
-		Assert.paramNotNull(jaasLoginContextName, "jaasLoginContextName");
-		this.jaasLoginContextName = jaasLoginContextName;
-	}
-
-	public void setDefaultErrorMessage(final String defaultErrorMessage) {
-		Assert.paramNotNull(defaultErrorMessage, "defaultErrorMessage");
-		this.defaultErrorMessage = defaultErrorMessage;
+	public void setLoginContextName(final String loginContextName) {
+		Assert.paramNotNull(loginContextName, "loginContextName");
+		this.loginContextName = loginContextName;
 	}
 
 	@Override
-	public void login(final ILoginResultCallback resultCallback, final String username, final String password) {
-		final AtomicReference<String> loginErrorMessage = new AtomicReference<String>(defaultErrorMessage);
+	public DefaultPrincipal authenticate(final DefaultCredentials credentials) {
+		final AtomicReference<String> loginErrorMessage = new AtomicReference<String>("login failed");
 		try {
-			final LoginContext loginContext = new LoginContext(jaasLoginContextName, new CallbackHandler() {
+			final LoginContext loginContext = new LoginContext(loginContextName, new CallbackHandler() {
 				@Override
 				public void handle(final Callback[] callbacks) throws IOException, UnsupportedCallbackException {
 					for (int i = 0; i < callbacks.length; i++) {
 						if (callbacks[i] instanceof NameCallback) {
 							final NameCallback nc = (NameCallback) callbacks[i];
-							nc.setName(username);
+							nc.setName(credentials.getUsername());
 						}
 						else if (callbacks[i] instanceof PasswordCallback) {
 							final PasswordCallback pc = (PasswordCallback) callbacks[i];
-							pc.setPassword(password.toCharArray());
+							pc.setPassword(credentials.getPassword().toCharArray());
 						}
 						else if (callbacks[i] instanceof TextOutputCallback) {
 							final TextOutputCallback tc = (TextOutputCallback) callbacks[i];
@@ -93,18 +86,13 @@ public class JaasLoginInterceptor implements ILoginInterceptor {
 			loginContext.login();
 			final Subject subject = loginContext.getSubject();
 			if (subject != null) {
-				SecurityContextHolder.setSecurityContext(new DefaultPrincipal(username));
-				resultCallback.granted();
-				return;
+				return new DefaultPrincipal(credentials.getUsername());
 			}
 		}
 		catch (final LoginException e) {
 			loginErrorMessage.set(e.getLocalizedMessage());
 		}
-		catch (final SecurityException e) {
-			loginErrorMessage.set(e.getLocalizedMessage());
-		}
-		resultCallback.denied(loginErrorMessage.get());
+		throw new RuntimeException(loginErrorMessage.get());
 	}
 
 }
