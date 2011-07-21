@@ -240,7 +240,10 @@ final class BeanTableImpl<BEAN_TYPE> extends TableWrapper implements IBeanTable<
 			if (attribute != null && attribute.isSortable()) {
 				final ISortModel sortModel = model.getSortModel();
 				final String propertyName = attribute.getPropertyName();
-				if (event.getModifiers().contains(Modifier.CTRL)) {
+				if (event.getModifiers().contains(Modifier.SHIFT)) {
+					pack();
+				}
+				else if (event.getModifiers().contains(Modifier.CTRL)) {
 					sortModel.addOrToggleCurrentProperty(propertyName);
 				}
 				else {
