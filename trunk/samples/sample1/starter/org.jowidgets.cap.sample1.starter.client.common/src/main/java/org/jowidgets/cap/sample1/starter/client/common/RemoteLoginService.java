@@ -69,12 +69,12 @@ public class RemoteLoginService implements ILoginService {
 					public void finished(final DefaultPrincipal principal) {
 						if (principal == null) {
 							resultCallback.denied("Login failed");
+							BasicAuthenticationInitializer.getInstance().clearCredentials();
 						}
 						else {
 							SecurityContextHolder.setSecurityContext(principal);
 							resultCallback.granted();
 						}
-						BasicAuthenticationInitializer.getInstance().clearCredentials();
 					}
 
 					@Override
