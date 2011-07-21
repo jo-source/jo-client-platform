@@ -33,13 +33,12 @@ import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 
-
 public interface IBeanProxyFactory<BEAN_TYPE> {
 
-	List<IBeanProxy<BEAN_TYPE>> createProxies(Collection<? extends IBeanDto> beanDtos);
+	List<IBeanProxy<BEAN_TYPE>> createProxies(Collection<? extends IBeanDto> beanDtos, List<String> properties);
 
-	IBeanProxy<BEAN_TYPE> createProxy(IBeanDto beanDto);
+	IBeanProxy<BEAN_TYPE> createProxy(IBeanDto beanDto, List<String> properties);
 
-	IBeanProxy<BEAN_TYPE> createProxy();
+	IBeanProxy<BEAN_TYPE> createProxy(List<String> properties);
 
 }

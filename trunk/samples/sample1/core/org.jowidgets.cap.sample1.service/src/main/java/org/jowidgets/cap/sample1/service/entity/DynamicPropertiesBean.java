@@ -30,16 +30,12 @@ package org.jowidgets.cap.sample1.service.entity;
 
 import java.io.Serializable;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import org.jowidgets.cap.sample1.common.entity.IDynamicPropertiesBean;
 import org.jowidgets.util.Assert;
 
 public class DynamicPropertiesBean extends AbstractBean implements IDynamicPropertiesBean, Serializable {
-
-	private static final Set<String> PROPERTIES = new HashSet<String>(IDynamicPropertiesBean.ALL_PROPERTIES);
 
 	private static final long serialVersionUID = -1103247679045455401L;
 
@@ -60,11 +56,6 @@ public class DynamicPropertiesBean extends AbstractBean implements IDynamicPrope
 	public void setValue(final String propertyName, final Object value) {
 		Assert.paramNotEmpty(propertyName, "propertyName");
 		values.put(propertyName, value);
-	}
-
-	@Override
-	public Set<String> getPropertyNames() {
-		return PROPERTIES;
 	}
 
 }

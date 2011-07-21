@@ -29,9 +29,7 @@
 package org.jowidgets.cap.common.impl;
 
 import java.io.Serializable;
-import java.util.Collections;
 import java.util.Map;
-import java.util.Set;
 
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
@@ -60,11 +58,6 @@ class BeanDtoImpl implements IBeanDto, Serializable {
 	public Object getValue(final String propertyName) {
 		Assert.paramNotEmpty(propertyName, "propertyName");
 		return beanData.get(propertyName);
-	}
-
-	@Override
-	public Set<String> getPropertyNames() {
-		return Collections.unmodifiableSet(beanData.keySet());
 	}
 
 	@Override
