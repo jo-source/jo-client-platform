@@ -26,36 +26,39 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample1.service.entity;
+package org.jowidgets.cap.service.tools.bean;
 
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
+import org.jowidgets.cap.common.api.bean.IBean;
 
-import org.jowidgets.cap.sample1.common.entity.IDynamicPropertiesBean;
-import org.jowidgets.util.Assert;
+public abstract class AbstractBean implements IBean {
 
-public class DynamicPropertiesBean extends AbstractBean implements IDynamicPropertiesBean, Serializable {
+	private Object id;
+	private long version;
 
-	private static final long serialVersionUID = -1103247679045455401L;
+	public AbstractBean() {
+		this(null);
+	}
 
-	private final Map<String, Object> values;
-
-	public DynamicPropertiesBean(final Long id) {
-		super(id);
-		this.values = new HashMap<String, Object>();
+	public AbstractBean(final Object id) {
+		this.id = id;
 	}
 
 	@Override
-	public Object getValue(final String propertyName) {
-		Assert.paramNotEmpty(propertyName, "propertyName");
-		return values.get(propertyName);
+	public final Object getId() {
+		return id;
+	}
+
+	public void setId(final Object id) {
+		this.id = id;
 	}
 
 	@Override
-	public void setValue(final String propertyName, final Object value) {
-		Assert.paramNotEmpty(propertyName, "propertyName");
-		values.put(propertyName, value);
+	public final long getVersion() {
+		return version;
+	}
+
+	public final void setVersion(final long version) {
+		this.version = version;
 	}
 
 }

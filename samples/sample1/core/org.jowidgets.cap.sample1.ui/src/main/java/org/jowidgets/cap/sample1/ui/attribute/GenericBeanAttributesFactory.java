@@ -31,34 +31,34 @@ package org.jowidgets.cap.sample1.ui.attribute;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.jowidgets.cap.sample1.common.entity.IDynamicPropertiesBean;
+import org.jowidgets.cap.common.api.bean.IProperty;
+import org.jowidgets.cap.common.api.service.IEntityService;
+import org.jowidgets.cap.sample1.common.entity.EntityIds;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IAttributeBuilder;
 import org.jowidgets.cap.ui.api.attribute.IAttributeGroup;
 import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
+import org.jowidgets.service.api.ServiceProvider;
 
-public class DynamicPropertiesBeanAttributesFactory {
+public class GenericBeanAttributesFactory {
 
 	private final IAttributeToolkit attributeToolkit;
 
-	public DynamicPropertiesBeanAttributesFactory() {
+	public GenericBeanAttributesFactory() {
 		this.attributeToolkit = CapUiToolkit.attributeToolkit();
 	}
 
 	public List<IAttribute<String>> tableAttributes() {
 		final List<IAttribute<String>> attributes = new LinkedList<IAttribute<String>>();
 
-		final List<String> allProperties = IDynamicPropertiesBean.ALL_PROPERTIES;
+		final List<IProperty> properties = ServiceProvider.getService(IEntityService.ID).getDescriptor(EntityIds.GENERIC_BEAN).getProperties();
 
 		int groupIndex = 0;
 		IAttributeGroup group = null;
-		for (int columnIndex = 0; columnIndex < allProperties.size(); columnIndex++) {
-			final IAttributeBuilder<String> builder = attributeToolkit.createAttributeBuilder(String.class);
-			builder.setPropertyName(allProperties.get(columnIndex));
-			builder.setLabel("Col " + columnIndex);
-			builder.setLabelLong("Column " + columnIndex);
-			builder.setDescription("Description of column " + columnIndex);
+		int columnIndex = 0;
+		for (final IProperty property : properties) {
+			final IAttributeBuilder<String> builder = attributeToolkit.createAttributeBuilder(property);
 
 			if (columnIndex % 8 == 0) {
 				final int currentGroupIndex = groupIndex;
@@ -85,6 +85,7 @@ public class DynamicPropertiesBeanAttributesFactory {
 			builder.setGroup(group);
 
 			attributes.add(builder.build());
+			columnIndex++;
 		}
 
 		return attributes;

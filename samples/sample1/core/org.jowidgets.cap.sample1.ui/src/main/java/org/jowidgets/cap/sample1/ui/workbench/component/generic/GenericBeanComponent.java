@@ -26,17 +26,18 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample1.ui.workbench.component.dynbeans;
+package org.jowidgets.cap.sample1.ui.workbench.component.generic;
 
-import org.jowidgets.cap.sample1.common.entity.IDynamicPropertiesBean;
-import org.jowidgets.cap.sample1.common.service.reader.DynamicPropertiesBeanReaderServices;
-import org.jowidgets.cap.sample1.ui.attribute.DynamicPropertiesBeanAttributesFactory;
+import org.jowidgets.cap.common.api.service.IEntityService;
+import org.jowidgets.cap.sample1.common.entity.EntityIds;
+import org.jowidgets.cap.sample1.ui.attribute.GenericBeanAttributesFactory;
 import org.jowidgets.cap.sample1.ui.workbench.command.WorkbenchActions;
-import org.jowidgets.cap.sample1.ui.workbench.component.dynbeans.view.DynamicPropertiesBeanTableView;
+import org.jowidgets.cap.sample1.ui.workbench.component.generic.view.GenericBeanTableView;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
 import org.jowidgets.common.types.IVetoable;
+import org.jowidgets.service.api.ServiceProvider;
 import org.jowidgets.workbench.api.IComponent;
 import org.jowidgets.workbench.api.IComponentContext;
 import org.jowidgets.workbench.api.IView;
@@ -44,19 +45,19 @@ import org.jowidgets.workbench.api.IViewContext;
 import org.jowidgets.workbench.toolkit.api.IComponentNodeModel;
 import org.jowidgets.workbench.tools.AbstractComponent;
 
-public class DynamicPropertiesBeanComponent extends AbstractComponent implements IComponent {
+public class GenericBeanComponent extends AbstractComponent implements IComponent {
 
-	private final IBeanTableModel<IDynamicPropertiesBean> tableModel;
+	private final IBeanTableModel<Object> tableModel;
 
-	public DynamicPropertiesBeanComponent(final IComponentNodeModel componentNodeModel, final IComponentContext componentContext) {
-		componentContext.setLayout(new DynamicPropertiesBeanComponentDefaultLayout().getLayout());
+	public GenericBeanComponent(final IComponentNodeModel componentNodeModel, final IComponentContext componentContext) {
+		componentContext.setLayout(new GenericBeanComponentDefaultLayout().getLayout());
 		this.tableModel = createTableModel();
 	}
 
 	@Override
 	public IView createView(final String viewId, final IViewContext context) {
-		if (DynamicPropertiesBeanTableView.ID.equals(viewId)) {
-			return new DynamicPropertiesBeanTableView(context, tableModel);
+		if (GenericBeanTableView.ID.equals(viewId)) {
+			return new GenericBeanTableView(context, tableModel);
 		}
 		else {
 			throw new IllegalArgumentException("View id '" + viewId + "' is not known.");
@@ -82,10 +83,10 @@ public class DynamicPropertiesBeanComponent extends AbstractComponent implements
 		WorkbenchActions.cancelAction().removeDataModel(tableModel);
 	}
 
-	private IBeanTableModel<IDynamicPropertiesBean> createTableModel() {
-		final IBeanTableModelBuilder<IDynamicPropertiesBean> builder = CapUiToolkit.beanTableModelBuilder(IDynamicPropertiesBean.class);
-		builder.setAttributes(new DynamicPropertiesBeanAttributesFactory().tableAttributes());
-		builder.setReaderService(DynamicPropertiesBeanReaderServices.ALL_BEANS);
+	private IBeanTableModel<Object> createTableModel() {
+		final IBeanTableModelBuilder<Object> builder = CapUiToolkit.beanTableModelBuilder(Object.class);
+		builder.setAttributes(new GenericBeanAttributesFactory().tableAttributes());
+		builder.setEntityServices(ServiceProvider.getService(IEntityService.ID).getBeanServices(EntityIds.GENERIC_BEAN));
 		return builder.build();
 	}
 

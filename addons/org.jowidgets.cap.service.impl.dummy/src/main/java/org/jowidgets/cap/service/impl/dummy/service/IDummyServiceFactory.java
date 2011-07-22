@@ -38,6 +38,7 @@ import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.cap.service.api.bean.IBeanInitializer;
 import org.jowidgets.cap.service.api.bean.IBeanModifier;
+import org.jowidgets.cap.service.api.bean.IBeanPropertyMap;
 import org.jowidgets.cap.service.impl.dummy.datastore.IEntityData;
 import org.jowidgets.service.api.IServiceRegistry;
 
@@ -54,6 +55,11 @@ public interface IDummyServiceFactory {
 		final IBeanDtoFactory<BEAN_TYPE> beanDtoFactory,
 		final IBeanInitializer<BEAN_TYPE> beanInitializer,
 		final IBeanModifier<BEAN_TYPE> beanModifier);
+
+	IBeanServicesProvider beanPropertyMapServices(
+		final IServiceRegistry registry,
+		final IEntityData<? extends IBeanPropertyMap> data,
+		final List<String> propertyNames);
 
 	ICreatorService creatorService(final IEntityData<? extends IBean> data, final List<String> propertyNames);
 

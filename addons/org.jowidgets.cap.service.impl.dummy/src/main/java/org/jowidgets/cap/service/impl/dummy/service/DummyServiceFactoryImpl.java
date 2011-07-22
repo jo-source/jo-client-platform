@@ -41,6 +41,7 @@ import org.jowidgets.cap.service.api.adapter.ISyncReaderService;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.cap.service.api.bean.IBeanInitializer;
 import org.jowidgets.cap.service.api.bean.IBeanModifier;
+import org.jowidgets.cap.service.api.bean.IBeanPropertyMap;
 import org.jowidgets.cap.service.impl.dummy.datastore.IEntityData;
 import org.jowidgets.service.api.IServiceRegistry;
 import org.jowidgets.util.IAdapterFactory;
@@ -70,6 +71,19 @@ final class DummyServiceFactoryImpl implements IDummyServiceFactory {
 		final IBeanInitializer<BEAN_TYPE> beanInitializer,
 		final IBeanModifier<BEAN_TYPE> beanModifier) {
 		return new BeanServicesProviderCreator<BEAN_TYPE>(registry, data, beanDtoFactory, beanInitializer, beanModifier).getServices();
+	}
+
+	@Override
+	public IBeanServicesProvider beanPropertyMapServices(
+		final IServiceRegistry registry,
+		final IEntityData<? extends IBeanPropertyMap> data,
+		final List<String> propertyNames) {
+		return beanServices(
+				registry,
+				data,
+				CapServiceToolkit.beanPropertyMapDtoFactory(propertyNames),
+				CapServiceToolkit.beanPropertyMapInitializer(propertyNames),
+				CapServiceToolkit.beanPropertyMapModifier());
 	}
 
 	@Override

@@ -30,7 +30,7 @@ package org.jowidgets.cap.sample1.service.entity;
 
 import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.entity.IEntityClassBuilder;
-import org.jowidgets.cap.sample1.common.entity.IEntityIds;
+import org.jowidgets.cap.sample1.common.entity.EntityIds;
 import org.jowidgets.cap.sample1.common.entity.IUser;
 import org.jowidgets.cap.service.tools.entity.EntityClassProviderServiceBuilder;
 
@@ -45,7 +45,7 @@ public class SampleEntityClassProviderServiceBuilder extends EntityClassProvider
 		addEntityClass(builder.build());
 
 		builder = CapCommonToolkit.entityClassBuilder();
-		builder.setId(IEntityIds.GENERIC_BEAN);
+		builder.setId(EntityIds.GENERIC_BEAN);
 		builder.setLabel("Generic bean");
 		builder.setDescription("Generic bean with a buch of columns");
 		addEntityClass(builder.build());

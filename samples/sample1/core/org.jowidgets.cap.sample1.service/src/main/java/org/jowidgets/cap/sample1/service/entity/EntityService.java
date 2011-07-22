@@ -31,7 +31,7 @@ package org.jowidgets.cap.sample1.service.entity;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
 import org.jowidgets.cap.common.api.service.IBeanServicesProvider;
 import org.jowidgets.cap.common.api.service.IEntityService;
-import org.jowidgets.cap.sample1.common.entity.IEntityIds;
+import org.jowidgets.cap.sample1.common.entity.EntityIds;
 import org.jowidgets.cap.sample1.common.entity.IUser;
 import org.jowidgets.cap.sample1.service.datastore.GenericBeanInitializer;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
@@ -62,9 +62,9 @@ public class EntityService {
 		descriptor = new GenericBeanDtoDescriptorBuilder().build();
 		servicesProvider = DummyServiceFactory.beanPropertyMapServices(
 				registry,
-				(IEntityData<? extends IBeanPropertyMap>) EntityDataStore.getEntityData(IEntityIds.GENERIC_BEAN),
+				(IEntityData<? extends IBeanPropertyMap>) EntityDataStore.getEntityData(EntityIds.GENERIC_BEAN),
 				GenericBeanInitializer.ALL_PROPERTIES);
-		builder.add(IEntityIds.GENERIC_BEAN, descriptor, servicesProvider);
+		builder.add(EntityIds.GENERIC_BEAN, descriptor, servicesProvider);
 
 		this.entityService = builder.build();
 	}

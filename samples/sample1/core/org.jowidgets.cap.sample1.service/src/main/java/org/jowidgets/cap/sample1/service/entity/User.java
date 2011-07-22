@@ -37,7 +37,7 @@ import java.util.List;
 import org.jowidgets.cap.sample1.common.entity.IUser;
 import org.jowidgets.util.Assert;
 
-public class User extends AbstractBean implements IUser {
+public class User extends AbstractSampleBean implements IUser {
 
 	private String name;
 	private String lastName;
