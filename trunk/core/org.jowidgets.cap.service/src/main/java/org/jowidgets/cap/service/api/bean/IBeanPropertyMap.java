@@ -26,29 +26,20 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample1.service.entity;
+package org.jowidgets.cap.service.api.bean;
 
-import org.jowidgets.cap.common.api.CapCommonToolkit;
-import org.jowidgets.cap.common.api.entity.IEntityClassBuilder;
-import org.jowidgets.cap.sample1.common.entity.IEntityIds;
-import org.jowidgets.cap.sample1.common.entity.IUser;
-import org.jowidgets.cap.service.tools.entity.EntityClassProviderServiceBuilder;
+import org.jowidgets.cap.common.api.bean.IBean;
 
-public class SampleEntityClassProviderServiceBuilder extends EntityClassProviderServiceBuilder {
+public interface IBeanPropertyMap extends IBean {
 
-	public SampleEntityClassProviderServiceBuilder() {
-		super();
-		IEntityClassBuilder builder = CapCommonToolkit.entityClassBuilder();
-		builder.setId(IUser.class);
-		builder.setLabel("User");
-		builder.setDescription("User object in this sample application");
-		addEntityClass(builder.build());
+	void setId(final Object id);
 
-		builder = CapCommonToolkit.entityClassBuilder();
-		builder.setId(IEntityIds.GENERIC_BEAN);
-		builder.setLabel("Generic bean");
-		builder.setDescription("Generic bean with a buch of columns");
-		addEntityClass(builder.build());
-	}
+	void setVersion(final long version);
+
+	void setValue(String propertyName, Object value);
+
+	Object getValue(String propertyName);
+
+	Object getEntityTypeId();
 
 }

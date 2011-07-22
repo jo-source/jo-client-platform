@@ -70,7 +70,7 @@ final class BeanServicesProviderImpl implements IBeanServicesProvider, Serializa
 		if (readerService != null) {
 			this.readerServiceId = new ServiceId<IReaderService<Void>>(new Id(
 				entityServiceId,
-				entityId.getClass().getName(),
+				entityId,
 				IReaderService.class.getName()), IReaderService.class);
 			serviceRegistry.addService(readerServiceId, readerService);
 		}
@@ -166,10 +166,10 @@ final class BeanServicesProviderImpl implements IBeanServicesProvider, Serializa
 		private static final long serialVersionUID = -2049008694890176142L;
 
 		private final IServiceId<IEntityService> entityServiceId;
-		private final String entityId;
+		private final Object entityId;
 		private final String service;
 
-		private Id(final IServiceId<IEntityService> entityServiceId, final String entityId, final String service) {
+		private Id(final IServiceId<IEntityService> entityServiceId, final Object entityId, final String service) {
 			super();
 			this.entityServiceId = entityServiceId;
 			this.entityId = entityId;

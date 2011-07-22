@@ -28,27 +28,44 @@
 
 package org.jowidgets.cap.sample1.service.entity;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import org.jowidgets.cap.common.api.CapCommonToolkit;
-import org.jowidgets.cap.common.api.entity.IEntityClassBuilder;
-import org.jowidgets.cap.sample1.common.entity.IEntityIds;
-import org.jowidgets.cap.sample1.common.entity.IUser;
-import org.jowidgets.cap.service.tools.entity.EntityClassProviderServiceBuilder;
+import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
+import org.jowidgets.cap.common.api.bean.IProperty;
+import org.jowidgets.cap.common.api.bean.IPropertyBuilder;
+import org.jowidgets.cap.sample1.service.datastore.GenericBeanInitializer;
 
-public class SampleEntityClassProviderServiceBuilder extends EntityClassProviderServiceBuilder {
+public class GenericBeanDtoDescriptorBuilder {
 
-	public SampleEntityClassProviderServiceBuilder() {
-		super();
-		IEntityClassBuilder builder = CapCommonToolkit.entityClassBuilder();
-		builder.setId(IUser.class);
-		builder.setLabel("User");
-		builder.setDescription("User object in this sample application");
-		addEntityClass(builder.build());
+	private final List<IProperty> properties;
 
-		builder = CapCommonToolkit.entityClassBuilder();
-		builder.setId(IEntityIds.GENERIC_BEAN);
-		builder.setLabel("Generic bean");
-		builder.setDescription("Generic bean with a buch of columns");
-		addEntityClass(builder.build());
+	public GenericBeanDtoDescriptorBuilder() {
+
+		this.properties = new LinkedList<IProperty>();
+
+		final IPropertyBuilder propertyBuilder = CapCommonToolkit.propertyBuilder();
+		propertyBuilder.setValueType(String.class).setSortable(true).setFilterable(true);
+		final List<String> propertyNames = GenericBeanInitializer.ALL_PROPERTIES;
+		for (int columnIndex = 0; columnIndex < propertyNames.size(); columnIndex++) {
+			propertyBuilder.setName(propertyNames.get(columnIndex));
+			propertyBuilder.setLabel("Col " + columnIndex);
+			propertyBuilder.setLabelLong("Column " + columnIndex);
+			propertyBuilder.setDescription("Description of column " + columnIndex);
+			propertyBuilder.setValueType(String.class);
+			if (columnIndex < 10) {
+				propertyBuilder.setReadonly(false);
+			}
+			else {
+				propertyBuilder.setReadonly(true);
+			}
+			properties.add(propertyBuilder.build());
+		}
+	}
+
+	IBeanDtoDescriptor build() {
+		return CapCommonToolkit.dtoDescriptor(properties);
 	}
 
 }

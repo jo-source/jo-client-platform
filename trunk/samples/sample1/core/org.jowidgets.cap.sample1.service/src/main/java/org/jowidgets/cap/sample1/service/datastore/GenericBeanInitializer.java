@@ -26,51 +26,62 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample1.service.entity;
+package org.jowidgets.cap.sample1.service.datastore;
 
-import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
-import org.jowidgets.cap.common.api.service.IBeanServicesProvider;
-import org.jowidgets.cap.common.api.service.IEntityService;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.jowidgets.cap.sample1.common.entity.IEntityIds;
-import org.jowidgets.cap.sample1.common.entity.IUser;
-import org.jowidgets.cap.sample1.service.datastore.GenericBeanInitializer;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.bean.IBeanPropertyMap;
-import org.jowidgets.cap.service.api.entity.IEntityServiceBuilder;
+import org.jowidgets.cap.service.impl.dummy.datastore.EntityDataFactory;
 import org.jowidgets.cap.service.impl.dummy.datastore.EntityDataStore;
 import org.jowidgets.cap.service.impl.dummy.datastore.IEntityData;
-import org.jowidgets.cap.service.impl.dummy.service.DummyServiceFactory;
-import org.jowidgets.service.api.IServiceRegistry;
+import org.jowidgets.cap.service.impl.dummy.datastore.IEntityFactory;
 
-public class EntityService {
+public final class GenericBeanInitializer {
 
-	private final IEntityService entityService;
+	public static final List<String> ALL_PROPERTIES = createProperties();
 
-	@SuppressWarnings("unchecked")
-	public EntityService(final IServiceRegistry registry) {
-		final IEntityServiceBuilder builder = CapServiceToolkit.entityServiceBuilder();
+	private static final long ROW_COUNT = 50;
+	private static final int COLUMN_COUNT = ALL_PROPERTIES.size();
 
-		//IUser
-		IBeanDtoDescriptor descriptor = new UserDtoDescriptorBuilder().build();
-		IBeanServicesProvider servicesProvider = DummyServiceFactory.beanServices(
-				registry,
-				EntityDataStore.getEntityData(IUser.class),
-				IUser.ALL_PROPERTIES);
-		builder.add(IUser.class, descriptor, servicesProvider);
+	private GenericBeanInitializer() {}
 
-		//IGenericBean
-		descriptor = new GenericBeanDtoDescriptorBuilder().build();
-		servicesProvider = DummyServiceFactory.beanPropertyMapServices(
-				registry,
-				(IEntityData<? extends IBeanPropertyMap>) EntityDataStore.getEntityData(IEntityIds.GENERIC_BEAN),
-				GenericBeanInitializer.ALL_PROPERTIES);
-		builder.add(IEntityIds.GENERIC_BEAN, descriptor, servicesProvider);
-
-		this.entityService = builder.build();
+	private static List<String> createProperties() {
+		final List<String> result = new ArrayList<String>();
+		for (int propertyIndex = 0; propertyIndex < 80; propertyIndex++) {
+			result.add("property" + propertyIndex);
+		}
+		return result;
 	}
 
-	public IEntityService getEntityService() {
-		return entityService;
+	public static void initialize() {
+
+		final IEntityData<IBeanPropertyMap> data = EntityDataFactory.create(new IEntityFactory<IBeanPropertyMap>() {
+
+			@Override
+			public IBeanPropertyMap createBean(final Long id) {
+				return CapServiceToolkit.beanPropertyMap(IEntityIds.GENERIC_BEAN);
+			}
+
+			@Override
+			public Class<? extends IBeanPropertyMap> getBeanType() {
+				return IBeanPropertyMap.class;
+			}
+		});
+
+		EntityDataStore.putEntityData(IEntityIds.GENERIC_BEAN, data);
+
+		for (int rowIndex = 0; rowIndex < ROW_COUNT; rowIndex++) {
+			final IBeanPropertyMap bean = CapServiceToolkit.beanPropertyMap(IEntityIds.GENERIC_BEAN);
+			bean.setId(data.nextId());
+			for (int columnIndex = 0; columnIndex < COLUMN_COUNT; columnIndex++) {
+				bean.setValue(ALL_PROPERTIES.get(columnIndex), "Value (" + rowIndex + "/" + columnIndex + ")");
+			}
+			data.add(bean);
+		}
+
 	}
 
 }

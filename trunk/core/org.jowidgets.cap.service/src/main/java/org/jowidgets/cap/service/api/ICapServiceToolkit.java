@@ -39,6 +39,7 @@ import org.jowidgets.cap.service.api.bean.IBeanAccess;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.cap.service.api.bean.IBeanInitializer;
 import org.jowidgets.cap.service.api.bean.IBeanModifier;
+import org.jowidgets.cap.service.api.bean.IBeanPropertyMap;
 import org.jowidgets.cap.service.api.decorator.IDecoratorProviderFactory;
 import org.jowidgets.cap.service.api.entity.IBeanServicesProviderBuilder;
 import org.jowidgets.cap.service.api.entity.IEntityClassProviderServiceBuilder;
@@ -71,6 +72,14 @@ public interface ICapServiceToolkit {
 	<BEAN_TYPE extends IBean> IBeanModifier<BEAN_TYPE> beanModifier(
 		Class<? extends BEAN_TYPE> beanType,
 		List<String> propertyNames);
+
+	IBeanPropertyMap beanPropertyMap(Object entityTypeId);
+
+	IBeanDtoFactory<IBeanPropertyMap> beanPropertyMapDtoFactory(List<String> propertyNames);
+
+	IBeanInitializer<IBeanPropertyMap> beanPropertyMapInitializer(List<String> propertyNames);
+
+	IBeanModifier<IBeanPropertyMap> beanPropertyMapModifier();
 
 	IAdapterFactoryProvider adapterFactoryProvider();
 

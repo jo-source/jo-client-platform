@@ -28,65 +28,54 @@
 
 package org.jowidgets.cap.sample1.service.entity;
 
-import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.bean.IBean;
-import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
-import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptorBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanPropertyBluePrint;
-import org.jowidgets.cap.common.api.service.IDtoDescriptorService;
+import org.jowidgets.cap.common.tools.bean.BeanDtoDescriptorBuilder;
 import org.jowidgets.cap.sample1.common.entity.IUser;
 
-public class UserDtoDescriptorService implements IDtoDescriptorService {
+public class UserDtoDescriptorBuilder extends BeanDtoDescriptorBuilder {
 
-	private final IBeanDtoDescriptor descriptor;
+	public UserDtoDescriptorBuilder() {
+		super(IUser.class);
 
-	public UserDtoDescriptorService() {
-		final IBeanDtoDescriptorBuilder builder = CapCommonToolkit.dtoDescriptorBuilder(IUser.class);
-
-		IBeanPropertyBluePrint propertyBp = builder.addProperty(IUser.NAME_PROPERTY);
+		IBeanPropertyBluePrint propertyBp = addProperty(IUser.NAME_PROPERTY);
 		propertyBp.setLabel("Name").setDescription("The name of the user");
 		propertyBp.setMandatory(true);
 
-		propertyBp = builder.addProperty(IUser.LAST_NAME_PROPERTY);
+		propertyBp = addProperty(IUser.LAST_NAME_PROPERTY);
 		propertyBp.setLabel("Lastname").setDescription("The lastname of the user");
 		propertyBp.setMandatory(true);
 
-		propertyBp = builder.addProperty(IUser.GENDER_PROPERTY);
+		propertyBp = addProperty(IUser.GENDER_PROPERTY);
 		propertyBp.setLabel("Gender").setDescription("The gender of the user");
 		propertyBp.setValueRange("M", "F");
 
-		propertyBp = builder.addProperty(IUser.DATE_OF_BIRTH_PROPERTY);
+		propertyBp = addProperty(IUser.DATE_OF_BIRTH_PROPERTY);
 		propertyBp.setLabel("Birthday").setLabelLong("Date of Birth").setDescription("The users date of birth");
 
-		propertyBp = builder.addProperty(IUser.AGE_PROPERTY);
+		propertyBp = addProperty(IUser.AGE_PROPERTY);
 		propertyBp.setLabel("Age").setDescription("The users age");
 
-		propertyBp = builder.addProperty(IUser.COUNTRY_PROPERTY);
+		propertyBp = addProperty(IUser.COUNTRY_PROPERTY);
 		propertyBp.setLabel("Country").setDescription("The country where the user lives");
 		propertyBp.setValueRange(true, "Germany", "Italy", "Spain");
 
-		propertyBp = builder.addProperty(IUser.LANGUAGES_PROPERTY);
+		propertyBp = addProperty(IUser.LANGUAGES_PROPERTY);
 		propertyBp.setLabel("Languages").setDescription("The languages the user speaks");
 		propertyBp.setElementValueType(String.class).setSortable(false);
 
-		propertyBp = builder.addProperty(IUser.ADMIN_PROPERTY);
+		propertyBp = addProperty(IUser.ADMIN_PROPERTY);
 		propertyBp.setLabel("Admin").setDescription("Determines if the user is an administrator");
 
-		propertyBp = builder.addProperty(IUser.MARIED_PROPERTY);
+		propertyBp = addProperty(IUser.MARIED_PROPERTY);
 		propertyBp.setLabel("Maried").setDescription("Determines if the user is maried");
 
-		propertyBp = builder.addProperty(IBean.ID_PROPERTY);
+		propertyBp = addProperty(IBean.ID_PROPERTY);
 		propertyBp.setLabel("Id").setDescription("The id of the user");
 
-		propertyBp = builder.addProperty(IBean.VERSION_PROPERTY);
+		propertyBp = addProperty(IBean.VERSION_PROPERTY);
 		propertyBp.setLabel("Version").setDescription("The version of the user record");
 
-		descriptor = builder.build();
-	}
-
-	@Override
-	public IBeanDtoDescriptor getDescriptor() {
-		return descriptor;
 	}
 
 }

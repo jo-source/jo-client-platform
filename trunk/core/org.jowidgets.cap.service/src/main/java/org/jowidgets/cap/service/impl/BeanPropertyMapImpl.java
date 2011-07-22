@@ -26,31 +26,73 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.tools.bean;
+package org.jowidgets.cap.service.impl;
 
-import org.jowidgets.cap.common.api.CapCommonToolkit;
-import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
-import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptorBuilder;
-import org.jowidgets.cap.common.api.bean.IBeanPropertyBluePrint;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.jowidgets.cap.common.api.bean.IBean;
+import org.jowidgets.cap.service.api.bean.IBeanPropertyMap;
 import org.jowidgets.util.Assert;
 
-public class BeanDtoDescriptorBuilder implements IBeanDtoDescriptorBuilder {
+final class BeanPropertyMapImpl implements IBeanPropertyMap {
 
-	private final IBeanDtoDescriptorBuilder builder;
+	private static final long serialVersionUID = -1103247679045455401L;
 
-	public BeanDtoDescriptorBuilder(final Class<?> beanType) {
-		Assert.paramNotNull(beanType, "beanType");
-		this.builder = CapCommonToolkit.dtoDescriptorBuilder(beanType);
+	private final Object entityTypeId;
+	private Object id;
+	private long version;
+	private final Map<String, Object> values;
+
+	BeanPropertyMapImpl(final Object entityTypeId) {
+		Assert.paramNotNull(entityTypeId, "entityTypeId");
+		this.entityTypeId = entityTypeId;
+		this.values = new HashMap<String, Object>();
 	}
 
 	@Override
-	public final IBeanPropertyBluePrint addProperty(final String propertyName) {
-		return this.builder.addProperty(propertyName);
+	public Object getId() {
+		return id;
 	}
 
 	@Override
-	public final IBeanDtoDescriptor build() {
-		return builder.build();
+	public void setId(final Object id) {
+		this.id = id;
+		values.put(ID_PROPERTY, id);
+	}
+
+	@Override
+	public long getVersion() {
+		return version;
+	}
+
+	@Override
+	public void setVersion(final long version) {
+		this.version = version;
+		values.put(VERSION_PROPERTY, version);
+	}
+
+	@Override
+	public Object getValue(final String propertyName) {
+		Assert.paramNotEmpty(propertyName, "propertyName");
+		return values.get(propertyName);
+	}
+
+	@Override
+	public void setValue(final String propertyName, final Object value) {
+		Assert.paramNotEmpty(propertyName, "propertyName");
+		values.put(propertyName, value);
+		if (IBean.ID_PROPERTY.equals(propertyName)) {
+			setId(value);
+		}
+		else if (IBean.VERSION_PROPERTY.equals(propertyName)) {
+			setVersion((Long) value);
+		}
+	}
+
+	@Override
+	public Object getEntityTypeId() {
+		return entityTypeId;
 	}
 
 }
