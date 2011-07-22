@@ -44,41 +44,36 @@ import org.jowidgets.service.api.IServiceRegistry;
 
 public interface IDummyServiceFactory {
 
-	IBeanServicesProvider beanServices(
-		final IServiceRegistry registry,
-		final IEntityData<? extends IBean> data,
-		final List<String> properties);
+	IBeanServicesProvider beanServices(IServiceRegistry registry, IEntityData<? extends IBean> data, List<String> properties);
 
 	<BEAN_TYPE extends IBean> IBeanServicesProvider beanServices(
-		final IServiceRegistry registry,
-		final IEntityData<? extends BEAN_TYPE> data,
-		final IBeanDtoFactory<BEAN_TYPE> beanDtoFactory,
-		final IBeanInitializer<BEAN_TYPE> beanInitializer,
-		final IBeanModifier<BEAN_TYPE> beanModifier);
+		IServiceRegistry registry,
+		IEntityData<? extends BEAN_TYPE> data,
+		IBeanDtoFactory<BEAN_TYPE> beanDtoFactory,
+		IBeanInitializer<BEAN_TYPE> beanInitializer,
+		IBeanModifier<BEAN_TYPE> beanModifier);
 
 	IBeanServicesProvider beanPropertyMapServices(
-		final IServiceRegistry registry,
-		final IEntityData<? extends IBeanPropertyMap> data,
-		final List<String> propertyNames);
+		IServiceRegistry registry,
+		Object entityTypeId,
+		IEntityData<? extends IBeanPropertyMap> data,
+		List<String> propertyNames);
 
 	ICreatorService creatorService(final IEntityData<? extends IBean> data, final List<String> propertyNames);
 
 	<BEAN_TYPE extends IBean> ICreatorService creatorService(
-		final IEntityData<? extends BEAN_TYPE> data,
-		final IBeanDtoFactory<BEAN_TYPE> beanDtoFactory,
-		final IBeanInitializer<BEAN_TYPE> beanInitializer);
+		IEntityData<? extends BEAN_TYPE> data,
+		IBeanDtoFactory<BEAN_TYPE> beanDtoFactory,
+		IBeanInitializer<BEAN_TYPE> beanInitializer);
 
 	IReaderService<Void> readerService(final IEntityData<? extends IBean> data, final List<String> propertyNames);
 
 	<BEAN_TYPE extends IBean> IReaderService<Void> readerService(
-		final IEntityData<? extends BEAN_TYPE> data,
-		final IBeanDtoFactory<BEAN_TYPE> beanDtoFactory);
+		IEntityData<? extends BEAN_TYPE> data,
+		IBeanDtoFactory<BEAN_TYPE> beanDtoFactory);
 
 	IDeleterService deleterService(final IEntityData<? extends IBean> data);
 
-	IDeleterService deleterService(
-		final IEntityData<? extends IBean> data,
-		final boolean allowDeletedData,
-		final boolean allowStaleData);
+	IDeleterService deleterService(IEntityData<? extends IBean> data, boolean allowDeletedData, boolean allowStaleData);
 
 }
