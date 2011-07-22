@@ -51,6 +51,8 @@ final class EntityDataImpl<BEAN_TYPE extends IBean> implements IEntityData<BEAN_
 	private Long currentId = Long.valueOf(0);
 
 	EntityDataImpl(final IEntityFactory<BEAN_TYPE> entityFactory) {
+		Assert.paramNotNull(entityFactory, "entityFactory");
+		Assert.paramNotNull(entityFactory.getBeanType(), "entityFactory.getBeanType()");
 		this.entityFactory = entityFactory;
 		this.beanType = entityFactory.getBeanType();
 		this.dataMap = new HashMap<Object, BEAN_TYPE>();

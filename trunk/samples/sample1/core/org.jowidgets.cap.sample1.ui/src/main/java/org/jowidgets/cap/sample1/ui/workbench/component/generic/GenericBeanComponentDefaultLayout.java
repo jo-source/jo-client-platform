@@ -26,43 +26,40 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample1.service.entity;
+package org.jowidgets.cap.sample1.ui.workbench.component.generic;
 
-import org.jowidgets.cap.common.api.bean.IBean;
+import org.jowidgets.cap.sample1.ui.workbench.component.generic.view.GenericBeanTableView;
+import org.jowidgets.workbench.api.ILayout;
+import org.jowidgets.workbench.toolkit.api.IFolderLayoutBuilder;
+import org.jowidgets.workbench.toolkit.api.ILayoutBuilder;
+import org.jowidgets.workbench.tools.FolderLayoutBuilder;
+import org.jowidgets.workbench.tools.LayoutBuilder;
 
-public abstract class AbstractBean implements IBean {
+public class GenericBeanComponentDefaultLayout {
 
-	private Object id;
-	private long version;
+	public static final String DEFAULT_LAYOUT_ID = "DEFAULT_LAYOUT_ID";
+	public static final String MASTER_FOLDER_ID = "MASTER_FOLDER_ID";
+	public static final String DETAIL_FOLDER_ID = "DETAIL_FOLDER_ID";
 
-	public AbstractBean() {
-		this(null);
+	private final ILayout layout;
+
+	public GenericBeanComponentDefaultLayout() {
+		final ILayoutBuilder builder = new LayoutBuilder();
+		builder.setId(DEFAULT_LAYOUT_ID).setLayoutContainer(createMasterFolder());
+		this.layout = builder.build();
 	}
 
-	public AbstractBean(final Object id) {
-		this.id = id;
+	public ILayout getLayout() {
+		return layout;
 	}
 
-	@Override
-	public final Object getId() {
-		return id;
-	}
-
-	public void setId(final Object id) {
-		this.id = id;
-	}
-
-	@Override
-	public final long getVersion() {
-		return version;
-	}
-
-	public final void setVersion(final long version) {
-		this.version = version;
-	}
-
-	protected final void increaseVersion() {
-		this.version++;
+	private IFolderLayoutBuilder createMasterFolder() {
+		final IFolderLayoutBuilder result = new FolderLayoutBuilder(MASTER_FOLDER_ID);
+		result.addView(
+				GenericBeanTableView.ID,
+				GenericBeanTableView.DEFAULT_LABEL,
+				GenericBeanTableView.DEFAULT_TOOLTIP);
+		return result;
 	}
 
 }

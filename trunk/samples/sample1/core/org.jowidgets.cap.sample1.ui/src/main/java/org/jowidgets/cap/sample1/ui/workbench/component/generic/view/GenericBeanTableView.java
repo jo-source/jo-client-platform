@@ -26,25 +26,28 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample1.common.entity;
+package org.jowidgets.cap.sample1.ui.workbench.component.generic.view;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.jowidgets.api.toolkit.Toolkit;
+import org.jowidgets.api.widgets.IContainer;
+import org.jowidgets.cap.ui.api.CapUiToolkit;
+import org.jowidgets.cap.ui.api.table.IBeanTableModel;
+import org.jowidgets.workbench.api.IViewContext;
+import org.jowidgets.workbench.tools.AbstractView;
 
-import org.jowidgets.cap.common.api.bean.IBean;
-import org.jowidgets.cap.common.api.bean.IBeanDto;
+public class GenericBeanTableView extends AbstractView {
 
-public interface IDynamicPropertiesBean extends IBean, IBeanDto {
+	public static final String ID = GenericBeanTableView.class.getName();
+	public static final String DEFAULT_LABEL = "Generic bean";
+	public static final String DEFAULT_TOOLTIP = "Table with generic bean that have dynamic properties";
 
-	List<String> ALL_PROPERTIES = new ArrayList<String>() {
-		private static final long serialVersionUID = 1L;
-		{
-			for (int propertyIndex = 0; propertyIndex < 80; propertyIndex++) {
-				add("property" + propertyIndex);
-			}
-		}
-	};
+	public GenericBeanTableView(final IViewContext context, final IBeanTableModel<Object> tableModel) {
 
-	void setValue(String propertyName, Object value);
+		final IContainer container = context.getContainer();
+		container.setLayout(Toolkit.getLayoutFactoryProvider().fillLayout());
+		container.add(CapUiToolkit.bluePrintFactory().beanTable(tableModel));
+
+		tableModel.load();
+	}
 
 }

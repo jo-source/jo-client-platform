@@ -31,7 +31,7 @@ package org.jowidgets.cap.sample1.service.datastore;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jowidgets.cap.sample1.common.entity.IEntityIds;
+import org.jowidgets.cap.sample1.common.entity.EntityIds;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.bean.IBeanPropertyMap;
 import org.jowidgets.cap.service.impl.dummy.datastore.EntityDataFactory;
@@ -43,7 +43,7 @@ public final class GenericBeanInitializer {
 
 	public static final List<String> ALL_PROPERTIES = createProperties();
 
-	private static final long ROW_COUNT = 50;
+	private static final long ROW_COUNT = 200;
 	private static final int COLUMN_COUNT = ALL_PROPERTIES.size();
 
 	private GenericBeanInitializer() {}
@@ -62,7 +62,7 @@ public final class GenericBeanInitializer {
 
 			@Override
 			public IBeanPropertyMap createBean(final Long id) {
-				return CapServiceToolkit.beanPropertyMap(IEntityIds.GENERIC_BEAN);
+				return CapServiceToolkit.beanPropertyMap(EntityIds.GENERIC_BEAN);
 			}
 
 			@Override
@@ -71,10 +71,10 @@ public final class GenericBeanInitializer {
 			}
 		});
 
-		EntityDataStore.putEntityData(IEntityIds.GENERIC_BEAN, data);
+		EntityDataStore.putEntityData(EntityIds.GENERIC_BEAN, data);
 
 		for (int rowIndex = 0; rowIndex < ROW_COUNT; rowIndex++) {
-			final IBeanPropertyMap bean = CapServiceToolkit.beanPropertyMap(IEntityIds.GENERIC_BEAN);
+			final IBeanPropertyMap bean = CapServiceToolkit.beanPropertyMap(EntityIds.GENERIC_BEAN);
 			bean.setId(data.nextId());
 			for (int columnIndex = 0; columnIndex < COLUMN_COUNT; columnIndex++) {
 				bean.setValue(ALL_PROPERTIES.get(columnIndex), "Value (" + rowIndex + "/" + columnIndex + ")");

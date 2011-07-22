@@ -26,18 +26,10 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample1.common.service.reader;
+package org.jowidgets.cap.sample1.common.entity;
 
-import org.jowidgets.cap.common.api.service.IReaderService;
-import org.jowidgets.service.api.IServiceId;
-import org.jowidgets.service.tools.ServiceId;
+public enum EntityIds {
 
-public final class DynamicPropertiesBeanReaderServices {
-
-	public static final IServiceId<IReaderService<Void>> ALL_BEANS = new ServiceId<IReaderService<Void>>(
-		DynamicPropertiesBeanReaderServices.class.getName() + "_ALL_BEANS",
-		IReaderService.class);
-
-	private DynamicPropertiesBeanReaderServices() {}
+	GENERIC_BEAN;
 
 }

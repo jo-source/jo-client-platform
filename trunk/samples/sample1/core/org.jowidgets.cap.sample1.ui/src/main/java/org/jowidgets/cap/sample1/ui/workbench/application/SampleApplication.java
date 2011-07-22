@@ -30,7 +30,7 @@ package org.jowidgets.cap.sample1.ui.workbench.application;
 
 import java.util.List;
 
-import org.jowidgets.cap.sample1.ui.workbench.component.dynbeans.DynamicPropertiesBeanComponent;
+import org.jowidgets.cap.sample1.ui.workbench.component.generic.GenericBeanComponent;
 import org.jowidgets.cap.sample1.ui.workbench.component.user.UserComponent;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.examples.common.icons.SilkIcons;
@@ -63,23 +63,26 @@ public class SampleApplication {
 
 		final IComponentNodeModelBuilder nodeModelBuilder = new ComponentNodeModelBuilder();
 		nodeModelBuilder.setComponentFactory(UserComponent.class);
-		for (int i = 0; i < 10; i++) {
+		for (int i = 0; i < 4; i++) {
 			nodeModelBuilder.setId(UserComponent.class.getName() + i);
 			nodeModelBuilder.setLabel("User component " + i);
 			usersFolder.addChild(nodeModelBuilder.build());
 		}
 
-		final IComponentNodeModel entitiesFolder = model.addChild("ENTITIES_FOLDER_ID", "Entities", SilkIcons.DATABASE);
+		final IComponentNodeModel miscFolder = model.addChild("MISC_FOLDER_ID", "Misc", SilkIcons.FOLDER);
+		nodeModelBuilder.setComponentFactory(GenericBeanComponent.class);
+		nodeModelBuilder.setId(GenericBeanComponent.class.getName());
+		nodeModelBuilder.setLabel("Generic bean");
+		miscFolder.addChild(nodeModelBuilder.build());
+
+		final IComponentNodeModel entitiesFolder = model.addChild(
+				"GENERIC_COMPONENTS_FOLDER_ID",
+				"Generic Components",
+				SilkIcons.FOLDER);
 		final List<IComponentNodeModel> entityNodes = CapUiToolkit.workbenchToolkit().entityComponentNodesFactory().createNodes();
 		for (final IComponentNodeModel entityNode : entityNodes) {
 			entitiesFolder.addChild(entityNode);
 		}
-
-		final IComponentNodeModel miscFolder = model.addChild("MISC_FOLDER_ID", "Misc", SilkIcons.FOLDER);
-		nodeModelBuilder.setComponentFactory(DynamicPropertiesBeanComponent.class);
-		nodeModelBuilder.setId(DynamicPropertiesBeanComponent.class.getName());
-		nodeModelBuilder.setLabel("Dynamic properties beans");
-		miscFolder.addChild(nodeModelBuilder.build());
 	}
 
 }
