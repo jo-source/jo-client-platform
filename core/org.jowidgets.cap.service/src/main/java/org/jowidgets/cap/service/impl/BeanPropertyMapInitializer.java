@@ -26,12 +26,30 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.api.service;
+package org.jowidgets.cap.service.impl;
 
-import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
+import java.util.List;
 
-public interface IDtoDescriptorService {
+import org.jowidgets.cap.common.api.bean.IBeanData;
+import org.jowidgets.cap.service.api.bean.IBeanInitializer;
+import org.jowidgets.cap.service.api.bean.IBeanPropertyMap;
+import org.jowidgets.util.Assert;
 
-	IBeanDtoDescriptor getDescriptor();
+final class BeanPropertyMapInitializer implements IBeanInitializer<IBeanPropertyMap> {
+
+	private final List<String> propertyNames;
+
+	BeanPropertyMapInitializer(final List<String> propertyNames) {
+		Assert.paramNotNull(propertyNames, "propertyNames");
+		this.propertyNames = propertyNames;
+	}
+
+	@Override
+	public void initialize(final IBeanPropertyMap bean, final IBeanData beanData) {
+		for (final String propertyName : propertyNames) {
+			bean.setValue(propertyName, beanData.getValue(propertyName));
+		}
+
+	}
 
 }

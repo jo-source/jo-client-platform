@@ -39,6 +39,7 @@ import org.jowidgets.cap.service.api.bean.IBeanAccess;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.cap.service.api.bean.IBeanInitializer;
 import org.jowidgets.cap.service.api.bean.IBeanModifier;
+import org.jowidgets.cap.service.api.bean.IBeanPropertyMap;
 import org.jowidgets.cap.service.api.decorator.IDecoratorProviderFactory;
 import org.jowidgets.cap.service.api.entity.IBeanServicesProviderBuilder;
 import org.jowidgets.cap.service.api.entity.IEntityClassProviderServiceBuilder;
@@ -94,6 +95,22 @@ public final class CapServiceToolkit {
 		final Class<? extends BEAN_TYPE> beanType,
 		final List<String> propertyNames) {
 		return getInstance().dtoFactory(beanType, propertyNames);
+	}
+
+	public static IBeanPropertyMap beanPropertyMap(final Object entityTypeId) {
+		return getInstance().beanPropertyMap(entityTypeId);
+	}
+
+	public static IBeanDtoFactory<IBeanPropertyMap> beanPropertyMapDtoFactory(final List<String> propertyNames) {
+		return getInstance().beanPropertyMapDtoFactory(propertyNames);
+	}
+
+	public static IBeanInitializer<IBeanPropertyMap> beanPropertyMapInitializer(final List<String> propertyNames) {
+		return getInstance().beanPropertyMapInitializer(propertyNames);
+	}
+
+	public static IBeanModifier<IBeanPropertyMap> beanPropertyMapModifier() {
+		return getInstance().beanPropertyMapModifier();
 	}
 
 	public static <BEAN_TYPE extends IBean, PARAM_TYPE> IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> executorServiceBuilder(

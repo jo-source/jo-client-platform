@@ -164,6 +164,18 @@ final class PropertyBuilder implements IPropertyBuilder {
 		}
 	}
 
+	private Class<?> getElementValueType() {
+		if (elementValueType != null) {
+			return elementValueType;
+		}
+		else if (!Collection.class.isAssignableFrom(valueType)) {
+			return valueType;
+		}
+		else {
+			return null;
+		}
+	}
+
 	@Override
 	public IProperty build() {
 		return new PropertyImpl(
@@ -175,7 +187,7 @@ final class PropertyBuilder implements IPropertyBuilder {
 			visibleDefault,
 			mandatoryDefault,
 			valueType,
-			elementValueType,
+			getElementValueType(),
 			readonly,
 			sortable,
 			filterable);

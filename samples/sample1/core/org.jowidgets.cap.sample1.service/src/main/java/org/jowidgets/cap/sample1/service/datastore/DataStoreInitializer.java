@@ -34,6 +34,7 @@ public final class DataStoreInitializer {
 
 	public static void initialize() {
 		UserDataInitializer.initialize();
+		GenericBeanInitializer.initialize();
 		DynamicPropertiesBeanInitializer.initialize();
 	}
 

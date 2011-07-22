@@ -42,6 +42,7 @@ import org.jowidgets.cap.service.api.bean.IBeanAccess;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.cap.service.api.bean.IBeanInitializer;
 import org.jowidgets.cap.service.api.bean.IBeanModifier;
+import org.jowidgets.cap.service.api.bean.IBeanPropertyMap;
 import org.jowidgets.cap.service.api.decorator.IDecoratorProviderFactory;
 import org.jowidgets.cap.service.api.entity.IBeanServicesProviderBuilder;
 import org.jowidgets.cap.service.api.entity.IEntityClassProviderServiceBuilder;
@@ -102,6 +103,26 @@ public final class DefaultCapServiceToolkit implements ICapServiceToolkit {
 		final Class<? extends BEAN_TYPE> beanType,
 		final List<String> propertyNames) {
 		return new BeanModifierImpl<BEAN_TYPE>(beanType, propertyNames);
+	}
+
+	@Override
+	public IBeanPropertyMap beanPropertyMap(final Object entityTypeId) {
+		return new BeanPropertyMapImpl(entityTypeId);
+	}
+
+	@Override
+	public IBeanDtoFactory<IBeanPropertyMap> beanPropertyMapDtoFactory(final List<String> propertyNames) {
+		return new BeanPropertyMapDtoFactory(propertyNames);
+	}
+
+	@Override
+	public IBeanInitializer<IBeanPropertyMap> beanPropertyMapInitializer(final List<String> propertyNames) {
+		return new BeanPropertyMapInitializer(propertyNames);
+	}
+
+	@Override
+	public IBeanModifier<IBeanPropertyMap> beanPropertyMapModifier() {
+		return new BeanPropertyMapModifier();
 	}
 
 	@Override

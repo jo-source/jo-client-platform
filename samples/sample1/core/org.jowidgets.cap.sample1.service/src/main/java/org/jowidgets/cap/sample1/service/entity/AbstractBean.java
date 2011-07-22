@@ -32,24 +32,24 @@ import org.jowidgets.cap.common.api.bean.IBean;
 
 public abstract class AbstractBean implements IBean {
 
-	private Long id;
+	private Object id;
 	private long version;
 
 	public AbstractBean() {
 		this(null);
 	}
 
-	public AbstractBean(final Long id) {
+	public AbstractBean(final Object id) {
 		this.id = id;
 	}
 
 	@Override
-	public final Long getId() {
+	public final Object getId() {
 		return id;
 	}
 
-	public void setId(final long id) {
-		this.id = Long.valueOf(id);
+	public void setId(final Object id) {
+		this.id = id;
 	}
 
 	@Override

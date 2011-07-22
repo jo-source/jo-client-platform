@@ -69,12 +69,14 @@ public class EntityComponentDefaultLayout {
 
 	private IFolderLayoutBuilder createMasterFolder(final IEntityClass entityClass) {
 		final IFolderLayoutBuilder result = new FolderLayoutBuilder(MASTER_FOLDER_ID);
+		result.setViewsCloseable(false);
 		result.addView(EntityTableView.ID, entityClass.getLabel() + " " + TABLE_STRING, entityClass.getDescription());
 		return result;
 	}
 
 	private IFolderLayoutBuilder createDetailFolder(final IEntityClass entityClass) {
 		final IFolderLayoutBuilder result = new FolderLayoutBuilder(DETAIL_FOLDER_ID);
+		result.setViewsCloseable(false);
 		result.addView(EntityDetailView.ID, entityClass.getLabel() + " " + FORM_STRING, entityClass.getDescription());
 		return result;
 	}

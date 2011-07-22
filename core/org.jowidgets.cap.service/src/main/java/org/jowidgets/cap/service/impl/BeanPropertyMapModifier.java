@@ -26,29 +26,30 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample1.service.entity;
+package org.jowidgets.cap.service.impl;
 
-import org.jowidgets.cap.common.api.CapCommonToolkit;
-import org.jowidgets.cap.common.api.entity.IEntityClassBuilder;
-import org.jowidgets.cap.sample1.common.entity.IEntityIds;
-import org.jowidgets.cap.sample1.common.entity.IUser;
-import org.jowidgets.cap.service.tools.entity.EntityClassProviderServiceBuilder;
+import org.jowidgets.cap.common.api.bean.IBeanModification;
+import org.jowidgets.cap.service.api.bean.IBeanModifier;
+import org.jowidgets.cap.service.api.bean.IBeanPropertyMap;
+import org.jowidgets.util.NullCompatibleEquivalence;
 
-public class SampleEntityClassProviderServiceBuilder extends EntityClassProviderServiceBuilder {
+final class BeanPropertyMapModifier implements IBeanModifier<IBeanPropertyMap> {
 
-	public SampleEntityClassProviderServiceBuilder() {
-		super();
-		IEntityClassBuilder builder = CapCommonToolkit.entityClassBuilder();
-		builder.setId(IUser.class);
-		builder.setLabel("User");
-		builder.setDescription("User object in this sample application");
-		addEntityClass(builder.build());
+	BeanPropertyMapModifier() {}
 
-		builder = CapCommonToolkit.entityClassBuilder();
-		builder.setId(IEntityIds.GENERIC_BEAN);
-		builder.setLabel("Generic bean");
-		builder.setDescription("Generic bean with a buch of columns");
-		addEntityClass(builder.build());
+	@Override
+	public boolean isPropertyStale(final IBeanPropertyMap bean, final IBeanModification modification) {
+		if (NullCompatibleEquivalence.equals(bean.getValue(modification.getPropertyName()), modification.getOldValue())) {
+			return false;
+		}
+		else {
+			return true;
+		}
+	}
+
+	@Override
+	public void modify(final IBeanPropertyMap bean, final IBeanModification modification) {
+		bean.setValue(modification.getPropertyName(), modification.getNewValue());
 	}
 
 }
