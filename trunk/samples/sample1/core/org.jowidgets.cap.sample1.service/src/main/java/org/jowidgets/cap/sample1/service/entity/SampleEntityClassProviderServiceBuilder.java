@@ -47,7 +47,7 @@ public class SampleEntityClassProviderServiceBuilder extends EntityClassProvider
 		builder = CapCommonToolkit.entityClassBuilder();
 		builder.setId(EntityIds.GENERIC_BEAN);
 		builder.setLabel("Generic bean");
-		builder.setDescription("Generic bean with a buch of columns");
+		builder.setDescription("Generic bean with a bunch of columns");
 		addEntityClass(builder.build());
 	}
 
