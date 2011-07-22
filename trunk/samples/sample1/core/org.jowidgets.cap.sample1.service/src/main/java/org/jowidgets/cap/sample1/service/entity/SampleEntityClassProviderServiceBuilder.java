@@ -45,6 +45,18 @@ public class SampleEntityClassProviderServiceBuilder extends EntityClassProvider
 		addEntityClass(builder.build());
 
 		builder = CapCommonToolkit.entityClassBuilder();
+		builder.setId(EntityIds.ROLE);
+		builder.setLabel("Roles");
+		builder.setDescription("The roles of the user management");
+		addEntityClass(builder.build());
+
+		builder = CapCommonToolkit.entityClassBuilder();
+		builder.setId(EntityIds.AUTHORIZATION);
+		builder.setLabel("Authorization");
+		builder.setDescription("The authorizations of the user management");
+		addEntityClass(builder.build());
+
+		builder = CapCommonToolkit.entityClassBuilder();
 		builder.setId(EntityIds.GENERIC_BEAN);
 		builder.setLabel("Generic bean");
 		builder.setDescription("Generic bean with a bunch of columns");

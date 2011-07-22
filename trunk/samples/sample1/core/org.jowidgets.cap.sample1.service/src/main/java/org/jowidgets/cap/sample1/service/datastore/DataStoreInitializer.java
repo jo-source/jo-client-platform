@@ -34,6 +34,8 @@ public final class DataStoreInitializer {
 
 	public static void initialize() {
 		UserDataInitializer.initialize();
+		RoleInitializer.initialize();
+		AuthorizationInitializer.initialize();
 		GenericBeanInitializer.initialize();
 	}
 

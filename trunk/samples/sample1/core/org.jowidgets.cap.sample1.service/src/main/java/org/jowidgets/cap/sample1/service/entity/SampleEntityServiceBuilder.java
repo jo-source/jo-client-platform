@@ -32,7 +32,9 @@ import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
 import org.jowidgets.cap.common.api.service.IBeanServicesProvider;
 import org.jowidgets.cap.sample1.common.entity.EntityIds;
 import org.jowidgets.cap.sample1.common.entity.IUser;
+import org.jowidgets.cap.sample1.service.datastore.AuthorizationInitializer;
 import org.jowidgets.cap.sample1.service.datastore.GenericBeanInitializer;
+import org.jowidgets.cap.sample1.service.datastore.RoleInitializer;
 import org.jowidgets.cap.service.api.bean.IBeanPropertyMap;
 import org.jowidgets.cap.service.impl.dummy.datastore.EntityDataStore;
 import org.jowidgets.cap.service.impl.dummy.datastore.IEntityData;
@@ -53,10 +55,29 @@ public class SampleEntityServiceBuilder extends EntityServiceBuilder {
 				IUser.ALL_PROPERTIES);
 		add(IUser.class, descriptor, servicesProvider);
 
-		//IGenericBean
+		//Role
+		descriptor = new RoleDtoDescriptorBuilder().build();
+		servicesProvider = DummyServiceFactory.beanPropertyMapServices(
+				registry,
+				EntityIds.ROLE,
+				(IEntityData<? extends IBeanPropertyMap>) EntityDataStore.getEntityData(EntityIds.ROLE),
+				RoleInitializer.ALL_PROPERTIES);
+		add(EntityIds.ROLE, descriptor, servicesProvider);
+
+		//Authorization
+		descriptor = new AuthorizationDtoDescriptorBuilder().build();
+		servicesProvider = DummyServiceFactory.beanPropertyMapServices(
+				registry,
+				EntityIds.AUTHORIZATION,
+				(IEntityData<? extends IBeanPropertyMap>) EntityDataStore.getEntityData(EntityIds.AUTHORIZATION),
+				AuthorizationInitializer.ALL_PROPERTIES);
+		add(EntityIds.AUTHORIZATION, descriptor, servicesProvider);
+
+		//GenericBean
 		descriptor = new GenericBeanDtoDescriptorBuilder().build();
 		servicesProvider = DummyServiceFactory.beanPropertyMapServices(
 				registry,
+				EntityIds.GENERIC_BEAN,
 				(IEntityData<? extends IBeanPropertyMap>) EntityDataStore.getEntityData(EntityIds.GENERIC_BEAN),
 				GenericBeanInitializer.ALL_PROPERTIES);
 		add(EntityIds.GENERIC_BEAN, descriptor, servicesProvider);
