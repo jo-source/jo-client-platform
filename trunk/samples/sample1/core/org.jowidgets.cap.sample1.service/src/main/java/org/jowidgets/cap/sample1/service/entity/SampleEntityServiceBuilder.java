@@ -30,25 +30,20 @@ package org.jowidgets.cap.sample1.service.entity;
 
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
 import org.jowidgets.cap.common.api.service.IBeanServicesProvider;
-import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.sample1.common.entity.EntityIds;
 import org.jowidgets.cap.sample1.common.entity.IUser;
 import org.jowidgets.cap.sample1.service.datastore.GenericBeanInitializer;
-import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.bean.IBeanPropertyMap;
-import org.jowidgets.cap.service.api.entity.IEntityServiceBuilder;
 import org.jowidgets.cap.service.impl.dummy.datastore.EntityDataStore;
 import org.jowidgets.cap.service.impl.dummy.datastore.IEntityData;
 import org.jowidgets.cap.service.impl.dummy.service.DummyServiceFactory;
+import org.jowidgets.cap.service.tools.entity.EntityServiceBuilder;
 import org.jowidgets.service.api.IServiceRegistry;
 
-public class EntityService {
-
-	private final IEntityService entityService;
+public class SampleEntityServiceBuilder extends EntityServiceBuilder {
 
 	@SuppressWarnings("unchecked")
-	public EntityService(final IServiceRegistry registry) {
-		final IEntityServiceBuilder builder = CapServiceToolkit.entityServiceBuilder();
+	public SampleEntityServiceBuilder(final IServiceRegistry registry) {
 
 		//IUser
 		IBeanDtoDescriptor descriptor = new UserDtoDescriptorBuilder().build();
@@ -56,7 +51,7 @@ public class EntityService {
 				registry,
 				EntityDataStore.getEntityData(IUser.class),
 				IUser.ALL_PROPERTIES);
-		builder.add(IUser.class, descriptor, servicesProvider);
+		add(IUser.class, descriptor, servicesProvider);
 
 		//IGenericBean
 		descriptor = new GenericBeanDtoDescriptorBuilder().build();
@@ -64,13 +59,8 @@ public class EntityService {
 				registry,
 				(IEntityData<? extends IBeanPropertyMap>) EntityDataStore.getEntityData(EntityIds.GENERIC_BEAN),
 				GenericBeanInitializer.ALL_PROPERTIES);
-		builder.add(EntityIds.GENERIC_BEAN, descriptor, servicesProvider);
+		add(EntityIds.GENERIC_BEAN, descriptor, servicesProvider);
 
-		this.entityService = builder.build();
-	}
-
-	public IEntityService getEntityService() {
-		return entityService;
 	}
 
 }
