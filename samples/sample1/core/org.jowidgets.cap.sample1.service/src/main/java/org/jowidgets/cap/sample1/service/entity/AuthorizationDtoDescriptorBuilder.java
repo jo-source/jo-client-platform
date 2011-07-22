@@ -32,35 +32,57 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.jowidgets.cap.common.api.CapCommonToolkit;
+import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
 import org.jowidgets.cap.common.api.bean.IProperty;
 import org.jowidgets.cap.common.api.bean.IPropertyBuilder;
-import org.jowidgets.cap.sample1.service.datastore.GenericBeanInitializer;
+import org.jowidgets.cap.sample1.service.datastore.AuthorizationInitializer;
 
-public class GenericBeanDtoDescriptorBuilder {
+public class AuthorizationDtoDescriptorBuilder {
 
 	private final List<IProperty> properties;
 
-	public GenericBeanDtoDescriptorBuilder() {
+	public AuthorizationDtoDescriptorBuilder() {
 
 		this.properties = new LinkedList<IProperty>();
 
+		IPropertyBuilder propertyBuilder = builder();
+		propertyBuilder.setName(IBean.ID_PROPERTY);
+		propertyBuilder.setLabel("Id");
+		propertyBuilder.setDescription("The database id of the authorization");
+		propertyBuilder.setMandatory(true);
+		propertyBuilder.setReadonly(true);
+		propertyBuilder.setValueType(Long.class);
+		properties.add(propertyBuilder.build());
+
+		propertyBuilder = builder();
+		propertyBuilder.setName(AuthorizationInitializer.KEY_PROPERTY);
+		propertyBuilder.setLabel("Key");
+		propertyBuilder.setDescription("The key of the authorization");
+		propertyBuilder.setMandatory(true);
+		properties.add(propertyBuilder.build());
+
+		propertyBuilder = builder();
+		propertyBuilder.setName(AuthorizationInitializer.DESCRIPTION_PROPERTY);
+		propertyBuilder.setLabel("Description");
+		propertyBuilder.setDescription("The Desription of the authorization");
+		propertyBuilder.setMandatory(false);
+		properties.add(propertyBuilder.build());
+
+		propertyBuilder = builder();
+		propertyBuilder.setName(IBean.VERSION_PROPERTY);
+		propertyBuilder.setLabel("Version");
+		propertyBuilder.setDescription("The version of the authorization record");
+		propertyBuilder.setMandatory(true);
+		propertyBuilder.setReadonly(true);
+		propertyBuilder.setValueType(long.class);
+		properties.add(propertyBuilder.build());
+	}
+
+	IPropertyBuilder builder() {
 		final IPropertyBuilder propertyBuilder = CapCommonToolkit.propertyBuilder();
 		propertyBuilder.setValueType(String.class).setSortable(true).setFilterable(true);
-		final List<String> propertyNames = GenericBeanInitializer.ALL_PROPERTIES;
-		for (int columnIndex = 0; columnIndex < propertyNames.size(); columnIndex++) {
-			propertyBuilder.setName(propertyNames.get(columnIndex));
-			propertyBuilder.setLabel("Col " + columnIndex);
-			propertyBuilder.setLabelLong("Column " + columnIndex);
-			propertyBuilder.setDescription("Description of column " + columnIndex);
-			if (columnIndex < 10) {
-				propertyBuilder.setReadonly(false);
-			}
-			else {
-				propertyBuilder.setReadonly(true);
-			}
-			properties.add(propertyBuilder.build());
-		}
+		return propertyBuilder;
 	}
 
 	IBeanDtoDescriptor build() {

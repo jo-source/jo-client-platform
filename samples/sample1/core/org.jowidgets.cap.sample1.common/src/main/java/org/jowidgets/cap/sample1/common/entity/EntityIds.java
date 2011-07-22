@@ -30,6 +30,8 @@ package org.jowidgets.cap.sample1.common.entity;
 
 public enum EntityIds {
 
-	GENERIC_BEAN;
+	GENERIC_BEAN,
+	ROLE,
+	AUTHORIZATION;
 
 }

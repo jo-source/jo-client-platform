@@ -81,7 +81,7 @@ final class BeanServicesProviderImpl implements IBeanServicesProvider, Serializa
 		if (creatorService != null) {
 			this.creatorServiceId = new ServiceId<ICreatorService>(new Id(
 				entityServiceId,
-				entityId.getClass().getName(),
+				entityId,
 				ICreatorService.class.getName()), ICreatorService.class);
 			serviceRegistry.addService(creatorServiceId, creatorService);
 		}
@@ -92,7 +92,7 @@ final class BeanServicesProviderImpl implements IBeanServicesProvider, Serializa
 		if (refreshService != null) {
 			this.refreshServiceId = new ServiceId<IRefreshService>(new Id(
 				entityServiceId,
-				entityId.getClass().getName(),
+				entityId,
 				IRefreshService.class.getName()), IRefreshService.class);
 			serviceRegistry.addService(refreshServiceId, refreshService);
 		}
@@ -103,7 +103,7 @@ final class BeanServicesProviderImpl implements IBeanServicesProvider, Serializa
 		if (updaterService != null) {
 			this.updaterServiceId = new ServiceId<IUpdaterService>(new Id(
 				entityServiceId,
-				entityId.getClass().getName(),
+				entityId,
 				IUpdaterService.class.getName()), IUpdaterService.class);
 			serviceRegistry.addService(updaterServiceId, updaterService);
 		}
@@ -114,7 +114,7 @@ final class BeanServicesProviderImpl implements IBeanServicesProvider, Serializa
 		if (deleterService != null) {
 			this.deleterServiceId = new ServiceId<IDeleterService>(new Id(
 				entityServiceId,
-				entityId.getClass().getName(),
+				entityId,
 				IDeleterService.class.getName()), IDeleterService.class);
 			serviceRegistry.addService(deleterServiceId, deleterService);
 		}
