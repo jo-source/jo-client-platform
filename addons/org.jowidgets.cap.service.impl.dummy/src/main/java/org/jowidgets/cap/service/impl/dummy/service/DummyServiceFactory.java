@@ -70,9 +70,10 @@ public final class DummyServiceFactory {
 
 	public static IBeanServicesProvider beanPropertyMapServices(
 		final IServiceRegistry registry,
+		final Object entityTypeId,
 		final IEntityData<? extends IBeanPropertyMap> data,
 		final List<String> propertyNames) {
-		return getInstance().beanPropertyMapServices(registry, data, propertyNames);
+		return getInstance().beanPropertyMapServices(registry, entityTypeId, data, propertyNames);
 	}
 
 	public static ICreatorService creatorService(final IEntityData<? extends IBean> data, final List<String> propertyNames) {
