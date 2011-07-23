@@ -47,7 +47,7 @@ public class UserDtoDescriptorBuilder extends BeanDtoDescriptorBuilder {
 		propertyBp.setMandatory(true);
 
 		propertyBp = addProperty(IUser.GENDER_PROPERTY);
-		propertyBp.setLabel("Gender").setDescription("The gender of the user");
+		propertyBp.setLabel("Gender").setLabelLong("Person gender").setDescription("The gender of the user");
 		propertyBp.setValueRange("M", "F");
 
 		propertyBp = addProperty(IUser.DATE_OF_BIRTH_PROPERTY);

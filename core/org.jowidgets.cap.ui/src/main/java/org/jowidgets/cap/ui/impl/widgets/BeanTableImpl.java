@@ -78,8 +78,7 @@ final class BeanTableImpl<BEAN_TYPE> extends TableWrapper implements IBeanTable<
 	private final IMenuModel tablePopupMenuModel;
 	private final IPopupMenu columnPopupMenu;
 	private final boolean hasDefaultMenus;
-	private final Map<Integer, IMenuModel> headerFormatMenus;
-	private final Map<Integer, IMenuModel> contentFormatMenus;
+	private final Map<Integer, List<IMenuItemModel>> headerMenus;
 	private final List<IMenuItemModel> tempHeaderMenuItems;
 
 	private IBeanTableSettingsDialog settingsDialog;
@@ -90,8 +89,7 @@ final class BeanTableImpl<BEAN_TYPE> extends TableWrapper implements IBeanTable<
 		super(table);
 		this.model = bluePrint.getModel();
 		this.hasDefaultMenus = bluePrint.hasDefaultMenus();
-		this.headerFormatMenus = createHeaderFormatMenus(model, hasDefaultMenus);
-		this.contentFormatMenus = createContentFormatMenus(model, hasDefaultMenus);
+		this.headerMenus = createHeaderMenus(model, hasDefaultMenus);
 		this.tempHeaderMenuItems = new LinkedList<IMenuItemModel>();
 		this.cellPopupMenuModel = new MenuModel();
 		this.headerPopupMenuModel = new MenuModel();
@@ -110,14 +108,17 @@ final class BeanTableImpl<BEAN_TYPE> extends TableWrapper implements IBeanTable<
 			final IAction packAllAction = menuFactory.packAllAction(this);
 			final IAction packSelectedAction = menuFactory.packSelectedAction(this);
 			final IAction hideColumnAction = menuFactory.hideColumnAction(this);
+			final IMenuModel columnsVisibilityMenu = menuFactory.columnsVisibilityMenu(model);
 			final IAction unhideColumnsActions = menuFactory.unhideAllColumnsAction(this);
 			headerPopupMenuModel.addAction(hideColumnAction);
+			headerPopupMenuModel.addItem(columnsVisibilityMenu);
 			headerPopupMenuModel.addAction(unhideColumnsActions);
 			headerPopupMenuModel.addSeparator();
 			headerPopupMenuModel.addAction(packAllAction);
 			headerPopupMenuModel.addAction(packSelectedAction);
 
 			//table popup menu
+			tablePopupMenuModel.addItem(columnsVisibilityMenu);
 			tablePopupMenuModel.addAction(unhideColumnsActions);
 			tablePopupMenuModel.addAction(packAllAction);
 			tablePopupMenuModel.addSeparator();
@@ -155,30 +156,37 @@ final class BeanTableImpl<BEAN_TYPE> extends TableWrapper implements IBeanTable<
 
 		table.addTableCellEditorListener(new TableCellEditorListener());
 		table.addTableColumnListener(new TableSortColumnListener());
-
 	}
 
-	private static Map<Integer, IMenuModel> createHeaderFormatMenus(final IBeanTableModel<?> model, final boolean hasDefaultMenus) {
-		final Map<Integer, IMenuModel> result = new HashMap<Integer, IMenuModel>();
+	private static Map<Integer, List<IMenuItemModel>> createHeaderMenus(
+		final IBeanTableModel<?> model,
+		final boolean hasDefaultMenus) {
+		final Map<Integer, List<IMenuItemModel>> result = new HashMap<Integer, List<IMenuItemModel>>();
 		if (hasDefaultMenus) {
+			final IBeanTableMenuFactory menuFactory = CapUiToolkit.beanTableMenuFactory();
 			for (int columnIndex = 0; columnIndex < model.getColumnCount(); columnIndex++) {
-				final IMenuModel menuModel = CapUiToolkit.beanTableMenuFactory().headerFormatMenu(model, columnIndex);
-				if (menuModel != null) {
-					result.put(Integer.valueOf(columnIndex), menuModel);
-				}
-			}
-		}
-		return result;
-	}
+				//create items list for this column
+				final List<IMenuItemModel> menuItems = new LinkedList<IMenuItemModel>();
+				result.put(Integer.valueOf(columnIndex), menuItems);
 
-	private static Map<Integer, IMenuModel> createContentFormatMenus(final IBeanTableModel<?> model, final boolean hasDefaultMenus) {
-		final Map<Integer, IMenuModel> result = new HashMap<Integer, IMenuModel>();
-		if (hasDefaultMenus) {
-			for (int columnIndex = 0; columnIndex < model.getColumnCount(); columnIndex++) {
-				final IMenuModel menuModel = CapUiToolkit.beanTableMenuFactory().contentFormatMenu(model, columnIndex);
-				if (menuModel != null) {
-					result.put(Integer.valueOf(columnIndex), menuModel);
+				//add separator
+				menuItems.add(new SeparatorItemModel());
+
+				//add display format menus
+				final IMenuModel headerFormatMenu = menuFactory.headerFormatMenu(model, columnIndex);
+				final IMenuModel contentFormatMenu = menuFactory.contentFormatMenu(model, columnIndex);
+
+				if (contentFormatMenu != null) {
+					menuItems.add(contentFormatMenu);
 				}
+				if (headerFormatMenu != null) {
+					menuItems.add(headerFormatMenu);
+				}
+
+				//add alignment menu
+				final IMenuModel alignmentMenu = menuFactory.alignmentMenu(model, columnIndex);
+				menuItems.add(alignmentMenu);
+
 			}
 		}
 		return result;
@@ -190,21 +198,10 @@ final class BeanTableImpl<BEAN_TYPE> extends TableWrapper implements IBeanTable<
 				tempHeaderMenuItems.remove(tempMenuItem);
 				headerPopupMenuModel.removeItem(tempMenuItem);
 			}
-			final int headerFormatIndex = 3;
-			final IMenuItemModel separator = new SeparatorItemModel();
-			final IMenuModel contentFormatMenu = contentFormatMenus.get(columnIndex);
-			final IMenuModel headerFormatMenu = headerFormatMenus.get(columnIndex);
-			if (headerFormatMenu != null || contentFormatMenu != null) {
-				headerPopupMenuModel.addItem(headerFormatIndex, separator);
-				tempHeaderMenuItems.add(separator);
-			}
-			if (contentFormatMenu != null) {
-				headerPopupMenuModel.addItem(headerFormatIndex, contentFormatMenu);
-				tempHeaderMenuItems.add(contentFormatMenu);
-			}
-			if (headerFormatMenu != null) {
-				headerPopupMenuModel.addItem(headerFormatIndex, headerFormatMenu);
-				tempHeaderMenuItems.add(headerFormatMenu);
+			final int headerFormatIndex = 4;
+			for (final IMenuItemModel menuItem : headerMenus.get(Integer.valueOf(columnIndex))) {
+				headerPopupMenuModel.addItem(headerFormatIndex, menuItem);
+				tempHeaderMenuItems.add(menuItem);
 			}
 		}
 		columnPopupMenu.show(position);

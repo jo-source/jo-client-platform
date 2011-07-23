@@ -55,6 +55,8 @@ public interface IBeanTableMenuFactory {
 
 	IAction packSelectedAction(IBeanTable<?> table);
 
+	IMenuModel columnsVisibilityMenu(IBeanTableModel<?> model);
+
 	IMenuModel alignmentMenu(IBeanTableModel<?> model, int columnIndex);
 
 	/**
