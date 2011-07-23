@@ -34,6 +34,7 @@ import java.util.Map;
 import org.jowidgets.api.model.item.ICheckedItemModel;
 import org.jowidgets.api.model.item.IMenuModel;
 import org.jowidgets.api.model.item.ISelectableItemModel;
+import org.jowidgets.cap.ui.api.attribute.DisplayFormat;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IAttributeGroup;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
@@ -63,10 +64,10 @@ final class BeanTableColumnsVisibilityMenuModel extends MenuModel {
 					}
 					groupModels.put(attributeGroup.getId(), groupMenuModel);
 				}
-				checkedItem = groupMenuModel.addCheckedItem(attribute.getLabel());
+				checkedItem = groupMenuModel.addCheckedItem(getAttributeLabel(attribute));
 			}
 			else {
-				checkedItem = addCheckedItem(attribute.getLabel());
+				checkedItem = addCheckedItem(getAttributeLabel(attribute));
 			}
 
 			if (EmptyCheck.isEmpty(attribute.getDescription())) {
@@ -79,6 +80,15 @@ final class BeanTableColumnsVisibilityMenuModel extends MenuModel {
 			attribute.addChangeListener(bindingListener);
 		}
 
+	}
+
+	private String getAttributeLabel(final IAttribute<?> attribute) {
+		if (attribute.getLabelDisplayFormat() == DisplayFormat.LONG) {
+			return attribute.getLabelLong();
+		}
+		else {
+			return attribute.getLabel();
+		}
 	}
 
 	private final class AttributeBindingListener implements IItemStateListener, IChangeListener {
@@ -99,6 +109,7 @@ final class BeanTableColumnsVisibilityMenuModel extends MenuModel {
 		public void changed() {
 			if (!onEvent) {
 				onEvent = true;
+				itemModel.setText(getAttributeLabel(attribute));
 				itemModel.setSelected(attribute.isVisible());
 				onEvent = false;
 			}

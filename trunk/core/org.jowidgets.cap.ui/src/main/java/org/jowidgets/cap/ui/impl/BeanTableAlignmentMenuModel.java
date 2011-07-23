@@ -40,6 +40,7 @@ final class BeanTableAlignmentMenuModel extends MenuModel {
 	BeanTableAlignmentMenuModel(final IBeanTableModel<?> model, final int columnIndex) {
 		//TODO i18n
 		super("Alignment");
+
 		final IRadioItemModel leftRadioItem = addRadioItem("Left");
 		final IRadioItemModel centerRadioItem = addRadioItem("Center");
 		final IRadioItemModel rightRadioItem = addRadioItem("Right");
@@ -58,7 +59,6 @@ final class BeanTableAlignmentMenuModel extends MenuModel {
 		addRadioItemListener(leftRadioItem, attribute, AlignmentHorizontal.LEFT);
 		addRadioItemListener(centerRadioItem, attribute, AlignmentHorizontal.CENTER);
 		addRadioItemListener(rightRadioItem, attribute, AlignmentHorizontal.RIGHT);
-
 	}
 
 	private static void addRadioItemListener(

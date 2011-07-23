@@ -92,7 +92,7 @@ final class BeanTableImpl<BEAN_TYPE> extends TableWrapper implements IBeanTable<
 		this.headerMenus = createHeaderMenus(model, hasDefaultMenus);
 		this.tempHeaderMenuItems = new LinkedList<IMenuItemModel>();
 		this.cellPopupMenuModel = new MenuModel();
-		this.headerPopupMenuModel = new MenuModel();
+		this.headerPopupMenuModel = new MenuModel("Header");
 		this.tablePopupMenuModel = new MenuModel();
 
 		table.setPopupMenu(tablePopupMenuModel);
@@ -102,6 +102,7 @@ final class BeanTableImpl<BEAN_TYPE> extends TableWrapper implements IBeanTable<
 
 			//cell popup menu
 			final IAction settingsDialogAction = menuFactory.settingsAction(this);
+			cellPopupMenuModel.addItem(headerPopupMenuModel);
 			cellPopupMenuModel.addAction(settingsDialogAction);
 
 			//header popup menu
@@ -301,15 +302,15 @@ final class BeanTableImpl<BEAN_TYPE> extends TableWrapper implements IBeanTable<
 			if (modelColumn < 0) {
 				return;
 			}
-
+			if (event.getModifiers().contains(Modifier.SHIFT)) {
+				pack();
+				return;
+			}
 			final IAttribute<?> attribute = model.getAttribute(modelColumn);
 			if (attribute != null && attribute.isSortable()) {
 				final ISortModel sortModel = model.getSortModel();
 				final String propertyName = attribute.getPropertyName();
-				if (event.getModifiers().contains(Modifier.SHIFT)) {
-					pack();
-				}
-				else if (event.getModifiers().contains(Modifier.CTRL)) {
+				if (event.getModifiers().contains(Modifier.CTRL)) {
 					sortModel.addOrToggleCurrentProperty(propertyName);
 				}
 				else {
