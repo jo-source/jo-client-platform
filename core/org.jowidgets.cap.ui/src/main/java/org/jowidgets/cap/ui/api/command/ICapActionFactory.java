@@ -28,10 +28,7 @@
 
 package org.jowidgets.cap.ui.api.command;
 
-import org.jowidgets.api.command.IAction;
-import org.jowidgets.api.command.IActionBuilder;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
-import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 
 public interface ICapActionFactory {
 
@@ -50,26 +47,6 @@ public interface ICapActionFactory {
 	IDataModelAction dataModelCancelAction();
 
 	IDataModelActionBuilder dataModelCancelActionBuilder();
-
-	IActionBuilder beanTableSettingsActionBuilder(IBeanTable<?> table);
-
-	IAction beanTableSettingsAction(IBeanTable<?> table);
-
-	IActionBuilder beanTableHideColumnActionBuilder(IBeanTable<?> table);
-
-	IAction beanTableHideColumnAction(IBeanTable<?> table);
-
-	IActionBuilder beanTableUnhideColumnsActionBuilder(IBeanTable<?> table);
-
-	IAction beanTableUnhideColumnsAction(IBeanTable<?> table);
-
-	IActionBuilder beanTablePackAllActionBuilder(IBeanTable<?> table);
-
-	IAction beanTablePackAllAction(IBeanTable<?> table);
-
-	IActionBuilder beanTablePackSelectedActionBuilder(IBeanTable<?> table);
-
-	IAction beanTablePackSelectedAction(IBeanTable<?> table);
 
 	<BEAN_TYPE, PARAM_TYPE> IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> executorActionBuilder(IBeanListModel<BEAN_TYPE> model);
 

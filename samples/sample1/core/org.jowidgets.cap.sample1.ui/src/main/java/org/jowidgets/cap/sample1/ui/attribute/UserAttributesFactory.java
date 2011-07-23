@@ -64,13 +64,14 @@ public class UserAttributesFactory {
 		modifierBuilder.addModifier(IUser.GENDER_PROPERTY, new IAttributeModifier<Object>() {
 			@Override
 			public void modify(final IProperty source, final IAttributeBluePrint<Object> bluePrint) {
+
 				IControlPanelProviderBuilder<Object> controlBuilder = attributeToolkit.createControlPanelProviderBuilder(
 						source.getValueType(),
 						source.getElementValueType(),
 						source.getValueRange());
 
-				controlBuilder.setConverter(new GenderConverterLong().getConverter());
-				controlBuilder.setDisplayFormat(DisplayFormat.LONG);
+				controlBuilder.setConverter(new GenderConverterShort().getConverter());
+				controlBuilder.setDisplayFormat(DisplayFormat.SHORT);
 				bluePrint.addControlPanel(controlBuilder.build());
 
 				controlBuilder = attributeToolkit.createControlPanelProviderBuilder(
@@ -78,8 +79,8 @@ public class UserAttributesFactory {
 						source.getElementValueType(),
 						source.getValueRange());
 
-				controlBuilder.setConverter(new GenderConverterShort().getConverter());
-				controlBuilder.setDisplayFormat(DisplayFormat.SHORT);
+				controlBuilder.setConverter(new GenderConverterLong().getConverter());
+				controlBuilder.setDisplayFormat(DisplayFormat.LONG);
 				bluePrint.addControlPanel(controlBuilder.build());
 
 				bluePrint.setDisplayFormatId(DisplayFormat.SHORT.getId());

@@ -26,25 +26,43 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.impl;
+package org.jowidgets.cap.ui.api.table;
 
-import org.jowidgets.api.command.ICommandExecutor;
-import org.jowidgets.api.command.IExecutionContext;
+import org.jowidgets.api.command.IAction;
+import org.jowidgets.api.command.IActionBuilder;
+import org.jowidgets.api.model.item.IMenuModel;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
-import org.jowidgets.tools.command.ActionBuilder;
 
-final class BeanTablePackAllActionBuilder extends ActionBuilder {
+public interface IBeanTableMenuFactory {
 
-	BeanTablePackAllActionBuilder(final IBeanTable<?> table) {
-		super();
-		setText("Fit all columns");
-		setToolTipText("Fits all columns to the propper width");
-		setCommand(new ICommandExecutor() {
-			@Override
-			public void execute(final IExecutionContext executionContext) throws Exception {
-				table.pack();
-			}
-		});
-	}
+	IActionBuilder beanTableSettingsActionBuilder(IBeanTable<?> table);
+
+	IAction beanTableSettingsAction(IBeanTable<?> table);
+
+	IActionBuilder beanTableHideColumnActionBuilder(IBeanTable<?> table);
+
+	IAction beanTableHideColumnAction(IBeanTable<?> table);
+
+	IActionBuilder beanTableUnhideColumnsActionBuilder(IBeanTable<?> table);
+
+	IAction beanTableUnhideColumnsAction(IBeanTable<?> table);
+
+	IActionBuilder beanTablePackAllActionBuilder(IBeanTable<?> table);
+
+	IAction beanTablePackAllAction(IBeanTable<?> table);
+
+	IActionBuilder beanTablePackSelectedActionBuilder(IBeanTable<?> table);
+
+	IAction beanTablePackSelectedAction(IBeanTable<?> table);
+
+	/**
+	 * @return The menu for the header format or null, if the header format could not be switched for the column
+	 */
+	IMenuModel beanTableHeaderFormatMenu(IBeanTableModel<?> model, int columnIndex);
+
+	/**
+	 * @return The menu for the content display format or null, if the content format could not be switched for the column
+	 */
+	IMenuModel beanTableContentFormatMenu(IBeanTableModel<?> model, int columnIndex);
 
 }

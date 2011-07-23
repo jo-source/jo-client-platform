@@ -28,23 +28,42 @@
 
 package org.jowidgets.cap.ui.impl;
 
-import org.jowidgets.api.command.ICommandExecutor;
-import org.jowidgets.api.command.IExecutionContext;
-import org.jowidgets.cap.ui.api.widgets.IBeanTable;
-import org.jowidgets.tools.command.ActionBuilder;
+import org.jowidgets.api.model.item.IRadioItemModel;
+import org.jowidgets.cap.ui.api.attribute.DisplayFormat;
+import org.jowidgets.cap.ui.api.attribute.IAttribute;
+import org.jowidgets.cap.ui.api.table.IBeanTableModel;
+import org.jowidgets.common.widgets.controler.IItemStateListener;
+import org.jowidgets.tools.model.item.MenuModel;
 
-final class BeanTablePackAllActionBuilder extends ActionBuilder {
+final class BeanTableHeaderFormatMenuModel extends MenuModel {
 
-	BeanTablePackAllActionBuilder(final IBeanTable<?> table) {
-		super();
-		setText("Fit all columns");
-		setToolTipText("Fits all columns to the propper width");
-		setCommand(new ICommandExecutor() {
+	BeanTableHeaderFormatMenuModel(final IBeanTableModel<?> model, final int columnIndex) {
+		super("Header format");
+		final IRadioItemModel shortRadioItem = addRadioItem(DisplayFormat.SHORT.getName());
+		final IRadioItemModel longRadioItem = addRadioItem(DisplayFormat.LONG.getName());
+		final IAttribute<?> attribute = model.getAttribute(columnIndex);
+		if (attribute.getLabelDisplayFormat() == DisplayFormat.SHORT
+			|| attribute.getLabelDisplayFormat() == DisplayFormat.DEFAULT) {
+			shortRadioItem.setSelected(true);
+		}
+		else {
+			longRadioItem.setSelected(true);
+		}
+		addRadioItemListener(shortRadioItem, attribute, DisplayFormat.SHORT);
+		addRadioItemListener(longRadioItem, attribute, DisplayFormat.LONG);
+	}
+
+	private static void addRadioItemListener(
+		final IRadioItemModel radioItemModel,
+		final IAttribute<?> attribute,
+		final DisplayFormat displayFormat) {
+		radioItemModel.addItemListener(new IItemStateListener() {
 			@Override
-			public void execute(final IExecutionContext executionContext) throws Exception {
-				table.pack();
+			public void itemStateChanged() {
+				if (radioItemModel.isSelected()) {
+					attribute.setLabelDisplayFormat(displayFormat);
+				}
 			}
 		});
 	}
-
 }

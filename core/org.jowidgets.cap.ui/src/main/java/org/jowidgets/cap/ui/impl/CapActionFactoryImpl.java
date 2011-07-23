@@ -28,15 +28,11 @@
 
 package org.jowidgets.cap.ui.impl;
 
-import org.jowidgets.api.command.IAction;
-import org.jowidgets.api.command.IActionBuilder;
 import org.jowidgets.cap.ui.api.command.ICapActionFactory;
 import org.jowidgets.cap.ui.api.command.IDataModelAction;
 import org.jowidgets.cap.ui.api.command.IDataModelActionBuilder;
 import org.jowidgets.cap.ui.api.command.IExecutorActionBuilder;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
-import org.jowidgets.cap.ui.api.widgets.IBeanTable;
-import org.jowidgets.util.Assert;
 
 final class CapActionFactoryImpl implements ICapActionFactory {
 
@@ -88,61 +84,6 @@ final class CapActionFactoryImpl implements ICapActionFactory {
 		final IDataModelActionBuilder builder = new DataModelActionBuilderImpl(new DataModelLoadCommand());
 		builder.setText("Reload"); //TODO MG i18n
 		return builder;
-	}
-
-	@Override
-	public IActionBuilder beanTableSettingsActionBuilder(final IBeanTable<?> table) {
-		Assert.paramNotNull(table, "table");
-		return new BeanTableSettingsActionBuilder(table);
-	}
-
-	@Override
-	public IAction beanTableSettingsAction(final IBeanTable<?> table) {
-		return beanTableSettingsActionBuilder(table).build();
-	}
-
-	@Override
-	public IActionBuilder beanTableHideColumnActionBuilder(final IBeanTable<?> table) {
-		Assert.paramNotNull(table, "table");
-		return new BeanTableHideColumnActionBuilder(table);
-	}
-
-	@Override
-	public IAction beanTableHideColumnAction(final IBeanTable<?> table) {
-		return beanTableHideColumnActionBuilder(table).build();
-	}
-
-	@Override
-	public IActionBuilder beanTableUnhideColumnsActionBuilder(final IBeanTable<?> table) {
-		Assert.paramNotNull(table, "table");
-		return new BeanTableUnhideColumnsActionBuilder(table);
-	}
-
-	@Override
-	public IAction beanTableUnhideColumnsAction(final IBeanTable<?> table) {
-		return beanTableUnhideColumnsActionBuilder(table).build();
-	}
-
-	@Override
-	public IActionBuilder beanTablePackAllActionBuilder(final IBeanTable<?> table) {
-		Assert.paramNotNull(table, "table");
-		return new BeanTablePackAllActionBuilder(table);
-	}
-
-	@Override
-	public IAction beanTablePackAllAction(final IBeanTable<?> table) {
-		return beanTablePackAllActionBuilder(table).build();
-	}
-
-	@Override
-	public IActionBuilder beanTablePackSelectedActionBuilder(final IBeanTable<?> table) {
-		Assert.paramNotNull(table, "table");
-		return new BeanTablePackSelectedActionBuilder(table);
-	}
-
-	@Override
-	public IAction beanTablePackSelectedAction(final IBeanTable<?> table) {
-		return beanTablePackSelectedActionBuilder(table).build();
 	}
 
 	@Override

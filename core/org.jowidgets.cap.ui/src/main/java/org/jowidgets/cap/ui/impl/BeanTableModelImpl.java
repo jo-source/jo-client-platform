@@ -502,6 +502,7 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 				@Override
 				public void changed() {
 					result.getColumn(currentColumnIndex).setVisible(attribute.isVisible());
+					dataModel.fireDataChanged();
 					updateColumnModel();
 				}
 			});

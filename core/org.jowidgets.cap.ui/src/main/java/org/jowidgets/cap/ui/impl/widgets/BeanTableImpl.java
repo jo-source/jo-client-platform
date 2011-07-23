@@ -38,17 +38,15 @@ import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.api.convert.IStringObjectConverter;
 import org.jowidgets.api.model.item.IMenuItemModel;
 import org.jowidgets.api.model.item.IMenuModel;
-import org.jowidgets.api.model.item.IRadioItemModel;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.widgets.IPopupMenu;
 import org.jowidgets.api.widgets.ITable;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
-import org.jowidgets.cap.ui.api.attribute.DisplayFormat;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
-import org.jowidgets.cap.ui.api.command.ICapActionFactory;
 import org.jowidgets.cap.ui.api.sort.ISortModel;
 import org.jowidgets.cap.ui.api.table.IBeanTableConfig;
+import org.jowidgets.cap.ui.api.table.IBeanTableMenuFactory;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
@@ -56,7 +54,6 @@ import org.jowidgets.cap.ui.api.widgets.IBeanTableSettingsDialog;
 import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
 import org.jowidgets.common.types.Modifier;
 import org.jowidgets.common.types.Position;
-import org.jowidgets.common.widgets.controler.IItemStateListener;
 import org.jowidgets.common.widgets.controler.ITableCellEditEvent;
 import org.jowidgets.common.widgets.controler.ITableCellPopupDetectionListener;
 import org.jowidgets.common.widgets.controler.ITableCellPopupEvent;
@@ -70,7 +67,6 @@ import org.jowidgets.tools.controler.TableColumnAdapter;
 import org.jowidgets.tools.model.item.MenuModel;
 import org.jowidgets.tools.model.item.SeparatorItemModel;
 import org.jowidgets.tools.widgets.wrapper.TableWrapper;
-import org.jowidgets.util.EmptyCheck;
 import org.jowidgets.util.IDecorator;
 import org.jowidgets.util.ITypedKey;
 
@@ -104,17 +100,17 @@ final class BeanTableImpl<BEAN_TYPE> extends TableWrapper implements IBeanTable<
 		table.setPopupMenu(tablePopupMenuModel);
 
 		if (bluePrint.hasDefaultMenus()) {
-			final ICapActionFactory actionFactory = CapUiToolkit.actionFactory();
+			final IBeanTableMenuFactory menuFactory = CapUiToolkit.beanTableMenuFactory();
 
 			//cell popup menu
-			final IAction settingsDialogAction = actionFactory.beanTableSettingsAction(this);
+			final IAction settingsDialogAction = menuFactory.beanTableSettingsAction(this);
 			cellPopupMenuModel.addAction(settingsDialogAction);
 
 			//header popup menu
-			final IAction packAllAction = actionFactory.beanTablePackAllAction(this);
-			final IAction packSelectedAction = actionFactory.beanTablePackSelectedAction(this);
-			final IAction hideColumnAction = actionFactory.beanTableHideColumnAction(this);
-			final IAction unhideColumnsActions = actionFactory.beanTableUnhideColumnsAction(this);
+			final IAction packAllAction = menuFactory.beanTablePackAllAction(this);
+			final IAction packSelectedAction = menuFactory.beanTablePackSelectedAction(this);
+			final IAction hideColumnAction = menuFactory.beanTableHideColumnAction(this);
+			final IAction unhideColumnsActions = menuFactory.beanTableUnhideColumnsAction(this);
 			headerPopupMenuModel.addAction(hideColumnAction);
 			headerPopupMenuModel.addAction(unhideColumnsActions);
 			headerPopupMenuModel.addSeparator();
@@ -166,35 +162,9 @@ final class BeanTableImpl<BEAN_TYPE> extends TableWrapper implements IBeanTable<
 		final Map<Integer, IMenuModel> result = new HashMap<Integer, IMenuModel>();
 		if (hasDefaultMenus) {
 			for (int columnIndex = 0; columnIndex < model.getColumnCount(); columnIndex++) {
-				final IAttribute<Object> attribute = model.getAttribute(columnIndex);
-				if (!EmptyCheck.isEmpty(attribute.getLabelLong())) {
-					final IMenuModel menuModel = new MenuModel("Header format");
+				final IMenuModel menuModel = CapUiToolkit.beanTableMenuFactory().beanTableHeaderFormatMenu(model, columnIndex);
+				if (menuModel != null) {
 					result.put(Integer.valueOf(columnIndex), menuModel);
-					final IRadioItemModel shortRadioItem = menuModel.addRadioItem(DisplayFormat.SHORT.getName());
-					final IRadioItemModel longRadioItem = menuModel.addRadioItem(DisplayFormat.LONG.getName());
-					if (attribute.getLabelDisplayFormat() == DisplayFormat.SHORT
-						|| attribute.getLabelDisplayFormat() == DisplayFormat.DEFAULT) {
-						shortRadioItem.setSelected(true);
-					}
-					else {
-						longRadioItem.setSelected(true);
-					}
-					shortRadioItem.addItemListener(new IItemStateListener() {
-						@Override
-						public void itemStateChanged() {
-							if (shortRadioItem.isSelected()) {
-								attribute.setLabelDisplayFormat(DisplayFormat.SHORT);
-							}
-						}
-					});
-					longRadioItem.addItemListener(new IItemStateListener() {
-						@Override
-						public void itemStateChanged() {
-							if (longRadioItem.isSelected()) {
-								attribute.setLabelDisplayFormat(DisplayFormat.LONG);
-							}
-						}
-					});
 				}
 			}
 		}
@@ -203,7 +173,14 @@ final class BeanTableImpl<BEAN_TYPE> extends TableWrapper implements IBeanTable<
 
 	private static Map<Integer, IMenuModel> createContentFormatMenus(final IBeanTableModel<?> model, final boolean hasDefaultMenus) {
 		final Map<Integer, IMenuModel> result = new HashMap<Integer, IMenuModel>();
-
+		if (hasDefaultMenus) {
+			for (int columnIndex = 0; columnIndex < model.getColumnCount(); columnIndex++) {
+				final IMenuModel menuModel = CapUiToolkit.beanTableMenuFactory().beanTableContentFormatMenu(model, columnIndex);
+				if (menuModel != null) {
+					result.put(Integer.valueOf(columnIndex), menuModel);
+				}
+			}
+		}
 		return result;
 	}
 
