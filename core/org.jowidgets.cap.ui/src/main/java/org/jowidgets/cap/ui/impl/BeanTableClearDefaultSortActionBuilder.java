@@ -65,7 +65,7 @@ final class BeanTableClearDefaultSortActionBuilder extends ActionBuilder {
 			public void execute(final IExecutionContext executionContext) throws Exception {
 				final QuestionResult questionResult = Toolkit.getQuestionPane().askYesNoQuestion(
 						"Clear default sorting",
-						"Do you really want to clear the default sorting?\n This can not be undone");
+						"Do you really want to clear the default sorting?\nThis can not be undone!");
 				if (questionResult == QuestionResult.YES) {
 					model.getSortModel().clearDefaultSorting();
 				}
