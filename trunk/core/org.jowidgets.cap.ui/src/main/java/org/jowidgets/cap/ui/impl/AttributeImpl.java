@@ -245,8 +245,10 @@ final class AttributeImpl<ELEMENT_VALUE_TYPE> implements IAttribute<ELEMENT_VALU
 
 	@Override
 	public void setVisible(final boolean visible) {
-		this.visible = visible;
-		changeObservable.fireChangedEvent();
+		if (this.visible != visible) {
+			this.visible = visible;
+			changeObservable.fireChangedEvent();
+		}
 	}
 
 	@Override

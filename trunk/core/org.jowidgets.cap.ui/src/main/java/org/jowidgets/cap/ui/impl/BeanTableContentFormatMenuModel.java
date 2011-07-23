@@ -26,9 +26,43 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.table;
+package org.jowidgets.cap.ui.impl;
 
+import org.jowidgets.api.model.item.IRadioItemModel;
+import org.jowidgets.cap.ui.api.attribute.IAttribute;
+import org.jowidgets.cap.ui.api.attribute.IControlPanelProvider;
+import org.jowidgets.cap.ui.api.table.IBeanTableModel;
+import org.jowidgets.common.widgets.controler.IItemStateListener;
+import org.jowidgets.tools.model.item.MenuModel;
 
-public interface IBeanTableActionFactory {
+final class BeanTableContentFormatMenuModel extends MenuModel {
 
+	BeanTableContentFormatMenuModel(final IBeanTableModel<?> model, final int columnIndex) {
+		super("Content format");
+
+		final IAttribute<?> attribute = model.getAttribute(columnIndex);
+
+		for (final IControlPanelProvider<?> controlPanel : attribute.getControlPanels()) {
+			final IRadioItemModel radioItem = addRadioItem(controlPanel.getDisplayFormatName());
+			radioItem.setToolTipText(controlPanel.getDisplayFormatDescription());
+			if (attribute.getDisplayFormatId().equals(controlPanel.getDisplayFormatId())) {
+				radioItem.setSelected(true);
+			}
+			addRadioItemListener(radioItem, attribute, controlPanel.getDisplayFormatId());
+		}
+	}
+
+	private static void addRadioItemListener(
+		final IRadioItemModel radioItemModel,
+		final IAttribute<?> attribute,
+		final String displayFormatId) {
+		radioItemModel.addItemListener(new IItemStateListener() {
+			@Override
+			public void itemStateChanged() {
+				if (radioItemModel.isSelected()) {
+					attribute.setDisplayFormatId(displayFormatId);
+				}
+			}
+		});
+	}
 }

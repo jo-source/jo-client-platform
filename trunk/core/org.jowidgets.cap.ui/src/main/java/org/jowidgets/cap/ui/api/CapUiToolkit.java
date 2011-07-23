@@ -51,6 +51,7 @@ import org.jowidgets.cap.ui.api.form.IBeanFormToolkit;
 import org.jowidgets.cap.ui.api.icons.CapIcons;
 import org.jowidgets.cap.ui.api.sort.ISortModelConfigBuilder;
 import org.jowidgets.cap.ui.api.table.IBeanTableConfigBuilder;
+import org.jowidgets.cap.ui.api.table.IBeanTableMenuFactory;
 import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
 import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
@@ -90,6 +91,10 @@ public final class CapUiToolkit {
 
 	public static ICapActionFactory actionFactory() {
 		return getInstance().actionFactory();
+	}
+
+	public static IBeanTableMenuFactory beanTableMenuFactory() {
+		return getInstance().beanTableMenuFactory();
 	}
 
 	public static IAttributeToolkit attributeToolkit() {

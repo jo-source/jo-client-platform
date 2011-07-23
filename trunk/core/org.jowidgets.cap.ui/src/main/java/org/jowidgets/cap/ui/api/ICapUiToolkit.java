@@ -42,6 +42,7 @@ import org.jowidgets.cap.ui.api.execution.IExecutionTaskFactory;
 import org.jowidgets.cap.ui.api.form.IBeanFormToolkit;
 import org.jowidgets.cap.ui.api.sort.ISortModelConfigBuilder;
 import org.jowidgets.cap.ui.api.table.IBeanTableConfigBuilder;
+import org.jowidgets.cap.ui.api.table.IBeanTableMenuFactory;
 import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
 import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
 import org.jowidgets.cap.ui.api.workbench.ICapWorkbenchToolkit;
@@ -51,6 +52,8 @@ public interface ICapUiToolkit {
 	ICapApiBluePrintFactory bluePrintFactory();
 
 	ICapActionFactory actionFactory();
+
+	IBeanTableMenuFactory beanTableMenuFactory();
 
 	IAttributeToolkit attributeToolkit();
 
