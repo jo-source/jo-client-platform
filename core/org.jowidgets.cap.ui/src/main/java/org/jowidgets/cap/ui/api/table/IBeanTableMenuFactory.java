@@ -55,6 +55,14 @@ public interface IBeanTableMenuFactory {
 
 	IAction packSelectedAction(IBeanTable<?> table);
 
+	IActionBuilder clearCurrentSortActionBuilder(IBeanTableModel<?> model);
+
+	IAction clearCurrentSortAction(IBeanTableModel<?> model);
+
+	IActionBuilder clearDefaultSortActionBuilder(IBeanTableModel<?> model);
+
+	IAction clearDefaultSortAction(IBeanTableModel<?> model);
+
 	IMenuModel columnsVisibilityMenu(IBeanTableModel<?> model);
 
 	IMenuModel alignmentMenu(IBeanTableModel<?> model, int columnIndex);

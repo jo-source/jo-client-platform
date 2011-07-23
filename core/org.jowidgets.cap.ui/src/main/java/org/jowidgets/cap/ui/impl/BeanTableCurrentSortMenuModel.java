@@ -36,7 +36,7 @@ final class BeanTableCurrentSortMenuModel extends AbstractBeanTableSortMenuModel
 
 	BeanTableCurrentSortMenuModel(final IBeanTableModel<?> model, final int columnIndex) {
 		//TODO i18n
-		super("Sort", model, columnIndex);
+		super("Column sorting", model, columnIndex);
 	}
 
 	@Override
