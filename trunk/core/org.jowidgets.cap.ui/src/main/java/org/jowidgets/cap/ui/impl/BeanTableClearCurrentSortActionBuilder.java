@@ -28,30 +28,54 @@
 
 package org.jowidgets.cap.ui.impl;
 
-import org.jowidgets.cap.common.api.sort.SortOrder;
-import org.jowidgets.cap.ui.api.sort.IPropertySort;
+import org.jowidgets.api.command.EnabledState;
+import org.jowidgets.api.command.ICommandExecutor;
+import org.jowidgets.api.command.IExecutionContext;
+import org.jowidgets.cap.ui.api.sort.ISortModel;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
+import org.jowidgets.tools.command.ActionBuilder;
+import org.jowidgets.tools.command.EnabledChecker;
+import org.jowidgets.util.event.IChangeListener;
 
-final class BeanTableDefaultSortMenuModel extends AbstractBeanTableSortMenuModel {
+final class BeanTableClearCurrentSortActionBuilder extends ActionBuilder {
 
-	BeanTableDefaultSortMenuModel(final IBeanTableModel<?> model, final int columnIndex) {
+	private final EnabledChecker enabledChecker;
+	private final ISortModel sortModel;
+
+	BeanTableClearCurrentSortActionBuilder(final IBeanTableModel<?> model) {
+		super();
 		//TODO i18n
-		super("Column default sorting", model, columnIndex);
+		setText("Clear all sorting");
+		setToolTipText("Clears the current sorting of all columns");
+
+		this.sortModel = model.getSortModel();
+		this.enabledChecker = new EnabledChecker();
+
+		model.getSortModel().addChangeListener(new IChangeListener() {
+			@Override
+			public void changed() {
+				sortModelStateChanged();
+			}
+		});
+
+		final ICommandExecutor executor = new ICommandExecutor() {
+			@Override
+			public void execute(final IExecutionContext executionContext) throws Exception {
+				model.getSortModel().clearCurrentSorting();
+			}
+		};
+
+		setCommand(executor, enabledChecker);
+		sortModelStateChanged();
 	}
 
-	@Override
-	public void removeProperty(final String propertyName) {
-		getSortModel().removeDefaultProperty(propertyName);
-	}
-
-	@Override
-	public void addOrSetProperty(final String propertyName, final SortOrder sortOrder) {
-		getSortModel().addOrSetDefaultProperty(propertyName, sortOrder);
-	}
-
-	@Override
-	public IPropertySort getPropertySort(final String propertyName) {
-		return getSortModel().getDefaultPropertySort(propertyName);
+	private void sortModelStateChanged() {
+		if (sortModel.getCurrentSorting().isEmpty()) {
+			enabledChecker.setEnabledState(EnabledState.disabled("The is no current sorting"));
+		}
+		else {
+			enabledChecker.setEnabledState(EnabledState.ENABLED);
+		}
 	}
 
 }

@@ -140,7 +140,6 @@ final class SortModelImpl extends ChangeObservable implements ISortModel {
 
 	@Override
 	public void clearCurrentSorting() {
-		this.defaultSorting.clear();
 		this.currentSorting.clear();
 		modelChanged();
 	}
@@ -148,7 +147,6 @@ final class SortModelImpl extends ChangeObservable implements ISortModel {
 	@Override
 	public void clearDefaultSorting() {
 		this.defaultSorting.clear();
-		this.currentSorting.clear();
 		modelChanged();
 	}
 

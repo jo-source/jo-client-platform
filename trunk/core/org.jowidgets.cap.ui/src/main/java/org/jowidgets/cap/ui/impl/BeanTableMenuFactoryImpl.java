@@ -97,6 +97,28 @@ final class BeanTableMenuFactoryImpl implements IBeanTableMenuFactory {
 	}
 
 	@Override
+	public IActionBuilder clearCurrentSortActionBuilder(final IBeanTableModel<?> model) {
+		Assert.paramNotNull(model, "model");
+		return new BeanTableClearCurrentSortActionBuilder(model);
+	}
+
+	@Override
+	public IAction clearCurrentSortAction(final IBeanTableModel<?> model) {
+		return clearCurrentSortActionBuilder(model).build();
+	}
+
+	@Override
+	public IActionBuilder clearDefaultSortActionBuilder(final IBeanTableModel<?> model) {
+		Assert.paramNotNull(model, "model");
+		return new BeanTableClearDefaultSortActionBuilder(model);
+	}
+
+	@Override
+	public IAction clearDefaultSortAction(final IBeanTableModel<?> model) {
+		return clearDefaultSortActionBuilder(model).build();
+	}
+
+	@Override
 	public IMenuModel columnsVisibilityMenu(final IBeanTableModel<?> model) {
 		Assert.paramNotNull(model, "model");
 		return new BeanTableColumnsVisibilityMenuModel(model);

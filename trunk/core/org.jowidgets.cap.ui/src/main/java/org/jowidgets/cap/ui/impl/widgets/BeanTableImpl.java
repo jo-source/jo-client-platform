@@ -36,6 +36,8 @@ import java.util.Map;
 import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.api.convert.IStringObjectConverter;
+import org.jowidgets.api.model.item.IActionItemModel;
+import org.jowidgets.api.model.item.IItemModelFactory;
 import org.jowidgets.api.model.item.IMenuItemModel;
 import org.jowidgets.api.model.item.IMenuModel;
 import org.jowidgets.api.toolkit.Toolkit;
@@ -121,6 +123,10 @@ final class BeanTableImpl<BEAN_TYPE> extends TableWrapper implements IBeanTable<
 			//table popup menu
 			tablePopupMenuModel.addItem(columnsVisibilityMenu);
 			tablePopupMenuModel.addAction(showAllColumnsAction);
+			tablePopupMenuModel.addSeparator();
+			tablePopupMenuModel.addAction(menuFactory.clearCurrentSortAction(model));
+			tablePopupMenuModel.addAction(menuFactory.clearDefaultSortAction(model));
+			tablePopupMenuModel.addSeparator();
 			tablePopupMenuModel.addAction(packAllAction);
 			tablePopupMenuModel.addSeparator();
 			tablePopupMenuModel.addAction(settingsDialogAction);
@@ -162,9 +168,12 @@ final class BeanTableImpl<BEAN_TYPE> extends TableWrapper implements IBeanTable<
 	private static Map<Integer, List<IMenuItemModel>> createHeaderMenus(
 		final IBeanTableModel<?> model,
 		final boolean hasDefaultMenus) {
+
 		final Map<Integer, List<IMenuItemModel>> result = new HashMap<Integer, List<IMenuItemModel>>();
 		if (hasDefaultMenus) {
 			final IBeanTableMenuFactory menuFactory = CapUiToolkit.beanTableMenuFactory();
+			final IAction clearCurrentSortAction = menuFactory.clearCurrentSortAction(model);
+			final IAction clearDefaultSortAction = menuFactory.clearDefaultSortAction(model);
 			for (int columnIndex = 0; columnIndex < model.getColumnCount(); columnIndex++) {
 				//create items list for this column
 				final List<IMenuItemModel> menuItems = new LinkedList<IMenuItemModel>();
@@ -189,11 +198,26 @@ final class BeanTableImpl<BEAN_TYPE> extends TableWrapper implements IBeanTable<
 				menuItems.add(alignmentMenu);
 
 				//add the sort menus
-				final IMenuModel currentSortMenu = menuFactory.currentSortMenu(model, columnIndex);
+				menuItems.add(new SeparatorItemModel());
+				final IItemModelFactory itemModelFactory = Toolkit.getModelFactoryProvider().getItemModelFactory();
+
+				final IActionItemModel clearDefaultSortingModel = itemModelFactory.actionItem();
+				clearDefaultSortingModel.setAction(clearDefaultSortAction);
+				menuItems.add(clearDefaultSortingModel);
+
 				final IMenuModel defaultSortMenu = menuFactory.defaultSortMenu(model, columnIndex);
-				if (currentSortMenu != null && defaultSortMenu != null) {
-					menuItems.add(new SeparatorItemModel());
+				if (defaultSortMenu != null) {
 					menuItems.add(defaultSortMenu);
+				}
+
+				menuItems.add(new SeparatorItemModel());
+
+				final IActionItemModel clearCurrentSortingModel = itemModelFactory.actionItem();
+				clearCurrentSortingModel.setAction(clearCurrentSortAction);
+				menuItems.add(clearCurrentSortingModel);
+
+				final IMenuModel currentSortMenu = menuFactory.currentSortMenu(model, columnIndex);
+				if (currentSortMenu != null) {
 					menuItems.add(currentSortMenu);
 				}
 
@@ -263,6 +287,12 @@ final class BeanTableImpl<BEAN_TYPE> extends TableWrapper implements IBeanTable<
 					public void execute(final IExecutionContext executionContext) throws Exception {
 						super.execute(getDecoratedExecutionContext(executionContext, header));
 					}
+
+					@Override
+					public String toString() {
+						return original.toString();
+					}
+
 				};
 			}
 		};
