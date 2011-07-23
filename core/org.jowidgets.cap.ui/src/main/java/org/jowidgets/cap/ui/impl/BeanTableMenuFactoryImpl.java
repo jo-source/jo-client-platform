@@ -42,62 +42,68 @@ final class BeanTableMenuFactoryImpl implements IBeanTableMenuFactory {
 	BeanTableMenuFactoryImpl() {}
 
 	@Override
-	public IActionBuilder beanTableSettingsActionBuilder(final IBeanTable<?> table) {
+	public IActionBuilder settingsActionBuilder(final IBeanTable<?> table) {
 		Assert.paramNotNull(table, "table");
 		return new BeanTableSettingsActionBuilder(table);
 	}
 
 	@Override
-	public IAction beanTableSettingsAction(final IBeanTable<?> table) {
-		return beanTableSettingsActionBuilder(table).build();
+	public IAction settingsAction(final IBeanTable<?> table) {
+		return settingsActionBuilder(table).build();
 	}
 
 	@Override
-	public IActionBuilder beanTableHideColumnActionBuilder(final IBeanTable<?> table) {
+	public IActionBuilder hideColumnActionBuilder(final IBeanTable<?> table) {
 		Assert.paramNotNull(table, "table");
 		return new BeanTableHideColumnActionBuilder(table);
 	}
 
 	@Override
-	public IAction beanTableHideColumnAction(final IBeanTable<?> table) {
-		return beanTableHideColumnActionBuilder(table).build();
+	public IAction hideColumnAction(final IBeanTable<?> table) {
+		return hideColumnActionBuilder(table).build();
 	}
 
 	@Override
-	public IActionBuilder beanTableUnhideColumnsActionBuilder(final IBeanTable<?> table) {
+	public IActionBuilder unhideAllColumnsActionBuilder(final IBeanTable<?> table) {
 		Assert.paramNotNull(table, "table");
 		return new BeanTableUnhideColumnsActionBuilder(table);
 	}
 
 	@Override
-	public IAction beanTableUnhideColumnsAction(final IBeanTable<?> table) {
-		return beanTableUnhideColumnsActionBuilder(table).build();
+	public IAction unhideAllColumnsAction(final IBeanTable<?> table) {
+		return unhideAllColumnsActionBuilder(table).build();
 	}
 
 	@Override
-	public IActionBuilder beanTablePackAllActionBuilder(final IBeanTable<?> table) {
+	public IActionBuilder packAllActionBuilder(final IBeanTable<?> table) {
 		Assert.paramNotNull(table, "table");
 		return new BeanTablePackAllActionBuilder(table);
 	}
 
 	@Override
-	public IAction beanTablePackAllAction(final IBeanTable<?> table) {
-		return beanTablePackAllActionBuilder(table).build();
+	public IAction packAllAction(final IBeanTable<?> table) {
+		return packAllActionBuilder(table).build();
 	}
 
 	@Override
-	public IActionBuilder beanTablePackSelectedActionBuilder(final IBeanTable<?> table) {
+	public IActionBuilder packSelectedActionBuilder(final IBeanTable<?> table) {
 		Assert.paramNotNull(table, "table");
 		return new BeanTablePackSelectedActionBuilder(table);
 	}
 
 	@Override
-	public IAction beanTablePackSelectedAction(final IBeanTable<?> table) {
-		return beanTablePackSelectedActionBuilder(table).build();
+	public IAction packSelectedAction(final IBeanTable<?> table) {
+		return packSelectedActionBuilder(table).build();
 	}
 
 	@Override
-	public IMenuModel beanTableHeaderFormatMenu(final IBeanTableModel<?> model, final int columnIndex) {
+	public IMenuModel alignmentMenu(final IBeanTableModel<?> model, final int columnIndex) {
+		Assert.paramNotNull(model, "model");
+		return new BeanTableAlignmentMenuModel(model, columnIndex);
+	}
+
+	@Override
+	public IMenuModel headerFormatMenu(final IBeanTableModel<?> model, final int columnIndex) {
 		Assert.paramNotNull(model, "model");
 		if (EmptyCheck.isEmpty(model.getAttribute(columnIndex).getLabelLong())) {
 			return null;
@@ -108,7 +114,7 @@ final class BeanTableMenuFactoryImpl implements IBeanTableMenuFactory {
 	}
 
 	@Override
-	public IMenuModel beanTableContentFormatMenu(final IBeanTableModel<?> model, final int columnIndex) {
+	public IMenuModel contentFormatMenu(final IBeanTableModel<?> model, final int columnIndex) {
 		Assert.paramNotNull(model, "model");
 		if (model.getAttribute(columnIndex).getControlPanels().size() > 1) {
 			return new BeanTableContentFormatMenuModel(model, columnIndex);
