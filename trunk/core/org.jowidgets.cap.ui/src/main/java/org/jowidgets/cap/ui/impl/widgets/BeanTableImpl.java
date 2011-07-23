@@ -142,6 +142,8 @@ final class BeanTableImpl<BEAN_TYPE> extends TableWrapper implements IBeanTable<
 			public void popupDetected(final ITableCellPopupEvent event) {
 				if (cellPopupMenu.getChildren().size() > 0) {
 					currentCellEvent = event;
+					//simulate a column event
+					currentColumnEvent = new TableColumnPopupEvent(event);
 					cellPopupMenu.show(event.getPosition());
 				}
 			}
@@ -357,6 +359,26 @@ final class BeanTableImpl<BEAN_TYPE> extends TableWrapper implements IBeanTable<
 				}
 			}
 		}
+	}
+
+	private final class TableColumnPopupEvent implements ITableColumnPopupEvent {
+
+		private final ITableCellPopupEvent cellPopupEvent;
+
+		private TableColumnPopupEvent(final ITableCellPopupEvent cellPopupEvent) {
+			this.cellPopupEvent = cellPopupEvent;
+		}
+
+		@Override
+		public int getColumnIndex() {
+			return cellPopupEvent.getColumnIndex();
+		}
+
+		@Override
+		public Position getPosition() {
+			return cellPopupEvent.getPosition();
+		}
+
 	}
 
 }
