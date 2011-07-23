@@ -170,6 +170,21 @@ final class SortModelImpl extends ChangeObservable implements ISortModel {
 	}
 
 	@Override
+	public void addOrSetCurrentProperty(final String propertyName, final SortOrder order) {
+		Assert.paramNotNull(propertyName, "propertyName");
+		Assert.paramNotNull(order, "order");
+		addOrSetCurrentProperty(propertyName, order, currentSorting);
+		modelChanged();
+	}
+
+	@Override
+	public void removeCurrentProperty(final String propertyName) {
+		Assert.paramNotNull(propertyName, "propertyName");
+		removeProperty(propertyName, currentSorting);
+		modelChanged();
+	}
+
+	@Override
 	public void setDefaultProperty(final String propertyName, final SortOrder order) {
 		Assert.paramNotNull(propertyName, "propertyName");
 		Assert.paramNotNull(order, "order");
@@ -183,6 +198,21 @@ final class SortModelImpl extends ChangeObservable implements ISortModel {
 		Assert.paramNotNull(propertyName, "propertyName");
 		Assert.paramNotNull(order, "order");
 		defaultSorting.add(CapCommonToolkit.sortFactory().create(propertyName, order));
+		modelChanged();
+	}
+
+	@Override
+	public void addOrSetDefaultProperty(final String propertyName, final SortOrder order) {
+		Assert.paramNotNull(propertyName, "propertyName");
+		Assert.paramNotNull(order, "order");
+		addOrSetCurrentProperty(propertyName, order, defaultSorting);
+		modelChanged();
+	}
+
+	@Override
+	public void removeDefaultProperty(final String propertyName) {
+		Assert.paramNotNull(propertyName, "propertyName");
+		removeProperty(propertyName, defaultSorting);
 		modelChanged();
 	}
 
@@ -224,12 +254,23 @@ final class SortModelImpl extends ChangeObservable implements ISortModel {
 	}
 
 	@Override
-	public IPropertySort getPropertySort(final String propertyName) {
-		final IPropertySort result = findPropertySort(propertyName, currentSorting);
-		if (result.isSorted()) {
-			return result;
-		}
+	public IPropertySort getCurrentPropertySort(final String propertyName) {
+		return findPropertySort(propertyName, currentSorting);
+	}
+
+	@Override
+	public IPropertySort getDefaultPropertySort(final String propertyName) {
 		return findPropertySort(propertyName, defaultSorting);
+	}
+
+	@Override
+	public IPropertySort getPropertySort(final String propertyName) {
+		if (!currentSorting.isEmpty()) {
+			return getCurrentPropertySort(propertyName);
+		}
+		else {
+			return getDefaultPropertySort(propertyName);
+		}
 	}
 
 	@Override
@@ -247,6 +288,37 @@ final class SortModelImpl extends ChangeObservable implements ISortModel {
 		for (final ISort sort : sorting) {
 			defaultSorting.add(CapCommonToolkit.sortFactory().create(sort.getPropertyName(), sort.getSortOrder()));
 		}
+	}
+
+	private void removeProperty(final String propertyName, final List<ISort> sorting) {
+		for (final ISort sort : new LinkedList<ISort>(sorting)) {
+			if (propertyName.equals(sort.getPropertyName())) {
+				sorting.remove(sort);
+				break;
+			}
+		}
+	}
+
+	private void addOrSetCurrentProperty(final String propertyName, final SortOrder order, final List<ISort> sorting) {
+		final int index = findSort(propertyName, sorting);
+		if (index == -1) {
+			sorting.add(CapCommonToolkit.sortFactory().create(propertyName, order));
+		}
+		else {
+			sorting.remove(index);
+			sorting.add(index, CapCommonToolkit.sortFactory().create(propertyName, order));
+		}
+	}
+
+	private int findSort(final String propertyName, final List<ISort> sorting) {
+		int index = 0;
+		for (final ISort sort : sorting) {
+			if (sort.getPropertyName().equals(propertyName)) {
+				return index;
+			}
+			index++;
+		}
+		return -1;
 	}
 
 	private IPropertySort findPropertySort(final String propertyName, final List<ISort> sorting) {

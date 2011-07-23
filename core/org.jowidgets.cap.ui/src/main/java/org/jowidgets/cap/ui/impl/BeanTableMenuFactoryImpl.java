@@ -64,14 +64,14 @@ final class BeanTableMenuFactoryImpl implements IBeanTableMenuFactory {
 	}
 
 	@Override
-	public IActionBuilder unhideAllColumnsActionBuilder(final IBeanTable<?> table) {
+	public IActionBuilder showAllColumnsActionBuilder(final IBeanTable<?> table) {
 		Assert.paramNotNull(table, "table");
-		return new BeanTableUnhideColumnsActionBuilder(table);
+		return new BeanTableShowAllColumnsActionBuilder(table);
 	}
 
 	@Override
-	public IAction unhideAllColumnsAction(final IBeanTable<?> table) {
-		return unhideAllColumnsActionBuilder(table).build();
+	public IAction showAllColumnsAction(final IBeanTable<?> table) {
+		return showAllColumnsActionBuilder(table).build();
 	}
 
 	@Override
@@ -124,6 +124,28 @@ final class BeanTableMenuFactoryImpl implements IBeanTableMenuFactory {
 		Assert.paramNotNull(model, "model");
 		if (model.getAttribute(columnIndex).getControlPanels().size() > 1) {
 			return new BeanTableContentFormatMenuModel(model, columnIndex);
+		}
+		else {
+			return null;
+		}
+	}
+
+	@Override
+	public IMenuModel currentSortMenu(final IBeanTableModel<?> model, final int columnIndex) {
+		Assert.paramNotNull(model, "model");
+		if (model.getAttribute(columnIndex).isSortable()) {
+			return new BeanTableCurrentSortMenuModel(model, columnIndex);
+		}
+		else {
+			return null;
+		}
+	}
+
+	@Override
+	public IMenuModel defaultSortMenu(final IBeanTableModel<?> model, final int columnIndex) {
+		Assert.paramNotNull(model, "model");
+		if (model.getAttribute(columnIndex).isSortable()) {
+			return new BeanTableDefaultSortMenuModel(model, columnIndex);
 		}
 		else {
 			return null;

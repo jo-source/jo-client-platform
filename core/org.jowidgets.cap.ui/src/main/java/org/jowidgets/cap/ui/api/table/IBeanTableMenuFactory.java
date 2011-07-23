@@ -43,9 +43,9 @@ public interface IBeanTableMenuFactory {
 
 	IAction hideColumnAction(IBeanTable<?> table);
 
-	IActionBuilder unhideAllColumnsActionBuilder(IBeanTable<?> table);
+	IActionBuilder showAllColumnsActionBuilder(IBeanTable<?> table);
 
-	IAction unhideAllColumnsAction(IBeanTable<?> table);
+	IAction showAllColumnsAction(IBeanTable<?> table);
 
 	IActionBuilder packAllActionBuilder(IBeanTable<?> table);
 
@@ -68,5 +68,15 @@ public interface IBeanTableMenuFactory {
 	 * @return The menu for the content display format or null, if the content format could not be switched for the column
 	 */
 	IMenuModel contentFormatMenu(IBeanTableModel<?> model, int columnIndex);
+
+	/**
+	 * @return The menu for the sorting or null, if the column is not sortable
+	 */
+	IMenuModel currentSortMenu(IBeanTableModel<?> model, int columnIndex);
+
+	/**
+	 * @return The menu for the sorting or null, if the column is not sortable
+	 */
+	IMenuModel defaultSortMenu(IBeanTableModel<?> model, int columnIndex);
 
 }

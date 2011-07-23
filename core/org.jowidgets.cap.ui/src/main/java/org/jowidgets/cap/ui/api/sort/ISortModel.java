@@ -92,6 +92,22 @@ public interface ISortModel extends ISortModelConfig, IChangeObservable {
 	void addCurrentProperty(String propertyName, SortOrder order);
 
 	/**
+	 * Adds a property to the current sorting if it is not contained in the current sort
+	 * or changes the SortOrder to the new value else
+	 * 
+	 * @param propertyName The property to add
+	 * @param order The new sort order of the property
+	 */
+	void addOrSetCurrentProperty(String propertyName, SortOrder order);
+
+	/**
+	 * Removes the property from the current sorting, if it exists, else do nothing
+	 * 
+	 * @param propertyName The property to remove
+	 */
+	void removeCurrentProperty(String propertyName);
+
+	/**
 	 * Sets a property in the default sorting. All other default properties in the model will be removed.
 	 * 
 	 * @param propertyName The property to set.
@@ -104,6 +120,22 @@ public interface ISortModel extends ISortModelConfig, IChangeObservable {
 	 * @param propertyName The property to add
 	 */
 	void addDefaultProperty(String propertyName, SortOrder order);
+
+	/**
+	 * Adds a property to the default sorting if it is not contained in the default sort
+	 * or changes the SortOrder to the new value else
+	 * 
+	 * @param propertyName The property to add
+	 * @param order The new sort order of the property
+	 */
+	void addOrSetDefaultProperty(String propertyName, SortOrder order);
+
+	/**
+	 * Removes the property from the default sorting, if it exists, else do nothing
+	 * 
+	 * @param propertyName The property to remove
+	 */
+	void removeDefaultProperty(String propertyName);
 
 	/**
 	 * Sets a property in the current sorting. All other current properties in the model will be removed.
@@ -121,6 +153,24 @@ public interface ISortModel extends ISortModelConfig, IChangeObservable {
 	 * @param propertyName The property to add.
 	 */
 	void addOrToggleCurrentProperty(String propertyName);
+
+	/**
+	 * Gets the current sort info for a defined propery name
+	 * 
+	 * @param propertyName The property name to get the sort info for
+	 * 
+	 * @return The sort info, never null
+	 */
+	IPropertySort getCurrentPropertySort(String propertyName);
+
+	/**
+	 * Gets the default sort info for a defined propery name
+	 * 
+	 * @param propertyName The property name to get the sort info for
+	 * 
+	 * @return The sort info, never null
+	 */
+	IPropertySort getDefaultPropertySort(String propertyName);
 
 	/**
 	 * Gets the sort info for a defined propery name

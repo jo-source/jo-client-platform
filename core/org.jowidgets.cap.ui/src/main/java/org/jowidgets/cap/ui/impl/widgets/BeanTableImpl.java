@@ -110,17 +110,17 @@ final class BeanTableImpl<BEAN_TYPE> extends TableWrapper implements IBeanTable<
 			final IAction packSelectedAction = menuFactory.packSelectedAction(this);
 			final IAction hideColumnAction = menuFactory.hideColumnAction(this);
 			final IMenuModel columnsVisibilityMenu = menuFactory.columnsVisibilityMenu(model);
-			final IAction unhideColumnsActions = menuFactory.unhideAllColumnsAction(this);
+			final IAction showAllColumnsAction = menuFactory.showAllColumnsAction(this);
 			headerPopupMenuModel.addAction(hideColumnAction);
 			headerPopupMenuModel.addItem(columnsVisibilityMenu);
-			headerPopupMenuModel.addAction(unhideColumnsActions);
+			headerPopupMenuModel.addAction(showAllColumnsAction);
 			headerPopupMenuModel.addSeparator();
-			headerPopupMenuModel.addAction(packAllAction);
 			headerPopupMenuModel.addAction(packSelectedAction);
+			headerPopupMenuModel.addAction(packAllAction);
 
 			//table popup menu
 			tablePopupMenuModel.addItem(columnsVisibilityMenu);
-			tablePopupMenuModel.addAction(unhideColumnsActions);
+			tablePopupMenuModel.addAction(showAllColumnsAction);
 			tablePopupMenuModel.addAction(packAllAction);
 			tablePopupMenuModel.addSeparator();
 			tablePopupMenuModel.addAction(settingsDialogAction);
@@ -187,6 +187,15 @@ final class BeanTableImpl<BEAN_TYPE> extends TableWrapper implements IBeanTable<
 				//add alignment menu
 				final IMenuModel alignmentMenu = menuFactory.alignmentMenu(model, columnIndex);
 				menuItems.add(alignmentMenu);
+
+				//add the sort menus
+				final IMenuModel currentSortMenu = menuFactory.currentSortMenu(model, columnIndex);
+				final IMenuModel defaultSortMenu = menuFactory.defaultSortMenu(model, columnIndex);
+				if (currentSortMenu != null && defaultSortMenu != null) {
+					menuItems.add(new SeparatorItemModel());
+					menuItems.add(defaultSortMenu);
+					menuItems.add(currentSortMenu);
+				}
 
 			}
 		}
