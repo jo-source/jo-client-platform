@@ -34,6 +34,8 @@ import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.common.widgets.controler.IItemStateListener;
 import org.jowidgets.tools.model.item.MenuModel;
+import org.jowidgets.util.ValueHolder;
+import org.jowidgets.util.event.IChangeListener;
 
 final class BeanTableHeaderFormatMenuModel extends MenuModel {
 
@@ -57,13 +59,34 @@ final class BeanTableHeaderFormatMenuModel extends MenuModel {
 		final IRadioItemModel radioItemModel,
 		final IAttribute<?> attribute,
 		final DisplayFormat displayFormat) {
-		radioItemModel.addItemListener(new IItemStateListener() {
+
+		final ValueHolder<IItemStateListener> itemStateListenerHolder = new ValueHolder<IItemStateListener>();
+		final ValueHolder<IChangeListener> changeListenerHolder = new ValueHolder<IChangeListener>();
+
+		itemStateListenerHolder.set(new IItemStateListener() {
 			@Override
 			public void itemStateChanged() {
-				if (radioItemModel.isSelected()) {
+				if (!attribute.getLabelDisplayFormat().equals(displayFormat) && radioItemModel.isSelected()) {
+					attribute.removeChangeListener(changeListenerHolder.get());
 					attribute.setLabelDisplayFormat(displayFormat);
+					attribute.addChangeListener(changeListenerHolder.get());
 				}
 			}
 		});
+
+		changeListenerHolder.set(new IChangeListener() {
+			@Override
+			public void changed() {
+				if (attribute.getLabelDisplayFormat().equals(displayFormat) && !radioItemModel.isSelected()) {
+					radioItemModel.removeItemListener(itemStateListenerHolder.get());
+					radioItemModel.setSelected(true);
+					radioItemModel.addItemListener(itemStateListenerHolder.get());
+				}
+
+			}
+		});
+
+		radioItemModel.addItemListener(itemStateListenerHolder.get());
+		attribute.addChangeListener(changeListenerHolder.get());
 	}
 }

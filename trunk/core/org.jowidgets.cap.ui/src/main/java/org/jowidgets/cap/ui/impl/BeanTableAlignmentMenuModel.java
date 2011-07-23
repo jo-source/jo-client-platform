@@ -29,11 +29,13 @@
 package org.jowidgets.cap.ui.impl;
 
 import org.jowidgets.api.model.item.IRadioItemModel;
+import org.jowidgets.api.model.item.ISelectableItemModel;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.common.types.AlignmentHorizontal;
 import org.jowidgets.common.widgets.controler.IItemStateListener;
 import org.jowidgets.tools.model.item.MenuModel;
+import org.jowidgets.util.event.IChangeListener;
 
 final class BeanTableAlignmentMenuModel extends MenuModel {
 
@@ -56,22 +58,68 @@ final class BeanTableAlignmentMenuModel extends MenuModel {
 			leftRadioItem.setSelected(true);
 		}
 
-		addRadioItemListener(leftRadioItem, attribute, AlignmentHorizontal.LEFT);
-		addRadioItemListener(centerRadioItem, attribute, AlignmentHorizontal.CENTER);
-		addRadioItemListener(rightRadioItem, attribute, AlignmentHorizontal.RIGHT);
+		final AttributeBindingListener leftBindingListener = new AttributeBindingListener(
+			leftRadioItem,
+			attribute,
+			AlignmentHorizontal.LEFT);
+		attribute.addChangeListener(leftBindingListener);
+		leftRadioItem.addItemListener(leftBindingListener);
+
+		final AttributeBindingListener centerBindingListener = new AttributeBindingListener(
+			centerRadioItem,
+			attribute,
+			AlignmentHorizontal.CENTER);
+		attribute.addChangeListener(centerBindingListener);
+		centerRadioItem.addItemListener(centerBindingListener);
+
+		final AttributeBindingListener rigthBindingListener = new AttributeBindingListener(
+			rightRadioItem,
+			attribute,
+			AlignmentHorizontal.RIGHT);
+		attribute.addChangeListener(rigthBindingListener);
+		rightRadioItem.addItemListener(rigthBindingListener);
 	}
 
-	private static void addRadioItemListener(
-		final IRadioItemModel radioItemModel,
-		final IAttribute<?> attribute,
-		final AlignmentHorizontal alignment) {
-		radioItemModel.addItemListener(new IItemStateListener() {
-			@Override
-			public void itemStateChanged() {
-				if (radioItemModel.isSelected()) {
+	private final class AttributeBindingListener implements IItemStateListener, IChangeListener {
+
+		private final ISelectableItemModel itemModel;
+		private final IAttribute<?> attribute;
+		private final AlignmentHorizontal alignment;
+
+		private boolean onEvent;
+
+		private AttributeBindingListener(
+			final ISelectableItemModel itemModel,
+			final IAttribute<?> attribute,
+			final AlignmentHorizontal alignment) {
+			super();
+			this.itemModel = itemModel;
+			this.attribute = attribute;
+			this.alignment = alignment;
+			this.onEvent = false;
+		}
+
+		@Override
+		public void changed() {
+			if (!onEvent) {
+				onEvent = true;
+				if (alignment == attribute.getTableAlignment() && !itemModel.isSelected()) {
+					itemModel.setSelected(true);
+				}
+				onEvent = false;
+			}
+		}
+
+		@Override
+		public void itemStateChanged() {
+			if (!onEvent) {
+				onEvent = true;
+				if (itemModel.isSelected() && attribute.getTableAlignment() != alignment) {
 					attribute.setTableAlignment(alignment);
 				}
+				onEvent = false;
 			}
-		});
+		}
+
 	}
 }

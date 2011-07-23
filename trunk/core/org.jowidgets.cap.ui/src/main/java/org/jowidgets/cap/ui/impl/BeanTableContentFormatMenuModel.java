@@ -34,6 +34,8 @@ import org.jowidgets.cap.ui.api.attribute.IControlPanelProvider;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.common.widgets.controler.IItemStateListener;
 import org.jowidgets.tools.model.item.MenuModel;
+import org.jowidgets.util.ValueHolder;
+import org.jowidgets.util.event.IChangeListener;
 
 final class BeanTableContentFormatMenuModel extends MenuModel {
 
@@ -48,21 +50,37 @@ final class BeanTableContentFormatMenuModel extends MenuModel {
 			if (attribute.getDisplayFormatId().equals(controlPanel.getDisplayFormatId())) {
 				radioItem.setSelected(true);
 			}
-			addRadioItemListener(radioItem, attribute, controlPanel.getDisplayFormatId());
+
+			final ValueHolder<IItemStateListener> itemStateListenerHolder = new ValueHolder<IItemStateListener>();
+			final ValueHolder<IChangeListener> changeListenerHolder = new ValueHolder<IChangeListener>();
+
+			itemStateListenerHolder.set(new IItemStateListener() {
+				@Override
+				public void itemStateChanged() {
+					if (!attribute.getDisplayFormatId().equals(controlPanel.getDisplayFormatId()) && radioItem.isSelected()) {
+						attribute.removeChangeListener(changeListenerHolder.get());
+						attribute.setDisplayFormatId(controlPanel.getDisplayFormatId());
+						attribute.addChangeListener(changeListenerHolder.get());
+					}
+				}
+			});
+
+			changeListenerHolder.set(new IChangeListener() {
+				@Override
+				public void changed() {
+					if (attribute.getDisplayFormatId().equals(controlPanel.getDisplayFormatId()) && !radioItem.isSelected()) {
+						radioItem.removeItemListener(itemStateListenerHolder.get());
+						radioItem.setSelected(true);
+						radioItem.addItemListener(itemStateListenerHolder.get());
+					}
+
+				}
+			});
+
+			radioItem.addItemListener(itemStateListenerHolder.get());
+			attribute.addChangeListener(changeListenerHolder.get());
+
 		}
 	}
 
-	private static void addRadioItemListener(
-		final IRadioItemModel radioItemModel,
-		final IAttribute<?> attribute,
-		final String displayFormatId) {
-		radioItemModel.addItemListener(new IItemStateListener() {
-			@Override
-			public void itemStateChanged() {
-				if (radioItemModel.isSelected()) {
-					attribute.setDisplayFormatId(displayFormatId);
-				}
-			}
-		});
-	}
 }

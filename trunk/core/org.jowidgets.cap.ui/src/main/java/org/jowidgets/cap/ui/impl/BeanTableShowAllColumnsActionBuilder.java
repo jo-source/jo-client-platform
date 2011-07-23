@@ -40,12 +40,12 @@ import org.jowidgets.tools.command.ActionBuilder;
 import org.jowidgets.tools.command.EnabledChecker;
 import org.jowidgets.util.event.IChangeListener;
 
-final class BeanTableUnhideColumnsActionBuilder extends ActionBuilder {
+final class BeanTableShowAllColumnsActionBuilder extends ActionBuilder {
 
-	BeanTableUnhideColumnsActionBuilder(final IBeanTable<?> table) {
+	BeanTableShowAllColumnsActionBuilder(final IBeanTable<?> table) {
 		super();
 
-		setText("Unhide all columns");
+		setText("Show all columns");
 		setToolTipText("Makes all hidden columns visible");
 		setIcon(CapIcons.TABLE_UNHIDE_ALL_COLUMNS);
 
