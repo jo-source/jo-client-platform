@@ -103,14 +103,14 @@ final class BeanTableImpl<BEAN_TYPE> extends TableWrapper implements IBeanTable<
 			final IBeanTableMenuFactory menuFactory = CapUiToolkit.beanTableMenuFactory();
 
 			//cell popup menu
-			final IAction settingsDialogAction = menuFactory.beanTableSettingsAction(this);
+			final IAction settingsDialogAction = menuFactory.settingsAction(this);
 			cellPopupMenuModel.addAction(settingsDialogAction);
 
 			//header popup menu
-			final IAction packAllAction = menuFactory.beanTablePackAllAction(this);
-			final IAction packSelectedAction = menuFactory.beanTablePackSelectedAction(this);
-			final IAction hideColumnAction = menuFactory.beanTableHideColumnAction(this);
-			final IAction unhideColumnsActions = menuFactory.beanTableUnhideColumnsAction(this);
+			final IAction packAllAction = menuFactory.packAllAction(this);
+			final IAction packSelectedAction = menuFactory.packSelectedAction(this);
+			final IAction hideColumnAction = menuFactory.hideColumnAction(this);
+			final IAction unhideColumnsActions = menuFactory.unhideAllColumnsAction(this);
 			headerPopupMenuModel.addAction(hideColumnAction);
 			headerPopupMenuModel.addAction(unhideColumnsActions);
 			headerPopupMenuModel.addSeparator();
@@ -162,7 +162,7 @@ final class BeanTableImpl<BEAN_TYPE> extends TableWrapper implements IBeanTable<
 		final Map<Integer, IMenuModel> result = new HashMap<Integer, IMenuModel>();
 		if (hasDefaultMenus) {
 			for (int columnIndex = 0; columnIndex < model.getColumnCount(); columnIndex++) {
-				final IMenuModel menuModel = CapUiToolkit.beanTableMenuFactory().beanTableHeaderFormatMenu(model, columnIndex);
+				final IMenuModel menuModel = CapUiToolkit.beanTableMenuFactory().headerFormatMenu(model, columnIndex);
 				if (menuModel != null) {
 					result.put(Integer.valueOf(columnIndex), menuModel);
 				}
@@ -175,7 +175,7 @@ final class BeanTableImpl<BEAN_TYPE> extends TableWrapper implements IBeanTable<
 		final Map<Integer, IMenuModel> result = new HashMap<Integer, IMenuModel>();
 		if (hasDefaultMenus) {
 			for (int columnIndex = 0; columnIndex < model.getColumnCount(); columnIndex++) {
-				final IMenuModel menuModel = CapUiToolkit.beanTableMenuFactory().beanTableContentFormatMenu(model, columnIndex);
+				final IMenuModel menuModel = CapUiToolkit.beanTableMenuFactory().contentFormatMenu(model, columnIndex);
 				if (menuModel != null) {
 					result.put(Integer.valueOf(columnIndex), menuModel);
 				}

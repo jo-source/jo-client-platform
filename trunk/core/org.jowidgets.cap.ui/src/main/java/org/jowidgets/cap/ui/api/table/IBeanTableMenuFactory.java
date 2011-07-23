@@ -35,34 +35,36 @@ import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 
 public interface IBeanTableMenuFactory {
 
-	IActionBuilder beanTableSettingsActionBuilder(IBeanTable<?> table);
+	IActionBuilder settingsActionBuilder(IBeanTable<?> table);
 
-	IAction beanTableSettingsAction(IBeanTable<?> table);
+	IAction settingsAction(IBeanTable<?> table);
 
-	IActionBuilder beanTableHideColumnActionBuilder(IBeanTable<?> table);
+	IActionBuilder hideColumnActionBuilder(IBeanTable<?> table);
 
-	IAction beanTableHideColumnAction(IBeanTable<?> table);
+	IAction hideColumnAction(IBeanTable<?> table);
 
-	IActionBuilder beanTableUnhideColumnsActionBuilder(IBeanTable<?> table);
+	IActionBuilder unhideAllColumnsActionBuilder(IBeanTable<?> table);
 
-	IAction beanTableUnhideColumnsAction(IBeanTable<?> table);
+	IAction unhideAllColumnsAction(IBeanTable<?> table);
 
-	IActionBuilder beanTablePackAllActionBuilder(IBeanTable<?> table);
+	IActionBuilder packAllActionBuilder(IBeanTable<?> table);
 
-	IAction beanTablePackAllAction(IBeanTable<?> table);
+	IAction packAllAction(IBeanTable<?> table);
 
-	IActionBuilder beanTablePackSelectedActionBuilder(IBeanTable<?> table);
+	IActionBuilder packSelectedActionBuilder(IBeanTable<?> table);
 
-	IAction beanTablePackSelectedAction(IBeanTable<?> table);
+	IAction packSelectedAction(IBeanTable<?> table);
+
+	IMenuModel alignmentMenu(IBeanTableModel<?> model, int columnIndex);
 
 	/**
 	 * @return The menu for the header format or null, if the header format could not be switched for the column
 	 */
-	IMenuModel beanTableHeaderFormatMenu(IBeanTableModel<?> model, int columnIndex);
+	IMenuModel headerFormatMenu(IBeanTableModel<?> model, int columnIndex);
 
 	/**
 	 * @return The menu for the content display format or null, if the content format could not be switched for the column
 	 */
-	IMenuModel beanTableContentFormatMenu(IBeanTableModel<?> model, int columnIndex);
+	IMenuModel contentFormatMenu(IBeanTableModel<?> model, int columnIndex);
 
 }
