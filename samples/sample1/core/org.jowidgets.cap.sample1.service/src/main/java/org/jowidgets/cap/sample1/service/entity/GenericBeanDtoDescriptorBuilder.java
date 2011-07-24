@@ -53,7 +53,7 @@ public class GenericBeanDtoDescriptorBuilder {
 			propertyBuilder.setLabel("Col " + columnIndex);
 			propertyBuilder.setLabelLong("Column " + columnIndex);
 			propertyBuilder.setDescription("Description of column " + columnIndex);
-			if (columnIndex < 10) {
+			if (columnIndex < 80) {
 				propertyBuilder.setReadonly(false);
 			}
 			else {
