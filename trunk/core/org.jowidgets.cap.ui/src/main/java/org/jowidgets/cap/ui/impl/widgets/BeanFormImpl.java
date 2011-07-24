@@ -57,9 +57,9 @@ import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
 import org.jowidgets.tools.controler.InputObservable;
 import org.jowidgets.tools.layout.MigLayoutFactory;
 import org.jowidgets.tools.widgets.wrapper.ControlWrapper;
+import org.jowidgets.validation.IValidationConditionListener;
 import org.jowidgets.validation.IValidationResult;
 import org.jowidgets.validation.IValidationResultBuilder;
-import org.jowidgets.validation.IValidationConditionListener;
 import org.jowidgets.validation.IValidator;
 import org.jowidgets.validation.ValidationResult;
 
@@ -165,6 +165,17 @@ final class BeanFormImpl<BEAN_TYPE> extends ControlWrapper implements IBeanForm<
 	@Override
 	public void setEditable(final boolean editable) {
 
+	}
+
+	@Override
+	public boolean hasModifications() {
+		// TODO MG implement hasModifications
+		return false;
+	}
+
+	@Override
+	public void resetModificationState() {
+		// TODO MG implement resetModificationState
 	}
 
 	@Override
@@ -281,10 +292,10 @@ final class BeanFormImpl<BEAN_TYPE> extends ControlWrapper implements IBeanForm<
 			if (bean != null) {
 				bean.removePropertyChangeListener(propertyChangeListener);
 				bean.setValue(propertyName, control.getValue());
-				getWidget().layoutBegin();
+				//getWidget().layoutBegin();
 				inputObservable.fireInputChanged();
-				mainValidationLabel.redraw();
-				getWidget().layoutEnd();
+				//mainValidationLabel.redraw();
+				//getWidget().layoutEnd();
 				bean.addPropertyChangeListener(propertyChangeListener);
 			}
 		}
