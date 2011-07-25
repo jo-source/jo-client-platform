@@ -208,7 +208,7 @@ final class BeanFormImpl<BEAN_TYPE> extends ControlWrapper implements IBeanForm<
 
 	private void createContent(final IContainer container) {
 
-		//TODO MG this must be done with respect of the defined layout
+		//TODO NM this must be done with respect of the defined layout
 		container.setLayout(new MigLayoutDescriptor("0[]8[grow][]0", ""));
 		for (final IBeanFormGroup group : layout.getGroups()) {
 			for (final IBeanFormProperty property : group.getProperties()) {
