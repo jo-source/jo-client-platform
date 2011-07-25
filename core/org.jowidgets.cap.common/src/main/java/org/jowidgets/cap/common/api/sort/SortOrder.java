@@ -30,7 +30,23 @@ package org.jowidgets.cap.common.api.sort;
 
 public enum SortOrder {
 
-	ASC,
-	DESC;
+	// TODO i18n
+	ASC("Ascending"),
+	DESC("Descending");
+
+	private String label;
+
+	private SortOrder(final String label) {
+		this.label = label;
+	}
+
+	public String getLabel() {
+		return label;
+	}
+
+	@Override
+	public String toString() {
+		return label;
+	}
 
 }
