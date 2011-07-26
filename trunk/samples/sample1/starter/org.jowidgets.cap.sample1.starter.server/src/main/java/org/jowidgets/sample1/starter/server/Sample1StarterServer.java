@@ -33,27 +33,17 @@ import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.FilterMapping;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
-import org.jowidgets.cap.remoting.server.CapServerServicePublisher;
-import org.jowidgets.invocation.common.impl.MessageBrokerId;
-import org.jowidgets.message.api.MessageToolkit;
-import org.jowidgets.message.impl.http.server.MessageServlet;
 import org.jowidgets.security.impl.http.server.BasicAuthenticationFilter;
-import org.jowidgets.security.impl.http.server.SecurityExecutionInterceptor;
+import org.jowidgets.security.impl.http.server.SecurityRemotingServlet;
 
 public final class Sample1StarterServer {
 
 	private Sample1StarterServer() {}
 
 	public static void main(final String[] args) throws Exception {
-		final MessageServlet servlet = new MessageServlet(MessageBrokerId.INVOCATION_IMPL_BROKER_ID);
-		servlet.setExecutionInterceptor(new SecurityExecutionInterceptor());
-		MessageToolkit.addReceiverBroker(servlet);
-
-		new CapServerServicePublisher().publishServices();
-
 		final Server server = new Server(8080);
 		final ServletContextHandler root = new ServletContextHandler(ServletContextHandler.SESSIONS);
-		root.addServlet(new ServletHolder(servlet), "/");
+		root.addServlet(new ServletHolder(new SecurityRemotingServlet()), "/");
 		root.addFilter(new FilterHolder(new BasicAuthenticationFilter()), "/", FilterMapping.DEFAULT);
 		server.setHandler(root);
 		server.start();
