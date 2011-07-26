@@ -34,6 +34,7 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -70,6 +71,7 @@ final class MessageBroker implements IMessageBroker, IMessageChannel {
 	private final Executor incomingExecutor = Executors.newFixedThreadPool(
 			Runtime.getRuntime().availableProcessors() * 2,
 			new DaemonThreadFactory());
+	private final CountDownLatch sessionInitialized = new CountDownLatch(1);
 
 	private IHttpRequestInitializer httpRequestInitializer;
 
@@ -120,6 +122,7 @@ final class MessageBroker implements IMessageBroker, IMessageChannel {
 
 	private void sendMessages() {
 		try {
+			sessionInitialized.await();
 			for (;;) {
 				final DeferredMessage msg = outQueue.take();
 				try {
@@ -197,14 +200,15 @@ final class MessageBroker implements IMessageBroker, IMessageChannel {
 						httpRequestInitializer.initialize(request);
 					}
 					final HttpResponse response = httpClient.execute(request);
-					final StatusLine statusLine = response.getStatusLine();
 					final HttpEntity entity = response.getEntity();
 					if (entity != null) {
 						final InputStream is = entity.getContent();
 						try {
+							final StatusLine statusLine = response.getStatusLine();
 							if (statusLine.getStatusCode() != 200) {
 								throw new IOException("Invalid HTTP response: " + statusLine);
 							}
+							sessionInitialized.countDown();
 							final ObjectInputStream ois = new ObjectInputStream(is);
 							final int num = ois.readInt();
 							for (int i = 0; i < num; i++) {
