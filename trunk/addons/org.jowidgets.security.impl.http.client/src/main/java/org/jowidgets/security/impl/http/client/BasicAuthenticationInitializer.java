@@ -26,29 +26,48 @@
  * DAMAGE.
  */
 
-package org.jowidgets.sample1.starter.server;
+package org.jowidgets.security.impl.http.client;
 
-import org.jowidgets.message.impl.http.server.IExecutionInterceptor;
-import org.jowidgets.security.api.SecurityContextHolder;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.binary.StringUtils;
+import org.apache.http.HttpRequest;
+import org.jowidgets.message.impl.http.client.IHttpRequestInitializer;
 
-final class SecurityExecutionInterceptor implements IExecutionInterceptor<Object> {
+public final class BasicAuthenticationInitializer implements IHttpRequestInitializer {
 
-	@Override
-	public Object getExecutionContext() {
-		return SecurityContextHolder.getSecurityContext();
+	private static final BasicAuthenticationInitializer INSTANCE = new BasicAuthenticationInitializer();
+
+	private String username;
+	private String password;
+
+	private BasicAuthenticationInitializer() {}
+
+	public static BasicAuthenticationInitializer getInstance() {
+		return INSTANCE;
+	}
+
+	public synchronized void setCredentials(final String username, final String password) {
+		this.username = username;
+		this.password = password;
+	}
+
+	public synchronized void clearCredentials() {
+		username = null;
+		password = null;
 	}
 
 	@Override
-	public void beforeExecution(final Object executionContext) {
-		// CHECKSTYLE:OFF
-		System.out.println("Current execution context: " + executionContext);
-		// CHECKSTYLE:ON
-		SecurityContextHolder.setSecurityContext(executionContext);
+	public void initialize(final HttpRequest httpRequest) {
+		final String user;
+		final String pwd;
+		synchronized (this) {
+			user = this.username;
+			pwd = this.password;
+		}
+		if (user != null && pwd != null) {
+			final String credentials = user + ":" + pwd;
+			final String encodedCredentials = Base64.encodeBase64String(StringUtils.getBytesUtf8(credentials));
+			httpRequest.setHeader("Authorization", "Basic " + encodedCredentials);
+		}
 	}
-
-	@Override
-	public void afterExecution() {
-		SecurityContextHolder.clearSecurityContext();
-	}
-
 }

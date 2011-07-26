@@ -31,7 +31,7 @@
         </dependency>
 		<dependency>
             <groupId>org.jowidgets</groupId>
-            <artifactId>org.jowidgets.message.impl.http.client</artifactId>
+            <artifactId>org.jowidgets.security.impl.http.client</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
 		<dependency>
@@ -48,11 +48,6 @@
 			<groupId>org.jowidgets</groupId>
 			<artifactId>org.jowidgets.workbench.impl</artifactId>
 			<version>${jowidgets.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>commons-codec</groupId>
-			<artifactId>commons-codec</artifactId>
-			<version>1.5</version>
 		</dependency>
 	</dependencies>
 	

@@ -26,7 +26,7 @@
  * DAMAGE.
  */
 
-package org.jowidgets.sample1.starter.server;
+package org.jowidgets.security.impl.http.server;
 
 import java.io.IOException;
 
@@ -45,7 +45,7 @@ import org.jowidgets.security.api.AuthorizationService;
 import org.jowidgets.security.api.SecurityContextHolder;
 import org.jowidgets.security.tools.DefaultCredentials;
 
-final class BasicAuthenticationFilter implements Filter {
+public final class BasicAuthenticationFilter implements Filter {
 
 	private static final String PRINCIPAL_KEY = BasicAuthenticationFilter.class.getName() + ".principal";
 

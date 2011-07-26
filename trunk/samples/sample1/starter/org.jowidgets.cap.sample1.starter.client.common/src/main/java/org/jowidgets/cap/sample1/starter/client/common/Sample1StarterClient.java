@@ -33,6 +33,7 @@ import org.jowidgets.invocation.common.impl.MessageBrokerId;
 import org.jowidgets.message.api.MessageToolkit;
 import org.jowidgets.message.impl.http.client.IMessageBroker;
 import org.jowidgets.message.impl.http.client.MessageBrokerBuilder;
+import org.jowidgets.security.impl.http.client.BasicAuthenticationInitializer;
 import org.jowidgets.workbench.impl.WorkbenchRunner;
 
 public final class Sample1StarterClient {
