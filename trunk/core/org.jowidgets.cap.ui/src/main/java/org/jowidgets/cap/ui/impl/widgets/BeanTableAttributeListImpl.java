@@ -69,7 +69,7 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 
 	private static final IColorConstant[] NO_COLORS = new IColorConstant[0];
 	private static final IColorConstant[] ALTERNATING_GROUPS = new IColorConstant[] {
-			new ColorValue(130, 177, 236), new ColorValue(255, 0, 0)};//new ColorValue(115, 162, 255)};
+			new ColorValue(130, 177, 236), new ColorValue(115, 162, 255)};
 
 	private static final IColorConstant[] ALTERNATING_ATTRIBUTES = new IColorConstant[] {
 			Colors.DEFAULT_TABLE_EVEN_BACKGROUND_COLOR, Colors.WHITE};
@@ -196,10 +196,15 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 			add(textLabel.setText(getLabelText(data)));
 
 			visible = add(bpF.checkBox());
+			visible.setSelected(isVisible(data));
 
 			final List<String> headerFormats = getHeaderFormats(data);
 			if (headerFormats.size() > 1) {
 				headerFormat = createComboBox(bpF, headerFormats, 300);
+				final String format = getHeaderFormatValue(data);
+				if (format != null) {
+					headerFormat.setValue(format);
+				}
 			}
 			else {
 				headerFormat = null;
@@ -209,6 +214,7 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 			final List<String> contentFormats = getContentFormats(data);
 			if (contentFormats.size() > 1) {
 				contentFormat = createComboBox(bpF, contentFormats, 300);
+				contentFormat.setValue(getContentFormatValue(data));
 			}
 			else {
 				contentFormat = null;
@@ -237,11 +243,17 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 
 		protected abstract String getLabelText(final TYPE data);
 
+		protected abstract String getHeaderFormatValue(final TYPE data);
+
 		protected abstract List<String> getHeaderFormats(final TYPE data);
+
+		protected abstract String getContentFormatValue(final TYPE data);
 
 		protected abstract List<String> getContentFormats(final TYPE data);
 
 		protected abstract boolean isSortable(final TYPE data);
+
+		protected abstract boolean isVisible(final TYPE data);
 
 		private void addNotAvailableLabel(final ITextLabelBluePrint textLabel) {
 			final AlignmentHorizontal alignment = textLabel.getAlignment();
@@ -345,6 +357,24 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 		protected boolean isSortable(final IAttribute<?> attribute) {
 			return attribute.isSortable();
 		}
+
+		@Override
+		protected boolean isVisible(final IAttribute<?> attribute) {
+			return attribute.isVisible();
+		}
+
+		@Override
+		protected String getHeaderFormatValue(final IAttribute<?> data) {
+			if (data.getConfig().getLabelDisplayFormat() == DisplayFormat.DEFAULT) {
+				return DisplayFormat.SHORT.getName();
+			}
+			return data.getConfig().getLabelDisplayFormat().getName();
+		}
+
+		@Override
+		protected String getContentFormatValue(final IAttribute<?> data) {
+			return data.getDisplayFormatId();
+		}
 	}
 
 	private final class AttributeGroupComposite extends AbstractAttributeComposite<AttributeGroupInformation> {
@@ -375,9 +405,14 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 		@Override
 		protected List<String> getHeaderFormats(final AttributeGroupInformation data) {
 			final List<String> result = new LinkedList<String>();
+			for (int index = data.startIndex; index <= data.endIndex; index++) {
+				final IAttribute<?> attribute = model.getAttribute(index);
+				//if 
+			}
+
 			// TODO NM
-			result.add(DisplayFormat.SHORT.getName());
-			result.add(DisplayFormat.LONG.getName());
+			//			result.add(DisplayFormat.SHORT.getName());
+			//			result.add(DisplayFormat.LONG.getName());
 			return result;
 		}
 
@@ -391,6 +426,23 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 			return data.sortable;
 		}
 
+		@Override
+		protected boolean isVisible(final AttributeGroupInformation data) {
+			// TODO NM get correct visibility
+			return false;
+		}
+
+		@Override
+		protected String getHeaderFormatValue(final AttributeGroupInformation data) {
+			// TODO NM get correct value
+			return null;
+		}
+
+		@Override
+		protected String getContentFormatValue(final AttributeGroupInformation data) {
+			// TODO NM get correct value
+			return null;
+		}
 	}
 
 	private final class AllAttributesComposite extends AbstractAttributeComposite<IBeanTableModel<?>> {
@@ -438,6 +490,24 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 				}
 			}
 			return false;
+		}
+
+		@Override
+		protected boolean isVisible(final IBeanTableModel<?> model) {
+			// TODO NM get correct visibility
+			return false;
+		}
+
+		@Override
+		protected String getHeaderFormatValue(final IBeanTableModel<?> data) {
+			// TODO NM get correct value
+			return null;
+		}
+
+		@Override
+		protected String getContentFormatValue(final IBeanTableModel<?> data) {
+			// TODO NM get correct value
+			return null;
 		}
 	}
 
