@@ -26,29 +26,36 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample1.starter.client.common;
+package org.jowidgets.security.impl.http.server;
 
-import org.jowidgets.cap.sample1.ui.workbench.SampleWorkbench;
+import java.io.IOException;
+
+import javax.servlet.GenericServlet;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+
+import org.jowidgets.cap.remoting.server.CapServerServicePublisher;
 import org.jowidgets.invocation.common.impl.MessageBrokerId;
 import org.jowidgets.message.api.MessageToolkit;
-import org.jowidgets.message.impl.http.client.IMessageBroker;
-import org.jowidgets.message.impl.http.client.MessageBrokerBuilder;
-import org.jowidgets.security.impl.http.client.BasicAuthenticationInitializer;
-import org.jowidgets.workbench.impl.WorkbenchRunner;
+import org.jowidgets.message.impl.http.server.MessageServlet;
 
-public final class Sample1StarterClient {
+public final class SecurityRemotingServlet extends GenericServlet {
 
-	private Sample1StarterClient() {}
+	private static final long serialVersionUID = 1L;
 
-	public static void main(final String[] args) throws Exception {
-		final MessageBrokerBuilder builder = new MessageBrokerBuilder(MessageBrokerId.INVOCATION_IMPL_BROKER_ID);
-		builder.setUrl(System.getProperty("server.url", "http://localhost:8080/")).setHttpRequestInitializer(
-				BasicAuthenticationInitializer.getInstance());
-		final IMessageBroker messageBroker = builder.build();
-		MessageToolkit.addChannelBroker(messageBroker);
-		MessageToolkit.addReceiverBroker(messageBroker);
+	private final MessageServlet messageServlet;
 
-		new WorkbenchRunner().run(new SampleWorkbench());
+	public SecurityRemotingServlet() {
+		messageServlet = new MessageServlet(MessageBrokerId.INVOCATION_IMPL_BROKER_ID);
+		messageServlet.setExecutionInterceptor(new SecurityExecutionInterceptor());
+		MessageToolkit.addReceiverBroker(messageServlet);
+		new CapServerServicePublisher().publishServices();
+	}
+
+	@Override
+	public void service(final ServletRequest req, final ServletResponse res) throws ServletException, IOException {
+		messageServlet.service(req, res);
 	}
 
 }
