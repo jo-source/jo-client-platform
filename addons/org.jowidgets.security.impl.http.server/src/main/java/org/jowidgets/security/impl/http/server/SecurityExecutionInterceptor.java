@@ -26,48 +26,26 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample1.starter.client.common;
+package org.jowidgets.security.impl.http.server;
 
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.codec.binary.StringUtils;
-import org.apache.http.HttpRequest;
-import org.jowidgets.message.impl.http.client.IHttpRequestInitializer;
+import org.jowidgets.message.impl.http.server.IExecutionInterceptor;
+import org.jowidgets.security.api.SecurityContextHolder;
 
-final class BasicAuthenticationInitializer implements IHttpRequestInitializer {
+public final class SecurityExecutionInterceptor implements IExecutionInterceptor<Object> {
 
-	private static final BasicAuthenticationInitializer INSTANCE = new BasicAuthenticationInitializer();
-
-	private String username;
-	private String password;
-
-	private BasicAuthenticationInitializer() {}
-
-	public static BasicAuthenticationInitializer getInstance() {
-		return INSTANCE;
-	}
-
-	public synchronized void setCredentials(final String username, final String password) {
-		this.username = username;
-		this.password = password;
-	}
-
-	public synchronized void clearCredentials() {
-		username = null;
-		password = null;
+	@Override
+	public Object getExecutionContext() {
+		return SecurityContextHolder.getSecurityContext();
 	}
 
 	@Override
-	public void initialize(final HttpRequest httpRequest) {
-		final String user;
-		final String pwd;
-		synchronized (this) {
-			user = this.username;
-			pwd = this.password;
-		}
-		if (user != null && pwd != null) {
-			final String credentials = user + ":" + pwd;
-			final String encodedCredentials = Base64.encodeBase64String(StringUtils.getBytesUtf8(credentials));
-			httpRequest.setHeader("Authorization", "Basic " + encodedCredentials);
-		}
+	public void beforeExecution(final Object executionContext) {
+		SecurityContextHolder.setSecurityContext(executionContext);
 	}
+
+	@Override
+	public void afterExecution() {
+		SecurityContextHolder.clearSecurityContext();
+	}
+
 }

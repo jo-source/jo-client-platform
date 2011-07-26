@@ -28,74 +28,17 @@
 
 package org.jowidgets.cap.sample1.starter.client.common;
 
-import org.jowidgets.api.login.ILoginCancelListener;
-import org.jowidgets.api.login.ILoginInterceptor;
-import org.jowidgets.api.login.ILoginResultCallback;
 import org.jowidgets.api.toolkit.Toolkit;
-import org.jowidgets.cap.common.api.execution.IResultCallback;
-import org.jowidgets.cap.common.api.service.IAuthorizationProviderService;
 import org.jowidgets.cap.sample1.common.service.security.AuthorizationProviderServiceId;
-import org.jowidgets.cap.ui.api.CapUiToolkit;
-import org.jowidgets.cap.ui.api.execution.IExecutionTask;
 import org.jowidgets.cap.ui.api.login.ILoginService;
-import org.jowidgets.security.api.SecurityContextHolder;
-import org.jowidgets.security.tools.DefaultPrincipal;
-import org.jowidgets.service.api.ServiceProvider;
+import org.jowidgets.security.impl.http.client.BasicAuthenticationLoginInterceptor;
 
 public class RemoteLoginService implements ILoginService {
 
 	@Override
 	public boolean doLogin() {
-		final ILoginInterceptor loginInterceptor = new ILoginInterceptor() {
-			@Override
-			public void login(final ILoginResultCallback resultCallback, final String username, final String password) {
-				final IAuthorizationProviderService<DefaultPrincipal> authorizationService = ServiceProvider.getService(AuthorizationProviderServiceId.ID);
-				if (authorizationService == null) {
-					resultCallback.denied("Authorization service not available");
-					return;
-				}
-
-				final IExecutionTask executionTask = CapUiToolkit.executionTaskFactory().create();
-				resultCallback.addCancelListener(new ILoginCancelListener() {
-					@Override
-					public void canceled() {
-						executionTask.cancel();
-					}
-				});
-
-				BasicAuthenticationInitializer.getInstance().setCredentials(username, password);
-				authorizationService.getPrincipal(new IResultCallback<DefaultPrincipal>() {
-					@Override
-					public void finished(final DefaultPrincipal principal) {
-						if (principal == null) {
-							resultCallback.denied("Login failed");
-							BasicAuthenticationInitializer.getInstance().clearCredentials();
-						}
-						else {
-							SecurityContextHolder.setSecurityContext(principal);
-							resultCallback.granted();
-						}
-					}
-
-					@Override
-					public void timeout() {
-						resultCallback.denied("Timeout");
-						BasicAuthenticationInitializer.getInstance().clearCredentials();
-					}
-
-					@Override
-					public void exception(final Throwable exception) {
-						resultCallback.denied(exception.getLocalizedMessage());
-						BasicAuthenticationInitializer.getInstance().clearCredentials();
-					}
-				}, executionTask);
-			}
-		};
-		if (Toolkit.getLoginPane().login("Application1 ", loginInterceptor).isLoggedOn()) {
-			return true;
-		}
-		else {
-			return false;
-		}
+		return Toolkit.getLoginPane().login(
+				"Application1 ",
+				new BasicAuthenticationLoginInterceptor(AuthorizationProviderServiceId.ID)).isLoggedOn();
 	}
 }

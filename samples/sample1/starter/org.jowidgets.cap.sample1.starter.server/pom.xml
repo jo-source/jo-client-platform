@@ -32,7 +32,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.jowidgets</groupId>
-			<artifactId>org.jowidgets.message.impl.http.server</artifactId>
+			<artifactId>org.jowidgets.security.impl.http.server</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>

@@ -37,6 +37,8 @@ import org.jowidgets.cap.remoting.server.CapServerServicePublisher;
 import org.jowidgets.invocation.common.impl.MessageBrokerId;
 import org.jowidgets.message.api.MessageToolkit;
 import org.jowidgets.message.impl.http.server.MessageServlet;
+import org.jowidgets.security.impl.http.server.BasicAuthenticationFilter;
+import org.jowidgets.security.impl.http.server.SecurityExecutionInterceptor;
 
 public final class Sample1StarterServer {
 
