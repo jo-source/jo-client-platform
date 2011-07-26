@@ -22,6 +22,8 @@
 		<module>../starter/org.jowidgets.cap.sample1.starter.client.common</module>
 		<module>../starter/org.jowidgets.cap.sample1.starter.client.swing</module>
 		<module>../starter/org.jowidgets.cap.sample1.starter.client.swt</module>
+		<module>../starter/org.jowidgets.cap.sample1.starter.client.swt.webstart</module>
+		<module>../starter/org.jowidgets.cap.sample1.starter.webapp</module>
 		<module>../starter/org.jowidgets.cap.sample1.starter.webapp.rwt</module>
 		<module>../starter/org.jowidgets.cap.sample1.starter.standalone.common</module>
 		<module>../starter/org.jowidgets.cap.sample1.starter.standalone.swing</module>
