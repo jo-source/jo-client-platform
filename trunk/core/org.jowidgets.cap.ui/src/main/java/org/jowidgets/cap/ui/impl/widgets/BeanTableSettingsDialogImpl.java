@@ -42,6 +42,7 @@ import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
 import org.jowidgets.tools.widgets.wrapper.WindowWrapper;
 import org.jowidgets.util.Assert;
 
+@SuppressWarnings("unused")
 final class BeanTableSettingsDialogImpl extends WindowWrapper implements IBeanTableSettingsDialog {
 
 	private final IBluePrintFactory bpF;
