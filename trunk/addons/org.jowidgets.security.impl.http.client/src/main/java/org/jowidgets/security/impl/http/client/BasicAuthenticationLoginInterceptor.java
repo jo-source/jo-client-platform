@@ -55,6 +55,7 @@ public final class BasicAuthenticationLoginInterceptor implements ILoginIntercep
 	public void login(final ILoginResultCallback resultCallback, final String username, final String password) {
 		final IAuthorizationProviderService<DefaultPrincipal> authorizationService = ServiceProvider.getService(authorizationProviderServiceId);
 		if (authorizationService == null) {
+			// TODO i18n
 			resultCallback.denied("Authorization service not available");
 			return;
 		}
@@ -72,6 +73,7 @@ public final class BasicAuthenticationLoginInterceptor implements ILoginIntercep
 			@Override
 			public void finished(final DefaultPrincipal principal) {
 				if (principal == null) {
+					// TODO i18n
 					resultCallback.denied("Login failed");
 					BasicAuthenticationInitializer.getInstance().clearCredentials();
 				}
@@ -83,6 +85,7 @@ public final class BasicAuthenticationLoginInterceptor implements ILoginIntercep
 
 			@Override
 			public void timeout() {
+				// TODO i18n
 				resultCallback.denied("Timeout");
 				BasicAuthenticationInitializer.getInstance().clearCredentials();
 			}
