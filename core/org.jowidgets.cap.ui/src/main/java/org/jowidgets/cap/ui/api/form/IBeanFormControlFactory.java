@@ -28,14 +28,16 @@
 
 package org.jowidgets.cap.ui.api.form;
 
-public interface IBeanFormToolkit {
+import org.jowidgets.api.widgets.IControl;
+import org.jowidgets.api.widgets.descriptor.setup.IValidationLabelSetup;
+import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
 
-	IBeanFormLayoutBuilder layoutBuilder();
+public interface IBeanFormControlFactory {
 
-	IBeanFormGroupBuilder groupBuilder();
+	String getLabel(String propertyName);
 
-	IBeanFormPropertyBuilder propertyBuilder();
+	ICustomWidgetCreator<? extends IControl> createControl(String propertyName);
 
-	IBeanFormLayouter layouter(IBeanFormLayout layout);
+	ICustomWidgetCreator<? extends IControl> createValidationLabel(String propertyName, IValidationLabelSetup setup);
 
 }

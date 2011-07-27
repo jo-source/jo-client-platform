@@ -29,7 +29,9 @@
 package org.jowidgets.cap.ui.impl;
 
 import org.jowidgets.cap.ui.api.form.IBeanFormGroupBuilder;
+import org.jowidgets.cap.ui.api.form.IBeanFormLayout;
 import org.jowidgets.cap.ui.api.form.IBeanFormLayoutBuilder;
+import org.jowidgets.cap.ui.api.form.IBeanFormLayouter;
 import org.jowidgets.cap.ui.api.form.IBeanFormPropertyBuilder;
 import org.jowidgets.cap.ui.api.form.IBeanFormToolkit;
 
@@ -48,6 +50,11 @@ final class BeanFormToolkitImpl implements IBeanFormToolkit {
 	@Override
 	public IBeanFormPropertyBuilder propertyBuilder() {
 		return new BeanFormPropertyBuilderImpl();
+	}
+
+	@Override
+	public IBeanFormLayouter layouter(final IBeanFormLayout layout) {
+		return new BeanFormLayouterImpl(layout);
 	}
 
 }

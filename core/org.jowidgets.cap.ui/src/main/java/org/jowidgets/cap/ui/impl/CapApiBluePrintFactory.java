@@ -34,6 +34,8 @@ import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.widgets.blueprint.factory.IBluePrintFactory;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
+import org.jowidgets.cap.ui.api.form.IBeanFormLayout;
+import org.jowidgets.cap.ui.api.form.IBeanFormToolkit;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
@@ -72,8 +74,9 @@ final class CapApiBluePrintFactory implements ICapApiBluePrintFactory {
 		Assert.paramNotNull(attributes, "attributes");
 		final IBeanFormBluePrint<BEAN_TYPE> result = bluePrintFactory.bluePrint(IBeanFormBluePrint.class);
 		result.setAttributes(attributes);
-		result.setLayout(CapUiToolkit.beanFormToolkit().layoutBuilder().addGroups(attributes).build());
+		final IBeanFormToolkit beanFormToolkit = CapUiToolkit.beanFormToolkit();
+		final IBeanFormLayout layout = CapUiToolkit.beanFormToolkit().layoutBuilder().addGroups(attributes).build();
+		result.setLayouter(beanFormToolkit.layouter(layout));
 		return result;
 	}
-
 }
