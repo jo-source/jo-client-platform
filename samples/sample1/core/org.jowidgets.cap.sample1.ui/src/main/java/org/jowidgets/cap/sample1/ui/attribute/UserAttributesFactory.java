@@ -90,7 +90,7 @@ public class UserAttributesFactory {
 
 		modifierBuilder.addModifier(IUser.DATE_OF_BIRTH_PROPERTY).setLabelDisplayFormat(DisplayFormat.LONG);
 		modifierBuilder.addModifier(IUser.ADMIN_PROPERTY).setTableAlignment(AlignmentHorizontal.CENTER);
-		modifierBuilder.addModifier(IUser.MARIED_PROPERTY).setTableAlignment(AlignmentHorizontal.CENTER);
+		modifierBuilder.addModifier(IUser.MARRIED_PROPERTY).setTableAlignment(AlignmentHorizontal.CENTER);
 		modifierBuilder.addModifier(IUser.AGE_PROPERTY).setTableAlignment(AlignmentHorizontal.CENTER);
 
 		return attributeToolkit.createAttributes(properties, modifierBuilder.build());

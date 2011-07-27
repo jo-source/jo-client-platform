@@ -51,10 +51,10 @@ public class UserDtoDescriptorBuilder extends BeanDtoDescriptorBuilder {
 		propertyBp.setValueRange("M", "F");
 
 		propertyBp = addProperty(IUser.DATE_OF_BIRTH_PROPERTY);
-		propertyBp.setLabel("Birthday").setLabelLong("Date of Birth").setDescription("The users date of birth");
+		propertyBp.setLabel("Birthday").setLabelLong("Date of Birth").setDescription("The user's date of birth");
 
 		propertyBp = addProperty(IUser.AGE_PROPERTY);
-		propertyBp.setLabel("Age").setDescription("The users age");
+		propertyBp.setLabel("Age").setDescription("The user's age");
 
 		propertyBp = addProperty(IUser.COUNTRY_PROPERTY);
 		propertyBp.setLabel("Country").setDescription("The country where the user lives");
@@ -67,8 +67,8 @@ public class UserDtoDescriptorBuilder extends BeanDtoDescriptorBuilder {
 		propertyBp = addProperty(IUser.ADMIN_PROPERTY);
 		propertyBp.setLabel("Admin").setDescription("Determines if the user is an administrator");
 
-		propertyBp = addProperty(IUser.MARIED_PROPERTY);
-		propertyBp.setLabel("Maried").setDescription("Determines if the user is maried");
+		propertyBp = addProperty(IUser.MARRIED_PROPERTY);
+		propertyBp.setLabel("Married").setDescription("Determines if the user is married");
 
 		propertyBp = addProperty(IBean.ID_PROPERTY);
 		propertyBp.setLabel("Id").setDescription("The id of the user");
