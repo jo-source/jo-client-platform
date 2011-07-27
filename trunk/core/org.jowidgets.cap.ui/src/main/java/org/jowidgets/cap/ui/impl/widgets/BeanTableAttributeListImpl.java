@@ -76,7 +76,7 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 
 	//private static final IColorConstant ATTRIBUTE_HEADER_BACKGROUND = new ColorValue(40, 90, 255);
 	//a little bit darker suggestion
-	private static final IColorConstant ATTRIBUTE_HEADER_BACKGROUND = new ColorValue(19, 45, 132);
+	private static final IColorConstant ATTRIBUTE_HEADER_BACKGROUND = new ColorValue(6, 27, 95);
 	private static final IColorConstant ATTRIBUTE_GROUP_BACKGROUND = new ColorValue(130, 177, 236);
 
 	private static final IColorConstant[] NO_COLORS = new IColorConstant[0];
