@@ -47,7 +47,7 @@ public interface IUser extends IBean {
 	String COUNTRY_PROPERTY = "country";
 	String LANGUAGES_PROPERTY = "languages";
 	String ADMIN_PROPERTY = "admin";
-	String MARIED_PROPERTY = "married";
+	String MARRIED_PROPERTY = "married";
 
 	List<String> ALL_PROPERTIES = new LinkedList<String>() {
 		private static final long serialVersionUID = 1L;
@@ -60,7 +60,7 @@ public interface IUser extends IBean {
 			add(ADMIN_PROPERTY);
 			add(COUNTRY_PROPERTY);
 			add(LANGUAGES_PROPERTY);
-			add(MARIED_PROPERTY);
+			add(MARRIED_PROPERTY);
 			add(IBean.ID_PROPERTY);
 			add(IBean.VERSION_PROPERTY);
 		}
