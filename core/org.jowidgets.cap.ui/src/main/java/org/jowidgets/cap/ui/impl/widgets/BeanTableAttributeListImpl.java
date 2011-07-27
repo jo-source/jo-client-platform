@@ -74,6 +74,7 @@ import org.jowidgets.util.NullCompatibleEquivalence;
 @SuppressWarnings("unused")
 final class BeanTableAttributeListImpl extends ContainerWrapper {
 
+	private static final IColorConstant ATTRIBUTE_HEADER_BACKGROUND = new ColorValue(40, 90, 255);
 	private static final IColorConstant ATTRIBUTE_GROUP_BACKGROUND = new ColorValue(130, 177, 236);
 
 	private static final IColorConstant[] NO_COLORS = new IColorConstant[0];
@@ -104,7 +105,7 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 
 	BeanTableAttributeListImpl(final IContainer container, final IBeanTableModel<?> model) {
 		super(container);
-		this.attributeLayoutManager = new AttributeLayoutManager(10, 10, 4);
+		this.attributeLayoutManager = new AttributeLayoutManager(10, 20, 4);
 		this.groupHeaders = new HashMap<String, AttributeGroupHeader>();
 		this.groupContainers = new HashMap<String, AttributeGroupContainer>();
 		this.attributeComposites = new HashMap<String, AttributeComposite>();
@@ -166,9 +167,11 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 		}
 
 		attributeLayoutManager.modes[2] = FillMode.CENTER; // center visibility checkbox
-		attributeLayoutManager.gaps[5] = 40; // add central gap
-		attributeLayoutManager.gaps[7] = 7; // reduce gap between in sort order
-		attributeLayoutManager.gaps[9] = 7; // reduce gap between in sort order
+		attributeLayoutManager.gaps[0] = 10;
+		attributeLayoutManager.gaps[1] = 10;
+		attributeLayoutManager.gaps[7] = 2; // reduce gap between in sort order
+		attributeLayoutManager.gaps[9] = 2; // reduce gap between in sort order
+		attributeLayoutManager.gaps[attributeLayoutManager.gaps.length - 1] = 10;
 
 		if (groupHeaders.size() <= 1) {
 			// hide toolbar column if no groups exist
@@ -215,7 +218,7 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 
 		public AttributeHeaderComposite(final IContainer container) {
 			super(container);
-			setBackgroundColor(ATTRIBUTE_GROUP_BACKGROUND);
+			setBackgroundColor(ATTRIBUTE_HEADER_BACKGROUND);
 			setLayout(new AttributeLayout(container, attributeLayoutManager));
 
 			final IBluePrintFactory bpF = Toolkit.getBluePrintFactory();
@@ -240,6 +243,7 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 		private final IComboBox<String> currentSortingIndex;
 		private final IComboBox<String> defaultSorting;
 		private final IComboBox<String> defaultSortingIndex;
+		private final IToolBarButton collapseButton;
 
 		private AbstractAttributeComposite(
 			final IContainer container,
@@ -254,10 +258,11 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 
 			if (hasCollapseButton()) {
 				final IToolBar toolBar = container.add(bpF.toolBar());
-				toolBar.addAction(createCollapseAction());
+				collapseButton = toolBar.addAction(createCollapseAction());
 			}
 			else {
 				container.add(bpF.textLabel());
+				collapseButton = null;
 			}
 
 			add(textLabel.setText(getLabelText()));
@@ -290,10 +295,24 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 
 			if (isSortable()) {
 				currentSorting = createComboBox(bpF, getSortOrders(), 250);
-				currentSortingIndex = add(bpF.comboBoxSelection("1"));
+				currentSorting.addInputListener(createCurrentSortingChangedListener());
+				if (hasSortPriority()) {
+					currentSortingIndex = add(bpF.comboBoxSelection("1"));
+				}
+				else {
+					currentSortingIndex = null;
+					addNotAvailableLabel(textLabel);
+				}
 
 				defaultSorting = createComboBox(bpF, getSortOrders(), 250);
-				defaultSortingIndex = add(bpF.comboBoxSelection("1"));
+				defaultSorting.addInputListener(createDefaultSortingChangedListener());
+				if (hasSortPriority()) {
+					defaultSortingIndex = add(bpF.comboBoxSelection("1"));
+				}
+				else {
+					defaultSortingIndex = null;
+					addNotAvailableLabel(textLabel);
+				}
 				// TODO NM add listeners...
 			}
 			else {
@@ -319,6 +338,10 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 
 		protected abstract IInputListener createAlignmentChangedListener();
 
+		protected abstract IInputListener createCurrentSortingChangedListener();
+
+		protected abstract IInputListener createDefaultSortingChangedListener();
+
 		protected abstract IAction createCollapseAction();
 
 		protected abstract boolean hasCollapseButton();
@@ -330,6 +353,8 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 		protected abstract List<String> getContentFormats();
 
 		protected abstract boolean isSortable();
+
+		protected abstract boolean hasSortPriority();
 
 		private void addNotAvailableLabel(final ITextLabelBluePrint textLabel) {
 			final AlignmentHorizontal alignment = textLabel.getAlignment();
@@ -359,6 +384,7 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 
 		protected List<String> getSortOrders() {
 			final List<String> result = new LinkedList<String>();
+			result.add("");
 			for (final SortOrder sortOrder : SortOrder.values()) {
 				result.add(sortOrder.getLabel());
 			}
@@ -397,12 +423,18 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 			return defaultSortingIndex;
 		}
 
+		public IToolBarButton getCollapseButton() {
+			return collapseButton;
+		}
+
 		public void updateValues(final String[] propertyNames) {
 			int visibleCount = 0;
 			int invisibleCount = 0;
 			final Set<String> headerFormats = new HashSet<String>();
 			final Set<String> contentFormats = new HashSet<String>();
 			final Set<String> columnAlignments = new HashSet<String>();
+			final Set<String> currentSortings = new HashSet<String>();
+			final Set<String> defaultSortings = new HashSet<String>();
 			for (final String propertyName : propertyNames) {
 				final AttributeComposite attributeComposite = attributeComposites.get(propertyName);
 				if (attributeComposite.getVisible().getValue()) {
@@ -420,33 +452,24 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 				}
 
 				columnAlignments.add(attributeComposite.getColumnAlignment().getValue());
+
+				if (attributeComposite.getCurrentSorting() != null) {
+					currentSortings.add(attributeComposite.getCurrentSorting().getValue());
+				}
+				if (attributeComposite.getDefaultSorting() != null) {
+					defaultSortings.add(attributeComposite.getDefaultSorting().getValue());
+				}
 			}
 
-			if (headerFormats.size() == 1) {
-				final String format = (String) headerFormats.toArray()[0];
-				setValue(getHeaderFormat(), format);
-			}
-			else {
-				setValue(getHeaderFormat(), null);
-			}
-
-			if (contentFormats.size() == 1) {
-				final String format = (String) contentFormats.toArray()[0];
-				setValue(getContentFormat(), format);
-			}
-			else {
-				setValue(getContentFormat(), null);
-			}
-
-			if (columnAlignments.size() == 1) {
-				final String format = (String) columnAlignments.toArray()[0];
-				setValue(getColumnAlignment(), format);
-			}
-			else {
-				setValue(getColumnAlignment(), null);
-			}
+			setValue(getHeaderFormat(), headerFormats);
+			setValue(getContentFormat(), contentFormats);
+			setValue(getColumnAlignment(), columnAlignments);
 
 			getVisible().setValue(invisibleCount == 0);
+
+			setValue(getContentFormat(), contentFormats);
+			setValue(getCurrentSorting(), currentSortings);
+			setValue(getDefaultSorting(), defaultSortings);
 		}
 
 	}
@@ -595,6 +618,21 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 		protected IInputListener createVisibleChangedListener() {
 			return createAttributeChangedListener();
 		}
+
+		@Override
+		protected IInputListener createCurrentSortingChangedListener() {
+			return createAttributeChangedListener();
+		}
+
+		@Override
+		protected IInputListener createDefaultSortingChangedListener() {
+			return createAttributeChangedListener();
+		}
+
+		@Override
+		protected boolean hasSortPriority() {
+			return true;
+		}
 	}
 
 	private final class AttributeGroupHeader extends AbstractAttributeComposite<AttributeGroupInformation> {
@@ -644,16 +682,7 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 
 				@Override
 				public void execute(final IExecutionContext executionContext) throws Exception {
-					final IToolBarButton button = (IToolBarButton) executionContext.getSource();
 					getData().setCollapsed(!getData().isCollapsed());
-
-					if (getData().isCollapsed()) {
-						button.setIcon(IconsSmall.TABLE_SORT_ASC);
-					}
-					else {
-						button.setIcon(IconsSmall.TABLE_SORT_DESC);
-					}
-
 				}
 
 			});
@@ -748,9 +777,60 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 			};
 		}
 
+		@Override
+		protected IInputListener createCurrentSortingChangedListener() {
+			return new IInputListener() {
+
+				@Override
+				public void inputChanged() {
+					if (isProgrammaticUpdate) {
+						return;
+					}
+
+					isProgrammaticUpdate = true;
+					final String value = getCurrentSorting().getValue();
+					for (final String property : getData().propertyNames) {
+						final IComboBox<String> alignment = attributeComposites.get(property).getCurrentSorting();
+						setValue(alignment, value);
+					}
+					isProgrammaticUpdate = false;
+					programmaticUpdate();
+				}
+			};
+		}
+
+		@Override
+		protected IInputListener createDefaultSortingChangedListener() {
+			return new IInputListener() {
+
+				@Override
+				public void inputChanged() {
+					if (isProgrammaticUpdate) {
+						return;
+					}
+
+					isProgrammaticUpdate = true;
+					final String value = getDefaultSorting().getValue();
+					for (final String property : getData().propertyNames) {
+						final IComboBox<String> alignment = attributeComposites.get(property).getDefaultSorting();
+						setValue(alignment, value);
+					}
+					isProgrammaticUpdate = false;
+					programmaticUpdate();
+				}
+			};
+		}
+
+		@Override
+		protected boolean hasSortPriority() {
+			return false;
+		}
+
 	}
 
 	private final class AllAttributesComposite extends AbstractAttributeComposite<AllAttributeInformation> {
+
+		private boolean collapseState;
 
 		private AllAttributesComposite(
 			final IContainer container,
@@ -759,6 +839,7 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 			final AllAttributeInformation information) {
 			super(container, attributeLayoutManager, model, information, LABEL_ALL);
 			setBackgroundColor(Colors.WHITE);
+			collapseState = false;
 		}
 
 		@Override
@@ -784,12 +865,39 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 
 		@Override
 		protected boolean hasCollapseButton() {
-			return false;
+			return true;
 		}
 
 		@Override
 		protected IAction createCollapseAction() {
-			return null;
+			final ActionBuilder actionBuilder = new ActionBuilder();
+			actionBuilder.setIcon(IconsSmall.TABLE_SORT_DESC);
+			actionBuilder.setCommand(new ICommandExecutor() {
+
+				@Override
+				public void execute(final IExecutionContext executionContext) throws Exception {
+					final IToolBarButton button = (IToolBarButton) executionContext.getSource();
+					collapseState = !collapseState;
+					// (un)collapse all groups
+					attributeLayoutManager.beginLayout();
+					for (final AttributeGroupHeader header : groupHeaders.values()) {
+						if (header.information.collapsed != collapseState) {
+							header.information.setCollapsed(collapseState);
+						}
+					}
+					attributeLayoutManager.endLayout();
+
+					if (collapseState) {
+						button.setIcon(IconsSmall.TABLE_SORT_ASC);
+					}
+					else {
+						button.setIcon(IconsSmall.TABLE_SORT_DESC);
+					}
+
+				}
+
+			});
+			return actionBuilder.build();
 		}
 
 		public void updateValues() {
@@ -880,6 +988,55 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 			};
 		}
 
+		@Override
+		protected IInputListener createCurrentSortingChangedListener() {
+			return new IInputListener() {
+
+				@Override
+				public void inputChanged() {
+					if (isProgrammaticUpdate) {
+						return;
+					}
+
+					isProgrammaticUpdate = true;
+					final String value = getCurrentSorting().getValue();
+					for (final String property : getData().propertyNames) {
+						final IComboBox<String> alignment = attributeComposites.get(property).getCurrentSorting();
+						setValue(alignment, value);
+					}
+					isProgrammaticUpdate = false;
+					programmaticUpdate();
+				}
+			};
+		}
+
+		@Override
+		protected IInputListener createDefaultSortingChangedListener() {
+			return new IInputListener() {
+
+				@Override
+				public void inputChanged() {
+					if (isProgrammaticUpdate) {
+						return;
+					}
+
+					isProgrammaticUpdate = true;
+					final String value = getDefaultSorting().getValue();
+					for (final String property : getData().propertyNames) {
+						final IComboBox<String> alignment = attributeComposites.get(property).getDefaultSorting();
+						setValue(alignment, value);
+					}
+					isProgrammaticUpdate = false;
+					programmaticUpdate();
+				}
+			};
+		}
+
+		@Override
+		protected boolean hasSortPriority() {
+			return false;
+		}
+
 	}
 
 	private enum FillMode {
@@ -899,6 +1056,7 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 		private Dimension preferredSize;
 
 		private int layoutHashCode;
+		private boolean layouting;
 
 		private AttributeLayoutManager(final int columnCount, final int defaultGap, final int verticalGap) {
 			this.columnCount = columnCount;
@@ -917,11 +1075,25 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 			}
 
 			this.layoutHashCode = 0;
+			this.layouting = true;
 		}
 
 		public void setGroupVisible(final String id, final boolean visible) {
 			groupContainers.get(id).setEnabled(visible);
-			invalidate();
+			if (layouting) {
+				invalidate();
+			}
+		}
+
+		private void beginLayout() {
+			layouting = false;
+		}
+
+		private void endLayout() {
+			if (!layouting) {
+				layouting = true;
+				invalidate();
+			}
 		}
 
 		private void invalidate() {
@@ -1133,7 +1305,6 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 				}
 
 				y = y + size.getHeight();
-
 			}
 		}
 
@@ -1311,6 +1482,15 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 		private void setCollapsed(final boolean collapsed) {
 			this.collapsed = collapsed;
 			attributeLayoutManager.setGroupVisible(getId(), !collapsed);
+
+			final AttributeGroupHeader header = groupHeaders.get(getId());
+			final IToolBarButton button = header.getCollapseButton();
+			if (collapsed) {
+				button.setIcon(IconsSmall.TABLE_SORT_ASC);
+			}
+			else {
+				button.setIcon(IconsSmall.TABLE_SORT_DESC);
+			}
 		}
 
 	}
@@ -1348,6 +1528,15 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 			}
 		}
 		return null;
+	}
+
+	private static void setValue(final IComboBox<String> comboBox, final Set<String> values) {
+		if (values.size() == 1) {
+			setValue(comboBox, (String) values.toArray()[0]);
+		}
+		else {
+			setValue(comboBox, (String) null);
+		}
 	}
 
 	private static void setValue(final IComboBox<String> comboBox, final String value) {
