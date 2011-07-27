@@ -36,27 +36,30 @@ import java.util.Map.Entry;
 
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.widgets.IComposite;
-import org.jowidgets.api.widgets.IContainer;
+import org.jowidgets.api.widgets.IControl;
 import org.jowidgets.api.widgets.IInputControl;
 import org.jowidgets.api.widgets.IScrollComposite;
 import org.jowidgets.api.widgets.IValidationResultLabel;
 import org.jowidgets.api.widgets.blueprint.IValidationResultLabelBluePrint;
 import org.jowidgets.api.widgets.blueprint.factory.IBluePrintFactory;
+import org.jowidgets.api.widgets.descriptor.setup.IValidationLabelSetup;
+import org.jowidgets.cap.ui.api.attribute.DisplayFormat;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IControlPanelProvider;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
-import org.jowidgets.cap.ui.api.form.IBeanFormGroup;
-import org.jowidgets.cap.ui.api.form.IBeanFormLayout;
-import org.jowidgets.cap.ui.api.form.IBeanFormProperty;
+import org.jowidgets.cap.ui.api.form.IBeanFormControlFactory;
+import org.jowidgets.cap.ui.api.form.IBeanFormLayouter;
 import org.jowidgets.cap.ui.api.widgets.IBeanForm;
 import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
 import org.jowidgets.common.types.Dimension;
 import org.jowidgets.common.widgets.controler.IInputListener;
 import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
+import org.jowidgets.common.widgets.factory.ICustomWidgetFactory;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
 import org.jowidgets.tools.controler.InputObservable;
 import org.jowidgets.tools.layout.MigLayoutFactory;
 import org.jowidgets.tools.widgets.wrapper.ControlWrapper;
+import org.jowidgets.util.Assert;
 import org.jowidgets.validation.IValidationConditionListener;
 import org.jowidgets.validation.IValidationResult;
 import org.jowidgets.validation.IValidationResultBuilder;
@@ -65,7 +68,7 @@ import org.jowidgets.validation.ValidationResult;
 
 final class BeanFormImpl<BEAN_TYPE> extends ControlWrapper implements IBeanForm<BEAN_TYPE> {
 
-	private final IBeanFormLayout layout;
+	private final IBeanFormLayouter layouter;
 	private final Map<String, IAttribute<Object>> attributes;
 	private final Map<String, IInputControl<Object>> controls;
 	private final Map<String, IInputListener> inputListeners;
@@ -81,7 +84,7 @@ final class BeanFormImpl<BEAN_TYPE> extends ControlWrapper implements IBeanForm<
 	@SuppressWarnings("unchecked")
 	BeanFormImpl(final IComposite composite, final IBeanFormBluePrint<BEAN_TYPE> bluePrint) {
 		super(composite);
-		this.layout = bluePrint.getLayout();
+		this.layouter = bluePrint.getLayouter();
 		this.attributes = new HashMap<String, IAttribute<Object>>();
 		this.controls = new HashMap<String, IInputControl<Object>>();
 		this.inputListeners = new HashMap<String, IInputListener>();
@@ -100,7 +103,9 @@ final class BeanFormImpl<BEAN_TYPE> extends ControlWrapper implements IBeanForm<
 		mainValidationLabel.setMinSize(new Dimension(20, 20));
 
 		final IScrollComposite contentPane = composite.add(bpf.scrollComposite(), MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
-		createContent(contentPane);
+
+		//this must be the last invocation in this constructor
+		layouter.layout(contentPane, new BeanFormControlFactory());
 	}
 
 	@Override
@@ -206,58 +211,98 @@ final class BeanFormImpl<BEAN_TYPE> extends ControlWrapper implements IBeanForm<
 		}
 	}
 
-	private void createContent(final IContainer container) {
+	private final class BeanFormControlFactory implements IBeanFormControlFactory {
 
-		//TODO NM this must be done with respect of the defined layout
-		container.setLayout(new MigLayoutDescriptor("0[]8[grow][]0", ""));
-		for (final IBeanFormGroup group : layout.getGroups()) {
-			for (final IBeanFormProperty property : group.getProperties()) {
+		@Override
+		public String getLabel(final String propertyName) {
+			Assert.paramNotNull(propertyName, "propertyName");
 
-				final String propertyName = property.getPropertyName();
-				final IAttribute<Object> attribute = attributes.get(propertyName);
-
-				final ICustomWidgetCreator<IInputControl<Object>> widgetCreator = getWidgetCreator(attribute);
-				if (widgetCreator != null) {
-					//add label
-					container.add(bpf.textLabel(attribute.getLabel()).alignRight(), "alignx r, sg lg");
-
-					//add control
-					final IInputControl<Object> control = container.add(widgetCreator, "growx");
-					control.addValidator(new IValidator<Object>() {
-						@Override
-						public IValidationResult validate(final Object value) {
-							if (bean != null) {
-								return bean.validate(propertyName, value);
-							}
-							return ValidationResult.ok();
-						}
-					});
-					control.setEnabled(false);
-					inputListeners.put(propertyName, new InputListener(propertyName, control));
-					controls.put(propertyName, control);
-
-					//add validation label
-					final IValidationResultLabelBluePrint validationLabelBp = bpf.validationResultLabel();
-					validationLabelBp.setSetup(property.getValidationLabel());
-					final IValidationResultLabel validationLabel = container.add(validationLabelBp, "w 25::, wrap");
-					validationLabels.put(propertyName, validationLabel);
-				}
+			final IAttribute<Object> attribute = attributes.get(propertyName);
+			if (DisplayFormat.LONG == attribute.getLabelDisplayFormat()) {
+				return attribute.getLabelLong();
+			}
+			else {
+				return attribute.getLabel();
 			}
 		}
-	}
 
-	@SuppressWarnings({"rawtypes", "unchecked"})
-	private ICustomWidgetCreator<IInputControl<Object>> getWidgetCreator(final IAttribute<Object> attribute) {
-		final IControlPanelProvider<Object> controlPanel = attribute.getCurrentControlPanel();
+		@Override
+		public ICustomWidgetCreator<? extends IControl> createControl(final String propertyName) {
+			Assert.paramNotNull(propertyName, "propertyName");
 
-		final ICustomWidgetCreator controlCreator;
-		if (attribute.isCollectionType()) {
-			controlCreator = controlPanel.getCollectionControlCreator();
+			final ICustomWidgetCreator<IInputControl<Object>> widgetCreator = getWidgetCreator(attributes.get(propertyName));
+			if (widgetCreator != null) {
+				return new ICustomWidgetCreator<IInputControl<Object>>() {
+					@Override
+					public IInputControl<Object> create(final ICustomWidgetFactory widgetFactory) {
+						if (controls.containsKey(propertyName)) {
+							throw new IllegalStateException("Control must not be created more than once for the property '"
+								+ propertyName
+								+ "'.");
+						}
+
+						final IInputControl<Object> result = widgetCreator.create(widgetFactory);
+
+						result.addValidator(new IValidator<Object>() {
+							@Override
+							public IValidationResult validate(final Object value) {
+								if (bean != null) {
+									return bean.validate(propertyName, value);
+								}
+								return ValidationResult.ok();
+							}
+						});
+						result.setEnabled(false);
+						inputListeners.put(propertyName, new InputListener(propertyName, result));
+						controls.put(propertyName, result);
+
+						return result;
+					}
+				};
+			}
+			return null;
 		}
-		else {
-			controlCreator = controlPanel.getControlCreator();
+
+		@Override
+		public ICustomWidgetCreator<? extends IControl> createValidationLabel(
+			final String propertyName,
+			final IValidationLabelSetup setup) {
+
+			Assert.paramNotNull(propertyName, "propertyName");
+			Assert.paramNotNull(setup, "setup");
+
+			return new ICustomWidgetCreator<IControl>() {
+				@Override
+				public IControl create(final ICustomWidgetFactory widgetFactory) {
+					if (validationLabels.containsKey(propertyName)) {
+						throw new IllegalStateException("Validation label must not be created more than onnce for the property '"
+							+ propertyName
+							+ "'.");
+					}
+					final IValidationResultLabelBluePrint validationLabelBp = bpf.validationResultLabel();
+					validationLabelBp.setSetup(setup);
+					final IValidationResultLabel validationLabel = widgetFactory.create(validationLabelBp);
+					validationLabels.put(propertyName, validationLabel);
+					return validationLabel;
+				}
+			};
+
 		}
-		return controlCreator;
+
+		@SuppressWarnings({"rawtypes", "unchecked"})
+		private ICustomWidgetCreator<IInputControl<Object>> getWidgetCreator(final IAttribute<Object> attribute) {
+			final IControlPanelProvider<Object> controlPanel = attribute.getCurrentControlPanel();
+
+			final ICustomWidgetCreator controlCreator;
+			if (attribute.isCollectionType()) {
+				controlCreator = controlPanel.getCollectionControlCreator();
+			}
+			else {
+				controlCreator = controlPanel.getControlCreator();
+			}
+			return controlCreator;
+		}
+
 	}
 
 	private final class BeanPropertyChangeListener implements PropertyChangeListener {
