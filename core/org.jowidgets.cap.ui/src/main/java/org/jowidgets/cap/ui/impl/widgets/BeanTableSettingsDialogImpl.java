@@ -76,7 +76,7 @@ final class BeanTableSettingsDialogImpl extends WindowWrapper implements IBeanTa
 	@Override
 	public IBeanTableConfig show() {
 		okPressed = false;
-		beanTableAttributeListImpl.updateValues(model.getConfig().getAttributeConfigs());
+		beanTableAttributeListImpl.updateValues(model.getConfig());
 		frame.setVisible(true);
 		return currentConfig;
 	}

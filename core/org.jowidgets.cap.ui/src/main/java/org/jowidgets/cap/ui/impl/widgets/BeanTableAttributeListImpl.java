@@ -51,12 +51,14 @@ import org.jowidgets.api.widgets.IToolBar;
 import org.jowidgets.api.widgets.IToolBarButton;
 import org.jowidgets.api.widgets.blueprint.ITextLabelBluePrint;
 import org.jowidgets.api.widgets.blueprint.factory.IBluePrintFactory;
+import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.common.api.sort.SortOrder;
 import org.jowidgets.cap.ui.api.attribute.DisplayFormat;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IAttributeConfig;
 import org.jowidgets.cap.ui.api.attribute.IAttributeGroup;
 import org.jowidgets.cap.ui.api.attribute.IControlPanelProvider;
+import org.jowidgets.cap.ui.api.table.IBeanTableConfig;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.common.color.ColorValue;
 import org.jowidgets.common.color.IColorConstant;
@@ -68,6 +70,8 @@ import org.jowidgets.common.widgets.controler.IInputListener;
 import org.jowidgets.common.widgets.layout.ILayouter;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
 import org.jowidgets.tools.command.ActionBuilder;
+import org.jowidgets.tools.controler.InputObservable;
+import org.jowidgets.tools.widgets.wrapper.ComboBoxWrapper;
 import org.jowidgets.tools.widgets.wrapper.ContainerWrapper;
 import org.jowidgets.util.NullCompatibleEquivalence;
 
@@ -103,7 +107,11 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 
 	private final AllAttributesComposite allAttributesComposite;
 
-	private boolean isProgrammaticUpdate;
+	private final int maxSortingLength;
+	private boolean eventsDisabled;
+
+	private SortIndexModel currentSortingModel;
+	private SortIndexModel defaultSortingModel;
 
 	BeanTableAttributeListImpl(final IContainer container, final IBeanTableModel<?> model) {
 		super(container);
@@ -112,6 +120,34 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 		this.groupContainers = new HashMap<String, AttributeGroupContainer>();
 		this.attributeComposites = new HashMap<String, AttributeComposite>();
 		this.setLayout(new MigLayoutDescriptor("[grow]", "[]0[]0[grow, 0:600:]"));
+		this.maxSortingLength = getMaxSortableLength(model);
+
+		currentSortingModel = new SortIndexModel(new ISortIndexModelProvider() {
+
+			@Override
+			public ComboBox getSort(final AbstractAttributeComposite<?> composite) {
+				return composite.getCurrentSorting();
+			}
+
+			@Override
+			public SortingIndexComboBox getSortIndex(final AbstractAttributeComposite<?> composite) {
+				return composite.getCurrentSortingIndex();
+			}
+
+		});
+		defaultSortingModel = new SortIndexModel(new ISortIndexModelProvider() {
+
+			@Override
+			public ComboBox getSort(final AbstractAttributeComposite<?> composite) {
+				return composite.getDefaultSorting();
+			}
+
+			@Override
+			public SortingIndexComboBox getSortIndex(final AbstractAttributeComposite<?> composite) {
+				return composite.getDefaultSortingIndex();
+			}
+
+		});
 
 		final IBluePrintFactory bpF = Toolkit.getBluePrintFactory();
 
@@ -184,27 +220,71 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 		attributeLayoutManager.calculateLayout();
 	}
 
-	void updateValues(final Map<String, IAttributeConfig> currentConfig) {
+	private int getMaxSortableLength(final IBeanTableModel<?> model) {
+		int result = 0;
+		for (int i = 0; i < model.getColumnCount(); i++) {
+			final IAttribute<Object> attribute = model.getAttribute(i);
+			if (attribute.isSortable()) {
+				result++;
+			}
+		}
+		return result;
+	}
+
+	void updateValues(final IBeanTableConfig currentConfig) {
+		eventsDisabled = true;
+		currentSortingModel.clearSortIndices();
+		defaultSortingModel.clearSortIndices();
+
 		for (final Entry<String, AttributeComposite> entry : attributeComposites.entrySet()) {
 			final AttributeComposite composite = entry.getValue();
 			composite.updateValues(currentConfig);
 		}
-		programmaticUpdate();
+
+		int index = 0;
+		for (final ISort sort : currentConfig.getSortModelConfig().getCurrentSorting()) {
+			final AttributeComposite composite = attributeComposites.get(sort.getPropertyName());
+			if (composite.isSortable()) {
+				composite.getCurrentSorting().setValue(sort.getSortOrder().getLabel());
+
+				composite.getCurrentSortingIndex().setIndex(index + 1);
+			}
+
+			index++;
+		}
+
+		index = 0;
+		for (final ISort sort : currentConfig.getSortModelConfig().getDefaultSorting()) {
+			final AttributeComposite composite = attributeComposites.get(sort.getPropertyName());
+			if (composite.isSortable()) {
+				composite.getDefaultSorting().setValue(sort.getSortOrder().getLabel());
+				composite.getDefaultSortingIndex().setIndex(index + 1);
+			}
+			index++;
+		}
+		currentSortingModel.sortingLength = currentConfig.getSortModelConfig().getCurrentSorting().size();
+		currentSortingModel.updateSortingIndexRanges();
+
+		defaultSortingModel.sortingLength = currentConfig.getSortModelConfig().getDefaultSorting().size();
+		defaultSortingModel.updateSortingIndexRanges();
+
+		eventsDisabled = false;
+		updateHeaders();
 	}
 
-	void programmaticUpdate() {
-		if (isProgrammaticUpdate) {
+	void updateHeaders() {
+		if (eventsDisabled) {
 			return;
 		}
 
-		isProgrammaticUpdate = true;
+		eventsDisabled = true;
 		for (final Entry<String, AttributeGroupHeader> entry : groupHeaders.entrySet()) {
 			final AttributeGroupHeader composite = entry.getValue();
 			composite.updateValues();
 		}
 
 		allAttributesComposite.updateValues();
-		isProgrammaticUpdate = false;
+		eventsDisabled = false;
 	}
 
 	private final class AttributeGroupContainer extends ContainerWrapper {
@@ -224,6 +304,7 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 			setLayout(new AttributeLayout(container, attributeLayoutManager));
 
 			final IBluePrintFactory bpF = Toolkit.getBluePrintFactory();
+			// TODO i18n
 			add(LABEL_HEADER.setText(""));
 			add(LABEL_HEADER.setText("Name"));
 			add(LABEL_HEADER.setText("Visible"));
@@ -238,13 +319,13 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 	private abstract class AbstractAttributeComposite<TYPE> extends ContainerWrapper {
 		private final TYPE information;
 		private final ICheckBox visible;
-		private final IComboBox<String> headerFormat;
-		private final IComboBox<String> contentFormat;
-		private final IComboBox<String> columnAlignment;
-		private final IComboBox<String> currentSorting;
-		private final IComboBox<String> currentSortingIndex;
-		private final IComboBox<String> defaultSorting;
-		private final IComboBox<String> defaultSortingIndex;
+		private final ComboBox headerFormat;
+		private final ComboBox contentFormat;
+		private final ComboBox columnAlignment;
+		private final ComboBox currentSorting;
+		private final SortingIndexComboBox currentSortingIndex;
+		private final ComboBox defaultSorting;
+		private final SortingIndexComboBox defaultSortingIndex;
 		private final IToolBarButton collapseButton;
 
 		private AbstractAttributeComposite(
@@ -270,11 +351,14 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 			add(textLabel.setText(getLabelText()));
 
 			visible = add(bpF.checkBox());
-			visible.addInputListener(createVisibleChangedListener());
+			final IInputListener visibleChangedListener = createVisibleChangedListener();
+			if (visibleChangedListener != null) {
+				visible.addInputListener(visibleChangedListener);
+			}
 
 			final List<String> headerFormats = getHeaderFormats();
 			if (headerFormats.size() > 1) {
-				headerFormat = createComboBox(bpF, headerFormats, 300);
+				headerFormat = new ComboBox(createComboBox(bpF, headerFormats, 300));
 				headerFormat.addInputListener(createHeaderChangedListener());
 			}
 			else {
@@ -284,7 +368,7 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 
 			final List<String> contentFormats = getContentFormats();
 			if (contentFormats.size() > 1) {
-				contentFormat = createComboBox(bpF, contentFormats, 300);
+				contentFormat = new ComboBox(createComboBox(bpF, contentFormats, 300));
 				contentFormat.addInputListener(createContentChangedListener());
 			}
 			else {
@@ -292,24 +376,26 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 				addNotAvailableLabel(textLabel);
 			}
 
-			columnAlignment = createComboBox(bpF, getAlignments(), 200);
+			columnAlignment = new ComboBox(createComboBox(bpF, getAlignments(), 200));
 			columnAlignment.addInputListener(createAlignmentChangedListener());
 
 			if (isSortable()) {
-				currentSorting = createComboBox(bpF, getSortOrders(), 250);
+				currentSorting = new ComboBox(createComboBox(bpF, getSortOrders(), 250));
 				currentSorting.addInputListener(createCurrentSortingChangedListener());
 				if (hasSortPriority()) {
-					currentSortingIndex = add(bpF.comboBoxSelection("1"));
+					currentSortingIndex = new SortingIndexComboBox(add(bpF.comboBoxSelection()));
+					currentSortingIndex.addInputListener(createCurrentSortingIndexChangedListener());
 				}
 				else {
 					currentSortingIndex = null;
 					addNotAvailableLabel(textLabel);
 				}
 
-				defaultSorting = createComboBox(bpF, getSortOrders(), 250);
+				defaultSorting = new ComboBox(createComboBox(bpF, getSortOrders(), 250));
 				defaultSorting.addInputListener(createDefaultSortingChangedListener());
 				if (hasSortPriority()) {
-					defaultSortingIndex = add(bpF.comboBoxSelection("1"));
+					defaultSortingIndex = new SortingIndexComboBox(add(bpF.comboBoxSelection()));
+					defaultSortingIndex.addInputListener(createDefaultSortingIndexChangedListener());
 				}
 				else {
 					defaultSortingIndex = null;
@@ -342,7 +428,11 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 
 		protected abstract IInputListener createCurrentSortingChangedListener();
 
+		protected abstract IInputListener createCurrentSortingIndexChangedListener();
+
 		protected abstract IInputListener createDefaultSortingChangedListener();
+
+		protected abstract IInputListener createDefaultSortingIndexChangedListener();
 
 		protected abstract IAction createCollapseAction();
 
@@ -376,23 +466,6 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 			return result;
 		}
 
-		protected List<String> getAlignments() {
-			final List<String> result = new LinkedList<String>();
-			for (final AlignmentHorizontal alignment : AlignmentHorizontal.values()) {
-				result.add(alignment.getLabel());
-			}
-			return result;
-		}
-
-		protected List<String> getSortOrders() {
-			final List<String> result = new LinkedList<String>();
-			result.add("");
-			for (final SortOrder sortOrder : SortOrder.values()) {
-				result.add(sortOrder.getLabel());
-			}
-			return result;
-		}
-
 		public ICheckBox getVisible() {
 			return visible;
 		}
@@ -409,19 +482,19 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 			return columnAlignment;
 		}
 
-		public IComboBox<String> getCurrentSorting() {
+		public ComboBox getCurrentSorting() {
 			return currentSorting;
 		}
 
-		public IComboBox<String> getCurrentSortingIndex() {
+		public SortingIndexComboBox getCurrentSortingIndex() {
 			return currentSortingIndex;
 		}
 
-		public IComboBox<String> getDefaultSorting() {
+		public ComboBox getDefaultSorting() {
 			return defaultSorting;
 		}
 
-		public IComboBox<String> getDefaultSortingIndex() {
+		public SortingIndexComboBox getDefaultSortingIndex() {
 			return defaultSortingIndex;
 		}
 
@@ -479,6 +552,7 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 	private final class AttributeComposite extends AbstractAttributeComposite<IAttribute<?>> {
 
 		private final String propertyName;
+		private final int lastDefaultSortingIndex;
 
 		private AttributeComposite(
 			final IContainer container,
@@ -487,6 +561,8 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 			final IAttribute<?> attribute) {
 			super(container, attributeLayoutManager, model, attribute, LABEL_ATTRIBUTES);
 			propertyName = attribute.getPropertyName();
+
+			lastDefaultSortingIndex = 0;
 		}
 
 		private IAttribute<?> getAttribute() {
@@ -532,8 +608,8 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 			return null;
 		}
 
-		public void updateValues(final Map<String, IAttributeConfig> currentConfig) {
-			final IAttributeConfig attributeConfig = currentConfig.get(propertyName);
+		public void updateValues(final IBeanTableConfig currentConfig) {
+			final IAttributeConfig attributeConfig = currentConfig.getAttributeConfigs().get(propertyName);
 			if (attributeConfig == null) {
 				// TODO NM handle this
 				return;
@@ -558,6 +634,11 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 			getVisible().setValue(attributeConfig.isVisible());
 
 			setValue(getColumnAlignment(), attributeConfig.getTableAlignment().getLabel());
+
+			setValue(getCurrentSorting(), "");
+			setValue(getCurrentSortingIndex(), 0);
+			setValue(getDefaultSorting(), "");
+			setValue(getDefaultSortingIndex(), 0);
 		}
 
 		protected String getHeaderFormatConfig(final IAttributeConfig attributeConfig) {
@@ -591,44 +672,95 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 			return getDisplayFormatNameById(id);
 		}
 
-		protected IInputListener createAttributeChangedListener() {
-			return new IInputListener() {
-
-				@Override
-				public void inputChanged() {
-					programmaticUpdate();
-				}
-			};
-		}
-
 		@Override
 		protected IInputListener createHeaderChangedListener() {
-			return createAttributeChangedListener();
+			return null;
 		}
 
 		@Override
 		protected IInputListener createContentChangedListener() {
-			return createAttributeChangedListener();
+			return null;
 		}
 
 		@Override
 		protected IInputListener createAlignmentChangedListener() {
-			return createAttributeChangedListener();
+			return null;
 		}
 
 		@Override
 		protected IInputListener createVisibleChangedListener() {
-			return createAttributeChangedListener();
+			return null;
 		}
 
 		@Override
 		protected IInputListener createCurrentSortingChangedListener() {
-			return createAttributeChangedListener();
+			return createSortingChangedListener(currentSortingModel);
+		}
+
+		@Override
+		protected IInputListener createCurrentSortingIndexChangedListener() {
+			return createSortingIndexChangedListener(currentSortingModel);
 		}
 
 		@Override
 		protected IInputListener createDefaultSortingChangedListener() {
-			return createAttributeChangedListener();
+			return createSortingChangedListener(defaultSortingModel);
+		}
+
+		@Override
+		protected IInputListener createDefaultSortingIndexChangedListener() {
+			return createSortingIndexChangedListener(defaultSortingModel);
+		}
+
+		private IInputListener createSortingChangedListener(final SortIndexModel model) {
+			return new IInputListener() {
+				@Override
+				public void inputChanged() {
+					final String value = model.provider.getSort(attributeComposites.get(propertyName)).getValue();
+					final boolean newEnableState = !value.equals("");
+					if (newEnableState) {
+						model.insertSortIndex(model.sortingLength + 1, propertyName);
+					}
+					else {
+						model.removeSortIndex(
+								model.provider.getSortIndex(attributeComposites.get(propertyName)).getIndex(),
+								propertyName);
+					}
+					model.updateSortingIndexRanges();
+				}
+			};
+		}
+
+		private IInputListener createSortingIndexChangedListener(final SortIndexModel model) {
+			return new IInputListener() {
+
+				@Override
+				public void inputChanged() {
+					final AttributeComposite composite = attributeComposites.get(propertyName);
+					final SortingIndexComboBox comboBox = model.provider.getSortIndex(composite);
+					final int previousIndex = comboBox.getPreviousIndex();
+					final int newIndex = comboBox.getIndex();
+					if (newIndex == previousIndex) {
+						return;
+					}
+
+					final boolean hasToAdd = (previousIndex == 0);
+					final boolean hasToRemove = (newIndex == 0);
+
+					if (hasToRemove) {
+						model.removeSortIndex(previousIndex, propertyName);
+						model.provider.getSort(composite).setValue("");
+					}
+					else if (hasToAdd) {
+						model.insertSortIndex(newIndex, propertyName);
+						getCurrentSorting().setValue(SortOrder.ASC.getLabel());
+					}
+					else {
+						model.shiftSortingIndex(newIndex, previousIndex, propertyName);
+					}
+					model.updateSortingIndexRanges();
+				}
+			};
 		}
 
 		@Override
@@ -637,7 +769,144 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 		}
 	}
 
-	private final class AttributeGroupHeader extends AbstractAttributeComposite<AttributeGroupInformation> {
+	private abstract class AbstractAttributesGroupComposite<TYPE> extends AbstractAttributeComposite<TYPE> {
+		private AbstractAttributesGroupComposite(
+			final IContainer container,
+			final AttributeLayoutManager attributeLayoutManager,
+			final IBeanTableModel<?> model,
+			final TYPE information,
+			final ITextLabelBluePrint textLabel) {
+			super(container, attributeLayoutManager, model, information, LABEL_GROUPS);
+			setBackgroundColor(ATTRIBUTE_GROUP_BACKGROUND);
+		}
+
+		@Override
+		protected boolean hasSortPriority() {
+			return false;
+		}
+
+		public void updateValues() {
+			updateValues(getPropertyNames());
+		}
+
+		protected abstract String[] getPropertyNames();
+
+		@Override
+		protected IInputListener createVisibleChangedListener() {
+			return new IInputListener() {
+
+				@Override
+				public void inputChanged() {
+					final boolean visible = getVisible().getValue();
+					for (final String property : getPropertyNames()) {
+						attributeComposites.get(property).getVisible().setValue(visible);
+					}
+				}
+			};
+		}
+
+		@Override
+		protected IInputListener createHeaderChangedListener() {
+			return new IInputListener() {
+
+				@Override
+				public void inputChanged() {
+					final String value = getHeaderFormat().getValue();
+					for (final String property : getPropertyNames()) {
+						final IComboBox<String> header = attributeComposites.get(property).getHeaderFormat();
+						setValue(header, value);
+					}
+				}
+			};
+		}
+
+		@Override
+		protected IInputListener createContentChangedListener() {
+			return new IInputListener() {
+
+				@Override
+				public void inputChanged() {
+					final String value = getContentFormat().getValue();
+					for (final String property : getPropertyNames()) {
+						final IComboBox<String> content = attributeComposites.get(property).getContentFormat();
+						setValue(content, value);
+					}
+				}
+			};
+		}
+
+		@Override
+		protected IInputListener createAlignmentChangedListener() {
+			return new IInputListener() {
+
+				@Override
+				public void inputChanged() {
+					final String value = getColumnAlignment().getValue();
+					for (final String property : getPropertyNames()) {
+						final IComboBox<String> alignment = attributeComposites.get(property).getColumnAlignment();
+						setValue(alignment, value);
+					}
+				}
+			};
+		}
+
+		@Override
+		protected IInputListener createCurrentSortingChangedListener() {
+			return createSortingChangedListener(currentSortingModel);
+		}
+
+		@Override
+		protected IInputListener createDefaultSortingChangedListener() {
+			return createSortingChangedListener(defaultSortingModel);
+		}
+
+		private IInputListener createSortingChangedListener(final SortIndexModel model) {
+			final AbstractAttributeComposite<?> composite = this;
+			return new IInputListener() {
+
+				@Override
+				public void inputChanged() {
+					final String value = model.provider.getSort(composite).getValue();
+					final boolean clear = value.equals("");
+					for (final String property : getPropertyNames()) {
+						final AttributeComposite attributeComposite = attributeComposites.get(property);
+						if (!attributeComposite.isSortable()) {
+							continue;
+						}
+
+						final SortingIndexComboBox sortIndex = model.provider.getSortIndex(attributeComposite);
+						final IComboBox<String> sorting = model.provider.getSort(attributeComposite);
+						final boolean isEmpty = sorting.getValue().equals("");
+						if (clear && !isEmpty) {
+							model.sortingLength = model.sortingLength - 1;
+							sortIndex.setIndex(0);
+						}
+						else if (!clear && isEmpty) {
+							model.sortingLength = model.sortingLength + 1;
+							if (sortIndex.range < model.sortingLength) {
+								sortIndex.setRange(attributeComposites.size());
+							}
+							sortIndex.setIndex(model.sortingLength);
+						}
+						setValue(sorting, value);
+					}
+					model.updateSortingIndexRanges();
+				}
+			};
+		}
+
+		@Override
+		protected IInputListener createCurrentSortingIndexChangedListener() {
+			return null;
+		}
+
+		@Override
+		protected IInputListener createDefaultSortingIndexChangedListener() {
+			return null;
+		}
+	}
+
+	private final class AttributeGroupHeader extends AbstractAttributesGroupComposite<AttributeGroupInformation> {
 
 		private final AttributeGroupInformation information;
 
@@ -691,146 +960,14 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 			return actionBuilder.build();
 		}
 
-		public void updateValues() {
-			updateValues(information.propertyNames);
-		}
-
 		@Override
-		protected IInputListener createVisibleChangedListener() {
-			return new IInputListener() {
-
-				@Override
-				public void inputChanged() {
-					if (isProgrammaticUpdate) {
-						return;
-					}
-					isProgrammaticUpdate = true;
-					final boolean visible = getVisible().getValue();
-					for (final String property : getData().propertyNames) {
-						attributeComposites.get(property).getVisible().setValue(visible);
-					}
-					isProgrammaticUpdate = false;
-					programmaticUpdate();
-				}
-			};
-		}
-
-		@Override
-		protected IInputListener createHeaderChangedListener() {
-			return new IInputListener() {
-
-				@Override
-				public void inputChanged() {
-					if (isProgrammaticUpdate) {
-						return;
-					}
-					isProgrammaticUpdate = true;
-					final String value = getHeaderFormat().getValue();
-					for (final String property : getData().propertyNames) {
-						final IComboBox<String> header = attributeComposites.get(property).getHeaderFormat();
-						setValue(header, value);
-					}
-					isProgrammaticUpdate = false;
-					programmaticUpdate();
-				}
-			};
-		}
-
-		@Override
-		protected IInputListener createContentChangedListener() {
-			return new IInputListener() {
-
-				@Override
-				public void inputChanged() {
-					if (isProgrammaticUpdate) {
-						return;
-					}
-					isProgrammaticUpdate = true;
-					final String value = getContentFormat().getValue();
-					for (final String property : getData().propertyNames) {
-						final IComboBox<String> content = attributeComposites.get(property).getContentFormat();
-						setValue(content, value);
-					}
-					isProgrammaticUpdate = false;
-					programmaticUpdate();
-				}
-			};
-		}
-
-		@Override
-		protected IInputListener createAlignmentChangedListener() {
-			return new IInputListener() {
-
-				@Override
-				public void inputChanged() {
-					if (isProgrammaticUpdate) {
-						return;
-					}
-
-					isProgrammaticUpdate = true;
-					final String value = getColumnAlignment().getValue();
-					for (final String property : getData().propertyNames) {
-						final IComboBox<String> alignment = attributeComposites.get(property).getColumnAlignment();
-						setValue(alignment, value);
-					}
-					isProgrammaticUpdate = false;
-					programmaticUpdate();
-				}
-			};
-		}
-
-		@Override
-		protected IInputListener createCurrentSortingChangedListener() {
-			return new IInputListener() {
-
-				@Override
-				public void inputChanged() {
-					if (isProgrammaticUpdate) {
-						return;
-					}
-
-					isProgrammaticUpdate = true;
-					final String value = getCurrentSorting().getValue();
-					for (final String property : getData().propertyNames) {
-						final IComboBox<String> alignment = attributeComposites.get(property).getCurrentSorting();
-						setValue(alignment, value);
-					}
-					isProgrammaticUpdate = false;
-					programmaticUpdate();
-				}
-			};
-		}
-
-		@Override
-		protected IInputListener createDefaultSortingChangedListener() {
-			return new IInputListener() {
-
-				@Override
-				public void inputChanged() {
-					if (isProgrammaticUpdate) {
-						return;
-					}
-
-					isProgrammaticUpdate = true;
-					final String value = getDefaultSorting().getValue();
-					for (final String property : getData().propertyNames) {
-						final IComboBox<String> alignment = attributeComposites.get(property).getDefaultSorting();
-						setValue(alignment, value);
-					}
-					isProgrammaticUpdate = false;
-					programmaticUpdate();
-				}
-			};
-		}
-
-		@Override
-		protected boolean hasSortPriority() {
-			return false;
+		protected String[] getPropertyNames() {
+			return getData().propertyNames;
 		}
 
 	}
 
-	private final class AllAttributesComposite extends AbstractAttributeComposite<AllAttributeInformation> {
+	private final class AllAttributesComposite extends AbstractAttributesGroupComposite<AllAttributeInformation> {
 
 		private boolean collapseState;
 
@@ -902,141 +1039,9 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 			return actionBuilder.build();
 		}
 
-		public void updateValues() {
-			updateValues(getData().propertyNames);
-		}
-
 		@Override
-		protected IInputListener createVisibleChangedListener() {
-			return new IInputListener() {
-
-				@Override
-				public void inputChanged() {
-					if (!isProgrammaticUpdate) {
-						isProgrammaticUpdate = true;
-						final boolean visible = getVisible().getValue();
-						for (final String property : getData().propertyNames) {
-							attributeComposites.get(property).getVisible().setValue(visible);
-						}
-						isProgrammaticUpdate = false;
-						programmaticUpdate();
-					}
-				}
-			};
-		}
-
-		@Override
-		protected IInputListener createHeaderChangedListener() {
-			return new IInputListener() {
-
-				@Override
-				public void inputChanged() {
-					if (isProgrammaticUpdate) {
-						return;
-					}
-
-					isProgrammaticUpdate = true;
-					final String value = getHeaderFormat().getValue();
-					for (final String property : getData().propertyNames) {
-						final IComboBox<String> header = attributeComposites.get(property).getHeaderFormat();
-						setValue(header, value);
-					}
-					isProgrammaticUpdate = false;
-					programmaticUpdate();
-				}
-			};
-		}
-
-		@Override
-		protected IInputListener createContentChangedListener() {
-			return new IInputListener() {
-
-				@Override
-				public void inputChanged() {
-					if (isProgrammaticUpdate) {
-						return;
-					}
-
-					isProgrammaticUpdate = true;
-					final String value = getContentFormat().getValue();
-					for (final String property : getData().propertyNames) {
-						final IComboBox<String> content = attributeComposites.get(property).getContentFormat();
-						setValue(content, value);
-					}
-					isProgrammaticUpdate = false;
-					programmaticUpdate();
-				}
-			};
-		}
-
-		@Override
-		protected IInputListener createAlignmentChangedListener() {
-			return new IInputListener() {
-
-				@Override
-				public void inputChanged() {
-					if (isProgrammaticUpdate) {
-						return;
-					}
-					isProgrammaticUpdate = true;
-					final String value = getColumnAlignment().getValue();
-					for (final String property : getData().propertyNames) {
-						final IComboBox<String> alignment = attributeComposites.get(property).getColumnAlignment();
-						setValue(alignment, value);
-					}
-					isProgrammaticUpdate = false;
-					programmaticUpdate();
-				}
-			};
-		}
-
-		@Override
-		protected IInputListener createCurrentSortingChangedListener() {
-			return new IInputListener() {
-
-				@Override
-				public void inputChanged() {
-					if (isProgrammaticUpdate) {
-						return;
-					}
-
-					isProgrammaticUpdate = true;
-					final String value = getCurrentSorting().getValue();
-					for (final String property : getData().propertyNames) {
-						final IComboBox<String> alignment = attributeComposites.get(property).getCurrentSorting();
-						setValue(alignment, value);
-					}
-					isProgrammaticUpdate = false;
-					programmaticUpdate();
-				}
-			};
-		}
-
-		@Override
-		protected IInputListener createDefaultSortingChangedListener() {
-			return new IInputListener() {
-
-				@Override
-				public void inputChanged() {
-					if (isProgrammaticUpdate) {
-						return;
-					}
-
-					isProgrammaticUpdate = true;
-					final String value = getDefaultSorting().getValue();
-					for (final String property : getData().propertyNames) {
-						final IComboBox<String> alignment = attributeComposites.get(property).getDefaultSorting();
-						setValue(alignment, value);
-					}
-					isProgrammaticUpdate = false;
-					programmaticUpdate();
-				}
-			};
-		}
-
-		@Override
-		protected boolean hasSortPriority() {
-			return false;
+		protected String[] getPropertyNames() {
+			return getData().propertyNames;
 		}
 
 	}
@@ -1541,6 +1546,12 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 		}
 	}
 
+	private static void setValue(final SortingIndexComboBox comboBox, final int index) {
+		if (comboBox != null) {
+			comboBox.setIndex(index);
+		}
+	}
+
 	private static void setValue(final IComboBox<String> comboBox, final String value) {
 		if (comboBox == null) {
 			return;
@@ -1552,5 +1563,278 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 			return;
 		}
 		comboBox.setValue(value);
+	}
+
+	private class ComboBox extends ComboBoxWrapper<String> {
+		private final InputObservable inputObservable = new InputObservable();
+		private String lastValue;
+
+		public ComboBox(final IComboBox<String> widget) {
+			super(widget);
+			lastValue = "";
+			super.addInputListener(new IInputListener() {
+				@Override
+				public void inputChanged() {
+					final String value = getValue();
+					final boolean changed = !value.equals(lastValue);
+
+					if (changed && !eventsDisabled) {
+						eventsDisabled = true;
+						inputObservable.fireInputChanged();
+						eventsDisabled = false;
+						updateHeaders();
+					}
+					lastValue = value;
+				}
+			});
+		}
+
+		@Override
+		public void addInputListener(final IInputListener listener) {
+			if (listener == null) {
+				return;
+			}
+			inputObservable.addInputListener(listener);
+		}
+
+		@Override
+		public void removeInputListener(final IInputListener listener) {
+			if (listener == null) {
+				return;
+			}
+			inputObservable.removeInputListener(listener);
+		}
+	}
+
+	private class SortingIndexComboBox extends ComboBoxWrapper<String> {
+
+		private final InputObservable inputObservable = new InputObservable();
+		private int range;
+		private int previousIndex;
+
+		public SortingIndexComboBox(final IComboBox<String> widget) {
+			super(widget);
+			range = -1;
+
+			setElements(String.valueOf(maxSortingLength));
+
+			super.addInputListener(new IInputListener() {
+				@Override
+				public void inputChanged() {
+					final int currentIndex = getIndex();
+					if ((currentIndex != previousIndex) && (!eventsDisabled)) {
+						eventsDisabled = true;
+						inputObservable.fireInputChanged();
+						eventsDisabled = false;
+						updateHeaders();
+					}
+
+					previousIndex = currentIndex;
+				}
+			});
+
+		}
+
+		public void setRange(final int range) {
+			if (this.range == range) {
+				return;
+			}
+
+			this.range = Math.min(range, maxSortingLength);
+
+			final int index = getIndex();
+			setElements(createList());
+			setIndex(index);
+		}
+
+		public int getIndex() {
+			final String value = getValue();
+			if ((value == null) || (value.equals(""))) {
+				return 0;
+			}
+			return Integer.valueOf(value);
+		}
+
+		public int getPreviousIndex() {
+			return previousIndex;
+		}
+
+		public void setIndex(final int index) {
+			if (index > range) {
+				setRange(index);
+			}
+
+			if (index == 0) {
+				setValue("");
+			}
+			else {
+				setValue(String.valueOf(index));
+			}
+		}
+
+		private List<String> createList() {
+			final List<String> result = new LinkedList<String>();
+			result.add("");
+			for (int i = 0; i < range; i++) {
+				result.add(String.valueOf(i + 1));
+			}
+			if ((getIndex() == 0) && (range < maxSortingLength)) {
+				result.add(String.valueOf(range + 1));
+			}
+			return result;
+		}
+
+		@Override
+		public void addInputListener(final IInputListener listener) {
+			if (listener == null) {
+				return;
+			}
+			inputObservable.addInputListener(listener);
+		}
+
+		@Override
+		public void removeInputListener(final IInputListener listener) {
+			if (listener == null) {
+				return;
+			}
+			inputObservable.removeInputListener(listener);
+		}
+	}
+
+	protected List<String> getAlignments() {
+		final List<String> result = new LinkedList<String>();
+		for (final AlignmentHorizontal alignment : AlignmentHorizontal.values()) {
+			result.add(alignment.getLabel());
+		}
+		return result;
+	}
+
+	protected List<String> getSortOrders() {
+		final List<String> result = new LinkedList<String>();
+		result.add("");
+		for (final SortOrder sortOrder : SortOrder.values()) {
+			result.add(sortOrder.getLabel());
+		}
+		return result;
+	}
+
+	private interface ISortIndexModelProvider {
+		ComboBox getSort(AbstractAttributeComposite<?> composite);
+
+		SortingIndexComboBox getSortIndex(AbstractAttributeComposite<?> composite);
+	}
+
+	private final class SortIndexModel {
+		private int sortingLength;
+		private final ISortIndexModelProvider provider;
+
+		SortIndexModel(final ISortIndexModelProvider provider) {
+			this.provider = provider;
+		}
+
+		void updateSortingIndexRanges() {
+			for (final Entry<String, AttributeComposite> entry : attributeComposites.entrySet()) {
+				final AttributeComposite composite = entry.getValue();
+				if (composite.isSortable()) {
+					provider.getSortIndex(composite).setRange(sortingLength);
+				}
+			}
+		}
+
+		void clearSortIndices() {
+			final int size = attributeComposites.size();
+			for (final Entry<String, AttributeComposite> entry : attributeComposites.entrySet()) {
+				final AttributeComposite composite = entry.getValue();
+				if (composite.isSortable()) {
+					provider.getSortIndex(composite).setRange(size);
+					provider.getSort(composite).setValue("");
+					provider.getSortIndex(composite).setIndex(0);
+				}
+			}
+		}
+
+		void insertSortIndex(final int index, final String propertyName) {
+			sortingLength++;
+			for (final Entry<String, AttributeComposite> entry : attributeComposites.entrySet()) {
+				final AttributeComposite composite = entry.getValue();
+				if (!composite.isSortable()) {
+					continue;
+				}
+
+				final SortingIndexComboBox comboBox = provider.getSortIndex(composite);
+				if (entry.getKey().equals(propertyName)) {
+					comboBox.setIndex(index);
+					continue;
+				}
+
+				final int currentIndex = comboBox.getIndex();
+				if (currentIndex == 0) {
+					continue;
+				}
+				if (currentIndex >= index) {
+					final int newIndex = currentIndex + 1;
+					if (comboBox.range < newIndex) {
+						comboBox.setRange(attributeComposites.size());
+					}
+					comboBox.setIndex(newIndex);
+				}
+			}
+		}
+
+		void removeSortIndex(final int index, final String propertyName) {
+			sortingLength--;
+			for (final Entry<String, AttributeComposite> entry : attributeComposites.entrySet()) {
+				final AttributeComposite composite = entry.getValue();
+				if (!composite.isSortable()) {
+					continue;
+				}
+
+				final SortingIndexComboBox comboBox = provider.getSortIndex(composite);
+				if (entry.getKey().equals(propertyName)) {
+					comboBox.setIndex(0);
+					continue;
+				}
+
+				final int currentIndex = comboBox.getIndex();
+				if (currentIndex == 0) {
+					continue;
+				}
+				if (currentIndex >= index) {
+					final int newIndex = currentIndex - 1;
+					comboBox.setIndex(newIndex);
+				}
+			}
+		}
+
+		void shiftSortingIndex(final int newIndex, final int previousIndex, final String propertyName) {
+			final int delta;
+			if (newIndex < previousIndex) {
+				delta = 1;
+			}
+			else {
+				delta = -1;
+			}
+
+			final int lowestIndex = Math.min(newIndex, previousIndex);
+			final int highestIndex = Math.max(newIndex, previousIndex);
+
+			for (final Entry<String, AttributeComposite> entry : attributeComposites.entrySet()) {
+				final AttributeComposite composite = entry.getValue();
+				if (!composite.isSortable()) {
+					continue;
+				}
+
+				final SortingIndexComboBox comboBox = provider.getSortIndex(composite);
+				if (entry.getKey().equals(propertyName)) {
+					comboBox.setIndex(newIndex);
+					continue;
+				}
+
+				final int index = comboBox.getIndex();
+				if ((index >= lowestIndex) && (index <= highestIndex)) {
+					comboBox.setIndex(index + delta);
+				}
+			}
+		}
 	}
 }
