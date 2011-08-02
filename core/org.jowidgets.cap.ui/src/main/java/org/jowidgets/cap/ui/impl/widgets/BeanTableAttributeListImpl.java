@@ -60,7 +60,9 @@ import org.jowidgets.cap.ui.api.attribute.IAttributeConfig;
 import org.jowidgets.cap.ui.api.attribute.IAttributeGroup;
 import org.jowidgets.cap.ui.api.attribute.IControlPanelProvider;
 import org.jowidgets.cap.ui.api.table.IBeanTableConfig;
+import org.jowidgets.cap.ui.api.table.IBeanTableConfigBuilder;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
+import org.jowidgets.cap.ui.tools.sort.SortModelConfigBuilder;
 import org.jowidgets.common.color.ColorValue;
 import org.jowidgets.common.color.IColorConstant;
 import org.jowidgets.common.types.AlignmentHorizontal;
@@ -2123,5 +2125,126 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 		if (comboBox != null) {
 			appendText(stringBuilder, comboBox.getValue());
 		}
+	}
+
+	public void buildConfig(final IBeanTableConfigBuilder builder) {
+		for (final Entry<String, AttributeComposite> entry : attributeComposites.entrySet()) {
+			final AttributeComposite attributeComposite = entry.getValue();
+			builder.addAttributeConfig(entry.getKey(), new IAttributeConfig() {
+				@Override
+				public Boolean isVisible() {
+					return attributeComposite.getVisible().getValue();
+				}
+
+				@Override
+				public DisplayFormat getLabelDisplayFormat() {
+					if (attributeComposite.getHeaderFormat() != null) {
+						final String displayFormat = attributeComposite.getHeaderFormat().getValue();
+						if (DisplayFormat.SHORT.getName().equals(displayFormat)) {
+							return DisplayFormat.SHORT;
+						}
+						else if (DisplayFormat.LONG.getName().equals(displayFormat)) {
+							return DisplayFormat.LONG;
+						}
+						else {
+							return DisplayFormat.DEFAULT;
+						}
+					}
+					else {
+						return null;
+					}
+				}
+
+				@Override
+				public String getDisplayFormatId() {
+					if (attributeComposite.getContentFormat() != null) {
+						final String displayFormat = attributeComposite.getContentFormat().getValue();
+						if (DisplayFormat.SHORT.getName().equals(displayFormat)) {
+							return DisplayFormat.SHORT.getId();
+						}
+						else if (DisplayFormat.LONG.getName().equals(displayFormat)) {
+							return DisplayFormat.LONG.getId();
+						}
+						else {
+							return DisplayFormat.DEFAULT.getId();
+						}
+					}
+					else {
+						return null;
+					}
+				}
+
+				@Override
+				public AlignmentHorizontal getTableAlignment() {
+					final String alignment = attributeComposite.getColumnAlignment().getValue();
+					if (AlignmentHorizontal.LEFT.getLabel().equals(alignment)) {
+						return AlignmentHorizontal.LEFT;
+					}
+					else if (AlignmentHorizontal.CENTER.getLabel().equals(alignment)) {
+						return AlignmentHorizontal.CENTER;
+					}
+					else if (AlignmentHorizontal.RIGHT.getLabel().equals(alignment)) {
+						return AlignmentHorizontal.RIGHT;
+					}
+					else {
+						throw new IllegalStateException("Unkown Alignment: " + alignment);
+					}
+				}
+
+				@Override
+				public Integer getTableWidth() {
+					return null;
+				}
+
+			});
+		}
+
+		final SortModelConfigBuilder sortModelConfigBuilder = new SortModelConfigBuilder();
+		final AttributeComposite[] currentSorting = new AttributeComposite[currentSortingModel.sortingLength];
+		final AttributeComposite[] defaultSorting = new AttributeComposite[defaultSortingModel.sortingLength];
+		for (final Entry<String, AttributeComposite> entry : attributeComposites.entrySet()) {
+			final AttributeComposite attributeComposite = entry.getValue();
+			if (!attributeComposite.isSortable()) {
+				continue;
+			}
+
+			final int currentSortingIndex = currentSortingModel.provider.getSortIndex(attributeComposite).getIndex();
+			if (currentSortingIndex > 0) {
+				currentSorting[currentSortingIndex - 1] = attributeComposite;
+			}
+
+			final int defaultSortingIndex = defaultSortingModel.provider.getSortIndex(attributeComposite).getIndex();
+			if (defaultSortingIndex > 0) {
+				defaultSorting[defaultSortingIndex - 1] = attributeComposite;
+			}
+		}
+
+		for (final AttributeComposite attributeComposite : currentSorting) {
+			final String orderText = currentSortingModel.provider.getSort(attributeComposite).getValue();
+			final SortOrder sortOrder = getSortOrder(orderText);
+			sortModelConfigBuilder.addCurrentProperty(attributeComposite.propertyName, sortOrder);
+		}
+
+		for (final AttributeComposite attributeComposite : defaultSorting) {
+			final String orderText = defaultSortingModel.provider.getSort(attributeComposite).getValue();
+			final SortOrder sortOrder = getSortOrder(orderText);
+			sortModelConfigBuilder.addDefaultProperty(attributeComposite.propertyName, sortOrder);
+		}
+
+		builder.setSortModelConfig(sortModelConfigBuilder.build());
+	}
+
+	private SortOrder getSortOrder(final String text) {
+		final SortOrder sortOrder;
+		if (SortOrder.ASC.getLabel().equals(text)) {
+			sortOrder = SortOrder.ASC;
+		}
+		else if (SortOrder.DESC.getLabel().equals(text)) {
+			sortOrder = SortOrder.DESC;
+		}
+		else {
+			throw new IllegalStateException("Unkown sort order: " + text);
+		}
+		return sortOrder;
 	}
 }
