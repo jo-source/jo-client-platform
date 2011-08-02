@@ -35,7 +35,9 @@ import org.jowidgets.api.widgets.IComposite;
 import org.jowidgets.api.widgets.IFrame;
 import org.jowidgets.api.widgets.IInputField;
 import org.jowidgets.api.widgets.blueprint.factory.IBluePrintFactory;
+import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.table.IBeanTableConfig;
+import org.jowidgets.cap.ui.api.table.IBeanTableConfigBuilder;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableSettingsDialog;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableSettingsDialogBluePrint;
@@ -54,10 +56,8 @@ final class BeanTableSettingsDialogImpl extends WindowWrapper implements IBeanTa
 	private final BeanTableAttributeListImpl beanTableAttributeListImpl;
 	private final IBeanTableConfig currentConfig;
 
-	@SuppressWarnings("unused")
 	private boolean okPressed;
 
-	@SuppressWarnings("unused")
 	private final ICheckBox autoSelection;
 
 	BeanTableSettingsDialogImpl(final IFrame frame, final IBeanTableSettingsDialogBluePrint setup) {
@@ -104,14 +104,24 @@ final class BeanTableSettingsDialogImpl extends WindowWrapper implements IBeanTa
 		beanTableAttributeListImpl.updateValues(model.getConfig());
 		frame.setVisible(true);
 
-		// TODO NM build current config
-		return currentConfig;
+		if (okPressed) {
+			return getUserConfig();
+		}
+		else {
+			return currentConfig;
+		}
+	}
+
+	private IBeanTableConfig getUserConfig() {
+		final IBeanTableConfigBuilder builder = CapUiToolkit.beanTableConfigBuilder();
+		beanTableAttributeListImpl.buildConfig(builder);
+		builder.setAutoSelection(autoSelection.getValue());
+		return builder.build();
 	}
 
 	@Override
 	public boolean isOkPressed() {
-		return false;
-		// TODO NM return okPressed;
+		return okPressed;
 	}
 
 	private void createButtonBar(final IComposite buttonBar) {
