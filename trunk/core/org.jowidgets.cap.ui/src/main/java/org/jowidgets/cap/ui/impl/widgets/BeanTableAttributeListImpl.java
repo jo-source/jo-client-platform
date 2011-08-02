@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.ui.impl.widgets;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -716,8 +717,9 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 			return new IInputListener() {
 				@Override
 				public void inputChanged() {
-					final String value = model.provider.getSort(attributeComposites.get(propertyName)).getValue();
-					final boolean newEnableState = !value.equals("");
+					final ComboBox comboBox = model.provider.getSort(attributeComposites.get(propertyName));
+					final String value = comboBox.getValue();
+					final boolean newEnableState = !value.equals("") && comboBox.getLastValue().equals("");
 					if (newEnableState) {
 						model.insertSortIndex(model.sortingLength + 1, propertyName);
 					}
@@ -866,19 +868,22 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 
 				@Override
 				public void inputChanged() {
+					final String[] properties = getPropertyNames();
 					final String value = model.provider.getSort(composite).getValue();
 					final boolean clear = value.equals("");
-					for (final String property : getPropertyNames()) {
-						final AttributeComposite attributeComposite = attributeComposites.get(property);
+					final List<Integer> shiftList = new ArrayList<Integer>();
+					for (int columnIndex = 0; columnIndex < properties.length; columnIndex++) {
+						final AttributeComposite attributeComposite = attributeComposites.get(properties[columnIndex]);
 						if (!attributeComposite.isSortable()) {
 							continue;
 						}
 
 						final SortingIndexComboBox sortIndex = model.provider.getSortIndex(attributeComposite);
-						final IComboBox<String> sorting = model.provider.getSort(attributeComposite);
+						final ComboBox sorting = model.provider.getSort(attributeComposite);
 						final boolean isEmpty = sorting.getValue().equals("");
 						if (clear && !isEmpty) {
 							model.sortingLength = model.sortingLength - 1;
+							shiftList.add(Integer.valueOf(sortIndex.getIndex()));
 							sortIndex.setIndex(0);
 						}
 						else if (!clear && isEmpty) {
@@ -890,7 +895,32 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 						}
 						setValue(sorting, value);
 					}
+
+					for (final Entry<String, AttributeComposite> entry : attributeComposites.entrySet()) {
+						final AttributeComposite attributeComposite = entry.getValue();
+						if (!attributeComposite.isSortable()) {
+							continue;
+						}
+
+						final SortingIndexComboBox sortIndex = model.provider.getSortIndex(attributeComposite);
+						final int index = sortIndex.getIndex();
+						final int shift = getShift(index, shiftList);
+						if (shift != 0) {
+							sortIndex.setIndex(index + shift);
+						}
+					}
+
 					model.updateSortingIndexRanges();
+				}
+
+				private int getShift(final int index, final List<Integer> list) {
+					int result = 0;
+					for (final Integer shiftIndex : list) {
+						if (index > shiftIndex) {
+							result--;
+						}
+					}
+					return result;
 				}
 			};
 		}
@@ -1576,7 +1606,7 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 				@Override
 				public void inputChanged() {
 					final String value = getValue();
-					final boolean changed = !value.equals(lastValue);
+					final boolean changed = !lastValue.equals(value);
 
 					if (changed && !eventsDisabled) {
 						eventsDisabled = true;
@@ -1584,7 +1614,12 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 						eventsDisabled = false;
 						updateHeaders();
 					}
-					lastValue = value;
+					if (value == null) {
+						lastValue = "";
+					}
+					else {
+						lastValue = value;
+					}
 				}
 			});
 		}
@@ -1603,6 +1638,10 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 				return;
 			}
 			inputObservable.removeInputListener(listener);
+		}
+
+		private String getLastValue() {
+			return lastValue;
 		}
 	}
 
