@@ -107,6 +107,7 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 	private final ListLayout attributeScrollerLayout;
 
 	private final AllAttributesComposite allAttributesComposite;
+	private final AttributesFilterComposite attributesFilterComposite;
 
 	private final int maxSortingLength;
 	private boolean eventsDisabled;
@@ -120,7 +121,7 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 		this.groupHeaders = new HashMap<String, AttributeGroupHeader>();
 		this.groupContainers = new HashMap<String, AttributeGroupContainer>();
 		this.attributeComposites = new HashMap<String, AttributeComposite>();
-		this.setLayout(new MigLayoutDescriptor("[grow]", "[]0[]0[grow, 0:600:]"));
+		this.setLayout(new MigLayoutDescriptor("hidemode 2", "[grow]", "[]0[]0[]0[grow, 0:500:]"));
 		this.maxSortingLength = getMaxSortableLength(model);
 
 		currentSortingModel = new SortIndexModel(new ISortIndexModelProvider() {
@@ -158,6 +159,12 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 			attributeLayoutManager,
 			model,
 			new AllAttributeInformation(model));
+		attributesFilterComposite = new AttributesFilterComposite(
+			add(bpF.composite(), "grow, wrap"),
+			attributeLayoutManager,
+			model,
+			new AllAttributeInformation(model));
+		attributesFilterComposite.setVisible(false);
 
 		attributeScroller = this.add(bpF.scrollComposite().setHorizontalBar(false), "grow, w 0::, h 0::");
 		attributeScrollerLayout = new ListLayout(attributeScroller, ALTERNATING_GROUPS);
@@ -285,6 +292,7 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 		}
 
 		allAttributesComposite.updateValues();
+		attributesFilterComposite.updateValues();
 		eventsDisabled = false;
 	}
 
@@ -769,6 +777,7 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 		protected boolean hasSortPriority() {
 			return true;
 		}
+
 	}
 
 	private abstract class AbstractAttributesGroupComposite<TYPE> extends AbstractAttributeComposite<TYPE> {
@@ -778,7 +787,7 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 			final IBeanTableModel<?> model,
 			final TYPE information,
 			final ITextLabelBluePrint textLabel) {
-			super(container, attributeLayoutManager, model, information, LABEL_GROUPS);
+			super(container, attributeLayoutManager, model, information, textLabel);
 			setBackgroundColor(ATTRIBUTE_GROUP_BACKGROUND);
 		}
 
@@ -896,17 +905,19 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 						setValue(sorting, value);
 					}
 
-					for (final Entry<String, AttributeComposite> entry : attributeComposites.entrySet()) {
-						final AttributeComposite attributeComposite = entry.getValue();
-						if (!attributeComposite.isSortable()) {
-							continue;
-						}
+					if (clear && shiftList.size() > 0) {
+						for (final Entry<String, AttributeComposite> entry : attributeComposites.entrySet()) {
+							final AttributeComposite attributeComposite = entry.getValue();
+							if (!attributeComposite.isSortable()) {
+								continue;
+							}
 
-						final SortingIndexComboBox sortIndex = model.provider.getSortIndex(attributeComposite);
-						final int index = sortIndex.getIndex();
-						final int shift = getShift(index, shiftList);
-						if (shift != 0) {
-							sortIndex.setIndex(index + shift);
+							final SortingIndexComboBox sortIndex = model.provider.getSortIndex(attributeComposite);
+							final int index = sortIndex.getIndex();
+							final int shift = getShift(index, shiftList);
+							if (shift != 0) {
+								sortIndex.setIndex(index + shift);
+							}
 						}
 					}
 
@@ -939,6 +950,7 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 	private final class AttributeGroupHeader extends AbstractAttributesGroupComposite<AttributeGroupInformation> {
 
 		private final AttributeGroupInformation information;
+		private final boolean collapsed;
 
 		private AttributeGroupHeader(
 			final IContainer container,
@@ -948,6 +960,7 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 			super(container, attributeLayoutManager, model, information, LABEL_GROUPS);
 			setBackgroundColor(ATTRIBUTE_GROUP_BACKGROUND);
 			this.information = information;
+			collapsed = false;
 		}
 
 		@Override
@@ -993,6 +1006,112 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 		@Override
 		protected String[] getPropertyNames() {
 			return getData().propertyNames;
+		}
+
+	}
+
+	private final class AttributesFilterComposite extends AbstractAttributesGroupComposite<AllAttributeInformation> {
+
+		private boolean collapseState;
+		private String[] propertyNames;
+		private List<String> headerFormats;
+		private List<String> contentFormats;
+		private Boolean sortable;
+
+		private AttributesFilterComposite(
+			final IContainer container,
+			final AttributeLayoutManager attributeLayoutManager,
+			final IBeanTableModel<?> model,
+			final AllAttributeInformation information) {
+			super(container, attributeLayoutManager, model, information, LABEL_ALL);
+			setBackgroundColor(Colors.WHITE);
+			collapseState = false;
+		}
+
+		@Override
+		protected String getLabelText() {
+			// TODO i18n
+			return "Search";
+		}
+
+		@Override
+		protected List<String> getHeaderFormats() {
+			if (headerFormats == null) {
+				updateData();
+			}
+			return headerFormats;
+		}
+
+		@Override
+		protected List<String> getContentFormats() {
+			if (contentFormats == null) {
+				updateData();
+			}
+			return contentFormats;
+		}
+
+		@Override
+		protected boolean isSortable() {
+			if (sortable == null) {
+				updateData();
+			}
+			return sortable.booleanValue();
+		}
+
+		@Override
+		protected boolean hasCollapseButton() {
+			return true;
+		}
+
+		@Override
+		protected IAction createCollapseAction() {
+			final ActionBuilder actionBuilder = new ActionBuilder();
+			actionBuilder.setIcon(IconsSmall.TABLE_SORT_DESC);
+			actionBuilder.setCommand(new ICommandExecutor() {
+
+				@Override
+				public void execute(final IExecutionContext executionContext) throws Exception {
+					final IToolBarButton button = (IToolBarButton) executionContext.getSource();
+					collapseState = !collapseState;
+					// (un)collapse all groups
+					attributeLayoutManager.beginLayout();
+					for (final AttributeGroupHeader header : groupHeaders.values()) {
+						if (!header.isEnabled()) {
+							continue;
+						}
+
+						if (header.information.collapsed != collapseState) {
+							header.information.setCollapsed(collapseState);
+						}
+					}
+					attributeLayoutManager.endLayout();
+
+					if (collapseState) {
+						button.setIcon(IconsSmall.TABLE_SORT_ASC);
+					}
+					else {
+						button.setIcon(IconsSmall.TABLE_SORT_DESC);
+					}
+
+				}
+
+			});
+			return actionBuilder.build();
+		}
+
+		@Override
+		protected String[] getPropertyNames() {
+			if (propertyNames == null) {
+				updateData();
+			}
+			return propertyNames;
+		}
+
+		public void updateData() {
+			propertyNames = getData().propertyNames;
+			headerFormats = getData().headerFormats;
+			contentFormats = getData().contentFormats;
+			sortable = true;
 		}
 
 	}
@@ -1874,6 +1993,135 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 					comboBox.setIndex(index + delta);
 				}
 			}
+		}
+	}
+
+	public void setFilter(final String text) {
+		boolean changed = false;
+		final boolean allVisible = (text == null) || (text.equals(""));
+
+		final HashSet<String> visibleList = new HashSet<String>();
+
+		for (final Entry<String, AttributeComposite> entry : attributeComposites.entrySet()) {
+			final AttributeComposite attributeComposite = entry.getValue();
+			final boolean visible = allVisible || checkFilter(attributeComposite, text);
+			changed = changed || (attributeComposite.isEnabled() != visible);
+			attributeComposite.setEnabled(visible);
+
+			if (visible) {
+				visibleList.add(attributeComposite.propertyName);
+			}
+		}
+
+		if (attributesFilterComposite.isVisible() != !allVisible) {
+			attributesFilterComposite.setVisible(!allVisible);
+			layoutBegin();
+			layoutEnd();
+		}
+
+		if (changed) {
+			attributesFilterComposite.updateData();
+			for (final Entry<String, AttributeGroupContainer> entry : groupContainers.entrySet()) {
+				final String groupId = entry.getKey();
+				final AttributeGroupContainer container = entry.getValue();
+				final AttributeGroupHeader attributeGroupHeader = groupHeaders.get(groupId);
+
+				boolean headerVisible = allVisible;
+
+				if (!headerVisible) {
+					for (final String propertyName : attributeGroupHeader.getPropertyNames()) {
+						if (visibleList.contains(propertyName)) {
+							headerVisible = true;
+							break;
+						}
+					}
+				}
+
+				if (attributeGroupHeader.isEnabled() != headerVisible) {
+					attributeGroupHeader.setEnabled(headerVisible);
+				}
+				if (container.isEnabled() == attributeGroupHeader.getData().collapsed) {
+					container.setEnabled(!attributeGroupHeader.getData().collapsed);
+				}
+
+				container.layoutBegin();
+				container.layoutEnd();
+			}
+			attributeLayoutManager.invalidate();
+		}
+	}
+
+	private boolean checkFilter(final AttributeComposite attributeComposite, final String filter) {
+		if (filter == null) {
+			return true;
+		}
+
+		final IAttribute<?> attribute = attributeComposite.getAttribute();
+
+		if ((attribute.getGroup() != null) && (attribute.getGroup().getLabel() != null)) {
+			final String groupLabel = attribute.getGroup().getLabel().toLowerCase();
+			if (groupLabel.contains(filter.toLowerCase())) {
+				return true;
+			}
+		}
+
+		final StringBuilder attributeText = new StringBuilder();
+		appendText(attributeText, attribute.getLabel());
+		appendText(attributeText, attribute.getLabelLong());
+		appendText(attributeText, attributeComposite.getColumnAlignment());
+		appendText(attributeText, attributeComposite.getHeaderFormat());
+		appendText(attributeText, attributeComposite.getContentFormat());
+
+		final List<String> words = getWords(filter);
+		for (final String word : words) {
+			if (attributeText.indexOf(word) < 0) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	private List<String> getWords(final String filter) {
+		final List<String> result = new LinkedList<String>();
+		final String[] words = filter.toLowerCase().split(" ");
+
+		String currentWord = null;
+		for (final String word : words) {
+			if (currentWord != null) {
+				currentWord = currentWord + " " + word;
+			}
+			else if (word.startsWith("\"")) {
+				currentWord = word;
+			}
+			else {
+				result.add(word);
+			}
+
+			if (currentWord != null && currentWord.length() > 1 && currentWord.endsWith("\"")) {
+				result.add(currentWord.substring(1, currentWord.length() - 1));
+				currentWord = null;
+			}
+		}
+
+		if (currentWord != null) {
+			result.add(currentWord.substring(1));
+		}
+
+		return result;
+	}
+
+	private void appendText(final StringBuilder stringBuilder, final String text) {
+		if (text != null) {
+			stringBuilder.append('%');
+			stringBuilder.append(text.toLowerCase());
+			stringBuilder.append('%');
+		}
+	}
+
+	private void appendText(final StringBuilder stringBuilder, final IComboBox<String> comboBox) {
+		if (comboBox != null) {
+			appendText(stringBuilder, comboBox.getValue());
 		}
 	}
 }

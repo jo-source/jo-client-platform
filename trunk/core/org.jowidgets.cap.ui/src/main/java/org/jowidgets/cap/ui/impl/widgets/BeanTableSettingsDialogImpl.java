@@ -30,14 +30,17 @@ package org.jowidgets.cap.ui.impl.widgets;
 
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.widgets.IButton;
+import org.jowidgets.api.widgets.ICheckBox;
 import org.jowidgets.api.widgets.IComposite;
 import org.jowidgets.api.widgets.IFrame;
+import org.jowidgets.api.widgets.IInputField;
 import org.jowidgets.api.widgets.blueprint.factory.IBluePrintFactory;
 import org.jowidgets.cap.ui.api.table.IBeanTableConfig;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableSettingsDialog;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableSettingsDialogBluePrint;
 import org.jowidgets.common.widgets.controler.IActionListener;
+import org.jowidgets.common.widgets.controler.IInputListener;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
 import org.jowidgets.tools.widgets.wrapper.WindowWrapper;
 import org.jowidgets.util.Assert;
@@ -51,7 +54,11 @@ final class BeanTableSettingsDialogImpl extends WindowWrapper implements IBeanTa
 	private final BeanTableAttributeListImpl beanTableAttributeListImpl;
 	private final IBeanTableConfig currentConfig;
 
+	@SuppressWarnings("unused")
 	private boolean okPressed;
+
+	@SuppressWarnings("unused")
+	private final ICheckBox autoSelection;
 
 	BeanTableSettingsDialogImpl(final IFrame frame, final IBeanTableSettingsDialogBluePrint setup) {
 		super(frame);
@@ -64,12 +71,30 @@ final class BeanTableSettingsDialogImpl extends WindowWrapper implements IBeanTa
 		this.model = setup.getModel();
 		this.currentConfig = model.getConfig();
 
-		frame.setLayout(new MigLayoutDescriptor("[grow]", "[grow][top]"));
+		frame.setLayout(new MigLayoutDescriptor("[][grow]", "[][][][][grow][pref!]"));
+
+		// common settings
+		// TODO i18n
+		frame.add(bpF.textSeparator("Common settings"), "grow, span, wrap");
+		autoSelection = frame.add(bpF.checkBox().setText("Auto selection"), "grow, span, wrap");
+
+		// TODO i18n 
+		frame.add(bpF.textSeparator("Columns"), "grow, span, wrap");
+		frame.add(bpF.textLabel("Search:"), "");
+		final IInputField<String> filter = frame.add(bpF.inputFieldString(), "wrap, grow");
+		filter.addInputListener(new IInputListener() {
+
+			@Override
+			public void inputChanged() {
+				beanTableAttributeListImpl.setFilter(filter.getText());
+			}
+		});
 
 		beanTableAttributeListImpl = new BeanTableAttributeListImpl(frame.add(
 				bpF.compositeWithBorder(),
-				"grow, wrap, w 0::, h 0::"), model);
-		createButtonBar(frame.add(bpF.composite(), "align right, wrap"));
+				"grow, wrap, span, w 0::, h 0::"), model);
+
+		createButtonBar(frame.add(bpF.composite(), "alignx right, span, wrap"));
 		frame.pack();
 	}
 
@@ -78,17 +103,21 @@ final class BeanTableSettingsDialogImpl extends WindowWrapper implements IBeanTa
 		okPressed = false;
 		beanTableAttributeListImpl.updateValues(model.getConfig());
 		frame.setVisible(true);
+
+		// TODO NM build current config
 		return currentConfig;
 	}
 
 	@Override
 	public boolean isOkPressed() {
-		return okPressed;
+		return false;
+		// TODO NM return okPressed;
 	}
 
 	private void createButtonBar(final IComposite buttonBar) {
-		buttonBar.setLayout(new MigLayoutDescriptor("[]10[]0", ""));
-		final IButton ok = buttonBar.add(bpF.button("Ok"), "sg btn");
+
+		buttonBar.setLayout(new MigLayoutDescriptor("0[][]0", "0[]0"));
+		final IButton ok = buttonBar.add(bpF.button("Ok"), "w 80::, aligny b, sg bg");
 		ok.addActionListener(new IActionListener() {
 			@Override
 			public void actionPerformed() {
@@ -96,8 +125,9 @@ final class BeanTableSettingsDialogImpl extends WindowWrapper implements IBeanTa
 				setVisible(false);
 			}
 		});
+		frame.setDefaultButton(ok);
 
-		final IButton cancel = buttonBar.add(bpF.button("Cancel", "sg btn, wrap"));
+		final IButton cancel = buttonBar.add(bpF.button("Cancel", "w 80::, aligny b, sg bg"));
 		cancel.addActionListener(new IActionListener() {
 			@Override
 			public void actionPerformed() {
@@ -105,5 +135,4 @@ final class BeanTableSettingsDialogImpl extends WindowWrapper implements IBeanTa
 			}
 		});
 	}
-
 }
