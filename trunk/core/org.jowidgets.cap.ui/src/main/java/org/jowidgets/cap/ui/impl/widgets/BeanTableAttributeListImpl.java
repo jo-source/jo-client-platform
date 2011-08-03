@@ -729,16 +729,20 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 				public void inputChanged() {
 					final ComboBox comboBox = model.provider.getSort(attributeComposites.get(propertyName));
 					final String value = comboBox.getValue();
-					final boolean newEnableState = !value.equals("") && comboBox.getLastValue().equals("");
-					if (newEnableState) {
+					final boolean hasToAdd = comboBox.getLastValue().equals("");
+					final boolean hasToRemove = value.equals("");
+					if (hasToAdd) {
 						model.insertSortIndex(model.sortingLength + 1, propertyName);
 					}
-					else {
+					else if (hasToRemove) {
 						model.removeSortIndex(
 								model.provider.getSortIndex(attributeComposites.get(propertyName)).getIndex(),
 								propertyName);
 					}
-					model.updateSortingIndexRanges();
+
+					if (hasToAdd || hasToRemove) {
+						model.updateSortingIndexRanges();
+					}
 				}
 			};
 		}
@@ -1823,6 +1827,9 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 			if (index > range) {
 				setRange(index);
 			}
+			if (getIndex() == 0) {
+				range = -1; // invalidate range
+			}
 
 			if (index == 0) {
 				setValue("");
@@ -1835,11 +1842,13 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 		private List<String> createList() {
 			final List<String> result = new LinkedList<String>();
 			result.add("");
-			for (int i = 0; i < range; i++) {
-				result.add(String.valueOf(i + 1));
+			int usedRange = range;
+			if (getIndex() == 0) {
+				usedRange++;
 			}
-			if ((getIndex() == 0) && (range < maxSortingLength)) {
-				result.add(String.valueOf(range + 1));
+			usedRange = Math.min(usedRange, maxSortingLength);
+			for (int i = 0; i < usedRange; i++) {
+				result.add(String.valueOf(i + 1));
 			}
 			return result;
 		}
@@ -2040,7 +2049,9 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 				}
 
 				if (attributeGroupHeader.isEnabled() != headerVisible) {
-					attributeGroupHeader.setEnabled(headerVisible);
+					if (headerVisible && groupHeaders.size() > 1) {
+						attributeGroupHeader.setEnabled(headerVisible);
+					}
 				}
 				if (container.isEnabled() == attributeGroupHeader.getData().collapsed) {
 					container.setEnabled(!attributeGroupHeader.getData().collapsed);
