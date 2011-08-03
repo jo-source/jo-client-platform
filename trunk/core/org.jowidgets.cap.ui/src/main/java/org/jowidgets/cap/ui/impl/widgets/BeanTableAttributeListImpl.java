@@ -116,6 +116,9 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 
 	private SortIndexModel currentSortingModel;
 	private SortIndexModel defaultSortingModel;
+	private boolean isInitialized;
+
+	private final IInputListener updateHeadersListener;
 
 	BeanTableAttributeListImpl(final IContainer container, final IBeanTableModel<?> model) {
 		super(container);
@@ -125,6 +128,15 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 		this.attributeComposites = new HashMap<String, AttributeComposite>();
 		this.setLayout(new MigLayoutDescriptor("hidemode 2", "[grow]", "[]0[]0[]0[grow, 0:500:]"));
 		this.maxSortingLength = getMaxSortableLength(model);
+		this.isInitialized = false;
+
+		updateHeadersListener = new IInputListener() {
+
+			@Override
+			public void inputChanged() {
+				updateHeaders();
+			}
+		};
 
 		currentSortingModel = new SortIndexModel(new ISortIndexModelProvider() {
 
@@ -213,6 +225,7 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 				attribute);
 			attributeComposites.put(attribute.getPropertyName(), attributeComposite);
 		}
+		this.isInitialized = true;
 
 		attributeLayoutManager.modes[2] = FillMode.CENTER; // center visibility checkbox
 		attributeLayoutManager.gaps[0] = 10;
@@ -412,7 +425,6 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 					defaultSortingIndex = null;
 					addNotAvailableLabel(textLabel);
 				}
-				// TODO NM add listeners...
 			}
 			else {
 				currentSorting = null;
@@ -685,22 +697,22 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 
 		@Override
 		protected IInputListener createHeaderChangedListener() {
-			return null;
+			return updateHeadersListener;
 		}
 
 		@Override
 		protected IInputListener createContentChangedListener() {
-			return null;
+			return updateHeadersListener;
 		}
 
 		@Override
 		protected IInputListener createAlignmentChangedListener() {
-			return null;
+			return updateHeadersListener;
 		}
 
 		@Override
 		protected IInputListener createVisibleChangedListener() {
-			return null;
+			return updateHeadersListener;
 		}
 
 		@Override
@@ -814,10 +826,16 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 
 				@Override
 				public void inputChanged() {
+					if (eventsDisabled) {
+						return;
+					}
+
+					eventsDisabled = true;
 					final boolean visible = getVisible().getValue();
 					for (final String property : getPropertyNames()) {
 						attributeComposites.get(property).getVisible().setValue(visible);
 					}
+					eventsDisabled = false;
 				}
 			};
 		}
@@ -1043,7 +1061,7 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 		@Override
 		protected List<String> getHeaderFormats() {
 			if (headerFormats == null) {
-				updateData();
+				updateValues();
 			}
 			return headerFormats;
 		}
@@ -1051,17 +1069,14 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 		@Override
 		protected List<String> getContentFormats() {
 			if (contentFormats == null) {
-				updateData();
+				updateValues();
 			}
 			return contentFormats;
 		}
 
 		@Override
 		protected boolean isSortable() {
-			if (sortable == null) {
-				updateData();
-			}
-			return sortable.booleanValue();
+			return true;
 		}
 
 		@Override
@@ -1108,18 +1123,58 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 		@Override
 		protected String[] getPropertyNames() {
 			if (propertyNames == null) {
-				updateData();
+				updateValues();
 			}
 			return propertyNames;
 		}
 
-		public void updateData() {
-			propertyNames = getData().propertyNames;
-			headerFormats = getData().headerFormats;
-			contentFormats = getData().contentFormats;
-			sortable = true;
-		}
+		@Override
+		public void updateValues() {
+			if (!isInitialized) {
+				propertyNames = getData().propertyNames;
+				headerFormats = getData().headerFormats;
+				contentFormats = getData().contentFormats;
+				return;
+			}
+			final List<String> propertyNamesList = new LinkedList<String>();
+			headerFormats = new ArrayList<String>();
+			contentFormats = new ArrayList<String>();
+			sortable = false;
+			for (final String propertyName : propertyNames) {
+				final AttributeComposite attributeComposite = attributeComposites.get(propertyName);
+				if (!attributeComposite.isEnabled()) {
+					continue;
+				}
+				propertyNamesList.add(propertyName);
 
+				sortable = sortable || attributeComposite.isSortable();
+
+				if (hasShortAndLongLabel(attributeComposite.getAttribute())) {
+					if (!headerFormats.contains(DisplayFormat.SHORT.getName())) {
+						headerFormats.add(DisplayFormat.SHORT.getName());
+					}
+					if (!headerFormats.contains(DisplayFormat.LONG.getName())) {
+						headerFormats.add(DisplayFormat.LONG.getName());
+					}
+				}
+			}
+
+			propertyNames = new String[propertyNamesList.size()];
+			int index = 0;
+			for (final String propertyName : propertyNamesList) {
+				propertyNames[index] = propertyName;
+				index++;
+			}
+
+			getHeaderFormat().setElements(headerFormats);
+			getHeaderFormat().setEnabled(headerFormats.size() > 1);
+			getContentFormat().setElements(contentFormats);
+			getContentFormat().setEnabled(contentFormats.size() > 1);
+			getCurrentSorting().setEnabled(sortable);
+			getDefaultSorting().setEnabled(sortable);
+
+			super.updateValues(propertyNames);
+		}
 	}
 
 	private final class AllAttributesComposite extends AbstractAttributesGroupComposite<AllAttributeInformation> {
@@ -1569,7 +1624,7 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 				}
 			}
 
-			// TODO NM
+			// TODO NM get list correctly
 			headerFormats.add(DisplayFormat.SHORT.getName());
 			headerFormats.add(DisplayFormat.LONG.getName());
 
@@ -2031,7 +2086,7 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 		}
 
 		if (changed) {
-			attributesFilterComposite.updateData();
+			attributesFilterComposite.updateValues();
 			for (final Entry<String, AttributeGroupContainer> entry : groupContainers.entrySet()) {
 				final String groupId = entry.getKey();
 				final AttributeGroupContainer container = entry.getValue();
@@ -2258,4 +2313,5 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 		}
 		return sortOrder;
 	}
+
 }
