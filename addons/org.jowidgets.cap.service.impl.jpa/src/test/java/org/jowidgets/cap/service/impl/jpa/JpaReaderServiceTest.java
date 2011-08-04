@@ -1172,4 +1172,32 @@ public class JpaReaderServiceTest extends AbstractJpaTest {
 		Assert.assertEquals(2, dtos.size());
 	}
 
+	@Test
+	public void testPersonByCaseInsensitiveTopDomainWithAny() {
+		final SyncResultCallback<List<IBeanDto>> res = new SyncResultCallback<List<IBeanDto>>();
+		caseInsensitivePersonsReader.read(res, null, new IArithmeticFilter() {
+			@Override
+			public boolean isInverted() {
+				return false;
+			}
+
+			@Override
+			public String getPropertyName() {
+				return "domains";
+			}
+
+			@Override
+			public ArithmeticOperator getOperator() {
+				return ArithmeticOperator.CONTAINS_ANY;
+			}
+
+			@Override
+			public Object[] getParameters() {
+				return new Object[] {Arrays.asList("SpOrT")};
+			}
+		}, null, 0, Integer.MAX_VALUE, null, null);
+		final List<IBeanDto> dtos = res.getResultSynchronious();
+		Assert.assertNotNull(dtos);
+		Assert.assertEquals(2, dtos.size());
+	}
 }
