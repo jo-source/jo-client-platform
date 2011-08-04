@@ -281,7 +281,8 @@ public final class CriteriaQueryCreator implements IQueryCreator<Object> {
 				// CHECKSTYLE:ON
 				Expression<?> expr = path;
 				Object arg = filter.getParameters()[0];
-				if (arg instanceof String && path.getJavaType() == String.class) {
+				final boolean isString = arg instanceof String && path.getJavaType() == String.class;
+				if (isString) {
 					String s = (String) arg;
 					if (caseInsensitive) {
 						expr = criteriaBuilder.upper((Expression<String>) expr);
@@ -295,17 +296,20 @@ public final class CriteriaQueryCreator implements IQueryCreator<Object> {
 					}
 				}
 				final Predicate eqPredicate = criteriaBuilder.equal(expr, arg);
-				final Predicate lookupPredicate = createLookupPredicate(
-						criteriaBuilder,
-						query,
-						expr,
-						arg,
-						bean.getJavaType(),
-						filter.getPropertyName());
-				if (lookupPredicate == null) {
-					return eqPredicate;
+				if (isString) {
+					final Predicate lookupPredicate = createLookupPredicate(
+							criteriaBuilder,
+							query,
+							expr,
+							arg,
+							bean.getJavaType(),
+							filter.getPropertyName(),
+							false);
+					if (lookupPredicate != null) {
+						return criteriaBuilder.or(eqPredicate, lookupPredicate);
+					}
 				}
-				return criteriaBuilder.or(eqPredicate, lookupPredicate);
+				return eqPredicate;
 			}
 			case EMPTY:
 				if (isJoined && ((Attribute<?, ?>) path.getParentPath().getModel()).isCollection()) {
@@ -321,15 +325,30 @@ public final class CriteriaQueryCreator implements IQueryCreator<Object> {
 				// CHECKSTYLE:OFF
 			case CONTAINS_ANY: {
 				// CHECKSTYLE:ON
-				final Collection<?> params = (Collection<?>) filter.getParameters()[0];
+				Expression<?> expr = path;
+				Collection<?> params = (Collection<?>) filter.getParameters()[0];
 				if (caseInsensitive && path.getJavaType() == String.class) {
 					final Collection<String> newParams = new HashSet<String>();
 					for (final Object p : params) {
 						newParams.add(String.valueOf(p).toUpperCase());
 					}
-					return criteriaBuilder.upper((Expression<String>) path).in(newParams);
+					params = newParams;
+					expr = criteriaBuilder.upper((Expression<String>) path);
 				}
-				return path.in(params);
+				if (path.getJavaType() == String.class) {
+					final Predicate lookupPredicate = createLookupPredicate(
+							criteriaBuilder,
+							query,
+							expr,
+							params,
+							bean.getJavaType(),
+							filter.getPropertyName(),
+							true);
+					if (lookupPredicate != null) {
+						return criteriaBuilder.or(expr.in(params), lookupPredicate);
+					}
+				}
+				return expr.in(params);
 			}
 				// CHECKSTYLE:OFF
 			case CONTAINS_ALL: {
@@ -351,6 +370,7 @@ public final class CriteriaQueryCreator implements IQueryCreator<Object> {
 				subquery.select(criteriaBuilder.count(criteriaBuilder.literal(1))).where(
 						(toUpper ? criteriaBuilder.upper((Expression<String>) path) : path).in(newParams));
 				return criteriaBuilder.ge(subquery, newParams.size());
+				// TODO add support for ALL taxonomy queries
 			}
 			default:
 				throw new IllegalArgumentException("unsupported operator: " + filter.getOperator());
@@ -363,7 +383,8 @@ public final class CriteriaQueryCreator implements IQueryCreator<Object> {
 		final Expression<?> expr,
 		final Object arg,
 		final Class<?> beanClass,
-		final String propertyName) {
+		final String propertyName,
+		final boolean in) {
 
 		final PropertyDescriptor descriptor;
 		try {
@@ -388,7 +409,13 @@ public final class CriteriaQueryCreator implements IQueryCreator<Object> {
 			valuePath = criteriaBuilder.upper(valuePath);
 			ancestorValuePath = criteriaBuilder.upper(ancestorValuePath);
 		}
-		subquery.select(valuePath).where(criteriaBuilder.equal(ancestorValuePath, arg));
+		subquery.select(valuePath);
+		if (in) {
+			subquery.where(ancestorValuePath.in((Collection<?>) arg));
+		}
+		else {
+			subquery.where(criteriaBuilder.equal(ancestorValuePath, arg));
+		}
 		return expr.in(subquery);
 	}
 
