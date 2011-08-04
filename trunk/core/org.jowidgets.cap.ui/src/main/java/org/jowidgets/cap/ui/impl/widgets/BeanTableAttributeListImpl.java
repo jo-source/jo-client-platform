@@ -69,7 +69,7 @@ import org.jowidgets.common.types.AlignmentHorizontal;
 import org.jowidgets.common.types.Dimension;
 import org.jowidgets.common.types.Markup;
 import org.jowidgets.common.types.Rectangle;
-import org.jowidgets.common.widgets.controler.IInputListener;
+import org.jowidgets.common.widgets.controller.IInputListener;
 import org.jowidgets.common.widgets.layout.ILayouter;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
 import org.jowidgets.tools.command.ActionBuilder;

@@ -45,7 +45,7 @@ import org.jowidgets.cap.sample1.ui.workbench.component.user.command.LongLasting
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
-import org.jowidgets.common.widgets.controler.IInputListener;
+import org.jowidgets.common.widgets.controller.IInputListener;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
 import org.jowidgets.examples.common.icons.SilkIcons;
 import org.jowidgets.util.ValueHolder;

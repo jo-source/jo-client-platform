@@ -33,7 +33,7 @@ import org.jowidgets.api.model.item.ISelectableItemModel;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.common.types.AlignmentHorizontal;
-import org.jowidgets.common.widgets.controler.IItemStateListener;
+import org.jowidgets.common.widgets.controller.IItemStateListener;
 import org.jowidgets.tools.model.item.MenuModel;
 import org.jowidgets.util.event.IChangeListener;
 

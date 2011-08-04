@@ -31,8 +31,8 @@ package org.jowidgets.cap.ui.api.widgets;
 import org.jowidgets.api.model.item.IMenuModel;
 import org.jowidgets.api.widgets.ITable;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
-import org.jowidgets.common.widgets.controler.ITableCellPopupEvent;
-import org.jowidgets.common.widgets.controler.ITableColumnPopupEvent;
+import org.jowidgets.common.widgets.controller.ITableCellPopupEvent;
+import org.jowidgets.common.widgets.controller.ITableColumnPopupEvent;
 import org.jowidgets.util.ITypedKey;
 
 public interface IBeanTable<BEAN_TYPE> extends ITable {
