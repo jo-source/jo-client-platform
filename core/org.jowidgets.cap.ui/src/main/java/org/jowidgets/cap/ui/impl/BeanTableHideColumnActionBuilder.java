@@ -32,7 +32,7 @@ import org.jowidgets.api.command.ICommandExecutor;
 import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.cap.ui.api.icons.CapIcons;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
-import org.jowidgets.common.widgets.controler.ITableColumnPopupEvent;
+import org.jowidgets.common.widgets.controller.ITableColumnPopupEvent;
 import org.jowidgets.tools.command.ActionBuilder;
 
 final class BeanTableHideColumnActionBuilder extends ActionBuilder {
