@@ -74,7 +74,7 @@ public class JpaCreatorServiceTest extends AbstractJpaTest {
 	}
 
 	private void testCreatePerson(final boolean withTriState) {
-		Person person = entityManager.find(Person.class, 6L);
+		Person person = entityManager.find(Person.class, 11L);
 		Assert.assertNull(person);
 
 		entityManager.getTransaction().begin();
@@ -101,7 +101,7 @@ public class JpaCreatorServiceTest extends AbstractJpaTest {
 		Assert.assertEquals(withTriState ? true : null, dto.getValue("triState"));
 		Assert.assertEquals(date(1975, 9, 21), dto.getValue("birthday"));
 
-		person = entityManager.find(Person.class, 6L);
+		person = entityManager.find(Person.class, 11L);
 		Assert.assertNotNull(person);
 		Assert.assertEquals("Claudia", person.getName());
 		Assert.assertEquals(50, person.getPoints());

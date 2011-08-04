@@ -38,7 +38,7 @@ import java.lang.annotation.Target;
 public @interface LookupHierarchy {
 	Class<?> entityClass();
 
-	String getValueAttribute() default "name";
+	String valueAttribute() default "value";
 
 	String ancestorAttribute() default "ancestors";
 }
