@@ -71,7 +71,7 @@ public final class CriteriaQueryCreator implements IQueryCreator<Object> {
 
 	private String parentPropertyName = "parent";
 	private IPredicateCreator predicateCreator;
-	private boolean caseInsensitve;
+	private boolean caseInsensitive;
 	private Map<String, ? extends ICustomFilterPredicateCreator> customFilterPredicateCreators = Collections.emptyMap();
 
 	public CriteriaQueryCreator(final Class<? extends IBean> persistenceClass) {
@@ -93,7 +93,7 @@ public final class CriteriaQueryCreator implements IQueryCreator<Object> {
 	}
 
 	public void setCaseInsensitve(final boolean caseInsensitve) {
-		this.caseInsensitve = caseInsensitve;
+		this.caseInsensitive = caseInsensitve;
 	}
 
 	public void setCustomFilterPredicateCreators(
@@ -283,7 +283,7 @@ public final class CriteriaQueryCreator implements IQueryCreator<Object> {
 				Object arg = filter.getParameters()[0];
 				if (arg instanceof String && path.getJavaType() == String.class) {
 					String s = (String) arg;
-					if (caseInsensitve) {
+					if (caseInsensitive) {
 						expr = criteriaBuilder.upper((Expression<String>) expr);
 						s = s.toUpperCase();
 						arg = s;
@@ -322,7 +322,7 @@ public final class CriteriaQueryCreator implements IQueryCreator<Object> {
 			case CONTAINS_ANY: {
 				// CHECKSTYLE:ON
 				final Collection<?> params = (Collection<?>) filter.getParameters()[0];
-				if (caseInsensitve && path.getJavaType() == String.class) {
+				if (caseInsensitive && path.getJavaType() == String.class) {
 					final Collection<String> newParams = new HashSet<String>();
 					for (final Object p : params) {
 						newParams.add(String.valueOf(p).toUpperCase());
@@ -336,7 +336,7 @@ public final class CriteriaQueryCreator implements IQueryCreator<Object> {
 				// CHECKSTYLE:ON
 				final Collection<?> params = (Collection<?>) filter.getParameters()[0];
 				final Collection<Object> newParams = new HashSet<Object>();
-				final boolean toUpper = caseInsensitve && path.getJavaType() == String.class;
+				final boolean toUpper = caseInsensitive && path.getJavaType() == String.class;
 				for (final Object p : params) {
 					if (p != null) {
 						if (toUpper) {
@@ -375,7 +375,7 @@ public final class CriteriaQueryCreator implements IQueryCreator<Object> {
 			return null;
 		}
 		final Method readMethod = descriptor.getReadMethod();
-		final LookupHierachy lookup = readMethod.getAnnotation(LookupHierachy.class);
+		final LookupHierarchy lookup = readMethod.getAnnotation(LookupHierarchy.class);
 		if (lookup == null) {
 			return null;
 		}
@@ -384,7 +384,7 @@ public final class CriteriaQueryCreator implements IQueryCreator<Object> {
 		final Root<?> lookupBean = subquery.from(lookup.entityClass());
 		Expression<String> valuePath = lookupBean.get(lookup.getValueAttribute());
 		Expression<String> ancestorValuePath = lookupBean.get(lookup.ancestorAttribute()).get(lookup.getValueAttribute());
-		if (caseInsensitve) {
+		if (caseInsensitive) {
 			valuePath = criteriaBuilder.upper(valuePath);
 			ancestorValuePath = criteriaBuilder.upper(ancestorValuePath);
 		}
