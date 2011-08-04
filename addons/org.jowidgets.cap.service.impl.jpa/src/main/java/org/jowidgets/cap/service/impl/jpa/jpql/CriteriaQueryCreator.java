@@ -382,8 +382,8 @@ public final class CriteriaQueryCreator implements IQueryCreator<Object> {
 
 		final Subquery<String> subquery = query.subquery(String.class);
 		final Root<?> lookupBean = subquery.from(lookup.entityClass());
-		Expression<String> valuePath = lookupBean.get(lookup.getValueAttribute());
-		Expression<String> ancestorValuePath = lookupBean.get(lookup.ancestorAttribute()).get(lookup.getValueAttribute());
+		Expression<String> valuePath = lookupBean.get(lookup.valueAttribute());
+		Expression<String> ancestorValuePath = lookupBean.get(lookup.ancestorAttribute()).get(lookup.valueAttribute());
 		if (caseInsensitive) {
 			valuePath = criteriaBuilder.upper(valuePath);
 			ancestorValuePath = criteriaBuilder.upper(ancestorValuePath);

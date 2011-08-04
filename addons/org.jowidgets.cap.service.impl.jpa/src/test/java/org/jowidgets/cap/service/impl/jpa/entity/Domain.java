@@ -45,8 +45,9 @@ public class Domain {
 	@GeneratedValue
 	private Long id;
 
+	@SuppressWarnings("unused")
 	@Column(nullable = false, unique = true)
-	private String name;
+	private String value;
 
 	@OneToMany
 	private Set<Domain> ancestors;
@@ -54,32 +55,25 @@ public class Domain {
 	@SuppressWarnings("unused")
 	private Domain() {}
 
-	public Domain(final String name) {
-		this.name = name;
-		initAncestors();
+	public Domain(final String value) {
+		this(value, null);
 	}
 
-	private void initAncestors() {
+	public Domain(final String value, final Domain parent) {
+		this.value = value;
+		initAncestors(parent);
+	}
+
+	private void initAncestors(final Domain parent) {
 		ancestors = new HashSet<Domain>();
 		ancestors.add(this);
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(final String name) {
-		this.name = name;
+		if (parent != null) {
+			ancestors.addAll(parent.getAncestors());
+		}
 	}
 
 	Set<Domain> getAncestors() {
 		return ancestors;
-	}
-
-	public void setParent(final Domain parent) {
-		ancestors.clear();
-		ancestors.addAll(parent.getAncestors());
-		ancestors.add(this);
 	}
 
 }

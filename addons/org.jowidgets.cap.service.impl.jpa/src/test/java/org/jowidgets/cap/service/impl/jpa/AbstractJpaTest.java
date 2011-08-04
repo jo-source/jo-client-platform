@@ -106,18 +106,19 @@ public abstract class AbstractJpaTest {
 		jan.setDomains(new HashSet<String>(Arrays.asList("futsal", "politik", "misc")));
 		em.persist(jan);
 
-		// domains
+		// 6
 		final Domain sport = new Domain("sport");
 		em.persist(sport);
-		final Domain fussball = new Domain("fussball");
-		fussball.setParent(sport);
+		// 7
+		final Domain fussball = new Domain("fussball", sport);
 		em.persist(fussball);
-		final Domain handball = new Domain("handball");
-		handball.setParent(sport);
+		// 8
+		final Domain handball = new Domain("handball", sport);
 		em.persist(handball);
-		final Domain futsal = new Domain("futsal");
-		futsal.setParent(fussball);
+		// 9
+		final Domain futsal = new Domain("futsal", fussball);
 		em.persist(futsal);
+		// 10
 		final Domain politik = new Domain("politik");
 		em.persist(politik);
 
