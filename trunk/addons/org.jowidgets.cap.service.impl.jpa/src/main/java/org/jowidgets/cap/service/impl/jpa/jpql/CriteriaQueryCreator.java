@@ -297,7 +297,7 @@ public final class CriteriaQueryCreator implements IQueryCreator<Object> {
 				}
 				final Predicate eqPredicate = criteriaBuilder.equal(expr, arg);
 				if (isString) {
-					// TODO add support for LIKE taxonomy queries
+					// TODO HRW add support for LIKE taxonomy queries
 					final Predicate lookupPredicate = createLookupPredicate(
 							criteriaBuilder,
 							query,
@@ -371,7 +371,7 @@ public final class CriteriaQueryCreator implements IQueryCreator<Object> {
 				subquery.select(criteriaBuilder.count(criteriaBuilder.literal(1))).where(
 						(toUpper ? criteriaBuilder.upper((Expression<String>) path) : path).in(newParams));
 				return criteriaBuilder.ge(subquery, newParams.size());
-				// TODO add support for CONTAINS_ALL taxonomy queries
+				// TODO HRW add support for CONTAINS_ALL taxonomy queries
 			}
 			default:
 				throw new IllegalArgumentException("unsupported operator: " + filter.getOperator());
