@@ -42,6 +42,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Version;
 
+import org.jowidgets.cap.service.impl.jpa.jpql.LookupHierachy;
 import org.jowidgets.cap.service.impl.jpa.jpql.QueryPath;
 
 @Entity
@@ -72,6 +73,9 @@ public class Person implements IPerson {
 
 	@ElementCollection
 	private Set<String> tags;
+
+	@ElementCollection
+	private Set<String> domains;
 
 	@Override
 	public String getName() {
@@ -149,6 +153,17 @@ public class Person implements IPerson {
 	@Override
 	public void setTags(final Set<String> tags) {
 		this.tags = tags;
+	}
+
+	@Override
+	@LookupHierachy(entityClass = Domain.class)
+	public Set<String> getDomains() {
+		return domains;
+	}
+
+	@Override
+	public void setDomains(final Set<String> domains) {
+		this.domains = domains;
 	}
 
 }

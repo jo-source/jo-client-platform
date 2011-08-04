@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, H.Westphal
+ * Copyright (c) 2011, HWestphal
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -25,51 +25,61 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
+
 package org.jowidgets.cap.service.impl.jpa.entity;
 
-import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Past;
-import javax.validation.constraints.Size;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
 
-import org.jowidgets.cap.common.api.bean.IBean;
+@Entity
+public class Domain {
 
-public interface IPerson extends IBean {
+	@SuppressWarnings("unused")
+	@Id
+	@GeneratedValue
+	private Long id;
 
-	@NotNull
-	@Size(min = 2, max = 100)
-	String getName();
+	@Column(nullable = false, unique = true)
+	private String name;
 
-	void setName(String name);
+	@OneToMany
+	private Set<Domain> ancestors;
 
-	Set<String> getJobTitles();
+	@SuppressWarnings("unused")
+	private Domain() {}
 
-	@Min(-100)
-	@Max(100)
-	int getPoints();
+	public Domain(final String name) {
+		this.name = name;
+		initAncestors();
+	}
 
-	void setPoints(int points);
+	private void initAncestors() {
+		ancestors = new HashSet<Domain>();
+		ancestors.add(this);
+	}
 
-	Boolean getTriState();
+	public String getName() {
+		return name;
+	}
 
-	void setTriState(Boolean triState);
+	public void setName(final String name) {
+		this.name = name;
+	}
 
-	@NotNull
-	@Past
-	Date getBirthday();
+	Set<Domain> getAncestors() {
+		return ancestors;
+	}
 
-	void setBirthday(Date birthday);
-
-	Set<String> getTags();
-
-	void setTags(Set<String> tags);
-
-	Set<String> getDomains();
-
-	void setDomains(Set<String> domains);
+	public void setParent(final Domain parent) {
+		ancestors.clear();
+		ancestors.addAll(parent.getAncestors());
+		ancestors.add(this);
+	}
 
 }
