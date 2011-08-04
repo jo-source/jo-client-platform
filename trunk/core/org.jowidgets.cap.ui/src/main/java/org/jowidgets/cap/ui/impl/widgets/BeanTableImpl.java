@@ -64,8 +64,8 @@ import org.jowidgets.common.widgets.controler.ITableColumnPopupDetectionListener
 import org.jowidgets.common.widgets.controler.ITableColumnPopupEvent;
 import org.jowidgets.tools.command.ActionWrapper;
 import org.jowidgets.tools.command.ExecutionContextWrapper;
-import org.jowidgets.tools.controler.TableCellEditorAdapter;
-import org.jowidgets.tools.controler.TableColumnAdapter;
+import org.jowidgets.tools.controller.TableCellEditorAdapter;
+import org.jowidgets.tools.controller.TableColumnAdapter;
 import org.jowidgets.tools.model.item.MenuModel;
 import org.jowidgets.tools.model.item.SeparatorItemModel;
 import org.jowidgets.tools.widgets.wrapper.TableWrapper;

@@ -73,7 +73,7 @@ import org.jowidgets.common.widgets.controler.IInputListener;
 import org.jowidgets.common.widgets.layout.ILayouter;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
 import org.jowidgets.tools.command.ActionBuilder;
-import org.jowidgets.tools.controler.InputObservable;
+import org.jowidgets.tools.controller.InputObservable;
 import org.jowidgets.tools.widgets.wrapper.ComboBoxWrapper;
 import org.jowidgets.tools.widgets.wrapper.ContainerWrapper;
 import org.jowidgets.util.NullCompatibleEquivalence;
@@ -1140,6 +1140,7 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 			headerFormats = new ArrayList<String>();
 			contentFormats = new ArrayList<String>();
 			sortable = false;
+			propertyNames = getData().propertyNames;
 			for (final String propertyName : propertyNames) {
 				final AttributeComposite attributeComposite = attributeComposites.get(propertyName);
 				if (!attributeComposite.isEnabled()) {
@@ -1166,12 +1167,29 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 				index++;
 			}
 
-			getHeaderFormat().setElements(headerFormats);
-			getHeaderFormat().setEnabled(headerFormats.size() > 1);
-			getContentFormat().setElements(contentFormats);
-			getContentFormat().setEnabled(contentFormats.size() > 1);
-			getCurrentSorting().setEnabled(sortable);
-			getDefaultSorting().setEnabled(sortable);
+			if (getHeaderFormat() != null) {
+				getHeaderFormat().setElements(headerFormats);
+				getHeaderFormat().setEnabled(headerFormats.size() > 1);
+			}
+			if (getContentFormat() != null) {
+				getContentFormat().setElements(contentFormats);
+				getContentFormat().setEnabled(contentFormats.size() > 1);
+			}
+			if (getCurrentSorting() != null) {
+				getCurrentSorting().setEnabled(sortable);
+			}
+			if (getDefaultSorting() != null) {
+				getDefaultSorting().setEnabled(sortable);
+			}
+			if (getColumnAlignment() != null) {
+				getColumnAlignment().setEnabled(propertyNames.length > 0);
+			}
+			if (getVisible() != null) {
+				getVisible().setEnabled(propertyNames.length > 0);
+				if (!getVisible().isEnabled()) {
+					getVisible().setValue(false);
+				}
+			}
 
 			super.updateValues(propertyNames);
 		}
@@ -1433,7 +1451,9 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 		}
 
 		@Override
-		public void invalidate() {}
+		public void invalidate() {
+			layoutHashCode = 0;
+		}
 
 		public Dimension getChildSize(final int index) {
 			int currentIndex = 0;
@@ -1509,6 +1529,11 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 
 				if (!controlVisible) {
 					control.setVisible(true);
+					if (control instanceof IContainer) {
+						final IContainer c = (IContainer) control;
+						c.layoutBegin();
+						c.layoutEnd();
+					}
 				}
 
 				final Dimension size = getPreferredSize(control);
@@ -2086,7 +2111,6 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 		}
 
 		if (changed) {
-			attributesFilterComposite.updateValues();
 			for (final Entry<String, AttributeGroupContainer> entry : groupContainers.entrySet()) {
 				final String groupId = entry.getKey();
 				final AttributeGroupContainer container = entry.getValue();
@@ -2115,6 +2139,7 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 				container.layoutBegin();
 				container.layoutEnd();
 			}
+			attributesFilterComposite.updateValues();
 			attributeLayoutManager.invalidate();
 		}
 	}
