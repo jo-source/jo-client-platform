@@ -25,51 +25,20 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
-package org.jowidgets.cap.service.impl.jpa.entity;
 
-import java.util.Date;
-import java.util.Set;
+package org.jowidgets.cap.service.impl.jpa.jpql;
 
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Past;
-import javax.validation.constraints.Size;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-import org.jowidgets.cap.common.api.bean.IBean;
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+public @interface LookupHierachy {
+	Class<?> entityClass();
 
-public interface IPerson extends IBean {
+	String getValueAttribute() default "name";
 
-	@NotNull
-	@Size(min = 2, max = 100)
-	String getName();
-
-	void setName(String name);
-
-	Set<String> getJobTitles();
-
-	@Min(-100)
-	@Max(100)
-	int getPoints();
-
-	void setPoints(int points);
-
-	Boolean getTriState();
-
-	void setTriState(Boolean triState);
-
-	@NotNull
-	@Past
-	Date getBirthday();
-
-	void setBirthday(Date birthday);
-
-	Set<String> getTags();
-
-	void setTags(Set<String> tags);
-
-	Set<String> getDomains();
-
-	void setDomains(Set<String> domains);
-
+	String ancestorAttribute() default "ancestors";
 }

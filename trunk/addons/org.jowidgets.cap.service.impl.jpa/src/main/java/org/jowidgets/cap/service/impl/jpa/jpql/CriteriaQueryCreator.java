@@ -294,7 +294,18 @@ public final class CriteriaQueryCreator implements IQueryCreator<Object> {
 						return criteriaBuilder.like((Expression<String>) expr, s.replace('*', '%'));
 					}
 				}
-				return criteriaBuilder.equal(expr, arg);
+				final Predicate eqPredicate = criteriaBuilder.equal(expr, arg);
+				final Predicate lookupPredicate = createLookupPredicate(
+						criteriaBuilder,
+						query,
+						expr,
+						arg,
+						bean.getJavaType(),
+						filter.getPropertyName());
+				if (lookupPredicate == null) {
+					return eqPredicate;
+				}
+				return criteriaBuilder.or(eqPredicate, lookupPredicate);
 			}
 			case EMPTY:
 				if (isJoined && ((Attribute<?, ?>) path.getParentPath().getModel()).isCollection()) {
@@ -344,6 +355,41 @@ public final class CriteriaQueryCreator implements IQueryCreator<Object> {
 			default:
 				throw new IllegalArgumentException("unsupported operator: " + filter.getOperator());
 		}
+	}
+
+	private Predicate createLookupPredicate(
+		final CriteriaBuilder criteriaBuilder,
+		final CriteriaQuery<?> query,
+		final Expression<?> expr,
+		final Object arg,
+		final Class<?> beanClass,
+		final String propertyName) {
+
+		final PropertyDescriptor descriptor;
+		try {
+			descriptor = new PropertyDescriptor(propertyName, beanClass, "is"
+				+ propertyName.substring(0, 1).toUpperCase(Locale.ENGLISH)
+				+ propertyName.substring(1), null);
+		}
+		catch (final IntrospectionException e) {
+			return null;
+		}
+		final Method readMethod = descriptor.getReadMethod();
+		final LookupHierachy lookup = readMethod.getAnnotation(LookupHierachy.class);
+		if (lookup == null) {
+			return null;
+		}
+
+		final Subquery<String> subquery = query.subquery(String.class);
+		final Root<?> lookupBean = subquery.from(lookup.entityClass());
+		Expression<String> valuePath = lookupBean.get(lookup.getValueAttribute());
+		Expression<String> ancestorValuePath = lookupBean.get(lookup.ancestorAttribute()).get(lookup.getValueAttribute());
+		if (caseInsensitve) {
+			valuePath = criteriaBuilder.upper(valuePath);
+			ancestorValuePath = criteriaBuilder.upper(ancestorValuePath);
+		}
+		subquery.select(valuePath).where(criteriaBuilder.equal(ancestorValuePath, arg));
+		return expr.in(subquery);
 	}
 
 	private Predicate createFilterPredicate(

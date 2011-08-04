@@ -38,6 +38,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
+import org.jowidgets.cap.service.impl.jpa.entity.Domain;
 import org.jowidgets.cap.service.impl.jpa.entity.Job;
 import org.jowidgets.cap.service.impl.jpa.entity.Person;
 import org.junit.After;
@@ -93,6 +94,7 @@ public abstract class AbstractJpaTest {
 		ingo.setBirthday(date(2005, 11, 23));
 		ingo.setTriState(true);
 		ingo.setTags(new HashSet<String>(Arrays.asList("lego", "playmobil")));
+		ingo.setDomains(new HashSet<String>(Arrays.asList("handball")));
 		em.persist(ingo);
 
 		// 5
@@ -101,7 +103,23 @@ public abstract class AbstractJpaTest {
 		jan.setPoints(-20);
 		jan.setBirthday(date(2007, 11, 25));
 		jan.setTriState(false);
+		jan.setDomains(new HashSet<String>(Arrays.asList("futsal", "politik", "misc")));
 		em.persist(jan);
+
+		// domains
+		final Domain sport = new Domain("sport");
+		em.persist(sport);
+		final Domain fussball = new Domain("fussball");
+		fussball.setParent(sport);
+		em.persist(fussball);
+		final Domain handball = new Domain("handball");
+		handball.setParent(sport);
+		em.persist(handball);
+		final Domain futsal = new Domain("futsal");
+		futsal.setParent(fussball);
+		em.persist(futsal);
+		final Domain politik = new Domain("politik");
+		em.persist(politik);
 
 		em.getTransaction().commit();
 	}

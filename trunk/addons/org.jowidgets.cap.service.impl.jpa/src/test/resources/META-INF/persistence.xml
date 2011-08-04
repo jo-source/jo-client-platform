@@ -4,6 +4,7 @@
 	<persistence-unit name="test" transaction-type="RESOURCE_LOCAL">
 		<class>org.jowidgets.cap.service.impl.jpa.entity.Job</class>
 		<class>org.jowidgets.cap.service.impl.jpa.entity.Person</class>
+		<class>org.jowidgets.cap.service.impl.jpa.entity.Domain</class>
 		<properties>
 			<property name="javax.persistence.jdbc.driver" value="org.h2.Driver" />
 			<property name="javax.persistence.jdbc.url" value="jdbc:h2:mem:test;DB_CLOSE_DELAY=-1" />
