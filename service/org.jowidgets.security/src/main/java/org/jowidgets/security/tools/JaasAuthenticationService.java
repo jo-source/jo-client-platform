@@ -71,6 +71,7 @@ public final class JaasAuthenticationService implements IAuthenticationService<D
 			});
 			loginContext.login();
 			if (loginContext.getSubject() != null) {
+				// TODO HRW add support for granted authorities
 				return new DefaultPrincipal(credentials.getUsername());
 			}
 		}
