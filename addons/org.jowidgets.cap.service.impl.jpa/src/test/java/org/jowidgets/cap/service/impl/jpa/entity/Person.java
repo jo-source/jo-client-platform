@@ -42,7 +42,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Version;
 
-import org.jowidgets.cap.service.impl.jpa.jpql.LookupHierachy;
+import org.jowidgets.cap.service.impl.jpa.jpql.LookupHierarchy;
 import org.jowidgets.cap.service.impl.jpa.jpql.QueryPath;
 
 @Entity
@@ -156,7 +156,7 @@ public class Person implements IPerson {
 	}
 
 	@Override
-	@LookupHierachy(entityClass = Domain.class)
+	@LookupHierarchy(entityClass = Domain.class)
 	public Set<String> getDomains() {
 		return domains;
 	}

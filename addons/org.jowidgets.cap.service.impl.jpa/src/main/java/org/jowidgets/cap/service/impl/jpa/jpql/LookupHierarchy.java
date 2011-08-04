@@ -35,7 +35,7 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface LookupHierachy {
+public @interface LookupHierarchy {
 	Class<?> entityClass();
 
 	String getValueAttribute() default "name";
