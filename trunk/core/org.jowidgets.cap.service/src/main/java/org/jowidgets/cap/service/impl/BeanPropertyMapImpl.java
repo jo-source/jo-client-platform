@@ -37,9 +37,6 @@ import org.jowidgets.util.Assert;
 
 final class BeanPropertyMapImpl implements IBeanPropertyMap {
 
-	@SuppressWarnings("unused")
-	private static final long serialVersionUID = -1103247679045455401L;
-
 	private final Object entityTypeId;
 	private Object id;
 	private long version;
