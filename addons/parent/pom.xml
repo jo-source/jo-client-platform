@@ -22,4 +22,11 @@
 		<module>../org.jowidgets.security.impl.http.server</module>
 	</modules>
 
+	<repositories>
+		<repository>
+			<id>eclipselink</id>
+			<url>http://download.eclipse.org/rt/eclipselink/maven.repo</url>
+		</repository>
+	</repositories>
+
 </project>
