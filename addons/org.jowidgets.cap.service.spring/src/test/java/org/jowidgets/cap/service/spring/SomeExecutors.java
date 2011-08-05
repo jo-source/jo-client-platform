@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, Claudia
+ * Copyright (c) 2011, H.Westphal
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
