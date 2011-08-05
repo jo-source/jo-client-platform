@@ -32,11 +32,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
 
-public class UserAccess implements IBeanAccess<User> {
+public class UserAccess implements IBeanAccess<User>, IBeanAccessProvider {
 
 	@Override
 	public List<User> getBeans(final Collection<? extends IBeanKey> keys, final IExecutionCallback executionCallback) {
@@ -50,5 +51,14 @@ public class UserAccess implements IBeanAccess<User> {
 
 	@Override
 	public void flush() {}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public <T extends IBean> IBeanAccess<T> getBeanAccess(final Class<? extends T> type) {
+		if (type == User.class) {
+			return (IBeanAccess<T>) this;
+		}
+		throw new IllegalArgumentException("unsupported bean type: " + type);
+	}
 
 }
