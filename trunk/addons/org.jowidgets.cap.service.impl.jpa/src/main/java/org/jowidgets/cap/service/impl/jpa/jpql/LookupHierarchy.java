@@ -40,5 +40,5 @@ public @interface LookupHierarchy {
 
 	String valueAttribute() default "value";
 
-	String ancestorAttribute() default "ancestors";
+	String ancestorsAttribute() default "ancestors";
 }
