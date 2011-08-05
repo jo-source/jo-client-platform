@@ -64,16 +64,13 @@ import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.ReflectionUtils.MethodCallback;
 
-// TODO HRW how to match IBeanAccess instances to executors?
 public final class ExecutorAnnotationPostProcessor implements BeanFactoryPostProcessor {
 
-	private final IBeanAccess<?> beanAccess;
-	private final List<String> propertyNames;
+	private final IBeanAccessProvider beanAccessProvider;
 
-	public ExecutorAnnotationPostProcessor(final IBeanAccess<?> beanAccess) {
-		Assert.paramNotNull(beanAccess, "beanAccess");
-		this.beanAccess = beanAccess;
-		propertyNames = getPropertyNames(beanAccess.getBeanType());
+	public ExecutorAnnotationPostProcessor(final IBeanAccessProvider beanAccessProvider) {
+		Assert.paramNotNull(beanAccessProvider, "beanAccessProvider");
+		this.beanAccessProvider = beanAccessProvider;
 	}
 
 	private List<String> getPropertyNames(final Class<? extends IBean> beanType) {
@@ -111,6 +108,10 @@ public final class ExecutorAnnotationPostProcessor implements BeanFactoryPostPro
 			int i = 0;
 			final String beanName = entry.getKey();
 			final Object bean = entry.getValue();
+			final ExecutorBean beanAnnotation = beanFactory.findAnnotationOnBean(beanName, ExecutorBean.class);
+			final IBeanAccess beanAccess = beanAccessProvider.getBeanAccess(beanAnnotation.value());
+			final List<String> propertyNames = getPropertyNames(beanAccess.getBeanType());
+
 			final Set<Method> methods = getExecutorMethods(bean);
 			for (final Method method : methods) {
 				final Object proxy = createExecutorProxy(beanFactory, beanName, method);

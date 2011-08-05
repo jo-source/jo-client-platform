@@ -26,17 +26,13 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.api.annotation;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+package org.jowidgets.cap.service.spring;
 
 import org.jowidgets.cap.common.api.bean.IBean;
+import org.jowidgets.cap.service.api.bean.IBeanAccess;
 
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface ExecutorBean {
-	Class<? extends IBean> value();
+public interface IBeanAccessProvider {
+
+	<T extends IBean> IBeanAccess<T> getBeanAccess(Class<? extends T> type);
+
 }

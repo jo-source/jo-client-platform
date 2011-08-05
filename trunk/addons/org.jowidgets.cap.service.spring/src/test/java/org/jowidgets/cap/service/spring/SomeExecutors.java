@@ -33,7 +33,7 @@ import java.util.List;
 import org.jowidgets.cap.service.api.annotation.Executor;
 import org.jowidgets.cap.service.api.annotation.ExecutorBean;
 
-@ExecutorBean
+@ExecutorBean(User.class)
 public class SomeExecutors {
 
 	@Executor(id = "doNothing")
