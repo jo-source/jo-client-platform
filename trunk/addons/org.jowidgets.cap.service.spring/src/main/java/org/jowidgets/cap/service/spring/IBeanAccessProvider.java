@@ -33,6 +33,6 @@ import org.jowidgets.cap.service.api.bean.IBeanAccess;
 
 public interface IBeanAccessProvider {
 
-	<T extends IBean> IBeanAccess<T> getBeanAccess(Class<? extends T> type);
+	<T extends IBean> IBeanAccess<T> getBeanAccess(Class<T> type);
 
 }
