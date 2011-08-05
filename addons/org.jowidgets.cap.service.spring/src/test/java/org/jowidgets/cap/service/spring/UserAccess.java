@@ -54,7 +54,7 @@ public class UserAccess implements IBeanAccess<User>, IBeanAccessProvider {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T extends IBean> IBeanAccess<T> getBeanAccess(final Class<? extends T> type) {
+	public <T extends IBean> IBeanAccess<T> getBeanAccess(final Class<T> type) {
 		if (type == User.class) {
 			return (IBeanAccess<T>) this;
 		}
