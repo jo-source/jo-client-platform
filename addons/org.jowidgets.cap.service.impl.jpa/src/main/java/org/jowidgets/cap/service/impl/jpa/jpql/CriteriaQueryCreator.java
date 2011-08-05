@@ -281,8 +281,7 @@ public final class CriteriaQueryCreator implements IQueryCreator<Object> {
 				// CHECKSTYLE:ON
 				Expression<?> expr = path;
 				Object arg = filter.getParameters()[0];
-				final boolean isString = arg instanceof String && path.getJavaType() == String.class;
-				if (isString) {
+				if (arg instanceof String && path.getJavaType() == String.class) {
 					String s = (String) arg;
 					if (caseInsensitive) {
 						expr = criteriaBuilder.upper((Expression<String>) expr);
@@ -293,22 +292,19 @@ public final class CriteriaQueryCreator implements IQueryCreator<Object> {
 						// like queries for collection attributes cause duplicate results
 						query.distinct(query.isDistinct() || isJoined || isCollection);
 						return criteriaBuilder.like((Expression<String>) expr, s.replace('*', '%'));
+						// TODO HRW add support for LIKE taxonomy queries
 					}
 				}
 				final Predicate eqPredicate = criteriaBuilder.equal(expr, arg);
-				if (isString) {
-					// TODO HRW add support for LIKE taxonomy queries
-					final Predicate lookupPredicate = createLookupPredicate(
-							criteriaBuilder,
-							query,
-							expr,
-							arg,
-							bean.getJavaType(),
-							filter.getPropertyName(),
-							false);
-					if (lookupPredicate != null) {
-						return criteriaBuilder.or(eqPredicate, lookupPredicate);
-					}
+				final Predicate lookupPredicate = createLookupPredicate(
+						criteriaBuilder,
+						query,
+						expr,
+						arg,
+						bean.getJavaType(),
+						filter.getPropertyName());
+				if (lookupPredicate != null) {
+					return criteriaBuilder.or(eqPredicate, lookupPredicate);
 				}
 				return eqPredicate;
 			}
@@ -336,18 +332,15 @@ public final class CriteriaQueryCreator implements IQueryCreator<Object> {
 					params = newParams;
 					expr = criteriaBuilder.upper((Expression<String>) path);
 				}
-				if (path.getJavaType() == String.class) {
-					final Predicate lookupPredicate = createLookupPredicate(
-							criteriaBuilder,
-							query,
-							expr,
-							params,
-							bean.getJavaType(),
-							filter.getPropertyName(),
-							true);
-					if (lookupPredicate != null) {
-						return criteriaBuilder.or(expr.in(params), lookupPredicate);
-					}
+				final Predicate lookupPredicate = createLookupPredicate(
+						criteriaBuilder,
+						query,
+						expr,
+						params,
+						bean.getJavaType(),
+						filter.getPropertyName());
+				if (lookupPredicate != null) {
+					return criteriaBuilder.or(expr.in(params), lookupPredicate);
 				}
 				return expr.in(params);
 			}
@@ -378,14 +371,14 @@ public final class CriteriaQueryCreator implements IQueryCreator<Object> {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	private Predicate createLookupPredicate(
 		final CriteriaBuilder criteriaBuilder,
 		final CriteriaQuery<?> query,
 		final Expression<?> expr,
 		final Object arg,
 		final Class<?> beanClass,
-		final String propertyName,
-		final boolean in) {
+		final String propertyName) {
 
 		final PropertyDescriptor descriptor;
 		try {
@@ -402,16 +395,16 @@ public final class CriteriaQueryCreator implements IQueryCreator<Object> {
 			return null;
 		}
 
-		final Subquery<String> subquery = query.subquery(String.class);
+		final Subquery<Object> subquery = query.subquery(Object.class);
 		final Root<?> lookupBean = subquery.from(lookup.entityClass());
-		Expression<String> valuePath = lookupBean.get(lookup.valueAttribute());
-		Expression<String> ancestorValuePath = lookupBean.get(lookup.ancestorsAttribute()).get(lookup.valueAttribute());
-		if (caseInsensitive) {
-			valuePath = criteriaBuilder.upper(valuePath);
-			ancestorValuePath = criteriaBuilder.upper(ancestorValuePath);
+		Expression<?> valuePath = lookupBean.get(lookup.valueAttribute());
+		Expression<?> ancestorValuePath = lookupBean.get(lookup.ancestorsAttribute()).get(lookup.valueAttribute());
+		if (caseInsensitive && valuePath.getJavaType() == String.class) {
+			valuePath = criteriaBuilder.upper((Expression<String>) valuePath);
+			ancestorValuePath = criteriaBuilder.upper((Expression<String>) ancestorValuePath);
 		}
-		subquery.select(valuePath);
-		if (in) {
+		subquery.select((Expression<Object>) valuePath);
+		if (arg instanceof Collection) {
 			subquery.where(ancestorValuePath.in((Collection<?>) arg));
 		}
 		else {
