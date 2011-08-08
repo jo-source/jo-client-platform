@@ -28,10 +28,12 @@
 
 package org.jowidgets.cap.service.spring;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IBeanDto;
+import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.service.IExecutorService;
 import org.jowidgets.cap.common.tools.bean.BeanKey;
 import org.jowidgets.cap.common.tools.execution.SyncResultCallback;
@@ -74,6 +76,7 @@ public class ExecutorAnnotationPostProcessorTest {
 		Assert.assertNotNull(dtos);
 		Assert.assertEquals(1, dtos.size());
 		final IBeanDto dto = dtos.get(0);
+		Assert.assertEquals(0, dto.getId());
 		Assert.assertEquals("Hans", dto.getValue("name"));
 	}
 
@@ -88,6 +91,7 @@ public class ExecutorAnnotationPostProcessorTest {
 		Assert.assertNotNull(dtos);
 		Assert.assertEquals(1, dtos.size());
 		final IBeanDto dto = dtos.get(0);
+		Assert.assertEquals(0, dto.getId());
 		Assert.assertEquals("Hans", dto.getValue("name"));
 	}
 
@@ -102,7 +106,23 @@ public class ExecutorAnnotationPostProcessorTest {
 		Assert.assertNotNull(dtos);
 		Assert.assertEquals(1, dtos.size());
 		final IBeanDto dto = dtos.get(0);
+		Assert.assertEquals(0, dto.getId());
 		Assert.assertEquals("Hans Hansen", dto.getValue("name"));
+	}
+
+	@Test
+	public void testCreateUser() {
+		final IExecutorService<String> service = ServiceProvider.getService(new ServiceId<IExecutorService<String>>(
+			"createUser",
+			IExecutorService.class));
+		final SyncResultCallback<List<IBeanDto>> result = new SyncResultCallback<List<IBeanDto>>();
+		service.execute(result, new ArrayList<IBeanKey>(), "Hans Meier", null);
+		final List<IBeanDto> dtos = result.getResultSynchronious();
+		Assert.assertNotNull(dtos);
+		Assert.assertEquals(1, dtos.size());
+		final IBeanDto dto = dtos.get(0);
+		Assert.assertEquals(1, dto.getId());
+		Assert.assertEquals("Hans Meier", dto.getValue("name"));
 	}
 
 }

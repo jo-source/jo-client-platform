@@ -33,6 +33,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -165,6 +166,7 @@ public final class ExecutorAnnotationPostProcessor implements BeanFactoryPostPro
 		final List<Integer> paramArgPositions = new LinkedList<Integer>();
 		for (int i = 0; i < method.getParameterTypes().length; i++) {
 			final Class<?> parameterType = method.getParameterTypes()[i];
+
 			if (IBean.class.isAssignableFrom(parameterType) && singleExecutor == null) {
 				singleExecutor = true;
 				dataArgPosition = i;
@@ -195,7 +197,7 @@ public final class ExecutorAnnotationPostProcessor implements BeanFactoryPostPro
 		final Integer finalDataArgPosition = dataArgPosition;
 		final Integer finalCallbackArgPosition = callbackArgPosition;
 
-		if (singleExecutor == null || singleExecutor) {
+		if (singleExecutor != null && singleExecutor) {
 			return new IBeanExecutor<IBean, Object>() {
 				@Override
 				public IBean execute(final IBean data, final Object parameter, final IExecutionCallback executionCallback) {
@@ -256,6 +258,9 @@ public final class ExecutorAnnotationPostProcessor implements BeanFactoryPostPro
 					final Object result = ReflectionUtils.invokeMethod(method, beanFactory.getBean(beanName), args);
 					if (voidMethod) {
 						return (List<IBean>) data;
+					}
+					if (result instanceof IBean) {
+						return Collections.singletonList((IBean) result);
 					}
 					return (List<IBean>) result;
 				}

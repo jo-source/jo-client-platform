@@ -59,4 +59,11 @@ public class SomeExecutors {
 		user.setName(firstName + " " + lastName);
 	}
 
+	@Executor(id = "createUser")
+	public User createUser(final String name) {
+		final User user = new User(1);
+		user.setName(name);
+		return user;
+	}
+
 }
