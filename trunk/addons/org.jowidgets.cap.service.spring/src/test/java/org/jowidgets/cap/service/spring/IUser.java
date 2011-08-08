@@ -36,6 +36,4 @@ public interface IUser extends IBean {
 
 	void setName(String name);
 
-	int getPoints();
-
 }

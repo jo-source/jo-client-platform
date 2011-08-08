@@ -30,12 +30,16 @@ package org.jowidgets.cap.service.spring;
 
 public class User implements IUser {
 
-	private String name = "Harald";
-	private final int points = 100;
+	private final Object id;
+	private String name;
+
+	public User(final Object id) {
+		this.id = id;
+	}
 
 	@Override
 	public Object getId() {
-		return 0;
+		return id;
 	}
 
 	@Override
@@ -51,11 +55,6 @@ public class User implements IUser {
 	@Override
 	public void setName(final String name) {
 		this.name = name;
-	}
-
-	@Override
-	public int getPoints() {
-		return points;
 	}
 
 }

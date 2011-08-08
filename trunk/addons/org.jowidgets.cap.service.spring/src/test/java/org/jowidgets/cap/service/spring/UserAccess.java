@@ -29,8 +29,10 @@
 package org.jowidgets.cap.service.spring;
 
 import java.util.Collection;
-import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
@@ -41,7 +43,15 @@ public class UserAccess implements IBeanAccess<User>, IBeanAccessProvider {
 
 	@Override
 	public List<User> getBeans(final Collection<? extends IBeanKey> keys, final IExecutionCallback executionCallback) {
-		return Collections.singletonList(new User());
+		final Set<Object> ids = new HashSet<Object>();
+		for (final IBeanKey key : keys) {
+			ids.add(key.getId());
+		}
+		final List<User> result = new LinkedList<User>();
+		for (final Object id : ids) {
+			result.add(new User(id));
+		}
+		return result;
 	}
 
 	@Override
