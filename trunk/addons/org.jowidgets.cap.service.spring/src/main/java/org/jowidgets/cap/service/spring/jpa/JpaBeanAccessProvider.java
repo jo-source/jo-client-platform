@@ -26,7 +26,7 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.spring;
+package org.jowidgets.cap.service.spring.jpa;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -41,6 +41,7 @@ import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
+import org.jowidgets.cap.service.spring.IBeanAccessProvider;
 
 public final class JpaBeanAccessProvider implements IBeanAccessProvider {
 
