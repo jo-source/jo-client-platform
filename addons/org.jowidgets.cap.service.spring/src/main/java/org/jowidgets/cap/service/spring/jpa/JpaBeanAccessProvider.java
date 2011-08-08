@@ -28,19 +28,12 @@
 
 package org.jowidgets.cap.service.spring.jpa;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
 
 import org.jowidgets.cap.common.api.bean.IBean;
-import org.jowidgets.cap.common.api.bean.IBeanKey;
-import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
+import org.jowidgets.cap.service.impl.jpa.JpaBeanAccess;
 import org.jowidgets.cap.service.spring.IBeanAccessProvider;
 
 public final class JpaBeanAccessProvider implements IBeanAccessProvider {
@@ -53,30 +46,10 @@ public final class JpaBeanAccessProvider implements IBeanAccessProvider {
 	}
 
 	@Override
-	public <T extends IBean> IBeanAccess<T> getBeanAccess(final Class<T> type) {
-		return new IBeanAccess<T>() {
-			@Override
-			public List<T> getBeans(final Collection<? extends IBeanKey> keys, final IExecutionCallback executionCallback) {
-				final Collection<Object> ids = new HashSet<Object>(keys.size());
-				for (final IBeanKey beanInfo : keys) {
-					ids.add(beanInfo.getId());
-				}
-				final CriteriaQuery<T> query = entityManager.getCriteriaBuilder().createQuery(type);
-				final Root<T> bean = query.from(type);
-				query.where(bean.get("id").in(ids));
-				return entityManager.createQuery(query).getResultList();
-			}
-
-			@Override
-			public Class<T> getBeanType() {
-				return type;
-			}
-
-			@Override
-			public void flush() {
-				entityManager.flush();
-			}
-		};
+	public <BEAN_TYPE extends IBean> IBeanAccess<BEAN_TYPE> getBeanAccess(final Class<BEAN_TYPE> beanType) {
+		final JpaBeanAccess<BEAN_TYPE> beanAccess = new JpaBeanAccess<BEAN_TYPE>(beanType);
+		beanAccess.setEntityManager(entityManager);
+		return beanAccess;
 	}
 
 }
