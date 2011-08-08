@@ -93,11 +93,7 @@ public final class ExecutorAnnotationPostProcessor implements BeanFactoryPostPro
 				return (Class<? extends IBean>) clazz;
 			}
 		}
-		final Class<?> clazz = beanType.getSuperclass();
-		if (clazz != null && IBean.class.isAssignableFrom(clazz)) {
-			return getBeanInterface((Class<? extends IBean>) clazz);
-		}
-		return null;
+		return getBeanInterface((Class<? extends IBean>) beanType.getSuperclass());
 	}
 
 	@SuppressWarnings({"rawtypes", "unchecked"})
