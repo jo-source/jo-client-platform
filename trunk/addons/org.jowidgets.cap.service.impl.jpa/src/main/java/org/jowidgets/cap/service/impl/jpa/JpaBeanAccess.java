@@ -64,7 +64,7 @@ public final class JpaBeanAccess<BEAN_TYPE extends IBean> implements IBeanAccess
 		}
 		final CriteriaQuery<BEAN_TYPE> query = entityManager.getCriteriaBuilder().createQuery(beanType);
 		final Root<BEAN_TYPE> bean = query.from(beanType);
-		query.where(bean.get("id").in(ids));
+		query.where(bean.get(IBean.ID_PROPERTY).in(ids));
 		return entityManager.createQuery(query).getResultList();
 	}
 
