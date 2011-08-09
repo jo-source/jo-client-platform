@@ -41,10 +41,6 @@ public final class JpaBeanAccessProvider implements IBeanAccessProvider {
 	@PersistenceContext
 	private EntityManager entityManager;
 
-	public void setEntityManager(final EntityManager entityManager) {
-		this.entityManager = entityManager;
-	}
-
 	@Override
 	public <BEAN_TYPE extends IBean> IBeanAccess<BEAN_TYPE> getBeanAccess(final Class<BEAN_TYPE> beanType) {
 		final JpaBeanAccess<BEAN_TYPE> beanAccess = new JpaBeanAccess<BEAN_TYPE>(beanType);

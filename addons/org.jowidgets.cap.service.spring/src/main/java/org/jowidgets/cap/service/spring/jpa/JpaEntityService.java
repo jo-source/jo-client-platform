@@ -26,28 +26,31 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.spring;
+package org.jowidgets.cap.service.spring.jpa;
 
-import java.util.logging.Level;
-import java.util.logging.LogManager;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 
-import org.slf4j.bridge.SLF4JBridgeHandler;
-import org.springframework.beans.factory.DisposableBean;
-import org.springframework.beans.factory.InitializingBean;
+import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
+import org.jowidgets.cap.common.api.service.IBeanServicesProvider;
+import org.jowidgets.cap.common.api.service.IEntityService;
+import org.jowidgets.cap.service.api.annotation.CapService;
 
-public final class Jul2Slf4jInitializer implements InitializingBean, DisposableBean {
+@CapService
+public final class JpaEntityService implements IEntityService {
+
+	@SuppressWarnings("unused")
+	@PersistenceContext
+	private EntityManager entityManager;
 
 	@Override
-	public void afterPropertiesSet() {
-		LogManager.getLogManager().reset();
-		SLF4JBridgeHandler.install();
-		LogManager.getLogManager().getLogger("").setLevel(Level.FINE);
-		LogManager.getLogManager().getLogger("").fine("XXX");
+	public IBeanDtoDescriptor getDescriptor(final Object entityTypeId) {
+		throw new UnsupportedOperationException("getDescriptor");
 	}
 
 	@Override
-	public void destroy() {
-		SLF4JBridgeHandler.uninstall();
+	public IBeanServicesProvider getBeanServices(final Object entityTypeId) {
+		throw new UnsupportedOperationException("getBeanServices");
 	}
 
 }
