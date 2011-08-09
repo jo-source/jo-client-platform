@@ -65,7 +65,7 @@ import org.jowidgets.cap.common.api.sort.SortOrder;
 import org.jowidgets.cap.service.impl.jpa.IQueryCreator;
 import org.jowidgets.util.Assert;
 
-public final class CriteriaQueryCreator implements IQueryCreator<Object> {
+public final class CriteriaQueryCreator implements IQueryCreator<Void> {
 
 	private final Class<? extends IBean> persistenceClass;
 
@@ -108,7 +108,7 @@ public final class CriteriaQueryCreator implements IQueryCreator<Object> {
 		final List<? extends IBeanKey> parentBeanKeys,
 		final IFilter filter,
 		final List<? extends ISort> sorting,
-		final Object parameter) {
+		final Void parameter) {
 
 		final CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
 		final CriteriaQuery<?> query = criteriaBuilder.createQuery(persistenceClass);
@@ -136,7 +136,7 @@ public final class CriteriaQueryCreator implements IQueryCreator<Object> {
 		final EntityManager entityManager,
 		final List<? extends IBeanKey> parentBeanKeys,
 		final IFilter filter,
-		final Object parameter) {
+		final Void parameter) {
 
 		final CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
 		final CriteriaQuery<Long> query = criteriaBuilder.createQuery(Long.class);
