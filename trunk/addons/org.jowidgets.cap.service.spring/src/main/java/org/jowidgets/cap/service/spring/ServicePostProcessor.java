@@ -58,7 +58,11 @@ public final class ServicePostProcessor implements BeanPostProcessor, Applicatio
 					}
 					serviceType = bean.getClass().getInterfaces()[0];
 				}
-				final IServiceId<Object> serviceId = new ServiceId<Object>(serviceAnnotation.id(), serviceType);
+				String id = serviceAnnotation.id();
+				if (id.isEmpty()) {
+					id = serviceType.getName();
+				}
+				final IServiceId<Object> serviceId = new ServiceId<Object>(id, serviceType);
 				SpringServiceProvider.getInstance().addService(serviceId, beanProxyFactory.createProxy(beanName, serviceType));
 			}
 		}
