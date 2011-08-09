@@ -28,7 +28,6 @@
 
 package org.jowidgets.cap.service.spring;
 
-import java.util.logging.Level;
 import java.util.logging.LogManager;
 
 import org.slf4j.bridge.SLF4JBridgeHandler;
@@ -41,8 +40,6 @@ public final class Jul2Slf4jInitializer implements InitializingBean, DisposableB
 	public void afterPropertiesSet() {
 		LogManager.getLogManager().reset();
 		SLF4JBridgeHandler.install();
-		LogManager.getLogManager().getLogger("").setLevel(Level.FINE);
-		LogManager.getLogManager().getLogger("").fine("XXX");
 	}
 
 	@Override
