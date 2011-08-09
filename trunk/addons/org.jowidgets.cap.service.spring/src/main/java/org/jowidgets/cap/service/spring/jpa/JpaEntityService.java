@@ -28,29 +28,142 @@
 
 package org.jowidgets.cap.service.spring.jpa;
 
+import java.beans.PropertyDescriptor;
+import java.util.LinkedList;
+import java.util.List;
+
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.metamodel.EntityType;
 
+import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
+import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptorBuilder;
+import org.jowidgets.cap.common.api.bean.IProperty;
 import org.jowidgets.cap.common.api.service.IBeanServicesProvider;
 import org.jowidgets.cap.common.api.service.IEntityService;
+import org.jowidgets.cap.common.tools.bean.BeanDtoDescriptorBuilder;
+import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.annotation.CapService;
+import org.jowidgets.cap.service.api.entity.IBeanServicesProviderBuilder;
+import org.jowidgets.cap.service.impl.jpa.JpaBeanAccess;
+import org.jowidgets.cap.service.impl.jpa.JpaCreatorService;
+import org.jowidgets.cap.service.impl.jpa.JpaDeleterService;
+import org.jowidgets.cap.service.impl.jpa.JpaReaderService;
+import org.jowidgets.cap.service.impl.jpa.jpql.CriteriaQueryCreator;
+import org.jowidgets.cap.service.spring.SpringServiceProvider;
+import org.jowidgets.cap.service.tools.entity.EntityServiceBuilder;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.InitializingBean;
 
 @CapService
-public final class JpaEntityService implements IEntityService {
+public final class JpaEntityService implements IEntityService, InitializingBean {
 
-	@SuppressWarnings("unused")
 	@PersistenceContext
 	private EntityManager entityManager;
 
+	private IEntityService entityService;
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public void afterPropertiesSet() {
+		final EntityServiceBuilder entityServiceBuilder = new EntityServiceBuilder();
+		for (final EntityType<?> type : entityManager.getMetamodel().getEntities()) {
+			final Class<?> clazz = type.getBindableJavaType();
+			if (IBean.class.isAssignableFrom(clazz)) {
+				final Class<? extends IBean> beanInterface = getBeanInterface((Class<? extends IBean>) clazz);
+				addServicesProviderAndDescriptor(entityServiceBuilder, beanInterface, (Class<? extends IBean>) clazz);
+			}
+		}
+		entityService = entityServiceBuilder.build();
+	}
+
+	@SuppressWarnings("unchecked")
+	private Class<? extends IBean> getBeanInterface(final Class<? extends IBean> beanType) {
+		if (beanType.isInterface()) {
+			throw new IllegalArgumentException(beanType.getName() + " must not be an interface");
+		}
+		for (final Class<?> clazz : beanType.getInterfaces()) {
+			if (IBean.class.isAssignableFrom(clazz)) {
+				return (Class<? extends IBean>) clazz;
+			}
+		}
+		return getBeanInterface((Class<? extends IBean>) beanType.getSuperclass());
+	}
+
+	private void addServicesProviderAndDescriptor(
+		final EntityServiceBuilder entityServiceBuilder,
+		final Class<? extends IBean> beanInterface,
+		final Class<? extends IBean> beanType) {
+		final IBeanDtoDescriptor descriptor = createDescriptor(beanInterface);
+		final IBeanServicesProvider servicesProvider = createServicesProvider(beanInterface, beanType, descriptor);
+		entityServiceBuilder.add(beanInterface, descriptor, servicesProvider);
+	}
+
+	private IBeanDtoDescriptor createDescriptor(final Class<? extends IBean> beanInterface) {
+		final IBeanDtoDescriptorBuilder builder = new BeanDtoDescriptorBuilder(beanInterface);
+		for (final String propertyName : getPropertyNames(beanInterface)) {
+			builder.addProperty(propertyName);
+		}
+		return builder.build();
+	}
+
+	private List<String> getPropertyNames(final Class<? extends IBean> beanInterface) {
+		final List<String> names = new LinkedList<String>();
+		for (final PropertyDescriptor descr : BeanUtils.getPropertyDescriptors(beanInterface)) {
+			names.add(descr.getName());
+		}
+		return names;
+	}
+
+	private <T extends IBean> IBeanServicesProvider createServicesProvider(
+		final Class<? extends IBean> beanInterface,
+		final Class<T> beanType,
+		final IBeanDtoDescriptor descriptor) {
+
+		final IBeanServicesProviderBuilder builder = CapServiceToolkit.beanServicesProviderBuilder(
+				SpringServiceProvider.getInstance(),
+				IEntityService.ID,
+				beanInterface);
+
+		final List<String> propertyNames = new LinkedList<String>();
+		for (final IProperty property : descriptor.getProperties()) {
+			propertyNames.add(property.getName());
+		}
+
+		final JpaBeanAccess<T> beanAccess = new JpaBeanAccess<T>(beanType);
+		beanAccess.setEntityManager(entityManager);
+
+		// TODO HRW make creator service transactional
+		final JpaCreatorService creatorService = new JpaCreatorService(beanAccess, propertyNames);
+		creatorService.setEntityManager(entityManager);
+		builder.setCreatorService(creatorService);
+
+		// TODO HRW make deleter service transactional
+		final JpaDeleterService deleterService = new JpaDeleterService(beanAccess);
+		deleterService.setEntityManager(entityManager);
+		builder.setDeleterService(deleterService);
+
+		final JpaReaderService<Void> readerService = new JpaReaderService<Void>(new CriteriaQueryCreator(beanType), propertyNames);
+		readerService.setEntityManager(entityManager);
+		builder.setReaderService(readerService);
+
+		builder.setRefreshService(CapServiceToolkit.refreshServiceBuilder(beanAccess).build());
+
+		// TODO HRW make update service transactional
+		builder.setUpdaterService(CapServiceToolkit.updaterServiceBuilder(beanAccess).build());
+
+		return builder.build();
+	}
+
 	@Override
 	public IBeanDtoDescriptor getDescriptor(final Object entityTypeId) {
-		throw new UnsupportedOperationException("getDescriptor");
+		return entityService.getDescriptor(entityTypeId);
 	}
 
 	@Override
 	public IBeanServicesProvider getBeanServices(final Object entityTypeId) {
-		throw new UnsupportedOperationException("getBeanServices");
+		return entityService.getBeanServices(entityTypeId);
 	}
 
 }

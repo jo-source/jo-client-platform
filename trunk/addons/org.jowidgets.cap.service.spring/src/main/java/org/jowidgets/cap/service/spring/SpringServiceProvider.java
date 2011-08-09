@@ -36,7 +36,7 @@ import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.api.IServiceProvider;
 import org.jowidgets.service.api.IServiceRegistry;
 
-final class SpringServiceProvider implements IServiceProvider, IServiceRegistry {
+public final class SpringServiceProvider implements IServiceProvider, IServiceRegistry {
 
 	private static final SpringServiceProvider INSTANCE = new SpringServiceProvider();
 

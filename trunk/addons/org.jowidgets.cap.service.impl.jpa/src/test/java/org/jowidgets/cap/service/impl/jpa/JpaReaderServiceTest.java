@@ -81,11 +81,11 @@ public class JpaReaderServiceTest extends AbstractJpaTest {
 		}
 	};
 
-	private JpaReaderService<Object> allPersonsReader;
-	private JpaReaderService<Object> caseInsensitivePersonsReader;
-	private JpaReaderService<Object> customPersonsReader;
-	private JpaReaderService<Object> allJobsReader;
-	private JpaReaderService<Object> currentUserJobsReader;
+	private JpaReaderService<Void> allPersonsReader;
+	private JpaReaderService<Void> caseInsensitivePersonsReader;
+	private JpaReaderService<Void> customPersonsReader;
+	private JpaReaderService<Void> allJobsReader;
+	private JpaReaderService<Void> currentUserJobsReader;
 	private String currentUser;
 
 	@Before
@@ -95,12 +95,12 @@ public class JpaReaderServiceTest extends AbstractJpaTest {
 		final List<String> personPropertyNames = new ArrayList<String>();
 		personPropertyNames.add("name");
 		final CriteriaQueryCreator allPersonsQueryCreator = new CriteriaQueryCreator(Person.class);
-		allPersonsReader = new JpaReaderService<Object>(allPersonsQueryCreator, personPropertyNames);
+		allPersonsReader = new JpaReaderService<Void>(allPersonsQueryCreator, personPropertyNames);
 		allPersonsReader.setEntityManager(entityManager);
 
 		final CriteriaQueryCreator caseInsensitivePersonsQueryCreator = new CriteriaQueryCreator(Person.class);
 		caseInsensitivePersonsQueryCreator.setCaseInsensitve(true);
-		caseInsensitivePersonsReader = new JpaReaderService<Object>(caseInsensitivePersonsQueryCreator, personPropertyNames);
+		caseInsensitivePersonsReader = new JpaReaderService<Void>(caseInsensitivePersonsQueryCreator, personPropertyNames);
 		caseInsensitivePersonsReader.setEntityManager(entityManager);
 
 		final CriteriaQueryCreator customPersonsQueryCreator = new CriteriaQueryCreator(Person.class);
@@ -118,13 +118,13 @@ public class JpaReaderServiceTest extends AbstractJpaTest {
 					}
 
 				}));
-		customPersonsReader = new JpaReaderService<Object>(customPersonsQueryCreator, personPropertyNames);
+		customPersonsReader = new JpaReaderService<Void>(customPersonsQueryCreator, personPropertyNames);
 		customPersonsReader.setEntityManager(entityManager);
 
 		final List<String> jobPropertyNames = new ArrayList<String>();
 		final CriteriaQueryCreator allJobsQueryCreator = new CriteriaQueryCreator(Job.class);
 		allJobsQueryCreator.setParentPropertyName("owner");
-		allJobsReader = new JpaReaderService<Object>(allJobsQueryCreator, jobPropertyNames);
+		allJobsReader = new JpaReaderService<Void>(allJobsQueryCreator, jobPropertyNames);
 		allJobsReader.setEntityManager(entityManager);
 
 		currentUser = null;
@@ -139,7 +139,7 @@ public class JpaReaderServiceTest extends AbstractJpaTest {
 				return criteriaBuilder.equal(bean.get("owner").get("name"), currentUser);
 			}
 		});
-		currentUserJobsReader = new JpaReaderService<Object>(currentUserJobsQueryCreator, jobPropertyNames);
+		currentUserJobsReader = new JpaReaderService<Void>(currentUserJobsQueryCreator, jobPropertyNames);
 		currentUserJobsReader.setEntityManager(entityManager);
 	}
 
