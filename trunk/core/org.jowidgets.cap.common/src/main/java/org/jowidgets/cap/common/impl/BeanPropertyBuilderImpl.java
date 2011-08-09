@@ -32,6 +32,8 @@ import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -78,6 +80,18 @@ final class BeanPropertyBuilderImpl implements IBeanPropertyBuilder {
 					propertyBuilder.setValueType(propertyType);
 					if (!Collection.class.isAssignableFrom(propertyType)) {
 						propertyBuilder.setElementValueType(propertyType);
+					}
+					else {
+						final Type returnType = propertyDescriptor.getReadMethod().getGenericReturnType();
+						if (returnType instanceof ParameterizedType) {
+							final ParameterizedType paramType = (ParameterizedType) returnType;
+							if (paramType.getActualTypeArguments().length == 1) {
+								final Type typeArg = paramType.getActualTypeArguments()[0];
+								if (typeArg instanceof Class<?>) {
+									propertyBuilder.setElementValueType((Class<?>) typeArg);
+								}
+							}
+						}
 					}
 					propertyBuilder.setReadonly(propertyDescriptor.getWriteMethod() == null);
 				}
