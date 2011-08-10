@@ -5,9 +5,9 @@
 	<bean class="org.jowidgets.cap.service.spring.SomeExecutors" />
 
 	<bean class="org.jowidgets.cap.service.spring.ExecutorAnnotationPostProcessor">
-		<constructor-arg>
+		<property name="beanAccessProvider">
 			<bean class="org.jowidgets.cap.service.spring.UserAccess" />
-		</constructor-arg>
+		</property>
 	</bean>
 
 </beans>
