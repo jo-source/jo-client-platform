@@ -53,6 +53,7 @@ import org.jowidgets.cap.service.impl.jpa.JpaCreatorService;
 import org.jowidgets.cap.service.impl.jpa.JpaDeleterService;
 import org.jowidgets.cap.service.impl.jpa.JpaReaderService;
 import org.jowidgets.cap.service.impl.jpa.jpql.CriteriaQueryCreator;
+import org.jowidgets.cap.service.spring.BeanTypeUtil;
 import org.jowidgets.cap.service.spring.SpringServiceProvider;
 import org.jowidgets.cap.service.tools.entity.EntityServiceBuilder;
 import org.springframework.beans.BeanUtils;
@@ -81,24 +82,12 @@ public final class JpaEntityService implements IEntityService, InitializingBean 
 		for (final EntityType<?> type : entityManager.getMetamodel().getEntities()) {
 			final Class<?> clazz = type.getBindableJavaType();
 			if (IBean.class.isAssignableFrom(clazz)) {
-				final Class<? extends IBean> beanInterface = getBeanInterface((Class<? extends IBean>) clazz);
-				addServicesProviderAndDescriptor(entityServiceBuilder, beanInterface, (Class<? extends IBean>) clazz);
+				final Class<? extends IBean> beanType = (Class<? extends IBean>) clazz;
+				final Class<? extends IBean> beanInterface = new BeanTypeUtil(beanType).getBeanInterface();
+				addServicesProviderAndDescriptor(entityServiceBuilder, beanInterface, beanType);
 			}
 		}
 		entityService = entityServiceBuilder.build();
-	}
-
-	@SuppressWarnings("unchecked")
-	private Class<? extends IBean> getBeanInterface(final Class<? extends IBean> beanType) {
-		if (beanType.isInterface()) {
-			throw new IllegalArgumentException(beanType.getName() + " must not be an interface");
-		}
-		for (final Class<?> clazz : beanType.getInterfaces()) {
-			if (IBean.class.isAssignableFrom(clazz)) {
-				return (Class<? extends IBean>) clazz;
-			}
-		}
-		return getBeanInterface((Class<? extends IBean>) beanType.getSuperclass());
 	}
 
 	private void addServicesProviderAndDescriptor(

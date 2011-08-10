@@ -28,8 +28,6 @@
 
 package org.jowidgets.cap.service.spring.jpa;
 
-import java.beans.PropertyDescriptor;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -52,7 +50,7 @@ import org.jowidgets.cap.service.impl.jpa.JpaReaderService;
 import org.jowidgets.cap.service.impl.jpa.jpql.CriteriaQueryCreator;
 import org.jowidgets.cap.service.impl.jpa.jpql.ICustomFilterPredicateCreator;
 import org.jowidgets.cap.service.impl.jpa.jpql.IPredicateCreator;
-import org.springframework.beans.BeanUtils;
+import org.jowidgets.cap.service.spring.BeanTypeUtil;
 import org.springframework.beans.factory.InitializingBean;
 
 public abstract class AbstractJpaReaderService implements IReaderService<Void>, InitializingBean {
@@ -104,7 +102,8 @@ public abstract class AbstractJpaReaderService implements IReaderService<Void>, 
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		jpaReaderService = new JpaReaderService<Void>(queryCreator, getPropertyNames(queryCreator.getPersistenceClass()));
+		final BeanTypeUtil beanTypeUtil = new BeanTypeUtil(queryCreator.getPersistenceClass());
+		jpaReaderService = new JpaReaderService<Void>(queryCreator, beanTypeUtil.getPropertyNames());
 		jpaReaderService.setEntityManager(entityManager);
 	}
 
@@ -133,29 +132,6 @@ public abstract class AbstractJpaReaderService implements IReaderService<Void>, 
 		final Void parameter,
 		final IExecutionCallback executionCallback) {
 		jpaReaderService.count(result, parentBeanKeys, filter, parameter, executionCallback);
-	}
-
-	// TODO HRW refactor duplicated code
-	private List<String> getPropertyNames(final Class<? extends IBean> beanType) {
-		final Class<? extends IBean> beanInterface = getBeanInterface(beanType);
-		final List<String> names = new LinkedList<String>();
-		for (final PropertyDescriptor descr : BeanUtils.getPropertyDescriptors(beanInterface)) {
-			names.add(descr.getName());
-		}
-		return names;
-	}
-
-	@SuppressWarnings("unchecked")
-	private Class<? extends IBean> getBeanInterface(final Class<? extends IBean> beanType) {
-		if (beanType.isInterface()) {
-			throw new IllegalArgumentException(beanType.getName() + " must not be an interface");
-		}
-		for (final Class<?> clazz : beanType.getInterfaces()) {
-			if (IBean.class.isAssignableFrom(clazz)) {
-				return (Class<? extends IBean>) clazz;
-			}
-		}
-		return getBeanInterface((Class<? extends IBean>) beanType.getSuperclass());
 	}
 
 }

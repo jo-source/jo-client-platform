@@ -28,7 +28,6 @@
 
 package org.jowidgets.cap.service.spring;
 
-import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -54,7 +53,6 @@ import org.jowidgets.cap.service.api.executor.IBeanListExecutor;
 import org.jowidgets.cap.service.api.executor.IExecutorServiceBuilder;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.tools.ServiceId;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -74,28 +72,6 @@ public final class ExecutorAnnotationPostProcessor implements BeanFactoryPostPro
 		this.beanAccessProvider = beanAccessProvider;
 	}
 
-	private List<String> getPropertyNames(final Class<? extends IBean> beanType) {
-		final Class<? extends IBean> beanInterface = getBeanInterface(beanType);
-		final List<String> names = new LinkedList<String>();
-		for (final PropertyDescriptor descr : BeanUtils.getPropertyDescriptors(beanInterface)) {
-			names.add(descr.getName());
-		}
-		return names;
-	}
-
-	@SuppressWarnings("unchecked")
-	private Class<? extends IBean> getBeanInterface(final Class<? extends IBean> beanType) {
-		if (beanType.isInterface()) {
-			throw new IllegalArgumentException(beanType.getName() + " must not be an interface");
-		}
-		for (final Class<?> clazz : beanType.getInterfaces()) {
-			if (IBean.class.isAssignableFrom(clazz)) {
-				return (Class<? extends IBean>) clazz;
-			}
-		}
-		return getBeanInterface((Class<? extends IBean>) beanType.getSuperclass());
-	}
-
 	@SuppressWarnings({"rawtypes", "unchecked"})
 	@Override
 	public void postProcessBeanFactory(final ConfigurableListableBeanFactory beanFactory) {
@@ -107,7 +83,7 @@ public final class ExecutorAnnotationPostProcessor implements BeanFactoryPostPro
 			final Object bean = entry.getValue();
 			final ExecutorBean beanAnnotation = beanFactory.findAnnotationOnBean(beanName, ExecutorBean.class);
 			final IBeanAccess beanAccess = beanAccessProvider.getBeanAccess(beanAnnotation.value());
-			final List<String> propertyNames = getPropertyNames(beanAccess.getBeanType());
+			final List<String> propertyNames = new BeanTypeUtil(beanAccess.getBeanType()).getPropertyNames();
 
 			final Set<Method> methods = getExecutorMethods(bean);
 			for (final Method method : methods) {
