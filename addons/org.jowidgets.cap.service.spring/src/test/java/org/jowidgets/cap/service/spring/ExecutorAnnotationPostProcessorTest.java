@@ -54,6 +54,7 @@ public class ExecutorAnnotationPostProcessorTest {
 		final IExecutorService<Void> service = ServiceProvider.getService(new ServiceId<IExecutorService<Void>>(
 			"doNothing",
 			IExecutorService.class));
+		Assert.assertNotNull(service);
 		service.execute(new SyncResultCallback<List<IBeanDto>>(), Collections.singletonList(new BeanKey(0, 0)), null, null);
 	}
 
@@ -62,6 +63,7 @@ public class ExecutorAnnotationPostProcessorTest {
 		final IExecutorService<Void> service = ServiceProvider.getService(new ServiceId<IExecutorService<Void>>(
 			"doNothingList",
 			IExecutorService.class));
+		Assert.assertNotNull(service);
 		service.execute(new SyncResultCallback<List<IBeanDto>>(), Collections.singletonList(new BeanKey(0, 0)), null, null);
 	}
 
@@ -70,6 +72,7 @@ public class ExecutorAnnotationPostProcessorTest {
 		final IExecutorService<String> service = ServiceProvider.getService(new ServiceId<IExecutorService<String>>(
 			"changeName",
 			IExecutorService.class));
+		Assert.assertNotNull(service);
 		final SyncResultCallback<List<IBeanDto>> result = new SyncResultCallback<List<IBeanDto>>();
 		service.execute(result, Collections.singletonList(new BeanKey(0, 0)), "Hans", null);
 		final List<IBeanDto> dtos = result.getResultSynchronious();
@@ -85,6 +88,7 @@ public class ExecutorAnnotationPostProcessorTest {
 		final IExecutorService<String> service = ServiceProvider.getService(new ServiceId<IExecutorService<String>>(
 			"changeNameList",
 			IExecutorService.class));
+		Assert.assertNotNull(service);
 		final SyncResultCallback<List<IBeanDto>> result = new SyncResultCallback<List<IBeanDto>>();
 		service.execute(result, Collections.singletonList(new BeanKey(0, 0)), "Hans", null);
 		final List<IBeanDto> dtos = result.getResultSynchronious();
@@ -100,6 +104,7 @@ public class ExecutorAnnotationPostProcessorTest {
 		final IExecutorService<String[]> service = ServiceProvider.getService(new ServiceId<IExecutorService<String[]>>(
 			"changeFirstAndLastName",
 			IExecutorService.class));
+		Assert.assertNotNull(service);
 		final SyncResultCallback<List<IBeanDto>> result = new SyncResultCallback<List<IBeanDto>>();
 		service.execute(result, Collections.singletonList(new BeanKey(0, 0)), new String[] {"Hans", "Hansen"}, null);
 		final List<IBeanDto> dtos = result.getResultSynchronious();
@@ -115,6 +120,7 @@ public class ExecutorAnnotationPostProcessorTest {
 		final IExecutorService<String> service = ServiceProvider.getService(new ServiceId<IExecutorService<String>>(
 			"createUser",
 			IExecutorService.class));
+		Assert.assertNotNull(service);
 		final SyncResultCallback<List<IBeanDto>> result = new SyncResultCallback<List<IBeanDto>>();
 		service.execute(result, new ArrayList<IBeanKey>(), "Hans Meier", null);
 		final List<IBeanDto> dtos = result.getResultSynchronious();
