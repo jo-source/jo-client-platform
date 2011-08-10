@@ -67,9 +67,11 @@ import org.jowidgets.util.Assert;
 
 public final class CriteriaQueryCreator implements IQueryCreator<Void> {
 
+	public static final String DEFAULT_PARENT_PROPERTY_NAME = "parent";
+
 	private final Class<? extends IBean> persistenceClass;
 
-	private String parentPropertyName = "parent";
+	private String parentPropertyName = DEFAULT_PARENT_PROPERTY_NAME;
 	private IPredicateCreator predicateCreator;
 	private boolean caseInsensitive;
 	private Map<String, ? extends ICustomFilterPredicateCreator> customFilterPredicateCreators = Collections.emptyMap();
