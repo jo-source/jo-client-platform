@@ -62,7 +62,7 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.ReflectionUtils.MethodCallback;
 
-public final class ReaderAnnotationPostProcessor implements BeanFactoryPostProcessor {
+public final class JpaReaderAnnotationPostProcessor implements BeanFactoryPostProcessor {
 
 	@PersistenceContext
 	private EntityManager entityManager;
