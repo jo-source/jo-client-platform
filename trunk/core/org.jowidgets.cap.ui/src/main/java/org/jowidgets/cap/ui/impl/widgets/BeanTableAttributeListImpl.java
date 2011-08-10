@@ -42,9 +42,14 @@ import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.command.ICommandExecutor;
 import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.api.image.IconsSmall;
+import org.jowidgets.api.layout.tablelayout.ITableLayout;
+import org.jowidgets.api.layout.tablelayout.ITableLayoutBuilder;
+import org.jowidgets.api.layout.tablelayout.ITableLayoutBuilder.Alignment;
+import org.jowidgets.api.layout.tablelayout.ITableLayoutBuilder.ColumnMode;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.widgets.ICheckBox;
 import org.jowidgets.api.widgets.IComboBox;
+import org.jowidgets.api.widgets.IComposite;
 import org.jowidgets.api.widgets.IContainer;
 import org.jowidgets.api.widgets.IControl;
 import org.jowidgets.api.widgets.IScrollComposite;
@@ -68,13 +73,12 @@ import org.jowidgets.common.color.IColorConstant;
 import org.jowidgets.common.types.AlignmentHorizontal;
 import org.jowidgets.common.types.Dimension;
 import org.jowidgets.common.types.Markup;
-import org.jowidgets.common.types.Rectangle;
 import org.jowidgets.common.widgets.controller.IInputListener;
-import org.jowidgets.common.widgets.layout.ILayouter;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
 import org.jowidgets.tools.command.ActionBuilder;
 import org.jowidgets.tools.controller.InputObservable;
 import org.jowidgets.tools.widgets.wrapper.ComboBoxWrapper;
+import org.jowidgets.tools.widgets.wrapper.CompositeWrapper;
 import org.jowidgets.tools.widgets.wrapper.ContainerWrapper;
 import org.jowidgets.util.NullCompatibleEquivalence;
 
@@ -103,10 +107,10 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 	private final Map<String, AttributeGroupHeader> groupHeaders;
 	private final Map<String, AttributeGroupContainer> groupContainers;
 	private final Map<String, AttributeComposite> attributeComposites;
-	private final AttributeLayoutManager attributeLayoutManager;
+	private final ITableLayout attributeLayoutManager;
 	private final IScrollComposite attributeScroller;
 
-	private final ListLayout attributeScrollerLayout;
+	//private final ListLayout attributeScrollerLayout;
 
 	private final AllAttributesComposite allAttributesComposite;
 	private final AttributesFilterComposite attributesFilterComposite;
@@ -119,19 +123,45 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 	private boolean isInitialized;
 
 	private final IInputListener updateHeadersListener;
+	private boolean layoutingEnabled;
 
 	BeanTableAttributeListImpl(final IContainer container, final IBeanTableModel<?> model) {
 		super(container);
-		this.attributeLayoutManager = new AttributeLayoutManager(10, 20, 4);
+
+		final ITableLayoutBuilder builder = Toolkit.getLayoutFactoryProvider().tableLayoutBuilder();
+		builder.columnCount(10);
+		builder.gap(20);
+		builder.verticalGap(4);
+
+		builder.alignment(2, Alignment.CENTER); // center visibility checkbox
+		builder.gapBeforeColumn(0, 10);
+		builder.gapAfterColumn(0, 10);
+		builder.gapBeforeColumn(7, 2); // reduce gap between in sort order
+		builder.gapBeforeColumn(9, 2); // reduce gap between in sort order
+		builder.gapAfterColumn(9, 10);
+
+		if (isSingleGroup(model)) {
+			// hide toolbar column if no groups exist
+			builder.columnMode(0, ColumnMode.HIDDEN);
+			builder.gapAfterColumn(0, 0); // no gap after hidden column
+		}
+
+		this.attributeLayoutManager = builder.build();
+		disableLayouting();
+
 		this.groupHeaders = new HashMap<String, AttributeGroupHeader>();
 		this.groupContainers = new HashMap<String, AttributeGroupContainer>();
 		this.attributeComposites = new HashMap<String, AttributeComposite>();
+
+		//Toolkit.getLayoutFactoryProvider().migLayoutBuilder().constraints("hidemode 2").columnConstraints("[grow]").rowConstraints("[]0[]0[]0[grow, 0:500:]").build();
+
 		this.setLayout(new MigLayoutDescriptor("hidemode 2", "[grow]", "[]0[]0[]0[grow, 0:500:]"));
 		this.maxSortingLength = getMaxSortableLength(model);
 		this.isInitialized = false;
 
-		updateHeadersListener = new IInputListener() {
+		final AllAttributeInformation allAttributeInformation = new AllAttributeInformation(model);
 
+		updateHeadersListener = new IInputListener() {
 			@Override
 			public void inputChanged() {
 				updateHeaders();
@@ -141,12 +171,12 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 		currentSortingModel = new SortIndexModel(new ISortIndexModelProvider() {
 
 			@Override
-			public ComboBox getSort(final AbstractAttributeComposite<?> composite) {
+			public ComboBox getSort(final AbstractListElement<?> composite) {
 				return composite.getCurrentSorting();
 			}
 
 			@Override
-			public SortingIndexComboBox getSortIndex(final AbstractAttributeComposite<?> composite) {
+			public SortingIndexComboBox getSortIndex(final AbstractListElement<?> composite) {
 				return composite.getCurrentSortingIndex();
 			}
 
@@ -154,12 +184,12 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 		defaultSortingModel = new SortIndexModel(new ISortIndexModelProvider() {
 
 			@Override
-			public ComboBox getSort(final AbstractAttributeComposite<?> composite) {
+			public ComboBox getSort(final AbstractListElement<?> composite) {
 				return composite.getDefaultSorting();
 			}
 
 			@Override
-			public SortingIndexComboBox getSortIndex(final AbstractAttributeComposite<?> composite) {
+			public SortingIndexComboBox getSortIndex(final AbstractListElement<?> composite) {
 				return composite.getDefaultSortingIndex();
 			}
 
@@ -172,17 +202,16 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 			add(bpF.composite(), "grow, wrap"),
 			attributeLayoutManager,
 			model,
-			new AllAttributeInformation(model));
+			allAttributeInformation);
 		attributesFilterComposite = new AttributesFilterComposite(
 			add(bpF.composite(), "grow, wrap"),
 			attributeLayoutManager,
 			model,
-			new AllAttributeInformation(model));
+			new FilterInformation(allAttributeInformation));
 		attributesFilterComposite.setVisible(false);
 
 		attributeScroller = this.add(bpF.scrollComposite().setHorizontalBar(false), "grow, w 0::, h 0::");
-		attributeScrollerLayout = new ListLayout(attributeScroller, ALTERNATING_GROUPS);
-		attributeScroller.setLayout(attributeScrollerLayout);
+		attributeScroller.setLayout(Toolkit.getLayoutFactoryProvider().listLayoutBuilder().backgroundColors(ALTERNATING_GROUPS).build());
 
 		AttributeGroupHeader lastHeader = null;
 		for (int columnIndex = 0; columnIndex < model.getColumnCount(); columnIndex++) {
@@ -209,10 +238,10 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 				groupContainers.put(attributeGroupId, groupContainer);
 
 				if (lastHeader != null) {
-					lastHeader.setEnabled(true);
+					lastHeader.setLayoutConstraints(true);
 				}
 				else {
-					header.setEnabled(false);
+					header.setLayoutConstraints(false);
 				}
 				lastHeader = header;
 			}
@@ -225,22 +254,35 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 				attribute);
 			attributeComposites.put(attribute.getPropertyName(), attributeComposite);
 		}
+		enableLayouting();
 		this.isInitialized = true;
 
-		attributeLayoutManager.modes[2] = FillMode.CENTER; // center visibility checkbox
-		attributeLayoutManager.gaps[0] = 10;
-		attributeLayoutManager.gaps[1] = 10;
-		attributeLayoutManager.gaps[7] = 2; // reduce gap between in sort order
-		attributeLayoutManager.gaps[9] = 2; // reduce gap between in sort order
-		attributeLayoutManager.gaps[attributeLayoutManager.gaps.length - 1] = 10;
+		attributeLayoutManager.validate();
+	}
 
-		if (groupHeaders.size() <= 1) {
-			// hide toolbar column if no groups exist
-			attributeLayoutManager.modes[0] = FillMode.HIDDEN;
-			attributeLayoutManager.gaps[1] = 0; // no gap after hidden column
+	private boolean isSingleGroup(final IBeanTableModel<?> model) {
+		IAttributeGroup group = null;
+		for (int columnIndex = 0; columnIndex < model.getColumnCount(); columnIndex++) {
+			final IAttribute<?> attribute = model.getAttribute(columnIndex);
+			if (columnIndex == 0) {
+				group = attribute.getGroup();
+			}
+			else {
+				final IAttributeGroup currentGroup = attribute.getGroup();
+				if (group == null && currentGroup == null) {
+					continue;
+				}
+				if (group == null || currentGroup == null) {
+					return false;
+				}
+
+				if (!group.getId().equals(currentGroup.getId())) {
+					return false;
+				}
+			}
 		}
 
-		attributeLayoutManager.calculateLayout();
+		return true;
 	}
 
 	private int getMaxSortableLength(final IBeanTableModel<?> model) {
@@ -311,11 +353,11 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 		eventsDisabled = false;
 	}
 
-	private final class AttributeGroupContainer extends ContainerWrapper {
+	private final class AttributeGroupContainer extends CompositeWrapper {
 
-		private AttributeGroupContainer(final IContainer container) {
+		private AttributeGroupContainer(final IComposite container) {
 			super(container);
-			setLayout(new ListLayout(container, ALTERNATING_ATTRIBUTES));
+			setLayout(Toolkit.getLayoutFactoryProvider().listLayoutBuilder().backgroundColors(ALTERNATING_ATTRIBUTES).build());
 		}
 
 	}
@@ -325,7 +367,7 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 		public AttributeHeaderComposite(final IContainer container) {
 			super(container);
 			setBackgroundColor(ATTRIBUTE_HEADER_BACKGROUND);
-			setLayout(new AttributeLayout(container, attributeLayoutManager));
+			setLayout(attributeLayoutManager.rowBuilder().build());
 
 			final IBluePrintFactory bpF = Toolkit.getBluePrintFactory();
 			// TODO i18n
@@ -335,12 +377,12 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 			add(LABEL_HEADER.setText("Header format"));
 			add(LABEL_HEADER.setText("Content format"));
 			add(LABEL_HEADER.setText("Alignment"));
-			add(LABEL_HEADER.setText("Current sorting"), 2);
-			add(LABEL_HEADER.setText("Default sorting"), 2);
+			add(LABEL_HEADER.setText("Current sorting"), "span 2");
+			add(LABEL_HEADER.setText("Default sorting"), "span 2");
 		}
 	}
 
-	private abstract class AbstractAttributeComposite<TYPE> extends ContainerWrapper {
+	private abstract class AbstractListElement<TYPE> extends CompositeWrapper {
 		private final TYPE information;
 		private final ICheckBox visible;
 		private final ComboBox headerFormat;
@@ -352,16 +394,16 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 		private final SortingIndexComboBox defaultSortingIndex;
 		private final IToolBarButton collapseButton;
 
-		private AbstractAttributeComposite(
-			final IContainer container,
-			final AttributeLayoutManager attributeLayoutManager,
+		private AbstractListElement(
+			final IComposite container,
+			final ITableLayout attributeLayoutManager,
 			final IBeanTableModel<?> model,
 			final TYPE information,
 			final ITextLabelBluePrint textLabel) {
 			super(container);
 			this.information = information;
 			final IBluePrintFactory bpF = Toolkit.getBluePrintFactory();
-			setLayout(new AttributeLayout(container, attributeLayoutManager));
+			setLayout(attributeLayoutManager.rowBuilder().build());
 
 			if (hasCollapseButton()) {
 				final IToolBar toolBar = container.add(bpF.toolBar());
@@ -441,25 +483,21 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 			return information;
 		}
 
-		protected abstract IInputListener createVisibleChangedListener();
+		protected IInputListener createHeaderChangedListener() {
+			return updateHeadersListener;
+		}
 
-		protected abstract IInputListener createHeaderChangedListener();
+		protected IInputListener createContentChangedListener() {
+			return updateHeadersListener;
+		}
 
-		protected abstract IInputListener createContentChangedListener();
+		protected IInputListener createAlignmentChangedListener() {
+			return updateHeadersListener;
+		}
 
-		protected abstract IInputListener createAlignmentChangedListener();
-
-		protected abstract IInputListener createCurrentSortingChangedListener();
-
-		protected abstract IInputListener createCurrentSortingIndexChangedListener();
-
-		protected abstract IInputListener createDefaultSortingChangedListener();
-
-		protected abstract IInputListener createDefaultSortingIndexChangedListener();
-
-		protected abstract IAction createCollapseAction();
-
-		protected abstract boolean hasCollapseButton();
+		protected IInputListener createVisibleChangedListener() {
+			return updateHeadersListener;
+		}
 
 		protected abstract String getLabelText();
 
@@ -471,7 +509,39 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 
 		protected abstract boolean hasSortPriority();
 
-		private void addNotAvailableLabel(final ITextLabelBluePrint textLabel) {
+		protected IInputListener createCurrentSortingChangedListener() {
+			return createSortingChangedListener(currentSortingModel);
+		}
+
+		protected IInputListener createDefaultSortingChangedListener() {
+			return createSortingChangedListener(defaultSortingModel);
+		}
+
+		protected IInputListener createSortingChangedListener(final SortIndexModel model) {
+			return null;
+		}
+
+		protected IInputListener createCurrentSortingIndexChangedListener() {
+			return createSortingIndexChangedListener(currentSortingModel);
+		}
+
+		protected IInputListener createDefaultSortingIndexChangedListener() {
+			return createSortingIndexChangedListener(defaultSortingModel);
+		}
+
+		protected IInputListener createSortingIndexChangedListener(final SortIndexModel model) {
+			return null;
+		}
+
+		protected boolean hasCollapseButton() {
+			return false;
+		}
+
+		protected IAction createCollapseAction() {
+			return null;
+		}
+
+		protected void addNotAvailableLabel(final ITextLabelBluePrint textLabel) {
 			final AlignmentHorizontal alignment = textLabel.getAlignment();
 			add(textLabel.alignCenter().setText("-"));
 			textLabel.setAlignment(alignment);
@@ -525,67 +595,19 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 			return collapseButton;
 		}
 
-		public void updateValues(final String[] propertyNames) {
-			int visibleCount = 0;
-			int invisibleCount = 0;
-			final Set<String> headerFormats = new HashSet<String>();
-			final Set<String> contentFormats = new HashSet<String>();
-			final Set<String> columnAlignments = new HashSet<String>();
-			final Set<String> currentSortings = new HashSet<String>();
-			final Set<String> defaultSortings = new HashSet<String>();
-			for (final String propertyName : propertyNames) {
-				final AttributeComposite attributeComposite = attributeComposites.get(propertyName);
-				if (attributeComposite.getVisible().getValue()) {
-					visibleCount++;
-				}
-				else {
-					invisibleCount++;
-				}
-
-				if (attributeComposite.getHeaderFormat() != null) {
-					headerFormats.add(attributeComposite.getHeaderFormat().getValue());
-				}
-				if (attributeComposite.getContentFormat() != null) {
-					contentFormats.add(attributeComposite.getContentFormat().getValue());
-				}
-
-				columnAlignments.add(attributeComposite.getColumnAlignment().getValue());
-
-				if (attributeComposite.getCurrentSorting() != null) {
-					currentSortings.add(attributeComposite.getCurrentSorting().getValue());
-				}
-				if (attributeComposite.getDefaultSorting() != null) {
-					defaultSortings.add(attributeComposite.getDefaultSorting().getValue());
-				}
-			}
-
-			setValue(getHeaderFormat(), headerFormats);
-			setValue(getContentFormat(), contentFormats);
-			setValue(getColumnAlignment(), columnAlignments);
-
-			getVisible().setValue(invisibleCount == 0);
-
-			setValue(getContentFormat(), contentFormats);
-			setValue(getCurrentSorting(), currentSortings);
-			setValue(getDefaultSorting(), defaultSortings);
-		}
-
 	}
 
-	private final class AttributeComposite extends AbstractAttributeComposite<IAttribute<?>> {
+	private final class AttributeComposite extends AbstractListElement<IAttribute<?>> {
 
 		private final String propertyName;
-		private final int lastDefaultSortingIndex;
 
 		private AttributeComposite(
-			final IContainer container,
-			final AttributeLayoutManager attributeLayoutManager,
+			final IComposite container,
+			final ITableLayout tableLayout,
 			final IBeanTableModel<?> model,
 			final IAttribute<?> attribute) {
-			super(container, attributeLayoutManager, model, attribute, LABEL_ATTRIBUTES);
+			super(container, tableLayout, model, attribute, LABEL_ATTRIBUTES);
 			propertyName = attribute.getPropertyName();
-
-			lastDefaultSortingIndex = 0;
 		}
 
 		private IAttribute<?> getAttribute() {
@@ -619,16 +641,6 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 		@Override
 		protected boolean isSortable() {
 			return getAttribute().isSortable();
-		}
-
-		@Override
-		protected boolean hasCollapseButton() {
-			return false;
-		}
-
-		@Override
-		protected IAction createCollapseAction() {
-			return null;
 		}
 
 		public void updateValues(final IBeanTableConfig currentConfig) {
@@ -696,46 +708,7 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 		}
 
 		@Override
-		protected IInputListener createHeaderChangedListener() {
-			return updateHeadersListener;
-		}
-
-		@Override
-		protected IInputListener createContentChangedListener() {
-			return updateHeadersListener;
-		}
-
-		@Override
-		protected IInputListener createAlignmentChangedListener() {
-			return updateHeadersListener;
-		}
-
-		@Override
-		protected IInputListener createVisibleChangedListener() {
-			return updateHeadersListener;
-		}
-
-		@Override
-		protected IInputListener createCurrentSortingChangedListener() {
-			return createSortingChangedListener(currentSortingModel);
-		}
-
-		@Override
-		protected IInputListener createCurrentSortingIndexChangedListener() {
-			return createSortingIndexChangedListener(currentSortingModel);
-		}
-
-		@Override
-		protected IInputListener createDefaultSortingChangedListener() {
-			return createSortingChangedListener(defaultSortingModel);
-		}
-
-		@Override
-		protected IInputListener createDefaultSortingIndexChangedListener() {
-			return createSortingIndexChangedListener(defaultSortingModel);
-		}
-
-		private IInputListener createSortingChangedListener(final SortIndexModel model) {
+		protected IInputListener createSortingChangedListener(final SortIndexModel model) {
 			return new IInputListener() {
 				@Override
 				public void inputChanged() {
@@ -759,7 +732,8 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 			};
 		}
 
-		private IInputListener createSortingIndexChangedListener(final SortIndexModel model) {
+		@Override
+		protected IInputListener createSortingIndexChangedListener(final SortIndexModel model) {
 			return new IInputListener() {
 
 				@Override
@@ -798,27 +772,172 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 
 	}
 
-	private abstract class AbstractAttributesGroupComposite<TYPE> extends AbstractAttributeComposite<TYPE> {
-		private AbstractAttributesGroupComposite(
-			final IContainer container,
-			final AttributeLayoutManager attributeLayoutManager,
+	private class AttributesHeaderComposite<TYPE extends IAttributesInformation> extends AbstractListElement<TYPE> {
+
+		private boolean collapsed;
+
+		public AttributesHeaderComposite(
+			final IComposite container,
+			final ITableLayout attributeLayoutManager,
 			final IBeanTableModel<?> model,
 			final TYPE information,
 			final ITextLabelBluePrint textLabel) {
 			super(container, attributeLayoutManager, model, information, textLabel);
 			setBackgroundColor(ATTRIBUTE_GROUP_BACKGROUND);
+			collapsed = false;
 		}
 
 		@Override
-		protected boolean hasSortPriority() {
+		public String getLabelText() {
+			return getData().getLabelText();
+		}
+
+		@Override
+		public List<String> getHeaderFormats() {
+			return getData().getHeaderFormats();
+		}
+
+		@Override
+		public List<String> getContentFormats() {
+			return getData().getContentFormats();
+		}
+
+		@Override
+		public boolean isSortable() {
+			return getData().isSortable();
+		}
+
+		@Override
+		public boolean hasCollapseButton() {
+			return getData().isCollapsable();
+		}
+
+		@Override
+		public boolean hasSortPriority() {
 			return false;
 		}
 
 		public void updateValues() {
-			updateValues(getPropertyNames());
+			final String[] propertyNames = getPropertyNames();
+
+			if (getHeaderFormat() != null) {
+				final List<String> formats = getHeaderFormats();
+				getHeaderFormat().setElements(formats);
+				getHeaderFormat().setEnabled(formats.size() > 1);
+			}
+			if (getContentFormat() != null) {
+				final List<String> formats = getContentFormats();
+				getContentFormat().setElements(formats);
+				getContentFormat().setEnabled(formats.size() > 1);
+			}
+			if (getCurrentSorting() != null) {
+				getCurrentSorting().setElements(getSortOrders());
+				getCurrentSorting().setEnabled(isSortable());
+			}
+			if (getDefaultSorting() != null) {
+				getDefaultSorting().setElements(getSortOrders());
+				getDefaultSorting().setEnabled(isSortable());
+			}
+			if (getColumnAlignment() != null) {
+				getColumnAlignment().setElements(getAlignments());
+				getColumnAlignment().setEnabled(propertyNames.length > 0);
+			}
+			if (getVisible() != null) {
+				getVisible().setEnabled(propertyNames.length > 0);
+				if (!getVisible().isEnabled()) {
+					getVisible().setValue(false);
+				}
+			}
+
+			int visibleCount = 0;
+			int invisibleCount = 0;
+			final Set<String> usedHeaderFormats = new HashSet<String>();
+			final Set<String> usedContentFormats = new HashSet<String>();
+			final Set<String> usedColumnAlignments = new HashSet<String>();
+			final Set<String> usedCurrentSortings = new HashSet<String>();
+			final Set<String> usedDefaultSortings = new HashSet<String>();
+			for (final String propertyName : propertyNames) {
+				final AttributeComposite attributeComposite = attributeComposites.get(propertyName);
+				if (attributeComposite.getVisible().getValue()) {
+					visibleCount++;
+				}
+				else {
+					invisibleCount++;
+				}
+
+				if (attributeComposite.getHeaderFormat() != null) {
+					usedHeaderFormats.add(attributeComposite.getHeaderFormat().getValue());
+				}
+				if (attributeComposite.getContentFormat() != null) {
+					usedContentFormats.add(attributeComposite.getContentFormat().getValue());
+				}
+
+				usedColumnAlignments.add(attributeComposite.getColumnAlignment().getValue());
+
+				if (attributeComposite.getCurrentSorting() != null) {
+					usedCurrentSortings.add(attributeComposite.getCurrentSorting().getValue());
+				}
+				if (attributeComposite.getDefaultSorting() != null) {
+					usedDefaultSortings.add(attributeComposite.getDefaultSorting().getValue());
+				}
+			}
+
+			setValue(getHeaderFormat(), usedHeaderFormats);
+			setValue(getContentFormat(), usedContentFormats);
+			setValue(getColumnAlignment(), usedColumnAlignments);
+
+			getVisible().setValue(invisibleCount == 0 && propertyNames.length > 0);
+
+			setValue(getContentFormat(), usedContentFormats);
+			setValue(getCurrentSorting(), usedCurrentSortings);
+			setValue(getDefaultSorting(), usedDefaultSortings);
 		}
 
-		protected abstract String[] getPropertyNames();
+		@Override
+		protected IAction createCollapseAction() {
+			final ActionBuilder actionBuilder = new ActionBuilder();
+			actionBuilder.setIcon(IconsSmall.TABLE_SORT_DESC);
+			actionBuilder.setCommand(new ICommandExecutor() {
+
+				@Override
+				public void execute(final IExecutionContext executionContext) throws Exception {
+					setCollapsed(!isCollapsed());
+				}
+
+			});
+			return actionBuilder.build();
+		}
+
+		public String[] getPropertyNames() {
+			return getData().getPropertyNames();
+		}
+
+		public boolean isCollapsed() {
+			return collapsed;
+		}
+
+		public void setCollapsed(final boolean collapsed) {
+			if (!getData().isCollapsable()) {
+				return;
+			}
+
+			this.collapsed = collapsed;
+			final String id = getData().getLabelText();
+			if (groupContainers.containsKey(id)) {
+				groupContainers.get(id).setLayoutConstraints(!collapsed);
+				if (layoutingEnabled()) {
+					attributeScroller.redraw();
+				}
+			}
+
+			final IToolBarButton button = getCollapseButton();
+			if (collapsed) {
+				button.setIcon(IconsSmall.TABLE_SORT_ASC);
+			}
+			else {
+				button.setIcon(IconsSmall.TABLE_SORT_DESC);
+			}
+		}
 
 		@Override
 		protected IInputListener createVisibleChangedListener() {
@@ -886,24 +1005,15 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 		}
 
 		@Override
-		protected IInputListener createCurrentSortingChangedListener() {
-			return createSortingChangedListener(currentSortingModel);
-		}
-
-		@Override
-		protected IInputListener createDefaultSortingChangedListener() {
-			return createSortingChangedListener(defaultSortingModel);
-		}
-
-		private IInputListener createSortingChangedListener(final SortIndexModel model) {
-			final AbstractAttributeComposite<?> composite = this;
+		protected IInputListener createSortingChangedListener(final SortIndexModel model) {
+			final AbstractListElement<?> composite = this;
 			return new IInputListener() {
 
 				@Override
 				public void inputChanged() {
 					final String[] properties = getPropertyNames();
 					final String value = model.provider.getSort(composite).getValue();
-					final boolean clear = value.equals("");
+					final boolean clear = (value == null) || (value.equals(""));
 					final List<Integer> shiftList = new ArrayList<Integer>();
 					for (int columnIndex = 0; columnIndex < properties.length; columnIndex++) {
 						final AttributeComposite attributeComposite = attributeComposites.get(properties[columnIndex]);
@@ -960,128 +1070,30 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 			};
 		}
 
-		@Override
-		protected IInputListener createCurrentSortingIndexChangedListener() {
-			return null;
-		}
-
-		@Override
-		protected IInputListener createDefaultSortingIndexChangedListener() {
-			return null;
-		}
 	}
 
-	private final class AttributeGroupHeader extends AbstractAttributesGroupComposite<AttributeGroupInformation> {
-
-		private final AttributeGroupInformation information;
-		private final boolean collapsed;
+	private final class AttributeGroupHeader extends AttributesHeaderComposite<IAttributesInformation> {
 
 		private AttributeGroupHeader(
-			final IContainer container,
-			final AttributeLayoutManager attributeLayoutManager,
+			final IComposite container,
+			final ITableLayout attributeLayoutManager,
 			final IBeanTableModel<?> model,
-			final AttributeGroupInformation information) {
+			final IAttributesInformation information) {
 			super(container, attributeLayoutManager, model, information, LABEL_GROUPS);
 			setBackgroundColor(ATTRIBUTE_GROUP_BACKGROUND);
-			this.information = information;
-			collapsed = false;
-		}
-
-		@Override
-		protected String getLabelText() {
-			return getData().getId();
-		}
-
-		@Override
-		protected List<String> getHeaderFormats() {
-			return getData().headerFormats;
-		}
-
-		@Override
-		protected List<String> getContentFormats() {
-			return getData().contentFormats;
-		}
-
-		@Override
-		protected boolean isSortable() {
-			return getData().sortable;
-		}
-
-		@Override
-		protected boolean hasCollapseButton() {
-			return true;
-		}
-
-		@Override
-		protected IAction createCollapseAction() {
-			final ActionBuilder actionBuilder = new ActionBuilder();
-			actionBuilder.setIcon(IconsSmall.TABLE_SORT_DESC);
-			actionBuilder.setCommand(new ICommandExecutor() {
-
-				@Override
-				public void execute(final IExecutionContext executionContext) throws Exception {
-					getData().setCollapsed(!getData().isCollapsed());
-				}
-
-			});
-			return actionBuilder.build();
-		}
-
-		@Override
-		protected String[] getPropertyNames() {
-			return getData().propertyNames;
 		}
 
 	}
 
-	private final class AttributesFilterComposite extends AbstractAttributesGroupComposite<AllAttributeInformation> {
-
-		private boolean collapseState;
-		private String[] propertyNames;
-		private List<String> headerFormats;
-		private List<String> contentFormats;
-		private Boolean sortable;
+	private final class AttributesFilterComposite extends AttributesHeaderComposite<FilterInformation> {
 
 		private AttributesFilterComposite(
-			final IContainer container,
-			final AttributeLayoutManager attributeLayoutManager,
+			final IComposite container,
+			final ITableLayout attributeLayoutManager,
 			final IBeanTableModel<?> model,
-			final AllAttributeInformation information) {
+			final FilterInformation information) {
 			super(container, attributeLayoutManager, model, information, LABEL_ALL);
 			setBackgroundColor(Colors.WHITE);
-			collapseState = false;
-		}
-
-		@Override
-		protected String getLabelText() {
-			// TODO i18n
-			return "Search";
-		}
-
-		@Override
-		protected List<String> getHeaderFormats() {
-			if (headerFormats == null) {
-				updateValues();
-			}
-			return headerFormats;
-		}
-
-		@Override
-		protected List<String> getContentFormats() {
-			if (contentFormats == null) {
-				updateValues();
-			}
-			return contentFormats;
-		}
-
-		@Override
-		protected boolean isSortable() {
-			return true;
-		}
-
-		@Override
-		protected boolean hasCollapseButton() {
-			return true;
 		}
 
 		@Override
@@ -1093,146 +1105,38 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 				@Override
 				public void execute(final IExecutionContext executionContext) throws Exception {
 					final IToolBarButton button = (IToolBarButton) executionContext.getSource();
-					collapseState = !collapseState;
+					final boolean collapseState = !isCollapsed();
+					setCollapsed(collapseState);
+
 					// (un)collapse all groups
-					attributeLayoutManager.beginLayout();
+					disableLayouting();
 					for (final AttributeGroupHeader header : groupHeaders.values()) {
-						if (!header.isEnabled()) {
+						if (!shouldControlBeVisible(header)) {
 							continue;
 						}
 
-						if (header.information.collapsed != collapseState) {
-							header.information.setCollapsed(collapseState);
+						if (header.isCollapsed() != collapseState) {
+							header.setCollapsed(collapseState);
 						}
 					}
-					attributeLayoutManager.endLayout();
-
-					if (collapseState) {
-						button.setIcon(IconsSmall.TABLE_SORT_ASC);
-					}
-					else {
-						button.setIcon(IconsSmall.TABLE_SORT_DESC);
-					}
-
+					enableLayouting();
+					refreshLayout();
 				}
 
 			});
 			return actionBuilder.build();
 		}
-
-		@Override
-		protected String[] getPropertyNames() {
-			if (propertyNames == null) {
-				updateValues();
-			}
-			return propertyNames;
-		}
-
-		@Override
-		public void updateValues() {
-			if (!isInitialized) {
-				propertyNames = getData().propertyNames;
-				headerFormats = getData().headerFormats;
-				contentFormats = getData().contentFormats;
-				return;
-			}
-			final List<String> propertyNamesList = new LinkedList<String>();
-			headerFormats = new ArrayList<String>();
-			contentFormats = new ArrayList<String>();
-			sortable = false;
-			propertyNames = getData().propertyNames;
-			for (final String propertyName : propertyNames) {
-				final AttributeComposite attributeComposite = attributeComposites.get(propertyName);
-				if (!attributeComposite.isEnabled()) {
-					continue;
-				}
-				propertyNamesList.add(propertyName);
-
-				sortable = sortable || attributeComposite.isSortable();
-
-				if (hasShortAndLongLabel(attributeComposite.getAttribute())) {
-					if (!headerFormats.contains(DisplayFormat.SHORT.getName())) {
-						headerFormats.add(DisplayFormat.SHORT.getName());
-					}
-					if (!headerFormats.contains(DisplayFormat.LONG.getName())) {
-						headerFormats.add(DisplayFormat.LONG.getName());
-					}
-				}
-			}
-
-			propertyNames = new String[propertyNamesList.size()];
-			int index = 0;
-			for (final String propertyName : propertyNamesList) {
-				propertyNames[index] = propertyName;
-				index++;
-			}
-
-			if (getHeaderFormat() != null) {
-				getHeaderFormat().setElements(headerFormats);
-				getHeaderFormat().setEnabled(headerFormats.size() > 1);
-			}
-			if (getContentFormat() != null) {
-				getContentFormat().setElements(contentFormats);
-				getContentFormat().setEnabled(contentFormats.size() > 1);
-			}
-			if (getCurrentSorting() != null) {
-				getCurrentSorting().setEnabled(sortable);
-			}
-			if (getDefaultSorting() != null) {
-				getDefaultSorting().setEnabled(sortable);
-			}
-			if (getColumnAlignment() != null) {
-				getColumnAlignment().setEnabled(propertyNames.length > 0);
-			}
-			if (getVisible() != null) {
-				getVisible().setEnabled(propertyNames.length > 0);
-				if (!getVisible().isEnabled()) {
-					getVisible().setValue(false);
-				}
-			}
-
-			super.updateValues(propertyNames);
-		}
 	}
 
-	private final class AllAttributesComposite extends AbstractAttributesGroupComposite<AllAttributeInformation> {
-
-		private boolean collapseState;
+	private final class AllAttributesComposite extends AttributesHeaderComposite<AllAttributeInformation> {
 
 		private AllAttributesComposite(
-			final IContainer container,
-			final AttributeLayoutManager attributeLayoutManager,
+			final IComposite container,
+			final ITableLayout attributeLayoutManager,
 			final IBeanTableModel<?> model,
 			final AllAttributeInformation information) {
 			super(container, attributeLayoutManager, model, information, LABEL_ALL);
 			setBackgroundColor(Colors.WHITE);
-			collapseState = false;
-		}
-
-		@Override
-		protected String getLabelText() {
-			// TODO i18n
-			return "All";
-		}
-
-		@Override
-		protected List<String> getHeaderFormats() {
-			return getData().headerFormats;
-		}
-
-		@Override
-		protected List<String> getContentFormats() {
-			return getData().contentFormats;
-		}
-
-		@Override
-		protected boolean isSortable() {
-			return getData().sortable;
-		}
-
-		@Override
-		protected boolean hasCollapseButton() {
-			return true;
 		}
 
 		@Override
@@ -1244,373 +1148,22 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 				@Override
 				public void execute(final IExecutionContext executionContext) throws Exception {
 					final IToolBarButton button = (IToolBarButton) executionContext.getSource();
-					collapseState = !collapseState;
+					final boolean collapseState = !isCollapsed();
+					setCollapsed(collapseState);
+
 					// (un)collapse all groups
-					attributeLayoutManager.beginLayout();
+					disableLayouting();
 					for (final AttributeGroupHeader header : groupHeaders.values()) {
-						if (header.information.collapsed != collapseState) {
-							header.information.setCollapsed(collapseState);
+						if (header.isCollapsed() != collapseState) {
+							header.setCollapsed(collapseState);
 						}
 					}
-					attributeLayoutManager.endLayout();
-
-					if (collapseState) {
-						button.setIcon(IconsSmall.TABLE_SORT_ASC);
-					}
-					else {
-						button.setIcon(IconsSmall.TABLE_SORT_DESC);
-					}
-
+					enableLayouting();
+					refreshLayout();
 				}
 
 			});
 			return actionBuilder.build();
-		}
-
-		@Override
-		protected String[] getPropertyNames() {
-			return getData().propertyNames;
-		}
-
-	}
-
-	private enum FillMode {
-		FILL,
-		CENTER,
-		HIDDEN
-	}
-
-	private final class AttributeLayoutManager {
-		private final int columnCount;
-		private final List<AttributeLayout> layouters;
-		private final int[] widths;
-		private final int[] gaps;
-		private final FillMode[] modes;
-		private final int verticalGap;
-
-		private Dimension preferredSize;
-
-		private int layoutHashCode;
-		private boolean layouting;
-
-		private AttributeLayoutManager(final int columnCount, final int defaultGap, final int verticalGap) {
-			this.columnCount = columnCount;
-			this.layouters = new LinkedList<AttributeLayout>();
-			this.verticalGap = verticalGap;
-
-			this.widths = new int[columnCount];
-			this.gaps = new int[columnCount + 1];
-			for (int i = 0; i < gaps.length; i++) {
-				gaps[i] = defaultGap;
-			}
-
-			this.modes = new FillMode[columnCount];
-			for (int i = 0; i < modes.length; i++) {
-				modes[i] = FillMode.FILL;
-			}
-
-			this.layoutHashCode = 0;
-			this.layouting = true;
-		}
-
-		public void setGroupVisible(final String id, final boolean visible) {
-			groupContainers.get(id).setEnabled(visible);
-			if (layouting) {
-				invalidate();
-			}
-		}
-
-		private void beginLayout() {
-			layouting = false;
-		}
-
-		private void endLayout() {
-			if (!layouting) {
-				layouting = true;
-				invalidate();
-			}
-		}
-
-		private void invalidate() {
-			attributeScrollerLayout.invalidate();
-			attributeScrollerLayout.layout();
-			attributeScroller.layoutBegin();
-			attributeScroller.layoutEnd();
-		}
-
-		private void calculateLayout() {
-			for (int i = 0; i < widths.length; i++) {
-				widths[i] = 0;
-			}
-
-			int minHeight = 0;
-			for (final AttributeLayout layouter : layouters) {
-				for (int i = 0; i < columnCount; i++) {
-					if (modes[i] == FillMode.HIDDEN) {
-						continue;
-					}
-
-					final Dimension size = layouter.getChildSize(i);
-					widths[i] = Math.max(widths[i], size.getWidth());
-					minHeight = Math.max(minHeight, size.getHeight());
-				}
-			}
-
-			int minWidth = 0;
-			for (final int width : widths) {
-				minWidth = minWidth + width;
-			}
-			for (final int gap : gaps) {
-				minWidth = minWidth + gap;
-			}
-			preferredSize = new Dimension(minWidth, minHeight + 2 * verticalGap);
-
-			layoutHashCode = 17;
-			for (int i = 0; i < widths.length; i++) {
-				layoutHashCode = 31 * layoutHashCode + widths[i];
-			}
-			for (int i = 0; i < gaps.length; i++) {
-				layoutHashCode = 31 * layoutHashCode + gaps[i];
-			}
-		}
-
-		public Dimension getPreferredSize() {
-			if (preferredSize == null) {
-				calculateLayout();
-			}
-			return preferredSize;
-		}
-	}
-
-	private static final class AttributeLayout implements ILayouter {
-		private final IContainer container;
-		private int layoutHashCode;
-		private final AttributeLayoutManager attributeLayoutManager;
-
-		private final HashMap<IControl, Dimension> preferredSizes;
-
-		private AttributeLayout(final IContainer container, final AttributeLayoutManager attributeLayoutManager) {
-			this.container = container;
-			this.preferredSizes = new HashMap<IControl, Dimension>();
-			this.layoutHashCode = 0;
-			this.attributeLayoutManager = attributeLayoutManager;
-			attributeLayoutManager.layouters.add(this);
-		}
-
-		@Override
-		public void layout() {
-			if (layoutHashCode == attributeLayoutManager.layoutHashCode) {
-				return;
-			}
-			layoutHashCode = attributeLayoutManager.layoutHashCode;
-
-			final Rectangle clientArea = container.getClientArea();
-			int x = attributeLayoutManager.gaps[0];
-			int index = 0;
-			for (final IControl control : container.getChildren()) {
-				final int span = getSpan(control);
-				final int width = getSpanWidth(index, span);
-
-				final Dimension size = getPreferredSize(control);
-				final int y = clientArea.getY() + (clientArea.getHeight() - size.getHeight()) / 2;
-
-				final int controlWidth;
-				if (attributeLayoutManager.modes[index] == FillMode.FILL) {
-					controlWidth = width;
-				}
-				else if (attributeLayoutManager.modes[index] == FillMode.CENTER) {
-					controlWidth = size.getWidth();
-				}
-				else if (attributeLayoutManager.modes[index] == FillMode.HIDDEN) {
-					controlWidth = 0;
-				}
-				else {
-					throw new IllegalStateException("Unkown fill mode");
-				}
-				control.setSize(controlWidth, size.getHeight());
-				control.setPosition(x + (width - controlWidth) / 2, y);
-
-				index = index + span;
-				x = x + width + attributeLayoutManager.gaps[index];
-			}
-		}
-
-		@Override
-		public Dimension getMinSize() {
-			return getPreferredSize();
-		}
-
-		@Override
-		public Dimension getPreferredSize() {
-			return attributeLayoutManager.getPreferredSize();
-		}
-
-		@Override
-		public Dimension getMaxSize() {
-			return getPreferredSize();
-		}
-
-		@Override
-		public void invalidate() {
-			layoutHashCode = 0;
-		}
-
-		public Dimension getChildSize(final int index) {
-			int currentIndex = 0;
-			for (final IControl control : container.getChildren()) {
-				if (index == currentIndex) {
-					return getPreferredSize(control);
-				}
-
-				currentIndex = currentIndex + getSpan(control);
-			}
-			return new Dimension(0, 0);
-		}
-
-		private int getSpan(final IControl control) {
-			if ((control.getLayoutConstraints() == null) || (!(control.getLayoutConstraints() instanceof Integer))) {
-				return 1;
-			}
-
-			return (Integer) control.getLayoutConstraints();
-		}
-
-		private int getSpanWidth(final int index, final int span) {
-			int result = attributeLayoutManager.widths[index];
-			for (int i = 1; i < span; i++) {
-				result = result + attributeLayoutManager.gaps[index + i] + attributeLayoutManager.widths[index + i];
-			}
-			return result;
-		}
-
-		private Dimension getPreferredSize(final IControl control) {
-			if (!preferredSizes.containsKey(control)) {
-				final Dimension size = control.getPreferredSize();
-				if (size.getHeight() > 0) {
-					preferredSizes.put(control, size);
-				}
-				return size;
-			}
-			return preferredSizes.get(control);
-		}
-
-	}
-
-	private static final class ListLayout implements ILayouter {
-
-		private final IContainer container;
-		private final HashMap<IControl, Dimension> preferredSizes;
-		private Dimension preferredSize;
-		private final IColorConstant[] colors;
-
-		private ListLayout(final IContainer container, final IColorConstant[] colors) {
-			this.container = container;
-			this.colors = colors;
-			this.preferredSizes = new HashMap<IControl, Dimension>();
-		}
-
-		@Override
-		public void layout() {
-			final Rectangle clientArea = container.getClientArea();
-			final int x = clientArea.getX();
-			int y = clientArea.getY();
-			final int width = clientArea.getWidth();
-
-			int groupIndex = 0;
-
-			for (final IControl control : container.getChildren()) {
-				final boolean controlVisible = control.isVisible();
-				if (!control.isEnabled()) {
-					if (controlVisible) {
-						control.setVisible(false);
-					}
-					continue;
-				}
-
-				if (!controlVisible) {
-					control.setVisible(true);
-					if (control instanceof IContainer) {
-						final IContainer c = (IContainer) control;
-						c.layoutBegin();
-						c.layoutEnd();
-					}
-				}
-
-				final Dimension size = getPreferredSize(control);
-
-				control.setPosition(x, y);
-				control.setSize(width, size.getHeight());
-
-				if (colors.length > 0) {
-					control.setBackgroundColor(getAttributeColor(groupIndex));
-					groupIndex++;
-				}
-
-				y = y + size.getHeight();
-			}
-		}
-
-		private IColorConstant getAttributeColor(final int index) {
-			return colors[index % colors.length];
-		}
-
-		@Override
-		public Dimension getMinSize() {
-			return getPreferredSize();
-		}
-
-		@Override
-		public Dimension getPreferredSize() {
-			if (preferredSize == null) {
-				calculateSizes();
-			}
-			return preferredSize;
-		}
-
-		@Override
-		public Dimension getMaxSize() {
-			return getPreferredSize();
-		}
-
-		@Override
-		public void invalidate() {
-			preferredSizes.clear();
-			preferredSize = null;
-		}
-
-		private void calculateSizes() {
-			//final Rectangle clientArea = container.getClientArea();
-			int preferredWidth = 0;
-			int preferredHeight = 0;
-			for (final IControl control : container.getChildren()) {
-				final boolean controlVisible = control.isVisible();
-				if (!control.isEnabled()) {
-					if (controlVisible) {
-						control.setVisible(false);
-					}
-					continue;
-				}
-
-				if (!controlVisible) {
-					control.setVisible(true);
-				}
-
-				final Dimension size = getPreferredSize(control);
-				preferredWidth = Math.max(preferredWidth, size.getWidth());
-				preferredHeight = preferredHeight + size.getHeight();
-			}
-			preferredSize = container.computeDecoratedSize(new Dimension(preferredWidth, preferredHeight));
-		}
-
-		private Dimension getPreferredSize(final IControl control) {
-			if (!preferredSizes.containsKey(control)) {
-				final Dimension size = control.getPreferredSize();
-				if (size.getHeight() > 0) {
-					preferredSizes.put(control, size);
-				}
-				return size;
-			}
-			return preferredSizes.get(control);
 		}
 
 	}
@@ -1621,66 +1174,188 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 		ALL
 	}
 
-	private final class AllAttributeInformation {
-		private final boolean sortable;
-		private final String[] propertyNames;
+	interface IAttributesInformation {
+		String getLabelText();
+
+		String[] getPropertyNames();
+
+		List<String> getHeaderFormats();
+
+		List<String> getContentFormats();
+
+		boolean isSortable();
+
+		boolean isCollapsable();
+	}
+
+	private final class FilterInformation implements IAttributesInformation {
+		private String[] propertyNames;
 		private final List<String> headerFormats;
 		private final List<String> contentFormats;
+		private boolean sortable;
+
+		private FilterInformation(final AllAttributeInformation allAttributeInformation) {
+			propertyNames = new String[0];
+			headerFormats = new LinkedList<String>(allAttributeInformation.getHeaderFormats());
+			contentFormats = new LinkedList<String>(allAttributeInformation.getContentFormats());
+			sortable = true;
+		}
+
+		@Override
+		public String getLabelText() {
+			// TODO i18n
+			return "Search";
+		}
+
+		@Override
+		public String[] getPropertyNames() {
+			return propertyNames;
+		}
+
+		@Override
+		public List<String> getHeaderFormats() {
+			return headerFormats;
+		}
+
+		@Override
+		public List<String> getContentFormats() {
+			return contentFormats;
+		}
+
+		@Override
+		public boolean isSortable() {
+			return sortable;
+		}
+
+		@Override
+		public boolean isCollapsable() {
+			return true;
+		}
+
+		public void setVisibleProperties(final List<String> visiblePropertyNames) {
+			propertyNames = new String[visiblePropertyNames.size()];
+			int index = 0;
+			for (final String propertyName : visiblePropertyNames) {
+				propertyNames[index] = propertyName;
+				index++;
+			}
+			headerFormats.clear();
+			contentFormats.clear();
+
+			final List<String> propertyNamesList = new LinkedList<String>();
+			sortable = false;
+			for (final String propertyName : propertyNames) {
+				final AttributeComposite attributeComposite = attributeComposites.get(propertyName);
+				sortable = sortable || attributeComposite.isSortable();
+
+				for (final String format : attributeComposite.getHeaderFormats()) {
+					if (headerFormats.contains(format)) {
+						continue;
+					}
+					headerFormats.add(format);
+				}
+
+				for (final String format : attributeComposite.getContentFormats()) {
+					if (contentFormats.contains(format)) {
+						continue;
+					}
+					contentFormats.add(format);
+				}
+			}
+		}
+
+	}
+
+	private final class AllAttributeInformation implements IAttributesInformation {
+		private final boolean sortable;
+		private final String[] propertyNames2;
+		private final List<String> headerFormats2;
+		private final List<String> contentFormats2;
 
 		private AllAttributeInformation(final IBeanTableModel<?> model) {
-			this.propertyNames = new String[model.getColumnCount()];
-			this.headerFormats = new LinkedList<String>();
-			this.contentFormats = new LinkedList<String>();
+			this.propertyNames2 = new String[model.getColumnCount()];
+			this.headerFormats2 = new LinkedList<String>();
+			this.contentFormats2 = new LinkedList<String>();
 
 			int sortableCount = 0;
 			for (int columnIndex = 0; columnIndex < model.getColumnCount(); columnIndex++) {
 				final IAttribute<?> attribute = model.getAttribute(columnIndex);
-				propertyNames[columnIndex] = attribute.getPropertyName();
+				propertyNames2[columnIndex] = attribute.getPropertyName();
 				if (attribute.isSortable()) {
 					sortableCount++;
 				}
 
 				for (final IControlPanelProvider<?> provider : attribute.getControlPanels()) {
-					if (contentFormats.contains(provider.getDisplayFormatName())) {
+					if (contentFormats2.contains(provider.getDisplayFormatName())) {
 						continue;
 					}
 
-					contentFormats.add(provider.getDisplayFormatName());
+					contentFormats2.add(provider.getDisplayFormatName());
 				}
 			}
 
 			// TODO NM get list correctly
-			headerFormats.add(DisplayFormat.SHORT.getName());
-			headerFormats.add(DisplayFormat.LONG.getName());
+			headerFormats2.add(DisplayFormat.SHORT.getName());
+			headerFormats2.add(DisplayFormat.LONG.getName());
 
 			sortable = sortableCount > 0;
 		}
+
+		@Override
+		public String getLabelText() {
+			// TODO i18n
+			return "All";
+		}
+
+		@Override
+		public String[] getPropertyNames() {
+			return propertyNames2;
+		}
+
+		@Override
+		public List<String> getHeaderFormats() {
+			return headerFormats2;
+		}
+
+		@Override
+		public List<String> getContentFormats() {
+			return contentFormats2;
+		}
+
+		@Override
+		public boolean isSortable() {
+			return sortable;
+		}
+
+		@Override
+		public boolean isCollapsable() {
+			return true;
+		}
 	}
 
-	private final class AttributeGroupInformation {
+	private final class AttributeGroupInformation implements IAttributesInformation {
 		private final IAttributeGroup group;
 		private final int startIndex;
 		private final int endIndex;
 		private final boolean sortable;
-		private final String[] propertyNames;
-		private final List<String> headerFormats;
-		private final List<String> contentFormats;
-		private boolean collapsed;
+		private final String[] propertyNames2;
+		private final List<String> headerFormats2;
+		private final List<String> contentFormats2;
 
 		private AttributeGroupInformation(final int startIndex, final IBeanTableModel<?> model) {
 			this.group = model.getAttribute(startIndex).getGroup();
 			this.startIndex = startIndex;
 			this.endIndex = getGroupEnd(model, startIndex);
-			this.propertyNames = new String[endIndex - startIndex + 1];
-			this.headerFormats = new LinkedList<String>();
-			this.contentFormats = new LinkedList<String>();
+			this.propertyNames2 = new String[endIndex - startIndex + 1];
+			this.headerFormats2 = new LinkedList<String>();
+			this.contentFormats2 = new LinkedList<String>();
 
 			int sortableCount = 0;
 			int propIndex = 0;
 			boolean hasLongLabel = false;
 			for (int index = startIndex; index <= endIndex; index++) {
 				final IAttribute<?> attribute = model.getAttribute(index);
-				propertyNames[propIndex] = attribute.getPropertyName();
+				propertyNames2[propIndex] = attribute.getPropertyName();
 
 				if (attribute.isSortable()) {
 					sortableCount++;
@@ -1694,8 +1369,8 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 				for (final Object provider : controlPanels) {
 					final IControlPanelProvider<?> controlPanelProvider = (IControlPanelProvider<?>) provider;
 
-					if (!contentFormats.contains(controlPanelProvider.getDisplayFormatName())) {
-						contentFormats.add(controlPanelProvider.getDisplayFormatName());
+					if (!contentFormats2.contains(controlPanelProvider.getDisplayFormatName())) {
+						contentFormats2.add(controlPanelProvider.getDisplayFormatName());
 					}
 				}
 
@@ -1703,36 +1378,44 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 			}
 
 			if (hasLongLabel) {
-				headerFormats.add(DisplayFormat.SHORT.getName());
-				headerFormats.add(DisplayFormat.LONG.getName());
+				headerFormats2.add(DisplayFormat.SHORT.getName());
+				headerFormats2.add(DisplayFormat.LONG.getName());
 			}
 
 			sortable = (sortableCount > 0);
 		}
 
-		private String getId() {
+		@Override
+		public String[] getPropertyNames() {
+			return propertyNames2;
+		}
+
+		@Override
+		public List<String> getHeaderFormats() {
+			return headerFormats2;
+		}
+
+		@Override
+		public List<String> getContentFormats() {
+			return contentFormats2;
+		}
+
+		@Override
+		public String getLabelText() {
 			if (group == null) {
 				return null;
 			}
 			return group.getId();
 		}
 
-		private boolean isCollapsed() {
-			return collapsed;
+		@Override
+		public boolean isSortable() {
+			return sortable;
 		}
 
-		private void setCollapsed(final boolean collapsed) {
-			this.collapsed = collapsed;
-			attributeLayoutManager.setGroupVisible(getId(), !collapsed);
-
-			final AttributeGroupHeader header = groupHeaders.get(getId());
-			final IToolBarButton button = header.getCollapseButton();
-			if (collapsed) {
-				button.setIcon(IconsSmall.TABLE_SORT_ASC);
-			}
-			else {
-				button.setIcon(IconsSmall.TABLE_SORT_DESC);
-			}
+		@Override
+		public boolean isCollapsable() {
+			return true;
 		}
 
 	}
@@ -1773,11 +1456,26 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 	}
 
 	private static void setValue(final IComboBox<String> comboBox, final Set<String> values) {
+		if (comboBox == null) {
+			return;
+		}
+
 		if (values.size() == 1) {
 			setValue(comboBox, (String) values.toArray()[0]);
 		}
 		else {
-			setValue(comboBox, (String) null);
+			final List<String> elements = new LinkedList<String>(comboBox.getElements());
+			final String various = "various";
+			if (!elements.contains(various)) {
+				if (elements.size() > 1 && "".equals(elements.get(0))) {
+					elements.add(1, various);
+				}
+				else {
+					elements.add(0, various);
+				}
+				comboBox.setElements(elements);
+			}
+			setValue(comboBox, various);
 		}
 	}
 
@@ -1968,9 +1666,9 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 	}
 
 	private interface ISortIndexModelProvider {
-		ComboBox getSort(AbstractAttributeComposite<?> composite);
+		ComboBox getSort(AbstractListElement<?> composite);
 
-		SortingIndexComboBox getSortIndex(AbstractAttributeComposite<?> composite);
+		SortingIndexComboBox getSortIndex(AbstractListElement<?> composite);
 	}
 
 	private final class SortIndexModel {
@@ -2088,26 +1786,31 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 	}
 
 	public void setFilter(final String text) {
+		eventsDisabled = true;
 		boolean changed = false;
 		final boolean allVisible = (text == null) || (text.equals(""));
 
-		final HashSet<String> visibleList = new HashSet<String>();
+		final List<String> visibleList = new LinkedList<String>();
+
+		disableLayouting();
+		final FilterInformation filterInformation = attributesFilterComposite.getData();
 
 		for (final Entry<String, AttributeComposite> entry : attributeComposites.entrySet()) {
 			final AttributeComposite attributeComposite = entry.getValue();
 			final boolean visible = allVisible || checkFilter(attributeComposite, text);
-			changed = changed || (attributeComposite.isEnabled() != visible);
-			attributeComposite.setEnabled(visible);
+			changed = changed || (shouldControlBeVisible(attributeComposite) != visible);
+			setAttributeVisible(attributeComposite, visible);
 
 			if (visible) {
 				visibleList.add(attributeComposite.propertyName);
 			}
 		}
 
+		filterInformation.setVisibleProperties(visibleList);
+		attributesFilterComposite.updateValues();
+
 		if (attributesFilterComposite.isVisible() != !allVisible) {
 			attributesFilterComposite.setVisible(!allVisible);
-			layoutBegin();
-			layoutEnd();
 		}
 
 		if (changed) {
@@ -2127,21 +1830,25 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 					}
 				}
 
-				if (attributeGroupHeader.isEnabled() != headerVisible) {
+				if (shouldControlBeVisible(attributeGroupHeader) != headerVisible) {
 					if (headerVisible && groupHeaders.size() > 1) {
-						attributeGroupHeader.setEnabled(headerVisible);
+						attributeGroupHeader.setLayoutConstraints(true);
+					}
+					else {
+						attributeGroupHeader.setLayoutConstraints(false);
 					}
 				}
-				if (container.isEnabled() == attributeGroupHeader.getData().collapsed) {
-					container.setEnabled(!attributeGroupHeader.getData().collapsed);
+				if (shouldControlBeVisible(container) == attributeGroupHeader.isCollapsed()) {
+					container.setLayoutConstraints(!attributeGroupHeader.isCollapsed());
 				}
-
-				container.layoutBegin();
-				container.layoutEnd();
 			}
-			attributesFilterComposite.updateValues();
-			attributeLayoutManager.invalidate();
 		}
+		enableLayouting();
+
+		if (changed) {
+			refreshLayout();
+		}
+		eventsDisabled = false;
 	}
 
 	private boolean checkFilter(final AttributeComposite attributeComposite, final String filter) {
@@ -2339,4 +2046,52 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 		return sortOrder;
 	}
 
+	private void setAttributeVisible(final AttributeComposite attributeComposite, final boolean visible) {
+		if (shouldControlBeVisible(attributeComposite) != visible) {
+			attributeComposite.setLayoutConstraints(visible);
+		}
+	}
+
+	private boolean shouldControlBeVisible(final IControl control) {
+		if (control.getLayoutConstraints() == null) {
+			return true;
+		}
+		if (control.getLayoutConstraints() instanceof Boolean) {
+			final Boolean visible = (Boolean) control.getLayoutConstraints();
+			return visible.booleanValue();
+		}
+
+		return true;
+	}
+
+	private void refreshLayout() {
+		for (final Entry<String, AttributeGroupContainer> entry : groupContainers.entrySet()) {
+			final AttributeGroupContainer container = entry.getValue();
+			if (shouldControlBeVisible(container)) {
+				container.redraw();
+			}
+			else {
+				container.setVisible(false);
+			}
+		}
+		attributeScroller.redraw();
+
+		if (attributesFilterComposite.isVisible()) {
+			attributesFilterComposite.redraw();
+		}
+	}
+
+	private void disableLayouting() {
+		layoutingEnabled = false;
+		attributeLayoutManager.beginLayout();
+	}
+
+	private void enableLayouting() {
+		layoutingEnabled = true;
+		attributeLayoutManager.endLayout();
+	}
+
+	private boolean layoutingEnabled() {
+		return layoutingEnabled;
+	}
 }

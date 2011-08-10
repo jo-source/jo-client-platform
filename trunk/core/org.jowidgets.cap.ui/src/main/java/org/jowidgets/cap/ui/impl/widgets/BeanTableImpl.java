@@ -54,6 +54,7 @@ import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableSettingsDialog;
 import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
+import org.jowidgets.common.types.IVetoable;
 import org.jowidgets.common.types.Modifier;
 import org.jowidgets.common.types.Position;
 import org.jowidgets.common.widgets.controller.ITableCellEditEvent;
@@ -319,6 +320,12 @@ final class BeanTableImpl<BEAN_TYPE> extends TableWrapper implements IBeanTable<
 	}
 
 	private class TableCellEditorListener extends TableCellEditorAdapter {
+		// TODO NM remove method
+		@Override
+		public void onEdit(final IVetoable veto, final ITableCellEditEvent event) {
+			veto.veto();
+		}
+
 		@Override
 		public void editFinished(final ITableCellEditEvent event) {
 			final IBeanProxy<BEAN_TYPE> bean = model.getBean(event.getRowIndex());
