@@ -45,7 +45,6 @@ import javax.persistence.criteria.Root;
 
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.service.IReaderService;
-import org.jowidgets.cap.service.api.annotation.ExecutorBean;
 import org.jowidgets.cap.service.api.annotation.Reader;
 import org.jowidgets.cap.service.api.annotation.ReaderBean;
 import org.jowidgets.cap.service.impl.jpa.JpaReaderService;
@@ -76,7 +75,7 @@ public final class JpaReaderAnnotationPostProcessor implements BeanFactoryPostPr
 
 	@Override
 	public void postProcessBeanFactory(final ConfigurableListableBeanFactory beanFactory) {
-		final Map<String, Object> beans = beanFactory.getBeansWithAnnotation(ExecutorBean.class);
+		final Map<String, Object> beans = beanFactory.getBeansWithAnnotation(ReaderBean.class);
 		for (final Entry<String, Object> entry : beans.entrySet()) {
 			final String beanName = entry.getKey();
 			final Object bean = entry.getValue();
