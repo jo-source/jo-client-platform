@@ -118,11 +118,12 @@ public final class CriteriaQueryCreator implements IQueryCreator<Void> {
 		if (sorting != null) {
 			final List<Order> order = new LinkedList<Order>();
 			for (final ISort sort : sorting) {
+				final Path<?> path = getPath(bean, sort.getPropertyName());
 				if (sort.getSortOrder() == SortOrder.ASC) {
-					order.add(criteriaBuilder.asc(bean.get(sort.getPropertyName())));
+					order.add(criteriaBuilder.asc(path));
 				}
 				else {
-					order.add(criteriaBuilder.desc(bean.get(sort.getPropertyName())));
+					order.add(criteriaBuilder.desc(path));
 				}
 			}
 			query.orderBy(order);
