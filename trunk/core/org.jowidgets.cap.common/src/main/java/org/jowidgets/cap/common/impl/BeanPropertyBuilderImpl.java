@@ -92,6 +92,7 @@ final class BeanPropertyBuilderImpl implements IBeanPropertyBuilder {
 								}
 							}
 						}
+						propertyBuilder.setSortable(false);
 					}
 					propertyBuilder.setReadonly(propertyDescriptor.getWriteMethod() == null);
 				}
