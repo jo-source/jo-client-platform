@@ -26,45 +26,22 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.spring;
+package org.jowidgets.cap.service.api.annotation;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-import org.jowidgets.util.Assert;
-import org.springframework.beans.factory.BeanFactory;
+import org.jowidgets.cap.common.api.bean.IBean;
+import org.jowidgets.cap.service.impl.jpa.jpql.CriteriaQueryCreator;
 
-public final class BeanProxyFactory {
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+public @interface ReaderBean {
+	Class<? extends IBean> type();
 
-	private final BeanFactory beanFactory;
+	boolean caseInsensitive() default true;
 
-	public BeanProxyFactory(final BeanFactory beanFactory) {
-		Assert.paramNotNull(beanFactory, "beanFactory");
-		this.beanFactory = beanFactory;
-	}
-
-	@SuppressWarnings("unchecked")
-	public <T> T createProxy(final String beanName, final Class<T> beanInterface) {
-		return (T) Proxy.newProxyInstance(
-				beanInterface.getClassLoader(),
-				new Class<?>[] {beanInterface},
-				new InvocationHandler() {
-					@Override
-					public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
-						try {
-							return method.invoke(beanFactory.getBean(beanName), args);
-						}
-						catch (final InvocationTargetException e) {
-							final Throwable cause = e.getCause();
-							if (cause != null) {
-								throw cause;
-							}
-							throw e;
-						}
-					}
-				});
-	}
-
+	String parentPropertyName() default CriteriaQueryCreator.DEFAULT_PARENT_PROPERTY_NAME;
 }

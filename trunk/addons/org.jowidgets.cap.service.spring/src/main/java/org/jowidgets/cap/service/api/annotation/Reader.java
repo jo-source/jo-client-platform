@@ -26,45 +26,15 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.spring;
+package org.jowidgets.cap.service.api.annotation;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-import org.jowidgets.util.Assert;
-import org.springframework.beans.factory.BeanFactory;
-
-public final class BeanProxyFactory {
-
-	private final BeanFactory beanFactory;
-
-	public BeanProxyFactory(final BeanFactory beanFactory) {
-		Assert.paramNotNull(beanFactory, "beanFactory");
-		this.beanFactory = beanFactory;
-	}
-
-	@SuppressWarnings("unchecked")
-	public <T> T createProxy(final String beanName, final Class<T> beanInterface) {
-		return (T) Proxy.newProxyInstance(
-				beanInterface.getClassLoader(),
-				new Class<?>[] {beanInterface},
-				new InvocationHandler() {
-					@Override
-					public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
-						try {
-							return method.invoke(beanFactory.getBean(beanName), args);
-						}
-						catch (final InvocationTargetException e) {
-							final Throwable cause = e.getCause();
-							if (cause != null) {
-								throw cause;
-							}
-							throw e;
-						}
-					}
-				});
-	}
-
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+public @interface Reader {
+	String value();
 }
