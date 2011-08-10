@@ -109,14 +109,52 @@ public final class JpaReaderAnnotationPostProcessor implements BeanFactoryPostPr
 		final ConfigurableListableBeanFactory beanFactory,
 		final String beanName,
 		final Method method) {
-		// TODO HRW implement
+
+		if (method.getReturnType() != Predicate.class) {
+			return null;
+		}
+
+		Integer criteriaBuilderArgPos = null;
+		Integer beanArgPos = null;
+		Integer queryArgPos = null;
+
+		for (int i = 0; i < method.getParameterTypes().length; i++) {
+			final Class<?> parameterType = method.getParameterTypes()[i];
+			if (parameterType == CriteriaBuilder.class) {
+				criteriaBuilderArgPos = i;
+				continue;
+			}
+			if (parameterType == Root.class) {
+				beanArgPos = i;
+				continue;
+			}
+			if (parameterType == CriteriaQuery.class) {
+				queryArgPos = i;
+			}
+		}
+
+		final Object[] args = new Object[method.getParameterTypes().length];
+		final Integer finalCriteriaBuilderArgPos = criteriaBuilderArgPos;
+		final Integer finalBeanArgPos = beanArgPos;
+		final Integer finalQueryArgPos = queryArgPos;
 		return new IPredicateCreator() {
 			@Override
 			public Predicate createPredicate(
 				final CriteriaBuilder criteriaBuilder,
 				final Root<?> bean,
 				final CriteriaQuery<?> query) {
-				return criteriaBuilder.isTrue(criteriaBuilder.literal(true));
+
+				if (finalCriteriaBuilderArgPos != null) {
+					args[finalCriteriaBuilderArgPos] = criteriaBuilder;
+				}
+				if (finalBeanArgPos != null) {
+					args[finalBeanArgPos] = bean;
+				}
+				if (finalQueryArgPos != null) {
+					args[finalQueryArgPos] = query;
+				}
+
+				return (Predicate) ReflectionUtils.invokeMethod(method, beanFactory.getBean(beanName), args);
 			}
 		};
 	}
