@@ -36,11 +36,11 @@ import java.lang.reflect.Proxy;
 import org.jowidgets.util.Assert;
 import org.springframework.beans.factory.BeanFactory;
 
-public final class BeanProxyFactory {
+final class BeanProxyFactory {
 
 	private final BeanFactory beanFactory;
 
-	public BeanProxyFactory(final BeanFactory beanFactory) {
+	BeanProxyFactory(final BeanFactory beanFactory) {
 		Assert.paramNotNull(beanFactory, "beanFactory");
 		this.beanFactory = beanFactory;
 	}
