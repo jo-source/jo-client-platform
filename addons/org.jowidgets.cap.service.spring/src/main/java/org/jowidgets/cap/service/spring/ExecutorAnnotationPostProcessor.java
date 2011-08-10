@@ -54,9 +54,9 @@ import org.jowidgets.cap.service.api.executor.IBeanListExecutor;
 import org.jowidgets.cap.service.api.executor.IExecutorServiceBuilder;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.tools.ServiceId;
-import org.jowidgets.util.Assert;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
@@ -67,10 +67,10 @@ import org.springframework.util.ReflectionUtils.MethodCallback;
 
 public final class ExecutorAnnotationPostProcessor implements BeanFactoryPostProcessor {
 
-	private final IBeanAccessProvider beanAccessProvider;
+	private IBeanAccessProvider beanAccessProvider;
 
-	public ExecutorAnnotationPostProcessor(final IBeanAccessProvider beanAccessProvider) {
-		Assert.paramNotNull(beanAccessProvider, "beanAccessProvider");
+	@Required
+	public void setBeanAccessProvider(final IBeanAccessProvider beanAccessProvider) {
 		this.beanAccessProvider = beanAccessProvider;
 	}
 
