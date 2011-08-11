@@ -121,6 +121,7 @@ public final class CriteriaQueryCreator implements IQueryCreator<Void> {
 			final List<Order> order = new LinkedList<Order>();
 			for (final ISort sort : sorting) {
 				final Path<?> path = getPath(bean, sort.getPropertyName());
+				// TODO HRW fix sorting of joined attributes
 				if (sort.getSortOrder() == SortOrder.ASC) {
 					order.add(criteriaBuilder.asc(path));
 				}
