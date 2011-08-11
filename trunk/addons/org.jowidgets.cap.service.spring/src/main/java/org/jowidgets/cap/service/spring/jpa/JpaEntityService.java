@@ -145,9 +145,10 @@ public final class JpaEntityService implements IEntityService, InitializingBean 
 		readerService.setEntityManager(entityManager);
 		builder.setReaderService(readerService);
 
-		builder.setRefreshService(CapServiceToolkit.refreshServiceBuilder(beanAccess).build());
+		builder.setRefreshService(CapServiceToolkit.refreshServiceBuilder(beanAccess).setBeanDtoFactory(propertyNames).build());
 
-		final IUpdaterService updaterService = CapServiceToolkit.updaterServiceBuilder(beanAccess).build();
+		final IUpdaterService updaterService = CapServiceToolkit.updaterServiceBuilder(beanAccess).setBeanDtoFactoryAndBeanModifier(
+				propertyNames).build();
 		builder.setUpdaterService(createTransactionProxy(updaterService, "update"));
 
 		return builder.build();
