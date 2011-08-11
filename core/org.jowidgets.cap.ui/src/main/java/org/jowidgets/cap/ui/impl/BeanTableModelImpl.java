@@ -52,6 +52,7 @@ import org.jowidgets.api.model.table.ITableModelFactory;
 import org.jowidgets.api.threads.IUiThreadAccess;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
+import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.bean.IBeanModification;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.filter.IFilter;
@@ -61,6 +62,7 @@ import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.common.api.service.IRefreshService;
 import org.jowidgets.cap.common.api.service.IUpdaterService;
 import org.jowidgets.cap.common.api.sort.SortOrder;
+import org.jowidgets.cap.common.tools.bean.BeanKey;
 import org.jowidgets.cap.common.tools.execution.SyncResultCallback;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.DisplayFormat;
@@ -120,6 +122,9 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 	private final IUpdaterService updaterService;
 	private final IDeleterService deleterService;
 
+	private final IBeanListModel<?> parent;
+	private final LinkType linkType;
+
 	private final BeanListModelObservable beanListModelObservable;
 
 	private final IDefaultTableColumnModel columnModel;
@@ -154,8 +159,19 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 		Assert.paramNotNull(readerService, "readerService");
 		Assert.paramNotNull(paramProvider, "paramProvider");
 
+		this.parent = parent;
+		this.linkType = linkType;
 		if (parent != null) {
 			Assert.paramNotNull(linkType, "linkType");
+			parent.addBeanListModelListener(new IBeanListModelListener() {
+				@Override
+				public void selectionChanged() {
+					load();
+				}
+
+				@Override
+				public void beansChanged() {}
+			});
 		}
 
 		//arguments initialize
@@ -219,7 +235,7 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 		beansStateTracker.clearAll();
 		//TODO MG make async call
 		final SyncResultCallback<Integer> resultCallback = new SyncResultCallback<Integer>();
-		readerService.count(resultCallback, null, null, null, null);
+		readerService.count(resultCallback, getParentBeanKeys(), null, null, null);
 		final Integer rowCountResult = resultCallback.getResultSynchronious();
 		if (rowCountResult != null) {
 			rowCount = rowCountResult.intValue();
@@ -230,6 +246,21 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 		data.clear();
 		loadPage(0);
 		dataModel.fireDataChanged();
+	}
+
+	private List<? extends IBeanKey> getParentBeanKeys() {
+		if (parent == null) {
+			return null;
+		}
+		final List<IBeanKey> beanKeys = new LinkedList<IBeanKey>();
+		for (final int i : parent.getSelection()) {
+			final IBeanProxy<?> proxy = parent.getBean(i);
+			beanKeys.add(new BeanKey(proxy.getId(), proxy.getVersion()));
+		}
+		if (!beanKeys.isEmpty() && linkType == LinkType.SELECTION_FIRST) {
+			return beanKeys.subList(0, 1);
+		}
+		return beanKeys;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -787,8 +818,15 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 					try {
 						//TODO MG make async call
 						final SyncResultCallback<List<IBeanDto>> resultCallback = new SyncResultCallback<List<IBeanDto>>();
-						BeanTableModelImpl.this.readerService.read(resultCallback, null, null, sortModel.getSorting(), pageIndex
-							* pageSize, pageSize + 1, parameter, executionTask);
+						BeanTableModelImpl.this.readerService.read(
+								resultCallback,
+								getParentBeanKeys(),
+								null,
+								sortModel.getSorting(),
+								pageIndex * pageSize,
+								pageSize + 1,
+								parameter,
+								executionTask);
 						beanDtos = resultCallback.getResultSynchronious();
 					}
 					catch (final Exception e) {

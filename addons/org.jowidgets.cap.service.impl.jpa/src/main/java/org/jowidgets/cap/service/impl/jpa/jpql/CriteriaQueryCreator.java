@@ -165,8 +165,13 @@ public final class CriteriaQueryCreator implements IQueryCreator<Void> {
 
 		if (parentBeanKeys != null) {
 			final Set<Object> parentIds = new HashSet<Object>();
-			for (final IBeanKey parentBeanKey : parentBeanKeys) {
-				parentIds.add(parentBeanKey.getId());
+			if (parentBeanKeys.isEmpty()) {
+				parentIds.add(null);
+			}
+			else {
+				for (final IBeanKey parentBeanKey : parentBeanKeys) {
+					parentIds.add(parentBeanKey.getId());
+				}
 			}
 			final Path<?> parentPath = bean.get(parentPropertyName);
 			predicates.add(parentPath.get(IBean.ID_PROPERTY).in(parentIds));
