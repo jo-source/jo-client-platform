@@ -33,7 +33,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.persistence.EntityManager;
@@ -56,15 +55,20 @@ import org.jowidgets.cap.service.spring.SpringServiceProvider;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.tools.ServiceId;
 import org.jowidgets.util.Assert;
-import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.ListableBeanFactory;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.ReflectionUtils.MethodCallback;
 
-public final class JpaReaderAnnotationPostProcessor implements BeanFactoryPostProcessor {
+public final class JpaReaderAnnotationPostProcessor implements BeanPostProcessor, ApplicationContextAware {
 
 	@PersistenceContext
 	private EntityManager entityManager;
+	private ListableBeanFactory beanFactory;
 	private Map<String, ? extends ICustomFilterPredicateCreator> customFilterPredicateCreators = Collections.emptyMap();
 
 	public void setCustomFilterPredicateCreators(
@@ -74,41 +78,39 @@ public final class JpaReaderAnnotationPostProcessor implements BeanFactoryPostPr
 	}
 
 	@Override
-	public void postProcessBeanFactory(final ConfigurableListableBeanFactory beanFactory) {
-		final Map<String, Object> beans = beanFactory.getBeansWithAnnotation(ReaderBean.class);
-		for (final Entry<String, Object> entry : beans.entrySet()) {
-			final String beanName = entry.getKey();
-			final Object bean = entry.getValue();
+	public Object postProcessAfterInitialization(final Object bean, final String beanName) {
+		try {
 			final ReaderBean beanAnnotation = beanFactory.findAnnotationOnBean(beanName, ReaderBean.class);
-			final Class<? extends IBean> beanType = beanAnnotation.type();
-			final List<String> propertyNames = new BeanTypeUtil(beanType).getPropertyNames();
+			if (beanAnnotation != null) {
+				final Class<? extends IBean> beanType = beanAnnotation.type();
+				final List<String> propertyNames = new BeanTypeUtil(beanType).getPropertyNames();
 
-			final Set<Method> methods = getReaderMethods(bean);
-			for (final Method method : methods) {
-				final IPredicateCreator predicateCreator = createPredicateCreator(beanFactory, beanName, method);
-				final CriteriaQueryCreator queryCreator = new CriteriaQueryCreator(beanType);
-				queryCreator.setPredicateCreator(predicateCreator);
-				queryCreator.setCustomFilterPredicateCreators(customFilterPredicateCreators);
-				queryCreator.setCaseInsensitve(beanAnnotation.caseInsensitive());
-				queryCreator.setParentPropertyName(beanAnnotation.parentPropertyName());
+				final Set<Method> methods = getReaderMethods(bean);
+				for (final Method method : methods) {
+					final IPredicateCreator predicateCreator = createPredicateCreator(beanFactory, beanName, method);
+					final CriteriaQueryCreator queryCreator = new CriteriaQueryCreator(beanType);
+					queryCreator.setPredicateCreator(predicateCreator);
+					queryCreator.setCustomFilterPredicateCreators(customFilterPredicateCreators);
+					queryCreator.setCaseInsensitve(beanAnnotation.caseInsensitive());
+					queryCreator.setParentPropertyName(beanAnnotation.parentPropertyName());
 
-				final JpaReaderService<Void> readerService = new JpaReaderService<Void>(queryCreator, propertyNames);
-				readerService.setEntityManager(entityManager);
+					final JpaReaderService<Void> readerService = new JpaReaderService<Void>(queryCreator, propertyNames);
+					readerService.setEntityManager(entityManager);
 
-				final Reader executorAnnotation = method.getAnnotation(Reader.class);
-				final IServiceId<IReaderService<Void>> serviceId = new ServiceId<IReaderService<Void>>(
-					executorAnnotation.value(),
-					IReaderService.class);
-				SpringServiceProvider.getInstance().addService(serviceId, readerService);
+					final Reader executorAnnotation = method.getAnnotation(Reader.class);
+					final IServiceId<IReaderService<Void>> serviceId = new ServiceId<IReaderService<Void>>(
+						executorAnnotation.value(),
+						IReaderService.class);
+					SpringServiceProvider.getInstance().addService(serviceId, readerService);
+				}
 			}
 		}
+		catch (final NoSuchBeanDefinitionException e) {
+		}
+		return bean;
 	}
 
-	private IPredicateCreator createPredicateCreator(
-		final ConfigurableListableBeanFactory beanFactory,
-		final String beanName,
-		final Method method) {
-
+	private IPredicateCreator createPredicateCreator(final BeanFactory beanFactory, final String beanName, final Method method) {
 		if (method.getReturnType() != Predicate.class) {
 			return null;
 		}
@@ -169,6 +171,16 @@ public final class JpaReaderAnnotationPostProcessor implements BeanFactoryPostPr
 			}
 		});
 		return methods;
+	}
+
+	@Override
+	public Object postProcessBeforeInitialization(final Object bean, final String beanName) {
+		return bean;
+	}
+
+	@Override
+	public void setApplicationContext(final ApplicationContext applicationContext) {
+		beanFactory = applicationContext;
 	}
 
 }
