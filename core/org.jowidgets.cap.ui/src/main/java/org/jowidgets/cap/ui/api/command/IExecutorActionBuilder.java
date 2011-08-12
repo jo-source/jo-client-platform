@@ -79,6 +79,8 @@ public interface IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> {
 
 	IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setExecutor(IServiceId<IExecutorService<PARAM_TYPE>> excecuterServiceId);
 
+	IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setExecutor(String excecuterServiceId);
+
 	IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setExecutionPolicy(BeanExecutionPolicy policy);
 
 	IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setSelectionPolicy(BeanSelectionPolicy policy);

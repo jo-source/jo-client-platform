@@ -54,6 +54,7 @@ import org.jowidgets.common.types.Accelerator;
 import org.jowidgets.common.types.Modifier;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.api.ServiceProvider;
+import org.jowidgets.service.tools.ServiceId;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.builder.AbstractSingleUseBuilder;
 
@@ -183,6 +184,13 @@ final class ExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> extends AbstractSingleU
 		final IServiceId<IExecutorService<PARAM_TYPE>> excecuterServiceId) {
 		Assert.paramNotNull(excecuterServiceId, "excecuterServiceId");
 		setExecutor(ServiceProvider.getService(excecuterServiceId));
+		return this;
+	}
+
+	@Override
+	public IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setExecutor(final String excecuterServiceId) {
+		Assert.paramNotNull(excecuterServiceId, "excecuterServiceId");
+		setExecutor(new ServiceId<IExecutorService<PARAM_TYPE>>(excecuterServiceId, IExecutorService.class));
 		return this;
 	}
 
