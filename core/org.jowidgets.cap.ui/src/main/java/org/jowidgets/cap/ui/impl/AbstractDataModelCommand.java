@@ -148,12 +148,12 @@ abstract class AbstractDataModelCommand implements ICommand, ICommandExecutor, I
 		else {
 			for (final IDataModel dataModel : dataModels) {
 				final IEnabledState enabledState = getEnabledState(dataModel);
-				if (!enabledState.isEnabled()) {
-					enabledChecker.setEnabledState(EnabledState.disabled(enabledState.getReason()));
+				if (enabledState.isEnabled()) {
+					enabledChecker.setEnabledState(EnabledState.ENABLED);
 					return;
 				}
+				enabledChecker.setEnabledState(EnabledState.disabled(enabledState.getReason()));
 			}
-			enabledChecker.setEnabledState(EnabledState.ENABLED);
 		}
 	}
 
