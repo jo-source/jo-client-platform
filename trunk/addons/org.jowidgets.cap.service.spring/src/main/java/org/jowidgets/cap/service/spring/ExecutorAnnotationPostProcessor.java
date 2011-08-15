@@ -36,8 +36,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import org.jowidgets.cap.common.api.bean.IBean;
@@ -54,79 +52,81 @@ import org.jowidgets.cap.service.api.executor.IExecutorServiceBuilder;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.tools.ServiceId;
 import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.ListableBeanFactory;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Required;
-import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.beans.factory.support.BeanDefinitionRegistry;
-import org.springframework.beans.factory.support.RootBeanDefinition;
+import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.ReflectionUtils.MethodCallback;
 
-public final class ExecutorAnnotationPostProcessor implements BeanFactoryPostProcessor {
+public final class ExecutorAnnotationPostProcessor implements BeanPostProcessor, ApplicationContextAware {
 
 	private IBeanAccessProvider beanAccessProvider;
+	private PlatformTransactionManager transactionManager;
+	private ListableBeanFactory beanFactory;
 
 	@Required
 	public void setBeanAccessProvider(final IBeanAccessProvider beanAccessProvider) {
 		this.beanAccessProvider = beanAccessProvider;
 	}
 
-	@SuppressWarnings({"rawtypes", "unchecked"})
+	public void setTransactionManager(final PlatformTransactionManager transactionManager) {
+		this.transactionManager = transactionManager;
+	}
+
+	@SuppressWarnings("unchecked")
 	@Override
-	public void postProcessBeanFactory(final ConfigurableListableBeanFactory beanFactory) {
-		final BeanProxyFactory beanProxyFactory = new BeanProxyFactory(beanFactory);
-		final Map<String, Object> beans = beanFactory.getBeansWithAnnotation(ExecutorBean.class);
-		for (final Entry<String, Object> entry : beans.entrySet()) {
-			int i = 0;
-			final String beanName = entry.getKey();
-			final Object bean = entry.getValue();
+	public Object postProcessAfterInitialization(final Object bean, final String beanName) {
+		try {
 			final ExecutorBean beanAnnotation = beanFactory.findAnnotationOnBean(beanName, ExecutorBean.class);
-			final IBeanAccess beanAccess = beanAccessProvider.getBeanAccess(beanAnnotation.value());
-			final List<String> propertyNames = new BeanTypeUtil(beanAccess.getBeanType()).getPropertyNames();
+			if (beanAnnotation != null) {
+				final IBeanAccess<?> beanAccess = beanAccessProvider.getBeanAccess(beanAnnotation.value());
+				final List<String> propertyNames = new BeanTypeUtil(beanAccess.getBeanType()).getPropertyNames();
 
-			final Set<Method> methods = getExecutorMethods(bean);
-			for (final Method method : methods) {
-				final Object proxy = createExecutorProxy(beanFactory, beanName, method);
-				final IExecutorServiceBuilder builder = CapServiceToolkit.executorServiceBuilder(beanAccess);
-				if (proxy instanceof IBeanExecutor) {
-					builder.setExecutor((IBeanExecutor) proxy);
-				}
-				else {
-					builder.setExecutor((IBeanListExecutor) proxy);
-				}
-				builder.setBeanDtoFactory(propertyNames);
-
-				final Executor executorAnnotation = method.getAnnotation(Executor.class);
-				builder.setAllowDeletedBeans(executorAnnotation.allowDeletedBeans());
-				builder.setAllowStaleBeans(executorAnnotation.allowStaleBeans());
-				if (executorAnnotation.checker() != DefaultExecutableChecker.class) {
-					try {
-						builder.setExecutableChecker(executorAnnotation.checker().newInstance());
+				final Set<Method> methods = getExecutorMethods(bean);
+				for (final Method method : methods) {
+					final Object proxy = createExecutorProxy(beanFactory, beanName, method);
+					final IExecutorServiceBuilder<IBean, Object> builder = CapServiceToolkit.executorServiceBuilder(beanAccess);
+					if (proxy instanceof IBeanExecutor) {
+						builder.setExecutor((IBeanExecutor<IBean, Object>) proxy);
 					}
-					catch (final InstantiationException e) {
-						throw new RuntimeException(e);
+					else {
+						builder.setExecutor((IBeanListExecutor<IBean, Object>) proxy);
 					}
-					catch (final IllegalAccessException e) {
-						throw new RuntimeException(e);
+					builder.setBeanDtoFactory(propertyNames);
+
+					final Executor executorAnnotation = method.getAnnotation(Executor.class);
+					builder.setAllowDeletedBeans(executorAnnotation.allowDeletedBeans());
+					builder.setAllowStaleBeans(executorAnnotation.allowStaleBeans());
+					if (executorAnnotation.checker() != DefaultExecutableChecker.class) {
+						try {
+							builder.setExecutableChecker(executorAnnotation.checker().newInstance());
+						}
+						catch (final InstantiationException e) {
+							throw new RuntimeException(e);
+						}
+						catch (final IllegalAccessException e) {
+							throw new RuntimeException(e);
+						}
 					}
+
+					IExecutorService<Object> executorService = builder.build();
+					if (transactionManager != null) {
+						executorService = new TransactionProxyFactory(transactionManager).createProxy(executorService, "execute");
+					}
+					final IServiceId<IExecutorService<Object>> serviceId = new ServiceId<IExecutorService<Object>>(
+						executorAnnotation.id(),
+						IExecutorService.class);
+					SpringServiceProvider.getInstance().addService(serviceId, executorService);
 				}
-
-				final IExecutorService executorService = builder.build();
-
-				final BeanDefinitionRegistry registry = (BeanDefinitionRegistry) beanFactory;
-				final BeanDefinition beanDefinition = new RootBeanDefinition(TransactionalExecutorService.class);
-				beanDefinition.getConstructorArgumentValues().addIndexedArgumentValue(0, executorService);
-				beanDefinition.setDependsOn(new String[] {beanName});
-				final String newBeanName = beanName + "." + i++;
-				registry.registerBeanDefinition(newBeanName, beanDefinition);
-
-				final IServiceId serviceId = new ServiceId(executorAnnotation.id(), IExecutorService.class);
-				SpringServiceProvider.getInstance().addService(
-						serviceId,
-						beanProxyFactory.createProxy(newBeanName, IExecutorService.class));
 			}
 		}
+		catch (final NoSuchBeanDefinitionException e) {
+		}
+		return bean;
 	}
 
 	private Object createExecutorProxy(final BeanFactory beanFactory, final String beanName, final Method method) {
@@ -251,6 +251,16 @@ public final class ExecutorAnnotationPostProcessor implements BeanFactoryPostPro
 			}
 		});
 		return methods;
+	}
+
+	@Override
+	public Object postProcessBeforeInitialization(final Object bean, final String beanName) {
+		return bean;
+	}
+
+	@Override
+	public void setApplicationContext(final ApplicationContext applicationContext) {
+		beanFactory = applicationContext;
 	}
 
 }

@@ -33,6 +33,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 
 @Retention(RetentionPolicy.RUNTIME)
@@ -40,7 +41,7 @@ import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 public @interface Executor {
 	String id();
 
-	Class<? extends IExecutableChecker<?>> checker() default DefaultExecutableChecker.class;
+	Class<? extends IExecutableChecker<? extends IBean>> checker() default DefaultExecutableChecker.class;
 
 	boolean allowStaleBeans() default false;
 
