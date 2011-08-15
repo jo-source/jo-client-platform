@@ -54,24 +54,23 @@ public final class JaasAuthenticationService implements IAuthenticationService<D
 			final LoginContext loginContext = new LoginContext(loginContextName, new CallbackHandler() {
 				@Override
 				public void handle(final Callback[] callbacks) throws UnsupportedCallbackException {
-					for (int i = 0; i < callbacks.length; i++) {
-						if (callbacks[i] instanceof NameCallback) {
-							final NameCallback nc = (NameCallback) callbacks[i];
+					for (final Callback callback : callbacks) {
+						if (callback instanceof NameCallback) {
+							final NameCallback nc = (NameCallback) callback;
 							nc.setName(credentials.getUsername());
 						}
-						else if (callbacks[i] instanceof PasswordCallback) {
-							final PasswordCallback pc = (PasswordCallback) callbacks[i];
+						else if (callback instanceof PasswordCallback) {
+							final PasswordCallback pc = (PasswordCallback) callback;
 							pc.setPassword(credentials.getPassword().toCharArray());
 						}
 						else {
-							throw new UnsupportedCallbackException(callbacks[i]);
+							throw new UnsupportedCallbackException(callback);
 						}
 					}
 				}
 			});
 			loginContext.login();
 			if (loginContext.getSubject() != null) {
-				// TODO HRW add support for granted authorities
 				return new DefaultPrincipal(credentials.getUsername());
 			}
 		}
