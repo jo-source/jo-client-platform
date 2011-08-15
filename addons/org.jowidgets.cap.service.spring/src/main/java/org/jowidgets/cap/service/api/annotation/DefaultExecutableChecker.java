@@ -30,15 +30,16 @@ package org.jowidgets.cap.service.api.annotation;
 
 import java.util.Set;
 
+import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.execution.IExecutableState;
 
-public final class DefaultExecutableChecker implements IExecutableChecker<Object> {
+public final class DefaultExecutableChecker implements IExecutableChecker<IBean> {
 
 	private DefaultExecutableChecker() {}
 
 	@Override
-	public IExecutableState getExecutableState(final Object bean) {
+	public IExecutableState getExecutableState(final IBean bean) {
 		throw new Error();
 	}
 
