@@ -31,7 +31,6 @@ package org.jowidgets.cap.service.spring.jpa;
 import java.beans.PropertyDescriptor;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Properties;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -55,12 +54,12 @@ import org.jowidgets.cap.service.impl.jpa.JpaReaderService;
 import org.jowidgets.cap.service.impl.jpa.jpql.CriteriaQueryCreator;
 import org.jowidgets.cap.service.spring.BeanTypeUtil;
 import org.jowidgets.cap.service.spring.SpringServiceProvider;
+import org.jowidgets.cap.service.spring.TransactionProxyFactory;
 import org.jowidgets.cap.service.tools.entity.EntityServiceBuilder;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.interceptor.TransactionProxyFactoryBean;
 
 @CapService
 public final class JpaEntityService implements IEntityService, InitializingBean {
@@ -133,13 +132,15 @@ public final class JpaEntityService implements IEntityService, InitializingBean 
 		final JpaBeanAccess<T> beanAccess = new JpaBeanAccess<T>(beanType);
 		beanAccess.setEntityManager(entityManager);
 
+		final TransactionProxyFactory tpf = new TransactionProxyFactory(transactionManager);
+
 		final JpaCreatorService creatorService = new JpaCreatorService(beanAccess, propertyNames);
 		creatorService.setEntityManager(entityManager);
-		builder.setCreatorService(createTransactionProxy(creatorService, "create"));
+		builder.setCreatorService(tpf.createProxy(creatorService, "create"));
 
 		final JpaDeleterService deleterService = new JpaDeleterService(beanAccess);
 		deleterService.setEntityManager(entityManager);
-		builder.setDeleterService(createTransactionProxy(deleterService, "delete"));
+		builder.setDeleterService(tpf.createProxy(deleterService, "delete"));
 
 		final JpaReaderService<Void> readerService = new JpaReaderService<Void>(new CriteriaQueryCreator(beanType), propertyNames);
 		readerService.setEntityManager(entityManager);
@@ -149,21 +150,9 @@ public final class JpaEntityService implements IEntityService, InitializingBean 
 
 		final IUpdaterService updaterService = CapServiceToolkit.updaterServiceBuilder(beanAccess).setBeanDtoFactoryAndBeanModifier(
 				propertyNames).build();
-		builder.setUpdaterService(createTransactionProxy(updaterService, "update"));
+		builder.setUpdaterService(tpf.createProxy(updaterService, "update"));
 
 		return builder.build();
-	}
-
-	@SuppressWarnings("unchecked")
-	private <T> T createTransactionProxy(final T target, final String method) {
-		final TransactionProxyFactoryBean tpfb = new TransactionProxyFactoryBean();
-		tpfb.setTransactionManager(transactionManager);
-		tpfb.setTarget(target);
-		final Properties transactionAttributes = new Properties();
-		transactionAttributes.setProperty(method, "PROPAGATION_REQUIRED");
-		tpfb.setTransactionAttributes(transactionAttributes);
-		tpfb.afterPropertiesSet();
-		return (T) tpfb.getObject();
 	}
 
 	@Override
