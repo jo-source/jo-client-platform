@@ -225,5 +225,10 @@ final class BeanServicesProviderImpl implements IBeanServicesProvider, Serializa
 			return true;
 		}
 
+		@Override
+		public String toString() {
+			return "Id(entityServiceId=" + entityServiceId + ", entityId=" + entityId + ", service=" + service + ")";
+		}
+
 	}
 }

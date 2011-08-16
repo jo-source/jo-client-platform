@@ -94,4 +94,9 @@ public final class ServiceId<SERVICE_TYPE> implements IServiceId<SERVICE_TYPE>, 
 		return true;
 	}
 
+	@Override
+	public String toString() {
+		return "ServiceId(id=" + id + ", serviceType=" + serviceType.getName() + ")";
+	}
+
 }
