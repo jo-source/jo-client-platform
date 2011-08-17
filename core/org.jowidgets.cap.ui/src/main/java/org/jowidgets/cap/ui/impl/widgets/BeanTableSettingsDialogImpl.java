@@ -71,11 +71,13 @@ final class BeanTableSettingsDialogImpl extends WindowWrapper implements IBeanTa
 		this.model = setup.getModel();
 		this.currentConfig = model.getConfig();
 
-		frame.setLayout(new MigLayoutDescriptor("[][grow]", "[][][][][grow][pref!]"));
+		//frame.setLayout(new MigLayoutDescriptor("[][grow]", "[][][][][grow][pref!]"));
+		frame.setLayout(Toolkit.getLayoutFactoryProvider().migLayoutBuilder().columnConstraints("[][grow]").rowConstraints(
+				"[][][][][grow][pref!]").build());
 
 		// common settings
 		// TODO i18n
-		frame.add(bpF.textSeparator("Common settings"), "grow, span, wrap");
+		frame.add(bpF.textSeparator("Common settings"), "grow, span");
 		autoSelection = frame.add(bpF.checkBox().setText("Auto selection"), "grow, span, wrap");
 
 		// TODO i18n 
@@ -101,6 +103,9 @@ final class BeanTableSettingsDialogImpl extends WindowWrapper implements IBeanTa
 	@Override
 	public IBeanTableConfig show() {
 		okPressed = false;
+		if (model.getConfig().isAutoSelection() != null) {
+			autoSelection.setValue(model.getConfig().isAutoSelection());
+		}
 		beanTableAttributeListImpl.updateValues(model.getConfig());
 		frame.setVisible(true);
 
@@ -137,7 +142,7 @@ final class BeanTableSettingsDialogImpl extends WindowWrapper implements IBeanTa
 		});
 		frame.setDefaultButton(ok);
 
-		final IButton cancel = buttonBar.add(bpF.button("Cancel", "w 80::, aligny b, sg bg"));
+		final IButton cancel = buttonBar.add(bpF.button("Cancel"), "w 80::, aligny b, sg bg");
 		cancel.addActionListener(new IActionListener() {
 			@Override
 			public void actionPerformed() {

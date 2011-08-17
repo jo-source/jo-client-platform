@@ -77,20 +77,19 @@ import org.jowidgets.common.widgets.controller.IInputListener;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
 import org.jowidgets.tools.command.ActionBuilder;
 import org.jowidgets.tools.controller.InputObservable;
+import org.jowidgets.tools.widgets.wrapper.CheckBoxWrapper;
 import org.jowidgets.tools.widgets.wrapper.ComboBoxWrapper;
 import org.jowidgets.tools.widgets.wrapper.CompositeWrapper;
 import org.jowidgets.tools.widgets.wrapper.ContainerWrapper;
 import org.jowidgets.util.NullCompatibleEquivalence;
 
-@SuppressWarnings("unused")
-final class BeanTableAttributeListImpl extends ContainerWrapper {
+final class BeanTableAttributeListImpl extends CompositeWrapper {
+	// TODO i18n
+	private static final String ALL_LABEL_TEXT = "All";
+	private static final String SEARCH_LABEL_TEXT = "Search";
 
-	//private static final IColorConstant ATTRIBUTE_HEADER_BACKGROUND = new ColorValue(40, 90, 255);
-	//a little bit darker suggestion
 	private static final IColorConstant ATTRIBUTE_HEADER_BACKGROUND = new ColorValue(6, 27, 95);
 	private static final IColorConstant ATTRIBUTE_GROUP_BACKGROUND = new ColorValue(130, 177, 236);
-
-	private static final IColorConstant[] NO_COLORS = new IColorConstant[0];
 	private static final IColorConstant[] ALTERNATING_GROUPS = new IColorConstant[] {
 			new ColorValue(130, 177, 236), new ColorValue(115, 162, 255)};
 
@@ -120,12 +119,11 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 
 	private SortIndexModel currentSortingModel;
 	private SortIndexModel defaultSortingModel;
-	private boolean isInitialized;
 
 	private final IInputListener updateHeadersListener;
 	private boolean layoutingEnabled;
 
-	BeanTableAttributeListImpl(final IContainer container, final IBeanTableModel<?> model) {
+	BeanTableAttributeListImpl(final IComposite container, final IBeanTableModel<?> model) {
 		super(container);
 
 		final ITableLayoutBuilder builder = Toolkit.getLayoutFactoryProvider().tableLayoutBuilder();
@@ -157,7 +155,6 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 
 		this.setLayout(new MigLayoutDescriptor("hidemode 2", "[grow]", "[]0[]0[]0[grow, 0:500:]"));
 		this.maxSortingLength = getMaxSortableLength(model);
-		this.isInitialized = false;
 
 		final AllAttributeInformation allAttributeInformation = new AllAttributeInformation(model);
 
@@ -255,7 +252,6 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 			attributeComposites.put(attribute.getPropertyName(), attributeComposite);
 		}
 		enableLayouting();
-		this.isInitialized = true;
 
 		attributeLayoutManager.validate();
 	}
@@ -369,7 +365,6 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 			setBackgroundColor(ATTRIBUTE_HEADER_BACKGROUND);
 			setLayout(attributeLayoutManager.rowBuilder().build());
 
-			final IBluePrintFactory bpF = Toolkit.getBluePrintFactory();
 			// TODO i18n
 			add(LABEL_HEADER.setText(""));
 			add(LABEL_HEADER.setText("Name"));
@@ -384,7 +379,7 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 
 	private abstract class AbstractListElement<TYPE> extends CompositeWrapper {
 		private final TYPE information;
-		private final ICheckBox visible;
+		private final VisibilityCheckBox visible;
 		private final ComboBox headerFormat;
 		private final ComboBox contentFormat;
 		private final ComboBox columnAlignment;
@@ -416,7 +411,7 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 
 			add(textLabel.setText(getLabelText()));
 
-			visible = add(bpF.checkBox());
+			visible = new VisibilityCheckBox(add(bpF.checkBox()));
 			final IInputListener visibleChangedListener = createVisibleChangedListener();
 			if (visibleChangedListener != null) {
 				visible.addInputListener(visibleChangedListener);
@@ -559,19 +554,19 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 			return result;
 		}
 
-		public ICheckBox getVisible() {
+		public VisibilityCheckBox getVisible() {
 			return visible;
 		}
 
-		public IComboBox<String> getHeaderFormat() {
+		public ComboBox getHeaderFormat() {
 			return headerFormat;
 		}
 
-		public IComboBox<String> getContentFormat() {
+		public ComboBox getContentFormat() {
 			return contentFormat;
 		}
 
-		public IComboBox<String> getColumnAlignment() {
+		public ComboBox getColumnAlignment() {
 			return columnAlignment;
 		}
 
@@ -646,7 +641,7 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 		public void updateValues(final IBeanTableConfig currentConfig) {
 			final IAttributeConfig attributeConfig = currentConfig.getAttributeConfigs().get(propertyName);
 			if (attributeConfig == null) {
-				// TODO NM handle this
+				// TODO NM ask MG what to do if no config is set for this attribute
 				return;
 			}
 
@@ -658,30 +653,29 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 					format = DisplayFormat.SHORT.getName();
 
 				}
-				setValue(getHeaderFormat(), format);
+				getHeaderFormat().setValue(format);
 			}
 
 			if (getContentFormat() != null) {
 				final String format = getContentFormatConfig(attributeConfig);
-				setValue(getContentFormat(), format);
+				getContentFormat().setValue(format);
 			}
 
-			getVisible().setValue(attributeConfig.isVisible());
+			getVisible().setSelected(attributeConfig.isVisible());
 
-			setValue(getColumnAlignment(), attributeConfig.getTableAlignment().getLabel());
+			if (getColumnAlignment() != null) {
+				getColumnAlignment().setValue(attributeConfig.getTableAlignment().getLabel());
+			}
 
-			setValue(getCurrentSorting(), "");
-			setValue(getCurrentSortingIndex(), 0);
-			setValue(getDefaultSorting(), "");
-			setValue(getDefaultSortingIndex(), 0);
+			if (isSortable()) {
+				getCurrentSorting().setValue("");
+				getCurrentSortingIndex().setIndex(0);
+				getDefaultSorting().setValue("");
+				getDefaultSortingIndex().setIndex(0);
+			}
 		}
 
 		protected String getHeaderFormatConfig(final IAttributeConfig attributeConfig) {
-			// TODO NM check if there are several configurations for this attribute available
-			// if (!hasShortAndLongLabel(attribute)) {
-			//	continue;
-			// }
-
 			final DisplayFormat format = attributeConfig.getLabelDisplayFormat();
 			if (format == null) {
 				return null;
@@ -695,11 +689,6 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 		}
 
 		protected String getContentFormatConfig(final IAttributeConfig attributeConfig) {
-			// TODO NM check if there are several configurations for this attribute available
-			//if (!hasContentFormatSelection(attribute)) {
-			//	continue;
-			//}
-
 			final String id = attributeConfig.getDisplayFormatId();
 			if (id == null) {
 				return null;
@@ -775,6 +764,7 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 	private class AttributesHeaderComposite<TYPE extends IAttributesInformation> extends AbstractListElement<TYPE> {
 
 		private boolean collapsed;
+		private Visibility visibility;
 
 		public AttributesHeaderComposite(
 			final IComposite container,
@@ -882,15 +872,28 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 				}
 			}
 
-			setValue(getHeaderFormat(), usedHeaderFormats);
-			setValue(getContentFormat(), usedContentFormats);
-			setValue(getColumnAlignment(), usedColumnAlignments);
+			if (getHeaderFormat() != null) {
+				getHeaderFormat().setValue(usedHeaderFormats);
+			}
+			if (getContentFormat() != null) {
+				getContentFormat().setValue(usedContentFormats);
+			}
+			if (getColumnAlignment() != null) {
+				getColumnAlignment().setValue(usedColumnAlignments);
+			}
 
-			getVisible().setValue(invisibleCount == 0 && propertyNames.length > 0);
+			visibility = Visibility.getValue(visibleCount, invisibleCount);
+			getVisible().setState(visibility);
 
-			setValue(getContentFormat(), usedContentFormats);
-			setValue(getCurrentSorting(), usedCurrentSortings);
-			setValue(getDefaultSorting(), usedDefaultSortings);
+			if (getContentFormat() != null) {
+				getContentFormat().setValue(usedContentFormats);
+			}
+			if (getCurrentSorting() != null) {
+				getCurrentSorting().setValue(usedCurrentSortings);
+			}
+			if (getDefaultSorting() != null) {
+				getDefaultSorting().setValue(usedDefaultSortings);
+			}
 		}
 
 		@Override
@@ -955,6 +958,7 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 						attributeComposites.get(property).getVisible().setValue(visible);
 					}
 					eventsDisabled = false;
+					updateHeaders();
 				}
 			};
 		}
@@ -967,8 +971,10 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 				public void inputChanged() {
 					final String value = getHeaderFormat().getValue();
 					for (final String property : getPropertyNames()) {
-						final IComboBox<String> header = attributeComposites.get(property).getHeaderFormat();
-						setValue(header, value);
+						final ComboBox comboBox = attributeComposites.get(property).getHeaderFormat();
+						if (comboBox != null) {
+							comboBox.setValue(value);
+						}
 					}
 				}
 			};
@@ -982,8 +988,10 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 				public void inputChanged() {
 					final String value = getContentFormat().getValue();
 					for (final String property : getPropertyNames()) {
-						final IComboBox<String> content = attributeComposites.get(property).getContentFormat();
-						setValue(content, value);
+						final ComboBox comboBox = attributeComposites.get(property).getContentFormat();
+						if (comboBox != null) {
+							comboBox.setValue(value);
+						}
 					}
 				}
 			};
@@ -997,8 +1005,10 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 				public void inputChanged() {
 					final String value = getColumnAlignment().getValue();
 					for (final String property : getPropertyNames()) {
-						final IComboBox<String> alignment = attributeComposites.get(property).getColumnAlignment();
-						setValue(alignment, value);
+						final ComboBox comboBox = attributeComposites.get(property).getColumnAlignment();
+						if (comboBox != null) {
+							comboBox.setValue(value);
+						}
 					}
 				}
 			};
@@ -1036,7 +1046,8 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 							}
 							sortIndex.setIndex(model.sortingLength);
 						}
-						setValue(sorting, value);
+
+						sorting.setValue(value);
 					}
 
 					if (clear && shiftList.size() > 0) {
@@ -1104,7 +1115,6 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 
 				@Override
 				public void execute(final IExecutionContext executionContext) throws Exception {
-					final IToolBarButton button = (IToolBarButton) executionContext.getSource();
 					final boolean collapseState = !isCollapsed();
 					setCollapsed(collapseState);
 
@@ -1147,7 +1157,6 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 
 				@Override
 				public void execute(final IExecutionContext executionContext) throws Exception {
-					final IToolBarButton button = (IToolBarButton) executionContext.getSource();
 					final boolean collapseState = !isCollapsed();
 					setCollapsed(collapseState);
 
@@ -1171,7 +1180,19 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 	private enum Visibility {
 		NONE,
 		PARTIAL,
-		ALL
+		ALL;
+
+		public static Visibility getValue(final int visibleCount, final int invisibleCount) {
+			if (visibleCount == 0) {
+				return NONE;
+			}
+			else if (invisibleCount == 0) {
+				return ALL;
+			}
+			else {
+				return PARTIAL;
+			}
+		}
 	}
 
 	interface IAttributesInformation {
@@ -1203,8 +1224,7 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 
 		@Override
 		public String getLabelText() {
-			// TODO i18n
-			return "Search";
+			return SEARCH_LABEL_TEXT;
 		}
 
 		@Override
@@ -1242,7 +1262,6 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 			headerFormats.clear();
 			contentFormats.clear();
 
-			final List<String> propertyNamesList = new LinkedList<String>();
 			sortable = false;
 			for (final String propertyName : propertyNames) {
 				final AttributeComposite attributeComposite = attributeComposites.get(propertyName);
@@ -1268,58 +1287,57 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 
 	private final class AllAttributeInformation implements IAttributesInformation {
 		private final boolean sortable;
-		private final String[] propertyNames2;
-		private final List<String> headerFormats2;
-		private final List<String> contentFormats2;
+		private final String[] propertyNames;
+		private final List<String> headerFormats;
+		private final List<String> contentFormats;
 
 		private AllAttributeInformation(final IBeanTableModel<?> model) {
-			this.propertyNames2 = new String[model.getColumnCount()];
-			this.headerFormats2 = new LinkedList<String>();
-			this.contentFormats2 = new LinkedList<String>();
+			this.propertyNames = new String[model.getColumnCount()];
+			this.headerFormats = new LinkedList<String>();
+			this.contentFormats = new LinkedList<String>();
 
 			int sortableCount = 0;
 			for (int columnIndex = 0; columnIndex < model.getColumnCount(); columnIndex++) {
 				final IAttribute<?> attribute = model.getAttribute(columnIndex);
-				propertyNames2[columnIndex] = attribute.getPropertyName();
+				propertyNames[columnIndex] = attribute.getPropertyName();
 				if (attribute.isSortable()) {
 					sortableCount++;
 				}
 
 				for (final IControlPanelProvider<?> provider : attribute.getControlPanels()) {
-					if (contentFormats2.contains(provider.getDisplayFormatName())) {
+					if (contentFormats.contains(provider.getDisplayFormatName())) {
 						continue;
 					}
 
-					contentFormats2.add(provider.getDisplayFormatName());
+					contentFormats.add(provider.getDisplayFormatName());
 				}
 			}
 
 			// TODO NM get list correctly
-			headerFormats2.add(DisplayFormat.SHORT.getName());
-			headerFormats2.add(DisplayFormat.LONG.getName());
+			headerFormats.add(DisplayFormat.SHORT.getName());
+			headerFormats.add(DisplayFormat.LONG.getName());
 
 			sortable = sortableCount > 0;
 		}
 
 		@Override
 		public String getLabelText() {
-			// TODO i18n
-			return "All";
+			return ALL_LABEL_TEXT;
 		}
 
 		@Override
 		public String[] getPropertyNames() {
-			return propertyNames2;
+			return propertyNames;
 		}
 
 		@Override
 		public List<String> getHeaderFormats() {
-			return headerFormats2;
+			return headerFormats;
 		}
 
 		@Override
 		public List<String> getContentFormats() {
-			return contentFormats2;
+			return contentFormats;
 		}
 
 		@Override
@@ -1335,27 +1353,24 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 
 	private final class AttributeGroupInformation implements IAttributesInformation {
 		private final IAttributeGroup group;
-		private final int startIndex;
-		private final int endIndex;
 		private final boolean sortable;
-		private final String[] propertyNames2;
-		private final List<String> headerFormats2;
-		private final List<String> contentFormats2;
+		private final String[] propertyNames;
+		private final List<String> headerFormats;
+		private final List<String> contentFormats;
 
 		private AttributeGroupInformation(final int startIndex, final IBeanTableModel<?> model) {
 			this.group = model.getAttribute(startIndex).getGroup();
-			this.startIndex = startIndex;
-			this.endIndex = getGroupEnd(model, startIndex);
-			this.propertyNames2 = new String[endIndex - startIndex + 1];
-			this.headerFormats2 = new LinkedList<String>();
-			this.contentFormats2 = new LinkedList<String>();
+			final int endIndex = getGroupEnd(model, startIndex);
+			this.propertyNames = new String[endIndex - startIndex + 1];
+			this.headerFormats = new LinkedList<String>();
+			this.contentFormats = new LinkedList<String>();
 
 			int sortableCount = 0;
 			int propIndex = 0;
 			boolean hasLongLabel = false;
 			for (int index = startIndex; index <= endIndex; index++) {
 				final IAttribute<?> attribute = model.getAttribute(index);
-				propertyNames2[propIndex] = attribute.getPropertyName();
+				propertyNames[propIndex] = attribute.getPropertyName();
 
 				if (attribute.isSortable()) {
 					sortableCount++;
@@ -1369,8 +1384,8 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 				for (final Object provider : controlPanels) {
 					final IControlPanelProvider<?> controlPanelProvider = (IControlPanelProvider<?>) provider;
 
-					if (!contentFormats2.contains(controlPanelProvider.getDisplayFormatName())) {
-						contentFormats2.add(controlPanelProvider.getDisplayFormatName());
+					if (!contentFormats.contains(controlPanelProvider.getDisplayFormatName())) {
+						contentFormats.add(controlPanelProvider.getDisplayFormatName());
 					}
 				}
 
@@ -1378,8 +1393,8 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 			}
 
 			if (hasLongLabel) {
-				headerFormats2.add(DisplayFormat.SHORT.getName());
-				headerFormats2.add(DisplayFormat.LONG.getName());
+				headerFormats.add(DisplayFormat.SHORT.getName());
+				headerFormats.add(DisplayFormat.LONG.getName());
 			}
 
 			sortable = (sortableCount > 0);
@@ -1387,17 +1402,17 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 
 		@Override
 		public String[] getPropertyNames() {
-			return propertyNames2;
+			return propertyNames;
 		}
 
 		@Override
 		public List<String> getHeaderFormats() {
-			return headerFormats2;
+			return headerFormats;
 		}
 
 		@Override
 		public List<String> getContentFormats() {
-			return contentFormats2;
+			return contentFormats;
 		}
 
 		@Override
@@ -1418,32 +1433,23 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 			return true;
 		}
 
-	}
-
-	private static int getGroupEnd(final IBeanTableModel<?> model, final int index) {
-		final IAttributeGroup group = model.getAttribute(index).getGroup();
-		int currentIndex = index + 1;
-		while (currentIndex < model.getColumnCount()) {
-			final IAttributeGroup currentGroup = model.getAttribute(currentIndex).getGroup();
-			if ((group != null) && (currentGroup != null)) {
-				if ((group.getId() != null) && (currentGroup.getId() != null)) {
-					if (!group.getId().equals(currentGroup.getId())) {
+		private int getGroupEnd(final IBeanTableModel<?> model, final int index) {
+			int currentIndex = index + 1;
+			while (currentIndex < model.getColumnCount()) {
+				final IAttributeGroup currentGroup = model.getAttribute(currentIndex).getGroup();
+				if ((group != null) && (currentGroup != null)) {
+					if (!NullCompatibleEquivalence.equals(group.getId(), currentGroup.getId())) {
 						break;
 					}
 				}
+				currentIndex++;
 			}
-
-			currentIndex++;
+			return currentIndex - 1;
 		}
-		return currentIndex - 1;
 	}
 
 	private static boolean hasShortAndLongLabel(final IAttribute<?> attribute) {
 		return ((attribute.getLabelLong() != null) && (!attribute.getLabelLong().equals(attribute.getLabel())));
-	}
-
-	private static boolean hasContentFormatSelection(final IAttribute<?> attribute) {
-		return attribute.getControlPanels().size() > 1;
 	}
 
 	private static String getDisplayFormatNameById(final String id) {
@@ -1453,49 +1459,6 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 			}
 		}
 		return null;
-	}
-
-	private static void setValue(final IComboBox<String> comboBox, final Set<String> values) {
-		if (comboBox == null) {
-			return;
-		}
-
-		if (values.size() == 1) {
-			setValue(comboBox, (String) values.toArray()[0]);
-		}
-		else {
-			final List<String> elements = new LinkedList<String>(comboBox.getElements());
-			final String various = "various";
-			if (!elements.contains(various)) {
-				if (elements.size() > 1 && "".equals(elements.get(0))) {
-					elements.add(1, various);
-				}
-				else {
-					elements.add(0, various);
-				}
-				comboBox.setElements(elements);
-			}
-			setValue(comboBox, various);
-		}
-	}
-
-	private static void setValue(final SortingIndexComboBox comboBox, final int index) {
-		if (comboBox != null) {
-			comboBox.setIndex(index);
-		}
-	}
-
-	private static void setValue(final IComboBox<String> comboBox, final String value) {
-		if (comboBox == null) {
-			return;
-		}
-		if ((value != null) && (!comboBox.getElements().contains(value))) {
-			return;
-		}
-		if (NullCompatibleEquivalence.equals(value, comboBox.getValue())) {
-			return;
-		}
-		comboBox.setValue(value);
 	}
 
 	private class ComboBox extends ComboBoxWrapper<String> {
@@ -1546,6 +1509,60 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 		private String getLastValue() {
 			return lastValue;
 		}
+
+		@Override
+		// only set Elements is list has changed
+		public void setElements(final List<String> elements) {
+			final List<String> currentElements = getElements();
+			boolean changed = false;
+			if (elements.size() != currentElements.size()) {
+				changed = true;
+			}
+			else {
+				for (int i = 0; i < elements.size(); i++) {
+					if (!NullCompatibleEquivalence.equals(elements.get(i), currentElements.get(i))) {
+						changed = true;
+						break;
+					}
+				}
+			}
+
+			if (changed) {
+				super.setElements(elements);
+			}
+		}
+
+		@Override
+		public void setValue(final String value) {
+			if ((value != null) && (!getElements().contains(value))) {
+				return;
+			}
+			if (NullCompatibleEquivalence.equals(value, getValue())) {
+				return;
+			}
+			super.setValue(value);
+		}
+
+		public void setValue(final Set<String> values) {
+			if (values.size() == 1) {
+				setValue((String) values.toArray()[0]);
+			}
+			else {
+				final List<String> elements = new LinkedList<String>(getElements());
+				final String various = "various";
+				if (!elements.contains(various)) {
+					if (elements.size() > 1 && "".equals(elements.get(0))) {
+						elements.add(1, various);
+					}
+					else {
+						elements.add(0, various);
+					}
+					setElements(elements);
+				}
+				setValue(various);
+			}
+		}
+
 	}
 
 	private class SortingIndexComboBox extends ComboBoxWrapper<String> {
@@ -1645,6 +1662,23 @@ final class BeanTableAttributeListImpl extends ContainerWrapper {
 				return;
 			}
 			inputObservable.removeInputListener(listener);
+		}
+	}
+
+	private class VisibilityCheckBox extends CheckBoxWrapper {
+
+		public VisibilityCheckBox(final ICheckBox widget) {
+			super(widget);
+		}
+
+		public void setState(final Visibility value) {
+			if (Visibility.PARTIAL.equals(value)) {
+				// TODO NM set intermediate state
+				setSelected(true);
+			}
+			else {
+				setSelected(Visibility.ALL.equals(value));
+			}
 		}
 	}
 
