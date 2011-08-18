@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2011, grossmann, Nikolaus Moll
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -292,7 +292,7 @@ final class AttributeImpl<ELEMENT_VALUE_TYPE> implements IAttribute<ELEMENT_VALU
 			this.visible = config.isVisible();
 		}
 		if (config.getLabelDisplayFormat() != null) {
-			setLabelDisplayFormat(config.getLabelDisplayFormat());
+			this.labelDisplayFormat = config.getLabelDisplayFormat();
 		}
 		if (config.getDisplayFormatId() != null) {
 			setDisplayFormatToNewId(config.getDisplayFormatId());
