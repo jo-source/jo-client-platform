@@ -64,6 +64,13 @@ public interface IAttributeToolkit {
 	IAttributeBuilder<Object> createMetaAttributeBuilder(String propertyName);
 
 	<ELEMENT_VALUE_TYPE> IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> createControlPanelProviderBuilder(
+		Class<? extends ELEMENT_VALUE_TYPE> elementValueType);
+
+	<ELEMENT_VALUE_TYPE> IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> createControlPanelProviderBuilder(
+		Class<?> valueType,
+		Class<? extends ELEMENT_VALUE_TYPE> elementValueType);
+
+	<ELEMENT_VALUE_TYPE> IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> createControlPanelProviderBuilder(
 		Class<? extends ELEMENT_VALUE_TYPE> elementValueType,
 		IValueRange valueRange);
 
