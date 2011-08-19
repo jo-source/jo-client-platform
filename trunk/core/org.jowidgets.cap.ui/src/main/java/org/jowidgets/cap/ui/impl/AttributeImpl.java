@@ -320,7 +320,13 @@ final class AttributeImpl<ELEMENT_VALUE_TYPE> implements IAttribute<ELEMENT_VALU
 		Assert.paramNotEmpty(id, "id");
 		final IControlPanelProvider<ELEMENT_VALUE_TYPE> controlPanel = findControlPanel(id);
 		if (controlPanel == null) {
-			throw new IllegalArgumentException("The displayFormatId '" + id + "' is not a known display format.");
+			// TODO MG,HRW review
+			if (DisplayFormat.DEFAULT.getId().equals(id) && !controlPanels.isEmpty()) {
+				currentControlPanel = controlPanels.get(0);
+			}
+			else {
+				throw new IllegalArgumentException("The displayFormatId '" + id + "' is not a known display format.");
+			}
 		}
 		else {
 			currentControlPanel = controlPanel;

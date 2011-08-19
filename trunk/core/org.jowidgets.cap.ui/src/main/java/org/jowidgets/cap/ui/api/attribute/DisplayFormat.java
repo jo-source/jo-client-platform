@@ -31,9 +31,9 @@ package org.jowidgets.cap.ui.api.attribute;
 public enum DisplayFormat {
 
 	//TODO i18n
-	DEFAULT(DisplayFormat.class.getName() + "DEFAULT", "Default", null),
-	LONG(DisplayFormat.class.getName() + "LONG", "Long", "Long display format"),
-	SHORT(DisplayFormat.class.getName() + "SHORT", "Short", "Short display format");
+	DEFAULT(DisplayFormat.class.getName() + ".DEFAULT", "Default", null),
+	LONG(DisplayFormat.class.getName() + ".LONG", "Long", "Long display format"),
+	SHORT(DisplayFormat.class.getName() + ".SHORT", "Short", "Short display format");
 
 	private String id;
 	private String name;
