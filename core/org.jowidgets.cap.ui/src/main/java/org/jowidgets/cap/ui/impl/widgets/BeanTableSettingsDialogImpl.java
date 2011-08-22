@@ -71,9 +71,7 @@ final class BeanTableSettingsDialogImpl extends WindowWrapper implements IBeanTa
 		this.model = setup.getModel();
 		this.currentConfig = model.getConfig();
 
-		frame.setLayout(new MigLayoutDescriptor("[][grow]", "[][][][][grow][pref!]"));
-		//frame.setLayout(Toolkit.getLayoutFactoryProvider().migLayoutBuilder().columnConstraints("[][grow]").rowConstraints(
-		//		"[][][][][grow][pref!]").build());
+		frame.setLayout(new MigLayoutDescriptor("[][grow]", "[][]10[][]10[grow][pref!]"));
 
 		// common settings
 		// TODO i18n
@@ -97,7 +95,6 @@ final class BeanTableSettingsDialogImpl extends WindowWrapper implements IBeanTa
 				"grow, wrap, span, w 0::, h 0::"), model);
 
 		createButtonBar(frame.add(bpF.composite(), "alignx right, span, wrap"));
-		frame.pack();
 	}
 
 	@Override
