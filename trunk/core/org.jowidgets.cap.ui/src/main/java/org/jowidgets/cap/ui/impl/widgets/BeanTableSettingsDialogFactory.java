@@ -42,7 +42,7 @@ public final class BeanTableSettingsDialogFactory implements
 	@Override
 	public IBeanTableSettingsDialog create(final Object parentUiReference, final IBeanTableSettingsDialogBluePrint setup) {
 		final IBluePrintFactory bpf = Toolkit.getBluePrintFactory();
-		final IDialogBluePrint dialogBp = bpf.dialog().setCloseable(false).autoPackOff();
+		final IDialogBluePrint dialogBp = bpf.dialog().setCloseable(false);
 		final IFrame frame = Toolkit.getWidgetFactory().create(parentUiReference, dialogBp);
 		return new BeanTableSettingsDialogImpl(frame, setup);
 	}
