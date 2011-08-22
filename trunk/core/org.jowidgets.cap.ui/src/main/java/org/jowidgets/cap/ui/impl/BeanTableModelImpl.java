@@ -138,6 +138,7 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 	private int lastRenderedRow;
 	private boolean dataCleared;
 	private boolean autoSelection;
+	private boolean onSetConfig;
 
 	@SuppressWarnings("unchecked")
 	BeanTableModelImpl(
@@ -184,6 +185,7 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 		this.deleterService = deleterService;
 
 		//fields initialize
+		this.onSetConfig = false;
 		this.propertyNames = createPropertyNames(attributes);
 		this.data = new HashMap<Integer, ArrayList<IBeanProxy<BEAN_TYPE>>>();
 		this.currentPageLoaders = new LinkedList<PageLoader>();
@@ -460,6 +462,7 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 	@Override
 	public void setConfig(final IBeanTableConfig config) {
 		Assert.paramNotNull(config, "config");
+		onSetConfig = true;
 		final Map<String, IAttributeConfig> attributeConfigs = config.getAttributeConfigs();
 		if (attributeConfigs != null) {
 			for (final IAttribute<Object> attribute : attributes) {
@@ -481,6 +484,8 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 		if (config.isAutoSelection() != null) {
 			this.autoSelection = config.isAutoSelection();
 		}
+		onSetConfig = false;
+		dataModel.fireDataChanged();
 	}
 
 	@Override
@@ -534,7 +539,9 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 				public void changed() {
 					result.getColumn(currentColumnIndex).setVisible(attribute.isVisible());
 					result.getColumn(currentColumnIndex).setAlignment(attribute.getTableAlignment());
-					dataModel.fireDataChanged();
+					if (!onSetConfig) {
+						dataModel.fireDataChanged();
+					}
 					updateColumnModel();
 				}
 			});
