@@ -71,9 +71,9 @@ final class BeanTableSettingsDialogImpl extends WindowWrapper implements IBeanTa
 		this.model = setup.getModel();
 		this.currentConfig = model.getConfig();
 
-		//frame.setLayout(new MigLayoutDescriptor("[][grow]", "[][][][][grow][pref!]"));
-		frame.setLayout(Toolkit.getLayoutFactoryProvider().migLayoutBuilder().columnConstraints("[][grow]").rowConstraints(
-				"[][][][][grow][pref!]").build());
+		frame.setLayout(new MigLayoutDescriptor("[][grow]", "[][][][][grow][pref!]"));
+		//frame.setLayout(Toolkit.getLayoutFactoryProvider().migLayoutBuilder().columnConstraints("[][grow]").rowConstraints(
+		//		"[][][][][grow][pref!]").build());
 
 		// common settings
 		// TODO i18n

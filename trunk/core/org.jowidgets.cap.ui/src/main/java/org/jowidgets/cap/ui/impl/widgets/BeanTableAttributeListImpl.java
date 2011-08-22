@@ -74,6 +74,8 @@ import org.jowidgets.common.types.AlignmentHorizontal;
 import org.jowidgets.common.types.Dimension;
 import org.jowidgets.common.types.Markup;
 import org.jowidgets.common.widgets.controller.IInputListener;
+import org.jowidgets.common.widgets.descriptor.IWidgetDescriptor;
+import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
 import org.jowidgets.tools.command.ActionBuilder;
 import org.jowidgets.tools.controller.InputObservable;
@@ -103,8 +105,11 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 	private static final ITextLabelBluePrint LABEL_ATTRIBUTES = Toolkit.getBluePrintFactory().textLabel();
 	private static final ITextLabelBluePrint LABEL_ALL = Toolkit.getBluePrintFactory().textLabel().setMarkup(Markup.STRONG);
 
-	private final Map<String, AttributeGroupHeader> groupHeaders;
-	private final Map<String, AttributeGroupContainer> groupContainers;
+	private static final IconsSmall ICON_EXPANDED = IconsSmall.TABLE_SORT_DESC;
+	private static final IconsSmall ICON_COLLAPED = IconsSmall.TABLE_SORT_ASC;
+
+	private final List<String> groupNames;
+	private final Map<String, AttributeGroupComposite> groups;
 	private final Map<String, AttributeComposite> attributeComposites;
 	private final ITableLayout attributeLayoutManager;
 	private final IScrollComposite attributeScroller;
@@ -115,12 +120,12 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 	private final AttributesFilterComposite attributesFilterComposite;
 
 	private final int maxSortingLength;
-	private boolean eventsDisabled;
-
-	private SortIndexModel currentSortingModel;
-	private SortIndexModel defaultSortingModel;
+	private final SortIndexModel currentSortingModel;
+	private final SortIndexModel defaultSortingModel;
 
 	private final IInputListener updateHeadersListener;
+
+	private boolean eventsDisabled;
 	private boolean layoutingEnabled;
 
 	BeanTableAttributeListImpl(final IComposite container, final IBeanTableModel<?> model) {
@@ -147,8 +152,7 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 		this.attributeLayoutManager = builder.build();
 		disableLayouting();
 
-		this.groupHeaders = new HashMap<String, AttributeGroupHeader>();
-		this.groupContainers = new HashMap<String, AttributeGroupContainer>();
+		this.groups = new HashMap<String, AttributeGroupComposite>();
 		this.attributeComposites = new HashMap<String, AttributeComposite>();
 
 		//Toolkit.getLayoutFactoryProvider().migLayoutBuilder().constraints("hidemode 2").columnConstraints("[grow]").rowConstraints("[]0[]0[]0[grow, 0:500:]").build();
@@ -208,7 +212,9 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 		attributesFilterComposite.setVisible(false);
 
 		attributeScroller = this.add(bpF.scrollComposite().setHorizontalBar(false), "grow, w 0::, h 0::");
-		attributeScroller.setLayout(Toolkit.getLayoutFactoryProvider().listLayoutBuilder().backgroundColors(ALTERNATING_GROUPS).build());
+		attributeScroller.setLayout(Toolkit.getLayoutFactoryProvider().listLayoutBuilder().build());
+
+		groupNames = new LinkedList<String>();
 
 		AttributeGroupHeader lastHeader = null;
 		for (int columnIndex = 0; columnIndex < model.getColumnCount(); columnIndex++) {
@@ -222,18 +228,14 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 				attributeGroupId = null;
 			}
 
-			AttributeGroupContainer groupContainer = groupContainers.get(attributeGroupId);
+			AttributeGroupComposite groupContainer = groups.get(attributeGroupId);
 			if (groupContainer == null) {
 				final AttributeGroupInformation information = new AttributeGroupInformation(columnIndex, model);
-				final AttributeGroupHeader header = new AttributeGroupHeader(
-					attributeScroller.add(bpF.composite()),
-					attributeLayoutManager,
-					model,
-					information);
-				groupHeaders.put(attributeGroupId, header);
-				groupContainer = new AttributeGroupContainer(attributeScroller.add(bpF.composite()));
-				groupContainers.put(attributeGroupId, groupContainer);
+				groupNames.add(information.getLabelText());
+				groupContainer = new AttributeGroupComposite(attributeScroller.add(bpF.composite()), model, information);
+				groups.put(attributeGroupId, groupContainer);
 
+				final AttributeGroupHeader header = groupContainer.getHeader();
 				if (lastHeader != null) {
 					lastHeader.setLayoutConstraints(true);
 				}
@@ -254,6 +256,7 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 		enableLayouting();
 
 		attributeLayoutManager.validate();
+		setSizes();
 	}
 
 	private boolean isSingleGroup(final IBeanTableModel<?> model) {
@@ -339,9 +342,9 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 		}
 
 		eventsDisabled = true;
-		for (final Entry<String, AttributeGroupHeader> entry : groupHeaders.entrySet()) {
-			final AttributeGroupHeader composite = entry.getValue();
-			composite.updateValues();
+		for (final Entry<String, AttributeGroupComposite> entry : groups.entrySet()) {
+			final AttributeGroupComposite composite = entry.getValue();
+			composite.getHeader().updateValues();
 		}
 
 		allAttributesComposite.updateValues();
@@ -349,13 +352,85 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 		eventsDisabled = false;
 	}
 
-	private final class AttributeGroupContainer extends CompositeWrapper {
+	private final class AttributeGroupComposite extends CompositeWrapper {
 
-		private AttributeGroupContainer(final IComposite container) {
-			super(container);
-			setLayout(Toolkit.getLayoutFactoryProvider().listLayoutBuilder().backgroundColors(ALTERNATING_ATTRIBUTES).build());
+		private final AttributeGroupHeader header;
+		private final IComposite composite;
+		private boolean collapsed;
+
+		public AttributeGroupComposite(
+			final IComposite widget,
+			final IBeanTableModel<?> model,
+			final AttributeGroupInformation information) {
+			super(widget);
+			setLayout(Toolkit.getLayoutFactoryProvider().listLayoutBuilder().build());
+			header = new AttributeGroupHeader(
+				super.add(Toolkit.getBluePrintFactory().composite()),
+				attributeLayoutManager,
+				model,
+				information);
+
+			composite = super.add(Toolkit.getBluePrintFactory().composite());
+			composite.setLayout(Toolkit.getLayoutFactoryProvider().listLayoutBuilder().backgroundColors(ALTERNATING_ATTRIBUTES).build());
 		}
 
+		public AttributeGroupHeader getHeader() {
+			return header;
+		}
+
+		@Override
+		public <WIDGET_TYPE extends IControl> WIDGET_TYPE add(
+			final IWidgetDescriptor<? extends WIDGET_TYPE> descriptor,
+			final Object layoutConstraints) {
+			return composite.add(descriptor, layoutConstraints);
+		}
+
+		@Override
+		public <WIDGET_TYPE extends IControl> WIDGET_TYPE add(
+			final ICustomWidgetCreator<WIDGET_TYPE> creator,
+			final Object layoutConstraints) {
+			return composite.add(creator, layoutConstraints);
+		}
+
+		@Override
+		public <WIDGET_TYPE extends IControl> WIDGET_TYPE add(final IWidgetDescriptor<? extends WIDGET_TYPE> descriptor) {
+			return composite.add(descriptor);
+		}
+
+		@Override
+		public <WIDGET_TYPE extends IControl> WIDGET_TYPE add(final ICustomWidgetCreator<WIDGET_TYPE> creator) {
+			return composite.add(creator);
+		}
+
+		public void setCollapsed(final boolean collapsed) {
+			if (collapsed != this.collapsed) {
+				this.collapsed = collapsed;
+				composite.setLayoutConstraints(!collapsed);
+				if (layoutingEnabled()) {
+					redraw();
+					getParent().redraw();
+					updateHeaderColors();
+				}
+			}
+		}
+
+		public boolean isCollapsed() {
+			return collapsed;
+		}
+
+		public void refreshLayout() {
+			if (!collapsed) {
+				composite.setVisible(true);
+				composite.redraw();
+				redraw();
+			}
+			else {
+				if (composite.isVisible()) {
+					composite.setVisible(false);
+					redraw();
+				}
+			}
+		}
 	}
 
 	private final class AttributeHeaderComposite extends ContainerWrapper {
@@ -763,8 +838,8 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 
 	private class AttributesHeaderComposite<TYPE extends IAttributesInformation> extends AbstractListElement<TYPE> {
 
-		private boolean collapsed;
 		private Visibility visibility;
+		private AttributeGroupComposite groupComposite;
 
 		public AttributesHeaderComposite(
 			final IComposite container,
@@ -774,7 +849,6 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 			final ITextLabelBluePrint textLabel) {
 			super(container, attributeLayoutManager, model, information, textLabel);
 			setBackgroundColor(ATTRIBUTE_GROUP_BACKGROUND);
-			collapsed = false;
 		}
 
 		@Override
@@ -904,7 +978,7 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 
 				@Override
 				public void execute(final IExecutionContext executionContext) throws Exception {
-					setCollapsed(!isCollapsed());
+					toggleCollapseState();
 				}
 
 			});
@@ -915,8 +989,18 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 			return getData().getPropertyNames();
 		}
 
+		public void toggleCollapseState() {
+			setCollapsed(!isCollapsed());
+		}
+
 		public boolean isCollapsed() {
-			return collapsed;
+			if (getGroupComposite() != null) {
+				return getGroupComposite().isCollapsed();
+			}
+			else {
+				final IToolBarButton button = getCollapseButton();
+				return ICON_COLLAPED.equals(button.getIcon());
+			}
 		}
 
 		public void setCollapsed(final boolean collapsed) {
@@ -924,22 +1008,24 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 				return;
 			}
 
-			this.collapsed = collapsed;
-			final String id = getData().getLabelText();
-			if (groupContainers.containsKey(id)) {
-				groupContainers.get(id).setLayoutConstraints(!collapsed);
-				if (layoutingEnabled()) {
-					attributeScroller.redraw();
-				}
+			if (getGroupComposite() != null) {
+				getGroupComposite().setCollapsed(collapsed);
 			}
-
 			final IToolBarButton button = getCollapseButton();
 			if (collapsed) {
-				button.setIcon(IconsSmall.TABLE_SORT_ASC);
+				button.setIcon(ICON_COLLAPED);
 			}
 			else {
-				button.setIcon(IconsSmall.TABLE_SORT_DESC);
+				button.setIcon(ICON_EXPANDED);
 			}
+		}
+
+		private AttributeGroupComposite getGroupComposite() {
+			if (groupComposite == null) {
+				final String id = getData().getLabelText();
+				groupComposite = groups.get(id);
+			}
+			return groupComposite;
 		}
 
 		@Override
@@ -1120,7 +1206,8 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 
 					// (un)collapse all groups
 					disableLayouting();
-					for (final AttributeGroupHeader header : groupHeaders.values()) {
+					for (final AttributeGroupComposite composite : groups.values()) {
+						final AttributeGroupHeader header = composite.getHeader();
 						if (!shouldControlBeVisible(header)) {
 							continue;
 						}
@@ -1162,7 +1249,8 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 
 					// (un)collapse all groups
 					disableLayouting();
-					for (final AttributeGroupHeader header : groupHeaders.values()) {
+					for (final AttributeGroupComposite composite : groups.values()) {
+						final AttributeGroupHeader header = composite.getHeader();
 						if (header.isCollapsed() != collapseState) {
 							header.setCollapsed(collapseState);
 						}
@@ -1843,20 +1931,18 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 		filterInformation.setVisibleProperties(visibleList);
 		attributesFilterComposite.updateValues();
 
-		if (attributesFilterComposite.isVisible() != !allVisible) {
+		if (attributesFilterComposite.isVisible() == allVisible) {
 			attributesFilterComposite.setVisible(!allVisible);
 		}
 
 		if (changed) {
-			for (final Entry<String, AttributeGroupContainer> entry : groupContainers.entrySet()) {
-				final String groupId = entry.getKey();
-				final AttributeGroupContainer container = entry.getValue();
-				final AttributeGroupHeader attributeGroupHeader = groupHeaders.get(groupId);
+			for (final Entry<String, AttributeGroupComposite> entry : groups.entrySet()) {
+				final AttributeGroupComposite container = entry.getValue();
 
 				boolean headerVisible = allVisible;
 
 				if (!headerVisible) {
-					for (final String propertyName : attributeGroupHeader.getPropertyNames()) {
+					for (final String propertyName : container.getHeader().getPropertyNames()) {
 						if (visibleList.contains(propertyName)) {
 							headerVisible = true;
 							break;
@@ -1864,16 +1950,16 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 					}
 				}
 
-				if (shouldControlBeVisible(attributeGroupHeader) != headerVisible) {
-					if (headerVisible && groupHeaders.size() > 1) {
-						attributeGroupHeader.setLayoutConstraints(true);
+				if (shouldControlBeVisible(container.getHeader()) != headerVisible) {
+					if (headerVisible && groups.size() > 1) {
+						container.getHeader().setLayoutConstraints(true);
 					}
 					else {
-						attributeGroupHeader.setLayoutConstraints(false);
+						container.getHeader().setLayoutConstraints(false);
 					}
 				}
-				if (shouldControlBeVisible(container) == attributeGroupHeader.isCollapsed()) {
-					container.setLayoutConstraints(!attributeGroupHeader.isCollapsed());
+				if (shouldControlBeVisible(container.composite) == container.getHeader().isCollapsed()) {
+					container.composite.setLayoutConstraints(!container.getHeader().isCollapsed());
 				}
 			}
 		}
@@ -2099,19 +2185,27 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 	}
 
 	private void refreshLayout() {
-		for (final Entry<String, AttributeGroupContainer> entry : groupContainers.entrySet()) {
-			final AttributeGroupContainer container = entry.getValue();
-			if (shouldControlBeVisible(container)) {
-				container.redraw();
-			}
-			else {
-				container.setVisible(false);
-			}
+		for (final Entry<String, AttributeGroupComposite> entry : groups.entrySet()) {
+			entry.getValue().refreshLayout();
 		}
 		attributeScroller.redraw();
 
 		if (attributesFilterComposite.isVisible()) {
 			attributesFilterComposite.redraw();
+		}
+
+		updateHeaderColors();
+	}
+
+	private void updateHeaderColors() {
+		int index = 0;
+		for (final String groupName : groupNames) {
+			final AttributeGroupComposite attributeGroupComposite = groups.get(groupName);
+			attributeGroupComposite.getHeader().setBackgroundColor(ALTERNATING_GROUPS[index]);
+
+			if (attributeGroupComposite.isCollapsed()) {
+				index = (index + 1) % ALTERNATING_GROUPS.length;
+			}
 		}
 	}
 
@@ -2127,5 +2221,13 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 
 	private boolean layoutingEnabled() {
 		return layoutingEnabled;
+	}
+
+	public void setSizes() {
+		final Dimension minSize = super.getMinSize();
+		setMinSize(new Dimension(minSize.getWidth() + 30, minSize.getHeight()));
+
+		final Dimension prefSize = super.getPreferredSize();
+		setPreferredSize(new Dimension(prefSize.getWidth() + 30, prefSize.getHeight()));
 	}
 }
