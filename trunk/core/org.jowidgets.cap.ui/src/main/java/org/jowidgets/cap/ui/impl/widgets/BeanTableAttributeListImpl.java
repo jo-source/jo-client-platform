@@ -89,6 +89,7 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 	// TODO i18n
 	private static final String ALL_LABEL_TEXT = "All";
 	private static final String SEARCH_LABEL_TEXT = "Search";
+	private static final String VARIOUS = "Various";
 
 	private static final IColorConstant ATTRIBUTE_HEADER_BACKGROUND = new ColorValue(6, 27, 95);
 	private static final IColorConstant ATTRIBUTE_GROUP_BACKGROUND = new ColorValue(130, 177, 236);
@@ -1530,6 +1531,10 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 						break;
 					}
 				}
+				else if (group != null || currentGroup != null) {
+					break;
+				}
+
 				currentIndex++;
 			}
 			return currentIndex - 1;
@@ -1637,17 +1642,16 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 			}
 			else {
 				final List<String> elements = new LinkedList<String>(getElements());
-				final String various = "various";
-				if (!elements.contains(various)) {
+				if (!elements.contains(VARIOUS)) {
 					if (elements.size() > 1 && "".equals(elements.get(0))) {
-						elements.add(1, various);
+						elements.add(1, VARIOUS);
 					}
 					else {
-						elements.add(0, various);
+						elements.add(0, VARIOUS);
 					}
 					setElements(elements);
 				}
-				setValue(various);
+				setValue(VARIOUS);
 			}
 		}
 
@@ -1942,6 +1946,7 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 				boolean headerVisible = allVisible;
 
 				if (!headerVisible) {
+					// header is visible, if at least one attribute is visisble
 					for (final String propertyName : container.getHeader().getPropertyNames()) {
 						if (visibleList.contains(propertyName)) {
 							headerVisible = true;
@@ -1958,7 +1963,7 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 						container.getHeader().setLayoutConstraints(false);
 					}
 				}
-				if (shouldControlBeVisible(container.composite) == container.getHeader().isCollapsed()) {
+				if (shouldControlBeVisible(container.composite) != !container.getHeader().isCollapsed()) {
 					container.composite.setLayoutConstraints(!container.getHeader().isCollapsed());
 				}
 			}
@@ -2045,76 +2050,61 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 		}
 	}
 
+	private static DisplayFormat getDisplayFormat(final String displayFormat) {
+		if (DisplayFormat.SHORT.getName().equals(displayFormat)) {
+			return DisplayFormat.SHORT;
+		}
+		else if (DisplayFormat.LONG.getName().equals(displayFormat)) {
+			return DisplayFormat.LONG;
+		}
+		else {
+			return DisplayFormat.DEFAULT;
+		}
+	}
+
+	private static String getDisplayFormatId(final String displayFormat) {
+		final DisplayFormat format = getDisplayFormat(displayFormat);
+		if (format != null) {
+			return format.getId();
+		}
+		else {
+			return null;
+		}
+	}
+
+	private static AlignmentHorizontal getTableAlignment(final String alignment) {
+		if (AlignmentHorizontal.LEFT.getLabel().equals(alignment)) {
+			return AlignmentHorizontal.LEFT;
+		}
+		else if (AlignmentHorizontal.CENTER.getLabel().equals(alignment)) {
+			return AlignmentHorizontal.CENTER;
+		}
+		else if (AlignmentHorizontal.RIGHT.getLabel().equals(alignment)) {
+			return AlignmentHorizontal.RIGHT;
+		}
+		else {
+			throw new IllegalStateException("Unkown Alignment: " + alignment);
+		}
+	}
+
 	public void buildConfig(final IBeanTableConfigBuilder builder) {
 		for (final Entry<String, AttributeComposite> entry : attributeComposites.entrySet()) {
 			final AttributeComposite attributeComposite = entry.getValue();
-			builder.addAttributeConfig(entry.getKey(), new IAttributeConfig() {
-				@Override
-				public Boolean isVisible() {
-					return attributeComposite.getVisible().getValue();
-				}
 
-				@Override
-				public DisplayFormat getLabelDisplayFormat() {
-					if (attributeComposite.getHeaderFormat() != null) {
-						final String displayFormat = attributeComposite.getHeaderFormat().getValue();
-						if (DisplayFormat.SHORT.getName().equals(displayFormat)) {
-							return DisplayFormat.SHORT;
-						}
-						else if (DisplayFormat.LONG.getName().equals(displayFormat)) {
-							return DisplayFormat.LONG;
-						}
-						else {
-							return DisplayFormat.DEFAULT;
-						}
-					}
-					else {
-						return null;
-					}
-				}
+			final boolean visible = attributeComposite.getVisible().getValue();
+			final DisplayFormat labelDisplayFormat = (attributeComposite.getHeaderFormat() != null)
+					? getDisplayFormat(attributeComposite.getHeaderFormat().getValue()) : null;
+			final String displayFormatId = (attributeComposite.getContentFormat() != null)
+					? getDisplayFormatId(attributeComposite.getContentFormat().getValue()) : null;
+			final AlignmentHorizontal tableAlignment = getTableAlignment(attributeComposite.getColumnAlignment().getValue());
+			final Integer tableWidth = null;
 
-				@Override
-				public String getDisplayFormatId() {
-					if (attributeComposite.getContentFormat() != null) {
-						final String displayFormat = attributeComposite.getContentFormat().getValue();
-						if (DisplayFormat.SHORT.getName().equals(displayFormat)) {
-							return DisplayFormat.SHORT.getId();
-						}
-						else if (DisplayFormat.LONG.getName().equals(displayFormat)) {
-							return DisplayFormat.LONG.getId();
-						}
-						else {
-							return DisplayFormat.DEFAULT.getId();
-						}
-					}
-					else {
-						return null;
-					}
-				}
-
-				@Override
-				public AlignmentHorizontal getTableAlignment() {
-					final String alignment = attributeComposite.getColumnAlignment().getValue();
-					if (AlignmentHorizontal.LEFT.getLabel().equals(alignment)) {
-						return AlignmentHorizontal.LEFT;
-					}
-					else if (AlignmentHorizontal.CENTER.getLabel().equals(alignment)) {
-						return AlignmentHorizontal.CENTER;
-					}
-					else if (AlignmentHorizontal.RIGHT.getLabel().equals(alignment)) {
-						return AlignmentHorizontal.RIGHT;
-					}
-					else {
-						throw new IllegalStateException("Unkown Alignment: " + alignment);
-					}
-				}
-
-				@Override
-				public Integer getTableWidth() {
-					return null;
-				}
-
-			});
+			builder.addAttributeConfig(entry.getKey(), new AttributeConfigImpl(
+				visible,
+				labelDisplayFormat,
+				displayFormatId,
+				tableAlignment,
+				tableWidth));
 		}
 
 		final SortModelConfigBuilder sortModelConfigBuilder = new SortModelConfigBuilder();
@@ -2188,6 +2178,8 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 		for (final Entry<String, AttributeGroupComposite> entry : groups.entrySet()) {
 			entry.getValue().refreshLayout();
 		}
+		attributeScroller.layoutBegin();
+		attributeScroller.layoutEnd();
 		attributeScroller.redraw();
 
 		if (attributesFilterComposite.isVisible()) {
@@ -2229,5 +2221,55 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 
 		final Dimension prefSize = super.getPreferredSize();
 		setPreferredSize(new Dimension(prefSize.getWidth() + 30, prefSize.getHeight()));
+	}
+
+	// TODO NM use existing class instead
+	final class AttributeConfigImpl implements IAttributeConfig {
+
+		private final Boolean visible;
+		private final DisplayFormat labelDisplayFormat;
+		private final String displayFormatId;
+		private final AlignmentHorizontal tableAlignment;
+		private final Integer tableWidth;
+
+		AttributeConfigImpl(
+			final Boolean visible,
+			final DisplayFormat labelDisplayFormat,
+			final String displayFormatId,
+			final AlignmentHorizontal tableAlignment,
+			final Integer tableWidth) {
+
+			this.visible = visible;
+			this.labelDisplayFormat = labelDisplayFormat;
+			this.displayFormatId = displayFormatId;
+			this.tableAlignment = tableAlignment;
+			this.tableWidth = tableWidth;
+		}
+
+		@Override
+		public Boolean isVisible() {
+			return visible;
+		}
+
+		@Override
+		public DisplayFormat getLabelDisplayFormat() {
+			return labelDisplayFormat;
+		}
+
+		@Override
+		public String getDisplayFormatId() {
+			return displayFormatId;
+		}
+
+		@Override
+		public AlignmentHorizontal getTableAlignment() {
+			return tableAlignment;
+		}
+
+		@Override
+		public Integer getTableWidth() {
+			return tableWidth;
+		}
+
 	}
 }
