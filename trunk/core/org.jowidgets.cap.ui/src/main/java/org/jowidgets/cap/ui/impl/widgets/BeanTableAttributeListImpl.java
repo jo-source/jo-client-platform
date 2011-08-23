@@ -1914,7 +1914,7 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 	public void setFilter(final String text) {
 		eventsDisabled = true;
 		boolean changed = false;
-		final boolean allVisible = (text == null) || (text.equals(""));
+		final boolean allVisible = (text == null) || (text.trim().equals(""));
 
 		final List<String> visibleList = new LinkedList<String>();
 
