@@ -34,7 +34,7 @@ public enum BeanExecutionPolicy {
 	 * All beans are executed with one executor-(-job/-service).
 	 * The executor gets a list of the beans to execute. This is the default.
 	 */
-	SERIAL,
+	BATCH,
 
 	/**
 	 * For each bean in the list of beans, an own executor-(-job/-service) will be used. This policy can only

@@ -273,7 +273,7 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 		final BeanListExecutionHelper executionHelper = new BeanListExecutionHelper(
 			this,
 			modifiedBeans,
-			BeanExecutionPolicy.SERIAL,
+			BeanExecutionPolicy.BATCH,
 			new DefaultBeanExceptionConverter());
 
 		final IUiThreadAccess uiThreadAccess = Toolkit.getUiThreadAccess();

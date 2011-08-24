@@ -77,7 +77,7 @@ final class BeanListExecutionHelper {
 	List<List<IBeanProxy<?>>> prepareExecutions() {
 		final List<List<IBeanProxy<?>>> result = new LinkedList<List<IBeanProxy<?>>>();
 
-		if (BeanExecutionPolicy.SERIAL == beanExecutionPolicy) {
+		if (BeanExecutionPolicy.BATCH == beanExecutionPolicy) {
 			final IExecutionTask executionTask = createExecutionTask();
 			final List<IBeanProxy<?>> subList = new LinkedList<IBeanProxy<?>>();
 			result.add(subList);
