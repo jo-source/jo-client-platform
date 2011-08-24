@@ -33,8 +33,8 @@ public enum BeanFormGroupRendering {
 	/** The group information will not be rendered at all, default for single group forms */
 	NONE,
 
-	/** The group information will be rendered with a (titled) divider, default for multi group forms */
-	DIVIDER,
+	/** The group information will be rendered with a (titled) separator, default for multi group forms */
+	SEPARATOR,
 
 	/** The group information will be rendered with a (titled) border */
 	BORDER;
