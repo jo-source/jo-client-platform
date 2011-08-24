@@ -35,11 +35,18 @@ import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.command.IActionBuilder;
 import org.jowidgets.api.command.ICommand;
 import org.jowidgets.api.command.IEnabledChecker;
+import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.api.toolkit.Toolkit;
+import org.jowidgets.api.widgets.IInputDialog;
+import org.jowidgets.api.widgets.IWindow;
+import org.jowidgets.api.widgets.blueprint.IInputDialogBluePrint;
+import org.jowidgets.api.widgets.content.IInputContentCreator;
+import org.jowidgets.api.widgets.descriptor.IInputDialogDescriptor;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.service.IExecutorService;
 import org.jowidgets.cap.common.api.service.IParameterProviderService;
 import org.jowidgets.cap.ui.api.bean.IBeanExecptionConverter;
+import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.command.IExecutorActionBuilder;
 import org.jowidgets.cap.ui.api.execution.BeanExecutionPolicy;
 import org.jowidgets.cap.ui.api.execution.BeanMessageStatePolicy;
@@ -56,7 +63,11 @@ import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.api.ServiceProvider;
 import org.jowidgets.service.tools.ServiceId;
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.IProvider;
 import org.jowidgets.util.builder.AbstractSingleUseBuilder;
+import org.jowidgets.util.maybe.IMaybe;
+import org.jowidgets.util.maybe.Nothing;
+import org.jowidgets.util.maybe.Some;
 
 final class ExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> extends AbstractSingleUseBuilder<IAction> implements
 		IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> {
@@ -75,6 +86,9 @@ final class ExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> extends AbstractSingleU
 	private BeanSelectionPolicy beanSelectionPolicy;
 	private BeanModificationStatePolicy beanModificationStatePolicy;
 	private BeanMessageStatePolicy beanMessageStatePolicy;
+
+	private String text;
+	private IImageConstant icon;
 
 	ExecutorActionBuilder(final IBeanListModel<BEAN_TYPE> listModel) {
 		Assert.paramNotNull(listModel, "listModel");
@@ -95,6 +109,7 @@ final class ExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> extends AbstractSingleU
 
 	@Override
 	public IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setText(final String text) {
+		this.text = text;
 		builder.setText(text);
 		return this;
 	}
@@ -107,6 +122,7 @@ final class ExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> extends AbstractSingleU
 
 	@Override
 	public IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setIcon(final IImageConstant icon) {
+		this.icon = icon;
 		builder.setIcon(icon);
 		return this;
 	}
@@ -162,6 +178,68 @@ final class ExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> extends AbstractSingleU
 		final IServiceId<IParameterProviderService<PARAM_TYPE>> serviceId) {
 		Assert.paramNotNull(serviceId, "serviceId");
 		addParameterProvider(ServiceProvider.getService(serviceId));
+		return this;
+	}
+
+	@Override
+	public IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> addParameterProvider(
+		final IInputContentCreator<PARAM_TYPE> contentCreator) {
+		Assert.paramNotNull(contentCreator, "contentCreator");
+		return addParameterProvider(new IProvider<IInputDialogDescriptor<PARAM_TYPE>>() {
+			@Override
+			public IInputDialogDescriptor<PARAM_TYPE> get() {
+				final IInputDialogBluePrint<PARAM_TYPE> bp = Toolkit.getBluePrintFactory().inputDialog(contentCreator);
+				return bp.setTitle(text).setIcon(icon).setCloseable(false);
+			}
+		});
+	}
+
+	@Override
+	public IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> addParameterProvider(
+		final IInputDialogDescriptor<PARAM_TYPE> inputDialogDescriptor) {
+		Assert.paramNotNull(inputDialogDescriptor, "inputDialogDescriptor");
+		addParameterProvider(new IProvider<IInputDialogDescriptor<PARAM_TYPE>>() {
+			@Override
+			public IInputDialogDescriptor<PARAM_TYPE> get() {
+				return inputDialogDescriptor;
+			}
+		});
+		return this;
+	}
+
+	private IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> addParameterProvider(
+		final IProvider<IInputDialogDescriptor<PARAM_TYPE>> inputDialogDescriptorProvider) {
+		addParameterProvider(new IParameterProvider<BEAN_TYPE, PARAM_TYPE>() {
+			@Override
+			public IMaybe<PARAM_TYPE> getParameter(
+				final IExecutionContext executionContext,
+				final List<IBeanProxy<BEAN_TYPE>> beans,
+				final PARAM_TYPE defaultParameter) throws Exception {
+
+				final IWindow activeWindow = Toolkit.getActiveWindow();
+				final IInputDialog<PARAM_TYPE> inputDialog;
+				if (activeWindow != null) {
+					inputDialog = activeWindow.createChildWindow(inputDialogDescriptorProvider.get());
+				}
+				else {
+					inputDialog = Toolkit.getWidgetFactory().create(inputDialogDescriptorProvider.get());
+				}
+
+				inputDialog.setValue(defaultParameter);
+				inputDialog.setVisible(true);
+
+				IMaybe<PARAM_TYPE> result;
+				if (inputDialog.isOkPressed()) {
+					result = new Some<PARAM_TYPE>(inputDialog.getValue());
+				}
+				else {
+					result = Nothing.getInstance();
+				}
+
+				inputDialog.dispose();
+				return result;
+			}
+		});
 		return this;
 	}
 

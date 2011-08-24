@@ -30,6 +30,8 @@ package org.jowidgets.cap.ui.api.command;
 
 import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.command.IEnabledChecker;
+import org.jowidgets.api.widgets.content.IInputContentCreator;
+import org.jowidgets.api.widgets.descriptor.IInputDialogDescriptor;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.service.IExecutorService;
 import org.jowidgets.cap.common.api.service.IParameterProviderService;
@@ -64,6 +66,10 @@ public interface IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> {
 	IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setAccelerator(final char key, final Modifier... modifier);
 
 	IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setDefaultParameter(PARAM_TYPE defaultParameter);
+
+	IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> addParameterProvider(IInputContentCreator<PARAM_TYPE> inputContentCreator);
+
+	IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> addParameterProvider(IInputDialogDescriptor<PARAM_TYPE> inputDialogDescriptor);
 
 	IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> addParameterProvider(IParameterProvider<BEAN_TYPE, PARAM_TYPE> parameterProvider);
 
