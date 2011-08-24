@@ -31,6 +31,7 @@ package org.jowidgets.cap.ui.api.attribute;
 public enum DisplayFormat {
 
 	//TODO i18n
+	//TODO MG remove default?
 	DEFAULT(DisplayFormat.class.getName() + ".DEFAULT", "Default", null),
 	LONG(DisplayFormat.class.getName() + ".LONG", "Long", "Long display format"),
 	SHORT(DisplayFormat.class.getName() + ".SHORT", "Short", "Short display format");
