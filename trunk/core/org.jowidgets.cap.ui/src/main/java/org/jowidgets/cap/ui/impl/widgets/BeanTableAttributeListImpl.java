@@ -418,11 +418,12 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 
 		public void refreshAttributeLayout(final boolean globalRefresh) {
 			if (layoutingEnabled()) {
-				System.out.println("refreshAttributeLayout");
 				if (!collapsed) {
 					composite.setVisible(true);
 					composite.layoutBegin();
 					composite.layoutEnd();
+					layoutBegin();
+					layoutEnd();
 				}
 				else if (composite.isVisible()) {
 					composite.setVisible(false);
@@ -1260,7 +1261,6 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 					}
 					enableLayouting();
 
-					System.out.println("refreshing Layout");
 					refreshLayout();
 				}
 
@@ -2189,10 +2189,10 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 	}
 
 	private void refreshLayout() {
+		attributeScroller.layoutBegin();
 		for (final Entry<String, AttributeGroupComposite> entry : groups.entrySet()) {
 			entry.getValue().refreshAttributeLayout(true);
 		}
-		attributeScroller.layoutBegin();
 		attributeScroller.layoutEnd();
 
 		if (attributesFilterComposite.isVisible()) {
