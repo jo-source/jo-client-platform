@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2011, grossmann, Nikolaus Moll
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -52,33 +52,118 @@ final class BeanFormLayouterImpl implements IBeanFormLayouter {
 
 	@Override
 	public void layout(final IContainer container, final IBeanFormControlFactory controlFactory) {
-		//TODO NM this must be done with respect of the defined layout
 		final IBluePrintFactory bpf = Toolkit.getBluePrintFactory();
-		container.setLayout(new MigLayoutDescriptor("0[]8[grow][]0", ""));
-		for (final IBeanFormGroup group : layout.getGroups()) {
-			for (final IBeanFormProperty property : group.getProperties()) {
+		final int columnCount = layout.getColumnCount();
 
+		container.setLayout(new MigLayoutDescriptor(getColumnConstraints(layout), ""));
+
+		int row = 0;
+		//TODO NM this must be done with respect of the defined layout
+		for (final IBeanFormGroup group : layout.getGroups()) {
+			// reset column index
+			int column = 0;
+
+			for (final IBeanFormProperty property : group.getProperties()) {
 				final String propertyName = property.getPropertyName();
 
 				final ICustomWidgetCreator<? extends IControl> controlCreator = controlFactory.createControl(propertyName);
 
 				//only add to the layout if there is a control for this property
-				if (controlCreator != null) {
-					//add label
-					container.add(bpf.textLabel(controlFactory.getLabel(propertyName)).alignRight(), "alignx r, sg lg");
-
-					//add control
-					container.add(controlCreator, "growx");
-
-					//add validation label
-					final ICustomWidgetCreator<? extends IControl> validationLabelCreator = controlFactory.createValidationLabel(
-							propertyName,
-							property.getValidationLabel());
-
-					container.add(validationLabelCreator, "w 25::, wrap");
+				if (controlCreator == null) {
+					continue;
 				}
-			}
-		}
 
+				final int propertyColumnCount = property.getColumnCount();
+				final int propertyColumnSpan = property.getColumnSpan();
+
+				int nextColumn = column + propertyColumnCount;
+				if (nextColumn > columnCount) {
+					// next row
+					row++;
+					column = 0;
+					nextColumn = propertyColumnCount;
+				}
+
+				final String sizeGroupLabel = "sg c" + column + "l";
+				final ICustomWidgetCreator<? extends IControl> validationLabelCreator = controlFactory.createValidationLabel(
+						propertyName,
+						property.getValidationLabel());
+				String controlConstraints = "";
+
+				int splitCount = 1;
+				if (property.showLabel()) {
+					splitCount++;
+				}
+				if (validationLabelCreator != null) {
+					splitCount++;
+				}
+
+				if (!property.showLabel()) {
+					controlConstraints = "split " + splitCount;
+				}
+
+				String cell = "cell " + column + " " + row + " " + propertyColumnSpan;
+				//add label
+				if (property.showLabel()) {
+					container.add(
+							bpf.textLabel(controlFactory.getLabel(propertyName)).alignRight(),
+							constraints(cell, "split " + splitCount, "alignx r", sizeGroupLabel));
+					cell = "";
+				}
+
+				//add control
+				container.add(controlCreator, constraints(cell, controlConstraints, "growx", "span " + propertyColumnSpan));
+
+				//add validation label
+				if (validationLabelCreator != null) {
+					container.add(validationLabelCreator, "w 25::");
+				}
+
+				column = nextColumn;
+			}
+
+		}
+	}
+
+	private static String constraints(final String... constraints) {
+		final StringBuilder result = new StringBuilder();
+		for (final String constraint : constraints) {
+			if (result.length() > 0) {
+				result.append(", ");
+			}
+			result.append(constraint);
+		}
+		return result.toString();
+	}
+
+	private static String getColumnConstraints(final IBeanFormLayout layout) {
+		final StringBuilder result = new StringBuilder();
+		result.append("0");
+		for (int column = 0; column < layout.getColumnCount(); column++) {
+			if (column > 0) {
+				// TODO NM add gap ?
+				result.append("0");
+			}
+
+			final Integer columnMinSize = layout.getColumnMinSize(column);
+			final Integer columnMaxSize = layout.getColumnMaxSize(column);
+			result.append('[');
+			if (columnMinSize != null) {
+				result.append(columnMinSize.toString());
+			}
+			if (columnMinSize != null && columnMaxSize != null) {
+				result.append("::");
+			}
+			else {
+				result.append("grow");
+			}
+			if (columnMaxSize != null) {
+				result.append(columnMaxSize.toString());
+			}
+			result.append(']');
+		}
+		result.append("0");
+
+		return result.toString();
 	}
 }
