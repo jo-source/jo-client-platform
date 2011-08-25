@@ -90,6 +90,7 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 	private static final String ALL_LABEL_TEXT = "All";
 	private static final String SEARCH_LABEL_TEXT = "Search";
 	private static final String VARIOUS = "Various";
+	private static final String DEFAULT_GROUP_NAME = "Default";
 
 	private static final IColorConstant ATTRIBUTE_HEADER_BACKGROUND = new ColorValue(6, 27, 95);
 	private static final IColorConstant ATTRIBUTE_GROUP_BACKGROUND = new ColorValue(130, 177, 236);
@@ -226,7 +227,7 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 				attributeGroupId = attribute.getGroup().getId();
 			}
 			else {
-				attributeGroupId = null;
+				attributeGroupId = DEFAULT_GROUP_NAME;
 			}
 
 			AttributeGroupComposite groupContainer = groups.get(attributeGroupId);
@@ -717,8 +718,7 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 		public void updateValues(final IBeanTableConfig currentConfig) {
 			final IAttributeConfig attributeConfig = currentConfig.getAttributeConfigs().get(propertyName);
 			if (attributeConfig == null) {
-				// TODO NM ask MG what to do if no config is set for this attribute
-				return;
+				throw new IllegalStateException("No configuration set for '" + propertyName + "'.");
 			}
 
 			if (getHeaderFormat() != null) {
@@ -733,7 +733,7 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 			}
 
 			if (getContentFormat() != null) {
-				final String format = getContentFormatConfig(attributeConfig);
+				final String format = getContentFormatConfig(attributeConfig, getAttribute());
 				getContentFormat().setValue(format);
 			}
 
@@ -764,12 +764,12 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 			}
 		}
 
-		protected String getContentFormatConfig(final IAttributeConfig attributeConfig) {
+		protected String getContentFormatConfig(final IAttributeConfig attributeConfig, final IAttribute<?> attribute) {
 			final String id = attributeConfig.getDisplayFormatId();
 			if (id == null) {
 				return null;
 			}
-			return getDisplayFormatNameById(id);
+			return getDisplayFormatNameById(id, attribute);
 		}
 
 		@Override
@@ -1402,7 +1402,6 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 				}
 			}
 
-			// TODO NM get list correctly
 			headerFormats.add(DisplayFormat.SHORT.getName());
 			headerFormats.add(DisplayFormat.LONG.getName());
 
@@ -1507,7 +1506,7 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 		@Override
 		public String getLabelText() {
 			if (group == null) {
-				return null;
+				return DEFAULT_GROUP_NAME;
 			}
 			return group.getId();
 		}
@@ -1545,10 +1544,10 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 		return ((attribute.getLabelLong() != null) && (!attribute.getLabelLong().equals(attribute.getLabel())));
 	}
 
-	private static String getDisplayFormatNameById(final String id) {
-		for (final DisplayFormat format : DisplayFormat.values()) {
-			if (format.getId().equals(id)) {
-				return format.getName();
+	private static String getDisplayFormatNameById(final String id, final IAttribute<?> attribute) {
+		for (final IControlPanelProvider<?> provider : attribute.getControlPanels()) {
+			if (provider.getDisplayFormatId().equals(id)) {
+				return provider.getDisplayFormatName();
 			}
 		}
 		return null;
@@ -2050,11 +2049,11 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 		}
 	}
 
-	private static DisplayFormat getDisplayFormat(final String displayFormat) {
-		if (DisplayFormat.SHORT.getName().equals(displayFormat)) {
+	private static DisplayFormat getHeaderDisplayFormat(final String displayFormatName) {
+		if (DisplayFormat.SHORT.getName().equals(displayFormatName)) {
 			return DisplayFormat.SHORT;
 		}
-		else if (DisplayFormat.LONG.getName().equals(displayFormat)) {
+		else if (DisplayFormat.LONG.getName().equals(displayFormatName)) {
 			return DisplayFormat.LONG;
 		}
 		else {
@@ -2062,14 +2061,14 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 		}
 	}
 
-	private static String getDisplayFormatId(final String displayFormat) {
-		final DisplayFormat format = getDisplayFormat(displayFormat);
-		if (format != null) {
-			return format.getId();
+	private static String getDisplayFormatId(final String displayFormatName, final IAttribute<?> attribute) {
+		for (final IControlPanelProvider<?> provider : attribute.getControlPanels()) {
+			if (provider.getDisplayFormatName().equals(displayFormatName)) {
+				return provider.getDisplayFormatId();
+			}
 		}
-		else {
-			return null;
-		}
+
+		return null;
 	}
 
 	private static AlignmentHorizontal getTableAlignment(final String alignment) {
@@ -2093,9 +2092,10 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 
 			final boolean visible = attributeComposite.getVisible().getValue();
 			final DisplayFormat labelDisplayFormat = (attributeComposite.getHeaderFormat() != null)
-					? getDisplayFormat(attributeComposite.getHeaderFormat().getValue()) : null;
-			final String displayFormatId = (attributeComposite.getContentFormat() != null)
-					? getDisplayFormatId(attributeComposite.getContentFormat().getValue()) : null;
+					? getHeaderDisplayFormat(attributeComposite.getHeaderFormat().getValue()) : null;
+			final String displayFormatId = (attributeComposite.getContentFormat() != null) ? getDisplayFormatId(
+					attributeComposite.getContentFormat().getValue(),
+					attributeComposite.getData()) : null;
 			final AlignmentHorizontal tableAlignment = getTableAlignment(attributeComposite.getColumnAlignment().getValue());
 			final Integer tableWidth = null;
 
@@ -2223,7 +2223,7 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 		setPreferredSize(new Dimension(prefSize.getWidth() + 30, prefSize.getHeight()));
 	}
 
-	// TODO NM use existing class instead
+	// TODO NM use existing class or builder instead
 	final class AttributeConfigImpl implements IAttributeConfig {
 
 		private final Boolean visible;
