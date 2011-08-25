@@ -408,11 +408,7 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 			if (collapsed != this.collapsed) {
 				this.collapsed = collapsed;
 				composite.setLayoutConstraints(!collapsed);
-				if (layoutingEnabled()) {
-					redraw();
-					getParent().redraw();
-					updateHeaderColors();
-				}
+				refreshAttributeLayout(false);
 			}
 		}
 
@@ -420,16 +416,24 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 			return collapsed;
 		}
 
-		public void refreshLayout() {
-			if (!collapsed) {
-				composite.setVisible(true);
-				composite.redraw();
-				redraw();
-			}
-			else {
-				if (composite.isVisible()) {
+		public void refreshAttributeLayout(final boolean globalRefresh) {
+			if (layoutingEnabled()) {
+				System.out.println("refreshAttributeLayout");
+				if (!collapsed) {
+					composite.setVisible(true);
+					composite.layoutBegin();
+					composite.layoutEnd();
+				}
+				else if (composite.isVisible()) {
 					composite.setVisible(false);
-					redraw();
+					layoutBegin();
+					layoutEnd();
+				}
+
+				if (!globalRefresh) {
+					getParent().layoutBegin();
+					getParent().layoutEnd();
+					updateHeaderColors();
 				}
 			}
 		}
@@ -839,7 +843,6 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 
 	private class AttributesHeaderComposite<TYPE extends IAttributesInformation> extends AbstractListElement<TYPE> {
 
-		private Visibility visibility;
 		private AttributeGroupComposite groupComposite;
 
 		public AttributesHeaderComposite(
@@ -957,8 +960,7 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 				getColumnAlignment().setValue(usedColumnAlignments);
 			}
 
-			visibility = Visibility.getValue(visibleCount, invisibleCount);
-			getVisible().setState(visibility);
+			getVisible().setState(visibleCount, invisibleCount);
 
 			if (getContentFormat() != null) {
 				getContentFormat().setValue(usedContentFormats);
@@ -1205,8 +1207,8 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 					final boolean collapseState = !isCollapsed();
 					setCollapsed(collapseState);
 
-					// (un)collapse all groups
 					disableLayouting();
+					// (un)collapse all groups
 					for (final AttributeGroupComposite composite : groups.values()) {
 						final AttributeGroupHeader header = composite.getHeader();
 						if (!shouldControlBeVisible(header)) {
@@ -1248,8 +1250,8 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 					final boolean collapseState = !isCollapsed();
 					setCollapsed(collapseState);
 
-					// (un)collapse all groups
 					disableLayouting();
+					// (un)collapse all groups
 					for (final AttributeGroupComposite composite : groups.values()) {
 						final AttributeGroupHeader header = composite.getHeader();
 						if (header.isCollapsed() != collapseState) {
@@ -1257,6 +1259,8 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 						}
 					}
 					enableLayouting();
+
+					System.out.println("refreshing Layout");
 					refreshLayout();
 				}
 
@@ -1762,13 +1766,23 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 			super(widget);
 		}
 
-		public void setState(final Visibility value) {
-			if (Visibility.PARTIAL.equals(value)) {
-				// TODO NM set intermediate state
+		// TODO i18n
+		public void setState(final int visibleCount, final int invisibleCount) {
+			final Visibility visibility = Visibility.getValue(visibleCount, invisibleCount);
+			if (Visibility.PARTIAL.equals(visibility)) {
 				setSelected(true);
+				setToolTipText(visibleCount + " visible, " + invisibleCount + " hidden");
+			}
+			else if (Visibility.ALL.equals(visibility)) {
+				setSelected(true);
+				setToolTipText("all visible");
+			}
+			else if (Visibility.NONE.equals(visibility)) {
+				setSelected(false);
+				setToolTipText("all hidden");
 			}
 			else {
-				setSelected(Visibility.ALL.equals(value));
+				throw new IllegalStateException("Unkown visibility '" + visibility + "'.");
 			}
 		}
 	}
@@ -2176,14 +2190,14 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 
 	private void refreshLayout() {
 		for (final Entry<String, AttributeGroupComposite> entry : groups.entrySet()) {
-			entry.getValue().refreshLayout();
+			entry.getValue().refreshAttributeLayout(true);
 		}
 		attributeScroller.layoutBegin();
 		attributeScroller.layoutEnd();
-		attributeScroller.redraw();
 
 		if (attributesFilterComposite.isVisible()) {
-			attributesFilterComposite.redraw();
+			attributesFilterComposite.layoutBegin();
+			attributesFilterComposite.layoutEnd();
 		}
 
 		updateHeaderColors();
