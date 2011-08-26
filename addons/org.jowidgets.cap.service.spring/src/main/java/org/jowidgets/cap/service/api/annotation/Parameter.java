@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, H.Westphal
+ * Copyright (c) 2011, HWestphal
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,54 +26,15 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.spring;
+package org.jowidgets.cap.service.api.annotation;
 
-import java.util.List;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-import org.jowidgets.cap.service.api.annotation.Executor;
-import org.jowidgets.cap.service.api.annotation.ExecutorBean;
-import org.jowidgets.cap.service.api.annotation.Parameter;
-
-@ExecutorBean(User.class)
-public class SomeExecutors {
-
-	@Executor(id = "doNothing")
-	public void doNothing(final User user) {}
-
-	@Executor(id = "doNothingList")
-	public void doNothingList(final List<User> users) {}
-
-	@Executor(id = "changeName")
-	public void changeName(final User user, final String newName) {
-		user.setName(newName);
-	}
-
-	@Executor(id = "changeNameList")
-	public void changeNameList(final List<User> users, final String newName) {
-		for (final User user : users) {
-			user.setName(newName);
-		}
-	}
-
-	@Executor(id = "changeFirstAndLastName")
-	public void changeName(final User user, final String firstName, final String lastName) {
-		user.setName(firstName + " " + lastName);
-	}
-
-	@Executor(id = "createUser")
-	public User createUser(final String name) {
-		final User user = new User(1);
-		user.setName(name);
-		return user;
-	}
-
-	@Executor(id = "changeFirstAndLastNameWithComplexParameter")
-	public void changeNameWithComplexParameter(
-		@Parameter("lastName.toUpperCase()") final String lastName,
-		@Parameter("['firstName']") final String firstName,
-		final User user,
-		@Parameter("['age']") final int age) {
-		user.setName(firstName + " " + lastName);
-	}
-
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.PARAMETER)
+public @interface Parameter {
+	String value();
 }

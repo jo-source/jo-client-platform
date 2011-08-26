@@ -30,7 +30,9 @@ package org.jowidgets.cap.service.spring;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
@@ -129,6 +131,35 @@ public class ExecutorAnnotationPostProcessorTest {
 		final IBeanDto dto = dtos.get(0);
 		Assert.assertEquals(1, dto.getId());
 		Assert.assertEquals("Hans Meier", dto.getValue("name"));
+	}
+
+	@Test
+	public void testChangeFirstAndLastNameWithComplexParameter() {
+		final IExecutorService<Map<String, String>> service = ServiceProvider.getService(new ServiceId<IExecutorService<Map<String, String>>>(
+			"changeFirstAndLastNameWithComplexParameter",
+			IExecutorService.class));
+		Assert.assertNotNull(service);
+		final SyncResultCallback<List<IBeanDto>> result = new SyncResultCallback<List<IBeanDto>>();
+		final Map<String, String> parameter = new HashMap<String, String>() {
+			private static final long serialVersionUID = 1L;
+			private final String lastName = "Hansen";
+			{
+				put("firstName", "Hans");
+				put("age", "36");
+			}
+
+			@SuppressWarnings("unused")
+			public String getLastName() {
+				return lastName;
+			}
+		};
+		service.execute(result, Collections.singletonList(new BeanKey(0, 0)), parameter, null);
+		final List<IBeanDto> dtos = result.getResultSynchronious();
+		Assert.assertNotNull(dtos);
+		Assert.assertEquals(1, dtos.size());
+		final IBeanDto dto = dtos.get(0);
+		Assert.assertEquals(0, dto.getId());
+		Assert.assertEquals("Hans HANSEN", dto.getValue("name"));
 	}
 
 }
