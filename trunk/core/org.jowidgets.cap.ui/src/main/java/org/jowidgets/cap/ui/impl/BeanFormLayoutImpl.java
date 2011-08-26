@@ -61,12 +61,12 @@ final class BeanFormLayoutImpl implements IBeanFormLayout {
 	}
 
 	@Override
-	public Integer getColumnMinSize(final int column) {
+	public Integer getControlMinWidth(final int column) {
 		return minSizes.get(Integer.valueOf(column));
 	}
 
 	@Override
-	public Integer getColumnMaxSize(final int column) {
+	public Integer getControlMaxWidth(final int column) {
 		return maxSizes.get(Integer.valueOf(column));
 	}
 

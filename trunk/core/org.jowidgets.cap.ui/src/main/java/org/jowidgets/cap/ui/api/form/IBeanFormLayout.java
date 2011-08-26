@@ -34,9 +34,9 @@ public interface IBeanFormLayout {
 
 	int getColumnCount();
 
-	Integer getColumnMinSize(int column);
+	Integer getControlMinWidth(int column);
 
-	Integer getColumnMaxSize(int column);
+	Integer getControlMaxWidth(int column);
 
 	List<IBeanFormGroup> getGroups();
 

@@ -28,15 +28,21 @@
 
 package org.jowidgets.cap.ui.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.widgets.IContainer;
 import org.jowidgets.api.widgets.IControl;
-import org.jowidgets.api.widgets.blueprint.factory.IBluePrintFactory;
+import org.jowidgets.api.widgets.blueprint.ITextLabelBluePrint;
 import org.jowidgets.cap.ui.api.form.IBeanFormControlFactory;
 import org.jowidgets.cap.ui.api.form.IBeanFormGroup;
 import org.jowidgets.cap.ui.api.form.IBeanFormLayout;
 import org.jowidgets.cap.ui.api.form.IBeanFormLayouter;
 import org.jowidgets.cap.ui.api.form.IBeanFormProperty;
+import org.jowidgets.common.types.AlignmentHorizontal;
+import org.jowidgets.common.types.AlignmentVertical;
+import org.jowidgets.common.types.Position;
 import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
 import org.jowidgets.util.Assert;
@@ -52,17 +58,17 @@ final class BeanFormLayouterImpl implements IBeanFormLayouter {
 
 	@Override
 	public void layout(final IContainer container, final IBeanFormControlFactory controlFactory) {
-		final IBluePrintFactory bpf = Toolkit.getBluePrintFactory();
-		final int columnCount = layout.getColumnCount();
-
 		container.setLayout(new MigLayoutDescriptor(getColumnConstraints(layout), ""));
 
+		final List<boolean[]> grid = new ArrayList<boolean[]>();
+
 		int row = 0;
-		//TODO NM this must be done with respect of the defined layout
+
 		for (final IBeanFormGroup group : layout.getGroups()) {
 			// reset column index
-			int column = 0;
-
+			int logicalColumn = 0;
+			row = getNextFreeRow(grid);
+			int currentRowHeight = 1;
 			for (final IBeanFormProperty property : group.getProperties()) {
 				final String propertyName = property.getPropertyName();
 
@@ -75,53 +81,138 @@ final class BeanFormLayouterImpl implements IBeanFormLayouter {
 
 				final int propertyColumnCount = property.getColumnCount();
 				final int propertyColumnSpan = property.getColumnSpan();
+				final int propertyRowCount = property.getRowCount();
+				final int propertyRowSpan = property.getRowSpan();
 
-				int nextColumn = column + propertyColumnCount;
-				if (nextColumn > columnCount) {
-					// next row
-					row++;
-					column = 0;
-					nextColumn = propertyColumnCount;
-				}
+				final Position nextGridPosition = getNextGridPosition(grid, row, logicalColumn, propertyColumnCount);
+				logicalColumn = nextGridPosition.getX();
+				row = nextGridPosition.getY();
+				setUsed(grid, row, logicalColumn, propertyRowCount, propertyColumnCount);
 
-				final String sizeGroupLabel = "sg c" + column + "l";
+				currentRowHeight = Math.max(currentRowHeight, propertyRowCount);
+
+				final String sizeGroupLabel = "sg lbl";
+				final String sizeGroupControl = "sgy r" + row + "ctrl";
 				final ICustomWidgetCreator<? extends IControl> validationLabelCreator = controlFactory.createValidationLabel(
 						propertyName,
 						property.getValidationLabel());
-				String controlConstraints = "";
+				final String controlConstraints = "";
 
-				int splitCount = 1;
-				if (property.showLabel()) {
-					splitCount++;
-				}
-				if (validationLabelCreator != null) {
-					splitCount++;
-				}
+				final int firstPropertyColumn = (3 * logicalColumn);
 
-				if (!property.showLabel()) {
-					controlConstraints = "split " + splitCount;
-				}
-
-				String cell = "cell " + column + " " + row + " " + propertyColumnSpan;
 				//add label
+				String cell;
 				if (property.showLabel()) {
-					container.add(
-							bpf.textLabel(controlFactory.getLabel(propertyName)).alignRight(),
-							constraints(cell, "split " + splitCount, "alignx r", sizeGroupLabel));
-					cell = "";
+					final AlignmentVertical labelAlignmentVertical = property.getLabelAlignmentVertical();
+					if (AlignmentVertical.TOP.equals(labelAlignmentVertical)) {
+						cell = "cell " + firstPropertyColumn + " " + row;
+					}
+					else if (AlignmentVertical.CENTER.equals(labelAlignmentVertical)) {
+						cell = "cell " + firstPropertyColumn + " " + row + " 1 " + propertyRowSpan;
+					}
+					else if (AlignmentVertical.BOTTOM.equals(labelAlignmentVertical)) {
+						cell = "cell " + firstPropertyColumn + " " + (row + propertyRowSpan - 1);
+					}
+					else {
+						throw new IllegalStateException("Unknown vertical alignment '" + labelAlignmentVertical + "'.");
+					}
+
+					final ITextLabelBluePrint textLabelBp = Toolkit.getBluePrintFactory().textLabel(
+							controlFactory.getLabel(propertyName));
+					setAlignmentHorizontal(property.getLabelAlignmentHorizontal(), textLabelBp);
+					container.add(textLabelBp, constraints(cell, sizeGroupLabel));
+					cell = "cell "
+						+ (firstPropertyColumn + 1)
+						+ " "
+						+ row
+						+ " "
+						+ (3 * propertyColumnSpan - 2)
+						+ " "
+						+ propertyRowSpan;
+				}
+				else {
+					cell = "cell " + firstPropertyColumn + " " + row + " " + (3 * propertyColumnSpan - 1) + " " + propertyRowSpan;
 				}
 
 				//add control
-				container.add(controlCreator, constraints(cell, controlConstraints, "growx", "span " + propertyColumnSpan));
+				container.add(controlCreator, constraints(cell, sizeGroupControl, controlConstraints, "growx", "growy"));
 
 				//add validation label
 				if (validationLabelCreator != null) {
 					container.add(validationLabelCreator, "w 25::");
 				}
 
-				column = nextColumn;
+				logicalColumn = logicalColumn + propertyColumnCount;
+			}
+		}
+	}
+
+	private int getNextFreeRow(final List<boolean[]> grid) {
+		return grid.size();
+	}
+
+	private void setUsed(final List<boolean[]> grid, final int row, final int column, final int rowCount, final int columnCount) {
+		for (int usedRow = row; usedRow < row + rowCount; usedRow++) {
+			if (usedRow >= grid.size()) {
+				grid.add(usedRow, new boolean[layout.getColumnCount()]);
 			}
 
+			final boolean[] columns = grid.get(usedRow);
+			for (int usedColumn = column; usedColumn < column + columnCount; usedColumn++) {
+				columns[usedColumn] = true;
+			}
+			grid.set(usedRow, columns);
+		}
+	}
+
+	private int getAvailableColumns(final List<boolean[]> grid, final int row, final int column) {
+		if (row >= grid.size()) {
+			return layout.getColumnCount() - column;
+		}
+		else {
+			final boolean[] columns = grid.get(row);
+			int result = 0;
+			while (column + result < layout.getColumnCount() && !columns[column + result]) {
+				result++;
+			}
+
+			return result;
+		}
+	}
+
+	private Position getNextGridPosition(final List<boolean[]> grid, int row, int column, int columnCount) {
+		if (column >= layout.getColumnCount()) {
+			column = 0;
+			row++;
+		}
+		if (columnCount > layout.getColumnCount()) {
+			// throw exception?
+			columnCount = layout.getColumnCount();
+		}
+
+		while (getAvailableColumns(grid, row, column) < columnCount) {
+			column++;
+			if (column >= layout.getColumnCount()) {
+				column = 0;
+				row++;
+			}
+		}
+
+		return new Position(column, row);
+	}
+
+	private static void setAlignmentHorizontal(final AlignmentHorizontal alignment, final ITextLabelBluePrint textLabelBp) {
+		if (AlignmentHorizontal.LEFT.equals(alignment)) {
+			textLabelBp.alignLeft();
+		}
+		else if (AlignmentHorizontal.CENTER.equals(alignment)) {
+			textLabelBp.alignCenter();
+		}
+		else if (AlignmentHorizontal.RIGHT.equals(alignment)) {
+			textLabelBp.alignRight();
+		}
+		else {
+			throw new IllegalStateException("Unknown horizontal alignment '" + alignment + "'.");
 		}
 	}
 
@@ -145,22 +236,26 @@ final class BeanFormLayouterImpl implements IBeanFormLayouter {
 				result.append("0");
 			}
 
-			final Integer columnMinSize = layout.getColumnMinSize(column);
-			final Integer columnMaxSize = layout.getColumnMaxSize(column);
+			result.append("[]"); // label column
+
+			final Integer controlMinWidth = layout.getControlMinWidth(column);
+			final Integer controlMaxWidth = layout.getControlMaxWidth(column);
 			result.append('[');
-			if (columnMinSize != null) {
-				result.append(columnMinSize.toString());
+			if (controlMinWidth != null) {
+				result.append(controlMinWidth.toString());
 			}
-			if (columnMinSize != null && columnMaxSize != null) {
+			if (controlMinWidth != null && controlMaxWidth != null) {
 				result.append("::");
 			}
 			else {
 				result.append("grow");
 			}
-			if (columnMaxSize != null) {
-				result.append(columnMaxSize.toString());
+			if (controlMaxWidth != null) {
+				result.append(controlMaxWidth.toString());
 			}
 			result.append(']');
+
+			result.append("[0::]"); // validation label column
 		}
 		result.append("0");
 
