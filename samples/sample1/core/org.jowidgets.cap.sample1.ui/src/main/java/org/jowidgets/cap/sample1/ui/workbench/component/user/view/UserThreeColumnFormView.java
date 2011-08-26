@@ -44,17 +44,18 @@ import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
 import org.jowidgets.cap.ui.api.widgets.IBeanForm;
 import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
+import org.jowidgets.common.types.AlignmentVertical;
 import org.jowidgets.tools.layout.MigLayoutFactory;
 import org.jowidgets.workbench.api.IViewContext;
 import org.jowidgets.workbench.tools.AbstractView;
 
-public class UserFormView extends AbstractView {
+public class UserThreeColumnFormView extends AbstractView {
 
-	public static final String ID = UserFormView.class.getName();
-	public static final String DEFAULT_LABEL = "User form";
+	public static final String ID = UserThreeColumnFormView.class.getName();
+	public static final String DEFAULT_LABEL = "Form (3 columns)";
 	public static final String DEFAULT_TOOLTIP = "Formular with user details";
 
-	public UserFormView(final IViewContext context, final IBeanListModel<IUser> parentModel) {
+	public UserThreeColumnFormView(final IViewContext context, final IBeanListModel<IUser> parentModel) {
 		final IContainer container = context.getContainer();
 		container.setLayout(MigLayoutFactory.growingCellLayout());
 		final List<IAttribute<Object>> attributes = new UserAttributesFactory().formAttributes();
@@ -64,11 +65,17 @@ public class UserFormView extends AbstractView {
 		for (final IAttribute<Object> attribute : attributes) {
 			final IBeanFormPropertyBuilder propertyBuilder = CapUiToolkit.beanFormToolkit().propertyBuilder();
 			propertyBuilder.setPropertyName(attribute.getPropertyName());
-			if (attribute.getLabel().equals("Name")) {
-				propertyBuilder.setColumnSpan(2);
-				propertyBuilder.setColumnCount(3);
+			if (attribute.getPropertyName().equals(IUser.NAME_PROPERTY)) {
+				propertyBuilder.setLabelAlignmentVertical(AlignmentVertical.TOP);
+				propertyBuilder.setRowCount(2);
+				propertyBuilder.setRowSpan(2);
 			}
-			if (attribute.getLabel().equals("Gender")) {
+			if (attribute.getPropertyName().equals(IUser.LAST_NAME_PROPERTY)) {
+				propertyBuilder.setLabelAlignmentVertical(AlignmentVertical.TOP);
+				propertyBuilder.setRowCount(2);
+				propertyBuilder.setRowSpan(2);
+			}
+			if (attribute.getPropertyName().equals(IUser.GENDER_PROPERTY)) {
 				propertyBuilder.setShowLabel(false);
 			}
 
@@ -98,5 +105,4 @@ public class UserFormView extends AbstractView {
 
 		});
 	}
-
 }

@@ -34,31 +34,31 @@ import org.jowidgets.common.types.AlignmentVertical;
 
 public interface IBeanFormPropertyBuilder {
 
-	IBeanFormPropertyBuilder setPropertyName(final String name);
+	IBeanFormPropertyBuilder setPropertyName(String name);
 
-	IBeanFormPropertyBuilder setShowLabel(final boolean showLabel);
+	IBeanFormPropertyBuilder setShowLabel(boolean showLabel);
 
-	IBeanFormPropertyBuilder setRowSpan(final int rowSpan);
+	IBeanFormPropertyBuilder setRowSpan(int rowSpan);
 
-	IBeanFormPropertyBuilder setRowCount(final int rowCount);
+	IBeanFormPropertyBuilder setRowCount(int rowCount);
 
-	IBeanFormPropertyBuilder setColumnSpan(final int columnSpan);
+	IBeanFormPropertyBuilder setColumnSpan(int columnSpan);
 
-	IBeanFormPropertyBuilder setColumnCount(final int columnCount);
+	IBeanFormPropertyBuilder setColumnCount(int columnCount);
 
-	IBeanFormPropertyBuilder setLabelAlignmentHorizontal(final AlignmentHorizontal alignment);
+	IBeanFormPropertyBuilder setLabelAlignmentHorizontal(AlignmentHorizontal alignment);
 
-	IBeanFormPropertyBuilder setPropertyAlignmentHorizontal(final AlignmentHorizontal alignment);
+	IBeanFormPropertyBuilder setPropertyAlignmentHorizontal(AlignmentHorizontal alignment);
 
-	IBeanFormPropertyBuilder setLabelAlignmentVertical(final AlignmentVertical alignment);
+	IBeanFormPropertyBuilder setLabelAlignmentVertical(AlignmentVertical alignment);
 
-	IBeanFormPropertyBuilder setPropertyAlignmentVertical(final AlignmentVertical alignment);
+	IBeanFormPropertyBuilder setPropertyAlignmentVertical(AlignmentVertical alignment);
 
-	IBeanFormPropertyBuilder setValidationLabel(final IValidationLabelSetup validationLabel);
+	IBeanFormPropertyBuilder setValidationLabel(IValidationLabelSetup validationLabel);
 
 	IBeanFormPropertyBuilder setValidationLabel(boolean validationLabel);
 
-	IBeanFormPropertyBuilder setValidationLabelMinSize(final int minSize);
+	IBeanFormPropertyBuilder setValidationLabelMinSize(int minSize);
 
 	IBeanFormProperty build();
 
