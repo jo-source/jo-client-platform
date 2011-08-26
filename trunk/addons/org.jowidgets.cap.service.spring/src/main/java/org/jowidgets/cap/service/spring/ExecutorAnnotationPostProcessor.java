@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.service.spring;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -45,12 +46,16 @@ import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.annotation.DefaultExecutableChecker;
 import org.jowidgets.cap.service.api.annotation.Executor;
 import org.jowidgets.cap.service.api.annotation.ExecutorBean;
+import org.jowidgets.cap.service.api.annotation.Parameter;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
 import org.jowidgets.cap.service.api.executor.IBeanExecutor;
 import org.jowidgets.cap.service.api.executor.IBeanListExecutor;
 import org.jowidgets.cap.service.api.executor.IExecutorServiceBuilder;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.tools.ServiceId;
+import org.jowidgets.util.maybe.IMaybe;
+import org.jowidgets.util.maybe.Nothing;
+import org.jowidgets.util.maybe.Some;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
@@ -58,12 +63,16 @@ import org.springframework.beans.factory.annotation.Required;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.expression.Expression;
+import org.springframework.expression.ExpressionParser;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.ReflectionUtils.MethodCallback;
 
 public final class ExecutorAnnotationPostProcessor implements BeanPostProcessor, ApplicationContextAware {
 
+	private final ExpressionParser expressionParser = new SpelExpressionParser();
 	private IBeanAccessProvider beanAccessProvider;
 	private PlatformTransactionManager transactionManager;
 	private ListableBeanFactory beanFactory;
@@ -180,12 +189,15 @@ public final class ExecutorAnnotationPostProcessor implements BeanPostProcessor,
 						args[finalCallbackArgPosition] = executionCallback;
 					}
 					if (paramArgPositions.size() == 1) {
-						args[paramArgPositions.get(0)] = parameter;
+						args[paramArgPositions.get(0)] = getSingleParameterValue(parameter, method, paramArgPositions.get(0));
 					}
 					else if (!paramArgPositions.isEmpty()) {
-						final Object[] parameterArray = (Object[]) parameter;
 						for (int i = 0; i < paramArgPositions.size(); i++) {
-							args[paramArgPositions.get(i)] = parameterArray[i];
+							args[paramArgPositions.get(i)] = getMultiParameterValue(
+									parameter,
+									method,
+									paramArgPositions.get(i),
+									i);
 						}
 					}
 
@@ -218,12 +230,15 @@ public final class ExecutorAnnotationPostProcessor implements BeanPostProcessor,
 						args[finalCallbackArgPosition] = executionCallback;
 					}
 					if (paramArgPositions.size() == 1) {
-						args[paramArgPositions.get(0)] = parameter;
+						args[paramArgPositions.get(0)] = getSingleParameterValue(parameter, method, paramArgPositions.get(0));
 					}
 					else if (!paramArgPositions.isEmpty()) {
-						final Object[] parameterArray = (Object[]) parameter;
 						for (int i = 0; i < paramArgPositions.size(); i++) {
-							args[paramArgPositions.get(i)] = parameterArray[i];
+							args[paramArgPositions.get(i)] = getMultiParameterValue(
+									parameter,
+									method,
+									paramArgPositions.get(i),
+									i);
 						}
 					}
 
@@ -238,6 +253,35 @@ public final class ExecutorAnnotationPostProcessor implements BeanPostProcessor,
 				}
 			};
 		}
+	}
+
+	private Object getSingleParameterValue(final Object parameter, final Method method, final int argIndex) {
+		final IMaybe<Object> value = evaluateParameterExpression(parameter, method, argIndex);
+		if (value.isSomething()) {
+			return value.getValue();
+		}
+		return parameter;
+	}
+
+	private Object getMultiParameterValue(final Object parameter, final Method method, final int argIndex, final int paramIndex) {
+		final IMaybe<Object> value = evaluateParameterExpression(parameter, method, argIndex);
+		if (value.isSomething()) {
+			return value.getValue();
+		}
+		final Object[] parameterArray = (Object[]) parameter;
+		return parameterArray[paramIndex];
+	}
+
+	IMaybe<Object> evaluateParameterExpression(final Object parameter, final Method method, final int argIndex) {
+		final Annotation[] annotations = method.getParameterAnnotations()[argIndex];
+		for (final Annotation annotation : annotations) {
+			if (annotation instanceof Parameter) {
+				final Parameter paramAnno = (Parameter) annotation;
+				final Expression expression = expressionParser.parseExpression(paramAnno.value());
+				return new Some<Object>(expression.getValue(parameter, method.getParameterTypes()[argIndex]));
+			}
+		}
+		return Nothing.getInstance();
 	}
 
 	private Set<Method> getExecutorMethods(final Object bean) {
