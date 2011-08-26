@@ -167,7 +167,9 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 		updateHeadersListener = new IInputListener() {
 			@Override
 			public void inputChanged() {
-				updateHeaders();
+				if (!eventsDisabled) {
+					updateHeaders();
+				}
 			}
 		};
 
@@ -624,11 +626,8 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 			textLabel.setAlignment(alignment);
 		}
 
-		protected IComboBox<String> createComboBox(
-			final IBluePrintFactory bpF,
-			final List<String> elements,
-			final Integer maxWidth) {
-			final IComboBox<String> result = add(bpF.comboBoxSelection());
+		protected ComboBox createComboBox(final IBluePrintFactory bpF, final List<String> elements, final Integer maxWidth) {
+			final ComboBox result = new ComboBox(add(bpF.comboBoxSelection()));
 			result.setElements(elements);
 			if (maxWidth != null) {
 				result.setMaxSize(new Dimension(maxWidth.intValue(), result.getPreferredSize().getHeight()));
@@ -746,13 +745,6 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 
 			if (getColumnAlignment() != null) {
 				getColumnAlignment().setValue(attributeConfig.getTableAlignment().getLabel());
-			}
-
-			if (isSortable()) {
-				getCurrentSorting().setValue("");
-				getCurrentSortingIndex().setIndex(0);
-				getDefaultSorting().setValue("");
-				getDefaultSortingIndex().setIndex(0);
 			}
 		}
 
@@ -1640,7 +1632,10 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 		}
 
 		public void setValue(final Set<String> values) {
-			if (values.size() == 1) {
+			if (values.size() == 0) {
+				setValue("");
+			}
+			else if (values.size() == 1) {
 				setValue((String) values.toArray()[0]);
 			}
 			else {
@@ -1657,7 +1652,6 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 				setValue(VARIOUS);
 			}
 		}
-
 	}
 
 	private class SortingIndexComboBox extends ComboBoxWrapper<String> {
@@ -1828,11 +1822,9 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 		}
 
 		void clearSortIndices() {
-			final int size = attributeComposites.size();
 			for (final Entry<String, AttributeComposite> entry : attributeComposites.entrySet()) {
 				final AttributeComposite composite = entry.getValue();
-				if (composite.isSortable()) {
-					provider.getSortIndex(composite).setRange(size);
+				if (composite.isSortable() && (provider.getSortIndex(composite).getIndex() > 0)) {
 					provider.getSort(composite).setValue("");
 					provider.getSortIndex(composite).setIndex(0);
 				}
