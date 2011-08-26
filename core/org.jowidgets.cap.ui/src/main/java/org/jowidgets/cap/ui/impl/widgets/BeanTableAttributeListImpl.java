@@ -167,9 +167,7 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 		updateHeadersListener = new IInputListener() {
 			@Override
 			public void inputChanged() {
-				if (!eventsDisabled) {
-					updateHeaders();
-				}
+				updateHeaders();
 			}
 		};
 
@@ -503,7 +501,7 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 
 			final List<String> headerFormats = getHeaderFormats();
 			if (headerFormats.size() > 1) {
-				headerFormat = new ComboBox(createComboBox(bpF, headerFormats, 300));
+				headerFormat = createComboBox(bpF, headerFormats, 300);
 				headerFormat.addInputListener(createHeaderChangedListener());
 			}
 			else {
@@ -513,7 +511,7 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 
 			final List<String> contentFormats = getContentFormats();
 			if (contentFormats.size() > 1) {
-				contentFormat = new ComboBox(createComboBox(bpF, contentFormats, 300));
+				contentFormat = createComboBox(bpF, contentFormats, 300);
 				contentFormat.addInputListener(createContentChangedListener());
 			}
 			else {
@@ -521,11 +519,11 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 				addNotAvailableLabel(textLabel);
 			}
 
-			columnAlignment = new ComboBox(createComboBox(bpF, getAlignments(), 200));
+			columnAlignment = createComboBox(bpF, getAlignments(), 200);
 			columnAlignment.addInputListener(createAlignmentChangedListener());
 
 			if (isSortable()) {
-				currentSorting = new ComboBox(createComboBox(bpF, getSortOrders(), 250));
+				currentSorting = createComboBox(bpF, getSortOrders(), 250);
 				currentSorting.addInputListener(createCurrentSortingChangedListener());
 				if (hasSortPriority()) {
 					currentSortingIndex = new SortingIndexComboBox(add(bpF.comboBoxSelection()));
@@ -536,7 +534,7 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 					addNotAvailableLabel(textLabel);
 				}
 
-				defaultSorting = new ComboBox(createComboBox(bpF, getSortOrders(), 250));
+				defaultSorting = createComboBox(bpF, getSortOrders(), 250);
 				defaultSorting.addInputListener(createDefaultSortingChangedListener());
 				if (hasSortPriority()) {
 					defaultSortingIndex = new SortingIndexComboBox(add(bpF.comboBoxSelection()));
@@ -627,8 +625,7 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 		}
 
 		protected ComboBox createComboBox(final IBluePrintFactory bpF, final List<String> elements, final Integer maxWidth) {
-			final ComboBox result = new ComboBox(add(bpF.comboBoxSelection()));
-			result.setElements(elements);
+			final ComboBox result = new ComboBox(add(bpF.comboBoxSelection(elements.toArray(new String[elements.size()]))));
 			if (maxWidth != null) {
 				result.setMaxSize(new Dimension(maxWidth.intValue(), result.getPreferredSize().getHeight()));
 			}
@@ -776,8 +773,8 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 				public void inputChanged() {
 					final ComboBox comboBox = model.provider.getSort(attributeComposites.get(propertyName));
 					final String value = comboBox.getValue();
-					final boolean hasToAdd = comboBox.getLastValue().equals("");
-					final boolean hasToRemove = value.equals("");
+					final boolean hasToAdd = isEmptyString(comboBox.getLastValue());
+					final boolean hasToRemove = isEmptyString(value);
 					if (hasToAdd) {
 						model.insertSortIndex(model.sortingLength + 1, propertyName);
 					}
@@ -959,6 +956,9 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 				getContentFormat().setValue(usedContentFormats);
 			}
 			if (getCurrentSorting() != null) {
+				if (this.equals(allAttributesComposite)) {
+					System.out.println("Sorting: " + usedCurrentSortings);
+				}
 				getCurrentSorting().setValue(usedCurrentSortings);
 			}
 			if (getDefaultSorting() != null) {
@@ -1105,7 +1105,7 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 				public void inputChanged() {
 					final String[] properties = getPropertyNames();
 					final String value = model.provider.getSort(composite).getValue();
-					final boolean clear = (value == null) || (value.equals(""));
+					final boolean clear = isEmptyString(value);
 					final List<Integer> shiftList = new ArrayList<Integer>();
 					for (int columnIndex = 0; columnIndex < properties.length; columnIndex++) {
 						final AttributeComposite attributeComposite = attributeComposites.get(properties[columnIndex]);
@@ -1115,7 +1115,7 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 
 						final SortingIndexComboBox sortIndex = model.provider.getSortIndex(attributeComposite);
 						final ComboBox sorting = model.provider.getSort(attributeComposite);
-						final boolean isEmpty = sorting.getValue().equals("");
+						final boolean isEmpty = isEmptyString(sorting.getValue());
 						if (clear && !isEmpty) {
 							model.sortingLength = model.sortingLength - 1;
 							shiftList.add(Integer.valueOf(sortIndex.getIndex()));
@@ -1560,7 +1560,7 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 				@Override
 				public void inputChanged() {
 					final String value = getValue();
-					final boolean changed = !lastValue.equals(value);
+					final boolean changed = !equalStrings(lastValue, value);
 
 					if (changed && !eventsDisabled) {
 						eventsDisabled = true;
@@ -1599,7 +1599,7 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 		}
 
 		@Override
-		// only set Elements is list has changed
+		// only set Elements is list has changed to avoid flickering
 		public void setElements(final List<String> elements) {
 			final List<String> currentElements = getElements();
 			boolean changed = false;
@@ -1608,7 +1608,7 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 			}
 			else {
 				for (int i = 0; i < elements.size(); i++) {
-					if (!NullCompatibleEquivalence.equals(elements.get(i), currentElements.get(i))) {
+					if (!equalStrings(elements.get(i), currentElements.get(i))) {
 						changed = true;
 						break;
 					}
@@ -1625,7 +1625,7 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 			if ((value != null) && (!getElements().contains(value))) {
 				return;
 			}
-			if (NullCompatibleEquivalence.equals(value, getValue())) {
+			if (equalStrings(value, getValue())) {
 				return;
 			}
 			super.setValue(value);
@@ -1641,7 +1641,7 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 			else {
 				final List<String> elements = new LinkedList<String>(getElements());
 				if (!elements.contains(VARIOUS)) {
-					if (elements.size() > 1 && "".equals(elements.get(0))) {
+					if (elements.size() > 1 && isEmptyString(elements.get(0))) {
 						elements.add(1, VARIOUS);
 					}
 					else {
@@ -1650,6 +1650,17 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 					setElements(elements);
 				}
 				setValue(VARIOUS);
+			}
+		}
+
+		@Override
+		public String getValue() {
+			final String value = super.getValue();
+			if (value == null) {
+				return "";
+			}
+			else {
+				return value;
 			}
 		}
 	}
@@ -1663,8 +1674,6 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 		public SortingIndexComboBox(final IComboBox<String> widget) {
 			super(widget);
 			range = -1;
-
-			setElements(String.valueOf(maxSortingLength));
 
 			super.addInputListener(new IInputListener() {
 				@Override
@@ -1697,7 +1706,7 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 
 		public int getIndex() {
 			final String value = getValue();
-			if ((value == null) || (value.equals(""))) {
+			if (isEmptyString(value)) {
 				return 0;
 			}
 			return Integer.valueOf(value);
@@ -2277,5 +2286,21 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 			return tableWidth;
 		}
 
+	}
+
+	private static boolean isEmptyString(final String string) {
+		return (string == null) || ("".equals(string));
+	}
+
+	private static boolean equalStrings(final String string1, final String string2) {
+		if (isEmptyString(string1) && (isEmptyString(string2))) {
+			return true;
+		}
+		else if (isEmptyString(string1)) {
+			return false;
+		}
+		else {
+			return string1.equals(string2);
+		}
 	}
 }
