@@ -38,6 +38,8 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
@@ -73,6 +75,7 @@ import org.springframework.util.ReflectionUtils.MethodCallback;
 public final class ExecutorAnnotationPostProcessor implements BeanPostProcessor, ApplicationContextAware {
 
 	private final ExpressionParser expressionParser = new SpelExpressionParser();
+	private final ConcurrentMap<Parameter, Expression> expressions = new ConcurrentHashMap<Parameter, Expression>();
 	private IBeanAccessProvider beanAccessProvider;
 	private PlatformTransactionManager transactionManager;
 	private ListableBeanFactory beanFactory;
@@ -277,7 +280,10 @@ public final class ExecutorAnnotationPostProcessor implements BeanPostProcessor,
 		for (final Annotation annotation : annotations) {
 			if (annotation instanceof Parameter) {
 				final Parameter paramAnno = (Parameter) annotation;
-				final Expression expression = expressionParser.parseExpression(paramAnno.value());
+				if (!expressions.containsKey(paramAnno)) {
+					expressions.putIfAbsent(paramAnno, expressionParser.parseExpression(paramAnno.value()));
+				}
+				final Expression expression = expressions.get(paramAnno);
 				return new Some<Object>(expression.getValue(parameter, method.getParameterTypes()[argIndex]));
 			}
 		}
