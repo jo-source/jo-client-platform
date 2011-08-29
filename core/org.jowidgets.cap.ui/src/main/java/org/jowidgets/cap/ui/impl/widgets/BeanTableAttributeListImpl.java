@@ -956,9 +956,6 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 				getContentFormat().setValue(usedContentFormats);
 			}
 			if (getCurrentSorting() != null) {
-				if (this.equals(allAttributesComposite)) {
-					System.out.println("Sorting: " + usedCurrentSortings);
-				}
 				getCurrentSorting().setValue(usedCurrentSortings);
 			}
 			if (getDefaultSorting() != null) {
@@ -1951,6 +1948,8 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 
 		if (attributesFilterComposite.isVisible() == allVisible) {
 			attributesFilterComposite.setVisible(!allVisible);
+			getWidget().layoutBegin();
+			getWidget().layoutEnd();
 		}
 
 		if (changed) {
@@ -2190,16 +2189,16 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 	}
 
 	private void refreshLayout() {
+		if (attributesFilterComposite.isVisible()) {
+			attributesFilterComposite.layoutBegin();
+			attributesFilterComposite.layoutEnd();
+		}
+
 		attributeScroller.layoutBegin();
 		for (final Entry<String, AttributeGroupComposite> entry : groups.entrySet()) {
 			entry.getValue().refreshAttributeLayout(true);
 		}
 		attributeScroller.layoutEnd();
-
-		if (attributesFilterComposite.isVisible()) {
-			attributesFilterComposite.layoutBegin();
-			attributesFilterComposite.layoutEnd();
-		}
 
 		updateHeaderColors();
 	}
