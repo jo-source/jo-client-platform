@@ -80,10 +80,7 @@ final class BeanPropertyBuilderImpl implements IBeanPropertyBuilder {
 					propertyBuilder.setValueType(propertyType);
 					if (!Collection.class.isAssignableFrom(propertyType)) {
 						propertyBuilder.setElementValueType(propertyType);
-						propertyBuilder.setSortable(propertyType.isPrimitive()
-							|| Number.class.isAssignableFrom(propertyType)
-							|| propertyType == String.class
-							|| propertyType == Boolean.class);
+						propertyBuilder.setSortable(propertyType.isPrimitive() || Comparable.class.isAssignableFrom(propertyType));
 					}
 					else {
 						final Type returnType = propertyDescriptor.getReadMethod().getGenericReturnType();
