@@ -50,6 +50,7 @@ final class BeanFormGroupBuilderImpl implements IBeanFormGroupBuilder {
 
 	BeanFormGroupBuilderImpl() {
 		this.properties = new LinkedList<IBeanFormProperty>();
+		this.rendering = BeanFormGroupRendering.NONE;
 	}
 
 	@Override
