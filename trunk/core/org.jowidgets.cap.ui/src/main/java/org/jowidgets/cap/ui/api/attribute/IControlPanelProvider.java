@@ -36,7 +36,6 @@ import org.jowidgets.api.widgets.IInputControl;
 import org.jowidgets.cap.common.api.filter.IFilter;
 import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
 
-
 public interface IControlPanelProvider<ELEMENT_VALUE_TYPE> {
 
 	String getDisplayFormatId();
@@ -51,8 +50,8 @@ public interface IControlPanelProvider<ELEMENT_VALUE_TYPE> {
 
 	ICustomWidgetCreator<IInputControl<? extends IFilter>> getFilterControlCreator();
 
-	ICustomWidgetCreator<IInputControl<? extends ELEMENT_VALUE_TYPE>> getControlCreator();
+	ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> getControlCreator();
 
-	ICustomWidgetCreator<IInputControl<Collection<? extends ELEMENT_VALUE_TYPE>>> getCollectionControlCreator();
+	ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> getCollectionControlCreator();
 
 }

@@ -38,6 +38,7 @@ import org.jowidgets.api.convert.IObjectStringConverter;
 import org.jowidgets.api.convert.IStringObjectConverter;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.widgets.IInputControl;
+import org.jowidgets.api.widgets.blueprint.ICollectionInputFieldBluePrint;
 import org.jowidgets.api.widgets.blueprint.IComboBoxBluePrint;
 import org.jowidgets.api.widgets.blueprint.IComboBoxSelectionBluePrint;
 import org.jowidgets.api.widgets.blueprint.factory.IBluePrintFactory;
@@ -72,8 +73,8 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 	private IObjectStringConverter<ELEMENT_VALUE_TYPE> objectStringConverter;
 	private IStringObjectConverter<ELEMENT_VALUE_TYPE> stringObjectConverter;
 	private ICustomWidgetCreator<IInputControl<? extends IFilter>> filterControlCreator;
-	private ICustomWidgetCreator<IInputControl<? extends ELEMENT_VALUE_TYPE>> controlCreator;
-	private ICustomWidgetCreator<IInputControl<Collection<? extends ELEMENT_VALUE_TYPE>>> collectionControlCreator;
+	private ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> controlCreator;
+	private ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> collectionControlCreator;
 
 	ControlPanelProviderBuilderImpl(final Class<? extends ELEMENT_VALUE_TYPE> elementValueType, final IValueRange valueRange) {
 		this(valueRange);
@@ -188,15 +189,15 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 	@Override
 	public IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> setControlCreator(
 		final ICustomWidgetCreator<? extends IInputControl<? extends ELEMENT_VALUE_TYPE>> controlCreator) {
-		this.controlCreator = (ICustomWidgetCreator<IInputControl<? extends ELEMENT_VALUE_TYPE>>) controlCreator;
+		this.controlCreator = (ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>>) controlCreator;
 		return this;
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> setCollectionControlCreator(
-		final ICustomWidgetCreator<? extends IInputControl<Collection<? extends ELEMENT_VALUE_TYPE>>> collectionControlCreator) {
-		this.collectionControlCreator = (ICustomWidgetCreator<IInputControl<Collection<? extends ELEMENT_VALUE_TYPE>>>) collectionControlCreator;
+		final ICustomWidgetCreator<? extends IInputControl<? extends Collection<? extends ELEMENT_VALUE_TYPE>>> collectionControlCreator) {
+		this.collectionControlCreator = (ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>>) collectionControlCreator;
 		return this;
 	}
 
@@ -245,7 +246,7 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 	}
 
 	@SuppressWarnings({"rawtypes", "unchecked"})
-	private ICustomWidgetCreator<IInputControl<? extends ELEMENT_VALUE_TYPE>> getControlCreator() {
+	private ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> getControlCreator() {
 		if (controlCreator == null) {
 			final IBluePrintFactory bpf = Toolkit.getBluePrintFactory();
 			final IObjectLabelConverter<ELEMENT_VALUE_TYPE> objectLabelConv = getObjectLabelConverter();
@@ -270,9 +271,9 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 			}
 			else if (objectLabelConv != null && stringObjectConv != null) {
 				if (valueRange.getValues().isEmpty()) {
-					controlCreator = new ICustomWidgetCreator<IInputControl<? extends ELEMENT_VALUE_TYPE>>() {
+					controlCreator = new ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>>() {
 						@Override
-						public IInputControl<? extends ELEMENT_VALUE_TYPE> create(final ICustomWidgetFactory widgetFactory) {
+						public IInputControl<ELEMENT_VALUE_TYPE> create(final ICustomWidgetFactory widgetFactory) {
 							final IConverter<ELEMENT_VALUE_TYPE> converter = new Converter<ELEMENT_VALUE_TYPE>(
 								objectLabelConv,
 								stringObjectConv);
@@ -281,9 +282,9 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 					};
 				}
 				else {
-					controlCreator = new ICustomWidgetCreator<IInputControl<? extends ELEMENT_VALUE_TYPE>>() {
+					controlCreator = new ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>>() {
 						@Override
-						public IInputControl<? extends ELEMENT_VALUE_TYPE> create(final ICustomWidgetFactory widgetFactory) {
+						public IInputControl<ELEMENT_VALUE_TYPE> create(final ICustomWidgetFactory widgetFactory) {
 							final IConverter<ELEMENT_VALUE_TYPE> converter = new Converter<ELEMENT_VALUE_TYPE>(
 								objectLabelConv,
 								stringObjectConv);
@@ -305,6 +306,32 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 		return controlCreator;
 	}
 
+	private ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> getCollectionControlCreator() {
+		if (collectionControlCreator == null) {
+			final IObjectLabelConverter<ELEMENT_VALUE_TYPE> objectLabelConv = getObjectLabelConverter();
+			final IStringObjectConverter<ELEMENT_VALUE_TYPE> stringObjectConv = getStringObjectConverter();
+			if (objectLabelConv != null && stringObjectConv != null) {
+				final IConverter<ELEMENT_VALUE_TYPE> converter = new Converter<ELEMENT_VALUE_TYPE>(
+					objectLabelConv,
+					stringObjectConv);
+
+				final IBluePrintFactory bpf = Toolkit.getBluePrintFactory();
+				collectionControlCreator = new ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>>() {
+					@Override
+					public IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>> create(final ICustomWidgetFactory widgetFactory) {
+						final ICollectionInputFieldBluePrint<ELEMENT_VALUE_TYPE> inputFieldBp = bpf.collectionInputField(converter);
+						final ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> elementControlCreator = getControlCreator();
+						if (elementControlCreator != null) {
+							inputFieldBp.setCollectionInputDialogSetup(bpf.collectionInputDialog(elementControlCreator));
+						}
+						return widgetFactory.create(inputFieldBp);
+					}
+				};
+			}
+		}
+		return collectionControlCreator;
+	}
+
 	@SuppressWarnings("unused")
 	private IArithmeticOperatorProvider getArithmeticOperatorProvider() {
 		//		if (arithmeticOperatorProvider == null) {
@@ -318,13 +345,6 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 		//			//TODO create by control factory and arithmetic operator provider
 		//		}
 		return filterControlCreator;
-	}
-
-	private ICustomWidgetCreator<IInputControl<Collection<? extends ELEMENT_VALUE_TYPE>>> getCollectionControlCreator() {
-		//		if (collectionControlCreator == null) {
-		//			//TODO create by element value type and value type
-		//		}
-		return collectionControlCreator;
 	}
 
 	@Override

@@ -68,7 +68,7 @@ public interface IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> {
 		ICustomWidgetCreator<? extends IInputControl<? extends ELEMENT_VALUE_TYPE>> controlCreator);
 
 	IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> setCollectionControlCreator(
-		ICustomWidgetCreator<? extends IInputControl<Collection<? extends ELEMENT_VALUE_TYPE>>> collectionControlCreator);
+		ICustomWidgetCreator<? extends IInputControl<? extends Collection<? extends ELEMENT_VALUE_TYPE>>> collectionControlCreator);
 
 	IControlPanelProvider<ELEMENT_VALUE_TYPE> build();
 }
