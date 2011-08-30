@@ -38,9 +38,12 @@ import org.jowidgets.api.convert.IObjectStringConverter;
 import org.jowidgets.api.convert.IStringObjectConverter;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.widgets.IInputControl;
+import org.jowidgets.api.widgets.blueprint.ICheckBoxBluePrint;
 import org.jowidgets.api.widgets.blueprint.ICollectionInputFieldBluePrint;
 import org.jowidgets.api.widgets.blueprint.IComboBoxBluePrint;
 import org.jowidgets.api.widgets.blueprint.IComboBoxSelectionBluePrint;
+import org.jowidgets.api.widgets.blueprint.IInputFieldBluePrint;
+import org.jowidgets.api.widgets.blueprint.builder.IInputComponentSetupBuilder;
 import org.jowidgets.api.widgets.blueprint.factory.IBluePrintFactory;
 import org.jowidgets.cap.common.api.bean.IValueRange;
 import org.jowidgets.cap.common.api.filter.IFilter;
@@ -48,6 +51,7 @@ import org.jowidgets.cap.ui.api.attribute.DisplayFormat;
 import org.jowidgets.cap.ui.api.attribute.IArithmeticOperatorProvider;
 import org.jowidgets.cap.ui.api.attribute.IControlPanelProvider;
 import org.jowidgets.cap.ui.api.attribute.IControlPanelProviderBuilder;
+import org.jowidgets.cap.ui.tools.validation.ValueRangeValidator;
 import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
 import org.jowidgets.common.widgets.factory.ICustomWidgetFactory;
 import org.jowidgets.tools.converter.AbstractObjectLabelConverter;
@@ -251,11 +255,14 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 			final IBluePrintFactory bpf = Toolkit.getBluePrintFactory();
 			final IObjectLabelConverter<ELEMENT_VALUE_TYPE> objectLabelConv = getObjectLabelConverter();
 			final IStringObjectConverter<ELEMENT_VALUE_TYPE> stringObjectConv = getStringObjectConverter();
+
 			if (elementValueType.equals(boolean.class)) {
 				controlCreator = new ICustomWidgetCreator() {
 					@Override
 					public IInputControl create(final ICustomWidgetFactory widgetFactory) {
-						return widgetFactory.create(bpf.checkBox());
+						final ICheckBoxBluePrint checkBoxBp = bpf.checkBox();
+						addValueRangeValidator(checkBoxBp);
+						return widgetFactory.create(checkBoxBp);
 					}
 				};
 			}
@@ -265,6 +272,7 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 					public IInputControl create(final ICustomWidgetFactory widgetFactory) {
 						final IComboBoxSelectionBluePrint<Boolean> cmbBp = bpf.comboBoxSelection(Toolkit.getConverterProvider().boolYesNoLong());
 						cmbBp.setElements(null, Boolean.TRUE, Boolean.FALSE);
+						addValueRangeValidator(cmbBp);
 						return widgetFactory.create(cmbBp);
 					}
 				};
@@ -277,7 +285,9 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 							final IConverter<ELEMENT_VALUE_TYPE> converter = new Converter<ELEMENT_VALUE_TYPE>(
 								objectLabelConv,
 								stringObjectConv);
-							return widgetFactory.create(bpf.inputField(converter));
+							final IInputFieldBluePrint<ELEMENT_VALUE_TYPE> inputFieldBp = bpf.inputField(converter);
+							addValueRangeValidator(inputFieldBp);
+							return widgetFactory.create(inputFieldBp);
 						}
 					};
 				}
@@ -290,11 +300,13 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 								stringObjectConv);
 							if (valueRange.isOpen()) {
 								final IComboBoxBluePrint<ELEMENT_VALUE_TYPE> comboBp = bpf.comboBox(converter);
+								addValueRangeValidator(comboBp);
 								comboBp.setElements((List<ELEMENT_VALUE_TYPE>) valueRange.getValues());
 								return widgetFactory.create(comboBp);
 							}
 							else {
 								final IComboBoxSelectionBluePrint<ELEMENT_VALUE_TYPE> comboBp = bpf.comboBoxSelection(converter);
+								addValueRangeValidator(comboBp);
 								comboBp.setElements((List<ELEMENT_VALUE_TYPE>) valueRange.getValues());
 								return widgetFactory.create(comboBp);
 							}
@@ -304,6 +316,13 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 			}
 		}
 		return controlCreator;
+	}
+
+	@SuppressWarnings({"unchecked", "rawtypes"})
+	private void addValueRangeValidator(final IInputComponentSetupBuilder setupBuilder) {
+		if (!valueRange.isOpen()) {
+			setupBuilder.setValidator(new ValueRangeValidator(valueRange));
+		}
 	}
 
 	private ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> getCollectionControlCreator() {
@@ -320,6 +339,9 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 					@Override
 					public IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>> create(final ICustomWidgetFactory widgetFactory) {
 						final ICollectionInputFieldBluePrint<ELEMENT_VALUE_TYPE> inputFieldBp = bpf.collectionInputField(converter);
+						if (!valueRange.isOpen()) {
+							inputFieldBp.setElementValidator(new ValueRangeValidator<ELEMENT_VALUE_TYPE>(valueRange));
+						}
 						final ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> elementControlCreator = getControlCreator();
 						if (elementControlCreator != null) {
 							inputFieldBp.setCollectionInputDialogSetup(bpf.collectionInputDialog(elementControlCreator));
