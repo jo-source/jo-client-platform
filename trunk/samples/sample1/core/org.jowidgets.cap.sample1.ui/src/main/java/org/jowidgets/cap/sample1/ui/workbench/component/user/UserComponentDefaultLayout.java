@@ -29,9 +29,12 @@
 package org.jowidgets.cap.sample1.ui.workbench.component.user;
 
 import org.jowidgets.cap.sample1.ui.workbench.component.user.view.UserDetailView;
+import org.jowidgets.cap.sample1.ui.workbench.component.user.view.UserDetailGroupsBorderView;
+import org.jowidgets.cap.sample1.ui.workbench.component.user.view.UserDetailGroupsMixedView;
+import org.jowidgets.cap.sample1.ui.workbench.component.user.view.UserDetailGroupsSeparatorsView;
 import org.jowidgets.cap.sample1.ui.workbench.component.user.view.UserTableView;
-import org.jowidgets.cap.sample1.ui.workbench.component.user.view.UserThreeColumnFormView;
-import org.jowidgets.cap.sample1.ui.workbench.component.user.view.UserTwoColumnFormView;
+import org.jowidgets.cap.sample1.ui.workbench.component.user.view.UserDetailThreeColumnView;
+import org.jowidgets.cap.sample1.ui.workbench.component.user.view.UserDetailTwoColumnView;
 import org.jowidgets.workbench.api.ILayout;
 import org.jowidgets.workbench.toolkit.api.IFolderLayoutBuilder;
 import org.jowidgets.workbench.toolkit.api.ILayoutBuilder;
@@ -75,8 +78,17 @@ public class UserComponentDefaultLayout {
 	private IFolderLayoutBuilder createDetailFolder() {
 		final IFolderLayoutBuilder result = new FolderLayoutBuilder(DETAIL_FOLDER_ID);
 		result.addView(UserDetailView.ID, UserDetailView.DEFAULT_LABEL, UserDetailView.DEFAULT_TOOLTIP);
-		result.addView(UserTwoColumnFormView.ID, UserTwoColumnFormView.DEFAULT_LABEL, UserTwoColumnFormView.DEFAULT_TOOLTIP);
-		result.addView(UserThreeColumnFormView.ID, UserThreeColumnFormView.DEFAULT_LABEL, UserThreeColumnFormView.DEFAULT_TOOLTIP);
+		result.addView(UserDetailTwoColumnView.ID, UserDetailTwoColumnView.DEFAULT_LABEL, UserDetailTwoColumnView.DEFAULT_TOOLTIP);
+		result.addView(UserDetailThreeColumnView.ID, UserDetailThreeColumnView.DEFAULT_LABEL, UserDetailThreeColumnView.DEFAULT_TOOLTIP);
+		result.addView(
+				UserDetailGroupsBorderView.ID,
+				UserDetailGroupsBorderView.DEFAULT_LABEL,
+				UserDetailGroupsBorderView.DEFAULT_TOOLTIP);
+		result.addView(
+				UserDetailGroupsSeparatorsView.ID,
+				UserDetailGroupsSeparatorsView.DEFAULT_LABEL,
+				UserDetailGroupsSeparatorsView.DEFAULT_TOOLTIP);
+		result.addView(UserDetailGroupsMixedView.ID, UserDetailGroupsMixedView.DEFAULT_LABEL, UserDetailGroupsMixedView.DEFAULT_TOOLTIP);
 		return result;
 	}
 

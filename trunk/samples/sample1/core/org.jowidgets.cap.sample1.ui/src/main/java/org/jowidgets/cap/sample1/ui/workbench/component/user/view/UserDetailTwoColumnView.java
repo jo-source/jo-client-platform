@@ -48,13 +48,13 @@ import org.jowidgets.tools.layout.MigLayoutFactory;
 import org.jowidgets.workbench.api.IViewContext;
 import org.jowidgets.workbench.tools.AbstractView;
 
-public class UserTwoColumnFormView extends AbstractView {
+public class UserDetailTwoColumnView extends AbstractView {
 
-	public static final String ID = UserTwoColumnFormView.class.getName();
-	public static final String DEFAULT_LABEL = "Form (2 columns)";
+	public static final String ID = UserDetailTwoColumnView.class.getName();
+	public static final String DEFAULT_LABEL = "User Details (2col)";
 	public static final String DEFAULT_TOOLTIP = "Formular with user details";
 
-	public UserTwoColumnFormView(final IViewContext context, final IBeanListModel<IUser> parentModel) {
+	public UserDetailTwoColumnView(final IViewContext context, final IBeanListModel<IUser> parentModel) {
 		final IContainer container = context.getContainer();
 		container.setLayout(MigLayoutFactory.growingCellLayout());
 		final List<IAttribute<Object>> attributes = new UserAttributesFactory().formAttributes();

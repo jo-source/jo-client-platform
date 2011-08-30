@@ -36,54 +36,59 @@ import org.jowidgets.cap.sample1.common.entity.IUser;
 import org.jowidgets.cap.sample1.ui.attribute.UserAttributesFactory;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
+import org.jowidgets.cap.ui.api.form.BeanFormGroupRendering;
 import org.jowidgets.cap.ui.api.form.IBeanFormGroupBuilder;
-import org.jowidgets.cap.ui.api.form.IBeanFormLayout;
+import org.jowidgets.cap.ui.api.form.IBeanFormLayoutBuilder;
 import org.jowidgets.cap.ui.api.form.IBeanFormLayouter;
-import org.jowidgets.cap.ui.api.form.IBeanFormPropertyBuilder;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
 import org.jowidgets.cap.ui.api.widgets.IBeanForm;
 import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
-import org.jowidgets.common.types.AlignmentVertical;
 import org.jowidgets.tools.layout.MigLayoutFactory;
 import org.jowidgets.workbench.api.IViewContext;
 import org.jowidgets.workbench.tools.AbstractView;
 
-public class UserThreeColumnFormView extends AbstractView {
+public class UserDetailGroupsSeparatorsView extends AbstractView {
 
-	public static final String ID = UserThreeColumnFormView.class.getName();
-	public static final String DEFAULT_LABEL = "Form (3 columns)";
+	public static final String ID = UserDetailGroupsSeparatorsView.class.getName();
+	public static final String DEFAULT_LABEL = "User Details (Separators)";
 	public static final String DEFAULT_TOOLTIP = "Formular with user details";
 
-	public UserThreeColumnFormView(final IViewContext context, final IBeanListModel<IUser> parentModel) {
+	public UserDetailGroupsSeparatorsView(final IViewContext context, final IBeanListModel<IUser> parentModel) {
 		final IContainer container = context.getContainer();
 		container.setLayout(MigLayoutFactory.growingCellLayout());
 		final List<IAttribute<Object>> attributes = new UserAttributesFactory().formAttributes();
 		final IBeanFormBluePrint<IUser> formBp = CapUiToolkit.bluePrintFactory().beanForm(attributes);
 
-		final IBeanFormGroupBuilder groupBuilder = CapUiToolkit.beanFormToolkit().groupBuilder();
-		for (final IAttribute<Object> attribute : attributes) {
-			final IBeanFormPropertyBuilder propertyBuilder = CapUiToolkit.beanFormToolkit().propertyBuilder();
-			propertyBuilder.setPropertyName(attribute.getPropertyName());
-			if (attribute.getPropertyName().equals(IUser.NAME_PROPERTY)) {
-				propertyBuilder.setLabelAlignmentVertical(AlignmentVertical.TOP);
-				propertyBuilder.setRowCount(2);
-				propertyBuilder.setRowSpan(2);
-			}
-			if (attribute.getPropertyName().equals(IUser.LAST_NAME_PROPERTY)) {
-				propertyBuilder.setLabelAlignmentVertical(AlignmentVertical.TOP);
-				propertyBuilder.setRowCount(2);
-				propertyBuilder.setRowSpan(2);
-			}
-			if (attribute.getPropertyName().equals(IUser.GENDER_PROPERTY)) {
-				propertyBuilder.setShowLabel(false);
-			}
+		final IBeanFormLayoutBuilder layoutBuilder = CapUiToolkit.beanFormToolkit().layoutBuilder();
 
-			groupBuilder.addProperty(propertyBuilder);
-		}
+		final IBeanFormGroupBuilder nameGroupBuilder = CapUiToolkit.beanFormToolkit().groupBuilder().setLabel("User name").setRendering(
+				BeanFormGroupRendering.SEPARATOR);
+		nameGroupBuilder.addProperty(CapUiToolkit.beanFormToolkit().propertyBuilder().setPropertyName(IUser.NAME_PROPERTY));
+		nameGroupBuilder.addProperty(CapUiToolkit.beanFormToolkit().propertyBuilder().setPropertyName(IUser.LAST_NAME_PROPERTY));
+		layoutBuilder.addGroup(nameGroupBuilder);
 
-		final IBeanFormLayout layout = CapUiToolkit.beanFormToolkit().layoutBuilder().setColumnCount(3).addGroup(groupBuilder).build();
-		final IBeanFormLayouter layouter = CapUiToolkit.beanFormToolkit().layouter(layout);
+		final IBeanFormGroupBuilder detailsGroupBuilder = CapUiToolkit.beanFormToolkit().groupBuilder().setLabel("User details").setRendering(
+				BeanFormGroupRendering.SEPARATOR);
+		detailsGroupBuilder.addProperty(CapUiToolkit.beanFormToolkit().propertyBuilder().setPropertyName(
+				IUser.DATE_OF_BIRTH_PROPERTY));
+		detailsGroupBuilder.addProperty(CapUiToolkit.beanFormToolkit().propertyBuilder().setPropertyName(IUser.GENDER_PROPERTY));
+		detailsGroupBuilder.addProperty(CapUiToolkit.beanFormToolkit().propertyBuilder().setPropertyName(IUser.MARRIED_PROPERTY));
+		layoutBuilder.addGroup(detailsGroupBuilder);
+
+		final IBeanFormGroupBuilder countryGroupBuilder = CapUiToolkit.beanFormToolkit().groupBuilder().setLabel(
+				"Country settings").setRendering(BeanFormGroupRendering.SEPARATOR);
+		countryGroupBuilder.addProperty(CapUiToolkit.beanFormToolkit().propertyBuilder().setPropertyName(IUser.COUNTRY_PROPERTY));
+		countryGroupBuilder.addProperty(CapUiToolkit.beanFormToolkit().propertyBuilder().setPropertyName(IUser.LANGUAGES_PROPERTY));
+		layoutBuilder.addGroup(countryGroupBuilder);
+
+		final IBeanFormGroupBuilder administrationGroupBuilder = CapUiToolkit.beanFormToolkit().groupBuilder().setLabel(
+				"Administration").setRendering(BeanFormGroupRendering.SEPARATOR);
+		administrationGroupBuilder.addProperty(CapUiToolkit.beanFormToolkit().propertyBuilder().setPropertyName(
+				IUser.ADMIN_PROPERTY));
+		layoutBuilder.addGroup(administrationGroupBuilder);
+
+		final IBeanFormLayouter layouter = CapUiToolkit.beanFormToolkit().layouter(layoutBuilder.build());
 
 		final IBeanForm<IUser> userForm = container.add(formBp.setLayouter(layouter), MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
 
