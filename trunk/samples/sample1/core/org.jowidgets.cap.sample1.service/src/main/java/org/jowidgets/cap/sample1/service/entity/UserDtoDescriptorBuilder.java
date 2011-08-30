@@ -63,7 +63,7 @@ public class UserDtoDescriptorBuilder extends BeanDtoDescriptorBuilder {
 		propertyBp = addProperty(IUser.LANGUAGES_PROPERTY);
 		propertyBp.setLabel("Languages").setDescription("The languages the user speaks");
 		propertyBp.setElementValueType(String.class).setSortable(false);
-		propertyBp.setValueRange(false, "English", "German", "Italian", "Spanish");
+		propertyBp.setValueRange(true, "English", "German", "Italian", "Spanish", "French");
 
 		propertyBp = addProperty(IUser.ADMIN_PROPERTY);
 		propertyBp.setLabel("Admin").setDescription("Determines if the user is an administrator");
