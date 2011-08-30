@@ -308,6 +308,7 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 								final IComboBoxSelectionBluePrint<ELEMENT_VALUE_TYPE> comboBp = bpf.comboBoxSelection(converter);
 								addValueRangeValidator(comboBp);
 								comboBp.setElements((List<ELEMENT_VALUE_TYPE>) valueRange.getValues());
+								comboBp.setLenient(true);
 								return widgetFactory.create(comboBp);
 							}
 						}
