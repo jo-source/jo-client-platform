@@ -38,7 +38,6 @@ import org.jowidgets.cap.ui.api.attribute.IControlPanelProvider;
 import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
 import org.jowidgets.util.Assert;
 
-
 final class ControlPanelProviderImpl<ELEMENT_VALUE_TYPE> implements IControlPanelProvider<ELEMENT_VALUE_TYPE> {
 
 	private final String displayFormatId;
@@ -47,8 +46,8 @@ final class ControlPanelProviderImpl<ELEMENT_VALUE_TYPE> implements IControlPane
 	private final IObjectLabelConverter<ELEMENT_VALUE_TYPE> objectLabelConverter;
 	private final IStringObjectConverter<ELEMENT_VALUE_TYPE> stringObjectConverter;
 	private final ICustomWidgetCreator<IInputControl<? extends IFilter>> filterControlCreator;
-	private final ICustomWidgetCreator<IInputControl<? extends ELEMENT_VALUE_TYPE>> controlCreator;
-	private final ICustomWidgetCreator<IInputControl<Collection<? extends ELEMENT_VALUE_TYPE>>> collectionControlCreator;
+	private final ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> controlCreator;
+	private final ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> collectionControlCreator;
 
 	ControlPanelProviderImpl(
 		final String displayFormatId,
@@ -57,8 +56,8 @@ final class ControlPanelProviderImpl<ELEMENT_VALUE_TYPE> implements IControlPane
 		final IObjectLabelConverter<ELEMENT_VALUE_TYPE> objectLabelConverter,
 		final IStringObjectConverter<ELEMENT_VALUE_TYPE> stringObjectConverter,
 		final ICustomWidgetCreator<IInputControl<? extends IFilter>> filterControlCreator,
-		final ICustomWidgetCreator<IInputControl<? extends ELEMENT_VALUE_TYPE>> controlCreator,
-		final ICustomWidgetCreator<IInputControl<Collection<? extends ELEMENT_VALUE_TYPE>>> collectionControlCreator) {
+		final ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> controlCreator,
+		final ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> collectionControlCreator) {
 
 		Assert.paramNotEmpty(displayFormatId, "displayFormatId");
 		Assert.paramNotEmpty(displayFormatName, "displayFormatName");
@@ -105,12 +104,12 @@ final class ControlPanelProviderImpl<ELEMENT_VALUE_TYPE> implements IControlPane
 	}
 
 	@Override
-	public ICustomWidgetCreator<IInputControl<? extends ELEMENT_VALUE_TYPE>> getControlCreator() {
+	public ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> getControlCreator() {
 		return controlCreator;
 	}
 
 	@Override
-	public ICustomWidgetCreator<IInputControl<Collection<? extends ELEMENT_VALUE_TYPE>>> getCollectionControlCreator() {
+	public ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> getCollectionControlCreator() {
 		return collectionControlCreator;
 	}
 
