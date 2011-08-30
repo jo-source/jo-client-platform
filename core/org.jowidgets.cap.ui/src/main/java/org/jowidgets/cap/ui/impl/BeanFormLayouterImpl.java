@@ -35,6 +35,7 @@ import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.widgets.IContainer;
 import org.jowidgets.api.widgets.IControl;
 import org.jowidgets.api.widgets.blueprint.ITextLabelBluePrint;
+import org.jowidgets.cap.ui.api.form.BeanFormGroupRendering;
 import org.jowidgets.cap.ui.api.form.IBeanFormControlFactory;
 import org.jowidgets.cap.ui.api.form.IBeanFormGroup;
 import org.jowidgets.cap.ui.api.form.IBeanFormLayout;
@@ -57,14 +58,56 @@ final class BeanFormLayouterImpl implements IBeanFormLayouter {
 	}
 
 	@Override
-	public void layout(final IContainer container, final IBeanFormControlFactory controlFactory) {
-		container.setLayout(new MigLayoutDescriptor(getColumnConstraints(layout), ""));
+	public void layout(final IContainer globalContainer, final IBeanFormControlFactory controlFactory) {
+		globalContainer.setLayout(new MigLayoutDescriptor(getColumnConstraints(layout), ""));
 
-		final List<boolean[]> grid = new ArrayList<boolean[]>();
+		final List<boolean[]> globalGrid = new ArrayList<boolean[]>();
 
 		int row = 0;
 
+		final boolean showSeparators = layout.getGroups().size() > 1;
 		for (final IBeanFormGroup group : layout.getGroups()) {
+
+			final String label = group.getLabel();
+			final BeanFormGroupRendering rendering = group.getRendering();
+
+			row = getNextFreeRow(globalGrid);
+			final List<boolean[]> grid;
+			final IContainer container;
+			if (BeanFormGroupRendering.NONE.equals(rendering)) {
+				grid = globalGrid;
+				container = globalContainer;
+			}
+			else if (BeanFormGroupRendering.SEPARATOR.equals(rendering)) {
+				final String cell = "growx, cell 0 " + row + " " + (3 * layout.getColumnCount()) + " 1";
+				setUsed(globalGrid, row, 0, 1, layout.getColumnCount());
+
+				if (label != null && !"".equals(label)) {
+					globalContainer.add(Toolkit.getBluePrintFactory().textSeparator(label), cell);
+				}
+				else if (row > 0 && showSeparators) {
+					globalContainer.add(Toolkit.getBluePrintFactory().separator(), cell);
+				}
+				grid = globalGrid;
+				container = globalContainer;
+			}
+			else if (BeanFormGroupRendering.BORDER.equals(rendering)) {
+				final String cell = "growx, cell 0 " + row + " " + (3 * layout.getColumnCount()) + " 1";
+
+				setUsed(globalGrid, row, 0, 1, layout.getColumnCount());
+				if (label != null && !"".equals(label)) {
+					container = globalContainer.add(Toolkit.getBluePrintFactory().composite(label), cell);
+				}
+				else {
+					container = globalContainer.add(Toolkit.getBluePrintFactory().compositeWithBorder(), cell);
+				}
+				container.setLayout(new MigLayoutDescriptor(getColumnConstraints(layout), ""));
+				grid = new ArrayList<boolean[]>();
+			}
+			else {
+				throw new IllegalStateException("Unkown BeanFormGroupRendering '" + rendering + "'.");
+			}
+
 			// reset column index
 			int logicalColumn = 0;
 			row = getNextFreeRow(grid);
