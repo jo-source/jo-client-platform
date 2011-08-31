@@ -79,13 +79,17 @@ final class BeanFormLayouterImpl implements IBeanFormLayouter {
 				container = globalContainer;
 			}
 			else if (BeanFormGroupRendering.SEPARATOR.equals(rendering)) {
-				final String cell = "growx, cell 0 " + row + " " + (3 * layout.getColumnCount()) + " 1";
+				final String baseConstraints = "growx, cell 0 " + row + " " + (3 * layout.getColumnCount()) + " 1";
 				setUsed(globalGrid, row, 0, 1, layout.getColumnCount());
 
 				if (label != null && !"".equals(label)) {
+					final String gapTop = (row > 0) ? "gaptop 30" : "";
+					final String gapBottom = "gapbottom 10";
+					final String cell = constraints(baseConstraints, gapTop, gapBottom);
 					globalContainer.add(Toolkit.getBluePrintFactory().textSeparator(label), cell);
 				}
 				else if (row > 0 && showSeparators) {
+					final String cell = constraints(baseConstraints, "gaptop 20, gapbottom 20");
 					globalContainer.add(Toolkit.getBluePrintFactory().separator(), cell);
 				}
 				grid = globalGrid;
@@ -284,17 +288,16 @@ final class BeanFormLayouterImpl implements IBeanFormLayouter {
 			final Integer controlMinWidth = layout.getControlMinWidth(column);
 			final Integer controlMaxWidth = layout.getControlMaxWidth(column);
 			result.append('[');
-			if (controlMinWidth != null) {
-				result.append(controlMinWidth.toString());
-			}
-			if (controlMinWidth != null && controlMaxWidth != null) {
+			result.append("grow");
+			if (controlMinWidth != null || controlMaxWidth != null) {
+				result.append(", ");
+				if (controlMinWidth != null) {
+					result.append(controlMinWidth.toString());
+				}
 				result.append("::");
-			}
-			else {
-				result.append("grow");
-			}
-			if (controlMaxWidth != null) {
-				result.append(controlMaxWidth.toString());
+				if (controlMaxWidth != null) {
+					result.append(controlMaxWidth.toString());
+				}
 			}
 			result.append(']');
 

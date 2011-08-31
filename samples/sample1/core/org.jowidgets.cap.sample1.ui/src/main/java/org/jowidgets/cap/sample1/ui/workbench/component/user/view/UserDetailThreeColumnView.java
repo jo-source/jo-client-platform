@@ -37,7 +37,7 @@ import org.jowidgets.cap.sample1.ui.attribute.UserAttributesFactory;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.form.IBeanFormGroupBuilder;
-import org.jowidgets.cap.ui.api.form.IBeanFormLayout;
+import org.jowidgets.cap.ui.api.form.IBeanFormLayoutBuilder;
 import org.jowidgets.cap.ui.api.form.IBeanFormLayouter;
 import org.jowidgets.cap.ui.api.form.IBeanFormPropertyBuilder;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
@@ -82,8 +82,12 @@ public class UserDetailThreeColumnView extends AbstractView {
 			groupBuilder.addProperty(propertyBuilder);
 		}
 
-		final IBeanFormLayout layout = CapUiToolkit.beanFormToolkit().layoutBuilder().setColumnCount(3).addGroup(groupBuilder).build();
-		final IBeanFormLayouter layouter = CapUiToolkit.beanFormToolkit().layouter(layout);
+		final IBeanFormLayoutBuilder layoutBuilder = CapUiToolkit.beanFormToolkit().layoutBuilder().setColumnCount(3).addGroup(
+				groupBuilder);
+		layoutBuilder.setColumnMinSize(0, 100).setColumnMaxSize(0, 200);
+		layoutBuilder.setColumnMinSize(1, 100).setColumnMaxSize(1, 300);
+		layoutBuilder.setColumnMinSize(2, 100).setColumnMaxSize(2, 500);
+		final IBeanFormLayouter layouter = CapUiToolkit.beanFormToolkit().layouter(layoutBuilder.build());
 
 		final IBeanForm<IUser> userForm = container.add(formBp.setLayouter(layouter), MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
 
