@@ -119,9 +119,87 @@ final class BeanTableMenuFactoryImpl implements IBeanTableMenuFactory {
 	}
 
 	@Override
+	public IActionBuilder includingFilterActionBuilder(final IBeanTableModel<?> model) {
+		return new BeanTableIncludingFilterActionBuilder(model);
+	}
+
+	@Override
+	public IAction includingFilterAction(final IBeanTableModel<?> model) {
+		return includingFilterActionBuilder(model).build();
+	}
+
+	@Override
+	public IActionBuilder excludingFilterActionBuilder(final IBeanTableModel<?> model) {
+		return new BeanTableExcludingFilterActionBuilder(model);
+	}
+
+	@Override
+	public IAction excludingFilterAction(final IBeanTableModel<?> model) {
+		return excludingFilterActionBuilder(model).build();
+	}
+
+	@Override
+	public IActionBuilder customFilterActionBuilder(final IBeanTableModel<?> model) {
+		return new BeanTableCustomFilterActionBuilder(model);
+	}
+
+	@Override
+	public IAction customFilterAction(final IBeanTableModel<?> model) {
+		return customFilterActionBuilder(model).build();
+	}
+
+	@Override
+	public IActionBuilder editFilterActionBuilder(final IBeanTableModel<?> model) {
+		return new BeanTableEditFilterActionBuilder(model);
+	}
+
+	@Override
+	public IAction editFilterAction(final IBeanTableModel<?> model) {
+		return editFilterActionBuilder(model).build();
+	}
+
+	@Override
+	public IActionBuilder deleteFilterActionBuilder(final IBeanTableModel<?> model) {
+		return new BeanTableDeleteFilterActionBuilder(model);
+	}
+
+	@Override
+	public IAction deleteFilterAction(final IBeanTableModel<?> model) {
+		return deleteFilterActionBuilder(model).build();
+	}
+
+	@Override
+	public IActionBuilder deleteColumnFiltersActionBuilder(final IBeanTableModel<?> model) {
+		return new BeanTableDeleteColumnFiltersActionBuilder(model);
+	}
+
+	@Override
+	public IAction deleteColumnFiltersAction(final IBeanTableModel<?> model) {
+		return deleteColumnFiltersActionBuilder(model).build();
+	}
+
+	@Override
 	public IMenuModel columnsVisibilityMenu(final IBeanTableModel<?> model) {
 		Assert.paramNotNull(model, "model");
 		return new BeanTableColumnsVisibilityMenuModel(model);
+	}
+
+	@Override
+	public IMenuModel filterMenu(final IBeanTableModel<?> model) {
+		Assert.paramNotNull(model, "model");
+		return new BeanTableFilterMenuModel(model);
+	}
+
+	@Override
+	public IMenuModel filterCellMenu(final IBeanTableModel<?> model) {
+		Assert.paramNotNull(model, "model");
+		return new BeanTableCellFilterMenuModel(model);
+	}
+
+	@Override
+	public IMenuModel filterHeaderMenu(final IBeanTableModel<?> model) {
+		Assert.paramNotNull(model, "model");
+		return new BeanTableHeaderFilterMenuModel(model);
 	}
 
 	@Override

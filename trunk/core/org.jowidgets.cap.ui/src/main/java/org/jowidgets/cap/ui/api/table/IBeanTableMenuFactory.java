@@ -63,7 +63,37 @@ public interface IBeanTableMenuFactory {
 
 	IAction clearDefaultSortAction(IBeanTableModel<?> model);
 
+	IActionBuilder includingFilterActionBuilder(IBeanTableModel<?> model);
+
+	IAction includingFilterAction(IBeanTableModel<?> model);
+
+	IActionBuilder excludingFilterActionBuilder(IBeanTableModel<?> model);
+
+	IAction excludingFilterAction(IBeanTableModel<?> model);
+
+	IActionBuilder customFilterActionBuilder(IBeanTableModel<?> model);
+
+	IAction customFilterAction(IBeanTableModel<?> model);
+
+	IActionBuilder editFilterActionBuilder(IBeanTableModel<?> model);
+
+	IAction editFilterAction(IBeanTableModel<?> model);
+
+	IActionBuilder deleteFilterActionBuilder(IBeanTableModel<?> model);
+
+	IAction deleteFilterAction(IBeanTableModel<?> model);
+
+	IActionBuilder deleteColumnFiltersActionBuilder(IBeanTableModel<?> model);
+
+	IAction deleteColumnFiltersAction(IBeanTableModel<?> model);
+
 	IMenuModel columnsVisibilityMenu(IBeanTableModel<?> model);
+
+	IMenuModel filterMenu(IBeanTableModel<?> model);
+
+	IMenuModel filterCellMenu(IBeanTableModel<?> model);
+
+	IMenuModel filterHeaderMenu(IBeanTableModel<?> model);
 
 	IMenuModel alignmentMenu(IBeanTableModel<?> model, int columnIndex);
 
