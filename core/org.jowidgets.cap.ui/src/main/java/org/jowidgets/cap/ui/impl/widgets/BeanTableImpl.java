@@ -54,7 +54,6 @@ import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableSettingsDialog;
 import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
-import org.jowidgets.common.types.IVetoable;
 import org.jowidgets.common.types.Modifier;
 import org.jowidgets.common.types.Position;
 import org.jowidgets.common.widgets.controller.ITableCellEditEvent;
@@ -106,6 +105,7 @@ final class BeanTableImpl<BEAN_TYPE> extends TableWrapper implements IBeanTable<
 			//cell popup menu
 			final IAction settingsDialogAction = menuFactory.settingsAction(this);
 			cellPopupMenuModel.addItem(headerPopupMenuModel);
+			cellPopupMenuModel.addItem(menuFactory.filterCellMenu(model));
 			cellPopupMenuModel.addAction(settingsDialogAction);
 
 			//header popup menu
@@ -117,6 +117,8 @@ final class BeanTableImpl<BEAN_TYPE> extends TableWrapper implements IBeanTable<
 			headerPopupMenuModel.addAction(hideColumnAction);
 			headerPopupMenuModel.addItem(columnsVisibilityMenu);
 			headerPopupMenuModel.addAction(showAllColumnsAction);
+			headerPopupMenuModel.addSeparator();
+			headerPopupMenuModel.addItem(menuFactory.filterHeaderMenu(model));
 			headerPopupMenuModel.addSeparator();
 			headerPopupMenuModel.addAction(packSelectedAction);
 			headerPopupMenuModel.addAction(packAllAction);
@@ -131,6 +133,7 @@ final class BeanTableImpl<BEAN_TYPE> extends TableWrapper implements IBeanTable<
 			tablePopupMenuModel.addAction(packAllAction);
 			tablePopupMenuModel.addSeparator();
 			tablePopupMenuModel.addAction(settingsDialogAction);
+			tablePopupMenuModel.addItem(menuFactory.filterMenu(model));
 			table.setPopupMenu(tablePopupMenuModel);
 		}
 
@@ -235,7 +238,7 @@ final class BeanTableImpl<BEAN_TYPE> extends TableWrapper implements IBeanTable<
 				tempHeaderMenuItems.remove(tempMenuItem);
 				headerPopupMenuModel.removeItem(tempMenuItem);
 			}
-			final int headerFormatIndex = 4;
+			final int headerFormatIndex = 6;
 			for (final IMenuItemModel menuItem : headerMenus.get(Integer.valueOf(columnIndex))) {
 				headerPopupMenuModel.addItem(headerFormatIndex, menuItem);
 				tempHeaderMenuItems.add(menuItem);
@@ -320,11 +323,6 @@ final class BeanTableImpl<BEAN_TYPE> extends TableWrapper implements IBeanTable<
 	}
 
 	private class TableCellEditorListener extends TableCellEditorAdapter {
-		// TODO NM remove method
-		@Override
-		public void onEdit(final IVetoable veto, final ITableCellEditEvent event) {
-			veto.veto();
-		}
 
 		@Override
 		public void editFinished(final ITableCellEditEvent event) {
