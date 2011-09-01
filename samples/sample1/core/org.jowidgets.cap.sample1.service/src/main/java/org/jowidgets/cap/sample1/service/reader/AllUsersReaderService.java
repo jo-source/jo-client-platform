@@ -82,7 +82,7 @@ public class AllUsersReaderService implements ISyncReaderService<Integer> {
 		final IEntityData<? extends IBean> entityData = EntityDataStore.getEntityData(IUser.class);
 		final IBeanDtoFactory<IUser> dtoFactory = CapServiceToolkit.dtoFactory(IUser.class, IUser.ALL_PROPERTIES);
 		final List<? extends IBean> allData = entityData.getAllData(firstRow, maxRows);
-		return BeanDtoFactoryHelper.createDtos(dtoFactory, allData);
+		return CapServiceToolkit.beanDtoSorter().sort(BeanDtoFactoryHelper.createDtos(dtoFactory, allData), sorting);
 
 	}
 

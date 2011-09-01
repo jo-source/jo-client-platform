@@ -66,9 +66,9 @@ final class SyncReaderService<BEAN_TYPE extends IBean> implements ISyncReaderSer
 
 		final List<IBeanDto> result = BeanDtoFactoryHelper.createDtos(beanFactory, data.getAllData(firstRow, maxRows));
 
-		//TODO apply filter and sort
+		//TODO apply filter 
 
-		return result;
+		return CapServiceToolkit.beanDtoSorter().sort(result, sortedProperties);
 	}
 
 	@Override
