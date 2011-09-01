@@ -814,7 +814,7 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 					}
 					else if (hasToAdd) {
 						model.insertSortIndex(newIndex, propertyName);
-						getCurrentSorting().setValue(SortOrder.ASC.getLabel());
+						model.provider.getSort(composite).setValue(SortOrder.ASC.getLabel());
 					}
 					else {
 						model.shiftSortingIndex(newIndex, previousIndex, propertyName);
