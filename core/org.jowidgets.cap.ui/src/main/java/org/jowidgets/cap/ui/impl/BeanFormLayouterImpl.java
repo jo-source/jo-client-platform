@@ -59,7 +59,7 @@ final class BeanFormLayouterImpl implements IBeanFormLayouter {
 
 	@Override
 	public void layout(final IContainer globalContainer, final IBeanFormControlFactory controlFactory) {
-		globalContainer.setLayout(new MigLayoutDescriptor(getColumnConstraints(layout), ""));
+		globalContainer.setLayout(new MigLayoutDescriptor(getColumnsConstraints(layout), ""));
 
 		final List<boolean[]> globalGrid = new ArrayList<boolean[]>();
 
@@ -105,7 +105,7 @@ final class BeanFormLayouterImpl implements IBeanFormLayouter {
 				else {
 					container = globalContainer.add(Toolkit.getBluePrintFactory().compositeWithBorder(), cell);
 				}
-				container.setLayout(new MigLayoutDescriptor(getColumnConstraints(layout), ""));
+				container.setLayout(new MigLayoutDescriptor(getColumnsConstraints(layout), ""));
 				grid = new ArrayList<boolean[]>();
 			}
 			else {
@@ -139,11 +139,11 @@ final class BeanFormLayouterImpl implements IBeanFormLayouter {
 				currentRowHeight = Math.max(currentRowHeight, propertyRowCount);
 
 				final String sizeGroupLabel = "sg lbl";
-				final String sizeGroupControl = "sgy r" + row + "ctrl";
+				final String sizeGroupControl = "sgy r" + row + "ctrlspn" + propertyRowSpan;
 				final ICustomWidgetCreator<? extends IControl> validationLabelCreator = controlFactory.createValidationLabel(
 						propertyName,
 						property.getValidationLabel());
-				final String controlConstraints = "";
+				final String controlConstraints = getControlWidthConstraints(layout, logicalColumn);
 
 				final int firstPropertyColumn = (3 * logicalColumn);
 
@@ -182,6 +182,8 @@ final class BeanFormLayouterImpl implements IBeanFormLayouter {
 				}
 
 				//add control
+				final String cellConstraints = constraints(cell, sizeGroupControl, controlConstraints, "growx", "growy");
+				System.out.println("cellConstraints: " + cellConstraints);
 				container.add(controlCreator, constraints(cell, sizeGroupControl, controlConstraints, "growx", "growy"));
 
 				//add validation label
@@ -266,7 +268,7 @@ final class BeanFormLayouterImpl implements IBeanFormLayouter {
 	private static String constraints(final String... constraints) {
 		final StringBuilder result = new StringBuilder();
 		for (final String constraint : constraints) {
-			if (result.length() > 0) {
+			if (result.length() > 0 && !"".equals(constraint)) {
 				result.append(", ");
 			}
 			result.append(constraint);
@@ -274,7 +276,34 @@ final class BeanFormLayouterImpl implements IBeanFormLayouter {
 		return result.toString();
 	}
 
-	private static String getColumnConstraints(final IBeanFormLayout layout) {
+	private static String getColumnWidthConstraints(final IBeanFormLayout layout, final int column) {
+		final Integer controlMinWidth = layout.getControlMinWidth(column);
+		final Integer controlMaxWidth = layout.getControlMaxWidth(column);
+		if (controlMinWidth != null || controlMaxWidth != null) {
+			return (controlMinWidth != null ? controlMinWidth.toString() : "")
+				+ "::"
+				+ (controlMaxWidth != null ? controlMaxWidth.toString() : "");
+		}
+		else {
+			return "";
+		}
+	}
+
+	private static String getControlWidthConstraints(final IBeanFormLayout layout, final int column) {
+		final Integer controlMinWidth = layout.getControlMinWidth(column);
+		final Integer controlMaxWidth = layout.getControlMaxWidth(column);
+		if (controlMinWidth != null || controlMaxWidth != null) {
+			return "width "
+				+ (controlMinWidth != null ? controlMinWidth.toString() : "")
+				+ "::"
+				+ (controlMaxWidth != null ? controlMaxWidth.toString() : "");
+		}
+		else {
+			return "";
+		}
+	}
+
+	private static String getColumnsConstraints(final IBeanFormLayout layout) {
 		final StringBuilder result = new StringBuilder();
 		result.append("0");
 		for (int column = 0; column < layout.getColumnCount(); column++) {
@@ -284,20 +313,12 @@ final class BeanFormLayouterImpl implements IBeanFormLayouter {
 			}
 
 			result.append("[]"); // label column
-
-			final Integer controlMinWidth = layout.getControlMinWidth(column);
-			final Integer controlMaxWidth = layout.getControlMaxWidth(column);
 			result.append('[');
 			result.append("grow");
-			if (controlMinWidth != null || controlMaxWidth != null) {
+			final String widths = getColumnWidthConstraints(layout, column);
+			if (!"".equals(widths)) {
 				result.append(", ");
-				if (controlMinWidth != null) {
-					result.append(controlMinWidth.toString());
-				}
-				result.append("::");
-				if (controlMaxWidth != null) {
-					result.append(controlMaxWidth.toString());
-				}
+				result.append(widths);
 			}
 			result.append(']');
 
