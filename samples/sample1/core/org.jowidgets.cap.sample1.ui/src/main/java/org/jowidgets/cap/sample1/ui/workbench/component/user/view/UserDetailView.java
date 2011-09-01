@@ -36,6 +36,8 @@ import org.jowidgets.cap.sample1.common.entity.IUser;
 import org.jowidgets.cap.sample1.ui.attribute.UserAttributesFactory;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
+import org.jowidgets.cap.ui.api.form.IBeanFormLayoutBuilder;
+import org.jowidgets.cap.ui.api.form.IBeanFormToolkit;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
 import org.jowidgets.cap.ui.api.widgets.IBeanForm;
@@ -54,7 +56,12 @@ public class UserDetailView extends AbstractView {
 		final IContainer container = context.getContainer();
 		container.setLayout(MigLayoutFactory.growingCellLayout());
 		final List<IAttribute<Object>> attributes = new UserAttributesFactory().formAttributes();
+		final IBeanFormToolkit beanFormToolkit = CapUiToolkit.beanFormToolkit();
+
 		final IBeanFormBluePrint<IUser> formBp = CapUiToolkit.bluePrintFactory().beanForm(attributes);
+		final IBeanFormLayoutBuilder layoutBuilder = beanFormToolkit.layoutBuilder();
+		layoutBuilder.addGroups(attributes).setColumnMaxSize(0, 300);
+		formBp.setLayouter(beanFormToolkit.layouter(layoutBuilder.build()));
 
 		final IBeanForm<IUser> userForm = container.add(formBp, MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
 
@@ -76,5 +83,4 @@ public class UserDetailView extends AbstractView {
 
 		});
 	}
-
 }
