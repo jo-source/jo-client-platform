@@ -182,8 +182,6 @@ final class BeanFormLayouterImpl implements IBeanFormLayouter {
 				}
 
 				//add control
-				final String cellConstraints = constraints(cell, sizeGroupControl, controlConstraints, "growx", "growy");
-				System.out.println("cellConstraints: " + cellConstraints);
 				container.add(controlCreator, constraints(cell, sizeGroupControl, controlConstraints, "growx", "growy"));
 
 				//add validation label
