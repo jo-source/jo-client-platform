@@ -83,13 +83,13 @@ final class BeanFormLayouterImpl implements IBeanFormLayouter {
 				setUsed(globalGrid, row, 0, 1, layout.getColumnCount());
 
 				if (label != null && !"".equals(label)) {
-					final String gapTop = (row > 0) ? "gaptop 30" : "";
-					final String gapBottom = "gapbottom 10";
+					final String gapTop = (row > 0) ? "gaptop 27" : "";
+					final String gapBottom = "gapbottom 7";
 					final String cell = constraints(baseConstraints, gapTop, gapBottom);
 					globalContainer.add(Toolkit.getBluePrintFactory().textSeparator(label), cell);
 				}
 				else if (row > 0 && showSeparators) {
-					final String cell = constraints(baseConstraints, "gaptop 20, gapbottom 20");
+					final String cell = constraints(baseConstraints, "gaptop 17, gapbottom 17");
 					globalContainer.add(Toolkit.getBluePrintFactory().separator(), cell);
 				}
 				grid = globalGrid;
