@@ -54,6 +54,8 @@ public class UserDetailGroupsSeparatorsView extends AbstractView {
 	public static final String DEFAULT_LABEL = "User Details (Separators)";
 	public static final String DEFAULT_TOOLTIP = "Formular with user details";
 
+	private final boolean useLabels = true;
+
 	public UserDetailGroupsSeparatorsView(final IViewContext context, final IBeanListModel<IUser> parentModel) {
 		final IContainer container = context.getContainer();
 		container.setLayout(MigLayoutFactory.growingCellLayout());
@@ -62,28 +64,40 @@ public class UserDetailGroupsSeparatorsView extends AbstractView {
 
 		final IBeanFormLayoutBuilder layoutBuilder = CapUiToolkit.beanFormToolkit().layoutBuilder();
 
-		final IBeanFormGroupBuilder nameGroupBuilder = CapUiToolkit.beanFormToolkit().groupBuilder().setLabel("User name").setRendering(
+		final IBeanFormGroupBuilder nameGroupBuilder = CapUiToolkit.beanFormToolkit().groupBuilder().setRendering(
 				BeanFormGroupRendering.SEPARATOR);
+		if (useLabels) {
+			nameGroupBuilder.setLabel("User name");
+		}
 		nameGroupBuilder.addProperty(CapUiToolkit.beanFormToolkit().propertyBuilder().setPropertyName(IUser.NAME_PROPERTY));
 		nameGroupBuilder.addProperty(CapUiToolkit.beanFormToolkit().propertyBuilder().setPropertyName(IUser.LAST_NAME_PROPERTY));
 		layoutBuilder.addGroup(nameGroupBuilder);
 
-		final IBeanFormGroupBuilder detailsGroupBuilder = CapUiToolkit.beanFormToolkit().groupBuilder().setLabel("User details").setRendering(
+		final IBeanFormGroupBuilder detailsGroupBuilder = CapUiToolkit.beanFormToolkit().groupBuilder().setRendering(
 				BeanFormGroupRendering.SEPARATOR);
+		if (useLabels) {
+			detailsGroupBuilder.setLabel("User details");
+		}
 		detailsGroupBuilder.addProperty(CapUiToolkit.beanFormToolkit().propertyBuilder().setPropertyName(
 				IUser.DATE_OF_BIRTH_PROPERTY));
 		detailsGroupBuilder.addProperty(CapUiToolkit.beanFormToolkit().propertyBuilder().setPropertyName(IUser.GENDER_PROPERTY));
 		detailsGroupBuilder.addProperty(CapUiToolkit.beanFormToolkit().propertyBuilder().setPropertyName(IUser.MARRIED_PROPERTY));
 		layoutBuilder.addGroup(detailsGroupBuilder);
 
-		final IBeanFormGroupBuilder countryGroupBuilder = CapUiToolkit.beanFormToolkit().groupBuilder().setLabel(
-				"Country settings").setRendering(BeanFormGroupRendering.SEPARATOR);
+		final IBeanFormGroupBuilder countryGroupBuilder = CapUiToolkit.beanFormToolkit().groupBuilder().setRendering(
+				BeanFormGroupRendering.SEPARATOR);
+		if (useLabels) {
+			countryGroupBuilder.setLabel("Country settings");
+		}
 		countryGroupBuilder.addProperty(CapUiToolkit.beanFormToolkit().propertyBuilder().setPropertyName(IUser.COUNTRY_PROPERTY));
 		countryGroupBuilder.addProperty(CapUiToolkit.beanFormToolkit().propertyBuilder().setPropertyName(IUser.LANGUAGES_PROPERTY));
 		layoutBuilder.addGroup(countryGroupBuilder);
 
-		final IBeanFormGroupBuilder administrationGroupBuilder = CapUiToolkit.beanFormToolkit().groupBuilder().setLabel(
-				"Administration").setRendering(BeanFormGroupRendering.SEPARATOR);
+		final IBeanFormGroupBuilder administrationGroupBuilder = CapUiToolkit.beanFormToolkit().groupBuilder().setRendering(
+				BeanFormGroupRendering.SEPARATOR);
+		if (useLabels) {
+			administrationGroupBuilder.setLabel("Administration");
+		}
 		administrationGroupBuilder.addProperty(CapUiToolkit.beanFormToolkit().propertyBuilder().setPropertyName(
 				IUser.ADMIN_PROPERTY));
 		layoutBuilder.addGroup(administrationGroupBuilder);
