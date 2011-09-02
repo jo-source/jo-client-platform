@@ -5,15 +5,15 @@ Bundle-SymbolicName: org.jowidgets.cap.sample1.starter.standalone.rcp;singleton:
 Bundle-Version: 0.0.1.qualifier
 Bundle-Vendor: jo-widgets.org
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Require-Bundle: org.jowidgets.workbench.impl.rcp,
- org.eclipse.ui;bundle-version="3.6.0",
+Require-Bundle: org.eclipse.ui;bundle-version="3.6.0",
  org.eclipse.core.runtime;bundle-version="3.6.0",
- org.jowidgets.workbench.api;bundle-version="0.4.0",
- org.jowidgets.api;bundle-version="0.4.0",
- org.jowidgets.util;bundle-version="0.4.0",
- org.jowidgets.tools;bundle-version="0.4.0",
- org.jowidgets.validation;bundle-version="0.4.0",
- org.jowidgets.common;bundle-version="0.4.0"
+ org.jowidgets.workbench.api,
+ org.jowidgets.workbench.impl.rcp,
+ org.jowidgets.api,
+ org.jowidgets.util,
+ org.jowidgets.tools,
+ org.jowidgets.validation,
+ org.jowidgets.common
 Bundle-ClassPath: activation-1.1.jar,
  commons-logging-1.1.1.jar,
  hibernate-validator-4.0.2.GA.jar,
