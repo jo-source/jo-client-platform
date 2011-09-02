@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, M. Grossmann, M. Woelker, H. Westphal
+ * Copyright (c) 2011, H. Westphal
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,7 @@ import org.jowidgets.workbench.impl.rcp.WorkbenchRunner;
 public class Sample1StarterStandaloneRcp implements IApplication {
 
 	@Override
-	public Object start(final IApplicationContext arg0) throws Exception {
+	public Object start(final IApplicationContext context) throws Exception {
 		if (!Toolkit.isInitialized()) {
 			Toolkit.initialize(new DefaultToolkitProvider(new SwtWidgetsServiceProvider(Display.getDefault())));
 		}
@@ -50,8 +50,7 @@ public class Sample1StarterStandaloneRcp implements IApplication {
 
 	@Override
 	public void stop() {
-		// TODO Auto-generated method stub
-
+		throw new UnsupportedOperationException("stop");
 	}
 
 }
