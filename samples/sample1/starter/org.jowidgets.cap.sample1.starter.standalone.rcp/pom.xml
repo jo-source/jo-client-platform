@@ -50,6 +50,10 @@
 						</goals>
 						<configuration>
 							<outputDirectory>${basedir}</outputDirectory>
+							<excludeArtifactIds>org.jowidgets.workbench.api,org.jowidgets.workbench.impl.rcp,org.jowidgets.api,org.jowidgets.util,org.jowidgets.tools,
+org.jowidgets.validation,org.jowidgets.common,swt-win32-win32-x86</excludeArtifactIds>
+							<includeScope>runtime</includeScope>
+							<stripVersion>true</stripVersion>
 						</configuration>
 					</execution>
 				</executions>
