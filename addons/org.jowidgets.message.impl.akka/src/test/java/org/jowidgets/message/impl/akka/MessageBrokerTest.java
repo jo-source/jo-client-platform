@@ -59,8 +59,8 @@ public class MessageBrokerTest {
 		MessageToolkit.setReceiver("server", new IMessageReceiver() {
 			@Override
 			public void onMessage(final Object message, final IMessageChannel replyChannel) {
+				result.append(message);
 				if ("ping".equals(message)) {
-					result.append(message);
 					replyChannel.send("pong", new IExceptionCallback() {
 						@Override
 						public void exception(final Throwable throwable) {
@@ -74,9 +74,9 @@ public class MessageBrokerTest {
 		MessageToolkit.setReceiver("client", new IMessageReceiver() {
 			@Override
 			public void onMessage(final Object message, final IMessageChannel replyChannel) {
-				if ("pong".equals(message)) {
-					result.append(message);
-					latch.countDown();
+				result.append(message);
+				latch.countDown();
+				if (latch.getCount() > 0 && "pong".equals(message)) {
 					replyChannel.send("ping", new IExceptionCallback() {
 						@Override
 						public void exception(final Throwable throwable) {
