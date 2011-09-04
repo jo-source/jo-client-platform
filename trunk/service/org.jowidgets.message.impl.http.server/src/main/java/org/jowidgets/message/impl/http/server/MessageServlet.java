@@ -31,6 +31,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -41,6 +43,7 @@ import javax.servlet.http.HttpSession;
 import org.jowidgets.message.api.IMessageReceiver;
 import org.jowidgets.message.api.IMessageReceiverBroker;
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.concurrent.DaemonThreadFactory;
 
 public final class MessageServlet extends HttpServlet implements IMessageReceiverBroker {
 
@@ -49,7 +52,9 @@ public final class MessageServlet extends HttpServlet implements IMessageReceive
 
 	private final String brokerId;
 	private long pollInterval = 10000;
-	private IConnectionFactory connectionFactory = new DefaultConnectionFactory();
+	private Executor executor = Executors.newFixedThreadPool(
+			Runtime.getRuntime().availableProcessors() * 10,
+			new DaemonThreadFactory());
 	private IExecutionInterceptor<?> executionInterceptor = new DefaultExecutionInterceptor();
 	private volatile IMessageReceiver receiver;
 
@@ -67,9 +72,9 @@ public final class MessageServlet extends HttpServlet implements IMessageReceive
 		this.pollInterval = pollInterval;
 	}
 
-	public void setConnectionFactory(final IConnectionFactory connectionFactory) {
-		Assert.paramNotNull(connectionFactory, "connectionFactory");
-		this.connectionFactory = connectionFactory;
+	public void setExecutor(final Executor executor) {
+		Assert.paramNotNull(executor, "executor");
+		this.executor = executor;
 	}
 
 	public void setExecutionInterceptor(final IExecutionInterceptor<?> executionInterceptor) {
@@ -93,7 +98,7 @@ public final class MessageServlet extends HttpServlet implements IMessageReceive
 
 		}
 		else {
-			final IConnection conn = getConnection(session);
+			final Connection conn = getConnection(session);
 			final List<Object> messages = conn.pollMessages(pollInterval);
 			oos.writeInt(messages.size());
 			for (final Object msg : messages) {
@@ -111,7 +116,7 @@ public final class MessageServlet extends HttpServlet implements IMessageReceive
 		if (session == null) {
 			throw new ServletException("invalid session");
 		}
-		final IConnection conn = getConnection(session);
+		final Connection conn = getConnection(session);
 		try {
 			final Object msg = new ObjectInputStream(req.getInputStream()).readObject();
 			conn.onMessage(msg, executionInterceptor);
@@ -121,11 +126,11 @@ public final class MessageServlet extends HttpServlet implements IMessageReceive
 		}
 	}
 
-	private IConnection getConnection(final HttpSession session) {
+	private Connection getConnection(final HttpSession session) {
 		synchronized (session) {
-			IConnection conn = (IConnection) session.getAttribute(CONNECTION_ATTRIBUTE_NAME);
+			Connection conn = (Connection) session.getAttribute(CONNECTION_ATTRIBUTE_NAME);
 			if (conn == null) {
-				conn = connectionFactory.createConnection(receiver);
+				conn = new Connection(receiver, executor);
 				session.setAttribute(CONNECTION_ATTRIBUTE_NAME, conn);
 			}
 			return conn;

@@ -40,28 +40,27 @@ import org.jowidgets.message.api.IMessageChannel;
 import org.jowidgets.message.api.IMessageReceiver;
 import org.jowidgets.util.Assert;
 
-final class DefaultConnection implements IConnection, IMessageChannel {
+final class Connection implements IMessageChannel {
 
 	private final IMessageReceiver receiver;
 	private final Executor executor;
 	private final BlockingQueue<Object> queue = new LinkedBlockingQueue<Object>();
 
-	public DefaultConnection(final IMessageReceiver receiver, final Executor executor) {
+	Connection(final IMessageReceiver receiver, final Executor executor) {
 		Assert.paramNotNull(receiver, "receiver");
 		Assert.paramNotNull(executor, "executor");
 		this.receiver = receiver;
 		this.executor = executor;
 	}
 
-	@Override
-	public <T> void onMessage(final Object msg, final IExecutionInterceptor<T> executionInterceptor) {
+	<T> void onMessage(final Object msg, final IExecutionInterceptor<T> executionInterceptor) {
 		final T context = executionInterceptor.getExecutionContext();
 		executor.execute(new Runnable() {
 			@Override
 			public void run() {
 				executionInterceptor.beforeExecution(context);
 				try {
-					receiver.onMessage(msg, DefaultConnection.this);
+					receiver.onMessage(msg, Connection.this);
 				}
 				finally {
 					executionInterceptor.afterExecution();
@@ -70,8 +69,7 @@ final class DefaultConnection implements IConnection, IMessageChannel {
 		});
 	}
 
-	@Override
-	public List<Object> pollMessages(final long pollInterval) {
+	List<Object> pollMessages(final long pollInterval) {
 		final List<Object> msgs = new LinkedList<Object>();
 		if (queue.drainTo(msgs) == 0) {
 			try {
