@@ -28,7 +28,12 @@
 
 package org.jowidgets.message.impl.http.client;
 
+import org.apache.http.client.HttpClient;
 import org.jowidgets.message.api.IMessageChannelBroker;
 import org.jowidgets.message.api.IMessageReceiverBroker;
 
-public interface IMessageBroker extends IMessageChannelBroker, IMessageReceiverBroker {}
+public interface IMessageBroker extends IMessageChannelBroker, IMessageReceiverBroker {
+
+	HttpClient getHttpClient();
+
+}

@@ -77,7 +77,7 @@ final class MessageBroker implements IMessageBroker, IMessageChannel {
 
 	private volatile IMessageReceiver receiver;
 
-	public MessageBroker(final Object brokerId, final String url, final HttpClient httpClient) {
+	MessageBroker(final Object brokerId, final String url, final HttpClient httpClient) {
 		this.brokerId = brokerId;
 		this.url = url;
 		this.httpClient = httpClient;
@@ -93,6 +93,11 @@ final class MessageBroker implements IMessageBroker, IMessageChannel {
 	@Override
 	public IMessageChannel getChannel() {
 		return this;
+	}
+
+	@Override
+	public HttpClient getHttpClient() {
+		return httpClient;
 	}
 
 	@Override
@@ -243,4 +248,5 @@ final class MessageBroker implements IMessageBroker, IMessageChannel {
 			Thread.currentThread().interrupt();
 		}
 	}
+
 }
