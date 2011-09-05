@@ -32,9 +32,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.jowidgets.message.api.IExceptionCallback;
 import org.jowidgets.message.api.IMessageChannel;
-import org.jowidgets.message.api.IMessageChannelBroker;
 import org.jowidgets.message.api.IMessageReceiver;
-import org.jowidgets.message.api.IMessageReceiverBroker;
 
 import akka.actor.Actor;
 import akka.actor.ActorRef;
@@ -42,7 +40,7 @@ import akka.actor.Actors;
 import akka.actor.UntypedActor;
 import akka.actor.UntypedActorFactory;
 
-public final class MessageBroker extends UntypedActor implements IMessageReceiverBroker, IMessageChannelBroker, IMessageChannel {
+public final class MessageBroker extends UntypedActor implements IMessageBroker, IMessageChannel {
 
 	private final String brokerId;
 	private final ActorRef destination;
@@ -55,11 +53,11 @@ public final class MessageBroker extends UntypedActor implements IMessageReceive
 		this.destination = destination;
 	}
 
-	public static MessageBroker create(final String brokerId) {
+	public static IMessageBroker create(final String brokerId) {
 		return create(brokerId, null);
 	}
 
-	public static MessageBroker create(final String brokerId, final ActorRef destination) {
+	public static IMessageBroker create(final String brokerId, final ActorRef destination) {
 		final AtomicReference<MessageBroker> messageBrokerRef = new AtomicReference<MessageBroker>();
 		final ActorRef actorRef = Actors.actorOf(new UntypedActorFactory() {
 			@Override
@@ -73,6 +71,7 @@ public final class MessageBroker extends UntypedActor implements IMessageReceive
 		return messageBroker;
 	}
 
+	@Override
 	public ActorRef getActorRef() {
 		return actorRef;
 	}
@@ -115,12 +114,24 @@ public final class MessageBroker extends UntypedActor implements IMessageReceive
 
 	@Override
 	public void send(final Object message, final IExceptionCallback exceptionCallback) {
-		try {
-			destination.sendOneWay(message, context());
+		if (destination != null) {
+			try {
+				destination.sendOneWay(message, context());
+			}
+			catch (final Throwable t) {
+				exceptionCallback.exception(t);
+			}
 		}
-		catch (final Throwable t) {
-			exceptionCallback.exception(t);
-		}
+	}
+
+	@Override
+	public void start() {
+		getActorRef().start();
+	}
+
+	@Override
+	public void stop() {
+		getActorRef().stop();
 	}
 
 }

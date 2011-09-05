@@ -47,12 +47,12 @@ public class MessageBrokerTest {
 		final StringBuilder result = new StringBuilder();
 		final CountDownLatch latch = new CountDownLatch(4);
 
-		final MessageBroker server = MessageBroker.create("server");
-		server.getActorRef().start();
+		final IMessageBroker server = MessageBroker.create("server");
+		server.start();
 		MessageToolkit.addReceiverBroker(server);
 
-		final MessageBroker client = MessageBroker.create("client", server.getActorRef());
-		client.getActorRef().start();
+		final IMessageBroker client = MessageBroker.create("client", server.getActorRef());
+		client.start();
 		MessageToolkit.addChannelBroker(client);
 		MessageToolkit.addReceiverBroker(client);
 
