@@ -30,6 +30,7 @@ package org.jowidgets.invocation.common.impl;
 
 public final class MessageBrokerId {
 
+	// TODO MG,HRW review: having two separate ids for server and client would allow running the invocation stuff without remoting
 	public static final String INVOCATION_IMPL_BROKER_ID = MessageBrokerId.class.getName() + "_INVOCATION_IMPL_BROKER_ID";
 
 	private MessageBrokerId() {}
