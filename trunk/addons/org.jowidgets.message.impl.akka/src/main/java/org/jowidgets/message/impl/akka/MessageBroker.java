@@ -33,6 +33,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.jowidgets.message.api.IExceptionCallback;
 import org.jowidgets.message.api.IMessageChannel;
 import org.jowidgets.message.api.IMessageReceiver;
+import org.jowidgets.util.Assert;
 
 import akka.actor.Actor;
 import akka.actor.ActorRef;
@@ -40,6 +41,7 @@ import akka.actor.Actors;
 import akka.actor.UntypedActor;
 import akka.actor.UntypedActorFactory;
 
+// TODO HRW execution interception for setting e.g. the security context
 public final class MessageBroker extends UntypedActor implements IMessageBroker, IMessageChannel {
 
 	private final String brokerId;
@@ -49,6 +51,7 @@ public final class MessageBroker extends UntypedActor implements IMessageBroker,
 
 	private MessageBroker(final String brokerId, final ActorRef destination) {
 		super();
+		Assert.paramNotNull(brokerId, "brokerId");
 		this.brokerId = brokerId;
 		this.destination = destination;
 	}
@@ -67,17 +70,13 @@ public final class MessageBroker extends UntypedActor implements IMessageBroker,
 			}
 		});
 		final MessageBroker messageBroker = messageBrokerRef.get();
-		messageBroker.setActorRef(actorRef);
+		messageBroker.actorRef = actorRef;
 		return messageBroker;
 	}
 
 	@Override
 	public ActorRef getActorRef() {
 		return actorRef;
-	}
-
-	private void setActorRef(final ActorRef actorRef) {
-		this.actorRef = actorRef;
 	}
 
 	@Override
