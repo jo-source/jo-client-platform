@@ -47,7 +47,7 @@ public final class MessageBroker extends UntypedActor implements IMessageBroker,
 	private final String brokerId;
 	private final ActorRef destination;
 	private ActorRef actorRef;
-	private IMessageReceiver receiver;
+	private volatile IMessageReceiver receiver;
 
 	private MessageBroker(final String brokerId, final ActorRef destination) {
 		super();
