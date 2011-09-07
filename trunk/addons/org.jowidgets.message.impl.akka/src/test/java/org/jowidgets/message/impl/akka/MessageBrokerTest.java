@@ -36,25 +36,41 @@ import org.jowidgets.message.api.IExceptionCallback;
 import org.jowidgets.message.api.IMessageChannel;
 import org.jowidgets.message.api.IMessageReceiver;
 import org.jowidgets.message.api.MessageToolkit;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 
+import akka.actor.Actors;
+import akka.remoteinterface.RemoteServerModule;
+
 public class MessageBrokerTest {
+
+	private IMessageBroker server;
+	private IMessageBroker client;
+
+	@After
+	public void tearDown() {
+		client.getActorRef().stop();
+		server.getActorRef().stop();
+	}
 
 	@Test(timeout = 5000)
 	public void testPingPong() throws InterruptedException {
+		server = MessageBroker.create("server");
+		server.getActorRef().start();
+		client = MessageBroker.create("client", server.getActorRef());
+		client.getActorRef().start();
+		pingPong();
+	}
+
+	private void pingPong() throws InterruptedException {
+		MessageToolkit.addReceiverBroker(server);
+		MessageToolkit.addChannelBroker(client);
+		MessageToolkit.addReceiverBroker(client);
+
 		final List<Throwable> throwables = new LinkedList<Throwable>();
 		final StringBuilder result = new StringBuilder();
 		final CountDownLatch latch = new CountDownLatch(4);
-
-		final IMessageBroker server = MessageBroker.create("server");
-		server.start();
-		MessageToolkit.addReceiverBroker(server);
-
-		final IMessageBroker client = MessageBroker.create("client", server.getActorRef());
-		client.start();
-		MessageToolkit.addChannelBroker(client);
-		MessageToolkit.addReceiverBroker(client);
 
 		MessageToolkit.setReceiver("server", new IMessageReceiver() {
 			@Override
@@ -98,4 +114,20 @@ public class MessageBrokerTest {
 		Assert.assertEquals(0, throwables.size());
 		Assert.assertEquals("pingpongpingpongpingpongpingpong", result.toString());
 	}
+
+	@Test(timeout = 5000)
+	public void testPingPongRemote() throws InterruptedException {
+		server = MessageBroker.create("server");
+		final RemoteServerModule remoteServerModule = Actors.remote().start("localhost", 9000);
+		try {
+			remoteServerModule.register("test", server.getActorRef());
+			client = MessageBroker.create("client", Actors.remote().actorFor("test", "localhost", 9000));
+			client.getActorRef().start();
+			pingPong();
+		}
+		finally {
+			remoteServerModule.shutdownServerModule();
+		}
+	}
+
 }
