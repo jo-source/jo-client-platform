@@ -37,8 +37,4 @@ public interface IMessageBroker extends IMessageReceiverBroker, IMessageChannelB
 
 	ActorRef getActorRef();
 
-	void start();
-
-	void stop();
-
 }

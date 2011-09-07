@@ -123,14 +123,4 @@ public final class MessageBroker extends UntypedActor implements IMessageBroker,
 		}
 	}
 
-	@Override
-	public void start() {
-		getActorRef().start();
-	}
-
-	@Override
-	public void stop() {
-		getActorRef().stop();
-	}
-
 }
