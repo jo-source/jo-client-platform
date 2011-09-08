@@ -47,6 +47,7 @@ import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeansStateTracker;
 import org.jowidgets.cap.ui.api.command.ICapActionFactory;
 import org.jowidgets.cap.ui.api.execution.IExecutionTaskFactory;
+import org.jowidgets.cap.ui.api.filter.IFilterToolkit;
 import org.jowidgets.cap.ui.api.form.IBeanFormToolkit;
 import org.jowidgets.cap.ui.api.icons.CapIcons;
 import org.jowidgets.cap.ui.api.sort.ISortModelConfigBuilder;
@@ -99,6 +100,10 @@ public final class CapUiToolkit {
 
 	public static IAttributeToolkit attributeToolkit() {
 		return getInstance().attributeToolkit();
+	}
+
+	public static IFilterToolkit filterToolkit() {
+		return getInstance().filterToolkit();
 	}
 
 	public static ICapWorkbenchToolkit workbenchToolkit() {

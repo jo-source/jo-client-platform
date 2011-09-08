@@ -26,33 +26,18 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.attribute;
+package org.jowidgets.cap.ui.api.filter;
 
-import java.util.Collection;
 import java.util.List;
 
-import org.jowidgets.api.convert.IObjectLabelConverter;
-import org.jowidgets.api.convert.IStringObjectConverter;
-import org.jowidgets.api.widgets.IInputControl;
-import org.jowidgets.cap.ui.api.filter.IFilterPanelProvider;
-import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
+import org.jowidgets.cap.common.api.filter.IOperator;
 
-public interface IControlPanelProvider<ELEMENT_VALUE_TYPE> {
+public interface IOperatorProvider<OPERATOR_TYPE extends IOperator> {
 
-	String getDisplayFormatId();
+	List<OPERATOR_TYPE> getOperators();
 
-	String getDisplayFormatName();
+	OPERATOR_TYPE getDefaultOperator();
 
-	String getDisplayFormatDescription();
-
-	IObjectLabelConverter<ELEMENT_VALUE_TYPE> getObjectLabelConverter();
-
-	IStringObjectConverter<ELEMENT_VALUE_TYPE> getStringObjectConverter();
-
-	List<IFilterPanelProvider<?>> getFilterPanels();
-
-	ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> getControlCreator();
-
-	ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> getCollectionControlCreator();
+	OPERATOR_TYPE getDefaultOperator(Object operandValue);
 
 }

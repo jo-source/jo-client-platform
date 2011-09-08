@@ -39,6 +39,7 @@ import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeansStateTracker;
 import org.jowidgets.cap.ui.api.command.ICapActionFactory;
 import org.jowidgets.cap.ui.api.execution.IExecutionTaskFactory;
+import org.jowidgets.cap.ui.api.filter.IFilterToolkit;
 import org.jowidgets.cap.ui.api.form.IBeanFormToolkit;
 import org.jowidgets.cap.ui.api.sort.ISortModelConfigBuilder;
 import org.jowidgets.cap.ui.api.table.IBeanTableConfigBuilder;
@@ -56,6 +57,8 @@ public interface ICapUiToolkit {
 	IBeanTableMenuFactory beanTableMenuFactory();
 
 	IAttributeToolkit attributeToolkit();
+
+	IFilterToolkit filterToolkit();
 
 	ICapWorkbenchToolkit workbenchToolkit();
 

@@ -26,18 +26,16 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.attribute;
+package org.jowidgets.cap.ui.api.filter;
 
 import java.util.List;
 
 import org.jowidgets.cap.common.api.filter.IOperator;
+import org.jowidgets.cap.ui.api.attribute.IAttribute;
+import org.jowidgets.common.widgets.factory.ICustomWidgetFactory;
 
-public interface IOperatorProvider<OPERATOR_TYPE extends IOperator> {
+public interface IFilterControlCreator<OPERATOR_TYPE extends IOperator> {
 
-	List<OPERATOR_TYPE> getOperators();
-
-	OPERATOR_TYPE getDefaultOperator();
-
-	OPERATOR_TYPE getDefaultOperator(Object operandValue);
+	IFilterControl<OPERATOR_TYPE, ?> create(ICustomWidgetFactory widgetFactory, List<? extends IAttribute<?>> attributes);
 
 }

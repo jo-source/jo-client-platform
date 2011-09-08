@@ -36,6 +36,7 @@ import org.jowidgets.api.convert.IObjectLabelConverter;
 import org.jowidgets.api.convert.IObjectStringConverter;
 import org.jowidgets.api.convert.IStringObjectConverter;
 import org.jowidgets.api.widgets.IInputControl;
+import org.jowidgets.cap.ui.api.filter.IFilterPanelProvider;
 import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
 
 public interface IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> {
@@ -59,8 +60,7 @@ public interface IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> {
 
 	IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> setConverter(final IConverter<? extends ELEMENT_VALUE_TYPE> converter);
 
-	IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> setFilterPanels(
-		List<IFilterPanelProvider<ELEMENT_VALUE_TYPE, ?>> filterPanels);
+	IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> setFilterPanels(List<IFilterPanelProvider<?>> filterPanels);
 
 	IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> setControlCreator(
 		ICustomWidgetCreator<? extends IInputControl<? extends ELEMENT_VALUE_TYPE>> controlCreator);
