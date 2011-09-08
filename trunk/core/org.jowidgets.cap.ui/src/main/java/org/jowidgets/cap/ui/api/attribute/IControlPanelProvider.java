@@ -29,11 +29,11 @@
 package org.jowidgets.cap.ui.api.attribute;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.jowidgets.api.convert.IObjectLabelConverter;
 import org.jowidgets.api.convert.IStringObjectConverter;
 import org.jowidgets.api.widgets.IInputControl;
-import org.jowidgets.cap.common.api.filter.IFilter;
 import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
 
 public interface IControlPanelProvider<ELEMENT_VALUE_TYPE> {
@@ -48,7 +48,7 @@ public interface IControlPanelProvider<ELEMENT_VALUE_TYPE> {
 
 	IStringObjectConverter<ELEMENT_VALUE_TYPE> getStringObjectConverter();
 
-	ICustomWidgetCreator<IInputControl<? extends IFilter>> getFilterControlCreator();
+	List<IFilterPanelProvider<ELEMENT_VALUE_TYPE, ?>> getFilterPanels();
 
 	ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> getControlCreator();
 

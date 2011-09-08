@@ -46,11 +46,10 @@ import org.jowidgets.api.widgets.blueprint.IInputFieldBluePrint;
 import org.jowidgets.api.widgets.blueprint.builder.IInputComponentSetupBuilder;
 import org.jowidgets.api.widgets.blueprint.factory.IBluePrintFactory;
 import org.jowidgets.cap.common.api.bean.IValueRange;
-import org.jowidgets.cap.common.api.filter.IFilter;
 import org.jowidgets.cap.ui.api.attribute.DisplayFormat;
-import org.jowidgets.cap.ui.api.attribute.IArithmeticOperatorProvider;
 import org.jowidgets.cap.ui.api.attribute.IControlPanelProvider;
 import org.jowidgets.cap.ui.api.attribute.IControlPanelProviderBuilder;
+import org.jowidgets.cap.ui.api.attribute.IFilterPanelProvider;
 import org.jowidgets.cap.ui.tools.validation.ValueRangeValidator;
 import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
 import org.jowidgets.common.widgets.factory.ICustomWidgetFactory;
@@ -72,11 +71,10 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 	private String displayFormatId;
 	private String displayFormatName;
 	private String displayFormatDescription;
-	private IArithmeticOperatorProvider arithmeticOperatorProvider;
 	private IObjectLabelConverter<ELEMENT_VALUE_TYPE> objectLabelConverter;
 	private IObjectStringConverter<ELEMENT_VALUE_TYPE> objectStringConverter;
 	private IStringObjectConverter<ELEMENT_VALUE_TYPE> stringObjectConverter;
-	private ICustomWidgetCreator<IInputControl<? extends IFilter>> filterControlCreator;
+	private IFilterPanelProvider<ELEMENT_VALUE_TYPE, ?> filterPanels;
 	private ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> controlCreator;
 	private ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> collectionControlCreator;
 
@@ -174,18 +172,9 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> setFilterControlCreator(
-		final ICustomWidgetCreator<? extends IInputControl<? extends IFilter>> filterControlCreator) {
-		this.arithmeticOperatorProvider = null;
-		this.filterControlCreator = (ICustomWidgetCreator<IInputControl<? extends IFilter>>) filterControlCreator;
-		return this;
-	}
-
-	@Override
-	public IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> setControlCreator(
-		final IArithmeticOperatorProvider arithmeticOperatorProvider) {
-		this.filterControlCreator = null;
-		this.arithmeticOperatorProvider = arithmeticOperatorProvider;
+	public IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> setFilterPanels(
+		final List<IFilterPanelProvider<ELEMENT_VALUE_TYPE, ?>> filterPanels) {
+		this.filterPanels = (IFilterPanelProvider<ELEMENT_VALUE_TYPE, ?>) filterPanels;
 		return this;
 	}
 
@@ -355,19 +344,11 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 		return collectionControlCreator;
 	}
 
-	@SuppressWarnings("unused")
-	private IArithmeticOperatorProvider getArithmeticOperatorProvider() {
-		//		if (arithmeticOperatorProvider == null) {
-		//			//TODO create by element value type
+	private IFilterPanelProvider<ELEMENT_VALUE_TYPE, ?> getFilterPanels() {
+		//		if (filterPanels == null) {
+		//			//TODO create by control factory
 		//		}
-		return arithmeticOperatorProvider;
-	}
-
-	private ICustomWidgetCreator<IInputControl<? extends IFilter>> getFilterControlCreator() {
-		//		if (filterControlCreator == null) {
-		//			//TODO create by control factory and arithmetic operator provider
-		//		}
-		return filterControlCreator;
+		return filterPanels;
 	}
 
 	@Override
@@ -378,7 +359,7 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 			displayFormatDescription,
 			getObjectLabelConverter(),
 			getStringObjectConverter(),
-			getFilterControlCreator(),
+			getFilterPanels(),
 			getControlCreator(),
 			getCollectionControlCreator());
 	}
