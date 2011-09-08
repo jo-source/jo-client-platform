@@ -28,61 +28,14 @@
 
 package org.jowidgets.cap.common.api.filter;
 
-public enum ArithmeticOperator implements IOperator {
+public interface IOperator {
 
-	EMPTY(0, false),
-	EQUAL(1, false),
-	LESS(1, false),
-	LESS_EQUAL(1, false),
-	GREATER(1, false),
-	GREATER_EQUAL(1, false),
-	BETWEEN(2, false),
-	CONTAINS_ANY(1, true),
-	CONTAINS_ALL(1, true);
+	Object getId();
 
-	private final int parameterCount;
-	private final boolean isCollectionOperator;
+	String getLabel();
 
-	private ArithmeticOperator(final int parameterCount, final boolean isCollectionOperator) {
-		this.parameterCount = parameterCount;
-		this.isCollectionOperator = isCollectionOperator;
-	}
+	String getLabelLong();
 
-	/**
-	 * @return the number of parameters this operator must have
-	 */
-	public int getParameterCount() {
-		return parameterCount;
-	}
-
-	/**
-	 * @return true, if the right hand of the operator is a collection
-	 */
-	public boolean isCollectionOperator() {
-		return isCollectionOperator;
-	}
-
-	@Override
-	public Object getId() {
-		return this;
-	}
-
-	@Override
-	public String getLabel() {
-		//TODO MG implement getLabel()
-		return null;
-	}
-
-	@Override
-	public String getLabelLong() {
-		//TODO MG implement getLabelLong()
-		return null;
-	}
-
-	@Override
-	public String getDescription() {
-		//TODO MG implement getDescription()
-		return null;
-	}
+	String getDescription();
 
 }
