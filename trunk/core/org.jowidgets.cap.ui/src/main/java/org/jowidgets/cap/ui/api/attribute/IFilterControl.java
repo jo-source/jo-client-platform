@@ -29,10 +29,11 @@
 package org.jowidgets.cap.ui.api.attribute;
 
 import org.jowidgets.api.widgets.IInputControl;
-import org.jowidgets.cap.common.api.filter.IFilter;
 import org.jowidgets.cap.common.api.filter.IOperator;
+import org.jowidgets.cap.ui.api.filter.IUiConfigurableFilter;
 
-public interface IFilterControl<OPERATOR_TYPE extends IOperator, CONFIG_TYPE> extends IInputControl<IFilter> {
+public interface IFilterControl<OPERATOR_TYPE extends IOperator, CONFIG_TYPE> extends
+		IInputControl<IUiConfigurableFilter<CONFIG_TYPE>> {
 
 	void trySetOperand(Object value);
 
@@ -44,8 +45,6 @@ public interface IFilterControl<OPERATOR_TYPE extends IOperator, CONFIG_TYPE> ex
 
 	void setOperator(OPERATOR_TYPE operator);
 
-	//TODO MG use memento here and everywhere else (where the name config is used)
-	CONFIG_TYPE getConfig();
-
 	void setConfig(CONFIG_TYPE config);
+
 }

@@ -26,14 +26,11 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.api.filter;
+package org.jowidgets.cap.ui.api.filter;
 
-public interface IArithmeticPropertyFilter extends IFilter {
+public interface IUiConfigurableFilter<CONFIG_TYPE> extends IUiFilter {
 
-	String getLeftHandPropertyName();
-
-	ArithmeticOperator getOperator();
-
-	String[] getRightHandPropertyNames();
+	//TODO MG use memento here and everywhere else (where the name config is used)
+	CONFIG_TYPE getConfig();
 
 }

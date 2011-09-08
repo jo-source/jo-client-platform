@@ -26,14 +26,16 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.api.filter;
+package org.jowidgets.cap.ui.api.filter;
 
-public interface IArithmeticPropertyFilter extends IFilter {
+import org.jowidgets.cap.common.api.filter.ArithmeticOperator;
 
-	String getLeftHandPropertyName();
+public interface IUiArithmeticFilter<CONFIG_TYPE> extends IUiConfigurableFilter<CONFIG_TYPE> {
+
+	String getPropertyName();
 
 	ArithmeticOperator getOperator();
 
-	String[] getRightHandPropertyNames();
+	Object[] getParameters();
 
 }
