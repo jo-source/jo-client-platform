@@ -41,7 +41,6 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import akka.actor.Actors;
-import akka.remoteinterface.RemoteServerModule;
 
 public class MessageBrokerTest {
 
@@ -52,6 +51,7 @@ public class MessageBrokerTest {
 	public void tearDown() {
 		client.getActorRef().stop();
 		server.getActorRef().stop();
+		Actors.remote().shutdown();
 	}
 
 	@Test(timeout = 5000)
@@ -118,16 +118,10 @@ public class MessageBrokerTest {
 	@Test(timeout = 5000)
 	public void testPingPongRemote() throws InterruptedException {
 		server = MessageBroker.create("server");
-		final RemoteServerModule remoteServerModule = Actors.remote().start("localhost", 9000);
-		try {
-			remoteServerModule.register("test", server.getActorRef());
-			client = MessageBroker.create("client", Actors.remote().actorFor("test", "localhost", 9000));
-			client.getActorRef().start();
-			pingPong();
-		}
-		finally {
-			remoteServerModule.shutdownServerModule();
-		}
+		Actors.remote().start("localhost", 9000).register("test", server.getActorRef());
+		client = MessageBroker.create("client", Actors.remote().actorFor("test", "localhost", 9000));
+		client.getActorRef().start();
+		pingPong();
 	}
 
 }
