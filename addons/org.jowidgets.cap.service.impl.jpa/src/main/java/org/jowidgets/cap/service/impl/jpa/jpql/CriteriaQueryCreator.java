@@ -192,6 +192,7 @@ public final class CriteriaQueryCreator implements IQueryCreator<Void> {
 		final CriteriaQuery<?> query,
 		final IFilter filter) {
 		final Predicate predicate;
+
 		if (filter instanceof IArithmeticFilter) {
 			predicate = createFilterPredicate(criteriaBuilder, bean, query, (IArithmeticFilter) filter);
 		}
@@ -213,6 +214,7 @@ public final class CriteriaQueryCreator implements IQueryCreator<Void> {
 			}
 		}
 		else {
+			// TODO HRW support IArithmeticPropertyFilter
 			throw new IllegalArgumentException("unsupported filter type: " + filter.getClass().getName());
 		}
 		if (filter.isInverted()) {
