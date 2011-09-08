@@ -26,14 +26,42 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.attribute;
+package org.jowidgets.cap.ui.api.filter;
 
-public interface IFilterType {
+import org.jowidgets.api.widgets.IInputControl;
+import org.jowidgets.cap.common.api.filter.IOperator;
 
-	Object getId();
+public interface IFilterControl<OPERATOR_TYPE extends IOperator, CONFIG_TYPE> extends
+		IInputControl<IUiConfigurableFilter<CONFIG_TYPE>> {
 
-	String getLabel();
+	/**
+	 * Try to set a operand (this may be one from another control with the same class
+	 * than this or also with another class).
+	 * 
+	 * If the operand is type compatible, the operand will be set for the control.
+	 * 
+	 * If the operand is not compatible, nothing happens
+	 * (particularly NO exception must be thrown)
+	 * 
+	 * @param value The new (potential) value to set
+	 */
+	void trySetOperand(Object value);
 
-	String getDescription();
+	/**
+	 * Gets the current operand value. Maybe this will be set later on this
+	 * control or another control.
+	 * 
+	 * @return the current operands value
+	 */
+	Object getOperand();
+
+	/**
+	 * The the operator for this control
+	 * 
+	 * @param operator The operator to set
+	 */
+	void setOperator(OPERATOR_TYPE operator);
+
+	void setConfig(CONFIG_TYPE config);
 
 }

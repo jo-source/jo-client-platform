@@ -26,33 +26,46 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.attribute;
+package org.jowidgets.cap.ui.impl;
 
 import java.util.Collection;
-import java.util.List;
 
-import org.jowidgets.api.convert.IObjectLabelConverter;
-import org.jowidgets.api.convert.IStringObjectConverter;
 import org.jowidgets.api.widgets.IInputControl;
+import org.jowidgets.cap.common.api.filter.ArithmeticOperator;
 import org.jowidgets.cap.ui.api.filter.IFilterPanelProvider;
+import org.jowidgets.cap.ui.api.filter.IFilterToolkit;
+import org.jowidgets.cap.ui.api.filter.IOperatorProvider;
 import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
 
-public interface IControlPanelProvider<ELEMENT_VALUE_TYPE> {
+final class FilterToolkitImpl implements IFilterToolkit {
 
-	String getDisplayFormatId();
+	@Override
+	public IOperatorProvider<ArithmeticOperator> arithmeticOperatorProvider(final Class<?> type) {
+		// TODO MG implement operatorProvider
+		return null;
+	}
 
-	String getDisplayFormatName();
+	@Override
+	public IFilterPanelProvider<ArithmeticOperator> arithmeticFilterPanel(final Class<?> type) {
+		// TODO MG implement arithmeticFilterPanel
+		return null;
+	}
 
-	String getDisplayFormatDescription();
+	@Override
+	public IFilterPanelProvider<ArithmeticOperator> arithmeticFilterPanel(
+		final IOperatorProvider<ArithmeticOperator> operatorProvider,
+		final ICustomWidgetCreator<IInputControl<?>> controlCreator) {
+		// TODO MG implement arithmeticFilterPanel
+		return null;
+	}
 
-	IObjectLabelConverter<ELEMENT_VALUE_TYPE> getObjectLabelConverter();
-
-	IStringObjectConverter<ELEMENT_VALUE_TYPE> getStringObjectConverter();
-
-	List<IFilterPanelProvider<?>> getFilterPanels();
-
-	ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> getControlCreator();
-
-	ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> getCollectionControlCreator();
+	@Override
+	public <ELEMENT_VALUE_TYPE> IFilterPanelProvider<ArithmeticOperator> arithmeticFilterPanel(
+		final IOperatorProvider<ArithmeticOperator> operatorProvider,
+		final ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> controlCreator,
+		final ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> collectionControlCreator) {
+		// TODO MG implement arithmeticFilterPanel
+		return null;
+	}
 
 }

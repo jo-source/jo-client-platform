@@ -35,7 +35,7 @@ import org.jowidgets.api.convert.IObjectLabelConverter;
 import org.jowidgets.api.convert.IStringObjectConverter;
 import org.jowidgets.api.widgets.IInputControl;
 import org.jowidgets.cap.ui.api.attribute.IControlPanelProvider;
-import org.jowidgets.cap.ui.api.attribute.IFilterPanelProvider;
+import org.jowidgets.cap.ui.api.filter.IFilterPanelProvider;
 import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
 import org.jowidgets.util.Assert;
 
@@ -46,7 +46,7 @@ final class ControlPanelProviderImpl<ELEMENT_VALUE_TYPE> implements IControlPane
 	private final String displayFormatDescription;
 	private final IObjectLabelConverter<ELEMENT_VALUE_TYPE> objectLabelConverter;
 	private final IStringObjectConverter<ELEMENT_VALUE_TYPE> stringObjectConverter;
-	private final IFilterPanelProvider<ELEMENT_VALUE_TYPE, ?> filterPanels;
+	private final List<? extends IFilterPanelProvider<?>> filterPanels;
 	private final ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> controlCreator;
 	private final ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> collectionControlCreator;
 
@@ -56,7 +56,7 @@ final class ControlPanelProviderImpl<ELEMENT_VALUE_TYPE> implements IControlPane
 		final String displayFormatDescription,
 		final IObjectLabelConverter<ELEMENT_VALUE_TYPE> objectLabelConverter,
 		final IStringObjectConverter<ELEMENT_VALUE_TYPE> stringObjectConverter,
-		final IFilterPanelProvider<ELEMENT_VALUE_TYPE, ?> filterPanels,
+		final List<? extends IFilterPanelProvider<?>> filterPanels,
 		final ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> controlCreator,
 		final ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> collectionControlCreator) {
 
@@ -106,8 +106,8 @@ final class ControlPanelProviderImpl<ELEMENT_VALUE_TYPE> implements IControlPane
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<IFilterPanelProvider<ELEMENT_VALUE_TYPE, ?>> getFilterPanels() {
-		return (List<IFilterPanelProvider<ELEMENT_VALUE_TYPE, ?>>) filterPanels;
+	public List<IFilterPanelProvider<?>> getFilterPanels() {
+		return (List<IFilterPanelProvider<?>>) filterPanels;
 	}
 
 	@Override

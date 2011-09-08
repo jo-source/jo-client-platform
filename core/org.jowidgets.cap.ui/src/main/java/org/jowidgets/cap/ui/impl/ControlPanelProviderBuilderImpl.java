@@ -49,7 +49,7 @@ import org.jowidgets.cap.common.api.bean.IValueRange;
 import org.jowidgets.cap.ui.api.attribute.DisplayFormat;
 import org.jowidgets.cap.ui.api.attribute.IControlPanelProvider;
 import org.jowidgets.cap.ui.api.attribute.IControlPanelProviderBuilder;
-import org.jowidgets.cap.ui.api.attribute.IFilterPanelProvider;
+import org.jowidgets.cap.ui.api.filter.IFilterPanelProvider;
 import org.jowidgets.cap.ui.tools.validation.ValueRangeValidator;
 import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
 import org.jowidgets.common.widgets.factory.ICustomWidgetFactory;
@@ -74,7 +74,7 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 	private IObjectLabelConverter<ELEMENT_VALUE_TYPE> objectLabelConverter;
 	private IObjectStringConverter<ELEMENT_VALUE_TYPE> objectStringConverter;
 	private IStringObjectConverter<ELEMENT_VALUE_TYPE> stringObjectConverter;
-	private IFilterPanelProvider<ELEMENT_VALUE_TYPE, ?> filterPanels;
+	private List<IFilterPanelProvider<?>> filterPanels;
 	private ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> controlCreator;
 	private ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> collectionControlCreator;
 
@@ -170,11 +170,9 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 		return this;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> setFilterPanels(
-		final List<IFilterPanelProvider<ELEMENT_VALUE_TYPE, ?>> filterPanels) {
-		this.filterPanels = (IFilterPanelProvider<ELEMENT_VALUE_TYPE, ?>) filterPanels;
+	public IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> setFilterPanels(final List<IFilterPanelProvider<?>> filterPanels) {
+		this.filterPanels = filterPanels;
 		return this;
 	}
 
@@ -344,7 +342,7 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 		return collectionControlCreator;
 	}
 
-	private IFilterPanelProvider<ELEMENT_VALUE_TYPE, ?> getFilterPanels() {
+	private List<IFilterPanelProvider<?>> getFilterPanels() {
 		//		if (filterPanels == null) {
 		//			//TODO create by control factory
 		//		}

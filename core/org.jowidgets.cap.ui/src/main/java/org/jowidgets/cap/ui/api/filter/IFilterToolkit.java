@@ -26,40 +26,36 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.attribute;
+package org.jowidgets.cap.ui.api.filter;
+
+import java.util.Collection;
 
 import org.jowidgets.api.widgets.IInputControl;
-import org.jowidgets.cap.common.api.filter.IOperator;
-import org.jowidgets.cap.ui.api.filter.IUiConfigurableFilter;
+import org.jowidgets.cap.common.api.filter.ArithmeticOperator;
+import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
 
-public interface IFilterControl<OPERATOR_TYPE extends IOperator, CONFIG_TYPE> extends
-		IInputControl<IUiConfigurableFilter<CONFIG_TYPE>> {
-
-	/**
-	 * Try to set a operand (this may be one from another control).
-	 * If the operand is type compatible, the operand will be set in the control.
-	 * If the operand is not compatible, nothing happens
-	 * (particularly NO exception must be thrown)
-	 * 
-	 * @param value The new (potential) value to set
-	 */
-	void trySetOperand(Object value);
+public interface IFilterToolkit {
 
 	/**
-	 * Gets the current operand value. Maybe this will be set later on this
-	 * control or another control.
+	 * Gets the default arithmetic operator provider for a specific type or null
+	 * if no default is defined for the given type
 	 * 
-	 * @return the current operands value
-	 */
-	Object getOperand();
-
-	/**
-	 * The the operator for this control
+	 * @param type The type to get the operator provider for
 	 * 
-	 * @param operator The operator to set
+	 * @return The operator provider for the type or null,
+	 *         if no default is defined for the type
 	 */
-	void setOperator(OPERATOR_TYPE operator);
+	IOperatorProvider<ArithmeticOperator> arithmeticOperatorProvider(Class<?> type);
 
-	void setConfig(CONFIG_TYPE config);
+	IFilterPanelProvider<ArithmeticOperator> arithmeticFilterPanel(Class<?> type);
+
+	IFilterPanelProvider<ArithmeticOperator> arithmeticFilterPanel(
+		IOperatorProvider<ArithmeticOperator> operatorProvider,
+		ICustomWidgetCreator<IInputControl<?>> controlCreator);
+
+	<ELEMENT_VALUE_TYPE> IFilterPanelProvider<ArithmeticOperator> arithmeticFilterPanel(
+		final IOperatorProvider<ArithmeticOperator> operatorProvider,
+		final ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> controlCreator,
+		final ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> collectionControlCreator);
 
 }
