@@ -142,7 +142,6 @@ final class AttributeToolkitImpl implements IAttributeToolkit {
 	@Override
 	public <ELEMENT_VALUE_TYPE> IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> createControlPanelProviderBuilder(
 		final Class<? extends ELEMENT_VALUE_TYPE> elementValueType) {
-		// TODO MG,HRW review (why is valueRange a mandatory parameter?)
 		return new ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE>(
 			elementValueType,
 			CapCommonToolkit.valueRangeFactory().create());
@@ -152,7 +151,6 @@ final class AttributeToolkitImpl implements IAttributeToolkit {
 	public <ELEMENT_VALUE_TYPE> IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> createControlPanelProviderBuilder(
 		final Class<?> valueType,
 		final Class<? extends ELEMENT_VALUE_TYPE> elementValueType) {
-		// TODO MG,HRW review (why is valueRange a mandatory parameter?)
 		return new ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE>(
 			valueType,
 			elementValueType,

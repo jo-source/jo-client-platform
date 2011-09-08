@@ -886,7 +886,7 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 								beansStateTracker.unregister(dummyBeanProxy);
 
 								dataModel.fireDataChanged();
-								// TODO MG,HRW review
+								// TODO MG,HRW review, will be fixed after refactoring
 								beanListModelObservable.fireBeansChanged();
 
 								//CHECKSTYLE:OFF

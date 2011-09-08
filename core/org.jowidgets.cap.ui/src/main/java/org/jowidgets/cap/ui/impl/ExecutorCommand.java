@@ -300,7 +300,6 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 			beanExceptionConverter);
 
 		for (final List<IBeanProxy<?>> preparedBeans : executionHelper.prepareExecutions()) {
-			// TODO MG,HRW review (parameter providers are called for every single bean in parallel execution mode, bug or feature?)
 			new Execution(preparedBeans, executionContext, executionHelper).execute();
 		}
 

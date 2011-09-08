@@ -26,63 +26,22 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.api.filter;
+package org.jowidgets.cap.ui.api.attribute;
 
-public enum ArithmeticOperator implements IOperator {
+import java.util.List;
 
-	EMPTY(0, false),
-	EQUAL(1, false),
-	LESS(1, false),
-	LESS_EQUAL(1, false),
-	GREATER(1, false),
-	GREATER_EQUAL(1, false),
-	BETWEEN(2, false),
-	CONTAINS_ANY(1, true),
-	CONTAINS_ALL(1, true);
+import org.jowidgets.cap.common.api.filter.IOperator;
+import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
 
-	private final int parameterCount;
-	private final boolean isCollectionOperator;
-
-	private ArithmeticOperator(final int parameterCount, final boolean isCollectionOperator) {
-		this.parameterCount = parameterCount;
-		this.isCollectionOperator = isCollectionOperator;
-	}
+public interface IFilterPanelProvider<ELEMENT_VALUE_TYPE, OPERATOR_TYPE extends IOperator> {
 
 	/**
-	 * @return the number of parameters this operator must have
+	 * Gets the creator for the operand control
+	 * 
+	 * @return The creator for the operand control, never null
 	 */
-	public int getParameterCount() {
-		return parameterCount;
-	}
+	ICustomWidgetCreator<IFilterControl<OPERATOR_TYPE>> getFilterOperandCreator();
 
-	/**
-	 * @return true, if the right hand of the operator is a collection
-	 */
-	public boolean isCollectionOperator() {
-		return isCollectionOperator;
-	}
-
-	@Override
-	public Object getId() {
-		return this;
-	}
-
-	@Override
-	public String getLabel() {
-		//TODO MG implement getLabel()
-		return null;
-	}
-
-	@Override
-	public String getLabelLong() {
-		//TODO MG implement getLabelLong()
-		return null;
-	}
-
-	@Override
-	public String getDescription() {
-		//TODO MG implement getDescription()
-		return null;
-	}
+	List<OPERATOR_TYPE> getOperators();
 
 }
