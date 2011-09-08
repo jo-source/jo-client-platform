@@ -31,17 +31,12 @@ package org.jowidgets.cap.ui.api.attribute;
 import java.util.List;
 
 import org.jowidgets.cap.common.api.filter.IOperator;
-import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
 
 public interface IFilterPanelProvider<ELEMENT_VALUE_TYPE, OPERATOR_TYPE extends IOperator> {
 
-	/**
-	 * Gets the creator for the operand control
-	 * 
-	 * @return The creator for the operand control, never null
-	 */
-	ICustomWidgetCreator<IFilterControl<OPERATOR_TYPE>> getFilterOperandCreator();
+	IFilterControlCreator<OPERATOR_TYPE> getFilterControlCreator();
 
 	List<OPERATOR_TYPE> getOperators();
 
+	IFilterType getType();
 }

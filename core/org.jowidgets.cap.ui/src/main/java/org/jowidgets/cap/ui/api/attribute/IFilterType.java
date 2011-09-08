@@ -28,24 +28,12 @@
 
 package org.jowidgets.cap.ui.api.attribute;
 
-import org.jowidgets.api.widgets.IInputControl;
-import org.jowidgets.cap.common.api.filter.IFilter;
-import org.jowidgets.cap.common.api.filter.IOperator;
+public interface IFilterType {
 
-public interface IFilterControl<OPERATOR_TYPE extends IOperator, CONFIG_TYPE> extends IInputControl<IFilter> {
+	Object getId();
 
-	void trySetOperand(Object value);
+	String getLabel();
 
-	Object getOperand();
+	String getDescription();
 
-	OPERATOR_TYPE getDefaultOperator();
-
-	OPERATOR_TYPE getDefaultOperator(Object operandValue);
-
-	void setOperator(OPERATOR_TYPE operator);
-
-	//TODO MG use memento here and everywhere else (where the name config is used)
-	CONFIG_TYPE getConfig();
-
-	void setConfig(CONFIG_TYPE config);
 }
