@@ -30,13 +30,14 @@ package org.jowidgets.cap.ui.api.attribute;
 
 import java.util.List;
 
-import org.jowidgets.cap.common.api.filter.ArithmeticOperator;
+import org.jowidgets.cap.common.api.filter.IOperator;
 
+public interface IOperatorProvider<OPERATOR_TYPE extends IOperator> {
 
-public interface IArithmeticOperatorProvider {
+	List<OPERATOR_TYPE> getOperators();
 
-	List<ArithmeticOperator> getSupportedOperators();
+	OPERATOR_TYPE getDefaultOperator();
 
-	ArithmeticOperator getDefaultOperator(Object cellValue);
+	OPERATOR_TYPE getDefaultOperator(Object operandValue);
 
 }

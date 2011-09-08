@@ -32,11 +32,16 @@ import java.util.List;
 
 import org.jowidgets.cap.common.api.filter.IOperator;
 
-public interface IFilterPanelProvider<ELEMENT_VALUE_TYPE, OPERATOR_TYPE extends IOperator> {
+public interface IFilterPanelProvider<ELEMENT_VALUE_TYPE, OPERATOR_TYPE extends IOperator> extends
+		IOperatorProvider<OPERATOR_TYPE> {
 
 	IFilterControlCreator<OPERATOR_TYPE> getFilterControlCreator();
 
 	List<OPERATOR_TYPE> getOperators();
+
+	OPERATOR_TYPE getDefaultOperator();
+
+	OPERATOR_TYPE getDefaultOperator(Object operandValue);
 
 	IFilterType getType();
 }

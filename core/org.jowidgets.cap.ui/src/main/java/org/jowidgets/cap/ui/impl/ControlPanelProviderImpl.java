@@ -29,12 +29,13 @@
 package org.jowidgets.cap.ui.impl;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.jowidgets.api.convert.IObjectLabelConverter;
 import org.jowidgets.api.convert.IStringObjectConverter;
 import org.jowidgets.api.widgets.IInputControl;
-import org.jowidgets.cap.common.api.filter.IFilter;
 import org.jowidgets.cap.ui.api.attribute.IControlPanelProvider;
+import org.jowidgets.cap.ui.api.attribute.IFilterPanelProvider;
 import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
 import org.jowidgets.util.Assert;
 
@@ -45,7 +46,7 @@ final class ControlPanelProviderImpl<ELEMENT_VALUE_TYPE> implements IControlPane
 	private final String displayFormatDescription;
 	private final IObjectLabelConverter<ELEMENT_VALUE_TYPE> objectLabelConverter;
 	private final IStringObjectConverter<ELEMENT_VALUE_TYPE> stringObjectConverter;
-	private final ICustomWidgetCreator<IInputControl<? extends IFilter>> filterControlCreator;
+	private final IFilterPanelProvider<ELEMENT_VALUE_TYPE, ?> filterPanels;
 	private final ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> controlCreator;
 	private final ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> collectionControlCreator;
 
@@ -55,7 +56,7 @@ final class ControlPanelProviderImpl<ELEMENT_VALUE_TYPE> implements IControlPane
 		final String displayFormatDescription,
 		final IObjectLabelConverter<ELEMENT_VALUE_TYPE> objectLabelConverter,
 		final IStringObjectConverter<ELEMENT_VALUE_TYPE> stringObjectConverter,
-		final ICustomWidgetCreator<IInputControl<? extends IFilter>> filterControlCreator,
+		final IFilterPanelProvider<ELEMENT_VALUE_TYPE, ?> filterPanels,
 		final ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> controlCreator,
 		final ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> collectionControlCreator) {
 
@@ -68,7 +69,7 @@ final class ControlPanelProviderImpl<ELEMENT_VALUE_TYPE> implements IControlPane
 		this.displayFormatDescription = displayFormatDescription;
 		this.objectLabelConverter = objectLabelConverter;
 		this.stringObjectConverter = stringObjectConverter;
-		this.filterControlCreator = filterControlCreator;
+		this.filterPanels = filterPanels;
 		this.controlCreator = controlCreator;
 		this.collectionControlCreator = collectionControlCreator;
 	}
@@ -99,13 +100,14 @@ final class ControlPanelProviderImpl<ELEMENT_VALUE_TYPE> implements IControlPane
 	}
 
 	@Override
-	public ICustomWidgetCreator<IInputControl<? extends IFilter>> getFilterControlCreator() {
-		return filterControlCreator;
-	}
-
-	@Override
 	public ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> getControlCreator() {
 		return controlCreator;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<IFilterPanelProvider<ELEMENT_VALUE_TYPE, ?>> getFilterPanels() {
+		return (List<IFilterPanelProvider<ELEMENT_VALUE_TYPE, ?>>) filterPanels;
 	}
 
 	@Override

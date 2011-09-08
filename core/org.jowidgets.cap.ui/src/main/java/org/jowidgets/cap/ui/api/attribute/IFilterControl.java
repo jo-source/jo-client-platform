@@ -35,14 +35,29 @@ import org.jowidgets.cap.ui.api.filter.IUiConfigurableFilter;
 public interface IFilterControl<OPERATOR_TYPE extends IOperator, CONFIG_TYPE> extends
 		IInputControl<IUiConfigurableFilter<CONFIG_TYPE>> {
 
+	/**
+	 * Try to set a operand (this may be one from another control).
+	 * If the operand is type compatible, the operand will be set in the control.
+	 * If the operand is not compatible, nothing happens
+	 * (particularly NO exception must be thrown)
+	 * 
+	 * @param value The new (potential) value to set
+	 */
 	void trySetOperand(Object value);
 
+	/**
+	 * Gets the current operand value. Maybe this will be set later on this
+	 * control or another control.
+	 * 
+	 * @return the current operands value
+	 */
 	Object getOperand();
 
-	OPERATOR_TYPE getDefaultOperator();
-
-	OPERATOR_TYPE getDefaultOperator(Object operandValue);
-
+	/**
+	 * The the operator for this control
+	 * 
+	 * @param operator The operator to set
+	 */
 	void setOperator(OPERATOR_TYPE operator);
 
 	void setConfig(CONFIG_TYPE config);

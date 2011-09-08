@@ -29,13 +29,13 @@
 package org.jowidgets.cap.ui.api.attribute;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.jowidgets.api.convert.IConverter;
 import org.jowidgets.api.convert.IObjectLabelConverter;
 import org.jowidgets.api.convert.IObjectStringConverter;
 import org.jowidgets.api.convert.IStringObjectConverter;
 import org.jowidgets.api.widgets.IInputControl;
-import org.jowidgets.cap.common.api.filter.IFilter;
 import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
 
 public interface IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> {
@@ -49,20 +49,18 @@ public interface IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> {
 	IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> setDisplayFormat(final DisplayFormat displayFormat);
 
 	IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> setObjectLabelConverter(
-		final IObjectLabelConverter<? extends ELEMENT_VALUE_TYPE> objectLabelConverter);
+		IObjectLabelConverter<? extends ELEMENT_VALUE_TYPE> objectLabelConverter);
 
 	IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> setObjectLabelConverter(
-		final IObjectStringConverter<? extends ELEMENT_VALUE_TYPE> objectStringConverter);
+		IObjectStringConverter<? extends ELEMENT_VALUE_TYPE> objectStringConverter);
 
 	IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> setStringObjectConverter(
-		final IStringObjectConverter<ELEMENT_VALUE_TYPE> stringObjectConverter);
+		IStringObjectConverter<ELEMENT_VALUE_TYPE> stringObjectConverter);
 
 	IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> setConverter(final IConverter<? extends ELEMENT_VALUE_TYPE> converter);
 
-	IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> setFilterControlCreator(
-		final ICustomWidgetCreator<? extends IInputControl<? extends IFilter>> filterControlCreator);
-
-	IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> setControlCreator(IArithmeticOperatorProvider arithmeticOperatorProvider);
+	IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> setFilterPanels(
+		List<IFilterPanelProvider<ELEMENT_VALUE_TYPE, ?>> filterPanels);
 
 	IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> setControlCreator(
 		ICustomWidgetCreator<? extends IInputControl<? extends ELEMENT_VALUE_TYPE>> controlCreator);
