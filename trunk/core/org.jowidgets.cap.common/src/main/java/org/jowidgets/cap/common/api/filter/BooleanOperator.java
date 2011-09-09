@@ -28,7 +28,31 @@
 
 package org.jowidgets.cap.common.api.filter;
 
-public enum BooleanOperator {
+public enum BooleanOperator implements IOperator {
+
 	AND,
 	OR;
+
+	@Override
+	public Object getId() {
+		return this;
+	}
+
+	@Override
+	public String getLabel() {
+		//TODO MG implement getLabel()
+		return null;
+	}
+
+	@Override
+	public String getLabelLong() {
+		//TODO MG implement getLabelLong()
+		return null;
+	}
+
+	@Override
+	public String getDescription() {
+		//TODO MG implement getDescription()
+		return null;
+	}
 }
