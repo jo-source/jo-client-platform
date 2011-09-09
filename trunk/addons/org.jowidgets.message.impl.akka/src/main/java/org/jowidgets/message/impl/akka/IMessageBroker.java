@@ -28,6 +28,8 @@
 
 package org.jowidgets.message.impl.akka;
 
+import java.util.concurrent.Executor;
+
 import org.jowidgets.message.api.IMessageChannelBroker;
 import org.jowidgets.message.api.IMessageReceiverBroker;
 
@@ -36,5 +38,7 @@ import akka.actor.ActorRef;
 public interface IMessageBroker extends IMessageReceiverBroker, IMessageChannelBroker {
 
 	ActorRef getActorRef();
+
+	void setExecutor(Executor executor);
 
 }
