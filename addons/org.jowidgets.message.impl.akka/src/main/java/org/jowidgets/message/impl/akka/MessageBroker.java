@@ -28,12 +28,15 @@
 
 package org.jowidgets.message.impl.akka;
 
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.jowidgets.message.api.IExceptionCallback;
 import org.jowidgets.message.api.IMessageChannel;
 import org.jowidgets.message.api.IMessageReceiver;
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.concurrent.DaemonThreadFactory;
 
 import akka.actor.Actor;
 import akka.actor.ActorRef;
@@ -41,11 +44,11 @@ import akka.actor.Actors;
 import akka.actor.UntypedActor;
 import akka.actor.UntypedActorFactory;
 
-// TODO HRW execution interception for setting e.g. the security context
 public final class MessageBroker extends UntypedActor implements IMessageBroker, IMessageChannel {
 
 	private final String brokerId;
 	private final ActorRef destination;
+	private Executor executor = Executors.newCachedThreadPool(new DaemonThreadFactory());
 	private ActorRef actorRef;
 	private volatile IMessageReceiver receiver;
 
@@ -80,6 +83,12 @@ public final class MessageBroker extends UntypedActor implements IMessageBroker,
 	}
 
 	@Override
+	public void setExecutor(final Executor executor) {
+		Assert.paramNotNull(executor, "executor");
+		this.executor = executor;
+	}
+
+	@Override
 	public Object getBrokerId() {
 		return brokerId;
 	}
@@ -92,15 +101,22 @@ public final class MessageBroker extends UntypedActor implements IMessageBroker,
 	@Override
 	public void onReceive(final Object message) throws Exception {
 		if (receiver != null) {
-			receiver.onMessage(message, new IMessageChannel() {
+			// TODO HRW execution interception for setting e.g. the security context
+			final ActorRef sender = context().getSender().get();
+			executor.execute(new Runnable() {
 				@Override
-				public void send(final Object message, final IExceptionCallback exceptionCallback) {
-					try {
-						context().getSender().get().sendOneWay(message, context());
-					}
-					catch (final Throwable t) {
-						exceptionCallback.exception(t);
-					}
+				public void run() {
+					receiver.onMessage(message, new IMessageChannel() {
+						@Override
+						public void send(final Object message, final IExceptionCallback exceptionCallback) {
+							try {
+								sender.sendOneWay(message, context());
+							}
+							catch (final Throwable t) {
+								exceptionCallback.exception(t);
+							}
+						}
+					});
 				}
 			});
 		}
