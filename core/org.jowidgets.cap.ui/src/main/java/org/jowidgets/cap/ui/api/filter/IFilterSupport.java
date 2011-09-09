@@ -30,12 +30,10 @@ package org.jowidgets.cap.ui.api.filter;
 
 import java.util.List;
 
-import org.jowidgets.cap.common.api.filter.IOperator;
+public interface IFilterSupport<VALUE_TYPE> {
 
-public interface IOperatorProvider<OPERATOR_TYPE extends IOperator> {
+	List<IFilterPanelProvider<?>> getFilterPanels();
 
-	List<OPERATOR_TYPE> getOperators();
-
-	OPERATOR_TYPE getDefaultOperator();
+	IUiConfigurableFilter<?> getIncludingFilter(VALUE_TYPE attributeValue);
 
 }

@@ -36,6 +36,6 @@ import org.jowidgets.common.widgets.factory.ICustomWidgetFactory;
 
 public interface IFilterControlCreator<OPERATOR_TYPE extends IOperator> {
 
-	IFilterControl<OPERATOR_TYPE, ?> create(ICustomWidgetFactory widgetFactory, List<? extends IAttribute<?>> attributes);
+	IFilterControl<OPERATOR_TYPE, ?, ?> create(ICustomWidgetFactory widgetFactory, List<? extends IAttribute<?>> attributes);
 
 }

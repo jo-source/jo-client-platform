@@ -33,4 +33,6 @@ public interface IUiConfigurableFilter<CONFIG_TYPE> extends IUiFilter {
 	//TODO MG use memento here and everywhere else (where the name config is used)
 	CONFIG_TYPE getConfig();
 
+	IFilterType getType();
+
 }

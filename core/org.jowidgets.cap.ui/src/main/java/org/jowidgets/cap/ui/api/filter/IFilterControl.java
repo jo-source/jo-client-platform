@@ -31,12 +31,12 @@ package org.jowidgets.cap.ui.api.filter;
 import org.jowidgets.api.widgets.IInputControl;
 import org.jowidgets.cap.common.api.filter.IOperator;
 
-public interface IFilterControl<OPERATOR_TYPE extends IOperator, CONFIG_TYPE> extends
+public interface IFilterControl<OPERATOR_TYPE extends IOperator, CONFIG_TYPE, FILTER_TYPE extends IUiConfigurableFilter<CONFIG_TYPE>> extends
 		IInputControl<IUiConfigurableFilter<CONFIG_TYPE>> {
 
 	/**
 	 * Try to set a operand (this may be one from another control with the same class
-	 * than this or also with another class).
+	 * than this or even with another class).
 	 * 
 	 * If the operand is type compatible, the operand will be set for the control.
 	 * 
@@ -61,7 +61,5 @@ public interface IFilterControl<OPERATOR_TYPE extends IOperator, CONFIG_TYPE> ex
 	 * @param operator The operator to set
 	 */
 	void setOperator(OPERATOR_TYPE operator);
-
-	void setConfig(CONFIG_TYPE config);
 
 }

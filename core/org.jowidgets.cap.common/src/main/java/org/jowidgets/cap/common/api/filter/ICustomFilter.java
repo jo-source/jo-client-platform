@@ -36,4 +36,7 @@ public interface ICustomFilter extends IFilter {
 
 	Object getValue();
 
+	//TODO Review MG, HRW add this method
+	//IOperator getOperator();
+
 }
