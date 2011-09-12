@@ -33,6 +33,7 @@ import java.util.Collection;
 import org.jowidgets.api.widgets.IInputControl;
 import org.jowidgets.cap.common.api.filter.ArithmeticOperator;
 import org.jowidgets.cap.ui.api.filter.IFilterPanelProvider;
+import org.jowidgets.cap.ui.api.filter.IFilterSupport;
 import org.jowidgets.cap.ui.api.filter.IFilterToolkit;
 import org.jowidgets.cap.ui.api.filter.IOperatorProvider;
 import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
@@ -42,6 +43,29 @@ final class FilterToolkitImpl implements IFilterToolkit {
 	@Override
 	public IOperatorProvider<ArithmeticOperator> arithmeticOperatorProvider(final Class<?> type) {
 		// TODO MG implement operatorProvider
+		return null;
+	}
+
+	@Override
+	public IFilterSupport<?> filterSupport(final Class<?> type) {
+		// TODO MG implement filterSupport
+		return null;
+	}
+
+	@Override
+	public IFilterSupport<?> filterSupport(
+		final IOperatorProvider<ArithmeticOperator> operatorProvider,
+		final ICustomWidgetCreator<IInputControl<?>> controlCreator) {
+		// TODO MG implement filterSupport
+		return null;
+	}
+
+	@Override
+	public <ELEMENT_VALUE_TYPE> IFilterSupport<?> filterSupport(
+		final IOperatorProvider<ArithmeticOperator> operatorProvider,
+		final ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> controlCreator,
+		final ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> collectionControlCreator) {
+		// TODO MG implement filterSupport
 		return null;
 	}
 

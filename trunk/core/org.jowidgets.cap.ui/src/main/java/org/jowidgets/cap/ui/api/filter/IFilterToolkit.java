@@ -47,6 +47,17 @@ public interface IFilterToolkit {
 	 */
 	IOperatorProvider<ArithmeticOperator> arithmeticOperatorProvider(Class<?> type);
 
+	IFilterSupport<?> filterSupport(Class<?> type);
+
+	IFilterSupport<?> filterSupport(
+		final IOperatorProvider<ArithmeticOperator> operatorProvider,
+		final ICustomWidgetCreator<IInputControl<?>> controlCreator);
+
+	<ELEMENT_VALUE_TYPE> IFilterSupport<?> filterSupport(
+		final IOperatorProvider<ArithmeticOperator> operatorProvider,
+		final ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> controlCreator,
+		final ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> collectionControlCreator);
+
 	IFilterPanelProvider<ArithmeticOperator> arithmeticFilterPanel(Class<?> type);
 
 	IFilterPanelProvider<ArithmeticOperator> arithmeticFilterPanel(
@@ -54,8 +65,8 @@ public interface IFilterToolkit {
 		ICustomWidgetCreator<IInputControl<?>> controlCreator);
 
 	<ELEMENT_VALUE_TYPE> IFilterPanelProvider<ArithmeticOperator> arithmeticFilterPanel(
-		final IOperatorProvider<ArithmeticOperator> operatorProvider,
-		final ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> controlCreator,
-		final ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> collectionControlCreator);
+		IOperatorProvider<ArithmeticOperator> operatorProvider,
+		ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> controlCreator,
+		ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> collectionControlCreator);
 
 }

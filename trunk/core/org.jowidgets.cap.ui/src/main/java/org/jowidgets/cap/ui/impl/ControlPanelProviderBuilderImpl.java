@@ -46,10 +46,11 @@ import org.jowidgets.api.widgets.blueprint.IInputFieldBluePrint;
 import org.jowidgets.api.widgets.blueprint.builder.IInputComponentSetupBuilder;
 import org.jowidgets.api.widgets.blueprint.factory.IBluePrintFactory;
 import org.jowidgets.cap.common.api.bean.IValueRange;
+import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.DisplayFormat;
 import org.jowidgets.cap.ui.api.attribute.IControlPanelProvider;
 import org.jowidgets.cap.ui.api.attribute.IControlPanelProviderBuilder;
-import org.jowidgets.cap.ui.api.filter.IFilterPanelProvider;
+import org.jowidgets.cap.ui.api.filter.IFilterSupport;
 import org.jowidgets.cap.ui.tools.validation.ValueRangeValidator;
 import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
 import org.jowidgets.common.widgets.factory.ICustomWidgetFactory;
@@ -74,7 +75,7 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 	private IObjectLabelConverter<ELEMENT_VALUE_TYPE> objectLabelConverter;
 	private IObjectStringConverter<ELEMENT_VALUE_TYPE> objectStringConverter;
 	private IStringObjectConverter<ELEMENT_VALUE_TYPE> stringObjectConverter;
-	private List<IFilterPanelProvider<?>> filterPanels;
+	private IFilterSupport<?> filterSupport;
 	private ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> controlCreator;
 	private ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> collectionControlCreator;
 
@@ -171,8 +172,8 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 	}
 
 	@Override
-	public IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> setFilterPanels(final List<IFilterPanelProvider<?>> filterPanels) {
-		this.filterPanels = filterPanels;
+	public IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> setFilterSupport(final IFilterSupport<?> filterSupport) {
+		this.filterSupport = filterSupport;
 		return this;
 	}
 
@@ -194,15 +195,7 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 
 	private IObjectStringConverter<ELEMENT_VALUE_TYPE> getObjectStringConverter() {
 		if (objectStringConverter == null) {
-			final IConverterProvider converterProvider = Toolkit.getConverterProvider();
-			final IConverter<ELEMENT_VALUE_TYPE> converter = converterProvider.getConverter(elementValueType);
-
-			if (converter != null) {
-				objectStringConverter = converter;
-			}
-			else {
-				objectStringConverter = converterProvider.toStringConverter();
-			}
+			objectStringConverter = Toolkit.getConverterProvider().getObjectStringConverter(elementValueType);
 		}
 		return objectStringConverter;
 	}
@@ -342,11 +335,11 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 		return collectionControlCreator;
 	}
 
-	private List<IFilterPanelProvider<?>> getFilterPanels() {
-		//		if (filterPanels == null) {
-		//			//TODO create by control factory
-		//		}
-		return filterPanels;
+	private IFilterSupport<?> getFilterSupport() {
+		if (filterSupport == null) {
+			filterSupport = CapUiToolkit.filterToolkit().filterSupport(elementValueType);
+		}
+		return filterSupport;
 	}
 
 	@Override
@@ -357,7 +350,7 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 			displayFormatDescription,
 			getObjectLabelConverter(),
 			getStringObjectConverter(),
-			getFilterPanels(),
+			getFilterSupport(),
 			getControlCreator(),
 			getCollectionControlCreator());
 	}
