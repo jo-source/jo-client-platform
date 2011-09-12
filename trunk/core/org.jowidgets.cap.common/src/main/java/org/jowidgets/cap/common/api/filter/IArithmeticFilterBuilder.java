@@ -26,47 +26,20 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.api;
+package org.jowidgets.cap.common.api.filter;
 
-import java.util.Collection;
+public interface IArithmeticFilterBuilder extends IFilterBuilder<IArithmeticFilterBuilder> {
 
-import org.jowidgets.cap.common.api.bean.IBeanDataBuilder;
-import org.jowidgets.cap.common.api.bean.IBeanDtoBuilder;
-import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
-import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptorBuilder;
-import org.jowidgets.cap.common.api.bean.IBeanKeyBuilder;
-import org.jowidgets.cap.common.api.bean.IBeanModificationBuilder;
-import org.jowidgets.cap.common.api.bean.IBeanPropertyBuilder;
-import org.jowidgets.cap.common.api.bean.IProperty;
-import org.jowidgets.cap.common.api.bean.IPropertyBuilder;
-import org.jowidgets.cap.common.api.bean.IValueRangeFactory;
-import org.jowidgets.cap.common.api.entity.IEntityClassBuilder;
-import org.jowidgets.cap.common.api.filter.IFilterFactory;
-import org.jowidgets.cap.common.api.sort.ISortFactory;
+	IArithmeticFilterBuilder setPropertyName(String propertyName);
 
-public interface ICapCommonToolkit {
+	IArithmeticFilterBuilder setOperator(ArithmeticOperator operator);
 
-	IEntityClassBuilder entityClassBuilder();
+	IArithmeticFilterBuilder addParameter(Object parameter);
 
-	IPropertyBuilder propertyBuilder();
+	IArithmeticFilterBuilder setParameter(Object parameter);
 
-	IBeanPropertyBuilder beanPropertyBuilder(Class<?> beanType, String propertyName);
+	IArithmeticFilterBuilder setParameters(Object[] parameter);
 
-	IValueRangeFactory valueRangeFactory();
+	IArithmeticFilter build();
 
-	IBeanDtoDescriptorBuilder dtoDescriptorBuilder(Class<?> beanType);
-
-	IBeanDtoDescriptor dtoDescriptor(Collection<IProperty> properties);
-
-	IBeanDtoBuilder dtoBuilder(Object entityTypeId);
-
-	IBeanDataBuilder beanDataBuilder();
-
-	IBeanKeyBuilder beanKeyBuilder();
-
-	IBeanModificationBuilder beanModificationBuilder();
-
-	ISortFactory sortFactory();
-
-	IFilterFactory filterFactory();
 }

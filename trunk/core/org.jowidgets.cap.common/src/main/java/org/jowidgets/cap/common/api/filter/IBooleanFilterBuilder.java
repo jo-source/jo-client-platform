@@ -26,47 +26,18 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.api;
+package org.jowidgets.cap.common.api.filter;
 
-import java.util.Collection;
+import java.util.List;
 
-import org.jowidgets.cap.common.api.bean.IBeanDataBuilder;
-import org.jowidgets.cap.common.api.bean.IBeanDtoBuilder;
-import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
-import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptorBuilder;
-import org.jowidgets.cap.common.api.bean.IBeanKeyBuilder;
-import org.jowidgets.cap.common.api.bean.IBeanModificationBuilder;
-import org.jowidgets.cap.common.api.bean.IBeanPropertyBuilder;
-import org.jowidgets.cap.common.api.bean.IProperty;
-import org.jowidgets.cap.common.api.bean.IPropertyBuilder;
-import org.jowidgets.cap.common.api.bean.IValueRangeFactory;
-import org.jowidgets.cap.common.api.entity.IEntityClassBuilder;
-import org.jowidgets.cap.common.api.filter.IFilterFactory;
-import org.jowidgets.cap.common.api.sort.ISortFactory;
+public interface IBooleanFilterBuilder extends IFilterBuilder<IBooleanFilterBuilder> {
 
-public interface ICapCommonToolkit {
+	IBooleanFilterBuilder setOperator(BooleanOperator operator);
 
-	IEntityClassBuilder entityClassBuilder();
+	IBooleanFilterBuilder setFilters(List<? extends IFilter> filters);
 
-	IPropertyBuilder propertyBuilder();
+	IBooleanFilterBuilder addFilter(IFilter filter);
 
-	IBeanPropertyBuilder beanPropertyBuilder(Class<?> beanType, String propertyName);
+	IBooleanFilter build();
 
-	IValueRangeFactory valueRangeFactory();
-
-	IBeanDtoDescriptorBuilder dtoDescriptorBuilder(Class<?> beanType);
-
-	IBeanDtoDescriptor dtoDescriptor(Collection<IProperty> properties);
-
-	IBeanDtoBuilder dtoBuilder(Object entityTypeId);
-
-	IBeanDataBuilder beanDataBuilder();
-
-	IBeanKeyBuilder beanKeyBuilder();
-
-	IBeanModificationBuilder beanModificationBuilder();
-
-	ISortFactory sortFactory();
-
-	IFilterFactory filterFactory();
 }
