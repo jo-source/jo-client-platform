@@ -26,47 +26,34 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.api;
+package org.jowidgets.cap.common.api.filter;
 
-import java.util.Collection;
+import java.util.List;
 
-import org.jowidgets.cap.common.api.bean.IBeanDataBuilder;
-import org.jowidgets.cap.common.api.bean.IBeanDtoBuilder;
-import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
-import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptorBuilder;
-import org.jowidgets.cap.common.api.bean.IBeanKeyBuilder;
-import org.jowidgets.cap.common.api.bean.IBeanModificationBuilder;
-import org.jowidgets.cap.common.api.bean.IBeanPropertyBuilder;
-import org.jowidgets.cap.common.api.bean.IProperty;
-import org.jowidgets.cap.common.api.bean.IPropertyBuilder;
-import org.jowidgets.cap.common.api.bean.IValueRangeFactory;
-import org.jowidgets.cap.common.api.entity.IEntityClassBuilder;
-import org.jowidgets.cap.common.api.filter.IFilterFactory;
-import org.jowidgets.cap.common.api.sort.ISortFactory;
+public interface IFilterFactory {
 
-public interface ICapCommonToolkit {
+	IBooleanFilterBuilder booleanFilterBuilder();
 
-	IEntityClassBuilder entityClassBuilder();
+	IBooleanFilter booleanFilter(BooleanOperator operator, List<? extends IFilter> filters);
 
-	IPropertyBuilder propertyBuilder();
+	IArithmeticFilterBuilder arithmeticFilterBuilder();
 
-	IBeanPropertyBuilder beanPropertyBuilder(Class<?> beanType, String propertyName);
+	IArithmeticFilter arithmeticFilter(String propertyName, ArithmeticOperator operator, Object[] parameter);
 
-	IValueRangeFactory valueRangeFactory();
+	IArithmeticFilter arithmeticFilter(String propertyName, ArithmeticOperator operator, Object parameter);
 
-	IBeanDtoDescriptorBuilder dtoDescriptorBuilder(Class<?> beanType);
+	IArithmeticFilter arithmeticFilter(String propertyName, ArithmeticOperator operator);
 
-	IBeanDtoDescriptor dtoDescriptor(Collection<IProperty> properties);
+	IArithmeticPropertyFilterBuilder arithmeticPropertyFilterBuilder();
 
-	IBeanDtoBuilder dtoBuilder(Object entityTypeId);
+	IArithmeticPropertyFilter arithmeticPropertyFilter(
+		String leftPropertyName,
+		ArithmeticOperator operator,
+		String[] rightPropertyNames);
 
-	IBeanDataBuilder beanDataBuilder();
+	IArithmeticPropertyFilter arithmeticPropertyFilter(
+		String leftPropertyName,
+		ArithmeticOperator operator,
+		String rightPropertyName);
 
-	IBeanKeyBuilder beanKeyBuilder();
-
-	IBeanModificationBuilder beanModificationBuilder();
-
-	ISortFactory sortFactory();
-
-	IFilterFactory filterFactory();
 }

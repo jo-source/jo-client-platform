@@ -26,47 +26,23 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.api;
+package org.jowidgets.cap.common.impl;
 
-import java.util.Collection;
+import org.jowidgets.cap.common.api.filter.IFilterBuilder;
 
-import org.jowidgets.cap.common.api.bean.IBeanDataBuilder;
-import org.jowidgets.cap.common.api.bean.IBeanDtoBuilder;
-import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
-import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptorBuilder;
-import org.jowidgets.cap.common.api.bean.IBeanKeyBuilder;
-import org.jowidgets.cap.common.api.bean.IBeanModificationBuilder;
-import org.jowidgets.cap.common.api.bean.IBeanPropertyBuilder;
-import org.jowidgets.cap.common.api.bean.IProperty;
-import org.jowidgets.cap.common.api.bean.IPropertyBuilder;
-import org.jowidgets.cap.common.api.bean.IValueRangeFactory;
-import org.jowidgets.cap.common.api.entity.IEntityClassBuilder;
-import org.jowidgets.cap.common.api.filter.IFilterFactory;
-import org.jowidgets.cap.common.api.sort.ISortFactory;
+public class FilterBuilderImpl<BUILDER_TYPE> implements IFilterBuilder<BUILDER_TYPE> {
 
-public interface ICapCommonToolkit {
+	private boolean inverted;
 
-	IEntityClassBuilder entityClassBuilder();
+	@SuppressWarnings("unchecked")
+	@Override
+	public BUILDER_TYPE setInverted(final boolean inverted) {
+		this.inverted = inverted;
+		return (BUILDER_TYPE) this;
+	}
 
-	IPropertyBuilder propertyBuilder();
+	boolean isInverted() {
+		return inverted;
+	}
 
-	IBeanPropertyBuilder beanPropertyBuilder(Class<?> beanType, String propertyName);
-
-	IValueRangeFactory valueRangeFactory();
-
-	IBeanDtoDescriptorBuilder dtoDescriptorBuilder(Class<?> beanType);
-
-	IBeanDtoDescriptor dtoDescriptor(Collection<IProperty> properties);
-
-	IBeanDtoBuilder dtoBuilder(Object entityTypeId);
-
-	IBeanDataBuilder beanDataBuilder();
-
-	IBeanKeyBuilder beanKeyBuilder();
-
-	IBeanModificationBuilder beanModificationBuilder();
-
-	ISortFactory sortFactory();
-
-	IFilterFactory filterFactory();
 }

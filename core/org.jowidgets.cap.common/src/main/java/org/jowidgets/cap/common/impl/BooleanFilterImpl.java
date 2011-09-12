@@ -26,47 +26,35 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.api;
+package org.jowidgets.cap.common.impl;
 
-import java.util.Collection;
+import java.io.Serializable;
+import java.util.List;
 
-import org.jowidgets.cap.common.api.bean.IBeanDataBuilder;
-import org.jowidgets.cap.common.api.bean.IBeanDtoBuilder;
-import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
-import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptorBuilder;
-import org.jowidgets.cap.common.api.bean.IBeanKeyBuilder;
-import org.jowidgets.cap.common.api.bean.IBeanModificationBuilder;
-import org.jowidgets.cap.common.api.bean.IBeanPropertyBuilder;
-import org.jowidgets.cap.common.api.bean.IProperty;
-import org.jowidgets.cap.common.api.bean.IPropertyBuilder;
-import org.jowidgets.cap.common.api.bean.IValueRangeFactory;
-import org.jowidgets.cap.common.api.entity.IEntityClassBuilder;
-import org.jowidgets.cap.common.api.filter.IFilterFactory;
-import org.jowidgets.cap.common.api.sort.ISortFactory;
+import org.jowidgets.cap.common.api.filter.BooleanOperator;
+import org.jowidgets.cap.common.api.filter.IBooleanFilter;
+import org.jowidgets.cap.common.api.filter.IFilter;
 
-public interface ICapCommonToolkit {
+final class BooleanFilterImpl implements IBooleanFilter, Serializable {
 
-	IEntityClassBuilder entityClassBuilder();
+	private static final long serialVersionUID = 595551125332442715L;
 
-	IPropertyBuilder propertyBuilder();
+	@Override
+	public boolean isInverted() {
+		// TODO NM filter builder impl
+		return false;
+	}
 
-	IBeanPropertyBuilder beanPropertyBuilder(Class<?> beanType, String propertyName);
+	@Override
+	public List<IFilter> getFilters() {
+		// TODO NM filter builder impl
+		return null;
+	}
 
-	IValueRangeFactory valueRangeFactory();
+	@Override
+	public BooleanOperator getOperator() {
+		// TODO NM filter builder impl
+		return null;
+	}
 
-	IBeanDtoDescriptorBuilder dtoDescriptorBuilder(Class<?> beanType);
-
-	IBeanDtoDescriptor dtoDescriptor(Collection<IProperty> properties);
-
-	IBeanDtoBuilder dtoBuilder(Object entityTypeId);
-
-	IBeanDataBuilder beanDataBuilder();
-
-	IBeanKeyBuilder beanKeyBuilder();
-
-	IBeanModificationBuilder beanModificationBuilder();
-
-	ISortFactory sortFactory();
-
-	IFilterFactory filterFactory();
 }

@@ -26,47 +26,39 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.api;
+package org.jowidgets.cap.common.impl;
 
-import java.util.Collection;
+import java.util.List;
 
-import org.jowidgets.cap.common.api.bean.IBeanDataBuilder;
-import org.jowidgets.cap.common.api.bean.IBeanDtoBuilder;
-import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
-import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptorBuilder;
-import org.jowidgets.cap.common.api.bean.IBeanKeyBuilder;
-import org.jowidgets.cap.common.api.bean.IBeanModificationBuilder;
-import org.jowidgets.cap.common.api.bean.IBeanPropertyBuilder;
-import org.jowidgets.cap.common.api.bean.IProperty;
-import org.jowidgets.cap.common.api.bean.IPropertyBuilder;
-import org.jowidgets.cap.common.api.bean.IValueRangeFactory;
-import org.jowidgets.cap.common.api.entity.IEntityClassBuilder;
-import org.jowidgets.cap.common.api.filter.IFilterFactory;
-import org.jowidgets.cap.common.api.sort.ISortFactory;
+import org.jowidgets.cap.common.api.filter.BooleanOperator;
+import org.jowidgets.cap.common.api.filter.IBooleanFilter;
+import org.jowidgets.cap.common.api.filter.IBooleanFilterBuilder;
+import org.jowidgets.cap.common.api.filter.IFilter;
 
-public interface ICapCommonToolkit {
+final class BooleanFilterBuilderImpl extends FilterBuilderImpl<IBooleanFilterBuilder> implements IBooleanFilterBuilder {
 
-	IEntityClassBuilder entityClassBuilder();
+	@Override
+	public IBooleanFilterBuilder setOperator(final BooleanOperator operator) {
+		// TODO NM implement builder
+		return null;
+	}
 
-	IPropertyBuilder propertyBuilder();
+	@Override
+	public IBooleanFilterBuilder setFilters(final List<? extends IFilter> filters) {
+		// TODO NM implement builder
+		return null;
+	}
 
-	IBeanPropertyBuilder beanPropertyBuilder(Class<?> beanType, String propertyName);
+	@Override
+	public IBooleanFilterBuilder addFilter(final IFilter filter) {
+		// TODO NM implement builder
+		return null;
+	}
 
-	IValueRangeFactory valueRangeFactory();
+	@Override
+	public IBooleanFilter build() {
+		// TODO NM implement build(), Filters must be serializable
+		return new BooleanFilterImpl();
+	}
 
-	IBeanDtoDescriptorBuilder dtoDescriptorBuilder(Class<?> beanType);
-
-	IBeanDtoDescriptor dtoDescriptor(Collection<IProperty> properties);
-
-	IBeanDtoBuilder dtoBuilder(Object entityTypeId);
-
-	IBeanDataBuilder beanDataBuilder();
-
-	IBeanKeyBuilder beanKeyBuilder();
-
-	IBeanModificationBuilder beanModificationBuilder();
-
-	ISortFactory sortFactory();
-
-	IFilterFactory filterFactory();
 }

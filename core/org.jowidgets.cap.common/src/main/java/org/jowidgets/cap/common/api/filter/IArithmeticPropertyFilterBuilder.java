@@ -26,47 +26,20 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.api;
+package org.jowidgets.cap.common.api.filter;
 
-import java.util.Collection;
+public interface IArithmeticPropertyFilterBuilder extends IFilterBuilder<IArithmeticPropertyFilterBuilder> {
 
-import org.jowidgets.cap.common.api.bean.IBeanDataBuilder;
-import org.jowidgets.cap.common.api.bean.IBeanDtoBuilder;
-import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
-import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptorBuilder;
-import org.jowidgets.cap.common.api.bean.IBeanKeyBuilder;
-import org.jowidgets.cap.common.api.bean.IBeanModificationBuilder;
-import org.jowidgets.cap.common.api.bean.IBeanPropertyBuilder;
-import org.jowidgets.cap.common.api.bean.IProperty;
-import org.jowidgets.cap.common.api.bean.IPropertyBuilder;
-import org.jowidgets.cap.common.api.bean.IValueRangeFactory;
-import org.jowidgets.cap.common.api.entity.IEntityClassBuilder;
-import org.jowidgets.cap.common.api.filter.IFilterFactory;
-import org.jowidgets.cap.common.api.sort.ISortFactory;
+	IArithmeticPropertyFilterBuilder setLeftHandPropertyName(String propertyName);
 
-public interface ICapCommonToolkit {
+	IArithmeticPropertyFilterBuilder setRightHandPropertyNames(String[] propertyNames);
 
-	IEntityClassBuilder entityClassBuilder();
+	IArithmeticPropertyFilterBuilder setRightHandPropertyName(String propertyName);
 
-	IPropertyBuilder propertyBuilder();
+	IArithmeticPropertyFilterBuilder addRightHandPropertyName(String propertyName);
 
-	IBeanPropertyBuilder beanPropertyBuilder(Class<?> beanType, String propertyName);
+	IArithmeticPropertyFilterBuilder setOperator(ArithmeticOperator operator);
 
-	IValueRangeFactory valueRangeFactory();
+	IArithmeticPropertyFilter build();
 
-	IBeanDtoDescriptorBuilder dtoDescriptorBuilder(Class<?> beanType);
-
-	IBeanDtoDescriptor dtoDescriptor(Collection<IProperty> properties);
-
-	IBeanDtoBuilder dtoBuilder(Object entityTypeId);
-
-	IBeanDataBuilder beanDataBuilder();
-
-	IBeanKeyBuilder beanKeyBuilder();
-
-	IBeanModificationBuilder beanModificationBuilder();
-
-	ISortFactory sortFactory();
-
-	IFilterFactory filterFactory();
 }
