@@ -36,6 +36,8 @@ import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
 
 public interface IFilterToolkit {
 
+	IUiFilterFactory filterFactory();
+
 	/**
 	 * Gets the default arithmetic operator provider for a specific type or null
 	 * if no default is defined for the given type

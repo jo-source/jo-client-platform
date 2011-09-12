@@ -36,9 +36,21 @@ import org.jowidgets.cap.ui.api.filter.IFilterPanelProvider;
 import org.jowidgets.cap.ui.api.filter.IFilterSupport;
 import org.jowidgets.cap.ui.api.filter.IFilterToolkit;
 import org.jowidgets.cap.ui.api.filter.IOperatorProvider;
+import org.jowidgets.cap.ui.api.filter.IUiFilterFactory;
 import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
 
 final class FilterToolkitImpl implements IFilterToolkit {
+
+	private final IUiFilterFactory filterFactory;
+
+	FilterToolkitImpl() {
+		this.filterFactory = new UiFilterFactoryImpl();
+	}
+
+	@Override
+	public IUiFilterFactory filterFactory() {
+		return filterFactory;
+	}
 
 	@Override
 	public IOperatorProvider<ArithmeticOperator> arithmeticOperatorProvider(final Class<?> type) {
