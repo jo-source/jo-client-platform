@@ -28,44 +28,21 @@
 
 package org.jowidgets.cap.ui.api.filter;
 
-import java.util.List;
-
 import org.jowidgets.cap.common.api.filter.ArithmeticOperator;
-import org.jowidgets.cap.common.api.filter.BooleanOperator;
-import org.jowidgets.cap.common.api.filter.IFilter;
 
-public interface IUiFilterFactory {
+public interface IUiArithmeticPropertyFilterBuilder<CONFIG_TYPE> extends
+		IUiConfigurableFilterBuilder<IUiArithmeticPropertyFilterBuilder<CONFIG_TYPE>, CONFIG_TYPE> {
 
-	IUiBooleanFilterBuilder booleanFilterBuilder();
+	IUiArithmeticPropertyFilterBuilder<CONFIG_TYPE> setLeftHandPropertyName(String propertyName);
 
-	IUiBooleanFilter booleanFilter(BooleanOperator operator, List<? extends IFilter> filters);
+	IUiArithmeticPropertyFilterBuilder<CONFIG_TYPE> setRightHandPropertyNames(String[] propertyNames);
 
-	<CONFIG_TYPE> IUiArithmeticFilterBuilder<CONFIG_TYPE> arithmeticFilterBuilder();
+	IUiArithmeticPropertyFilterBuilder<CONFIG_TYPE> setRightHandPropertyName(String propertyName);
 
-	<CONFIG_TYPE> IUiArithmeticFilter<CONFIG_TYPE> arithmeticFilter(
-		String propertyName,
-		ArithmeticOperator operator,
-		Object[] parameter);
+	IUiArithmeticPropertyFilterBuilder<CONFIG_TYPE> addRightHandPropertyName(String propertyName);
 
-	<CONFIG_TYPE> IUiArithmeticFilter<CONFIG_TYPE> arithmeticFilter(
-		String propertyName,
-		ArithmeticOperator operator,
-		Object parameter);
+	IUiArithmeticPropertyFilterBuilder<CONFIG_TYPE> setOperator(ArithmeticOperator operator);
 
-	<CONFIG_TYPE> IUiArithmeticFilter<CONFIG_TYPE> arithmeticFilter(String propertyName, ArithmeticOperator operator);
-
-	<CONFIG_TYPE> IUiArithmeticPropertyFilterBuilder<CONFIG_TYPE> arithmeticPropertyFilterBuilder();
-
-	<CONFIG_TYPE> IUiArithmeticPropertyFilter<CONFIG_TYPE> arithmeticPropertyFilter(
-		String leftPropertyName,
-		ArithmeticOperator operator,
-		String[] rightPropertyNames);
-
-	<CONFIG_TYPE> IUiArithmeticPropertyFilter<CONFIG_TYPE> arithmeticPropertyFilter(
-		String leftPropertyName,
-		ArithmeticOperator operator,
-		String rightPropertyName);
-
-	IFilter convert(IUiFilter uiFilter);
+	IUiArithmeticPropertyFilter<CONFIG_TYPE> build();
 
 }

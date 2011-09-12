@@ -28,44 +28,21 @@
 
 package org.jowidgets.cap.ui.api.filter;
 
-import java.util.List;
-
 import org.jowidgets.cap.common.api.filter.ArithmeticOperator;
-import org.jowidgets.cap.common.api.filter.BooleanOperator;
-import org.jowidgets.cap.common.api.filter.IFilter;
 
-public interface IUiFilterFactory {
+public interface IUiArithmeticFilterBuilder<CONFIG_TYPE> extends
+		IUiConfigurableFilterBuilder<IUiArithmeticFilterBuilder<CONFIG_TYPE>, CONFIG_TYPE> {
 
-	IUiBooleanFilterBuilder booleanFilterBuilder();
+	IUiArithmeticFilterBuilder<CONFIG_TYPE> setPropertyName(String propertyName);
 
-	IUiBooleanFilter booleanFilter(BooleanOperator operator, List<? extends IFilter> filters);
+	IUiArithmeticFilterBuilder<CONFIG_TYPE> setOperator(ArithmeticOperator operator);
 
-	<CONFIG_TYPE> IUiArithmeticFilterBuilder<CONFIG_TYPE> arithmeticFilterBuilder();
+	IUiArithmeticFilterBuilder<CONFIG_TYPE> addParameter(Object parameter);
 
-	<CONFIG_TYPE> IUiArithmeticFilter<CONFIG_TYPE> arithmeticFilter(
-		String propertyName,
-		ArithmeticOperator operator,
-		Object[] parameter);
+	IUiArithmeticFilterBuilder<CONFIG_TYPE> setParameter(Object parameter);
 
-	<CONFIG_TYPE> IUiArithmeticFilter<CONFIG_TYPE> arithmeticFilter(
-		String propertyName,
-		ArithmeticOperator operator,
-		Object parameter);
+	IUiArithmeticFilterBuilder<CONFIG_TYPE> setParameters(Object[] parameter);
 
-	<CONFIG_TYPE> IUiArithmeticFilter<CONFIG_TYPE> arithmeticFilter(String propertyName, ArithmeticOperator operator);
-
-	<CONFIG_TYPE> IUiArithmeticPropertyFilterBuilder<CONFIG_TYPE> arithmeticPropertyFilterBuilder();
-
-	<CONFIG_TYPE> IUiArithmeticPropertyFilter<CONFIG_TYPE> arithmeticPropertyFilter(
-		String leftPropertyName,
-		ArithmeticOperator operator,
-		String[] rightPropertyNames);
-
-	<CONFIG_TYPE> IUiArithmeticPropertyFilter<CONFIG_TYPE> arithmeticPropertyFilter(
-		String leftPropertyName,
-		ArithmeticOperator operator,
-		String rightPropertyName);
-
-	IFilter convert(IUiFilter uiFilter);
+	IUiArithmeticFilter<CONFIG_TYPE> build();
 
 }
