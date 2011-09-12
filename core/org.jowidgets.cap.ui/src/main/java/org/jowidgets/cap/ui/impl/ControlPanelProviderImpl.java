@@ -29,13 +29,12 @@
 package org.jowidgets.cap.ui.impl;
 
 import java.util.Collection;
-import java.util.List;
 
 import org.jowidgets.api.convert.IObjectLabelConverter;
 import org.jowidgets.api.convert.IStringObjectConverter;
 import org.jowidgets.api.widgets.IInputControl;
 import org.jowidgets.cap.ui.api.attribute.IControlPanelProvider;
-import org.jowidgets.cap.ui.api.filter.IFilterPanelProvider;
+import org.jowidgets.cap.ui.api.filter.IFilterSupport;
 import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
 import org.jowidgets.util.Assert;
 
@@ -46,7 +45,7 @@ final class ControlPanelProviderImpl<ELEMENT_VALUE_TYPE> implements IControlPane
 	private final String displayFormatDescription;
 	private final IObjectLabelConverter<ELEMENT_VALUE_TYPE> objectLabelConverter;
 	private final IStringObjectConverter<ELEMENT_VALUE_TYPE> stringObjectConverter;
-	private final List<? extends IFilterPanelProvider<?>> filterPanels;
+	private final IFilterSupport<?> filterSupport;
 	private final ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> controlCreator;
 	private final ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> collectionControlCreator;
 
@@ -56,7 +55,7 @@ final class ControlPanelProviderImpl<ELEMENT_VALUE_TYPE> implements IControlPane
 		final String displayFormatDescription,
 		final IObjectLabelConverter<ELEMENT_VALUE_TYPE> objectLabelConverter,
 		final IStringObjectConverter<ELEMENT_VALUE_TYPE> stringObjectConverter,
-		final List<? extends IFilterPanelProvider<?>> filterPanels,
+		final IFilterSupport<?> filterSupport,
 		final ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> controlCreator,
 		final ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> collectionControlCreator) {
 
@@ -69,7 +68,7 @@ final class ControlPanelProviderImpl<ELEMENT_VALUE_TYPE> implements IControlPane
 		this.displayFormatDescription = displayFormatDescription;
 		this.objectLabelConverter = objectLabelConverter;
 		this.stringObjectConverter = stringObjectConverter;
-		this.filterPanels = filterPanels;
+		this.filterSupport = filterSupport;
 		this.controlCreator = controlCreator;
 		this.collectionControlCreator = collectionControlCreator;
 	}
@@ -104,10 +103,9 @@ final class ControlPanelProviderImpl<ELEMENT_VALUE_TYPE> implements IControlPane
 		return controlCreator;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public List<IFilterPanelProvider<?>> getFilterPanels() {
-		return (List<IFilterPanelProvider<?>>) filterPanels;
+	public IFilterSupport<?> getFilterSupport() {
+		return filterSupport;
 	}
 
 	@Override

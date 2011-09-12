@@ -26,32 +26,25 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.attribute;
+package org.jowidgets.cap.ui.api.control;
 
-import java.util.Collection;
-
-import org.jowidgets.api.convert.IObjectLabelConverter;
-import org.jowidgets.api.convert.IStringObjectConverter;
+import org.jowidgets.api.convert.IConverter;
 import org.jowidgets.api.widgets.IInputControl;
-import org.jowidgets.cap.ui.api.filter.IFilterSupport;
+import org.jowidgets.cap.common.api.bean.IValueRange;
 import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
 
-public interface IControlPanelProvider<ELEMENT_VALUE_TYPE> {
+public interface IInputControlProvider {
 
-	String getDisplayFormatId();
+	<VALUE_TYPE> ICustomWidgetCreator<IInputControl<VALUE_TYPE>> getControlCreator(Class<? extends VALUE_TYPE> type);
 
-	String getDisplayFormatName();
+	<VALUE_TYPE> ICustomWidgetCreator<IInputControl<VALUE_TYPE>> getControlCreator(
+		Class<? extends VALUE_TYPE> type,
+		IValueRange valueRange);
 
-	String getDisplayFormatDescription();
+	<VALUE_TYPE> ICustomWidgetCreator<IInputControl<VALUE_TYPE>> getControlCreator(IConverter<? extends VALUE_TYPE> converter);
 
-	IObjectLabelConverter<ELEMENT_VALUE_TYPE> getObjectLabelConverter();
-
-	IStringObjectConverter<ELEMENT_VALUE_TYPE> getStringObjectConverter();
-
-	IFilterSupport<?> getFilterSupport();
-
-	ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> getControlCreator();
-
-	ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> getCollectionControlCreator();
+	<VALUE_TYPE> ICustomWidgetCreator<IInputControl<VALUE_TYPE>> getControlCreator(
+		IConverter<? extends VALUE_TYPE> converter,
+		IValueRange valueRange);
 
 }
