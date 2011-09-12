@@ -34,6 +34,7 @@ public interface IUiArithmeticFilter<CONFIG_TYPE> extends IUiConfigurableFilter<
 
 	String getPropertyName();
 
+	@Override
 	ArithmeticOperator getOperator();
 
 	Object[] getParameters();

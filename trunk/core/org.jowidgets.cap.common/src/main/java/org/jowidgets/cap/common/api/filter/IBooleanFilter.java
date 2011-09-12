@@ -34,6 +34,7 @@ public interface IBooleanFilter extends IFilter {
 
 	List<IFilter> getFilters();
 
+	@Override
 	BooleanOperator getOperator();
 
 }

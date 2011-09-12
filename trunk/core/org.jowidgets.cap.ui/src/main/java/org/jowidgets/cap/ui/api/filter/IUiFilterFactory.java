@@ -26,12 +26,9 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.api.filter;
+package org.jowidgets.cap.ui.api.filter;
 
-public interface IFilter {
 
-	boolean isInverted();
-
-	IOperator getOperator();
+public interface IUiFilterFactory {
 
 }

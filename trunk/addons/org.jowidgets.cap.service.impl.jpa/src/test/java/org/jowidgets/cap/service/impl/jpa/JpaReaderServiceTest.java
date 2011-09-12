@@ -49,6 +49,7 @@ import org.jowidgets.cap.common.api.filter.IArithmeticFilter;
 import org.jowidgets.cap.common.api.filter.IBooleanFilter;
 import org.jowidgets.cap.common.api.filter.ICustomFilter;
 import org.jowidgets.cap.common.api.filter.IFilter;
+import org.jowidgets.cap.common.api.filter.IOperator;
 import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.common.api.sort.SortOrder;
 import org.jowidgets.cap.common.tools.bean.BeanKey;
@@ -852,6 +853,11 @@ public class JpaReaderServiceTest extends AbstractJpaTest {
 			public Object getValue() {
 				return 4;
 			}
+
+			@Override
+			public IOperator getOperator() {
+				return null;
+			}
 		}, null, 0, Integer.MAX_VALUE, null, null);
 		List<IBeanDto> dtos = res.getResultSynchronious();
 		Assert.assertNotNull(dtos);
@@ -877,6 +883,11 @@ public class JpaReaderServiceTest extends AbstractJpaTest {
 			@Override
 			public Object getValue() {
 				return 5;
+			}
+
+			@Override
+			public IOperator getOperator() {
+				return null;
 			}
 		}, null, 0, Integer.MAX_VALUE, null, null);
 		dtos = res.getResultSynchronious();
@@ -905,6 +916,11 @@ public class JpaReaderServiceTest extends AbstractJpaTest {
 
 			@Override
 			public Object getValue() {
+				return null;
+			}
+
+			@Override
+			public IOperator getOperator() {
 				return null;
 			}
 		}, null, 0, Integer.MAX_VALUE, null, null);

@@ -36,6 +36,7 @@ public interface IUiBooleanFilter extends IUiFilter {
 
 	List<IUiFilter> getFilters();
 
+	@Override
 	BooleanOperator getOperator();
 
 }

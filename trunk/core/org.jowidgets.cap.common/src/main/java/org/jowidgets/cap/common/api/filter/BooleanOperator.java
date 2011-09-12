@@ -40,19 +40,19 @@ public enum BooleanOperator implements IOperator {
 
 	@Override
 	public String getLabel() {
-		//TODO MG implement getLabel()
+		//TODO NM implement getLabel()
 		return null;
 	}
 
 	@Override
 	public String getLabelLong() {
-		//TODO MG implement getLabelLong()
+		//TODO NM implement getLabelLong()
 		return null;
 	}
 
 	@Override
 	public String getDescription() {
-		//TODO MG implement getDescription()
+		//TODO NM implement getDescription()
 		return null;
 	}
 }
