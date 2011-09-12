@@ -32,6 +32,7 @@ public interface IArithmeticPropertyFilter extends IFilter {
 
 	String getLeftHandPropertyName();
 
+	@Override
 	ArithmeticOperator getOperator();
 
 	String[] getRightHandPropertyNames();

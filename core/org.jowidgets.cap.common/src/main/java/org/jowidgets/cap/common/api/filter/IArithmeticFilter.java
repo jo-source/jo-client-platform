@@ -32,6 +32,7 @@ public interface IArithmeticFilter extends IFilter {
 
 	String getPropertyName();
 
+	@Override
 	ArithmeticOperator getOperator();
 
 	Object[] getParameters();

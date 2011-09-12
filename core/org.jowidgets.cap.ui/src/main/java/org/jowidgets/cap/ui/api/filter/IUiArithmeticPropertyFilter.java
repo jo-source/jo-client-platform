@@ -34,6 +34,7 @@ public interface IUiArithmeticPropertyFilter<CONFIG_TYPE> extends IUiConfigurabl
 
 	String getLeftHandPropertyName();
 
+	@Override
 	ArithmeticOperator getOperator();
 
 	String[] getRightHandPropertyNames();

@@ -28,8 +28,12 @@
 
 package org.jowidgets.cap.ui.api.filter;
 
+import org.jowidgets.cap.common.api.filter.IOperator;
+
 public interface IUiFilter {
 
 	boolean isInverted();
+
+	IOperator getOperator();
 
 }

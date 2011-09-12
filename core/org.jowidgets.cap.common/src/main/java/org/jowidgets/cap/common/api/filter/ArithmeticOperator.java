@@ -30,10 +30,10 @@ package org.jowidgets.cap.common.api.filter;
 
 public enum ArithmeticOperator implements IOperator {
 
-	EMPTY(0, false),
-	EQUAL(1, false),
-	LESS(1, false),
-	LESS_EQUAL(1, false),
+	EMPTY(0, false), //empty, Empty
+	EQUAL(1, false), //=
+	LESS(1, false), //<
+	LESS_EQUAL(1, false), //<=
 	GREATER(1, false),
 	GREATER_EQUAL(1, false),
 	BETWEEN(2, false),
@@ -69,19 +69,19 @@ public enum ArithmeticOperator implements IOperator {
 
 	@Override
 	public String getLabel() {
-		//TODO MG implement getLabel()
+		//TODO NM implement getLabel()
 		return null;
 	}
 
 	@Override
 	public String getLabelLong() {
-		//TODO MG implement getLabelLong()
+		//TODO NM implement getLabelLong()
 		return null;
 	}
 
 	@Override
 	public String getDescription() {
-		//TODO MG implement getDescription()
+		//TODO NM implement getDescription()
 		return null;
 	}
 

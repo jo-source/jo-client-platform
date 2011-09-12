@@ -26,12 +26,28 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.api.filter;
+package org.jowidgets.cap.ui.api.filter;
 
-public interface IFilter {
+public enum FilterType implements IFilterType {
 
-	boolean isInverted();
+	ARITHMETIC_FILTER, //Arithmetic filter
+	ARITMETTIC_PROPERTY_FILTER; //Arithmetic property filter
 
-	IOperator getOperator();
+	@Override
+	public Object getId() {
+		return this;
+	}
+
+	@Override
+	public String getLabel() {
+		// TODO NM filter stuff
+		return null;
+	}
+
+	@Override
+	public String getDescription() {
+		// TODO NM filter stuff
+		return null;
+	}
 
 }
