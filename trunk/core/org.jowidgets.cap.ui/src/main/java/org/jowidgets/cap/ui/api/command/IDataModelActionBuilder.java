@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.ui.api.command;
 
+import org.jowidgets.api.command.IEnabledChecker;
 import org.jowidgets.api.command.IExceptionHandler;
 import org.jowidgets.common.image.IImageConstant;
 import org.jowidgets.common.types.Accelerator;
@@ -65,6 +66,8 @@ public interface IDataModelActionBuilder {
 	 * @return this instance
 	 */
 	IDataModelActionBuilder setActionExceptionHandler(IExceptionHandler exceptionHandler);
+
+	IDataModelActionBuilder addEnabledChecker(IEnabledChecker enabledChecker);
 
 	IDataModelAction build();
 
