@@ -28,9 +28,12 @@
 
 package org.jowidgets.cap.ui.impl;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.command.IActionBuilder;
-import org.jowidgets.api.command.ICommand;
+import org.jowidgets.api.command.IEnabledChecker;
 import org.jowidgets.api.command.IExceptionHandler;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.cap.ui.api.command.IDataModelAction;
@@ -46,11 +49,11 @@ final class DataModelActionBuilderImpl implements IDataModelActionBuilder {
 
 	private final AbstractDataModelCommand abstractDataModelCommand;
 	private final IActionBuilder actionBuilder;
+	private final List<IEnabledChecker> enabledCheckers = new LinkedList<IEnabledChecker>();
 
 	DataModelActionBuilderImpl(final AbstractDataModelCommand command) {
 		this.abstractDataModelCommand = command;
 		this.actionBuilder = Toolkit.getActionBuilderFactory().create();
-		this.actionBuilder.setCommand((ICommand) command);
 	}
 
 	@Override
@@ -108,7 +111,14 @@ final class DataModelActionBuilderImpl implements IDataModelActionBuilder {
 	}
 
 	@Override
+	public IDataModelActionBuilder addEnabledChecker(final IEnabledChecker enabledChecker) {
+		enabledCheckers.add(enabledChecker);
+		return this;
+	}
+
+	@Override
 	public IDataModelAction build() {
+		actionBuilder.setCommand(new CommandWrapper(abstractDataModelCommand, enabledCheckers));
 		final IAction action = actionBuilder.build();
 		return new DataModelAction(action);
 	}
