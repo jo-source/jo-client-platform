@@ -38,7 +38,7 @@ public interface IUiFilterFactory {
 
 	IUiBooleanFilterBuilder booleanFilterBuilder();
 
-	IUiBooleanFilter booleanFilter(BooleanOperator operator, List<? extends IFilter> filters);
+	IUiBooleanFilter booleanFilter(BooleanOperator operator, List<? extends IUiFilter> filters);
 
 	<CONFIG_TYPE> IUiArithmeticFilterBuilder<CONFIG_TYPE> arithmeticFilterBuilder();
 

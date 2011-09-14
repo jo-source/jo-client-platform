@@ -41,7 +41,7 @@ public interface IUiArithmeticFilterBuilder<CONFIG_TYPE> extends
 
 	IUiArithmeticFilterBuilder<CONFIG_TYPE> setParameter(Object parameter);
 
-	IUiArithmeticFilterBuilder<CONFIG_TYPE> setParameters(Object[] parameter);
+	IUiArithmeticFilterBuilder<CONFIG_TYPE> setParameters(Object[] parameters);
 
 	IUiArithmeticFilter<CONFIG_TYPE> build();
 

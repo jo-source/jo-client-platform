@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2011, grossmann, Nikolaus Moll
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -45,8 +45,7 @@ final class FilterFactoryImpl implements IFilterFactory {
 
 	@Override
 	public IBooleanFilterBuilder booleanFilterBuilder() {
-		// TODO NM filter builder stuff
-		return null;
+		return new BooleanFilterBuilderImpl();
 	}
 
 	@Override
@@ -56,35 +55,30 @@ final class FilterFactoryImpl implements IFilterFactory {
 
 	@Override
 	public IArithmeticFilterBuilder arithmeticFilterBuilder() {
-		// TODO NM filter builder stuff
-		return null;
+		return new ArithmeticFilterBuilderImpl();
 	}
 
 	@Override
 	public IArithmeticFilter arithmeticFilter(
 		final String propertyName,
 		final ArithmeticOperator operator,
-		final Object[] parameter) {
-		// TODO NM filter builder stuff
-		return null;
+		final Object[] parameters) {
+		return arithmeticFilterBuilder().setPropertyName(propertyName).setOperator(operator).setParameters(parameters).build();
 	}
 
 	@Override
 	public IArithmeticFilter arithmeticFilter(final String propertyName, final ArithmeticOperator operator, final Object parameter) {
-		// TODO NM filter builder stuff
-		return null;
+		return arithmeticFilterBuilder().setPropertyName(propertyName).setOperator(operator).setParameter(parameter).build();
 	}
 
 	@Override
 	public IArithmeticFilter arithmeticFilter(final String propertyName, final ArithmeticOperator operator) {
-		// TODO NM filter builder stuff
-		return null;
+		return arithmeticFilterBuilder().setPropertyName(propertyName).setOperator(operator).build();
 	}
 
 	@Override
 	public IArithmeticPropertyFilterBuilder arithmeticPropertyFilterBuilder() {
-		// TODO NM filter builder stuff
-		return null;
+		return new ArithmeticPropertyFilterBuilderImpl();
 	}
 
 	@Override
@@ -92,8 +86,8 @@ final class FilterFactoryImpl implements IFilterFactory {
 		final String leftPropertyName,
 		final ArithmeticOperator operator,
 		final String[] rightPropertyNames) {
-		// TODO NM filter builder stuff
-		return null;
+		return arithmeticPropertyFilterBuilder().setLeftHandPropertyName(leftPropertyName).setOperator(operator).setRightHandPropertyNames(
+				rightPropertyNames).build();
 	}
 
 	@Override
@@ -101,8 +95,8 @@ final class FilterFactoryImpl implements IFilterFactory {
 		final String leftPropertyName,
 		final ArithmeticOperator operator,
 		final String rightPropertyName) {
-		// TODO NM filter builder stuff
-		return null;
+		return arithmeticPropertyFilterBuilder().setLeftHandPropertyName(leftPropertyName).setOperator(operator).setRightHandPropertyName(
+				rightPropertyName).build();
 	}
 
 }

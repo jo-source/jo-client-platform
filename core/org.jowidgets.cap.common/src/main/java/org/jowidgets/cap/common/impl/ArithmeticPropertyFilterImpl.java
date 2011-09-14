@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann, Nikolaus Moll
+ * Copyright (c) 2011, Nikolaus Moll
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,41 +26,50 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.api.filter;
+package org.jowidgets.cap.common.impl;
 
-public enum BooleanOperator implements IOperator {
+import java.io.Serializable;
 
-	// TODO NM set Strings
-	AND("", "", ""),
-	OR("", "", "");
+import org.jowidgets.cap.common.api.filter.ArithmeticOperator;
+import org.jowidgets.cap.common.api.filter.IArithmeticPropertyFilter;
 
-	private final String label;
-	private final String labelLong;
-	private final String description;
+final class ArithmeticPropertyFilterImpl implements IArithmeticPropertyFilter, Serializable {
 
-	BooleanOperator(final String label, final String labelLong, final String description) {
-		this.label = label;
-		this.labelLong = labelLong;
-		this.description = description;
+	private static final long serialVersionUID = 2437119345197536769L;
+	private final String leftHandPropertyName;
+	private final ArithmeticOperator operator;
+	private final String[] rightHandPropertyNames;
+	private final boolean inverted;
+
+	ArithmeticPropertyFilterImpl(
+		final String leftHandPropertyName,
+		final ArithmeticOperator operator,
+		final String[] rightHandPropertyNames,
+		final boolean inverted) {
+		this.leftHandPropertyName = leftHandPropertyName;
+		this.operator = operator;
+		this.rightHandPropertyNames = rightHandPropertyNames;
+		this.inverted = inverted;
 	}
 
 	@Override
-	public Object getId() {
-		return this;
+	public boolean isInverted() {
+		return inverted;
 	}
 
 	@Override
-	public String getLabel() {
-		return label;
+	public String getLeftHandPropertyName() {
+		return leftHandPropertyName;
 	}
 
 	@Override
-	public String getLabelLong() {
-		return labelLong;
+	public ArithmeticOperator getOperator() {
+		return operator;
 	}
 
 	@Override
-	public String getDescription() {
-		return description;
+	public String[] getRightHandPropertyNames() {
+		return rightHandPropertyNames;
 	}
+
 }

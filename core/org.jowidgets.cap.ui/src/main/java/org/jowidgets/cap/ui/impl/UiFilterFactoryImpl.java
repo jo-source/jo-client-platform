@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2011, grossmann, Nikolaus Moll
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -28,11 +28,14 @@
 
 package org.jowidgets.cap.ui.impl;
 
+import java.util.LinkedList;
 import java.util.List;
 
+import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.filter.ArithmeticOperator;
 import org.jowidgets.cap.common.api.filter.BooleanOperator;
 import org.jowidgets.cap.common.api.filter.IFilter;
+import org.jowidgets.cap.common.api.filter.IFilterFactory;
 import org.jowidgets.cap.ui.api.filter.IUiArithmeticFilter;
 import org.jowidgets.cap.ui.api.filter.IUiArithmeticFilterBuilder;
 import org.jowidgets.cap.ui.api.filter.IUiArithmeticPropertyFilter;
@@ -46,29 +49,27 @@ final class UiFilterFactoryImpl implements IUiFilterFactory {
 
 	@Override
 	public IUiBooleanFilterBuilder booleanFilterBuilder() {
-		//TODO NM implement filter stuff
-		return null;
+		return new UiBooleanFilterBuilderImpl();
 	}
 
 	@Override
-	public IUiBooleanFilter booleanFilter(final BooleanOperator operator, final List<? extends IFilter> filters) {
-		//TODO NM implement filter stuff
-		return null;
+	public IUiBooleanFilter booleanFilter(final BooleanOperator operator, final List<? extends IUiFilter> filters) {
+		return booleanFilterBuilder().setOperator(operator).setFilters(filters).build();
 	}
 
 	@Override
 	public <CONFIG_TYPE> IUiArithmeticFilterBuilder<CONFIG_TYPE> arithmeticFilterBuilder() {
-		//TODO NM implement filter stuff
-		return null;
+		return new UiArithmeticFilterBuilderImpl<CONFIG_TYPE>();
 	}
 
 	@Override
 	public <CONFIG_TYPE> IUiArithmeticFilter<CONFIG_TYPE> arithmeticFilter(
 		final String propertyName,
 		final ArithmeticOperator operator,
-		final Object[] parameter) {
-		//TODO NM implement filter stuff
-		return null;
+		final Object[] parameters) {
+		// TODO MG,NM review (method call instead, generics)
+		return new UiArithmeticFilterBuilderImpl<CONFIG_TYPE>().setPropertyName(propertyName).setOperator(operator).setParameters(
+				parameters).build();
 	}
 
 	@Override
@@ -76,22 +77,22 @@ final class UiFilterFactoryImpl implements IUiFilterFactory {
 		final String propertyName,
 		final ArithmeticOperator operator,
 		final Object parameter) {
-		//TODO NM implement filter stuff
-		return null;
+		// TODO MG,NM review (method call instead, generics)
+		return new UiArithmeticFilterBuilderImpl<CONFIG_TYPE>().setPropertyName(propertyName).setOperator(operator).setParameter(
+				parameter).build();
 	}
 
 	@Override
 	public <CONFIG_TYPE> IUiArithmeticFilter<CONFIG_TYPE> arithmeticFilter(
 		final String propertyName,
 		final ArithmeticOperator operator) {
-		//TODO NM implement filter stuff
-		return null;
+		// TODO MG,NM review (method call instead, generics)
+		return new UiArithmeticFilterBuilderImpl<CONFIG_TYPE>().setPropertyName(propertyName).setOperator(operator).build();
 	}
 
 	@Override
 	public <CONFIG_TYPE> IUiArithmeticPropertyFilterBuilder<CONFIG_TYPE> arithmeticPropertyFilterBuilder() {
-		//TODO NM implement filter stuff
-		return null;
+		return new UiArithmeticPropertyFilterBuilderImpl<CONFIG_TYPE>();
 	}
 
 	@Override
@@ -99,8 +100,9 @@ final class UiFilterFactoryImpl implements IUiFilterFactory {
 		final String leftPropertyName,
 		final ArithmeticOperator operator,
 		final String[] rightPropertyNames) {
-		//TODO NM implement filter stuff
-		return null;
+		// TODO MG,NM review (method call instead, generics)
+		return new UiArithmeticPropertyFilterBuilderImpl<CONFIG_TYPE>().setLeftHandPropertyName(leftPropertyName).setOperator(
+				operator).setRightHandPropertyNames(rightPropertyNames).build();
 	}
 
 	@Override
@@ -108,14 +110,39 @@ final class UiFilterFactoryImpl implements IUiFilterFactory {
 		final String leftPropertyName,
 		final ArithmeticOperator operator,
 		final String rightPropertyName) {
-		///TODO NM implement filter stuff
-		return null;
+		// TODO MG,NM review (method call instead, generics)
+		return new UiArithmeticPropertyFilterBuilderImpl<CONFIG_TYPE>().setLeftHandPropertyName(leftPropertyName).setOperator(
+				operator).setRightHandPropertyName(rightPropertyName).build();
 	}
 
 	@Override
 	public IFilter convert(final IUiFilter uiFilter) {
-		///TODO NM implement filter stuff
-		return null;
+		final IFilterFactory fab = CapCommonToolkit.filterFactory();
+		if (uiFilter instanceof IUiBooleanFilter) {
+			final IUiBooleanFilter uiBooleanFilter = (IUiBooleanFilter) uiFilter;
+			final List<IFilter> filters = new LinkedList<IFilter>();
+			for (final IUiFilter uiF : uiBooleanFilter.getFilters()) {
+				filters.add(convert(uiF));
+			}
+			return fab.booleanFilter(uiBooleanFilter.getOperator(), filters);
+		}
+		else if (uiFilter instanceof IUiArithmeticFilter<?>) {
+			final IUiArithmeticFilter<?> uiArithmeticFilter = (IUiArithmeticFilter<?>) uiFilter;
+			return fab.arithmeticFilter(
+					uiArithmeticFilter.getPropertyName(),
+					uiArithmeticFilter.getOperator(),
+					uiArithmeticFilter.getParameters());
+		}
+		else if (uiFilter instanceof IUiArithmeticPropertyFilter<?>) {
+			final IUiArithmeticPropertyFilter<?> uiArithmeticPropertyFilter = (IUiArithmeticPropertyFilter<?>) uiFilter;
+			return fab.arithmeticPropertyFilter(
+					uiArithmeticPropertyFilter.getLeftHandPropertyName(),
+					uiArithmeticPropertyFilter.getOperator(),
+					uiArithmeticPropertyFilter.getRightHandPropertyNames());
+		}
+		else {
+			throw new IllegalStateException("Cannot convert unkown filter class '" + uiFilter.getClass().getName() + "'.");
+		}
 	}
 
 }

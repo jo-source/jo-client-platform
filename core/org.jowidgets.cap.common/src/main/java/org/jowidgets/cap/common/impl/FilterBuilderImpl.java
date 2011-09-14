@@ -41,7 +41,7 @@ public class FilterBuilderImpl<BUILDER_TYPE> implements IFilterBuilder<BUILDER_T
 		return (BUILDER_TYPE) this;
 	}
 
-	boolean isInverted() {
+	protected boolean isInverted() {
 		return inverted;
 	}
 

@@ -31,15 +31,14 @@ package org.jowidgets.cap.ui.api.filter;
 import java.util.List;
 
 import org.jowidgets.cap.common.api.filter.BooleanOperator;
-import org.jowidgets.cap.common.api.filter.IFilter;
 
 public interface IUiBooleanFilterBuilder extends IUiFilterBuilder<IUiBooleanFilterBuilder> {
 
 	IUiBooleanFilterBuilder setOperator(BooleanOperator operator);
 
-	IUiBooleanFilterBuilder setFilters(List<? extends IFilter> filters);
+	IUiBooleanFilterBuilder setFilters(List<? extends IUiFilter> filters);
 
-	IUiBooleanFilterBuilder addFilter(IFilter filter);
+	IUiBooleanFilterBuilder addFilter(IUiFilter filter);
 
 	IUiBooleanFilter build();
 

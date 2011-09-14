@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2011, grossmann, Nikolaus Moll
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -38,23 +38,29 @@ import org.jowidgets.cap.common.api.filter.IFilter;
 final class BooleanFilterImpl implements IBooleanFilter, Serializable {
 
 	private static final long serialVersionUID = 595551125332442715L;
+	private final BooleanOperator operator;
+	private final List<IFilter> filters;
+	private final boolean inverted;
+
+	BooleanFilterImpl(final BooleanOperator operator, final List<IFilter> filters, final boolean inverted) {
+		this.operator = operator;
+		this.filters = filters;
+		this.inverted = inverted;
+	}
 
 	@Override
 	public boolean isInverted() {
-		// TODO NM filter builder impl
-		return false;
+		return inverted;
 	}
 
 	@Override
 	public List<IFilter> getFilters() {
-		// TODO NM filter builder impl
-		return null;
+		return filters;
 	}
 
 	@Override
 	public BooleanOperator getOperator() {
-		// TODO NM filter builder impl
-		return null;
+		return operator;
 	}
 
 }

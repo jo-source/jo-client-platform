@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann, Nikolaus Moll
+ * Copyright (c) 2011, nimoll
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,41 +26,41 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.api.filter;
+package org.jowidgets.cap.ui.impl;
 
-public enum BooleanOperator implements IOperator {
+import java.io.Serializable;
+import java.util.List;
 
-	// TODO NM set Strings
-	AND("", "", ""),
-	OR("", "", "");
+import org.jowidgets.cap.common.api.filter.BooleanOperator;
+import org.jowidgets.cap.ui.api.filter.IUiBooleanFilter;
+import org.jowidgets.cap.ui.api.filter.IUiFilter;
 
-	private final String label;
-	private final String labelLong;
-	private final String description;
+class UiBooleanFilterImpl implements IUiBooleanFilter, Serializable {
 
-	BooleanOperator(final String label, final String labelLong, final String description) {
-		this.label = label;
-		this.labelLong = labelLong;
-		this.description = description;
+	private static final long serialVersionUID = 5647966824222325924L;
+	private final BooleanOperator operator;
+	private final List<IUiFilter> filters;
+	private final boolean inverted;
+
+	UiBooleanFilterImpl(final BooleanOperator operator, final List<IUiFilter> filters, final boolean inverted) {
+		this.operator = operator;
+		this.filters = filters;
+		this.inverted = inverted;
 	}
 
 	@Override
-	public Object getId() {
-		return this;
+	public boolean isInverted() {
+		return inverted;
 	}
 
 	@Override
-	public String getLabel() {
-		return label;
+	public List<IUiFilter> getFilters() {
+		return filters;
 	}
 
 	@Override
-	public String getLabelLong() {
-		return labelLong;
+	public BooleanOperator getOperator() {
+		return operator;
 	}
 
-	@Override
-	public String getDescription() {
-		return description;
-	}
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2011, grossmann, Nikolaus Moll
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -30,8 +30,16 @@ package org.jowidgets.cap.ui.api.filter;
 
 public enum FilterType implements IFilterType {
 
-	ARITHMETIC_FILTER, //Arithmetic filter
-	ARITMETTIC_PROPERTY_FILTER; //Arithmetic property filter
+	ARITHMETIC_FILTER("Arithmetic filter", "Compares a property with a value"),
+	ARITMETTIC_PROPERTY_FILTER("Arithmetic property filter", "Compares a property with other properties");
+
+	private final String label;
+	private final String description;
+
+	private FilterType(final String label, final String description) {
+		this.label = label;
+		this.description = description;
+	}
 
 	@Override
 	public Object getId() {
@@ -40,14 +48,12 @@ public enum FilterType implements IFilterType {
 
 	@Override
 	public String getLabel() {
-		// TODO NM filter stuff
-		return null;
+		return label;
 	}
 
 	@Override
 	public String getDescription() {
-		// TODO NM filter stuff
-		return null;
+		return description;
 	}
 
 }

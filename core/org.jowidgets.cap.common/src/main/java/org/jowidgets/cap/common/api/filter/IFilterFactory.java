@@ -38,7 +38,7 @@ public interface IFilterFactory {
 
 	IArithmeticFilterBuilder arithmeticFilterBuilder();
 
-	IArithmeticFilter arithmeticFilter(String propertyName, ArithmeticOperator operator, Object[] parameter);
+	IArithmeticFilter arithmeticFilter(String propertyName, ArithmeticOperator operator, Object[] parameters);
 
 	IArithmeticFilter arithmeticFilter(String propertyName, ArithmeticOperator operator, Object parameter);
 

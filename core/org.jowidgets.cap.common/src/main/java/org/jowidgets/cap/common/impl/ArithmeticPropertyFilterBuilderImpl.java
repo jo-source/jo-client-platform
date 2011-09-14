@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann, Nikolaus Moll
+ * Copyright (c) 2011, Nikolaus Moll
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -31,45 +31,61 @@ package org.jowidgets.cap.common.impl;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.jowidgets.cap.common.api.filter.BooleanOperator;
-import org.jowidgets.cap.common.api.filter.IBooleanFilter;
-import org.jowidgets.cap.common.api.filter.IBooleanFilterBuilder;
-import org.jowidgets.cap.common.api.filter.IFilter;
+import org.jowidgets.cap.common.api.filter.ArithmeticOperator;
+import org.jowidgets.cap.common.api.filter.IArithmeticPropertyFilter;
+import org.jowidgets.cap.common.api.filter.IArithmeticPropertyFilterBuilder;
 
-final class BooleanFilterBuilderImpl extends FilterBuilderImpl<IBooleanFilterBuilder> implements IBooleanFilterBuilder {
+final class ArithmeticPropertyFilterBuilderImpl extends FilterBuilderImpl<IArithmeticPropertyFilterBuilder> implements
+		IArithmeticPropertyFilterBuilder {
 
-	private final LinkedList<IFilter> filters;
-	private BooleanOperator operator;
+	private String leftHandPropertyName;
+	private final List<String> rightHandPropertyNames;
+	private ArithmeticOperator operator;
 
-	BooleanFilterBuilderImpl() {
-		filters = new LinkedList<IFilter>();
-		operator = null;
+	ArithmeticPropertyFilterBuilderImpl() {
+		rightHandPropertyNames = new LinkedList<String>();
 	}
 
 	@Override
-	public IBooleanFilterBuilder setOperator(final BooleanOperator operator) {
-		this.operator = operator;
+	public IArithmeticPropertyFilterBuilder setLeftHandPropertyName(final String propertyName) {
+		leftHandPropertyName = propertyName;
 		return this;
 	}
 
 	@Override
-	public IBooleanFilterBuilder setFilters(final List<? extends IFilter> filters) {
-		this.filters.clear();
-		for (final IFilter filter : filters) {
-			this.filters.add(filter);
+	public IArithmeticPropertyFilterBuilder setRightHandPropertyNames(final String[] propertyNames) {
+		rightHandPropertyNames.clear();
+		for (final String propertyName : propertyNames) {
+			rightHandPropertyNames.add(propertyName);
 		}
 		return this;
 	}
 
 	@Override
-	public IBooleanFilterBuilder addFilter(final IFilter filter) {
-		this.filters.add(filter);
+	public IArithmeticPropertyFilterBuilder setRightHandPropertyName(final String propertyName) {
+		rightHandPropertyNames.clear();
+		rightHandPropertyNames.add(propertyName);
 		return this;
 	}
 
 	@Override
-	public IBooleanFilter build() {
-		return new BooleanFilterImpl(operator, filters, isInverted());
+	public IArithmeticPropertyFilterBuilder addRightHandPropertyName(final String propertyName) {
+		rightHandPropertyNames.add(propertyName);
+		return this;
 	}
 
+	@Override
+	public IArithmeticPropertyFilterBuilder setOperator(final ArithmeticOperator operator) {
+		this.operator = operator;
+		return this;
+	}
+
+	@Override
+	public IArithmeticPropertyFilter build() {
+		return new ArithmeticPropertyFilterImpl(
+			leftHandPropertyName,
+			operator,
+			rightHandPropertyNames.toArray(new String[rightHandPropertyNames.size()]),
+			isInverted());
+	}
 }

@@ -38,7 +38,7 @@ public interface IArithmeticFilterBuilder extends IFilterBuilder<IArithmeticFilt
 
 	IArithmeticFilterBuilder setParameter(Object parameter);
 
-	IArithmeticFilterBuilder setParameters(Object[] parameter);
+	IArithmeticFilterBuilder setParameters(Object[] parameters);
 
 	IArithmeticFilter build();
 

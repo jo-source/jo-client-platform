@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann, Nikolaus Moll
+ * Copyright (c) 2011, nimoll
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,50 +26,67 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.impl;
+package org.jowidgets.cap.ui.impl;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.io.Serializable;
 
-import org.jowidgets.cap.common.api.filter.BooleanOperator;
-import org.jowidgets.cap.common.api.filter.IBooleanFilter;
-import org.jowidgets.cap.common.api.filter.IBooleanFilterBuilder;
-import org.jowidgets.cap.common.api.filter.IFilter;
+import org.jowidgets.cap.common.api.filter.ArithmeticOperator;
+import org.jowidgets.cap.ui.api.filter.IFilterType;
+import org.jowidgets.cap.ui.api.filter.IUiArithmeticPropertyFilter;
 
-final class BooleanFilterBuilderImpl extends FilterBuilderImpl<IBooleanFilterBuilder> implements IBooleanFilterBuilder {
+final class UiArithmeticPropertyFilterImpl<CONFIG_TYPE> implements IUiArithmeticPropertyFilter<CONFIG_TYPE>, Serializable {
 
-	private final LinkedList<IFilter> filters;
-	private BooleanOperator operator;
+	private static final long serialVersionUID = -4698689003185041172L;
+	private final String leftHandPropertyName;
+	private final ArithmeticOperator operator;
+	private final String[] rightHandPropertyNames;
+	private final boolean inverted;
+	private final CONFIG_TYPE config;
+	private final IFilterType filterType;
 
-	BooleanFilterBuilderImpl() {
-		filters = new LinkedList<IFilter>();
-		operator = null;
-	}
-
-	@Override
-	public IBooleanFilterBuilder setOperator(final BooleanOperator operator) {
+	UiArithmeticPropertyFilterImpl(
+		final String leftHandPropertyName,
+		final ArithmeticOperator operator,
+		final String[] rightHandPropertyNames,
+		final boolean inverted,
+		final CONFIG_TYPE config,
+		final IFilterType filterType) {
+		this.leftHandPropertyName = leftHandPropertyName;
 		this.operator = operator;
-		return this;
+		this.rightHandPropertyNames = rightHandPropertyNames;
+		this.inverted = inverted;
+		this.config = config;
+		this.filterType = filterType;
 	}
 
 	@Override
-	public IBooleanFilterBuilder setFilters(final List<? extends IFilter> filters) {
-		this.filters.clear();
-		for (final IFilter filter : filters) {
-			this.filters.add(filter);
-		}
-		return this;
+	public CONFIG_TYPE getConfig() {
+		return config;
 	}
 
 	@Override
-	public IBooleanFilterBuilder addFilter(final IFilter filter) {
-		this.filters.add(filter);
-		return this;
+	public IFilterType getType() {
+		return filterType;
 	}
 
 	@Override
-	public IBooleanFilter build() {
-		return new BooleanFilterImpl(operator, filters, isInverted());
+	public boolean isInverted() {
+		return inverted;
+	}
+
+	@Override
+	public String getLeftHandPropertyName() {
+		return leftHandPropertyName;
+	}
+
+	@Override
+	public ArithmeticOperator getOperator() {
+		return operator;
+	}
+
+	@Override
+	public String[] getRightHandPropertyNames() {
+		return rightHandPropertyNames;
 	}
 
 }
