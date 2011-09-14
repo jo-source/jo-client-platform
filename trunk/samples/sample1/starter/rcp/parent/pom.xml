@@ -24,6 +24,7 @@
 	
 	<modules>
 		<module>../org.jowidgets.cap.sample1.starter.rcp.standalone</module>
+		<module>../org.jowidgets.cap.sample1.starter.rcp.standalone.feature</module>
 	</modules>
 
 	<build>
