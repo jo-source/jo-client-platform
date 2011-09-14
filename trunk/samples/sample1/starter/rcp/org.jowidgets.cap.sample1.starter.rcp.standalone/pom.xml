@@ -3,25 +3,13 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.jowidgets</groupId>
-		<artifactId>org.jowidgets.cap.sample1.parent</artifactId>
+		<artifactId>org.jowidgets.cap.sample1.starter.rcp.parent</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
-		<relativePath>../../parent/pom.xml</relativePath>
+		<relativePath>../parent/pom.xml</relativePath>
 	</parent>
-	<artifactId>org.jowidgets.cap.sample1.starter.standalone.rcp</artifactId>
-	<name>org.jowidgets.cap.sample1.starter.standalone.rcp</name>
+	<artifactId>org.jowidgets.cap.sample1.starter.rcp.standalone</artifactId>
+	<name>org.jowidgets.cap.sample1.starter.rcp.standalone</name>
 	<packaging>eclipse-plugin</packaging>
-
-	<properties>
-		<tycho.version>0.12.0</tycho.version>
-	</properties>
-
-	<repositories>
-		<repository>
-			<id>helios</id>
-			<url>http://download.eclipse.org/releases/helios</url>
-			<layout>p2</layout>
-		</repository>
-	</repositories>
 
 	<dependencies>
 		<dependency>
@@ -57,29 +45,6 @@ org.jowidgets.validation,org.jowidgets.common,swt-win32-win32-x86</excludeArtifa
 						</configuration>
 					</execution>
 				</executions>
-			</plugin>
-
-			<plugin>
-				<groupId>org.eclipse.tycho</groupId>
-				<artifactId>tycho-maven-plugin</artifactId>
-				<version>${tycho.version}</version>
-				<extensions>true</extensions>
-			</plugin>
-			<plugin>
-				<groupId>org.eclipse.tycho</groupId>
-				<artifactId>target-platform-configuration</artifactId>
-				<version>${tycho.version}</version>
-				<configuration>
-					<resolver>p2</resolver>
-					<pomDependencies>consider</pomDependencies>
-					<environments>
-						<environment>
-							<os>win32</os>
-							<ws>win32</ws>
-							<arch>x86</arch>
-						</environment>
-					</environments>
-				</configuration>
 			</plugin>
 		</plugins>
 	</build>
