@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: org.jowidgets.cap.sample1.starter.standalone.rcp
-Bundle-SymbolicName: org.jowidgets.cap.sample1.starter.standalone.rcp;singleton:=true
+Bundle-Name: org.jowidgets.cap.sample1.starter.rcp.standalone
+Bundle-SymbolicName: org.jowidgets.cap.sample1.starter.rcp.standalone;singleton:=true
 Bundle-Version: 0.0.1.qualifier
 Bundle-Vendor: jo-widgets.org
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
