@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann, Nikolaus Moll
+ * Copyright (c) 2011, nimoll
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,41 +26,50 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.api.filter;
+package org.jowidgets.cap.ui.impl;
 
-public enum BooleanOperator implements IOperator {
+import java.util.LinkedList;
+import java.util.List;
 
-	// TODO NM set Strings
-	AND("", "", ""),
-	OR("", "", "");
+import org.jowidgets.cap.common.api.filter.BooleanOperator;
+import org.jowidgets.cap.common.impl.FilterBuilderImpl;
+import org.jowidgets.cap.ui.api.filter.IUiBooleanFilter;
+import org.jowidgets.cap.ui.api.filter.IUiBooleanFilterBuilder;
+import org.jowidgets.cap.ui.api.filter.IUiFilter;
 
-	private final String label;
-	private final String labelLong;
-	private final String description;
+final class UiBooleanFilterBuilderImpl extends FilterBuilderImpl<IUiBooleanFilterBuilder> implements IUiBooleanFilterBuilder {
 
-	BooleanOperator(final String label, final String labelLong, final String description) {
-		this.label = label;
-		this.labelLong = labelLong;
-		this.description = description;
+	private final List<IUiFilter> filters;
+	private BooleanOperator operator;
+
+	UiBooleanFilterBuilderImpl() {
+		filters = new LinkedList<IUiFilter>();
 	}
 
 	@Override
-	public Object getId() {
+	public IUiBooleanFilterBuilder setOperator(final BooleanOperator operator) {
+		this.operator = operator;
 		return this;
 	}
 
 	@Override
-	public String getLabel() {
-		return label;
+	public IUiBooleanFilterBuilder setFilters(final List<? extends IUiFilter> filters) {
+		this.filters.clear();
+		for (final IUiFilter filter : filters) {
+			this.filters.add(filter);
+		}
+		return this;
 	}
 
 	@Override
-	public String getLabelLong() {
-		return labelLong;
+	public IUiBooleanFilterBuilder addFilter(final IUiFilter filter) {
+		filters.add(filter);
+		return this;
 	}
 
 	@Override
-	public String getDescription() {
-		return description;
+	public IUiBooleanFilter build() {
+		return new UiBooleanFilterImpl(operator, filters, isInverted());
 	}
+
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann, Nikolaus Moll
+ * Copyright (c) 2011, Nikolaus Moll
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,41 +26,63 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.api.filter;
+package org.jowidgets.cap.common.impl;
 
-public enum BooleanOperator implements IOperator {
+import java.util.LinkedList;
+import java.util.List;
 
-	// TODO NM set Strings
-	AND("", "", ""),
-	OR("", "", "");
+import org.jowidgets.cap.common.api.filter.ArithmeticOperator;
+import org.jowidgets.cap.common.api.filter.IArithmeticFilter;
+import org.jowidgets.cap.common.api.filter.IArithmeticFilterBuilder;
 
-	private final String label;
-	private final String labelLong;
-	private final String description;
+final class ArithmeticFilterBuilderImpl extends FilterBuilderImpl<IArithmeticFilterBuilder> implements IArithmeticFilterBuilder {
 
-	BooleanOperator(final String label, final String labelLong, final String description) {
-		this.label = label;
-		this.labelLong = labelLong;
-		this.description = description;
+	private final List<Object> parameters;
+	private ArithmeticOperator operator;
+	private String propertyName;
+
+	ArithmeticFilterBuilderImpl() {
+		parameters = new LinkedList<Object>();
+		operator = null;
 	}
 
 	@Override
-	public Object getId() {
+	public IArithmeticFilterBuilder setOperator(final ArithmeticOperator operator) {
+		this.operator = operator;
 		return this;
 	}
 
 	@Override
-	public String getLabel() {
-		return label;
+	public IArithmeticFilterBuilder setPropertyName(final String propertyName) {
+		this.propertyName = propertyName;
+		return this;
 	}
 
 	@Override
-	public String getLabelLong() {
-		return labelLong;
+	public IArithmeticFilterBuilder addParameter(final Object parameter) {
+		this.parameters.add(parameter);
+		return this;
 	}
 
 	@Override
-	public String getDescription() {
-		return description;
+	public IArithmeticFilterBuilder setParameter(final Object parameter) {
+		this.parameters.clear();
+		this.parameters.add(parameter);
+		return this;
 	}
+
+	@Override
+	public IArithmeticFilterBuilder setParameters(final Object[] parameters) {
+		this.parameters.clear();
+		for (final Object parameter : parameters) {
+			this.parameters.add(parameter);
+		}
+		return this;
+	}
+
+	@Override
+	public IArithmeticFilter build() {
+		return new ArithmeticFilterImpl(propertyName, operator, parameters.toArray(), isInverted());
+	}
+
 }

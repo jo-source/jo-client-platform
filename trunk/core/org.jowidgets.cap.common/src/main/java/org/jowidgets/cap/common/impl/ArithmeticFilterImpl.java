@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann, Nikolaus Moll
+ * Copyright (c) 2011, Nikolaus Moll
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,41 +26,50 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.api.filter;
+package org.jowidgets.cap.common.impl;
 
-public enum BooleanOperator implements IOperator {
+import java.io.Serializable;
 
-	// TODO NM set Strings
-	AND("", "", ""),
-	OR("", "", "");
+import org.jowidgets.cap.common.api.filter.ArithmeticOperator;
+import org.jowidgets.cap.common.api.filter.IArithmeticFilter;
 
-	private final String label;
-	private final String labelLong;
-	private final String description;
+final class ArithmeticFilterImpl implements IArithmeticFilter, Serializable {
 
-	BooleanOperator(final String label, final String labelLong, final String description) {
-		this.label = label;
-		this.labelLong = labelLong;
-		this.description = description;
+	private static final long serialVersionUID = -1426438845445419132L;
+	private final String propertyName;
+	private final ArithmeticOperator operator;
+	private final Object[] parameters;
+	private final boolean inverted;
+
+	ArithmeticFilterImpl(
+		final String propertyName,
+		final ArithmeticOperator operator,
+		final Object[] parameters,
+		final boolean inverted) {
+		this.propertyName = propertyName;
+		this.operator = operator;
+		this.parameters = parameters;
+		this.inverted = inverted;
 	}
 
 	@Override
-	public Object getId() {
-		return this;
+	public boolean isInverted() {
+		return inverted;
 	}
 
 	@Override
-	public String getLabel() {
-		return label;
+	public String getPropertyName() {
+		return propertyName;
 	}
 
 	@Override
-	public String getLabelLong() {
-		return labelLong;
+	public ArithmeticOperator getOperator() {
+		return operator;
 	}
 
 	@Override
-	public String getDescription() {
-		return description;
+	public Object[] getParameters() {
+		return parameters;
 	}
+
 }

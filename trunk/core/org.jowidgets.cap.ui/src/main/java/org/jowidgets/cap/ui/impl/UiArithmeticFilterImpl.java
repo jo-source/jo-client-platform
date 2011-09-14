@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann, Nikolaus Moll
+ * Copyright (c) 2011, nimoll
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,41 +26,67 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.api.filter;
+package org.jowidgets.cap.ui.impl;
 
-public enum BooleanOperator implements IOperator {
+import java.io.Serializable;
 
-	// TODO NM set Strings
-	AND("", "", ""),
-	OR("", "", "");
+import org.jowidgets.cap.common.api.filter.ArithmeticOperator;
+import org.jowidgets.cap.ui.api.filter.IFilterType;
+import org.jowidgets.cap.ui.api.filter.IUiArithmeticFilter;
 
-	private final String label;
-	private final String labelLong;
-	private final String description;
+final class UiArithmeticFilterImpl<CONFIG_TYPE> implements IUiArithmeticFilter<CONFIG_TYPE>, Serializable {
 
-	BooleanOperator(final String label, final String labelLong, final String description) {
-		this.label = label;
-		this.labelLong = labelLong;
-		this.description = description;
+	private static final long serialVersionUID = -2592717016236815795L;
+	private final String propertyName;
+	private final ArithmeticOperator operator;
+	private final Object[] parameters;
+	private final boolean inverted;
+	private final CONFIG_TYPE config;
+	private final IFilterType filterType;
+
+	UiArithmeticFilterImpl(
+		final String propertyName,
+		final ArithmeticOperator operator,
+		final Object[] parameters,
+		final boolean inverted,
+		final CONFIG_TYPE config,
+		final IFilterType filterType) {
+		this.propertyName = propertyName;
+		this.operator = operator;
+		this.parameters = parameters;
+		this.inverted = inverted;
+		this.config = config;
+		this.filterType = filterType;
 	}
 
 	@Override
-	public Object getId() {
-		return this;
+	public CONFIG_TYPE getConfig() {
+		return config;
 	}
 
 	@Override
-	public String getLabel() {
-		return label;
+	public IFilterType getType() {
+		return filterType;
 	}
 
 	@Override
-	public String getLabelLong() {
-		return labelLong;
+	public boolean isInverted() {
+		return inverted;
 	}
 
 	@Override
-	public String getDescription() {
-		return description;
+	public String getPropertyName() {
+		return propertyName;
 	}
+
+	@Override
+	public ArithmeticOperator getOperator() {
+		return operator;
+	}
+
+	@Override
+	public Object[] getParameters() {
+		return parameters;
+	}
+
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2011, grossmann, Nikolaus Moll
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -30,22 +30,34 @@ package org.jowidgets.cap.common.api.filter;
 
 public enum ArithmeticOperator implements IOperator {
 
-	EMPTY(0, false), //empty, Empty
-	EQUAL(1, false), //=
-	LESS(1, false), //<
-	LESS_EQUAL(1, false), //<=
-	GREATER(1, false),
-	GREATER_EQUAL(1, false),
-	BETWEEN(2, false),
-	CONTAINS_ANY(1, true),
-	CONTAINS_ALL(1, true);
+	// TODO NM filter stuff
+	EMPTY(0, false, "Ø", "Empty", "Checks if the property is empty."), // Alt-2205
+	EQUAL(1, false, "=", "Equal", ""),
+	LESS(1, false, "<", "Less", ""),
+	LESS_EQUAL(1, false, "<=", "Less equal", ""),
+	GREATER(1, false, ">", "", "Greater"),
+	GREATER_EQUAL(1, false, ">=", "Greater equal", ""),
+	BETWEEN(2, false, "", "Between", ""),
+	CONTAINS_ANY(1, true, "", "Contains any", ""),
+	CONTAINS_ALL(1, true, "", "Contains all", "");
 
 	private final int parameterCount;
 	private final boolean isCollectionOperator;
+	private final String label;
+	private final String labelLong;
+	private final String description;
 
-	private ArithmeticOperator(final int parameterCount, final boolean isCollectionOperator) {
+	private ArithmeticOperator(
+		final int parameterCount,
+		final boolean isCollectionOperator,
+		final String label,
+		final String labelLong,
+		final String description) {
 		this.parameterCount = parameterCount;
 		this.isCollectionOperator = isCollectionOperator;
+		this.label = label;
+		this.labelLong = labelLong;
+		this.description = description;
 	}
 
 	/**
@@ -69,20 +81,17 @@ public enum ArithmeticOperator implements IOperator {
 
 	@Override
 	public String getLabel() {
-		//TODO NM implement getLabel()
-		return null;
+		return label;
 	}
 
 	@Override
 	public String getLabelLong() {
-		//TODO NM implement getLabelLong()
-		return null;
+		return labelLong;
 	}
 
 	@Override
 	public String getDescription() {
-		//TODO NM implement getDescription()
-		return null;
+		return description;
 	}
 
 }
