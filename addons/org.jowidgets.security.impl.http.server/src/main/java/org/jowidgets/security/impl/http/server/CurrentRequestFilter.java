@@ -30,33 +30,32 @@ package org.jowidgets.security.impl.http.server;
 
 import java.io.IOException;
 
-import javax.servlet.GenericServlet;
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
 
-import org.jowidgets.cap.remoting.server.CapServerServicePublisher;
-import org.jowidgets.invocation.common.impl.MessageBrokerId;
-import org.jowidgets.message.api.MessageToolkit;
-import org.jowidgets.message.impl.http.server.MessageServlet;
+public final class CurrentRequestFilter implements Filter {
 
-public final class SecurityRemotingServlet extends GenericServlet {
+	@Override
+	public void init(final FilterConfig config) {}
 
-	private static final long serialVersionUID = 1L;
-
-	private final MessageServlet messageServlet;
-
-	public SecurityRemotingServlet() {
-		messageServlet = new MessageServlet(MessageBrokerId.INVOCATION_IMPL_BROKER_ID);
-		messageServlet.addExecutionInterceptor(new SecurityExecutionInterceptor());
-		messageServlet.addExecutionInterceptor(new CurrentRequestExecutionInterceptor());
-		MessageToolkit.addReceiverBroker(messageServlet);
-		new CapServerServicePublisher().publishServices();
+	@Override
+	public void doFilter(final ServletRequest request, final ServletResponse response, final FilterChain chain) throws IOException,
+			ServletException {
+		CurrentRequest.set((HttpServletRequest) request);
+		try {
+			chain.doFilter(request, response);
+		}
+		finally {
+			CurrentRequest.clear();
+		}
 	}
 
 	@Override
-	public void service(final ServletRequest req, final ServletResponse res) throws ServletException, IOException {
-		messageServlet.service(req, res);
-	}
+	public void destroy() {}
 
 }

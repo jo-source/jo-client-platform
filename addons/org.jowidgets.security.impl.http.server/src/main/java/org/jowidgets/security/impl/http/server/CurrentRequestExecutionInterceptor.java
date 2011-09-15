@@ -28,35 +28,25 @@
 
 package org.jowidgets.security.impl.http.server;
 
-import java.io.IOException;
+import javax.servlet.http.HttpServletRequest;
 
-import javax.servlet.GenericServlet;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import org.jowidgets.message.impl.http.server.IExecutionInterceptor;
 
-import org.jowidgets.cap.remoting.server.CapServerServicePublisher;
-import org.jowidgets.invocation.common.impl.MessageBrokerId;
-import org.jowidgets.message.api.MessageToolkit;
-import org.jowidgets.message.impl.http.server.MessageServlet;
+final class CurrentRequestExecutionInterceptor implements IExecutionInterceptor<HttpServletRequest> {
 
-public final class SecurityRemotingServlet extends GenericServlet {
-
-	private static final long serialVersionUID = 1L;
-
-	private final MessageServlet messageServlet;
-
-	public SecurityRemotingServlet() {
-		messageServlet = new MessageServlet(MessageBrokerId.INVOCATION_IMPL_BROKER_ID);
-		messageServlet.addExecutionInterceptor(new SecurityExecutionInterceptor());
-		messageServlet.addExecutionInterceptor(new CurrentRequestExecutionInterceptor());
-		MessageToolkit.addReceiverBroker(messageServlet);
-		new CapServerServicePublisher().publishServices();
+	@Override
+	public HttpServletRequest getExecutionContext() {
+		return CurrentRequest.get();
 	}
 
 	@Override
-	public void service(final ServletRequest req, final ServletResponse res) throws ServletException, IOException {
-		messageServlet.service(req, res);
+	public void beforeExecution(final HttpServletRequest currentRequest) {
+		CurrentRequest.set(currentRequest);
+	}
+
+	@Override
+	public void afterExecution() {
+		CurrentRequest.clear();
 	}
 
 }
