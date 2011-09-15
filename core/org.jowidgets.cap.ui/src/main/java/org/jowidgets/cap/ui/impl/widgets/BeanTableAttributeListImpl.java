@@ -90,7 +90,9 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 	// TODO i18n
 	private static final String ALL_LABEL_TEXT = "All";
 	private static final String SEARCH_LABEL_TEXT = "Search";
-	private static final String VARIOUS = "Various";
+	private static final String VARIOUS = "";
+	private static final String NOT_SET = "";
+	private static final String CLEAR_SORTING = "No sorting";
 	private static final String DEFAULT_GROUP_NAME = "Default";
 
 	private static final IColorConstant ATTRIBUTE_HEADER_BACKGROUND = new ColorValue(6, 27, 95);
@@ -145,6 +147,8 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 		builder.gapBeforeColumn(7, 2); // reduce gap between in sort order
 		builder.gapBeforeColumn(9, 2); // reduce gap between in sort order
 		builder.gapAfterColumn(9, 10);
+		builder.fixedColumnWidth(7, 50); // fixed width for sort order
+		builder.fixedColumnWidth(9, 50); // fixed width for sort order
 
 		if (isSingleGroup(model)) {
 			// hide toolbar column if no groups exist
@@ -957,7 +961,7 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 				getContentFormat().setValue(usedContentFormats);
 			}
 			if (getCurrentSorting() != null) {
-				getCurrentSorting().setValue(usedCurrentSortings);
+				getCurrentSorting().setValue(usedCurrentSortings, CLEAR_SORTING);
 			}
 			if (getDefaultSorting() != null) {
 				getDefaultSorting().setValue(usedDefaultSortings);
@@ -1103,7 +1107,7 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 				public void inputChanged() {
 					final String[] properties = getPropertyNames();
 					final String value = model.provider.getSort(composite).getValue();
-					final boolean clear = isEmptyString(value);
+					final boolean clear = isEmptyString(value) || CLEAR_SORTING.equals(value);
 					final List<Integer> shiftList = new ArrayList<Integer>();
 					for (int columnIndex = 0; columnIndex < properties.length; columnIndex++) {
 						final AttributeComposite attributeComposite = attributeComposites.get(properties[columnIndex]);
@@ -1127,7 +1131,12 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 							sortIndex.setIndex(model.sortingLength);
 						}
 
-						sorting.setValue(value);
+						if (!clear) {
+							sorting.setValue(value);
+						}
+						else {
+							sorting.setValue("");
+						}
 					}
 
 					if (clear && shiftList.size() > 0) {
@@ -1630,6 +1639,10 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 		}
 
 		public void setValue(final Set<String> values) {
+			setValue(values, VARIOUS);
+		}
+
+		public void setValue(final Set<String> values, final String additionalString) {
 			if (values.size() == 0) {
 				setValue("");
 			}
@@ -1638,12 +1651,12 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 			}
 			else {
 				final List<String> elements = new LinkedList<String>(getElements());
-				if (!elements.contains(VARIOUS)) {
+				if (!elements.contains(additionalString)) {
 					if (elements.size() > 1 && isEmptyString(elements.get(0))) {
-						elements.add(1, VARIOUS);
+						elements.add(1, additionalString);
 					}
 					else {
-						elements.add(0, VARIOUS);
+						elements.add(0, additionalString);
 					}
 					setElements(elements);
 				}
@@ -1798,7 +1811,7 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 
 	protected List<String> getSortOrders() {
 		final List<String> result = new LinkedList<String>();
-		result.add("");
+		result.add(NOT_SET);
 		for (final SortOrder sortOrder : SortOrder.values()) {
 			result.add(sortOrder.getLabel());
 		}
