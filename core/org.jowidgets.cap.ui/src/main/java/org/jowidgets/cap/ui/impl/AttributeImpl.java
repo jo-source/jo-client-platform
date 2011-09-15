@@ -34,11 +34,12 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IValueRange;
-import org.jowidgets.cap.ui.api.attribute.DisplayFormat;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IAttributeConfig;
 import org.jowidgets.cap.ui.api.attribute.IAttributeGroup;
 import org.jowidgets.cap.ui.api.attribute.IControlPanelProvider;
+import org.jowidgets.cap.ui.api.control.DisplayFormat;
+import org.jowidgets.cap.ui.api.control.IDisplayFormat;
 import org.jowidgets.common.types.AlignmentHorizontal;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.event.ChangeObservable;
@@ -89,7 +90,7 @@ final class AttributeImpl<ELEMENT_VALUE_TYPE> implements IAttribute<ELEMENT_VALU
 		final Class<?> valueType,
 		final Class<? extends ELEMENT_VALUE_TYPE> elementValueType,
 		final List<IControlPanelProvider<? extends ELEMENT_VALUE_TYPE>> controlPanels,
-		final String displayFormatId) {
+		final IDisplayFormat displayFormat) {
 
 		Assert.paramNotEmpty(propertyName, "propertyName");
 		Assert.paramNotNull(valueRange, "valueRange");
@@ -99,7 +100,7 @@ final class AttributeImpl<ELEMENT_VALUE_TYPE> implements IAttribute<ELEMENT_VALU
 		Assert.paramNotNull(valueType, "valueType");
 		Assert.paramNotNull(elementValueType, "elementValueType");
 		Assert.paramNotNull(controlPanels, "controlPanels");
-		Assert.paramNotNull(displayFormatId, "displayFormatId");
+		Assert.paramNotNull(displayFormat, "displayFormat");
 
 		if (Collections.class.isAssignableFrom(elementValueType)) {
 			throw new IllegalArgumentException("The parameter 'elementValueType' must not be a collection but has the type '"
@@ -135,7 +136,7 @@ final class AttributeImpl<ELEMENT_VALUE_TYPE> implements IAttribute<ELEMENT_VALU
 		this.elementValueType = (Class<ELEMENT_VALUE_TYPE>) elementValueType;
 		this.controlPanels = new LinkedList(controlPanels);
 
-		setDisplayFormatToNewId(displayFormatId);
+		setDisplayFormatImpl(displayFormat);
 	}
 
 	@Override
@@ -239,8 +240,8 @@ final class AttributeImpl<ELEMENT_VALUE_TYPE> implements IAttribute<ELEMENT_VALU
 	}
 
 	@Override
-	public String getDisplayFormatId() {
-		return currentControlPanel.getDisplayFormatId();
+	public IDisplayFormat getDisplayFormat() {
+		return currentControlPanel.getDisplayFormat();
 	}
 
 	@Override
@@ -258,8 +259,8 @@ final class AttributeImpl<ELEMENT_VALUE_TYPE> implements IAttribute<ELEMENT_VALU
 	}
 
 	@Override
-	public void setDisplayFormatId(final String id) {
-		setDisplayFormatToNewId(id);
+	public void setDisplayFormat(final IDisplayFormat displayFormat) {
+		setDisplayFormatImpl(displayFormat);
 		changeObservable.fireChangedEvent();
 	}
 
@@ -280,7 +281,7 @@ final class AttributeImpl<ELEMENT_VALUE_TYPE> implements IAttribute<ELEMENT_VALU
 		return new AttributeConfigImpl(
 			Boolean.valueOf(visible),
 			labelDisplayFormat,
-			getDisplayFormatId(),
+			getDisplayFormat(),
 			tableAlignment,
 			Integer.valueOf(tableColumnWidth));
 	}
@@ -294,8 +295,8 @@ final class AttributeImpl<ELEMENT_VALUE_TYPE> implements IAttribute<ELEMENT_VALU
 		if (config.getLabelDisplayFormat() != null) {
 			this.labelDisplayFormat = config.getLabelDisplayFormat();
 		}
-		if (config.getDisplayFormatId() != null) {
-			setDisplayFormatToNewId(config.getDisplayFormatId());
+		if (config.getDisplayFormat() != null) {
+			setDisplayFormatImpl(config.getDisplayFormat());
 		}
 		if (config.getTableAlignment() != null) {
 			this.tableAlignment = config.getTableAlignment();
@@ -316,20 +317,20 @@ final class AttributeImpl<ELEMENT_VALUE_TYPE> implements IAttribute<ELEMENT_VALU
 		changeObservable.removeChangeListener(listener);
 	}
 
-	private void setDisplayFormatToNewId(final String id) {
-		Assert.paramNotEmpty(id, "id");
-		final IControlPanelProvider<ELEMENT_VALUE_TYPE> controlPanel = findControlPanel(id);
+	private void setDisplayFormatImpl(final IDisplayFormat displayFormat) {
+		Assert.paramNotNull(displayFormat, "displayFormat");
+		final IControlPanelProvider<ELEMENT_VALUE_TYPE> controlPanel = findControlPanel(displayFormat);
 		if (controlPanel == null) {
-			throw new IllegalArgumentException("The displayFormatId '" + id + "' is not a known display format.");
+			throw new IllegalArgumentException("The displayFormat '" + displayFormat + "' is not a known display format.");
 		}
 		else {
 			currentControlPanel = controlPanel;
 		}
 	}
 
-	private IControlPanelProvider<ELEMENT_VALUE_TYPE> findControlPanel(final String displayFormatId) {
+	private IControlPanelProvider<ELEMENT_VALUE_TYPE> findControlPanel(final IDisplayFormat displayFormat) {
 		for (final IControlPanelProvider<ELEMENT_VALUE_TYPE> controlPanelProvider : controlPanels) {
-			if (controlPanelProvider.getDisplayFormatId().equals(displayFormatId)) {
+			if (controlPanelProvider.getDisplayFormat().getId().equals(displayFormat.getId())) {
 				return controlPanelProvider;
 			}
 		}
@@ -349,7 +350,7 @@ final class AttributeImpl<ELEMENT_VALUE_TYPE> implements IAttribute<ELEMENT_VALU
 			+ ", visible="
 			+ visible
 			+ ", getDisplayFormatId()="
-			+ getDisplayFormatId()
+			+ getDisplayFormat()
 			+ "]";
 	}
 

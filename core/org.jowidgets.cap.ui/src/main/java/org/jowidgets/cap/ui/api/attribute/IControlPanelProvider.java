@@ -33,16 +33,13 @@ import java.util.Collection;
 import org.jowidgets.api.convert.IObjectLabelConverter;
 import org.jowidgets.api.convert.IStringObjectConverter;
 import org.jowidgets.api.widgets.IInputControl;
+import org.jowidgets.cap.ui.api.control.IDisplayFormat;
 import org.jowidgets.cap.ui.api.filter.IFilterSupport;
 import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
 
 public interface IControlPanelProvider<ELEMENT_VALUE_TYPE> {
 
-	String getDisplayFormatId();
-
-	String getDisplayFormatName();
-
-	String getDisplayFormatDescription();
+	IDisplayFormat getDisplayFormat();
 
 	IObjectLabelConverter<ELEMENT_VALUE_TYPE> getObjectLabelConverter();
 

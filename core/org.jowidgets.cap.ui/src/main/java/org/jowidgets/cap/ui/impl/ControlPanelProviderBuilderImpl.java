@@ -47,9 +47,10 @@ import org.jowidgets.api.widgets.blueprint.builder.IInputComponentSetupBuilder;
 import org.jowidgets.api.widgets.blueprint.factory.IBluePrintFactory;
 import org.jowidgets.cap.common.api.bean.IValueRange;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
-import org.jowidgets.cap.ui.api.attribute.DisplayFormat;
 import org.jowidgets.cap.ui.api.attribute.IControlPanelProvider;
 import org.jowidgets.cap.ui.api.attribute.IControlPanelProviderBuilder;
+import org.jowidgets.cap.ui.api.control.DisplayFormat;
+import org.jowidgets.cap.ui.api.control.IDisplayFormat;
 import org.jowidgets.cap.ui.api.filter.IFilterSupport;
 import org.jowidgets.cap.ui.tools.validation.ValueRangeValidator;
 import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
@@ -60,7 +61,7 @@ import org.jowidgets.util.Assert;
 
 final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> {
 
-	private static final String DEFAULT_DISPLAY_FORMAT_ID = DisplayFormat.DEFAULT.getId();
+	private static final Object DEFAULT_DISPLAY_FORMAT_ID = DisplayFormat.DEFAULT.getId();
 	private static final String DEFAULT_DISPLAY_NAME = DisplayFormat.DEFAULT.getName();
 
 	private final IValueRange valueRange;
@@ -69,7 +70,7 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 	private Class<?> valueType;
 	private Class<? extends ELEMENT_VALUE_TYPE> elementValueType;
 
-	private String displayFormatId;
+	private Object displayFormatId;
 	private String displayFormatName;
 	private String displayFormatDescription;
 	private IObjectLabelConverter<ELEMENT_VALUE_TYPE> objectLabelConverter;
@@ -129,7 +130,7 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 	}
 
 	@Override
-	public IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> setDisplayFormat(final DisplayFormat displayFormat) {
+	public IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> setDisplayFormat(final IDisplayFormat displayFormat) {
 		Assert.paramNotNull(displayFormat, "displayFormat");
 		this.displayFormatId = displayFormat.getId();
 		this.displayFormatName = displayFormat.getName();
@@ -345,14 +346,11 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 	@Override
 	public IControlPanelProvider<ELEMENT_VALUE_TYPE> build() {
 		return new ControlPanelProviderImpl<ELEMENT_VALUE_TYPE>(
-			displayFormatId,
-			displayFormatName,
-			displayFormatDescription,
+			new DisplayFormatImpl(displayFormatId, displayFormatName, displayFormatDescription),
 			getObjectLabelConverter(),
 			getStringObjectConverter(),
 			getFilterSupport(),
 			getControlCreator(),
 			getCollectionControlCreator());
 	}
-
 }

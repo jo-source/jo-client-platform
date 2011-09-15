@@ -45,9 +45,9 @@ final class BeanTableContentFormatMenuModel extends MenuModel {
 		final IAttribute<?> attribute = model.getAttribute(columnIndex);
 
 		for (final IControlPanelProvider<?> controlPanel : attribute.getControlPanels()) {
-			final IRadioItemModel radioItem = addRadioItem(controlPanel.getDisplayFormatName());
-			radioItem.setToolTipText(controlPanel.getDisplayFormatDescription());
-			if (attribute.getDisplayFormatId().equals(controlPanel.getDisplayFormatId())) {
+			final IRadioItemModel radioItem = addRadioItem(controlPanel.getDisplayFormat().getName());
+			radioItem.setToolTipText(controlPanel.getDisplayFormat().getDescription());
+			if (attribute.getDisplayFormat().equals(controlPanel.getDisplayFormat())) {
 				radioItem.setSelected(true);
 			}
 
@@ -57,9 +57,9 @@ final class BeanTableContentFormatMenuModel extends MenuModel {
 			itemStateListenerHolder.set(new IItemStateListener() {
 				@Override
 				public void itemStateChanged() {
-					if (!attribute.getDisplayFormatId().equals(controlPanel.getDisplayFormatId()) && radioItem.isSelected()) {
+					if (!attribute.getDisplayFormat().equals(controlPanel.getDisplayFormat()) && radioItem.isSelected()) {
 						attribute.removeChangeListener(changeListenerHolder.get());
-						attribute.setDisplayFormatId(controlPanel.getDisplayFormatId());
+						attribute.setDisplayFormat(controlPanel.getDisplayFormat());
 						attribute.addChangeListener(changeListenerHolder.get());
 					}
 				}
@@ -68,7 +68,7 @@ final class BeanTableContentFormatMenuModel extends MenuModel {
 			changeListenerHolder.set(new IChangeListener() {
 				@Override
 				public void changed() {
-					if (attribute.getDisplayFormatId().equals(controlPanel.getDisplayFormatId()) && !radioItem.isSelected()) {
+					if (attribute.getDisplayFormat().equals(controlPanel.getDisplayFormat()) && !radioItem.isSelected()) {
 						radioItem.removeItemListener(itemStateListenerHolder.get());
 						radioItem.setSelected(true);
 						radioItem.addItemListener(itemStateListenerHolder.get());

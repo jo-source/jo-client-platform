@@ -26,58 +26,13 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.impl;
+package org.jowidgets.cap.ui.api.control;
 
-import org.jowidgets.cap.ui.api.attribute.IAttributeConfig;
-import org.jowidgets.cap.ui.api.control.DisplayFormat;
-import org.jowidgets.cap.ui.api.control.IDisplayFormat;
-import org.jowidgets.common.types.AlignmentHorizontal;
+public interface IDisplayFormat {
 
-final class AttributeConfigImpl implements IAttributeConfig {
+	Object getId();
 
-	private final Boolean visible;
-	private final DisplayFormat labelDisplayFormat;
-	private final IDisplayFormat displayFormat;
-	private final AlignmentHorizontal tableAlignment;
-	private final Integer tableWidth;
+	String getName();
 
-	AttributeConfigImpl(
-		final Boolean visible,
-		final DisplayFormat labelDisplayFormat,
-		final IDisplayFormat displayFormat,
-		final AlignmentHorizontal tableAlignment,
-		final Integer tableWidth) {
-
-		this.visible = visible;
-		this.labelDisplayFormat = labelDisplayFormat;
-		this.displayFormat = displayFormat;
-		this.tableAlignment = tableAlignment;
-		this.tableWidth = tableWidth;
-	}
-
-	@Override
-	public Boolean isVisible() {
-		return visible;
-	}
-
-	@Override
-	public DisplayFormat getLabelDisplayFormat() {
-		return labelDisplayFormat;
-	}
-
-	@Override
-	public IDisplayFormat getDisplayFormat() {
-		return displayFormat;
-	}
-
-	@Override
-	public AlignmentHorizontal getTableAlignment() {
-		return tableAlignment;
-	}
-
-	@Override
-	public Integer getTableWidth() {
-		return tableWidth;
-	}
-
+	String getDescription();
 }

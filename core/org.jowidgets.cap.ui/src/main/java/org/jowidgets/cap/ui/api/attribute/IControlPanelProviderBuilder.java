@@ -35,6 +35,7 @@ import org.jowidgets.api.convert.IObjectLabelConverter;
 import org.jowidgets.api.convert.IObjectStringConverter;
 import org.jowidgets.api.convert.IStringObjectConverter;
 import org.jowidgets.api.widgets.IInputControl;
+import org.jowidgets.cap.ui.api.control.IDisplayFormat;
 import org.jowidgets.cap.ui.api.filter.IFilterSupport;
 import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
 
@@ -46,7 +47,7 @@ public interface IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> {
 
 	IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> setDisplayFormatDescription(final String description);
 
-	IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> setDisplayFormat(final DisplayFormat displayFormat);
+	IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> setDisplayFormat(final IDisplayFormat displayFormat);
 
 	IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> setObjectLabelConverter(
 		IObjectLabelConverter<? extends ELEMENT_VALUE_TYPE> objectLabelConverter);

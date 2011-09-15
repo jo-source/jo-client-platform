@@ -34,15 +34,14 @@ import org.jowidgets.api.convert.IObjectLabelConverter;
 import org.jowidgets.api.convert.IStringObjectConverter;
 import org.jowidgets.api.widgets.IInputControl;
 import org.jowidgets.cap.ui.api.attribute.IControlPanelProvider;
+import org.jowidgets.cap.ui.api.control.IDisplayFormat;
 import org.jowidgets.cap.ui.api.filter.IFilterSupport;
 import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
 import org.jowidgets.util.Assert;
 
 final class ControlPanelProviderImpl<ELEMENT_VALUE_TYPE> implements IControlPanelProvider<ELEMENT_VALUE_TYPE> {
 
-	private final String displayFormatId;
-	private final String displayFormatName;
-	private final String displayFormatDescription;
+	private final IDisplayFormat displayFormat;
 	private final IObjectLabelConverter<ELEMENT_VALUE_TYPE> objectLabelConverter;
 	private final IStringObjectConverter<ELEMENT_VALUE_TYPE> stringObjectConverter;
 	private final IFilterSupport<?> filterSupport;
@@ -50,22 +49,17 @@ final class ControlPanelProviderImpl<ELEMENT_VALUE_TYPE> implements IControlPane
 	private final ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> collectionControlCreator;
 
 	ControlPanelProviderImpl(
-		final String displayFormatId,
-		final String displayFormatName,
-		final String displayFormatDescription,
+		final IDisplayFormat displayFormat,
 		final IObjectLabelConverter<ELEMENT_VALUE_TYPE> objectLabelConverter,
 		final IStringObjectConverter<ELEMENT_VALUE_TYPE> stringObjectConverter,
 		final IFilterSupport<?> filterSupport,
 		final ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> controlCreator,
 		final ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> collectionControlCreator) {
 
-		Assert.paramNotEmpty(displayFormatId, "displayFormatId");
-		Assert.paramNotEmpty(displayFormatName, "displayFormatName");
+		Assert.paramNotNull(displayFormat, "displayFormat");
 		Assert.paramNotNull(objectLabelConverter, "objectLabelConverter");
 
-		this.displayFormatId = displayFormatId;
-		this.displayFormatName = displayFormatName;
-		this.displayFormatDescription = displayFormatDescription;
+		this.displayFormat = displayFormat;
 		this.objectLabelConverter = objectLabelConverter;
 		this.stringObjectConverter = stringObjectConverter;
 		this.filterSupport = filterSupport;
@@ -74,18 +68,8 @@ final class ControlPanelProviderImpl<ELEMENT_VALUE_TYPE> implements IControlPane
 	}
 
 	@Override
-	public String getDisplayFormatId() {
-		return displayFormatId;
-	}
-
-	@Override
-	public String getDisplayFormatName() {
-		return displayFormatName;
-	}
-
-	@Override
-	public String getDisplayFormatDescription() {
-		return displayFormatDescription;
+	public IDisplayFormat getDisplayFormat() {
+		return displayFormat;
 	}
 
 	@Override

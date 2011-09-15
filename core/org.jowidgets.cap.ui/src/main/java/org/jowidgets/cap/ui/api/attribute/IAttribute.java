@@ -31,6 +31,8 @@ package org.jowidgets.cap.ui.api.attribute;
 import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IValueRange;
+import org.jowidgets.cap.ui.api.control.DisplayFormat;
+import org.jowidgets.cap.ui.api.control.IDisplayFormat;
 import org.jowidgets.common.types.AlignmentHorizontal;
 import org.jowidgets.util.event.IChangeObservable;
 
@@ -70,7 +72,7 @@ public interface IAttribute<ELEMENT_VALUE_TYPE> extends IChangeObservable {
 
 	boolean isVisible();
 
-	String getDisplayFormatId();
+	IDisplayFormat getDisplayFormat();
 
 	AlignmentHorizontal getTableAlignment();
 
@@ -82,7 +84,7 @@ public interface IAttribute<ELEMENT_VALUE_TYPE> extends IChangeObservable {
 
 	void setLabelDisplayFormat(DisplayFormat displayFormat);
 
-	void setDisplayFormatId(String id);
+	void setDisplayFormat(IDisplayFormat displayFormat);
 
 	void setTableAlignment(AlignmentHorizontal alignment);
 

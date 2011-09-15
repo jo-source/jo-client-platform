@@ -37,12 +37,13 @@ import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.bean.IProperty;
 import org.jowidgets.cap.common.api.bean.IValueRange;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
-import org.jowidgets.cap.ui.api.attribute.DisplayFormat;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IAttributeBluePrint;
 import org.jowidgets.cap.ui.api.attribute.IAttributeBuilder;
 import org.jowidgets.cap.ui.api.attribute.IAttributeGroup;
 import org.jowidgets.cap.ui.api.attribute.IControlPanelProvider;
+import org.jowidgets.cap.ui.api.control.DisplayFormat;
+import org.jowidgets.cap.ui.api.control.IDisplayFormat;
 import org.jowidgets.common.types.AlignmentHorizontal;
 import org.jowidgets.util.Assert;
 
@@ -65,7 +66,7 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 	private boolean filterable;
 	private Class<?> valueType;
 	private Class<? extends ELEMENT_VALUE_TYPE> elementValueType;
-	private String displayFormatId;
+	private IDisplayFormat displayFormat;
 
 	@SuppressWarnings("rawtypes")
 	private List controlPanels;
@@ -108,7 +109,7 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 		this.filterable = attribute.isFilterable();
 		this.valueType = attribute.getValueType();
 		this.elementValueType = attribute.getElementValueType();
-		this.displayFormatId = attribute.getDisplayFormatId();
+		this.displayFormat = attribute.getDisplayFormat();
 		this.controlPanels = attribute.getControlPanels();
 	}
 
@@ -262,8 +263,8 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 	}
 
 	@Override
-	public IAttributeBluePrint<ELEMENT_VALUE_TYPE> setDisplayFormatId(final String displayFormatId) {
-		this.displayFormatId = displayFormatId;
+	public IAttributeBluePrint<ELEMENT_VALUE_TYPE> setDisplayFormat(final IDisplayFormat displayFormat) {
+		this.displayFormat = displayFormat;
 		return this;
 	}
 
@@ -285,12 +286,12 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 		return controlPanels;
 	}
 
-	private String getDisplayFormatId(final List<IControlPanelProvider<? extends ELEMENT_VALUE_TYPE>> controlPanels) {
-		if (displayFormatId == null) {
-			return controlPanels.get(0).getDisplayFormatId();
+	private IDisplayFormat getDisplayFormatId(final List<IControlPanelProvider<? extends ELEMENT_VALUE_TYPE>> controlPanels) {
+		if (displayFormat == null) {
+			return controlPanels.get(0).getDisplayFormat();
 		}
 		else {
-			return displayFormatId;
+			return displayFormat;
 		}
 	}
 
@@ -298,7 +299,6 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 	@Override
 	public IAttribute<ELEMENT_VALUE_TYPE> build() {
 		final List<IControlPanelProvider<? extends ELEMENT_VALUE_TYPE>> panels = getControlPanels();
-		final String displayFormat = getDisplayFormatId(panels);
 
 		return new AttributeImpl<ELEMENT_VALUE_TYPE>(
 			propertyName,
@@ -319,6 +319,6 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 			valueType,
 			elementValueType,
 			panels,
-			displayFormat);
+			getDisplayFormatId(panels));
 	}
 }

@@ -36,13 +36,13 @@ import org.jowidgets.cap.sample1.common.entity.IUser;
 import org.jowidgets.cap.sample1.ui.converter.GenderConverterLong;
 import org.jowidgets.cap.sample1.ui.converter.GenderConverterShort;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
-import org.jowidgets.cap.ui.api.attribute.DisplayFormat;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IAttributeBluePrint;
 import org.jowidgets.cap.ui.api.attribute.IAttributeCollectionModifierBuilder;
 import org.jowidgets.cap.ui.api.attribute.IAttributeModifier;
 import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
 import org.jowidgets.cap.ui.api.attribute.IControlPanelProviderBuilder;
+import org.jowidgets.cap.ui.api.control.DisplayFormat;
 import org.jowidgets.common.types.AlignmentHorizontal;
 import org.jowidgets.service.api.ServiceProvider;
 
@@ -83,7 +83,7 @@ public class UserAttributesFactory {
 				controlBuilder.setDisplayFormat(DisplayFormat.LONG);
 				bluePrint.addControlPanel(controlBuilder.build());
 
-				bluePrint.setDisplayFormatId(DisplayFormat.SHORT.getId());
+				bluePrint.setDisplayFormat(DisplayFormat.SHORT);
 				bluePrint.setTableAlignment(AlignmentHorizontal.CENTER);
 			}
 		});
@@ -102,7 +102,7 @@ public class UserAttributesFactory {
 		final IAttributeCollectionModifierBuilder modifierBuilder = attributeToolkit.createAttributeCollectionModifierBuilder();
 		modifierBuilder.addAcceptEditableAttributesFilter();
 
-		modifierBuilder.addModifier(IUser.GENDER_PROPERTY).setDisplayFormatId(DisplayFormat.LONG.getId());
+		modifierBuilder.addModifier(IUser.GENDER_PROPERTY).setDisplayFormat(DisplayFormat.LONG);
 
 		return attributeToolkit.createAttributesCopy(attributes, modifierBuilder.build());
 	}
