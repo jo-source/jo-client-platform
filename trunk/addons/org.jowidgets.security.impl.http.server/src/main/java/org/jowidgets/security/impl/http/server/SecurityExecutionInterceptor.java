@@ -31,7 +31,7 @@ package org.jowidgets.security.impl.http.server;
 import org.jowidgets.message.impl.http.server.IExecutionInterceptor;
 import org.jowidgets.security.api.SecurityContextHolder;
 
-public final class SecurityExecutionInterceptor implements IExecutionInterceptor<Object> {
+final class SecurityExecutionInterceptor implements IExecutionInterceptor<Object> {
 
 	@Override
 	public Object getExecutionContext() {
