@@ -61,8 +61,8 @@ import org.jowidgets.util.Assert;
 
 final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> {
 
-	private static final Object DEFAULT_DISPLAY_FORMAT_ID = DisplayFormat.DEFAULT.getId();
-	private static final String DEFAULT_DISPLAY_NAME = DisplayFormat.DEFAULT.getName();
+	private static final Object DEFAULT_DISPLAY_FORMAT_ID = DisplayFormat.SHORT.getId();
+	private static final String DEFAULT_DISPLAY_NAME = DisplayFormat.SHORT.getName();
 
 	private final IValueRange valueRange;
 

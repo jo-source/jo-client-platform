@@ -28,16 +28,17 @@
 
 package org.jowidgets.cap.ui.api.control;
 
-public enum DisplayFormat implements IDisplayFormat {
+public enum DateDisplayFormat implements IDisplayFormat {
 
 	//TODO i18n
-	LONG("Long", "Long display format"),
-	SHORT("Short", "Short display format");
+	DATE("Date", "Displays the date without time"),
+	TIME("Time", "Displays the time without date"),
+	DATE_TIME("Datetime", "Displays the date and the time");
 
 	private String name;
 	private String description;
 
-	private DisplayFormat(final String name, final String description) {
+	private DateDisplayFormat(final String name, final String description) {
 		this.name = name;
 		this.description = description;
 	}

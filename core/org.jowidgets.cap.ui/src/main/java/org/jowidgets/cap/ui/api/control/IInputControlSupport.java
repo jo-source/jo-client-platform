@@ -28,33 +28,12 @@
 
 package org.jowidgets.cap.ui.api.control;
 
-public enum DisplayFormat implements IDisplayFormat {
+import java.util.List;
 
-	//TODO i18n
-	LONG("Long", "Long display format"),
-	SHORT("Short", "Short display format");
+public interface IInputControlSupport<ELEMENT_VALUE_TYPE> {
 
-	private String name;
-	private String description;
+	IDisplayFormat getDefaultDisplayFormat();
 
-	private DisplayFormat(final String name, final String description) {
-		this.name = name;
-		this.description = description;
-	}
-
-	@Override
-	public Object getId() {
-		return this;
-	}
-
-	@Override
-	public String getName() {
-		return name;
-	}
-
-	@Override
-	public String getDescription() {
-		return description;
-	}
+	List<IInputControlProvider<ELEMENT_VALUE_TYPE>> getControls();
 
 }

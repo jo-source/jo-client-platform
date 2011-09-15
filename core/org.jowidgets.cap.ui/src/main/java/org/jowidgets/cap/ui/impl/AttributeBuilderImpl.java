@@ -135,7 +135,7 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 	private AttributeBuilderImpl() {
 		this.controlPanels = new LinkedList<IControlPanelProvider<? extends ELEMENT_VALUE_TYPE>>();
 		this.valueRange = CapCommonToolkit.valueRangeFactory().create();
-		this.labelDisplayFormat = DisplayFormat.DEFAULT;
+		this.labelDisplayFormat = DisplayFormat.SHORT;
 		this.visible = true;
 		this.mandatory = false;
 		this.editable = true;
