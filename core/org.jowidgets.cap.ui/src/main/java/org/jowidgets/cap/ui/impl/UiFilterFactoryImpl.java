@@ -36,6 +36,7 @@ import org.jowidgets.cap.common.api.filter.ArithmeticOperator;
 import org.jowidgets.cap.common.api.filter.BooleanOperator;
 import org.jowidgets.cap.common.api.filter.IFilter;
 import org.jowidgets.cap.common.api.filter.IFilterFactory;
+import org.jowidgets.cap.common.api.filter.IOperator;
 import org.jowidgets.cap.ui.api.filter.IUiArithmeticFilter;
 import org.jowidgets.cap.ui.api.filter.IUiArithmeticFilterBuilder;
 import org.jowidgets.cap.ui.api.filter.IUiArithmeticPropertyFilter;
@@ -43,6 +44,7 @@ import org.jowidgets.cap.ui.api.filter.IUiArithmeticPropertyFilterBuilder;
 import org.jowidgets.cap.ui.api.filter.IUiBooleanFilter;
 import org.jowidgets.cap.ui.api.filter.IUiBooleanFilterBuilder;
 import org.jowidgets.cap.ui.api.filter.IUiCustomFilter;
+import org.jowidgets.cap.ui.api.filter.IUiCustomFilterBuilder;
 import org.jowidgets.cap.ui.api.filter.IUiFilter;
 import org.jowidgets.cap.ui.api.filter.IUiFilterFactory;
 
@@ -118,6 +120,22 @@ final class UiFilterFactoryImpl implements IUiFilterFactory {
 	}
 
 	@Override
+	public <CONFIG_TYPE> IUiCustomFilterBuilder<CONFIG_TYPE> customFilterBuilder() {
+		return new UiCustomFilterBuilderImpl<CONFIG_TYPE>();
+	}
+
+	@Override
+	public <CONFIG_TYPE> IUiCustomFilter<CONFIG_TYPE> customFilter(
+		final String filterType,
+		final String propertyName,
+		final IOperator operator,
+		final Object value) {
+		final IUiCustomFilterBuilder<CONFIG_TYPE> builder = customFilterBuilder();
+		builder.setFilterType(filterType).setPropertyName(propertyName).setOperator(operator).setValue(value);
+		return builder.build();
+	}
+
+	@Override
 	public IFilter convert(final IUiFilter uiFilter) {
 		final IFilterFactory fab = CapCommonToolkit.filterFactory();
 		if (uiFilter instanceof IUiBooleanFilter) {
@@ -154,5 +172,4 @@ final class UiFilterFactoryImpl implements IUiFilterFactory {
 			throw new IllegalStateException("Cannot convert unkown filter class '" + uiFilter.getClass().getName() + "'.");
 		}
 	}
-
 }
