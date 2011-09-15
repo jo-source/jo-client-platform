@@ -30,6 +30,7 @@ package org.jowidgets.message.impl.http.server;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -51,11 +52,12 @@ public final class MessageServlet extends HttpServlet implements IMessageReceive
 	private static final String CONNECTION_ATTRIBUTE_NAME = MessageServlet.class.getName() + "#connection";
 
 	private final String brokerId;
+	private final List<IExecutionInterceptor<Object>> executionInterceptors = new LinkedList<IExecutionInterceptor<Object>>();
+
 	private long pollInterval = 10000;
 	private Executor executor = Executors.newFixedThreadPool(
 			Runtime.getRuntime().availableProcessors() * 10,
 			new DaemonThreadFactory());
-	private IExecutionInterceptor<?> executionInterceptor = new DefaultExecutionInterceptor();
 	private volatile IMessageReceiver receiver;
 
 	public MessageServlet(final String brokerId) {
@@ -77,9 +79,10 @@ public final class MessageServlet extends HttpServlet implements IMessageReceive
 		this.executor = executor;
 	}
 
-	public void setExecutionInterceptor(final IExecutionInterceptor<?> executionInterceptor) {
+	@SuppressWarnings("unchecked")
+	public void addExecutionInterceptor(final IExecutionInterceptor<?> executionInterceptor) {
 		Assert.paramNotNull(executionInterceptor, "executionInterceptor");
-		this.executionInterceptor = executionInterceptor;
+		executionInterceptors.add((IExecutionInterceptor<Object>) executionInterceptor);
 	}
 
 	@Override
@@ -119,7 +122,7 @@ public final class MessageServlet extends HttpServlet implements IMessageReceive
 		final Connection conn = getConnection(session);
 		try {
 			final Object msg = new ObjectInputStream(req.getInputStream()).readObject();
-			conn.onMessage(msg, executionInterceptor);
+			conn.onMessage(msg, executionInterceptors);
 		}
 		catch (final ClassNotFoundException e) {
 			throw new ServletException(e);

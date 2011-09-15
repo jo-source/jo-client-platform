@@ -48,7 +48,7 @@ public final class SecurityRemotingServlet extends GenericServlet {
 
 	public SecurityRemotingServlet() {
 		messageServlet = new MessageServlet(MessageBrokerId.INVOCATION_IMPL_BROKER_ID);
-		messageServlet.setExecutionInterceptor(new SecurityExecutionInterceptor());
+		messageServlet.addExecutionInterceptor(new SecurityExecutionInterceptor());
 		MessageToolkit.addReceiverBroker(messageServlet);
 		new CapServerServicePublisher().publishServices();
 	}
