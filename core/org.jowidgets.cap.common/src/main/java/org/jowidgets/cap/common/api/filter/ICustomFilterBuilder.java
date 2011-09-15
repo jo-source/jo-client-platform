@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2011, Nikolaus Moll
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -28,36 +28,16 @@
 
 package org.jowidgets.cap.common.api.filter;
 
-import java.util.List;
+public interface ICustomFilterBuilder extends IFilterBuilder<ICustomFilterBuilder> {
 
-public interface IFilterFactory {
+	ICustomFilterBuilder setFilterType(String filterType);
 
-	IBooleanFilterBuilder booleanFilterBuilder();
+	ICustomFilterBuilder setPropertyName(String propertyName);
 
-	IBooleanFilter booleanFilter(BooleanOperator operator, List<? extends IFilter> filters);
+	ICustomFilterBuilder setOperator(IOperator operator);
 
-	IArithmeticFilterBuilder arithmeticFilterBuilder();
+	ICustomFilterBuilder setValue(Object value);
 
-	IArithmeticFilter arithmeticFilter(String propertyName, ArithmeticOperator operator, Object[] parameters);
-
-	IArithmeticFilter arithmeticFilter(String propertyName, ArithmeticOperator operator, Object parameter);
-
-	IArithmeticFilter arithmeticFilter(String propertyName, ArithmeticOperator operator);
-
-	IArithmeticPropertyFilterBuilder arithmeticPropertyFilterBuilder();
-
-	IArithmeticPropertyFilter arithmeticPropertyFilter(
-		String leftPropertyName,
-		ArithmeticOperator operator,
-		String[] rightPropertyNames);
-
-	IArithmeticPropertyFilter arithmeticPropertyFilter(
-		String leftPropertyName,
-		ArithmeticOperator operator,
-		String rightPropertyName);
-
-	ICustomFilterBuilder customFilterBuilder();
-
-	ICustomFilter customFilter(String filterType, String propertyName, IOperator operator, Object value);
+	ICustomFilter build();
 
 }

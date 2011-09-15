@@ -38,8 +38,11 @@ import org.jowidgets.cap.common.api.filter.IArithmeticPropertyFilter;
 import org.jowidgets.cap.common.api.filter.IArithmeticPropertyFilterBuilder;
 import org.jowidgets.cap.common.api.filter.IBooleanFilter;
 import org.jowidgets.cap.common.api.filter.IBooleanFilterBuilder;
+import org.jowidgets.cap.common.api.filter.ICustomFilter;
+import org.jowidgets.cap.common.api.filter.ICustomFilterBuilder;
 import org.jowidgets.cap.common.api.filter.IFilter;
 import org.jowidgets.cap.common.api.filter.IFilterFactory;
+import org.jowidgets.cap.common.api.filter.IOperator;
 
 final class FilterFactoryImpl implements IFilterFactory {
 
@@ -97,6 +100,20 @@ final class FilterFactoryImpl implements IFilterFactory {
 		final String rightPropertyName) {
 		return arithmeticPropertyFilterBuilder().setLeftHandPropertyName(leftPropertyName).setOperator(operator).setRightHandPropertyName(
 				rightPropertyName).build();
+	}
+
+	@Override
+	public ICustomFilterBuilder customFilterBuilder() {
+		return new CustomFilterBuilderImpl();
+	}
+
+	@Override
+	public ICustomFilter customFilter(
+		final String filterType,
+		final String propertyName,
+		final IOperator operator,
+		final Object value) {
+		return customFilterBuilder().setFilterType(filterType).setPropertyName(propertyName).setOperator(operator).setValue(value).build();
 	}
 
 }

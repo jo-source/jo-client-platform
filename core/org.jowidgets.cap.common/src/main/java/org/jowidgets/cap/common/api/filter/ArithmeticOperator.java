@@ -30,16 +30,16 @@ package org.jowidgets.cap.common.api.filter;
 
 public enum ArithmeticOperator implements IOperator {
 
-	// TODO NM filter stuff
-	EMPTY(0, false, "Ø", "Empty", "Checks if the property is empty."), // Alt-2205
-	EQUAL(1, false, "=", "Equal", ""),
-	LESS(1, false, "<", "Less", ""),
-	LESS_EQUAL(1, false, "<=", "Less equal", ""),
-	GREATER(1, false, ">", "", "Greater"),
-	GREATER_EQUAL(1, false, ">=", "Greater equal", ""),
-	BETWEEN(2, false, "", "Between", ""),
-	CONTAINS_ANY(1, true, "", "Contains any", ""),
-	CONTAINS_ALL(1, true, "", "Contains all", "");
+	// TODO i18n
+	EMPTY(0, false, "empty", "Empty", null),
+	EQUAL(1, false, "=", "Equal", null),
+	LESS(1, false, "<", "Less", null),
+	LESS_EQUAL(1, false, "<=", "Less equal", null),
+	GREATER(1, false, ">", "Greater", null),
+	GREATER_EQUAL(1, false, ">=", "Greater equal", null),
+	BETWEEN(2, false, "", "Between", null),
+	CONTAINS_ANY(1, true, "", "Contains any", null),
+	CONTAINS_ALL(1, true, "", "Contains all", null);
 
 	private final int parameterCount;
 	private final boolean isCollectionOperator;
