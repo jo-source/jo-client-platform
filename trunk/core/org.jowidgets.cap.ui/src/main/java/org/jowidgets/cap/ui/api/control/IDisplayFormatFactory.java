@@ -28,25 +28,12 @@
 
 package org.jowidgets.cap.ui.api.control;
 
-import java.util.Collection;
+public interface IDisplayFormatFactory {
 
-import org.jowidgets.api.convert.IConverter;
-import org.jowidgets.api.widgets.IInputControl;
-import org.jowidgets.cap.common.api.bean.IValueRange;
-import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
+	IDisplayFormat create(Object id, String name, String description);
 
-public interface IInputControlProvider<ELEMENT_VALUE_TYPE> {
+	IDisplayFormat create(Object id, String name);
 
-	IDisplayFormat getDisplayFormat();
+	IDisplayFormat getDefault();
 
-	IConverter<ELEMENT_VALUE_TYPE> getConverter(IValueRange valueRange);
-
-	ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> getControlCreator(
-		IConverter<ELEMENT_VALUE_TYPE> converter,
-		IValueRange valueRange);
-
-	ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> getCollectionControlCreator(
-		ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> elementControlCreator,
-		IConverter<ELEMENT_VALUE_TYPE> converter,
-		IValueRange valueRange);
 }

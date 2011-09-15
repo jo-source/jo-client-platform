@@ -26,27 +26,29 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.control;
+package org.jowidgets.cap.ui.impl;
 
-import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 
-import org.jowidgets.api.convert.IConverter;
-import org.jowidgets.api.widgets.IInputControl;
-import org.jowidgets.cap.common.api.bean.IValueRange;
-import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
+import org.jowidgets.cap.ui.api.control.DisplayFormat;
+import org.jowidgets.cap.ui.api.control.IDisplayFormat;
+import org.jowidgets.cap.ui.api.control.IInputControlProvider;
+import org.jowidgets.cap.ui.api.control.IInputControlSupport;
 
-public interface IInputControlProvider<ELEMENT_VALUE_TYPE> {
+public class ControlSupportBoolean implements IInputControlSupport<Boolean> {
 
-	IDisplayFormat getDisplayFormat();
+	@Override
+	public IDisplayFormat getDefaultDisplayFormat() {
+		return DisplayFormat.LONG;
+	}
 
-	IConverter<ELEMENT_VALUE_TYPE> getConverter(IValueRange valueRange);
+	@Override
+	public List<IInputControlProvider<Boolean>> getControls() {
+		final List<IInputControlProvider<Boolean>> result = new LinkedList<IInputControlProvider<Boolean>>();
+		result.add(new ControlProviderBooleanShort());
+		result.add(new ControlProviderBooleanLong());
+		return result;
+	}
 
-	ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> getControlCreator(
-		IConverter<ELEMENT_VALUE_TYPE> converter,
-		IValueRange valueRange);
-
-	ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> getCollectionControlCreator(
-		ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> elementControlCreator,
-		IConverter<ELEMENT_VALUE_TYPE> converter,
-		IValueRange valueRange);
 }

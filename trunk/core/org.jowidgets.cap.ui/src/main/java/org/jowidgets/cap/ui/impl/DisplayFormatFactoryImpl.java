@@ -26,27 +26,32 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.control;
+package org.jowidgets.cap.ui.impl;
 
-import java.util.Collection;
+import org.jowidgets.cap.ui.api.control.IDisplayFormat;
+import org.jowidgets.cap.ui.api.control.IDisplayFormatFactory;
 
-import org.jowidgets.api.convert.IConverter;
-import org.jowidgets.api.widgets.IInputControl;
-import org.jowidgets.cap.common.api.bean.IValueRange;
-import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
+final class DisplayFormatFactoryImpl implements IDisplayFormatFactory {
 
-public interface IInputControlProvider<ELEMENT_VALUE_TYPE> {
+	//TODO i18n
+	private static final IDisplayFormat DEFAULT_DISPLAY_FORMAT = new DisplayFormatImpl(
+		DisplayFormatFactoryImpl.class.getName(),
+		"Default",
+		null);
 
-	IDisplayFormat getDisplayFormat();
+	@Override
+	public IDisplayFormat create(final Object id, final String name, final String description) {
+		return new DisplayFormatImpl(id, name, description);
+	}
 
-	IConverter<ELEMENT_VALUE_TYPE> getConverter(IValueRange valueRange);
+	@Override
+	public IDisplayFormat create(final Object id, final String name) {
+		return create(id, name, null);
+	}
 
-	ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> getControlCreator(
-		IConverter<ELEMENT_VALUE_TYPE> converter,
-		IValueRange valueRange);
+	@Override
+	public IDisplayFormat getDefault() {
+		return DEFAULT_DISPLAY_FORMAT;
+	}
 
-	ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> getCollectionControlCreator(
-		ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> elementControlCreator,
-		IConverter<ELEMENT_VALUE_TYPE> converter,
-		IValueRange valueRange);
 }

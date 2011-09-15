@@ -26,27 +26,50 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.control;
+package org.jowidgets.cap.ui.impl;
 
-import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
-import org.jowidgets.api.convert.IConverter;
-import org.jowidgets.api.widgets.IInputControl;
-import org.jowidgets.cap.common.api.bean.IValueRange;
-import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
+import org.jowidgets.cap.ui.api.control.IInputControlProviderRegistry;
+import org.jowidgets.cap.ui.api.control.IInputControlSupport;
+import org.jowidgets.util.Assert;
 
-public interface IInputControlProvider<ELEMENT_VALUE_TYPE> {
+@SuppressWarnings({"rawtypes", "unchecked"})
+final class ControlProviderRegistryImpl implements IInputControlProviderRegistry {
 
-	IDisplayFormat getDisplayFormat();
+	private final Map<Class, IInputControlSupport> map;
 
-	IConverter<ELEMENT_VALUE_TYPE> getConverter(IValueRange valueRange);
+	ControlProviderRegistryImpl() {
+		this.map = new HashMap<Class, IInputControlSupport>();
 
-	ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> getControlCreator(
-		IConverter<ELEMENT_VALUE_TYPE> converter,
-		IValueRange valueRange);
+		map.put(boolean.class, new ControlSupportBooleanPrimitive());
+		map.put(Boolean.class, new ControlSupportBoolean());
 
-	ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> getCollectionControlCreator(
-		ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> elementControlCreator,
-		IConverter<ELEMENT_VALUE_TYPE> converter,
-		IValueRange valueRange);
+		map.put(Date.class, new ControlProviderDefault<Date>(Date.class));
+
+		//some default provider
+		map.put(String.class, new ControlProviderDefault<String>(String.class));
+		map.put(Long.class, new ControlProviderDefault<Long>(Long.class));
+		map.put(Integer.class, new ControlProviderDefault<Integer>(Integer.class));
+		map.put(Short.class, new ControlProviderDefault<Short>(Short.class));
+
+	}
+
+	@Override
+	public <ELEMENT_VALUE_TYPE> IInputControlSupport<ELEMENT_VALUE_TYPE> getControls(
+		final Class<? extends ELEMENT_VALUE_TYPE> type) {
+		Assert.paramNotNull(type, "type");
+		return map.get(type);
+	}
+
+	@Override
+	public <ELEMENT_VALUE_TYPE> void setControls(
+		final Class<? extends ELEMENT_VALUE_TYPE> type,
+		final IInputControlSupport<ELEMENT_VALUE_TYPE> controlSupport) {
+		Assert.paramNotNull(type, "type");
+		map.put(type, controlSupport);
+	}
+
 }
