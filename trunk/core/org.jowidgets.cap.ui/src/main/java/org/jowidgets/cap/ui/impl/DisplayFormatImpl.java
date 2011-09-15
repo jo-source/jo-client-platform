@@ -26,36 +26,38 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.attribute;
+package org.jowidgets.cap.ui.impl;
 
-public enum DisplayFormat {
+import org.jowidgets.cap.ui.api.control.IDisplayFormat;
+import org.jowidgets.util.Assert;
 
-	//TODO i18n
-	//TODO MG remove default?
-	DEFAULT(DisplayFormat.class.getName() + ".DEFAULT", "Default", null),
-	LONG(DisplayFormat.class.getName() + ".LONG", "Long", "Long display format"),
-	SHORT(DisplayFormat.class.getName() + ".SHORT", "Short", "Short display format");
+final class DisplayFormatImpl implements IDisplayFormat {
 
-	private String id;
-	private String name;
-	private String description;
+	private final Object id;
+	private final String name;
+	private final String decription;
 
-	private DisplayFormat(final String id, final String name, final String description) {
+	DisplayFormatImpl(final Object id, final String name, final String decription) {
+		Assert.paramNotNull(id, "id");
+		Assert.paramNotNull(name, "name");
 		this.id = id;
 		this.name = name;
-		this.description = description;
+		this.decription = decription;
 	}
 
-	public String getId() {
+	@Override
+	public Object getId() {
 		return id;
 	}
 
+	@Override
 	public String getName() {
 		return name;
 	}
 
+	@Override
 	public String getDescription() {
-		return description;
+		return decription;
 	}
 
 }

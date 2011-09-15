@@ -34,10 +34,11 @@ import java.util.List;
 
 import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.bean.IValueRange;
-import org.jowidgets.cap.ui.api.attribute.DisplayFormat;
 import org.jowidgets.cap.ui.api.attribute.IAttributeBluePrint;
 import org.jowidgets.cap.ui.api.attribute.IAttributeGroup;
 import org.jowidgets.cap.ui.api.attribute.IControlPanelProvider;
+import org.jowidgets.cap.ui.api.control.DisplayFormat;
+import org.jowidgets.cap.ui.api.control.IDisplayFormat;
 import org.jowidgets.common.types.AlignmentHorizontal;
 import org.jowidgets.util.Assert;
 
@@ -58,7 +59,7 @@ final class AttributeModifierBluePrint<ELEMENT_VALUE_TYPE> implements IAttribute
 	private IAttributeGroup attributeGroup;
 	private Boolean sortable;
 	private Boolean filterable;
-	private String displayFromatId;
+	private IDisplayFormat displayFormat;
 
 	@SuppressWarnings("rawtypes")
 	private final List controlPanels;
@@ -193,9 +194,9 @@ final class AttributeModifierBluePrint<ELEMENT_VALUE_TYPE> implements IAttribute
 	}
 
 	@Override
-	public IAttributeBluePrint<ELEMENT_VALUE_TYPE> setDisplayFormatId(final String displayFormatId) {
+	public IAttributeBluePrint<ELEMENT_VALUE_TYPE> setDisplayFormat(final IDisplayFormat displayFormat) {
 		checkExhausted();
-		this.displayFromatId = displayFormatId;
+		this.displayFormat = displayFormat;
 		return this;
 	}
 
@@ -253,8 +254,8 @@ final class AttributeModifierBluePrint<ELEMENT_VALUE_TYPE> implements IAttribute
 		if (filterable != null) {
 			attributeBluePrint.setFilterable(filterable.booleanValue());
 		}
-		if (displayFromatId != null) {
-			attributeBluePrint.setDisplayFormatId(displayFromatId);
+		if (displayFormat != null) {
+			attributeBluePrint.setDisplayFormat(displayFormat);
 		}
 		for (final Object controlPanelProvider : controlPanels) {
 			attributeBluePrint.addControlPanel((IControlPanelProvider<? extends ELEMENT_VALUE_TYPE>) controlPanelProvider);

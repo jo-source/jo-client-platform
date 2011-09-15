@@ -59,11 +59,12 @@ import org.jowidgets.api.widgets.blueprint.ITextLabelBluePrint;
 import org.jowidgets.api.widgets.blueprint.factory.IBluePrintFactory;
 import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.common.api.sort.SortOrder;
-import org.jowidgets.cap.ui.api.attribute.DisplayFormat;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IAttributeConfig;
 import org.jowidgets.cap.ui.api.attribute.IAttributeGroup;
 import org.jowidgets.cap.ui.api.attribute.IControlPanelProvider;
+import org.jowidgets.cap.ui.api.control.DisplayFormat;
+import org.jowidgets.cap.ui.api.control.IDisplayFormat;
 import org.jowidgets.cap.ui.api.table.IBeanTableConfig;
 import org.jowidgets.cap.ui.api.table.IBeanTableConfigBuilder;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
@@ -706,7 +707,7 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 		protected List<String> getContentFormats() {
 			final List<String> result = new LinkedList<String>();
 			for (final IControlPanelProvider<?> provider : getAttribute().getControlPanels()) {
-				result.add(provider.getDisplayFormatName());
+				result.add(provider.getDisplayFormat().getName());
 			}
 			return result;
 		}
@@ -759,7 +760,7 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 		}
 
 		protected String getContentFormatConfig(final IAttributeConfig attributeConfig, final IAttribute<?> attribute) {
-			final String id = attributeConfig.getDisplayFormatId();
+			final Object id = attributeConfig.getDisplayFormat().getId();
 			if (id == null) {
 				return null;
 			}
@@ -1387,11 +1388,11 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 				}
 
 				for (final IControlPanelProvider<?> provider : attribute.getControlPanels()) {
-					if (contentFormats.contains(provider.getDisplayFormatName())) {
+					if (contentFormats.contains(provider.getDisplayFormat().getName())) {
 						continue;
 					}
 
-					contentFormats.add(provider.getDisplayFormatName());
+					contentFormats.add(provider.getDisplayFormat().getName());
 				}
 			}
 
@@ -1465,8 +1466,8 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 				for (final Object provider : controlPanels) {
 					final IControlPanelProvider<?> controlPanelProvider = (IControlPanelProvider<?>) provider;
 
-					if (!contentFormats.contains(controlPanelProvider.getDisplayFormatName())) {
-						contentFormats.add(controlPanelProvider.getDisplayFormatName());
+					if (!contentFormats.contains(controlPanelProvider.getDisplayFormat().getName())) {
+						contentFormats.add(controlPanelProvider.getDisplayFormat().getName());
 					}
 				}
 
@@ -1537,10 +1538,10 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 		return ((attribute.getLabelLong() != null) && (!attribute.getLabelLong().equals(attribute.getLabel())));
 	}
 
-	private static String getDisplayFormatNameById(final String id, final IAttribute<?> attribute) {
+	private static String getDisplayFormatNameById(final Object id, final IAttribute<?> attribute) {
 		for (final IControlPanelProvider<?> provider : attribute.getControlPanels()) {
-			if (provider.getDisplayFormatId().equals(id)) {
-				return provider.getDisplayFormatName();
+			if (provider.getDisplayFormat().getId().equals(id)) {
+				return provider.getDisplayFormat().getName();
 			}
 		}
 		return null;
@@ -2075,10 +2076,10 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 		}
 	}
 
-	private static String getDisplayFormatId(final String displayFormatName, final IAttribute<?> attribute) {
+	private static IDisplayFormat getDisplayFormatId(final String displayFormatName, final IAttribute<?> attribute) {
 		for (final IControlPanelProvider<?> provider : attribute.getControlPanels()) {
-			if (provider.getDisplayFormatName().equals(displayFormatName)) {
-				return provider.getDisplayFormatId();
+			if (provider.getDisplayFormat().getName().equals(displayFormatName)) {
+				return provider.getDisplayFormat();
 			}
 		}
 
@@ -2107,7 +2108,7 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 			final boolean visible = attributeComposite.getVisible().getValue();
 			final DisplayFormat labelDisplayFormat = (attributeComposite.getHeaderFormat() != null)
 					? getHeaderDisplayFormat(attributeComposite.getHeaderFormat().getValue()) : null;
-			final String displayFormatId = (attributeComposite.getContentFormat() != null) ? getDisplayFormatId(
+			final IDisplayFormat displayFormat = (attributeComposite.getContentFormat() != null) ? getDisplayFormatId(
 					attributeComposite.getContentFormat().getValue(),
 					attributeComposite.getData()) : null;
 			final AlignmentHorizontal tableAlignment = getTableAlignment(attributeComposite.getColumnAlignment().getValue());
@@ -2116,7 +2117,7 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 			builder.addAttributeConfig(entry.getKey(), new AttributeConfigImpl(
 				visible,
 				labelDisplayFormat,
-				displayFormatId,
+				displayFormat,
 				tableAlignment,
 				tableWidth));
 		}
@@ -2242,20 +2243,20 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 
 		private final Boolean visible;
 		private final DisplayFormat labelDisplayFormat;
-		private final String displayFormatId;
+		private final IDisplayFormat displayFormat;
 		private final AlignmentHorizontal tableAlignment;
 		private final Integer tableWidth;
 
 		AttributeConfigImpl(
 			final Boolean visible,
 			final DisplayFormat labelDisplayFormat,
-			final String displayFormatId,
+			final IDisplayFormat displayFormat,
 			final AlignmentHorizontal tableAlignment,
 			final Integer tableWidth) {
 
 			this.visible = visible;
 			this.labelDisplayFormat = labelDisplayFormat;
-			this.displayFormatId = displayFormatId;
+			this.displayFormat = displayFormat;
 			this.tableAlignment = tableAlignment;
 			this.tableWidth = tableWidth;
 		}
@@ -2271,8 +2272,8 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 		}
 
 		@Override
-		public String getDisplayFormatId() {
-			return displayFormatId;
+		public IDisplayFormat getDisplayFormat() {
+			return displayFormat;
 		}
 
 		@Override

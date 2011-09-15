@@ -28,23 +28,34 @@
 
 package org.jowidgets.cap.ui.api.control;
 
-import org.jowidgets.api.convert.IConverter;
-import org.jowidgets.api.widgets.IInputControl;
-import org.jowidgets.cap.common.api.bean.IValueRange;
-import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
+public enum DisplayFormat implements IDisplayFormat {
 
-public interface IInputControlProvider {
+	//TODO i18n
+	DEFAULT("Default", null),
+	LONG("Long", "Long display format"),
+	SHORT("Short", "Short display format");
 
-	<VALUE_TYPE> ICustomWidgetCreator<IInputControl<VALUE_TYPE>> getControlCreator(Class<? extends VALUE_TYPE> type);
+	private String name;
+	private String description;
 
-	<VALUE_TYPE> ICustomWidgetCreator<IInputControl<VALUE_TYPE>> getControlCreator(
-		Class<? extends VALUE_TYPE> type,
-		IValueRange valueRange);
+	private DisplayFormat(final String name, final String description) {
+		this.name = name;
+		this.description = description;
+	}
 
-	<VALUE_TYPE> ICustomWidgetCreator<IInputControl<VALUE_TYPE>> getControlCreator(IConverter<? extends VALUE_TYPE> converter);
+	@Override
+	public Object getId() {
+		return this;
+	}
 
-	<VALUE_TYPE> ICustomWidgetCreator<IInputControl<VALUE_TYPE>> getControlCreator(
-		IConverter<? extends VALUE_TYPE> converter,
-		IValueRange valueRange);
+	@Override
+	public String getName() {
+		return name;
+	}
+
+	@Override
+	public String getDescription() {
+		return description;
+	}
 
 }

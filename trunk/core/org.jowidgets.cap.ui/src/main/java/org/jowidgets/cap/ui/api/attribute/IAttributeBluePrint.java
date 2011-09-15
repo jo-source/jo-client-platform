@@ -31,6 +31,8 @@ package org.jowidgets.cap.ui.api.attribute;
 import java.util.Collection;
 
 import org.jowidgets.cap.common.api.bean.IValueRange;
+import org.jowidgets.cap.ui.api.control.DisplayFormat;
+import org.jowidgets.cap.ui.api.control.IDisplayFormat;
 import org.jowidgets.common.types.AlignmentHorizontal;
 
 public interface IAttributeBluePrint<ELEMENT_VALUE_TYPE> {
@@ -70,15 +72,15 @@ public interface IAttributeBluePrint<ELEMENT_VALUE_TYPE> {
 	IAttributeBluePrint<ELEMENT_VALUE_TYPE> setLabelDisplayFormat(DisplayFormat displayFormat);
 
 	/**
-	 * Sets the display format id.
+	 * Sets the display format.
 	 * 
-	 * If the display format id is not set, the first added control panels id will be used.
+	 * If the display format is not set, the first added control panels id will be used.
 	 * 
-	 * @param displayFormatId The display format to set. A control panel with the display format must exist
+	 * @param displayFormat The display format to set. A control panel with the display format must exist
 	 * 
 	 * @return This builder
 	 */
-	IAttributeBluePrint<ELEMENT_VALUE_TYPE> setDisplayFormatId(String displayFormatId);
+	IAttributeBluePrint<ELEMENT_VALUE_TYPE> setDisplayFormat(IDisplayFormat displayFormat);
 
 	IAttributeBluePrint<ELEMENT_VALUE_TYPE> addControlPanel(IControlPanelProvider<? extends ELEMENT_VALUE_TYPE> controlPanel);
 

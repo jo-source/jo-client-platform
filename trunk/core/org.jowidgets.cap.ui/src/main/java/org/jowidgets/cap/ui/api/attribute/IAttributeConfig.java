@@ -28,6 +28,8 @@
 
 package org.jowidgets.cap.ui.api.attribute;
 
+import org.jowidgets.cap.ui.api.control.DisplayFormat;
+import org.jowidgets.cap.ui.api.control.IDisplayFormat;
 import org.jowidgets.common.types.AlignmentHorizontal;
 
 public interface IAttributeConfig {
@@ -36,7 +38,7 @@ public interface IAttributeConfig {
 
 	DisplayFormat getLabelDisplayFormat();
 
-	String getDisplayFormatId();
+	IDisplayFormat getDisplayFormat();
 
 	AlignmentHorizontal getTableAlignment();
 
