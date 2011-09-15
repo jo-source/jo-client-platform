@@ -26,12 +26,23 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.filter;
+package org.jowidgets.cap.ui.impl;
 
-public interface IUiConfigurableFilterBuilder<BUILDER_TYPE, CONFIG_TYPE> extends IUiFilterBuilder<BUILDER_TYPE> {
+import org.jowidgets.cap.ui.api.filter.IUiFilterBuilder;
 
-	IUiConfigurableFilterBuilder<BUILDER_TYPE, CONFIG_TYPE> setConfig(final CONFIG_TYPE config);
+public class UiFilterBuilderImpl<BUILDER_TYPE> implements IUiFilterBuilder<BUILDER_TYPE> {
 
-	IUiConfigurableFilterBuilder<BUILDER_TYPE, CONFIG_TYPE> setType(IFilterType filterType);
+	private boolean inverted;
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public BUILDER_TYPE setInverted(final boolean inverted) {
+		this.inverted = inverted;
+		return (BUILDER_TYPE) this;
+	}
+
+	protected boolean isInverted() {
+		return inverted;
+	}
 
 }

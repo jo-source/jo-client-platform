@@ -42,6 +42,7 @@ import org.jowidgets.cap.ui.api.filter.IUiArithmeticPropertyFilter;
 import org.jowidgets.cap.ui.api.filter.IUiArithmeticPropertyFilterBuilder;
 import org.jowidgets.cap.ui.api.filter.IUiBooleanFilter;
 import org.jowidgets.cap.ui.api.filter.IUiBooleanFilterBuilder;
+import org.jowidgets.cap.ui.api.filter.IUiCustomFilter;
 import org.jowidgets.cap.ui.api.filter.IUiFilter;
 import org.jowidgets.cap.ui.api.filter.IUiFilterFactory;
 
@@ -67,9 +68,9 @@ final class UiFilterFactoryImpl implements IUiFilterFactory {
 		final String propertyName,
 		final ArithmeticOperator operator,
 		final Object[] parameters) {
-		// TODO MG,NM review (method call instead, generics)
-		return new UiArithmeticFilterBuilderImpl<CONFIG_TYPE>().setPropertyName(propertyName).setOperator(operator).setParameters(
-				parameters).build();
+		final IUiArithmeticFilterBuilder<CONFIG_TYPE> builder = arithmeticFilterBuilder();
+		builder.setPropertyName(propertyName).setOperator(operator).setParameters(parameters);
+		return builder.build();
 	}
 
 	@Override
@@ -77,17 +78,18 @@ final class UiFilterFactoryImpl implements IUiFilterFactory {
 		final String propertyName,
 		final ArithmeticOperator operator,
 		final Object parameter) {
-		// TODO MG,NM review (method call instead, generics)
-		return new UiArithmeticFilterBuilderImpl<CONFIG_TYPE>().setPropertyName(propertyName).setOperator(operator).setParameter(
-				parameter).build();
+		final IUiArithmeticFilterBuilder<CONFIG_TYPE> builder = arithmeticFilterBuilder();
+		builder.setPropertyName(propertyName).setOperator(operator).setParameter(parameter);
+		return builder.build();
 	}
 
 	@Override
 	public <CONFIG_TYPE> IUiArithmeticFilter<CONFIG_TYPE> arithmeticFilter(
 		final String propertyName,
 		final ArithmeticOperator operator) {
-		// TODO MG,NM review (method call instead, generics)
-		return new UiArithmeticFilterBuilderImpl<CONFIG_TYPE>().setPropertyName(propertyName).setOperator(operator).build();
+		final IUiArithmeticFilterBuilder<CONFIG_TYPE> builder = arithmeticFilterBuilder();
+		builder.setPropertyName(propertyName).setOperator(operator);
+		return builder.build();
 	}
 
 	@Override
@@ -100,9 +102,9 @@ final class UiFilterFactoryImpl implements IUiFilterFactory {
 		final String leftPropertyName,
 		final ArithmeticOperator operator,
 		final String[] rightPropertyNames) {
-		// TODO MG,NM review (method call instead, generics)
-		return new UiArithmeticPropertyFilterBuilderImpl<CONFIG_TYPE>().setLeftHandPropertyName(leftPropertyName).setOperator(
-				operator).setRightHandPropertyNames(rightPropertyNames).build();
+		final IUiArithmeticPropertyFilterBuilder<CONFIG_TYPE> builder = arithmeticPropertyFilterBuilder();
+		builder.setLeftHandPropertyName(leftPropertyName).setOperator(operator).setRightHandPropertyNames(rightPropertyNames);
+		return builder.build();
 	}
 
 	@Override
@@ -110,9 +112,9 @@ final class UiFilterFactoryImpl implements IUiFilterFactory {
 		final String leftPropertyName,
 		final ArithmeticOperator operator,
 		final String rightPropertyName) {
-		// TODO MG,NM review (method call instead, generics)
-		return new UiArithmeticPropertyFilterBuilderImpl<CONFIG_TYPE>().setLeftHandPropertyName(leftPropertyName).setOperator(
-				operator).setRightHandPropertyName(rightPropertyName).build();
+		final IUiArithmeticPropertyFilterBuilder<CONFIG_TYPE> builder = arithmeticPropertyFilterBuilder();
+		builder.setLeftHandPropertyName(leftPropertyName).setOperator(operator).setRightHandPropertyName(rightPropertyName);
+		return builder.build();
 	}
 
 	@Override
@@ -139,6 +141,14 @@ final class UiFilterFactoryImpl implements IUiFilterFactory {
 					uiArithmeticPropertyFilter.getLeftHandPropertyName(),
 					uiArithmeticPropertyFilter.getOperator(),
 					uiArithmeticPropertyFilter.getRightHandPropertyNames());
+		}
+		else if (uiFilter instanceof IUiCustomFilter<?>) {
+			final IUiCustomFilter<?> uiCustomFilter = (IUiCustomFilter<?>) uiFilter;
+			return fab.customFilter(
+					uiCustomFilter.getFilterType(),
+					uiCustomFilter.getPropertyName(),
+					uiCustomFilter.getOperator(),
+					uiCustomFilter.getValue());
 		}
 		else {
 			throw new IllegalStateException("Cannot convert unkown filter class '" + uiFilter.getClass().getName() + "'.");

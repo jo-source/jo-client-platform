@@ -32,13 +32,12 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.jowidgets.cap.common.api.filter.ArithmeticOperator;
-import org.jowidgets.cap.common.impl.FilterBuilderImpl;
 import org.jowidgets.cap.ui.api.filter.IFilterType;
 import org.jowidgets.cap.ui.api.filter.IUiArithmeticPropertyFilter;
 import org.jowidgets.cap.ui.api.filter.IUiArithmeticPropertyFilterBuilder;
 
 final class UiArithmeticPropertyFilterBuilderImpl<CONFIG_TYPE> extends
-		FilterBuilderImpl<IUiArithmeticPropertyFilterBuilder<CONFIG_TYPE>> implements
+		UiFilterBuilderImpl<IUiArithmeticPropertyFilterBuilder<CONFIG_TYPE>> implements
 		IUiArithmeticPropertyFilterBuilder<CONFIG_TYPE> {
 
 	private CONFIG_TYPE config;
@@ -52,15 +51,15 @@ final class UiArithmeticPropertyFilterBuilderImpl<CONFIG_TYPE> extends
 	}
 
 	@Override
-	public void setConfig(final CONFIG_TYPE config) {
+	public IUiArithmeticPropertyFilterBuilder<CONFIG_TYPE> setConfig(final CONFIG_TYPE config) {
 		this.config = config;
-		// TODO MG,NM review: return this;
+		return this;
 	}
 
 	@Override
-	public void setType(final IFilterType filterType) {
+	public IUiArithmeticPropertyFilterBuilder<CONFIG_TYPE> setType(final IFilterType filterType) {
 		this.filterType = filterType;
-		// TODO MG,NM review: return this;
+		return this;
 	}
 
 	@Override
