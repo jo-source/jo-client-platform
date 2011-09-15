@@ -28,10 +28,19 @@
 
 package org.jowidgets.cap.ui.api.filter;
 
-public interface IUiConfigurableFilterBuilder<BUILDER_TYPE, CONFIG_TYPE> extends IUiFilterBuilder<BUILDER_TYPE> {
+import org.jowidgets.cap.common.api.filter.IOperator;
 
-	IUiConfigurableFilterBuilder<BUILDER_TYPE, CONFIG_TYPE> setConfig(final CONFIG_TYPE config);
+public interface IUiCustomFilterBuilder<CONFIG_TYPE> extends
+		IUiConfigurableFilterBuilder<IUiCustomFilterBuilder<CONFIG_TYPE>, CONFIG_TYPE> {
 
-	IUiConfigurableFilterBuilder<BUILDER_TYPE, CONFIG_TYPE> setType(IFilterType filterType);
+	IUiCustomFilterBuilder<CONFIG_TYPE> setFilterType(String filterType);
+
+	IUiCustomFilterBuilder<CONFIG_TYPE> setPropertyName(String propertyName);
+
+	IUiCustomFilterBuilder<CONFIG_TYPE> setOperator(IOperator operator);
+
+	IUiCustomFilterBuilder<CONFIG_TYPE> setValue(Object value);
+
+	IUiCustomFilter<CONFIG_TYPE> build();
 
 }

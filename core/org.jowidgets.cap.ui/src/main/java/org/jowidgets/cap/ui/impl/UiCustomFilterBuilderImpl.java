@@ -28,82 +28,62 @@
 
 package org.jowidgets.cap.ui.impl;
 
-import java.util.LinkedList;
-import java.util.List;
-
-import org.jowidgets.cap.common.api.filter.ArithmeticOperator;
+import org.jowidgets.cap.common.api.filter.IOperator;
+import org.jowidgets.cap.common.impl.FilterBuilderImpl;
 import org.jowidgets.cap.ui.api.filter.IFilterType;
-import org.jowidgets.cap.ui.api.filter.IUiArithmeticFilter;
-import org.jowidgets.cap.ui.api.filter.IUiArithmeticFilterBuilder;
+import org.jowidgets.cap.ui.api.filter.IUiConfigurableFilterBuilder;
+import org.jowidgets.cap.ui.api.filter.IUiCustomFilter;
+import org.jowidgets.cap.ui.api.filter.IUiCustomFilterBuilder;
 
-final class UiArithmeticFilterBuilderImpl<CONFIG_TYPE> extends UiFilterBuilderImpl<IUiArithmeticFilterBuilder<CONFIG_TYPE>> implements
-		IUiArithmeticFilterBuilder<CONFIG_TYPE> {
+final class UiCustomFilterBuilderImpl<CONFIG_TYPE> extends FilterBuilderImpl<IUiCustomFilterBuilder<CONFIG_TYPE>> implements
+		IUiCustomFilterBuilder<CONFIG_TYPE> {
 
-	private final List<Object> parameters;
-	private CONFIG_TYPE config;
-	private IFilterType filterType;
-	private ArithmeticOperator operator;
+	private String filterType;
 	private String propertyName;
-
-	UiArithmeticFilterBuilderImpl() {
-		parameters = new LinkedList<Object>();
-	}
+	private IOperator operator;
+	private Object value;
+	private CONFIG_TYPE config;
+	private IFilterType type;
 
 	@Override
-	public IUiArithmeticFilterBuilder<CONFIG_TYPE> setConfig(final CONFIG_TYPE config) {
+	public IUiConfigurableFilterBuilder<IUiCustomFilterBuilder<CONFIG_TYPE>, CONFIG_TYPE> setConfig(final CONFIG_TYPE config) {
 		this.config = config;
 		return this;
 	}
 
 	@Override
-	public IUiArithmeticFilterBuilder<CONFIG_TYPE> setType(final IFilterType filterType) {
+	public IUiConfigurableFilterBuilder<IUiCustomFilterBuilder<CONFIG_TYPE>, CONFIG_TYPE> setType(final IFilterType type) {
+		this.type = type;
+		return this;
+	}
+
+	@Override
+	public IUiCustomFilterBuilder<CONFIG_TYPE> setFilterType(final String filterType) {
 		this.filterType = filterType;
 		return this;
 	}
 
 	@Override
-	public IUiArithmeticFilterBuilder<CONFIG_TYPE> setPropertyName(final String propertyName) {
+	public IUiCustomFilterBuilder<CONFIG_TYPE> setPropertyName(final String propertyName) {
 		this.propertyName = propertyName;
 		return this;
 	}
 
 	@Override
-	public IUiArithmeticFilterBuilder<CONFIG_TYPE> setOperator(final ArithmeticOperator operator) {
+	public IUiCustomFilterBuilder<CONFIG_TYPE> setOperator(final IOperator operator) {
 		this.operator = operator;
 		return this;
 	}
 
 	@Override
-	public IUiArithmeticFilterBuilder<CONFIG_TYPE> addParameter(final Object parameter) {
-		this.parameters.add(parameter);
+	public IUiCustomFilterBuilder<CONFIG_TYPE> setValue(final Object value) {
+		this.value = value;
 		return this;
 	}
 
 	@Override
-	public IUiArithmeticFilterBuilder<CONFIG_TYPE> setParameter(final Object parameter) {
-		this.parameters.clear();
-		this.parameters.add(parameter);
-		return this;
-	}
-
-	@Override
-	public IUiArithmeticFilterBuilder<CONFIG_TYPE> setParameters(final Object[] parameters) {
-		this.parameters.clear();
-		for (final Object parameter : parameters) {
-			this.parameters.add(parameter);
-		}
-		return this;
-	}
-
-	@Override
-	public IUiArithmeticFilter<CONFIG_TYPE> build() {
-		return new UiArithmeticFilterImpl<CONFIG_TYPE>(
-			propertyName,
-			operator,
-			parameters.toArray(),
-			isInverted(),
-			config,
-			filterType);
+	public IUiCustomFilter<CONFIG_TYPE> build() {
+		return new UiCustomFilterImpl<CONFIG_TYPE>(filterType, propertyName, operator, value, isInverted(), config, type);
 	}
 
 }
