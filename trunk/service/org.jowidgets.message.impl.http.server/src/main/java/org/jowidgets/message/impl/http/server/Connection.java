@@ -28,6 +28,7 @@
 
 package org.jowidgets.message.impl.http.server;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
@@ -53,20 +54,34 @@ final class Connection implements IMessageChannel {
 		this.executor = executor;
 	}
 
-	<T> void onMessage(final Object msg, final IExecutionInterceptor<T> executionInterceptor) {
-		final T context = executionInterceptor.getExecutionContext();
+	void onMessage(final Object msg, final List<IExecutionInterceptor<Object>> executionInterceptors) {
+		final List<Object> contexts = new ArrayList<Object>(executionInterceptors.size());
+		for (final IExecutionInterceptor<Object> executionInterceptor : executionInterceptors) {
+			contexts.add(executionInterceptor.getExecutionContext());
+		}
 		executor.execute(new Runnable() {
 			@Override
 			public void run() {
-				executionInterceptor.beforeExecution(context);
-				try {
-					receiver.onMessage(msg, Connection.this);
-				}
-				finally {
-					executionInterceptor.afterExecution();
-				}
+				doRun(msg, executionInterceptors, contexts);
 			}
 		});
+	}
+
+	private void doRun(
+		final Object msg,
+		final List<IExecutionInterceptor<Object>> executionInterceptors,
+		final List<Object> contexts) {
+		if (executionInterceptors.isEmpty()) {
+			receiver.onMessage(msg, this);
+			return;
+		}
+		executionInterceptors.get(0).beforeExecution(contexts.get(0));
+		try {
+			doRun(msg, executionInterceptors.subList(1, executionInterceptors.size()), contexts.subList(1, contexts.size()));
+		}
+		finally {
+			executionInterceptors.get(0).afterExecution();
+		}
 	}
 
 	List<Object> pollMessages(final long pollInterval) {
