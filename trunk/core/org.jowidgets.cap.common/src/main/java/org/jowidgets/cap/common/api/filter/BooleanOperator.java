@@ -30,9 +30,8 @@ package org.jowidgets.cap.common.api.filter;
 
 public enum BooleanOperator implements IOperator {
 
-	// TODO NM set Strings
-	AND("", "", ""),
-	OR("", "", "");
+	AND("and", "And", null),
+	OR("or", "Or", null);
 
 	private final String label;
 	private final String labelLong;

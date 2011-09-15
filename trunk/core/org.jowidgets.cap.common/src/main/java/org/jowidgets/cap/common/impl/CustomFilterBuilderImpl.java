@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2011, Nikolaus Moll
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,38 +26,46 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.api.filter;
+package org.jowidgets.cap.common.impl;
 
-import java.util.List;
+import org.jowidgets.cap.common.api.filter.ICustomFilter;
+import org.jowidgets.cap.common.api.filter.ICustomFilterBuilder;
+import org.jowidgets.cap.common.api.filter.IOperator;
 
-public interface IFilterFactory {
+final class CustomFilterBuilderImpl extends FilterBuilderImpl<ICustomFilterBuilder> implements ICustomFilterBuilder {
 
-	IBooleanFilterBuilder booleanFilterBuilder();
+	private String filterType;
+	private String propertyName;
+	private IOperator operator;
+	private Object value;
 
-	IBooleanFilter booleanFilter(BooleanOperator operator, List<? extends IFilter> filters);
+	@Override
+	public ICustomFilterBuilder setFilterType(final String filterType) {
+		this.filterType = filterType;
+		return this;
+	}
 
-	IArithmeticFilterBuilder arithmeticFilterBuilder();
+	@Override
+	public ICustomFilterBuilder setPropertyName(final String propertyName) {
+		this.propertyName = propertyName;
+		return this;
+	}
 
-	IArithmeticFilter arithmeticFilter(String propertyName, ArithmeticOperator operator, Object[] parameters);
+	@Override
+	public ICustomFilterBuilder setOperator(final IOperator operator) {
+		this.operator = operator;
+		return this;
+	}
 
-	IArithmeticFilter arithmeticFilter(String propertyName, ArithmeticOperator operator, Object parameter);
+	@Override
+	public ICustomFilterBuilder setValue(final Object value) {
+		this.value = value;
+		return this;
+	}
 
-	IArithmeticFilter arithmeticFilter(String propertyName, ArithmeticOperator operator);
-
-	IArithmeticPropertyFilterBuilder arithmeticPropertyFilterBuilder();
-
-	IArithmeticPropertyFilter arithmeticPropertyFilter(
-		String leftPropertyName,
-		ArithmeticOperator operator,
-		String[] rightPropertyNames);
-
-	IArithmeticPropertyFilter arithmeticPropertyFilter(
-		String leftPropertyName,
-		ArithmeticOperator operator,
-		String rightPropertyName);
-
-	ICustomFilterBuilder customFilterBuilder();
-
-	ICustomFilter customFilter(String filterType, String propertyName, IOperator operator, Object value);
+	@Override
+	public ICustomFilter build() {
+		return new CustomFilterImpl(filterType, propertyName, operator, value, isInverted());
+	}
 
 }
