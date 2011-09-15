@@ -33,6 +33,7 @@ import java.util.List;
 import org.jowidgets.cap.common.api.filter.ArithmeticOperator;
 import org.jowidgets.cap.common.api.filter.BooleanOperator;
 import org.jowidgets.cap.common.api.filter.IFilter;
+import org.jowidgets.cap.common.api.filter.IOperator;
 
 public interface IUiFilterFactory {
 
@@ -65,6 +66,14 @@ public interface IUiFilterFactory {
 		String leftPropertyName,
 		ArithmeticOperator operator,
 		String rightPropertyName);
+
+	<CONFIG_TYPE> IUiCustomFilterBuilder<CONFIG_TYPE> customFilterBuilder();
+
+	<CONFIG_TYPE> IUiCustomFilter<CONFIG_TYPE> customFilter(
+		String filterType,
+		String propertyName,
+		IOperator operator,
+		Object value);
 
 	IFilter convert(IUiFilter uiFilter);
 
