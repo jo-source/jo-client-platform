@@ -729,9 +729,7 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 
 			if (getHeaderFormat() != null) {
 				String format = getHeaderFormatConfig(attributeConfig);
-				if ((format != null)
-					&& (!getHeaderFormat().getElements().contains(format))
-					&& (format.equals(DisplayFormat.DEFAULT.getName()))) {
+				if ((format != null) && (!getHeaderFormat().getElements().contains(format))) {
 					format = DisplayFormat.SHORT.getName();
 
 				}
@@ -756,9 +754,6 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 				return null;
 			}
 			else {
-				if (format.equals(DisplayFormat.DEFAULT)) {
-					return DisplayFormat.SHORT.getName();
-				}
 				return format.getName();
 			}
 		}
@@ -2081,15 +2076,12 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 		if (DisplayFormat.SHORT.getName().equals(displayFormatName)) {
 			return DisplayFormat.SHORT;
 		}
-		else if (DisplayFormat.LONG.getName().equals(displayFormatName)) {
-			return DisplayFormat.LONG;
-		}
 		else {
-			return DisplayFormat.DEFAULT;
+			return DisplayFormat.LONG;
 		}
 	}
 
-	private static IDisplayFormat getDisplayFormatId(final String displayFormatName, final IAttribute<?> attribute) {
+	private static IDisplayFormat getDisplayFormat(final String displayFormatName, final IAttribute<?> attribute) {
 		for (final IControlPanelProvider<?> provider : attribute.getControlPanels()) {
 			if (provider.getDisplayFormat().getName().equals(displayFormatName)) {
 				return provider.getDisplayFormat();
@@ -2121,7 +2113,7 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 			final boolean visible = attributeComposite.getVisible().getValue();
 			final DisplayFormat labelDisplayFormat = (attributeComposite.getHeaderFormat() != null)
 					? getHeaderDisplayFormat(attributeComposite.getHeaderFormat().getValue()) : null;
-			final IDisplayFormat displayFormat = (attributeComposite.getContentFormat() != null) ? getDisplayFormatId(
+			final IDisplayFormat displayFormat = (attributeComposite.getContentFormat() != null) ? getDisplayFormat(
 					attributeComposite.getContentFormat().getValue(),
 					attributeComposite.getData()) : null;
 			final AlignmentHorizontal tableAlignment = getTableAlignment(attributeComposite.getColumnAlignment().getValue());

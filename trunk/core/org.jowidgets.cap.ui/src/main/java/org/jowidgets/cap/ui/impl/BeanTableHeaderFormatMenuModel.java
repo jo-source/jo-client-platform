@@ -44,8 +44,7 @@ final class BeanTableHeaderFormatMenuModel extends MenuModel {
 		final IRadioItemModel shortRadioItem = addRadioItem(DisplayFormat.SHORT.getName());
 		final IRadioItemModel longRadioItem = addRadioItem(DisplayFormat.LONG.getName());
 		final IAttribute<?> attribute = model.getAttribute(columnIndex);
-		if (attribute.getLabelDisplayFormat() == DisplayFormat.SHORT
-			|| attribute.getLabelDisplayFormat() == DisplayFormat.DEFAULT) {
+		if (attribute.getLabelDisplayFormat() == DisplayFormat.SHORT) {
 			shortRadioItem.setSelected(true);
 		}
 		else {
