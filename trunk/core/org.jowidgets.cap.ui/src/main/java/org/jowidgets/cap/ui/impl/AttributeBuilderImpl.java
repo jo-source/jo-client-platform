@@ -286,7 +286,7 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 		return controlPanels;
 	}
 
-	private IDisplayFormat getDisplayFormatId(final List<IControlPanelProvider<? extends ELEMENT_VALUE_TYPE>> controlPanels) {
+	private IDisplayFormat getDisplayFormat(final List<IControlPanelProvider<? extends ELEMENT_VALUE_TYPE>> controlPanels) {
 		if (displayFormat == null) {
 			return controlPanels.get(0).getDisplayFormat();
 		}
@@ -319,6 +319,6 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 			valueType,
 			elementValueType,
 			panels,
-			getDisplayFormatId(panels));
+			getDisplayFormat(panels));
 	}
 }
