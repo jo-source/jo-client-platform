@@ -40,6 +40,8 @@ import org.jowidgets.cap.ui.api.bean.IBeanMessageFixBuilder;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeansStateTracker;
 import org.jowidgets.cap.ui.api.command.ICapActionFactory;
+import org.jowidgets.cap.ui.api.control.IDisplayFormatFactory;
+import org.jowidgets.cap.ui.api.control.IInputControlProviderRegistry;
 import org.jowidgets.cap.ui.api.execution.IExecutionTaskFactory;
 import org.jowidgets.cap.ui.api.filter.IFilterToolkit;
 import org.jowidgets.cap.ui.api.form.IBeanFormToolkit;
@@ -62,6 +64,8 @@ public final class DefaultCapUiToolkit implements ICapUiToolkit {
 	private IFilterToolkit filterToolkit;
 	private ICapWorkbenchToolkit workbenchToolkit;
 	private Validator beanValidator;
+	private IDisplayFormatFactory displayFormatFactory;
+	private IInputControlProviderRegistry inputControlRegistry;
 
 	@Override
 	public ICapApiBluePrintFactory bluePrintFactory() {
@@ -85,6 +89,22 @@ public final class DefaultCapUiToolkit implements ICapUiToolkit {
 			beanTableMenuFactory = new BeanTableMenuFactoryImpl();
 		}
 		return beanTableMenuFactory;
+	}
+
+	@Override
+	public IDisplayFormatFactory displayFormatFactory() {
+		if (displayFormatFactory == null) {
+			displayFormatFactory = new DisplayFormatFactoryImpl();
+		}
+		return displayFormatFactory;
+	}
+
+	@Override
+	public IInputControlProviderRegistry inputControlRegistry() {
+		if (inputControlRegistry == null) {
+			inputControlRegistry = new ControlProviderRegistryImpl();
+		}
+		return inputControlRegistry;
 	}
 
 	@Override

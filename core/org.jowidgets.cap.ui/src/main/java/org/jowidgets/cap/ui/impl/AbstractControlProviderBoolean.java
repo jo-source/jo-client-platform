@@ -26,27 +26,34 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.control;
-
-import java.util.Collection;
+package org.jowidgets.cap.ui.impl;
 
 import org.jowidgets.api.convert.IConverter;
 import org.jowidgets.api.widgets.IInputControl;
+import org.jowidgets.api.widgets.blueprint.IComboBoxSelectionBluePrint;
 import org.jowidgets.cap.common.api.bean.IValueRange;
 import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
+import org.jowidgets.common.widgets.factory.ICustomWidgetFactory;
 
-public interface IInputControlProvider<ELEMENT_VALUE_TYPE> {
+abstract class AbstractControlProviderBoolean extends ControlProviderDefault<Boolean> {
 
-	IDisplayFormat getDisplayFormat();
+	AbstractControlProviderBoolean() {
+		super(Boolean.class);
+	}
 
-	IConverter<ELEMENT_VALUE_TYPE> getConverter(IValueRange valueRange);
+	@Override
+	public ICustomWidgetCreator<IInputControl<Boolean>> getControlCreator(
+		final IConverter<Boolean> converter,
+		final IValueRange valueRange) {
+		return new ICustomWidgetCreator<IInputControl<Boolean>>() {
+			@Override
+			public IInputControl<Boolean> create(final ICustomWidgetFactory widgetFactory) {
+				final IComboBoxSelectionBluePrint<Boolean> cmbBp = getBpf().comboBoxSelection(converter);
+				cmbBp.setElements(null, Boolean.TRUE, Boolean.FALSE);
+				addValueRangeValidator(cmbBp, valueRange);
+				return widgetFactory.create(cmbBp);
+			}
+		};
+	}
 
-	ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> getControlCreator(
-		IConverter<ELEMENT_VALUE_TYPE> converter,
-		IValueRange valueRange);
-
-	ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> getCollectionControlCreator(
-		ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> elementControlCreator,
-		IConverter<ELEMENT_VALUE_TYPE> converter,
-		IValueRange valueRange);
 }

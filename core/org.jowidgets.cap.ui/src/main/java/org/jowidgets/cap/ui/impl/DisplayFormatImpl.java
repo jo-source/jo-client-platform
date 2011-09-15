@@ -39,7 +39,7 @@ final class DisplayFormatImpl implements IDisplayFormat {
 
 	DisplayFormatImpl(final Object id, final String name, final String decription) {
 		Assert.paramNotNull(id, "id");
-		Assert.paramNotNull(name, "name");
+		Assert.paramNotEmpty(name, "name");
 		this.id = id;
 		this.name = name;
 		this.decription = decription;

@@ -26,27 +26,37 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.control;
-
-import java.util.Collection;
+package org.jowidgets.cap.ui.impl;
 
 import org.jowidgets.api.convert.IConverter;
+import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.widgets.IInputControl;
+import org.jowidgets.api.widgets.blueprint.ICheckBoxBluePrint;
 import org.jowidgets.cap.common.api.bean.IValueRange;
+import org.jowidgets.cap.ui.tools.validation.ValueRangeValidator;
 import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
+import org.jowidgets.common.widgets.factory.ICustomWidgetFactory;
 
-public interface IInputControlProvider<ELEMENT_VALUE_TYPE> {
+final class ControlSupportBooleanPrimitive extends ControlProviderDefault<Boolean> {
 
-	IDisplayFormat getDisplayFormat();
+	ControlSupportBooleanPrimitive() {
+		super(boolean.class);
+	}
 
-	IConverter<ELEMENT_VALUE_TYPE> getConverter(IValueRange valueRange);
+	@Override
+	public ICustomWidgetCreator<IInputControl<Boolean>> getControlCreator(
+		final IConverter<Boolean> converter,
+		final IValueRange valueRange) {
+		return new ICustomWidgetCreator<IInputControl<Boolean>>() {
+			@Override
+			public IInputControl<Boolean> create(final ICustomWidgetFactory widgetFactory) {
+				final ICheckBoxBluePrint checkBoxBp = Toolkit.getBluePrintFactory().checkBox();
+				if (!valueRange.isOpen()) {
+					checkBoxBp.setValidator(new ValueRangeValidator<Boolean>(valueRange));
+				}
+				return widgetFactory.create(checkBoxBp);
+			}
+		};
+	}
 
-	ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> getControlCreator(
-		IConverter<ELEMENT_VALUE_TYPE> converter,
-		IValueRange valueRange);
-
-	ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> getCollectionControlCreator(
-		ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> elementControlCreator,
-		IConverter<ELEMENT_VALUE_TYPE> converter,
-		IValueRange valueRange);
 }
