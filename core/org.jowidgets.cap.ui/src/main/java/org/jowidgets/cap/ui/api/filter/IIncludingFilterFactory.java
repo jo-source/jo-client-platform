@@ -26,24 +26,10 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.impl;
+package org.jowidgets.cap.ui.api.filter;
 
-import org.jowidgets.api.convert.IConverter;
-import org.jowidgets.api.toolkit.Toolkit;
-import org.jowidgets.cap.common.api.bean.IValueRange;
-import org.jowidgets.cap.ui.api.control.DisplayFormat;
-import org.jowidgets.cap.ui.api.control.IDisplayFormat;
+public interface IIncludingFilterFactory<VALUE_TYPE> {
 
-final class ControlProviderBooleanShort extends AbstractControlProviderBoolean {
-
-	@Override
-	public IDisplayFormat getDisplayFormat() {
-		return DisplayFormat.SHORT;
-	}
-
-	@Override
-	public IConverter<Boolean> getConverter(final IValueRange valueRange) {
-		return Toolkit.getConverterProvider().boolYesNoShort();
-	}
+	IUiConfigurableFilter<?> getIncludingFilter(VALUE_TYPE attributeValue);
 
 }

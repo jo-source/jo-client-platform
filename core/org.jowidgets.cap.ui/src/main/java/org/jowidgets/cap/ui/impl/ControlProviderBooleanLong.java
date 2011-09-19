@@ -34,11 +34,7 @@ import org.jowidgets.cap.common.api.bean.IValueRange;
 import org.jowidgets.cap.ui.api.control.DisplayFormat;
 import org.jowidgets.cap.ui.api.control.IDisplayFormat;
 
-final class ControlProviderBooleanLong extends ControlProviderDefault<Boolean> {
-
-	ControlProviderBooleanLong() {
-		super(Boolean.class);
-	}
+final class ControlProviderBooleanLong extends AbstractControlProviderBoolean {
 
 	@Override
 	public IDisplayFormat getDisplayFormat() {

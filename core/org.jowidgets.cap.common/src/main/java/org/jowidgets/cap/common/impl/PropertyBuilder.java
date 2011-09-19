@@ -168,7 +168,7 @@ final class PropertyBuilder implements IPropertyBuilder {
 		if (elementValueType != null) {
 			return elementValueType;
 		}
-		else if (!Collection.class.isAssignableFrom(valueType)) {
+		else if (valueType != null && !Collection.class.isAssignableFrom(valueType)) {
 			return valueType;
 		}
 		else {

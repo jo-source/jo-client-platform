@@ -57,7 +57,6 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 
 	private final IValueRange valueRange;
 
-	@SuppressWarnings("unused")
 	private Class<?> valueType;
 	private Class<? extends ELEMENT_VALUE_TYPE> elementValueType;
 
@@ -272,7 +271,11 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 
 	private IFilterSupport<?> getFilterSupport() {
 		if (filterSupport == null) {
-			filterSupport = CapUiToolkit.filterToolkit().filterSupport(elementValueType);
+			filterSupport = CapUiToolkit.filterToolkit().filterSupport(
+					valueType,
+					elementValueType,
+					getControlCreator(),
+					getCollectionControlCreator());
 		}
 		return filterSupport;
 	}

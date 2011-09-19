@@ -32,42 +32,45 @@ import java.util.Collection;
 
 import org.jowidgets.api.widgets.IInputControl;
 import org.jowidgets.cap.common.api.filter.ArithmeticOperator;
+import org.jowidgets.cap.ui.api.attribute.IAttributeFilter;
 import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
 
 public interface IFilterToolkit {
 
 	IUiFilterFactory filterFactory();
 
-	/**
-	 * Gets the default arithmetic operator provider for a specific type or null
-	 * if no default is defined for the given type
-	 * 
-	 * @param type The type to get the operator provider for
-	 * 
-	 * @return The operator provider for the type or null,
-	 *         if no default is defined for the type
-	 */
-	IOperatorProvider<ArithmeticOperator> arithmeticOperatorProvider(Class<?> type);
+	IOperatorProvider<ArithmeticOperator> arithmeticOperatorProvider(Class<?> type, Class<?> elementValueType);
 
-	IFilterSupport<?> filterSupport(Class<?> type);
+	IOperatorProvider<ArithmeticOperator> arithmeticPropertyOperatorProvider(Class<?> type, Class<?> elementValueType);
 
-	IFilterSupport<?> filterSupport(
-		final IOperatorProvider<ArithmeticOperator> operatorProvider,
-		final ICustomWidgetCreator<IInputControl<?>> controlCreator);
+	IAttributeFilter arithmeticPropertyAttributeFilter(Class<?> type, Class<?> elementValueType);
+
+	<VALUE_TYPE> IIncludingFilterFactory<VALUE_TYPE> includingFilterFactory(
+		Class<? extends VALUE_TYPE> type,
+		Class<?> elementValueType);
 
 	<ELEMENT_VALUE_TYPE> IFilterSupport<?> filterSupport(
-		final IOperatorProvider<ArithmeticOperator> operatorProvider,
-		final ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> controlCreator,
-		final ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> collectionControlCreator);
+		Class<?> type,
+		Class<?> elementValueType,
+		ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> controlCreator,
+		ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> collectionControlCreator);
 
-	IFilterPanelProvider<ArithmeticOperator> arithmeticFilterPanel(Class<?> type);
-
-	IFilterPanelProvider<ArithmeticOperator> arithmeticFilterPanel(
-		IOperatorProvider<ArithmeticOperator> operatorProvider,
-		ICustomWidgetCreator<IInputControl<?>> controlCreator);
+	<ELEMENT_VALUE_TYPE, VALUE_TYPE> IFilterSupport<?> filterSupport(
+		IOperatorProvider<ArithmeticOperator> arithmeticOperatorProvider,
+		IOperatorProvider<ArithmeticOperator> arithmeticPropertyOperatorProvider,
+		IAttributeFilter attributeFilter,
+		IIncludingFilterFactory<VALUE_TYPE> includingFilterFactory,
+		ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> controlCreator,
+		ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> collectionControlCreator);
 
 	<ELEMENT_VALUE_TYPE> IFilterPanelProvider<ArithmeticOperator> arithmeticFilterPanel(
 		IOperatorProvider<ArithmeticOperator> operatorProvider,
+		ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> controlCreator,
+		ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> collectionControlCreator);
+
+	<ELEMENT_VALUE_TYPE> IFilterPanelProvider<ArithmeticOperator> arithmeticPropertyFilterPanel(
+		IOperatorProvider<ArithmeticOperator> arithmeticPropertyOperatorProvider,
+		IAttributeFilter attributeFilter,
 		ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> controlCreator,
 		ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> collectionControlCreator);
 
