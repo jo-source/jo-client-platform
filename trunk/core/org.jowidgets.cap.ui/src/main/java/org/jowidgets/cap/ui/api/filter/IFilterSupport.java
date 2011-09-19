@@ -34,6 +34,6 @@ public interface IFilterSupport<VALUE_TYPE> {
 
 	List<IFilterPanelProvider<?>> getFilterPanels();
 
-	IUiConfigurableFilter<?> getIncludingFilter(VALUE_TYPE attributeValue);
+	IIncludingFilterFactory<VALUE_TYPE> getIncludingFilterFactory();
 
 }
