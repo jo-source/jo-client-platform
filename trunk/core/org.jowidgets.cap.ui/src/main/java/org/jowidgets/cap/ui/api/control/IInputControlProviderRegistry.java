@@ -28,10 +28,11 @@
 
 package org.jowidgets.cap.ui.api.control;
 
-
 public interface IInputControlProviderRegistry {
 
 	<ELEMENT_VALUE_TYPE> IInputControlSupport<ELEMENT_VALUE_TYPE> getControls(Class<? extends ELEMENT_VALUE_TYPE> type);
+
+	<ELEMENT_VALUE_TYPE> IInputControlProvider<ELEMENT_VALUE_TYPE> getDefaultControl(Class<? extends ELEMENT_VALUE_TYPE> type);
 
 	<ELEMENT_VALUE_TYPE> void setControls(
 		final Class<? extends ELEMENT_VALUE_TYPE> type,

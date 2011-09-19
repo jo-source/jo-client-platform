@@ -32,6 +32,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jowidgets.api.toolkit.Toolkit;
+import org.jowidgets.cap.ui.api.control.IDisplayFormat;
+import org.jowidgets.cap.ui.api.control.IInputControlProvider;
 import org.jowidgets.cap.ui.api.control.IInputControlProviderRegistry;
 import org.jowidgets.cap.ui.api.control.IInputControlSupport;
 import org.jowidgets.util.Assert;
@@ -47,13 +50,16 @@ final class ControlProviderRegistryImpl implements IInputControlProviderRegistry
 		map.put(boolean.class, new ControlSupportBooleanPrimitive());
 		map.put(Boolean.class, new ControlSupportBoolean());
 
-		map.put(Date.class, new ControlProviderDefault<Date>(Date.class));
+		map.put(Date.class, new ControlSupportDate());
 
 		//some default provider
 		map.put(String.class, new ControlProviderDefault<String>(String.class));
 		map.put(Long.class, new ControlProviderDefault<Long>(Long.class));
+		map.put(Long.class, new ControlProviderDefault<Long>(long.class));
 		map.put(Integer.class, new ControlProviderDefault<Integer>(Integer.class));
+		map.put(Integer.class, new ControlProviderDefault<Integer>(int.class));
 		map.put(Short.class, new ControlProviderDefault<Short>(Short.class));
+		map.put(Short.class, new ControlProviderDefault<Short>(short.class));
 
 	}
 
@@ -61,7 +67,32 @@ final class ControlProviderRegistryImpl implements IInputControlProviderRegistry
 	public <ELEMENT_VALUE_TYPE> IInputControlSupport<ELEMENT_VALUE_TYPE> getControls(
 		final Class<? extends ELEMENT_VALUE_TYPE> type) {
 		Assert.paramNotNull(type, "type");
-		return map.get(type);
+		IInputControlSupport result = map.get(type);
+		if (result == null && Toolkit.getConverterProvider().getConverter(type) != null) {
+			result = new ControlProviderDefault<ELEMENT_VALUE_TYPE>(type);
+		}
+		return result;
+	}
+
+	@Override
+	public <ELEMENT_VALUE_TYPE> IInputControlProvider<ELEMENT_VALUE_TYPE> getDefaultControl(
+		final Class<? extends ELEMENT_VALUE_TYPE> type) {
+		Assert.paramNotNull(type, "type");
+		final IInputControlSupport<ELEMENT_VALUE_TYPE> controls = getControls(type);
+		if (controls != null) {
+			final IDisplayFormat defaultDisplayFormat = controls.getDefaultDisplayFormat();
+			if (defaultDisplayFormat != null && defaultDisplayFormat.getId() != null) {
+				for (final IInputControlProvider<ELEMENT_VALUE_TYPE> controlProvider : controls.getControls()) {
+					if (defaultDisplayFormat.getId().equals(controlProvider.getDisplayFormat().getId())) {
+						return controlProvider;
+					}
+				}
+			}
+			else if (controls.getControls().size() > 0) {
+				return controls.getControls().get(0);
+			}
+		}
+		return null;
 	}
 
 	@Override

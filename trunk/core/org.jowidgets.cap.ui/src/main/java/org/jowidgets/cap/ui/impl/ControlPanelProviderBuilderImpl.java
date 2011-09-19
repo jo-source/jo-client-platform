@@ -29,7 +29,6 @@
 package org.jowidgets.cap.ui.impl;
 
 import java.util.Collection;
-import java.util.List;
 
 import org.jowidgets.api.convert.IConverter;
 import org.jowidgets.api.convert.IConverterProvider;
@@ -38,23 +37,15 @@ import org.jowidgets.api.convert.IObjectStringConverter;
 import org.jowidgets.api.convert.IStringObjectConverter;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.widgets.IInputControl;
-import org.jowidgets.api.widgets.blueprint.ICheckBoxBluePrint;
-import org.jowidgets.api.widgets.blueprint.ICollectionInputFieldBluePrint;
-import org.jowidgets.api.widgets.blueprint.IComboBoxBluePrint;
-import org.jowidgets.api.widgets.blueprint.IComboBoxSelectionBluePrint;
-import org.jowidgets.api.widgets.blueprint.IInputFieldBluePrint;
-import org.jowidgets.api.widgets.blueprint.builder.IInputComponentSetupBuilder;
-import org.jowidgets.api.widgets.blueprint.factory.IBluePrintFactory;
 import org.jowidgets.cap.common.api.bean.IValueRange;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IControlPanelProvider;
 import org.jowidgets.cap.ui.api.attribute.IControlPanelProviderBuilder;
 import org.jowidgets.cap.ui.api.control.DisplayFormat;
 import org.jowidgets.cap.ui.api.control.IDisplayFormat;
+import org.jowidgets.cap.ui.api.control.IInputControlProvider;
 import org.jowidgets.cap.ui.api.filter.IFilterSupport;
-import org.jowidgets.cap.ui.tools.validation.ValueRangeValidator;
 import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
-import org.jowidgets.common.widgets.factory.ICustomWidgetFactory;
 import org.jowidgets.tools.converter.AbstractObjectLabelConverter;
 import org.jowidgets.tools.converter.Converter;
 import org.jowidgets.util.Assert;
@@ -230,110 +221,53 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 		return stringObjectConverter;
 	}
 
-	@SuppressWarnings({"rawtypes", "unchecked"})
 	private ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> getControlCreator() {
 		if (controlCreator == null) {
-			final IBluePrintFactory bpf = Toolkit.getBluePrintFactory();
-			final IObjectLabelConverter<ELEMENT_VALUE_TYPE> objectLabelConv = getObjectLabelConverter();
-			final IStringObjectConverter<ELEMENT_VALUE_TYPE> stringObjectConv = getStringObjectConverter();
 
-			if (elementValueType.equals(boolean.class)) {
-				controlCreator = new ICustomWidgetCreator() {
-					@Override
-					public IInputControl create(final ICustomWidgetFactory widgetFactory) {
-						final ICheckBoxBluePrint checkBoxBp = bpf.checkBox();
-						addValueRangeValidator(checkBoxBp);
-						return widgetFactory.create(checkBoxBp);
-					}
-				};
-			}
-			else if (elementValueType.equals(Boolean.class)) {
-				controlCreator = new ICustomWidgetCreator() {
-					@Override
-					public IInputControl create(final ICustomWidgetFactory widgetFactory) {
-						final IComboBoxSelectionBluePrint<Boolean> cmbBp = bpf.comboBoxSelection(Toolkit.getConverterProvider().boolYesNoLong());
-						cmbBp.setElements(null, Boolean.TRUE, Boolean.FALSE);
-						addValueRangeValidator(cmbBp);
-						return widgetFactory.create(cmbBp);
-					}
-				};
-			}
-			else if (objectLabelConv != null && stringObjectConv != null) {
-				if (valueRange.getValues().isEmpty()) {
-					controlCreator = new ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>>() {
-						@Override
-						public IInputControl<ELEMENT_VALUE_TYPE> create(final ICustomWidgetFactory widgetFactory) {
-							final IConverter<ELEMENT_VALUE_TYPE> converter = new Converter<ELEMENT_VALUE_TYPE>(
-								objectLabelConv,
-								stringObjectConv);
-							final IInputFieldBluePrint<ELEMENT_VALUE_TYPE> inputFieldBp = bpf.inputField(converter);
-							addValueRangeValidator(inputFieldBp);
-							return widgetFactory.create(inputFieldBp);
-						}
-					};
-				}
-				else {
-					controlCreator = new ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>>() {
-						@Override
-						public IInputControl<ELEMENT_VALUE_TYPE> create(final ICustomWidgetFactory widgetFactory) {
-							final IConverter<ELEMENT_VALUE_TYPE> converter = new Converter<ELEMENT_VALUE_TYPE>(
-								objectLabelConv,
-								stringObjectConv);
-							if (valueRange.isOpen()) {
-								final IComboBoxBluePrint<ELEMENT_VALUE_TYPE> comboBp = bpf.comboBox(converter);
-								addValueRangeValidator(comboBp);
-								comboBp.setElements((List<ELEMENT_VALUE_TYPE>) valueRange.getValues());
-								return widgetFactory.create(comboBp);
-							}
-							else {
-								final IComboBoxSelectionBluePrint<ELEMENT_VALUE_TYPE> comboBp = bpf.comboBoxSelection(converter);
-								addValueRangeValidator(comboBp);
-								comboBp.setElements((List<ELEMENT_VALUE_TYPE>) valueRange.getValues());
-								comboBp.setLenient(true);
-								return widgetFactory.create(comboBp);
-							}
-						}
-					};
-				}
+			final IInputControlProvider<ELEMENT_VALUE_TYPE> defaultControl = CapUiToolkit.inputControlRegistry().getDefaultControl(
+					elementValueType);
+
+			if (defaultControl != null) {
+				controlCreator = defaultControl.getControlCreator(getConverter(defaultControl), valueRange);
 			}
 		}
 		return controlCreator;
 	}
 
-	@SuppressWarnings({"unchecked", "rawtypes"})
-	private void addValueRangeValidator(final IInputComponentSetupBuilder setupBuilder) {
-		if (!valueRange.isOpen()) {
-			setupBuilder.setValidator(new ValueRangeValidator(valueRange));
+	private ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> getCollectionControlCreator() {
+		if (collectionControlCreator == null) {
+
+			final IInputControlProvider<ELEMENT_VALUE_TYPE> defaultControl = CapUiToolkit.inputControlRegistry().getDefaultControl(
+					elementValueType);
+
+			if (defaultControl != null) {
+				collectionControlCreator = defaultControl.getCollectionControlCreator(
+						getControlCreator(defaultControl),
+						getConverter(defaultControl),
+						valueRange);
+			}
+
+		}
+		return collectionControlCreator;
+	}
+
+	private IConverter<ELEMENT_VALUE_TYPE> getConverter(final IInputControlProvider<ELEMENT_VALUE_TYPE> defaultControl) {
+		if (objectLabelConverter == null && stringObjectConverter == null) {
+			return defaultControl.getConverter(valueRange);
+		}
+		else {
+			return new Converter<ELEMENT_VALUE_TYPE>(getObjectLabelConverter(), getStringObjectConverter());
 		}
 	}
 
-	private ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> getCollectionControlCreator() {
-		if (collectionControlCreator == null) {
-			final IObjectLabelConverter<ELEMENT_VALUE_TYPE> objectLabelConv = getObjectLabelConverter();
-			final IStringObjectConverter<ELEMENT_VALUE_TYPE> stringObjectConv = getStringObjectConverter();
-			if (objectLabelConv != null && stringObjectConv != null) {
-				final IConverter<ELEMENT_VALUE_TYPE> converter = new Converter<ELEMENT_VALUE_TYPE>(
-					objectLabelConv,
-					stringObjectConv);
-
-				final IBluePrintFactory bpf = Toolkit.getBluePrintFactory();
-				collectionControlCreator = new ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>>() {
-					@Override
-					public IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>> create(final ICustomWidgetFactory widgetFactory) {
-						final ICollectionInputFieldBluePrint<ELEMENT_VALUE_TYPE> inputFieldBp = bpf.collectionInputField(converter);
-						if (!valueRange.isOpen()) {
-							inputFieldBp.setElementValidator(new ValueRangeValidator<ELEMENT_VALUE_TYPE>(valueRange));
-						}
-						final ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> elementControlCreator = getControlCreator();
-						if (elementControlCreator != null) {
-							inputFieldBp.setCollectionInputDialogSetup(bpf.collectionInputDialog(elementControlCreator));
-						}
-						return widgetFactory.create(inputFieldBp);
-					}
-				};
-			}
+	private ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> getControlCreator(
+		final IInputControlProvider<ELEMENT_VALUE_TYPE> defaultControl) {
+		if (controlCreator == null) {
+			return defaultControl.getControlCreator(getConverter(defaultControl), valueRange);
 		}
-		return collectionControlCreator;
+		else {
+			return controlCreator;
+		}
 	}
 
 	private IFilterSupport<?> getFilterSupport() {

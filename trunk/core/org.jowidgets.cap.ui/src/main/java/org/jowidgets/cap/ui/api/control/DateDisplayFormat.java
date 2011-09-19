@@ -33,7 +33,7 @@ public enum DateDisplayFormat implements IDisplayFormat {
 	//TODO i18n
 	DATE("Date", "Displays the date without time"),
 	TIME("Time", "Displays the time without date"),
-	DATE_TIME("Datetime", "Displays the date and the time");
+	DATE_TIME("Date and time", "Displays the date and the time");
 
 	private String name;
 	private String description;

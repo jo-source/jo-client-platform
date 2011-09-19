@@ -29,10 +29,11 @@
 package org.jowidgets.cap.ui.impl;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.jowidgets.api.convert.IConverter;
+import org.jowidgets.api.widgets.IInputControl;
 import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.bean.IProperty;
 import org.jowidgets.cap.common.api.bean.IValueRange;
@@ -42,9 +43,13 @@ import org.jowidgets.cap.ui.api.attribute.IAttributeBluePrint;
 import org.jowidgets.cap.ui.api.attribute.IAttributeBuilder;
 import org.jowidgets.cap.ui.api.attribute.IAttributeGroup;
 import org.jowidgets.cap.ui.api.attribute.IControlPanelProvider;
+import org.jowidgets.cap.ui.api.attribute.IControlPanelProviderBuilder;
 import org.jowidgets.cap.ui.api.control.DisplayFormat;
 import org.jowidgets.cap.ui.api.control.IDisplayFormat;
+import org.jowidgets.cap.ui.api.control.IInputControlProvider;
+import org.jowidgets.cap.ui.api.control.IInputControlSupport;
 import org.jowidgets.common.types.AlignmentHorizontal;
+import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
 import org.jowidgets.util.Assert;
 
 final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilder<ELEMENT_VALUE_TYPE> {
@@ -268,22 +273,49 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 		return this;
 	}
 
-	@SuppressWarnings("rawtypes")
+	@SuppressWarnings({"rawtypes", "unchecked"})
 	private List getControlPanels() {
 		if (controlPanels.isEmpty()) {
-			if (Collection.class.isAssignableFrom(valueType)) {
-				return Collections.singletonList(CapUiToolkit.attributeToolkit().createControlPanelProvider(
-						valueType,
-						elementValueType,
-						valueRange));
+			final IInputControlSupport<ELEMENT_VALUE_TYPE> controlSupport = CapUiToolkit.inputControlRegistry().getControls(
+					elementValueType);
+
+			if (controlSupport != null) {
+				for (final IInputControlProvider<ELEMENT_VALUE_TYPE> controlProvider : controlSupport.getControls()) {
+					final IConverter<ELEMENT_VALUE_TYPE> converter = controlProvider.getConverter(valueRange);
+					final ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> elementControlCreator = controlProvider.getControlCreator(
+							converter,
+							valueRange);
+					final ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> collectionControlCreator = controlProvider.getCollectionControlCreator(
+							elementControlCreator,
+							converter,
+							valueRange);
+					final IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> builder = createControlPanelProviderBuilder();
+					builder.setDisplayFormat(controlProvider.getDisplayFormat());
+					builder.setConverter(converter);
+					builder.setControlCreator(elementControlCreator);
+					builder.setCollectionControlCreator(collectionControlCreator);
+
+					controlPanels.add(builder.build());
+				}
+
+				if (displayFormat == null) {
+					displayFormat = controlSupport.getDefaultDisplayFormat();
+				}
 			}
 			else {
-				return Collections.singletonList(CapUiToolkit.attributeToolkit().createControlPanelProvider(
-						elementValueType,
-						valueRange));
+				controlPanels.add(createControlPanelProviderBuilder().build());
 			}
 		}
 		return controlPanels;
+	}
+
+	private IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> createControlPanelProviderBuilder() {
+		if (Collection.class.isAssignableFrom(valueType)) {
+			return CapUiToolkit.attributeToolkit().createControlPanelProviderBuilder(valueType, elementValueType, valueRange);
+		}
+		else {
+			return CapUiToolkit.attributeToolkit().createControlPanelProviderBuilder(elementValueType, valueRange);
+		}
 	}
 
 	private IDisplayFormat getDisplayFormat(final List<IControlPanelProvider<? extends ELEMENT_VALUE_TYPE>> controlPanels) {
