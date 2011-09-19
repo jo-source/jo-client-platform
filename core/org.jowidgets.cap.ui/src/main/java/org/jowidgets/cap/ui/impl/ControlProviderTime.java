@@ -28,72 +28,28 @@
 
 package org.jowidgets.cap.ui.impl;
 
+import java.util.Date;
+
+import org.jowidgets.api.convert.IConverter;
+import org.jowidgets.api.toolkit.Toolkit;
+import org.jowidgets.cap.common.api.bean.IValueRange;
+import org.jowidgets.cap.ui.api.control.DateDisplayFormat;
 import org.jowidgets.cap.ui.api.control.IDisplayFormat;
-import org.jowidgets.util.Assert;
 
-final class DisplayFormatImpl implements IDisplayFormat {
+final class ControlProviderTime extends ControlProviderDefault<Date> {
 
-	private final Object id;
-	private final String name;
-	private final String decription;
-
-	DisplayFormatImpl(final Object id, final String name, final String decription) {
-		Assert.paramNotNull(id, "id");
-		Assert.paramNotEmpty(name, "name");
-		this.id = id;
-		this.name = name;
-		this.decription = decription;
+	ControlProviderTime() {
+		super(Date.class);
 	}
 
 	@Override
-	public Object getId() {
-		return id;
+	public IDisplayFormat getDisplayFormat() {
+		return DateDisplayFormat.TIME;
 	}
 
 	@Override
-	public String getName() {
-		return name;
-	}
-
-	@Override
-	public String getDescription() {
-		return decription;
-	}
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(final Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (obj == null) {
-			return false;
-		}
-		if (!(obj instanceof IDisplayFormat)) {
-			return false;
-		}
-		final IDisplayFormat other = (IDisplayFormat) obj;
-		if (id == null) {
-			if (other.getId() != null) {
-				return false;
-			}
-		}
-		else if (!id.equals(other.getId())) {
-			return false;
-		}
-		return true;
-	}
-
-	@Override
-	public String toString() {
-		return "DisplayFormatImpl [id=" + id + ", name=" + name + ", decription=" + decription + "]";
+	public IConverter<Date> getConverter(final IValueRange valueRange) {
+		return Toolkit.getConverterProvider().time();
 	}
 
 }

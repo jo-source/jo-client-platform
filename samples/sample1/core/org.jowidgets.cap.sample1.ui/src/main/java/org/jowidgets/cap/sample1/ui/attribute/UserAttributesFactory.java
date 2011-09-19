@@ -42,6 +42,7 @@ import org.jowidgets.cap.ui.api.attribute.IAttributeCollectionModifierBuilder;
 import org.jowidgets.cap.ui.api.attribute.IAttributeModifier;
 import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
 import org.jowidgets.cap.ui.api.attribute.IControlPanelProviderBuilder;
+import org.jowidgets.cap.ui.api.control.DateDisplayFormat;
 import org.jowidgets.cap.ui.api.control.DisplayFormat;
 import org.jowidgets.common.types.AlignmentHorizontal;
 import org.jowidgets.service.api.ServiceProvider;
@@ -88,7 +89,8 @@ public class UserAttributesFactory {
 			}
 		});
 
-		modifierBuilder.addModifier(IUser.DATE_OF_BIRTH_PROPERTY).setLabelDisplayFormat(DisplayFormat.LONG);
+		modifierBuilder.addModifier(IUser.DATE_OF_BIRTH_PROPERTY).setLabelDisplayFormat(DisplayFormat.LONG).setDisplayFormat(
+				DateDisplayFormat.DATE);
 		modifierBuilder.addModifier(IUser.ADMIN_PROPERTY).setTableAlignment(AlignmentHorizontal.CENTER);
 		modifierBuilder.addModifier(IUser.MARRIED_PROPERTY).setTableAlignment(AlignmentHorizontal.CENTER);
 		modifierBuilder.addModifier(IUser.AGE_PROPERTY).setTableAlignment(AlignmentHorizontal.CENTER);
