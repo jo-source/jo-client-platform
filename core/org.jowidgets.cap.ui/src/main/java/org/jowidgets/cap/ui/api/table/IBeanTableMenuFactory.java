@@ -95,9 +95,9 @@ public interface IBeanTableMenuFactory {
 
 	IMenuModel filterMenu(IBeanTableModel<?> model);
 
-	IMenuModel filterCellMenu(IBeanTableModel<?> model);
+	IMenuModel filterCellMenu(IBeanTableModel<?> model, int columnIndex);
 
-	IMenuModel filterHeaderMenu(IBeanTableModel<?> model);
+	IMenuModel filterHeaderMenu(IBeanTableModel<?> model, int columnIndex);
 
 	IMenuModel alignmentMenu(IBeanTableModel<?> model, int columnIndex);
 

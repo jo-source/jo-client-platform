@@ -47,7 +47,7 @@ final class BeanTableCellMenuModel extends MenuModel {
 		if (headerPopupMenuModel != null) {
 			addItem(headerPopupMenuModel);
 		}
-		addItem(menuFactory.filterCellMenu(table.getModel()));
+		addItem(menuFactory.filterCellMenu(table.getModel(), columnIndex));
 		addAction(settingsDialogAction);
 	}
 
