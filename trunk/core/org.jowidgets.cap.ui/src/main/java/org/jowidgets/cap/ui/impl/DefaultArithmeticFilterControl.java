@@ -44,6 +44,7 @@ import org.jowidgets.common.widgets.controller.IInputListener;
 import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
 import org.jowidgets.tools.controller.InputObservable;
+import org.jowidgets.tools.validation.MandatoryValidator;
 import org.jowidgets.tools.validation.ValidationCache;
 import org.jowidgets.tools.validation.ValidationCache.IValidationResultCreator;
 import org.jowidgets.tools.widgets.wrapper.ControlWrapper;
@@ -163,6 +164,7 @@ public class DefaultArithmeticFilterControl<ELEMENT_VALUE_TYPE> extends ControlW
 				}
 			}
 			addInputListener();
+			addValidators();
 		}
 	}
 
@@ -288,6 +290,19 @@ public class DefaultArithmeticFilterControl<ELEMENT_VALUE_TYPE> extends ControlW
 	private void removeInputListener(final IInputControl<?> control) {
 		if (control != null) {
 			control.removeInputListener(inputListener);
+		}
+	}
+
+	private void addValidators() {
+		addValidator(control1);
+		addValidator(control2);
+		addValidator(collectionControl1);
+		addValidator(collectionControl2);
+	}
+
+	private void addValidator(final IInputControl<Object> control) {
+		if (control != null) {
+			control.addValidator(new MandatoryValidator<Object>());
 		}
 	}
 
