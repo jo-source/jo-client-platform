@@ -32,7 +32,7 @@ import org.jowidgets.api.widgets.IInputControl;
 import org.jowidgets.cap.common.api.filter.IOperator;
 
 public interface IFilterControl<OPERATOR_TYPE extends IOperator, CONFIG_TYPE, FILTER_TYPE extends IUiConfigurableFilter<CONFIG_TYPE>> extends
-		IInputControl<IUiConfigurableFilter<CONFIG_TYPE>> {
+		IInputControl<FILTER_TYPE> {
 
 	/**
 	 * Try to set a operand (this may be one from another control with the same class

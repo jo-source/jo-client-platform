@@ -63,6 +63,9 @@ public interface IFilterToolkit {
 		ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> collectionControlCreator);
 
 	<ELEMENT_VALUE_TYPE, VALUE_TYPE> IFilterSupport<?> filterSupport(
+		String propertyName,
+		Class<?> type,
+		Class<?> elementValueType,
 		IOperatorProvider<ArithmeticOperator> arithmeticOperatorProvider,
 		IOperatorProvider<ArithmeticOperator> arithmeticPropertyOperatorProvider,
 		IAttributeFilter attributeFilter,
@@ -71,14 +74,18 @@ public interface IFilterToolkit {
 		ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> collectionControlCreator);
 
 	<ELEMENT_VALUE_TYPE> IFilterPanelProvider<ArithmeticOperator> arithmeticFilterPanel(
+		String propertyName,
+		Class<?> type,
+		Class<?> elementValueType,
 		IOperatorProvider<ArithmeticOperator> operatorProvider,
 		ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> controlCreator,
 		ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> collectionControlCreator);
 
 	<ELEMENT_VALUE_TYPE> IFilterPanelProvider<ArithmeticOperator> arithmeticPropertyFilterPanel(
+		String propertyName,
+		Class<?> type,
+		Class<?> elementValueType,
 		IOperatorProvider<ArithmeticOperator> arithmeticPropertyOperatorProvider,
-		IAttributeFilter attributeFilter,
-		ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> controlCreator,
-		ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> collectionControlCreator);
+		IAttributeFilter attributeFilter);
 
 }
