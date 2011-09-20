@@ -30,8 +30,8 @@ package org.jowidgets.cap.ui.impl;
 
 import java.util.Map;
 
-import org.jowidgets.cap.common.api.filter.IFilter;
 import org.jowidgets.cap.ui.api.attribute.IAttributeConfig;
+import org.jowidgets.cap.ui.api.filter.IUiFilter;
 import org.jowidgets.cap.ui.api.sort.ISortModelConfig;
 import org.jowidgets.cap.ui.api.table.IBeanTableConfig;
 
@@ -40,12 +40,12 @@ final class BeanTableConfig implements IBeanTableConfig {
 	private final Map<String, IAttributeConfig> attributeConfigs;
 	private final Boolean autoSelection;
 	private final ISortModelConfig sortModelConfig;
-	private final Map<String, IFilter> filters;
+	private final Map<String, IUiFilter> filters;
 
 	BeanTableConfig(
 		final Map<String, IAttributeConfig> attributeConfigs,
 		final ISortModelConfig sortModelConfig,
-		final Map<String, IFilter> filters,
+		final Map<String, IUiFilter> filters,
 		final Boolean autoSelection) {
 		super();
 		this.attributeConfigs = attributeConfigs;
@@ -60,7 +60,7 @@ final class BeanTableConfig implements IBeanTableConfig {
 	}
 
 	@Override
-	public Map<String, IFilter> getFilters() {
+	public Map<String, IUiFilter> getFilters() {
 		return filters;
 	}
 

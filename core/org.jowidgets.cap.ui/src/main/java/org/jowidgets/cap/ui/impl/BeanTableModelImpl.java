@@ -51,10 +51,13 @@ import org.jowidgets.api.model.table.ITableModel;
 import org.jowidgets.api.model.table.ITableModelFactory;
 import org.jowidgets.api.threads.IUiThreadAccess;
 import org.jowidgets.api.toolkit.Toolkit;
+import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.bean.IBeanModification;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
+import org.jowidgets.cap.common.api.filter.BooleanOperator;
+import org.jowidgets.cap.common.api.filter.IBooleanFilterBuilder;
 import org.jowidgets.cap.common.api.filter.IFilter;
 import org.jowidgets.cap.common.api.service.ICreatorService;
 import org.jowidgets.cap.common.api.service.IDeleterService;
@@ -75,6 +78,8 @@ import org.jowidgets.cap.ui.api.bean.IBeansStateTracker;
 import org.jowidgets.cap.ui.api.control.DisplayFormat;
 import org.jowidgets.cap.ui.api.execution.BeanExecutionPolicy;
 import org.jowidgets.cap.ui.api.execution.IExecutionTask;
+import org.jowidgets.cap.ui.api.filter.IUiFilter;
+import org.jowidgets.cap.ui.api.filter.IUiFilterFactory;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
 import org.jowidgets.cap.ui.api.model.IModificationStateListener;
@@ -106,6 +111,7 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 	private static final int MAX_PAGE_LOADER_COUNT = 2;
 	private static final IDummyValue DUMMY_VALUE = new IDummyValue() {};
 
+	private final Map<String, IUiFilter> filters;
 	private final Map<Integer, ArrayList<IBeanProxy<BEAN_TYPE>>> data;
 	private final LinkedList<PageLoader> currentPageLoaders;
 
@@ -187,6 +193,7 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 		//fields initialize
 		this.onSetConfig = false;
 		this.propertyNames = createPropertyNames(attributes);
+		this.filters = new HashMap<String, IUiFilter>();
 		this.data = new HashMap<Integer, ArrayList<IBeanProxy<BEAN_TYPE>>>();
 		this.currentPageLoaders = new LinkedList<PageLoader>();
 		this.sortModel = new SortModelImpl();
@@ -447,7 +454,23 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 	}
 
 	@Override
-	public void setFilter(final String id, final IFilter filter) {}
+	public void setFilter(final String id, final IUiFilter filter) {
+		Assert.paramNotNull(id, "id");
+		Assert.paramNotNull(filter, "filter");
+		filters.put(id, filter);
+	}
+
+	@Override
+	public void removeFilter(final String id) {
+		Assert.paramNotNull(id, "id");
+		filters.remove(id);
+	}
+
+	@Override
+	public IUiFilter getFilter(final String id) {
+		Assert.paramNotNull(id, "id");
+		return filters.get(id);
+	}
 
 	@Override
 	public ISortModel getSortModel() {
@@ -472,9 +495,9 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 				}
 			}
 		}
-		final Map<String, IFilter> filtersConfig = config.getFilters();
+		final Map<String, IUiFilter> filtersConfig = config.getFilters();
 		if (filtersConfig != null) {
-			for (final Entry<String, IFilter> entry : filtersConfig.entrySet()) {
+			for (final Entry<String, IUiFilter> entry : filtersConfig.entrySet()) {
 				setFilter(entry.getKey(), entry.getValue());
 			}
 		}
@@ -828,7 +851,7 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 						BeanTableModelImpl.this.readerService.read(
 								resultCallback,
 								getParentBeanKeys(),
-								null,
+								getFilter(),
 								sortModel.getSorting(),
 								pageIndex * pageSize,
 								pageSize + 1,
@@ -899,6 +922,16 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 				}
 			};
 		}
+	}
+
+	private IFilter getFilter() {
+		final IBooleanFilterBuilder builder = CapCommonToolkit.filterFactory().booleanFilterBuilder();
+		builder.setOperator(BooleanOperator.AND);
+		final IUiFilterFactory filterFactory = CapUiToolkit.filterToolkit().filterFactory();
+		for (final IUiFilter uiFilter : filters.values()) {
+			builder.addFilter(filterFactory.convert(uiFilter));
+		}
+		return builder.build();
 	}
 
 	private interface IDummyValue {}

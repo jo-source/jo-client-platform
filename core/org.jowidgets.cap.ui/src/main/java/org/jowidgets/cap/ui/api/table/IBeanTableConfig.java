@@ -30,15 +30,15 @@ package org.jowidgets.cap.ui.api.table;
 
 import java.util.Map;
 
-import org.jowidgets.cap.common.api.filter.IFilter;
 import org.jowidgets.cap.ui.api.attribute.IAttributeConfig;
+import org.jowidgets.cap.ui.api.filter.IUiFilter;
 import org.jowidgets.cap.ui.api.sort.ISortModelConfig;
 
 public interface IBeanTableConfig {
 
 	ISortModelConfig getSortModelConfig();
 
-	Map<String, IFilter> getFilters();
+	Map<String, IUiFilter> getFilters();
 
 	Map<String, IAttributeConfig> getAttributeConfigs();
 

@@ -32,9 +32,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.jowidgets.cap.common.api.filter.IFilter;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IAttributeConfig;
+import org.jowidgets.cap.ui.api.filter.IUiFilter;
 import org.jowidgets.cap.ui.api.sort.ISortModelConfig;
 import org.jowidgets.cap.ui.api.table.IBeanTableConfig;
 import org.jowidgets.cap.ui.api.table.IBeanTableConfigBuilder;
@@ -43,7 +43,7 @@ import org.jowidgets.util.Assert;
 final class BeanTableConfigBuilder implements IBeanTableConfigBuilder {
 
 	private ISortModelConfig sortModelConfig;
-	private Map<String, IFilter> filters;
+	private Map<String, IUiFilter> filters;
 	private Map<String, IAttributeConfig> attributeConfigs;
 	private Boolean autoSelection;
 
@@ -54,24 +54,24 @@ final class BeanTableConfigBuilder implements IBeanTableConfigBuilder {
 	}
 
 	@Override
-	public IBeanTableConfigBuilder setFilters(final Map<String, IFilter> filters) {
+	public IBeanTableConfigBuilder setFilters(final Map<String, IUiFilter> filters) {
 		Assert.paramNotNull(filters, "filters");
 
 		ensureFiltersMap();
 		this.filters.clear();
-		for (final Entry<String, IFilter> entry : filters.entrySet()) {
+		for (final Entry<String, IUiFilter> entry : filters.entrySet()) {
 			this.filters.put(entry.getKey(), entry.getValue());
 		}
 		return this;
 	}
 
 	@Override
-	public IBeanTableConfigBuilder addFilter(final String propertyName, final IFilter filter) {
-		Assert.paramNotEmpty(propertyName, "propertyName");
+	public IBeanTableConfigBuilder addFilter(final String id, final IUiFilter filter) {
+		Assert.paramNotEmpty(id, "id");
 		Assert.paramNotNull(filter, "filter");
 
 		ensureFiltersMap();
-		filters.put(propertyName, filter);
+		filters.put(id, filter);
 		return this;
 	}
 
@@ -123,7 +123,7 @@ final class BeanTableConfigBuilder implements IBeanTableConfigBuilder {
 
 	private void ensureFiltersMap() {
 		if (filters == null) {
-			filters = new HashMap<String, IFilter>();
+			filters = new HashMap<String, IUiFilter>();
 		}
 	}
 

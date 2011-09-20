@@ -30,18 +30,18 @@ package org.jowidgets.cap.ui.api.table;
 
 import java.util.Map;
 
-import org.jowidgets.cap.common.api.filter.IFilter;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IAttributeConfig;
+import org.jowidgets.cap.ui.api.filter.IUiFilter;
 import org.jowidgets.cap.ui.api.sort.ISortModelConfig;
 
 public interface IBeanTableConfigBuilder {
 
 	IBeanTableConfigBuilder setSortModelConfig(ISortModelConfig sortModelConfig);
 
-	IBeanTableConfigBuilder setFilters(Map<String, IFilter> filters);
+	IBeanTableConfigBuilder setFilters(Map<String, IUiFilter> filters);
 
-	IBeanTableConfigBuilder addFilter(String propertyName, IFilter filter);
+	IBeanTableConfigBuilder addFilter(String id, IUiFilter filter);
 
 	IBeanTableConfigBuilder setAttributeConfigs(Map<String, IAttributeConfig> attributeConfigs);
 
