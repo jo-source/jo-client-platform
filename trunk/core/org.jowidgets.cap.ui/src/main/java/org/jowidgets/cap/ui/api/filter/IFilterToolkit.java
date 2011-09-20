@@ -31,6 +31,7 @@ package org.jowidgets.cap.ui.api.filter;
 import java.util.Collection;
 
 import org.jowidgets.api.widgets.IInputControl;
+import org.jowidgets.cap.common.api.bean.IValueRange;
 import org.jowidgets.cap.common.api.filter.ArithmeticOperator;
 import org.jowidgets.cap.ui.api.attribute.IAttributeFilter;
 import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
@@ -39,19 +40,25 @@ public interface IFilterToolkit {
 
 	IUiFilterFactory filterFactory();
 
-	IOperatorProvider<ArithmeticOperator> arithmeticOperatorProvider(Class<?> type, Class<?> elementValueType);
+	IOperatorProvider<ArithmeticOperator> arithmeticOperatorProvider(
+		Class<?> type,
+		Class<?> elementValueType,
+		IValueRange valueRange);
 
-	IOperatorProvider<ArithmeticOperator> arithmeticPropertyOperatorProvider(Class<?> type, Class<?> elementValueType);
+	IOperatorProvider<ArithmeticOperator> arithmeticPropertyOperatorProvider(
+		Class<?> type,
+		Class<?> elementValueType,
+		IValueRange valueRange);
 
 	IAttributeFilter arithmeticPropertyAttributeFilter(Class<?> type, Class<?> elementValueType);
 
-	<VALUE_TYPE> IIncludingFilterFactory<VALUE_TYPE> includingFilterFactory(
-		Class<? extends VALUE_TYPE> type,
-		Class<?> elementValueType);
+	<VALUE_TYPE> IIncludingFilterFactory<VALUE_TYPE> includingFilterFactory(String propertyName, Class<? extends VALUE_TYPE> type);
 
 	<ELEMENT_VALUE_TYPE> IFilterSupport<?> filterSupport(
+		String propertyName,
 		Class<?> type,
 		Class<?> elementValueType,
+		IValueRange valueRange,
 		ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> controlCreator,
 		ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> collectionControlCreator);
 

@@ -33,6 +33,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.jowidgets.api.widgets.IInputControl;
+import org.jowidgets.cap.common.api.bean.IValueRange;
 import org.jowidgets.cap.common.api.filter.ArithmeticOperator;
 import org.jowidgets.cap.ui.api.attribute.IAttributeFilter;
 import org.jowidgets.cap.ui.api.filter.IFilterPanelProvider;
@@ -57,47 +58,51 @@ final class FilterToolkitImpl implements IFilterToolkit {
 	}
 
 	@Override
-	public IOperatorProvider<ArithmeticOperator> arithmeticOperatorProvider(final Class<?> type, final Class<?> elementValueType) {
-		// TODO MG implement filter stuff
-		return null;
+	public IOperatorProvider<ArithmeticOperator> arithmeticOperatorProvider(
+		final Class<?> type,
+		final Class<?> elementValueType,
+		final IValueRange valueRange) {
+		return DefaultOperatorProvider.getArithmeticOperatorProvider(type, elementValueType, valueRange);
 	}
 
 	@Override
 	public IOperatorProvider<ArithmeticOperator> arithmeticPropertyOperatorProvider(
 		final Class<?> type,
-		final Class<?> elementValueType) {
-		// TODO MG implement filter stuff
-		return null;
+		final Class<?> elementValueType,
+		final IValueRange valueRange) {
+		return DefaultOperatorProvider.getArithmeticPropertyOperatorProvider(type, elementValueType, valueRange);
 	}
 
 	@Override
 	public IAttributeFilter arithmeticPropertyAttributeFilter(final Class<?> type, final Class<?> elementValueType) {
-		// TODO MG implement filter stuff
-		return null;
+		return new DefaultArithmeticPropertyAttributeFilter(type, elementValueType);
 	}
 
 	@Override
 	public <VALUE_TYPE> IIncludingFilterFactory<VALUE_TYPE> includingFilterFactory(
-		final Class<? extends VALUE_TYPE> type,
-		final Class<?> elementValueType) {
-		// TODO MG implement filter stuff
-		return null;
+		final String propertyName,
+		final Class<? extends VALUE_TYPE> type) {
+		return new DefaultIncludingFilterFactory<VALUE_TYPE>(propertyName, type);
 	}
 
 	@Override
 	public <ELEMENT_VALUE_TYPE> IFilterSupport<?> filterSupport(
+		final String propertyName,
 		final Class<?> type,
 		final Class<?> elementValueType,
+		final IValueRange valueRange,
 		final ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> controlCreator,
 		final ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> collectionControlCreator) {
 
 		final IOperatorProvider<ArithmeticOperator> arithmeticOperatorProvider = arithmeticOperatorProvider(
 				type,
-				elementValueType);
+				elementValueType,
+				valueRange);
 
 		final IOperatorProvider<ArithmeticOperator> arithmeticPropertyOperatorProvider = arithmeticPropertyOperatorProvider(
 				type,
-				elementValueType);
+				elementValueType,
+				valueRange);
 
 		final IAttributeFilter arithmeticPropertyAttributeFilter = arithmeticPropertyAttributeFilter(type, elementValueType);
 
@@ -105,7 +110,7 @@ final class FilterToolkitImpl implements IFilterToolkit {
 				arithmeticOperatorProvider,
 				arithmeticPropertyOperatorProvider,
 				arithmeticPropertyAttributeFilter,
-				includingFilterFactory(type, elementValueType),
+				includingFilterFactory(propertyName, type),
 				controlCreator,
 				collectionControlCreator);
 	}
@@ -121,12 +126,17 @@ final class FilterToolkitImpl implements IFilterToolkit {
 
 		final List<IFilterPanelProvider<?>> result = new LinkedList<IFilterPanelProvider<?>>();
 
-		result.add(arithmeticFilterPanel(arithmeticOperatorProvider, controlCreator, collectionControlCreator));
-		result.add(arithmeticPropertyFilterPanel(
-				arithmeticPropertyOperatorProvider,
-				attributeFilter,
-				controlCreator,
-				collectionControlCreator));
+		if (arithmeticOperatorProvider != null) {
+			result.add(arithmeticFilterPanel(arithmeticOperatorProvider, controlCreator, collectionControlCreator));
+		}
+
+		if (arithmeticPropertyOperatorProvider != null) {
+			result.add(arithmeticPropertyFilterPanel(
+					arithmeticPropertyOperatorProvider,
+					attributeFilter,
+					controlCreator,
+					collectionControlCreator));
+		}
 
 		return new IFilterSupport<VALUE_TYPE>() {
 			@Override

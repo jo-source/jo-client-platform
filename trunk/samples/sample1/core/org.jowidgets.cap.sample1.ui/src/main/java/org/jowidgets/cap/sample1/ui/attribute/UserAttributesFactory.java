@@ -67,6 +67,7 @@ public class UserAttributesFactory {
 			public void modify(final IProperty source, final IAttributeBluePrint<Object> bluePrint) {
 
 				IControlPanelProviderBuilder<Object> controlBuilder = attributeToolkit.createControlPanelProviderBuilder(
+						source.getName(),
 						source.getValueType(),
 						source.getElementValueType(),
 						source.getValueRange());
@@ -76,6 +77,7 @@ public class UserAttributesFactory {
 				bluePrint.addControlPanel(controlBuilder.build());
 
 				controlBuilder = attributeToolkit.createControlPanelProviderBuilder(
+						source.getName(),
 						source.getValueType(),
 						source.getElementValueType(),
 						source.getValueRange());
