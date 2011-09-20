@@ -107,6 +107,9 @@ final class FilterToolkitImpl implements IFilterToolkit {
 		final IAttributeFilter arithmeticPropertyAttributeFilter = arithmeticPropertyAttributeFilter(type, elementValueType);
 
 		return filterSupport(
+				propertyName,
+				type,
+				elementValueType,
 				arithmeticOperatorProvider,
 				arithmeticPropertyOperatorProvider,
 				arithmeticPropertyAttributeFilter,
@@ -117,6 +120,9 @@ final class FilterToolkitImpl implements IFilterToolkit {
 
 	@Override
 	public <ELEMENT_VALUE_TYPE, VALUE_TYPE> IFilterSupport<?> filterSupport(
+		final String propertyName,
+		final Class<?> type,
+		final Class<?> elementValueType,
 		final IOperatorProvider<ArithmeticOperator> arithmeticOperatorProvider,
 		final IOperatorProvider<ArithmeticOperator> arithmeticPropertyOperatorProvider,
 		final IAttributeFilter attributeFilter,
@@ -127,15 +133,22 @@ final class FilterToolkitImpl implements IFilterToolkit {
 		final List<IFilterPanelProvider<?>> result = new LinkedList<IFilterPanelProvider<?>>();
 
 		if (arithmeticOperatorProvider != null) {
-			result.add(arithmeticFilterPanel(arithmeticOperatorProvider, controlCreator, collectionControlCreator));
+			result.add(arithmeticFilterPanel(
+					propertyName,
+					type,
+					elementValueType,
+					arithmeticOperatorProvider,
+					controlCreator,
+					collectionControlCreator));
 		}
 
 		if (arithmeticPropertyOperatorProvider != null) {
 			result.add(arithmeticPropertyFilterPanel(
+					propertyName,
+					type,
+					elementValueType,
 					arithmeticPropertyOperatorProvider,
-					attributeFilter,
-					controlCreator,
-					collectionControlCreator));
+					attributeFilter));
 		}
 
 		return new IFilterSupport<VALUE_TYPE>() {
@@ -154,20 +167,28 @@ final class FilterToolkitImpl implements IFilterToolkit {
 
 	@Override
 	public <ELEMENT_VALUE_TYPE> IFilterPanelProvider<ArithmeticOperator> arithmeticFilterPanel(
+		final String propertyName,
+		final Class<?> type,
+		final Class<?> elementValueType,
 		final IOperatorProvider<ArithmeticOperator> operatorProvider,
 		final ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> controlCreator,
 		final ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> collectionControlCreator) {
-		// TODO MG implement filter stuff
-		return null;
+		return new ArithmeticFilterPanelProviderImpl<ELEMENT_VALUE_TYPE>(
+			propertyName,
+			elementValueType,
+			operatorProvider,
+			controlCreator,
+			collectionControlCreator);
 	}
 
 	@Override
 	public <ELEMENT_VALUE_TYPE> IFilterPanelProvider<ArithmeticOperator> arithmeticPropertyFilterPanel(
+		final String propertyName,
+		final Class<?> type,
+		final Class<?> elementValueType,
 		final IOperatorProvider<ArithmeticOperator> arithmeticPropertyOperatorProvider,
-		final IAttributeFilter attributeFilter,
-		final ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> controlCreator,
-		final ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> collectionControlCreator) {
-		// TODO MG implement filter stuff
+		final IAttributeFilter attributeFilter) {
+		// TODO MG implement arithmeticPropertyFilterPanel
 		return null;
 	}
 
