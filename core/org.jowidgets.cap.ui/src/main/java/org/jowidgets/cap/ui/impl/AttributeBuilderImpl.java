@@ -311,10 +311,14 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 
 	private IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> createControlPanelProviderBuilder() {
 		if (Collection.class.isAssignableFrom(valueType)) {
-			return CapUiToolkit.attributeToolkit().createControlPanelProviderBuilder(valueType, elementValueType, valueRange);
+			return CapUiToolkit.attributeToolkit().createControlPanelProviderBuilder(
+					propertyName,
+					valueType,
+					elementValueType,
+					valueRange);
 		}
 		else {
-			return CapUiToolkit.attributeToolkit().createControlPanelProviderBuilder(elementValueType, valueRange);
+			return CapUiToolkit.attributeToolkit().createControlPanelProviderBuilder(propertyName, elementValueType, valueRange);
 		}
 	}
 

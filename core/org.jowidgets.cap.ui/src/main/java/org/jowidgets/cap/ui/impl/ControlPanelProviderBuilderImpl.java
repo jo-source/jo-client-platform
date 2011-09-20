@@ -55,6 +55,7 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 	private static final Object DEFAULT_DISPLAY_FORMAT_ID = DisplayFormat.SHORT.getId();
 	private static final String DEFAULT_DISPLAY_NAME = DisplayFormat.SHORT.getName();
 
+	private final String propertyName;
 	private final IValueRange valueRange;
 
 	private Class<?> valueType;
@@ -70,8 +71,11 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 	private ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> controlCreator;
 	private ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> collectionControlCreator;
 
-	ControlPanelProviderBuilderImpl(final Class<? extends ELEMENT_VALUE_TYPE> elementValueType, final IValueRange valueRange) {
-		this(valueRange);
+	ControlPanelProviderBuilderImpl(
+		final String propertyName,
+		final Class<? extends ELEMENT_VALUE_TYPE> elementValueType,
+		final IValueRange valueRange) {
+		this(propertyName, valueRange);
 		Assert.paramNotNull(elementValueType, "elementValueType");
 		if (Collection.class.isAssignableFrom(elementValueType)) {
 			throw new IllegalArgumentException("The parameter 'elementValueType' must not be a 'Collection'");
@@ -81,19 +85,22 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 	}
 
 	ControlPanelProviderBuilderImpl(
+		final String propertyName,
 		final Class<?> valueType,
 		final Class<? extends ELEMENT_VALUE_TYPE> elementValueType,
 		final IValueRange valueRange) {
-		this(valueRange);
+		this(propertyName, valueRange);
 		Assert.paramNotNull(valueType, "valueType");
 		Assert.paramNotNull(elementValueType, "elementValueType");
 		this.valueType = valueType;
 		this.elementValueType = elementValueType;
 	}
 
-	private ControlPanelProviderBuilderImpl(final IValueRange valueRange) {
+	private ControlPanelProviderBuilderImpl(final String propertyName, final IValueRange valueRange) {
 		super();
+		Assert.paramNotNull(propertyName, "propertyName");
 		Assert.paramNotNull(valueRange, "valueRange");
+		this.propertyName = propertyName;
 		this.valueRange = valueRange;
 		this.displayFormatId = DEFAULT_DISPLAY_FORMAT_ID;
 		this.displayFormatName = DEFAULT_DISPLAY_NAME;
@@ -272,8 +279,10 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 	private IFilterSupport<?> getFilterSupport() {
 		if (filterSupport == null) {
 			filterSupport = CapUiToolkit.filterToolkit().filterSupport(
+					propertyName,
 					valueType,
 					elementValueType,
+					valueRange,
 					getControlCreator(),
 					getCollectionControlCreator());
 		}
