@@ -28,49 +28,10 @@
 
 package org.jowidgets.cap.ui.api.widgets;
 
-import org.jowidgets.api.widgets.blueprint.builder.IComponentSetupBuilder;
-import org.jowidgets.api.widgets.descriptor.setup.IComponentSetup;
-import org.jowidgets.cap.ui.api.table.IBeanTableModel;
-import org.jowidgets.common.types.TableSelectionPolicy;
-import org.jowidgets.common.widgets.descriptor.IWidgetDescriptor;
-import org.jowidgets.common.widgets.descriptor.setup.mandatory.Mandatory;
+import org.jowidgets.api.model.item.IMenuModel;
 
-public interface IBeanTableBluePrint<BEAN_TYPE> extends
-		IComponentSetup,
-		IComponentSetupBuilder<IBeanTableBluePrint<BEAN_TYPE>>,
-		IWidgetDescriptor<IBeanTable<BEAN_TYPE>> {
+public interface ITableMenuCreationInterceptor<BEAN_TYPE> {
 
-	IBeanTableBluePrint<BEAN_TYPE> setModel(IBeanTableModel<BEAN_TYPE> model);
-
-	IBeanTableBluePrint<BEAN_TYPE> setSelectionPolicy(TableSelectionPolicy selectionPolicy);
-
-	IBeanTableBluePrint<BEAN_TYPE> setColumnsMoveable(boolean columnsMoveable);
-
-	IBeanTableBluePrint<BEAN_TYPE> setColumnsResizeable(boolean columnsResizeable);
-
-	IBeanTableBluePrint<BEAN_TYPE> setDefaultMenus(boolean defaultMenus);
-
-	IBeanTableBluePrint<BEAN_TYPE> setHeaderMenuInterceptor(ITableMenuCreationInterceptor<BEAN_TYPE> interceptor);
-
-	IBeanTableBluePrint<BEAN_TYPE> setCellMenuInterceptor(ITableMenuCreationInterceptor<BEAN_TYPE> interceptor);
-
-	@Mandatory
-	TableSelectionPolicy getSelectionPolicy();
-
-	@Mandatory
-	boolean getColumnsMoveable();
-
-	@Mandatory
-	boolean getColumnsResizeable();
-
-	@Mandatory
-	IBeanTableModel<BEAN_TYPE> getModel();
-
-	@Mandatory
-	boolean hasDefaultMenus();
-
-	ITableMenuCreationInterceptor<BEAN_TYPE> getHeaderMenuInterceptor();
-
-	ITableMenuCreationInterceptor<BEAN_TYPE> getCellMenuInterceptor();
+	void afterMenuCreated(IBeanTable<BEAN_TYPE> table, IMenuModel menu, int columnIndex);
 
 }

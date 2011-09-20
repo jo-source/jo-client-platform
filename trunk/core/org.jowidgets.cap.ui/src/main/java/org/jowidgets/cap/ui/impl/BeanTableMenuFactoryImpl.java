@@ -179,6 +179,18 @@ final class BeanTableMenuFactoryImpl implements IBeanTableMenuFactory {
 	}
 
 	@Override
+	public IMenuModel headerPopupMenu(final IBeanTable<?> table, final int columnIndex) {
+		Assert.paramNotNull(table, "table");
+		return new BeanTableHeaderMenuModel(table, columnIndex);
+	}
+
+	@Override
+	public IMenuModel cellPopupMenu(final IBeanTable<?> table, final IMenuModel headerPopupMenuModel, final int columnIndex) {
+		Assert.paramNotNull(table, "table");
+		return new BeanTableCellMenuModel(table, headerPopupMenuModel, columnIndex);
+	}
+
+	@Override
 	public IMenuModel columnsVisibilityMenu(final IBeanTableModel<?> model) {
 		Assert.paramNotNull(model, "model");
 		return new BeanTableColumnsVisibilityMenuModel(model);

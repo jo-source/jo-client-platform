@@ -87,6 +87,10 @@ public interface IBeanTableMenuFactory {
 
 	IAction deleteColumnFiltersAction(IBeanTableModel<?> model);
 
+	IMenuModel headerPopupMenu(IBeanTable<?> table, int columnIndex);
+
+	IMenuModel cellPopupMenu(IBeanTable<?> table, final IMenuModel headerPopupMenuModel, int columnIndex);
+
 	IMenuModel columnsVisibilityMenu(IBeanTableModel<?> model);
 
 	IMenuModel filterMenu(IBeanTableModel<?> model);
