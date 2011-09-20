@@ -29,15 +29,11 @@
 package org.jowidgets.cap.ui.impl.widgets;
 
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.api.convert.IStringObjectConverter;
-import org.jowidgets.api.model.item.IActionItemModel;
-import org.jowidgets.api.model.item.IItemModelFactory;
 import org.jowidgets.api.model.item.IMenuItemModel;
 import org.jowidgets.api.model.item.IMenuModel;
 import org.jowidgets.api.toolkit.Toolkit;
@@ -54,6 +50,7 @@ import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableSettingsDialog;
 import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
+import org.jowidgets.cap.ui.api.widgets.ITableMenuCreationInterceptor;
 import org.jowidgets.common.types.Modifier;
 import org.jowidgets.common.types.Position;
 import org.jowidgets.common.widgets.controller.ITableCellEditEvent;
@@ -64,10 +61,10 @@ import org.jowidgets.common.widgets.controller.ITableColumnPopupDetectionListene
 import org.jowidgets.common.widgets.controller.ITableColumnPopupEvent;
 import org.jowidgets.tools.command.ActionWrapper;
 import org.jowidgets.tools.command.ExecutionContextWrapper;
+import org.jowidgets.tools.controller.ListModelAdapter;
 import org.jowidgets.tools.controller.TableCellEditorAdapter;
 import org.jowidgets.tools.controller.TableColumnAdapter;
 import org.jowidgets.tools.model.item.MenuModel;
-import org.jowidgets.tools.model.item.SeparatorItemModel;
 import org.jowidgets.tools.widgets.wrapper.TableWrapper;
 import org.jowidgets.util.IDecorator;
 import org.jowidgets.util.ITypedKey;
@@ -75,13 +72,14 @@ import org.jowidgets.util.ITypedKey;
 final class BeanTableImpl<BEAN_TYPE> extends TableWrapper implements IBeanTable<BEAN_TYPE> {
 
 	private final IBeanTableModel<BEAN_TYPE> model;
-	private final IMenuModel cellPopupMenuModel;
 	private final IMenuModel headerPopupMenuModel;
+	private final IMenuModel cellPopupMenuModel;
 	private final IMenuModel tablePopupMenuModel;
-	private final IPopupMenu columnPopupMenu;
+	private final Map<Integer, IPopupMenu> headerPopupMenus;
+	private final Map<Integer, IPopupMenu> cellPopupMenus;
+	private final ITableMenuCreationInterceptor<BEAN_TYPE> headerMenuInterceptor;
+	private final ITableMenuCreationInterceptor<BEAN_TYPE> cellMenuInterceptor;
 	private final boolean hasDefaultMenus;
-	private final Map<Integer, List<IMenuItemModel>> headerMenus;
-	private final List<IMenuItemModel> tempHeaderMenuItems;
 
 	private IBeanTableSettingsDialog settingsDialog;
 	private ITableCellPopupEvent currentCellEvent;
@@ -90,60 +88,41 @@ final class BeanTableImpl<BEAN_TYPE> extends TableWrapper implements IBeanTable<
 	BeanTableImpl(final ITable table, final IBeanTableBluePrint<BEAN_TYPE> bluePrint) {
 		super(table);
 		this.model = bluePrint.getModel();
-		this.hasDefaultMenus = bluePrint.hasDefaultMenus();
-		this.headerMenus = createHeaderMenus(model, hasDefaultMenus);
-		this.tempHeaderMenuItems = new LinkedList<IMenuItemModel>();
+		this.headerPopupMenus = new HashMap<Integer, IPopupMenu>();
+		this.cellPopupMenus = new HashMap<Integer, IPopupMenu>();
 		this.cellPopupMenuModel = new MenuModel();
-		this.headerPopupMenuModel = new MenuModel("Header");
+		this.headerPopupMenuModel = new MenuModel();
 		this.tablePopupMenuModel = new MenuModel();
+		this.hasDefaultMenus = bluePrint.hasDefaultMenus();
+		this.headerMenuInterceptor = bluePrint.getHeaderMenuInterceptor();
+		this.cellMenuInterceptor = bluePrint.getCellMenuInterceptor();
 
 		table.setPopupMenu(tablePopupMenuModel);
+
+		headerPopupMenuModel.addListModelListener(new CustomMenuModelListener());
+		cellPopupMenuModel.addListModelListener(new CustomMenuModelListener());
 
 		if (bluePrint.hasDefaultMenus()) {
 			final IBeanTableMenuFactory menuFactory = CapUiToolkit.beanTableMenuFactory();
 
-			//cell popup menu
-			final IAction settingsDialogAction = menuFactory.settingsAction(this);
-			cellPopupMenuModel.addItem(headerPopupMenuModel);
-			cellPopupMenuModel.addItem(menuFactory.filterCellMenu(model));
-			cellPopupMenuModel.addAction(settingsDialogAction);
-
-			//header popup menu
-			final IAction packAllAction = menuFactory.packAllAction(this);
-			final IAction packSelectedAction = menuFactory.packSelectedAction(this);
-			final IAction hideColumnAction = menuFactory.hideColumnAction(this);
-			final IMenuModel columnsVisibilityMenu = menuFactory.columnsVisibilityMenu(model);
-			final IAction showAllColumnsAction = menuFactory.showAllColumnsAction(this);
-			headerPopupMenuModel.addAction(hideColumnAction);
-			headerPopupMenuModel.addItem(columnsVisibilityMenu);
-			headerPopupMenuModel.addAction(showAllColumnsAction);
-			headerPopupMenuModel.addSeparator();
-			headerPopupMenuModel.addItem(menuFactory.filterHeaderMenu(model));
-			headerPopupMenuModel.addSeparator();
-			headerPopupMenuModel.addAction(packSelectedAction);
-			headerPopupMenuModel.addAction(packAllAction);
-
 			//table popup menu
-			tablePopupMenuModel.addItem(columnsVisibilityMenu);
-			tablePopupMenuModel.addAction(showAllColumnsAction);
+			tablePopupMenuModel.addItem(menuFactory.columnsVisibilityMenu(model));
+			tablePopupMenuModel.addAction(menuFactory.showAllColumnsAction(this));
 			tablePopupMenuModel.addSeparator();
 			tablePopupMenuModel.addAction(menuFactory.clearCurrentSortAction(model));
 			tablePopupMenuModel.addAction(menuFactory.clearDefaultSortAction(model));
 			tablePopupMenuModel.addSeparator();
-			tablePopupMenuModel.addAction(packAllAction);
+			tablePopupMenuModel.addAction(menuFactory.packAllAction(this));
 			tablePopupMenuModel.addSeparator();
-			tablePopupMenuModel.addAction(settingsDialogAction);
+			tablePopupMenuModel.addAction(menuFactory.settingsAction(this));
 			tablePopupMenuModel.addItem(menuFactory.filterMenu(model));
 			table.setPopupMenu(tablePopupMenuModel);
 		}
 
-		//add cell popup menu
-		final IPopupMenu cellPopupMenu = table.createPopupMenu();
-		cellPopupMenu.setModel(cellPopupMenuModel);
-		cellPopupMenuModel.addDecorator(createDecorator(false));
 		table.addTableCellPopupDetectionListener(new ITableCellPopupDetectionListener() {
 			@Override
 			public void popupDetected(final ITableCellPopupEvent event) {
+				final IPopupMenu cellPopupMenu = getCellPopupMenu(event.getColumnIndex());
 				if (cellPopupMenu.getChildren().size() > 0) {
 					currentCellEvent = event;
 					//simulate a column event
@@ -153,16 +132,13 @@ final class BeanTableImpl<BEAN_TYPE> extends TableWrapper implements IBeanTable<
 			}
 		});
 
-		//add column popup menu
-		this.columnPopupMenu = table.createPopupMenu();
-		columnPopupMenu.setModel(headerPopupMenuModel);
-		headerPopupMenuModel.addDecorator(createDecorator(true));
 		table.addTableColumnPopupDetectionListener(new ITableColumnPopupDetectionListener() {
 			@Override
 			public void popupDetected(final ITableColumnPopupEvent event) {
-				if (columnPopupMenu.getChildren().size() > 0) {
+				final IPopupMenu headerPopupMenu = getHeaderPopupMenu(event.getColumnIndex());
+				if (headerPopupMenu.getChildren().size() > 0) {
 					currentColumnEvent = event;
-					showHeaderPopupMenu(event.getPosition(), event.getColumnIndex());
+					headerPopupMenu.show(event.getPosition());
 				}
 			}
 		});
@@ -171,80 +147,97 @@ final class BeanTableImpl<BEAN_TYPE> extends TableWrapper implements IBeanTable<
 		table.addTableColumnListener(new TableSortColumnListener());
 	}
 
-	private static Map<Integer, List<IMenuItemModel>> createHeaderMenus(
-		final IBeanTableModel<?> model,
-		final boolean hasDefaultMenus) {
-
-		final Map<Integer, List<IMenuItemModel>> result = new HashMap<Integer, List<IMenuItemModel>>();
-		if (hasDefaultMenus) {
-			final IBeanTableMenuFactory menuFactory = CapUiToolkit.beanTableMenuFactory();
-			final IAction clearCurrentSortAction = menuFactory.clearCurrentSortAction(model);
-			final IAction clearDefaultSortAction = menuFactory.clearDefaultSortAction(model);
-			for (int columnIndex = 0; columnIndex < model.getColumnCount(); columnIndex++) {
-				//create items list for this column
-				final List<IMenuItemModel> menuItems = new LinkedList<IMenuItemModel>();
-				result.put(Integer.valueOf(columnIndex), menuItems);
-
-				//add separator
-				menuItems.add(new SeparatorItemModel());
-
-				//add display format menus
-				final IMenuModel headerFormatMenu = menuFactory.headerFormatMenu(model, columnIndex);
-				final IMenuModel contentFormatMenu = menuFactory.contentFormatMenu(model, columnIndex);
-
-				if (contentFormatMenu != null) {
-					menuItems.add(contentFormatMenu);
-				}
-				if (headerFormatMenu != null) {
-					menuItems.add(headerFormatMenu);
-				}
-
-				//add alignment menu
-				final IMenuModel alignmentMenu = menuFactory.alignmentMenu(model, columnIndex);
-				menuItems.add(alignmentMenu);
-
-				//add the sort menus
-				menuItems.add(new SeparatorItemModel());
-				final IItemModelFactory itemModelFactory = Toolkit.getModelFactoryProvider().getItemModelFactory();
-
-				final IActionItemModel clearDefaultSortingModel = itemModelFactory.actionItem();
-				clearDefaultSortingModel.setAction(clearDefaultSortAction);
-				menuItems.add(clearDefaultSortingModel);
-
-				final IMenuModel defaultSortMenu = menuFactory.defaultSortMenu(model, columnIndex);
-				if (defaultSortMenu != null) {
-					menuItems.add(defaultSortMenu);
-				}
-
-				menuItems.add(new SeparatorItemModel());
-
-				final IActionItemModel clearCurrentSortingModel = itemModelFactory.actionItem();
-				clearCurrentSortingModel.setAction(clearCurrentSortAction);
-				menuItems.add(clearCurrentSortingModel);
-
-				final IMenuModel currentSortMenu = menuFactory.currentSortMenu(model, columnIndex);
-				if (currentSortMenu != null) {
-					menuItems.add(currentSortMenu);
-				}
-
-			}
+	private IPopupMenu getHeaderPopupMenu(final Integer index) {
+		IPopupMenu popupMenu = headerPopupMenus.get(index);
+		if (popupMenu == null) {
+			popupMenu = createHeaderPopupMenu(index.intValue());
+			headerPopupMenus.put(index, popupMenu);
 		}
-		return result;
+		else if (popupMenu.getChildren().size() == 0) {
+			popupMenu.setModel(createHeaderPopupMenuModel(index));
+		}
+		return popupMenu;
 	}
 
-	private void showHeaderPopupMenu(final Position position, final int columnIndex) {
+	private IPopupMenu createHeaderPopupMenu(final Integer index) {
+		final IPopupMenu popupMenu = getWidget().createPopupMenu();
+		popupMenu.setModel(createHeaderPopupMenuModel(index));
+		return popupMenu;
+	}
+
+	private IMenuModel createHeaderPopupMenuModel(final Integer index) {
+		final IMenuModel menuModel = createHeaderPopupMenuModelUndecorated(index);
+		menuModel.addDecorator(createDecorator(true));
+		return menuModel;
+	}
+
+	private IMenuModel createHeaderPopupMenuModelUndecorated(final Integer index) {
+
+		final IMenuModel menuModel;
 		if (hasDefaultMenus) {
-			for (final IMenuItemModel tempMenuItem : new LinkedList<IMenuItemModel>(tempHeaderMenuItems)) {
-				tempHeaderMenuItems.remove(tempMenuItem);
-				headerPopupMenuModel.removeItem(tempMenuItem);
-			}
-			final int headerFormatIndex = 6;
-			for (final IMenuItemModel menuItem : headerMenus.get(Integer.valueOf(columnIndex))) {
-				headerPopupMenuModel.addItem(headerFormatIndex, menuItem);
-				tempHeaderMenuItems.add(menuItem);
+			menuModel = CapUiToolkit.beanTableMenuFactory().headerPopupMenu(this, index.intValue());
+		}
+		else {
+			menuModel = new MenuModel();
+		}
+
+		if (headerMenuInterceptor != null) {
+			headerMenuInterceptor.afterMenuCreated(this, menuModel, index.intValue());
+		}
+
+		if (headerPopupMenuModel.getChildren().size() > 0) {
+			for (final IMenuItemModel itemModel : headerPopupMenuModel.getChildren()) {
+				menuModel.addItem(itemModel);
 			}
 		}
-		columnPopupMenu.show(position);
+
+		return menuModel;
+	}
+
+	private IPopupMenu getCellPopupMenu(final Integer index) {
+		IPopupMenu popupMenu = cellPopupMenus.get(index);
+		if (popupMenu == null) {
+			popupMenu = createCellPopupMenu(index.intValue());
+			cellPopupMenus.put(index, popupMenu);
+		}
+		else if (popupMenu.getChildren().size() == 0) {
+			popupMenu.setModel(createCellPopupMenuModel(index));
+		}
+		return popupMenu;
+	}
+
+	private IPopupMenu createCellPopupMenu(final Integer index) {
+		final IPopupMenu popupMenu = getWidget().createPopupMenu();
+		popupMenu.setModel(createCellPopupMenuModel(index));
+		return popupMenu;
+	}
+
+	private IMenuModel createCellPopupMenuModel(final Integer index) {
+
+		final IMenuModel menuModel;
+		if (hasDefaultMenus) {
+			menuModel = CapUiToolkit.beanTableMenuFactory().cellPopupMenu(
+					this,
+					createHeaderPopupMenuModelUndecorated(index),
+					index.intValue());
+		}
+		else {
+			menuModel = new MenuModel();
+		}
+
+		if (cellMenuInterceptor != null) {
+			cellMenuInterceptor.afterMenuCreated(this, menuModel, index.intValue());
+		}
+
+		if (cellPopupMenuModel.getChildren().size() > 0) {
+			for (final IMenuItemModel itemModel : cellPopupMenuModel.getChildren()) {
+				menuModel.addItem(itemModel);
+			}
+		}
+
+		menuModel.addDecorator(createDecorator(false));
+
+		return menuModel;
 	}
 
 	@Override
@@ -382,6 +375,29 @@ final class BeanTableImpl<BEAN_TYPE> extends TableWrapper implements IBeanTable<
 		@Override
 		public Position getPosition() {
 			return cellPopupEvent.getPosition();
+		}
+
+	}
+
+	private class CustomMenuModelListener extends ListModelAdapter {
+
+		@Override
+		public void afterChildRemoved(final int index) {
+			clearMenus();
+		}
+
+		@Override
+		public void afterChildAdded(final int index) {
+			clearMenus();
+		}
+
+		private void clearMenus() {
+			for (final IPopupMenu popupMenu : cellPopupMenus.values()) {
+				popupMenu.setModel(new MenuModel());
+			}
+			for (final IPopupMenu popupMenu : headerPopupMenus.values()) {
+				popupMenu.setModel(new MenuModel());
+			}
 		}
 
 	}
