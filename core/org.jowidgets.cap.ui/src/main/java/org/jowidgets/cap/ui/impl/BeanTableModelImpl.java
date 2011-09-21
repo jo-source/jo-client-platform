@@ -647,14 +647,20 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 
 				final IPropertySort propertySort = sortModel.getPropertySort(attribute.getPropertyName());
 				if (propertySort.isSorted()) {
-					if (propertySort.getSortOrder() == SortOrder.ASC) {
+					if (propertySort.getSortOrder() == SortOrder.ASC && isFiltered) {
+						column.setIcon(IconsSmall.TABLE_SORT_FILTER_ASC);
+					}
+					else if (propertySort.getSortOrder() == SortOrder.ASC) {
 						column.setIcon(IconsSmall.TABLE_SORT_ASC);
+					}
+					else if (propertySort.getSortOrder() == SortOrder.DESC && isFiltered) {
+						column.setIcon(IconsSmall.TABLE_SORT_FILTER_DESC);
 					}
 					else if (propertySort.getSortOrder() == SortOrder.DESC) {
 						column.setIcon(IconsSmall.TABLE_SORT_DESC);
 					}
-					else {
-						column.setIcon(null);
+					else if (isFiltered) {
+						column.setIcon(IconsSmall.TABLE_FILTER);
 					}
 					if (cascaded) {
 						column.setText("(" + (propertySort.getSortIndex() + 1) + ") " + getLabel(attribute));
@@ -666,13 +672,12 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 				else {
 					//TODO MG use icon and also do this if sorted
 					if (isFiltered) {
-						column.setText(getLabel(attribute) + " (F)");
+						column.setIcon(IconsSmall.TABLE_FILTER);
 					}
 					else {
-						column.setText(getLabel(attribute));
+						column.setIcon(null);
 					}
-
-					column.setIcon(null);
+					column.setText(getLabel(attribute));
 				}
 			}
 			index++;
@@ -827,6 +832,8 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 		private IExecutionTask executionTask;
 		private IBeanProxy<BEAN_TYPE> dummyBeanProxy;
 
+		private final IFilter filter = getFilter();
+
 		PageLoader(final int pageIndex) {
 			this.pageIndex = pageIndex;
 			this.uiThreadAccess = Toolkit.getUiThreadAccess();
@@ -923,7 +930,7 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 						BeanTableModelImpl.this.readerService.read(
 								resultCallback,
 								getParentBeanKeys(),
-								getFilter(),
+								filter,
 								sortModel.getSorting(),
 								pageIndex * pageSize,
 								pageSize + 1,

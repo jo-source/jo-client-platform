@@ -33,7 +33,6 @@ import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.icons.CapIcons;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
-import org.jowidgets.common.widgets.controller.ITableColumnPopupEvent;
 import org.jowidgets.tools.command.ActionBuilder;
 
 final class BeanTableHideColumnActionBuilder extends ActionBuilder {
@@ -47,8 +46,7 @@ final class BeanTableHideColumnActionBuilder extends ActionBuilder {
 		setCommand(new ICommandExecutor() {
 			@Override
 			public void execute(final IExecutionContext executionContext) throws Exception {
-				final ITableColumnPopupEvent columnPopupEvent = executionContext.getValue(IBeanTable.COLUMN_POPUP_EVENT_CONTEXT_KEY);
-				table.getModel().getAttribute(columnPopupEvent.getColumnIndex()).setVisible(false);
+				table.getModel().getAttribute(columnIndex).setVisible(false);
 			}
 		});
 	}
