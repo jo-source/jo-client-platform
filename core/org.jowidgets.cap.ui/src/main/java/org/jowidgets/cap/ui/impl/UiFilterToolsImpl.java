@@ -72,10 +72,66 @@ final class UiFilterToolsImpl implements IUiFilterTools {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public IUiFilter removeProperty(final IUiFilter sourceFilter, final String propertyName) {
-		//TODO MG implement remove property
-		return sourceFilter;
+		Assert.paramNotNull(sourceFilter, "sourceFilter");
+		Assert.paramNotNull(propertyName, "propertyName");
+
+		final IUiFilterFactory filterFactory = CapUiToolkit.filterToolkit().filterFactory();
+
+		if (sourceFilter instanceof IUiBooleanFilter) {
+			boolean empty = true;
+			final IUiBooleanFilter source = (IUiBooleanFilter) sourceFilter;
+			final IUiBooleanFilterBuilder builder = filterFactory.booleanFilterBuilder();
+			builder.setOperator(source.getOperator());
+			builder.setInverted(source.isInverted());
+			for (final IUiFilter childFilter : source.getFilters()) {
+				final IUiFilter childResultFilter = removeProperty(childFilter, propertyName);
+				if (childResultFilter != null) {
+					builder.addFilter(childResultFilter);
+					empty = false;
+				}
+			}
+			if (empty) {
+				return null;
+			}
+			else {
+				return builder.build();
+			}
+		}
+		else if (sourceFilter instanceof IUiArithmeticFilter<?>) {
+			final IUiArithmeticFilter<Object> source = (IUiArithmeticFilter<Object>) sourceFilter;
+			if (propertyName.equals(source.getPropertyName())) {
+				return null;
+			}
+			else {
+				return source;
+			}
+		}
+		else if (sourceFilter instanceof IUiArithmeticPropertyFilter<?>) {
+			final IUiArithmeticPropertyFilter<Object> source = (IUiArithmeticPropertyFilter<Object>) sourceFilter;
+			if (propertyName.equals(source.getLeftHandPropertyName())) {
+				return null;
+			}
+			else {
+				return source;
+			}
+		}
+		else if (sourceFilter instanceof IUiCustomFilter<?>) {
+			final IUiCustomFilter<Object> source = (IUiCustomFilter<Object>) sourceFilter;
+			if (propertyName.equals(source.getPropertyName())) {
+				return null;
+			}
+			else {
+				return source;
+			}
+		}
+		else {
+			throw new IllegalArgumentException("The source filter type '"
+				+ sourceFilter.getClass().getName()
+				+ "' is not supported");
+		}
 	}
 
 	@SuppressWarnings("unchecked")

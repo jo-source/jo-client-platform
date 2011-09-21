@@ -49,7 +49,8 @@ public interface IUiFilterTools {
 	 * @param sourceFilter The filter where the properties should be removed
 	 * @param propertyName The property to remove
 	 * 
-	 * @return A new filter where the predicates of the given property has been removed
+	 * @return A new filter where the predicates of the given property has been removed. Null will be returned if
+	 *         the source filter only consists of predicates for the given property name
 	 */
 	IUiFilter removeProperty(IUiFilter sourceFilter, String propertyName);
 
