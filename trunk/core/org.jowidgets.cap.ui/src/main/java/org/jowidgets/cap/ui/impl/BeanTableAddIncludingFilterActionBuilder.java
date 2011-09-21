@@ -36,9 +36,9 @@ import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.common.widgets.controller.ITableCellPopupEvent;
 import org.jowidgets.tools.command.ActionBuilder;
 
-final class BeanTableIncludingFilterActionBuilder extends ActionBuilder {
+final class BeanTableAddIncludingFilterActionBuilder extends ActionBuilder {
 
-	BeanTableIncludingFilterActionBuilder(final IBeanTableModel<?> model) {
+	BeanTableAddIncludingFilterActionBuilder(final IBeanTableModel<?> model, final int columnIndex) {
 		super();
 		//TODO i18n
 		setText("Including filter");

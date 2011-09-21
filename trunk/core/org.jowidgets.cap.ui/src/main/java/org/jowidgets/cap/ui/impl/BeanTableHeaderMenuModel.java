@@ -50,7 +50,7 @@ final class BeanTableHeaderMenuModel extends MenuModel {
 		final IAction clearDefaultSortAction = menuFactory.clearDefaultSortAction(table.getModel());
 		final IAction packAllAction = menuFactory.packAllAction(table);
 		final IAction packSelectedAction = menuFactory.packSelectedAction(table);
-		final IAction hideColumnAction = menuFactory.hideColumnAction(table);
+		final IAction hideColumnAction = menuFactory.hideColumnAction(table, columnIndex);
 		final IMenuModel columnsVisibilityMenu = menuFactory.columnsVisibilityMenu(table.getModel());
 		final IAction showAllColumnsAction = menuFactory.showAllColumnsAction(table);
 
