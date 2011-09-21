@@ -28,12 +28,8 @@
 
 package org.jowidgets.cap.ui.impl;
 
-import org.jowidgets.api.command.ICommandExecutor;
-import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.api.image.IconsSmall;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
-import org.jowidgets.cap.ui.api.widgets.IBeanTable;
-import org.jowidgets.common.widgets.controller.ITableCellPopupEvent;
 import org.jowidgets.tools.command.ActionBuilder;
 
 final class BeanTableAddExcludingFilterActionBuilder extends ActionBuilder {
@@ -44,16 +40,8 @@ final class BeanTableAddExcludingFilterActionBuilder extends ActionBuilder {
 		setText("Excluding filter");
 		setToolTipText("Excludes the selected value from the filter");
 		setIcon(IconsSmall.FILTER_EXCLUDING);
-		setCommand(new ICommandExecutor() {
-			@Override
-			public void execute(final IExecutionContext executionContext) throws Exception {
 
-				final ITableCellPopupEvent cellPopupEvent = executionContext.getValue(IBeanTable.CELL_POPUP_EVENT_CONTEXT_KEY);
-				//CHECKSTYLE:OFF
-				System.out.println("TODO excluding filter:" + cellPopupEvent);
-				//CHECKSTYLE:ON
-			}
-		});
+		setCommand(new BeanTableAddInlineFilterCommandExecutor(model, columnIndex, true));
 	}
 
 }

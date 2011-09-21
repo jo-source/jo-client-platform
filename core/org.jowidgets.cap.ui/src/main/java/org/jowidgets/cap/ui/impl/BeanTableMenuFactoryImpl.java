@@ -184,7 +184,7 @@ final class BeanTableMenuFactoryImpl implements IBeanTableMenuFactory {
 
 	@Override
 	public IActionBuilder deleteColumnFiltersActionBuilder(final IBeanTableModel<?> model, final int columnIndex) {
-		return new BeanTableDeleteColumnFiltersActionBuilder(model);
+		return new BeanTableDeleteColumnFiltersActionBuilder(model, columnIndex);
 	}
 
 	@Override
