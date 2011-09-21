@@ -40,6 +40,9 @@ import org.jowidgets.cap.ui.api.attribute.IAttributeGroup;
 import org.jowidgets.cap.ui.api.attribute.IControlPanelProvider;
 import org.jowidgets.cap.ui.api.control.DisplayFormat;
 import org.jowidgets.cap.ui.api.control.IDisplayFormat;
+import org.jowidgets.cap.ui.api.filter.IFilterPanelProvider;
+import org.jowidgets.cap.ui.api.filter.IFilterSupport;
+import org.jowidgets.cap.ui.api.filter.IFilterType;
 import org.jowidgets.common.types.AlignmentHorizontal;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.event.ChangeObservable;
@@ -232,6 +235,23 @@ final class AttributeImpl<ELEMENT_VALUE_TYPE> implements IAttribute<ELEMENT_VALU
 	@Override
 	public List<IControlPanelProvider<ELEMENT_VALUE_TYPE>> getControlPanels() {
 		return controlPanels;
+	}
+
+	@Override
+	public List<IFilterType> getSupportedFilterTypes() {
+		final List<IFilterType> result = new LinkedList<IFilterType>();
+		for (final IControlPanelProvider<ELEMENT_VALUE_TYPE> controlPanelProvider : controlPanels) {
+			final IFilterSupport<?> filterSupport = controlPanelProvider.getFilterSupport();
+			if (filterSupport != null) {
+				for (final IFilterPanelProvider<?> filterPanelProvider : filterSupport.getFilterPanels()) {
+					final IFilterType filterType = filterPanelProvider.getType();
+					if (!result.contains(filterType)) {
+						result.add(filterType);
+					}
+				}
+			}
+		}
+		return result;
 	}
 
 	@Override

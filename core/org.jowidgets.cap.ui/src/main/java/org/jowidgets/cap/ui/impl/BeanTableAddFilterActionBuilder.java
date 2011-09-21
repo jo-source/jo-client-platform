@@ -30,25 +30,29 @@ package org.jowidgets.cap.ui.impl;
 
 import org.jowidgets.api.command.ICommandExecutor;
 import org.jowidgets.api.command.IExecutionContext;
-import org.jowidgets.cap.ui.api.attribute.IAttribute;
-import org.jowidgets.cap.ui.api.icons.CapIcons;
+import org.jowidgets.api.image.IconsSmall;
+import org.jowidgets.cap.ui.api.filter.IFilterType;
+import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
-import org.jowidgets.common.widgets.controller.ITableColumnPopupEvent;
+import org.jowidgets.common.widgets.controller.ITableCellPopupEvent;
 import org.jowidgets.tools.command.ActionBuilder;
 
-final class BeanTableHideColumnActionBuilder extends ActionBuilder {
+final class BeanTableAddFilterActionBuilder extends ActionBuilder {
 
-	BeanTableHideColumnActionBuilder(final IBeanTable<?> table, final int columnIndex) {
+	BeanTableAddFilterActionBuilder(final IBeanTableModel<?> model, final IFilterType filterType, final int columnIndex) {
 		super();
-		final IAttribute<Object> attribute = table.getModel().getAttribute(columnIndex);
-		setText("Hide column '" + attribute.getLabel() + "'");
-		setToolTipText("Hides the column '" + attribute.getLabel() + "'");
-		setIcon(CapIcons.TABLE_HIDE_COLUMN);
+		//TODO i18n
+		setText(filterType.getLabel() + "...");
+		setToolTipText(filterType.getDescription());
+		setIcon(IconsSmall.FILTER);
 		setCommand(new ICommandExecutor() {
 			@Override
 			public void execute(final IExecutionContext executionContext) throws Exception {
-				final ITableColumnPopupEvent columnPopupEvent = executionContext.getValue(IBeanTable.COLUMN_POPUP_EVENT_CONTEXT_KEY);
-				table.getModel().getAttribute(columnPopupEvent.getColumnIndex()).setVisible(false);
+
+				final ITableCellPopupEvent cellPopupEvent = executionContext.getValue(IBeanTable.CELL_POPUP_EVENT_CONTEXT_KEY);
+				//CHECKSTYLE:OFF
+				System.out.println("TODO " + filterType.getLabel() + ": " + cellPopupEvent);
+				//CHECKSTYLE:ON
 			}
 		});
 	}

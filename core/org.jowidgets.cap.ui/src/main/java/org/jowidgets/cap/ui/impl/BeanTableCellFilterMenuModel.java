@@ -28,9 +28,12 @@
 
 package org.jowidgets.cap.ui.impl;
 
+import java.util.List;
+
 import org.jowidgets.api.image.IconsSmall;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
+import org.jowidgets.cap.ui.api.filter.IFilterType;
 import org.jowidgets.cap.ui.api.table.IBeanTableMenuFactory;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.tools.model.item.MenuModel;
@@ -45,9 +48,16 @@ final class BeanTableCellFilterMenuModel extends MenuModel {
 
 		final IAttribute<Object> attribute = model.getAttribute(columnIndex);
 		if (attribute.isFilterable()) {
-			addAction(menuFactory.includingFilterAction(model));
-			addAction(menuFactory.excludingFilterAction(model));
-			addAction(menuFactory.customFilterAction(model));
+			addAction(menuFactory.addIncludingFilterAction(model, columnIndex));
+			addAction(menuFactory.addExcludingFilterAction(model, columnIndex));
+			addAction(menuFactory.addCustomFilterAction(model, columnIndex));
+			final List<IFilterType> filterTypes = attribute.getSupportedFilterTypes();
+			if (filterTypes.size() > 0) {
+				addSeparator();
+				for (final IFilterType filterType : attribute.getSupportedFilterTypes()) {
+					addAction(menuFactory.addFilterAction(model, filterType, columnIndex));
+				}
+			}
 			addSeparator();
 		}
 		addAction(menuFactory.editFilterAction(model));

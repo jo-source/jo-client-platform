@@ -33,6 +33,7 @@ import java.util.List;
 import org.jowidgets.cap.common.api.bean.IValueRange;
 import org.jowidgets.cap.ui.api.control.DisplayFormat;
 import org.jowidgets.cap.ui.api.control.IDisplayFormat;
+import org.jowidgets.cap.ui.api.filter.IFilterType;
 import org.jowidgets.common.types.AlignmentHorizontal;
 import org.jowidgets.util.event.IChangeObservable;
 
@@ -69,6 +70,8 @@ public interface IAttribute<ELEMENT_VALUE_TYPE> extends IChangeObservable {
 	boolean isCollectionType();
 
 	List<IControlPanelProvider<ELEMENT_VALUE_TYPE>> getControlPanels();
+
+	List<IFilterType> getSupportedFilterTypes();
 
 	boolean isVisible();
 

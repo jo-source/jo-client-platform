@@ -31,6 +31,7 @@ package org.jowidgets.cap.ui.impl;
 import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.command.IActionBuilder;
 import org.jowidgets.api.model.item.IMenuModel;
+import org.jowidgets.cap.ui.api.filter.IFilterType;
 import org.jowidgets.cap.ui.api.table.IBeanTableMenuFactory;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
@@ -53,14 +54,14 @@ final class BeanTableMenuFactoryImpl implements IBeanTableMenuFactory {
 	}
 
 	@Override
-	public IActionBuilder hideColumnActionBuilder(final IBeanTable<?> table) {
+	public IActionBuilder hideColumnActionBuilder(final IBeanTable<?> table, final int columnIndex) {
 		Assert.paramNotNull(table, "table");
-		return new BeanTableHideColumnActionBuilder(table);
+		return new BeanTableHideColumnActionBuilder(table, columnIndex);
 	}
 
 	@Override
-	public IAction hideColumnAction(final IBeanTable<?> table) {
-		return hideColumnActionBuilder(table).build();
+	public IAction hideColumnAction(final IBeanTable<?> table, final int columnIndex) {
+		return hideColumnActionBuilder(table, columnIndex).build();
 	}
 
 	@Override
@@ -119,33 +120,46 @@ final class BeanTableMenuFactoryImpl implements IBeanTableMenuFactory {
 	}
 
 	@Override
-	public IActionBuilder includingFilterActionBuilder(final IBeanTableModel<?> model) {
-		return new BeanTableIncludingFilterActionBuilder(model);
+	public IActionBuilder addIncludingFilterActionBuilder(final IBeanTableModel<?> model, final int columnIndex) {
+		return new BeanTableAddIncludingFilterActionBuilder(model, columnIndex);
 	}
 
 	@Override
-	public IAction includingFilterAction(final IBeanTableModel<?> model) {
-		return includingFilterActionBuilder(model).build();
+	public IAction addIncludingFilterAction(final IBeanTableModel<?> model, final int columnIndex) {
+		return addIncludingFilterActionBuilder(model, columnIndex).build();
 	}
 
 	@Override
-	public IActionBuilder excludingFilterActionBuilder(final IBeanTableModel<?> model) {
-		return new BeanTableExcludingFilterActionBuilder(model);
+	public IActionBuilder addExcludingFilterActionBuilder(final IBeanTableModel<?> model, final int columnIndex) {
+		return new BeanTableAddExcludingFilterActionBuilder(model, columnIndex);
 	}
 
 	@Override
-	public IAction excludingFilterAction(final IBeanTableModel<?> model) {
-		return excludingFilterActionBuilder(model).build();
+	public IAction addExcludingFilterAction(final IBeanTableModel<?> model, final int columnIndex) {
+		return addExcludingFilterActionBuilder(model, columnIndex).build();
 	}
 
 	@Override
-	public IActionBuilder customFilterActionBuilder(final IBeanTableModel<?> model) {
-		return new BeanTableCustomFilterActionBuilder(model);
+	public IActionBuilder addCustomFilterActionBuilder(final IBeanTableModel<?> model, final int columnIndex) {
+		return new BeanTableAddCustomFilterActionBuilder(model, columnIndex);
 	}
 
 	@Override
-	public IAction customFilterAction(final IBeanTableModel<?> model) {
-		return customFilterActionBuilder(model).build();
+	public IAction addCustomFilterAction(final IBeanTableModel<?> model, final int columnIndex) {
+		return addCustomFilterActionBuilder(model, columnIndex).build();
+	}
+
+	@Override
+	public IActionBuilder addFilterActionBuilder(
+		final IBeanTableModel<?> model,
+		final IFilterType filterType,
+		final int columnIndex) {
+		return new BeanTableAddFilterActionBuilder(model, filterType, columnIndex);
+	}
+
+	@Override
+	public IAction addFilterAction(final IBeanTableModel<?> model, final IFilterType filterType, final int columnIndex) {
+		return addFilterActionBuilder(model, filterType, columnIndex).build();
 	}
 
 	@Override
@@ -169,13 +183,13 @@ final class BeanTableMenuFactoryImpl implements IBeanTableMenuFactory {
 	}
 
 	@Override
-	public IActionBuilder deleteColumnFiltersActionBuilder(final IBeanTableModel<?> model) {
+	public IActionBuilder deleteColumnFiltersActionBuilder(final IBeanTableModel<?> model, final int columnIndex) {
 		return new BeanTableDeleteColumnFiltersActionBuilder(model);
 	}
 
 	@Override
-	public IAction deleteColumnFiltersAction(final IBeanTableModel<?> model) {
-		return deleteColumnFiltersActionBuilder(model).build();
+	public IAction deleteColumnFiltersAction(final IBeanTableModel<?> model, final int columnIndex) {
+		return deleteColumnFiltersActionBuilder(model, columnIndex).build();
 	}
 
 	@Override

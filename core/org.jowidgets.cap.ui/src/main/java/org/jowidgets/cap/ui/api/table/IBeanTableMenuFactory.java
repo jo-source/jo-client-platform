@@ -31,6 +31,7 @@ package org.jowidgets.cap.ui.api.table;
 import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.command.IActionBuilder;
 import org.jowidgets.api.model.item.IMenuModel;
+import org.jowidgets.cap.ui.api.filter.IFilterType;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 
 public interface IBeanTableMenuFactory {
@@ -39,9 +40,9 @@ public interface IBeanTableMenuFactory {
 
 	IAction settingsAction(IBeanTable<?> table);
 
-	IActionBuilder hideColumnActionBuilder(IBeanTable<?> table);
+	IActionBuilder hideColumnActionBuilder(IBeanTable<?> table, int columnIndex);
 
-	IAction hideColumnAction(IBeanTable<?> table);
+	IAction hideColumnAction(IBeanTable<?> table, int columnIndex);
 
 	IActionBuilder showAllColumnsActionBuilder(IBeanTable<?> table);
 
@@ -63,17 +64,21 @@ public interface IBeanTableMenuFactory {
 
 	IAction clearDefaultSortAction(IBeanTableModel<?> model);
 
-	IActionBuilder includingFilterActionBuilder(IBeanTableModel<?> model);
+	IActionBuilder addIncludingFilterActionBuilder(IBeanTableModel<?> model, int columnIndex);
 
-	IAction includingFilterAction(IBeanTableModel<?> model);
+	IAction addIncludingFilterAction(IBeanTableModel<?> model, int columnIndex);
 
-	IActionBuilder excludingFilterActionBuilder(IBeanTableModel<?> model);
+	IActionBuilder addExcludingFilterActionBuilder(IBeanTableModel<?> model, int columnIndex);
 
-	IAction excludingFilterAction(IBeanTableModel<?> model);
+	IAction addExcludingFilterAction(IBeanTableModel<?> model, int columnIndex);
 
-	IActionBuilder customFilterActionBuilder(IBeanTableModel<?> model);
+	IActionBuilder addCustomFilterActionBuilder(IBeanTableModel<?> model, int columnIndex);
 
-	IAction customFilterAction(IBeanTableModel<?> model);
+	IAction addCustomFilterAction(IBeanTableModel<?> model, int columnIndex);
+
+	IActionBuilder addFilterActionBuilder(IBeanTableModel<?> model, IFilterType filterType, int columnIndex);
+
+	IAction addFilterAction(IBeanTableModel<?> model, IFilterType filterType, int columnIndex);
 
 	IActionBuilder editFilterActionBuilder(IBeanTableModel<?> model);
 
@@ -83,9 +88,9 @@ public interface IBeanTableMenuFactory {
 
 	IAction deleteFilterAction(IBeanTableModel<?> model);
 
-	IActionBuilder deleteColumnFiltersActionBuilder(IBeanTableModel<?> model);
+	IActionBuilder deleteColumnFiltersActionBuilder(IBeanTableModel<?> model, int columnIndex);
 
-	IAction deleteColumnFiltersAction(IBeanTableModel<?> model);
+	IAction deleteColumnFiltersAction(IBeanTableModel<?> model, int columnIndex);
 
 	IMenuModel headerPopupMenu(IBeanTable<?> table, int columnIndex);
 

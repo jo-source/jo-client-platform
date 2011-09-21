@@ -31,6 +31,7 @@ package org.jowidgets.cap.ui.impl;
 import org.jowidgets.api.image.IconsSmall;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
+import org.jowidgets.cap.ui.api.filter.IFilterType;
 import org.jowidgets.cap.ui.api.table.IBeanTableMenuFactory;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.tools.model.item.MenuModel;
@@ -45,8 +46,10 @@ final class BeanTableHeaderFilterMenuModel extends MenuModel {
 
 		final IAttribute<Object> attribute = model.getAttribute(columnIndex);
 		if (attribute.isFilterable()) {
-			addAction(menuFactory.customFilterAction(model));
-			addAction(menuFactory.deleteColumnFiltersAction(model));
+			for (final IFilterType filterType : attribute.getSupportedFilterTypes()) {
+				addAction(menuFactory.addFilterAction(model, filterType, columnIndex));
+			}
+			addAction(menuFactory.deleteColumnFiltersAction(model, columnIndex));
 			addSeparator();
 		}
 		addAction(menuFactory.editFilterAction(model));

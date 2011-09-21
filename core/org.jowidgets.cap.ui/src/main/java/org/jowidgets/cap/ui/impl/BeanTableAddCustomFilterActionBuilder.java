@@ -37,9 +37,9 @@ import org.jowidgets.common.widgets.controller.ITableCellPopupEvent;
 import org.jowidgets.common.widgets.controller.ITableColumnPopupEvent;
 import org.jowidgets.tools.command.ActionBuilder;
 
-final class BeanTableCustomFilterActionBuilder extends ActionBuilder {
+final class BeanTableAddCustomFilterActionBuilder extends ActionBuilder {
 
-	BeanTableCustomFilterActionBuilder(final IBeanTableModel<?> model) {
+	BeanTableAddCustomFilterActionBuilder(final IBeanTableModel<?> model, final int columnIndex) {
 		super();
 		//TODO i18n
 		setText("Custom filter ...");
