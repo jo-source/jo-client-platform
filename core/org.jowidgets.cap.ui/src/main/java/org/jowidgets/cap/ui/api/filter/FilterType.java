@@ -31,7 +31,7 @@ package org.jowidgets.cap.ui.api.filter;
 public enum FilterType implements IFilterType {
 
 	ARITHMETIC_FILTER("Arithmetic filter", "Compares a property with a value"),
-	ARITMETTIC_PROPERTY_FILTER("Arithmetic property filter", "Compares a property with other properties");
+	ARITHMETIC_PROPERTY_FILTER("Arithmetic property filter", "Compares a property with other properties");
 
 	private final String label;
 	private final String description;

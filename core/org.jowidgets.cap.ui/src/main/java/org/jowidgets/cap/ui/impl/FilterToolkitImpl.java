@@ -135,7 +135,6 @@ final class FilterToolkitImpl implements IFilterToolkit {
 		if (arithmeticOperatorProvider != null) {
 			result.add(arithmeticFilterPanel(
 					propertyName,
-					type,
 					elementValueType,
 					arithmeticOperatorProvider,
 					controlCreator,
@@ -143,12 +142,7 @@ final class FilterToolkitImpl implements IFilterToolkit {
 		}
 
 		if (arithmeticPropertyOperatorProvider != null) {
-			result.add(arithmeticPropertyFilterPanel(
-					propertyName,
-					type,
-					elementValueType,
-					arithmeticPropertyOperatorProvider,
-					attributeFilter));
+			result.add(arithmeticPropertyFilterPanel(propertyName, arithmeticPropertyOperatorProvider, attributeFilter));
 		}
 
 		return new IFilterSupport<VALUE_TYPE>() {
@@ -168,7 +162,6 @@ final class FilterToolkitImpl implements IFilterToolkit {
 	@Override
 	public <ELEMENT_VALUE_TYPE> IFilterPanelProvider<ArithmeticOperator> arithmeticFilterPanel(
 		final String propertyName,
-		final Class<?> type,
 		final Class<?> elementValueType,
 		final IOperatorProvider<ArithmeticOperator> operatorProvider,
 		final ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> controlCreator,
@@ -184,12 +177,12 @@ final class FilterToolkitImpl implements IFilterToolkit {
 	@Override
 	public <ELEMENT_VALUE_TYPE> IFilterPanelProvider<ArithmeticOperator> arithmeticPropertyFilterPanel(
 		final String propertyName,
-		final Class<?> type,
-		final Class<?> elementValueType,
 		final IOperatorProvider<ArithmeticOperator> arithmeticPropertyOperatorProvider,
 		final IAttributeFilter attributeFilter) {
-		// TODO MG implement arithmeticPropertyFilterPanel
-		return null;
+		return new ArithmeticPropertyFilterPanelProviderImpl<ELEMENT_VALUE_TYPE>(
+			propertyName,
+			arithmeticPropertyOperatorProvider,
+			attributeFilter);
 	}
 
 }
