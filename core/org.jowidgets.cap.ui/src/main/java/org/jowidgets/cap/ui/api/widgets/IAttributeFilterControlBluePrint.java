@@ -30,17 +30,21 @@ package org.jowidgets.cap.ui.api.widgets;
 
 import java.util.List;
 
+import org.jowidgets.api.widgets.blueprint.builder.IInputComponentSetupBuilder;
+import org.jowidgets.api.widgets.descriptor.setup.IInputComponentSetup;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
-import org.jowidgets.cap.ui.api.table.IBeanTableModel;
+import org.jowidgets.cap.ui.api.filter.IUiConfigurableFilter;
+import org.jowidgets.common.widgets.descriptor.IWidgetDescriptor;
+import org.jowidgets.common.widgets.descriptor.setup.mandatory.Mandatory;
 
-public interface ICapApiBluePrintFactory {
+public interface IAttributeFilterControlBluePrint extends
+		IInputComponentSetupBuilder<IAttributeFilterControlBluePrint, IUiConfigurableFilter<Object>>,
+		IInputComponentSetup<IUiConfigurableFilter<Object>>,
+		IWidgetDescriptor<IAttributeFilterControl> {
 
-	<BEAN_TYPE> IBeanTableBluePrint<BEAN_TYPE> beanTable(IBeanTableModel<BEAN_TYPE> model);
+	IAttributeFilterControlBluePrint setAttributes(List<? extends IAttribute<?>> attributes);
 
-	IBeanTableSettingsDialogBluePrint beanTableSettingsDialog(IBeanTableModel<?> model);
-
-	<BEAN_TYPE> IBeanFormBluePrint<BEAN_TYPE> beanForm(List<? extends IAttribute<?>> attributes);
-
-	IAttributeFilterControlBluePrint attributeFilterControl(List<? extends IAttribute<?>> attributes);
+	@Mandatory
+	List<IAttribute<?>> getAttributes();
 
 }

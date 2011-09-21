@@ -28,19 +28,13 @@
 
 package org.jowidgets.cap.ui.api.widgets;
 
-import java.util.List;
-
+import org.jowidgets.api.widgets.IInputControl;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
-import org.jowidgets.cap.ui.api.table.IBeanTableModel;
+import org.jowidgets.cap.ui.api.filter.IFilterType;
+import org.jowidgets.cap.ui.api.filter.IUiConfigurableFilter;
 
-public interface ICapApiBluePrintFactory {
+public interface IAttributeFilterControl extends IInputControl<IUiConfigurableFilter<? extends Object>> {
 
-	<BEAN_TYPE> IBeanTableBluePrint<BEAN_TYPE> beanTable(IBeanTableModel<BEAN_TYPE> model);
-
-	IBeanTableSettingsDialogBluePrint beanTableSettingsDialog(IBeanTableModel<?> model);
-
-	<BEAN_TYPE> IBeanFormBluePrint<BEAN_TYPE> beanForm(List<? extends IAttribute<?>> attributes);
-
-	IAttributeFilterControlBluePrint attributeFilterControl(List<? extends IAttribute<?>> attributes);
+	void setAttribute(final IAttribute<?> attribute, IFilterType filterType);
 
 }

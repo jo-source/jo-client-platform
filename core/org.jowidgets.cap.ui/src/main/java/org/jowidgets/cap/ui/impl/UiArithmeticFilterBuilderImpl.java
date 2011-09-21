@@ -32,6 +32,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.jowidgets.cap.common.api.filter.ArithmeticOperator;
+import org.jowidgets.cap.ui.api.filter.FilterType;
 import org.jowidgets.cap.ui.api.filter.IFilterType;
 import org.jowidgets.cap.ui.api.filter.IUiArithmeticFilter;
 import org.jowidgets.cap.ui.api.filter.IUiArithmeticFilterBuilder;
@@ -47,6 +48,7 @@ final class UiArithmeticFilterBuilderImpl<CONFIG_TYPE> extends UiFilterBuilderIm
 
 	UiArithmeticFilterBuilderImpl() {
 		parameters = new LinkedList<Object>();
+		this.filterType = FilterType.ARITHMETIC_FILTER;
 	}
 
 	@Override
