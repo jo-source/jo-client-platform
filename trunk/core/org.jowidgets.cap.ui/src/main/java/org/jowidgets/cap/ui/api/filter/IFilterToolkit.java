@@ -40,6 +40,8 @@ public interface IFilterToolkit {
 
 	IUiFilterFactory filterFactory();
 
+	IUiFilterTools filterTools();
+
 	IOperatorProvider<ArithmeticOperator> arithmeticOperatorProvider(
 		Class<?> type,
 		Class<?> elementValueType,

@@ -38,12 +38,17 @@ import org.jowidgets.cap.ui.api.filter.IUiFilter;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.model.IDataModel;
 import org.jowidgets.cap.ui.api.sort.ISortModel;
+import org.jowidgets.util.event.IChangeListener;
 
 public interface IBeanTableModel<BEAN_TYPE> extends IDataModel, IBeanListModel<BEAN_TYPE> {
+
+	String UI_FILTER_ID = IBeanTableModel.class.getName() + ".UI_FILTER_ID";
 
 	ITableModel getTableModel();
 
 	IAttribute<Object> getAttribute(int columnIndex);
+
+	Object getValue(int rowIndex, int columnIndex);
 
 	int getColumnCount();
 
@@ -54,7 +59,17 @@ public interface IBeanTableModel<BEAN_TYPE> extends IDataModel, IBeanListModel<B
 
 	IBeanProxy<BEAN_TYPE> getFirstSelectedBean();
 
+	void addFilterChangeListener(IChangeListener changeListener);
+
+	void removeFilterChangeListener(IChangeListener changeListener);
+
 	void setFilter(String id, IUiFilter filter);
+
+	void addFilter(String id, IUiFilter addedFilter);
+
+	void removeFiltersForProperty(String id, String propertyName);
+
+	void removeFiltersForProperty(String id, int columnIndex);
 
 	void removeFilter(String id);
 

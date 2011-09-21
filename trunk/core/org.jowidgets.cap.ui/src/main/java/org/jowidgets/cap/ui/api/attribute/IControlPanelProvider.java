@@ -45,7 +45,7 @@ public interface IControlPanelProvider<ELEMENT_VALUE_TYPE> {
 
 	IStringObjectConverter<ELEMENT_VALUE_TYPE> getStringObjectConverter();
 
-	IFilterSupport<?> getFilterSupport();
+	IFilterSupport<Object> getFilterSupport();
 
 	ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> getControlCreator();
 

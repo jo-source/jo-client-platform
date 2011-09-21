@@ -28,34 +28,62 @@
 
 package org.jowidgets.cap.ui.impl;
 
+import org.jowidgets.api.command.EnabledState;
 import org.jowidgets.api.command.ICommandExecutor;
+import org.jowidgets.api.command.IEnabledState;
 import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.api.image.IconsSmall;
+import org.jowidgets.cap.ui.api.CapUiToolkit;
+import org.jowidgets.cap.ui.api.attribute.IAttribute;
+import org.jowidgets.cap.ui.api.filter.IUiFilter;
+import org.jowidgets.cap.ui.api.filter.IUiFilterTools;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
-import org.jowidgets.cap.ui.api.widgets.IBeanTable;
-import org.jowidgets.common.widgets.controller.ITableCellPopupEvent;
-import org.jowidgets.common.widgets.controller.ITableColumnPopupEvent;
 import org.jowidgets.tools.command.ActionBuilder;
+import org.jowidgets.tools.command.EnabledChecker;
+import org.jowidgets.util.event.IChangeListener;
 
 final class BeanTableDeleteColumnFiltersActionBuilder extends ActionBuilder {
 
-	BeanTableDeleteColumnFiltersActionBuilder(final IBeanTableModel<?> model) {
+	private final IAttribute<?> attribute;
+
+	BeanTableDeleteColumnFiltersActionBuilder(final IBeanTableModel<?> model, final int columnIndex) {
 		super();
 		//TODO i18n
 		setText("Delete column filters");
 		setToolTipText("Deletes / removes all filters from the column");
 		setIcon(IconsSmall.FILTER_DELETE);
-		setCommand(new ICommandExecutor() {
+
+		this.attribute = model.getAttribute(columnIndex);
+
+		final EnabledChecker enabledChecker = new EnabledChecker();
+		enabledChecker.setEnabledState(getEnabledState(model));
+		model.addFilterChangeListener(new IChangeListener() {
 			@Override
-			public void execute(final IExecutionContext executionContext) throws Exception {
-				final ITableColumnPopupEvent columnPopupEvent = executionContext.getValue(IBeanTable.COLUMN_POPUP_EVENT_CONTEXT_KEY);
-				final ITableCellPopupEvent cellPopupEvent = executionContext.getValue(IBeanTable.CELL_POPUP_EVENT_CONTEXT_KEY);
-				//CHECKSTYLE:OFF
-				System.out.println("TODO delete column filters:" + columnPopupEvent);
-				System.out.println("TODO delete column filters:" + cellPopupEvent);
-				//CHECKSTYLE:ON
+			public void changed() {
+				enabledChecker.setEnabledState(getEnabledState(model));
 			}
 		});
+
+		final ICommandExecutor executor = new ICommandExecutor() {
+			@Override
+			public void execute(final IExecutionContext executionContext) throws Exception {
+				model.removeFiltersForProperty(IBeanTableModel.UI_FILTER_ID, attribute.getPropertyName());
+				model.load();
+			}
+		};
+
+		setCommand(executor, enabledChecker);
 	}
 
+	private IEnabledState getEnabledState(final IBeanTableModel<?> model) {
+		final IUiFilterTools filterTools = CapUiToolkit.filterToolkit().filterTools();
+		final IUiFilter uiFilter = model.getFilter(IBeanTableModel.UI_FILTER_ID);
+		if (uiFilter != null && filterTools.isPropertyFiltered(uiFilter, attribute.getPropertyName())) {
+			return EnabledState.ENABLED;
+		}
+		else {
+			//TODO i18n
+			return EnabledState.disabled("There is no filter defined on this column");
+		}
+	}
 }

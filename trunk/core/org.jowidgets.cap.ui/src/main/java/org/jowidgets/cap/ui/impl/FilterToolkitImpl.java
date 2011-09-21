@@ -42,19 +42,27 @@ import org.jowidgets.cap.ui.api.filter.IFilterToolkit;
 import org.jowidgets.cap.ui.api.filter.IIncludingFilterFactory;
 import org.jowidgets.cap.ui.api.filter.IOperatorProvider;
 import org.jowidgets.cap.ui.api.filter.IUiFilterFactory;
+import org.jowidgets.cap.ui.api.filter.IUiFilterTools;
 import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
 
 final class FilterToolkitImpl implements IFilterToolkit {
 
 	private final IUiFilterFactory filterFactory;
+	private final IUiFilterTools filterTools;
 
 	FilterToolkitImpl() {
 		this.filterFactory = new UiFilterFactoryImpl();
+		this.filterTools = new UiFilterToolsImpl();
 	}
 
 	@Override
 	public IUiFilterFactory filterFactory() {
 		return filterFactory;
+	}
+
+	@Override
+	public IUiFilterTools filterTools() {
+		return filterTools;
 	}
 
 	@Override

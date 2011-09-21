@@ -28,53 +28,47 @@
 
 package org.jowidgets.cap.ui.impl;
 
-import org.jowidgets.api.command.EnabledState;
 import org.jowidgets.api.command.ICommandExecutor;
-import org.jowidgets.api.command.IEnabledState;
 import org.jowidgets.api.command.IExecutionContext;
-import org.jowidgets.api.image.IconsSmall;
+import org.jowidgets.cap.ui.api.CapUiToolkit;
+import org.jowidgets.cap.ui.api.attribute.IAttribute;
+import org.jowidgets.cap.ui.api.filter.IFilterSupport;
+import org.jowidgets.cap.ui.api.filter.IIncludingFilterFactory;
+import org.jowidgets.cap.ui.api.filter.IUiFilter;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
-import org.jowidgets.tools.command.ActionBuilder;
-import org.jowidgets.tools.command.EnabledChecker;
-import org.jowidgets.util.event.IChangeListener;
+import org.jowidgets.cap.ui.api.widgets.IBeanTable;
+import org.jowidgets.common.widgets.controller.ITableCellPopupEvent;
 
-final class BeanTableDeleteFilterActionBuilder extends ActionBuilder {
+final class BeanTableAddInlineFilterCommandExecutor implements ICommandExecutor {
 
-	BeanTableDeleteFilterActionBuilder(final IBeanTableModel<?> model) {
-		super();
-		//TODO i18n
-		setText("Delete table filter");
-		setToolTipText("Deletes / removes the tables filter");
-		setIcon(IconsSmall.FILTER_DELETE);
+	private final IBeanTableModel<?> model;
+	private final int columnIndex;
+	private final boolean invert;
 
-		final EnabledChecker enabledChecker = new EnabledChecker();
-		enabledChecker.setEnabledState(getEnabledState(model));
-		model.addFilterChangeListener(new IChangeListener() {
-			@Override
-			public void changed() {
-				enabledChecker.setEnabledState(getEnabledState(model));
-			}
-		});
-
-		final ICommandExecutor executor = new ICommandExecutor() {
-			@Override
-			public void execute(final IExecutionContext executionContext) throws Exception {
-				model.removeFilter(IBeanTableModel.UI_FILTER_ID);
-				model.load();
-			}
-		};
-
-		setCommand(executor, enabledChecker);
+	BeanTableAddInlineFilterCommandExecutor(final IBeanTableModel<?> model, final int columnIndex, final boolean invert) {
+		this.model = model;
+		this.columnIndex = columnIndex;
+		this.invert = invert;
 	}
 
-	private IEnabledState getEnabledState(final IBeanTableModel<?> model) {
-		if (model.getFilter(IBeanTableModel.UI_FILTER_ID) != null) {
-			return EnabledState.ENABLED;
+	@Override
+	public void execute(final IExecutionContext executionContext) throws Exception {
+		final ITableCellPopupEvent cellPopupEvent = executionContext.getValue(IBeanTable.CELL_POPUP_EVENT_CONTEXT_KEY);
+
+		final Object cellValue = model.getValue(cellPopupEvent.getRowIndex(), columnIndex);
+
+		final IAttribute<Object> attribute = model.getAttribute(columnIndex);
+		final IFilterSupport<Object> filterSupport = attribute.getCurrentControlPanel().getFilterSupport();
+		final IIncludingFilterFactory<Object> includingFilterFactory = filterSupport.getIncludingFilterFactory();
+		IUiFilter includingFilter = includingFilterFactory.getIncludingFilter(cellValue);
+
+		if (invert) {
+			includingFilter = CapUiToolkit.filterToolkit().filterTools().invert(includingFilter);
 		}
-		else {
-			//TODO i18n
-			return EnabledState.disabled("There is no filter defined on this table");
-		}
+
+		model.addFilter(IBeanTableModel.UI_FILTER_ID, includingFilter);
+
+		model.load();
 	}
 
 }

@@ -80,6 +80,7 @@ import org.jowidgets.cap.ui.api.execution.BeanExecutionPolicy;
 import org.jowidgets.cap.ui.api.execution.IExecutionTask;
 import org.jowidgets.cap.ui.api.filter.IUiFilter;
 import org.jowidgets.cap.ui.api.filter.IUiFilterFactory;
+import org.jowidgets.cap.ui.api.filter.IUiFilterTools;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
 import org.jowidgets.cap.ui.api.model.IModificationStateListener;
@@ -100,6 +101,7 @@ import org.jowidgets.tools.model.table.DefaultTableColumnBuilder;
 import org.jowidgets.tools.model.table.TableCellBuilder;
 import org.jowidgets.tools.model.table.TableModel;
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.event.ChangeObservable;
 import org.jowidgets.util.event.IChangeListener;
 
 @SuppressWarnings("unused")
@@ -132,6 +134,7 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 	private final LinkType linkType;
 
 	private final BeanListModelObservable beanListModelObservable;
+	private final ChangeObservable filterChangeObservable;
 
 	private final IDefaultTableColumnModel columnModel;
 	private final AbstractTableDataModel dataModel;
@@ -204,6 +207,7 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 		this.beansStateTracker = CapUiToolkit.beansStateTracker();
 		this.beanProxyFactory = CapUiToolkit.beanProxyFactory(beanType);
 		this.beanListModelObservable = new BeanListModelObservable();
+		this.filterChangeObservable = new ChangeObservable();
 
 		//model creation
 		this.columnModel = createColumnModel(attributes);
@@ -410,6 +414,13 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 	}
 
 	@Override
+	public Object getValue(final int rowIndex, final int columnIndex) {
+		final IAttribute<Object> attribute = getAttribute(columnIndex);
+		final IBeanProxy<?> bean = getBean(rowIndex);
+		return bean.getValue(attribute.getPropertyName());
+	}
+
+	@Override
 	public int getColumnCount() {
 		return attributes.size();
 	}
@@ -454,22 +465,66 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 	}
 
 	@Override
+	public void addFilterChangeListener(final IChangeListener changeListener) {
+		filterChangeObservable.addChangeListener(changeListener);
+	}
+
+	@Override
+	public void removeFilterChangeListener(final IChangeListener changeListener) {
+		filterChangeObservable.removeChangeListener(changeListener);
+	}
+
+	@Override
 	public void setFilter(final String id, final IUiFilter filter) {
 		Assert.paramNotNull(id, "id");
 		Assert.paramNotNull(filter, "filter");
 		filters.put(id, filter);
+		afterFilterChanged(id);
+	}
+
+	@Override
+	public void addFilter(final String id, final IUiFilter addedFilter) {
+		Assert.paramNotNull(id, "id");
+		Assert.paramNotNull(addedFilter, "addedFilter");
+
+		final IUiFilterTools filterTools = CapUiToolkit.filterToolkit().filterTools();
+		final IUiFilter currentFilter = getFilter(id);
+		setFilter(id, filterTools.addFilter(currentFilter, addedFilter));
 	}
 
 	@Override
 	public void removeFilter(final String id) {
 		Assert.paramNotNull(id, "id");
 		filters.remove(id);
+		afterFilterChanged(id);
+	}
+
+	@Override
+	public void removeFiltersForProperty(final String id, final String propertyName) {
+		final IUiFilterTools filterTools = CapUiToolkit.filterToolkit().filterTools();
+		final IUiFilter currentFilter = getFilter(id);
+		if (currentFilter != null) {
+			setFilter(id, filterTools.removeProperty(currentFilter, propertyName));
+		}
+	}
+
+	@Override
+	public void removeFiltersForProperty(final String id, final int columnIndex) {
+		final IAttribute<Object> attribute = getAttribute(columnIndex);
+		removeFiltersForProperty(id, attribute.getPropertyName());
 	}
 
 	@Override
 	public IUiFilter getFilter(final String id) {
 		Assert.paramNotNull(id, "id");
 		return filters.get(id);
+	}
+
+	private void afterFilterChanged(final String id) {
+		if (IBeanTableModel.UI_FILTER_ID.equals(id)) {
+			updateColumnModel();
+		}
+		filterChangeObservable.fireChangedEvent();
 	}
 
 	@Override
@@ -580,6 +635,16 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 		for (final IDefaultTableColumn column : columnModel.getColumns()) {
 			final IAttribute<?> attribute = getAttribute(index);
 			if (attribute != null) {
+				final IUiFilterTools filterTools = CapUiToolkit.filterToolkit().filterTools();
+				final IUiFilter uiFilter = getFilter(IBeanTableModel.UI_FILTER_ID);
+				final boolean isFiltered;
+				if (uiFilter != null) {
+					isFiltered = filterTools.isPropertyFiltered(uiFilter, attribute.getPropertyName());
+				}
+				else {
+					isFiltered = false;
+				}
+
 				final IPropertySort propertySort = sortModel.getPropertySort(attribute.getPropertyName());
 				if (propertySort.isSorted()) {
 					if (propertySort.getSortOrder() == SortOrder.ASC) {
@@ -599,7 +664,14 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 					}
 				}
 				else {
-					column.setText(getLabel(attribute));
+					//TODO MG use icon and also do this if sorted
+					if (isFiltered) {
+						column.setText(getLabel(attribute) + " (F)");
+					}
+					else {
+						column.setText(getLabel(attribute));
+					}
+
 					column.setIcon(null);
 				}
 			}

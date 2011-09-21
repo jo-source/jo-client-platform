@@ -44,10 +44,11 @@ final class ControlPanelProviderImpl<ELEMENT_VALUE_TYPE> implements IControlPane
 	private final IDisplayFormat displayFormat;
 	private final IObjectLabelConverter<ELEMENT_VALUE_TYPE> objectLabelConverter;
 	private final IStringObjectConverter<ELEMENT_VALUE_TYPE> stringObjectConverter;
-	private final IFilterSupport<?> filterSupport;
+	private final IFilterSupport<Object> filterSupport;
 	private final ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> controlCreator;
 	private final ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> collectionControlCreator;
 
+	@SuppressWarnings("unchecked")
 	ControlPanelProviderImpl(
 		final IDisplayFormat displayFormat,
 		final IObjectLabelConverter<ELEMENT_VALUE_TYPE> objectLabelConverter,
@@ -62,7 +63,7 @@ final class ControlPanelProviderImpl<ELEMENT_VALUE_TYPE> implements IControlPane
 		this.displayFormat = displayFormat;
 		this.objectLabelConverter = objectLabelConverter;
 		this.stringObjectConverter = stringObjectConverter;
-		this.filterSupport = filterSupport;
+		this.filterSupport = (IFilterSupport<Object>) filterSupport;
 		this.controlCreator = controlCreator;
 		this.collectionControlCreator = collectionControlCreator;
 	}
@@ -88,7 +89,7 @@ final class ControlPanelProviderImpl<ELEMENT_VALUE_TYPE> implements IControlPane
 	}
 
 	@Override
-	public IFilterSupport<?> getFilterSupport() {
+	public IFilterSupport<Object> getFilterSupport() {
 		return filterSupport;
 	}
 

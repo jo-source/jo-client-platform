@@ -41,8 +41,7 @@ final class BeanTableAddFilterActionBuilder extends ActionBuilder {
 
 	BeanTableAddFilterActionBuilder(final IBeanTableModel<?> model, final IFilterType filterType, final int columnIndex) {
 		super();
-		//TODO i18n
-		setText(filterType.getLabel() + "...");
+		setText(filterType.getLabel() + " ...");
 		setToolTipText(filterType.getDescription());
 		setIcon(IconsSmall.FILTER);
 		setCommand(new ICommandExecutor() {
