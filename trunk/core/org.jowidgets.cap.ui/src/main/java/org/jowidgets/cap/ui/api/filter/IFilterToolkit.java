@@ -75,7 +75,6 @@ public interface IFilterToolkit {
 
 	<ELEMENT_VALUE_TYPE> IFilterPanelProvider<ArithmeticOperator> arithmeticFilterPanel(
 		String propertyName,
-		Class<?> type,
 		Class<?> elementValueType,
 		IOperatorProvider<ArithmeticOperator> operatorProvider,
 		ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> controlCreator,
@@ -83,8 +82,6 @@ public interface IFilterToolkit {
 
 	<ELEMENT_VALUE_TYPE> IFilterPanelProvider<ArithmeticOperator> arithmeticPropertyFilterPanel(
 		String propertyName,
-		Class<?> type,
-		Class<?> elementValueType,
 		IOperatorProvider<ArithmeticOperator> arithmeticPropertyOperatorProvider,
 		IAttributeFilter attributeFilter);
 
