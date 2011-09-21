@@ -32,6 +32,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -411,6 +412,11 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 	@Override
 	public IAttribute<Object> getAttribute(final int columnIndex) {
 		return attributes.get(columnIndex);
+	}
+
+	@Override
+	public List<IAttribute<Object>> getAttributes() {
+		return Collections.unmodifiableList(attributes);
 	}
 
 	@Override

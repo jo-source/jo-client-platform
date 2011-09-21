@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2010, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,21 +26,22 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.widgets;
+package org.jowidgets.cap.ui.impl.widgets;
 
-import java.util.List;
+import org.jowidgets.api.toolkit.Toolkit;
+import org.jowidgets.api.widgets.IComposite;
+import org.jowidgets.api.widgets.blueprint.factory.IBluePrintFactory;
+import org.jowidgets.cap.ui.api.widgets.IAttributeFilterControl;
+import org.jowidgets.cap.ui.api.widgets.IAttributeFilterControlBluePrint;
+import org.jowidgets.common.widgets.factory.IWidgetFactory;
 
-import org.jowidgets.cap.ui.api.attribute.IAttribute;
-import org.jowidgets.cap.ui.api.table.IBeanTableModel;
+public final class AttributeFilterControlFactory implements
+		IWidgetFactory<IAttributeFilterControl, IAttributeFilterControlBluePrint> {
 
-public interface ICapApiBluePrintFactory {
-
-	<BEAN_TYPE> IBeanTableBluePrint<BEAN_TYPE> beanTable(IBeanTableModel<BEAN_TYPE> model);
-
-	IBeanTableSettingsDialogBluePrint beanTableSettingsDialog(IBeanTableModel<?> model);
-
-	<BEAN_TYPE> IBeanFormBluePrint<BEAN_TYPE> beanForm(List<? extends IAttribute<?>> attributes);
-
-	IAttributeFilterControlBluePrint attributeFilterControl(List<? extends IAttribute<?>> attributes);
-
+	@Override
+	public IAttributeFilterControl create(final Object parentUiReference, final IAttributeFilterControlBluePrint bluePrint) {
+		final IBluePrintFactory bpf = Toolkit.getBluePrintFactory();
+		final IComposite composite = Toolkit.getWidgetFactory().create(parentUiReference, bpf.composite());
+		return new AttributeFilterControlImpl(composite, bluePrint);
+	}
 }

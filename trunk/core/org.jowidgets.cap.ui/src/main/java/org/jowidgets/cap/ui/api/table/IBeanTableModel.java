@@ -48,6 +48,8 @@ public interface IBeanTableModel<BEAN_TYPE> extends IDataModel, IBeanListModel<B
 
 	IAttribute<Object> getAttribute(int columnIndex);
 
+	List<IAttribute<Object>> getAttributes();
+
 	Object getValue(int rowIndex, int columnIndex);
 
 	int getColumnCount();
