@@ -33,12 +33,14 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IBeanDto;
+import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.filter.ArithmeticOperator;
 import org.jowidgets.cap.common.api.filter.BooleanOperator;
 import org.jowidgets.cap.common.api.filter.IArithmeticFilter;
 import org.jowidgets.cap.common.api.filter.IBooleanFilter;
 import org.jowidgets.cap.common.api.filter.ICustomFilter;
 import org.jowidgets.cap.common.api.filter.IFilter;
+import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFilter;
 import org.jowidgets.util.EmptyCheck;
 import org.jowidgets.util.NullCompatibleEquivalence;
@@ -46,28 +48,35 @@ import org.jowidgets.util.NullCompatibleEquivalence;
 final class BeanDtoFilterImpl implements IBeanDtoFilter {
 
 	@Override
-	public List<IBeanDto> filter(final Collection<? extends IBeanDto> beanDtos, final IFilter filter) {
+	public List<IBeanDto> filter(
+		final Collection<? extends IBeanDto> beanDtos,
+		final IFilter filter,
+		final IExecutionCallback executionCallback) {
 		//CHECKSTYLE:OFF
 		// TODO NM remove sysout
 		System.out.println("Filter: " + filter);
 		//CHECKSTYLE:ON
 		if (filter instanceof IBooleanFilter) {
-			return booleanFilter(beanDtos, (IBooleanFilter) filter);
+			return booleanFilter(beanDtos, (IBooleanFilter) filter, executionCallback);
 		}
 		else if (filter instanceof IArithmeticFilter) {
-			return arithmeticFilter(beanDtos, (IArithmeticFilter) filter);
+			return arithmeticFilter(beanDtos, (IArithmeticFilter) filter, executionCallback);
 		}
 		else if (filter instanceof ICustomFilter) {
-			return customFilter(beanDtos, (ICustomFilter) filter);
+			return customFilter(beanDtos, (ICustomFilter) filter, executionCallback);
 		}
 		else {
 			throw new IllegalArgumentException("Unkown filter type '" + filter.getClass().getName() + "'.");
 		}
 	}
 
-	private List<IBeanDto> booleanFilter(final Collection<? extends IBeanDto> beanDtos, final IBooleanFilter filter) {
+	private List<IBeanDto> booleanFilter(
+		final Collection<? extends IBeanDto> beanDtos,
+		final IBooleanFilter filter,
+		final IExecutionCallback executionCallback) {
 		final LinkedList<IBeanDto> result = new LinkedList<IBeanDto>();
 		for (final IBeanDto beanDto : beanDtos) {
+			CapServiceToolkit.checkCanceled(executionCallback);
 			if (acceptBoolean(beanDto, filter)) {
 				result.add(beanDto);
 			}
@@ -75,11 +84,15 @@ final class BeanDtoFilterImpl implements IBeanDtoFilter {
 		return result;
 	}
 
-	private List<IBeanDto> arithmeticFilter(final Collection<? extends IBeanDto> beanDtos, final IArithmeticFilter filter) {
+	private List<IBeanDto> arithmeticFilter(
+		final Collection<? extends IBeanDto> beanDtos,
+		final IArithmeticFilter filter,
+		final IExecutionCallback executionCallback) {
 		final LinkedList<IBeanDto> result = new LinkedList<IBeanDto>();
 		final String propertyName = filter.getPropertyName();
 		if (ArithmeticOperator.EMPTY.equals(filter.getOperator())) {
 			for (final IBeanDto beanDto : beanDtos) {
+				CapServiceToolkit.checkCanceled(executionCallback);
 				if (EmptyCheck.isEmpty(beanDto.getValue(propertyName))) {
 					result.add(beanDto);
 				}
@@ -87,6 +100,7 @@ final class BeanDtoFilterImpl implements IBeanDtoFilter {
 		}
 		else {
 			for (final IBeanDto beanDto : beanDtos) {
+				CapServiceToolkit.checkCanceled(executionCallback);
 				if (acceptArithmetic(beanDto, filter)) {
 					result.add(beanDto);
 				}
@@ -95,9 +109,13 @@ final class BeanDtoFilterImpl implements IBeanDtoFilter {
 		return result;
 	}
 
-	private List<IBeanDto> customFilter(final Collection<? extends IBeanDto> beanDtos, final ICustomFilter filter) {
+	private List<IBeanDto> customFilter(
+		final Collection<? extends IBeanDto> beanDtos,
+		final ICustomFilter filter,
+		final IExecutionCallback executionCallback) {
 		final LinkedList<IBeanDto> result = new LinkedList<IBeanDto>();
 		for (final IBeanDto beanDto : beanDtos) {
+			CapServiceToolkit.checkCanceled(executionCallback);
 			result.add(beanDto);
 		}
 		return result;
@@ -338,7 +356,7 @@ final class BeanDtoFilterImpl implements IBeanDtoFilter {
 		final StringBuilder regex = new StringBuilder(search.length());
 		for (final char c : search.toLowerCase().toCharArray()) {
 			switch (c) {
-			// TODO NM improve, escape more
+				// TODO NM improve, escape more
 				case '\\':
 					regex.append("\\\\");
 					break;

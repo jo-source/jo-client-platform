@@ -79,15 +79,29 @@ public class AllUsersReaderService implements ISyncReaderService<Integer> {
 		System.out.println(SecurityContextHolder.getSecurityContext());
 		//CHECKSTYLE:ON
 
-		final IEntityData<? extends IBean> entityData = EntityDataStore.getEntityData(IUser.class);
+		final IEntityData<? extends IBean> data = EntityDataStore.getEntityData(IUser.class);
 		final IBeanDtoFactory<IUser> dtoFactory = CapServiceToolkit.dtoFactory(IUser.class, IUser.ALL_PROPERTIES);
-		final List<? extends IBean> allData = entityData.getAllData(firstRow, maxRows);
-		List<IBeanDto> result = BeanDtoFactoryHelper.createDtos(dtoFactory, allData);
-		if (filter != null) {
-			result = CapServiceToolkit.beanDtoFilter().filter(result, filter);
-		}
-		return CapServiceToolkit.beanDtoSorter().sort(result, sorting);
 
+		if (filter == null && (sorting == null || sorting.size() == 0)) {
+			return BeanDtoFactoryHelper.createDtos(dtoFactory, data.getAllData(firstRow, maxRows), executionCallback);
+		}
+		else {
+			List<IBeanDto> result = BeanDtoFactoryHelper.createDtos(dtoFactory, data.getAllData(), executionCallback);
+
+			if (filter != null) {
+				result = CapServiceToolkit.beanDtoFilter().filter(result, filter, executionCallback);
+			}
+			if (sorting != null && sorting.size() > 0) {
+				result = CapServiceToolkit.beanDtoSorter().sort(result, sorting, executionCallback);
+			}
+
+			if (result.size() >= firstRow) {
+				return result.subList(firstRow, Math.min(firstRow + maxRows, result.size()));
+			}
+			else {
+				return result.subList(0, Math.min(maxRows, result.size()));
+			}
+		}
 	}
 
 	@Override

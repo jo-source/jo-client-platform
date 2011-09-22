@@ -131,7 +131,7 @@ final class UserDataInitializer {
 		user.setCountry("USA");
 		data.add(user);
 
-		for (int i = 0; i < 200000; i++) {
+		for (int i = 0; i < 20000; i++) {
 			user = new User(data.nextId());
 			user.setName("Name " + i);
 			user.setLastName("Lastname " + i);

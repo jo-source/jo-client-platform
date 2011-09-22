@@ -35,31 +35,39 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IBeanDto;
+import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.common.api.sort.SortOrder;
+import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.bean.IBeanDtoSorter;
 
 final class BeanDtoSorterImpl implements IBeanDtoSorter {
 
 	@Override
-	public List<IBeanDto> sort(final Collection<? extends IBeanDto> beanDtos, final List<? extends ISort> sorting) {
+	public List<IBeanDto> sort(
+		final Collection<? extends IBeanDto> beanDtos,
+		final List<? extends ISort> sorting,
+		final IExecutionCallback executionCallback) {
 		final List<IBeanDto> result = new LinkedList<IBeanDto>(beanDtos);
-		Collections.sort(result, new BeanDtoComparator(sorting));
+		Collections.sort(result, new BeanDtoComparator(sorting, executionCallback));
 		return result;
 	}
 
 	private class BeanDtoComparator implements Comparator<IBeanDto> {
 
 		private final List<? extends ISort> sorting;
+		private final IExecutionCallback executionCallback;
 
-		public BeanDtoComparator(final List<? extends ISort> sorting) {
+		public BeanDtoComparator(final List<? extends ISort> sorting, final IExecutionCallback executionCallback) {
 			this.sorting = sorting;
+			this.executionCallback = executionCallback;
 		}
 
 		@Override
 		public int compare(final IBeanDto firstBeanDto, final IBeanDto secondBeanDto) {
 			int result = 0;
 			for (final ISort sort : sorting) {
+				CapServiceToolkit.checkCanceled(executionCallback);
 				final String propertyName = sort.getPropertyName();
 				final SortOrder sortOrder = sort.getSortOrder();
 				if (null != sortOrder) {

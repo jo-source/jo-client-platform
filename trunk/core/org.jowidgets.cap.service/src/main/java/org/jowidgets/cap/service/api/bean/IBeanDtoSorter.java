@@ -32,10 +32,14 @@ import java.util.Collection;
 import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IBeanDto;
+import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.sort.ISort;
 
 public interface IBeanDtoSorter {
 
-	List<IBeanDto> sort(Collection<? extends IBeanDto> beanDtos, List<? extends ISort> sorting);
+	List<IBeanDto> sort(
+		Collection<? extends IBeanDto> beanDtos,
+		List<? extends ISort> sorting,
+		IExecutionCallback executionCallback);
 
 }

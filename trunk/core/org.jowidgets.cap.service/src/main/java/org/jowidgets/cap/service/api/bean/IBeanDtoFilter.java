@@ -32,10 +32,11 @@ import java.util.Collection;
 import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IBeanDto;
+import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.filter.IFilter;
 
 public interface IBeanDtoFilter {
 
-	List<IBeanDto> filter(Collection<? extends IBeanDto> beanDtos, IFilter filter);
+	List<IBeanDto> filter(Collection<? extends IBeanDto> beanDtos, IFilter filter, IExecutionCallback executionCallback);
 
 }
