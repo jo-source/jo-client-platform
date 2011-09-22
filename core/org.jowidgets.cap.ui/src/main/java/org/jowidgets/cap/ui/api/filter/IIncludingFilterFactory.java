@@ -30,6 +30,8 @@ package org.jowidgets.cap.ui.api.filter;
 
 public interface IIncludingFilterFactory<VALUE_TYPE> {
 
+	IFilterType getFilterType();
+
 	IUiConfigurableFilter<?> getIncludingFilter(VALUE_TYPE attributeValue);
 
 }
