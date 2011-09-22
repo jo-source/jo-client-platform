@@ -32,8 +32,6 @@ import org.jowidgets.cap.common.api.filter.ArithmeticOperator;
 
 public interface IUiArithmeticPropertyFilter<CONFIG_TYPE> extends IUiConfigurableFilter<CONFIG_TYPE> {
 
-	String getLeftHandPropertyName();
-
 	@Override
 	ArithmeticOperator getOperator();
 

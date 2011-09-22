@@ -246,7 +246,7 @@ public class ArithmeticPropertyFilterControl<ELEMENT_VALUE_TYPE> extends Control
 		final IUiFilterFactory filterFactory = CapUiToolkit.filterToolkit().filterFactory();
 		final IUiArithmeticPropertyFilterBuilder<Object> filterBuilder = filterFactory.arithmeticPropertyFilterBuilder();
 		filterBuilder.setOperator(operator);
-		filterBuilder.setLeftHandPropertyName(propertyName);
+		filterBuilder.setPropertyName(propertyName);
 		if (ArithmeticOperator.BETWEEN == operator) {
 			filterBuilder.addRightHandPropertyName(combo1.getValue().getPropertyName());
 			filterBuilder.addRightHandPropertyName(combo2.getValue().getPropertyName());

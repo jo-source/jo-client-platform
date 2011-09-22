@@ -30,7 +30,7 @@ package org.jowidgets.cap.common.api.filter;
 
 public interface IArithmeticPropertyFilterBuilder extends IFilterBuilder<IArithmeticPropertyFilterBuilder> {
 
-	IArithmeticPropertyFilterBuilder setLeftHandPropertyName(String propertyName);
+	IArithmeticPropertyFilterBuilder setPropertyName(String propertyName);
 
 	IArithmeticPropertyFilterBuilder setRightHandPropertyNames(String[] propertyNames);
 

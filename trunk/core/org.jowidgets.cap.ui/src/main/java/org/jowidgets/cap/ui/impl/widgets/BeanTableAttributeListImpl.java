@@ -1732,7 +1732,7 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 
 		@Override
 		// only set Elements is list has changed to avoid flickering
-		public void setElements(final List<TYPE> elements) {
+		public void setElements(final List<? extends TYPE> elements) {
 			final List<TYPE> currentElements = getElements();
 			boolean changed = false;
 			if (elements.size() != currentElements.size()) {

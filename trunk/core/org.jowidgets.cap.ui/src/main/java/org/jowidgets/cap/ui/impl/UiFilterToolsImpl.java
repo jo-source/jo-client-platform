@@ -111,7 +111,7 @@ final class UiFilterToolsImpl implements IUiFilterTools {
 		}
 		else if (sourceFilter instanceof IUiArithmeticPropertyFilter<?>) {
 			final IUiArithmeticPropertyFilter<Object> source = (IUiArithmeticPropertyFilter<Object>) sourceFilter;
-			if (propertyName.equals(source.getLeftHandPropertyName())) {
+			if (propertyName.equals(source.getPropertyName())) {
 				return null;
 			}
 			else {
@@ -163,7 +163,7 @@ final class UiFilterToolsImpl implements IUiFilterTools {
 			final IUiArithmeticPropertyFilter<Object> source = (IUiArithmeticPropertyFilter<Object>) sourceFilter;
 			final IUiArithmeticPropertyFilterBuilder<Object> builder = filterFactory.arithmeticPropertyFilterBuilder();
 			builder.setOperator(source.getOperator());
-			builder.setLeftHandPropertyName(source.getLeftHandPropertyName());
+			builder.setPropertyName(source.getPropertyName());
 			builder.setRightHandPropertyNames(source.getRightHandPropertyNames());
 			builder.setConfig(source.getConfig());
 			builder.setInverted(!source.isInverted());
@@ -204,7 +204,7 @@ final class UiFilterToolsImpl implements IUiFilterTools {
 			return propertyName.equals(((IUiArithmeticFilter<?>) sourceFilter).getPropertyName());
 		}
 		else if (sourceFilter instanceof IUiArithmeticPropertyFilter<?>) {
-			return propertyName.equals(((IUiArithmeticPropertyFilter<?>) sourceFilter).getLeftHandPropertyName());
+			return propertyName.equals(((IUiArithmeticPropertyFilter<?>) sourceFilter).getPropertyName());
 		}
 		else if (sourceFilter instanceof IUiCustomFilter<?>) {
 			return propertyName.equals(((IUiCustomFilter<?>) sourceFilter).getPropertyName());
