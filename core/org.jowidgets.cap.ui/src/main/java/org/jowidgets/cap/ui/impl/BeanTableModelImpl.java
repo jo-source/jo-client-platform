@@ -483,8 +483,12 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 	@Override
 	public void setFilter(final String id, final IUiFilter filter) {
 		Assert.paramNotNull(id, "id");
-		Assert.paramNotNull(filter, "filter");
-		filters.put(id, filter);
+		if (filter != null) {
+			filters.put(id, filter);
+		}
+		else {
+			filters.remove(id);
+		}
 		afterFilterChanged(id);
 	}
 

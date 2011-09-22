@@ -28,17 +28,15 @@
 
 package org.jowidgets.cap.ui.impl;
 
-import org.jowidgets.api.color.Colors;
 import org.jowidgets.api.command.ICommandExecutor;
 import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.api.image.IconsSmall;
 import org.jowidgets.api.toolkit.Toolkit;
-import org.jowidgets.api.widgets.IComposite;
-import org.jowidgets.api.widgets.IFrame;
-import org.jowidgets.api.widgets.IInputComponentValidationLabel;
-import org.jowidgets.api.widgets.IScrollComposite;
-import org.jowidgets.api.widgets.blueprint.IDialogBluePrint;
+import org.jowidgets.api.widgets.IInputDialog;
+import org.jowidgets.api.widgets.blueprint.IInputDialogBluePrint;
 import org.jowidgets.api.widgets.blueprint.factory.IBluePrintFactory;
+import org.jowidgets.api.widgets.content.IInputContentContainer;
+import org.jowidgets.api.widgets.content.IInputContentCreator;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.filter.IFilterPanelProvider;
@@ -53,7 +51,6 @@ import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
 import org.jowidgets.common.widgets.controller.ITableCellPopupEvent;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
 import org.jowidgets.tools.command.ActionBuilder;
-import org.jowidgets.tools.layout.MigLayoutFactory;
 
 final class BeanTableAddCustomFilterActionBuilder extends ActionBuilder {
 
@@ -115,31 +112,41 @@ final class BeanTableAddCustomFilterActionBuilder extends ActionBuilder {
 		final IBluePrintFactory bpf = Toolkit.getBluePrintFactory();
 		final ICapApiBluePrintFactory capBpf = CapUiToolkit.bluePrintFactory();
 
-		final IDialogBluePrint dialogBp = bpf.dialog(executionContext.getAction().getText()).setModal(false);
-		final IFrame dialog = Toolkit.getActiveWindow().createChildWindow(dialogBp);
+		final IInputDialogBluePrint<IUiConfigurableFilter<? extends Object>> dialogBp = bpf.inputDialog(new IInputContentCreator<IUiConfigurableFilter<? extends Object>>() {
 
-		dialog.setLayout(new MigLayoutDescriptor("[grow]", "[22!][grow][]"));
+			private IAttributeFilterControl filterControl;
 
-		final IScrollComposite scrollComposite = dialog.add(bpf.scrollComposite(), "growx, growy, h 0::,w 0::, wrap");
-		scrollComposite.setLayout(MigLayoutFactory.growingInnerCellLayout());
+			@Override
+			public void setValue(final IUiConfigurableFilter<? extends Object> value) {
+				filterControl.setValue(value);
+			}
 
-		final IAttributeFilterControl filterControl = scrollComposite.add(
-				capBpf.attributeFilterControl(model.getAttributes()),
-				"growx, w 0::");
-		filterControl.setValue(includingFilter);
+			@Override
+			public IUiConfigurableFilter<? extends Object> getValue() {
+				return filterControl.getValue();
+			}
 
-		final IInputComponentValidationLabel validationLabel = dialog.add(
-				0,
-				bpf.inputComponentValidationLabel(filterControl),
-				"growx, h 18!, wrap");
-		validationLabel.setBackgroundColor(Colors.ERROR);
+			@Override
+			public void createContent(final IInputContentContainer container) {
+				container.setLayout(new MigLayoutDescriptor("0[][grow, 0::]0", "0[grow, 0::]0"));
 
-		final IComposite buttonBar = dialog.add(bpf.composite(), "alignx r");
-		buttonBar.setLayout(new MigLayoutDescriptor("0[][][]0", "[]"));
-		buttonBar.add(bpf.button("Ok"), "sg bg");
-		buttonBar.add(bpf.button("Cancel"), "sg bg");
+				final IAttribute<?> attribute = model.getAttribute(columnIndex);
+				container.add(Toolkit.getBluePrintFactory().textLabel(attribute.getLabel()));
 
+				filterControl = container.add(capBpf.attributeFilterControl(model.getAttributes()), "growx, w 0::");
+				filterControl.setValue(includingFilter);
+			}
+		});
+
+		dialogBp.setTitle(executionContext.getAction().getText());
+
+		final IInputDialog<IUiConfigurableFilter<?>> dialog = Toolkit.getActiveWindow().createChildWindow(dialogBp);
 		dialog.setVisible(true);
+
+		if (dialog.isOkPressed()) {
+			model.addFilter(IBeanTableModel.UI_FILTER_ID, dialog.getValue());
+			model.load();
+		}
 	}
 	//	private void openDialog(
 	//		final IBeanTableModel<?> model,

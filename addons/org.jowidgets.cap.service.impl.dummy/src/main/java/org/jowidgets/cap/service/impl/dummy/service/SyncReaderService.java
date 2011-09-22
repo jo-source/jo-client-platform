@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.service.impl.dummy.service;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IBean;
@@ -64,13 +65,17 @@ final class SyncReaderService<BEAN_TYPE extends IBean> implements ISyncReaderSer
 
 		executionCallback = CapServiceToolkit.delayedExecutionCallback(executionCallback);
 
-		List<IBeanDto> result = BeanDtoFactoryHelper.createDtos(beanFactory, data.getAllData(firstRow, maxRows));
+		List<IBeanDto> result = BeanDtoFactoryHelper.createDtos(beanFactory, data.getAllData());
 
 		if (filter != null) {
 			result = CapServiceToolkit.beanDtoFilter().filter(result, filter);
 		}
+		result = CapServiceToolkit.beanDtoSorter().sort(result, sortedProperties);
 
-		return CapServiceToolkit.beanDtoSorter().sort(result, sortedProperties);
+		return new LinkedList<IBeanDto>(result.subList(
+				Math.min(firstRow, Math.max(result.size() - maxRows, 0)),
+				Math.min(firstRow + maxRows, result.size())));
+
 	}
 
 	@Override

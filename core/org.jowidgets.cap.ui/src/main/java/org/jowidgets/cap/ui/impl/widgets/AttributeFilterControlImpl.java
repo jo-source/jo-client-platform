@@ -41,6 +41,7 @@ import org.jowidgets.tools.widgets.wrapper.ControlWrapper;
 import org.jowidgets.validation.IValidationConditionListener;
 import org.jowidgets.validation.IValidationResult;
 import org.jowidgets.validation.IValidator;
+import org.jowidgets.validation.ValidationResult;
 
 //TODO MG implement AttributeFilterControlImpl
 final class AttributeFilterControlImpl extends ControlWrapper implements IAttributeFilterControl {
@@ -83,7 +84,7 @@ final class AttributeFilterControlImpl extends ControlWrapper implements IAttrib
 
 	@Override
 	public IValidationResult validate() {
-		return null;
+		return ValidationResult.ok();
 	}
 
 	@Override
