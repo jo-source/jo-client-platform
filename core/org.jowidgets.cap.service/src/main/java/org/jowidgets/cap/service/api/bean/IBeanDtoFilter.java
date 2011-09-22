@@ -32,10 +32,10 @@ import java.util.Collection;
 import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IBeanDto;
-import org.jowidgets.cap.common.api.sort.ISort;
+import org.jowidgets.cap.common.api.filter.IFilter;
 
-public interface IBeanDtoSorter {
+public interface IBeanDtoFilter {
 
-	List<IBeanDto> sort(Collection<? extends IBeanDto> beanDtos, List<? extends ISort> sorting);
+	List<IBeanDto> filter(Collection<? extends IBeanDto> beanDtos, IFilter filter);
 
 }

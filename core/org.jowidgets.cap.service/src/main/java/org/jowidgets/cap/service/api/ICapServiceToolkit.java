@@ -37,6 +37,7 @@ import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.service.api.adapter.IAdapterFactoryProvider;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
+import org.jowidgets.cap.service.api.bean.IBeanDtoFilter;
 import org.jowidgets.cap.service.api.bean.IBeanDtoSorter;
 import org.jowidgets.cap.service.api.bean.IBeanInitializer;
 import org.jowidgets.cap.service.api.bean.IBeanModifier;
@@ -67,6 +68,8 @@ public interface ICapServiceToolkit {
 		List<String> propertyNames);
 
 	IBeanDtoSorter beanDtoSorter();
+
+	IBeanDtoFilter beanDtoFilter();
 
 	<BEAN_TYPE extends IBean> IBeanInitializer<BEAN_TYPE> beanInitializer(
 		Class<? extends BEAN_TYPE> beanType,

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2011, Benjamin Marstaller, Michael Grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,16 +26,25 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.api.bean;
+package org.jowidgets.cap.service.impl;
 
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IBeanDto;
-import org.jowidgets.cap.common.api.sort.ISort;
+import org.jowidgets.cap.common.api.filter.IFilter;
+import org.jowidgets.cap.service.api.bean.IBeanDtoFilter;
 
-public interface IBeanDtoSorter {
+final class BeanDtoFilterImpl implements IBeanDtoFilter {
 
-	List<IBeanDto> sort(Collection<? extends IBeanDto> beanDtos, List<? extends ISort> sorting);
+	@Override
+	public List<IBeanDto> filter(final Collection<? extends IBeanDto> beanDtos, final IFilter filter) {
+		//TODO NM implement filter
+		//CHECKSTYLE:OFF
+		System.out.println("TODO implement filter");
+		//CHECKSTYLE:ON
+		return new LinkedList<IBeanDto>(beanDtos);
+	}
 
 }

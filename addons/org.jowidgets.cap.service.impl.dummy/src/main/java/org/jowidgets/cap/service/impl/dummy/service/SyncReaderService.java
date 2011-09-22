@@ -64,9 +64,11 @@ final class SyncReaderService<BEAN_TYPE extends IBean> implements ISyncReaderSer
 
 		executionCallback = CapServiceToolkit.delayedExecutionCallback(executionCallback);
 
-		final List<IBeanDto> result = BeanDtoFactoryHelper.createDtos(beanFactory, data.getAllData(firstRow, maxRows));
+		List<IBeanDto> result = BeanDtoFactoryHelper.createDtos(beanFactory, data.getAllData(firstRow, maxRows));
 
-		//TODO apply filter 
+		if (filter != null) {
+			result = CapServiceToolkit.beanDtoFilter().filter(result, filter);
+		}
 
 		return CapServiceToolkit.beanDtoSorter().sort(result, sortedProperties);
 	}
