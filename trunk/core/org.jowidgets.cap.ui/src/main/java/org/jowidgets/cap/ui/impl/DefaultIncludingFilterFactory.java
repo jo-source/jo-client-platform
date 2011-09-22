@@ -35,6 +35,8 @@ import java.util.GregorianCalendar;
 
 import org.jowidgets.cap.common.api.filter.ArithmeticOperator;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
+import org.jowidgets.cap.ui.api.filter.FilterType;
+import org.jowidgets.cap.ui.api.filter.IFilterType;
 import org.jowidgets.cap.ui.api.filter.IIncludingFilterFactory;
 import org.jowidgets.cap.ui.api.filter.IUiArithmeticFilterBuilder;
 import org.jowidgets.cap.ui.api.filter.IUiConfigurableFilter;
@@ -52,6 +54,11 @@ final class DefaultIncludingFilterFactory<VALUE_TYPE> implements IIncludingFilte
 		this.propertyName = propertyName;
 		this.type = type;
 		this.filterFactory = CapUiToolkit.filterToolkit().filterFactory();
+	}
+
+	@Override
+	public IFilterType getFilterType() {
+		return FilterType.ARITHMETIC_FILTER;
 	}
 
 	@Override

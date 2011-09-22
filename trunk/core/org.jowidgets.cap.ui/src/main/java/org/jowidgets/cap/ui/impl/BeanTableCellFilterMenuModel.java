@@ -33,7 +33,9 @@ import java.util.List;
 import org.jowidgets.api.image.IconsSmall;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
+import org.jowidgets.cap.ui.api.filter.IFilterSupport;
 import org.jowidgets.cap.ui.api.filter.IFilterType;
+import org.jowidgets.cap.ui.api.filter.IIncludingFilterFactory;
 import org.jowidgets.cap.ui.api.table.IBeanTableMenuFactory;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.tools.model.item.MenuModel;
@@ -50,7 +52,9 @@ final class BeanTableCellFilterMenuModel extends MenuModel {
 		if (attribute.isFilterable()) {
 			addAction(menuFactory.addIncludingFilterAction(model, columnIndex));
 			addAction(menuFactory.addExcludingFilterAction(model, columnIndex));
-			addAction(menuFactory.addCustomFilterAction(model, columnIndex));
+			if (hasCustomFilterSupport(attribute)) {
+				addAction(menuFactory.addCustomFilterAction(model, columnIndex));
+			}
 			final List<IFilterType> filterTypes = attribute.getSupportedFilterTypes();
 			if (filterTypes.size() > 0) {
 				addSeparator();
@@ -64,4 +68,9 @@ final class BeanTableCellFilterMenuModel extends MenuModel {
 		addAction(menuFactory.deleteFilterAction(model));
 	}
 
+	public static boolean hasCustomFilterSupport(final IAttribute<?> attribute) {
+		final IFilterSupport<Object> filterSupport = attribute.getCurrentControlPanel().getFilterSupport();
+		final IIncludingFilterFactory<Object> includingFilterFactory = filterSupport.getIncludingFilterFactory();
+		return attribute.getSupportedFilterTypes().contains(includingFilterFactory.getFilterType());
+	}
 }
