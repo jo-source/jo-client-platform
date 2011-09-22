@@ -80,4 +80,24 @@ final class CustomFilterImpl implements ICustomFilter, Serializable {
 		return inverted;
 	}
 
+	@Override
+	public String toString() {
+		final StringBuilder result = new StringBuilder();
+		if (inverted) {
+			result.append("not (");
+		}
+		result.append("custom filter: ");
+		result.append(filterType);
+		result.append(' ');
+		result.append(propertyName);
+		result.append(' ');
+		result.append(operator.getLabel());
+		result.append(' ');
+		result.append(value);
+		if (inverted) {
+			result.append(")");
+		}
+		return result.toString();
+	}
+
 }

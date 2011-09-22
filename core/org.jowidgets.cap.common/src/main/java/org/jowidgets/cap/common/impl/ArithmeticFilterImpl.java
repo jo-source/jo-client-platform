@@ -72,4 +72,33 @@ final class ArithmeticFilterImpl implements IArithmeticFilter, Serializable {
 		return parameters;
 	}
 
+	@Override
+	public String toString() {
+		final StringBuilder result = new StringBuilder();
+		if (inverted) {
+			result.append("not (");
+		}
+		result.append(propertyName);
+		result.append(' ');
+		result.append(operator.getLabel());
+		result.append(' ');
+		result.append('[');
+		int effectiveSize = result.length();
+		for (final Object o : parameters) {
+			if (o == null) {
+				result.append("<null>");
+			}
+			else {
+				result.append(o.toString());
+			}
+			effectiveSize = result.length();
+			result.append(", ");
+		}
+		result.setLength(effectiveSize);
+		result.append(']');
+		if (inverted) {
+			result.append(")");
+		}
+		return result.toString();
+	}
 }
