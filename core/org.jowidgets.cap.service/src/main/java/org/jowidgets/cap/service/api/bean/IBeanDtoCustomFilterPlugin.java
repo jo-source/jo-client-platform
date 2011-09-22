@@ -33,6 +33,8 @@ import org.jowidgets.cap.common.api.filter.ICustomFilter;
 
 public interface IBeanDtoCustomFilterPlugin {
 
+	String getFilterType();
+
 	boolean accept(IBeanDto bean, ICustomFilter filter);
 
 }
