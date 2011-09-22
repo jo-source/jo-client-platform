@@ -40,6 +40,7 @@ import org.jowidgets.cap.service.api.ICapServiceToolkit;
 import org.jowidgets.cap.service.api.adapter.IAdapterFactoryProvider;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
+import org.jowidgets.cap.service.api.bean.IBeanDtoFilter;
 import org.jowidgets.cap.service.api.bean.IBeanDtoSorter;
 import org.jowidgets.cap.service.api.bean.IBeanInitializer;
 import org.jowidgets.cap.service.api.bean.IBeanModifier;
@@ -61,12 +62,14 @@ public final class DefaultCapServiceToolkit implements ICapServiceToolkit {
 	private final IDecoratorProviderFactory decoratorProviderFactory;
 	private final ScheduledExecutorService scheduledExecutorService;
 	private final IBeanDtoSorter beanDtoSorter;
+	private final IBeanDtoFilter beanDtoFilter;
 
 	public DefaultCapServiceToolkit() {
 		this.adapterFactoryProvider = new AdapterFactoryProviderImpl();
 		this.decoratorProviderFactory = new DecoratorProviderFactoryImpl();
 		this.scheduledExecutorService = Executors.newScheduledThreadPool(20, new DaemonThreadFactory());
 		this.beanDtoSorter = new BeanDtoSorterImpl();
+		this.beanDtoFilter = new BeanDtoFilterImpl();
 	}
 
 	@Override
@@ -97,6 +100,11 @@ public final class DefaultCapServiceToolkit implements ICapServiceToolkit {
 	@Override
 	public IBeanDtoSorter beanDtoSorter() {
 		return beanDtoSorter;
+	}
+
+	@Override
+	public IBeanDtoFilter beanDtoFilter() {
+		return beanDtoFilter;
 	}
 
 	@Override

@@ -28,14 +28,8 @@
 
 package org.jowidgets.cap.service.api.bean;
 
-import java.util.Collection;
-import java.util.List;
+public interface IBeanDtoCustomFilterPluginRegistry {
 
-import org.jowidgets.cap.common.api.bean.IBeanDto;
-import org.jowidgets.cap.common.api.sort.ISort;
-
-public interface IBeanDtoSorter {
-
-	List<IBeanDto> sort(Collection<? extends IBeanDto> beanDtos, List<? extends ISort> sorting);
+	IBeanDtoCustomFilterPlugin get(String filterType);
 
 }
