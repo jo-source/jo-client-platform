@@ -34,6 +34,8 @@ import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
+import org.jowidgets.cap.common.api.execution.IExecutionCallback;
+import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.util.Assert;
 
@@ -44,17 +46,31 @@ public final class BeanDtoFactoryHelper {
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	public static <BEAN_TYPE extends IBean> List<IBeanDto> createDtos(
 		final IBeanDtoFactory<? extends BEAN_TYPE> beanDtoFactory,
-		final Collection<? extends BEAN_TYPE> beans) {
+		final Collection<? extends BEAN_TYPE> beans,
+		final IExecutionCallback executionCallback) {
 
 		Assert.paramNotNull(beanDtoFactory, "beanDtoFactory");
 		Assert.paramNotNull(beans, "beans");
 
 		final List<IBeanDto> result = new LinkedList<IBeanDto>();
 		for (final BEAN_TYPE bean : beans) {
+			checkCanceled(executionCallback);
 			final IBeanDtoFactory factory = beanDtoFactory;
 			result.add(factory.createDto(bean));
 		}
 		return result;
+	}
+
+	public static <BEAN_TYPE extends IBean> List<IBeanDto> createDtos(
+		final IBeanDtoFactory<? extends BEAN_TYPE> beanDtoFactory,
+		final Collection<? extends BEAN_TYPE> beans) {
+		return createDtos(beanDtoFactory, beans, null);
+	}
+
+	private static void checkCanceled(final IExecutionCallback executionCallback) {
+		if (executionCallback != null) {
+			CapServiceToolkit.checkCanceled(executionCallback);
+		}
 	}
 
 }

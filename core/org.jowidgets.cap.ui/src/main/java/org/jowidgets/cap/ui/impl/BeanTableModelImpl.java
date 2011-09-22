@@ -1014,13 +1014,18 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 	}
 
 	private IFilter getFilter() {
-		final IBooleanFilterBuilder builder = CapCommonToolkit.filterFactory().booleanFilterBuilder();
-		builder.setOperator(BooleanOperator.AND);
-		final IUiFilterFactory filterFactory = CapUiToolkit.filterToolkit().filterFactory();
-		for (final IUiFilter uiFilter : filters.values()) {
-			builder.addFilter(filterFactory.convert(uiFilter));
+		if (filters.size() > 0) {
+			final IBooleanFilterBuilder builder = CapCommonToolkit.filterFactory().booleanFilterBuilder();
+			builder.setOperator(BooleanOperator.AND);
+			final IUiFilterFactory filterFactory = CapUiToolkit.filterToolkit().filterFactory();
+			for (final IUiFilter uiFilter : filters.values()) {
+				builder.addFilter(filterFactory.convert(uiFilter));
+			}
+			return builder.build();
 		}
-		return builder.build();
+		else {
+			return null;
+		}
 	}
 
 	private interface IDummyValue {}
