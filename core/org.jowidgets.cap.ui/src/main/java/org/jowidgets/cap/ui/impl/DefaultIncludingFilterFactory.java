@@ -36,8 +36,10 @@ import java.util.GregorianCalendar;
 import org.jowidgets.cap.common.api.filter.ArithmeticOperator;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.filter.IIncludingFilterFactory;
+import org.jowidgets.cap.ui.api.filter.IUiArithmeticFilterBuilder;
 import org.jowidgets.cap.ui.api.filter.IUiConfigurableFilter;
 import org.jowidgets.cap.ui.api.filter.IUiFilterFactory;
+import org.jowidgets.util.Assert;
 import org.jowidgets.util.EmptyCheck;
 
 final class DefaultIncludingFilterFactory<VALUE_TYPE> implements IIncludingFilterFactory<VALUE_TYPE> {
@@ -58,32 +60,38 @@ final class DefaultIncludingFilterFactory<VALUE_TYPE> implements IIncludingFilte
 			return filterFactory.arithmeticFilter(propertyName, ArithmeticOperator.EMPTY);
 		}
 		else if (Collection.class.isAssignableFrom(type)) {
-			return filterFactory.arithmeticFilter(propertyName, ArithmeticOperator.CONTAINS_ANY, attributeValue);
+			Assert.paramHasType(attributeValue, Collection.class, "attributeValue");
+
+			final IUiArithmeticFilterBuilder<Object> builder = filterFactory.arithmeticFilterBuilder();
+			builder.setPropertyName(propertyName);
+			builder.setOperator(ArithmeticOperator.CONTAINS_ANY);
+
+			final Collection<?> collection = (Collection<?>) attributeValue;
+			for (final Object elementValue : collection) {
+				builder.addParameter(elementValue);
+			}
+			return builder.build();
+		}
+		else if (attributeValue instanceof Date) {
+			final Date date = (Date) attributeValue;
+
+			final Calendar firstOperand = new GregorianCalendar();
+			firstOperand.setTime(date);
+			firstOperand.set(Calendar.MINUTE, 0);
+			firstOperand.set(Calendar.SECOND, 0);
+			firstOperand.set(Calendar.MILLISECOND, 0);
+			firstOperand.set(Calendar.HOUR_OF_DAY, 0);
+
+			final Calendar secondOperand = new GregorianCalendar();
+			secondOperand.setTime(firstOperand.getTime());
+			secondOperand.add(Calendar.DAY_OF_MONTH, 1);
+
+			return filterFactory.arithmeticFilter(propertyName, ArithmeticOperator.BETWEEN, new Date[] {
+					firstOperand.getTime(), secondOperand.getTime()});
 		}
 		else {
-			if (attributeValue instanceof Date) {
-				final Date date = (Date) attributeValue;
-
-				final Calendar firstOperand = new GregorianCalendar();
-				firstOperand.setTime(date);
-				firstOperand.set(Calendar.MINUTE, 0);
-				firstOperand.set(Calendar.SECOND, 0);
-				firstOperand.set(Calendar.MILLISECOND, 0);
-				firstOperand.set(Calendar.HOUR_OF_DAY, 0);
-
-				final Calendar secondOperand = new GregorianCalendar();
-				secondOperand.setTime(firstOperand.getTime());
-				secondOperand.add(Calendar.DAY_OF_MONTH, 1);
-
-				return filterFactory.arithmeticFilter(
-						propertyName,
-						ArithmeticOperator.BETWEEN,
-						new Date[] {firstOperand.getTime(), secondOperand.getTime()});
-			}
-			else {
-				return filterFactory.arithmeticFilter(propertyName, ArithmeticOperator.EQUAL, attributeValue);
-			}
+			return filterFactory.arithmeticFilter(propertyName, ArithmeticOperator.EQUAL, attributeValue);
 		}
-	}
 
+	}
 }

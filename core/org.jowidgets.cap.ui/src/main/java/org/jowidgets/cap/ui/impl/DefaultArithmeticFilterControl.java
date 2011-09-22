@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.ui.impl;
 
+import java.util.Arrays;
 import java.util.Collection;
 
 import org.jowidgets.api.toolkit.Toolkit;
@@ -74,7 +75,6 @@ public class DefaultArithmeticFilterControl<ELEMENT_VALUE_TYPE> extends ControlW
 	private IInputControl control1;
 	private IInputControl control2;
 	private IInputControl collectionControl1;
-	private IInputControl collectionControl2;
 
 	private ArithmeticOperator operator;
 
@@ -140,27 +140,20 @@ public class DefaultArithmeticFilterControl<ELEMENT_VALUE_TYPE> extends ControlW
 			control1 = null;
 			control2 = null;
 			collectionControl1 = null;
-			collectionControl2 = null;
-			if (operator.getParameterCount() == 1) {
-				getWidget().setLayout(new MigLayoutDescriptor("0[grow]0", "0[]0"));
-				if (operator.isCollectionOperator()) {
-					collectionControl1 = getWidget().add(collectionControlCreator, "growx");
-				}
-				else {
-					control1 = getWidget().add(controlCreator, "growx");
-				}
-			}
-			else if (operator.getParameterCount() == 2) {
+
+			if (ArithmeticOperator.BETWEEN == operator) {
 				getWidget().setLayout(new MigLayoutDescriptor("0[grow][][grow]0", "0[]0"));
-				if (operator.isCollectionOperator()) {
+				control1 = getWidget().add(controlCreator, "growx");
+				getWidget().add(Toolkit.getBluePrintFactory().textLabel(AND));
+				control2 = getWidget().add(controlCreator, "growx");
+			}
+			else if (ArithmeticOperator.EMPTY != operator) {
+				getWidget().setLayout(new MigLayoutDescriptor("0[grow]0", "0[]0"));
+				if (isCollectionOperator(operator)) {
 					collectionControl1 = getWidget().add(collectionControlCreator, "growx");
-					getWidget().add(Toolkit.getBluePrintFactory().textLabel(AND));
-					collectionControl2 = getWidget().add(collectionControlCreator, "growx");
 				}
 				else {
 					control1 = getWidget().add(controlCreator, "growx");
-					getWidget().add(Toolkit.getBluePrintFactory().textLabel(AND));
-					control2 = getWidget().add(controlCreator, "growx");
 				}
 			}
 			addInputListener();
@@ -172,22 +165,19 @@ public class DefaultArithmeticFilterControl<ELEMENT_VALUE_TYPE> extends ControlW
 	public void setValue(final IUiArithmeticFilter<Object> filter) {
 		Assert.paramNotNull(filter, "filter");
 		setOperator(filter.getOperator());
-		if (operator.getParameterCount() == 1) {
-			if (operator.isCollectionOperator()) {
-				collectionControl1.setValue((filter.getParameters()[0]));
-			}
-			else {
-				control1.setValue((filter.getParameters()[0]));
-			}
-		}
-		else if (operator.getParameterCount() == 2) {
-			if (operator.isCollectionOperator()) {
-				collectionControl1.setValue((filter.getParameters()[0]));
-				collectionControl2.setValue((filter.getParameters()[1]));
-			}
-			else {
+
+		if (filter.getParameters() != null) {
+			if (ArithmeticOperator.BETWEEN == operator) {
 				control1.setValue((filter.getParameters()[0]));
 				control2.setValue((filter.getParameters()[1]));
+			}
+			else if (ArithmeticOperator.EMPTY != operator) {
+				if (isCollectionOperator(operator)) {
+					collectionControl1.setValue(Arrays.asList(filter.getParameters()));
+				}
+				else {
+					control1.setValue((filter.getParameters()[0]));
+				}
 			}
 		}
 		resetModificationState();
@@ -199,31 +189,31 @@ public class DefaultArithmeticFilterControl<ELEMENT_VALUE_TYPE> extends ControlW
 		final IUiArithmeticFilterBuilder<Object> filterBuilder = filterFactory.arithmeticFilterBuilder();
 		filterBuilder.setOperator(operator);
 		filterBuilder.setPropertyName(propertyName);
-		if (operator.getParameterCount() >= 1) {
-			if (operator.isCollectionOperator()) {
-				filterBuilder.addParameter(collectionControl1.getValue());
+		if (ArithmeticOperator.BETWEEN == operator) {
+			filterBuilder.addParameter(control1.getValue());
+			filterBuilder.addParameter(control2.getValue());
+		}
+		else if (ArithmeticOperator.EMPTY != operator) {
+			if (isCollectionOperator(operator)) {
+				final Object value = collectionControl1.getValue();
+				if (value instanceof Collection<?>) {
+					final Collection collection = (Collection) value;
+					for (final Object parameter : collection) {
+						filterBuilder.addParameter(parameter);
+					}
+				}
 			}
 			else {
 				filterBuilder.addParameter(control1.getValue());
 			}
 		}
-		if (operator.getParameterCount() == 2) {
-			if (operator.isCollectionOperator()) {
-				filterBuilder.addParameter(collectionControl2.getValue());
-			}
-			else {
-				filterBuilder.addParameter(control2.getValue());
-			}
-		}
+
 		return filterBuilder.build();
 	}
 
 	@Override
 	public boolean hasModifications() {
-		return hasModifications(control1)
-			|| hasModifications(control2)
-			|| hasModifications(collectionControl1)
-			|| hasModifications(collectionControl2);
+		return hasModifications(control1) || hasModifications(control2) || hasModifications(collectionControl1);
 	}
 
 	@Override
@@ -231,7 +221,6 @@ public class DefaultArithmeticFilterControl<ELEMENT_VALUE_TYPE> extends ControlW
 		resetModificationState(control1);
 		resetModificationState(control2);
 		resetModificationState(collectionControl1);
-		resetModificationState(collectionControl2);
 	}
 
 	@Override
@@ -254,7 +243,6 @@ public class DefaultArithmeticFilterControl<ELEMENT_VALUE_TYPE> extends ControlW
 		setEditable(control1, editable);
 		setEditable(control2, editable);
 		setEditable(collectionControl1, editable);
-		setEditable(collectionControl2, editable);
 	}
 
 	@Override
@@ -271,14 +259,12 @@ public class DefaultArithmeticFilterControl<ELEMENT_VALUE_TYPE> extends ControlW
 		removeInputListener(control1);
 		removeInputListener(control2);
 		removeInputListener(collectionControl1);
-		removeInputListener(collectionControl2);
 	}
 
 	private void addInputListener() {
 		addInputListener(control1);
 		addInputListener(control2);
 		addInputListener(collectionControl1);
-		addInputListener(collectionControl2);
 	}
 
 	private void addInputListener(final IInputControl<?> control) {
@@ -297,7 +283,6 @@ public class DefaultArithmeticFilterControl<ELEMENT_VALUE_TYPE> extends ControlW
 		addValidator(control1);
 		addValidator(control2);
 		addValidator(collectionControl1);
-		addValidator(collectionControl2);
 	}
 
 	private void addValidator(final IInputControl<Object> control) {
@@ -320,6 +305,10 @@ public class DefaultArithmeticFilterControl<ELEMENT_VALUE_TYPE> extends ControlW
 		if (control != null) {
 			control.setEditable(editable);
 		}
+	}
+
+	private boolean isCollectionOperator(final ArithmeticOperator operator) {
+		return operator == ArithmeticOperator.CONTAINS_ALL || operator == ArithmeticOperator.CONTAINS_ALL;
 	}
 
 }

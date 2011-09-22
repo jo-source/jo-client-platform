@@ -31,47 +31,24 @@ package org.jowidgets.cap.common.api.filter;
 public enum ArithmeticOperator implements IOperator {
 
 	// TODO i18n
-	EMPTY(0, false, "empty", "Empty", null),
-	EQUAL(1, false, "=", "Equal", null),
-	LESS(1, false, "<", "Less", null),
-	LESS_EQUAL(1, false, "<=", "Less equal", null),
-	GREATER(1, false, ">", "Greater", null),
-	GREATER_EQUAL(1, false, ">=", "Greater equal", null),
-	BETWEEN(2, false, "", "Between", null),
-	CONTAINS_ANY(1, true, "", "Contains any", null),
-	CONTAINS_ALL(1, true, "", "Contains all", null);
+	EMPTY("empty", "Empty", null),
+	EQUAL("=", "Equal", null),
+	LESS("<", "Less", null),
+	LESS_EQUAL("<=", "Less equal", null),
+	GREATER(">", "Greater", null),
+	GREATER_EQUAL(">=", "Greater equal", null),
+	BETWEEN("between", "Between", null),
+	CONTAINS_ANY("contains any", "Contains any", null),
+	CONTAINS_ALL("contains all", "Contains all", null);
 
-	private final int parameterCount;
-	private final boolean isCollectionOperator;
 	private final String label;
 	private final String labelLong;
 	private final String description;
 
-	private ArithmeticOperator(
-		final int parameterCount,
-		final boolean isCollectionOperator,
-		final String label,
-		final String labelLong,
-		final String description) {
-		this.parameterCount = parameterCount;
-		this.isCollectionOperator = isCollectionOperator;
+	private ArithmeticOperator(final String label, final String labelLong, final String description) {
 		this.label = label;
 		this.labelLong = labelLong;
 		this.description = description;
-	}
-
-	/**
-	 * @return the number of parameters this operator must have
-	 */
-	public int getParameterCount() {
-		return parameterCount;
-	}
-
-	/**
-	 * @return true, if the right hand of the operator is a collection
-	 */
-	public boolean isCollectionOperator() {
-		return isCollectionOperator;
 	}
 
 	@Override
