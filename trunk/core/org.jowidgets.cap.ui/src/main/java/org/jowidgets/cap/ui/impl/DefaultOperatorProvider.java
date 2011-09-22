@@ -45,6 +45,7 @@ final class DefaultOperatorProvider {
 	static final IOperatorProvider<ArithmeticOperator> DATE = date();
 	static final IOperatorProvider<ArithmeticOperator> DATE_COLLECTION = dateCollection();
 	static final IOperatorProvider<ArithmeticOperator> BOOL = bool();
+	static final IOperatorProvider<ArithmeticOperator> BOOL_PRIMITIVE = boolPrimitive();
 	static final IOperatorProvider<ArithmeticOperator> LOOK_UP = lookUp();
 	static final IOperatorProvider<ArithmeticOperator> LOOK_UP_COLLECTION = lookUpCollection();
 
@@ -228,6 +229,11 @@ final class DefaultOperatorProvider {
 	private static IOperatorProvider<ArithmeticOperator> bool() {
 		return new OperatorProvider<ArithmeticOperator>(ArithmeticOperator.EQUAL, //default
 			ArithmeticOperator.EMPTY,
+			ArithmeticOperator.EQUAL);
+	}
+
+	private static IOperatorProvider<ArithmeticOperator> boolPrimitive() {
+		return new OperatorProvider<ArithmeticOperator>(ArithmeticOperator.EQUAL, //default
 			ArithmeticOperator.EQUAL);
 	}
 

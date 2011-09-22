@@ -28,13 +28,17 @@
 
 package org.jowidgets.cap.ui.impl;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
+import org.jowidgets.api.convert.IObjectStringConverter;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.widgets.IComboBox;
 import org.jowidgets.api.widgets.IComposite;
 import org.jowidgets.api.widgets.IInputControl;
+import org.jowidgets.api.widgets.blueprint.IComboBoxSelectionBluePrint;
 import org.jowidgets.cap.common.api.filter.ArithmeticOperator;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
@@ -65,15 +69,19 @@ public class ArithmeticPropertyFilterControl<ELEMENT_VALUE_TYPE> extends Control
 	//TODO i18n
 	private static final String AND = "AND";
 
+	private static final IObjectStringConverter<IAttribute<?>> ATTRIBUTE_CONVERTER = attributeConverter();
+
 	private final String propertyName;
 
 	private final ValidationCache validationCache;
 	private final InputObservable inputObservable;
 	private final IInputListener inputListener;
-	private final List<String> properties;
+	private final Map<String, IAttribute<?>> attributesMap;
+	private final List<IAttribute<?>> attributes;
+	private final List<IAttribute<?>> collectionTypeAttributes;
 
-	private IComboBox<String> combo1;
-	private IComboBox<String> combo2;
+	private IComboBox<IAttribute<?>> combo1;
+	private IComboBox<IAttribute<?>> combo2;
 
 	private ArithmeticOperator operator;
 
@@ -86,7 +94,9 @@ public class ArithmeticPropertyFilterControl<ELEMENT_VALUE_TYPE> extends Control
 		super(composite);
 
 		this.propertyName = propertyName;
-		this.properties = getFilteredProperties(propertyName, attributes, attributeFilter);
+		this.attributes = getFilteredAttributes(propertyName, attributes, attributeFilter);
+		this.attributesMap = getAttributesMap(this.attributes);
+		this.collectionTypeAttributes = getCollectionTypeAttributes(this.attributes);
 
 		this.inputObservable = new InputObservable();
 
@@ -108,19 +118,58 @@ public class ArithmeticPropertyFilterControl<ELEMENT_VALUE_TYPE> extends Control
 		setOperator(operatorProvider.getDefaultOperator());
 	}
 
-	private static List<String> getFilteredProperties(
+	private static List<IAttribute<?>> getFilteredAttributes(
 		final String propertyName,
 		final List<? extends IAttribute<?>> attributes,
 		final IAttributeFilter attributeFilter) {
 
-		final List<String> result = new LinkedList<String>();
+		final List<IAttribute<?>> result = new LinkedList<IAttribute<?>>();
 
 		for (final IAttribute<?> attribute : attributes) {
 			if (!propertyName.equals(attribute.getPropertyName()) && attributeFilter.accept(attribute)) {
-				result.add(attribute.getPropertyName());
+				result.add(attribute);
 			}
 		}
 		return result;
+	}
+
+	private static Map<String, IAttribute<?>> getAttributesMap(final List<IAttribute<?>> attributes) {
+
+		final Map<String, IAttribute<?>> result = new HashMap<String, IAttribute<?>>();
+
+		for (final IAttribute<?> attribute : attributes) {
+			if (attribute.isCollectionType()) {
+				result.put(attribute.getPropertyName(), attribute);
+			}
+		}
+		return result;
+	}
+
+	private static List<IAttribute<?>> getCollectionTypeAttributes(final List<IAttribute<?>> attributes) {
+
+		final List<IAttribute<?>> result = new LinkedList<IAttribute<?>>();
+
+		for (final IAttribute<?> attribute : attributes) {
+			if (attribute.isCollectionType()) {
+				result.add(attribute);
+			}
+		}
+		return result;
+	}
+
+	private static IObjectStringConverter<IAttribute<?>> attributeConverter() {
+		return new IObjectStringConverter<IAttribute<?>>() {
+
+			@Override
+			public String convertToString(final IAttribute<?> value) {
+				return value.getLabel();
+			}
+
+			@Override
+			public String getDescription(final IAttribute<?> value) {
+				return value.getDescription();
+			}
+		};
 	}
 
 	@Override
@@ -146,22 +195,31 @@ public class ArithmeticPropertyFilterControl<ELEMENT_VALUE_TYPE> extends Control
 
 	@Override
 	public void setOperator(final ArithmeticOperator operator) {
+		Assert.paramNotNull(operator, "operator");
 		if (this.operator != operator) {
 			this.operator = operator;
 			removeInputListener();
 			getWidget().removeAll();
 			combo1 = null;
 			combo2 = null;
-			if (operator.getParameterCount() == 1) {
-				getWidget().setLayout(new MigLayoutDescriptor("0[grow]0", "0[]0"));
-				combo1 = getWidget().add(Toolkit.getBluePrintFactory().comboBoxSelection(properties));
-			}
-			else if (operator.getParameterCount() == 2) {
+			if (ArithmeticOperator.BETWEEN == operator) {
 				getWidget().setLayout(new MigLayoutDescriptor("0[grow][][grow]0", "0[]0"));
-				combo1 = getWidget().add(Toolkit.getBluePrintFactory().comboBoxSelection(properties));
+				combo1 = getWidget().add(comboBoxBluePrint(attributes));
 				getWidget().add(Toolkit.getBluePrintFactory().textLabel(AND));
-				combo2 = getWidget().add(Toolkit.getBluePrintFactory().comboBoxSelection(properties));
+				combo2 = getWidget().add(comboBoxBluePrint(attributes));
 			}
+			else if (ArithmeticOperator.EMPTY != operator) {
+				getWidget().setLayout(new MigLayoutDescriptor("0[grow]0", "0[]0"));
+				final List<IAttribute<?>> currentAttributes;
+				if (isCollectionOperator(operator)) {
+					currentAttributes = collectionTypeAttributes;
+				}
+				else {
+					currentAttributes = attributes;
+				}
+				combo1 = getWidget().add(comboBoxBluePrint(currentAttributes));
+			}
+
 			addInputListener();
 			addValidators();
 		}
@@ -171,12 +229,14 @@ public class ArithmeticPropertyFilterControl<ELEMENT_VALUE_TYPE> extends Control
 	public void setValue(final IUiArithmeticPropertyFilter<Object> filter) {
 		Assert.paramNotNull(filter, "filter");
 		setOperator(filter.getOperator());
-		if (operator.getParameterCount() == 1) {
-			combo1.setValue(filter.getRightHandPropertyNames()[0]);
-		}
-		else if (operator.getParameterCount() == 2) {
-			combo1.setValue(filter.getRightHandPropertyNames()[0]);
-			combo2.setValue(filter.getRightHandPropertyNames()[1]);
+		if (filter.getRightHandPropertyNames() != null) {
+			if (ArithmeticOperator.BETWEEN == operator) {
+				combo1.setValue(attributesMap.get(filter.getRightHandPropertyNames()[0]));
+				combo2.setValue(attributesMap.get(filter.getRightHandPropertyNames()[1]));
+			}
+			else if (ArithmeticOperator.EMPTY != operator) {
+				combo1.setValue(attributesMap.get(filter.getRightHandPropertyNames()[0]));
+			}
 		}
 		resetModificationState();
 	}
@@ -187,12 +247,14 @@ public class ArithmeticPropertyFilterControl<ELEMENT_VALUE_TYPE> extends Control
 		final IUiArithmeticPropertyFilterBuilder<Object> filterBuilder = filterFactory.arithmeticPropertyFilterBuilder();
 		filterBuilder.setOperator(operator);
 		filterBuilder.setLeftHandPropertyName(propertyName);
-		if (operator.getParameterCount() >= 1) {
-			filterBuilder.addRightHandPropertyName(combo1.getValue());
+		if (ArithmeticOperator.BETWEEN == operator) {
+			filterBuilder.addRightHandPropertyName(combo1.getValue().getPropertyName());
+			filterBuilder.addRightHandPropertyName(combo2.getValue().getPropertyName());
 		}
-		if (operator.getParameterCount() == 2) {
-			filterBuilder.addRightHandPropertyName(combo2.getValue());
+		else if (ArithmeticOperator.EMPTY != operator) {
+			filterBuilder.addRightHandPropertyName(combo1.getValue().getPropertyName());
 		}
+
 		return filterBuilder.build();
 	}
 
@@ -236,6 +298,13 @@ public class ArithmeticPropertyFilterControl<ELEMENT_VALUE_TYPE> extends Control
 	@Override
 	public void removeInputListener(final IInputListener listener) {
 		inputObservable.removeInputListener(listener);
+	}
+
+	private IComboBoxSelectionBluePrint<IAttribute<?>> comboBoxBluePrint(final List<IAttribute<?>> attributes) {
+		final IComboBoxSelectionBluePrint<IAttribute<?>> result;
+		result = Toolkit.getBluePrintFactory().comboBoxSelection(ATTRIBUTE_CONVERTER);
+		result.setElements(attributes).autoSelectionOn();
+		return result;
 	}
 
 	private void removeInputListener() {
@@ -285,6 +354,10 @@ public class ArithmeticPropertyFilterControl<ELEMENT_VALUE_TYPE> extends Control
 		if (control != null) {
 			control.setEditable(editable);
 		}
+	}
+
+	private boolean isCollectionOperator(final ArithmeticOperator operator) {
+		return operator == ArithmeticOperator.CONTAINS_ALL || operator == ArithmeticOperator.CONTAINS_ALL;
 	}
 
 }
