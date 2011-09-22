@@ -28,8 +28,43 @@
 
 package org.jowidgets.cap.service.api.bean;
 
-public interface IBeanDtoCustomFilterPluginRegistry {
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.ServiceLoader;
 
-	IBeanDtoCustomFilterPlugin get(String filterType);
+import org.jowidgets.util.Assert;
+
+public final class BeanDtoCustomFilterPluginRegistry {
+
+	private static Map<String, IBeanDtoCustomFilterPlugin> plugins = loadPlugins();
+
+	private BeanDtoCustomFilterPluginRegistry() {}
+
+	private static Map<String, IBeanDtoCustomFilterPlugin> loadPlugins() {
+		final ServiceLoader<IBeanDtoCustomFilterPlugin> toolkitProviderLoader = ServiceLoader.load(IBeanDtoCustomFilterPlugin.class);
+		final Iterator<IBeanDtoCustomFilterPlugin> iterator = toolkitProviderLoader.iterator();
+
+		final Map<String, IBeanDtoCustomFilterPlugin> result = new HashMap<String, IBeanDtoCustomFilterPlugin>();
+
+		while (iterator.hasNext()) {
+			final IBeanDtoCustomFilterPlugin plugin = iterator.next();
+			if (!plugins.containsKey(plugin.getFilterType())) {
+				result.put(plugin.getFilterType(), plugin);
+			}
+			else {
+				throw new IllegalStateException("The filter plugin with the type '"
+					+ plugin.getFilterType()
+					+ "' must not exists more than once");
+			}
+		}
+
+		return result;
+	}
+
+	public static IBeanDtoCustomFilterPlugin getPlugin(final String filterType) {
+		Assert.paramNotNull(filterType, "filterType");
+		return plugins.get(filterType);
+	}
 
 }
