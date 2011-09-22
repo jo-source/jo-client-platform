@@ -43,7 +43,7 @@ final class UiArithmeticPropertyFilterBuilderImpl<CONFIG_TYPE> extends
 
 	private CONFIG_TYPE config;
 	private IFilterType filterType;
-	private String leftHandPropertyName;
+	private String propertyName;
 	private final List<String> rightHandPropertyNames;
 	private ArithmeticOperator operator;
 
@@ -65,16 +65,16 @@ final class UiArithmeticPropertyFilterBuilderImpl<CONFIG_TYPE> extends
 	}
 
 	@Override
-	public IUiArithmeticPropertyFilterBuilder<CONFIG_TYPE> setLeftHandPropertyName(final String propertyName) {
-		this.leftHandPropertyName = propertyName;
+	public IUiArithmeticPropertyFilterBuilder<CONFIG_TYPE> setPropertyName(final String propertyName) {
+		this.propertyName = propertyName;
 		return this;
 	}
 
 	@Override
 	public IUiArithmeticPropertyFilterBuilder<CONFIG_TYPE> setRightHandPropertyNames(final String[] propertyNames) {
 		this.rightHandPropertyNames.clear();
-		for (final String propertyName : propertyNames) {
-			this.rightHandPropertyNames.add(propertyName);
+		for (final String propName : propertyNames) {
+			this.rightHandPropertyNames.add(propName);
 		}
 		return this;
 	}
@@ -101,7 +101,7 @@ final class UiArithmeticPropertyFilterBuilderImpl<CONFIG_TYPE> extends
 	@Override
 	public IUiArithmeticPropertyFilter<CONFIG_TYPE> build() {
 		return new UiArithmeticPropertyFilterImpl<CONFIG_TYPE>(
-			leftHandPropertyName,
+			propertyName,
 			operator,
 			rightHandPropertyNames.toArray(new String[rightHandPropertyNames.size()]),
 			isInverted(),

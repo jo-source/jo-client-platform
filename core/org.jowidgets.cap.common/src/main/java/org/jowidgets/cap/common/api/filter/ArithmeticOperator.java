@@ -38,7 +38,7 @@ public enum ArithmeticOperator implements IOperator {
 	GREATER(">", "Greater", null),
 	GREATER_EQUAL(">=", "Greater equal", null),
 	BETWEEN("between", "Between", null),
-	CONTAINS_ANY("contains any", "Contains any", null),
+	CONTAINS_ANY("contains", "Contains", null),
 	CONTAINS_ALL("contains all", "Contains all", null);
 
 	private final String label;

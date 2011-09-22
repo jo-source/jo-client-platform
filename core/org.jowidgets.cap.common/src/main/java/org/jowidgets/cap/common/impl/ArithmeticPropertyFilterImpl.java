@@ -36,17 +36,17 @@ import org.jowidgets.cap.common.api.filter.IArithmeticPropertyFilter;
 final class ArithmeticPropertyFilterImpl implements IArithmeticPropertyFilter, Serializable {
 
 	private static final long serialVersionUID = 2437119345197536769L;
-	private final String leftHandPropertyName;
+	private final String propertyName;
 	private final ArithmeticOperator operator;
 	private final String[] rightHandPropertyNames;
 	private final boolean inverted;
 
 	ArithmeticPropertyFilterImpl(
-		final String leftHandPropertyName,
+		final String propertyName,
 		final ArithmeticOperator operator,
 		final String[] rightHandPropertyNames,
 		final boolean inverted) {
-		this.leftHandPropertyName = leftHandPropertyName;
+		this.propertyName = propertyName;
 		this.operator = operator;
 		this.rightHandPropertyNames = rightHandPropertyNames;
 		this.inverted = inverted;
@@ -58,8 +58,8 @@ final class ArithmeticPropertyFilterImpl implements IArithmeticPropertyFilter, S
 	}
 
 	@Override
-	public String getLeftHandPropertyName() {
-		return leftHandPropertyName;
+	public String getPropertyName() {
+		return propertyName;
 	}
 
 	@Override

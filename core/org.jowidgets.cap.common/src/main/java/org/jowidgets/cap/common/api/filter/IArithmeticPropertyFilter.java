@@ -30,7 +30,7 @@ package org.jowidgets.cap.common.api.filter;
 
 public interface IArithmeticPropertyFilter extends IFilter {
 
-	String getLeftHandPropertyName();
+	String getPropertyName();
 
 	@Override
 	ArithmeticOperator getOperator();

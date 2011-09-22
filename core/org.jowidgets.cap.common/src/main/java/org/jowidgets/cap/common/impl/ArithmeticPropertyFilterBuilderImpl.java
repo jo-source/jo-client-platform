@@ -38,7 +38,7 @@ import org.jowidgets.cap.common.api.filter.IArithmeticPropertyFilterBuilder;
 final class ArithmeticPropertyFilterBuilderImpl extends FilterBuilderImpl<IArithmeticPropertyFilterBuilder> implements
 		IArithmeticPropertyFilterBuilder {
 
-	private String leftHandPropertyName;
+	private String propertyName;
 	private final List<String> rightHandPropertyNames;
 	private ArithmeticOperator operator;
 
@@ -47,16 +47,16 @@ final class ArithmeticPropertyFilterBuilderImpl extends FilterBuilderImpl<IArith
 	}
 
 	@Override
-	public IArithmeticPropertyFilterBuilder setLeftHandPropertyName(final String propertyName) {
-		leftHandPropertyName = propertyName;
+	public IArithmeticPropertyFilterBuilder setPropertyName(final String propertyName) {
+		this.propertyName = propertyName;
 		return this;
 	}
 
 	@Override
 	public IArithmeticPropertyFilterBuilder setRightHandPropertyNames(final String[] propertyNames) {
 		rightHandPropertyNames.clear();
-		for (final String propertyName : propertyNames) {
-			rightHandPropertyNames.add(propertyName);
+		for (final String propName : propertyNames) {
+			rightHandPropertyNames.add(propName);
 		}
 		return this;
 	}
@@ -83,7 +83,7 @@ final class ArithmeticPropertyFilterBuilderImpl extends FilterBuilderImpl<IArith
 	@Override
 	public IArithmeticPropertyFilter build() {
 		return new ArithmeticPropertyFilterImpl(
-			leftHandPropertyName,
+			propertyName,
 			operator,
 			rightHandPropertyNames.toArray(new String[rightHandPropertyNames.size()]),
 			isInverted());

@@ -48,6 +48,7 @@ import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.widgets.IAttributeFilterControl;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
+import org.jowidgets.common.types.Dimension;
 import org.jowidgets.common.widgets.controller.ITableCellPopupEvent;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
 import org.jowidgets.tools.command.ActionBuilder;
@@ -128,7 +129,7 @@ final class BeanTableAddCustomFilterActionBuilder extends ActionBuilder {
 
 			@Override
 			public void createContent(final IInputContentContainer container) {
-				container.setLayout(new MigLayoutDescriptor("0[][grow, 0::]0", "0[grow, 0::]0"));
+				container.setLayout(new MigLayoutDescriptor("0[][grow, 0::]0", "0[]0"));
 
 				final IAttribute<?> attribute = model.getAttribute(columnIndex);
 				container.add(Toolkit.getBluePrintFactory().textLabel(attribute.getLabel()));
@@ -138,7 +139,7 @@ final class BeanTableAddCustomFilterActionBuilder extends ActionBuilder {
 			}
 		});
 
-		dialogBp.setTitle(executionContext.getAction().getText());
+		dialogBp.setTitle(executionContext.getAction().getText()).setSize(new Dimension(640, 150));
 
 		final IInputDialog<IUiConfigurableFilter<?>> dialog = Toolkit.getActiveWindow().createChildWindow(dialogBp);
 		dialog.setVisible(true);

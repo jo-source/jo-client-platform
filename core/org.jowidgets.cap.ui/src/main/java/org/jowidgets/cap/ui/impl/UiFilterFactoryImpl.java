@@ -107,7 +107,7 @@ final class UiFilterFactoryImpl implements IUiFilterFactory {
 		final ArithmeticOperator operator,
 		final String[] rightPropertyNames) {
 		final IUiArithmeticPropertyFilterBuilder<CONFIG_TYPE> builder = arithmeticPropertyFilterBuilder();
-		builder.setLeftHandPropertyName(leftPropertyName).setOperator(operator).setRightHandPropertyNames(rightPropertyNames);
+		builder.setPropertyName(leftPropertyName).setOperator(operator).setRightHandPropertyNames(rightPropertyNames);
 		return builder.build();
 	}
 
@@ -117,7 +117,7 @@ final class UiFilterFactoryImpl implements IUiFilterFactory {
 		final ArithmeticOperator operator,
 		final String rightPropertyName) {
 		final IUiArithmeticPropertyFilterBuilder<CONFIG_TYPE> builder = arithmeticPropertyFilterBuilder();
-		builder.setLeftHandPropertyName(leftPropertyName).setOperator(operator).setRightHandPropertyName(rightPropertyName);
+		builder.setPropertyName(leftPropertyName).setOperator(operator).setRightHandPropertyName(rightPropertyName);
 		return builder.build();
 	}
 
@@ -160,7 +160,7 @@ final class UiFilterFactoryImpl implements IUiFilterFactory {
 			final IUiArithmeticPropertyFilter<?> uiArithmeticPropertyFilter = (IUiArithmeticPropertyFilter<?>) uiFilter;
 			final IArithmeticPropertyFilterBuilder arithmeticPropertyFilterBuilder = CapCommonToolkit.filterFactory().arithmeticPropertyFilterBuilder();
 			arithmeticPropertyFilterBuilder.setInverted(uiArithmeticPropertyFilter.isInverted());
-			arithmeticPropertyFilterBuilder.setLeftHandPropertyName(uiArithmeticPropertyFilter.getLeftHandPropertyName());
+			arithmeticPropertyFilterBuilder.setPropertyName(uiArithmeticPropertyFilter.getPropertyName());
 			arithmeticPropertyFilterBuilder.setOperator(uiArithmeticPropertyFilter.getOperator());
 			arithmeticPropertyFilterBuilder.setRightHandPropertyNames(uiArithmeticPropertyFilter.getRightHandPropertyNames());
 			return arithmeticPropertyFilterBuilder.build();

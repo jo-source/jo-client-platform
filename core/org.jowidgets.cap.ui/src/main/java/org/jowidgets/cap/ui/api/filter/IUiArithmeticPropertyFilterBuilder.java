@@ -33,7 +33,7 @@ import org.jowidgets.cap.common.api.filter.ArithmeticOperator;
 public interface IUiArithmeticPropertyFilterBuilder<CONFIG_TYPE> extends
 		IUiConfigurableFilterBuilder<IUiArithmeticPropertyFilterBuilder<CONFIG_TYPE>, CONFIG_TYPE> {
 
-	IUiArithmeticPropertyFilterBuilder<CONFIG_TYPE> setLeftHandPropertyName(String propertyName);
+	IUiArithmeticPropertyFilterBuilder<CONFIG_TYPE> setPropertyName(String propertyName);
 
 	IUiArithmeticPropertyFilterBuilder<CONFIG_TYPE> setRightHandPropertyNames(String[] propertyNames);
 

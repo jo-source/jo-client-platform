@@ -89,7 +89,7 @@ final class FilterFactoryImpl implements IFilterFactory {
 		final String leftPropertyName,
 		final ArithmeticOperator operator,
 		final String[] rightPropertyNames) {
-		return arithmeticPropertyFilterBuilder().setLeftHandPropertyName(leftPropertyName).setOperator(operator).setRightHandPropertyNames(
+		return arithmeticPropertyFilterBuilder().setPropertyName(leftPropertyName).setOperator(operator).setRightHandPropertyNames(
 				rightPropertyNames).build();
 	}
 
@@ -98,7 +98,7 @@ final class FilterFactoryImpl implements IFilterFactory {
 		final String leftPropertyName,
 		final ArithmeticOperator operator,
 		final String rightPropertyName) {
-		return arithmeticPropertyFilterBuilder().setLeftHandPropertyName(leftPropertyName).setOperator(operator).setRightHandPropertyName(
+		return arithmeticPropertyFilterBuilder().setPropertyName(leftPropertyName).setOperator(operator).setRightHandPropertyName(
 				rightPropertyName).build();
 	}
 
