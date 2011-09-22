@@ -80,6 +80,7 @@ import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
 import org.jowidgets.tools.command.ActionBuilder;
 import org.jowidgets.tools.controller.InputObservable;
+import org.jowidgets.tools.converter.AbstractConverter;
 import org.jowidgets.tools.widgets.wrapper.CheckBoxWrapper;
 import org.jowidgets.tools.widgets.wrapper.ComboBoxWrapper;
 import org.jowidgets.tools.widgets.wrapper.CompositeWrapper;
@@ -90,10 +91,10 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 	// TODO i18n
 	private static final String ALL_LABEL_TEXT = "All";
 	private static final String SEARCH_LABEL_TEXT = "Search";
-	private static final String VARIOUS = "";
-	private static final String NOT_SET = "";
-	private static final String CLEAR_SORTING = "No sorting";
+	private static final String TEXT_CLEAR_SORTING = "No sorting";
 	private static final String DEFAULT_GROUP_NAME = "Default";
+
+	private static final boolean USE_AUTO_COMPLETION = false;
 
 	private static final IColorConstant ATTRIBUTE_HEADER_BACKGROUND = new ColorValue(6, 27, 95);
 	private static final IColorConstant ATTRIBUTE_GROUP_BACKGROUND = new ColorValue(130, 177, 236);
@@ -119,7 +120,7 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 	private final ITableLayout attributeLayoutManager;
 	private final IScrollComposite attributeScroller;
 
-	//private final ListLayout attributeScrollerLayout;
+	private final IDisplayFormat emptyDisplayFormat;
 
 	private final AllAttributesComposite allAttributesComposite;
 	private final AttributesFilterComposite attributesFilterComposite;
@@ -135,6 +136,7 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 
 	BeanTableAttributeListImpl(final IComposite container, final IBeanTableModel<?> model) {
 		super(container);
+		this.emptyDisplayFormat = createEmptyDisplayFormat();
 
 		final ITableLayoutBuilder builder = Toolkit.getLayoutFactoryProvider().tableLayoutBuilder();
 		builder.columnCount(10);
@@ -179,7 +181,7 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 		currentSortingModel = new SortIndexModel(new ISortIndexModelProvider() {
 
 			@Override
-			public ComboBox getSort(final AbstractListElement<?> composite) {
+			public ComboBox<ComboBoxSortOrder> getSort(final AbstractListElement<?> composite) {
 				return composite.getCurrentSorting();
 			}
 
@@ -192,7 +194,7 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 		defaultSortingModel = new SortIndexModel(new ISortIndexModelProvider() {
 
 			@Override
-			public ComboBox getSort(final AbstractListElement<?> composite) {
+			public ComboBox<ComboBoxSortOrder> getSort(final AbstractListElement<?> composite) {
 				return composite.getDefaultSorting();
 			}
 
@@ -316,7 +318,7 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 		for (final ISort sort : currentConfig.getSortModelConfig().getCurrentSorting()) {
 			final AttributeComposite composite = attributeComposites.get(sort.getPropertyName());
 			if (composite.isSortable()) {
-				composite.getCurrentSorting().setValue(sort.getSortOrder().getLabel());
+				composite.getCurrentSorting().setValue(ComboBoxSortOrder.convert(sort.getSortOrder()));
 
 				composite.getCurrentSortingIndex().setIndex(index + 1);
 			}
@@ -328,7 +330,7 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 		for (final ISort sort : currentConfig.getSortModelConfig().getDefaultSorting()) {
 			final AttributeComposite composite = attributeComposites.get(sort.getPropertyName());
 			if (composite.isSortable()) {
-				composite.getDefaultSorting().setValue(sort.getSortOrder().getLabel());
+				composite.getDefaultSorting().setValue(ComboBoxSortOrder.convert(sort.getSortOrder()));
 				composite.getDefaultSortingIndex().setIndex(index + 1);
 			}
 			index++;
@@ -467,12 +469,12 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 	private abstract class AbstractListElement<TYPE> extends CompositeWrapper {
 		private final TYPE information;
 		private final VisibilityCheckBox visible;
-		private final ComboBox headerFormat;
-		private final ComboBox contentFormat;
-		private final ComboBox columnAlignment;
-		private final ComboBox currentSorting;
+		private final ComboBox<IDisplayFormat> headerFormat;
+		private final ComboBox<IDisplayFormat> contentFormat;
+		private final ComboBox<ComboBoxAlignmentHorizontal> columnAlignment;
+		private final ComboBox<ComboBoxSortOrder> currentSorting;
 		private final SortingIndexComboBox currentSortingIndex;
-		private final ComboBox defaultSorting;
+		private final ComboBox<ComboBoxSortOrder> defaultSorting;
 		private final SortingIndexComboBox defaultSortingIndex;
 		private final IToolBarButton collapseButton;
 
@@ -504,34 +506,40 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 				visible.addInputListener(visibleChangedListener);
 			}
 
-			final List<String> headerFormats = getHeaderFormats();
-			if (headerFormats.size() > 1) {
-				headerFormat = createComboBox(bpF, headerFormats, 300);
+			headerFormat = createHeaderFormatComboBox();
+			if (headerFormat != null) {
+				setMaxWidth(headerFormat, 300);
 				headerFormat.addInputListener(createHeaderChangedListener());
 			}
 			else {
-				headerFormat = null;
 				addNotAvailableLabel(textLabel);
 			}
 
-			final List<String> contentFormats = getContentFormats();
-			if (contentFormats.size() > 1) {
-				contentFormat = createComboBox(bpF, contentFormats, 300);
+			contentFormat = createContentFormatComboBox();
+			if (contentFormat != null) {
+				setMaxWidth(contentFormat, 300);
 				contentFormat.addInputListener(createContentChangedListener());
 			}
 			else {
-				contentFormat = null;
 				addNotAvailableLabel(textLabel);
 			}
 
-			columnAlignment = createComboBox(bpF, getAlignments(), 200);
-			columnAlignment.addInputListener(createAlignmentChangedListener());
+			columnAlignment = createAlignmentComboBox();
+			if (columnAlignment != null) {
+				setMaxWidth(columnAlignment, 200);
+				columnAlignment.addInputListener(createAlignmentChangedListener());
+			}
+			else {
+				addNotAvailableLabel(textLabel);
+			}
 
 			if (isSortable()) {
-				currentSorting = createComboBox(bpF, getSortOrders(), 250);
+				currentSorting = createSortOrderComboBox();
+				setMaxWidth(currentSorting, 250);
 				currentSorting.addInputListener(createCurrentSortingChangedListener());
 				if (hasSortPriority()) {
-					currentSortingIndex = new SortingIndexComboBox(add(bpF.comboBoxSelection()));
+					currentSortingIndex = new SortingIndexComboBox(add(bpF.comboBoxSelection().setAutoCompletion(
+							USE_AUTO_COMPLETION)));
 					currentSortingIndex.addInputListener(createCurrentSortingIndexChangedListener());
 				}
 				else {
@@ -539,10 +547,12 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 					addNotAvailableLabel(textLabel);
 				}
 
-				defaultSorting = createComboBox(bpF, getSortOrders(), 250);
+				defaultSorting = createSortOrderComboBox();
+				setMaxWidth(defaultSorting, 250);
 				defaultSorting.addInputListener(createDefaultSortingChangedListener());
 				if (hasSortPriority()) {
-					defaultSortingIndex = new SortingIndexComboBox(add(bpF.comboBoxSelection()));
+					defaultSortingIndex = new SortingIndexComboBox(add(bpF.comboBoxSelection().setAutoCompletion(
+							USE_AUTO_COMPLETION)));
 					defaultSortingIndex.addInputListener(createDefaultSortingIndexChangedListener());
 				}
 				else {
@@ -559,6 +569,56 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 					addNotAvailableLabel(textLabel);
 				}
 			}
+		}
+
+		protected ComboBox<IDisplayFormat> createHeaderFormatComboBox() {
+			final List<IDisplayFormat> headerFormats = getHeaderFormats();
+			if (headerFormats.size() > 1) {
+				final ComboBox<IDisplayFormat> result = new ComboBox<IDisplayFormat>(
+					add(Toolkit.getBluePrintFactory().comboBoxSelection(new HeaderDisplayFormatConverter()).setAutoCompletion(
+							USE_AUTO_COMPLETION)));
+				result.setElements(headerFormats);
+				return result;
+			}
+			else {
+				return null;
+			}
+		}
+
+		protected ComboBox<IDisplayFormat> createContentFormatComboBox() {
+			final List<IDisplayFormat> contentFormats = getContentFormats();
+			if (contentFormats.size() > 1) {
+				final ComboBox<IDisplayFormat> result = new ComboBox<IDisplayFormat>(
+					add(Toolkit.getBluePrintFactory().comboBoxSelection(new ContentDisplayFormatConverter(contentFormats)).setAutoCompletion(
+							USE_AUTO_COMPLETION)));
+				result.setElements(contentFormats);
+				return result;
+			}
+			else {
+				return null;
+			}
+		}
+
+		protected ComboBox<ComboBoxAlignmentHorizontal> createAlignmentComboBox() {
+			final List<ComboBoxAlignmentHorizontal> alignments = getAlignments();
+			final ComboBox<ComboBoxAlignmentHorizontal> result = new ComboBox<ComboBoxAlignmentHorizontal>(
+				add(Toolkit.getBluePrintFactory().comboBoxSelection(new AlignmentConverter()).setAutoCompletion(
+						USE_AUTO_COMPLETION)));
+			result.setElements(alignments);
+			return result;
+		}
+
+		protected ComboBox<ComboBoxSortOrder> createSortOrderComboBox() {
+			final List<ComboBoxSortOrder> sortOrders = getSortOrders();
+			final ComboBox<ComboBoxSortOrder> result = new ComboBox<ComboBoxSortOrder>(
+				add(Toolkit.getBluePrintFactory().comboBoxSelection(new SortOrderConverter()).setAutoCompletion(
+						USE_AUTO_COMPLETION)));
+			result.setElements(sortOrders);
+			return result;
+		}
+
+		protected void setMaxWidth(final ComboBox<?> comboBox, final int width) {
+			comboBox.setMaxSize(new Dimension(width, comboBox.getPreferredSize().getHeight()));
 		}
 
 		protected TYPE getData() {
@@ -583,9 +643,9 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 
 		protected abstract String getLabelText();
 
-		protected abstract List<String> getHeaderFormats();
+		protected abstract List<IDisplayFormat> getHeaderFormats();
 
-		protected abstract List<String> getContentFormats();
+		protected abstract List<IDisplayFormat> getContentFormats();
 
 		protected abstract boolean isSortable();
 
@@ -629,31 +689,23 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 			textLabel.setAlignment(alignment);
 		}
 
-		protected ComboBox createComboBox(final IBluePrintFactory bpF, final List<String> elements, final Integer maxWidth) {
-			final ComboBox result = new ComboBox(add(bpF.comboBoxSelection(elements.toArray(new String[elements.size()]))));
-			if (maxWidth != null) {
-				result.setMaxSize(new Dimension(maxWidth.intValue(), result.getPreferredSize().getHeight()));
-			}
-			return result;
-		}
-
 		public VisibilityCheckBox getVisible() {
 			return visible;
 		}
 
-		public ComboBox getHeaderFormat() {
+		public ComboBox<IDisplayFormat> getHeaderFormat() {
 			return headerFormat;
 		}
 
-		public ComboBox getContentFormat() {
+		public ComboBox<IDisplayFormat> getContentFormat() {
 			return contentFormat;
 		}
 
-		public ComboBox getColumnAlignment() {
+		public ComboBox<ComboBoxAlignmentHorizontal> getColumnAlignment() {
 			return columnAlignment;
 		}
 
-		public ComboBox getCurrentSorting() {
+		public ComboBox<ComboBoxSortOrder> getCurrentSorting() {
 			return currentSorting;
 		}
 
@@ -661,7 +713,7 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 			return currentSortingIndex;
 		}
 
-		public ComboBox getDefaultSorting() {
+		public ComboBox<ComboBoxSortOrder> getDefaultSorting() {
 			return defaultSorting;
 		}
 
@@ -698,20 +750,20 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 		}
 
 		@Override
-		protected List<String> getHeaderFormats() {
-			final List<String> result = new LinkedList<String>();
+		protected List<IDisplayFormat> getHeaderFormats() {
+			final List<IDisplayFormat> result = new LinkedList<IDisplayFormat>();
 			if (hasShortAndLongLabel(getAttribute())) {
-				result.add(DisplayFormat.SHORT.getName());
-				result.add(DisplayFormat.LONG.getName());
+				result.add(DisplayFormat.SHORT);
+				result.add(DisplayFormat.LONG);
 			}
 			return result;
 		}
 
 		@Override
-		protected List<String> getContentFormats() {
-			final List<String> result = new LinkedList<String>();
+		protected List<IDisplayFormat> getContentFormats() {
+			final List<IDisplayFormat> result = new LinkedList<IDisplayFormat>();
 			for (final IControlPanelProvider<?> provider : getAttribute().getControlPanels()) {
-				result.add(provider.getDisplayFormat().getName());
+				result.add(provider.getDisplayFormat());
 			}
 			return result;
 		}
@@ -728,42 +780,32 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 			}
 
 			if (getHeaderFormat() != null) {
-				String format = getHeaderFormatConfig(attributeConfig);
+				DisplayFormat format = getHeaderFormatConfig(attributeConfig);
 				if ((format != null) && (!getHeaderFormat().getElements().contains(format))) {
-					format = DisplayFormat.SHORT.getName();
+					format = DisplayFormat.SHORT;
 
 				}
 				getHeaderFormat().setValue(format);
 			}
 
 			if (getContentFormat() != null) {
-				final String format = getContentFormatConfig(attributeConfig, getAttribute());
+				final IDisplayFormat format = getContentFormatConfig(attributeConfig, getAttribute());
 				getContentFormat().setValue(format);
 			}
 
 			getVisible().setSelected(attributeConfig.isVisible());
 
 			if (getColumnAlignment() != null) {
-				getColumnAlignment().setValue(attributeConfig.getTableAlignment().getLabel());
+				getColumnAlignment().setValue(ComboBoxAlignmentHorizontal.convert(attributeConfig.getTableAlignment()));
 			}
 		}
 
-		protected String getHeaderFormatConfig(final IAttributeConfig attributeConfig) {
-			final DisplayFormat format = attributeConfig.getLabelDisplayFormat();
-			if (format == null) {
-				return null;
-			}
-			else {
-				return format.getName();
-			}
+		protected DisplayFormat getHeaderFormatConfig(final IAttributeConfig attributeConfig) {
+			return attributeConfig.getLabelDisplayFormat();
 		}
 
-		protected String getContentFormatConfig(final IAttributeConfig attributeConfig, final IAttribute<?> attribute) {
-			final Object id = attributeConfig.getDisplayFormat().getId();
-			if (id == null) {
-				return null;
-			}
-			return getDisplayFormatNameById(id, attribute);
+		protected IDisplayFormat getContentFormatConfig(final IAttributeConfig attributeConfig, final IAttribute<?> attribute) {
+			return attributeConfig.getDisplayFormat();
 		}
 
 		@Override
@@ -771,10 +813,12 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 			return new IInputListener() {
 				@Override
 				public void inputChanged() {
-					final ComboBox comboBox = model.provider.getSort(attributeComposites.get(propertyName));
-					final String value = comboBox.getValue();
-					final boolean hasToAdd = isEmptyString(comboBox.getLastValue());
-					final boolean hasToRemove = isEmptyString(value);
+					final ComboBox<ComboBoxSortOrder> comboBox = model.provider.getSort(attributeComposites.get(propertyName));
+					final ComboBoxSortOrder value = comboBox.getValue();
+					final boolean hasToAdd = comboBox.getLastValue() == null
+						|| comboBox.getLastValue() == ComboBoxSortOrder.NOT_SET;
+					final boolean hasToRemove = value == ComboBoxSortOrder.NOT_SET;
+
 					if (hasToAdd) {
 						model.insertSortIndex(model.sortingLength + 1, propertyName);
 					}
@@ -810,11 +854,11 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 
 					if (hasToRemove) {
 						model.removeSortIndex(previousIndex, propertyName);
-						model.provider.getSort(composite).setValue("");
+						model.provider.getSort(composite).setValue(ComboBoxSortOrder.NOT_SET);
 					}
 					else if (hasToAdd) {
 						model.insertSortIndex(newIndex, propertyName);
-						model.provider.getSort(composite).setValue(SortOrder.ASC.getLabel());
+						model.provider.getSort(composite).setValue(ComboBoxSortOrder.ASC);
 					}
 					else {
 						model.shiftSortingIndex(newIndex, previousIndex, propertyName);
@@ -846,17 +890,100 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 		}
 
 		@Override
+		protected HeaderComboBox<IDisplayFormat> createHeaderFormatComboBox() {
+			final List<IDisplayFormat> headerFormats = getHeaderFormats();
+			if (headerFormats.size() > 1) {
+				final HeaderComboBox<IDisplayFormat> result = new HeaderComboBox<IDisplayFormat>(
+					add(Toolkit.getBluePrintFactory().comboBoxSelection(new HeaderDisplayFormatConverter()).setAutoCompletion(
+							USE_AUTO_COMPLETION)),
+					emptyDisplayFormat,
+					null);
+				result.setElements(headerFormats);
+				return result;
+			}
+			else {
+				return null;
+			}
+		}
+
+		@Override
+		protected HeaderComboBox<IDisplayFormat> createContentFormatComboBox() {
+			final List<IDisplayFormat> contentFormats = getContentFormats();
+			if (contentFormats.size() > 1) {
+				final HeaderComboBox<IDisplayFormat> result = new HeaderComboBox<IDisplayFormat>(
+					add(Toolkit.getBluePrintFactory().comboBoxSelection(new ContentDisplayFormatConverter(contentFormats)).setAutoCompletion(
+							USE_AUTO_COMPLETION)),
+					emptyDisplayFormat,
+					null);
+				result.setElements(contentFormats);
+				return result;
+			}
+			else {
+				return null;
+			}
+		}
+
+		@Override
+		protected HeaderComboBox<ComboBoxAlignmentHorizontal> createAlignmentComboBox() {
+			final List<ComboBoxAlignmentHorizontal> alignments = getAlignments();
+			final HeaderComboBox<ComboBoxAlignmentHorizontal> result = new HeaderComboBox<ComboBoxAlignmentHorizontal>(
+				add(Toolkit.getBluePrintFactory().comboBoxSelection(new AlignmentConverter()).setAutoCompletion(
+						USE_AUTO_COMPLETION)),
+				ComboBoxAlignmentHorizontal.VARIOUS,
+				null);
+			result.setElements(alignments);
+			return result;
+		}
+
+		@Override
+		protected HeaderComboBox<ComboBoxSortOrder> createSortOrderComboBox() {
+			final List<ComboBoxSortOrder> sortOrders = getSortOrders();
+			final HeaderComboBox<ComboBoxSortOrder> result = new HeaderComboBox<ComboBoxSortOrder>(
+				add(Toolkit.getBluePrintFactory().comboBoxSelection(new SortOrderConverter()).setAutoCompletion(
+						USE_AUTO_COMPLETION)),
+				ComboBoxSortOrder.NOT_SET,
+				ComboBoxSortOrder.CLEAR_SORTING);
+			result.setElements(sortOrders);
+			return result;
+		}
+
+		@Override
+		public HeaderComboBox<IDisplayFormat> getHeaderFormat() {
+			return (HeaderComboBox<IDisplayFormat>) super.getHeaderFormat();
+		}
+
+		@Override
+		public HeaderComboBox<IDisplayFormat> getContentFormat() {
+			return (HeaderComboBox<IDisplayFormat>) super.getContentFormat();
+		}
+
+		@Override
+		public HeaderComboBox<ComboBoxAlignmentHorizontal> getColumnAlignment() {
+			return (HeaderComboBox<ComboBoxAlignmentHorizontal>) super.getColumnAlignment();
+		}
+
+		@Override
+		public HeaderComboBox<ComboBoxSortOrder> getCurrentSorting() {
+			return (HeaderComboBox<ComboBoxSortOrder>) super.getCurrentSorting();
+		}
+
+		@Override
+		public HeaderComboBox<ComboBoxSortOrder> getDefaultSorting() {
+			return (HeaderComboBox<ComboBoxSortOrder>) super.getDefaultSorting();
+		}
+
+		@Override
 		public String getLabelText() {
 			return getData().getLabelText();
 		}
 
 		@Override
-		public List<String> getHeaderFormats() {
+		public List<IDisplayFormat> getHeaderFormats() {
 			return getData().getHeaderFormats();
 		}
 
 		@Override
-		public List<String> getContentFormats() {
+		public List<IDisplayFormat> getContentFormats() {
 			return getData().getContentFormats();
 		}
 
@@ -879,12 +1006,12 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 			final String[] propertyNames = getPropertyNames();
 
 			if (getHeaderFormat() != null) {
-				final List<String> formats = getHeaderFormats();
+				final List<IDisplayFormat> formats = getHeaderFormats();
 				getHeaderFormat().setElements(formats);
 				getHeaderFormat().setEnabled(formats.size() > 1);
 			}
 			if (getContentFormat() != null) {
-				final List<String> formats = getContentFormats();
+				final List<IDisplayFormat> formats = getContentFormats();
 				getContentFormat().setElements(formats);
 				getContentFormat().setEnabled(formats.size() > 1);
 			}
@@ -909,11 +1036,11 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 
 			int visibleCount = 0;
 			int invisibleCount = 0;
-			final Set<String> usedHeaderFormats = new HashSet<String>();
-			final Set<String> usedContentFormats = new HashSet<String>();
-			final Set<String> usedColumnAlignments = new HashSet<String>();
-			final Set<String> usedCurrentSortings = new HashSet<String>();
-			final Set<String> usedDefaultSortings = new HashSet<String>();
+			final Set<IDisplayFormat> usedHeaderFormats = new HashSet<IDisplayFormat>();
+			final Set<IDisplayFormat> usedContentFormats = new HashSet<IDisplayFormat>();
+			final Set<ComboBoxAlignmentHorizontal> usedColumnAlignments = new HashSet<ComboBoxAlignmentHorizontal>();
+			final Set<ComboBoxSortOrder> usedCurrentSortings = new HashSet<ComboBoxSortOrder>();
+			final Set<ComboBoxSortOrder> usedDefaultSortings = new HashSet<ComboBoxSortOrder>();
 			for (final String propertyName : propertyNames) {
 				final AttributeComposite attributeComposite = attributeComposites.get(propertyName);
 				if (attributeComposite.getVisible().getValue()) {
@@ -956,7 +1083,7 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 				getContentFormat().setValue(usedContentFormats);
 			}
 			if (getCurrentSorting() != null) {
-				getCurrentSorting().setValue(usedCurrentSortings, CLEAR_SORTING);
+				getCurrentSorting().setValue(usedCurrentSortings);
 			}
 			if (getDefaultSorting() != null) {
 				getDefaultSorting().setValue(usedDefaultSortings);
@@ -1048,9 +1175,9 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 
 				@Override
 				public void inputChanged() {
-					final String value = getHeaderFormat().getValue();
+					final IDisplayFormat value = getHeaderFormat().getValue();
 					for (final String property : getPropertyNames()) {
-						final ComboBox comboBox = attributeComposites.get(property).getHeaderFormat();
+						final ComboBox<IDisplayFormat> comboBox = attributeComposites.get(property).getHeaderFormat();
 						if (comboBox != null) {
 							comboBox.setValue(value);
 						}
@@ -1065,9 +1192,9 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 
 				@Override
 				public void inputChanged() {
-					final String value = getContentFormat().getValue();
+					final IDisplayFormat value = getContentFormat().getValue();
 					for (final String property : getPropertyNames()) {
-						final ComboBox comboBox = attributeComposites.get(property).getContentFormat();
+						final ComboBox<IDisplayFormat> comboBox = attributeComposites.get(property).getContentFormat();
 						if (comboBox != null) {
 							comboBox.setValue(value);
 						}
@@ -1082,9 +1209,9 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 
 				@Override
 				public void inputChanged() {
-					final String value = getColumnAlignment().getValue();
+					final ComboBoxAlignmentHorizontal value = getColumnAlignment().getValue();
 					for (final String property : getPropertyNames()) {
-						final ComboBox comboBox = attributeComposites.get(property).getColumnAlignment();
+						final ComboBox<ComboBoxAlignmentHorizontal> comboBox = attributeComposites.get(property).getColumnAlignment();
 						if (comboBox != null) {
 							comboBox.setValue(value);
 						}
@@ -1101,8 +1228,10 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 				@Override
 				public void inputChanged() {
 					final String[] properties = getPropertyNames();
-					final String value = model.provider.getSort(composite).getValue();
-					final boolean clear = isEmptyString(value) || CLEAR_SORTING.equals(value);
+					final ComboBoxSortOrder value = model.provider.getSort(composite).getValue();
+
+					final boolean clear = ComboBoxSortOrder.CLEAR_SORTING.equals(value)
+						|| ComboBoxSortOrder.NOT_SET.equals(value);
 					final List<Integer> shiftList = new ArrayList<Integer>();
 					for (int columnIndex = 0; columnIndex < properties.length; columnIndex++) {
 						final AttributeComposite attributeComposite = attributeComposites.get(properties[columnIndex]);
@@ -1111,8 +1240,10 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 						}
 
 						final SortingIndexComboBox sortIndex = model.provider.getSortIndex(attributeComposite);
-						final ComboBox sorting = model.provider.getSort(attributeComposite);
-						final boolean isEmpty = isEmptyString(sorting.getValue());
+						final ComboBox<ComboBoxSortOrder> sorting = model.provider.getSort(attributeComposite);
+						final boolean isEmpty = sorting.getValue() == null
+							|| ComboBoxSortOrder.NOT_SET.equals(sorting.getValue());
+
 						if (clear && !isEmpty) {
 							model.sortingLength = model.sortingLength - 1;
 							shiftList.add(Integer.valueOf(sortIndex.getIndex()));
@@ -1130,7 +1261,7 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 							sorting.setValue(value);
 						}
 						else {
-							sorting.setValue("");
+							sorting.setValue(ComboBoxSortOrder.NOT_SET);
 						}
 					}
 
@@ -1287,9 +1418,9 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 
 		String[] getPropertyNames();
 
-		List<String> getHeaderFormats();
+		List<IDisplayFormat> getHeaderFormats();
 
-		List<String> getContentFormats();
+		List<IDisplayFormat> getContentFormats();
 
 		boolean isSortable();
 
@@ -1298,14 +1429,14 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 
 	private final class FilterInformation implements IAttributesInformation {
 		private String[] propertyNames;
-		private final List<String> headerFormats;
-		private final List<String> contentFormats;
+		private final List<IDisplayFormat> headerFormats;
+		private final List<IDisplayFormat> contentFormats;
 		private boolean sortable;
 
 		private FilterInformation(final AllAttributeInformation allAttributeInformation) {
 			propertyNames = new String[0];
-			headerFormats = new LinkedList<String>(allAttributeInformation.getHeaderFormats());
-			contentFormats = new LinkedList<String>(allAttributeInformation.getContentFormats());
+			headerFormats = new LinkedList<IDisplayFormat>(allAttributeInformation.getHeaderFormats());
+			contentFormats = new LinkedList<IDisplayFormat>(allAttributeInformation.getContentFormats());
 			sortable = true;
 		}
 
@@ -1320,12 +1451,12 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 		}
 
 		@Override
-		public List<String> getHeaderFormats() {
+		public List<IDisplayFormat> getHeaderFormats() {
 			return headerFormats;
 		}
 
 		@Override
-		public List<String> getContentFormats() {
+		public List<IDisplayFormat> getContentFormats() {
 			return contentFormats;
 		}
 
@@ -1354,14 +1485,14 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 				final AttributeComposite attributeComposite = attributeComposites.get(propertyName);
 				sortable = sortable || attributeComposite.isSortable();
 
-				for (final String format : attributeComposite.getHeaderFormats()) {
+				for (final IDisplayFormat format : attributeComposite.getHeaderFormats()) {
 					if (headerFormats.contains(format)) {
 						continue;
 					}
 					headerFormats.add(format);
 				}
 
-				for (final String format : attributeComposite.getContentFormats()) {
+				for (final IDisplayFormat format : attributeComposite.getContentFormats()) {
 					if (contentFormats.contains(format)) {
 						continue;
 					}
@@ -1375,13 +1506,13 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 	private final class AllAttributeInformation implements IAttributesInformation {
 		private final boolean sortable;
 		private final String[] propertyNames;
-		private final List<String> headerFormats;
-		private final List<String> contentFormats;
+		private final List<IDisplayFormat> headerFormats;
+		private final List<IDisplayFormat> contentFormats;
 
 		private AllAttributeInformation(final IBeanTableModel<?> model) {
 			this.propertyNames = new String[model.getColumnCount()];
-			this.headerFormats = new LinkedList<String>();
-			this.contentFormats = new LinkedList<String>();
+			this.headerFormats = new LinkedList<IDisplayFormat>();
+			this.contentFormats = new LinkedList<IDisplayFormat>();
 
 			int sortableCount = 0;
 			for (int columnIndex = 0; columnIndex < model.getColumnCount(); columnIndex++) {
@@ -1391,17 +1522,19 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 					sortableCount++;
 				}
 
-				for (final IControlPanelProvider<?> provider : attribute.getControlPanels()) {
-					if (contentFormats.contains(provider.getDisplayFormat().getName())) {
-						continue;
-					}
+				if (attribute.getControlPanels().size() > 1) {
+					for (final IControlPanelProvider<?> provider : attribute.getControlPanels()) {
+						if (contentFormats.contains(provider.getDisplayFormat())) {
+							continue;
+						}
 
-					contentFormats.add(provider.getDisplayFormat().getName());
+						contentFormats.add(provider.getDisplayFormat());
+					}
 				}
 			}
 
-			headerFormats.add(DisplayFormat.SHORT.getName());
-			headerFormats.add(DisplayFormat.LONG.getName());
+			headerFormats.add(DisplayFormat.SHORT);
+			headerFormats.add(DisplayFormat.LONG);
 
 			sortable = sortableCount > 0;
 		}
@@ -1417,12 +1550,12 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 		}
 
 		@Override
-		public List<String> getHeaderFormats() {
+		public List<IDisplayFormat> getHeaderFormats() {
 			return headerFormats;
 		}
 
 		@Override
-		public List<String> getContentFormats() {
+		public List<IDisplayFormat> getContentFormats() {
 			return contentFormats;
 		}
 
@@ -1441,15 +1574,15 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 		private final IAttributeGroup group;
 		private final boolean sortable;
 		private final String[] propertyNames;
-		private final List<String> headerFormats;
-		private final List<String> contentFormats;
+		private final List<IDisplayFormat> headerFormats;
+		private final List<IDisplayFormat> contentFormats;
 
 		private AttributeGroupInformation(final int startIndex, final IBeanTableModel<?> model) {
 			this.group = model.getAttribute(startIndex).getGroup();
 			final int endIndex = getGroupEnd(model, startIndex);
 			this.propertyNames = new String[endIndex - startIndex + 1];
-			this.headerFormats = new LinkedList<String>();
-			this.contentFormats = new LinkedList<String>();
+			this.headerFormats = new LinkedList<IDisplayFormat>();
+			this.contentFormats = new LinkedList<IDisplayFormat>();
 
 			int sortableCount = 0;
 			int propIndex = 0;
@@ -1467,11 +1600,13 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 				}
 
 				final List<?> controlPanels = attribute.getControlPanels();
-				for (final Object provider : controlPanels) {
-					final IControlPanelProvider<?> controlPanelProvider = (IControlPanelProvider<?>) provider;
+				if (controlPanels.size() > 1) {
+					for (final Object provider : controlPanels) {
+						final IControlPanelProvider<?> controlPanelProvider = (IControlPanelProvider<?>) provider;
 
-					if (!contentFormats.contains(controlPanelProvider.getDisplayFormat().getName())) {
-						contentFormats.add(controlPanelProvider.getDisplayFormat().getName());
+						if (!contentFormats.contains(controlPanelProvider.getDisplayFormat())) {
+							contentFormats.add(controlPanelProvider.getDisplayFormat());
+						}
 					}
 				}
 
@@ -1479,8 +1614,8 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 			}
 
 			if (hasLongLabel) {
-				headerFormats.add(DisplayFormat.SHORT.getName());
-				headerFormats.add(DisplayFormat.LONG.getName());
+				headerFormats.add(DisplayFormat.SHORT);
+				headerFormats.add(DisplayFormat.LONG);
 			}
 
 			sortable = (sortableCount > 0);
@@ -1492,12 +1627,12 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 		}
 
 		@Override
-		public List<String> getHeaderFormats() {
+		public List<IDisplayFormat> getHeaderFormats() {
 			return headerFormats;
 		}
 
 		@Override
-		public List<String> getContentFormats() {
+		public List<IDisplayFormat> getContentFormats() {
 			return contentFormats;
 		}
 
@@ -1542,27 +1677,27 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 		return ((attribute.getLabelLong() != null) && (!attribute.getLabelLong().equals(attribute.getLabel())));
 	}
 
-	private static String getDisplayFormatNameById(final Object id, final IAttribute<?> attribute) {
-		for (final IControlPanelProvider<?> provider : attribute.getControlPanels()) {
-			if (provider.getDisplayFormat().getId().equals(id)) {
-				return provider.getDisplayFormat().getName();
-			}
-		}
-		return null;
-	}
+	//	private static String getDisplayFormatNameById(final Object id, final IAttribute<?> attribute) {
+	//		for (final IControlPanelProvider<?> provider : attribute.getControlPanels()) {
+	//			if (provider.getDisplayFormat().getId().equals(id)) {
+	//				return provider.getDisplayFormat().getName();
+	//			}
+	//		}
+	//		return null;
+	//	}
 
-	private class ComboBox extends ComboBoxWrapper<String> {
+	private class ComboBox<TYPE> extends ComboBoxWrapper<TYPE> {
 		private final InputObservable inputObservable = new InputObservable();
-		private String lastValue;
+		private TYPE lastValue;
 
-		public ComboBox(final IComboBox<String> widget) {
+		public ComboBox(final IComboBox<TYPE> widget) {
 			super(widget);
-			lastValue = "";
+			lastValue = null;
 			super.addInputListener(new IInputListener() {
 				@Override
 				public void inputChanged() {
-					final String value = getValue();
-					final boolean changed = !equalStrings(lastValue, value);
+					final TYPE value = getValue();
+					final boolean changed = (value != null) && (!NullCompatibleEquivalence.equals(lastValue, value));
 
 					if (changed && !eventsDisabled) {
 						eventsDisabled = true;
@@ -1570,12 +1705,7 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 						eventsDisabled = false;
 						updateHeaders();
 					}
-					if (value == null) {
-						lastValue = "";
-					}
-					else {
-						lastValue = value;
-					}
+					lastValue = value;
 				}
 			});
 		}
@@ -1596,21 +1726,21 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 			inputObservable.removeInputListener(listener);
 		}
 
-		private String getLastValue() {
+		private TYPE getLastValue() {
 			return lastValue;
 		}
 
 		@Override
 		// only set Elements is list has changed to avoid flickering
-		public void setElements(final List<String> elements) {
-			final List<String> currentElements = getElements();
+		public void setElements(final List<TYPE> elements) {
+			final List<TYPE> currentElements = getElements();
 			boolean changed = false;
 			if (elements.size() != currentElements.size()) {
 				changed = true;
 			}
 			else {
 				for (int i = 0; i < elements.size(); i++) {
-					if (!equalStrings(elements.get(i), currentElements.get(i))) {
+					if (!NullCompatibleEquivalence.equals(elements.get(i), currentElements.get(i))) {
 						changed = true;
 						break;
 					}
@@ -1623,50 +1753,62 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 		}
 
 		@Override
-		public void setValue(final String value) {
-			if ((value != null) && (!getElements().contains(value))) {
+		public void setValue(final TYPE value) {
+			if (!getElements().contains(value)) {
 				return;
 			}
-			if (equalStrings(value, getValue())) {
+			if (equalObjects(value, getValue())) {
 				return;
 			}
+			lastValue = value;
 			super.setValue(value);
 		}
 
-		public void setValue(final Set<String> values) {
-			setValue(values, VARIOUS);
+	}
+
+	private class HeaderComboBox<TYPE> extends ComboBox<TYPE> {
+
+		private final TYPE various;
+		private final TYPE unset;
+
+		public HeaderComboBox(final IComboBox<TYPE> widget, final TYPE various, final TYPE unset) {
+			super(widget);
+			this.various = various;
+			this.unset = unset;
 		}
 
-		public void setValue(final Set<String> values, final String additionalString) {
+		@SuppressWarnings("unchecked")
+		public void setValue(final Set<TYPE> values) {
 			if (values.size() == 0) {
-				setValue("");
+				final List<TYPE> elementCollection = getElements();
+				if (!elementCollection.contains(various)) {
+					final List<TYPE> elements = new LinkedList<TYPE>(elementCollection);
+					elements.add(0, various);
+					setElements(elements);
+				}
+				setValue(various);
 			}
 			else if (values.size() == 1) {
-				setValue((String) values.toArray()[0]);
+				setValue((TYPE) values.toArray()[0]);
 			}
 			else {
-				final List<String> elements = new LinkedList<String>(getElements());
-				if (!elements.contains(additionalString)) {
-					if (elements.size() > 1 && isEmptyString(elements.get(0))) {
-						elements.add(1, additionalString);
+				List<TYPE> elements = getElements();
+				if (!elements.contains(various)) {
+					elements = new LinkedList<TYPE>(elements);
+					elements.add(0, various);
+					setElements(elements);
+				}
+				if (unset != null && !elements.contains(unset)) {
+					elements = new LinkedList<TYPE>(elements);
+					if (elements.size() > 1 && (elements.get(0) == various)) {
+						elements.add(1, unset);
 					}
 					else {
-						elements.add(0, additionalString);
+						elements.add(0, unset);
 					}
 					setElements(elements);
 				}
-				setValue(VARIOUS);
-			}
-		}
-
-		@Override
-		public String getValue() {
-			final String value = super.getValue();
-			if (value == null) {
-				return "";
-			}
-			else {
-				return value;
+				setValue(various);
 			}
 		}
 	}
@@ -1712,7 +1854,7 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 
 		public int getIndex() {
 			final String value = getValue();
-			if (isEmptyString(value)) {
+			if (value == null || "".equals(value)) {
 				return 0;
 			}
 			return Integer.valueOf(value);
@@ -1796,25 +1938,28 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 		}
 	}
 
-	protected List<String> getAlignments() {
-		final List<String> result = new LinkedList<String>();
-		for (final AlignmentHorizontal alignment : AlignmentHorizontal.values()) {
-			result.add(alignment.getLabel());
+	protected List<ComboBoxAlignmentHorizontal> getAlignments() {
+		final List<ComboBoxAlignmentHorizontal> result = new LinkedList<ComboBoxAlignmentHorizontal>();
+		for (final ComboBoxAlignmentHorizontal alignment : ComboBoxAlignmentHorizontal.values()) {
+			if (alignment.getAlignmentHorizontal() != null) {
+				result.add(alignment);
+			}
 		}
 		return result;
 	}
 
-	protected List<String> getSortOrders() {
-		final List<String> result = new LinkedList<String>();
-		result.add(NOT_SET);
-		for (final SortOrder sortOrder : SortOrder.values()) {
-			result.add(sortOrder.getLabel());
+	protected List<ComboBoxSortOrder> getSortOrders() {
+		final List<ComboBoxSortOrder> result = new LinkedList<ComboBoxSortOrder>();
+		for (final ComboBoxSortOrder sortOrder : ComboBoxSortOrder.values()) {
+			if (sortOrder != ComboBoxSortOrder.CLEAR_SORTING) {
+				result.add(sortOrder);
+			}
 		}
 		return result;
 	}
 
 	private interface ISortIndexModelProvider {
-		ComboBox getSort(AbstractListElement<?> composite);
+		ComboBox<ComboBoxSortOrder> getSort(AbstractListElement<?> composite);
 
 		SortingIndexComboBox getSortIndex(AbstractListElement<?> composite);
 	}
@@ -1840,7 +1985,7 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 			for (final Entry<String, AttributeComposite> entry : attributeComposites.entrySet()) {
 				final AttributeComposite composite = entry.getValue();
 				if (composite.isSortable() && (provider.getSortIndex(composite).getIndex() > 0)) {
-					provider.getSort(composite).setValue("");
+					provider.getSort(composite).setValue(ComboBoxSortOrder.NOT_SET);
 					provider.getSortIndex(composite).setIndex(0);
 				}
 			}
@@ -2066,43 +2211,9 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 		}
 	}
 
-	private void appendText(final StringBuilder stringBuilder, final IComboBox<String> comboBox) {
+	private void appendText(final StringBuilder stringBuilder, final IComboBox<?> comboBox) {
 		if (comboBox != null) {
-			appendText(stringBuilder, comboBox.getValue());
-		}
-	}
-
-	private static DisplayFormat getHeaderDisplayFormat(final String displayFormatName) {
-		if (DisplayFormat.SHORT.getName().equals(displayFormatName)) {
-			return DisplayFormat.SHORT;
-		}
-		else {
-			return DisplayFormat.LONG;
-		}
-	}
-
-	private static IDisplayFormat getDisplayFormat(final String displayFormatName, final IAttribute<?> attribute) {
-		for (final IControlPanelProvider<?> provider : attribute.getControlPanels()) {
-			if (provider.getDisplayFormat().getName().equals(displayFormatName)) {
-				return provider.getDisplayFormat();
-			}
-		}
-
-		return null;
-	}
-
-	private static AlignmentHorizontal getTableAlignment(final String alignment) {
-		if (AlignmentHorizontal.LEFT.getLabel().equals(alignment)) {
-			return AlignmentHorizontal.LEFT;
-		}
-		else if (AlignmentHorizontal.CENTER.getLabel().equals(alignment)) {
-			return AlignmentHorizontal.CENTER;
-		}
-		else if (AlignmentHorizontal.RIGHT.getLabel().equals(alignment)) {
-			return AlignmentHorizontal.RIGHT;
-		}
-		else {
-			throw new IllegalStateException("Unkown Alignment: " + alignment);
+			appendText(stringBuilder, comboBox.getValue().toString());
 		}
 	}
 
@@ -2112,11 +2223,10 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 
 			final boolean visible = attributeComposite.getVisible().getValue();
 			final DisplayFormat labelDisplayFormat = (attributeComposite.getHeaderFormat() != null)
-					? getHeaderDisplayFormat(attributeComposite.getHeaderFormat().getValue()) : null;
-			final IDisplayFormat displayFormat = (attributeComposite.getContentFormat() != null) ? getDisplayFormat(
-					attributeComposite.getContentFormat().getValue(),
-					attributeComposite.getData()) : null;
-			final AlignmentHorizontal tableAlignment = getTableAlignment(attributeComposite.getColumnAlignment().getValue());
+					? (DisplayFormat) attributeComposite.getHeaderFormat().getValue() : null;
+			final IDisplayFormat displayFormat = (attributeComposite.getContentFormat() != null)
+					? attributeComposite.getContentFormat().getValue() : null;
+			final AlignmentHorizontal tableAlignment = attributeComposite.getColumnAlignment().getValue().getAlignmentHorizontal();
 			final Integer tableWidth = null;
 
 			builder.addAttributeConfig(entry.getKey(), new AttributeConfigImpl(
@@ -2148,32 +2258,20 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 		}
 
 		for (final AttributeComposite attributeComposite : currentSorting) {
-			final String orderText = currentSortingModel.provider.getSort(attributeComposite).getValue();
-			final SortOrder sortOrder = getSortOrder(orderText);
-			sortModelConfigBuilder.addCurrentProperty(attributeComposite.propertyName, sortOrder);
+			final ComboBoxSortOrder order = currentSortingModel.provider.getSort(attributeComposite).getValue();
+			if (order.getSortOrder() != null) {
+				sortModelConfigBuilder.addCurrentProperty(attributeComposite.propertyName, order.getSortOrder());
+			}
 		}
 
 		for (final AttributeComposite attributeComposite : defaultSorting) {
-			final String orderText = defaultSortingModel.provider.getSort(attributeComposite).getValue();
-			final SortOrder sortOrder = getSortOrder(orderText);
-			sortModelConfigBuilder.addDefaultProperty(attributeComposite.propertyName, sortOrder);
+			final ComboBoxSortOrder order = defaultSortingModel.provider.getSort(attributeComposite).getValue();
+			if (order.getSortOrder() != null) {
+				sortModelConfigBuilder.addDefaultProperty(attributeComposite.propertyName, order.getSortOrder());
+			}
 		}
 
 		builder.setSortModelConfig(sortModelConfigBuilder.build());
-	}
-
-	private SortOrder getSortOrder(final String text) {
-		final SortOrder sortOrder;
-		if (SortOrder.ASC.getLabel().equals(text)) {
-			sortOrder = SortOrder.ASC;
-		}
-		else if (SortOrder.DESC.getLabel().equals(text)) {
-			sortOrder = SortOrder.DESC;
-		}
-		else {
-			throw new IllegalStateException("Unkown sort order: " + text);
-		}
-		return sortOrder;
 	}
 
 	private void setAttributeVisible(final AttributeComposite attributeComposite, final boolean visible) {
@@ -2293,19 +2391,233 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 
 	}
 
-	private static boolean isEmptyString(final String string) {
-		return (string == null) || ("".equals(string));
-	}
-
-	private static boolean equalStrings(final String string1, final String string2) {
-		if (isEmptyString(string1) && (isEmptyString(string2))) {
+	private static boolean isEmptyObject(final Object object) {
+		if (object == null) {
 			return true;
 		}
-		else if (isEmptyString(string1)) {
+		if (object instanceof String) {
+			return ("".equals(object));
+		}
+		return false;
+	}
+
+	private static boolean equalObjects(final Object object1, final Object object2) {
+		if (isEmptyObject(object1) && (isEmptyObject(object2))) {
+			return true;
+		}
+		else if (isEmptyObject(object1)) {
 			return false;
 		}
 		else {
-			return string1.equals(string2);
+			return object1.equals(object2);
 		}
+	}
+
+	private static final class ContentDisplayFormatConverter extends AbstractConverter<IDisplayFormat> {
+		private final List<IDisplayFormat> formats;
+
+		private ContentDisplayFormatConverter(final List<IDisplayFormat> formats) {
+			this.formats = formats;
+		}
+
+		@Override
+		public IDisplayFormat convertToObject(final String string) {
+			for (final IDisplayFormat displayFormat : formats) {
+				if (displayFormat.getName().equals(string)) {
+					return displayFormat;
+				}
+			}
+			return null;
+		}
+
+		@Override
+		public String convertToString(final IDisplayFormat value) {
+			return value.getName();
+		}
+
+	}
+
+	private static final class HeaderDisplayFormatConverter extends AbstractConverter<IDisplayFormat> {
+
+		@Override
+		public IDisplayFormat convertToObject(final String string) {
+			if (DisplayFormat.LONG.getName().equals(string)) {
+				return DisplayFormat.LONG;
+			}
+			else {
+				return DisplayFormat.SHORT;
+			}
+		}
+
+		@Override
+		public String convertToString(final IDisplayFormat value) {
+			return value.getName();
+		}
+
+	}
+
+	private static final class AlignmentConverter extends AbstractConverter<ComboBoxAlignmentHorizontal> {
+
+		@Override
+		public ComboBoxAlignmentHorizontal convertToObject(final String string) {
+			if (ComboBoxAlignmentHorizontal.LEFT.getLabel().equals(string)) {
+				return ComboBoxAlignmentHorizontal.LEFT;
+			}
+			else if (ComboBoxAlignmentHorizontal.CENTER.getLabel().equals(string)) {
+				return ComboBoxAlignmentHorizontal.CENTER;
+			}
+			else if (ComboBoxAlignmentHorizontal.RIGHT.getLabel().equals(string)) {
+				return ComboBoxAlignmentHorizontal.RIGHT;
+			}
+			else if (ComboBoxAlignmentHorizontal.VARIOUS.getLabel().equals(string)) {
+				return ComboBoxAlignmentHorizontal.VARIOUS;
+			}
+			else {
+				throw new IllegalArgumentException("Unkown alignment '" + string + "':");
+			}
+		}
+
+		@Override
+		public String convertToString(final ComboBoxAlignmentHorizontal value) {
+			return value.getLabel();
+		}
+
+	}
+
+	private static enum ComboBoxSortOrder {
+		NOT_SET(""),
+		CLEAR_SORTING(TEXT_CLEAR_SORTING),
+		ASC(SortOrder.ASC),
+		DESC(SortOrder.DESC);
+
+		private String label;
+		private SortOrder sortOrder;
+
+		private ComboBoxSortOrder(final String label) {
+			this(label, null);
+		}
+
+		private ComboBoxSortOrder(final SortOrder sortOrder) {
+			this(sortOrder.getLabel(), sortOrder);
+		}
+
+		private ComboBoxSortOrder(final String label, final SortOrder sortOrder) {
+			this.label = label;
+			this.sortOrder = sortOrder;
+		}
+
+		public String getLabel() {
+			return label;
+		}
+
+		public SortOrder getSortOrder() {
+			return sortOrder;
+		}
+
+		@Override
+		public String toString() {
+			return label;
+		}
+
+		public static ComboBoxSortOrder convert(final SortOrder sortOrder) {
+			for (final ComboBoxSortOrder value : values()) {
+				if (value.sortOrder == sortOrder) {
+					return value;
+				}
+			}
+
+			return NOT_SET;
+		}
+	}
+
+	private static final class SortOrderConverter extends AbstractConverter<ComboBoxSortOrder> {
+
+		@Override
+		public ComboBoxSortOrder convertToObject(final String string) {
+			if (ComboBoxSortOrder.NOT_SET.equals(string)) {
+				return ComboBoxSortOrder.NOT_SET;
+			}
+			else if (ComboBoxSortOrder.ASC.equals(string)) {
+				return ComboBoxSortOrder.ASC;
+			}
+			else if (ComboBoxSortOrder.DESC.equals(string)) {
+				return ComboBoxSortOrder.DESC;
+			}
+			else {
+				throw new IllegalArgumentException("Unkown sort order '" + string + "':");
+			}
+		}
+
+		@Override
+		public String convertToString(final ComboBoxSortOrder value) {
+			return value.getLabel();
+		}
+	}
+
+	private static IDisplayFormat createEmptyDisplayFormat() {
+		return new IDisplayFormat() {
+
+			@Override
+			public String getName() {
+				return "";
+			}
+
+			@Override
+			public Object getId() {
+				return "";
+			}
+
+			@Override
+			public String getDescription() {
+				return "";
+			}
+		};
+	}
+
+	public enum ComboBoxAlignmentHorizontal {
+
+		VARIOUS(""),
+		LEFT(AlignmentHorizontal.LEFT),
+		RIGHT(AlignmentHorizontal.RIGHT),
+		CENTER(AlignmentHorizontal.CENTER);
+
+		private String label;
+		private AlignmentHorizontal alignmentHorizontal;
+
+		private ComboBoxAlignmentHorizontal(final String label) {
+			this(label, null);
+		}
+
+		private ComboBoxAlignmentHorizontal(final AlignmentHorizontal alignmentHorizontal) {
+			this(alignmentHorizontal.getLabel(), alignmentHorizontal);
+		}
+
+		private ComboBoxAlignmentHorizontal(final String label, final AlignmentHorizontal alignmentHorizontal) {
+			this.label = label;
+			this.alignmentHorizontal = alignmentHorizontal;
+		}
+
+		public String getLabel() {
+			return label;
+		}
+
+		public AlignmentHorizontal getAlignmentHorizontal() {
+			return alignmentHorizontal;
+		}
+
+		@Override
+		public String toString() {
+			return label;
+		}
+
+		public static ComboBoxAlignmentHorizontal convert(final AlignmentHorizontal tableAlignment) {
+			for (final ComboBoxAlignmentHorizontal alignment : values()) {
+				if (alignment.getAlignmentHorizontal() == tableAlignment) {
+					return alignment;
+				}
+			}
+			return null;
+		}
+
 	}
 }
