@@ -34,8 +34,10 @@ import java.util.List;
 import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.filter.ArithmeticOperator;
 import org.jowidgets.cap.common.api.filter.BooleanOperator;
+import org.jowidgets.cap.common.api.filter.IArithmeticFilterBuilder;
+import org.jowidgets.cap.common.api.filter.IArithmeticPropertyFilterBuilder;
+import org.jowidgets.cap.common.api.filter.ICustomFilterBuilder;
 import org.jowidgets.cap.common.api.filter.IFilter;
-import org.jowidgets.cap.common.api.filter.IFilterFactory;
 import org.jowidgets.cap.common.api.filter.IOperator;
 import org.jowidgets.cap.ui.api.filter.IUiArithmeticFilter;
 import org.jowidgets.cap.ui.api.filter.IUiArithmeticFilterBuilder;
@@ -137,36 +139,41 @@ final class UiFilterFactoryImpl implements IUiFilterFactory {
 
 	@Override
 	public IFilter convert(final IUiFilter uiFilter) {
-		final IFilterFactory fab = CapCommonToolkit.filterFactory();
 		if (uiFilter instanceof IUiBooleanFilter) {
 			final IUiBooleanFilter uiBooleanFilter = (IUiBooleanFilter) uiFilter;
 			final List<IFilter> filters = new LinkedList<IFilter>();
 			for (final IUiFilter uiF : uiBooleanFilter.getFilters()) {
 				filters.add(convert(uiF));
 			}
-			return fab.booleanFilter(uiBooleanFilter.getOperator(), filters);
+			return CapCommonToolkit.filterFactory().booleanFilter(uiBooleanFilter.getOperator(), filters);
 		}
 		else if (uiFilter instanceof IUiArithmeticFilter<?>) {
 			final IUiArithmeticFilter<?> uiArithmeticFilter = (IUiArithmeticFilter<?>) uiFilter;
-			return fab.arithmeticFilter(
-					uiArithmeticFilter.getPropertyName(),
-					uiArithmeticFilter.getOperator(),
-					uiArithmeticFilter.getParameters());
+			final IArithmeticFilterBuilder arithmeticFilterBuilder = CapCommonToolkit.filterFactory().arithmeticFilterBuilder();
+			arithmeticFilterBuilder.setInverted(uiArithmeticFilter.isInverted());
+			arithmeticFilterBuilder.setOperator(uiArithmeticFilter.getOperator());
+			arithmeticFilterBuilder.setParameters(uiArithmeticFilter.getParameters());
+			arithmeticFilterBuilder.setPropertyName(uiArithmeticFilter.getPropertyName());
+			return arithmeticFilterBuilder.build();
 		}
 		else if (uiFilter instanceof IUiArithmeticPropertyFilter<?>) {
 			final IUiArithmeticPropertyFilter<?> uiArithmeticPropertyFilter = (IUiArithmeticPropertyFilter<?>) uiFilter;
-			return fab.arithmeticPropertyFilter(
-					uiArithmeticPropertyFilter.getLeftHandPropertyName(),
-					uiArithmeticPropertyFilter.getOperator(),
-					uiArithmeticPropertyFilter.getRightHandPropertyNames());
+			final IArithmeticPropertyFilterBuilder arithmeticPropertyFilterBuilder = CapCommonToolkit.filterFactory().arithmeticPropertyFilterBuilder();
+			arithmeticPropertyFilterBuilder.setInverted(uiArithmeticPropertyFilter.isInverted());
+			arithmeticPropertyFilterBuilder.setLeftHandPropertyName(uiArithmeticPropertyFilter.getLeftHandPropertyName());
+			arithmeticPropertyFilterBuilder.setOperator(uiArithmeticPropertyFilter.getOperator());
+			arithmeticPropertyFilterBuilder.setRightHandPropertyNames(uiArithmeticPropertyFilter.getRightHandPropertyNames());
+			return arithmeticPropertyFilterBuilder.build();
 		}
 		else if (uiFilter instanceof IUiCustomFilter<?>) {
 			final IUiCustomFilter<?> uiCustomFilter = (IUiCustomFilter<?>) uiFilter;
-			return fab.customFilter(
-					uiCustomFilter.getFilterType(),
-					uiCustomFilter.getPropertyName(),
-					uiCustomFilter.getOperator(),
-					uiCustomFilter.getValue());
+			final ICustomFilterBuilder customFilterBuilder = CapCommonToolkit.filterFactory().customFilterBuilder();
+			customFilterBuilder.setFilterType(uiCustomFilter.getFilterType());
+			customFilterBuilder.setInverted(uiCustomFilter.isInverted());
+			customFilterBuilder.setOperator(uiCustomFilter.getOperator());
+			customFilterBuilder.setPropertyName(uiCustomFilter.getPropertyName());
+			customFilterBuilder.setValue(uiCustomFilter.getValue());
+			return customFilterBuilder.build();
 		}
 		else {
 			throw new IllegalStateException("Cannot convert unkown filter class '" + uiFilter.getClass().getName() + "'.");
