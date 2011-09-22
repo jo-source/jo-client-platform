@@ -92,7 +92,7 @@ final class EntityDataImpl<BEAN_TYPE extends IBean> implements IEntityData<BEAN_
 
 	@Override
 	public List<BEAN_TYPE> getAllData(final int fromIndex, final int rowCount) {
-		return new LinkedList<BEAN_TYPE>(dataList.subList(fromIndex, Math.min(fromIndex + rowCount, dataList.size() - 1)));
+		return new LinkedList<BEAN_TYPE>(dataList.subList(fromIndex, Math.min(fromIndex + rowCount, dataList.size())));
 	}
 
 	@Override
