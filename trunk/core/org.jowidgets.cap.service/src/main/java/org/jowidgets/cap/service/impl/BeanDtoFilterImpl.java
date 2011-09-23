@@ -296,9 +296,7 @@ final class BeanDtoFilterImpl implements IBeanDtoFilter {
 				break;
 
 			case CONTAINS_ALL:
-				throw new IllegalArgumentException("Arithmetic operator "
-					+ filter.getOperator()
-					+ " cannot be used with a non-collection value.");
+				accept = containsAll(getParameters(filter), collection);
 
 			default:
 				throw new IllegalArgumentException("Unknown arithmetic operator '" + filter.getOperator() + ".'");
@@ -500,6 +498,22 @@ final class BeanDtoFilterImpl implements IBeanDtoFilter {
 			}
 		}
 		return false;
+	}
+
+	private boolean containsAll(final Object[] parameters, final Collection<?> values) {
+		for (final Object parameter : parameters) {
+			boolean hit = false;
+			for (final Object value : values) {
+				if (isEqual(parameter, value)) {
+					hit = true;
+					break;
+				}
+			}
+			if (!hit) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	// This method is probably called too often
