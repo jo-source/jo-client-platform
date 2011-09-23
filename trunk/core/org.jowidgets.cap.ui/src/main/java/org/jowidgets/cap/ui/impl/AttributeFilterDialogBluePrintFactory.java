@@ -87,7 +87,7 @@ final class AttributeFilterDialogBluePrintFactory {
 		};
 
 		final IInputDialogBluePrint<IUiConfigurableFilter<? extends Object>> dialogBp = bpf.inputDialog(contentCreator);
-		dialogBp.setTitle(executionContext.getAction().getText());
+		dialogBp.setExecutionContext(executionContext);
 		dialogBp.setSize(new Dimension(640, 150));
 
 		return dialogBp;

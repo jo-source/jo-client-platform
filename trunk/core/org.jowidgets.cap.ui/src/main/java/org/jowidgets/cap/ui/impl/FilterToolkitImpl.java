@@ -83,7 +83,7 @@ final class FilterToolkitImpl implements IFilterToolkit {
 
 	@Override
 	public IAttributeFilter arithmeticPropertyAttributeFilter(final Class<?> type, final Class<?> elementValueType) {
-		return new DefaultArithmeticPropertyAttributeFilter(type, elementValueType);
+		return new DefaultArithmeticPropertyAttributeFilter(elementValueType);
 	}
 
 	@Override
