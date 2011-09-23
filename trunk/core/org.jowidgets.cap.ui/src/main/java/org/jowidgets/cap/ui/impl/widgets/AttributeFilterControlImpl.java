@@ -47,19 +47,16 @@ import org.jowidgets.cap.ui.api.filter.IFilterType;
 import org.jowidgets.cap.ui.api.filter.IUiConfigurableFilter;
 import org.jowidgets.cap.ui.api.widgets.IAttributeFilterControl;
 import org.jowidgets.cap.ui.api.widgets.IAttributeFilterControlBluePrint;
-import org.jowidgets.common.widgets.controller.IInputListener;
 import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
 import org.jowidgets.common.widgets.factory.ICustomWidgetFactory;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
-import org.jowidgets.tools.widgets.wrapper.ControlWrapper;
+import org.jowidgets.tools.widgets.wrapper.AbstractInputControl;
 import org.jowidgets.util.Assert;
-import org.jowidgets.validation.IValidationConditionListener;
 import org.jowidgets.validation.IValidationResult;
-import org.jowidgets.validation.IValidator;
 import org.jowidgets.validation.ValidationResult;
 
-//TODO MG implement AttributeFilterControlImpl
-final class AttributeFilterControlImpl extends ControlWrapper implements IAttributeFilterControl {
+final class AttributeFilterControlImpl extends AbstractInputControl<IUiConfigurableFilter<? extends Object>> implements
+		IAttributeFilterControl {
 
 	private static final String NOT = "NOT";
 
@@ -115,6 +112,16 @@ final class AttributeFilterControlImpl extends ControlWrapper implements IAttrib
 	}
 
 	@Override
+	protected IValidationResult createValidationResult() {
+		if (filterControl != null) {
+			return filterControl.validate();
+		}
+		else {
+			return ValidationResult.ok();
+		}
+	}
+
+	@Override
 	public void setAttribute(final IAttribute<?> attribute, final IFilterType filterType) {
 		Assert.paramNotNull(attribute, "attribute");
 		Assert.paramNotNull(filterType, "filterType");
@@ -150,7 +157,12 @@ final class AttributeFilterControlImpl extends ControlWrapper implements IAttrib
 
 	@Override
 	public IUiConfigurableFilter<? extends Object> getValue() {
-		return null;
+		if (filterControl != null) {
+			return filterControl.getValue();
+		}
+		else {
+			return null;
+		}
 	}
 
 	@Override
@@ -164,37 +176,7 @@ final class AttributeFilterControlImpl extends ControlWrapper implements IAttrib
 	}
 
 	@Override
-	public IValidationResult validate() {
-		return ValidationResult.ok();
-	}
-
-	@Override
-	public void addValidator(final IValidator<IUiConfigurableFilter<? extends Object>> validator) {
-
-	}
-
-	@Override
-	public void addValidationConditionListener(final IValidationConditionListener listener) {
-
-	}
-
-	@Override
-	public void removeValidationConditionListener(final IValidationConditionListener listener) {
-
-	}
-
-	@Override
 	public void setEditable(final boolean editable) {
-
-	}
-
-	@Override
-	public void addInputListener(final IInputListener listener) {
-
-	}
-
-	@Override
-	public void removeInputListener(final IInputListener listener) {
 
 	}
 

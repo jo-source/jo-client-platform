@@ -50,8 +50,6 @@ final class ArithmeticFilterPanelProviderImpl<ELEMENT_VALUE_TYPE> implements
 		IFilterControlCreator<ArithmeticOperator> {
 
 	private final String propertyName;
-	@SuppressWarnings("unused")
-	//would be used later to make implement relative date controls
 	private final Class<?> elementValueType;
 	private final IOperatorProvider<ArithmeticOperator> operatorProvider;
 	private final ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> controlCreator;
@@ -92,6 +90,7 @@ final class ArithmeticFilterPanelProviderImpl<ELEMENT_VALUE_TYPE> implements
 		final IComposite composite = widgetFactory.create(Toolkit.getBluePrintFactory().composite());
 		return new DefaultArithmeticFilterControl<ELEMENT_VALUE_TYPE>(
 			propertyName,
+			elementValueType,
 			operatorProvider,
 			controlCreator,
 			collectionControlCreator,
