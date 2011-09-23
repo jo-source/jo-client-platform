@@ -28,6 +28,10 @@
 
 package org.jowidgets.cap.ui.api.filter;
 
+import java.util.List;
+
+import org.jowidgets.cap.ui.api.attribute.IAttribute;
+
 public interface IUiFilterTools {
 
 	/**
@@ -73,4 +77,13 @@ public interface IUiFilterTools {
 	 */
 	boolean isPropertyFiltered(IUiFilter sourceFilter, String propertyName);
 
+	/**
+	 * Gets a human readable string representation of the given filter.
+	 * 
+	 * @param filter The filter to get the string representation for
+	 * @param attributes The attributes the filter terms may use
+	 * 
+	 * @return A human readable string representation
+	 */
+	String toHumanReadable(IUiFilter filter, List<IAttribute<?>> attributes);
 }

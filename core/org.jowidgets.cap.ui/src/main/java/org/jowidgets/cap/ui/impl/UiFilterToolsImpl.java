@@ -28,8 +28,11 @@
 
 package org.jowidgets.cap.ui.impl;
 
+import java.util.List;
+
 import org.jowidgets.cap.common.api.filter.BooleanOperator;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
+import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.filter.IUiArithmeticFilter;
 import org.jowidgets.cap.ui.api.filter.IUiArithmeticFilterBuilder;
 import org.jowidgets.cap.ui.api.filter.IUiArithmeticPropertyFilter;
@@ -215,4 +218,11 @@ final class UiFilterToolsImpl implements IUiFilterTools {
 				+ "' is not supported");
 		}
 	}
+
+	@Override
+	public String toHumanReadable(final IUiFilter filter, final List<IAttribute<?>> attributes) {
+		//TODO NM implement toHumanReadable
+		return "TODO implement to human readable";
+	}
+
 }
