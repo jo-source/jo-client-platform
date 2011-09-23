@@ -42,6 +42,7 @@ import org.jowidgets.tools.model.item.MenuModel;
 
 final class BeanTableCellFilterMenuModel extends MenuModel {
 
+	@SuppressWarnings({"unchecked", "rawtypes"})
 	BeanTableCellFilterMenuModel(final IBeanTableModel<?> model, final int columnIndex) {
 		//TODO i18n
 		super("Filter", IconsSmall.FILTER);
@@ -57,9 +58,15 @@ final class BeanTableCellFilterMenuModel extends MenuModel {
 			}
 			final List<IFilterType> filterTypes = attribute.getSupportedFilterTypes();
 			if (filterTypes.size() > 0) {
-				addSeparator();
-				for (final IFilterType filterType : attribute.getSupportedFilterTypes()) {
-					addAction(menuFactory.addFilterAction(model, filterType, columnIndex));
+				boolean separatorAdded = false;
+				for (final IFilterType filterType : filterTypes) {
+					if (attribute.getFilterPanelProvider(filterType).isApplicableWith((List) model.getAttributes())) {
+						if (!separatorAdded) {
+							addSeparator();
+							separatorAdded = true;
+						}
+						addAction(menuFactory.addFilterAction(model, filterType, columnIndex));
+					}
 				}
 			}
 			addSeparator();
@@ -68,9 +75,10 @@ final class BeanTableCellFilterMenuModel extends MenuModel {
 		addAction(menuFactory.deleteFilterAction(model));
 	}
 
-	public static boolean hasCustomFilterSupport(final IAttribute<?> attribute) {
+	private static boolean hasCustomFilterSupport(final IAttribute<?> attribute) {
 		final IFilterSupport<Object> filterSupport = attribute.getCurrentControlPanel().getFilterSupport();
 		final IIncludingFilterFactory<Object> includingFilterFactory = filterSupport.getIncludingFilterFactory();
 		return attribute.getSupportedFilterTypes().contains(includingFilterFactory.getFilterType());
 	}
+
 }

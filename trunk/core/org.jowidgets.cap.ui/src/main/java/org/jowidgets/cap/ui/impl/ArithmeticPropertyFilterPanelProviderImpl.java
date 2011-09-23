@@ -42,6 +42,7 @@ import org.jowidgets.cap.ui.api.filter.IFilterPanelProvider;
 import org.jowidgets.cap.ui.api.filter.IFilterType;
 import org.jowidgets.cap.ui.api.filter.IOperatorProvider;
 import org.jowidgets.common.widgets.factory.ICustomWidgetFactory;
+import org.jowidgets.util.Assert;
 
 final class ArithmeticPropertyFilterPanelProviderImpl<ELEMENT_VALUE_TYPE> implements
 		IFilterPanelProvider<ArithmeticOperator>,
@@ -68,6 +69,18 @@ final class ArithmeticPropertyFilterPanelProviderImpl<ELEMENT_VALUE_TYPE> implem
 	@Override
 	public IFilterControlCreator<ArithmeticOperator> getFilterControlCreator() {
 		return this;
+	}
+
+	@Override
+	public boolean isApplicableWith(final List<IAttribute<?>> attributes) {
+		Assert.paramNotNull(attributes, "attributes");
+		//there must be at least one attribute this attribute could be compared with
+		for (final IAttribute<?> attribute : attributes) {
+			if (!propertyName.equals(attribute.getPropertyName()) && attributeFilter.accept(attribute)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	@Override

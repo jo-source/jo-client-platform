@@ -196,9 +196,9 @@ public class ArithmeticPropertyFilterControl<ELEMENT_VALUE_TYPE> extends
 			combo2 = null;
 			if (ArithmeticOperator.BETWEEN == operator) {
 				getWidget().setLayout(new MigLayoutDescriptor("0[grow][][grow]0", "0[]0"));
-				combo1 = getWidget().add(comboBoxBluePrint(attributes));
+				combo1 = getWidget().add(comboBoxBluePrint(attributes), "grow, w 0::");
 				getWidget().add(Toolkit.getBluePrintFactory().textLabel(AND));
-				combo2 = getWidget().add(comboBoxBluePrint(attributes));
+				combo2 = getWidget().add(comboBoxBluePrint(attributes), "grow, w 0::");
 			}
 			else if (ArithmeticOperator.EMPTY != operator) {
 				getWidget().setLayout(new MigLayoutDescriptor("0[grow]0", "0[]0"));
@@ -209,7 +209,7 @@ public class ArithmeticPropertyFilterControl<ELEMENT_VALUE_TYPE> extends
 				else {
 					currentAttributes = attributes;
 				}
-				combo1 = getWidget().add(comboBoxBluePrint(currentAttributes));
+				combo1 = getWidget().add(comboBoxBluePrint(currentAttributes), "grow, w 0::");
 			}
 
 			addInputListener();
