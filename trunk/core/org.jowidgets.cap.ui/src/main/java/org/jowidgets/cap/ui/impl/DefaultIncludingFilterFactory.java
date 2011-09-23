@@ -92,6 +92,7 @@ final class DefaultIncludingFilterFactory<VALUE_TYPE> implements IIncludingFilte
 			final Calendar secondOperand = new GregorianCalendar();
 			secondOperand.setTime(firstOperand.getTime());
 			secondOperand.add(Calendar.DAY_OF_MONTH, 1);
+			secondOperand.add(Calendar.MILLISECOND, -1);
 
 			return filterFactory.arithmeticFilter(propertyName, ArithmeticOperator.BETWEEN, new Date[] {
 					firstOperand.getTime(), secondOperand.getTime()});
