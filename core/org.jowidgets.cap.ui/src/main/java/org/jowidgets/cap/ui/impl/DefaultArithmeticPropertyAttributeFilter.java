@@ -35,20 +35,16 @@ import org.jowidgets.util.NullCompatibleEquivalence;
 
 final class DefaultArithmeticPropertyAttributeFilter implements IAttributeFilter {
 
-	private final Class<?> type;
 	private final Class<?> elementValueType;
 
-	DefaultArithmeticPropertyAttributeFilter(final Class<?> type, final Class<?> elementValueType) {
-		this.type = type;
+	DefaultArithmeticPropertyAttributeFilter(final Class<?> elementValueType) {
 		this.elementValueType = elementValueType;
 	}
 
 	@Override
 	public boolean accept(final IAttribute<?> attribute) {
 		Assert.paramNotNull(attribute, "attribute");
-		return (NullCompatibleEquivalence.equals(type, attribute.getValueType()) && NullCompatibleEquivalence.equals(
-				elementValueType,
-				attribute.getElementValueType()));
+		return (NullCompatibleEquivalence.equals(elementValueType, attribute.getElementValueType()));
 	}
 
 }
