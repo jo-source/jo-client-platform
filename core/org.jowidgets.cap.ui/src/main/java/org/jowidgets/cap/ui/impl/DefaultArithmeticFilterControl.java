@@ -308,7 +308,7 @@ public class DefaultArithmeticFilterControl<ELEMENT_VALUE_TYPE> extends ControlW
 	}
 
 	private boolean isCollectionOperator(final ArithmeticOperator operator) {
-		return operator == ArithmeticOperator.CONTAINS_ALL || operator == ArithmeticOperator.CONTAINS_ALL;
+		return operator == ArithmeticOperator.CONTAINS_ANY || operator == ArithmeticOperator.CONTAINS_ALL;
 	}
 
 }
