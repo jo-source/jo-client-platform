@@ -297,6 +297,7 @@ final class BeanDtoFilterImpl implements IBeanDtoFilter {
 
 			case CONTAINS_ALL:
 				accept = containsAll(getParameters(filter), collection);
+				break;
 
 			default:
 				throw new IllegalArgumentException("Unknown arithmetic operator '" + filter.getOperator() + ".'");
