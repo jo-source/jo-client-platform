@@ -62,6 +62,12 @@ public final class BeanDtoCustomFilterPluginRegistry {
 		return result;
 	}
 
+	public static void register(final String filterType, final IBeanDtoCustomFilterPlugin plugin) {
+		Assert.paramNotNull(filterType, "filterType");
+		Assert.paramNotNull(plugin, "plugin");
+		plugins.put(filterType, plugin);
+	}
+
 	public static IBeanDtoCustomFilterPlugin getPlugin(final String filterType) {
 		Assert.paramNotNull(filterType, "filterType");
 		return plugins.get(filterType);
