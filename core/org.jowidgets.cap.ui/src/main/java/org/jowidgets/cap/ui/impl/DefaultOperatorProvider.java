@@ -289,7 +289,7 @@ final class DefaultOperatorProvider {
 	}
 
 	private static IOperatorProvider<ArithmeticOperator> dateProperty() {
-		return new OperatorProvider<ArithmeticOperator>(ArithmeticOperator.BETWEEN, //default
+		return new OperatorProvider<ArithmeticOperator>(ArithmeticOperator.EQUAL, //default
 			ArithmeticOperator.EQUAL,
 			ArithmeticOperator.GREATER,
 			ArithmeticOperator.GREATER_EQUAL,
@@ -300,7 +300,7 @@ final class DefaultOperatorProvider {
 	}
 
 	private static IOperatorProvider<ArithmeticOperator> dateCollectionProperty() {
-		return new OperatorProvider<ArithmeticOperator>(ArithmeticOperator.BETWEEN, //default
+		return new OperatorProvider<ArithmeticOperator>(ArithmeticOperator.EQUAL, //default
 			ArithmeticOperator.EQUAL,
 			ArithmeticOperator.GREATER,
 			ArithmeticOperator.GREATER_EQUAL,

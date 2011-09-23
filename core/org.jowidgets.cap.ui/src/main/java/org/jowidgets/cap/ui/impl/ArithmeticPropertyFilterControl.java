@@ -50,35 +50,30 @@ import org.jowidgets.cap.ui.api.filter.IUiArithmeticPropertyFilterBuilder;
 import org.jowidgets.cap.ui.api.filter.IUiFilterFactory;
 import org.jowidgets.common.widgets.controller.IInputListener;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
-import org.jowidgets.tools.controller.InputObservable;
 import org.jowidgets.tools.validation.MandatoryValidator;
-import org.jowidgets.tools.validation.ValidationCache;
-import org.jowidgets.tools.validation.ValidationCache.IValidationResultCreator;
-import org.jowidgets.tools.widgets.wrapper.ControlWrapper;
+import org.jowidgets.tools.widgets.wrapper.AbstractInputControl;
 import org.jowidgets.util.Assert;
-import org.jowidgets.validation.IValidationConditionListener;
 import org.jowidgets.validation.IValidationResult;
-import org.jowidgets.validation.IValidationResultBuilder;
-import org.jowidgets.validation.IValidator;
 import org.jowidgets.validation.ValidationResult;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
-public class ArithmeticPropertyFilterControl<ELEMENT_VALUE_TYPE> extends ControlWrapper implements
+public class ArithmeticPropertyFilterControl<ELEMENT_VALUE_TYPE> extends
+		AbstractInputControl<IUiArithmeticPropertyFilter<Object>> implements
 		IFilterControl<ArithmeticOperator, Object, IUiArithmeticPropertyFilter<Object>> {
 
 	//TODO i18n
 	private static final String AND = "AND";
+	private static final String NO_ATTRIBUTE_COULD_BE_COMPARED_WITH = "No attribute could be compared with";
 
 	private static final IObjectStringConverter<IAttribute<?>> ATTRIBUTE_CONVERTER = attributeConverter();
 
 	private final String propertyName;
 
-	private final ValidationCache validationCache;
-	private final InputObservable inputObservable;
 	private final IInputListener inputListener;
 	private final Map<String, IAttribute<?>> attributesMap;
 	private final List<IAttribute<?>> attributes;
 	private final List<IAttribute<?>> collectionTypeAttributes;
+	private final IAttribute<?> attribute;
 
 	private IComboBox<IAttribute<?>> combo1;
 	private IComboBox<IAttribute<?>> combo2;
@@ -94,24 +89,17 @@ public class ArithmeticPropertyFilterControl<ELEMENT_VALUE_TYPE> extends Control
 		super(composite);
 
 		this.propertyName = propertyName;
+		this.attributesMap = getAttributesMap((List<IAttribute<?>>) attributes);
 		this.attributes = getFilteredAttributes(propertyName, attributes, attributeFilter);
-		this.attributesMap = getAttributesMap(this.attributes);
+		this.attribute = attributesMap.get(propertyName);
+
 		this.collectionTypeAttributes = getCollectionTypeAttributes(this.attributes);
-
-		this.inputObservable = new InputObservable();
-
-		this.validationCache = new ValidationCache(new IValidationResultCreator() {
-			@Override
-			public IValidationResult createValidationResult() {
-				final IValidationResultBuilder builder = ValidationResult.builder();
-				return builder.build();
-			}
-		});
 
 		this.inputListener = new IInputListener() {
 			@Override
 			public void inputChanged() {
-				inputObservable.fireInputChanged();
+				fireInputChanged();
+				setValidationCacheDirty();
 			}
 		};
 
@@ -126,7 +114,9 @@ public class ArithmeticPropertyFilterControl<ELEMENT_VALUE_TYPE> extends Control
 		final List<IAttribute<?>> result = new LinkedList<IAttribute<?>>();
 
 		for (final IAttribute<?> attribute : attributes) {
-			if (!propertyName.equals(attribute.getPropertyName()) && attributeFilter.accept(attribute)) {
+			if (!propertyName.equals(attribute.getPropertyName())
+				&& attributeFilter.accept(attribute)
+				&& attribute.isFilterable()) {
 				result.add(attribute);
 			}
 		}
@@ -138,9 +128,7 @@ public class ArithmeticPropertyFilterControl<ELEMENT_VALUE_TYPE> extends Control
 		final Map<String, IAttribute<?>> result = new HashMap<String, IAttribute<?>>();
 
 		for (final IAttribute<?> attribute : attributes) {
-			if (attribute.isCollectionType()) {
-				result.put(attribute.getPropertyName(), attribute);
-			}
+			result.put(attribute.getPropertyName(), attribute);
 		}
 		return result;
 	}
@@ -178,7 +166,11 @@ public class ArithmeticPropertyFilterControl<ELEMENT_VALUE_TYPE> extends Control
 	}
 
 	@Override
-	public void addValidator(final IValidator<IUiArithmeticPropertyFilter<Object>> validator) {
+	protected IValidationResult createValidationResult() {
+		if (combo1 != null && combo1.getElements().isEmpty() || combo2 != null && combo2.getElements().isEmpty()) {
+			return ValidationResult.infoError(NO_ATTRIBUTE_COULD_BE_COMPARED_WITH + " '" + attribute.getLabel() + "'");
+		}
+		return ValidationResult.ok();
 
 	}
 
@@ -248,10 +240,16 @@ public class ArithmeticPropertyFilterControl<ELEMENT_VALUE_TYPE> extends Control
 		filterBuilder.setOperator(operator);
 		filterBuilder.setPropertyName(propertyName);
 		if (ArithmeticOperator.BETWEEN == operator) {
+			if (combo1.getValue() == null || combo2.getValue() == null) {
+				return null;
+			}
 			filterBuilder.addRightHandPropertyName(combo1.getValue().getPropertyName());
 			filterBuilder.addRightHandPropertyName(combo2.getValue().getPropertyName());
 		}
 		else if (ArithmeticOperator.EMPTY != operator) {
+			if (combo1.getValue() == null) {
+				return null;
+			}
 			filterBuilder.addRightHandPropertyName(combo1.getValue().getPropertyName());
 		}
 
@@ -270,34 +268,9 @@ public class ArithmeticPropertyFilterControl<ELEMENT_VALUE_TYPE> extends Control
 	}
 
 	@Override
-	public IValidationResult validate() {
-		return validationCache.validate();
-	}
-
-	@Override
-	public void addValidationConditionListener(final IValidationConditionListener listener) {
-		validationCache.addValidationConditionListener(listener);
-	}
-
-	@Override
-	public void removeValidationConditionListener(final IValidationConditionListener listener) {
-		validationCache.removeValidationConditionListener(listener);
-	}
-
-	@Override
 	public void setEditable(final boolean editable) {
 		setEditable(combo1, editable);
 		setEditable(combo2, editable);
-	}
-
-	@Override
-	public void addInputListener(final IInputListener listener) {
-		inputObservable.addInputListener(listener);
-	}
-
-	@Override
-	public void removeInputListener(final IInputListener listener) {
-		inputObservable.removeInputListener(listener);
 	}
 
 	private IComboBoxSelectionBluePrint<IAttribute<?>> comboBoxBluePrint(final List<IAttribute<?>> attributes) {
