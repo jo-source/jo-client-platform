@@ -184,6 +184,9 @@ final class BeanDtoFilterImpl implements IBeanDtoFilter {
 		else if (filter instanceof IArithmeticFilter) {
 			return acceptArithmetic(beanDto, (IArithmeticFilter) filter);
 		}
+		else if (filter instanceof IArithmeticPropertyFilter) {
+			return acceptArithmeticProperty(beanDto, (IArithmeticPropertyFilter) filter);
+		}
 		else if (filter instanceof ICustomFilter) {
 			return acceptCustom(beanDto, (ICustomFilter) filter);
 		}
@@ -514,6 +517,7 @@ final class BeanDtoFilterImpl implements IBeanDtoFilter {
 				case '(':
 				case ')':
 				case '.':
+				case '+':
 					regex.append('\\');
 					regex.append(c);
 					break;
