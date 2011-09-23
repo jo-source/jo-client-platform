@@ -44,42 +44,39 @@ import org.jowidgets.cap.ui.api.filter.IUiFilterFactory;
 import org.jowidgets.common.widgets.controller.IInputListener;
 import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
-import org.jowidgets.tools.controller.InputObservable;
 import org.jowidgets.tools.validation.MandatoryValidator;
-import org.jowidgets.tools.validation.ValidationCache;
-import org.jowidgets.tools.validation.ValidationCache.IValidationResultCreator;
-import org.jowidgets.tools.widgets.wrapper.ControlWrapper;
+import org.jowidgets.tools.widgets.wrapper.AbstractInputControl;
 import org.jowidgets.util.Assert;
-import org.jowidgets.validation.IValidationConditionListener;
 import org.jowidgets.validation.IValidationResult;
 import org.jowidgets.validation.IValidationResultBuilder;
-import org.jowidgets.validation.IValidator;
 import org.jowidgets.validation.ValidationResult;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
-public class DefaultArithmeticFilterControl<ELEMENT_VALUE_TYPE> extends ControlWrapper implements
+public class DefaultArithmeticFilterControl<ELEMENT_VALUE_TYPE> extends AbstractInputControl<IUiArithmeticFilter<Object>> implements
 		IFilterControl<ArithmeticOperator, Object, IUiArithmeticFilter<Object>> {
 
 	//TODO i18n
 	private static final String AND = "AND";
+	private static final String OPERAND_EMPTY = "Operand must not be empty";
+	private static final String FIRST_OPERAND_EMPTY = "First operand must not be empty";
+	private static final String SECOND_OPERAND_EMPTY = "Second operand must not be empty";
 
 	private final String propertyName;
-
+	private final Class<?> elementValueType;
 	private final ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> controlCreator;
 	private final ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> collectionControlCreator;
 
-	private final ValidationCache validationCache;
-	private final InputObservable inputObservable;
 	private final IInputListener inputListener;
 
 	private IInputControl control1;
 	private IInputControl control2;
-	private IInputControl collectionControl1;
+	private IInputControl collectionControl;
 
 	private ArithmeticOperator operator;
 
 	DefaultArithmeticFilterControl(
 		final String propertyName,
+		final Class<?> elementValueType,
 		final IOperatorProvider<ArithmeticOperator> operatorProvider,
 		final ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> controlCreator,
 		final ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> collectionControlCreator,
@@ -87,27 +84,35 @@ public class DefaultArithmeticFilterControl<ELEMENT_VALUE_TYPE> extends ControlW
 		super(composite);
 
 		this.propertyName = propertyName;
+		this.elementValueType = elementValueType;
 		this.controlCreator = controlCreator;
 		this.collectionControlCreator = collectionControlCreator;
-
-		this.inputObservable = new InputObservable();
-
-		this.validationCache = new ValidationCache(new IValidationResultCreator() {
-			@Override
-			public IValidationResult createValidationResult() {
-				final IValidationResultBuilder builder = ValidationResult.builder();
-				return builder.build();
-			}
-		});
 
 		this.inputListener = new IInputListener() {
 			@Override
 			public void inputChanged() {
-				inputObservable.fireInputChanged();
+				fireInputChanged();
 			}
 		};
 
 		setOperator(operatorProvider.getDefaultOperator());
+	}
+
+	@Override
+	protected IValidationResult createValidationResult() {
+		final IValidationResultBuilder builder = ValidationResult.builder();
+
+		if (control1 != null) {
+			builder.addResult(control1.validate());
+		}
+		if (control2 != null) {
+			builder.addResult(control2.validate());
+		}
+		if (collectionControl != null) {
+			builder.addResult(collectionControl.validate());
+		}
+
+		return builder.build();
 	}
 
 	@Override
@@ -116,19 +121,56 @@ public class DefaultArithmeticFilterControl<ELEMENT_VALUE_TYPE> extends ControlW
 	}
 
 	@Override
-	public void addValidator(final IValidator<IUiArithmeticFilter<Object>> validator) {
-
+	public void trySetOperand(final Object value) {
+		if (value instanceof Object[]) {
+			final Object[] parameters = (Object[]) value;
+			if (ArithmeticOperator.BETWEEN == operator) {
+				if (parameters.length > 0 && isTypeCompatible(parameters[0])) {
+					control1.setValue(parameters[0]);
+				}
+				if (parameters.length > 1 && isTypeCompatible(parameters[1])) {
+					control2.setValue(parameters[1]);
+				}
+			}
+			else if (ArithmeticOperator.EMPTY != operator) {
+				if (isCollectionOperator(operator)) {
+					if (isTypeCompatible(parameters)) {
+						collectionControl.setValue(Arrays.asList(parameters));
+					}
+				}
+				else if (parameters.length > 0 && isTypeCompatible(parameters[0])) {
+					control1.setValue(parameters[0]);
+				}
+			}
+		}
 	}
 
-	@Override
-	public void trySetOperand(final Object value) {
-		// TODO implement trySetOperand
+	private boolean isTypeCompatible(final Object[] array) {
+		if (array != null) {
+			for (final Object object : array) {
+				if (!isTypeCompatible(object)) {
+					return false;
+				}
+			}
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+
+	private boolean isTypeCompatible(final Object value) {
+		if (value != null) {
+			return elementValueType.isAssignableFrom(value.getClass());
+		}
+		else {
+			return true;
+		}
 	}
 
 	@Override
 	public Object getOperand() {
-		// TODO implement getOperand
-		return null;
+		return getParameters();
 	}
 
 	@Override
@@ -139,7 +181,7 @@ public class DefaultArithmeticFilterControl<ELEMENT_VALUE_TYPE> extends ControlW
 			getWidget().removeAll();
 			control1 = null;
 			control2 = null;
-			collectionControl1 = null;
+			collectionControl = null;
 
 			if (ArithmeticOperator.BETWEEN == operator) {
 				getWidget().setLayout(new MigLayoutDescriptor("0[grow][][grow]0", "0[]0"));
@@ -150,7 +192,7 @@ public class DefaultArithmeticFilterControl<ELEMENT_VALUE_TYPE> extends ControlW
 			else if (ArithmeticOperator.EMPTY != operator) {
 				getWidget().setLayout(new MigLayoutDescriptor("0[grow]0", "0[]0"));
 				if (isCollectionOperator(operator)) {
-					collectionControl1 = getWidget().add(collectionControlCreator, "growx");
+					collectionControl = getWidget().add(collectionControlCreator, "growx");
 				}
 				else {
 					control1 = getWidget().add(controlCreator, "growx");
@@ -173,7 +215,7 @@ public class DefaultArithmeticFilterControl<ELEMENT_VALUE_TYPE> extends ControlW
 			}
 			else if (ArithmeticOperator.EMPTY != operator) {
 				if (isCollectionOperator(operator)) {
-					collectionControl1.setValue(Arrays.asList(filter.getParameters()));
+					collectionControl.setValue(Arrays.asList(filter.getParameters()));
 				}
 				else {
 					control1.setValue((filter.getParameters()[0]));
@@ -189,82 +231,59 @@ public class DefaultArithmeticFilterControl<ELEMENT_VALUE_TYPE> extends ControlW
 		final IUiArithmeticFilterBuilder<Object> filterBuilder = filterFactory.arithmeticFilterBuilder();
 		filterBuilder.setOperator(operator);
 		filterBuilder.setPropertyName(propertyName);
-		if (ArithmeticOperator.BETWEEN == operator) {
-			filterBuilder.addParameter(control1.getValue());
-			filterBuilder.addParameter(control2.getValue());
-		}
-		else if (ArithmeticOperator.EMPTY != operator) {
-			if (isCollectionOperator(operator)) {
-				final Object value = collectionControl1.getValue();
-				if (value instanceof Collection<?>) {
-					final Collection collection = (Collection) value;
-					for (final Object parameter : collection) {
-						filterBuilder.addParameter(parameter);
-					}
-				}
-			}
-			else {
-				filterBuilder.addParameter(control1.getValue());
-			}
-		}
+		filterBuilder.setParameters(getParameters());
 
 		return filterBuilder.build();
 	}
 
 	@Override
 	public boolean hasModifications() {
-		return hasModifications(control1) || hasModifications(control2) || hasModifications(collectionControl1);
+		return hasModifications(control1) || hasModifications(control2) || hasModifications(collectionControl);
 	}
 
 	@Override
 	public void resetModificationState() {
 		resetModificationState(control1);
 		resetModificationState(control2);
-		resetModificationState(collectionControl1);
-	}
-
-	@Override
-	public IValidationResult validate() {
-		return validationCache.validate();
-	}
-
-	@Override
-	public void addValidationConditionListener(final IValidationConditionListener listener) {
-		validationCache.addValidationConditionListener(listener);
-	}
-
-	@Override
-	public void removeValidationConditionListener(final IValidationConditionListener listener) {
-		validationCache.removeValidationConditionListener(listener);
+		resetModificationState(collectionControl);
 	}
 
 	@Override
 	public void setEditable(final boolean editable) {
 		setEditable(control1, editable);
 		setEditable(control2, editable);
-		setEditable(collectionControl1, editable);
+		setEditable(collectionControl, editable);
 	}
 
-	@Override
-	public void addInputListener(final IInputListener listener) {
-		inputObservable.addInputListener(listener);
-	}
-
-	@Override
-	public void removeInputListener(final IInputListener listener) {
-		inputObservable.removeInputListener(listener);
+	private Object[] getParameters() {
+		if (ArithmeticOperator.BETWEEN == operator) {
+			return new Object[] {control1.getValue(), control2.getValue()};
+		}
+		else if (ArithmeticOperator.EMPTY != operator) {
+			if (isCollectionOperator(operator)) {
+				final Object value = collectionControl.getValue();
+				if (value instanceof Collection<?>) {
+					final Collection collection = (Collection) value;
+					return collection.toArray();
+				}
+			}
+			else {
+				return new Object[] {control1.getValue()};
+			}
+		}
+		return new Object[] {};
 	}
 
 	private void removeInputListener() {
 		removeInputListener(control1);
 		removeInputListener(control2);
-		removeInputListener(collectionControl1);
+		removeInputListener(collectionControl);
 	}
 
 	private void addInputListener() {
 		addInputListener(control1);
 		addInputListener(control2);
-		addInputListener(collectionControl1);
+		addInputListener(collectionControl);
 	}
 
 	private void addInputListener(final IInputControl<?> control) {
@@ -280,14 +299,19 @@ public class DefaultArithmeticFilterControl<ELEMENT_VALUE_TYPE> extends ControlW
 	}
 
 	private void addValidators() {
-		addValidator(control1);
-		addValidator(control2);
-		addValidator(collectionControl1);
+		if (ArithmeticOperator.BETWEEN == operator) {
+			addValidator(control1, FIRST_OPERAND_EMPTY);
+			addValidator(control2, SECOND_OPERAND_EMPTY);
+		}
+		else {
+			addValidator(control1, OPERAND_EMPTY);
+			addValidator(collectionControl, OPERAND_EMPTY);
+		}
 	}
 
-	private void addValidator(final IInputControl<Object> control) {
+	private void addValidator(final IInputControl<Object> control, final String message) {
 		if (control != null) {
-			control.addValidator(new MandatoryValidator<Object>());
+			control.addValidator(new MandatoryValidator<Object>(message));
 		}
 	}
 
