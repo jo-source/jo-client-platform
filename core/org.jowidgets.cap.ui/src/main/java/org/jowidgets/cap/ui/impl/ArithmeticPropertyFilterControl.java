@@ -176,12 +176,12 @@ public class ArithmeticPropertyFilterControl<ELEMENT_VALUE_TYPE> extends
 
 	@Override
 	public void trySetOperand(final Object value) {
-		// TODO implement trySetOperand
+		// TODO MG implement trySetOperand
 	}
 
 	@Override
 	public Object getOperand() {
-		// TODO implement getOperand
+		// TODO MG implement getOperand
 		return null;
 	}
 
