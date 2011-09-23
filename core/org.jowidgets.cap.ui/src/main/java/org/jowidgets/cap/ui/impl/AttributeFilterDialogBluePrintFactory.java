@@ -42,6 +42,7 @@ import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.widgets.IAttributeFilterControl;
 import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
 import org.jowidgets.common.types.Dimension;
+import org.jowidgets.common.types.Markup;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
 
 final class AttributeFilterDialogBluePrintFactory {
@@ -76,7 +77,7 @@ final class AttributeFilterDialogBluePrintFactory {
 				container.setLayout(new MigLayoutDescriptor("0[][grow, 0::]0", "0[]0"));
 
 				final IAttribute<?> attribute = model.getAttribute(columnIndex);
-				container.add(Toolkit.getBluePrintFactory().textLabel(attribute.getLabel()));
+				container.add(Toolkit.getBluePrintFactory().textLabel(attribute.getLabel()).setMarkup(Markup.STRONG));
 
 				filterControl = container.add(capBpf.attributeFilterControl(model.getAttributes()), "growx, w 0::");
 
@@ -88,6 +89,8 @@ final class AttributeFilterDialogBluePrintFactory {
 
 		final IInputDialogBluePrint<IUiConfigurableFilter<? extends Object>> dialogBp = bpf.inputDialog(contentCreator);
 		dialogBp.setExecutionContext(executionContext);
+		//TODO i18n
+		dialogBp.setMissingInputHint("Please edit the filter!");
 		dialogBp.setSize(new Dimension(640, 150));
 
 		return dialogBp;

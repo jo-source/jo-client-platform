@@ -131,6 +131,17 @@ final class UserDataInitializer {
 		user.setCountry("USA");
 		data.add(user);
 
+		user = new User(data.nextId());
+		user.setName("Jonny");
+		user.setLastName("English");
+		user.setDateOfBirth(new GregorianCalendar(1961, 1, 18).getTime());
+		user.setGender("M");
+		user.addLanguage("English");
+		user.setAdmin(false);
+		user.setMarried(Boolean.FALSE);
+		user.setCountry("USA");
+		data.add(user);
+
 		for (int i = 0; i < 20000; i++) {
 			user = new User(data.nextId());
 			user.setName("Name " + i);

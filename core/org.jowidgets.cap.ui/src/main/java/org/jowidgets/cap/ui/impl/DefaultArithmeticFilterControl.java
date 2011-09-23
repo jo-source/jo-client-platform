@@ -199,6 +199,10 @@ public class DefaultArithmeticFilterControl<ELEMENT_VALUE_TYPE> extends Abstract
 					control1 = getWidget().add(controlCreator, "growx");
 				}
 			}
+			else {
+				getWidget().setLayout(new MigLayoutDescriptor("0[]0", "0[]0"));
+				getWidget().add(Toolkit.getBluePrintFactory().textLabel());
+			}
 			addInputListener();
 			addValidators();
 		}
