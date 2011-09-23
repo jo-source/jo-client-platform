@@ -39,6 +39,7 @@ import org.jowidgets.api.widgets.IComposite;
 import org.jowidgets.api.widgets.blueprint.IComboBoxSelectionBluePrint;
 import org.jowidgets.api.widgets.blueprint.factory.IBluePrintFactory;
 import org.jowidgets.cap.common.api.filter.IOperator;
+import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.filter.IFilterControl;
 import org.jowidgets.cap.ui.api.filter.IFilterPanelProvider;
@@ -47,6 +48,7 @@ import org.jowidgets.cap.ui.api.filter.IFilterType;
 import org.jowidgets.cap.ui.api.filter.IUiConfigurableFilter;
 import org.jowidgets.cap.ui.api.widgets.IAttributeFilterControl;
 import org.jowidgets.cap.ui.api.widgets.IAttributeFilterControlBluePrint;
+import org.jowidgets.common.widgets.controller.IInputListener;
 import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
 import org.jowidgets.common.widgets.factory.ICustomWidgetFactory;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
@@ -63,8 +65,9 @@ final class AttributeFilterControlImpl extends AbstractInputControl<IUiConfigura
 	private final List<IAttribute<?>> attributes;
 	private final Map<String, IAttribute<?>> attributesMap;
 
-	@SuppressWarnings("unused")
-	private final IComboBox<String> cmbNot;
+	private final IInputListener inputListener;
+
+	private final IComboBox<Boolean> cmbNot;
 	private final IComboBox<IOperator> cmbOperator;
 
 	private IFilterControl<IOperator, Object, IUiConfigurableFilter<Object>> filterControl;
@@ -74,11 +77,17 @@ final class AttributeFilterControlImpl extends AbstractInputControl<IUiConfigura
 		this.attributes = bluePrint.getAttributes();
 		this.attributesMap = createAttributesMap(attributes);
 
+		this.inputListener = new IInputListener() {
+			@Override
+			public void inputChanged() {
+				fireInputChanged();
+				setValidationCacheDirty();
+			}
+		};
+
 		composite.setLayout(new MigLayoutDescriptor("0[][][grow]0", "0[]0"));
 
-		final IBluePrintFactory bpf = Toolkit.getBluePrintFactory();
-
-		this.cmbNot = composite.add(bpf.comboBoxSelection().setAutoCompletion(false).setElements("", NOT).autoSelectionOn());
+		this.cmbNot = composite.add(comboBoxNotBp());
 		this.cmbOperator = composite.add(comboBoxOperatorBp());
 	}
 
@@ -96,6 +105,36 @@ final class AttributeFilterControlImpl extends AbstractInputControl<IUiConfigura
 			}
 		};
 		return bpf.comboBoxSelection(converter).autoSelectionOn();
+	}
+
+	private static IComboBoxSelectionBluePrint<Boolean> comboBoxNotBp() {
+		final IBluePrintFactory bpf = Toolkit.getBluePrintFactory();
+		final IObjectStringConverter<Boolean> converter = new IObjectStringConverter<Boolean>() {
+			@Override
+			public String convertToString(final Boolean bool) {
+				if (bool) {
+					return NOT;
+				}
+				else {
+					return "";
+				}
+			}
+
+			@Override
+			public String getDescription(final Boolean bool) {
+				if (bool) {
+					return NOT;
+				}
+				else {
+					return "";
+				}
+			}
+		};
+
+		final IComboBoxSelectionBluePrint<Boolean> result = bpf.comboBoxSelection(converter);
+		result.autoCompletionOff().autoSelectionOn().setElements(Boolean.FALSE, Boolean.TRUE);
+
+		return result;
 	}
 
 	private static Map<String, IAttribute<?>> createAttributesMap(final List<IAttribute<?>> attributes) {
@@ -134,9 +173,11 @@ final class AttributeFilterControlImpl extends AbstractInputControl<IUiConfigura
 
 		final IComposite composite = getWidget();
 		if (filterControl != null) {
+			filterControl.removeInputListener(inputListener);
 			composite.remove(filterControl);
 		}
 		filterControl = composite.add(creator, "growx, w 0::");
+		filterControl.addInputListener(inputListener);
 		cmbOperator.setElements(filterPanelProvider.getOperatorProvider().getOperators());
 	}
 
@@ -155,10 +196,15 @@ final class AttributeFilterControlImpl extends AbstractInputControl<IUiConfigura
 
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public IUiConfigurableFilter<? extends Object> getValue() {
 		if (filterControl != null) {
-			return filterControl.getValue();
+			IUiConfigurableFilter<Object> result = filterControl.getValue();
+			if (result != null && cmbNot.getValue().booleanValue()) {
+				result = (IUiConfigurableFilter<Object>) CapUiToolkit.filterToolkit().filterTools().invert(result);
+			}
+			return result;
 		}
 		else {
 			return null;

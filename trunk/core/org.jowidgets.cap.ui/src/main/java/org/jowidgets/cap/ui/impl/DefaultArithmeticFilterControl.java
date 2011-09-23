@@ -92,6 +92,7 @@ public class DefaultArithmeticFilterControl<ELEMENT_VALUE_TYPE> extends Abstract
 			@Override
 			public void inputChanged() {
 				fireInputChanged();
+				setValidationCacheDirty();
 			}
 		};
 
