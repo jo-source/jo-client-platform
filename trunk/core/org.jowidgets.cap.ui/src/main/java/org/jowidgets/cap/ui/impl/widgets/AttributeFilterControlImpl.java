@@ -68,6 +68,7 @@ final class AttributeFilterControlImpl extends AbstractInputControl<IUiConfigura
 	private final Map<String, IAttribute<?>> attributesMap;
 
 	private final IInputListener inputListener;
+	private final IInputListener operatorListener;
 
 	private final IComboBox<Boolean> cmbNot;
 	private final IComboBox<IOperator> cmbOperator;
@@ -87,10 +88,23 @@ final class AttributeFilterControlImpl extends AbstractInputControl<IUiConfigura
 			}
 		};
 
+		this.operatorListener = new IInputListener() {
+
+			@Override
+			public void inputChanged() {
+				if (filterControl != null) {
+					filterControl.setOperator(cmbOperator.getValue());
+					getWidget().layout();
+				}
+			}
+		};
+
 		composite.setLayout(new MigLayoutDescriptor("0[][][grow]0", "0[]0"));
 
 		this.cmbNot = composite.add(comboBoxNotBp());
 		this.cmbOperator = composite.add(comboBoxOperatorBp());
+
+		cmbOperator.addInputListener(operatorListener);
 	}
 
 	private static IComboBoxSelectionBluePrint<IOperator> comboBoxOperatorBp() {
@@ -183,9 +197,7 @@ final class AttributeFilterControlImpl extends AbstractInputControl<IUiConfigura
 		final IOperatorProvider<?> operatorProvider = filterPanelProvider.getOperatorProvider();
 		final IOperator defaultOperator = operatorProvider.getDefaultOperator();
 		cmbOperator.setElements(operatorProvider.getOperators());
-
 		cmbOperator.setValue(defaultOperator);
-		filterControl.setOperator(defaultOperator);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -197,7 +209,9 @@ final class AttributeFilterControlImpl extends AbstractInputControl<IUiConfigura
 				throw new IllegalArgumentException("No attribute found for the property name '" + value.getPropertyName() + "'.");
 			}
 			setAttribute(attribute, value.getType());
+			cmbOperator.removeInputListener(operatorListener);
 			cmbOperator.setValue(value.getOperator());
+			cmbOperator.addInputListener(operatorListener);
 			filterControl.setValue((IUiConfigurableFilter<Object>) value);
 		}
 
