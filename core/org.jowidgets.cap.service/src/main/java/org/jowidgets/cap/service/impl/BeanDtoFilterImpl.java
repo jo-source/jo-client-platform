@@ -42,6 +42,8 @@ import org.jowidgets.cap.common.api.filter.IBooleanFilter;
 import org.jowidgets.cap.common.api.filter.ICustomFilter;
 import org.jowidgets.cap.common.api.filter.IFilter;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
+import org.jowidgets.cap.service.api.bean.BeanDtoCustomFilterPluginRegistry;
+import org.jowidgets.cap.service.api.bean.IBeanDtoCustomFilterPlugin;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFilter;
 import org.jowidgets.util.EmptyCheck;
 import org.jowidgets.util.NullCompatibleEquivalence;
@@ -145,7 +147,9 @@ final class BeanDtoFilterImpl implements IBeanDtoFilter {
 		final LinkedList<IBeanDto> result = new LinkedList<IBeanDto>();
 		for (final IBeanDto beanDto : beanDtos) {
 			CapServiceToolkit.checkCanceled(executionCallback);
-			result.add(beanDto);
+			if (acceptCustom(beanDto, filter)) {
+				result.add(beanDto);
+			}
 		}
 		return result;
 	}
@@ -188,8 +192,10 @@ final class BeanDtoFilterImpl implements IBeanDtoFilter {
 		}
 	}
 
-	private boolean acceptCustom(final Object value, final ICustomFilter filter) {
-		return invert(true, filter.isInverted());
+	private boolean acceptCustom(final IBeanDto beanDto, final ICustomFilter filter) {
+		final IBeanDtoCustomFilterPlugin filterPlugin = BeanDtoCustomFilterPluginRegistry.getPlugin(filter.getFilterType());
+		// plug in has to negate result itself if filter is inverted
+		return filterPlugin.accept(beanDto, filter);
 	}
 
 	private boolean acceptArithmetic(final IBeanDto beanDto, final IArithmeticFilter filter) {
