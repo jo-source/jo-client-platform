@@ -31,10 +31,12 @@ package org.jowidgets.cap.ui.impl;
 import org.jowidgets.api.command.ICommandExecutor;
 import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.api.image.IconsSmall;
+import org.jowidgets.api.toolkit.Toolkit;
+import org.jowidgets.api.widgets.IInputDialog;
+import org.jowidgets.api.widgets.blueprint.IInputDialogBluePrint;
 import org.jowidgets.cap.ui.api.filter.IFilterType;
+import org.jowidgets.cap.ui.api.filter.IUiConfigurableFilter;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
-import org.jowidgets.cap.ui.api.widgets.IBeanTable;
-import org.jowidgets.common.widgets.controller.ITableCellPopupEvent;
 import org.jowidgets.tools.command.ActionBuilder;
 
 final class BeanTableAddFilterActionBuilder extends ActionBuilder {
@@ -44,15 +46,27 @@ final class BeanTableAddFilterActionBuilder extends ActionBuilder {
 		setText(filterType.getLabel() + " ...");
 		setToolTipText(filterType.getDescription());
 		setIcon(IconsSmall.FILTER);
+
 		setCommand(new ICommandExecutor() {
 			@Override
 			public void execute(final IExecutionContext executionContext) throws Exception {
 
-				final ITableCellPopupEvent cellPopupEvent = executionContext.getValue(IBeanTable.CELL_POPUP_EVENT_CONTEXT_KEY);
-				//CHECKSTYLE:OFF
-				System.out.println("TODO " + filterType.getLabel() + ": " + cellPopupEvent);
-				//CHECKSTYLE:ON
+				final IInputDialogBluePrint<IUiConfigurableFilter<? extends Object>> dialogBp;
+				dialogBp = AttributeFilterDialogBluePrintFactory.createDialogBluePrint(
+						model,
+						columnIndex,
+						executionContext,
+						filterType);
+
+				final IInputDialog<IUiConfigurableFilter<?>> dialog = Toolkit.getActiveWindow().createChildWindow(dialogBp);
+				dialog.setVisible(true);
+
+				if (dialog.isOkPressed()) {
+					model.addFilter(IBeanTableModel.UI_FILTER_ID, dialog.getValue());
+					model.load();
+				}
 			}
+
 		});
 	}
 

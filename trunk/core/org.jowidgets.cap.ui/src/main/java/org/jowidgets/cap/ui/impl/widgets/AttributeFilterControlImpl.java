@@ -41,10 +41,12 @@ import org.jowidgets.api.widgets.blueprint.factory.IBluePrintFactory;
 import org.jowidgets.cap.common.api.filter.IOperator;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
+import org.jowidgets.cap.ui.api.attribute.IControlPanelProvider;
 import org.jowidgets.cap.ui.api.filter.IFilterControl;
 import org.jowidgets.cap.ui.api.filter.IFilterPanelProvider;
 import org.jowidgets.cap.ui.api.filter.IFilterSupport;
 import org.jowidgets.cap.ui.api.filter.IFilterType;
+import org.jowidgets.cap.ui.api.filter.IOperatorProvider;
 import org.jowidgets.cap.ui.api.filter.IUiConfigurableFilter;
 import org.jowidgets.cap.ui.api.widgets.IAttributeFilterControl;
 import org.jowidgets.cap.ui.api.widgets.IAttributeFilterControlBluePrint;
@@ -165,8 +167,7 @@ final class AttributeFilterControlImpl extends AbstractInputControl<IUiConfigura
 		Assert.paramNotNull(attribute, "attribute");
 		Assert.paramNotNull(filterType, "filterType");
 
-		final IFilterSupport<Object> filterSupport = attribute.getCurrentControlPanel().getFilterSupport();
-		final IFilterPanelProvider<?> filterPanelProvider = getFilterPanelProvider(filterSupport, filterType);
+		final IFilterPanelProvider<?> filterPanelProvider = getFilterPanelProvider(attribute, filterType);
 
 		final ICustomWidgetCreator<IFilterControl<IOperator, Object, IUiConfigurableFilter<Object>>> creator;
 		creator = createPanelCreator(filterPanelProvider);
@@ -178,7 +179,13 @@ final class AttributeFilterControlImpl extends AbstractInputControl<IUiConfigura
 		}
 		filterControl = composite.add(creator, "growx, w 0::");
 		filterControl.addInputListener(inputListener);
-		cmbOperator.setElements(filterPanelProvider.getOperatorProvider().getOperators());
+
+		final IOperatorProvider<?> operatorProvider = filterPanelProvider.getOperatorProvider();
+		final IOperator defaultOperator = operatorProvider.getDefaultOperator();
+		cmbOperator.setElements(operatorProvider.getOperators());
+
+		cmbOperator.setValue(defaultOperator);
+		filterControl.setOperator(defaultOperator);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -241,9 +248,21 @@ final class AttributeFilterControlImpl extends AbstractInputControl<IUiConfigura
 		};
 	}
 
-	private IFilterPanelProvider<?> getFilterPanelProvider(
-		final IFilterSupport<Object> filterSupport,
-		final IFilterType filterType) {
+	private IFilterPanelProvider<?> getFilterPanelProvider(final IAttribute<?> attribute, final IFilterType filterType) {
+
+		final IControlPanelProvider<?> controlPanel = attribute.getCurrentControlPanel();
+
+		if (controlPanel == null) {
+			throw new IllegalStateException("No filter control panel provider found for the attribute '"
+				+ attribute.getPropertyName()
+				+ "'");
+		}
+
+		final IFilterSupport<Object> filterSupport = controlPanel.getFilterSupport();
+
+		if (filterSupport == null) {
+			throw new IllegalStateException("No filter support found for the attribute '" + attribute.getPropertyName() + "'");
+		}
 
 		for (final IFilterPanelProvider<?> filterPanelProvider : filterSupport.getFilterPanels()) {
 			if (filterType.getId().equals(filterPanelProvider.getType().getId())) {
@@ -251,6 +270,11 @@ final class AttributeFilterControlImpl extends AbstractInputControl<IUiConfigura
 			}
 		}
 
-		return null;
+		throw new IllegalStateException("No filter panel provider found for the attribute '"
+			+ attribute.getPropertyName()
+			+ "' and filter type '"
+			+ filterType
+			+ "'.");
+
 	}
 }
