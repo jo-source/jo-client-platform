@@ -84,6 +84,11 @@ final class ArithmeticFilterPanelProviderImpl<ELEMENT_VALUE_TYPE> implements
 	}
 
 	@Override
+	public boolean isApplicableWith(final List<IAttribute<?>> attributes) {
+		return true;
+	}
+
+	@Override
 	public IFilterControl<ArithmeticOperator, ?, ?> create(
 		final ICustomWidgetFactory widgetFactory,
 		final List<? extends IAttribute<?>> attributes) {

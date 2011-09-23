@@ -255,6 +255,21 @@ final class AttributeImpl<ELEMENT_VALUE_TYPE> implements IAttribute<ELEMENT_VALU
 	}
 
 	@Override
+	public IFilterPanelProvider<?> getFilterPanelProvider(final IFilterType filterType) {
+		for (final IControlPanelProvider<ELEMENT_VALUE_TYPE> controlPanelProvider : controlPanels) {
+			final IFilterSupport<?> filterSupport = controlPanelProvider.getFilterSupport();
+			if (filterSupport != null) {
+				for (final IFilterPanelProvider<?> filterPanelProvider : filterSupport.getFilterPanels()) {
+					if (filterType.equals(filterPanelProvider.getType())) {
+						return filterPanelProvider;
+					}
+				}
+			}
+		}
+		return null;
+	}
+
+	@Override
 	public DisplayFormat getLabelDisplayFormat() {
 		return labelDisplayFormat;
 	}

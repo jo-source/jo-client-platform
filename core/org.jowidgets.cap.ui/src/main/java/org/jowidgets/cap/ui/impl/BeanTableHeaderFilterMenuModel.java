@@ -28,6 +28,8 @@
 
 package org.jowidgets.cap.ui.impl;
 
+import java.util.List;
+
 import org.jowidgets.api.image.IconsSmall;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
@@ -38,6 +40,7 @@ import org.jowidgets.tools.model.item.MenuModel;
 
 final class BeanTableHeaderFilterMenuModel extends MenuModel {
 
+	@SuppressWarnings({"unchecked", "rawtypes"})
 	BeanTableHeaderFilterMenuModel(final IBeanTableModel<?> model, final int columnIndex) {
 		//TODO i18n
 		super("Filter", IconsSmall.FILTER);
@@ -46,8 +49,18 @@ final class BeanTableHeaderFilterMenuModel extends MenuModel {
 
 		final IAttribute<Object> attribute = model.getAttribute(columnIndex);
 		if (attribute.isFilterable()) {
-			for (final IFilterType filterType : attribute.getSupportedFilterTypes()) {
-				addAction(menuFactory.addFilterAction(model, filterType, columnIndex));
+			final List<IFilterType> filterTypes = attribute.getSupportedFilterTypes();
+			if (filterTypes.size() > 0) {
+				boolean separatorAdded = false;
+				for (final IFilterType filterType : filterTypes) {
+					if (attribute.getFilterPanelProvider(filterType).isApplicableWith((List) model.getAttributes())) {
+						if (!separatorAdded) {
+							addSeparator();
+							separatorAdded = true;
+						}
+						addAction(menuFactory.addFilterAction(model, filterType, columnIndex));
+					}
+				}
 			}
 			addAction(menuFactory.deleteColumnFiltersAction(model, columnIndex));
 			addSeparator();
