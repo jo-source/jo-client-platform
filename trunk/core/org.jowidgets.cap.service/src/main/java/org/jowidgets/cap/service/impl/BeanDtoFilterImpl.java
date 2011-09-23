@@ -37,6 +37,7 @@ import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.filter.ArithmeticOperator;
 import org.jowidgets.cap.common.api.filter.BooleanOperator;
 import org.jowidgets.cap.common.api.filter.IArithmeticFilter;
+import org.jowidgets.cap.common.api.filter.IArithmeticPropertyFilter;
 import org.jowidgets.cap.common.api.filter.IBooleanFilter;
 import org.jowidgets.cap.common.api.filter.ICustomFilter;
 import org.jowidgets.cap.common.api.filter.IFilter;
@@ -61,6 +62,9 @@ final class BeanDtoFilterImpl implements IBeanDtoFilter {
 		}
 		else if (filter instanceof IArithmeticFilter) {
 			return arithmeticFilter(beanDtos, (IArithmeticFilter) filter, executionCallback);
+		}
+		else if (filter instanceof IArithmeticFilter) {
+			return arithmeticPropertyFilter(beanDtos, (IArithmeticPropertyFilter) filter, executionCallback);
 		}
 		else if (filter instanceof ICustomFilter) {
 			return customFilter(beanDtos, (ICustomFilter) filter, executionCallback);
@@ -102,6 +106,31 @@ final class BeanDtoFilterImpl implements IBeanDtoFilter {
 			for (final IBeanDto beanDto : beanDtos) {
 				CapServiceToolkit.checkCanceled(executionCallback);
 				if (acceptArithmetic(beanDto, filter)) {
+					result.add(beanDto);
+				}
+			}
+		}
+		return result;
+	}
+
+	private List<IBeanDto> arithmeticPropertyFilter(
+		final Collection<? extends IBeanDto> beanDtos,
+		final IArithmeticPropertyFilter filter,
+		final IExecutionCallback executionCallback) {
+		final LinkedList<IBeanDto> result = new LinkedList<IBeanDto>();
+		final String propertyName = filter.getPropertyName();
+		if (ArithmeticOperator.EMPTY.equals(filter.getOperator())) {
+			for (final IBeanDto beanDto : beanDtos) {
+				CapServiceToolkit.checkCanceled(executionCallback);
+				if (EmptyCheck.isEmpty(beanDto.getValue(propertyName))) {
+					result.add(beanDto);
+				}
+			}
+		}
+		else {
+			for (final IBeanDto beanDto : beanDtos) {
+				CapServiceToolkit.checkCanceled(executionCallback);
+				if (acceptArithmeticProperty(beanDto, filter)) {
 					result.add(beanDto);
 				}
 			}
@@ -181,32 +210,32 @@ final class BeanDtoFilterImpl implements IBeanDtoFilter {
 				break;
 
 			case EQUAL:
-				accept = isEqual(filter.getParameters()[0], value);
+				accept = isEqual(getParameter(filter, 0), value);
 				break;
 
 			case LESS:
-				accept = isLess(filter.getParameters()[0], value);
+				accept = isLess(getParameter(filter, 0), value);
 				break;
 
 			case LESS_EQUAL:
-				accept = isEqual(filter.getParameters()[0], value) || isLess(filter.getParameters()[0], value);
+				accept = isEqual(getParameter(filter, 0), value) || isLess(getParameter(filter, 0), value);
 				break;
 
 			case GREATER:
-				accept = isGreater(filter.getParameters()[0], value);
+				accept = isGreater(getParameter(filter, 0), value);
 				break;
 
 			case GREATER_EQUAL:
-				accept = isEqual(filter.getParameters()[0], value) || isGreater(filter.getParameters()[0], value);
+				accept = isEqual(getParameter(filter, 0), value) || isGreater(getParameter(filter, 0), value);
 				break;
 
 			case BETWEEN:
-				accept = (isEqual(filter.getParameters()[0], value) || isGreater(filter.getParameters()[0], value))
-					&& (isEqual(filter.getParameters()[1], value) || isLess(filter.getParameters()[1], value));
+				accept = (isEqual(getParameter(filter, 0), value) || isGreater(getParameter(filter, 0), value))
+					&& (isEqual(getParameter(filter, 1), value) || isLess(getParameter(filter, 1), value));
 				break;
 
 			case CONTAINS_ANY:
-				accept = containsAny(filter.getParameters(), value);
+				accept = containsAny(getParameters(filter), value);
 				break;
 
 			case CONTAINS_ALL:
@@ -229,32 +258,147 @@ final class BeanDtoFilterImpl implements IBeanDtoFilter {
 				break;
 
 			case EQUAL:
-				accept = isEqual(filter.getParameters()[0], collection);
+				accept = isEqual(getParameter(filter, 0), collection);
 				break;
 
 			case LESS:
-				accept = isLess(filter.getParameters()[0], collection);
+				accept = isLess(getParameter(filter, 0), collection);
 				break;
 
 			case LESS_EQUAL:
-				accept = isEqual(filter.getParameters()[0], collection) || isLess(filter.getParameters()[0], collection);
+				accept = isEqual(getParameter(filter, 0), collection) || isLess(getParameter(filter, 0), collection);
 				break;
 
 			case GREATER:
-				accept = isGreater(filter.getParameters()[0], collection);
+				accept = isGreater(getParameter(filter, 0), collection);
 				break;
 
 			case GREATER_EQUAL:
-				accept = isEqual(filter.getParameters()[0], collection) || isGreater(filter.getParameters()[0], collection);
+				accept = isEqual(getParameter(filter, 0), collection) || isGreater(getParameter(filter, 0), collection);
 				break;
 
 			case BETWEEN:
-				accept = (isEqual(filter.getParameters()[0], collection) || isGreater(filter.getParameters()[0], collection))
-					&& (isEqual(filter.getParameters()[1], collection) || isLess(filter.getParameters()[1], collection));
+				accept = (isEqual(getParameter(filter, 0), collection) || isGreater(getParameter(filter, 0), collection))
+					&& (isEqual(getParameter(filter, 1), collection) || isLess(getParameter(filter, 1), collection));
 				break;
 
 			case CONTAINS_ANY:
-				accept = containsAny(filter.getParameters(), collection);
+				accept = containsAny(getParameters(filter), collection);
+				break;
+
+			case CONTAINS_ALL:
+				throw new IllegalArgumentException("Arithmetic operator "
+					+ filter.getOperator()
+					+ " cannot be used with a non-collection value.");
+
+			default:
+				throw new IllegalArgumentException("Unknown arithmetic operator '" + filter.getOperator() + ".'");
+		}
+
+		return invert(accept, filter.isInverted());
+	}
+
+	private boolean acceptArithmeticProperty(final IBeanDto beanDto, final IArithmeticPropertyFilter filter) {
+		final Object value = beanDto.getValue(filter.getPropertyName());
+		if (value instanceof Collection<?>) {
+			return acceptArithmeticProperty((Collection<?>) value, beanDto, filter); // Collection or Set
+		}
+		else {
+			return acceptArithmeticProperty(value, beanDto, filter); // concrete value or null
+		}
+	}
+
+	private boolean acceptArithmeticProperty(final Object value, final IBeanDto beanDto, final IArithmeticPropertyFilter filter) {
+		final boolean accept;
+		switch (filter.getOperator()) {
+			case EMPTY:
+				accept = EmptyCheck.isEmpty(value);
+				break;
+
+			case EQUAL:
+				accept = isEqual(getParameter(filter, beanDto, 0), value);
+				break;
+
+			case LESS:
+				accept = isLess(getParameter(filter, beanDto, 0), value);
+				break;
+
+			case LESS_EQUAL:
+				accept = isEqual(getParameter(filter, beanDto, 0), value) || isLess(getParameter(filter, beanDto, 0), value);
+				break;
+
+			case GREATER:
+				accept = isGreater(getParameter(filter, beanDto, 0), value);
+				break;
+
+			case GREATER_EQUAL:
+				accept = isEqual(getParameter(filter, beanDto, 0), value) || isGreater(getParameter(filter, beanDto, 0), value);
+				break;
+
+			case BETWEEN:
+				accept = (isEqual(getParameter(filter, beanDto, 0), value) || isGreater(getParameter(filter, beanDto, 0), value))
+					&& (isEqual(getParameter(filter, beanDto, 1), value) || isLess(getParameter(filter, beanDto, 1), value));
+				break;
+
+			case CONTAINS_ANY:
+				accept = containsAny(getParameters(filter, beanDto), value);
+				break;
+
+			case CONTAINS_ALL:
+				throw new IllegalArgumentException("Arithmetic operator "
+					+ filter.getOperator()
+					+ " cannot be used with a non-collection value.");
+
+			default:
+				throw new IllegalArgumentException("Unknown arithmetic operator '" + filter.getOperator() + ".'");
+		}
+
+		return invert(accept, filter.isInverted());
+	}
+
+	private boolean acceptArithmeticProperty(
+		final Collection<?> collection,
+		final IBeanDto beanDto,
+		final IArithmeticPropertyFilter filter) {
+		final boolean accept;
+		switch (filter.getOperator()) {
+			case EMPTY:
+				accept = EmptyCheck.isEmpty(collection);
+				break;
+
+			case EQUAL:
+				accept = isEqual(getParameter(filter, beanDto, 0), collection);
+				break;
+
+			case LESS:
+				accept = isLess(getParameter(filter, beanDto, 0), collection);
+				break;
+
+			case LESS_EQUAL:
+				accept = isEqual(getParameter(filter, beanDto, 0), collection)
+					|| isLess(getParameter(filter, beanDto, 0), collection);
+				break;
+
+			case GREATER:
+				accept = isGreater(getParameter(filter, beanDto, 0), collection);
+				break;
+
+			case GREATER_EQUAL:
+				accept = isEqual(getParameter(filter, beanDto, 0), collection)
+					|| isGreater(getParameter(filter, beanDto, 0), collection);
+				break;
+
+			case BETWEEN:
+				accept = (isEqual(getParameter(filter, beanDto, 0), collection) || isGreater(
+						getParameter(filter, beanDto, 0),
+						collection))
+					&& (isEqual(getParameter(filter, beanDto, 1), collection) || isLess(
+							getParameter(filter, beanDto, 1),
+							collection));
+				break;
+
+			case CONTAINS_ANY:
+				accept = containsAny(getParameters(filter, beanDto), collection);
 				break;
 
 			case CONTAINS_ALL:
@@ -301,9 +445,8 @@ final class BeanDtoFilterImpl implements IBeanDtoFilter {
 
 	@SuppressWarnings("unchecked")
 	private boolean isLess(final Object object, final Object value) {
-		// TODO NM check if that works
-		final Comparable<Object> cobject = (Comparable<Object>) object;
-		return cobject.compareTo(value) < 0;
+		final Comparable<Object> cvalue = (Comparable<Object>) value;
+		return cvalue.compareTo(object) < 0;
 	}
 
 	private boolean isLess(final Object object, final Collection<?> values) {
@@ -318,9 +461,8 @@ final class BeanDtoFilterImpl implements IBeanDtoFilter {
 
 	@SuppressWarnings("unchecked")
 	private boolean isGreater(final Object object, final Object value) {
-		// TODO NM check if that works
-		final Comparable<Object> cobject = (Comparable<Object>) object;
-		return cobject.compareTo(value) > 0;
+		final Comparable<Object> cvalue = (Comparable<Object>) value;
+		return cvalue.compareTo(object) > 0;
 	}
 
 	private boolean isGreater(final Object object, final Collection<?> values) {
@@ -356,7 +498,7 @@ final class BeanDtoFilterImpl implements IBeanDtoFilter {
 		final StringBuilder regex = new StringBuilder(search.length());
 		for (final char c : search.toLowerCase().toCharArray()) {
 			switch (c) {
-				// TODO NM improve, escape more
+			// TODO NM improve, escape more
 				case '\\':
 					regex.append("\\\\");
 					break;
@@ -385,6 +527,29 @@ final class BeanDtoFilterImpl implements IBeanDtoFilter {
 			}
 		}
 		return regex.toString();
+	}
+
+	private Object getParameter(final IArithmeticFilter filter, final int index) {
+		return filter.getParameters()[index];
+	}
+
+	private Object[] getParameters(final IArithmeticFilter filter) {
+		return filter.getParameters();
+	}
+
+	private Object getParameter(final IArithmeticPropertyFilter filter, final IBeanDto beanDto, final int index) {
+		final String propertyName = filter.getRightHandPropertyNames()[index];
+		return beanDto.getValue(propertyName);
+	}
+
+	private Object[] getParameters(final IArithmeticPropertyFilter filter, final IBeanDto beanDto) {
+		final Object[] result = new Object[filter.getRightHandPropertyNames().length];
+		int index = 0;
+		for (final String propertyName : filter.getRightHandPropertyNames()) {
+			result[index] = beanDto.getValue(propertyName);
+			index++;
+		}
+		return result;
 	}
 
 }
