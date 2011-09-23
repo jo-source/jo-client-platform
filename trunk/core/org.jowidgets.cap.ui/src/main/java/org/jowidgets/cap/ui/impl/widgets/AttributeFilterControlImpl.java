@@ -74,11 +74,13 @@ final class AttributeFilterControlImpl extends AbstractInputControl<IUiConfigura
 	private final IComboBox<IOperator> cmbOperator;
 
 	private IFilterControl<IOperator, Object, IUiConfigurableFilter<Object>> filterControl;
+	private boolean editable;
 
 	AttributeFilterControlImpl(final IComposite composite, final IAttributeFilterControlBluePrint bluePrint) {
 		super(composite);
 		this.attributes = bluePrint.getAttributes();
 		this.attributesMap = createAttributesMap(attributes);
+		this.editable = true;
 
 		this.inputListener = new IInputListener() {
 			@Override
@@ -93,7 +95,9 @@ final class AttributeFilterControlImpl extends AbstractInputControl<IUiConfigura
 			@Override
 			public void inputChanged() {
 				if (filterControl != null) {
+					final Object currentOperand = getCurrentOperand();
 					filterControl.setOperator(cmbOperator.getValue());
+					tryToSetOldOperand(currentOperand);
 					getWidget().layout();
 				}
 			}
@@ -181,6 +185,56 @@ final class AttributeFilterControlImpl extends AbstractInputControl<IUiConfigura
 		Assert.paramNotNull(attribute, "attribute");
 		Assert.paramNotNull(filterType, "filterType");
 
+		final Object currentOperand = getCurrentOperand();
+
+		setAttributeImpl(attribute, filterType, true);
+
+		tryToSetOldOperand(currentOperand);
+
+		resetModificationState();
+
+		getWidget().layout();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public void setValue(final IUiConfigurableFilter<? extends Object> value) {
+		if (value != null) {
+			final IAttribute<?> attribute = attributesMap.get(value.getPropertyName());
+			if (attribute == null) {
+				throw new IllegalArgumentException("No attribute found for the property name '" + value.getPropertyName() + "'.");
+			}
+
+			setAttributeImpl(attribute, value.getType(), false);
+			cmbOperator.removeInputListener(operatorListener);
+			cmbOperator.setValue(value.getOperator());
+			cmbOperator.addInputListener(operatorListener);
+			filterControl.setValue((IUiConfigurableFilter<Object>) value);
+
+			resetModificationState();
+			getWidget().layout();
+		}
+	}
+
+	private void tryToSetOldOperand(final Object operand) {
+		if (filterControl != null) {
+			filterControl.trySetOperand(operand);
+		}
+	}
+
+	private Object getCurrentOperand() {
+		if (filterControl != null) {
+			return filterControl.getOperand();
+		}
+		else {
+			return null;
+		}
+	}
+
+	private void setAttributeImpl(final IAttribute<?> attribute, final IFilterType filterType, final boolean setDefaultOperator) {
+		Assert.paramNotNull(attribute, "attribute");
+		Assert.paramNotNull(filterType, "filterType");
+
 		final IFilterPanelProvider<?> filterPanelProvider = getFilterPanelProvider(attribute, filterType);
 
 		final ICustomWidgetCreator<IFilterControl<IOperator, Object, IUiConfigurableFilter<Object>>> creator;
@@ -192,29 +246,18 @@ final class AttributeFilterControlImpl extends AbstractInputControl<IUiConfigura
 			composite.remove(filterControl);
 		}
 		filterControl = composite.add(creator, "growx, w 0::");
+		filterControl.setEditable(editable);
 		filterControl.addInputListener(inputListener);
 
 		final IOperatorProvider<?> operatorProvider = filterPanelProvider.getOperatorProvider();
-		final IOperator defaultOperator = operatorProvider.getDefaultOperator();
+		cmbOperator.removeInputListener(operatorListener);
 		cmbOperator.setElements(operatorProvider.getOperators());
-		cmbOperator.setValue(defaultOperator);
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public void setValue(final IUiConfigurableFilter<? extends Object> value) {
-		if (value != null) {
-			final IAttribute<?> attribute = attributesMap.get(value.getPropertyName());
-			if (attribute == null) {
-				throw new IllegalArgumentException("No attribute found for the property name '" + value.getPropertyName() + "'.");
-			}
-			setAttribute(attribute, value.getType());
-			cmbOperator.removeInputListener(operatorListener);
-			cmbOperator.setValue(value.getOperator());
-			cmbOperator.addInputListener(operatorListener);
-			filterControl.setValue((IUiConfigurableFilter<Object>) value);
+		if (setDefaultOperator) {
+			final IOperator defaultOperator = operatorProvider.getDefaultOperator();
+			cmbOperator.setValue(defaultOperator);
+			filterControl.setOperator(defaultOperator);
 		}
-
+		cmbOperator.addInputListener(operatorListener);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -234,17 +277,28 @@ final class AttributeFilterControlImpl extends AbstractInputControl<IUiConfigura
 
 	@Override
 	public boolean hasModifications() {
-		return false;
+		return cmbOperator.hasModifications()
+			|| cmbNot.hasModifications()
+			|| (filterControl != null && filterControl.hasModifications());
 	}
 
 	@Override
 	public void resetModificationState() {
-
+		cmbOperator.resetModificationState();
+		cmbNot.resetModificationState();
+		if (filterControl != null) {
+			filterControl.resetModificationState();
+		}
 	}
 
 	@Override
 	public void setEditable(final boolean editable) {
-
+		this.editable = editable;
+		cmbOperator.setEditable(editable);
+		cmbNot.setEditable(editable);
+		if (filterControl != null) {
+			filterControl.setEditable(editable);
+		}
 	}
 
 	private ICustomWidgetCreator<IFilterControl<IOperator, Object, IUiConfigurableFilter<Object>>> createPanelCreator(

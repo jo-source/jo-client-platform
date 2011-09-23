@@ -51,13 +51,8 @@ final class BeanTableHeaderFilterMenuModel extends MenuModel {
 		if (attribute.isFilterable()) {
 			final List<IFilterType> filterTypes = attribute.getSupportedFilterTypes();
 			if (filterTypes.size() > 0) {
-				boolean separatorAdded = false;
 				for (final IFilterType filterType : filterTypes) {
 					if (attribute.getFilterPanelProvider(filterType).isApplicableWith((List) model.getAttributes())) {
-						if (!separatorAdded) {
-							addSeparator();
-							separatorAdded = true;
-						}
 						addAction(menuFactory.addFilterAction(model, filterType, columnIndex));
 					}
 				}
