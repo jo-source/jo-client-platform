@@ -72,4 +72,28 @@ final class ArithmeticPropertyFilterImpl implements IArithmeticPropertyFilter, S
 		return rightHandPropertyNames;
 	}
 
+	@Override
+	public String toString() {
+		final StringBuilder result = new StringBuilder();
+		if (inverted) {
+			result.append("not (");
+		}
+		result.append(propertyName);
+		result.append(' ');
+		result.append(operator.getLabel());
+		result.append(' ');
+		result.append('[');
+		int effectiveSize = result.length();
+		for (final String property : rightHandPropertyNames) {
+			result.append(property);
+			effectiveSize = result.length();
+			result.append(", ");
+		}
+		result.setLength(effectiveSize);
+		result.append(']');
+		if (inverted) {
+			result.append(")");
+		}
+		return result.toString();
+	}
 }

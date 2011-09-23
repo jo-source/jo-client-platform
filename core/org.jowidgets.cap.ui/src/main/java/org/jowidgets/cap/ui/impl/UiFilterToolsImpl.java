@@ -28,7 +28,9 @@
 
 package org.jowidgets.cap.ui.impl;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.jowidgets.cap.common.api.filter.BooleanOperator;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
@@ -221,8 +223,131 @@ final class UiFilterToolsImpl implements IUiFilterTools {
 
 	@Override
 	public String toHumanReadable(final IUiFilter filter, final List<IAttribute<?>> attributes) {
-		//TODO NM implement toHumanReadable
-		return "TODO implement to human readable";
+		Assert.paramNotNull(filter, "filter");
+		Assert.paramNotNull(attributes, "attributes");
+
+		final Map<String, String> attributeMap = new HashMap<String, String>();
+		for (final IAttribute<?> attribute : attributes) {
+			attributeMap.put(attribute.getPropertyName(), attribute.getLabel());
+		}
+
+		return toHumanReadable(filter, attributeMap).toString();
+	}
+
+	private StringBuilder toHumanReadable(final IUiFilter filter, final Map<String, String> attributeMap) {
+		if (filter instanceof IUiBooleanFilter) {
+			return toHumanReadable((IUiBooleanFilter) filter, attributeMap);
+		}
+		else if (filter instanceof IUiArithmeticFilter<?>) {
+			return toHumanReadable((IUiArithmeticFilter<?>) filter, attributeMap);
+		}
+		else if (filter instanceof IUiArithmeticPropertyFilter<?>) {
+			return toHumanReadable((IUiArithmeticPropertyFilter<?>) filter, attributeMap);
+		}
+		else if (filter instanceof IUiCustomFilter<?>) {
+			return toHumanReadable((IUiCustomFilter<?>) filter, attributeMap);
+		}
+		else {
+			throw new IllegalArgumentException("Unkown UiFilter type '" + filter.getClass().getName() + "'.");
+		}
+	}
+
+	private StringBuilder toHumanReadable(final IUiBooleanFilter filter, final Map<String, String> attributeMap) {
+		final StringBuilder result = new StringBuilder();
+		if (filter.getFilters().size() > 0) {
+			int effectiveSize = 0;
+
+			if (filter.isInverted()) {
+				result.append("not (");
+			}
+			for (final IUiFilter subFilter : filter.getFilters()) {
+				result.append('(');
+				result.append(toHumanReadable(subFilter, attributeMap));
+				result.append(')');
+				effectiveSize = result.length();
+				result.append(' ');
+				result.append(filter.getOperator().getLabel());
+				result.append(' ');
+			}
+			result.setLength(effectiveSize);
+			if (filter.isInverted()) {
+				result.append(')');
+			}
+		}
+
+		return result;
+	}
+
+	private StringBuilder toHumanReadable(final IUiArithmeticFilter<?> filter, final Map<String, String> attributeMap) {
+		final StringBuilder result = new StringBuilder();
+		if (filter.isInverted()) {
+			result.append("not (");
+		}
+		result.append(attributeMap.get(filter.getPropertyName()));
+		result.append(' ');
+		result.append(filter.getOperator().getLabel());
+		result.append(' ');
+		result.append('[');
+		int effectiveSize = result.length();
+		for (final Object o : filter.getParameters()) {
+			if (o == null) {
+				result.append("<null>");
+			}
+			else {
+				result.append(o.toString());
+			}
+			effectiveSize = result.length();
+			result.append(", ");
+		}
+		result.setLength(effectiveSize);
+		result.append(']');
+		if (filter.isInverted()) {
+			result.append(")");
+		}
+		return result;
+	}
+
+	private StringBuilder toHumanReadable(final IUiArithmeticPropertyFilter<?> filter, final Map<String, String> attributeMap) {
+		final StringBuilder result = new StringBuilder();
+		if (filter.isInverted()) {
+			result.append("not (");
+		}
+		result.append(attributeMap.get(filter.getPropertyName()));
+		result.append(' ');
+		result.append(filter.getOperator().getLabel());
+		result.append(' ');
+		result.append('[');
+		int effectiveSize = result.length();
+		for (final String property : filter.getRightHandPropertyNames()) {
+			result.append(attributeMap.get(property));
+			effectiveSize = result.length();
+			result.append(", ");
+		}
+		result.setLength(effectiveSize);
+		result.append(']');
+		if (filter.isInverted()) {
+			result.append(")");
+		}
+		return result;
+	}
+
+	private StringBuilder toHumanReadable(final IUiCustomFilter<?> filter, final Map<String, String> attributeMap) {
+		final StringBuilder result = new StringBuilder();
+		if (filter.isInverted()) {
+			result.append("not (");
+		}
+		result.append("custom filter: ");
+		result.append(filter.getFilterType());
+		result.append(' ');
+		result.append(attributeMap.get(filter.getPropertyName()));
+		result.append(' ');
+		result.append(filter.getOperator().getLabel());
+		result.append(' ');
+		result.append(filter.getValue());
+		if (filter.isInverted()) {
+			result.append(")");
+		}
+		return result;
 	}
 
 }
