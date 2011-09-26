@@ -43,7 +43,7 @@ final class ControlProviderBooleanLong extends AbstractControlProviderBoolean {
 
 	@Override
 	public IConverter<Boolean> getConverter(final IValueRange valueRange) {
-		return Toolkit.getConverterProvider().boolYesNoLong();
+		return Toolkit.getConverterProvider().boolLong();
 	}
 
 }
