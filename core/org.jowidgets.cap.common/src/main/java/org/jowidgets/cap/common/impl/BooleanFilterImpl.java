@@ -66,25 +66,25 @@ final class BooleanFilterImpl implements IBooleanFilter, Serializable {
 	@Override
 	public String toString() {
 		final StringBuilder result = new StringBuilder();
-		int effectiveSize = 0;
-
-		if (inverted) {
-			result.append("not (");
+		if (filters.size() > 0) {
+			int effectiveSize = 0;
+			if (inverted) {
+				result.append("not (");
+			}
+			for (final IFilter filter : filters) {
+				result.append('(');
+				result.append(filter.toString());
+				result.append(')');
+				effectiveSize = result.length();
+				result.append(' ');
+				result.append(operator.getLabel());
+				result.append(' ');
+			}
+			result.setLength(effectiveSize);
+			if (inverted) {
+				result.append(')');
+			}
 		}
-		for (final IFilter filter : filters) {
-			result.append('(');
-			result.append(filter.toString());
-			result.append(')');
-			effectiveSize = result.length();
-			result.append(' ');
-			result.append(operator.getLabel());
-			result.append(' ');
-		}
-		result.setLength(effectiveSize);
-		if (inverted && effectiveSize > 0) {
-			result.append(')');
-		}
-
 		return result.toString();
 	}
 }
