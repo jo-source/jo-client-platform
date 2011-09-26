@@ -1515,6 +1515,7 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 			this.contentFormats = new LinkedList<IDisplayFormat>();
 
 			int sortableCount = 0;
+			boolean hasShortAndLongHeaderFormats = false;
 			for (int columnIndex = 0; columnIndex < model.getColumnCount(); columnIndex++) {
 				final IAttribute<?> attribute = model.getAttribute(columnIndex);
 				propertyNames[columnIndex] = attribute.getPropertyName();
@@ -1531,10 +1532,14 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 						contentFormats.add(provider.getDisplayFormat());
 					}
 				}
+
+				hasShortAndLongHeaderFormats = hasShortAndLongHeaderFormats || (hasShortAndLongLabel(attribute));
 			}
 
-			headerFormats.add(DisplayFormat.SHORT);
-			headerFormats.add(DisplayFormat.LONG);
+			if (hasShortAndLongHeaderFormats) {
+				headerFormats.add(DisplayFormat.SHORT);
+				headerFormats.add(DisplayFormat.LONG);
+			}
 
 			sortable = sortableCount > 0;
 		}
