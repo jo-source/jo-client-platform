@@ -47,6 +47,7 @@ import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
 import org.jowidgets.tools.validation.MandatoryValidator;
 import org.jowidgets.tools.widgets.wrapper.AbstractInputControl;
 import org.jowidgets.util.Assert;
+import org.jowidgets.validation.IValidationConditionListener;
 import org.jowidgets.validation.IValidationResult;
 import org.jowidgets.validation.IValidationResultBuilder;
 import org.jowidgets.validation.ValidationResult;
@@ -67,6 +68,7 @@ public class DefaultArithmeticFilterControl<ELEMENT_VALUE_TYPE> extends Abstract
 	private final ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> collectionControlCreator;
 
 	private final IInputListener inputListener;
+	private final IValidationConditionListener validationConditionListener;
 
 	private IInputControl control1;
 	private IInputControl control2;
@@ -92,6 +94,12 @@ public class DefaultArithmeticFilterControl<ELEMENT_VALUE_TYPE> extends Abstract
 			@Override
 			public void inputChanged() {
 				fireInputChanged();
+			}
+		};
+
+		this.validationConditionListener = new IValidationConditionListener() {
+			@Override
+			public void validationConditionsChanged() {
 				setValidationCacheDirty();
 			}
 		};
@@ -280,26 +288,28 @@ public class DefaultArithmeticFilterControl<ELEMENT_VALUE_TYPE> extends Abstract
 	}
 
 	private void removeInputListener() {
-		removeInputListener(control1);
-		removeInputListener(control2);
-		removeInputListener(collectionControl);
+		removeListeners(control1);
+		removeListeners(control2);
+		removeListeners(collectionControl);
 	}
 
 	private void addInputListener() {
-		addInputListener(control1);
-		addInputListener(control2);
-		addInputListener(collectionControl);
+		addListeners(control1);
+		addListeners(control2);
+		addListeners(collectionControl);
 	}
 
-	private void addInputListener(final IInputControl<?> control) {
+	private void addListeners(final IInputControl<?> control) {
 		if (control != null) {
 			control.addInputListener(inputListener);
+			control.addValidationConditionListener(validationConditionListener);
 		}
 	}
 
-	private void removeInputListener(final IInputControl<?> control) {
+	private void removeListeners(final IInputControl<?> control) {
 		if (control != null) {
 			control.removeInputListener(inputListener);
+			control.removeValidationConditionListener(validationConditionListener);
 		}
 	}
 

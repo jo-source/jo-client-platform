@@ -53,6 +53,7 @@ import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
 import org.jowidgets.tools.validation.MandatoryValidator;
 import org.jowidgets.tools.widgets.wrapper.AbstractInputControl;
 import org.jowidgets.util.Assert;
+import org.jowidgets.validation.IValidationConditionListener;
 import org.jowidgets.validation.IValidationResult;
 import org.jowidgets.validation.ValidationResult;
 
@@ -70,6 +71,7 @@ public class ArithmeticPropertyFilterControl<ELEMENT_VALUE_TYPE> extends
 	private final String propertyName;
 
 	private final IInputListener inputListener;
+	private final IValidationConditionListener validationConditionListener;
 	private final Map<String, IAttribute<?>> attributesMap;
 	private final List<IAttribute<?>> attributes;
 	private final List<IAttribute<?>> collectionTypeAttributes;
@@ -99,6 +101,12 @@ public class ArithmeticPropertyFilterControl<ELEMENT_VALUE_TYPE> extends
 			@Override
 			public void inputChanged() {
 				fireInputChanged();
+			}
+		};
+
+		this.validationConditionListener = new IValidationConditionListener() {
+			@Override
+			public void validationConditionsChanged() {
 				setValidationCacheDirty();
 			}
 		};
@@ -281,24 +289,26 @@ public class ArithmeticPropertyFilterControl<ELEMENT_VALUE_TYPE> extends
 	}
 
 	private void removeInputListener() {
-		removeInputListener(combo1);
-		removeInputListener(combo2);
+		removeListeners(combo1);
+		removeListeners(combo2);
 	}
 
 	private void addInputListener() {
-		addInputListener(combo1);
-		addInputListener(combo2);
+		addListeners(combo1);
+		addListeners(combo2);
 	}
 
-	private void addInputListener(final IInputControl<?> control) {
+	private void addListeners(final IInputControl<?> control) {
 		if (control != null) {
 			control.addInputListener(inputListener);
+			control.addValidationConditionListener(validationConditionListener);
 		}
 	}
 
-	private void removeInputListener(final IInputControl<?> control) {
+	private void removeListeners(final IInputControl<?> control) {
 		if (control != null) {
 			control.removeInputListener(inputListener);
+			control.removeValidationConditionListener(validationConditionListener);
 		}
 	}
 
