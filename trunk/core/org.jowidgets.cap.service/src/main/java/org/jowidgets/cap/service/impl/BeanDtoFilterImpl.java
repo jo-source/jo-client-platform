@@ -431,6 +431,24 @@ final class BeanDtoFilterImpl implements IBeanDtoFilter {
 	}
 
 	private boolean isEqual(final Object object, final Object value) {
+		if (object instanceof Collection<?>) {
+			return isEqualToList((Collection<?>) object, value);
+		}
+		else {
+			return isEqualToObject(object, value);
+		}
+	}
+
+	private boolean isEqual(final Object object, final Collection<?> value) {
+		if (object instanceof Collection<?>) {
+			return isEqualToList((Collection<?>) object, value);
+		}
+		else {
+			return isEqualToObject(object, value);
+		}
+	}
+
+	private boolean isEqualToObject(final Object object, final Object value) {
 		if (object instanceof String && value instanceof String) {
 			final String regex = getRegex((String) object);
 			final String stringValue = ((String) value).toLowerCase();
@@ -441,7 +459,7 @@ final class BeanDtoFilterImpl implements IBeanDtoFilter {
 		}
 	}
 
-	private boolean isEqual(final Object object, final Collection<?> values) {
+	private boolean isEqualToObject(final Object object, final Collection<?> values) {
 		for (final Object value : values) {
 			if (isEqual(object, value)) {
 				return true;
@@ -451,15 +469,55 @@ final class BeanDtoFilterImpl implements IBeanDtoFilter {
 		return false;
 	}
 
-	@SuppressWarnings("unchecked")
+	private boolean isEqualToList(final Collection<?> list, final Object value) {
+		for (final Object object : list) {
+			if (isEqualToObject(object, value)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	// any from values is equal to any from list
+	private boolean isEqualToList(final Collection<?> list, final Collection<?> values) {
+		for (final Object value : values) {
+			for (final Object object : list) {
+				if (isEqualToObject(object, value)) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
 	private boolean isLess(final Object object, final Object value) {
+		if (object instanceof Collection<?>) {
+			return isLessToList((Collection<?>) object, value);
+		}
+		else {
+			return isLessToObject(object, value);
+		}
+	}
+
+	private boolean isLess(final Object object, final Collection<?> values) {
+		if (object instanceof Collection<?>) {
+			return isLessToList((Collection<?>) object, values);
+		}
+		else {
+			return isLessToObject(object, values);
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private boolean isLessToObject(final Object object, final Object value) {
 		final Comparable<Object> cvalue = (Comparable<Object>) value;
 		return cvalue.compareTo(object) < 0;
 	}
 
-	private boolean isLess(final Object object, final Collection<?> values) {
+	private boolean isLessToObject(final Object object, final Collection<?> values) {
 		for (final Object value : values) {
-			if (isLess(object, value)) {
+			if (isLessToObject(object, value)) {
 				return true;
 			}
 		}
@@ -467,16 +525,76 @@ final class BeanDtoFilterImpl implements IBeanDtoFilter {
 		return false;
 	}
 
-	@SuppressWarnings("unchecked")
+	private boolean isLessToList(final Collection<?> list, final Object value) {
+		for (final Object object : list) {
+			if (isLessToObject(object, value)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private boolean isLessToList(final Collection<?> list, final Collection<?> values) {
+		for (final Object value : values) {
+			for (final Object object : list) {
+				if (isLessToObject(object, value)) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
 	private boolean isGreater(final Object object, final Object value) {
+		if (object instanceof Collection<?>) {
+			return isGreaterToList((Collection<?>) object, value);
+		}
+		else {
+			return isGreaterToObject(object, value);
+		}
+	}
+
+	private boolean isGreater(final Object object, final Collection<?> values) {
+		if (object instanceof Collection<?>) {
+			return isGreaterToList((Collection<?>) object, values);
+		}
+		else {
+			return isGreaterToObject(object, values);
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private boolean isGreaterToObject(final Object object, final Object value) {
 		final Comparable<Object> cvalue = (Comparable<Object>) value;
 		return cvalue.compareTo(object) > 0;
 	}
 
-	private boolean isGreater(final Object object, final Collection<?> values) {
+	private boolean isGreaterToObject(final Object object, final Collection<?> values) {
 		for (final Object value : values) {
-			if (isGreater(object, value)) {
+			if (isGreaterToObject(object, value)) {
 				return true;
+			}
+		}
+
+		return false;
+	}
+
+	private boolean isGreaterToList(final Collection<?> list, final Object value) {
+		for (final Object object : list) {
+			if (isGreaterToObject(object, value)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private boolean isGreaterToList(final Collection<?> list, final Collection<?> values) {
+		for (final Object value : values) {
+			for (final Object object : list) {
+				if (isGreaterToObject(object, value)) {
+					return true;
+				}
 			}
 		}
 
@@ -533,6 +651,8 @@ final class BeanDtoFilterImpl implements IBeanDtoFilter {
 				case ')':
 				case '.':
 				case '+':
+				case '^':
+				case '$':
 					regex.append('\\');
 					regex.append(c);
 					break;
