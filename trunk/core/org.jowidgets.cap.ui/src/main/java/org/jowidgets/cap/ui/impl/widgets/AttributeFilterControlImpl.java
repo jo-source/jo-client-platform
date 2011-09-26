@@ -56,6 +56,7 @@ import org.jowidgets.common.widgets.factory.ICustomWidgetFactory;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
 import org.jowidgets.tools.widgets.wrapper.AbstractInputControl;
 import org.jowidgets.util.Assert;
+import org.jowidgets.validation.IValidationConditionListener;
 import org.jowidgets.validation.IValidationResult;
 import org.jowidgets.validation.ValidationResult;
 
@@ -69,6 +70,7 @@ final class AttributeFilterControlImpl extends AbstractInputControl<IUiConfigura
 
 	private final IInputListener inputListener;
 	private final IInputListener operatorListener;
+	private final IValidationConditionListener validationConditionListener;
 
 	private final IComboBox<Boolean> cmbNot;
 	private final IComboBox<IOperator> cmbOperator;
@@ -86,12 +88,17 @@ final class AttributeFilterControlImpl extends AbstractInputControl<IUiConfigura
 			@Override
 			public void inputChanged() {
 				fireInputChanged();
+			}
+		};
+
+		this.validationConditionListener = new IValidationConditionListener() {
+			@Override
+			public void validationConditionsChanged() {
 				setValidationCacheDirty();
 			}
 		};
 
 		this.operatorListener = new IInputListener() {
-
 			@Override
 			public void inputChanged() {
 				if (filterControl != null) {
@@ -109,6 +116,7 @@ final class AttributeFilterControlImpl extends AbstractInputControl<IUiConfigura
 		this.cmbOperator = composite.add(comboBoxOperatorBp());
 
 		cmbOperator.addInputListener(operatorListener);
+		cmbOperator.addValidationConditionListener(validationConditionListener);
 	}
 
 	private static IComboBoxSelectionBluePrint<IOperator> comboBoxOperatorBp() {
@@ -248,6 +256,7 @@ final class AttributeFilterControlImpl extends AbstractInputControl<IUiConfigura
 		filterControl = composite.add(creator, "growx, w 0::");
 		filterControl.setEditable(editable);
 		filterControl.addInputListener(inputListener);
+		filterControl.addValidationConditionListener(validationConditionListener);
 
 		final IOperatorProvider<?> operatorProvider = filterPanelProvider.getOperatorProvider();
 		cmbOperator.removeInputListener(operatorListener);
