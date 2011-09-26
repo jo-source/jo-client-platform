@@ -44,6 +44,9 @@ public interface IUser extends IBean {
 	String DATE_OF_BIRTH_PROPERTY = "dateOfBirth";
 	String AGE_PROPERTY = "age";
 	String GENDER_PROPERTY = "gender";
+	String HEIGHT_PROPERTY = "height";
+	String WEIGHT_PROPERTY = "weight";
+	String BMI_PROPERTY = "bmi";
 	String COUNTRY_PROPERTY = "country";
 	String LANGUAGES_PROPERTY = "languages";
 	String ADMIN_PROPERTY = "admin";
@@ -57,6 +60,9 @@ public interface IUser extends IBean {
 			add(DATE_OF_BIRTH_PROPERTY);
 			add(AGE_PROPERTY);
 			add(GENDER_PROPERTY);
+			add(HEIGHT_PROPERTY);
+			add(WEIGHT_PROPERTY);
+			add(BMI_PROPERTY);
 			add(ADMIN_PROPERTY);
 			add(COUNTRY_PROPERTY);
 			add(LANGUAGES_PROPERTY);
@@ -79,6 +85,16 @@ public interface IUser extends IBean {
 	void setLastName(final String lastName);
 
 	Date getDateOfBirth();
+
+	Double getWeight();
+
+	void setWeight(Double weight);
+
+	Short getHeight();
+
+	void setHeight(Short height);
+
+	Double getBmi();
 
 	Integer getAge();
 

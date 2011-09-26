@@ -47,6 +47,8 @@ public class User extends AbstractSampleBean implements IUser {
 	private List<String> languages;
 	private boolean admin;
 	private Boolean married;
+	private Double weight;
+	private Short height;
 
 	public User(final Long id) {
 		super(id);
@@ -84,6 +86,40 @@ public class User extends AbstractSampleBean implements IUser {
 	public void setDateOfBirth(final Date dateOfBirth) {
 		this.dateOfBirth = dateOfBirth;
 		increaseVersion();
+	}
+
+	@Override
+	public Double getWeight() {
+		return weight;
+	}
+
+	@Override
+	public void setWeight(final Double weight) {
+		this.weight = weight;
+		increaseVersion();
+	}
+
+	@Override
+	public Short getHeight() {
+		return height;
+	}
+
+	@Override
+	public void setHeight(final Short height) {
+		this.height = height;
+		increaseVersion();
+	}
+
+	@Override
+	public Double getBmi() {
+		if (height == null || weight == null) {
+			return null;
+		}
+		final double quot = (double) height / 100;
+		if (height / 100 != 0) {
+			return weight / (quot * quot);
+		}
+		return null;
 	}
 
 	@Override

@@ -56,6 +56,15 @@ public class UserDtoDescriptorBuilder extends BeanDtoDescriptorBuilder {
 		propertyBp = addProperty(IUser.AGE_PROPERTY);
 		propertyBp.setLabel("Age").setDescription("The user's age");
 
+		propertyBp = addProperty(IUser.HEIGHT_PROPERTY);
+		propertyBp.setLabel("Height").setLabelLong("Height (cm)").setDescription("The users body height in cm");
+
+		propertyBp = addProperty(IUser.WEIGHT_PROPERTY);
+		propertyBp.setLabel("Weight").setLabelLong("Weight (kg)").setDescription("The users body weight in kg");
+
+		propertyBp = addProperty(IUser.BMI_PROPERTY);
+		propertyBp.setLabel("BMI").setDescription("The users body mass index (BMI)");
+
 		propertyBp = addProperty(IUser.COUNTRY_PROPERTY);
 		propertyBp.setLabel("Country").setDescription("The country where the user lives");
 		propertyBp.setValueRange(true, "Germany", "Italy", "Spain");

@@ -63,6 +63,8 @@ final class UserDataInitializer {
 		user.setLastName("Estrada");
 		user.setDateOfBirth(new GregorianCalendar(1972, 3, 22).getTime());
 		user.setGender("M");
+		user.setWeight(87d);
+		user.setHeight((short) 174);
 		user.addLanguage("English");
 		user.setCountry("Spain");
 		user.setMarried(Boolean.TRUE);
@@ -73,6 +75,8 @@ final class UserDataInitializer {
 		user.setLastName("Mayer");
 		user.setDateOfBirth(new GregorianCalendar(1951, 4, 11).getTime());
 		user.setGender("F");
+		user.setWeight(65d);
+		user.setHeight((short) 165);
 		user.addLanguage("English");
 		user.addLanguage("German");
 		user.setCountry("Germany");
@@ -84,6 +88,8 @@ final class UserDataInitializer {
 		user.setLastName("Brown");
 		user.setDateOfBirth(new GregorianCalendar(1983, 7, 13).getTime());
 		user.setGender("M");
+		user.setWeight(97d);
+		user.setHeight((short) 189);
 		user.addLanguage("English");
 		user.addLanguage("French");
 		user.setAdmin(true);
@@ -95,6 +101,8 @@ final class UserDataInitializer {
 		user.setLastName("Smith");
 		user.setDateOfBirth(new GregorianCalendar(1994, 11, 8).getTime());
 		user.setGender("M");
+		user.setWeight(79d);
+		user.setHeight((short) 182);
 		user.addLanguage("English");
 		user.addLanguage("Spanish");
 		user.setCountry("Italy");
@@ -105,6 +113,8 @@ final class UserDataInitializer {
 		user.setLastName("Miller");
 		user.setDateOfBirth(new GregorianCalendar(1934, 12, 24).getTime());
 		user.setGender("M");
+		user.setWeight(85d);
+		user.setHeight((short) 188);
 		user.addLanguage("English");
 		user.setCountry("Spain");
 		user.setMarried(Boolean.FALSE);
@@ -115,6 +125,8 @@ final class UserDataInitializer {
 		user.setLastName("Winter");
 		user.setDateOfBirth(new GregorianCalendar(1978, 5, 23).getTime());
 		user.setGender("F");
+		user.setWeight(57d);
+		user.setHeight((short) 173);
 		user.addLanguage("English");
 		user.addLanguage("French");
 		user.addLanguage("Spanish");
@@ -125,6 +137,8 @@ final class UserDataInitializer {
 		user.setLastName("Moon");
 		user.setDateOfBirth(new GregorianCalendar(1943, 2, 19).getTime());
 		user.setGender("M");
+		user.setWeight(103d);
+		user.setHeight((short) 182);
 		user.addLanguage("English");
 		user.setAdmin(true);
 		user.setMarried(Boolean.TRUE);
@@ -136,6 +150,8 @@ final class UserDataInitializer {
 		user.setLastName("English");
 		user.setDateOfBirth(new GregorianCalendar(1961, 1, 18).getTime());
 		user.setGender("M");
+		user.setWeight(89d);
+		user.setHeight((short) 179);
 		user.addLanguage("English");
 		user.setAdmin(false);
 		user.setMarried(Boolean.FALSE);
@@ -152,5 +168,4 @@ final class UserDataInitializer {
 		}
 
 	}
-
 }
