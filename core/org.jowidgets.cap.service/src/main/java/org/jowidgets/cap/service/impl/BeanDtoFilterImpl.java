@@ -511,8 +511,13 @@ final class BeanDtoFilterImpl implements IBeanDtoFilter {
 
 	@SuppressWarnings("unchecked")
 	private boolean isLessToObject(final Object object, final Object value) {
-		final Comparable<Object> cvalue = (Comparable<Object>) value;
-		return cvalue.compareTo(object) < 0;
+		if (value != null) {
+			final Comparable<Object> cvalue = (Comparable<Object>) value;
+			return cvalue.compareTo(object) < 0;
+		}
+		else {
+			return false;
+		}
 	}
 
 	private boolean isLessToObject(final Object object, final Collection<?> values) {
@@ -566,8 +571,13 @@ final class BeanDtoFilterImpl implements IBeanDtoFilter {
 
 	@SuppressWarnings("unchecked")
 	private boolean isGreaterToObject(final Object object, final Object value) {
-		final Comparable<Object> cvalue = (Comparable<Object>) value;
-		return cvalue.compareTo(object) > 0;
+		if (value != null) {
+			final Comparable<Object> cvalue = (Comparable<Object>) value;
+			return cvalue.compareTo(object) > 0;
+		}
+		else {
+			return false;
+		}
 	}
 
 	private boolean isGreaterToObject(final Object object, final Collection<?> values) {
