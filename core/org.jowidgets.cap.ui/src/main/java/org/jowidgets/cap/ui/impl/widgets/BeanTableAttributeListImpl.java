@@ -136,6 +136,8 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 
 	BeanTableAttributeListImpl(final IComposite container, final IBeanTableModel<?> model) {
 		super(container);
+		final AllAttributeInformation allAttributeInformation = new AllAttributeInformation(model);
+
 		this.emptyDisplayFormat = createEmptyDisplayFormat();
 
 		final ITableLayoutBuilder builder = Toolkit.getLayoutFactoryProvider().tableLayoutBuilder();
@@ -151,6 +153,25 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 		builder.gapAfterColumn(9, 10);
 		builder.fixedColumnWidth(7, 50); // fixed width for sort order
 		builder.fixedColumnWidth(9, 50); // fixed width for sort order
+
+		if (allAttributeInformation.getHeaderFormats().isEmpty()) {
+			builder.gapBeforeColumn(3, 0);
+			builder.columnMode(3, ColumnMode.HIDDEN);
+		}
+		if (allAttributeInformation.getContentFormats().isEmpty()) {
+			builder.gapBeforeColumn(4, 0);
+			builder.columnMode(4, ColumnMode.HIDDEN);
+		}
+		if (!allAttributeInformation.isSortable()) {
+			builder.gapBeforeColumn(6, 0);
+			builder.columnMode(6, ColumnMode.HIDDEN);
+			builder.gapBeforeColumn(7, 0);
+			builder.columnMode(7, ColumnMode.HIDDEN);
+			builder.gapBeforeColumn(7, 0);
+			builder.columnMode(8, ColumnMode.HIDDEN);
+			builder.gapBeforeColumn(9, 0);
+			builder.columnMode(9, ColumnMode.HIDDEN);
+		}
 
 		if (isSingleGroup(model)) {
 			// hide toolbar column if no groups exist
@@ -168,8 +189,6 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 
 		this.setLayout(new MigLayoutDescriptor("hidemode 2", "[grow]", "[]0[]0[]0[grow, 0:500:]"));
 		this.maxSortingLength = getMaxSortableLength(model);
-
-		final AllAttributeInformation allAttributeInformation = new AllAttributeInformation(model);
 
 		updateHeadersListener = new IInputListener() {
 			@Override
