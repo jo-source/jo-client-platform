@@ -40,12 +40,11 @@ import org.jowidgets.util.event.IChangeListener;
 final class BeanTableAlignmentMenuModel extends MenuModel {
 
 	BeanTableAlignmentMenuModel(final IBeanTableModel<?> model, final int columnIndex) {
-		//TODO i18n
-		super("Alignment");
+		super(Messages.getString("BeanTableAlignmentMenuModel.alignment")); //$NON-NLS-1$
 
-		final IRadioItemModel leftRadioItem = addRadioItem("Left");
-		final IRadioItemModel centerRadioItem = addRadioItem("Center");
-		final IRadioItemModel rightRadioItem = addRadioItem("Right");
+		final IRadioItemModel leftRadioItem = addRadioItem(AlignmentHorizontal.LEFT.getLabel());
+		final IRadioItemModel centerRadioItem = addRadioItem(AlignmentHorizontal.CENTER.getLabel());
+		final IRadioItemModel rightRadioItem = addRadioItem(AlignmentHorizontal.RIGHT.getLabel());
 
 		final IAttribute<?> attribute = model.getAttribute(columnIndex);
 		if (AlignmentHorizontal.CENTER == attribute.getTableAlignment()) {

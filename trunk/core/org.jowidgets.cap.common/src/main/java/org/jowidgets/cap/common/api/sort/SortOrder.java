@@ -30,9 +30,8 @@ package org.jowidgets.cap.common.api.sort;
 
 public enum SortOrder {
 
-	// TODO i18n
-	ASC("Ascending"),
-	DESC("Descending");
+	ASC(Messages.getString("SortOrder.ascending")), //$NON-NLS-1$
+	DESC(Messages.getString("SortOrder.descending")); //$NON-NLS-1$
 
 	private String label;
 

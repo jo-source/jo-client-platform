@@ -46,8 +46,7 @@ import org.jowidgets.util.event.IChangeListener;
 final class BeanTableColumnsVisibilityMenuModel extends MenuModel {
 
 	BeanTableColumnsVisibilityMenuModel(final IBeanTableModel<?> model) {
-		//TODO i18n
-		super("Visible columns");
+		super(Messages.getString("BeanTableColumnsVisibilityMenuModel.visible_columns")); //$NON-NLS-1$
 
 		final Map<String, IMenuModel> groupModels = new HashMap<String, IMenuModel>();
 		for (int columnIndex = 0; columnIndex < model.getColumnCount(); columnIndex++) {

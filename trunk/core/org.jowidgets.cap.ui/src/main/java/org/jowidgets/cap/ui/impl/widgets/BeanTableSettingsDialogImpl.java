@@ -62,26 +62,29 @@ final class BeanTableSettingsDialogImpl extends WindowWrapper implements IBeanTa
 
 	BeanTableSettingsDialogImpl(final IFrame frame, final IBeanTableSettingsDialogBluePrint setup) {
 		super(frame);
-		Assert.paramNotNull(frame, "frame");
-		Assert.paramNotNull(setup, "setup");
-		Assert.paramNotNull(setup.getModel(), "setup.getModel()");
+		Assert.paramNotNull(frame, "frame"); //$NON-NLS-1$
+		Assert.paramNotNull(setup, "setup"); //$NON-NLS-1$
+		Assert.paramNotNull(setup.getModel(), "setup.getModel()"); //$NON-NLS-1$
 
 		this.bpF = Toolkit.getBluePrintFactory();
 		this.frame = frame;
 		this.model = setup.getModel();
 		this.currentConfig = model.getConfig();
 
-		frame.setLayout(new MigLayoutDescriptor("[][grow]", "[][]10[][]10[grow][pref!]"));
+		frame.setLayout(new MigLayoutDescriptor("[][grow]", "[][]10[][]10[grow][pref!]")); //$NON-NLS-1$ //$NON-NLS-2$
+
+		final String textCommonSettings = Messages.getString("BeanTableSettingsDialogImpl.common_settings"); //$NON-NLS-1$
+		final String textAutoSelection = Messages.getString("BeanTableSettingsDialogImpl.auto_selection"); //$NON-NLS-1$
+		final String textColumns = Messages.getString("BeanTableSettingsDialogImpl.columns"); //$NON-NLS-1$
+		final String textSearch = Messages.getString("BeanTableSettingsDialogImpl.search_"); //$NON-NLS-1$
 
 		// common settings
-		// TODO i18n
-		frame.add(bpF.textSeparator("Common settings"), "grow, span");
-		autoSelection = frame.add(bpF.checkBox().setText("Auto selection"), "grow, span, wrap");
+		frame.add(bpF.textSeparator(textCommonSettings), "grow, span"); //$NON-NLS-1$
+		autoSelection = frame.add(bpF.checkBox().setText(textAutoSelection), "grow, span, wrap"); //$NON-NLS-1$ 
 
-		// TODO i18n 
-		frame.add(bpF.textSeparator("Columns"), "grow, span, wrap");
-		frame.add(bpF.textLabel("Search:"), "");
-		final IInputField<String> filter = frame.add(bpF.inputFieldString(), "wrap, grow");
+		frame.add(bpF.textSeparator(textColumns), "grow, span, wrap"); //$NON-NLS-1$ 
+		frame.add(bpF.textLabel(textSearch), ""); //$NON-NLS-1$
+		final IInputField<String> filter = frame.add(bpF.inputFieldString(), "wrap, grow"); //$NON-NLS-1$
 		filter.addInputListener(new IInputListener() {
 
 			@Override
@@ -92,9 +95,9 @@ final class BeanTableSettingsDialogImpl extends WindowWrapper implements IBeanTa
 
 		beanTableAttributeListImpl = new BeanTableAttributeListImpl(frame.add(
 				bpF.compositeWithBorder(),
-				"grow, wrap, span, w 0::, h 0::"), model);
+				"grow, wrap, span, w 0::, h 0::"), model); //$NON-NLS-1$
 
-		createButtonBar(frame.add(bpF.composite(), "alignx right, span, wrap"));
+		createButtonBar(frame.add(bpF.composite(), "alignx right, span, wrap")); //$NON-NLS-1$
 	}
 
 	@Override
@@ -127,9 +130,9 @@ final class BeanTableSettingsDialogImpl extends WindowWrapper implements IBeanTa
 	}
 
 	private void createButtonBar(final IComposite buttonBar) {
-
-		buttonBar.setLayout(new MigLayoutDescriptor("0[][]0", "0[]0"));
-		final IButton ok = buttonBar.add(bpF.button("Ok"), "w 80::, aligny b, sg bg");
+		buttonBar.setLayout(new MigLayoutDescriptor("0[][]0", "0[]0")); //$NON-NLS-1$ //$NON-NLS-2$
+		final IButton ok = buttonBar.add(
+				bpF.button(Messages.getString("BeanTableSettingsDialogImpl.ok")), "w 80::, aligny b, sg bg"); //$NON-NLS-1$ //$NON-NLS-2$
 		ok.addActionListener(new IActionListener() {
 			@Override
 			public void actionPerformed() {
@@ -139,7 +142,8 @@ final class BeanTableSettingsDialogImpl extends WindowWrapper implements IBeanTa
 		});
 		frame.setDefaultButton(ok);
 
-		final IButton cancel = buttonBar.add(bpF.button("Cancel"), "w 80::, aligny b, sg bg");
+		final IButton cancel = buttonBar.add(
+				bpF.button(Messages.getString("BeanTableSettingsDialogImpl.cancel")), "w 80::, aligny b, sg bg"); //$NON-NLS-1$ //$NON-NLS-2$
 		cancel.addActionListener(new IActionListener() {
 			@Override
 			public void actionPerformed() {

@@ -62,9 +62,8 @@ public class ArithmeticPropertyFilterControl<ELEMENT_VALUE_TYPE> extends
 		AbstractInputControl<IUiArithmeticPropertyFilter<Object>> implements
 		IFilterControl<ArithmeticOperator, Object, IUiArithmeticPropertyFilter<Object>> {
 
-	//TODO i18n
-	private static final String AND = "AND";
-	private static final String NO_ATTRIBUTE_COULD_BE_COMPARED_WITH = "No attribute could be compared with";
+	private static final String AND = Messages.getString("ArithmeticPropertyFilterControl.and"); //$NON-NLS-1$
+	private static final String NO_ATTRIBUTE_COULD_BE_COMPARED_WITH = Messages.getString("ArithmeticPropertyFilterControl.no_attribute_could_be_compared_with"); //$NON-NLS-1$
 
 	private static final IObjectStringConverter<IAttribute<?>> ATTRIBUTE_CONVERTER = attributeConverter();
 
@@ -176,7 +175,7 @@ public class ArithmeticPropertyFilterControl<ELEMENT_VALUE_TYPE> extends
 	@Override
 	protected IValidationResult createValidationResult() {
 		if (combo1 != null && combo1.getElements().isEmpty() || combo2 != null && combo2.getElements().isEmpty()) {
-			return ValidationResult.infoError(NO_ATTRIBUTE_COULD_BE_COMPARED_WITH + " '" + attribute.getLabel() + "'");
+			return ValidationResult.infoError(NO_ATTRIBUTE_COULD_BE_COMPARED_WITH + " '" + attribute.getLabel() + "'"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		return ValidationResult.ok();
 
@@ -195,7 +194,7 @@ public class ArithmeticPropertyFilterControl<ELEMENT_VALUE_TYPE> extends
 
 	@Override
 	public void setOperator(final ArithmeticOperator operator) {
-		Assert.paramNotNull(operator, "operator");
+		Assert.paramNotNull(operator, "operator"); //$NON-NLS-1$
 		if (this.operator != operator) {
 			this.operator = operator;
 			removeInputListener();
@@ -203,13 +202,13 @@ public class ArithmeticPropertyFilterControl<ELEMENT_VALUE_TYPE> extends
 			combo1 = null;
 			combo2 = null;
 			if (ArithmeticOperator.BETWEEN == operator) {
-				getWidget().setLayout(new MigLayoutDescriptor("0[grow][][grow]0", "0[]0"));
-				combo1 = getWidget().add(comboBoxBluePrint(attributes), "grow, w 0::");
+				getWidget().setLayout(new MigLayoutDescriptor("0[grow][][grow]0", "0[]0")); //$NON-NLS-1$ //$NON-NLS-2$
+				combo1 = getWidget().add(comboBoxBluePrint(attributes), "grow, w 0::"); //$NON-NLS-1$
 				getWidget().add(Toolkit.getBluePrintFactory().textLabel(AND));
-				combo2 = getWidget().add(comboBoxBluePrint(attributes), "grow, w 0::");
+				combo2 = getWidget().add(comboBoxBluePrint(attributes), "grow, w 0::"); //$NON-NLS-1$
 			}
 			else if (ArithmeticOperator.EMPTY != operator) {
-				getWidget().setLayout(new MigLayoutDescriptor("0[grow]0", "0[]0"));
+				getWidget().setLayout(new MigLayoutDescriptor("0[grow]0", "0[]0")); //$NON-NLS-1$ //$NON-NLS-2$
 				final List<IAttribute<?>> currentAttributes;
 				if (isCollectionOperator(operator)) {
 					currentAttributes = collectionTypeAttributes;
@@ -217,7 +216,9 @@ public class ArithmeticPropertyFilterControl<ELEMENT_VALUE_TYPE> extends
 				else {
 					currentAttributes = attributes;
 				}
-				combo1 = getWidget().add(comboBoxBluePrint(currentAttributes), "grow, w 0::");
+				combo1 = getWidget().add(
+						comboBoxBluePrint(currentAttributes),
+						Messages.getString("ArithmeticPropertyFilterControl.11")); //$NON-NLS-1$
 			}
 
 			addInputListener();
@@ -227,7 +228,7 @@ public class ArithmeticPropertyFilterControl<ELEMENT_VALUE_TYPE> extends
 
 	@Override
 	public void setValue(final IUiArithmeticPropertyFilter<Object> filter) {
-		Assert.paramNotNull(filter, "filter");
+		Assert.paramNotNull(filter, "filter"); //$NON-NLS-1$
 		setOperator(filter.getOperator());
 		if (filter.getRightHandPropertyNames() != null) {
 			if (ArithmeticOperator.BETWEEN == operator) {

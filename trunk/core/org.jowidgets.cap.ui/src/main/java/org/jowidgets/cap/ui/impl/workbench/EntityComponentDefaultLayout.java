@@ -39,13 +39,11 @@ import org.jowidgets.workbench.tools.SplitLayoutBuilder;
 
 public class EntityComponentDefaultLayout {
 
-	public static final String DEFAULT_LAYOUT_ID = "DEFAULT_LAYOUT_ID";
-	public static final String MASTER_FOLDER_ID = "MASTER_FOLDER_ID";
-	public static final String DETAIL_FOLDER_ID = "DETAIL_FOLDER_ID";
+	public static final String DEFAULT_LAYOUT_ID = "DEFAULT_LAYOUT_ID"; //$NON-NLS-1$
+	public static final String MASTER_FOLDER_ID = "MASTER_FOLDER_ID"; //$NON-NLS-1$
+	public static final String DETAIL_FOLDER_ID = "DETAIL_FOLDER_ID"; //$NON-NLS-1$
 
-	//TODO i18n
-	private static final String TABLE_STRING = "table";
-	private static final String FORM_STRING = "form";
+	private static final String DETAIL_STRING = Messages.getString("EntityComponentDefaultLayout.detail"); //$NON-NLS-1$
 
 	private final ILayout layout;
 
@@ -70,14 +68,14 @@ public class EntityComponentDefaultLayout {
 	private IFolderLayoutBuilder createMasterFolder(final IEntityClass entityClass) {
 		final IFolderLayoutBuilder result = new FolderLayoutBuilder(MASTER_FOLDER_ID);
 		result.setViewsCloseable(false);
-		result.addView(EntityTableView.ID, entityClass.getLabel() + " " + TABLE_STRING, entityClass.getDescription());
+		result.addView(EntityTableView.ID, entityClass.getLabel(), entityClass.getDescription()); //$NON-NLS-1$
 		return result;
 	}
 
 	private IFolderLayoutBuilder createDetailFolder(final IEntityClass entityClass) {
 		final IFolderLayoutBuilder result = new FolderLayoutBuilder(DETAIL_FOLDER_ID);
 		result.setViewsCloseable(false);
-		result.addView(EntityDetailView.ID, entityClass.getLabel() + " " + FORM_STRING, entityClass.getDescription());
+		result.addView(EntityDetailView.ID, entityClass.getLabel() + " " + DETAIL_STRING, entityClass.getDescription()); //$NON-NLS-1$
 		return result;
 	}
 

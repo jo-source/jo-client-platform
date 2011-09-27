@@ -44,9 +44,8 @@ final class BeanTableClearCurrentSortActionBuilder extends ActionBuilder {
 
 	BeanTableClearCurrentSortActionBuilder(final IBeanTableModel<?> model) {
 		super();
-		//TODO i18n
-		setText("Clear all sorting");
-		setToolTipText("Clears the current sorting of all columns");
+		setText(Messages.getString("BeanTableClearCurrentSortActionBuilder.clear_all_sorting")); //$NON-NLS-1$
+		setToolTipText(Messages.getString("BeanTableClearCurrentSortActionBuilder.clears_the_current_sorting_of_all_columns")); //$NON-NLS-1$
 
 		this.sortModel = model.getSortModel();
 		this.enabledChecker = new EnabledChecker();
@@ -71,7 +70,7 @@ final class BeanTableClearCurrentSortActionBuilder extends ActionBuilder {
 
 	private void sortModelStateChanged() {
 		if (sortModel.getCurrentSorting().isEmpty()) {
-			enabledChecker.setEnabledState(EnabledState.disabled("There is no current sorting"));
+			enabledChecker.setEnabledState(EnabledState.disabled(Messages.getString("BeanTableClearCurrentSortActionBuilder.there_is_no_current_sorting"))); //$NON-NLS-1$
 		}
 		else {
 			enabledChecker.setEnabledState(EnabledState.ENABLED);

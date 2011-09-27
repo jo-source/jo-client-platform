@@ -38,7 +38,6 @@ import org.jowidgets.tools.model.item.MenuModel;
 final class BeanTableCellMenuModel extends MenuModel {
 
 	BeanTableCellMenuModel(final IBeanTable<?> table, final IMenuModel headerPopupMenuModel, final int columnIndex) {
-		//TODO i18n
 		super();
 
 		final IBeanTableMenuFactory menuFactory = CapUiToolkit.beanTableMenuFactory();

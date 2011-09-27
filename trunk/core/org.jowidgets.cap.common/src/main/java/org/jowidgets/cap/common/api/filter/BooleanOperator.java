@@ -30,8 +30,12 @@ package org.jowidgets.cap.common.api.filter;
 
 public enum BooleanOperator implements IOperator {
 
-	AND("and", "And", null),
-	OR("or", "Or", null);
+	AND(Messages.getString("BooleanOperator.and_short"), //$NON-NLS-1$
+		Messages.getString("BooleanOperator.and_long"), //$NON-NLS-1$ 
+		null),
+	OR(Messages.getString("BooleanOperator.or_short"), //$NON-NLS-1$
+		Messages.getString("BooleanOperator.or_long"), //$NON-NLS-1$
+		null);
 
 	private final String label;
 	private final String labelLong;

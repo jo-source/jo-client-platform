@@ -77,13 +77,12 @@ import org.jowidgets.util.maybe.Some;
 @SuppressWarnings({"rawtypes", "unchecked"})
 final class ExecutorCommand extends ChangeObservable implements ICommand, ICommandExecutor, IEnabledChecker {
 
-	//TODO i18n
-	private static final IEnabledState IS_IN_PROCESS_STATE = EnabledState.disabled("There is some other execution in process");
-	private static final IEnabledState SINGLE_SELECTION_STATE = EnabledState.disabled("There must be selected exactly one record");
-	private static final IEnabledState MULTI_SELECTION_STATE = EnabledState.disabled("There must be selected at least one record");
-	private static final IEnabledState NO_SELECTION_STATE = EnabledState.disabled("There must not be selected any record");
-	private static final IEnabledState UNSAVED_DATA_STATE = EnabledState.disabled("There record has unsaved data");
-	private static final IEnabledState UNHANDLED_MESSAGES_STATE = EnabledState.disabled("There are unhandled messages");
+	private static final IEnabledState IS_IN_PROCESS_STATE = EnabledState.disabled(Messages.getString("ExecutorCommand.there_is_some_other_execution_in_progress")); //$NON-NLS-1$
+	private static final IEnabledState SINGLE_SELECTION_STATE = EnabledState.disabled(Messages.getString("ExecutorCommand.there_must_be_selected_exactly_one_record")); //$NON-NLS-1$
+	private static final IEnabledState MULTI_SELECTION_STATE = EnabledState.disabled(Messages.getString("ExecutorCommand.there_must_be_selected_at_least_one_record")); //$NON-NLS-1$
+	private static final IEnabledState NO_SELECTION_STATE = EnabledState.disabled(Messages.getString("ExecutorCommand.there_must_be_selected_any_record")); //$NON-NLS-1$
+	private static final IEnabledState UNSAVED_DATA_STATE = EnabledState.disabled(Messages.getString("ExecutorCommand.the_record_has_unsaved_data")); //$NON-NLS-1$
+	private static final IEnabledState UNHANDLED_MESSAGES_STATE = EnabledState.disabled(Messages.getString("ExecutorCommand.there_are_unhandled_messages")); //$NON-NLS-1$
 
 	private final IBeanListModel<Object> listModel;
 	private final List<IExecutableChecker<Object>> executableCheckers;

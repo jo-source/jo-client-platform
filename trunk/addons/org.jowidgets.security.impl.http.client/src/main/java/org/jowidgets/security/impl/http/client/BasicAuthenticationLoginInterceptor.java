@@ -43,11 +43,15 @@ import org.jowidgets.util.Assert;
 
 public final class BasicAuthenticationLoginInterceptor implements ILoginInterceptor {
 
+	private static final String AUTHORIZATION_SERVICE_NOT_AVAILABLE = Messages.getString("BasicAuthenticationLoginInterceptor.authorization_service_not_available"); //$NON-NLS-1$
+	private static final String LOGIN_FAILED = Messages.getString("BasicAuthenticationLoginInterceptor.login_failed"); //$NON-NLS-1$
+	private static final String TIMEOUT = Messages.getString("BasicAuthenticationLoginInterceptor.timeout"); //$NON-NLS-1$
+
 	private final IServiceId<IAuthorizationProviderService<DefaultPrincipal>> authorizationProviderServiceId;
 
 	public BasicAuthenticationLoginInterceptor(
 		final IServiceId<IAuthorizationProviderService<DefaultPrincipal>> authorizationProviderServiceId) {
-		Assert.paramNotNull(authorizationProviderServiceId, "authorizationProviderServiceId");
+		Assert.paramNotNull(authorizationProviderServiceId, "authorizationProviderServiceId"); //$NON-NLS-1$
 		this.authorizationProviderServiceId = authorizationProviderServiceId;
 	}
 
@@ -55,8 +59,7 @@ public final class BasicAuthenticationLoginInterceptor implements ILoginIntercep
 	public void login(final ILoginResultCallback resultCallback, final String username, final String password) {
 		final IAuthorizationProviderService<DefaultPrincipal> authorizationService = ServiceProvider.getService(authorizationProviderServiceId);
 		if (authorizationService == null) {
-			// TODO i18n
-			resultCallback.denied("Authorization service not available");
+			resultCallback.denied(AUTHORIZATION_SERVICE_NOT_AVAILABLE);
 			return;
 		}
 
@@ -73,8 +76,7 @@ public final class BasicAuthenticationLoginInterceptor implements ILoginIntercep
 			@Override
 			public void finished(final DefaultPrincipal principal) {
 				if (principal == null) {
-					// TODO i18n
-					resultCallback.denied("Login failed");
+					resultCallback.denied(LOGIN_FAILED);
 					BasicAuthenticationInitializer.getInstance().clearCredentials();
 				}
 				else {
@@ -85,8 +87,7 @@ public final class BasicAuthenticationLoginInterceptor implements ILoginIntercep
 
 			@Override
 			public void timeout() {
-				// TODO i18n
-				resultCallback.denied("Timeout");
+				resultCallback.denied(TIMEOUT);
 				BasicAuthenticationInitializer.getInstance().clearCredentials();
 			}
 

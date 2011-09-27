@@ -30,10 +30,12 @@ package org.jowidgets.cap.ui.api.control;
 
 public enum DateDisplayFormat implements IDisplayFormat {
 
-	//TODO i18n
-	DATE("Date", "Displays the date without time"),
-	TIME("Time", "Displays the time without date"),
-	DATE_TIME("Date and time", "Displays the date and the time");
+	DATE(Messages.getString("DateDisplayFormat.date"), //$NON-NLS-1$
+		Messages.getString("DateDisplayFormat.displays_the_date_without_time")), //$NON-NLS-1$
+	TIME(Messages.getString("DateDisplayFormat.time"), //$NON-NLS-1$
+		Messages.getString("DateDisplayFormat.displays_the_time_without_date")), //$NON-NLS-1$
+	DATE_TIME(Messages.getString("DateDisplayFormat.date_and_time"), //$NON-NLS-1$
+		Messages.getString("DateDisplayFormat.displays_the_date_and_the_time")); //$NON-NLS-1$ 
 
 	private String name;
 	private String description;

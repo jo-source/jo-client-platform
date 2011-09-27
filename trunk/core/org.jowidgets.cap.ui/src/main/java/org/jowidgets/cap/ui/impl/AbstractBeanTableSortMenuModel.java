@@ -51,14 +51,13 @@ abstract class AbstractBeanTableSortMenuModel extends MenuModel {
 	private final IItemStateListener descendingItemListener;
 
 	AbstractBeanTableSortMenuModel(final String label, final IBeanTableModel<?> model, final int columnIndex) {
-		//TODO i18n
 		super(label);
 
 		this.sortModel = model.getSortModel();
 
-		this.noSortItem = addRadioItem("No sort");
-		this.ascendingItem = addRadioItem("Ascending");
-		this.descendingItem = addRadioItem("Descending");
+		this.noSortItem = addRadioItem(Messages.getString("AbstractBeanTableSortMenuModel.no_sort")); //$NON-NLS-1$
+		this.ascendingItem = addRadioItem(Messages.getString("AbstractBeanTableSortMenuModel.ascending")); //$NON-NLS-1$
+		this.descendingItem = addRadioItem(Messages.getString("AbstractBeanTableSortMenuModel.descending")); //$NON-NLS-1$
 
 		this.attribute = model.getAttribute(columnIndex);
 

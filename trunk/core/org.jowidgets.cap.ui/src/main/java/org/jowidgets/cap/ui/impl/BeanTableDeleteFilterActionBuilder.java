@@ -42,9 +42,8 @@ final class BeanTableDeleteFilterActionBuilder extends ActionBuilder {
 
 	BeanTableDeleteFilterActionBuilder(final IBeanTableModel<?> model) {
 		super();
-		//TODO i18n
-		setText("Delete table filter");
-		setToolTipText("Deletes / removes the tables filter");
+		setText(Messages.getString("BeanTableDeleteFilterActionBuilder.delete_table_filter")); //$NON-NLS-1$
+		setToolTipText(Messages.getString("BeanTableDeleteFilterActionBuilder.deletes_removes_the_table_filters")); //$NON-NLS-1$
 		setIcon(IconsSmall.FILTER_DELETE);
 
 		final EnabledChecker enabledChecker = new EnabledChecker();
@@ -72,8 +71,7 @@ final class BeanTableDeleteFilterActionBuilder extends ActionBuilder {
 			return EnabledState.ENABLED;
 		}
 		else {
-			//TODO i18n
-			return EnabledState.disabled("There is no filter defined on this table");
+			return EnabledState.disabled(Messages.getString("BeanTableDeleteFilterActionBuilder.there_is_no_filter_defined_on_this_table")); //$NON-NLS-1$
 		}
 	}
 

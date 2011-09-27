@@ -42,8 +42,7 @@ final class BeanTableHeaderFilterMenuModel extends MenuModel {
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	BeanTableHeaderFilterMenuModel(final IBeanTableModel<?> model, final int columnIndex) {
-		//TODO i18n
-		super("Filter", IconsSmall.FILTER);
+		super(Messages.getString("BeanTableHeaderFilterMenuModel.filter"), IconsSmall.FILTER); //$NON-NLS-1$
 
 		final IBeanTableMenuFactory menuFactory = CapUiToolkit.beanTableMenuFactory();
 
