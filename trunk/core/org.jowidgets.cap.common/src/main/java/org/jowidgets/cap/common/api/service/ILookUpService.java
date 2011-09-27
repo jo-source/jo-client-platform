@@ -33,7 +33,7 @@ import org.jowidgets.service.tools.ServiceId;
 
 public interface ILookUpService {
 
-	IServiceId<IEntityService> ID = new ServiceId<IEntityService>(ILookUpService.class.getName(), ILookUpService.class);
+	IServiceId<ILookUpService> ID = new ServiceId<ILookUpService>(ILookUpService.class.getName(), ILookUpService.class);
 
 	ILookUpAccessService getLookUpAccess(Object lookUpId);
 
