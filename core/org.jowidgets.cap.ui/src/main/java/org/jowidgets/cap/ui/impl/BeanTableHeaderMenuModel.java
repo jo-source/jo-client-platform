@@ -42,8 +42,7 @@ import org.jowidgets.tools.model.item.SeparatorItemModel;
 final class BeanTableHeaderMenuModel extends MenuModel {
 
 	BeanTableHeaderMenuModel(final IBeanTable<?> table, final int columnIndex) {
-		//TODO i18n
-		super("Header");
+		super(Messages.getString("BeanTableHeaderMenuModel.header")); //$NON-NLS-1$
 
 		final IBeanTableMenuFactory menuFactory = CapUiToolkit.beanTableMenuFactory();
 		final IAction clearCurrentSortAction = menuFactory.clearCurrentSortAction(table.getModel());

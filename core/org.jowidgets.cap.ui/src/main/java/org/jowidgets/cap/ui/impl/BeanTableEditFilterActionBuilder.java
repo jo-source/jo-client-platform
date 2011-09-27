@@ -41,9 +41,8 @@ final class BeanTableEditFilterActionBuilder extends ActionBuilder {
 
 	BeanTableEditFilterActionBuilder(final IBeanTableModel<?> model) {
 		super();
-		//TODO i18n
-		setText("Edit table filter...");
-		setToolTipText("Edit the tables filter");
+		setText(Messages.getString("BeanTableEditFilterActionBuilder.edit_table_filter_periode")); //$NON-NLS-1$
+		setToolTipText(Messages.getString("BeanTableEditFilterActionBuilder.edit_the_table_filters")); //$NON-NLS-1$
 		setIcon(IconsSmall.FILTER_EDIT);
 		setCommand(new ICommandExecutor() {
 			@Override
@@ -51,8 +50,8 @@ final class BeanTableEditFilterActionBuilder extends ActionBuilder {
 				final ITableColumnPopupEvent columnPopupEvent = executionContext.getValue(IBeanTable.COLUMN_POPUP_EVENT_CONTEXT_KEY);
 				final ITableCellPopupEvent cellPopupEvent = executionContext.getValue(IBeanTable.CELL_POPUP_EVENT_CONTEXT_KEY);
 				//CHECKSTYLE:OFF
-				System.out.println("TODO delete filter:" + columnPopupEvent);
-				System.out.println("TODO delete filter:" + cellPopupEvent);
+				System.out.println("TODO delete filter:" + columnPopupEvent); //$NON-NLS-1$
+				System.out.println("TODO delete filter:" + cellPopupEvent); //$NON-NLS-1$
 				//CHECKSTYLE:ON
 			}
 		});

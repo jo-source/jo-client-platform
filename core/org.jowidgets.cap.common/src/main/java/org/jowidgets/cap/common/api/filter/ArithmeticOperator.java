@@ -30,16 +30,33 @@ package org.jowidgets.cap.common.api.filter;
 
 public enum ArithmeticOperator implements IOperator {
 
-	// TODO i18n
-	EMPTY("empty", "Empty", null),
-	EQUAL("=", "Equal", null),
-	LESS("<", "Less", null),
-	LESS_EQUAL("<=", "Less equal", null),
-	GREATER(">", "Greater", null),
-	GREATER_EQUAL(">=", "Greater equal", null),
-	BETWEEN("between", "Between", null),
-	CONTAINS_ANY("contains", "Contains", null),
-	CONTAINS_ALL("contains all", "Contains all", null);
+	EMPTY(Messages.getString("ArithmeticOperator.empty_short"), //$NON-NLS-1$ 
+		Messages.getString("ArithmeticOperator.empty_long"), //$NON-NLS-1$ 
+		null),
+	EQUAL(Messages.getString("ArithmeticOperator.equal_short"), //$NON-NLS-1$
+		Messages.getString("ArithmeticOperator.equal_long"), //$NON-NLS-1$
+		null),
+	LESS(Messages.getString("ArithmeticOperator.less_short"), //$NON-NLS-1$
+		Messages.getString("ArithmeticOperator.less_long"), //$NON-NLS-1$
+		null),
+	LESS_EQUAL(Messages.getString("ArithmeticOperator.less_equal_short"), //$NON-NLS-1$
+		Messages.getString("ArithmeticOperator.less_equal_long"), //$NON-NLS-1$
+		null),
+	GREATER(Messages.getString("ArithmeticOperator.greater_short"), //$NON-NLS-1$
+		Messages.getString("ArithmeticOperator.greater_long"), //$NON-NLS-1$
+		null),
+	GREATER_EQUAL(Messages.getString("ArithmeticOperator.greaer_equal_short"), //$NON-NLS-1$ 
+		Messages.getString("ArithmeticOperator.greater_equal_long"), //$NON-NLS-1$
+		null),
+	BETWEEN(Messages.getString("ArithmeticOperator.between_short"), //$NON-NLS-1$
+		Messages.getString("ArithmeticOperator.between_long"), //$NON-NLS-1$
+		null),
+	CONTAINS_ANY(Messages.getString("ArithmeticOperator.contains_short"), //$NON-NLS-1$
+		Messages.getString("ArithmeticOperator.contains_long"), //$NON-NLS-1$
+		null),
+	CONTAINS_ALL(Messages.getString("ArithmeticOperator.contains_all_short"), //$NON-NLS-1$
+		Messages.getString("ArithmeticOperator.contains_all_long"), //$NON-NLS-1$
+		null);
 
 	private final String label;
 	private final String labelLong;

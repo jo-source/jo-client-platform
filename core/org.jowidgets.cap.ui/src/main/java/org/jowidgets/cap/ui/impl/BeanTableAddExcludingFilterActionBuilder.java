@@ -36,9 +36,8 @@ final class BeanTableAddExcludingFilterActionBuilder extends ActionBuilder {
 
 	BeanTableAddExcludingFilterActionBuilder(final IBeanTableModel<?> model, final int columnIndex) {
 		super();
-		//TODO i18n
-		setText("Excluding filter");
-		setToolTipText("Excludes the selected value from the filter");
+		setText(Messages.getString("BeanTableAddExcludingFilterActionBuilder.excluding_filter")); //$NON-NLS-1$
+		setToolTipText(Messages.getString("BeanTableAddExcludingFilterActionBuilder.excludes_the_selected_value_from_the_filter")); //$NON-NLS-1$
 		setIcon(IconsSmall.FILTER_EXCLUDING);
 
 		setCommand(new BeanTableAddInlineFilterCommandExecutor(model, columnIndex, true));

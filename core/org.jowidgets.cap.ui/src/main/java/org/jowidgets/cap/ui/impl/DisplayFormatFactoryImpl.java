@@ -33,10 +33,9 @@ import org.jowidgets.cap.ui.api.control.IDisplayFormatFactory;
 
 final class DisplayFormatFactoryImpl implements IDisplayFormatFactory {
 
-	//TODO i18n
 	private static final IDisplayFormat DEFAULT_DISPLAY_FORMAT = new DisplayFormatImpl(
 		DisplayFormatFactoryImpl.class.getName(),
-		"Default",
+		Messages.getString("DisplayFormatFactoryImpl.default"), //$NON-NLS-1$
 		null);
 
 	@Override

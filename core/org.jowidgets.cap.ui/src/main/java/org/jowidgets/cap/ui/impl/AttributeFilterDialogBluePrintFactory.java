@@ -74,7 +74,7 @@ final class AttributeFilterDialogBluePrintFactory {
 
 			@Override
 			public void createContent(final IInputContentContainer container) {
-				container.setLayout(new MigLayoutDescriptor("0[][grow, 0::]0", "0[]0"));
+				container.setLayout(new MigLayoutDescriptor("0[][grow, 0::]0", "0[]0")); //$NON-NLS-1$ //$NON-NLS-2$
 
 				final IAttribute<?> attribute = model.getAttribute(columnIndex);
 				container.add(Toolkit.getBluePrintFactory().textLabel(attribute.getLabel()).setMarkup(Markup.STRONG));
@@ -89,8 +89,7 @@ final class AttributeFilterDialogBluePrintFactory {
 
 		final IInputDialogBluePrint<IUiConfigurableFilter<? extends Object>> dialogBp = bpf.inputDialog(contentCreator);
 		dialogBp.setExecutionContext(executionContext);
-		//TODO i18n
-		dialogBp.setMissingInputHint("Please edit the filter!");
+		dialogBp.setMissingInputHint(Messages.getString("AttributeFilterDialogBluePrintFactory.please_edit_the_filter")); //$NON-NLS-1$
 		dialogBp.setSize(new Dimension(640, 150));
 
 		return dialogBp;

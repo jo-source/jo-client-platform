@@ -46,9 +46,8 @@ final class BeanTableClearDefaultSortActionBuilder extends ActionBuilder {
 
 	BeanTableClearDefaultSortActionBuilder(final IBeanTableModel<?> model) {
 		super();
-		//TODO i18n
-		setText("Clear all default sorting");
-		setToolTipText("Clears the default sorting of all columns");
+		setText(Messages.getString("BeanTableClearDefaultSortActionBuilder.clear_all_default_sorting")); //$NON-NLS-1$
+		setToolTipText(Messages.getString("BeanTableClearDefaultSortActionBuilder.clears_the_default_sorting_of_all_columns")); //$NON-NLS-1$
 
 		this.sortModel = model.getSortModel();
 		this.enabledChecker = new EnabledChecker();
@@ -64,8 +63,8 @@ final class BeanTableClearDefaultSortActionBuilder extends ActionBuilder {
 			@Override
 			public void execute(final IExecutionContext executionContext) throws Exception {
 				final QuestionResult questionResult = Toolkit.getQuestionPane().askYesNoQuestion(
-						"Clear default sorting",
-						"Do you really want to clear the default sorting?\nThis can not be undone!");
+						Messages.getString("BeanTableClearDefaultSortActionBuilder.clear_default_sorting"), //$NON-NLS-1$
+						Messages.getString("BeanTableClearDefaultSortActionBuilder.do_you_really_want_to_clear_the_default_sorting__this_can_not_be_undone")); //$NON-NLS-1$
 				if (questionResult == QuestionResult.YES) {
 					model.getSortModel().clearDefaultSorting();
 				}
@@ -79,7 +78,7 @@ final class BeanTableClearDefaultSortActionBuilder extends ActionBuilder {
 
 	private void sortModelStateChanged() {
 		if (sortModel.getDefaultSorting().isEmpty()) {
-			enabledChecker.setEnabledState(EnabledState.disabled("There is no default sorting"));
+			enabledChecker.setEnabledState(EnabledState.disabled(Messages.getString("BeanTableClearDefaultSortActionBuilder.there_is_no_default_sorting"))); //$NON-NLS-1$
 		}
 		else {
 			enabledChecker.setEnabledState(EnabledState.ENABLED);

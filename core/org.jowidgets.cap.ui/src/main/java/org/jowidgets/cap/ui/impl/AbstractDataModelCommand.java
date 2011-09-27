@@ -47,11 +47,10 @@ import org.jowidgets.util.event.IChangeListener;
 
 abstract class AbstractDataModelCommand implements ICommand, ICommandExecutor, IEnabledChecker {
 
-	//TODO i18n
-	static final IEnabledState NO_MODIFICATIONS_STATE = EnabledState.disabled("There is no data modified");
-	static final IEnabledState IN_PROCESS_STATE = EnabledState.disabled("The data is in process");
-	static final IEnabledState NOT_IN_PROCESS_STATE = EnabledState.disabled("There is no data in process");
-	private static final IEnabledState NO_DATA_NODE_STATE = EnabledState.disabled("There is no data node selected");
+	static final IEnabledState NO_MODIFICATIONS_STATE = EnabledState.disabled(Messages.getString("AbstractDataModelCommand.there_is_no_modified_data")); //$NON-NLS-1$
+	static final IEnabledState IN_PROCESS_STATE = EnabledState.disabled(Messages.getString("AbstractDataModelCommand.the_data_is_in_process")); //$NON-NLS-1$
+	static final IEnabledState NOT_IN_PROCESS_STATE = EnabledState.disabled(Messages.getString("AbstractDataModelCommand.there_is_no_data_in_process")); //$NON-NLS-1$
+	private static final IEnabledState NO_DATA_NODE_STATE = EnabledState.disabled(Messages.getString("AbstractDataModelCommand.there_is_no_selected_data_node")); //$NON-NLS-1$
 
 	private final Set<IDataModel> dataModels;
 	private final EnabledChecker enabledChecker;
@@ -84,7 +83,7 @@ abstract class AbstractDataModelCommand implements ICommand, ICommandExecutor, I
 	abstract IEnabledState getEnabledState(IDataModel model);
 
 	final void addDataModel(final IDataModel dataModel) {
-		Assert.paramNotNull(dataModel, "dataModel");
+		Assert.paramNotNull(dataModel, "dataModel"); //$NON-NLS-1$
 		if (!dataModels.contains(dataModel)) {
 			dataModels.add(dataModel);
 			dataModel.addModificationStateListener(modificationStateListener);
@@ -94,7 +93,7 @@ abstract class AbstractDataModelCommand implements ICommand, ICommandExecutor, I
 	}
 
 	final void removeDataModel(final IDataModel dataModel) {
-		Assert.paramNotNull(dataModel, "dataModel");
+		Assert.paramNotNull(dataModel, "dataModel"); //$NON-NLS-1$
 		if (dataModels.contains(dataModel)) {
 			dataModels.remove(dataModel);
 			dataModel.removeModificationStateListener(modificationStateListener);

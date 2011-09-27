@@ -30,9 +30,10 @@ package org.jowidgets.cap.ui.api.control;
 
 public enum DisplayFormat implements IDisplayFormat {
 
-	//TODO i18n
-	LONG("Long", "Long display format"),
-	SHORT("Short", "Short display format");
+	LONG(Messages.getString("DisplayFormat.long"), //$NON-NLS-1$
+		Messages.getString("DisplayFormat.long_display_format")), //$NON-NLS-1$
+	SHORT(Messages.getString("DisplayFormat.short"), //$NON-NLS-1$
+		Messages.getString("DisplayFormat.short_display_format")); //$NON-NLS-1$
 
 	private String name;
 	private String description;

@@ -37,8 +37,7 @@ import org.jowidgets.tools.model.item.MenuModel;
 final class BeanTableFilterMenuModel extends MenuModel {
 
 	BeanTableFilterMenuModel(final IBeanTableModel<?> model) {
-		//TODO i18n
-		super("Filter", IconsSmall.FILTER);
+		super(Messages.getString("BeanTableFilterMenuModel.filter"), IconsSmall.FILTER); //$NON-NLS-1$
 
 		final IBeanTableMenuFactory menuFactory = CapUiToolkit.beanTableMenuFactory();
 

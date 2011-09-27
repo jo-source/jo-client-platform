@@ -56,11 +56,10 @@ import org.jowidgets.validation.ValidationResult;
 public class DefaultArithmeticFilterControl<ELEMENT_VALUE_TYPE> extends AbstractInputControl<IUiArithmeticFilter<Object>> implements
 		IFilterControl<ArithmeticOperator, Object, IUiArithmeticFilter<Object>> {
 
-	//TODO i18n
-	private static final String AND = "AND";
-	private static final String OPERAND_EMPTY = "Operand must not be empty";
-	private static final String FIRST_OPERAND_EMPTY = "First operand must not be empty";
-	private static final String SECOND_OPERAND_EMPTY = "Second operand must not be empty";
+	private static final String AND = Messages.getString("DefaultArithmeticFilterControl.and"); //$NON-NLS-1$
+	private static final String OPERAND_EMPTY = Messages.getString("DefaultArithmeticFilterControl.operand_must_not_be_empty"); //$NON-NLS-1$
+	private static final String FIRST_OPERAND_EMPTY = Messages.getString("DefaultArithmeticFilterControl.first_operand_must_not_be_empty"); //$NON-NLS-1$
+	private static final String SECOND_OPERAND_EMPTY = Messages.getString("DefaultArithmeticFilterControl.second_operand_must_not_be_empty"); //$NON-NLS-1$
 
 	private final String propertyName;
 	private final Class<?> elementValueType;
@@ -193,22 +192,22 @@ public class DefaultArithmeticFilterControl<ELEMENT_VALUE_TYPE> extends Abstract
 			collectionControl = null;
 
 			if (ArithmeticOperator.BETWEEN == operator) {
-				getWidget().setLayout(new MigLayoutDescriptor("0[grow][][grow]0", "0[]0"));
-				control1 = getWidget().add(controlCreator, "growx");
+				getWidget().setLayout(new MigLayoutDescriptor("0[grow][][grow]0", "0[]0")); //$NON-NLS-1$ //$NON-NLS-2$
+				control1 = getWidget().add(controlCreator, "growx"); //$NON-NLS-1$
 				getWidget().add(Toolkit.getBluePrintFactory().textLabel(AND));
-				control2 = getWidget().add(controlCreator, "growx");
+				control2 = getWidget().add(controlCreator, "growx"); //$NON-NLS-1$
 			}
 			else if (ArithmeticOperator.EMPTY != operator) {
-				getWidget().setLayout(new MigLayoutDescriptor("0[grow]0", "0[]0"));
+				getWidget().setLayout(new MigLayoutDescriptor("0[grow]0", "0[]0")); //$NON-NLS-1$ //$NON-NLS-2$
 				if (isCollectionOperator(operator)) {
-					collectionControl = getWidget().add(collectionControlCreator, "growx");
+					collectionControl = getWidget().add(collectionControlCreator, "growx"); //$NON-NLS-1$
 				}
 				else {
-					control1 = getWidget().add(controlCreator, "growx");
+					control1 = getWidget().add(controlCreator, "growx"); //$NON-NLS-1$
 				}
 			}
 			else {
-				getWidget().setLayout(new MigLayoutDescriptor("0[]0", "0[]0"));
+				getWidget().setLayout(new MigLayoutDescriptor("0[]0", "0[]0")); //$NON-NLS-1$ //$NON-NLS-2$
 				getWidget().add(Toolkit.getBluePrintFactory().textLabel());
 			}
 			addInputListener();
@@ -218,7 +217,7 @@ public class DefaultArithmeticFilterControl<ELEMENT_VALUE_TYPE> extends Abstract
 
 	@Override
 	public void setValue(final IUiArithmeticFilter<Object> filter) {
-		Assert.paramNotNull(filter, "filter");
+		Assert.paramNotNull(filter, "filter"); //$NON-NLS-1$
 		setOperator(filter.getOperator());
 
 		if (filter.getParameters() != null) {

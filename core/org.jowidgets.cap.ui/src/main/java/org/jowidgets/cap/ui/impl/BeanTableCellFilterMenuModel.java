@@ -44,8 +44,7 @@ final class BeanTableCellFilterMenuModel extends MenuModel {
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	BeanTableCellFilterMenuModel(final IBeanTableModel<?> model, final int columnIndex) {
-		//TODO i18n
-		super("Filter", IconsSmall.FILTER);
+		super(Messages.getString("BeanTableCellFilterMenuModel.filter"), IconsSmall.FILTER); //$NON-NLS-1$
 
 		final IBeanTableMenuFactory menuFactory = CapUiToolkit.beanTableMenuFactory();
 

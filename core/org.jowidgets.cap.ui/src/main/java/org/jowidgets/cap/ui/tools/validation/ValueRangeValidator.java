@@ -39,13 +39,12 @@ public class ValueRangeValidator<VALIDATION_INPUT_TYPE> implements IValidator<VA
 	private final IValueRange valueRange;
 
 	public ValueRangeValidator(final IValueRange valueRange) {
-		//TODO i18n	
-		this(valueRange, "The input is not in the defined range");
+		this(valueRange, Messages.getString("ValueRangeValidator.the_input_is_not_in_the_defined_range")); //$NON-NLS-1$
 	}
 
 	public ValueRangeValidator(final IValueRange valueRange, final String messageText) {
-		Assert.paramNotNull(valueRange, "valueRange");
-		Assert.paramNotEmpty(messageText, "messageText");
+		Assert.paramNotNull(valueRange, "valueRange"); //$NON-NLS-1$
+		Assert.paramNotEmpty(messageText, "messageText"); //$NON-NLS-1$
 		this.valueRange = valueRange;
 		this.result = ValidationResult.error(messageText);
 	}

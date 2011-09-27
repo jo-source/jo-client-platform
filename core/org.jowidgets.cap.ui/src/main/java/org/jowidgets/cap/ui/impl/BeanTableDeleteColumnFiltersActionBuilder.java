@@ -48,9 +48,8 @@ final class BeanTableDeleteColumnFiltersActionBuilder extends ActionBuilder {
 
 	BeanTableDeleteColumnFiltersActionBuilder(final IBeanTableModel<?> model, final int columnIndex) {
 		super();
-		//TODO i18n
-		setText("Delete column filters");
-		setToolTipText("Deletes / removes all filters from the column");
+		setText(Messages.getString("BeanTableDeleteColumnFiltersActionBuilder.delete_column_filters")); //$NON-NLS-1$
+		setToolTipText(Messages.getString("BeanTableDeleteColumnFiltersActionBuilder.deletes_removes_all_filters_from_the_column")); //$NON-NLS-1$
 		setIcon(IconsSmall.FILTER_DELETE);
 
 		this.attribute = model.getAttribute(columnIndex);
@@ -82,8 +81,7 @@ final class BeanTableDeleteColumnFiltersActionBuilder extends ActionBuilder {
 			return EnabledState.ENABLED;
 		}
 		else {
-			//TODO i18n
-			return EnabledState.disabled("There is no filter defined on this column");
+			return EnabledState.disabled(Messages.getString("BeanTableDeleteColumnFiltersActionBuilder.there_is_no_filter_defined_on_this_column")); //$NON-NLS-1$
 		}
 	}
 }

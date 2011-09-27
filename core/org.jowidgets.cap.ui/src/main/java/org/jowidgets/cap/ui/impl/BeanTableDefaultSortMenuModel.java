@@ -35,8 +35,7 @@ import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 final class BeanTableDefaultSortMenuModel extends AbstractBeanTableSortMenuModel {
 
 	BeanTableDefaultSortMenuModel(final IBeanTableModel<?> model, final int columnIndex) {
-		//TODO i18n
-		super("Column default sorting", model, columnIndex);
+		super(Messages.getString("BeanTableDefaultSortMenuModel.column_default_sorting"), model, columnIndex); //$NON-NLS-1$
 	}
 
 	@Override

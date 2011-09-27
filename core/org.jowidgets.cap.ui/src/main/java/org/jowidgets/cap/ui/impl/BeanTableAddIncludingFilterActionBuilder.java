@@ -36,9 +36,8 @@ final class BeanTableAddIncludingFilterActionBuilder extends ActionBuilder {
 
 	BeanTableAddIncludingFilterActionBuilder(final IBeanTableModel<?> model, final int columnIndex) {
 		super();
-		//TODO i18n
-		setText("Including filter");
-		setToolTipText("Includes the selected value to the filter");
+		setText(Messages.getString("BeanTableAddIncludingFilterActionBuilder.including_filter")); //$NON-NLS-1$
+		setToolTipText(Messages.getString("BeanTableAddIncludingFilterActionBuilder.includes_the_selected_value_from_the_filter")); //$NON-NLS-1$
 		setIcon(IconsSmall.FILTER_INCLUDING);
 
 		setCommand(new BeanTableAddInlineFilterCommandExecutor(model, columnIndex, false));

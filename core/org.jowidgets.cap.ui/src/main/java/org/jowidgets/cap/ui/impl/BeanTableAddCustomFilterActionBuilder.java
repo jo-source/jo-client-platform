@@ -47,9 +47,8 @@ final class BeanTableAddCustomFilterActionBuilder extends ActionBuilder {
 
 	BeanTableAddCustomFilterActionBuilder(final IBeanTableModel<?> model, final int columnIndex) {
 		super();
-		//TODO i18n
-		setText("Custom filter ...");
-		setToolTipText("Adds an custom filter to this column");
+		setText(Messages.getString("BeanTableAddCustomFilterActionBuilder.custom_filter_periode")); //$NON-NLS-1$
+		setToolTipText(Messages.getString("BeanTableAddCustomFilterActionBuilder.adds_an_custom_filter_to_this_column")); //$NON-NLS-1$
 		setIcon(IconsSmall.FILTER);
 		setCommand(new ICommandExecutor() {
 			@Override

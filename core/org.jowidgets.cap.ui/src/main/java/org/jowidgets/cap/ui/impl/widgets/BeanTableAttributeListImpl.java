@@ -88,11 +88,13 @@ import org.jowidgets.tools.widgets.wrapper.ContainerWrapper;
 import org.jowidgets.util.NullCompatibleEquivalence;
 
 final class BeanTableAttributeListImpl extends CompositeWrapper {
-	// TODO i18n
-	private static final String ALL_LABEL_TEXT = "All";
-	private static final String SEARCH_LABEL_TEXT = "Search";
-	private static final String TEXT_CLEAR_SORTING = "No sorting";
-	private static final String DEFAULT_GROUP_NAME = "Default";
+	private static final String ALL_LABEL_TEXT = Messages.getString("BeanTableAttributeListImpl.all"); //$NON-NLS-1$
+	private static final String SEARCH_LABEL_TEXT = Messages.getString("BeanTableAttributeListImpl.search"); //$NON-NLS-1$
+	private static final String TEXT_CLEAR_SORTING = Messages.getString("BeanTableAttributeListImpl.no_sorting"); //$NON-NLS-1$
+	private static final String DEFAULT_GROUP_NAME = Messages.getString("BeanTableAttributeListImpl.default"); //$NON-NLS-1$
+	private static final String ALL_VISIBLE = Messages.getString("BeanTableAttributeListImpl.all_visible"); //$NON-NLS-1$
+	private static final String ALL_HIDDEN = Messages.getString("BeanTableAttributeListImpl.all_hidden"); //$NON-NLS-1$
+	private static final String VISIBLE_HIDDEN = Messages.getString("BeanTableAttributeListImpl.n_visible_m_hidden"); //$NON-NLS-1$
 
 	private static final boolean USE_AUTO_COMPLETION = false;
 
@@ -187,7 +189,7 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 
 		//Toolkit.getLayoutFactoryProvider().migLayoutBuilder().constraints("hidemode 2").columnConstraints("[grow]").rowConstraints("[]0[]0[]0[grow, 0:500:]").build();
 
-		this.setLayout(new MigLayoutDescriptor("hidemode 2", "[grow]", "[]0[]0[]0[grow, 0:500:]"));
+		this.setLayout(new MigLayoutDescriptor("hidemode 2", "[grow]", "[]0[]0[]0[grow, 0:500:]")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		this.maxSortingLength = getMaxSortableLength(model);
 
 		updateHeadersListener = new IInputListener() {
@@ -226,20 +228,18 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 
 		final IBluePrintFactory bpF = Toolkit.getBluePrintFactory();
 
-		new AttributeHeaderComposite(add(bpF.composite(), "grow, wrap"));
-		allAttributesComposite = new AllAttributesComposite(
-			add(bpF.composite(), "grow, wrap"),
+		new AttributeHeaderComposite(add(bpF.composite(), "grow, wrap")); //$NON-NLS-1$
+		allAttributesComposite = new AllAttributesComposite(add(bpF.composite(), "grow, wrap"), //$NON-NLS-1$
 			attributeLayoutManager,
 			model,
 			allAttributeInformation);
-		attributesFilterComposite = new AttributesFilterComposite(
-			add(bpF.composite(), "grow, wrap"),
+		attributesFilterComposite = new AttributesFilterComposite(add(bpF.composite(), "grow, wrap"), //$NON-NLS-1$
 			attributeLayoutManager,
 			model,
 			new FilterInformation(allAttributeInformation));
 		attributesFilterComposite.setVisible(false);
 
-		attributeScroller = this.add(bpF.scrollComposite().setHorizontalBar(false), "grow, w 0::, h 0::");
+		attributeScroller = this.add(bpF.scrollComposite().setHorizontalBar(false), "grow, w 0::, h 0::"); //$NON-NLS-1$
 		attributeScroller.setLayout(Toolkit.getLayoutFactoryProvider().listLayoutBuilder().build());
 
 		groupNames = new LinkedList<String>();
@@ -473,15 +473,14 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 			setBackgroundColor(ATTRIBUTE_HEADER_BACKGROUND);
 			setLayout(attributeLayoutManager.rowBuilder().build());
 
-			// TODO i18n
-			add(LABEL_HEADER.setText(""));
-			add(LABEL_HEADER.setText("Name"));
-			add(LABEL_HEADER.setText("Visible"));
-			add(LABEL_HEADER.setText("Header format"));
-			add(LABEL_HEADER.setText("Content format"));
-			add(LABEL_HEADER.setText("Alignment"));
-			add(LABEL_HEADER.setText("Current sorting"), "span 2");
-			add(LABEL_HEADER.setText("Default sorting"), "span 2");
+			add(LABEL_HEADER.setText("")); //$NON-NLS-1$
+			add(LABEL_HEADER.setText(Messages.getString("BeanTableAttributeListImpl.name"))); //$NON-NLS-1$
+			add(LABEL_HEADER.setText(Messages.getString("BeanTableAttributeListImpl.visible"))); //$NON-NLS-1$
+			add(LABEL_HEADER.setText(Messages.getString("BeanTableAttributeListImpl.header_format"))); //$NON-NLS-1$
+			add(LABEL_HEADER.setText(Messages.getString("BeanTableAttributeListImpl.content_format"))); //$NON-NLS-1$
+			add(LABEL_HEADER.setText(Messages.getString("BeanTableAttributeListImpl.alignment"))); //$NON-NLS-1$
+			add(LABEL_HEADER.setText(Messages.getString("BeanTableAttributeListImpl.current_sorting")), "span 2"); //$NON-NLS-1$ //$NON-NLS-2$
+			add(LABEL_HEADER.setText(Messages.getString("BeanTableAttributeListImpl.default_sorting")), "span 2"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	}
 
@@ -704,7 +703,7 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 
 		protected void addNotAvailableLabel(final ITextLabelBluePrint textLabel) {
 			final AlignmentHorizontal alignment = textLabel.getAlignment();
-			add(textLabel.alignCenter().setText("-"));
+			add(textLabel.alignCenter().setText("-")); //$NON-NLS-1$
 			textLabel.setAlignment(alignment);
 		}
 
@@ -795,7 +794,7 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 		public void updateValues(final IBeanTableConfig currentConfig) {
 			final IAttributeConfig attributeConfig = currentConfig.getAttributeConfigs().get(propertyName);
 			if (attributeConfig == null) {
-				throw new IllegalStateException("No configuration set for '" + propertyName + "'.");
+				throw new IllegalStateException("No configuration set for '" + propertyName + "'."); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 
 			if (getHeaderFormat() != null) {
@@ -1878,7 +1877,7 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 
 		public int getIndex() {
 			final String value = getValue();
-			if (value == null || "".equals(value)) {
+			if (value == null || "".equals(value)) { //$NON-NLS-1$
 				return 0;
 			}
 			return Integer.valueOf(value);
@@ -1897,7 +1896,7 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 			}
 
 			if (index == 0) {
-				setValue("");
+				setValue(""); //$NON-NLS-1$
 			}
 			else {
 				setValue(String.valueOf(index));
@@ -1906,7 +1905,7 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 
 		private List<String> createList() {
 			final List<String> result = new LinkedList<String>();
-			result.add("");
+			result.add(""); //$NON-NLS-1$
 			int usedRange = range;
 			if (getIndex() == 0) {
 				usedRange++;
@@ -1941,23 +1940,25 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 			super(widget);
 		}
 
-		// TODO i18n
 		public void setState(final int visibleCount, final int invisibleCount) {
 			final Visibility visibility = Visibility.getValue(visibleCount, invisibleCount);
 			if (Visibility.PARTIAL.equals(visibility)) {
 				setSelected(true);
-				setToolTipText(visibleCount + " visible, " + invisibleCount + " hidden");
+				setToolTipText(Toolkit.getMessageReplacer().replace(
+						VISIBLE_HIDDEN,
+						String.valueOf(visibleCount),
+						String.valueOf(invisibleCount)));
 			}
 			else if (Visibility.ALL.equals(visibility)) {
 				setSelected(true);
-				setToolTipText("all visible");
+				setToolTipText(ALL_VISIBLE);
 			}
 			else if (Visibility.NONE.equals(visibility)) {
 				setSelected(false);
-				setToolTipText("all hidden");
+				setToolTipText(ALL_HIDDEN);
 			}
 			else {
-				throw new IllegalStateException("Unkown visibility '" + visibility + "'.");
+				throw new IllegalStateException("Unkown visibility '" + visibility + "'."); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		}
 	}
@@ -2103,7 +2104,7 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 	public void setFilter(final String text) {
 		eventsDisabled = true;
 		boolean changed = false;
-		final boolean allVisible = (text == null) || (text.trim().equals(""));
+		final boolean allVisible = (text == null) || (text.trim().equals("")); //$NON-NLS-1$
 
 		final List<String> visibleList = new LinkedList<String>();
 
@@ -2200,21 +2201,21 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 
 	private List<String> getWords(final String filter) {
 		final List<String> result = new LinkedList<String>();
-		final String[] words = filter.toLowerCase().split(" ");
+		final String[] words = filter.toLowerCase().split(" "); //$NON-NLS-1$
 
 		String currentWord = null;
 		for (final String word : words) {
 			if (currentWord != null) {
-				currentWord = currentWord + " " + word;
+				currentWord = currentWord + " " + word; //$NON-NLS-1$
 			}
-			else if (word.startsWith("\"")) {
+			else if (word.startsWith("\"")) { //$NON-NLS-1$
 				currentWord = word;
 			}
 			else {
 				result.add(word);
 			}
 
-			if (currentWord != null && currentWord.length() > 1 && currentWord.endsWith("\"")) {
+			if (currentWord != null && currentWord.length() > 1 && currentWord.endsWith("\"")) { //$NON-NLS-1$
 				result.add(currentWord.substring(1, currentWord.length() - 1));
 				currentWord = null;
 			}
@@ -2420,7 +2421,7 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 			return true;
 		}
 		if (object instanceof String) {
-			return ("".equals(object));
+			return ("".equals(object)); //$NON-NLS-1$
 		}
 		return false;
 	}
@@ -2497,7 +2498,7 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 				return ComboBoxAlignmentHorizontal.VARIOUS;
 			}
 			else {
-				throw new IllegalArgumentException("Unkown alignment '" + string + "':");
+				throw new IllegalArgumentException("Unkown alignment '" + string + "':"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		}
 
@@ -2509,7 +2510,7 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 	}
 
 	private static enum ComboBoxSortOrder {
-		NOT_SET(""),
+		NOT_SET(""), //$NON-NLS-1$
 		CLEAR_SORTING(TEXT_CLEAR_SORTING),
 		ASC(SortOrder.ASC),
 		DESC(SortOrder.DESC);
@@ -2568,7 +2569,7 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 				return ComboBoxSortOrder.DESC;
 			}
 			else {
-				throw new IllegalArgumentException("Unkown sort order '" + string + "':");
+				throw new IllegalArgumentException("Unkown sort order '" + string + "':"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		}
 
@@ -2583,24 +2584,24 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 
 			@Override
 			public String getName() {
-				return "";
+				return ""; //$NON-NLS-1$
 			}
 
 			@Override
 			public Object getId() {
-				return "";
+				return ""; //$NON-NLS-1$
 			}
 
 			@Override
 			public String getDescription() {
-				return "";
+				return ""; //$NON-NLS-1$
 			}
 		};
 	}
 
 	public enum ComboBoxAlignmentHorizontal {
 
-		VARIOUS(""),
+		VARIOUS(""), //$NON-NLS-1$
 		LEFT(AlignmentHorizontal.LEFT),
 		RIGHT(AlignmentHorizontal.RIGHT),
 		CENTER(AlignmentHorizontal.CENTER);
