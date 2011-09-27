@@ -26,16 +26,16 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.api.service;
+package org.jowidgets.cap.common.api.bean;
 
 import java.util.List;
 
-import org.jowidgets.cap.common.api.execution.IExecutionCallback;
-import org.jowidgets.cap.common.api.execution.IResultCallback;
-import org.jowidgets.cap.common.api.lookup.ILookUpEntry;
+public interface IStaticValueRange extends IValueRange {
 
-public interface ILookUpAccessService {
+	@Override
+	List<Object> getValues();
 
-	void readValues(IResultCallback<List<ILookUpEntry>> result, IExecutionCallback executionCallback);
+	@Override
+	boolean isOpen();
 
 }
