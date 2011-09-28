@@ -51,8 +51,13 @@ import org.jowidgets.workbench.tools.AbstractView;
 public class UserDetailGroupsBorderView extends AbstractView {
 
 	public static final String ID = UserDetailGroupsBorderView.class.getName();
-	public static final String DEFAULT_LABEL = "User Details (Borders)";
-	public static final String DEFAULT_TOOLTIP = "Formular with user details";
+	public static final String DEFAULT_LABEL = Messages.getString("UserDetailGroupsBorderView.user_details_borders"); //$NON-NLS-1$
+	public static final String DEFAULT_TOOLTIP = Messages.getString("UserDetailGroupsBorderView.user_details_borders_tooltip"); //$NON-NLS-1$
+
+	private static final String USER_NAME = Messages.getString("UserDetailGroupsBorderView.user_name"); //$NON-NLS-1$
+	private static final String USER_DETAILS = Messages.getString("UserDetailGroupsBorderView.user_details"); //$NON-NLS-1$
+	private static final String COUNTRY_SETTINGS = Messages.getString("UserDetailGroupsBorderView.country_settings"); //$NON-NLS-1$
+	private static final String ADMINISTRATION = Messages.getString("UserDetailGroupsBorderView.administration"); //$NON-NLS-1$
 
 	public UserDetailGroupsBorderView(final IViewContext context, final IBeanListModel<IUser> parentModel) {
 		final IContainer container = context.getContainer();
@@ -62,13 +67,13 @@ public class UserDetailGroupsBorderView extends AbstractView {
 
 		final IBeanFormLayoutBuilder layoutBuilder = CapUiToolkit.beanFormToolkit().layoutBuilder();
 
-		final IBeanFormGroupBuilder nameGroupBuilder = CapUiToolkit.beanFormToolkit().groupBuilder().setLabel("User name").setRendering(
+		final IBeanFormGroupBuilder nameGroupBuilder = CapUiToolkit.beanFormToolkit().groupBuilder().setLabel(USER_NAME).setRendering(
 				BeanFormGroupRendering.BORDER);
 		nameGroupBuilder.addProperty(CapUiToolkit.beanFormToolkit().propertyBuilder().setPropertyName(IUser.NAME_PROPERTY));
 		nameGroupBuilder.addProperty(CapUiToolkit.beanFormToolkit().propertyBuilder().setPropertyName(IUser.LAST_NAME_PROPERTY));
 		layoutBuilder.addGroup(nameGroupBuilder);
 
-		final IBeanFormGroupBuilder detailsGroupBuilder = CapUiToolkit.beanFormToolkit().groupBuilder().setLabel("User details").setRendering(
+		final IBeanFormGroupBuilder detailsGroupBuilder = CapUiToolkit.beanFormToolkit().groupBuilder().setLabel(USER_DETAILS).setRendering(
 				BeanFormGroupRendering.BORDER);
 		detailsGroupBuilder.addProperty(CapUiToolkit.beanFormToolkit().propertyBuilder().setPropertyName(
 				IUser.DATE_OF_BIRTH_PROPERTY));
@@ -76,14 +81,14 @@ public class UserDetailGroupsBorderView extends AbstractView {
 		detailsGroupBuilder.addProperty(CapUiToolkit.beanFormToolkit().propertyBuilder().setPropertyName(IUser.MARRIED_PROPERTY));
 		layoutBuilder.addGroup(detailsGroupBuilder);
 
-		final IBeanFormGroupBuilder countryGroupBuilder = CapUiToolkit.beanFormToolkit().groupBuilder().setLabel(
-				"Country settings").setRendering(BeanFormGroupRendering.BORDER);
+		final IBeanFormGroupBuilder countryGroupBuilder = CapUiToolkit.beanFormToolkit().groupBuilder().setLabel(COUNTRY_SETTINGS).setRendering(
+				BeanFormGroupRendering.BORDER);
 		countryGroupBuilder.addProperty(CapUiToolkit.beanFormToolkit().propertyBuilder().setPropertyName(IUser.COUNTRY_PROPERTY));
 		countryGroupBuilder.addProperty(CapUiToolkit.beanFormToolkit().propertyBuilder().setPropertyName(IUser.LANGUAGES_PROPERTY));
 		layoutBuilder.addGroup(countryGroupBuilder);
 
 		final IBeanFormGroupBuilder administrationGroupBuilder = CapUiToolkit.beanFormToolkit().groupBuilder().setLabel(
-				"Administration").setRendering(BeanFormGroupRendering.BORDER);
+				ADMINISTRATION).setRendering(BeanFormGroupRendering.BORDER);
 		administrationGroupBuilder.addProperty(CapUiToolkit.beanFormToolkit().propertyBuilder().setPropertyName(
 				IUser.ADMIN_PROPERTY));
 		layoutBuilder.addGroup(administrationGroupBuilder);

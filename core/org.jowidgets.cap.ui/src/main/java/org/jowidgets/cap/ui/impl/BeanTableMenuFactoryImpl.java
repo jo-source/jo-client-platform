@@ -37,6 +37,7 @@ import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.EmptyCheck;
+import org.jowidgets.util.NullCompatibleEquivalence;
 
 final class BeanTableMenuFactoryImpl implements IBeanTableMenuFactory {
 
@@ -238,6 +239,11 @@ final class BeanTableMenuFactoryImpl implements IBeanTableMenuFactory {
 	public IMenuModel headerFormatMenu(final IBeanTableModel<?> model, final int columnIndex) {
 		Assert.paramNotNull(model, "model");
 		if (EmptyCheck.isEmpty(model.getAttribute(columnIndex).getLabelLong())) {
+			return null;
+		}
+		else if (NullCompatibleEquivalence.equals(
+				model.getAttribute(columnIndex).getLabel(),
+				model.getAttribute(columnIndex).getLabelLong())) {
 			return null;
 		}
 		else {

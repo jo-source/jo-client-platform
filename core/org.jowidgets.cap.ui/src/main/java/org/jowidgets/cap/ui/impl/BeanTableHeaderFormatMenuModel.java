@@ -40,7 +40,7 @@ import org.jowidgets.util.event.IChangeListener;
 final class BeanTableHeaderFormatMenuModel extends MenuModel {
 
 	BeanTableHeaderFormatMenuModel(final IBeanTableModel<?> model, final int columnIndex) {
-		super("Header format");
+		super(Messages.getString("BeanTableHeaderFormatMenuModel.header_format")); //$NON-NLS-1$
 		final IRadioItemModel shortRadioItem = addRadioItem(DisplayFormat.SHORT.getName());
 		final IRadioItemModel longRadioItem = addRadioItem(DisplayFormat.LONG.getName());
 		final IAttribute<?> attribute = model.getAttribute(columnIndex);

@@ -49,8 +49,8 @@ import org.jowidgets.workbench.tools.AbstractView;
 public class UserDetailView extends AbstractView {
 
 	public static final String ID = UserDetailView.class.getName();
-	public static final String DEFAULT_LABEL = "User details";
-	public static final String DEFAULT_TOOLTIP = "Formular with user details";
+	public static final String DEFAULT_LABEL = Messages.getString("UserDetailView.user_details"); //$NON-NLS-1$
+	public static final String DEFAULT_TOOLTIP = Messages.getString("UserDetailView.user_details_tooltip"); //$NON-NLS-1$
 
 	public UserDetailView(final IViewContext context, final IBeanListModel<IUser> parentModel) {
 		final IContainer container = context.getContainer();
