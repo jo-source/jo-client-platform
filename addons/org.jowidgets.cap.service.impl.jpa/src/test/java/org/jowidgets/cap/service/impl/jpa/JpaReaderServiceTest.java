@@ -28,7 +28,6 @@
 package org.jowidgets.cap.service.impl.jpa;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -463,7 +462,7 @@ public class JpaReaderServiceTest extends AbstractJpaTest {
 
 			@Override
 			public Object[] getParameters() {
-				return new Object[] {Arrays.asList("Husband", "Teacher")};
+				return new Object[] {"Husband", "Teacher"};
 			}
 		}, null, 0, Integer.MAX_VALUE, null, null);
 		List<IBeanDto> dtos = res.getResultSynchronious();
@@ -489,7 +488,7 @@ public class JpaReaderServiceTest extends AbstractJpaTest {
 
 			@Override
 			public Object[] getParameters() {
-				return new Object[] {Collections.singleton("Husband")};
+				return new Object[] {"Husband"};
 			}
 		}, null, 0, Integer.MAX_VALUE, null, null);
 		dtos = res.getResultSynchronious();
@@ -515,7 +514,7 @@ public class JpaReaderServiceTest extends AbstractJpaTest {
 
 			@Override
 			public Object[] getParameters() {
-				return new Object[] {Collections.singleton("Teacher")};
+				return new Object[] {"Teacher"};
 			}
 		}, null, 0, Integer.MAX_VALUE, null, null);
 		dtos = res.getResultSynchronious();
@@ -544,7 +543,7 @@ public class JpaReaderServiceTest extends AbstractJpaTest {
 
 			@Override
 			public Object[] getParameters() {
-				return new Object[] {Arrays.asList("Husband", "Teacher")};
+				return new Object[] {"Husband", "Teacher"};
 			}
 		}, null, 0, Integer.MAX_VALUE, null, null);
 		List<IBeanDto> dtos = res.getResultSynchronious();
@@ -570,7 +569,7 @@ public class JpaReaderServiceTest extends AbstractJpaTest {
 
 			@Override
 			public Object[] getParameters() {
-				return new Object[] {Collections.singleton("Husband")};
+				return new Object[] {"Husband"};
 			}
 		}, null, 0, Integer.MAX_VALUE, null, null);
 		dtos = res.getResultSynchronious();
@@ -596,7 +595,7 @@ public class JpaReaderServiceTest extends AbstractJpaTest {
 
 			@Override
 			public Object[] getParameters() {
-				return new Object[] {Arrays.asList("Husband", "Software Developer")};
+				return new Object[] {"Husband", "Software Developer"};
 			}
 		}, null, 0, Integer.MAX_VALUE, null, null);
 		dtos = res.getResultSynchronious();
@@ -625,7 +624,7 @@ public class JpaReaderServiceTest extends AbstractJpaTest {
 
 			@Override
 			public Object[] getParameters() {
-				return new Object[] {Arrays.asList("husband", "teacher")};
+				return new Object[] {"husband", "teacher"};
 			}
 		}, null, 0, Integer.MAX_VALUE, null, null);
 		List<IBeanDto> dtos = res.getResultSynchronious();
@@ -651,7 +650,7 @@ public class JpaReaderServiceTest extends AbstractJpaTest {
 
 			@Override
 			public Object[] getParameters() {
-				return new Object[] {Collections.singleton("husband")};
+				return new Object[] {"husband"};
 			}
 		}, null, 0, Integer.MAX_VALUE, null, null);
 		dtos = res.getResultSynchronious();
@@ -677,7 +676,7 @@ public class JpaReaderServiceTest extends AbstractJpaTest {
 
 			@Override
 			public Object[] getParameters() {
-				return new Object[] {Arrays.asList("husband", "software developer")};
+				return new Object[] {"husband", "software developer"};
 			}
 		}, null, 0, Integer.MAX_VALUE, null, null);
 		dtos = res.getResultSynchronious();
@@ -793,7 +792,7 @@ public class JpaReaderServiceTest extends AbstractJpaTest {
 
 			@Override
 			public Object[] getParameters() {
-				return new Object[] {Arrays.asList("husband", "teacher")};
+				return new Object[] {"husband", "teacher"};
 			}
 		}, null, 0, Integer.MAX_VALUE, null, null);
 		final List<IBeanDto> dtos = res.getResultSynchronious();
@@ -822,7 +821,7 @@ public class JpaReaderServiceTest extends AbstractJpaTest {
 
 			@Override
 			public Object[] getParameters() {
-				return new Object[] {Arrays.asList("INGO", "JAN")};
+				return new Object[] {"INGO", "JAN"};
 			}
 		}, null, 0, Integer.MAX_VALUE, null, null);
 		final List<IBeanDto> dtos = res.getResultSynchronious();
@@ -1209,7 +1208,7 @@ public class JpaReaderServiceTest extends AbstractJpaTest {
 
 			@Override
 			public Object[] getParameters() {
-				return new Object[] {Arrays.asList("SpOrT")};
+				return new Object[] {"SpOrT"};
 			}
 		}, null, 0, Integer.MAX_VALUE, null, null);
 		final List<IBeanDto> dtos = res.getResultSynchronious();

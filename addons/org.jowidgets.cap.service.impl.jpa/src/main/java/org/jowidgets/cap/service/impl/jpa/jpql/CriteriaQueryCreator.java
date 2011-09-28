@@ -31,6 +31,7 @@ package org.jowidgets.cap.service.impl.jpa.jpql;
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -114,7 +115,6 @@ public final class CriteriaQueryCreator implements IQueryCreator<Void> {
 
 		final CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
 		final CriteriaQuery<?> query = criteriaBuilder.createQuery(persistenceClass);
-
 		final Root<?> bean = fillQuery(query, criteriaBuilder, persistenceClass, parentBeanKeys, filter);
 
 		if (sorting != null) {
@@ -144,7 +144,6 @@ public final class CriteriaQueryCreator implements IQueryCreator<Void> {
 
 		final CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
 		final CriteriaQuery<Long> query = criteriaBuilder.createQuery(Long.class);
-
 		final Root<?> bean = fillQuery(query, criteriaBuilder, persistenceClass, parentBeanKeys, filter);
 
 		return entityManager.createQuery(query.select(criteriaBuilder.count(bean)));
@@ -334,7 +333,7 @@ public final class CriteriaQueryCreator implements IQueryCreator<Void> {
 			case CONTAINS_ANY: {
 				// CHECKSTYLE:ON
 				Expression<?> expr = path;
-				Collection<?> params = (Collection<?>) filter.getParameters()[0];
+				Collection<?> params = Arrays.asList(filter.getParameters());
 				if (caseInsensitive && path.getJavaType() == String.class) {
 					final Collection<String> newParams = new HashSet<String>();
 					for (final Object p : params) {
@@ -358,7 +357,7 @@ public final class CriteriaQueryCreator implements IQueryCreator<Void> {
 				// CHECKSTYLE:OFF
 			case CONTAINS_ALL: {
 				// CHECKSTYLE:ON
-				final Collection<?> params = (Collection<?>) filter.getParameters()[0];
+				final Collection<?> params = Arrays.asList(filter.getParameters());
 				final Collection<Object> newParams = new HashSet<Object>();
 				final boolean toUpper = caseInsensitive && path.getJavaType() == String.class;
 				for (final Object p : params) {
