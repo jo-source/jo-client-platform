@@ -48,8 +48,8 @@ public class AuthorizationDtoDescriptorBuilder {
 
 		IPropertyBuilder propertyBuilder = builder();
 		propertyBuilder.setName(IBean.ID_PROPERTY);
-		propertyBuilder.setLabel("Id");
-		propertyBuilder.setDescription("The database id of the authorization");
+		propertyBuilder.setLabel(Messages.getString("AuthorizationDtoDescriptorBuilder.id")); //$NON-NLS-1$
+		propertyBuilder.setDescription(Messages.getString("AuthorizationDtoDescriptorBuilder.id_description")); //$NON-NLS-1$
 		propertyBuilder.setMandatory(true);
 		propertyBuilder.setReadonly(true);
 		propertyBuilder.setValueType(Long.class);
@@ -57,22 +57,22 @@ public class AuthorizationDtoDescriptorBuilder {
 
 		propertyBuilder = builder();
 		propertyBuilder.setName(AuthorizationInitializer.KEY_PROPERTY);
-		propertyBuilder.setLabel("Key");
-		propertyBuilder.setDescription("The key of the authorization");
+		propertyBuilder.setLabel(Messages.getString("AuthorizationDtoDescriptorBuilder.key")); //$NON-NLS-1$
+		propertyBuilder.setDescription(Messages.getString("AuthorizationDtoDescriptorBuilder.key_description")); //$NON-NLS-1$
 		propertyBuilder.setMandatory(true);
 		properties.add(propertyBuilder.build());
 
 		propertyBuilder = builder();
 		propertyBuilder.setName(AuthorizationInitializer.DESCRIPTION_PROPERTY);
-		propertyBuilder.setLabel("Description");
-		propertyBuilder.setDescription("The Desription of the authorization");
+		propertyBuilder.setLabel(Messages.getString("AuthorizationDtoDescriptorBuilder.description")); //$NON-NLS-1$
+		propertyBuilder.setDescription(Messages.getString("AuthorizationDtoDescriptorBuilder.description_description")); //$NON-NLS-1$
 		propertyBuilder.setMandatory(false);
 		properties.add(propertyBuilder.build());
 
 		propertyBuilder = builder();
 		propertyBuilder.setName(IBean.VERSION_PROPERTY);
-		propertyBuilder.setLabel("Version");
-		propertyBuilder.setDescription("The version of the authorization record");
+		propertyBuilder.setLabel(Messages.getString("AuthorizationDtoDescriptorBuilder.version")); //$NON-NLS-1$
+		propertyBuilder.setDescription(Messages.getString("AuthorizationDtoDescriptorBuilder.version_description")); //$NON-NLS-1$
 		propertyBuilder.setMandatory(true);
 		propertyBuilder.setReadonly(true);
 		propertyBuilder.setValueType(long.class);

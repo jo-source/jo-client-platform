@@ -31,6 +31,7 @@ package org.jowidgets.cap.sample1.ui.attribute;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.cap.common.api.bean.IProperty;
 import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.sample1.common.entity.EntityIds;
@@ -42,6 +43,9 @@ import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
 import org.jowidgets.service.api.ServiceProvider;
 
 public class GenericBeanAttributesFactory {
+
+	private static final String GROUP_N = Messages.getString("GenericBeanAttributesFactory.group_n"); //$NON-NLS-1$
+	private static final String DESCRIPTION_OF_GROUP_N = Messages.getString("GenericBeanAttributesFactory.description_of_group_n"); //$NON-NLS-1$
 
 	private final IAttributeToolkit attributeToolkit;
 
@@ -61,22 +65,26 @@ public class GenericBeanAttributesFactory {
 			final IAttributeBuilder<String> builder = attributeToolkit.createAttributeBuilder(property);
 
 			if (columnIndex % 8 == 0) {
-				final int currentGroupIndex = groupIndex;
+				final String id = Toolkit.getMessageReplacer().replace(GROUP_N, String.valueOf(groupIndex));
+				final String description = Toolkit.getMessageReplacer().replace(
+						DESCRIPTION_OF_GROUP_N,
+						String.valueOf(groupIndex));
+
 				group = new IAttributeGroup() {
 
 					@Override
 					public String getId() {
-						return "Group " + currentGroupIndex;
+						return id;
 					}
 
 					@Override
 					public String getLabel() {
-						return "Group " + currentGroupIndex;
+						return id;
 					}
 
 					@Override
 					public String getDescription() {
-						return "Description of group " + currentGroupIndex;
+						return description;
 					}
 				};
 				groupIndex++;

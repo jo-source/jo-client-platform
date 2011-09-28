@@ -38,8 +38,8 @@ final class BeanTablePackSelectedActionBuilder extends ActionBuilder {
 
 	BeanTablePackSelectedActionBuilder(final IBeanTable<?> table) {
 		super();
-		setText("Fit column");
-		setToolTipText("Fits this columns to the propper width");
+		setText(Messages.getString("BeanTablePackSelectedActionBuilder.fit_column")); //$NON-NLS-1$
+		setToolTipText(Messages.getString("BeanTablePackSelectedActionBuilder.fit_column_tooltip")); //$NON-NLS-1$
 		setCommand(new ICommandExecutor() {
 			@Override
 			public void execute(final IExecutionContext executionContext) throws Exception {

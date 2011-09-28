@@ -37,8 +37,8 @@ final class BeanTablePackAllActionBuilder extends ActionBuilder {
 
 	BeanTablePackAllActionBuilder(final IBeanTable<?> table) {
 		super();
-		setText("Fit all columns");
-		setToolTipText("Fits all columns to the propper width");
+		setText(Messages.getString("BeanTablePackAllActionBuilder.fit_all_columns")); //$NON-NLS-1$
+		setToolTipText(Messages.getString("BeanTablePackAllActionBuilder.fit_all_columns_tooltip")); //$NON-NLS-1$
 		setCommand(new ICommandExecutor() {
 			@Override
 			public void execute(final IExecutionContext executionContext) throws Exception {

@@ -47,8 +47,8 @@ public class LongLastingAction extends ActionWrapper {
 
 	private static IAction create(final IBeanListModel<IUser> model) {
 		final IExecutorActionBuilder<IUser, Void> builder = CapUiToolkit.actionFactory().executorActionBuilder(model);
-		builder.setText("Long lasting test");
-		builder.setToolTipText("Test a long lasting execution on the selected person(s)");
+		builder.setText(Messages.getString("LongLastingAction.long_lasting_test")); //$NON-NLS-1$
+		builder.setToolTipText(Messages.getString("LongLastingAction.long_lasting_test_tooltip")); //$NON-NLS-1$
 		builder.setIcon(SilkIcons.TIME);
 		builder.setSelectionPolicy(BeanSelectionPolicy.MULTI_SELECTION);
 		builder.setExecutionPolicy(BeanExecutionPolicy.PARALLEL);

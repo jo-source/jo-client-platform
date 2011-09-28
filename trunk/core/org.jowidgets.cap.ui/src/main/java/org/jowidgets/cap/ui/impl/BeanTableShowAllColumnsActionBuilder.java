@@ -45,8 +45,8 @@ final class BeanTableShowAllColumnsActionBuilder extends ActionBuilder {
 	BeanTableShowAllColumnsActionBuilder(final IBeanTable<?> table) {
 		super();
 
-		setText("Show all columns");
-		setToolTipText("Makes all hidden columns visible");
+		setText(Messages.getString("BeanTableShowAllColumnsActionBuilder.show_all_columns")); //$NON-NLS-1$
+		setToolTipText(Messages.getString("BeanTableShowAllColumnsActionBuilder.show_all_columns_tooltip")); //$NON-NLS-1$
 		setIcon(CapIcons.TABLE_UNHIDE_ALL_COLUMNS);
 
 		final IBeanTableModel<?> model = table.getModel();
@@ -79,7 +79,7 @@ final class BeanTableShowAllColumnsActionBuilder extends ActionBuilder {
 
 	private IEnabledState getUnhideColumnsEnabledState(final IBeanTableModel<?> model) {
 		if (!hasInvisibleColumns(model)) {
-			return EnabledState.disabled("All columns are visible");
+			return EnabledState.disabled(Messages.getString("BeanTableShowAllColumnsActionBuilder.all_columns_are_visible")); //$NON-NLS-1$
 		}
 		else {
 			return EnabledState.ENABLED;

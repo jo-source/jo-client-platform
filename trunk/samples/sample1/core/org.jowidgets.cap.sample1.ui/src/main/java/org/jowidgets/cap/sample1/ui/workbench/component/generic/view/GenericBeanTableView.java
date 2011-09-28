@@ -38,8 +38,8 @@ import org.jowidgets.workbench.tools.AbstractView;
 public class GenericBeanTableView extends AbstractView {
 
 	public static final String ID = GenericBeanTableView.class.getName();
-	public static final String DEFAULT_LABEL = "Generic bean";
-	public static final String DEFAULT_TOOLTIP = "Table with generic bean that have dynamic properties";
+	public static final String DEFAULT_LABEL = Messages.getString("GenericBeanTableView.generic_bean"); //$NON-NLS-1$
+	public static final String DEFAULT_TOOLTIP = Messages.getString("GenericBeanTableView.generic_bean_description"); //$NON-NLS-1$
 
 	public GenericBeanTableView(final IViewContext context, final IBeanTableModel<Object> tableModel) {
 

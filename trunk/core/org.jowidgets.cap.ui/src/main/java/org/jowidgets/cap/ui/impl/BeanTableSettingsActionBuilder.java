@@ -38,8 +38,8 @@ final class BeanTableSettingsActionBuilder extends ActionBuilder {
 
 	BeanTableSettingsActionBuilder(final IBeanTable<?> table) {
 		super();
-		setText("Settings ...");
-		setToolTipText("Opens the tables settings dialog");
+		setText(Messages.getString("BeanTableSettingsActionBuilder.settings_periode")); //$NON-NLS-1$
+		setToolTipText(Messages.getString("BeanTableSettingsActionBuilder.opens_the_table_settings_dialog")); //$NON-NLS-1$
 		setIcon(CapIcons.TABLE_SETTINGS);
 		setCommand(new ICommandExecutor() {
 			@Override

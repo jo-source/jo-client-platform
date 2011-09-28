@@ -48,7 +48,7 @@ public class SampleApplication {
 	public SampleApplication() {
 		final IWorkbenchApplicationModelBuilder builder = new WorkbenchApplicationModelBuilder();
 		builder.setId(SampleApplication.class.getName());
-		builder.setLabel("Sample App");
+		builder.setLabel(Messages.getString("SampleApplication.sample_app")); //$NON-NLS-1$
 		this.model = builder.build();
 
 		createComponentTree(model);
@@ -59,25 +59,25 @@ public class SampleApplication {
 	}
 
 	private void createComponentTree(final IWorkbenchApplicationModel model) {
-		final IComponentNodeModel usersFolder = model.addChild("USERS_FOLDER_ID", "Users", SilkIcons.FOLDER);
+		final IComponentNodeModel usersFolder = model.addChild("USERS_FOLDER_ID", Messages.getString("SampleApplication.users"), SilkIcons.FOLDER); //$NON-NLS-1$ //$NON-NLS-2$
 
 		final IComponentNodeModelBuilder nodeModelBuilder = new ComponentNodeModelBuilder();
 		nodeModelBuilder.setComponentFactory(UserComponent.class);
 		for (int i = 0; i < 4; i++) {
 			nodeModelBuilder.setId(UserComponent.class.getName() + i);
-			nodeModelBuilder.setLabel("User component " + i);
+			nodeModelBuilder.setLabel(Messages.getString("SampleApplication.user_component") + i); //$NON-NLS-1$
 			usersFolder.addChild(nodeModelBuilder.build());
 		}
 
-		final IComponentNodeModel miscFolder = model.addChild("MISC_FOLDER_ID", "Misc", SilkIcons.FOLDER);
+		final IComponentNodeModel miscFolder = model.addChild("MISC_FOLDER_ID", Messages.getString("SampleApplication.misc"), SilkIcons.FOLDER); //$NON-NLS-1$ //$NON-NLS-2$
 		nodeModelBuilder.setComponentFactory(GenericBeanComponent.class);
 		nodeModelBuilder.setId(GenericBeanComponent.class.getName());
-		nodeModelBuilder.setLabel("Generic bean");
+		nodeModelBuilder.setLabel(Messages.getString("SampleApplication.generic_bean")); //$NON-NLS-1$
 		miscFolder.addChild(nodeModelBuilder.build());
 
 		final IComponentNodeModel entitiesFolder = model.addChild(
-				"GENERIC_COMPONENTS_FOLDER_ID",
-				"Generic Components",
+				"GENERIC_COMPONENTS_FOLDER_ID", //$NON-NLS-1$
+				Messages.getString("SampleApplication.generic_components"), //$NON-NLS-1$
 				SilkIcons.FOLDER);
 		final List<IComponentNodeModel> entityNodes = CapUiToolkit.workbenchToolkit().entityComponentNodesFactory().createNodes();
 		for (final IComponentNodeModel entityNode : entityNodes) {

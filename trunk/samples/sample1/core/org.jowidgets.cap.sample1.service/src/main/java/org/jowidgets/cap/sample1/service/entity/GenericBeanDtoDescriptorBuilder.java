@@ -45,14 +45,18 @@ public class GenericBeanDtoDescriptorBuilder {
 
 		this.properties = new LinkedList<IProperty>();
 
+		final String label = Messages.getString("GenericBeanDtoDescriptorBuilder.column_n_short"); //$NON-NLS-1$
+		final String labelLong = Messages.getString("GenericBeanDtoDescriptorBuilder.column_n_long"); //$NON-NLS-1$
+		final String description = Messages.getString("GenericBeanDtoDescriptorBuilder.description_of_column_n"); //$NON-NLS-1$
+
 		final IPropertyBuilder propertyBuilder = CapCommonToolkit.propertyBuilder();
 		propertyBuilder.setValueType(String.class).setSortable(true).setFilterable(true);
 		final List<String> propertyNames = GenericBeanInitializer.ALL_PROPERTIES;
 		for (int columnIndex = 0; columnIndex < propertyNames.size(); columnIndex++) {
 			propertyBuilder.setName(propertyNames.get(columnIndex));
-			propertyBuilder.setLabel("Col " + columnIndex);
-			propertyBuilder.setLabelLong("Column " + columnIndex);
-			propertyBuilder.setDescription("Description of column " + columnIndex);
+			propertyBuilder.setLabel(label.replace("%1", String.valueOf(columnIndex))); //$NON-NLS-1$
+			propertyBuilder.setLabelLong(labelLong.replace("%1", String.valueOf(columnIndex))); //$NON-NLS-1$
+			propertyBuilder.setDescription(description.replace("%1", String.valueOf(columnIndex))); //$NON-NLS-1$
 			if (columnIndex < 80) {
 				propertyBuilder.setReadonly(false);
 			}
