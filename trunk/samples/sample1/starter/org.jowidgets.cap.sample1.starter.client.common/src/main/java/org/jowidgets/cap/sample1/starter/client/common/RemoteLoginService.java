@@ -38,7 +38,7 @@ public class RemoteLoginService implements ILoginService {
 	@Override
 	public boolean doLogin() {
 		return Toolkit.getLoginPane().login(
-				"Application1 ",
+				"Application1",
 				new BasicAuthenticationLoginInterceptor(AuthorizationProviderServiceId.ID)).isLoggedOn();
 	}
 }
