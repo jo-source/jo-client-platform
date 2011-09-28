@@ -216,9 +216,7 @@ public class ArithmeticPropertyFilterControl<ELEMENT_VALUE_TYPE> extends
 				else {
 					currentAttributes = attributes;
 				}
-				combo1 = getWidget().add(
-						comboBoxBluePrint(currentAttributes),
-						Messages.getString("ArithmeticPropertyFilterControl.11")); //$NON-NLS-1$
+				combo1 = getWidget().add(comboBoxBluePrint(currentAttributes), "grow, w 0::"); //$NON-NLS-1$
 			}
 
 			addInputListener();
