@@ -61,28 +61,28 @@ final class CapActionFactoryImpl implements ICapActionFactory {
 	@Override
 	public IDataModelActionBuilder dataModelCancelActionBuilder() {
 		final IDataModelActionBuilder builder = new DataModelActionBuilderImpl(new DataModelCancelCommand());
-		builder.setText("Cancel"); //TODO MG i18n
+		builder.setText(Messages.getString("CapActionFactoryImpl.cancel")); //$NON-NLS-1$
 		return builder;
 	}
 
 	@Override
 	public IDataModelActionBuilder dataModelSaveActionBuilder() {
 		final IDataModelActionBuilder builder = new DataModelActionBuilderImpl(new DataModelSaveCommand());
-		builder.setText("Save"); //TODO MG i18n
+		builder.setText(Messages.getString("CapActionFactoryImpl.save")); //$NON-NLS-1$
 		return builder;
 	}
 
 	@Override
 	public IDataModelActionBuilder dataModelUndoActionBuilder() {
 		final IDataModelActionBuilder builder = new DataModelActionBuilderImpl(new DataModelUndoCommand());
-		builder.setText("Undo"); //TODO MG i18n
+		builder.setText(Messages.getString("CapActionFactoryImpl.undo")); //$NON-NLS-1$
 		return builder;
 	}
 
 	@Override
 	public IDataModelActionBuilder dataModelLoadActionBuilder() {
 		final IDataModelActionBuilder builder = new DataModelActionBuilderImpl(new DataModelLoadCommand());
-		builder.setText("Reload"); //TODO MG i18n
+		builder.setText(Messages.getString("CapActionFactoryImpl.reload")); //$NON-NLS-1$
 		return builder;
 	}
 
