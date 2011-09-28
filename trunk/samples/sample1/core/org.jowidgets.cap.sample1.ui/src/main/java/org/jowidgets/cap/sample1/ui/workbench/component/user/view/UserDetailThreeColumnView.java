@@ -52,8 +52,8 @@ import org.jowidgets.workbench.tools.AbstractView;
 public class UserDetailThreeColumnView extends AbstractView {
 
 	public static final String ID = UserDetailThreeColumnView.class.getName();
-	public static final String DEFAULT_LABEL = "User Details (3col)";
-	public static final String DEFAULT_TOOLTIP = "Formular with user details";
+	public static final String DEFAULT_LABEL = Messages.getString("UserDetailThreeColumnView.user_details_3columns"); //$NON-NLS-1$
+	public static final String DEFAULT_TOOLTIP = Messages.getString("UserDetailThreeColumnView.user_details_3columns_tooltip"); //$NON-NLS-1$
 
 	public UserDetailThreeColumnView(final IViewContext context, final IBeanListModel<IUser> parentModel) {
 		final IContainer container = context.getContainer();

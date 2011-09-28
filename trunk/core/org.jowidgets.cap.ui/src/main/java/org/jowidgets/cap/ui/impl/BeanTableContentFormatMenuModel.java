@@ -40,7 +40,7 @@ import org.jowidgets.util.event.IChangeListener;
 final class BeanTableContentFormatMenuModel extends MenuModel {
 
 	BeanTableContentFormatMenuModel(final IBeanTableModel<?> model, final int columnIndex) {
-		super("Content format");
+		super(Messages.getString("BeanTableContentFormatMenuModel.content_format")); //$NON-NLS-1$
 
 		final IAttribute<?> attribute = model.getAttribute(columnIndex);
 

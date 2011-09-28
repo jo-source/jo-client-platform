@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2011, nimoll
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,31 +26,24 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample1.common.service.executor;
+package org.jowidgets.cap.sample1.ui.workbench.component.user.view;
 
-import java.util.Collections;
-import java.util.Set;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
 
-import org.jowidgets.cap.common.api.execution.ExecutableState;
-import org.jowidgets.cap.common.api.execution.IExecutableChecker;
-import org.jowidgets.cap.common.api.execution.IExecutableState;
-import org.jowidgets.cap.sample1.common.entity.IUser;
+public class Messages {
+	private static final String BUNDLE_NAME = "org.jowidgets.cap.sample1.ui.workbench.component.user.view.messages"; //$NON-NLS-1$
 
-public class ChangeGenderExecutableChecker implements IExecutableChecker<IUser> {
+	private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle(BUNDLE_NAME);
 
-	@Override
-	public IExecutableState getExecutableState(final IUser user) {
-		if (user.getGender().equals("F")) { //$NON-NLS-1$
-			return ExecutableState.notExecutable(Messages.getString("ChangeGenderExecutableChecker.cannot_change_gender_of_female")); //$NON-NLS-1$
+	private Messages() {}
+
+	public static String getString(String key) {
+		try {
+			return RESOURCE_BUNDLE.getString(key);
 		}
-		else {
-			return ExecutableState.EXECUTABLE;
+		catch (MissingResourceException e) {
+			return '!' + key + '!';
 		}
 	}
-
-	@Override
-	public Set<String> getPropertyDependencies() {
-		return Collections.singleton(IUser.GENDER_PROPERTY);
-	}
-
 }

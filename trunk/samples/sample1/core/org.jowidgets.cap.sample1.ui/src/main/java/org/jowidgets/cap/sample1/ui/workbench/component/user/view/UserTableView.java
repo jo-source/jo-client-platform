@@ -55,8 +55,8 @@ import org.jowidgets.workbench.tools.AbstractView;
 public class UserTableView extends AbstractView {
 
 	public static final String ID = UserTableView.class.getName();
-	public static final String DEFAULT_LABEL = "Users";
-	public static final String DEFAULT_TOOLTIP = "Table of all users";
+	public static final String DEFAULT_LABEL = Messages.getString("UserTableView.users"); //$NON-NLS-1$
+	public static final String DEFAULT_TOOLTIP = Messages.getString("UserTableView.users_tooltip"); //$NON-NLS-1$
 
 	private final IBeanTableModel<IUser> beanTableModel;
 	private final IBeanTable<IUser> table;
@@ -90,7 +90,7 @@ public class UserTableView extends AbstractView {
 
 	private IAction createClearAction() {
 		final IActionBuilder builder = Toolkit.getActionBuilderFactory().create();
-		builder.setText("Clear").setToolTipText("Clear the data");
+		builder.setText(Messages.getString("UserTableView.clear")).setToolTipText(Messages.getString("UserTableView.clear_tooltip")); //$NON-NLS-1$ //$NON-NLS-2$
 		builder.setCommand(new ICommandExecutor() {
 			@Override
 			public void execute(final IExecutionContext executionContext) throws Exception {
@@ -102,7 +102,7 @@ public class UserTableView extends AbstractView {
 
 	private IAction createPackAction() {
 		final IActionBuilder builder = Toolkit.getActionBuilderFactory().create();
-		builder.setText("Pack");
+		builder.setText(Messages.getString("UserTableView.pack")); //$NON-NLS-1$
 		builder.setIcon(SilkIcons.ARROW_INOUT);
 		builder.setCommand(new ICommandExecutor() {
 			@Override
@@ -119,9 +119,9 @@ public class UserTableView extends AbstractView {
 
 			@Override
 			public void createContent(final IContainer container) {
-				container.setLayout(new MigLayoutDescriptor("[][100!]", "0[]0"));
-				container.add(bpf.textLabel("Delay (ms)"), "");
-				delayField = container.add(bpf.inputFieldIntegerNumber(), "w 100!");
+				container.setLayout(new MigLayoutDescriptor("[][100!]", "0[]0")); //$NON-NLS-1$ //$NON-NLS-2$
+				container.add(bpf.textLabel(Messages.getString("UserTableView.delay")), ""); //$NON-NLS-1$ //$NON-NLS-2$
+				delayField = container.add(bpf.inputFieldIntegerNumber(), "w 100!"); //$NON-NLS-1$
 				delayField.setValue(parameter.get());
 				delayField.addInputListener(new IInputListener() {
 					@Override
