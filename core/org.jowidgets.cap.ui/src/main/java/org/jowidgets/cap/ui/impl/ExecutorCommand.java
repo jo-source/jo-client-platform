@@ -80,7 +80,7 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 	private static final IEnabledState IS_IN_PROCESS_STATE = EnabledState.disabled(Messages.getString("ExecutorCommand.there_is_some_other_execution_in_progress")); //$NON-NLS-1$
 	private static final IEnabledState SINGLE_SELECTION_STATE = EnabledState.disabled(Messages.getString("ExecutorCommand.there_must_be_selected_exactly_one_record")); //$NON-NLS-1$
 	private static final IEnabledState MULTI_SELECTION_STATE = EnabledState.disabled(Messages.getString("ExecutorCommand.there_must_be_selected_at_least_one_record")); //$NON-NLS-1$
-	private static final IEnabledState NO_SELECTION_STATE = EnabledState.disabled(Messages.getString("ExecutorCommand.there_must_be_selected_any_record")); //$NON-NLS-1$
+	private static final IEnabledState NO_SELECTION_STATE = EnabledState.disabled(Messages.getString("ExecutorCommand.there_must_not_be_selected_any_record")); //$NON-NLS-1$
 	private static final IEnabledState UNSAVED_DATA_STATE = EnabledState.disabled(Messages.getString("ExecutorCommand.the_record_has_unsaved_data")); //$NON-NLS-1$
 	private static final IEnabledState UNHANDLED_MESSAGES_STATE = EnabledState.disabled(Messages.getString("ExecutorCommand.there_are_unhandled_messages")); //$NON-NLS-1$
 
