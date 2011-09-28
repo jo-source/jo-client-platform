@@ -54,14 +54,19 @@ import org.jowidgets.util.maybe.Some;
 
 public class ChangeBirthdayAction extends ActionWrapper {
 
+	private static final String PLEASE_INPUT_THE_NEW_DATE_OF_BIRTH = Messages.getString("ChangeBirthdayAction.please_input_the_new_date_of_birth"); //$NON-NLS-1$
+	private static final String CHANGE_DAY_OF_BIRTH = Messages.getString("ChangeBirthdayAction.change_day_of_birth"); //$NON-NLS-1$
+	private static final String CHANGE_DAY_OF_BIRTH_TOOLTIP = Messages.getString("ChangeBirthdayAction.change_day_of_birth_tooltip"); //$NON-NLS-1$
+	private static final String DATE_OF_BIRTH = Messages.getString("ChangeBirthdayAction.date_of_birth"); //$NON-NLS-1$
+
 	public ChangeBirthdayAction(final IBeanListModel<IUser> model) {
 		super(create(model));
 	}
 
 	private static IAction create(final IBeanListModel<IUser> model) {
 		final IExecutorActionBuilder<IUser, Date> builder = CapUiToolkit.actionFactory().executorActionBuilder(model);
-		builder.setText("Change day of birth");
-		builder.setToolTipText("Changes the day of birth of the selected person");
+		builder.setText(CHANGE_DAY_OF_BIRTH);
+		builder.setToolTipText(CHANGE_DAY_OF_BIRTH_TOOLTIP);
 		builder.setIcon(SilkIcons.USER_EDIT);
 		builder.setSelectionPolicy(BeanSelectionPolicy.SINGLE_SELECTION);
 
@@ -87,9 +92,9 @@ public class ChangeBirthdayAction extends ActionWrapper {
 
 	private static IInputDialog<Date> createInputDialog(final IExecutionContext executionContext) {
 		final IBluePrintFactory bpf = Toolkit.getBluePrintFactory();
-		final SingleControlContent<Date> content = new SingleControlContent<Date>("Date of Birth", bpf.inputFieldDate(), 200);
+		final SingleControlContent<Date> content = new SingleControlContent<Date>(DATE_OF_BIRTH, bpf.inputFieldDate(), 200);
 		final IInputDialogBluePrint<Date> inputDialogBp = bpf.inputDialog(content).setExecutionContext(executionContext);
-		inputDialogBp.setMissingInputHint("Please input the new date of birth!");
+		inputDialogBp.setMissingInputHint(PLEASE_INPUT_THE_NEW_DATE_OF_BIRTH);
 		inputDialogBp.setResizable(false);
 		return Toolkit.getActiveWindow().createChildWindow(inputDialogBp);
 	}

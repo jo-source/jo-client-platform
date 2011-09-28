@@ -109,13 +109,14 @@ final class AttributeToolkitImpl implements IAttributeToolkit {
 	@SuppressWarnings("unchecked")
 	@Override
 	public IAttributeBuilder<Object> createMetaAttributeBuilder(final String propertyName) {
-		Assert.paramNotNull(propertyName, "propertyName");
+		Assert.paramNotNull(propertyName, "propertyName"); //$NON-NLS-1$
 
 		if (IBeanProxy.META_PROPERTY_PROGRESS.equals(propertyName)) {
 			@SuppressWarnings("rawtypes")
 			final IAttributeBuilder builder = new AttributeBuilderImpl(String.class);
 			builder.setPropertyName(IBeanProxy.META_PROPERTY_PROGRESS);
-			builder.setLabel("Progress").setDescription("Shows the progress of running executions on the data");
+			builder.setLabel(Messages.getString("AttributeToolkitImpl.progress")); //$NON-NLS-1$
+			builder.setDescription(Messages.getString("AttributeToolkitImpl.progress_description")); //$NON-NLS-1$
 			builder.setEditable(false).setSortable(false).setFilterable(false);
 			return builder;
 		}
@@ -123,7 +124,8 @@ final class AttributeToolkitImpl implements IAttributeToolkit {
 			@SuppressWarnings("rawtypes")
 			final IAttributeBuilder builder = new AttributeBuilderImpl(List.class, IBeanMessage.class);
 			builder.setPropertyName(IBeanProxy.META_PROPERTY_MESSAGES);
-			builder.setLabel("Messages").setDescription("Shows the messages of the data");
+			builder.setLabel(Messages.getString("AttributeToolkitImpl.messages")); //$NON-NLS-1$
+			builder.setDescription(Messages.getString("AttributeToolkitImpl.messages_description")); //$NON-NLS-1$
 			builder.setEditable(false).setSortable(false).setFilterable(false);
 
 			final IControlPanelProviderBuilder<IBeanMessage> panelBuilder = CapUiToolkit.attributeToolkit().createControlPanelProviderBuilder(
@@ -137,7 +139,7 @@ final class AttributeToolkitImpl implements IAttributeToolkit {
 
 			return builder;
 		}
-		throw new IllegalArgumentException("The meta property name '" + propertyName + "' is not known");
+		throw new IllegalArgumentException("The meta property name '" + propertyName + "' is not known"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	@Override

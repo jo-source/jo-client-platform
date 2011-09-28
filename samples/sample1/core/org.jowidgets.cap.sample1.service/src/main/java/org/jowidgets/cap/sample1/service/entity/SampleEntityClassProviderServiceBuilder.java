@@ -40,26 +40,26 @@ public class SampleEntityClassProviderServiceBuilder extends EntityClassProvider
 		super();
 		IEntityClassBuilder builder = CapCommonToolkit.entityClassBuilder();
 		builder.setId(IUser.class);
-		builder.setLabel("User");
-		builder.setDescription("User object in this sample application");
+		builder.setLabel(Messages.getString("SampleEntityClassProviderServiceBuilder.user")); //$NON-NLS-1$
+		builder.setDescription(Messages.getString("SampleEntityClassProviderServiceBuilder.user_description")); //$NON-NLS-1$
 		addEntityClass(builder.build());
 
 		builder = CapCommonToolkit.entityClassBuilder();
 		builder.setId(EntityIds.ROLE);
-		builder.setLabel("Roles");
-		builder.setDescription("The roles of the user management");
+		builder.setLabel(Messages.getString("SampleEntityClassProviderServiceBuilder.roles")); //$NON-NLS-1$
+		builder.setDescription(Messages.getString("SampleEntityClassProviderServiceBuilder.roles_description")); //$NON-NLS-1$
 		addEntityClass(builder.build());
 
 		builder = CapCommonToolkit.entityClassBuilder();
 		builder.setId(EntityIds.AUTHORIZATION);
-		builder.setLabel("Authorization");
-		builder.setDescription("The authorizations of the user management");
+		builder.setLabel(Messages.getString("SampleEntityClassProviderServiceBuilder.authorization")); //$NON-NLS-1$
+		builder.setDescription(Messages.getString("SampleEntityClassProviderServiceBuilder.authorization_description")); //$NON-NLS-1$
 		addEntityClass(builder.build());
 
 		builder = CapCommonToolkit.entityClassBuilder();
 		builder.setId(EntityIds.GENERIC_BEAN);
-		builder.setLabel("Generic bean");
-		builder.setDescription("Generic bean with a bunch of columns");
+		builder.setLabel(Messages.getString("SampleEntityClassProviderServiceBuilder.generic_bean")); //$NON-NLS-1$
+		builder.setDescription(Messages.getString("SampleEntityClassProviderServiceBuilder.generic_bean_description")); //$NON-NLS-1$
 		addEntityClass(builder.build());
 	}
 

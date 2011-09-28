@@ -48,8 +48,8 @@ public class RoleDtoDescriptorBuilder {
 
 		IPropertyBuilder propertyBuilder = builder();
 		propertyBuilder.setName(IBean.ID_PROPERTY);
-		propertyBuilder.setLabel("Id");
-		propertyBuilder.setDescription("The id of the role");
+		propertyBuilder.setLabel(Messages.getString("RoleDtoDescriptorBuilder.id")); //$NON-NLS-1$
+		propertyBuilder.setDescription(Messages.getString("RoleDtoDescriptorBuilder.id_description")); //$NON-NLS-1$
 		propertyBuilder.setMandatory(true);
 		propertyBuilder.setReadonly(true);
 		propertyBuilder.setValueType(Long.class);
@@ -57,22 +57,22 @@ public class RoleDtoDescriptorBuilder {
 
 		propertyBuilder = builder();
 		propertyBuilder.setName(RoleInitializer.NAME_PROPERTY);
-		propertyBuilder.setLabel("Name");
-		propertyBuilder.setDescription("The name of the role");
+		propertyBuilder.setLabel(Messages.getString("RoleDtoDescriptorBuilder.name")); //$NON-NLS-1$
+		propertyBuilder.setDescription(Messages.getString("RoleDtoDescriptorBuilder.name_description")); //$NON-NLS-1$
 		propertyBuilder.setMandatory(true);
 		properties.add(propertyBuilder.build());
 
 		propertyBuilder = builder();
 		propertyBuilder.setName(RoleInitializer.DESCRIPTION_PROPERTY);
-		propertyBuilder.setLabel("Description");
-		propertyBuilder.setDescription("The Desription of the role");
+		propertyBuilder.setLabel(Messages.getString("RoleDtoDescriptorBuilder.description")); //$NON-NLS-1$
+		propertyBuilder.setDescription(Messages.getString("RoleDtoDescriptorBuilder.description_description")); //$NON-NLS-1$
 		propertyBuilder.setMandatory(false);
 		properties.add(propertyBuilder.build());
 
 		propertyBuilder = builder();
 		propertyBuilder.setName(IBean.VERSION_PROPERTY);
-		propertyBuilder.setLabel("Version");
-		propertyBuilder.setDescription("The version of the role record");
+		propertyBuilder.setLabel(Messages.getString("RoleDtoDescriptorBuilder.version")); //$NON-NLS-1$
+		propertyBuilder.setDescription(Messages.getString("RoleDtoDescriptorBuilder.version_description")); //$NON-NLS-1$
 		propertyBuilder.setMandatory(true);
 		propertyBuilder.setReadonly(true);
 		propertyBuilder.setValueType(long.class);

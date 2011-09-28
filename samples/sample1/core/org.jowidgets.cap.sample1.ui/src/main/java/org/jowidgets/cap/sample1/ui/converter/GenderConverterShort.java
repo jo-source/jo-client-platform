@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2011, grossmann, Nikolaus Moll
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -28,33 +28,14 @@
 
 package org.jowidgets.cap.sample1.ui.converter;
 
-import java.util.HashMap;
-import java.util.Map;
 
-import org.jowidgets.api.convert.IConverter;
-import org.jowidgets.tools.converter.MapConverter;
+public final class GenderConverterShort extends AbstractGenderConverter {
 
-public final class GenderConverterShort {
-
-	private final IConverter<String> converter;
+	private static final String MALE = Messages.getString("GenderConverterShort.male"); //$NON-NLS-1$
+	private static final String FEMALE = Messages.getString("GenderConverterShort.female"); //$NON-NLS-1$
 
 	public GenderConverterShort() {
-		final Map<String, String> objectToString = new HashMap<String, String>();
-		objectToString.put("M", "M");
-		objectToString.put("F", "F");
-		objectToString.put(null, "");
-
-		final Map<String, String> stringToObject = new HashMap<String, String>();
-		stringToObject.put("M", "M");
-		stringToObject.put("m", "M");
-		stringToObject.put("F", "F");
-		stringToObject.put("f", "F");
-
-		this.converter = new MapConverter<String>(objectToString, stringToObject, "Must be 'M' or 'F'");
-	}
-
-	public IConverter<String> getConverter() {
-		return converter;
+		super(MALE, FEMALE);
 	}
 
 }

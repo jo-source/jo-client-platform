@@ -30,8 +30,10 @@ package org.jowidgets.cap.ui.api.filter;
 
 public enum FilterType implements IFilterType {
 
-	ARITHMETIC_FILTER("Arithmetic filter", "Compares a property with a value"),
-	ARITHMETIC_PROPERTY_FILTER("Arithmetic property filter", "Compares a property with other properties");
+	ARITHMETIC_FILTER(Messages.getString("FilterType.arithmetic_filter"), //$NON-NLS-1$
+		Messages.getString("FilterType.arithmetic_filter_description")), //$NON-NLS-1$ 
+	ARITHMETIC_PROPERTY_FILTER(Messages.getString("FilterType.arithmetic_property_filter"), //$NON-NLS-1$
+		Messages.getString("FilterType.arithmetic_property_filter_description")); //$NON-NLS-1$
 
 	private final String label;
 	private final String description;

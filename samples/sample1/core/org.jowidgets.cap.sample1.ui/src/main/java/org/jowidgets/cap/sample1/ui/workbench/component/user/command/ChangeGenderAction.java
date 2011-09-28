@@ -47,14 +47,19 @@ import org.jowidgets.tools.command.ActionWrapper;
 
 public class ChangeGenderAction extends ActionWrapper {
 
+	private static final String CHANGE_GENDER = Messages.getString("ChangeGenderAction.change_gender"); //$NON-NLS-1$
+	private static final String CHANGES_GENDER_TOOLTIP = Messages.getString("ChangeGenderAction.change_gende_tooltip"); //$NON-NLS-1$
+	private static final String WOULD_YOU_REALLY_LIKE_TO_CHANGE_THE_GENDER_OF_N_M_THIS_CAN_T_BE_UNDONE = Messages.getString("ChangeGenderAction.would_you_really_like_to_change_the_gender_of_n_m_this_cant_be_undonw"); //$NON-NLS-1$
+	private static final String WOULD_YOU_REALLY_LIKE_TO_CHANGE_THE_GENDER_OF_N_PERSONS_THIS_CAN_T_BE_UNDONE = Messages.getString("ChangeGenderAction.would_you_really_like_to_change_the_gender_of_n_persons_this_cant_be_undone"); //$NON-NLS-1$
+
 	public ChangeGenderAction(final IBeanListModel<IUser> model) {
 		super(create(model));
 	}
 
 	private static IAction create(final IBeanListModel<IUser> model) {
 		final IExecutorActionBuilder<IUser, Void> builder = CapUiToolkit.actionFactory().executorActionBuilder(model);
-		builder.setText("Change gender");
-		builder.setToolTipText("Changes the gender of the selected person(s)");
+		builder.setText(CHANGE_GENDER);
+		builder.setToolTipText(CHANGES_GENDER_TOOLTIP);
 		builder.setIcon(SilkIcons.CUT_RED);
 		builder.setSelectionPolicy(BeanSelectionPolicy.MULTI_SELECTION);
 		builder.setExecutionPolicy(BeanExecutionPolicy.PARALLEL);
@@ -70,14 +75,15 @@ public class ChangeGenderAction extends ActionWrapper {
 				final String question;
 				if (size == 1) {
 					final IUser bean = model.getBean(model.getSelection().get(0)).getBean();
-					question = "Would you really like to change the gender of '"
-						+ bean.getName()
-						+ " "
-						+ bean.getLastName()
-						+ "'?\n This can't be undone!";
+					question = Toolkit.getMessageReplacer().replace(
+							WOULD_YOU_REALLY_LIKE_TO_CHANGE_THE_GENDER_OF_N_M_THIS_CAN_T_BE_UNDONE,
+							bean.getName(),
+							bean.getLastName());
 				}
 				else {
-					question = "Would you really like to change the gender of '" + size + "' Persons?\n This can't be undone!";
+					question = Toolkit.getMessageReplacer().replace(
+							WOULD_YOU_REALLY_LIKE_TO_CHANGE_THE_GENDER_OF_N_PERSONS_THIS_CAN_T_BE_UNDONE,
+							String.valueOf(size));
 				}
 				final QuestionResult result = Toolkit.getQuestionPane().askYesNoQuestion(
 						action.getText(),

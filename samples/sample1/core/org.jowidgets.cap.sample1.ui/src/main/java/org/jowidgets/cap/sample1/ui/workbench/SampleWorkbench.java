@@ -51,7 +51,7 @@ public class SampleWorkbench implements IWorkbenchFactory {
 
 		final IWorkbenchModelBuilder builder = new WorkbenchModelBuilder();
 		builder.setInitialDimension(new Dimension(1024, 768));
-		builder.setLabel("Sample application 1");
+		builder.setLabel(Messages.getString("SampleWorkbench.sample_application_1")); //$NON-NLS-1$
 		builder.setLoginCallback(new ILoginCallback() {
 			@Override
 			public void onLogin(final IVetoable vetoable) {
@@ -71,7 +71,7 @@ public class SampleWorkbench implements IWorkbenchFactory {
 		model.getToolBar().addAction(WorkbenchActions.undoAction());
 		model.getToolBar().addAction(WorkbenchActions.saveAction());
 
-		final IMenuModel dataMenu = model.getMenuBar().addMenu("Data");
+		final IMenuModel dataMenu = model.getMenuBar().addMenu(Messages.getString("SampleWorkbench.data")); //$NON-NLS-1$
 		dataMenu.addAction(WorkbenchActions.loadAction());
 		dataMenu.addAction(WorkbenchActions.cancelAction());
 		dataMenu.addSeparator();
