@@ -35,16 +35,12 @@ import org.jowidgets.service.api.IServiceId;
 
 public interface IUiLookUpCache {
 
-	IUiLookUp getLookUp(ILookUpService lookUpService, Object lookUpId);
-
-	IUiLookUp getLookUp(IServiceId<ILookUpService> lookUpServiceId, Object lookUpId);
-
-	IUiLookUp getLookUp(Object lookUpId);
+	IUiLookUp getLookUp(IServiceId<ILookUpService> lookUpServiceId);
 
 	void clearCache();
 
-	void clearCache(Object... lookUpIds);
+	void clearCache(IServiceId<ILookUpService>... ids);
 
-	void clearCache(List<Object> lookUpIds);
+	void clearCache(List<IServiceId<ILookUpService>> ids);
 
 }
