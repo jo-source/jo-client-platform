@@ -32,8 +32,10 @@ public enum DateDisplayFormat implements IDisplayFormat {
 
 	DATE(Messages.getString("DateDisplayFormat.date"), //$NON-NLS-1$
 		Messages.getString("DateDisplayFormat.displays_the_date_without_time")), //$NON-NLS-1$
+
 	TIME(Messages.getString("DateDisplayFormat.time"), //$NON-NLS-1$
 		Messages.getString("DateDisplayFormat.displays_the_time_without_date")), //$NON-NLS-1$
+
 	DATE_TIME(Messages.getString("DateDisplayFormat.date_and_time"), //$NON-NLS-1$
 		Messages.getString("DateDisplayFormat.displays_the_date_and_the_time")); //$NON-NLS-1$ 
 
