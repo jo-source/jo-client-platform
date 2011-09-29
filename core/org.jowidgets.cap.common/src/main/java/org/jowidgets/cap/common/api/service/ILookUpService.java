@@ -28,13 +28,14 @@
 
 package org.jowidgets.cap.common.api.service;
 
-import org.jowidgets.service.api.IServiceId;
-import org.jowidgets.service.tools.ServiceId;
+import java.util.List;
+
+import org.jowidgets.cap.common.api.execution.IExecutionCallback;
+import org.jowidgets.cap.common.api.execution.IResultCallback;
+import org.jowidgets.cap.common.api.lookup.ILookUpEntry;
 
 public interface ILookUpService {
 
-	IServiceId<ILookUpService> ID = new ServiceId<ILookUpService>(ILookUpService.class.getName(), ILookUpService.class);
-
-	ILookUpAccessService getLookUpAccess(Object lookUpId);
+	void readValues(IResultCallback<List<ILookUpEntry>> result, IExecutionCallback executionCallback);
 
 }

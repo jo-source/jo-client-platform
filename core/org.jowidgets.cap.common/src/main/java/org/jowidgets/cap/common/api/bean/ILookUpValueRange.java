@@ -36,9 +36,7 @@ import org.jowidgets.service.api.IServiceId;
 
 public interface ILookUpValueRange extends IValueRange {
 
-	IServiceId<ILookUpService> getLookUpServiceId();
-
-	Object getLookUpId();
+	IServiceId<ILookUpService> getServiceId();
 
 	List<ILookUpProperty> getValueProperties();
 
