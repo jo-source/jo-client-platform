@@ -26,23 +26,34 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.lookup;
+package org.jowidgets.cap.ui.impl;
 
 import java.util.List;
 
-import org.jowidgets.cap.common.api.lookup.ILookUpEntry;
-import org.jowidgets.cap.common.api.lookup.ILookUpProperty;
-import org.jowidgets.util.event.IChangeObservable;
+import org.jowidgets.cap.ui.api.lookup.ILookUp;
+import org.jowidgets.cap.ui.api.lookup.ILookUpCache;
 
-public interface IUiLookUp extends IChangeObservable {
+final class LookUpCacheImpl implements ILookUpCache {
 
-	Object getValue(Object key, String propertyName);
+	@Override
+	public ILookUp getLookUp(final Object lookUpId) {
+		// TODO MG implement lookUp
+		return null;
+	}
 
-	List<Object> getKeys();
+	@Override
+	public void clearCache() {
+		// TODO MG implement lookUp
+	}
 
-	List<Object> getValues();
+	@Override
+	public void clearCache(final Object... lookUpIds) {
+		// TODO MG implement lookUp
+	}
 
-	List<ILookUpEntry> getEntries();
+	@Override
+	public void clearCache(final List<Object> lookUpIds) {
+		// TODO MG implement lookUp
+	}
 
-	List<ILookUpProperty> getValueProperties();
 }

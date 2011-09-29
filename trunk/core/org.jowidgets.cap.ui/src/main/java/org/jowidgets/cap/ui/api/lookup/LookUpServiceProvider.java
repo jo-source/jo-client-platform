@@ -28,19 +28,60 @@
 
 package org.jowidgets.cap.ui.api.lookup;
 
-import java.util.List;
+import java.util.Iterator;
+import java.util.ServiceLoader;
 
 import org.jowidgets.cap.common.api.service.ILookUpService;
-import org.jowidgets.service.api.IServiceId;
+import org.jowidgets.service.api.ServiceProvider;
+import org.jowidgets.service.tools.ServiceId;
+import org.jowidgets.util.Assert;
 
-public interface IUiLookUpCache {
+public final class LookUpServiceProvider {
 
-	IUiLookUp getLookUp(IServiceId<ILookUpService> lookUpServiceId);
+	private static ILookUpServiceProvider instance;
 
-	void clearCache();
+	private LookUpServiceProvider() {}
 
-	void clearCache(IServiceId<ILookUpService>... ids);
+	public static ILookUpService getLookUpService(final Object lookUpId) {
+		return getInstance().getLookUpService(lookUpId);
+	}
 
-	void clearCache(List<IServiceId<ILookUpService>> ids);
+	public static ILookUpServiceProvider getInstance() {
+		if (instance == null) {
+			instance = createInstance();
+		}
+		return instance;
+	}
+
+	public static void initialize(final ILookUpServiceProvider lookUpServiceProvider) {
+		Assert.paramNotNull(lookUpServiceProvider, "lookUpServiceProvider");
+		instance = lookUpServiceProvider;
+	}
+
+	private static ILookUpServiceProvider createInstance() {
+		final ServiceLoader<ILookUpServiceProvider> toolkitProviderLoader = ServiceLoader.load(ILookUpServiceProvider.class);
+		final Iterator<ILookUpServiceProvider> iterator = toolkitProviderLoader.iterator();
+
+		final ILookUpServiceProvider result;
+
+		if (!iterator.hasNext()) {
+			result = new ILookUpServiceProvider() {
+				@Override
+				public ILookUpService getLookUpService(final Object lookUpId) {
+					return ServiceProvider.getService(new ServiceId<ILookUpService>(lookUpId, ILookUpService.class));
+				}
+			};
+		}
+		else {
+			result = iterator.next();
+			if (iterator.hasNext()) {
+				throw new IllegalStateException("More than one implementation found for '"
+					+ ILookUpServiceProvider.class.getName()
+					+ "'");
+			}
+		}
+
+		return result;
+	}
 
 }
