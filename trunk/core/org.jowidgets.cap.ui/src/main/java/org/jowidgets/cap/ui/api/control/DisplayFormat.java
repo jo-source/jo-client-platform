@@ -32,6 +32,7 @@ public enum DisplayFormat implements IDisplayFormat {
 
 	LONG(Messages.getString("DisplayFormat.long"), //$NON-NLS-1$
 		Messages.getString("DisplayFormat.long_display_format")), //$NON-NLS-1$
+
 	SHORT(Messages.getString("DisplayFormat.short"), //$NON-NLS-1$
 		Messages.getString("DisplayFormat.short_display_format")); //$NON-NLS-1$
 
