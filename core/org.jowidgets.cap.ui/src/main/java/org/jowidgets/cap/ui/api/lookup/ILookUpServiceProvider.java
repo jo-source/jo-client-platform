@@ -26,16 +26,12 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.api.bean;
+package org.jowidgets.cap.ui.api.lookup;
 
-import java.util.List;
+import org.jowidgets.cap.common.api.service.ILookUpService;
 
-import org.jowidgets.cap.common.api.lookup.ILookUpProperty;
+public interface ILookUpServiceProvider {
 
-public interface ILookUpValueRange extends IValueRange {
-
-	Object getLookUpId();
-
-	List<ILookUpProperty> getValueProperties();
+	ILookUpService getLookUpService(Object lookUpId);
 
 }

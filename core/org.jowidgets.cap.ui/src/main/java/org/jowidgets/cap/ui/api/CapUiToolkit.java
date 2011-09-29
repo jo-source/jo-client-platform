@@ -52,6 +52,7 @@ import org.jowidgets.cap.ui.api.execution.IExecutionTaskFactory;
 import org.jowidgets.cap.ui.api.filter.IFilterToolkit;
 import org.jowidgets.cap.ui.api.form.IBeanFormToolkit;
 import org.jowidgets.cap.ui.api.icons.CapIcons;
+import org.jowidgets.cap.ui.api.lookup.ILookUpCache;
 import org.jowidgets.cap.ui.api.sort.ISortModelConfigBuilder;
 import org.jowidgets.cap.ui.api.table.IBeanTableConfigBuilder;
 import org.jowidgets.cap.ui.api.table.IBeanTableMenuFactory;
@@ -164,6 +165,10 @@ public final class CapUiToolkit {
 
 	public static Validator beanValidator() {
 		return getInstance().beanValidator();
+	}
+
+	public static ILookUpCache lookUpCache() {
+		return getInstance().lookUpCache();
 	}
 
 	private static ICapUiToolkit createDefaultInstance(final IToolkit toolkit) {
