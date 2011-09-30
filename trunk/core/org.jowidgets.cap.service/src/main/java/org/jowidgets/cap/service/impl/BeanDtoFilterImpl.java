@@ -56,7 +56,7 @@ final class BeanDtoFilterImpl implements IBeanDtoFilter {
 		final IFilter filter,
 		final IExecutionCallback executionCallback) {
 		//CHECKSTYLE:OFF
-		// TODO NM remove sysout
+		// TODO MG remove sysout in filter method
 		System.out.println("Filter: " + filter);
 		//CHECKSTYLE:ON
 		if (filter instanceof IBooleanFilter) {
