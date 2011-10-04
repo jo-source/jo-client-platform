@@ -132,7 +132,7 @@ final class AttributeToolkitImpl implements IAttributeToolkit {
 					propertyName,
 					List.class,
 					IBeanMessage.class,
-					CapCommonToolkit.valueRangeFactory().create());
+					CapCommonToolkit.staticValueRangeFactory().create());
 			panelBuilder.setObjectLabelConverter(new BeanMessageLabelConverter());
 
 			builder.addControlPanel(panelBuilder.build());
@@ -149,7 +149,7 @@ final class AttributeToolkitImpl implements IAttributeToolkit {
 		return new ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE>(
 			propertyName,
 			elementValueType,
-			CapCommonToolkit.valueRangeFactory().create());
+			CapCommonToolkit.staticValueRangeFactory().create());
 	}
 
 	@Override
@@ -161,7 +161,7 @@ final class AttributeToolkitImpl implements IAttributeToolkit {
 			propertyName,
 			valueType,
 			elementValueType,
-			CapCommonToolkit.valueRangeFactory().create());
+			CapCommonToolkit.staticValueRangeFactory().create());
 	}
 
 	@Override

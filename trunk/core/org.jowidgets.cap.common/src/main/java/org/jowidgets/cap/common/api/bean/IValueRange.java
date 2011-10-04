@@ -28,12 +28,7 @@
 
 package org.jowidgets.cap.common.api.bean;
 
-import java.util.List;
 
 public interface IValueRange {
-
-	List<Object> getValues();
-
-	boolean isOpen();
 
 }

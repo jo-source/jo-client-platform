@@ -39,7 +39,7 @@ import org.jowidgets.cap.common.api.bean.IBeanModificationBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanPropertyBuilder;
 import org.jowidgets.cap.common.api.bean.IProperty;
 import org.jowidgets.cap.common.api.bean.IPropertyBuilder;
-import org.jowidgets.cap.common.api.bean.IValueRangeFactory;
+import org.jowidgets.cap.common.api.bean.IStaticValueRangeFactory;
 import org.jowidgets.cap.common.api.entity.IEntityClassBuilder;
 import org.jowidgets.cap.common.api.filter.IFilterFactory;
 import org.jowidgets.cap.common.api.sort.ISortFactory;
@@ -52,7 +52,7 @@ public interface ICapCommonToolkit {
 
 	IBeanPropertyBuilder beanPropertyBuilder(Class<?> beanType, String propertyName);
 
-	IValueRangeFactory valueRangeFactory();
+	IStaticValueRangeFactory staticValueRangeFactory();
 
 	IBeanDtoDescriptorBuilder dtoDescriptorBuilder(Class<?> beanType);
 

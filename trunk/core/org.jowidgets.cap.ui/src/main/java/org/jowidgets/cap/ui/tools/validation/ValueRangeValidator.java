@@ -27,15 +27,23 @@
  */
 package org.jowidgets.cap.ui.tools.validation;
 
+import org.jowidgets.cap.common.api.bean.ILookUpValueRange;
+import org.jowidgets.cap.common.api.bean.IStaticValueRange;
 import org.jowidgets.cap.common.api.bean.IValueRange;
+import org.jowidgets.cap.ui.api.CapUiToolkit;
+import org.jowidgets.cap.ui.api.lookup.ILookUp;
+import org.jowidgets.cap.ui.api.lookup.ILookUpAccess;
+import org.jowidgets.cap.ui.api.lookup.ILookUpCallback;
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.ValueHolder;
 import org.jowidgets.validation.IValidationResult;
 import org.jowidgets.validation.IValidator;
 import org.jowidgets.validation.ValidationResult;
 
 public class ValueRangeValidator<VALIDATION_INPUT_TYPE> implements IValidator<VALIDATION_INPUT_TYPE> {
 
-	private final IValidationResult result;
+	private final IValidationResult notInRangeResult;
+	private final IValidationResult lookUpNotInitialized;
 	private final IValueRange valueRange;
 
 	public ValueRangeValidator(final IValueRange valueRange) {
@@ -46,17 +54,61 @@ public class ValueRangeValidator<VALIDATION_INPUT_TYPE> implements IValidator<VA
 		Assert.paramNotNull(valueRange, "valueRange"); //$NON-NLS-1$
 		Assert.paramNotEmpty(messageText, "messageText"); //$NON-NLS-1$
 		this.valueRange = valueRange;
-		this.result = ValidationResult.error(messageText);
+		this.notInRangeResult = ValidationResult.error(messageText);
+		this.lookUpNotInitialized = ValidationResult.error(Messages.getString("ValueRangeValidator.look_up_not_initialized"));
 	}
 
 	@Override
 	public IValidationResult validate(final VALIDATION_INPUT_TYPE validationInput) {
-		if (!valueRange.isOpen() && !valueRange.getValues().contains(validationInput)) {
-			return result;
+		if (valueRange instanceof IStaticValueRange) {
+			return validateStaticRange((IStaticValueRange) valueRange, validationInput);
+		}
+		else if (valueRange instanceof ILookUpValueRange) {
+			return validateLookUpRange((ILookUpValueRange) valueRange, validationInput);
 		}
 		else {
 			return ValidationResult.ok();
 		}
 	}
 
+	private IValidationResult validateStaticRange(final IStaticValueRange staticValueRange, final VALIDATION_INPUT_TYPE validationInput) {
+		if (!staticValueRange.isOpen() && !staticValueRange.getValues().contains(validationInput)) {
+			return notInRangeResult;
+		}
+		else {
+			return ValidationResult.ok();
+		}
+	}
+
+	private IValidationResult validateLookUpRange(final ILookUpValueRange lookUpValueValueRange, final VALIDATION_INPUT_TYPE validationInput) {
+
+		final ILookUpAccess lookUpAccess = CapUiToolkit.lookUpCache().getAccess(lookUpValueValueRange.getLookUpId());
+		final ValueHolder<ILookUp> lookUpHolder = new ValueHolder<ILookUp>();
+		final ILookUpCallback lookUpCallback = new ILookUpCallback() {
+
+			@Override
+			public void exception(final Throwable exception) {}
+
+			@Override
+			public void changed(final ILookUp lookUp) {
+				lookUpHolder.set(lookUp);
+			}
+		};
+		//assuming that look up is already initialized here, otherwise an input
+		//to the control could not be possible
+		lookUpAccess.addCallback(lookUpCallback);
+		final ILookUp lookUp = lookUpHolder.get();
+		if (lookUp != null) {
+			if (!lookUp.getKeys().contains(validationInput)) {
+				return notInRangeResult;
+			}
+			else {
+				return ValidationResult.ok();
+			}
+		}
+		else {
+			return lookUpNotInitialized;
+		}
+
+	}
 }

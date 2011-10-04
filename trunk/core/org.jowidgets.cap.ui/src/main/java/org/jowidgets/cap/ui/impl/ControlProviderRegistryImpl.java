@@ -33,8 +33,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.jowidgets.api.toolkit.Toolkit;
-import org.jowidgets.cap.ui.api.control.IDisplayFormat;
-import org.jowidgets.cap.ui.api.control.IInputControlProvider;
 import org.jowidgets.cap.ui.api.control.IInputControlProviderRegistry;
 import org.jowidgets.cap.ui.api.control.IInputControlSupport;
 import org.jowidgets.util.Assert;
@@ -72,27 +70,6 @@ final class ControlProviderRegistryImpl implements IInputControlProviderRegistry
 			result = new ControlProviderDefault<ELEMENT_VALUE_TYPE>(type);
 		}
 		return result;
-	}
-
-	@Override
-	public <ELEMENT_VALUE_TYPE> IInputControlProvider<ELEMENT_VALUE_TYPE> getDefaultControl(
-		final Class<? extends ELEMENT_VALUE_TYPE> type) {
-		Assert.paramNotNull(type, "type");
-		final IInputControlSupport<ELEMENT_VALUE_TYPE> controls = getControls(type);
-		if (controls != null) {
-			final IDisplayFormat defaultDisplayFormat = controls.getDefaultDisplayFormat();
-			if (defaultDisplayFormat != null && defaultDisplayFormat.getId() != null) {
-				for (final IInputControlProvider<ELEMENT_VALUE_TYPE> controlProvider : controls.getControls()) {
-					if (defaultDisplayFormat.getId().equals(controlProvider.getDisplayFormat().getId())) {
-						return controlProvider;
-					}
-				}
-			}
-			else if (controls.getControls().size() > 0) {
-				return controls.getControls().get(0);
-			}
-		}
-		return null;
 	}
 
 	@Override

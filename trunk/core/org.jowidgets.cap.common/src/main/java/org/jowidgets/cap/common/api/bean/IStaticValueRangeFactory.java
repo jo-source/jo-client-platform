@@ -26,29 +26,16 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.impl;
+package org.jowidgets.cap.common.api.bean;
 
 import java.util.Collection;
-import java.util.Collections;
 
-import org.jowidgets.cap.common.api.bean.IValueRange;
-import org.jowidgets.cap.common.api.bean.IValueRangeFactory;
+public interface IStaticValueRangeFactory {
 
-final class ValueRangeFactoryImpl implements IValueRangeFactory {
+	IStaticValueRange create(Collection<? extends Object> values, boolean open);
 
-	@Override
-	public IValueRange create(final Collection<? extends Object> values, final boolean open) {
-		return new ValueRangeImpl(values, open);
-	}
+	IStaticValueRange create(Collection<? extends Object> values);
 
-	@Override
-	public IValueRange create(final Collection<? extends Object> values) {
-		return new ValueRangeImpl(values, false);
-	}
-
-	@Override
-	public IValueRange create() {
-		return new ValueRangeImpl(Collections.emptyList(), true);
-	}
+	IStaticValueRange create();
 
 }

@@ -28,36 +28,27 @@
 
 package org.jowidgets.cap.common.impl;
 
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
 
-import org.jowidgets.cap.common.api.bean.IValueRange;
-import org.jowidgets.util.Assert;
+import org.jowidgets.cap.common.api.bean.IStaticValueRange;
+import org.jowidgets.cap.common.api.bean.IStaticValueRangeFactory;
 
-final class ValueRangeImpl implements IValueRange, Serializable {
+final class StaticValueRangeFactoryImpl implements IStaticValueRangeFactory {
 
-	private static final long serialVersionUID = -7976858425639626511L;
-
-	private final List<Object> values;
-	private final boolean open;
-
-	ValueRangeImpl(final Collection<? extends Object> values, final boolean open) {
-		Assert.paramNotNull(values, "values");
-		this.values = Collections.unmodifiableList(new LinkedList<Object>(values));
-		this.open = open;
+	@Override
+	public IStaticValueRange create(final Collection<? extends Object> values, final boolean open) {
+		return new StaticValueRangeImpl(values, open);
 	}
 
 	@Override
-	public List<Object> getValues() {
-		return values;
+	public IStaticValueRange create(final Collection<? extends Object> values) {
+		return new StaticValueRangeImpl(values, false);
 	}
 
 	@Override
-	public boolean isOpen() {
-		return open;
+	public IStaticValueRange create() {
+		return new StaticValueRangeImpl(Collections.emptyList(), true);
 	}
 
 }

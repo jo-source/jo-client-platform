@@ -31,6 +31,8 @@ package org.jowidgets.cap.ui.impl;
 import java.util.Collection;
 import java.util.Date;
 
+import org.jowidgets.cap.common.api.bean.ILookUpValueRange;
+import org.jowidgets.cap.common.api.bean.IStaticValueRange;
 import org.jowidgets.cap.common.api.bean.IValueRange;
 import org.jowidgets.cap.common.api.filter.ArithmeticOperator;
 import org.jowidgets.cap.ui.api.filter.IOperatorProvider;
@@ -69,7 +71,7 @@ final class DefaultOperatorProvider {
 		Assert.paramNotNull(valueRange, "valueRange");
 		if (Collection.class.isAssignableFrom(type)) {
 			Assert.paramNotNull(elementValueType, "elementValueType");
-			if (!valueRange.isOpen() && !valueRange.getValues().isEmpty()) {
+			if (isLookUp(valueRange)) {
 				return LOOK_UP_COLLECTION;
 			}
 			else if (String.class.isAssignableFrom(elementValueType)) {
@@ -89,7 +91,7 @@ final class DefaultOperatorProvider {
 			}
 		}
 		else {
-			if (!valueRange.isOpen() && !valueRange.getValues().isEmpty()) {
+			if (isLookUp(valueRange)) {
 				return LOOK_UP;
 			}
 			else if (String.class.isAssignableFrom(type)) {
@@ -119,7 +121,7 @@ final class DefaultOperatorProvider {
 		Assert.paramNotNull(valueRange, "valueRange");
 		if (Collection.class.isAssignableFrom(type)) {
 			Assert.paramNotNull(elementValueType, "elementValueType");
-			if (!valueRange.isOpen() && !valueRange.getValues().isEmpty()) {
+			if (isLookUp(valueRange)) {
 				return LOOK_UP_COLLECTION_PROPERTY;
 			}
 			else if (String.class.isAssignableFrom(elementValueType)) {
@@ -139,7 +141,7 @@ final class DefaultOperatorProvider {
 			}
 		}
 		else {
-			if (!valueRange.isOpen() && !valueRange.getValues().isEmpty()) {
+			if (isLookUp(valueRange)) {
 				return LOOK_UP_PROPERTY;
 			}
 			else if (String.class.isAssignableFrom(type)) {
@@ -159,6 +161,17 @@ final class DefaultOperatorProvider {
 			}
 		}
 		return null;
+	}
+
+	private static boolean isLookUp(final IValueRange valueRange) {
+		if (valueRange instanceof ILookUpValueRange) {
+			return true;
+		}
+		else if (valueRange instanceof IStaticValueRange) {
+			final IStaticValueRange staticValueRange = (IStaticValueRange) valueRange;
+			return !staticValueRange.isOpen() && !staticValueRange.getValues().isEmpty();
+		}
+		return false;
 	}
 
 	private static IOperatorProvider<ArithmeticOperator> string() {

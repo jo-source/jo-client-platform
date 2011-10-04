@@ -32,6 +32,8 @@ import org.jowidgets.api.convert.IConverter;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.widgets.IInputControl;
 import org.jowidgets.api.widgets.blueprint.ICheckBoxBluePrint;
+import org.jowidgets.cap.common.api.bean.ILookUpValueRange;
+import org.jowidgets.cap.common.api.bean.IStaticValueRange;
 import org.jowidgets.cap.common.api.bean.IValueRange;
 import org.jowidgets.cap.ui.tools.validation.ValueRangeValidator;
 import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
@@ -51,7 +53,8 @@ final class ControlSupportBooleanPrimitive extends ControlProviderDefault<Boolea
 			@Override
 			public IInputControl<Boolean> create(final ICustomWidgetFactory widgetFactory) {
 				final ICheckBoxBluePrint checkBoxBp = Toolkit.getBluePrintFactory().checkBox();
-				if (!valueRange.isOpen()) {
+				if ((valueRange instanceof IStaticValueRange && !((IStaticValueRange) valueRange).isOpen())
+					|| valueRange instanceof ILookUpValueRange) {
 					checkBoxBp.setValidator(new ValueRangeValidator<Boolean>(valueRange));
 				}
 				return widgetFactory.create(checkBoxBp);
