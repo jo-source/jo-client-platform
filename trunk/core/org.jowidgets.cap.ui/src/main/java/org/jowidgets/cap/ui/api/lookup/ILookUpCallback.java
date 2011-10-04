@@ -33,6 +33,8 @@ public interface ILookUpCallback {
 	/**
 	 * This method will be invoked before the current look up
 	 * will be (re) loaded (e.g. the cache was set dirty or before initialization)
+	 * 
+	 * This will be invoked in the ui thread.
 	 */
 	void beforeChange();
 
