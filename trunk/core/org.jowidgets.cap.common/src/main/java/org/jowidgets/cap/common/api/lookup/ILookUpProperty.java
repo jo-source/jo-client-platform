@@ -32,8 +32,6 @@ public interface ILookUpProperty {
 
 	String getName();
 
-	Object getDisplayFormatId();
-
 	String getDisplayFormatName();
 
 	String getDisplayFormatDescription();

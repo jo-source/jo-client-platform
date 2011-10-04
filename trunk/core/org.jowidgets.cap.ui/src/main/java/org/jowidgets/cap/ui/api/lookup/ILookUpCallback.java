@@ -26,62 +26,28 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.impl;
+package org.jowidgets.cap.ui.api.lookup;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+public interface ILookUpCallback {
 
-import org.jowidgets.api.toolkit.Toolkit;
-import org.jowidgets.cap.ui.api.lookup.ILookUpAccess;
-import org.jowidgets.cap.ui.api.lookup.ILookUpCache;
-import org.jowidgets.util.Assert;
+	/**
+	 * The look up has been loaded or changed.
+	 * 
+	 * This will be invoked in the ui thread.
+	 * 
+	 * @param lookUp the new look up
+	 */
+	void changed(ILookUp lookUp);
 
-final class LookUpCacheImpl implements ILookUpCache {
+	/**
+	 * An exception occurred while loading the lookup up.
+	 * After exception occurred, the changed method @see {@link ILookUpCallback#changed(ILookUp)} may be invoked (depends on
+	 * implementation).
+	 * 
+	 * This method will be invoked in the ui thread
+	 * 
+	 * @param exception The exception that occurred
+	 */
+	void exception(Throwable exception);
 
-	private final Map<Object, LookUpAccessImpl> map;
-
-	LookUpCacheImpl() {
-		this.map = new HashMap<Object, LookUpAccessImpl>();
-	}
-
-	@Override
-	public ILookUpAccess getAccess(final Object lookUpId) {
-		Assert.paramNotNull(lookUpId, "lookUpId");
-		checkThread();
-		LookUpAccessImpl result = map.get(lookUpId);
-		if (result == null) {
-			result = new LookUpAccessImpl(lookUpId);
-			map.put(lookUpId, result);
-		}
-		return result;
-	}
-
-	@Override
-	public void clearCache() {
-		clearCache(map.keySet());
-	}
-
-	@Override
-	public void clearCache(final Object... lookUpIds) {
-		clearCache(Arrays.asList(lookUpIds));
-	}
-
-	@Override
-	public void clearCache(final Collection<Object> lookUpIds) {
-		checkThread();
-		for (final Object lookUpId : lookUpIds) {
-			final LookUpAccessImpl lookUpImpl = map.get(lookUpId);
-			if (lookUpImpl != null) {
-				lookUpImpl.clearCache();
-			}
-		}
-	}
-
-	private void checkThread() {
-		if (!Toolkit.getUiThreadAccess().isUiThread()) {
-			throw new IllegalStateException("The accessing thread must be the ui thread");
-		}
-	}
 }

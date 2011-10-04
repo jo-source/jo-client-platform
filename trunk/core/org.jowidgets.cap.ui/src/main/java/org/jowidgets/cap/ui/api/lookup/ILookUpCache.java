@@ -28,16 +28,16 @@
 
 package org.jowidgets.cap.ui.api.lookup;
 
-import java.util.List;
+import java.util.Collection;
 
 public interface ILookUpCache {
 
-	ILookUp getLookUp(Object lookUpId);
+	ILookUpAccess getAccess(Object lookUpId);
 
 	void clearCache();
 
 	void clearCache(Object... lookUpIds);
 
-	void clearCache(List<Object> lookUpIds);
+	void clearCache(Collection<Object> lookUpIds);
 
 }

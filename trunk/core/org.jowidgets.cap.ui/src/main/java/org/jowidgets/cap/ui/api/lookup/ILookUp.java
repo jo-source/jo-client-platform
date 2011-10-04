@@ -31,18 +31,13 @@ package org.jowidgets.cap.ui.api.lookup;
 import java.util.List;
 
 import org.jowidgets.cap.common.api.lookup.ILookUpEntry;
-import org.jowidgets.cap.common.api.lookup.ILookUpProperty;
-import org.jowidgets.util.event.IChangeObservable;
 
-public interface ILookUp extends IChangeObservable {
+public interface ILookUp {
 
 	Object getValue(Object key, String propertyName);
 
 	List<Object> getKeys();
 
-	List<Object> getValues();
-
 	List<ILookUpEntry> getEntries();
 
-	List<ILookUpProperty> getValueProperties();
 }
