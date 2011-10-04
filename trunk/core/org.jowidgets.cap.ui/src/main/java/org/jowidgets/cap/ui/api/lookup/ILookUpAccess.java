@@ -30,8 +30,53 @@ package org.jowidgets.cap.ui.api.lookup;
 
 public interface ILookUpAccess {
 
+	/**
+	 * Adds a callback to get the look up asynchronous, and the be informed about look up changes.
+	 * This method forces the look up to get initialized, if not already done.
+	 * 
+	 * @see ILookUpAccess#initialize()
+	 * 
+	 * @param callback The callback that retrieves the look up changes.
+	 */
 	void addCallback(ILookUpCallback callback);
 
+	/**
+	 * Removes a calback to get no longer informed about look up changes
+	 * 
+	 * @param callback The callback to remove
+	 */
 	void removeCallback(ILookUpCallback callback);
+
+	/**
+	 * Forces the look up to get initialized, if not already done.
+	 * This method will be invoked automatically, if the method @link {@link ILookUpAccess#addCallback(ILookUpCallback)} will be
+	 * invoked.
+	 * 
+	 * Warning: After invoking this method, the method @link {@link ILookUpAccess#isInitialized()} may return false, because
+	 * lookUp's are loaded asynchronous.
+	 * Use the method @link {@link ILookUpAccess#addCallback(ILookUpCallback)} to get the lookUp
+	 * asynchronous.
+	 */
+	void initialize();
+
+	/**
+	 * @return True if the look up has already been initialized, false otherwise
+	 */
+	boolean isInitialized();
+
+	/**
+	 * Gets the current look up, if the look up is initialized.
+	 * 
+	 * Warning: The look up may be null,because lookUp's are loaded asynchronous.
+	 * Use the method @link {@link ILookUpAccess#addCallback(ILookUpCallback)} to get the lookUp
+	 * asynchronous.
+	 * 
+	 * @return the current look up, or null if the look up is not yet initialized
+	 */
+	ILookUp getCurrentLookUp();
+
+	void addLookUpListener(ILookUpListener listener);
+
+	void removeLookUpListener(ILookUpListener listener);
 
 }

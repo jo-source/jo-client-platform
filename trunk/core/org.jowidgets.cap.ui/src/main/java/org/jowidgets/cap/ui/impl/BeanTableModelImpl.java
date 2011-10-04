@@ -56,6 +56,8 @@ import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.bean.IBeanModification;
+import org.jowidgets.cap.common.api.bean.ILookUpValueRange;
+import org.jowidgets.cap.common.api.bean.IValueRange;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.filter.BooleanOperator;
 import org.jowidgets.cap.common.api.filter.IBooleanFilterBuilder;
@@ -82,6 +84,8 @@ import org.jowidgets.cap.ui.api.execution.IExecutionTask;
 import org.jowidgets.cap.ui.api.filter.IUiFilter;
 import org.jowidgets.cap.ui.api.filter.IUiFilterFactory;
 import org.jowidgets.cap.ui.api.filter.IUiFilterTools;
+import org.jowidgets.cap.ui.api.lookup.ILookUpAccess;
+import org.jowidgets.cap.ui.api.lookup.ILookUpListener;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
 import org.jowidgets.cap.ui.api.model.IModificationStateListener;
@@ -633,6 +637,25 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 					updateColumnModel();
 				}
 			});
+
+			final IValueRange valueRange = attribute.getValueRange();
+			if (valueRange instanceof ILookUpValueRange) {
+				final ILookUpValueRange lookUpValueRange = (ILookUpValueRange) valueRange;
+				final ILookUpAccess lookUpAccess = CapUiToolkit.lookUpCache().getAccess(lookUpValueRange.getLookUpId());
+				lookUpAccess.addLookUpListener(new ILookUpListener() {
+
+					@Override
+					public void taskCreated(final IExecutionTask task) {}
+
+					@Override
+					public void afterLookUpChanged() {
+						if (attribute.isVisible()) {
+							dataModel.fireDataChanged();
+						}
+					}
+				});
+			}
+
 			columnIndex++;
 		}
 

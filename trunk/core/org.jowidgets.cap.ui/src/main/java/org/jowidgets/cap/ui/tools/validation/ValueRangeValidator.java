@@ -33,9 +33,7 @@ import org.jowidgets.cap.common.api.bean.IValueRange;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.lookup.ILookUp;
 import org.jowidgets.cap.ui.api.lookup.ILookUpAccess;
-import org.jowidgets.cap.ui.api.lookup.ILookUpCallback;
 import org.jowidgets.util.Assert;
-import org.jowidgets.util.ValueHolder;
 import org.jowidgets.validation.IValidationResult;
 import org.jowidgets.validation.IValidator;
 import org.jowidgets.validation.ValidationResult;
@@ -71,7 +69,9 @@ public class ValueRangeValidator<VALIDATION_INPUT_TYPE> implements IValidator<VA
 		}
 	}
 
-	private IValidationResult validateStaticRange(final IStaticValueRange staticValueRange, final VALIDATION_INPUT_TYPE validationInput) {
+	private IValidationResult validateStaticRange(
+		final IStaticValueRange staticValueRange,
+		final VALIDATION_INPUT_TYPE validationInput) {
 		if (!staticValueRange.isOpen() && !staticValueRange.getValues().contains(validationInput)) {
 			return notInRangeResult;
 		}
@@ -80,24 +80,14 @@ public class ValueRangeValidator<VALIDATION_INPUT_TYPE> implements IValidator<VA
 		}
 	}
 
-	private IValidationResult validateLookUpRange(final ILookUpValueRange lookUpValueValueRange, final VALIDATION_INPUT_TYPE validationInput) {
+	private IValidationResult validateLookUpRange(
+		final ILookUpValueRange lookUpValueValueRange,
+		final VALIDATION_INPUT_TYPE validationInput) {
 
 		final ILookUpAccess lookUpAccess = CapUiToolkit.lookUpCache().getAccess(lookUpValueValueRange.getLookUpId());
-		final ValueHolder<ILookUp> lookUpHolder = new ValueHolder<ILookUp>();
-		final ILookUpCallback lookUpCallback = new ILookUpCallback() {
-
-			@Override
-			public void exception(final Throwable exception) {}
-
-			@Override
-			public void changed(final ILookUp lookUp) {
-				lookUpHolder.set(lookUp);
-			}
-		};
 		//assuming that look up is already initialized here, otherwise an input
 		//to the control could not be possible
-		lookUpAccess.addCallback(lookUpCallback);
-		final ILookUp lookUp = lookUpHolder.get();
+		final ILookUp lookUp = lookUpAccess.getCurrentLookUp();
 		if (lookUp != null) {
 			if (!lookUp.getKeys().contains(validationInput)) {
 				return notInRangeResult;

@@ -44,6 +44,7 @@ import org.jowidgets.cap.ui.api.execution.IExecutionTask;
 import org.jowidgets.cap.ui.api.lookup.ILookUp;
 import org.jowidgets.cap.ui.api.lookup.ILookUpAccess;
 import org.jowidgets.cap.ui.api.lookup.ILookUpCallback;
+import org.jowidgets.cap.ui.api.lookup.ILookUpListener;
 import org.jowidgets.cap.ui.api.lookup.LookUpServiceProvider;
 import org.jowidgets.util.Assert;
 
@@ -51,6 +52,7 @@ final class LookUpAccessImpl implements ILookUpAccess {
 
 	private final Object lookUpId;
 	private final Set<ILookUpCallback> callbacks;
+	private final Set<ILookUpListener> listeners;
 	private final IUiThreadAccess uiThreadAccess;
 	private final IResultCallback<List<ILookUpEntry>> lookUpCallback;
 
@@ -62,6 +64,7 @@ final class LookUpAccessImpl implements ILookUpAccess {
 		Assert.paramNotNull(lookUpId, "lookUpId");
 		this.lookUpId = lookUpId;
 		this.callbacks = new HashSet<ILookUpCallback>();
+		this.listeners = new HashSet<ILookUpListener>();
 		this.lookUpCallback = new LookUpReaderCallback();
 		this.uiThreadAccess = Toolkit.getUiThreadAccess();
 
@@ -74,7 +77,8 @@ final class LookUpAccessImpl implements ILookUpAccess {
 		checkThread();
 		callbacks.add(callback);
 		if (lookUp != null) {
-			callback.changed(lookUp);
+			callback.beforeChange();
+			callback.onChange(lookUp);
 		}
 		else {
 			readLookUp();
@@ -88,6 +92,39 @@ final class LookUpAccessImpl implements ILookUpAccess {
 		callbacks.remove(callback);
 	}
 
+	@Override
+	public void initialize() {
+		checkThread();
+		if (!isInitialized()) {
+			readLookUp();
+		}
+	}
+
+	@Override
+	public boolean isInitialized() {
+		return lookUp != null;
+	}
+
+	@Override
+	public ILookUp getCurrentLookUp() {
+		checkThread();
+		return lookUp;
+	}
+
+	@Override
+	public void addLookUpListener(final ILookUpListener listener) {
+		Assert.paramNotNull(listener, "listener");
+		checkThread();
+		listeners.add(listener);
+	}
+
+	@Override
+	public void removeLookUpListener(final ILookUpListener listener) {
+		Assert.paramNotNull(listener, "listener");
+		checkThread();
+		listeners.remove(listener);
+	}
+
 	public void clearCache() {
 		checkThread();
 		if (executionTask != null) {
@@ -99,9 +136,25 @@ final class LookUpAccessImpl implements ILookUpAccess {
 
 	private void readLookUp() {
 		if (executionTask == null) {
-			final ILookUpService lazyLookUpService = getLookUpServiceLazy();
+			for (final ILookUpCallback callback : callbacks) {
+				callback.beforeChange();
+			}
 			executionTask = CapUiToolkit.executionTaskFactory().create();
+			fireTaskCreated(executionTask);
+			final ILookUpService lazyLookUpService = getLookUpServiceLazy();
 			lazyLookUpService.readValues(lookUpCallback, executionTask);
+		}
+	}
+
+	private void fireTaskCreated(final IExecutionTask task) {
+		for (final ILookUpListener listener : listeners) {
+			listener.taskCreated(task);
+		}
+	}
+
+	private void fireAfterLookUpChanged() {
+		for (final ILookUpListener listener : listeners) {
+			listener.afterLookUpChanged();
 		}
 	}
 
@@ -127,9 +180,10 @@ final class LookUpAccessImpl implements ILookUpAccess {
 				public void run() {
 					lookUp = new LookUpImpl(result);
 					for (final ILookUpCallback callback : callbacks) {
-						callback.changed(lookUp);
+						callback.onChange(lookUp);
 					}
 					executionTask = null;
+					fireAfterLookUpChanged();
 				}
 			});
 		}
@@ -141,7 +195,7 @@ final class LookUpAccessImpl implements ILookUpAccess {
 					@Override
 					public void run() {
 						for (final ILookUpCallback callback : callbacks) {
-							callback.exception(exception);
+							callback.onException(exception);
 						}
 						executionTask = null;
 					}
