@@ -41,6 +41,8 @@ import org.jowidgets.api.widgets.blueprint.IComboBoxSelectionBluePrint;
 import org.jowidgets.api.widgets.blueprint.IInputFieldBluePrint;
 import org.jowidgets.api.widgets.blueprint.builder.IInputComponentSetupBuilder;
 import org.jowidgets.api.widgets.blueprint.factory.IBluePrintFactory;
+import org.jowidgets.cap.common.api.bean.ILookUpValueRange;
+import org.jowidgets.cap.common.api.bean.IStaticValueRange;
 import org.jowidgets.cap.common.api.bean.IValueRange;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.control.IDisplayFormat;
@@ -76,6 +78,18 @@ class ControlProviderDefault<ELEMENT_VALUE_TYPE> implements
 	public ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> getControlCreator(
 		final IConverter<ELEMENT_VALUE_TYPE> converter,
 		final IValueRange valueRange) {
+		if (valueRange instanceof IStaticValueRange) {
+			return getControlCreator(converter, (IStaticValueRange) valueRange);
+		}
+		else {
+			// TODO MG handle ILookUpValueRange
+			return null;
+		}
+	}
+
+	private ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> getControlCreator(
+		final IConverter<ELEMENT_VALUE_TYPE> converter,
+		final IStaticValueRange valueRange) {
 		if (valueRange.getValues().isEmpty()) {
 			return new ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>>() {
 				@Override
@@ -91,7 +105,6 @@ class ControlProviderDefault<ELEMENT_VALUE_TYPE> implements
 				@SuppressWarnings("unchecked")
 				@Override
 				public IInputControl<ELEMENT_VALUE_TYPE> create(final ICustomWidgetFactory widgetFactory) {
-
 					if (valueRange.isOpen()) {
 						final IComboBoxBluePrint<ELEMENT_VALUE_TYPE> comboBp = bpf.comboBox(converter);
 						addValueRangeValidator(comboBp, valueRange);
@@ -115,6 +128,20 @@ class ControlProviderDefault<ELEMENT_VALUE_TYPE> implements
 		final ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> elementControlCreator,
 		final IConverter<ELEMENT_VALUE_TYPE> converter,
 		final IValueRange valueRange) {
+
+		if (valueRange instanceof IStaticValueRange) {
+			return getCollectionControlCreator(elementControlCreator, converter, (IStaticValueRange) valueRange);
+		}
+		else {
+			// TODO MG handle ILookUpValueRange
+			return null;
+		}
+	}
+
+	private ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> getCollectionControlCreator(
+		final ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> elementControlCreator,
+		final IConverter<ELEMENT_VALUE_TYPE> converter,
+		final IStaticValueRange valueRange) {
 
 		return new ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>>() {
 			@Override
@@ -150,7 +177,8 @@ class ControlProviderDefault<ELEMENT_VALUE_TYPE> implements
 	void addValueRangeValidator(
 		final IInputComponentSetupBuilder<?, ELEMENT_VALUE_TYPE> setupBuilder,
 		final IValueRange valueRange) {
-		if (!valueRange.isOpen()) {
+		if ((valueRange instanceof IStaticValueRange && !((IStaticValueRange) valueRange).isOpen())
+			|| valueRange instanceof ILookUpValueRange) {
 			setupBuilder.setValidator(new ValueRangeValidator<ELEMENT_VALUE_TYPE>(valueRange));
 		}
 	}

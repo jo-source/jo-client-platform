@@ -38,4 +38,6 @@ public interface ILookUpValueRange extends IValueRange {
 
 	List<ILookUpProperty> getValueProperties();
 
+	String getDefaultValuePropertyName();
+
 }

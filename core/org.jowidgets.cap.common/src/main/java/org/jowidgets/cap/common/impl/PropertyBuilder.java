@@ -58,7 +58,7 @@ final class PropertyBuilder implements IPropertyBuilder {
 		this.readonly = false;
 		this.sortable = true;
 		this.filterable = true;
-		this.valueRange = new ValueRangeImpl(Collections.emptyList(), true);
+		this.valueRange = new StaticValueRangeImpl(Collections.emptyList(), true);
 	}
 
 	@Override
@@ -77,7 +77,7 @@ final class PropertyBuilder implements IPropertyBuilder {
 
 	@Override
 	public IPropertyBuilder setValueRange(final boolean open, final Collection<? extends Object> values) {
-		return setValueRange(new ValueRangeImpl(values, open));
+		return setValueRange(new StaticValueRangeImpl(values, open));
 	}
 
 	@Override

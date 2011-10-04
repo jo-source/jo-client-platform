@@ -26,16 +26,38 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.api.bean;
+package org.jowidgets.cap.common.impl;
 
+import java.io.Serializable;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 
-public interface IValueRangeFactory {
+import org.jowidgets.cap.common.api.bean.IStaticValueRange;
+import org.jowidgets.util.Assert;
 
-	IValueRange create(Collection<? extends Object> values, boolean open);
+final class StaticValueRangeImpl implements IStaticValueRange, Serializable {
 
-	IValueRange create(Collection<? extends Object> values);
+	private static final long serialVersionUID = -7976858425639626511L;
 
-	IValueRange create();
+	private final List<Object> values;
+	private final boolean open;
+
+	StaticValueRangeImpl(final Collection<? extends Object> values, final boolean open) {
+		Assert.paramNotNull(values, "values");
+		this.values = Collections.unmodifiableList(new LinkedList<Object>(values));
+		this.open = open;
+	}
+
+	@Override
+	public List<Object> getValues() {
+		return values;
+	}
+
+	@Override
+	public boolean isOpen() {
+		return open;
+	}
 
 }

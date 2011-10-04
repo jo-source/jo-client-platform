@@ -44,6 +44,7 @@ import org.jowidgets.cap.ui.api.attribute.IControlPanelProviderBuilder;
 import org.jowidgets.cap.ui.api.control.DisplayFormat;
 import org.jowidgets.cap.ui.api.control.IDisplayFormat;
 import org.jowidgets.cap.ui.api.control.IInputControlProvider;
+import org.jowidgets.cap.ui.api.control.IInputControlSupport;
 import org.jowidgets.cap.ui.api.filter.IFilterSupport;
 import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
 import org.jowidgets.tools.converter.AbstractObjectLabelConverter;
@@ -230,8 +231,8 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 	private ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> getControlCreator() {
 		if (controlCreator == null) {
 
-			final IInputControlProvider<ELEMENT_VALUE_TYPE> defaultControl = CapUiToolkit.inputControlRegistry().getDefaultControl(
-					elementValueType);
+			final IInputControlProvider<ELEMENT_VALUE_TYPE> defaultControl = getDefaultControl(CapUiToolkit.inputControlRegistry().getControls(
+					elementValueType));
 
 			if (defaultControl != null) {
 				controlCreator = defaultControl.getControlCreator(getConverter(defaultControl), valueRange);
@@ -243,8 +244,8 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 	private ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> getCollectionControlCreator() {
 		if (collectionControlCreator == null) {
 
-			final IInputControlProvider<ELEMENT_VALUE_TYPE> defaultControl = CapUiToolkit.inputControlRegistry().getDefaultControl(
-					elementValueType);
+			final IInputControlProvider<ELEMENT_VALUE_TYPE> defaultControl = getDefaultControl(CapUiToolkit.inputControlRegistry().getControls(
+					elementValueType));
 
 			if (defaultControl != null) {
 				collectionControlCreator = defaultControl.getCollectionControlCreator(
@@ -255,6 +256,23 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 
 		}
 		return collectionControlCreator;
+	}
+
+	private IInputControlProvider<ELEMENT_VALUE_TYPE> getDefaultControl(final IInputControlSupport<ELEMENT_VALUE_TYPE> controls) {
+		if (controls != null) {
+			final IDisplayFormat defaultDisplayFormat = controls.getDefaultDisplayFormat();
+			if (defaultDisplayFormat != null && defaultDisplayFormat.getId() != null) {
+				for (final IInputControlProvider<ELEMENT_VALUE_TYPE> controlProvider : controls.getControls()) {
+					if (defaultDisplayFormat.getId().equals(controlProvider.getDisplayFormat().getId())) {
+						return controlProvider;
+					}
+				}
+			}
+			else if (controls.getControls().size() > 0) {
+				return controls.getControls().get(0);
+			}
+		}
+		return null;
 	}
 
 	private IConverter<ELEMENT_VALUE_TYPE> getConverter(final IInputControlProvider<ELEMENT_VALUE_TYPE> defaultControl) {

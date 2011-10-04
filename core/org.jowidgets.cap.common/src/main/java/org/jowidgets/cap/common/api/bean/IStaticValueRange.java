@@ -32,10 +32,8 @@ import java.util.List;
 
 public interface IStaticValueRange extends IValueRange {
 
-	@Override
 	List<Object> getValues();
 
-	@Override
 	boolean isOpen();
 
 }

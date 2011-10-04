@@ -139,7 +139,7 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 
 	private AttributeBuilderImpl() {
 		this.controlPanels = new LinkedList<IControlPanelProvider<? extends ELEMENT_VALUE_TYPE>>();
-		this.valueRange = CapCommonToolkit.valueRangeFactory().create();
+		this.valueRange = CapCommonToolkit.staticValueRangeFactory().create();
 		this.labelDisplayFormat = DisplayFormat.SHORT;
 		this.visible = true;
 		this.mandatory = false;
@@ -170,7 +170,7 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 		final Collection<? extends ELEMENT_VALUE_TYPE> values,
 		final boolean open) {
 		Assert.paramNotNull(values, "values");
-		return setValueRange(CapCommonToolkit.valueRangeFactory().create(values, open));
+		return setValueRange(CapCommonToolkit.staticValueRangeFactory().create(values, open));
 	}
 
 	@Override

@@ -82,7 +82,7 @@ final class AttributeModifierBluePrint<ELEMENT_VALUE_TYPE> implements IAttribute
 		final Collection<? extends ELEMENT_VALUE_TYPE> values,
 		final boolean open) {
 		Assert.paramNotNull(values, "values");
-		return setValueRange(CapCommonToolkit.valueRangeFactory().create(values, open));
+		return setValueRange(CapCommonToolkit.staticValueRangeFactory().create(values, open));
 	}
 
 	@Override
