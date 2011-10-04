@@ -28,60 +28,57 @@
 
 package org.jowidgets.cap.ui.impl;
 
-import java.util.Arrays;
-import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
-import org.jowidgets.api.toolkit.Toolkit;
-import org.jowidgets.cap.ui.api.lookup.ILookUpAccess;
-import org.jowidgets.cap.ui.api.lookup.ILookUpCache;
+import org.jowidgets.cap.common.api.lookup.ILookUpEntry;
+import org.jowidgets.cap.ui.api.lookup.ILookUp;
 import org.jowidgets.util.Assert;
 
-final class LookUpCacheImpl implements ILookUpCache {
+final class LookUpImpl implements ILookUp {
 
-	private final Map<Object, LookUpAccessImpl> map;
+	private final Map<Object, ILookUpEntry> map;
+	private final List<Object> keys;
+	private final List<Object> keysView;
+	private final List<ILookUpEntry> enries;
+	private final List<ILookUpEntry> entriesView;
 
-	LookUpCacheImpl() {
-		this.map = new HashMap<Object, LookUpAccessImpl>();
-	}
+	LookUpImpl(final List<ILookUpEntry> entries) {
+		Assert.paramNotNull(entries, "entries");
 
-	@Override
-	public ILookUpAccess getAccess(final Object lookUpId) {
-		Assert.paramNotNull(lookUpId, "lookUpId");
-		checkThread();
-		LookUpAccessImpl result = map.get(lookUpId);
-		if (result == null) {
-			result = new LookUpAccessImpl(lookUpId);
-			map.put(lookUpId, result);
-		}
-		return result;
-	}
+		this.map = new HashMap<Object, ILookUpEntry>();
 
-	@Override
-	public void clearCache() {
-		clearCache(map.keySet());
-	}
+		this.keys = new LinkedList<Object>();
+		this.keysView = Collections.unmodifiableList(keys);
 
-	@Override
-	public void clearCache(final Object... lookUpIds) {
-		clearCache(Arrays.asList(lookUpIds));
-	}
+		this.enries = new LinkedList<ILookUpEntry>();
+		this.entriesView = Collections.unmodifiableList(enries);
 
-	@Override
-	public void clearCache(final Collection<Object> lookUpIds) {
-		checkThread();
-		for (final Object lookUpId : lookUpIds) {
-			final LookUpAccessImpl lookUpImpl = map.get(lookUpId);
-			if (lookUpImpl != null) {
-				lookUpImpl.clearCache();
-			}
+		for (final ILookUpEntry lookUpEntry : entries) {
+			map.put(lookUpEntry.getKey(), lookUpEntry);
+			keys.add(lookUpEntry.getKey());
+			entries.add(lookUpEntry);
 		}
 	}
 
-	private void checkThread() {
-		if (!Toolkit.getUiThreadAccess().isUiThread()) {
-			throw new IllegalStateException("The accessing thread must be the ui thread");
-		}
+	@Override
+	public Object getValue(final Object key, final String propertyName) {
+		Assert.paramNotNull(key, "key");
+		Assert.paramNotNull(propertyName, "propertyName");
+		return map.get(key);
 	}
+
+	@Override
+	public List<Object> getKeys() {
+		return keysView;
+	}
+
+	@Override
+	public List<ILookUpEntry> getEntries() {
+		return entriesView;
+	}
+
 }
