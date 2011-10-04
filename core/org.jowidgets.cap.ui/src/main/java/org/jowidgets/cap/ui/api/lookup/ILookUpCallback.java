@@ -31,23 +31,29 @@ package org.jowidgets.cap.ui.api.lookup;
 public interface ILookUpCallback {
 
 	/**
+	 * This method will be invoked before the current look up
+	 * will be (re) loaded (e.g. the cache was set dirty)
+	 */
+	void beforeChange();
+
+	/**
 	 * The look up has been loaded or changed.
 	 * 
 	 * This will be invoked in the ui thread.
 	 * 
 	 * @param lookUp the new look up
 	 */
-	void changed(ILookUp lookUp);
+	void onChange(ILookUp lookUp);
 
 	/**
 	 * An exception occurred while loading the lookup up.
-	 * After exception occurred, the changed method @see {@link ILookUpCallback#changed(ILookUp)} may be invoked (depends on
+	 * After exception occurred, the changed method @see {@link ILookUpCallback#onChange(ILookUp)} may be invoked (depends on
 	 * implementation).
 	 * 
 	 * This method will be invoked in the ui thread
 	 * 
 	 * @param exception The exception that occurred
 	 */
-	void exception(Throwable exception);
+	void onException(Throwable exception);
 
 }

@@ -26,35 +26,19 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.impl;
+package org.jowidgets.cap.ui.api.lookup;
 
-import org.jowidgets.api.convert.IConverter;
-import org.jowidgets.api.widgets.IInputControl;
-import org.jowidgets.api.widgets.blueprint.IComboBoxSelectionBluePrint;
-import org.jowidgets.cap.common.api.bean.IValueRange;
-import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
-import org.jowidgets.common.widgets.factory.ICustomWidgetFactory;
-import org.jowidgets.tools.widgets.blueprint.BPF;
+import org.jowidgets.cap.ui.api.execution.IExecutionTask;
 
-abstract class AbstractControlProviderBoolean extends ControlProviderDefault<Boolean> {
+public interface ILookUpListener {
 
-	AbstractControlProviderBoolean() {
-		super(Boolean.class);
-	}
+	void taskCreated(IExecutionTask task);
 
-	@Override
-	public ICustomWidgetCreator<IInputControl<Boolean>> getControlCreator(
-		final IConverter<Boolean> converter,
-		final IValueRange valueRange) {
-		return new ICustomWidgetCreator<IInputControl<Boolean>>() {
-			@Override
-			public IInputControl<Boolean> create(final ICustomWidgetFactory widgetFactory) {
-				final IComboBoxSelectionBluePrint<Boolean> cmbBp = BPF.comboBoxSelection(converter);
-				cmbBp.setElements(null, Boolean.TRUE, Boolean.FALSE);
-				addValueRangeValidator(cmbBp, valueRange);
-				return widgetFactory.create(cmbBp);
-			}
-		};
-	}
+	/**
+	 * This will be invoked after the look up has been changed or initially loaded.
+	 * This will be invoked, after all @link {@link ILookUpCallback#onChange(ILookUp)} methods has been invoked
+	 * on the callbacks.
+	 */
+	void afterLookUpChanged();
 
 }

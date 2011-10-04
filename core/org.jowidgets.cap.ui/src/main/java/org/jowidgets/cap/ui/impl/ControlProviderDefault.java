@@ -170,10 +170,6 @@ class ControlProviderDefault<ELEMENT_VALUE_TYPE> implements
 		return result;
 	}
 
-	IBluePrintFactory getBpf() {
-		return bpf;
-	}
-
 	void addValueRangeValidator(
 		final IInputComponentSetupBuilder<?, ELEMENT_VALUE_TYPE> setupBuilder,
 		final IValueRange valueRange) {
