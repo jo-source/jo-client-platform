@@ -65,10 +65,34 @@ final class LookUpImpl implements ILookUp {
 	}
 
 	@Override
+	public ILookUpEntry getEntry(final Object key) {
+		Assert.paramNotNull(key, "key");
+		return map.get(key);
+	}
+
+	@Override
 	public Object getValue(final Object key, final String propertyName) {
 		Assert.paramNotNull(key, "key");
 		Assert.paramNotNull(propertyName, "propertyName");
-		return map.get(key);
+		final ILookUpEntry lookUpEntry = map.get(key);
+		if (lookUpEntry != null) {
+			return lookUpEntry.getValue(propertyName);
+		}
+		else {
+			return null;
+		}
+	}
+
+	@Override
+	public String getDescription(final Object key) {
+		Assert.paramNotNull(key, "key");
+		final ILookUpEntry lookUpEntry = map.get(key);
+		if (lookUpEntry != null) {
+			return lookUpEntry.getDescription();
+		}
+		else {
+			return null;
+		}
 	}
 
 	@Override

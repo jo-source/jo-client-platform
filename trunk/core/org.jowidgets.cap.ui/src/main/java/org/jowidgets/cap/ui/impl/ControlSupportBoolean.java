@@ -36,7 +36,7 @@ import org.jowidgets.cap.ui.api.control.IDisplayFormat;
 import org.jowidgets.cap.ui.api.control.IInputControlProvider;
 import org.jowidgets.cap.ui.api.control.IInputControlSupport;
 
-public class ControlSupportBoolean implements IInputControlSupport<Boolean> {
+final class ControlSupportBoolean implements IInputControlSupport<Boolean> {
 
 	@Override
 	public IDisplayFormat getDefaultDisplayFormat() {

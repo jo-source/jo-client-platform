@@ -33,17 +33,19 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.jowidgets.api.toolkit.Toolkit;
-import org.jowidgets.cap.ui.api.control.IInputControlSupportRegistry;
+import org.jowidgets.cap.common.api.bean.ILookUpValueRange;
+import org.jowidgets.cap.common.api.lookup.ILookUpProperty;
 import org.jowidgets.cap.ui.api.control.IInputControlSupport;
+import org.jowidgets.cap.ui.api.control.IInputControlSupportRegistry;
 import org.jowidgets.util.Assert;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 final class InputControlSupportRegistryImpl implements IInputControlSupportRegistry {
 
-	private final Map<Class, IInputControlSupport> map;
+	private final Map<Object, IInputControlSupport> map;
 
 	InputControlSupportRegistryImpl() {
-		this.map = new HashMap<Class, IInputControlSupport>();
+		this.map = new HashMap<Object, IInputControlSupport>();
 
 		map.put(boolean.class, new ControlSupportBooleanPrimitive());
 		map.put(Boolean.class, new ControlSupportBoolean());
@@ -73,11 +75,39 @@ final class InputControlSupportRegistryImpl implements IInputControlSupportRegis
 	}
 
 	@Override
+	public <ELEMENT_VALUE_TYPE> IInputControlSupport<ELEMENT_VALUE_TYPE> getControls(final ILookUpValueRange valueRange) {
+		Assert.paramNotNull(valueRange, "valueRange");
+		Assert.paramNotNull(valueRange.getLookUpId(), "valueRange.getLookUpId()");
+		IInputControlSupport result = map.get(valueRange.getLookUpId());
+		if (result == null && hasLookUpConverter(valueRange)) {
+			result = new ControlSupportLookUpDefault(valueRange);
+		}
+		return result;
+	}
+
+	private boolean hasLookUpConverter(final ILookUpValueRange valueRange) {
+		for (final ILookUpProperty lookUpProperty : valueRange.getValueProperties()) {
+			if (Toolkit.getConverterProvider().getConverter(lookUpProperty.getValueType()) != null) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	@Override
 	public <ELEMENT_VALUE_TYPE> void setControls(
 		final Class<? extends ELEMENT_VALUE_TYPE> type,
 		final IInputControlSupport<ELEMENT_VALUE_TYPE> controlSupport) {
 		Assert.paramNotNull(type, "type");
+		Assert.paramNotNull(controlSupport, "controlSupport");
 		map.put(type, controlSupport);
+	}
+
+	@Override
+	public void setControls(final Object lookUpId, final IInputControlSupport<?> controlSupport) {
+		Assert.paramNotNull(lookUpId, "lookUpId");
+		Assert.paramNotNull(controlSupport, "controlSupport");
+		map.put(lookUpId, controlSupport);
 	}
 
 }

@@ -28,12 +28,18 @@
 
 package org.jowidgets.cap.ui.api.control;
 
+import org.jowidgets.cap.common.api.bean.ILookUpValueRange;
+
 public interface IInputControlSupportRegistry {
 
 	<ELEMENT_VALUE_TYPE> IInputControlSupport<ELEMENT_VALUE_TYPE> getControls(Class<? extends ELEMENT_VALUE_TYPE> type);
 
+	<ELEMENT_VALUE_TYPE> IInputControlSupport<ELEMENT_VALUE_TYPE> getControls(ILookUpValueRange valueRange);
+
+	void setControls(Object lookUpId, final IInputControlSupport<?> controlSupport);
+
 	<ELEMENT_VALUE_TYPE> void setControls(
-		final Class<? extends ELEMENT_VALUE_TYPE> type,
-		final IInputControlSupport<ELEMENT_VALUE_TYPE> controlSupport);
+		Class<? extends ELEMENT_VALUE_TYPE> type,
+		IInputControlSupport<ELEMENT_VALUE_TYPE> controlSupport);
 
 }

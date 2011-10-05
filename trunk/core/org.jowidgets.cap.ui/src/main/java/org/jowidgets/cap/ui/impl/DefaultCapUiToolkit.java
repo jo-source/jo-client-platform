@@ -42,6 +42,7 @@ import org.jowidgets.cap.ui.api.bean.IBeansStateTracker;
 import org.jowidgets.cap.ui.api.command.ICapActionFactory;
 import org.jowidgets.cap.ui.api.control.IDisplayFormatFactory;
 import org.jowidgets.cap.ui.api.control.IInputControlSupportRegistry;
+import org.jowidgets.cap.ui.api.converter.ICapConverterFactory;
 import org.jowidgets.cap.ui.api.execution.IExecutionTaskFactory;
 import org.jowidgets.cap.ui.api.filter.IFilterToolkit;
 import org.jowidgets.cap.ui.api.form.IBeanFormToolkit;
@@ -57,7 +58,8 @@ import org.jowidgets.cap.ui.impl.workbench.CapWorkbenchToolkitImpl;
 public final class DefaultCapUiToolkit implements ICapUiToolkit {
 
 	private ICapApiBluePrintFactory bluePrintFactory;
-	private ICapActionFactory commandFactory;
+	private ICapActionFactory actionFactory;
+	private ICapConverterFactory converterFactory;
 	private IBeanTableMenuFactory beanTableMenuFactory;
 	private IExecutionTaskFactory executionTaskFactory;
 	private IBeanKeyFactory beanKeyFactory;
@@ -79,10 +81,18 @@ public final class DefaultCapUiToolkit implements ICapUiToolkit {
 
 	@Override
 	public ICapActionFactory actionFactory() {
-		if (commandFactory == null) {
-			commandFactory = new CapActionFactoryImpl();
+		if (actionFactory == null) {
+			actionFactory = new CapActionFactoryImpl();
 		}
-		return commandFactory;
+		return actionFactory;
+	}
+
+	@Override
+	public ICapConverterFactory converterFactory() {
+		if (converterFactory == null) {
+			converterFactory = new CapConverterFactoryImpl();
+		}
+		return converterFactory;
 	}
 
 	@Override

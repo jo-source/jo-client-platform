@@ -26,22 +26,23 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.lookup;
+package org.jowidgets.cap.ui.impl;
 
-import java.util.List;
+import org.jowidgets.cap.common.api.lookup.ILookUpProperty;
+import org.jowidgets.cap.ui.api.CapUiToolkit;
+import org.jowidgets.cap.ui.api.control.IDisplayFormat;
+import org.jowidgets.util.Assert;
 
-import org.jowidgets.cap.common.api.lookup.ILookUpEntry;
+final class LookUpDisplayFormatFactory {
 
-public interface ILookUp {
+	private LookUpDisplayFormatFactory() {}
 
-	ILookUpEntry getEntry(Object key);
-
-	Object getValue(Object key, String propertyName);
-
-	String getDescription(Object key);
-
-	List<Object> getKeys();
-
-	List<ILookUpEntry> getEntries();
+	static IDisplayFormat create(final ILookUpProperty lookUpProperty) {
+		Assert.paramNotNull(lookUpProperty, "lookUpProperty");
+		return CapUiToolkit.displayFormatFactory().create(
+				lookUpProperty.getDisplayFormatId(),
+				lookUpProperty.getDisplayFormatName(),
+				lookUpProperty.getDisplayFormatDescription());
+	}
 
 }
