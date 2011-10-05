@@ -43,21 +43,21 @@ import org.jowidgets.validation.IValidator;
 final class LookUpConverter<KEY_TYPE> implements IConverter<KEY_TYPE> {
 
 	private final Object lookUpId;
-	private final ILookUpProperty lookUpProperty;
+	private final String lookUpProperty;
 	private final IConverter<Object> valueConverter;
 
 	LookUpConverter(final Object lookUpId, final ILookUpProperty lookUpProperty) {
-		this(lookUpId, lookUpProperty, Toolkit.getConverterProvider().getConverter(lookUpProperty.getValueType()));
+		this(lookUpId, lookUpProperty.getName(), Toolkit.getConverterProvider().getConverter(lookUpProperty.getValueType()));
 	}
 
 	@SuppressWarnings("unchecked")
-	LookUpConverter(final Object lookUpId, final ILookUpProperty lookUpProperty, final IConverter<?> valueConverter) {
+	LookUpConverter(final Object lookUpId, final String lookUpPropertyName, final IConverter<?> valueConverter) {
 		Assert.paramNotNull(lookUpId, "lookUpId");
-		Assert.paramNotNull(lookUpProperty, "lookUpProperty");
+		Assert.paramNotNull(lookUpPropertyName, "lookUpPropertyName");
 		Assert.paramNotNull(valueConverter, "valueConverter");
 
 		this.lookUpId = lookUpId;
-		this.lookUpProperty = lookUpProperty;
+		this.lookUpProperty = lookUpPropertyName;
 		this.valueConverter = (IConverter<Object>) valueConverter;
 	}
 
@@ -68,7 +68,7 @@ final class LookUpConverter<KEY_TYPE> implements IConverter<KEY_TYPE> {
 		if (lookUp != null) {
 			final Object value = valueConverter.convertToObject(string);
 			if (value != null) {
-				return (KEY_TYPE) lookUp.getKey(value, lookUpProperty.getName());
+				return (KEY_TYPE) lookUp.getKey(value, lookUpProperty);
 			}
 			else {
 				return null;
@@ -85,7 +85,7 @@ final class LookUpConverter<KEY_TYPE> implements IConverter<KEY_TYPE> {
 		if (lookUp != null) {
 			final ILookUpEntry lookUpEntry = lookUp.getEntry(key);
 			if (lookUpEntry != null) {
-				final Object value = lookUpEntry.getValue(lookUpProperty.getName());
+				final Object value = lookUpEntry.getValue(lookUpProperty);
 				return valueConverter.convertToString(value);
 			}
 			else {

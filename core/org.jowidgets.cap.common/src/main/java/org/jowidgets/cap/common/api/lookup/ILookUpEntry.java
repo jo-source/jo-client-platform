@@ -30,9 +30,36 @@ package org.jowidgets.cap.common.api.lookup;
 
 public interface ILookUpEntry {
 
+	/**
+	 * @return The key of the look up
+	 */
 	Object getKey();
 
+	/**
+	 * Gets the value for a given look up value property
+	 * 
+	 * @param propertyName The (value) property to get the value for
+	 * 
+	 * @return The value
+	 */
 	Object getValue(String propertyName);
 
+	/**
+	 * Gets a description for the entry, may be null
+	 * 
+	 * @return The description of the entry or null, if no description is available
+	 */
 	String getDescription();
+
+	/**
+	 * If the entry is not valid, it can not be selected by the user however it
+	 * can be displayed.
+	 * 
+	 * E.g. DM or Lira may be a invalid currency because they should not used for
+	 * new data sets. However there are old data sets, where this currencies was
+	 * valid.
+	 * 
+	 * @return true id the entry is valid, false otherwise
+	 */
+	boolean isValid();
 }

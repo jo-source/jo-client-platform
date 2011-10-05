@@ -35,6 +35,6 @@ public interface ICapConverterFactory {
 
 	<KEY_TYPE> IConverter<KEY_TYPE> lookUpConverter(Object lookUpId, ILookUpProperty lookUpProperty);
 
-	<KEY_TYPE> IConverter<KEY_TYPE> lookUpConverter(Object lookUpId, ILookUpProperty lookUpProperty, IConverter<?> valueConverter);
+	<KEY_TYPE> IConverter<KEY_TYPE> lookUpConverter(Object lookUpId, String lookUpPropertyName, IConverter<?> valueConverter);
 
 }
