@@ -136,11 +136,13 @@ final class LookUpAccessImpl implements ILookUpAccess {
 
 	private void readLookUp() {
 		if (executionTask == null) {
+			executionTask = CapUiToolkit.executionTaskFactory().create();
+			fireTaskCreated(executionTask);
+
 			for (final ILookUpCallback callback : callbacks) {
 				callback.beforeChange();
 			}
-			executionTask = CapUiToolkit.executionTaskFactory().create();
-			fireTaskCreated(executionTask);
+
 			final ILookUpService lazyLookUpService = getLookUpServiceLazy();
 			lazyLookUpService.readValues(lookUpCallback, executionTask);
 		}

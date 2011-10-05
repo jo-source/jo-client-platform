@@ -43,6 +43,6 @@ public final class LookUpComboBoxSelectionFactory implements
 		final IComboBoxSelectionBluePrint<Object> bluePrint = BPF.comboBoxSelection(descriptor.getObjectStringConverter());
 		bluePrint.setSetup(descriptor);
 		final IComboBox<Object> comboBox = Toolkit.getWidgetFactory().create(parentUiReference, bluePrint);
-		return new LookUpComboBoxSelectionImpl<Object>(comboBox, descriptor);
+		return new LookUpComboBoxSelectionImpl(comboBox, descriptor);
 	}
 }

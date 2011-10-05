@@ -30,6 +30,7 @@ package org.jowidgets.cap.ui.api.widgets;
 
 import java.util.List;
 
+import org.jowidgets.api.convert.IConverter;
 import org.jowidgets.cap.common.api.lookup.ILookUpProperty;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
@@ -43,6 +44,8 @@ public interface ICapApiBluePrintFactory {
 	<BEAN_TYPE> IBeanFormBluePrint<BEAN_TYPE> beanForm(List<? extends IAttribute<?>> attributes);
 
 	IAttributeFilterControlBluePrint attributeFilterControl(List<? extends IAttribute<?>> attributes);
+
+	<KEY_TYPE> ILookUpComboBoxSelectionBluePrint<KEY_TYPE> lookUpComboBox(Object lookUpId, IConverter<KEY_TYPE> converter);
 
 	<KEY_TYPE> ILookUpComboBoxSelectionBluePrint<KEY_TYPE> lookUpComboBox(Object lookUpId, ILookUpProperty lookUpProperty);
 

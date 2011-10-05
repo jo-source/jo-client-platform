@@ -44,6 +44,8 @@ public interface ILookUp {
 
 	List<Object> getKeys();
 
+	List<Object> getValidKeys();
+
 	List<ILookUpEntry> getEntries();
 
 }

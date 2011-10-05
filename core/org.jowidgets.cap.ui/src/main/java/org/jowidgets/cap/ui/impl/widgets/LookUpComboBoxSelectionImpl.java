@@ -28,14 +28,102 @@
 
 package org.jowidgets.cap.ui.impl.widgets;
 
+import org.jowidgets.api.controller.IDisposeListener;
 import org.jowidgets.api.widgets.IComboBox;
+import org.jowidgets.cap.ui.api.CapUiToolkit;
+import org.jowidgets.cap.ui.api.lookup.ILookUp;
+import org.jowidgets.cap.ui.api.lookup.ILookUpAccess;
+import org.jowidgets.cap.ui.api.lookup.ILookUpCallback;
 import org.jowidgets.cap.ui.api.widgets.ILookUpComboBoxSelectionBluePrint;
 import org.jowidgets.tools.widgets.wrapper.ComboBoxWrapper;
 
-final class LookUpComboBoxSelectionImpl<KEY_TYPE> extends ComboBoxWrapper<KEY_TYPE> {
+final class LookUpComboBoxSelectionImpl extends ComboBoxWrapper<Object> implements ILookUpCallback {
 
-	LookUpComboBoxSelectionImpl(final IComboBox<KEY_TYPE> comboBox, final ILookUpComboBoxSelectionBluePrint<KEY_TYPE> setup) {
+	private static final Object DUMMY_OBJECT = new Object();
+
+	private boolean initialized;
+
+	private Object lastValue;
+	private boolean enabled;
+	private boolean editable;
+
+	LookUpComboBoxSelectionImpl(final IComboBox<Object> comboBox, final ILookUpComboBoxSelectionBluePrint<Object> setup) {
 		super(comboBox);
+		setValue(null);
+
+		lastValue = getValue();
+		initialized = false;
+		setElements(DUMMY_OBJECT);
+		super.setEditable(false);
+
+		final ILookUpAccess lookUpAccess = CapUiToolkit.lookUpCache().getAccess(setup.getLookUpId());
+		lookUpAccess.addCallback(this);
+
+		addDisposeListener(new IDisposeListener() {
+			@Override
+			public void onDispose() {
+				lookUpAccess.removeCallback(LookUpComboBoxSelectionImpl.this);
+			}
+		});
+	}
+
+	@Override
+	public void beforeChange() {
+		//DO NOTHING
+	}
+
+	@Override
+	public void onChange(final ILookUp lookUp) {
+		setElements(lookUp.getValidKeys());
+		super.setValue(lastValue);
+		super.setEditable(editable);
+		super.setEnabled(enabled);
+		initialized = true;
+	}
+
+	@Override
+	public void onException(final Throwable exception) {
+		//TODO MG implement on exception
+	}
+
+	@Override
+	public void setValue(final Object value) {
+		this.lastValue = value;
+		if (initialized) {
+			super.setValue(value);
+		}
+		else if (value != null) {
+			super.setValue(DUMMY_OBJECT);
+		}
+		else {
+			super.setValue(null);
+		}
+	}
+
+	@Override
+	public Object getValue() {
+		if (initialized) {
+			return super.getValue();
+		}
+		else {
+			return lastValue;
+		}
+	}
+
+	@Override
+	public void setEditable(final boolean editable) {
+		this.editable = editable;
+		if (initialized || !editable) {
+			super.setEditable(editable);
+		}
+	}
+
+	@Override
+	public void setEnabled(final boolean enabled) {
+		this.enabled = enabled;
+		if (initialized || !enabled) {
+			super.setEnabled(enabled);
+		}
 	}
 
 }
