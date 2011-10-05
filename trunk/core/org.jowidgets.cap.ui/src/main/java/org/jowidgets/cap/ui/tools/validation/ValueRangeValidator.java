@@ -27,9 +27,9 @@
  */
 package org.jowidgets.cap.ui.tools.validation;
 
-import org.jowidgets.cap.common.api.bean.ILookUpValueRange;
 import org.jowidgets.cap.common.api.bean.IStaticValueRange;
 import org.jowidgets.cap.common.api.bean.IValueRange;
+import org.jowidgets.cap.common.api.lookup.ILookUpValueRange;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.lookup.ILookUp;
 import org.jowidgets.cap.ui.api.lookup.ILookUpAccess;

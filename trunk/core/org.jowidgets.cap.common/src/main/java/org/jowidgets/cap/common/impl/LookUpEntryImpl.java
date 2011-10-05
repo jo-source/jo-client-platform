@@ -26,21 +26,48 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.api.lookup;
+package org.jowidgets.cap.common.impl;
 
-public interface ILookUpProperty {
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
-	String DEFAULT_NAME = ILookUpProperty.class.getName() + "_defaultPropertyName";
-	String DEFAULT_DISPLAY_FORMAT_NAME = "Default";
+import org.jowidgets.cap.common.api.lookup.ILookUpEntry;
 
-	String getName();
+final class LookUpEntryImpl implements ILookUpEntry, Serializable {
 
-	Object getDisplayFormatId();
+	private static final long serialVersionUID = -2505678216816698271L;
 
-	String getDisplayFormatName();
+	private final Object key;
+	private final Map<String, Object> values;
+	private final String description;
+	private final boolean valid;
 
-	String getDisplayFormatDescription();
+	LookUpEntryImpl(final Object key, final Map<String, Object> values, final String description, final boolean valid) {
+		this.key = key;
+		this.values = new HashMap<String, Object>(values);
+		this.description = description;
+		this.valid = valid;
+	}
 
-	Class<?> getValueType();
+	@Override
+	public Object getKey() {
+		return key;
+	}
+
+	@Override
+	public Object getValue(final String propertyName) {
+		return values.get(propertyName);
+	}
+
+	@Override
+	public String getDescription() {
+		return description;
+	}
+
+	@Override
+	public boolean isValid() {
+		return valid;
+	}
 
 }

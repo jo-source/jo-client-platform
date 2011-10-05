@@ -33,8 +33,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.jowidgets.api.toolkit.Toolkit;
-import org.jowidgets.cap.common.api.bean.ILookUpValueRange;
 import org.jowidgets.cap.common.api.lookup.ILookUpProperty;
+import org.jowidgets.cap.common.api.lookup.ILookUpValueRange;
 import org.jowidgets.cap.ui.api.control.IInputControlSupport;
 import org.jowidgets.cap.ui.api.control.IInputControlSupportRegistry;
 import org.jowidgets.util.Assert;

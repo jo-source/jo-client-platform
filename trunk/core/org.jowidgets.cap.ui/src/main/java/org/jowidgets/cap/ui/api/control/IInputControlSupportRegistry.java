@@ -28,7 +28,7 @@
 
 package org.jowidgets.cap.ui.api.control;
 
-import org.jowidgets.cap.common.api.bean.ILookUpValueRange;
+import org.jowidgets.cap.common.api.lookup.ILookUpValueRange;
 
 public interface IInputControlSupportRegistry {
 

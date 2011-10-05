@@ -43,6 +43,7 @@ import org.jowidgets.cap.common.api.bean.IPropertyBuilder;
 import org.jowidgets.cap.common.api.bean.IStaticValueRangeFactory;
 import org.jowidgets.cap.common.api.entity.IEntityClassBuilder;
 import org.jowidgets.cap.common.api.filter.IFilterFactory;
+import org.jowidgets.cap.common.api.lookup.ILookUpToolkit;
 import org.jowidgets.cap.common.api.sort.ISortFactory;
 import org.jowidgets.util.Assert;
 
@@ -51,11 +52,13 @@ public final class DefaultCapCommonToolkit implements ICapCommonToolkit {
 	private final ISortFactory sortFactory;
 	private final IFilterFactory filterFactory;
 	private final IStaticValueRangeFactory valueRangeFactory;
+	private final ILookUpToolkit lookUpToolkit;
 
 	public DefaultCapCommonToolkit() {
 		this.sortFactory = new SortFactoryImpl();
 		this.filterFactory = new FilterFactoryImpl();
 		this.valueRangeFactory = new StaticValueRangeFactoryImpl();
+		this.lookUpToolkit = new LookUpToolkitImpl();
 	}
 
 	@Override
@@ -117,6 +120,11 @@ public final class DefaultCapCommonToolkit implements ICapCommonToolkit {
 	@Override
 	public IStaticValueRangeFactory staticValueRangeFactory() {
 		return valueRangeFactory;
+	}
+
+	@Override
+	public ILookUpToolkit lookUpToolkit() {
+		return lookUpToolkit;
 	}
 
 }

@@ -57,7 +57,7 @@ public interface ILookUpEntry {
 	 * 
 	 * E.g. DM or Lira may be a invalid currency because they should not used for
 	 * new data sets. However there are old data sets, where this currencies was
-	 * valid.
+	 * valid and should be displayed.
 	 * 
 	 * @return true id the entry is valid, false otherwise
 	 */
