@@ -33,16 +33,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.jowidgets.api.toolkit.Toolkit;
-import org.jowidgets.cap.ui.api.control.IInputControlProviderRegistry;
+import org.jowidgets.cap.ui.api.control.IInputControlSupportRegistry;
 import org.jowidgets.cap.ui.api.control.IInputControlSupport;
 import org.jowidgets.util.Assert;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
-final class ControlProviderRegistryImpl implements IInputControlProviderRegistry {
+final class InputControlSupportRegistryImpl implements IInputControlSupportRegistry {
 
 	private final Map<Class, IInputControlSupport> map;
 
-	ControlProviderRegistryImpl() {
+	InputControlSupportRegistryImpl() {
 		this.map = new HashMap<Class, IInputControlSupport>();
 
 		map.put(boolean.class, new ControlSupportBooleanPrimitive());

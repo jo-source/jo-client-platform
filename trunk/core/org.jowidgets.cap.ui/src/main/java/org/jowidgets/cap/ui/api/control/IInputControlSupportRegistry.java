@@ -28,7 +28,7 @@
 
 package org.jowidgets.cap.ui.api.control;
 
-public interface IInputControlProviderRegistry {
+public interface IInputControlSupportRegistry {
 
 	<ELEMENT_VALUE_TYPE> IInputControlSupport<ELEMENT_VALUE_TYPE> getControls(Class<? extends ELEMENT_VALUE_TYPE> type);
 
