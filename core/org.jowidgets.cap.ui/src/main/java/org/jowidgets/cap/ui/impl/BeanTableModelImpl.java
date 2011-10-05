@@ -589,7 +589,7 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 		builder.setAutoSelection(autoSelection);
 		builder.setSortModelConfig(sortModel.getConfig());
 
-		//TODO MG set filter config params
+		builder.setFilters(filters);
 		return builder.build();
 	}
 
