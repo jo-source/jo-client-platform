@@ -33,6 +33,7 @@ import org.jowidgets.cap.common.api.bean.IBeanPropertyBluePrint;
 import org.jowidgets.cap.common.tools.bean.BeanDtoDescriptorBuilder;
 import org.jowidgets.cap.sample1.common.entity.IUser;
 import org.jowidgets.cap.sample1.service.lookup.Countries;
+import org.jowidgets.cap.sample1.service.lookup.Languages;
 
 public class UserDtoDescriptorBuilder extends BeanDtoDescriptorBuilder {
 
@@ -85,12 +86,8 @@ public class UserDtoDescriptorBuilder extends BeanDtoDescriptorBuilder {
 
 		propertyBp = addProperty(IUser.LANGUAGES_PROPERTY);
 		propertyBp.setLabel(Messages.getString("UserDtoDescriptorBuilder.languages")).setDescription(Messages.getString("UserDtoDescriptorBuilder.languages_description")); //$NON-NLS-1$ //$NON-NLS-2$
-		propertyBp.setElementValueType(String.class).setSortable(false);
-		propertyBp.setValueRange(true, "English", //$NON-NLS-1$
-				"German", //$NON-NLS-1$
-				"Italian", //$NON-NLS-1$
-				"Spanish", //$NON-NLS-1$ 
-				"French"); //$NON-NLS-1$
+		propertyBp.setElementValueType(Integer.class).setSortable(false);
+		propertyBp.setLookUpValueRange(Languages.LOOK_UP_ID);
 
 		propertyBp = addProperty(IUser.ADMIN_PROPERTY);
 		propertyBp.setLabel(Messages.getString("UserDtoDescriptorBuilder.admin")); //$NON-NLS-1$

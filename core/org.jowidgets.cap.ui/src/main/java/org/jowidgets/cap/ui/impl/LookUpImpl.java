@@ -94,7 +94,10 @@ final class LookUpImpl implements ILookUp {
 	}
 
 	@Override
-	public Object getKey(final Object value, final String propertyName) {
+	public Object getKey(Object value, final String propertyName) {
+		if (value instanceof String) {
+			value = ((String) value).toLowerCase();
+		}
 		return getValueToKeys(propertyName).get(value);
 	}
 
@@ -133,7 +136,11 @@ final class LookUpImpl implements ILookUp {
 		if (result == null) {
 			result = new HashMap<Object, Object>();
 			for (final ILookUpEntry lookUpEntry : entries) {
-				result.put(lookUpEntry.getValue(propertyName), lookUpEntry.getKey());
+				Object value = lookUpEntry.getValue(propertyName);
+				if (value instanceof String) {
+					value = ((String) value).toLowerCase();
+				}
+				result.put(value, lookUpEntry.getKey());
 			}
 			valueToKeys.put(propertyName, result);
 		}

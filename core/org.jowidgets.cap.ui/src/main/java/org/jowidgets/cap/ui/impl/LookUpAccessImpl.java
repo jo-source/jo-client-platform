@@ -144,7 +144,12 @@ final class LookUpAccessImpl implements ILookUpAccess {
 			}
 
 			final ILookUpService lazyLookUpService = getLookUpServiceLazy();
-			lazyLookUpService.readValues(lookUpCallback, executionTask);
+			if (lazyLookUpService != null) {
+				lazyLookUpService.readValues(lookUpCallback, executionTask);
+			}
+			else {
+				lookUpCallback.exception(new IllegalStateException("No look up service found for the lookUp '" + lookUpId + "'"));
+			}
 		}
 	}
 

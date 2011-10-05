@@ -108,9 +108,9 @@ public interface IUser extends IBean {
 
 	void setCountry(Integer country);
 
-	List<String> getLanguages();
+	List<Integer> getLanguages();
 
-	void setLanguages(List<String> languages);
+	void setLanguages(List<Integer> languages);
 
 	@NotNull
 	boolean getAdmin();
