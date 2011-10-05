@@ -41,10 +41,10 @@ public final class Countries {
 	public static final String LOOK_UP_ID = Countries.class.getName() + "_id";
 
 	//TODO MG set correct look up keys for constants
-	public static final Integer SPAIN = Integer.valueOf(40);
-	public static final Integer GERMANY = Integer.valueOf(20);
-	public static final Integer USA = Integer.valueOf(20);
-	public static final Integer ITALY = Integer.valueOf(20);
+	public static final Integer GERMANY = Integer.valueOf(75);
+	public static final Integer ITALY = Integer.valueOf(99);
+	public static final Integer SPAIN = Integer.valueOf(189);
+	public static final Integer USA = Integer.valueOf(214);
 
 	public static final String[] COUNTRIES = new String[] {
 			"Afghanistan", "Albania", "Algeria", "American Samoa", "Andorra", "Angola", "Anguilla", "Antigua and Barbuda",

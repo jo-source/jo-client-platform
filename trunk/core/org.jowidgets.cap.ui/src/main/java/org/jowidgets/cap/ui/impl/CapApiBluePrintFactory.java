@@ -106,6 +106,7 @@ final class CapApiBluePrintFactory implements ICapApiBluePrintFactory {
 				lookUpProperty);
 
 		result.setObjectStringConverter(converter);
+		result.setLenient(true);
 		return result;
 	}
 
