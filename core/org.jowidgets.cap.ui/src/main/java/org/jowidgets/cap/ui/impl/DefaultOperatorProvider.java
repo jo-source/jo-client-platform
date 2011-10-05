@@ -31,10 +31,10 @@ package org.jowidgets.cap.ui.impl;
 import java.util.Collection;
 import java.util.Date;
 
-import org.jowidgets.cap.common.api.bean.ILookUpValueRange;
 import org.jowidgets.cap.common.api.bean.IStaticValueRange;
 import org.jowidgets.cap.common.api.bean.IValueRange;
 import org.jowidgets.cap.common.api.filter.ArithmeticOperator;
+import org.jowidgets.cap.common.api.lookup.ILookUpValueRange;
 import org.jowidgets.cap.ui.api.filter.IOperatorProvider;
 import org.jowidgets.util.Assert;
 

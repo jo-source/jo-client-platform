@@ -26,21 +26,64 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.api.lookup;
+package org.jowidgets.cap.common.impl;
 
-public interface ILookUpProperty {
+import java.util.HashMap;
+import java.util.Map;
 
-	String DEFAULT_NAME = ILookUpProperty.class.getName() + "_defaultPropertyName";
-	String DEFAULT_DISPLAY_FORMAT_NAME = "Default";
+import org.jowidgets.cap.common.api.lookup.ILookUpEntry;
+import org.jowidgets.cap.common.api.lookup.ILookUpEntryBuilder;
+import org.jowidgets.cap.common.api.lookup.ILookUpProperty;
+import org.jowidgets.util.Assert;
 
-	String getName();
+final class LookUpEntryBuilderImpl implements ILookUpEntryBuilder {
 
-	Object getDisplayFormatId();
+	private final Map<String, Object> values;
 
-	String getDisplayFormatName();
+	private Object key;
+	private String description;
+	private boolean valid;
 
-	String getDisplayFormatDescription();
+	LookUpEntryBuilderImpl() {
+		this.valid = true;
+		this.values = new HashMap<String, Object>();
+	}
 
-	Class<?> getValueType();
+	@Override
+	public ILookUpEntryBuilder setKey(final Object key) {
+		Assert.paramNotNull(key, "key");
+		this.key = key;
+		return this;
+	}
+
+	@Override
+	public ILookUpEntryBuilder setValue(final String propertyName, final Object value) {
+		Assert.paramNotNull(propertyName, "propertyName");
+		Assert.paramNotNull(value, "value");
+		values.put(propertyName, value);
+		return this;
+	}
+
+	@Override
+	public ILookUpEntryBuilder setValue(final Object value) {
+		return setValue(ILookUpProperty.DEFAULT_NAME, value);
+	}
+
+	@Override
+	public ILookUpEntryBuilder setDescription(final String description) {
+		this.description = description;
+		return this;
+	}
+
+	@Override
+	public ILookUpEntryBuilder setValid(final boolean valid) {
+		this.valid = valid;
+		return this;
+	}
+
+	@Override
+	public ILookUpEntry build() {
+		return new LookUpEntryImpl(key, values, description, valid);
+	}
 
 }

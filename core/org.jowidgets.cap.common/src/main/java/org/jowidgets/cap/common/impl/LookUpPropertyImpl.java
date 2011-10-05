@@ -26,21 +26,65 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.api.lookup;
+package org.jowidgets.cap.common.impl;
 
-public interface ILookUpProperty {
+import java.io.Serializable;
 
-	String DEFAULT_NAME = ILookUpProperty.class.getName() + "_defaultPropertyName";
-	String DEFAULT_DISPLAY_FORMAT_NAME = "Default";
+import org.jowidgets.cap.common.api.lookup.ILookUpProperty;
+import org.jowidgets.util.Assert;
 
-	String getName();
+final class LookUpPropertyImpl implements ILookUpProperty, Serializable {
 
-	Object getDisplayFormatId();
+	private static final long serialVersionUID = 3405931146083935039L;
 
-	String getDisplayFormatName();
+	private final String name;
+	private final Object displayFormatId;
+	private final String displayFormatName;
+	private final String displayFormatDescription;
+	private final Class<?> valueType;
 
-	String getDisplayFormatDescription();
+	LookUpPropertyImpl(
+		final String name,
+		final Object displayFormatId,
+		final String displayFormatName,
+		final String displayFormatDescription,
+		final Class<?> valueType) {
 
-	Class<?> getValueType();
+		Assert.paramNotNull(name, "name");
+		Assert.paramNotNull(displayFormatId, "displayFormatId");
+		Assert.paramNotNull(displayFormatName, "displayFormatName");
+		Assert.paramNotNull(valueType, "valueType");
+
+		this.name = name;
+		this.displayFormatId = displayFormatId;
+		this.displayFormatName = displayFormatName;
+		this.displayFormatDescription = displayFormatDescription;
+		this.valueType = valueType;
+	}
+
+	@Override
+	public String getName() {
+		return name;
+	}
+
+	@Override
+	public Object getDisplayFormatId() {
+		return displayFormatId;
+	}
+
+	@Override
+	public String getDisplayFormatName() {
+		return displayFormatName;
+	}
+
+	@Override
+	public String getDisplayFormatDescription() {
+		return displayFormatDescription;
+	}
+
+	@Override
+	public Class<?> getValueType() {
+		return valueType;
+	}
 
 }

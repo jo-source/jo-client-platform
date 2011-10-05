@@ -42,6 +42,7 @@ import org.jowidgets.cap.common.api.bean.IPropertyBuilder;
 import org.jowidgets.cap.common.api.bean.IStaticValueRangeFactory;
 import org.jowidgets.cap.common.api.entity.IEntityClassBuilder;
 import org.jowidgets.cap.common.api.filter.IFilterFactory;
+import org.jowidgets.cap.common.api.lookup.ILookUpToolkit;
 import org.jowidgets.cap.common.api.sort.ISortFactory;
 
 public interface ICapCommonToolkit {
@@ -69,4 +70,6 @@ public interface ICapCommonToolkit {
 	ISortFactory sortFactory();
 
 	IFilterFactory filterFactory();
+
+	ILookUpToolkit lookUpToolkit();
 }

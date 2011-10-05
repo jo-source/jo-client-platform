@@ -28,19 +28,18 @@
 
 package org.jowidgets.cap.common.api.lookup;
 
-public interface ILookUpProperty {
+public interface ILookUpPropertyBuilder {
 
-	String DEFAULT_NAME = ILookUpProperty.class.getName() + "_defaultPropertyName";
-	String DEFAULT_DISPLAY_FORMAT_NAME = "Default";
+	ILookUpPropertyBuilder setName(String name);
 
-	String getName();
+	ILookUpPropertyBuilder setDisplayFormatId(Object displayFormatId);
 
-	Object getDisplayFormatId();
+	ILookUpPropertyBuilder setDisplayFormatName(String displayFormatName);
 
-	String getDisplayFormatName();
+	ILookUpPropertyBuilder setDisplayFormatDescription(String displayFormatDescription);
 
-	String getDisplayFormatDescription();
+	ILookUpPropertyBuilder setValueType(Class<?> valueType);
 
-	Class<?> getValueType();
+	ILookUpProperty build();
 
 }

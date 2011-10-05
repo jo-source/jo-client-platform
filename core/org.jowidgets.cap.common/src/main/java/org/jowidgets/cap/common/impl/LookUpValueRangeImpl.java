@@ -26,21 +26,48 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.api.lookup;
+package org.jowidgets.cap.common.impl;
 
-public interface ILookUpProperty {
+import java.io.Serializable;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 
-	String DEFAULT_NAME = ILookUpProperty.class.getName() + "_defaultPropertyName";
-	String DEFAULT_DISPLAY_FORMAT_NAME = "Default";
+import org.jowidgets.cap.common.api.lookup.ILookUpProperty;
+import org.jowidgets.cap.common.api.lookup.ILookUpValueRange;
+import org.jowidgets.util.Assert;
 
-	String getName();
+final class LookUpValueRangeImpl implements ILookUpValueRange, Serializable {
 
-	Object getDisplayFormatId();
+	private static final long serialVersionUID = 2659328281360687058L;
 
-	String getDisplayFormatName();
+	private final Object lookUpId;
+	private final List<ILookUpProperty> valueProperties;
+	private final String defaultValuePropertyName;
 
-	String getDisplayFormatDescription();
+	LookUpValueRangeImpl(final Object lookUpId, final List<ILookUpProperty> valueProperties, final String defaultValuePropertyName) {
+		Assert.paramNotNull(lookUpId, "lookUpId");
+		Assert.paramNotNull(valueProperties, "valueProperties");
+		Assert.paramNotNull(defaultValuePropertyName, "defaultValuePropertyName");
 
-	Class<?> getValueType();
+		this.lookUpId = lookUpId;
+		this.valueProperties = Collections.unmodifiableList(new LinkedList<ILookUpProperty>(valueProperties));
+		this.defaultValuePropertyName = defaultValuePropertyName;
+	}
+
+	@Override
+	public Object getLookUpId() {
+		return lookUpId;
+	}
+
+	@Override
+	public List<ILookUpProperty> getValueProperties() {
+		return valueProperties;
+	}
+
+	@Override
+	public String getDefaultValuePropertyName() {
+		return defaultValuePropertyName;
+	}
 
 }

@@ -33,8 +33,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.jowidgets.api.toolkit.Toolkit;
-import org.jowidgets.cap.common.api.bean.ILookUpValueRange;
 import org.jowidgets.cap.common.api.lookup.ILookUpProperty;
+import org.jowidgets.cap.common.api.lookup.ILookUpValueRange;
 import org.jowidgets.cap.ui.api.control.IDisplayFormat;
 import org.jowidgets.cap.ui.api.control.IInputControlProvider;
 import org.jowidgets.cap.ui.api.control.IInputControlSupport;
