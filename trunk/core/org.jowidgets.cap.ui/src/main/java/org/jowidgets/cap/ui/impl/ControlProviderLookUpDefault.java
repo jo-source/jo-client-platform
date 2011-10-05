@@ -32,6 +32,7 @@ import java.util.Collection;
 
 import org.jowidgets.api.convert.IConverter;
 import org.jowidgets.api.widgets.IInputControl;
+import org.jowidgets.api.widgets.blueprint.ICollectionInputFieldBluePrint;
 import org.jowidgets.api.widgets.blueprint.builder.IInputComponentSetupBuilder;
 import org.jowidgets.cap.common.api.bean.ILookUpValueRange;
 import org.jowidgets.cap.common.api.bean.IStaticValueRange;
@@ -44,6 +45,7 @@ import org.jowidgets.cap.ui.api.widgets.ILookUpComboBoxSelectionBluePrint;
 import org.jowidgets.cap.ui.tools.validation.ValueRangeValidator;
 import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
 import org.jowidgets.common.widgets.factory.ICustomWidgetFactory;
+import org.jowidgets.tools.widgets.blueprint.BPF;
 import org.jowidgets.util.Assert;
 
 class ControlProviderLookUpDefault<ELEMENT_VALUE_TYPE> implements IInputControlProvider<ELEMENT_VALUE_TYPE> {
@@ -74,6 +76,7 @@ class ControlProviderLookUpDefault<ELEMENT_VALUE_TYPE> implements IInputControlP
 	public ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> getControlCreator(
 		final IConverter<ELEMENT_VALUE_TYPE> converter,
 		final IValueRange valueRange) {
+		Assert.paramNotNull(converter, "converter");
 		Assert.paramHasType(valueRange, ILookUpValueRange.class, "valueRange");
 
 		return new ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>>() {
@@ -94,30 +97,23 @@ class ControlProviderLookUpDefault<ELEMENT_VALUE_TYPE> implements IInputControlP
 		final ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> elementControlCreator,
 		final IConverter<ELEMENT_VALUE_TYPE> converter,
 		final IValueRange valueRange) {
-
+		Assert.paramNotNull(elementControlCreator, "elementControlCreator");
+		Assert.paramNotNull(converter, "converter");
 		Assert.paramHasType(valueRange, ILookUpValueRange.class, "valueRange");
-		return null;
-	}
 
-	//	private ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> getCollectionControlCreator(
-	//		final ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> elementControlCreator,
-	//		final IConverter<ELEMENT_VALUE_TYPE> converter,
-	//		final IStaticValueRange valueRange) {
-	//
-	//		return new ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>>() {
-	//			@Override
-	//			public IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>> create(final ICustomWidgetFactory widgetFactory) {
-	//				final ICollectionInputFieldBluePrint<ELEMENT_VALUE_TYPE> inputFieldBp = BPF.collectionInputField(converter);
-	//				if (!valueRange.isOpen()) {
-	//					inputFieldBp.setElementValidator(new ValueRangeValidator<ELEMENT_VALUE_TYPE>(valueRange));
-	//				}
-	//				if (elementControlCreator != null) {
-	//					inputFieldBp.setCollectionInputDialogSetup(BPF.collectionInputDialog(elementControlCreator));
-	//				}
-	//				return widgetFactory.create(inputFieldBp);
-	//			}
-	//		};
-	//	}
+		//TODO MG use a special look up input field that changes the value when lookup changes
+		return new ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>>() {
+			@Override
+			public IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>> create(final ICustomWidgetFactory widgetFactory) {
+				final ICollectionInputFieldBluePrint<ELEMENT_VALUE_TYPE> inputFieldBp = BPF.collectionInputField(converter);
+				inputFieldBp.setElementValidator(new ValueRangeValidator<ELEMENT_VALUE_TYPE>(valueRange));
+				if (elementControlCreator != null) {
+					inputFieldBp.setCollectionInputDialogSetup(BPF.collectionInputDialog(elementControlCreator));
+				}
+				return widgetFactory.create(inputFieldBp);
+			}
+		};
+	}
 
 	void addValueRangeValidator(
 		final IInputComponentSetupBuilder<?, ELEMENT_VALUE_TYPE> setupBuilder,
