@@ -40,8 +40,10 @@ import org.jowidgets.cap.common.api.lookup.ILookUpProperty;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.control.IDisplayFormat;
 import org.jowidgets.cap.ui.api.control.IInputControlProvider;
+import org.jowidgets.cap.ui.api.widgets.ILookUpComboBoxSelectionBluePrint;
 import org.jowidgets.cap.ui.tools.validation.ValueRangeValidator;
 import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
+import org.jowidgets.common.widgets.factory.ICustomWidgetFactory;
 import org.jowidgets.util.Assert;
 
 class ControlProviderLookUpDefault<ELEMENT_VALUE_TYPE> implements IInputControlProvider<ELEMENT_VALUE_TYPE> {
@@ -73,44 +75,19 @@ class ControlProviderLookUpDefault<ELEMENT_VALUE_TYPE> implements IInputControlP
 		final IConverter<ELEMENT_VALUE_TYPE> converter,
 		final IValueRange valueRange) {
 		Assert.paramHasType(valueRange, ILookUpValueRange.class, "valueRange");
-		return null;
-	}
 
-	//	private ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> getControlCreator(
-	//		final IConverter<ELEMENT_VALUE_TYPE> converter,
-	//		final IStaticValueRange valueRange) {
-	//		if (valueRange.getValues().isEmpty()) {
-	//			return new ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>>() {
-	//				@Override
-	//				public IInputControl<ELEMENT_VALUE_TYPE> create(final ICustomWidgetFactory widgetFactory) {
-	//					final IInputFieldBluePrint<ELEMENT_VALUE_TYPE> inputFieldBp = BPF.inputField(converter);
-	//					addValueRangeValidator(inputFieldBp, valueRange);
-	//					return widgetFactory.create(inputFieldBp);
-	//				}
-	//			};
-	//		}
-	//		else {
-	//			return new ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>>() {
-	//				@SuppressWarnings("unchecked")
-	//				@Override
-	//				public IInputControl<ELEMENT_VALUE_TYPE> create(final ICustomWidgetFactory widgetFactory) {
-	//					if (valueRange.isOpen()) {
-	//						final IComboBoxBluePrint<ELEMENT_VALUE_TYPE> comboBp = BPF.comboBox(converter);
-	//						addValueRangeValidator(comboBp, valueRange);
-	//						comboBp.setElements((List<ELEMENT_VALUE_TYPE>) valueRange.getValues());
-	//						return widgetFactory.create(comboBp);
-	//					}
-	//					else {
-	//						final IComboBoxSelectionBluePrint<ELEMENT_VALUE_TYPE> comboBp = BPF.comboBoxSelection(converter);
-	//						addValueRangeValidator(comboBp, valueRange);
-	//						comboBp.setElements((List<ELEMENT_VALUE_TYPE>) valueRange.getValues());
-	//						comboBp.setLenient(true);
-	//						return widgetFactory.create(comboBp);
-	//					}
-	//				}
-	//			};
-	//		}
-	//	}
+		return new ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>>() {
+			@Override
+			public IInputControl<ELEMENT_VALUE_TYPE> create(final ICustomWidgetFactory widgetFactory) {
+				final ILookUpComboBoxSelectionBluePrint<ELEMENT_VALUE_TYPE> lookUpComboBox;
+				lookUpComboBox = CapUiToolkit.bluePrintFactory().lookUpComboBox(lookUpId, lookUpProperty);
+				lookUpComboBox.setObjectStringConverter(converter);
+				addValueRangeValidator(lookUpComboBox, valueRange);
+				return widgetFactory.create(lookUpComboBox);
+			}
+		};
+
+	}
 
 	@Override
 	public ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> getCollectionControlCreator(

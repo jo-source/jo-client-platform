@@ -26,31 +26,28 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.impl;
+package org.jowidgets.cap.ui.api.widgets;
 
-import org.jowidgets.api.convert.IConverter;
-import org.jowidgets.api.toolkit.Toolkit;
+import org.jowidgets.api.widgets.IComboBox;
+import org.jowidgets.api.widgets.blueprint.builder.IComboBoxSelectionSetupBuilder;
+import org.jowidgets.api.widgets.descriptor.setup.IComboBoxSelectionSetup;
 import org.jowidgets.cap.common.api.lookup.ILookUpProperty;
-import org.jowidgets.cap.ui.api.converter.ICapConverterFactory;
+import org.jowidgets.common.widgets.descriptor.IWidgetDescriptor;
+import org.jowidgets.common.widgets.descriptor.setup.mandatory.Mandatory;
 
-final class CapConverterFactoryImpl implements ICapConverterFactory {
+public interface ILookUpComboBoxSelectionBluePrint<KEY_TYPE> extends
+		IComboBoxSelectionSetupBuilder<ILookUpComboBoxSelectionBluePrint<KEY_TYPE>, KEY_TYPE>,
+		IComboBoxSelectionSetup<KEY_TYPE>,
+		IWidgetDescriptor<IComboBox<KEY_TYPE>> {
 
-	@Override
-	public <KEY_TYPE> IConverter<KEY_TYPE> lookUpConverter(final Object lookUpId, final ILookUpProperty lookUpProperty) {
-		if (Toolkit.getConverterProvider().getConverter(lookUpProperty.getValueType()) != null) {
-			return new LookUpConverter<KEY_TYPE>(lookUpId, lookUpProperty);
-		}
-		else {
-			return null;
-		}
-	}
+	ILookUpComboBoxSelectionBluePrint<KEY_TYPE> setLookUpId(Object lookUpId);
 
-	@Override
-	public <KEY_TYPE> IConverter<KEY_TYPE> lookUpConverter(
-		final Object lookUpId,
-		final String lookUpPropertyName,
-		final IConverter<?> valueConverter) {
-		return new LookUpConverter<KEY_TYPE>(lookUpId, lookUpPropertyName, valueConverter);
-	}
+	ILookUpComboBoxSelectionBluePrint<KEY_TYPE> setLookUpProperty(ILookUpProperty lookUpProperty);
+
+	@Mandatory
+	Object getLookUpId();
+
+	@Mandatory
+	ILookUpProperty getLookUpProperty();
 
 }
