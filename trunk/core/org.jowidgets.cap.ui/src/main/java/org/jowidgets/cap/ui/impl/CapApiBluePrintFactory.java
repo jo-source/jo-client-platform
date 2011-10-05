@@ -30,7 +30,7 @@ package org.jowidgets.cap.ui.impl;
 
 import java.util.List;
 
-import org.jowidgets.api.convert.IObjectStringConverter;
+import org.jowidgets.api.convert.IConverter;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.widgets.blueprint.factory.IBluePrintFactory;
 import org.jowidgets.cap.common.api.lookup.ILookUpProperty;
@@ -96,18 +96,26 @@ final class CapApiBluePrintFactory implements ICapApiBluePrintFactory {
 	@Override
 	public <KEY_TYPE> ILookUpComboBoxSelectionBluePrint<KEY_TYPE> lookUpComboBox(
 		final Object lookUpId,
+		final IConverter<KEY_TYPE> converter) {
+		Assert.paramNotNull(lookUpId, "lookUpId");
+		Assert.paramNotNull(converter, "converter");
+
+		final ILookUpComboBoxSelectionBluePrint<KEY_TYPE> result = bluePrintFactory.bluePrint(ILookUpComboBoxSelectionBluePrint.class);
+		result.setObjectStringConverter(converter).setLookUpId(lookUpId);
+		result.setLenient(true).autoSelectionOff();
+
+		return result;
+	}
+
+	@Override
+	public <KEY_TYPE> ILookUpComboBoxSelectionBluePrint<KEY_TYPE> lookUpComboBox(
+		final Object lookUpId,
 		final ILookUpProperty lookUpProperty) {
 		Assert.paramNotNull(lookUpId, "lookUpId");
 		Assert.paramNotNull(lookUpProperty, "lookUpProperty");
 
-		final ILookUpComboBoxSelectionBluePrint<KEY_TYPE> result = bluePrintFactory.bluePrint(ILookUpComboBoxSelectionBluePrint.class);
-		final IObjectStringConverter<KEY_TYPE> converter = CapUiToolkit.converterFactory().lookUpConverter(
-				lookUpId,
-				lookUpProperty);
-
-		result.setObjectStringConverter(converter);
-		result.setLenient(true);
-		return result;
+		final IConverter<KEY_TYPE> converter = CapUiToolkit.converterFactory().lookUpConverter(lookUpId, lookUpProperty);
+		return lookUpComboBox(lookUpId, converter);
 	}
 
 }

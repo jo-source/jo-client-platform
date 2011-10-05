@@ -43,6 +43,8 @@ final class LookUpImpl implements ILookUp {
 	private final Map<Object, ILookUpEntry> map;
 	private final List<Object> keys;
 	private final List<Object> keysView;
+	private final List<Object> validKeys;
+	private final List<Object> validKeysView;
 	private final List<ILookUpEntry> entries;
 	private final List<ILookUpEntry> entriesView;
 
@@ -56,12 +58,18 @@ final class LookUpImpl implements ILookUp {
 		this.keys = new LinkedList<Object>();
 		this.keysView = Collections.unmodifiableList(keys);
 
+		this.validKeys = new LinkedList<Object>();
+		this.validKeysView = Collections.unmodifiableList(validKeys);
+
 		this.entries = new LinkedList<ILookUpEntry>();
 		this.entriesView = Collections.unmodifiableList(entries);
 
 		for (final ILookUpEntry lookUpEntry : entries) {
 			map.put(lookUpEntry.getKey(), lookUpEntry);
 			keys.add(lookUpEntry.getKey());
+			if (lookUpEntry.isValid()) {
+				validKeys.add(lookUpEntry.getKey());
+			}
 			this.entries.add(lookUpEntry);
 		}
 	}
@@ -100,6 +108,11 @@ final class LookUpImpl implements ILookUp {
 		else {
 			return null;
 		}
+	}
+
+	@Override
+	public List<Object> getValidKeys() {
+		return validKeysView;
 	}
 
 	@Override

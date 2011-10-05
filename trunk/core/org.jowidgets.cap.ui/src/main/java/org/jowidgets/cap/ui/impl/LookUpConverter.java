@@ -33,8 +33,10 @@ import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.cap.common.api.lookup.ILookUpEntry;
 import org.jowidgets.cap.common.api.lookup.ILookUpProperty;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
+import org.jowidgets.cap.ui.api.execution.IExecutionTask;
 import org.jowidgets.cap.ui.api.lookup.ILookUp;
 import org.jowidgets.cap.ui.api.lookup.ILookUpAccess;
+import org.jowidgets.cap.ui.api.lookup.ILookUpListener;
 import org.jowidgets.common.mask.ITextMask;
 import org.jowidgets.common.verify.IInputVerifier;
 import org.jowidgets.util.Assert;
@@ -45,6 +47,8 @@ final class LookUpConverter<KEY_TYPE> implements IConverter<KEY_TYPE> {
 	private final Object lookUpId;
 	private final String lookUpProperty;
 	private final IConverter<Object> valueConverter;
+
+	private boolean onLoad;
 
 	LookUpConverter(final Object lookUpId, final ILookUpProperty lookUpProperty) {
 		this(lookUpId, lookUpProperty.getName(), Toolkit.getConverterProvider().getConverter(lookUpProperty.getValueType()));
@@ -59,6 +63,25 @@ final class LookUpConverter<KEY_TYPE> implements IConverter<KEY_TYPE> {
 		this.lookUpId = lookUpId;
 		this.lookUpProperty = lookUpPropertyName;
 		this.valueConverter = (IConverter<Object>) valueConverter;
+
+		final ILookUpAccess lookUpAccess = CapUiToolkit.lookUpCache().getAccess(lookUpId);
+		if (lookUpAccess != null) {
+			lookUpAccess.addLookUpListener(new ILookUpListener() {
+
+				@Override
+				public void taskCreated(final IExecutionTask task) {
+					onLoad = true;
+				}
+
+				@Override
+				public void afterLookUpChanged() {
+					onLoad = false;
+				}
+			});
+		}
+		else {
+			throw new IllegalStateException("No look up access found for the id '" + lookUpId + "'");
+		}
 	}
 
 	@SuppressWarnings("unchecked")
@@ -91,8 +114,11 @@ final class LookUpConverter<KEY_TYPE> implements IConverter<KEY_TYPE> {
 				final Object value = lookUpEntry.getValue(lookUpProperty);
 				return valueConverter.convertToString(value);
 			}
-			else {
+			else if (!onLoad) {
 				return Messages.getString("LookUpConverter.unknown_look_up_key");
+			}
+			else {
+				return Messages.getString("LookUpConverter.not_initialized_value");
 			}
 		}
 		else {

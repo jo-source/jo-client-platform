@@ -31,7 +31,6 @@ package org.jowidgets.cap.ui.api.widgets;
 import org.jowidgets.api.widgets.IComboBox;
 import org.jowidgets.api.widgets.blueprint.builder.IComboBoxSelectionSetupBuilder;
 import org.jowidgets.api.widgets.descriptor.setup.IComboBoxSelectionSetup;
-import org.jowidgets.cap.common.api.lookup.ILookUpProperty;
 import org.jowidgets.common.widgets.descriptor.IWidgetDescriptor;
 import org.jowidgets.common.widgets.descriptor.setup.mandatory.Mandatory;
 
@@ -42,12 +41,7 @@ public interface ILookUpComboBoxSelectionBluePrint<KEY_TYPE> extends
 
 	ILookUpComboBoxSelectionBluePrint<KEY_TYPE> setLookUpId(Object lookUpId);
 
-	ILookUpComboBoxSelectionBluePrint<KEY_TYPE> setLookUpProperty(ILookUpProperty lookUpProperty);
-
 	@Mandatory
 	Object getLookUpId();
-
-	@Mandatory
-	ILookUpProperty getLookUpProperty();
 
 }
