@@ -30,8 +30,10 @@ package org.jowidgets.cap.ui.impl;
 
 import java.util.List;
 
+import org.jowidgets.api.convert.IObjectStringConverter;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.widgets.blueprint.factory.IBluePrintFactory;
+import org.jowidgets.cap.common.api.lookup.ILookUpProperty;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.form.IBeanFormLayout;
@@ -42,6 +44,7 @@ import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableSettingsDialogBluePrint;
 import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
+import org.jowidgets.cap.ui.api.widgets.ILookUpComboBoxSelectionBluePrint;
 import org.jowidgets.util.Assert;
 
 final class CapApiBluePrintFactory implements ICapApiBluePrintFactory {
@@ -86,6 +89,23 @@ final class CapApiBluePrintFactory implements ICapApiBluePrintFactory {
 		Assert.paramNotNull(attributes, "attributes");
 		final IAttributeFilterControlBluePrint result = bluePrintFactory.bluePrint(IAttributeFilterControlBluePrint.class);
 		result.setAttributes(attributes);
+		return result;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public <KEY_TYPE> ILookUpComboBoxSelectionBluePrint<KEY_TYPE> lookUpComboBox(
+		final Object lookUpId,
+		final ILookUpProperty lookUpProperty) {
+		Assert.paramNotNull(lookUpId, "lookUpId");
+		Assert.paramNotNull(lookUpProperty, "lookUpProperty");
+
+		final ILookUpComboBoxSelectionBluePrint<KEY_TYPE> result = bluePrintFactory.bluePrint(ILookUpComboBoxSelectionBluePrint.class);
+		final IObjectStringConverter<KEY_TYPE> converter = CapUiToolkit.converterFactory().lookUpConverter(
+				lookUpId,
+				lookUpProperty);
+
+		result.setObjectStringConverter(converter);
 		return result;
 	}
 
