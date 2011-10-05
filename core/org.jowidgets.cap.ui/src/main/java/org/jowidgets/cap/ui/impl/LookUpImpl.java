@@ -46,6 +46,8 @@ final class LookUpImpl implements ILookUp {
 	private final List<ILookUpEntry> enries;
 	private final List<ILookUpEntry> entriesView;
 
+	private Map<String, Map<Object, Object>> valueToKeys;
+
 	LookUpImpl(final List<ILookUpEntry> entries) {
 		Assert.paramNotNull(entries, "entries");
 
@@ -84,6 +86,11 @@ final class LookUpImpl implements ILookUp {
 	}
 
 	@Override
+	public Object getKey(final Object value, final String propertyName) {
+		return getValueToKeys(propertyName).get(value);
+	}
+
+	@Override
 	public String getDescription(final Object key) {
 		Assert.paramNotNull(key, "key");
 		final ILookUpEntry lookUpEntry = map.get(key);
@@ -103,6 +110,21 @@ final class LookUpImpl implements ILookUp {
 	@Override
 	public List<ILookUpEntry> getEntries() {
 		return entriesView;
+	}
+
+	private Map<Object, Object> getValueToKeys(final String propertyName) {
+		if (valueToKeys == null) {
+			valueToKeys = new HashMap<String, Map<Object, Object>>();
+		}
+		Map<Object, Object> result = valueToKeys.get(propertyName);
+		if (result == null) {
+			result = new HashMap<Object, Object>();
+			for (final ILookUpEntry lookUpEntry : enries) {
+				result.put(lookUpEntry.getValue(propertyName), lookUpEntry.getKey());
+			}
+			valueToKeys.put(propertyName, result);
+		}
+		return result;
 	}
 
 }

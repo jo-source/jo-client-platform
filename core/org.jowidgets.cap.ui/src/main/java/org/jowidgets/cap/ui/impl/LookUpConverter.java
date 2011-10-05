@@ -30,7 +30,11 @@ package org.jowidgets.cap.ui.impl;
 
 import org.jowidgets.api.convert.IConverter;
 import org.jowidgets.api.toolkit.Toolkit;
+import org.jowidgets.cap.common.api.lookup.ILookUpEntry;
 import org.jowidgets.cap.common.api.lookup.ILookUpProperty;
+import org.jowidgets.cap.ui.api.CapUiToolkit;
+import org.jowidgets.cap.ui.api.lookup.ILookUp;
+import org.jowidgets.cap.ui.api.lookup.ILookUpAccess;
 import org.jowidgets.common.mask.ITextMask;
 import org.jowidgets.common.verify.IInputVerifier;
 import org.jowidgets.util.Assert;
@@ -38,6 +42,8 @@ import org.jowidgets.validation.IValidator;
 
 final class LookUpConverter<KEY_TYPE> implements IConverter<KEY_TYPE> {
 
+	private final Object lookUpId;
+	private final ILookUpProperty lookUpProperty;
 	private final IConverter<Object> valueConverter;
 
 	LookUpConverter(final Object lookUpId, final ILookUpProperty lookUpProperty) {
@@ -49,25 +55,57 @@ final class LookUpConverter<KEY_TYPE> implements IConverter<KEY_TYPE> {
 		Assert.paramNotNull(lookUpId, "lookUpId");
 		Assert.paramNotNull(lookUpProperty, "lookUpProperty");
 		Assert.paramNotNull(valueConverter, "valueConverter");
+
+		this.lookUpId = lookUpId;
+		this.lookUpProperty = lookUpProperty;
 		this.valueConverter = (IConverter<Object>) valueConverter;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public KEY_TYPE convertToObject(final String string) {
-		//TODO MG implement convertToObject
-		return null;
+		final ILookUp lookUp = getLookUp();
+		if (lookUp != null) {
+			final Object value = valueConverter.convertToObject(string);
+			if (value != null) {
+				return (KEY_TYPE) lookUp.getKey(value, lookUpProperty.getName());
+			}
+			else {
+				return null;
+			}
+		}
+		else {
+			return null;
+		}
 	}
 
 	@Override
-	public String convertToString(final KEY_TYPE value) {
-		//TODO MG implement convertToString
-		return null;
+	public String convertToString(final KEY_TYPE key) {
+		final ILookUp lookUp = getLookUp();
+		if (lookUp != null) {
+			final ILookUpEntry lookUpEntry = lookUp.getEntry(key);
+			if (lookUpEntry != null) {
+				final Object value = lookUpEntry.getValue(lookUpProperty.getName());
+				return valueConverter.convertToString(value);
+			}
+			else {
+				return Messages.getString("LookUpConverter.unknown_look_up_key");
+			}
+		}
+		else {
+			return Messages.getString("LookUpConverter.not_initialized_value");
+		}
 	}
 
 	@Override
-	public String getDescription(final KEY_TYPE value) {
-		//TODO MG implement getDescription
-		return null;
+	public String getDescription(final KEY_TYPE key) {
+		final ILookUp lookUp = getLookUp();
+		if (lookUp != null) {
+			return lookUp.getDescription(key);
+		}
+		else {
+			return Messages.getString("LookUpConverter.not_initialized_description");
+		}
 	}
 
 	@Override
@@ -88,6 +126,24 @@ final class LookUpConverter<KEY_TYPE> implements IConverter<KEY_TYPE> {
 	@Override
 	public ITextMask getMask() {
 		return valueConverter.getMask();
+	}
+
+	private ILookUp getLookUp() {
+		final ILookUpAccess lookUpAccess = CapUiToolkit.lookUpCache().getAccess(lookUpId);
+		if (lookUpAccess != null) {
+			if (lookUpAccess.isInitialized()) {
+				return lookUpAccess.getCurrentLookUp();
+			}
+			else {
+				//trigger initialization to enhance probability that the 
+				//next access may work
+				lookUpAccess.initialize();
+				return null;
+			}
+		}
+		else {
+			throw new IllegalStateException("No look up access found for the id '" + lookUpId + "'");
+		}
 	}
 
 }
