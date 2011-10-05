@@ -42,9 +42,9 @@ final class CapConverterFactoryImpl implements ICapConverterFactory {
 	@Override
 	public <KEY_TYPE> IConverter<KEY_TYPE> lookUpConverter(
 		final Object lookUpId,
-		final ILookUpProperty lookUpProperty,
+		final String lookUpPropertyName,
 		final IConverter<?> valueConverter) {
-		return new LookUpConverter<KEY_TYPE>(lookUpId, lookUpProperty, valueConverter);
+		return new LookUpConverter<KEY_TYPE>(lookUpId, lookUpPropertyName, valueConverter);
 	}
 
 }
