@@ -38,6 +38,8 @@ public interface ILookUp {
 
 	Object getValue(Object key, String propertyName);
 
+	Object getKey(Object value, String propertyName);
+
 	String getDescription(Object key);
 
 	List<Object> getKeys();
