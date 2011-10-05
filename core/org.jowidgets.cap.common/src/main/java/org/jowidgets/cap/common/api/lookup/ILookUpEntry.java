@@ -34,4 +34,5 @@ public interface ILookUpEntry {
 
 	Object getValue(String propertyName);
 
+	String getDescription();
 }

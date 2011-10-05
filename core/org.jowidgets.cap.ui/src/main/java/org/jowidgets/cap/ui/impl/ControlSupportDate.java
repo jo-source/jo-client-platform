@@ -37,7 +37,7 @@ import org.jowidgets.cap.ui.api.control.IDisplayFormat;
 import org.jowidgets.cap.ui.api.control.IInputControlProvider;
 import org.jowidgets.cap.ui.api.control.IInputControlSupport;
 
-public class ControlSupportDate implements IInputControlSupport<Date> {
+final class ControlSupportDate implements IInputControlSupport<Date> {
 
 	@Override
 	public IDisplayFormat getDefaultDisplayFormat() {

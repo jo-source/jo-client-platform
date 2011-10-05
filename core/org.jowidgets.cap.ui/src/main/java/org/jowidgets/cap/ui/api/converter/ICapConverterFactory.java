@@ -26,22 +26,15 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.lookup;
+package org.jowidgets.cap.ui.api.converter;
 
-import java.util.List;
+import org.jowidgets.api.convert.IConverter;
+import org.jowidgets.cap.common.api.lookup.ILookUpProperty;
 
-import org.jowidgets.cap.common.api.lookup.ILookUpEntry;
+public interface ICapConverterFactory {
 
-public interface ILookUp {
+	<KEY_TYPE> IConverter<KEY_TYPE> lookUpConverter(Object lookUpId, ILookUpProperty lookUpProperty);
 
-	ILookUpEntry getEntry(Object key);
-
-	Object getValue(Object key, String propertyName);
-
-	String getDescription(Object key);
-
-	List<Object> getKeys();
-
-	List<ILookUpEntry> getEntries();
+	<KEY_TYPE> IConverter<KEY_TYPE> lookUpConverter(Object lookUpId, ILookUpProperty lookUpProperty, IConverter<?> valueConverter);
 
 }
