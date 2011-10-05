@@ -26,34 +26,33 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.api.adapter;
+package org.jowidgets.cap.service.impl;
 
-import org.jowidgets.cap.common.api.service.ICreatorService;
-import org.jowidgets.cap.common.api.service.IDeleterService;
-import org.jowidgets.cap.common.api.service.IExecutorService;
+import java.util.List;
+
+import org.jowidgets.cap.common.api.execution.IExecutionCallback;
+import org.jowidgets.cap.common.api.execution.IResultCallback;
+import org.jowidgets.cap.common.api.lookup.ILookUpEntry;
 import org.jowidgets.cap.common.api.service.ILookUpService;
-import org.jowidgets.cap.common.api.service.IParameterProviderService;
-import org.jowidgets.cap.common.api.service.IReaderService;
-import org.jowidgets.cap.common.api.service.IRefreshService;
-import org.jowidgets.cap.common.api.service.IUpdaterService;
-import org.jowidgets.util.IAdapterFactory;
+import org.jowidgets.cap.service.api.adapter.ISyncLookUpService;
 
-public interface IAdapterFactoryProvider {
+public final class LookUpServiceAdapter implements ILookUpService {
 
-	<PARAM_TYPE> IAdapterFactory<IExecutorService<PARAM_TYPE>, ISyncExecutorService<PARAM_TYPE>> executor();
+	private final ISyncLookUpService adaptee;
 
-	<PARAM_TYPE> IAdapterFactory<IParameterProviderService<PARAM_TYPE>, ISyncParameterProviderService<PARAM_TYPE>> parameterProvider();
+	LookUpServiceAdapter(final ISyncLookUpService adaptee) {
+		this.adaptee = adaptee;
+	}
 
-	IAdapterFactory<ICreatorService, ISyncCreatorService> creator();
-
-	<PARAM_TYPE> IAdapterFactory<IReaderService<PARAM_TYPE>, ISyncReaderService<PARAM_TYPE>> reader();
-
-	IAdapterFactory<IRefreshService, ISyncRefreshService> refresh();
-
-	IAdapterFactory<IUpdaterService, ISyncUpdaterService> updater();
-
-	IAdapterFactory<IDeleterService, ISyncDeleterService> deleter();
-
-	IAdapterFactory<ILookUpService, ISyncLookUpService> lookup();
+	@Override
+	public void readValues(final IResultCallback<List<ILookUpEntry>> resultCallback, final IExecutionCallback executionCallback) {
+		try {
+			final List<ILookUpEntry> result = adaptee.readValues(executionCallback);
+			resultCallback.finished(result);
+		}
+		catch (final Exception exception) {
+			resultCallback.exception(exception);
+		}
+	}
 
 }

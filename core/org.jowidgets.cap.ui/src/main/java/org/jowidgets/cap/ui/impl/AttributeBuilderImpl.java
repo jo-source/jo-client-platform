@@ -37,6 +37,7 @@ import org.jowidgets.api.widgets.IInputControl;
 import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.bean.IProperty;
 import org.jowidgets.cap.common.api.bean.IValueRange;
+import org.jowidgets.cap.common.api.lookup.ILookUpValueRange;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IAttributeBluePrint;
@@ -276,8 +277,14 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 	@SuppressWarnings({"rawtypes", "unchecked"})
 	private List getControlPanels() {
 		if (controlPanels.isEmpty()) {
-			final IInputControlSupport<ELEMENT_VALUE_TYPE> controlSupport = CapUiToolkit.inputControlRegistry().getControls(
-					elementValueType);
+			final IInputControlSupport<ELEMENT_VALUE_TYPE> controlSupport;
+
+			if (valueRange instanceof ILookUpValueRange) {
+				controlSupport = CapUiToolkit.inputControlRegistry().getControls((ILookUpValueRange) valueRange);
+			}
+			else {
+				controlSupport = CapUiToolkit.inputControlRegistry().getControls(elementValueType);
+			}
 
 			if (controlSupport != null) {
 				for (final IInputControlProvider<ELEMENT_VALUE_TYPE> controlProvider : controlSupport.getControls()) {

@@ -51,6 +51,7 @@ import org.jowidgets.cap.ui.api.control.IInputControlSupport;
 import org.jowidgets.cap.ui.tools.validation.ValueRangeValidator;
 import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
 import org.jowidgets.common.widgets.factory.ICustomWidgetFactory;
+import org.jowidgets.util.Assert;
 
 class ControlProviderDefault<ELEMENT_VALUE_TYPE> implements
 		IInputControlProvider<ELEMENT_VALUE_TYPE>,
@@ -71,6 +72,7 @@ class ControlProviderDefault<ELEMENT_VALUE_TYPE> implements
 
 	@Override
 	public IConverter<ELEMENT_VALUE_TYPE> getConverter(final IValueRange valueRange) {
+		Assert.paramHasType(valueRange, IStaticValueRange.class, "valueRange");
 		return Toolkit.getConverterProvider().getConverter(elementValueType);
 	}
 
@@ -78,13 +80,8 @@ class ControlProviderDefault<ELEMENT_VALUE_TYPE> implements
 	public ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> getControlCreator(
 		final IConverter<ELEMENT_VALUE_TYPE> converter,
 		final IValueRange valueRange) {
-		if (valueRange instanceof IStaticValueRange) {
-			return getControlCreator(converter, (IStaticValueRange) valueRange);
-		}
-		else {
-			// TODO MG handle ILookUpValueRange
-			return null;
-		}
+		Assert.paramHasType(valueRange, IStaticValueRange.class, "valueRange");
+		return getControlCreator(converter, (IStaticValueRange) valueRange);
 	}
 
 	private ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> getControlCreator(
@@ -128,14 +125,8 @@ class ControlProviderDefault<ELEMENT_VALUE_TYPE> implements
 		final ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> elementControlCreator,
 		final IConverter<ELEMENT_VALUE_TYPE> converter,
 		final IValueRange valueRange) {
-
-		if (valueRange instanceof IStaticValueRange) {
-			return getCollectionControlCreator(elementControlCreator, converter, (IStaticValueRange) valueRange);
-		}
-		else {
-			// TODO MG handle ILookUpValueRange
-			return null;
-		}
+		Assert.paramHasType(valueRange, IStaticValueRange.class, "valueRange");
+		return getCollectionControlCreator(elementControlCreator, converter, (IStaticValueRange) valueRange);
 	}
 
 	private ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> getCollectionControlCreator(

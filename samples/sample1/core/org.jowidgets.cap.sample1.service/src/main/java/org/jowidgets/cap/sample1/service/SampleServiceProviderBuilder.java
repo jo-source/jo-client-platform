@@ -35,6 +35,7 @@ import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.service.IEntityClassProviderService;
 import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.common.api.service.IExecutorService;
+import org.jowidgets.cap.common.api.service.ILookUpService;
 import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.sample1.common.entity.IUser;
 import org.jowidgets.cap.sample1.common.service.executor.ChangeGenderExecutableChecker;
@@ -47,15 +48,19 @@ import org.jowidgets.cap.sample1.service.entity.SampleEntityServiceBuilder;
 import org.jowidgets.cap.sample1.service.executor.ChangeBirthdayExecutor;
 import org.jowidgets.cap.sample1.service.executor.ChangeGenderExecutor;
 import org.jowidgets.cap.sample1.service.executor.LongLastingExecutor;
+import org.jowidgets.cap.sample1.service.lookup.Countries;
+import org.jowidgets.cap.sample1.service.lookup.CountriesLookUpService;
 import org.jowidgets.cap.sample1.service.reader.AllUsersReaderService;
 import org.jowidgets.cap.sample1.service.security.AuthorizationProviderServiceImpl;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
+import org.jowidgets.cap.service.api.adapter.ISyncLookUpService;
 import org.jowidgets.cap.service.api.adapter.ISyncReaderService;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
 import org.jowidgets.cap.service.api.executor.IBeanExecutor;
 import org.jowidgets.cap.service.api.executor.IExecutorServiceBuilder;
 import org.jowidgets.cap.service.impl.dummy.datastore.EntityDataStore;
 import org.jowidgets.service.api.IServiceId;
+import org.jowidgets.service.tools.ServiceId;
 import org.jowidgets.service.tools.ServiceProviderBuilder;
 import org.jowidgets.util.IAdapterFactory;
 
@@ -80,6 +85,8 @@ public class SampleServiceProviderBuilder extends ServiceProviderBuilder {
 
 		addPersonExecutor(UserComponentExecutorServices.CHANGE_BIRTHDAY, new ChangeBirthdayExecutor());
 		addPersonExecutor(UserComponentExecutorServices.LONG_LASTING, new LongLastingExecutor());
+
+		addLookUpService(Countries.LOOK_UP_ID, new CountriesLookUpService());
 	}
 
 	private <BEAN_TYPE extends IBean, PARAM_TYPE> void addPersonExecutor(
@@ -118,4 +125,11 @@ public class SampleServiceProviderBuilder extends ServiceProviderBuilder {
 		addService(id, builder.build());
 	}
 
+	private void addLookUpService(final Object lookUpId, final ISyncLookUpService lookUpService) {
+		final IAdapterFactory<ILookUpService, ISyncLookUpService> adapterFactoryProvider;
+		adapterFactoryProvider = CapServiceToolkit.adapterFactoryProvider().lookup();
+		final ILookUpService asyncService = adapterFactoryProvider.createAdapter(lookUpService);
+		final ServiceId<ILookUpService> serviceId = new ServiceId<ILookUpService>(lookUpId, ILookUpService.class);
+		addService(serviceId, asyncService);
+	}
 }

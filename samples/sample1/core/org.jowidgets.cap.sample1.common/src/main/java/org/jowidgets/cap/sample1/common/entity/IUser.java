@@ -104,9 +104,9 @@ public interface IUser extends IBean {
 
 	void setGender(final String gender);
 
-	String getCountry();
+	Integer getCountry();
 
-	void setCountry(String country);
+	void setCountry(Integer country);
 
 	List<String> getLanguages();
 

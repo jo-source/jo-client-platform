@@ -43,7 +43,7 @@ public class User extends AbstractSampleBean implements IUser {
 	private String lastName;
 	private Date dateOfBirth;
 	private String gender;
-	private String country;
+	private Integer country;
 	private List<String> languages;
 	private boolean admin;
 	private Boolean married;
@@ -151,12 +151,12 @@ public class User extends AbstractSampleBean implements IUser {
 	}
 
 	@Override
-	public String getCountry() {
+	public Integer getCountry() {
 		return country;
 	}
 
 	@Override
-	public void setCountry(final String country) {
+	public void setCountry(final Integer country) {
 		this.country = country;
 	}
 
