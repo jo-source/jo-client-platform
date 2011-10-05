@@ -26,34 +26,18 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.api.adapter;
+package org.jowidgets.cap.service.impl;
 
-import org.jowidgets.cap.common.api.service.ICreatorService;
-import org.jowidgets.cap.common.api.service.IDeleterService;
-import org.jowidgets.cap.common.api.service.IExecutorService;
 import org.jowidgets.cap.common.api.service.ILookUpService;
-import org.jowidgets.cap.common.api.service.IParameterProviderService;
-import org.jowidgets.cap.common.api.service.IReaderService;
-import org.jowidgets.cap.common.api.service.IRefreshService;
-import org.jowidgets.cap.common.api.service.IUpdaterService;
+import org.jowidgets.cap.service.api.adapter.ISyncLookUpService;
+import org.jowidgets.util.Assert;
 import org.jowidgets.util.IAdapterFactory;
 
-public interface IAdapterFactoryProvider {
+final class LookUpServiceAdapterFactory implements IAdapterFactory<ILookUpService, ISyncLookUpService> {
 
-	<PARAM_TYPE> IAdapterFactory<IExecutorService<PARAM_TYPE>, ISyncExecutorService<PARAM_TYPE>> executor();
-
-	<PARAM_TYPE> IAdapterFactory<IParameterProviderService<PARAM_TYPE>, ISyncParameterProviderService<PARAM_TYPE>> parameterProvider();
-
-	IAdapterFactory<ICreatorService, ISyncCreatorService> creator();
-
-	<PARAM_TYPE> IAdapterFactory<IReaderService<PARAM_TYPE>, ISyncReaderService<PARAM_TYPE>> reader();
-
-	IAdapterFactory<IRefreshService, ISyncRefreshService> refresh();
-
-	IAdapterFactory<IUpdaterService, ISyncUpdaterService> updater();
-
-	IAdapterFactory<IDeleterService, ISyncDeleterService> deleter();
-
-	IAdapterFactory<ILookUpService, ISyncLookUpService> lookup();
-
+	@Override
+	public ILookUpService createAdapter(final ISyncLookUpService adaptee) {
+		Assert.paramNotNull(adaptee, "adaptee");
+		return new LookUpServiceAdapter(adaptee);
+	}
 }

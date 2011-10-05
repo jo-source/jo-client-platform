@@ -89,6 +89,13 @@ final class BeanPropertyBluePrintImpl implements IBeanPropertyBluePrint {
 	}
 
 	@Override
+	public IBeanPropertyBluePrint setLookUpValueRange(final Object lookUpId) {
+		checkExhausted();
+		builder.setLookUpValueRange(lookUpId);
+		return this;
+	}
+
+	@Override
 	public IBeanPropertyBluePrint setLabelLong(final String labelLongDefault) {
 		checkExhausted();
 		builder.setLabelLong(labelLongDefault);

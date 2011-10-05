@@ -37,6 +37,7 @@ import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Collection;
 
+import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanPropertyBuilder;
 import org.jowidgets.cap.common.api.bean.IProperty;
@@ -128,6 +129,11 @@ final class BeanPropertyBuilderImpl implements IBeanPropertyBuilder {
 	@Override
 	public IBeanPropertyBuilder setValueRange(final Object... values) {
 		return setValueRange(Arrays.asList(values));
+	}
+
+	@Override
+	public IBeanPropertyBuilder setLookUpValueRange(final Object lookUpId) {
+		return setValueRange(CapCommonToolkit.lookUpToolkit().lookUpValueRange(lookUpId));
 	}
 
 	@Override

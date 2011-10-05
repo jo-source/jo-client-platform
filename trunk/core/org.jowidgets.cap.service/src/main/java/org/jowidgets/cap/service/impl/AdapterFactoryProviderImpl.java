@@ -31,6 +31,7 @@ package org.jowidgets.cap.service.impl;
 import org.jowidgets.cap.common.api.service.ICreatorService;
 import org.jowidgets.cap.common.api.service.IDeleterService;
 import org.jowidgets.cap.common.api.service.IExecutorService;
+import org.jowidgets.cap.common.api.service.ILookUpService;
 import org.jowidgets.cap.common.api.service.IParameterProviderService;
 import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.common.api.service.IRefreshService;
@@ -39,6 +40,7 @@ import org.jowidgets.cap.service.api.adapter.IAdapterFactoryProvider;
 import org.jowidgets.cap.service.api.adapter.ISyncCreatorService;
 import org.jowidgets.cap.service.api.adapter.ISyncDeleterService;
 import org.jowidgets.cap.service.api.adapter.ISyncExecutorService;
+import org.jowidgets.cap.service.api.adapter.ISyncLookUpService;
 import org.jowidgets.cap.service.api.adapter.ISyncParameterProviderService;
 import org.jowidgets.cap.service.api.adapter.ISyncReaderService;
 import org.jowidgets.cap.service.api.adapter.ISyncRefreshService;
@@ -55,6 +57,7 @@ final class AdapterFactoryProviderImpl implements IAdapterFactoryProvider {
 	private final DeleterServiceAdapterFactory deleterServiceAdapterFactory;
 	private final RefreshServiceAdapterFactory refreshServiceAdapterFactory;
 	private final ParameterProviderServiceAdapterFactory parameterProviderServiceAdapterFactory;
+	private final LookUpServiceAdapterFactory lookUpServiceAdapterFactory;
 
 	AdapterFactoryProviderImpl() {
 		this.executorServiceAdapterFactory = new ExecutorServiceAdapterFactory();
@@ -64,6 +67,7 @@ final class AdapterFactoryProviderImpl implements IAdapterFactoryProvider {
 		this.creatorServiceAdapterFactory = new CreatorServiceAdapterFactory();
 		this.deleterServiceAdapterFactory = new DeleterServiceAdapterFactory();
 		this.refreshServiceAdapterFactory = new RefreshServiceAdapterFactory();
+		this.lookUpServiceAdapterFactory = new LookUpServiceAdapterFactory();
 	}
 
 	@Override
@@ -99,6 +103,11 @@ final class AdapterFactoryProviderImpl implements IAdapterFactoryProvider {
 	@Override
 	public IAdapterFactory<IDeleterService, ISyncDeleterService> deleter() {
 		return deleterServiceAdapterFactory;
+	}
+
+	@Override
+	public IAdapterFactory<ILookUpService, ISyncLookUpService> lookup() {
+		return lookUpServiceAdapterFactory;
 	}
 
 }

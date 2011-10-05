@@ -38,6 +38,7 @@ import org.jowidgets.api.convert.IStringObjectConverter;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.widgets.IInputControl;
 import org.jowidgets.cap.common.api.bean.IValueRange;
+import org.jowidgets.cap.common.api.lookup.ILookUpValueRange;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IControlPanelProvider;
 import org.jowidgets.cap.ui.api.attribute.IControlPanelProviderBuilder;
@@ -231,8 +232,16 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 	private ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> getControlCreator() {
 		if (controlCreator == null) {
 
-			final IInputControlProvider<ELEMENT_VALUE_TYPE> defaultControl = getDefaultControl(CapUiToolkit.inputControlRegistry().getControls(
-					elementValueType));
+			final IInputControlProvider<ELEMENT_VALUE_TYPE> defaultControl;
+
+			if (valueRange instanceof ILookUpValueRange) {
+				final IInputControlSupport<ELEMENT_VALUE_TYPE> controls;
+				controls = CapUiToolkit.inputControlRegistry().getControls((ILookUpValueRange) valueRange);
+				defaultControl = getDefaultControl(controls);
+			}
+			else {
+				defaultControl = getDefaultControl(CapUiToolkit.inputControlRegistry().getControls(elementValueType));
+			}
 
 			if (defaultControl != null) {
 				controlCreator = defaultControl.getControlCreator(getConverter(defaultControl), valueRange);
@@ -244,8 +253,16 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 	private ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> getCollectionControlCreator() {
 		if (collectionControlCreator == null) {
 
-			final IInputControlProvider<ELEMENT_VALUE_TYPE> defaultControl = getDefaultControl(CapUiToolkit.inputControlRegistry().getControls(
-					elementValueType));
+			final IInputControlProvider<ELEMENT_VALUE_TYPE> defaultControl;
+
+			if (valueRange instanceof ILookUpValueRange) {
+				final IInputControlSupport<ELEMENT_VALUE_TYPE> controls;
+				controls = CapUiToolkit.inputControlRegistry().getControls((ILookUpValueRange) valueRange);
+				defaultControl = getDefaultControl(controls);
+			}
+			else {
+				defaultControl = getDefaultControl(CapUiToolkit.inputControlRegistry().getControls(elementValueType));
+			}
 
 			if (defaultControl != null) {
 				collectionControlCreator = defaultControl.getCollectionControlCreator(

@@ -32,6 +32,7 @@ import java.util.GregorianCalendar;
 
 import org.jowidgets.cap.sample1.common.entity.IUser;
 import org.jowidgets.cap.sample1.service.entity.User;
+import org.jowidgets.cap.sample1.service.lookup.Countries;
 import org.jowidgets.cap.service.impl.dummy.datastore.EntityDataFactory;
 import org.jowidgets.cap.service.impl.dummy.datastore.EntityDataStore;
 import org.jowidgets.cap.service.impl.dummy.datastore.IEntityData;
@@ -66,7 +67,7 @@ final class UserDataInitializer {
 		user.setWeight(87d);
 		user.setHeight((short) 174);
 		user.addLanguage("English");
-		user.setCountry("Spain");
+		user.setCountry(Countries.SPAIN);
 		user.setMarried(Boolean.TRUE);
 		data.add(user);
 
@@ -79,7 +80,7 @@ final class UserDataInitializer {
 		user.setHeight((short) 165);
 		user.addLanguage("English");
 		user.addLanguage("German");
-		user.setCountry("Germany");
+		user.setCountry(Countries.GERMANY);
 		user.setMarried(Boolean.FALSE);
 		data.add(user);
 
@@ -93,7 +94,7 @@ final class UserDataInitializer {
 		user.addLanguage("English");
 		user.addLanguage("French");
 		user.setAdmin(true);
-		user.setCountry("USA");
+		user.setCountry(Countries.USA);
 		data.add(user);
 
 		user = new User(data.nextId());
@@ -105,7 +106,7 @@ final class UserDataInitializer {
 		user.setHeight((short) 182);
 		user.addLanguage("English");
 		user.addLanguage("Spanish");
-		user.setCountry("Italy");
+		user.setCountry(Countries.ITALY);
 		data.add(user);
 
 		user = new User(data.nextId());
@@ -116,7 +117,7 @@ final class UserDataInitializer {
 		user.setWeight(85d);
 		user.setHeight((short) 188);
 		user.addLanguage("English");
-		user.setCountry("Spain");
+		user.setCountry(Countries.SPAIN);
 		user.setMarried(Boolean.FALSE);
 		data.add(user);
 
@@ -142,7 +143,7 @@ final class UserDataInitializer {
 		user.addLanguage("English");
 		user.setAdmin(true);
 		user.setMarried(Boolean.TRUE);
-		user.setCountry("USA");
+		user.setCountry(Countries.USA);
 		data.add(user);
 
 		user = new User(data.nextId());
@@ -155,7 +156,7 @@ final class UserDataInitializer {
 		user.addLanguage("English");
 		user.setAdmin(false);
 		user.setMarried(Boolean.FALSE);
-		user.setCountry("USA");
+		user.setCountry(Countries.USA);
 		data.add(user);
 
 		for (int i = 0; i < 20000; i++) {

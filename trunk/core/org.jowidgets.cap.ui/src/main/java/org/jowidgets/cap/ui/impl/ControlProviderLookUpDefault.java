@@ -52,6 +52,7 @@ class ControlProviderLookUpDefault<ELEMENT_VALUE_TYPE> implements IInputControlP
 
 	private final Object lookUpId;
 	private final ILookUpProperty lookUpProperty;
+	private final IDisplayFormat displayFormat;
 
 	ControlProviderLookUpDefault(final Object lookUpId, final ILookUpProperty lookUpProperty) {
 		Assert.paramNotNull(lookUpId, "lookUpId");
@@ -59,11 +60,12 @@ class ControlProviderLookUpDefault<ELEMENT_VALUE_TYPE> implements IInputControlP
 
 		this.lookUpId = lookUpId;
 		this.lookUpProperty = lookUpProperty;
+		this.displayFormat = LookUpDisplayFormatFactory.create(lookUpProperty);
 	}
 
 	@Override
 	public IDisplayFormat getDisplayFormat() {
-		return CapUiToolkit.displayFormatFactory().getDefault();
+		return displayFormat;
 	}
 
 	@Override

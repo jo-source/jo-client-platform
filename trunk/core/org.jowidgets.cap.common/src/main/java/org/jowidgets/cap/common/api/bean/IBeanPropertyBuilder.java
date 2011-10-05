@@ -44,6 +44,8 @@ public interface IBeanPropertyBuilder {
 
 	IBeanPropertyBuilder setValueRange(Object... values);
 
+	IBeanPropertyBuilder setLookUpValueRange(Object lookUpId);
+
 	IBeanPropertyBuilder setLabelLong(String labelLongDefault);
 
 	IBeanPropertyBuilder setDescription(String descriptionDefault);
