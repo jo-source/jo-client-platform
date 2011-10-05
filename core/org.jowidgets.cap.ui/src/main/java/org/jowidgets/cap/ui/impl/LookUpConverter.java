@@ -81,6 +81,9 @@ final class LookUpConverter<KEY_TYPE> implements IConverter<KEY_TYPE> {
 
 	@Override
 	public String convertToString(final KEY_TYPE key) {
+		if (key == null) {
+			return null;
+		}
 		final ILookUp lookUp = getLookUp();
 		if (lookUp != null) {
 			final ILookUpEntry lookUpEntry = lookUp.getEntry(key);
@@ -99,6 +102,9 @@ final class LookUpConverter<KEY_TYPE> implements IConverter<KEY_TYPE> {
 
 	@Override
 	public String getDescription(final KEY_TYPE key) {
+		if (key == null) {
+			return null;
+		}
 		final ILookUp lookUp = getLookUp();
 		if (lookUp != null) {
 			return lookUp.getDescription(key);

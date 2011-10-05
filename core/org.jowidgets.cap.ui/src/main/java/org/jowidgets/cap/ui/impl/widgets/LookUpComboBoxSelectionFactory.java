@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2010, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,31 +26,23 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample1.service.lookup;
+package org.jowidgets.cap.ui.impl.widgets;
 
-import java.util.List;
+import org.jowidgets.api.toolkit.Toolkit;
+import org.jowidgets.api.widgets.IComboBox;
+import org.jowidgets.api.widgets.blueprint.IComboBoxSelectionBluePrint;
+import org.jowidgets.cap.ui.api.widgets.ILookUpComboBoxSelectionBluePrint;
+import org.jowidgets.common.widgets.factory.IWidgetFactory;
+import org.jowidgets.tools.widgets.blueprint.BPF;
 
-import org.jowidgets.cap.common.api.execution.IExecutionCallback;
-import org.jowidgets.cap.common.api.lookup.ILookUpEntry;
-import org.jowidgets.cap.service.api.adapter.ISyncLookUpService;
-
-public class CountriesLookUpService implements ISyncLookUpService {
+public final class LookUpComboBoxSelectionFactory implements
+		IWidgetFactory<IComboBox<Object>, ILookUpComboBoxSelectionBluePrint<Object>> {
 
 	@Override
-	public List<ILookUpEntry> readValues(final IExecutionCallback executionCallback) {
-		//		for (int i = 0; i < 10 && !executionCallback.isCanceled(); i++) {
-		//			try {
-		//				//CHECKSTYLE:OFF
-		//				//TODO MG remove sysout
-		//				System.out.println("Wait for reading look up");
-		//				//CHECKSTYLE:ON
-		//				Thread.sleep(1000);
-		//			}
-		//			catch (final InterruptedException e) {
-		//			}
-		//		}
-
-		return Countries.LOOK_UP_ENTRIES;
+	public IComboBox<Object> create(final Object parentUiReference, final ILookUpComboBoxSelectionBluePrint<Object> descriptor) {
+		final IComboBoxSelectionBluePrint<Object> bluePrint = BPF.comboBoxSelection(descriptor.getObjectStringConverter());
+		bluePrint.setSetup(descriptor);
+		final IComboBox<Object> comboBox = Toolkit.getWidgetFactory().create(parentUiReference, bluePrint);
+		return new LookUpComboBoxSelectionImpl<Object>(comboBox, descriptor);
 	}
-
 }

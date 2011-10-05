@@ -43,7 +43,7 @@ final class LookUpImpl implements ILookUp {
 	private final Map<Object, ILookUpEntry> map;
 	private final List<Object> keys;
 	private final List<Object> keysView;
-	private final List<ILookUpEntry> enries;
+	private final List<ILookUpEntry> entries;
 	private final List<ILookUpEntry> entriesView;
 
 	private Map<String, Map<Object, Object>> valueToKeys;
@@ -56,13 +56,13 @@ final class LookUpImpl implements ILookUp {
 		this.keys = new LinkedList<Object>();
 		this.keysView = Collections.unmodifiableList(keys);
 
-		this.enries = new LinkedList<ILookUpEntry>();
-		this.entriesView = Collections.unmodifiableList(enries);
+		this.entries = new LinkedList<ILookUpEntry>();
+		this.entriesView = Collections.unmodifiableList(entries);
 
 		for (final ILookUpEntry lookUpEntry : entries) {
 			map.put(lookUpEntry.getKey(), lookUpEntry);
 			keys.add(lookUpEntry.getKey());
-			entries.add(lookUpEntry);
+			this.entries.add(lookUpEntry);
 		}
 	}
 
@@ -119,7 +119,7 @@ final class LookUpImpl implements ILookUp {
 		Map<Object, Object> result = valueToKeys.get(propertyName);
 		if (result == null) {
 			result = new HashMap<Object, Object>();
-			for (final ILookUpEntry lookUpEntry : enries) {
+			for (final ILookUpEntry lookUpEntry : entries) {
 				result.put(lookUpEntry.getValue(propertyName), lookUpEntry.getKey());
 			}
 			valueToKeys.put(propertyName, result);

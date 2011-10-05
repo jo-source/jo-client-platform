@@ -26,31 +26,16 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample1.service.lookup;
+package org.jowidgets.cap.ui.impl.widgets;
 
-import java.util.List;
+import org.jowidgets.api.widgets.IComboBox;
+import org.jowidgets.cap.ui.api.widgets.ILookUpComboBoxSelectionBluePrint;
+import org.jowidgets.tools.widgets.wrapper.ComboBoxWrapper;
 
-import org.jowidgets.cap.common.api.execution.IExecutionCallback;
-import org.jowidgets.cap.common.api.lookup.ILookUpEntry;
-import org.jowidgets.cap.service.api.adapter.ISyncLookUpService;
+final class LookUpComboBoxSelectionImpl<KEY_TYPE> extends ComboBoxWrapper<KEY_TYPE> {
 
-public class CountriesLookUpService implements ISyncLookUpService {
-
-	@Override
-	public List<ILookUpEntry> readValues(final IExecutionCallback executionCallback) {
-		//		for (int i = 0; i < 10 && !executionCallback.isCanceled(); i++) {
-		//			try {
-		//				//CHECKSTYLE:OFF
-		//				//TODO MG remove sysout
-		//				System.out.println("Wait for reading look up");
-		//				//CHECKSTYLE:ON
-		//				Thread.sleep(1000);
-		//			}
-		//			catch (final InterruptedException e) {
-		//			}
-		//		}
-
-		return Countries.LOOK_UP_ENTRIES;
+	LookUpComboBoxSelectionImpl(final IComboBox<KEY_TYPE> comboBox, final ILookUpComboBoxSelectionBluePrint<KEY_TYPE> setup) {
+		super(comboBox);
 	}
 
 }
