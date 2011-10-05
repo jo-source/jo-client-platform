@@ -28,19 +28,14 @@
 
 package org.jowidgets.cap.sample1.service.lookup;
 
-import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
-import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.lookup.ILookUpEntry;
-import org.jowidgets.cap.common.api.lookup.ILookUpToolkit;
 
 public final class Countries {
 
 	public static final String LOOK_UP_ID = Countries.class.getName() + "_id";
 
-	//TODO MG set correct look up keys for constants
 	public static final Integer GERMANY = Integer.valueOf(75);
 	public static final Integer ITALY = Integer.valueOf(99);
 	public static final Integer SPAIN = Integer.valueOf(189);
@@ -75,16 +70,8 @@ public final class Countries {
 			"U.S. Virgin Islands", "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States", "Uruguay",
 			"Uzbekistan", "Vanuatu", "Vatican City", "Venezuela", "Vietnam", "Western Sahara", "Yemen", "Zambia", "Zimbabwe",};
 
-	public static final List<ILookUpEntry> LOOK_UP_ENTRIES = createLookUpEntries(COUNTRIES);
+	public static final List<ILookUpEntry> LOOK_UP_ENTRIES = ArrayToLookUpHelper.createLookUpEntries(COUNTRIES);
 
 	private Countries() {}
 
-	private static List<ILookUpEntry> createLookUpEntries(final String[] data) {
-		final ILookUpToolkit lookUpToolkit = CapCommonToolkit.lookUpToolkit();
-		final List<ILookUpEntry> result = new LinkedList<ILookUpEntry>();
-		for (int i = 0; i < data.length; i++) {
-			result.add(lookUpToolkit.lookUpEntry(i, data[i]));
-		}
-		return Collections.unmodifiableList(result);
-	}
 }

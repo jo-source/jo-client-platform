@@ -33,6 +33,7 @@ import java.util.GregorianCalendar;
 import org.jowidgets.cap.sample1.common.entity.IUser;
 import org.jowidgets.cap.sample1.service.entity.User;
 import org.jowidgets.cap.sample1.service.lookup.Countries;
+import org.jowidgets.cap.sample1.service.lookup.Languages;
 import org.jowidgets.cap.service.impl.dummy.datastore.EntityDataFactory;
 import org.jowidgets.cap.service.impl.dummy.datastore.EntityDataStore;
 import org.jowidgets.cap.service.impl.dummy.datastore.IEntityData;
@@ -66,7 +67,7 @@ final class UserDataInitializer {
 		user.setGender("M");
 		user.setWeight(87d);
 		user.setHeight((short) 174);
-		user.addLanguage("English");
+		user.addLanguage(Languages.ENGLISH);
 		user.setCountry(Countries.SPAIN);
 		user.setMarried(Boolean.TRUE);
 		data.add(user);
@@ -78,8 +79,8 @@ final class UserDataInitializer {
 		user.setGender("F");
 		user.setWeight(65d);
 		user.setHeight((short) 165);
-		user.addLanguage("English");
-		user.addLanguage("German");
+		user.addLanguage(Languages.ENGLISH);
+		user.addLanguage(Languages.GERMAN);
 		user.setCountry(Countries.GERMANY);
 		user.setMarried(Boolean.FALSE);
 		data.add(user);
@@ -91,8 +92,8 @@ final class UserDataInitializer {
 		user.setGender("M");
 		user.setWeight(97d);
 		user.setHeight((short) 189);
-		user.addLanguage("English");
-		user.addLanguage("French");
+		user.addLanguage(Languages.ENGLISH);
+		user.addLanguage(Languages.FRENCH);
 		user.setAdmin(true);
 		user.setCountry(Countries.USA);
 		data.add(user);
@@ -104,8 +105,8 @@ final class UserDataInitializer {
 		user.setGender("M");
 		user.setWeight(79d);
 		user.setHeight((short) 182);
-		user.addLanguage("English");
-		user.addLanguage("Spanish");
+		user.addLanguage(Languages.ENGLISH);
+		user.addLanguage(Languages.SPANISH);
 		user.setCountry(Countries.ITALY);
 		data.add(user);
 
@@ -116,7 +117,7 @@ final class UserDataInitializer {
 		user.setGender("M");
 		user.setWeight(85d);
 		user.setHeight((short) 188);
-		user.addLanguage("English");
+		user.addLanguage(Languages.ENGLISH);
 		user.setCountry(Countries.SPAIN);
 		user.setMarried(Boolean.FALSE);
 		data.add(user);
@@ -128,9 +129,9 @@ final class UserDataInitializer {
 		user.setGender("F");
 		user.setWeight(57d);
 		user.setHeight((short) 173);
-		user.addLanguage("English");
-		user.addLanguage("French");
-		user.addLanguage("Spanish");
+		user.addLanguage(Languages.ENGLISH);
+		user.addLanguage(Languages.FRENCH);
+		user.addLanguage(Languages.SPANISH);
 		data.add(user);
 
 		user = new User(data.nextId());
@@ -140,7 +141,7 @@ final class UserDataInitializer {
 		user.setGender("M");
 		user.setWeight(103d);
 		user.setHeight((short) 182);
-		user.addLanguage("English");
+		user.addLanguage(Languages.ENGLISH);
 		user.setAdmin(true);
 		user.setMarried(Boolean.TRUE);
 		user.setCountry(Countries.USA);
@@ -153,7 +154,7 @@ final class UserDataInitializer {
 		user.setGender("M");
 		user.setWeight(89d);
 		user.setHeight((short) 179);
-		user.addLanguage("English");
+		user.addLanguage(Languages.ENGLISH);
 		user.setAdmin(false);
 		user.setMarried(Boolean.FALSE);
 		user.setCountry(Countries.USA);

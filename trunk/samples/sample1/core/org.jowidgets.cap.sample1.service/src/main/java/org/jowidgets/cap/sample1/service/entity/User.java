@@ -44,7 +44,7 @@ public class User extends AbstractSampleBean implements IUser {
 	private Date dateOfBirth;
 	private String gender;
 	private Integer country;
-	private List<String> languages;
+	private List<Integer> languages;
 	private boolean admin;
 	private Boolean married;
 	private Double weight;
@@ -52,7 +52,7 @@ public class User extends AbstractSampleBean implements IUser {
 
 	public User(final Long id) {
 		super(id);
-		this.languages = new LinkedList<String>();
+		this.languages = new LinkedList<Integer>();
 	}
 
 	@Override
@@ -161,14 +161,14 @@ public class User extends AbstractSampleBean implements IUser {
 	}
 
 	@Override
-	public List<String> getLanguages() {
-		return new LinkedList<String>(languages);
+	public List<Integer> getLanguages() {
+		return new LinkedList<Integer>(languages);
 	}
 
 	@Override
-	public void setLanguages(final List<String> languages) {
+	public void setLanguages(final List<Integer> languages) {
 		if (languages != null) {
-			this.languages = new LinkedList<String>(languages);
+			this.languages = new LinkedList<Integer>(languages);
 		}
 		else {
 			this.languages.clear();
@@ -196,14 +196,14 @@ public class User extends AbstractSampleBean implements IUser {
 		this.married = married;
 	}
 
-	public void addLanguage(final String language) {
-		Assert.paramNotEmpty(language, "language");
+	public void addLanguage(final Integer language) {
+		Assert.paramNotNull(language, "language");
 		this.languages.add(language);
 		increaseVersion();
 	}
 
-	public void removeLanguage(final String language) {
-		Assert.paramNotEmpty(language, "language");
+	public void removeLanguage(final Integer language) {
+		Assert.paramNotNull(language, "language");
 		this.languages.remove(language);
 		increaseVersion();
 	}
