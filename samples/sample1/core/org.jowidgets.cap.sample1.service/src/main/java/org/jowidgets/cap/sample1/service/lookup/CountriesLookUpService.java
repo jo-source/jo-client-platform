@@ -38,18 +38,18 @@ public class CountriesLookUpService implements ISyncLookUpService {
 
 	@Override
 	public List<ILookUpEntry> readValues(final IExecutionCallback executionCallback) {
-		//CHECKSTYLE:OFF
-		final int n = 10;
-		for (int i = 0; i < n; i++) {
-			System.out.println("Read languages lookup (" + i + "/" + n + ")");
-			try {
-				Thread.sleep(1000);
-			}
-			catch (final InterruptedException e) {
-			}
-		}
-		System.out.println("Read languages lookup finished");
-		//CHECKSTYLE:ON
+		//		//CHECKSTYLE:OFF
+		//		final int n = 10;
+		//		for (int i = 0; i < n; i++) {
+		//			System.out.println("Read languages lookup (" + i + "/" + n + ")");
+		//			try {
+		//				Thread.sleep(1000);
+		//			}
+		//			catch (final InterruptedException e) {
+		//			}
+		//		}
+		//		System.out.println("Read languages lookup finished");
+		//		//CHECKSTYLE:ON
 		return Countries.LOOK_UP_ENTRIES;
 	}
 
