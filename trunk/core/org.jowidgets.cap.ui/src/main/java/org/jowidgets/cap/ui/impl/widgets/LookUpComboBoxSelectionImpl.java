@@ -44,7 +44,6 @@ final class LookUpComboBoxSelectionImpl extends ComboBoxWrapper<Object> implemen
 	private boolean initialized;
 
 	private Object lastValue;
-	private boolean enabled;
 	private boolean editable;
 
 	LookUpComboBoxSelectionImpl(final IComboBox<Object> comboBox, final ILookUpComboBoxSelectionBluePrint<Object> setup) {
@@ -55,6 +54,7 @@ final class LookUpComboBoxSelectionImpl extends ComboBoxWrapper<Object> implemen
 		initialized = false;
 		setElements(DUMMY_OBJECT);
 		super.setEditable(false);
+		editable = setup.isEditable();
 
 		final ILookUpAccess lookUpAccess = CapUiToolkit.lookUpCache().getAccess(setup.getLookUpId());
 		lookUpAccess.addCallback(this, false);
@@ -77,7 +77,6 @@ final class LookUpComboBoxSelectionImpl extends ComboBoxWrapper<Object> implemen
 		setElements(lookUp.getValidKeys());
 		super.setValue(lastValue);
 		super.setEditable(editable);
-		super.setEnabled(enabled);
 		initialized = true;
 	}
 
@@ -115,14 +114,6 @@ final class LookUpComboBoxSelectionImpl extends ComboBoxWrapper<Object> implemen
 		this.editable = editable;
 		if (initialized || !editable) {
 			super.setEditable(editable);
-		}
-	}
-
-	@Override
-	public void setEnabled(final boolean enabled) {
-		this.enabled = enabled;
-		if (initialized || !enabled) {
-			super.setEnabled(enabled);
 		}
 	}
 
