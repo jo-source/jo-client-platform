@@ -32,7 +32,6 @@ import java.util.Collection;
 
 import org.jowidgets.api.convert.IConverter;
 import org.jowidgets.api.widgets.IInputControl;
-import org.jowidgets.api.widgets.blueprint.ICollectionInputFieldBluePrint;
 import org.jowidgets.api.widgets.blueprint.builder.IInputComponentSetupBuilder;
 import org.jowidgets.cap.common.api.bean.IStaticValueRange;
 import org.jowidgets.cap.common.api.bean.IValueRange;
@@ -41,6 +40,7 @@ import org.jowidgets.cap.common.api.lookup.ILookUpValueRange;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.control.IDisplayFormat;
 import org.jowidgets.cap.ui.api.control.IInputControlProvider;
+import org.jowidgets.cap.ui.api.widgets.ILookUpCollectionInputFieldBluePrint;
 import org.jowidgets.cap.ui.api.widgets.ILookUpComboBoxSelectionBluePrint;
 import org.jowidgets.cap.ui.tools.validation.ValueRangeValidator;
 import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
@@ -84,11 +84,10 @@ class ControlProviderLookUpDefault<ELEMENT_VALUE_TYPE> implements IInputControlP
 		return new ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>>() {
 			@Override
 			public IInputControl<ELEMENT_VALUE_TYPE> create(final ICustomWidgetFactory widgetFactory) {
-				final ILookUpComboBoxSelectionBluePrint<ELEMENT_VALUE_TYPE> lookUpComboBox;
-				lookUpComboBox = CapUiToolkit.bluePrintFactory().lookUpComboBox(lookUpId, lookUpProperty);
-				lookUpComboBox.setObjectStringConverter(converter);
-				addValueRangeValidator(lookUpComboBox, valueRange);
-				return widgetFactory.create(lookUpComboBox);
+				final ILookUpComboBoxSelectionBluePrint<ELEMENT_VALUE_TYPE> bluePrint;
+				bluePrint = CapUiToolkit.bluePrintFactory().lookUpComboBox(lookUpId, converter);
+				addValueRangeValidator(bluePrint, valueRange);
+				return widgetFactory.create(bluePrint);
 			}
 		};
 
@@ -103,16 +102,17 @@ class ControlProviderLookUpDefault<ELEMENT_VALUE_TYPE> implements IInputControlP
 		Assert.paramNotNull(converter, "converter");
 		Assert.paramHasType(valueRange, ILookUpValueRange.class, "valueRange");
 
-		//TODO MG use a special look up input field that changes the value when lookup changes
 		return new ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>>() {
 			@Override
 			public IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>> create(final ICustomWidgetFactory widgetFactory) {
-				final ICollectionInputFieldBluePrint<ELEMENT_VALUE_TYPE> inputFieldBp = BPF.collectionInputField(converter);
-				inputFieldBp.setElementValidator(new ValueRangeValidator<ELEMENT_VALUE_TYPE>(valueRange));
+				final ILookUpCollectionInputFieldBluePrint<ELEMENT_VALUE_TYPE> bluePrint;
+				bluePrint = CapUiToolkit.bluePrintFactory().lookUpCollectionInputField(lookUpId, converter);
+
+				bluePrint.setElementValidator(new ValueRangeValidator<ELEMENT_VALUE_TYPE>(valueRange));
 				if (elementControlCreator != null) {
-					inputFieldBp.setCollectionInputDialogSetup(BPF.collectionInputDialog(elementControlCreator));
+					bluePrint.setCollectionInputDialogSetup(BPF.collectionInputDialog(elementControlCreator));
 				}
-				return widgetFactory.create(inputFieldBp);
+				return widgetFactory.create(bluePrint);
 			}
 		};
 	}
