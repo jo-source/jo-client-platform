@@ -145,6 +145,8 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 	private final AbstractTableDataModel dataModel;
 	private final ITableModel tableModel;
 
+	private final Set<ILookUpListener> lookUpListenersStrongRef;
+
 	private int pageSize;
 	private int rowCount;
 	private int maxPageIndex;
@@ -215,7 +217,8 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 		this.filterChangeObservable = new ChangeObservable();
 
 		//model creation
-		this.columnModel = createColumnModel(attributes);
+		this.lookUpListenersStrongRef = new HashSet<ILookUpListener>();
+		this.columnModel = createColumnModel(attributes, lookUpListenersStrongRef);
 		this.dataModel = createDataModel();
 		this.tableModel = new TableModel(columnModel, dataModel);
 
@@ -612,7 +615,9 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 		}
 	}
 
-	private IDefaultTableColumnModel createColumnModel(final List<IAttribute<Object>> attributes) {
+	private IDefaultTableColumnModel createColumnModel(
+		final List<IAttribute<Object>> attributes,
+		final Set<ILookUpListener> listenersStrongRef) {
 		final ITableModelFactory tableModelFactory = Toolkit.getModelFactoryProvider().getTableModelFactory();
 
 		final IDefaultTableColumnModel result = tableModelFactory.columnModel();
@@ -642,7 +647,7 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 			if (valueRange instanceof ILookUpValueRange) {
 				final ILookUpValueRange lookUpValueRange = (ILookUpValueRange) valueRange;
 				final ILookUpAccess lookUpAccess = CapUiToolkit.lookUpCache().getAccess(lookUpValueRange.getLookUpId());
-				lookUpAccess.addLookUpListener(new ILookUpListener() {
+				final ILookUpListener lookUpListener = new ILookUpListener() {
 
 					@Override
 					public void taskCreated(final IExecutionTask task) {}
@@ -653,7 +658,9 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 							dataModel.fireDataChanged();
 						}
 					}
-				});
+				};
+				listenersStrongRef.add(lookUpListener);
+				lookUpAccess.addLookUpListener(lookUpListener, true);
 			}
 
 			columnIndex++;

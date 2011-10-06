@@ -28,8 +28,10 @@
 
 package org.jowidgets.cap.ui.impl;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.concurrent.TimeoutException;
 
@@ -52,7 +54,9 @@ final class LookUpAccessImpl implements ILookUpAccess {
 
 	private final Object lookUpId;
 	private final Map<ILookUpCallback, Boolean> callbacks;
+	private final Set<ILookUpCallback> callbacksStrongRef;
 	private final Map<ILookUpListener, Boolean> listeners;
+	private final Set<ILookUpListener> listenersStrongRef;
 	private final IUiThreadAccess uiThreadAccess;
 	private final IResultCallback<List<ILookUpEntry>> lookUpCallback;
 
@@ -64,7 +68,9 @@ final class LookUpAccessImpl implements ILookUpAccess {
 		Assert.paramNotNull(lookUpId, "lookUpId");
 		this.lookUpId = lookUpId;
 		this.callbacks = new WeakHashMap<ILookUpCallback, Boolean>();
+		this.callbacksStrongRef = new HashSet<ILookUpCallback>();
 		this.listeners = new WeakHashMap<ILookUpListener, Boolean>();
+		this.listenersStrongRef = new HashSet<ILookUpListener>();
 		this.lookUpCallback = new LookUpReaderCallback();
 		this.uiThreadAccess = Toolkit.getUiThreadAccess();
 
@@ -72,9 +78,15 @@ final class LookUpAccessImpl implements ILookUpAccess {
 	}
 
 	@Override
-	public void addCallback(final ILookUpCallback callback) {
+	public void addCallback(final ILookUpCallback callback, final boolean weak) {
 		Assert.paramNotNull(callback, "callback");
 		checkThread();
+		if (!weak) {
+			//if the reference is strong, put it to this set, so the
+			//callback could not get weak until it will be removed from
+			//this set
+			callbacksStrongRef.add(callback);
+		}
 		callbacks.put(callback, Boolean.TRUE);
 		if (lookUp != null) {
 			callback.beforeChange();
@@ -90,6 +102,7 @@ final class LookUpAccessImpl implements ILookUpAccess {
 		Assert.paramNotNull(callback, "callback");
 		checkThread();
 		callbacks.remove(callback);
+		callbacksStrongRef.remove(callback);
 	}
 
 	@Override
@@ -112,9 +125,15 @@ final class LookUpAccessImpl implements ILookUpAccess {
 	}
 
 	@Override
-	public void addLookUpListener(final ILookUpListener listener) {
+	public void addLookUpListener(final ILookUpListener listener, final boolean weak) {
 		Assert.paramNotNull(listener, "listener");
 		checkThread();
+		if (!weak) {
+			//if the reference is strong, put it to this set, so the
+			//listener could not get weak until it will be removed from
+			//this set
+			listenersStrongRef.add(listener);
+		}
 		listeners.put(listener, Boolean.TRUE);
 	}
 
@@ -123,6 +142,7 @@ final class LookUpAccessImpl implements ILookUpAccess {
 		Assert.paramNotNull(listener, "listener");
 		checkThread();
 		listeners.remove(listener);
+		listenersStrongRef.remove(listener);
 	}
 
 	public void clearCache() {

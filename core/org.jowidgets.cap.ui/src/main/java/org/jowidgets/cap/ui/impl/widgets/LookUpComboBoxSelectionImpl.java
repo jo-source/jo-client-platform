@@ -57,7 +57,7 @@ final class LookUpComboBoxSelectionImpl extends ComboBoxWrapper<Object> implemen
 		super.setEditable(false);
 
 		final ILookUpAccess lookUpAccess = CapUiToolkit.lookUpCache().getAccess(setup.getLookUpId());
-		lookUpAccess.addCallback(this);
+		lookUpAccess.addCallback(this, false);
 
 		addDisposeListener(new IDisposeListener() {
 			@Override
