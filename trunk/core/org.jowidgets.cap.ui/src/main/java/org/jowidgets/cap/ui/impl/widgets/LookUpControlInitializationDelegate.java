@@ -26,35 +26,57 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.widgets;
+package org.jowidgets.cap.ui.impl.widgets;
 
-import java.util.List;
+import org.jowidgets.api.widgets.IInputControl;
 
-import org.jowidgets.api.convert.IConverter;
-import org.jowidgets.cap.common.api.lookup.ILookUpProperty;
-import org.jowidgets.cap.ui.api.attribute.IAttribute;
-import org.jowidgets.cap.ui.api.table.IBeanTableModel;
+final class LookUpControlInitializationDelegate {
 
-public interface ICapApiBluePrintFactory {
+	private final IInputControl<?> inputControl;
 
-	<BEAN_TYPE> IBeanTableBluePrint<BEAN_TYPE> beanTable(IBeanTableModel<BEAN_TYPE> model);
+	private boolean initialized;
+	private Boolean editable;
+	private Boolean enabled;
 
-	IBeanTableSettingsDialogBluePrint beanTableSettingsDialog(IBeanTableModel<?> model);
+	LookUpControlInitializationDelegate(final IInputControl<?> inputControl) {
+		super();
+		this.inputControl = inputControl;
+		this.initialized = false;
+		inputControl.setEditable(false);
+	}
 
-	<BEAN_TYPE> IBeanFormBluePrint<BEAN_TYPE> beanForm(List<? extends IAttribute<?>> attributes);
+	void initialize() {
+		if (!initialized) {
+			if (editable != null) {
+				inputControl.setEditable(editable.booleanValue());
+			}
+			if (enabled != null) {
+				inputControl.setEnabled(enabled.booleanValue());
+			}
+			else if (inputControl.isEnabled() || (editable == null && enabled == null)) {
+				inputControl.setEditable(true);
+			}
+			enabled = null;
+			editable = null;
+			initialized = true;
+		}
+	}
 
-	IAttributeFilterControlBluePrint attributeFilterControl(List<? extends IAttribute<?>> attributes);
+	boolean isInitialized() {
+		return initialized;
+	}
 
-	<KEY_TYPE> ILookUpComboBoxSelectionBluePrint<KEY_TYPE> lookUpComboBox(Object lookUpId, IConverter<KEY_TYPE> converter);
+	void setEditable(final boolean editable) {
+		this.editable = Boolean.valueOf(editable);
+		if (initialized || !editable) {
+			inputControl.setEditable(editable);
+		}
+	}
 
-	<KEY_TYPE> ILookUpComboBoxSelectionBluePrint<KEY_TYPE> lookUpComboBox(Object lookUpId, ILookUpProperty lookUpProperty);
-
-	<KEY_TYPE> ILookUpCollectionInputFieldBluePrint<KEY_TYPE> lookUpCollectionInputField(
-		Object lookUpId,
-		IConverter<KEY_TYPE> converter);
-
-	<KEY_TYPE> ILookUpCollectionInputFieldBluePrint<KEY_TYPE> lookUpCollectionInputField(
-		Object lookUpId,
-		ILookUpProperty lookUpProperty);
-
+	void setEnabled(final boolean enabled) {
+		this.enabled = Boolean.valueOf(enabled);
+		if (initialized || !enabled) {
+			inputControl.setEnabled(enabled);
+		}
+	}
 }

@@ -28,33 +28,22 @@
 
 package org.jowidgets.cap.ui.api.widgets;
 
-import java.util.List;
+import java.util.Collection;
 
-import org.jowidgets.api.convert.IConverter;
-import org.jowidgets.cap.common.api.lookup.ILookUpProperty;
-import org.jowidgets.cap.ui.api.attribute.IAttribute;
-import org.jowidgets.cap.ui.api.table.IBeanTableModel;
+import org.jowidgets.api.widgets.IInputControl;
+import org.jowidgets.api.widgets.blueprint.builder.ICollectionInputFieldSetupBuilder;
+import org.jowidgets.api.widgets.descriptor.setup.ICollectionInputFieldSetup;
+import org.jowidgets.common.widgets.descriptor.IWidgetDescriptor;
+import org.jowidgets.common.widgets.descriptor.setup.mandatory.Mandatory;
 
-public interface ICapApiBluePrintFactory {
+public interface ILookUpCollectionInputFieldBluePrint<KEY_TYPE> extends
+		ICollectionInputFieldSetupBuilder<ILookUpCollectionInputFieldBluePrint<KEY_TYPE>, KEY_TYPE>,
+		ICollectionInputFieldSetup<KEY_TYPE>,
+		IWidgetDescriptor<IInputControl<Collection<KEY_TYPE>>> {
 
-	<BEAN_TYPE> IBeanTableBluePrint<BEAN_TYPE> beanTable(IBeanTableModel<BEAN_TYPE> model);
+	ILookUpCollectionInputFieldBluePrint<KEY_TYPE> setLookUpId(Object lookUpId);
 
-	IBeanTableSettingsDialogBluePrint beanTableSettingsDialog(IBeanTableModel<?> model);
-
-	<BEAN_TYPE> IBeanFormBluePrint<BEAN_TYPE> beanForm(List<? extends IAttribute<?>> attributes);
-
-	IAttributeFilterControlBluePrint attributeFilterControl(List<? extends IAttribute<?>> attributes);
-
-	<KEY_TYPE> ILookUpComboBoxSelectionBluePrint<KEY_TYPE> lookUpComboBox(Object lookUpId, IConverter<KEY_TYPE> converter);
-
-	<KEY_TYPE> ILookUpComboBoxSelectionBluePrint<KEY_TYPE> lookUpComboBox(Object lookUpId, ILookUpProperty lookUpProperty);
-
-	<KEY_TYPE> ILookUpCollectionInputFieldBluePrint<KEY_TYPE> lookUpCollectionInputField(
-		Object lookUpId,
-		IConverter<KEY_TYPE> converter);
-
-	<KEY_TYPE> ILookUpCollectionInputFieldBluePrint<KEY_TYPE> lookUpCollectionInputField(
-		Object lookUpId,
-		ILookUpProperty lookUpProperty);
+	@Mandatory
+	Object getLookUpId();
 
 }

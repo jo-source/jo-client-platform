@@ -28,31 +28,35 @@
 
 package org.jowidgets.cap.ui.impl.widgets;
 
+import java.util.Collection;
+import java.util.Collections;
+
 import org.jowidgets.api.controller.IDisposeListener;
-import org.jowidgets.api.widgets.IComboBox;
+import org.jowidgets.api.widgets.IInputControl;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.lookup.ILookUp;
 import org.jowidgets.cap.ui.api.lookup.ILookUpAccess;
 import org.jowidgets.cap.ui.api.lookup.ILookUpCallback;
-import org.jowidgets.cap.ui.api.widgets.ILookUpComboBoxSelectionBluePrint;
-import org.jowidgets.tools.widgets.wrapper.ComboBoxWrapper;
+import org.jowidgets.cap.ui.api.widgets.ILookUpCollectionInputFieldBluePrint;
+import org.jowidgets.tools.widgets.wrapper.InputControlWrapper;
 
-final class LookUpComboBoxSelectionImpl extends ComboBoxWrapper<Object> implements ILookUpCallback {
+final class LookUpCollectionInputFieldImpl extends InputControlWrapper<Collection<Object>> implements ILookUpCallback {
 
-	private static final Object DUMMY_OBJECT = new Object();
+	private static final Collection<Object> DUMMY_VALUE = Collections.singletonList(new Object());
 
 	private final LookUpControlInitializationDelegate initializationDelegate;
 
-	private Object lastValue;
+	private Collection<Object> lastValue;
 
-	LookUpComboBoxSelectionImpl(final IComboBox<Object> comboBox, final ILookUpComboBoxSelectionBluePrint<Object> setup) {
-		super(comboBox);
+	LookUpCollectionInputFieldImpl(
+		final IInputControl<Collection<Object>> control,
+		final ILookUpCollectionInputFieldBluePrint<Object> setup) {
+		super(control);
 
-		this.initializationDelegate = new LookUpControlInitializationDelegate(comboBox);
+		this.initializationDelegate = new LookUpControlInitializationDelegate(control);
 
-		this.lastValue = comboBox.getValue();
 		super.setValue(null);
-		setElements(DUMMY_OBJECT);
+		lastValue = null;
 
 		final ILookUpAccess lookUpAccess = CapUiToolkit.lookUpCache().getAccess(setup.getLookUpId());
 		lookUpAccess.addCallback(this, false);
@@ -60,7 +64,7 @@ final class LookUpComboBoxSelectionImpl extends ComboBoxWrapper<Object> implemen
 		addDisposeListener(new IDisposeListener() {
 			@Override
 			public void onDispose() {
-				lookUpAccess.removeCallback(LookUpComboBoxSelectionImpl.this);
+				lookUpAccess.removeCallback(LookUpCollectionInputFieldImpl.this);
 			}
 		});
 	}
@@ -72,10 +76,11 @@ final class LookUpComboBoxSelectionImpl extends ComboBoxWrapper<Object> implemen
 
 	@Override
 	public void onChange(final ILookUp lookUp) {
+		final boolean lastInitialized = initializationDelegate.isInitialized();
 		initializationDelegate.initialize();
-
-		setElements(lookUp.getValidKeys());
-		super.setValue(lastValue);
+		if (!lastInitialized) {
+			super.setValue(lastValue);
+		}
 	}
 
 	@Override
@@ -84,13 +89,13 @@ final class LookUpComboBoxSelectionImpl extends ComboBoxWrapper<Object> implemen
 	}
 
 	@Override
-	public void setValue(final Object value) {
+	public void setValue(final Collection<Object> value) {
 		this.lastValue = value;
 		if (initializationDelegate.isInitialized()) {
 			super.setValue(value);
 		}
-		else if (value != null) {
-			super.setValue(DUMMY_OBJECT);
+		else if (value != null && !value.isEmpty()) {
+			super.setValue(DUMMY_VALUE);
 		}
 		else {
 			super.setValue(null);
@@ -98,7 +103,7 @@ final class LookUpComboBoxSelectionImpl extends ComboBoxWrapper<Object> implemen
 	}
 
 	@Override
-	public Object getValue() {
+	public Collection<Object> getValue() {
 		if (initializationDelegate.isInitialized()) {
 			return super.getValue();
 		}
