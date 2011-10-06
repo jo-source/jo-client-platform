@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.remoting.server;
 
+import org.jowidgets.cap.common.api.exception.ServiceCanceledException;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.invocation.service.common.api.IInvocationCallback;
 
@@ -46,7 +47,9 @@ final class ServerResultCallback implements IResultCallback<Object> {
 
 	@Override
 	public void exception(final Throwable exception) {
-		invocationCallback.exeption(exception);
+		if (!(exception instanceof ServiceCanceledException)) {
+			invocationCallback.exeption(exception);
+		}
 	}
 
 	@Override

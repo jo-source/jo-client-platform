@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.sample1.service.reader;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IBean;
@@ -96,10 +97,10 @@ public class AllUsersReaderService implements ISyncReaderService<Integer> {
 			}
 
 			if (result.size() >= firstRow) {
-				return result.subList(firstRow, Math.min(firstRow + maxRows, result.size()));
+				return new LinkedList<IBeanDto>(result.subList(firstRow, Math.min(firstRow + maxRows, result.size())));
 			}
 			else {
-				return result.subList(0, Math.min(maxRows, result.size()));
+				return new LinkedList<IBeanDto>(result.subList(0, Math.min(maxRows, result.size())));
 			}
 		}
 	}
