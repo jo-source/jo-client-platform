@@ -37,8 +37,11 @@ public interface ILookUpAccess {
 	 * @see ILookUpAccess#initialize()
 	 * 
 	 * @param callback The callback that retrieves the look up changes.
+	 * @param weak If weak is true, the callback will be hold in a weak reference, otherwise the callback will
+	 *            be hold in a strong reference.
+	 *            Remark: If weak is true, anonymous implementations of @link ILookUpCallback will fail.
 	 */
-	void addCallback(ILookUpCallback callback);
+	void addCallback(ILookUpCallback callback, boolean weak);
 
 	/**
 	 * Removes a calback to get no longer informed about look up changes
@@ -75,7 +78,15 @@ public interface ILookUpAccess {
 	 */
 	ILookUp getCurrentLookUp();
 
-	void addLookUpListener(ILookUpListener listener);
+	/**
+	 * Adds a look up listener
+	 * 
+	 * @param listener the listener to add
+	 * @param weak If weak is true, the listener will be hold in a weak reference, otherwise the listener will
+	 *            be hold in a strong reference.
+	 *            Remark: If weak is true, anonymous implementations of @link ILookUpListener will fail.
+	 */
+	void addLookUpListener(ILookUpListener listener, boolean weak);
 
 	void removeLookUpListener(ILookUpListener listener);
 

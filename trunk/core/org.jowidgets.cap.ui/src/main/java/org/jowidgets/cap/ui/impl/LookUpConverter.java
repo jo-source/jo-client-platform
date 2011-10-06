@@ -47,6 +47,7 @@ final class LookUpConverter<KEY_TYPE> implements IConverter<KEY_TYPE> {
 	private final Object lookUpId;
 	private final String lookUpProperty;
 	private final IConverter<Object> valueConverter;
+	private final ILookUpListener lookUpListener;
 
 	private boolean onLoad;
 
@@ -63,11 +64,12 @@ final class LookUpConverter<KEY_TYPE> implements IConverter<KEY_TYPE> {
 		this.lookUpId = lookUpId;
 		this.lookUpProperty = lookUpPropertyName;
 		this.valueConverter = (IConverter<Object>) valueConverter;
+		this.onLoad = false;
 
 		final ILookUpAccess lookUpAccess = CapUiToolkit.lookUpCache().getAccess(lookUpId);
 
 		if (lookUpAccess != null) {
-			lookUpAccess.addLookUpListener(new ILookUpListener() {
+			this.lookUpListener = new ILookUpListener() {
 
 				@Override
 				public void taskCreated(final IExecutionTask task) {
@@ -78,7 +80,8 @@ final class LookUpConverter<KEY_TYPE> implements IConverter<KEY_TYPE> {
 				public void afterLookUpChanged() {
 					onLoad = false;
 				}
-			});
+			};
+			lookUpAccess.addLookUpListener(lookUpListener, true);
 		}
 		else {
 			throw new IllegalStateException("No look up access found for the id '" + lookUpId + "'");
