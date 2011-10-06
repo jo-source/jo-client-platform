@@ -30,6 +30,7 @@ package org.jowidgets.cap.sample1.starter.client.common;
 
 import org.jowidgets.cap.sample1.ui.workbench.SampleWorkbench;
 import org.jowidgets.invocation.common.impl.MessageBrokerId;
+import org.jowidgets.message.api.IExceptionCallback;
 import org.jowidgets.message.api.MessageToolkit;
 import org.jowidgets.message.impl.http.client.IMessageBroker;
 import org.jowidgets.message.impl.http.client.MessageBrokerBuilder;
@@ -47,7 +48,14 @@ public final class Sample1StarterClient {
 		final IMessageBroker messageBroker = builder.build();
 		MessageToolkit.addChannelBroker(messageBroker);
 		MessageToolkit.addReceiverBroker(messageBroker);
-
+		MessageToolkit.addExceptionCallback(MessageBrokerId.INVOCATION_IMPL_BROKER_ID, new IExceptionCallback() {
+			@Override
+			public void exception(final Throwable throwable) {
+				//CHECKSTYLE:OFF
+				throwable.printStackTrace();
+				//CHECKSTYLE:ON
+			}
+		});
 		new WorkbenchRunner().run(new SampleWorkbench());
 	}
 

@@ -43,6 +43,7 @@ import javax.servlet.http.HttpSession;
 
 import org.jowidgets.message.api.IMessageReceiver;
 import org.jowidgets.message.api.IMessageReceiverBroker;
+import org.jowidgets.message.api.MessageToolkit;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.concurrent.DaemonThreadFactory;
 
@@ -98,15 +99,24 @@ public final class MessageServlet extends HttpServlet implements IMessageReceive
 		if (session.isNew()) {
 			// return immediately to send new session id to client
 			oos.writeInt(0);
-
 		}
 		else {
 			final Connection conn = getConnection(session);
 			final List<Object> messages = conn.pollMessages(pollInterval);
 			oos.writeInt(messages.size());
 			for (final Object msg : messages) {
-				oos.flush();
-				oos.writeObject(msg);
+				try {
+					oos.flush();
+					oos.writeObject(msg);
+				}
+				catch (final IOException e) {
+					MessageToolkit.handleExceptions(brokerId, e);
+					throw e;
+				}
+				catch (final RuntimeException e) {
+					MessageToolkit.handleExceptions(brokerId, e);
+					throw e;
+				}
 			}
 		}
 
@@ -125,6 +135,7 @@ public final class MessageServlet extends HttpServlet implements IMessageReceive
 			conn.onMessage(msg, executionInterceptors);
 		}
 		catch (final ClassNotFoundException e) {
+			MessageToolkit.handleExceptions(brokerId, e);
 			throw new ServletException(e);
 		}
 	}
