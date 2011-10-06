@@ -65,6 +65,7 @@ final class LookUpConverter<KEY_TYPE> implements IConverter<KEY_TYPE> {
 		this.valueConverter = (IConverter<Object>) valueConverter;
 
 		final ILookUpAccess lookUpAccess = CapUiToolkit.lookUpCache().getAccess(lookUpId);
+
 		if (lookUpAccess != null) {
 			lookUpAccess.addLookUpListener(new ILookUpListener() {
 
