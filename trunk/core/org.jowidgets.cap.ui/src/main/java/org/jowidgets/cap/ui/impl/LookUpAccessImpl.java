@@ -28,9 +28,9 @@
 
 package org.jowidgets.cap.ui.impl;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
+import java.util.WeakHashMap;
 import java.util.concurrent.TimeoutException;
 
 import org.jowidgets.api.threads.IUiThreadAccess;
@@ -51,8 +51,8 @@ import org.jowidgets.util.Assert;
 final class LookUpAccessImpl implements ILookUpAccess {
 
 	private final Object lookUpId;
-	private final Set<ILookUpCallback> callbacks;
-	private final Set<ILookUpListener> listeners;
+	private final Map<ILookUpCallback, Boolean> callbacks;
+	private final Map<ILookUpListener, Boolean> listeners;
 	private final IUiThreadAccess uiThreadAccess;
 	private final IResultCallback<List<ILookUpEntry>> lookUpCallback;
 
@@ -63,8 +63,8 @@ final class LookUpAccessImpl implements ILookUpAccess {
 	LookUpAccessImpl(final Object lookUpId) {
 		Assert.paramNotNull(lookUpId, "lookUpId");
 		this.lookUpId = lookUpId;
-		this.callbacks = new HashSet<ILookUpCallback>();
-		this.listeners = new HashSet<ILookUpListener>();
+		this.callbacks = new WeakHashMap<ILookUpCallback, Boolean>();
+		this.listeners = new WeakHashMap<ILookUpListener, Boolean>();
 		this.lookUpCallback = new LookUpReaderCallback();
 		this.uiThreadAccess = Toolkit.getUiThreadAccess();
 
@@ -75,7 +75,7 @@ final class LookUpAccessImpl implements ILookUpAccess {
 	public void addCallback(final ILookUpCallback callback) {
 		Assert.paramNotNull(callback, "callback");
 		checkThread();
-		callbacks.add(callback);
+		callbacks.put(callback, Boolean.TRUE);
 		if (lookUp != null) {
 			callback.beforeChange();
 			callback.onChange(lookUp);
@@ -115,7 +115,7 @@ final class LookUpAccessImpl implements ILookUpAccess {
 	public void addLookUpListener(final ILookUpListener listener) {
 		Assert.paramNotNull(listener, "listener");
 		checkThread();
-		listeners.add(listener);
+		listeners.put(listener, Boolean.TRUE);
 	}
 
 	@Override
@@ -139,7 +139,7 @@ final class LookUpAccessImpl implements ILookUpAccess {
 			executionTask = CapUiToolkit.executionTaskFactory().create();
 			fireTaskCreated(executionTask);
 
-			for (final ILookUpCallback callback : callbacks) {
+			for (final ILookUpCallback callback : callbacks.keySet()) {
 				callback.beforeChange();
 			}
 
@@ -154,13 +154,13 @@ final class LookUpAccessImpl implements ILookUpAccess {
 	}
 
 	private void fireTaskCreated(final IExecutionTask task) {
-		for (final ILookUpListener listener : listeners) {
+		for (final ILookUpListener listener : listeners.keySet()) {
 			listener.taskCreated(task);
 		}
 	}
 
 	private void fireAfterLookUpChanged() {
-		for (final ILookUpListener listener : listeners) {
+		for (final ILookUpListener listener : listeners.keySet()) {
 			listener.afterLookUpChanged();
 		}
 	}
@@ -186,7 +186,7 @@ final class LookUpAccessImpl implements ILookUpAccess {
 				@Override
 				public void run() {
 					lookUp = new LookUpImpl(result);
-					for (final ILookUpCallback callback : callbacks) {
+					for (final ILookUpCallback callback : callbacks.keySet()) {
 						callback.onChange(lookUp);
 					}
 					executionTask = null;
@@ -201,7 +201,7 @@ final class LookUpAccessImpl implements ILookUpAccess {
 				uiThreadAccess.invokeLater(new Runnable() {
 					@Override
 					public void run() {
-						for (final ILookUpCallback callback : callbacks) {
+						for (final ILookUpCallback callback : callbacks.keySet()) {
 							callback.onException(exception);
 						}
 						executionTask = null;
