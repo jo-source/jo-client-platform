@@ -144,6 +144,10 @@ class ControlProviderDefault<ELEMENT_VALUE_TYPE> implements
 				if (elementControlCreator != null) {
 					inputFieldBp.setCollectionInputDialogSetup(bpf.collectionInputDialog(elementControlCreator));
 				}
+				if (inputFieldBp.getSeparator() == null
+					&& (Double.class.isAssignableFrom(elementValueType) || Float.class.isAssignableFrom(elementValueType))) {
+					inputFieldBp.setSeparator(Character.valueOf(';'));
+				}
 				return widgetFactory.create(inputFieldBp);
 			}
 		};
