@@ -28,11 +28,6 @@ public interface IEntityClass {
 	String getDescription();
 
 	/**
-	 * @return The linked classes of this class
-	 */
-	List<IEntityClass> getLinkedClasses();
-
-	/**
 	 * @return The sub classes of this class
 	 */
 	List<IEntityClass> getSubClasses();

@@ -41,6 +41,7 @@ import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptorBuilder;
 import org.jowidgets.cap.common.api.bean.IProperty;
 import org.jowidgets.cap.common.api.service.IBeanServicesProvider;
+import org.jowidgets.cap.common.api.service.IEntityLinkService;
 import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.common.api.service.IUpdaterService;
 import org.jowidgets.cap.common.tools.bean.BeanDtoDescriptorBuilder;
@@ -163,6 +164,11 @@ public final class JpaEntityService implements IEntityService, InitializingBean 
 	@Override
 	public IBeanServicesProvider getBeanServices(final Object entityTypeId) {
 		return entityService.getBeanServices(entityTypeId);
+	}
+
+	@Override
+	public List<IEntityLinkService> getLinkServices(final Object entityTypeId) {
+		return entityService.getLinkServices(entityTypeId);
 	}
 
 }
