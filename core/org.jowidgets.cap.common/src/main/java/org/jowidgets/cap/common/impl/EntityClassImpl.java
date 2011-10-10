@@ -74,12 +74,6 @@ final class EntityClassImpl implements IEntityClass, Serializable {
 	}
 
 	@Override
-	public List<IEntityClass> getLinkedClasses() {
-		// TODO MG implement get linked classes
-		return null;
-	}
-
-	@Override
 	public String toString() {
 		return "EntityClassImpl [id=" + id + ", label=" + label + "]";
 	}

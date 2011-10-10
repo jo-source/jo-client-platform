@@ -26,46 +26,22 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.impl;
+package org.jowidgets.cap.common.api.service;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+public interface IEntityLinkProperties {
 
-import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
-import org.jowidgets.cap.common.api.service.IBeanServicesProvider;
-import org.jowidgets.cap.common.api.service.IEntityLinkService;
-import org.jowidgets.cap.common.api.service.IEntityService;
-import org.jowidgets.util.Assert;
+	/**
+	 * Gets the property name, that identifies the linked bean (on the linked entity)
+	 * 
+	 * @return The key property name, never null
+	 */
+	String getKeyPropertyName();
 
-public final class EntityServiceImpl implements IEntityService {
-
-	private final Map<Object, IBeanDtoDescriptor> descriptors;
-	private final Map<Object, IBeanServicesProvider> beanServices;
-
-	EntityServiceImpl(final Map<Object, IBeanDtoDescriptor> descriptors, final Map<Object, IBeanServicesProvider> beanServices) {
-		Assert.paramNotNull(descriptors, "descriptors");
-		Assert.paramNotNull(beanServices, "beanServices");
-		this.descriptors = new HashMap<Object, IBeanDtoDescriptor>(descriptors);
-		this.beanServices = new HashMap<Object, IBeanServicesProvider>(beanServices);
-	}
-
-	@Override
-	public IBeanDtoDescriptor getDescriptor(final Object entityTypeId) {
-		Assert.paramNotNull(entityTypeId, "entityTypeId");
-		return descriptors.get(entityTypeId);
-	}
-
-	@Override
-	public IBeanServicesProvider getBeanServices(final Object entityTypeId) {
-		Assert.paramNotNull(entityTypeId, "entityTypeId");
-		return beanServices.get(entityTypeId);
-	}
-
-	@Override
-	public List<IEntityLinkService> getLinkServices(final Object entityTypeId) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	/**
+	 * Gets the property name that holds the foreign key (on the link entity)
+	 * 
+	 * @return The foreign key property name, never null
+	 */
+	String getForeignKeyPropertyName();
 
 }
