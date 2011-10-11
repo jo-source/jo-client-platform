@@ -32,12 +32,16 @@ import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.tools.ServiceId;
 
-public final class UserReaderServices {
+public final class ReaderServices {
 
 	public static final IServiceId<IReaderService<Integer>> ALL_USERS = new ServiceId<IReaderService<Integer>>(
-		UserReaderServices.class.getName() + "_ALL_USERS",
+		ReaderServices.class.getName() + "_ALL_USERS",
 		IReaderService.class);
 
-	private UserReaderServices() {}
+	public static final IServiceId<IReaderService<Void>> ROLES_OF_USERS = new ServiceId<IReaderService<Void>>(
+		ReaderServices.class.getName() + "_ROLES_OF_USERS",
+		IReaderService.class);
+
+	private ReaderServices() {}
 
 }

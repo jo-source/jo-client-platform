@@ -28,16 +28,20 @@
 
 package org.jowidgets.cap.sample1.ui.workbench.component.user;
 
+import org.jowidgets.cap.common.api.bean.IBean;
+import org.jowidgets.cap.sample1.common.entity.EntityIds;
 import org.jowidgets.cap.sample1.common.entity.IUser;
-import org.jowidgets.cap.sample1.common.service.reader.UserReaderServices;
+import org.jowidgets.cap.sample1.common.service.reader.ReaderServices;
 import org.jowidgets.cap.sample1.ui.attribute.UserAttributesFactory;
 import org.jowidgets.cap.sample1.ui.workbench.command.WorkbenchActions;
+import org.jowidgets.cap.sample1.ui.workbench.component.user.view.RoleTableView;
 import org.jowidgets.cap.sample1.ui.workbench.component.user.view.UserDetailGroupsBorderView;
 import org.jowidgets.cap.sample1.ui.workbench.component.user.view.UserDetailGroupsSeparatorsView;
 import org.jowidgets.cap.sample1.ui.workbench.component.user.view.UserDetailThreeColumnView;
 import org.jowidgets.cap.sample1.ui.workbench.component.user.view.UserDetailView;
 import org.jowidgets.cap.sample1.ui.workbench.component.user.view.UserTableView;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
+import org.jowidgets.cap.ui.api.model.LinkType;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
 import org.jowidgets.cap.ui.api.table.IReaderParameterProvider;
@@ -54,11 +58,13 @@ public class UserComponent extends AbstractComponent implements IComponent {
 
 	private final ValueHolder<Integer> delayParameter;
 	private final IBeanTableModel<IUser> userTableModel;
+	private final IBeanTableModel<IBean> roleTableModel;
 
 	public UserComponent(final IComponentNodeModel componentNodeModel, final IComponentContext componentContext) {
 		componentContext.setLayout(new UserComponentDefaultLayout().getLayout());
 		this.delayParameter = new ValueHolder<Integer>(Integer.valueOf(0));
 		this.userTableModel = createUserTableModel();
+		this.roleTableModel = createRoleTableModel(userTableModel);
 	}
 
 	@Override
@@ -77,6 +83,9 @@ public class UserComponent extends AbstractComponent implements IComponent {
 		}
 		else if (UserDetailGroupsSeparatorsView.ID.equals(viewId)) {
 			return new UserDetailGroupsSeparatorsView(context, userTableModel);
+		}
+		else if (RoleTableView.ID.equals(viewId)) {
+			return new RoleTableView(context, roleTableModel);
 		}
 		else {
 			throw new IllegalArgumentException("View id '" + viewId + "' is not known.");
@@ -105,7 +114,14 @@ public class UserComponent extends AbstractComponent implements IComponent {
 	private IBeanTableModel<IUser> createUserTableModel() {
 		final IBeanTableModelBuilder<IUser> builder = CapUiToolkit.beanTableModelBuilder(IUser.class);
 		builder.setAttributes(new UserAttributesFactory().tableAttributes());
-		builder.setReaderService(UserReaderServices.ALL_USERS, createReaderParameterProvider());
+		builder.setReaderService(ReaderServices.ALL_USERS, createReaderParameterProvider());
+		return builder.build();
+	}
+
+	private IBeanTableModel<IBean> createRoleTableModel(final IBeanTableModel<IUser> userTableModel) {
+		final IBeanTableModelBuilder<IBean> builder = CapUiToolkit.beanTableModelBuilder(EntityIds.ROLE);
+		builder.setParent(userTableModel, LinkType.SELECTION_ALL);
+		builder.setReaderService(ReaderServices.ROLES_OF_USERS);
 		return builder.build();
 	}
 

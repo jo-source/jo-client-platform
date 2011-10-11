@@ -38,6 +38,7 @@ import org.jowidgets.api.toolkit.IToolkit;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.widgets.blueprint.IValidationResultLabelBluePrint;
 import org.jowidgets.api.widgets.blueprint.defaults.IDefaultInitializer;
+import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
 import org.jowidgets.cap.ui.api.bean.BeanMessageType;
 import org.jowidgets.cap.ui.api.bean.IBeanKeyFactory;
@@ -150,6 +151,10 @@ public final class CapUiToolkit {
 
 	public static <BEAN_TYPE> IBeanTableModelBuilder<BEAN_TYPE> beanTableModelBuilder(final Class<BEAN_TYPE> beanType) {
 		return getInstance().beanTableModelBuilder(beanType);
+	}
+
+	public static IBeanTableModelBuilder<IBean> beanTableModelBuilder(final Object entityId) {
+		return getInstance().beanTableModelBuilder(entityId);
 	}
 
 	public static IBeanTableConfigBuilder beanTableConfigBuilder() {
