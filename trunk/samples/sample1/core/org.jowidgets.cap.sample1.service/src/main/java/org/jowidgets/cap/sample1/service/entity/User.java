@@ -34,7 +34,14 @@ import java.util.GregorianCalendar;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.jowidgets.cap.common.api.bean.IBean;
+import org.jowidgets.cap.sample1.common.entity.EntityIds;
 import org.jowidgets.cap.sample1.common.entity.IUser;
+import org.jowidgets.cap.sample1.service.datastore.UserRoleLinkInitializer;
+import org.jowidgets.cap.service.api.CapServiceToolkit;
+import org.jowidgets.cap.service.api.bean.IBeanPropertyMap;
+import org.jowidgets.cap.service.impl.dummy.datastore.EntityDataStore;
+import org.jowidgets.cap.service.impl.dummy.datastore.IEntityData;
 import org.jowidgets.util.Assert;
 
 public class User extends AbstractSampleBean implements IUser {
@@ -194,6 +201,46 @@ public class User extends AbstractSampleBean implements IUser {
 	@Override
 	public void setMarried(final Boolean married) {
 		this.married = married;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Long> getRoles() {
+		final List<Long> result = new LinkedList<Long>();
+		final IEntityData<IBeanPropertyMap> userRoleLinks = (IEntityData<IBeanPropertyMap>) EntityDataStore.getEntityData(EntityIds.USER_ROLE_LINK);
+		for (final IBeanPropertyMap userRoleLink : userRoleLinks.getAllData()) {
+			final Object value = userRoleLink.getValue(UserRoleLinkInitializer.USER_ID);
+			if (getId().equals(value)) {
+				result.add((Long) userRoleLink.getValue(UserRoleLinkInitializer.ROLE_ID));
+			}
+		}
+		return result;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public void setRoles(final List<Long> newRoles) {
+		final IEntityData<IBeanPropertyMap> data = (IEntityData<IBeanPropertyMap>) EntityDataStore.getEntityData(EntityIds.USER_ROLE_LINK);
+		for (final IBeanPropertyMap bean : new LinkedList<IBeanPropertyMap>(data.getAllData())) {
+			final Object value = bean.getValue(UserRoleLinkInitializer.USER_ID);
+			if (getId().equals(value)) {
+				data.deleteData(bean.getValue(IBean.ID_PROPERTY));
+			}
+		}
+		for (final Long roleId : newRoles) {
+			final IEntityData<IBeanPropertyMap> rolesData = (IEntityData<IBeanPropertyMap>) EntityDataStore.getEntityData(EntityIds.ROLE);
+			final IBeanPropertyMap role = rolesData.getData(roleId);
+			if (role != null) {
+				final IBeanPropertyMap bean = CapServiceToolkit.beanPropertyMap(EntityIds.USER_ROLE_LINK);
+				bean.setId(data.nextId());
+				bean.setValue(UserRoleLinkInitializer.USER_ID, getId());
+				bean.setValue(UserRoleLinkInitializer.ROLE_ID, roleId);
+				data.add(bean);
+			}
+			else {
+				throw new IllegalArgumentException("Role with the id '" + roleId + "' is unknown");
+			}
+		}
 	}
 
 	public void addLanguage(final Integer language) {

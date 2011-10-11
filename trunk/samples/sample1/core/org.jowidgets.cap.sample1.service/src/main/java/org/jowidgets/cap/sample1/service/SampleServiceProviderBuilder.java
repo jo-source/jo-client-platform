@@ -52,6 +52,7 @@ import org.jowidgets.cap.sample1.service.lookup.Countries;
 import org.jowidgets.cap.sample1.service.lookup.CountriesLookUpService;
 import org.jowidgets.cap.sample1.service.lookup.Languages;
 import org.jowidgets.cap.sample1.service.lookup.LanguagesLookUpService;
+import org.jowidgets.cap.sample1.service.lookup.RolesLookUpService;
 import org.jowidgets.cap.sample1.service.reader.AllUsersReaderService;
 import org.jowidgets.cap.sample1.service.security.AuthorizationProviderServiceImpl;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
@@ -90,6 +91,7 @@ public class SampleServiceProviderBuilder extends ServiceProviderBuilder {
 
 		addLookUpService(Countries.LOOK_UP_ID, new CountriesLookUpService());
 		addLookUpService(Languages.LOOK_UP_ID, new LanguagesLookUpService());
+		addLookUpService(RolesLookUpService.LOOK_UP_ID, new RolesLookUpService());
 	}
 
 	private <BEAN_TYPE extends IBean, PARAM_TYPE> void addPersonExecutor(

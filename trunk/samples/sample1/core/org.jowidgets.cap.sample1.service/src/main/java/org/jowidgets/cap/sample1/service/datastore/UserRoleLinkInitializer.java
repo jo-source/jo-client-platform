@@ -26,13 +26,53 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample1.common.entity;
+package org.jowidgets.cap.sample1.service.datastore;
 
-public enum EntityIds {
+import java.util.LinkedList;
+import java.util.List;
 
-	GENERIC_BEAN,
-	ROLE,
-	AUTHORIZATION,
-	USER_ROLE_LINK;
+import org.jowidgets.cap.common.api.bean.IBean;
+import org.jowidgets.cap.sample1.common.entity.EntityIds;
+import org.jowidgets.cap.service.api.CapServiceToolkit;
+import org.jowidgets.cap.service.api.bean.IBeanPropertyMap;
+import org.jowidgets.cap.service.impl.dummy.datastore.EntityDataFactory;
+import org.jowidgets.cap.service.impl.dummy.datastore.EntityDataStore;
+import org.jowidgets.cap.service.impl.dummy.datastore.IEntityData;
+import org.jowidgets.cap.service.impl.dummy.datastore.IEntityFactory;
+
+public final class UserRoleLinkInitializer {
+
+	public static final String USER_ID = "userId";
+	public static final String ROLE_ID = "roleId";
+
+	public static final List<String> ALL_PROPERTIES = new LinkedList<String>() {
+		private static final long serialVersionUID = 1L;
+		{
+			add(USER_ID);
+			add(ROLE_ID);
+			add(IBean.ID_PROPERTY);
+			add(IBean.VERSION_PROPERTY);
+		}
+	};
+
+	private UserRoleLinkInitializer() {}
+
+	public static void initialize() {
+
+		final IEntityData<IBeanPropertyMap> data = EntityDataFactory.create(new IEntityFactory<IBeanPropertyMap>() {
+
+			@Override
+			public IBeanPropertyMap createBean(final Long id) {
+				return CapServiceToolkit.beanPropertyMap(EntityIds.USER_ROLE_LINK);
+			}
+
+			@Override
+			public Class<? extends IBeanPropertyMap> getBeanType() {
+				return IBeanPropertyMap.class;
+			}
+		});
+
+		EntityDataStore.putEntityData(EntityIds.USER_ROLE_LINK, data);
+	}
 
 }

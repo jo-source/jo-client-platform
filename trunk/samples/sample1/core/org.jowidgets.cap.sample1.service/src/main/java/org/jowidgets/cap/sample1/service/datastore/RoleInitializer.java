@@ -45,6 +45,12 @@ public final class RoleInitializer {
 	public static final String NAME_PROPERTY = "name";
 	public static final String DESCRIPTION_PROPERTY = "description";
 
+	public static final String ADMIN_ROLE = "Admin";
+	public static final String USER_ROLE = "User";
+	public static final String DEVELOPER_ROLE = "Developer";
+	public static final String GUEST_ROLE = "Guest";
+	public static final String MANAGER_ROLE = "Manager";
+
 	public static final List<String> ALL_PROPERTIES = new LinkedList<String>() {
 		private static final long serialVersionUID = 1L;
 		{

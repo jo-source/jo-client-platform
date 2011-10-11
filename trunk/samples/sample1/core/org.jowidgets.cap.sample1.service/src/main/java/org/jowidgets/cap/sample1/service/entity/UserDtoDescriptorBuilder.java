@@ -34,6 +34,7 @@ import org.jowidgets.cap.common.tools.bean.BeanDtoDescriptorBuilder;
 import org.jowidgets.cap.sample1.common.entity.IUser;
 import org.jowidgets.cap.sample1.service.lookup.Countries;
 import org.jowidgets.cap.sample1.service.lookup.Languages;
+import org.jowidgets.cap.sample1.service.lookup.RolesLookUpService;
 
 public class UserDtoDescriptorBuilder extends BeanDtoDescriptorBuilder {
 
@@ -92,6 +93,11 @@ public class UserDtoDescriptorBuilder extends BeanDtoDescriptorBuilder {
 		propertyBp = addProperty(IUser.ADMIN_PROPERTY);
 		propertyBp.setLabel(Messages.getString("UserDtoDescriptorBuilder.admin")); //$NON-NLS-1$
 		propertyBp.setDescription(Messages.getString("UserDtoDescriptorBuilder.admin_description")); //$NON-NLS-1$
+
+		propertyBp = addProperty(IUser.ROLES_PROPERTY);
+		propertyBp.setLabel(Messages.getString("UserDtoDescriptorBuilder.roles")); //$NON-NLS-1$
+		propertyBp.setDescription(Messages.getString("UserDtoDescriptorBuilder.roles_description")); //$NON-NLS-1$
+		propertyBp.setLookUpValueRange(RolesLookUpService.LOOK_UP_ID);
 
 		propertyBp = addProperty(IUser.MARRIED_PROPERTY);
 		propertyBp.setLabel(Messages.getString("UserDtoDescriptorBuilder.married")); //$NON-NLS-1$
