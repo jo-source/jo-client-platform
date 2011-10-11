@@ -30,10 +30,14 @@ package org.jowidgets.cap.sample1.service.datastore;
 
 import java.util.GregorianCalendar;
 
+import org.jowidgets.cap.common.api.bean.IBean;
+import org.jowidgets.cap.sample1.common.entity.EntityIds;
 import org.jowidgets.cap.sample1.common.entity.IUser;
 import org.jowidgets.cap.sample1.service.entity.User;
 import org.jowidgets.cap.sample1.service.lookup.Countries;
 import org.jowidgets.cap.sample1.service.lookup.Languages;
+import org.jowidgets.cap.service.api.CapServiceToolkit;
+import org.jowidgets.cap.service.api.bean.IBeanPropertyMap;
 import org.jowidgets.cap.service.impl.dummy.datastore.EntityDataFactory;
 import org.jowidgets.cap.service.impl.dummy.datastore.EntityDataStore;
 import org.jowidgets.cap.service.impl.dummy.datastore.IEntityData;
@@ -70,6 +74,8 @@ final class UserDataInitializer {
 		user.addLanguage(Languages.ENGLISH);
 		user.setCountry(Countries.SPAIN);
 		user.setMarried(Boolean.TRUE);
+		addRole(user, RoleInitializer.USER_ROLE);
+		addRole(user, RoleInitializer.ADMIN_ROLE);
 		data.add(user);
 
 		user = new User(data.nextId());
@@ -83,6 +89,8 @@ final class UserDataInitializer {
 		user.addLanguage(Languages.GERMAN);
 		user.setCountry(Countries.GERMANY);
 		user.setMarried(Boolean.FALSE);
+		addRole(user, RoleInitializer.USER_ROLE);
+		addRole(user, RoleInitializer.ADMIN_ROLE);
 		data.add(user);
 
 		user = new User(data.nextId());
@@ -96,6 +104,8 @@ final class UserDataInitializer {
 		user.addLanguage(Languages.FRENCH);
 		user.setAdmin(true);
 		user.setCountry(Countries.USA);
+		addRole(user, RoleInitializer.USER_ROLE);
+		addRole(user, RoleInitializer.ADMIN_ROLE);
 		data.add(user);
 
 		user = new User(data.nextId());
@@ -108,6 +118,8 @@ final class UserDataInitializer {
 		user.addLanguage(Languages.ENGLISH);
 		user.addLanguage(Languages.SPANISH);
 		user.setCountry(Countries.ITALY);
+		addRole(user, RoleInitializer.USER_ROLE);
+		addRole(user, RoleInitializer.ADMIN_ROLE);
 		data.add(user);
 
 		user = new User(data.nextId());
@@ -120,6 +132,8 @@ final class UserDataInitializer {
 		user.addLanguage(Languages.ENGLISH);
 		user.setCountry(Countries.SPAIN);
 		user.setMarried(Boolean.FALSE);
+		addRole(user, RoleInitializer.USER_ROLE);
+		addRole(user, RoleInitializer.ADMIN_ROLE);
 		data.add(user);
 
 		user = new User(data.nextId());
@@ -132,6 +146,7 @@ final class UserDataInitializer {
 		user.addLanguage(Languages.ENGLISH);
 		user.addLanguage(Languages.FRENCH);
 		user.addLanguage(Languages.SPANISH);
+		addRole(user, RoleInitializer.USER_ROLE);
 		data.add(user);
 
 		user = new User(data.nextId());
@@ -145,6 +160,7 @@ final class UserDataInitializer {
 		user.setAdmin(true);
 		user.setMarried(Boolean.TRUE);
 		user.setCountry(Countries.USA);
+		addRole(user, RoleInitializer.USER_ROLE);
 		data.add(user);
 
 		user = new User(data.nextId());
@@ -158,6 +174,7 @@ final class UserDataInitializer {
 		user.setAdmin(false);
 		user.setMarried(Boolean.FALSE);
 		user.setCountry(Countries.USA);
+		addRole(user, RoleInitializer.USER_ROLE);
 		data.add(user);
 
 		for (int i = 0; i < 20000; i++) {
@@ -169,5 +186,26 @@ final class UserDataInitializer {
 			data.add(user);
 		}
 
+	}
+
+	@SuppressWarnings("unchecked")
+	private static void addRole(final IUser user, final String roleName) {
+		final IEntityData<IBeanPropertyMap> data = (IEntityData<IBeanPropertyMap>) EntityDataStore.getEntityData(EntityIds.USER_ROLE_LINK);
+		final IBeanPropertyMap bean = CapServiceToolkit.beanPropertyMap(EntityIds.USER_ROLE_LINK);
+		bean.setId(data.nextId());
+		bean.setValue(UserRoleLinkInitializer.USER_ID, user.getId());
+		bean.setValue(UserRoleLinkInitializer.ROLE_ID, getRoleIdByName(roleName));
+		data.add(bean);
+	}
+
+	@SuppressWarnings("unchecked")
+	private static Long getRoleIdByName(final String roleName) {
+		final IEntityData<IBeanPropertyMap> rolesData = (IEntityData<IBeanPropertyMap>) EntityDataStore.getEntityData(EntityIds.ROLE);
+		for (final IBeanPropertyMap role : rolesData.getAllData()) {
+			if (roleName.equals(role.getValue(RoleInitializer.NAME_PROPERTY))) {
+				return (Long) role.getValue(IBean.ID_PROPERTY);
+			}
+		}
+		return null;
 	}
 }
