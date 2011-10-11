@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.sample1.ui.workbench.component.user;
 
+import org.jowidgets.cap.sample1.ui.workbench.component.user.view.RoleTableView;
 import org.jowidgets.cap.sample1.ui.workbench.component.user.view.UserDetailGroupsBorderView;
 import org.jowidgets.cap.sample1.ui.workbench.component.user.view.UserDetailGroupsSeparatorsView;
 import org.jowidgets.cap.sample1.ui.workbench.component.user.view.UserDetailThreeColumnView;
@@ -75,19 +76,25 @@ public class UserComponentDefaultLayout {
 
 	private IFolderLayoutBuilder createDetailFolder() {
 		final IFolderLayoutBuilder result = new FolderLayoutBuilder(DETAIL_FOLDER_ID);
+
 		result.addView(UserDetailView.ID, UserDetailView.DEFAULT_LABEL, UserDetailView.DEFAULT_TOOLTIP);
+
 		result.addView(
 				UserDetailThreeColumnView.ID,
 				UserDetailThreeColumnView.DEFAULT_LABEL,
 				UserDetailThreeColumnView.DEFAULT_TOOLTIP);
+
 		result.addView(
 				UserDetailGroupsBorderView.ID,
 				UserDetailGroupsBorderView.DEFAULT_LABEL,
 				UserDetailGroupsBorderView.DEFAULT_TOOLTIP);
+
 		result.addView(
 				UserDetailGroupsSeparatorsView.ID,
 				UserDetailGroupsSeparatorsView.DEFAULT_LABEL,
 				UserDetailGroupsSeparatorsView.DEFAULT_TOOLTIP);
+
+		result.addView(RoleTableView.ID, RoleTableView.DEFAULT_LABEL, RoleTableView.DEFAULT_TOOLTIP);
 		return result;
 	}
 

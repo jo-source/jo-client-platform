@@ -40,7 +40,7 @@ import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.sample1.common.entity.IUser;
 import org.jowidgets.cap.sample1.common.service.executor.ChangeGenderExecutableChecker;
 import org.jowidgets.cap.sample1.common.service.executor.UserComponentExecutorServices;
-import org.jowidgets.cap.sample1.common.service.reader.UserReaderServices;
+import org.jowidgets.cap.sample1.common.service.reader.ReaderServices;
 import org.jowidgets.cap.sample1.common.service.security.AuthorizationProviderServiceId;
 import org.jowidgets.cap.sample1.service.datastore.DataStoreInitializer;
 import org.jowidgets.cap.sample1.service.entity.SampleEntityClassProviderServiceBuilder;
@@ -54,6 +54,7 @@ import org.jowidgets.cap.sample1.service.lookup.Languages;
 import org.jowidgets.cap.sample1.service.lookup.LanguagesLookUpService;
 import org.jowidgets.cap.sample1.service.lookup.RolesLookUpService;
 import org.jowidgets.cap.sample1.service.reader.AllUsersReaderService;
+import org.jowidgets.cap.sample1.service.reader.RolesOfUsersReaderService;
 import org.jowidgets.cap.sample1.service.security.AuthorizationProviderServiceImpl;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.adapter.ISyncLookUpService;
@@ -79,7 +80,8 @@ public class SampleServiceProviderBuilder extends ServiceProviderBuilder {
 		addService(IEntityService.ID, new SampleEntityServiceBuilder(this).build());
 		addService(IEntityClassProviderService.ID, new SampleEntityClassProviderServiceBuilder().build());
 
-		addReader(UserReaderServices.ALL_USERS, new AllUsersReaderService());
+		addReader(ReaderServices.ALL_USERS, new AllUsersReaderService());
+		addReader(ReaderServices.ROLES_OF_USERS, new RolesOfUsersReaderService());
 
 		addPersonExecutor(
 				UserComponentExecutorServices.CHANGE_GENDER,

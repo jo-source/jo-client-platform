@@ -30,6 +30,7 @@ package org.jowidgets.cap.ui.api;
 
 import javax.validation.Validator;
 
+import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
 import org.jowidgets.cap.ui.api.bean.BeanMessageType;
 import org.jowidgets.cap.ui.api.bean.IBeanKeyFactory;
@@ -81,6 +82,8 @@ public interface ICapUiToolkit {
 	IBeanKeyFactory beanKeyFactory();
 
 	<BEAN_TYPE> IBeanTableModelBuilder<BEAN_TYPE> beanTableModelBuilder(Class<BEAN_TYPE> beanType);
+
+	IBeanTableModelBuilder<IBean> beanTableModelBuilder(Object entityId);
 
 	IBeanTableConfigBuilder beanTableConfigBuilder();
 
