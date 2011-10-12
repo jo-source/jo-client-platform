@@ -28,7 +28,7 @@
 
 package org.jowidgets.cap.sample1.ui.workbench.component.user;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.jowidgets.cap.common.api.bean.IBean;
@@ -74,7 +74,7 @@ public class UserComponent extends AbstractComponent implements IComponent {
 		this.delayParameter = new ValueHolder<Integer>(Integer.valueOf(0));
 		this.userTableModel = createUserTableModel();
 		this.roleTableModel = createRoleTableModel(userTableModel);
-		this.tableViews = new HashSet<ITableView>();
+		this.tableViews = new LinkedHashSet<ITableView>();
 	}
 
 	@Override
