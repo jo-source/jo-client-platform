@@ -51,6 +51,7 @@ public class SampleWorkbench implements IWorkbenchFactory {
 
 		final IWorkbenchModelBuilder builder = new WorkbenchModelBuilder();
 		builder.setInitialDimension(new Dimension(1024, 768));
+		builder.setInitialSplitWeight(0.2);
 		builder.setLabel(Messages.getString("SampleWorkbench.sample_application_1")); //$NON-NLS-1$
 		builder.setLoginCallback(new ILoginCallback() {
 			@Override

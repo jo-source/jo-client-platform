@@ -43,6 +43,8 @@ public interface ICapApiBluePrintFactory {
 
 	<BEAN_TYPE> IBeanFormBluePrint<BEAN_TYPE> beanForm(List<? extends IAttribute<?>> attributes);
 
+	IBeanTablesFormBluePrint beanTablesForm();
+
 	IAttributeFilterControlBluePrint attributeFilterControl(List<? extends IAttribute<?>> attributes);
 
 	<KEY_TYPE> ILookUpComboBoxSelectionBluePrint<KEY_TYPE> lookUpComboBox(Object lookUpId, IConverter<KEY_TYPE> converter);

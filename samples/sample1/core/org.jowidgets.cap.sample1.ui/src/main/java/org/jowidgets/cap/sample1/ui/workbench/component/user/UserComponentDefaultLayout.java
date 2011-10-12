@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.sample1.ui.workbench.component.user;
 
+import org.jowidgets.cap.sample1.ui.workbench.component.user.view.MultiDetailView;
 import org.jowidgets.cap.sample1.ui.workbench.component.user.view.RoleTableView;
 import org.jowidgets.cap.sample1.ui.workbench.component.user.view.UserDetailGroupsBorderView;
 import org.jowidgets.cap.sample1.ui.workbench.component.user.view.UserDetailGroupsSeparatorsView;
@@ -47,6 +48,7 @@ public class UserComponentDefaultLayout {
 	public static final String DEFAULT_LAYOUT_ID = "DEFAULT_LAYOUT_ID";
 	public static final String MASTER_FOLDER_ID = "MASTER_FOLDER_ID";
 	public static final String DETAIL_FOLDER_ID = "DETAIL_FOLDER_ID";
+	public static final String LINKED_FOLDER_ID = "DETAIL_FOLDER_ID";
 
 	private final ILayout layout;
 
@@ -62,9 +64,9 @@ public class UserComponentDefaultLayout {
 
 	private ISplitLayoutBuilder createMasterDetailSplit() {
 		final ISplitLayoutBuilder result = new SplitLayoutBuilder();
-		result.setVertical().setWeight(0.5).setResizeFirst();
+		result.setVertical().setWeight(0.4).setResizeFirst();
 		result.setFirstContainer(createMasterFolder());
-		result.setSecondContainer(createDetailFolder());
+		result.setSecondContainer(createDetailSplit());
 		return result;
 	}
 
@@ -74,8 +76,25 @@ public class UserComponentDefaultLayout {
 		return result;
 	}
 
+	private ISplitLayoutBuilder createDetailSplit() {
+		final ISplitLayoutBuilder result = new SplitLayoutBuilder();
+		result.setHorizontal().setWeight(0.5).setResizeFirst();
+		result.setFirstContainer(createLinkedFolder());
+		result.setSecondContainer(createDetailFolder());
+		return result;
+	}
+
+	private IFolderLayoutBuilder createLinkedFolder() {
+		final IFolderLayoutBuilder result = new FolderLayoutBuilder(LINKED_FOLDER_ID);
+
+		result.addView(RoleTableView.ID, RoleTableView.DEFAULT_LABEL, RoleTableView.DEFAULT_TOOLTIP);
+		return result;
+	}
+
 	private IFolderLayoutBuilder createDetailFolder() {
 		final IFolderLayoutBuilder result = new FolderLayoutBuilder(DETAIL_FOLDER_ID);
+
+		result.addView(MultiDetailView.ID, MultiDetailView.DEFAULT_LABEL, MultiDetailView.DEFAULT_TOOLTIP);
 
 		result.addView(UserDetailView.ID, UserDetailView.DEFAULT_LABEL, UserDetailView.DEFAULT_TOOLTIP);
 
@@ -94,7 +113,6 @@ public class UserComponentDefaultLayout {
 				UserDetailGroupsSeparatorsView.DEFAULT_LABEL,
 				UserDetailGroupsSeparatorsView.DEFAULT_TOOLTIP);
 
-		result.addView(RoleTableView.ID, RoleTableView.DEFAULT_LABEL, RoleTableView.DEFAULT_TOOLTIP);
 		return result;
 	}
 
