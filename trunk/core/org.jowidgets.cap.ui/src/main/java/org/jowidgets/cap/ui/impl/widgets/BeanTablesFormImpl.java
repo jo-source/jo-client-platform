@@ -34,6 +34,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.jowidgets.api.controller.IDisposeListener;
 import org.jowidgets.api.widgets.IComposite;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
@@ -53,10 +54,14 @@ import org.jowidgets.util.Assert;
 final class BeanTablesFormImpl extends ControlWrapper implements IBeanTablesForm {
 
 	private final Map<IBeanTable<?>, IBeanForm<?>> forms;
+	private final Map<IBeanTable<?>, FocusListener> focusListeners;
+	private final Map<IBeanTable<?>, TableModelListener<?>> tableModelListeners;
 
 	BeanTablesFormImpl(final IComposite composite, final IBeanTablesFormBluePrint bluePrint) {
 		super(composite);
 		this.forms = new HashMap<IBeanTable<?>, IBeanForm<?>>();
+		this.focusListeners = new HashMap<IBeanTable<?>, FocusListener>();
+		this.tableModelListeners = new HashMap<IBeanTable<?>, TableModelListener<?>>();
 		composite.setLayout(new MigLayoutDescriptor("hidemode 3", "0[grow, 0::]0", "0[grow, 0::]0"));
 	}
 
@@ -75,30 +80,20 @@ final class BeanTablesFormImpl extends ControlWrapper implements IBeanTablesForm
 			forms.put(table, beanForm);
 			final IBeanTableModel<BEAN_TYPE> model = table.getModel();
 
-			model.addBeanListModelListener(new IBeanListModelListener() {
+			final TableModelListener<BEAN_TYPE> tableModelListener = new TableModelListener<BEAN_TYPE>(table, beanForm);
+			tableModelListeners.put(table, tableModelListener);
+			model.addBeanListModelListener(tableModelListener);
 
+			final FocusListener focusListener = new FocusListener(table);
+			focusListeners.put(table, focusListener);
+			table.addFocusListener(focusListener);
+
+			table.addDisposeListener(new IDisposeListener() {
 				@Override
-				public void selectionChanged() {
-					switchToTable(table);
-					setSelectedBeanValue();
+				public void onDispose() {
+					unregisterTable(table);
 				}
-
-				@Override
-				public void beansChanged() {}
-
-				private void setSelectedBeanValue() {
-					final ArrayList<Integer> selection = model.getSelection();
-					if (selection.size() > 0) {
-						beanForm.setValue(model.getBean(selection.get(0)));
-					}
-					else {
-						beanForm.setValue(null);
-					}
-				}
-
 			});
-
-			table.addFocusListener(new FocusListener(table));
 
 			if (forms.size() > 1) {
 				if (table.hasFocus()) {
@@ -131,6 +126,8 @@ final class BeanTablesFormImpl extends ControlWrapper implements IBeanTablesForm
 		Assert.paramNotNull(table, "table");
 		final IBeanForm<?> form = forms.get(table);
 		if (form != null) {
+			table.getModel().removeBeanListModelListener(tableModelListeners.get(table));
+			table.removeFocusListener(focusListeners.get(table));
 			getWidget().remove(form);
 			forms.remove(form);
 		}
@@ -145,6 +142,43 @@ final class BeanTablesFormImpl extends ControlWrapper implements IBeanTablesForm
 			form.setVisible(true);
 			form.setSize(getWidget().getSize());
 		}
+	}
+
+	private final class TableModelListener<BEAN_TYPE> implements IBeanListModelListener {
+
+		private final IBeanTable<BEAN_TYPE> table;
+		private final IBeanTableModel<BEAN_TYPE> model;
+		private final IBeanForm<BEAN_TYPE> beanForm;
+
+		private TableModelListener(final IBeanTable<BEAN_TYPE> table, final IBeanForm<BEAN_TYPE> beanForm) {
+			super();
+			this.table = table;
+			this.model = table.getModel();
+			this.beanForm = beanForm;
+		}
+
+		@Override
+		public void selectionChanged() {
+			switchToTable(table);
+			setSelectedBeanValue();
+		}
+
+		@Override
+		public void beansChanged() {
+			setSelectedBeanValue();
+		}
+
+		private void setSelectedBeanValue() {
+
+			final ArrayList<Integer> selection = model.getSelection();
+			if (selection.size() > 0) {
+				beanForm.setValue(model.getBean(selection.get(0)));
+			}
+			else {
+				beanForm.setValue(null);
+			}
+		}
+
 	}
 
 	private final class FocusListener implements IFocusListener {
