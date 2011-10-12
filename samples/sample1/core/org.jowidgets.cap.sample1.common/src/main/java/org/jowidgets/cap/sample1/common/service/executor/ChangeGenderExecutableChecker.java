@@ -40,7 +40,7 @@ public class ChangeGenderExecutableChecker implements IExecutableChecker<IUser> 
 
 	@Override
 	public IExecutableState getExecutableState(final IUser user) {
-		if (user.getGender().equals("F")) { //$NON-NLS-1$
+		if ("F".equals(user.getGender())) { //$NON-NLS-1$
 			return ExecutableState.notExecutable(Messages.getString("ChangeGenderExecutableChecker.cannot_change_gender_of_female")); //$NON-NLS-1$
 		}
 		else {
