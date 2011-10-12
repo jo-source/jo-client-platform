@@ -397,13 +397,14 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 	public IBeanProxy<BEAN_TYPE> getBean(final int rowIndex) {
 		final int pageIndex = getPage(rowIndex);
 		final ArrayList<IBeanProxy<BEAN_TYPE>> page = data.get(Integer.valueOf(pageIndex));
-		if (page != null) {
+		if (page != null && page.size() > 0) {
 			final int startIndex = pageIndex * pageSize;
-			return page.get(rowIndex - startIndex);
+			final IBeanProxy<BEAN_TYPE> result = page.get(rowIndex - startIndex);
+			if (result != null && !DUMMY_VALUE.equals(result.getValue("dummy"))) {
+				return result;
+			}
 		}
-		else {
-			return null;
-		}
+		return null;
 	}
 
 	@Override
@@ -883,7 +884,7 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 			page = new ArrayList<IBeanProxy<BEAN_TYPE>>();
 			data.put(Integer.valueOf(pageIndex), page);
 
-			dummyBeanProxy = beanProxyFactory.createProxy(createDummyBeanDto(), propertyNames);
+			dummyBeanProxy = beanProxyFactory.createProxy(new DummyBeanDto(), propertyNames);
 			executionTask = CapUiToolkit.executionTaskFactory().create();
 			dummyBeanProxy.setExecutionTask(executionTask);
 			beansStateTracker.register(dummyBeanProxy);
@@ -1060,46 +1061,6 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 
 	private interface IDummyValue {}
 
-	private static IBeanDto createDummyBeanDto() {
-		return new IBeanDto() {
-			@Override
-			public Object getValue(final String propertyName) {
-				return DUMMY_VALUE;
-			}
-
-			@Override
-			public Object getId() {
-				return DUMMY_VALUE;
-			}
-
-			@Override
-			public long getVersion() {
-				return 0;
-			}
-
-		};
-	}
-
-	private static IBeanDto createNullBeanDto() {
-		return new IBeanDto() {
-			@Override
-			public Object getValue(final String propertyName) {
-				return null;
-			}
-
-			@Override
-			public Object getId() {
-				return DUMMY_VALUE;
-			}
-
-			@Override
-			public long getVersion() {
-				return 0;
-			}
-
-		};
-	}
-
 	private static IBeanDto createCopyBeanDto(final IBeanProxy<?> proxy) {
 		return new IBeanDto() {
 			@Override
@@ -1117,6 +1078,25 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 				return 0;
 			}
 		};
+	}
+
+	private static class DummyBeanDto implements IBeanDto {
+
+		@Override
+		public Object getValue(final String propertyName) {
+			return DUMMY_VALUE;
+		}
+
+		@Override
+		public Object getId() {
+			return DUMMY_VALUE;
+		}
+
+		@Override
+		public long getVersion() {
+			return 0;
+		}
+
 	}
 
 }
