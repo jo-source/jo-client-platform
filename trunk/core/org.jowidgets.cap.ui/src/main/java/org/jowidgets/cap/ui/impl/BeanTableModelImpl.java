@@ -187,7 +187,9 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 				}
 
 				@Override
-				public void beansChanged() {}
+				public void beansChanged() {
+					load();
+				}
 			});
 		}
 
@@ -399,8 +401,9 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 		final ArrayList<IBeanProxy<BEAN_TYPE>> page = data.get(Integer.valueOf(pageIndex));
 		if (page != null && page.size() > 0) {
 			final int startIndex = pageIndex * pageSize;
-			final IBeanProxy<BEAN_TYPE> result = page.get(rowIndex - startIndex);
-			if (result != null && !DUMMY_VALUE.equals(result.getValue("dummy"))) {
+			final int index = rowIndex - startIndex;
+			if (index >= 0 && index < page.size()) {
+				final IBeanProxy<BEAN_TYPE> result = page.get(index);
 				return result;
 			}
 		}
@@ -764,7 +767,7 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 					final Object value = bean.getValue(attribute.getPropertyName());
 
 					final ITableCellBuilder cellBuilder;
-					if (value instanceof IDummyValue) {
+					if (bean.getId() instanceof IDummyValue) {
 						cellBuilder = createDummyCellBuilder(rowIndex, columnIndex);
 					}
 					else {
@@ -918,12 +921,7 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 				@Override
 				public void run() {
 					data.remove(Integer.valueOf(pageIndex));
-					final int pageStart = (pageIndex) * pageSize;
-					final int[] changedIndices = new int[pageSize];
-					for (int i = 0; i < changedIndices.length; i++) {
-						changedIndices[i] = pageStart + i;
-					}
-					dataModel.fireRowsChanged(changedIndices);
+					dataModel.fireDataChanged();
 
 					currentPageLoaders.remove(this);
 					dummyBeanProxy.setExecutionTask(null);
@@ -1084,7 +1082,7 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 
 		@Override
 		public Object getValue(final String propertyName) {
-			return DUMMY_VALUE;
+			return null;
 		}
 
 		@Override
