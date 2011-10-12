@@ -28,12 +28,17 @@
 
 package org.jowidgets.cap.sample1.ui.workbench.component.user;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.sample1.common.entity.EntityIds;
 import org.jowidgets.cap.sample1.common.entity.IUser;
 import org.jowidgets.cap.sample1.common.service.reader.ReaderServices;
 import org.jowidgets.cap.sample1.ui.attribute.UserAttributesFactory;
 import org.jowidgets.cap.sample1.ui.workbench.command.WorkbenchActions;
+import org.jowidgets.cap.sample1.ui.workbench.component.user.view.ITableView;
+import org.jowidgets.cap.sample1.ui.workbench.component.user.view.MultiDetailView;
 import org.jowidgets.cap.sample1.ui.workbench.component.user.view.RoleTableView;
 import org.jowidgets.cap.sample1.ui.workbench.component.user.view.UserDetailGroupsBorderView;
 import org.jowidgets.cap.sample1.ui.workbench.component.user.view.UserDetailGroupsSeparatorsView;
@@ -60,17 +65,39 @@ public class UserComponent extends AbstractComponent implements IComponent {
 	private final IBeanTableModel<IUser> userTableModel;
 	private final IBeanTableModel<IBean> roleTableModel;
 
+	private final Set<ITableView> tableViews;
+
+	private MultiDetailView multiDetailView;
+
 	public UserComponent(final IComponentNodeModel componentNodeModel, final IComponentContext componentContext) {
 		componentContext.setLayout(new UserComponentDefaultLayout().getLayout());
 		this.delayParameter = new ValueHolder<Integer>(Integer.valueOf(0));
 		this.userTableModel = createUserTableModel();
 		this.roleTableModel = createRoleTableModel(userTableModel);
+		this.tableViews = new HashSet<ITableView>();
 	}
 
 	@Override
 	public IView createView(final String viewId, final IViewContext context) {
 		if (UserTableView.ID.equals(viewId)) {
-			return new UserTableView(context, userTableModel, delayParameter);
+			final ITableView result = new UserTableView(context, userTableModel, delayParameter);
+			registerTableView(result);
+			return result;
+		}
+		else if (RoleTableView.ID.equals(viewId)) {
+			final ITableView result = new RoleTableView(context, roleTableModel);
+			registerTableView(result);
+			return result;
+		}
+		else if (MultiDetailView.ID.equals(viewId)) {
+			if (multiDetailView != null) {
+				throw new IllegalStateException("MultiDetailView could only be used once in layout");
+			}
+			multiDetailView = new MultiDetailView(context);
+			for (final ITableView tableView : tableViews) {
+				multiDetailView.getTablesForm().registerTable(tableView.getTable());
+			}
+			return multiDetailView;
 		}
 		else if (UserDetailView.ID.equals(viewId)) {
 			return new UserDetailView(context, userTableModel);
@@ -84,11 +111,17 @@ public class UserComponent extends AbstractComponent implements IComponent {
 		else if (UserDetailGroupsSeparatorsView.ID.equals(viewId)) {
 			return new UserDetailGroupsSeparatorsView(context, userTableModel);
 		}
-		else if (RoleTableView.ID.equals(viewId)) {
-			return new RoleTableView(context, roleTableModel);
-		}
 		else {
 			throw new IllegalArgumentException("View id '" + viewId + "' is not known.");
+		}
+	}
+
+	private void registerTableView(final ITableView tableView) {
+		if (multiDetailView != null) {
+			multiDetailView.getTablesForm().registerTable(tableView.getTable());
+		}
+		else {
+			tableViews.add(tableView);
 		}
 	}
 
@@ -101,6 +134,10 @@ public class UserComponent extends AbstractComponent implements IComponent {
 		WorkbenchActions.saveAction().addDataModel(userTableModel);
 		WorkbenchActions.undoAction().addDataModel(userTableModel);
 		WorkbenchActions.cancelAction().addDataModel(userTableModel);
+
+		WorkbenchActions.saveAction().addDataModel(roleTableModel);
+		WorkbenchActions.undoAction().addDataModel(roleTableModel);
+		WorkbenchActions.cancelAction().addDataModel(roleTableModel);
 	}
 
 	@Override
@@ -109,6 +146,10 @@ public class UserComponent extends AbstractComponent implements IComponent {
 		WorkbenchActions.saveAction().removeDataModel(userTableModel);
 		WorkbenchActions.undoAction().removeDataModel(userTableModel);
 		WorkbenchActions.cancelAction().removeDataModel(userTableModel);
+
+		WorkbenchActions.saveAction().removeDataModel(roleTableModel);
+		WorkbenchActions.undoAction().removeDataModel(roleTableModel);
+		WorkbenchActions.cancelAction().removeDataModel(roleTableModel);
 	}
 
 	private IBeanTableModel<IUser> createUserTableModel() {

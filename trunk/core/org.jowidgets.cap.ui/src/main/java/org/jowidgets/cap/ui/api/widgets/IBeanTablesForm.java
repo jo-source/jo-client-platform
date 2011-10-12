@@ -26,42 +26,16 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample1.ui.workbench.component.user.view;
+package org.jowidgets.cap.ui.api.widgets;
 
-import org.jowidgets.api.toolkit.Toolkit;
-import org.jowidgets.api.widgets.IContainer;
-import org.jowidgets.cap.common.api.bean.IBean;
-import org.jowidgets.cap.ui.api.CapUiToolkit;
-import org.jowidgets.cap.ui.api.table.IBeanTableModel;
-import org.jowidgets.cap.ui.api.widgets.IBeanTable;
-import org.jowidgets.workbench.api.IViewContext;
-import org.jowidgets.workbench.tools.AbstractView;
+import org.jowidgets.api.widgets.IControl;
 
-public class RoleTableView extends AbstractView implements ITableView {
+public interface IBeanTablesForm extends IControl {
 
-	public static final String ID = RoleTableView.class.getName();
-	public static final String DEFAULT_LABEL = Messages.getString("RoleTableView.roles"); //$NON-NLS-1$
-	public static final String DEFAULT_TOOLTIP = Messages.getString("RoleTableView.roles_tooltip"); //$NON-NLS-1$
+	<BEAN_TYPE> void registerTable(IBeanTable<BEAN_TYPE> table, IBeanFormBluePrint<BEAN_TYPE> formBluePrint);
 
-	private final IBeanTableModel<IBean> beanTableModel;
-	private final IBeanTable<IBean> beanTable;
+	void registerTable(IBeanTable<?> table);
 
-	public RoleTableView(final IViewContext context, final IBeanTableModel<IBean> tableModel) {
-
-		this.beanTableModel = tableModel;
-
-		final IContainer container = context.getContainer();
-
-		container.setLayout(Toolkit.getLayoutFactoryProvider().fillLayout());
-
-		this.beanTable = container.add(CapUiToolkit.bluePrintFactory().beanTable(beanTableModel));
-
-		beanTableModel.load();
-	}
-
-	@Override
-	public IBeanTable<?> getTable() {
-		return beanTable;
-	}
+	void unregisterTable(IBeanTable<?> table);
 
 }

@@ -43,6 +43,7 @@ import org.jowidgets.cap.ui.api.widgets.IAttributeFilterControlBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableSettingsDialogBluePrint;
+import org.jowidgets.cap.ui.api.widgets.IBeanTablesFormBluePrint;
 import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
 import org.jowidgets.cap.ui.api.widgets.ILookUpCollectionInputFieldBluePrint;
 import org.jowidgets.cap.ui.api.widgets.ILookUpComboBoxSelectionBluePrint;
@@ -83,6 +84,11 @@ final class CapApiBluePrintFactory implements ICapApiBluePrintFactory {
 		final IBeanFormLayout layout = CapUiToolkit.beanFormToolkit().layoutBuilder().addGroups(attributes).build();
 		result.setLayouter(beanFormToolkit.layouter(layout));
 		return result;
+	}
+
+	@Override
+	public IBeanTablesFormBluePrint beanTablesForm() {
+		return bluePrintFactory.bluePrint(IBeanTablesFormBluePrint.class);
 	}
 
 	@Override
