@@ -67,16 +67,26 @@ final class BeanTablesFormImpl extends ControlWrapper implements IBeanTablesForm
 
 	@Override
 	public <BEAN_TYPE> void registerTable(final IBeanTable<BEAN_TYPE> table, final IBeanFormBluePrint<BEAN_TYPE> formBluePrint) {
+		Assert.paramNotNull(table, "table");
+		Assert.paramNotNull(formBluePrint, "formBluePrint");
 		if (!forms.containsKey(table)) {
 			final IBeanForm<BEAN_TYPE> beanForm = getWidget().add(formBluePrint, MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
-			forms.put(table, beanForm);
 
+			forms.put(table, beanForm);
 			final IBeanTableModel<BEAN_TYPE> model = table.getModel();
 
 			model.addBeanListModelListener(new IBeanListModelListener() {
 
 				@Override
 				public void selectionChanged() {
+					switchToTable(table);
+					setSelectedBeanValue();
+				}
+
+				@Override
+				public void beansChanged() {}
+
+				private void setSelectedBeanValue() {
 					final ArrayList<Integer> selection = model.getSelection();
 					if (selection.size() > 0) {
 						beanForm.setValue(model.getBean(selection.get(0)));
@@ -86,12 +96,18 @@ final class BeanTablesFormImpl extends ControlWrapper implements IBeanTablesForm
 					}
 				}
 
-				@Override
-				public void beansChanged() {}
-
 			});
 
 			table.addFocusListener(new FocusListener(table));
+
+			if (forms.size() > 1) {
+				if (table.hasFocus()) {
+					switchToTable(table);
+				}
+				else {
+					beanForm.setVisible(false);
+				}
+			}
 		}
 	}
 
@@ -112,7 +128,23 @@ final class BeanTablesFormImpl extends ControlWrapper implements IBeanTablesForm
 
 	@Override
 	public void unregisterTable(final IBeanTable<?> table) {
-		// TODO MG unregister table
+		Assert.paramNotNull(table, "table");
+		final IBeanForm<?> form = forms.get(table);
+		if (form != null) {
+			getWidget().remove(form);
+			forms.remove(form);
+		}
+	}
+
+	private void switchToTable(final IBeanTable<?> table) {
+		final IBeanForm<?> form = forms.get(table);
+		if (!form.isVisible()) {
+			for (final IBeanForm<?> childForm : forms.values()) {
+				childForm.setVisible(false);
+			}
+			form.setVisible(true);
+			form.setSize(getWidget().getSize());
+		}
 	}
 
 	private final class FocusListener implements IFocusListener {
@@ -125,17 +157,7 @@ final class BeanTablesFormImpl extends ControlWrapper implements IBeanTablesForm
 
 		@Override
 		public void focusGained() {
-			final IBeanForm<?> form = forms.get(table);
-			if (!form.isVisible()) {
-				getWidget().layoutBegin();
-				for (final IBeanForm<?> childForm : forms.values()) {
-					childForm.setVisible(false);
-				}
-				form.setVisible(true);
-				form.setSize(getWidget().getSize());
-				getWidget().layoutEnd();
-			}
-
+			switchToTable(table);
 		}
 
 		@Override
