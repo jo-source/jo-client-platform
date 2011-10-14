@@ -29,7 +29,6 @@
 package org.jowidgets.cap.service.impl.dummy.service;
 
 import org.jowidgets.cap.common.api.bean.IBean;
-import org.jowidgets.cap.common.api.service.IBeanServicesProvider;
 import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
@@ -41,11 +40,11 @@ import org.jowidgets.cap.service.api.updater.IUpdaterServiceBuilder;
 import org.jowidgets.cap.service.impl.dummy.datastore.IEntityData;
 import org.jowidgets.service.api.IServiceRegistry;
 
-final class BeanServicesProviderCreator<BEAN_TYPE extends IBean> {
+final class BeanServicesProviderBuilderCreator<BEAN_TYPE extends IBean> {
 
-	private final IBeanServicesProvider beanServicesProvider;
+	private final IBeanServicesProviderBuilder builder;
 
-	BeanServicesProviderCreator(
+	BeanServicesProviderBuilderCreator(
 		final IServiceRegistry registry,
 		final Object entityTypeId,
 		final IEntityData<? extends BEAN_TYPE> data,
@@ -53,10 +52,7 @@ final class BeanServicesProviderCreator<BEAN_TYPE extends IBean> {
 		final IBeanInitializer<BEAN_TYPE> beanInitializer,
 		final IBeanModifier<BEAN_TYPE> beanModifier) {
 
-		final IBeanServicesProviderBuilder builder = CapServiceToolkit.beanServicesProviderBuilder(
-				registry,
-				IEntityService.ID,
-				entityTypeId);
+		this.builder = CapServiceToolkit.beanServicesProviderBuilder(registry, IEntityService.ID, entityTypeId);
 
 		//reader service
 		builder.setReaderService(new SyncReaderService<BEAN_TYPE>(data, beanDtoFactory));
@@ -78,11 +74,10 @@ final class BeanServicesProviderCreator<BEAN_TYPE extends IBean> {
 		refreshBuilder.setBeanDtoFactory(beanDtoFactory);
 		builder.setRefreshService(refreshBuilder.build());
 
-		this.beanServicesProvider = builder.build();
 	}
 
-	public IBeanServicesProvider getServices() {
-		return beanServicesProvider;
+	public IBeanServicesProviderBuilder getBuilder() {
+		return builder;
 	}
 
 }

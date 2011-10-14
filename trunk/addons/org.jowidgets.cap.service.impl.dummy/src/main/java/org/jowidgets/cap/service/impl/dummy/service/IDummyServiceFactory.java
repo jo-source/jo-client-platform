@@ -39,12 +39,18 @@ import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.cap.service.api.bean.IBeanInitializer;
 import org.jowidgets.cap.service.api.bean.IBeanModifier;
 import org.jowidgets.cap.service.api.bean.IBeanPropertyMap;
+import org.jowidgets.cap.service.api.entity.IBeanServicesProviderBuilder;
 import org.jowidgets.cap.service.impl.dummy.datastore.IEntityData;
 import org.jowidgets.service.api.IServiceRegistry;
 
 public interface IDummyServiceFactory {
 
 	IBeanServicesProvider beanServices(IServiceRegistry registry, IEntityData<? extends IBean> data, List<String> properties);
+
+	IBeanServicesProviderBuilder beanServicesBuilder(
+		IServiceRegistry registry,
+		IEntityData<? extends IBean> data,
+		List<String> properties);
 
 	<BEAN_TYPE extends IBean> IBeanServicesProvider beanServices(
 		IServiceRegistry registry,
@@ -53,7 +59,20 @@ public interface IDummyServiceFactory {
 		IBeanInitializer<BEAN_TYPE> beanInitializer,
 		IBeanModifier<BEAN_TYPE> beanModifier);
 
+	<BEAN_TYPE extends IBean> IBeanServicesProviderBuilder beanServicesBuilder(
+		IServiceRegistry registry,
+		IEntityData<? extends BEAN_TYPE> data,
+		IBeanDtoFactory<BEAN_TYPE> beanDtoFactory,
+		IBeanInitializer<BEAN_TYPE> beanInitializer,
+		IBeanModifier<BEAN_TYPE> beanModifier);
+
 	IBeanServicesProvider beanPropertyMapServices(
+		IServiceRegistry registry,
+		Object entityTypeId,
+		IEntityData<? extends IBeanPropertyMap> data,
+		List<String> propertyNames);
+
+	IBeanServicesProviderBuilder beanPropertyMapServicesBuilder(
 		IServiceRegistry registry,
 		Object entityTypeId,
 		IEntityData<? extends IBeanPropertyMap> data,

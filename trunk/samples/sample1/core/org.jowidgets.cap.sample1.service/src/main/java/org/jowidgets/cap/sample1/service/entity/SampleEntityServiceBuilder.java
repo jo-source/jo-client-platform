@@ -28,14 +28,23 @@
 
 package org.jowidgets.cap.sample1.service.entity;
 
+import java.util.Collections;
+
+import org.jowidgets.cap.common.api.CapCommonToolkit;
+import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
+import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
+import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptorBuilder;
 import org.jowidgets.cap.common.api.service.IBeanServicesProvider;
 import org.jowidgets.cap.sample1.common.entity.EntityIds;
 import org.jowidgets.cap.sample1.common.entity.IUser;
 import org.jowidgets.cap.sample1.service.datastore.AuthorizationInitializer;
 import org.jowidgets.cap.sample1.service.datastore.GenericBeanInitializer;
 import org.jowidgets.cap.sample1.service.datastore.RoleInitializer;
+import org.jowidgets.cap.sample1.service.datastore.UserRoleLinkInitializer;
+import org.jowidgets.cap.sample1.service.reader.RolesOfUsersReaderService;
 import org.jowidgets.cap.service.api.bean.IBeanPropertyMap;
+import org.jowidgets.cap.service.api.entity.IBeanServicesProviderBuilder;
 import org.jowidgets.cap.service.impl.dummy.datastore.EntityDataStore;
 import org.jowidgets.cap.service.impl.dummy.datastore.IEntityData;
 import org.jowidgets.cap.service.impl.dummy.service.DummyServiceFactory;
@@ -53,7 +62,8 @@ public class SampleEntityServiceBuilder extends EntityServiceBuilder {
 				registry,
 				EntityDataStore.getEntityData(IUser.class),
 				IUser.ALL_PROPERTIES);
-		add(IUser.class, descriptor, servicesProvider);
+		final IEntityLinkDescriptor userRoleLinkDescriptor = createUserRoleLinkDescriptor();
+		add(IUser.class, descriptor, servicesProvider, Collections.singletonList(userRoleLinkDescriptor));
 
 		//Role
 		descriptor = new RoleDtoDescriptorBuilder().build();
@@ -63,6 +73,16 @@ public class SampleEntityServiceBuilder extends EntityServiceBuilder {
 				(IEntityData<? extends IBeanPropertyMap>) EntityDataStore.getEntityData(EntityIds.ROLE),
 				RoleInitializer.ALL_PROPERTIES);
 		add(EntityIds.ROLE, descriptor, servicesProvider);
+
+		//Roles of user
+		descriptor = new RoleDtoDescriptorBuilder().build();
+		final IBeanServicesProviderBuilder servicesProviderBuilder = DummyServiceFactory.beanPropertyMapServicesBuilder(
+				registry,
+				EntityIds.VIRTUAL_ROLES_OF_USERS,
+				(IEntityData<? extends IBeanPropertyMap>) EntityDataStore.getEntityData(EntityIds.ROLE),
+				RoleInitializer.ALL_PROPERTIES);
+		servicesProviderBuilder.setReaderService(new RolesOfUsersReaderService());
+		add(EntityIds.VIRTUAL_ROLES_OF_USERS, descriptor, servicesProviderBuilder.build());
 
 		//Authorization
 		descriptor = new AuthorizationDtoDescriptorBuilder().build();
@@ -84,4 +104,12 @@ public class SampleEntityServiceBuilder extends EntityServiceBuilder {
 
 	}
 
+	private IEntityLinkDescriptor createUserRoleLinkDescriptor() {
+		final IEntityLinkDescriptorBuilder builder = CapCommonToolkit.entityLinkDescriptorBuilder();
+		builder.setLinkTypeId(EntityIds.USER_ROLE_LINK);
+		builder.setLinkedTypeId(EntityIds.VIRTUAL_ROLES_OF_USERS);
+		builder.setSourceProperties(IUser.ID_PROPERTY, UserRoleLinkInitializer.USER_ID);
+		builder.setDestinationProperties(IBean.ID_PROPERTY, UserRoleLinkInitializer.ROLE_ID);
+		return builder.build();
+	}
 }
