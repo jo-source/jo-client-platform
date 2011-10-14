@@ -30,7 +30,6 @@ package org.jowidgets.cap.ui.impl;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Proxy;
 import java.util.Collection;
 import java.util.HashMap;
@@ -42,9 +41,6 @@ import java.util.Set;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-import javax.validation.metadata.ConstraintDescriptor;
 
 import org.jowidgets.api.threads.IUiThreadAccess;
 import org.jowidgets.api.toolkit.Toolkit;
@@ -274,30 +270,19 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE> {
 	public IValidationResult validate(final String propertyName, final Object value) {
 		Assert.paramNotNull(propertyName, "propertyName");
 		final IValidationResultBuilder builder = ValidationResult.builder();
-		final Set<ConstraintViolation<BEAN_TYPE>> beanValidationResult = validator.validateValue(
-				(Class<BEAN_TYPE>) beanType,
-				propertyName,
-				value);
+		Set<ConstraintViolation<BEAN_TYPE>> beanValidationResult;
+		try {
+			beanValidationResult = validator.validateValue((Class<BEAN_TYPE>) beanType, propertyName, value);
+		}
+		catch (final Exception e) {
+			//TODO if the property is not defined in the interface, e.g because the bean type is 
+			//a simple map, this fails. In that case, bean validation is not possible, so this
+			//case is not really a mistake. Avoid future calls for this property and check the
+			//property before invoking this method
+			return builder.build();
+		}
 		for (final ConstraintViolation<BEAN_TYPE> violation : beanValidationResult) {
-			final ConstraintDescriptor<?> descriptor = violation.getConstraintDescriptor();
-			final Annotation annotation = descriptor.getAnnotation();
-			if (annotation != null) {
-				if (NotNull.class.equals(annotation.annotationType())) {
-					builder.addInfoError(violation.getMessage());
-					break;
-				}
-				else if (Size.class.equals(annotation.annotationType())) {
-					final Object invalidValue = violation.getInvalidValue();
-					if (invalidValue instanceof String) {
-						if (((String) invalidValue).trim().isEmpty()) {
-							builder.addInfoError(violation.getMessage());
-							break;
-						}
-					}
-				}
-			}
 			builder.addError(violation.getMessage());
-
 		}
 		return builder.build();
 	}
