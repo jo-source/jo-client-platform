@@ -34,14 +34,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.widgets.IComposite;
 import org.jowidgets.api.widgets.IControl;
 import org.jowidgets.api.widgets.IInputControl;
 import org.jowidgets.api.widgets.IScrollComposite;
 import org.jowidgets.api.widgets.IValidationResultLabel;
 import org.jowidgets.api.widgets.blueprint.IValidationResultLabelBluePrint;
-import org.jowidgets.api.widgets.blueprint.factory.IBluePrintFactory;
 import org.jowidgets.api.widgets.descriptor.setup.IValidationLabelSetup;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IControlPanelProvider;
@@ -56,30 +54,32 @@ import org.jowidgets.common.widgets.controller.IInputListener;
 import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
 import org.jowidgets.common.widgets.factory.ICustomWidgetFactory;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
-import org.jowidgets.tools.controller.InputObservable;
 import org.jowidgets.tools.layout.MigLayoutFactory;
-import org.jowidgets.tools.widgets.wrapper.ControlWrapper;
+import org.jowidgets.tools.widgets.blueprint.BPF;
+import org.jowidgets.tools.widgets.wrapper.AbstractInputControl;
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.NullCompatibleEquivalence;
+import org.jowidgets.util.Tuple;
 import org.jowidgets.validation.IValidationConditionListener;
+import org.jowidgets.validation.IValidationMessage;
 import org.jowidgets.validation.IValidationResult;
-import org.jowidgets.validation.IValidationResultBuilder;
-import org.jowidgets.validation.IValidator;
 import org.jowidgets.validation.ValidationResult;
 
-final class BeanFormImpl<BEAN_TYPE> extends ControlWrapper implements IBeanForm<BEAN_TYPE> {
+final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN_TYPE>> implements IBeanForm<BEAN_TYPE> {
 
 	private final IBeanFormLayouter layouter;
 	private final Map<String, IAttribute<Object>> attributes;
 	private final Map<String, IInputControl<Object>> controls;
-	private final Map<String, IInputListener> inputListeners;
+	private final Map<String, IInputListener> bindingListeners;
+	private final Map<String, IValidationConditionListener> validationListeners;
 	private final Map<String, IValidationResultLabel> validationLabels;
-	private final PropertyChangeListener propertyChangeListener;
-	private final IBluePrintFactory bpf;
-	private final InputObservable inputObservable;
+	private final PropertyChangeListener propertyChangeListenerBinding;
+	private final PropertyChangeListener propertyChangeListenerValidation;
 
 	private final IValidationResultLabel mainValidationLabel;
 
 	private IBeanProxy<BEAN_TYPE> bean;
+	private Tuple<String, IValidationMessage> firstWorstMessage;
 
 	@SuppressWarnings("unchecked")
 	BeanFormImpl(final IComposite composite, final IBeanFormBluePrint<BEAN_TYPE> bluePrint) {
@@ -87,11 +87,11 @@ final class BeanFormImpl<BEAN_TYPE> extends ControlWrapper implements IBeanForm<
 		this.layouter = bluePrint.getLayouter();
 		this.attributes = new HashMap<String, IAttribute<Object>>();
 		this.controls = new HashMap<String, IInputControl<Object>>();
-		this.inputListeners = new HashMap<String, IInputListener>();
+		this.bindingListeners = new HashMap<String, IInputListener>();
+		this.validationListeners = new HashMap<String, IValidationConditionListener>();
 		this.validationLabels = new HashMap<String, IValidationResultLabel>();
-		this.propertyChangeListener = new BeanPropertyChangeListener();
-		this.inputObservable = new InputObservable();
-		this.bpf = Toolkit.getBluePrintFactory();
+		this.propertyChangeListenerBinding = new BeanPropertyChangeListenerBinding();
+		this.propertyChangeListenerValidation = new BeanPropertyChangeListenerValidation();
 
 		for (final IAttribute<?> attribute : bluePrint.getAttributes()) {
 			this.attributes.put(attribute.getPropertyName(), (IAttribute<Object>) attribute);
@@ -102,7 +102,7 @@ final class BeanFormImpl<BEAN_TYPE> extends ControlWrapper implements IBeanForm<
 		this.mainValidationLabel = composite.add(bluePrint.getValidationLabel(), contentConstraints);
 		mainValidationLabel.setMinSize(new Dimension(20, 20));
 
-		final IScrollComposite contentPane = composite.add(bpf.scrollComposite(), MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
+		final IScrollComposite contentPane = composite.add(BPF.scrollComposite(), MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
 
 		//this must be the last invocation in this constructor
 		layouter.layout(contentPane, new BeanFormControlFactory());
@@ -116,7 +116,8 @@ final class BeanFormImpl<BEAN_TYPE> extends ControlWrapper implements IBeanForm<
 	@Override
 	public void setValue(final IBeanProxy<BEAN_TYPE> bean) {
 		if (this.bean != null) {
-			this.bean.removePropertyChangeListener(propertyChangeListener);
+			this.bean.removePropertyChangeListener(propertyChangeListenerBinding);
+			this.bean.removePropertyChangeListener(propertyChangeListenerValidation);
 		}
 
 		this.bean = bean;
@@ -131,15 +132,24 @@ final class BeanFormImpl<BEAN_TYPE> extends ControlWrapper implements IBeanForm<
 				final IAttribute<?> attribute = attributes.get(entry.getKey());
 				final String propertyName = attribute.getPropertyName();
 				final IInputControl<Object> control = entry.getValue();
-				control.removeInputListener(inputListeners.get(propertyName));
+				control.removeInputListener(bindingListeners.get(propertyName));
+				control.removeValidationConditionListener(validationListeners.get(propertyName));
 				control.setValue(bean.getValue(entry.getKey()));
 				control.setEnabled(true);
 				control.setEditable(attribute.isEditable());
-				control.addInputListener(inputListeners.get(propertyName));
+				control.addInputListener(bindingListeners.get(propertyName));
+				control.addValidationConditionListener(validationListeners.get(propertyName));
 			}
-			bean.addPropertyChangeListener(propertyChangeListener);
+			bean.addPropertyChangeListener(propertyChangeListenerBinding);
+			bean.addPropertyChangeListener(propertyChangeListenerValidation);
 		}
 		resetValidation();
+		resetModificationState();
+		if (bean != null) {
+			for (final Entry<String, IInputControl<Object>> entry : controls.entrySet()) {
+				validateProperty(entry.getKey(), entry.getValue());
+			}
+		}
 	}
 
 	@Override
@@ -148,59 +158,37 @@ final class BeanFormImpl<BEAN_TYPE> extends ControlWrapper implements IBeanForm<
 	}
 
 	@Override
-	public void addValidator(final IValidator<IBeanProxy<BEAN_TYPE>> validator) {
-
-	}
-
-	@Override
-	public IValidationResult validate() {
-		final IValidationResultBuilder builder = ValidationResult.builder();
-		for (final Entry<String, IInputControl<Object>> controlEntry : controls.entrySet()) {
-			final String propertyName = controlEntry.getKey();
-			final IInputControl<Object> control = controlEntry.getValue();
-			final IAttribute<?> attribute = attributes.get(propertyName);
-			final String label = attribute.getLabel();
-			final IValidationResult validationResult = control.validate();
-			builder.addResult(validationResult.withContext(label));
+	protected IValidationResult createValidationResult() {
+		if (firstWorstMessage != null) {
+			return ValidationResult.create().withMessage(firstWorstMessage.getSecond());
 		}
-
-		return builder.build();
+		else {
+			return ValidationResult.ok();
+		}
 	}
 
 	@Override
 	public void setEditable(final boolean editable) {
-
+		for (final IInputControl<Object> control : controls.values()) {
+			control.resetModificationState();
+		}
 	}
 
 	@Override
 	public boolean hasModifications() {
-		// TODO MG implement hasModifications
+		for (final IInputControl<Object> control : controls.values()) {
+			if (control.hasModifications()) {
+				return true;
+			}
+		}
 		return false;
 	}
 
 	@Override
 	public void resetModificationState() {
-		// TODO MG implement resetModificationState
-	}
-
-	@Override
-	public void addValidationConditionListener(final IValidationConditionListener listener) {
-		// TODO MG implement addValidationStateListener
-	}
-
-	@Override
-	public void removeValidationConditionListener(final IValidationConditionListener listener) {
-		// TODO MG implement removeValidationStateListener
-	}
-
-	@Override
-	public void addInputListener(final IInputListener listener) {
-		inputObservable.addInputListener(listener);
-	}
-
-	@Override
-	public void removeInputListener(final IInputListener listener) {
-		inputObservable.removeInputListener(listener);
+		for (final IInputControl<Object> control : controls.values()) {
+			control.resetModificationState();
+		}
 	}
 
 	@Override
@@ -208,6 +196,31 @@ final class BeanFormImpl<BEAN_TYPE> extends ControlWrapper implements IBeanForm<
 		mainValidationLabel.setEmpty();
 		for (final IValidationResultLabel validationLabel : validationLabels.values()) {
 			validationLabel.setEmpty();
+		}
+		firstWorstMessage = null;
+	}
+
+	private void validateProperty(final String propertyName, final IInputControl<?> control) {
+		if (control != null) {
+			//only validate if bean value and control value are in sync, else
+			//the validation will be triggered later 
+			if (NullCompatibleEquivalence.equals(control.getValue(), bean.getValue(propertyName))) {
+				IValidationResult validationResult = control.validate();
+				//only validate the bean property, if the control is valid
+				if (validationResult.isValid()) {
+					validationResult = bean.validate(propertyName);
+				}
+
+				final IValidationResultLabel validationLabel = validationLabels.get(propertyName);
+				if (validationLabel != null) {
+					if (bean.isModified(propertyName)) {
+						validationLabel.setResult(validationResult);
+					}
+					else {
+						validationLabel.setEmpty();
+					}
+				}
+			}
 		}
 	}
 
@@ -243,17 +256,9 @@ final class BeanFormImpl<BEAN_TYPE> extends ControlWrapper implements IBeanForm<
 
 						final IInputControl<Object> result = widgetCreator.create(widgetFactory);
 
-						result.addValidator(new IValidator<Object>() {
-							@Override
-							public IValidationResult validate(final Object value) {
-								if (bean != null) {
-									return bean.validate(propertyName, value);
-								}
-								return ValidationResult.ok();
-							}
-						});
 						result.setEnabled(false);
-						inputListeners.put(propertyName, new InputListener(propertyName, result));
+						bindingListeners.put(propertyName, new BindingListener(propertyName, result));
+						validationListeners.put(propertyName, new ValidationConditionListener(propertyName, result));
 						controls.put(propertyName, result);
 
 						return result;
@@ -279,7 +284,7 @@ final class BeanFormImpl<BEAN_TYPE> extends ControlWrapper implements IBeanForm<
 							+ propertyName
 							+ "'.");
 					}
-					final IValidationResultLabelBluePrint validationLabelBp = bpf.validationResultLabel();
+					final IValidationResultLabelBluePrint validationLabelBp = BPF.validationResultLabel();
 					validationLabelBp.setSetup(setup);
 					final IValidationResultLabel validationLabel = widgetFactory.create(validationLabelBp);
 					validationLabels.put(propertyName, validationLabel);
@@ -305,29 +310,55 @@ final class BeanFormImpl<BEAN_TYPE> extends ControlWrapper implements IBeanForm<
 
 	}
 
-	private final class BeanPropertyChangeListener implements PropertyChangeListener {
-
+	private final class BeanPropertyChangeListenerValidation implements PropertyChangeListener {
 		@Override
 		public void propertyChange(final PropertyChangeEvent evt) {
 			if (bean != null) {
-				final IInputControl<Object> control = controls.get(evt.getPropertyName());
-				if (control != null) {
-					control.setValue(evt.getNewValue());
-					if (!bean.isModified(evt.getPropertyName())) {
-						validationLabels.get(evt.getPropertyName()).setEmpty();
-					}
-				}
+				validateProperty(evt.getPropertyName(), controls.get(evt.getPropertyName()));
 			}
 		}
-
 	}
 
-	private final class InputListener implements IInputListener {
+	private final class ValidationConditionListener implements IValidationConditionListener {
 
 		private final String propertyName;
 		private final IInputControl<Object> control;
 
-		private InputListener(final String propertyName, final IInputControl<Object> control) {
+		private ValidationConditionListener(final String propertyName, final IInputControl<Object> control) {
+			super();
+			this.propertyName = propertyName;
+			this.control = control;
+		}
+
+		@Override
+		public void validationConditionsChanged() {
+			validateProperty(propertyName, control);
+		}
+	}
+
+	private final class BeanPropertyChangeListenerBinding implements PropertyChangeListener {
+
+		@Override
+		public void propertyChange(final PropertyChangeEvent evt) {
+			if (bean != null) {
+				final String propertyName = evt.getPropertyName();
+				final IInputControl<Object> control = controls.get(propertyName);
+				if (control != null) {
+					control.removeInputListener(bindingListeners.get(propertyName));
+					control.setValue(evt.getNewValue());
+					control.addInputListener(bindingListeners.get(propertyName));
+					fireInputChanged();
+				}
+			}
+		}
+	}
+
+	private final class BindingListener implements IInputListener {
+
+		private final String propertyName;
+		private final IInputControl<Object> control;
+
+		private BindingListener(final String propertyName, final IInputControl<Object> control) {
 			this.propertyName = propertyName;
 			this.control = control;
 		}
@@ -335,14 +366,12 @@ final class BeanFormImpl<BEAN_TYPE> extends ControlWrapper implements IBeanForm<
 		@Override
 		public void inputChanged() {
 			if (bean != null) {
-				bean.removePropertyChangeListener(propertyChangeListener);
+				bean.removePropertyChangeListener(propertyChangeListenerBinding);
 				bean.setValue(propertyName, control.getValue());
-				//getWidget().layoutBegin();
-				inputObservable.fireInputChanged();
-				//mainValidationLabel.redraw();
-				//getWidget().layoutEnd();
-				bean.addPropertyChangeListener(propertyChangeListener);
+				bean.addPropertyChangeListener(propertyChangeListenerBinding);
+				fireInputChanged();
 			}
 		}
 	}
+
 }
