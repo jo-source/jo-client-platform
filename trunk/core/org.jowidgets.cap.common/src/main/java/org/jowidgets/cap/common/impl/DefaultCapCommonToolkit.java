@@ -70,14 +70,12 @@ public final class DefaultCapCommonToolkit implements ICapCommonToolkit {
 
 	@Override
 	public IEntityLinkPropertiesBuilder entityLinkPropertiesBuilder() {
-		// TODO MG implement builder
-		return null;
+		return new EntityLinkPropertiesBuilderImpl();
 	}
 
 	@Override
 	public IEntityLinkDescriptorBuilder entityLinkDescriptorBuilder() {
-		// TODO MG implement builder
-		return null;
+		return new EntityLinkDescriptorBuilderImpl();
 	}
 
 	@Override
