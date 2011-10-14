@@ -42,6 +42,7 @@ import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.cap.service.api.bean.IBeanInitializer;
 import org.jowidgets.cap.service.api.bean.IBeanModifier;
 import org.jowidgets.cap.service.api.bean.IBeanPropertyMap;
+import org.jowidgets.cap.service.api.entity.IBeanServicesProviderBuilder;
 import org.jowidgets.cap.service.impl.dummy.datastore.IEntityData;
 import org.jowidgets.service.api.IServiceRegistry;
 import org.jowidgets.util.IAdapterFactory;
@@ -55,7 +56,15 @@ final class DummyServiceFactoryImpl implements IDummyServiceFactory {
 		final IServiceRegistry registry,
 		final IEntityData<? extends IBean> data,
 		final List<String> properties) {
-		return beanServices(
+		return beanServicesBuilder(registry, data, properties).build();
+	}
+
+	@Override
+	public IBeanServicesProviderBuilder beanServicesBuilder(
+		final IServiceRegistry registry,
+		final IEntityData<? extends IBean> data,
+		final List<String> properties) {
+		return beanServicesBuilder(
 				registry,
 				data,
 				CapServiceToolkit.dtoFactory(data.getBeanType(), properties),
@@ -70,13 +79,23 @@ final class DummyServiceFactoryImpl implements IDummyServiceFactory {
 		final IBeanDtoFactory<BEAN_TYPE> beanDtoFactory,
 		final IBeanInitializer<BEAN_TYPE> beanInitializer,
 		final IBeanModifier<BEAN_TYPE> beanModifier) {
-		return new BeanServicesProviderCreator<BEAN_TYPE>(
+		return beanServicesBuilder(registry, data, beanDtoFactory, beanInitializer, beanModifier).build();
+	}
+
+	@Override
+	public <BEAN_TYPE extends IBean> IBeanServicesProviderBuilder beanServicesBuilder(
+		final IServiceRegistry registry,
+		final IEntityData<? extends BEAN_TYPE> data,
+		final IBeanDtoFactory<BEAN_TYPE> beanDtoFactory,
+		final IBeanInitializer<BEAN_TYPE> beanInitializer,
+		final IBeanModifier<BEAN_TYPE> beanModifier) {
+		return new BeanServicesProviderBuilderCreator<BEAN_TYPE>(
 			registry,
 			data.getBeanType(),
 			data,
 			beanDtoFactory,
 			beanInitializer,
-			beanModifier).getServices();
+			beanModifier).getBuilder();
 	}
 
 	@Override
@@ -85,13 +104,22 @@ final class DummyServiceFactoryImpl implements IDummyServiceFactory {
 		final Object entityTypeId,
 		final IEntityData<? extends IBeanPropertyMap> data,
 		final List<String> propertyNames) {
-		return new BeanServicesProviderCreator<IBeanPropertyMap>(
+		return beanPropertyMapServicesBuilder(registry, entityTypeId, data, propertyNames).build();
+	}
+
+	@Override
+	public IBeanServicesProviderBuilder beanPropertyMapServicesBuilder(
+		final IServiceRegistry registry,
+		final Object entityTypeId,
+		final IEntityData<? extends IBeanPropertyMap> data,
+		final List<String> propertyNames) {
+		return new BeanServicesProviderBuilderCreator<IBeanPropertyMap>(
 			registry,
 			entityTypeId,
 			data,
 			CapServiceToolkit.beanPropertyMapDtoFactory(propertyNames),
 			CapServiceToolkit.beanPropertyMapInitializer(propertyNames),
-			CapServiceToolkit.beanPropertyMapModifier()).getServices();
+			CapServiceToolkit.beanPropertyMapModifier()).getBuilder();
 	}
 
 	@Override

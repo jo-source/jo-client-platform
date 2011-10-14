@@ -28,7 +28,6 @@
 
 package org.jowidgets.cap.common.api.entity;
 
-
 public interface IEntityLinkDescriptor {
 
 	/**
@@ -68,8 +67,8 @@ public interface IEntityLinkDescriptor {
 	Object getLinkedTypeId();
 
 	/**
-	 * Gets the type of the object that is linkable (indirectly) with the source. If the link is a direct link,
-	 * null will be returned.
+	 * Gets the type of the object that is linkable (indirectly) with the source. If the link is a direct link
+	 * or if the link is readonly, null will be returned.
 	 * 
 	 * Creating objects of that type creates a new linked objects without creating links
 	 * 
@@ -80,7 +79,7 @@ public interface IEntityLinkDescriptor {
 	 * 
 	 * Updating objects of that type dates up the linked object but not the link
 	 * 
-	 * @return The type of the object that is linkable or null, if the link is directly
+	 * @return The type of the object that is linkable or null, if the link is directly or readonly
 	 */
 	Object getLinkableTypeId();
 
