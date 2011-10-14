@@ -28,10 +28,14 @@
 
 package org.jowidgets.cap.service.impl;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
+import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
 import org.jowidgets.cap.common.api.service.IBeanServicesProvider;
 import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.service.api.entity.IEntityServiceBuilder;
@@ -41,15 +45,17 @@ final class EntityServiceBuilderImpl implements IEntityServiceBuilder {
 
 	private final Map<Object, IBeanDtoDescriptor> descriptors;
 	private final Map<Object, IBeanServicesProvider> beanServices;
+	private final Map<Object, List<IEntityLinkDescriptor>> entityLinks;
 
 	EntityServiceBuilderImpl() {
 		this.descriptors = new HashMap<Object, IBeanDtoDescriptor>();
 		this.beanServices = new HashMap<Object, IBeanServicesProvider>();
+		this.entityLinks = new HashMap<Object, List<IEntityLinkDescriptor>>();
 	}
 
 	@Override
 	public IEntityService build() {
-		return new EntityServiceImpl(descriptors, beanServices);
+		return new EntityServiceImpl(descriptors, beanServices, entityLinks);
 	}
 
 	@Override
@@ -65,4 +71,20 @@ final class EntityServiceBuilderImpl implements IEntityServiceBuilder {
 		return this;
 	}
 
+	@Override
+	public <BEAN_TYPE> IEntityServiceBuilder add(
+		final Object entityTypeId,
+		final IBeanDtoDescriptor descriptor,
+		final IBeanServicesProvider beanServicesProvider,
+		final List<IEntityLinkDescriptor> entityLinks) {
+		Assert.paramNotNull(descriptor, "descriptor");
+		Assert.paramNotNull(beanServicesProvider, "beanServicesProvider");
+		Assert.paramNotNull(entityLinks, "entityLinks");
+
+		this.descriptors.put(entityTypeId, descriptor);
+		this.beanServices.put(entityTypeId, beanServicesProvider);
+		this.entityLinks.put(entityTypeId, Collections.unmodifiableList(new LinkedList<IEntityLinkDescriptor>(entityLinks)));
+
+		return this;
+	}
 }

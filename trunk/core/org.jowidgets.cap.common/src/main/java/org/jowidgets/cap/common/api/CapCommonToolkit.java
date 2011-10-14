@@ -41,6 +41,8 @@ import org.jowidgets.cap.common.api.bean.IProperty;
 import org.jowidgets.cap.common.api.bean.IPropertyBuilder;
 import org.jowidgets.cap.common.api.bean.IStaticValueRangeFactory;
 import org.jowidgets.cap.common.api.entity.IEntityClassBuilder;
+import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptorBuilder;
+import org.jowidgets.cap.common.api.entity.IEntityLinkPropertiesBuilder;
 import org.jowidgets.cap.common.api.filter.IFilterFactory;
 import org.jowidgets.cap.common.api.lookup.ILookUpToolkit;
 import org.jowidgets.cap.common.api.sort.ISortFactory;
@@ -48,19 +50,27 @@ import org.jowidgets.cap.common.impl.DefaultCapCommonToolkit;
 
 public final class CapCommonToolkit {
 
-	private static ICapCommonToolkit dataCommonToolkit;
+	private static ICapCommonToolkit instance;
 
 	private CapCommonToolkit() {}
 
 	public static ICapCommonToolkit getInstance() {
-		if (dataCommonToolkit == null) {
-			dataCommonToolkit = new DefaultCapCommonToolkit();
+		if (instance == null) {
+			instance = new DefaultCapCommonToolkit();
 		}
-		return dataCommonToolkit;
+		return instance;
 	}
 
 	public static IEntityClassBuilder entityClassBuilder() {
 		return getInstance().entityClassBuilder();
+	}
+
+	public static IEntityLinkPropertiesBuilder entityLinkPropertiesBuilder() {
+		return getInstance().entityLinkPropertiesBuilder();
+	}
+
+	public static IEntityLinkDescriptorBuilder entityLinkDescriptorBuilder() {
+		return getInstance().entityLinkDescriptorBuilder();
 	}
 
 	public static IPropertyBuilder propertyBuilder() {

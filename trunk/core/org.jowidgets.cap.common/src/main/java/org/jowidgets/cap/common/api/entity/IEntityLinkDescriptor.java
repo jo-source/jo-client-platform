@@ -26,9 +26,10 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.api.service;
+package org.jowidgets.cap.common.api.entity;
 
-public interface IEntityLinkService {
+
+public interface IEntityLinkDescriptor {
 
 	/**
 	 * Gets the type id of the entity that holds the link

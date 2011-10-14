@@ -31,6 +31,7 @@ package org.jowidgets.cap.common.api.service;
 import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
+import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.tools.ServiceId;
 
@@ -42,6 +43,6 @@ public interface IEntityService {
 
 	IBeanServicesProvider getBeanServices(Object entityTypeId);
 
-	List<IEntityLinkService> getLinkServices(Object entityTypeId);
+	List<IEntityLinkDescriptor> getEntityLinks(Object entityTypeId);
 
 }
