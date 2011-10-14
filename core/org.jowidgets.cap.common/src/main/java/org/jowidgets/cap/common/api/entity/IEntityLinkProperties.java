@@ -26,28 +26,22 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.api.entity;
+package org.jowidgets.cap.common.api.entity;
 
-import java.util.List;
+public interface IEntityLinkProperties {
 
-import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
-import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
-import org.jowidgets.cap.common.api.service.IBeanServicesProvider;
-import org.jowidgets.cap.common.api.service.IEntityService;
+	/**
+	 * Gets the property name, that identifies the linked bean (on the linked entity)
+	 * 
+	 * @return The key property name, never null
+	 */
+	String getKeyPropertyName();
 
-public interface IEntityServiceBuilder {
-
-	IEntityService build();
-
-	<BEAN_TYPE> IEntityServiceBuilder add(
-		Object entityTypeId,
-		IBeanDtoDescriptor descriptor,
-		IBeanServicesProvider beanServicesProvider);
-
-	<BEAN_TYPE> IEntityServiceBuilder add(
-		Object entityTypeId,
-		IBeanDtoDescriptor descriptor,
-		IBeanServicesProvider beanServicesProvider,
-		List<IEntityLinkDescriptor> entityLinks);
+	/**
+	 * Gets the property name that holds the foreign key (on the link entity)
+	 * 
+	 * @return The foreign key property name, never null
+	 */
+	String getForeignKeyPropertyName();
 
 }

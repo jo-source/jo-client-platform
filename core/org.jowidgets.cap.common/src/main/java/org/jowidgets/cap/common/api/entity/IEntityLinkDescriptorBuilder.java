@@ -26,22 +26,23 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.api.service;
+package org.jowidgets.cap.common.api.entity;
 
-public interface IEntityLinkProperties {
+public interface IEntityLinkDescriptorBuilder {
 
-	/**
-	 * Gets the property name, that identifies the linked bean (on the linked entity)
-	 * 
-	 * @return The key property name, never null
-	 */
-	String getKeyPropertyName();
+	IEntityLinkDescriptorBuilder setLinkTypeId(Object id);
 
-	/**
-	 * Gets the property name that holds the foreign key (on the link entity)
-	 * 
-	 * @return The foreign key property name, never null
-	 */
-	String getForeignKeyPropertyName();
+	IEntityLinkDescriptorBuilder setLinkedTypeId(Object id);
 
+	IEntityLinkDescriptorBuilder setLinkableTypeId(Object id);
+
+	IEntityLinkDescriptorBuilder setSourceProperties(IEntityLinkProperties properties);
+
+	IEntityLinkDescriptorBuilder setSourceProperties(String keyPropertyName, String foreignKeyPropertyname);
+
+	IEntityLinkDescriptorBuilder setDestinationProperties(IEntityLinkProperties properties);
+
+	IEntityLinkDescriptorBuilder setDestinationProperties(String keyPropertyName, String foreignKeyPropertyname);
+
+	IEntityLinkDescriptor build();
 }

@@ -33,8 +33,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
+import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
 import org.jowidgets.cap.common.api.service.IBeanServicesProvider;
-import org.jowidgets.cap.common.api.service.IEntityLinkService;
 import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.util.Assert;
 
@@ -42,12 +42,17 @@ public final class EntityServiceImpl implements IEntityService {
 
 	private final Map<Object, IBeanDtoDescriptor> descriptors;
 	private final Map<Object, IBeanServicesProvider> beanServices;
+	private final Map<Object, List<IEntityLinkDescriptor>> entityLinks;
 
-	EntityServiceImpl(final Map<Object, IBeanDtoDescriptor> descriptors, final Map<Object, IBeanServicesProvider> beanServices) {
+	EntityServiceImpl(
+		final Map<Object, IBeanDtoDescriptor> descriptors,
+		final Map<Object, IBeanServicesProvider> beanServices,
+		final Map<Object, List<IEntityLinkDescriptor>> entityLinks) {
 		Assert.paramNotNull(descriptors, "descriptors");
 		Assert.paramNotNull(beanServices, "beanServices");
 		this.descriptors = new HashMap<Object, IBeanDtoDescriptor>(descriptors);
 		this.beanServices = new HashMap<Object, IBeanServicesProvider>(beanServices);
+		this.entityLinks = new HashMap<Object, List<IEntityLinkDescriptor>>(entityLinks);
 	}
 
 	@Override
@@ -63,9 +68,9 @@ public final class EntityServiceImpl implements IEntityService {
 	}
 
 	@Override
-	public List<IEntityLinkService> getLinkServices(final Object entityTypeId) {
-		// TODO Auto-generated method stub
-		return null;
+	public List<IEntityLinkDescriptor> getEntityLinks(final Object entityTypeId) {
+		Assert.paramNotNull(entityTypeId, "entityTypeId");
+		return entityLinks.get(entityTypeId);
 	}
 
 }

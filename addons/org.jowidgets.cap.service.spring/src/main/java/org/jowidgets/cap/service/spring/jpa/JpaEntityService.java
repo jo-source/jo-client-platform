@@ -40,8 +40,8 @@ import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptorBuilder;
 import org.jowidgets.cap.common.api.bean.IProperty;
+import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
 import org.jowidgets.cap.common.api.service.IBeanServicesProvider;
-import org.jowidgets.cap.common.api.service.IEntityLinkService;
 import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.common.api.service.IUpdaterService;
 import org.jowidgets.cap.common.tools.bean.BeanDtoDescriptorBuilder;
@@ -167,8 +167,8 @@ public final class JpaEntityService implements IEntityService, InitializingBean 
 	}
 
 	@Override
-	public List<IEntityLinkService> getLinkServices(final Object entityTypeId) {
-		return entityService.getLinkServices(entityTypeId);
+	public List<IEntityLinkDescriptor> getEntityLinks(final Object entityTypeId) {
+		return entityService.getEntityLinks(entityTypeId);
 	}
 
 }

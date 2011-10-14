@@ -26,28 +26,13 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.api.entity;
+package org.jowidgets.cap.common.api.entity;
 
-import java.util.List;
+public interface IEntityLinkPropertiesBuilder {
 
-import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
-import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
-import org.jowidgets.cap.common.api.service.IBeanServicesProvider;
-import org.jowidgets.cap.common.api.service.IEntityService;
+	IEntityLinkPropertiesBuilder setKeyPropertyName(String keyPropertyName);
 
-public interface IEntityServiceBuilder {
+	IEntityLinkPropertiesBuilder setForeignKeyPropertyName(String foreignKeyPropertyName);
 
-	IEntityService build();
-
-	<BEAN_TYPE> IEntityServiceBuilder add(
-		Object entityTypeId,
-		IBeanDtoDescriptor descriptor,
-		IBeanServicesProvider beanServicesProvider);
-
-	<BEAN_TYPE> IEntityServiceBuilder add(
-		Object entityTypeId,
-		IBeanDtoDescriptor descriptor,
-		IBeanServicesProvider beanServicesProvider,
-		List<IEntityLinkDescriptor> entityLinks);
-
+	IEntityLinkProperties build();
 }
