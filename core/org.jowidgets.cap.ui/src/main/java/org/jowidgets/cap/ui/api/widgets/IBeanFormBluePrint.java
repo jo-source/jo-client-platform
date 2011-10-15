@@ -35,9 +35,12 @@ import org.jowidgets.api.widgets.descriptor.IInputComponentValidationLabelDescri
 import org.jowidgets.api.widgets.descriptor.setup.IComponentSetup;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.form.IBeanFormLayouter;
+import org.jowidgets.common.color.IColorConstant;
 import org.jowidgets.common.types.Border;
 import org.jowidgets.common.widgets.descriptor.IWidgetDescriptor;
 import org.jowidgets.common.widgets.descriptor.setup.mandatory.Mandatory;
+import org.jowidgets.util.IDecorator;
+import org.jowidgets.validation.IValidator;
 
 public interface IBeanFormBluePrint<BEAN_TYPE> extends
 		IComponentSetup,
@@ -58,6 +61,12 @@ public interface IBeanFormBluePrint<BEAN_TYPE> extends
 
 	IBeanFormBluePrint<BEAN_TYPE> setValidationLabel(final IInputComponentValidationLabelDescriptor validationLabelDescriptor);
 
+	IBeanFormBluePrint<BEAN_TYPE> setMandatoryBackgroundColor(IColorConstant color);
+
+	IBeanFormBluePrint<BEAN_TYPE> setMandatoryLabelDecorator(IDecorator<String> decorator);
+
+	IBeanFormBluePrint<BEAN_TYPE> setMandatoryValidator(IValidator<Object> validator);
+
 	@Mandatory
 	IBeanFormLayouter getLayouter();
 
@@ -75,5 +84,11 @@ public interface IBeanFormBluePrint<BEAN_TYPE> extends
 	Border getContentBorder();
 
 	IInputComponentValidationLabelDescriptor getValidationLabel();
+
+	IColorConstant getMandatoryBackgroundColor();
+
+	IDecorator<String> getMandatoryLabelDecorator();
+
+	IValidator<Object> getMandatoryValidator();
 
 }

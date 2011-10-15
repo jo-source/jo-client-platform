@@ -53,6 +53,7 @@ import org.jowidgets.cap.ui.api.form.IBeanFormControlFactory;
 import org.jowidgets.cap.ui.api.form.IBeanFormLayouter;
 import org.jowidgets.cap.ui.api.widgets.IBeanForm;
 import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
+import org.jowidgets.common.color.IColorConstant;
 import org.jowidgets.common.types.Dimension;
 import org.jowidgets.common.widgets.controller.IInputListener;
 import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
@@ -62,16 +63,22 @@ import org.jowidgets.tools.layout.MigLayoutFactory;
 import org.jowidgets.tools.widgets.blueprint.BPF;
 import org.jowidgets.tools.widgets.wrapper.AbstractInputControl;
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.IDecorator;
 import org.jowidgets.util.NullCompatibleEquivalence;
 import org.jowidgets.validation.IValidationConditionListener;
 import org.jowidgets.validation.IValidationResult;
 import org.jowidgets.validation.IValidationResultBuilder;
+import org.jowidgets.validation.IValidator;
 import org.jowidgets.validation.ValidationResult;
 
 final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN_TYPE>> implements IBeanForm<BEAN_TYPE> {
 
 	private final IBeanFormLayouter layouter;
+	private final IDecorator<String> mandatoryLabelDecorator;
+	private final IColorConstant mandatoryBackgroundColor;
+	private final IValidator<Object> mandatoryValidator;
 	private final Map<String, IAttribute<Object>> attributes;
+
 	private final Map<String, IInputControl<Object>> controls;
 	private final Map<String, IInputListener> bindingListeners;
 	private final Map<String, IValidationConditionListener> validationListeners;
@@ -89,6 +96,9 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 	BeanFormImpl(final IComposite composite, final IBeanFormBluePrint<BEAN_TYPE> bluePrint) {
 		super(composite);
 		this.layouter = bluePrint.getLayouter();
+		this.mandatoryLabelDecorator = bluePrint.getMandatoryLabelDecorator();
+		this.mandatoryBackgroundColor = bluePrint.getMandatoryBackgroundColor();
+		this.mandatoryValidator = bluePrint.getMandatoryValidator();
 		this.attributes = new HashMap<String, IAttribute<Object>>();
 		this.controls = new HashMap<String, IInputControl<Object>>();
 		this.bindingListeners = new HashMap<String, IInputListener>();
@@ -136,6 +146,9 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 			for (final IInputControl<Object> control : controls.values()) {
 				control.setValue(null);
 				control.setEnabled(false);
+				if (mandatoryBackgroundColor != null) {
+					control.setBackgroundColor(null);
+				}
 			}
 		}
 		else {
@@ -147,6 +160,9 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 				control.removeValidationConditionListener(validationListeners.get(propertyName));
 				control.setValue(bean.getValue(entry.getKey()));
 				control.setEnabled(true);
+				if (mandatoryBackgroundColor != null && attribute.isMandatory()) {
+					control.setBackgroundColor(mandatoryBackgroundColor);
+				}
 				control.setEditable(attribute.isEditable());
 				control.addInputListener(bindingListeners.get(propertyName));
 				control.addValidationConditionListener(validationListeners.get(propertyName));
@@ -260,12 +276,14 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 	}
 
 	private String getLabel(final String propertyName) {
+		Assert.paramNotNull(propertyName, "propertyName");
+
 		final IAttribute<Object> attribute = attributes.get(propertyName);
-		if (attribute != null) {
-			return attribute.getLabel();
+		if (DisplayFormat.LONG == attribute.getLabelDisplayFormat()) {
+			return attribute.getLabelLong();
 		}
 		else {
-			return "";
+			return attribute.getLabel();
 		}
 	}
 
@@ -273,14 +291,12 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 
 		@Override
 		public String getLabel(final String propertyName) {
-			Assert.paramNotNull(propertyName, "propertyName");
-
-			final IAttribute<Object> attribute = attributes.get(propertyName);
-			if (DisplayFormat.LONG == attribute.getLabelDisplayFormat()) {
-				return attribute.getLabelLong();
+			final String result = BeanFormImpl.this.getLabel(propertyName);
+			if (mandatoryLabelDecorator != null && isMandatory(propertyName)) {
+				return mandatoryLabelDecorator.decorate(result);
 			}
 			else {
-				return attribute.getLabel();
+				return result;
 			}
 		}
 
@@ -300,6 +316,10 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 						}
 
 						final IInputControl<Object> result = widgetCreator.create(widgetFactory);
+
+						if (mandatoryValidator != null && isMandatory(propertyName)) {
+							result.addValidator(mandatoryValidator);
+						}
 
 						result.setEnabled(false);
 						bindingListeners.put(propertyName, new BindingListener(propertyName, result));
@@ -351,6 +371,16 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 				controlCreator = controlPanel.getControlCreator();
 			}
 			return controlCreator;
+		}
+
+		private boolean isMandatory(final String propertyName) {
+			final IAttribute<Object> attribute = attributes.get(propertyName);
+			if (attribute != null) {
+				return attribute.isMandatory();
+			}
+			else {
+				return false;
+			}
 		}
 
 	}

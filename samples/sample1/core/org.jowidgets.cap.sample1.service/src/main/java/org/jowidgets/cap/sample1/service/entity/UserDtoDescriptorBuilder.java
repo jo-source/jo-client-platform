@@ -56,6 +56,7 @@ public class UserDtoDescriptorBuilder extends BeanDtoDescriptorBuilder {
 		propertyBp.setLabelLong(Messages.getString("UserDtoDescriptorBuilder.gender_long")); //$NON-NLS-1$
 		propertyBp.setDescription(Messages.getString("UserDtoDescriptorBuilder.gender_description")); //$NON-NLS-1$
 		propertyBp.setValueRange("M", "F"); //$NON-NLS-1$ //$NON-NLS-2$
+		propertyBp.setMandatory(true);
 
 		propertyBp = addProperty(IUser.DATE_OF_BIRTH_PROPERTY);
 		propertyBp.setLabel(Messages.getString("UserDtoDescriptorBuilder.birthday")); //$NON-NLS-1$
