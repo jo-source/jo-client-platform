@@ -46,6 +46,7 @@ import org.jowidgets.cap.ui.api.bean.IBeanMessageBuilder;
 import org.jowidgets.cap.ui.api.bean.IBeanMessageFixBuilder;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeansStateTracker;
+import org.jowidgets.cap.ui.api.color.CapColors;
 import org.jowidgets.cap.ui.api.command.ICapActionFactory;
 import org.jowidgets.cap.ui.api.control.IDisplayFormatFactory;
 import org.jowidgets.cap.ui.api.control.IInputControlSupportRegistry;
@@ -78,6 +79,7 @@ import org.jowidgets.cap.ui.impl.widgets.LookUpCollectionInputFieldFactory;
 import org.jowidgets.cap.ui.impl.widgets.LookUpComboBoxSelectionFactory;
 import org.jowidgets.common.types.TableSelectionPolicy;
 import org.jowidgets.common.widgets.factory.IGenericWidgetFactory;
+import org.jowidgets.tools.validation.MandatoryValidator;
 import org.jowidgets.util.IDecorator;
 import org.jowidgets.validation.IValidationResult;
 
@@ -240,6 +242,17 @@ public final class CapUiToolkit {
 						validationLabelBp.setInitialValidationDecorator(validationDecorator);
 						validationLabelBp.setUnmodifiedValidationDecorator(validationDecorator);
 						bluePrint.setValidationLabel(validationLabelBp);
+						bluePrint.setMandatoryBackgroundColor(CapColors.MANDATORY_BACKGROUND);
+						bluePrint.setMandatoryLabelDecorator(new IDecorator<String>() {
+							@Override
+							public String decorate(final String original) {
+								if (original != null) {
+									return original + "*";
+								}
+								return null;
+							}
+						});
+						bluePrint.setMandatoryValidator(new MandatoryValidator<Object>());
 					}
 				});
 
