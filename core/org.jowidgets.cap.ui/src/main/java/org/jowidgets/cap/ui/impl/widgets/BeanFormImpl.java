@@ -34,15 +34,19 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.widgets.IComposite;
 import org.jowidgets.api.widgets.IControl;
+import org.jowidgets.api.widgets.IInputComponentValidationLabel;
 import org.jowidgets.api.widgets.IInputControl;
 import org.jowidgets.api.widgets.IScrollComposite;
 import org.jowidgets.api.widgets.IValidationResultLabel;
+import org.jowidgets.api.widgets.blueprint.IInputComponentValidationLabelBluePrint;
 import org.jowidgets.api.widgets.blueprint.IValidationResultLabelBluePrint;
 import org.jowidgets.api.widgets.descriptor.setup.IValidationLabelSetup;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IControlPanelProvider;
+import org.jowidgets.cap.ui.api.bean.IBeanModificationStateListener;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.control.DisplayFormat;
 import org.jowidgets.cap.ui.api.form.IBeanFormControlFactory;
@@ -59,10 +63,9 @@ import org.jowidgets.tools.widgets.blueprint.BPF;
 import org.jowidgets.tools.widgets.wrapper.AbstractInputControl;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.NullCompatibleEquivalence;
-import org.jowidgets.util.Tuple;
 import org.jowidgets.validation.IValidationConditionListener;
-import org.jowidgets.validation.IValidationMessage;
 import org.jowidgets.validation.IValidationResult;
+import org.jowidgets.validation.IValidationResultBuilder;
 import org.jowidgets.validation.ValidationResult;
 
 final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN_TYPE>> implements IBeanForm<BEAN_TYPE> {
@@ -73,13 +76,14 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 	private final Map<String, IInputListener> bindingListeners;
 	private final Map<String, IValidationConditionListener> validationListeners;
 	private final Map<String, IValidationResultLabel> validationLabels;
+	private final Map<String, IValidationResult> validationResults;
 	private final PropertyChangeListener propertyChangeListenerBinding;
 	private final PropertyChangeListener propertyChangeListenerValidation;
+	private final IBeanModificationStateListener<BEAN_TYPE> modificationStateListener;
 
-	private final IValidationResultLabel mainValidationLabel;
+	private final IInputComponentValidationLabel mainValidationLabel;
 
 	private IBeanProxy<BEAN_TYPE> bean;
-	private Tuple<String, IValidationMessage> firstWorstMessage;
 
 	@SuppressWarnings("unchecked")
 	BeanFormImpl(final IComposite composite, final IBeanFormBluePrint<BEAN_TYPE> bluePrint) {
@@ -90,8 +94,10 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 		this.bindingListeners = new HashMap<String, IInputListener>();
 		this.validationListeners = new HashMap<String, IValidationConditionListener>();
 		this.validationLabels = new HashMap<String, IValidationResultLabel>();
+		this.validationResults = new HashMap<String, IValidationResult>();
 		this.propertyChangeListenerBinding = new BeanPropertyChangeListenerBinding();
 		this.propertyChangeListenerValidation = new BeanPropertyChangeListenerValidation();
+		this.modificationStateListener = new BeanModificationStateListener();
 
 		for (final IAttribute<?> attribute : bluePrint.getAttributes()) {
 			this.attributes.put(attribute.getPropertyName(), (IAttribute<Object>) attribute);
@@ -99,7 +105,11 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 
 		composite.setLayout(new MigLayoutDescriptor("0[grow]0", "0[][grow]0"));
 		final String contentConstraints = "growx, growy, w 30::, h 20::, wrap";
-		this.mainValidationLabel = composite.add(bluePrint.getValidationLabel(), contentConstraints);
+		final IInputComponentValidationLabelBluePrint validationLabelBp = Toolkit.getBluePrintFactory().inputComponentValidationLabel();
+		validationLabelBp.setSetup(bluePrint.getValidationLabel());
+		validationLabelBp.setInputComponent(this);
+
+		this.mainValidationLabel = composite.add(validationLabelBp, contentConstraints);
 		mainValidationLabel.setMinSize(new Dimension(20, 20));
 
 		final IScrollComposite contentPane = composite.add(BPF.scrollComposite(), MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
@@ -118,6 +128,7 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 		if (this.bean != null) {
 			this.bean.removePropertyChangeListener(propertyChangeListenerBinding);
 			this.bean.removePropertyChangeListener(propertyChangeListenerValidation);
+			this.bean.removeModificationStateListener(modificationStateListener);
 		}
 
 		this.bean = bean;
@@ -142,12 +153,24 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 			}
 			bean.addPropertyChangeListener(propertyChangeListenerBinding);
 			bean.addPropertyChangeListener(propertyChangeListenerValidation);
+			bean.addModificationStateListener(modificationStateListener);
 		}
+		validateAllProperties();
+	}
+
+	private void validateAllProperties() {
 		resetValidation();
 		resetModificationState();
 		if (bean != null) {
+			boolean validationChanged = false;
 			for (final Entry<String, IInputControl<Object>> entry : controls.entrySet()) {
-				validateProperty(entry.getKey(), entry.getValue());
+				final boolean propertyValidationChanged = validateProperty(entry.getKey(), entry.getValue());
+				if (propertyValidationChanged) {
+					validationChanged = true;
+				}
+			}
+			if (validationChanged) {
+				setValidationCacheDirty();
 			}
 		}
 	}
@@ -155,16 +178,6 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 	@Override
 	public IBeanProxy<BEAN_TYPE> getValue() {
 		return bean;
-	}
-
-	@Override
-	protected IValidationResult createValidationResult() {
-		if (firstWorstMessage != null) {
-			return ValidationResult.create().withMessage(firstWorstMessage.getSecond());
-		}
-		else {
-			return ValidationResult.ok();
-		}
 	}
 
 	@Override
@@ -176,6 +189,9 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 
 	@Override
 	public boolean hasModifications() {
+		if (bean != null && bean.hasModifications()) {
+			return true;
+		}
 		for (final IInputControl<Object> control : controls.values()) {
 			if (control.hasModifications()) {
 				return true;
@@ -193,15 +209,25 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 
 	@Override
 	public void resetValidation() {
-		mainValidationLabel.setEmpty();
+		mainValidationLabel.resetValidation();
 		for (final IValidationResultLabel validationLabel : validationLabels.values()) {
 			validationLabel.setEmpty();
 		}
-		firstWorstMessage = null;
+		validationResults.clear();
 	}
 
-	private void validateProperty(final String propertyName, final IInputControl<?> control) {
-		if (control != null) {
+	@Override
+	protected IValidationResult createValidationResult() {
+		final IValidationResultBuilder builder = ValidationResult.builder();
+		for (final IValidationResult validationResult : validationResults.values()) {
+			builder.addResult(validationResult);
+		}
+		return builder.build();
+	}
+
+	private boolean validateProperty(final String propertyName, final IInputControl<?> control) {
+		boolean validationChanged = false;
+		if (control != null && bean != null) {
 			//only validate if bean value and control value are in sync, else
 			//the validation will be triggered later 
 			if (NullCompatibleEquivalence.equals(control.getValue(), bean.getValue(propertyName))) {
@@ -211,6 +237,14 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 					validationResult = bean.validate(propertyName);
 				}
 
+				//change the validation map, if the worst first changed
+				final IValidationResult lastResult = validationResults.get(propertyName);
+				if (lastResult == null || !validationResult.getWorstFirst().equals(lastResult.getWorstFirst())) {
+					validationResults.put(propertyName, validationResult.withContext(getLabel(propertyName)));
+					validationChanged = true;
+				}
+
+				//update the validation label
 				final IValidationResultLabel validationLabel = validationLabels.get(propertyName);
 				if (validationLabel != null) {
 					if (bean.isModified(propertyName)) {
@@ -221,6 +255,17 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 					}
 				}
 			}
+		}
+		return validationChanged;
+	}
+
+	private String getLabel(final String propertyName) {
+		final IAttribute<Object> attribute = attributes.get(propertyName);
+		if (attribute != null) {
+			return attribute.getLabel();
+		}
+		else {
+			return "";
 		}
 	}
 
@@ -313,8 +358,8 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 	private final class BeanPropertyChangeListenerValidation implements PropertyChangeListener {
 		@Override
 		public void propertyChange(final PropertyChangeEvent evt) {
-			if (bean != null) {
-				validateProperty(evt.getPropertyName(), controls.get(evt.getPropertyName()));
+			if (validateProperty(evt.getPropertyName(), controls.get(evt.getPropertyName()))) {
+				setValidationCacheDirty();
 			}
 		}
 	}
@@ -332,7 +377,9 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 
 		@Override
 		public void validationConditionsChanged() {
-			validateProperty(propertyName, control);
+			if (validateProperty(propertyName, control)) {
+				setValidationCacheDirty();
+			}
 		}
 	}
 
@@ -371,6 +418,13 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 				bean.addPropertyChangeListener(propertyChangeListenerBinding);
 				fireInputChanged();
 			}
+		}
+	}
+
+	private final class BeanModificationStateListener implements IBeanModificationStateListener<BEAN_TYPE> {
+		@Override
+		public void modificationStateChanged(final IBeanProxy<BEAN_TYPE> bean) {
+			validateAllProperties();
 		}
 	}
 

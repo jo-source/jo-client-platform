@@ -36,7 +36,7 @@ import javax.validation.Validator;
 import org.jowidgets.api.image.IconsSmall;
 import org.jowidgets.api.toolkit.IToolkit;
 import org.jowidgets.api.toolkit.Toolkit;
-import org.jowidgets.api.widgets.blueprint.IValidationResultLabelBluePrint;
+import org.jowidgets.api.widgets.blueprint.IInputComponentValidationLabelBluePrint;
 import org.jowidgets.api.widgets.blueprint.defaults.IDefaultInitializer;
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
@@ -78,6 +78,8 @@ import org.jowidgets.cap.ui.impl.widgets.LookUpCollectionInputFieldFactory;
 import org.jowidgets.cap.ui.impl.widgets.LookUpComboBoxSelectionFactory;
 import org.jowidgets.common.types.TableSelectionPolicy;
 import org.jowidgets.common.widgets.factory.IGenericWidgetFactory;
+import org.jowidgets.util.IDecorator;
+import org.jowidgets.validation.IValidationResult;
 
 public final class CapUiToolkit {
 
@@ -228,10 +230,18 @@ public final class CapUiToolkit {
 					public void initialize(final IBeanFormBluePrint<?> bluePrint) {
 						bluePrint.setAutoResetValidation(true);
 						bluePrint.setContentScrolled(true);
-						final IValidationResultLabelBluePrint validationLabelBp = Toolkit.getBluePrintFactory().validationResultLabel();
+						final IInputComponentValidationLabelBluePrint validationLabelBp = Toolkit.getBluePrintFactory().inputComponentValidationLabel();
+						final IDecorator<IValidationResult> validationDecorator = new IDecorator<IValidationResult>() {
+							@Override
+							public IValidationResult decorate(final IValidationResult original) {
+								return null;
+							}
+						};
+						validationLabelBp.setInitialValidationDecorator(validationDecorator);
+						validationLabelBp.setUnmodifiedValidationDecorator(validationDecorator);
 						bluePrint.setValidationLabel(validationLabelBp);
 					}
 				});
-	}
 
+	}
 }

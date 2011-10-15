@@ -31,7 +31,7 @@ package org.jowidgets.cap.ui.api.widgets;
 import java.util.Collection;
 
 import org.jowidgets.api.widgets.blueprint.builder.IComponentSetupBuilder;
-import org.jowidgets.api.widgets.descriptor.IValidationResultLabelDescriptor;
+import org.jowidgets.api.widgets.descriptor.IInputComponentValidationLabelDescriptor;
 import org.jowidgets.api.widgets.descriptor.setup.IComponentSetup;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.form.IBeanFormLayouter;
@@ -56,7 +56,7 @@ public interface IBeanFormBluePrint<BEAN_TYPE> extends
 
 	IBeanFormBluePrint<BEAN_TYPE> setContentBorder(Border border);
 
-	IBeanFormBluePrint<BEAN_TYPE> setValidationLabel(final IValidationResultLabelDescriptor validationLabelDescriptor);
+	IBeanFormBluePrint<BEAN_TYPE> setValidationLabel(final IInputComponentValidationLabelDescriptor validationLabelDescriptor);
 
 	@Mandatory
 	IBeanFormLayouter getLayouter();
@@ -74,6 +74,6 @@ public interface IBeanFormBluePrint<BEAN_TYPE> extends
 
 	Border getContentBorder();
 
-	IValidationResultLabelDescriptor getValidationLabel();
+	IInputComponentValidationLabelDescriptor getValidationLabel();
 
 }
