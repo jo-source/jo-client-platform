@@ -47,6 +47,7 @@ import org.jowidgets.api.widgets.descriptor.setup.IValidationLabelSetup;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IControlPanelProvider;
 import org.jowidgets.cap.ui.api.bean.IBeanModificationStateListener;
+import org.jowidgets.cap.ui.api.bean.IBeanProcessStateListener;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.control.DisplayFormat;
 import org.jowidgets.cap.ui.api.form.IBeanFormControlFactory;
@@ -87,6 +88,7 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 	private final PropertyChangeListener propertyChangeListenerBinding;
 	private final PropertyChangeListener propertyChangeListenerValidation;
 	private final IBeanModificationStateListener<BEAN_TYPE> modificationStateListener;
+	private final IBeanProcessStateListener<BEAN_TYPE> beanProcessStateListener;
 
 	private final IInputComponentValidationLabel mainValidationLabel;
 
@@ -108,6 +110,7 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 		this.propertyChangeListenerBinding = new BeanPropertyChangeListenerBinding();
 		this.propertyChangeListenerValidation = new BeanPropertyChangeListenerValidation();
 		this.modificationStateListener = new BeanModificationStateListener();
+		this.beanProcessStateListener = new BeanProcessStateListener();
 
 		for (final IAttribute<?> attribute : bluePrint.getAttributes()) {
 			this.attributes.put(attribute.getPropertyName(), (IAttribute<Object>) attribute);
@@ -139,6 +142,7 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 			this.bean.removePropertyChangeListener(propertyChangeListenerBinding);
 			this.bean.removePropertyChangeListener(propertyChangeListenerValidation);
 			this.bean.removeModificationStateListener(modificationStateListener);
+			this.bean.removeProcessStateListener(beanProcessStateListener);
 		}
 
 		this.bean = bean;
@@ -159,17 +163,23 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 				control.removeInputListener(bindingListeners.get(propertyName));
 				control.removeValidationConditionListener(validationListeners.get(propertyName));
 				control.setValue(bean.getValue(entry.getKey()));
-				control.setEnabled(true);
+				control.setEnabled(!bean.hasExecution());
 				if (mandatoryBackgroundColor != null && attribute.isMandatory()) {
-					control.setBackgroundColor(mandatoryBackgroundColor);
+					if (bean.hasExecution()) {
+						control.setBackgroundColor(null);
+					}
+					else {
+						control.setBackgroundColor(mandatoryBackgroundColor);
+					}
 				}
-				control.setEditable(attribute.isEditable());
+				control.setEditable(attribute.isEditable() && !bean.hasExecution());
 				control.addInputListener(bindingListeners.get(propertyName));
 				control.addValidationConditionListener(validationListeners.get(propertyName));
 			}
 			bean.addPropertyChangeListener(propertyChangeListenerBinding);
 			bean.addPropertyChangeListener(propertyChangeListenerValidation);
 			bean.addModificationStateListener(modificationStateListener);
+			bean.addProcessStateListener(beanProcessStateListener);
 		}
 		validateAllProperties();
 	}
@@ -455,6 +465,28 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 		@Override
 		public void modificationStateChanged(final IBeanProxy<BEAN_TYPE> bean) {
 			validateAllProperties();
+		}
+	}
+
+	private final class BeanProcessStateListener implements IBeanProcessStateListener<BEAN_TYPE> {
+		@Override
+		public void processStateChanged(final IBeanProxy<BEAN_TYPE> bean) {
+			if (BeanFormImpl.this.bean != null) {
+				for (final Entry<String, IInputControl<Object>> entry : controls.entrySet()) {
+					final IAttribute<?> attribute = attributes.get(entry.getKey());
+					final IInputControl<Object> control = entry.getValue();
+					control.setEnabled(!bean.hasExecution());
+					if (mandatoryBackgroundColor != null && attribute.isMandatory()) {
+						if (bean.hasExecution()) {
+							control.setBackgroundColor(null);
+						}
+						else {
+							control.setBackgroundColor(mandatoryBackgroundColor);
+						}
+					}
+					control.setEditable(attribute.isEditable() && !bean.hasExecution());
+				}
+			}
 		}
 	}
 

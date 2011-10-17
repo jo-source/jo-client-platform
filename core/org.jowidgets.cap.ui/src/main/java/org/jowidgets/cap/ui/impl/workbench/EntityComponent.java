@@ -136,6 +136,9 @@ public class EntityComponent extends AbstractComponent implements IComponent {
 	public void onActivation() {
 		for (final IDataModelAction dataModelAction : dataModelActions) {
 			dataModelAction.addDataModel(tableModel);
+			for (final LinkedEntityTableView view : tableViews) {
+				dataModelAction.addDataModel(view.getTable().getModel());
+			}
 		}
 	}
 
@@ -143,6 +146,9 @@ public class EntityComponent extends AbstractComponent implements IComponent {
 	public void onDeactivation(final IVetoable vetoable) {
 		for (final IDataModelAction dataModelAction : dataModelActions) {
 			dataModelAction.removeDataModel(tableModel);
+			for (final LinkedEntityTableView view : tableViews) {
+				dataModelAction.removeDataModel(view.getTable().getModel());
+			}
 		}
 	}
 
@@ -165,9 +171,7 @@ public class EntityComponent extends AbstractComponent implements IComponent {
 		if (multiDetailView != null) {
 			multiDetailView.getTablesForm().registerView(new BeanTableView(tableView.getTable()));
 		}
-		else {
-			tableViews.add(tableView);
-		}
+		tableViews.add(tableView);
 	}
 
 	private final class BeanTableView implements IBeanTableView<Object> {
