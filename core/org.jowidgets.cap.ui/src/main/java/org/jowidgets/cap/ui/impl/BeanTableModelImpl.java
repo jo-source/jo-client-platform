@@ -101,6 +101,7 @@ import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.table.IReaderParameterProvider;
 import org.jowidgets.common.image.IImageConstant;
 import org.jowidgets.common.model.ITableCell;
+import org.jowidgets.common.types.Markup;
 import org.jowidgets.tools.controller.TableDataModelAdapter;
 import org.jowidgets.tools.model.table.AbstractTableDataModel;
 import org.jowidgets.tools.model.table.DefaultTableColumnBuilder;
@@ -781,6 +782,12 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 					}
 					else if (message != null && (message.getType() == BeanMessageType.ERROR)) {
 						cellBuilder.setForegroundColor(Colors.ERROR);
+					}
+					else if (bean.hasModifications()) {
+						cellBuilder.setForegroundColor(Colors.STRONG);
+						if (bean.isModified(attribute.getPropertyName())) {
+							cellBuilder.setMarkup(Markup.STRONG);
+						}
 					}
 
 					if (bean.hasExecution()) {
