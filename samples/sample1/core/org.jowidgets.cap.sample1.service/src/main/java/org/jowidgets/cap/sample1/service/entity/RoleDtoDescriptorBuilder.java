@@ -86,7 +86,7 @@ public class RoleDtoDescriptorBuilder {
 	}
 
 	IBeanDtoDescriptor build() {
-		return CapCommonToolkit.dtoDescriptor(properties);
+		return CapCommonToolkit.dtoDescriptor(properties, Messages.getString("RoleDtoDescriptorBuilder.label"));
 	}
 
 }

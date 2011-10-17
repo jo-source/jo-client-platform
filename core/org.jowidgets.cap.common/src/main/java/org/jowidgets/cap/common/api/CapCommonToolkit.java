@@ -93,6 +93,14 @@ public final class CapCommonToolkit {
 		return getInstance().dtoDescriptor(properties);
 	}
 
+	public static IBeanDtoDescriptor dtoDescriptor(final List<IProperty> properties, final String label) {
+		return getInstance().dtoDescriptor(properties, label);
+	}
+
+	public static IBeanDtoDescriptor dtoDescriptor(final List<IProperty> properties, final String label, final String description) {
+		return getInstance().dtoDescriptor(properties, label, description);
+	}
+
 	public static IBeanDtoBuilder dtoBuilder(final Object entityTypeId) {
 		return getInstance().dtoBuilder(entityTypeId);
 	}

@@ -26,33 +26,39 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample1.ui.workbench.component.user.view;
+package org.jowidgets.cap.ui.impl.workbench;
 
+import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.widgets.IContainer;
+import org.jowidgets.cap.common.api.bean.IBean;
+import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
-import org.jowidgets.cap.ui.api.widgets.IBeanTablesForm;
-import org.jowidgets.tools.layout.MigLayoutFactory;
+import org.jowidgets.cap.ui.api.model.LinkType;
+import org.jowidgets.cap.ui.api.table.IBeanTableModel;
+import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
+import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.workbench.api.IViewContext;
 import org.jowidgets.workbench.tools.AbstractView;
 
-public class MultiDetailView extends AbstractView {
+public class LinkedEntityTableView extends AbstractView {
 
-	public static final String ID = MultiDetailView.class.getName();
-	public static final String DEFAULT_LABEL = Messages.getString("MultiDetailView.details"); //$NON-NLS-1$
-	public static final String DEFAULT_TOOLTIP = Messages.getString("MultiDetailView.details_tooltip"); //$NON-NLS-1$
+	private final IBeanTableModel<IBean> model;
+	private final IBeanTable<IBean> table;
 
-	private final IBeanTablesForm tablesForm;
-
-	public MultiDetailView(final IViewContext context) {
+	public LinkedEntityTableView(
+		final IViewContext context,
+		final IBeanTableModel<?> parentTable,
+		final IEntityLinkDescriptor link) {
 		final IContainer container = context.getContainer();
-		container.setLayout(MigLayoutFactory.growingCellLayout());
-		this.tablesForm = container.add(
-				CapUiToolkit.bluePrintFactory().beanTablesForm(),
-				MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
+		container.setLayout(Toolkit.getLayoutFactoryProvider().fillLayout());
+		final IBeanTableModelBuilder<IBean> builder = CapUiToolkit.beanTableModelBuilder(link.getLinkedTypeId());
+		builder.setParent(parentTable, LinkType.SELECTION_ALL);
+		this.model = builder.build();
+		this.table = container.add(CapUiToolkit.bluePrintFactory().beanTable(model));
+		model.load();
 	}
 
-	public IBeanTablesForm getTablesForm() {
-		return tablesForm;
+	protected IBeanTable<IBean> getTable() {
+		return table;
 	}
-
 }

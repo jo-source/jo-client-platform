@@ -41,15 +41,33 @@ final class BeanDtoDescriptorImpl implements IBeanDtoDescriptor, Serializable {
 
 	private static final long serialVersionUID = 4875055093925862277L;
 
+	private final String label;
+	private final String description;
 	private final List<IProperty> unodifiableProperties;
 
 	BeanDtoDescriptorImpl(final Collection<IProperty> properties) {
+		this(null, null, properties);
+	}
+
+	BeanDtoDescriptorImpl(final String label, final String description, final Collection<IProperty> properties) {
+		this.label = label;
+		this.description = description;
 		this.unodifiableProperties = Collections.unmodifiableList(new LinkedList<IProperty>(properties));
 	}
 
 	@Override
 	public List<IProperty> getProperties() {
 		return unodifiableProperties;
+	}
+
+	@Override
+	public String getLabel() {
+		return label;
+	}
+
+	@Override
+	public String getDescription() {
+		return description;
 	}
 
 }

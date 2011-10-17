@@ -37,4 +37,7 @@ public interface IBeanDtoDescriptor {
 	 */
 	List<IProperty> getProperties();
 
+	String getLabel();
+
+	String getDescription();
 }

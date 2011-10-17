@@ -33,18 +33,16 @@ import org.jowidgets.api.widgets.IContainer;
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
-import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.workbench.api.IViewContext;
 import org.jowidgets.workbench.tools.AbstractView;
 
-public class RoleTableView extends AbstractView implements ITableView {
+public class RoleTableView extends AbstractView {
 
 	public static final String ID = RoleTableView.class.getName();
 	public static final String DEFAULT_LABEL = Messages.getString("RoleTableView.roles"); //$NON-NLS-1$
 	public static final String DEFAULT_TOOLTIP = Messages.getString("RoleTableView.roles_tooltip"); //$NON-NLS-1$
 
 	private final IBeanTableModel<IBean> beanTableModel;
-	private final IBeanTable<IBean> beanTable;
 
 	public RoleTableView(final IViewContext context, final IBeanTableModel<IBean> tableModel) {
 
@@ -54,14 +52,9 @@ public class RoleTableView extends AbstractView implements ITableView {
 
 		container.setLayout(Toolkit.getLayoutFactoryProvider().fillLayout());
 
-		this.beanTable = container.add(CapUiToolkit.bluePrintFactory().beanTable(beanTableModel));
+		container.add(CapUiToolkit.bluePrintFactory().beanTable(beanTableModel));
 
 		beanTableModel.load();
-	}
-
-	@Override
-	public IBeanTable<?> getTable() {
-		return beanTable;
 	}
 
 }
