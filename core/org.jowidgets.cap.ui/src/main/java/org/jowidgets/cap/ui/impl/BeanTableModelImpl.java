@@ -788,6 +788,9 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 						if (bean.isModified(attribute.getPropertyName())) {
 							cellBuilder.setMarkup(Markup.STRONG);
 						}
+						else {
+							cellBuilder.setMarkup(Markup.EMPHASIZED);
+						}
 					}
 
 					if (bean.hasExecution()) {
