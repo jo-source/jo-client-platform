@@ -28,18 +28,12 @@
 
 package org.jowidgets.cap.sample1.ui.workbench.component.user;
 
-import java.util.LinkedHashSet;
-import java.util.Set;
-
-import org.jowidgets.api.controller.IDisposeListener;
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.sample1.common.entity.EntityIds;
 import org.jowidgets.cap.sample1.common.entity.IUser;
 import org.jowidgets.cap.sample1.common.service.reader.ReaderServices;
 import org.jowidgets.cap.sample1.ui.attribute.UserAttributesFactory;
 import org.jowidgets.cap.sample1.ui.workbench.command.WorkbenchActions;
-import org.jowidgets.cap.sample1.ui.workbench.component.user.view.ITableView;
-import org.jowidgets.cap.sample1.ui.workbench.component.user.view.MultiDetailView;
 import org.jowidgets.cap.sample1.ui.workbench.component.user.view.RoleTableView;
 import org.jowidgets.cap.sample1.ui.workbench.component.user.view.UserDetailGroupsBorderView;
 import org.jowidgets.cap.sample1.ui.workbench.component.user.view.UserDetailGroupsSeparatorsView;
@@ -51,12 +45,7 @@ import org.jowidgets.cap.ui.api.model.LinkType;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
 import org.jowidgets.cap.ui.api.table.IReaderParameterProvider;
-import org.jowidgets.cap.ui.api.widgets.IBeanTable;
-import org.jowidgets.cap.ui.api.widgets.IBeanTableView;
-import org.jowidgets.cap.ui.api.widgets.IBeanTableViewListener;
 import org.jowidgets.common.types.IVetoable;
-import org.jowidgets.common.widgets.controller.IFocusListener;
-import org.jowidgets.util.Assert;
 import org.jowidgets.util.ValueHolder;
 import org.jowidgets.workbench.api.IComponent;
 import org.jowidgets.workbench.api.IComponentContext;
@@ -71,39 +60,20 @@ public class UserComponent extends AbstractComponent implements IComponent {
 	private final IBeanTableModel<IUser> userTableModel;
 	private final IBeanTableModel<IBean> roleTableModel;
 
-	private final Set<ITableView> tableViews;
-
-	private MultiDetailView multiDetailView;
-
 	public UserComponent(final IComponentNodeModel componentNodeModel, final IComponentContext componentContext) {
 		componentContext.setLayout(new UserComponentDefaultLayout().getLayout());
 		this.delayParameter = new ValueHolder<Integer>(Integer.valueOf(0));
 		this.userTableModel = createUserTableModel();
 		this.roleTableModel = createRoleTableModel(userTableModel);
-		this.tableViews = new LinkedHashSet<ITableView>();
 	}
 
 	@Override
 	public IView createView(final String viewId, final IViewContext context) {
 		if (UserTableView.ID.equals(viewId)) {
-			final ITableView result = new UserTableView(context, userTableModel, delayParameter);
-			registerTableView(result);
-			return result;
+			return new UserTableView(context, userTableModel, delayParameter);
 		}
 		else if (RoleTableView.ID.equals(viewId)) {
-			final ITableView result = new RoleTableView(context, roleTableModel);
-			registerTableView(result);
-			return result;
-		}
-		else if (MultiDetailView.ID.equals(viewId)) {
-			if (multiDetailView != null) {
-				throw new IllegalStateException("MultiDetailView could only be used once in layout");
-			}
-			multiDetailView = new MultiDetailView(context);
-			for (final ITableView tableView : tableViews) {
-				multiDetailView.getTablesForm().registerView(new BeanTableView(tableView.getTable()));
-			}
-			return multiDetailView;
+			return new RoleTableView(context, roleTableModel);
 		}
 		else if (UserDetailView.ID.equals(viewId)) {
 			return new UserDetailView(context, userTableModel);
@@ -119,15 +89,6 @@ public class UserComponent extends AbstractComponent implements IComponent {
 		}
 		else {
 			throw new IllegalArgumentException("View id '" + viewId + "' is not known.");
-		}
-	}
-
-	private void registerTableView(final ITableView tableView) {
-		if (multiDetailView != null) {
-			multiDetailView.getTablesForm().registerView(new BeanTableView(tableView.getTable()));
-		}
-		else {
-			tableViews.add(tableView);
 		}
 	}
 
@@ -179,66 +140,5 @@ public class UserComponent extends AbstractComponent implements IComponent {
 				return delayParameter.get();
 			}
 		};
-	}
-
-	private final class BeanTableView implements IBeanTableView<Object> {
-
-		private final Set<IBeanTableViewListener> viewListeners;
-
-		private final IBeanTable<?> table;
-
-		private BeanTableView(final IBeanTable<?> table) {
-			this.table = table;
-			this.viewListeners = new LinkedHashSet<IBeanTableViewListener>();
-			final IFocusListener focusListener = new IFocusListener() {
-
-				@Override
-				public void focusLost() {}
-
-				@Override
-				public void focusGained() {
-					for (final IBeanTableViewListener listener : viewListeners) {
-						listener.viewActivated();
-					}
-				}
-			};
-			table.addFocusListener(focusListener);
-
-			table.addDisposeListener(new IDisposeListener() {
-				@Override
-				public void onDispose() {
-					table.removeFocusListener(focusListener);
-				}
-			});
-		}
-
-		@Override
-		public void addDisposeListener(final IDisposeListener listener) {
-			table.addDisposeListener(listener);
-		}
-
-		@Override
-		public void removeDisposeListener(final IDisposeListener listener) {
-			table.removeDisposeListener(listener);
-		}
-
-		@Override
-		public void addViewListener(final IBeanTableViewListener listener) {
-			Assert.paramNotNull(listener, "listener");
-			viewListeners.add(listener);
-		}
-
-		@Override
-		public void removeViewListener(final IBeanTableViewListener listener) {
-			Assert.paramNotNull(listener, "listener");
-			viewListeners.remove(listener);
-		}
-
-		@SuppressWarnings({"unchecked", "rawtypes"})
-		@Override
-		public IBeanTableModel getModel() {
-			return table.getModel();
-		}
-
 	}
 }

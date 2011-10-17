@@ -28,17 +28,10 @@
 
 package org.jowidgets.cap.ui.impl.workbench;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.jowidgets.api.widgets.IContainer;
-import org.jowidgets.cap.common.api.entity.IEntityClass;
+import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
-import org.jowidgets.cap.ui.api.attribute.IAttribute;
-import org.jowidgets.cap.ui.api.model.IBeanListModel;
-import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
-import org.jowidgets.cap.ui.api.widgets.IBeanForm;
-import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
+import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.tools.layout.MigLayoutFactory;
 import org.jowidgets.workbench.api.IViewContext;
 import org.jowidgets.workbench.tools.AbstractView;
@@ -47,35 +40,10 @@ public class EntityDetailView extends AbstractView {
 
 	public static final String ID = EntityDetailView.class.getName();
 
-	public EntityDetailView(
-		final IViewContext context,
-		final IBeanListModel<Object> parentModel,
-		final List<IAttribute<Object>> attributes,
-		final IEntityClass entityClass) {
-
+	public EntityDetailView(final IViewContext context, final IBeanTableModel<IBean> parentModel) {
 		final IContainer container = context.getContainer();
 		container.setLayout(MigLayoutFactory.growingCellLayout());
-		final IBeanFormBluePrint<Object> formBp = CapUiToolkit.bluePrintFactory().beanForm(attributes);
-
-		final IBeanForm<Object> userForm = container.add(formBp, MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
-
-		parentModel.addBeanListModelListener(new IBeanListModelListener() {
-
-			@Override
-			public void selectionChanged() {
-				final ArrayList<Integer> selection = parentModel.getSelection();
-				if (selection.size() > 0) {
-					userForm.setValue(parentModel.getBean(selection.get(0)));
-				}
-				else {
-					userForm.setValue(null);
-				}
-			}
-
-			@Override
-			public void beansChanged() {}
-
-		});
+		container.add(CapUiToolkit.bluePrintFactory().beanTableForm(parentModel), MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
 	}
 
 }

@@ -26,14 +26,9 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample1.ui.workbench.component.user;
+package org.jowidgets.cap.ui.impl.workbench;
 
-import org.jowidgets.cap.sample1.ui.workbench.component.user.view.RoleTableView;
-import org.jowidgets.cap.sample1.ui.workbench.component.user.view.UserDetailGroupsBorderView;
-import org.jowidgets.cap.sample1.ui.workbench.component.user.view.UserDetailGroupsSeparatorsView;
-import org.jowidgets.cap.sample1.ui.workbench.component.user.view.UserDetailThreeColumnView;
-import org.jowidgets.cap.sample1.ui.workbench.component.user.view.UserDetailView;
-import org.jowidgets.cap.sample1.ui.workbench.component.user.view.UserTableView;
+import org.jowidgets.cap.common.api.entity.IEntityClass;
 import org.jowidgets.workbench.api.ILayout;
 import org.jowidgets.workbench.toolkit.api.IFolderLayoutBuilder;
 import org.jowidgets.workbench.toolkit.api.ILayoutBuilder;
@@ -42,18 +37,19 @@ import org.jowidgets.workbench.tools.FolderLayoutBuilder;
 import org.jowidgets.workbench.tools.LayoutBuilder;
 import org.jowidgets.workbench.tools.SplitLayoutBuilder;
 
-public class UserComponentDefaultLayout {
+public class EntityComponentMasterDetailLayout {
 
-	public static final String DEFAULT_LAYOUT_ID = "DEFAULT_LAYOUT_ID";
-	public static final String MASTER_FOLDER_ID = "MASTER_FOLDER_ID";
-	public static final String DETAIL_FOLDER_ID = "DETAIL_FOLDER_ID";
-	public static final String LINKED_FOLDER_ID = "DETAIL_FOLDER_ID";
+	public static final String DEFAULT_LAYOUT_ID = "DEFAULT_LAYOUT_ID"; //$NON-NLS-1$
+	public static final String MASTER_FOLDER_ID = "MASTER_FOLDER_ID"; //$NON-NLS-1$
+	public static final String DETAIL_FOLDER_ID = "DETAIL_FOLDER_ID"; //$NON-NLS-1$
+
+	private static final String DETAIL_STRING = Messages.getString("EntityComponentDefaultLayout.detail"); //$NON-NLS-1$
 
 	private final ILayout layout;
 
-	public UserComponentDefaultLayout() {
+	public EntityComponentMasterDetailLayout(final IEntityClass entityClass) {
 		final ILayoutBuilder builder = new LayoutBuilder();
-		builder.setId(DEFAULT_LAYOUT_ID).setLayoutContainer(createMasterDetailSplit());
+		builder.setId(DEFAULT_LAYOUT_ID).setLayoutContainer(createMasterDetailSplit(entityClass));
 		this.layout = builder.build();
 	}
 
@@ -61,42 +57,25 @@ public class UserComponentDefaultLayout {
 		return layout;
 	}
 
-	private ISplitLayoutBuilder createMasterDetailSplit() {
+	private ISplitLayoutBuilder createMasterDetailSplit(final IEntityClass entityClass) {
 		final ISplitLayoutBuilder result = new SplitLayoutBuilder();
 		result.setVertical().setWeight(0.5).setResizeFirst();
-		result.setFirstContainer(createMasterFolder());
-		result.setSecondContainer(createDetailFolder());
+		result.setFirstContainer(createMasterFolder(entityClass));
+		result.setSecondContainer(createDetailFolder(entityClass));
 		return result;
 	}
 
-	private IFolderLayoutBuilder createMasterFolder() {
+	private IFolderLayoutBuilder createMasterFolder(final IEntityClass entityClass) {
 		final IFolderLayoutBuilder result = new FolderLayoutBuilder(MASTER_FOLDER_ID);
-		result.addView(UserTableView.ID, UserTableView.DEFAULT_LABEL, UserTableView.DEFAULT_TOOLTIP);
+		result.setViewsCloseable(false);
+		result.addView(EntityComponent.ROOT_TABLE_VIEW_ID, entityClass.getLabel(), entityClass.getDescription()); //$NON-NLS-1$
 		return result;
 	}
 
-	private IFolderLayoutBuilder createDetailFolder() {
+	private IFolderLayoutBuilder createDetailFolder(final IEntityClass entityClass) {
 		final IFolderLayoutBuilder result = new FolderLayoutBuilder(DETAIL_FOLDER_ID);
-
-		result.addView(UserDetailView.ID, UserDetailView.DEFAULT_LABEL, UserDetailView.DEFAULT_TOOLTIP);
-
-		result.addView(
-				UserDetailThreeColumnView.ID,
-				UserDetailThreeColumnView.DEFAULT_LABEL,
-				UserDetailThreeColumnView.DEFAULT_TOOLTIP);
-
-		result.addView(
-				UserDetailGroupsBorderView.ID,
-				UserDetailGroupsBorderView.DEFAULT_LABEL,
-				UserDetailGroupsBorderView.DEFAULT_TOOLTIP);
-
-		result.addView(
-				UserDetailGroupsSeparatorsView.ID,
-				UserDetailGroupsSeparatorsView.DEFAULT_LABEL,
-				UserDetailGroupsSeparatorsView.DEFAULT_TOOLTIP);
-
-		result.addView(RoleTableView.ID, RoleTableView.DEFAULT_LABEL, RoleTableView.DEFAULT_TOOLTIP);
-
+		result.setViewsCloseable(false);
+		result.addView(EntityDetailView.ID, entityClass.getLabel() + " " + DETAIL_STRING, entityClass.getDescription()); //$NON-NLS-1$
 		return result;
 	}
 

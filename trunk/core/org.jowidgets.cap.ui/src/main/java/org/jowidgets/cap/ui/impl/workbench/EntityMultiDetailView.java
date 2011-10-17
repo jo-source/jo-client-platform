@@ -26,13 +26,33 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample1.ui.workbench.component.user.view;
+package org.jowidgets.cap.ui.impl.workbench;
 
-import org.jowidgets.cap.ui.api.widgets.IBeanTable;
-import org.jowidgets.workbench.api.IView;
+import org.jowidgets.api.widgets.IContainer;
+import org.jowidgets.cap.ui.api.CapUiToolkit;
+import org.jowidgets.cap.ui.api.widgets.IBeanTablesForm;
+import org.jowidgets.tools.layout.MigLayoutFactory;
+import org.jowidgets.workbench.api.IViewContext;
+import org.jowidgets.workbench.tools.AbstractView;
 
-public interface ITableView extends IView {
+public class EntityMultiDetailView extends AbstractView {
 
-	IBeanTable<?> getTable();
+	public static final String ID = EntityMultiDetailView.class.getName();
+
+	public static final String DEFAULT_LABEL = Messages.getString("MultiDetailView.details"); //$NON-NLS-1$
+
+	private final IBeanTablesForm tablesForm;
+
+	public EntityMultiDetailView(final IViewContext context) {
+		final IContainer container = context.getContainer();
+		container.setLayout(MigLayoutFactory.growingCellLayout());
+		this.tablesForm = container.add(
+				CapUiToolkit.bluePrintFactory().beanTablesForm(),
+				MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
+	}
+
+	public IBeanTablesForm getTablesForm() {
+		return tablesForm;
+	}
 
 }

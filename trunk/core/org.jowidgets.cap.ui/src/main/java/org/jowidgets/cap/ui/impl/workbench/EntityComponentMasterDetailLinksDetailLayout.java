@@ -28,7 +28,14 @@
 
 package org.jowidgets.cap.ui.impl.workbench;
 
+import java.util.Map;
+import java.util.Map.Entry;
+
+import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
 import org.jowidgets.cap.common.api.entity.IEntityClass;
+import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
+import org.jowidgets.cap.common.api.service.IEntityService;
+import org.jowidgets.service.api.ServiceProvider;
 import org.jowidgets.workbench.api.ILayout;
 import org.jowidgets.workbench.toolkit.api.IFolderLayoutBuilder;
 import org.jowidgets.workbench.toolkit.api.ILayoutBuilder;
@@ -37,19 +44,23 @@ import org.jowidgets.workbench.tools.FolderLayoutBuilder;
 import org.jowidgets.workbench.tools.LayoutBuilder;
 import org.jowidgets.workbench.tools.SplitLayoutBuilder;
 
-public class EntityComponentDefaultLayout {
+public class EntityComponentMasterDetailLinksDetailLayout {
 
 	public static final String DEFAULT_LAYOUT_ID = "DEFAULT_LAYOUT_ID"; //$NON-NLS-1$
 	public static final String MASTER_FOLDER_ID = "MASTER_FOLDER_ID"; //$NON-NLS-1$
 	public static final String DETAIL_FOLDER_ID = "DETAIL_FOLDER_ID"; //$NON-NLS-1$
+	public static final String LINKED_MASTER_FOLDER_ID = "LINKED_MASTER_FOLDER_ID"; //$NON-NLS-1$
+	public static final String LINKED_DETAIL_FOLDER_ID = "LINKED_DETAIL_FOLDER_ID"; //$NON-NLS-1$
 
 	private static final String DETAIL_STRING = Messages.getString("EntityComponentDefaultLayout.detail"); //$NON-NLS-1$
 
 	private final ILayout layout;
 
-	public EntityComponentDefaultLayout(final IEntityClass entityClass) {
+	public EntityComponentMasterDetailLinksDetailLayout(
+		final IEntityClass entityClass,
+		final Map<String, IEntityLinkDescriptor> links) {
 		final ILayoutBuilder builder = new LayoutBuilder();
-		builder.setId(DEFAULT_LAYOUT_ID).setLayoutContainer(createMasterDetailSplit(entityClass));
+		builder.setId(DEFAULT_LAYOUT_ID).setLayoutContainer(createMainSplit(entityClass, links));
 		this.layout = builder.build();
 	}
 
@@ -57,9 +68,17 @@ public class EntityComponentDefaultLayout {
 		return layout;
 	}
 
+	private ISplitLayoutBuilder createMainSplit(final IEntityClass entityClass, final Map<String, IEntityLinkDescriptor> links) {
+		final ISplitLayoutBuilder result = new SplitLayoutBuilder();
+		result.setVertical().setWeight(0.6).setResizeFirst();
+		result.setFirstContainer(createMasterDetailSplit(entityClass));
+		result.setSecondContainer(createLinkedMasterDetailSplit(entityClass, links));
+		return result;
+	}
+
 	private ISplitLayoutBuilder createMasterDetailSplit(final IEntityClass entityClass) {
 		final ISplitLayoutBuilder result = new SplitLayoutBuilder();
-		result.setVertical().setWeight(0.5).setResizeFirst();
+		result.setHorizontal().setWeight(0.5).setResizeFirst();
 		result.setFirstContainer(createMasterFolder(entityClass));
 		result.setSecondContainer(createDetailFolder(entityClass));
 		return result;
@@ -68,7 +87,7 @@ public class EntityComponentDefaultLayout {
 	private IFolderLayoutBuilder createMasterFolder(final IEntityClass entityClass) {
 		final IFolderLayoutBuilder result = new FolderLayoutBuilder(MASTER_FOLDER_ID);
 		result.setViewsCloseable(false);
-		result.addView(EntityTableView.ID, entityClass.getLabel(), entityClass.getDescription()); //$NON-NLS-1$
+		result.addView(EntityComponent.ROOT_TABLE_VIEW_ID, entityClass.getLabel(), entityClass.getDescription()); //$NON-NLS-1$
 		return result;
 	}
 
@@ -76,6 +95,39 @@ public class EntityComponentDefaultLayout {
 		final IFolderLayoutBuilder result = new FolderLayoutBuilder(DETAIL_FOLDER_ID);
 		result.setViewsCloseable(false);
 		result.addView(EntityDetailView.ID, entityClass.getLabel() + " " + DETAIL_STRING, entityClass.getDescription()); //$NON-NLS-1$
+		return result;
+	}
+
+	private ISplitLayoutBuilder createLinkedMasterDetailSplit(
+		final IEntityClass entityClass,
+		final Map<String, IEntityLinkDescriptor> links) {
+		final ISplitLayoutBuilder result = new SplitLayoutBuilder();
+		result.setHorizontal().setWeight(0.5).setResizeFirst();
+		result.setFirstContainer(createLinkedMasterFolder(entityClass, links));
+		result.setSecondContainer(createLinkedDetailFolder(entityClass));
+		return result;
+	}
+
+	private IFolderLayoutBuilder createLinkedMasterFolder(
+		final IEntityClass entityClass,
+		final Map<String, IEntityLinkDescriptor> links) {
+		final IFolderLayoutBuilder result = new FolderLayoutBuilder(LINKED_MASTER_FOLDER_ID);
+		result.setViewsCloseable(false);
+		for (final Entry<String, IEntityLinkDescriptor> linkEntry : links.entrySet()) {
+			final IEntityService entityService = ServiceProvider.getService(IEntityService.ID);
+			if (entityService != null) {
+				final IBeanDtoDescriptor descriptor = entityService.getDescriptor(linkEntry.getValue().getLinkedTypeId());
+				result.addView(linkEntry.getKey(), descriptor.getLabel(), descriptor.getDescription()); //$NON-NLS-1$
+			}
+
+		}
+		return result;
+	}
+
+	private IFolderLayoutBuilder createLinkedDetailFolder(final IEntityClass entityClass) {
+		final IFolderLayoutBuilder result = new FolderLayoutBuilder(LINKED_DETAIL_FOLDER_ID);
+		result.setViewsCloseable(false);
+		result.addView(EntityMultiDetailView.ID, EntityMultiDetailView.DEFAULT_LABEL); //$NON-NLS-1$
 		return result;
 	}
 

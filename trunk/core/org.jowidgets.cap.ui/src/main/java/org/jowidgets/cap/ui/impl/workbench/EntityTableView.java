@@ -30,35 +30,18 @@ package org.jowidgets.cap.ui.impl.workbench;
 
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.widgets.IContainer;
-import org.jowidgets.cap.common.api.entity.IEntityClass;
+import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
-import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.workbench.api.IViewContext;
 import org.jowidgets.workbench.tools.AbstractView;
 
 public class EntityTableView extends AbstractView {
 
-	public static final String ID = EntityTableView.class.getName();
-
-	@SuppressWarnings("unused")
-	private final IBeanTableModel<Object> tableModel;
-
-	@SuppressWarnings("unused")
-	private final IBeanTable<Object> table;
-
-	@SuppressWarnings("unused")
-	private final IEntityClass entityClass;
-
-	public EntityTableView(final IViewContext context, final IBeanTableModel<Object> tableModel, final IEntityClass entityClass) {
-
-		this.tableModel = tableModel;
-		this.entityClass = entityClass;
-
+	public EntityTableView(final IViewContext context, final IBeanTableModel<IBean> tableModel) {
 		final IContainer container = context.getContainer();
 		container.setLayout(Toolkit.getLayoutFactoryProvider().fillLayout());
-		this.table = container.add(CapUiToolkit.bluePrintFactory().beanTable(tableModel));
-
+		container.add(CapUiToolkit.bluePrintFactory().beanTable(tableModel));
 		tableModel.load();
 	}
 

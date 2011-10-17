@@ -65,6 +65,10 @@ public interface ICapCommonToolkit {
 
 	IBeanDtoDescriptor dtoDescriptor(Collection<IProperty> properties);
 
+	IBeanDtoDescriptor dtoDescriptor(Collection<IProperty> properties, String label);
+
+	IBeanDtoDescriptor dtoDescriptor(Collection<IProperty> properties, String label, String description);
+
 	IBeanDtoBuilder dtoBuilder(Object entityTypeId);
 
 	IBeanDataBuilder beanDataBuilder();

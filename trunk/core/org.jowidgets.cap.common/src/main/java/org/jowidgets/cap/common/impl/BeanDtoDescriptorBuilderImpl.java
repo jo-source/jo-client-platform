@@ -42,9 +42,24 @@ final class BeanDtoDescriptorBuilderImpl implements IBeanDtoDescriptorBuilder {
 	private final Class<?> beanType;
 	private final List<BeanPropertyBluePrintImpl> bluePrints;
 
+	private String label;
+	private String description;
+
 	BeanDtoDescriptorBuilderImpl(final Class<?> beanType) {
 		this.beanType = beanType;
 		this.bluePrints = new LinkedList<BeanPropertyBluePrintImpl>();
+	}
+
+	@Override
+	public IBeanDtoDescriptorBuilder setLabel(final String label) {
+		this.label = label;
+		return this;
+	}
+
+	@Override
+	public IBeanDtoDescriptorBuilder setDescription(final String description) {
+		this.description = description;
+		return this;
 	}
 
 	@Override
@@ -61,7 +76,7 @@ final class BeanDtoDescriptorBuilderImpl implements IBeanDtoDescriptorBuilder {
 		for (final BeanPropertyBluePrintImpl bluePrint : bluePrints) {
 			properties.add(bluePrint.build());
 		}
-		return new BeanDtoDescriptorImpl(properties);
+		return new BeanDtoDescriptorImpl(label, description, properties);
 	}
 
 }

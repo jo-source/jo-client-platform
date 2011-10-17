@@ -44,6 +44,16 @@ public class BeanDtoDescriptorBuilder implements IBeanDtoDescriptorBuilder {
 	}
 
 	@Override
+	public IBeanDtoDescriptorBuilder setLabel(final String label) {
+		return this.builder.setLabel(label);
+	}
+
+	@Override
+	public IBeanDtoDescriptorBuilder setDescription(final String description) {
+		return this.builder.setDescription(description);
+	}
+
+	@Override
 	public final IBeanPropertyBluePrint addProperty(final String propertyName) {
 		return this.builder.addProperty(propertyName);
 	}

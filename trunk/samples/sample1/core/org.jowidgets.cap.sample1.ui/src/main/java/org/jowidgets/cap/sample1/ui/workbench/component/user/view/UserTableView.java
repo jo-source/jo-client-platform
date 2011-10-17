@@ -52,7 +52,7 @@ import org.jowidgets.util.ValueHolder;
 import org.jowidgets.workbench.api.IViewContext;
 import org.jowidgets.workbench.tools.AbstractView;
 
-public class UserTableView extends AbstractView implements ITableView {
+public class UserTableView extends AbstractView {
 
 	public static final String ID = UserTableView.class.getName();
 	public static final String DEFAULT_LABEL = Messages.getString("UserTableView.users"); //$NON-NLS-1$
@@ -86,11 +86,6 @@ public class UserTableView extends AbstractView implements ITableView {
 		table.getCellPopMenu().addAction(new LongLastingAction(tableModel));
 
 		beanTableModel.load();
-	}
-
-	@Override
-	public IBeanTable<?> getTable() {
-		return table;
 	}
 
 	private IAction createClearAction() {

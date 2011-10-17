@@ -41,6 +41,8 @@ public class UserDtoDescriptorBuilder extends BeanDtoDescriptorBuilder {
 	public UserDtoDescriptorBuilder() {
 		super(IUser.class);
 
+		setLabel(Messages.getString("UserDtoDescriptorBuilder.label"));
+
 		IBeanPropertyBluePrint propertyBp = addProperty(IUser.NAME_PROPERTY);
 		propertyBp.setLabel(Messages.getString("UserDtoDescriptorBuilder.name")); //$NON-NLS-1$
 		propertyBp.setDescription(Messages.getString("UserDtoDescriptorBuilder.name_description")); //$NON-NLS-1$
