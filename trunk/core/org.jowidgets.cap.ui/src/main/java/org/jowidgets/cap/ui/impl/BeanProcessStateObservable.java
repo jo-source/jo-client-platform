@@ -29,6 +29,7 @@
 package org.jowidgets.cap.ui.impl;
 
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.Set;
 
 import org.jowidgets.cap.ui.api.bean.IBeanProcessStateListener;
@@ -54,7 +55,7 @@ class BeanProcessStateObservable<BEAN_TYPE> implements IBeanProcessStateObservab
 	}
 
 	public final void fireProcessStateChanged(final IBeanProxy<BEAN_TYPE> bean) {
-		for (final IBeanProcessStateListener<BEAN_TYPE> listener : listeners) {
+		for (final IBeanProcessStateListener<BEAN_TYPE> listener : new LinkedList<IBeanProcessStateListener<BEAN_TYPE>>(listeners)) {
 			listener.processStateChanged(bean);
 		}
 	}

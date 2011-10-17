@@ -57,6 +57,7 @@ import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.bean.IBeanModification;
 import org.jowidgets.cap.common.api.bean.IValueRange;
+import org.jowidgets.cap.common.api.execution.IExecutionCallbackListener;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.filter.BooleanOperator;
 import org.jowidgets.cap.common.api.filter.IBooleanFilterBuilder;
@@ -782,6 +783,10 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 						cellBuilder.setForegroundColor(Colors.ERROR);
 					}
 
+					if (bean.hasExecution()) {
+						cellBuilder.setEditable(false);
+					}
+
 					return cellBuilder.build();
 				}
 			}
@@ -902,6 +907,8 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 
 			dataModel.fireDataChanged();
 
+			beanListModelObservable.fireBeansChanged();
+
 			this.parameter = paramProvider.getParameter();
 
 			final Thread thread = new Thread(createRunnable());
@@ -930,6 +937,19 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 			});
 		}
 
+		private void clearLater() {
+			uiThreadAccess.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					data.remove(Integer.valueOf(pageIndex));
+					currentPageLoaders.remove(this);
+					dummyBeanProxy.setExecutionTask(null);
+					beansStateTracker.unregister(dummyBeanProxy);
+					clear();
+				}
+			});
+		}
+
 		private Runnable createRunnable() {
 			return new Runnable() {
 
@@ -948,6 +968,15 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 						removePageLater();
 						return;
 					}
+
+					executionTask.addExecutionCallbackListener(new IExecutionCallbackListener() {
+						@Override
+						public void canceled() {
+							if (!canceled) {//if canceled by user
+								clearLater();
+							}
+						}
+					});
 
 					if (lastLoadingPage != pageIndex) {
 						final int pageStart = (pageIndex) * pageSize;
