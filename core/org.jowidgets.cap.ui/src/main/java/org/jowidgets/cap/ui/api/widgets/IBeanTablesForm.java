@@ -32,10 +32,10 @@ import org.jowidgets.api.widgets.IControl;
 
 public interface IBeanTablesForm extends IControl {
 
-	<BEAN_TYPE> void registerTable(IBeanTable<BEAN_TYPE> table, IBeanFormBluePrint<BEAN_TYPE> formBluePrint);
+	<BEAN_TYPE> void registerView(IBeanTableView<BEAN_TYPE> view, IBeanFormBluePrint<BEAN_TYPE> formBluePrint);
 
-	void registerTable(IBeanTable<?> table);
+	void registerView(IBeanTableView<?> view);
 
-	void unregisterTable(IBeanTable<?> table);
+	void unregisterView(IBeanTableView<?> view);
 
 }

@@ -28,37 +28,25 @@
 
 package org.jowidgets.cap.ui.api.widgets;
 
-import java.util.List;
-
-import org.jowidgets.api.convert.IConverter;
-import org.jowidgets.cap.common.api.lookup.ILookUpProperty;
-import org.jowidgets.cap.ui.api.attribute.IAttribute;
+import org.jowidgets.api.widgets.IControl;
+import org.jowidgets.api.widgets.blueprint.builder.IComponentSetupBuilder;
+import org.jowidgets.api.widgets.descriptor.setup.IComponentSetup;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
+import org.jowidgets.common.widgets.descriptor.IWidgetDescriptor;
+import org.jowidgets.common.widgets.descriptor.setup.mandatory.Mandatory;
 
-public interface ICapApiBluePrintFactory {
+public interface IBeanTableFormBluePrint<BEAN_TYPE> extends
+		IComponentSetup,
+		IComponentSetupBuilder<IBeanTableFormBluePrint<BEAN_TYPE>>,
+		IWidgetDescriptor<IControl> {
 
-	<BEAN_TYPE> IBeanTableBluePrint<BEAN_TYPE> beanTable(IBeanTableModel<BEAN_TYPE> model);
+	IBeanTableFormBluePrint<BEAN_TYPE> setModel(IBeanTableModel<BEAN_TYPE> model);
 
-	IBeanTableSettingsDialogBluePrint beanTableSettingsDialog(IBeanTableModel<?> model);
+	IBeanTableFormBluePrint<BEAN_TYPE> setBeanFormBluePrint(IBeanFormBluePrint<BEAN_TYPE> beanFormBluePrint);
 
-	<BEAN_TYPE> IBeanFormBluePrint<BEAN_TYPE> beanForm(List<? extends IAttribute<?>> attributes);
+	@Mandatory
+	IBeanTableModel<BEAN_TYPE> getModel();
 
-	IBeanTablesFormBluePrint beanTablesForm();
-
-	<BEAN_TYPE> IBeanTableFormBluePrint<BEAN_TYPE> beanTableForm(IBeanTableModel<BEAN_TYPE> model);
-
-	IAttributeFilterControlBluePrint attributeFilterControl(List<? extends IAttribute<?>> attributes);
-
-	<KEY_TYPE> ILookUpComboBoxSelectionBluePrint<KEY_TYPE> lookUpComboBox(Object lookUpId, IConverter<KEY_TYPE> converter);
-
-	<KEY_TYPE> ILookUpComboBoxSelectionBluePrint<KEY_TYPE> lookUpComboBox(Object lookUpId, ILookUpProperty lookUpProperty);
-
-	<KEY_TYPE> ILookUpCollectionInputFieldBluePrint<KEY_TYPE> lookUpCollectionInputField(
-		Object lookUpId,
-		IConverter<KEY_TYPE> converter);
-
-	<KEY_TYPE> ILookUpCollectionInputFieldBluePrint<KEY_TYPE> lookUpCollectionInputField(
-		Object lookUpId,
-		ILookUpProperty lookUpProperty);
+	IBeanFormBluePrint<BEAN_TYPE> getBeanFormBluePrint();
 
 }
