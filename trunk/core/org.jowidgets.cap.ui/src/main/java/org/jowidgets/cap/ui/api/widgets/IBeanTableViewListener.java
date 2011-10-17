@@ -28,37 +28,8 @@
 
 package org.jowidgets.cap.ui.api.widgets;
 
-import java.util.List;
+public interface IBeanTableViewListener {
 
-import org.jowidgets.api.convert.IConverter;
-import org.jowidgets.cap.common.api.lookup.ILookUpProperty;
-import org.jowidgets.cap.ui.api.attribute.IAttribute;
-import org.jowidgets.cap.ui.api.table.IBeanTableModel;
-
-public interface ICapApiBluePrintFactory {
-
-	<BEAN_TYPE> IBeanTableBluePrint<BEAN_TYPE> beanTable(IBeanTableModel<BEAN_TYPE> model);
-
-	IBeanTableSettingsDialogBluePrint beanTableSettingsDialog(IBeanTableModel<?> model);
-
-	<BEAN_TYPE> IBeanFormBluePrint<BEAN_TYPE> beanForm(List<? extends IAttribute<?>> attributes);
-
-	IBeanTablesFormBluePrint beanTablesForm();
-
-	<BEAN_TYPE> IBeanTableFormBluePrint<BEAN_TYPE> beanTableForm(IBeanTableModel<BEAN_TYPE> model);
-
-	IAttributeFilterControlBluePrint attributeFilterControl(List<? extends IAttribute<?>> attributes);
-
-	<KEY_TYPE> ILookUpComboBoxSelectionBluePrint<KEY_TYPE> lookUpComboBox(Object lookUpId, IConverter<KEY_TYPE> converter);
-
-	<KEY_TYPE> ILookUpComboBoxSelectionBluePrint<KEY_TYPE> lookUpComboBox(Object lookUpId, ILookUpProperty lookUpProperty);
-
-	<KEY_TYPE> ILookUpCollectionInputFieldBluePrint<KEY_TYPE> lookUpCollectionInputField(
-		Object lookUpId,
-		IConverter<KEY_TYPE> converter);
-
-	<KEY_TYPE> ILookUpCollectionInputFieldBluePrint<KEY_TYPE> lookUpCollectionInputField(
-		Object lookUpId,
-		ILookUpProperty lookUpProperty);
+	void viewActivated();
 
 }

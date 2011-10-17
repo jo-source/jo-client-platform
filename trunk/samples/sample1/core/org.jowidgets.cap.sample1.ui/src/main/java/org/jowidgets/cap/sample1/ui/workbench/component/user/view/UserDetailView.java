@@ -28,7 +28,6 @@
 
 package org.jowidgets.cap.sample1.ui.workbench.component.user.view;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.jowidgets.api.widgets.IContainer;
@@ -38,10 +37,9 @@ import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.form.IBeanFormLayoutBuilder;
 import org.jowidgets.cap.ui.api.form.IBeanFormToolkit;
-import org.jowidgets.cap.ui.api.model.IBeanListModel;
-import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
-import org.jowidgets.cap.ui.api.widgets.IBeanForm;
+import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
+import org.jowidgets.cap.ui.api.widgets.IBeanTableFormBluePrint;
 import org.jowidgets.tools.layout.MigLayoutFactory;
 import org.jowidgets.workbench.api.IViewContext;
 import org.jowidgets.workbench.tools.AbstractView;
@@ -52,7 +50,7 @@ public class UserDetailView extends AbstractView {
 	public static final String DEFAULT_LABEL = Messages.getString("UserDetailView.user_details"); //$NON-NLS-1$
 	public static final String DEFAULT_TOOLTIP = Messages.getString("UserDetailView.user_details_tooltip"); //$NON-NLS-1$
 
-	public UserDetailView(final IViewContext context, final IBeanListModel<IUser> parentModel) {
+	public UserDetailView(final IViewContext context, final IBeanTableModel<IUser> parentModel) {
 		final IContainer container = context.getContainer();
 		container.setLayout(MigLayoutFactory.growingCellLayout());
 		final List<IAttribute<Object>> attributes = new UserAttributesFactory().formAttributes();
@@ -63,24 +61,9 @@ public class UserDetailView extends AbstractView {
 		layoutBuilder.addGroups(attributes).setColumnMaxSize(0, 300);
 		formBp.setLayouter(beanFormToolkit.layouter(layoutBuilder.build()));
 
-		final IBeanForm<IUser> userForm = container.add(formBp, MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
+		final IBeanTableFormBluePrint<IUser> beanTableFormBp = CapUiToolkit.bluePrintFactory().beanTableForm(parentModel);
+		beanTableFormBp.setBeanFormBluePrint(formBp);
 
-		parentModel.addBeanListModelListener(new IBeanListModelListener() {
-
-			@Override
-			public void selectionChanged() {
-				final ArrayList<Integer> selection = parentModel.getSelection();
-				if (selection.size() > 0) {
-					userForm.setValue(parentModel.getBean(selection.get(0)));
-				}
-				else {
-					userForm.setValue(null);
-				}
-			}
-
-			@Override
-			public void beansChanged() {}
-
-		});
+		container.add(beanTableFormBp, MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
 	}
 }

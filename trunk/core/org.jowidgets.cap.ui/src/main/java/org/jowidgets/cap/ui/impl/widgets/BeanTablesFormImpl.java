@@ -42,10 +42,10 @@ import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.widgets.IBeanForm;
 import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
-import org.jowidgets.cap.ui.api.widgets.IBeanTable;
+import org.jowidgets.cap.ui.api.widgets.IBeanTableView;
+import org.jowidgets.cap.ui.api.widgets.IBeanTableViewListener;
 import org.jowidgets.cap.ui.api.widgets.IBeanTablesForm;
 import org.jowidgets.cap.ui.api.widgets.IBeanTablesFormBluePrint;
-import org.jowidgets.common.widgets.controller.IFocusListener;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
 import org.jowidgets.tools.layout.MigLayoutFactory;
 import org.jowidgets.tools.widgets.wrapper.ControlWrapper;
@@ -53,15 +53,15 @@ import org.jowidgets.util.Assert;
 
 final class BeanTablesFormImpl extends ControlWrapper implements IBeanTablesForm {
 
-	private final Map<IBeanTable<?>, IBeanForm<?>> forms;
-	private final Map<IBeanTable<?>, FocusListener> focusListeners;
-	private final Map<IBeanTable<?>, TableModelListener<?>> tableModelListeners;
+	private final Map<IBeanTableView<?>, IBeanForm<?>> forms;
+	private final Map<IBeanTableView<?>, TableViewListener> viewListeners;
+	private final Map<IBeanTableView<?>, TableModelListener<?>> tableModelListeners;
 
 	BeanTablesFormImpl(final IComposite composite, final IBeanTablesFormBluePrint bluePrint) {
 		super(composite);
-		this.forms = new HashMap<IBeanTable<?>, IBeanForm<?>>();
-		this.focusListeners = new HashMap<IBeanTable<?>, FocusListener>();
-		this.tableModelListeners = new HashMap<IBeanTable<?>, TableModelListener<?>>();
+		this.forms = new HashMap<IBeanTableView<?>, IBeanForm<?>>();
+		this.viewListeners = new HashMap<IBeanTableView<?>, TableViewListener>();
+		this.tableModelListeners = new HashMap<IBeanTableView<?>, TableModelListener<?>>();
 		composite.setLayout(new MigLayoutDescriptor("hidemode 3", "0[grow, 0::]0", "0[grow, 0::]0"));
 	}
 
@@ -71,46 +71,41 @@ final class BeanTablesFormImpl extends ControlWrapper implements IBeanTablesForm
 	}
 
 	@Override
-	public <BEAN_TYPE> void registerTable(final IBeanTable<BEAN_TYPE> table, final IBeanFormBluePrint<BEAN_TYPE> formBluePrint) {
-		Assert.paramNotNull(table, "table");
+	public <BEAN_TYPE> void registerView(final IBeanTableView<BEAN_TYPE> view, final IBeanFormBluePrint<BEAN_TYPE> formBluePrint) {
+		Assert.paramNotNull(view, "view");
 		Assert.paramNotNull(formBluePrint, "formBluePrint");
-		if (!forms.containsKey(table)) {
+		if (!forms.containsKey(view)) {
 			final IBeanForm<BEAN_TYPE> beanForm = getWidget().add(formBluePrint, MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
 
-			forms.put(table, beanForm);
-			final IBeanTableModel<BEAN_TYPE> model = table.getModel();
+			forms.put(view, beanForm);
+			final IBeanTableModel<BEAN_TYPE> model = view.getModel();
 
-			final TableModelListener<BEAN_TYPE> tableModelListener = new TableModelListener<BEAN_TYPE>(table, beanForm);
-			tableModelListeners.put(table, tableModelListener);
+			final TableModelListener<BEAN_TYPE> tableModelListener = new TableModelListener<BEAN_TYPE>(view, beanForm);
+			tableModelListeners.put(view, tableModelListener);
 			model.addBeanListModelListener(tableModelListener);
 
-			final FocusListener focusListener = new FocusListener(table);
-			focusListeners.put(table, focusListener);
-			table.addFocusListener(focusListener);
+			final TableViewListener viewListener = new TableViewListener(view);
+			viewListeners.put(view, viewListener);
+			view.addViewListener(viewListener);
 
-			table.addDisposeListener(new IDisposeListener() {
+			view.addDisposeListener(new IDisposeListener() {
 				@Override
 				public void onDispose() {
-					unregisterTable(table);
+					unregisterView(view);
 				}
 			});
 
 			if (forms.size() > 1) {
-				if (table.hasFocus()) {
-					switchToTable(table);
-				}
-				else {
-					beanForm.setVisible(false);
-				}
+				beanForm.setVisible(false);
 			}
 		}
 	}
 
 	@SuppressWarnings({"rawtypes", "unchecked"})
 	@Override
-	public void registerTable(final IBeanTable table) {
-		Assert.paramNotNull(table, "table");
-		final List<IAttribute> attributes = table.getModel().getAttributes();
+	public void registerView(final IBeanTableView view) {
+		Assert.paramNotNull(view, "view");
+		final List<IAttribute> attributes = view.getModel().getAttributes();
 		final List editableAttributes = new LinkedList();
 		for (final IAttribute attribute : attributes) {
 			if (attribute.isEditable()) {
@@ -118,23 +113,23 @@ final class BeanTablesFormImpl extends ControlWrapper implements IBeanTablesForm
 			}
 		}
 		final IBeanFormBluePrint beanFormBp = CapUiToolkit.bluePrintFactory().beanForm(editableAttributes);
-		registerTable(table, beanFormBp);
+		registerView(view, beanFormBp);
 	}
 
 	@Override
-	public void unregisterTable(final IBeanTable<?> table) {
-		Assert.paramNotNull(table, "table");
-		final IBeanForm<?> form = forms.get(table);
+	public void unregisterView(final IBeanTableView<?> view) {
+		Assert.paramNotNull(view, "table");
+		final IBeanForm<?> form = forms.get(view);
 		if (form != null) {
-			table.getModel().removeBeanListModelListener(tableModelListeners.get(table));
-			table.removeFocusListener(focusListeners.get(table));
+			view.getModel().removeBeanListModelListener(tableModelListeners.get(view));
+			view.removeViewListener(viewListeners.get(view));
 			getWidget().remove(form);
 			forms.remove(form);
 		}
 	}
 
-	private void switchToTable(final IBeanTable<?> table) {
-		final IBeanForm<?> form = forms.get(table);
+	private void switchToView(final IBeanTableView<?> view) {
+		final IBeanForm<?> form = forms.get(view);
 		if (!form.isVisible()) {
 			for (final IBeanForm<?> childForm : forms.values()) {
 				childForm.setVisible(false);
@@ -146,20 +141,20 @@ final class BeanTablesFormImpl extends ControlWrapper implements IBeanTablesForm
 
 	private final class TableModelListener<BEAN_TYPE> implements IBeanListModelListener {
 
-		private final IBeanTable<BEAN_TYPE> table;
+		private final IBeanTableView<BEAN_TYPE> view;
 		private final IBeanTableModel<BEAN_TYPE> model;
 		private final IBeanForm<BEAN_TYPE> beanForm;
 
-		private TableModelListener(final IBeanTable<BEAN_TYPE> table, final IBeanForm<BEAN_TYPE> beanForm) {
+		private TableModelListener(final IBeanTableView<BEAN_TYPE> view, final IBeanForm<BEAN_TYPE> beanForm) {
 			super();
-			this.table = table;
-			this.model = table.getModel();
+			this.view = view;
+			this.model = view.getModel();
 			this.beanForm = beanForm;
 		}
 
 		@Override
 		public void selectionChanged() {
-			switchToTable(table);
+			switchToView(view);
 			setSelectedBeanValue();
 		}
 
@@ -181,21 +176,18 @@ final class BeanTablesFormImpl extends ControlWrapper implements IBeanTablesForm
 
 	}
 
-	private final class FocusListener implements IFocusListener {
+	private final class TableViewListener implements IBeanTableViewListener {
 
-		private final IBeanTable<?> table;
+		private final IBeanTableView<?> view;
 
-		private FocusListener(final IBeanTable<?> table) {
-			this.table = table;
+		private TableViewListener(final IBeanTableView<?> view) {
+			this.view = view;
 		}
 
 		@Override
-		public void focusGained() {
-			switchToTable(table);
+		public void viewActivated() {
+			switchToView(view);
 		}
-
-		@Override
-		public void focusLost() {}
 
 	}
 }

@@ -42,6 +42,7 @@ import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.widgets.IAttributeFilterControlBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
+import org.jowidgets.cap.ui.api.widgets.IBeanTableFormBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableSettingsDialogBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTablesFormBluePrint;
 import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
@@ -89,6 +90,12 @@ final class CapApiBluePrintFactory implements ICapApiBluePrintFactory {
 	@Override
 	public IBeanTablesFormBluePrint beanTablesForm() {
 		return bluePrintFactory.bluePrint(IBeanTablesFormBluePrint.class);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public <BEAN_TYPE> IBeanTableFormBluePrint<BEAN_TYPE> beanTableForm(final IBeanTableModel<BEAN_TYPE> model) {
+		return bluePrintFactory.bluePrint(IBeanTableFormBluePrint.class).setModel(model);
 	}
 
 	@Override
