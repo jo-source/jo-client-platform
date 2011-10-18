@@ -56,6 +56,7 @@ import org.jowidgets.util.Assert;
 final class BeanTableModelBuilderImpl<BEAN_TYPE> implements IBeanTableModelBuilder<BEAN_TYPE> {
 
 	private final Class<? extends BEAN_TYPE> beanType;
+	private final Object entityId;
 
 	private IReaderService<? extends Object> readerService;
 	private IReaderParameterProvider<? extends Object> readerParameterProvider;
@@ -71,19 +72,21 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> implements IBeanTableModelBuild
 
 	private ISortModelConfig sortModelConfig;
 
-	BeanTableModelBuilderImpl(final Class<BEAN_TYPE> beanType) {
+	BeanTableModelBuilderImpl(final Object entityId, final Class<BEAN_TYPE> beanType) {
+		Assert.paramNotNull(entityId, "entityId");
 		Assert.paramNotNull(beanType, "beanType");
 		this.beanType = beanType;
+		this.entityId = entityId;
 
 		this.metaPropertyNames = new String[] {IBeanProxy.META_PROPERTY_PROGRESS, IBeanProxy.META_PROPERTY_MESSAGES};
 
 		final IEntityService entityService = ServiceProvider.getService(IEntityService.ID);
 		if (entityService != null) {
-			final IBeanServicesProvider entityServicesProvider = entityService.getBeanServices(beanType);
+			final IBeanServicesProvider entityServicesProvider = entityService.getBeanServices(entityId);
 			if (entityServicesProvider != null) {
 				setEntityServices(entityServicesProvider);
 			}
-			final IBeanDtoDescriptor beanDtoDescriptor = entityService.getDescriptor(beanType);
+			final IBeanDtoDescriptor beanDtoDescriptor = entityService.getDescriptor(entityId);
 			if (beanDtoDescriptor != null) {
 				this.attributes = CapUiToolkit.attributeToolkit().createAttributes(beanDtoDescriptor.getProperties());
 			}
@@ -247,6 +250,7 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> implements IBeanTableModelBuild
 	@Override
 	public IBeanTableModel<BEAN_TYPE> build() {
 		return new BeanTableModelImpl<BEAN_TYPE>(
+			entityId,
 			beanType,
 			getAttributes(),
 			sortModelConfig,

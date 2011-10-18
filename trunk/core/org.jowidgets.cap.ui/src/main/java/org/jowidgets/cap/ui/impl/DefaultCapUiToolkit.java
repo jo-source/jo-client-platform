@@ -28,17 +28,11 @@
 
 package org.jowidgets.cap.ui.impl;
 
-import java.util.List;
-
 import javax.validation.Validation;
 import javax.validation.Validator;
 
 import org.jowidgets.cap.common.api.bean.IBean;
-import org.jowidgets.cap.common.api.bean.IProperty;
-import org.jowidgets.cap.common.api.service.IBeanServicesProvider;
-import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.ui.api.ICapUiToolkit;
-import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
 import org.jowidgets.cap.ui.api.bean.BeanMessageType;
 import org.jowidgets.cap.ui.api.bean.IBeanKeyFactory;
@@ -61,7 +55,6 @@ import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
 import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
 import org.jowidgets.cap.ui.api.workbench.ICapWorkbenchToolkit;
 import org.jowidgets.cap.ui.impl.workbench.CapWorkbenchToolkitImpl;
-import org.jowidgets.service.api.ServiceProvider;
 
 public final class DefaultCapUiToolkit implements ICapUiToolkit {
 
@@ -179,26 +172,12 @@ public final class DefaultCapUiToolkit implements ICapUiToolkit {
 
 	@Override
 	public <BEAN_TYPE> IBeanTableModelBuilder<BEAN_TYPE> beanTableModelBuilder(final Class<BEAN_TYPE> beanType) {
-		return new BeanTableModelBuilderImpl<BEAN_TYPE>(beanType);
+		return new BeanTableModelBuilderImpl<BEAN_TYPE>(beanType, beanType);
 	}
 
 	@Override
 	public IBeanTableModelBuilder<IBean> beanTableModelBuilder(final Object entityId) {
-		final IBeanTableModelBuilder<IBean> result = new BeanTableModelBuilderImpl<IBean>(IBean.class);
-
-		final IEntityService entityService = ServiceProvider.getService(IEntityService.ID);
-
-		if (entityService != null) {
-			final List<IProperty> properties = entityService.getDescriptor(entityId).getProperties();
-			final List<IAttribute<Object>> attributes = attributeToolkit().createAttributes(properties);
-
-			final IBeanServicesProvider servicesProvider = entityService.getBeanServices(entityId);
-
-			result.setAttributes(attributes);
-			result.setEntityServices(servicesProvider);
-		}
-
-		return result;
+		return new BeanTableModelBuilderImpl<IBean>(entityId, IBean.class);
 	}
 
 	@Override

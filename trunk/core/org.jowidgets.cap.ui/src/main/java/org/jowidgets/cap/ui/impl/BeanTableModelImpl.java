@@ -92,6 +92,7 @@ import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
 import org.jowidgets.cap.ui.api.model.IModificationStateListener;
 import org.jowidgets.cap.ui.api.model.IProcessStateListener;
 import org.jowidgets.cap.ui.api.model.LinkType;
+import org.jowidgets.cap.ui.api.plugin.IBeanTableModelPlugin;
 import org.jowidgets.cap.ui.api.sort.IPropertySort;
 import org.jowidgets.cap.ui.api.sort.ISortModel;
 import org.jowidgets.cap.ui.api.sort.ISortModelConfig;
@@ -102,6 +103,10 @@ import org.jowidgets.cap.ui.api.table.IReaderParameterProvider;
 import org.jowidgets.common.image.IImageConstant;
 import org.jowidgets.common.model.ITableCell;
 import org.jowidgets.common.types.Markup;
+import org.jowidgets.plugin.api.IPluginProperties;
+import org.jowidgets.plugin.api.IPluginPropertiesBuilder;
+import org.jowidgets.plugin.api.PluginProvider;
+import org.jowidgets.plugin.api.PluginToolkit;
 import org.jowidgets.tools.controller.TableDataModelAdapter;
 import org.jowidgets.tools.model.table.AbstractTableDataModel;
 import org.jowidgets.tools.model.table.DefaultTableColumnBuilder;
@@ -160,6 +165,7 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 
 	@SuppressWarnings("unchecked")
 	BeanTableModelImpl(
+		final Object entityId,
 		final Class<? extends BEAN_TYPE> beanType,
 		final List<IAttribute<Object>> attributes,
 		final ISortModelConfig sortModelConfig,
@@ -195,8 +201,16 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 			});
 		}
 
-		//arguments initialize
-		this.attributes = new ArrayList<IAttribute<Object>>(attributes);
+		//inject table model plugins
+		List<IAttribute<Object>> modifiedAttributes = attributes;
+		final IPluginPropertiesBuilder propBuilder = PluginToolkit.pluginPropertiesBuilder();
+		propBuilder.add(IBeanTableModelPlugin.ENTITIY_ID_PROPERTY_KEY, entityId);
+		final IPluginProperties properties = propBuilder.build();
+		for (final IBeanTableModelPlugin plugin : PluginProvider.getPlugins(IBeanTableModelPlugin.ID, properties)) {
+			modifiedAttributes = plugin.modify(properties, modifiedAttributes);
+		}
+
+		this.attributes = new ArrayList<IAttribute<Object>>(modifiedAttributes);
 		this.readerService = (IReaderService<Object>) readerService;
 		this.paramProvider = (IReaderParameterProvider<Object>) paramProvider;
 		this.creatorService = creatorService;

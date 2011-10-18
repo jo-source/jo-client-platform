@@ -20,6 +20,11 @@
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
+            <groupId>org.jowidgets</groupId>
+            <artifactId>org.jowidgets.plugin</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+		<dependency>
 			<groupId>org.jowidgets</groupId>
 			<artifactId>org.jowidgets.cap.common</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
