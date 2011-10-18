@@ -26,40 +26,21 @@
  * DAMAGE.
  */
 
-package org.jowidgets.plugin.impl;
+package org.jowidgets.cap.ui.api.plugin;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
+import java.util.List;
 
+import org.jowidgets.cap.ui.api.attribute.IAttribute;
+import org.jowidgets.plugin.api.IPluginId;
 import org.jowidgets.plugin.api.IPluginProperties;
-import org.jowidgets.util.Assert;
 import org.jowidgets.util.ITypedKey;
 
-@SuppressWarnings({"rawtypes", "unchecked"})
-final class PluginPropertiesImpl implements IPluginProperties {
+public interface IBeanTableModelPlugin {
 
-	private final Map map;
+	IPluginId<IBeanTableModelPlugin> ID = new IPluginId<IBeanTableModelPlugin>() {};
 
-	PluginPropertiesImpl(final Map map) {
-		this.map = new HashMap(map);
-	}
+	ITypedKey<Object> ENTITIY_ID_PROPERTY_KEY = new ITypedKey<Object>() {};
 
-	@Override
-	public <VALUE_TYPE> VALUE_TYPE getValue(final ITypedKey<VALUE_TYPE> key) {
-		Assert.paramNotNull(key, "key");
-		return (VALUE_TYPE) map.get(key);
-	}
+	List<IAttribute<Object>> modify(IPluginProperties properties, List<IAttribute<Object>> attributes);
 
-	@Override
-	public String toString() {
-		final StringBuilder builder = new StringBuilder();
-		builder.append(PluginPropertiesImpl.class.getSimpleName() + "[ ");
-		for (final Object object : map.entrySet()) {
-			final Entry entry = (Entry) object;
-			builder.append("Key: " + entry.getKey() + " value:" + entry.getValue());
-		}
-		builder.append("]");
-		return builder.toString();
-	}
 }

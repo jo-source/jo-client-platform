@@ -33,16 +33,16 @@ import org.jowidgets.plugin.api.IPluginProviderBuilder;
 import org.jowidgets.plugin.api.IPluginProviderHolder;
 import org.jowidgets.util.Assert;
 
-public class DefaultPluginProviderHolder implements IPluginProviderHolder {
+public class PluginProviderHolder implements IPluginProviderHolder {
 
 	private final IPluginProvider serviceProvider;
 	private final int order;
 
-	public DefaultPluginProviderHolder(final IPluginProviderBuilder pluginProviderBuilder, final int order) {
+	public PluginProviderHolder(final IPluginProviderBuilder pluginProviderBuilder, final int order) {
 		this(pluginProviderBuilder.build(), order);
 	}
 
-	public DefaultPluginProviderHolder(final IPluginProvider pluginProvider, final int order) {
+	public PluginProviderHolder(final IPluginProvider pluginProvider, final int order) {
 		Assert.paramNotNull(pluginProvider, "pluginProvider");
 		this.serviceProvider = pluginProvider;
 		this.order = order;
