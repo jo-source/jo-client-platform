@@ -220,7 +220,7 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 
 		//fields initialize
 		this.onSetConfig = false;
-		this.propertyNames = createPropertyNames(attributes);
+		this.propertyNames = createPropertyNames(modifiedAttributes);
 		this.filters = new HashMap<String, IUiFilter>();
 		this.data = new HashMap<Integer, ArrayList<IBeanProxy<BEAN_TYPE>>>();
 		this.currentPageLoaders = new LinkedList<PageLoader>();
@@ -236,7 +236,7 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 
 		//model creation
 		this.lookUpListenersStrongRef = new HashSet<ILookUpListener>();
-		this.columnModel = createColumnModel(attributes, lookUpListenersStrongRef);
+		this.columnModel = createColumnModel(modifiedAttributes, lookUpListenersStrongRef);
 		this.dataModel = createDataModel();
 		this.tableModel = new TableModel(columnModel, dataModel);
 
@@ -294,7 +294,9 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 		final List<IBeanKey> beanKeys = new LinkedList<IBeanKey>();
 		for (final int i : parent.getSelection()) {
 			final IBeanProxy<?> proxy = parent.getBean(i);
-			beanKeys.add(new BeanKey(proxy.getId(), proxy.getVersion()));
+			if (proxy != null) {
+				beanKeys.add(new BeanKey(proxy.getId(), proxy.getVersion()));
+			}
 		}
 		if (!beanKeys.isEmpty() && linkType == LinkType.SELECTION_FIRST) {
 			return beanKeys.subList(0, 1);
@@ -648,6 +650,7 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 			columnBuilder.setToolTipText(attribute.getDescription());
 			columnBuilder.setWidth(attribute.getTableWidth());
 			columnBuilder.setAlignment(attribute.getTableAlignment());
+			columnBuilder.setVisible(attribute.isVisible());
 			result.addColumn(columnBuilder);
 
 			final int currentColumnIndex = columnIndex;

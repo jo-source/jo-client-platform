@@ -34,7 +34,9 @@ import java.util.List;
 import org.jowidgets.cap.common.api.entity.IEntityClass;
 import org.jowidgets.cap.common.api.service.IEntityClassProviderService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
+import org.jowidgets.cap.ui.api.plugin.IEntityComponentNodesFactoryPlugin;
 import org.jowidgets.cap.ui.api.workbench.IEntityComponentNodesFactory;
+import org.jowidgets.plugin.api.PluginProvider;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.api.ServiceProvider;
 import org.jowidgets.util.Assert;
@@ -61,7 +63,12 @@ final class EntityComponentNodesFactoryImpl implements IEntityComponentNodesFact
 		Assert.paramNotNull(entityClassProviderService, "entityClassProviderService");
 
 		final List<IComponentNodeModel> result = new LinkedList<IComponentNodeModel>();
-		for (final IEntityClass entityClass : entityClassProviderService.getEntities()) {
+
+		List<IEntityClass> entities = entityClassProviderService.getEntities();
+		for (final IEntityComponentNodesFactoryPlugin plugin : PluginProvider.getPlugins(IEntityComponentNodesFactoryPlugin.ID)) {
+			entities = plugin.modify(entities);
+		}
+		for (final IEntityClass entityClass : entities) {
 			result.add(createNodeFromEntity(entityClass));
 		}
 		return result;

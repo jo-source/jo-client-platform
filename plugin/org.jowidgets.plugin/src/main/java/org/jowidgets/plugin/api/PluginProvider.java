@@ -64,6 +64,10 @@ public final class PluginProvider {
 		return getCompositePluginProviderHolder().getPluginProvider();
 	}
 
+	public static <PLUGIN_TYPE> List<PLUGIN_TYPE> getPlugins(final IPluginId<PLUGIN_TYPE> id) {
+		return getInstance().getPlugins(id, PluginToolkit.pluginPropertiesBuilder().build());
+	}
+
 	public static <PLUGIN_TYPE> List<PLUGIN_TYPE> getPlugins(final IPluginId<PLUGIN_TYPE> id, final IPluginProperties properties) {
 		return getInstance().getPlugins(id, properties);
 	}
