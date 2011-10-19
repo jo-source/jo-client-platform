@@ -28,10 +28,14 @@
 
 package org.jowidgets.cap.common.impl;
 
+import java.io.Serializable;
+
 import org.jowidgets.cap.common.api.entity.IEntityLinkProperties;
 import org.jowidgets.util.Assert;
 
-final class EntityLinkPropertiesImpl implements IEntityLinkProperties {
+final class EntityLinkPropertiesImpl implements IEntityLinkProperties, Serializable {
+
+	private static final long serialVersionUID = 8483047524867394438L;
 
 	private final String keyPropertyName;
 	private final String foreignKeyPropertyName;

@@ -28,11 +28,15 @@
 
 package org.jowidgets.cap.common.impl;
 
+import java.io.Serializable;
+
 import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
 import org.jowidgets.cap.common.api.entity.IEntityLinkProperties;
 import org.jowidgets.util.Assert;
 
-final class EntityLinkDescriptorImpl implements IEntityLinkDescriptor {
+final class EntityLinkDescriptorImpl implements IEntityLinkDescriptor, Serializable {
+
+	private static final long serialVersionUID = -788776636135499105L;
 
 	private final Object linkTypeId;
 	private final Object linkedTypeId;
