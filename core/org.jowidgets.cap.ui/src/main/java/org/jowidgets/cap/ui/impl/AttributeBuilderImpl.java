@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.ui.impl;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -180,6 +181,12 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 	}
 
 	@Override
+	public IAttributeBluePrint<ELEMENT_VALUE_TYPE> setValueRange(final ELEMENT_VALUE_TYPE... values) {
+		Assert.paramNotNull(values, "values");
+		return setValueRange(Arrays.asList(values));
+	}
+
+	@Override
 	public IAttributeBuilder<ELEMENT_VALUE_TYPE> setLabel(final String label) {
 		Assert.paramNotEmpty(label, "label");
 		this.label = label;
@@ -265,6 +272,18 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 		final IControlPanelProvider<? extends ELEMENT_VALUE_TYPE> controlPanel) {
 		Assert.paramNotNull(controlPanel, "controlPanel");
 		this.controlPanels.add(controlPanel);
+		return this;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public IAttributeBluePrint<ELEMENT_VALUE_TYPE> setControlPanels(
+		final Collection<? extends IControlPanelProvider<? extends ELEMENT_VALUE_TYPE>> controlPanels) {
+		this.controlPanels.clear();
+		if (controlPanels != null) {
+			this.controlPanels.addAll(controlPanels);
+		}
+		this.displayFormat = null;
 		return this;
 	}
 

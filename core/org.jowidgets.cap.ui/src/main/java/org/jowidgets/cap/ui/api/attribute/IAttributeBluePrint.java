@@ -45,6 +45,8 @@ public interface IAttributeBluePrint<ELEMENT_VALUE_TYPE> {
 		final Collection<? extends ELEMENT_VALUE_TYPE> values,
 		final boolean open);
 
+	IAttributeBluePrint<ELEMENT_VALUE_TYPE> setValueRange(ELEMENT_VALUE_TYPE... values);
+
 	IAttributeBluePrint<ELEMENT_VALUE_TYPE> setValueRange(final Collection<? extends ELEMENT_VALUE_TYPE> values);
 
 	IAttributeBluePrint<ELEMENT_VALUE_TYPE> setLabelLong(String labelLong);
@@ -83,5 +85,8 @@ public interface IAttributeBluePrint<ELEMENT_VALUE_TYPE> {
 	IAttributeBluePrint<ELEMENT_VALUE_TYPE> setDisplayFormat(IDisplayFormat displayFormat);
 
 	IAttributeBluePrint<ELEMENT_VALUE_TYPE> addControlPanel(IControlPanelProvider<? extends ELEMENT_VALUE_TYPE> controlPanel);
+
+	IAttributeBluePrint<ELEMENT_VALUE_TYPE> setControlPanels(
+		Collection<? extends IControlPanelProvider<? extends ELEMENT_VALUE_TYPE>> controlPanels);
 
 }

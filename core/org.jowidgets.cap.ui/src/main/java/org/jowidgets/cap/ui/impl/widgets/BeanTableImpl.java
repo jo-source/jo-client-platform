@@ -39,9 +39,11 @@ import org.jowidgets.api.model.item.IMenuModel;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.widgets.IPopupMenu;
 import org.jowidgets.api.widgets.ITable;
+import org.jowidgets.api.widgets.IWidget;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
+import org.jowidgets.cap.ui.api.filter.FilterType;
 import org.jowidgets.cap.ui.api.sort.ISortModel;
 import org.jowidgets.cap.ui.api.table.IBeanTableConfig;
 import org.jowidgets.cap.ui.api.table.IBeanTableMenuFactory;
@@ -355,6 +357,34 @@ final class BeanTableImpl<BEAN_TYPE> extends TableWrapper implements IBeanTable<
 			}
 			if (event.getModifiers().contains(Modifier.SHIFT)) {
 				pack();
+				return;
+			}
+			else if (hasDefaultMenus && event.getModifiers().contains(Modifier.ALT)) {
+				final IAction filterAction = CapUiToolkit.beanTableMenuFactory().addFilterAction(
+						model,
+						FilterType.ARITHMETIC_FILTER,
+						modelColumn);
+				try {
+					filterAction.execute(new IExecutionContext() {
+						@Override
+						public <VALUE_TYPE> VALUE_TYPE getValue(final ITypedKey<VALUE_TYPE> key) {
+							return null;
+						}
+
+						@Override
+						public IWidget getSource() {
+							return BeanTableImpl.this;
+						}
+
+						@Override
+						public IAction getAction() {
+							return filterAction;
+						}
+					});
+				}
+				catch (final Exception e) {
+					//TODO MG handle exception
+				}
 				return;
 			}
 			final IAttribute<?> attribute = model.getAttribute(modelColumn);
