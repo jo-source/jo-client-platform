@@ -70,7 +70,7 @@ public class EntityComponentMasterDetailLinksDetailLayout {
 
 	private ISplitLayoutBuilder createMainSplit(final IEntityClass entityClass, final Map<String, IEntityLinkDescriptor> links) {
 		final ISplitLayoutBuilder result = new SplitLayoutBuilder();
-		result.setVertical().setWeight(0.6).setResizeFirst();
+		result.setVertical().setWeight(0.5).setResizeFirst();
 		result.setFirstContainer(createMasterDetailSplit(entityClass));
 		result.setSecondContainer(createLinkedMasterDetailSplit(entityClass, links));
 		return result;
