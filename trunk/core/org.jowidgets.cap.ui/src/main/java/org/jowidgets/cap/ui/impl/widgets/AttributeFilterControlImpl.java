@@ -63,7 +63,7 @@ import org.jowidgets.validation.ValidationResult;
 final class AttributeFilterControlImpl extends AbstractInputControl<IUiConfigurableFilter<? extends Object>> implements
 		IAttributeFilterControl {
 
-	private static final String NOT = "NOT";
+	private static final String NOT = Messages.getString("AttributeFilterControlImpl.not");
 
 	private final List<IAttribute<?>> attributes;
 	private final Map<String, IAttribute<?>> attributesMap;
