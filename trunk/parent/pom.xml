@@ -14,6 +14,12 @@
 		<maven.compiler.target>1.6</maven.compiler.target>
 		<jowidgets.version>0.4.0-SNAPSHOT</jowidgets.version>
 	</properties>
+	
+	<scm>
+		<connection>scm:svn:http://jo-client-platform.googlecode.com/svn/trunk/</connection>
+		<developerConnection>scm:svn:https://jo-client-platform.googlecode.com/svn/trunk/parent</developerConnection>
+		<url>http://jo-client-platform.googlecode.com/svn/trunk/</url>
+	</scm>
 
 	<modules>
 	    <module>../core/parent</module>
@@ -23,6 +29,13 @@
 		<module>../addons/parent</module>
 		<module>../samples/parent</module>
 	</modules>
+	
+	<distributionManagement>
+		<repository>
+			<id>jowidgets-ftp-repository</id>
+			<url>ftp://jowidgets.org/maven2/</url>
+		</repository>
+	</distributionManagement>
 
 	<dependencies>
 		<dependency>
