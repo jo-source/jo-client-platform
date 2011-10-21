@@ -271,15 +271,19 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 
 	@Override
 	public void load() {
+		//cancel all page loader
+		for (final PageLoader pageLoader : currentPageLoaders) {
+			pageLoader.cancel();
+		}
 		beansStateTracker.clearAll();
 		//TODO MG make async call
-		final SyncResultCallback<Integer> resultCallback = new SyncResultCallback<Integer>();
-		readerService.count(resultCallback, getParentBeanKeys(), null, null, null);
-		final Integer rowCountResult = resultCallback.getResultSynchronious();
-		if (rowCountResult != null) {
-			rowCount = rowCountResult.intValue();
-		}
-		//rowCount = 0;
+		//		final SyncResultCallback<Integer> resultCallback = new SyncResultCallback<Integer>();
+		//		readerService.count(resultCallback, getParentBeanKeys(), null, null, null);
+		//		final Integer rowCountResult = resultCallback.getResultSynchronious();
+		//		if (rowCountResult != null) {
+		//			rowCount = rowCountResult.intValue();
+		//		}
+		rowCount = 0;
 		dataCleared = false;
 		maxPageIndex = 0;
 		data.clear();
