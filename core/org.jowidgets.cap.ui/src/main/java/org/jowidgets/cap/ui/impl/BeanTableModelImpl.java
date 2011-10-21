@@ -294,7 +294,7 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 		final List<IBeanKey> beanKeys = new LinkedList<IBeanKey>();
 		for (final int i : parent.getSelection()) {
 			final IBeanProxy<?> proxy = parent.getBean(i);
-			if (proxy != null) {
+			if (proxy != null && proxy.getId() != DUMMY_VALUE) {
 				beanKeys.add(new BeanKey(proxy.getId(), proxy.getVersion()));
 			}
 		}
