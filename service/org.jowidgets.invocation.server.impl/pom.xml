@@ -3,13 +3,13 @@
 
 	<groupId>org.jowidgets</groupId>
 	<artifactId>org.jowidgets.invocation.server.impl</artifactId>
-	<version>0.2.0-SNAPSHOT</version>
+	<version>0.0.1-SNAPSHOT</version>
 	<name>org.jowidgets.invocation.server.impl</name>
 
 	<parent>
 		<groupId>org.jowidgets</groupId>
 		<artifactId>org.jowidgets.service.parent</artifactId>
-		<version>0.2.0-SNAPSHOT</version>
+		<version>0.0.1-SNAPSHOT</version>
 		<relativePath>../parent/pom.xml</relativePath>
 	</parent>
 
