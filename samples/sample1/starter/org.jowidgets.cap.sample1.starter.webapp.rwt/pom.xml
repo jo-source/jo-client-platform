@@ -3,14 +3,14 @@
 
 	<groupId>org.jowidgets</groupId>
 	<artifactId>org.jowidgets.cap.sample1.starter.webapp.rwt</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.1.0</version>
 	<packaging>war</packaging>
 	<name>org.jowidgets.cap.sample1.starter.webapp.rwt</name>
 
 	<parent>
 		<groupId>org.jowidgets</groupId>
 		<artifactId>org.jowidgets.cap.sample1.parent</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
+		<version>0.1.0</version>
 		<relativePath>../../parent/pom.xml</relativePath>
 	</parent>
 
@@ -18,12 +18,12 @@
 		<dependency>
 			<groupId>org.jowidgets</groupId>
 			<artifactId>org.jowidgets.cap.sample1.ui</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>0.1.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.jowidgets</groupId>
 			<artifactId>org.jowidgets.cap.sample1.service</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>0.1.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.jowidgets</groupId>
