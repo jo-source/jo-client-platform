@@ -3,13 +3,13 @@
 
 	<groupId>org.jowidgets</groupId>
 	<artifactId>org.jowidgets.message.api</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.2.0-SNAPSHOT</version>
 	<name>org.jowidgets.message.api</name>
 
 	<parent>
 		<groupId>org.jowidgets</groupId>
 		<artifactId>org.jowidgets.service.parent</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
+		<version>0.2.0-SNAPSHOT</version>
 		<relativePath>../parent/pom.xml</relativePath>
 	</parent>
 
@@ -20,7 +20,7 @@
 				<artifactId>maven-bundle-plugin</artifactId>
 				<configuration>
 					<instructions>
-						<Require-Bundle></Require-Bundle>
+						<Require-Bundle />
 					</instructions>
 				</configuration>
 			</plugin>

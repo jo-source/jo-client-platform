@@ -3,13 +3,13 @@
 
 	<groupId>org.jowidgets</groupId>
 	<artifactId>org.jowidgets.cap.sample1.common</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.2.0-SNAPSHOT</version>
 	<name>org.jowidgets.cap.sample1.common</name>
 
 	<parent>
 		<groupId>org.jowidgets</groupId>
 		<artifactId>org.jowidgets.cap.sample1.parent</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
+		<version>0.2.0-SNAPSHOT</version>
 		<relativePath>../../parent/pom.xml</relativePath>
 	</parent>
 
