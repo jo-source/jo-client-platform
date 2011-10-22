@@ -33,6 +33,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
+import org.jowidgets.cap.common.api.bean.Cardinality;
 import org.jowidgets.cap.common.api.filter.ArithmeticOperator;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.filter.FilterType;
@@ -47,12 +48,14 @@ import org.jowidgets.util.EmptyCheck;
 final class DefaultIncludingFilterFactory<VALUE_TYPE> implements IIncludingFilterFactory<VALUE_TYPE> {
 
 	private final Class<?> type;
+	private final Cardinality cardinality;
 	private final String propertyName;
 	private final IUiFilterFactory filterFactory;
 
-	DefaultIncludingFilterFactory(final String propertyName, final Class<? extends VALUE_TYPE> type) {
+	DefaultIncludingFilterFactory(final String propertyName, final Class<? extends VALUE_TYPE> type, final Cardinality cardinality) {
 		this.propertyName = propertyName;
 		this.type = type;
+		this.cardinality = cardinality;
 		this.filterFactory = CapUiToolkit.filterToolkit().filterFactory();
 	}
 
@@ -71,7 +74,12 @@ final class DefaultIncludingFilterFactory<VALUE_TYPE> implements IIncludingFilte
 
 			final IUiArithmeticFilterBuilder<Object> builder = filterFactory.arithmeticFilterBuilder();
 			builder.setPropertyName(propertyName);
-			builder.setOperator(ArithmeticOperator.CONTAINS_ANY);
+			if (Cardinality.GREATER_OR_EQUAL_ZERO == cardinality) {
+				builder.setOperator(ArithmeticOperator.CONTAINS_ANY);
+			}
+			else {
+				builder.setOperator(ArithmeticOperator.EQUAL);
+			}
 
 			final Collection<?> collection = (Collection<?>) attributeValue;
 			for (final Object elementValue : collection) {

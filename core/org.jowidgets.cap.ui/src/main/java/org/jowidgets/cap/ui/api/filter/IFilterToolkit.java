@@ -31,6 +31,7 @@ package org.jowidgets.cap.ui.api.filter;
 import java.util.Collection;
 
 import org.jowidgets.api.widgets.IInputControl;
+import org.jowidgets.cap.common.api.bean.Cardinality;
 import org.jowidgets.cap.common.api.bean.IValueRange;
 import org.jowidgets.cap.common.api.filter.ArithmeticOperator;
 import org.jowidgets.cap.ui.api.attribute.IAttributeFilter;
@@ -54,13 +55,17 @@ public interface IFilterToolkit {
 
 	IAttributeFilter arithmeticPropertyAttributeFilter(Class<?> type, Class<?> elementValueType);
 
-	<VALUE_TYPE> IIncludingFilterFactory<VALUE_TYPE> includingFilterFactory(String propertyName, Class<? extends VALUE_TYPE> type);
+	<VALUE_TYPE> IIncludingFilterFactory<VALUE_TYPE> includingFilterFactory(
+		String propertyName,
+		Class<? extends VALUE_TYPE> type,
+		Cardinality cardinality);
 
 	<ELEMENT_VALUE_TYPE> IFilterSupport<?> filterSupport(
 		String propertyName,
 		Class<?> type,
 		Class<?> elementValueType,
 		IValueRange valueRange,
+		Cardinality cardinality,
 		ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> controlCreator,
 		ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> collectionControlCreator);
 

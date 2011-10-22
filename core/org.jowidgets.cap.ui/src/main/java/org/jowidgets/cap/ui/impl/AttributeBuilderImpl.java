@@ -385,14 +385,14 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 					valueType,
 					elementValueType,
 					valueRange,
-					cardinality);
+					getCardinality());
 		}
 		else {
 			return CapUiToolkit.attributeToolkit().createControlPanelProviderBuilder(
 					propertyName,
 					elementValueType,
 					valueRange,
-					cardinality);
+					getCardinality());
 		}
 	}
 
