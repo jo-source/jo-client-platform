@@ -39,9 +39,7 @@ import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IAttributeBluePrint;
 import org.jowidgets.cap.ui.api.attribute.IAttributeCollectionModifierBuilder;
-import org.jowidgets.cap.ui.api.attribute.IAttributeModifier;
 import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
-import org.jowidgets.cap.ui.api.attribute.IControlPanelProviderBuilder;
 import org.jowidgets.cap.ui.api.control.DateDisplayFormat;
 import org.jowidgets.cap.ui.api.control.DisplayFormat;
 import org.jowidgets.common.types.AlignmentHorizontal;
@@ -62,39 +60,18 @@ public class UserAttributesFactory {
 
 		modifierBuilder.addDefaultEditableModifier(true);
 
-		modifierBuilder.addModifier(IUser.GENDER_PROPERTY, new IAttributeModifier<Object>() {
-			@Override
-			public void modify(final IProperty source, final IAttributeBluePrint<Object> bluePrint) {
+		final IAttributeBluePrint<Object> genderAttributeBp = modifierBuilder.addModifier(IUser.GENDER_PROPERTY);
+		genderAttributeBp.addControlPanel(DisplayFormat.SHORT).setConverter(new GenderConverterShort().getConverter());
+		genderAttributeBp.addControlPanel(DisplayFormat.LONG).setConverter(new GenderConverterLong().getConverter());
+		genderAttributeBp.setDisplayFormat(DisplayFormat.SHORT).setTableAlignment(AlignmentHorizontal.CENTER);
 
-				IControlPanelProviderBuilder<Object> controlBuilder = attributeToolkit.createControlPanelProviderBuilder(
-						source.getName(),
-						source.getValueType(),
-						source.getElementValueType(),
-						source.getValueRange());
+		final IAttributeBluePrint<Object> birthdayAttributeBp = modifierBuilder.addModifier(IUser.DATE_OF_BIRTH_PROPERTY);
+		birthdayAttributeBp.setLabelDisplayFormat(DisplayFormat.LONG).setDisplayFormat(DateDisplayFormat.DATE);
 
-				controlBuilder.setConverter(new GenderConverterShort().getConverter());
-				controlBuilder.setDisplayFormat(DisplayFormat.SHORT);
-				bluePrint.addControlPanel(controlBuilder.build());
-
-				controlBuilder = attributeToolkit.createControlPanelProviderBuilder(
-						source.getName(),
-						source.getValueType(),
-						source.getElementValueType(),
-						source.getValueRange());
-
-				controlBuilder.setConverter(new GenderConverterLong().getConverter());
-				controlBuilder.setDisplayFormat(DisplayFormat.LONG);
-				bluePrint.addControlPanel(controlBuilder.build());
-
-				bluePrint.setDisplayFormat(DisplayFormat.SHORT);
-				bluePrint.setTableAlignment(AlignmentHorizontal.CENTER);
-			}
-		});
-
-		modifierBuilder.addModifier(IUser.DATE_OF_BIRTH_PROPERTY).setLabelDisplayFormat(DisplayFormat.LONG).setDisplayFormat(
-				DateDisplayFormat.DATE);
 		modifierBuilder.addModifier(IUser.ADMIN_PROPERTY).setTableAlignment(AlignmentHorizontal.CENTER);
+
 		modifierBuilder.addModifier(IUser.MARRIED_PROPERTY).setTableAlignment(AlignmentHorizontal.CENTER);
+
 		modifierBuilder.addModifier(IUser.AGE_PROPERTY).setTableAlignment(AlignmentHorizontal.CENTER);
 
 		return attributeToolkit.createAttributes(properties, modifierBuilder.build());

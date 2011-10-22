@@ -31,16 +31,14 @@ package org.jowidgets.cap.ui.impl;
 import java.util.Collection;
 import java.util.List;
 
-import org.jowidgets.cap.common.api.CapCommonToolkit;
+import org.jowidgets.cap.common.api.bean.Cardinality;
 import org.jowidgets.cap.common.api.bean.IProperty;
 import org.jowidgets.cap.common.api.bean.IValueRange;
-import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IAttributeBuilder;
 import org.jowidgets.cap.ui.api.attribute.IAttributeCollectionModifier;
 import org.jowidgets.cap.ui.api.attribute.IAttributeCollectionModifierBuilder;
 import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
-import org.jowidgets.cap.ui.api.attribute.IControlPanelProvider;
 import org.jowidgets.cap.ui.api.attribute.IControlPanelProviderBuilder;
 import org.jowidgets.cap.ui.api.bean.IBeanMessage;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
@@ -127,15 +125,7 @@ final class AttributeToolkitImpl implements IAttributeToolkit {
 			builder.setLabel(Messages.getString("AttributeToolkitImpl.messages")); //$NON-NLS-1$
 			builder.setDescription(Messages.getString("AttributeToolkitImpl.messages_description")); //$NON-NLS-1$
 			builder.setEditable(false).setSortable(false).setFilterable(false);
-
-			final IControlPanelProviderBuilder<IBeanMessage> panelBuilder = CapUiToolkit.attributeToolkit().createControlPanelProviderBuilder(
-					propertyName,
-					List.class,
-					IBeanMessage.class,
-					CapCommonToolkit.staticValueRangeFactory().create());
-			panelBuilder.setObjectLabelConverter(new BeanMessageLabelConverter());
-
-			builder.addControlPanel(panelBuilder.build());
+			builder.setControlPanel().setObjectLabelConverter(new BeanMessageLabelConverter());
 
 			return builder;
 		}
@@ -145,57 +135,25 @@ final class AttributeToolkitImpl implements IAttributeToolkit {
 	@Override
 	public <ELEMENT_VALUE_TYPE> IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> createControlPanelProviderBuilder(
 		final String propertyName,
-		final Class<? extends ELEMENT_VALUE_TYPE> elementValueType) {
-		return new ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE>(
-			propertyName,
-			elementValueType,
-			CapCommonToolkit.staticValueRangeFactory().create());
+		final Class<? extends ELEMENT_VALUE_TYPE> elementValueType,
+		final IValueRange valueRange,
+		final Cardinality cardinality) {
+		return new ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE>(propertyName, elementValueType, valueRange, cardinality);
 	}
 
 	@Override
 	public <ELEMENT_VALUE_TYPE> IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> createControlPanelProviderBuilder(
 		final String propertyName,
 		final Class<?> valueType,
-		final Class<? extends ELEMENT_VALUE_TYPE> elementValueType) {
+		final Class<? extends ELEMENT_VALUE_TYPE> elementValueType,
+		final IValueRange valueRange,
+		final Cardinality cardinality) {
 		return new ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE>(
 			propertyName,
 			valueType,
 			elementValueType,
-			CapCommonToolkit.staticValueRangeFactory().create());
-	}
-
-	@Override
-	public <ELEMENT_VALUE_TYPE> IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> createControlPanelProviderBuilder(
-		final String propertyName,
-		final Class<? extends ELEMENT_VALUE_TYPE> elementValueType,
-		final IValueRange valueRange) {
-		return new ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE>(propertyName, elementValueType, valueRange);
-	}
-
-	@Override
-	public <ELEMENT_VALUE_TYPE> IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> createControlPanelProviderBuilder(
-		final String propertyName,
-		final Class<?> valueType,
-		final Class<? extends ELEMENT_VALUE_TYPE> elementValueType,
-		final IValueRange valueRange) {
-		return new ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE>(propertyName, valueType, elementValueType, valueRange);
-	}
-
-	@Override
-	public <ELEMENT_VALUE_TYPE> IControlPanelProvider<ELEMENT_VALUE_TYPE> createControlPanelProvider(
-		final String propertyName,
-		final Class<? extends ELEMENT_VALUE_TYPE> elementValueType,
-		final IValueRange valueRange) {
-		return new ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE>(propertyName, elementValueType, valueRange).build();
-	}
-
-	@Override
-	public <ELEMENT_VALUE_TYPE> IControlPanelProvider<ELEMENT_VALUE_TYPE> createControlPanelProvider(
-		final String propertyName,
-		final Class<?> valueType,
-		final Class<? extends ELEMENT_VALUE_TYPE> elementValueType,
-		final IValueRange valueRange) {
-		return new ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE>(propertyName, valueType, elementValueType, valueRange).build();
+			valueRange,
+			cardinality);
 	}
 
 }

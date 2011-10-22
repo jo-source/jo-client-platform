@@ -31,6 +31,7 @@ package org.jowidgets.cap.ui.api.attribute;
 import java.util.Collection;
 import java.util.List;
 
+import org.jowidgets.cap.common.api.bean.Cardinality;
 import org.jowidgets.cap.common.api.bean.IProperty;
 import org.jowidgets.cap.common.api.bean.IValueRange;
 
@@ -65,33 +66,15 @@ public interface IAttributeToolkit {
 
 	<ELEMENT_VALUE_TYPE> IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> createControlPanelProviderBuilder(
 		String propertyName,
-		Class<? extends ELEMENT_VALUE_TYPE> elementValueType);
-
-	<ELEMENT_VALUE_TYPE> IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> createControlPanelProviderBuilder(
-		String propertyName,
-		Class<?> valueType,
-		Class<? extends ELEMENT_VALUE_TYPE> elementValueType);
-
-	<ELEMENT_VALUE_TYPE> IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> createControlPanelProviderBuilder(
-		String propertyName,
 		Class<? extends ELEMENT_VALUE_TYPE> elementValueType,
-		IValueRange valueRange);
+		IValueRange valueRange,
+		Cardinality cardinality);
 
 	<ELEMENT_VALUE_TYPE> IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> createControlPanelProviderBuilder(
 		String propertyName,
 		Class<?> valueType,
 		Class<? extends ELEMENT_VALUE_TYPE> elementValueType,
-		IValueRange valueRange);
-
-	<ELEMENT_VALUE_TYPE> IControlPanelProvider<ELEMENT_VALUE_TYPE> createControlPanelProvider(
-		String propertyName,
-		Class<? extends ELEMENT_VALUE_TYPE> elementValueType,
-		IValueRange valueRange);
-
-	<ELEMENT_VALUE_TYPE> IControlPanelProvider<ELEMENT_VALUE_TYPE> createControlPanelProvider(
-		String propertyName,
-		Class<?> valueType,
-		Class<? extends ELEMENT_VALUE_TYPE> elementValueType,
-		IValueRange valueRange);
+		IValueRange valueRange,
+		Cardinality cardinality);
 
 }

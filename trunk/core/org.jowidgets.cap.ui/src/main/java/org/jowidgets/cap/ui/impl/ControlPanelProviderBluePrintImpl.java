@@ -35,6 +35,7 @@ import org.jowidgets.api.convert.IObjectLabelConverter;
 import org.jowidgets.api.convert.IObjectStringConverter;
 import org.jowidgets.api.convert.IStringObjectConverter;
 import org.jowidgets.api.widgets.IInputControl;
+import org.jowidgets.cap.common.api.bean.Cardinality;
 import org.jowidgets.cap.common.api.bean.IValueRange;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
@@ -45,7 +46,6 @@ import org.jowidgets.cap.ui.api.attribute.IGenericControlPanelProviderBluePrint;
 import org.jowidgets.cap.ui.api.control.IDisplayFormat;
 import org.jowidgets.cap.ui.api.filter.IFilterSupport;
 import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
-import org.jowidgets.util.Assert;
 import org.jowidgets.util.maybe.IMaybe;
 import org.jowidgets.util.maybe.Nothing;
 import org.jowidgets.util.maybe.Some;
@@ -66,7 +66,6 @@ final class ControlPanelProviderBluePrintImpl<ELEMENT_VALUE_TYPE> implements ICo
 	private boolean exhausted = false;
 
 	ControlPanelProviderBluePrintImpl(final IDisplayFormat displayFormat) {
-		Assert.paramNotNull(displayFormat, "displayFormat");
 
 		this.displayFormat = displayFormat;
 		this.objectLabelConverter = Nothing.getInstance();
@@ -161,15 +160,21 @@ final class ControlPanelProviderBluePrintImpl<ELEMENT_VALUE_TYPE> implements ICo
 		final String propertyName,
 		final Class valueType,
 		final Class elementValueType,
-		final IValueRange valueRange) {
+		final IValueRange valueRange,
+		final Cardinality cardinality) {
 
 		final IAttributeToolkit attributeToolkit = CapUiToolkit.attributeToolkit();
 		final IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> builder;
 		if (valueType == null) {
-			builder = attributeToolkit.createControlPanelProviderBuilder(propertyName, elementValueType, valueRange);
+			builder = attributeToolkit.createControlPanelProviderBuilder(propertyName, elementValueType, valueRange, cardinality);
 		}
 		else {
-			builder = attributeToolkit.createControlPanelProviderBuilder(propertyName, valueType, elementValueType, valueRange);
+			builder = attributeToolkit.createControlPanelProviderBuilder(
+					propertyName,
+					valueType,
+					elementValueType,
+					valueRange,
+					cardinality);
 		}
 
 		builder.setDisplayFormat(displayFormat);

@@ -91,6 +91,8 @@ public interface IAttributeBluePrint<ELEMENT_VALUE_TYPE> {
 
 	IControlPanelProviderBluePrint<ELEMENT_VALUE_TYPE> addControlPanel(IDisplayFormat displayFormat);
 
+	IControlPanelProviderBluePrint<ELEMENT_VALUE_TYPE> setControlPanel();
+
 	IAttributeBluePrint<ELEMENT_VALUE_TYPE> setControlPanels(
 		Collection<? extends IControlPanelProvider<? extends ELEMENT_VALUE_TYPE>> controlPanels);
 
