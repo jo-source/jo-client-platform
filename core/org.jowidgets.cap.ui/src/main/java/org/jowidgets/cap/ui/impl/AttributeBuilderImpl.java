@@ -296,6 +296,15 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 		return result;
 	}
 
+	@Override
+	public IControlPanelProviderBluePrint<ELEMENT_VALUE_TYPE> setControlPanel() {
+		this.controlPanels.clear();
+		return addControlPanel(new DisplayFormatImpl(
+			ControlPanelProviderBuilderImpl.DEFAULT_DISPLAY_FORMAT_ID,
+			ControlPanelProviderBuilderImpl.DEFAULT_DISPLAY_NAME,
+			null));
+	}
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public IAttributeBluePrint<ELEMENT_VALUE_TYPE> setControlPanels(
@@ -332,15 +341,28 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 					final ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> elementControlCreator = controlProvider.getControlCreator(
 							converter,
 							valueRange);
-					final ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> collectionControlCreator = controlProvider.getCollectionControlCreator(
+					final ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> collectionControlCreator;
+					collectionControlCreator = controlProvider.getCollectionControlCreator(
 							elementControlCreator,
 							converter,
 							valueRange);
+
 					final IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> builder = createControlPanelProviderBuilder();
 					builder.setDisplayFormat(controlProvider.getDisplayFormat());
 					builder.setConverter(converter);
 					builder.setControlCreator(elementControlCreator);
-					builder.setCollectionControlCreator(collectionControlCreator);
+					builder.setFilterCollectionControlCreator(collectionControlCreator);
+					if (Collection.class.isAssignableFrom(valueType)
+						&& Cardinality.LESS_OR_EQUAL_ONE == cardinality
+						&& collectionControlCreator != null
+						&& elementControlCreator != null) {
+						builder.setCollectionControlCreator(new CombinedCollectionControlCreator<ELEMENT_VALUE_TYPE>(
+							elementControlCreator,
+							collectionControlCreator));
+					}
+					else {
+						builder.setCollectionControlCreator(collectionControlCreator);
+					}
 
 					controlPanels.add(builder.build());
 				}
@@ -362,10 +384,15 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 					propertyName,
 					valueType,
 					elementValueType,
-					valueRange);
+					valueRange,
+					cardinality);
 		}
 		else {
-			return CapUiToolkit.attributeToolkit().createControlPanelProviderBuilder(propertyName, elementValueType, valueRange);
+			return CapUiToolkit.attributeToolkit().createControlPanelProviderBuilder(
+					propertyName,
+					elementValueType,
+					valueRange,
+					cardinality);
 		}
 	}
 
@@ -395,6 +422,8 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 	public IAttribute<ELEMENT_VALUE_TYPE> build() {
 		final List<IControlPanelProvider<? extends ELEMENT_VALUE_TYPE>> panels = new LinkedList<IControlPanelProvider<? extends ELEMENT_VALUE_TYPE>>();
 
+		final Cardinality currentCardinality = getCardinality();
+
 		for (final Object object : getControlPanels()) {
 			if (object instanceof IControlPanelProvider) {
 				panels.add((IControlPanelProvider<? extends ELEMENT_VALUE_TYPE>) object);
@@ -405,7 +434,8 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 						propertyName,
 						valueType,
 						elementValueType,
-						valueRange));
+						valueRange,
+						currentCardinality));
 			}
 			else {
 				throw new IllegalStateException("Control panel type '"
@@ -432,7 +462,7 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 			filterable,
 			valueType,
 			elementValueType,
-			getCardinality(),
+			currentCardinality,
 			panels,
 			getDisplayFormat(panels));
 	}

@@ -219,6 +219,7 @@ final class AttributeModifierBluePrint<ELEMENT_VALUE_TYPE> implements IAttribute
 	@Override
 	public IAttributeBluePrint<ELEMENT_VALUE_TYPE> setControlPanels(
 		final Collection<? extends IControlPanelProvider<? extends ELEMENT_VALUE_TYPE>> controlPanels) {
+		checkExhausted();
 		this.controlPanels.clear();
 		if (controlPanels != null) {
 			this.controlPanels.addAll(controlPanels);
@@ -231,10 +232,21 @@ final class AttributeModifierBluePrint<ELEMENT_VALUE_TYPE> implements IAttribute
 	@Override
 	public IControlPanelProviderBluePrint<ELEMENT_VALUE_TYPE> addControlPanel(final IDisplayFormat displayFormat) {
 		Assert.paramNotNull(displayFormat, "displayFormat");
+		checkExhausted();
 		final ControlPanelProviderBluePrintImpl<ELEMENT_VALUE_TYPE> result = new ControlPanelProviderBluePrintImpl<ELEMENT_VALUE_TYPE>(
 			displayFormat);
 		controlPanels.add(result);
 		return result;
+	}
+
+	@Override
+	public IControlPanelProviderBluePrint<ELEMENT_VALUE_TYPE> setControlPanel() {
+		checkExhausted();
+		this.controlPanels.clear();
+		return addControlPanel(new DisplayFormatImpl(
+			ControlPanelProviderBuilderImpl.DEFAULT_DISPLAY_FORMAT_ID,
+			ControlPanelProviderBuilderImpl.DEFAULT_DISPLAY_NAME,
+			null));
 	}
 
 	@Override
@@ -320,8 +332,6 @@ final class AttributeModifierBluePrint<ELEMENT_VALUE_TYPE> implements IAttribute
 					+ controlPanel.getClass().getName()
 					+ "' is not supported. This seems to be a bug.");
 			}
-
-			attributeBluePrint.addControlPanel((IControlPanelProvider<? extends ELEMENT_VALUE_TYPE>) controlPanel);
 		}
 	}
 

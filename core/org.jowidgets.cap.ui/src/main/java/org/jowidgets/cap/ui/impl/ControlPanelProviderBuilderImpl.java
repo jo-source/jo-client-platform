@@ -37,6 +37,7 @@ import org.jowidgets.api.convert.IObjectStringConverter;
 import org.jowidgets.api.convert.IStringObjectConverter;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.widgets.IInputControl;
+import org.jowidgets.cap.common.api.bean.Cardinality;
 import org.jowidgets.cap.common.api.bean.IValueRange;
 import org.jowidgets.cap.common.api.lookup.ILookUpValueRange;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
@@ -54,11 +55,12 @@ import org.jowidgets.util.Assert;
 
 final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> {
 
-	private static final Object DEFAULT_DISPLAY_FORMAT_ID = DisplayFormat.SHORT.getId();
-	private static final String DEFAULT_DISPLAY_NAME = DisplayFormat.SHORT.getName();
+	static final Object DEFAULT_DISPLAY_FORMAT_ID = DisplayFormat.SHORT.getId();
+	static final String DEFAULT_DISPLAY_NAME = DisplayFormat.SHORT.getName();
 
 	private final String propertyName;
 	private final IValueRange valueRange;
+	private final Cardinality cardinality;
 
 	private Class<?> valueType;
 	private Class<? extends ELEMENT_VALUE_TYPE> elementValueType;
@@ -77,8 +79,9 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 	ControlPanelProviderBuilderImpl(
 		final String propertyName,
 		final Class<? extends ELEMENT_VALUE_TYPE> elementValueType,
-		final IValueRange valueRange) {
-		this(propertyName, valueRange);
+		final IValueRange valueRange,
+		final Cardinality cardinality) {
+		this(propertyName, valueRange, cardinality);
 		Assert.paramNotNull(elementValueType, "elementValueType");
 		if (Collection.class.isAssignableFrom(elementValueType)) {
 			throw new IllegalArgumentException("The parameter 'elementValueType' must not be a 'Collection'");
@@ -91,20 +94,22 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 		final String propertyName,
 		final Class<?> valueType,
 		final Class<? extends ELEMENT_VALUE_TYPE> elementValueType,
-		final IValueRange valueRange) {
-		this(propertyName, valueRange);
+		final IValueRange valueRange,
+		final Cardinality cardinality) {
+		this(propertyName, valueRange, cardinality);
 		Assert.paramNotNull(valueType, "valueType");
 		Assert.paramNotNull(elementValueType, "elementValueType");
 		this.valueType = valueType;
 		this.elementValueType = elementValueType;
 	}
 
-	private ControlPanelProviderBuilderImpl(final String propertyName, final IValueRange valueRange) {
+	private ControlPanelProviderBuilderImpl(final String propertyName, final IValueRange valueRange, final Cardinality cardinality) {
 		super();
 		Assert.paramNotNull(propertyName, "propertyName");
 		Assert.paramNotNull(valueRange, "valueRange");
 		this.propertyName = propertyName;
 		this.valueRange = valueRange;
+		this.cardinality = cardinality;
 		this.displayFormatId = DEFAULT_DISPLAY_FORMAT_ID;
 		this.displayFormatName = DEFAULT_DISPLAY_NAME;
 	}
@@ -261,34 +266,54 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 
 	private ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> getCollectionControlCreator() {
 		if (collectionControlCreator == null) {
-
-			final IInputControlProvider<ELEMENT_VALUE_TYPE> defaultControl;
-
-			if (valueRange instanceof ILookUpValueRange) {
-				final IInputControlSupport<ELEMENT_VALUE_TYPE> controls;
-				controls = CapUiToolkit.inputControlRegistry().getControls((ILookUpValueRange) valueRange);
-				defaultControl = getDefaultControl(controls);
+			final ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> collectionCreator;
+			collectionCreator = createCollectionControlCreator();
+			final ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> elementCreator = getControlCreator();
+			if (Collection.class.isAssignableFrom(valueType)
+				&& Cardinality.LESS_OR_EQUAL_ONE == cardinality
+				&& collectionCreator != null
+				&& elementCreator != null) {
+				collectionControlCreator = new CombinedCollectionControlCreator<ELEMENT_VALUE_TYPE>(
+					elementCreator,
+					collectionCreator);
 			}
 			else {
-				defaultControl = getDefaultControl(CapUiToolkit.inputControlRegistry().getControls(elementValueType));
+				collectionControlCreator = collectionCreator;
 			}
-
-			if (defaultControl != null) {
-				collectionControlCreator = defaultControl.getCollectionControlCreator(
-						getControlCreator(defaultControl),
-						getConverter(defaultControl),
-						valueRange);
-			}
-
 		}
 		return collectionControlCreator;
 	}
 
 	private ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> getFilterCollectionControlCreator() {
 		if (filterCollectionControlCreator == null) {
-			filterCollectionControlCreator = getCollectionControlCreator();
+			filterCollectionControlCreator = createCollectionControlCreator();
 		}
 		return filterCollectionControlCreator;
+	}
+
+	private ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> createCollectionControlCreator() {
+
+		final IInputControlProvider<ELEMENT_VALUE_TYPE> defaultControl;
+
+		if (valueRange instanceof ILookUpValueRange) {
+			final IInputControlSupport<ELEMENT_VALUE_TYPE> controls;
+			controls = CapUiToolkit.inputControlRegistry().getControls((ILookUpValueRange) valueRange);
+			defaultControl = getDefaultControl(controls);
+		}
+		else {
+			defaultControl = getDefaultControl(CapUiToolkit.inputControlRegistry().getControls(elementValueType));
+		}
+
+		if (defaultControl != null) {
+			return defaultControl.getCollectionControlCreator(
+					getControlCreator(defaultControl),
+					getConverter(defaultControl),
+					valueRange);
+		}
+		else {
+			return null;
+		}
+
 	}
 
 	private IInputControlProvider<ELEMENT_VALUE_TYPE> getDefaultControl(final IInputControlSupport<ELEMENT_VALUE_TYPE> controls) {
