@@ -33,6 +33,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.jowidgets.api.widgets.IInputControl;
+import org.jowidgets.cap.common.api.bean.Cardinality;
 import org.jowidgets.cap.common.api.bean.IValueRange;
 import org.jowidgets.cap.common.api.filter.ArithmeticOperator;
 import org.jowidgets.cap.ui.api.attribute.IAttributeFilter;
@@ -89,8 +90,9 @@ final class FilterToolkitImpl implements IFilterToolkit {
 	@Override
 	public <VALUE_TYPE> IIncludingFilterFactory<VALUE_TYPE> includingFilterFactory(
 		final String propertyName,
-		final Class<? extends VALUE_TYPE> type) {
-		return new DefaultIncludingFilterFactory<VALUE_TYPE>(propertyName, type);
+		final Class<? extends VALUE_TYPE> type,
+		final Cardinality cardinality) {
+		return new DefaultIncludingFilterFactory<VALUE_TYPE>(propertyName, type, cardinality);
 	}
 
 	@Override
@@ -99,6 +101,7 @@ final class FilterToolkitImpl implements IFilterToolkit {
 		final Class<?> type,
 		final Class<?> elementValueType,
 		final IValueRange valueRange,
+		final Cardinality cardinality,
 		final ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> controlCreator,
 		final ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> collectionControlCreator) {
 
@@ -121,7 +124,7 @@ final class FilterToolkitImpl implements IFilterToolkit {
 				arithmeticOperatorProvider,
 				arithmeticPropertyOperatorProvider,
 				arithmeticPropertyAttributeFilter,
-				includingFilterFactory(propertyName, type),
+				includingFilterFactory(propertyName, type, cardinality),
 				controlCreator,
 				collectionControlCreator);
 	}

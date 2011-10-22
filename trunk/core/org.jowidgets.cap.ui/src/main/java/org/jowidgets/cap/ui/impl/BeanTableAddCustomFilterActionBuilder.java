@@ -80,6 +80,7 @@ final class BeanTableAddCustomFilterActionBuilder extends ActionBuilder {
 		});
 	}
 
+	//TODO MG remove this after the filter dialog was finished
 	//	private void openDialog(
 	//		final IBeanTableModel<?> model,
 	//		final int columnIndex,

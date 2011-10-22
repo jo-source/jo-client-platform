@@ -107,6 +107,7 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 		super();
 		Assert.paramNotNull(propertyName, "propertyName");
 		Assert.paramNotNull(valueRange, "valueRange");
+		Assert.paramNotNull(cardinality, "cardinality");
 		this.propertyName = propertyName;
 		this.valueRange = valueRange;
 		this.cardinality = cardinality;
@@ -359,6 +360,7 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 					valueType,
 					elementValueType,
 					valueRange,
+					cardinality,
 					getControlCreator(),
 					getFilterCollectionControlCreator());
 		}
