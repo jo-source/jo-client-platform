@@ -40,6 +40,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import org.jowidgets.api.color.Colors;
 import org.jowidgets.api.convert.IObjectLabelConverter;
@@ -189,14 +192,37 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 		if (parent != null) {
 			Assert.paramNotNull(linkType, "linkType");
 			parent.addBeanListModelListener(new IBeanListModelListener() {
+				private ScheduledFuture<?> schedule;
+
 				@Override
 				public void selectionChanged() {
-					load();
+					loadTable();
 				}
 
 				@Override
 				public void beansChanged() {
-					load();
+					loadTable();
+				}
+
+				private void loadTable() {
+					clear();
+					if (schedule != null) {
+						schedule.cancel(false);
+					}
+					final IUiThreadAccess uiThreadAccess = Toolkit.getUiThreadAccess();
+					final Runnable runnable = new Runnable() {
+						@Override
+						public void run() {
+							uiThreadAccess.invokeLater(new Runnable() {
+								@Override
+								public void run() {
+									schedule = null;
+									load();
+								}
+							});
+						}
+					};
+					schedule = Executors.newSingleThreadScheduledExecutor().schedule(runnable, 100, TimeUnit.MILLISECONDS);
 				}
 			});
 		}
