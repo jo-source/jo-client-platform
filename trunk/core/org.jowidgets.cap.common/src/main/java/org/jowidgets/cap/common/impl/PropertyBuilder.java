@@ -32,6 +32,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
+import org.jowidgets.cap.common.api.bean.Cardinality;
 import org.jowidgets.cap.common.api.bean.IProperty;
 import org.jowidgets.cap.common.api.bean.IPropertyBuilder;
 import org.jowidgets.cap.common.api.bean.IValueRange;
@@ -41,6 +42,7 @@ final class PropertyBuilder implements IPropertyBuilder {
 
 	private String name;
 	private IValueRange valueRange;
+	private Cardinality cardinality;
 	private String labelDefault;
 	private String labelLongDefault;
 	private String descriptionDefault;
@@ -93,6 +95,12 @@ final class PropertyBuilder implements IPropertyBuilder {
 	@Override
 	public IPropertyBuilder setValueRange(final Object... values) {
 		return setValueRange(Arrays.asList(values));
+	}
+
+	@Override
+	public IPropertyBuilder setCardinality(final Cardinality cardinality) {
+		this.cardinality = cardinality;
+		return this;
 	}
 
 	@Override
@@ -176,6 +184,18 @@ final class PropertyBuilder implements IPropertyBuilder {
 		}
 	}
 
+	private Cardinality getCardinality() {
+		if (cardinality != null) {
+			return cardinality;
+		}
+		else if (valueType != null && Collection.class.isAssignableFrom(valueType)) {
+			return Cardinality.GREATER_OR_EQUAL_ZERO;
+		}
+		else {
+			return Cardinality.LESS_OR_EQUAL_ONE;
+		}
+	}
+
 	@Override
 	public IProperty build() {
 		return new PropertyImpl(
@@ -188,6 +208,7 @@ final class PropertyBuilder implements IPropertyBuilder {
 			mandatoryDefault,
 			valueType,
 			getElementValueType(),
+			getCardinality(),
 			readonly,
 			sortable,
 			filterable);

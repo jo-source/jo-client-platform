@@ -30,6 +30,7 @@ package org.jowidgets.cap.ui.api.attribute;
 
 import java.util.List;
 
+import org.jowidgets.cap.common.api.bean.Cardinality;
 import org.jowidgets.cap.common.api.bean.IValueRange;
 import org.jowidgets.cap.ui.api.control.DisplayFormat;
 import org.jowidgets.cap.ui.api.control.IDisplayFormat;
@@ -67,6 +68,8 @@ public interface IAttribute<ELEMENT_VALUE_TYPE> extends IChangeObservable {
 	Class<?> getValueType();
 
 	Class<ELEMENT_VALUE_TYPE> getElementValueType();
+
+	Cardinality getCardinality();
 
 	boolean isCollectionType();
 

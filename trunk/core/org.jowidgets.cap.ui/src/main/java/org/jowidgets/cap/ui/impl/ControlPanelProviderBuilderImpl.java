@@ -72,6 +72,7 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 	private IFilterSupport<?> filterSupport;
 	private ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> controlCreator;
 	private ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> collectionControlCreator;
+	private ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> filterCollectionControlCreator;
 
 	ControlPanelProviderBuilderImpl(
 		final String propertyName,
@@ -193,6 +194,14 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 		return this;
 	}
 
+	@SuppressWarnings("unchecked")
+	@Override
+	public IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> setFilterCollectionControlCreator(
+		final ICustomWidgetCreator<? extends IInputControl<? extends Collection<? extends ELEMENT_VALUE_TYPE>>> collectionControlCreator) {
+		this.filterCollectionControlCreator = (ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>>) collectionControlCreator;
+		return this;
+	}
+
 	private IObjectStringConverter<ELEMENT_VALUE_TYPE> getObjectStringConverter() {
 		if (objectStringConverter == null) {
 			objectStringConverter = Toolkit.getConverterProvider().getObjectStringConverter(elementValueType);
@@ -275,6 +284,13 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 		return collectionControlCreator;
 	}
 
+	private ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> getFilterCollectionControlCreator() {
+		if (filterCollectionControlCreator == null) {
+			filterCollectionControlCreator = getCollectionControlCreator();
+		}
+		return filterCollectionControlCreator;
+	}
+
 	private IInputControlProvider<ELEMENT_VALUE_TYPE> getDefaultControl(final IInputControlSupport<ELEMENT_VALUE_TYPE> controls) {
 		if (controls != null) {
 			final IDisplayFormat defaultDisplayFormat = controls.getDefaultDisplayFormat();
@@ -319,7 +335,7 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 					elementValueType,
 					valueRange,
 					getControlCreator(),
-					getCollectionControlCreator());
+					getFilterCollectionControlCreator());
 		}
 		return filterSupport;
 	}

@@ -48,6 +48,8 @@ public interface IPropertyBuilder {
 
 	IPropertyBuilder setElementValueType(Class<?> elementValueType);
 
+	IPropertyBuilder setCardinality(Cardinality cardinality);
+
 	IPropertyBuilder setReadonly(boolean readonly);
 
 	IPropertyBuilder setValueRange(IValueRange valueRange);

@@ -28,18 +28,34 @@
 
 package org.jowidgets.cap.ui.api.attribute;
 
-import org.jowidgets.cap.ui.api.control.IDisplayFormat;
+import java.util.Collection;
 
-public interface IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> extends
-		IGenericControlPanelProviderBluePrint<ELEMENT_VALUE_TYPE, IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE>> {
+import org.jowidgets.api.convert.IConverter;
+import org.jowidgets.api.convert.IObjectLabelConverter;
+import org.jowidgets.api.convert.IObjectStringConverter;
+import org.jowidgets.api.convert.IStringObjectConverter;
+import org.jowidgets.api.widgets.IInputControl;
+import org.jowidgets.cap.ui.api.filter.IFilterSupport;
+import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
 
-	IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> setDisplayFormatId(final String id);
+public interface IGenericControlPanelProviderBluePrint<ELEMENT_VALUE_TYPE, INSTANCE_TYPE> {
 
-	IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> setDisplayFormatName(final String name);
+	INSTANCE_TYPE setObjectLabelConverter(IObjectLabelConverter<? extends ELEMENT_VALUE_TYPE> objectLabelConverter);
 
-	IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> setDisplayFormatDescription(final String description);
+	INSTANCE_TYPE setObjectLabelConverter(IObjectStringConverter<? extends ELEMENT_VALUE_TYPE> objectStringConverter);
 
-	IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> setDisplayFormat(final IDisplayFormat displayFormat);
+	INSTANCE_TYPE setStringObjectConverter(IStringObjectConverter<ELEMENT_VALUE_TYPE> stringObjectConverter);
 
-	IControlPanelProvider<ELEMENT_VALUE_TYPE> build();
+	INSTANCE_TYPE setConverter(final IConverter<? extends ELEMENT_VALUE_TYPE> converter);
+
+	INSTANCE_TYPE setFilterSupport(IFilterSupport<?> filterSupport);
+
+	INSTANCE_TYPE setControlCreator(ICustomWidgetCreator<? extends IInputControl<? extends ELEMENT_VALUE_TYPE>> controlCreator);
+
+	INSTANCE_TYPE setCollectionControlCreator(
+		ICustomWidgetCreator<? extends IInputControl<? extends Collection<? extends ELEMENT_VALUE_TYPE>>> collectionControlCreator);
+
+	INSTANCE_TYPE setFilterCollectionControlCreator(
+		ICustomWidgetCreator<? extends IInputControl<? extends Collection<? extends ELEMENT_VALUE_TYPE>>> collectionControlCreator);
+
 }

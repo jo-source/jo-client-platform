@@ -30,6 +30,7 @@ package org.jowidgets.cap.ui.api.attribute;
 
 import java.util.Collection;
 
+import org.jowidgets.cap.common.api.bean.Cardinality;
 import org.jowidgets.cap.common.api.bean.IValueRange;
 import org.jowidgets.cap.ui.api.control.DisplayFormat;
 import org.jowidgets.cap.ui.api.control.IDisplayFormat;
@@ -48,6 +49,8 @@ public interface IAttributeBluePrint<ELEMENT_VALUE_TYPE> {
 	IAttributeBluePrint<ELEMENT_VALUE_TYPE> setValueRange(ELEMENT_VALUE_TYPE... values);
 
 	IAttributeBluePrint<ELEMENT_VALUE_TYPE> setValueRange(final Collection<? extends ELEMENT_VALUE_TYPE> values);
+
+	IAttributeBluePrint<ELEMENT_VALUE_TYPE> setCardinality(Cardinality cardinality);
 
 	IAttributeBluePrint<ELEMENT_VALUE_TYPE> setLabelLong(String labelLong);
 
@@ -85,6 +88,8 @@ public interface IAttributeBluePrint<ELEMENT_VALUE_TYPE> {
 	IAttributeBluePrint<ELEMENT_VALUE_TYPE> setDisplayFormat(IDisplayFormat displayFormat);
 
 	IAttributeBluePrint<ELEMENT_VALUE_TYPE> addControlPanel(IControlPanelProvider<? extends ELEMENT_VALUE_TYPE> controlPanel);
+
+	IControlPanelProviderBluePrint<ELEMENT_VALUE_TYPE> addControlPanel(IDisplayFormat displayFormat);
 
 	IAttributeBluePrint<ELEMENT_VALUE_TYPE> setControlPanels(
 		Collection<? extends IControlPanelProvider<? extends ELEMENT_VALUE_TYPE>> controlPanels);
