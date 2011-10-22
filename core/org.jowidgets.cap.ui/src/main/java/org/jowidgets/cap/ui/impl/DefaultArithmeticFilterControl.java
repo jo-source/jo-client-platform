@@ -212,6 +212,7 @@ public class DefaultArithmeticFilterControl<ELEMENT_VALUE_TYPE> extends Abstract
 			}
 			addInputListener();
 			addValidators();
+			setValidationCacheDirty();
 		}
 	}
 
@@ -317,7 +318,7 @@ public class DefaultArithmeticFilterControl<ELEMENT_VALUE_TYPE> extends Abstract
 			addValidator(control1, FIRST_OPERAND_EMPTY);
 			addValidator(control2, SECOND_OPERAND_EMPTY);
 		}
-		else {
+		else if (ArithmeticOperator.EMPTY != operator) {
 			addValidator(control1, OPERAND_EMPTY);
 			addValidator(collectionControl, OPERAND_EMPTY);
 		}
