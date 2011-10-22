@@ -116,6 +116,7 @@ import org.jowidgets.tools.model.table.DefaultTableColumnBuilder;
 import org.jowidgets.tools.model.table.TableCellBuilder;
 import org.jowidgets.tools.model.table.TableModel;
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.concurrent.DaemonThreadFactory;
 import org.jowidgets.util.event.ChangeObservable;
 import org.jowidgets.util.event.IChangeListener;
 
@@ -222,7 +223,10 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 							});
 						}
 					};
-					schedule = Executors.newSingleThreadScheduledExecutor().schedule(runnable, 100, TimeUnit.MILLISECONDS);
+					schedule = Executors.newSingleThreadScheduledExecutor(new DaemonThreadFactory()).schedule(
+							runnable,
+							100,
+							TimeUnit.MILLISECONDS);
 				}
 			});
 		}
