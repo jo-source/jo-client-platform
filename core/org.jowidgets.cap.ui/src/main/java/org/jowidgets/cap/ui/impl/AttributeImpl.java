@@ -33,6 +33,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.jowidgets.cap.common.api.bean.Cardinality;
 import org.jowidgets.cap.common.api.bean.IValueRange;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IAttributeConfig;
@@ -66,6 +67,7 @@ final class AttributeImpl<ELEMENT_VALUE_TYPE> implements IAttribute<ELEMENT_VALU
 	private final boolean filterable;
 	private final Class<?> valueType;
 	private final Class<ELEMENT_VALUE_TYPE> elementValueType;
+	private final Cardinality cardinality;
 	private final List<IControlPanelProvider<ELEMENT_VALUE_TYPE>> controlPanels;
 
 	private boolean visible;
@@ -92,6 +94,7 @@ final class AttributeImpl<ELEMENT_VALUE_TYPE> implements IAttribute<ELEMENT_VALU
 		final boolean filterable,
 		final Class<?> valueType,
 		final Class<? extends ELEMENT_VALUE_TYPE> elementValueType,
+		final Cardinality cardinality,
 		final List<IControlPanelProvider<? extends ELEMENT_VALUE_TYPE>> controlPanels,
 		final IDisplayFormat displayFormat) {
 
@@ -102,6 +105,7 @@ final class AttributeImpl<ELEMENT_VALUE_TYPE> implements IAttribute<ELEMENT_VALU
 		Assert.paramNotNull(tableAlignment, "tableAlignment");
 		Assert.paramNotNull(valueType, "valueType");
 		Assert.paramNotNull(elementValueType, "elementValueType");
+		Assert.paramNotNull(cardinality, "cardinality");
 		Assert.paramNotNull(controlPanels, "controlPanels");
 		Assert.paramNotNull(displayFormat, "displayFormat");
 
@@ -137,6 +141,7 @@ final class AttributeImpl<ELEMENT_VALUE_TYPE> implements IAttribute<ELEMENT_VALU
 		this.filterable = filterable;
 		this.valueType = valueType;
 		this.elementValueType = (Class<ELEMENT_VALUE_TYPE>) elementValueType;
+		this.cardinality = cardinality;
 		this.controlPanels = new LinkedList(controlPanels);
 
 		setDisplayFormatImpl(displayFormat);
@@ -220,6 +225,11 @@ final class AttributeImpl<ELEMENT_VALUE_TYPE> implements IAttribute<ELEMENT_VALU
 	@Override
 	public Class<ELEMENT_VALUE_TYPE> getElementValueType() {
 		return elementValueType;
+	}
+
+	@Override
+	public Cardinality getCardinality() {
+		return cardinality;
 	}
 
 	@Override

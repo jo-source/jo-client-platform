@@ -30,6 +30,7 @@ package org.jowidgets.cap.common.impl;
 
 import java.util.Collection;
 
+import org.jowidgets.cap.common.api.bean.Cardinality;
 import org.jowidgets.cap.common.api.bean.IBeanPropertyBluePrint;
 import org.jowidgets.cap.common.api.bean.IBeanPropertyBuilder;
 import org.jowidgets.cap.common.api.bean.IProperty;
@@ -92,6 +93,13 @@ final class BeanPropertyBluePrintImpl implements IBeanPropertyBluePrint {
 	public IBeanPropertyBluePrint setLookUpValueRange(final Object lookUpId) {
 		checkExhausted();
 		builder.setLookUpValueRange(lookUpId);
+		return this;
+	}
+
+	@Override
+	public IBeanPropertyBluePrint setCardinality(final Cardinality cardinality) {
+		checkExhausted();
+		builder.setCardinality(cardinality);
 		return this;
 	}
 

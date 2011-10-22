@@ -26,20 +26,14 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.attribute;
+package org.jowidgets.cap.common.api.bean;
 
-import org.jowidgets.cap.ui.api.control.IDisplayFormat;
+public enum Cardinality {
 
-public interface IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> extends
-		IGenericControlPanelProviderBluePrint<ELEMENT_VALUE_TYPE, IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE>> {
+	/** The cardinality is less or equal than one (<=1) */
+	LESS_OR_EQUAL_ONE,
 
-	IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> setDisplayFormatId(final String id);
+	/** The cardinality is greater or equal zero (>=0) */
+	GREATER_OR_EQUAL_ZERO;
 
-	IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> setDisplayFormatName(final String name);
-
-	IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> setDisplayFormatDescription(final String description);
-
-	IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> setDisplayFormat(final IDisplayFormat displayFormat);
-
-	IControlPanelProvider<ELEMENT_VALUE_TYPE> build();
 }

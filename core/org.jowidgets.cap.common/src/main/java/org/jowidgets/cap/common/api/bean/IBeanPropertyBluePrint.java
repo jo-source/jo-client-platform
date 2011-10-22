@@ -46,6 +46,8 @@ public interface IBeanPropertyBluePrint {
 
 	IBeanPropertyBluePrint setLookUpValueRange(Object lookUpId);
 
+	IBeanPropertyBluePrint setCardinality(Cardinality cardinality);
+
 	IBeanPropertyBluePrint setLabelLong(String labelLongDefault);
 
 	IBeanPropertyBluePrint setDescription(String descriptionDefault);

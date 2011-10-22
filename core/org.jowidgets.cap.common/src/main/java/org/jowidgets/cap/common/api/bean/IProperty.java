@@ -78,6 +78,18 @@ public interface IProperty {
 	Class<?> getElementValueType();
 
 	/**
+	 * Gets the (logical) cardinality of the property.
+	 * 
+	 * Remark: The logical cardinality may differ from the technical cardinality. E.g. for any technical reason,
+	 * a Set is used to hold the property value, but the user want's a cardinality of <= 1 for user inputs. Then the
+	 * 
+	 * @link {@link IProperty#getValueType()} method returns 'Set.class' however the cardinality is LESS_OR_EQUAL_ONE.
+	 * 
+	 * @return The logical cardinality, never null
+	 */
+	Cardinality getCardinality();
+
+	/**
 	 * @return True if the property only has a getter, false otherwise
 	 */
 	boolean isReadonly();

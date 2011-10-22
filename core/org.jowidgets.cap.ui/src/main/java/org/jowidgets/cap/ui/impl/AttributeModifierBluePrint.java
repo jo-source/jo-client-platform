@@ -34,10 +34,13 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.jowidgets.cap.common.api.CapCommonToolkit;
+import org.jowidgets.cap.common.api.bean.Cardinality;
 import org.jowidgets.cap.common.api.bean.IValueRange;
 import org.jowidgets.cap.ui.api.attribute.IAttributeBluePrint;
 import org.jowidgets.cap.ui.api.attribute.IAttributeGroup;
 import org.jowidgets.cap.ui.api.attribute.IControlPanelProvider;
+import org.jowidgets.cap.ui.api.attribute.IControlPanelProviderBluePrint;
+import org.jowidgets.cap.ui.api.attribute.IGenericControlPanelProviderBluePrint;
 import org.jowidgets.cap.ui.api.control.DisplayFormat;
 import org.jowidgets.cap.ui.api.control.IDisplayFormat;
 import org.jowidgets.common.types.AlignmentHorizontal;
@@ -47,6 +50,8 @@ final class AttributeModifierBluePrint<ELEMENT_VALUE_TYPE> implements IAttribute
 
 	private boolean exhausted;
 	private IValueRange valueRange;
+	private Cardinality cardinality;
+	private boolean cardinalitySet;
 	private String label;
 	private String labelLong;
 	private DisplayFormat labelDisplayFormat;
@@ -69,11 +74,13 @@ final class AttributeModifierBluePrint<ELEMENT_VALUE_TYPE> implements IAttribute
 	AttributeModifierBluePrint() {
 		this.controlPanels = new LinkedList();
 		this.exhausted = false;
+		this.cardinalitySet = false;
 	}
 
 	@Override
 	public IAttributeBluePrint<ELEMENT_VALUE_TYPE> setValueRange(final IValueRange valueRange) {
 		Assert.paramNotNull(valueRange, "valueRange");
+		checkExhausted();
 		this.valueRange = valueRange;
 		return this;
 	}
@@ -95,6 +102,14 @@ final class AttributeModifierBluePrint<ELEMENT_VALUE_TYPE> implements IAttribute
 	public IAttributeBluePrint<ELEMENT_VALUE_TYPE> setValueRange(final ELEMENT_VALUE_TYPE... values) {
 		Assert.paramNotNull(values, "values");
 		return setValueRange(Arrays.asList(values));
+	}
+
+	@Override
+	public IAttributeBluePrint<ELEMENT_VALUE_TYPE> setCardinality(final Cardinality cardinality) {
+		checkExhausted();
+		this.cardinality = cardinality;
+		this.cardinalitySet = true;
+		return this;
 	}
 
 	@Override
@@ -212,6 +227,16 @@ final class AttributeModifierBluePrint<ELEMENT_VALUE_TYPE> implements IAttribute
 		return this;
 	}
 
+	@SuppressWarnings("unchecked")
+	@Override
+	public IControlPanelProviderBluePrint<ELEMENT_VALUE_TYPE> addControlPanel(final IDisplayFormat displayFormat) {
+		Assert.paramNotNull(displayFormat, "displayFormat");
+		final ControlPanelProviderBluePrintImpl<ELEMENT_VALUE_TYPE> result = new ControlPanelProviderBluePrintImpl<ELEMENT_VALUE_TYPE>(
+			displayFormat);
+		controlPanels.add(result);
+		return result;
+	}
+
 	@Override
 	public IAttributeBluePrint<ELEMENT_VALUE_TYPE> setDisplayFormat(final IDisplayFormat displayFormat) {
 		checkExhausted();
@@ -229,10 +254,13 @@ final class AttributeModifierBluePrint<ELEMENT_VALUE_TYPE> implements IAttribute
 		this.exhausted = true;
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({"unchecked", "rawtypes"})
 	void modify(final IAttributeBluePrint<ELEMENT_VALUE_TYPE> attributeBluePrint) {
 		if (valueRange != null) {
 			attributeBluePrint.setValueRange(valueRange);
+		}
+		if (cardinalitySet) {
+			attributeBluePrint.setCardinality(cardinality);
 		}
 		if (label != null) {
 			attributeBluePrint.setLabel(label);
@@ -276,8 +304,24 @@ final class AttributeModifierBluePrint<ELEMENT_VALUE_TYPE> implements IAttribute
 		if (displayFormat != null) {
 			attributeBluePrint.setDisplayFormat(displayFormat);
 		}
-		for (final Object controlPanelProvider : controlPanels) {
-			attributeBluePrint.addControlPanel((IControlPanelProvider<? extends ELEMENT_VALUE_TYPE>) controlPanelProvider);
+		for (final Object controlPanel : controlPanels) {
+			if (controlPanel instanceof IControlPanelProvider) {
+				attributeBluePrint.addControlPanel((IControlPanelProvider<? extends ELEMENT_VALUE_TYPE>) controlPanel);
+			}
+			else if (controlPanel instanceof ControlPanelProviderBluePrintImpl) {
+				final ControlPanelProviderBluePrintImpl<?> bluePrint = (ControlPanelProviderBluePrintImpl<?>) controlPanel;
+				final IControlPanelProviderBluePrint<ELEMENT_VALUE_TYPE> addedBluePrint = attributeBluePrint.addControlPanel(bluePrint.getDisplayFormat());
+				//The following may seem to be wrong, but its correct!
+				//The added blue print will be modified by this invocation and this is desired!
+				bluePrint.modifyBluePrint((IGenericControlPanelProviderBluePrint) addedBluePrint);
+			}
+			else {
+				throw new IllegalStateException("Control panel type '"
+					+ controlPanel.getClass().getName()
+					+ "' is not supported. This seems to be a bug.");
+			}
+
+			attributeBluePrint.addControlPanel((IControlPanelProvider<? extends ELEMENT_VALUE_TYPE>) controlPanel);
 		}
 	}
 

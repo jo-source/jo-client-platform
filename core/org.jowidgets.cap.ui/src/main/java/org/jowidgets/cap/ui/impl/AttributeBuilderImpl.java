@@ -36,6 +36,7 @@ import java.util.List;
 import org.jowidgets.api.convert.IConverter;
 import org.jowidgets.api.widgets.IInputControl;
 import org.jowidgets.cap.common.api.CapCommonToolkit;
+import org.jowidgets.cap.common.api.bean.Cardinality;
 import org.jowidgets.cap.common.api.bean.IProperty;
 import org.jowidgets.cap.common.api.bean.IValueRange;
 import org.jowidgets.cap.common.api.lookup.ILookUpValueRange;
@@ -45,6 +46,7 @@ import org.jowidgets.cap.ui.api.attribute.IAttributeBluePrint;
 import org.jowidgets.cap.ui.api.attribute.IAttributeBuilder;
 import org.jowidgets.cap.ui.api.attribute.IAttributeGroup;
 import org.jowidgets.cap.ui.api.attribute.IControlPanelProvider;
+import org.jowidgets.cap.ui.api.attribute.IControlPanelProviderBluePrint;
 import org.jowidgets.cap.ui.api.attribute.IControlPanelProviderBuilder;
 import org.jowidgets.cap.ui.api.control.DisplayFormat;
 import org.jowidgets.cap.ui.api.control.IDisplayFormat;
@@ -73,6 +75,7 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 	private boolean filterable;
 	private Class<?> valueType;
 	private Class<? extends ELEMENT_VALUE_TYPE> elementValueType;
+	private Cardinality cardinality;
 	private IDisplayFormat displayFormat;
 
 	@SuppressWarnings("rawtypes")
@@ -116,6 +119,7 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 		this.filterable = attribute.isFilterable();
 		this.valueType = attribute.getValueType();
 		this.elementValueType = attribute.getElementValueType();
+		this.cardinality = attribute.getCardinality();
 		this.displayFormat = attribute.getDisplayFormat();
 		this.controlPanels = attribute.getControlPanels();
 	}
@@ -126,6 +130,7 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 		Assert.paramNotNull(property, "property");
 		this.valueType = property.getValueType();
 		this.elementValueType = (Class<? extends ELEMENT_VALUE_TYPE>) property.getElementValueType();
+		this.cardinality = property.getCardinality();
 		this.propertyName = property.getName();
 		this.valueRange = property.getValueRange();
 		this.label = property.getLabelDefault();
@@ -184,6 +189,12 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 	public IAttributeBluePrint<ELEMENT_VALUE_TYPE> setValueRange(final ELEMENT_VALUE_TYPE... values) {
 		Assert.paramNotNull(values, "values");
 		return setValueRange(Arrays.asList(values));
+	}
+
+	@Override
+	public IAttributeBluePrint<ELEMENT_VALUE_TYPE> setCardinality(final Cardinality cardinality) {
+		this.cardinality = cardinality;
+		return this;
 	}
 
 	@Override
@@ -277,6 +288,16 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 
 	@SuppressWarnings("unchecked")
 	@Override
+	public IControlPanelProviderBluePrint<ELEMENT_VALUE_TYPE> addControlPanel(final IDisplayFormat displayFormat) {
+		Assert.paramNotNull(displayFormat, "displayFormat");
+		final ControlPanelProviderBluePrintImpl<ELEMENT_VALUE_TYPE> result = new ControlPanelProviderBluePrintImpl<ELEMENT_VALUE_TYPE>(
+			displayFormat);
+		controlPanels.add(result);
+		return result;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
 	public IAttributeBluePrint<ELEMENT_VALUE_TYPE> setControlPanels(
 		final Collection<? extends IControlPanelProvider<? extends ELEMENT_VALUE_TYPE>> controlPanels) {
 		this.controlPanels.clear();
@@ -357,10 +378,41 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 		}
 	}
 
+	private Cardinality getCardinality() {
+		if (cardinality != null) {
+			return cardinality;
+		}
+		else if (valueType != null && Collection.class.isAssignableFrom(valueType)) {
+			return Cardinality.GREATER_OR_EQUAL_ZERO;
+		}
+		else {
+			return Cardinality.LESS_OR_EQUAL_ONE;
+		}
+	}
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public IAttribute<ELEMENT_VALUE_TYPE> build() {
-		final List<IControlPanelProvider<? extends ELEMENT_VALUE_TYPE>> panels = getControlPanels();
+		final List<IControlPanelProvider<? extends ELEMENT_VALUE_TYPE>> panels = new LinkedList<IControlPanelProvider<? extends ELEMENT_VALUE_TYPE>>();
+
+		for (final Object object : getControlPanels()) {
+			if (object instanceof IControlPanelProvider) {
+				panels.add((IControlPanelProvider<? extends ELEMENT_VALUE_TYPE>) object);
+			}
+			else if (object instanceof ControlPanelProviderBluePrintImpl) {
+				final ControlPanelProviderBluePrintImpl<?> bluePrint = (ControlPanelProviderBluePrintImpl<?>) object;
+				panels.add((IControlPanelProvider<? extends ELEMENT_VALUE_TYPE>) bluePrint.create(
+						propertyName,
+						valueType,
+						elementValueType,
+						valueRange));
+			}
+			else {
+				throw new IllegalStateException("Control panel type '"
+					+ object.getClass().getName()
+					+ "' is not supported. This seems to be a bug.");
+			}
+		}
 
 		return new AttributeImpl<ELEMENT_VALUE_TYPE>(
 			propertyName,
@@ -380,6 +432,7 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 			filterable,
 			valueType,
 			elementValueType,
+			getCardinality(),
 			panels,
 			getDisplayFormat(panels));
 	}

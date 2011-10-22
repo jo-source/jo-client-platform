@@ -32,6 +32,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.jowidgets.cap.common.api.bean.Cardinality;
 import org.jowidgets.cap.common.api.bean.IProperty;
 import org.jowidgets.cap.common.api.bean.IValueRange;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
@@ -179,6 +180,11 @@ final class AttributesFactory {
 			@Override
 			public Class<?> getElementValueType() {
 				return attribute.getElementValueType();
+			}
+
+			@Override
+			public Cardinality getCardinality() {
+				return attribute.getCardinality();
 			}
 
 			@Override

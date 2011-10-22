@@ -31,6 +31,7 @@ package org.jowidgets.cap.common.impl;
 import java.io.Serializable;
 import java.util.Collection;
 
+import org.jowidgets.cap.common.api.bean.Cardinality;
 import org.jowidgets.cap.common.api.bean.IProperty;
 import org.jowidgets.cap.common.api.bean.IValueRange;
 import org.jowidgets.util.Assert;
@@ -48,6 +49,7 @@ final class PropertyImpl implements IProperty, Serializable {
 	private final boolean mandatoryDefault;
 	private final Class<?> valueType;
 	private final Class<?> elementValueType;
+	private final Cardinality cardinality;
 	private final boolean readonly;
 	private final boolean sortable;
 	private final boolean filterable;
@@ -62,6 +64,7 @@ final class PropertyImpl implements IProperty, Serializable {
 		final boolean mandatoryDefault,
 		final Class<?> valueType,
 		final Class<?> elementValueType,
+		final Cardinality cardinality,
 		final boolean readonly,
 		final boolean sortable,
 		final boolean filterable) {
@@ -71,6 +74,7 @@ final class PropertyImpl implements IProperty, Serializable {
 		Assert.paramNotEmpty(labelDefault, "labelDefault");
 		Assert.paramNotNull(valueType, "valueType");
 		Assert.paramNotNull(elementValueType, "elementValueType");
+		Assert.paramNotNull(cardinality, "cardinality");
 
 		if (Collection.class.isAssignableFrom(elementValueType)) {
 			throw new IllegalArgumentException("The element type must not be a collection");
@@ -85,6 +89,7 @@ final class PropertyImpl implements IProperty, Serializable {
 		this.mandatoryDefault = mandatoryDefault;
 		this.valueType = valueType;
 		this.elementValueType = elementValueType;
+		this.cardinality = cardinality;
 		this.readonly = readonly;
 		this.sortable = sortable;
 		this.filterable = filterable;
@@ -136,6 +141,11 @@ final class PropertyImpl implements IProperty, Serializable {
 	}
 
 	@Override
+	public Cardinality getCardinality() {
+		return cardinality;
+	}
+
+	@Override
 	public boolean isReadonly() {
 		return readonly;
 	}
@@ -154,14 +164,22 @@ final class PropertyImpl implements IProperty, Serializable {
 	public String toString() {
 		return "PropertyImpl [name="
 			+ name
+			+ ", valueRange="
+			+ valueRange
 			+ ", labelDefault="
 			+ labelDefault
 			+ ", valueType="
 			+ valueType
 			+ ", elementValueType="
 			+ elementValueType
+			+ ", cardinality="
+			+ cardinality
 			+ ", readonly="
 			+ readonly
+			+ ", sortable="
+			+ sortable
+			+ ", filterable="
+			+ filterable
 			+ "]";
 	}
 
