@@ -116,7 +116,7 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 			this.attributes.put(attribute.getPropertyName(), (IAttribute<Object>) attribute);
 		}
 
-		composite.setLayout(new MigLayoutDescriptor("0[grow]0", "0[][grow]0"));
+		composite.setLayout(new MigLayoutDescriptor("0[grow, 0::]0", "0[][grow, 0::]0"));
 		final String contentConstraints = "growx, growy, w 30::, h 20::, wrap";
 		final IInputComponentValidationLabelBluePrint validationLabelBp = Toolkit.getBluePrintFactory().inputComponentValidationLabel();
 		validationLabelBp.setSetup(bluePrint.getValidationLabel());

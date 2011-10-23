@@ -50,6 +50,9 @@ import org.jowidgets.util.Assert;
 
 final class BeanFormLayouterImpl implements IBeanFormLayouter {
 
+	private static final int DEFAULT_CONTROL_MIN_WIDTH = 100;
+	private static final int DEFAULT_CONTROL_MAX_WIDTH = 500;
+
 	private final IBeanFormLayout layout;
 
 	BeanFormLayouterImpl(final IBeanFormLayout layout) {
@@ -275,29 +278,34 @@ final class BeanFormLayouterImpl implements IBeanFormLayouter {
 	}
 
 	private static String getColumnWidthConstraints(final IBeanFormLayout layout, final int column) {
-		final Integer controlMinWidth = layout.getControlMinWidth(column);
-		final Integer controlMaxWidth = layout.getControlMaxWidth(column);
-		if (controlMinWidth != null || controlMaxWidth != null) {
-			return (controlMinWidth != null ? controlMinWidth.toString() : "")
-				+ "::"
-				+ (controlMaxWidth != null ? controlMaxWidth.toString() : "");
-		}
-		else {
-			return "";
-		}
+		final int controlMinWidth = getControlMinWidth(layout, column);
+		final int controlMaxWidth = getControlMaxWidth(layout, column);
+		return controlMinWidth + ":" + controlMinWidth + ":" + controlMaxWidth;
 	}
 
 	private static String getControlWidthConstraints(final IBeanFormLayout layout, final int column) {
-		final Integer controlMinWidth = layout.getControlMinWidth(column);
-		final Integer controlMaxWidth = layout.getControlMaxWidth(column);
-		if (controlMinWidth != null || controlMaxWidth != null) {
-			return "width "
-				+ (controlMinWidth != null ? controlMinWidth.toString() : "")
-				+ "::"
-				+ (controlMaxWidth != null ? controlMaxWidth.toString() : "");
+		final int controlMinWidth = getControlMinWidth(layout, column);
+		final int controlMaxWidth = getControlMaxWidth(layout, column);
+		return "width " + controlMinWidth + ":" + controlMinWidth + ":" + controlMaxWidth;
+	}
+
+	private static int getControlMinWidth(final IBeanFormLayout layout, final int column) {
+		final Integer width = layout.getControlMinWidth(column);
+		if (width != null) {
+			return width.intValue();
 		}
 		else {
-			return "";
+			return DEFAULT_CONTROL_MIN_WIDTH;
+		}
+	}
+
+	private static int getControlMaxWidth(final IBeanFormLayout layout, final int column) {
+		final Integer width = layout.getControlMaxWidth(column);
+		if (width != null) {
+			return width.intValue();
+		}
+		else {
+			return DEFAULT_CONTROL_MAX_WIDTH;
 		}
 	}
 
@@ -323,7 +331,6 @@ final class BeanFormLayouterImpl implements IBeanFormLayouter {
 			result.append("[0::]"); // validation label column
 		}
 		result.append("0");
-
 		return result.toString();
 	}
 }
