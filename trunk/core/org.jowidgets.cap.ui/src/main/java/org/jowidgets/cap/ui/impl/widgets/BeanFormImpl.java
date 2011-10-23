@@ -380,6 +380,10 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 			else {
 				controlCreator = controlPanel.getControlCreator();
 			}
+			//if (controlCreator == null && controlPanel.getObjectLabelConverter() != null) {
+			//TODO MG add readonly input field (must be added to jo widgets
+			//}
+
 			return controlCreator;
 		}
 

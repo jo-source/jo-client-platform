@@ -28,10 +28,22 @@
 
 package org.jowidgets.cap.ui.api.widgets;
 
-import org.jowidgets.common.widgets.descriptor.IWidgetDescriptor;
+import org.jowidgets.api.widgets.blueprint.builder.IComponentSetupBuilder;
+import org.jowidgets.api.widgets.descriptor.setup.IComponentSetup;
+import org.jowidgets.common.widgets.descriptor.setup.mandatory.Mandatory;
 
-public interface IBeanTablesFormBluePrint extends
-		IBeanTableFormSetupBuilder<IBeanTablesFormBluePrint>,
-		IWidgetDescriptor<IBeanTablesForm> {
+public interface IBeanTableFormSetupBuilder<INSTANCE_TYPE extends IComponentSetupBuilder<?>> extends
+		IComponentSetup,
+		IComponentSetupBuilder<INSTANCE_TYPE> {
+
+	INSTANCE_TYPE setHideReadonlyAttributes(boolean hide);
+
+	INSTANCE_TYPE setHideMetaAttributes(boolean hide);
+
+	@Mandatory
+	boolean getHideReadonlyAttributes();
+
+	@Mandatory
+	boolean getHideMetaAttributes();
 
 }
