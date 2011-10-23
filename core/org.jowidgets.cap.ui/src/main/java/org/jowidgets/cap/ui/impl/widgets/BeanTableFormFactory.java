@@ -48,7 +48,7 @@ public final class BeanTableFormFactory implements IWidgetFactory<IControl, IBea
 	public IControl create(final Object parentUiReference, final IBeanTableFormBluePrint<?> bluePrint) {
 		final ICapApiBluePrintFactory bpf = CapUiToolkit.bluePrintFactory();
 		final IBeanTablesForm tablesForm = Toolkit.getWidgetFactory().create(parentUiReference, bpf.beanTablesForm());
-		final IBeanFormBluePrint<Object> beanFormBluePrint = (IBeanFormBluePrint<Object>) bluePrint.getBeanFormBluePrint();
+		final IBeanFormBluePrint<Object> beanFormBluePrint = (IBeanFormBluePrint<Object>) bluePrint.getBeanForm();
 		if (beanFormBluePrint != null) {
 			tablesForm.registerView(new DummyBeanTableView(bluePrint.getModel()), beanFormBluePrint);
 		}

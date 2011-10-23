@@ -42,11 +42,11 @@ public interface IBeanTableFormBluePrint<BEAN_TYPE> extends
 
 	IBeanTableFormBluePrint<BEAN_TYPE> setModel(IBeanTableModel<BEAN_TYPE> model);
 
-	IBeanTableFormBluePrint<BEAN_TYPE> setBeanFormBluePrint(IBeanFormBluePrint<BEAN_TYPE> beanFormBluePrint);
+	IBeanTableFormBluePrint<BEAN_TYPE> setBeanForm(IBeanFormBluePrint<BEAN_TYPE> beanFormBluePrint);
 
 	@Mandatory
 	IBeanTableModel<BEAN_TYPE> getModel();
 
-	IBeanFormBluePrint<BEAN_TYPE> getBeanFormBluePrint();
+	IBeanFormBluePrint<BEAN_TYPE> getBeanForm();
 
 }
