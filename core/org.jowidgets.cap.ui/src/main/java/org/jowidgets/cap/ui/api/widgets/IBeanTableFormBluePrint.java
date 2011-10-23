@@ -29,15 +29,12 @@
 package org.jowidgets.cap.ui.api.widgets;
 
 import org.jowidgets.api.widgets.IControl;
-import org.jowidgets.api.widgets.blueprint.builder.IComponentSetupBuilder;
-import org.jowidgets.api.widgets.descriptor.setup.IComponentSetup;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.common.widgets.descriptor.IWidgetDescriptor;
 import org.jowidgets.common.widgets.descriptor.setup.mandatory.Mandatory;
 
 public interface IBeanTableFormBluePrint<BEAN_TYPE> extends
-		IComponentSetup,
-		IComponentSetupBuilder<IBeanTableFormBluePrint<BEAN_TYPE>>,
+		IBeanTableFormSetupBuilder<IBeanTableFormBluePrint<BEAN_TYPE>>,
 		IWidgetDescriptor<IControl> {
 
 	IBeanTableFormBluePrint<BEAN_TYPE> setModel(IBeanTableModel<BEAN_TYPE> model);

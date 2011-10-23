@@ -29,7 +29,9 @@
 package org.jowidgets.cap.ui.api.bean;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanModification;
@@ -45,6 +47,14 @@ public interface IBeanProxy<BEAN_TYPE> extends
 
 	String META_PROPERTY_PROGRESS = IBeanProxy.class.getName() + "_META_PROPERTY_PROGRESS";
 	String META_PROPERTY_MESSAGES = IBeanProxy.class.getName() + "_META_PROPERTY_MESSAGES";
+
+	Set<String> ALL_META_ATTRIBUTES = new HashSet<String>() {
+		private static final long serialVersionUID = 1L;
+		{
+			add(META_PROPERTY_PROGRESS);
+			add(META_PROPERTY_MESSAGES);
+		}
+	};
 
 	void setValue(String propertyName, Object value);
 

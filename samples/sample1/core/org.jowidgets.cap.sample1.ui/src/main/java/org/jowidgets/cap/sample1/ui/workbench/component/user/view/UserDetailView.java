@@ -28,17 +28,10 @@
 
 package org.jowidgets.cap.sample1.ui.workbench.component.user.view;
 
-import java.util.List;
-
 import org.jowidgets.api.widgets.IContainer;
 import org.jowidgets.cap.sample1.common.entity.IUser;
-import org.jowidgets.cap.sample1.ui.attribute.UserAttributesFactory;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
-import org.jowidgets.cap.ui.api.attribute.IAttribute;
-import org.jowidgets.cap.ui.api.form.IBeanFormLayoutBuilder;
-import org.jowidgets.cap.ui.api.form.IBeanFormToolkit;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
-import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableFormBluePrint;
 import org.jowidgets.tools.layout.MigLayoutFactory;
 import org.jowidgets.workbench.api.IViewContext;
@@ -53,17 +46,7 @@ public class UserDetailView extends AbstractView {
 	public UserDetailView(final IViewContext context, final IBeanTableModel<IUser> parentModel) {
 		final IContainer container = context.getContainer();
 		container.setLayout(MigLayoutFactory.growingCellLayout());
-		final List<IAttribute<Object>> attributes = new UserAttributesFactory().formAttributes();
-		final IBeanFormToolkit beanFormToolkit = CapUiToolkit.beanFormToolkit();
-
-		final IBeanFormBluePrint<IUser> formBp = CapUiToolkit.bluePrintFactory().beanForm(attributes);
-		final IBeanFormLayoutBuilder layoutBuilder = beanFormToolkit.layoutBuilder();
-		layoutBuilder.addGroups(attributes).setColumnMaxSize(0, 300);
-		formBp.setLayouter(beanFormToolkit.layouter(layoutBuilder.build()));
-
 		final IBeanTableFormBluePrint<IUser> beanTableFormBp = CapUiToolkit.bluePrintFactory().beanTableForm(parentModel);
-		beanTableFormBp.setBeanForm(formBp);
-
 		container.add(beanTableFormBp, MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
 	}
 }

@@ -38,6 +38,7 @@ import org.jowidgets.api.controller.IDisposeListener;
 import org.jowidgets.api.widgets.IComposite;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
+import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.widgets.IBeanForm;
@@ -53,12 +54,16 @@ import org.jowidgets.util.Assert;
 
 final class BeanTablesFormImpl extends ControlWrapper implements IBeanTablesForm {
 
+	private final boolean hideReadonlyAttributes;
+	private final boolean hideMetaAttributes;
 	private final Map<IBeanTableView<?>, IBeanForm<?>> forms;
 	private final Map<IBeanTableView<?>, TableViewListener> viewListeners;
 	private final Map<IBeanTableView<?>, TableModelListener<?>> tableModelListeners;
 
 	BeanTablesFormImpl(final IComposite composite, final IBeanTablesFormBluePrint bluePrint) {
 		super(composite);
+		this.hideReadonlyAttributes = bluePrint.getHideReadonlyAttributes();
+		this.hideMetaAttributes = bluePrint.getHideMetaAttributes();
 		this.forms = new HashMap<IBeanTableView<?>, IBeanForm<?>>();
 		this.viewListeners = new HashMap<IBeanTableView<?>, TableViewListener>();
 		this.tableModelListeners = new HashMap<IBeanTableView<?>, TableModelListener<?>>();
@@ -105,14 +110,8 @@ final class BeanTablesFormImpl extends ControlWrapper implements IBeanTablesForm
 	@Override
 	public void registerView(final IBeanTableView view) {
 		Assert.paramNotNull(view, "view");
-		final List<IAttribute> attributes = view.getModel().getAttributes();
-		final List editableAttributes = new LinkedList();
-		for (final IAttribute attribute : attributes) {
-			if (attribute.isEditable()) {
-				editableAttributes.add(attribute);
-			}
-		}
-		final IBeanFormBluePrint beanFormBp = CapUiToolkit.bluePrintFactory().beanForm(editableAttributes);
+		final List<IAttribute<?>> attributes = getFilteredAttributes(view.getModel().getAttributes());
+		final IBeanFormBluePrint beanFormBp = CapUiToolkit.bluePrintFactory().beanForm(attributes);
 		registerView(view, beanFormBp);
 	}
 
@@ -126,6 +125,17 @@ final class BeanTablesFormImpl extends ControlWrapper implements IBeanTablesForm
 			getWidget().remove(form);
 			forms.remove(form);
 		}
+	}
+
+	private List<IAttribute<?>> getFilteredAttributes(final List<IAttribute<?>> attributes) {
+		final List<IAttribute<?>> result = new LinkedList<IAttribute<?>>();
+		for (final IAttribute<?> attribute : attributes) {
+			if ((!hideReadonlyAttributes || attribute.isEditable())
+				&& (!hideMetaAttributes || !IBeanProxy.ALL_META_ATTRIBUTES.contains(attribute.getPropertyName()))) {
+				result.add(attribute);
+			}
+		}
+		return result;
 	}
 
 	private void switchToView(final IBeanTableView<?> view) {

@@ -64,6 +64,7 @@ import org.jowidgets.cap.ui.api.widgets.IAttributeFilterControlBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableFormBluePrint;
+import org.jowidgets.cap.ui.api.widgets.IBeanTableFormSetupBuilder;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableSettingsDialogBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTablesFormBluePrint;
 import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
@@ -224,6 +225,16 @@ public final class CapUiToolkit {
 						bluePrint.setColumnsMoveable(true);
 						bluePrint.setColumnsResizeable(true);
 						bluePrint.setDefaultMenus(true);
+					}
+				});
+
+		toolkit.getBluePrintFactory().addDefaultsInitializer(
+				IBeanTableFormSetupBuilder.class,
+				new IDefaultInitializer<IBeanTableFormSetupBuilder<?>>() {
+					@Override
+					public void initialize(final IBeanTableFormSetupBuilder<?> bluePrint) {
+						bluePrint.setHideReadonlyAttributes(true);
+						bluePrint.setHideMetaAttributes(true);
 					}
 				});
 

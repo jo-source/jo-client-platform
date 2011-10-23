@@ -38,6 +38,7 @@ import org.jowidgets.cap.ui.api.widgets.IBeanTableFormBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableView;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableViewListener;
 import org.jowidgets.cap.ui.api.widgets.IBeanTablesForm;
+import org.jowidgets.cap.ui.api.widgets.IBeanTablesFormBluePrint;
 import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
 import org.jowidgets.common.widgets.factory.IWidgetFactory;
 
@@ -47,7 +48,9 @@ public final class BeanTableFormFactory implements IWidgetFactory<IControl, IBea
 	@Override
 	public IControl create(final Object parentUiReference, final IBeanTableFormBluePrint<?> bluePrint) {
 		final ICapApiBluePrintFactory bpf = CapUiToolkit.bluePrintFactory();
-		final IBeanTablesForm tablesForm = Toolkit.getWidgetFactory().create(parentUiReference, bpf.beanTablesForm());
+		final IBeanTablesFormBluePrint bp = bpf.beanTablesForm();
+		bp.setSetup(bluePrint);
+		final IBeanTablesForm tablesForm = Toolkit.getWidgetFactory().create(parentUiReference, bp);
 		final IBeanFormBluePrint<Object> beanFormBluePrint = (IBeanFormBluePrint<Object>) bluePrint.getBeanForm();
 		if (beanFormBluePrint != null) {
 			tablesForm.registerView(new DummyBeanTableView(bluePrint.getModel()), beanFormBluePrint);
