@@ -62,7 +62,7 @@ public class UserDetailView extends AbstractView {
 		formBp.setLayouter(beanFormToolkit.layouter(layoutBuilder.build()));
 
 		final IBeanTableFormBluePrint<IUser> beanTableFormBp = CapUiToolkit.bluePrintFactory().beanTableForm(parentModel);
-		beanTableFormBp.setBeanFormBluePrint(formBp);
+		beanTableFormBp.setBeanForm(formBp);
 
 		container.add(beanTableFormBp, MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
 	}
