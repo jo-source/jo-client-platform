@@ -28,9 +28,6 @@
 
 package org.jowidgets.cap.ui.api.command;
 
-import java.util.List;
-
-import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 
 public interface ICapActionFactory {
@@ -53,7 +50,7 @@ public interface ICapActionFactory {
 
 	<BEAN_TYPE, PARAM_TYPE> IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> executorActionBuilder(IBeanListModel<BEAN_TYPE> model);
 
-	ICreatorActionBuilder creatorActionBuilder(IBeanListModel<?> model, final List<? extends IAttribute<?>> attributes);
+	<BEAN_TYPE> ICreatorActionBuilder creatorActionBuilder(Class<? extends BEAN_TYPE> beanType, IBeanListModel<BEAN_TYPE> model);
 
 	<BEAN_TYPE> IDeleterActionBuilder<BEAN_TYPE> deleterActionBuilder(IBeanListModel<BEAN_TYPE> model);
 

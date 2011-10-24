@@ -38,10 +38,12 @@ import org.jowidgets.api.command.IEnabledChecker;
 import org.jowidgets.api.image.IconsSmall;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.cap.common.api.service.ICreatorService;
+import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.bean.IBeanExecptionConverter;
 import org.jowidgets.cap.ui.api.command.ICreatorActionBuilder;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
+import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
 import org.jowidgets.common.image.IImageConstant;
 import org.jowidgets.common.types.Accelerator;
 import org.jowidgets.common.types.Modifier;
@@ -51,23 +53,24 @@ import org.jowidgets.service.tools.ServiceId;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.builder.AbstractSingleUseBuilder;
 
-final class CreatorActionBuilder extends AbstractSingleUseBuilder<IAction> implements ICreatorActionBuilder {
+final class CreatorActionBuilder<BEAN_TYPE> extends AbstractSingleUseBuilder<IAction> implements ICreatorActionBuilder {
 
+	private final Class<? extends BEAN_TYPE> beanType;
 	private final IBeanListModel<?> model;
-	private final List<IAttribute<?>> attributes;
 	private final IActionBuilder builder;
 	private final List<IEnabledChecker> enabledCheckers;
 	private boolean anySelection;
 
 	private ICreatorService creatorService;
+	private IBeanFormBluePrint<?> beanFormBp;
 	private IBeanExecptionConverter exceptionConverter;
 
-	CreatorActionBuilder(final IBeanListModel<?> model, final List<? extends IAttribute<?>> attributes) {
+	CreatorActionBuilder(final Class<? extends BEAN_TYPE> beanType, final IBeanListModel<?> model) {
 		checkExhausted();
+		Assert.paramNotNull(beanType, "beanType");
 		Assert.paramNotNull(model, "model");
-		Assert.paramNotNull(attributes, "attributes");
+		this.beanType = beanType;
 		this.model = model;
-		this.attributes = new LinkedList<IAttribute<?>>(attributes);
 		this.builder = Toolkit.getActionBuilderFactory().create();
 		this.enabledCheckers = new LinkedList<IEnabledChecker>();
 		this.exceptionConverter = new DefaultBeanExceptionConverter();
@@ -127,6 +130,21 @@ final class CreatorActionBuilder extends AbstractSingleUseBuilder<IAction> imple
 	}
 
 	@Override
+	public ICreatorActionBuilder setBeanForm(final IBeanFormBluePrint<?> beanForm) {
+		checkExhausted();
+		Assert.paramNotNull(beanForm, "beanForm");
+		this.beanFormBp = beanForm;
+		return this;
+	}
+
+	@Override
+	public ICreatorActionBuilder setBeanForm(final List<? extends IAttribute<?>> attributes) {
+		checkExhausted();
+		Assert.paramNotNull(attributes, "attributes");
+		return setBeanForm(CapUiToolkit.bluePrintFactory().beanForm(attributes));
+	}
+
+	@Override
 	public ICreatorActionBuilder setCreatorService(final ICreatorService creatorService) {
 		checkExhausted();
 		Assert.paramNotNull(creatorService, "creatorService");
@@ -177,9 +195,10 @@ final class CreatorActionBuilder extends AbstractSingleUseBuilder<IAction> imple
 
 	@Override
 	protected IAction doBuild() {
-		final BeanCreatorCommand command = new BeanCreatorCommand(
+		final BeanCreatorCommand<BEAN_TYPE> command = new BeanCreatorCommand<BEAN_TYPE>(
+			beanType,
 			model,
-			attributes,
+			beanFormBp,
 			enabledCheckers,
 			anySelection,
 			creatorService,

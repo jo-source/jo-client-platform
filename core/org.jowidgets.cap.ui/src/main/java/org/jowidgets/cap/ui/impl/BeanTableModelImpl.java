@@ -134,6 +134,8 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 	private static final int MAX_PAGE_LOADER_COUNT = 2;
 	private static final IDummyValue DUMMY_VALUE = new IDummyValue() {};
 
+	private final Class<BEAN_TYPE> beanType;
+
 	private final Map<String, IUiFilter> filters;
 	private final Map<Integer, ArrayList<IBeanProxy<BEAN_TYPE>>> data;
 	private final LinkedList<PageLoader> currentPageLoaders;
@@ -194,6 +196,7 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 		Assert.paramNotNull(paramProvider, "paramProvider");
 
 		this.parent = parent;
+		this.beanType = (Class<BEAN_TYPE>) beanType;
 		this.linkType = linkType;
 		if (parent != null) {
 			Assert.paramNotNull(linkType, "linkType");
@@ -305,6 +308,11 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 			result.add(attribute.getPropertyName());
 		}
 		return result;
+	}
+
+	@Override
+	public Class<BEAN_TYPE> getBeanType() {
+		return beanType;
 	}
 
 	@Override

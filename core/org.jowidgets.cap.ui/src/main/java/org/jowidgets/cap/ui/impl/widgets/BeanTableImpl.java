@@ -132,11 +132,9 @@ final class BeanTableImpl<BEAN_TYPE> extends TableWrapper implements IBeanTable<
 				if (hasDefaultMenus) {
 					tablePopupMenuModel.addSeparator();
 				}
-
-				final ICreatorActionBuilder creatorActionBuilder = actionFactory.creatorActionBuilder(
-						model,
-						model.getAttributes());
+				final ICreatorActionBuilder creatorActionBuilder = actionFactory.creatorActionBuilder(model.getBeanType(), model);
 				creatorActionBuilder.setCreatorService(model.getCreatorService());
+				creatorActionBuilder.setBeanForm(model.getAttributes());
 				tablePopupMenuModel.addAction(creatorActionBuilder.build());
 			}
 			if (hasDefaultDeleterAction && model.getDeleterService() != null) {
@@ -261,8 +259,9 @@ final class BeanTableImpl<BEAN_TYPE> extends TableWrapper implements IBeanTable<
 			if (hasDefaultMenus) {
 				menuModel.addSeparator();
 			}
-			final ICreatorActionBuilder creatorActionBuilder = actionFactory.creatorActionBuilder(model, model.getAttributes());
+			final ICreatorActionBuilder creatorActionBuilder = actionFactory.creatorActionBuilder(model.getBeanType(), model);
 			creatorActionBuilder.setCreatorService(model.getCreatorService());
+			creatorActionBuilder.setBeanForm(model.getAttributes());
 			menuModel.addAction(creatorActionBuilder.build());
 		}
 		if (hasDefaultDeleterAction && model.getDeleterService() != null) {
