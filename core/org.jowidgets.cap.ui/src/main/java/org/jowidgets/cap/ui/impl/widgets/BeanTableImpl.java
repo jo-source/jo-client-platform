@@ -43,6 +43,9 @@ import org.jowidgets.api.widgets.IWidget;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
+import org.jowidgets.cap.ui.api.command.ICapActionFactory;
+import org.jowidgets.cap.ui.api.command.ICreatorActionBuilder;
+import org.jowidgets.cap.ui.api.command.IDeleterActionBuilder;
 import org.jowidgets.cap.ui.api.filter.FilterType;
 import org.jowidgets.cap.ui.api.sort.ISortModel;
 import org.jowidgets.cap.ui.api.table.IBeanTableConfig;
@@ -83,6 +86,8 @@ final class BeanTableImpl<BEAN_TYPE> extends TableWrapper implements IBeanTable<
 	private final ITableMenuCreationInterceptor<BEAN_TYPE> headerMenuInterceptor;
 	private final ITableMenuCreationInterceptor<BEAN_TYPE> cellMenuInterceptor;
 	private final boolean hasDefaultMenus;
+	private final boolean hasDefaultCreatorAction;
+	private final boolean hasDefaultDeleterAction;
 
 	private IBeanTableSettingsDialog settingsDialog;
 	private ITableCellPopupEvent currentCellEvent;
@@ -97,6 +102,8 @@ final class BeanTableImpl<BEAN_TYPE> extends TableWrapper implements IBeanTable<
 		this.headerPopupMenuModel = new MenuModel();
 		this.tablePopupMenuModel = new MenuModel();
 		this.hasDefaultMenus = bluePrint.hasDefaultMenus();
+		this.hasDefaultCreatorAction = bluePrint.hasDefaultCreatorAction();
+		this.hasDefaultDeleterAction = bluePrint.hasDefaultDeleterAction();
 		this.headerMenuInterceptor = bluePrint.getHeaderMenuInterceptor();
 		this.cellMenuInterceptor = bluePrint.getCellMenuInterceptor();
 
@@ -119,6 +126,27 @@ final class BeanTableImpl<BEAN_TYPE> extends TableWrapper implements IBeanTable<
 			tablePopupMenuModel.addSeparator();
 			tablePopupMenuModel.addAction(menuFactory.settingsAction(this));
 			tablePopupMenuModel.addItem(menuFactory.filterMenu(model));
+
+			final ICapActionFactory actionFactory = CapUiToolkit.actionFactory();
+			if (hasDefaultCreatorAction && model.getCreatorService() != null) {
+				if (hasDefaultMenus) {
+					tablePopupMenuModel.addSeparator();
+				}
+
+				final ICreatorActionBuilder creatorActionBuilder = actionFactory.creatorActionBuilder(
+						model,
+						model.getAttributes());
+				creatorActionBuilder.setCreatorService(model.getCreatorService());
+				tablePopupMenuModel.addAction(creatorActionBuilder.build());
+			}
+			if (hasDefaultDeleterAction && model.getDeleterService() != null) {
+				if (hasDefaultMenus && !hasDefaultCreatorAction) {
+					tablePopupMenuModel.addSeparator();
+				}
+				final IDeleterActionBuilder<BEAN_TYPE> deleterActionBuilder = actionFactory.deleterActionBuilder(model);
+				deleterActionBuilder.setDeleterService(model.getDeleterService());
+				tablePopupMenuModel.addAction(deleterActionBuilder.build());
+			}
 			table.setPopupMenu(tablePopupMenuModel);
 		}
 
@@ -226,6 +254,24 @@ final class BeanTableImpl<BEAN_TYPE> extends TableWrapper implements IBeanTable<
 		}
 		else {
 			menuModel = new MenuModel();
+		}
+
+		final ICapActionFactory actionFactory = CapUiToolkit.actionFactory();
+		if (hasDefaultCreatorAction && model.getCreatorService() != null) {
+			if (hasDefaultMenus) {
+				menuModel.addSeparator();
+			}
+			final ICreatorActionBuilder creatorActionBuilder = actionFactory.creatorActionBuilder(model, model.getAttributes());
+			creatorActionBuilder.setCreatorService(model.getCreatorService());
+			menuModel.addAction(creatorActionBuilder.build());
+		}
+		if (hasDefaultDeleterAction && model.getDeleterService() != null) {
+			if (hasDefaultMenus && !hasDefaultCreatorAction) {
+				menuModel.addSeparator();
+			}
+			final IDeleterActionBuilder<BEAN_TYPE> deleterActionBuilder = actionFactory.deleterActionBuilder(model);
+			deleterActionBuilder.setDeleterService(model.getDeleterService());
+			menuModel.addAction(deleterActionBuilder.build());
 		}
 
 		if (cellMenuInterceptor != null) {

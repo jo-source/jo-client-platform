@@ -31,16 +31,16 @@ package org.jowidgets.cap.ui.api.command;
 import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.command.IEnabledChecker;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
+import org.jowidgets.cap.common.api.service.IDeleterService;
 import org.jowidgets.cap.ui.api.bean.IBeanExecptionConverter;
 import org.jowidgets.cap.ui.api.execution.BeanExecutionPolicy;
 import org.jowidgets.cap.ui.api.execution.BeanMessageStatePolicy;
-import org.jowidgets.cap.ui.api.execution.BeanSelectionPolicy;
 import org.jowidgets.cap.ui.api.execution.IExecutionInterceptor;
 import org.jowidgets.common.image.IImageConstant;
 import org.jowidgets.common.types.Accelerator;
 import org.jowidgets.common.types.Modifier;
+import org.jowidgets.service.api.IServiceId;
 
-//TODO MG,HRW review
 public interface IDeleterActionBuilder<BEAN_TYPE> {
 
 	IDeleterActionBuilder<BEAN_TYPE> setText(String text);
@@ -57,9 +57,15 @@ public interface IDeleterActionBuilder<BEAN_TYPE> {
 
 	IDeleterActionBuilder<BEAN_TYPE> setAccelerator(final char key, final Modifier... modifier);
 
+	IDeleterActionBuilder<BEAN_TYPE> setDeleterService(IDeleterService deleterService);
+
+	IDeleterActionBuilder<BEAN_TYPE> setDeleterService(IServiceId<IDeleterService> deleterServiceId);
+
+	IDeleterActionBuilder<BEAN_TYPE> setDeleterService(String deleterServiceId);
+
 	IDeleterActionBuilder<BEAN_TYPE> setExecutionPolicy(BeanExecutionPolicy policy);
 
-	IDeleterActionBuilder<BEAN_TYPE> setSelectionPolicy(BeanSelectionPolicy policy);
+	IDeleterActionBuilder<BEAN_TYPE> setMultiSelectionPolicy(boolean multiSelection);
 
 	IDeleterActionBuilder<BEAN_TYPE> setMessageStatePolicy(BeanMessageStatePolicy policy);
 

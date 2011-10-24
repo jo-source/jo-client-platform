@@ -308,6 +308,16 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 	}
 
 	@Override
+	public ICreatorService getCreatorService() {
+		return creatorService;
+	}
+
+	@Override
+	public IDeleterService getDeleterService() {
+		return deleterService;
+	}
+
+	@Override
 	public void clear() {
 		rowCount = 0;
 		maxPageIndex = 0;

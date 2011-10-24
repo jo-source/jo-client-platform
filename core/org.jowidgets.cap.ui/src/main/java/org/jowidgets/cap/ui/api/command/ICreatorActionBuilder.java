@@ -30,12 +30,13 @@ package org.jowidgets.cap.ui.api.command;
 
 import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.command.IEnabledChecker;
-import org.jowidgets.cap.ui.api.execution.IExecutionInterceptor;
+import org.jowidgets.cap.common.api.service.ICreatorService;
+import org.jowidgets.cap.ui.api.bean.IBeanExecptionConverter;
 import org.jowidgets.common.image.IImageConstant;
 import org.jowidgets.common.types.Accelerator;
 import org.jowidgets.common.types.Modifier;
+import org.jowidgets.service.api.IServiceId;
 
-//TODO MG,HRW review
 public interface ICreatorActionBuilder {
 
 	ICreatorActionBuilder setText(String text);
@@ -52,11 +53,17 @@ public interface ICreatorActionBuilder {
 
 	ICreatorActionBuilder setAccelerator(final char key, final Modifier... modifier);
 
+	ICreatorActionBuilder setCreatorService(ICreatorService creatorService);
+
+	ICreatorActionBuilder setCreatorService(IServiceId<ICreatorService> creatorServiceId);
+
+	ICreatorActionBuilder setCreatorService(String creatorServiceId);
+
 	ICreatorActionBuilder setAnySelection(boolean anySelection);
 
 	ICreatorActionBuilder addEnabledChecker(IEnabledChecker enabledChecker);
 
-	ICreatorActionBuilder addExecutionInterceptor(IExecutionInterceptor interceptor);
+	ICreatorActionBuilder setExceptionConverter(IBeanExecptionConverter exceptionConverter);
 
 	IAction build();
 
