@@ -28,9 +28,6 @@
 
 package org.jowidgets.cap.ui.impl;
 
-import java.util.List;
-
-import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.command.ICapActionFactory;
 import org.jowidgets.cap.ui.api.command.ICreatorActionBuilder;
 import org.jowidgets.cap.ui.api.command.IDataModelAction;
@@ -98,10 +95,10 @@ final class CapActionFactoryImpl implements ICapActionFactory {
 	}
 
 	@Override
-	public ICreatorActionBuilder creatorActionBuilder(
-		final IBeanListModel<?> model,
-		final List<? extends IAttribute<?>> attributes) {
-		return new CreatorActionBuilder(model, attributes);
+	public <BEAN_TYPE> ICreatorActionBuilder creatorActionBuilder(
+		final Class<? extends BEAN_TYPE> beanType,
+		final IBeanListModel<BEAN_TYPE> model) {
+		return new CreatorActionBuilder<BEAN_TYPE>(beanType, model);
 	}
 
 	@Override

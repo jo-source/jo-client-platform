@@ -46,6 +46,8 @@ public interface IBeanTableModel<BEAN_TYPE> extends IDataModel, IBeanListModel<B
 
 	String UI_FILTER_ID = IBeanTableModel.class.getName() + ".UI_FILTER_ID";
 
+	Class<BEAN_TYPE> getBeanType();
+
 	ITableModel getTableModel();
 
 	ICreatorService getCreatorService();

@@ -40,18 +40,20 @@ import org.jowidgets.api.command.IExceptionHandler;
 import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.cap.common.api.service.ICreatorService;
-import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.bean.IBeanExecptionConverter;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
+import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.event.IChangeListener;
 
-final class BeanCreatorCommand implements ICommand, ICommandExecutor, IEnabledChecker {
+final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor, IEnabledChecker {
 
+	@SuppressWarnings("unused")
+	private final Class<? extends BEAN_TYPE> beanType;
 	@SuppressWarnings("unused")
 	private final IBeanListModel<?> model;
 	@SuppressWarnings("unused")
-	private final List<IAttribute<?>> attributes;
+	private final IBeanFormBluePrint<?> beanFormBp;
 	@SuppressWarnings("unused")
 	private final List<IEnabledChecker> enabledCheckers;
 	@SuppressWarnings("unused")
@@ -62,22 +64,25 @@ final class BeanCreatorCommand implements ICommand, ICommandExecutor, IEnabledCh
 	private final IBeanExecptionConverter exceptionConverter;
 
 	BeanCreatorCommand(
+		final Class<? extends BEAN_TYPE> beanType,
 		final IBeanListModel<?> model,
-		final List<IAttribute<?>> attributes,
+		final IBeanFormBluePrint<?> beanFormBp,
 		final List<IEnabledChecker> enabledCheckers,
 		final boolean anySelection,
 		final ICreatorService creatorService,
 		final IBeanExecptionConverter exceptionConverter) {
 
+		Assert.paramNotNull(beanType, "beanType");
 		Assert.paramNotNull(model, "model");
-		Assert.paramNotNull(attributes, "attributes");
+		Assert.paramNotNull(beanFormBp, "beanFormBp");
 		Assert.paramNotNull(enabledCheckers, "enabledCheckers");
 		Assert.paramNotNull(anySelection, "anySelection");
 		Assert.paramNotNull(creatorService, "creatorService");
 		Assert.paramNotNull(exceptionConverter, "exceptionConverter");
 
+		this.beanType = beanType;
 		this.model = model;
-		this.attributes = new LinkedList<IAttribute<?>>(attributes);
+		this.beanFormBp = beanFormBp;
 		this.enabledCheckers = new LinkedList<IEnabledChecker>(enabledCheckers);
 		this.creatorService = creatorService;
 		this.anySelection = anySelection;

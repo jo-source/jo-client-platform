@@ -28,10 +28,14 @@
 
 package org.jowidgets.cap.ui.api.command;
 
+import java.util.List;
+
 import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.command.IEnabledChecker;
 import org.jowidgets.cap.common.api.service.ICreatorService;
+import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.bean.IBeanExecptionConverter;
+import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
 import org.jowidgets.common.image.IImageConstant;
 import org.jowidgets.common.types.Accelerator;
 import org.jowidgets.common.types.Modifier;
@@ -52,6 +56,10 @@ public interface ICreatorActionBuilder {
 	ICreatorActionBuilder setAccelerator(Accelerator accelerator);
 
 	ICreatorActionBuilder setAccelerator(final char key, final Modifier... modifier);
+
+	ICreatorActionBuilder setBeanForm(IBeanFormBluePrint<?> beanForm);
+
+	ICreatorActionBuilder setBeanForm(List<? extends IAttribute<?>> attributes);
 
 	ICreatorActionBuilder setCreatorService(ICreatorService creatorService);
 
