@@ -59,6 +59,7 @@ import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.bean.IBeanModification;
+import org.jowidgets.cap.common.api.bean.IProperty;
 import org.jowidgets.cap.common.api.bean.IValueRange;
 import org.jowidgets.cap.common.api.execution.IExecutionCallbackListener;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
@@ -76,7 +77,11 @@ import org.jowidgets.cap.common.tools.bean.BeanKey;
 import org.jowidgets.cap.common.tools.execution.SyncResultCallback;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
+import org.jowidgets.cap.ui.api.attribute.IAttributeBluePrint;
+import org.jowidgets.cap.ui.api.attribute.IAttributeCollectionModifierBuilder;
 import org.jowidgets.cap.ui.api.attribute.IAttributeConfig;
+import org.jowidgets.cap.ui.api.attribute.IAttributeModifier;
+import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
 import org.jowidgets.cap.ui.api.bean.BeanMessageType;
 import org.jowidgets.cap.ui.api.bean.IBeanMessage;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
@@ -238,6 +243,19 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 		final IPluginProperties properties = propBuilder.build();
 		for (final IBeanTableModelPlugin plugin : PluginProvider.getPlugins(IBeanTableModelPlugin.ID, properties)) {
 			modifiedAttributes = plugin.modify(properties, modifiedAttributes);
+		}
+
+		//if no updater service available, set all attributes to editable false
+		if (updaterService == null) {
+			final IAttributeToolkit attributeToolkit = CapUiToolkit.attributeToolkit();
+			final IAttributeCollectionModifierBuilder modifierBuilder = attributeToolkit.createAttributeCollectionModifierBuilder();
+			modifierBuilder.addDefaultModifier(new IAttributeModifier<Object>() {
+				@Override
+				public void modify(final IProperty sourceProperty, final IAttributeBluePrint<Object> attributeBluePrint) {
+					attributeBluePrint.setEditable(false);
+				}
+			});
+			modifiedAttributes = CapUiToolkit.attributeToolkit().createAttributesCopy(modifiedAttributes, modifierBuilder.build());
 		}
 
 		this.attributes = new ArrayList<IAttribute<Object>>(modifiedAttributes);
