@@ -32,6 +32,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.jowidgets.api.model.table.ITableModel;
+import org.jowidgets.cap.common.api.service.ICreatorService;
+import org.jowidgets.cap.common.api.service.IDeleterService;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.filter.IUiFilter;
@@ -45,6 +47,10 @@ public interface IBeanTableModel<BEAN_TYPE> extends IDataModel, IBeanListModel<B
 	String UI_FILTER_ID = IBeanTableModel.class.getName() + ".UI_FILTER_ID";
 
 	ITableModel getTableModel();
+
+	ICreatorService getCreatorService();
+
+	IDeleterService getDeleterService();
 
 	IAttribute<Object> getAttribute(int columnIndex);
 

@@ -50,6 +50,10 @@ public interface IBeanTableBluePrint<BEAN_TYPE> extends
 
 	IBeanTableBluePrint<BEAN_TYPE> setDefaultMenus(boolean defaultMenus);
 
+	IBeanTableBluePrint<BEAN_TYPE> setDefaultCreatorAction(boolean creatorAction);
+
+	IBeanTableBluePrint<BEAN_TYPE> setDefaultDeleterAction(boolean deleterAction);
+
 	IBeanTableBluePrint<BEAN_TYPE> setHeaderMenuInterceptor(ITableMenuCreationInterceptor<BEAN_TYPE> interceptor);
 
 	IBeanTableBluePrint<BEAN_TYPE> setCellMenuInterceptor(ITableMenuCreationInterceptor<BEAN_TYPE> interceptor);
@@ -68,6 +72,10 @@ public interface IBeanTableBluePrint<BEAN_TYPE> extends
 
 	@Mandatory
 	boolean hasDefaultMenus();
+
+	boolean hasDefaultCreatorAction();
+
+	boolean hasDefaultDeleterAction();
 
 	ITableMenuCreationInterceptor<BEAN_TYPE> getHeaderMenuInterceptor();
 

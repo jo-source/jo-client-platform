@@ -28,9 +28,14 @@
 
 package org.jowidgets.cap.ui.impl;
 
+import java.util.List;
+
+import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.command.ICapActionFactory;
+import org.jowidgets.cap.ui.api.command.ICreatorActionBuilder;
 import org.jowidgets.cap.ui.api.command.IDataModelAction;
 import org.jowidgets.cap.ui.api.command.IDataModelActionBuilder;
+import org.jowidgets.cap.ui.api.command.IDeleterActionBuilder;
 import org.jowidgets.cap.ui.api.command.IExecutorActionBuilder;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 
@@ -90,6 +95,18 @@ final class CapActionFactoryImpl implements ICapActionFactory {
 	public <BEAN_TYPE, PARAM_TYPE> IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> executorActionBuilder(
 		final IBeanListModel<BEAN_TYPE> model) {
 		return new ExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE>(model);
+	}
+
+	@Override
+	public ICreatorActionBuilder creatorActionBuilder(
+		final IBeanListModel<?> model,
+		final List<? extends IAttribute<?>> attributes) {
+		return new CreatorActionBuilder(model, attributes);
+	}
+
+	@Override
+	public <BEAN_TYPE> IDeleterActionBuilder<BEAN_TYPE> deleterActionBuilder(final IBeanListModel<BEAN_TYPE> model) {
+		return new DeleterActionBuilder<BEAN_TYPE>(model);
 	}
 
 }

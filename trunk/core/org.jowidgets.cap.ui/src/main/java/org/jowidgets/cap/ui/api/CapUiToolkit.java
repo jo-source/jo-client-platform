@@ -225,6 +225,8 @@ public final class CapUiToolkit {
 						bluePrint.setColumnsMoveable(true);
 						bluePrint.setColumnsResizeable(true);
 						bluePrint.setDefaultMenus(true);
+						bluePrint.setDefaultCreatorAction(true);
+						bluePrint.setDefaultDeleterAction(true);
 					}
 				});
 
