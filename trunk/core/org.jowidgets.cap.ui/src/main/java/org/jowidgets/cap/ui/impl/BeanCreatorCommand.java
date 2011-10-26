@@ -37,7 +37,6 @@ import org.jowidgets.api.command.IEnabledChecker;
 import org.jowidgets.api.command.IExceptionHandler;
 import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.api.toolkit.Toolkit;
-import org.jowidgets.api.widgets.IFrame;
 import org.jowidgets.cap.common.api.service.ICreatorService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
@@ -47,16 +46,15 @@ import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
 import org.jowidgets.cap.ui.api.execution.BeanModificationStatePolicy;
 import org.jowidgets.cap.ui.api.execution.BeanSelectionPolicy;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
-import org.jowidgets.cap.ui.api.widgets.IBeanForm;
+import org.jowidgets.cap.ui.api.widgets.IBeanDialog;
+import org.jowidgets.cap.ui.api.widgets.IBeanDialogBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
-import org.jowidgets.tools.layout.MigLayoutFactory;
-import org.jowidgets.tools.widgets.blueprint.BPF;
+import org.jowidgets.common.types.Rectangle;
 import org.jowidgets.util.Assert;
 
 final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
 
-	@SuppressWarnings("unused")
-	private final Class<? extends BEAN_TYPE> beanType;
+	private static final int INITIAL_MIN_WIDTH = 450;
 
 	@SuppressWarnings("unused")
 	private final IBeanListModel<?> model;
@@ -72,6 +70,8 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 	private final BeanListModelEnabledChecker<BEAN_TYPE> enabledChecker;
 	private final IBeanProxyFactory<BEAN_TYPE> beanFactory;
 	private final List<String> properties;
+
+	private Rectangle dialogBounds;
 
 	BeanCreatorCommand(
 		final Class<? extends BEAN_TYPE> beanType,
@@ -100,7 +100,6 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 
 		this.beanFactory = CapUiToolkit.beanProxyFactory(beanType);
 
-		this.beanType = beanType;
 		this.model = model;
 		this.beanFormBp = beanFormBp;
 		this.creatorService = creatorService;
@@ -130,10 +129,26 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 	@Override
 	public void execute(final IExecutionContext executionContext) throws Exception {
 		final IBeanProxy<BEAN_TYPE> proxy = beanFactory.createProxy(properties);
-		final IFrame dialog = Toolkit.getActiveWindow().createChildWindow(BPF.dialog().setExecutionContext(executionContext));
-		dialog.setLayout(MigLayoutFactory.growingCellLayout());
-		final IBeanForm<BEAN_TYPE> beanForm = dialog.add(beanFormBp, MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
-		beanForm.setValue(proxy);
+		final IBeanDialogBluePrint<BEAN_TYPE> beanDialogBp = CapUiToolkit.bluePrintFactory().beanDialog(beanFormBp);
+		beanDialogBp.autoPackOff();
+		if (dialogBounds != null) {
+			beanDialogBp.setPosition(dialogBounds.getPosition()).setSize(dialogBounds.getSize());
+			beanDialogBp.autoPackOff().autoCenterOff();
+		}
+		beanDialogBp.setExecutionContext(executionContext);
+		final IBeanDialog<BEAN_TYPE> dialog = Toolkit.getActiveWindow().createChildWindow(beanDialogBp);
+		dialog.pack();
+		dialog.setBean(proxy);
+
+		dialog.setSize(Math.max(dialog.getSize().getWidth(), INITIAL_MIN_WIDTH), dialog.getSize().getHeight());
+
 		dialog.setVisible(true);
+		if (dialog.isOkPressed()) {
+			//CHECKSTYLE:OFF
+			System.out.println(proxy);
+			//CHECKSTYLE:ON
+		}
+		dialogBounds = dialog.getBounds();
+		dialog.dispose();
 	}
 }
