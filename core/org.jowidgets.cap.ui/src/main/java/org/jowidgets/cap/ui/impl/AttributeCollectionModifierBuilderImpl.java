@@ -29,6 +29,7 @@
 package org.jowidgets.cap.ui.impl;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -67,7 +68,7 @@ final class AttributeCollectionModifierBuilderImpl implements IAttributeCollecti
 	}
 
 	@Override
-	public IAttributeCollectionModifierBuilder addBlackListFilter(final List<String> propertyNames) {
+	public IAttributeCollectionModifierBuilder addBlackListFilter(final Collection<String> propertyNames) {
 		Assert.paramNotEmpty(propertyNames, "propertyNames");
 		addFilter(new IAttributeFilter() {
 			@Override
@@ -91,7 +92,7 @@ final class AttributeCollectionModifierBuilderImpl implements IAttributeCollecti
 	}
 
 	@Override
-	public IAttributeCollectionModifierBuilder addWhiteListFilter(final List<String> propertyNames) {
+	public IAttributeCollectionModifierBuilder addWhiteListFilter(final Collection<String> propertyNames) {
 		Assert.paramNotEmpty(propertyNames, "propertyNames");
 		addFilter(new IAttributeFilter() {
 			@Override

@@ -56,16 +56,16 @@ import org.jowidgets.util.builder.AbstractSingleUseBuilder;
 final class CreatorActionBuilder<BEAN_TYPE> extends AbstractSingleUseBuilder<IAction> implements ICreatorActionBuilder {
 
 	private final Class<? extends BEAN_TYPE> beanType;
-	private final IBeanListModel<?> model;
+	private final IBeanListModel<BEAN_TYPE> model;
 	private final IActionBuilder builder;
 	private final List<IEnabledChecker> enabledCheckers;
 	private boolean anySelection;
 
 	private ICreatorService creatorService;
-	private IBeanFormBluePrint<?> beanFormBp;
+	private IBeanFormBluePrint<BEAN_TYPE> beanFormBp;
 	private IBeanExecptionConverter exceptionConverter;
 
-	CreatorActionBuilder(final Class<? extends BEAN_TYPE> beanType, final IBeanListModel<?> model) {
+	CreatorActionBuilder(final Class<? extends BEAN_TYPE> beanType, final IBeanListModel<BEAN_TYPE> model) {
 		checkExhausted();
 		Assert.paramNotNull(beanType, "beanType");
 		Assert.paramNotNull(model, "model");
@@ -74,6 +74,8 @@ final class CreatorActionBuilder<BEAN_TYPE> extends AbstractSingleUseBuilder<IAc
 		this.builder = Toolkit.getActionBuilderFactory().create();
 		this.enabledCheckers = new LinkedList<IEnabledChecker>();
 		this.exceptionConverter = new DefaultBeanExceptionConverter();
+
+		this.anySelection = true;
 
 		builder.setText(Messages.getString("CreatorActionBuilder.create_data_set"));
 		builder.setToolTipText(Messages.getString("CreatorActionBuilder.create_data_set_tooltip"));
@@ -129,11 +131,12 @@ final class CreatorActionBuilder<BEAN_TYPE> extends AbstractSingleUseBuilder<IAc
 		return this;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public ICreatorActionBuilder setBeanForm(final IBeanFormBluePrint<?> beanForm) {
 		checkExhausted();
 		Assert.paramNotNull(beanForm, "beanForm");
-		this.beanFormBp = beanForm;
+		this.beanFormBp = (IBeanFormBluePrint<BEAN_TYPE>) beanForm;
 		return this;
 	}
 

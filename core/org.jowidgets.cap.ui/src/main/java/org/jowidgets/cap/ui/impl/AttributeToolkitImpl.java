@@ -38,6 +38,7 @@ import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IAttributeBuilder;
 import org.jowidgets.cap.ui.api.attribute.IAttributeCollectionModifier;
 import org.jowidgets.cap.ui.api.attribute.IAttributeCollectionModifierBuilder;
+import org.jowidgets.cap.ui.api.attribute.IAttributeFilterFactory;
 import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
 import org.jowidgets.cap.ui.api.attribute.IControlPanelProviderBuilder;
 import org.jowidgets.cap.ui.api.bean.IBeanMessage;
@@ -47,9 +48,16 @@ import org.jowidgets.util.Assert;
 final class AttributeToolkitImpl implements IAttributeToolkit {
 
 	private final AttributesFactory attributesFactory;
+	private final IAttributeFilterFactory attributeFilterFactory;
 
 	AttributeToolkitImpl() {
 		this.attributesFactory = new AttributesFactory();
+		this.attributeFilterFactory = new AttributeFilterFactoryImpl();
+	}
+
+	@Override
+	public IAttributeFilterFactory attributeFilterFactory() {
+		return attributeFilterFactory;
 	}
 
 	@Override

@@ -31,42 +31,52 @@ package org.jowidgets.cap.ui.impl;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.jowidgets.api.command.EnabledState;
 import org.jowidgets.api.command.ICommand;
 import org.jowidgets.api.command.ICommandExecutor;
 import org.jowidgets.api.command.IEnabledChecker;
-import org.jowidgets.api.command.IEnabledState;
 import org.jowidgets.api.command.IExceptionHandler;
 import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.api.toolkit.Toolkit;
+import org.jowidgets.api.widgets.IFrame;
 import org.jowidgets.cap.common.api.service.ICreatorService;
+import org.jowidgets.cap.ui.api.CapUiToolkit;
+import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.bean.IBeanExecptionConverter;
+import org.jowidgets.cap.ui.api.bean.IBeanProxy;
+import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
+import org.jowidgets.cap.ui.api.execution.BeanModificationStatePolicy;
+import org.jowidgets.cap.ui.api.execution.BeanSelectionPolicy;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
+import org.jowidgets.cap.ui.api.widgets.IBeanForm;
 import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
+import org.jowidgets.tools.layout.MigLayoutFactory;
+import org.jowidgets.tools.widgets.blueprint.BPF;
 import org.jowidgets.util.Assert;
-import org.jowidgets.util.event.IChangeListener;
 
-final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor, IEnabledChecker {
+final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
 
 	@SuppressWarnings("unused")
 	private final Class<? extends BEAN_TYPE> beanType;
+
 	@SuppressWarnings("unused")
 	private final IBeanListModel<?> model;
-	@SuppressWarnings("unused")
-	private final IBeanFormBluePrint<?> beanFormBp;
-	@SuppressWarnings("unused")
-	private final List<IEnabledChecker> enabledCheckers;
+
+	private final IBeanFormBluePrint<BEAN_TYPE> beanFormBp;
+
 	@SuppressWarnings("unused")
 	private final ICreatorService creatorService;
-	@SuppressWarnings("unused")
-	private final boolean anySelection;
+
 	@SuppressWarnings("unused")
 	private final IBeanExecptionConverter exceptionConverter;
 
+	private final BeanListModelEnabledChecker<BEAN_TYPE> enabledChecker;
+	private final IBeanProxyFactory<BEAN_TYPE> beanFactory;
+	private final List<String> properties;
+
 	BeanCreatorCommand(
 		final Class<? extends BEAN_TYPE> beanType,
-		final IBeanListModel<?> model,
-		final IBeanFormBluePrint<?> beanFormBp,
+		final IBeanListModel<BEAN_TYPE> model,
+		final IBeanFormBluePrint<BEAN_TYPE> beanFormBp,
 		final List<IEnabledChecker> enabledCheckers,
 		final boolean anySelection,
 		final ICreatorService creatorService,
@@ -75,18 +85,31 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor,
 		Assert.paramNotNull(beanType, "beanType");
 		Assert.paramNotNull(model, "model");
 		Assert.paramNotNull(beanFormBp, "beanFormBp");
+		Assert.paramNotNull(beanFormBp.getAttributes(), "beanFormBp.getAttributes()");
 		Assert.paramNotNull(enabledCheckers, "enabledCheckers");
 		Assert.paramNotNull(anySelection, "anySelection");
 		Assert.paramNotNull(creatorService, "creatorService");
 		Assert.paramNotNull(exceptionConverter, "exceptionConverter");
 
+		this.enabledChecker = new BeanListModelEnabledChecker<BEAN_TYPE>(
+			model,
+			anySelection ? BeanSelectionPolicy.ANY_SELECTION : BeanSelectionPolicy.NO_SELECTION,
+			BeanModificationStatePolicy.ANY_MODIFICATION,
+			null,
+			enabledCheckers);
+
+		this.beanFactory = CapUiToolkit.beanProxyFactory(beanType);
+
 		this.beanType = beanType;
 		this.model = model;
 		this.beanFormBp = beanFormBp;
-		this.enabledCheckers = new LinkedList<IEnabledChecker>(enabledCheckers);
 		this.creatorService = creatorService;
-		this.anySelection = anySelection;
 		this.exceptionConverter = exceptionConverter;
+
+		this.properties = new LinkedList<String>();
+		for (final IAttribute<?> attribute : beanFormBp.getAttributes()) {
+			properties.add(attribute.getPropertyName());
+		}
 	}
 
 	@Override
@@ -96,7 +119,7 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor,
 
 	@Override
 	public IEnabledChecker getEnabledChecker() {
-		return this;
+		return enabledChecker;
 	}
 
 	@Override
@@ -105,23 +128,12 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor,
 	}
 
 	@Override
-	public IEnabledState getEnabledState() {
-		return EnabledState.ENABLED;
-	}
-
-	@Override
-	public void addChangeListener(final IChangeListener listener) {
-
-	}
-
-	@Override
-	public void removeChangeListener(final IChangeListener listener) {
-
-	}
-
-	@Override
 	public void execute(final IExecutionContext executionContext) throws Exception {
-		Toolkit.getMessagePane().showInfo(executionContext, "Not yet implemented");
+		final IBeanProxy<BEAN_TYPE> proxy = beanFactory.createProxy(properties);
+		final IFrame dialog = Toolkit.getActiveWindow().createChildWindow(BPF.dialog().setExecutionContext(executionContext));
+		dialog.setLayout(MigLayoutFactory.growingCellLayout());
+		final IBeanForm<BEAN_TYPE> beanForm = dialog.add(beanFormBp, MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
+		beanForm.setValue(proxy);
+		dialog.setVisible(true);
 	}
-
 }

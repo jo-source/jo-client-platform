@@ -56,6 +56,7 @@ import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableSettingsDialog;
 import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
 import org.jowidgets.cap.ui.api.widgets.ITableMenuCreationInterceptor;
+import org.jowidgets.cap.ui.tools.attribute.AcceptEditableAttributesFilter;
 import org.jowidgets.common.types.IVetoable;
 import org.jowidgets.common.types.Modifier;
 import org.jowidgets.common.types.Position;
@@ -134,7 +135,7 @@ final class BeanTableImpl<BEAN_TYPE> extends TableWrapper implements IBeanTable<
 				}
 				final ICreatorActionBuilder creatorActionBuilder = actionFactory.creatorActionBuilder(model.getBeanType(), model);
 				creatorActionBuilder.setCreatorService(model.getCreatorService());
-				creatorActionBuilder.setBeanForm(model.getAttributes());
+				creatorActionBuilder.setBeanForm(model.getAttributes(AcceptEditableAttributesFilter.getInstance()));
 				tablePopupMenuModel.addAction(creatorActionBuilder.build());
 			}
 			if (hasDefaultDeleterAction && model.getDeleterService() != null) {
@@ -261,7 +262,7 @@ final class BeanTableImpl<BEAN_TYPE> extends TableWrapper implements IBeanTable<
 			}
 			final ICreatorActionBuilder creatorActionBuilder = actionFactory.creatorActionBuilder(model.getBeanType(), model);
 			creatorActionBuilder.setCreatorService(model.getCreatorService());
-			creatorActionBuilder.setBeanForm(model.getAttributes());
+			creatorActionBuilder.setBeanForm(model.getAttributes(AcceptEditableAttributesFilter.getInstance()));
 			menuModel.addAction(creatorActionBuilder.build());
 		}
 		if (hasDefaultDeleterAction && model.getDeleterService() != null) {

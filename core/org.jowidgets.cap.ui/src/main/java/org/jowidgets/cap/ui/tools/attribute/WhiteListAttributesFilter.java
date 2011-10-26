@@ -26,43 +26,29 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.attribute;
+package org.jowidgets.cap.ui.tools.attribute;
 
 import java.util.Collection;
 
-public interface IAttributeCollectionModifierBuilder {
+import org.jowidgets.cap.ui.api.CapUiToolkit;
+import org.jowidgets.cap.ui.api.attribute.IAttribute;
+import org.jowidgets.cap.ui.api.attribute.IAttributeFilter;
 
-	IAttributeCollectionModifierBuilder addFilter(IAttributeFilter filter);
+public final class WhiteListAttributesFilter implements IAttributeFilter {
 
-	IAttributeCollectionModifierBuilder addBlackListFilter(Collection<String> propertyNames);
+	private final IAttributeFilter attributeFilter;
 
-	IAttributeCollectionModifierBuilder addBlackListFilter(String... propertyNames);
+	public WhiteListAttributesFilter(final String... propertyNames) {
+		this.attributeFilter = CapUiToolkit.attributeToolkit().attributeFilterFactory().whiteListFilter(propertyNames);
+	}
 
-	IAttributeCollectionModifierBuilder addWhiteListFilter(Collection<String> propertyNames);
+	public WhiteListAttributesFilter(final Collection<String> propertyNames) {
+		this.attributeFilter = CapUiToolkit.attributeToolkit().attributeFilterFactory().whiteListFilter(propertyNames);
+	}
 
-	IAttributeCollectionModifierBuilder addWhiteListFilter(String... propertyNames);
-
-	IAttributeCollectionModifierBuilder addAcceptEditableAttributesFilter();
-
-	IAttributeCollectionModifierBuilder addDefaultModifier(IAttributeModifier<?> modifier);
-
-	IAttributeCollectionModifierBuilder addDefaultEditableModifier(boolean editable);
-
-	IAttributeCollectionModifierBuilder addDefaultVisibleModifier(boolean visible);
-
-	<ELEMENT_VALUE_TYPE> IAttributeCollectionModifierBuilder addModifier(
-		String propertyName,
-		IAttributeModifier<ELEMENT_VALUE_TYPE> modifier);
-
-	/**
-	 * Adds a modifier. The modification that should be done can be made on the returned IAttributeBluePrint
-	 * 
-	 * @param <ELEMENT_VALUE_TYPE>
-	 * @param propertyName The property to add the modifier for
-	 * @return A bluePrint to make the modifications on.
-	 */
-	<ELEMENT_VALUE_TYPE> IAttributeBluePrint<ELEMENT_VALUE_TYPE> addModifier(String propertyName);
-
-	IAttributeCollectionModifier build();
+	@Override
+	public boolean accept(final IAttribute<?> attribute) {
+		return attributeFilter.accept(attribute);
+	}
 
 }
