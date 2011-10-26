@@ -28,16 +28,12 @@
 
 package org.jowidgets.cap.ui.impl;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.jowidgets.api.command.EnabledState;
 import org.jowidgets.api.command.ICommand;
 import org.jowidgets.api.command.ICommandExecutor;
 import org.jowidgets.api.command.IEnabledChecker;
-import org.jowidgets.api.command.IEnabledState;
 import org.jowidgets.api.command.IExceptionHandler;
 import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.api.threads.IUiThreadAccess;
@@ -45,17 +41,11 @@ import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
-import org.jowidgets.cap.common.api.execution.IExecutableState;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.service.IExecutorService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
-import org.jowidgets.cap.ui.api.bean.BeanMessageType;
 import org.jowidgets.cap.ui.api.bean.IBeanExecptionConverter;
 import org.jowidgets.cap.ui.api.bean.IBeanKeyFactory;
-import org.jowidgets.cap.ui.api.bean.IBeanMessage;
-import org.jowidgets.cap.ui.api.bean.IBeanMessageStateListener;
-import org.jowidgets.cap.ui.api.bean.IBeanModificationStateListener;
-import org.jowidgets.cap.ui.api.bean.IBeanProcessStateListener;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.execution.BeanExecutionPolicy;
 import org.jowidgets.cap.ui.api.execution.BeanMessageStatePolicy;
@@ -66,39 +56,24 @@ import org.jowidgets.cap.ui.api.execution.IExecutionTask;
 import org.jowidgets.cap.ui.api.execution.IExecutor;
 import org.jowidgets.cap.ui.api.execution.IParameterProvider;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
-import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
 import org.jowidgets.util.ValueHolder;
-import org.jowidgets.util.event.ChangeObservable;
-import org.jowidgets.util.event.IChangeListener;
 import org.jowidgets.util.maybe.IMaybe;
 import org.jowidgets.util.maybe.Nothing;
 import org.jowidgets.util.maybe.Some;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
-final class ExecutorCommand extends ChangeObservable implements ICommand, ICommandExecutor, IEnabledChecker {
+final class ExecutorCommand implements ICommand, ICommandExecutor {
 
-	private static final IEnabledState IS_IN_PROCESS_STATE = EnabledState.disabled(Messages.getString("ExecutorCommand.there_is_some_other_execution_in_progress")); //$NON-NLS-1$
-	private static final IEnabledState SINGLE_SELECTION_STATE = EnabledState.disabled(Messages.getString("ExecutorCommand.there_must_be_selected_exactly_one_record")); //$NON-NLS-1$
-	private static final IEnabledState MULTI_SELECTION_STATE = EnabledState.disabled(Messages.getString("ExecutorCommand.there_must_be_selected_at_least_one_record")); //$NON-NLS-1$
-	private static final IEnabledState NO_SELECTION_STATE = EnabledState.disabled(Messages.getString("ExecutorCommand.there_must_not_be_selected_any_record")); //$NON-NLS-1$
-	private static final IEnabledState UNSAVED_DATA_STATE = EnabledState.disabled(Messages.getString("ExecutorCommand.the_record_has_unsaved_data")); //$NON-NLS-1$
-	private static final IEnabledState UNHANDLED_MESSAGES_STATE = EnabledState.disabled(Messages.getString("ExecutorCommand.there_are_unhandled_messages")); //$NON-NLS-1$
+	private final BeanListModelEnabledChecker enabledChecker;
 
 	private final IBeanListModel<Object> listModel;
-	private final List<IExecutableChecker<Object>> executableCheckers;
-	private final List<IEnabledChecker> enabledCheckers;
 	private final List<Object> parameterProviders;
 	private final List<IExecutionInterceptor> executionInterceptors;
 	private final BeanExecutionPolicy beanListExecutionPolicy;
-	private final BeanSelectionPolicy beanSelectionPolicy;
-	private final BeanModificationStatePolicy beanModificationStatePolicy;
-	private final BeanMessageStatePolicy beanMessageStatePolicy;
 
 	private final Object defaultParameter;
 	private final Object executor;
 	private final IBeanExecptionConverter beanExceptionConverter;
-
-	private List<IBeanProxy> lastSelection;
 
 	ExecutorCommand(
 		final IBeanListModel listModel,
@@ -114,89 +89,23 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 		final Object defaultParameter,
 		final Object executor) {
 		super();
+
+		this.enabledChecker = new BeanListModelEnabledChecker(
+			listModel,
+			beanSelectionPolicy,
+			beanModificationStatePolicy,
+			beanMessageStatePolicy,
+			enabledCheckers,
+			executableCheckers);
+
 		this.listModel = listModel;
 		this.beanListExecutionPolicy = beanListExecutionPolicy;
-		this.beanSelectionPolicy = beanSelectionPolicy;
-		this.beanModificationStatePolicy = beanModificationStatePolicy;
-		this.beanMessageStatePolicy = beanMessageStatePolicy;
-		this.enabledCheckers = enabledCheckers;
-		this.executableCheckers = executableCheckers;
 		this.beanExceptionConverter = beanExceptionConverter;
 		this.parameterProviders = parameterProviders;
 		this.executionInterceptors = executionInterceptors;
 		this.defaultParameter = defaultParameter;
 		this.executor = executor;
-		this.lastSelection = getSelectedBeans();
 
-		final IChangeListener changeListener = new IChangeListener() {
-			@Override
-			public void changed() {
-				fireChangedEvent();
-			}
-		};
-
-		for (final IEnabledChecker enabledChecker : enabledCheckers) {
-			enabledChecker.addChangeListener(changeListener);
-		}
-
-		//TODO MG enabled checks must be done better performance
-		final PropertyChangeListener propertyChangeListener = new PropertyChangeListener() {
-			@Override
-			public void propertyChange(final PropertyChangeEvent evt) {
-				fireChangedEvent();
-			}
-		};
-
-		final IBeanModificationStateListener modificationStateListener = new IBeanModificationStateListener<Object>() {
-			@Override
-			public void modificationStateChanged(final IBeanProxy<Object> bean) {
-				fireChangedEvent();
-			}
-		};
-
-		final IBeanProcessStateListener processStateListener = new IBeanProcessStateListener<Object>() {
-			@Override
-			public void processStateChanged(final IBeanProxy<Object> bean) {
-				fireChangedEvent();
-			}
-		};
-
-		final IBeanMessageStateListener messageStateListener = new IBeanMessageStateListener<Object>() {
-			@Override
-			public void messageStateChanged(final IBeanProxy<Object> bean) {
-				fireChangedEvent();
-			}
-		};
-
-		listModel.addBeanListModelListener(new IBeanListModelListener() {
-
-			@Override
-			public void selectionChanged() {
-
-				for (final IBeanProxy bean : lastSelection) {
-					bean.removeProcessStateListener(processStateListener);
-					bean.removePropertyChangeListener(propertyChangeListener);
-					bean.removeModificationStateListener(modificationStateListener);
-					bean.removeMessageStateListener(messageStateListener);
-				}
-
-				final List<IBeanProxy> selectedBeans = getSelectedBeans();
-
-				for (final IBeanProxy bean : selectedBeans) {
-					bean.addProcessStateListener(processStateListener);
-					bean.addPropertyChangeListener(propertyChangeListener);
-					bean.addModificationStateListener(modificationStateListener);
-					bean.addMessageStateListener(messageStateListener);
-				}
-
-				lastSelection = selectedBeans;
-
-				fireChangedEvent();
-			}
-
-			@Override
-			public void beansChanged() {}
-		});
 	}
 
 	@Override
@@ -206,76 +115,12 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 
 	@Override
 	public IEnabledChecker getEnabledChecker() {
-		return this;
+		return enabledChecker;
 	}
 
 	@Override
 	public IExceptionHandler getExceptionHandler() {
 		return null;
-	}
-
-	@Override
-	public IEnabledState getEnabledState() {
-		//TODO MG enabled checks must be done better performance
-		if (BeanSelectionPolicy.SINGLE_SELECTION == beanSelectionPolicy && lastSelection.size() != 1) {
-			return SINGLE_SELECTION_STATE;
-		}
-		else if (BeanSelectionPolicy.MULTI_SELECTION == beanSelectionPolicy && lastSelection.size() < 1) {
-			return MULTI_SELECTION_STATE;
-		}
-		else if (BeanSelectionPolicy.NO_SELECTION == beanSelectionPolicy && lastSelection.size() > 0) {
-			return NO_SELECTION_STATE;
-		}
-		for (final IEnabledChecker enabledChecker : enabledCheckers) {
-			final IEnabledState result = enabledChecker.getEnabledState();
-			if (!result.isEnabled()) {
-				return result;
-			}
-		}
-		for (final IBeanProxy bean : lastSelection) {
-			final IBeanMessage worstMessage = bean.getFirstWorstMessage();
-			final IBeanMessage worstMandatoryMessage = bean.getFirstWorstMandatoryMessage();
-			if (bean.getExecutionTask() != null) {
-				return IS_IN_PROCESS_STATE;
-			}
-			else if (BeanMessageStatePolicy.NO_MESSAGE == beanMessageStatePolicy && worstMessage != null) {
-				return UNHANDLED_MESSAGES_STATE;
-			}
-			else if (BeanMessageStatePolicy.NO_MESSAGE_MANDATORY == beanMessageStatePolicy && worstMandatoryMessage != null) {
-				return UNHANDLED_MESSAGES_STATE;
-			}
-			else if (BeanModificationStatePolicy.NO_MODIFICATION == beanModificationStatePolicy && bean.hasModifications()) {
-				return UNSAVED_DATA_STATE;
-			}
-			else if (BeanMessageStatePolicy.NO_WARNING_OR_ERROR == beanMessageStatePolicy
-				&& worstMessage != null
-				&& worstMessage.getType().equalOrWorse(BeanMessageType.WARNING)) {
-				return UNHANDLED_MESSAGES_STATE;
-			}
-			else if (BeanMessageStatePolicy.NO_WARNING_OR_ERROR_MANDATORY == beanMessageStatePolicy
-				&& worstMandatoryMessage != null
-				&& worstMandatoryMessage.getType().equalOrWorse(BeanMessageType.WARNING)) {
-				return UNHANDLED_MESSAGES_STATE;
-			}
-			else if (BeanMessageStatePolicy.NO_ERROR == beanMessageStatePolicy
-				&& worstMessage != null
-				&& worstMessage.getType() == BeanMessageType.ERROR) {
-				return UNHANDLED_MESSAGES_STATE;
-			}
-			else if (BeanMessageStatePolicy.NO_ERROR_MANDATORY == beanMessageStatePolicy
-				&& worstMandatoryMessage != null
-				&& worstMandatoryMessage.getType() == BeanMessageType.ERROR) {
-				return UNHANDLED_MESSAGES_STATE;
-			}
-			for (final IExecutableChecker executableChecker : executableCheckers) {
-				final IExecutableState result = executableChecker.getExecutableState(bean.getBean());
-				if (!result.isExecutable()) {
-					return EnabledState.disabled(result.getReason());
-				}
-			}
-		}
-
-		return EnabledState.ENABLED;
 	}
 
 	@Override
@@ -302,14 +147,6 @@ final class ExecutorCommand extends ChangeObservable implements ICommand, IComma
 			new Execution(preparedBeans, executionContext, executionHelper).execute();
 		}
 
-	}
-
-	private List<IBeanProxy> getSelectedBeans() {
-		final List<IBeanProxy> result = new LinkedList<IBeanProxy>();
-		for (final Integer index : listModel.getSelection()) {
-			result.add(listModel.getBean(index.intValue()));
-		}
-		return result;
 	}
 
 	private class Execution {

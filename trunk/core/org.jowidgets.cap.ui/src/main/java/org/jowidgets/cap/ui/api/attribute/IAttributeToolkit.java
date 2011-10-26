@@ -37,6 +37,8 @@ import org.jowidgets.cap.common.api.bean.IValueRange;
 
 public interface IAttributeToolkit {
 
+	IAttributeFilterFactory attributeFilterFactory();
+
 	<ELEMENT_VALUE_TYPE> IAttributeBuilder<ELEMENT_VALUE_TYPE> createAttributeBuilder(
 		Class<? extends ELEMENT_VALUE_TYPE> elementValueType);
 

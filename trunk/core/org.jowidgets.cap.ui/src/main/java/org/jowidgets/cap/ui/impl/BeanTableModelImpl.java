@@ -80,6 +80,7 @@ import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IAttributeBluePrint;
 import org.jowidgets.cap.ui.api.attribute.IAttributeCollectionModifierBuilder;
 import org.jowidgets.cap.ui.api.attribute.IAttributeConfig;
+import org.jowidgets.cap.ui.api.attribute.IAttributeFilter;
 import org.jowidgets.cap.ui.api.attribute.IAttributeModifier;
 import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
 import org.jowidgets.cap.ui.api.bean.BeanMessageType;
@@ -516,6 +517,18 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 	@Override
 	public List<IAttribute<Object>> getAttributes() {
 		return Collections.unmodifiableList(attributes);
+	}
+
+	@Override
+	public List<IAttribute<Object>> getAttributes(final IAttributeFilter filter) {
+		Assert.paramNotNull(filter, "filter");
+		final List<IAttribute<Object>> result = new LinkedList<IAttribute<Object>>();
+		for (final IAttribute<Object> attribute : attributes) {
+			if (filter.accept(attribute)) {
+				result.add(attribute);
+			}
+		}
+		return Collections.unmodifiableList(result);
 	}
 
 	@Override

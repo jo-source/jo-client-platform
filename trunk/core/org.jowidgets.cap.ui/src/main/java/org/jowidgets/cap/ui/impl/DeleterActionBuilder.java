@@ -57,7 +57,7 @@ import org.jowidgets.util.builder.AbstractSingleUseBuilder;
 
 final class DeleterActionBuilder<BEAN_TYPE> extends AbstractSingleUseBuilder<IAction> implements IDeleterActionBuilder<BEAN_TYPE> {
 
-	private final IBeanListModel<?> model;
+	private final IBeanListModel<BEAN_TYPE> model;
 	private final IActionBuilder builder;
 	private final List<IEnabledChecker> enabledCheckers;
 	private final List<IExecutableChecker<BEAN_TYPE>> executableCheckers;
@@ -71,7 +71,7 @@ final class DeleterActionBuilder<BEAN_TYPE> extends AbstractSingleUseBuilder<IAc
 	private BeanMessageStatePolicy beanMessageStatePolicy;
 	private IBeanExecptionConverter exceptionConverter;
 
-	DeleterActionBuilder(final IBeanListModel<?> model) {
+	DeleterActionBuilder(final IBeanListModel<BEAN_TYPE> model) {
 		checkExhausted();
 		Assert.paramNotNull(model, "model");
 		this.model = model;

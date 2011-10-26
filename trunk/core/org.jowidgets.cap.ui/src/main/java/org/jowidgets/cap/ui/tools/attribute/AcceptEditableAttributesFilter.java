@@ -26,43 +26,18 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.attribute;
+package org.jowidgets.cap.ui.tools.attribute;
 
-import java.util.Collection;
+import org.jowidgets.cap.ui.api.CapUiToolkit;
+import org.jowidgets.cap.ui.api.attribute.IAttributeFilter;
 
-public interface IAttributeCollectionModifierBuilder {
+public final class AcceptEditableAttributesFilter {
 
-	IAttributeCollectionModifierBuilder addFilter(IAttributeFilter filter);
+	private static final IAttributeFilter INSTANCE = CapUiToolkit.attributeToolkit().attributeFilterFactory().acceptEdiableFilter();
 
-	IAttributeCollectionModifierBuilder addBlackListFilter(Collection<String> propertyNames);
+	private AcceptEditableAttributesFilter() {}
 
-	IAttributeCollectionModifierBuilder addBlackListFilter(String... propertyNames);
-
-	IAttributeCollectionModifierBuilder addWhiteListFilter(Collection<String> propertyNames);
-
-	IAttributeCollectionModifierBuilder addWhiteListFilter(String... propertyNames);
-
-	IAttributeCollectionModifierBuilder addAcceptEditableAttributesFilter();
-
-	IAttributeCollectionModifierBuilder addDefaultModifier(IAttributeModifier<?> modifier);
-
-	IAttributeCollectionModifierBuilder addDefaultEditableModifier(boolean editable);
-
-	IAttributeCollectionModifierBuilder addDefaultVisibleModifier(boolean visible);
-
-	<ELEMENT_VALUE_TYPE> IAttributeCollectionModifierBuilder addModifier(
-		String propertyName,
-		IAttributeModifier<ELEMENT_VALUE_TYPE> modifier);
-
-	/**
-	 * Adds a modifier. The modification that should be done can be made on the returned IAttributeBluePrint
-	 * 
-	 * @param <ELEMENT_VALUE_TYPE>
-	 * @param propertyName The property to add the modifier for
-	 * @return A bluePrint to make the modifications on.
-	 */
-	<ELEMENT_VALUE_TYPE> IAttributeBluePrint<ELEMENT_VALUE_TYPE> addModifier(String propertyName);
-
-	IAttributeCollectionModifier build();
-
+	public static IAttributeFilter getInstance() {
+		return INSTANCE;
+	}
 }

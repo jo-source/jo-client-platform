@@ -68,6 +68,8 @@ final class BeanProxyFactoryImpl<BEAN_TYPE> implements IBeanProxyFactory<BEAN_TY
 	public IBeanProxy<BEAN_TYPE> createProxy(final List<String> properties) {
 		return new BeanProxyImpl<BEAN_TYPE>(new IBeanDto() {
 
+			private final Object id = new Object();
+
 			@Override
 			public Object getValue(final String propertyName) {
 				return null;
@@ -80,7 +82,7 @@ final class BeanProxyFactoryImpl<BEAN_TYPE> implements IBeanProxyFactory<BEAN_TY
 
 			@Override
 			public Object getId() {
-				return null;
+				return id;
 			}
 
 		}, beanType, properties);

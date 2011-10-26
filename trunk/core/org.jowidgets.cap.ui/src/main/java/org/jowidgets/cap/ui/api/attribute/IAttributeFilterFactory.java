@@ -30,39 +30,16 @@ package org.jowidgets.cap.ui.api.attribute;
 
 import java.util.Collection;
 
-public interface IAttributeCollectionModifierBuilder {
+public interface IAttributeFilterFactory {
 
-	IAttributeCollectionModifierBuilder addFilter(IAttributeFilter filter);
+	IAttributeFilter acceptEdiableFilter();
 
-	IAttributeCollectionModifierBuilder addBlackListFilter(Collection<String> propertyNames);
+	IAttributeFilter whiteListFilter(String... propertyNames);
 
-	IAttributeCollectionModifierBuilder addBlackListFilter(String... propertyNames);
+	IAttributeFilter whiteListFilter(Collection<String> propertyNames);
 
-	IAttributeCollectionModifierBuilder addWhiteListFilter(Collection<String> propertyNames);
+	IAttributeFilter blackListFilter(String... propertyNames);
 
-	IAttributeCollectionModifierBuilder addWhiteListFilter(String... propertyNames);
-
-	IAttributeCollectionModifierBuilder addAcceptEditableAttributesFilter();
-
-	IAttributeCollectionModifierBuilder addDefaultModifier(IAttributeModifier<?> modifier);
-
-	IAttributeCollectionModifierBuilder addDefaultEditableModifier(boolean editable);
-
-	IAttributeCollectionModifierBuilder addDefaultVisibleModifier(boolean visible);
-
-	<ELEMENT_VALUE_TYPE> IAttributeCollectionModifierBuilder addModifier(
-		String propertyName,
-		IAttributeModifier<ELEMENT_VALUE_TYPE> modifier);
-
-	/**
-	 * Adds a modifier. The modification that should be done can be made on the returned IAttributeBluePrint
-	 * 
-	 * @param <ELEMENT_VALUE_TYPE>
-	 * @param propertyName The property to add the modifier for
-	 * @return A bluePrint to make the modifications on.
-	 */
-	<ELEMENT_VALUE_TYPE> IAttributeBluePrint<ELEMENT_VALUE_TYPE> addModifier(String propertyName);
-
-	IAttributeCollectionModifier build();
+	IAttributeFilter blackListFilter(Collection<String> propertyNames);
 
 }
