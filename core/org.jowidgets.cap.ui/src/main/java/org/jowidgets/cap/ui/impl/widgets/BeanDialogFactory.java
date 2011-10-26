@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2010, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,41 +26,24 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.widgets;
+package org.jowidgets.cap.ui.impl.widgets;
 
-import java.util.List;
+import org.jowidgets.api.toolkit.Toolkit;
+import org.jowidgets.api.widgets.IFrame;
+import org.jowidgets.api.widgets.blueprint.IDialogBluePrint;
+import org.jowidgets.cap.ui.api.widgets.IBeanDialog;
+import org.jowidgets.cap.ui.api.widgets.IBeanDialogBluePrint;
+import org.jowidgets.common.widgets.factory.IWidgetFactory;
+import org.jowidgets.tools.widgets.blueprint.BPF;
 
-import org.jowidgets.api.convert.IConverter;
-import org.jowidgets.cap.common.api.lookup.ILookUpProperty;
-import org.jowidgets.cap.ui.api.attribute.IAttribute;
-import org.jowidgets.cap.ui.api.table.IBeanTableModel;
+public final class BeanDialogFactory implements IWidgetFactory<IBeanDialog<Object>, IBeanDialogBluePrint<Object>> {
 
-public interface ICapApiBluePrintFactory {
-
-	<BEAN_TYPE> IBeanTableBluePrint<BEAN_TYPE> beanTable(IBeanTableModel<BEAN_TYPE> model);
-
-	IBeanTableSettingsDialogBluePrint beanTableSettingsDialog(IBeanTableModel<?> model);
-
-	<BEAN_TYPE> IBeanFormBluePrint<BEAN_TYPE> beanForm(List<? extends IAttribute<?>> attributes);
-
-	IBeanTablesFormBluePrint beanTablesForm();
-
-	<BEAN_TYPE> IBeanDialogBluePrint<BEAN_TYPE> beanDialog(IBeanFormBluePrint<BEAN_TYPE> beanForm);
-
-	<BEAN_TYPE> IBeanTableFormBluePrint<BEAN_TYPE> beanTableForm(IBeanTableModel<BEAN_TYPE> model);
-
-	IAttributeFilterControlBluePrint attributeFilterControl(List<? extends IAttribute<?>> attributes);
-
-	<KEY_TYPE> ILookUpComboBoxSelectionBluePrint<KEY_TYPE> lookUpComboBox(Object lookUpId, IConverter<KEY_TYPE> converter);
-
-	<KEY_TYPE> ILookUpComboBoxSelectionBluePrint<KEY_TYPE> lookUpComboBox(Object lookUpId, ILookUpProperty lookUpProperty);
-
-	<KEY_TYPE> ILookUpCollectionInputFieldBluePrint<KEY_TYPE> lookUpCollectionInputField(
-		Object lookUpId,
-		IConverter<KEY_TYPE> converter);
-
-	<KEY_TYPE> ILookUpCollectionInputFieldBluePrint<KEY_TYPE> lookUpCollectionInputField(
-		Object lookUpId,
-		ILookUpProperty lookUpProperty);
+	@Override
+	public IBeanDialog<Object> create(final Object parentUiReference, final IBeanDialogBluePrint<Object> beanDialogBp) {
+		final IDialogBluePrint dialogBp = BPF.dialog();
+		dialogBp.setSetup(beanDialogBp);
+		final IFrame dialog = Toolkit.getWidgetFactory().create(dialogBp);
+		return new BeanDialogImpl<Object>(dialog, beanDialogBp);
+	}
 
 }

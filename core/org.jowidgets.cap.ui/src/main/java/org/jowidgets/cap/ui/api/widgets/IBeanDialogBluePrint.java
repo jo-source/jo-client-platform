@@ -28,39 +28,30 @@
 
 package org.jowidgets.cap.ui.api.widgets;
 
-import java.util.List;
+import org.jowidgets.api.widgets.blueprint.builder.ITitledWindowSetupBuilder;
+import org.jowidgets.api.widgets.descriptor.setup.IButtonSetup;
+import org.jowidgets.api.widgets.descriptor.setup.ITitledWindowSetup;
+import org.jowidgets.common.widgets.descriptor.IWidgetDescriptor;
+import org.jowidgets.common.widgets.descriptor.setup.mandatory.Mandatory;
 
-import org.jowidgets.api.convert.IConverter;
-import org.jowidgets.cap.common.api.lookup.ILookUpProperty;
-import org.jowidgets.cap.ui.api.attribute.IAttribute;
-import org.jowidgets.cap.ui.api.table.IBeanTableModel;
+public interface IBeanDialogBluePrint<BEAN_TYPE> extends
+		ITitledWindowSetup,
+		ITitledWindowSetupBuilder<IBeanDialogBluePrint<BEAN_TYPE>>,
+		IWidgetDescriptor<IBeanDialog<BEAN_TYPE>> {
 
-public interface ICapApiBluePrintFactory {
+	IBeanDialogBluePrint<BEAN_TYPE> setBeanForm(IBeanFormBluePrint<BEAN_TYPE> beanForm);
 
-	<BEAN_TYPE> IBeanTableBluePrint<BEAN_TYPE> beanTable(IBeanTableModel<BEAN_TYPE> model);
+	IBeanDialogBluePrint<BEAN_TYPE> setOkButton(IButtonSetup buttonSetup);
 
-	IBeanTableSettingsDialogBluePrint beanTableSettingsDialog(IBeanTableModel<?> model);
+	IBeanDialogBluePrint<BEAN_TYPE> setCancelButton(final IButtonSetup buttonSetup);
 
-	<BEAN_TYPE> IBeanFormBluePrint<BEAN_TYPE> beanForm(List<? extends IAttribute<?>> attributes);
+	@Mandatory
+	IBeanFormBluePrint<BEAN_TYPE> getBeanForm();
 
-	IBeanTablesFormBluePrint beanTablesForm();
+	@Mandatory
+	IButtonSetup getOkButton();
 
-	<BEAN_TYPE> IBeanDialogBluePrint<BEAN_TYPE> beanDialog(IBeanFormBluePrint<BEAN_TYPE> beanForm);
-
-	<BEAN_TYPE> IBeanTableFormBluePrint<BEAN_TYPE> beanTableForm(IBeanTableModel<BEAN_TYPE> model);
-
-	IAttributeFilterControlBluePrint attributeFilterControl(List<? extends IAttribute<?>> attributes);
-
-	<KEY_TYPE> ILookUpComboBoxSelectionBluePrint<KEY_TYPE> lookUpComboBox(Object lookUpId, IConverter<KEY_TYPE> converter);
-
-	<KEY_TYPE> ILookUpComboBoxSelectionBluePrint<KEY_TYPE> lookUpComboBox(Object lookUpId, ILookUpProperty lookUpProperty);
-
-	<KEY_TYPE> ILookUpCollectionInputFieldBluePrint<KEY_TYPE> lookUpCollectionInputField(
-		Object lookUpId,
-		IConverter<KEY_TYPE> converter);
-
-	<KEY_TYPE> ILookUpCollectionInputFieldBluePrint<KEY_TYPE> lookUpCollectionInputField(
-		Object lookUpId,
-		ILookUpProperty lookUpProperty);
+	@Mandatory
+	IButtonSetup getCancelButton();
 
 }

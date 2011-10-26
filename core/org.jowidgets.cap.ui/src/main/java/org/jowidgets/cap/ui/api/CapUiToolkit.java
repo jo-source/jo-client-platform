@@ -61,6 +61,7 @@ import org.jowidgets.cap.ui.api.table.IBeanTableConfigBuilder;
 import org.jowidgets.cap.ui.api.table.IBeanTableMenuFactory;
 import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
 import org.jowidgets.cap.ui.api.widgets.IAttributeFilterControlBluePrint;
+import org.jowidgets.cap.ui.api.widgets.IBeanDialogBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableFormBluePrint;
@@ -73,6 +74,7 @@ import org.jowidgets.cap.ui.api.widgets.ILookUpComboBoxSelectionBluePrint;
 import org.jowidgets.cap.ui.api.workbench.ICapWorkbenchToolkit;
 import org.jowidgets.cap.ui.impl.DefaultCapUiToolkit;
 import org.jowidgets.cap.ui.impl.widgets.AttributeFilterControlFactory;
+import org.jowidgets.cap.ui.impl.widgets.BeanDialogFactory;
 import org.jowidgets.cap.ui.impl.widgets.BeanFormFactory;
 import org.jowidgets.cap.ui.impl.widgets.BeanTableFactory;
 import org.jowidgets.cap.ui.impl.widgets.BeanTableFormFactory;
@@ -83,6 +85,7 @@ import org.jowidgets.cap.ui.impl.widgets.LookUpComboBoxSelectionFactory;
 import org.jowidgets.common.types.TableSelectionPolicy;
 import org.jowidgets.common.widgets.factory.IGenericWidgetFactory;
 import org.jowidgets.tools.validation.MandatoryValidator;
+import org.jowidgets.tools.widgets.blueprint.BPF;
 import org.jowidgets.util.IDecorator;
 import org.jowidgets.validation.IValidationResult;
 
@@ -204,6 +207,7 @@ public final class CapUiToolkit {
 		final IGenericWidgetFactory genericWidgetFactory = toolkit.getWidgetFactory();
 		genericWidgetFactory.register(IBeanTableBluePrint.class, new BeanTableFactory());
 		genericWidgetFactory.register(IBeanFormBluePrint.class, new BeanFormFactory());
+		genericWidgetFactory.register(IBeanDialogBluePrint.class, new BeanDialogFactory());
 		genericWidgetFactory.register(IBeanTablesFormBluePrint.class, new BeanTablesFormFactory());
 		genericWidgetFactory.register(IBeanTableFormBluePrint.class, new BeanTableFormFactory());
 		genericWidgetFactory.register(IBeanTableSettingsDialogBluePrint.class, new BeanTableSettingsDialogFactory());
@@ -237,6 +241,16 @@ public final class CapUiToolkit {
 					public void initialize(final IBeanTableFormSetupBuilder<?> bluePrint) {
 						bluePrint.setHideReadonlyAttributes(true);
 						bluePrint.setHideMetaAttributes(true);
+					}
+				});
+
+		toolkit.getBluePrintFactory().addDefaultsInitializer(
+				IBeanDialogBluePrint.class,
+				new IDefaultInitializer<IBeanDialogBluePrint<?>>() {
+					@Override
+					public void initialize(final IBeanDialogBluePrint<?> bluePrint) {
+						bluePrint.setOkButton(BPF.buttonOk());
+						bluePrint.setCancelButton(BPF.buttonCancel());
 					}
 				});
 
