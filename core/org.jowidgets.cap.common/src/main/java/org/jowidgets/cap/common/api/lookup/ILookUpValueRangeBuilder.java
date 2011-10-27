@@ -30,9 +30,7 @@ package org.jowidgets.cap.common.api.lookup;
 
 import java.util.List;
 
-import org.jowidgets.cap.common.api.bean.IValueRange;
-
-public interface ILookUpValueRangeBuilder extends IValueRange {
+public interface ILookUpValueRangeBuilder {
 
 	ILookUpValueRangeBuilder setLookUpId(Object id);
 
