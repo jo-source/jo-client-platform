@@ -36,13 +36,13 @@ public final class Languages {
 
 	public static final String LOOK_UP_ID = Languages.class.getName() + "_id";
 
-	public static final Integer ENGLISH = Integer.valueOf(24);
-	public static final Integer FRENCH = Integer.valueOf(29);
-	public static final Integer GERMAN = Integer.valueOf(34);
-	public static final Integer SPANISH = Integer.valueOf(103);
+	public static final Integer ENGLISH = Integer.valueOf(25);
+	public static final Integer FRENCH = Integer.valueOf(30);
+	public static final Integer GERMAN = Integer.valueOf(35);
+	public static final Integer SPANISH = Integer.valueOf(104);
 
 	public static final String[] LANGUAGES = new String[] {
-			"Afrikaans", "Albanian", "Amharic", "Arabic", "Armenian", "Assamese", "Aymara", "Azerbaijani", "Basque",
+			"", "Afrikaans", "Albanian", "Amharic", "Arabic", "Armenian", "Assamese", "Aymara", "Azerbaijani", "Basque",
 			"Belarusian", "Bengali", "Bislama", "Bosnian", "Bulgarian", "Burmese", "Catalan", "Chinese, Mandarin",
 			"Chinese, Cantonese", "Croatian", "Czech", "Danish", "Dhivehi", "Dutch", "Dzongkha", "English", "Estonian", "Fijian",
 			"Filipino", "Finnish", "French", "Frisian (West)", "Gagauz", "Galician", "Georgian", "German", "Greek", "Guaraní",

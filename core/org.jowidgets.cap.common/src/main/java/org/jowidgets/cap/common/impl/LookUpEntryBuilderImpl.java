@@ -51,7 +51,6 @@ final class LookUpEntryBuilderImpl implements ILookUpEntryBuilder {
 
 	@Override
 	public ILookUpEntryBuilder setKey(final Object key) {
-		Assert.paramNotNull(key, "key");
 		this.key = key;
 		return this;
 	}
@@ -59,7 +58,6 @@ final class LookUpEntryBuilderImpl implements ILookUpEntryBuilder {
 	@Override
 	public ILookUpEntryBuilder setValue(final String propertyName, final Object value) {
 		Assert.paramNotNull(propertyName, "propertyName");
-		Assert.paramNotNull(value, "value");
 		values.put(propertyName, value);
 		return this;
 	}

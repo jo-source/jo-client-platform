@@ -40,7 +40,10 @@ import org.jowidgets.cap.ui.api.lookup.ILookUpListener;
 import org.jowidgets.common.mask.ITextMask;
 import org.jowidgets.common.verify.IInputVerifier;
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.EmptyCheck;
+import org.jowidgets.validation.IValidationResult;
 import org.jowidgets.validation.IValidator;
+import org.jowidgets.validation.ValidationResult;
 
 final class LookUpConverter<KEY_TYPE> implements IConverter<KEY_TYPE> {
 
@@ -48,6 +51,7 @@ final class LookUpConverter<KEY_TYPE> implements IConverter<KEY_TYPE> {
 	private final String lookUpProperty;
 	private final IConverter<Object> valueConverter;
 	private final ILookUpListener lookUpListener;
+	private final IValidator<String> stringValidator;
 
 	private boolean onLoad;
 
@@ -86,6 +90,28 @@ final class LookUpConverter<KEY_TYPE> implements IConverter<KEY_TYPE> {
 		else {
 			throw new IllegalStateException("No look up access found for the id '" + lookUpId + "'");
 		}
+
+		this.stringValidator = new IValidator<String>() {
+
+			@Override
+			public IValidationResult validate(final String value) {
+				final IValidator<String> original = valueConverter.getStringValidator();
+				if (original != null) {
+					final IValidationResult result = valueConverter.getStringValidator().validate(value);
+					if (!result.isValid()) {
+						return result;
+					}
+				}
+				if (!EmptyCheck.isEmpty(value)) {
+					final KEY_TYPE converted = convertToObject(value);
+					if (converted == null) {
+						final String msg = Messages.getString("LookUpConverter.the_input_is_not_in_the_defined_range");
+						return ValidationResult.error(msg);
+					}
+				}
+				return ValidationResult.ok();
+			}
+		};
 	}
 
 	@SuppressWarnings("unchecked")
@@ -146,7 +172,7 @@ final class LookUpConverter<KEY_TYPE> implements IConverter<KEY_TYPE> {
 
 	@Override
 	public IValidator<String> getStringValidator() {
-		return valueConverter.getStringValidator();
+		return stringValidator;
 	}
 
 	@Override
