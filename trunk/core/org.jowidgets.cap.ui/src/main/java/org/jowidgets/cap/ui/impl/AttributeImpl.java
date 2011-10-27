@@ -55,6 +55,7 @@ final class AttributeImpl<ELEMENT_VALUE_TYPE> implements IAttribute<ELEMENT_VALU
 
 	private final String propertyName;
 	private final IValueRange valueRange;
+	private final Object defaultValue;
 	private final String label;
 	private final String labelLong;
 	private DisplayFormat labelDisplayFormat;
@@ -79,6 +80,7 @@ final class AttributeImpl<ELEMENT_VALUE_TYPE> implements IAttribute<ELEMENT_VALU
 	AttributeImpl(
 		final String propertyName,
 		final IValueRange valueRange,
+		final Object defaultValue,
 		final String label,
 		final String labelLong,
 		final DisplayFormat labelDisplayFormat,
@@ -126,6 +128,7 @@ final class AttributeImpl<ELEMENT_VALUE_TYPE> implements IAttribute<ELEMENT_VALU
 
 		this.propertyName = propertyName;
 		this.valueRange = valueRange;
+		this.defaultValue = defaultValue;
 		this.label = label;
 		this.labelLong = labelLong;
 		this.labelDisplayFormat = labelDisplayFormat;
@@ -155,6 +158,11 @@ final class AttributeImpl<ELEMENT_VALUE_TYPE> implements IAttribute<ELEMENT_VALU
 	@Override
 	public IValueRange getValueRange() {
 		return valueRange;
+	}
+
+	@Override
+	public Object getDefaultValue() {
+		return defaultValue;
 	}
 
 	@Override

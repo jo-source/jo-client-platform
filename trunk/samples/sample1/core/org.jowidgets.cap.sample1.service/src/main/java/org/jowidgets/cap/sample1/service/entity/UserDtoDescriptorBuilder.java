@@ -87,6 +87,7 @@ public class UserDtoDescriptorBuilder extends BeanDtoDescriptorBuilder {
 		propertyBp.setLabel(Messages.getString("UserDtoDescriptorBuilder.country")); //$NON-NLS-1$
 		propertyBp.setDescription(Messages.getString("UserDtoDescriptorBuilder.country_description")); //$NON-NLS-1$
 		propertyBp.setLookUpValueRange(Countries.LOOK_UP_ID);
+		propertyBp.setDefaultValue(Countries.EMPTY);
 
 		propertyBp = addProperty(IUser.LANGUAGES_PROPERTY);
 		propertyBp.setLabel(Messages.getString("UserDtoDescriptorBuilder.languages")).setDescription(Messages.getString("UserDtoDescriptorBuilder.languages_description")); //$NON-NLS-1$ //$NON-NLS-2$

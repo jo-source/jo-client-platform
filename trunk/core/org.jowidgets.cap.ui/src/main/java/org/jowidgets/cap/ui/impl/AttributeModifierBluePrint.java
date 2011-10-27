@@ -45,11 +45,15 @@ import org.jowidgets.cap.ui.api.control.DisplayFormat;
 import org.jowidgets.cap.ui.api.control.IDisplayFormat;
 import org.jowidgets.common.types.AlignmentHorizontal;
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.maybe.IMaybe;
+import org.jowidgets.util.maybe.Nothing;
+import org.jowidgets.util.maybe.Some;
 
 final class AttributeModifierBluePrint<ELEMENT_VALUE_TYPE> implements IAttributeBluePrint<ELEMENT_VALUE_TYPE> {
 
 	private boolean exhausted;
 	private IValueRange valueRange;
+	private IMaybe<Object> defaultValue;
 	private Cardinality cardinality;
 	private boolean cardinalitySet;
 	private String label;
@@ -75,6 +79,7 @@ final class AttributeModifierBluePrint<ELEMENT_VALUE_TYPE> implements IAttribute
 		this.controlPanels = new LinkedList();
 		this.exhausted = false;
 		this.cardinalitySet = false;
+		this.defaultValue = Nothing.getInstance();
 	}
 
 	@Override
@@ -102,6 +107,12 @@ final class AttributeModifierBluePrint<ELEMENT_VALUE_TYPE> implements IAttribute
 	public IAttributeBluePrint<ELEMENT_VALUE_TYPE> setValueRange(final ELEMENT_VALUE_TYPE... values) {
 		Assert.paramNotNull(values, "values");
 		return setValueRange(Arrays.asList(values));
+	}
+
+	@Override
+	public IAttributeBluePrint<ELEMENT_VALUE_TYPE> setDefaultValue(final Object value) {
+		this.defaultValue = new Some<Object>(value);
+		return this;
 	}
 
 	@Override
@@ -270,6 +281,9 @@ final class AttributeModifierBluePrint<ELEMENT_VALUE_TYPE> implements IAttribute
 	void modify(final IAttributeBluePrint<ELEMENT_VALUE_TYPE> attributeBluePrint) {
 		if (valueRange != null) {
 			attributeBluePrint.setValueRange(valueRange);
+		}
+		if (defaultValue.isSomething()) {
+			attributeBluePrint.setDefaultValue(defaultValue.getValue());
 		}
 		if (cardinalitySet) {
 			attributeBluePrint.setCardinality(cardinality);

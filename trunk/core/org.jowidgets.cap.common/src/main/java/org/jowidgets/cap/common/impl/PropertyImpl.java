@@ -42,6 +42,7 @@ final class PropertyImpl implements IProperty, Serializable {
 
 	private final String name;
 	private final IValueRange valueRange;
+	private final Object defaultValue;
 	private final String labelDefault;
 	private final String labelLongDefault;
 	private final String descriptionDefault;
@@ -57,6 +58,7 @@ final class PropertyImpl implements IProperty, Serializable {
 	PropertyImpl(
 		final String name,
 		final IValueRange valueRange,
+		final Object defaultValue,
 		final String labelDefault,
 		final String labelLongDefault,
 		final String descriptionDefault,
@@ -82,6 +84,7 @@ final class PropertyImpl implements IProperty, Serializable {
 
 		this.name = name;
 		this.valueRange = valueRange;
+		this.defaultValue = defaultValue;
 		this.labelDefault = labelDefault;
 		this.labelLongDefault = labelLongDefault;
 		this.descriptionDefault = descriptionDefault;
@@ -103,6 +106,11 @@ final class PropertyImpl implements IProperty, Serializable {
 	@Override
 	public IValueRange getValueRange() {
 		return valueRange;
+	}
+
+	@Override
+	public Object getDefaultValue() {
+		return defaultValue;
 	}
 
 	@Override
@@ -166,6 +174,8 @@ final class PropertyImpl implements IProperty, Serializable {
 			+ name
 			+ ", valueRange="
 			+ valueRange
+			+ ", defaultValue="
+			+ defaultValue
 			+ ", labelDefault="
 			+ labelDefault
 			+ ", valueType="

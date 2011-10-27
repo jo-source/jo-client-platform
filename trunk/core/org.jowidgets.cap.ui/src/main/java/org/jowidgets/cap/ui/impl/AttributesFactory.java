@@ -133,6 +133,11 @@ final class AttributesFactory {
 			}
 
 			@Override
+			public Object getDefaultValue() {
+				return attribute.getDefaultValue();
+			}
+
+			@Override
 			public boolean isVisibleDefault() {
 				return attribute.isVisible();
 			}

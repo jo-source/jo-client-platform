@@ -80,6 +80,9 @@ final class BeanPropertyBuilderImpl implements IBeanPropertyBuilder {
 				if (propertyDescriptor.getName().equals(propertyName)) {
 					final Class<?> propertyType = propertyDescriptor.getPropertyType();
 					propertyBuilder.setValueType(propertyType);
+					if (boolean.class.isAssignableFrom(propertyType)) {
+						propertyBuilder.setDefaultValue(false);
+					}
 					if (!Collection.class.isAssignableFrom(propertyType)) {
 						propertyBuilder.setElementValueType(propertyType);
 						propertyBuilder.setSortable(propertyType.isPrimitive() || Comparable.class.isAssignableFrom(propertyType));
@@ -135,6 +138,12 @@ final class BeanPropertyBuilderImpl implements IBeanPropertyBuilder {
 	@Override
 	public IBeanPropertyBuilder setLookUpValueRange(final Object lookUpId) {
 		return setValueRange(CapCommonToolkit.lookUpToolkit().lookUpValueRange(lookUpId));
+	}
+
+	@Override
+	public IBeanPropertyBuilder setDefaultValue(final Object value) {
+		propertyBuilder.setDefaultValue(value);
+		return this;
 	}
 
 	@Override

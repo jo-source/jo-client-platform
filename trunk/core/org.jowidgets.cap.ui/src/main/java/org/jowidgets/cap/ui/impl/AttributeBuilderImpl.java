@@ -60,6 +60,7 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 
 	private String propertyName;
 	private IValueRange valueRange;
+	private Object defaultValue;
 	private String label;
 	private String labelLong;
 	private String description;
@@ -104,6 +105,7 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 		Assert.paramNotNull(attribute, "attribute");
 		this.propertyName = attribute.getPropertyName();
 		this.valueRange = attribute.getValueRange();
+		this.defaultValue = attribute.getDefaultValue();
 		this.label = attribute.getLabel();
 		this.labelLong = attribute.getLabelLong();
 		this.labelDisplayFormat = attribute.getLabelDisplayFormat();
@@ -133,6 +135,7 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 		this.cardinality = property.getCardinality();
 		this.propertyName = property.getName();
 		this.valueRange = property.getValueRange();
+		this.defaultValue = property.getDefaultValue();
 		this.label = property.getLabelDefault();
 		this.labelLong = property.getLabelLongDefault();
 		this.description = property.getDescriptionDefault();
@@ -189,6 +192,12 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 	public IAttributeBluePrint<ELEMENT_VALUE_TYPE> setValueRange(final ELEMENT_VALUE_TYPE... values) {
 		Assert.paramNotNull(values, "values");
 		return setValueRange(Arrays.asList(values));
+	}
+
+	@Override
+	public IAttributeBluePrint<ELEMENT_VALUE_TYPE> setDefaultValue(final Object value) {
+		this.defaultValue = value;
+		return this;
 	}
 
 	@Override
@@ -447,6 +456,7 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 		return new AttributeImpl<ELEMENT_VALUE_TYPE>(
 			propertyName,
 			valueRange,
+			defaultValue,
 			label,
 			labelLong,
 			labelDisplayFormat,
