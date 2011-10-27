@@ -89,7 +89,7 @@ public class ValueRangeValidator<VALIDATION_INPUT_TYPE> implements IValidator<VA
 		//to the control could not be possible
 		final ILookUp lookUp = lookUpAccess.getCurrentLookUp();
 		if (lookUp != null) {
-			if (!lookUp.getKeys().contains(validationInput)) {
+			if (validationInput != null && !lookUp.getKeys().contains(validationInput)) {
 				return notInRangeResult;
 			}
 			else {
