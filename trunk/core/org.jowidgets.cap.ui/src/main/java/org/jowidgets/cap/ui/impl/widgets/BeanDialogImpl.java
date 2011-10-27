@@ -99,6 +99,8 @@ public class BeanDialogImpl<BEAN_TYPE> extends WindowWrapper implements IBeanDia
 				frame.setVisible(false);
 			}
 		});
+
+		frame.setDefaultButton(okButton);
 	}
 
 	private static IButtonBluePrint createButtonBluePrint(final IButtonSetup buttonSetup) {
