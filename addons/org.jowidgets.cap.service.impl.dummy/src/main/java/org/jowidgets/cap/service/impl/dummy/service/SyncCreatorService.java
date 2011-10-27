@@ -66,11 +66,28 @@ final class SyncCreatorService<BEAN_TYPE extends IBean> implements ISyncCreatorS
 
 		for (final IBeanData beanData : beansData) {
 			final BEAN_TYPE bean = data.createData();
-			beanInitializer.initialize(bean, beanData);
+			beanInitializer.initialize(bean, decorateBeanData(beanData, bean));
 			result.add(dtoFactory.createDto(bean));
 		}
 
 		return result;
+	}
+
+	private IBeanData decorateBeanData(final IBeanData beanData, final IBean bean) {
+		return new IBeanData() {
+			@Override
+			public Object getValue(final String propertyName) {
+				if (IBean.ID_PROPERTY.equals(propertyName)) {
+					return bean.getId();
+				}
+				else if (IBean.VERSION_PROPERTY.equals(propertyName)) {
+					return bean.getVersion();
+				}
+				else {
+					return beanData.getValue(propertyName);
+				}
+			}
+		};
 	}
 
 }

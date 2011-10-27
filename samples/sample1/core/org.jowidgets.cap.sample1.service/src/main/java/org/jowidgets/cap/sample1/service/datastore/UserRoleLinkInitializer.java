@@ -63,7 +63,9 @@ public final class UserRoleLinkInitializer {
 
 			@Override
 			public IBeanPropertyMap createBean(final Long id) {
-				return CapServiceToolkit.beanPropertyMap(EntityIds.USER_ROLE_LINK);
+				final IBeanPropertyMap result = CapServiceToolkit.beanPropertyMap(EntityIds.USER_ROLE_LINK);
+				result.setId(id);
+				return result;
 			}
 
 			@Override

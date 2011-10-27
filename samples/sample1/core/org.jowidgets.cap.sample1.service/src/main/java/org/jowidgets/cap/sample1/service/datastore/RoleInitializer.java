@@ -69,7 +69,9 @@ public final class RoleInitializer {
 
 			@Override
 			public IBeanPropertyMap createBean(final Long id) {
-				return CapServiceToolkit.beanPropertyMap(EntityIds.ROLE);
+				final IBeanPropertyMap result = CapServiceToolkit.beanPropertyMap(EntityIds.ROLE);
+				result.setId(id);
+				return result;
 			}
 
 			@Override

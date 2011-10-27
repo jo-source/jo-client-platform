@@ -36,24 +36,28 @@ import org.jowidgets.api.command.ICommandExecutor;
 import org.jowidgets.api.command.IEnabledChecker;
 import org.jowidgets.api.command.IExceptionHandler;
 import org.jowidgets.api.command.IExecutionContext;
+import org.jowidgets.api.threads.IUiThreadAccess;
 import org.jowidgets.api.toolkit.Toolkit;
+import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
+import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.service.IDeleterService;
+import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.bean.IBeanExecptionConverter;
+import org.jowidgets.cap.ui.api.bean.IBeanKeyFactory;
 import org.jowidgets.cap.ui.api.execution.BeanExecutionPolicy;
 import org.jowidgets.cap.ui.api.execution.BeanMessageStatePolicy;
 import org.jowidgets.cap.ui.api.execution.BeanModificationStatePolicy;
 import org.jowidgets.cap.ui.api.execution.BeanSelectionPolicy;
 import org.jowidgets.cap.ui.api.execution.IExecutionInterceptor;
+import org.jowidgets.cap.ui.api.execution.IExecutionTask;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.util.Assert;
 
 final class BeanDeleterCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
 
-	@SuppressWarnings("unused")
 	private final IBeanListModel<?> model;
 
-	@SuppressWarnings("unused")
 	private final IDeleterService deleterService;
 
 	@SuppressWarnings("unused")
@@ -117,7 +121,39 @@ final class BeanDeleterCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 
 	@Override
 	public void execute(final IExecutionContext executionContext) throws Exception {
-		Toolkit.getMessagePane().showInfo(executionContext, "Not yet implemented");
-	}
+		final IExecutionTask executionTask = CapUiToolkit.executionTaskFactory().create();
+		@SuppressWarnings("unused")
+		final IUiThreadAccess uiThreadAccess = Toolkit.getUiThreadAccess();
+		final IResultCallback<Void> resultCallback = new IResultCallback<Void>() {
 
+			@Override
+			public void finished(final Void result) {
+				//CHECKSTYLE:OFF
+				System.out.println("Deleted: ");
+				//TODO MG remove deleted from model
+				//CHECKSTYLE:ON
+			}
+
+			@Override
+			public void exception(final Throwable exception) {
+				//CHECKSTYLE:OFF
+				exception.printStackTrace();
+				//CHECKSTYLE:ON
+			}
+
+			@Override
+			public void timeout() {
+				//CHECKSTYLE:OFF
+				System.out.println("Timeout");
+				//CHECKSTYLE:ON
+			}
+		};
+
+		final List<IBeanKey> beanKeys = new LinkedList<IBeanKey>();
+		final IBeanKeyFactory beanKeyFactory = CapUiToolkit.beanKeyFactory();
+		for (final Integer index : model.getSelection()) {
+			beanKeys.add(beanKeyFactory.createKey(model.getBean(index.intValue())));
+		}
+		deleterService.delete(resultCallback, beanKeys, executionTask);
+	}
 }
