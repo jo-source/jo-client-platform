@@ -45,6 +45,8 @@ public interface IAttribute<ELEMENT_VALUE_TYPE> extends IChangeObservable {
 
 	IValueRange getValueRange();
 
+	Object getDefaultValue();
+
 	boolean isSortable();
 
 	boolean isFilterable();

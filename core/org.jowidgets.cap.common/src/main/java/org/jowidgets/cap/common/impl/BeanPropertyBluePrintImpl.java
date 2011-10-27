@@ -97,6 +97,13 @@ final class BeanPropertyBluePrintImpl implements IBeanPropertyBluePrint {
 	}
 
 	@Override
+	public IBeanPropertyBluePrint setDefaultValue(final Object value) {
+		checkExhausted();
+		builder.setDefaultValue(value);
+		return this;
+	}
+
+	@Override
 	public IBeanPropertyBluePrint setCardinality(final Cardinality cardinality) {
 		checkExhausted();
 		builder.setCardinality(cardinality);

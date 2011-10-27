@@ -28,8 +28,10 @@
 
 package org.jowidgets.cap.ui.impl;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.jowidgets.api.command.ICommand;
 import org.jowidgets.api.command.ICommandExecutor;
@@ -69,6 +71,8 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 
 	private final BeanListModelEnabledChecker<BEAN_TYPE> enabledChecker;
 	private final IBeanProxyFactory<BEAN_TYPE> beanFactory;
+
+	private final Map<String, Object> defaultValues;
 	private final List<String> properties;
 
 	private Rectangle dialogBounds;
@@ -105,9 +109,15 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 		this.creatorService = creatorService;
 		this.exceptionConverter = exceptionConverter;
 
+		this.defaultValues = new HashMap<String, Object>();
 		this.properties = new LinkedList<String>();
 		for (final IAttribute<?> attribute : beanFormBp.getAttributes()) {
-			properties.add(attribute.getPropertyName());
+			final String propertyName = attribute.getPropertyName();
+			properties.add(propertyName);
+			final Object defaultValue = attribute.getDefaultValue();
+			if (defaultValue != null) {
+				defaultValues.put(propertyName, defaultValue);
+			}
 		}
 	}
 
@@ -128,7 +138,8 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 
 	@Override
 	public void execute(final IExecutionContext executionContext) throws Exception {
-		final IBeanProxy<BEAN_TYPE> proxy = beanFactory.createProxy(properties);
+		final IBeanProxy<BEAN_TYPE> proxy = beanFactory.createProxy(properties, defaultValues);
+
 		final IBeanDialogBluePrint<BEAN_TYPE> beanDialogBp = CapUiToolkit.bluePrintFactory().beanDialog(beanFormBp);
 		beanDialogBp.autoPackOff();
 		if (dialogBounds != null) {

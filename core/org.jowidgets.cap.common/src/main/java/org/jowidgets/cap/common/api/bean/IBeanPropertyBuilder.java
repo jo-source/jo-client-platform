@@ -46,6 +46,8 @@ public interface IBeanPropertyBuilder {
 
 	IBeanPropertyBuilder setLookUpValueRange(Object lookUpId);
 
+	IBeanPropertyBuilder setDefaultValue(Object value);
+
 	IBeanPropertyBuilder setCardinality(Cardinality cardinality);
 
 	IBeanPropertyBuilder setLabelLong(String labelLongDefault);

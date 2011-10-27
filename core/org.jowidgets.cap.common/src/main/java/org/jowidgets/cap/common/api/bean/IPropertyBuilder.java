@@ -62,6 +62,8 @@ public interface IPropertyBuilder {
 
 	IPropertyBuilder setValueRange(Object... values);
 
+	IPropertyBuilder setDefaultValue(Object value);
+
 	IPropertyBuilder setSortable(boolean sortable);
 
 	IPropertyBuilder setFilterable(boolean filterable);

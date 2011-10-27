@@ -36,13 +36,14 @@ public final class Countries {
 
 	public static final String LOOK_UP_ID = Countries.class.getName() + "_id";
 
-	public static final Integer GERMANY = Integer.valueOf(75);
-	public static final Integer ITALY = Integer.valueOf(99);
-	public static final Integer SPAIN = Integer.valueOf(189);
-	public static final Integer USA = Integer.valueOf(214);
+	public static final Integer EMPTY = Integer.valueOf(0);
+	public static final Integer GERMANY = Integer.valueOf(76);
+	public static final Integer ITALY = Integer.valueOf(100);
+	public static final Integer SPAIN = Integer.valueOf(190);
+	public static final Integer USA = Integer.valueOf(215);
 
 	public static final String[] COUNTRIES = new String[] {
-			"Afghanistan", "Albania", "Algeria", "American Samoa", "Andorra", "Angola", "Anguilla", "Antigua and Barbuda",
+			"", "Afghanistan", "Albania", "Algeria", "American Samoa", "Andorra", "Angola", "Anguilla", "Antigua and Barbuda",
 			"Argentina", "Armenia", "Aruba", "Ascension and Tristan da Cunha Saint Helena", "Australia", "Austria", "Azerbaijan",
 			"Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bermuda", "Bhutan",
 			"Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "British Virgin Islands", "Brunei", "Bulgaria",

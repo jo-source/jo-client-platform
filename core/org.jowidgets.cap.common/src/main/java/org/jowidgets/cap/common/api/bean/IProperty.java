@@ -41,6 +41,13 @@ public interface IProperty {
 	IValueRange getValueRange();
 
 	/**
+	 * Gets the default value of the property. This value could be used e.g. when creating new beans.
+	 * 
+	 * @return The default value, may be null
+	 */
+	Object getDefaultValue();
+
+	/**
 	 * @return Gets the i18n default label of the property in a short version, never null
 	 */
 	String getLabelDefault();

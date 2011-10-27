@@ -42,6 +42,7 @@ final class PropertyBuilder implements IPropertyBuilder {
 
 	private String name;
 	private IValueRange valueRange;
+	private Object defaultValue;
 	private Cardinality cardinality;
 	private String labelDefault;
 	private String labelLongDefault;
@@ -95,6 +96,12 @@ final class PropertyBuilder implements IPropertyBuilder {
 	@Override
 	public IPropertyBuilder setValueRange(final Object... values) {
 		return setValueRange(Arrays.asList(values));
+	}
+
+	@Override
+	public IPropertyBuilder setDefaultValue(final Object value) {
+		this.defaultValue = value;
+		return this;
 	}
 
 	@Override
@@ -201,6 +208,7 @@ final class PropertyBuilder implements IPropertyBuilder {
 		return new PropertyImpl(
 			name,
 			valueRange,
+			defaultValue,
 			getLabelDefault(),
 			labelLongDefault,
 			descriptionDefault,

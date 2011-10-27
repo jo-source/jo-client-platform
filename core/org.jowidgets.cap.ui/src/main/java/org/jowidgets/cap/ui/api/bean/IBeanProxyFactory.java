@@ -30,6 +30,7 @@ package org.jowidgets.cap.ui.api.bean;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 
@@ -40,5 +41,7 @@ public interface IBeanProxyFactory<BEAN_TYPE> {
 	IBeanProxy<BEAN_TYPE> createProxy(IBeanDto beanDto, List<String> properties);
 
 	IBeanProxy<BEAN_TYPE> createProxy(List<String> properties);
+
+	IBeanProxy<BEAN_TYPE> createProxy(List<String> properties, Map<String, Object> defaultValues);
 
 }

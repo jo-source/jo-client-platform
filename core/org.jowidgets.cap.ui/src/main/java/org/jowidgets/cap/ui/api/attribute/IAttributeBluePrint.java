@@ -50,6 +50,8 @@ public interface IAttributeBluePrint<ELEMENT_VALUE_TYPE> {
 
 	IAttributeBluePrint<ELEMENT_VALUE_TYPE> setValueRange(final Collection<? extends ELEMENT_VALUE_TYPE> values);
 
+	IAttributeBluePrint<ELEMENT_VALUE_TYPE> setDefaultValue(Object value);
+
 	IAttributeBluePrint<ELEMENT_VALUE_TYPE> setCardinality(Cardinality cardinality);
 
 	IAttributeBluePrint<ELEMENT_VALUE_TYPE> setLabelLong(String labelLong);

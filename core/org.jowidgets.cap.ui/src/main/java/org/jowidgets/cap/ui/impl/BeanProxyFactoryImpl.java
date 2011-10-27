@@ -29,8 +29,10 @@
 package org.jowidgets.cap.ui.impl;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
@@ -66,13 +68,22 @@ final class BeanProxyFactoryImpl<BEAN_TYPE> implements IBeanProxyFactory<BEAN_TY
 
 	@Override
 	public IBeanProxy<BEAN_TYPE> createProxy(final List<String> properties) {
+		return createProxy(properties, new HashMap<String, Object>());
+	}
+
+	@Override
+	public IBeanProxy<BEAN_TYPE> createProxy(final List<String> properties, Map<String, Object> defaultValues) {
+		if (defaultValues == null) {
+			defaultValues = new HashMap<String, Object>();
+		}
+		final Map<String, Object> finalDefaultValues = defaultValues;
 		return new BeanProxyImpl<BEAN_TYPE>(new IBeanDto() {
 
 			private final Object id = new Object();
 
 			@Override
 			public Object getValue(final String propertyName) {
-				return null;
+				return finalDefaultValues.get(propertyName);
 			}
 
 			@Override
