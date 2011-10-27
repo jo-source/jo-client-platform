@@ -63,7 +63,9 @@ public final class AuthorizationInitializer {
 
 			@Override
 			public IBeanPropertyMap createBean(final Long id) {
-				return CapServiceToolkit.beanPropertyMap(EntityIds.AUTHORIZATION);
+				final IBeanPropertyMap result = CapServiceToolkit.beanPropertyMap(EntityIds.AUTHORIZATION);
+				result.setId(id);
+				return result;
 			}
 
 			@Override

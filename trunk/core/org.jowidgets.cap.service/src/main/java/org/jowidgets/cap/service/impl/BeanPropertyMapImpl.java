@@ -84,7 +84,12 @@ final class BeanPropertyMapImpl implements IBeanPropertyMap {
 			setId(value);
 		}
 		else if (IBean.VERSION_PROPERTY.equals(propertyName)) {
-			setVersion((Long) value);
+			if (value != null) {
+				setVersion((Long) value);
+			}
+			else {
+				setVersion(0);
+			}
 		}
 	}
 

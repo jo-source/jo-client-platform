@@ -62,7 +62,9 @@ public final class GenericBeanInitializer {
 
 			@Override
 			public IBeanPropertyMap createBean(final Long id) {
-				return CapServiceToolkit.beanPropertyMap(EntityIds.GENERIC_BEAN);
+				final IBeanPropertyMap result = CapServiceToolkit.beanPropertyMap(EntityIds.GENERIC_BEAN);
+				result.setId(id);
+				return result;
 			}
 
 			@Override

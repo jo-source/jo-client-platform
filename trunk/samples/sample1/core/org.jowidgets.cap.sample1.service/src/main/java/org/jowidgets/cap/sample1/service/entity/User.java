@@ -227,18 +227,20 @@ public class User extends AbstractSampleBean implements IUser {
 				data.deleteData(bean.getValue(IBean.ID_PROPERTY));
 			}
 		}
-		for (final Long roleId : newRoles) {
-			final IEntityData<IBeanPropertyMap> rolesData = (IEntityData<IBeanPropertyMap>) EntityDataStore.getEntityData(EntityIds.ROLE);
-			final IBeanPropertyMap role = rolesData.getData(roleId);
-			if (role != null) {
-				final IBeanPropertyMap bean = CapServiceToolkit.beanPropertyMap(EntityIds.USER_ROLE_LINK);
-				bean.setId(data.nextId());
-				bean.setValue(UserRoleLinkInitializer.USER_ID, getId());
-				bean.setValue(UserRoleLinkInitializer.ROLE_ID, roleId);
-				data.add(bean);
-			}
-			else {
-				throw new IllegalArgumentException("Role with the id '" + roleId + "' is unknown");
+		if (newRoles != null) {
+			for (final Long roleId : newRoles) {
+				final IEntityData<IBeanPropertyMap> rolesData = (IEntityData<IBeanPropertyMap>) EntityDataStore.getEntityData(EntityIds.ROLE);
+				final IBeanPropertyMap role = rolesData.getData(roleId);
+				if (role != null) {
+					final IBeanPropertyMap bean = CapServiceToolkit.beanPropertyMap(EntityIds.USER_ROLE_LINK);
+					bean.setId(data.nextId());
+					bean.setValue(UserRoleLinkInitializer.USER_ID, getId());
+					bean.setValue(UserRoleLinkInitializer.ROLE_ID, roleId);
+					data.add(bean);
+				}
+				else {
+					throw new IllegalArgumentException("Role with the id '" + roleId + "' is unknown");
+				}
 			}
 		}
 	}
