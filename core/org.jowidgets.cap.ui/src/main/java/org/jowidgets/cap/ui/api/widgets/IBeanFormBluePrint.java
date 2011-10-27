@@ -59,13 +59,21 @@ public interface IBeanFormBluePrint<BEAN_TYPE> extends
 
 	IBeanFormBluePrint<BEAN_TYPE> setContentBorder(Border border);
 
-	IBeanFormBluePrint<BEAN_TYPE> setValidationLabel(final IInputComponentValidationLabelDescriptor validationLabelDescriptor);
+	IBeanFormBluePrint<BEAN_TYPE> setEditModeValidationLabel(
+		final IInputComponentValidationLabelDescriptor validationLabelDescriptor);
+
+	IBeanFormBluePrint<BEAN_TYPE> setCreateModeValidationLabel(
+		final IInputComponentValidationLabelDescriptor validationLabelDescriptor);
 
 	IBeanFormBluePrint<BEAN_TYPE> setMandatoryBackgroundColor(IColorConstant color);
 
 	IBeanFormBluePrint<BEAN_TYPE> setMandatoryLabelDecorator(IDecorator<String> decorator);
 
 	IBeanFormBluePrint<BEAN_TYPE> setMandatoryValidator(IValidator<Object> validator);
+
+	IBeanFormBluePrint<BEAN_TYPE> setEditModeInputHint(String hint);
+
+	IBeanFormBluePrint<BEAN_TYPE> setCreateModeInputHint(String hint);
 
 	@Mandatory
 	IBeanFormLayouter getLayouter();
@@ -83,12 +91,18 @@ public interface IBeanFormBluePrint<BEAN_TYPE> extends
 
 	Border getContentBorder();
 
-	IInputComponentValidationLabelDescriptor getValidationLabel();
+	IInputComponentValidationLabelDescriptor getEditModeValidationLabel();
+
+	IInputComponentValidationLabelDescriptor getCreateModeValidationLabel();
 
 	IColorConstant getMandatoryBackgroundColor();
 
 	IDecorator<String> getMandatoryLabelDecorator();
 
 	IValidator<Object> getMandatoryValidator();
+
+	String getEditModeInputHint();
+
+	String getCreateModeInputHint();
 
 }

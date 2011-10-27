@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2011, nimoll
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,22 +26,24 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.bean;
+package org.jowidgets.cap.ui.api;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
 
-import org.jowidgets.cap.common.api.bean.IBeanDto;
+public class Messages {
+	private static final String BUNDLE_NAME = "org.jowidgets.cap.ui.api.messages"; //$NON-NLS-1$
 
-public interface IBeanProxyFactory<BEAN_TYPE> {
+	private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle(BUNDLE_NAME);
 
-	List<IBeanProxy<BEAN_TYPE>> createProxies(Collection<? extends IBeanDto> beanDtos, List<String> properties);
+	private Messages() {}
 
-	IBeanProxy<BEAN_TYPE> createProxy(IBeanDto beanDto, List<String> properties);
-
-	IBeanProxy<BEAN_TYPE> createTransientProxy(List<String> properties);
-
-	IBeanProxy<BEAN_TYPE> createTransientProxy(List<String> properties, Map<String, Object> defaultValues);
-
+	public static String getString(final String key) {
+		try {
+			return RESOURCE_BUNDLE.getString(key);
+		}
+		catch (final MissingResourceException e) {
+			return '!' + key + '!';
+		}
+	}
 }
