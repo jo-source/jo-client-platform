@@ -59,6 +59,7 @@ import org.jowidgets.cap.ui.api.execution.IExecutionTask;
 import org.jowidgets.cap.ui.api.execution.IExecutionTaskListener;
 import org.jowidgets.cap.ui.tools.execution.ExecutionTaskAdapter;
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.EmptyCompatibleEquivalence;
 import org.jowidgets.util.NullCompatibleEquivalence;
 import org.jowidgets.validation.IValidationResult;
 import org.jowidgets.validation.IValidationResultBuilder;
@@ -79,6 +80,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE> {
 	private final List<IBeanMessage> messagesList;
 	private final IUiThreadAccess uiThreadAccess;
 	private final Validator validator;
+	private final boolean isTransient;
 
 	private IExecutionTask executionTask;
 
@@ -86,7 +88,11 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE> {
 	private IBeanDto beanDto;
 	private BEAN_TYPE proxy;
 
-	BeanProxyImpl(final IBeanDto beanDto, final Class<? extends BEAN_TYPE> beanType, final List<String> properties) {
+	BeanProxyImpl(
+		final IBeanDto beanDto,
+		final Class<? extends BEAN_TYPE> beanType,
+		final List<String> properties,
+		final boolean isTransient) {
 		Assert.paramNotNull(beanDto, "beanDto");
 		Assert.paramNotNull(beanType, "beanType");
 		Assert.paramNotNull(properties, "properties");
@@ -94,6 +100,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE> {
 		this.beanDto = beanDto;
 		this.beanType = beanType;
 		this.properties = new LinkedList<String>(properties);
+		this.isTransient = isTransient;
 		this.modifications = new HashMap<String, IBeanModification>();
 		this.undoneModifications = new HashMap<String, IBeanModification>();
 		this.propertyChangeObservable = new PropertyChangeObservable();
@@ -166,7 +173,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE> {
 		final Object currentValue = getValue(propertyName);
 
 		//set to the original value
-		if (NullCompatibleEquivalence.equals(originalValue, newValue)) {
+		if (EmptyCompatibleEquivalence.equals(originalValue, newValue)) {
 			final boolean oldModificationState = hasModifications();
 			modifications.remove(propertyName);
 			final boolean newModificationState = hasModifications();
@@ -175,7 +182,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE> {
 				modificationStateObservable.fireModificationStateChanged(this);
 			}
 		}
-		else if (!NullCompatibleEquivalence.equals(currentValue, newValue)) {
+		else if (!EmptyCompatibleEquivalence.equals(currentValue, newValue)) {
 			final IBeanModificationBuilder modBuilder = CapCommonToolkit.beanModificationBuilder();
 			modBuilder.setBeanDto(beanDto).setPropertyName(propertyName).setOldValue(originalValue).setNewValue(newValue);
 			final boolean oldModificationState = hasModifications();
@@ -384,6 +391,11 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE> {
 		messagesMap.get(BeanMessageType.WARNING).clear();
 		messagesMap.get(BeanMessageType.ERROR).clear();
 		messageStateObservable.fireMessageStateChanged(this);
+	}
+
+	@Override
+	public boolean isTransient() {
+		return isTransient;
 	}
 
 	@Override

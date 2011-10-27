@@ -92,6 +92,8 @@ public interface IBeanProxy<BEAN_TYPE> extends
 
 	void clearMessages();
 
+	boolean isTransient();
+
 	void dispose();
 
 	BEAN_TYPE getBean();

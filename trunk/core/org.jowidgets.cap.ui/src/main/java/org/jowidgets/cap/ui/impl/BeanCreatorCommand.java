@@ -146,7 +146,7 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 
 	@Override
 	public void execute(final IExecutionContext executionContext) throws Exception {
-		final IBeanProxy<BEAN_TYPE> proxy = beanFactory.createProxy(properties, defaultValues);
+		final IBeanProxy<BEAN_TYPE> proxy = beanFactory.createTransientProxy(properties, defaultValues);
 
 		final IBeanDialogBluePrint<BEAN_TYPE> beanDialogBp = CapUiToolkit.bluePrintFactory().beanDialog(beanFormBp);
 		beanDialogBp.autoPackOff();

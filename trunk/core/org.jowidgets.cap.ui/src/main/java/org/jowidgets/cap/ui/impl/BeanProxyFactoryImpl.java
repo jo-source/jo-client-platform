@@ -63,16 +63,16 @@ final class BeanProxyFactoryImpl<BEAN_TYPE> implements IBeanProxyFactory<BEAN_TY
 	public IBeanProxy<BEAN_TYPE> createProxy(final IBeanDto beanDto, final List<String> properties) {
 		Assert.paramNotNull(beanDto, "beanDto");
 		Assert.paramNotNull(properties, "properties");
-		return new BeanProxyImpl<BEAN_TYPE>(beanDto, beanType, properties);
+		return new BeanProxyImpl<BEAN_TYPE>(beanDto, beanType, properties, false);
 	}
 
 	@Override
-	public IBeanProxy<BEAN_TYPE> createProxy(final List<String> properties) {
-		return createProxy(properties, new HashMap<String, Object>());
+	public IBeanProxy<BEAN_TYPE> createTransientProxy(final List<String> properties) {
+		return createTransientProxy(properties, new HashMap<String, Object>());
 	}
 
 	@Override
-	public IBeanProxy<BEAN_TYPE> createProxy(final List<String> properties, Map<String, Object> defaultValues) {
+	public IBeanProxy<BEAN_TYPE> createTransientProxy(final List<String> properties, Map<String, Object> defaultValues) {
 		if (defaultValues == null) {
 			defaultValues = new HashMap<String, Object>();
 		}
@@ -96,7 +96,7 @@ final class BeanProxyFactoryImpl<BEAN_TYPE> implements IBeanProxyFactory<BEAN_TY
 				return id;
 			}
 
-		}, beanType, properties);
+		}, beanType, properties, true);
 	}
 
 }

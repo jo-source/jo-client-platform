@@ -262,16 +262,29 @@ public final class CapUiToolkit {
 					public void initialize(final IBeanFormBluePrint<?> bluePrint) {
 						bluePrint.setAutoResetValidation(true);
 						bluePrint.setContentScrolled(true);
-						final IInputComponentValidationLabelBluePrint validationLabelBp = Toolkit.getBluePrintFactory().inputComponentValidationLabel();
-						final IDecorator<IValidationResult> validationDecorator = new IDecorator<IValidationResult>() {
+						final IInputComponentValidationLabelBluePrint editModeValidationLabel = Toolkit.getBluePrintFactory().inputComponentValidationLabel();
+						final IDecorator<IValidationResult> editModeValidationDecorator = new IDecorator<IValidationResult>() {
 							@Override
 							public IValidationResult decorate(final IValidationResult original) {
 								return null;
 							}
 						};
-						validationLabelBp.setInitialValidationDecorator(validationDecorator);
-						validationLabelBp.setUnmodifiedValidationDecorator(validationDecorator);
-						bluePrint.setValidationLabel(validationLabelBp);
+						editModeValidationLabel.setInitialValidationDecorator(editModeValidationDecorator);
+						editModeValidationLabel.setUnmodifiedValidationDecorator(editModeValidationDecorator);
+						bluePrint.setEditModeValidationLabel(editModeValidationLabel);
+
+						final IInputComponentValidationLabelBluePrint createModeValidationLabel = Toolkit.getBluePrintFactory().inputComponentValidationLabel();
+						final IDecorator<IValidationResult> createModeValidationDecorator = new IDecorator<IValidationResult>() {
+							@Override
+							public IValidationResult decorate(final IValidationResult original) {
+								return original;
+							}
+						};
+						createModeValidationLabel.setInitialValidationDecorator(createModeValidationDecorator);
+						createModeValidationLabel.setUnmodifiedValidationDecorator(createModeValidationDecorator);
+						bluePrint.setCreateModeValidationLabel(createModeValidationLabel);
+						bluePrint.setCreateModeInputHint(Messages.getString("CapUiToolkit.fill_out_mandatory_fields"));
+
 						bluePrint.setMandatoryBackgroundColor(CapColors.MANDATORY_BACKGROUND);
 						bluePrint.setMandatoryLabelDecorator(new IDecorator<String>() {
 							@Override
