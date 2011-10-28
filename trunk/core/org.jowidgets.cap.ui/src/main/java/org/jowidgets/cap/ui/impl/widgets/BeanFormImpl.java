@@ -157,6 +157,17 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 	}
 
 	@Override
+	public void dispose() {
+		if (this.bean != null) {
+			this.bean.removePropertyChangeListener(propertyChangeListenerBinding);
+			this.bean.removePropertyChangeListener(propertyChangeListenerValidation);
+			this.bean.removeModificationStateListener(modificationStateListener);
+			this.bean.removeProcessStateListener(beanProcessStateListener);
+		}
+		super.dispose();
+	}
+
+	@Override
 	public void setValue(final IBeanProxy<BEAN_TYPE> bean) {
 		if (this.bean != null) {
 			this.bean.removePropertyChangeListener(propertyChangeListenerBinding);

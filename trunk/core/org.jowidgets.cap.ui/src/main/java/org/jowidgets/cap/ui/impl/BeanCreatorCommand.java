@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.ui.impl;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -50,7 +51,9 @@ import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.service.ICreatorService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
+import org.jowidgets.cap.ui.api.bean.BeanMessageType;
 import org.jowidgets.cap.ui.api.bean.IBeanExecptionConverter;
+import org.jowidgets.cap.ui.api.bean.IBeanMessageBuilder;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
 import org.jowidgets.cap.ui.api.execution.BeanModificationStatePolicy;
@@ -62,13 +65,13 @@ import org.jowidgets.cap.ui.api.widgets.IBeanDialogBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
 import org.jowidgets.common.types.Rectangle;
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.EmptyCheck;
 
 final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
 
 	private static final int INITIAL_MIN_WIDTH = 450;
 
-	@SuppressWarnings("unused")
-	private final IBeanListModel<?> model;
+	private final IBeanListModel<BEAN_TYPE> model;
 
 	private final IBeanFormBluePrint<BEAN_TYPE> beanFormBp;
 
@@ -163,30 +166,67 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 
 		dialog.setVisible(true);
 		if (dialog.isOkPressed()) {
-			createBean(proxy);
+			createBean(createUnmodifiedBean(proxy));
 		}
-		proxy.dispose();
 		dialogBounds = dialog.getBounds();
 		dialog.dispose();
 	}
 
+	private IBeanProxy<BEAN_TYPE> createUnmodifiedBean(final IBeanProxy<BEAN_TYPE> proxy) {
+		final IBeanProxy<BEAN_TYPE> result = beanFactory.createProxy(proxy, properties);
+		result.setTransient(true);
+		return result;
+	}
+
 	private void createBean(final IBeanProxy<BEAN_TYPE> proxy) {
-		//CHECKSTYLE:OFF
-		System.out.println(proxy);
-		//CHECKSTYLE:ON
+
+		final IExecutionTask executionTask = CapUiToolkit.executionTaskFactory().create();
+		proxy.setExecutionTask(executionTask);
+
+		//add bean to the model
+		final ArrayList<Integer> selection = model.getSelection();
+		if (!selection.isEmpty()) {
+			model.addBean(selection.iterator().next().intValue(), proxy);
+		}
+		else {
+			model.addBean(model.getSize(), proxy);
+		}
+
 		final IBeanData beanData = createBeanData(proxy);
 		final List<IBeanData> data = Collections.singletonList(beanData);
-		final IExecutionTask executionTask = CapUiToolkit.executionTaskFactory().create();
-		@SuppressWarnings("unused")
 		final IUiThreadAccess uiThreadAccess = Toolkit.getUiThreadAccess();
 		final IResultCallback<List<IBeanDto>> resultCallback = new IResultCallback<List<IBeanDto>>() {
 
 			@Override
 			public void finished(final List<IBeanDto> result) {
-				//CHECKSTYLE:OFF
-				System.out.println("Created: " + result);
-				//TODO MG add created to model
-				//CHECKSTYLE:ON
+				if (!EmptyCheck.isEmpty(result)) {
+					uiThreadAccess.invokeLater(new Runnable() {
+						@Override
+						public void run() {
+							proxy.setExecutionTask(null);
+							proxy.update(result.get(0));
+							proxy.setTransient(false);
+							model.fireBeansChanged();
+						}
+					});
+					//CHECKSTYLE:OFF
+					System.out.println("Created: " + result);
+					//CHECKSTYLE:ON
+				}
+				else {
+					uiThreadAccess.invokeLater(new Runnable() {
+						@Override
+						public void run() {
+							proxy.setExecutionTask(null);
+							final IBeanMessageBuilder messageBuilder = CapUiToolkit.beanMessageBuilder(BeanMessageType.ERROR);
+							messageBuilder.setMessage("Object not created");
+							messageBuilder.setDescription("The object was not created");
+							proxy.addMessage(messageBuilder.build());
+							model.fireBeansChanged();
+						}
+					});
+				}
+
 			}
 
 			@Override

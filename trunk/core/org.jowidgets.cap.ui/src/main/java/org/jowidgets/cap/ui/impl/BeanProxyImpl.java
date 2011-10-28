@@ -80,7 +80,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE> {
 	private final List<IBeanMessage> messagesList;
 	private final IUiThreadAccess uiThreadAccess;
 	private final Validator validator;
-	private final boolean isTransient;
+	private boolean isTransient;
 
 	private IExecutionTask executionTask;
 
@@ -198,7 +198,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE> {
 	@Override
 	public void update(final IBeanDto beanDto) {
 		Assert.paramNotNull(beanDto, "beanDto");
-		if (!this.beanDto.equals(beanDto)) {
+		if (!isTransient && !this.beanDto.equals(beanDto)) {
 			throw new IllegalArgumentException("The given parameter 'beanDto' must have the same id and type than this proxy");
 		}
 
@@ -391,6 +391,11 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE> {
 		messagesMap.get(BeanMessageType.WARNING).clear();
 		messagesMap.get(BeanMessageType.ERROR).clear();
 		messageStateObservable.fireMessageStateChanged(this);
+	}
+
+	@Override
+	public void setTransient(final boolean isTransient) {
+		this.isTransient = isTransient;
 	}
 
 	@Override
