@@ -86,6 +86,7 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 	private final Map<String, IAttribute<Object>> attributes;
 
 	private final Map<String, IInputControl<Object>> controls;
+	private final Map<String, IColorConstant> backgroundColors;
 	private final Map<String, IInputListener> bindingListeners;
 	private final Map<String, IValidationConditionListener> validationListeners;
 	private final Map<String, IValidationResultLabel> validationLabels;
@@ -112,6 +113,7 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 		this.createModeInputHint = bluePrint.getCreateModeInputHint();
 		this.attributes = new HashMap<String, IAttribute<Object>>();
 		this.controls = new LinkedHashMap<String, IInputControl<Object>>();
+		this.backgroundColors = new HashMap<String, IColorConstant>();
 		this.bindingListeners = new HashMap<String, IInputListener>();
 		this.validationListeners = new HashMap<String, IValidationConditionListener>();
 		this.validationLabels = new HashMap<String, IValidationResultLabel>();
@@ -165,11 +167,13 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 
 		this.bean = bean;
 		if (bean == null) {
-			for (final IInputControl<Object> control : controls.values()) {
+			for (final Entry<String, IInputControl<Object>> entry : controls.entrySet()) {
+				final IInputControl<Object> control = entry.getValue();
+				final IAttribute<?> attribute = attributes.get(entry.getKey());
 				control.setValue(null);
 				control.setEnabled(false);
-				if (mandatoryBackgroundColor != null) {
-					control.setBackgroundColor(null);
+				if (mandatoryBackgroundColor != null && attribute.isMandatory()) {
+					control.setBackgroundColor(backgroundColors.get(entry.getKey()));
 				}
 			}
 			validationLabelContainer.layoutBegin();
@@ -194,7 +198,7 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 				control.setEnabled(!bean.hasExecution());
 				if (mandatoryBackgroundColor != null && attribute.isMandatory()) {
 					if (bean.hasExecution()) {
-						control.setBackgroundColor(null);
+						control.setBackgroundColor(backgroundColors.get(propertyName));
 					}
 					else {
 						control.setBackgroundColor(mandatoryBackgroundColor);
@@ -377,6 +381,7 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 							result.addValidator(mandatoryValidator);
 						}
 
+						backgroundColors.put(propertyName, result.getBackgroundColor());
 						result.setEnabled(false);
 						bindingListeners.put(propertyName, new BindingListener(propertyName, result));
 						validationListeners.put(propertyName, new ValidationConditionListener(propertyName, result));
