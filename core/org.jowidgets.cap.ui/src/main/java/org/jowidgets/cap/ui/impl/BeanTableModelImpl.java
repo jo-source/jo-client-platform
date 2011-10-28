@@ -255,10 +255,13 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	private static List<IAttribute<Object>> createModifiedByPluginsAttributes(
 		final Object entityId,
 		final List<IAttribute<Object>> attributes) {
+
 		List<IAttribute<Object>> result = attributes;
+
 		final IPluginPropertiesBuilder propBuilder = PluginToolkit.pluginPropertiesBuilder();
 		propBuilder.add(IBeanTableModelPlugin.ENTITIY_ID_PROPERTY_KEY, entityId);
 		final IPluginProperties properties = propBuilder.build();
+
 		for (final IBeanTableModelPlugin plugin : PluginProvider.getPlugins(IBeanTableModelPlugin.ID, properties)) {
 			result = plugin.modify(properties, result);
 		}
@@ -422,23 +425,6 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		data.clear();
 		loadPage(0);
 		dataModel.fireDataChanged();
-	}
-
-	private List<? extends IBeanKey> getParentBeanKeys() {
-		if (parent == null) {
-			return null;
-		}
-		final List<IBeanKey> beanKeys = new LinkedList<IBeanKey>();
-		for (final int i : parent.getSelection()) {
-			final IBeanProxy<?> proxy = parent.getBean(i);
-			if (proxy != null && proxy.getId() != DUMMY_VALUE) {
-				beanKeys.add(new BeanKey(proxy.getId(), proxy.getVersion()));
-			}
-		}
-		if (!beanKeys.isEmpty() && linkType == LinkType.SELECTION_FIRST) {
-			return beanKeys.subList(0, 1);
-		}
-		return beanKeys;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -793,6 +779,23 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		else {
 			return null;
 		}
+	}
+
+	private List<? extends IBeanKey> getParentBeanKeys() {
+		if (parent == null) {
+			return null;
+		}
+		final List<IBeanKey> beanKeys = new LinkedList<IBeanKey>();
+		for (final int i : parent.getSelection()) {
+			final IBeanProxy<?> proxy = parent.getBean(i);
+			if (proxy != null && proxy.getId() != DUMMY_VALUE) {
+				beanKeys.add(new BeanKey(proxy.getId(), proxy.getVersion()));
+			}
+		}
+		if (!beanKeys.isEmpty() && linkType == LinkType.SELECTION_FIRST) {
+			return beanKeys.subList(0, 1);
+		}
+		return beanKeys;
 	}
 
 	private class DataModel extends AbstractTableDataModel {
