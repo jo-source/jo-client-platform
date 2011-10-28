@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.ui.impl;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -76,27 +77,66 @@ final class BeanProxyFactoryImpl<BEAN_TYPE> implements IBeanProxyFactory<BEAN_TY
 		if (defaultValues == null) {
 			defaultValues = new HashMap<String, Object>();
 		}
-		final Map<String, Object> finalDefaultValues = defaultValues;
-		return new BeanProxyImpl<BEAN_TYPE>(new IBeanDto() {
-
-			private final Object id = new Object();
-
-			@Override
-			public Object getValue(final String propertyName) {
-				return finalDefaultValues.get(propertyName);
-			}
-
-			@Override
-			public long getVersion() {
-				return 0;
-			}
-
-			@Override
-			public Object getId() {
-				return id;
-			}
-
-		}, beanType, properties, true);
+		return new BeanProxyImpl<BEAN_TYPE>(new BeanDto(defaultValues), beanType, properties, true);
 	}
 
+	private static final class BeanDto implements IBeanDto {
+
+		private final Object id;
+		private final Map<String, Object> defaultValues;
+
+		private BeanDto(final Map<String, Object> defaultValues) {
+			this.id = new Serializable() {
+				private static final long serialVersionUID = 8590669568864924318L;
+			};
+			this.defaultValues = defaultValues;
+		}
+
+		@Override
+		public Object getValue(final String propertyName) {
+			return defaultValues.get(propertyName);
+		}
+
+		@Override
+		public long getVersion() {
+			return 0;
+		}
+
+		@Override
+		public Object getId() {
+			return id;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((id == null) ? 0 : id.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(final Object obj) {
+			if (this == obj) {
+				return true;
+			}
+			if (obj == null) {
+				return false;
+			}
+			if (getClass() != obj.getClass()) {
+				return false;
+			}
+			final BeanDto other = (BeanDto) obj;
+			if (id == null) {
+				if (other.id != null) {
+					return false;
+				}
+			}
+			else if (!id.equals(other.id)) {
+				return false;
+			}
+			return true;
+		}
+
+	}
 }

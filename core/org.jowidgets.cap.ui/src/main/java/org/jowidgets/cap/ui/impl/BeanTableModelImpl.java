@@ -501,7 +501,9 @@ class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 
 	@Override
 	public void addBean(final int index, final IBeanProxy<BEAN_TYPE> bean) {
-		// TODO MG implement addBean
+		Assert.paramNotNull(bean, "bean");
+		beansStateTracker.register(bean);
+		//TODO MG add the bean to the model
 	}
 
 	@Override
