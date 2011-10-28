@@ -46,6 +46,13 @@ public interface IAttributeCollectionModifierBuilder {
 
 	IAttributeCollectionModifierBuilder addDefaultModifier(IAttributeModifier<?> modifier);
 
+	/**
+	 * Adds a modifier. The modification that should be done can be made on the returned IAttributeBluePrint
+	 * 
+	 * @return A bluePrint to make the modifications on.
+	 */
+	IAttributeBluePrint<Object> addDefaultModifier();
+
 	IAttributeCollectionModifierBuilder addDefaultEditableModifier(boolean editable);
 
 	IAttributeCollectionModifierBuilder addDefaultVisibleModifier(boolean visible);

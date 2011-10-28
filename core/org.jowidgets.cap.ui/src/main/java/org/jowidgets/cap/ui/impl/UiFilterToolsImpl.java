@@ -228,7 +228,7 @@ final class UiFilterToolsImpl implements IUiFilterTools {
 
 		final Map<String, String> attributeMap = new HashMap<String, String>();
 		for (final IAttribute<?> attribute : attributes) {
-			attributeMap.put(attribute.getPropertyName(), attribute.getLabel());
+			attributeMap.put(attribute.getPropertyName(), attribute.getCurrentLabel());
 		}
 
 		return toHumanReadable(filter, attributeMap).toString();

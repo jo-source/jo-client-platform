@@ -52,7 +52,6 @@ import org.jowidgets.cap.ui.api.attribute.IControlPanelProvider;
 import org.jowidgets.cap.ui.api.bean.IBeanModificationStateListener;
 import org.jowidgets.cap.ui.api.bean.IBeanProcessStateListener;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
-import org.jowidgets.cap.ui.api.control.DisplayFormat;
 import org.jowidgets.cap.ui.api.form.IBeanFormControlFactory;
 import org.jowidgets.cap.ui.api.form.IBeanFormLayouter;
 import org.jowidgets.cap.ui.api.widgets.IBeanForm;
@@ -207,13 +206,16 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 				control.removeValidationConditionListener(validationListeners.get(propertyName));
 				control.setValue(bean.getValue(entry.getKey()));
 				control.setEnabled(!bean.hasExecution());
-				if (mandatoryBackgroundColor != null && attribute.isMandatory()) {
+				if (mandatoryBackgroundColor != null && attribute.isMandatory() && attribute.isEditable()) {
 					if (bean.hasExecution()) {
 						control.setBackgroundColor(backgroundColors.get(propertyName));
 					}
 					else {
 						control.setBackgroundColor(mandatoryBackgroundColor);
 					}
+				}
+				else if (mandatoryBackgroundColor != null && attribute.isMandatory()) {
+					control.setBackgroundColor(backgroundColors.get(entry.getKey()));
 				}
 				control.setEditable(attribute.isEditable() && !bean.hasExecution());
 				control.addInputListener(bindingListeners.get(propertyName));
@@ -252,7 +254,7 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 	@Override
 	public void setEditable(final boolean editable) {
 		for (final IInputControl<Object> control : controls.values()) {
-			control.resetModificationState();
+			control.setEditable(editable);
 		}
 	}
 
@@ -348,14 +350,7 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 
 	private String getLabel(final String propertyName) {
 		Assert.paramNotNull(propertyName, "propertyName");
-
-		final IAttribute<Object> attribute = attributes.get(propertyName);
-		if (DisplayFormat.LONG == attribute.getLabelDisplayFormat()) {
-			return attribute.getLabelLong();
-		}
-		else {
-			return attribute.getLabel();
-		}
+		return attributes.get(propertyName).getCurrentLabel();
 	}
 
 	private final class BeanFormControlFactory implements IBeanFormControlFactory {

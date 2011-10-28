@@ -63,6 +63,8 @@ public interface IAttribute<ELEMENT_VALUE_TYPE> extends IChangeObservable {
 
 	String getLabelLong();
 
+	String getCurrentLabel();
+
 	String getDescription();
 
 	DisplayFormat getLabelDisplayFormat();

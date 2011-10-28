@@ -40,8 +40,8 @@ final class BeanTableHideColumnActionBuilder extends ActionBuilder {
 	BeanTableHideColumnActionBuilder(final IBeanTable<?> table, final int columnIndex) {
 		super();
 		final IAttribute<Object> attribute = table.getModel().getAttribute(columnIndex);
-		setText(Messages.getString("BeanTableHideColumnActionBuilder.hide_column_n").replace("%1", attribute.getLabel())); //$NON-NLS-1$ //$NON-NLS-2$
-		setToolTipText(Messages.getString("BeanTableHideColumnActionBuilder.hide_column_n_tooltip").replace("%1", attribute.getLabel())); //$NON-NLS-1$ //$NON-NLS-2$
+		setText(Messages.getString("BeanTableHideColumnActionBuilder.hide_column_n").replace("%1", attribute.getCurrentLabel())); //$NON-NLS-1$ //$NON-NLS-2$
+		setToolTipText(Messages.getString("BeanTableHideColumnActionBuilder.hide_column_n_tooltip").replace("%1", attribute.getCurrentLabel())); //$NON-NLS-1$ //$NON-NLS-2$
 		setIcon(CapIcons.TABLE_HIDE_COLUMN);
 		setCommand(new ICommandExecutor() {
 			@Override
