@@ -221,6 +221,16 @@ final class AttributeImpl<ELEMENT_VALUE_TYPE> implements IAttribute<ELEMENT_VALU
 	}
 
 	@Override
+	public String getCurrentLabel() {
+		if (DisplayFormat.LONG == labelDisplayFormat) {
+			return getLabelLong();
+		}
+		else {
+			return getLabel();
+		}
+	}
+
+	@Override
 	public String getDescription() {
 		return description;
 	}

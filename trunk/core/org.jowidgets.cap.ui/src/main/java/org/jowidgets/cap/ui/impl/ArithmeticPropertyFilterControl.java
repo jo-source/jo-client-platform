@@ -158,7 +158,7 @@ public class ArithmeticPropertyFilterControl<ELEMENT_VALUE_TYPE> extends
 
 			@Override
 			public String convertToString(final IAttribute<?> value) {
-				return value.getLabel();
+				return value.getCurrentLabel();
 			}
 
 			@Override
@@ -176,7 +176,7 @@ public class ArithmeticPropertyFilterControl<ELEMENT_VALUE_TYPE> extends
 	@Override
 	protected IValidationResult createValidationResult() {
 		if (combo1 != null && combo1.getElements().isEmpty() || combo2 != null && combo2.getElements().isEmpty()) {
-			final String message = MessageReplacer.replace(NO_ATTRIBUTE_COULD_BE_COMPARED_WITH, attribute.getLabel());
+			final String message = MessageReplacer.replace(NO_ATTRIBUTE_COULD_BE_COMPARED_WITH, attribute.getCurrentLabel());
 			return ValidationResult.infoError(message); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		return ValidationResult.ok();

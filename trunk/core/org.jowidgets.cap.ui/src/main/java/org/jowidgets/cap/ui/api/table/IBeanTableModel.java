@@ -47,6 +47,8 @@ public interface IBeanTableModel<BEAN_TYPE> extends IDataModel, IBeanListModel<B
 
 	String UI_FILTER_ID = IBeanTableModel.class.getName() + ".UI_FILTER_ID";
 
+	Object getEntityId();
+
 	Class<BEAN_TYPE> getBeanType();
 
 	ITableModel getTableModel();
@@ -55,6 +57,8 @@ public interface IBeanTableModel<BEAN_TYPE> extends IDataModel, IBeanListModel<B
 
 	IDeleterService getDeleterService();
 
+	int getColumnCount();
+
 	IAttribute<Object> getAttribute(int columnIndex);
 
 	List<IAttribute<Object>> getAttributes();
@@ -62,8 +66,6 @@ public interface IBeanTableModel<BEAN_TYPE> extends IDataModel, IBeanListModel<B
 	List<IAttribute<Object>> getAttributes(IAttributeFilter filter);
 
 	Object getValue(int rowIndex, int columnIndex);
-
-	int getColumnCount();
 
 	@Override
 	ArrayList<Integer> getSelection();
@@ -89,10 +91,6 @@ public interface IBeanTableModel<BEAN_TYPE> extends IDataModel, IBeanListModel<B
 	IUiFilter getFilter(String id);
 
 	ISortModel getSortModel();
-
-	void setPageSize(int pageSize);
-
-	void setActive(boolean active);
 
 	void setConfig(IBeanTableConfig config);
 

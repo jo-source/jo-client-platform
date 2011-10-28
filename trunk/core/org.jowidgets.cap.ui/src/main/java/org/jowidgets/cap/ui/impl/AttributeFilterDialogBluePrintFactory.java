@@ -77,7 +77,7 @@ final class AttributeFilterDialogBluePrintFactory {
 				container.setLayout(new MigLayoutDescriptor("0[][grow, 0::]0", "0[]0")); //$NON-NLS-1$ //$NON-NLS-2$
 
 				final IAttribute<?> attribute = model.getAttribute(columnIndex);
-				container.add(Toolkit.getBluePrintFactory().textLabel(attribute.getLabel()).setMarkup(Markup.STRONG));
+				container.add(Toolkit.getBluePrintFactory().textLabel(attribute.getCurrentLabel()).setMarkup(Markup.STRONG));
 
 				filterControl = container.add(capBpf.attributeFilterControl(model.getAttributes()), "growx, w 0::");
 

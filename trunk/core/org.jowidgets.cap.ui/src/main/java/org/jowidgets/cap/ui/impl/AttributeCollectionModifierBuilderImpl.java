@@ -140,6 +140,19 @@ final class AttributeCollectionModifierBuilderImpl implements IAttributeCollecti
 	}
 
 	@Override
+	public IAttributeBluePrint<Object> addDefaultModifier() {
+		final AttributeModifierBluePrint<Object> attributeModifierBluePrint = new AttributeModifierBluePrint<Object>();
+		addDefaultModifier(new IAttributeModifier<Object>() {
+			@Override
+			public void modify(final IProperty sourceProperty, final IAttributeBluePrint<Object> attributeBluePrint) {
+				attributeModifierBluePrint.modify(attributeBluePrint);
+			}
+		});
+		modifierBluePrints.add(attributeModifierBluePrint);
+		return attributeModifierBluePrint;
+	}
+
+	@Override
 	public IAttributeCollectionModifierBuilder addDefaultEditableModifier(final boolean editable) {
 		addDefaultModifier(new IAttributeModifier<Object>() {
 			@Override
