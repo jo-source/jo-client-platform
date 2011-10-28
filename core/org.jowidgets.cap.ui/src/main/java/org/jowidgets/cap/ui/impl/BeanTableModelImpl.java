@@ -128,7 +128,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	private static final int VIEW_SIZE = 50;
 	private static final int LISTENER_DELAY = 100;
 	private static final int MAX_PAGE_LOADER_COUNT = 2;
-	private static final IDummyValue DUMMY_VALUE = new IDummyValue() {};
+	private static final Object DUMMY_ID = new Object() {};
 
 	private final Object entityId;
 	private final Class<BEAN_TYPE> beanType;
@@ -234,10 +234,6 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		this.beanListModelObservable = new BeanListModelObservable();
 		this.filterChangeObservable = new ChangeObservable();
 
-		//add some listeners
-		this.lookUpListenersStrongRef = new HashSet<ILookUpListener>();
-		addAttributeListeners(attributes, lookUpListenersStrongRef);
-
 		//configure sort model
 		sortModel.setConfig(sortModelConfig);
 		sortModel.addChangeListener(new SortModelChangeListener());
@@ -247,6 +243,10 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		this.dataModel = new DataModel();
 		dataModel.addDataModelListener(new TableDataModelListener());
 		this.tableModel = new TableModel(columnModel, dataModel);
+
+		//add some listeners
+		this.lookUpListenersStrongRef = new HashSet<ILookUpListener>();
+		addAttributeListeners(attributes, lookUpListenersStrongRef);
 
 		//update the columns
 		updateColumnModel();
@@ -284,7 +284,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	}
 
 	private void addAttributeListeners(final List<IAttribute<Object>> attributes, final Set<ILookUpListener> listenersStrongRef) {
-		for (int index = 0; index > attributes.size(); index++) {
+		for (int index = 0; index < attributes.size(); index++) {
 			final IAttribute<Object> attribute = attributes.get(index);
 
 			attribute.addChangeListener(new AttributeChangeListener(attribute, index));
@@ -788,7 +788,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		final List<IBeanKey> beanKeys = new LinkedList<IBeanKey>();
 		for (final int i : parent.getSelection()) {
 			final IBeanProxy<?> proxy = parent.getBean(i);
-			if (proxy != null && proxy.getId() != DUMMY_VALUE) {
+			if (proxy != null && proxy.getId() != DUMMY_ID) {
 				beanKeys.add(new BeanKey(proxy.getId(), proxy.getVersion()));
 			}
 		}
@@ -827,7 +827,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 				final Object value = bean.getValue(attribute.getPropertyName());
 
 				final ITableCellBuilder cellBuilder;
-				if (bean.getId() instanceof IDummyValue) {
+				if (bean.getId() == DUMMY_ID) {
 					cellBuilder = createDummyCellBuilder(rowIndex, columnIndex);
 				}
 				else {
@@ -1223,8 +1223,6 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		}
 	}
 
-	private interface IDummyValue {}
-
 	private static class DummyBeanDto implements IBeanDto {
 
 		@Override
@@ -1234,7 +1232,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 		@Override
 		public Object getId() {
-			return DUMMY_VALUE;
+			return DUMMY_ID;
 		}
 
 		@Override
