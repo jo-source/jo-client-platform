@@ -86,6 +86,8 @@ public interface IBeanProxy<BEAN_TYPE> extends
 
 	List<IBeanMessage> getMessages();
 
+	boolean hasErrors();
+
 	IBeanMessage getFirstWorstMessage();
 
 	IBeanMessage getFirstWorstMandatoryMessage();
@@ -95,6 +97,13 @@ public interface IBeanProxy<BEAN_TYPE> extends
 	void setTransient(boolean isTransient);
 
 	boolean isTransient();
+
+	void setDummy(boolean dummy);
+
+	/**
+	 * @return true if the bean is a dummy bean.
+	 */
+	boolean isDummy();
 
 	void dispose();
 
