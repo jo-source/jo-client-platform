@@ -232,7 +232,7 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 	private void validateAllProperties() {
 		resetValidation();
 		resetModificationState();
-		if (bean != null) {
+		if (bean != null && !bean.isDummy()) {
 			boolean validationChanged = false;
 			for (final Entry<String, IInputControl<Object>> entry : controls.entrySet()) {
 				final boolean propertyValidationChanged = validateProperty(entry.getKey(), entry.getValue());
@@ -260,7 +260,7 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 
 	@Override
 	public boolean hasModifications() {
-		if (bean != null && bean.hasModifications()) {
+		if (bean != null && bean.hasModifications() && !bean.isDummy()) {
 			return true;
 		}
 		for (final IInputControl<Object> control : controls.values()) {
@@ -298,7 +298,7 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 
 	private boolean validateProperty(final String propertyName, final IInputControl<?> control) {
 		boolean validationChanged = false;
-		if (control != null && bean != null) {
+		if (control != null && bean != null && !bean.isDummy()) {
 			//only validate if bean value and control value are in sync, else
 			//the validation will be triggered later 
 			if (EmptyCompatibleEquivalence.equals(control.getValue(), bean.getValue(propertyName))) {
