@@ -87,6 +87,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE> {
 	private String lastProgress;
 	private IBeanDto beanDto;
 	private BEAN_TYPE proxy;
+	private boolean isDummy;
 
 	BeanProxyImpl(
 		final IBeanDto beanDto,
@@ -385,6 +386,11 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE> {
 	}
 
 	@Override
+	public boolean hasErrors() {
+		return !messagesMap.get(BeanMessageType.ERROR).isEmpty();
+	}
+
+	@Override
 	public void clearMessages() {
 		messagesList.clear();
 		messagesMap.get(BeanMessageType.INFO).clear();
@@ -401,6 +407,16 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE> {
 	@Override
 	public boolean isTransient() {
 		return isTransient;
+	}
+
+	@Override
+	public void setDummy(final boolean dummy) {
+		this.isDummy = dummy;
+	}
+
+	@Override
+	public boolean isDummy() {
+		return isDummy;
 	}
 
 	@Override

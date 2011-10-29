@@ -176,7 +176,7 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 		}
 
 		this.bean = bean;
-		if (bean == null) {
+		if (bean == null || bean.isDummy()) {
 			for (final Entry<String, IInputControl<Object>> entry : controls.entrySet()) {
 				final IInputControl<Object> control = entry.getValue();
 				final IAttribute<?> attribute = attributes.get(entry.getKey());
@@ -205,9 +205,9 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 				control.removeInputListener(bindingListeners.get(propertyName));
 				control.removeValidationConditionListener(validationListeners.get(propertyName));
 				control.setValue(bean.getValue(entry.getKey()));
-				control.setEnabled(!bean.hasExecution());
+				control.setEnabled(!bean.hasExecution() && !bean.hasErrors());
 				if (mandatoryBackgroundColor != null && attribute.isMandatory() && attribute.isEditable()) {
-					if (bean.hasExecution()) {
+					if (bean.hasExecution() || bean.hasErrors()) {
 						control.setBackgroundColor(backgroundColors.get(propertyName));
 					}
 					else {
@@ -217,7 +217,7 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 				else if (mandatoryBackgroundColor != null && attribute.isMandatory()) {
 					control.setBackgroundColor(backgroundColors.get(entry.getKey()));
 				}
-				control.setEditable(attribute.isEditable() && !bean.hasExecution());
+				control.setEditable(attribute.isEditable() && !bean.hasExecution() && !bean.hasErrors());
 				control.addInputListener(bindingListeners.get(propertyName));
 				control.addValidationConditionListener(validationListeners.get(propertyName));
 			}

@@ -36,7 +36,6 @@ import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanData;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
-import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.adapter.ISyncCreatorService;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.cap.service.api.bean.IBeanInitializer;
@@ -64,16 +63,6 @@ final class SyncCreatorService<BEAN_TYPE extends IBean> implements ISyncCreatorS
 		Assert.paramNotNull(beansData, "beansData");
 
 		final List<IBeanDto> result = new LinkedList<IBeanDto>();
-
-		//TODO MG remove this later begin
-		try {
-			Thread.sleep(5000);
-		}
-		catch (final InterruptedException e) {
-			e.printStackTrace();
-		}
-		CapServiceToolkit.checkCanceled(executionCallback);
-		//TODO MG remove this later end
 
 		for (final IBeanData beanData : beansData) {
 			final BEAN_TYPE bean = data.createData();

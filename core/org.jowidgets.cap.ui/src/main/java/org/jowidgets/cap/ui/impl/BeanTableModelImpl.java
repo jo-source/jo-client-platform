@@ -81,6 +81,7 @@ import org.jowidgets.cap.ui.api.attribute.IAttributeFilter;
 import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
 import org.jowidgets.cap.ui.api.bean.BeanMessageType;
 import org.jowidgets.cap.ui.api.bean.IBeanMessage;
+import org.jowidgets.cap.ui.api.bean.IBeanMessageBuilder;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeansStateTracker;
@@ -127,7 +128,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 	private static final int DEFAULT_PAGE_SIZE = 1000;
 	private static final int LISTENER_DELAY = 100;
-	private static final int INNER_PAGE_LOAD_DELAY = 200;
+	private static final int INNER_PAGE_LOAD_DELAY = 100;
 	private static final Object DUMMY_ID = new Object() {};
 
 	private final Object entityId;
@@ -821,23 +822,24 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 				return new TableCellBuilder().build();
 			}
 
+			final IAttribute<Object> attribute = attributes.get(columnIndex);
 			final int pageIndex = getPage(rowIndex);
 			final ArrayList<IBeanProxy<BEAN_TYPE>> page = data.get(Integer.valueOf(pageIndex));
 
 			if (page == null) {
 				loadPage(pageIndex);
-				return createDummyCell(rowIndex, columnIndex);
+				return createDummyCell(rowIndex, columnIndex, null, attribute);
 			}
 			else {
 				final IBeanProxy<BEAN_TYPE> bean = getBean(rowIndex);
 				if (bean == null) {
 					return new TableCellBuilder().build();
 				}
-				else if (bean.getId() != DUMMY_ID) {
+				else if (!bean.isDummy()) {
 					return createCell(rowIndex, columnIndex, bean);
 				}
 				else {
-					return createDummyCell(rowIndex, columnIndex);
+					return createDummyCell(rowIndex, columnIndex, bean, attribute);
 				}
 			}
 		}
@@ -856,6 +858,10 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		}
 
 		private ITableCell createCell(final int rowIndex, final int columnIndex, final IBeanProxy<BEAN_TYPE> bean) {
+			return createCellBuilder(rowIndex, columnIndex, bean).build();
+		}
+
+		private ITableCellBuilder createCellBuilder(final int rowIndex, final int columnIndex, final IBeanProxy<BEAN_TYPE> bean) {
 
 			final IAttribute<Object> attribute = attributes.get(columnIndex);
 			final IObjectLabelConverter<Object> converter = attribute.getCurrentControlPanel().getObjectLabelConverter();
@@ -875,7 +881,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			//set editable
 			cellBuilder.setEditable(isCellEditable(bean, attribute));
 
-			return cellBuilder.build();
+			return cellBuilder;
 		}
 
 		private String getCellText(final IObjectLabelConverter<Object> converter, final Object value) {
@@ -969,10 +975,30 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			return result;
 		}
 
-		private ITableCell createDummyCell(final int rowIndex, final int columnIndex) {
-			final ITableCellBuilder cellBuilder = createDefaultCellBuilder(rowIndex, columnIndex);
-			cellBuilder.setText("...").setToolTipText("Data will be loaded in background");
-			cellBuilder.setForegroundColor(Colors.DISABLED);
+		private ITableCell createDummyCell(
+			final int rowIndex,
+			final int columnIndex,
+			final IBeanProxy<BEAN_TYPE> bean,
+			final IAttribute<Object> attribute) {
+
+			final ITableCellBuilder cellBuilder;
+			final boolean hasMessages = bean != null && !EmptyCheck.isEmpty(bean.getMessages());
+
+			if (bean != null && hasMessages && IBeanProxy.META_PROPERTY_MESSAGES.equals(attribute.getPropertyName())) {
+				cellBuilder = createCellBuilder(rowIndex, columnIndex, bean);
+			}
+			else {
+				cellBuilder = createDefaultCellBuilder(rowIndex, columnIndex);
+				if (hasMessages) {
+					final String message = bean.getFirstWorstMessage().getMessage();
+					cellBuilder.setText("---").setToolTipText(message);
+					cellBuilder.setForegroundColor(getCellForegroundColor(bean));
+				}
+				else {
+					cellBuilder.setText("...").setToolTipText("Data will be loaded in background");
+					cellBuilder.setForegroundColor(Colors.DISABLED);
+				}
+			}
 			cellBuilder.setEditable(false);
 			return cellBuilder.build();
 		}
@@ -1104,12 +1130,13 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			data.put(Integer.valueOf(pageIndex), page);
 
 			dummyBeanProxy = beanProxyFactory.createProxy(new DummyBeanDto(), propertyNames);
+			dummyBeanProxy.setDummy(true);
 			executionTask = CapUiToolkit.executionTaskFactory().create();
 			executionTask.addExecutionCallbackListener(new IExecutionCallbackListener() {
 				@Override
 				public void canceled() {
 					if (!canceled) {//if canceled by user
-						clearAllLater();
+						userCanceledLater();
 					}
 				}
 			});
@@ -1164,10 +1191,6 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		}
 
 		void readDataFromService() {
-			//CHECKSTYLE:OFF
-			System.out.println("Load page start: " + pageIndex);
-			//CHECKSTYLE:ON
-
 			readerService.read(
 					createResultCallback(),
 					getParentBeanKeys(),
@@ -1188,9 +1211,6 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 				this.canceled = true;
 				if (schedule != null) {
 					schedule.cancel(false);
-					//CHECKSTYLE:OFF
-					System.out.println("Schedule canceled: " + pageIndex);
-					//CHECKSTYLE:ON
 				}
 				if (executionTask != null) {
 					executionTask.cancel();
@@ -1219,7 +1239,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 				@Override
 				public void exception(final Throwable exception) {
-					// TODO MG handle exception
+					setExceptionLater(exception);
 				}
 
 			};
@@ -1275,10 +1295,26 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			beanListModelObservable.fireBeansChanged();
 
 			finished = true;
+		}
 
-			//CHECKSTYLE:OFF
-			System.out.println("Load page finished: " + pageIndex);
-			//CHECKSTYLE:ON
+		private void setExceptionLater(final Throwable exception) {
+			uiThreadAccess.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					setException(exception);
+				}
+			});
+		}
+
+		private void setException(final Throwable exception) {
+			dummyBeanProxy.setExecutionTask(null);
+			final IBeanMessageBuilder beanMessageBuilder = CapUiToolkit.beanMessageBuilder(BeanMessageType.ERROR);
+			beanMessageBuilder.setException(exception);
+			//TODO MG i18n
+			beanMessageBuilder.setMessage("Could not load data!");
+			dummyBeanProxy.addMessage(beanMessageBuilder.build());
+			finished = true;
+			dataModel.fireDataChanged();
 		}
 
 		private void removePageLater() {
@@ -1292,33 +1328,32 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 		private void removePage() {
 			if (!pageRemoved) {
-				//CHECKSTYLE:OFF
-				System.out.println("Page removed: " + pageIndex);
-				//CHECKSTYLE:ON
 				dummyBeanProxy.setExecutionTask(null);
 				beansStateTracker.unregister(dummyBeanProxy);
 				data.remove(Integer.valueOf(pageIndex));
-				dataModel.fireDataChanged();
 				pageRemoved = true;
 				finished = true;
+				dataModel.fireDataChanged();
 			}
 		}
 
-		private void clearAllLater() {
+		private void userCanceledLater() {
 			uiThreadAccess.invokeLater(new Runnable() {
 				@Override
 				public void run() {
-					clearAll();
+					userCanceled();
 				}
 			});
 		}
 
-		private void clearAll() {
-			data.remove(Integer.valueOf(pageIndex));
+		private void userCanceled() {
 			dummyBeanProxy.setExecutionTask(null);
-			beansStateTracker.unregister(dummyBeanProxy);
-			clear();
+			final IBeanMessageBuilder beanMessageBuilder = CapUiToolkit.beanMessageBuilder(BeanMessageType.WARNING);
+			//TODO MG i18n
+			beanMessageBuilder.setMessage("Data loading was canceled by user");
+			dummyBeanProxy.addMessage(beanMessageBuilder.build());
 			finished = true;
+			dataModel.fireDataChanged();
 		}
 
 	}
