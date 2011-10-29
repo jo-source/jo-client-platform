@@ -147,7 +147,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 	private final ICreatorService creatorService;
 	private final IReaderService<Object> readerService;
-	private final IReaderParameterProvider<Object> paramProvider;
+	private final IReaderParameterProvider<Object> readerParameterProvider;
 	@SuppressWarnings("unused")
 	private final IRefreshService refreshService;
 	private final IUpdaterService updaterService;
@@ -214,7 +214,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 		this.attributes = new ArrayList<IAttribute<Object>>(attributes);
 		this.readerService = (IReaderService<Object>) readerService;
-		this.paramProvider = (IReaderParameterProvider<Object>) paramProvider;
+		this.readerParameterProvider = (IReaderParameterProvider<Object>) paramProvider;
 		this.creatorService = creatorService;
 		this.refreshService = refreshService;
 		this.updaterService = updaterService;
@@ -1061,45 +1061,11 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 			beanListModelObservable.fireBeansChanged();
 
-			this.parameter = paramProvider.getParameter();
+			this.parameter = readerParameterProvider.getParameter();
 
 			final Thread thread = new Thread(createRunnable());
 			thread.setDaemon(true);
 			thread.start();
-		}
-
-		void cancel() {
-			this.canceled = true;
-			if (executionTask != null) {
-				executionTask.cancel();
-			}
-		}
-
-		private void removePageLater() {
-			uiThreadAccess.invokeLater(new Runnable() {
-				@Override
-				public void run() {
-					data.remove(Integer.valueOf(pageIndex));
-					dataModel.fireDataChanged();
-
-					currentPageLoaders.remove(this);
-					dummyBeanProxy.setExecutionTask(null);
-					beansStateTracker.unregister(dummyBeanProxy);
-				}
-			});
-		}
-
-		private void clearLater() {
-			uiThreadAccess.invokeLater(new Runnable() {
-				@Override
-				public void run() {
-					data.remove(Integer.valueOf(pageIndex));
-					currentPageLoaders.remove(this);
-					dummyBeanProxy.setExecutionTask(null);
-					beansStateTracker.unregister(dummyBeanProxy);
-					clear();
-				}
-			});
 		}
 
 		private Runnable createRunnable() {
@@ -1221,6 +1187,41 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 				}
 			};
 		}
+
+		void cancel() {
+			this.canceled = true;
+			if (executionTask != null) {
+				executionTask.cancel();
+			}
+		}
+
+		private void removePageLater() {
+			uiThreadAccess.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					data.remove(Integer.valueOf(pageIndex));
+					dataModel.fireDataChanged();
+
+					currentPageLoaders.remove(this);
+					dummyBeanProxy.setExecutionTask(null);
+					beansStateTracker.unregister(dummyBeanProxy);
+				}
+			});
+		}
+
+		private void clearLater() {
+			uiThreadAccess.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					data.remove(Integer.valueOf(pageIndex));
+					currentPageLoaders.remove(this);
+					dummyBeanProxy.setExecutionTask(null);
+					beansStateTracker.unregister(dummyBeanProxy);
+					clear();
+				}
+			});
+		}
+
 	}
 
 	private static class DummyBeanDto implements IBeanDto {
