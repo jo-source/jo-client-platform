@@ -59,7 +59,6 @@ import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.bean.IBeanModification;
-import org.jowidgets.cap.common.api.bean.IValueRange;
 import org.jowidgets.cap.common.api.execution.IExecutionCallbackListener;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.filter.BooleanOperator;
@@ -105,6 +104,7 @@ import org.jowidgets.cap.ui.api.table.IBeanTableConfig;
 import org.jowidgets.cap.ui.api.table.IBeanTableConfigBuilder;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.table.IReaderParameterProvider;
+import org.jowidgets.common.color.IColorConstant;
 import org.jowidgets.common.image.IImageConstant;
 import org.jowidgets.common.model.ITableCell;
 import org.jowidgets.common.types.Markup;
@@ -118,6 +118,7 @@ import org.jowidgets.tools.model.table.DefaultTableColumnBuilder;
 import org.jowidgets.tools.model.table.TableCellBuilder;
 import org.jowidgets.tools.model.table.TableModel;
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.EmptyCheck;
 import org.jowidgets.util.concurrent.DaemonThreadFactory;
 import org.jowidgets.util.event.ChangeObservable;
 import org.jowidgets.util.event.IChangeListener;
@@ -289,15 +290,18 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 			attribute.addChangeListener(new AttributeChangeListener(attribute, index));
 
-			final IValueRange valueRange = attribute.getValueRange();
-			if (valueRange instanceof ILookUpValueRange) {
-				final ILookUpValueRange lookUpValueRange = (ILookUpValueRange) valueRange;
-				final ILookUpAccess lookUpAccess = CapUiToolkit.lookUpCache().getAccess(lookUpValueRange.getLookUpId());
-				final ILookUpListener lookUpListener = new AttributeLookUpListener(attribute);
-				listenersStrongRef.add(lookUpListener);
-				lookUpAccess.addLookUpListener(lookUpListener, true);
+			if (attribute.getValueRange() instanceof ILookUpValueRange) {
+				addAttributeLookUpListener(attribute, listenersStrongRef);
 			}
 		}
+	}
+
+	private void addAttributeLookUpListener(final IAttribute<Object> attribute, final Set<ILookUpListener> listenersStrongRef) {
+		final ILookUpValueRange lookUpValueRange = (ILookUpValueRange) attribute.getValueRange();
+		final ILookUpAccess lookUpAccess = CapUiToolkit.lookUpCache().getAccess(lookUpValueRange.getLookUpId());
+		final ILookUpListener lookUpListener = new AttributeLookUpListener(attribute);
+		listenersStrongRef.add(lookUpListener);
+		lookUpAccess.addLookUpListener(lookUpListener, true);
 	}
 
 	private IDefaultTableColumnModel createColumnModel(final List<IAttribute<Object>> attributes) {
@@ -589,7 +593,12 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	public Object getValue(final int rowIndex, final int columnIndex) {
 		final IAttribute<Object> attribute = getAttribute(columnIndex);
 		final IBeanProxy<?> bean = getBean(rowIndex);
-		return bean.getValue(attribute.getPropertyName());
+		if (bean != null && attribute != null) {
+			return bean.getValue(attribute.getPropertyName());
+		}
+		else {
+			return null;
+		}
 	}
 
 	@Override
@@ -782,13 +791,13 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	}
 
 	private List<? extends IBeanKey> getParentBeanKeys() {
-		if (parent == null) {
+		if (parent == null || EmptyCheck.isEmpty(parent.getSelection())) {
 			return null;
 		}
 		final List<IBeanKey> beanKeys = new LinkedList<IBeanKey>();
 		for (final int i : parent.getSelection()) {
 			final IBeanProxy<?> proxy = parent.getBean(i);
-			if (proxy != null && proxy.getId() != DUMMY_ID) {
+			if (proxy != null && proxy.getId() != DUMMY_ID && !proxy.isTransient()) {
 				beanKeys.add(new BeanKey(proxy.getId(), proxy.getVersion()));
 			}
 		}
@@ -818,97 +827,141 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 			if (page == null) {
 				loadPage(pageIndex);
-				return createDummyCellBuilder(rowIndex, columnIndex).build();
+				return createDummyCell(rowIndex, columnIndex);
 			}
 			else {
-				final IAttribute<Object> attribute = attributes.get(columnIndex);
 				final int startIndex = pageIndex * pageSize;
 				final IBeanProxy<BEAN_TYPE> bean = page.get(rowIndex - startIndex);
-				final Object value = bean.getValue(attribute.getPropertyName());
 
-				final ITableCellBuilder cellBuilder;
-				if (bean.getId() == DUMMY_ID) {
-					cellBuilder = createDummyCellBuilder(rowIndex, columnIndex);
+				if (bean.getId() != DUMMY_ID) {
+					return createCell(rowIndex, columnIndex, bean);
 				}
 				else {
-					cellBuilder = createCellBuilder(rowIndex, columnIndex, attribute, value);
+					return createDummyCell(rowIndex, columnIndex);
 				}
-
-				final IBeanMessage message = bean.getFirstWorstMessage();
-				if (bean.getExecutionTask() != null) {
-					cellBuilder.setForegroundColor(Colors.DISABLED);
-				}
-				else if (message != null && (message.getType() == BeanMessageType.ERROR)) {
-					cellBuilder.setForegroundColor(Colors.ERROR);
-				}
-				else if (message != null && (message.getType() == BeanMessageType.WARNING)) {
-					cellBuilder.setForegroundColor(Colors.WARNING);
-				}
-				else if (bean.hasModifications()) {
-					cellBuilder.setForegroundColor(Colors.STRONG);
-					if (bean.isModified(attribute.getPropertyName())) {
-						cellBuilder.setMarkup(Markup.STRONG);
-					}
-					else {
-						cellBuilder.setMarkup(Markup.EMPHASIZED);
-					}
-				}
-
-				if (bean.hasExecution()) {
-					cellBuilder.setEditable(false);
-				}
-
-				return cellBuilder.build();
 			}
 		}
 
-		private ITableCellBuilder createCellBuilder(
-			final int rowIndex,
-			final int columnIndex,
-			final IAttribute<Object> attribute,
-			final Object value) {
+		private ITableCell createCell(final int rowIndex, final int columnIndex, final IBeanProxy<BEAN_TYPE> bean) {
+
+			final IAttribute<Object> attribute = attributes.get(columnIndex);
+			final IObjectLabelConverter<Object> converter = attribute.getCurrentControlPanel().getObjectLabelConverter();
+			final Object value = bean.getValue(attribute.getPropertyName());
 
 			final ITableCellBuilder cellBuilder = createDefaultCellBuilder(rowIndex, columnIndex);
-			final IObjectLabelConverter<Object> converter = attribute.getCurrentControlPanel().getObjectLabelConverter();
 
-			String text;
-			String toolTipText;
-			IImageConstant icon;
+			//set label
+			cellBuilder.setText(getCellText(converter, value));
+			cellBuilder.setToolTipText(getCellDecription(converter, value));
+			cellBuilder.setIcon(getCellIcon(converter, value));
 
+			//set style
+			cellBuilder.setForegroundColor(getCellForegroundColor(bean));
+			cellBuilder.setMarkup(getCellMarkup(attribute, bean));
+
+			//set editable
+			cellBuilder.setEditable(isCellEditable(bean, attribute));
+
+			return cellBuilder.build();
+		}
+
+		private String getCellText(final IObjectLabelConverter<Object> converter, final Object value) {
 			if (value instanceof Collection<?>) {
 				final Collection<?> collection = (Collection<?>) value;
 				final int collectionSize = collection.size();
 				if (collectionSize > 0) {
 					final Object firstElement = collection.iterator().next();
 					if (collectionSize > 1) {
-						text = converter.convertToString(firstElement) + " [" + collectionSize + "]";
+						return getCellText(converter, firstElement) + " [" + collectionSize + "]";
 					}
 					else {
-						text = converter.convertToString(firstElement);
+						return getCellText(converter, firstElement);
 					}
-					toolTipText = converter.getDescription(firstElement);
-					icon = null;
 				}
 				else {
-					text = null;
-					toolTipText = null;
-					icon = null;
+					return null;
 				}
 			}
 			else {
-				text = converter.convertToString(value);
-				toolTipText = converter.getDescription(value);
-				icon = converter.getIcon(value);
+				return converter.convertToString(value);
 			}
-
-			cellBuilder.setText(text).setToolTipText(toolTipText).setIcon(icon);
-			return cellBuilder;
 		}
 
-		private ITableCellBuilder createDummyCellBuilder(final int rowIndex, final int columnIndex) {
+		private String getCellDecription(final IObjectLabelConverter<Object> converter, final Object value) {
+			if (value instanceof Collection<?>) {
+				final Collection<?> collection = (Collection<?>) value;
+				if (!EmptyCheck.isEmpty(collection)) {
+					return getCellDecription(converter, collection.iterator().next());
+				}
+				else {
+					return null;
+				}
+			}
+			else {
+				return converter.convertToString(value);
+			}
+		}
+
+		private IImageConstant getCellIcon(final IObjectLabelConverter<Object> converter, final Object value) {
+			if (value instanceof Collection<?>) {
+				final Collection<?> collection = (Collection<?>) value;
+				if (!EmptyCheck.isEmpty(collection)) {
+					return getCellIcon(converter, collection.iterator().next());
+				}
+				else {
+					return null;
+				}
+			}
+			else {
+				return converter.getIcon(value);
+			}
+		}
+
+		private IColorConstant getCellForegroundColor(final IBeanProxy<BEAN_TYPE> bean) {
+			final IBeanMessage message = bean.getFirstWorstMessage();
+			if (bean.hasExecution()) {
+				return Colors.DISABLED;
+			}
+			else if (message != null && (message.getType() == BeanMessageType.ERROR)) {
+				return Colors.ERROR;
+			}
+			else if (message != null && (message.getType() == BeanMessageType.WARNING)) {
+				return Colors.WARNING;
+			}
+			else if (bean.hasModifications()) {
+				return Colors.STRONG;
+			}
+			else {
+				return null;
+			}
+		}
+
+		private Markup getCellMarkup(final IAttribute<Object> attribute, final IBeanProxy<BEAN_TYPE> bean) {
+			if (bean.hasModifications()) {
+				if (bean.isModified(attribute.getPropertyName())) {
+					return Markup.STRONG;
+				}
+				else {
+					return Markup.EMPHASIZED;
+				}
+			}
+			return null;
+		}
+
+		private boolean isCellEditable(final IBeanProxy<BEAN_TYPE> bean, final IAttribute<Object> attribute) {
+			boolean result = attribute.isEditable();
+			result = result && !attribute.isCollectionType();
+			result = result && !bean.hasExecution();
+			result = result && attribute.getCurrentControlPanel().getStringObjectConverter() != null;
+			return result;
+		}
+
+		private ITableCell createDummyCell(final int rowIndex, final int columnIndex) {
 			final ITableCellBuilder cellBuilder = createDefaultCellBuilder(rowIndex, columnIndex);
 			cellBuilder.setText("...").setToolTipText("Data will be loaded in background");
-			return cellBuilder;
+			cellBuilder.setForegroundColor(Colors.DISABLED);
+			cellBuilder.setEditable(false);
+			return cellBuilder.build();
 		}
 
 		private ITableCellBuilder createDefaultCellBuilder(final int rowIndex, final int columnIndex) {
@@ -916,13 +969,6 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			if (rowIndex % 2 == 0) {
 				cellBuilder.setBackgroundColor(Colors.DEFAULT_TABLE_EVEN_BACKGROUND_COLOR);
 			}
-
-			final IAttribute<Object> attribute = attributes.get(columnIndex);
-			boolean editable = attribute.isEditable();
-			editable = editable && !attribute.isCollectionType();
-			editable = editable && attribute.getCurrentControlPanel().getStringObjectConverter() != null;
-			cellBuilder.setEditable(editable);
-
 			return cellBuilder;
 		}
 	}
