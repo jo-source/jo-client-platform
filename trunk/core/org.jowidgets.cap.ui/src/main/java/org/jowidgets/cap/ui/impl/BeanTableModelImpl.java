@@ -126,6 +126,7 @@ import org.jowidgets.util.event.IChangeListener;
 final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 
 	private static final int DEFAULT_PAGE_SIZE = 1000;
+	//private static final int DEFAULT_PAGE_SIZE = 50;
 	private static final int VIEW_SIZE = 50;
 	private static final int LISTENER_DELAY = 100;
 	private static final int MAX_PAGE_LOADER_COUNT = 2;
@@ -416,18 +417,13 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			pageLoader.cancel();
 		}
 		beansStateTracker.clearAll();
-		//TODO MG make async call
-		//		final SyncResultCallback<Integer> resultCallback = new SyncResultCallback<Integer>();
-		//		readerService.count(resultCallback, getParentBeanKeys(), null, null, null);
-		//		final Integer rowCountResult = resultCallback.getResultSynchronious();
-		//		if (rowCountResult != null) {
-		//			rowCount = rowCountResult.intValue();
-		//		}
-		rowCount = 0;
+		if (rowCount == 0) {
+			rowCount = 1;
+		}
 		dataCleared = false;
 		maxPageIndex = 0;
 		data.clear();
-		loadPage(0);
+		//loadPage(0);
 		dataModel.fireDataChanged();
 	}
 
@@ -830,15 +826,29 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 				return createDummyCell(rowIndex, columnIndex);
 			}
 			else {
-				final int startIndex = pageIndex * pageSize;
-				final IBeanProxy<BEAN_TYPE> bean = page.get(rowIndex - startIndex);
-
-				if (bean.getId() != DUMMY_ID) {
+				final IBeanProxy<BEAN_TYPE> bean = getBean(rowIndex);
+				if (bean == null) {
+					return new TableCellBuilder().build();
+				}
+				else if (bean.getId() != DUMMY_ID) {
 					return createCell(rowIndex, columnIndex, bean);
 				}
 				else {
 					return createDummyCell(rowIndex, columnIndex);
 				}
+			}
+		}
+
+		private IBeanProxy<BEAN_TYPE> getBean(final int rowIndex) {
+			final int pageIndex = getPage(rowIndex);
+			final ArrayList<IBeanProxy<BEAN_TYPE>> page = data.get(Integer.valueOf(pageIndex));
+			final int startIndex = pageIndex * pageSize;
+			final int index = rowIndex - startIndex;
+			if (index < page.size()) {
+				return page.get(index);
+			}
+			else {
+				return null;
 			}
 		}
 
@@ -1095,16 +1105,22 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			dummyBeanProxy.setExecutionTask(executionTask);
 			beansStateTracker.register(dummyBeanProxy);
 
-			for (int i = 0; i < pageSize; i++) {
+			final int count;
+			if (pageIndex > 0) {
+				for (int i = 0; i < pageSize; i++) {
+					page.add(dummyBeanProxy);
+				}
+				count = ((pageIndex) * pageSize) + pageSize;
+			}
+			else {
 				page.add(dummyBeanProxy);
+				count = ((pageIndex) * pageSize) + 1;
 			}
 
-			final int count = ((pageIndex) * pageSize) + pageSize;
 			innerPage = rowCount > count;
 			rowCount = Math.max(rowCount, count);
 
 			dataModel.fireDataChanged();
-
 			beanListModelObservable.fireBeansChanged();
 
 			this.parameter = readerParameterProvider.getParameter();
@@ -1186,7 +1202,12 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 								currentPageLoaders.remove(this);
 
-								if (beanDtos.size() > pageSize && pageIndex >= maxPageIndex) {
+								if (beanDtos.size() == 0 && pageIndex > 0) {
+									clear();
+									load();
+									return;
+								}
+								else if (beanDtos.size() > pageSize && pageIndex >= maxPageIndex) {
 									rowCount = Math.max(rowCount, ((pageIndex + 1) * pageSize + pageSize - 1));
 									maxPageIndex = pageIndex;
 								}
