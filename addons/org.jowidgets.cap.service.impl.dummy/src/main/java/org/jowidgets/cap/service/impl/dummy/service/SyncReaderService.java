@@ -82,7 +82,7 @@ final class SyncReaderService<BEAN_TYPE extends IBean> implements ISyncReaderSer
 				return new LinkedList<IBeanDto>(result.subList(firstRow, Math.min(firstRow + maxRows, result.size())));
 			}
 			else {
-				return new LinkedList<IBeanDto>(result.subList(0, Math.min(maxRows, result.size())));
+				return new LinkedList<IBeanDto>();
 			}
 		}
 
