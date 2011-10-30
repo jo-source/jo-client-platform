@@ -57,7 +57,7 @@ final class BeanTableHeaderMenuModel extends MenuModel {
 		addItem(columnsVisibilityMenu);
 		addAction(showAllColumnsAction);
 		addSeparator();
-		addItem(menuFactory.filterHeaderMenu(table.getModel(), columnIndex));
+		addItem(menuFactory.filterHeaderMenu(table, columnIndex));
 
 		//add separator
 		addItem(new SeparatorItemModel());

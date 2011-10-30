@@ -37,10 +37,12 @@ import java.util.concurrent.TimeUnit;
 
 import org.jowidgets.api.convert.IStringObjectConverter;
 import org.jowidgets.api.image.IconsSmall;
+import org.jowidgets.api.model.item.ICheckedItemModel;
+import org.jowidgets.api.model.item.ICheckedItemModelBuilder;
+import org.jowidgets.api.model.item.IItemModelFactory;
 import org.jowidgets.api.threads.IUiThreadAccess;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.widgets.IComposite;
-import org.jowidgets.api.widgets.IControl;
 import org.jowidgets.api.widgets.ITextControl;
 import org.jowidgets.api.widgets.IToolBar;
 import org.jowidgets.api.widgets.IToolBarButton;
@@ -62,6 +64,7 @@ import org.jowidgets.cap.ui.api.lookup.ILookUpAccess;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.common.widgets.controller.IActionListener;
 import org.jowidgets.common.widgets.controller.IInputListener;
+import org.jowidgets.common.widgets.controller.IItemStateListener;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
 import org.jowidgets.tools.widgets.blueprint.BPF;
 import org.jowidgets.util.EmptyCheck;
@@ -72,15 +75,21 @@ final class BeanTableSearchFilterToolbar<BEAN_TYPE> {
 
 	private static final int LISTENER_DELAY = 200;
 
+	private final IComposite composite;
 	private final IBeanTableModel<BEAN_TYPE> model;
 	private final List<IAttribute<Object>> attributes;
 	private final IComposite toolbar;
+	private final ITextControl textField;
+	private final ICheckedItemModel searchFilterItemModel;
+	private final IItemStateListener searchFilterItemListener;
+	private final String searchFilterItemTooltip;
 
 	private final IInputListener inputListener;
 
 	private ScheduledFuture<?> schedule;
 
 	BeanTableSearchFilterToolbar(final IComposite composite, final BeanTableImpl<BEAN_TYPE> table) {
+		this.composite = composite;
 		this.model = table.getModel();
 		this.attributes = model.getAttributes();
 
@@ -89,31 +98,61 @@ final class BeanTableSearchFilterToolbar<BEAN_TYPE> {
 
 		final IToolBar toolBar1 = toolbar.add(BPF.toolBar(), "");
 		final IToolBarButtonBluePrint closeButtonBp = BPF.toolBarButton().setIcon(IconsSmall.DELETE);
-		closeButtonBp.setToolTipText(Messages.getString("BeanTableSearchFilterToolbar.close_toolbar"));
+		final String closeButtonTooltip = Messages.getString("BeanTableSearchFilterToolbar.hide_toolbar");
+		closeButtonBp.setToolTipText(closeButtonTooltip);
 		final IToolBarButton closeButton = toolBar1.addItem(closeButtonBp);
 
 		toolBar1.pack();
 
 		toolbar.add(BPF.textLabel().setText(Messages.getString("BeanTableSearchFilterToolbar.search_filter")), "");
-		final ITextControl textField = toolbar.add(BPF.textField(), "growx, w 100::");
+		this.textField = toolbar.add(BPF.textField(), "growx, w 100::");
+		toolbar.layout();
 
 		closeButton.addActionListener(new IActionListener() {
 			@Override
 			public void actionPerformed() {
-				table.setSearchFilterToolbarVisible(false);
+				setVisible(false);
 			}
 		});
 
+		final String disabledTooltip = Messages.getString("BeanTableSearchFilterToolbar.hide_disabled");
 		this.inputListener = new IInputListener() {
 			@Override
 			public void inputChanged() {
 				doSearchScheduled(textField.getText());
+				if (EmptyCheck.isEmpty(textField.getText())) {
+					searchFilterItemModel.setEnabled(true);
+					searchFilterItemModel.setToolTipText(searchFilterItemTooltip);
+					closeButton.setEnabled(true);
+					closeButton.setToolTipText(closeButtonTooltip);
+				}
+				else {
+					searchFilterItemModel.setEnabled(false);
+					searchFilterItemModel.setToolTipText(disabledTooltip);
+					closeButton.setEnabled(false);
+					closeButton.setToolTipText(disabledTooltip);
+				}
 			}
 		};
-
 		textField.addInputListener(inputListener);
 
-		toolbar.layout();
+		this.searchFilterItemTooltip = Messages.getString("BeanTableSearchFilterToolbar.show_searchfilter_tooltip");
+		this.searchFilterItemModel = createSearchFilterItemModel();
+		this.searchFilterItemListener = new IItemStateListener() {
+			@Override
+			public void itemStateChanged() {
+				table.setSearchFilterToolbarVisible(searchFilterItemModel.isSelected());
+			}
+		};
+		searchFilterItemModel.addItemListener(searchFilterItemListener);
+	}
+
+	private ICheckedItemModel createSearchFilterItemModel() {
+		final IItemModelFactory modelFactory = Toolkit.getModelFactoryProvider().getItemModelFactory();
+		final ICheckedItemModelBuilder builder = modelFactory.checkedItemBuilder();
+		final String text = Messages.getString("BeanTableSearchFilterToolbar.show_searchfilter_text");
+		builder.setText(text).setToolTipText(searchFilterItemTooltip);
+		return builder.build();
 	}
 
 	private void doSearchScheduled(final String text) {
@@ -161,19 +200,21 @@ final class BeanTableSearchFilterToolbar<BEAN_TYPE> {
 			final IUiBooleanFilterBuilder orFilterBuilder = factory.booleanFilterBuilder().setOperator(BooleanOperator.OR);
 			boolean predicateCreated = false;
 			for (final IAttribute<Object> attribute : attributes) {
-				final IUiArithmeticFilter<?> arithmeticFilter;
-				if (attribute.getValueRange() instanceof ILookUpValueRange) {
-					arithmeticFilter = createLookUpFilter(attribute, token);
-				}
-				else if (String.class.isAssignableFrom(attribute.getElementValueType())) {
-					arithmeticFilter = createStringTypeFilter(attribute, token);
-				}
-				else {
-					arithmeticFilter = createManifoldTypeFilter(attribute, token);
-				}
-				if (arithmeticFilter != null) {
-					orFilterBuilder.addFilter(arithmeticFilter);
-					predicateCreated = true;
+				if (attribute.isFilterable()) {
+					final IUiArithmeticFilter<?> arithmeticFilter;
+					if (attribute.getValueRange() instanceof ILookUpValueRange) {
+						arithmeticFilter = createLookUpFilter(attribute, token);
+					}
+					else if (String.class.isAssignableFrom(attribute.getElementValueType())) {
+						arithmeticFilter = createStringTypeFilter(attribute, token);
+					}
+					else {
+						arithmeticFilter = createManifoldTypeFilter(attribute, token);
+					}
+					if (arithmeticFilter != null) {
+						orFilterBuilder.addFilter(arithmeticFilter);
+						predicateCreated = true;
+					}
 				}
 			}
 			if (predicateCreated) {
@@ -296,8 +337,23 @@ final class BeanTableSearchFilterToolbar<BEAN_TYPE> {
 		return regex.toString();
 	}
 
-	IControl getToolbar() {
-		return toolbar;
+	void setVisible(final boolean visible) {
+		if (toolbar.isVisible() != visible) {
+			composite.layoutBegin();
+			toolbar.setVisible(visible);
+			composite.layoutEnd();
+			searchFilterItemModel.removeItemListener(searchFilterItemListener);
+			searchFilterItemModel.setSelected(visible);
+			searchFilterItemModel.addItemListener(searchFilterItemListener);
+		}
+	}
+
+	void requestSearchFocus() {
+		textField.requestFocus();
+	}
+
+	public ICheckedItemModel getSearchFilterItemModel() {
+		return searchFilterItemModel;
 	}
 
 }
