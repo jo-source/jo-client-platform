@@ -1307,6 +1307,9 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		}
 
 		private void setException(final Throwable exception) {
+			//CHECKSTYLE:OFF
+			exception.printStackTrace();
+			//CHECKSTYLE:ON
 			dummyBeanProxy.setExecutionTask(null);
 			final IBeanMessageBuilder beanMessageBuilder = CapUiToolkit.beanMessageBuilder(BeanMessageType.ERROR);
 			beanMessageBuilder.setException(exception);

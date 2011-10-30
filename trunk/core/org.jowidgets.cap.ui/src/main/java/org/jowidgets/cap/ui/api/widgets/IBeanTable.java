@@ -48,4 +48,5 @@ public interface IBeanTable<BEAN_TYPE> extends ITable {
 
 	IBeanTableModel<BEAN_TYPE> getModel();
 
+	void setSearchFilterToolbarVisible(boolean visible);
 }

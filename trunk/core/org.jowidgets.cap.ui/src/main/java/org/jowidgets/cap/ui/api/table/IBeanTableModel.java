@@ -46,6 +46,7 @@ import org.jowidgets.util.event.IChangeListener;
 public interface IBeanTableModel<BEAN_TYPE> extends IDataModel, IBeanListModel<BEAN_TYPE> {
 
 	String UI_FILTER_ID = IBeanTableModel.class.getName() + ".UI_FILTER_ID";
+	String UI_SEARCH_FILTER_ID = IBeanTableModel.class.getName() + ".UI_SEARCH_FILTER_ID";
 
 	Object getEntityId();
 
