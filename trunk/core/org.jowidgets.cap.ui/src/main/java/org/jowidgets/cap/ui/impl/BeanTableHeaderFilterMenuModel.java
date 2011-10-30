@@ -36,13 +36,16 @@ import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.filter.IFilterType;
 import org.jowidgets.cap.ui.api.table.IBeanTableMenuFactory;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
+import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.tools.model.item.MenuModel;
 
 final class BeanTableHeaderFilterMenuModel extends MenuModel {
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	BeanTableHeaderFilterMenuModel(final IBeanTableModel<?> model, final int columnIndex) {
+	BeanTableHeaderFilterMenuModel(final IBeanTable<?> table, final int columnIndex) {
 		super(Messages.getString("BeanTableHeaderFilterMenuModel.filter"), IconsSmall.FILTER); //$NON-NLS-1$
+
+		final IBeanTableModel<?> model = table.getModel();
 
 		final IBeanTableMenuFactory menuFactory = CapUiToolkit.beanTableMenuFactory();
 
@@ -61,6 +64,8 @@ final class BeanTableHeaderFilterMenuModel extends MenuModel {
 		}
 		addAction(menuFactory.editFilterAction(model));
 		addAction(menuFactory.deleteFilterAction(model));
+		addSeparator();
+		addItem(table.getSearchFilterItemModel());
 	}
 
 }

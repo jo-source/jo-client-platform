@@ -88,8 +88,6 @@ public class UserTableView extends AbstractView {
 		table.getCellPopMenu().addAction(new ChangeBirthdayAction(tableModel));
 		table.getCellPopMenu().addAction(new LongLastingAction(tableModel));
 
-		table.setSearchFilterToolbarVisible(true);
-
 		beanTableModel.load();
 	}
 

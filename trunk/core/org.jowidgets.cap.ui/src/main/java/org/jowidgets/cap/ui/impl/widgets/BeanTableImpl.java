@@ -36,11 +36,11 @@ import java.util.Map;
 import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.api.convert.IStringObjectConverter;
+import org.jowidgets.api.model.item.ICheckedItemModel;
 import org.jowidgets.api.model.item.IMenuItemModel;
 import org.jowidgets.api.model.item.IMenuModel;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.widgets.IComposite;
-import org.jowidgets.api.widgets.IControl;
 import org.jowidgets.api.widgets.IPopupMenu;
 import org.jowidgets.api.widgets.ITable;
 import org.jowidgets.api.widgets.IWidget;
@@ -67,6 +67,8 @@ import org.jowidgets.common.types.IVetoable;
 import org.jowidgets.common.types.Modifier;
 import org.jowidgets.common.types.Position;
 import org.jowidgets.common.types.TablePackPolicy;
+import org.jowidgets.common.widgets.controller.IKeyEvent;
+import org.jowidgets.common.widgets.controller.IKeyListener;
 import org.jowidgets.common.widgets.controller.ITableCellEditEvent;
 import org.jowidgets.common.widgets.controller.ITableCellEditorListener;
 import org.jowidgets.common.widgets.controller.ITableCellListener;
@@ -80,6 +82,7 @@ import org.jowidgets.common.widgets.controller.ITableSelectionListener;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
 import org.jowidgets.tools.command.ActionWrapper;
 import org.jowidgets.tools.command.ExecutionContextWrapper;
+import org.jowidgets.tools.controller.KeyAdapter;
 import org.jowidgets.tools.controller.ListModelAdapter;
 import org.jowidgets.tools.controller.TableCellEditorAdapter;
 import org.jowidgets.tools.controller.TableColumnAdapter;
@@ -94,7 +97,7 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 
 	private final ITable table;
 	private final IBeanTableModel<BEAN_TYPE> model;
-	private final IControl searchFilterToolbar;
+	private final BeanTableSearchFilterToolbar<BEAN_TYPE> searchFilterToolbar;
 	private final IMenuModel headerPopupMenuModel;
 	private final IMenuModel cellPopupMenuModel;
 	private final IMenuModel tablePopupMenuModel;
@@ -113,7 +116,6 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 	BeanTableImpl(final IComposite composite, final IBeanTableBluePrint<BEAN_TYPE> bluePrint) {
 		super(composite);
 		composite.setLayout(new MigLayoutDescriptor("hidemode 2", "0[grow, 0::]0", "0[]0[grow, 0::]0"));
-		//composite.setLayout(new MigLayoutDescriptor("0[grow, 0::]0", "0[grow, 0::]0"));
 
 		this.model = bluePrint.getModel();
 		final ITableBluePrint tableBp = BPF.table(model.getTableModel());
@@ -133,6 +135,8 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 
 		table.setPopupMenu(tablePopupMenuModel);
 
+		this.searchFilterToolbar = new BeanTableSearchFilterToolbar<BEAN_TYPE>(composite, this);
+
 		headerPopupMenuModel.addListModelListener(new CustomMenuModelListener());
 		cellPopupMenuModel.addListModelListener(new CustomMenuModelListener());
 
@@ -149,7 +153,7 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 			tablePopupMenuModel.addAction(menuFactory.packAllAction(this));
 			tablePopupMenuModel.addSeparator();
 			tablePopupMenuModel.addAction(menuFactory.settingsAction(this));
-			tablePopupMenuModel.addItem(menuFactory.filterMenu(model));
+			tablePopupMenuModel.addItem(menuFactory.filterMenu(this));
 
 			final ICapActionFactory actionFactory = CapUiToolkit.actionFactory();
 			if (hasDefaultCreatorAction && model.getCreatorService() != null) {
@@ -199,7 +203,18 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 		table.addTableCellEditorListener(new TableCellEditorListener());
 		table.addTableColumnListener(new TableSortColumnListener());
 
-		this.searchFilterToolbar = new BeanTableSearchFilterToolbar<BEAN_TYPE>(composite, this).getToolbar();
+		final IKeyListener keyListener = new KeyAdapter() {
+			@Override
+			public void keyReleased(final IKeyEvent event) {
+				if (event.getModifier().contains(Modifier.CTRL) && event.getCharacter() != null && event.getCharacter() == 'f') {
+					setSearchFilterToolbarVisible(true);
+					searchFilterToolbar.requestSearchFocus();
+				}
+			}
+		};
+
+		getWidget().addKeyListener(keyListener);
+		table.addKeyListener(keyListener);
 
 		setSearchFilterToolbarVisible(false);
 	}
@@ -332,9 +347,12 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 
 	@Override
 	public void setSearchFilterToolbarVisible(final boolean visible) {
-		getWidget().layoutBegin();
 		searchFilterToolbar.setVisible(visible);
-		getWidget().layoutEnd();
+	}
+
+	@Override
+	public ICheckedItemModel getSearchFilterItemModel() {
+		return searchFilterToolbar.getSearchFilterItemModel();
 	}
 
 	@Override

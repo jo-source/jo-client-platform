@@ -38,13 +38,16 @@ import org.jowidgets.cap.ui.api.filter.IFilterType;
 import org.jowidgets.cap.ui.api.filter.IIncludingFilterFactory;
 import org.jowidgets.cap.ui.api.table.IBeanTableMenuFactory;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
+import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.tools.model.item.MenuModel;
 
 final class BeanTableCellFilterMenuModel extends MenuModel {
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	BeanTableCellFilterMenuModel(final IBeanTableModel<?> model, final int columnIndex) {
+	BeanTableCellFilterMenuModel(final IBeanTable<?> table, final int columnIndex) {
 		super(Messages.getString("BeanTableCellFilterMenuModel.filter"), IconsSmall.FILTER); //$NON-NLS-1$
+
+		final IBeanTableModel<?> model = table.getModel();
 
 		final IBeanTableMenuFactory menuFactory = CapUiToolkit.beanTableMenuFactory();
 
@@ -72,6 +75,8 @@ final class BeanTableCellFilterMenuModel extends MenuModel {
 		}
 		addAction(menuFactory.editFilterAction(model));
 		addAction(menuFactory.deleteFilterAction(model));
+		addSeparator();
+		addItem(table.getSearchFilterItemModel());
 	}
 
 	private static boolean hasCustomFilterSupport(final IAttribute<?> attribute) {

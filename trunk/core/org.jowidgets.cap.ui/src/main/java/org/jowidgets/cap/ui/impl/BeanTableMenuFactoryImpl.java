@@ -212,21 +212,21 @@ final class BeanTableMenuFactoryImpl implements IBeanTableMenuFactory {
 	}
 
 	@Override
-	public IMenuModel filterMenu(final IBeanTableModel<?> model) {
-		Assert.paramNotNull(model, "model");
-		return new BeanTableFilterMenuModel(model);
+	public IMenuModel filterMenu(final IBeanTable<?> table) {
+		Assert.paramNotNull(table, "table");
+		return new BeanTableFilterMenuModel(table);
 	}
 
 	@Override
-	public IMenuModel filterCellMenu(final IBeanTableModel<?> model, final int columnIndex) {
-		Assert.paramNotNull(model, "model");
-		return new BeanTableCellFilterMenuModel(model, columnIndex);
+	public IMenuModel filterCellMenu(final IBeanTable<?> table, final int columnIndex) {
+		Assert.paramNotNull(table, "table");
+		return new BeanTableCellFilterMenuModel(table, columnIndex);
 	}
 
 	@Override
-	public IMenuModel filterHeaderMenu(final IBeanTableModel<?> model, final int columnIndex) {
-		Assert.paramNotNull(model, "model");
-		return new BeanTableHeaderFilterMenuModel(model, columnIndex);
+	public IMenuModel filterHeaderMenu(final IBeanTable<?> table, final int columnIndex) {
+		Assert.paramNotNull(table, "table");
+		return new BeanTableHeaderFilterMenuModel(table, columnIndex);
 	}
 
 	@Override

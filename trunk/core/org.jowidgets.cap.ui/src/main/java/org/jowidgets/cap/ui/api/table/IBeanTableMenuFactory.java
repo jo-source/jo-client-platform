@@ -98,11 +98,11 @@ public interface IBeanTableMenuFactory {
 
 	IMenuModel columnsVisibilityMenu(IBeanTableModel<?> model);
 
-	IMenuModel filterMenu(IBeanTableModel<?> model);
+	IMenuModel filterMenu(IBeanTable<?> table);
 
-	IMenuModel filterCellMenu(IBeanTableModel<?> model, int columnIndex);
+	IMenuModel filterCellMenu(IBeanTable<?> table, int columnIndex);
 
-	IMenuModel filterHeaderMenu(IBeanTableModel<?> model, int columnIndex);
+	IMenuModel filterHeaderMenu(IBeanTable<?> table, int columnIndex);
 
 	IMenuModel alignmentMenu(IBeanTableModel<?> model, int columnIndex);
 

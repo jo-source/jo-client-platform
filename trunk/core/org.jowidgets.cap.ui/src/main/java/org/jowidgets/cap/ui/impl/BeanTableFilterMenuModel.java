@@ -32,17 +32,22 @@ import org.jowidgets.api.image.IconsSmall;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.table.IBeanTableMenuFactory;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
+import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.tools.model.item.MenuModel;
 
 final class BeanTableFilterMenuModel extends MenuModel {
 
-	BeanTableFilterMenuModel(final IBeanTableModel<?> model) {
+	BeanTableFilterMenuModel(final IBeanTable<?> table) {
 		super(Messages.getString("BeanTableFilterMenuModel.filter"), IconsSmall.FILTER); //$NON-NLS-1$
 
 		final IBeanTableMenuFactory menuFactory = CapUiToolkit.beanTableMenuFactory();
 
+		final IBeanTableModel<?> model = table.getModel();
+
 		addAction(menuFactory.editFilterAction(model));
 		addAction(menuFactory.deleteFilterAction(model));
+		addSeparator();
+		addItem(table.getSearchFilterItemModel());
 	}
 
 }
