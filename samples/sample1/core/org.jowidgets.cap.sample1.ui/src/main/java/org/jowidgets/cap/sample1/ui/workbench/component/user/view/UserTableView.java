@@ -48,6 +48,7 @@ import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.common.widgets.controller.IInputListener;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
 import org.jowidgets.examples.common.icons.SilkIcons;
+import org.jowidgets.tools.layout.MigLayoutFactory;
 import org.jowidgets.util.ValueHolder;
 import org.jowidgets.workbench.api.IViewContext;
 import org.jowidgets.workbench.tools.AbstractView;
@@ -71,9 +72,11 @@ public class UserTableView extends AbstractView {
 
 		final IContainer container = context.getContainer();
 
-		container.setLayout(Toolkit.getLayoutFactoryProvider().fillLayout());
+		container.setLayout(MigLayoutFactory.growingInnerCellLayout());
 
-		this.table = container.add(CapUiToolkit.bluePrintFactory().beanTable(beanTableModel));
+		this.table = container.add(
+				CapUiToolkit.bluePrintFactory().beanTable(beanTableModel),
+				MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
 
 		final IToolBarModel toolBar = context.getToolBar();
 		toolBar.addContainer(createDelayFieldCreator());
@@ -84,6 +87,8 @@ public class UserTableView extends AbstractView {
 		table.getCellPopMenu().addAction(new ChangeGenderAction(tableModel));
 		table.getCellPopMenu().addAction(new ChangeBirthdayAction(tableModel));
 		table.getCellPopMenu().addAction(new LongLastingAction(tableModel));
+
+		table.setSearchFilterToolbarVisible(true);
 
 		beanTableModel.load();
 	}

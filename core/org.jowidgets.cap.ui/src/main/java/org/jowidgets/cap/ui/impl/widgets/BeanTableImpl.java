@@ -28,7 +28,9 @@
 
 package org.jowidgets.cap.ui.impl.widgets;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.jowidgets.api.command.IAction;
@@ -37,9 +39,12 @@ import org.jowidgets.api.convert.IStringObjectConverter;
 import org.jowidgets.api.model.item.IMenuItemModel;
 import org.jowidgets.api.model.item.IMenuModel;
 import org.jowidgets.api.toolkit.Toolkit;
+import org.jowidgets.api.widgets.IComposite;
+import org.jowidgets.api.widgets.IControl;
 import org.jowidgets.api.widgets.IPopupMenu;
 import org.jowidgets.api.widgets.ITable;
 import org.jowidgets.api.widgets.IWidget;
+import org.jowidgets.api.widgets.blueprint.ITableBluePrint;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
@@ -57,28 +62,39 @@ import org.jowidgets.cap.ui.api.widgets.IBeanTableSettingsDialog;
 import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
 import org.jowidgets.cap.ui.api.widgets.ITableMenuCreationInterceptor;
 import org.jowidgets.cap.ui.tools.attribute.AcceptEditableAttributesFilter;
+import org.jowidgets.common.types.Dimension;
 import org.jowidgets.common.types.IVetoable;
 import org.jowidgets.common.types.Modifier;
 import org.jowidgets.common.types.Position;
+import org.jowidgets.common.types.TablePackPolicy;
 import org.jowidgets.common.widgets.controller.ITableCellEditEvent;
+import org.jowidgets.common.widgets.controller.ITableCellEditorListener;
+import org.jowidgets.common.widgets.controller.ITableCellListener;
 import org.jowidgets.common.widgets.controller.ITableCellPopupDetectionListener;
 import org.jowidgets.common.widgets.controller.ITableCellPopupEvent;
+import org.jowidgets.common.widgets.controller.ITableColumnListener;
 import org.jowidgets.common.widgets.controller.ITableColumnMouseEvent;
 import org.jowidgets.common.widgets.controller.ITableColumnPopupDetectionListener;
 import org.jowidgets.common.widgets.controller.ITableColumnPopupEvent;
+import org.jowidgets.common.widgets.controller.ITableSelectionListener;
+import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
 import org.jowidgets.tools.command.ActionWrapper;
 import org.jowidgets.tools.command.ExecutionContextWrapper;
 import org.jowidgets.tools.controller.ListModelAdapter;
 import org.jowidgets.tools.controller.TableCellEditorAdapter;
 import org.jowidgets.tools.controller.TableColumnAdapter;
+import org.jowidgets.tools.layout.MigLayoutFactory;
 import org.jowidgets.tools.model.item.MenuModel;
-import org.jowidgets.tools.widgets.wrapper.TableWrapper;
+import org.jowidgets.tools.widgets.blueprint.BPF;
+import org.jowidgets.tools.widgets.wrapper.CompositeWrapper;
 import org.jowidgets.util.IDecorator;
 import org.jowidgets.util.ITypedKey;
 
-final class BeanTableImpl<BEAN_TYPE> extends TableWrapper implements IBeanTable<BEAN_TYPE> {
+final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTable<BEAN_TYPE> {
 
+	private final ITable table;
 	private final IBeanTableModel<BEAN_TYPE> model;
+	private final IControl searchFilterToolbar;
 	private final IMenuModel headerPopupMenuModel;
 	private final IMenuModel cellPopupMenuModel;
 	private final IMenuModel tablePopupMenuModel;
@@ -94,9 +110,16 @@ final class BeanTableImpl<BEAN_TYPE> extends TableWrapper implements IBeanTable<
 	private ITableCellPopupEvent currentCellEvent;
 	private ITableColumnPopupEvent currentColumnEvent;
 
-	BeanTableImpl(final ITable table, final IBeanTableBluePrint<BEAN_TYPE> bluePrint) {
-		super(table);
+	BeanTableImpl(final IComposite composite, final IBeanTableBluePrint<BEAN_TYPE> bluePrint) {
+		super(composite);
+		composite.setLayout(new MigLayoutDescriptor("hidemode 2", "0[grow, 0::]0", "0[]0[grow, 0::]0"));
+		//composite.setLayout(new MigLayoutDescriptor("0[grow, 0::]0", "0[grow, 0::]0"));
+
 		this.model = bluePrint.getModel();
+		final ITableBluePrint tableBp = BPF.table(model.getTableModel());
+		tableBp.setSetup(bluePrint);
+		this.table = composite.add(tableBp, MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
+
 		this.headerPopupMenus = new HashMap<Integer, IPopupMenu>();
 		this.cellPopupMenus = new HashMap<Integer, IPopupMenu>();
 		this.cellPopupMenuModel = new MenuModel();
@@ -175,6 +198,10 @@ final class BeanTableImpl<BEAN_TYPE> extends TableWrapper implements IBeanTable<
 
 		table.addTableCellEditorListener(new TableCellEditorListener());
 		table.addTableColumnListener(new TableSortColumnListener());
+
+		this.searchFilterToolbar = new BeanTableSearchFilterToolbar<BEAN_TYPE>(composite, this).getToolbar();
+
+		setSearchFilterToolbarVisible(false);
 	}
 
 	private IPopupMenu getHeaderPopupMenu(final Integer index) {
@@ -290,11 +317,6 @@ final class BeanTableImpl<BEAN_TYPE> extends TableWrapper implements IBeanTable<
 	}
 
 	@Override
-	protected ITable getWidget() {
-		return super.getWidget();
-	}
-
-	@Override
 	public IBeanTableModel<BEAN_TYPE> getModel() {
 		return model;
 	}
@@ -306,6 +328,13 @@ final class BeanTableImpl<BEAN_TYPE> extends TableWrapper implements IBeanTable<
 		if (dialog.isOkPressed()) {
 			model.setConfig(tableConfig);
 		}
+	}
+
+	@Override
+	public void setSearchFilterToolbarVisible(final boolean visible) {
+		getWidget().layoutBegin();
+		searchFilterToolbar.setVisible(visible);
+		getWidget().layoutEnd();
 	}
 
 	@Override
@@ -488,6 +517,151 @@ final class BeanTableImpl<BEAN_TYPE> extends TableWrapper implements IBeanTable<
 			}
 		}
 
+	}
+
+	@Override
+	public void resetFromModel() {
+		table.resetFromModel();
+	}
+
+	@Override
+	public Position getCellPosition(final int rowIndex, final int columnIndex) {
+		return table.getCellPosition(rowIndex, columnIndex);
+	}
+
+	@Override
+	public Dimension getCellSize(final int rowIndex, final int columnIndex) {
+		return table.getCellSize(rowIndex, columnIndex);
+	}
+
+	@Override
+	public ArrayList<Integer> getColumnPermutation() {
+		return table.getColumnPermutation();
+	}
+
+	@Override
+	public void setColumnPermutation(final List<Integer> permutation) {
+		table.setColumnPermutation(permutation);
+	}
+
+	@Override
+	public ArrayList<Integer> getSelection() {
+		return table.getSelection();
+	}
+
+	@Override
+	public void setSelection(final List<Integer> selection) {
+		table.setSelection(selection);
+	}
+
+	@Override
+	public void pack(final TablePackPolicy policy) {
+		table.pack(policy);
+	}
+
+	@Override
+	public void pack(final int columnIndex, final TablePackPolicy policy) {
+		table.pack(columnIndex, policy);
+	}
+
+	@Override
+	public void addTableCellPopupDetectionListener(final ITableCellPopupDetectionListener listener) {
+		table.addTableCellPopupDetectionListener(listener);
+	}
+
+	@Override
+	public void removeTableCellPopupDetectionListener(final ITableCellPopupDetectionListener listener) {
+		table.removeTableCellPopupDetectionListener(listener);
+	}
+
+	@Override
+	public void addTableColumnPopupDetectionListener(final ITableColumnPopupDetectionListener listener) {
+		table.addTableColumnPopupDetectionListener(listener);
+	}
+
+	@Override
+	public void removeTableColumnPopupDetectionListener(final ITableColumnPopupDetectionListener listener) {
+		table.removeTableColumnPopupDetectionListener(listener);
+	}
+
+	@Override
+	public void addTableCellEditorListener(final ITableCellEditorListener listener) {
+		table.addTableCellEditorListener(listener);
+	}
+
+	@Override
+	public void removeTableCellEditorListener(final ITableCellEditorListener listener) {
+		table.removeTableCellEditorListener(listener);
+	}
+
+	@Override
+	public void addTableSelectionListener(final ITableSelectionListener listener) {
+		table.addTableSelectionListener(listener);
+	}
+
+	@Override
+	public void removeTableSelectionListener(final ITableSelectionListener listener) {
+		table.removeTableSelectionListener(listener);
+	}
+
+	@Override
+	public void addTableCellListener(final ITableCellListener listener) {
+		table.addTableCellListener(listener);
+	}
+
+	@Override
+	public void removeTableCellListener(final ITableCellListener listener) {
+		table.removeTableCellListener(listener);
+	}
+
+	@Override
+	public void pack() {
+		table.pack();
+	}
+
+	@Override
+	public void pack(final int columnIndex) {
+		table.pack(columnIndex);
+	}
+
+	@Override
+	public int getRowCount() {
+		return table.getRowCount();
+	}
+
+	@Override
+	public int getColumnCount() {
+		return table.getColumnCount();
+	}
+
+	@Override
+	public int convertColumnIndexToView(final int modelIndex) {
+		return table.convertColumnIndexToView(modelIndex);
+	}
+
+	@Override
+	public int convertColumnIndexToModel(final int viewIndex) {
+		return table.convertColumnIndexToModel(viewIndex);
+	}
+
+	@Override
+	public void moveColumn(final int oldViewIndex, final int newViewIndex) {
+		table.moveColumn(oldViewIndex, newViewIndex);
+	}
+
+	@Override
+	public void resetColumnPermutation() {
+		table.resetColumnPermutation();
+	}
+
+	@Override
+	public void addTableColumnListener(final ITableColumnListener listener) {
+		table.addTableColumnListener(listener);
+	}
+
+	@Override
+	public void removeTableColumnListener(final ITableColumnListener listener) {
+		table.removeTableColumnListener(listener);
 	}
 
 }

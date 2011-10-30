@@ -29,26 +29,17 @@
 package org.jowidgets.cap.ui.impl.widgets;
 
 import org.jowidgets.api.toolkit.Toolkit;
-import org.jowidgets.api.widgets.ITable;
-import org.jowidgets.api.widgets.blueprint.ITableBluePrint;
-import org.jowidgets.api.widgets.blueprint.factory.IBluePrintFactory;
-import org.jowidgets.cap.ui.api.table.IBeanTableModel;
+import org.jowidgets.api.widgets.IComposite;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
 import org.jowidgets.common.widgets.factory.IWidgetFactory;
+import org.jowidgets.tools.widgets.blueprint.BPF;
 
 public final class BeanTableFactory implements IWidgetFactory<IBeanTable<? extends Object>, IBeanTableBluePrint<Object>> {
 
 	@Override
 	public IBeanTable<Object> create(final Object parentUiReference, final IBeanTableBluePrint<Object> bluePrint) {
-
-		final IBeanTableModel<Object> model = bluePrint.getModel();
-
-		final IBluePrintFactory bpf = Toolkit.getBluePrintFactory();
-		final ITableBluePrint tableBp = bpf.table(model.getTableModel());
-		tableBp.setSetup(bluePrint);
-		final ITable table = Toolkit.getWidgetFactory().create(parentUiReference, tableBp);
-
-		return new BeanTableImpl<Object>(table, bluePrint);
+		final IComposite composite = Toolkit.getWidgetFactory().create(parentUiReference, BPF.composite());
+		return new BeanTableImpl<Object>(composite, bluePrint);
 	}
 }

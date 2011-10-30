@@ -28,11 +28,11 @@
 
 package org.jowidgets.cap.ui.impl.workbench;
 
-import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.widgets.IContainer;
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
+import org.jowidgets.tools.layout.MigLayoutFactory;
 import org.jowidgets.workbench.api.IViewContext;
 import org.jowidgets.workbench.tools.AbstractView;
 
@@ -40,8 +40,8 @@ public class EntityTableView extends AbstractView {
 
 	public EntityTableView(final IViewContext context, final IBeanTableModel<IBean> tableModel) {
 		final IContainer container = context.getContainer();
-		container.setLayout(Toolkit.getLayoutFactoryProvider().fillLayout());
-		container.add(CapUiToolkit.bluePrintFactory().beanTable(tableModel));
+		container.setLayout(MigLayoutFactory.growingInnerCellLayout());
+		container.add(CapUiToolkit.bluePrintFactory().beanTable(tableModel), MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
 		tableModel.load();
 	}
 
