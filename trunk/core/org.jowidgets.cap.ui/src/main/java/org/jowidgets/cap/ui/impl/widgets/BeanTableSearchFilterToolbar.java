@@ -47,6 +47,7 @@ import org.jowidgets.api.widgets.ITextControl;
 import org.jowidgets.api.widgets.IToolBar;
 import org.jowidgets.api.widgets.IToolBarButton;
 import org.jowidgets.api.widgets.blueprint.IToolBarButtonBluePrint;
+import org.jowidgets.cap.common.api.bean.IStaticValueRange;
 import org.jowidgets.cap.common.api.filter.ArithmeticOperator;
 import org.jowidgets.cap.common.api.filter.BooleanOperator;
 import org.jowidgets.cap.common.api.lookup.ILookUpEntry;
@@ -205,6 +206,10 @@ final class BeanTableSearchFilterToolbar<BEAN_TYPE> {
 					final IUiArithmeticFilter<?> arithmeticFilter;
 					if (attribute.getValueRange() instanceof ILookUpValueRange) {
 						arithmeticFilter = createLookUpFilter(attribute, token);
+					}
+					else if (attribute.getValueRange() instanceof IStaticValueRange
+						&& !((IStaticValueRange) attribute.getValueRange()).isOpen()) {
+						arithmeticFilter = createManifoldTypeFilter(attribute, token);
 					}
 					else if (String.class.isAssignableFrom(attribute.getElementValueType())) {
 						arithmeticFilter = createStringTypeFilter(attribute, token);
