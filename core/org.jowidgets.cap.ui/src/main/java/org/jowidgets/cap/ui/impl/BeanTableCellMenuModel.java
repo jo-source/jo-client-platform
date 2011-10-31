@@ -48,6 +48,7 @@ final class BeanTableCellMenuModel extends MenuModel {
 		}
 		addItem(menuFactory.filterCellMenu(table, columnIndex));
 		addAction(settingsDialogAction);
+		addItem(table.getStatusBarItemModel());
 	}
 
 }

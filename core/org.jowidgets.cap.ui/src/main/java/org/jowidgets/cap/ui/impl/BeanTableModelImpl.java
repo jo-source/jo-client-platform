@@ -668,7 +668,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 	@Override
 	public int getSize() {
-		return rowCount;
+		return dataModel.getRowCount();
 	}
 
 	@Override

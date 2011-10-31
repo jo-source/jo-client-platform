@@ -99,6 +99,7 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 	private final ITable table;
 	private final IBeanTableModel<BEAN_TYPE> model;
 	private final BeanTableSearchFilterToolbar<BEAN_TYPE> searchFilterToolbar;
+	private final BeanTableStatusBar<BEAN_TYPE> statusBar;
 	private final IMenuModel headerPopupMenuModel;
 	private final IMenuModel cellPopupMenuModel;
 	private final IMenuModel customTablePopupMenuModel;
@@ -117,12 +118,12 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 
 	BeanTableImpl(final IComposite composite, final IBeanTableBluePrint<BEAN_TYPE> bluePrint) {
 		super(composite);
-		composite.setLayout(new MigLayoutDescriptor("hidemode 2", "0[grow, 0::]0", "0[]0[grow, 0::]0"));
+		composite.setLayout(new MigLayoutDescriptor("hidemode 2", "0[grow, 0::]0", "0[]0[grow, 0::]0[]0"));
 
 		this.model = bluePrint.getModel();
 		final ITableBluePrint tableBp = BPF.table(model.getTableModel());
 		tableBp.setSetup(bluePrint);
-		this.table = composite.add(tableBp, MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
+		this.table = composite.add(tableBp, MigLayoutFactory.GROWING_CELL_CONSTRAINTS + ", wrap");
 
 		this.headerPopupMenus = new HashMap<Integer, IPopupMenu>();
 		this.cellPopupMenus = new HashMap<Integer, IPopupMenu>();
@@ -139,6 +140,7 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 		table.setPopupMenu(tablePopupMenuModel);
 
 		this.searchFilterToolbar = new BeanTableSearchFilterToolbar<BEAN_TYPE>(composite, this);
+		this.statusBar = new BeanTableStatusBar<BEAN_TYPE>(composite, this);
 
 		headerPopupMenuModel.addListModelListener(new CustomMenuModelListener());
 		cellPopupMenuModel.addListModelListener(new CustomMenuModelListener());
@@ -155,8 +157,9 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 			tablePopupMenuModel.addSeparator();
 			tablePopupMenuModel.addAction(menuFactory.packAllAction(this));
 			tablePopupMenuModel.addSeparator();
-			tablePopupMenuModel.addAction(menuFactory.settingsAction(this));
 			tablePopupMenuModel.addItem(menuFactory.filterMenu(this));
+			tablePopupMenuModel.addAction(menuFactory.settingsAction(this));
+			tablePopupMenuModel.addItem(getStatusBarItemModel());
 
 			final ICapActionFactory actionFactory = CapUiToolkit.actionFactory();
 			if (hasDefaultCreatorAction && model.getCreatorService() != null) {
@@ -242,6 +245,7 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 		});
 
 		setSearchFilterToolbarVisible(bluePrint.isSearchFilterToolbarVisible());
+		setStatusBarVisible(true);
 	}
 
 	private IPopupMenu getHeaderPopupMenu(final Integer index) {
@@ -376,8 +380,18 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 	}
 
 	@Override
+	public void setStatusBarVisible(final boolean visible) {
+		statusBar.setVisible(visible);
+	}
+
+	@Override
 	public ICheckedItemModel getSearchFilterItemModel() {
 		return searchFilterToolbar.getSearchFilterItemModel();
+	}
+
+	@Override
+	public ICheckedItemModel getStatusBarItemModel() {
+		return statusBar.getStatusBarItemModel();
 	}
 
 	@Override
