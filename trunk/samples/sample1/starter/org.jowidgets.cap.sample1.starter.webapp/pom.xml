@@ -28,6 +28,15 @@
 			<version>1.0-6.0.02_ea_b02.1</version>
 			<scope>runtime</scope>
 		</dependency>
+		
+		<!-- Ensure that these dependecies where build before the maven-dependency-plugin unpack zhe goals-->
+		<!-- By setting scope to provided, the artifacts will omited from the WAR, whats desired-->
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.cap.sample1.starter.client.swt.webstart</artifactId>
+			<version>${project.version}</version>
+			<scope>provided</scope>
+		</dependency>
 	</dependencies>
 
 	<build>
