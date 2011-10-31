@@ -32,6 +32,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -74,7 +75,7 @@ import org.jowidgets.util.concurrent.DaemonThreadFactory;
 
 final class BeanTableSearchFilterToolbar<BEAN_TYPE> {
 
-	private static final int LISTENER_DELAY = 200;
+	private static final int LISTENER_DELAY = 400;
 
 	private final IComposite composite;
 	private final IBeanTableModel<BEAN_TYPE> model;
@@ -84,10 +85,9 @@ final class BeanTableSearchFilterToolbar<BEAN_TYPE> {
 	private final ICheckedItemModel searchFilterItemModel;
 	private final IItemStateListener searchFilterItemListener;
 	private final String searchFilterItemTooltip;
-
 	private final IInputListener inputListener;
 
-	private ScheduledFuture<?> schedule;
+	private FilterResultLoader loader;
 
 	BeanTableSearchFilterToolbar(final IComposite composite, final BeanTableImpl<BEAN_TYPE> table) {
 		this.composite = composite;
@@ -121,7 +121,7 @@ final class BeanTableSearchFilterToolbar<BEAN_TYPE> {
 		this.inputListener = new IInputListener() {
 			@Override
 			public void inputChanged() {
-				doSearchScheduled(textField.getText());
+				load(textField.getText());
 				if (EmptyCheck.isEmpty(textField.getText())) {
 					searchFilterItemModel.setEnabled(true);
 					searchFilterItemModel.setToolTipText(searchFilterItemTooltip);
@@ -176,211 +176,257 @@ final class BeanTableSearchFilterToolbar<BEAN_TYPE> {
 		return searchFilterItemModel;
 	}
 
-	private void doSearchScheduled(final String text) {
-		if (schedule != null) {
-			schedule.cancel(false);
+	private void load(final String text) {
+		if (loader != null) {
+			loader.cancel();
 		}
-		final IUiThreadAccess uiThreadAccess = Toolkit.getUiThreadAccess();
-		final Runnable runnable = new Runnable() {
-			@Override
-			public void run() {
-				uiThreadAccess.invokeLater(new Runnable() {
-					@Override
-					public void run() {
-						schedule = null;
-						doSearch(text);
-					}
-				});
+		loader = new FilterResultLoader(text);
+		loader.load();
+	}
+
+	private final class FilterResultLoader {
+
+		private final String text;
+		private final IUiThreadAccess uiThreadAccess;
+
+		private ScheduledFuture<?> schedule;
+		private boolean canceled;
+
+		private FilterResultLoader(final String text) {
+			this.text = text;
+			this.uiThreadAccess = Toolkit.getUiThreadAccess();
+			this.canceled = false;
+		}
+
+		void load() {
+			final Runnable runnable = new Runnable() {
+				@Override
+				public void run() {
+					uiThreadAccess.invokeLater(new Runnable() {
+						@Override
+						public void run() {
+							final IUiFilter filter;
+							try {
+								//TODO MG do filter creation outside the ui thread
+								//to avoid ui lags if creation is complex (e.g. more than 100 ms)
+								filter = createFilter(text);
+							}
+							catch (final CancellationException e) {
+								return;
+							}
+							if (!canceled) {
+								model.setFilter(IBeanTableModel.UI_SEARCH_FILTER_ID, filter);
+								model.load();
+							}
+							loader = null;
+						}
+					});
+				}
+			};
+			schedule = Executors.newSingleThreadScheduledExecutor(new DaemonThreadFactory()).schedule(
+					runnable,
+					LISTENER_DELAY,
+					TimeUnit.MILLISECONDS);
+		}
+
+		void cancel() {
+			if (!canceled) {
+				if (schedule != null) {
+					schedule.cancel(false);
+				}
+				this.canceled = true;
+				loader = null;
 			}
-		};
-		schedule = Executors.newSingleThreadScheduledExecutor(new DaemonThreadFactory()).schedule(
-				runnable,
-				LISTENER_DELAY,
-				TimeUnit.MILLISECONDS);
-
-	}
-
-	private void doSearch(final String text) {
-		final IUiFilter filter = createFilter(text);
-		model.setFilter(IBeanTableModel.UI_SEARCH_FILTER_ID, filter);
-		model.load();
-	}
-
-	private IUiFilter createFilter(final String text) {
-		if (EmptyCheck.isEmpty(text)) {
-			return null;
 		}
 
-		final StringTokenizer tokenizer = new StringTokenizer(text);
+		void checkCanceled() {
+			if (canceled) {
+				throw new CancellationException();
+			}
+		}
 
-		final IUiFilterFactory factory = CapUiToolkit.filterToolkit().filterFactory();
-		final IUiBooleanFilterBuilder andFilterBuilder = factory.booleanFilterBuilder().setOperator(BooleanOperator.AND);
+		private IUiFilter createFilter(final String text) {
+			checkCanceled();
+			if (EmptyCheck.isEmpty(text)) {
+				return null;
+			}
 
-		while (tokenizer.hasMoreElements()) {
-			final String token = tokenizer.nextToken();
-			final IUiBooleanFilterBuilder orFilterBuilder = factory.booleanFilterBuilder().setOperator(BooleanOperator.OR);
-			boolean predicateCreated = false;
-			for (final IAttribute<Object> attribute : attributes) {
-				if (attribute.isFilterable()) {
-					final IUiFilter filter;
-					if (attribute.getValueRange() instanceof ILookUpValueRange) {
-						filter = createLookUpFilter(attribute, token);
+			final StringTokenizer tokenizer = new StringTokenizer(text);
+
+			final IUiFilterFactory factory = CapUiToolkit.filterToolkit().filterFactory();
+			final IUiBooleanFilterBuilder andFilterBuilder = factory.booleanFilterBuilder().setOperator(BooleanOperator.AND);
+
+			while (tokenizer.hasMoreElements()) {
+				checkCanceled();
+				final String token = tokenizer.nextToken();
+				final IUiBooleanFilterBuilder orFilterBuilder = factory.booleanFilterBuilder().setOperator(BooleanOperator.OR);
+				boolean predicateCreated = false;
+				for (final IAttribute<Object> attribute : attributes) {
+					checkCanceled();
+					if (attribute.isFilterable()) {
+						final IUiFilter filter;
+						if (attribute.getValueRange() instanceof ILookUpValueRange) {
+							filter = createLookUpFilter(attribute, token);
+						}
+						else if (attribute.getValueRange() instanceof IStaticValueRange
+							&& !((IStaticValueRange) attribute.getValueRange()).isOpen()) {
+							filter = createManifoldTypeFilter(attribute, token);
+						}
+						else if (String.class.isAssignableFrom(attribute.getElementValueType())) {
+							filter = createStringTypeFilter(attribute, token);
+						}
+						else {
+							filter = createManifoldTypeFilter(attribute, token);
+						}
+						if (filter != null) {
+							orFilterBuilder.addFilter(filter);
+							predicateCreated = true;
+						}
 					}
-					else if (attribute.getValueRange() instanceof IStaticValueRange
-						&& !((IStaticValueRange) attribute.getValueRange()).isOpen()) {
-						filter = createManifoldTypeFilter(attribute, token);
-					}
-					else if (String.class.isAssignableFrom(attribute.getElementValueType())) {
-						filter = createStringTypeFilter(attribute, token);
-					}
-					else {
-						filter = createManifoldTypeFilter(attribute, token);
-					}
-					if (filter != null) {
-						orFilterBuilder.addFilter(filter);
+				}
+				if (predicateCreated) {
+					andFilterBuilder.addFilter(orFilterBuilder.build());
+				}
+			}
+			return andFilterBuilder.build();
+		}
+
+		private IUiFilter createManifoldTypeFilter(final IAttribute<Object> attribute, final String string) {
+			if (attribute.getControlPanels().size() == 1) {
+				return createManifoldTypeFilter(attribute, attribute.getControlPanels().get(0), string);
+			}
+			else if (attribute.getControlPanels().size() > 1) {
+				final IUiFilterFactory factory = CapUiToolkit.filterToolkit().filterFactory();
+				final IUiBooleanFilterBuilder orFilterBuilder = factory.booleanFilterBuilder().setOperator(BooleanOperator.OR);
+				boolean predicateCreated = false;
+				for (final IControlPanelProvider<Object> controlPanel : attribute.getControlPanels()) {
+					checkCanceled();
+					final IUiArithmeticFilter<?> manifoldTypeFilter = createManifoldTypeFilter(attribute, controlPanel, string);
+					if (manifoldTypeFilter != null) {
+						orFilterBuilder.addFilter(manifoldTypeFilter);
 						predicateCreated = true;
 					}
 				}
-			}
-			if (predicateCreated) {
-				andFilterBuilder.addFilter(orFilterBuilder.build());
-			}
-		}
-		return andFilterBuilder.build();
-	}
-
-	private IUiFilter createManifoldTypeFilter(final IAttribute<Object> attribute, final String string) {
-		if (attribute.getControlPanels().size() == 1) {
-			return createManifoldTypeFilter(attribute, attribute.getControlPanels().get(0), string);
-		}
-		else if (attribute.getControlPanels().size() > 1) {
-			final IUiFilterFactory factory = CapUiToolkit.filterToolkit().filterFactory();
-			final IUiBooleanFilterBuilder orFilterBuilder = factory.booleanFilterBuilder().setOperator(BooleanOperator.OR);
-			boolean predicateCreated = false;
-			for (final IControlPanelProvider<Object> controlPanel : attribute.getControlPanels()) {
-				final IUiArithmeticFilter<?> manifoldTypeFilter = createManifoldTypeFilter(attribute, controlPanel, string);
-				if (manifoldTypeFilter != null) {
-					orFilterBuilder.addFilter(manifoldTypeFilter);
-					predicateCreated = true;
+				if (predicateCreated) {
+					return orFilterBuilder.build();
 				}
 			}
-			if (predicateCreated) {
-				return orFilterBuilder.build();
+			return null;
+		}
+
+		private IUiArithmeticFilter<?> createManifoldTypeFilter(
+			final IAttribute<Object> attribute,
+			final IControlPanelProvider<Object> controlPanel,
+			final String string) {
+			final IStringObjectConverter<Object> converter = controlPanel.getStringObjectConverter();
+			if (converter != null) {
+				final Object value = converter.convertToObject(string);
+				if (value != null) {
+					return createAritmeticFilter(attribute, value);
+				}
 			}
+			return null;
 		}
-		return null;
-	}
 
-	private IUiArithmeticFilter<?> createManifoldTypeFilter(
-		final IAttribute<Object> attribute,
-		final IControlPanelProvider<Object> controlPanel,
-		final String string) {
-		final IStringObjectConverter<Object> converter = controlPanel.getStringObjectConverter();
-		if (converter != null) {
-			final Object value = converter.convertToObject(string);
-			if (value != null) {
-				return createAritmeticFilter(attribute, value);
+		private IUiArithmeticFilter<?> createStringTypeFilter(final IAttribute<Object> attribute, final String string) {
+			return createAritmeticFilter(attribute, createMaskedString(string));
+		}
+
+		private IUiFilter createLookUpFilter(final IAttribute<Object> attribute, final String string) {
+			final ILookUpValueRange valueRange = (ILookUpValueRange) attribute.getValueRange();
+
+			final ILookUpAccess lookUpAccess = CapUiToolkit.lookUpCache().getAccess(valueRange.getLookUpId());
+			final ILookUp currentLookUp = lookUpAccess.getCurrentLookUp();
+			if (currentLookUp == null) {
+				return createManifoldTypeFilter(attribute, string);
 			}
+
+			final Set<Object> matchingEntries = new HashSet<Object>();
+			final String pattern = createRegex(createMaskedString(string));
+			for (final ILookUpProperty lookUpProperty : valueRange.getValueProperties()) {
+				checkCanceled();
+				matchingEntries.addAll(getMatchingEntries(currentLookUp, lookUpProperty, string, pattern));
+			}
+			if (!matchingEntries.isEmpty()) {
+				final IUiFilterFactory factory = CapUiToolkit.filterToolkit().filterFactory();
+				return factory.arithmeticFilter(
+						attribute.getPropertyName(),
+						ArithmeticOperator.CONTAINS_ANY,
+						matchingEntries.toArray());
+			}
+			return null;
 		}
-		return null;
-	}
 
-	private IUiArithmeticFilter<?> createStringTypeFilter(final IAttribute<Object> attribute, final String string) {
-		return createAritmeticFilter(attribute, createMaskedString(string));
-	}
-
-	private IUiFilter createLookUpFilter(final IAttribute<Object> attribute, final String string) {
-		final ILookUpValueRange valueRange = (ILookUpValueRange) attribute.getValueRange();
-
-		final ILookUpAccess lookUpAccess = CapUiToolkit.lookUpCache().getAccess(valueRange.getLookUpId());
-		final ILookUp currentLookUp = lookUpAccess.getCurrentLookUp();
-		if (currentLookUp == null) {
-			return createManifoldTypeFilter(attribute, string);
+		private Set<Object> getMatchingEntries(
+			final ILookUp lookUp,
+			final ILookUpProperty lookUpProperty,
+			final String string,
+			final String pattern) {
+			final Set<Object> result = new HashSet<Object>();
+			for (final ILookUpEntry lookUpEntry : lookUp.getEntries()) {
+				checkCanceled();
+				if (matches(lookUpEntry.getValue(lookUpProperty.getName()), pattern)) {
+					result.add(lookUpEntry.getKey());
+				}
+			}
+			return result;
 		}
 
-		final Set<Object> matchingEntries = new HashSet<Object>();
-		final String pattern = createRegex(createMaskedString(string));
-		for (final ILookUpProperty lookUpProperty : valueRange.getValueProperties()) {
-			matchingEntries.addAll(getMatchingEntries(currentLookUp, lookUpProperty, string, pattern));
+		private boolean matches(final Object source, final String pattern) {
+			if (source != null && source instanceof String) {
+				return ((String) source).toLowerCase().matches(pattern);
+			}
+			else if (source instanceof String) {
+				return pattern == null;
+			}
+			return false;
 		}
-		if (!matchingEntries.isEmpty()) {
+
+		private IUiArithmeticFilter<?> createAritmeticFilter(final IAttribute<Object> attribute, final Object value) {
 			final IUiFilterFactory factory = CapUiToolkit.filterToolkit().filterFactory();
-			return factory.arithmeticFilter(
-					attribute.getPropertyName(),
-					ArithmeticOperator.CONTAINS_ANY,
-					matchingEntries.toArray());
+			return factory.arithmeticFilter(attribute.getPropertyName(), ArithmeticOperator.EQUAL, value);
 		}
-		return null;
-	}
 
-	private Set<Object> getMatchingEntries(
-		final ILookUp lookUp,
-		final ILookUpProperty lookUpProperty,
-		final String string,
-		final String pattern) {
-		final Set<Object> result = new HashSet<Object>();
-		for (final ILookUpEntry lookUpEntry : lookUp.getEntries()) {
-			if (matches(lookUpEntry.getValue(lookUpProperty.getName()), pattern)) {
-				result.add(lookUpEntry.getKey());
+		private String createMaskedString(final String string) {
+			return string + "*";
+		}
+
+		private String createRegex(final String search) {
+			final StringBuilder regex = new StringBuilder(search.length());
+			for (final char c : search.toLowerCase().toCharArray()) {
+				switch (c) {
+					case '\\':
+						regex.append("\\\\");
+						break;
+
+					case '[':
+					case ']':
+					case '(':
+					case ')':
+					case '.':
+					case '+':
+					case '^':
+					case '$':
+						regex.append('\\');
+						regex.append(c);
+						break;
+
+					// wild cards
+					case '%':
+					case '*':
+						regex.append(".*");
+						break;
+
+					case '_':
+						regex.append('.');
+						break;
+
+					default:
+						regex.append(c);
+				}
 			}
+			return regex.toString();
 		}
-		return result;
+
 	}
-
-	private boolean matches(final Object source, final String pattern) {
-		if (source != null && source instanceof String) {
-			return ((String) source).toLowerCase().matches(pattern);
-		}
-		else if (source instanceof String) {
-			return pattern == null;
-		}
-		return false;
-	}
-
-	private IUiArithmeticFilter<?> createAritmeticFilter(final IAttribute<Object> attribute, final Object value) {
-		final IUiFilterFactory factory = CapUiToolkit.filterToolkit().filterFactory();
-		return factory.arithmeticFilter(attribute.getPropertyName(), ArithmeticOperator.EQUAL, value);
-	}
-
-	private String createMaskedString(final String string) {
-		return string + "*";
-	}
-
-	private String createRegex(final String search) {
-		final StringBuilder regex = new StringBuilder(search.length());
-		for (final char c : search.toLowerCase().toCharArray()) {
-			switch (c) {
-				case '\\':
-					regex.append("\\\\");
-					break;
-
-				case '[':
-				case ']':
-				case '(':
-				case ')':
-				case '.':
-				case '+':
-				case '^':
-				case '$':
-					regex.append('\\');
-					regex.append(c);
-					break;
-
-				// wild cards
-				case '%':
-				case '*':
-					regex.append(".*");
-					break;
-
-				case '_':
-					regex.append('.');
-					break;
-
-				default:
-					regex.append(c);
-			}
-		}
-		return regex.toString();
-	}
-
 }
