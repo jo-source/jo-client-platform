@@ -28,8 +28,9 @@
 
 package org.jowidgets.cap.ui.impl.widgets;
 
-import java.util.LinkedList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
@@ -56,7 +57,6 @@ import org.jowidgets.cap.common.api.lookup.ILookUpValueRange;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IControlPanelProvider;
-import org.jowidgets.cap.ui.api.control.IDisplayFormat;
 import org.jowidgets.cap.ui.api.filter.IUiArithmeticFilter;
 import org.jowidgets.cap.ui.api.filter.IUiBooleanFilterBuilder;
 import org.jowidgets.cap.ui.api.filter.IUiFilter;
@@ -70,7 +70,6 @@ import org.jowidgets.common.widgets.controller.IItemStateListener;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
 import org.jowidgets.tools.widgets.blueprint.BPF;
 import org.jowidgets.util.EmptyCheck;
-import org.jowidgets.util.NullCompatibleEquivalence;
 import org.jowidgets.util.concurrent.DaemonThreadFactory;
 
 final class BeanTableSearchFilterToolbar<BEAN_TYPE> {
@@ -156,6 +155,25 @@ final class BeanTableSearchFilterToolbar<BEAN_TYPE> {
 		final String text = Messages.getString("BeanTableSearchFilterToolbar.show_searchfilter_text");
 		builder.setText(text).setToolTipText(searchFilterItemTooltip);
 		return builder.build();
+	}
+
+	void setVisible(final boolean visible) {
+		if (toolbar.isVisible() != visible) {
+			composite.layoutBegin();
+			toolbar.setVisible(visible);
+			composite.layoutEnd();
+			searchFilterItemModel.removeItemListener(searchFilterItemListener);
+			searchFilterItemModel.setSelected(visible);
+			searchFilterItemModel.addItemListener(searchFilterItemListener);
+		}
+	}
+
+	void requestSearchFocus() {
+		textField.requestFocus();
+	}
+
+	ICheckedItemModel getSearchFilterItemModel() {
+		return searchFilterItemModel;
 	}
 
 	private void doSearchScheduled(final String text) {
@@ -279,28 +297,30 @@ final class BeanTableSearchFilterToolbar<BEAN_TYPE> {
 		if (currentLookUp == null) {
 			return createManifoldTypeFilter(attribute, string);
 		}
-		final ILookUpProperty lookUpProperty = getLookUpProperty(attribute, valueRange);
-		if (lookUpProperty == null || !String.class.isAssignableFrom(lookUpProperty.getValueType())) {
-			return createManifoldTypeFilter(attribute, string);
-		}
 
-		final Object[] entries = getMatchingEntries(currentLookUp, lookUpProperty, string);
-		if (entries.length != 0) {
-			final IUiFilterFactory factory = CapUiToolkit.filterToolkit().filterFactory();
-			return factory.arithmeticFilter(attribute.getPropertyName(), ArithmeticOperator.CONTAINS_ANY, entries);
+		final Set<Object> matchingEntries = new HashSet<Object>();
+		for (final ILookUpProperty lookUpProperty : valueRange.getValueProperties()) {
+			matchingEntries.addAll(getMatchingEntries(currentLookUp, lookUpProperty, string));
 		}
-		return createManifoldTypeFilter(attribute, string);
+		if (!matchingEntries.isEmpty()) {
+			final IUiFilterFactory factory = CapUiToolkit.filterToolkit().filterFactory();
+			return factory.arithmeticFilter(
+					attribute.getPropertyName(),
+					ArithmeticOperator.CONTAINS_ANY,
+					matchingEntries.toArray());
+		}
+		return null;
 	}
 
-	private Object[] getMatchingEntries(final ILookUp lookUp, final ILookUpProperty lookUpProperty, final String string) {
-		final List<Object> result = new LinkedList<Object>();
+	private Set<Object> getMatchingEntries(final ILookUp lookUp, final ILookUpProperty lookUpProperty, final String string) {
+		final Set<Object> result = new HashSet<Object>();
 		final String pattern = createRegex(createMaskedString(string));
 		for (final ILookUpEntry lookUpEntry : lookUp.getEntries()) {
 			if (matches(lookUpEntry.getValue(lookUpProperty.getName()), pattern)) {
 				result.add(lookUpEntry.getKey());
 			}
 		}
-		return result.toArray();
+		return result;
 	}
 
 	private boolean matches(final Object source, final String pattern) {
@@ -311,16 +331,6 @@ final class BeanTableSearchFilterToolbar<BEAN_TYPE> {
 			return pattern == null;
 		}
 		return false;
-	}
-
-	private ILookUpProperty getLookUpProperty(final IAttribute<Object> attribute, final ILookUpValueRange valueRange) {
-		final IDisplayFormat displayFormat = attribute.getDisplayFormat();
-		for (final ILookUpProperty lookUpProperty : valueRange.getValueProperties()) {
-			if (NullCompatibleEquivalence.equals(displayFormat.getId(), lookUpProperty.getDisplayFormatId())) {
-				return lookUpProperty;
-			}
-		}
-		return null;
 	}
 
 	private IUiArithmeticFilter<?> createAritmeticFilter(final IAttribute<Object> attribute, final Object value) {
@@ -367,25 +377,6 @@ final class BeanTableSearchFilterToolbar<BEAN_TYPE> {
 			}
 		}
 		return regex.toString();
-	}
-
-	void setVisible(final boolean visible) {
-		if (toolbar.isVisible() != visible) {
-			composite.layoutBegin();
-			toolbar.setVisible(visible);
-			composite.layoutEnd();
-			searchFilterItemModel.removeItemListener(searchFilterItemListener);
-			searchFilterItemModel.setSelected(visible);
-			searchFilterItemModel.addItemListener(searchFilterItemListener);
-		}
-	}
-
-	void requestSearchFocus() {
-		textField.requestFocus();
-	}
-
-	public ICheckedItemModel getSearchFilterItemModel() {
-		return searchFilterItemModel;
 	}
 
 }
