@@ -299,8 +299,9 @@ final class BeanTableSearchFilterToolbar<BEAN_TYPE> {
 		}
 
 		final Set<Object> matchingEntries = new HashSet<Object>();
+		final String pattern = createRegex(createMaskedString(string));
 		for (final ILookUpProperty lookUpProperty : valueRange.getValueProperties()) {
-			matchingEntries.addAll(getMatchingEntries(currentLookUp, lookUpProperty, string));
+			matchingEntries.addAll(getMatchingEntries(currentLookUp, lookUpProperty, string, pattern));
 		}
 		if (!matchingEntries.isEmpty()) {
 			final IUiFilterFactory factory = CapUiToolkit.filterToolkit().filterFactory();
@@ -312,9 +313,12 @@ final class BeanTableSearchFilterToolbar<BEAN_TYPE> {
 		return null;
 	}
 
-	private Set<Object> getMatchingEntries(final ILookUp lookUp, final ILookUpProperty lookUpProperty, final String string) {
+	private Set<Object> getMatchingEntries(
+		final ILookUp lookUp,
+		final ILookUpProperty lookUpProperty,
+		final String string,
+		final String pattern) {
 		final Set<Object> result = new HashSet<Object>();
-		final String pattern = createRegex(createMaskedString(string));
 		for (final ILookUpEntry lookUpEntry : lookUp.getEntries()) {
 			if (matches(lookUpEntry.getValue(lookUpProperty.getName()), pattern)) {
 				result.add(lookUpEntry.getKey());
