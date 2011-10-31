@@ -183,7 +183,7 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 				control.setValue(null);
 				control.setEnabled(false);
 				if (mandatoryBackgroundColor != null && attribute.isMandatory()) {
-					control.setBackgroundColor(backgroundColors.get(entry.getKey()));
+					control.setBackgroundColor(null);
 				}
 			}
 			validationLabelContainer.layoutBegin();
