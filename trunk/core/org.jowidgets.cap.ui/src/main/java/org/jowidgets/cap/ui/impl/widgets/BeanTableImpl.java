@@ -101,6 +101,7 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 	private final BeanTableSearchFilterToolbar<BEAN_TYPE> searchFilterToolbar;
 	private final IMenuModel headerPopupMenuModel;
 	private final IMenuModel cellPopupMenuModel;
+	private final IMenuModel customTablePopupMenuModel;
 	private final IMenuModel tablePopupMenuModel;
 	private final Map<Integer, IPopupMenu> headerPopupMenus;
 	private final Map<Integer, IPopupMenu> cellPopupMenus;
@@ -128,6 +129,7 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 		this.cellPopupMenuModel = new MenuModel();
 		this.headerPopupMenuModel = new MenuModel();
 		this.tablePopupMenuModel = new MenuModel();
+		this.customTablePopupMenuModel = new MenuModel();
 		this.hasDefaultMenus = bluePrint.hasDefaultMenus();
 		this.hasDefaultCreatorAction = bluePrint.hasDefaultCreatorAction();
 		this.hasDefaultDeleterAction = bluePrint.hasDefaultDeleterAction();
@@ -218,6 +220,26 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 
 		getWidget().addKeyListener(keyListener);
 		table.addKeyListener(keyListener);
+
+		customTablePopupMenuModel.addListModelListener(new ListModelAdapter() {
+
+			@Override
+			public void beforeChildRemove(final int index) {
+				final IMenuItemModel item = customTablePopupMenuModel.getChildren().get(index);
+				tablePopupMenuModel.removeItem(item);
+				if (customTablePopupMenuModel.getChildren().size() == 1 && tablePopupMenuModel.getChildren().size() > 0) {
+					tablePopupMenuModel.removeItem(tablePopupMenuModel.getChildren().size() - 1);
+				}
+			}
+
+			@Override
+			public void afterChildAdded(final int index) {
+				if (customTablePopupMenuModel.getChildren().size() == 1 && tablePopupMenuModel.getChildren().size() > 0) {
+					tablePopupMenuModel.addSeparator();
+				}
+				tablePopupMenuModel.addItem(customTablePopupMenuModel.getChildren().get(index));
+			}
+		});
 
 		setSearchFilterToolbarVisible(false);
 	}
@@ -356,6 +378,11 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 	@Override
 	public ICheckedItemModel getSearchFilterItemModel() {
 		return searchFilterToolbar.getSearchFilterItemModel();
+	}
+
+	@Override
+	public IMenuModel getTablePopupMenu() {
+		return customTablePopupMenuModel;
 	}
 
 	@Override
