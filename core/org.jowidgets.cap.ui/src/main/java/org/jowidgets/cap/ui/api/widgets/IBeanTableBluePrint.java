@@ -58,6 +58,8 @@ public interface IBeanTableBluePrint<BEAN_TYPE> extends
 
 	IBeanTableBluePrint<BEAN_TYPE> setCellMenuInterceptor(ITableMenuCreationInterceptor<BEAN_TYPE> interceptor);
 
+	IBeanTableBluePrint<BEAN_TYPE> setSearchFilterToolbarVisible(boolean visible);
+
 	@Mandatory
 	TableSelectionPolicy getSelectionPolicy();
 
@@ -80,5 +82,8 @@ public interface IBeanTableBluePrint<BEAN_TYPE> extends
 	ITableMenuCreationInterceptor<BEAN_TYPE> getHeaderMenuInterceptor();
 
 	ITableMenuCreationInterceptor<BEAN_TYPE> getCellMenuInterceptor();
+
+	@Mandatory
+	boolean isSearchFilterToolbarVisible();
 
 }

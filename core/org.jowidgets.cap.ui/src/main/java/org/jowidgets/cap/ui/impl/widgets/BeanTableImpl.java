@@ -241,7 +241,7 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 			}
 		});
 
-		setSearchFilterToolbarVisible(false);
+		setSearchFilterToolbarVisible(bluePrint.isSearchFilterToolbarVisible());
 	}
 
 	private IPopupMenu getHeaderPopupMenu(final Integer index) {
