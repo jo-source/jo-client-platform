@@ -28,11 +28,11 @@
 
 package org.jowidgets.cap.sample1.ui.workbench.component.user.view;
 
-import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.widgets.IContainer;
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
+import org.jowidgets.tools.layout.MigLayoutFactory;
 import org.jowidgets.workbench.api.IViewContext;
 import org.jowidgets.workbench.tools.AbstractView;
 
@@ -45,15 +45,10 @@ public class RoleTableView extends AbstractView {
 	private final IBeanTableModel<IBean> beanTableModel;
 
 	public RoleTableView(final IViewContext context, final IBeanTableModel<IBean> tableModel) {
-
 		this.beanTableModel = tableModel;
-
 		final IContainer container = context.getContainer();
-
-		container.setLayout(Toolkit.getLayoutFactoryProvider().fillLayout());
-
-		container.add(CapUiToolkit.bluePrintFactory().beanTable(beanTableModel));
-
+		container.setLayout(MigLayoutFactory.growingInnerCellLayout());
+		container.add(CapUiToolkit.bluePrintFactory().beanTable(beanTableModel), MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
 		beanTableModel.load();
 	}
 
