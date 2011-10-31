@@ -41,6 +41,8 @@ public interface IBeanTable<BEAN_TYPE> extends ITable {
 	ITypedKey<ITableColumnPopupEvent> COLUMN_POPUP_EVENT_CONTEXT_KEY = new ITypedKey<ITableColumnPopupEvent>() {};
 	ITypedKey<ITableCellPopupEvent> CELL_POPUP_EVENT_CONTEXT_KEY = new ITypedKey<ITableCellPopupEvent>() {};
 
+	IMenuModel getTablePopupMenu();
+
 	IMenuModel getCellPopMenu();
 
 	IMenuModel getHeaderPopMenu();
