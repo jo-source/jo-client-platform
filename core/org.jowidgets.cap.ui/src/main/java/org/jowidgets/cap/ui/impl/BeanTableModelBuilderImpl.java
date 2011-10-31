@@ -62,6 +62,7 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> implements IBeanTableModelBuild
 	private IReaderParameterProvider<? extends Object> readerParameterProvider;
 	private IBeanListModel<?> parent;
 	private LinkType linkType;
+	private boolean autoRowCount;
 	private List<IAttribute<Object>> attributes;
 	private String[] metaPropertyNames;
 
@@ -77,6 +78,7 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> implements IBeanTableModelBuild
 		Assert.paramNotNull(beanType, "beanType");
 		this.beanType = beanType;
 		this.entityId = entityId;
+		this.autoRowCount = true;
 
 		this.metaPropertyNames = new String[] {IBeanProxy.META_PROPERTY_PROGRESS, IBeanProxy.META_PROPERTY_MESSAGES};
 
@@ -236,6 +238,12 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> implements IBeanTableModelBuild
 		return this;
 	}
 
+	@Override
+	public IBeanTableModelBuilder<BEAN_TYPE> setAutoRowCount(final boolean autoRowCount) {
+		this.autoRowCount = autoRowCount;
+		return this;
+	}
+
 	private List<IAttribute<Object>> getAttributes() {
 		final List<IAttribute<Object>> result = new LinkedList<IAttribute<Object>>(attributes);
 		if (metaPropertyNames != null) {
@@ -261,7 +269,8 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> implements IBeanTableModelBuild
 			updaterService,
 			deleterService,
 			parent,
-			linkType);
+			linkType,
+			autoRowCount);
 	}
 
 }

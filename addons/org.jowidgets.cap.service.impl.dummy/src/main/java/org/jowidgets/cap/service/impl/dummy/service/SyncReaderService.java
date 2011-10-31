@@ -95,9 +95,13 @@ final class SyncReaderService<BEAN_TYPE extends IBean> implements ISyncReaderSer
 		final Void parameter,
 		final IExecutionCallback executionCallback) {
 
-		//TODO apply filter
-
-		return Integer.valueOf(data.getAllData().size());
+		if (filter == null) {
+			return Integer.valueOf(data.getAllData().size());
+		}
+		else {
+			final List<IBeanDto> result = BeanDtoFactoryHelper.createDtos(beanFactory, data.getAllData(), executionCallback);
+			return Integer.valueOf(CapServiceToolkit.beanDtoFilter().filter(result, filter, executionCallback).size());
+		}
 	}
 
 }
