@@ -67,6 +67,7 @@ import org.jowidgets.common.types.IVetoable;
 import org.jowidgets.common.types.Modifier;
 import org.jowidgets.common.types.Position;
 import org.jowidgets.common.types.TablePackPolicy;
+import org.jowidgets.common.types.VirtualKey;
 import org.jowidgets.common.widgets.controller.IKeyEvent;
 import org.jowidgets.common.widgets.controller.IKeyListener;
 import org.jowidgets.common.widgets.controller.ITableCellEditEvent;
@@ -206,7 +207,9 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 		final IKeyListener keyListener = new KeyAdapter() {
 			@Override
 			public void keyReleased(final IKeyEvent event) {
-				if (event.getModifier().contains(Modifier.CTRL) && event.getCharacter() != null && event.getCharacter() == 'f') {
+				if (event.getModifier().contains(Modifier.CTRL)
+					&& event.getCharacter() != null
+					&& event.getVirtualKey() == VirtualKey.F) {
 					setSearchFilterToolbarVisible(true);
 					searchFilterToolbar.requestSearchFocus();
 				}
