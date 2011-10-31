@@ -55,6 +55,7 @@ import org.jowidgets.cap.common.api.lookup.ILookUpProperty;
 import org.jowidgets.cap.common.api.lookup.ILookUpValueRange;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
+import org.jowidgets.cap.ui.api.attribute.IControlPanelProvider;
 import org.jowidgets.cap.ui.api.control.IDisplayFormat;
 import org.jowidgets.cap.ui.api.filter.IUiArithmeticFilter;
 import org.jowidgets.cap.ui.api.filter.IUiBooleanFilterBuilder;
@@ -203,22 +204,22 @@ final class BeanTableSearchFilterToolbar<BEAN_TYPE> {
 			boolean predicateCreated = false;
 			for (final IAttribute<Object> attribute : attributes) {
 				if (attribute.isFilterable()) {
-					final IUiArithmeticFilter<?> arithmeticFilter;
+					final IUiFilter filter;
 					if (attribute.getValueRange() instanceof ILookUpValueRange) {
-						arithmeticFilter = createLookUpFilter(attribute, token);
+						filter = createLookUpFilter(attribute, token);
 					}
 					else if (attribute.getValueRange() instanceof IStaticValueRange
 						&& !((IStaticValueRange) attribute.getValueRange()).isOpen()) {
-						arithmeticFilter = createManifoldTypeFilter(attribute, token);
+						filter = createManifoldTypeFilter(attribute, token);
 					}
 					else if (String.class.isAssignableFrom(attribute.getElementValueType())) {
-						arithmeticFilter = createStringTypeFilter(attribute, token);
+						filter = createStringTypeFilter(attribute, token);
 					}
 					else {
-						arithmeticFilter = createManifoldTypeFilter(attribute, token);
+						filter = createManifoldTypeFilter(attribute, token);
 					}
-					if (arithmeticFilter != null) {
-						orFilterBuilder.addFilter(arithmeticFilter);
+					if (filter != null) {
+						orFilterBuilder.addFilter(filter);
 						predicateCreated = true;
 					}
 				}
@@ -230,8 +231,33 @@ final class BeanTableSearchFilterToolbar<BEAN_TYPE> {
 		return andFilterBuilder.build();
 	}
 
-	private IUiArithmeticFilter<?> createManifoldTypeFilter(final IAttribute<Object> attribute, final String string) {
-		final IStringObjectConverter<Object> converter = attribute.getCurrentControlPanel().getStringObjectConverter();
+	private IUiFilter createManifoldTypeFilter(final IAttribute<Object> attribute, final String string) {
+		if (attribute.getControlPanels().size() == 1) {
+			return createManifoldTypeFilter(attribute, attribute.getControlPanels().get(0), string);
+		}
+		else if (attribute.getControlPanels().size() > 1) {
+			final IUiFilterFactory factory = CapUiToolkit.filterToolkit().filterFactory();
+			final IUiBooleanFilterBuilder orFilterBuilder = factory.booleanFilterBuilder().setOperator(BooleanOperator.OR);
+			boolean predicateCreated = false;
+			for (final IControlPanelProvider<Object> controlPanel : attribute.getControlPanels()) {
+				final IUiArithmeticFilter<?> manifoldTypeFilter = createManifoldTypeFilter(attribute, controlPanel, string);
+				if (manifoldTypeFilter != null) {
+					orFilterBuilder.addFilter(manifoldTypeFilter);
+					predicateCreated = true;
+				}
+			}
+			if (predicateCreated) {
+				return orFilterBuilder.build();
+			}
+		}
+		return null;
+	}
+
+	private IUiArithmeticFilter<?> createManifoldTypeFilter(
+		final IAttribute<Object> attribute,
+		final IControlPanelProvider<Object> controlPanel,
+		final String string) {
+		final IStringObjectConverter<Object> converter = controlPanel.getStringObjectConverter();
 		if (converter != null) {
 			final Object value = converter.convertToObject(string);
 			if (value != null) {
@@ -245,7 +271,7 @@ final class BeanTableSearchFilterToolbar<BEAN_TYPE> {
 		return createAritmeticFilter(attribute, createMaskedString(string));
 	}
 
-	private IUiArithmeticFilter<?> createLookUpFilter(final IAttribute<Object> attribute, final String string) {
+	private IUiFilter createLookUpFilter(final IAttribute<Object> attribute, final String string) {
 		final ILookUpValueRange valueRange = (ILookUpValueRange) attribute.getValueRange();
 
 		final ILookUpAccess lookUpAccess = CapUiToolkit.lookUpCache().getAccess(valueRange.getLookUpId());
