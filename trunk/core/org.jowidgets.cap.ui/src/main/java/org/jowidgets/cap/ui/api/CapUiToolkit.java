@@ -231,6 +231,7 @@ public final class CapUiToolkit {
 						bluePrint.setDefaultMenus(true);
 						bluePrint.setDefaultCreatorAction(true);
 						bluePrint.setDefaultDeleterAction(true);
+						bluePrint.setSearchFilterToolbarVisible(false);
 					}
 				});
 
