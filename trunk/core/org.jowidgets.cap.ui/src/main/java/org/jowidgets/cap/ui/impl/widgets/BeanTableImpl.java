@@ -235,7 +235,7 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 	}
 
 	private IPopupMenu createHeaderPopupMenu(final Integer index) {
-		final IPopupMenu popupMenu = getWidget().createPopupMenu();
+		final IPopupMenu popupMenu = table.createPopupMenu();
 		popupMenu.setModel(createHeaderPopupMenuModel(index));
 		return popupMenu;
 	}
@@ -282,7 +282,7 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 	}
 
 	private IPopupMenu createCellPopupMenu(final Integer index) {
-		final IPopupMenu popupMenu = getWidget().createPopupMenu();
+		final IPopupMenu popupMenu = table.createPopupMenu();
 		popupMenu.setModel(createCellPopupMenuModel(index));
 		return popupMenu;
 	}
