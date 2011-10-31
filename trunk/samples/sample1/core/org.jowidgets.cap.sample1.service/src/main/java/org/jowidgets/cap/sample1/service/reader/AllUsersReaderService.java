@@ -48,6 +48,14 @@ import org.jowidgets.security.api.SecurityContextHolder;
 
 public class AllUsersReaderService implements ISyncReaderService<Integer> {
 
+	private final IEntityData<? extends IBean> data;
+	private final IBeanDtoFactory<IUser> dtoFactory;
+
+	public AllUsersReaderService() {
+		this.data = EntityDataStore.getEntityData(IUser.class);
+		this.dtoFactory = CapServiceToolkit.dtoFactory(IUser.class, IUser.ALL_PROPERTIES);
+	}
+
 	@Override
 	public List<IBeanDto> read(
 		final List<? extends IBeanKey> parentBeanKeys,
@@ -80,9 +88,6 @@ public class AllUsersReaderService implements ISyncReaderService<Integer> {
 		System.out.println(SecurityContextHolder.getSecurityContext());
 		//CHECKSTYLE:ON
 
-		final IEntityData<? extends IBean> data = EntityDataStore.getEntityData(IUser.class);
-		final IBeanDtoFactory<IUser> dtoFactory = CapServiceToolkit.dtoFactory(IUser.class, IUser.ALL_PROPERTIES);
-
 		if (filter == null && (sorting == null || sorting.size() == 0)) {
 			return BeanDtoFactoryHelper.createDtos(dtoFactory, data.getAllData(firstRow, maxRows), executionCallback);
 		}
@@ -111,8 +116,13 @@ public class AllUsersReaderService implements ISyncReaderService<Integer> {
 		final IFilter filter,
 		final Integer delay,
 		final IExecutionCallback executionCallback) {
-
-		return Integer.valueOf(EntityDataStore.getEntityData(IUser.class).getAllData().size());
+		if (filter == null) {
+			return Integer.valueOf(data.getAllData().size());
+		}
+		else {
+			final List<IBeanDto> result = BeanDtoFactoryHelper.createDtos(dtoFactory, data.getAllData(), executionCallback);
+			return Integer.valueOf(CapServiceToolkit.beanDtoFilter().filter(result, filter, executionCallback).size());
+		}
 	}
 
 }

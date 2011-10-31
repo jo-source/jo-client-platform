@@ -84,6 +84,8 @@ public interface IBeanTableModelBuilder<BEAN_TYPE> {
 
 	IBeanTableModelBuilder<BEAN_TYPE> setSorting(ISortModelConfig sorting);
 
+	IBeanTableModelBuilder<BEAN_TYPE> setAutoRowCount(boolean autoRowCount);
+
 	IBeanTableModel<BEAN_TYPE> build();
 
 }

@@ -156,6 +156,8 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	private final IBeanListModel<?> parent;
 	private final LinkType linkType;
 
+	private final boolean autoRowCount;
+
 	private final BeanListModelObservable beanListModelObservable;
 
 	private final IDefaultTableColumnModel columnModel;
@@ -166,9 +168,11 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 	private PageLoader evenPageLoader;
 	private PageLoader oddPageLoader;
+	private CountLoader countLoader;
 
 	private final int pageSize;
 	private int rowCount;
+	private Integer countedRowCount;
 	private int maxPageIndex;
 	private boolean dataCleared;
 	private boolean autoSelection;
@@ -187,7 +191,8 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		final IUpdaterService updaterService,
 		final IDeleterService deleterService,
 		final IBeanListModel<?> parent,
-		final LinkType linkType) {
+		final LinkType linkType,
+		final boolean autoRowCount) {
 
 		//arguments checks
 		Assert.paramNotNull(entityId, "entityId");
@@ -198,6 +203,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 		this.parent = parent;
 		this.entityId = entityId;
+		this.autoRowCount = autoRowCount;
 		this.beanType = (Class<BEAN_TYPE>) beanType;
 		this.linkType = linkType;
 		if (parent != null) {
@@ -400,7 +406,12 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 	@Override
 	public void clear() {
+		if (!Toolkit.getUiThreadAccess().isUiThread()) {
+			throw new IllegalStateException("Clear must be invoked in the ui thread");
+		}
+		tryToCancelLoader();
 		rowCount = 0;
+		countedRowCount = null;
 		maxPageIndex = 0;
 		dataCleared = true;
 		data.clear();
@@ -413,8 +424,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		if (!Toolkit.getUiThreadAccess().isUiThread()) {
 			throw new IllegalStateException("Load must be invoked in the ui thread");
 		}
-		tryToCancelPageLoader(evenPageLoader);
-		tryToCancelPageLoader(oddPageLoader);
+		tryToCancelLoader();
 		beansStateTracker.clearAll();
 		if (rowCount == 0) {
 			rowCount = 1;
@@ -422,6 +432,11 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		dataCleared = false;
 		maxPageIndex = 0;
 		data.clear();
+
+		countedRowCount = null;
+		countLoader = new CountLoader();
+		countLoader.loadCount();
+
 		dataModel.fireDataChanged();
 	}
 
@@ -436,6 +451,22 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			tryToCancelPageLoader(oddPageLoader);
 			oddPageLoader = new PageLoader(pageIndex);
 			oddPageLoader.loadPage();
+		}
+	}
+
+	private void tryToCancelLoader() {
+		tryToCancelCountLoader();
+		tryToCancelPageLoader();
+	}
+
+	private void tryToCancelPageLoader() {
+		tryToCancelPageLoader(evenPageLoader);
+		tryToCancelPageLoader(oddPageLoader);
+	}
+
+	private void tryToCancelCountLoader() {
+		if (countLoader != null && !countLoader.isDisposed()) {
+			countLoader.cancel();
 		}
 	}
 
@@ -813,7 +844,12 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 		@Override
 		public int getRowCount() {
-			return rowCount;
+			if (countedRowCount != null) {
+				return Math.max(countedRowCount.intValue(), rowCount);
+			}
+			else {
+				return rowCount;
+			}
 		}
 
 		@Override
@@ -1105,11 +1141,107 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		}
 	}
 
+	private class CountLoader {
+		private final IUiThreadAccess uiThreadAccess;
+		private final IFilter filter;
+
+		private Object parameter;
+		private boolean canceled;
+		private boolean finished;
+		private IExecutionTask executionTask;
+
+		CountLoader() {
+			this.uiThreadAccess = Toolkit.getUiThreadAccess();
+			this.filter = getFilter();
+			this.canceled = false;
+			this.finished = false;
+		}
+
+		void loadCount() {
+			if (autoRowCount) {
+				this.parameter = readerParameterProvider.getParameter();
+				executionTask = CapUiToolkit.executionTaskFactory().create();
+				readerService.count(createResultCallback(), getParentBeanKeys(), filter, parameter, executionTask);
+			}
+		}
+
+		private IResultCallback<Integer> createResultCallback() {
+			return new IResultCallback<Integer>() {
+
+				@Override
+				public void finished(final Integer result) {
+					setResultLater(result);
+				}
+
+				@Override
+				public void exception(final Throwable exception) {
+					setExceptionLater(exception);
+				}
+
+				@Override
+				public void timeout() {
+					exception(new TimeoutException("Timeout while reading table count"));
+				}
+			};
+		}
+
+		private void setResultLater(final Integer result) {
+			uiThreadAccess.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					setResult(result);
+				}
+			});
+		}
+
+		private void setResult(final Integer result) {
+			executionTask = null;
+			finished = true;
+			countedRowCount = result;
+			fireBeansChanged();
+		}
+
+		private void setExceptionLater(final Throwable exception) {
+			uiThreadAccess.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					setException(exception);
+				}
+			});
+		}
+
+		private void setException(final Throwable exception) {
+			executionTask = null;
+			finished = true;
+			countedRowCount = null;
+
+			//TODO MG exception handling
+			//CHECKSTYLE:OFF
+			exception.printStackTrace();
+			//CHECKSTYLE:ON
+
+			fireBeansChanged();
+		}
+
+		boolean isDisposed() {
+			return canceled || finished;
+		}
+
+		void cancel() {
+			if (!canceled) {
+				canceled = true;
+				if (executionTask != null) {
+					executionTask.cancel();
+				}
+			}
+		}
+	}
+
 	private class PageLoader {
 
 		private final int pageIndex;
 		private final IUiThreadAccess uiThreadAccess;
-		private final IFilter filter = getFilter();
+		private final IFilter filter;
 
 		private Object parameter;
 		private boolean canceled;
@@ -1123,6 +1255,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		PageLoader(final int pageIndex) {
 			this.pageIndex = pageIndex;
 			this.uiThreadAccess = Toolkit.getUiThreadAccess();
+			this.filter = getFilter();
 		}
 
 		void loadPage() {
@@ -1267,6 +1400,12 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			else if (pageIndex >= maxPageIndex) {
 				rowCount = (pageIndex * pageSize + beanDtos.size());
 				maxPageIndex = pageIndex;
+			}
+
+			if (countedRowCount != null && rowCount > countedRowCount.intValue()) {
+				tryToCancelCountLoader();
+				countLoader = new CountLoader();
+				countLoader.loadCount();
 			}
 
 			page.clear();
