@@ -28,7 +28,6 @@
 
 package org.jowidgets.cap.ui.api.table;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.jowidgets.api.model.table.ITableModel;
@@ -67,11 +66,6 @@ public interface IBeanTableModel<BEAN_TYPE> extends IDataModel, IBeanListModel<B
 	List<IAttribute<Object>> getAttributes(IAttributeFilter filter);
 
 	Object getValue(int rowIndex, int columnIndex);
-
-	@Override
-	ArrayList<Integer> getSelection();
-
-	void setSelection(List<Integer> selection);
 
 	IBeanProxy<BEAN_TYPE> getFirstSelectedBean();
 

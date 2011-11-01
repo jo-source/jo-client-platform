@@ -28,7 +28,6 @@
 
 package org.jowidgets.cap.ui.impl;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -186,13 +185,8 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 		proxy.setExecutionTask(executionTask);
 
 		//add bean to the model
-		final ArrayList<Integer> selection = model.getSelection();
-		if (!selection.isEmpty()) {
-			model.addBean(selection.iterator().next().intValue(), proxy);
-		}
-		else {
-			model.addBean(model.getSize(), proxy);
-		}
+		model.addBean(proxy);
+		model.setSelection(Collections.singletonList(Integer.valueOf(model.getSize() - 1)));
 
 		final IBeanData beanData = createBeanData(proxy);
 		final List<IBeanData> data = Collections.singletonList(beanData);

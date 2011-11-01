@@ -85,6 +85,7 @@ import org.jowidgets.cap.ui.api.bean.IBeanMessageBuilder;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeansStateTracker;
+import org.jowidgets.cap.ui.api.color.CapColors;
 import org.jowidgets.cap.ui.api.execution.BeanExecutionPolicy;
 import org.jowidgets.cap.ui.api.execution.IExecutionTask;
 import org.jowidgets.cap.ui.api.filter.IUiFilter;
@@ -139,6 +140,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	private final ISortModel sortModel;
 
 	private final Map<Integer, ArrayList<IBeanProxy<BEAN_TYPE>>> data;
+	private final ArrayList<IBeanProxy<BEAN_TYPE>> createdData;
 
 	private final IBeanProxyFactory<BEAN_TYPE> beanProxyFactory;
 	private final IBeansStateTracker<BEAN_TYPE> beansStateTracker;
@@ -161,7 +163,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	private final BeanListModelObservable beanListModelObservable;
 
 	private final IDefaultTableColumnModel columnModel;
-	private final AbstractTableDataModel dataModel;
+	private final DataModel dataModel;
 	private final ITableModel tableModel;
 
 	private final Set<ILookUpListener> lookUpListenersStrongRef;
@@ -230,6 +232,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		this.propertyNames = createPropertyNames(attributes);
 		this.filters = new HashMap<String, IUiFilter>();
 		this.data = new HashMap<Integer, ArrayList<IBeanProxy<BEAN_TYPE>>>();
+		this.createdData = new ArrayList<IBeanProxy<BEAN_TYPE>>();
 		this.sortModel = new SortModelImpl();
 		this.dataCleared = true;
 		this.pageSize = DEFAULT_PAGE_SIZE;
@@ -415,6 +418,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		maxPageIndex = 0;
 		dataCleared = true;
 		data.clear();
+		createdData.clear();
 		beansStateTracker.clearAll();
 		dataModel.fireDataChanged();
 	}
@@ -432,7 +436,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		dataCleared = false;
 		maxPageIndex = 0;
 		data.clear();
-
+		createdData.clear();
 		countedRowCount = null;
 		countLoader = new CountLoader();
 		countLoader.loadCount();
@@ -587,29 +591,20 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 	@Override
 	public IBeanProxy<BEAN_TYPE> getBean(final int rowIndex) {
-		final int pageIndex = getPage(rowIndex);
-		final ArrayList<IBeanProxy<BEAN_TYPE>> page = data.get(Integer.valueOf(pageIndex));
-		if (page != null && page.size() > 0) {
-			final int startIndex = pageIndex * pageSize;
-			final int index = rowIndex - startIndex;
-			if (index >= 0 && index < page.size()) {
-				final IBeanProxy<BEAN_TYPE> result = page.get(index);
-				return result;
-			}
-		}
-		return null;
+		return dataModel.getBean(rowIndex);
 	}
 
 	@Override
-	public void addBean(final int index, final IBeanProxy<BEAN_TYPE> bean) {
+	public void addBean(final IBeanProxy<BEAN_TYPE> bean) {
 		Assert.paramNotNull(bean, "bean");
 		beansStateTracker.register(bean);
-		//TODO MG add the bean to the model
+		createdData.add(bean);
+		fireBeansChanged();
 	}
 
 	@Override
-	public void removeBean(final int index) {
-		// TODO MG implement removeBean
+	public void removeBeans(final List<Integer> indices) {
+		// TODO MG implement removeBeans
 	}
 
 	@Override
@@ -844,6 +839,10 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 		@Override
 		public int getRowCount() {
+			return getDataRowCount() + createdData.size();
+		}
+
+		private int getDataRowCount() {
 			if (countedRowCount != null) {
 				return Math.max(countedRowCount.intValue(), rowCount);
 			}
@@ -862,7 +861,16 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			final int pageIndex = getPage(rowIndex);
 			final ArrayList<IBeanProxy<BEAN_TYPE>> page = data.get(Integer.valueOf(pageIndex));
 
-			if (page == null) {
+			if ((countedRowCount != null && rowIndex >= countedRowCount) && rowIndex >= rowCount) {
+				final IBeanProxy<BEAN_TYPE> bean = getBean(rowIndex);
+				if (bean == null) {
+					return new TableCellBuilder().build();
+				}
+				else {
+					return createCreatedBeanCell(rowIndex, columnIndex, bean);
+				}
+			}
+			else if (page == null) {
 				loadPage(pageIndex);
 				return createDummyCell(rowIndex, columnIndex, null, attribute);
 			}
@@ -881,23 +889,43 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		}
 
 		private IBeanProxy<BEAN_TYPE> getBean(final int rowIndex) {
-			final int pageIndex = getPage(rowIndex);
-			final ArrayList<IBeanProxy<BEAN_TYPE>> page = data.get(Integer.valueOf(pageIndex));
-			final int startIndex = pageIndex * pageSize;
-			final int index = rowIndex - startIndex;
-			if (index < page.size()) {
-				return page.get(index);
+			if ((countedRowCount != null && rowIndex >= countedRowCount) && rowIndex >= rowCount) {
+				final int dataRowCount = getDataRowCount();
+				final int createdIndex = rowIndex - dataRowCount;
+				if (createdIndex < createdData.size()) {
+					return createdData.get(createdIndex);
+				}
+				else {
+					return null;
+				}
 			}
 			else {
-				return null;
+				final int pageIndex = getPage(rowIndex);
+				final ArrayList<IBeanProxy<BEAN_TYPE>> page = data.get(Integer.valueOf(pageIndex));
+				final int startIndex = pageIndex * pageSize;
+				final int index = rowIndex - startIndex;
+				if (page != null && index >= 0 && index < page.size()) {
+					return page.get(index);
+				}
+				else {
+					return null;
+				}
 			}
 		}
 
 		private ITableCell createCell(final int rowIndex, final int columnIndex, final IBeanProxy<BEAN_TYPE> bean) {
-			return createCellBuilder(rowIndex, columnIndex, bean).build();
+			return createCellBuilder(rowIndex, columnIndex, bean, false).build();
 		}
 
-		private ITableCellBuilder createCellBuilder(final int rowIndex, final int columnIndex, final IBeanProxy<BEAN_TYPE> bean) {
+		private ITableCell createCreatedBeanCell(final int rowIndex, final int columnIndex, final IBeanProxy<BEAN_TYPE> bean) {
+			return createCellBuilder(rowIndex, columnIndex, bean, true).build();
+		}
+
+		private ITableCellBuilder createCellBuilder(
+			final int rowIndex,
+			final int columnIndex,
+			final IBeanProxy<BEAN_TYPE> bean,
+			final boolean createdBean) {
 
 			final IAttribute<Object> attribute = attributes.get(columnIndex);
 			final IObjectLabelConverter<Object> converter = attribute.getCurrentControlPanel().getObjectLabelConverter();
@@ -911,7 +939,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			cellBuilder.setIcon(getCellIcon(converter, value));
 
 			//set style
-			cellBuilder.setForegroundColor(getCellForegroundColor(bean));
+			cellBuilder.setForegroundColor(getCellForegroundColor(bean, createdBean));
 			cellBuilder.setMarkup(getCellMarkup(attribute, bean));
 
 			//set editable
@@ -972,7 +1000,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			}
 		}
 
-		private IColorConstant getCellForegroundColor(final IBeanProxy<BEAN_TYPE> bean) {
+		private IColorConstant getCellForegroundColor(final IBeanProxy<BEAN_TYPE> bean, final boolean createdBean) {
 			final IBeanMessage message = bean.getFirstWorstMessage();
 			if (bean.hasExecution()) {
 				return Colors.DISABLED;
@@ -982,6 +1010,9 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			}
 			else if (message != null && (message.getType() == BeanMessageType.WARNING)) {
 				return Colors.WARNING;
+			}
+			else if (bean.isTransient() || createdBean) {
+				return CapColors.TRANSIENT_BEAN;
 			}
 			else if (bean.hasModifications()) {
 				return Colors.STRONG;
@@ -1021,14 +1052,14 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			final boolean hasMessages = bean != null && !EmptyCheck.isEmpty(bean.getMessages());
 
 			if (bean != null && hasMessages && IBeanProxy.META_PROPERTY_MESSAGES.equals(attribute.getPropertyName())) {
-				cellBuilder = createCellBuilder(rowIndex, columnIndex, bean);
+				cellBuilder = createCellBuilder(rowIndex, columnIndex, bean, false);
 			}
 			else {
 				cellBuilder = createDefaultCellBuilder(rowIndex, columnIndex);
 				if (hasMessages) {
 					final String message = bean.getFirstWorstMessage().getMessage();
 					cellBuilder.setText("---").setToolTipText(message);
-					cellBuilder.setForegroundColor(getCellForegroundColor(bean));
+					cellBuilder.setForegroundColor(getCellForegroundColor(bean, false));
 				}
 				else {
 					cellBuilder.setText("...").setToolTipText("Data will be loaded in background");
