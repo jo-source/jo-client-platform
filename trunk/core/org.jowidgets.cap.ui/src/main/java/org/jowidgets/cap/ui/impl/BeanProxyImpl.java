@@ -202,7 +202,20 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE> {
 		if (!isTransient && !this.beanDto.equals(beanDto)) {
 			throw new IllegalArgumentException("The given parameter 'beanDto' must have the same id and type than this proxy");
 		}
+		updateImpl(beanDto);
+	}
 
+	@Override
+	public void updateTransient(final IBeanDto beanDto) {
+		Assert.paramNotNull(beanDto, "beanDto");
+		if (!isTransient) {
+			throw new IllegalStateException("This bean is not transient");
+		}
+		setTransient(false);
+		updateImpl(beanDto);
+	}
+
+	private void updateImpl(final IBeanDto beanDto) {
 		final boolean oldModificationState = hasModifications();
 		final List<PropertyChangeEvent> propertyChangeEvents = getPropertyChangesForUpdate(beanDto);
 		this.beanDto = beanDto;

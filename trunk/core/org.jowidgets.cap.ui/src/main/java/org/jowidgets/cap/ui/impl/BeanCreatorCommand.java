@@ -58,6 +58,7 @@ import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
 import org.jowidgets.cap.ui.api.execution.BeanModificationStatePolicy;
 import org.jowidgets.cap.ui.api.execution.BeanSelectionPolicy;
+import org.jowidgets.cap.ui.api.execution.IExecutionInterceptor;
 import org.jowidgets.cap.ui.api.execution.IExecutionTask;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.widgets.IBeanDialog;
@@ -72,17 +73,12 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 	private static final int INITIAL_MIN_WIDTH = 450;
 
 	private final IBeanListModel<BEAN_TYPE> model;
-
 	private final IBeanFormBluePrint<BEAN_TYPE> beanFormBp;
-
 	private final ICreatorService creatorService;
-
-	@SuppressWarnings("unused")
 	private final IBeanExecptionConverter exceptionConverter;
-
 	private final BeanListModelEnabledChecker<BEAN_TYPE> enabledChecker;
 	private final IBeanProxyFactory<BEAN_TYPE> beanFactory;
-
+	private final List<IExecutionInterceptor> executionInterceptors;
 	private final Map<String, Object> defaultValues;
 	private final List<String> properties;
 
@@ -95,7 +91,8 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 		final List<IEnabledChecker> enabledCheckers,
 		final boolean anySelection,
 		final ICreatorService creatorService,
-		final IBeanExecptionConverter exceptionConverter) {
+		final IBeanExecptionConverter exceptionConverter,
+		final List<IExecutionInterceptor> executionInterceptors) {
 
 		Assert.paramNotNull(beanType, "beanType");
 		Assert.paramNotNull(model, "model");
@@ -105,6 +102,7 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 		Assert.paramNotNull(anySelection, "anySelection");
 		Assert.paramNotNull(creatorService, "creatorService");
 		Assert.paramNotNull(exceptionConverter, "exceptionConverter");
+		Assert.paramNotNull(executionInterceptors, "executionInterceptors");
 
 		this.enabledChecker = new BeanListModelEnabledChecker<BEAN_TYPE>(
 			model,
@@ -115,6 +113,7 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 			null,
 			true);
 
+		this.executionInterceptors = new LinkedList<IExecutionInterceptor>(executionInterceptors);
 		this.beanFactory = CapUiToolkit.beanProxyFactory(beanType);
 
 		this.model = model;
@@ -151,6 +150,13 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 
 	@Override
 	public void execute(final IExecutionContext executionContext) throws Exception {
+		for (final IExecutionInterceptor interceptor : executionInterceptors) {
+			final boolean continueExecution = interceptor.beforeExecution(executionContext);
+			if (!continueExecution) {
+				return;
+			}
+		}
+
 		final IBeanProxy<BEAN_TYPE> proxy = beanFactory.createTransientProxy(properties, defaultValues);
 
 		final IBeanDialogBluePrint<BEAN_TYPE> beanDialogBp = CapUiToolkit.bluePrintFactory().beanDialog(beanFormBp);
@@ -172,6 +178,10 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 		}
 		dialogBounds = dialog.getBounds();
 		dialog.dispose();
+
+		for (final IExecutionInterceptor interceptor : executionInterceptors) {
+			interceptor.afterExecution(executionContext);
+		}
 	}
 
 	private IBeanProxy<BEAN_TYPE> createUnmodifiedBean(final IBeanProxy<BEAN_TYPE> proxy) {
@@ -228,8 +238,7 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 			private void setResult(final List<IBeanDto> result) {
 				if (!EmptyCheck.isEmpty(result)) {
 					proxy.setExecutionTask(null);
-					proxy.update(result.get(0));
-					proxy.setTransient(false);
+					proxy.updateTransient(result.get(0));
 					model.fireBeansChanged();
 				}
 				else {
@@ -239,11 +248,18 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 
 			private void setException(final Throwable exception) {
 				proxy.setExecutionTask(null);
-				final IBeanMessageBuilder messageBuilder = CapUiToolkit.beanMessageBuilder(BeanMessageType.ERROR);
-				messageBuilder.setMessage("Object not created");
-				messageBuilder.setDescription("The object was not created");
-				messageBuilder.setException(exception);
-				proxy.addMessage(messageBuilder.build());
+				if (exception != null) {
+					final List<IBeanProxy<?>> beans = new LinkedList<IBeanProxy<?>>();
+					beans.add(proxy);
+					proxy.addMessage(exceptionConverter.convert(beans, proxy, exception));
+				}
+				else {
+					final IBeanMessageBuilder messageBuilder = CapUiToolkit.beanMessageBuilder(BeanMessageType.ERROR);
+					//TODO i18n
+					messageBuilder.setMessage("Object not created");
+					messageBuilder.setDescription("The object was not created");
+					proxy.addMessage(messageBuilder.build());
+				}
 				model.fireBeansChanged();
 			}
 		};

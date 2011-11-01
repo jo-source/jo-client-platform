@@ -35,6 +35,7 @@ import org.jowidgets.api.command.IEnabledChecker;
 import org.jowidgets.cap.common.api.service.ICreatorService;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.bean.IBeanExecptionConverter;
+import org.jowidgets.cap.ui.api.execution.IExecutionInterceptor;
 import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
 import org.jowidgets.common.image.IImageConstant;
 import org.jowidgets.common.types.Accelerator;
@@ -72,6 +73,8 @@ public interface ICreatorActionBuilder {
 	ICreatorActionBuilder addEnabledChecker(IEnabledChecker enabledChecker);
 
 	ICreatorActionBuilder setExceptionConverter(IBeanExecptionConverter exceptionConverter);
+
+	ICreatorActionBuilder addExecutionInterceptor(IExecutionInterceptor interceptor);
 
 	IAction build();
 

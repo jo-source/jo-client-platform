@@ -42,11 +42,13 @@ import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.bean.IBeanExecptionConverter;
 import org.jowidgets.cap.ui.api.command.ICreatorActionBuilder;
+import org.jowidgets.cap.ui.api.execution.IExecutionInterceptor;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
 import org.jowidgets.common.image.IImageConstant;
 import org.jowidgets.common.types.Accelerator;
 import org.jowidgets.common.types.Modifier;
+import org.jowidgets.common.types.VirtualKey;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.api.ServiceProvider;
 import org.jowidgets.service.tools.ServiceId;
@@ -59,6 +61,7 @@ final class CreatorActionBuilder<BEAN_TYPE> extends AbstractSingleUseBuilder<IAc
 	private final IBeanListModel<BEAN_TYPE> model;
 	private final IActionBuilder builder;
 	private final List<IEnabledChecker> enabledCheckers;
+	private final List<IExecutionInterceptor> executionInterceptors;
 	private boolean anySelection;
 
 	private ICreatorService creatorService;
@@ -73,12 +76,14 @@ final class CreatorActionBuilder<BEAN_TYPE> extends AbstractSingleUseBuilder<IAc
 		this.model = model;
 		this.builder = Toolkit.getActionBuilderFactory().create();
 		this.enabledCheckers = new LinkedList<IEnabledChecker>();
+		this.executionInterceptors = new LinkedList<IExecutionInterceptor>();
 		this.exceptionConverter = new DefaultBeanExceptionConverter();
 
 		this.anySelection = true;
 
 		builder.setText(Messages.getString("CreatorActionBuilder.create_data_set"));
 		builder.setToolTipText(Messages.getString("CreatorActionBuilder.create_data_set_tooltip"));
+		builder.setAccelerator(VirtualKey.N, Modifier.CTRL);
 		builder.setIcon(IconsSmall.ADD);
 	}
 
@@ -189,6 +194,13 @@ final class CreatorActionBuilder<BEAN_TYPE> extends AbstractSingleUseBuilder<IAc
 	}
 
 	@Override
+	public ICreatorActionBuilder addExecutionInterceptor(final IExecutionInterceptor interceptor) {
+		Assert.paramNotNull(interceptor, "interceptor");
+		executionInterceptors.add(interceptor);
+		return this;
+	}
+
+	@Override
 	public ICreatorActionBuilder setExceptionConverter(final IBeanExecptionConverter exceptionConverter) {
 		checkExhausted();
 		Assert.paramNotNull(exceptionConverter, "exceptionConverter");
@@ -205,7 +217,8 @@ final class CreatorActionBuilder<BEAN_TYPE> extends AbstractSingleUseBuilder<IAc
 			enabledCheckers,
 			anySelection,
 			creatorService,
-			exceptionConverter);
+			exceptionConverter,
+			executionInterceptors);
 		builder.setCommand((ICommand) command);
 		return builder.build();
 	}

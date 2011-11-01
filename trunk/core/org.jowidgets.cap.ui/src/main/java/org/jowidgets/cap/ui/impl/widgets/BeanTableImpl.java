@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.ui.impl.widgets;
 
+import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -52,6 +53,7 @@ import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.command.ICapActionFactory;
 import org.jowidgets.cap.ui.api.command.ICreatorActionBuilder;
 import org.jowidgets.cap.ui.api.command.IDeleterActionBuilder;
+import org.jowidgets.cap.ui.api.execution.IExecutionInterceptor;
 import org.jowidgets.cap.ui.api.filter.FilterType;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.sort.ISortModel;
@@ -214,11 +216,12 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 		final IKeyListener keyListener = new KeyAdapter() {
 			@Override
 			public void keyReleased(final IKeyEvent event) {
-				if (event.getModifier().contains(Modifier.CTRL)
-					&& event.getCharacter() != null
-					&& event.getVirtualKey() == VirtualKey.F) {
+				if (event.getModifier().contains(Modifier.CTRL) && event.getVirtualKey() == VirtualKey.F) {
 					setSearchFilterToolbarVisible(true);
 					searchFilterToolbar.requestSearchFocus();
+				}
+				if (creatorAction != null && event.getModifier().contains(Modifier.CTRL) && event.getVirtualKey() == VirtualKey.N) {
+					executeAction(creatorAction);
 				}
 			}
 		};
@@ -261,10 +264,60 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 			}
 		};
 		final ICapActionFactory actionFactory = CapUiToolkit.actionFactory();
-		final ICreatorActionBuilder creatorActionBuilder = actionFactory.creatorActionBuilder(model.getBeanType(), wrappedModel);
-		creatorActionBuilder.setCreatorService(model.getCreatorService());
-		creatorActionBuilder.setBeanForm(model.getAttributes(AcceptEditableAttributesFilter.getInstance()));
-		return creatorActionBuilder.build();
+		final ICreatorActionBuilder builder = actionFactory.creatorActionBuilder(model.getBeanType(), wrappedModel);
+		builder.setCreatorService(model.getCreatorService());
+		builder.setBeanForm(model.getAttributes(AcceptEditableAttributesFilter.getInstance()));
+		builder.addExecutionInterceptor(new IExecutionInterceptor() {
+			@Override
+			public boolean beforeExecution(final IExecutionContext executionContext) {
+				final int pageCount = model.getPageCount();
+				if (pageCount > 0 && !model.isPageLoaded(pageCount - 1)) {
+					model.loadPage(pageCount - 1);
+				}
+				return true;
+			}
+
+			@Override
+			public void afterExecution(final IExecutionContext executionContext) {}
+		});
+		return builder.build();
+	}
+
+	private void executeAction(final IAction action) {
+		final IExecutionContext executionContext = getExecutionContext(creatorAction);
+		try {
+			creatorAction.execute(executionContext);
+		}
+		catch (final Exception e) {
+			try {
+				action.getExceptionHandler().handleException(executionContext, e);
+			}
+			catch (final Exception e1) {
+				final UncaughtExceptionHandler uncaughtExceptionHandler = Thread.currentThread().getUncaughtExceptionHandler();
+				if (uncaughtExceptionHandler != null) {
+					uncaughtExceptionHandler.uncaughtException(Thread.currentThread(), e1);
+				}
+			}
+		}
+	}
+
+	private IExecutionContext getExecutionContext(final IAction action) {
+		return new IExecutionContext() {
+			@Override
+			public <VALUE_TYPE> VALUE_TYPE getValue(final ITypedKey<VALUE_TYPE> key) {
+				return null;
+			}
+
+			@Override
+			public IWidget getSource() {
+				return BeanTableImpl.this;
+			}
+
+			@Override
+			public IAction getAction() {
+				return action;
+			}
+		};
 	}
 
 	private IPopupMenu getHeaderPopupMenu(final Integer index) {
