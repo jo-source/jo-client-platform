@@ -255,9 +255,10 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 				}
 				else {
 					final IBeanMessageBuilder messageBuilder = CapUiToolkit.beanMessageBuilder(BeanMessageType.ERROR);
-					//TODO i18n
-					messageBuilder.setMessage("Object not created");
-					messageBuilder.setDescription("The object was not created");
+					final String message = Messages.getString("BeanCreatorCommand.object_not_created");
+					final String description = Messages.getString("BeanCreatorCommand.object_not_created_description");
+					messageBuilder.setMessage(message);
+					messageBuilder.setDescription(description);
 					proxy.addMessage(messageBuilder.build());
 				}
 				model.fireBeansChanged();

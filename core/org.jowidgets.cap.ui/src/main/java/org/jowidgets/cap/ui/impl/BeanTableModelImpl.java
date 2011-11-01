@@ -172,6 +172,9 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	private final Set<ILookUpListener> lookUpListenersStrongRef;
 	private final Map<Integer, PageLoader> programmaticPageLoader;
 
+	private final String userCanceledMessage;
+	private final String loadErrorMessage;
+
 	private PageLoader evenPageLoader;
 	private PageLoader oddPageLoader;
 	private CountLoader countLoader;
@@ -248,6 +251,8 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		this.beanListModelObservable = new BeanListModelObservable();
 		this.filterChangeObservable = new ChangeObservable();
 		this.programmaticPageLoader = new HashMap<Integer, PageLoader>();
+		this.userCanceledMessage = Messages.getString("BeanTableModelImpl.user_canceled");
+		this.loadErrorMessage = Messages.getString("BeanTableModelImpl.load_error");
 
 		//configure sort model
 		sortModel.setConfig(sortModelConfig);
@@ -1025,7 +1030,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 				}
 			}
 			else {
-				return converter.convertToString(value);
+				return converter.getDescription(value);
 			}
 		}
 
@@ -1533,8 +1538,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			dummyBeanProxy.setExecutionTask(null);
 			final IBeanMessageBuilder beanMessageBuilder = CapUiToolkit.beanMessageBuilder(BeanMessageType.ERROR);
 			beanMessageBuilder.setException(exception);
-			//TODO MG i18n
-			beanMessageBuilder.setMessage("Could not load data!");
+			beanMessageBuilder.setMessage(loadErrorMessage);
 			dummyBeanProxy.addMessage(beanMessageBuilder.build());
 			programmaticPageLoader.remove(pageIndex);
 			finished = true;
@@ -1566,8 +1570,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		private void userCanceled() {
 			dummyBeanProxy.setExecutionTask(null);
 			final IBeanMessageBuilder beanMessageBuilder = CapUiToolkit.beanMessageBuilder(BeanMessageType.WARNING);
-			//TODO MG i18n
-			beanMessageBuilder.setMessage("Data loading was canceled by user");
+			beanMessageBuilder.setMessage(userCanceledMessage);
 			dummyBeanProxy.addMessage(beanMessageBuilder.build());
 			programmaticPageLoader.remove(pageIndex);
 			finished = true;

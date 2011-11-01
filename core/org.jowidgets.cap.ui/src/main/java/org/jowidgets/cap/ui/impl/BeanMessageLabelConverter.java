@@ -40,6 +40,9 @@ final class BeanMessageLabelConverter implements IObjectLabelConverter<IBeanMess
 
 	@Override
 	public String getDescription(final IBeanMessage value) {
+		if (value != null) {
+			return value.getDescription();
+		}
 		return null;
 	}
 
