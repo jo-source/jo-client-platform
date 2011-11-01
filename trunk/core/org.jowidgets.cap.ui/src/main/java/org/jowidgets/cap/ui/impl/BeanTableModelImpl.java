@@ -940,7 +940,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 			//set style
 			cellBuilder.setForegroundColor(getCellForegroundColor(bean, createdBean));
-			cellBuilder.setMarkup(getCellMarkup(attribute, bean));
+			cellBuilder.setMarkup(getCellMarkup(attribute, bean, createdBean));
 
 			//set editable
 			cellBuilder.setEditable(isCellEditable(bean, attribute));
@@ -1022,7 +1022,10 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			}
 		}
 
-		private Markup getCellMarkup(final IAttribute<Object> attribute, final IBeanProxy<BEAN_TYPE> bean) {
+		private Markup getCellMarkup(
+			final IAttribute<Object> attribute,
+			final IBeanProxy<BEAN_TYPE> bean,
+			final boolean createdBean) {
 			if (bean.hasModifications()) {
 				if (bean.isModified(attribute.getPropertyName())) {
 					return Markup.STRONG;

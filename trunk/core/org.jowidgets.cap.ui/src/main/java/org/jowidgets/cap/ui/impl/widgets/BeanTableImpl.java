@@ -29,6 +29,7 @@
 package org.jowidgets.cap.ui.impl.widgets;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,6 +53,7 @@ import org.jowidgets.cap.ui.api.command.ICapActionFactory;
 import org.jowidgets.cap.ui.api.command.ICreatorActionBuilder;
 import org.jowidgets.cap.ui.api.command.IDeleterActionBuilder;
 import org.jowidgets.cap.ui.api.filter.FilterType;
+import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.sort.ISortModel;
 import org.jowidgets.cap.ui.api.table.IBeanTableConfig;
 import org.jowidgets.cap.ui.api.table.IBeanTableMenuFactory;
@@ -62,6 +64,7 @@ import org.jowidgets.cap.ui.api.widgets.IBeanTableSettingsDialog;
 import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
 import org.jowidgets.cap.ui.api.widgets.ITableMenuCreationInterceptor;
 import org.jowidgets.cap.ui.tools.attribute.AcceptEditableAttributesFilter;
+import org.jowidgets.cap.ui.tools.model.BeanListModelWrapper;
 import org.jowidgets.common.types.Dimension;
 import org.jowidgets.common.types.IVetoable;
 import org.jowidgets.common.types.Modifier;
@@ -112,6 +115,7 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 	private final boolean hasDefaultCreatorAction;
 	private final boolean hasDefaultDeleterAction;
 
+	private IAction creatorAction;
 	private IBeanTableSettingsDialog settingsDialog;
 	private ITableCellPopupEvent currentCellEvent;
 	private ITableColumnPopupEvent currentColumnEvent;
@@ -163,13 +167,11 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 
 			final ICapActionFactory actionFactory = CapUiToolkit.actionFactory();
 			if (hasDefaultCreatorAction && model.getCreatorService() != null) {
+				this.creatorAction = createCreatorAction(this);
 				if (hasDefaultMenus) {
 					tablePopupMenuModel.addSeparator();
 				}
-				final ICreatorActionBuilder creatorActionBuilder = actionFactory.creatorActionBuilder(model.getBeanType(), model);
-				creatorActionBuilder.setCreatorService(model.getCreatorService());
-				creatorActionBuilder.setBeanForm(model.getAttributes(AcceptEditableAttributesFilter.getInstance()));
-				tablePopupMenuModel.addAction(creatorActionBuilder.build());
+				tablePopupMenuModel.addAction(creatorAction);
 			}
 			if (hasDefaultDeleterAction && model.getDeleterService() != null) {
 				if (hasDefaultMenus && !hasDefaultCreatorAction) {
@@ -246,6 +248,23 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 
 		setSearchFilterToolbarVisible(bluePrint.isSearchFilterToolbarVisible());
 		setStatusBarVisible(true);
+	}
+
+	private static <BEAN_TYPE> IAction createCreatorAction(final IBeanTable<BEAN_TYPE> table) {
+		final IBeanTableModel<BEAN_TYPE> model = table.getModel();
+		final IBeanListModel<BEAN_TYPE> wrappedModel = new BeanListModelWrapper<BEAN_TYPE>(model) {
+			@Override
+			public void addBean(final IBeanProxy<BEAN_TYPE> bean) {
+				super.addBean(bean);
+				model.setSelection(Collections.singletonList(Integer.valueOf(model.getSize() - 1)));
+				table.showSelection();
+			}
+		};
+		final ICapActionFactory actionFactory = CapUiToolkit.actionFactory();
+		final ICreatorActionBuilder creatorActionBuilder = actionFactory.creatorActionBuilder(model.getBeanType(), wrappedModel);
+		creatorActionBuilder.setCreatorService(model.getCreatorService());
+		creatorActionBuilder.setBeanForm(model.getAttributes(AcceptEditableAttributesFilter.getInstance()));
+		return creatorActionBuilder.build();
 	}
 
 	private IPopupMenu getHeaderPopupMenu(final Integer index) {
@@ -331,10 +350,7 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 			if (hasDefaultMenus) {
 				menuModel.addSeparator();
 			}
-			final ICreatorActionBuilder creatorActionBuilder = actionFactory.creatorActionBuilder(model.getBeanType(), model);
-			creatorActionBuilder.setCreatorService(model.getCreatorService());
-			creatorActionBuilder.setBeanForm(model.getAttributes(AcceptEditableAttributesFilter.getInstance()));
-			menuModel.addAction(creatorActionBuilder.build());
+			menuModel.addAction(creatorAction);
 		}
 		if (hasDefaultDeleterAction && model.getDeleterService() != null) {
 			if (hasDefaultMenus && !hasDefaultCreatorAction) {
