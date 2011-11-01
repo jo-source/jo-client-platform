@@ -617,6 +617,11 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 	}
 
 	@Override
+	public void showSelection() {
+		table.showSelection();
+	}
+
+	@Override
 	public void pack(final TablePackPolicy policy) {
 		table.pack(policy);
 	}
