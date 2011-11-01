@@ -32,7 +32,8 @@ import org.jowidgets.common.color.IColorConstant;
 
 public enum CapColors implements IColorConstant {
 
-	MANDATORY_BACKGROUND(new ColorValue(248, 251, 217));
+	MANDATORY_BACKGROUND(new ColorValue(248, 251, 217)),
+	TRANSIENT_BEAN(new ColorValue(18, 97, 20));
 
 	private ColorValue colorValue;
 
