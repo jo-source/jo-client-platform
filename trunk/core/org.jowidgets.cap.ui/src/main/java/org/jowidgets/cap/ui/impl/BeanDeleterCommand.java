@@ -30,6 +30,7 @@ package org.jowidgets.cap.ui.impl;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.TimeoutException;
 
 import org.jowidgets.api.command.ICommand;
 import org.jowidgets.api.command.ICommandExecutor;
@@ -45,6 +46,7 @@ import org.jowidgets.cap.common.api.service.IDeleterService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.bean.IBeanExecptionConverter;
 import org.jowidgets.cap.ui.api.bean.IBeanKeyFactory;
+import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.execution.BeanExecutionPolicy;
 import org.jowidgets.cap.ui.api.execution.BeanMessageStatePolicy;
 import org.jowidgets.cap.ui.api.execution.BeanModificationStatePolicy;
@@ -56,7 +58,7 @@ import org.jowidgets.util.Assert;
 
 final class BeanDeleterCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
 
-	private final IBeanListModel<?> model;
+	private final IBeanListModel<BEAN_TYPE> model;
 
 	private final IDeleterService deleterService;
 
@@ -123,38 +125,55 @@ final class BeanDeleterCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 	@Override
 	public void execute(final IExecutionContext executionContext) throws Exception {
 		final IExecutionTask executionTask = CapUiToolkit.executionTaskFactory().create();
-		@SuppressWarnings("unused")
-		final IUiThreadAccess uiThreadAccess = Toolkit.getUiThreadAccess();
-		final IResultCallback<Void> resultCallback = new IResultCallback<Void>() {
-
-			@Override
-			public void finished(final Void result) {
-				//CHECKSTYLE:OFF
-				System.out.println("Deleted: ");
-				//TODO MG remove deleted from model
-				//CHECKSTYLE:ON
-			}
-
-			@Override
-			public void exception(final Throwable exception) {
-				//CHECKSTYLE:OFF
-				exception.printStackTrace();
-				//CHECKSTYLE:ON
-			}
-
-			@Override
-			public void timeout() {
-				//CHECKSTYLE:OFF
-				System.out.println("Timeout");
-				//CHECKSTYLE:ON
-			}
-		};
-
 		final List<IBeanKey> beanKeys = new LinkedList<IBeanKey>();
 		final IBeanKeyFactory beanKeyFactory = CapUiToolkit.beanKeyFactory();
+		final List<IBeanProxy<BEAN_TYPE>> beans = new LinkedList<IBeanProxy<BEAN_TYPE>>();
 		for (final Integer index : model.getSelection()) {
-			beanKeys.add(beanKeyFactory.createKey(model.getBean(index.intValue())));
+			final IBeanProxy<BEAN_TYPE> bean = model.getBean(index.intValue());
+			beanKeys.add(beanKeyFactory.createKey(bean));
+			beans.add(bean);
 		}
-		deleterService.delete(resultCallback, beanKeys, executionTask);
+		deleterService.delete(new ResultCallback(beans), beanKeys, executionTask);
+	}
+
+	private final class ResultCallback implements IResultCallback<Void> {
+
+		private final List<IBeanProxy<BEAN_TYPE>> beans;
+		private final IUiThreadAccess uiThreadAccess;
+
+		private ResultCallback(final List<IBeanProxy<BEAN_TYPE>> beans) {
+			this.beans = beans;
+			this.uiThreadAccess = Toolkit.getUiThreadAccess();
+		}
+
+		@Override
+		public void finished(final Void result) {
+			onSuccessLater();
+		}
+
+		@Override
+		public void exception(final Throwable exception) {
+			//CHECKSTYLE:OFF
+			exception.printStackTrace();
+			//CHECKSTYLE:ON
+		}
+
+		@Override
+		public void timeout() {
+			exception(new TimeoutException("Timeout while deleting data"));
+		}
+
+		private void onSuccessLater() {
+			uiThreadAccess.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					onSuccess();
+				}
+			});
+		}
+
+		private void onSuccess() {
+			model.removeBeans(beans);
+		}
 	}
 }

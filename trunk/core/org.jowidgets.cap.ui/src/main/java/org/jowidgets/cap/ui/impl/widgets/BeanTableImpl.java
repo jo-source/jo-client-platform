@@ -118,6 +118,7 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 	private final boolean hasDefaultDeleterAction;
 
 	private IAction creatorAction;
+	private IAction deleteAction;
 	private IBeanTableSettingsDialog settingsDialog;
 	private ITableCellPopupEvent currentCellEvent;
 	private ITableColumnPopupEvent currentColumnEvent;
@@ -176,12 +177,13 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 				tablePopupMenuModel.addAction(creatorAction);
 			}
 			if (hasDefaultDeleterAction && model.getDeleterService() != null) {
+				this.deleteAction = createDeleteAction(this);
 				if (hasDefaultMenus && !hasDefaultCreatorAction) {
 					tablePopupMenuModel.addSeparator();
 				}
 				final IDeleterActionBuilder<BEAN_TYPE> deleterActionBuilder = actionFactory.deleterActionBuilder(model);
 				deleterActionBuilder.setDeleterService(model.getDeleterService());
-				tablePopupMenuModel.addAction(deleterActionBuilder.build());
+				tablePopupMenuModel.addAction(deleteAction);
 			}
 			table.setPopupMenu(tablePopupMenuModel);
 		}
@@ -220,8 +222,13 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 					setSearchFilterToolbarVisible(true);
 					searchFilterToolbar.requestSearchFocus();
 				}
-				if (creatorAction != null && event.getModifier().contains(Modifier.CTRL) && event.getVirtualKey() == VirtualKey.N) {
+				else if (creatorAction != null
+					&& event.getModifier().contains(Modifier.CTRL)
+					&& event.getVirtualKey() == VirtualKey.N) {
 					executeAction(creatorAction);
+				}
+				else if (deleteAction != null && event.getVirtualKey() == VirtualKey.DELETE) {
+					executeAction(deleteAction);
 				}
 			}
 		};
@@ -283,10 +290,23 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 		return builder.build();
 	}
 
+	private static <BEAN_TYPE> IAction createDeleteAction(final IBeanTable<BEAN_TYPE> table) {
+		final IBeanTableModel<BEAN_TYPE> model = table.getModel();
+		final IBeanListModel<BEAN_TYPE> wrappedModel = new BeanListModelWrapper<BEAN_TYPE>(model) {
+
+		};
+		final ICapActionFactory actionFactory = CapUiToolkit.actionFactory();
+		final IDeleterActionBuilder<BEAN_TYPE> builder = actionFactory.deleterActionBuilder(wrappedModel);
+		builder.setDeleterService(model.getDeleterService());
+		return builder.build();
+	}
+
 	private void executeAction(final IAction action) {
-		final IExecutionContext executionContext = getExecutionContext(creatorAction);
+		final IExecutionContext executionContext = getExecutionContext(action);
 		try {
-			creatorAction.execute(executionContext);
+			if (action.isEnabled()) {
+				action.execute(executionContext);
+			}
 		}
 		catch (final Exception e) {
 			try {
@@ -398,7 +418,6 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 			menuModel = new MenuModel();
 		}
 
-		final ICapActionFactory actionFactory = CapUiToolkit.actionFactory();
 		if (hasDefaultCreatorAction && model.getCreatorService() != null) {
 			if (hasDefaultMenus) {
 				menuModel.addSeparator();
@@ -409,9 +428,7 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 			if (hasDefaultMenus && !hasDefaultCreatorAction) {
 				menuModel.addSeparator();
 			}
-			final IDeleterActionBuilder<BEAN_TYPE> deleterActionBuilder = actionFactory.deleterActionBuilder(model);
-			deleterActionBuilder.setDeleterService(model.getDeleterService());
-			menuModel.addAction(deleterActionBuilder.build());
+			menuModel.addAction(deleteAction);
 		}
 
 		if (cellMenuInterceptor != null) {
