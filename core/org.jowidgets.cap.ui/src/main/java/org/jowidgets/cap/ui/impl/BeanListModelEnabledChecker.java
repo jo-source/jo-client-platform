@@ -70,6 +70,7 @@ final class BeanListModelEnabledChecker<BEAN_TYPE> extends ChangeObservable impl
 	private final BeanSelectionPolicy beanSelectionPolicy;
 	private final BeanModificationStatePolicy beanModificationStatePolicy;
 	private final BeanMessageStatePolicy beanMessageStatePolicy;
+	private final boolean ignoreSelectedBeansState;
 
 	private List<IBeanProxy> lastSelection;
 
@@ -78,17 +79,9 @@ final class BeanListModelEnabledChecker<BEAN_TYPE> extends ChangeObservable impl
 		final BeanSelectionPolicy beanSelectionPolicy,
 		final BeanModificationStatePolicy beanModificationStatePolicy,
 		final BeanMessageStatePolicy beanMessageStatePolicy,
-		final List<IEnabledChecker> enabledCheckers) {
-		this(listModel, beanSelectionPolicy, beanModificationStatePolicy, beanMessageStatePolicy, enabledCheckers, null);
-	}
-
-	BeanListModelEnabledChecker(
-		final IBeanListModel<BEAN_TYPE> listModel,
-		final BeanSelectionPolicy beanSelectionPolicy,
-		final BeanModificationStatePolicy beanModificationStatePolicy,
-		final BeanMessageStatePolicy beanMessageStatePolicy,
 		final List<IEnabledChecker> enabledCheckers,
-		final List<IExecutableChecker<BEAN_TYPE>> executableCheckers) {
+		final List<IExecutableChecker<BEAN_TYPE>> executableCheckers,
+		final boolean ignoreSelectedBeansState) {
 		super();
 		Assert.paramNotNull(listModel, "listModel");
 		Assert.paramNotNull(beanSelectionPolicy, "beanSelectionPolicy");
@@ -106,6 +99,7 @@ final class BeanListModelEnabledChecker<BEAN_TYPE> extends ChangeObservable impl
 		else {
 			this.executableCheckers = Collections.emptyList();
 		}
+		this.ignoreSelectedBeansState = ignoreSelectedBeansState;
 
 		this.lastSelection = getSelectedBeans();
 
@@ -154,20 +148,22 @@ final class BeanListModelEnabledChecker<BEAN_TYPE> extends ChangeObservable impl
 			@Override
 			public void selectionChanged() {
 
-				for (final IBeanProxy bean : lastSelection) {
-					bean.removeProcessStateListener(processStateListener);
-					bean.removePropertyChangeListener(propertyChangeListener);
-					bean.removeModificationStateListener(modificationStateListener);
-					bean.removeMessageStateListener(messageStateListener);
-				}
-
 				final List<IBeanProxy> selectedBeans = getSelectedBeans();
 
-				for (final IBeanProxy bean : selectedBeans) {
-					bean.addProcessStateListener(processStateListener);
-					bean.addPropertyChangeListener(propertyChangeListener);
-					bean.addModificationStateListener(modificationStateListener);
-					bean.addMessageStateListener(messageStateListener);
+				if (!ignoreSelectedBeansState) {
+					for (final IBeanProxy bean : lastSelection) {
+						bean.removeProcessStateListener(processStateListener);
+						bean.removePropertyChangeListener(propertyChangeListener);
+						bean.removeModificationStateListener(modificationStateListener);
+						bean.removeMessageStateListener(messageStateListener);
+					}
+
+					for (final IBeanProxy bean : selectedBeans) {
+						bean.addProcessStateListener(processStateListener);
+						bean.addPropertyChangeListener(propertyChangeListener);
+						bean.addModificationStateListener(modificationStateListener);
+						bean.addMessageStateListener(messageStateListener);
+					}
 				}
 
 				lastSelection = selectedBeans;
@@ -198,45 +194,47 @@ final class BeanListModelEnabledChecker<BEAN_TYPE> extends ChangeObservable impl
 				return result;
 			}
 		}
-		for (final IBeanProxy bean : lastSelection) {
-			final IBeanMessage worstMessage = bean.getFirstWorstMessage();
-			final IBeanMessage worstMandatoryMessage = bean.getFirstWorstMandatoryMessage();
-			if (bean.getExecutionTask() != null) {
-				return IS_IN_PROCESS_STATE;
-			}
-			else if (BeanMessageStatePolicy.NO_MESSAGE == beanMessageStatePolicy && worstMessage != null) {
-				return UNHANDLED_MESSAGES_STATE;
-			}
-			else if (BeanMessageStatePolicy.NO_MESSAGE_MANDATORY == beanMessageStatePolicy && worstMandatoryMessage != null) {
-				return UNHANDLED_MESSAGES_STATE;
-			}
-			else if (BeanModificationStatePolicy.NO_MODIFICATION == beanModificationStatePolicy && bean.hasModifications()) {
-				return UNSAVED_DATA_STATE;
-			}
-			else if (BeanMessageStatePolicy.NO_WARNING_OR_ERROR == beanMessageStatePolicy
-				&& worstMessage != null
-				&& worstMessage.getType().equalOrWorse(BeanMessageType.WARNING)) {
-				return UNHANDLED_MESSAGES_STATE;
-			}
-			else if (BeanMessageStatePolicy.NO_WARNING_OR_ERROR_MANDATORY == beanMessageStatePolicy
-				&& worstMandatoryMessage != null
-				&& worstMandatoryMessage.getType().equalOrWorse(BeanMessageType.WARNING)) {
-				return UNHANDLED_MESSAGES_STATE;
-			}
-			else if (BeanMessageStatePolicy.NO_ERROR == beanMessageStatePolicy
-				&& worstMessage != null
-				&& worstMessage.getType() == BeanMessageType.ERROR) {
-				return UNHANDLED_MESSAGES_STATE;
-			}
-			else if (BeanMessageStatePolicy.NO_ERROR_MANDATORY == beanMessageStatePolicy
-				&& worstMandatoryMessage != null
-				&& worstMandatoryMessage.getType() == BeanMessageType.ERROR) {
-				return UNHANDLED_MESSAGES_STATE;
-			}
-			for (final IExecutableChecker executableChecker : executableCheckers) {
-				final IExecutableState result = executableChecker.getExecutableState(bean.getBean());
-				if (!result.isExecutable()) {
-					return EnabledState.disabled(result.getReason());
+		if (!ignoreSelectedBeansState) {
+			for (final IBeanProxy bean : lastSelection) {
+				final IBeanMessage worstMessage = bean.getFirstWorstMessage();
+				final IBeanMessage worstMandatoryMessage = bean.getFirstWorstMandatoryMessage();
+				if (bean.getExecutionTask() != null) {
+					return IS_IN_PROCESS_STATE;
+				}
+				else if (BeanMessageStatePolicy.NO_MESSAGE == beanMessageStatePolicy && worstMessage != null) {
+					return UNHANDLED_MESSAGES_STATE;
+				}
+				else if (BeanMessageStatePolicy.NO_MESSAGE_MANDATORY == beanMessageStatePolicy && worstMandatoryMessage != null) {
+					return UNHANDLED_MESSAGES_STATE;
+				}
+				else if (BeanModificationStatePolicy.NO_MODIFICATION == beanModificationStatePolicy && bean.hasModifications()) {
+					return UNSAVED_DATA_STATE;
+				}
+				else if (BeanMessageStatePolicy.NO_WARNING_OR_ERROR == beanMessageStatePolicy
+					&& worstMessage != null
+					&& worstMessage.getType().equalOrWorse(BeanMessageType.WARNING)) {
+					return UNHANDLED_MESSAGES_STATE;
+				}
+				else if (BeanMessageStatePolicy.NO_WARNING_OR_ERROR_MANDATORY == beanMessageStatePolicy
+					&& worstMandatoryMessage != null
+					&& worstMandatoryMessage.getType().equalOrWorse(BeanMessageType.WARNING)) {
+					return UNHANDLED_MESSAGES_STATE;
+				}
+				else if (BeanMessageStatePolicy.NO_ERROR == beanMessageStatePolicy
+					&& worstMessage != null
+					&& worstMessage.getType() == BeanMessageType.ERROR) {
+					return UNHANDLED_MESSAGES_STATE;
+				}
+				else if (BeanMessageStatePolicy.NO_ERROR_MANDATORY == beanMessageStatePolicy
+					&& worstMandatoryMessage != null
+					&& worstMandatoryMessage.getType() == BeanMessageType.ERROR) {
+					return UNHANDLED_MESSAGES_STATE;
+				}
+				for (final IExecutableChecker executableChecker : executableCheckers) {
+					final IExecutableState result = executableChecker.getExecutableState(bean.getBean());
+					if (!result.isExecutable()) {
+						return EnabledState.disabled(result.getReason());
+					}
 				}
 			}
 		}

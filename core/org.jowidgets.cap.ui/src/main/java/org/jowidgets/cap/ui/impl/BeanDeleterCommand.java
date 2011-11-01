@@ -95,7 +95,8 @@ final class BeanDeleterCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 			beanModificationStatePolicy,
 			beanMessageStatePolicy,
 			enabledCheckers,
-			executableCheckers);
+			executableCheckers,
+			false);
 
 		this.model = model;
 		this.deleterService = deleterService;
