@@ -208,7 +208,7 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 				control.setEnabled(!bean.hasExecution() && !bean.hasErrors());
 				if (mandatoryBackgroundColor != null && attribute.isMandatory() && attribute.isEditable()) {
 					if (bean.hasExecution() || bean.hasErrors()) {
-						control.setBackgroundColor(backgroundColors.get(propertyName));
+						control.setBackgroundColor(null);
 					}
 					else {
 						control.setBackgroundColor(mandatoryBackgroundColor);

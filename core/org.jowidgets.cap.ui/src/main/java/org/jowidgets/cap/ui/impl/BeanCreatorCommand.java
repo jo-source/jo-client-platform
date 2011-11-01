@@ -33,6 +33,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeoutException;
 
 import org.jowidgets.api.command.ICommand;
 import org.jowidgets.api.command.ICommandExecutor;
@@ -184,9 +185,7 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 		final IExecutionTask executionTask = CapUiToolkit.executionTaskFactory().create();
 		proxy.setExecutionTask(executionTask);
 
-		//add bean to the model
 		model.addBean(proxy);
-		model.setSelection(Collections.singletonList(Integer.valueOf(model.getSize() - 1)));
 
 		final IBeanData beanData = createBeanData(proxy);
 		final List<IBeanData> data = Collections.singletonList(beanData);
@@ -195,48 +194,57 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 
 			@Override
 			public void finished(final List<IBeanDto> result) {
-				if (!EmptyCheck.isEmpty(result)) {
-					uiThreadAccess.invokeLater(new Runnable() {
-						@Override
-						public void run() {
-							proxy.setExecutionTask(null);
-							proxy.update(result.get(0));
-							proxy.setTransient(false);
-							model.fireBeansChanged();
-						}
-					});
-					//CHECKSTYLE:OFF
-					System.out.println("Created: " + result);
-					//CHECKSTYLE:ON
-				}
-				else {
-					uiThreadAccess.invokeLater(new Runnable() {
-						@Override
-						public void run() {
-							proxy.setExecutionTask(null);
-							final IBeanMessageBuilder messageBuilder = CapUiToolkit.beanMessageBuilder(BeanMessageType.ERROR);
-							messageBuilder.setMessage("Object not created");
-							messageBuilder.setDescription("The object was not created");
-							proxy.addMessage(messageBuilder.build());
-							model.fireBeansChanged();
-						}
-					});
-				}
-
+				setResultLater(result);
 			}
 
 			@Override
 			public void exception(final Throwable exception) {
-				//CHECKSTYLE:OFF
-				exception.printStackTrace();
-				//CHECKSTYLE:ON
+				setExceptionLater(exception);
 			}
 
 			@Override
 			public void timeout() {
-				//CHECKSTYLE:OFF
-				System.out.println("Timeout");
-				//CHECKSTYLE:ON
+				exception(new TimeoutException("Timeout while creating bean"));
+			}
+
+			private void setExceptionLater(final Throwable exception) {
+				uiThreadAccess.invokeLater(new Runnable() {
+					@Override
+					public void run() {
+						setException(exception);
+					}
+				});
+			}
+
+			private void setResultLater(final List<IBeanDto> result) {
+				uiThreadAccess.invokeLater(new Runnable() {
+					@Override
+					public void run() {
+						setResult(result);
+					}
+				});
+			}
+
+			private void setResult(final List<IBeanDto> result) {
+				if (!EmptyCheck.isEmpty(result)) {
+					proxy.setExecutionTask(null);
+					proxy.update(result.get(0));
+					proxy.setTransient(false);
+					model.fireBeansChanged();
+				}
+				else {
+					setException(null);
+				}
+			}
+
+			private void setException(final Throwable exception) {
+				proxy.setExecutionTask(null);
+				final IBeanMessageBuilder messageBuilder = CapUiToolkit.beanMessageBuilder(BeanMessageType.ERROR);
+				messageBuilder.setMessage("Object not created");
+				messageBuilder.setDescription("The object was not created");
+				messageBuilder.setException(exception);
+				proxy.addMessage(messageBuilder.build());
+				model.fireBeansChanged();
 			}
 		};
 		creatorService.create(resultCallback, data, executionTask);
