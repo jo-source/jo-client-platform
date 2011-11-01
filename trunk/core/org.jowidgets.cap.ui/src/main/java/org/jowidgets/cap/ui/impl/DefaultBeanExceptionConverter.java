@@ -41,6 +41,7 @@ import org.jowidgets.cap.ui.api.bean.IBeanMessage;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 
 //TODO MG implement better converter
+//TODO i18n
 final class DefaultBeanExceptionConverter implements IBeanExecptionConverter {
 
 	@Override
