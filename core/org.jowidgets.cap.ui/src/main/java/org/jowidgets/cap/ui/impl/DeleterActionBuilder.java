@@ -49,6 +49,7 @@ import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.common.image.IImageConstant;
 import org.jowidgets.common.types.Accelerator;
 import org.jowidgets.common.types.Modifier;
+import org.jowidgets.common.types.VirtualKey;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.api.ServiceProvider;
 import org.jowidgets.service.tools.ServiceId;
@@ -88,6 +89,7 @@ final class DeleterActionBuilder<BEAN_TYPE> extends AbstractSingleUseBuilder<IAc
 
 		builder.setText(Messages.getString("DeleterActionBuilder.delete_data_set"));
 		builder.setToolTipText(Messages.getString("DeleterActionBuilder.delete_data_set_tooltip"));
+		builder.setAccelerator(VirtualKey.DELETE);
 		builder.setIcon(IconsSmall.DELETE);
 	}
 

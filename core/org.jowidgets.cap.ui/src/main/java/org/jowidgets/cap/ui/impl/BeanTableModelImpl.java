@@ -143,7 +143,6 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 	private final Map<Integer, ArrayList<IBeanProxy<BEAN_TYPE>>> data;
 	private final ArrayList<IBeanProxy<BEAN_TYPE>> addedData;
-	private final Set<IBeanProxy<BEAN_TYPE>> addedDataSet;
 
 	private final IBeanProxyFactory<BEAN_TYPE> beanProxyFactory;
 	private final IBeansStateTracker<BEAN_TYPE> beansStateTracker;
@@ -240,7 +239,6 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		this.filters = new HashMap<String, IUiFilter>();
 		this.data = new HashMap<Integer, ArrayList<IBeanProxy<BEAN_TYPE>>>();
 		this.addedData = new ArrayList<IBeanProxy<BEAN_TYPE>>();
-		this.addedDataSet = new HashSet<IBeanProxy<BEAN_TYPE>>();
 		this.sortModel = new SortModelImpl();
 		this.dataCleared = true;
 		this.pageSize = DEFAULT_PAGE_SIZE;
@@ -430,7 +428,6 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		dataCleared = true;
 		data.clear();
 		addedData.clear();
-		addedDataSet.clear();
 		beansStateTracker.clearAll();
 		dataModel.fireDataChanged();
 	}
@@ -449,7 +446,6 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		maxPageIndex = 0;
 		data.clear();
 		addedData.clear();
-		addedDataSet.clear();
 		countedRowCount = null;
 		countLoader = new CountLoader();
 		countLoader.loadCount();
@@ -647,13 +643,73 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		Assert.paramNotNull(bean, "bean");
 		beansStateTracker.register(bean);
 		addedData.add(bean);
-		addedDataSet.add(bean);
 		fireBeansChanged();
 	}
 
 	@Override
-	public void removeBeans(final List<Integer> indices) {
-		// TODO MG implement removeBeans
+	public void removeBeans(final Collection<? extends IBeanProxy<BEAN_TYPE>> beans) {
+		Assert.paramNotNull(beans, "beans");
+
+		Set<IBeanProxy<BEAN_TYPE>> beansToDelete = new HashSet<IBeanProxy<BEAN_TYPE>>(beans);
+
+		final List<Integer> selection = new LinkedList<Integer>(getSelection());
+		boolean selectionChanged = false;
+
+		for (final Entry<Integer, ArrayList<IBeanProxy<BEAN_TYPE>>> pageEntry : data.entrySet()) {
+			if (beansToDelete.isEmpty()) {
+				break;
+			}
+			final int pageIndex = pageEntry.getKey().intValue();
+			final boolean lastPage = getPage(dataModel.getDataRowCount() - 1) == pageIndex;
+			boolean removedSomething = false;
+			final ArrayList<IBeanProxy<BEAN_TYPE>> newPage = new ArrayList<IBeanProxy<BEAN_TYPE>>();
+			int relativeIndex = 0;
+			for (final IBeanProxy<BEAN_TYPE> bean : pageEntry.getValue()) {
+				final boolean removed = beansToDelete.remove(bean);
+				removedSomething = removed || removedSomething;
+				if (removed) {
+					final Integer removedIndex = (pageIndex * pageSize) + relativeIndex;
+					selectionChanged = selection.remove(removedIndex) || selectionChanged;
+					beansStateTracker.unregister(bean);
+					if (lastPage) {
+						rowCount--;
+						if (countedRowCount != null) {
+							countedRowCount = Integer.valueOf(countedRowCount.intValue() - 1);
+						}
+					}
+				}
+				else {
+					newPage.add(bean);
+				}
+				relativeIndex++;
+			}
+			if (removedSomething) {
+				data.put(pageEntry.getKey(), newPage);
+			}
+		}
+
+		//now remove the beans from the added beans 
+		//remark that added beans could be exists twice in the model, so reset the beansToDelete set
+		beansToDelete = new HashSet<IBeanProxy<BEAN_TYPE>>(beans);
+		int relativeIndex = 0;
+		for (final IBeanProxy<BEAN_TYPE> addedBean : new LinkedList<IBeanProxy<BEAN_TYPE>>(addedData)) {
+			if (beansToDelete.isEmpty()) {
+				break;
+			}
+			final boolean removed = beansToDelete.remove(addedBean);
+			if (removed) {
+				addedData.remove(addedBean);
+				final Integer removedIndex = dataModel.getDataRowCount() + relativeIndex;
+				selectionChanged = selection.remove(removedIndex) || selectionChanged;
+				beansStateTracker.unregister(addedBean);
+			}
+			relativeIndex++;
+		}
+
+		if (selectionChanged) {
+			setSelection(selection);
+		}
+		fireBeansChanged();
 	}
 
 	@Override
@@ -939,26 +995,34 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 		private IBeanProxy<BEAN_TYPE> getBean(final int rowIndex) {
 			if ((countedRowCount != null && rowIndex >= countedRowCount) && rowIndex >= rowCount) {
-				final int dataRowCount = getDataRowCount();
-				final int createdIndex = rowIndex - dataRowCount;
-				if (createdIndex < addedData.size()) {
-					return addedData.get(createdIndex);
-				}
-				else {
-					return null;
-				}
+				return getBeanFromAddedData(rowIndex);
 			}
 			else {
-				final int pageIndex = getPage(rowIndex);
-				final ArrayList<IBeanProxy<BEAN_TYPE>> page = data.get(Integer.valueOf(pageIndex));
-				final int startIndex = pageIndex * pageSize;
-				final int index = rowIndex - startIndex;
-				if (page != null && index >= 0 && index < page.size()) {
-					return page.get(index);
-				}
-				else {
-					return null;
-				}
+				return getBeanFromPages(rowIndex);
+			}
+		}
+
+		private IBeanProxy<BEAN_TYPE> getBeanFromAddedData(final int rowIndex) {
+			final int dataRowCount = getDataRowCount();
+			final int createdIndex = rowIndex - dataRowCount;
+			if (createdIndex < addedData.size()) {
+				return addedData.get(createdIndex);
+			}
+			else {
+				return null;
+			}
+		}
+
+		private IBeanProxy<BEAN_TYPE> getBeanFromPages(final int rowIndex) {
+			final int pageIndex = getPage(rowIndex);
+			final ArrayList<IBeanProxy<BEAN_TYPE>> page = data.get(Integer.valueOf(pageIndex));
+			final int startIndex = pageIndex * pageSize;
+			final int index = rowIndex - startIndex;
+			if (page != null && index >= 0 && index < page.size()) {
+				return page.get(index);
+			}
+			else {
+				return null;
 			}
 		}
 
