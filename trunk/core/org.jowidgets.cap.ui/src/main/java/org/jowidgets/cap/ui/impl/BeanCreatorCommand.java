@@ -111,7 +111,9 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 			anySelection ? BeanSelectionPolicy.ANY_SELECTION : BeanSelectionPolicy.NO_SELECTION,
 			BeanModificationStatePolicy.ANY_MODIFICATION,
 			null,
-			enabledCheckers);
+			enabledCheckers,
+			null,
+			true);
 
 		this.beanFactory = CapUiToolkit.beanProxyFactory(beanType);
 

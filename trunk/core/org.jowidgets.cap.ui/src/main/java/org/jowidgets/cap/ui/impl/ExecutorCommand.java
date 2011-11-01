@@ -96,7 +96,8 @@ final class ExecutorCommand implements ICommand, ICommandExecutor {
 			beanModificationStatePolicy,
 			beanMessageStatePolicy,
 			enabledCheckers,
-			executableCheckers);
+			executableCheckers,
+			false);
 
 		this.listModel = listModel;
 		this.beanListExecutionPolicy = beanListExecutionPolicy;
