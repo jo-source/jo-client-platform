@@ -278,7 +278,12 @@ public final class CapUiToolkit {
 						final IDecorator<IValidationResult> createModeValidationDecorator = new IDecorator<IValidationResult>() {
 							@Override
 							public IValidationResult decorate(final IValidationResult original) {
-								return original;
+								if (!original.isValid()) {
+									return original;
+								}
+								else {
+									return null;
+								}
 							}
 						};
 						createModeValidationLabel.setInitialValidationDecorator(createModeValidationDecorator);

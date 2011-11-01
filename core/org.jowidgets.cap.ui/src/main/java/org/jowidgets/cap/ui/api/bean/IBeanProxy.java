@@ -66,6 +66,16 @@ public interface IBeanProxy<BEAN_TYPE> extends
 
 	void update(IBeanDto beanDto);
 
+	/**
+	 * Updates a transient bean. The transient state will set to false
+	 * and the bean will be updated.
+	 * 
+	 * @param beanDto The bean to update
+	 * 
+	 * @throws IllegalStateException if this bean is not transient
+	 */
+	void updateTransient(IBeanDto beanDto);
+
 	Collection<IBeanModification> getModifications();
 
 	boolean hasModifications();

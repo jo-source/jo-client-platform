@@ -60,6 +60,7 @@ import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.bean.IBeanModification;
+import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IExecutionCallbackListener;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.filter.BooleanOperator;
@@ -131,6 +132,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	private static final int LISTENER_DELAY = 100;
 	private static final int INNER_PAGE_LOAD_DELAY = 100;
 	private static final Object DUMMY_ID = new Object() {};
+	private static final IResultCallback<Void> DUMMY_PAGE_LOAD_RESULT_CALLBACK = new DummyPageLoadResultCallback();
 
 	private final Object entityId;
 	private final Class<BEAN_TYPE> beanType;
@@ -140,7 +142,8 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	private final ISortModel sortModel;
 
 	private final Map<Integer, ArrayList<IBeanProxy<BEAN_TYPE>>> data;
-	private final ArrayList<IBeanProxy<BEAN_TYPE>> createdData;
+	private final ArrayList<IBeanProxy<BEAN_TYPE>> addedData;
+	private final Set<IBeanProxy<BEAN_TYPE>> addedDataSet;
 
 	private final IBeanProxyFactory<BEAN_TYPE> beanProxyFactory;
 	private final IBeansStateTracker<BEAN_TYPE> beansStateTracker;
@@ -167,6 +170,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	private final ITableModel tableModel;
 
 	private final Set<ILookUpListener> lookUpListenersStrongRef;
+	private final Map<Integer, PageLoader> programmaticPageLoader;
 
 	private PageLoader evenPageLoader;
 	private PageLoader oddPageLoader;
@@ -232,7 +236,8 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		this.propertyNames = createPropertyNames(attributes);
 		this.filters = new HashMap<String, IUiFilter>();
 		this.data = new HashMap<Integer, ArrayList<IBeanProxy<BEAN_TYPE>>>();
-		this.createdData = new ArrayList<IBeanProxy<BEAN_TYPE>>();
+		this.addedData = new ArrayList<IBeanProxy<BEAN_TYPE>>();
+		this.addedDataSet = new HashSet<IBeanProxy<BEAN_TYPE>>();
 		this.sortModel = new SortModelImpl();
 		this.dataCleared = true;
 		this.pageSize = DEFAULT_PAGE_SIZE;
@@ -242,6 +247,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		this.beanProxyFactory = CapUiToolkit.beanProxyFactory(beanType);
 		this.beanListModelObservable = new BeanListModelObservable();
 		this.filterChangeObservable = new ChangeObservable();
+		this.programmaticPageLoader = new HashMap<Integer, PageLoader>();
 
 		//configure sort model
 		sortModel.setConfig(sortModelConfig);
@@ -418,7 +424,8 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		maxPageIndex = 0;
 		dataCleared = true;
 		data.clear();
-		createdData.clear();
+		addedData.clear();
+		addedDataSet.clear();
 		beansStateTracker.clearAll();
 		dataModel.fireDataChanged();
 	}
@@ -436,7 +443,8 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		dataCleared = false;
 		maxPageIndex = 0;
 		data.clear();
-		createdData.clear();
+		addedData.clear();
+		addedDataSet.clear();
 		countedRowCount = null;
 		countLoader = new CountLoader();
 		countLoader.loadCount();
@@ -444,23 +452,58 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		dataModel.fireDataChanged();
 	}
 
-	private void loadPage(final int pageIndex) {
+	@Override
+	public int getPageCount() {
+		return (getSize() / pageSize) + 1;
+	}
+
+	@Override
+	public boolean isPageLoaded(final int page) {
+		return data.get(Integer.valueOf(page)) != null;
+	}
+
+	@Override
+	public void loadPage(final int page) {
+		loadPage(DUMMY_PAGE_LOAD_RESULT_CALLBACK, page, CapUiToolkit.executionTaskFactory().create());
+	}
+
+	@Override
+	public void loadPage(final IResultCallback<Void> resultCallback, final int page, final IExecutionCallback executionCallback) {
+		final PageLoader pageLoader = new PageLoader(page, resultCallback);
+		programmaticPageLoader.put(Integer.valueOf(page), pageLoader);
+		pageLoader.loadPage();
+	}
+
+	private void loadEvenOddPage(final int pageIndex) {
 		final boolean even = pageIndex % 2 == 0;
+		tryToCancelProgrammaticPageLoader(pageIndex);
 		if (even) {
 			tryToCancelPageLoader(evenPageLoader);
-			evenPageLoader = new PageLoader(pageIndex);
+			evenPageLoader = new PageLoader(pageIndex, null);
 			evenPageLoader.loadPage();
 		}
 		else {
 			tryToCancelPageLoader(oddPageLoader);
-			oddPageLoader = new PageLoader(pageIndex);
+			oddPageLoader = new PageLoader(pageIndex, null);
 			oddPageLoader.loadPage();
 		}
 	}
 
 	private void tryToCancelLoader() {
+		tryToCancelProgrammaticPageLoader();
 		tryToCancelCountLoader();
 		tryToCancelPageLoader();
+	}
+
+	private void tryToCancelProgrammaticPageLoader() {
+		for (final PageLoader pageLoader : programmaticPageLoader.values()) {
+			tryToCancelPageLoader(pageLoader);
+		}
+		programmaticPageLoader.clear();
+	}
+
+	private void tryToCancelProgrammaticPageLoader(final int page) {
+		tryToCancelPageLoader(programmaticPageLoader.remove(page));
 	}
 
 	private void tryToCancelPageLoader() {
@@ -598,7 +641,8 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	public void addBean(final IBeanProxy<BEAN_TYPE> bean) {
 		Assert.paramNotNull(bean, "bean");
 		beansStateTracker.register(bean);
-		createdData.add(bean);
+		addedData.add(bean);
+		addedDataSet.add(bean);
 		fireBeansChanged();
 	}
 
@@ -839,7 +883,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 		@Override
 		public int getRowCount() {
-			return getDataRowCount() + createdData.size();
+			return getDataRowCount() + addedData.size();
 		}
 
 		private int getDataRowCount() {
@@ -871,7 +915,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 				}
 			}
 			else if (page == null) {
-				loadPage(pageIndex);
+				loadEvenOddPage(pageIndex);
 				return createDummyCell(rowIndex, columnIndex, null, attribute);
 			}
 			else {
@@ -892,8 +936,8 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			if ((countedRowCount != null && rowIndex >= countedRowCount) && rowIndex >= rowCount) {
 				final int dataRowCount = getDataRowCount();
 				final int createdIndex = rowIndex - dataRowCount;
-				if (createdIndex < createdData.size()) {
-					return createdData.get(createdIndex);
+				if (createdIndex < addedData.size()) {
+					return addedData.get(createdIndex);
 				}
 				else {
 					return null;
@@ -1276,6 +1320,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		private final int pageIndex;
 		private final IUiThreadAccess uiThreadAccess;
 		private final IFilter filter;
+		private final IResultCallback<Void> resultCallback;
 
 		private Object parameter;
 		private boolean canceled;
@@ -1286,10 +1331,11 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		private IBeanProxy<BEAN_TYPE> dummyBeanProxy;
 		private ScheduledFuture<?> schedule;
 
-		PageLoader(final int pageIndex) {
+		PageLoader(final int pageIndex, final IResultCallback<Void> resultCallback) {
 			this.pageIndex = pageIndex;
 			this.uiThreadAccess = Toolkit.getUiThreadAccess();
 			this.filter = getFilter();
+			this.resultCallback = resultCallback;
 		}
 
 		void loadPage() {
@@ -1391,10 +1437,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 				@Override
 				public void finished(final List<IBeanDto> beanDtos) {
-					if (canceled || executionTask.isCanceled()) {
-						removePageLater();
-					}
-					else {
+					if (!canceled && !executionTask.isCanceled()) {
 						setResultLater(beanDtos);
 					}
 				}
@@ -1467,7 +1510,11 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			dataModel.fireDataChanged();
 			beanListModelObservable.fireBeansChanged();
 
+			programmaticPageLoader.remove(pageIndex);
+
 			finished = true;
+
+			doCallbackSuccess();
 		}
 
 		private void setExceptionLater(final Throwable exception) {
@@ -1489,17 +1536,10 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			//TODO MG i18n
 			beanMessageBuilder.setMessage("Could not load data!");
 			dummyBeanProxy.addMessage(beanMessageBuilder.build());
+			programmaticPageLoader.remove(pageIndex);
 			finished = true;
 			dataModel.fireDataChanged();
-		}
-
-		private void removePageLater() {
-			uiThreadAccess.invokeLater(new Runnable() {
-				@Override
-				public void run() {
-					removePage();
-				}
-			});
+			doCallbackError(exception);
 		}
 
 		private void removePage() {
@@ -1507,6 +1547,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 				dummyBeanProxy.setExecutionTask(null);
 				beansStateTracker.unregister(dummyBeanProxy);
 				data.remove(Integer.valueOf(pageIndex));
+				programmaticPageLoader.remove(pageIndex);
 				pageRemoved = true;
 				finished = true;
 				dataModel.fireDataChanged();
@@ -1528,10 +1569,22 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			//TODO MG i18n
 			beanMessageBuilder.setMessage("Data loading was canceled by user");
 			dummyBeanProxy.addMessage(beanMessageBuilder.build());
+			programmaticPageLoader.remove(pageIndex);
 			finished = true;
 			dataModel.fireDataChanged();
 		}
 
+		void doCallbackSuccess() {
+			if (resultCallback != null) {
+				resultCallback.finished(null);
+			}
+		}
+
+		void doCallbackError(final Throwable exception) {
+			if (resultCallback != null) {
+				resultCallback.exception(exception);
+			}
+		}
 	}
 
 	private static class DummyBeanDto implements IBeanDto {
@@ -1550,6 +1603,19 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		public long getVersion() {
 			return 0;
 		}
+
+	}
+
+	private static class DummyPageLoadResultCallback implements IResultCallback<Void> {
+
+		@Override
+		public void finished(final Void result) {}
+
+		@Override
+		public void exception(final Throwable exception) {}
+
+		@Override
+		public void timeout() {}
 
 	}
 

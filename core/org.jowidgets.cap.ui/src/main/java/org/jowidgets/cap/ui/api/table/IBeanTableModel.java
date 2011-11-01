@@ -31,6 +31,8 @@ package org.jowidgets.cap.ui.api.table;
 import java.util.List;
 
 import org.jowidgets.api.model.table.ITableModel;
+import org.jowidgets.cap.common.api.execution.IExecutionCallback;
+import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.service.ICreatorService;
 import org.jowidgets.cap.common.api.service.IDeleterService;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
@@ -48,6 +50,14 @@ public interface IBeanTableModel<BEAN_TYPE> extends IDataModel, IBeanListModel<B
 	String UI_SEARCH_FILTER_ID = IBeanTableModel.class.getName() + ".UI_SEARCH_FILTER_ID";
 
 	Object getEntityId();
+
+	int getPageCount();
+
+	boolean isPageLoaded(int page);
+
+	void loadPage(IResultCallback<Void> resultCallback, int page, IExecutionCallback executionCallback);
+
+	void loadPage(int page);
 
 	Class<BEAN_TYPE> getBeanType();
 
