@@ -421,7 +421,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		if (!Toolkit.getUiThreadAccess().isUiThread()) {
 			throw new IllegalStateException("Clear must be invoked in the ui thread");
 		}
-		tryToCancelLoader();
+		tryToCancelPageLoader();
 		rowCount = 0;
 		countedRowCount = null;
 		maxPageIndex = 0;
@@ -437,7 +437,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		if (!Toolkit.getUiThreadAccess().isUiThread()) {
 			throw new IllegalStateException("Load must be invoked in the ui thread");
 		}
-		tryToCancelLoader();
+		tryToCancelPageLoader();
 		beansStateTracker.clearAll();
 		if (rowCount == 0) {
 			rowCount = 1;
@@ -476,8 +476,11 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		else if (!even && oddPageLoader != null && !oddPageLoader.isDisposed()) {
 			return oddPageLoader;
 		}
-
-		return programmaticPageLoader.get(Integer.valueOf(pageIndex));
+		final PageLoader pageLoader = programmaticPageLoader.get(Integer.valueOf(pageIndex));
+		if (pageLoader != null && !pageLoader.isDisposed()) {
+			return pageLoader;
+		}
+		return null;
 	}
 
 	@Override
@@ -526,10 +529,10 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		}
 	}
 
-	private void tryToCancelLoader() {
+	private void tryToCancelPageLoader() {
 		tryToCancelProgrammaticPageLoader();
 		tryToCancelCountLoader();
-		tryToCancelPageLoader();
+		tryToCancelEvenOddPageLoader();
 	}
 
 	private void tryToCancelProgrammaticPageLoader() {
@@ -543,7 +546,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		tryToCancelPageLoader(programmaticPageLoader.remove(page));
 	}
 
-	private void tryToCancelPageLoader() {
+	private void tryToCancelEvenOddPageLoader() {
 		tryToCancelPageLoader(evenPageLoader);
 		tryToCancelPageLoader(oddPageLoader);
 	}
@@ -685,67 +688,104 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	@Override
 	public void removeBeans(final Collection<? extends IBeanProxy<BEAN_TYPE>> beans) {
 		Assert.paramNotNull(beans, "beans");
+		//data structure must rebuild, so do not load until this happens
+		tryToCancelPageLoader();
 
-		Set<IBeanProxy<BEAN_TYPE>> beansToDelete = new HashSet<IBeanProxy<BEAN_TYPE>>(beans);
+		final List<Integer> oldSelection = getSelection();
+		final List<Integer> newSelection = new LinkedList<Integer>(oldSelection);
 
-		final List<Integer> selection = new LinkedList<Integer>(getSelection());
-		boolean selectionChanged = false;
+		removeBeansFromData(newSelection, beans);
+		removeBeansFromAddedData(newSelection, beans);
+
+		if (newSelection.size() != oldSelection.size()) {
+			setSelection(newSelection);
+		}
+		fireBeansChanged();
+	}
+
+	private void removeBeansFromData(final List<Integer> selection, final Collection<? extends IBeanProxy<BEAN_TYPE>> beans) {
+		final Map<Integer, ArrayList<IBeanProxy<BEAN_TYPE>>> newData = getNewData(selection, beans);
+		data.clear();
+		for (final Entry<Integer, ArrayList<IBeanProxy<BEAN_TYPE>>> entry : newData.entrySet()) {
+			data.put(entry.getKey(), entry.getValue());
+		}
+	}
+
+	private Map<Integer, ArrayList<IBeanProxy<BEAN_TYPE>>> getNewData(
+		final List<Integer> selection,
+		final Collection<? extends IBeanProxy<BEAN_TYPE>> beans) {
+		//hold the beans that should be deleted but that are currently not deleted
+		final Set<IBeanProxy<BEAN_TYPE>> beansToDelete = new HashSet<IBeanProxy<BEAN_TYPE>>(beans);
 
 		final List<Integer> pageKeys = new LinkedList<Integer>(data.keySet());
 		Collections.sort(pageKeys);
 
-		int previousRemovedCount = 0;
+		final Map<Integer, ArrayList<IBeanProxy<BEAN_TYPE>>> newData = new HashMap<Integer, ArrayList<IBeanProxy<BEAN_TYPE>>>();
+
+		int totalRemovedPages = 0;
+		int totalRemovedModulo = 0;
 		for (final Integer pageKey : pageKeys) {
-			final ArrayList<IBeanProxy<BEAN_TYPE>> page = data.get(pageKey);
-			final int pageIndex = pageKey.intValue();
-			int pageRemovedCount = 0;
-			final ArrayList<IBeanProxy<BEAN_TYPE>> newPage = new ArrayList<IBeanProxy<BEAN_TYPE>>();
-			int relativeIndex = 0;
-			for (final IBeanProxy<BEAN_TYPE> bean : page) {
-				final boolean deletedRemoved = beansToDelete.remove(bean);
-				if (deletedRemoved) {
-					pageRemovedCount++;
-					final Integer removedIndex = (pageIndex * pageSize) + relativeIndex;
-					selectionChanged = selection.remove(removedIndex) || selectionChanged;
-					beansStateTracker.unregister(bean);
-					rowCount--;
-					if (countedRowCount != null) {
-						countedRowCount = Integer.valueOf(countedRowCount.intValue() - 1);
+			final PageLoader loadingPageLoader = getLoadingPageLoader(pageKey.intValue());
+			if (loadingPageLoader != null) {
+				loadingPageLoader.cancel();
+			}
+			else {
+				final ArrayList<IBeanProxy<BEAN_TYPE>> page = data.get(pageKey);
+				final int pageIndex = pageKey.intValue();
+				int localRemovedCount = 0;
+				final ArrayList<IBeanProxy<BEAN_TYPE>> newPage = new ArrayList<IBeanProxy<BEAN_TYPE>>();
+				int relativeIndex = 0;
+				//remove the deleted and ignored beans
+				//(ignored beans are beans that will be used on a previous page now)
+				int beansToIgnore = totalRemovedModulo;
+				for (final IBeanProxy<BEAN_TYPE> bean : page) {
+					final boolean deletedBeanRemoved = beansToDelete.remove(bean);
+					if (deletedBeanRemoved) {
+						localRemovedCount++;
+						totalRemovedModulo++;
+						final Integer removedIndex = (pageIndex * pageSize) + relativeIndex;
+						selection.remove(removedIndex);
+						beansStateTracker.unregister(bean);
+						rowCount--;
+						if (countedRowCount != null) {
+							countedRowCount = Integer.valueOf(countedRowCount.intValue() - 1);
+						}
+					}
+					else if (beansToIgnore > 0) {
+						localRemovedCount++;
+						beansToIgnore--;
+					}
+					else {
+						newPage.add(bean);
+					}
+					relativeIndex++;
+				}
+				//fill the page if possible, otherwise it will be completed later (when rendered)
+				for (int i = 0; i < localRemovedCount; i++) {
+					final int rowIndex = pageIndex * pageSize + page.size() + localRemovedCount - 1 + i;
+					final IBeanProxy<BEAN_TYPE> bean = dataModel.getBeanFromPages(rowIndex);
+					if (bean != null && !bean.isDummy()) {
+						newPage.add(bean);
 					}
 				}
+
+				//put the new page if there is something to put
+				if (newPage.size() > 0) {
+					newData.put(Integer.valueOf(pageKey.intValue() - totalRemovedPages), newPage);
+				}
+				//else the page will be removed
 				else {
-					newPage.add(bean);
+					totalRemovedPages++;
 				}
-				relativeIndex++;
 			}
 
-			if (pageRemovedCount > 0) {
-				final int nextPageIndex = pageKey.intValue() + 1;
-				final ArrayList<IBeanProxy<BEAN_TYPE>> nextPage = data.get(Integer.valueOf(nextPageIndex));
-				if (nextPage != null) {
-					final PageLoader loadingNextPageLoader = getLoadingPageLoader(nextPageIndex);
-					//The next page is loading, so abbort this, because the result may be false.
-					//When rendering the missing beans next time on this page, 
-					//the completeEvenOddPage() method will be invoked
-					if (loadingNextPageLoader != null && !loadingNextPageLoader.isDisposed()) {
-						loadingNextPageLoader.cancel();
-					}
-					//the next page exists and is not loading, so fill this page with some beans from the next pages
-					//else {
-					//
-					//}
-				}
-				//else{} //The next page does not exist. 
-				//When rendering the missing beans next time on this page, 
-				//the completeEvenOddPage() method will be invoked
-
-				data.put(pageKey, newPage);
-			}
-			previousRemovedCount = previousRemovedCount + pageRemovedCount;
 		}
+		return newData;
+	}
 
-		//now remove the beans from the added beans 
-		//remark that added beans could be exists twice in the model, so reset the beansToDelete set
+	private void removeBeansFromAddedData(final List<Integer> selection, final Collection<? extends IBeanProxy<BEAN_TYPE>> beans) {
+		//hold the beans that should be deleted but that are currently not deleted
+		Set<IBeanProxy<BEAN_TYPE>> beansToDelete = new HashSet<IBeanProxy<BEAN_TYPE>>(beans);
 		beansToDelete = new HashSet<IBeanProxy<BEAN_TYPE>>(beans);
 		int relativeIndex = 0;
 		for (final IBeanProxy<BEAN_TYPE> addedBean : new LinkedList<IBeanProxy<BEAN_TYPE>>(addedData)) {
@@ -756,17 +796,95 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			if (removed) {
 				addedData.remove(addedBean);
 				final Integer removedIndex = dataModel.getDataRowCount() + relativeIndex;
-				selectionChanged = selection.remove(removedIndex) || selectionChanged;
+				selection.remove(removedIndex);
 				beansStateTracker.unregister(addedBean);
 			}
 			relativeIndex++;
 		}
-
-		if (selectionChanged) {
-			setSelection(selection);
-		}
-		fireBeansChanged();
 	}
+
+	//	@Override
+	//	public void removeBeans(final Collection<? extends IBeanProxy<BEAN_TYPE>> beans) {
+	//		Assert.paramNotNull(beans, "beans");
+	//
+	//		Set<IBeanProxy<BEAN_TYPE>> beansToDelete = new HashSet<IBeanProxy<BEAN_TYPE>>(beans);
+	//
+	//		final List<Integer> selection = new LinkedList<Integer>(getSelection());
+	//		boolean selectionChanged = false;
+	//
+	//		final List<Integer> pageKeys = new LinkedList<Integer>(data.keySet());
+	//		Collections.sort(pageKeys);
+	//
+	//		for (final Integer pageKey : pageKeys) {
+	//			final ArrayList<IBeanProxy<BEAN_TYPE>> page = data.get(pageKey);
+	//			final int pageIndex = pageKey.intValue();
+	//			int pageRemovedCount = 0;
+	//			final ArrayList<IBeanProxy<BEAN_TYPE>> newPage = new ArrayList<IBeanProxy<BEAN_TYPE>>();
+	//			int relativeIndex = 0;
+	//			for (final IBeanProxy<BEAN_TYPE> bean : page) {
+	//				final boolean deletedRemoved = beansToDelete.remove(bean);
+	//				if (deletedRemoved) {
+	//					pageRemovedCount++;
+	//					final Integer removedIndex = (pageIndex * pageSize) + relativeIndex;
+	//					selectionChanged = selection.remove(removedIndex) || selectionChanged;
+	//					beansStateTracker.unregister(bean);
+	//					rowCount--;
+	//					if (countedRowCount != null) {
+	//						countedRowCount = Integer.valueOf(countedRowCount.intValue() - 1);
+	//					}
+	//				}
+	//				else {
+	//					newPage.add(bean);
+	//				}
+	//				relativeIndex++;
+	//			}
+	//
+	//			final int nextPageIndex = pageKey.intValue() + 1;
+	//			final ArrayList<IBeanProxy<BEAN_TYPE>> nextPage = data.get(Integer.valueOf(nextPageIndex));
+	//			if (nextPage != null) {
+	//				final PageLoader loadingNextPageLoader = getLoadingPageLoader(nextPageIndex);
+	//				//The next page is loading, so abbort this, because the result may be false.
+	//				//When rendering the missing beans next time on this page, 
+	//				//the completeEvenOddPage() method will be invoked
+	//				if (loadingNextPageLoader != null && !loadingNextPageLoader.isDisposed()) {
+	//					loadingNextPageLoader.cancel();
+	//				}
+	//				//the next page exists and is not loading, so fill this page with some beans from the next pages
+	//				else {
+	//
+	//				}
+	//			}
+	//			//else{} //The next page does not exist. 
+	//			//When rendering the missing beans next time on this page, 
+	//			//the completeEvenOddPage() method will be invoked
+	//
+	//			data.put(pageKey, newPage);
+	//
+	//		}
+	//
+	//		//now remove the beans from the added beans 
+	//		//remark that added beans could be exists twice in the model, so reset the beansToDelete set
+	//		beansToDelete = new HashSet<IBeanProxy<BEAN_TYPE>>(beans);
+	//		int relativeIndex = 0;
+	//		for (final IBeanProxy<BEAN_TYPE> addedBean : new LinkedList<IBeanProxy<BEAN_TYPE>>(addedData)) {
+	//			if (beansToDelete.isEmpty()) {
+	//				break;
+	//			}
+	//			final boolean removed = beansToDelete.remove(addedBean);
+	//			if (removed) {
+	//				addedData.remove(addedBean);
+	//				final Integer removedIndex = dataModel.getDataRowCount() + relativeIndex;
+	//				selectionChanged = selection.remove(removedIndex) || selectionChanged;
+	//				beansStateTracker.unregister(addedBean);
+	//			}
+	//			relativeIndex++;
+	//		}
+	//
+	//		if (selectionChanged) {
+	//			setSelection(selection);
+	//		}
+	//		fireBeansChanged();
+	//	}
 
 	@Override
 	public IAttribute<Object> getAttribute(final int columnIndex) {
