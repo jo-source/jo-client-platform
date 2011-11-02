@@ -723,55 +723,42 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 		final Map<Integer, ArrayList<IBeanProxy<BEAN_TYPE>>> newData = new HashMap<Integer, ArrayList<IBeanProxy<BEAN_TYPE>>>();
 
-		int totalRemovedPages = 0;
-		int totalRemoved = 0;
-		for (final Integer pageKey : pageKeys) {
-			final ArrayList<IBeanProxy<BEAN_TYPE>> page = data.get(pageKey);
-			final int pageIndex = pageKey.intValue();
-			int localRemovedCount = 0;
-			final ArrayList<IBeanProxy<BEAN_TYPE>> newPage = new ArrayList<IBeanProxy<BEAN_TYPE>>();
-			int relativeIndex = 0;
-			//remove the deleted and ignored beans
-			//(ignored beans are beans that will be used on a previous page now)
-			int beansToIgnore = totalRemoved;
-			for (final IBeanProxy<BEAN_TYPE> bean : page) {
-				final boolean deletedBeanRemoved = beansToDelete.remove(bean);
-				if (deletedBeanRemoved) {
-					localRemovedCount++;
-					totalRemoved++;
-					final Integer removedIndex = (pageIndex * pageSize) + relativeIndex;
-					selection.remove(removedIndex);
-					beansStateTracker.unregister(bean);
-					rowCount--;
-					if (countedRowCount != null) {
-						countedRowCount = Integer.valueOf(countedRowCount.intValue() - 1);
-					}
-				}
-				else if (beansToIgnore > 0) {
-					localRemovedCount++;
-					beansToIgnore--;
-				}
-				else {
-					newPage.add(bean);
-				}
-				relativeIndex++;
-			}
-			//fill the page if possible, otherwise it will be completed later (when rendered)
-			for (int i = 0; i < localRemovedCount; i++) {
-				final int rowIndex = pageIndex * pageSize + newPage.size() + totalRemoved;
-				final IBeanProxy<BEAN_TYPE> bean = dataModel.getBeanFromPages(rowIndex);
-				if (bean != null && !bean.isDummy()) {
-					newPage.add(bean);
-				}
-			}
+		int newPageIndex = 0;
+		ArrayList<IBeanProxy<BEAN_TYPE>> newPage = new ArrayList<IBeanProxy<BEAN_TYPE>>(pageSize);
 
-			//put the new page if there is something to put
-			if (newPage.size() > 0) {
-				newData.put(Integer.valueOf(pageKey.intValue() - totalRemovedPages), newPage);
+		final int pageCount = getPage(dataModel.getDataRowCount());
+		for (int pageIndex = 0; pageIndex < pageCount; pageIndex++) {
+			final ArrayList<IBeanProxy<BEAN_TYPE>> page = data.get(pageIndex);
+			if (page != null) {
+				int relativeIndex = 0;
+				for (final IBeanProxy<BEAN_TYPE> bean : page) {
+					final boolean deletedBeanRemoved = beansToDelete.remove(bean);
+					if (deletedBeanRemoved) {
+						final Integer removedIndex = (pageIndex * pageSize) + relativeIndex;
+						selection.remove(removedIndex);
+						beansStateTracker.unregister(bean);
+						rowCount--;
+						if (countedRowCount != null) {
+							countedRowCount = Integer.valueOf(countedRowCount.intValue() - 1);
+						}
+					}
+					else if (newPage.size() < pageSize) {
+						newPage.add(bean);
+					}
+					else {
+						newData.put(newPageIndex, newPage);
+						newPageIndex++;
+						newPage = new ArrayList<IBeanProxy<BEAN_TYPE>>(pageSize);
+					}
+					relativeIndex++;
+				}
 			}
-			//else the page will be removed
 			else {
-				totalRemovedPages++;
+				if (newPage.size() > 0) {
+					newData.put(newPageIndex, newPage);
+				}
+				newPageIndex++;
+				newPage = new ArrayList<IBeanProxy<BEAN_TYPE>>(pageSize);
 			}
 		}
 		return newData;
