@@ -28,6 +28,8 @@
 
 package org.jowidgets.cap.ui.impl;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
@@ -55,6 +57,7 @@ import org.jowidgets.cap.ui.api.execution.IExecutionInterceptor;
 import org.jowidgets.cap.ui.api.execution.IExecutionTask;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.EmptyCheck;
 
 final class BeanDeleterCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
 
@@ -130,9 +133,17 @@ final class BeanDeleterCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 		final List<IBeanProxy<BEAN_TYPE>> beans = new LinkedList<IBeanProxy<BEAN_TYPE>>();
 		for (final Integer index : model.getSelection()) {
 			final IBeanProxy<BEAN_TYPE> bean = model.getBean(index.intValue());
-			beanKeys.add(beanKeyFactory.createKey(bean));
-			beans.add(bean);
+			if (bean != null && !bean.isDummy() && !bean.isTransient()) {
+				bean.setExecutionTask(executionTask);
+				beanKeys.add(beanKeyFactory.createKey(bean));
+				beans.add(bean);
+			}
 		}
+		final ArrayList<Integer> selection = model.getSelection();
+		if (!EmptyCheck.isEmpty(selection)) {
+			model.setSelection(Collections.singletonList(selection.get(selection.size() - 1) + 1));
+		}
+		model.fireBeansChanged();
 		deleterService.delete(new ResultCallback(beans), beanKeys, executionTask);
 	}
 
@@ -173,6 +184,9 @@ final class BeanDeleterCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 		}
 
 		private void onSuccess() {
+			for (final IBeanProxy<BEAN_TYPE> bean : beans) {
+				bean.setExecutionTask(null);
+			}
 			model.removeBeans(beans);
 		}
 	}

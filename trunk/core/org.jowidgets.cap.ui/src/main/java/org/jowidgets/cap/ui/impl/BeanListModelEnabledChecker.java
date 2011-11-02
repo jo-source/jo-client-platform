@@ -57,12 +57,13 @@ import org.jowidgets.util.event.IChangeListener;
 @SuppressWarnings({"rawtypes", "unchecked"})
 final class BeanListModelEnabledChecker<BEAN_TYPE> extends ChangeObservable implements IEnabledChecker {
 
-	private static final IEnabledState IS_IN_PROCESS_STATE = EnabledState.disabled(Messages.getString("BeanListModelEnabledChecker.there_is_some_other_execution_in_progress")); //$NON-NLS-1$
-	private static final IEnabledState SINGLE_SELECTION_STATE = EnabledState.disabled(Messages.getString("BeanListModelEnabledChecker.there_must_be_selected_exactly_one_record")); //$NON-NLS-1$
-	private static final IEnabledState MULTI_SELECTION_STATE = EnabledState.disabled(Messages.getString("BeanListModelEnabledChecker.there_must_be_selected_at_least_one_record")); //$NON-NLS-1$
-	private static final IEnabledState NO_SELECTION_STATE = EnabledState.disabled(Messages.getString("BeanListModelEnabledChecker.there_must_not_be_selected_any_record")); //$NON-NLS-1$
-	private static final IEnabledState UNSAVED_DATA_STATE = EnabledState.disabled(Messages.getString("BeanListModelEnabledChecker.the_record_has_unsaved_data")); //$NON-NLS-1$
-	private static final IEnabledState UNHANDLED_MESSAGES_STATE = EnabledState.disabled(Messages.getString("BeanListModelEnabledChecker.there_are_unhandled_messages")); //$NON-NLS-1$
+	private final IEnabledState unloadedDataState = EnabledState.disabled(Messages.getString("BeanListModelEnabledChecker.the_selection_contains_unloaded_data")); //$NON-NLS-1$
+	private final IEnabledState isInProgressState = EnabledState.disabled(Messages.getString("BeanListModelEnabledChecker.there_is_some_other_execution_in_progress")); //$NON-NLS-1$
+	private final IEnabledState singleSelectionState = EnabledState.disabled(Messages.getString("BeanListModelEnabledChecker.there_must_be_selected_exactly_one_record")); //$NON-NLS-1$
+	private final IEnabledState multiSelectionState = EnabledState.disabled(Messages.getString("BeanListModelEnabledChecker.there_must_be_selected_at_least_one_record")); //$NON-NLS-1$
+	private final IEnabledState noSelectionState = EnabledState.disabled(Messages.getString("BeanListModelEnabledChecker.there_must_not_be_selected_any_record")); //$NON-NLS-1$
+	private final IEnabledState unsavedDataState = EnabledState.disabled(Messages.getString("BeanListModelEnabledChecker.the_record_has_unsaved_data")); //$NON-NLS-1$
+	private final IEnabledState unhandlesMessageState = EnabledState.disabled(Messages.getString("BeanListModelEnabledChecker.there_are_unhandled_messages")); //$NON-NLS-1$
 
 	private final IBeanListModel<BEAN_TYPE> listModel;
 	private final List<IExecutableChecker<BEAN_TYPE>> executableCheckers;
@@ -152,17 +153,21 @@ final class BeanListModelEnabledChecker<BEAN_TYPE> extends ChangeObservable impl
 
 				if (!ignoreSelectedBeansState) {
 					for (final IBeanProxy bean : lastSelection) {
-						bean.removeProcessStateListener(processStateListener);
-						bean.removePropertyChangeListener(propertyChangeListener);
-						bean.removeModificationStateListener(modificationStateListener);
-						bean.removeMessageStateListener(messageStateListener);
+						if (bean != null) {
+							bean.removeProcessStateListener(processStateListener);
+							bean.removePropertyChangeListener(propertyChangeListener);
+							bean.removeModificationStateListener(modificationStateListener);
+							bean.removeMessageStateListener(messageStateListener);
+						}
 					}
 
 					for (final IBeanProxy bean : selectedBeans) {
-						bean.addProcessStateListener(processStateListener);
-						bean.addPropertyChangeListener(propertyChangeListener);
-						bean.addModificationStateListener(modificationStateListener);
-						bean.addMessageStateListener(messageStateListener);
+						if (bean != null) {
+							bean.addProcessStateListener(processStateListener);
+							bean.addPropertyChangeListener(propertyChangeListener);
+							bean.addModificationStateListener(modificationStateListener);
+							bean.addMessageStateListener(messageStateListener);
+						}
 					}
 				}
 
@@ -180,13 +185,13 @@ final class BeanListModelEnabledChecker<BEAN_TYPE> extends ChangeObservable impl
 	public IEnabledState getEnabledState() {
 		//TODO MG enabled checks must be done better performance
 		if (BeanSelectionPolicy.SINGLE_SELECTION == beanSelectionPolicy && lastSelection.size() != 1) {
-			return SINGLE_SELECTION_STATE;
+			return singleSelectionState;
 		}
 		else if (BeanSelectionPolicy.MULTI_SELECTION == beanSelectionPolicy && lastSelection.size() < 1) {
-			return MULTI_SELECTION_STATE;
+			return multiSelectionState;
 		}
 		else if (BeanSelectionPolicy.NO_SELECTION == beanSelectionPolicy && lastSelection.size() > 0) {
-			return NO_SELECTION_STATE;
+			return noSelectionState;
 		}
 		for (final IEnabledChecker enabledChecker : enabledCheckers) {
 			final IEnabledState result = enabledChecker.getEnabledState();
@@ -196,39 +201,42 @@ final class BeanListModelEnabledChecker<BEAN_TYPE> extends ChangeObservable impl
 		}
 		if (!ignoreSelectedBeansState) {
 			for (final IBeanProxy bean : lastSelection) {
+				if (bean == null) {
+					return unloadedDataState;
+				}
 				final IBeanMessage worstMessage = bean.getFirstWorstMessage();
 				final IBeanMessage worstMandatoryMessage = bean.getFirstWorstMandatoryMessage();
 				if (bean.getExecutionTask() != null) {
-					return IS_IN_PROCESS_STATE;
+					return isInProgressState;
 				}
 				else if (BeanMessageStatePolicy.NO_MESSAGE == beanMessageStatePolicy && worstMessage != null) {
-					return UNHANDLED_MESSAGES_STATE;
+					return unhandlesMessageState;
 				}
 				else if (BeanMessageStatePolicy.NO_MESSAGE_MANDATORY == beanMessageStatePolicy && worstMandatoryMessage != null) {
-					return UNHANDLED_MESSAGES_STATE;
+					return unhandlesMessageState;
 				}
 				else if (BeanModificationStatePolicy.NO_MODIFICATION == beanModificationStatePolicy && bean.hasModifications()) {
-					return UNSAVED_DATA_STATE;
+					return unsavedDataState;
 				}
 				else if (BeanMessageStatePolicy.NO_WARNING_OR_ERROR == beanMessageStatePolicy
 					&& worstMessage != null
 					&& worstMessage.getType().equalOrWorse(BeanMessageType.WARNING)) {
-					return UNHANDLED_MESSAGES_STATE;
+					return unhandlesMessageState;
 				}
 				else if (BeanMessageStatePolicy.NO_WARNING_OR_ERROR_MANDATORY == beanMessageStatePolicy
 					&& worstMandatoryMessage != null
 					&& worstMandatoryMessage.getType().equalOrWorse(BeanMessageType.WARNING)) {
-					return UNHANDLED_MESSAGES_STATE;
+					return unhandlesMessageState;
 				}
 				else if (BeanMessageStatePolicy.NO_ERROR == beanMessageStatePolicy
 					&& worstMessage != null
 					&& worstMessage.getType() == BeanMessageType.ERROR) {
-					return UNHANDLED_MESSAGES_STATE;
+					return unhandlesMessageState;
 				}
 				else if (BeanMessageStatePolicy.NO_ERROR_MANDATORY == beanMessageStatePolicy
 					&& worstMandatoryMessage != null
 					&& worstMandatoryMessage.getType() == BeanMessageType.ERROR) {
-					return UNHANDLED_MESSAGES_STATE;
+					return unhandlesMessageState;
 				}
 				for (final IExecutableChecker executableChecker : executableCheckers) {
 					final IExecutableState result = executableChecker.getExecutableState(bean.getBean());

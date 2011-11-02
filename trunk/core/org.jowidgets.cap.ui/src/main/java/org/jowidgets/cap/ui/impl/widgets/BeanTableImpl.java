@@ -30,6 +30,7 @@ package org.jowidgets.cap.ui.impl.widgets;
 
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -293,7 +294,10 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 	private static <BEAN_TYPE> IAction createDeleteAction(final IBeanTable<BEAN_TYPE> table) {
 		final IBeanTableModel<BEAN_TYPE> model = table.getModel();
 		final IBeanListModel<BEAN_TYPE> wrappedModel = new BeanListModelWrapper<BEAN_TYPE>(model) {
-
+			@Override
+			public void removeBeans(final Collection<? extends IBeanProxy<BEAN_TYPE>> beans) {
+				super.removeBeans(beans);
+			}
 		};
 		final ICapActionFactory actionFactory = CapUiToolkit.actionFactory();
 		final IDeleterActionBuilder<BEAN_TYPE> builder = actionFactory.deleterActionBuilder(wrappedModel);

@@ -81,6 +81,8 @@ public interface IBeanTableModel<BEAN_TYPE> extends IDataModel, IBeanListModel<B
 
 	IBeanProxy<BEAN_TYPE> getFirstSelectedBean();
 
+	List<IBeanProxy<BEAN_TYPE>> getSelectedBeans();
+
 	void addFilterChangeListener(IChangeListener changeListener);
 
 	void removeFilterChangeListener(IChangeListener changeListener);
