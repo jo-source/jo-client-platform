@@ -478,6 +478,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE> {
 		modificationStateObservable.dispose();
 		processStateObservable.dispose();
 		messageStateObservable.dispose();
+		propertyChangeObservable.dispose();
 		executionTask = null;
 		beanDto = null;
 		proxy = null;
