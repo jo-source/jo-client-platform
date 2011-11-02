@@ -125,7 +125,10 @@ public class RolesOfUsersReaderService implements ISyncReaderService<Void> {
 			final IEntityData<IBeanPropertyMap> roleData = (IEntityData<IBeanPropertyMap>) EntityDataStore.getEntityData(EntityIds.ROLE);
 
 			for (final Long roleId : roleIds) {
-				result.add(roleData.getData(roleId));
+				final IBeanPropertyMap role = roleData.getData(roleId);
+				if (role != null) {
+					result.add(role);
+				}
 			}
 		}
 
