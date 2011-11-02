@@ -278,7 +278,7 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 			@Override
 			public boolean beforeExecution(final IExecutionContext executionContext) {
 				final int pageCount = model.getPageCount();
-				if (pageCount > 0 && !model.isPageLoaded(pageCount - 1)) {
+				if (pageCount > 0 && !model.isPageCreated(pageCount - 1)) {
 					model.loadPage(pageCount - 1);
 				}
 				return true;
