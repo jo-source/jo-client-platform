@@ -691,28 +691,26 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		final List<Integer> selection = new LinkedList<Integer>(getSelection());
 		boolean selectionChanged = false;
 
-		for (final Entry<Integer, ArrayList<IBeanProxy<BEAN_TYPE>>> pageEntry : data.entrySet()) {
-			if (beansToDelete.isEmpty()) {
-				break;
-			}
-			final int pageIndex = pageEntry.getKey().intValue();
-			final boolean lastPage = getPage(dataModel.getDataRowCount() - 1) == pageIndex;
-			boolean removedSomething = false;
+		final List<Integer> pageKeys = new LinkedList<Integer>(data.keySet());
+		Collections.sort(pageKeys);
+
+		int previousRemovedCount = 0;
+		for (final Integer pageKey : pageKeys) {
+			final ArrayList<IBeanProxy<BEAN_TYPE>> page = data.get(pageKey);
+			final int pageIndex = pageKey.intValue();
+			int pageRemovedCount = 0;
 			final ArrayList<IBeanProxy<BEAN_TYPE>> newPage = new ArrayList<IBeanProxy<BEAN_TYPE>>();
 			int relativeIndex = 0;
-			for (final IBeanProxy<BEAN_TYPE> bean : pageEntry.getValue()) {
-				final boolean removed = beansToDelete.remove(bean);
-				removedSomething = removed || removedSomething;
-				if (removed) {
+			for (final IBeanProxy<BEAN_TYPE> bean : page) {
+				final boolean deletedRemoved = beansToDelete.remove(bean);
+				if (deletedRemoved) {
+					pageRemovedCount++;
 					final Integer removedIndex = (pageIndex * pageSize) + relativeIndex;
 					selectionChanged = selection.remove(removedIndex) || selectionChanged;
 					beansStateTracker.unregister(bean);
-					//TODO MG the count must be changed always, not only for the last page
-					if (lastPage) {
-						rowCount--;
-						if (countedRowCount != null) {
-							countedRowCount = Integer.valueOf(countedRowCount.intValue() - 1);
-						}
+					rowCount--;
+					if (countedRowCount != null) {
+						countedRowCount = Integer.valueOf(countedRowCount.intValue() - 1);
 					}
 				}
 				else {
@@ -720,9 +718,30 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 				}
 				relativeIndex++;
 			}
-			if (removedSomething) {
-				data.put(pageEntry.getKey(), newPage);
+
+			if (pageRemovedCount > 0) {
+				final int nextPageIndex = pageKey.intValue() + 1;
+				final ArrayList<IBeanProxy<BEAN_TYPE>> nextPage = data.get(Integer.valueOf(nextPageIndex));
+				if (nextPage != null) {
+					final PageLoader loadingNextPageLoader = getLoadingPageLoader(nextPageIndex);
+					//The next page is loading, so abbort this, because the result may be false.
+					//When rendering the missing beans next time on this page, 
+					//the completeEvenOddPage() method will be invoked
+					if (loadingNextPageLoader != null && !loadingNextPageLoader.isDisposed()) {
+						loadingNextPageLoader.cancel();
+					}
+					//the next page exists and is not loading, so fill this page with some beans from the next pages
+					//else {
+					//
+					//}
+				}
+				//else{} //The next page does not exist. 
+				//When rendering the missing beans next time on this page, 
+				//the completeEvenOddPage() method will be invoked
+
+				data.put(pageKey, newPage);
 			}
+			previousRemovedCount = previousRemovedCount + pageRemovedCount;
 		}
 
 		//now remove the beans from the added beans 
