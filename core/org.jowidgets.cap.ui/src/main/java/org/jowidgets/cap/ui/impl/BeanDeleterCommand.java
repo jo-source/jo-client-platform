@@ -64,10 +64,10 @@ import org.jowidgets.util.EmptyCheck;
 final class BeanDeleterCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
 
 	//TODO i18n
-	private final String singleDeletionConfirmMessage = "Wollen Sie den Datensatz wirklich löschen?";
-	private final String multiDeletionConfirmMessage = "Wollen Sie die '%1 Datensätze' wirklich löschen?";
-	private final String couldNotBeUndoneMessage = "Dies kann nicht rückgängig gemacht werden!";
-	private final String nothingSelectedMessage = "Es ist nichts selektiert!";
+	private final String singleDeletionConfirmMessage = Messages.getString("BeanDeleterCommand.single_deletion_confirm_message");
+	private final String multiDeletionConfirmMessage = Messages.getString("BeanDeleterCommand.multi_deletion_confirm_message");
+	private final String couldNotBeUndoneMessage = Messages.getString("BeanDeleterCommand.can_not_be_undone");
+	private final String nothingSelectedMessage = Messages.getString("BeanDeleterCommand.nothing_selected");
 
 	private final IBeanListModel<BEAN_TYPE> model;
 	private final IDeleterService deleterService;
