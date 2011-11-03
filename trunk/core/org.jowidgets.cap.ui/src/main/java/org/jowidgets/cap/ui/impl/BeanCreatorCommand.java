@@ -47,6 +47,7 @@ import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanData;
 import org.jowidgets.cap.common.api.bean.IBeanDataBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
+import org.jowidgets.cap.common.api.execution.IExecutionCallbackListener;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.service.ICreatorService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
@@ -172,7 +173,6 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 		dialog.setVisible(true);
 		if (dialog.isOkPressed()) {
 			createBean(executionContext, createUnmodifiedBean(proxy));
-			executionObservable.fireAfterExecutionSuccess(executionContext);
 		}
 		else {
 			executionObservable.fireAfterExecutionCanceled(executionContext);
@@ -187,93 +187,118 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 		return result;
 	}
 
-	private void createBean(final IExecutionContext executionContext, final IBeanProxy<BEAN_TYPE> proxy) {
-
+	private void createBean(final IExecutionContext executionContext, final IBeanProxy<BEAN_TYPE> bean) {
 		final IExecutionTask executionTask = CapUiToolkit.executionTaskFactory().create();
-		proxy.setExecutionTask(executionTask);
-
-		model.addBean(proxy);
-
-		final IBeanData beanData = createBeanData(proxy);
-		final List<IBeanData> data = Collections.singletonList(beanData);
+		bean.setExecutionTask(executionTask);
 		final IUiThreadAccess uiThreadAccess = Toolkit.getUiThreadAccess();
-		final IResultCallback<List<IBeanDto>> resultCallback = new IResultCallback<List<IBeanDto>>() {
-
+		executionTask.addExecutionCallbackListener(new IExecutionCallbackListener() {
 			@Override
-			public void finished(final List<IBeanDto> result) {
-				setResultLater(result);
-			}
-
-			@Override
-			public void exception(final Throwable exception) {
-				setExceptionLater(exception);
-			}
-
-			@Override
-			public void timeout() {
-				exception(new TimeoutException("Timeout while creating bean"));
-			}
-
-			private void setExceptionLater(final Throwable exception) {
+			public void canceled() {
 				uiThreadAccess.invokeLater(new Runnable() {
 					@Override
 					public void run() {
-						setException(exception);
+						bean.setExecutionTask(null);
+						model.removeBeans(Collections.singletonList(bean));
+						model.fireBeansChanged();
+						executionObservable.fireAfterExecutionCanceled(executionContext);
 					}
 				});
 			}
+		});
 
-			private void setResultLater(final List<IBeanDto> result) {
-				uiThreadAccess.invokeLater(new Runnable() {
-					@Override
-					public void run() {
-						setResult(result);
-					}
-				});
-			}
+		model.addBean(bean);
 
-			private void setResult(final List<IBeanDto> result) {
-				if (!EmptyCheck.isEmpty(result)) {
-					proxy.setExecutionTask(null);
-					proxy.updateTransient(result.get(0));
-					model.fireBeansChanged();
-					executionObservable.fireAfterExecutionSuccess(executionContext);
-				}
-				else {
-					setException(null);
-				}
-			}
+		final IBeanData beanData = createBeanData(bean);
+		final List<IBeanData> data = Collections.singletonList(beanData);
 
-			private void setException(final Throwable exception) {
-				proxy.setExecutionTask(null);
-				if (exception != null) {
-					final List<IBeanProxy<?>> beans = new LinkedList<IBeanProxy<?>>();
-					beans.add(proxy);
-					proxy.addMessage(exceptionConverter.convert(beans, proxy, exception));
-				}
-				else {
-					final IBeanMessageBuilder messageBuilder = CapUiToolkit.beanMessageBuilder(BeanMessageType.ERROR);
-					final String message = Messages.getString("BeanCreatorCommand.object_not_created");
-					final String description = Messages.getString("BeanCreatorCommand.object_not_created_description");
-					messageBuilder.setMessage(message);
-					messageBuilder.setDescription(description);
-					proxy.addMessage(messageBuilder.build());
-				}
-				model.fireBeansChanged();
-				executionObservable.fireAfterExecutionError(executionContext, exception);
-			}
-		};
 		executionObservable.fireAfterExecutionPrepared(executionContext);
-		creatorService.create(resultCallback, data, executionTask);
+		creatorService.create(new ResultCallback(executionContext, bean), data, executionTask);
 	}
 
-	private IBeanData createBeanData(final IBeanProxy<BEAN_TYPE> proxy) {
+	private IBeanData createBeanData(final IBeanProxy<BEAN_TYPE> bean) {
 		final IBeanDataBuilder builder = CapCommonToolkit.beanDataBuilder();
 		for (final String propertyName : properties) {
 			if (propertyName != IBean.ID_PROPERTY) {
-				builder.setProperty(propertyName, proxy.getValue(propertyName));
+				builder.setProperty(propertyName, bean.getValue(propertyName));
 			}
 		}
 		return builder.build();
+	}
+
+	private final class ResultCallback implements IResultCallback<List<IBeanDto>> {
+
+		private final IUiThreadAccess uiThreadAccess;
+		private final IExecutionContext executionContext;
+		private final IBeanProxy<BEAN_TYPE> bean;
+
+		ResultCallback(final IExecutionContext executionContext, final IBeanProxy<BEAN_TYPE> bean) {
+			this.uiThreadAccess = Toolkit.getUiThreadAccess();
+			this.executionContext = executionContext;
+			this.bean = bean;
+		}
+
+		@Override
+		public void finished(final List<IBeanDto> result) {
+			setResultLater(result);
+		}
+
+		@Override
+		public void exception(final Throwable exception) {
+			setExceptionLater(exception);
+		}
+
+		@Override
+		public void timeout() {
+			exception(new TimeoutException("Timeout while creating bean"));
+		}
+
+		private void setExceptionLater(final Throwable exception) {
+			uiThreadAccess.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					setException(exception);
+				}
+			});
+		}
+
+		private void setResultLater(final List<IBeanDto> result) {
+			uiThreadAccess.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					setResult(result);
+				}
+			});
+		}
+
+		private void setResult(final List<IBeanDto> result) {
+			if (!EmptyCheck.isEmpty(result)) {
+				bean.setExecutionTask(null);
+				bean.updateTransient(result.get(0));
+				model.fireBeansChanged();
+				executionObservable.fireAfterExecutionSuccess(executionContext);
+			}
+			else {
+				setException(null);
+			}
+		}
+
+		private void setException(final Throwable exception) {
+			bean.setExecutionTask(null);
+			if (exception != null) {
+				final List<IBeanProxy<?>> beans = new LinkedList<IBeanProxy<?>>();
+				beans.add(bean);
+				bean.addMessage(exceptionConverter.convert(beans, bean, exception));
+			}
+			else {
+				final IBeanMessageBuilder messageBuilder = CapUiToolkit.beanMessageBuilder(BeanMessageType.ERROR);
+				final String message = Messages.getString("BeanCreatorCommand.object_not_created");
+				final String description = Messages.getString("BeanCreatorCommand.object_not_created_description");
+				messageBuilder.setMessage(message);
+				messageBuilder.setDescription(description);
+				bean.addMessage(messageBuilder.build());
+			}
+			model.fireBeansChanged();
+			executionObservable.fireAfterExecutionError(executionContext, exception);
+		}
 	}
 }
