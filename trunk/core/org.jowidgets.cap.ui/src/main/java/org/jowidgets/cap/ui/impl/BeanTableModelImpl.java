@@ -730,10 +730,12 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		ArrayList<IBeanProxy<BEAN_TYPE>> newPage = new ArrayList<IBeanProxy<BEAN_TYPE>>(pageSize);
 
 		final int pageCount = getPage(dataModel.getDataRowCount()) + 1;
+		boolean nullPageAdded = true;
+		int addedNullCount = 0;
 		for (int pageIndex = 0; pageIndex < pageCount; pageIndex++) {
 			final ArrayList<IBeanProxy<BEAN_TYPE>> page = data.get(pageIndex);
 			if (page != null) {
-				int relativeIndex = 0;
+				System.out.println("ADD REGULAR PAGE: " + pageIndex);
 				for (final IBeanProxy<BEAN_TYPE> bean : page) {
 					final boolean deletedBeanRemoved = beansToDelete.remove(bean);
 					if (deletedBeanRemoved) {
@@ -743,33 +745,69 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 							countedRowCount = Integer.valueOf(countedRowCount.intValue() - 1);
 						}
 					}
-					else if (newPage.size() < pageSize) {
+					else if (addedNullCount < pageSize && newPage.size() < pageSize) {
 						newPage.add(bean);
 					}
 					else {
-						newData.put(newPageIndex, newPage);
+						if (addedNullCount < pageSize) {
+							newData.put(newPageIndex, newPage);
+						}
 						newPageIndex++;
 						newPage = new ArrayList<IBeanProxy<BEAN_TYPE>>(pageSize);
 						newPage.add(bean);
+						addedNullCount = 0;
 					}
 					if (oldSelection.remove(bean)) {
 						if (!deletedBeanRemoved) {
 							newSelection.add(newPageIndex * pageSize + newPage.size() - 1);
 						}
 					}
-					relativeIndex++;
+					if (bean == null) {
+						addedNullCount++;
+					}
+					else {
+						addedNullCount = 0;
+					}
 				}
+				nullPageAdded = false;
+			}
+			else if (!nullPageAdded) {
+				System.out.println("ADD NULL PAGE: " + pageIndex);
+				for (int i = 0; i < pageSize; i++) {
+					if (newPage.size() < pageSize) {
+						newPage.add(null);
+						addedNullCount++;
+					}
+					else {
+						if (addedNullCount < pageSize) {
+							newData.put(newPageIndex, newPage);
+						}
+						newPageIndex++;
+						newPage = new ArrayList<IBeanProxy<BEAN_TYPE>>(pageSize);
+						addedNullCount = 0;
+						newPage.add(null);
+						addedNullCount++;
+					}
+				}
+				nullPageAdded = true;
 			}
 			else {
-				if (newPage.size() > 0) {
+				System.out.println("SKIP PAGE: " + pageIndex);
+				//put the added null page to the data, if not empty, 
+				if (newPage.size() > 0 && addedNullCount < pageSize) {
 					newData.put(newPageIndex, newPage);
-					newPageIndex++;
-					newPage = new ArrayList<IBeanProxy<BEAN_TYPE>>(pageSize);
 				}
+				//skip this page
+				newPage = new ArrayList<IBeanProxy<BEAN_TYPE>>(pageSize);
+				addedNullCount = 0;
+				newPageIndex++;
+				addedNullCount = addedNullCount + pageSize;
+				nullPageAdded = true;
 			}
-			if (newPage.size() > 0) {
-				newData.put(newPageIndex, newPage);
-			}
+
+		}
+		if (newPage.size() > 0 && addedNullCount < pageSize && newData.get(newPageIndex) == null) {
+			newData.put(newPageIndex, newPage);
 		}
 		return newData;
 	}
@@ -1068,6 +1106,9 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 				final IBeanProxy<BEAN_TYPE> bean = getBean(rowIndex);
 				if (bean == null) {
 					//TODO MG this should not happen, if happens the the addedData array might be fixed
+					//CHECKSTYLE:OFF
+					System.out.println("Uup's, added data might be inconsistent");
+					//CHECKSTYLE:ON
 					return new TableCellBuilder().build();
 				}
 				else {
@@ -1546,8 +1587,22 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 		void completePage() {
 			page = data.get(Integer.valueOf(pageIndex));
-			offset = page.size();
+			offset = getPageOffset();
+			System.out.println("PAGE: " + pageIndex + " / OFFSET: " + offset);
 			startPageLoading();
+		}
+
+		private int getPageOffset() {
+			if (page != null) {
+				int result = 0;
+				for (final IBeanProxy<BEAN_TYPE> bean : page) {
+					if (bean == null) {
+						return result;
+					}
+					result++;
+				}
+			}
+			return 0;
 		}
 
 		void loadPage() {
