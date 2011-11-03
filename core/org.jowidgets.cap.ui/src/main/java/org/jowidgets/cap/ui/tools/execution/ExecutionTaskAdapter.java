@@ -30,6 +30,7 @@ package org.jowidgets.cap.ui.tools.execution;
 
 import org.jowidgets.cap.ui.api.execution.IExecutionTask;
 import org.jowidgets.cap.ui.api.execution.IExecutionTaskListener;
+import org.jowidgets.cap.ui.api.execution.IUserAnswerCallback;
 
 public class ExecutionTaskAdapter implements IExecutionTaskListener {
 
@@ -44,6 +45,9 @@ public class ExecutionTaskAdapter implements IExecutionTaskListener {
 
 	@Override
 	public void finished() {}
+
+	@Override
+	public void userQuestionAsked(final String question, final IUserAnswerCallback callback) {}
 
 	@Override
 	public void subExecutionAdded(final IExecutionTask executionTask) {}
