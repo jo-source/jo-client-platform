@@ -78,7 +78,7 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 	private final IBeanExecptionConverter exceptionConverter;
 	private final BeanListModelEnabledChecker<BEAN_TYPE> enabledChecker;
 	private final IBeanProxyFactory<BEAN_TYPE> beanFactory;
-	private final List<IExecutionInterceptor> executionInterceptors;
+	private final ExecutionObservable executionObservable;
 	private final Map<String, Object> defaultValues;
 	private final List<String> properties;
 
@@ -113,8 +113,8 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 			null,
 			true);
 
-		this.executionInterceptors = new LinkedList<IExecutionInterceptor>(executionInterceptors);
 		this.beanFactory = CapUiToolkit.beanProxyFactory(beanType);
+		this.executionObservable = new ExecutionObservable(executionInterceptors);
 
 		this.model = model;
 		this.beanFormBp = beanFormBp;
@@ -150,11 +150,8 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 
 	@Override
 	public void execute(final IExecutionContext executionContext) throws Exception {
-		for (final IExecutionInterceptor interceptor : executionInterceptors) {
-			final boolean continueExecution = interceptor.beforeExecution(executionContext);
-			if (!continueExecution) {
-				return;
-			}
+		if (!executionObservable.fireBeforeExecution(executionContext)) {
+			return;
 		}
 
 		final IBeanProxy<BEAN_TYPE> proxy = beanFactory.createTransientProxy(properties, defaultValues);
@@ -174,14 +171,14 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 
 		dialog.setVisible(true);
 		if (dialog.isOkPressed()) {
-			createBean(createUnmodifiedBean(proxy));
+			createBean(executionContext, createUnmodifiedBean(proxy));
+			executionObservable.fireAfterExecutionSuccess(executionContext);
+		}
+		else {
+			executionObservable.fireAfterExecutionCanceled(executionContext);
 		}
 		dialogBounds = dialog.getBounds();
 		dialog.dispose();
-
-		for (final IExecutionInterceptor interceptor : executionInterceptors) {
-			interceptor.afterExecution(executionContext);
-		}
 	}
 
 	private IBeanProxy<BEAN_TYPE> createUnmodifiedBean(final IBeanProxy<BEAN_TYPE> proxy) {
@@ -190,7 +187,7 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 		return result;
 	}
 
-	private void createBean(final IBeanProxy<BEAN_TYPE> proxy) {
+	private void createBean(final IExecutionContext executionContext, final IBeanProxy<BEAN_TYPE> proxy) {
 
 		final IExecutionTask executionTask = CapUiToolkit.executionTaskFactory().create();
 		proxy.setExecutionTask(executionTask);
@@ -240,6 +237,7 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 					proxy.setExecutionTask(null);
 					proxy.updateTransient(result.get(0));
 					model.fireBeansChanged();
+					executionObservable.fireAfterExecutionSuccess(executionContext);
 				}
 				else {
 					setException(null);
@@ -262,8 +260,10 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 					proxy.addMessage(messageBuilder.build());
 				}
 				model.fireBeansChanged();
+				executionObservable.fireAfterExecutionError(executionContext, exception);
 			}
 		};
+		executionObservable.fireAfterExecutionPrepared(executionContext);
 		creatorService.create(resultCallback, data, executionTask);
 	}
 

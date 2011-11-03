@@ -41,6 +41,7 @@ import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
+import org.jowidgets.cap.common.api.execution.IExecutionCallbackListener;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.service.IExecutorService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
@@ -68,7 +69,7 @@ final class ExecutorCommand implements ICommand, ICommandExecutor {
 
 	private final IBeanListModel<Object> listModel;
 	private final List<Object> parameterProviders;
-	private final List<IExecutionInterceptor> executionInterceptors;
+	private final ExecutionObservable executionObservable;
 	private final BeanExecutionPolicy beanListExecutionPolicy;
 
 	private final Object defaultParameter;
@@ -103,7 +104,7 @@ final class ExecutorCommand implements ICommand, ICommandExecutor {
 		this.beanListExecutionPolicy = beanListExecutionPolicy;
 		this.beanExceptionConverter = beanExceptionConverter;
 		this.parameterProviders = parameterProviders;
-		this.executionInterceptors = executionInterceptors;
+		this.executionObservable = new ExecutionObservable(executionInterceptors);
 		this.defaultParameter = defaultParameter;
 		this.executor = executor;
 
@@ -126,16 +127,16 @@ final class ExecutorCommand implements ICommand, ICommandExecutor {
 
 	@Override
 	public void execute(final IExecutionContext executionContext) throws Exception {
-		for (final IExecutionInterceptor interceptor : executionInterceptors) {
-			if (!interceptor.beforeExecution(executionContext)) {
-				return;
-			}
+		if (!executionObservable.fireBeforeExecution(executionContext)) {
+			return;
 		}
 
 		final List<IBeanProxy> beans = new LinkedList<IBeanProxy>();
 		for (final Integer index : listModel.getSelection()) {
 			final IBeanProxy<Object> bean = listModel.getBean(index.intValue());
-			beans.add(bean);
+			if (bean != null && !bean.isDummy()) {
+				beans.add(bean);
+			}
 		}
 
 		final BeanListExecutionHelper executionHelper = new BeanListExecutionHelper(
@@ -144,7 +145,10 @@ final class ExecutorCommand implements ICommand, ICommandExecutor {
 			beanListExecutionPolicy,
 			beanExceptionConverter);
 
-		for (final List<IBeanProxy<?>> preparedBeans : executionHelper.prepareExecutions()) {
+		final List<List<IBeanProxy<?>>> preparedExecutions = executionHelper.prepareExecutions();
+		executionObservable.fireAfterExecutionPrepared(executionContext);
+
+		for (final List<IBeanProxy<?>> preparedBeans : preparedExecutions) {
 			new Execution(preparedBeans, executionContext, executionHelper).execute();
 		}
 
@@ -174,14 +178,23 @@ final class ExecutorCommand implements ICommand, ICommandExecutor {
 			else {
 				executionTask = executionHelper.createExecutionTask();
 			}
+
+			executionTask.addExecutionCallbackListener(new IExecutionCallbackListener() {
+				@Override
+				public void canceled() {
+					executionHelper.afterExecution(beans, null);
+					executionObservable.fireAfterExecutionCanceled(executionContext);
+				}
+			});
 		}
 
-		public void execute() {
+		void execute() {
 			Object parameter = defaultParameter;
 			for (final Object parameterProvider : parameterProviders) {
 				final IMaybe paramResult = getParameter(parameterProvider, parameter, beans);
 				if (paramResult.isNothing() || executionTask.isCanceled()) {
 					executionHelper.afterExecution(beans, null);
+					executionObservable.fireAfterExecutionCanceled(executionContext);
 					return;
 				}
 				else {
@@ -191,6 +204,7 @@ final class ExecutorCommand implements ICommand, ICommandExecutor {
 
 			if (executionTask.isCanceled()) {
 				executionHelper.afterExecution(beans, null);
+				executionObservable.fireAfterExecutionCanceled(executionContext);
 				return;
 			}
 			if (executor instanceof IExecutor) {
@@ -198,9 +212,11 @@ final class ExecutorCommand implements ICommand, ICommandExecutor {
 				try {
 					theExecutor.execute(executionContext, beans, parameter);
 					executionHelper.afterExecution(beans, null);
+					executionObservable.fireAfterExecutionSuccess(executionContext);
 				}
 				catch (final Exception exception) {
 					executionHelper.onExecption(beans, exception);
+					executionObservable.fireAfterExecutionError(executionContext, exception);
 				}
 			}
 			else if (executor instanceof IExecutorService) {
@@ -214,25 +230,34 @@ final class ExecutorCommand implements ICommand, ICommandExecutor {
 					@Override
 					public void finished(final List<IBeanDto> result) {
 						helperCallback.finished(result);
-						for (final IExecutionInterceptor interceptor : executionInterceptors) {
-							helperCallback.finished(result);
-							uiThreadAccess.invokeLater(new Runnable() {
-								@Override
-								public void run() {
-									interceptor.afterExecution(executionContext);
-								}
-							});
-						}
+						uiThreadAccess.invokeLater(new Runnable() {
+							@Override
+							public void run() {
+								executionObservable.fireAfterExecutionSuccess(executionContext);
+							}
+						});
 					}
 
 					@Override
 					public void exception(final Throwable exception) {
 						helperCallback.exception(exception);
+						uiThreadAccess.invokeLater(new Runnable() {
+							@Override
+							public void run() {
+								executionObservable.fireAfterExecutionError(executionContext, exception);
+							}
+						});
 					}
 
 					@Override
 					public void timeout() {
 						helperCallback.timeout();
+						uiThreadAccess.invokeLater(new Runnable() {
+							@Override
+							public void run() {
+								executionObservable.fireAfterExecutionError(executionContext, null);
+							}
+						});
 					}
 
 				};
