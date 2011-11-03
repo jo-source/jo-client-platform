@@ -37,20 +37,16 @@ import java.util.concurrent.TimeoutException;
 
 import org.jowidgets.api.threads.IUiThreadAccess;
 import org.jowidgets.api.toolkit.Toolkit;
-import org.jowidgets.api.types.QuestionResult;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.exception.ServiceCanceledException;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
-import org.jowidgets.cap.common.api.execution.UserQuestionResult;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.bean.IBeanExecptionConverter;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.execution.BeanExecutionPolicy;
 import org.jowidgets.cap.ui.api.execution.IExecutionTask;
 import org.jowidgets.cap.ui.api.execution.IExecutionTaskListener;
-import org.jowidgets.cap.ui.api.execution.IUserAnswerCallback;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
-import org.jowidgets.util.ValueHolder;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 final class BeanListExecutionHelper {
@@ -195,31 +191,6 @@ final class BeanListExecutionHelper {
 			//CHECKSTYLE:OFF
 			System.out.println("WORKED " + totalWorked);
 			//CHECKSTYLE:ON
-		}
-
-		@Override
-		public void userQuestionAsked(final String question, final IUserAnswerCallback callback) {
-			final ValueHolder<QuestionResult> resultHolder = new ValueHolder<QuestionResult>();
-			try {
-				uiThreadAccess.invokeAndWait(new Runnable() {
-					@Override
-					public void run() {
-						final QuestionResult result = Toolkit.getQuestionPane().askYesNoQuestion(question);
-						resultHolder.set(result);
-					}
-				});
-			}
-			catch (final InterruptedException e) {
-				callback.setQuestionResult(UserQuestionResult.NO);
-			}
-
-			if (QuestionResult.YES == resultHolder.get()) {
-				callback.setQuestionResult(UserQuestionResult.YES);
-			}
-			else {
-				callback.setQuestionResult(UserQuestionResult.NO);
-			}
-
 		}
 
 		@Override

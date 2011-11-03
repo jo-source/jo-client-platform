@@ -35,16 +35,19 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import org.jowidgets.api.threads.IUiThreadAccess;
+import org.jowidgets.api.toolkit.Toolkit;
+import org.jowidgets.api.types.QuestionResult;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IExecutionCallbackListener;
 import org.jowidgets.cap.common.api.execution.IUserQuestionCallback;
 import org.jowidgets.cap.common.api.execution.UserQuestionResult;
 import org.jowidgets.cap.ui.api.execution.IExecutionTask;
 import org.jowidgets.cap.ui.api.execution.IExecutionTaskListener;
-import org.jowidgets.cap.ui.api.execution.IUserAnswerCallback;
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.ValueHolder;
 
-public final class ExecutionTask implements IExecutionTask, IUserAnswerCallback, Serializable {
+public final class ExecutionTask implements IExecutionTask, Serializable {
 
 	private static final long serialVersionUID = 5949541700454226560L;
 
@@ -55,6 +58,7 @@ public final class ExecutionTask implements IExecutionTask, IUserAnswerCallback,
 
 	private final Set<IExecutionCallbackListener> executionCallbackListeners;
 	private final Set<IExecutionTaskListener> executionTaskListeners;
+	private final IUiThreadAccess uiThreadAccess;
 
 	private boolean canceled;
 	private Integer totalStepCount;
@@ -77,6 +81,10 @@ public final class ExecutionTask implements IExecutionTask, IUserAnswerCallback,
 		this.subExecutions = new LinkedList<ExecutionTask>();
 		this.stepProportion = stepProportion;
 		this.cancelable = cancelable;
+		this.uiThreadAccess = Toolkit.getUiThreadAccess();
+		if (!uiThreadAccess.isUiThread()) {
+			throw new IllegalStateException("Execution task must be created in the ui thread");
+		}
 	}
 
 	@Override
@@ -134,7 +142,7 @@ public final class ExecutionTask implements IExecutionTask, IUserAnswerCallback,
 
 		userQuestionWaitThread.setDaemon(true);
 		userQuestionWaitThread.start();
-		fireUserQuestionAsked();
+		userQuestionAsked(userQuestion);
 		try {
 			userQuestionWaitThread.join();
 		}
@@ -155,11 +163,35 @@ public final class ExecutionTask implements IExecutionTask, IUserAnswerCallback,
 		this.userQuestion = userQuestion;
 		this.userQuestionCallback = userQuestionCallback;
 
-		fireUserQuestionAsked();
+		userQuestionAsked(userQuestion);
+
 	}
 
-	@Override
-	public void setQuestionResult(final UserQuestionResult result) {
+	private void userQuestionAsked(final String question) {
+		final ValueHolder<QuestionResult> resultHolder = new ValueHolder<QuestionResult>();
+		try {
+			uiThreadAccess.invokeAndWait(new Runnable() {
+				@Override
+				public void run() {
+					final QuestionResult result = Toolkit.getQuestionPane().askYesNoQuestion(question);
+					resultHolder.set(result);
+				}
+			});
+		}
+		catch (final InterruptedException e) {
+			setQuestionResult(UserQuestionResult.NO);
+		}
+
+		if (QuestionResult.YES == resultHolder.get()) {
+			setQuestionResult(UserQuestionResult.YES);
+		}
+		else {
+			setQuestionResult(UserQuestionResult.NO);
+		}
+
+	}
+
+	private void setQuestionResult(final UserQuestionResult result) {
 		this.userQuestionResult = result;
 		this.userQuestion = null;
 
@@ -282,12 +314,6 @@ public final class ExecutionTask implements IExecutionTask, IUserAnswerCallback,
 	private void fireFinished() {
 		for (final IExecutionTaskListener listener : executionTaskListeners) {
 			listener.finished();
-		}
-	}
-
-	private void fireUserQuestionAsked() {
-		for (final IExecutionTaskListener listener : executionTaskListeners) {
-			listener.userQuestionAsked(userQuestion, this);
 		}
 	}
 
