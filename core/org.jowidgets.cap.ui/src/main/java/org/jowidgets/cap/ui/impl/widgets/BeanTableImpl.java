@@ -54,7 +54,6 @@ import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.command.ICapActionFactory;
 import org.jowidgets.cap.ui.api.command.ICreatorActionBuilder;
 import org.jowidgets.cap.ui.api.command.IDeleterActionBuilder;
-import org.jowidgets.cap.ui.api.execution.IExecutionInterceptor;
 import org.jowidgets.cap.ui.api.filter.FilterType;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.sort.ISortModel;
@@ -67,6 +66,7 @@ import org.jowidgets.cap.ui.api.widgets.IBeanTableSettingsDialog;
 import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
 import org.jowidgets.cap.ui.api.widgets.ITableMenuCreationInterceptor;
 import org.jowidgets.cap.ui.tools.attribute.AcceptEditableAttributesFilter;
+import org.jowidgets.cap.ui.tools.execution.ExecutionInterceptorAdapter;
 import org.jowidgets.cap.ui.tools.model.BeanListModelWrapper;
 import org.jowidgets.common.types.Dimension;
 import org.jowidgets.common.types.IVetoable;
@@ -275,18 +275,14 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 		final ICreatorActionBuilder builder = actionFactory.creatorActionBuilder(model.getBeanType(), wrappedModel);
 		builder.setCreatorService(model.getCreatorService());
 		builder.setBeanForm(model.getAttributes(AcceptEditableAttributesFilter.getInstance()));
-		builder.addExecutionInterceptor(new IExecutionInterceptor() {
+		builder.addExecutionInterceptor(new ExecutionInterceptorAdapter() {
 			@Override
-			public boolean beforeExecution(final IExecutionContext executionContext) {
+			public void beforeExecution(final IExecutionContext executionContext, final IVetoable continueExecution) {
 				final int pageCount = model.getPageCount();
 				if (pageCount > 0 && !model.isPageCreated(pageCount - 1)) {
 					model.loadPage(pageCount - 1);
 				}
-				return true;
 			}
-
-			@Override
-			public void afterExecution(final IExecutionContext executionContext) {}
 		});
 		return builder.build();
 	}

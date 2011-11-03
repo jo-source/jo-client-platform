@@ -77,6 +77,18 @@ public interface IDeleterActionBuilder<BEAN_TYPE> {
 
 	IDeleterActionBuilder<BEAN_TYPE> setExceptionConverter(IBeanExecptionConverter exceptionConverter);
 
+	/**
+	 * If auto selection is set, after bean deletion was delegated to the deleter service, the
+	 * next bean (the bean after the last selected) will be selected automatically
+	 * 
+	 * @param autoSelection
+	 * 
+	 * @return This builder
+	 */
+	IDeleterActionBuilder<BEAN_TYPE> setAutoSelection(boolean autoSelection);
+
+	IDeleterActionBuilder<BEAN_TYPE> setDeletionConfirmDialog(boolean deletionConfirmDialog);
+
 	IAction build();
 
 }

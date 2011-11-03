@@ -41,6 +41,7 @@ import org.jowidgets.api.command.IExceptionHandler;
 import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.api.threads.IUiThreadAccess;
 import org.jowidgets.api.toolkit.Toolkit;
+import org.jowidgets.api.types.QuestionResult;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
@@ -56,10 +57,17 @@ import org.jowidgets.cap.ui.api.execution.BeanSelectionPolicy;
 import org.jowidgets.cap.ui.api.execution.IExecutionInterceptor;
 import org.jowidgets.cap.ui.api.execution.IExecutionTask;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
+import org.jowidgets.tools.message.MessageReplacer;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.EmptyCheck;
 
 final class BeanDeleterCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
+
+	//TODO i18n
+	private final String singleDeletionConfirmMessage = "Wollen Sie den Datensatz wirklich löschen?";
+	private final String multiDeletionConfirmMessage = "Wollen Sie die '%1 Datensätze' wirklich löschen?";
+	private final String couldNotBeUndoneMessage = "Dies kann nicht rückgängig gemacht werden!";
+	private final String nothingSelectedMessage = "Es ist nichts selektiert!";
 
 	private final IBeanListModel<BEAN_TYPE> model;
 
@@ -75,6 +83,8 @@ final class BeanDeleterCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 	private final IBeanExecptionConverter exceptionConverter;
 
 	private final BeanListModelEnabledChecker<BEAN_TYPE> enabledChecker;
+	private final boolean autoSelection;
+	private final boolean deletionConfirmDialog;
 
 	BeanDeleterCommand(
 		final IBeanListModel<BEAN_TYPE> model,
@@ -86,7 +96,9 @@ final class BeanDeleterCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 		final BeanExecutionPolicy beanExecutionPolicy,
 		final BeanModificationStatePolicy beanModificationStatePolicy,
 		final BeanMessageStatePolicy beanMessageStatePolicy,
-		final IBeanExecptionConverter exceptionConverter) {
+		final IBeanExecptionConverter exceptionConverter,
+		final boolean autoSelection,
+		final boolean deletionConfirmDialog) {
 
 		Assert.paramNotNull(model, "model");
 		Assert.paramNotNull(deleterService, "deleterService");
@@ -108,6 +120,8 @@ final class BeanDeleterCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 		this.executionInterceptors = new LinkedList<IExecutionInterceptor>(executionInterceptors);
 		this.beanExecutionPolicy = beanExecutionPolicy;
 		this.exceptionConverter = exceptionConverter;
+		this.autoSelection = autoSelection;
+		this.deletionConfirmDialog = deletionConfirmDialog;
 	}
 
 	@Override
@@ -127,11 +141,25 @@ final class BeanDeleterCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 
 	@Override
 	public void execute(final IExecutionContext executionContext) throws Exception {
+		final ArrayList<Integer> selection = model.getSelection();
+
+		if (selection == null || selection.size() == 0) {
+			Toolkit.getMessagePane().showWarning(executionContext, nothingSelectedMessage);
+			return;
+		}
+
+		if (deletionConfirmDialog) {
+			if (!showDeletionConfirmDialog(executionContext, selection.size())) {
+				return;
+			}
+		}
+
+		final IBeanKeyFactory beanKeyFactory = CapUiToolkit.beanKeyFactory();
 		final IExecutionTask executionTask = CapUiToolkit.executionTaskFactory().create();
 		final List<IBeanKey> beanKeys = new LinkedList<IBeanKey>();
-		final IBeanKeyFactory beanKeyFactory = CapUiToolkit.beanKeyFactory();
 		final List<IBeanProxy<BEAN_TYPE>> beans = new LinkedList<IBeanProxy<BEAN_TYPE>>();
-		for (final Integer index : model.getSelection()) {
+
+		for (final Integer index : selection) {
 			final IBeanProxy<BEAN_TYPE> bean = model.getBean(index.intValue());
 			if (bean != null && !bean.isDummy() && !bean.isTransient()) {
 				bean.setExecutionTask(executionTask);
@@ -139,12 +167,34 @@ final class BeanDeleterCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 				beans.add(bean);
 			}
 		}
-		final ArrayList<Integer> selection = model.getSelection();
-		if (!EmptyCheck.isEmpty(selection)) {
-			model.setSelection(Collections.singletonList(selection.get(selection.size() - 1) + 1));
+		if (autoSelection) {
+			if (!EmptyCheck.isEmpty(selection)) {
+				model.setSelection(Collections.singletonList(selection.get(selection.size() - 1) + 1));
+			}
 		}
 		model.fireBeansChanged();
 		deleterService.delete(new ResultCallback(beans), beanKeys, executionTask);
+	}
+
+	private boolean showDeletionConfirmDialog(final IExecutionContext executionContext, final int selectionCount) {
+		final QuestionResult questionResult = Toolkit.getQuestionPane().askYesNoQuestion(
+				executionContext,
+				getConfirmationMessage(selectionCount),
+				QuestionResult.YES);
+		return questionResult == QuestionResult.YES;
+	}
+
+	private String getConfirmationMessage(final int selectionCount) {
+		final StringBuilder result = new StringBuilder();
+		if (selectionCount == 1) {
+			result.append(singleDeletionConfirmMessage);
+		}
+		else {
+			result.append(MessageReplacer.replace(multiDeletionConfirmMessage, "" + selectionCount));
+		}
+		result.append("\n");
+		result.append(couldNotBeUndoneMessage);
+		return result.toString();
 	}
 
 	private final class ResultCallback implements IResultCallback<Void> {

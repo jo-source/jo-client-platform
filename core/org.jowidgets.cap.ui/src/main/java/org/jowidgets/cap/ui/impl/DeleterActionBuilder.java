@@ -66,6 +66,8 @@ final class DeleterActionBuilder<BEAN_TYPE> extends AbstractSingleUseBuilder<IAc
 
 	private IDeleterService deleterService;
 	private boolean multiSelection;
+	private boolean autoSelection;
+	private boolean deletionConfirmDialog;
 
 	private BeanExecutionPolicy beanExecutionPolicy;
 	private final BeanModificationStatePolicy beanModificationStatePolicy;
@@ -83,6 +85,8 @@ final class DeleterActionBuilder<BEAN_TYPE> extends AbstractSingleUseBuilder<IAc
 		this.exceptionConverter = new DefaultBeanExceptionConverter();
 
 		this.multiSelection = true;
+		this.autoSelection = true;
+		this.deletionConfirmDialog = true;
 		this.beanModificationStatePolicy = BeanModificationStatePolicy.NO_MODIFICATION;
 		this.beanMessageStatePolicy = BeanMessageStatePolicy.NO_WARNING_OR_ERROR;
 		this.beanExecutionPolicy = BeanExecutionPolicy.BATCH;
@@ -224,6 +228,18 @@ final class DeleterActionBuilder<BEAN_TYPE> extends AbstractSingleUseBuilder<IAc
 	}
 
 	@Override
+	public IDeleterActionBuilder<BEAN_TYPE> setAutoSelection(final boolean autoSelection) {
+		this.autoSelection = autoSelection;
+		return this;
+	}
+
+	@Override
+	public IDeleterActionBuilder<BEAN_TYPE> setDeletionConfirmDialog(final boolean deletionConfirmDialog) {
+		this.deletionConfirmDialog = deletionConfirmDialog;
+		return this;
+	}
+
+	@Override
 	protected IAction doBuild() {
 		final BeanDeleterCommand<BEAN_TYPE> deleterCommand = new BeanDeleterCommand<BEAN_TYPE>(
 			model,
@@ -235,7 +251,9 @@ final class DeleterActionBuilder<BEAN_TYPE> extends AbstractSingleUseBuilder<IAc
 			beanExecutionPolicy,
 			beanModificationStatePolicy,
 			beanMessageStatePolicy,
-			exceptionConverter);
+			exceptionConverter,
+			autoSelection,
+			deletionConfirmDialog);
 		builder.setCommand((ICommand) deleterCommand);
 		return builder.build();
 	}

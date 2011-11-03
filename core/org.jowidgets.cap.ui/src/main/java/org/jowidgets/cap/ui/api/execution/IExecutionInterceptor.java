@@ -29,19 +29,64 @@
 package org.jowidgets.cap.ui.api.execution;
 
 import org.jowidgets.api.command.IExecutionContext;
+import org.jowidgets.common.types.IVetoable;
 
+/**
+ * Execution interceptor to intercept into executions.
+ * 
+ * Remark: All methods will be invoked in the UiThread,
+ */
 public interface IExecutionInterceptor {
 
 	/**
 	 * Will be invoked before the execution occurs
 	 * 
-	 * @return true, if the execution should be continued, false otherwise
+	 * @param vetoable Veto could be set, if the execution should not continue
+	 * @param executionContext
 	 */
-	boolean beforeExecution(IExecutionContext executionContext);
+	void beforeExecution(IExecutionContext executionContext, IVetoable continueExecution);
 
 	/**
-	 * Will be invoked, after the execution has been occurred
+	 * Will be invoked if any interceptor has set a veto in the {@link #beforeExecution(IExecutionContext, IVetoable)} method.
+	 * 
+	 * @param executionContext
 	 */
-	void afterExecution(IExecutionContext executionContext);
+	void onExecutionVeto(IExecutionContext executionContext);
+
+	/**
+	 * Will be invoked after the execution was prepared and before (potential asynchronous) execution
+	 * service(s) will been started.
+	 * 
+	 * @param executionContext
+	 */
+	void afterExecutionPrepared(IExecutionContext executionContext);
+
+	/**
+	 * Will be invoked, after the execution has been finished with success.
+	 * 
+	 * Remark: For executions not running in batch mode, this may be invoked for each sub execution!
+	 * 
+	 * @param executionContext
+	 */
+	void afterExecutionSuccess(IExecutionContext executionContext);
+
+	/**
+	 * Will be invoked, after the execution has been finished with an error
+	 * 
+	 * Remark: For executions not running in batch mode, this may be invoked for each sub execution!
+	 * 
+	 * @param executionContext
+	 * @param error The error or null
+	 */
+	void afterExecutionError(IExecutionContext executionContext, Throwable error);
+
+	/**
+	 * Will be invoked, after the execution has been canceled by the user
+	 * 
+	 * Remark: For executions not running in batch mode, this may be invoked for each sub execution!
+	 * 
+	 * @param executionContext
+	 */
+	void afterExecutionUserCanceled(IExecutionContext executionContext);
 
 }

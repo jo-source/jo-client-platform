@@ -40,8 +40,9 @@ import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.command.IExecutorActionBuilder;
 import org.jowidgets.cap.ui.api.execution.BeanExecutionPolicy;
 import org.jowidgets.cap.ui.api.execution.BeanSelectionPolicy;
-import org.jowidgets.cap.ui.api.execution.IExecutionInterceptor;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
+import org.jowidgets.cap.ui.tools.execution.ExecutionInterceptorAdapter;
+import org.jowidgets.common.types.IVetoable;
 import org.jowidgets.examples.common.icons.SilkIcons;
 import org.jowidgets.tools.command.ActionWrapper;
 
@@ -66,10 +67,10 @@ public class ChangeGenderAction extends ActionWrapper {
 		builder.setExecutor(UserComponentExecutorServices.CHANGE_GENDER);
 		//TODO MG get checker from service (id oder so)
 		builder.addExecutableChecker(new ChangeGenderExecutableChecker());
-		builder.addExecutionInterceptor(new IExecutionInterceptor() {
+		builder.addExecutionInterceptor(new ExecutionInterceptorAdapter() {
 
 			@Override
-			public boolean beforeExecution(final IExecutionContext executionContext) {
+			public void beforeExecution(final IExecutionContext executionContext, final IVetoable continueExecution) {
 				final IAction action = executionContext.getAction();
 				final int size = model.getSelection().size();
 				final String question;
@@ -91,11 +92,11 @@ public class ChangeGenderAction extends ActionWrapper {
 						question,
 						QuestionResult.NO,
 						Icons.QUESTION);
-				return result == QuestionResult.YES;
-			}
 
-			@Override
-			public void afterExecution(final IExecutionContext executionContext) {}
+				if (result != QuestionResult.YES) {
+					continueExecution.veto();
+				}
+			}
 
 		});
 		return builder.build();
