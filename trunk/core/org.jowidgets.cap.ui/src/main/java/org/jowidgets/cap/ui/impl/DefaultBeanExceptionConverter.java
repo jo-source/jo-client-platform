@@ -46,7 +46,7 @@ final class DefaultBeanExceptionConverter implements IBeanExecptionConverter {
 
 	@Override
 	public IBeanMessage convert(
-		final List<IBeanProxy<?>> processedBeans,
+		final List<? extends IBeanProxy<?>> processedBeans,
 		final IBeanProxy<?> destinationBean,
 		final Throwable throwable) {
 		//CHECKSTYLE:OFF
@@ -97,4 +97,5 @@ final class DefaultBeanExceptionConverter implements IBeanExecptionConverter {
 			return new BeanMessageImpl(BeanMessageType.ERROR, "Undefined runtime exception!", throwable);
 		}
 	}
+
 }

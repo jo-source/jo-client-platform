@@ -33,7 +33,6 @@ import org.jowidgets.api.command.IEnabledChecker;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.service.IDeleterService;
 import org.jowidgets.cap.ui.api.bean.IBeanExecptionConverter;
-import org.jowidgets.cap.ui.api.execution.BeanExecutionPolicy;
 import org.jowidgets.cap.ui.api.execution.BeanMessageStatePolicy;
 import org.jowidgets.cap.ui.api.execution.IExecutionInterceptor;
 import org.jowidgets.common.image.IImageConstant;
@@ -62,8 +61,6 @@ public interface IDeleterActionBuilder<BEAN_TYPE> {
 	IDeleterActionBuilder<BEAN_TYPE> setDeleterService(IServiceId<IDeleterService> deleterServiceId);
 
 	IDeleterActionBuilder<BEAN_TYPE> setDeleterService(String deleterServiceId);
-
-	IDeleterActionBuilder<BEAN_TYPE> setExecutionPolicy(BeanExecutionPolicy policy);
 
 	IDeleterActionBuilder<BEAN_TYPE> setMultiSelectionPolicy(boolean multiSelection);
 

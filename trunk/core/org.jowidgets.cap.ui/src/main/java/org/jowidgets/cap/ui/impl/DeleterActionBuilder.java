@@ -41,7 +41,6 @@ import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.service.IDeleterService;
 import org.jowidgets.cap.ui.api.bean.IBeanExecptionConverter;
 import org.jowidgets.cap.ui.api.command.IDeleterActionBuilder;
-import org.jowidgets.cap.ui.api.execution.BeanExecutionPolicy;
 import org.jowidgets.cap.ui.api.execution.BeanMessageStatePolicy;
 import org.jowidgets.cap.ui.api.execution.BeanModificationStatePolicy;
 import org.jowidgets.cap.ui.api.execution.IExecutionInterceptor;
@@ -69,7 +68,6 @@ final class DeleterActionBuilder<BEAN_TYPE> extends AbstractSingleUseBuilder<IAc
 	private boolean autoSelection;
 	private boolean deletionConfirmDialog;
 
-	private BeanExecutionPolicy beanExecutionPolicy;
 	private final BeanModificationStatePolicy beanModificationStatePolicy;
 	private BeanMessageStatePolicy beanMessageStatePolicy;
 	private IBeanExecptionConverter exceptionConverter;
@@ -89,7 +87,6 @@ final class DeleterActionBuilder<BEAN_TYPE> extends AbstractSingleUseBuilder<IAc
 		this.deletionConfirmDialog = true;
 		this.beanModificationStatePolicy = BeanModificationStatePolicy.NO_MODIFICATION;
 		this.beanMessageStatePolicy = BeanMessageStatePolicy.NO_WARNING_OR_ERROR;
-		this.beanExecutionPolicy = BeanExecutionPolicy.BATCH;
 
 		builder.setText(Messages.getString("DeleterActionBuilder.delete_data_set"));
 		builder.setToolTipText(Messages.getString("DeleterActionBuilder.delete_data_set_tooltip"));
@@ -181,14 +178,6 @@ final class DeleterActionBuilder<BEAN_TYPE> extends AbstractSingleUseBuilder<IAc
 	}
 
 	@Override
-	public IDeleterActionBuilder<BEAN_TYPE> setExecutionPolicy(final BeanExecutionPolicy policy) {
-		checkExhausted();
-		Assert.paramNotNull(policy, "policy");
-		this.beanExecutionPolicy = policy;
-		return this;
-	}
-
-	@Override
 	public IDeleterActionBuilder<BEAN_TYPE> setMultiSelectionPolicy(final boolean multiSelection) {
 		checkExhausted();
 		this.multiSelection = multiSelection;
@@ -248,7 +237,6 @@ final class DeleterActionBuilder<BEAN_TYPE> extends AbstractSingleUseBuilder<IAc
 			deleterService,
 			executionInterceptors,
 			multiSelection,
-			beanExecutionPolicy,
 			beanModificationStatePolicy,
 			beanMessageStatePolicy,
 			exceptionConverter,
