@@ -721,21 +721,16 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		//hold the beans that should be deleted but that are currently not deleted
 		final Set<IBeanProxy<BEAN_TYPE>> beansToDelete = new HashSet<IBeanProxy<BEAN_TYPE>>(beans);
 
-		final List<Integer> pageKeys = new LinkedList<Integer>(data.keySet());
-		Collections.sort(pageKeys);
-
 		final Map<Integer, ArrayList<IBeanProxy<BEAN_TYPE>>> newData = new HashMap<Integer, ArrayList<IBeanProxy<BEAN_TYPE>>>();
-
 		int newPageIndex = 0;
 		ArrayList<IBeanProxy<BEAN_TYPE>> newPage = new ArrayList<IBeanProxy<BEAN_TYPE>>(pageSize);
 
 		final int pageCount = getPage(dataModel.getDataRowCount()) + 1;
-		boolean nullPageAdded = true;
 		int addedNullCount = 0;
 		for (int pageIndex = 0; pageIndex < pageCount; pageIndex++) {
 			final ArrayList<IBeanProxy<BEAN_TYPE>> page = data.get(pageIndex);
+			//add a regular page
 			if (page != null) {
-				System.out.println("ADD REGULAR PAGE: " + pageIndex);
 				for (final IBeanProxy<BEAN_TYPE> bean : page) {
 					final boolean deletedBeanRemoved = beansToDelete.remove(bean);
 					if (deletedBeanRemoved) {
@@ -745,7 +740,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 							countedRowCount = Integer.valueOf(countedRowCount.intValue() - 1);
 						}
 					}
-					else if (addedNullCount < pageSize && newPage.size() < pageSize) {
+					else if (newPage.size() < pageSize && addedNullCount < pageSize) {
 						newPage.add(bean);
 					}
 					else {
@@ -755,7 +750,6 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 						newPageIndex++;
 						newPage = new ArrayList<IBeanProxy<BEAN_TYPE>>(pageSize);
 						newPage.add(bean);
-						addedNullCount = 0;
 					}
 					if (oldSelection.remove(bean)) {
 						if (!deletedBeanRemoved) {
@@ -769,10 +763,9 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 						addedNullCount = 0;
 					}
 				}
-				nullPageAdded = false;
 			}
-			else if (!nullPageAdded) {
-				System.out.println("ADD NULL PAGE: " + pageIndex);
+			//add a null page (add 'pageSize' times a 'null')
+			else if (addedNullCount < pageSize) {
 				for (int i = 0; i < pageSize; i++) {
 					if (newPage.size() < pageSize) {
 						newPage.add(null);
@@ -784,29 +777,22 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 						}
 						newPageIndex++;
 						newPage = new ArrayList<IBeanProxy<BEAN_TYPE>>(pageSize);
-						addedNullCount = 0;
 						newPage.add(null);
 						addedNullCount++;
 					}
 				}
-				nullPageAdded = true;
 			}
+			//skip the page 
+			//(there a more than one page of null's added, so the page can be skipped) 
 			else {
-				System.out.println("SKIP PAGE: " + pageIndex);
-				//put the added null page to the data, if not empty, 
-				if (newPage.size() > 0 && addedNullCount < pageSize) {
-					newData.put(newPageIndex, newPage);
-				}
-				//skip this page
 				newPage = new ArrayList<IBeanProxy<BEAN_TYPE>>(pageSize);
-				addedNullCount = 0;
 				newPageIndex++;
 				addedNullCount = addedNullCount + pageSize;
-				nullPageAdded = true;
 			}
 
 		}
-		if (newPage.size() > 0 && addedNullCount < pageSize && newData.get(newPageIndex) == null) {
+		//add the last new page if it has data
+		if (newPage.size() > 0) {
 			newData.put(newPageIndex, newPage);
 		}
 		return newData;
@@ -1588,7 +1574,6 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		void completePage() {
 			page = data.get(Integer.valueOf(pageIndex));
 			offset = getPageOffset();
-			System.out.println("PAGE: " + pageIndex + " / OFFSET: " + offset);
 			startPageLoading();
 		}
 
@@ -1679,9 +1664,15 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		}
 
 		void readDataFromService() {
-			readerService.read(createResultCallback(), getParentBeanKeys(), filter, sortModel.getSorting(), pageIndex
-				* pageSize
-				+ offset, pageSize - offset + 1, parameter, executionTask);
+			readerService.read(
+					createResultCallback(),
+					getParentBeanKeys(),
+					filter,
+					sortModel.getSorting(),
+					(pageIndex * pageSize) + offset,
+					pageSize - offset + 1,
+					parameter,
+					executionTask);
 		}
 
 		boolean isDisposed() {
