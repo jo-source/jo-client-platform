@@ -182,8 +182,13 @@ final class ExecutorCommand implements ICommand, ICommandExecutor {
 			executionTask.addExecutionCallbackListener(new IExecutionCallbackListener() {
 				@Override
 				public void canceled() {
-					executionHelper.afterExecution(beans, null);
-					executionObservable.fireAfterExecutionCanceled(executionContext);
+					uiThreadAccess.invokeLater(new Runnable() {
+						@Override
+						public void run() {
+							executionHelper.afterExecution(beans, null);
+							executionObservable.fireAfterExecutionCanceled(executionContext);
+						}
+					});
 				}
 			});
 		}
