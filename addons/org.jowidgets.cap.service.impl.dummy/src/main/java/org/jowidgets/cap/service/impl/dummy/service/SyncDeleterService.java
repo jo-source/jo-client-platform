@@ -55,12 +55,13 @@ final class SyncDeleterService implements ISyncDeleterService {
 
 	@Override
 	public void delete(final Collection<? extends IBeanKey> keys, final IExecutionCallback executionCallback) {
+
 		for (final IBeanKey key : keys) {
 			final IBean bean = data.getData(key.getId());
 			if (!allowDeletedData && bean == null) {
 				throw new DeletedBeanException(key);
 			}
-			if (!allowStaleData && bean.getVersion() != key.getVersion()) {
+			if (!allowStaleData && bean != null && bean.getVersion() != key.getVersion()) {
 				throw new StaleBeanException(key);
 			}
 			data.deleteData(key.getId());

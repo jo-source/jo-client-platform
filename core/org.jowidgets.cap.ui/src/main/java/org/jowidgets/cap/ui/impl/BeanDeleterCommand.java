@@ -44,13 +44,13 @@ import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.types.QuestionResult;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
+import org.jowidgets.cap.common.api.execution.IExecutionCallbackListener;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.service.IDeleterService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.bean.IBeanExecptionConverter;
 import org.jowidgets.cap.ui.api.bean.IBeanKeyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
-import org.jowidgets.cap.ui.api.execution.BeanExecutionPolicy;
 import org.jowidgets.cap.ui.api.execution.BeanMessageStatePolicy;
 import org.jowidgets.cap.ui.api.execution.BeanModificationStatePolicy;
 import org.jowidgets.cap.ui.api.execution.BeanSelectionPolicy;
@@ -70,16 +70,8 @@ final class BeanDeleterCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 	private final String nothingSelectedMessage = "Es ist nichts selektiert!";
 
 	private final IBeanListModel<BEAN_TYPE> model;
-
 	private final IDeleterService deleterService;
-
-	@SuppressWarnings("unused")
-	private final List<IExecutionInterceptor> executionInterceptors;
-
-	@SuppressWarnings("unused")
-	private final BeanExecutionPolicy beanExecutionPolicy;
-
-	@SuppressWarnings("unused")
+	private final ExecutionObservable executionObservable;
 	private final IBeanExecptionConverter exceptionConverter;
 
 	private final BeanListModelEnabledChecker<BEAN_TYPE> enabledChecker;
@@ -93,7 +85,6 @@ final class BeanDeleterCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 		final IDeleterService deleterService,
 		final List<IExecutionInterceptor> executionInterceptors,
 		final boolean multiSelection,
-		final BeanExecutionPolicy beanExecutionPolicy,
 		final BeanModificationStatePolicy beanModificationStatePolicy,
 		final BeanMessageStatePolicy beanMessageStatePolicy,
 		final IBeanExecptionConverter exceptionConverter,
@@ -103,7 +94,6 @@ final class BeanDeleterCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 		Assert.paramNotNull(model, "model");
 		Assert.paramNotNull(deleterService, "deleterService");
 		Assert.paramNotNull(executionInterceptors, "executionInterceptors");
-		Assert.paramNotNull(beanExecutionPolicy, "beanExecutionPolicy");
 		Assert.paramNotNull(exceptionConverter, "exceptionConverter");
 
 		this.enabledChecker = new BeanListModelEnabledChecker<BEAN_TYPE>(
@@ -117,8 +107,7 @@ final class BeanDeleterCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 
 		this.model = model;
 		this.deleterService = deleterService;
-		this.executionInterceptors = new LinkedList<IExecutionInterceptor>(executionInterceptors);
-		this.beanExecutionPolicy = beanExecutionPolicy;
+		this.executionObservable = new ExecutionObservable(executionInterceptors);
 		this.exceptionConverter = exceptionConverter;
 		this.autoSelection = autoSelection;
 		this.deletionConfirmDialog = deletionConfirmDialog;
@@ -141,6 +130,10 @@ final class BeanDeleterCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 
 	@Override
 	public void execute(final IExecutionContext executionContext) throws Exception {
+		if (!executionObservable.fireBeforeExecution(executionContext)) {
+			return;
+		}
+
 		final ArrayList<Integer> selection = model.getSelection();
 
 		if (selection == null || selection.size() == 0) {
@@ -156,6 +149,7 @@ final class BeanDeleterCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 
 		final IBeanKeyFactory beanKeyFactory = CapUiToolkit.beanKeyFactory();
 		final IExecutionTask executionTask = CapUiToolkit.executionTaskFactory().create();
+
 		final List<IBeanKey> beanKeys = new LinkedList<IBeanKey>();
 		final List<IBeanProxy<BEAN_TYPE>> beans = new LinkedList<IBeanProxy<BEAN_TYPE>>();
 
@@ -167,13 +161,32 @@ final class BeanDeleterCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 				beans.add(bean);
 			}
 		}
+
+		final IUiThreadAccess uiThreadAccess = Toolkit.getUiThreadAccess();
+		executionTask.addExecutionCallbackListener(new IExecutionCallbackListener() {
+			@Override
+			public void canceled() {
+				uiThreadAccess.invokeLater(new Runnable() {
+					@Override
+					public void run() {
+						for (final IBeanProxy<BEAN_TYPE> bean : beans) {
+							bean.setExecutionTask(null);
+						}
+						model.fireBeansChanged();
+						executionObservable.fireAfterExecutionCanceled(executionContext);
+					}
+				});
+			}
+		});
+
 		if (autoSelection) {
 			if (!EmptyCheck.isEmpty(selection)) {
 				model.setSelection(Collections.singletonList(selection.get(selection.size() - 1) + 1));
 			}
 		}
 		model.fireBeansChanged();
-		deleterService.delete(new ResultCallback(beans), beanKeys, executionTask);
+		executionObservable.fireAfterExecutionPrepared(executionContext);
+		deleterService.delete(new ResultCallback(executionContext, beans), beanKeys, executionTask);
 	}
 
 	private boolean showDeletionConfirmDialog(final IExecutionContext executionContext, final int selectionCount) {
@@ -200,11 +213,13 @@ final class BeanDeleterCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 	private final class ResultCallback implements IResultCallback<Void> {
 
 		private final List<IBeanProxy<BEAN_TYPE>> beans;
+		private final IExecutionContext executionContext;
 		private final IUiThreadAccess uiThreadAccess;
 
-		private ResultCallback(final List<IBeanProxy<BEAN_TYPE>> beans) {
+		private ResultCallback(final IExecutionContext executionContext, final List<IBeanProxy<BEAN_TYPE>> beans) {
 			this.beans = beans;
 			this.uiThreadAccess = Toolkit.getUiThreadAccess();
+			this.executionContext = executionContext;
 		}
 
 		@Override
@@ -214,9 +229,7 @@ final class BeanDeleterCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 
 		@Override
 		public void exception(final Throwable exception) {
-			//CHECKSTYLE:OFF
-			exception.printStackTrace();
-			//CHECKSTYLE:ON
+			onExceptionLater(exception);
 		}
 
 		@Override
@@ -238,6 +251,31 @@ final class BeanDeleterCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 				bean.setExecutionTask(null);
 			}
 			model.removeBeans(beans);
+			model.fireBeansChanged();
+			executionObservable.fireAfterExecutionSuccess(executionContext);
+		}
+
+		private void onExceptionLater(final Throwable exception) {
+			uiThreadAccess.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					onException(exception);
+				}
+			});
+		}
+
+		private void onException(final Throwable exception) {
+			//CHECKSTYLE:OFF
+			exception.printStackTrace();
+			//CHECKSTYLE:ON
+
+			for (final IBeanProxy<BEAN_TYPE> bean : beans) {
+				bean.setExecutionTask(null);
+				bean.addMessage(exceptionConverter.convert(beans, bean, exception));
+			}
+
+			model.fireBeansChanged();
+			executionObservable.fireAfterExecutionError(executionContext, exception);
 		}
 	}
 }

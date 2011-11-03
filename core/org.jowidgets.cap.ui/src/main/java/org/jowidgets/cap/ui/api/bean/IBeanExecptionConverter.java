@@ -32,6 +32,6 @@ import java.util.List;
 
 public interface IBeanExecptionConverter {
 
-	IBeanMessage convert(List<IBeanProxy<?>> processedBeans, IBeanProxy<?> destinationBean, Throwable throwable);
+	IBeanMessage convert(List<? extends IBeanProxy<?>> processedBeans, IBeanProxy<?> destinationBean, Throwable throwable);
 
 }

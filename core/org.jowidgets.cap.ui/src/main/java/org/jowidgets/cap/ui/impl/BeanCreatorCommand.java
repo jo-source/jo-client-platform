@@ -285,7 +285,7 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 		private void setException(final Throwable exception) {
 			bean.setExecutionTask(null);
 			if (exception != null) {
-				final List<IBeanProxy<?>> beans = new LinkedList<IBeanProxy<?>>();
+				final List<IBeanProxy<BEAN_TYPE>> beans = new LinkedList<IBeanProxy<BEAN_TYPE>>();
 				beans.add(bean);
 				bean.addMessage(exceptionConverter.convert(beans, bean, exception));
 			}
