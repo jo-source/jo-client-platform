@@ -38,8 +38,6 @@ public interface IExecutionTaskListener {
 
 	void finished();
 
-	void userQuestionAsked(String question, IUserAnswerCallback callback);
-
 	void subExecutionAdded(IExecutionTask executionTask);
 
 }
