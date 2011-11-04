@@ -121,6 +121,7 @@ final class UserDataInitializer {
 		user.setCountry(Countries.ITALY);
 		addRole(user, RoleInitializer.USER_ROLE);
 		addRole(user, RoleInitializer.ADMIN_ROLE);
+		addRole(user, RoleInitializer.MANAGER_ROLE);
 		data.add(user);
 
 		user = new User(data.nextId());

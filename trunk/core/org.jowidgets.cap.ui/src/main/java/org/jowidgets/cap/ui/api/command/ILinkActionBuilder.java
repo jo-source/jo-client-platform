@@ -33,54 +33,65 @@ import java.util.List;
 import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.command.IEnabledChecker;
 import org.jowidgets.cap.common.api.entity.IEntityLinkProperties;
+import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.service.ICreatorService;
 import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.bean.IBeanExecptionConverter;
+import org.jowidgets.cap.ui.api.execution.BeanMessageStatePolicy;
+import org.jowidgets.cap.ui.api.execution.BeanModificationStatePolicy;
 import org.jowidgets.cap.ui.api.execution.IExecutionInterceptor;
 import org.jowidgets.common.image.IImageConstant;
 import org.jowidgets.common.types.Accelerator;
 import org.jowidgets.common.types.Modifier;
 
-public interface ILinkActionBuilder {
+public interface ILinkActionBuilder<BEAN_TYPE> {
 
-	ILinkActionBuilder setText(String text);
+	ILinkActionBuilder<BEAN_TYPE> setText(String text);
 
-	ILinkActionBuilder setToolTipText(final String toolTipText);
+	ILinkActionBuilder<BEAN_TYPE> setToolTipText(final String toolTipText);
 
-	ILinkActionBuilder setIcon(IImageConstant icon);
+	ILinkActionBuilder<BEAN_TYPE> setIcon(IImageConstant icon);
 
-	ILinkActionBuilder setMnemonic(final Character mnemonic);
+	ILinkActionBuilder<BEAN_TYPE> setMnemonic(final Character mnemonic);
 
-	ILinkActionBuilder setMnemonic(final char mnemonic);
+	ILinkActionBuilder<BEAN_TYPE> setMnemonic(final char mnemonic);
 
-	ILinkActionBuilder setAccelerator(Accelerator accelerator);
+	ILinkActionBuilder<BEAN_TYPE> setAccelerator(Accelerator accelerator);
 
-	ILinkActionBuilder setAccelerator(final char key, final Modifier... modifier);
+	ILinkActionBuilder<BEAN_TYPE> setAccelerator(final char key, final Modifier... modifier);
 
-	ILinkActionBuilder setLinkCreatorService(ICreatorService creatorService);
+	ILinkActionBuilder<BEAN_TYPE> setLinkCreatorService(ICreatorService creatorService);
 
-	ILinkActionBuilder setLinkableTableAttributes(List<? extends IAttribute<?>> attributes);
+	ILinkActionBuilder<BEAN_TYPE> setLinkableTableAttributes(List<? extends IAttribute<?>> attributes);
 
-	ILinkActionBuilder setLinkableTableLabel(String label);
+	ILinkActionBuilder<BEAN_TYPE> setLinkableTableEntityId(Object id);
 
-	ILinkActionBuilder setLinkableTableReaderService(IReaderService<Void> readerService);
+	ILinkActionBuilder<BEAN_TYPE> setLinkableTableLabel(String label);
 
-	ILinkActionBuilder setSourceProperties(IEntityLinkProperties properties);
+	ILinkActionBuilder<BEAN_TYPE> setLinkableTableReaderService(IReaderService<Void> readerService);
 
-	ILinkActionBuilder setSourceProperties(String keyPropertyName, String foreignKeyPropertyname);
+	ILinkActionBuilder<BEAN_TYPE> setSourceProperties(IEntityLinkProperties properties);
 
-	ILinkActionBuilder setDestinationProperties(IEntityLinkProperties properties);
+	ILinkActionBuilder<BEAN_TYPE> setSourceProperties(String keyPropertyName, String foreignKeyPropertyName);
 
-	ILinkActionBuilder setDestinationProperties(String keyPropertyName, String foreignKeyPropertyname);
+	ILinkActionBuilder<BEAN_TYPE> setDestinationProperties(IEntityLinkProperties properties);
 
-	ILinkActionBuilder setMultiSelection(boolean multiSelection);
+	ILinkActionBuilder<BEAN_TYPE> setDestinationProperties(String keyPropertyName, String foreignKeyPropertyName);
 
-	ILinkActionBuilder addEnabledChecker(IEnabledChecker enabledChecker);
+	ILinkActionBuilder<BEAN_TYPE> setMultiSelection(boolean multiSelection);
 
-	ILinkActionBuilder setExceptionConverter(IBeanExecptionConverter exceptionConverter);
+	ILinkActionBuilder<BEAN_TYPE> addEnabledChecker(IEnabledChecker enabledChecker);
 
-	ILinkActionBuilder addExecutionInterceptor(IExecutionInterceptor interceptor);
+	ILinkActionBuilder<BEAN_TYPE> setModificationPolicy(BeanModificationStatePolicy policy);
+
+	ILinkActionBuilder<BEAN_TYPE> setMessageStatePolicy(BeanMessageStatePolicy policy);
+
+	ILinkActionBuilder<BEAN_TYPE> addExecutableChecker(IExecutableChecker<BEAN_TYPE> executableChecker);
+
+	ILinkActionBuilder<BEAN_TYPE> setExceptionConverter(IBeanExecptionConverter exceptionConverter);
+
+	ILinkActionBuilder<BEAN_TYPE> addExecutionInterceptor(IExecutionInterceptor interceptor);
 
 	IAction build();
 
