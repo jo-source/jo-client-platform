@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.ui.api.table;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.jowidgets.api.model.table.ITableModel;
@@ -84,6 +85,8 @@ public interface IBeanTableModel<BEAN_TYPE> extends IDataModel, IBeanListModel<B
 	IBeanProxy<BEAN_TYPE> getFirstSelectedBean();
 
 	List<IBeanProxy<BEAN_TYPE>> getSelectedBeans();
+
+	void setSelectedBeans(Collection<? extends IBeanProxy<BEAN_TYPE>> selectedBeans);
 
 	void addFilterChangeListener(IChangeListener changeListener);
 

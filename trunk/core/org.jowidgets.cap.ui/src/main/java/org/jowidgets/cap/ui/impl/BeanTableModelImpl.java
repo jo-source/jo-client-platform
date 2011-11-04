@@ -898,6 +898,44 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		tableModel.setSelection(selection);
 	}
 
+	@SuppressWarnings("unchecked")
+	@Override
+	public void setSelectedBeans(final Collection<? extends IBeanProxy<BEAN_TYPE>> selectedBeans) {
+		Assert.paramNotNull(selectedBeans, "selectedBeans");
+		final List<Integer> newSelection = new LinkedList<Integer>();
+
+		if (!EmptyCheck.isEmpty(selectedBeans)) {
+			//use hash set instead of collection for faster access
+			final Set<IBeanProxy<BEAN_TYPE>> selectedBeansSet;
+			if (selectedBeans instanceof HashSet) {
+				selectedBeansSet = (Set<IBeanProxy<BEAN_TYPE>>) selectedBeans;
+			}
+			else {
+				selectedBeansSet = new HashSet<IBeanProxy<BEAN_TYPE>>(selectedBeans);
+			}
+			for (final Entry<Integer, ArrayList<IBeanProxy<BEAN_TYPE>>> pageEntry : data.entrySet()) {
+				final int pageIndex = pageEntry.getKey().intValue();
+				final int pageStartIndex = pageIndex * pageSize;
+				int relativeIndex = 0;
+				for (final IBeanProxy<BEAN_TYPE> bean : pageEntry.getValue()) {
+					if (bean != null && selectedBeansSet.contains(bean)) {
+						newSelection.add(Integer.valueOf(pageStartIndex + relativeIndex));
+					}
+					relativeIndex++;
+				}
+			}
+			final int dataRowCount = dataModel.getDataRowCount();
+			for (final IBeanProxy<BEAN_TYPE> bean : addedData) {
+				int relativeIndex = 0;
+				if (bean != null && selectedBeansSet.contains(bean)) {
+					newSelection.add(Integer.valueOf(dataRowCount + relativeIndex));
+				}
+				relativeIndex++;
+			}
+		}
+		setSelection(newSelection);
+	}
+
 	@Override
 	public List<IBeanProxy<BEAN_TYPE>> getSelectedBeans() {
 		final List<IBeanProxy<BEAN_TYPE>> result = new LinkedList<IBeanProxy<BEAN_TYPE>>();

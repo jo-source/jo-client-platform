@@ -42,6 +42,7 @@ import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.widgets.IAttributeFilterControlBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanDialogBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
+import org.jowidgets.cap.ui.api.widgets.IBeanSelectionTableBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableFormBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableSettingsDialogBluePrint;
@@ -61,9 +62,23 @@ final class CapApiBluePrintFactory implements ICapApiBluePrintFactory {
 
 	@SuppressWarnings("unchecked")
 	@Override
+	public <BEAN_TYPE> IBeanTableBluePrint<BEAN_TYPE> beanTable() {
+		return bluePrintFactory.bluePrint(IBeanTableBluePrint.class);
+	}
+
+	@Override
 	public <BEAN_TYPE> IBeanTableBluePrint<BEAN_TYPE> beanTable(final IBeanTableModel<BEAN_TYPE> model) {
 		Assert.paramNotNull(model, "model");
-		final IBeanTableBluePrint<BEAN_TYPE> result = bluePrintFactory.bluePrint(IBeanTableBluePrint.class);
+		final IBeanTableBluePrint<BEAN_TYPE> result = beanTable();
+		result.setModel(model);
+		return result;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public <BEAN_TYPE> IBeanSelectionTableBluePrint<BEAN_TYPE> beanSelectionTable(final IBeanTableModel<BEAN_TYPE> model) {
+		Assert.paramNotNull(model, "model");
+		final IBeanSelectionTableBluePrint<BEAN_TYPE> result = bluePrintFactory.bluePrint(IBeanSelectionTableBluePrint.class);
 		result.setModel(model);
 		return result;
 	}

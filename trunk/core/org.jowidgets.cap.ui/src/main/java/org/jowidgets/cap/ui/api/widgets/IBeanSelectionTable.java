@@ -28,10 +28,11 @@
 
 package org.jowidgets.cap.ui.api.widgets;
 
-import org.jowidgets.common.widgets.descriptor.IWidgetDescriptor;
+import java.util.List;
 
-public interface IBeanTableBluePrint<BEAN_TYPE> extends
-		IBeanTableSetupBuilder<BEAN_TYPE>,
-		IWidgetDescriptor<IBeanTable<BEAN_TYPE>> {
+import org.jowidgets.api.widgets.IInputControl;
+import org.jowidgets.cap.ui.api.bean.IBeanProxy;
+
+public interface IBeanSelectionTable<BEAN_TYPE> extends IBeanTable<BEAN_TYPE>, IInputControl<List<IBeanProxy<BEAN_TYPE>>> {
 
 }

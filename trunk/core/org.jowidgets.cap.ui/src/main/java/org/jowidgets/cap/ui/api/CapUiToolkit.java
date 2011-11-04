@@ -63,10 +63,12 @@ import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
 import org.jowidgets.cap.ui.api.widgets.IAttributeFilterControlBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanDialogBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
+import org.jowidgets.cap.ui.api.widgets.IBeanSelectionTableBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableFormBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableFormSetupBuilder;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableSettingsDialogBluePrint;
+import org.jowidgets.cap.ui.api.widgets.IBeanTableSetupBuilder;
 import org.jowidgets.cap.ui.api.widgets.IBeanTablesFormBluePrint;
 import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
 import org.jowidgets.cap.ui.api.widgets.ILookUpCollectionInputFieldBluePrint;
@@ -76,6 +78,7 @@ import org.jowidgets.cap.ui.impl.DefaultCapUiToolkit;
 import org.jowidgets.cap.ui.impl.widgets.AttributeFilterControlFactory;
 import org.jowidgets.cap.ui.impl.widgets.BeanDialogFactory;
 import org.jowidgets.cap.ui.impl.widgets.BeanFormFactory;
+import org.jowidgets.cap.ui.impl.widgets.BeanSelectionTableFactory;
 import org.jowidgets.cap.ui.impl.widgets.BeanTableFactory;
 import org.jowidgets.cap.ui.impl.widgets.BeanTableFormFactory;
 import org.jowidgets.cap.ui.impl.widgets.BeanTableSettingsDialogFactory;
@@ -206,6 +209,7 @@ public final class CapUiToolkit {
 	private static void registerWidgets(final IToolkit toolkit) {
 		final IGenericWidgetFactory genericWidgetFactory = toolkit.getWidgetFactory();
 		genericWidgetFactory.register(IBeanTableBluePrint.class, new BeanTableFactory());
+		genericWidgetFactory.register(IBeanSelectionTableBluePrint.class, new BeanSelectionTableFactory());
 		genericWidgetFactory.register(IBeanFormBluePrint.class, new BeanFormFactory());
 		genericWidgetFactory.register(IBeanDialogBluePrint.class, new BeanDialogFactory());
 		genericWidgetFactory.register(IBeanTablesFormBluePrint.class, new BeanTablesFormFactory());
@@ -220,11 +224,10 @@ public final class CapUiToolkit {
 		toolkit.getImageRegistry().registerImageConstant(CapIcons.TABLE_SETTINGS, IconsSmall.SETTINGS);
 
 		toolkit.getBluePrintFactory().addDefaultsInitializer(
-				IBeanTableBluePrint.class,
-				new IDefaultInitializer<IBeanTableBluePrint<?>>() {
-
+				IBeanTableSetupBuilder.class,
+				new IDefaultInitializer<IBeanTableSetupBuilder<?>>() {
 					@Override
-					public void initialize(final IBeanTableBluePrint<?> bluePrint) {
+					public void initialize(final IBeanTableSetupBuilder<?> bluePrint) {
 						bluePrint.setSelectionPolicy(TableSelectionPolicy.MULTI_ROW_SELECTION);
 						bluePrint.setColumnsMoveable(true);
 						bluePrint.setColumnsResizeable(true);
@@ -232,6 +235,16 @@ public final class CapUiToolkit {
 						bluePrint.setDefaultCreatorAction(true);
 						bluePrint.setDefaultDeleterAction(true);
 						bluePrint.setSearchFilterToolbarVisible(false);
+					}
+				});
+
+		toolkit.getBluePrintFactory().addDefaultsInitializer(
+				IBeanSelectionTableBluePrint.class,
+				new IDefaultInitializer<IBeanSelectionTableBluePrint<?>>() {
+					@Override
+					public void initialize(final IBeanSelectionTableBluePrint<?> bluePrint) {
+						bluePrint.setSearchFilterToolbarVisible(true);
+						bluePrint.setMandatorySelectionValidator(true);
 					}
 				});
 

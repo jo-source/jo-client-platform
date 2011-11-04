@@ -65,7 +65,8 @@ import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.model.LinkType;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
-import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
+import org.jowidgets.cap.ui.api.widgets.IBeanSelectionTable;
+import org.jowidgets.cap.ui.api.widgets.IBeanSelectionTableBluePrint;
 import org.jowidgets.common.types.Dimension;
 import org.jowidgets.tools.layout.MigLayoutFactory;
 import org.jowidgets.tools.widgets.blueprint.BPF;
@@ -228,10 +229,9 @@ final class BeanLinkCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
 
 		final IBeanTableModel<IBean> linkableModel = modelBuilder.build();
 
-		final IBeanTableBluePrint<?> tableBp = CapUiToolkit.bluePrintFactory().beanTable(linkableModel);
-		tableBp.setSearchFilterToolbarVisible(true);
+		final IBeanSelectionTableBluePrint<?> tableBp = CapUiToolkit.bluePrintFactory().beanSelectionTable(linkableModel);
 
-		dialog.add(tableBp, MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
+		final IBeanSelectionTable<?> selectionTable = dialog.add(tableBp, MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
 
 		linkableModel.load();
 		dialog.setVisible(true);
