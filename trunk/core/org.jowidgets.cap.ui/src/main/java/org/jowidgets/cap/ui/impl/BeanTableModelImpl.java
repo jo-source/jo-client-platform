@@ -1737,6 +1737,9 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			else if (pageIndex >= maxPageIndex) {
 				rowCount = (pageIndex * pageSize + beanDtos.size());
 				maxPageIndex = pageIndex;
+				if (countedRowCount != null && beanDtos.size() < pageSize) {
+					countedRowCount = Integer.valueOf(rowCount);
+				}
 			}
 
 			if (countedRowCount != null && rowCount > countedRowCount.intValue()) {
