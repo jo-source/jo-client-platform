@@ -29,6 +29,7 @@
 package org.jowidgets.cap.ui.impl.widgets;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -36,6 +37,7 @@ import java.util.Set;
 import org.jowidgets.api.model.item.ICheckedItemModel;
 import org.jowidgets.api.model.item.IMenuModel;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
+import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.widgets.IBeanSelectionTable;
 import org.jowidgets.cap.ui.api.widgets.IBeanSelectionTableBluePrint;
@@ -52,6 +54,7 @@ import org.jowidgets.common.widgets.controller.ITableColumnPopupDetectionListene
 import org.jowidgets.common.widgets.controller.ITableSelectionListener;
 import org.jowidgets.tools.widgets.wrapper.AbstractInputControl;
 import org.jowidgets.util.EmptyCheck;
+import org.jowidgets.util.EmptyCompatibleEquivalence;
 import org.jowidgets.validation.IValidationResult;
 import org.jowidgets.validation.ValidationResult;
 
@@ -59,6 +62,7 @@ final class BeanSelectionTableImpl<BEAN_TYPE> extends AbstractInputControl<List<
 		IBeanSelectionTable<BEAN_TYPE> {
 
 	private final String nothingSelectedErrorMessage;
+	private final String unloadedSelectionErrorMessage;
 
 	private final IBeanTable<BEAN_TYPE> table;
 	private final Set<IBeanProxy<BEAN_TYPE>> lastValue;
@@ -79,21 +83,50 @@ final class BeanSelectionTableImpl<BEAN_TYPE> extends AbstractInputControl<List<
 		else {
 			nothingSelectedErrorMessage = Messages.getString("BeanSelectionTableImpl.at_least_one_dataset_must_be_selected");
 		}
+		unloadedSelectionErrorMessage = Messages.getString("BeanSelectionTableImpl.selection_contains_unloaded_data");
+
+		table.getModel().addBeanListModelListener(new IBeanListModelListener() {
+
+			@Override
+			public void selectionChanged() {
+				fireInputChanged();
+				setValidationCacheDirty();
+			}
+
+			@Override
+			public void beansChanged() {
+				setValidationCacheDirty();
+			}
+		});
 
 		this.lastValue = new HashSet<IBeanProxy<BEAN_TYPE>>();
 	}
 
 	@Override
 	protected IValidationResult createValidationResult() {
-		if (mandatorySelectionValidator && EmptyCheck.isEmpty(table.getSelection())) {
+		final IBeanTableModel<BEAN_TYPE> model = table.getModel();
+		final ArrayList<Integer> selection = model.getSelection();
+		if (mandatorySelectionValidator && EmptyCheck.isEmpty(selection)) {
 			return ValidationResult.error(nothingSelectedErrorMessage);
+		}
+		for (final Integer index : selection) {
+			final IBeanProxy<BEAN_TYPE> bean = model.getBean(index.intValue());
+			if (bean == null || bean.isDummy()) {
+				return ValidationResult.error(unloadedSelectionErrorMessage);
+			}
 		}
 		return ValidationResult.ok();
 	}
 
 	@Override
 	public void setValue(final List<IBeanProxy<BEAN_TYPE>> value) {
-		table.getModel().setSelectedBeans(value);
+		if (value != null) {
+			table.getModel().setSelectedBeans(value);
+		}
+		else {
+			final List<? extends IBeanProxy<BEAN_TYPE>> emptyList = Collections.emptyList();
+			table.getModel().setSelectedBeans(emptyList);
+		}
 	}
 
 	@Override
@@ -103,13 +136,16 @@ final class BeanSelectionTableImpl<BEAN_TYPE> extends AbstractInputControl<List<
 
 	@Override
 	public boolean hasModifications() {
-		return !lastValue.equals(getValue());
+		return !EmptyCompatibleEquivalence.equals(lastValue, new HashSet<IBeanProxy<BEAN_TYPE>>(getValue()));
 	}
 
 	@Override
 	public void resetModificationState() {
 		lastValue.clear();
-		lastValue.addAll(getValue());
+		final List<IBeanProxy<BEAN_TYPE>> value = getValue();
+		if (value != null) {
+			lastValue.addAll(getValue());
+		}
 	}
 
 	@Override

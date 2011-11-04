@@ -42,6 +42,7 @@ import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.widgets.IAttributeFilterControlBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanDialogBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
+import org.jowidgets.cap.ui.api.widgets.IBeanSelectionDialogBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanSelectionTableBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableFormBluePrint;
@@ -80,6 +81,20 @@ final class CapApiBluePrintFactory implements ICapApiBluePrintFactory {
 		Assert.paramNotNull(model, "model");
 		final IBeanSelectionTableBluePrint<BEAN_TYPE> result = bluePrintFactory.bluePrint(IBeanSelectionTableBluePrint.class);
 		result.setModel(model);
+		return result;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public <BEAN_TYPE> IBeanSelectionDialogBluePrint<BEAN_TYPE> beanSelectionDialog() {
+		return bluePrintFactory.bluePrint(IBeanSelectionDialogBluePrint.class);
+	}
+
+	@Override
+	public <BEAN_TYPE> IBeanSelectionDialogBluePrint<BEAN_TYPE> beanSelectionDialog(final IBeanTableModel<BEAN_TYPE> model) {
+		Assert.paramNotNull(model, "model");
+		final IBeanSelectionDialogBluePrint<BEAN_TYPE> result = beanSelectionDialog();
+		result.setBeanSelectionTable(beanSelectionTable(model));
 		return result;
 	}
 
