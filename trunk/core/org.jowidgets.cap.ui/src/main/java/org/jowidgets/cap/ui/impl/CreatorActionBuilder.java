@@ -69,7 +69,6 @@ final class CreatorActionBuilder<BEAN_TYPE> extends AbstractSingleUseBuilder<IAc
 	private IBeanExecptionConverter exceptionConverter;
 
 	CreatorActionBuilder(final Class<? extends BEAN_TYPE> beanType, final IBeanListModel<BEAN_TYPE> model) {
-		checkExhausted();
 		Assert.paramNotNull(beanType, "beanType");
 		Assert.paramNotNull(model, "model");
 		this.beanType = beanType;

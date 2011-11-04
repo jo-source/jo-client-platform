@@ -107,7 +107,7 @@ public class EntityComponent extends AbstractComponent implements IComponent {
 	@Override
 	public IView createView(final String viewId, final IViewContext context) {
 		if (ROOT_TABLE_VIEW_ID.equals(viewId)) {
-			return new EntityTableView(context, tableModel, links);
+			return new EntityTableView(context, tableModel, links.values());
 		}
 		else if (EntityDetailView.ID.equals(viewId)) {
 			return new EntityDetailView(context, tableModel);

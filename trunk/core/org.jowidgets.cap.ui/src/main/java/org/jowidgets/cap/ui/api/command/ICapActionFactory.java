@@ -28,6 +28,8 @@
 
 package org.jowidgets.cap.ui.api.command;
 
+import org.jowidgets.api.command.IAction;
+import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 
 public interface ICapActionFactory {
@@ -53,5 +55,11 @@ public interface ICapActionFactory {
 	<BEAN_TYPE> ICreatorActionBuilder creatorActionBuilder(Class<? extends BEAN_TYPE> beanType, IBeanListModel<BEAN_TYPE> model);
 
 	<BEAN_TYPE> IDeleterActionBuilder<BEAN_TYPE> deleterActionBuilder(IBeanListModel<BEAN_TYPE> model);
+
+	<BEAN_TYPE> ILinkActionBuilder linkActionBuilder(IBeanListModel<BEAN_TYPE> model);
+
+	<BEAN_TYPE> ILinkActionBuilder linkActionBuilder(IBeanListModel<BEAN_TYPE> model, IEntityLinkDescriptor linkDescriptor);
+
+	<BEAN_TYPE> IAction linkAction(IBeanListModel<BEAN_TYPE> model, IEntityLinkDescriptor linkDescriptor);
 
 }
