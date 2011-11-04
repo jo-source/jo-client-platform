@@ -34,7 +34,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 
-import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.command.ICommand;
 import org.jowidgets.api.command.ICommandExecutor;
 import org.jowidgets.api.command.IEnabledChecker;
@@ -42,8 +41,7 @@ import org.jowidgets.api.command.IExceptionHandler;
 import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.api.threads.IUiThreadAccess;
 import org.jowidgets.api.toolkit.Toolkit;
-import org.jowidgets.api.widgets.IFrame;
-import org.jowidgets.api.widgets.blueprint.IDialogBluePrint;
+import org.jowidgets.api.widgets.IInputDialog;
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.entity.IEntityLinkProperties;
@@ -65,11 +63,8 @@ import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.model.LinkType;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
-import org.jowidgets.cap.ui.api.widgets.IBeanSelectionTable;
-import org.jowidgets.cap.ui.api.widgets.IBeanSelectionTableBluePrint;
+import org.jowidgets.cap.ui.api.widgets.IBeanSelectionDialogBluePrint;
 import org.jowidgets.common.types.Dimension;
-import org.jowidgets.tools.layout.MigLayoutFactory;
-import org.jowidgets.tools.widgets.blueprint.BPF;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.EmptyCheck;
 
@@ -215,25 +210,19 @@ final class BeanLinkCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
 	}
 
 	private List<IBeanProxy<?>> getBeansToLink(final IExecutionContext executionContext) {
-		final IAction action = executionContext.getAction();
-		final IDialogBluePrint dialogBp = BPF.dialog().setTitle(action.getText()).setIcon(action.getIcon());
-		//TODO this must be done better later
-		dialogBp.setSize(new Dimension(1000, 600));
-		final IFrame dialog = Toolkit.getActiveWindow().createChildWindow(dialogBp);
-
-		dialog.setLayout(MigLayoutFactory.growingInnerCellLayout());
-
 		final IBeanTableModelBuilder<IBean> modelBuilder = CapUiToolkit.beanTableModelBuilder(linkableTableEntityId);
 		modelBuilder.setAttributes(linkableTableAttributes);
 		modelBuilder.setParent(model, LinkType.SELECTION_ALL);
-
 		final IBeanTableModel<IBean> linkableModel = modelBuilder.build();
-
-		final IBeanSelectionTableBluePrint<?> tableBp = CapUiToolkit.bluePrintFactory().beanSelectionTable(linkableModel);
-
-		final IBeanSelectionTable<?> selectionTable = dialog.add(tableBp, MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
-
 		linkableModel.load();
+
+		final IBeanSelectionDialogBluePrint<IBean> selectionDialogBp;
+		selectionDialogBp = CapUiToolkit.bluePrintFactory().beanSelectionDialog(linkableModel);
+		selectionDialogBp.setExecutionContext(executionContext);
+		//TODO this must be done better later
+		selectionDialogBp.setSize(new Dimension(1000, 600));
+
+		final IInputDialog<List<IBeanProxy<IBean>>> dialog = Toolkit.getActiveWindow().createChildWindow(selectionDialogBp);
 		dialog.setVisible(true);
 
 		return Collections.emptyList();
