@@ -53,6 +53,8 @@ public interface IBeanTableModel<BEAN_TYPE> extends IDataModel, IBeanListModel<B
 
 	int getPageCount();
 
+	void loadScheduled(int delayMillis);
+
 	boolean isPageCreated(int pageIndex);
 
 	boolean isPageLoading(int pageIndex);

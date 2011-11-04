@@ -185,6 +185,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	private boolean dataCleared;
 	private boolean autoSelection;
 	private boolean onSetConfig;
+	private Integer scheduledLoadDelay;
 
 	@SuppressWarnings("unchecked")
 	BeanTableModelImpl(
@@ -446,10 +447,17 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		maxPageIndex = 0;
 		data.clear();
 		addedData.clear();
+		scheduledLoadDelay = null;
 		countedRowCount = null;
 		countLoader = new CountLoader();
 
 		dataModel.fireDataChanged();
+	}
+
+	@Override
+	public void loadScheduled(final int delayMillis) {
+		scheduledLoadDelay = Integer.valueOf(delayMillis);
+		load();
 	}
 
 	@Override
@@ -1636,15 +1644,19 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			dataModel.fireDataChanged();
 			beanListModelObservable.fireBeansChanged();
 
-			if (pageIndex == 0 || pageIndex == getPage(rowCount)) {
+			if (scheduledLoadDelay != null) {
+				readDataFromServiceScheduled(scheduledLoadDelay.intValue());
+				scheduledLoadDelay = null;
+			}
+			else if (pageIndex == 0 || pageIndex == getPage(rowCount)) {
 				readDataFromService();
 			}
 			else {
-				readDataFromServiceScheduled();
+				readDataFromServiceScheduled(INNER_PAGE_LOAD_DELAY);
 			}
 		}
 
-		void readDataFromServiceScheduled() {
+		void readDataFromServiceScheduled(final int dealy) {
 			final Runnable runnable = new Runnable() {
 				@Override
 				public void run() {
@@ -1659,7 +1671,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			};
 			schedule = Executors.newSingleThreadScheduledExecutor(new DaemonThreadFactory()).schedule(
 					runnable,
-					INNER_PAGE_LOAD_DELAY,
+					dealy,
 					TimeUnit.MILLISECONDS);
 		}
 
