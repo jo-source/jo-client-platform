@@ -29,6 +29,7 @@
 package org.jowidgets.cap.sample1.service.datastore;
 
 import java.util.GregorianCalendar;
+import java.util.Random;
 
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.sample1.common.entity.EntityIds;
@@ -177,15 +178,58 @@ final class UserDataInitializer {
 		addRole(user, RoleInitializer.USER_ROLE);
 		data.add(user);
 
+		final Random random = new Random();
+
 		for (int i = 0; i < 20000; i++) {
-			user = new User(data.nextId());
-			user.setName("Name " + i);
-			user.setLastName("Lastname " + i);
-			user.setDateOfBirth(new GregorianCalendar(1943, 2, 19).getTime());
-			user.setGender("M");
-			data.add(user);
+			data.add(getRandomUser(random, data));
 		}
 
+	}
+
+	private static User getRandomUser(final Random random, final IEntityData<IUser> data) {
+		final User user = new User(data.nextId());
+		final String gender = getRandomGender(random);
+		user.setGender(gender);
+		if ("M".equals(gender)) {
+			user.setName(getRandomMaleName(random));
+		}
+		else {
+			user.setName(getRandomFemaleName(random));
+		}
+		user.setLastName(getRandomSurname(random));
+		user.setWeight(Double.valueOf(random.nextInt(70) + 40));
+		user.setHeight((short) (random.nextInt(60) + 150));
+		user.setDateOfBirth(new GregorianCalendar(2000 - random.nextInt(80), random.nextInt(12) + 1, random.nextInt(28) + 1).getTime());
+		user.setCountry(random.nextInt(Countries.COUNTRIES.length));
+		for (int i = 0; i < random.nextInt(4); i++) {
+			user.addLanguage(random.nextInt(Languages.LANGUAGES.length));
+		}
+		if (random.nextBoolean()) {
+			user.setMarried(random.nextBoolean());
+		}
+		user.setAdmin(random.nextBoolean());
+		return user;
+	}
+
+	private static String getRandomGender(final Random random) {
+		if (random.nextInt(2) == 0) {
+			return "M";
+		}
+		else {
+			return "F";
+		}
+	}
+
+	private static String getRandomSurname(final Random random) {
+		return DataResources.SURNAMES_DE.get(random.nextInt(DataResources.SURNAMES_DE.size()));
+	}
+
+	private static String getRandomFemaleName(final Random random) {
+		return DataResources.NAMES_FEMALE.get(random.nextInt(DataResources.NAMES_FEMALE.size()));
+	}
+
+	private static String getRandomMaleName(final Random random) {
+		return DataResources.NAMES_MALE.get(random.nextInt(DataResources.NAMES_MALE.size()));
 	}
 
 	@SuppressWarnings("unchecked")
