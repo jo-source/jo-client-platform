@@ -28,13 +28,17 @@
 
 package org.jowidgets.cap.ui.impl;
 
+import org.jowidgets.api.command.IAction;
+import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
 import org.jowidgets.cap.ui.api.command.ICapActionFactory;
 import org.jowidgets.cap.ui.api.command.ICreatorActionBuilder;
 import org.jowidgets.cap.ui.api.command.IDataModelAction;
 import org.jowidgets.cap.ui.api.command.IDataModelActionBuilder;
 import org.jowidgets.cap.ui.api.command.IDeleterActionBuilder;
 import org.jowidgets.cap.ui.api.command.IExecutorActionBuilder;
+import org.jowidgets.cap.ui.api.command.ILinkActionBuilder;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
+import org.jowidgets.util.Assert;
 
 final class CapActionFactoryImpl implements ICapActionFactory {
 
@@ -104,6 +108,31 @@ final class CapActionFactoryImpl implements ICapActionFactory {
 	@Override
 	public <BEAN_TYPE> IDeleterActionBuilder<BEAN_TYPE> deleterActionBuilder(final IBeanListModel<BEAN_TYPE> model) {
 		return new DeleterActionBuilder<BEAN_TYPE>(model);
+	}
+
+	@Override
+	public <BEAN_TYPE> ILinkActionBuilder linkActionBuilder(final IBeanListModel<BEAN_TYPE> model) {
+		Assert.paramNotNull(model, "model");
+		return new LinkActionBuilderImpl(model);
+	}
+
+	@Override
+	public <BEAN_TYPE> ILinkActionBuilder linkActionBuilder(
+		final IBeanListModel<BEAN_TYPE> model,
+		final IEntityLinkDescriptor linkDescriptor) {
+		final ILinkActionBuilder builder = linkActionBuilder(model);
+		return LinkActionBuilderFactory.createLinkActionBuilder(linkDescriptor, builder);
+	}
+
+	@Override
+	public <BEAN_TYPE> IAction linkAction(final IBeanListModel<BEAN_TYPE> model, final IEntityLinkDescriptor linkDescriptor) {
+		final ILinkActionBuilder builder = linkActionBuilder(model, linkDescriptor);
+		if (builder != null) {
+			return builder.build();
+		}
+		else {
+			return null;
+		}
 	}
 
 }
