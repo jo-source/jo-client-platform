@@ -108,7 +108,6 @@ public class LinkableRolesOfUsersReaderService implements ISyncReaderService<Voi
 	}
 
 	@SuppressWarnings("unchecked")
-	//TODO MG implement this (was just copied from RolesOfUserReaderService)
 	private List<IBean> getLinkableRoles(final List<? extends IBeanKey> parentBeanKeys) {
 		final List<IBean> result = new LinkedList<IBean>();
 
@@ -128,12 +127,12 @@ public class LinkableRolesOfUsersReaderService implements ISyncReaderService<Voi
 
 			final IEntityData<IBeanPropertyMap> roleData = (IEntityData<IBeanPropertyMap>) EntityDataStore.getEntityData(EntityIds.ROLE);
 
-			for (final Long roleId : roleIds) {
-				final IBeanPropertyMap role = roleData.getData(roleId);
-				if (role != null) {
+			for (final IBeanPropertyMap role : roleData.getAllData()) {
+				if (!roleIds.contains(role.getId())) {
 					result.add(role);
 				}
 			}
+
 		}
 
 		return result;

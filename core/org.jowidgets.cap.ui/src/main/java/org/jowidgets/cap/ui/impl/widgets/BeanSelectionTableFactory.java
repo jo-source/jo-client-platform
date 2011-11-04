@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2010, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,12 +26,25 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.widgets;
+package org.jowidgets.cap.ui.impl.widgets;
 
-import org.jowidgets.common.widgets.descriptor.IWidgetDescriptor;
+import org.jowidgets.api.toolkit.Toolkit;
+import org.jowidgets.cap.ui.api.CapUiToolkit;
+import org.jowidgets.cap.ui.api.widgets.IBeanSelectionTable;
+import org.jowidgets.cap.ui.api.widgets.IBeanSelectionTableBluePrint;
+import org.jowidgets.cap.ui.api.widgets.IBeanTable;
+import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
+import org.jowidgets.common.widgets.factory.IWidgetFactory;
 
-public interface IBeanTableBluePrint<BEAN_TYPE> extends
-		IBeanTableSetupBuilder<BEAN_TYPE>,
-		IWidgetDescriptor<IBeanTable<BEAN_TYPE>> {
+public final class BeanSelectionTableFactory implements
+		IWidgetFactory<IBeanSelectionTable<? extends Object>, IBeanSelectionTableBluePrint<Object>> {
 
+	@Override
+	public IBeanSelectionTable<Object> create(final Object parentUiReference, final IBeanSelectionTableBluePrint<Object> bluePrint) {
+
+		final IBeanTableBluePrint<Object> beanTableBp = CapUiToolkit.bluePrintFactory().beanTable();
+		beanTableBp.setSetup(bluePrint);
+		final IBeanTable<Object> beanTable = Toolkit.getWidgetFactory().create(parentUiReference, beanTableBp);
+		return new BeanSelectionTableImpl<Object>(beanTable, bluePrint);
+	}
 }

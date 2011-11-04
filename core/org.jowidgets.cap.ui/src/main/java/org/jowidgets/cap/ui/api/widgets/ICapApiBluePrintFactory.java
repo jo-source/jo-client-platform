@@ -37,7 +37,11 @@ import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 
 public interface ICapApiBluePrintFactory {
 
+	<BEAN_TYPE> IBeanTableBluePrint<BEAN_TYPE> beanTable();
+
 	<BEAN_TYPE> IBeanTableBluePrint<BEAN_TYPE> beanTable(IBeanTableModel<BEAN_TYPE> model);
+
+	<BEAN_TYPE> IBeanSelectionTableBluePrint<BEAN_TYPE> beanSelectionTable(IBeanTableModel<BEAN_TYPE> model);
 
 	IBeanTableSettingsDialogBluePrint beanTableSettingsDialog(IBeanTableModel<?> model);
 
