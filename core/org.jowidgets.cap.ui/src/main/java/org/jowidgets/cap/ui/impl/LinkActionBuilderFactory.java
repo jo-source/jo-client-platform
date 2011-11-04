@@ -44,14 +44,16 @@ final class LinkActionBuilderFactory {
 
 	private LinkActionBuilderFactory() {}
 
-	static ILinkActionBuilder createLinkActionBuilder(final IEntityLinkDescriptor link, final ILinkActionBuilder builder) {
+	static <BEAN_TYPE> ILinkActionBuilder<BEAN_TYPE> createLinkActionBuilder(
+		final IEntityLinkDescriptor link,
+		final ILinkActionBuilder<BEAN_TYPE> builder) {
 		return createLinkActionBuilder(ServiceProvider.getService(IEntityService.ID), link, builder);
 	}
 
-	static ILinkActionBuilder createLinkActionBuilder(
+	static <BEAN_TYPE> ILinkActionBuilder<BEAN_TYPE> createLinkActionBuilder(
 		final IEntityService entityService,
 		final IEntityLinkDescriptor link,
-		final ILinkActionBuilder builder) {
+		final ILinkActionBuilder<BEAN_TYPE> builder) {
 		if (entityService != null && link != null && link.getLinkedTypeId() != null && link.getLinkableTypeId() != null) {
 
 			final IBeanServicesProvider linkTypeServices = entityService.getBeanServices(link.getLinkTypeId());
@@ -82,18 +84,19 @@ final class LinkActionBuilderFactory {
 		return services != null && services.readerService() != null;
 	}
 
-	private static ILinkActionBuilder createLinkActionBuilder(
+	private static <BEAN_TYPE> ILinkActionBuilder<BEAN_TYPE> createLinkActionBuilder(
 		final IEntityLinkDescriptor link,
 		final IBeanServicesProvider linkTypeServices,
 		final IBeanDtoDescriptor linkableTypeDescriptor,
 		final IBeanServicesProvider linkableTypeServices,
-		final ILinkActionBuilder builder) {
+		final ILinkActionBuilder<BEAN_TYPE> builder) {
 
 		builder.setText(linkableTypeDescriptor.getLabel() + " verknüpfen ...");
 
 		builder.setLinkCreatorService(linkTypeServices.creatorService());
 
 		builder.setLinkableTableReaderService(linkableTypeServices.readerService());
+		builder.setLinkableTableEntityId(link.getLinkableTypeId());
 		builder.setLinkableTableLabel(linkableTypeDescriptor.getLabel());
 		builder.setLinkableTableAttributes(createAttributes(linkableTypeDescriptor));
 

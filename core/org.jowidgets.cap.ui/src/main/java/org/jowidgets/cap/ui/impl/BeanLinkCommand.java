@@ -34,6 +34,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 
+import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.command.ICommand;
 import org.jowidgets.api.command.ICommandExecutor;
 import org.jowidgets.api.command.IEnabledChecker;
@@ -41,15 +42,19 @@ import org.jowidgets.api.command.IExceptionHandler;
 import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.api.threads.IUiThreadAccess;
 import org.jowidgets.api.toolkit.Toolkit;
-import org.jowidgets.api.types.QuestionResult;
+import org.jowidgets.api.widgets.IFrame;
+import org.jowidgets.api.widgets.blueprint.IDialogBluePrint;
+import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
+import org.jowidgets.cap.common.api.entity.IEntityLinkProperties;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.execution.IExecutionCallbackListener;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
-import org.jowidgets.cap.common.api.service.IDeleterService;
+import org.jowidgets.cap.common.api.service.ICreatorService;
+import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
+import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.bean.IBeanExecptionConverter;
-import org.jowidgets.cap.ui.api.bean.IBeanKeyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.execution.BeanMessageStatePolicy;
 import org.jowidgets.cap.ui.api.execution.BeanModificationStatePolicy;
@@ -57,43 +62,61 @@ import org.jowidgets.cap.ui.api.execution.BeanSelectionPolicy;
 import org.jowidgets.cap.ui.api.execution.IExecutionInterceptor;
 import org.jowidgets.cap.ui.api.execution.IExecutionTask;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
-import org.jowidgets.tools.message.MessageReplacer;
+import org.jowidgets.cap.ui.api.model.LinkType;
+import org.jowidgets.cap.ui.api.table.IBeanTableModel;
+import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
+import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
+import org.jowidgets.common.types.Dimension;
+import org.jowidgets.tools.layout.MigLayoutFactory;
+import org.jowidgets.tools.widgets.blueprint.BPF;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.EmptyCheck;
 
-final class BeanDeleterCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
+//TODO MG remove this later
+//CHECKSTYLE:OFF
+@SuppressWarnings("unused")
+final class BeanLinkCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
 
-	private final String singleDeletionConfirmMessage = Messages.getString("BeanDeleterCommand.single_deletion_confirm_message");
-	private final String multiDeletionConfirmMessage = Messages.getString("BeanDeleterCommand.multi_deletion_confirm_message");
-	private final String couldNotBeUndoneMessage = Messages.getString("BeanDeleterCommand.can_not_be_undone");
-	private final String nothingSelectedMessage = Messages.getString("BeanDeleterCommand.nothing_selected");
+	//TODO i18n
+	private final String nothingSelectedMessage = Messages.getString("BeanLinkCommand.nothing_selected");
 
 	private final IBeanListModel<BEAN_TYPE> model;
-	private final IDeleterService deleterService;
-	private final ExecutionObservable executionObservable;
+
+	private final ICreatorService linkCreatorService;
+	private final Object linkableTableEntityId;
+	private final IReaderService<Void> linkableReaderService;
+	private final List<IAttribute<Object>> linkableTableAttributes;
+	private final String linkableTableLabel;
+	private final IEntityLinkProperties sourceLinkProperties;
+	private final IEntityLinkProperties destinationLinkProperties;
+
 	private final IBeanExecptionConverter exceptionConverter;
 
-	private final BeanListModelEnabledChecker<BEAN_TYPE> enabledChecker;
-	private final boolean autoSelection;
-	private final boolean deletionConfirmDialog;
+	private final ExecutionObservable executionObservable;
 
-	BeanDeleterCommand(
+	private final BeanListModelEnabledChecker<?> enabledChecker;
+
+	BeanLinkCommand(
 		final IBeanListModel<BEAN_TYPE> model,
+		final ICreatorService linkCreatorService,
+		final Object linkableTableEntityId,
+		final IReaderService<Void> linkableReaderService,
+		final List<IAttribute<Object>> linkableTableAttributes,
+		final String linkableTableLabel,
+		final IEntityLinkProperties sourceLinkProperties,
+		final IEntityLinkProperties destinationLinkProperties,
 		final List<IEnabledChecker> enabledCheckers,
 		final List<IExecutableChecker<BEAN_TYPE>> executableCheckers,
-		final IDeleterService deleterService,
-		final List<IExecutionInterceptor> executionInterceptors,
 		final boolean multiSelection,
 		final BeanModificationStatePolicy beanModificationStatePolicy,
 		final BeanMessageStatePolicy beanMessageStatePolicy,
-		final IBeanExecptionConverter exceptionConverter,
-		final boolean autoSelection,
-		final boolean deletionConfirmDialog) {
+		final List<IExecutionInterceptor> executionInterceptors,
+		final IBeanExecptionConverter exceptionConverter) {
 
 		Assert.paramNotNull(model, "model");
-		Assert.paramNotNull(deleterService, "deleterService");
-		Assert.paramNotNull(executionInterceptors, "executionInterceptors");
-		Assert.paramNotNull(exceptionConverter, "exceptionConverter");
+		Assert.paramNotNull(linkCreatorService, "linkCreatorService");
+		Assert.paramNotNull(linkableReaderService, "linkableReaderService");
+		Assert.paramNotNull(linkableTableAttributes, "linkableTableAttributes");
 
 		this.enabledChecker = new BeanListModelEnabledChecker<BEAN_TYPE>(
 			model,
@@ -105,11 +128,15 @@ final class BeanDeleterCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 			false);
 
 		this.model = model;
-		this.deleterService = deleterService;
+		this.linkCreatorService = linkCreatorService;
+		this.linkableTableEntityId = linkableTableEntityId;
+		this.linkableReaderService = linkableReaderService;
+		this.linkableTableAttributes = linkableTableAttributes;
+		this.linkableTableLabel = linkableTableLabel;
+		this.sourceLinkProperties = sourceLinkProperties;
+		this.destinationLinkProperties = destinationLinkProperties;
 		this.executionObservable = new ExecutionObservable(executionInterceptors);
 		this.exceptionConverter = exceptionConverter;
-		this.autoSelection = autoSelection;
-		this.deletionConfirmDialog = deletionConfirmDialog;
 	}
 
 	@Override
@@ -140,13 +167,18 @@ final class BeanDeleterCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 			return;
 		}
 
-		if (deletionConfirmDialog) {
-			if (!showDeletionConfirmDialog(executionContext, selection.size())) {
-				return;
-			}
+		final List<IBeanProxy<?>> beansToLink = getBeansToLink(executionContext);
+		if (!EmptyCheck.isEmpty(beansToLink)) {
+			linkBeans(executionContext, selection, beansToLink);
 		}
 
-		final IBeanKeyFactory beanKeyFactory = CapUiToolkit.beanKeyFactory();
+	}
+
+	private void linkBeans(
+		final IExecutionContext executionContext,
+		final ArrayList<Integer> selection,
+		final List<IBeanProxy<?>> beansToLink) {
+
 		final IExecutionTask executionTask = CapUiToolkit.executionTaskFactory().create();
 
 		final List<IBeanKey> beanKeys = new LinkedList<IBeanKey>();
@@ -156,7 +188,6 @@ final class BeanDeleterCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 			final IBeanProxy<BEAN_TYPE> bean = model.getBean(index.intValue());
 			if (bean != null && !bean.isDummy() && !bean.isTransient()) {
 				bean.setExecutionTask(executionTask);
-				beanKeys.add(beanKeyFactory.createKey(bean));
 				beans.add(bean);
 			}
 		}
@@ -178,35 +209,34 @@ final class BeanDeleterCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 			}
 		});
 
-		if (autoSelection) {
-			if (!EmptyCheck.isEmpty(selection)) {
-				model.setSelection(Collections.singletonList(selection.get(selection.size() - 1) + 1));
-			}
-		}
 		model.fireBeansChanged();
 		executionObservable.fireAfterExecutionPrepared(executionContext);
-		deleterService.delete(new ResultCallback(executionContext, beans), beanKeys, executionTask);
 	}
 
-	private boolean showDeletionConfirmDialog(final IExecutionContext executionContext, final int selectionCount) {
-		final QuestionResult questionResult = Toolkit.getQuestionPane().askYesNoQuestion(
-				executionContext,
-				getConfirmationMessage(selectionCount),
-				QuestionResult.YES);
-		return questionResult == QuestionResult.YES;
-	}
+	private List<IBeanProxy<?>> getBeansToLink(final IExecutionContext executionContext) {
+		final IAction action = executionContext.getAction();
+		final IDialogBluePrint dialogBp = BPF.dialog().setTitle(action.getText()).setIcon(action.getIcon());
+		//TODO this must be done better later
+		dialogBp.setSize(new Dimension(1000, 600));
+		final IFrame dialog = Toolkit.getActiveWindow().createChildWindow(dialogBp);
 
-	private String getConfirmationMessage(final int selectionCount) {
-		final StringBuilder result = new StringBuilder();
-		if (selectionCount == 1) {
-			result.append(singleDeletionConfirmMessage);
-		}
-		else {
-			result.append(MessageReplacer.replace(multiDeletionConfirmMessage, "" + selectionCount));
-		}
-		result.append("\n");
-		result.append(couldNotBeUndoneMessage);
-		return result.toString();
+		dialog.setLayout(MigLayoutFactory.growingInnerCellLayout());
+
+		final IBeanTableModelBuilder<IBean> modelBuilder = CapUiToolkit.beanTableModelBuilder(linkableTableEntityId);
+		modelBuilder.setAttributes(linkableTableAttributes);
+		modelBuilder.setParent(model, LinkType.SELECTION_ALL);
+
+		final IBeanTableModel<IBean> linkableModel = modelBuilder.build();
+
+		final IBeanTableBluePrint<?> tableBp = CapUiToolkit.bluePrintFactory().beanTable(linkableModel);
+		tableBp.setSearchFilterToolbarVisible(true);
+
+		dialog.add(tableBp, MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
+
+		linkableModel.load();
+		dialog.setVisible(true);
+
+		return Collections.emptyList();
 	}
 
 	private final class ResultCallback implements IResultCallback<Void> {
@@ -249,7 +279,7 @@ final class BeanDeleterCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 			for (final IBeanProxy<BEAN_TYPE> bean : beans) {
 				bean.setExecutionTask(null);
 			}
-			model.removeBeans(beans);
+
 			model.fireBeansChanged();
 			executionObservable.fireAfterExecutionSuccess(executionContext);
 		}

@@ -28,176 +28,263 @@
 
 package org.jowidgets.cap.ui.impl;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.command.IActionBuilder;
-import org.jowidgets.api.command.ICommandExecutor;
+import org.jowidgets.api.command.ICommand;
 import org.jowidgets.api.command.IEnabledChecker;
-import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.api.toolkit.Toolkit;
+import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.entity.IEntityLinkProperties;
+import org.jowidgets.cap.common.api.entity.IEntityLinkPropertiesBuilder;
+import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.service.ICreatorService;
 import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.bean.IBeanExecptionConverter;
 import org.jowidgets.cap.ui.api.command.ILinkActionBuilder;
+import org.jowidgets.cap.ui.api.execution.BeanMessageStatePolicy;
+import org.jowidgets.cap.ui.api.execution.BeanModificationStatePolicy;
 import org.jowidgets.cap.ui.api.execution.IExecutionInterceptor;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.common.image.IImageConstant;
 import org.jowidgets.common.types.Accelerator;
 import org.jowidgets.common.types.Modifier;
+import org.jowidgets.util.Assert;
 import org.jowidgets.util.builder.AbstractSingleUseBuilder;
 
-final class LinkActionBuilderImpl extends AbstractSingleUseBuilder<IAction> implements ILinkActionBuilder {
+final class LinkActionBuilderImpl<BEAN_TYPE> extends AbstractSingleUseBuilder<IAction> implements ILinkActionBuilder<BEAN_TYPE> {
 
 	private final IActionBuilder builder;
+	private final IBeanListModel<BEAN_TYPE> model;
 
-	LinkActionBuilderImpl(final IBeanListModel<?> model) {
+	private final List<IEnabledChecker> enabledCheckers;
+	private final List<IExecutableChecker<BEAN_TYPE>> executableCheckers;
+	private final List<IExecutionInterceptor> executionInterceptors;
+
+	private ICreatorService linkCreatorService;
+	private IReaderService<Void> linkableReaderService;
+	private Object linkableTableEntityId;
+	private List<IAttribute<Object>> linkableTableAttributes;
+	private String linkableTableLabel;
+	private IEntityLinkProperties sourceLinkProperties;
+	private IEntityLinkProperties destinationLinkProperties;
+	private boolean multiSelection;
+	private BeanModificationStatePolicy beanModificationStatePolicy;
+	private BeanMessageStatePolicy beanMessageStatePolicy;
+	private IBeanExecptionConverter exceptionConverter;
+
+	LinkActionBuilderImpl(final IBeanListModel<BEAN_TYPE> model) {
+		Assert.paramNotNull(model, "model");
+		this.model = model;
 		this.builder = Toolkit.getActionBuilderFactory().create();
+		this.enabledCheckers = new LinkedList<IEnabledChecker>();
+		this.executableCheckers = new LinkedList<IExecutableChecker<BEAN_TYPE>>();
+		this.beanModificationStatePolicy = BeanModificationStatePolicy.NO_MODIFICATION;
+		this.beanMessageStatePolicy = BeanMessageStatePolicy.NO_WARNING_OR_ERROR;
+		this.executionInterceptors = new LinkedList<IExecutionInterceptor>();
+		this.exceptionConverter = new DefaultBeanExceptionConverter();
+		this.multiSelection = false;
 	}
 
 	@Override
-	public ILinkActionBuilder setText(final String text) {
+	public ILinkActionBuilder<BEAN_TYPE> setText(final String text) {
 		checkExhausted();
 		builder.setText(text);
 		return this;
 	}
 
 	@Override
-	public ILinkActionBuilder setToolTipText(final String toolTipText) {
+	public ILinkActionBuilder<BEAN_TYPE> setToolTipText(final String toolTipText) {
 		checkExhausted();
 		builder.setToolTipText(toolTipText);
 		return this;
 	}
 
 	@Override
-	public ILinkActionBuilder setIcon(final IImageConstant icon) {
+	public ILinkActionBuilder<BEAN_TYPE> setIcon(final IImageConstant icon) {
 		checkExhausted();
 		builder.setIcon(icon);
 		return this;
 	}
 
 	@Override
-	public ILinkActionBuilder setMnemonic(final Character mnemonic) {
+	public ILinkActionBuilder<BEAN_TYPE> setMnemonic(final Character mnemonic) {
 		checkExhausted();
 		builder.setMnemonic(mnemonic);
 		return this;
 	}
 
 	@Override
-	public ILinkActionBuilder setMnemonic(final char mnemonic) {
+	public ILinkActionBuilder<BEAN_TYPE> setMnemonic(final char mnemonic) {
 		checkExhausted();
 		builder.setMnemonic(mnemonic);
 		return this;
 	}
 
 	@Override
-	public ILinkActionBuilder setAccelerator(final Accelerator accelerator) {
+	public ILinkActionBuilder<BEAN_TYPE> setAccelerator(final Accelerator accelerator) {
 		checkExhausted();
 		builder.setAccelerator(accelerator);
 		return this;
 	}
 
 	@Override
-	public ILinkActionBuilder setAccelerator(final char key, final Modifier... modifier) {
+	public ILinkActionBuilder<BEAN_TYPE> setAccelerator(final char key, final Modifier... modifier) {
 		checkExhausted();
 		builder.setAccelerator(key, modifier);
 		return this;
 	}
 
 	@Override
-	public ILinkActionBuilder setLinkCreatorService(final ICreatorService creatorService) {
+	public ILinkActionBuilder<BEAN_TYPE> setLinkCreatorService(final ICreatorService creatorService) {
 		checkExhausted();
-
+		Assert.paramNotNull(creatorService, "creatorService");
+		this.linkCreatorService = creatorService;
 		return this;
 	}
 
 	@Override
-	public ILinkActionBuilder setLinkableTableAttributes(final List<? extends IAttribute<?>> attributes) {
+	public ILinkActionBuilder<BEAN_TYPE> setLinkableTableEntityId(final Object id) {
 		checkExhausted();
+		Assert.paramNotNull(id, "id");
+		this.linkableTableEntityId = id;
+		return this;
+	}
 
+	@SuppressWarnings("unchecked")
+	@Override
+	public ILinkActionBuilder<BEAN_TYPE> setLinkableTableAttributes(final List<? extends IAttribute<?>> attributes) {
+		checkExhausted();
+		Assert.paramNotNull(attributes, "attributes");
+		this.linkableTableAttributes = (List<IAttribute<Object>>) attributes;
 		return this;
 	}
 
 	@Override
-	public ILinkActionBuilder setLinkableTableLabel(final String label) {
+	public ILinkActionBuilder<BEAN_TYPE> setLinkableTableLabel(final String label) {
 		checkExhausted();
-
+		Assert.paramNotEmpty(label, "label");
+		this.linkableTableLabel = label;
 		return this;
 	}
 
 	@Override
-	public ILinkActionBuilder setLinkableTableReaderService(final IReaderService<Void> readerService) {
+	public ILinkActionBuilder<BEAN_TYPE> setLinkableTableReaderService(final IReaderService<Void> readerService) {
 		checkExhausted();
-
+		Assert.paramNotNull(readerService, "readerService");
+		this.linkableReaderService = readerService;
 		return this;
 	}
 
 	@Override
-	public ILinkActionBuilder setMultiSelection(final boolean multiSelection) {
+	public ILinkActionBuilder<BEAN_TYPE> setSourceProperties(final IEntityLinkProperties properties) {
 		checkExhausted();
-
+		Assert.paramNotNull(properties, "properties");
+		this.sourceLinkProperties = properties;
 		return this;
 	}
 
 	@Override
-	public ILinkActionBuilder addEnabledChecker(final IEnabledChecker enabledChecker) {
+	public ILinkActionBuilder<BEAN_TYPE> setSourceProperties(final String keyPropertyName, final String foreignKeyPropertyName) {
 		checkExhausted();
+		final IEntityLinkPropertiesBuilder linkPropertiesBuilder = CapCommonToolkit.entityLinkPropertiesBuilder();
+		linkPropertiesBuilder.setKeyPropertyName(keyPropertyName).setForeignKeyPropertyName(foreignKeyPropertyName);
+		return setSourceProperties(linkPropertiesBuilder.build());
+	}
 
+	@Override
+	public ILinkActionBuilder<BEAN_TYPE> setDestinationProperties(final IEntityLinkProperties properties) {
+		checkExhausted();
+		Assert.paramNotNull(properties, "properties");
+		this.destinationLinkProperties = properties;
 		return this;
 	}
 
 	@Override
-	public ILinkActionBuilder setExceptionConverter(final IBeanExecptionConverter exceptionConverter) {
+	public ILinkActionBuilder<BEAN_TYPE> setDestinationProperties(
+		final String keyPropertyName,
+		final String foreignKeyPropertyName) {
 		checkExhausted();
+		final IEntityLinkPropertiesBuilder linkPropertiesBuilder = CapCommonToolkit.entityLinkPropertiesBuilder();
+		linkPropertiesBuilder.setKeyPropertyName(keyPropertyName).setForeignKeyPropertyName(foreignKeyPropertyName);
+		return setSourceProperties(linkPropertiesBuilder.build());
+	}
 
+	@Override
+	public ILinkActionBuilder<BEAN_TYPE> setMultiSelection(final boolean multiSelection) {
+		checkExhausted();
+		this.multiSelection = multiSelection;
 		return this;
 	}
 
 	@Override
-	public ILinkActionBuilder addExecutionInterceptor(final IExecutionInterceptor interceptor) {
+	public ILinkActionBuilder<BEAN_TYPE> addEnabledChecker(final IEnabledChecker enabledChecker) {
 		checkExhausted();
-
+		Assert.paramNotNull(enabledChecker, "enabledChecker");
+		enabledCheckers.add(enabledChecker);
 		return this;
 	}
 
 	@Override
-	public ILinkActionBuilder setSourceProperties(final IEntityLinkProperties properties) {
+	public ILinkActionBuilder<BEAN_TYPE> setModificationPolicy(final BeanModificationStatePolicy policy) {
 		checkExhausted();
-
+		Assert.paramNotNull(policy, "policy");
+		beanModificationStatePolicy = policy;
 		return this;
 	}
 
 	@Override
-	public ILinkActionBuilder setSourceProperties(final String keyPropertyName, final String foreignKeyPropertyname) {
+	public ILinkActionBuilder<BEAN_TYPE> setMessageStatePolicy(final BeanMessageStatePolicy policy) {
 		checkExhausted();
-
+		Assert.paramNotNull(policy, "policy");
+		beanMessageStatePolicy = policy;
 		return this;
 	}
 
 	@Override
-	public ILinkActionBuilder setDestinationProperties(final IEntityLinkProperties properties) {
+	public ILinkActionBuilder<BEAN_TYPE> addExecutableChecker(final IExecutableChecker<BEAN_TYPE> executableChecker) {
 		checkExhausted();
-
+		Assert.paramNotNull(executableChecker, "executableChecker");
+		executableCheckers.add(executableChecker);
 		return this;
 	}
 
 	@Override
-	public ILinkActionBuilder setDestinationProperties(final String keyPropertyName, final String foreignKeyPropertyname) {
-		checkExhausted();
+	public ILinkActionBuilder<BEAN_TYPE> addExecutionInterceptor(final IExecutionInterceptor interceptor) {
+		Assert.paramNotNull(interceptor, "interceptor");
+		executionInterceptors.add(interceptor);
+		return this;
+	}
 
+	@Override
+	public ILinkActionBuilder<BEAN_TYPE> setExceptionConverter(final IBeanExecptionConverter exceptionConverter) {
+		checkExhausted();
+		Assert.paramNotNull(exceptionConverter, "exceptionConverter");
+		this.exceptionConverter = exceptionConverter;
 		return this;
 	}
 
 	@Override
 	protected IAction doBuild() {
-		builder.setCommand(new ICommandExecutor() {
-			@Override
-			public void execute(final IExecutionContext executionContext) throws Exception {
-				Toolkit.getMessagePane().showInfo(executionContext, "Must be implemented");
-			}
-		});
+		builder.setCommand((ICommand) new BeanLinkCommand<BEAN_TYPE>(
+			model,
+			linkCreatorService,
+			linkableTableEntityId,
+			linkableReaderService,
+			linkableTableAttributes,
+			linkableTableLabel,
+			sourceLinkProperties,
+			destinationLinkProperties,
+			enabledCheckers,
+			executableCheckers,
+			multiSelection,
+			beanModificationStatePolicy,
+			beanMessageStatePolicy,
+			executionInterceptors,
+			exceptionConverter));
 		return builder.build();
 	}
 }
