@@ -26,15 +26,25 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample1.common.entity;
+package org.jowidgets.cap.sample1.service.entity;
 
-public enum EntityIds {
+import java.util.LinkedList;
+import java.util.List;
 
-	GENERIC_BEAN,
-	ROLE,
-	AUTHORIZATION,
-	USER_ROLE_LINK,
-	VIRTUAL_ROLES_OF_USERS,
-	VIRTUAL_LINKABLE_ROLES_OF_USERS;
+import org.jowidgets.cap.common.api.CapCommonToolkit;
+import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
+import org.jowidgets.cap.common.api.bean.IProperty;
+
+public class UserRoleLinkDtoDescriptorBuilder {
+
+	private final List<IProperty> properties;
+
+	public UserRoleLinkDtoDescriptorBuilder() {
+		this.properties = new LinkedList<IProperty>();
+	}
+
+	IBeanDtoDescriptor build() {
+		return CapCommonToolkit.dtoDescriptor(properties, Messages.getString("RoleDtoDescriptorBuilder.label"));
+	}
 
 }
