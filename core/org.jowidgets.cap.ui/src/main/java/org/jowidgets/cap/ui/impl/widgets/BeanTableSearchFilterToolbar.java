@@ -65,17 +65,20 @@ import org.jowidgets.cap.ui.api.filter.IUiFilterFactory;
 import org.jowidgets.cap.ui.api.lookup.ILookUp;
 import org.jowidgets.cap.ui.api.lookup.ILookUpAccess;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
+import org.jowidgets.common.types.VirtualKey;
 import org.jowidgets.common.widgets.controller.IActionListener;
 import org.jowidgets.common.widgets.controller.IInputListener;
 import org.jowidgets.common.widgets.controller.IItemStateListener;
+import org.jowidgets.common.widgets.controller.IKeyEvent;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
+import org.jowidgets.tools.controller.KeyAdapter;
 import org.jowidgets.tools.widgets.blueprint.BPF;
 import org.jowidgets.util.EmptyCheck;
 import org.jowidgets.util.concurrent.DaemonThreadFactory;
 
 final class BeanTableSearchFilterToolbar<BEAN_TYPE> {
 
-	private static final int LISTENER_DELAY = 400;
+	private static final int LISTENER_DELAY = 500;
 
 	private final IComposite composite;
 	private final IBeanTableModel<BEAN_TYPE> model;
@@ -121,7 +124,7 @@ final class BeanTableSearchFilterToolbar<BEAN_TYPE> {
 		this.inputListener = new IInputListener() {
 			@Override
 			public void inputChanged() {
-				load(textField.getText());
+				load(textField.getText(), false);
 				if (EmptyCheck.isEmpty(textField.getText())) {
 					searchFilterItemModel.setEnabled(true);
 					searchFilterItemModel.setToolTipText(searchFilterItemTooltip);
@@ -137,6 +140,17 @@ final class BeanTableSearchFilterToolbar<BEAN_TYPE> {
 			}
 		};
 		textField.addInputListener(inputListener);
+
+		textField.addKeyListener(new KeyAdapter() {
+
+			@Override
+			public void keyPressed(final IKeyEvent event) {
+				if (event.getVirtualKey() == VirtualKey.ENTER) {
+					load(textField.getText(), true);
+				}
+			}
+
+		});
 
 		this.searchFilterItemTooltip = Messages.getString("BeanTableSearchFilterToolbar.show_searchfilter_tooltip");
 		this.searchFilterItemModel = createSearchFilterItemModel();
@@ -176,12 +190,17 @@ final class BeanTableSearchFilterToolbar<BEAN_TYPE> {
 		return searchFilterItemModel;
 	}
 
-	private void load(final String text) {
+	private void load(final String text, final boolean immediate) {
 		if (loader != null) {
 			loader.cancel();
 		}
 		loader = new FilterResultLoader(text);
-		loader.load();
+		if (immediate) {
+			loader.loadImediate();
+		}
+		else {
+			loader.loadScheduled();
+		}
 	}
 
 	private final class FilterResultLoader {
@@ -198,27 +217,14 @@ final class BeanTableSearchFilterToolbar<BEAN_TYPE> {
 			this.canceled = false;
 		}
 
-		void load() {
+		void loadScheduled() {
 			final Runnable runnable = new Runnable() {
 				@Override
 				public void run() {
 					uiThreadAccess.invokeLater(new Runnable() {
 						@Override
 						public void run() {
-							final IUiFilter filter;
-							try {
-								//TODO MG do filter creation outside the ui thread
-								//to avoid ui lags if creation is complex (e.g. more than 100 ms)
-								filter = createFilter(text);
-							}
-							catch (final CancellationException e) {
-								return;
-							}
-							if (!canceled) {
-								model.setFilter(IBeanTableModel.UI_SEARCH_FILTER_ID, filter);
-								model.load();
-							}
-							loader = null;
+							loadImediate();
 						}
 					});
 				}
@@ -227,6 +233,21 @@ final class BeanTableSearchFilterToolbar<BEAN_TYPE> {
 					runnable,
 					LISTENER_DELAY,
 					TimeUnit.MILLISECONDS);
+		}
+
+		void loadImediate() {
+			final IUiFilter filter;
+			try {
+				filter = createFilter(text);
+			}
+			catch (final CancellationException e) {
+				return;
+			}
+			if (!canceled) {
+				model.setFilter(IBeanTableModel.UI_SEARCH_FILTER_ID, filter);
+				model.load();
+			}
+			loader = null;
 		}
 
 		void cancel() {
