@@ -30,7 +30,6 @@ package org.jowidgets.cap.ui.impl.widgets;
 
 import java.util.List;
 
-import org.jowidgets.api.controller.IDisposeListener;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.widgets.IInputDialog;
 import org.jowidgets.api.widgets.blueprint.IInputDialogBluePrint;
@@ -53,12 +52,6 @@ public final class BeanSelectionDialogFactory implements
 		inputDialogBp.setSetup(bluePrint);
 		inputDialogBp.setContentCreator(contentCreator);
 		final IInputDialog<List<IBeanProxy<Object>>> inputDialog = Toolkit.getWidgetFactory().create(inputDialogBp);
-		inputDialog.addDisposeListener(new IDisposeListener() {
-			@Override
-			public void onDispose() {
-				contentCreator.dispose();
-			}
-		});
 		return inputDialog;
 	}
 }

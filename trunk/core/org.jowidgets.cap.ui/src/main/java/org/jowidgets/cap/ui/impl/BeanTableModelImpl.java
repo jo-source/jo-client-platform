@@ -46,6 +46,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import org.jowidgets.api.color.Colors;
+import org.jowidgets.api.controller.IDisposeListener;
 import org.jowidgets.api.convert.IObjectLabelConverter;
 import org.jowidgets.api.image.IconsSmall;
 import org.jowidgets.api.model.table.IDefaultTableColumn;
@@ -163,12 +164,17 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	private final boolean autoRowCount;
 
 	private final BeanListModelObservable beanListModelObservable;
+	private final DisposeObservable disposeObservable;
+	private final TableDataModelListener tableDataModelListener;
+	private final IChangeListener sortModelChangeListener;
+	private final ParentModelListener parentModelListener;
+	private final List<AttributeChangeListener> attributeChangeListeners;
 
 	private final IDefaultTableColumnModel columnModel;
 	private final DataModel dataModel;
 	private final ITableModel tableModel;
 
-	private final Set<ILookUpListener> lookUpListenersStrongRef;
+	private final Set<AttributeLookUpListener> lookUpListenersStrongRef;
 	private final Map<Integer, PageLoader> programmaticPageLoader;
 
 	private final String userCanceledMessage;
@@ -186,6 +192,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	private boolean autoSelection;
 	private boolean onSetConfig;
 	private Integer scheduledLoadDelay;
+	private boolean disposed;
 
 	@SuppressWarnings("unchecked")
 	BeanTableModelImpl(
@@ -217,7 +224,11 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		this.linkType = linkType;
 		if (parent != null) {
 			Assert.paramNotNull(linkType, "linkType");
-			parent.addBeanListModelListener(new ParentModelListener());
+			this.parentModelListener = new ParentModelListener();
+			parent.addBeanListModelListener(parentModelListener);
+		}
+		else {
+			this.parentModelListener = null;
 		}
 
 		//inject table model plugins
@@ -241,13 +252,18 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		this.data = new HashMap<Integer, ArrayList<IBeanProxy<BEAN_TYPE>>>();
 		this.addedData = new ArrayList<IBeanProxy<BEAN_TYPE>>();
 		this.sortModel = new SortModelImpl();
+		this.sortModelChangeListener = new SortModelChangeListener();
+		this.tableDataModelListener = new TableDataModelListener();
+		this.attributeChangeListeners = new LinkedList<AttributeChangeListener>();
 		this.dataCleared = true;
+		this.disposed = false;
 		this.pageSize = DEFAULT_PAGE_SIZE;
 		this.rowCount = 0;
 		this.maxPageIndex = 0;
 		this.beansStateTracker = CapUiToolkit.beansStateTracker();
 		this.beanProxyFactory = CapUiToolkit.beanProxyFactory(beanType);
 		this.beanListModelObservable = new BeanListModelObservable();
+		this.disposeObservable = new DisposeObservable();
 		this.filterChangeObservable = new ChangeObservable();
 		this.programmaticPageLoader = new HashMap<Integer, PageLoader>();
 		this.userCanceledMessage = Messages.getString("BeanTableModelImpl.user_canceled");
@@ -255,16 +271,16 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 		//configure sort model
 		sortModel.setConfig(sortModelConfig);
-		sortModel.addChangeListener(new SortModelChangeListener());
+		sortModel.addChangeListener(sortModelChangeListener);
 
 		//model creation
 		this.columnModel = createColumnModel(attributes);
 		this.dataModel = new DataModel();
-		dataModel.addDataModelListener(new TableDataModelListener());
+		dataModel.addDataModelListener(tableDataModelListener);
 		this.tableModel = new TableModel(columnModel, dataModel);
 
 		//add some listeners
-		this.lookUpListenersStrongRef = new HashSet<ILookUpListener>();
+		this.lookUpListenersStrongRef = new HashSet<AttributeLookUpListener>();
 		addAttributeListeners(attributes, lookUpListenersStrongRef);
 
 		//update the columns
@@ -302,11 +318,15 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		return result;
 	}
 
-	private void addAttributeListeners(final List<IAttribute<Object>> attributes, final Set<ILookUpListener> listenersStrongRef) {
+	private void addAttributeListeners(
+		final List<IAttribute<Object>> attributes,
+		final Set<AttributeLookUpListener> listenersStrongRef) {
 		for (int index = 0; index < attributes.size(); index++) {
 			final IAttribute<Object> attribute = attributes.get(index);
 
-			attribute.addChangeListener(new AttributeChangeListener(attribute, index));
+			final AttributeChangeListener attributeChangeListener = new AttributeChangeListener(attribute, index);
+			attributeChangeListeners.add(attributeChangeListener);
+			attribute.addChangeListener(attributeChangeListener);
 
 			if (attribute.getValueRange() instanceof ILookUpValueRange) {
 				addAttributeLookUpListener(attribute, listenersStrongRef);
@@ -314,10 +334,12 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		}
 	}
 
-	private void addAttributeLookUpListener(final IAttribute<Object> attribute, final Set<ILookUpListener> listenersStrongRef) {
+	private void addAttributeLookUpListener(
+		final IAttribute<Object> attribute,
+		final Set<AttributeLookUpListener> listenersStrongRef) {
 		final ILookUpValueRange lookUpValueRange = (ILookUpValueRange) attribute.getValueRange();
 		final ILookUpAccess lookUpAccess = CapUiToolkit.lookUpCache().getAccess(lookUpValueRange.getLookUpId());
-		final ILookUpListener lookUpListener = new AttributeLookUpListener(attribute);
+		final AttributeLookUpListener lookUpListener = new AttributeLookUpListener(attribute);
 		listenersStrongRef.add(lookUpListener);
 		lookUpAccess.addLookUpListener(lookUpListener, true);
 	}
@@ -335,7 +357,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			columnBuilder.setWidth(attribute.getTableWidth());
 			columnBuilder.setAlignment(attribute.getTableAlignment());
 			columnBuilder.setVisible(attribute.isVisible());
-			result.addColumn(columnBuilder);
+			result.addColumn(columnBuilder.build());
 			columnIndex++;
 		}
 
@@ -398,6 +420,61 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	}
 
 	@Override
+	public void addDisposeListener(final IDisposeListener listener) {
+		disposeObservable.addDisposeListener(listener);
+	}
+
+	@Override
+	public void removeDisposeListener(final IDisposeListener listener) {
+		disposeObservable.removeDisposeListener(listener);
+	}
+
+	@Override
+	public void dispose() {
+		if (!disposed) {
+			disposeObservable.fireOnDispose();
+			clear();
+			beanListModelObservable.dispose();
+			filterChangeObservable.dispose();
+			beansStateTracker.dispose();
+			for (final AttributeLookUpListener attributeLookUpListener : lookUpListenersStrongRef) {
+				attributeLookUpListener.dispose();
+			}
+			lookUpListenersStrongRef.clear();
+			sortModel.removeChangeListener(sortModelChangeListener);
+			dataModel.removeDataModelListener(tableDataModelListener);
+			if (parentModelListener != null && parent != null) {
+				parent.removeBeanListModelListener(parentModelListener);
+			}
+			for (final AttributeChangeListener listener : attributeChangeListeners) {
+				listener.dispose();
+			}
+			disposeBeans();
+			disposed = true;
+		}
+	}
+
+	private void disposeBeans() {
+		for (final ArrayList<IBeanProxy<BEAN_TYPE>> page : data.values()) {
+			for (final IBeanProxy<BEAN_TYPE> bean : page) {
+				if (bean != null) {
+					bean.dispose();
+				}
+			}
+		}
+		for (final IBeanProxy<BEAN_TYPE> addedBean : addedData) {
+			if (addedBean != null) {
+				addedBean.dispose();
+			}
+		}
+	}
+
+	@Override
+	public boolean isDisposed() {
+		return disposed;
+	}
+
+	@Override
 	public Object getEntityId() {
 		return entityId;
 	}
@@ -422,7 +499,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		if (!Toolkit.getUiThreadAccess().isUiThread()) {
 			throw new IllegalStateException("Clear must be invoked in the ui thread");
 		}
-		tryToCancelPageLoader();
+		tryToCanceLoader();
 		rowCount = 0;
 		countedRowCount = null;
 		maxPageIndex = 0;
@@ -438,7 +515,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		if (!Toolkit.getUiThreadAccess().isUiThread()) {
 			throw new IllegalStateException("Load must be invoked in the ui thread");
 		}
-		tryToCancelPageLoader();
+		tryToCanceLoader();
 		beansStateTracker.clearAll();
 		if (rowCount == 0) {
 			rowCount = 1;
@@ -537,7 +614,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		}
 	}
 
-	private void tryToCancelPageLoader() {
+	private void tryToCanceLoader() {
 		tryToCancelProgrammaticPageLoader();
 		tryToCancelCountLoader();
 		tryToCancelEvenOddPageLoader();
@@ -697,7 +774,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	public void removeBeans(final Collection<? extends IBeanProxy<BEAN_TYPE>> beans) {
 		Assert.paramNotNull(beans, "beans");
 		//data structure must rebuild, so do not load until this happens
-		tryToCancelPageLoader();
+		tryToCanceLoader();
 
 		final List<IBeanProxy<BEAN_TYPE>> selectedBeans = getSelectedBeans();
 		final List<Integer> newSelection = new LinkedList<Integer>();
@@ -1430,21 +1507,40 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	private final class AttributeChangeListener implements IChangeListener {
 
 		private final IAttribute<Object> attribute;
-		private final int columnIndex;
+		private final IDefaultTableColumn column;
+		private final IChangeListener columnChangeListener;
 
 		private AttributeChangeListener(final IAttribute<Object> attribute, final int columnIndex) {
 			this.attribute = attribute;
-			this.columnIndex = columnIndex;
+			this.column = columnModel.getColumn(columnIndex);
+			this.columnChangeListener = new IChangeListener() {
+				@Override
+				public void changed() {
+					if (column.getWidth() != attribute.getTableWidth()) {
+						attribute.removeChangeListener(this);
+						attribute.setTableWidth(column.getWidth());
+						attribute.addChangeListener(this);
+					}
+				}
+			};
+			column.addChangeListener(columnChangeListener);
 		}
 
 		@Override
 		public void changed() {
-			columnModel.getColumn(columnIndex).setVisible(attribute.isVisible());
-			columnModel.getColumn(columnIndex).setAlignment(attribute.getTableAlignment());
+			column.removeChangeListener(columnChangeListener);
+			column.setVisible(attribute.isVisible());
+			column.setAlignment(attribute.getTableAlignment());
 			if (!onSetConfig) {
 				dataModel.fireDataChanged();
 			}
 			updateColumnModel();
+			column.addChangeListener(columnChangeListener);
+		}
+
+		void dispose() {
+			attribute.removeChangeListener(this);
+			column.removeChangeListener(columnChangeListener);
 		}
 	}
 
@@ -1452,8 +1548,11 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 		private final IAttribute<Object> attribute;
 
+		private boolean disposed;
+
 		private AttributeLookUpListener(final IAttribute<Object> attribute) {
 			this.attribute = attribute;
+			this.disposed = false;
 		}
 
 		@Override
@@ -1461,9 +1560,13 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 		@Override
 		public void afterLookUpChanged() {
-			if (attribute.isVisible()) {
+			if (!disposed && attribute.isVisible()) {
 				dataModel.fireDataChanged();
 			}
+		}
+
+		private void dispose() {
+			this.disposed = true;
 		}
 	}
 

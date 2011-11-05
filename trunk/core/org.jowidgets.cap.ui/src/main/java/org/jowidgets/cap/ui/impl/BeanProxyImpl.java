@@ -474,6 +474,9 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE> {
 
 	@Override
 	public void dispose() {
+		if (this.executionTask != null) {
+			this.executionTask.removeExecutionTaskListener(executionTaskListener);
+		}
 		modifications.clear();
 		modificationStateObservable.dispose();
 		processStateObservable.dispose();

@@ -68,10 +68,4 @@ final class BeanSelectionDialogContentCreator<BEAN_TYPE> implements IInputConten
 		return null;
 	}
 
-	void dispose() {
-		if (table != null) {
-			table.dispose();
-		}
-	}
-
 }

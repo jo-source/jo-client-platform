@@ -61,6 +61,7 @@ import org.jowidgets.cap.ui.api.execution.IExecutionInterceptor;
 import org.jowidgets.cap.ui.api.execution.IExecutionTask;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.model.LinkType;
+import org.jowidgets.cap.ui.api.table.IBeanTableConfig;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
 import org.jowidgets.cap.ui.api.widgets.IBeanSelectionDialogBluePrint;
@@ -92,6 +93,7 @@ final class BeanLinkCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
 	private final BeanListModelEnabledChecker<?> enabledChecker;
 
 	private Rectangle lastDialogBounds;
+	private IBeanTableConfig lastTableModelConfig;
 
 	BeanLinkCommand(
 		final IBeanListModel<BEAN_TYPE> model,
@@ -215,6 +217,9 @@ final class BeanLinkCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
 		modelBuilder.setAttributes(linkableTableAttributes);
 		modelBuilder.setParent(model, LinkType.SELECTION_ALL);
 		final IBeanTableModel<IBean> linkableModel = modelBuilder.build();
+		if (lastTableModelConfig != null) {
+			linkableModel.setConfig(lastTableModelConfig);
+		}
 		linkableModel.load();
 
 		final IBeanSelectionDialogBluePrint<IBean> selectionDialogBp;
@@ -232,10 +237,11 @@ final class BeanLinkCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
 		dialog.setVisible(true);
 
 		lastDialogBounds = dialog.getBounds();
+		lastTableModelConfig = linkableModel.getConfig();
+		System.out.println(lastTableModelConfig);
 
-		//TODO MG BeanTableModel must be disposable
-		//linkableModel.dispose();
-		//dialog.dispose();
+		linkableModel.dispose();
+		dialog.dispose();
 
 		return Collections.emptyList();
 	}

@@ -28,71 +28,37 @@
 
 package org.jowidgets.cap.ui.impl;
 
-import org.jowidgets.cap.ui.api.attribute.IAttributeConfig;
-import org.jowidgets.cap.ui.api.control.DisplayFormat;
-import org.jowidgets.cap.ui.api.control.IDisplayFormat;
-import org.jowidgets.common.types.AlignmentHorizontal;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.Set;
 
-final class AttributeConfigImpl implements IAttributeConfig {
+import org.jowidgets.api.controller.IDisposeListener;
+import org.jowidgets.api.controller.IDisposeObservable;
+import org.jowidgets.util.Assert;
 
-	private final Boolean visible;
-	private final DisplayFormat labelDisplayFormat;
-	private final IDisplayFormat displayFormat;
-	private final AlignmentHorizontal tableAlignment;
-	private final Integer tableWidth;
+final class DisposeObservable implements IDisposeObservable {
 
-	AttributeConfigImpl(
-		final Boolean visible,
-		final DisplayFormat labelDisplayFormat,
-		final IDisplayFormat displayFormat,
-		final AlignmentHorizontal tableAlignment,
-		final Integer tableWidth) {
+	private final Set<IDisposeListener> listeners;
 
-		this.visible = visible;
-		this.labelDisplayFormat = labelDisplayFormat;
-		this.displayFormat = displayFormat;
-		this.tableAlignment = tableAlignment;
-		this.tableWidth = tableWidth;
+	DisposeObservable() {
+		this.listeners = new LinkedHashSet<IDisposeListener>();
 	}
 
 	@Override
-	public Boolean isVisible() {
-		return visible;
+	public void addDisposeListener(final IDisposeListener listener) {
+		Assert.paramNotNull(listener, "listener");
+		listeners.add(listener);
 	}
 
 	@Override
-	public DisplayFormat getLabelDisplayFormat() {
-		return labelDisplayFormat;
+	public void removeDisposeListener(final IDisposeListener listener) {
+		Assert.paramNotNull(listener, "listener");
+		listeners.remove(listener);
 	}
 
-	@Override
-	public IDisplayFormat getDisplayFormat() {
-		return displayFormat;
+	void fireOnDispose() {
+		for (final IDisposeListener listener : new LinkedList<IDisposeListener>(listeners)) {
+			listener.onDispose();
+		}
 	}
-
-	@Override
-	public AlignmentHorizontal getTableAlignment() {
-		return tableAlignment;
-	}
-
-	@Override
-	public Integer getTableWidth() {
-		return tableWidth;
-	}
-
-	@Override
-	public String toString() {
-		return "AttributeConfigImpl [visible="
-			+ visible
-			+ ", labelDisplayFormat="
-			+ labelDisplayFormat
-			+ ", displayFormat="
-			+ displayFormat
-			+ ", tableAlignment="
-			+ tableAlignment
-			+ ", tableWidth="
-			+ tableWidth
-			+ "]";
-	}
-
 }

@@ -55,4 +55,6 @@ public interface IBeansStateTracker<BEAN_TYPE> extends IModificationStateObserva
 
 	void clearAll();
 
+	void dispose();
+
 }

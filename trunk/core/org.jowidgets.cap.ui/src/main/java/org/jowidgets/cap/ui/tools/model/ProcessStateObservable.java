@@ -57,4 +57,8 @@ public class ProcessStateObservable implements IProcessStateObservable {
 			listener.processStateChanged();
 		}
 	}
+
+	public final void dispose() {
+		listeners.clear();
+	}
 }
