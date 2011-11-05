@@ -65,6 +65,7 @@ import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
 import org.jowidgets.cap.ui.api.widgets.IBeanSelectionDialogBluePrint;
 import org.jowidgets.common.types.Dimension;
+import org.jowidgets.common.types.Rectangle;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.EmptyCheck;
 
@@ -87,10 +88,10 @@ final class BeanLinkCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
 	private final IEntityLinkProperties destinationLinkProperties;
 
 	private final IBeanExecptionConverter exceptionConverter;
-
 	private final ExecutionObservable executionObservable;
-
 	private final BeanListModelEnabledChecker<?> enabledChecker;
+
+	private Rectangle lastDialogBounds;
 
 	BeanLinkCommand(
 		final IBeanListModel<BEAN_TYPE> model,
@@ -219,11 +220,22 @@ final class BeanLinkCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
 		final IBeanSelectionDialogBluePrint<IBean> selectionDialogBp;
 		selectionDialogBp = CapUiToolkit.bluePrintFactory().beanSelectionDialog(linkableModel);
 		selectionDialogBp.setExecutionContext(executionContext);
-		//TODO this must be done better later
-		selectionDialogBp.setSize(new Dimension(1000, 600));
+		selectionDialogBp.setMinPackSize(new Dimension(400, 400));
+		selectionDialogBp.setMaxPackSize(new Dimension(1600, 1000));
+		if (lastDialogBounds != null) {
+			selectionDialogBp.setSize(lastDialogBounds.getSize());
+			selectionDialogBp.setPosition(lastDialogBounds.getPosition());
+		}
 
 		final IInputDialog<List<IBeanProxy<IBean>>> dialog = Toolkit.getActiveWindow().createChildWindow(selectionDialogBp);
+
 		dialog.setVisible(true);
+
+		lastDialogBounds = dialog.getBounds();
+
+		//TODO MG BeanTableModel must be disposable
+		//linkableModel.dispose();
+		//dialog.dispose();
 
 		return Collections.emptyList();
 	}
