@@ -64,4 +64,8 @@ class BeanListModelObservable implements IBeanListModelObservable {
 		}
 	}
 
+	void dispose() {
+		listeners.clear();
+	}
+
 }

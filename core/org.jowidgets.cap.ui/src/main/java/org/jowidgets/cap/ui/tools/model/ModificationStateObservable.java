@@ -57,4 +57,8 @@ public class ModificationStateObservable implements IModificationStateObservable
 			listener.modificationStateChanged();
 		}
 	}
+
+	public void dispose() {
+		listeners.clear();
+	}
 }

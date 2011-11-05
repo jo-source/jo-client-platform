@@ -74,4 +74,17 @@ final class BeanTableConfig implements IBeanTableConfig {
 		return autoSelection;
 	}
 
+	@Override
+	public String toString() {
+		return "BeanTableConfig [attributeConfigs="
+			+ attributeConfigs
+			+ ", autoSelection="
+			+ autoSelection
+			+ ", sortModelConfig="
+			+ sortModelConfig
+			+ ", filters="
+			+ filters
+			+ "]";
+	}
+
 }

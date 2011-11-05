@@ -87,6 +87,12 @@ final class BeansStateTrackerImpl<BEAN_TYPE> implements IBeansStateTracker<BEAN_
 	}
 
 	@Override
+	public void dispose() {
+		modificationStateObservable.dispose();
+		processStateObservable.dispose();
+	}
+
+	@Override
 	public void register(final IBeanProxy<BEAN_TYPE> bean) {
 		Assert.paramNotNull(bean, "bean");
 		bean.addModificationStateListener(modificationStateListener);

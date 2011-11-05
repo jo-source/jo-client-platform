@@ -31,6 +31,7 @@ package org.jowidgets.cap.ui.api.table;
 import java.util.Collection;
 import java.util.List;
 
+import org.jowidgets.api.controller.IDisposeObservable;
 import org.jowidgets.api.model.table.ITableModel;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
@@ -45,7 +46,7 @@ import org.jowidgets.cap.ui.api.model.IDataModel;
 import org.jowidgets.cap.ui.api.sort.ISortModel;
 import org.jowidgets.util.event.IChangeListener;
 
-public interface IBeanTableModel<BEAN_TYPE> extends IDataModel, IBeanListModel<BEAN_TYPE> {
+public interface IBeanTableModel<BEAN_TYPE> extends IDataModel, IBeanListModel<BEAN_TYPE>, IDisposeObservable {
 
 	String UI_FILTER_ID = IBeanTableModel.class.getName() + ".UI_FILTER_ID";
 	String UI_SEARCH_FILTER_ID = IBeanTableModel.class.getName() + ".UI_SEARCH_FILTER_ID";
@@ -109,5 +110,9 @@ public interface IBeanTableModel<BEAN_TYPE> extends IDataModel, IBeanListModel<B
 	void setConfig(IBeanTableConfig config);
 
 	IBeanTableConfig getConfig();
+
+	void dispose();
+
+	boolean isDisposed();
 
 }
