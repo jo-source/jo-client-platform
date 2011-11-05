@@ -40,7 +40,6 @@ import org.jowidgets.api.controller.IDisposeListener;
 import org.jowidgets.api.model.item.IActionItemModel;
 import org.jowidgets.api.model.item.IToolBarItemModel;
 import org.jowidgets.api.model.item.IToolBarModel;
-import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.entity.IEntityClass;
 import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
 import org.jowidgets.cap.common.api.service.IEntityService;
@@ -66,7 +65,7 @@ public class EntityComponent extends AbstractComponent implements IComponent {
 	public static final String ROOT_TABLE_VIEW_ID = EntityComponent.class.getName() + "_ROOT_TABLE_VIEW";
 	public static final String LINKED_TABLE_VIEW_ID = EntityComponent.class.getName() + "_LINKED_TABLE_VIEW_";
 
-	private final IBeanTableModel<IBean> tableModel;
+	private final IBeanTableModel<Object> tableModel;
 	private final List<IDataModelAction> dataModelActions;
 	private final Set<LinkedEntityTableView> tableViews;
 	private final Map<String, IEntityLinkDescriptor> links;

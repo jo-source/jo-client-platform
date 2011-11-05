@@ -41,8 +41,6 @@ import org.jowidgets.api.command.IExceptionHandler;
 import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.api.threads.IUiThreadAccess;
 import org.jowidgets.api.toolkit.Toolkit;
-import org.jowidgets.api.widgets.IInputDialog;
-import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.entity.IEntityLinkProperties;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
@@ -64,7 +62,9 @@ import org.jowidgets.cap.ui.api.model.LinkType;
 import org.jowidgets.cap.ui.api.table.IBeanTableConfig;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
+import org.jowidgets.cap.ui.api.widgets.IBeanSelectionDialog;
 import org.jowidgets.cap.ui.api.widgets.IBeanSelectionDialogBluePrint;
+import org.jowidgets.cap.ui.api.widgets.IBeanSelectionTable;
 import org.jowidgets.common.types.Dimension;
 import org.jowidgets.common.types.Rectangle;
 import org.jowidgets.util.Assert;
@@ -94,6 +94,7 @@ final class BeanLinkCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
 
 	private Rectangle lastDialogBounds;
 	private IBeanTableConfig lastTableModelConfig;
+	private ArrayList<Integer> lastColumnPermutation;
 
 	BeanLinkCommand(
 		final IBeanListModel<BEAN_TYPE> model,
@@ -213,16 +214,16 @@ final class BeanLinkCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
 	}
 
 	private List<IBeanProxy<?>> getBeansToLink(final IExecutionContext executionContext) {
-		final IBeanTableModelBuilder<IBean> modelBuilder = CapUiToolkit.beanTableModelBuilder(linkableTableEntityId);
+		final IBeanTableModelBuilder<Object> modelBuilder = CapUiToolkit.beanTableModelBuilder(linkableTableEntityId);
 		modelBuilder.setAttributes(linkableTableAttributes);
 		modelBuilder.setParent(model, LinkType.SELECTION_ALL);
-		final IBeanTableModel<IBean> linkableModel = modelBuilder.build();
+		final IBeanTableModel<Object> linkableModel = modelBuilder.build();
 		if (lastTableModelConfig != null) {
 			linkableModel.setConfig(lastTableModelConfig);
 		}
 		linkableModel.load();
 
-		final IBeanSelectionDialogBluePrint<IBean> selectionDialogBp;
+		final IBeanSelectionDialogBluePrint<Object> selectionDialogBp;
 		selectionDialogBp = CapUiToolkit.bluePrintFactory().beanSelectionDialog(linkableModel);
 		selectionDialogBp.setExecutionContext(executionContext);
 		selectionDialogBp.setMinPackSize(new Dimension(400, 400));
@@ -232,13 +233,16 @@ final class BeanLinkCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
 			selectionDialogBp.setPosition(lastDialogBounds.getPosition());
 		}
 
-		final IInputDialog<List<IBeanProxy<IBean>>> dialog = Toolkit.getActiveWindow().createChildWindow(selectionDialogBp);
-
+		final IBeanSelectionDialog<Object> dialog = Toolkit.getActiveWindow().createChildWindow(selectionDialogBp);
+		if (lastColumnPermutation != null) {
+			dialog.getTable().setColumnPermutation(lastColumnPermutation);
+		}
 		dialog.setVisible(true);
 
 		lastDialogBounds = dialog.getBounds();
+		final IBeanSelectionTable<Object> table = dialog.getTable();
+		lastColumnPermutation = table.getColumnPermutation();
 		lastTableModelConfig = linkableModel.getConfig();
-		System.out.println(lastTableModelConfig);
 
 		linkableModel.dispose();
 		dialog.dispose();

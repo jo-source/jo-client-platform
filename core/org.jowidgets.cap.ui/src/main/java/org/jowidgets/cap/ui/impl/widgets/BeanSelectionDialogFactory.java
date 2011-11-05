@@ -34,15 +34,16 @@ import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.widgets.IInputDialog;
 import org.jowidgets.api.widgets.blueprint.IInputDialogBluePrint;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
+import org.jowidgets.cap.ui.api.widgets.IBeanSelectionDialog;
 import org.jowidgets.cap.ui.api.widgets.IBeanSelectionDialogBluePrint;
 import org.jowidgets.common.widgets.factory.IWidgetFactory;
 import org.jowidgets.tools.widgets.blueprint.BPF;
 
 public final class BeanSelectionDialogFactory implements
-		IWidgetFactory<IInputDialog<List<IBeanProxy<Object>>>, IBeanSelectionDialogBluePrint<Object>> {
+		IWidgetFactory<IBeanSelectionDialog<Object>, IBeanSelectionDialogBluePrint<Object>> {
 
 	@Override
-	public IInputDialog<List<IBeanProxy<Object>>> create(
+	public IBeanSelectionDialog<Object> create(
 		final Object parentUiReference,
 		final IBeanSelectionDialogBluePrint<Object> bluePrint) {
 		final IInputDialogBluePrint<List<IBeanProxy<Object>>> inputDialogBp;
@@ -52,6 +53,6 @@ public final class BeanSelectionDialogFactory implements
 		inputDialogBp.setSetup(bluePrint);
 		inputDialogBp.setContentCreator(contentCreator);
 		final IInputDialog<List<IBeanProxy<Object>>> inputDialog = Toolkit.getWidgetFactory().create(inputDialogBp);
-		return inputDialog;
+		return new BeanSelectionDialogImpl<Object>(inputDialog, contentCreator);
 	}
 }

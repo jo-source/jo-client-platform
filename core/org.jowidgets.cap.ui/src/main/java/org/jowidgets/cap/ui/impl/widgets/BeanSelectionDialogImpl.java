@@ -26,24 +26,32 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.widgets;
+package org.jowidgets.cap.ui.impl.widgets;
 
 import java.util.List;
 
-import org.jowidgets.api.widgets.blueprint.builder.IInputDialogSetupBuilder;
-import org.jowidgets.api.widgets.descriptor.setup.IInputDialogSetup;
+import org.jowidgets.api.widgets.IInputDialog;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
-import org.jowidgets.common.widgets.descriptor.IWidgetDescriptor;
-import org.jowidgets.common.widgets.descriptor.setup.mandatory.Mandatory;
+import org.jowidgets.cap.ui.api.widgets.IBeanSelectionDialog;
+import org.jowidgets.cap.ui.api.widgets.IBeanSelectionTable;
+import org.jowidgets.tools.widgets.wrapper.InputDialogWrapper;
+import org.jowidgets.util.IProvider;
 
-public interface IBeanSelectionDialogBluePrint<BEAN_TYPE> extends
-		IInputDialogSetup<List<IBeanProxy<BEAN_TYPE>>>,
-		IInputDialogSetupBuilder<IBeanSelectionDialogBluePrint<BEAN_TYPE>, List<IBeanProxy<BEAN_TYPE>>>,
-		IWidgetDescriptor<IBeanSelectionDialog<BEAN_TYPE>> {
+final class BeanSelectionDialogImpl<BEAN_TYPE> extends InputDialogWrapper<List<IBeanProxy<BEAN_TYPE>>> implements
+		IBeanSelectionDialog<BEAN_TYPE> {
 
-	IBeanSelectionDialogBluePrint<BEAN_TYPE> setBeanSelectionTable(IBeanSelectionTableBluePrint<BEAN_TYPE> table);
+	private final IProvider<IBeanSelectionTable<BEAN_TYPE>> tableProvider;
 
-	@Mandatory
-	IBeanSelectionTableBluePrint<BEAN_TYPE> getBeanSelectionTable();
+	BeanSelectionDialogImpl(
+		final IInputDialog<List<IBeanProxy<BEAN_TYPE>>> inputDialog,
+		final IProvider<IBeanSelectionTable<BEAN_TYPE>> tableProvider) {
+		super(inputDialog);
+		this.tableProvider = tableProvider;
+	}
+
+	@Override
+	public IBeanSelectionTable<BEAN_TYPE> getTable() {
+		return tableProvider.get();
+	}
 
 }
