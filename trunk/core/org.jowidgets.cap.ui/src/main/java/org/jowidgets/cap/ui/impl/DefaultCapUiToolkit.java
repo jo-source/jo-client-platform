@@ -31,7 +31,6 @@ package org.jowidgets.cap.ui.impl;
 import javax.validation.Validation;
 import javax.validation.Validator;
 
-import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.ui.api.ICapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
 import org.jowidgets.cap.ui.api.bean.BeanMessageType;
@@ -176,8 +175,8 @@ public final class DefaultCapUiToolkit implements ICapUiToolkit {
 	}
 
 	@Override
-	public IBeanTableModelBuilder<IBean> beanTableModelBuilder(final Object entityId) {
-		return new BeanTableModelBuilderImpl<IBean>(entityId, IBean.class);
+	public IBeanTableModelBuilder<Object> beanTableModelBuilder(final Object entityId) {
+		return new BeanTableModelBuilderImpl<Object>(entityId, Object.class);
 	}
 
 	@Override

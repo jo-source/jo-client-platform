@@ -29,7 +29,6 @@
 package org.jowidgets.cap.sample1.ui.workbench.component.user.view;
 
 import org.jowidgets.api.widgets.IContainer;
-import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.tools.layout.MigLayoutFactory;
@@ -42,9 +41,9 @@ public class RoleTableView extends AbstractView {
 	public static final String DEFAULT_LABEL = Messages.getString("RoleTableView.roles"); //$NON-NLS-1$
 	public static final String DEFAULT_TOOLTIP = Messages.getString("RoleTableView.roles_tooltip"); //$NON-NLS-1$
 
-	private final IBeanTableModel<IBean> beanTableModel;
+	private final IBeanTableModel<Object> beanTableModel;
 
-	public RoleTableView(final IViewContext context, final IBeanTableModel<IBean> tableModel) {
+	public RoleTableView(final IViewContext context, final IBeanTableModel<Object> tableModel) {
 		this.beanTableModel = tableModel;
 		final IContainer container = context.getContainer();
 		container.setLayout(MigLayoutFactory.growingInnerCellLayout());

@@ -33,7 +33,6 @@ import java.util.Collection;
 import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.model.item.IMenuModel;
 import org.jowidgets.api.widgets.IContainer;
-import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
 import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
@@ -48,11 +47,11 @@ public class EntityTableView extends AbstractView {
 
 	public EntityTableView(
 		final IViewContext context,
-		final IBeanTableModel<IBean> tableModel,
+		final IBeanTableModel<Object> tableModel,
 		final Collection<IEntityLinkDescriptor> links) {
 		final IContainer container = context.getContainer();
 		container.setLayout(MigLayoutFactory.growingInnerCellLayout());
-		final IBeanTable<IBean> table = container.add(
+		final IBeanTable<Object> table = container.add(
 				CapUiToolkit.bluePrintFactory().beanTable(tableModel),
 				MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
 		final IEntityService entityService = ServiceProvider.getService(IEntityService.ID);
@@ -64,7 +63,7 @@ public class EntityTableView extends AbstractView {
 
 	private static void addLinkActions(
 		final IEntityService entityService,
-		final IBeanTable<IBean> table,
+		final IBeanTable<Object> table,
 		final Collection<IEntityLinkDescriptor> links) {
 		boolean actionCreated = false;
 		final IMenuModel popMenu = table.getCellPopMenu();

@@ -28,7 +28,6 @@
 
 package org.jowidgets.cap.sample1.ui.workbench.component.user;
 
-import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.sample1.common.entity.EntityIds;
 import org.jowidgets.cap.sample1.common.entity.IUser;
 import org.jowidgets.cap.sample1.common.service.reader.ReaderServices;
@@ -58,7 +57,7 @@ public class UserComponent extends AbstractComponent implements IComponent {
 
 	private final ValueHolder<Integer> delayParameter;
 	private final IBeanTableModel<IUser> userTableModel;
-	private final IBeanTableModel<IBean> roleTableModel;
+	private final IBeanTableModel<Object> roleTableModel;
 
 	public UserComponent(final IComponentNodeModel componentNodeModel, final IComponentContext componentContext) {
 		componentContext.setLayout(new UserComponentDefaultLayout().getLayout());
@@ -126,8 +125,8 @@ public class UserComponent extends AbstractComponent implements IComponent {
 		return builder.build();
 	}
 
-	private IBeanTableModel<IBean> createRoleTableModel(final IBeanTableModel<IUser> userTableModel) {
-		final IBeanTableModelBuilder<IBean> builder = CapUiToolkit.beanTableModelBuilder(EntityIds.ROLE);
+	private IBeanTableModel<Object> createRoleTableModel(final IBeanTableModel<IUser> userTableModel) {
+		final IBeanTableModelBuilder<Object> builder = CapUiToolkit.beanTableModelBuilder(EntityIds.ROLE);
 		builder.setParent(userTableModel, LinkType.SELECTION_ALL);
 		builder.setReaderService(ReaderServices.ROLES_OF_USERS);
 		return builder.build();

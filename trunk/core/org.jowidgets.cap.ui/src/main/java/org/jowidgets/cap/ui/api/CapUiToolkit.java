@@ -39,7 +39,6 @@ import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.types.InputDialogDefaultButtonPolicy;
 import org.jowidgets.api.widgets.blueprint.IInputComponentValidationLabelBluePrint;
 import org.jowidgets.api.widgets.blueprint.defaults.IDefaultInitializer;
-import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
 import org.jowidgets.cap.ui.api.bean.BeanMessageType;
 import org.jowidgets.cap.ui.api.bean.IBeanKeyFactory;
@@ -171,7 +170,7 @@ public final class CapUiToolkit {
 		return getInstance().beanTableModelBuilder(beanType);
 	}
 
-	public static IBeanTableModelBuilder<IBean> beanTableModelBuilder(final Object entityId) {
+	public static IBeanTableModelBuilder<Object> beanTableModelBuilder(final Object entityId) {
 		return getInstance().beanTableModelBuilder(entityId);
 	}
 

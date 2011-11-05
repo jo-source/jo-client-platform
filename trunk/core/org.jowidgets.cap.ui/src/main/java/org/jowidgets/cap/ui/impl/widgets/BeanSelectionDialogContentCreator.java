@@ -36,8 +36,11 @@ import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.widgets.IBeanSelectionTable;
 import org.jowidgets.cap.ui.api.widgets.IBeanSelectionTableBluePrint;
 import org.jowidgets.tools.layout.MigLayoutFactory;
+import org.jowidgets.util.IProvider;
 
-final class BeanSelectionDialogContentCreator<BEAN_TYPE> implements IInputContentCreator<List<IBeanProxy<BEAN_TYPE>>> {
+final class BeanSelectionDialogContentCreator<BEAN_TYPE> implements
+		IInputContentCreator<List<IBeanProxy<BEAN_TYPE>>>,
+		IProvider<IBeanSelectionTable<BEAN_TYPE>> {
 
 	private final IBeanSelectionTableBluePrint<BEAN_TYPE> beanSelectionTable;
 
@@ -66,6 +69,11 @@ final class BeanSelectionDialogContentCreator<BEAN_TYPE> implements IInputConten
 			return table.getValue();
 		}
 		return null;
+	}
+
+	@Override
+	public IBeanSelectionTable<BEAN_TYPE> get() {
+		return table;
 	}
 
 }

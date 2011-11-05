@@ -30,20 +30,11 @@ package org.jowidgets.cap.ui.api.widgets;
 
 import java.util.List;
 
-import org.jowidgets.api.widgets.blueprint.builder.IInputDialogSetupBuilder;
-import org.jowidgets.api.widgets.descriptor.setup.IInputDialogSetup;
+import org.jowidgets.api.widgets.IInputDialog;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
-import org.jowidgets.common.widgets.descriptor.IWidgetDescriptor;
-import org.jowidgets.common.widgets.descriptor.setup.mandatory.Mandatory;
 
-public interface IBeanSelectionDialogBluePrint<BEAN_TYPE> extends
-		IInputDialogSetup<List<IBeanProxy<BEAN_TYPE>>>,
-		IInputDialogSetupBuilder<IBeanSelectionDialogBluePrint<BEAN_TYPE>, List<IBeanProxy<BEAN_TYPE>>>,
-		IWidgetDescriptor<IBeanSelectionDialog<BEAN_TYPE>> {
+public interface IBeanSelectionDialog<BEAN_TYPE> extends IInputDialog<List<IBeanProxy<BEAN_TYPE>>> {
 
-	IBeanSelectionDialogBluePrint<BEAN_TYPE> setBeanSelectionTable(IBeanSelectionTableBluePrint<BEAN_TYPE> table);
-
-	@Mandatory
-	IBeanSelectionTableBluePrint<BEAN_TYPE> getBeanSelectionTable();
+	IBeanSelectionTable<BEAN_TYPE> getTable();
 
 }
