@@ -63,6 +63,7 @@ final class BeanSelectionTableImpl<BEAN_TYPE> extends AbstractInputControl<List<
 
 	private final String nothingSelectedErrorMessage;
 	private final String unloadedSelectionErrorMessage;
+	private final String unhandledErrorMessagesErrorMessage;
 
 	private final IBeanTable<BEAN_TYPE> table;
 	private final Set<IBeanProxy<BEAN_TYPE>> lastValue;
@@ -84,6 +85,7 @@ final class BeanSelectionTableImpl<BEAN_TYPE> extends AbstractInputControl<List<
 			nothingSelectedErrorMessage = Messages.getString("BeanSelectionTableImpl.at_least_one_dataset_must_be_selected");
 		}
 		unloadedSelectionErrorMessage = Messages.getString("BeanSelectionTableImpl.selection_contains_unloaded_data");
+		unhandledErrorMessagesErrorMessage = Messages.getString("BeanSelectionTableImpl.unhandeled_error_messages");
 
 		table.getModel().addBeanListModelListener(new IBeanListModelListener() {
 
@@ -111,7 +113,13 @@ final class BeanSelectionTableImpl<BEAN_TYPE> extends AbstractInputControl<List<
 		}
 		for (final Integer index : selection) {
 			final IBeanProxy<BEAN_TYPE> bean = model.getBean(index.intValue());
-			if (bean == null || bean.isDummy()) {
+			if (bean == null) {
+				return ValidationResult.error(unloadedSelectionErrorMessage);
+			}
+			else if (bean.hasErrors()) {
+				return ValidationResult.error(unhandledErrorMessagesErrorMessage);
+			}
+			else if (bean.isDummy()) {
 				return ValidationResult.error(unloadedSelectionErrorMessage);
 			}
 		}
