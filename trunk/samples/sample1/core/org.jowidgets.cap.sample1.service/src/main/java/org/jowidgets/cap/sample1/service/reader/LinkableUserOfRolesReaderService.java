@@ -37,7 +37,7 @@ import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.sample1.common.entity.EntityIds;
-import org.jowidgets.cap.sample1.service.datastore.RoleInitializer;
+import org.jowidgets.cap.sample1.common.entity.IUser;
 import org.jowidgets.cap.sample1.service.datastore.UserRoleLinkInitializer;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
@@ -45,11 +45,11 @@ import org.jowidgets.cap.service.api.bean.IBeanPropertyMap;
 import org.jowidgets.cap.service.impl.dummy.datastore.EntityDataStore;
 import org.jowidgets.cap.service.impl.dummy.datastore.IEntityData;
 
-public final class LinkableRolesOfUsersReaderService extends AbstractSyncReaderService {
+public final class LinkableUserOfRolesReaderService extends AbstractSyncReaderService {
 
 	@Override
 	IBeanDtoFactory<?> getDtoFactory() {
-		return CapServiceToolkit.beanPropertyMapDtoFactory(RoleInitializer.ALL_PROPERTIES);
+		return CapServiceToolkit.dtoFactory(IUser.class, IUser.ALL_PROPERTIES);
 	}
 
 	@Override
@@ -64,21 +64,21 @@ public final class LinkableRolesOfUsersReaderService extends AbstractSyncReaderS
 				parentIds.add(beanKey.getId());
 			}
 
-			final Set<Long> roleIds = new HashSet<Long>();
+			final Set<Long> userIds = new HashSet<Long>();
 			final IEntityData<IBeanPropertyMap> userRoleLinkData = (IEntityData<IBeanPropertyMap>) EntityDataStore.getEntityData(EntityIds.USER_ROLE_LINK);
 			for (final IBeanPropertyMap userRoleLink : userRoleLinkData.getAllData()) {
 				CapServiceToolkit.checkCanceled(executionCallback);
-				if (parentIds.contains(userRoleLink.getValue(UserRoleLinkInitializer.USER_ID))) {
-					roleIds.add((Long) userRoleLink.getValue(UserRoleLinkInitializer.ROLE_ID));
+				if (parentIds.contains(userRoleLink.getValue(UserRoleLinkInitializer.ROLE_ID))) {
+					userIds.add((Long) userRoleLink.getValue(UserRoleLinkInitializer.USER_ID));
 				}
 			}
 
-			final IEntityData<IBeanPropertyMap> roleData = (IEntityData<IBeanPropertyMap>) EntityDataStore.getEntityData(EntityIds.ROLE);
+			final IEntityData<IUser> userData = (IEntityData<IUser>) EntityDataStore.getEntityData(IUser.class);
 
-			for (final IBeanPropertyMap role : roleData.getAllData()) {
+			for (final IUser user : userData.getAllData()) {
 				CapServiceToolkit.checkCanceled(executionCallback);
-				if (!roleIds.contains(role.getId())) {
-					result.add(role);
+				if (!userIds.contains(user.getId())) {
+					result.add(user);
 				}
 			}
 
@@ -86,5 +86,4 @@ public final class LinkableRolesOfUsersReaderService extends AbstractSyncReaderS
 
 		return result;
 	}
-
 }

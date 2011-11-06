@@ -55,27 +55,38 @@ public final class DummyServiceFactory {
 
 	public static IBeanServicesProvider beanServices(
 		final IServiceRegistry registry,
+		final Object entityTypeId,
 		final IEntityData<? extends IBean> data,
 		final List<String> properties) {
-		return getInstance().beanServices(registry, data, properties);
+		return getInstance().beanServices(registry, entityTypeId, data, properties);
+	}
+
+	public static IBeanServicesProviderBuilder beanServicesBuilder(
+		final IServiceRegistry registry,
+		final Object entityTypeId,
+		final IEntityData<? extends IBean> data,
+		final List<String> properties) {
+		return getInstance().beanServicesBuilder(registry, entityTypeId, data, properties);
 	}
 
 	public static <BEAN_TYPE extends IBean> IBeanServicesProvider beanServices(
 		final IServiceRegistry registry,
+		final Object entityTypeId,
 		final IEntityData<? extends BEAN_TYPE> data,
 		final IBeanDtoFactory<BEAN_TYPE> beanDtoFactory,
 		final IBeanInitializer<BEAN_TYPE> beanInitializer,
 		final IBeanModifier<BEAN_TYPE> beanModifier) {
-		return getInstance().beanServices(registry, data, beanDtoFactory, beanInitializer, beanModifier);
+		return getInstance().beanServices(registry, entityTypeId, data, beanDtoFactory, beanInitializer, beanModifier);
 	}
 
 	public static <BEAN_TYPE extends IBean> IBeanServicesProviderBuilder beanServicesBuilder(
 		final IServiceRegistry registry,
+		final Object entityTypeId,
 		final IEntityData<? extends BEAN_TYPE> data,
 		final IBeanDtoFactory<BEAN_TYPE> beanDtoFactory,
 		final IBeanInitializer<BEAN_TYPE> beanInitializer,
 		final IBeanModifier<BEAN_TYPE> beanModifier) {
-		return getInstance().beanServicesBuilder(registry, data, beanDtoFactory, beanInitializer, beanModifier);
+		return getInstance().beanServicesBuilder(registry, entityTypeId, data, beanDtoFactory, beanInitializer, beanModifier);
 	}
 
 	public static IBeanServicesProvider beanPropertyMapServices(

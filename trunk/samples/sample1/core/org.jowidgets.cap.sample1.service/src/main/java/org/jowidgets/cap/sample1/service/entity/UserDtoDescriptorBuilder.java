@@ -28,6 +28,8 @@
 
 package org.jowidgets.cap.sample1.service.entity;
 
+import java.util.Collection;
+
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanPropertyBluePrint;
 import org.jowidgets.cap.common.tools.bean.BeanDtoDescriptorBuilder;
@@ -39,6 +41,10 @@ import org.jowidgets.cap.sample1.service.lookup.RolesLookUpService;
 public class UserDtoDescriptorBuilder extends BeanDtoDescriptorBuilder {
 
 	public UserDtoDescriptorBuilder() {
+		this(IUser.ALL_PROPERTIES);
+	}
+
+	public UserDtoDescriptorBuilder(final Collection<String> visibleProperties) {
 		super(IUser.class);
 
 		setLabel(Messages.getString("UserDtoDescriptorBuilder.label"));
@@ -46,11 +52,13 @@ public class UserDtoDescriptorBuilder extends BeanDtoDescriptorBuilder {
 		IBeanPropertyBluePrint propertyBp = addProperty(IUser.NAME_PROPERTY);
 		propertyBp.setLabel(Messages.getString("UserDtoDescriptorBuilder.name")); //$NON-NLS-1$
 		propertyBp.setDescription(Messages.getString("UserDtoDescriptorBuilder.name_description")); //$NON-NLS-1$
+		propertyBp.setVisible(visibleProperties.contains(IUser.NAME_PROPERTY));
 		propertyBp.setMandatory(true);
 
 		propertyBp = addProperty(IUser.LAST_NAME_PROPERTY);
 		propertyBp.setLabel(Messages.getString("UserDtoDescriptorBuilder.lastname")); //$NON-NLS-1$
 		propertyBp.setDescription(Messages.getString("UserDtoDescriptorBuilder.lastname_description")); //$NON-NLS-1$
+		propertyBp.setVisible(visibleProperties.contains(IUser.LAST_NAME_PROPERTY));
 		propertyBp.setMandatory(true);
 
 		propertyBp = addProperty(IUser.GENDER_PROPERTY);
@@ -58,62 +66,75 @@ public class UserDtoDescriptorBuilder extends BeanDtoDescriptorBuilder {
 		propertyBp.setLabelLong(Messages.getString("UserDtoDescriptorBuilder.gender_long")); //$NON-NLS-1$
 		propertyBp.setDescription(Messages.getString("UserDtoDescriptorBuilder.gender_description")); //$NON-NLS-1$
 		propertyBp.setValueRange("M", "F"); //$NON-NLS-1$ //$NON-NLS-2$
+		propertyBp.setVisible(visibleProperties.contains(IUser.GENDER_PROPERTY));
 		propertyBp.setMandatory(true);
 
 		propertyBp = addProperty(IUser.DATE_OF_BIRTH_PROPERTY);
 		propertyBp.setLabel(Messages.getString("UserDtoDescriptorBuilder.birthday")); //$NON-NLS-1$
 		propertyBp.setLabelLong(Messages.getString("UserDtoDescriptorBuilder.birthday_long")); //$NON-NLS-1$
 		propertyBp.setDescription(Messages.getString("UserDtoDescriptorBuilder.birthday_description")); //$NON-NLS-1$
+		propertyBp.setVisible(visibleProperties.contains(IUser.DATE_OF_BIRTH_PROPERTY));
 
 		propertyBp = addProperty(IUser.AGE_PROPERTY);
 		propertyBp.setLabel(Messages.getString("UserDtoDescriptorBuilder.age")); //$NON-NLS-1$
 		propertyBp.setDescription(Messages.getString("UserDtoDescriptorBuilder.age_description")); //$NON-NLS-1$
+		propertyBp.setVisible(visibleProperties.contains(IUser.AGE_PROPERTY));
 
 		propertyBp = addProperty(IUser.HEIGHT_PROPERTY);
 		propertyBp.setLabel(Messages.getString("UserDtoDescriptorBuilder.height")); //$NON-NLS-1$
 		propertyBp.setLabelLong(Messages.getString("UserDtoDescriptorBuilder.height_long")); //$NON-NLS-1$
 		propertyBp.setDescription(Messages.getString("UserDtoDescriptorBuilder.height_description")); //$NON-NLS-1$
+		propertyBp.setVisible(visibleProperties.contains(IUser.HEIGHT_PROPERTY));
 
 		propertyBp = addProperty(IUser.WEIGHT_PROPERTY);
 		propertyBp.setLabel(Messages.getString("UserDtoDescriptorBuilder.weight")); //$NON-NLS-1$
 		propertyBp.setLabelLong(Messages.getString("UserDtoDescriptorBuilder.weight_long")); //$NON-NLS-1$
 		propertyBp.setDescription(Messages.getString("UserDtoDescriptorBuilder.weight_description")); //$NON-NLS-1$
+		propertyBp.setVisible(visibleProperties.contains(IUser.WEIGHT_PROPERTY));
 
 		propertyBp = addProperty(IUser.BMI_PROPERTY);
 		propertyBp.setLabel(Messages.getString("UserDtoDescriptorBuilder.bmi")); //$NON-NLS-1$
 		propertyBp.setDescription(Messages.getString("UserDtoDescriptorBuilder.bmi_description")); //$NON-NLS-1$
+		propertyBp.setVisible(visibleProperties.contains(IUser.BMI_PROPERTY));
 
 		propertyBp = addProperty(IUser.COUNTRY_PROPERTY);
 		propertyBp.setLabel(Messages.getString("UserDtoDescriptorBuilder.country")); //$NON-NLS-1$
 		propertyBp.setDescription(Messages.getString("UserDtoDescriptorBuilder.country_description")); //$NON-NLS-1$
 		propertyBp.setLookUpValueRange(Countries.LOOK_UP_ID);
 		propertyBp.setDefaultValue(Countries.EMPTY);
+		propertyBp.setVisible(visibleProperties.contains(IUser.COUNTRY_PROPERTY));
 
 		propertyBp = addProperty(IUser.LANGUAGES_PROPERTY);
 		propertyBp.setLabel(Messages.getString("UserDtoDescriptorBuilder.languages")).setDescription(Messages.getString("UserDtoDescriptorBuilder.languages_description")); //$NON-NLS-1$ //$NON-NLS-2$
 		propertyBp.setElementValueType(Integer.class).setSortable(false);
 		propertyBp.setLookUpValueRange(Languages.LOOK_UP_ID);
+		propertyBp.setVisible(visibleProperties.contains(IUser.LANGUAGES_PROPERTY));
 
 		propertyBp = addProperty(IUser.ADMIN_PROPERTY);
 		propertyBp.setLabel(Messages.getString("UserDtoDescriptorBuilder.admin")); //$NON-NLS-1$
 		propertyBp.setDescription(Messages.getString("UserDtoDescriptorBuilder.admin_description")); //$NON-NLS-1$
+		propertyBp.setVisible(visibleProperties.contains(IUser.ADMIN_PROPERTY));
 
 		propertyBp = addProperty(IUser.ROLES_PROPERTY);
 		propertyBp.setLabel(Messages.getString("UserDtoDescriptorBuilder.roles")); //$NON-NLS-1$
 		propertyBp.setDescription(Messages.getString("UserDtoDescriptorBuilder.roles_description")); //$NON-NLS-1$
 		propertyBp.setLookUpValueRange(RolesLookUpService.LOOK_UP_ID);
+		propertyBp.setVisible(visibleProperties.contains(IUser.ROLES_PROPERTY));
 
 		propertyBp = addProperty(IUser.MARRIED_PROPERTY);
 		propertyBp.setLabel(Messages.getString("UserDtoDescriptorBuilder.married")); //$NON-NLS-1$
 		propertyBp.setDescription(Messages.getString("UserDtoDescriptorBuilder.married_description")); //$NON-NLS-1$
+		propertyBp.setVisible(visibleProperties.contains(IUser.MARRIED_PROPERTY));
 
 		propertyBp = addProperty(IBean.ID_PROPERTY);
 		propertyBp.setLabel(Messages.getString("UserDtoDescriptorBuilder.id")); //$NON-NLS-1$
 		propertyBp.setDescription(Messages.getString("UserDtoDescriptorBuilder.id_description")); //$NON-NLS-1$
+		propertyBp.setVisible(visibleProperties.contains(IBean.ID_PROPERTY));
 
 		propertyBp = addProperty(IBean.VERSION_PROPERTY);
 		propertyBp.setLabel(Messages.getString("UserDtoDescriptorBuilder.version")); //$NON-NLS-1$
 		propertyBp.setDescription(Messages.getString("UserDtoDescriptorBuilder.version_description")); //$NON-NLS-1$
+		propertyBp.setVisible(visibleProperties.contains(IBean.VERSION_PROPERTY));
 
 	}
 

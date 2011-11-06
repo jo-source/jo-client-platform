@@ -53,6 +53,18 @@ public interface IUser extends IBean {
 	String MARRIED_PROPERTY = "married";
 	String ROLES_PROPERTY = "roles";
 
+	List<String> LINK_PROPERTIES = new LinkedList<String>() {
+		private static final long serialVersionUID = 1L;
+		{
+			add(NAME_PROPERTY);
+			add(LAST_NAME_PROPERTY);
+			add(DATE_OF_BIRTH_PROPERTY);
+			add(AGE_PROPERTY);
+			add(GENDER_PROPERTY);
+			add(COUNTRY_PROPERTY);
+		}
+	};
+
 	List<String> ALL_PROPERTIES = new LinkedList<String>() {
 		private static final long serialVersionUID = 1L;
 		{

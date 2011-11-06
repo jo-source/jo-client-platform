@@ -34,78 +34,27 @@ import java.util.List;
 import java.util.Set;
 
 import org.jowidgets.cap.common.api.bean.IBean;
-import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
-import org.jowidgets.cap.common.api.filter.IFilter;
-import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.sample1.common.entity.EntityIds;
 import org.jowidgets.cap.sample1.service.datastore.RoleInitializer;
 import org.jowidgets.cap.sample1.service.datastore.UserRoleLinkInitializer;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
-import org.jowidgets.cap.service.api.adapter.ISyncReaderService;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.cap.service.api.bean.IBeanPropertyMap;
 import org.jowidgets.cap.service.impl.dummy.datastore.EntityDataStore;
 import org.jowidgets.cap.service.impl.dummy.datastore.IEntityData;
-import org.jowidgets.cap.service.tools.bean.BeanDtoFactoryHelper;
 
-public class LinkedRolesOfUsersReaderService implements ISyncReaderService<Void> {
+public class LinkedRolesOfUsersReaderService extends AbstractSyncReaderService {
 
 	@Override
-	public List<IBeanDto> read(
-		final List<? extends IBeanKey> parentBeanKeys,
-		final IFilter filter,
-		final List<? extends ISort> sorting,
-		final int firstRow,
-		final int maxRows,
-		final Void param,
-		final IExecutionCallback executionCallback) {
-
-		List<IBeanDto> result = getFilteredResult(parentBeanKeys, filter, executionCallback);
-
-		if (sorting != null && sorting.size() > 0) {
-			result = CapServiceToolkit.beanDtoSorter().sort(result, sorting, executionCallback);
-		}
-
-		if (result.size() >= firstRow) {
-			return new LinkedList<IBeanDto>(result.subList(firstRow, Math.min(firstRow + maxRows, result.size())));
-		}
-		else {
-			return new LinkedList<IBeanDto>();
-		}
-
+	IBeanDtoFactory<?> getDtoFactory() {
+		return CapServiceToolkit.beanPropertyMapDtoFactory(RoleInitializer.ALL_PROPERTIES);
 	}
 
 	@Override
-	public Integer count(
-		final List<? extends IBeanKey> parentBeanKeys,
-		final IFilter filter,
-		final Void param,
-		final IExecutionCallback executionCallback) {
-
-		return Integer.valueOf(getFilteredResult(parentBeanKeys, filter, executionCallback).size());
-	}
-
-	private List<IBeanDto> getFilteredResult(
-		final List<? extends IBeanKey> parentBeanKeys,
-		final IFilter filter,
-		final IExecutionCallback executionCallback) {
-
-		final IBeanDtoFactory<IBeanPropertyMap> dtoFactory = CapServiceToolkit.beanPropertyMapDtoFactory(RoleInitializer.ALL_PROPERTIES);
-
-		final List<IBeanDto> result = BeanDtoFactoryHelper.createDtos(dtoFactory, getRoles(parentBeanKeys), executionCallback);
-
-		if (filter != null) {
-			return CapServiceToolkit.beanDtoFilter().filter(result, filter, executionCallback);
-		}
-		else {
-			return result;
-		}
-	}
-
 	@SuppressWarnings("unchecked")
-	private List<IBean> getRoles(final List<? extends IBeanKey> parentBeanKeys) {
+	List<IBean> getData(final List<? extends IBeanKey> parentBeanKeys, final IExecutionCallback executionCallback) {
 		final List<IBean> result = new LinkedList<IBean>();
 
 		final Set<Object> parentIds = new HashSet<Object>();
@@ -117,6 +66,7 @@ public class LinkedRolesOfUsersReaderService implements ISyncReaderService<Void>
 			final Set<Long> roleIds = new HashSet<Long>();
 			final IEntityData<IBeanPropertyMap> userRoleLinkData = (IEntityData<IBeanPropertyMap>) EntityDataStore.getEntityData(EntityIds.USER_ROLE_LINK);
 			for (final IBeanPropertyMap userRoleLink : userRoleLinkData.getAllData()) {
+				CapServiceToolkit.checkCanceled(executionCallback);
 				if (parentIds.contains(userRoleLink.getValue(UserRoleLinkInitializer.USER_ID))) {
 					roleIds.add((Long) userRoleLink.getValue(UserRoleLinkInitializer.ROLE_ID));
 				}
@@ -125,6 +75,7 @@ public class LinkedRolesOfUsersReaderService implements ISyncReaderService<Void>
 			final IEntityData<IBeanPropertyMap> roleData = (IEntityData<IBeanPropertyMap>) EntityDataStore.getEntityData(EntityIds.ROLE);
 
 			for (final Long roleId : roleIds) {
+				CapServiceToolkit.checkCanceled(executionCallback);
 				final IBeanPropertyMap role = roleData.getData(roleId);
 				if (role != null) {
 					result.add(role);
