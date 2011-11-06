@@ -81,8 +81,8 @@ public class EntityTableView extends AbstractView {
 			final ILinkActionBuilder<Object> linkActionBuilder = CapUiToolkit.actionFactory().linkActionBuilder(
 					table.getModel(),
 					link);
-			linkActionBuilder.addExecutionInterceptor(new LinkActionExecutionInterceptor(table.getModel(), link, linkedModels));
 			if (linkActionBuilder != null) {
+				linkActionBuilder.addExecutionInterceptor(new LinkActionExecutionInterceptor(table.getModel(), link, linkedModels));
 				if (!actionCreated) {
 					popMenu.addSeparator();
 					actionCreated = true;
