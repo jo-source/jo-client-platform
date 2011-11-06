@@ -50,7 +50,7 @@ import org.jowidgets.cap.service.impl.dummy.datastore.EntityDataStore;
 import org.jowidgets.cap.service.impl.dummy.datastore.IEntityData;
 import org.jowidgets.cap.service.tools.bean.BeanDtoFactoryHelper;
 
-public class RolesOfUsersReaderService implements ISyncReaderService<Void> {
+public class LinkedRolesOfUsersReaderService implements ISyncReaderService<Void> {
 
 	@Override
 	public List<IBeanDto> read(
