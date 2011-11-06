@@ -76,11 +76,8 @@ final class LookUpCollectionInputFieldImpl extends InputControlWrapper<Collectio
 
 	@Override
 	public void onChange(final ILookUp lookUp) {
-		final boolean lastInitialized = initializationDelegate.isInitialized();
 		initializationDelegate.initialize();
-		if (!lastInitialized) {
-			super.setValue(lastValue);
-		}
+		super.setValue(lastValue);
 	}
 
 	@Override

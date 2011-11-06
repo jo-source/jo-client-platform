@@ -65,6 +65,10 @@ public interface IBeanTableModel<BEAN_TYPE> extends IDataModel, IBeanListModel<B
 
 	void loadPage(int page);
 
+	void refreshBean(IBeanProxy<BEAN_TYPE> bean);
+
+	void refreshBeans(Collection<IBeanProxy<BEAN_TYPE>> beans);
+
 	Class<BEAN_TYPE> getBeanType();
 
 	ITableModel getTableModel();
