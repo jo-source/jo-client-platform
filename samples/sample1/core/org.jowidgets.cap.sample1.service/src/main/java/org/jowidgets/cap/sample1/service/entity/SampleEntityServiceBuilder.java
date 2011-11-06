@@ -43,7 +43,7 @@ import org.jowidgets.cap.sample1.service.datastore.GenericBeanInitializer;
 import org.jowidgets.cap.sample1.service.datastore.RoleInitializer;
 import org.jowidgets.cap.sample1.service.datastore.UserRoleLinkInitializer;
 import org.jowidgets.cap.sample1.service.reader.LinkableRolesOfUsersReaderService;
-import org.jowidgets.cap.sample1.service.reader.RolesOfUsersReaderService;
+import org.jowidgets.cap.sample1.service.reader.LinkedRolesOfUsersReaderService;
 import org.jowidgets.cap.service.api.bean.IBeanPropertyMap;
 import org.jowidgets.cap.service.api.entity.IBeanServicesProviderBuilder;
 import org.jowidgets.cap.service.impl.dummy.datastore.EntityDataStore;
@@ -75,18 +75,18 @@ public class SampleEntityServiceBuilder extends EntityServiceBuilder {
 				RoleInitializer.ALL_PROPERTIES);
 		add(EntityIds.ROLE, descriptor, servicesProvider);
 
-		//Roles of user
-		descriptor = new RoleDtoDescriptorBuilder().build();
+		//Linked roles of user
+		descriptor = new RoleDtoDescriptorBuilder(RoleInitializer.LINK_PROPERTIES).build();
 		IBeanServicesProviderBuilder servicesProviderBuilder = DummyServiceFactory.beanPropertyMapServicesBuilder(
 				registry,
 				EntityIds.VIRTUAL_ROLES_OF_USERS,
 				(IEntityData<? extends IBeanPropertyMap>) EntityDataStore.getEntityData(EntityIds.ROLE),
 				RoleInitializer.ALL_PROPERTIES);
-		servicesProviderBuilder.setReaderService(new RolesOfUsersReaderService());
+		servicesProviderBuilder.setReaderService(new LinkedRolesOfUsersReaderService());
 		add(EntityIds.VIRTUAL_ROLES_OF_USERS, descriptor, servicesProviderBuilder.build());
 
 		//Linkable roles of user
-		descriptor = new RoleDtoDescriptorBuilder().build();
+		descriptor = new RoleDtoDescriptorBuilder(RoleInitializer.LINK_PROPERTIES).build();
 		servicesProviderBuilder = DummyServiceFactory.beanPropertyMapServicesBuilder(
 				registry,
 				EntityIds.VIRTUAL_LINKABLE_ROLES_OF_USERS,

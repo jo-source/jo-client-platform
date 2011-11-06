@@ -54,7 +54,7 @@ import org.jowidgets.cap.sample1.service.lookup.Languages;
 import org.jowidgets.cap.sample1.service.lookup.LanguagesLookUpService;
 import org.jowidgets.cap.sample1.service.lookup.RolesLookUpService;
 import org.jowidgets.cap.sample1.service.reader.AllUsersReaderService;
-import org.jowidgets.cap.sample1.service.reader.RolesOfUsersReaderService;
+import org.jowidgets.cap.sample1.service.reader.LinkedRolesOfUsersReaderService;
 import org.jowidgets.cap.sample1.service.security.AuthorizationProviderServiceImpl;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.adapter.ISyncLookUpService;
@@ -81,7 +81,7 @@ public class SampleServiceProviderBuilder extends ServiceProviderBuilder {
 		addService(IEntityClassProviderService.ID, new SampleEntityClassProviderServiceBuilder().build());
 
 		addReader(ReaderServices.ALL_USERS, new AllUsersReaderService());
-		addReader(ReaderServices.ROLES_OF_USERS, new RolesOfUsersReaderService());
+		addReader(ReaderServices.ROLES_OF_USERS, new LinkedRolesOfUsersReaderService());
 
 		addPersonExecutor(
 				UserComponentExecutorServices.CHANGE_GENDER,

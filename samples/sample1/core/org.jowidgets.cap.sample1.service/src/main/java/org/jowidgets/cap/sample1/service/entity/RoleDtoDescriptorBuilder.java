@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.sample1.service.entity;
 
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -43,40 +44,53 @@ public class RoleDtoDescriptorBuilder {
 	private final List<IProperty> properties;
 
 	public RoleDtoDescriptorBuilder() {
+		this(RoleInitializer.ALL_PROPERTIES);
+	}
+
+	public RoleDtoDescriptorBuilder(final Collection<String> propertiesToAdd) {
 
 		this.properties = new LinkedList<IProperty>();
 
-		IPropertyBuilder propertyBuilder = builder();
-		propertyBuilder.setName(IBean.ID_PROPERTY);
-		propertyBuilder.setLabel(Messages.getString("RoleDtoDescriptorBuilder.id")); //$NON-NLS-1$
-		propertyBuilder.setDescription(Messages.getString("RoleDtoDescriptorBuilder.id_description")); //$NON-NLS-1$
-		propertyBuilder.setMandatory(true);
-		propertyBuilder.setReadonly(true);
-		propertyBuilder.setValueType(Long.class);
-		properties.add(propertyBuilder.build());
+		IPropertyBuilder propertyBuilder;
+		if (propertiesToAdd.contains(IBean.ID_PROPERTY)) {
+			propertyBuilder = builder();
+			propertyBuilder.setName(IBean.ID_PROPERTY);
+			propertyBuilder.setLabel(Messages.getString("RoleDtoDescriptorBuilder.id")); //$NON-NLS-1$
+			propertyBuilder.setDescription(Messages.getString("RoleDtoDescriptorBuilder.id_description")); //$NON-NLS-1$
+			propertyBuilder.setMandatory(true);
+			propertyBuilder.setReadonly(true);
+			propertyBuilder.setValueType(Long.class);
+			properties.add(propertyBuilder.build());
+		}
 
-		propertyBuilder = builder();
-		propertyBuilder.setName(RoleInitializer.NAME_PROPERTY);
-		propertyBuilder.setLabel(Messages.getString("RoleDtoDescriptorBuilder.name")); //$NON-NLS-1$
-		propertyBuilder.setDescription(Messages.getString("RoleDtoDescriptorBuilder.name_description")); //$NON-NLS-1$
-		propertyBuilder.setMandatory(true);
-		properties.add(propertyBuilder.build());
+		if (propertiesToAdd.contains(RoleInitializer.NAME_PROPERTY)) {
+			propertyBuilder = builder();
+			propertyBuilder.setName(RoleInitializer.NAME_PROPERTY);
+			propertyBuilder.setLabel(Messages.getString("RoleDtoDescriptorBuilder.name")); //$NON-NLS-1$
+			propertyBuilder.setDescription(Messages.getString("RoleDtoDescriptorBuilder.name_description")); //$NON-NLS-1$
+			propertyBuilder.setMandatory(true);
+			properties.add(propertyBuilder.build());
+		}
 
-		propertyBuilder = builder();
-		propertyBuilder.setName(RoleInitializer.DESCRIPTION_PROPERTY);
-		propertyBuilder.setLabel(Messages.getString("RoleDtoDescriptorBuilder.description")); //$NON-NLS-1$
-		propertyBuilder.setDescription(Messages.getString("RoleDtoDescriptorBuilder.description_description")); //$NON-NLS-1$
-		propertyBuilder.setMandatory(false);
-		properties.add(propertyBuilder.build());
+		if (propertiesToAdd.contains(RoleInitializer.DESCRIPTION_PROPERTY)) {
+			propertyBuilder = builder();
+			propertyBuilder.setName(RoleInitializer.DESCRIPTION_PROPERTY);
+			propertyBuilder.setLabel(Messages.getString("RoleDtoDescriptorBuilder.description")); //$NON-NLS-1$
+			propertyBuilder.setDescription(Messages.getString("RoleDtoDescriptorBuilder.description_description")); //$NON-NLS-1$
+			propertyBuilder.setMandatory(false);
+			properties.add(propertyBuilder.build());
+		}
 
-		propertyBuilder = builder();
-		propertyBuilder.setName(IBean.VERSION_PROPERTY);
-		propertyBuilder.setLabel(Messages.getString("RoleDtoDescriptorBuilder.version")); //$NON-NLS-1$
-		propertyBuilder.setDescription(Messages.getString("RoleDtoDescriptorBuilder.version_description")); //$NON-NLS-1$
-		propertyBuilder.setMandatory(true);
-		propertyBuilder.setReadonly(true);
-		propertyBuilder.setValueType(long.class);
-		properties.add(propertyBuilder.build());
+		if (propertiesToAdd.contains(IBean.VERSION_PROPERTY)) {
+			propertyBuilder = builder();
+			propertyBuilder.setName(IBean.VERSION_PROPERTY);
+			propertyBuilder.setLabel(Messages.getString("RoleDtoDescriptorBuilder.version")); //$NON-NLS-1$
+			propertyBuilder.setDescription(Messages.getString("RoleDtoDescriptorBuilder.version_description")); //$NON-NLS-1$
+			propertyBuilder.setMandatory(true);
+			propertyBuilder.setReadonly(true);
+			propertyBuilder.setValueType(long.class);
+			properties.add(propertyBuilder.build());
+		}
 	}
 
 	IPropertyBuilder builder() {
