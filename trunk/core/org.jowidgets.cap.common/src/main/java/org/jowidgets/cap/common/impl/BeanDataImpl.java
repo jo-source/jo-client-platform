@@ -33,7 +33,6 @@ import java.util.Map;
 
 import org.jowidgets.cap.common.api.bean.IBeanData;
 
-
 class BeanDataImpl implements IBeanData, Serializable {
 
 	private static final long serialVersionUID = -5127934611388638581L;
@@ -48,6 +47,11 @@ class BeanDataImpl implements IBeanData, Serializable {
 	@Override
 	public Object getValue(final String propertyName) {
 		return map.get(propertyName);
+	}
+
+	@Override
+	public String toString() {
+		return "BeanDataImpl [map=" + map + "]";
 	}
 
 }

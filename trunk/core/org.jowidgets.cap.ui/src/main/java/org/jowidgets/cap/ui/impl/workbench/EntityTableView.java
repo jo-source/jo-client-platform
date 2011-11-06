@@ -29,15 +29,18 @@
 package org.jowidgets.cap.ui.impl.workbench;
 
 import java.util.Collection;
+import java.util.Map;
 
-import org.jowidgets.api.command.IAction;
+import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.api.model.item.IMenuModel;
 import org.jowidgets.api.widgets.IContainer;
 import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
 import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
+import org.jowidgets.cap.ui.api.command.ILinkActionBuilder;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
+import org.jowidgets.cap.ui.tools.execution.ExecutionInterceptorAdapter;
 import org.jowidgets.service.api.ServiceProvider;
 import org.jowidgets.tools.layout.MigLayoutFactory;
 import org.jowidgets.workbench.api.IViewContext;
@@ -48,7 +51,9 @@ public class EntityTableView extends AbstractView {
 	public EntityTableView(
 		final IViewContext context,
 		final IBeanTableModel<Object> tableModel,
-		final Collection<IEntityLinkDescriptor> links) {
+		final Collection<IEntityLinkDescriptor> links,
+		final Map<Object, IBeanTableModel<Object>> linkedModels) {
+
 		final IContainer container = context.getContainer();
 		container.setLayout(MigLayoutFactory.growingInnerCellLayout());
 		final IBeanTable<Object> table = container.add(
@@ -56,7 +61,7 @@ public class EntityTableView extends AbstractView {
 				MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
 		final IEntityService entityService = ServiceProvider.getService(IEntityService.ID);
 		if (entityService != null) {
-			addLinkActions(entityService, table, links);
+			addLinkActions(entityService, table, links, linkedModels);
 		}
 		tableModel.load();
 	}
@@ -64,17 +69,29 @@ public class EntityTableView extends AbstractView {
 	private static void addLinkActions(
 		final IEntityService entityService,
 		final IBeanTable<Object> table,
-		final Collection<IEntityLinkDescriptor> links) {
+		final Collection<IEntityLinkDescriptor> links,
+		final Map<Object, IBeanTableModel<Object>> linkedModels) {
 		boolean actionCreated = false;
 		final IMenuModel popMenu = table.getCellPopMenu();
 		for (final IEntityLinkDescriptor link : links) {
-			final IAction linkAction = CapUiToolkit.actionFactory().linkAction(table.getModel(), link);
-			if (linkAction != null) {
+			final ILinkActionBuilder<Object> linkActionBuilder = CapUiToolkit.actionFactory().linkActionBuilder(
+					table.getModel(),
+					link);
+			linkActionBuilder.addExecutionInterceptor(new ExecutionInterceptorAdapter() {
+				@Override
+				public void afterExecutionSuccess(final IExecutionContext executionContext) {
+					final IBeanTableModel<Object> linkedModel = linkedModels.get(link.getLinkedTypeId());
+					if (linkedModel != null) {
+						linkedModel.load();
+					}
+				}
+			});
+			if (linkActionBuilder != null) {
 				if (!actionCreated) {
 					popMenu.addSeparator();
 					actionCreated = true;
 				}
-				popMenu.addAction(linkAction);
+				popMenu.addAction(linkActionBuilder.build());
 			}
 		}
 		if (!actionCreated) {
