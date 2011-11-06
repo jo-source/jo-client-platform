@@ -45,15 +45,21 @@ import org.jowidgets.service.api.IServiceRegistry;
 
 public interface IDummyServiceFactory {
 
-	IBeanServicesProvider beanServices(IServiceRegistry registry, IEntityData<? extends IBean> data, List<String> properties);
+	IBeanServicesProvider beanServices(
+		IServiceRegistry registry,
+		Object entityTypeId,
+		IEntityData<? extends IBean> data,
+		List<String> properties);
 
 	IBeanServicesProviderBuilder beanServicesBuilder(
 		IServiceRegistry registry,
+		Object entityTypeId,
 		IEntityData<? extends IBean> data,
 		List<String> properties);
 
 	<BEAN_TYPE extends IBean> IBeanServicesProvider beanServices(
 		IServiceRegistry registry,
+		Object entityTypeId,
 		IEntityData<? extends BEAN_TYPE> data,
 		IBeanDtoFactory<BEAN_TYPE> beanDtoFactory,
 		IBeanInitializer<BEAN_TYPE> beanInitializer,
@@ -61,6 +67,7 @@ public interface IDummyServiceFactory {
 
 	<BEAN_TYPE extends IBean> IBeanServicesProviderBuilder beanServicesBuilder(
 		IServiceRegistry registry,
+		Object entityTypeId,
 		IEntityData<? extends BEAN_TYPE> data,
 		IBeanDtoFactory<BEAN_TYPE> beanDtoFactory,
 		IBeanInitializer<BEAN_TYPE> beanInitializer,

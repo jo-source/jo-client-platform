@@ -54,18 +54,21 @@ final class DummyServiceFactoryImpl implements IDummyServiceFactory {
 	@Override
 	public IBeanServicesProvider beanServices(
 		final IServiceRegistry registry,
+		final Object entityTypeId,
 		final IEntityData<? extends IBean> data,
 		final List<String> properties) {
-		return beanServicesBuilder(registry, data, properties).build();
+		return beanServicesBuilder(registry, entityTypeId, data, properties).build();
 	}
 
 	@Override
 	public IBeanServicesProviderBuilder beanServicesBuilder(
 		final IServiceRegistry registry,
+		final Object entityTypeId,
 		final IEntityData<? extends IBean> data,
 		final List<String> properties) {
 		return beanServicesBuilder(
 				registry,
+				entityTypeId,
 				data,
 				CapServiceToolkit.dtoFactory(data.getBeanType(), properties),
 				CapServiceToolkit.beanInitializer(data.getBeanType(), properties),
@@ -75,23 +78,25 @@ final class DummyServiceFactoryImpl implements IDummyServiceFactory {
 	@Override
 	public <BEAN_TYPE extends IBean> IBeanServicesProvider beanServices(
 		final IServiceRegistry registry,
+		final Object entityTypeId,
 		final IEntityData<? extends BEAN_TYPE> data,
 		final IBeanDtoFactory<BEAN_TYPE> beanDtoFactory,
 		final IBeanInitializer<BEAN_TYPE> beanInitializer,
 		final IBeanModifier<BEAN_TYPE> beanModifier) {
-		return beanServicesBuilder(registry, data, beanDtoFactory, beanInitializer, beanModifier).build();
+		return beanServicesBuilder(registry, entityTypeId, data, beanDtoFactory, beanInitializer, beanModifier).build();
 	}
 
 	@Override
 	public <BEAN_TYPE extends IBean> IBeanServicesProviderBuilder beanServicesBuilder(
 		final IServiceRegistry registry,
+		final Object entityTypeId,
 		final IEntityData<? extends BEAN_TYPE> data,
 		final IBeanDtoFactory<BEAN_TYPE> beanDtoFactory,
 		final IBeanInitializer<BEAN_TYPE> beanInitializer,
 		final IBeanModifier<BEAN_TYPE> beanModifier) {
 		return new BeanServicesProviderBuilderCreator<BEAN_TYPE>(
 			registry,
-			data.getBeanType(),
+			entityTypeId,
 			data,
 			beanDtoFactory,
 			beanInitializer,
