@@ -145,6 +145,13 @@ final class LookUpConverter<KEY_TYPE> implements IConverter<KEY_TYPE> {
 				return valueConverter.convertToString(value);
 			}
 			else if (!onLoad) {
+				Toolkit.getUiThreadAccess().invokeLater(new Runnable() {
+					@Override
+					public void run() {
+						CapUiToolkit.lookUpCache().clearCache(lookUpId);
+					}
+				});
+
 				return Messages.getString("LookUpConverter.unknown_look_up_key");
 			}
 			else {

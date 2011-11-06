@@ -82,6 +82,7 @@ import org.jowidgets.cap.ui.api.attribute.IAttributeConfig;
 import org.jowidgets.cap.ui.api.attribute.IAttributeFilter;
 import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
 import org.jowidgets.cap.ui.api.bean.BeanMessageType;
+import org.jowidgets.cap.ui.api.bean.IBeanKeyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeanMessage;
 import org.jowidgets.cap.ui.api.bean.IBeanMessageBuilder;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
@@ -153,7 +154,6 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	private final ICreatorService creatorService;
 	private final IReaderService<Object> readerService;
 	private final IReaderParameterProvider<Object> readerParameterProvider;
-	@SuppressWarnings("unused")
 	private final IRefreshService refreshService;
 	private final IUpdaterService updaterService;
 	private final IDeleterService deleterService;
@@ -645,6 +645,34 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	private void tryToCancelPageLoader(final PageLoader pageLoader) {
 		if (pageLoader != null && !pageLoader.isDisposed()) {
 			pageLoader.cancel();
+		}
+	}
+
+	@Override
+	public void refreshBean(final IBeanProxy<BEAN_TYPE> bean) {
+		refreshBeans(Collections.singletonList(bean));
+	}
+
+	@Override
+	public void refreshBeans(final Collection<IBeanProxy<BEAN_TYPE>> beans) {
+		if (refreshService != null) {
+			final BeanListExecutionHelper executionHelper = new BeanListExecutionHelper(
+				this,
+				beans,
+				BeanExecutionPolicy.BATCH,
+				new DefaultBeanExceptionConverter());
+
+			for (final List<IBeanProxy<?>> preparedBeans : executionHelper.prepareExecutions()) {
+				if (preparedBeans.size() > 0) {
+					final IExecutionTask executionTask = preparedBeans.get(0).getExecutionTask();
+					if (executionTask != null) {
+						final IBeanKeyFactory beanKeyFactory = CapUiToolkit.beanKeyFactory();
+						final List<IBeanKey> beanKeys = beanKeyFactory.createKeys(preparedBeans);
+						final IResultCallback<List<IBeanDto>> helperCallback = executionHelper.createResultCallback(preparedBeans);
+						refreshService.refresh(helperCallback, beanKeys, executionTask);
+					}
+				}
+			}
 		}
 	}
 

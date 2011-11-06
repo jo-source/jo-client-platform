@@ -29,6 +29,7 @@
 package org.jowidgets.cap.ui.impl.workbench;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import org.jowidgets.api.command.IExecutionContext;
@@ -37,12 +38,15 @@ import org.jowidgets.api.widgets.IContainer;
 import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
 import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
+import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.command.ILinkActionBuilder;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.cap.ui.tools.execution.ExecutionInterceptorAdapter;
+import org.jowidgets.common.types.IVetoable;
 import org.jowidgets.service.api.ServiceProvider;
 import org.jowidgets.tools.layout.MigLayoutFactory;
+import org.jowidgets.util.EmptyCheck;
 import org.jowidgets.workbench.api.IViewContext;
 import org.jowidgets.workbench.tools.AbstractView;
 
@@ -77,15 +81,7 @@ public class EntityTableView extends AbstractView {
 			final ILinkActionBuilder<Object> linkActionBuilder = CapUiToolkit.actionFactory().linkActionBuilder(
 					table.getModel(),
 					link);
-			linkActionBuilder.addExecutionInterceptor(new ExecutionInterceptorAdapter() {
-				@Override
-				public void afterExecutionSuccess(final IExecutionContext executionContext) {
-					final IBeanTableModel<Object> linkedModel = linkedModels.get(link.getLinkedTypeId());
-					if (linkedModel != null) {
-						linkedModel.load();
-					}
-				}
-			});
+			linkActionBuilder.addExecutionInterceptor(new LinkActionExecutionInterceptor(table.getModel(), link, linkedModels));
 			if (linkActionBuilder != null) {
 				if (!actionCreated) {
 					popMenu.addSeparator();
@@ -99,4 +95,43 @@ public class EntityTableView extends AbstractView {
 		}
 	}
 
+	private static final class LinkActionExecutionInterceptor extends ExecutionInterceptorAdapter {
+
+		private final IBeanTableModel<Object> tableModel;
+		private final IEntityLinkDescriptor link;
+		private final Map<Object, IBeanTableModel<Object>> linkedModels;
+
+		private List<IBeanProxy<Object>> lastSelection;
+
+		private LinkActionExecutionInterceptor(
+			final IBeanTableModel<Object> tableModel,
+			final IEntityLinkDescriptor link,
+			final Map<Object, IBeanTableModel<Object>> linkedModels) {
+			super();
+			this.tableModel = tableModel;
+			this.link = link;
+			this.linkedModels = linkedModels;
+		}
+
+		@Override
+		public void beforeExecution(final IExecutionContext executionContext, final IVetoable continueExecution) {
+			lastSelection = tableModel.getSelectedBeans();
+		}
+
+		@Override
+		public void onExecutionVeto(final IExecutionContext executionContext) {
+			lastSelection = null;
+		}
+
+		@Override
+		public void afterExecutionSuccess(final IExecutionContext executionContext) {
+			final IBeanTableModel<Object> linkedModel = linkedModels.get(link.getLinkedTypeId());
+			if (linkedModel != null) {
+				linkedModel.load();
+			}
+			if (!EmptyCheck.isEmpty(lastSelection)) {
+				tableModel.refreshBeans(lastSelection);
+			}
+		}
+	}
 }

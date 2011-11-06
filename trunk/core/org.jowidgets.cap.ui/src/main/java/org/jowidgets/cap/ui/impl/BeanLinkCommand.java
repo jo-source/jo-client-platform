@@ -260,26 +260,29 @@ final class BeanLinkCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
 		lastDialogBounds = dialog.getBounds();
 		final IBeanSelectionTable<Object> table = dialog.getTable();
 		lastColumnPermutation = table.getColumnPermutation();
+		linkableModel.setFilter(IBeanTableModel.UI_SEARCH_FILTER_ID, null);
 		lastTableModelConfig = linkableModel.getConfig();
 
-		final List<IBeanProxy<Object>> selectedBeans = dialog.getValue();
 		final List<Object> selectedIds = new LinkedList<Object>();
-		for (final IBeanProxy<Object> bean : selectedBeans) {
-			if (bean == null || bean.isDummy()) {
-				//TODO i18n
-				Toolkit.getMessagePane().showError(executionContext, "The selection contains unloaded data!");
-				return Collections.emptyList();
-			}
-			else if (bean.isTransient() || bean.hasModifications() || bean.getId() == null) {
-				//TODO MG maybe save the data together with the link creation
-				//TODO i18n
-				Toolkit.getMessagePane().showError(executionContext, "The selection contains unsaved data!");
-				Collections.emptyList();
-			}
-			else {
-				//TODO MG the link properties must be checked earlier, to not create links if they don't exist
-				if (destinationLinkProperties != null) {
-					selectedIds.add(bean.getValue(destinationLinkProperties.getKeyPropertyName()));
+		if (dialog.isOkPressed()) {
+			final List<IBeanProxy<Object>> selectedBeans = dialog.getValue();
+			for (final IBeanProxy<Object> bean : selectedBeans) {
+				if (bean == null || bean.isDummy()) {
+					//TODO i18n
+					Toolkit.getMessagePane().showError(executionContext, "The selection contains unloaded data!");
+					return Collections.emptyList();
+				}
+				else if (bean.isTransient() || bean.hasModifications() || bean.getId() == null) {
+					//TODO MG maybe save the data together with the link creation
+					//TODO i18n
+					Toolkit.getMessagePane().showError(executionContext, "The selection contains unsaved data!");
+					Collections.emptyList();
+				}
+				else {
+					//TODO MG the link properties must be checked earlier, to not create links if they don't exist
+					if (destinationLinkProperties != null) {
+						selectedIds.add(bean.getValue(destinationLinkProperties.getKeyPropertyName()));
+					}
 				}
 			}
 		}
