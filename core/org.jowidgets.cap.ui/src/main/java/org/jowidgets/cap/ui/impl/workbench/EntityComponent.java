@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.ui.impl.workbench;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -69,6 +70,7 @@ public class EntityComponent extends AbstractComponent implements IComponent {
 	private final List<IDataModelAction> dataModelActions;
 	private final Set<LinkedEntityTableView> tableViews;
 	private final Map<String, IEntityLinkDescriptor> links;
+	private final Map<Object, IBeanTableModel<Object>> linkedModels;
 
 	private EntityMultiDetailView multiDetailView;
 
@@ -81,6 +83,7 @@ public class EntityComponent extends AbstractComponent implements IComponent {
 		this.dataModelActions = getDataModelActions(componentNodeModel);
 		this.tableViews = new LinkedHashSet<LinkedEntityTableView>();
 		this.links = new LinkedHashMap<String, IEntityLinkDescriptor>();
+		this.linkedModels = new HashMap<Object, IBeanTableModel<Object>>();
 
 		final IEntityService entityService = ServiceProvider.getService(IEntityService.ID);
 		if (entityService != null) {
@@ -106,7 +109,7 @@ public class EntityComponent extends AbstractComponent implements IComponent {
 	@Override
 	public IView createView(final String viewId, final IViewContext context) {
 		if (ROOT_TABLE_VIEW_ID.equals(viewId)) {
-			return new EntityTableView(context, tableModel, links.values());
+			return new EntityTableView(context, tableModel, links.values(), linkedModels);
 		}
 		else if (EntityDetailView.ID.equals(viewId)) {
 			return new EntityDetailView(context, tableModel);
@@ -122,7 +125,9 @@ public class EntityComponent extends AbstractComponent implements IComponent {
 			return multiDetailView;
 		}
 		else if (links.containsKey(viewId)) {
-			final LinkedEntityTableView result = new LinkedEntityTableView(context, tableModel, links.get(viewId));
+			final IEntityLinkDescriptor linkDescriptor = links.get(viewId);
+			final LinkedEntityTableView result = new LinkedEntityTableView(context, tableModel, linkDescriptor);
+			linkedModels.put(linkDescriptor.getLinkedTypeId(), result.getTable().getModel());
 			registerTableView(result);
 			return result;
 		}

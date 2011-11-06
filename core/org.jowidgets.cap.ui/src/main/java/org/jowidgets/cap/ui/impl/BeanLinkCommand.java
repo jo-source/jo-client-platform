@@ -41,6 +41,10 @@ import org.jowidgets.api.command.IExceptionHandler;
 import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.api.threads.IUiThreadAccess;
 import org.jowidgets.api.toolkit.Toolkit;
+import org.jowidgets.cap.common.api.CapCommonToolkit;
+import org.jowidgets.cap.common.api.bean.IBeanData;
+import org.jowidgets.cap.common.api.bean.IBeanDataBuilder;
+import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.entity.IEntityLinkProperties;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
@@ -71,7 +75,7 @@ import org.jowidgets.util.Assert;
 import org.jowidgets.util.EmptyCheck;
 
 //TODO MG remove this later
-//CHECKSTYLE:OFF
+
 @SuppressWarnings("unused")
 final class BeanLinkCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
 
@@ -167,9 +171,10 @@ final class BeanLinkCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
 			return;
 		}
 
-		final List<IBeanProxy<?>> beansToLink = getBeansToLink(executionContext);
-		if (!EmptyCheck.isEmpty(beansToLink)) {
-			linkBeans(executionContext, selection, beansToLink);
+		final List<Object> beanIdsToLink = getBeanIdsToLink(executionContext);
+		//TODO MG the link properties must be checked earlier, to not create links if they don't exist
+		if (!EmptyCheck.isEmpty(beanIdsToLink) && sourceLinkProperties != null && destinationLinkProperties != null) {
+			linkBeans(executionContext, selection, beanIdsToLink);
 		}
 
 	}
@@ -177,19 +182,30 @@ final class BeanLinkCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
 	private void linkBeans(
 		final IExecutionContext executionContext,
 		final ArrayList<Integer> selection,
-		final List<IBeanProxy<?>> beansToLink) {
+		final List<Object> beanIdsToLink) {
 
 		final IExecutionTask executionTask = CapUiToolkit.executionTaskFactory().create();
 
 		final List<IBeanKey> beanKeys = new LinkedList<IBeanKey>();
 		final List<IBeanProxy<BEAN_TYPE>> beans = new LinkedList<IBeanProxy<BEAN_TYPE>>();
+		final List<IBeanData> linksData = new LinkedList<IBeanData>();
 
 		for (final Integer index : selection) {
 			final IBeanProxy<BEAN_TYPE> bean = model.getBean(index.intValue());
 			if (bean != null && !bean.isDummy() && !bean.isTransient()) {
 				bean.setExecutionTask(executionTask);
 				beans.add(bean);
+
+				for (final Object toLinkId : beanIdsToLink) {
+					final IBeanDataBuilder builder = CapCommonToolkit.beanDataBuilder();
+					builder.setProperty(
+							sourceLinkProperties.getForeignKeyPropertyName(),
+							bean.getValue(sourceLinkProperties.getKeyPropertyName()));
+					builder.setProperty(destinationLinkProperties.getForeignKeyPropertyName(), toLinkId);
+					linksData.add(builder.build());
+				}
 			}
+
 		}
 
 		final IUiThreadAccess uiThreadAccess = Toolkit.getUiThreadAccess();
@@ -211,9 +227,11 @@ final class BeanLinkCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
 
 		model.fireBeansChanged();
 		executionObservable.fireAfterExecutionPrepared(executionContext);
+
+		linkCreatorService.create(new ResultCallback(executionContext, beans), linksData, executionTask);
 	}
 
-	private List<IBeanProxy<?>> getBeansToLink(final IExecutionContext executionContext) {
+	private List<Object> getBeanIdsToLink(final IExecutionContext executionContext) {
 		final IBeanTableModelBuilder<Object> modelBuilder = CapUiToolkit.beanTableModelBuilder(linkableTableEntityId);
 		modelBuilder.setAttributes(linkableTableAttributes);
 		modelBuilder.setParent(model, LinkType.SELECTION_ALL);
@@ -244,13 +262,35 @@ final class BeanLinkCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
 		lastColumnPermutation = table.getColumnPermutation();
 		lastTableModelConfig = linkableModel.getConfig();
 
+		final List<IBeanProxy<Object>> selectedBeans = dialog.getValue();
+		final List<Object> selectedIds = new LinkedList<Object>();
+		for (final IBeanProxy<Object> bean : selectedBeans) {
+			if (bean == null || bean.isDummy()) {
+				//TODO i18n
+				Toolkit.getMessagePane().showError(executionContext, "The selection contains unloaded data!");
+				return Collections.emptyList();
+			}
+			else if (bean.isTransient() || bean.hasModifications() || bean.getId() == null) {
+				//TODO MG maybe save the data together with the link creation
+				//TODO i18n
+				Toolkit.getMessagePane().showError(executionContext, "The selection contains unsaved data!");
+				Collections.emptyList();
+			}
+			else {
+				//TODO MG the link properties must be checked earlier, to not create links if they don't exist
+				if (destinationLinkProperties != null) {
+					selectedIds.add(bean.getValue(destinationLinkProperties.getKeyPropertyName()));
+				}
+			}
+		}
+
 		linkableModel.dispose();
 		dialog.dispose();
 
-		return Collections.emptyList();
+		return selectedIds;
 	}
 
-	private final class ResultCallback implements IResultCallback<Void> {
+	private final class ResultCallback implements IResultCallback<List<IBeanDto>> {
 
 		private final List<IBeanProxy<BEAN_TYPE>> beans;
 		private final IExecutionContext executionContext;
@@ -263,7 +303,7 @@ final class BeanLinkCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
 		}
 
 		@Override
-		public void finished(final Void result) {
+		public void finished(final List<IBeanDto> result) {
 			onSuccessLater();
 		}
 

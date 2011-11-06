@@ -29,7 +29,6 @@
 package org.jowidgets.cap.sample1.service.entity;
 
 import java.util.Collections;
-import java.util.LinkedList;
 
 import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.bean.IBean;
@@ -102,7 +101,7 @@ public class SampleEntityServiceBuilder extends EntityServiceBuilder {
 				registry,
 				EntityIds.USER_ROLE_LINK,
 				(IEntityData<? extends IBeanPropertyMap>) EntityDataStore.getEntityData(EntityIds.USER_ROLE_LINK),
-				new LinkedList<String>());
+				UserRoleLinkInitializer.ALL_PROPERTIES);
 		servicesProviderBuilder.setReaderService(new LinkableRolesOfUsersReaderService());
 		add(EntityIds.USER_ROLE_LINK, descriptor, servicesProviderBuilder.build());
 

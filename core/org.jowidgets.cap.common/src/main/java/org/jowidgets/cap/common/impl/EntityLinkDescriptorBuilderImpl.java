@@ -97,7 +97,7 @@ final class EntityLinkDescriptorBuilderImpl implements IEntityLinkDescriptorBuil
 		Assert.paramNotNull(keyPropertyName, "keyPropertyName");
 		Assert.paramNotNull(foreignKeyPropertyname, "foreignKeyPropertyname");
 		final IEntityLinkPropertiesBuilder builder = CapCommonToolkit.entityLinkPropertiesBuilder();
-		builder.setKeyPropertyName(keyPropertyName).setForeignKeyPropertyName(keyPropertyName);
+		builder.setKeyPropertyName(keyPropertyName).setForeignKeyPropertyName(foreignKeyPropertyname);
 		return builder.build();
 	}
 
