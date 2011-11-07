@@ -1,0 +1,33 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.jowidgets</groupId>
+	<artifactId>org.jowidgets.cap.sample1.parent</artifactId>
+	<version>0.2.0</version>
+	<packaging>pom</packaging>
+	<name>org.jowidgets.cap.sample1.parent</name>
+
+	<parent>
+		<groupId>org.jowidgets</groupId>
+		<artifactId>org.jowidgets.cap.samples.parent</artifactId>
+		<version>0.2.0</version>
+		<relativePath>../../parent/pom.xml</relativePath>
+	</parent>
+	
+	<modules>
+	    <module>../core/org.jowidgets.cap.sample1.common</module>
+		<module>../core/org.jowidgets.cap.sample1.service</module>
+		<module>../core/org.jowidgets.cap.sample1.ui</module>
+		<module>../starter/org.jowidgets.cap.sample1.starter.server</module>
+		<module>../starter/org.jowidgets.cap.sample1.starter.client.common</module>
+		<module>../starter/org.jowidgets.cap.sample1.starter.client.swing</module>
+		<module>../starter/org.jowidgets.cap.sample1.starter.client.swt</module>
+		<module>../starter/org.jowidgets.cap.sample1.starter.client.swt.webstart</module>
+		<module>../starter/org.jowidgets.cap.sample1.starter.webapp</module>
+		<module>../starter/org.jowidgets.cap.sample1.starter.webapp.rwt</module>
+		<module>../starter/org.jowidgets.cap.sample1.starter.standalone.common</module>
+		<module>../starter/org.jowidgets.cap.sample1.starter.standalone.swing</module>
+		<module>../starter/org.jowidgets.cap.sample1.starter.standalone.swt</module>
+	</modules>
+
+</project>
