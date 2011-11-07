@@ -30,7 +30,6 @@ package org.jowidgets.cap.ui.tools.model;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
@@ -80,7 +79,7 @@ public class BeanListModelWrapper<BEAN_TYPE> implements IBeanListModel<BEAN_TYPE
 	}
 
 	@Override
-	public void setSelection(final List<Integer> selection) {
+	public void setSelection(final Collection<Integer> selection) {
 		beanListModel.setSelection(selection);
 	}
 

@@ -35,6 +35,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -145,6 +146,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 	private final Map<Integer, ArrayList<IBeanProxy<BEAN_TYPE>>> data;
 	private final ArrayList<IBeanProxy<BEAN_TYPE>> addedData;
+	private final Set<IBeanProxy<BEAN_TYPE>> lastSelectedBeans;
 
 	private final IBeanProxyFactory<BEAN_TYPE> beanProxyFactory;
 	private final IBeansStateTracker<BEAN_TYPE> beansStateTracker;
@@ -246,11 +248,13 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		this.refreshService = refreshService;
 		this.updaterService = updaterService;
 		this.deleterService = deleterService;
+		this.autoSelection = true;
 		this.onSetConfig = false;
 		this.propertyNames = createPropertyNames(attributes);
 		this.filters = new HashMap<String, IUiFilter>();
 		this.data = new HashMap<Integer, ArrayList<IBeanProxy<BEAN_TYPE>>>();
 		this.addedData = new ArrayList<IBeanProxy<BEAN_TYPE>>();
+		this.lastSelectedBeans = new HashSet<IBeanProxy<BEAN_TYPE>>();
 		this.sortModel = new SortModelImpl();
 		this.sortModelChangeListener = new SortModelChangeListener();
 		this.tableDataModelListener = new TableDataModelListener();
@@ -500,6 +504,8 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			throw new IllegalStateException("Clear must be invoked in the ui thread");
 		}
 		tryToCanceLoader();
+		lastSelectedBeans.clear();
+		removeSelection();
 		rowCount = 0;
 		countedRowCount = null;
 		maxPageIndex = 0;
@@ -516,6 +522,8 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			throw new IllegalStateException("Load must be invoked in the ui thread");
 		}
 		tryToCanceLoader();
+		lastSelectedBeans.clear();
+		lastSelectedBeans.addAll(removeSelection());
 		beansStateTracker.clearAll();
 		if (rowCount == 0) {
 			rowCount = 1;
@@ -999,15 +1007,34 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	}
 
 	@Override
-	public void setSelection(final List<Integer> selection) {
+	public void setSelection(final Collection<Integer> selection) {
 		tableModel.setSelection(selection);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public void setSelectedBeans(final Collection<? extends IBeanProxy<BEAN_TYPE>> selectedBeans) {
 		Assert.paramNotNull(selectedBeans, "selectedBeans");
-		final List<Integer> newSelection = new LinkedList<Integer>();
+		setSelectedBeans(new LinkedList<Integer>(), selectedBeans);
+	}
+
+	@Override
+	public void addSelectedBeans(final Collection<? extends IBeanProxy<BEAN_TYPE>> selectedBeans) {
+		addSelectedBeansImpl(selectedBeans);
+	}
+
+	private List<IBeanProxy<BEAN_TYPE>> addSelectedBeansImpl(final Collection<? extends IBeanProxy<BEAN_TYPE>> selectedBeans) {
+		return setSelectedBeans(getSelection(), selectedBeans);
+	}
+
+	@SuppressWarnings("unchecked")
+	private List<IBeanProxy<BEAN_TYPE>> setSelectedBeans(
+		final List<Integer> currentSelection,
+		final Collection<? extends IBeanProxy<BEAN_TYPE>> selectedBeans) {
+
+		final Set<Integer> newSelection = new LinkedHashSet<Integer>(currentSelection);
+		final List<IBeanProxy<BEAN_TYPE>> result = new LinkedList<IBeanProxy<BEAN_TYPE>>();
+
+		boolean added = false;
 
 		if (!EmptyCheck.isEmpty(selectedBeans)) {
 			//use hash set instead of collection for faster access
@@ -1024,7 +1051,8 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 				int relativeIndex = 0;
 				for (final IBeanProxy<BEAN_TYPE> bean : pageEntry.getValue()) {
 					if (bean != null && selectedBeansSet.contains(bean)) {
-						newSelection.add(Integer.valueOf(pageStartIndex + relativeIndex));
+						added = newSelection.add(Integer.valueOf(pageStartIndex + relativeIndex)) || added;
+						result.add(bean);
 					}
 					relativeIndex++;
 				}
@@ -1033,12 +1061,17 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			for (final IBeanProxy<BEAN_TYPE> bean : addedData) {
 				int relativeIndex = 0;
 				if (bean != null && selectedBeansSet.contains(bean)) {
-					newSelection.add(Integer.valueOf(dataRowCount + relativeIndex));
+					added = newSelection.add(Integer.valueOf(dataRowCount + relativeIndex)) || added;
+					result.add(bean);
 				}
 				relativeIndex++;
 			}
 		}
-		setSelection(newSelection);
+		if (added) {
+			setSelection(newSelection);
+		}
+
+		return result;
 	}
 
 	@Override
@@ -1048,6 +1081,29 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			result.add(getBean(selectionIndex.intValue()));
 		}
 		return Collections.unmodifiableList(result);
+	}
+
+	private List<IBeanProxy<BEAN_TYPE>> removeSelection() {
+		final List<IBeanProxy<BEAN_TYPE>> result = new LinkedList<IBeanProxy<BEAN_TYPE>>();
+
+		final List<Integer> currentSelection = getSelection();
+
+		if (!currentSelection.isEmpty()) {
+			for (final Integer index : currentSelection) {
+				final int selectedIndex = index.intValue();
+				final IBeanProxy<BEAN_TYPE> selectedBean = getBean(selectedIndex);
+				if (selectedBean != null && !selectedBean.isDummy()) {
+					result.add(selectedBean);
+				}
+			}
+			dataModel.removeDataModelListener(tableDataModelListener);
+			final List<Integer> emptySelection = Collections.emptyList();
+			setSelection(emptySelection);
+			dataModel.addDataModelListener(tableDataModelListener);
+			beanListModelObservable.fireSelectionChanged();
+		}
+
+		return result;
 	}
 
 	@Override
@@ -1482,6 +1538,9 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	private class TableDataModelListener extends TableDataModelAdapter {
 		@Override
 		public void selectionChanged() {
+			//clear the last selected beans if user changes selection itself
+			//or on programmatic selection change (except changes from PageLoader)
+			lastSelectedBeans.clear();
 			beanListModelObservable.fireSelectionChanged();
 		}
 	}
@@ -1774,6 +1833,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		}
 
 		void startPageLoading() {
+
 			dummyBeanProxy = beanProxyFactory.createProxy(new DummyBeanDto(), propertyNames);
 			dummyBeanProxy.setDummy(true);
 			executionTask = CapUiToolkit.executionTaskFactory().create();
@@ -1907,7 +1967,8 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 		private void setResult(final List<IBeanDto> beanDtos) {
 			if (beanDtos.size() == 0 && pageIndex > 0) {
-				clear();
+				rowCount = 0;
+				countedRowCount = null;
 				load();
 				return;
 			}
@@ -1965,7 +2026,29 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 			finished = true;
 
+			if (!lastSelectedBeans.isEmpty()) {
+				dataModel.removeDataModelListener(tableDataModelListener);
+				final List<IBeanProxy<BEAN_TYPE>> addedBeans = addSelectedBeansImpl(lastSelectedBeans);
+				dataModel.addDataModelListener(tableDataModelListener);
+				if (!addedBeans.isEmpty()) {
+					lastSelectedBeans.removeAll(addedBeans);
+					beanListModelObservable.fireSelectionChanged();
+				}
+				else {
+					tryAutoSelectFirst();
+				}
+			}
+			else {
+				tryAutoSelectFirst();
+			}
+
 			doCallbackSuccess();
+		}
+
+		private void tryAutoSelectFirst() {
+			if (autoSelection && pageIndex == 0 && rowCount > 0 && getSelection().isEmpty()) {
+				setSelection(Collections.singletonList(Integer.valueOf(0)));
+			}
 		}
 
 		private void setExceptionLater(final Throwable exception) {
