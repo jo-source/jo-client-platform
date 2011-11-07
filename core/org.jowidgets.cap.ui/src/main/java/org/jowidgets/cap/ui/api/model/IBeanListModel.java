@@ -30,7 +30,6 @@ package org.jowidgets.cap.ui.api.model;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 
@@ -46,7 +45,7 @@ public interface IBeanListModel<BEAN_TYPE> extends IBeanListModelObservable {
 
 	ArrayList<Integer> getSelection();
 
-	void setSelection(List<Integer> selection);
+	void setSelection(Collection<Integer> selection);
 
 	void fireBeansChanged();
 
