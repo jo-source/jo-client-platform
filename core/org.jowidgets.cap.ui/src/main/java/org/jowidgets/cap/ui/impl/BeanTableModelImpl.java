@@ -210,7 +210,8 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		final IDeleterService deleterService,
 		final IBeanListModel<?> parent,
 		final LinkType linkType,
-		final boolean autoRowCount) {
+		final boolean autoRowCount,
+		final boolean autoSelect) {
 
 		//arguments checks
 		Assert.paramNotNull(entityId, "entityId");
@@ -248,7 +249,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		this.refreshService = refreshService;
 		this.updaterService = updaterService;
 		this.deleterService = deleterService;
-		this.autoSelection = true;
+		this.autoSelection = autoSelect;
 		this.onSetConfig = false;
 		this.propertyNames = createPropertyNames(attributes);
 		this.filters = new HashMap<String, IUiFilter>();

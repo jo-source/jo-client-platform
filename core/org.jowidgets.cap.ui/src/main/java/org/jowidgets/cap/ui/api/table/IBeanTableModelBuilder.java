@@ -86,6 +86,8 @@ public interface IBeanTableModelBuilder<BEAN_TYPE> {
 
 	IBeanTableModelBuilder<BEAN_TYPE> setAutoRowCount(boolean autoRowCount);
 
+	IBeanTableModelBuilder<BEAN_TYPE> setAutoSelection(boolean autoSelect);
+
 	IBeanTableModel<BEAN_TYPE> build();
 
 }
