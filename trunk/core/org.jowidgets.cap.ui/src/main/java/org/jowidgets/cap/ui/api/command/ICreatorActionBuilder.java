@@ -46,6 +46,16 @@ public interface ICreatorActionBuilder {
 
 	ICreatorActionBuilder setText(String text);
 
+	/**
+	 * Sets the entity label (singular).
+	 * This will set a proper text with the entity label as a variable.
+	 * 
+	 * @param label The label to set
+	 * 
+	 * @return This builder
+	 */
+	ICreatorActionBuilder setEntityLabelSingular(String label);
+
 	ICreatorActionBuilder setToolTipText(final String toolTipText);
 
 	ICreatorActionBuilder setIcon(IImageConstant icon);

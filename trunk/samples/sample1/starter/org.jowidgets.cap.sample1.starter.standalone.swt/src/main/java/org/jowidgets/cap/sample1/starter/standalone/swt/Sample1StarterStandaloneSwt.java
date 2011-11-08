@@ -38,6 +38,7 @@ public final class Sample1StarterStandaloneSwt {
 
 	public static void main(final String[] args) throws Exception {
 		SwtOptions.setClassicTabs(true);
+		//Locale.setDefault(Locale.US);
 		new WorkbenchRunner().run(new SampleWorkbench());
 	}
 

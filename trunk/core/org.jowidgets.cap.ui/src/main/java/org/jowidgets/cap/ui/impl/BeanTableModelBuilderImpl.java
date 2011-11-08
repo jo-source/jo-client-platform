@@ -97,6 +97,14 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> implements IBeanTableModelBuild
 			final IBeanDtoDescriptor beanDtoDescriptor = entityService.getDescriptor(entityId);
 			if (beanDtoDescriptor != null) {
 				this.attributes = CapUiToolkit.attributeToolkit().createAttributes(beanDtoDescriptor.getProperties());
+				final String labelSingular = beanDtoDescriptor.getLabelSingular();
+				if (!EmptyCheck.isEmpty(labelSingular)) {
+					this.entityLabelSingular = labelSingular;
+				}
+				final String labelPlural = beanDtoDescriptor.getLabelPlural();
+				if (!EmptyCheck.isEmpty(labelPlural)) {
+					this.entityLabelPlural = labelPlural;
+				}
 			}
 		}
 
@@ -281,16 +289,14 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> implements IBeanTableModelBuild
 
 	private String getEntityLabelSingular() {
 		if (EmptyCheck.isEmpty(entityLabelSingular)) {
-			//TODO i18n
-			entityLabelSingular = "Dataset";
+			entityLabelSingular = Messages.getString("BeanTableModelBuilderImpl.dataset");
 		}
 		return entityLabelSingular;
 	}
 
 	private String getEntityLabelPlural() {
 		if (EmptyCheck.isEmpty(entityLabelPlural)) {
-			//TODO i18n
-			entityLabelPlural = "Datasets";
+			entityLabelPlural = Messages.getString("BeanTableModelBuilderImpl.datasets");
 		}
 		return entityLabelPlural;
 	}

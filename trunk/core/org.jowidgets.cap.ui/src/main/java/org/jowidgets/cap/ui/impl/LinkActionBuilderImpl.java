@@ -52,6 +52,7 @@ import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.common.image.IImageConstant;
 import org.jowidgets.common.types.Accelerator;
 import org.jowidgets.common.types.Modifier;
+import org.jowidgets.tools.message.MessageReplacer;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.builder.AbstractSingleUseBuilder;
 
@@ -64,6 +65,8 @@ final class LinkActionBuilderImpl<BEAN_TYPE> extends AbstractSingleUseBuilder<IA
 	private final List<IExecutableChecker<BEAN_TYPE>> executableCheckers;
 	private final List<IExecutionInterceptor> executionInterceptors;
 
+	private String text;
+	private String destinationEntityLabel;
 	private ICreatorService linkCreatorService;
 	private IReaderService<Void> linkableReaderService;
 	private Object linkableTableEntityId;
@@ -92,7 +95,14 @@ final class LinkActionBuilderImpl<BEAN_TYPE> extends AbstractSingleUseBuilder<IA
 	@Override
 	public ILinkActionBuilder<BEAN_TYPE> setText(final String text) {
 		checkExhausted();
-		builder.setText(text);
+		this.text = text;
+		return this;
+	}
+
+	@Override
+	public ILinkActionBuilder<BEAN_TYPE> setDestinationEntityLabelPlural(final String label) {
+		checkExhausted();
+		this.destinationEntityLabel = label;
 		return this;
 	}
 
@@ -267,8 +277,22 @@ final class LinkActionBuilderImpl<BEAN_TYPE> extends AbstractSingleUseBuilder<IA
 		return this;
 	}
 
+	private String getText() {
+		if (text != null) {
+			return text;
+		}
+		else if (destinationEntityLabel != null) {
+			final String message = Messages.getString("LinkActionBuilderImpl.link_var");
+			return MessageReplacer.replace(message, destinationEntityLabel);
+		}
+		else {
+			return null;
+		}
+	}
+
 	@Override
 	protected IAction doBuild() {
+		builder.setText(getText());
 		builder.setCommand((ICommand) new BeanLinkCommand<BEAN_TYPE>(
 			model,
 			linkCreatorService,

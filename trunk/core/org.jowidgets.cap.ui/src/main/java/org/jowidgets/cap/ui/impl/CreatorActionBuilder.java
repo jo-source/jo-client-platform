@@ -52,6 +52,7 @@ import org.jowidgets.common.types.VirtualKey;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.api.ServiceProvider;
 import org.jowidgets.service.tools.ServiceId;
+import org.jowidgets.tools.message.MessageReplacer;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.builder.AbstractSingleUseBuilder;
 
@@ -97,6 +98,15 @@ final class CreatorActionBuilder<BEAN_TYPE> extends AbstractSingleUseBuilder<IAc
 	public ICreatorActionBuilder setToolTipText(final String toolTipText) {
 		checkExhausted();
 		builder.setToolTipText(toolTipText);
+		return this;
+	}
+
+	@Override
+	public ICreatorActionBuilder setEntityLabelSingular(final String label) {
+		checkExhausted();
+		Assert.paramNotEmpty(label, "label");
+		final String message = Messages.getString("CreatorActionBuilder.create_with_var");
+		builder.setText(MessageReplacer.replace(message, label));
 		return this;
 	}
 
