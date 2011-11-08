@@ -96,19 +96,28 @@ public final class DefaultCapCommonToolkit implements ICapCommonToolkit {
 	@Override
 	public IBeanDtoDescriptor dtoDescriptor(final Collection<IProperty> properties) {
 		Assert.paramNotNull(properties, "properties");
-		return dtoDescriptor(properties, null, null);
+		return dtoDescriptor(properties, null, null, null);
 	}
 
 	@Override
-	public IBeanDtoDescriptor dtoDescriptor(final Collection<IProperty> properties, final String label) {
+	public IBeanDtoDescriptor dtoDescriptor(
+		final Collection<IProperty> properties,
+		final String labelSingular,
+		final String labelPlural,
+		final String labelSingularAndPlural) {
 		Assert.paramNotNull(properties, "properties");
-		return dtoDescriptor(properties, label, null);
+		return dtoDescriptor(properties, labelSingular, labelPlural, labelSingularAndPlural, null);
 	}
 
 	@Override
-	public IBeanDtoDescriptor dtoDescriptor(final Collection<IProperty> properties, final String label, final String description) {
+	public IBeanDtoDescriptor dtoDescriptor(
+		final Collection<IProperty> properties,
+		final String labelSingular,
+		final String labelPlural,
+		final String labelSingularAndPlural,
+		final String description) {
 		Assert.paramNotNull(properties, "properties");
-		return new BeanDtoDescriptorImpl(label, description, properties);
+		return new BeanDtoDescriptorImpl(labelSingular, labelPlural, labelSingularAndPlural, description, properties);
 	}
 
 	@Override

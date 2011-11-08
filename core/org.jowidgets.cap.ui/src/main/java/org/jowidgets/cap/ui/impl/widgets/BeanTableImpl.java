@@ -267,8 +267,10 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 			@Override
 			public void addBean(final IBeanProxy<BEAN_TYPE> bean) {
 				super.addBean(bean);
-				model.setSelection(Collections.singletonList(Integer.valueOf(model.getSize() - 1)));
-				table.showSelection();
+				if (model.getSize() > 0) {
+					model.setSelection(Collections.singletonList(Integer.valueOf(model.getSize() - 1)));
+					table.showSelection();
+				}
 			}
 		};
 		final ICapActionFactory actionFactory = CapUiToolkit.actionFactory();

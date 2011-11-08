@@ -72,7 +72,7 @@ final class LinkActionBuilderFactory {
 
 	private static boolean isBeanLinkableDescriptorOk(final IBeanDtoDescriptor descriptor) {
 		return descriptor != null
-			&& !EmptyCheck.isEmpty(descriptor.getLabel())
+			&& !EmptyCheck.isEmpty(descriptor.getLabelPlural())
 			&& !EmptyCheck.isEmpty(descriptor.getProperties());
 	}
 
@@ -91,13 +91,13 @@ final class LinkActionBuilderFactory {
 		final IBeanServicesProvider linkableTypeServices,
 		final ILinkActionBuilder<BEAN_TYPE> builder) {
 
-		builder.setText(linkableTypeDescriptor.getLabel() + " verknüpfen ...");
+		builder.setText(linkableTypeDescriptor.getLabelPlural() + " verknüpfen ...");
 
 		builder.setLinkCreatorService(linkTypeServices.creatorService());
 
 		builder.setLinkableTableReaderService(linkableTypeServices.readerService());
 		builder.setLinkableTableEntityId(link.getLinkableTypeId());
-		builder.setLinkableTableLabel(linkableTypeDescriptor.getLabel());
+		builder.setLinkableTableLabel(linkableTypeDescriptor.getLabelPlural());
 		builder.setLinkableTableAttributes(createAttributes(linkableTypeDescriptor));
 
 		builder.setSourceProperties(link.getSourceProperties());

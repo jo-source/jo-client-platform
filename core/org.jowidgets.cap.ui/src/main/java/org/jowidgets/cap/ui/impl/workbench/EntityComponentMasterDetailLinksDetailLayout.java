@@ -117,7 +117,7 @@ public class EntityComponentMasterDetailLinksDetailLayout {
 			final IEntityService entityService = ServiceProvider.getService(IEntityService.ID);
 			if (entityService != null) {
 				final IBeanDtoDescriptor descriptor = entityService.getDescriptor(linkEntry.getValue().getLinkedTypeId());
-				result.addView(linkEntry.getKey(), descriptor.getLabel(), descriptor.getDescription()); //$NON-NLS-1$
+				result.addView(linkEntry.getKey(), descriptor.getLabelPlural(), descriptor.getDescription()); //$NON-NLS-1$
 			}
 
 		}
