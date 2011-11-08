@@ -52,11 +52,15 @@ import org.jowidgets.cap.ui.api.table.IReaderParameterProvider;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.api.ServiceProvider;
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.EmptyCheck;
 
 final class BeanTableModelBuilderImpl<BEAN_TYPE> implements IBeanTableModelBuilder<BEAN_TYPE> {
 
 	private final Class<? extends BEAN_TYPE> beanType;
 	private final Object entityId;
+
+	private String entityLabelSingular;
+	private String entityLabelPlural;
 
 	private IReaderService<? extends Object> readerService;
 	private IReaderParameterProvider<? extends Object> readerParameterProvider;
@@ -97,6 +101,18 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> implements IBeanTableModelBuild
 		}
 
 		this.sortModelConfig = new SortModelConfigImpl();
+	}
+
+	@Override
+	public IBeanTableModelBuilder<BEAN_TYPE> setEntityLabelSingular(final String label) {
+		this.entityLabelSingular = label;
+		return this;
+	}
+
+	@Override
+	public IBeanTableModelBuilder<BEAN_TYPE> setEntityLabelPlural(final String label) {
+		this.entityLabelPlural = label;
+		return this;
 	}
 
 	@Override
@@ -263,11 +279,29 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> implements IBeanTableModelBuild
 		return result;
 	}
 
+	private String getEntityLabelSingular() {
+		if (EmptyCheck.isEmpty(entityLabelSingular)) {
+			//TODO i18n
+			entityLabelSingular = "Dataset";
+		}
+		return entityLabelSingular;
+	}
+
+	private String getEntityLabelPlural() {
+		if (EmptyCheck.isEmpty(entityLabelPlural)) {
+			//TODO i18n
+			entityLabelPlural = "Datasets";
+		}
+		return entityLabelPlural;
+	}
+
 	@Override
 	public IBeanTableModel<BEAN_TYPE> build() {
 		return new BeanTableModelImpl<BEAN_TYPE>(
 			entityId,
 			beanType,
+			getEntityLabelSingular(),
+			getEntityLabelPlural(),
 			getAttributes(),
 			sortModelConfig,
 			readerService,

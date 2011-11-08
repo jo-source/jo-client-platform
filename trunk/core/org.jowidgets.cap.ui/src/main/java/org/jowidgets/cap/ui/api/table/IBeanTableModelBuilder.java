@@ -44,6 +44,10 @@ import org.jowidgets.service.api.IServiceId;
 
 public interface IBeanTableModelBuilder<BEAN_TYPE> {
 
+	IBeanTableModelBuilder<BEAN_TYPE> setEntityLabelSingular(final String label);
+
+	IBeanTableModelBuilder<BEAN_TYPE> setEntityLabelPlural(final String label);
+
 	IBeanTableModelBuilder<BEAN_TYPE> setReaderService(IReaderService<Void> readerService);
 
 	IBeanTableModelBuilder<BEAN_TYPE> setReaderService(IServiceId<IReaderService<Void>> readerServiceId);

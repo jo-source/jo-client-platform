@@ -52,13 +52,6 @@ public interface IBeanDtoDescriptor {
 	String getLabelPlural();
 
 	/**
-	 * Gets the label for singular and plural use, e.g. Role(s), Authentication(s), Member(s), ...
-	 * 
-	 * @return The label for singular and plural use or null
-	 */
-	String getLabelSingularAndPlural();
-
-	/**
 	 * Gets the description
 	 * 
 	 * @return The decription or null

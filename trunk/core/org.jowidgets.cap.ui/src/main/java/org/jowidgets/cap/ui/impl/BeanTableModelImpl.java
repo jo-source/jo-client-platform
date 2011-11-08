@@ -138,6 +138,8 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	private static final IResultCallback<Void> DUMMY_PAGE_LOAD_RESULT_CALLBACK = new DummyPageLoadResultCallback();
 
 	private final Object entityId;
+	private final String labelSingular;
+	private final String labelPlural;
 	private final Class<BEAN_TYPE> beanType;
 
 	private final Map<String, IUiFilter> filters;
@@ -200,6 +202,8 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	BeanTableModelImpl(
 		final Object entityId,
 		final Class<? extends BEAN_TYPE> beanType,
+		final String labelSingular,
+		final String labelPlural,
 		List<IAttribute<Object>> attributes,
 		final ISortModelConfig sortModelConfig,
 		final IReaderService<? extends Object> readerService,
@@ -216,6 +220,8 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		//arguments checks
 		Assert.paramNotNull(entityId, "entityId");
 		Assert.paramNotNull(beanType, "beanType");
+		Assert.paramNotEmpty(labelSingular, "labelSingular");
+		Assert.paramNotEmpty(labelPlural, "labelPlural");
 		Assert.paramNotNull(attributes, "attributes");
 		Assert.paramNotNull(readerService, "readerService");
 		Assert.paramNotNull(paramProvider, "paramProvider");
@@ -224,6 +230,8 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		this.entityId = entityId;
 		this.autoRowCount = autoRowCount;
 		this.beanType = (Class<BEAN_TYPE>) beanType;
+		this.labelSingular = labelSingular;
+		this.labelPlural = labelPlural;
 		this.linkType = linkType;
 		if (parent != null) {
 			Assert.paramNotNull(linkType, "linkType");
@@ -487,6 +495,16 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	@Override
 	public Class<BEAN_TYPE> getBeanType() {
 		return beanType;
+	}
+
+	@Override
+	public String getEntityLabelSingular() {
+		return labelSingular;
+	}
+
+	@Override
+	public String getEntityLabelPlural() {
+		return labelPlural;
 	}
 
 	@Override

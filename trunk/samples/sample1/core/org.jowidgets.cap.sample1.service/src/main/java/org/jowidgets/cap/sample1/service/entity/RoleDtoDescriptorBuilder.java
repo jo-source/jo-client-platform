@@ -100,7 +100,6 @@ public class RoleDtoDescriptorBuilder {
 		return CapCommonToolkit.dtoDescriptor(
 				properties,
 				Messages.getString("RoleDtoDescriptorBuilder.labelSingular"),
-				Messages.getString("RoleDtoDescriptorBuilder.labelPlural"),
-				Messages.getString("RoleDtoDescriptorBuilder.labelSingularAndPlural"));
+				Messages.getString("RoleDtoDescriptorBuilder.labelPlural"));
 	}
 }
