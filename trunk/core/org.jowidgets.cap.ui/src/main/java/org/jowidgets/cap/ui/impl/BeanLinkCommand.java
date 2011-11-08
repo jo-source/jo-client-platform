@@ -235,6 +235,7 @@ final class BeanLinkCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
 		final IBeanTableModelBuilder<Object> modelBuilder = CapUiToolkit.beanTableModelBuilder(linkableTableEntityId);
 		modelBuilder.setAttributes(linkableTableAttributes);
 		modelBuilder.setParent(model, LinkType.SELECTION_ALL);
+		modelBuilder.setAutoSelection(false);
 		final IBeanTableModel<Object> linkableModel = modelBuilder.build();
 		if (lastTableModelConfig != null) {
 			linkableModel.setConfig(lastTableModelConfig);
