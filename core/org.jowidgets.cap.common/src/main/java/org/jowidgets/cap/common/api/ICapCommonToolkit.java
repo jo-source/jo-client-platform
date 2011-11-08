@@ -65,17 +65,12 @@ public interface ICapCommonToolkit {
 
 	IBeanDtoDescriptor dtoDescriptor(Collection<IProperty> properties);
 
-	IBeanDtoDescriptor dtoDescriptor(
-		Collection<IProperty> properties,
-		String labelSingular,
-		String labelPlural,
-		String labelSingularAndPlural);
+	IBeanDtoDescriptor dtoDescriptor(Collection<IProperty> properties, String labelSingular, String labelPlural);
 
 	IBeanDtoDescriptor dtoDescriptor(
 		Collection<IProperty> properties,
 		String labelSingular,
 		String labelPlural,
-		String labelSingularAndPlural,
 		String description);
 
 	IBeanDtoBuilder dtoBuilder(Object entityTypeId);

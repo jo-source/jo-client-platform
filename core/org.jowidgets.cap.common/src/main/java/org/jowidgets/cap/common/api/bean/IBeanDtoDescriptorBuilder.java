@@ -34,8 +34,6 @@ public interface IBeanDtoDescriptorBuilder {
 
 	IBeanDtoDescriptorBuilder setLabelPlural(String label);
 
-	IBeanDtoDescriptorBuilder setLabelSingularAndPlural(String label);
-
 	IBeanDtoDescriptorBuilder setDescription(String description);
 
 	IBeanPropertyBluePrint addProperty(String propertyName);

@@ -49,7 +49,6 @@ public class UserDtoDescriptorBuilder extends BeanDtoDescriptorBuilder {
 
 		setLabelSingular(Messages.getString("UserDtoDescriptorBuilder.labelSingular"));
 		setLabelPlural(Messages.getString("UserDtoDescriptorBuilder.labelPlural"));
-		setLabelSingularAndPlural(Messages.getString("UserDtoDescriptorBuilder.labelSingularAndPlural"));
 
 		IBeanPropertyBluePrint propertyBp = addProperty(IUser.NAME_PROPERTY);
 		propertyBp.setLabel(Messages.getString("UserDtoDescriptorBuilder.name")); //$NON-NLS-1$

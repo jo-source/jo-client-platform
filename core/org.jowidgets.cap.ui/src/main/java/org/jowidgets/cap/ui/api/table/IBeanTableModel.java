@@ -53,6 +53,20 @@ public interface IBeanTableModel<BEAN_TYPE> extends IDataModel, IBeanListModel<B
 
 	Object getEntityId();
 
+	/**
+	 * Gets the entity label in the singular form, e.g. Role, Authentication, Member, ...
+	 * 
+	 * @return The label in the singular form, never null (Default: us=Dataset, de=Datensatz)
+	 */
+	String getEntityLabelSingular();
+
+	/**
+	 * Gets the entity label in the plural form, e.g. Roles, Authentications, Members, ...
+	 * 
+	 * @return The label in the plural, never null (Default: us=Datasets, de=Datensätze)
+	 */
+	String getEntityLabelPlural();
+
 	int getPageCount();
 
 	void loadScheduled(int delayMillis);
