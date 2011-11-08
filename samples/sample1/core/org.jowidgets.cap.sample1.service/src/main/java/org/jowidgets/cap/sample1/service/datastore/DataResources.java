@@ -38,7 +38,7 @@ import org.apache.commons.io.IOUtils;
 public final class DataResources {
 
 	static final List<String> NAMES_MALE = readResource("data/names_male.txt");
-	static final List<String> NAMES_FEMALE = readResource("data/names_male.txt");
+	static final List<String> NAMES_FEMALE = readResource("data/names_female.txt");
 	static final List<String> SURNAMES_DE = readResource("data/surnames_de.txt");
 
 	private DataResources() {}
