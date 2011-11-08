@@ -275,6 +275,7 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 		};
 		final ICapActionFactory actionFactory = CapUiToolkit.actionFactory();
 		final ICreatorActionBuilder builder = actionFactory.creatorActionBuilder(model.getBeanType(), wrappedModel);
+		builder.setEntityLabelSingular(model.getEntityLabelSingular());
 		builder.setCreatorService(model.getCreatorService());
 		builder.setBeanForm(model.getAttributes(AcceptEditableAttributesFilter.getInstance()));
 		builder.addExecutionInterceptor(new ExecutionInterceptorAdapter() {
@@ -299,6 +300,8 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 		};
 		final ICapActionFactory actionFactory = CapUiToolkit.actionFactory();
 		final IDeleterActionBuilder<BEAN_TYPE> builder = actionFactory.deleterActionBuilder(wrappedModel);
+		builder.setEntityLabelSingular(model.getEntityLabelSingular());
+		builder.setEntityLabelPlural(model.getEntityLabelPlural());
 		builder.setDeleterService(model.getDeleterService());
 		return builder.build();
 	}

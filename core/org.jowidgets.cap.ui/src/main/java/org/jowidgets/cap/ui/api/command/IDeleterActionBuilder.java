@@ -44,6 +44,28 @@ public interface IDeleterActionBuilder<BEAN_TYPE> {
 
 	IDeleterActionBuilder<BEAN_TYPE> setText(String text);
 
+	/**
+	 * Sets the entity label singular.
+	 * This will set a proper text with the entity label as a variable
+	 * if the selection mode is single selection.
+	 * 
+	 * @param label The label to set
+	 * 
+	 * @return This builder
+	 */
+	IDeleterActionBuilder<BEAN_TYPE> setEntityLabelSingular(String label);
+
+	/**
+	 * Sets the entity label plural.
+	 * This will set a proper text with the entity label as a variable
+	 * if the selection mode is multi selection
+	 * 
+	 * @param label The label to set
+	 * 
+	 * @return This builder
+	 */
+	IDeleterActionBuilder<BEAN_TYPE> setEntityLabelPlural(String label);
+
 	IDeleterActionBuilder<BEAN_TYPE> setToolTipText(final String toolTipText);
 
 	IDeleterActionBuilder<BEAN_TYPE> setIcon(IImageConstant icon);

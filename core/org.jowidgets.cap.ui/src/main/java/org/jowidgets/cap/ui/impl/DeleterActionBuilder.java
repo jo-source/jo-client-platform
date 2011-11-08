@@ -52,7 +52,9 @@ import org.jowidgets.common.types.VirtualKey;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.api.ServiceProvider;
 import org.jowidgets.service.tools.ServiceId;
+import org.jowidgets.tools.message.MessageReplacer;
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.EmptyCheck;
 import org.jowidgets.util.builder.AbstractSingleUseBuilder;
 
 final class DeleterActionBuilder<BEAN_TYPE> extends AbstractSingleUseBuilder<IAction> implements IDeleterActionBuilder<BEAN_TYPE> {
@@ -63,6 +65,10 @@ final class DeleterActionBuilder<BEAN_TYPE> extends AbstractSingleUseBuilder<IAc
 	private final List<IExecutableChecker<BEAN_TYPE>> executableCheckers;
 	private final List<IExecutionInterceptor> executionInterceptors;
 
+	private String text;
+	private String toolTipText;
+	private String entityLabelSingular;
+	private String entityLabelPlural;
 	private IDeleterService deleterService;
 	private boolean multiSelection;
 	private boolean autoSelection;
@@ -82,14 +88,12 @@ final class DeleterActionBuilder<BEAN_TYPE> extends AbstractSingleUseBuilder<IAc
 		this.executionInterceptors = new LinkedList<IExecutionInterceptor>();
 		this.exceptionConverter = new DefaultBeanExceptionConverter();
 
-		this.multiSelection = true;
+		this.multiSelection = false;
 		this.autoSelection = true;
 		this.deletionConfirmDialog = true;
 		this.beanModificationStatePolicy = BeanModificationStatePolicy.NO_MODIFICATION;
 		this.beanMessageStatePolicy = BeanMessageStatePolicy.NO_WARNING_OR_ERROR;
 
-		builder.setText(Messages.getString("DeleterActionBuilder.delete_data_set"));
-		builder.setToolTipText(Messages.getString("DeleterActionBuilder.delete_data_set_tooltip"));
 		builder.setAccelerator(VirtualKey.DELETE);
 		builder.setIcon(IconsSmall.DELETE);
 	}
@@ -97,14 +101,28 @@ final class DeleterActionBuilder<BEAN_TYPE> extends AbstractSingleUseBuilder<IAc
 	@Override
 	public DeleterActionBuilder<BEAN_TYPE> setText(final String text) {
 		checkExhausted();
-		builder.setText(text);
+		this.text = text;
+		return this;
+	}
+
+	@Override
+	public IDeleterActionBuilder<BEAN_TYPE> setEntityLabelSingular(final String label) {
+		checkExhausted();
+		this.entityLabelSingular = label;
+		return this;
+	}
+
+	@Override
+	public IDeleterActionBuilder<BEAN_TYPE> setEntityLabelPlural(final String label) {
+		checkExhausted();
+		this.entityLabelPlural = label;
 		return this;
 	}
 
 	@Override
 	public DeleterActionBuilder<BEAN_TYPE> setToolTipText(final String toolTipText) {
 		checkExhausted();
-		builder.setToolTipText(toolTipText);
+		this.toolTipText = toolTipText;
 		return this;
 	}
 
@@ -228,8 +246,42 @@ final class DeleterActionBuilder<BEAN_TYPE> extends AbstractSingleUseBuilder<IAc
 		return this;
 	}
 
+	private String getText() {
+		if (!EmptyCheck.isEmpty(text)) {
+			return text;
+		}
+		else if (!EmptyCheck.isEmpty(entityLabelSingular) && !multiSelection) {
+			final String message = Messages.getString("DeleterActionBuilder.delete_single_var");
+			return MessageReplacer.replace(message, entityLabelSingular);
+		}
+		else if (!EmptyCheck.isEmpty(entityLabelPlural) && multiSelection) {
+			final String message = Messages.getString("DeleterActionBuilder.delete_multi_var");
+			return MessageReplacer.replace(message, entityLabelPlural);
+		}
+		else if (!multiSelection) {
+			return Messages.getString("DeleterActionBuilder.delete_single");
+		}
+		else {
+			return Messages.getString("DeleterActionBuilder.delete_multi");
+		}
+	}
+
+	private String getTooltipText() {
+		if (!EmptyCheck.isEmpty(toolTipText)) {
+			return toolTipText;
+		}
+		else if (!multiSelection) {
+			return Messages.getString("DeleterActionBuilder.delete_single_tooltip");
+		}
+		else {
+			return Messages.getString("DeleterActionBuilder.delete_multi_tooltip");
+		}
+	}
+
 	@Override
 	protected IAction doBuild() {
+		builder.setText(getText());
+		builder.setToolTipText(getTooltipText());
 		final BeanDeleterCommand<BEAN_TYPE> deleterCommand = new BeanDeleterCommand<BEAN_TYPE>(
 			model,
 			enabledCheckers,

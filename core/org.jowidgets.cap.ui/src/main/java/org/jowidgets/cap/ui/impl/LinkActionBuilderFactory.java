@@ -91,7 +91,7 @@ final class LinkActionBuilderFactory {
 		final IBeanServicesProvider linkableTypeServices,
 		final ILinkActionBuilder<BEAN_TYPE> builder) {
 
-		builder.setText(linkableTypeDescriptor.getLabelPlural() + " verknüpfen ...");
+		builder.setDestinationEntityLabelPlural(linkableTypeDescriptor.getLabelPlural());
 
 		builder.setLinkCreatorService(linkTypeServices.creatorService());
 

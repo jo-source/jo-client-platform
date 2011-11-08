@@ -49,6 +49,16 @@ public interface ILinkActionBuilder<BEAN_TYPE> {
 
 	ILinkActionBuilder<BEAN_TYPE> setText(String text);
 
+	/**
+	 * Sets the entity label plural.
+	 * This will set a proper text with the entity label as a variable
+	 * 
+	 * @param label The label to set
+	 * 
+	 * @return This builder
+	 */
+	ILinkActionBuilder<BEAN_TYPE> setDestinationEntityLabelPlural(String label);
+
 	ILinkActionBuilder<BEAN_TYPE> setToolTipText(final String toolTipText);
 
 	ILinkActionBuilder<BEAN_TYPE> setIcon(IImageConstant icon);
