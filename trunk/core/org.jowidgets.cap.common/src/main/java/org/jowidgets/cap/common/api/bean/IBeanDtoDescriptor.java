@@ -37,7 +37,31 @@ public interface IBeanDtoDescriptor {
 	 */
 	List<IProperty> getProperties();
 
-	String getLabel();
+	/**
+	 * Gets the label in the singular, e.g. Role, Authentication, Member, ...
+	 * 
+	 * @return The label in the singular or null
+	 */
+	String getLabelSingular();
 
+	/**
+	 * Gets the label in the plural, e.g. Roles, Authentications, Members, ...
+	 * 
+	 * @return The label in the plural or null
+	 */
+	String getLabelPlural();
+
+	/**
+	 * Gets the label for singular and plural use, e.g. Role(s), Authentication(s), Member(s), ...
+	 * 
+	 * @return The label for singular and plural use or null
+	 */
+	String getLabelSingularAndPlural();
+
+	/**
+	 * Gets the description
+	 * 
+	 * @return The decription or null
+	 */
 	String getDescription();
 }

@@ -30,7 +30,11 @@ package org.jowidgets.cap.common.api.bean;
 
 public interface IBeanDtoDescriptorBuilder {
 
-	IBeanDtoDescriptorBuilder setLabel(String label);
+	IBeanDtoDescriptorBuilder setLabelSingular(String label);
+
+	IBeanDtoDescriptorBuilder setLabelPlural(String label);
+
+	IBeanDtoDescriptorBuilder setLabelSingularAndPlural(String label);
 
 	IBeanDtoDescriptorBuilder setDescription(String description);
 

@@ -42,7 +42,9 @@ final class BeanDtoDescriptorBuilderImpl implements IBeanDtoDescriptorBuilder {
 	private final Class<?> beanType;
 	private final List<BeanPropertyBluePrintImpl> bluePrints;
 
-	private String label;
+	private String labelSingular;
+	private String labelPlural;
+	private String labelSingularAndPlural;
 	private String description;
 
 	BeanDtoDescriptorBuilderImpl(final Class<?> beanType) {
@@ -51,8 +53,20 @@ final class BeanDtoDescriptorBuilderImpl implements IBeanDtoDescriptorBuilder {
 	}
 
 	@Override
-	public IBeanDtoDescriptorBuilder setLabel(final String label) {
-		this.label = label;
+	public IBeanDtoDescriptorBuilder setLabelSingular(final String label) {
+		this.labelSingular = label;
+		return this;
+	}
+
+	@Override
+	public IBeanDtoDescriptorBuilder setLabelPlural(final String label) {
+		this.labelPlural = label;
+		return this;
+	}
+
+	@Override
+	public IBeanDtoDescriptorBuilder setLabelSingularAndPlural(final String label) {
+		this.labelSingularAndPlural = label;
 		return this;
 	}
 
@@ -76,7 +90,7 @@ final class BeanDtoDescriptorBuilderImpl implements IBeanDtoDescriptorBuilder {
 		for (final BeanPropertyBluePrintImpl bluePrint : bluePrints) {
 			properties.add(bluePrint.build());
 		}
-		return new BeanDtoDescriptorImpl(label, description, properties);
+		return new BeanDtoDescriptorImpl(labelSingular, labelPlural, labelSingularAndPlural, description, properties);
 	}
 
 }

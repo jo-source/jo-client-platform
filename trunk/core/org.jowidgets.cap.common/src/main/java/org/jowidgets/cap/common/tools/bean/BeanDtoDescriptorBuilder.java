@@ -44,8 +44,18 @@ public class BeanDtoDescriptorBuilder implements IBeanDtoDescriptorBuilder {
 	}
 
 	@Override
-	public IBeanDtoDescriptorBuilder setLabel(final String label) {
-		return this.builder.setLabel(label);
+	public IBeanDtoDescriptorBuilder setLabelSingular(final String label) {
+		return this.builder.setLabelSingular(label);
+	}
+
+	@Override
+	public IBeanDtoDescriptorBuilder setLabelPlural(final String label) {
+		return this.builder.setLabelPlural(label);
+	}
+
+	@Override
+	public IBeanDtoDescriptorBuilder setLabelSingularAndPlural(final String label) {
+		return this.builder.setLabelSingularAndPlural(label);
 	}
 
 	@Override
