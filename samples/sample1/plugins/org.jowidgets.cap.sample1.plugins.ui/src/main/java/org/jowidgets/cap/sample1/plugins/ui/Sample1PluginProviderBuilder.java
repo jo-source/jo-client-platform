@@ -8,7 +8,7 @@ package org.jowidgets.cap.sample1.plugins.ui;
 
 import org.jowidgets.cap.sample1.common.entity.EntityIds;
 import org.jowidgets.cap.sample1.common.entity.IUser;
-import org.jowidgets.cap.sample1.plugins.ui.table.UserMenuContributorPlugin;
+import org.jowidgets.cap.sample1.plugins.ui.table.UserMenuContributionPlugin;
 import org.jowidgets.cap.sample1.plugins.ui.table.UserMenuInterceptorPlugin;
 import org.jowidgets.cap.ui.api.plugin.IBeanTableMenuContributionPlugin;
 import org.jowidgets.cap.ui.api.plugin.IBeanTableMenuInterceptorPlugin;
@@ -26,7 +26,7 @@ public final class Sample1PluginProviderBuilder extends PluginProviderBuilder {
 
 		addPlugin(
 				IBeanTableMenuContributionPlugin.ID,
-				new UserMenuContributorPlugin(),
+				new UserMenuContributionPlugin(),
 				IBeanTableMenuContributionPlugin.ENTITIY_ID_PROPERTY_KEY,
 				IUser.class,
 				EntityIds.VIRTUAL_USERS_OF_ROLES);

@@ -90,9 +90,6 @@ public class EntityTableView extends AbstractView {
 				popMenu.addAction(linkActionBuilder.build());
 			}
 		}
-		if (!actionCreated) {
-			popMenu.addSeparator();
-		}
 	}
 
 	private static final class LinkActionExecutionInterceptor extends ExecutionInterceptorAdapter {

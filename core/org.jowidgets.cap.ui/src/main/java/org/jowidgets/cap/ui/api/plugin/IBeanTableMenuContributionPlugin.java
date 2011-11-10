@@ -43,6 +43,6 @@ public interface IBeanTableMenuContributionPlugin {
 
 	IMenuModel getHeaderMenu(IPluginProperties properties);
 
-	IMenuModel getMenu(IPluginProperties properties);
+	IMenuModel getTableMenu(IPluginProperties properties);
 
 }

@@ -41,6 +41,7 @@ import org.jowidgets.api.convert.IStringObjectConverter;
 import org.jowidgets.api.model.item.ICheckedItemModel;
 import org.jowidgets.api.model.item.IMenuItemModel;
 import org.jowidgets.api.model.item.IMenuModel;
+import org.jowidgets.api.model.item.ISeparatorItemModel;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.widgets.IComposite;
 import org.jowidgets.api.widgets.IPopupMenu;
@@ -50,8 +51,6 @@ import org.jowidgets.api.widgets.blueprint.ITableBluePrint;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
-import org.jowidgets.cap.ui.api.command.ICapActionFactory;
-import org.jowidgets.cap.ui.api.command.IDeleterActionBuilder;
 import org.jowidgets.cap.ui.api.filter.FilterType;
 import org.jowidgets.cap.ui.api.plugin.IBeanTableMenuContributionPlugin;
 import org.jowidgets.cap.ui.api.plugin.IBeanTableMenuInterceptorPlugin;
@@ -186,22 +185,23 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 			tablePopupMenuModel.addAction(menuFactory.settingsAction(this));
 			tablePopupMenuModel.addItem(getStatusBarItemModel());
 
-			final ICapActionFactory actionFactory = CapUiToolkit.actionFactory();
 			if (hasDefaultCreatorAction && model.getCreatorService() != null) {
 				this.creatorAction = menuFactory.creatorAction(this);
-				if (hasDefaultMenus) {
-					tablePopupMenuModel.addSeparator();
+				if (creatorAction != null) {
+					if (hasDefaultMenus) {
+						tablePopupMenuModel.addSeparator();
+					}
+					tablePopupMenuModel.addAction(creatorAction);
 				}
-				tablePopupMenuModel.addAction(creatorAction);
 			}
 			if (hasDefaultDeleterAction && model.getDeleterService() != null) {
 				this.deleteAction = menuFactory.deleterAction(this);
-				if (hasDefaultMenus && !hasDefaultCreatorAction) {
-					tablePopupMenuModel.addSeparator();
+				if (deleteAction != null) {
+					if (hasDefaultMenus && !hasDefaultCreatorAction) {
+						tablePopupMenuModel.addSeparator();
+					}
+					tablePopupMenuModel.addAction(deleteAction);
 				}
-				final IDeleterActionBuilder<BEAN_TYPE> deleterActionBuilder = actionFactory.deleterActionBuilder(model);
-				deleterActionBuilder.setDeleterService(model.getDeleterService());
-				tablePopupMenuModel.addAction(deleteAction);
 			}
 
 			addMenuModel(tablePopupMenuModel, pluggedTablePopupMenuModell);
@@ -297,7 +297,7 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 
 		if (plugins != null) {
 			for (final IBeanTableMenuContributionPlugin plugin : plugins) {
-				final IMenuModel menu = plugin.getMenu(properties);
+				final IMenuModel menu = plugin.getTableMenu(properties);
 				if (menu != null) {
 					menuModel.addItemsOfModel(menu);
 				}
@@ -467,14 +467,14 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 			menuModel = new MenuModel();
 		}
 
-		if (hasDefaultCreatorAction && model.getCreatorService() != null) {
-			if (hasDefaultMenus) {
+		if (creatorAction != null) {
+			if (menuModel.getChildren().size() > 0) {
 				menuModel.addSeparator();
 			}
 			menuModel.addAction(creatorAction);
 		}
-		if (hasDefaultDeleterAction && model.getDeleterService() != null) {
-			if (hasDefaultMenus && !hasDefaultCreatorAction) {
+		if (deleteAction != null) {
+			if (menuModel.getChildren().size() > 0 && creatorAction == null) {
 				menuModel.addSeparator();
 			}
 			menuModel.addAction(deleteAction);
@@ -493,12 +493,34 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 
 	private void addMenuModel(final IMenuModel model, final IMenuModel modelToAdd) {
 		if (modelToAdd.getChildren().size() > 0) {
-			if (model.getChildren().size() > 0) {
+			if (model.getChildren().size() > 0 && !endsWithSeparator(model) && !startsWithSeparator(modelToAdd)) {
 				model.addSeparator();
 			}
 			for (final IMenuItemModel itemModel : modelToAdd.getChildren()) {
 				model.addItem(itemModel);
 			}
+		}
+	}
+
+	private boolean startsWithSeparator(final IMenuModel model) {
+		final int size = model.getChildren().size();
+		if (size > 0) {
+			final IMenuItemModel firstItem = model.getChildren().get(0);
+			return firstItem instanceof ISeparatorItemModel;
+		}
+		else {
+			return false;
+		}
+	}
+
+	private boolean endsWithSeparator(final IMenuModel model) {
+		final int size = model.getChildren().size();
+		if (size > 0) {
+			final IMenuItemModel lastItem = model.getChildren().get(size - 1);
+			return lastItem instanceof ISeparatorItemModel;
+		}
+		else {
+			return false;
 		}
 	}
 
