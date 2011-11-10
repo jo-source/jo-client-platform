@@ -28,8 +28,6 @@
 
 package org.jowidgets.cap.ui.api.plugin;
 
-import java.util.Collection;
-
 import org.jowidgets.cap.ui.api.table.IBeanTableMenuInterceptor;
 import org.jowidgets.plugin.api.IPluginId;
 import org.jowidgets.plugin.api.IPluginProperties;
@@ -41,6 +39,6 @@ public interface IBeanTableMenuPlugin {
 
 	ITypedKey<Object> ENTITIY_ID_PROPERTY_KEY = new ITypedKey<Object>() {};
 
-	Collection<IBeanTableMenuInterceptor<?>> getMenuInterceptor(IPluginProperties properties);
+	IBeanTableMenuInterceptor<?> getMenuInterceptor(IPluginProperties properties);
 
 }

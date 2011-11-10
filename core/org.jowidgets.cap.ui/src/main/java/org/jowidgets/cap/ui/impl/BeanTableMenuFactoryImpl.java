@@ -51,7 +51,7 @@ final class BeanTableMenuFactoryImpl<BEAN_TYPE> implements IBeanTableMenuFactory
 	private final List<IBeanTableMenuInterceptor<BEAN_TYPE>> interceptors;
 
 	BeanTableMenuFactoryImpl(final Collection<IBeanTableMenuInterceptor<BEAN_TYPE>> interceptors) {
-		this.interceptors = new LinkedList<IBeanTableMenuInterceptor<BEAN_TYPE>>();
+		this.interceptors = new LinkedList<IBeanTableMenuInterceptor<BEAN_TYPE>>(interceptors);
 	}
 
 	@Override

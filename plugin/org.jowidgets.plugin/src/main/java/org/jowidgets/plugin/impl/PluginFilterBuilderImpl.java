@@ -42,7 +42,10 @@ final class PluginFilterBuilderImpl implements IPluginFilterBuilder {
 
 	private final List<Tuple<ITypedKey<Object>, Object>> conditions;
 
-	PluginFilterBuilderImpl() {
+	private final boolean and;
+
+	PluginFilterBuilderImpl(final boolean and) {
+		this.and = and;
 		this.conditions = new LinkedList<Tuple<ITypedKey<Object>, Object>>();
 	}
 
@@ -58,12 +61,22 @@ final class PluginFilterBuilderImpl implements IPluginFilterBuilder {
 		return new IPluginFilter() {
 			@Override
 			public boolean accept(final IPluginProperties properties) {
-				for (final Tuple<ITypedKey<Object>, Object> condition : conditions) {
-					if (!NullCompatibleEquivalence.equals(properties.getValue(condition.getFirst()), condition.getSecond())) {
-						return false;
+				if (and) {
+					for (final Tuple<ITypedKey<Object>, Object> condition : conditions) {
+						if (!NullCompatibleEquivalence.equals(properties.getValue(condition.getFirst()), condition.getSecond())) {
+							return false;
+						}
 					}
+					return true;
 				}
-				return true;
+				else {
+					for (final Tuple<ITypedKey<Object>, Object> condition : conditions) {
+						if (NullCompatibleEquivalence.equals(properties.getValue(condition.getFirst()), condition.getSecond())) {
+							return true;
+						}
+					}
+					return false;
+				}
 			}
 		};
 

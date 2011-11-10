@@ -26,33 +26,37 @@
  * DAMAGE.
  */
 
-package org.jowidgets.plugin.api;
+package org.jowidgets.cap.sample1.plugins.ui.table;
 
-import org.jowidgets.plugin.impl.PluginToolkitImpl;
+import org.jowidgets.cap.sample1.common.entity.IUser;
+import org.jowidgets.cap.ui.api.command.ICreatorActionBuilder;
+import org.jowidgets.cap.ui.api.command.IDeleterActionBuilder;
+import org.jowidgets.cap.ui.api.plugin.IBeanTableMenuPlugin;
+import org.jowidgets.cap.ui.api.table.IBeanTableMenuInterceptor;
+import org.jowidgets.cap.ui.api.widgets.IBeanTable;
+import org.jowidgets.cap.ui.tools.table.BeanTableMenuInterceptorAdapter;
+import org.jowidgets.examples.common.icons.SilkIcons;
+import org.jowidgets.plugin.api.IPluginProperties;
 
-public final class PluginToolkit {
+public class UserMenuPlugin extends BeanTableMenuInterceptorAdapter<IUser> implements IBeanTableMenuPlugin {
 
-	private static final IPluginToolkit INSTANCE = new PluginToolkitImpl();
-
-	private PluginToolkit() {}
-
-	public static IPluginToolkit getInstance() {
-		return INSTANCE;
+	@Override
+	public IBeanTableMenuInterceptor<IUser> getMenuInterceptor(final IPluginProperties properties) {
+		return this;
 	}
 
-	public static IPluginProviderBuilder pluginProviderBuilder() {
-		return getInstance().pluginProviderBuilder();
+	@Override
+	public ICreatorActionBuilder creatorActionBuilder(final IBeanTable<IUser> table, final ICreatorActionBuilder builder) {
+		builder.setIcon(SilkIcons.USER_ADD);
+		return builder;
 	}
 
-	public static IPluginPropertiesBuilder pluginPropertiesBuilder() {
-		return getInstance().pluginPropertiesBuilder();
+	@Override
+	public IDeleterActionBuilder<IUser> deleterActionBuilder(
+		final IBeanTable<IUser> table,
+		final IDeleterActionBuilder<IUser> builder) {
+		builder.setIcon(SilkIcons.USER_DELETE);
+		return builder;
 	}
 
-	public static IPluginFilterBuilder pluginFilterBuilderAnd() {
-		return getInstance().pluginFilterBuilderAnd();
-	}
-
-	public static IPluginFilterBuilder pluginFilterBuilderOr() {
-		return getInstance().pluginFilterBuilderOr();
-	}
 }
