@@ -29,26 +29,39 @@
 package org.jowidgets.cap.ui.impl;
 
 import org.jowidgets.api.command.IAction;
+import org.jowidgets.api.model.item.IMenuItemModel;
 import org.jowidgets.api.model.item.IMenuModel;
-import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.table.IBeanTableMenuFactory;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.tools.model.item.MenuModel;
 
-final class BeanTableCellMenuModel extends MenuModel {
+final class BeanTableCellMenuModel<BEAN_TYPE> extends MenuModel {
 
-	BeanTableCellMenuModel(final IBeanTable<?> table, final IMenuModel headerPopupMenuModel, final int columnIndex) {
+	BeanTableCellMenuModel(
+		final IBeanTable<BEAN_TYPE> table,
+		final IMenuModel headerPopupMenuModel,
+		final int columnIndex,
+		final IBeanTableMenuFactory<BEAN_TYPE> menuFactory) {
 		super();
-
-		final IBeanTableMenuFactory menuFactory = CapUiToolkit.beanTableMenuFactory();
 
 		final IAction settingsDialogAction = menuFactory.settingsAction(table);
 		if (headerPopupMenuModel != null) {
-			addItem(headerPopupMenuModel);
+			tryAddItem(headerPopupMenuModel);
 		}
-		addItem(menuFactory.filterCellMenu(table, columnIndex));
-		addAction(settingsDialogAction);
-		addItem(table.getStatusBarItemModel());
+		tryAddItem(menuFactory.filterCellMenu(table, columnIndex));
+		tryAddAction(settingsDialogAction);
+		tryAddItem(table.getStatusBarItemModel());
 	}
 
+	private void tryAddAction(final IAction action) {
+		if (action != null) {
+			addAction(action);
+		}
+	}
+
+	private void tryAddItem(final IMenuItemModel item) {
+		if (item != null) {
+			addItem(item);
+		}
+	}
 }

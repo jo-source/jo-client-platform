@@ -28,6 +28,10 @@
 
 package org.jowidgets.cap.ui.impl;
 
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+
 import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.command.IActionBuilder;
 import org.jowidgets.api.model.item.IMenuModel;
@@ -35,236 +39,131 @@ import org.jowidgets.cap.ui.api.command.ICreatorActionBuilder;
 import org.jowidgets.cap.ui.api.command.IDeleterActionBuilder;
 import org.jowidgets.cap.ui.api.filter.IFilterType;
 import org.jowidgets.cap.ui.api.table.IBeanTableMenuFactory;
+import org.jowidgets.cap.ui.api.table.IBeanTableMenuInterceptor;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.EmptyCheck;
 import org.jowidgets.util.NullCompatibleEquivalence;
 
-final class BeanTableMenuFactoryImpl implements IBeanTableMenuFactory {
+final class BeanTableMenuFactoryImpl<BEAN_TYPE> implements IBeanTableMenuFactory<BEAN_TYPE> {
 
-	BeanTableMenuFactoryImpl() {}
+	private final List<IBeanTableMenuInterceptor<BEAN_TYPE>> interceptors;
+
+	BeanTableMenuFactoryImpl(final Collection<IBeanTableMenuInterceptor<BEAN_TYPE>> interceptors) {
+		this.interceptors = new LinkedList<IBeanTableMenuInterceptor<BEAN_TYPE>>();
+	}
 
 	@Override
-	public ICreatorActionBuilder creatorActionBuilder(final IBeanTable<?> table) {
+	public IMenuModel headerPopupMenu(final IBeanTable<BEAN_TYPE> table, final int columnIndex) {
 		Assert.paramNotNull(table, "table");
-		Assert.paramNotNull(table.getModel(), "table.getModel()");
-		Assert.paramNotNull(table.getModel().getCreatorService(), "table.getModel().getCreatorService()");
-		return BeanTableCreatorActionBuilderFactory.createBuilder(table);
+		IMenuModel menuModel = new BeanTableHeaderMenuModel<BEAN_TYPE>(table, columnIndex, this);
+		for (final IBeanTableMenuInterceptor<BEAN_TYPE> interceptor : interceptors) {
+			if (menuModel != null) {
+				menuModel = interceptor.headerPopupMenu(table, columnIndex, menuModel);
+			}
+			else {
+				break;
+			}
+		}
+		return menuModel;
 	}
 
 	@Override
-	public IAction creatorAction(final IBeanTable<?> table) {
-		return creatorActionBuilder(table).build();
-	}
-
-	@Override
-	public <BEAN_TYPE> IDeleterActionBuilder<BEAN_TYPE> deleterActionBuilder(final IBeanTable<BEAN_TYPE> table) {
-		Assert.paramNotNull(table, "table");
-		Assert.paramNotNull(table.getModel(), "table.getModel()");
-		Assert.paramNotNull(table.getModel().getDeleterService(), "table.getModel().getDeleterService()");
-		return BeanTableDeleterActionBuilderFactory.createBuilder(table);
-	}
-
-	@Override
-	public IAction deleterAction(final IBeanTable<?> table) {
-		return deleterActionBuilder(table).build();
-	}
-
-	@Override
-	public IActionBuilder settingsActionBuilder(final IBeanTable<?> table) {
-		Assert.paramNotNull(table, "table");
-		return new BeanTableSettingsActionBuilder(table);
-	}
-
-	@Override
-	public IAction settingsAction(final IBeanTable<?> table) {
-		return settingsActionBuilder(table).build();
-	}
-
-	@Override
-	public IActionBuilder hideColumnActionBuilder(final IBeanTable<?> table, final int columnIndex) {
-		Assert.paramNotNull(table, "table");
-		return new BeanTableHideColumnActionBuilder(table, columnIndex);
-	}
-
-	@Override
-	public IAction hideColumnAction(final IBeanTable<?> table, final int columnIndex) {
-		return hideColumnActionBuilder(table, columnIndex).build();
-	}
-
-	@Override
-	public IActionBuilder showAllColumnsActionBuilder(final IBeanTable<?> table) {
-		Assert.paramNotNull(table, "table");
-		return new BeanTableShowAllColumnsActionBuilder(table);
-	}
-
-	@Override
-	public IAction showAllColumnsAction(final IBeanTable<?> table) {
-		return showAllColumnsActionBuilder(table).build();
-	}
-
-	@Override
-	public IActionBuilder packAllActionBuilder(final IBeanTable<?> table) {
-		Assert.paramNotNull(table, "table");
-		return new BeanTablePackAllActionBuilder(table);
-	}
-
-	@Override
-	public IAction packAllAction(final IBeanTable<?> table) {
-		return packAllActionBuilder(table).build();
-	}
-
-	@Override
-	public IActionBuilder packSelectedActionBuilder(final IBeanTable<?> table) {
-		Assert.paramNotNull(table, "table");
-		return new BeanTablePackSelectedActionBuilder(table);
-	}
-
-	@Override
-	public IAction packSelectedAction(final IBeanTable<?> table) {
-		return packSelectedActionBuilder(table).build();
-	}
-
-	@Override
-	public IActionBuilder clearCurrentSortActionBuilder(final IBeanTableModel<?> model) {
-		Assert.paramNotNull(model, "model");
-		return new BeanTableClearCurrentSortActionBuilder(model);
-	}
-
-	@Override
-	public IAction clearCurrentSortAction(final IBeanTableModel<?> model) {
-		return clearCurrentSortActionBuilder(model).build();
-	}
-
-	@Override
-	public IActionBuilder clearDefaultSortActionBuilder(final IBeanTableModel<?> model) {
-		Assert.paramNotNull(model, "model");
-		return new BeanTableClearDefaultSortActionBuilder(model);
-	}
-
-	@Override
-	public IAction clearDefaultSortAction(final IBeanTableModel<?> model) {
-		return clearDefaultSortActionBuilder(model).build();
-	}
-
-	@Override
-	public IActionBuilder addIncludingFilterActionBuilder(final IBeanTableModel<?> model, final int columnIndex) {
-		return new BeanTableAddIncludingFilterActionBuilder(model, columnIndex);
-	}
-
-	@Override
-	public IAction addIncludingFilterAction(final IBeanTableModel<?> model, final int columnIndex) {
-		return addIncludingFilterActionBuilder(model, columnIndex).build();
-	}
-
-	@Override
-	public IActionBuilder addExcludingFilterActionBuilder(final IBeanTableModel<?> model, final int columnIndex) {
-		return new BeanTableAddExcludingFilterActionBuilder(model, columnIndex);
-	}
-
-	@Override
-	public IAction addExcludingFilterAction(final IBeanTableModel<?> model, final int columnIndex) {
-		return addExcludingFilterActionBuilder(model, columnIndex).build();
-	}
-
-	@Override
-	public IActionBuilder addCustomFilterActionBuilder(final IBeanTableModel<?> model, final int columnIndex) {
-		return new BeanTableAddCustomFilterActionBuilder(model, columnIndex);
-	}
-
-	@Override
-	public IAction addCustomFilterAction(final IBeanTableModel<?> model, final int columnIndex) {
-		return addCustomFilterActionBuilder(model, columnIndex).build();
-	}
-
-	@Override
-	public IActionBuilder addFilterActionBuilder(
-		final IBeanTableModel<?> model,
-		final IFilterType filterType,
+	public IMenuModel cellPopupMenu(
+		final IBeanTable<BEAN_TYPE> table,
+		final IMenuModel headerPopupMenuModel,
 		final int columnIndex) {
-		return new BeanTableAddFilterActionBuilder(model, filterType, columnIndex);
-	}
-
-	@Override
-	public IAction addFilterAction(final IBeanTableModel<?> model, final IFilterType filterType, final int columnIndex) {
-		return addFilterActionBuilder(model, filterType, columnIndex).build();
-	}
-
-	@Override
-	public IActionBuilder editFilterActionBuilder(final IBeanTableModel<?> model) {
-		return new BeanTableEditFilterActionBuilder(model);
-	}
-
-	@Override
-	public IAction editFilterAction(final IBeanTableModel<?> model) {
-		return editFilterActionBuilder(model).build();
-	}
-
-	@Override
-	public IActionBuilder deleteFilterActionBuilder(final IBeanTableModel<?> model) {
-		return new BeanTableDeleteFilterActionBuilder(model);
-	}
-
-	@Override
-	public IAction deleteFilterAction(final IBeanTableModel<?> model) {
-		return deleteFilterActionBuilder(model).build();
-	}
-
-	@Override
-	public IActionBuilder deleteColumnFiltersActionBuilder(final IBeanTableModel<?> model, final int columnIndex) {
-		return new BeanTableDeleteColumnFiltersActionBuilder(model, columnIndex);
-	}
-
-	@Override
-	public IAction deleteColumnFiltersAction(final IBeanTableModel<?> model, final int columnIndex) {
-		return deleteColumnFiltersActionBuilder(model, columnIndex).build();
-	}
-
-	@Override
-	public IMenuModel headerPopupMenu(final IBeanTable<?> table, final int columnIndex) {
 		Assert.paramNotNull(table, "table");
-		return new BeanTableHeaderMenuModel(table, columnIndex);
+		IMenuModel menuModel = new BeanTableCellMenuModel<BEAN_TYPE>(table, headerPopupMenuModel, columnIndex, this);
+		for (final IBeanTableMenuInterceptor<BEAN_TYPE> interceptor : interceptors) {
+			if (menuModel != null) {
+				menuModel = interceptor.cellPopupMenu(table, headerPopupMenuModel, columnIndex, menuModel);
+			}
+			else {
+				break;
+			}
+		}
+		return menuModel;
 	}
 
 	@Override
-	public IMenuModel cellPopupMenu(final IBeanTable<?> table, final IMenuModel headerPopupMenuModel, final int columnIndex) {
-		Assert.paramNotNull(table, "table");
-		return new BeanTableCellMenuModel(table, headerPopupMenuModel, columnIndex);
-	}
-
-	@Override
-	public IMenuModel columnsVisibilityMenu(final IBeanTableModel<?> model) {
+	public IMenuModel columnsVisibilityMenu(final IBeanTableModel<BEAN_TYPE> model) {
 		Assert.paramNotNull(model, "model");
-		return new BeanTableColumnsVisibilityMenuModel(model);
+		IMenuModel menuModel = new BeanTableColumnsVisibilityMenuModel(model);
+		for (final IBeanTableMenuInterceptor<BEAN_TYPE> interceptor : interceptors) {
+			if (menuModel != null) {
+				menuModel = interceptor.columnsVisibilityMenu(model, menuModel);
+			}
+			else {
+				break;
+			}
+		}
+		return menuModel;
 	}
 
 	@Override
-	public IMenuModel filterMenu(final IBeanTable<?> table) {
+	public IMenuModel filterMenu(final IBeanTable<BEAN_TYPE> table) {
 		Assert.paramNotNull(table, "table");
-		return new BeanTableFilterMenuModel(table);
+		IMenuModel menuModel = new BeanTableFilterMenuModel<BEAN_TYPE>(table, this);
+		for (final IBeanTableMenuInterceptor<BEAN_TYPE> interceptor : interceptors) {
+			if (menuModel != null) {
+				menuModel = interceptor.filterMenu(table, menuModel);
+			}
+			else {
+				break;
+			}
+		}
+		return menuModel;
 	}
 
 	@Override
-	public IMenuModel filterCellMenu(final IBeanTable<?> table, final int columnIndex) {
+	public IMenuModel filterCellMenu(final IBeanTable<BEAN_TYPE> table, final int columnIndex) {
 		Assert.paramNotNull(table, "table");
-		return new BeanTableCellFilterMenuModel(table, columnIndex);
+		IMenuModel menuModel = new BeanTableCellFilterMenuModel<BEAN_TYPE>(table, columnIndex, this);
+		for (final IBeanTableMenuInterceptor<BEAN_TYPE> interceptor : interceptors) {
+			if (menuModel != null) {
+				menuModel = interceptor.filterCellMenu(table, columnIndex, menuModel);
+			}
+			else {
+				break;
+			}
+		}
+		return menuModel;
 	}
 
 	@Override
-	public IMenuModel filterHeaderMenu(final IBeanTable<?> table, final int columnIndex) {
+	public IMenuModel filterHeaderMenu(final IBeanTable<BEAN_TYPE> table, final int columnIndex) {
 		Assert.paramNotNull(table, "table");
-		return new BeanTableHeaderFilterMenuModel(table, columnIndex);
+		IMenuModel menuModel = new BeanTableHeaderFilterMenuModel<BEAN_TYPE>(table, columnIndex, this);
+		for (final IBeanTableMenuInterceptor<BEAN_TYPE> interceptor : interceptors) {
+			if (menuModel != null) {
+				menuModel = interceptor.filterHeaderMenu(table, columnIndex, menuModel);
+			}
+			else {
+				break;
+			}
+		}
+		return menuModel;
 	}
 
 	@Override
-	public IMenuModel alignmentMenu(final IBeanTableModel<?> model, final int columnIndex) {
+	public IMenuModel alignmentMenu(final IBeanTableModel<BEAN_TYPE> model, final int columnIndex) {
 		Assert.paramNotNull(model, "model");
-		return new BeanTableAlignmentMenuModel(model, columnIndex);
+		IMenuModel menuModel = new BeanTableAlignmentMenuModel(model, columnIndex);
+		for (final IBeanTableMenuInterceptor<BEAN_TYPE> interceptor : interceptors) {
+			if (menuModel != null) {
+				menuModel = interceptor.alignmentMenu(model, columnIndex, menuModel);
+			}
+			else {
+				break;
+			}
+		}
+		return menuModel;
 	}
 
 	@Override
-	public IMenuModel headerFormatMenu(final IBeanTableModel<?> model, final int columnIndex) {
+	public IMenuModel headerFormatMenu(final IBeanTableModel<BEAN_TYPE> model, final int columnIndex) {
 		Assert.paramNotNull(model, "model");
 		if (EmptyCheck.isEmpty(model.getAttribute(columnIndex).getLabelLong())) {
 			return null;
@@ -275,15 +174,33 @@ final class BeanTableMenuFactoryImpl implements IBeanTableMenuFactory {
 			return null;
 		}
 		else {
-			return new BeanTableHeaderFormatMenuModel(model, columnIndex);
+			IMenuModel menuModel = new BeanTableHeaderFormatMenuModel(model, columnIndex);
+			for (final IBeanTableMenuInterceptor<BEAN_TYPE> interceptor : interceptors) {
+				if (menuModel != null) {
+					menuModel = interceptor.headerFormatMenu(model, columnIndex, menuModel);
+				}
+				else {
+					break;
+				}
+			}
+			return menuModel;
 		}
 	}
 
 	@Override
-	public IMenuModel contentFormatMenu(final IBeanTableModel<?> model, final int columnIndex) {
+	public IMenuModel contentFormatMenu(final IBeanTableModel<BEAN_TYPE> model, final int columnIndex) {
 		Assert.paramNotNull(model, "model");
 		if (model.getAttribute(columnIndex).getControlPanels().size() > 1) {
-			return new BeanTableContentFormatMenuModel(model, columnIndex);
+			IMenuModel menuModel = new BeanTableContentFormatMenuModel(model, columnIndex);
+			for (final IBeanTableMenuInterceptor<BEAN_TYPE> interceptor : interceptors) {
+				if (menuModel != null) {
+					menuModel = interceptor.contentFormatMenu(model, columnIndex, menuModel);
+				}
+				else {
+					break;
+				}
+			}
+			return menuModel;
 		}
 		else {
 			return null;
@@ -291,10 +208,19 @@ final class BeanTableMenuFactoryImpl implements IBeanTableMenuFactory {
 	}
 
 	@Override
-	public IMenuModel currentSortMenu(final IBeanTableModel<?> model, final int columnIndex) {
+	public IMenuModel currentSortMenu(final IBeanTableModel<BEAN_TYPE> model, final int columnIndex) {
 		Assert.paramNotNull(model, "model");
 		if (model.getAttribute(columnIndex).isSortable()) {
-			return new BeanTableCurrentSortMenuModel(model, columnIndex);
+			IMenuModel menuModel = new BeanTableCurrentSortMenuModel(model, columnIndex);
+			for (final IBeanTableMenuInterceptor<BEAN_TYPE> interceptor : interceptors) {
+				if (menuModel != null) {
+					menuModel = interceptor.currentSortMenu(model, columnIndex, menuModel);
+				}
+				else {
+					break;
+				}
+			}
+			return menuModel;
 		}
 		else {
 			return null;
@@ -302,14 +228,343 @@ final class BeanTableMenuFactoryImpl implements IBeanTableMenuFactory {
 	}
 
 	@Override
-	public IMenuModel defaultSortMenu(final IBeanTableModel<?> model, final int columnIndex) {
+	public IMenuModel defaultSortMenu(final IBeanTableModel<BEAN_TYPE> model, final int columnIndex) {
 		Assert.paramNotNull(model, "model");
 		if (model.getAttribute(columnIndex).isSortable()) {
-			return new BeanTableDefaultSortMenuModel(model, columnIndex);
+			IMenuModel menuModel = new BeanTableDefaultSortMenuModel(model, columnIndex);
+			for (final IBeanTableMenuInterceptor<BEAN_TYPE> interceptor : interceptors) {
+				if (menuModel != null) {
+					menuModel = interceptor.defaultSortMenu(model, columnIndex, menuModel);
+				}
+				else {
+					break;
+				}
+			}
+			return menuModel;
 		}
 		else {
 			return null;
 		}
+	}
+
+	@Override
+	public IActionBuilder settingsActionBuilder(final IBeanTable<BEAN_TYPE> table) {
+		Assert.paramNotNull(table, "table");
+		IActionBuilder builder = new BeanTableSettingsActionBuilder(table);
+		for (final IBeanTableMenuInterceptor<BEAN_TYPE> interceptor : interceptors) {
+			if (builder != null) {
+				builder = interceptor.settingsActionBuilder(table, builder);
+			}
+			else {
+				break;
+			}
+		}
+		return builder;
+	}
+
+	@Override
+	public IAction settingsAction(final IBeanTable<BEAN_TYPE> table) {
+		return settingsActionBuilder(table).build();
+	}
+
+	@Override
+	public IActionBuilder hideColumnActionBuilder(final IBeanTable<BEAN_TYPE> table, final int columnIndex) {
+		Assert.paramNotNull(table, "table");
+		IActionBuilder builder = new BeanTableHideColumnActionBuilder(table, columnIndex);
+		for (final IBeanTableMenuInterceptor<BEAN_TYPE> interceptor : interceptors) {
+			if (builder != null) {
+				builder = interceptor.hideColumnActionBuilder(table, columnIndex, builder);
+			}
+			else {
+				break;
+			}
+		}
+		return builder;
+	}
+
+	@Override
+	public IAction hideColumnAction(final IBeanTable<BEAN_TYPE> table, final int columnIndex) {
+		return hideColumnActionBuilder(table, columnIndex).build();
+	}
+
+	@Override
+	public IActionBuilder showAllColumnsActionBuilder(final IBeanTable<BEAN_TYPE> table) {
+		Assert.paramNotNull(table, "table");
+		IActionBuilder builder = new BeanTableShowAllColumnsActionBuilder(table);
+		for (final IBeanTableMenuInterceptor<BEAN_TYPE> interceptor : interceptors) {
+			if (builder != null) {
+				builder = interceptor.showAllColumnsActionBuilder(table, builder);
+			}
+			else {
+				break;
+			}
+		}
+		return builder;
+	}
+
+	@Override
+	public IAction showAllColumnsAction(final IBeanTable<BEAN_TYPE> table) {
+		return showAllColumnsActionBuilder(table).build();
+	}
+
+	@Override
+	public IActionBuilder packAllActionBuilder(final IBeanTable<BEAN_TYPE> table) {
+		Assert.paramNotNull(table, "table");
+		IActionBuilder builder = new BeanTablePackAllActionBuilder(table);
+		for (final IBeanTableMenuInterceptor<BEAN_TYPE> interceptor : interceptors) {
+			if (builder != null) {
+				builder = interceptor.packAllActionBuilder(table, builder);
+			}
+			else {
+				break;
+			}
+		}
+		return builder;
+	}
+
+	@Override
+	public IAction packAllAction(final IBeanTable<BEAN_TYPE> table) {
+		return packAllActionBuilder(table).build();
+	}
+
+	@Override
+	public IActionBuilder packSelectedActionBuilder(final IBeanTable<BEAN_TYPE> table) {
+		Assert.paramNotNull(table, "table");
+		IActionBuilder builder = new BeanTablePackSelectedActionBuilder(table);
+		for (final IBeanTableMenuInterceptor<BEAN_TYPE> interceptor : interceptors) {
+			if (builder != null) {
+				builder = interceptor.packSelectedActionBuilder(table, builder);
+			}
+			else {
+				break;
+			}
+		}
+		return builder;
+	}
+
+	@Override
+	public IAction packSelectedAction(final IBeanTable<BEAN_TYPE> table) {
+		return packSelectedActionBuilder(table).build();
+	}
+
+	@Override
+	public IActionBuilder clearCurrentSortActionBuilder(final IBeanTableModel<BEAN_TYPE> model) {
+		Assert.paramNotNull(model, "model");
+		IActionBuilder builder = new BeanTableClearCurrentSortActionBuilder(model);
+		for (final IBeanTableMenuInterceptor<BEAN_TYPE> interceptor : interceptors) {
+			if (builder != null) {
+				builder = interceptor.clearCurrentSortActionBuilder(model, builder);
+			}
+			else {
+				break;
+			}
+		}
+		return builder;
+	}
+
+	@Override
+	public IAction clearCurrentSortAction(final IBeanTableModel<BEAN_TYPE> model) {
+		return clearCurrentSortActionBuilder(model).build();
+	}
+
+	@Override
+	public IActionBuilder clearDefaultSortActionBuilder(final IBeanTableModel<BEAN_TYPE> model) {
+		Assert.paramNotNull(model, "model");
+		IActionBuilder builder = new BeanTableClearDefaultSortActionBuilder(model);
+		for (final IBeanTableMenuInterceptor<BEAN_TYPE> interceptor : interceptors) {
+			if (builder != null) {
+				builder = interceptor.clearDefaultSortActionBuilder(model, builder);
+			}
+			else {
+				break;
+			}
+		}
+		return builder;
+	}
+
+	@Override
+	public IAction clearDefaultSortAction(final IBeanTableModel<BEAN_TYPE> model) {
+		return clearDefaultSortActionBuilder(model).build();
+	}
+
+	@Override
+	public IActionBuilder addIncludingFilterActionBuilder(final IBeanTableModel<BEAN_TYPE> model, final int columnIndex) {
+		IActionBuilder builder = new BeanTableAddIncludingFilterActionBuilder(model, columnIndex);
+		for (final IBeanTableMenuInterceptor<BEAN_TYPE> interceptor : interceptors) {
+			if (builder != null) {
+				builder = interceptor.addIncludingFilterActionBuilder(model, columnIndex, builder);
+			}
+			else {
+				break;
+			}
+		}
+		return builder;
+	}
+
+	@Override
+	public IAction addIncludingFilterAction(final IBeanTableModel<BEAN_TYPE> model, final int columnIndex) {
+		return addIncludingFilterActionBuilder(model, columnIndex).build();
+	}
+
+	@Override
+	public IActionBuilder addExcludingFilterActionBuilder(final IBeanTableModel<BEAN_TYPE> model, final int columnIndex) {
+		IActionBuilder builder = new BeanTableAddExcludingFilterActionBuilder(model, columnIndex);
+		for (final IBeanTableMenuInterceptor<BEAN_TYPE> interceptor : interceptors) {
+			if (builder != null) {
+				builder = interceptor.addExcludingFilterActionBuilder(model, columnIndex, builder);
+			}
+			else {
+				break;
+			}
+		}
+		return builder;
+	}
+
+	@Override
+	public IAction addExcludingFilterAction(final IBeanTableModel<BEAN_TYPE> model, final int columnIndex) {
+		return addExcludingFilterActionBuilder(model, columnIndex).build();
+	}
+
+	@Override
+	public IActionBuilder addCustomFilterActionBuilder(final IBeanTableModel<BEAN_TYPE> model, final int columnIndex) {
+		IActionBuilder builder = new BeanTableAddCustomFilterActionBuilder(model, columnIndex);
+		for (final IBeanTableMenuInterceptor<BEAN_TYPE> interceptor : interceptors) {
+			if (builder != null) {
+				builder = interceptor.addCustomFilterActionBuilder(model, columnIndex, builder);
+			}
+			else {
+				break;
+			}
+		}
+		return builder;
+	}
+
+	@Override
+	public IAction addCustomFilterAction(final IBeanTableModel<BEAN_TYPE> model, final int columnIndex) {
+		return addCustomFilterActionBuilder(model, columnIndex).build();
+	}
+
+	@Override
+	public IActionBuilder addFilterActionBuilder(
+		final IBeanTableModel<BEAN_TYPE> model,
+		final IFilterType filterType,
+		final int columnIndex) {
+		IActionBuilder builder = new BeanTableAddFilterActionBuilder(model, filterType, columnIndex);
+		for (final IBeanTableMenuInterceptor<BEAN_TYPE> interceptor : interceptors) {
+			if (builder != null) {
+				builder = interceptor.addFilterActionBuilder(model, filterType, columnIndex, builder);
+			}
+			else {
+				break;
+			}
+		}
+		return builder;
+	}
+
+	@Override
+	public IAction addFilterAction(final IBeanTableModel<BEAN_TYPE> model, final IFilterType filterType, final int columnIndex) {
+		return addFilterActionBuilder(model, filterType, columnIndex).build();
+	}
+
+	@Override
+	public IActionBuilder editFilterActionBuilder(final IBeanTableModel<BEAN_TYPE> model) {
+		IActionBuilder builder = new BeanTableEditFilterActionBuilder(model);
+		for (final IBeanTableMenuInterceptor<BEAN_TYPE> interceptor : interceptors) {
+			if (builder != null) {
+				builder = interceptor.editFilterActionBuilder(model, builder);
+			}
+			else {
+				break;
+			}
+		}
+		return builder;
+	}
+
+	@Override
+	public IAction editFilterAction(final IBeanTableModel<BEAN_TYPE> model) {
+		return editFilterActionBuilder(model).build();
+	}
+
+	@Override
+	public IActionBuilder deleteFilterActionBuilder(final IBeanTableModel<BEAN_TYPE> model) {
+		IActionBuilder builder = new BeanTableDeleteFilterActionBuilder(model);
+		for (final IBeanTableMenuInterceptor<BEAN_TYPE> interceptor : interceptors) {
+			if (builder != null) {
+				builder = interceptor.deleteFilterActionBuilder(model, builder);
+			}
+			else {
+				break;
+			}
+		}
+		return builder;
+	}
+
+	@Override
+	public IAction deleteFilterAction(final IBeanTableModel<BEAN_TYPE> model) {
+		return deleteFilterActionBuilder(model).build();
+	}
+
+	@Override
+	public IActionBuilder deleteColumnFiltersActionBuilder(final IBeanTableModel<BEAN_TYPE> model, final int columnIndex) {
+		IActionBuilder builder = new BeanTableDeleteColumnFiltersActionBuilder(model, columnIndex);
+		for (final IBeanTableMenuInterceptor<BEAN_TYPE> interceptor : interceptors) {
+			if (builder != null) {
+				builder = interceptor.deleteColumnFiltersActionBuilder(model, columnIndex, builder);
+			}
+			else {
+				break;
+			}
+		}
+		return builder;
+	}
+
+	@Override
+	public IAction deleteColumnFiltersAction(final IBeanTableModel<BEAN_TYPE> model, final int columnIndex) {
+		return deleteColumnFiltersActionBuilder(model, columnIndex).build();
+	}
+
+	@Override
+	public ICreatorActionBuilder creatorActionBuilder(final IBeanTable<BEAN_TYPE> table) {
+		Assert.paramNotNull(table, "table");
+		Assert.paramNotNull(table.getModel(), "table.getModel()");
+		Assert.paramNotNull(table.getModel().getCreatorService(), "table.getModel().getCreatorService()");
+		ICreatorActionBuilder builder = BeanTableCreatorActionBuilderFactory.createBuilder(table);
+		for (final IBeanTableMenuInterceptor<BEAN_TYPE> interceptor : interceptors) {
+			if (builder != null) {
+				builder = interceptor.creatorActionBuilder(table, builder);
+			}
+			else {
+				break;
+			}
+		}
+		return builder;
+	}
+
+	@Override
+	public IAction creatorAction(final IBeanTable<BEAN_TYPE> table) {
+		return creatorActionBuilder(table).build();
+	}
+
+	@Override
+	public IDeleterActionBuilder<BEAN_TYPE> deleterActionBuilder(final IBeanTable<BEAN_TYPE> table) {
+		Assert.paramNotNull(table, "table");
+		Assert.paramNotNull(table.getModel(), "table.getModel()");
+		Assert.paramNotNull(table.getModel().getDeleterService(), "table.getModel().getDeleterService()");
+		IDeleterActionBuilder<BEAN_TYPE> builder = BeanTableDeleterActionBuilderFactory.createBuilder(table);
+		for (final IBeanTableMenuInterceptor<BEAN_TYPE> interceptor : interceptors) {
+			if (builder != null) {
+				builder = interceptor.deleterActionBuilder(table, builder);
+			}
+			else {
+				break;
+			}
+		}
+		return builder;
+	}
+
+	@Override
+	public IAction deleterAction(final IBeanTable<BEAN_TYPE> table) {
+		return deleterActionBuilder(table).build();
 	}
 
 }

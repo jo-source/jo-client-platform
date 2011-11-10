@@ -30,8 +30,8 @@ package org.jowidgets.cap.ui.impl;
 
 import java.util.List;
 
+import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.image.IconsSmall;
-import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.filter.IFilterSupport;
 import org.jowidgets.cap.ui.api.filter.IFilterType;
@@ -41,22 +41,23 @@ import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.tools.model.item.MenuModel;
 
-final class BeanTableCellFilterMenuModel extends MenuModel {
+final class BeanTableCellFilterMenuModel<BEAN_TYPE> extends MenuModel {
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	BeanTableCellFilterMenuModel(final IBeanTable<?> table, final int columnIndex) {
+	BeanTableCellFilterMenuModel(
+		final IBeanTable<BEAN_TYPE> table,
+		final int columnIndex,
+		final IBeanTableMenuFactory<BEAN_TYPE> menuFactory) {
 		super(Messages.getString("BeanTableCellFilterMenuModel.filter"), IconsSmall.FILTER); //$NON-NLS-1$
 
-		final IBeanTableModel<?> model = table.getModel();
-
-		final IBeanTableMenuFactory menuFactory = CapUiToolkit.beanTableMenuFactory();
+		final IBeanTableModel<BEAN_TYPE> model = table.getModel();
 
 		final IAttribute<Object> attribute = model.getAttribute(columnIndex);
 		if (attribute.isFilterable()) {
-			addAction(menuFactory.addIncludingFilterAction(model, columnIndex));
-			addAction(menuFactory.addExcludingFilterAction(model, columnIndex));
+			tryAddAction(menuFactory.addIncludingFilterAction(model, columnIndex));
+			tryAddAction(menuFactory.addExcludingFilterAction(model, columnIndex));
 			if (hasCustomFilterSupport(attribute)) {
-				addAction(menuFactory.addCustomFilterAction(model, columnIndex));
+				tryAddAction(menuFactory.addCustomFilterAction(model, columnIndex));
 			}
 			final List<IFilterType> filterTypes = attribute.getSupportedFilterTypes();
 			if (filterTypes.size() > 0) {
@@ -73,8 +74,8 @@ final class BeanTableCellFilterMenuModel extends MenuModel {
 			}
 			addSeparator();
 		}
-		addAction(menuFactory.editFilterAction(model));
-		addAction(menuFactory.deleteFilterAction(model));
+		tryAddAction(menuFactory.editFilterAction(model));
+		tryAddAction(menuFactory.deleteFilterAction(model));
 		addSeparator();
 		addItem(table.getSearchFilterItemModel());
 	}
@@ -83,6 +84,12 @@ final class BeanTableCellFilterMenuModel extends MenuModel {
 		final IFilterSupport<Object> filterSupport = attribute.getCurrentControlPanel().getFilterSupport();
 		final IIncludingFilterFactory<Object> includingFilterFactory = filterSupport.getIncludingFilterFactory();
 		return attribute.getSupportedFilterTypes().contains(includingFilterFactory.getFilterType());
+	}
+
+	private void tryAddAction(final IAction action) {
+		if (action != null) {
+			addAction(action);
+		}
 	}
 
 }

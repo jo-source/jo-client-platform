@@ -30,6 +30,7 @@ package org.jowidgets.cap.ui.impl.widgets;
 
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,6 +56,7 @@ import org.jowidgets.cap.ui.api.filter.FilterType;
 import org.jowidgets.cap.ui.api.sort.ISortModel;
 import org.jowidgets.cap.ui.api.table.IBeanTableConfig;
 import org.jowidgets.cap.ui.api.table.IBeanTableMenuFactory;
+import org.jowidgets.cap.ui.api.table.IBeanTableMenuInterceptor;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
@@ -110,6 +112,7 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 	private final boolean hasDefaultMenus;
 	private final boolean hasDefaultCreatorAction;
 	private final boolean hasDefaultDeleterAction;
+	private final IBeanTableMenuFactory<BEAN_TYPE> menuFactory;
 
 	private IAction creatorAction;
 	private IAction deleteAction;
@@ -122,6 +125,13 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 		composite.setLayout(new MigLayoutDescriptor("hidemode 2", "0[grow, 0::]0", "0[]0[grow, 0::]0[]0"));
 
 		this.model = bluePrint.getModel();
+		final IBeanTableMenuInterceptor<BEAN_TYPE> menuInterceptor = bluePrint.getMenuInterceptor();
+		if (menuInterceptor != null) {
+			this.menuFactory = CapUiToolkit.beanTableMenuFactory(Collections.singletonList(menuInterceptor));
+		}
+		else {
+			this.menuFactory = CapUiToolkit.beanTableMenuFactory();
+		}
 		final ITableBluePrint tableBp = BPF.table(model.getTableModel());
 		tableBp.setSetup(bluePrint);
 		this.table = composite.add(tableBp, MigLayoutFactory.GROWING_CELL_CONSTRAINTS + ", wrap");
@@ -147,7 +157,6 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 		cellPopupMenuModel.addListModelListener(new CustomMenuModelListener());
 
 		if (bluePrint.hasDefaultMenus()) {
-			final IBeanTableMenuFactory menuFactory = CapUiToolkit.beanTableMenuFactory();
 
 			//table popup menu
 			tablePopupMenuModel.addItem(menuFactory.columnsVisibilityMenu(model));
@@ -211,7 +220,7 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 
 		final IKeyListener keyListener = new KeyAdapter() {
 			@Override
-			public void keyReleased(final IKeyEvent event) {
+			public void keyPressed(final IKeyEvent event) {
 				if (event.getModifier().contains(Modifier.CTRL) && event.getVirtualKey() == VirtualKey.F) {
 					setSearchFilterToolbarVisible(true);
 					searchFilterToolbar.requestSearchFocus();
@@ -321,7 +330,13 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 
 		final IMenuModel menuModel;
 		if (hasDefaultMenus) {
-			menuModel = CapUiToolkit.beanTableMenuFactory().headerPopupMenu(this, index.intValue());
+			final IMenuModel headerPopupMenu = menuFactory.headerPopupMenu(this, index.intValue());
+			if (headerPopupMenu != null) {
+				menuModel = headerPopupMenu;
+			}
+			else {
+				menuModel = new MenuModel();
+			}
 		}
 		else {
 			menuModel = new MenuModel();
@@ -362,10 +377,16 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 
 		final IMenuModel menuModel;
 		if (hasDefaultMenus) {
-			menuModel = CapUiToolkit.beanTableMenuFactory().cellPopupMenu(
+			final IMenuModel cellPopupMenu = menuFactory.cellPopupMenu(
 					this,
 					createHeaderPopupMenuModelUndecorated(index),
 					index.intValue());
+			if (cellPopupMenu != null) {
+				menuModel = cellPopupMenu;
+			}
+			else {
+				menuModel = new MenuModel();
+			}
 		}
 		else {
 			menuModel = new MenuModel();
@@ -536,30 +557,9 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 				return;
 			}
 			else if (hasDefaultMenus && event.getModifiers().contains(Modifier.ALT)) {
-				final IAction filterAction = CapUiToolkit.beanTableMenuFactory().addFilterAction(
-						model,
-						FilterType.ARITHMETIC_FILTER,
-						modelColumn);
-				try {
-					filterAction.execute(new IExecutionContext() {
-						@Override
-						public <VALUE_TYPE> VALUE_TYPE getValue(final ITypedKey<VALUE_TYPE> key) {
-							return null;
-						}
-
-						@Override
-						public IWidget getSource() {
-							return BeanTableImpl.this;
-						}
-
-						@Override
-						public IAction getAction() {
-							return filterAction;
-						}
-					});
-				}
-				catch (final Exception e) {
-					//TODO MG handle exception
+				final IAction filterAction = menuFactory.addFilterAction(model, FilterType.ARITHMETIC_FILTER, modelColumn);
+				if (filterAction != null) {
+					executeAction(filterAction);
 				}
 				return;
 			}

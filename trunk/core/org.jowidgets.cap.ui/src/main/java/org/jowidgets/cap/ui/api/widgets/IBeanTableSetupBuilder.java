@@ -30,6 +30,7 @@ package org.jowidgets.cap.ui.api.widgets;
 
 import org.jowidgets.api.widgets.blueprint.builder.IComponentSetupBuilder;
 import org.jowidgets.api.widgets.descriptor.setup.IComponentSetup;
+import org.jowidgets.cap.ui.api.table.IBeanTableMenuInterceptor;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.common.types.TableSelectionPolicy;
 import org.jowidgets.common.widgets.descriptor.setup.mandatory.Mandatory;
@@ -56,6 +57,8 @@ public interface IBeanTableSetupBuilder<BEAN_TYPE> extends
 
 	IBeanTableSetupBuilder<BEAN_TYPE> setCellMenuInterceptor(ITableMenuCreationInterceptor<BEAN_TYPE> interceptor);
 
+	IBeanTableSetupBuilder<BEAN_TYPE> setMenuInterceptor(IBeanTableMenuInterceptor<BEAN_TYPE> interceptor);
+
 	IBeanTableSetupBuilder<BEAN_TYPE> setSearchFilterToolbarVisible(boolean visible);
 
 	@Mandatory
@@ -80,6 +83,8 @@ public interface IBeanTableSetupBuilder<BEAN_TYPE> extends
 	ITableMenuCreationInterceptor<BEAN_TYPE> getHeaderMenuInterceptor();
 
 	ITableMenuCreationInterceptor<BEAN_TYPE> getCellMenuInterceptor();
+
+	IBeanTableMenuInterceptor<BEAN_TYPE> getMenuInterceptor();
 
 	@Mandatory
 	boolean isSearchFilterToolbarVisible();

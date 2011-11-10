@@ -28,6 +28,9 @@
 
 package org.jowidgets.cap.ui.impl;
 
+import java.util.Collection;
+import java.util.Collections;
+
 import javax.validation.Validation;
 import javax.validation.Validator;
 
@@ -50,6 +53,7 @@ import org.jowidgets.cap.ui.api.lookup.ILookUpCache;
 import org.jowidgets.cap.ui.api.sort.ISortModelConfigBuilder;
 import org.jowidgets.cap.ui.api.table.IBeanTableConfigBuilder;
 import org.jowidgets.cap.ui.api.table.IBeanTableMenuFactory;
+import org.jowidgets.cap.ui.api.table.IBeanTableMenuInterceptor;
 import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
 import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
 import org.jowidgets.cap.ui.api.workbench.ICapWorkbenchToolkit;
@@ -60,7 +64,6 @@ public final class DefaultCapUiToolkit implements ICapUiToolkit {
 	private ICapApiBluePrintFactory bluePrintFactory;
 	private ICapActionFactory actionFactory;
 	private ICapConverterFactory converterFactory;
-	private IBeanTableMenuFactory beanTableMenuFactory;
 	private IExecutionTaskFactory executionTaskFactory;
 	private IBeanKeyFactory beanKeyFactory;
 	private IAttributeToolkit attributeToolkit;
@@ -96,11 +99,15 @@ public final class DefaultCapUiToolkit implements ICapUiToolkit {
 	}
 
 	@Override
-	public IBeanTableMenuFactory beanTableMenuFactory() {
-		if (beanTableMenuFactory == null) {
-			beanTableMenuFactory = new BeanTableMenuFactoryImpl();
-		}
-		return beanTableMenuFactory;
+	public <BEAN_TYPE> IBeanTableMenuFactory<BEAN_TYPE> beanTableMenuFactory(
+		final Collection<IBeanTableMenuInterceptor<BEAN_TYPE>> interceptors) {
+		return new BeanTableMenuFactoryImpl<BEAN_TYPE>(interceptors);
+	}
+
+	@Override
+	public <BEAN_TYPE> IBeanTableMenuFactory<BEAN_TYPE> beanTableMenuFactory() {
+		final Collection<IBeanTableMenuInterceptor<BEAN_TYPE>> interceptors = Collections.emptyList();
+		return beanTableMenuFactory(interceptors);
 	}
 
 	@Override

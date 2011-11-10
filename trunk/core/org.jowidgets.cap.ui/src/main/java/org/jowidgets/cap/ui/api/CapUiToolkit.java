@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.ui.api;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.WeakHashMap;
 
@@ -59,6 +60,7 @@ import org.jowidgets.cap.ui.api.lookup.ILookUpCache;
 import org.jowidgets.cap.ui.api.sort.ISortModelConfigBuilder;
 import org.jowidgets.cap.ui.api.table.IBeanTableConfigBuilder;
 import org.jowidgets.cap.ui.api.table.IBeanTableMenuFactory;
+import org.jowidgets.cap.ui.api.table.IBeanTableMenuInterceptor;
 import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
 import org.jowidgets.cap.ui.api.widgets.IAttributeFilterControlBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanDialogBluePrint;
@@ -126,7 +128,12 @@ public final class CapUiToolkit {
 		return getInstance().converterFactory();
 	}
 
-	public static IBeanTableMenuFactory beanTableMenuFactory() {
+	public static <BEAN_TYPE> IBeanTableMenuFactory<BEAN_TYPE> beanTableMenuFactory(
+		final Collection<IBeanTableMenuInterceptor<BEAN_TYPE>> interceptors) {
+		return getInstance().beanTableMenuFactory(interceptors);
+	}
+
+	public static <BEAN_TYPE> IBeanTableMenuFactory<BEAN_TYPE> beanTableMenuFactory() {
 		return getInstance().beanTableMenuFactory();
 	}
 
