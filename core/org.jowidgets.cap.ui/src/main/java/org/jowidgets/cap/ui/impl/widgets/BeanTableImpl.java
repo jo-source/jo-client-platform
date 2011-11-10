@@ -281,6 +281,7 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 		setStatusBarVisible(true);
 	}
 
+	@SuppressWarnings({"rawtypes", "unchecked"})
 	private void addMenusFromPlugins(
 		final Object entityId,
 		final IMenuModel menuModel,
@@ -291,21 +292,21 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 		propBuilder.add(IBeanTableMenuContributionPlugin.ENTITIY_ID_PROPERTY_KEY, entityId);
 		final IPluginProperties properties = propBuilder.build();
 
-		final List<IBeanTableMenuContributionPlugin> plugins = PluginProvider.getPlugins(
+		final List<IBeanTableMenuContributionPlugin<?>> plugins = PluginProvider.getPlugins(
 				IBeanTableMenuContributionPlugin.ID,
 				properties);
 
 		if (plugins != null) {
 			for (final IBeanTableMenuContributionPlugin plugin : plugins) {
-				final IMenuModel menu = plugin.getTableMenu(properties);
+				final IMenuModel menu = plugin.getTableMenu(properties, this);
 				if (menu != null) {
 					menuModel.addItemsOfModel(menu);
 				}
-				final IMenuModel cellMenu = plugin.getCellMenu(properties);
+				final IMenuModel cellMenu = plugin.getCellMenu(properties, this);
 				if (menu != null) {
 					cellMenuModel.addItemsOfModel(cellMenu);
 				}
-				final IMenuModel headerMenu = plugin.getHeaderMenu(properties);
+				final IMenuModel headerMenu = plugin.getHeaderMenu(properties, this);
 				if (menu != null) {
 					headerMenuModel.addItemsOfModel(headerMenu);
 				}
@@ -313,7 +314,7 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 		}
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({"unchecked", "rawtypes"})
 	private List<IBeanTableMenuInterceptor<BEAN_TYPE>> getMenuInterceptorsFromPlugins(
 		final IBeanTableMenuInterceptor<BEAN_TYPE> initialInterceptor,
 		final Object entityId) {
@@ -328,11 +329,11 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 		propBuilder.add(IBeanTableMenuInterceptorPlugin.ENTITIY_ID_PROPERTY_KEY, entityId);
 		final IPluginProperties properties = propBuilder.build();
 
-		final List<IBeanTableMenuInterceptorPlugin> plugins = PluginProvider.getPlugins(
+		final List<IBeanTableMenuInterceptorPlugin<?>> plugins = PluginProvider.getPlugins(
 				IBeanTableMenuInterceptorPlugin.ID,
 				properties);
 		for (final IBeanTableMenuInterceptorPlugin plugin : plugins) {
-			final IBeanTableMenuInterceptor<?> interceptor = plugin.getMenuInterceptor(properties);
+			final IBeanTableMenuInterceptor<?> interceptor = plugin.getMenuInterceptor(properties, this);
 			if (interceptor != null) {
 				result.add((IBeanTableMenuInterceptor<BEAN_TYPE>) interceptor);
 			}

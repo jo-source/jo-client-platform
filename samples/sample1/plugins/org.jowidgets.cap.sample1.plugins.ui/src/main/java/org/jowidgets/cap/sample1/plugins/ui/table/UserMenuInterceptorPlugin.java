@@ -38,10 +38,11 @@ import org.jowidgets.cap.ui.tools.table.BeanTableMenuInterceptorAdapter;
 import org.jowidgets.examples.common.icons.SilkIcons;
 import org.jowidgets.plugin.api.IPluginProperties;
 
-public class UserMenuInterceptorPlugin extends BeanTableMenuInterceptorAdapter<IUser> implements IBeanTableMenuInterceptorPlugin {
+public class UserMenuInterceptorPlugin extends BeanTableMenuInterceptorAdapter<IUser> implements
+		IBeanTableMenuInterceptorPlugin<IUser> {
 
 	@Override
-	public IBeanTableMenuInterceptor<IUser> getMenuInterceptor(final IPluginProperties properties) {
+	public IBeanTableMenuInterceptor<IUser> getMenuInterceptor(final IPluginProperties properties, final IBeanTable<IUser> table) {
 		return this;
 	}
 
