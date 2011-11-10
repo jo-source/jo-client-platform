@@ -53,7 +53,8 @@ import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.command.ICapActionFactory;
 import org.jowidgets.cap.ui.api.command.IDeleterActionBuilder;
 import org.jowidgets.cap.ui.api.filter.FilterType;
-import org.jowidgets.cap.ui.api.plugin.IBeanTableMenuPlugin;
+import org.jowidgets.cap.ui.api.plugin.IBeanTableMenuContributionPlugin;
+import org.jowidgets.cap.ui.api.plugin.IBeanTableMenuInterceptorPlugin;
 import org.jowidgets.cap.ui.api.sort.ISortModel;
 import org.jowidgets.cap.ui.api.table.IBeanTableConfig;
 import org.jowidgets.cap.ui.api.table.IBeanTableMenuFactory;
@@ -106,10 +107,14 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 	private final IBeanTableModel<BEAN_TYPE> model;
 	private final BeanTableSearchFilterToolbar<BEAN_TYPE> searchFilterToolbar;
 	private final BeanTableStatusBar<BEAN_TYPE> statusBar;
+	private final List<IBeanTableMenuInterceptor<BEAN_TYPE>> menuInterceptors;
 	private final IMenuModel headerPopupMenuModel;
+	private final IMenuModel pluggedHeaderPopupMenuModel;
 	private final IMenuModel cellPopupMenuModel;
+	private final IMenuModel pluggedCellPopupMenuModel;
 	private final IMenuModel customTablePopupMenuModel;
 	private final IMenuModel tablePopupMenuModel;
+	private final IMenuModel pluggedTablePopupMenuModell;
 	private final Map<Integer, IPopupMenu> headerPopupMenus;
 	private final Map<Integer, IPopupMenu> cellPopupMenus;
 	private final ITableMenuCreationInterceptor<BEAN_TYPE> headerMenuInterceptor;
@@ -130,9 +135,7 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 		composite.setLayout(new MigLayoutDescriptor("hidemode 2", "0[grow, 0::]0", "0[]0[grow, 0::]0[]0"));
 
 		this.model = bluePrint.getModel();
-		final List<IBeanTableMenuInterceptor<BEAN_TYPE>> menuInterceptors = getMenuInterceptorsFromPlugins(
-				bluePrint.getMenuInterceptor(),
-				model.getEntityId());
+		this.menuInterceptors = getMenuInterceptorsFromPlugins(bluePrint.getMenuInterceptor(), model.getEntityId());
 		this.menuFactory = CapUiToolkit.beanTableMenuFactory(menuInterceptors);
 
 		final ITableBluePrint tableBp = BPF.table(model.getTableModel());
@@ -142,14 +145,23 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 		this.headerPopupMenus = new HashMap<Integer, IPopupMenu>();
 		this.cellPopupMenus = new HashMap<Integer, IPopupMenu>();
 		this.cellPopupMenuModel = new MenuModel();
+		this.pluggedCellPopupMenuModel = new MenuModel();
 		this.headerPopupMenuModel = new MenuModel();
+		this.pluggedHeaderPopupMenuModel = new MenuModel();
 		this.tablePopupMenuModel = new MenuModel();
 		this.customTablePopupMenuModel = new MenuModel();
+		this.pluggedTablePopupMenuModell = new MenuModel();
 		this.hasDefaultMenus = bluePrint.hasDefaultMenus();
 		this.hasDefaultCreatorAction = bluePrint.hasDefaultCreatorAction();
 		this.hasDefaultDeleterAction = bluePrint.hasDefaultDeleterAction();
 		this.headerMenuInterceptor = bluePrint.getHeaderMenuInterceptor();
 		this.cellMenuInterceptor = bluePrint.getCellMenuInterceptor();
+
+		addMenusFromPlugins(
+				model.getEntityId(),
+				pluggedTablePopupMenuModell,
+				pluggedCellPopupMenuModel,
+				pluggedHeaderPopupMenuModel);
 
 		table.setPopupMenu(tablePopupMenuModel);
 
@@ -191,6 +203,9 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 				deleterActionBuilder.setDeleterService(model.getDeleterService());
 				tablePopupMenuModel.addAction(deleteAction);
 			}
+
+			addMenuModel(tablePopupMenuModel, pluggedTablePopupMenuModell);
+
 			table.setPopupMenu(tablePopupMenuModel);
 		}
 
@@ -266,6 +281,38 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 		setStatusBarVisible(true);
 	}
 
+	private void addMenusFromPlugins(
+		final Object entityId,
+		final IMenuModel menuModel,
+		final IMenuModel cellMenuModel,
+		final IMenuModel headerMenuModel) {
+
+		final IPluginPropertiesBuilder propBuilder = PluginToolkit.pluginPropertiesBuilder();
+		propBuilder.add(IBeanTableMenuContributionPlugin.ENTITIY_ID_PROPERTY_KEY, entityId);
+		final IPluginProperties properties = propBuilder.build();
+
+		final List<IBeanTableMenuContributionPlugin> plugins = PluginProvider.getPlugins(
+				IBeanTableMenuContributionPlugin.ID,
+				properties);
+
+		if (plugins != null) {
+			for (final IBeanTableMenuContributionPlugin plugin : plugins) {
+				final IMenuModel menu = plugin.getMenu(properties);
+				if (menu != null) {
+					menuModel.addItemsOfModel(menu);
+				}
+				final IMenuModel cellMenu = plugin.getCellMenu(properties);
+				if (menu != null) {
+					cellMenuModel.addItemsOfModel(cellMenu);
+				}
+				final IMenuModel headerMenu = plugin.getHeaderMenu(properties);
+				if (menu != null) {
+					headerMenuModel.addItemsOfModel(headerMenu);
+				}
+			}
+		}
+	}
+
 	@SuppressWarnings("unchecked")
 	private List<IBeanTableMenuInterceptor<BEAN_TYPE>> getMenuInterceptorsFromPlugins(
 		final IBeanTableMenuInterceptor<BEAN_TYPE> initialInterceptor,
@@ -278,10 +325,13 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 		}
 
 		final IPluginPropertiesBuilder propBuilder = PluginToolkit.pluginPropertiesBuilder();
-		propBuilder.add(IBeanTableMenuPlugin.ENTITIY_ID_PROPERTY_KEY, entityId);
+		propBuilder.add(IBeanTableMenuInterceptorPlugin.ENTITIY_ID_PROPERTY_KEY, entityId);
 		final IPluginProperties properties = propBuilder.build();
 
-		for (final IBeanTableMenuPlugin plugin : PluginProvider.getPlugins(IBeanTableMenuPlugin.ID, properties)) {
+		final List<IBeanTableMenuInterceptorPlugin> plugins = PluginProvider.getPlugins(
+				IBeanTableMenuInterceptorPlugin.ID,
+				properties);
+		for (final IBeanTableMenuInterceptorPlugin plugin : plugins) {
 			final IBeanTableMenuInterceptor<?> interceptor = plugin.getMenuInterceptor(properties);
 			if (interceptor != null) {
 				result.add((IBeanTableMenuInterceptor<BEAN_TYPE>) interceptor);
@@ -356,7 +406,7 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 
 	private IMenuModel createHeaderPopupMenuModelUndecorated(final Integer index) {
 
-		final IMenuModel menuModel;
+		IMenuModel menuModel;
 		if (hasDefaultMenus) {
 			final IMenuModel headerPopupMenu = menuFactory.headerPopupMenu(this, index.intValue());
 			if (headerPopupMenu != null) {
@@ -374,11 +424,8 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 			headerMenuInterceptor.afterMenuCreated(this, menuModel, index.intValue());
 		}
 
-		if (headerPopupMenuModel.getChildren().size() > 0) {
-			for (final IMenuItemModel itemModel : headerPopupMenuModel.getChildren()) {
-				menuModel.addItem(itemModel);
-			}
-		}
+		addMenuModel(menuModel, headerPopupMenuModel);
+		addMenuModel(menuModel, pluggedHeaderPopupMenuModel);
 
 		return menuModel;
 	}
@@ -403,7 +450,7 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 
 	private IMenuModel createCellPopupMenuModel(final Integer index) {
 
-		final IMenuModel menuModel;
+		IMenuModel menuModel;
 		if (hasDefaultMenus) {
 			final IMenuModel cellPopupMenu = menuFactory.cellPopupMenu(
 					this,
@@ -437,15 +484,22 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 			cellMenuInterceptor.afterMenuCreated(this, menuModel, index.intValue());
 		}
 
-		if (cellPopupMenuModel.getChildren().size() > 0) {
-			for (final IMenuItemModel itemModel : cellPopupMenuModel.getChildren()) {
-				menuModel.addItem(itemModel);
-			}
-		}
+		addMenuModel(menuModel, cellPopupMenuModel);
+		addMenuModel(menuModel, pluggedCellPopupMenuModel);
 
 		menuModel.addDecorator(createDecorator(false));
-
 		return menuModel;
+	}
+
+	private void addMenuModel(final IMenuModel model, final IMenuModel modelToAdd) {
+		if (modelToAdd.getChildren().size() > 0) {
+			if (model.getChildren().size() > 0) {
+				model.addSeparator();
+			}
+			for (final IMenuItemModel itemModel : modelToAdd.getChildren()) {
+				model.addItem(itemModel);
+			}
+		}
 	}
 
 	@Override
