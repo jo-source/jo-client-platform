@@ -33,26 +33,26 @@ import org.jowidgets.cap.ui.api.plugin.IBeanTableMenuContributionPlugin;
 import org.jowidgets.plugin.api.IPluginProperties;
 import org.jowidgets.tools.model.item.MenuModel;
 
-public class UserMenuContributorPlugin implements IBeanTableMenuContributionPlugin {
+public class UserMenuContributionPlugin implements IBeanTableMenuContributionPlugin {
 
 	@Override
 	public IMenuModel getCellMenu(final IPluginProperties properties) {
 		final MenuModel result = new MenuModel();
-		result.addActionItem("Test Cell");
+		//result.addActionItem("Plugged cell action");
 		return result;
 	}
 
 	@Override
 	public IMenuModel getHeaderMenu(final IPluginProperties properties) {
 		final MenuModel result = new MenuModel();
-		result.addActionItem("Test Header");
+		//result.addActionItem("Plugged header action");
 		return result;
 	}
 
 	@Override
-	public IMenuModel getMenu(final IPluginProperties properties) {
+	public IMenuModel getTableMenu(final IPluginProperties properties) {
 		final MenuModel result = new MenuModel();
-		result.addActionItem("Test Menu");
+		//result.addActionItem("Plugged table action");
 		return result;
 	}
 
