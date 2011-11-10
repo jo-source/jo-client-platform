@@ -29,20 +29,21 @@
 package org.jowidgets.cap.ui.api.plugin;
 
 import org.jowidgets.api.model.item.IMenuModel;
+import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.plugin.api.IPluginId;
 import org.jowidgets.plugin.api.IPluginProperties;
 import org.jowidgets.util.ITypedKey;
 
-public interface IBeanTableMenuContributionPlugin {
+public interface IBeanTableMenuContributionPlugin<BEAN_TYPE> {
 
-	IPluginId<IBeanTableMenuContributionPlugin> ID = new IPluginId<IBeanTableMenuContributionPlugin>() {};
+	IPluginId<IBeanTableMenuContributionPlugin<?>> ID = new IPluginId<IBeanTableMenuContributionPlugin<?>>() {};
 
 	ITypedKey<Object> ENTITIY_ID_PROPERTY_KEY = new ITypedKey<Object>() {};
 
-	IMenuModel getCellMenu(IPluginProperties properties);
+	IMenuModel getCellMenu(IPluginProperties properties, IBeanTable<BEAN_TYPE> table);
 
-	IMenuModel getHeaderMenu(IPluginProperties properties);
+	IMenuModel getHeaderMenu(IPluginProperties properties, IBeanTable<BEAN_TYPE> table);
 
-	IMenuModel getTableMenu(IPluginProperties properties);
+	IMenuModel getTableMenu(IPluginProperties properties, IBeanTable<BEAN_TYPE> table);
 
 }
