@@ -46,8 +46,13 @@ public final class PluginToolkitImpl implements IPluginToolkit {
 	}
 
 	@Override
-	public IPluginFilterBuilder pluginFilterBuilder() {
-		return new PluginFilterBuilderImpl();
+	public IPluginFilterBuilder pluginFilterBuilderAnd() {
+		return new PluginFilterBuilderImpl(true);
+	}
+
+	@Override
+	public IPluginFilterBuilder pluginFilterBuilderOr() {
+		return new PluginFilterBuilderImpl(false);
 	}
 
 }

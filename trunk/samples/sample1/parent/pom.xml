@@ -18,6 +18,7 @@
 	    <module>../core/org.jowidgets.cap.sample1.common</module>
 		<module>../core/org.jowidgets.cap.sample1.service</module>
 		<module>../core/org.jowidgets.cap.sample1.ui</module>
+		<module>../plugins/org.jowidgets.cap.sample1.plugins.ui</module>
 		<module>../starter/org.jowidgets.cap.sample1.starter.server</module>
 		<module>../starter/org.jowidgets.cap.sample1.starter.client.common</module>
 		<module>../starter/org.jowidgets.cap.sample1.starter.client.swing</module>

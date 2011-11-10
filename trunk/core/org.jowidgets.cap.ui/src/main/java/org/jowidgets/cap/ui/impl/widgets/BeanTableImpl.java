@@ -30,7 +30,6 @@ package org.jowidgets.cap.ui.impl.widgets;
 
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -55,7 +54,6 @@ import org.jowidgets.cap.ui.api.command.ICapActionFactory;
 import org.jowidgets.cap.ui.api.command.IDeleterActionBuilder;
 import org.jowidgets.cap.ui.api.filter.FilterType;
 import org.jowidgets.cap.ui.api.plugin.IBeanTableMenuPlugin;
-import org.jowidgets.cap.ui.api.plugin.IBeanTableModelPlugin;
 import org.jowidgets.cap.ui.api.sort.ISortModel;
 import org.jowidgets.cap.ui.api.table.IBeanTableConfig;
 import org.jowidgets.cap.ui.api.table.IBeanTableMenuFactory;
@@ -280,13 +278,11 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 		}
 
 		final IPluginPropertiesBuilder propBuilder = PluginToolkit.pluginPropertiesBuilder();
-		propBuilder.add(IBeanTableModelPlugin.ENTITIY_ID_PROPERTY_KEY, entityId);
+		propBuilder.add(IBeanTableMenuPlugin.ENTITIY_ID_PROPERTY_KEY, entityId);
 		final IPluginProperties properties = propBuilder.build();
 
-		for (final IBeanTableMenuPlugin plugin : PluginProvider.getPlugins(
-				IBeanTableMenuPlugin.ID,
-				properties)) {
-			final Collection<IBeanTableMenuInterceptor<?>> interceptor = plugin.getMenuInterceptor(properties);
+		for (final IBeanTableMenuPlugin plugin : PluginProvider.getPlugins(IBeanTableMenuPlugin.ID, properties)) {
+			final IBeanTableMenuInterceptor<?> interceptor = plugin.getMenuInterceptor(properties);
 			if (interceptor != null) {
 				result.add((IBeanTableMenuInterceptor<BEAN_TYPE>) interceptor);
 			}

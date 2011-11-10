@@ -34,6 +34,8 @@ public interface IPluginToolkit {
 
 	IPluginPropertiesBuilder pluginPropertiesBuilder();
 
-	IPluginFilterBuilder pluginFilterBuilder();
+	IPluginFilterBuilder pluginFilterBuilderAnd();
+
+	IPluginFilterBuilder pluginFilterBuilderOr();
 
 }

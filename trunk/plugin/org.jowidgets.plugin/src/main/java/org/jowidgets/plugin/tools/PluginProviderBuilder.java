@@ -29,10 +29,13 @@
 package org.jowidgets.plugin.tools;
 
 import org.jowidgets.plugin.api.IPluginFilter;
+import org.jowidgets.plugin.api.IPluginFilterBuilder;
 import org.jowidgets.plugin.api.IPluginId;
 import org.jowidgets.plugin.api.IPluginProvider;
 import org.jowidgets.plugin.api.IPluginProviderBuilder;
 import org.jowidgets.plugin.api.PluginToolkit;
+import org.jowidgets.util.Assert;
+import org.jowidgets.util.ITypedKey;
 
 public class PluginProviderBuilder implements IPluginProviderBuilder {
 
@@ -53,6 +56,21 @@ public class PluginProviderBuilder implements IPluginProviderBuilder {
 		final PLUGIN_TYPE plugin,
 		final IPluginFilter filter) {
 		builder.addPlugin(id, plugin, filter);
+	}
+
+	public <PLUGIN_TYPE, PROPERTY_VALUE_TYPE> void addPlugin(
+		final IPluginId<? extends PLUGIN_TYPE> id,
+		final PLUGIN_TYPE plugin,
+		final ITypedKey<PROPERTY_VALUE_TYPE> key,
+		final PROPERTY_VALUE_TYPE... propertyValues) {
+		Assert.paramNotEmpty(propertyValues, "propertyValues");
+
+		final IPluginFilterBuilder filterBuilder = PluginToolkit.pluginFilterBuilderOr();
+		for (final PROPERTY_VALUE_TYPE propertyValue : propertyValues) {
+			filterBuilder.addCondition(key, propertyValue);
+		}
+
+		builder.addPlugin(id, plugin, filterBuilder.build());
 	}
 
 	@Override
