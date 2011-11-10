@@ -30,8 +30,9 @@ package org.jowidgets.cap.ui.impl.widgets;
 
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -53,6 +54,8 @@ import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.command.ICapActionFactory;
 import org.jowidgets.cap.ui.api.command.IDeleterActionBuilder;
 import org.jowidgets.cap.ui.api.filter.FilterType;
+import org.jowidgets.cap.ui.api.plugin.IBeanTableMenuPlugin;
+import org.jowidgets.cap.ui.api.plugin.IBeanTableModelPlugin;
 import org.jowidgets.cap.ui.api.sort.ISortModel;
 import org.jowidgets.cap.ui.api.table.IBeanTableConfig;
 import org.jowidgets.cap.ui.api.table.IBeanTableMenuFactory;
@@ -82,6 +85,10 @@ import org.jowidgets.common.widgets.controller.ITableColumnPopupDetectionListene
 import org.jowidgets.common.widgets.controller.ITableColumnPopupEvent;
 import org.jowidgets.common.widgets.controller.ITableSelectionListener;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
+import org.jowidgets.plugin.api.IPluginProperties;
+import org.jowidgets.plugin.api.IPluginPropertiesBuilder;
+import org.jowidgets.plugin.api.PluginProvider;
+import org.jowidgets.plugin.api.PluginToolkit;
 import org.jowidgets.tools.command.ActionWrapper;
 import org.jowidgets.tools.command.ExecutionContextWrapper;
 import org.jowidgets.tools.controller.KeyAdapter;
@@ -125,13 +132,11 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 		composite.setLayout(new MigLayoutDescriptor("hidemode 2", "0[grow, 0::]0", "0[]0[grow, 0::]0[]0"));
 
 		this.model = bluePrint.getModel();
-		final IBeanTableMenuInterceptor<BEAN_TYPE> menuInterceptor = bluePrint.getMenuInterceptor();
-		if (menuInterceptor != null) {
-			this.menuFactory = CapUiToolkit.beanTableMenuFactory(Collections.singletonList(menuInterceptor));
-		}
-		else {
-			this.menuFactory = CapUiToolkit.beanTableMenuFactory();
-		}
+		final List<IBeanTableMenuInterceptor<BEAN_TYPE>> menuInterceptors = getMenuInterceptorsFromPlugins(
+				bluePrint.getMenuInterceptor(),
+				model.getEntityId());
+		this.menuFactory = CapUiToolkit.beanTableMenuFactory(menuInterceptors);
+
 		final ITableBluePrint tableBp = BPF.table(model.getTableModel());
 		tableBp.setSetup(bluePrint);
 		this.table = composite.add(tableBp, MigLayoutFactory.GROWING_CELL_CONSTRAINTS + ", wrap");
@@ -261,6 +266,33 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 
 		setSearchFilterToolbarVisible(bluePrint.isSearchFilterToolbarVisible());
 		setStatusBarVisible(true);
+	}
+
+	@SuppressWarnings("unchecked")
+	private List<IBeanTableMenuInterceptor<BEAN_TYPE>> getMenuInterceptorsFromPlugins(
+		final IBeanTableMenuInterceptor<BEAN_TYPE> initialInterceptor,
+		final Object entityId) {
+
+		final List<IBeanTableMenuInterceptor<BEAN_TYPE>> result = new LinkedList<IBeanTableMenuInterceptor<BEAN_TYPE>>();
+
+		if (initialInterceptor != null) {
+			result.add(initialInterceptor);
+		}
+
+		final IPluginPropertiesBuilder propBuilder = PluginToolkit.pluginPropertiesBuilder();
+		propBuilder.add(IBeanTableModelPlugin.ENTITIY_ID_PROPERTY_KEY, entityId);
+		final IPluginProperties properties = propBuilder.build();
+
+		for (final IBeanTableMenuPlugin plugin : PluginProvider.getPlugins(
+				IBeanTableMenuPlugin.ID,
+				properties)) {
+			final Collection<IBeanTableMenuInterceptor<?>> interceptor = plugin.getMenuInterceptor(properties);
+			if (interceptor != null) {
+				result.add((IBeanTableMenuInterceptor<BEAN_TYPE>) interceptor);
+			}
+		}
+
+		return result;
 	}
 
 	private void executeAction(final IAction action) {
