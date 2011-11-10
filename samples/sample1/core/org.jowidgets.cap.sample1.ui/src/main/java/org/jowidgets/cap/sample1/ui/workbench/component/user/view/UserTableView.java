@@ -83,7 +83,6 @@ public class UserTableView extends AbstractView {
 		toolBar.addAction(createClearAction());
 		toolBar.addAction(createPackAction());
 
-		table.getCellPopMenu().addSeparator();
 		table.getCellPopMenu().addAction(new ChangeGenderAction(tableModel));
 		table.getCellPopMenu().addAction(new ChangeBirthdayAction(tableModel));
 		table.getCellPopMenu().addAction(new LongLastingAction(tableModel));
