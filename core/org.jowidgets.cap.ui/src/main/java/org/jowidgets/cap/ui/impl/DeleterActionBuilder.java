@@ -88,7 +88,7 @@ final class DeleterActionBuilder<BEAN_TYPE> extends AbstractSingleUseBuilder<IAc
 		this.executionInterceptors = new LinkedList<IExecutionInterceptor>();
 		this.exceptionConverter = new DefaultBeanExceptionConverter();
 
-		this.multiSelection = false;
+		this.multiSelection = true;
 		this.autoSelection = true;
 		this.deletionConfirmDialog = true;
 		this.beanModificationStatePolicy = BeanModificationStatePolicy.NO_MODIFICATION;
