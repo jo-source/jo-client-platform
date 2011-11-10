@@ -31,10 +31,20 @@ package org.jowidgets.cap.ui.api.table;
 import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.command.IActionBuilder;
 import org.jowidgets.api.model.item.IMenuModel;
+import org.jowidgets.cap.ui.api.command.ICreatorActionBuilder;
+import org.jowidgets.cap.ui.api.command.IDeleterActionBuilder;
 import org.jowidgets.cap.ui.api.filter.IFilterType;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 
 public interface IBeanTableMenuFactory {
+
+	ICreatorActionBuilder creatorActionBuilder(IBeanTable<?> table);
+
+	IAction creatorAction(IBeanTable<?> table);
+
+	<BEAN_TYPE> IDeleterActionBuilder<BEAN_TYPE> deleterActionBuilder(IBeanTable<BEAN_TYPE> table);
+
+	IAction deleterAction(IBeanTable<?> table);
 
 	IActionBuilder settingsActionBuilder(IBeanTable<?> table);
 

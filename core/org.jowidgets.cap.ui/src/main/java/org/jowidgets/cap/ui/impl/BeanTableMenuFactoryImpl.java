@@ -31,6 +31,8 @@ package org.jowidgets.cap.ui.impl;
 import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.command.IActionBuilder;
 import org.jowidgets.api.model.item.IMenuModel;
+import org.jowidgets.cap.ui.api.command.ICreatorActionBuilder;
+import org.jowidgets.cap.ui.api.command.IDeleterActionBuilder;
 import org.jowidgets.cap.ui.api.filter.IFilterType;
 import org.jowidgets.cap.ui.api.table.IBeanTableMenuFactory;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
@@ -42,6 +44,32 @@ import org.jowidgets.util.NullCompatibleEquivalence;
 final class BeanTableMenuFactoryImpl implements IBeanTableMenuFactory {
 
 	BeanTableMenuFactoryImpl() {}
+
+	@Override
+	public ICreatorActionBuilder creatorActionBuilder(final IBeanTable<?> table) {
+		Assert.paramNotNull(table, "table");
+		Assert.paramNotNull(table.getModel(), "table.getModel()");
+		Assert.paramNotNull(table.getModel().getCreatorService(), "table.getModel().getCreatorService()");
+		return BeanTableCreatorActionBuilderFactory.createBuilder(table);
+	}
+
+	@Override
+	public IAction creatorAction(final IBeanTable<?> table) {
+		return creatorActionBuilder(table).build();
+	}
+
+	@Override
+	public <BEAN_TYPE> IDeleterActionBuilder<BEAN_TYPE> deleterActionBuilder(final IBeanTable<BEAN_TYPE> table) {
+		Assert.paramNotNull(table, "table");
+		Assert.paramNotNull(table.getModel(), "table.getModel()");
+		Assert.paramNotNull(table.getModel().getDeleterService(), "table.getModel().getDeleterService()");
+		return BeanTableDeleterActionBuilderFactory.createBuilder(table);
+	}
+
+	@Override
+	public IAction deleterAction(final IBeanTable<?> table) {
+		return deleterActionBuilder(table).build();
+	}
 
 	@Override
 	public IActionBuilder settingsActionBuilder(final IBeanTable<?> table) {

@@ -30,8 +30,6 @@ package org.jowidgets.cap.ui.impl.widgets;
 
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,10 +50,8 @@ import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.command.ICapActionFactory;
-import org.jowidgets.cap.ui.api.command.ICreatorActionBuilder;
 import org.jowidgets.cap.ui.api.command.IDeleterActionBuilder;
 import org.jowidgets.cap.ui.api.filter.FilterType;
-import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.sort.ISortModel;
 import org.jowidgets.cap.ui.api.table.IBeanTableConfig;
 import org.jowidgets.cap.ui.api.table.IBeanTableMenuFactory;
@@ -65,9 +61,6 @@ import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableSettingsDialog;
 import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
 import org.jowidgets.cap.ui.api.widgets.ITableMenuCreationInterceptor;
-import org.jowidgets.cap.ui.tools.attribute.AcceptEditableAttributesFilter;
-import org.jowidgets.cap.ui.tools.execution.ExecutionInterceptorAdapter;
-import org.jowidgets.cap.ui.tools.model.BeanListModelWrapper;
 import org.jowidgets.common.types.Dimension;
 import org.jowidgets.common.types.IVetoable;
 import org.jowidgets.common.types.Modifier;
@@ -171,14 +164,14 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 
 			final ICapActionFactory actionFactory = CapUiToolkit.actionFactory();
 			if (hasDefaultCreatorAction && model.getCreatorService() != null) {
-				this.creatorAction = createCreatorAction(this);
+				this.creatorAction = menuFactory.creatorAction(this);
 				if (hasDefaultMenus) {
 					tablePopupMenuModel.addSeparator();
 				}
 				tablePopupMenuModel.addAction(creatorAction);
 			}
 			if (hasDefaultDeleterAction && model.getDeleterService() != null) {
-				this.deleteAction = createDeleteAction(this);
+				this.deleteAction = menuFactory.deleterAction(this);
 				if (hasDefaultMenus && !hasDefaultCreatorAction) {
 					tablePopupMenuModel.addSeparator();
 				}
@@ -259,51 +252,6 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 
 		setSearchFilterToolbarVisible(bluePrint.isSearchFilterToolbarVisible());
 		setStatusBarVisible(true);
-	}
-
-	private static <BEAN_TYPE> IAction createCreatorAction(final IBeanTable<BEAN_TYPE> table) {
-		final IBeanTableModel<BEAN_TYPE> model = table.getModel();
-		final IBeanListModel<BEAN_TYPE> wrappedModel = new BeanListModelWrapper<BEAN_TYPE>(model) {
-			@Override
-			public void addBean(final IBeanProxy<BEAN_TYPE> bean) {
-				super.addBean(bean);
-				if (model.getSize() > 0) {
-					model.setSelection(Collections.singletonList(Integer.valueOf(model.getSize() - 1)));
-					table.showSelection();
-				}
-			}
-		};
-		final ICapActionFactory actionFactory = CapUiToolkit.actionFactory();
-		final ICreatorActionBuilder builder = actionFactory.creatorActionBuilder(model.getBeanType(), wrappedModel);
-		builder.setEntityLabelSingular(model.getEntityLabelSingular());
-		builder.setCreatorService(model.getCreatorService());
-		builder.setBeanForm(model.getAttributes(AcceptEditableAttributesFilter.getInstance()));
-		builder.addExecutionInterceptor(new ExecutionInterceptorAdapter() {
-			@Override
-			public void beforeExecution(final IExecutionContext executionContext, final IVetoable continueExecution) {
-				final int pageCount = model.getPageCount();
-				if (pageCount > 0 && !model.isPageCreated(pageCount - 1)) {
-					model.loadPage(pageCount - 1);
-				}
-			}
-		});
-		return builder.build();
-	}
-
-	private static <BEAN_TYPE> IAction createDeleteAction(final IBeanTable<BEAN_TYPE> table) {
-		final IBeanTableModel<BEAN_TYPE> model = table.getModel();
-		final IBeanListModel<BEAN_TYPE> wrappedModel = new BeanListModelWrapper<BEAN_TYPE>(model) {
-			@Override
-			public void removeBeans(final Collection<? extends IBeanProxy<BEAN_TYPE>> beans) {
-				super.removeBeans(beans);
-			}
-		};
-		final ICapActionFactory actionFactory = CapUiToolkit.actionFactory();
-		final IDeleterActionBuilder<BEAN_TYPE> builder = actionFactory.deleterActionBuilder(wrappedModel);
-		builder.setEntityLabelSingular(model.getEntityLabelSingular());
-		builder.setEntityLabelPlural(model.getEntityLabelPlural());
-		builder.setDeleterService(model.getDeleterService());
-		return builder.build();
 	}
 
 	private void executeAction(final IAction action) {
