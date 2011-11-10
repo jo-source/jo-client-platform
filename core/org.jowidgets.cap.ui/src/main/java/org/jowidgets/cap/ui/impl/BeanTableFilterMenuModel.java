@@ -28,26 +28,36 @@
 
 package org.jowidgets.cap.ui.impl;
 
+import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.image.IconsSmall;
-import org.jowidgets.cap.ui.api.CapUiToolkit;
+import org.jowidgets.api.model.item.IMenuItemModel;
 import org.jowidgets.cap.ui.api.table.IBeanTableMenuFactory;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.tools.model.item.MenuModel;
 
-final class BeanTableFilterMenuModel extends MenuModel {
+final class BeanTableFilterMenuModel<BEAN_TYPE> extends MenuModel {
 
-	BeanTableFilterMenuModel(final IBeanTable<?> table) {
+	BeanTableFilterMenuModel(final IBeanTable<BEAN_TYPE> table, final IBeanTableMenuFactory<BEAN_TYPE> menuFactory) {
 		super(Messages.getString("BeanTableFilterMenuModel.filter"), IconsSmall.FILTER); //$NON-NLS-1$
 
-		final IBeanTableMenuFactory menuFactory = CapUiToolkit.beanTableMenuFactory();
+		final IBeanTableModel<BEAN_TYPE> model = table.getModel();
 
-		final IBeanTableModel<?> model = table.getModel();
-
-		addAction(menuFactory.editFilterAction(model));
-		addAction(menuFactory.deleteFilterAction(model));
+		tryAddAction(menuFactory.editFilterAction(model));
+		tryAddAction(menuFactory.deleteFilterAction(model));
 		addSeparator();
-		addItem(table.getSearchFilterItemModel());
+		tryAddItem(table.getSearchFilterItemModel());
 	}
 
+	private void tryAddAction(final IAction action) {
+		if (action != null) {
+			addAction(action);
+		}
+	}
+
+	private void tryAddItem(final IMenuItemModel item) {
+		if (item != null) {
+			addItem(item);
+		}
+	}
 }

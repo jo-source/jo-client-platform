@@ -36,104 +36,104 @@ import org.jowidgets.cap.ui.api.command.IDeleterActionBuilder;
 import org.jowidgets.cap.ui.api.filter.IFilterType;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 
-public interface IBeanTableMenuFactory {
+public interface IBeanTableMenuFactory<BEAN_TYPE> {
 
-	ICreatorActionBuilder creatorActionBuilder(IBeanTable<?> table);
+	IMenuModel headerPopupMenu(IBeanTable<BEAN_TYPE> table, int columnIndex);
 
-	IAction creatorAction(IBeanTable<?> table);
+	IMenuModel cellPopupMenu(IBeanTable<BEAN_TYPE> table, final IMenuModel headerPopupMenuModel, int columnIndex);
 
-	<BEAN_TYPE> IDeleterActionBuilder<BEAN_TYPE> deleterActionBuilder(IBeanTable<BEAN_TYPE> table);
+	IMenuModel columnsVisibilityMenu(IBeanTableModel<BEAN_TYPE> model);
 
-	IAction deleterAction(IBeanTable<?> table);
+	IMenuModel filterMenu(IBeanTable<BEAN_TYPE> table);
 
-	IActionBuilder settingsActionBuilder(IBeanTable<?> table);
+	IMenuModel filterCellMenu(IBeanTable<BEAN_TYPE> table, int columnIndex);
 
-	IAction settingsAction(IBeanTable<?> table);
+	IMenuModel filterHeaderMenu(IBeanTable<BEAN_TYPE> table, int columnIndex);
 
-	IActionBuilder hideColumnActionBuilder(IBeanTable<?> table, int columnIndex);
-
-	IAction hideColumnAction(IBeanTable<?> table, int columnIndex);
-
-	IActionBuilder showAllColumnsActionBuilder(IBeanTable<?> table);
-
-	IAction showAllColumnsAction(IBeanTable<?> table);
-
-	IActionBuilder packAllActionBuilder(IBeanTable<?> table);
-
-	IAction packAllAction(IBeanTable<?> table);
-
-	IActionBuilder packSelectedActionBuilder(IBeanTable<?> table);
-
-	IAction packSelectedAction(IBeanTable<?> table);
-
-	IActionBuilder clearCurrentSortActionBuilder(IBeanTableModel<?> model);
-
-	IAction clearCurrentSortAction(IBeanTableModel<?> model);
-
-	IActionBuilder clearDefaultSortActionBuilder(IBeanTableModel<?> model);
-
-	IAction clearDefaultSortAction(IBeanTableModel<?> model);
-
-	IActionBuilder addIncludingFilterActionBuilder(IBeanTableModel<?> model, int columnIndex);
-
-	IAction addIncludingFilterAction(IBeanTableModel<?> model, int columnIndex);
-
-	IActionBuilder addExcludingFilterActionBuilder(IBeanTableModel<?> model, int columnIndex);
-
-	IAction addExcludingFilterAction(IBeanTableModel<?> model, int columnIndex);
-
-	IActionBuilder addCustomFilterActionBuilder(IBeanTableModel<?> model, int columnIndex);
-
-	IAction addCustomFilterAction(IBeanTableModel<?> model, int columnIndex);
-
-	IActionBuilder addFilterActionBuilder(IBeanTableModel<?> model, IFilterType filterType, int columnIndex);
-
-	IAction addFilterAction(IBeanTableModel<?> model, IFilterType filterType, int columnIndex);
-
-	IActionBuilder editFilterActionBuilder(IBeanTableModel<?> model);
-
-	IAction editFilterAction(IBeanTableModel<?> model);
-
-	IActionBuilder deleteFilterActionBuilder(IBeanTableModel<?> model);
-
-	IAction deleteFilterAction(IBeanTableModel<?> model);
-
-	IActionBuilder deleteColumnFiltersActionBuilder(IBeanTableModel<?> model, int columnIndex);
-
-	IAction deleteColumnFiltersAction(IBeanTableModel<?> model, int columnIndex);
-
-	IMenuModel headerPopupMenu(IBeanTable<?> table, int columnIndex);
-
-	IMenuModel cellPopupMenu(IBeanTable<?> table, final IMenuModel headerPopupMenuModel, int columnIndex);
-
-	IMenuModel columnsVisibilityMenu(IBeanTableModel<?> model);
-
-	IMenuModel filterMenu(IBeanTable<?> table);
-
-	IMenuModel filterCellMenu(IBeanTable<?> table, int columnIndex);
-
-	IMenuModel filterHeaderMenu(IBeanTable<?> table, int columnIndex);
-
-	IMenuModel alignmentMenu(IBeanTableModel<?> model, int columnIndex);
+	IMenuModel alignmentMenu(IBeanTableModel<BEAN_TYPE> model, int columnIndex);
 
 	/**
 	 * @return The menu for the header format or null, if the header format could not be switched for the column
 	 */
-	IMenuModel headerFormatMenu(IBeanTableModel<?> model, int columnIndex);
+	IMenuModel headerFormatMenu(IBeanTableModel<BEAN_TYPE> model, int columnIndex);
 
 	/**
 	 * @return The menu for the content display format or null, if the content format could not be switched for the column
 	 */
-	IMenuModel contentFormatMenu(IBeanTableModel<?> model, int columnIndex);
+	IMenuModel contentFormatMenu(IBeanTableModel<BEAN_TYPE> model, int columnIndex);
 
 	/**
 	 * @return The menu for the sorting or null, if the column is not sortable
 	 */
-	IMenuModel currentSortMenu(IBeanTableModel<?> model, int columnIndex);
+	IMenuModel currentSortMenu(IBeanTableModel<BEAN_TYPE> model, int columnIndex);
 
 	/**
 	 * @return The menu for the sorting or null, if the column is not sortable
 	 */
-	IMenuModel defaultSortMenu(IBeanTableModel<?> model, int columnIndex);
+	IMenuModel defaultSortMenu(IBeanTableModel<BEAN_TYPE> model, int columnIndex);
+
+	IActionBuilder settingsActionBuilder(IBeanTable<BEAN_TYPE> table);
+
+	IAction settingsAction(IBeanTable<BEAN_TYPE> table);
+
+	IActionBuilder hideColumnActionBuilder(IBeanTable<BEAN_TYPE> table, int columnIndex);
+
+	IAction hideColumnAction(IBeanTable<BEAN_TYPE> table, int columnIndex);
+
+	IActionBuilder showAllColumnsActionBuilder(IBeanTable<BEAN_TYPE> table);
+
+	IAction showAllColumnsAction(IBeanTable<BEAN_TYPE> table);
+
+	IActionBuilder packAllActionBuilder(IBeanTable<BEAN_TYPE> table);
+
+	IAction packAllAction(IBeanTable<BEAN_TYPE> table);
+
+	IActionBuilder packSelectedActionBuilder(IBeanTable<BEAN_TYPE> table);
+
+	IAction packSelectedAction(IBeanTable<BEAN_TYPE> table);
+
+	IActionBuilder clearCurrentSortActionBuilder(IBeanTableModel<BEAN_TYPE> model);
+
+	IAction clearCurrentSortAction(IBeanTableModel<BEAN_TYPE> model);
+
+	IActionBuilder clearDefaultSortActionBuilder(IBeanTableModel<BEAN_TYPE> model);
+
+	IAction clearDefaultSortAction(IBeanTableModel<BEAN_TYPE> model);
+
+	IActionBuilder addIncludingFilterActionBuilder(IBeanTableModel<BEAN_TYPE> model, int columnIndex);
+
+	IAction addIncludingFilterAction(IBeanTableModel<BEAN_TYPE> model, int columnIndex);
+
+	IActionBuilder addExcludingFilterActionBuilder(IBeanTableModel<BEAN_TYPE> model, int columnIndex);
+
+	IAction addExcludingFilterAction(IBeanTableModel<BEAN_TYPE> model, int columnIndex);
+
+	IActionBuilder addCustomFilterActionBuilder(IBeanTableModel<BEAN_TYPE> model, int columnIndex);
+
+	IAction addCustomFilterAction(IBeanTableModel<BEAN_TYPE> model, int columnIndex);
+
+	IActionBuilder addFilterActionBuilder(IBeanTableModel<BEAN_TYPE> model, IFilterType filterType, int columnIndex);
+
+	IAction addFilterAction(IBeanTableModel<BEAN_TYPE> model, IFilterType filterType, int columnIndex);
+
+	IActionBuilder editFilterActionBuilder(IBeanTableModel<BEAN_TYPE> model);
+
+	IAction editFilterAction(IBeanTableModel<BEAN_TYPE> model);
+
+	IActionBuilder deleteFilterActionBuilder(IBeanTableModel<BEAN_TYPE> model);
+
+	IAction deleteFilterAction(IBeanTableModel<BEAN_TYPE> model);
+
+	IActionBuilder deleteColumnFiltersActionBuilder(IBeanTableModel<BEAN_TYPE> model, int columnIndex);
+
+	IAction deleteColumnFiltersAction(IBeanTableModel<BEAN_TYPE> model, int columnIndex);
+
+	ICreatorActionBuilder creatorActionBuilder(IBeanTable<BEAN_TYPE> table);
+
+	IAction creatorAction(IBeanTable<BEAN_TYPE> table);
+
+	IDeleterActionBuilder<BEAN_TYPE> deleterActionBuilder(IBeanTable<BEAN_TYPE> table);
+
+	IAction deleterAction(IBeanTable<BEAN_TYPE> table);
 
 }

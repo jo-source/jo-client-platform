@@ -28,6 +28,8 @@
 
 package org.jowidgets.cap.ui.api;
 
+import java.util.Collection;
+
 import javax.validation.Validator;
 
 import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
@@ -48,6 +50,7 @@ import org.jowidgets.cap.ui.api.lookup.ILookUpCache;
 import org.jowidgets.cap.ui.api.sort.ISortModelConfigBuilder;
 import org.jowidgets.cap.ui.api.table.IBeanTableConfigBuilder;
 import org.jowidgets.cap.ui.api.table.IBeanTableMenuFactory;
+import org.jowidgets.cap.ui.api.table.IBeanTableMenuInterceptor;
 import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
 import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
 import org.jowidgets.cap.ui.api.workbench.ICapWorkbenchToolkit;
@@ -60,7 +63,10 @@ public interface ICapUiToolkit {
 
 	ICapConverterFactory converterFactory();
 
-	IBeanTableMenuFactory beanTableMenuFactory();
+	<BEAN_TYPE> IBeanTableMenuFactory<BEAN_TYPE> beanTableMenuFactory(
+		Collection<IBeanTableMenuInterceptor<BEAN_TYPE>> interceptors);
+
+	<BEAN_TYPE> IBeanTableMenuFactory<BEAN_TYPE> beanTableMenuFactory();
 
 	IDisplayFormatFactory displayFormatFactory();
 
