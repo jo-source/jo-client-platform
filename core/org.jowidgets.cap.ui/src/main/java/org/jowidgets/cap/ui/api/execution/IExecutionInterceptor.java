@@ -55,7 +55,7 @@ public interface IExecutionInterceptor {
 
 	/**
 	 * Will be invoked after the execution was prepared and before (potential asynchronous) execution
-	 * service(s) will been started.
+	 * service(s) will be started.
 	 * 
 	 * @param executionContext
 	 */

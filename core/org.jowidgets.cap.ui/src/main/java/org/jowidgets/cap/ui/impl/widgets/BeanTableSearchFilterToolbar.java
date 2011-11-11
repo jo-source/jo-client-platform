@@ -98,7 +98,7 @@ final class BeanTableSearchFilterToolbar<BEAN_TYPE> {
 		this.attributes = model.getAttributes();
 
 		this.toolbar = composite.add(0, BPF.composite(), "growx, w 0::, wrap");
-		toolbar.setLayout(new MigLayoutDescriptor("0[][][grow]0", "0[grow]1"));
+		toolbar.setLayout(new MigLayoutDescriptor("0[][][grow]0", "0[grow]1[]0"));
 		toolbar.setVisible(false);
 
 		final IToolBar toolBar1 = toolbar.add(BPF.toolBar(), "");
@@ -110,7 +110,8 @@ final class BeanTableSearchFilterToolbar<BEAN_TYPE> {
 		toolBar1.pack();
 
 		toolbar.add(BPF.textLabel().setText(Messages.getString("BeanTableSearchFilterToolbar.search_filter")), "");
-		this.textField = toolbar.add(BPF.textField(), "growx, w 100::");
+		this.textField = toolbar.add(BPF.textField(), "growx, w 100::, wrap");
+		toolbar.add(BPF.separator(), "growx, span 3, w 0::");
 		toolbar.layout();
 
 		closeButton.addActionListener(new IActionListener() {
@@ -186,7 +187,7 @@ final class BeanTableSearchFilterToolbar<BEAN_TYPE> {
 		textField.requestFocus();
 	}
 
-	ICheckedItemModel getSearchFilterItemModel() {
+	ICheckedItemModel getItemModel() {
 		return searchFilterItemModel;
 	}
 

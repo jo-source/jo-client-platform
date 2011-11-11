@@ -177,13 +177,23 @@ final class BeanSelectionTableImpl<BEAN_TYPE> extends AbstractInputControl<List<
 	}
 
 	@Override
+	public void setFilterToolbarVisible(final boolean visible) {
+		table.setFilterToolbarVisible(visible);
+	}
+
+	@Override
 	public void setStatusBarVisible(final boolean visible) {
 		table.setStatusBarVisible(visible);
 	}
 
 	@Override
-	public ICheckedItemModel getSearchFilterItemModel() {
-		return table.getSearchFilterItemModel();
+	public ICheckedItemModel getSearchFilterToolbarItemModel() {
+		return table.getSearchFilterToolbarItemModel();
+	}
+
+	@Override
+	public ICheckedItemModel getFilterToolbarItemModel() {
+		return table.getFilterToolbarItemModel();
 	}
 
 	@Override

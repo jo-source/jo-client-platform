@@ -105,6 +105,7 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 	private final ITable table;
 	private final IBeanTableModel<BEAN_TYPE> model;
 	private final BeanTableSearchFilterToolbar<BEAN_TYPE> searchFilterToolbar;
+	private final BeanTableFilterToolbar<BEAN_TYPE> filterToolbar;
 	private final BeanTableStatusBar<BEAN_TYPE> statusBar;
 	private final List<IBeanTableMenuInterceptor<BEAN_TYPE>> menuInterceptors;
 	private final IMenuModel headerPopupMenuModel;
@@ -139,7 +140,11 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 
 		final ITableBluePrint tableBp = BPF.table(model.getTableModel());
 		tableBp.setSetup(bluePrint);
-		this.table = composite.add(tableBp, MigLayoutFactory.GROWING_CELL_CONSTRAINTS + ", wrap");
+
+		final IComposite contentComposite = composite.add(BPF.composite(), MigLayoutFactory.GROWING_CELL_CONSTRAINTS + ", wrap");
+		contentComposite.setLayout(new MigLayoutDescriptor("hidemode 2", "0[]0[grow, 0::]0", "0[grow, 0::]0"));
+
+		this.table = contentComposite.add(tableBp, MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
 
 		this.headerPopupMenus = new HashMap<Integer, IPopupMenu>();
 		this.cellPopupMenus = new HashMap<Integer, IPopupMenu>();
@@ -165,6 +170,7 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 		table.setPopupMenu(tablePopupMenuModel);
 
 		this.searchFilterToolbar = new BeanTableSearchFilterToolbar<BEAN_TYPE>(composite, this);
+		this.filterToolbar = new BeanTableFilterToolbar<BEAN_TYPE>(contentComposite, this, menuFactory);
 		this.statusBar = new BeanTableStatusBar<BEAN_TYPE>(composite, this);
 
 		headerPopupMenuModel.addListModelListener(new CustomMenuModelListener());
@@ -545,13 +551,23 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 	}
 
 	@Override
+	public void setFilterToolbarVisible(final boolean visible) {
+		filterToolbar.setVisible(visible);
+	}
+
+	@Override
 	public void setStatusBarVisible(final boolean visible) {
 		statusBar.setVisible(visible);
 	}
 
 	@Override
-	public ICheckedItemModel getSearchFilterItemModel() {
-		return searchFilterToolbar.getSearchFilterItemModel();
+	public ICheckedItemModel getSearchFilterToolbarItemModel() {
+		return searchFilterToolbar.getItemModel();
+	}
+
+	@Override
+	public ICheckedItemModel getFilterToolbarItemModel() {
+		return filterToolbar.getItemModel();
 	}
 
 	@Override
