@@ -31,9 +31,7 @@ package org.jowidgets.cap.ui.impl.workbench;
 import org.jowidgets.api.widgets.IContainer;
 import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
-import org.jowidgets.cap.ui.api.model.LinkType;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
-import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.tools.layout.MigLayoutFactory;
 import org.jowidgets.workbench.api.IViewContext;
@@ -41,18 +39,11 @@ import org.jowidgets.workbench.tools.AbstractView;
 
 public class LinkedEntityTableView extends AbstractView {
 
-	private final IBeanTableModel<Object> model;
 	private final IBeanTable<Object> table;
 
-	public LinkedEntityTableView(
-		final IViewContext context,
-		final IBeanTableModel<?> parentTable,
-		final IEntityLinkDescriptor link) {
+	public LinkedEntityTableView(final IViewContext context, final IBeanTableModel<Object> model, final IEntityLinkDescriptor link) {
 		final IContainer container = context.getContainer();
 		container.setLayout(MigLayoutFactory.growingInnerCellLayout());
-		final IBeanTableModelBuilder<Object> builder = CapUiToolkit.beanTableModelBuilder(link.getLinkedTypeId());
-		builder.setParent(parentTable, LinkType.SELECTION_ALL);
-		this.model = builder.build();
 		this.table = container.add(CapUiToolkit.bluePrintFactory().beanTable(model), MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
 		model.load();
 	}

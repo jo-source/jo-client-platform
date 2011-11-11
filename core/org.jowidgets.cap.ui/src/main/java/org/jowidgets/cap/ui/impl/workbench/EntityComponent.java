@@ -46,7 +46,9 @@ import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
 import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.command.IDataModelAction;
+import org.jowidgets.cap.ui.api.model.LinkType;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
+import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableView;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableViewListener;
@@ -94,8 +96,12 @@ public class EntityComponent extends AbstractComponent implements IComponent {
 					final String linkedViewId = LINKED_TABLE_VIEW_ID + i;
 					links.put(linkedViewId, link);
 					i++;
-					componentContext.setLayout(new EntityComponentMasterDetailLinksDetailLayout(entityClass, links).getLayout());
+
+					final IBeanTableModelBuilder<Object> builder = CapUiToolkit.beanTableModelBuilder(link.getLinkedTypeId());
+					builder.setParent(tableModel, LinkType.SELECTION_ALL);
+					linkedModels.put(link.getLinkedTypeId(), builder.build());
 				}
+				componentContext.setLayout(new EntityComponentMasterDetailLinksDetailLayout(entityClass, links).getLayout());
 			}
 			else {
 				componentContext.setLayout(new EntityComponentMasterDetailLayout(entityClass).getLayout());
@@ -125,9 +131,11 @@ public class EntityComponent extends AbstractComponent implements IComponent {
 			return multiDetailView;
 		}
 		else if (links.containsKey(viewId)) {
-			final IEntityLinkDescriptor linkDescriptor = links.get(viewId);
-			final LinkedEntityTableView result = new LinkedEntityTableView(context, tableModel, linkDescriptor);
-			linkedModels.put(linkDescriptor.getLinkedTypeId(), result.getTable().getModel());
+			final IEntityLinkDescriptor link = links.get(viewId);
+			final LinkedEntityTableView result = new LinkedEntityTableView(
+				context,
+				linkedModels.get(link.getLinkedTypeId()),
+				link);
 			registerTableView(result);
 			return result;
 		}

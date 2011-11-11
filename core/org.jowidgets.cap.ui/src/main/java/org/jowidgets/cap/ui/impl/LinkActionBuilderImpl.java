@@ -49,6 +49,7 @@ import org.jowidgets.cap.ui.api.execution.BeanMessageStatePolicy;
 import org.jowidgets.cap.ui.api.execution.BeanModificationStatePolicy;
 import org.jowidgets.cap.ui.api.execution.IExecutionInterceptor;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
+import org.jowidgets.cap.ui.api.model.IDataModel;
 import org.jowidgets.common.image.IImageConstant;
 import org.jowidgets.common.types.Accelerator;
 import org.jowidgets.common.types.Modifier;
@@ -78,6 +79,7 @@ final class LinkActionBuilderImpl<BEAN_TYPE> extends AbstractSingleUseBuilder<IA
 	private BeanModificationStatePolicy beanModificationStatePolicy;
 	private BeanMessageStatePolicy beanMessageStatePolicy;
 	private IBeanExecptionConverter exceptionConverter;
+	private IDataModel linkedDataModel;
 
 	LinkActionBuilderImpl(final IBeanListModel<BEAN_TYPE> model) {
 		Assert.paramNotNull(model, "model");
@@ -264,8 +266,16 @@ final class LinkActionBuilderImpl<BEAN_TYPE> extends AbstractSingleUseBuilder<IA
 
 	@Override
 	public ILinkActionBuilder<BEAN_TYPE> addExecutionInterceptor(final IExecutionInterceptor interceptor) {
+		checkExhausted();
 		Assert.paramNotNull(interceptor, "interceptor");
 		executionInterceptors.add(interceptor);
+		return this;
+	}
+
+	@Override
+	public ILinkActionBuilder<BEAN_TYPE> setLinkedDataModel(final IDataModel model) {
+		checkExhausted();
+		this.linkedDataModel = model;
 		return this;
 	}
 
@@ -295,6 +305,7 @@ final class LinkActionBuilderImpl<BEAN_TYPE> extends AbstractSingleUseBuilder<IA
 		builder.setText(getText());
 		builder.setCommand((ICommand) new BeanLinkCommand<BEAN_TYPE>(
 			model,
+			linkedDataModel,
 			linkCreatorService,
 			linkableTableEntityId,
 			linkableReaderService,

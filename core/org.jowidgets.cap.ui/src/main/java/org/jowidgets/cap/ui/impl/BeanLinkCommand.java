@@ -62,6 +62,7 @@ import org.jowidgets.cap.ui.api.execution.BeanSelectionPolicy;
 import org.jowidgets.cap.ui.api.execution.IExecutionInterceptor;
 import org.jowidgets.cap.ui.api.execution.IExecutionTask;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
+import org.jowidgets.cap.ui.api.model.IDataModel;
 import org.jowidgets.cap.ui.api.model.LinkType;
 import org.jowidgets.cap.ui.api.table.IBeanTableConfig;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
@@ -83,6 +84,7 @@ final class BeanLinkCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
 	private final String nothingSelectedMessage = Messages.getString("BeanLinkCommand.nothing_selected");
 
 	private final IBeanListModel<BEAN_TYPE> model;
+	private final IDataModel linkedDataModel;
 
 	private final ICreatorService linkCreatorService;
 	private final Object linkableTableEntityId;
@@ -102,6 +104,7 @@ final class BeanLinkCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
 
 	BeanLinkCommand(
 		final IBeanListModel<BEAN_TYPE> model,
+		final IDataModel linkedDataModel,
 		final ICreatorService linkCreatorService,
 		final Object linkableTableEntityId,
 		final IReaderService<Void> linkableReaderService,
@@ -132,6 +135,7 @@ final class BeanLinkCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
 			false);
 
 		this.model = model;
+		this.linkedDataModel = linkedDataModel;
 		this.linkCreatorService = linkCreatorService;
 		this.linkableTableEntityId = linkableTableEntityId;
 		this.linkableReaderService = linkableReaderService;
@@ -336,6 +340,9 @@ final class BeanLinkCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
 			}
 
 			model.fireBeansChanged();
+			if (linkedDataModel != null) {
+				linkedDataModel.load();
+			}
 			executionObservable.fireAfterExecutionSuccess(executionContext);
 		}
 

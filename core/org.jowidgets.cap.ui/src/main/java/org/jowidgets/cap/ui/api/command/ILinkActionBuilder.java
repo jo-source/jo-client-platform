@@ -41,6 +41,7 @@ import org.jowidgets.cap.ui.api.bean.IBeanExecptionConverter;
 import org.jowidgets.cap.ui.api.execution.BeanMessageStatePolicy;
 import org.jowidgets.cap.ui.api.execution.BeanModificationStatePolicy;
 import org.jowidgets.cap.ui.api.execution.IExecutionInterceptor;
+import org.jowidgets.cap.ui.api.model.IDataModel;
 import org.jowidgets.common.image.IImageConstant;
 import org.jowidgets.common.types.Accelerator;
 import org.jowidgets.common.types.Modifier;
@@ -102,6 +103,15 @@ public interface ILinkActionBuilder<BEAN_TYPE> {
 	ILinkActionBuilder<BEAN_TYPE> setExceptionConverter(IBeanExecptionConverter exceptionConverter);
 
 	ILinkActionBuilder<BEAN_TYPE> addExecutionInterceptor(IExecutionInterceptor interceptor);
+
+	/**
+	 * If a linked data model is set, it will be reloaded after a link was created
+	 * 
+	 * @param model The model to set
+	 * 
+	 * @return This builder
+	 */
+	ILinkActionBuilder<BEAN_TYPE> setLinkedDataModel(IDataModel model);
 
 	IAction build();
 
