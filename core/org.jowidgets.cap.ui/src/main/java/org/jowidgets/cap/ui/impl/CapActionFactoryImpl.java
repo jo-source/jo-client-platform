@@ -38,6 +38,7 @@ import org.jowidgets.cap.ui.api.command.IDeleterActionBuilder;
 import org.jowidgets.cap.ui.api.command.IExecutorActionBuilder;
 import org.jowidgets.cap.ui.api.command.ILinkActionBuilder;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
+import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.util.Assert;
 
 final class CapActionFactoryImpl implements ICapActionFactory {
@@ -126,6 +127,43 @@ final class CapActionFactoryImpl implements ICapActionFactory {
 
 	@Override
 	public <BEAN_TYPE> IAction linkAction(final IBeanListModel<BEAN_TYPE> model, final IEntityLinkDescriptor linkDescriptor) {
+		final ILinkActionBuilder<BEAN_TYPE> builder = linkActionBuilder(model, linkDescriptor);
+		if (builder != null) {
+			return builder.build();
+		}
+		else {
+			return null;
+		}
+	}
+
+	@Override
+	public <BEAN_TYPE> ILinkActionBuilder<BEAN_TYPE> linkActionBuilder(final IBeanTableModel<BEAN_TYPE> model) {
+		final ILinkActionBuilder<BEAN_TYPE> builder = linkActionBuilder((IBeanListModel<BEAN_TYPE>) model);
+		if (builder != null) {
+			builder.addExecutionInterceptor(new BeanTableLinkActionExecutionInterceptor<BEAN_TYPE>(model));
+			return builder;
+		}
+		else {
+			return null;
+		}
+	}
+
+	@Override
+	public <BEAN_TYPE> ILinkActionBuilder<BEAN_TYPE> linkActionBuilder(
+		final IBeanTableModel<BEAN_TYPE> model,
+		final IEntityLinkDescriptor linkDescriptor) {
+		final ILinkActionBuilder<BEAN_TYPE> builder = linkActionBuilder((IBeanListModel<BEAN_TYPE>) model, linkDescriptor);
+		if (builder != null) {
+			builder.addExecutionInterceptor(new BeanTableLinkActionExecutionInterceptor<BEAN_TYPE>(model));
+			return builder;
+		}
+		else {
+			return null;
+		}
+	}
+
+	@Override
+	public <BEAN_TYPE> IAction linkAction(final IBeanTableModel<BEAN_TYPE> model, final IEntityLinkDescriptor linkDescriptor) {
 		final ILinkActionBuilder<BEAN_TYPE> builder = linkActionBuilder(model, linkDescriptor);
 		if (builder != null) {
 			return builder.build();
