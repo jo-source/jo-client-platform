@@ -29,24 +29,18 @@
 package org.jowidgets.cap.ui.impl.workbench;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
-import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.api.model.item.IMenuModel;
 import org.jowidgets.api.widgets.IContainer;
 import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
-import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.command.ICapActionFactory;
 import org.jowidgets.cap.ui.api.command.ILinkActionBuilder;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
-import org.jowidgets.cap.ui.tools.execution.ExecutionInterceptorAdapter;
-import org.jowidgets.common.types.IVetoable;
 import org.jowidgets.tools.layout.MigLayoutFactory;
-import org.jowidgets.util.EmptyCheck;
 import org.jowidgets.workbench.api.IViewContext;
 import org.jowidgets.workbench.tools.AbstractView;
 
@@ -81,7 +75,6 @@ public class EntityTableView extends AbstractView {
 			linkActionBuilder = actionFactory.linkActionBuilder(table.getModel(), link);
 			if (linkActionBuilder != null) {
 				linkActionBuilder.setLinkedDataModel(linkedModels.get(link.getLinkedTypeId()));
-				linkActionBuilder.addExecutionInterceptor(new LinkActionExecutionInterceptor(table.getModel()));
 				if (!actionCreated) {
 					tableCellMenu.addSeparator();
 					actionCreated = true;
@@ -91,32 +84,4 @@ public class EntityTableView extends AbstractView {
 		}
 	}
 
-	private static final class LinkActionExecutionInterceptor extends ExecutionInterceptorAdapter {
-
-		private final IBeanTableModel<Object> tableModel;
-
-		private List<IBeanProxy<Object>> lastSelection;
-
-		private LinkActionExecutionInterceptor(final IBeanTableModel<Object> tableModel) {
-			super();
-			this.tableModel = tableModel;
-		}
-
-		@Override
-		public void beforeExecution(final IExecutionContext executionContext, final IVetoable continueExecution) {
-			lastSelection = tableModel.getSelectedBeans();
-		}
-
-		@Override
-		public void onExecutionVeto(final IExecutionContext executionContext) {
-			lastSelection = null;
-		}
-
-		@Override
-		public void afterExecutionSuccess(final IExecutionContext executionContext) {
-			if (!EmptyCheck.isEmpty(lastSelection)) {
-				tableModel.refreshBeans(lastSelection);
-			}
-		}
-	}
 }
