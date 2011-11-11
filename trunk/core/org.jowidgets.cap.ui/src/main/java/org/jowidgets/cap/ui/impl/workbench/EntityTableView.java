@@ -36,15 +36,15 @@ import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.api.model.item.IMenuModel;
 import org.jowidgets.api.widgets.IContainer;
 import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
-import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
+import org.jowidgets.cap.ui.api.command.ICapActionFactory;
 import org.jowidgets.cap.ui.api.command.ILinkActionBuilder;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
+import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
 import org.jowidgets.cap.ui.tools.execution.ExecutionInterceptorAdapter;
 import org.jowidgets.common.types.IVetoable;
-import org.jowidgets.service.api.ServiceProvider;
 import org.jowidgets.tools.layout.MigLayoutFactory;
 import org.jowidgets.util.EmptyCheck;
 import org.jowidgets.workbench.api.IViewContext;
@@ -60,34 +60,33 @@ public class EntityTableView extends AbstractView {
 
 		final IContainer container = context.getContainer();
 		container.setLayout(MigLayoutFactory.growingInnerCellLayout());
-		final IBeanTable<Object> table = container.add(
-				CapUiToolkit.bluePrintFactory().beanTable(tableModel),
-				MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
-		final IEntityService entityService = ServiceProvider.getService(IEntityService.ID);
-		if (entityService != null) {
-			addLinkActions(entityService, table, links, linkedModels);
-		}
+
+		final IBeanTableBluePrint<Object> tableBp = CapUiToolkit.bluePrintFactory().beanTable(tableModel);
+		final IBeanTable<Object> table = container.add(tableBp, MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
+
+		addLinkActions(table, links, linkedModels);
+
 		tableModel.load();
 	}
 
 	private static void addLinkActions(
-		final IEntityService entityService,
 		final IBeanTable<Object> table,
 		final Collection<IEntityLinkDescriptor> links,
 		final Map<Object, IBeanTableModel<Object>> linkedModels) {
 		boolean actionCreated = false;
-		final IMenuModel popMenu = table.getCellPopMenu();
+		final IMenuModel tableCellMenu = table.getCellPopMenu();
+		final ICapActionFactory actionFactory = CapUiToolkit.actionFactory();
 		for (final IEntityLinkDescriptor link : links) {
-			final ILinkActionBuilder<Object> linkActionBuilder = CapUiToolkit.actionFactory().linkActionBuilder(
-					table.getModel(),
-					link);
+			final ILinkActionBuilder<Object> linkActionBuilder;
+			linkActionBuilder = actionFactory.linkActionBuilder(table.getModel(), link);
 			if (linkActionBuilder != null) {
-				linkActionBuilder.addExecutionInterceptor(new LinkActionExecutionInterceptor(table.getModel(), link, linkedModels));
+				linkActionBuilder.setLinkedDataModel(linkedModels.get(link.getLinkedTypeId()));
+				linkActionBuilder.addExecutionInterceptor(new LinkActionExecutionInterceptor(table.getModel()));
 				if (!actionCreated) {
-					popMenu.addSeparator();
+					tableCellMenu.addSeparator();
 					actionCreated = true;
 				}
-				popMenu.addAction(linkActionBuilder.build());
+				tableCellMenu.addAction(linkActionBuilder.build());
 			}
 		}
 	}
@@ -95,19 +94,12 @@ public class EntityTableView extends AbstractView {
 	private static final class LinkActionExecutionInterceptor extends ExecutionInterceptorAdapter {
 
 		private final IBeanTableModel<Object> tableModel;
-		private final IEntityLinkDescriptor link;
-		private final Map<Object, IBeanTableModel<Object>> linkedModels;
 
 		private List<IBeanProxy<Object>> lastSelection;
 
-		private LinkActionExecutionInterceptor(
-			final IBeanTableModel<Object> tableModel,
-			final IEntityLinkDescriptor link,
-			final Map<Object, IBeanTableModel<Object>> linkedModels) {
+		private LinkActionExecutionInterceptor(final IBeanTableModel<Object> tableModel) {
 			super();
 			this.tableModel = tableModel;
-			this.link = link;
-			this.linkedModels = linkedModels;
 		}
 
 		@Override
@@ -122,10 +114,6 @@ public class EntityTableView extends AbstractView {
 
 		@Override
 		public void afterExecutionSuccess(final IExecutionContext executionContext) {
-			final IBeanTableModel<Object> linkedModel = linkedModels.get(link.getLinkedTypeId());
-			if (linkedModel != null) {
-				linkedModel.load();
-			}
 			if (!EmptyCheck.isEmpty(lastSelection)) {
 				tableModel.refreshBeans(lastSelection);
 			}
