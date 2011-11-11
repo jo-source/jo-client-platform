@@ -37,6 +37,7 @@ import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.command.ILinkActionBuilder;
+import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.service.api.ServiceProvider;
 import org.jowidgets.util.EmptyCheck;
 
@@ -48,6 +49,28 @@ final class LinkActionBuilderFactory {
 		final IEntityLinkDescriptor link,
 		final ILinkActionBuilder<BEAN_TYPE> builder) {
 		return createLinkActionBuilder(ServiceProvider.getService(IEntityService.ID), link, builder);
+	}
+
+	static <BEAN_TYPE> ILinkActionBuilder<BEAN_TYPE> createLinkActionBuilder(
+		final IBeanTableModel<BEAN_TYPE> model,
+		final IBeanTableModel<?> linkedModel) {
+		final IEntityService entityService = ServiceProvider.getService(IEntityService.ID);
+		if (entityService != null) {
+			final List<IEntityLinkDescriptor> links = entityService.getEntityLinks(model.getEntityId());
+			if (links != null) {
+				for (final IEntityLinkDescriptor link : links) {
+					if (link.getLinkedTypeId() == linkedModel.getEntityId()) {
+						final ILinkActionBuilder<BEAN_TYPE> result;
+						result = createLinkActionBuilder(link, new LinkActionBuilderImpl<BEAN_TYPE>(model));
+						if (result != null) {
+							result.setLinkedDataModel(linkedModel);
+						}
+						return result;
+					}
+				}
+			}
+		}
+		return null;
 	}
 
 	static <BEAN_TYPE> ILinkActionBuilder<BEAN_TYPE> createLinkActionBuilder(

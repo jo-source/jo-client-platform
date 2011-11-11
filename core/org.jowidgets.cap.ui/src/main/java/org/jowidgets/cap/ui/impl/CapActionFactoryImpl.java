@@ -173,4 +173,31 @@ final class CapActionFactoryImpl implements ICapActionFactory {
 		}
 	}
 
+	@Override
+	public <BEAN_TYPE> ILinkActionBuilder<BEAN_TYPE> linkActionBuilder(
+		final IBeanTableModel<BEAN_TYPE> model,
+		final IBeanTableModel<?> linkedModel) {
+		Assert.paramNotNull(model, "model");
+		Assert.paramNotNull(linkedModel, "linkedModel");
+		final ILinkActionBuilder<BEAN_TYPE> builder = LinkActionBuilderFactory.createLinkActionBuilder(model, linkedModel);
+		if (builder != null) {
+			builder.addExecutionInterceptor(new BeanTableLinkActionExecutionInterceptor<BEAN_TYPE>(model));
+			return builder;
+		}
+		else {
+			return null;
+		}
+	}
+
+	@Override
+	public <BEAN_TYPE> IAction linkAction(final IBeanTableModel<BEAN_TYPE> model, final IBeanTableModel<?> linkedModel) {
+		final ILinkActionBuilder<BEAN_TYPE> builder = linkActionBuilder(model, linkedModel);
+		if (builder != null) {
+			return builder.build();
+		}
+		else {
+			return null;
+		}
+	}
+
 }
