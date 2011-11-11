@@ -53,7 +53,11 @@ public interface IBeanTable<BEAN_TYPE> extends ITable {
 
 	void setSearchFilterToolbarVisible(boolean visible);
 
-	ICheckedItemModel getSearchFilterItemModel();
+	ICheckedItemModel getSearchFilterToolbarItemModel();
+
+	void setFilterToolbarVisible(boolean visible);
+
+	ICheckedItemModel getFilterToolbarItemModel();
 
 	void setStatusBarVisible(boolean visible);
 

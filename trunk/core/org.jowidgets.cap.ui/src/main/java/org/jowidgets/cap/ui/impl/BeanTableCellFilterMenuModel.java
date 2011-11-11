@@ -32,6 +32,7 @@ import java.util.List;
 
 import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.image.IconsSmall;
+import org.jowidgets.api.model.item.IMenuItemModel;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.filter.IFilterSupport;
 import org.jowidgets.cap.ui.api.filter.IFilterType;
@@ -77,7 +78,8 @@ final class BeanTableCellFilterMenuModel<BEAN_TYPE> extends MenuModel {
 		tryAddAction(menuFactory.editFilterAction(model));
 		tryAddAction(menuFactory.deleteFilterAction(model));
 		addSeparator();
-		addItem(table.getSearchFilterItemModel());
+		tryAddItem(table.getFilterToolbarItemModel());
+		tryAddItem(table.getSearchFilterToolbarItemModel());
 	}
 
 	private static boolean hasCustomFilterSupport(final IAttribute<?> attribute) {
@@ -89,6 +91,12 @@ final class BeanTableCellFilterMenuModel<BEAN_TYPE> extends MenuModel {
 	private void tryAddAction(final IAction action) {
 		if (action != null) {
 			addAction(action);
+		}
+	}
+
+	private void tryAddItem(final IMenuItemModel item) {
+		if (item != null) {
+			addItem(item);
 		}
 	}
 

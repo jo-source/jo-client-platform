@@ -46,7 +46,8 @@ final class BeanTableFilterMenuModel<BEAN_TYPE> extends MenuModel {
 		tryAddAction(menuFactory.editFilterAction(model));
 		tryAddAction(menuFactory.deleteFilterAction(model));
 		addSeparator();
-		tryAddItem(table.getSearchFilterItemModel());
+		tryAddItem(table.getFilterToolbarItemModel());
+		tryAddItem(table.getSearchFilterToolbarItemModel());
 	}
 
 	private void tryAddAction(final IAction action) {
