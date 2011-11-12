@@ -33,6 +33,7 @@ import java.beans.PropertyChangeListener;
 import java.lang.reflect.Proxy;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -64,6 +65,8 @@ import org.jowidgets.tools.validation.ValidationCache.IValidationResultCreator;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.EmptyCompatibleEquivalence;
 import org.jowidgets.util.NullCompatibleEquivalence;
+import org.jowidgets.validation.IValidateable;
+import org.jowidgets.validation.IValidationConditionListener;
 import org.jowidgets.validation.IValidationResult;
 import org.jowidgets.validation.IValidationResultBuilder;
 import org.jowidgets.validation.ValidationResult;
@@ -79,7 +82,9 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 	private final BeanMessageStateObservable<BEAN_TYPE> messageStateObservable;
 	private final BeanProcessStateObservable<BEAN_TYPE> processStateObservable;
 	private final BeanValidationStateObservable<BEAN_TYPE> validationStateObservable;
+	private final Set<IValidateable> validatables;
 	private final IExecutionTaskListener executionTaskListener;
+	private final IValidationConditionListener validationConditionListener;
 	private final Map<BeanMessageType, List<IBeanMessage>> messagesMap;
 	private final List<IBeanMessage> messagesList;
 	private final IUiThreadAccess uiThreadAccess;
@@ -113,6 +118,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 		this.processStateObservable = new BeanProcessStateObservable<BEAN_TYPE>();
 		this.messageStateObservable = new BeanMessageStateObservable<BEAN_TYPE>();
 		this.validationStateObservable = new BeanValidationStateObservable<BEAN_TYPE>();
+		this.validatables = new LinkedHashSet<IValidateable>();
 		this.validator = CapUiToolkit.beanValidator();
 		this.validationCache = new ValidationCache(this);
 
@@ -140,6 +146,13 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 				fireProgressPropertyChangeChanged();
 			}
 
+		};
+
+		this.validationConditionListener = new IValidationConditionListener() {
+			@Override
+			public void validationConditionsChanged() {
+				fireValidationConditionsChanged();
+			}
 		};
 	}
 
@@ -291,11 +304,19 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 
 	@Override
 	public IValidationResult createValidationResult() {
-		final IValidationResultBuilder builder = ValidationResult.builder();
-		for (final String propertyName : properties) {
-			builder.addResult(validate(propertyName).withContext(propertyName));
+		for (final IValidateable validateable : validatables) {
+			final IValidationResult validationResult = validateable.validate();
+			if (!validationResult.isValid()) {
+				return validationResult;
+			}
 		}
-		return builder.build();
+		for (final String propertyName : properties) {
+			final IValidationResult validationResult = validate(propertyName);
+			if (!validationResult.isValid()) {
+				return validationResult.withContext(propertyName);
+			}
+		}
+		return ValidationResult.ok();
 	}
 
 	@Override
@@ -333,6 +354,22 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 	@Override
 	public void removeValidationStateListener(final IBeanValidationStateListener<BEAN_TYPE> listener) {
 		validationStateObservable.removeValidationStateListener(listener);
+	}
+
+	@Override
+	public void registerValidatable(final IValidateable validateable) {
+		Assert.paramNotNull(validateable, "validateable");
+		validatables.add(validateable);
+		validateable.addValidationConditionListener(validationConditionListener);
+		fireValidationConditionsChanged();
+	}
+
+	@Override
+	public void unregisterValidatable(final IValidateable validateable) {
+		Assert.paramNotNull(validateable, "validateable");
+		validatables.remove(validateable);
+		validateable.removeValidationConditionListener(validationConditionListener);
+		fireValidationConditionsChanged();
 	}
 
 	@SuppressWarnings("unchecked")

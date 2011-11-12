@@ -169,6 +169,7 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 	@Override
 	public void setValue(final IBeanProxy<BEAN_TYPE> bean) {
 		if (this.bean != null) {
+			this.bean.unregisterValidatable(this);
 			this.bean.removePropertyChangeListener(propertyChangeListenerBinding);
 			this.bean.removePropertyChangeListener(propertyChangeListenerValidation);
 			this.bean.removeModificationStateListener(modificationStateListener);
@@ -225,6 +226,7 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 			bean.addPropertyChangeListener(propertyChangeListenerValidation);
 			bean.addModificationStateListener(modificationStateListener);
 			bean.addProcessStateListener(beanProcessStateListener);
+			bean.registerValidatable(this);
 		}
 		validateAllProperties();
 	}
