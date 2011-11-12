@@ -28,6 +28,8 @@
 
 package org.jowidgets.cap.common.api.bean;
 
+import org.jowidgets.validation.IValidator;
+
 public interface IProperty {
 
 	/**
@@ -95,6 +97,13 @@ public interface IProperty {
 	 * @return The logical cardinality, never null
 	 */
 	Cardinality getCardinality();
+
+	/**
+	 * Gets the validator for the property or null, if no validator is set
+	 * 
+	 * @return The validator or null
+	 */
+	IValidator<Object> getValidator();
 
 	/**
 	 * @return True if the property only has a getter, false otherwise

@@ -30,6 +30,8 @@ package org.jowidgets.cap.common.api.bean;
 
 import java.util.Collection;
 
+import org.jowidgets.validation.IValidator;
+
 public interface IBeanPropertyBuilder {
 
 	IBeanPropertyBuilder setLabel(String labelDefault);
@@ -59,6 +61,10 @@ public interface IBeanPropertyBuilder {
 	IBeanPropertyBuilder setMandatory(boolean mandatoryDefault);
 
 	IBeanPropertyBuilder setElementValueType(Class<?> elementValueType);
+
+	IBeanPropertyBuilder addValidator(IValidator<? extends Object> validator);
+
+	IBeanPropertyBuilder addElementTypeValidator(IValidator<? extends Object> validator);
 
 	IBeanPropertyBuilder setSortable(boolean sortable);
 

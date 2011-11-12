@@ -472,6 +472,8 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 			filterable,
 			valueType,
 			elementValueType,
+			//TODO MG create validator
+			null,
 			currentCardinality,
 			panels,
 			getDisplayFormat(panels));

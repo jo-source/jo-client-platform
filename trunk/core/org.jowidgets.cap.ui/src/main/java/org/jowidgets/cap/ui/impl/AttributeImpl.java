@@ -48,6 +48,7 @@ import org.jowidgets.common.types.AlignmentHorizontal;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.event.ChangeObservable;
 import org.jowidgets.util.event.IChangeListener;
+import org.jowidgets.validation.IValidator;
 
 final class AttributeImpl<ELEMENT_VALUE_TYPE> implements IAttribute<ELEMENT_VALUE_TYPE> {
 
@@ -68,6 +69,7 @@ final class AttributeImpl<ELEMENT_VALUE_TYPE> implements IAttribute<ELEMENT_VALU
 	private final boolean filterable;
 	private final Class<?> valueType;
 	private final Class<ELEMENT_VALUE_TYPE> elementValueType;
+	private final IValidator<Object> validator;
 	private final Cardinality cardinality;
 	private final List<IControlPanelProvider<ELEMENT_VALUE_TYPE>> controlPanels;
 
@@ -96,6 +98,7 @@ final class AttributeImpl<ELEMENT_VALUE_TYPE> implements IAttribute<ELEMENT_VALU
 		final boolean filterable,
 		final Class<?> valueType,
 		final Class<? extends ELEMENT_VALUE_TYPE> elementValueType,
+		final IValidator<Object> validator,
 		final Cardinality cardinality,
 		final List<IControlPanelProvider<? extends ELEMENT_VALUE_TYPE>> controlPanels,
 		final IDisplayFormat displayFormat) {
@@ -144,6 +147,7 @@ final class AttributeImpl<ELEMENT_VALUE_TYPE> implements IAttribute<ELEMENT_VALU
 		this.filterable = filterable;
 		this.valueType = valueType;
 		this.elementValueType = (Class<ELEMENT_VALUE_TYPE>) elementValueType;
+		this.validator = validator;
 		this.cardinality = cardinality;
 		this.controlPanels = new LinkedList(controlPanels);
 
@@ -243,6 +247,11 @@ final class AttributeImpl<ELEMENT_VALUE_TYPE> implements IAttribute<ELEMENT_VALU
 	@Override
 	public Class<ELEMENT_VALUE_TYPE> getElementValueType() {
 		return elementValueType;
+	}
+
+	@Override
+	public IValidator<Object> getValidator() {
+		return validator;
 	}
 
 	@Override

@@ -64,7 +64,7 @@ public interface IBeanProxy<BEAN_TYPE> extends
 
 	IValidationResult validate(String propertyName);
 
-	IValidationResult validate(String propertyName, Object value);
+	void addBeanValidator(IBeanValidator<BEAN_TYPE> validator);
 
 	void registerValidatable(IValidateable validateable);
 

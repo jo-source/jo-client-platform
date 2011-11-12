@@ -35,6 +35,7 @@ import org.jowidgets.cap.common.api.bean.Cardinality;
 import org.jowidgets.cap.common.api.bean.IProperty;
 import org.jowidgets.cap.common.api.bean.IValueRange;
 import org.jowidgets.util.Assert;
+import org.jowidgets.validation.IValidator;
 
 final class PropertyImpl implements IProperty, Serializable {
 
@@ -42,6 +43,7 @@ final class PropertyImpl implements IProperty, Serializable {
 
 	private final String name;
 	private final IValueRange valueRange;
+	private final IValidator<Object> validator;
 	private final Object defaultValue;
 	private final String labelDefault;
 	private final String labelLongDefault;
@@ -66,6 +68,7 @@ final class PropertyImpl implements IProperty, Serializable {
 		final boolean mandatoryDefault,
 		final Class<?> valueType,
 		final Class<?> elementValueType,
+		final IValidator<Object> validator,
 		final Cardinality cardinality,
 		final boolean readonly,
 		final boolean sortable,
@@ -92,6 +95,7 @@ final class PropertyImpl implements IProperty, Serializable {
 		this.mandatoryDefault = mandatoryDefault;
 		this.valueType = valueType;
 		this.elementValueType = elementValueType;
+		this.validator = validator;
 		this.cardinality = cardinality;
 		this.readonly = readonly;
 		this.sortable = sortable;
@@ -146,6 +150,11 @@ final class PropertyImpl implements IProperty, Serializable {
 	@Override
 	public Class<?> getElementValueType() {
 		return elementValueType;
+	}
+
+	@Override
+	public IValidator<Object> getValidator() {
+		return validator;
 	}
 
 	@Override

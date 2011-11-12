@@ -57,6 +57,7 @@ import org.jowidgets.cap.ui.api.bean.IBeanModificationStateListener;
 import org.jowidgets.cap.ui.api.bean.IBeanProcessStateListener;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanValidationStateListener;
+import org.jowidgets.cap.ui.api.bean.IBeanValidator;
 import org.jowidgets.cap.ui.api.execution.IExecutionTask;
 import org.jowidgets.cap.ui.api.execution.IExecutionTaskListener;
 import org.jowidgets.cap.ui.tools.execution.ExecutionTaskAdapter;
@@ -82,6 +83,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 	private final BeanMessageStateObservable<BEAN_TYPE> messageStateObservable;
 	private final BeanProcessStateObservable<BEAN_TYPE> processStateObservable;
 	private final BeanValidationStateObservable<BEAN_TYPE> validationStateObservable;
+	private final Set<IBeanValidator<BEAN_TYPE>> beanValidators;
 	private final Set<IValidateable> validatables;
 	private final IExecutionTaskListener executionTaskListener;
 	private final IValidationConditionListener validationConditionListener;
@@ -118,6 +120,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 		this.processStateObservable = new BeanProcessStateObservable<BEAN_TYPE>();
 		this.messageStateObservable = new BeanMessageStateObservable<BEAN_TYPE>();
 		this.validationStateObservable = new BeanValidationStateObservable<BEAN_TYPE>();
+		this.beanValidators = new LinkedHashSet<IBeanValidator<BEAN_TYPE>>();
 		this.validatables = new LinkedHashSet<IValidateable>();
 		this.validator = CapUiToolkit.beanValidator();
 		this.validationCache = new ValidationCache(this);
@@ -325,10 +328,20 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 	}
 
 	@SuppressWarnings("unchecked")
-	@Override
-	public IValidationResult validate(final String propertyName, final Object value) {
+	private IValidationResult validate(final String propertyName, final Object value) {
 		Assert.paramNotNull(propertyName, "propertyName");
 		final IValidationResultBuilder builder = ValidationResult.builder();
+
+		//validate with the added bean validators
+		for (final IBeanValidator<BEAN_TYPE> beanValidator : beanValidators) {
+			final IValidationResult validationResult = beanValidator.validateProperty(propertyName, value);
+			if (!validationResult.isValid()) {
+				//return for the first error for performance issue
+				return validationResult;
+			}
+		}
+
+		//TODO move this later to the default property validator
 		Set<ConstraintViolation<BEAN_TYPE>> beanValidationResult;
 		try {
 			beanValidationResult = validator.validateValue((Class<BEAN_TYPE>) beanType, propertyName, value);
@@ -354,6 +367,12 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 	@Override
 	public void removeValidationStateListener(final IBeanValidationStateListener<BEAN_TYPE> listener) {
 		validationStateObservable.removeValidationStateListener(listener);
+	}
+
+	@Override
+	public void addBeanValidator(final IBeanValidator<BEAN_TYPE> validator) {
+		Assert.paramNotNull(validator, "validator");
+		this.beanValidators.add(validator);
 	}
 
 	@Override
