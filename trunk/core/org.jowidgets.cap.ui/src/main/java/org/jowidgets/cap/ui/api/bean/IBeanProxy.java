@@ -41,6 +41,7 @@ import org.jowidgets.validation.IValidationResult;
 public interface IBeanProxy<BEAN_TYPE> extends
 		IBeanDto,
 		IPropertyChangeObservable,
+		IBeanValidationStateObservable<BEAN_TYPE>,
 		IBeanModificationStateObservable<BEAN_TYPE>,
 		IBeanProcessStateObservable<BEAN_TYPE>,
 		IBeanMessageStateObservable<BEAN_TYPE> {

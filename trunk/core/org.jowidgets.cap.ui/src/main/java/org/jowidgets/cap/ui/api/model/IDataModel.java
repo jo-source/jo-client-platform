@@ -28,7 +28,9 @@
 
 package org.jowidgets.cap.ui.api.model;
 
-public interface IDataModel extends IModificationStateObservable, IProcessStateObservable {
+import org.jowidgets.validation.IValidateable;
+
+public interface IDataModel extends IValidateable, IModificationStateObservable, IProcessStateObservable {
 
 	void load();
 

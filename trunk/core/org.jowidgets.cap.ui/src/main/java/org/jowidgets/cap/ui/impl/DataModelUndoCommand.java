@@ -51,4 +51,10 @@ final class DataModelUndoCommand extends AbstractDataModelCommand {
 		}
 		return EnabledState.ENABLED;
 	}
+
+	@Override
+	IEnabledState getVetoEnabledState(final IDataModel model) {
+		return EnabledState.ENABLED;
+	}
+
 }

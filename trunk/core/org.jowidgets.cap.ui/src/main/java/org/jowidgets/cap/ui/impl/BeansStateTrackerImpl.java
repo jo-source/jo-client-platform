@@ -30,33 +30,47 @@ package org.jowidgets.cap.ui.impl;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.Set;
 
 import org.jowidgets.cap.ui.api.bean.IBeanModificationStateListener;
 import org.jowidgets.cap.ui.api.bean.IBeanProcessStateListener;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
+import org.jowidgets.cap.ui.api.bean.IBeanValidationStateListener;
 import org.jowidgets.cap.ui.api.bean.IBeansStateTracker;
 import org.jowidgets.cap.ui.api.execution.IExecutionTask;
 import org.jowidgets.cap.ui.api.model.IModificationStateListener;
 import org.jowidgets.cap.ui.api.model.IProcessStateListener;
 import org.jowidgets.cap.ui.tools.model.ModificationStateObservable;
 import org.jowidgets.cap.ui.tools.model.ProcessStateObservable;
+import org.jowidgets.tools.validation.ValidationCache;
+import org.jowidgets.tools.validation.ValidationCache.IValidationResultCreator;
 import org.jowidgets.util.Assert;
+import org.jowidgets.validation.IValidationConditionListener;
+import org.jowidgets.validation.IValidationResult;
+import org.jowidgets.validation.IValidationResultBuilder;
+import org.jowidgets.validation.ValidationResult;
 
-final class BeansStateTrackerImpl<BEAN_TYPE> implements IBeansStateTracker<BEAN_TYPE> {
+final class BeansStateTrackerImpl<BEAN_TYPE> implements IBeansStateTracker<BEAN_TYPE>, IValidationResultCreator {
 
 	private final Set<IBeanProxy<BEAN_TYPE>> modifiedBeans;
 	private final Set<IBeanProxy<BEAN_TYPE>> processingBeans;
+	private final Set<IBeanProxy<BEAN_TYPE>> validationDirtyBeans;
 
 	private final ModificationStateObservable modificationStateObservable;
 	private final ProcessStateObservable processStateObservable;
 
 	private final IBeanModificationStateListener<BEAN_TYPE> modificationStateListener;
 	private final IBeanProcessStateListener<BEAN_TYPE> processStateListener;
+	private final IBeanValidationStateListener<BEAN_TYPE> validationStateListener;
+
+	private final ValidationCache validationCache;
 
 	BeansStateTrackerImpl() {
 		this.modifiedBeans = new HashSet<IBeanProxy<BEAN_TYPE>>();
 		this.processingBeans = new HashSet<IBeanProxy<BEAN_TYPE>>();
+		this.validationDirtyBeans = new LinkedHashSet<IBeanProxy<BEAN_TYPE>>();
 
 		this.modificationStateObservable = new ModificationStateObservable();
 		this.processStateObservable = new ProcessStateObservable();
@@ -84,12 +98,23 @@ final class BeansStateTrackerImpl<BEAN_TYPE> implements IBeansStateTracker<BEAN_
 				}
 			}
 		};
+
+		this.validationStateListener = new IBeanValidationStateListener<BEAN_TYPE>() {
+			@Override
+			public void validationStateChanged(final IBeanProxy<BEAN_TYPE> bean) {
+				validationDirtyBeans.add(bean);
+				validationCache.setDirty();
+			}
+		};
+
+		this.validationCache = new ValidationCache(this);
 	}
 
 	@Override
 	public void dispose() {
 		modificationStateObservable.dispose();
 		processStateObservable.dispose();
+		validationCache.dispose();
 	}
 
 	@Override
@@ -98,12 +123,16 @@ final class BeansStateTrackerImpl<BEAN_TYPE> implements IBeansStateTracker<BEAN_
 		bean.addModificationStateListener(modificationStateListener);
 		if (bean.hasModifications()) {
 			addModifiedBean(bean);
+			validationDirtyBeans.add(bean);
+			validationCache.setDirty();
 		}
 
 		bean.addProcessStateListener(processStateListener);
 		if (bean.hasExecution()) {
 			addProcessingBean(bean);
 		}
+
+		bean.addValidationStateListener(validationStateListener);
 	}
 
 	@Override
@@ -113,6 +142,41 @@ final class BeansStateTrackerImpl<BEAN_TYPE> implements IBeansStateTracker<BEAN_
 		removeUnmodifiedBean(bean);
 		bean.removeProcessStateListener(processStateListener);
 		removeUnprocessingBean(bean);
+		final boolean beanWasValidationDirty = validationDirtyBeans.remove(bean);
+		if (beanWasValidationDirty) {
+			validationCache.setDirty();
+		}
+	}
+
+	@Override
+	public IValidationResult validate() {
+		return validationCache.validate();
+	}
+
+	@Override
+	public void addValidationConditionListener(final IValidationConditionListener listener) {
+		validationCache.addValidationConditionListener(listener);
+	}
+
+	@Override
+	public void removeValidationConditionListener(final IValidationConditionListener listener) {
+		validationCache.removeValidationConditionListener(listener);
+	}
+
+	@Override
+	public IValidationResult createValidationResult() {
+		final IValidationResultBuilder builder = ValidationResult.builder();
+		for (final IBeanProxy<BEAN_TYPE> bean : new LinkedList<IBeanProxy<BEAN_TYPE>>(validationDirtyBeans)) {
+			final IValidationResult validationResult = bean.validate();
+			builder.addResult(validationResult);
+			if (validationResult.isValid()) {
+				validationDirtyBeans.remove(bean);
+			}
+			else {
+				break;
+			}
+		}
+		return builder.build();
 	}
 
 	@Override
