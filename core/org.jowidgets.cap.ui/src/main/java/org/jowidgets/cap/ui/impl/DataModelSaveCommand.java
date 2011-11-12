@@ -32,6 +32,8 @@ import org.jowidgets.api.command.EnabledState;
 import org.jowidgets.api.command.IEnabledState;
 import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.cap.ui.api.model.IDataModel;
+import org.jowidgets.util.EmptyCheck;
+import org.jowidgets.validation.IValidationMessage;
 import org.jowidgets.validation.IValidationResult;
 
 final class DataModelSaveCommand extends AbstractDataModelCommand {
@@ -57,7 +59,16 @@ final class DataModelSaveCommand extends AbstractDataModelCommand {
 	IEnabledState getVetoEnabledState(final IDataModel model) {
 		final IValidationResult validationResult = model.validate();
 		if (!validationResult.isValid()) {
-			return EnabledState.disabled(validationResult.getWorstFirst().getText());
+			final IValidationMessage worstFirst = validationResult.getWorstFirst();
+			final String context = worstFirst.getContext();
+			final String text = worstFirst.getText();
+			if (EmptyCheck.isEmpty(context)) {
+				return EnabledState.disabled(text);
+			}
+			else {
+				return EnabledState.disabled(context + ": " + text);
+			}
+
 		}
 		return EnabledState.ENABLED;
 	}
