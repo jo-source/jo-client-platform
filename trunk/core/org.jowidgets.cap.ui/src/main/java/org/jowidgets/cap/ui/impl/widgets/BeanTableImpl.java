@@ -459,10 +459,14 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 
 		IMenuModel menuModel;
 		if (hasDefaultMenus) {
-			final IMenuModel cellPopupMenu = menuFactory.cellPopupMenu(
-					this,
-					createHeaderPopupMenuModelUndecorated(index),
-					index.intValue());
+			final IMenuModel headerPopupMenuModelUndecorated;
+			if (!isColumnPopupDetectionSupported()) {
+				headerPopupMenuModelUndecorated = createHeaderPopupMenuModelUndecorated(index);
+			}
+			else {
+				headerPopupMenuModelUndecorated = null;
+			}
+			final IMenuModel cellPopupMenu = menuFactory.cellPopupMenu(this, headerPopupMenuModelUndecorated, index.intValue());
 			if (cellPopupMenu != null) {
 				menuModel = cellPopupMenu;
 			}
@@ -779,6 +783,11 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 	@Override
 	public void showSelection() {
 		table.showSelection();
+	}
+
+	@Override
+	public boolean isColumnPopupDetectionSupported() {
+		return table.isColumnPopupDetectionSupported();
 	}
 
 	@Override
