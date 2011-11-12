@@ -38,7 +38,7 @@ public interface IDataModel extends IModificationStateObservable, IProcessStateO
 
 	void undo();
 
-	boolean isDirty();
+	boolean hasModifications();
 
 	boolean hasExecutions();
 

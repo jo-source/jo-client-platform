@@ -46,7 +46,7 @@ final class DataModelUndoCommand extends AbstractDataModelCommand {
 
 	@Override
 	IEnabledState getEnabledState(final IDataModel model) {
-		if (!model.isDirty()) {
+		if (!model.hasModifications()) {
 			return AbstractDataModelCommand.NO_MODIFICATIONS_STATE;
 		}
 		return EnabledState.ENABLED;
