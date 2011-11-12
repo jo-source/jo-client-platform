@@ -26,35 +26,10 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.impl;
+package org.jowidgets.cap.ui.api.bean;
 
-import org.jowidgets.api.command.EnabledState;
-import org.jowidgets.api.command.IEnabledState;
-import org.jowidgets.api.command.IExecutionContext;
-import org.jowidgets.cap.ui.api.model.IDataModel;
+public interface IBeanValidationStateListener<BEAN_TYPE> {
 
-final class DataModelLoadCommand extends AbstractDataModelCommand {
-
-	DataModelLoadCommand() {
-		super();
-	}
-
-	@Override
-	void execute(final IDataModel dataModel, final IExecutionContext executionContext) {
-		dataModel.load();
-	}
-
-	@Override
-	IEnabledState getEnabledState(final IDataModel model) {
-		return EnabledState.ENABLED;
-	}
-
-	@Override
-	IEnabledState getVetoEnabledState(final IDataModel model) {
-		if (model.hasExecutions()) {
-			return AbstractDataModelCommand.IN_PROCESS_STATE;
-		}
-		return EnabledState.ENABLED;
-	}
+	void validationStateChanged(IBeanProxy<BEAN_TYPE> bean);
 
 }

@@ -52,4 +52,9 @@ final class DataModelCancelCommand extends AbstractDataModelCommand {
 		return EnabledState.ENABLED;
 	}
 
+	@Override
+	IEnabledState getVetoEnabledState(final IDataModel model) {
+		return EnabledState.ENABLED;
+	}
+
 }

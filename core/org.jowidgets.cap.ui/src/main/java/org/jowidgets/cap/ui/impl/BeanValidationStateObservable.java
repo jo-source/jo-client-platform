@@ -28,33 +28,38 @@
 
 package org.jowidgets.cap.ui.impl;
 
-import org.jowidgets.api.command.EnabledState;
-import org.jowidgets.api.command.IEnabledState;
-import org.jowidgets.api.command.IExecutionContext;
-import org.jowidgets.cap.ui.api.model.IDataModel;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
-final class DataModelLoadCommand extends AbstractDataModelCommand {
+import org.jowidgets.cap.ui.api.bean.IBeanProxy;
+import org.jowidgets.cap.ui.api.bean.IBeanValidationStateListener;
+import org.jowidgets.cap.ui.api.bean.IBeanValidationStateObservable;
 
-	DataModelLoadCommand() {
-		super();
+class BeanValidationStateObservable<BEAN_TYPE> implements IBeanValidationStateObservable<BEAN_TYPE> {
+
+	private final Set<IBeanValidationStateListener<BEAN_TYPE>> listeners;
+
+	BeanValidationStateObservable() {
+		this.listeners = new LinkedHashSet<IBeanValidationStateListener<BEAN_TYPE>>();
 	}
 
 	@Override
-	void execute(final IDataModel dataModel, final IExecutionContext executionContext) {
-		dataModel.load();
+	public final void addValidationStateListener(final IBeanValidationStateListener<BEAN_TYPE> listener) {
+		listeners.add(listener);
 	}
 
 	@Override
-	IEnabledState getEnabledState(final IDataModel model) {
-		return EnabledState.ENABLED;
+	public final void removeValidationStateListener(final IBeanValidationStateListener<BEAN_TYPE> listener) {
+		listeners.remove(listener);
 	}
 
-	@Override
-	IEnabledState getVetoEnabledState(final IDataModel model) {
-		if (model.hasExecutions()) {
-			return AbstractDataModelCommand.IN_PROCESS_STATE;
+	public final void fireValidationStateChanged(final IBeanProxy<BEAN_TYPE> bean) {
+		for (final IBeanValidationStateListener<BEAN_TYPE> listener : listeners) {
+			listener.validationStateChanged(bean);
 		}
-		return EnabledState.ENABLED;
 	}
 
+	public final void dispose() {
+		listeners.clear();
+	}
 }

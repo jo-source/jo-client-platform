@@ -55,9 +55,12 @@ import org.jowidgets.cap.ui.api.bean.IBeanMessageStateListener;
 import org.jowidgets.cap.ui.api.bean.IBeanModificationStateListener;
 import org.jowidgets.cap.ui.api.bean.IBeanProcessStateListener;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
+import org.jowidgets.cap.ui.api.bean.IBeanValidationStateListener;
 import org.jowidgets.cap.ui.api.execution.IExecutionTask;
 import org.jowidgets.cap.ui.api.execution.IExecutionTaskListener;
 import org.jowidgets.cap.ui.tools.execution.ExecutionTaskAdapter;
+import org.jowidgets.tools.validation.ValidationCache;
+import org.jowidgets.tools.validation.ValidationCache.IValidationResultCreator;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.EmptyCompatibleEquivalence;
 import org.jowidgets.util.NullCompatibleEquivalence;
@@ -65,7 +68,7 @@ import org.jowidgets.validation.IValidationResult;
 import org.jowidgets.validation.IValidationResultBuilder;
 import org.jowidgets.validation.ValidationResult;
 
-final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE> {
+final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidationResultCreator {
 
 	private final Class<? extends BEAN_TYPE> beanType;
 	private final List<String> properties;
@@ -75,15 +78,16 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE> {
 	private final BeanModificationStateObservable<BEAN_TYPE> modificationStateObservable;
 	private final BeanMessageStateObservable<BEAN_TYPE> messageStateObservable;
 	private final BeanProcessStateObservable<BEAN_TYPE> processStateObservable;
+	private final BeanValidationStateObservable<BEAN_TYPE> validationStateObservable;
 	private final IExecutionTaskListener executionTaskListener;
 	private final Map<BeanMessageType, List<IBeanMessage>> messagesMap;
 	private final List<IBeanMessage> messagesList;
 	private final IUiThreadAccess uiThreadAccess;
 	private final Validator validator;
-	private boolean isTransient;
+	private final ValidationCache validationCache;
 
 	private IExecutionTask executionTask;
-
+	private boolean isTransient;
 	private String lastProgress;
 	private IBeanDto beanDto;
 	private BEAN_TYPE proxy;
@@ -108,7 +112,9 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE> {
 		this.modificationStateObservable = new BeanModificationStateObservable<BEAN_TYPE>();
 		this.processStateObservable = new BeanProcessStateObservable<BEAN_TYPE>();
 		this.messageStateObservable = new BeanMessageStateObservable<BEAN_TYPE>();
+		this.validationStateObservable = new BeanValidationStateObservable<BEAN_TYPE>();
 		this.validator = CapUiToolkit.beanValidator();
+		this.validationCache = new ValidationCache(this);
 
 		this.messagesMap = new HashMap<BeanMessageType, List<IBeanMessage>>();
 		messagesMap.put(BeanMessageType.INFO, new LinkedList<IBeanMessage>());
@@ -182,6 +188,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE> {
 			if (oldModificationState != newModificationState) {
 				modificationStateObservable.fireModificationStateChanged(this);
 			}
+			fireValidationConditionsChanged();
 		}
 		else if (!EmptyCompatibleEquivalence.equals(currentValue, newValue)) {
 			final IBeanModificationBuilder modBuilder = CapCommonToolkit.beanModificationBuilder();
@@ -193,7 +200,9 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE> {
 			if (oldModificationState != newModificationState) {
 				modificationStateObservable.fireModificationStateChanged(this);
 			}
+			fireValidationConditionsChanged();
 		}
+
 	}
 
 	@Override
@@ -224,6 +233,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE> {
 		if (oldModificationState) {
 			modificationStateObservable.fireModificationStateChanged(this);
 		}
+		fireValidationConditionsChanged();
 	}
 
 	@Override
@@ -255,6 +265,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE> {
 		if (oldModificationState) {
 			modificationStateObservable.fireModificationStateChanged(this);
 		}
+		fireValidationConditionsChanged();
 	}
 
 	@Override
@@ -270,10 +281,16 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE> {
 		if (oldModificationState != newModificationState) {
 			modificationStateObservable.fireModificationStateChanged(this);
 		}
+		fireValidationConditionsChanged();
 	}
 
 	@Override
 	public IValidationResult validate() {
+		return validationCache.validate();
+	}
+
+	@Override
+	public IValidationResult createValidationResult() {
 		final IValidationResultBuilder builder = ValidationResult.builder();
 		for (final String propertyName : properties) {
 			builder.addResult(validate(propertyName).withContext(propertyName));
@@ -296,7 +313,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE> {
 			beanValidationResult = validator.validateValue((Class<BEAN_TYPE>) beanType, propertyName, value);
 		}
 		catch (final Exception e) {
-			//TODO if the property is not defined in the interface, e.g because the bean type is 
+			//TODO MG if the property is not defined in the interface, e.g because the bean type is 
 			//a simple map, this fails. In that case, bean validation is not possible, so this
 			//case is not really a mistake. Avoid future calls for this property and check the
 			//property before invoking this method
@@ -306,6 +323,16 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE> {
 			builder.addError(violation.getMessage());
 		}
 		return builder.build();
+	}
+
+	@Override
+	public void addValidationStateListener(final IBeanValidationStateListener<BEAN_TYPE> listener) {
+		validationStateObservable.addValidationStateListener(listener);
+	}
+
+	@Override
+	public void removeValidationStateListener(final IBeanValidationStateListener<BEAN_TYPE> listener) {
+		validationStateObservable.removeValidationStateListener(listener);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -482,9 +509,15 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE> {
 		processStateObservable.dispose();
 		messageStateObservable.dispose();
 		propertyChangeObservable.dispose();
+		validationStateObservable.dispose();
 		executionTask = null;
 		beanDto = null;
 		proxy = null;
+	}
+
+	private void fireValidationConditionsChanged() {
+		validationCache.setDirty();
+		validationStateObservable.fireValidationStateChanged(this);
 	}
 
 	private String getProgress() {

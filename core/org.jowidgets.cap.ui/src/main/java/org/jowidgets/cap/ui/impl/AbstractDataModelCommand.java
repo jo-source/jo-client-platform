@@ -44,6 +44,7 @@ import org.jowidgets.cap.ui.api.model.IProcessStateListener;
 import org.jowidgets.tools.command.EnabledChecker;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.event.IChangeListener;
+import org.jowidgets.validation.IValidationConditionListener;
 
 abstract class AbstractDataModelCommand implements ICommand, ICommandExecutor, IEnabledChecker {
 
@@ -56,6 +57,7 @@ abstract class AbstractDataModelCommand implements ICommand, ICommandExecutor, I
 	private final EnabledChecker enabledChecker;
 	private final IModificationStateListener modificationStateListener;
 	private final IProcessStateListener processStateListener;
+	private final IValidationConditionListener validationConditionListener;
 
 	AbstractDataModelCommand() {
 		this.dataModels = new HashSet<IDataModel>();
@@ -76,11 +78,20 @@ abstract class AbstractDataModelCommand implements ICommand, ICommandExecutor, I
 				checkEnabledState();
 			}
 		};
+
+		this.validationConditionListener = new IValidationConditionListener() {
+			@Override
+			public void validationConditionsChanged() {
+				checkEnabledState();
+			}
+		};
 	}
 
 	abstract void execute(IDataModel dataModel, final IExecutionContext executionContext);
 
 	abstract IEnabledState getEnabledState(IDataModel model);
+
+	abstract IEnabledState getVetoEnabledState(IDataModel model);
 
 	final void addDataModel(final IDataModel dataModel) {
 		Assert.paramNotNull(dataModel, "dataModel"); //$NON-NLS-1$
@@ -88,6 +99,7 @@ abstract class AbstractDataModelCommand implements ICommand, ICommandExecutor, I
 			dataModels.add(dataModel);
 			dataModel.addModificationStateListener(modificationStateListener);
 			dataModel.addProcessStateListener(processStateListener);
+			dataModel.addValidationConditionListener(validationConditionListener);
 			checkEnabledState();
 		}
 	}
@@ -98,6 +110,7 @@ abstract class AbstractDataModelCommand implements ICommand, ICommandExecutor, I
 			dataModels.remove(dataModel);
 			dataModel.removeModificationStateListener(modificationStateListener);
 			dataModel.removeProcessStateListener(processStateListener);
+			dataModel.removeValidationConditionListener(validationConditionListener);
 			checkEnabledState();
 		}
 	}
@@ -146,12 +159,19 @@ abstract class AbstractDataModelCommand implements ICommand, ICommandExecutor, I
 		}
 		else {
 			for (final IDataModel dataModel : dataModels) {
+				final IEnabledState vetoEnabledState = getVetoEnabledState(dataModel);
+				if (!vetoEnabledState.isEnabled()) {
+					enabledChecker.setEnabledState(vetoEnabledState);
+					return;
+				}
+			}
+			for (final IDataModel dataModel : dataModels) {
 				final IEnabledState enabledState = getEnabledState(dataModel);
 				if (enabledState.isEnabled()) {
 					enabledChecker.setEnabledState(EnabledState.ENABLED);
 					return;
 				}
-				enabledChecker.setEnabledState(EnabledState.disabled(enabledState.getReason()));
+				enabledChecker.setEnabledState(enabledState);
 			}
 		}
 	}

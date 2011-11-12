@@ -128,6 +128,8 @@ import org.jowidgets.util.EmptyCheck;
 import org.jowidgets.util.concurrent.DaemonThreadFactory;
 import org.jowidgets.util.event.ChangeObservable;
 import org.jowidgets.util.event.IChangeListener;
+import org.jowidgets.validation.IValidationConditionListener;
+import org.jowidgets.validation.IValidationResult;
 
 final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 
@@ -769,6 +771,21 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		}
 		beansStateTracker.clearModifications();
 		dataModel.fireDataChanged();
+	}
+
+	@Override
+	public IValidationResult validate() {
+		return beansStateTracker.validate();
+	}
+
+	@Override
+	public void addValidationConditionListener(final IValidationConditionListener listener) {
+		beansStateTracker.addValidationConditionListener(listener);
+	}
+
+	@Override
+	public void removeValidationConditionListener(final IValidationConditionListener listener) {
+		beansStateTracker.removeValidationConditionListener(listener);
 	}
 
 	@Override
