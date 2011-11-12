@@ -72,8 +72,7 @@ final class BeanTableFilterToolbar<BEAN_TYPE> {
 		toolBarComposite.add(1, BPF.separator().setOrientation(Orientation.VERTICAL), "growy, h 0::");
 
 		final IToolBarButtonBluePrint closeButtonBp = BPF.toolBarButton().setIcon(IconsSmall.DELETE);
-		//TODO i18n
-		final String closeButtonTooltip = Messages.getString("Hide filter toolbar");
+		final String closeButtonTooltip = Messages.getString("BeanTableFilterToolbar.hide_filter_toolbar");
 		closeButtonBp.setToolTipText(closeButtonTooltip);
 		final IToolBarButton closeButton = toolBar.addItem(closeButtonBp);
 
@@ -89,8 +88,7 @@ final class BeanTableFilterToolbar<BEAN_TYPE> {
 			}
 		});
 
-		//TODO i18n
-		final String disabledTooltip = Messages.getString("The table filter is not empty");
+		final String disabledTooltip = Messages.getString("BeanTableFilterToolbar.hide_disabled");
 		this.filterChangeListener = new IChangeListener() {
 			@Override
 			public void changed() {
@@ -112,8 +110,7 @@ final class BeanTableFilterToolbar<BEAN_TYPE> {
 		};
 		model.addFilterChangeListener(filterChangeListener);
 
-		//TODO i18n
-		this.itemTooltip = Messages.getString("Shows the filter toolbar");
+		this.itemTooltip = Messages.getString("BeanTableFilterToolbar.show_filter_toolbar_tooltip");
 		this.itemModel = createItemModel();
 		this.itemListener = new IItemStateListener() {
 			@Override
@@ -128,8 +125,7 @@ final class BeanTableFilterToolbar<BEAN_TYPE> {
 	private ICheckedItemModel createItemModel() {
 		final IItemModelFactory modelFactory = Toolkit.getModelFactoryProvider().getItemModelFactory();
 		final ICheckedItemModelBuilder builder = modelFactory.checkedItemBuilder();
-		//TODO i18n
-		final String text = Messages.getString("Show filter toolbar");
+		final String text = Messages.getString("BeanTableFilterToolbar.show_filter_toolbar_text");
 		builder.setText(text).setToolTipText(itemTooltip);
 		return builder.build();
 	}
