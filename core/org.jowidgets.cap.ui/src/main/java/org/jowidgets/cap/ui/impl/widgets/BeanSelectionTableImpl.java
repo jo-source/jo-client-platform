@@ -257,6 +257,11 @@ final class BeanSelectionTableImpl<BEAN_TYPE> extends AbstractInputControl<List<
 	}
 
 	@Override
+	public boolean isColumnPopupDetectionSupported() {
+		return table.isColumnPopupDetectionSupported();
+	}
+
+	@Override
 	public void pack(final TablePackPolicy policy) {
 		table.pack(policy);
 	}
