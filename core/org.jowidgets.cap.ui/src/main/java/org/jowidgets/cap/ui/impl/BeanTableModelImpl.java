@@ -772,7 +772,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	}
 
 	@Override
-	public boolean isDirty() {
+	public boolean hasModifications() {
 		return beansStateTracker.hasModifiedBeans();
 	}
 
