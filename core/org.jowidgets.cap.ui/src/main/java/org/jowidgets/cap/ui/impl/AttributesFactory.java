@@ -41,6 +41,7 @@ import org.jowidgets.cap.ui.api.attribute.IAttributeCollectionModifier;
 import org.jowidgets.cap.ui.api.attribute.IAttributeFilter;
 import org.jowidgets.cap.ui.api.attribute.IAttributeModifier;
 import org.jowidgets.util.Assert;
+import org.jowidgets.validation.IValidator;
 
 final class AttributesFactory {
 
@@ -185,6 +186,11 @@ final class AttributesFactory {
 			@Override
 			public Class<?> getElementValueType() {
 				return attribute.getElementValueType();
+			}
+
+			@Override
+			public IValidator<Object> getValidator() {
+				return attribute.getValidator();
 			}
 
 			@Override

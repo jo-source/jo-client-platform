@@ -26,48 +26,33 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.api.bean;
+package org.jowidgets.cap.ui.api.bean;
 
-import java.util.Collection;
+import org.jowidgets.validation.IValidationResult;
 
-import org.jowidgets.validation.IValidator;
+public interface IBeanValidator<BEAN_TYPE> {
 
-public interface IBeanPropertyBluePrint {
+	/**
+	 * Validates the bean.
+	 * This could be used to for validation issues that could not validated independently
+	 * for each property (e.g. incomming date < outgoing date).
+	 * For performance benefit, implementation should not invoke the independent property
+	 * validation here, because the properties will be validated in a separate step.
+	 * 
+	 * @param bean The bean to validate
+	 * 
+	 * @return The validation result, never null
+	 */
+	IValidationResult validate(IBeanProxy<BEAN_TYPE> bean);
 
-	IBeanPropertyBluePrint setLabel(String labelDefault);
-
-	IBeanPropertyBluePrint setValueRange(IValueRange valueRange);
-
-	IBeanPropertyBluePrint setValueRange(boolean open, Collection<? extends Object> values);
-
-	IBeanPropertyBluePrint setValueRange(Collection<? extends Object> values);
-
-	IBeanPropertyBluePrint setValueRange(boolean open, Object... values);
-
-	IBeanPropertyBluePrint setValueRange(Object... values);
-
-	IBeanPropertyBluePrint setLookUpValueRange(Object lookUpId);
-
-	IBeanPropertyBluePrint setDefaultValue(Object value);
-
-	IBeanPropertyBluePrint setCardinality(Cardinality cardinality);
-
-	IBeanPropertyBluePrint setLabelLong(String labelLongDefault);
-
-	IBeanPropertyBluePrint setDescription(String descriptionDefault);
-
-	IBeanPropertyBluePrint setVisible(boolean visibleDefault);
-
-	IBeanPropertyBluePrint setMandatory(boolean mandatoryDefault);
-
-	IBeanPropertyBluePrint setElementValueType(Class<?> elementValueType);
-
-	IBeanPropertyBluePrint addValidator(IValidator<? extends Object> validator);
-
-	IBeanPropertyBluePrint addElementTypeValidator(IValidator<? extends Object> validator);
-
-	IBeanPropertyBluePrint setSortable(boolean sortable);
-
-	IBeanPropertyBluePrint setFilterable(boolean filterable);
+	/**
+	 * Validates a single bean property.
+	 * 
+	 * @param propertyName The property to validate
+	 * @param value The value of the property
+	 * 
+	 * @return The validation result.
+	 */
+	IValidationResult validateProperty(String propertyName, Object value);
 
 }

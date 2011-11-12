@@ -35,6 +35,7 @@ import org.jowidgets.cap.common.api.bean.IBeanPropertyBluePrint;
 import org.jowidgets.cap.common.api.bean.IBeanPropertyBuilder;
 import org.jowidgets.cap.common.api.bean.IProperty;
 import org.jowidgets.cap.common.api.bean.IValueRange;
+import org.jowidgets.validation.IValidator;
 
 final class BeanPropertyBluePrintImpl implements IBeanPropertyBluePrint {
 
@@ -142,6 +143,20 @@ final class BeanPropertyBluePrintImpl implements IBeanPropertyBluePrint {
 	public IBeanPropertyBluePrint setElementValueType(final Class<?> elementValueType) {
 		checkExhausted();
 		builder.setElementValueType(elementValueType);
+		return this;
+	}
+
+	@Override
+	public IBeanPropertyBluePrint addValidator(final IValidator<? extends Object> validator) {
+		checkExhausted();
+		builder.addValidator(validator);
+		return this;
+	}
+
+	@Override
+	public IBeanPropertyBluePrint addElementTypeValidator(final IValidator<? extends Object> validator) {
+		checkExhausted();
+		builder.addElementTypeValidator(validator);
 		return this;
 	}
 

@@ -88,6 +88,7 @@ import org.jowidgets.cap.ui.api.bean.IBeanMessage;
 import org.jowidgets.cap.ui.api.bean.IBeanMessageBuilder;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
+import org.jowidgets.cap.ui.api.bean.IBeanValidator;
 import org.jowidgets.cap.ui.api.bean.IBeansStateTracker;
 import org.jowidgets.cap.ui.api.color.CapColors;
 import org.jowidgets.cap.ui.api.execution.BeanExecutionPolicy;
@@ -156,6 +157,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	private final IBeansStateTracker<BEAN_TYPE> beansStateTracker;
 	private final ArrayList<IAttribute<Object>> attributes;
 	private final List<String> propertyNames;
+	private final IBeanValidator<BEAN_TYPE> beanValidator;
 
 	private final ICreatorService creatorService;
 	private final IReaderService<Object> readerService;
@@ -283,6 +285,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		this.programmaticPageLoader = new HashMap<Integer, PageLoader>();
 		this.userCanceledMessage = Messages.getString("BeanTableModelImpl.user_canceled");
 		this.loadErrorMessage = Messages.getString("BeanTableModelImpl.load_error");
+		this.beanValidator = new BeanValidatorImpl<BEAN_TYPE>(attributes);
 
 		//configure sort model
 		sortModel.setConfig(sortModelConfig);
@@ -2039,6 +2042,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			for (final IBeanDto beanDto : beanDtos) {
 				if (index < pageSize) {
 					final IBeanProxy<BEAN_TYPE> beanProxy = beanProxyFactory.createProxy(beanDto, propertyNames);
+					beanProxy.addBeanValidator(beanValidator);
 					page.add(beanProxy);
 					beansStateTracker.register(beanProxy);
 					final int rowNr = pageOffset + index;

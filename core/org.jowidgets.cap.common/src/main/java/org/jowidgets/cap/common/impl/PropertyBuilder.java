@@ -37,8 +37,11 @@ import org.jowidgets.cap.common.api.bean.IProperty;
 import org.jowidgets.cap.common.api.bean.IPropertyBuilder;
 import org.jowidgets.cap.common.api.bean.IValueRange;
 import org.jowidgets.util.Assert;
+import org.jowidgets.validation.IValidator;
 
 final class PropertyBuilder implements IPropertyBuilder {
+
+	private final PropertyValidatorBuilder validatorBuilder;
 
 	private String name;
 	private IValueRange valueRange;
@@ -62,6 +65,7 @@ final class PropertyBuilder implements IPropertyBuilder {
 		this.sortable = true;
 		this.filterable = true;
 		this.valueRange = new StaticValueRangeImpl(Collections.emptyList(), true);
+		this.validatorBuilder = new PropertyValidatorBuilder();
 	}
 
 	@Override
@@ -153,6 +157,18 @@ final class PropertyBuilder implements IPropertyBuilder {
 	}
 
 	@Override
+	public IPropertyBuilder addValidator(final IValidator<? extends Object> validator) {
+		validatorBuilder.addValidator(validator);
+		return this;
+	}
+
+	@Override
+	public IPropertyBuilder addElementTypeValidator(final IValidator<? extends Object> validator) {
+		validatorBuilder.addElementTypeValidator(validator);
+		return this;
+	}
+
+	@Override
 	public IPropertyBuilder setReadonly(final boolean readonly) {
 		this.readonly = readonly;
 		return this;
@@ -216,10 +232,10 @@ final class PropertyBuilder implements IPropertyBuilder {
 			mandatoryDefault,
 			valueType,
 			getElementValueType(),
+			validatorBuilder.build(valueType, elementValueType),
 			getCardinality(),
 			readonly,
 			sortable,
 			filterable);
 	}
-
 }

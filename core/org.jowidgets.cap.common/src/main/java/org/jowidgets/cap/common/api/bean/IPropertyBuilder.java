@@ -30,6 +30,8 @@ package org.jowidgets.cap.common.api.bean;
 
 import java.util.Collection;
 
+import org.jowidgets.validation.IValidator;
+
 public interface IPropertyBuilder {
 
 	IPropertyBuilder setName(String name);
@@ -47,6 +49,10 @@ public interface IPropertyBuilder {
 	IPropertyBuilder setValueType(Class<?> valueType);
 
 	IPropertyBuilder setElementValueType(Class<?> elementValueType);
+
+	IPropertyBuilder addValidator(IValidator<? extends Object> validator);
+
+	IPropertyBuilder addElementTypeValidator(IValidator<? extends Object> validator);
 
 	IPropertyBuilder setCardinality(Cardinality cardinality);
 

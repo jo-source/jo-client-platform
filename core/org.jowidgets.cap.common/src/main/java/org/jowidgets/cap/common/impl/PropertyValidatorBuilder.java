@@ -26,48 +26,39 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.api.bean;
+package org.jowidgets.cap.common.impl;
 
-import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 
+import org.jowidgets.util.EmptyCheck;
 import org.jowidgets.validation.IValidator;
 
-public interface IBeanPropertyBluePrint {
+final class PropertyValidatorBuilder {
 
-	IBeanPropertyBluePrint setLabel(String labelDefault);
+	private final List<IValidator<? extends Object>> elementTypeValidators;
+	private final List<IValidator<? extends Object>> validators;
 
-	IBeanPropertyBluePrint setValueRange(IValueRange valueRange);
+	PropertyValidatorBuilder() {
+		this.elementTypeValidators = new LinkedList<IValidator<? extends Object>>();
+		this.validators = new LinkedList<IValidator<? extends Object>>();
+	}
 
-	IBeanPropertyBluePrint setValueRange(boolean open, Collection<? extends Object> values);
+	void addValidator(final IValidator<? extends Object> validator) {
+		validators.add(validator);
+	}
 
-	IBeanPropertyBluePrint setValueRange(Collection<? extends Object> values);
+	void addElementTypeValidator(final IValidator<? extends Object> validator) {
+		elementTypeValidators.add(validator);
+	}
 
-	IBeanPropertyBluePrint setValueRange(boolean open, Object... values);
-
-	IBeanPropertyBluePrint setValueRange(Object... values);
-
-	IBeanPropertyBluePrint setLookUpValueRange(Object lookUpId);
-
-	IBeanPropertyBluePrint setDefaultValue(Object value);
-
-	IBeanPropertyBluePrint setCardinality(Cardinality cardinality);
-
-	IBeanPropertyBluePrint setLabelLong(String labelLongDefault);
-
-	IBeanPropertyBluePrint setDescription(String descriptionDefault);
-
-	IBeanPropertyBluePrint setVisible(boolean visibleDefault);
-
-	IBeanPropertyBluePrint setMandatory(boolean mandatoryDefault);
-
-	IBeanPropertyBluePrint setElementValueType(Class<?> elementValueType);
-
-	IBeanPropertyBluePrint addValidator(IValidator<? extends Object> validator);
-
-	IBeanPropertyBluePrint addElementTypeValidator(IValidator<? extends Object> validator);
-
-	IBeanPropertyBluePrint setSortable(boolean sortable);
-
-	IBeanPropertyBluePrint setFilterable(boolean filterable);
-
+	IValidator<Object> build(final Class<?> valueType, final Class<?> elementValueType) {
+		if (!EmptyCheck.isEmpty(elementTypeValidators) || !EmptyCheck.isEmpty(validators)) {
+			//TODO MG implement PropertyCompositeValidator
+			return null;
+		}
+		else {
+			return null;
+		}
+	}
 }

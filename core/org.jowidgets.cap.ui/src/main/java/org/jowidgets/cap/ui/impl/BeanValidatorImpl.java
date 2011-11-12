@@ -26,48 +26,46 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.api.bean;
+package org.jowidgets.cap.ui.impl;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
+import org.jowidgets.cap.ui.api.attribute.IAttribute;
+import org.jowidgets.cap.ui.api.bean.IBeanProxy;
+import org.jowidgets.cap.ui.api.bean.IBeanValidator;
+import org.jowidgets.validation.IValidationResult;
 import org.jowidgets.validation.IValidator;
+import org.jowidgets.validation.ValidationResult;
 
-public interface IBeanPropertyBluePrint {
+final class BeanValidatorImpl<BEAN_TYPE> implements IBeanValidator<BEAN_TYPE> {
 
-	IBeanPropertyBluePrint setLabel(String labelDefault);
+	private final Map<String, IAttribute<?>> attributes;
 
-	IBeanPropertyBluePrint setValueRange(IValueRange valueRange);
+	BeanValidatorImpl(final Collection<? extends IAttribute<?>> attributes) {
+		this.attributes = new HashMap<String, IAttribute<?>>();
+		for (final IAttribute<?> attribute : attributes) {
+			this.attributes.put(attribute.getPropertyName(), attribute);
+		}
+	}
 
-	IBeanPropertyBluePrint setValueRange(boolean open, Collection<? extends Object> values);
+	@Override
+	public IValidationResult validate(final IBeanProxy<BEAN_TYPE> bean) {
+		// TODO MG bean validators must be considered
+		return null;
+	}
 
-	IBeanPropertyBluePrint setValueRange(Collection<? extends Object> values);
-
-	IBeanPropertyBluePrint setValueRange(boolean open, Object... values);
-
-	IBeanPropertyBluePrint setValueRange(Object... values);
-
-	IBeanPropertyBluePrint setLookUpValueRange(Object lookUpId);
-
-	IBeanPropertyBluePrint setDefaultValue(Object value);
-
-	IBeanPropertyBluePrint setCardinality(Cardinality cardinality);
-
-	IBeanPropertyBluePrint setLabelLong(String labelLongDefault);
-
-	IBeanPropertyBluePrint setDescription(String descriptionDefault);
-
-	IBeanPropertyBluePrint setVisible(boolean visibleDefault);
-
-	IBeanPropertyBluePrint setMandatory(boolean mandatoryDefault);
-
-	IBeanPropertyBluePrint setElementValueType(Class<?> elementValueType);
-
-	IBeanPropertyBluePrint addValidator(IValidator<? extends Object> validator);
-
-	IBeanPropertyBluePrint addElementTypeValidator(IValidator<? extends Object> validator);
-
-	IBeanPropertyBluePrint setSortable(boolean sortable);
-
-	IBeanPropertyBluePrint setFilterable(boolean filterable);
+	@Override
+	public IValidationResult validateProperty(final String propertyName, final Object value) {
+		final IAttribute<?> attribute = attributes.get(propertyName);
+		if (attribute != null) {
+			final IValidator<Object> validator = attribute.getValidator();
+			if (validator != null) {
+				return validator.validate(value);
+			}
+		}
+		return ValidationResult.ok();
+	}
 
 }

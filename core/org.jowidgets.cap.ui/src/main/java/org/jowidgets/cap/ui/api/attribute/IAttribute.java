@@ -38,6 +38,7 @@ import org.jowidgets.cap.ui.api.filter.IFilterPanelProvider;
 import org.jowidgets.cap.ui.api.filter.IFilterType;
 import org.jowidgets.common.types.AlignmentHorizontal;
 import org.jowidgets.util.event.IChangeObservable;
+import org.jowidgets.validation.IValidator;
 
 public interface IAttribute<ELEMENT_VALUE_TYPE> extends IChangeObservable {
 
@@ -72,6 +73,8 @@ public interface IAttribute<ELEMENT_VALUE_TYPE> extends IChangeObservable {
 	Class<?> getValueType();
 
 	Class<ELEMENT_VALUE_TYPE> getElementValueType();
+
+	IValidator<Object> getValidator();
 
 	Cardinality getCardinality();
 

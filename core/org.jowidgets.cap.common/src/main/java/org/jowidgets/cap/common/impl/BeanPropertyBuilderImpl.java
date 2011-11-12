@@ -44,6 +44,7 @@ import org.jowidgets.cap.common.api.bean.IBeanPropertyBuilder;
 import org.jowidgets.cap.common.api.bean.IProperty;
 import org.jowidgets.cap.common.api.bean.IValueRange;
 import org.jowidgets.util.Assert;
+import org.jowidgets.validation.IValidator;
 
 final class BeanPropertyBuilderImpl implements IBeanPropertyBuilder {
 
@@ -185,6 +186,18 @@ final class BeanPropertyBuilderImpl implements IBeanPropertyBuilder {
 	@Override
 	public IBeanPropertyBuilder setElementValueType(final Class<?> elementValueType) {
 		propertyBuilder.setElementValueType(elementValueType);
+		return this;
+	}
+
+	@Override
+	public IBeanPropertyBuilder addValidator(final IValidator<? extends Object> validator) {
+		propertyBuilder.addValidator(validator);
+		return this;
+	}
+
+	@Override
+	public IBeanPropertyBuilder addElementTypeValidator(final IValidator<? extends Object> validator) {
+		propertyBuilder.addElementTypeValidator(validator);
 		return this;
 	}
 
