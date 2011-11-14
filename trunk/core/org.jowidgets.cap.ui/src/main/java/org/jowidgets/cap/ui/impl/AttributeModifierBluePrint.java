@@ -48,8 +48,13 @@ import org.jowidgets.util.Assert;
 import org.jowidgets.util.maybe.IMaybe;
 import org.jowidgets.util.maybe.Nothing;
 import org.jowidgets.util.maybe.Some;
+import org.jowidgets.validation.IValidator;
 
 final class AttributeModifierBluePrint<ELEMENT_VALUE_TYPE> implements IAttributeBluePrint<ELEMENT_VALUE_TYPE> {
+
+	private final List<IValidator<ELEMENT_VALUE_TYPE>> elementTypeValidators;
+	private final List<IValidator<? extends Object>> validators;
+	private final List<Class<?>> addedBeanValidators;
 
 	private boolean exhausted;
 	private IValueRange valueRange;
@@ -76,6 +81,9 @@ final class AttributeModifierBluePrint<ELEMENT_VALUE_TYPE> implements IAttribute
 
 	@SuppressWarnings("rawtypes")
 	AttributeModifierBluePrint() {
+		this.elementTypeValidators = new LinkedList<IValidator<ELEMENT_VALUE_TYPE>>();
+		this.validators = new LinkedList<IValidator<? extends Object>>();
+		this.addedBeanValidators = new LinkedList<Class<?>>();
 		this.controlPanels = new LinkedList();
 		this.exhausted = false;
 		this.cardinalitySet = false;
@@ -216,6 +224,30 @@ final class AttributeModifierBluePrint<ELEMENT_VALUE_TYPE> implements IAttribute
 		return this;
 	}
 
+	@Override
+	public IAttributeBluePrint<ELEMENT_VALUE_TYPE> addValidator(final IValidator<? extends Object> validator) {
+		checkExhausted();
+		Assert.paramNotNull(validator, "validator");
+		validators.add(validator);
+		return this;
+	}
+
+	@Override
+	public IAttributeBluePrint<ELEMENT_VALUE_TYPE> addElementTypeValidator(final IValidator<ELEMENT_VALUE_TYPE> validator) {
+		checkExhausted();
+		Assert.paramNotNull(validator, "validator");
+		elementTypeValidators.add(validator);
+		return this;
+	}
+
+	@Override
+	public IAttributeBluePrint<ELEMENT_VALUE_TYPE> addBeanValidator(final Class<?> beanType) {
+		checkExhausted();
+		Assert.paramNotNull(beanType, "beanType");
+		addedBeanValidators.add(beanType);
+		return this;
+	}
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public IAttributeBluePrint<ELEMENT_VALUE_TYPE> addControlPanel(
@@ -329,6 +361,15 @@ final class AttributeModifierBluePrint<ELEMENT_VALUE_TYPE> implements IAttribute
 		}
 		if (displayFormat != null) {
 			attributeBluePrint.setDisplayFormat(displayFormat);
+		}
+		for (final IValidator<? extends Object> validator : validators) {
+			attributeBluePrint.addValidator(validator);
+		}
+		for (final IValidator<ELEMENT_VALUE_TYPE> validator : elementTypeValidators) {
+			attributeBluePrint.addElementTypeValidator(validator);
+		}
+		for (final Class<?> addedBeanValidator : addedBeanValidators) {
+			attributeBluePrint.addBeanValidator(addedBeanValidator);
 		}
 		for (final Object controlPanel : controlPanels) {
 			if (controlPanel instanceof IControlPanelProvider) {

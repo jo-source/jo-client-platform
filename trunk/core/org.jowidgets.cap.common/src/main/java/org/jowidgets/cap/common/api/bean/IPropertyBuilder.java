@@ -54,6 +54,15 @@ public interface IPropertyBuilder {
 
 	IPropertyBuilder addElementTypeValidator(IValidator<? extends Object> validator);
 
+	/**
+	 * Adds a bean property validator using bean validation (jsr 303)
+	 * 
+	 * @param beanType The type of the bean
+	 * 
+	 * @return This builder
+	 */
+	IPropertyBuilder addBeanValidator(Class<?> beanType);
+
 	IPropertyBuilder setCardinality(Cardinality cardinality);
 
 	IPropertyBuilder setReadonly(boolean readonly);

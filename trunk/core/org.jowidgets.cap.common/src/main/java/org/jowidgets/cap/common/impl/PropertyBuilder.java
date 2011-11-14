@@ -31,6 +31,8 @@ package org.jowidgets.cap.common.impl;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.Cardinality;
 import org.jowidgets.cap.common.api.bean.IProperty;
@@ -42,6 +44,7 @@ import org.jowidgets.validation.IValidator;
 final class PropertyBuilder implements IPropertyBuilder {
 
 	private final PropertyValidatorBuilder validatorBuilder;
+	private final List<Class<?>> addedBeanValidators;
 
 	private String name;
 	private IValueRange valueRange;
@@ -57,6 +60,7 @@ final class PropertyBuilder implements IPropertyBuilder {
 	private boolean readonly;
 	private boolean sortable;
 	private boolean filterable;
+	private boolean beanValidatorAdded;
 
 	PropertyBuilder() {
 		this.visibleDefault = true;
@@ -66,6 +70,8 @@ final class PropertyBuilder implements IPropertyBuilder {
 		this.filterable = true;
 		this.valueRange = new StaticValueRangeImpl(Collections.emptyList(), true);
 		this.validatorBuilder = new PropertyValidatorBuilder();
+		this.addedBeanValidators = new LinkedList<Class<?>>();
+		this.beanValidatorAdded = false;
 	}
 
 	@Override
@@ -169,6 +175,14 @@ final class PropertyBuilder implements IPropertyBuilder {
 	}
 
 	@Override
+	public IPropertyBuilder addBeanValidator(final Class<?> beanType) {
+		Assert.paramNotNull(beanType, "beanType");
+		addedBeanValidators.add(beanType);
+		this.beanValidatorAdded = true;
+		return this;
+	}
+
+	@Override
 	public IPropertyBuilder setReadonly(final boolean readonly) {
 		this.readonly = readonly;
 		return this;
@@ -184,6 +198,10 @@ final class PropertyBuilder implements IPropertyBuilder {
 	public IPropertyBuilder setFilterable(final boolean filterable) {
 		this.filterable = filterable;
 		return this;
+	}
+
+	boolean isBeanValidatorAdded() {
+		return beanValidatorAdded;
 	}
 
 	private String getLabelDefault() {
@@ -221,6 +239,11 @@ final class PropertyBuilder implements IPropertyBuilder {
 
 	@Override
 	public IProperty build() {
+		for (final Class<?> beanValidatorClass : addedBeanValidators) {
+			validatorBuilder.addBeanValidator(beanValidatorClass, name);
+		}
+		addedBeanValidators.clear();
+
 		return new PropertyImpl(
 			name,
 			valueRange,
@@ -232,7 +255,7 @@ final class PropertyBuilder implements IPropertyBuilder {
 			mandatoryDefault,
 			valueType,
 			getElementValueType(),
-			validatorBuilder.build(valueType, elementValueType),
+			validatorBuilder.build(valueType),
 			getCardinality(),
 			readonly,
 			sortable,

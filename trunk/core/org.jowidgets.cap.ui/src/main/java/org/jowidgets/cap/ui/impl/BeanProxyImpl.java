@@ -40,16 +40,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.Validator;
-
 import org.jowidgets.api.threads.IUiThreadAccess;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanModification;
 import org.jowidgets.cap.common.api.bean.IBeanModificationBuilder;
-import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.bean.BeanMessageType;
 import org.jowidgets.cap.ui.api.bean.IBeanMessage;
 import org.jowidgets.cap.ui.api.bean.IBeanMessageStateListener;
@@ -90,7 +86,6 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 	private final Map<BeanMessageType, List<IBeanMessage>> messagesMap;
 	private final List<IBeanMessage> messagesList;
 	private final IUiThreadAccess uiThreadAccess;
-	private final Validator validator;
 	private final ValidationCache validationCache;
 
 	private IExecutionTask executionTask;
@@ -122,7 +117,6 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 		this.validationStateObservable = new BeanValidationStateObservable<BEAN_TYPE>();
 		this.beanValidators = new LinkedHashSet<IBeanValidator<BEAN_TYPE>>();
 		this.validatables = new LinkedHashSet<IValidateable>();
-		this.validator = CapUiToolkit.beanValidator();
 		this.validationCache = new ValidationCache(this);
 
 		this.messagesMap = new HashMap<BeanMessageType, List<IBeanMessage>>();
@@ -307,19 +301,26 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 
 	@Override
 	public IValidationResult createValidationResult() {
+		final IValidationResultBuilder builder = ValidationResult.builder();
 		for (final IValidateable validateable : validatables) {
 			final IValidationResult validationResult = validateable.validate();
 			if (!validationResult.isValid()) {
 				return validationResult;
 			}
+			else {
+				builder.addResult(validationResult);
+			}
 		}
 		for (final String propertyName : properties) {
 			final IValidationResult validationResult = validate(propertyName);
 			if (!validationResult.isValid()) {
-				return validationResult.withContext(propertyName);
+				return validationResult;
+			}
+			else {
+				builder.addResult(validationResult);
 			}
 		}
-		return ValidationResult.ok();
+		return builder.build();
 	}
 
 	@Override
@@ -327,11 +328,9 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 		return validate(propertyName, getValue(propertyName));
 	}
 
-	@SuppressWarnings("unchecked")
 	private IValidationResult validate(final String propertyName, final Object value) {
 		Assert.paramNotNull(propertyName, "propertyName");
 		final IValidationResultBuilder builder = ValidationResult.builder();
-
 		//validate with the added bean validators
 		for (final IBeanValidator<BEAN_TYPE> beanValidator : beanValidators) {
 			final IValidationResult validationResult = beanValidator.validateProperty(propertyName, value);
@@ -339,22 +338,9 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 				//return for the first error for performance issue
 				return validationResult;
 			}
-		}
-
-		//TODO move this later to the default property validator
-		Set<ConstraintViolation<BEAN_TYPE>> beanValidationResult;
-		try {
-			beanValidationResult = validator.validateValue((Class<BEAN_TYPE>) beanType, propertyName, value);
-		}
-		catch (final Exception e) {
-			//TODO MG if the property is not defined in the interface, e.g because the bean type is 
-			//a simple map, this fails. In that case, bean validation is not possible, so this
-			//case is not really a mistake. Avoid future calls for this property and check the
-			//property before invoking this method
-			return builder.build();
-		}
-		for (final ConstraintViolation<BEAN_TYPE> violation : beanValidationResult) {
-			builder.addError(violation.getMessage());
+			else {
+				builder.addResult(validationResult);
+			}
 		}
 		return builder.build();
 	}

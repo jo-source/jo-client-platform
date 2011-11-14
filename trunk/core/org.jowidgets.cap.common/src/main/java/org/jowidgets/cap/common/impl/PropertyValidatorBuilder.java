@@ -31,10 +31,11 @@ package org.jowidgets.cap.common.impl;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.jowidgets.util.EmptyCheck;
+import org.jowidgets.cap.common.api.bean.IPropertyValidatorBuilder;
+import org.jowidgets.util.Assert;
 import org.jowidgets.validation.IValidator;
 
-final class PropertyValidatorBuilder {
+final class PropertyValidatorBuilder implements IPropertyValidatorBuilder {
 
 	private final List<IValidator<? extends Object>> elementTypeValidators;
 	private final List<IValidator<? extends Object>> validators;
@@ -44,21 +45,29 @@ final class PropertyValidatorBuilder {
 		this.validators = new LinkedList<IValidator<? extends Object>>();
 	}
 
-	void addValidator(final IValidator<? extends Object> validator) {
+	@Override
+	public IPropertyValidatorBuilder addValidator(final IValidator<? extends Object> validator) {
 		validators.add(validator);
+		return this;
 	}
 
-	void addElementTypeValidator(final IValidator<? extends Object> validator) {
+	@Override
+	public IPropertyValidatorBuilder addElementTypeValidator(final IValidator<? extends Object> validator) {
 		elementTypeValidators.add(validator);
+		return this;
 	}
 
-	IValidator<Object> build(final Class<?> valueType, final Class<?> elementValueType) {
-		if (!EmptyCheck.isEmpty(elementTypeValidators) || !EmptyCheck.isEmpty(validators)) {
-			//TODO MG implement PropertyCompositeValidator
-			return null;
-		}
-		else {
-			return null;
-		}
+	@Override
+	public IPropertyValidatorBuilder addBeanValidator(final Class<?> beanType, final String propertyName) {
+		Assert.paramNotNull(beanType, "beanType");
+		Assert.paramNotNull(propertyName, "propertyName");
+		validators.add(new BeanPropertyValidatorAdapter(beanType, propertyName));
+		return this;
 	}
+
+	@Override
+	public IValidator<Object> build(final Class<?> propertyValueType) {
+		return new PropertyValidatorImpl(propertyValueType, elementTypeValidators, validators);
+	}
+
 }

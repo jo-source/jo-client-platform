@@ -33,6 +33,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Past;
 import javax.validation.constraints.Size;
 
 import org.jowidgets.cap.common.api.bean.IBean;
@@ -98,6 +99,7 @@ public interface IUser extends IBean {
 
 	void setLastName(final String lastName);
 
+	@Past
 	Date getDateOfBirth();
 
 	Double getWeight();

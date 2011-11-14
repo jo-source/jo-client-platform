@@ -32,8 +32,6 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-import javax.validation.Validator;
-
 import org.jowidgets.api.image.IconsSmall;
 import org.jowidgets.api.toolkit.IToolkit;
 import org.jowidgets.api.toolkit.Toolkit;
@@ -199,10 +197,6 @@ public final class CapUiToolkit {
 
 	public static IBeanFormToolkit beanFormToolkit() {
 		return getInstance().beanFormToolkit();
-	}
-
-	public static Validator beanValidator() {
-		return getInstance().beanValidator();
 	}
 
 	public static ILookUpCache lookUpCache() {

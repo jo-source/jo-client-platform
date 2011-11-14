@@ -31,9 +31,6 @@ package org.jowidgets.cap.ui.impl;
 import java.util.Collection;
 import java.util.Collections;
 
-import javax.validation.Validation;
-import javax.validation.Validator;
-
 import org.jowidgets.cap.ui.api.ICapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
 import org.jowidgets.cap.ui.api.bean.BeanMessageType;
@@ -69,7 +66,6 @@ public final class DefaultCapUiToolkit implements ICapUiToolkit {
 	private IAttributeToolkit attributeToolkit;
 	private IFilterToolkit filterToolkit;
 	private ICapWorkbenchToolkit workbenchToolkit;
-	private Validator beanValidator;
 	private IDisplayFormatFactory displayFormatFactory;
 	private IInputControlSupportRegistry inputControlRegistry;
 	private ILookUpCache lookUpCache;
@@ -209,14 +205,6 @@ public final class DefaultCapUiToolkit implements ICapUiToolkit {
 	@Override
 	public IBeanFormToolkit beanFormToolkit() {
 		return new BeanFormToolkitImpl();
-	}
-
-	@Override
-	public Validator beanValidator() {
-		if (beanValidator == null) {
-			beanValidator = Validation.buildDefaultValidatorFactory().getValidator();
-		}
-		return beanValidator;
 	}
 
 	@Override

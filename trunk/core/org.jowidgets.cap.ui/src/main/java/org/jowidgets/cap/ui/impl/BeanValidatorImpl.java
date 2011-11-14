@@ -53,7 +53,7 @@ final class BeanValidatorImpl<BEAN_TYPE> implements IBeanValidator<BEAN_TYPE> {
 	@Override
 	public IValidationResult validate(final IBeanProxy<BEAN_TYPE> bean) {
 		// TODO MG bean validators must be considered
-		return null;
+		return ValidationResult.ok();
 	}
 
 	@Override
@@ -62,7 +62,7 @@ final class BeanValidatorImpl<BEAN_TYPE> implements IBeanValidator<BEAN_TYPE> {
 		if (attribute != null) {
 			final IValidator<Object> validator = attribute.getValidator();
 			if (validator != null) {
-				return validator.validate(value);
+				return validator.validate(value).withContext(attribute.getCurrentLabel());
 			}
 		}
 		return ValidationResult.ok();

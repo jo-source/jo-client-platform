@@ -38,6 +38,7 @@ import org.jowidgets.api.widgets.IInputControl;
 import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.bean.Cardinality;
 import org.jowidgets.cap.common.api.bean.IProperty;
+import org.jowidgets.cap.common.api.bean.IPropertyValidatorBuilder;
 import org.jowidgets.cap.common.api.bean.IValueRange;
 import org.jowidgets.cap.common.api.lookup.ILookUpValueRange;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
@@ -55,8 +56,11 @@ import org.jowidgets.cap.ui.api.control.IInputControlSupport;
 import org.jowidgets.common.types.AlignmentHorizontal;
 import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
 import org.jowidgets.util.Assert;
+import org.jowidgets.validation.IValidator;
 
 final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilder<ELEMENT_VALUE_TYPE> {
+
+	private final IPropertyValidatorBuilder propertyValidatorBuilder;
 
 	private String propertyName;
 	private IValueRange valueRange;
@@ -76,6 +80,8 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 	private boolean filterable;
 	private Class<?> valueType;
 	private Class<? extends ELEMENT_VALUE_TYPE> elementValueType;
+	private IValidator<Object> validator;
+	private boolean validatorAdded;
 	private Cardinality cardinality;
 	private IDisplayFormat displayFormat;
 
@@ -121,6 +127,7 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 		this.filterable = attribute.isFilterable();
 		this.valueType = attribute.getValueType();
 		this.elementValueType = attribute.getElementValueType();
+		this.validator = attribute.getValidator();
 		this.cardinality = attribute.getCardinality();
 		this.displayFormat = attribute.getDisplayFormat();
 		this.controlPanels = attribute.getControlPanels();
@@ -132,6 +139,7 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 		Assert.paramNotNull(property, "property");
 		this.valueType = property.getValueType();
 		this.elementValueType = (Class<? extends ELEMENT_VALUE_TYPE>) property.getElementValueType();
+		this.validator = property.getValidator();
 		this.cardinality = property.getCardinality();
 		this.propertyName = property.getName();
 		this.valueRange = property.getValueRange();
@@ -148,6 +156,7 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 	}
 
 	private AttributeBuilderImpl() {
+		this.propertyValidatorBuilder = CapCommonToolkit.propertyValidatorBuilder();
 		this.controlPanels = new LinkedList<IControlPanelProvider<? extends ELEMENT_VALUE_TYPE>>();
 		this.valueRange = CapCommonToolkit.staticValueRangeFactory().create();
 		this.labelDisplayFormat = DisplayFormat.SHORT;
@@ -159,6 +168,7 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 		this.tableColumnWidth = 100;
 		this.sortable = true;
 		this.filterable = true;
+		this.validatorAdded = false;
 	}
 
 	@Override
@@ -283,6 +293,27 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 	@Override
 	public IAttributeBuilder<ELEMENT_VALUE_TYPE> setFilterable(final boolean filterable) {
 		this.filterable = filterable;
+		return this;
+	}
+
+	@Override
+	public IAttributeBluePrint<ELEMENT_VALUE_TYPE> addValidator(final IValidator<? extends Object> validator) {
+		Assert.paramNotNull(validator, "validator");
+		this.propertyValidatorBuilder.addValidator(validator);
+		return this;
+	}
+
+	@Override
+	public IAttributeBluePrint<ELEMENT_VALUE_TYPE> addElementTypeValidator(final IValidator<ELEMENT_VALUE_TYPE> validator) {
+		Assert.paramNotNull(validator, "validator");
+		this.propertyValidatorBuilder.addElementTypeValidator(validator);
+		return this;
+	}
+
+	@Override
+	public IAttributeBluePrint<ELEMENT_VALUE_TYPE> addBeanValidator(final Class<?> beanType) {
+		Assert.paramNotNull(beanType, "beanType");
+		this.propertyValidatorBuilder.addBeanValidator(beanType, propertyName);
 		return this;
 	}
 
@@ -453,6 +484,11 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 			}
 		}
 
+		if (validator != null && !validatorAdded) {
+			propertyValidatorBuilder.addValidator(validator);
+			validatorAdded = true;
+		}
+
 		return new AttributeImpl<ELEMENT_VALUE_TYPE>(
 			propertyName,
 			valueRange,
@@ -472,8 +508,7 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 			filterable,
 			valueType,
 			elementValueType,
-			//TODO MG create validator
-			null,
+			propertyValidatorBuilder.build(valueType),
 			currentCardinality,
 			panels,
 			getDisplayFormat(panels));
