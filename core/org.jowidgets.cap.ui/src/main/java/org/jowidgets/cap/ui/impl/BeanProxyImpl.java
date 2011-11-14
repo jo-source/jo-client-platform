@@ -52,6 +52,7 @@ import org.jowidgets.cap.ui.api.bean.IBeanMessageStateListener;
 import org.jowidgets.cap.ui.api.bean.IBeanModificationStateListener;
 import org.jowidgets.cap.ui.api.bean.IBeanProcessStateListener;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
+import org.jowidgets.cap.ui.api.bean.IBeanProxyListener;
 import org.jowidgets.cap.ui.api.bean.IBeanValidationStateListener;
 import org.jowidgets.cap.ui.api.bean.IBeanValidator;
 import org.jowidgets.cap.ui.api.execution.IExecutionTask;
@@ -79,6 +80,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 	private final BeanMessageStateObservable<BEAN_TYPE> messageStateObservable;
 	private final BeanProcessStateObservable<BEAN_TYPE> processStateObservable;
 	private final BeanValidationStateObservable<BEAN_TYPE> validationStateObservable;
+	private final Set<IBeanProxyListener<BEAN_TYPE>> beanProxyListeners;
 	private final Set<IBeanValidator<BEAN_TYPE>> beanValidators;
 	private final Set<IValidateable> validatables;
 	private final IExecutionTaskListener executionTaskListener;
@@ -115,6 +117,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 		this.processStateObservable = new BeanProcessStateObservable<BEAN_TYPE>();
 		this.messageStateObservable = new BeanMessageStateObservable<BEAN_TYPE>();
 		this.validationStateObservable = new BeanValidationStateObservable<BEAN_TYPE>();
+		this.beanProxyListeners = new LinkedHashSet<IBeanProxyListener<BEAN_TYPE>>();
 		this.beanValidators = new LinkedHashSet<IBeanValidator<BEAN_TYPE>>();
 		this.validatables = new LinkedHashSet<IValidateable>();
 		this.validationCache = new ValidationCache(this);
@@ -221,6 +224,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 		if (!isTransient && !this.beanDto.equals(beanDto)) {
 			throw new IllegalArgumentException("The given parameter 'beanDto' must have the same id and type than this proxy");
 		}
+		fireBeforeBeanUpdate();
 		updateImpl(beanDto);
 	}
 
@@ -230,7 +234,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 		if (!isTransient) {
 			throw new IllegalStateException("This bean is not transient");
 		}
-		setTransient(false);
+		fireBeforeBeanUpdate();
 		updateImpl(beanDto);
 	}
 
@@ -244,6 +248,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 			modificationStateObservable.fireModificationStateChanged(this);
 		}
 		fireValidationConditionsChanged();
+		fireAfterBeanUpdated();
 	}
 
 	@Override
@@ -264,6 +269,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 
 	@Override
 	public void undoModifications() {
+		fireBeforeUndoModifications();
 		final boolean oldModificationState = hasModifications();
 		final List<PropertyChangeEvent> propertyChangeEvents = getPropertyChangesForClear();
 		undoneModifications.clear();
@@ -276,10 +282,12 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 			modificationStateObservable.fireModificationStateChanged(this);
 		}
 		fireValidationConditionsChanged();
+		fireAfterUndoModifications();
 	}
 
 	@Override
 	public void redoModifications() {
+		fireBeforeRedoModifications();
 		final boolean oldModificationState = hasModifications();
 		final List<PropertyChangeEvent> propertyChangeEvents = getPropertyChangesForUndo();
 		for (final Entry<String, IBeanModification> entry : undoneModifications.entrySet()) {
@@ -292,6 +300,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 			modificationStateObservable.fireModificationStateChanged(this);
 		}
 		fireValidationConditionsChanged();
+		fireAfterRedoModifications();
 	}
 
 	@Override
@@ -539,6 +548,54 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 	@Override
 	public void removeMessageStateListener(final IBeanMessageStateListener<BEAN_TYPE> listener) {
 		messageStateObservable.removeMessageStateListener(listener);
+	}
+
+	@Override
+	public void addBeanProxyListener(final IBeanProxyListener<BEAN_TYPE> listener) {
+		Assert.paramNotNull(listener, "listener");
+		beanProxyListeners.add(listener);
+	}
+
+	@Override
+	public void removeBeanProxyListener(final IBeanProxyListener<BEAN_TYPE> listener) {
+		Assert.paramNotNull(listener, "listener");
+		beanProxyListeners.remove(listener);
+	}
+
+	private void fireBeforeBeanUpdate() {
+		for (final IBeanProxyListener<BEAN_TYPE> listener : beanProxyListeners) {
+			listener.beforeBeanUpdate(this);
+		}
+	}
+
+	private void fireAfterBeanUpdated() {
+		for (final IBeanProxyListener<BEAN_TYPE> listener : beanProxyListeners) {
+			listener.afterBeanUpdated(this);
+		}
+	}
+
+	private void fireBeforeUndoModifications() {
+		for (final IBeanProxyListener<BEAN_TYPE> listener : beanProxyListeners) {
+			listener.beforeUndoModifications(this);
+		}
+	}
+
+	private void fireAfterUndoModifications() {
+		for (final IBeanProxyListener<BEAN_TYPE> listener : beanProxyListeners) {
+			listener.afterUndoModifications(this);
+		}
+	}
+
+	private void fireBeforeRedoModifications() {
+		for (final IBeanProxyListener<BEAN_TYPE> listener : beanProxyListeners) {
+			listener.beforeRedoModifications(this);
+		}
+	}
+
+	void fireAfterRedoModifications() {
+		for (final IBeanProxyListener<BEAN_TYPE> listener : beanProxyListeners) {
+			listener.afterRedoModifications(this);
+		}
 	}
 
 	@Override
