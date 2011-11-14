@@ -52,10 +52,12 @@ import org.jowidgets.cap.ui.api.attribute.IControlPanelProvider;
 import org.jowidgets.cap.ui.api.bean.IBeanModificationStateListener;
 import org.jowidgets.cap.ui.api.bean.IBeanProcessStateListener;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
+import org.jowidgets.cap.ui.api.bean.IBeanProxyListener;
 import org.jowidgets.cap.ui.api.form.IBeanFormControlFactory;
 import org.jowidgets.cap.ui.api.form.IBeanFormLayouter;
 import org.jowidgets.cap.ui.api.widgets.IBeanForm;
 import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
+import org.jowidgets.cap.ui.tools.bean.BeanProxyListenerAdapter;
 import org.jowidgets.common.color.IColorConstant;
 import org.jowidgets.common.types.Dimension;
 import org.jowidgets.common.widgets.controller.IInputListener;
@@ -68,6 +70,7 @@ import org.jowidgets.tools.widgets.wrapper.AbstractInputControl;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.EmptyCompatibleEquivalence;
 import org.jowidgets.util.IDecorator;
+import org.jowidgets.util.NullCompatibleEquivalence;
 import org.jowidgets.validation.IValidationConditionListener;
 import org.jowidgets.validation.IValidationResult;
 import org.jowidgets.validation.IValidationResultBuilder;
@@ -94,6 +97,7 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 	private final PropertyChangeListener propertyChangeListenerValidation;
 	private final IBeanModificationStateListener<BEAN_TYPE> modificationStateListener;
 	private final IBeanProcessStateListener<BEAN_TYPE> beanProcessStateListener;
+	private final IBeanProxyListener<BEAN_TYPE> beanProxyListener;
 
 	private final IComposite validationLabelContainer;
 	private final IInputComponentValidationLabel editModeValidationLabel;
@@ -121,6 +125,7 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 		this.propertyChangeListenerValidation = new BeanPropertyChangeListenerValidation();
 		this.modificationStateListener = new BeanModificationStateListener();
 		this.beanProcessStateListener = new BeanProcessStateListener();
+		this.beanProxyListener = new BeanProxyListener();
 
 		for (final IAttribute<?> attribute : bluePrint.getAttributes()) {
 			this.attributes.put(attribute.getPropertyName(), (IAttribute<Object>) attribute);
@@ -162,6 +167,7 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 			this.bean.removePropertyChangeListener(propertyChangeListenerValidation);
 			this.bean.removeModificationStateListener(modificationStateListener);
 			this.bean.removeProcessStateListener(beanProcessStateListener);
+			this.bean.removeBeanProxyListener(beanProxyListener);
 		}
 		super.dispose();
 	}
@@ -174,6 +180,7 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 			this.bean.removePropertyChangeListener(propertyChangeListenerValidation);
 			this.bean.removeModificationStateListener(modificationStateListener);
 			this.bean.removeProcessStateListener(beanProcessStateListener);
+			this.bean.removeBeanProxyListener(beanProxyListener);
 		}
 
 		this.bean = bean;
@@ -226,6 +233,7 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 			bean.addPropertyChangeListener(propertyChangeListenerValidation);
 			bean.addModificationStateListener(modificationStateListener);
 			bean.addProcessStateListener(beanProcessStateListener);
+			bean.addBeanProxyListener(beanProxyListener);
 			bean.registerValidatable(this);
 		}
 		validateAllProperties();
@@ -496,10 +504,13 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 				if (control != null) {
 					control.removeInputListener(bindingListeners.get(propertyName));
 					bean.removePropertyChangeListener(propertyChangeListenerBinding);
-					control.setValue(evt.getNewValue());
+					if (!NullCompatibleEquivalence.equals(control.getValue(), evt.getNewValue())) {
+						control.setValue(evt.getNewValue());
+					}
 					bean.addPropertyChangeListener(propertyChangeListenerBinding);
 					control.addInputListener(bindingListeners.get(propertyName));
 				}
+
 			}
 		}
 	}
@@ -556,8 +567,14 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 					}
 					control.setEditable(attribute.isEditable() && !bean.hasExecution());
 				}
-				resetValidation();
 			}
+		}
+	}
+
+	private final class BeanProxyListener extends BeanProxyListenerAdapter<BEAN_TYPE> {
+		@Override
+		public void afterBeanUpdated(final IBeanProxy<BEAN_TYPE> bean) {
+			validateAllProperties();
 		}
 	}
 

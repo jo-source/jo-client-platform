@@ -124,4 +124,8 @@ public interface IBeanProxy<BEAN_TYPE> extends
 	void dispose();
 
 	BEAN_TYPE getBean();
+
+	void addBeanProxyListener(IBeanProxyListener<BEAN_TYPE> listener);
+
+	void removeBeanProxyListener(IBeanProxyListener<BEAN_TYPE> listener);
 }
