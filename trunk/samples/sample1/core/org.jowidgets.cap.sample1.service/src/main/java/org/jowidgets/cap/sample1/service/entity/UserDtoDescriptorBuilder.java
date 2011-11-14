@@ -34,6 +34,7 @@ import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanPropertyBluePrint;
 import org.jowidgets.cap.common.tools.bean.BeanDtoDescriptorBuilder;
 import org.jowidgets.cap.sample1.common.entity.IUser;
+import org.jowidgets.cap.sample1.common.validation.UserWeightValidator;
 import org.jowidgets.cap.sample1.service.lookup.Countries;
 import org.jowidgets.cap.sample1.service.lookup.Languages;
 import org.jowidgets.cap.sample1.service.lookup.RolesLookUpService;
@@ -92,6 +93,7 @@ public class UserDtoDescriptorBuilder extends BeanDtoDescriptorBuilder {
 		propertyBp.setLabelLong(Messages.getString("UserDtoDescriptorBuilder.weight_long")); //$NON-NLS-1$
 		propertyBp.setDescription(Messages.getString("UserDtoDescriptorBuilder.weight_description")); //$NON-NLS-1$
 		propertyBp.setVisible(visibleProperties.contains(IUser.WEIGHT_PROPERTY));
+		propertyBp.addValidator(new UserWeightValidator());
 
 		propertyBp = addProperty(IUser.BMI_PROPERTY);
 		propertyBp.setLabel(Messages.getString("UserDtoDescriptorBuilder.bmi")); //$NON-NLS-1$
