@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.sample1.ui.attribute;
 
+import java.util.Date;
 import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IProperty;
@@ -65,7 +66,7 @@ public class UserAttributesFactory {
 		genderAttributeBp.addControlPanel(DisplayFormat.LONG).setConverter(new GenderConverterLong().getConverter());
 		genderAttributeBp.setDisplayFormat(DisplayFormat.SHORT).setTableAlignment(AlignmentHorizontal.CENTER);
 
-		final IAttributeBluePrint<Object> birthdayAttributeBp = modifierBuilder.addModifier(IUser.DATE_OF_BIRTH_PROPERTY);
+		final IAttributeBluePrint<Date> birthdayAttributeBp = modifierBuilder.addModifier(IUser.DATE_OF_BIRTH_PROPERTY);
 		birthdayAttributeBp.setLabelDisplayFormat(DisplayFormat.LONG).setDisplayFormat(DateDisplayFormat.DATE);
 
 		modifierBuilder.addModifier(IUser.ADMIN_PROPERTY).setTableAlignment(AlignmentHorizontal.CENTER);

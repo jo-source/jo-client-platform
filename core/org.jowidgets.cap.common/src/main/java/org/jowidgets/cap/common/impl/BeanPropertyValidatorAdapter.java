@@ -26,33 +26,51 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.bean;
+package org.jowidgets.cap.common.impl;
 
+import java.io.Serializable;
+import java.util.Set;
+
+import javax.validation.ConstraintViolation;
+import javax.validation.Validator;
+
+import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.validation.IValidationResult;
+import org.jowidgets.validation.IValidator;
+import org.jowidgets.validation.ValidationResult;
 
-public interface IBeanValidator<BEAN_TYPE> {
+final class BeanPropertyValidatorAdapter implements IValidator<Object>, Serializable {
 
-	/**
-	 * Validates the bean.
-	 * This could be used to for validation issues that could not validated independently
-	 * for each property (e.g. incoming date < outgoing date).
-	 * For performance benefit, implementation should not invoke the independent property
-	 * validation here, because the properties will be validated in a separate step.
-	 * 
-	 * @param bean The bean to validate
-	 * 
-	 * @return The validation result, never null
-	 */
-	IValidationResult validate(IBeanProxy<BEAN_TYPE> bean);
+	private static final long serialVersionUID = 3669089126219297774L;
 
-	/**
-	 * Validates a single bean property.
-	 * 
-	 * @param propertyName The property to validate
-	 * @param value The value of the property
-	 * 
-	 * @return The validation result.
-	 */
-	IValidationResult validateProperty(String propertyName, Object value);
+	private final Class<?> beanType;
+	private final String propertyName;
+	private boolean propertyValidatable;
+
+	BeanPropertyValidatorAdapter(final Class<?> beanType, final String propertyName) {
+		this.beanType = beanType;
+		this.propertyName = propertyName;
+		this.propertyValidatable = true;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public IValidationResult validate(final Object value) {
+		if (propertyValidatable) {
+			Set<ConstraintViolation<Object>> beanValidationResult;
+			try {
+				final Validator beanValidator = CapCommonToolkit.beanValidator();
+				beanValidationResult = beanValidator.validateValue((Class<Object>) beanType, propertyName, value);
+			}
+			catch (final Exception e) {
+				propertyValidatable = false;
+				return ValidationResult.ok();
+			}
+			for (final ConstraintViolation<Object> violation : beanValidationResult) {
+				return ValidationResult.error(violation.getMessage());
+			}
+		}
+		return ValidationResult.ok();
+	}
 
 }

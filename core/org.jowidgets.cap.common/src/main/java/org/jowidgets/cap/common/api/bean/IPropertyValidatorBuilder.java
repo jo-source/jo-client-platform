@@ -26,33 +26,25 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.bean;
+package org.jowidgets.cap.common.api.bean;
 
-import org.jowidgets.validation.IValidationResult;
+import org.jowidgets.validation.IValidator;
 
-public interface IBeanValidator<BEAN_TYPE> {
-
-	/**
-	 * Validates the bean.
-	 * This could be used to for validation issues that could not validated independently
-	 * for each property (e.g. incoming date < outgoing date).
-	 * For performance benefit, implementation should not invoke the independent property
-	 * validation here, because the properties will be validated in a separate step.
-	 * 
-	 * @param bean The bean to validate
-	 * 
-	 * @return The validation result, never null
-	 */
-	IValidationResult validate(IBeanProxy<BEAN_TYPE> bean);
+public interface IPropertyValidatorBuilder {
 
 	/**
-	 * Validates a single bean property.
+	 * Adds a bean property validator using bean validation (jsr 303)
 	 * 
+	 * @param beanType The type of the bean
 	 * @param propertyName The property to validate
-	 * @param value The value of the property
 	 * 
-	 * @return The validation result.
+	 * @return This builder
 	 */
-	IValidationResult validateProperty(String propertyName, Object value);
+	IPropertyValidatorBuilder addBeanValidator(Class<?> beanType, String propertyName);
 
+	IPropertyValidatorBuilder addValidator(IValidator<? extends Object> validator);
+
+	IPropertyValidatorBuilder addElementTypeValidator(IValidator<? extends Object> validator);
+
+	IValidator<Object> build(Class<?> valueType);
 }

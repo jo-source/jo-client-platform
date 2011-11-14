@@ -30,6 +30,8 @@ package org.jowidgets.cap.common.api;
 
 import java.util.Collection;
 
+import javax.validation.Validator;
+
 import org.jowidgets.cap.common.api.bean.IBeanDataBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanDtoBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
@@ -39,6 +41,7 @@ import org.jowidgets.cap.common.api.bean.IBeanModificationBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanPropertyBuilder;
 import org.jowidgets.cap.common.api.bean.IProperty;
 import org.jowidgets.cap.common.api.bean.IPropertyBuilder;
+import org.jowidgets.cap.common.api.bean.IPropertyValidatorBuilder;
 import org.jowidgets.cap.common.api.bean.IStaticValueRangeFactory;
 import org.jowidgets.cap.common.api.entity.IEntityClassBuilder;
 import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptorBuilder;
@@ -86,4 +89,9 @@ public interface ICapCommonToolkit {
 	IFilterFactory filterFactory();
 
 	ILookUpToolkit lookUpToolkit();
+
+	IPropertyValidatorBuilder propertyValidatorBuilder();
+
+	Validator beanValidator();
+
 }

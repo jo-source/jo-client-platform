@@ -30,6 +30,9 @@ package org.jowidgets.cap.common.impl;
 
 import java.util.Collection;
 
+import javax.validation.Validation;
+import javax.validation.Validator;
+
 import org.jowidgets.cap.common.api.ICapCommonToolkit;
 import org.jowidgets.cap.common.api.bean.IBeanDataBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanDtoBuilder;
@@ -40,6 +43,7 @@ import org.jowidgets.cap.common.api.bean.IBeanModificationBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanPropertyBuilder;
 import org.jowidgets.cap.common.api.bean.IProperty;
 import org.jowidgets.cap.common.api.bean.IPropertyBuilder;
+import org.jowidgets.cap.common.api.bean.IPropertyValidatorBuilder;
 import org.jowidgets.cap.common.api.bean.IStaticValueRangeFactory;
 import org.jowidgets.cap.common.api.entity.IEntityClassBuilder;
 import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptorBuilder;
@@ -55,6 +59,8 @@ public final class DefaultCapCommonToolkit implements ICapCommonToolkit {
 	private final IFilterFactory filterFactory;
 	private final IStaticValueRangeFactory valueRangeFactory;
 	private final ILookUpToolkit lookUpToolkit;
+
+	private Validator beanValidator;
 
 	public DefaultCapCommonToolkit() {
 		this.sortFactory = new SortFactoryImpl();
@@ -156,6 +162,19 @@ public final class DefaultCapCommonToolkit implements ICapCommonToolkit {
 	@Override
 	public ILookUpToolkit lookUpToolkit() {
 		return lookUpToolkit;
+	}
+
+	@Override
+	public IPropertyValidatorBuilder propertyValidatorBuilder() {
+		return new PropertyValidatorBuilder();
+	}
+
+	@Override
+	public Validator beanValidator() {
+		if (beanValidator == null) {
+			beanValidator = Validation.buildDefaultValidatorFactory().getValidator();
+		}
+		return beanValidator;
 	}
 
 }

@@ -48,12 +48,14 @@ import org.jowidgets.validation.IValidator;
 
 final class BeanPropertyBuilderImpl implements IBeanPropertyBuilder {
 
+	private final Class<?> beanType;
 	private final PropertyBuilder propertyBuilder;
 
 	BeanPropertyBuilderImpl(final Class<?> beanType, final String propertyName) {
 		Assert.paramNotNull(beanType, "beanType");
 		Assert.paramNotEmpty(propertyName, "propertyName");
 
+		this.beanType = beanType;
 		this.propertyBuilder = new PropertyBuilder();
 
 		propertyBuilder.setName(propertyName);
@@ -215,7 +217,9 @@ final class BeanPropertyBuilderImpl implements IBeanPropertyBuilder {
 
 	@Override
 	public IProperty build() {
+		if (!propertyBuilder.isBeanValidatorAdded()) {
+			propertyBuilder.addBeanValidator(beanType);
+		}
 		return propertyBuilder.build();
 	}
-
 }

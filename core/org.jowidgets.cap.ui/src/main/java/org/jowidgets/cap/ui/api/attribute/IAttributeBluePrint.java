@@ -35,6 +35,7 @@ import org.jowidgets.cap.common.api.bean.IValueRange;
 import org.jowidgets.cap.ui.api.control.DisplayFormat;
 import org.jowidgets.cap.ui.api.control.IDisplayFormat;
 import org.jowidgets.common.types.AlignmentHorizontal;
+import org.jowidgets.validation.IValidator;
 
 public interface IAttributeBluePrint<ELEMENT_VALUE_TYPE> {
 
@@ -77,6 +78,19 @@ public interface IAttributeBluePrint<ELEMENT_VALUE_TYPE> {
 	IAttributeBluePrint<ELEMENT_VALUE_TYPE> setFilterable(boolean filterable);
 
 	IAttributeBluePrint<ELEMENT_VALUE_TYPE> setLabelDisplayFormat(DisplayFormat displayFormat);
+
+	IAttributeBluePrint<ELEMENT_VALUE_TYPE> addValidator(IValidator<? extends Object> validator);
+
+	IAttributeBluePrint<ELEMENT_VALUE_TYPE> addElementTypeValidator(IValidator<ELEMENT_VALUE_TYPE> validator);
+
+	/**
+	 * Adds a bean property validator using bean validation (jsr 303)
+	 * 
+	 * @param beanType The type of the bean
+	 * 
+	 * @return This builder
+	 */
+	IAttributeBluePrint<ELEMENT_VALUE_TYPE> addBeanValidator(Class<?> beanType);
 
 	/**
 	 * Sets the display format.
