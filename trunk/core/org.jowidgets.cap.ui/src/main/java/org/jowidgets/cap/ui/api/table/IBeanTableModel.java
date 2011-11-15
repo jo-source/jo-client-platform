@@ -40,6 +40,7 @@ import org.jowidgets.cap.common.api.service.IDeleterService;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IAttributeFilter;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
+import org.jowidgets.cap.ui.api.bean.IBeanValidator;
 import org.jowidgets.cap.ui.api.filter.IUiFilter;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.model.IDataModel;
@@ -98,6 +99,8 @@ public interface IBeanTableModel<BEAN_TYPE> extends IDataModel, IBeanListModel<B
 	List<IAttribute<Object>> getAttributes();
 
 	List<IAttribute<Object>> getAttributes(IAttributeFilter filter);
+
+	IBeanValidator<BEAN_TYPE> getBeanValidator();
 
 	Object getValue(int rowIndex, int columnIndex);
 

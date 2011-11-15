@@ -57,6 +57,7 @@ import org.jowidgets.cap.ui.api.bean.IBeanExecptionConverter;
 import org.jowidgets.cap.ui.api.bean.IBeanMessageBuilder;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
+import org.jowidgets.cap.ui.api.bean.IBeanValidator;
 import org.jowidgets.cap.ui.api.execution.BeanModificationStatePolicy;
 import org.jowidgets.cap.ui.api.execution.BeanSelectionPolicy;
 import org.jowidgets.cap.ui.api.execution.IExecutionInterceptor;
@@ -75,6 +76,7 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 
 	private final IBeanListModel<BEAN_TYPE> model;
 	private final IBeanFormBluePrint<BEAN_TYPE> beanFormBp;
+	private final IBeanValidator<BEAN_TYPE> beanValidator;
 	private final ICreatorService creatorService;
 	private final IBeanExecptionConverter exceptionConverter;
 	private final BeanListModelEnabledChecker<BEAN_TYPE> enabledChecker;
@@ -87,6 +89,7 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 
 	BeanCreatorCommand(
 		final Class<? extends BEAN_TYPE> beanType,
+		final IBeanValidator<BEAN_TYPE> beanValidator,
 		final IBeanListModel<BEAN_TYPE> model,
 		final IBeanFormBluePrint<BEAN_TYPE> beanFormBp,
 		final List<IEnabledChecker> enabledCheckers,
@@ -132,6 +135,7 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 				defaultValues.put(propertyName, defaultValue);
 			}
 		}
+		this.beanValidator = beanValidator;
 	}
 
 	@Override
@@ -155,7 +159,10 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 			return;
 		}
 
-		final IBeanProxy<BEAN_TYPE> proxy = beanFactory.createTransientProxy(properties, defaultValues);
+		final IBeanProxy<BEAN_TYPE> bean = beanFactory.createTransientProxy(properties, defaultValues);
+		if (beanValidator != null) {
+			bean.addBeanValidator(beanValidator);
+		}
 
 		final IBeanDialogBluePrint<BEAN_TYPE> beanDialogBp = CapUiToolkit.bluePrintFactory().beanDialog(beanFormBp);
 		beanDialogBp.autoPackOff();
@@ -166,13 +173,13 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 		beanDialogBp.setExecutionContext(executionContext);
 		final IBeanDialog<BEAN_TYPE> dialog = Toolkit.getActiveWindow().createChildWindow(beanDialogBp);
 		dialog.pack();
-		dialog.setBean(proxy);
+		dialog.setBean(bean);
 
 		dialog.setSize(Math.max(dialog.getSize().getWidth(), INITIAL_MIN_WIDTH), dialog.getSize().getHeight());
 
 		dialog.setVisible(true);
 		if (dialog.isOkPressed()) {
-			createBean(executionContext, createUnmodifiedBean(proxy));
+			createBean(executionContext, createUnmodifiedBean(bean));
 		}
 		else {
 			executionObservable.fireAfterExecutionCanceled(executionContext);
@@ -184,6 +191,9 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 	private IBeanProxy<BEAN_TYPE> createUnmodifiedBean(final IBeanProxy<BEAN_TYPE> proxy) {
 		final IBeanProxy<BEAN_TYPE> result = beanFactory.createProxy(proxy, properties);
 		result.setTransient(true);
+		if (beanValidator != null) {
+			result.addBeanValidator(beanValidator);
+		}
 		return result;
 	}
 

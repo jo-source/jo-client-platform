@@ -35,6 +35,7 @@ import org.jowidgets.api.command.IEnabledChecker;
 import org.jowidgets.cap.common.api.service.ICreatorService;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.bean.IBeanExecptionConverter;
+import org.jowidgets.cap.ui.api.bean.IBeanValidator;
 import org.jowidgets.cap.ui.api.execution.IExecutionInterceptor;
 import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
 import org.jowidgets.common.image.IImageConstant;
@@ -42,9 +43,9 @@ import org.jowidgets.common.types.Accelerator;
 import org.jowidgets.common.types.Modifier;
 import org.jowidgets.service.api.IServiceId;
 
-public interface ICreatorActionBuilder {
+public interface ICreatorActionBuilder<BEAN_TYPE> {
 
-	ICreatorActionBuilder setText(String text);
+	ICreatorActionBuilder<BEAN_TYPE> setText(String text);
 
 	/**
 	 * Sets the entity label (singular).
@@ -54,37 +55,39 @@ public interface ICreatorActionBuilder {
 	 * 
 	 * @return This builder
 	 */
-	ICreatorActionBuilder setEntityLabelSingular(String label);
+	ICreatorActionBuilder<BEAN_TYPE> setEntityLabelSingular(String label);
 
-	ICreatorActionBuilder setToolTipText(final String toolTipText);
+	ICreatorActionBuilder<BEAN_TYPE> setToolTipText(final String toolTipText);
 
-	ICreatorActionBuilder setIcon(IImageConstant icon);
+	ICreatorActionBuilder<BEAN_TYPE> setIcon(IImageConstant icon);
 
-	ICreatorActionBuilder setMnemonic(final Character mnemonic);
+	ICreatorActionBuilder<BEAN_TYPE> setMnemonic(final Character mnemonic);
 
-	ICreatorActionBuilder setMnemonic(final char mnemonic);
+	ICreatorActionBuilder<BEAN_TYPE> setMnemonic(final char mnemonic);
 
-	ICreatorActionBuilder setAccelerator(Accelerator accelerator);
+	ICreatorActionBuilder<BEAN_TYPE> setAccelerator(Accelerator accelerator);
 
-	ICreatorActionBuilder setAccelerator(final char key, final Modifier... modifier);
+	ICreatorActionBuilder<BEAN_TYPE> setAccelerator(final char key, final Modifier... modifier);
 
-	ICreatorActionBuilder setBeanForm(IBeanFormBluePrint<?> beanForm);
+	ICreatorActionBuilder<BEAN_TYPE> setBeanForm(IBeanFormBluePrint<BEAN_TYPE> beanForm);
 
-	ICreatorActionBuilder setBeanForm(List<? extends IAttribute<?>> attributes);
+	ICreatorActionBuilder<BEAN_TYPE> setBeanForm(List<? extends IAttribute<?>> attributes);
 
-	ICreatorActionBuilder setCreatorService(ICreatorService creatorService);
+	ICreatorActionBuilder<BEAN_TYPE> setBeanValidator(IBeanValidator<BEAN_TYPE> beanValidator);
 
-	ICreatorActionBuilder setCreatorService(IServiceId<ICreatorService> creatorServiceId);
+	ICreatorActionBuilder<BEAN_TYPE> setCreatorService(ICreatorService creatorService);
 
-	ICreatorActionBuilder setCreatorService(String creatorServiceId);
+	ICreatorActionBuilder<BEAN_TYPE> setCreatorService(IServiceId<ICreatorService> creatorServiceId);
 
-	ICreatorActionBuilder setAnySelection(boolean anySelection);
+	ICreatorActionBuilder<BEAN_TYPE> setCreatorService(String creatorServiceId);
 
-	ICreatorActionBuilder addEnabledChecker(IEnabledChecker enabledChecker);
+	ICreatorActionBuilder<BEAN_TYPE> setAnySelection(boolean anySelection);
 
-	ICreatorActionBuilder setExceptionConverter(IBeanExecptionConverter exceptionConverter);
+	ICreatorActionBuilder<BEAN_TYPE> addEnabledChecker(IEnabledChecker enabledChecker);
 
-	ICreatorActionBuilder addExecutionInterceptor(IExecutionInterceptor interceptor);
+	ICreatorActionBuilder<BEAN_TYPE> setExceptionConverter(IBeanExecptionConverter exceptionConverter);
+
+	ICreatorActionBuilder<BEAN_TYPE> addExecutionInterceptor(IExecutionInterceptor interceptor);
 
 	IAction build();
 

@@ -524,11 +524,11 @@ final class BeanTableMenuFactoryImpl<BEAN_TYPE> implements IBeanTableMenuFactory
 	}
 
 	@Override
-	public ICreatorActionBuilder creatorActionBuilder(final IBeanTable<BEAN_TYPE> table) {
+	public ICreatorActionBuilder<BEAN_TYPE> creatorActionBuilder(final IBeanTable<BEAN_TYPE> table) {
 		Assert.paramNotNull(table, "table");
 		Assert.paramNotNull(table.getModel(), "table.getModel()");
 		Assert.paramNotNull(table.getModel().getCreatorService(), "table.getModel().getCreatorService()");
-		ICreatorActionBuilder builder = BeanTableCreatorActionBuilderFactory.createBuilder(table);
+		ICreatorActionBuilder<BEAN_TYPE> builder = BeanTableCreatorActionBuilderFactory.createBuilder(table);
 		for (final IBeanTableMenuInterceptor<BEAN_TYPE> interceptor : interceptors) {
 			if (builder != null) {
 				builder = interceptor.creatorActionBuilder(table, builder);

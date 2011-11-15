@@ -188,7 +188,9 @@ public class BeanTableMenuInterceptorAdapter<BEAN_TYPE> implements IBeanTableMen
 	}
 
 	@Override
-	public ICreatorActionBuilder creatorActionBuilder(final IBeanTable<BEAN_TYPE> table, final ICreatorActionBuilder builder) {
+	public ICreatorActionBuilder<BEAN_TYPE> creatorActionBuilder(
+		final IBeanTable<BEAN_TYPE> table,
+		final ICreatorActionBuilder<BEAN_TYPE> builder) {
 		return builder;
 	}
 
