@@ -235,6 +235,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 			throw new IllegalStateException("This bean is not transient");
 		}
 		fireBeforeBeanUpdate();
+		setTransient(false);
 		updateImpl(beanDto);
 	}
 
