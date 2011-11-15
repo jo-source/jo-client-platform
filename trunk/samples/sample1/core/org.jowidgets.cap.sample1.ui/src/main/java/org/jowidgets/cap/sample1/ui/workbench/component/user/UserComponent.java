@@ -32,6 +32,7 @@ import org.jowidgets.api.command.IAction;
 import org.jowidgets.cap.sample1.common.entity.EntityIds;
 import org.jowidgets.cap.sample1.common.entity.IUser;
 import org.jowidgets.cap.sample1.common.service.reader.ReaderServices;
+import org.jowidgets.cap.sample1.common.validation.UserBmiValidator;
 import org.jowidgets.cap.sample1.ui.attribute.UserAttributesFactory;
 import org.jowidgets.cap.sample1.ui.workbench.command.WorkbenchActions;
 import org.jowidgets.cap.sample1.ui.workbench.component.user.view.RoleTableView;
@@ -125,6 +126,7 @@ public class UserComponent extends AbstractComponent implements IComponent {
 		final IBeanTableModelBuilder<IUser> builder = CapUiToolkit.beanTableModelBuilder(IUser.class);
 		builder.setAttributes(new UserAttributesFactory().tableAttributes());
 		builder.setReaderService(ReaderServices.ALL_USERS, createReaderParameterProvider());
+		builder.addBeanValidator(new UserBmiValidator());
 		return builder.build();
 	}
 

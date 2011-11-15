@@ -51,42 +51,42 @@ public class RoleDtoDescriptorBuilder {
 
 		this.properties = new LinkedList<IProperty>();
 
-		IPropertyBuilder propertyBuilder;
-		propertyBuilder = builder();
-		propertyBuilder.setName(IBean.ID_PROPERTY);
-		propertyBuilder.setLabel(Messages.getString("RoleDtoDescriptorBuilder.id")); //$NON-NLS-1$
-		propertyBuilder.setDescription(Messages.getString("RoleDtoDescriptorBuilder.id_description")); //$NON-NLS-1$
-		propertyBuilder.setMandatory(true);
-		propertyBuilder.setReadonly(true);
-		propertyBuilder.setValueType(Long.class);
-		propertyBuilder.setVisible(visibleProperties.contains(IBean.ID_PROPERTY));
-		properties.add(propertyBuilder.build());
+		IPropertyBuilder builder;
+		builder = builder();
+		builder.setName(IBean.ID_PROPERTY);
+		builder.setLabel(Messages.getString("RoleDtoDescriptorBuilder.id")); //$NON-NLS-1$
+		builder.setDescription(Messages.getString("RoleDtoDescriptorBuilder.id_description")); //$NON-NLS-1$
+		builder.setMandatory(true);
+		builder.setReadonly(true);
+		builder.setValueType(Long.class);
+		builder.setVisible(visibleProperties.contains(IBean.ID_PROPERTY));
+		properties.add(builder.build());
 
-		propertyBuilder = builder();
-		propertyBuilder.setName(RoleInitializer.NAME_PROPERTY);
-		propertyBuilder.setLabel(Messages.getString("RoleDtoDescriptorBuilder.name")); //$NON-NLS-1$
-		propertyBuilder.setDescription(Messages.getString("RoleDtoDescriptorBuilder.name_description")); //$NON-NLS-1$
-		propertyBuilder.setMandatory(true);
-		propertyBuilder.setVisible(visibleProperties.contains(RoleInitializer.NAME_PROPERTY));
-		properties.add(propertyBuilder.build());
+		builder = builder();
+		builder.setName(RoleInitializer.NAME_PROPERTY);
+		builder.setLabel(Messages.getString("RoleDtoDescriptorBuilder.name")); //$NON-NLS-1$
+		builder.setDescription(Messages.getString("RoleDtoDescriptorBuilder.name_description")); //$NON-NLS-1$
+		builder.setMandatory(true);
+		builder.setVisible(visibleProperties.contains(RoleInitializer.NAME_PROPERTY));
+		properties.add(builder.build());
 
-		propertyBuilder = builder();
-		propertyBuilder.setName(RoleInitializer.DESCRIPTION_PROPERTY);
-		propertyBuilder.setLabel(Messages.getString("RoleDtoDescriptorBuilder.description")); //$NON-NLS-1$
-		propertyBuilder.setDescription(Messages.getString("RoleDtoDescriptorBuilder.description_description")); //$NON-NLS-1$
-		propertyBuilder.setMandatory(false);
-		propertyBuilder.setVisible(visibleProperties.contains(RoleInitializer.DESCRIPTION_PROPERTY));
-		properties.add(propertyBuilder.build());
+		builder = builder();
+		builder.setName(RoleInitializer.DESCRIPTION_PROPERTY);
+		builder.setLabel(Messages.getString("RoleDtoDescriptorBuilder.description")); //$NON-NLS-1$
+		builder.setDescription(Messages.getString("RoleDtoDescriptorBuilder.description_description")); //$NON-NLS-1$
+		builder.setMandatory(false);
+		builder.setVisible(visibleProperties.contains(RoleInitializer.DESCRIPTION_PROPERTY));
+		properties.add(builder.build());
 
-		propertyBuilder = builder();
-		propertyBuilder.setName(IBean.VERSION_PROPERTY);
-		propertyBuilder.setLabel(Messages.getString("RoleDtoDescriptorBuilder.version")); //$NON-NLS-1$
-		propertyBuilder.setDescription(Messages.getString("RoleDtoDescriptorBuilder.version_description")); //$NON-NLS-1$
-		propertyBuilder.setMandatory(true);
-		propertyBuilder.setReadonly(true);
-		propertyBuilder.setValueType(long.class);
-		propertyBuilder.setVisible(visibleProperties.contains(IBean.VERSION_PROPERTY));
-		properties.add(propertyBuilder.build());
+		builder = builder();
+		builder.setName(IBean.VERSION_PROPERTY);
+		builder.setLabel(Messages.getString("RoleDtoDescriptorBuilder.version")); //$NON-NLS-1$
+		builder.setDescription(Messages.getString("RoleDtoDescriptorBuilder.version_description")); //$NON-NLS-1$
+		builder.setMandatory(true);
+		builder.setReadonly(true);
+		builder.setValueType(long.class);
+		builder.setVisible(visibleProperties.contains(IBean.VERSION_PROPERTY));
+		properties.add(builder.build());
 
 	}
 

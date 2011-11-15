@@ -41,7 +41,7 @@ import org.jowidgets.cap.common.api.service.ICreatorService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.bean.IBeanExecptionConverter;
-import org.jowidgets.cap.ui.api.bean.IBeanValidator;
+import org.jowidgets.cap.ui.api.bean.IBeanPropertyValidator;
 import org.jowidgets.cap.ui.api.command.ICreatorActionBuilder;
 import org.jowidgets.cap.ui.api.execution.IExecutionInterceptor;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
@@ -66,7 +66,7 @@ final class CreatorActionBuilder<BEAN_TYPE> extends AbstractSingleUseBuilder<IAc
 	private final List<IExecutionInterceptor> executionInterceptors;
 	private boolean anySelection;
 
-	private IBeanValidator<BEAN_TYPE> beanValidator;
+	private IBeanPropertyValidator<BEAN_TYPE> beanPropertyValidator;
 	private ICreatorService creatorService;
 	private IBeanFormBluePrint<BEAN_TYPE> beanFormBp;
 	private IBeanExecptionConverter exceptionConverter;
@@ -220,8 +220,8 @@ final class CreatorActionBuilder<BEAN_TYPE> extends AbstractSingleUseBuilder<IAc
 	}
 
 	@Override
-	public ICreatorActionBuilder<BEAN_TYPE> setBeanValidator(final IBeanValidator<BEAN_TYPE> beanValidator) {
-		this.beanValidator = beanValidator;
+	public ICreatorActionBuilder<BEAN_TYPE> setBeanPropertyValidator(final IBeanPropertyValidator<BEAN_TYPE> beanValidator) {
+		this.beanPropertyValidator = beanValidator;
 		return this;
 	}
 
@@ -229,7 +229,7 @@ final class CreatorActionBuilder<BEAN_TYPE> extends AbstractSingleUseBuilder<IAc
 	protected IAction doBuild() {
 		final BeanCreatorCommand<BEAN_TYPE> command = new BeanCreatorCommand<BEAN_TYPE>(
 			beanType,
-			beanValidator,
+			beanPropertyValidator,
 			model,
 			beanFormBp,
 			enabledCheckers,

@@ -122,9 +122,9 @@ public class User extends AbstractSampleBean implements IUser {
 		if (height == null || weight == null) {
 			return null;
 		}
-		final double quot = (double) height / 100;
-		if (height / 100 != 0) {
-			return weight / (quot * quot);
+		final double quot = (double) (height * height) / 10000;
+		if (quot != 0) {
+			return weight / quot;
 		}
 		return null;
 	}

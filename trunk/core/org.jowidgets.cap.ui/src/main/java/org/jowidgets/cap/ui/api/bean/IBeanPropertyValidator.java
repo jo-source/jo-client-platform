@@ -26,46 +26,20 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.impl;
+package org.jowidgets.cap.ui.api.bean;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.jowidgets.cap.ui.api.attribute.IAttribute;
-import org.jowidgets.cap.ui.api.bean.IBeanProxy;
-import org.jowidgets.cap.ui.api.bean.IBeanValidator;
 import org.jowidgets.validation.IValidationResult;
-import org.jowidgets.validation.IValidator;
-import org.jowidgets.validation.ValidationResult;
 
-final class BeanValidatorImpl<BEAN_TYPE> implements IBeanValidator<BEAN_TYPE> {
+public interface IBeanPropertyValidator<BEAN_TYPE> {
 
-	private final Map<String, IAttribute<?>> attributes;
-
-	BeanValidatorImpl(final Collection<? extends IAttribute<?>> attributes) {
-		this.attributes = new HashMap<String, IAttribute<?>>();
-		for (final IAttribute<?> attribute : attributes) {
-			this.attributes.put(attribute.getPropertyName(), attribute);
-		}
-	}
-
-	@Override
-	public IValidationResult validate(final IBeanProxy<BEAN_TYPE> bean) {
-		// TODO MG bean validators must be considered
-		return ValidationResult.ok();
-	}
-
-	@Override
-	public IValidationResult validateProperty(final String propertyName, final Object value) {
-		final IAttribute<?> attribute = attributes.get(propertyName);
-		if (attribute != null) {
-			final IValidator<Object> validator = attribute.getValidator();
-			if (validator != null) {
-				return validator.validate(value).withContext(attribute.getCurrentLabel());
-			}
-		}
-		return ValidationResult.ok();
-	}
+	/**
+	 * Validates a bean property.
+	 * 
+	 * @param bean The bean to validate
+	 * @param propertyName The property to validate
+	 * 
+	 * @return The validation result.
+	 */
+	IValidationResult validateProperty(IBeanProxy<BEAN_TYPE> bean, String propertyName);
 
 }

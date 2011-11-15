@@ -28,8 +28,10 @@
 
 package org.jowidgets.cap.ui.impl;
 
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
 import org.jowidgets.cap.common.api.service.IBeanServicesProvider;
@@ -39,6 +41,7 @@ import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.common.api.service.IRefreshService;
 import org.jowidgets.cap.common.api.service.IUpdaterService;
+import org.jowidgets.cap.common.api.validation.IBeanValidator;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
@@ -58,6 +61,7 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> implements IBeanTableModelBuild
 
 	private final Class<? extends BEAN_TYPE> beanType;
 	private final Object entityId;
+	private final Set<IBeanValidator<BEAN_TYPE>> beanValidators;
 
 	private String entityLabelSingular;
 	private String entityLabelPlural;
@@ -81,6 +85,8 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> implements IBeanTableModelBuild
 	BeanTableModelBuilderImpl(final Object entityId, final Class<BEAN_TYPE> beanType) {
 		Assert.paramNotNull(entityId, "entityId");
 		Assert.paramNotNull(beanType, "beanType");
+
+		this.beanValidators = new LinkedHashSet<IBeanValidator<BEAN_TYPE>>();
 		this.beanType = beanType;
 		this.entityId = entityId;
 		this.autoRowCount = true;
@@ -258,6 +264,13 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> implements IBeanTableModelBuild
 	}
 
 	@Override
+	public IBeanTableModelBuilder<BEAN_TYPE> addBeanValidator(final IBeanValidator<BEAN_TYPE> beanValidator) {
+		Assert.paramNotNull(beanValidator, "beanValidator");
+		beanValidators.add(beanValidator);
+		return this;
+	}
+
+	@Override
 	public IBeanTableModelBuilder<BEAN_TYPE> setSorting(final ISortModelConfig sorting) {
 		Assert.paramNotNull(sorting, "sorting");
 		this.sortModelConfig = sorting;
@@ -306,6 +319,7 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> implements IBeanTableModelBuild
 		return new BeanTableModelImpl<BEAN_TYPE>(
 			entityId,
 			beanType,
+			beanValidators,
 			getEntityLabelSingular(),
 			getEntityLabelPlural(),
 			getAttributes(),
