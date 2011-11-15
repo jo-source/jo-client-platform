@@ -52,9 +52,11 @@ final class LookUpComboBoxSelectionImpl extends ComboBoxWrapper<Object> implemen
 
 		this.lastValue = comboBox.getValue();
 		super.setValue(null);
-		setElements(DUMMY_OBJECT);
 
 		final ILookUpAccess lookUpAccess = CapUiToolkit.lookUpCache().getAccess(setup.getLookUpId());
+		if (!lookUpAccess.isInitialized()) {
+			setElements(DUMMY_OBJECT);
+		}
 		lookUpAccess.addCallback(this, false);
 
 		addDisposeListener(new IDisposeListener() {
