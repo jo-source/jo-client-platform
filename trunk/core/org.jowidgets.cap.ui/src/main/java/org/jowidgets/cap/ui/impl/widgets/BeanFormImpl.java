@@ -75,6 +75,7 @@ import org.jowidgets.validation.IValidationConditionListener;
 import org.jowidgets.validation.IValidationResult;
 import org.jowidgets.validation.IValidationResultBuilder;
 import org.jowidgets.validation.IValidator;
+import org.jowidgets.validation.MessageType;
 import org.jowidgets.validation.ValidationResult;
 
 final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN_TYPE>> implements IBeanForm<BEAN_TYPE> {
@@ -320,6 +321,8 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 
 				//change the validation map, if the worst first changed
 				final IValidationResult lastResult = validationResults.get(propertyName);
+				boolean hasMessage = false;
+				boolean hasHint = false;
 				if (lastResult == null || !validationResult.getWorstFirst().equals(lastResult.getWorstFirst())) {
 					final String inputHint = getInputHint();
 					if (!validationResult.isValid()
@@ -327,19 +330,22 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 						&& !bean.isModified(propertyName)
 						&& inputHint != null) {
 						validationResults.put(propertyName, ValidationResult.infoError(inputHint));
-						validationChanged = true;
+						hasHint = true;
 					}
-					else if (control.hasModifications() || bean.isModified(propertyName)) {
+					else {
 						validationResults.put(propertyName, validationResult.withContext(getLabel(propertyName)));
-						validationChanged = true;
+						hasMessage = validationResult.getWorstFirst().getType() != MessageType.OK;
 					}
+					validationChanged = true;
 				}
 
 				//update the validation label
 				final IValidationResultLabel validationLabel = validationLabels.get(propertyName);
 				if (validationLabel != null) {
-					if (control.hasModifications() || bean.isModified(propertyName)) {
-						validationLabel.setResult(validationResult);
+					if (hasMessage || control.hasModifications() || bean.isModified(propertyName)) {
+						if (!hasHint) {
+							validationLabel.setResult(validationResult);
+						}
 					}
 					else {
 						validationLabel.setEmpty();
