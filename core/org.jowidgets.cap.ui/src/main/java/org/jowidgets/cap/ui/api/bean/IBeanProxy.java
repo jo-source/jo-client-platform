@@ -36,7 +36,6 @@ import java.util.Set;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanModification;
 import org.jowidgets.cap.ui.api.execution.IExecutionTask;
-import org.jowidgets.validation.IValidateable;
 import org.jowidgets.validation.IValidationResult;
 
 public interface IBeanProxy<BEAN_TYPE> extends
@@ -62,13 +61,11 @@ public interface IBeanProxy<BEAN_TYPE> extends
 
 	IValidationResult validate();
 
-	IValidationResult validate(String propertyName);
+	void addBeanPropertyValidator(IBeanPropertyValidator<BEAN_TYPE> validator);
 
-	void addBeanValidator(IBeanValidator<BEAN_TYPE> validator);
+	void registerExternalValidator(IExternalBeanValidator validator);
 
-	void registerValidatable(IValidateable validateable);
-
-	void unregisterValidatable(IValidateable validateable);
+	void unregisterExternalValidator(IExternalBeanValidator validator);
 
 	void update(IBeanDto beanDto);
 

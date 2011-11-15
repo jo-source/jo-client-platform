@@ -36,6 +36,7 @@ import org.jowidgets.cap.common.api.service.IDeleterService;
 import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.common.api.service.IRefreshService;
 import org.jowidgets.cap.common.api.service.IUpdaterService;
+import org.jowidgets.cap.common.api.validation.IBeanValidator;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.model.LinkType;
@@ -85,6 +86,8 @@ public interface IBeanTableModelBuilder<BEAN_TYPE> {
 	IBeanTableModelBuilder<BEAN_TYPE> setAttributes(List<? extends IAttribute<?>> attributes);
 
 	IBeanTableModelBuilder<BEAN_TYPE> setMetaAttributes(String... metaPropertyNames);
+
+	IBeanTableModelBuilder<BEAN_TYPE> addBeanValidator(IBeanValidator<BEAN_TYPE> beanValidator);
 
 	IBeanTableModelBuilder<BEAN_TYPE> setSorting(ISortModelConfig sorting);
 

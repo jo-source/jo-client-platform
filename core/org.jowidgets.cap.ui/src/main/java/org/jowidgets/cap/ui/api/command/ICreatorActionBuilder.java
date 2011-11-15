@@ -35,7 +35,7 @@ import org.jowidgets.api.command.IEnabledChecker;
 import org.jowidgets.cap.common.api.service.ICreatorService;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.bean.IBeanExecptionConverter;
-import org.jowidgets.cap.ui.api.bean.IBeanValidator;
+import org.jowidgets.cap.ui.api.bean.IBeanPropertyValidator;
 import org.jowidgets.cap.ui.api.execution.IExecutionInterceptor;
 import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
 import org.jowidgets.common.image.IImageConstant;
@@ -73,7 +73,7 @@ public interface ICreatorActionBuilder<BEAN_TYPE> {
 
 	ICreatorActionBuilder<BEAN_TYPE> setBeanForm(List<? extends IAttribute<?>> attributes);
 
-	ICreatorActionBuilder<BEAN_TYPE> setBeanValidator(IBeanValidator<BEAN_TYPE> beanValidator);
+	ICreatorActionBuilder<BEAN_TYPE> setBeanPropertyValidator(IBeanPropertyValidator<BEAN_TYPE> beanValidator);
 
 	ICreatorActionBuilder<BEAN_TYPE> setCreatorService(ICreatorService creatorService);
 

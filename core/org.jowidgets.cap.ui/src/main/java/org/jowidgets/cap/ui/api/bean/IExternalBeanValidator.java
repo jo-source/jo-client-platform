@@ -28,31 +28,33 @@
 
 package org.jowidgets.cap.ui.api.bean;
 
-import org.jowidgets.validation.IValidationResult;
+import java.util.Collection;
+import java.util.List;
 
-public interface IBeanValidator<BEAN_TYPE> {
-
-	/**
-	 * Validates the bean.
-	 * This could be used to for validation issues that could not validated independently
-	 * for each property (e.g. incoming date < outgoing date).
-	 * For performance benefit, implementation should not invoke the independent property
-	 * validation here, because the properties will be validated in a separate step.
-	 * 
-	 * @param bean The bean to validate
-	 * 
-	 * @return The validation result, never null
-	 */
-	IValidationResult validate(IBeanProxy<BEAN_TYPE> bean);
+public interface IExternalBeanValidator {
 
 	/**
-	 * Validates a single bean property.
+	 * Validates the parent validation result external, and returns the external result
 	 * 
-	 * @param propertyName The property to validate
-	 * @param value The value of the property
+	 * @param parentResult The result of the parent validation
 	 * 
-	 * @return The validation result.
+	 * @return The new (decorated) validation result
 	 */
-	IValidationResult validateProperty(String propertyName, Object value);
+	List<IBeanValidationResult> validate(Collection<IBeanValidationResult> parentResult);
+
+	/**
+	 * Gets the properties, this validator validates / observes
+	 * 
+	 * Remark: For all properties that will be returned, this validator
+	 * is responsible to fire validationConditionChanged events on the registered listeners.
+	 * If no events will be thrown, no validation will be done for the property at all!
+	 * 
+	 * @return The properties this validator validates / observes
+	 */
+	Collection<String> getObservedProperties();
+
+	void addExternalValidatorListener(IExternalBeanValidatorListener listener);
+
+	void removeExternalValidatorListener(IExternalBeanValidatorListener listener);
 
 }

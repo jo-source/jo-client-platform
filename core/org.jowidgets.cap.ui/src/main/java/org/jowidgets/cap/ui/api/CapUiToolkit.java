@@ -175,6 +175,12 @@ public final class CapUiToolkit {
 		return getInstance().beanTableModelBuilder(beanType);
 	}
 
+	public static <BEAN_TYPE> IBeanTableModelBuilder<BEAN_TYPE> beanTableModelBuilder(
+		final Object entityId,
+		final Class<BEAN_TYPE> beanType) {
+		return getInstance().beanTableModelBuilder(entityId, beanType);
+	}
+
 	public static IBeanTableModelBuilder<Object> beanTableModelBuilder(final Object entityId) {
 		return getInstance().beanTableModelBuilder(entityId);
 	}

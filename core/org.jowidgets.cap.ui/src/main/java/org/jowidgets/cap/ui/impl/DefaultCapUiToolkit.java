@@ -178,6 +178,13 @@ public final class DefaultCapUiToolkit implements ICapUiToolkit {
 	}
 
 	@Override
+	public <BEAN_TYPE> IBeanTableModelBuilder<BEAN_TYPE> beanTableModelBuilder(
+		final Object entityId,
+		final Class<BEAN_TYPE> beanType) {
+		return new BeanTableModelBuilderImpl<BEAN_TYPE>(entityId, beanType);
+	}
+
+	@Override
 	public IBeanTableModelBuilder<Object> beanTableModelBuilder(final Object entityId) {
 		return new BeanTableModelBuilderImpl<Object>(entityId, Object.class);
 	}

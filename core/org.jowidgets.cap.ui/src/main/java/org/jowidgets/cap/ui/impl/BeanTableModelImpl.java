@@ -75,6 +75,7 @@ import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.common.api.service.IRefreshService;
 import org.jowidgets.cap.common.api.service.IUpdaterService;
 import org.jowidgets.cap.common.api.sort.SortOrder;
+import org.jowidgets.cap.common.api.validation.IBeanValidator;
 import org.jowidgets.cap.common.tools.bean.BeanKey;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
@@ -86,9 +87,9 @@ import org.jowidgets.cap.ui.api.bean.BeanMessageType;
 import org.jowidgets.cap.ui.api.bean.IBeanKeyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeanMessage;
 import org.jowidgets.cap.ui.api.bean.IBeanMessageBuilder;
+import org.jowidgets.cap.ui.api.bean.IBeanPropertyValidator;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
-import org.jowidgets.cap.ui.api.bean.IBeanValidator;
 import org.jowidgets.cap.ui.api.bean.IBeansStateTracker;
 import org.jowidgets.cap.ui.api.color.CapColors;
 import org.jowidgets.cap.ui.api.execution.BeanExecutionPolicy;
@@ -157,7 +158,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	private final IBeansStateTracker<BEAN_TYPE> beansStateTracker;
 	private final ArrayList<IAttribute<Object>> attributes;
 	private final List<String> propertyNames;
-	private final IBeanValidator<BEAN_TYPE> beanValidator;
+	private final BeanPropertyValidatorImpl<BEAN_TYPE> beanPropertyValidator;
 
 	private final ICreatorService creatorService;
 	private final IReaderService<Object> readerService;
@@ -206,6 +207,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	BeanTableModelImpl(
 		final Object entityId,
 		final Class<? extends BEAN_TYPE> beanType,
+		final Set<IBeanValidator<BEAN_TYPE>> beanValidators,
 		final String labelSingular,
 		final String labelPlural,
 		List<IAttribute<Object>> attributes,
@@ -285,7 +287,11 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		this.programmaticPageLoader = new HashMap<Integer, PageLoader>();
 		this.userCanceledMessage = Messages.getString("BeanTableModelImpl.user_canceled");
 		this.loadErrorMessage = Messages.getString("BeanTableModelImpl.load_error");
-		this.beanValidator = new BeanValidatorImpl<BEAN_TYPE>(attributes);
+		this.beanPropertyValidator = new BeanPropertyValidatorImpl<BEAN_TYPE>(attributes);
+
+		for (final IBeanValidator<BEAN_TYPE> beanValidator : beanValidators) {
+			beanPropertyValidator.addBeanValidator(beanValidator);
+		}
 
 		//configure sort model
 		sortModel.setConfig(sortModelConfig);
@@ -1004,8 +1010,13 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	}
 
 	@Override
-	public IBeanValidator<BEAN_TYPE> getBeanValidator() {
-		return beanValidator;
+	public IBeanPropertyValidator<BEAN_TYPE> getBeanPropertyValidator() {
+		return beanPropertyValidator;
+	}
+
+	@Override
+	public void addBeanValidator(final IBeanValidator<BEAN_TYPE> beanValidator) {
+		beanPropertyValidator.addBeanValidator(beanValidator);
 	}
 
 	@Override
@@ -2047,7 +2058,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			for (final IBeanDto beanDto : beanDtos) {
 				if (index < pageSize) {
 					final IBeanProxy<BEAN_TYPE> beanProxy = beanProxyFactory.createProxy(beanDto, propertyNames);
-					beanProxy.addBeanValidator(beanValidator);
+					beanProxy.addBeanPropertyValidator(beanPropertyValidator);
 					page.add(beanProxy);
 					beansStateTracker.register(beanProxy);
 					final int rowNr = pageOffset + index;

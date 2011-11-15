@@ -86,6 +86,8 @@ public interface ICapUiToolkit {
 
 	<BEAN_TYPE> IBeanTableModelBuilder<BEAN_TYPE> beanTableModelBuilder(Class<BEAN_TYPE> beanType);
 
+	<BEAN_TYPE> IBeanTableModelBuilder<BEAN_TYPE> beanTableModelBuilder(Object entityId, Class<BEAN_TYPE> beanType);
+
 	IBeanTableModelBuilder<Object> beanTableModelBuilder(Object entityId);
 
 	IBeanTableConfigBuilder beanTableConfigBuilder();
