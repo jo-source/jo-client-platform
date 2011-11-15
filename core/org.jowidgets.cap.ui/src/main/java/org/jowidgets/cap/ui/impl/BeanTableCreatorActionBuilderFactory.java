@@ -47,12 +47,11 @@ final class BeanTableCreatorActionBuilderFactory {
 
 	private BeanTableCreatorActionBuilderFactory() {}
 
-	static ICreatorActionBuilder createBuilder(final IBeanTable<?> table) {
-		@SuppressWarnings("unchecked")
-		final IBeanTableModel<Object> model = (IBeanTableModel<Object>) table.getModel();
-		final IBeanListModel<Object> wrappedModel = new BeanListModelWrapper<Object>(model) {
+	static <BEAN_TYPE> ICreatorActionBuilder<BEAN_TYPE> createBuilder(final IBeanTable<BEAN_TYPE> table) {
+		final IBeanTableModel<BEAN_TYPE> model = table.getModel();
+		final IBeanListModel<BEAN_TYPE> wrappedModel = new BeanListModelWrapper<BEAN_TYPE>(model) {
 			@Override
-			public void addBean(final IBeanProxy<Object> bean) {
+			public void addBean(final IBeanProxy<BEAN_TYPE> bean) {
 				super.addBean(bean);
 				if (model.getSize() > 0) {
 					model.setSelection(Collections.singletonList(Integer.valueOf(model.getSize() - 1)));
@@ -61,7 +60,8 @@ final class BeanTableCreatorActionBuilderFactory {
 			}
 		};
 		final ICapActionFactory actionFactory = CapUiToolkit.actionFactory();
-		final ICreatorActionBuilder builder = actionFactory.creatorActionBuilder(model.getBeanType(), wrappedModel);
+		final ICreatorActionBuilder<BEAN_TYPE> builder = actionFactory.creatorActionBuilder(model.getBeanType(), wrappedModel);
+		builder.setBeanValidator(model.getBeanValidator());
 		builder.setEntityLabelSingular(model.getEntityLabelSingular());
 		builder.setCreatorService(model.getCreatorService());
 		builder.setBeanForm(model.getAttributes(AcceptEditableAttributesFilter.getInstance()));

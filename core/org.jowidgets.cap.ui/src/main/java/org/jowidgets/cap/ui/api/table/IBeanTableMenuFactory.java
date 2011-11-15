@@ -128,7 +128,7 @@ public interface IBeanTableMenuFactory<BEAN_TYPE> {
 
 	IAction deleteColumnFiltersAction(IBeanTableModel<BEAN_TYPE> model, int columnIndex);
 
-	ICreatorActionBuilder creatorActionBuilder(IBeanTable<BEAN_TYPE> table);
+	ICreatorActionBuilder<BEAN_TYPE> creatorActionBuilder(IBeanTable<BEAN_TYPE> table);
 
 	IAction creatorAction(IBeanTable<BEAN_TYPE> table);
 

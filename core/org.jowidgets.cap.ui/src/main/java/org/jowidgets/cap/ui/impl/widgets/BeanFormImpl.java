@@ -322,19 +322,23 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 				final IValidationResult lastResult = validationResults.get(propertyName);
 				if (lastResult == null || !validationResult.getWorstFirst().equals(lastResult.getWorstFirst())) {
 					final String inputHint = getInputHint();
-					if (!validationResult.isValid() && !control.hasModifications() && inputHint != null) {
+					if (!validationResult.isValid()
+						&& !control.hasModifications()
+						&& !bean.isModified(propertyName)
+						&& inputHint != null) {
 						validationResults.put(propertyName, ValidationResult.infoError(inputHint));
+						validationChanged = true;
 					}
-					else {
+					else if (control.hasModifications() || bean.isModified(propertyName)) {
 						validationResults.put(propertyName, validationResult.withContext(getLabel(propertyName)));
+						validationChanged = true;
 					}
-					validationChanged = true;
 				}
 
 				//update the validation label
 				final IValidationResultLabel validationLabel = validationLabels.get(propertyName);
 				if (validationLabel != null) {
-					if (control.hasModifications()) {
+					if (control.hasModifications() || bean.isModified(propertyName)) {
 						validationLabel.setResult(validationResult);
 					}
 					else {

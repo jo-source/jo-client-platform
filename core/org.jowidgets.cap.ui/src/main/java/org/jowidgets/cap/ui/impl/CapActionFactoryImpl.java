@@ -100,7 +100,7 @@ final class CapActionFactoryImpl implements ICapActionFactory {
 	}
 
 	@Override
-	public <BEAN_TYPE> ICreatorActionBuilder creatorActionBuilder(
+	public <BEAN_TYPE> ICreatorActionBuilder<BEAN_TYPE> creatorActionBuilder(
 		final Class<? extends BEAN_TYPE> beanType,
 		final IBeanListModel<BEAN_TYPE> model) {
 		return new CreatorActionBuilder<BEAN_TYPE>(beanType, model);

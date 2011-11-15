@@ -41,6 +41,7 @@ import org.jowidgets.cap.common.api.service.ICreatorService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.bean.IBeanExecptionConverter;
+import org.jowidgets.cap.ui.api.bean.IBeanValidator;
 import org.jowidgets.cap.ui.api.command.ICreatorActionBuilder;
 import org.jowidgets.cap.ui.api.execution.IExecutionInterceptor;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
@@ -56,7 +57,7 @@ import org.jowidgets.tools.message.MessageReplacer;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.builder.AbstractSingleUseBuilder;
 
-final class CreatorActionBuilder<BEAN_TYPE> extends AbstractSingleUseBuilder<IAction> implements ICreatorActionBuilder {
+final class CreatorActionBuilder<BEAN_TYPE> extends AbstractSingleUseBuilder<IAction> implements ICreatorActionBuilder<BEAN_TYPE> {
 
 	private final Class<? extends BEAN_TYPE> beanType;
 	private final IBeanListModel<BEAN_TYPE> model;
@@ -65,6 +66,7 @@ final class CreatorActionBuilder<BEAN_TYPE> extends AbstractSingleUseBuilder<IAc
 	private final List<IExecutionInterceptor> executionInterceptors;
 	private boolean anySelection;
 
+	private IBeanValidator<BEAN_TYPE> beanValidator;
 	private ICreatorService creatorService;
 	private IBeanFormBluePrint<BEAN_TYPE> beanFormBp;
 	private IBeanExecptionConverter exceptionConverter;
@@ -88,21 +90,21 @@ final class CreatorActionBuilder<BEAN_TYPE> extends AbstractSingleUseBuilder<IAc
 	}
 
 	@Override
-	public ICreatorActionBuilder setText(final String text) {
+	public ICreatorActionBuilder<BEAN_TYPE> setText(final String text) {
 		checkExhausted();
 		builder.setText(text);
 		return this;
 	}
 
 	@Override
-	public ICreatorActionBuilder setToolTipText(final String toolTipText) {
+	public ICreatorActionBuilder<BEAN_TYPE> setToolTipText(final String toolTipText) {
 		checkExhausted();
 		builder.setToolTipText(toolTipText);
 		return this;
 	}
 
 	@Override
-	public ICreatorActionBuilder setEntityLabelSingular(final String label) {
+	public ICreatorActionBuilder<BEAN_TYPE> setEntityLabelSingular(final String label) {
 		checkExhausted();
 		Assert.paramNotEmpty(label, "label");
 		final String message = Messages.getString("CreatorActionBuilder.create_with_var");
@@ -111,58 +113,58 @@ final class CreatorActionBuilder<BEAN_TYPE> extends AbstractSingleUseBuilder<IAc
 	}
 
 	@Override
-	public ICreatorActionBuilder setIcon(final IImageConstant icon) {
+	public ICreatorActionBuilder<BEAN_TYPE> setIcon(final IImageConstant icon) {
 		checkExhausted();
 		builder.setIcon(icon);
 		return this;
 	}
 
 	@Override
-	public ICreatorActionBuilder setMnemonic(final Character mnemonic) {
+	public ICreatorActionBuilder<BEAN_TYPE> setMnemonic(final Character mnemonic) {
 		checkExhausted();
 		builder.setMnemonic(mnemonic);
 		return this;
 	}
 
 	@Override
-	public ICreatorActionBuilder setMnemonic(final char mnemonic) {
+	public ICreatorActionBuilder<BEAN_TYPE> setMnemonic(final char mnemonic) {
 		checkExhausted();
 		builder.setMnemonic(mnemonic);
 		return this;
 	}
 
 	@Override
-	public ICreatorActionBuilder setAccelerator(final Accelerator accelerator) {
+	public ICreatorActionBuilder<BEAN_TYPE> setAccelerator(final Accelerator accelerator) {
 		checkExhausted();
 		builder.setAccelerator(accelerator);
 		return this;
 	}
 
 	@Override
-	public ICreatorActionBuilder setAccelerator(final char key, final Modifier... modifier) {
+	public ICreatorActionBuilder<BEAN_TYPE> setAccelerator(final char key, final Modifier... modifier) {
 		checkExhausted();
 		builder.setAccelerator(key, modifier);
 		return this;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public ICreatorActionBuilder setBeanForm(final IBeanFormBluePrint<?> beanForm) {
+	public ICreatorActionBuilder<BEAN_TYPE> setBeanForm(final IBeanFormBluePrint<BEAN_TYPE> beanForm) {
 		checkExhausted();
 		Assert.paramNotNull(beanForm, "beanForm");
-		this.beanFormBp = (IBeanFormBluePrint<BEAN_TYPE>) beanForm;
+		this.beanFormBp = beanForm;
 		return this;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public ICreatorActionBuilder setBeanForm(final List<? extends IAttribute<?>> attributes) {
+	public ICreatorActionBuilder<BEAN_TYPE> setBeanForm(final List<? extends IAttribute<?>> attributes) {
 		checkExhausted();
 		Assert.paramNotNull(attributes, "attributes");
-		return setBeanForm(CapUiToolkit.bluePrintFactory().beanForm(attributes));
+		return setBeanForm((IBeanFormBluePrint<BEAN_TYPE>) CapUiToolkit.bluePrintFactory().beanForm(attributes));
 	}
 
 	@Override
-	public ICreatorActionBuilder setCreatorService(final ICreatorService creatorService) {
+	public ICreatorActionBuilder<BEAN_TYPE> setCreatorService(final ICreatorService creatorService) {
 		checkExhausted();
 		Assert.paramNotNull(creatorService, "creatorService");
 		this.creatorService = creatorService;
@@ -170,7 +172,7 @@ final class CreatorActionBuilder<BEAN_TYPE> extends AbstractSingleUseBuilder<IAc
 	}
 
 	@Override
-	public ICreatorActionBuilder setCreatorService(final IServiceId<ICreatorService> creatorServiceId) {
+	public ICreatorActionBuilder<BEAN_TYPE> setCreatorService(final IServiceId<ICreatorService> creatorServiceId) {
 		checkExhausted();
 		Assert.paramNotNull(creatorServiceId, "creatorServiceId");
 		final ICreatorService service = ServiceProvider.getService(creatorServiceId);
@@ -181,21 +183,21 @@ final class CreatorActionBuilder<BEAN_TYPE> extends AbstractSingleUseBuilder<IAc
 	}
 
 	@Override
-	public ICreatorActionBuilder setCreatorService(final String creatorServiceId) {
+	public ICreatorActionBuilder<BEAN_TYPE> setCreatorService(final String creatorServiceId) {
 		checkExhausted();
 		Assert.paramNotNull(creatorServiceId, "creatorServiceId");
 		return setCreatorService(new ServiceId<ICreatorService>(creatorServiceId, ICreatorService.class));
 	}
 
 	@Override
-	public ICreatorActionBuilder setAnySelection(final boolean anySelection) {
+	public ICreatorActionBuilder<BEAN_TYPE> setAnySelection(final boolean anySelection) {
 		checkExhausted();
 		this.anySelection = anySelection;
 		return this;
 	}
 
 	@Override
-	public ICreatorActionBuilder addEnabledChecker(final IEnabledChecker enabledChecker) {
+	public ICreatorActionBuilder<BEAN_TYPE> addEnabledChecker(final IEnabledChecker enabledChecker) {
 		checkExhausted();
 		Assert.paramNotNull(enabledChecker, "enabledChecker");
 		enabledCheckers.add(enabledChecker);
@@ -203,14 +205,14 @@ final class CreatorActionBuilder<BEAN_TYPE> extends AbstractSingleUseBuilder<IAc
 	}
 
 	@Override
-	public ICreatorActionBuilder addExecutionInterceptor(final IExecutionInterceptor interceptor) {
+	public ICreatorActionBuilder<BEAN_TYPE> addExecutionInterceptor(final IExecutionInterceptor interceptor) {
 		Assert.paramNotNull(interceptor, "interceptor");
 		executionInterceptors.add(interceptor);
 		return this;
 	}
 
 	@Override
-	public ICreatorActionBuilder setExceptionConverter(final IBeanExecptionConverter exceptionConverter) {
+	public ICreatorActionBuilder<BEAN_TYPE> setExceptionConverter(final IBeanExecptionConverter exceptionConverter) {
 		checkExhausted();
 		Assert.paramNotNull(exceptionConverter, "exceptionConverter");
 		this.exceptionConverter = exceptionConverter;
@@ -218,9 +220,16 @@ final class CreatorActionBuilder<BEAN_TYPE> extends AbstractSingleUseBuilder<IAc
 	}
 
 	@Override
+	public ICreatorActionBuilder<BEAN_TYPE> setBeanValidator(final IBeanValidator<BEAN_TYPE> beanValidator) {
+		this.beanValidator = beanValidator;
+		return this;
+	}
+
+	@Override
 	protected IAction doBuild() {
 		final BeanCreatorCommand<BEAN_TYPE> command = new BeanCreatorCommand<BEAN_TYPE>(
 			beanType,
+			beanValidator,
 			model,
 			beanFormBp,
 			enabledCheckers,
@@ -231,4 +240,5 @@ final class CreatorActionBuilder<BEAN_TYPE> extends AbstractSingleUseBuilder<IAc
 		builder.setCommand((ICommand) command);
 		return builder.build();
 	}
+
 }

@@ -91,7 +91,7 @@ public interface IBeanTableMenuInterceptor<BEAN_TYPE> {
 
 	IActionBuilder deleteColumnFiltersActionBuilder(IBeanTableModel<?> model, int columnIndex, IActionBuilder builder);
 
-	ICreatorActionBuilder creatorActionBuilder(IBeanTable<BEAN_TYPE> table, ICreatorActionBuilder builder);
+	ICreatorActionBuilder<BEAN_TYPE> creatorActionBuilder(IBeanTable<BEAN_TYPE> table, ICreatorActionBuilder<BEAN_TYPE> builder);
 
 	IDeleterActionBuilder<BEAN_TYPE> deleterActionBuilder(IBeanTable<BEAN_TYPE> table, IDeleterActionBuilder<BEAN_TYPE> builder);
 

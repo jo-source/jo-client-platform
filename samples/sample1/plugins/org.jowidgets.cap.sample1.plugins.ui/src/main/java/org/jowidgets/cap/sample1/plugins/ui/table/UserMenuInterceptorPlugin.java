@@ -47,7 +47,9 @@ public class UserMenuInterceptorPlugin extends BeanTableMenuInterceptorAdapter<I
 	}
 
 	@Override
-	public ICreatorActionBuilder creatorActionBuilder(final IBeanTable<IUser> table, final ICreatorActionBuilder builder) {
+	public ICreatorActionBuilder<IUser> creatorActionBuilder(
+		final IBeanTable<IUser> table,
+		final ICreatorActionBuilder<IUser> builder) {
 		builder.setIcon(SilkIcons.USER_ADD);
 		return builder;
 	}

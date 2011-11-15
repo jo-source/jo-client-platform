@@ -1004,6 +1004,11 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	}
 
 	@Override
+	public IBeanValidator<BEAN_TYPE> getBeanValidator() {
+		return beanValidator;
+	}
+
+	@Override
 	public Object getValue(final int rowIndex, final int columnIndex) {
 		final IAttribute<Object> attribute = getAttribute(columnIndex);
 		final IBeanProxy<?> bean = getBean(rowIndex);
