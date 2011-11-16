@@ -42,6 +42,18 @@ import org.jowidgets.cap.common.api.validation.IBeanValidator;
 import org.jowidgets.validation.IValidationResult;
 import org.jowidgets.validation.MessageType;
 
+/**
+ * An validator that validates only a single concern (not necessarily a single property).
+ * 
+ * For that, the property dependencies and the result properties are the same, so derived classes
+ * only have to validate the bean and define the dependend properties.
+ * 
+ * Remark: Having more validators, each for a single concern instead of having one validator for all
+ * concerns brings the fortune not do do needless validations every time a single property
+ * changes. (Anyway the "separation of concern" pattern is always a good approach:-)
+ * 
+ * @param <BEAN_TYPE> The type of the bean to validate
+ */
 public abstract class AbstractSingleConcernBeanValidator<BEAN_TYPE> implements IBeanValidator<BEAN_TYPE>, Serializable {
 
 	private static final long serialVersionUID = -1186654852604095665L;
