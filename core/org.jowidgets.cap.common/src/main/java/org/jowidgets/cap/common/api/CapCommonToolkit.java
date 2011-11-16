@@ -49,6 +49,7 @@ import org.jowidgets.cap.common.api.entity.IEntityLinkPropertiesBuilder;
 import org.jowidgets.cap.common.api.filter.IFilterFactory;
 import org.jowidgets.cap.common.api.lookup.ILookUpToolkit;
 import org.jowidgets.cap.common.api.sort.ISortFactory;
+import org.jowidgets.cap.common.api.validation.IBeanValidationResultListBuilder;
 import org.jowidgets.cap.common.impl.DefaultCapCommonToolkit;
 
 public final class CapCommonToolkit {
@@ -145,5 +146,9 @@ public final class CapCommonToolkit {
 
 	public static Validator beanValidator() {
 		return getInstance().beanValidator();
+	}
+
+	public static IBeanValidationResultListBuilder beanValidationResultListBuilder() {
+		return getInstance().beanValidationResultListBuilder();
 	}
 }

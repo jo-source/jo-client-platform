@@ -29,29 +29,26 @@
 package org.jowidgets.cap.sample1.common.validation;
 
 import java.text.DecimalFormat;
-import java.util.HashSet;
-import java.util.Set;
 
-import org.jowidgets.cap.common.api.validation.IBeanValidator;
+import org.jowidgets.cap.common.tools.validation.AbstractSingleConcernBeanValidator;
 import org.jowidgets.cap.sample1.common.entity.IUser;
 import org.jowidgets.validation.IValidationResult;
 import org.jowidgets.validation.ValidationResult;
 
-public class UserBmiValidator implements IBeanValidator<IUser> {
+public class UserBmiValidator extends AbstractSingleConcernBeanValidator<IUser> {
 
-	private static final Set<String> PROPERTIES = createPropertyDependencies();
+	private static final long serialVersionUID = 4415275678914934382L;
+
+	public UserBmiValidator() {
+		super(IUser.WEIGHT_PROPERTY, IUser.HEIGHT_PROPERTY);
+	}
 
 	@Override
-	public IValidationResult validate(final IUser user) {
-
-		if (user != null) {
-			final Double bmi = calcBmi(user);
-			if (bmi != null && bmi.doubleValue() < 10) {
-				DecimalFormat.getInstance().format(bmi);
-				return ValidationResult.warning("The BMI of '"
-					+ DecimalFormat.getInstance().format(bmi)
-					+ "' seems to be very low.");
-			}
+	public IValidationResult validateBean(final IUser user) {
+		final Double bmi = calcBmi(user);
+		if (bmi != null && bmi.doubleValue() < 10) {
+			DecimalFormat.getInstance().format(bmi);
+			return ValidationResult.warning("The BMI of '" + DecimalFormat.getInstance().format(bmi) + "' seems to be very low.");
 		}
 		return ValidationResult.ok();
 	}
@@ -67,18 +64,6 @@ public class UserBmiValidator implements IBeanValidator<IUser> {
 			return weight / quot;
 		}
 		return null;
-	}
-
-	private static Set<String> createPropertyDependencies() {
-		final Set<String> result = new HashSet<String>();
-		result.add(IUser.HEIGHT_PROPERTY);
-		result.add(IUser.WEIGHT_PROPERTY);
-		return result;
-	}
-
-	@Override
-	public Set<String> getPropertyDependencies() {
-		return PROPERTIES;
 	}
 
 }

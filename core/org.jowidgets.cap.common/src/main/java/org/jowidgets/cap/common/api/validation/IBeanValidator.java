@@ -28,17 +28,27 @@
 
 package org.jowidgets.cap.common.api.validation;
 
+import java.util.Collection;
 import java.util.Set;
-
-import org.jowidgets.validation.IValidationResult;
 
 public interface IBeanValidator<BEAN_TYPE> {
 
-	IValidationResult validate(BEAN_TYPE bean);
+	/**
+	 * Validates the bean.
+	 * 
+	 * @param bean The bean to validate, can be null
+	 * 
+	 * @return A collection of validation results, never null. If the collection is empty, the validation is ok.
+	 */
+	Collection<IBeanValidationResult> validate(BEAN_TYPE bean);
 
 	/**
 	 * Gets the properties, this validation depends on. If the result is null or empty, the
 	 * validation depends on all properties of the given bean.
+	 * Property dependencies could be used to reduce validation calculations.
+	 * If no property dependencies are set, each time a property changes on the bean, all validations
+	 * will be (re-)calculated, even if the validation calculation does not depend on the
+	 * property change.
 	 * 
 	 * @return The properties, this validation depends on.
 	 */
