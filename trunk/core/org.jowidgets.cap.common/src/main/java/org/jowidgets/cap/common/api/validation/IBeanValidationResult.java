@@ -26,12 +26,21 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.bean;
+package org.jowidgets.cap.common.api.validation;
 
 import org.jowidgets.validation.IValidationResult;
 
 public interface IBeanValidationResult {
 
+	/**
+	 * The property name, this validation result belongs to.
+	 * 
+	 * Example: If the result is not valid and belongs to the property weight, than the
+	 * control where the weight input was made could be marked as incorrect.
+	 * 
+	 * @return The property name this validation result belongs to or null, if the result does not
+	 *         belong to a special property.
+	 */
 	String getPropertyName();
 
 	IValidationResult getValidationResult();

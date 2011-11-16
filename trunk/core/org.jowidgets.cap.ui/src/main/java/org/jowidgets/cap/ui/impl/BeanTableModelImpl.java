@@ -289,10 +289,6 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		this.loadErrorMessage = Messages.getString("BeanTableModelImpl.load_error");
 		this.beanPropertyValidator = new BeanPropertyValidatorImpl<BEAN_TYPE>(attributes);
 
-		for (final IBeanValidator<BEAN_TYPE> beanValidator : beanValidators) {
-			beanPropertyValidator.addBeanValidator(beanValidator);
-		}
-
 		//configure sort model
 		sortModel.setConfig(sortModelConfig);
 		sortModel.addChangeListener(sortModelChangeListener);
@@ -1016,7 +1012,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 	@Override
 	public void addBeanValidator(final IBeanValidator<BEAN_TYPE> beanValidator) {
-		beanPropertyValidator.addBeanValidator(beanValidator);
+		//TODO MG implement addBeanValidator
 	}
 
 	@Override

@@ -49,6 +49,7 @@ import org.jowidgets.cap.common.api.entity.IEntityLinkPropertiesBuilder;
 import org.jowidgets.cap.common.api.filter.IFilterFactory;
 import org.jowidgets.cap.common.api.lookup.ILookUpToolkit;
 import org.jowidgets.cap.common.api.sort.ISortFactory;
+import org.jowidgets.cap.common.api.validation.IBeanValidationResultListBuilder;
 
 public interface ICapCommonToolkit {
 
@@ -93,5 +94,7 @@ public interface ICapCommonToolkit {
 	IPropertyValidatorBuilder propertyValidatorBuilder();
 
 	Validator beanValidator();
+
+	IBeanValidationResultListBuilder beanValidationResultListBuilder();
 
 }

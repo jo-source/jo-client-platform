@@ -26,36 +26,23 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.bean;
+package org.jowidgets.cap.common.api.validation;
 
 import java.util.Collection;
+import java.util.List;
 
-import org.jowidgets.cap.common.api.validation.IBeanValidationResult;
+import org.jowidgets.validation.IValidationResult;
 
-public interface IExternalBeanValidator {
+public interface IBeanValidationResultListBuilder {
 
-	/**
-	 * Validates the parent validation result external, and returns the external result
-	 * 
-	 * @param parentResult The result of the parent validation
-	 * 
-	 * @return The new (decorated) validation result
-	 */
-	Collection<IBeanValidationResult> validate(Collection<IBeanValidationResult> parentResult);
+	IBeanValidationResultListBuilder addResult(IBeanValidationResult validationResult);
 
-	/**
-	 * Gets the properties, this validator validates / observes
-	 * 
-	 * Remark: For all properties that will be returned, this validator
-	 * is responsible to fire validationConditionChanged events on the registered listeners.
-	 * If no events will be thrown, no validation will be done for the property at all!
-	 * 
-	 * @return The properties this validator validates / observes
-	 */
-	Collection<String> getObservedProperties();
+	IBeanValidationResultListBuilder addResult(IValidationResult validationResult);
 
-	void addExternalValidatorListener(IExternalBeanValidatorListener listener);
+	IBeanValidationResultListBuilder addResult(IValidationResult validationResult, Collection<String> propertyNames);
 
-	void removeExternalValidatorListener(IExternalBeanValidatorListener listener);
+	IBeanValidationResultListBuilder addResult(IValidationResult validationResult, String... propertyNames);
+
+	List<IBeanValidationResult> build();
 
 }

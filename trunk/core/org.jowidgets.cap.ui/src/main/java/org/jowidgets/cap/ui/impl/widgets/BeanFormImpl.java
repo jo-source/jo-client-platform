@@ -53,12 +53,12 @@ import org.jowidgets.api.widgets.blueprint.IInputComponentValidationLabelBluePri
 import org.jowidgets.api.widgets.blueprint.IValidationResultLabelBluePrint;
 import org.jowidgets.api.widgets.descriptor.setup.IInputComponentValidationLabelSetup;
 import org.jowidgets.api.widgets.descriptor.setup.IValidationLabelSetup;
+import org.jowidgets.cap.common.api.validation.IBeanValidationResult;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IControlPanelProvider;
 import org.jowidgets.cap.ui.api.bean.IBeanProcessStateListener;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyListener;
-import org.jowidgets.cap.ui.api.bean.IBeanValidationResult;
 import org.jowidgets.cap.ui.api.bean.IExternalBeanValidator;
 import org.jowidgets.cap.ui.api.bean.IExternalBeanValidatorListener;
 import org.jowidgets.cap.ui.api.form.IBeanFormControlFactory;
