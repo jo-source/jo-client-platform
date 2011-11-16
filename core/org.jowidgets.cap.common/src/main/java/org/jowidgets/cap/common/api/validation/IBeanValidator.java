@@ -38,7 +38,8 @@ public interface IBeanValidator<BEAN_TYPE> {
 	 * 
 	 * @param bean The bean to validate, can be null
 	 * 
-	 * @return A collection of validation results, never null. If the collection is empty, the validation is ok.
+	 * @return A collection of validation results, one for each property with messages, never null.
+	 *         If the collection is empty, the validation is ok.
 	 */
 	Collection<IBeanValidationResult> validate(BEAN_TYPE bean);
 
