@@ -101,7 +101,7 @@ public interface IBeanTableModel<BEAN_TYPE> extends IDataModel, IBeanListModel<B
 
 	List<IAttribute<Object>> getAttributes(IAttributeFilter filter);
 
-	IBeanPropertyValidator<BEAN_TYPE> getBeanPropertyValidator();
+	List<IBeanPropertyValidator<BEAN_TYPE>> getBeanPropertyValidators();
 
 	void addBeanValidator(IBeanValidator<BEAN_TYPE> beanValidator);
 

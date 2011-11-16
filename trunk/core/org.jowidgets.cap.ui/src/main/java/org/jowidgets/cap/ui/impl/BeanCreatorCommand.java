@@ -55,9 +55,9 @@ import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.bean.BeanMessageType;
 import org.jowidgets.cap.ui.api.bean.IBeanExecptionConverter;
 import org.jowidgets.cap.ui.api.bean.IBeanMessageBuilder;
+import org.jowidgets.cap.ui.api.bean.IBeanPropertyValidator;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
-import org.jowidgets.cap.ui.api.bean.IBeanPropertyValidator;
 import org.jowidgets.cap.ui.api.execution.BeanModificationStatePolicy;
 import org.jowidgets.cap.ui.api.execution.BeanSelectionPolicy;
 import org.jowidgets.cap.ui.api.execution.IExecutionInterceptor;
@@ -76,7 +76,7 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 
 	private final IBeanListModel<BEAN_TYPE> model;
 	private final IBeanFormBluePrint<BEAN_TYPE> beanFormBp;
-	private final IBeanPropertyValidator<BEAN_TYPE> beanPropertyValidator;
+	private final List<IBeanPropertyValidator<BEAN_TYPE>> beanPropertyValidators;
 	private final ICreatorService creatorService;
 	private final IBeanExecptionConverter exceptionConverter;
 	private final BeanListModelEnabledChecker<BEAN_TYPE> enabledChecker;
@@ -89,7 +89,7 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 
 	BeanCreatorCommand(
 		final Class<? extends BEAN_TYPE> beanType,
-		final IBeanPropertyValidator<BEAN_TYPE> beanPropertyValidator,
+		final List<IBeanPropertyValidator<BEAN_TYPE>> beanPropertyValidators,
 		final IBeanListModel<BEAN_TYPE> model,
 		final IBeanFormBluePrint<BEAN_TYPE> beanFormBp,
 		final List<IEnabledChecker> enabledCheckers,
@@ -135,7 +135,7 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 				defaultValues.put(propertyName, defaultValue);
 			}
 		}
-		this.beanPropertyValidator = beanPropertyValidator;
+		this.beanPropertyValidators = new LinkedList<IBeanPropertyValidator<BEAN_TYPE>>(beanPropertyValidators);
 	}
 
 	@Override
@@ -160,8 +160,8 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 		}
 
 		final IBeanProxy<BEAN_TYPE> bean = beanFactory.createTransientProxy(properties, defaultValues);
-		if (beanPropertyValidator != null) {
-			bean.addBeanPropertyValidator(beanPropertyValidator);
+		for (final IBeanPropertyValidator<BEAN_TYPE> validator : beanPropertyValidators) {
+			bean.addBeanPropertyValidator(validator);
 		}
 
 		final IBeanDialogBluePrint<BEAN_TYPE> beanDialogBp = CapUiToolkit.bluePrintFactory().beanDialog(beanFormBp);
@@ -191,8 +191,8 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 	private IBeanProxy<BEAN_TYPE> createUnmodifiedBean(final IBeanProxy<BEAN_TYPE> proxy) {
 		final IBeanProxy<BEAN_TYPE> result = beanFactory.createProxy(proxy, properties);
 		result.setTransient(true);
-		if (beanPropertyValidator != null) {
-			result.addBeanPropertyValidator(beanPropertyValidator);
+		for (final IBeanPropertyValidator<BEAN_TYPE> validator : beanPropertyValidators) {
+			result.addBeanPropertyValidator(validator);
 		}
 		return result;
 	}

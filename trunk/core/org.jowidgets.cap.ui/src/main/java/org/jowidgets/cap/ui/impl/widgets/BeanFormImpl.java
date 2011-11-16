@@ -614,6 +614,12 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 		public void afterBeanUpdated(final IBeanProxy<BEAN_TYPE> bean) {
 			validateAllProperties();
 		}
+
+		@Override
+		public void afterUndoModifications(final IBeanProxy<BEAN_TYPE> bean) {
+			validateAllProperties();
+		}
+
 	}
 
 }

@@ -35,6 +35,8 @@ import org.jowidgets.validation.IValidationResult;
 
 public interface IBeanValidationResultListBuilder {
 
+	IBeanValidationResultListBuilder addResult(Collection<? extends IBeanValidationResult> validationResultCollection);
+
 	IBeanValidationResultListBuilder addResult(IBeanValidationResult validationResult);
 
 	IBeanValidationResultListBuilder addResult(IValidationResult validationResult);

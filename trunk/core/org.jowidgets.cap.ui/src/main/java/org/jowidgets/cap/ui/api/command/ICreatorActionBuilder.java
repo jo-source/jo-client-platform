@@ -73,7 +73,9 @@ public interface ICreatorActionBuilder<BEAN_TYPE> {
 
 	ICreatorActionBuilder<BEAN_TYPE> setBeanForm(List<? extends IAttribute<?>> attributes);
 
-	ICreatorActionBuilder<BEAN_TYPE> setBeanPropertyValidator(IBeanPropertyValidator<BEAN_TYPE> beanValidator);
+	ICreatorActionBuilder<BEAN_TYPE> setBeanPropertyValidators(List<? extends IBeanPropertyValidator<BEAN_TYPE>> validators);
+
+	ICreatorActionBuilder<BEAN_TYPE> addBeanPropertyValidator(IBeanPropertyValidator<BEAN_TYPE> validator);
 
 	ICreatorActionBuilder<BEAN_TYPE> setCreatorService(ICreatorService creatorService);
 

@@ -28,7 +28,10 @@
 
 package org.jowidgets.cap.ui.api.bean;
 
-import org.jowidgets.validation.IValidationResult;
+import java.util.Collection;
+import java.util.Set;
+
+import org.jowidgets.cap.common.api.validation.IBeanValidationResult;
 
 public interface IBeanPropertyValidator<BEAN_TYPE> {
 
@@ -40,6 +43,40 @@ public interface IBeanPropertyValidator<BEAN_TYPE> {
 	 * 
 	 * @return The validation result.
 	 */
-	IValidationResult validateProperty(IBeanProxy<BEAN_TYPE> bean, String propertyName);
+	Collection<IBeanValidationResult> validateProperty(IBeanProxy<BEAN_TYPE> bean, String propertyName);
+
+	/**
+	 * Gets the properties, this validation depends on. If the result is null or empty, the
+	 * validation depends on all properties of the given bean.
+	 * Property dependencies could be used to reduce validation calculations.
+	 * If no property dependencies are set, each time a property changes on the bean, all validations
+	 * will be (re-)calculated, even if the validation calculation does not depend on the
+	 * property change.
+	 * 
+	 * @return The properties, this validation depends on.
+	 */
+	Set<String> getPropertyDependencies();
+
+	/**
+	 * If a property validator is symmetric, the validateProperty method get's the same result
+	 * for each dependent property if the bean is constant.
+	 * 
+	 * This is relevant for example for cross property validation.
+	 * 
+	 * Example: The BMI of a person should be validated. This depends on the persons 'weight' and
+	 * 'height' properties. The dependent properties are [weight, height]. The validation is symmetric.
+	 * 
+	 * If the validator only depends on one property, the symetric flag is not relevant (its inherent symmetric).
+	 * 
+	 * If no cross property validation will be done, the validator is probably not symmetric.
+	 * 
+	 * Even though if more than one concern will be validated with one validator, it can probably not be symmetric.
+	 * 
+	 * Remark: To define a validator symmetric is an performance issue to avoid unneeded validations.
+	 * If not sure, return false. This will work always correctly.
+	 * 
+	 * @return true if the validator is symmetric, false otherwise
+	 */
+	boolean isSymmetric();
 
 }

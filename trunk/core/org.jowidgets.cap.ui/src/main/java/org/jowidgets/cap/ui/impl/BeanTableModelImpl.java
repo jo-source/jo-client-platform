@@ -158,7 +158,8 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	private final IBeansStateTracker<BEAN_TYPE> beansStateTracker;
 	private final ArrayList<IAttribute<Object>> attributes;
 	private final List<String> propertyNames;
-	private final BeanPropertyValidatorImpl<BEAN_TYPE> beanPropertyValidator;
+	private final List<IBeanPropertyValidator<BEAN_TYPE>> beanPropertyValidators;
+	private final List<IBeanPropertyValidator<BEAN_TYPE>> beanPropertyValidatorsView;
 
 	private final ICreatorService creatorService;
 	private final IReaderService<Object> readerService;
@@ -287,7 +288,12 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		this.programmaticPageLoader = new HashMap<Integer, PageLoader>();
 		this.userCanceledMessage = Messages.getString("BeanTableModelImpl.user_canceled");
 		this.loadErrorMessage = Messages.getString("BeanTableModelImpl.load_error");
-		this.beanPropertyValidator = new BeanPropertyValidatorImpl<BEAN_TYPE>(attributes);
+		this.beanPropertyValidators = new LinkedList<IBeanPropertyValidator<BEAN_TYPE>>();
+		this.beanPropertyValidatorsView = Collections.unmodifiableList(beanPropertyValidators);
+		beanPropertyValidators.add(new BeanPropertyValidatorImpl<BEAN_TYPE>(attributes));
+		for (final IBeanValidator<BEAN_TYPE> beanValidator : beanValidators) {
+			addBeanValidator(beanValidator);
+		}
 
 		//configure sort model
 		sortModel.setConfig(sortModelConfig);
@@ -1006,13 +1012,13 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	}
 
 	@Override
-	public IBeanPropertyValidator<BEAN_TYPE> getBeanPropertyValidator() {
-		return beanPropertyValidator;
+	public List<IBeanPropertyValidator<BEAN_TYPE>> getBeanPropertyValidators() {
+		return beanPropertyValidatorsView;
 	}
 
 	@Override
 	public void addBeanValidator(final IBeanValidator<BEAN_TYPE> beanValidator) {
-		//TODO MG implement addBeanValidator
+		beanPropertyValidators.add(new BeanPropertyValidatorAdapter<BEAN_TYPE>(beanValidator));
 	}
 
 	@Override
@@ -2054,7 +2060,9 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			for (final IBeanDto beanDto : beanDtos) {
 				if (index < pageSize) {
 					final IBeanProxy<BEAN_TYPE> beanProxy = beanProxyFactory.createProxy(beanDto, propertyNames);
-					beanProxy.addBeanPropertyValidator(beanPropertyValidator);
+					for (final IBeanPropertyValidator<BEAN_TYPE> validator : beanPropertyValidators) {
+						beanProxy.addBeanPropertyValidator(validator);
+					}
 					page.add(beanProxy);
 					beansStateTracker.register(beanProxy);
 					final int rowNr = pageOffset + index;

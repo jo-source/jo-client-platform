@@ -64,9 +64,9 @@ final class CreatorActionBuilder<BEAN_TYPE> extends AbstractSingleUseBuilder<IAc
 	private final IActionBuilder builder;
 	private final List<IEnabledChecker> enabledCheckers;
 	private final List<IExecutionInterceptor> executionInterceptors;
+	private final List<IBeanPropertyValidator<BEAN_TYPE>> beanPropertyValidators;
 	private boolean anySelection;
 
-	private IBeanPropertyValidator<BEAN_TYPE> beanPropertyValidator;
 	private ICreatorService creatorService;
 	private IBeanFormBluePrint<BEAN_TYPE> beanFormBp;
 	private IBeanExecptionConverter exceptionConverter;
@@ -80,6 +80,7 @@ final class CreatorActionBuilder<BEAN_TYPE> extends AbstractSingleUseBuilder<IAc
 		this.enabledCheckers = new LinkedList<IEnabledChecker>();
 		this.executionInterceptors = new LinkedList<IExecutionInterceptor>();
 		this.exceptionConverter = new DefaultBeanExceptionConverter();
+		this.beanPropertyValidators = new LinkedList<IBeanPropertyValidator<BEAN_TYPE>>();
 
 		this.anySelection = true;
 
@@ -220,8 +221,18 @@ final class CreatorActionBuilder<BEAN_TYPE> extends AbstractSingleUseBuilder<IAc
 	}
 
 	@Override
-	public ICreatorActionBuilder<BEAN_TYPE> setBeanPropertyValidator(final IBeanPropertyValidator<BEAN_TYPE> beanValidator) {
-		this.beanPropertyValidator = beanValidator;
+	public ICreatorActionBuilder<BEAN_TYPE> setBeanPropertyValidators(
+		final List<? extends IBeanPropertyValidator<BEAN_TYPE>> validators) {
+		Assert.paramNotNull(validators, "validators");
+		beanPropertyValidators.clear();
+		beanPropertyValidators.addAll(validators);
+		return this;
+	}
+
+	@Override
+	public ICreatorActionBuilder<BEAN_TYPE> addBeanPropertyValidator(final IBeanPropertyValidator<BEAN_TYPE> validator) {
+		Assert.paramNotNull(validator, "validator");
+		beanPropertyValidators.add(validator);
 		return this;
 	}
 
@@ -229,7 +240,7 @@ final class CreatorActionBuilder<BEAN_TYPE> extends AbstractSingleUseBuilder<IAc
 	protected IAction doBuild() {
 		final BeanCreatorCommand<BEAN_TYPE> command = new BeanCreatorCommand<BEAN_TYPE>(
 			beanType,
-			beanPropertyValidator,
+			beanPropertyValidators,
 			model,
 			beanFormBp,
 			enabledCheckers,

@@ -29,70 +29,36 @@
 package org.jowidgets.cap.ui.impl;
 
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
-import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.validation.IBeanValidationResult;
-import org.jowidgets.cap.common.api.validation.IBeanValidationResultListBuilder;
-import org.jowidgets.cap.ui.api.attribute.IAttribute;
+import org.jowidgets.cap.common.api.validation.IBeanValidator;
 import org.jowidgets.cap.ui.api.bean.IBeanPropertyValidator;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
-import org.jowidgets.validation.IValidationResult;
-import org.jowidgets.validation.IValidationResultBuilder;
-import org.jowidgets.validation.IValidator;
-import org.jowidgets.validation.ValidationResult;
+import org.jowidgets.util.Assert;
 
-final class BeanPropertyValidatorImpl<BEAN_TYPE> implements IBeanPropertyValidator<BEAN_TYPE> {
+final class BeanPropertyValidatorAdapter<BEAN_TYPE> implements IBeanPropertyValidator<BEAN_TYPE> {
 
-	private final Map<String, IAttribute<?>> attributes;
-	private final Set<String> propertyDependencies;
+	private final IBeanValidator<BEAN_TYPE> beanValidator;
 
-	BeanPropertyValidatorImpl(final Collection<? extends IAttribute<?>> attributes) {
-		this.attributes = new HashMap<String, IAttribute<?>>();
-		for (final IAttribute<?> attribute : attributes) {
-			this.attributes.put(attribute.getPropertyName(), attribute);
-		}
-		this.propertyDependencies = Collections.unmodifiableSet(new HashSet<String>(this.attributes.keySet()));
+	BeanPropertyValidatorAdapter(final IBeanValidator<BEAN_TYPE> beanValidator) {
+		Assert.paramNotNull(beanValidator, "beanValidator");
+		this.beanValidator = beanValidator;
 	}
 
 	@Override
 	public Collection<IBeanValidationResult> validateProperty(final IBeanProxy<BEAN_TYPE> bean, final String propertyName) {
-		final IBeanValidationResultListBuilder builder = CapCommonToolkit.beanValidationResultListBuilder();
-		builder.addResult(validatePropertyImpl(bean, propertyName), propertyName);
-		return builder.build();
-	}
-
-	private IValidationResult validatePropertyImpl(final IBeanProxy<BEAN_TYPE> bean, final String propertyName) {
-		final IValidationResultBuilder builder = ValidationResult.builder();
-		final IAttribute<?> attribute = attributes.get(propertyName);
-		if (attribute != null) {
-			final IValidator<Object> validator = attribute.getValidator();
-			if (validator != null) {
-				final IValidationResult validationResult = validator.validate(bean.getValue(propertyName));
-				if (!validationResult.isValid()) {
-					return validationResult.withContext(attribute.getCurrentLabel());
-				}
-				else {
-					builder.addResult(validationResult.withContext(attribute.getCurrentLabel()));
-				}
-			}
-		}
-
-		return builder.build();
+		return beanValidator.validate(bean.getBean());
 	}
 
 	@Override
 	public Set<String> getPropertyDependencies() {
-		return propertyDependencies;
+		return beanValidator.getPropertyDependencies();
 	}
 
 	@Override
 	public boolean isSymmetric() {
-		return false;
+		return true;
 	}
 
 }
