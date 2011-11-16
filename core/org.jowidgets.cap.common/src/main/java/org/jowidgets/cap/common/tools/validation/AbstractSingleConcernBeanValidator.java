@@ -40,7 +40,6 @@ import org.jowidgets.cap.common.api.validation.IBeanValidationResult;
 import org.jowidgets.cap.common.api.validation.IBeanValidationResultListBuilder;
 import org.jowidgets.cap.common.api.validation.IBeanValidator;
 import org.jowidgets.validation.IValidationResult;
-import org.jowidgets.validation.MessageType;
 
 /**
  * An validator that validates only a single concern (not necessarily a single property).
@@ -82,13 +81,9 @@ public abstract class AbstractSingleConcernBeanValidator<BEAN_TYPE> implements I
 
 	@Override
 	public final Collection<IBeanValidationResult> validate(final BEAN_TYPE bean) {
-
 		final IBeanValidationResultListBuilder builder = CapCommonToolkit.beanValidationResultListBuilder();
 		if (madatory || bean != null) {
-			final IValidationResult validationResult = validateBean(bean);
-			if (MessageType.OK != validationResult.getWorstFirst().getType()) {
-				builder.addResult(validationResult, properties);
-			}
+			builder.addResult(validateBean(bean), properties);
 		}
 		return builder.build();
 	}

@@ -46,8 +46,9 @@ public class UserBmiValidator extends AbstractSingleConcernBeanValidator<IUser> 
 	@Override
 	public IValidationResult validateBean(final IUser user) {
 		final Double bmi = calcBmi(user);
-		if (bmi != null && bmi.doubleValue() < 10) {
+		if (bmi != null && bmi.doubleValue() < 6) {
 			DecimalFormat.getInstance().format(bmi);
+			//TODO i18n
 			return ValidationResult.warning("The BMI of '" + DecimalFormat.getInstance().format(bmi) + "' seems to be very low.");
 		}
 		return ValidationResult.ok();

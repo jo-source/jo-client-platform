@@ -50,7 +50,7 @@ public interface IExternalBeanValidator {
 	 * is responsible to fire validationConditionChanged events on the registered listeners.
 	 * If no events will be thrown, no validation will be done for the property at all!
 	 * 
-	 * @return The properties this validator validates / observes
+	 * @return The properties this validator validates / observes, never null or empty
 	 */
 	Collection<String> getObservedProperties();
 

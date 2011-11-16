@@ -35,6 +35,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -49,6 +50,7 @@ import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanModification;
 import org.jowidgets.cap.common.api.bean.IBeanModificationBuilder;
 import org.jowidgets.cap.common.api.validation.IBeanValidationResult;
+import org.jowidgets.cap.common.api.validation.IBeanValidationResultListBuilder;
 import org.jowidgets.cap.ui.api.bean.BeanMessageType;
 import org.jowidgets.cap.ui.api.bean.IBeanMessage;
 import org.jowidgets.cap.ui.api.bean.IBeanMessageStateListener;
@@ -66,8 +68,10 @@ import org.jowidgets.cap.ui.tools.execution.ExecutionTaskAdapter;
 import org.jowidgets.tools.validation.ValidationCache;
 import org.jowidgets.tools.validation.ValidationCache.IValidationResultCreator;
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.EmptyCheck;
 import org.jowidgets.util.EmptyCompatibleEquivalence;
 import org.jowidgets.util.NullCompatibleEquivalence;
+import org.jowidgets.util.ValueHolder;
 import org.jowidgets.validation.IValidationResult;
 import org.jowidgets.validation.IValidationResultBuilder;
 import org.jowidgets.validation.ValidationResult;
@@ -84,11 +88,13 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 	private final BeanProcessStateObservable<BEAN_TYPE> processStateObservable;
 	private final BeanValidationStateObservable<BEAN_TYPE> validationStateObservable;
 	private final Set<IBeanProxyListener<BEAN_TYPE>> beanProxyListeners;
-	private final Set<IBeanPropertyValidator<BEAN_TYPE>> beanPropertyValidators;
-	private final Set<IExternalBeanValidator> externalValidators;
+	private final Map<String, Set<IBeanPropertyValidator<BEAN_TYPE>>> dependendBeanPropertyValidators;
+	private final Set<IBeanPropertyValidator<BEAN_TYPE>> independentBeanPropertyValidators;
+	private final Map<String, Set<IExternalBeanValidator>> externalValidators;
 	private final Set<String> internalObservedProperties;
 	private final IExecutionTaskListener executionTaskListener;
 	private final Map<String, IValidationResult> validationResults;
+	private final ValueHolder<IValidationResult> independentWorstResult;
 	private final Map<BeanMessageType, List<IBeanMessage>> messagesMap;
 	private final List<IBeanMessage> messagesList;
 	private final IUiThreadAccess uiThreadAccess;
@@ -122,9 +128,11 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 		this.messageStateObservable = new BeanMessageStateObservable<BEAN_TYPE>();
 		this.validationStateObservable = new BeanValidationStateObservable<BEAN_TYPE>();
 		this.beanProxyListeners = new LinkedHashSet<IBeanProxyListener<BEAN_TYPE>>();
-		this.beanPropertyValidators = new LinkedHashSet<IBeanPropertyValidator<BEAN_TYPE>>();
-		this.externalValidators = new LinkedHashSet<IExternalBeanValidator>();
+		this.independentBeanPropertyValidators = new HashSet<IBeanPropertyValidator<BEAN_TYPE>>();
+		this.dependendBeanPropertyValidators = new LinkedHashMap<String, Set<IBeanPropertyValidator<BEAN_TYPE>>>();
+		this.externalValidators = new LinkedHashMap<String, Set<IExternalBeanValidator>>();
 		this.validationResults = new HashMap<String, IValidationResult>();
+		this.independentWorstResult = new ValueHolder<IValidationResult>();
 		this.internalObservedProperties = new HashSet<String>(properties);
 		this.validationCache = new ValidationCache(this);
 
@@ -312,6 +320,12 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 	@Override
 	public IValidationResult createValidationResult() {
 		final IValidationResultBuilder builder = ValidationResult.builder();
+
+		final IValidationResult independentResult = independentWorstResult.get();
+		if (independentResult != null && !independentResult.isValid()) {
+			return independentResult;
+		}
+
 		for (final IValidationResult validationResult : validationResults.values()) {
 			if (!validationResult.isValid()) {
 				return validationResult;
@@ -326,34 +340,14 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 	@Override
 	public void validationConditionsChanged(final IExternalBeanValidator externalValidator, final Collection<String> properties) {
 		final List<IBeanValidationResult> beanValidationResults = new LinkedList<IBeanValidationResult>();
+		final ValueHolder<IBeanValidationResult> firstWorstIndependendResultHolder = new ValueHolder<IBeanValidationResult>();
 		for (final String propertyName : properties) {
-			final IValidationResult validationResult = validateProperty(propertyName);
-			beanValidationResults.add(new IBeanValidationResult() {
-				@Override
-				public IValidationResult getValidationResult() {
-					return validationResult;
-				}
-
-				@Override
-				public String getPropertyName() {
-					return propertyName;
-				}
-			});
+			beanValidationResults.addAll(validateProperty(firstWorstIndependendResultHolder, propertyName));
 		}
 		if (beanValidationResults.size() > 0) {
-			boolean validationChanged = false;
-			for (final IBeanValidationResult externalResult : externalValidator.validate(beanValidationResults)) {
-				final String propertyName = externalResult.getPropertyName();
-				final IValidationResult validationResult = externalResult.getValidationResult();
-				final IValidationResult lastResult = validationResults.get(propertyName);
-				if (lastResult == null || !validationResult.getWorstFirst().equals(lastResult.getWorstFirst())) {
-					validationResults.put(propertyName, validationResult);
-					validationChanged = true;
-				}
-			}
-			if (validationChanged) {
-				fireValidationConditionsChanged();
-			}
+			final Collection<IBeanValidationResult> consolidatedResult;
+			consolidatedResult = consolidateBeanValidationResult(firstWorstIndependendResultHolder, beanValidationResults).values();
+			setValidationResults(firstWorstIndependendResultHolder, externalValidator.validate(consolidatedResult));
 		}
 	}
 
@@ -366,35 +360,161 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 	}
 
 	private void validateInternalProperties(final Collection<String> propertyNames) {
-		boolean validationChanged = false;
+		final IBeanValidationResultListBuilder builder = CapCommonToolkit.beanValidationResultListBuilder();
+		final ValueHolder<IBeanValidationResult> firstWorstIndependendResultHolder = new ValueHolder<IBeanValidationResult>();
 		for (final String propertyName : propertyNames) {
-			final IValidationResult validationResult = validateProperty(propertyName);
-			final IValidationResult lastResult = validationResults.get(propertyName);
-			if (lastResult == null || !validationResult.getWorstFirst().equals(lastResult.getWorstFirst())) {
-				validationResults.put(propertyName, validationResult);
-				validationChanged = true;
+			builder.addResult(validateProperty(firstWorstIndependendResultHolder, propertyName));
+		}
+
+		Map<String, IBeanValidationResult> consolidatedResult;
+		consolidatedResult = consolidateBeanValidationResult(firstWorstIndependendResultHolder, builder.build());
+
+		//check if the result contains properties that was not validated
+		final Set<String> newProperties = new HashSet<String>();
+		for (final String potentiallyNewProperty : consolidatedResult.keySet()) {
+			if (!propertyNames.contains(potentiallyNewProperty)) {
+				newProperties.add(potentiallyNewProperty);
 			}
 		}
-		if (validationChanged) {
-			fireValidationConditionsChanged();
+		//if so, validate external if necessary
+		if (!newProperties.isEmpty()) {
+			final List<IBeanValidationResult> externalResults = new LinkedList<IBeanValidationResult>();
+			for (final String newPropertyName : newProperties) {
+				for (final IExternalBeanValidator externalValidator : getRegisteredExternalValidators(newPropertyName)) {
+					final IBeanValidationResult parentResult = consolidatedResult.get(newPropertyName);
+					if (parentResult != null) {
+						externalResults.addAll(externalValidator.validate(Collections.singletonList(parentResult)));
+					}
+				}
+			}
+			if (!externalResults.isEmpty()) {
+				consolidatedResult = consolidateBeanValidationResult(firstWorstIndependendResultHolder, externalResults);
+			}
+		}
+
+		setValidationResults(firstWorstIndependendResultHolder, consolidatedResult.values());
+
+	}
+
+	private Set<IExternalBeanValidator> getRegisteredExternalValidators(final String propertyName) {
+		final Set<IExternalBeanValidator> result = new LinkedHashSet<IExternalBeanValidator>();
+		final Set<IExternalBeanValidator> validators = externalValidators.get(propertyName);
+		if (validators != null) {
+			result.addAll(validators);
+		}
+		return result;
+	}
+
+	private void setValidationResults(
+		final ValueHolder<IBeanValidationResult> firstWorstIndependendResultHolder,
+		final Collection<IBeanValidationResult> results) {
+		if (results.size() > 0) {
+			boolean validationChanged = false;
+
+			//set the property dependent results
+			for (final IBeanValidationResult result : results) {
+				final String propertyName = result.getPropertyName();
+				final IValidationResult validationResult = result.getValidationResult();
+				final IValidationResult lastResult = validationResults.get(propertyName);
+				if (lastResult == null || !validationResult.getWorstFirst().equals(lastResult.getWorstFirst())) {
+					validationResults.put(propertyName, validationResult);
+					validationChanged = true;
+				}
+			}
+
+			//set the property independent result
+			final IValidationResult lastIndependentResult = independentWorstResult.get();
+			final IBeanValidationResult currentIndependentBeanValidationResult = firstWorstIndependendResultHolder.get();
+			if (currentIndependentBeanValidationResult != null) {
+				final IValidationResult currentIndependentResult = currentIndependentBeanValidationResult.getValidationResult();
+				if (lastIndependentResult == null
+					|| !currentIndependentResult.getWorstFirst().equals(lastIndependentResult.getWorstFirst())) {
+					independentWorstResult.set(currentIndependentResult);
+					validationChanged = true;
+				}
+			}
+			else if (lastIndependentResult != null) {
+				independentWorstResult.set(null);
+				validationChanged = true;
+			}
+
+			if (validationChanged) {
+				fireValidationConditionsChanged();
+			}
 		}
 	}
 
-	private IValidationResult validateProperty(final String propertyName) {
+	private List<IBeanValidationResult> validateProperty(
+		final ValueHolder<IBeanValidationResult> firstWorstIndependendResultHolder,
+		final String propertyName) {
 		Assert.paramNotNull(propertyName, "propertyName");
-		final IValidationResultBuilder builder = ValidationResult.builder();
-		//validate with the added bean validators
-		for (final IBeanPropertyValidator<BEAN_TYPE> validator : beanPropertyValidators) {
-			final IValidationResult validationResult = validator.validateProperty(this, propertyName);
-			if (!validationResult.isValid()) {
-				//return for the first error for performance issue
-				return validationResult;
+		final IBeanValidationResultListBuilder builder = CapCommonToolkit.beanValidationResultListBuilder();
+
+		addValidationResults(independentBeanPropertyValidators, builder, propertyName);
+		addValidationResults(dependendBeanPropertyValidators.get(propertyName), builder, propertyName);
+
+		return builder.build();
+	}
+
+	private Map<String, IBeanValidationResult> consolidateBeanValidationResult(
+		final ValueHolder<IBeanValidationResult> firstWorstIndependendResultHolder,
+		final Collection<IBeanValidationResult> resultList) {
+		final Map<String, IBeanValidationResult> resultMap = new HashMap<String, IBeanValidationResult>();
+		for (final IBeanValidationResult result : resultList) {
+			final String propertyName = result.getPropertyName();
+			if (propertyName != null) {
+				final IBeanValidationResult currentResult = resultMap.get(propertyName);
+				final IBeanValidationResult worseResult = getWorseResult(currentResult, result);
+				if (worseResult == result) {
+					resultMap.put(propertyName, result);
+				}
 			}
 			else {
-				builder.addResult(validationResult);
+				final IBeanValidationResult firstWorstIndependendResult = firstWorstIndependendResultHolder.get();
+				final IBeanValidationResult worseResult = getWorseResult(firstWorstIndependendResult, result);
+				if (worseResult == result) {
+					firstWorstIndependendResultHolder.set(result);
+				}
 			}
 		}
-		return builder.build();
+		return resultMap;
+	}
+
+	private IBeanValidationResult getWorseResult(final IBeanValidationResult first, final IBeanValidationResult second) {
+		if (first == null && second == null) {
+			return null;
+		}
+		else if (first == null) {
+			return second;
+		}
+		else if (second == null) {
+			return first;
+		}
+		else {
+			if (second.getValidationResult().getWorstFirst().worse(first.getValidationResult().getWorstFirst())) {
+				return second;
+			}
+			else {
+				return first;
+			}
+		}
+	}
+
+	private void addValidationResults(
+		final Collection<IBeanPropertyValidator<BEAN_TYPE>> validators,
+		final IBeanValidationResultListBuilder builder,
+		final String propertyName) {
+		if (validators != null) {
+			for (final IBeanPropertyValidator<BEAN_TYPE> validator : validators) {
+				final Collection<IBeanValidationResult> validationResult = validator.validateProperty(this, propertyName);
+				if (!EmptyCheck.isEmpty(validationResult)) {
+					builder.addResult(validationResult);
+				}
+				else {
+					builder.addResult(ValidationResult.ok(), propertyName);
+				}
+			}
+		}
 	}
 
 	@Override
@@ -410,13 +530,23 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 	@Override
 	public void addBeanPropertyValidator(final IBeanPropertyValidator<BEAN_TYPE> validator) {
 		Assert.paramNotNull(validator, "validator");
-		this.beanPropertyValidators.add(validator);
+		final Set<String> propertyDependencies = validator.getPropertyDependencies();
+		if (EmptyCheck.isEmpty(propertyDependencies)) {
+			independentBeanPropertyValidators.add(validator);
+		}
+		else {
+			for (final String propertyName : propertyDependencies) {
+				getDependentBeanPropertyValidators(propertyName).add(validator);
+			}
+		}
 	}
 
 	@Override
 	public void registerExternalValidator(final IExternalBeanValidator validator) {
 		Assert.paramNotNull(validator, "validator");
-		externalValidators.add(validator);
+		for (final String propertyName : validator.getObservedProperties()) {
+			getExternalValidators(propertyName).add(validator);
+		}
 		validator.addExternalValidatorListener(this);
 		calculateInternalObservedProperties();
 	}
@@ -424,15 +554,38 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 	@Override
 	public void unregisterExternalValidator(final IExternalBeanValidator validator) {
 		Assert.paramNotNull(validator, "validator");
-		externalValidators.remove(validator);
+		for (final Set<IExternalBeanValidator> validators : externalValidators.values()) {
+			validators.remove(validator);
+		}
 		validator.removeExternalValidatorListener(this);
 		calculateInternalObservedProperties();
 	}
 
+	private Set<IBeanPropertyValidator<BEAN_TYPE>> getDependentBeanPropertyValidators(final String propertyName) {
+		Set<IBeanPropertyValidator<BEAN_TYPE>> result = dependendBeanPropertyValidators.get(propertyName);
+		if (result == null) {
+			result = new HashSet<IBeanPropertyValidator<BEAN_TYPE>>();
+			dependendBeanPropertyValidators.put(propertyName, result);
+		}
+		return result;
+	}
+
+	private Set<IExternalBeanValidator> getExternalValidators(final String propertyName) {
+		Set<IExternalBeanValidator> result = externalValidators.get(propertyName);
+		if (result == null) {
+			result = new LinkedHashSet<IExternalBeanValidator>();
+			externalValidators.put(propertyName, result);
+		}
+		return result;
+	}
+
 	private void calculateInternalObservedProperties() {
 		final Set<String> result = new HashSet<String>(properties);
-		for (final IExternalBeanValidator externalBeanValidator : externalValidators) {
-			result.removeAll(externalBeanValidator.getObservedProperties());
+
+		for (final Set<IExternalBeanValidator> externalBeanValidatorsSet : externalValidators.values()) {
+			for (final IExternalBeanValidator externalBeanValidator : externalBeanValidatorsSet) {
+				result.removeAll(externalBeanValidator.getObservedProperties());
+			}
 		}
 		internalObservedProperties.clear();
 		internalObservedProperties.addAll(result);

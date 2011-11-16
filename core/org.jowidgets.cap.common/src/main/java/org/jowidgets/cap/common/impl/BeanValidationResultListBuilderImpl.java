@@ -47,6 +47,13 @@ final class BeanValidationResultListBuilderImpl implements IBeanValidationResult
 	}
 
 	@Override
+	public IBeanValidationResultListBuilder addResult(final Collection<? extends IBeanValidationResult> validationResultCollection) {
+		Assert.paramNotNull(validationResultCollection, "validationResultCollection");
+		resultList.addAll(validationResultCollection);
+		return this;
+	}
+
+	@Override
 	public IBeanValidationResultListBuilder addResult(final IBeanValidationResult validationResult) {
 		Assert.paramNotNull(validationResult, "validationResult");
 		resultList.add(validationResult);
