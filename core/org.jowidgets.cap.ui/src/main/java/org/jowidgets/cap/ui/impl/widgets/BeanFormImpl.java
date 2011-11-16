@@ -330,7 +330,7 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 		boolean validationChanged = false;
 		IValidationResult validationResult = ValidationResult.ok();
 		final IInputControl<?> control = controls.get(propertyName);
-		if (control != null && EmptyCompatibleEquivalence.equals(control.getValue(), bean.getValue(propertyName))) {
+		if (bean != null && control != null && EmptyCompatibleEquivalence.equals(control.getValue(), bean.getValue(propertyName))) {
 			validationResult = control.validate();
 			//only use the bean validation result, if the control is valid
 			if (validationResult.isValid()) {
