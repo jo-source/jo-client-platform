@@ -33,6 +33,8 @@ import java.util.Set;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
+import javax.validation.metadata.BeanDescriptor;
+import javax.validation.metadata.PropertyDescriptor;
 
 import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.validation.IValidationResult;
@@ -71,6 +73,18 @@ final class BeanPropertyValidatorAdapter implements IValidator<Object>, Serializ
 			}
 		}
 		return ValidationResult.ok();
+	}
+
+	public static boolean isBeanPropertyConstrained(final Class<?> beanType, final String propertyName) {
+		final Validator beanValidator = CapCommonToolkit.beanValidator();
+		final BeanDescriptor constraintsForClass = beanValidator.getConstraintsForClass(beanType);
+		if (constraintsForClass != null) {
+			final PropertyDescriptor constraintsForProperty = constraintsForClass.getConstraintsForProperty(propertyName);
+			if (constraintsForProperty != null) {
+				return constraintsForProperty.hasConstraints();
+			}
+		}
+		return false;
 	}
 
 }
