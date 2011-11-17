@@ -30,6 +30,7 @@ package org.jowidgets.cap.ui.api;
 
 import java.util.Collection;
 
+import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
 import org.jowidgets.cap.ui.api.bean.BeanMessageType;
 import org.jowidgets.cap.ui.api.bean.IBeanKeyFactory;
@@ -88,7 +89,7 @@ public interface ICapUiToolkit {
 
 	<BEAN_TYPE> IBeanTableModelBuilder<BEAN_TYPE> beanTableModelBuilder(Object entityId, Class<BEAN_TYPE> beanType);
 
-	IBeanTableModelBuilder<Object> beanTableModelBuilder(Object entityId);
+	IBeanTableModelBuilder<IBeanDto> beanTableModelBuilder(Object entityId);
 
 	IBeanTableConfigBuilder beanTableConfigBuilder();
 

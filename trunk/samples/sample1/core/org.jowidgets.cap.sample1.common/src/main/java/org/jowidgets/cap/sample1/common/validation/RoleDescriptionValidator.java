@@ -26,33 +26,33 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.impl.workbench;
+package org.jowidgets.cap.sample1.common.validation;
 
-import org.jowidgets.api.widgets.IContainer;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
-import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
-import org.jowidgets.cap.ui.api.CapUiToolkit;
-import org.jowidgets.cap.ui.api.table.IBeanTableModel;
-import org.jowidgets.cap.ui.api.widgets.IBeanTable;
-import org.jowidgets.tools.layout.MigLayoutFactory;
-import org.jowidgets.workbench.api.IViewContext;
-import org.jowidgets.workbench.tools.AbstractView;
+import org.jowidgets.cap.common.tools.validation.AbstractSingleConcernBeanValidator;
+import org.jowidgets.util.EmptyCheck;
+import org.jowidgets.validation.IValidationResult;
+import org.jowidgets.validation.ValidationResult;
 
-public class LinkedEntityTableView extends AbstractView {
+//This validator only exists for demonstration purpose and could be easier done as an property validator
+public final class RoleDescriptionValidator extends AbstractSingleConcernBeanValidator<IBeanDto> {
 
-	private final IBeanTable<IBeanDto> table;
+	private static final long serialVersionUID = 4415275678914934382L;
 
-	public LinkedEntityTableView(
-		final IViewContext context,
-		final IBeanTableModel<IBeanDto> model,
-		final IEntityLinkDescriptor link) {
-		final IContainer container = context.getContainer();
-		container.setLayout(MigLayoutFactory.growingInnerCellLayout());
-		this.table = container.add(CapUiToolkit.bluePrintFactory().beanTable(model), MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
-		model.load();
+	private static final String DESCRIPTION_PROPERTY = "description";
+
+	public RoleDescriptionValidator() {
+		super(DESCRIPTION_PROPERTY);
 	}
 
-	protected IBeanTable<IBeanDto> getTable() {
-		return table;
+	@Override
+	public IValidationResult validateBean(final IBeanDto role) {
+		final String description = (String) role.getValue(DESCRIPTION_PROPERTY);
+		if (EmptyCheck.isEmpty(description)) {
+			//TODO i18n
+			return ValidationResult.warning("The role has no description.");
+		}
+		return ValidationResult.ok();
 	}
+
 }

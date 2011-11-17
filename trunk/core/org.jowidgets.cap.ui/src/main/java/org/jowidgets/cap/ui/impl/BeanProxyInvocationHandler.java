@@ -32,6 +32,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
 import org.jowidgets.cap.common.api.bean.IBean;
+import org.jowidgets.util.EmptyCheck;
 
 final class BeanProxyInvocationHandler implements InvocationHandler {
 
@@ -73,6 +74,26 @@ final class BeanProxyInvocationHandler implements InvocationHandler {
 		if (method.getName().equals("hashCode")) {
 			return dataBean.hashCode();
 		}
+		else if (isGetIdMethod(method)) {
+			return dataBean.getId();
+		}
+		else if (isGetVersionMethod(method)) {
+			return dataBean.getVersion();
+		}
+		else if (isGetValueMethod(method)) {
+			if (!EmptyCheck.isEmpty(args)) {
+				return dataBean.getValue((String) args[0]);
+			}
+			else {
+				return null;
+			}
+		}
+		else if (isSetValueMethod(method)) {
+			if (!EmptyCheck.isEmpty(args) && args.length == 2) {
+				dataBean.setValue((String) args[0], args[1]);
+			}
+			return null;
+		}
 		else if (method.getName().startsWith("get")) {
 			return dataBean.getValue(toPropertyName(method.getName(), 3));
 		}
@@ -97,6 +118,49 @@ final class BeanProxyInvocationHandler implements InvocationHandler {
 
 	private String toPropertyName(final String methodName, final int prefixLength) {
 		return methodName.substring(prefixLength, prefixLength + 1).toLowerCase() + methodName.substring(prefixLength + 1);
+	}
+
+	private boolean isGetValueMethod(final Method method) {
+		if (method.getName().equals("getValue")) {
+			final Class<?>[] parameterTypes = method.getParameterTypes();
+			if (parameterTypes != null && parameterTypes.length == 1 && parameterTypes[0] == String.class) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private boolean isGetIdMethod(final Method method) {
+		if (method.getName().equals("getId")) {
+			final Class<?>[] parameterTypes = method.getParameterTypes();
+			if (EmptyCheck.isEmpty(parameterTypes)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private boolean isGetVersionMethod(final Method method) {
+		if (method.getName().equals("getVersion")) {
+			final Class<?>[] parameterTypes = method.getParameterTypes();
+			if (EmptyCheck.isEmpty(parameterTypes)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private boolean isSetValueMethod(final Method method) {
+		if (method.getName().equals("setValue")) {
+			final Class<?>[] parameterTypes = method.getParameterTypes();
+			if (parameterTypes != null
+				&& parameterTypes.length == 2
+				&& parameterTypes[0] == String.class
+				&& parameterTypes[1] == Object.class) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private String invokeToString() {

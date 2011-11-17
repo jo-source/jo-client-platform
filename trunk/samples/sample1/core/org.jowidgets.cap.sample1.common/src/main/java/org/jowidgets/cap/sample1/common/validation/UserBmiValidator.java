@@ -35,7 +35,7 @@ import org.jowidgets.cap.sample1.common.entity.IUser;
 import org.jowidgets.validation.IValidationResult;
 import org.jowidgets.validation.ValidationResult;
 
-public class UserBmiValidator extends AbstractSingleConcernBeanValidator<IUser> {
+public final class UserBmiValidator extends AbstractSingleConcernBeanValidator<IUser> {
 
 	private static final long serialVersionUID = 4415275678914934382L;
 

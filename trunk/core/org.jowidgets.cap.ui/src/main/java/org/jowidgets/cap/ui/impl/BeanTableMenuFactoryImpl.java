@@ -542,6 +542,7 @@ final class BeanTableMenuFactoryImpl<BEAN_TYPE> implements IBeanTableMenuFactory
 
 	@Override
 	public IAction creatorAction(final IBeanTable<BEAN_TYPE> table) {
+		//TODO Fix Nullpointer
 		return creatorActionBuilder(table).build();
 	}
 

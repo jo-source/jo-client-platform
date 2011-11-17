@@ -41,6 +41,7 @@ import org.jowidgets.api.controller.IDisposeListener;
 import org.jowidgets.api.model.item.IActionItemModel;
 import org.jowidgets.api.model.item.IToolBarItemModel;
 import org.jowidgets.api.model.item.IToolBarModel;
+import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.entity.IEntityClass;
 import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
 import org.jowidgets.cap.common.api.service.IEntityService;
@@ -68,11 +69,11 @@ public class EntityComponent extends AbstractComponent implements IComponent {
 	public static final String ROOT_TABLE_VIEW_ID = EntityComponent.class.getName() + "_ROOT_TABLE_VIEW";
 	public static final String LINKED_TABLE_VIEW_ID = EntityComponent.class.getName() + "_LINKED_TABLE_VIEW_";
 
-	private final IBeanTableModel<Object> tableModel;
+	private final IBeanTableModel<IBeanDto> tableModel;
 	private final List<IDataModelAction> dataModelActions;
 	private final Set<LinkedEntityTableView> tableViews;
 	private final Map<String, IEntityLinkDescriptor> links;
-	private final Map<Object, IBeanTableModel<Object>> linkedModels;
+	private final Map<Object, IBeanTableModel<IBeanDto>> linkedModels;
 
 	private EntityMultiDetailView multiDetailView;
 
@@ -85,7 +86,7 @@ public class EntityComponent extends AbstractComponent implements IComponent {
 		this.dataModelActions = getDataModelActions(componentNodeModel);
 		this.tableViews = new LinkedHashSet<LinkedEntityTableView>();
 		this.links = new LinkedHashMap<String, IEntityLinkDescriptor>();
-		this.linkedModels = new HashMap<Object, IBeanTableModel<Object>>();
+		this.linkedModels = new HashMap<Object, IBeanTableModel<IBeanDto>>();
 
 		final IEntityService entityService = ServiceProvider.getService(IEntityService.ID);
 		if (entityService != null) {
@@ -97,7 +98,7 @@ public class EntityComponent extends AbstractComponent implements IComponent {
 					links.put(linkedViewId, link);
 					i++;
 
-					final IBeanTableModelBuilder<Object> builder = CapUiToolkit.beanTableModelBuilder(link.getLinkedTypeId());
+					final IBeanTableModelBuilder<IBeanDto> builder = CapUiToolkit.beanTableModelBuilder(link.getLinkedTypeId());
 					builder.setParent(tableModel, LinkType.SELECTION_ALL);
 					linkedModels.put(link.getLinkedTypeId(), builder.build());
 				}

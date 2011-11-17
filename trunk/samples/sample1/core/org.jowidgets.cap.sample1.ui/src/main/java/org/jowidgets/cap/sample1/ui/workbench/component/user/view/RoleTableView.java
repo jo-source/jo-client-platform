@@ -41,9 +41,9 @@ public class RoleTableView extends AbstractView {
 	public static final String DEFAULT_LABEL = Messages.getString("RoleTableView.roles"); //$NON-NLS-1$
 	public static final String DEFAULT_TOOLTIP = Messages.getString("RoleTableView.roles_tooltip"); //$NON-NLS-1$
 
-	private final IBeanTableModel<Object> beanTableModel;
+	private final IBeanTableModel<?> beanTableModel;
 
-	public RoleTableView(final IViewContext context, final IBeanTableModel<Object> tableModel) {
+	public RoleTableView(final IViewContext context, final IBeanTableModel<?> tableModel) {
 		this.beanTableModel = tableModel;
 		final IContainer container = context.getContainer();
 		container.setLayout(MigLayoutFactory.growingInnerCellLayout());

@@ -33,6 +33,7 @@ import java.util.Map;
 
 import org.jowidgets.api.model.item.IMenuModel;
 import org.jowidgets.api.widgets.IContainer;
+import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.command.ICapActionFactory;
@@ -48,15 +49,15 @@ public class EntityTableView extends AbstractView {
 
 	public EntityTableView(
 		final IViewContext context,
-		final IBeanTableModel<Object> tableModel,
+		final IBeanTableModel<IBeanDto> tableModel,
 		final Collection<IEntityLinkDescriptor> links,
-		final Map<Object, IBeanTableModel<Object>> linkedModels) {
+		final Map<Object, IBeanTableModel<IBeanDto>> linkedModels) {
 
 		final IContainer container = context.getContainer();
 		container.setLayout(MigLayoutFactory.growingInnerCellLayout());
 
-		final IBeanTableBluePrint<Object> tableBp = CapUiToolkit.bluePrintFactory().beanTable(tableModel);
-		final IBeanTable<Object> table = container.add(tableBp, MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
+		final IBeanTableBluePrint<IBeanDto> tableBp = CapUiToolkit.bluePrintFactory().beanTable(tableModel);
+		final IBeanTable<IBeanDto> table = container.add(tableBp, MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
 
 		addLinkActions(table, links, linkedModels);
 
@@ -64,14 +65,14 @@ public class EntityTableView extends AbstractView {
 	}
 
 	private static void addLinkActions(
-		final IBeanTable<Object> table,
+		final IBeanTable<IBeanDto> table,
 		final Collection<IEntityLinkDescriptor> links,
-		final Map<Object, IBeanTableModel<Object>> linkedModels) {
+		final Map<Object, IBeanTableModel<IBeanDto>> linkedModels) {
 		boolean actionCreated = false;
 		final IMenuModel tableCellMenu = table.getCellPopMenu();
 		final ICapActionFactory actionFactory = CapUiToolkit.actionFactory();
 		for (final IEntityLinkDescriptor link : links) {
-			final ILinkActionBuilder<Object> linkActionBuilder;
+			final ILinkActionBuilder<IBeanDto> linkActionBuilder;
 			linkActionBuilder = actionFactory.linkActionBuilder(table.getModel(), link);
 			if (linkActionBuilder != null) {
 				linkActionBuilder.setLinkedDataModel(linkedModels.get(link.getLinkedTypeId()));
