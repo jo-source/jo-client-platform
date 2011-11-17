@@ -29,14 +29,19 @@
 package org.jowidgets.cap.sample1.service.entity;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.bean.IBean;
+import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
 import org.jowidgets.cap.common.api.bean.IProperty;
 import org.jowidgets.cap.common.api.bean.IPropertyBuilder;
+import org.jowidgets.cap.common.api.validation.IBeanValidator;
+import org.jowidgets.cap.sample1.common.validation.RoleDescriptionValidator;
 import org.jowidgets.cap.sample1.service.datastore.RoleInitializer;
 
 public class RoleDtoDescriptorBuilder {
@@ -97,9 +102,13 @@ public class RoleDtoDescriptorBuilder {
 	}
 
 	IBeanDtoDescriptor build() {
+		final Set<IBeanValidator<IBeanDto>> validators = new HashSet<IBeanValidator<IBeanDto>>();
+		validators.add(new RoleDescriptionValidator());
 		return CapCommonToolkit.dtoDescriptor(
 				properties,
 				Messages.getString("RoleDtoDescriptorBuilder.labelSingular"),
-				Messages.getString("RoleDtoDescriptorBuilder.labelPlural"));
+				Messages.getString("RoleDtoDescriptorBuilder.labelPlural"),
+				null,
+				validators);
 	}
 }

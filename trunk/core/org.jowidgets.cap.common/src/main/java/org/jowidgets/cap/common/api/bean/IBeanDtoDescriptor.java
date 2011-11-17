@@ -29,13 +29,31 @@
 package org.jowidgets.cap.common.api.bean;
 
 import java.util.List;
+import java.util.Set;
+
+import org.jowidgets.cap.common.api.validation.IBeanValidator;
 
 public interface IBeanDtoDescriptor {
+
+	/**
+	 * Gets the type of the bean. If no type is defined, IBeanDto.class is the default
+	 * type.
+	 * 
+	 * @return The type of the bean, never null. The default type is IBeanDto.class
+	 */
+	Class<?> getBeanType();
 
 	/**
 	 * @return The properties of the bean in the preferred order
 	 */
 	List<IProperty> getProperties();
+
+	/**
+	 * Gets the validators for the bean
+	 * 
+	 * @return The validators or an empty list, never null
+	 */
+	Set<IBeanValidator<?>> getValidators();
 
 	/**
 	 * Gets the label in the singular, e.g. Role, Authentication, Member, ...
@@ -57,4 +75,5 @@ public interface IBeanDtoDescriptor {
 	 * @return The decription or null
 	 */
 	String getDescription();
+
 }

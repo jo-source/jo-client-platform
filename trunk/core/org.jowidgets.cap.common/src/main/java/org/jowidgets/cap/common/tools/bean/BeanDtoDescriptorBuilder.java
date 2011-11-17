@@ -32,6 +32,7 @@ import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptorBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanPropertyBluePrint;
+import org.jowidgets.cap.common.api.validation.IBeanValidator;
 import org.jowidgets.util.Assert;
 
 public class BeanDtoDescriptorBuilder implements IBeanDtoDescriptorBuilder {
@@ -56,6 +57,11 @@ public class BeanDtoDescriptorBuilder implements IBeanDtoDescriptorBuilder {
 	@Override
 	public IBeanDtoDescriptorBuilder setDescription(final String description) {
 		return this.builder.setDescription(description);
+	}
+
+	@Override
+	public IBeanDtoDescriptorBuilder addValidator(final IBeanValidator<?> validator) {
+		return this.builder.addValidator(validator);
 	}
 
 	@Override

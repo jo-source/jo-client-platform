@@ -82,6 +82,7 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> implements IBeanTableModelBuild
 
 	private ISortModelConfig sortModelConfig;
 
+	@SuppressWarnings({"unchecked", "rawtypes"})
 	BeanTableModelBuilderImpl(final Object entityId, final Class<BEAN_TYPE> beanType) {
 		Assert.paramNotNull(entityId, "entityId");
 		Assert.paramNotNull(beanType, "beanType");
@@ -110,6 +111,9 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> implements IBeanTableModelBuild
 				final String labelPlural = beanDtoDescriptor.getLabelPlural();
 				if (!EmptyCheck.isEmpty(labelPlural)) {
 					this.entityLabelPlural = labelPlural;
+				}
+				for (final IBeanValidator<?> beanValidator : beanDtoDescriptor.getValidators()) {
+					addBeanValidator((IBeanValidator) beanValidator);
 				}
 			}
 		}

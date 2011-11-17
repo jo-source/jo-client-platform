@@ -50,6 +50,7 @@ import org.jowidgets.cap.common.api.filter.IFilterFactory;
 import org.jowidgets.cap.common.api.lookup.ILookUpToolkit;
 import org.jowidgets.cap.common.api.sort.ISortFactory;
 import org.jowidgets.cap.common.api.validation.IBeanValidationResultListBuilder;
+import org.jowidgets.cap.common.api.validation.IBeanValidator;
 
 public interface ICapCommonToolkit {
 
@@ -67,6 +68,7 @@ public interface ICapCommonToolkit {
 
 	IBeanDtoDescriptorBuilder dtoDescriptorBuilder(Class<?> beanType);
 
+	//TODO MG allow to build generic / untyped descriptors with help of a builder to avoid n*m factory methods 
 	IBeanDtoDescriptor dtoDescriptor(Collection<IProperty> properties);
 
 	IBeanDtoDescriptor dtoDescriptor(Collection<IProperty> properties, String labelSingular, String labelPlural);
@@ -76,6 +78,13 @@ public interface ICapCommonToolkit {
 		String labelSingular,
 		String labelPlural,
 		String description);
+
+	IBeanDtoDescriptor dtoDescriptor(
+		Collection<IProperty> properties,
+		String labelSingular,
+		String labelPlural,
+		String description,
+		Collection<? extends IBeanValidator<?>> validators);
 
 	IBeanDtoBuilder dtoBuilder(Object entityTypeId);
 

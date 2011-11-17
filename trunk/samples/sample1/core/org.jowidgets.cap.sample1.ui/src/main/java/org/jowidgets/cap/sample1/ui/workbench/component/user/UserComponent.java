@@ -33,8 +33,6 @@ import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.sample1.common.entity.EntityIds;
 import org.jowidgets.cap.sample1.common.entity.IUser;
 import org.jowidgets.cap.sample1.common.service.reader.ReaderServices;
-import org.jowidgets.cap.sample1.common.validation.RoleDescriptionValidator;
-import org.jowidgets.cap.sample1.common.validation.UserBmiValidator;
 import org.jowidgets.cap.sample1.ui.attribute.UserAttributesFactory;
 import org.jowidgets.cap.sample1.ui.workbench.command.WorkbenchActions;
 import org.jowidgets.cap.sample1.ui.workbench.component.user.view.RoleTableView;
@@ -128,14 +126,12 @@ public class UserComponent extends AbstractComponent implements IComponent {
 		final IBeanTableModelBuilder<IUser> builder = CapUiToolkit.beanTableModelBuilder(IUser.class);
 		builder.setAttributes(new UserAttributesFactory().tableAttributes());
 		builder.setReaderService(ReaderServices.ALL_USERS, createReaderParameterProvider());
-		builder.addBeanValidator(new UserBmiValidator());
 		return builder.build();
 	}
 
 	private IBeanTableModel<?> createRoleTableModel(final IBeanTableModel<IUser> userTableModel) {
 		final IBeanTableModelBuilder<IBeanDto> builder = CapUiToolkit.beanTableModelBuilder(EntityIds.VIRTUAL_ROLES_OF_USERS);
 		builder.setParent(userTableModel, LinkType.SELECTION_ALL);
-		builder.addBeanValidator(new RoleDescriptionValidator());
 		return builder.build();
 	}
 
