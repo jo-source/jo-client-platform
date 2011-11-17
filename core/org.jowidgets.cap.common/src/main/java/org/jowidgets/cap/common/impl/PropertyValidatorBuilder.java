@@ -61,7 +61,9 @@ final class PropertyValidatorBuilder implements IPropertyValidatorBuilder {
 	public IPropertyValidatorBuilder addBeanValidator(final Class<?> beanType, final String propertyName) {
 		Assert.paramNotNull(beanType, "beanType");
 		Assert.paramNotNull(propertyName, "propertyName");
-		validators.add(new BeanPropertyValidatorAdapter(beanType, propertyName));
+		if (BeanPropertyValidatorAdapter.isBeanPropertyConstrained(beanType, propertyName)) {
+			validators.add(new BeanPropertyValidatorAdapter(beanType, propertyName));
+		}
 		return this;
 	}
 
