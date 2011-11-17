@@ -29,9 +29,11 @@
 package org.jowidgets.cap.sample1.ui.workbench.component.user;
 
 import org.jowidgets.api.command.IAction;
+import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.sample1.common.entity.EntityIds;
 import org.jowidgets.cap.sample1.common.entity.IUser;
 import org.jowidgets.cap.sample1.common.service.reader.ReaderServices;
+import org.jowidgets.cap.sample1.common.validation.RoleDescriptionValidator;
 import org.jowidgets.cap.sample1.common.validation.UserBmiValidator;
 import org.jowidgets.cap.sample1.ui.attribute.UserAttributesFactory;
 import org.jowidgets.cap.sample1.ui.workbench.command.WorkbenchActions;
@@ -59,7 +61,7 @@ public class UserComponent extends AbstractComponent implements IComponent {
 
 	private final ValueHolder<Integer> delayParameter;
 	private final IBeanTableModel<IUser> userTableModel;
-	private final IBeanTableModel<Object> roleTableModel;
+	private final IBeanTableModel<?> roleTableModel;
 	private final IAction userRoleLinkAction;
 
 	public UserComponent(final IComponentNodeModel componentNodeModel, final IComponentContext componentContext) {
@@ -130,9 +132,10 @@ public class UserComponent extends AbstractComponent implements IComponent {
 		return builder.build();
 	}
 
-	private IBeanTableModel<Object> createRoleTableModel(final IBeanTableModel<IUser> userTableModel) {
-		final IBeanTableModelBuilder<Object> builder = CapUiToolkit.beanTableModelBuilder(EntityIds.VIRTUAL_ROLES_OF_USERS);
+	private IBeanTableModel<?> createRoleTableModel(final IBeanTableModel<IUser> userTableModel) {
+		final IBeanTableModelBuilder<IBeanDto> builder = CapUiToolkit.beanTableModelBuilder(EntityIds.VIRTUAL_ROLES_OF_USERS);
 		builder.setParent(userTableModel, LinkType.SELECTION_ALL);
+		builder.addBeanValidator(new RoleDescriptionValidator());
 		return builder.build();
 	}
 

@@ -29,6 +29,7 @@
 package org.jowidgets.cap.ui.impl.workbench;
 
 import org.jowidgets.api.widgets.IContainer;
+import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.tools.layout.MigLayoutFactory;
@@ -39,7 +40,7 @@ public class EntityDetailView extends AbstractView {
 
 	public static final String ID = EntityDetailView.class.getName();
 
-	public EntityDetailView(final IViewContext context, final IBeanTableModel<Object> parentModel) {
+	public EntityDetailView(final IViewContext context, final IBeanTableModel<IBeanDto> parentModel) {
 		final IContainer container = context.getContainer();
 		container.setLayout(MigLayoutFactory.growingCellLayout());
 		container.add(CapUiToolkit.bluePrintFactory().beanTableForm(parentModel), MigLayoutFactory.GROWING_CELL_CONSTRAINTS);

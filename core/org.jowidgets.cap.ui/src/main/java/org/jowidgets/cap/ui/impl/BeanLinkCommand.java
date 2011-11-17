@@ -236,17 +236,17 @@ final class BeanLinkCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
 	}
 
 	private List<Object> getBeanIdsToLink(final IExecutionContext executionContext) {
-		final IBeanTableModelBuilder<Object> modelBuilder = CapUiToolkit.beanTableModelBuilder(linkableTableEntityId);
+		final IBeanTableModelBuilder<IBeanDto> modelBuilder = CapUiToolkit.beanTableModelBuilder(linkableTableEntityId);
 		modelBuilder.setAttributes(linkableTableAttributes);
 		modelBuilder.setParent(model, LinkType.SELECTION_ALL);
 		modelBuilder.setAutoSelection(false);
-		final IBeanTableModel<Object> linkableModel = modelBuilder.build();
+		final IBeanTableModel<IBeanDto> linkableModel = modelBuilder.build();
 		if (lastTableModelConfig != null) {
 			linkableModel.setConfig(lastTableModelConfig);
 		}
 		linkableModel.load();
 
-		final IBeanSelectionDialogBluePrint<Object> selectionDialogBp;
+		final IBeanSelectionDialogBluePrint<IBeanDto> selectionDialogBp;
 		selectionDialogBp = CapUiToolkit.bluePrintFactory().beanSelectionDialog(linkableModel);
 		selectionDialogBp.setExecutionContext(executionContext);
 		selectionDialogBp.setMinPackSize(new Dimension(400, 400));
@@ -256,22 +256,22 @@ final class BeanLinkCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
 			selectionDialogBp.setPosition(lastDialogBounds.getPosition());
 		}
 
-		final IBeanSelectionDialog<Object> dialog = Toolkit.getActiveWindow().createChildWindow(selectionDialogBp);
+		final IBeanSelectionDialog<IBeanDto> dialog = Toolkit.getActiveWindow().createChildWindow(selectionDialogBp);
 		if (lastColumnPermutation != null) {
 			dialog.getTable().setColumnPermutation(lastColumnPermutation);
 		}
 		dialog.setVisible(true);
 
 		lastDialogBounds = dialog.getBounds();
-		final IBeanSelectionTable<Object> table = dialog.getTable();
+		final IBeanSelectionTable<IBeanDto> table = dialog.getTable();
 		lastColumnPermutation = table.getColumnPermutation();
 		linkableModel.setFilter(IBeanTableModel.UI_SEARCH_FILTER_ID, null);
 		lastTableModelConfig = linkableModel.getConfig();
 
 		final List<Object> selectedIds = new LinkedList<Object>();
 		if (dialog.isOkPressed()) {
-			final List<IBeanProxy<Object>> selectedBeans = dialog.getValue();
-			for (final IBeanProxy<Object> bean : selectedBeans) {
+			final List<IBeanProxy<IBeanDto>> selectedBeans = dialog.getValue();
+			for (final IBeanProxy<IBeanDto> bean : selectedBeans) {
 				if (bean == null || bean.isDummy()) {
 					//TODO i18n
 					Toolkit.getMessagePane().showError(executionContext, "The selection contains unloaded data!");

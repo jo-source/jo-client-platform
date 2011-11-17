@@ -31,6 +31,7 @@ package org.jowidgets.cap.ui.impl;
 import java.util.Collection;
 import java.util.Collections;
 
+import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.ui.api.ICapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
 import org.jowidgets.cap.ui.api.bean.BeanMessageType;
@@ -185,8 +186,8 @@ public final class DefaultCapUiToolkit implements ICapUiToolkit {
 	}
 
 	@Override
-	public IBeanTableModelBuilder<Object> beanTableModelBuilder(final Object entityId) {
-		return new BeanTableModelBuilderImpl<Object>(entityId, Object.class);
+	public IBeanTableModelBuilder<IBeanDto> beanTableModelBuilder(final Object entityId) {
+		return new BeanTableModelBuilderImpl<IBeanDto>(entityId, IBeanDto.class);
 	}
 
 	@Override
