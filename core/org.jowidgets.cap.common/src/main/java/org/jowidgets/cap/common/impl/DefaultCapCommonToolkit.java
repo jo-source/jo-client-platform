@@ -35,6 +35,7 @@ import javax.validation.Validator;
 
 import org.jowidgets.cap.common.api.ICapCommonToolkit;
 import org.jowidgets.cap.common.api.bean.IBeanDataBuilder;
+import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanDtoBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptorBuilder;
@@ -52,6 +53,7 @@ import org.jowidgets.cap.common.api.filter.IFilterFactory;
 import org.jowidgets.cap.common.api.lookup.ILookUpToolkit;
 import org.jowidgets.cap.common.api.sort.ISortFactory;
 import org.jowidgets.cap.common.api.validation.IBeanValidationResultListBuilder;
+import org.jowidgets.cap.common.api.validation.IBeanValidator;
 import org.jowidgets.util.Assert;
 
 public final class DefaultCapCommonToolkit implements ICapCommonToolkit {
@@ -123,6 +125,16 @@ public final class DefaultCapCommonToolkit implements ICapCommonToolkit {
 		final String description) {
 		Assert.paramNotNull(properties, "properties");
 		return new BeanDtoDescriptorImpl(labelSingular, labelPlural, description, properties);
+	}
+
+	@Override
+	public IBeanDtoDescriptor dtoDescriptor(
+		final Collection<IProperty> properties,
+		final String labelSingular,
+		final String labelPlural,
+		final String description,
+		final Collection<? extends IBeanValidator<?>> validators) {
+		return new BeanDtoDescriptorImpl(IBeanDto.class, labelSingular, labelPlural, description, properties, validators);
 	}
 
 	@Override

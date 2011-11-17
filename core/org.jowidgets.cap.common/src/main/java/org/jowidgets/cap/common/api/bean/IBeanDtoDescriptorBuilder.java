@@ -28,6 +28,8 @@
 
 package org.jowidgets.cap.common.api.bean;
 
+import org.jowidgets.cap.common.api.validation.IBeanValidator;
+
 public interface IBeanDtoDescriptorBuilder {
 
 	IBeanDtoDescriptorBuilder setLabelSingular(String label);
@@ -35,6 +37,8 @@ public interface IBeanDtoDescriptorBuilder {
 	IBeanDtoDescriptorBuilder setLabelPlural(String label);
 
 	IBeanDtoDescriptorBuilder setDescription(String description);
+
+	IBeanDtoDescriptorBuilder addValidator(IBeanValidator<?> validator);
 
 	IBeanPropertyBluePrint addProperty(String propertyName);
 

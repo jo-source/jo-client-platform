@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.common.api;
 
+import java.util.Collection;
 import java.util.List;
 
 import javax.validation.Validator;
@@ -50,6 +51,7 @@ import org.jowidgets.cap.common.api.filter.IFilterFactory;
 import org.jowidgets.cap.common.api.lookup.ILookUpToolkit;
 import org.jowidgets.cap.common.api.sort.ISortFactory;
 import org.jowidgets.cap.common.api.validation.IBeanValidationResultListBuilder;
+import org.jowidgets.cap.common.api.validation.IBeanValidator;
 import org.jowidgets.cap.common.impl.DefaultCapCommonToolkit;
 
 public final class CapCommonToolkit {
@@ -110,6 +112,15 @@ public final class CapCommonToolkit {
 		final String labelPlural,
 		final String description) {
 		return getInstance().dtoDescriptor(properties, labelSingular, labelPlural, description);
+	}
+
+	public static IBeanDtoDescriptor dtoDescriptor(
+		final Collection<IProperty> properties,
+		final String labelSingular,
+		final String labelPlural,
+		final String description,
+		final Collection<? extends IBeanValidator<?>> validators) {
+		return getInstance().dtoDescriptor(properties, labelSingular, labelPlural, description, validators);
 	}
 
 	public static IBeanDtoBuilder dtoBuilder(final Object entityTypeId) {

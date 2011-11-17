@@ -29,7 +29,6 @@
 package org.jowidgets.cap.ui.impl.workbench;
 
 import org.jowidgets.api.widgets.IContainer;
-import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
@@ -40,19 +39,16 @@ import org.jowidgets.workbench.tools.AbstractView;
 
 public class LinkedEntityTableView extends AbstractView {
 
-	private final IBeanTable<IBeanDto> table;
+	private final IBeanTable<?> table;
 
-	public LinkedEntityTableView(
-		final IViewContext context,
-		final IBeanTableModel<IBeanDto> model,
-		final IEntityLinkDescriptor link) {
+	public LinkedEntityTableView(final IViewContext context, final IBeanTableModel<?> model, final IEntityLinkDescriptor link) {
 		final IContainer container = context.getContainer();
 		container.setLayout(MigLayoutFactory.growingInnerCellLayout());
 		this.table = container.add(CapUiToolkit.bluePrintFactory().beanTable(model), MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
 		model.load();
 	}
 
-	protected IBeanTable<IBeanDto> getTable() {
+	protected IBeanTable<?> getTable() {
 		return table;
 	}
 }

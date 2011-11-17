@@ -28,19 +28,23 @@
 
 package org.jowidgets.cap.common.impl;
 
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptorBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanPropertyBluePrint;
 import org.jowidgets.cap.common.api.bean.IProperty;
+import org.jowidgets.cap.common.api.validation.IBeanValidator;
 import org.jowidgets.util.Assert;
 
 final class BeanDtoDescriptorBuilderImpl implements IBeanDtoDescriptorBuilder {
 
 	private final Class<?> beanType;
 	private final List<BeanPropertyBluePrintImpl> bluePrints;
+	private final Set<IBeanValidator<?>> beanValidators;
 
 	private String labelSingular;
 	private String labelPlural;
@@ -49,6 +53,7 @@ final class BeanDtoDescriptorBuilderImpl implements IBeanDtoDescriptorBuilder {
 	BeanDtoDescriptorBuilderImpl(final Class<?> beanType) {
 		this.beanType = beanType;
 		this.bluePrints = new LinkedList<BeanPropertyBluePrintImpl>();
+		this.beanValidators = new LinkedHashSet<IBeanValidator<?>>();
 	}
 
 	@Override
@@ -70,6 +75,13 @@ final class BeanDtoDescriptorBuilderImpl implements IBeanDtoDescriptorBuilder {
 	}
 
 	@Override
+	public IBeanDtoDescriptorBuilder addValidator(final IBeanValidator<?> validator) {
+		Assert.paramNotNull(validator, "validator");
+		beanValidators.add(validator);
+		return this;
+	}
+
+	@Override
 	public IBeanPropertyBluePrint addProperty(final String propertyName) {
 		Assert.paramNotEmpty(propertyName, "propertyName");
 		final BeanPropertyBluePrintImpl bluePrint = new BeanPropertyBluePrintImpl(beanType, propertyName);
@@ -83,7 +95,7 @@ final class BeanDtoDescriptorBuilderImpl implements IBeanDtoDescriptorBuilder {
 		for (final BeanPropertyBluePrintImpl bluePrint : bluePrints) {
 			properties.add(bluePrint.build());
 		}
-		return new BeanDtoDescriptorImpl(labelSingular, labelPlural, description, properties);
+		return new BeanDtoDescriptorImpl(beanType, labelSingular, labelPlural, description, properties, beanValidators);
 	}
 
 }

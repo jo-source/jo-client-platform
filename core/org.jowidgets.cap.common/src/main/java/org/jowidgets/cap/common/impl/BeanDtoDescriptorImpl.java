@@ -31,39 +31,69 @@ package org.jowidgets.cap.common.impl;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
+import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
 import org.jowidgets.cap.common.api.bean.IProperty;
+import org.jowidgets.cap.common.api.validation.IBeanValidator;
 
 final class BeanDtoDescriptorImpl implements IBeanDtoDescriptor, Serializable {
 
 	private static final long serialVersionUID = 4875055093925862277L;
 
+	private final Class<?> beanType;
 	private final String labelSingular;
 	private final String labelPlural;
 	private final String description;
 	private final List<IProperty> unodifiableProperties;
+	private final Set<IBeanValidator<?>> unmodifieableBeanValidators;
 
+	@SuppressWarnings({"unchecked", "rawtypes"})
 	BeanDtoDescriptorImpl(final Collection<IProperty> properties) {
-		this(null, null, null, properties);
+		this(IBeanDto.class, null, null, null, properties, (Set) Collections.emptySet());
 	}
 
+	@SuppressWarnings({"unchecked", "rawtypes"})
 	BeanDtoDescriptorImpl(
 		final String labelSingular,
 		final String labelPlural,
 		final String description,
 		final Collection<IProperty> properties) {
+		this(IBeanDto.class, labelSingular, labelPlural, description, properties, (Set) Collections.emptySet());
+	}
+
+	BeanDtoDescriptorImpl(
+		final Class<?> beanType,
+		final String labelSingular,
+		final String labelPlural,
+		final String description,
+		final Collection<IProperty> properties,
+		final Collection<? extends IBeanValidator<?>> beanValidators) {
+		this.beanType = beanType;
 		this.labelSingular = labelSingular;
 		this.labelPlural = labelPlural;
 		this.description = description;
 		this.unodifiableProperties = Collections.unmodifiableList(new LinkedList<IProperty>(properties));
+		this.unmodifieableBeanValidators = Collections.unmodifiableSet(new LinkedHashSet<IBeanValidator<?>>(beanValidators));
+	}
+
+	@Override
+	public Class<?> getBeanType() {
+		return beanType;
 	}
 
 	@Override
 	public List<IProperty> getProperties() {
 		return unodifiableProperties;
+	}
+
+	@Override
+	public Set<IBeanValidator<?>> getValidators() {
+		return unmodifieableBeanValidators;
 	}
 
 	@Override

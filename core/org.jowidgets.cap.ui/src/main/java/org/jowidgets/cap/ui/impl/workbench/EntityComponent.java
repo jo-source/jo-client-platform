@@ -42,6 +42,7 @@ import org.jowidgets.api.model.item.IActionItemModel;
 import org.jowidgets.api.model.item.IToolBarItemModel;
 import org.jowidgets.api.model.item.IToolBarModel;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
+import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
 import org.jowidgets.cap.common.api.entity.IEntityClass;
 import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
 import org.jowidgets.cap.common.api.service.IEntityService;
@@ -69,11 +70,12 @@ public class EntityComponent extends AbstractComponent implements IComponent {
 	public static final String ROOT_TABLE_VIEW_ID = EntityComponent.class.getName() + "_ROOT_TABLE_VIEW";
 	public static final String LINKED_TABLE_VIEW_ID = EntityComponent.class.getName() + "_LINKED_TABLE_VIEW_";
 
-	private final IBeanTableModel<IBeanDto> tableModel;
+	private final IEntityService entityService;
+	private final IBeanTableModel<?> tableModel;
 	private final List<IDataModelAction> dataModelActions;
 	private final Set<LinkedEntityTableView> tableViews;
 	private final Map<String, IEntityLinkDescriptor> links;
-	private final Map<Object, IBeanTableModel<IBeanDto>> linkedModels;
+	private final Map<Object, IBeanTableModel<?>> linkedModels;
 
 	private EntityMultiDetailView multiDetailView;
 
@@ -82,35 +84,37 @@ public class EntityComponent extends AbstractComponent implements IComponent {
 		final IComponentContext componentContext,
 		final IEntityClass entityClass) {
 
-		this.tableModel = CapUiToolkit.beanTableModelBuilder(entityClass.getId()).build();
+		this.entityService = ServiceProvider.getService(IEntityService.ID);
+		if (entityService == null) {
+			throw new IllegalStateException("No entity service found");
+		}
+
+		this.tableModel = CapUiToolkit.beanTableModelBuilder(entityClass.getId(), getBeanType(entityClass.getId())).build();
 		this.dataModelActions = getDataModelActions(componentNodeModel);
 		this.tableViews = new LinkedHashSet<LinkedEntityTableView>();
 		this.links = new LinkedHashMap<String, IEntityLinkDescriptor>();
-		this.linkedModels = new HashMap<Object, IBeanTableModel<IBeanDto>>();
+		this.linkedModels = new HashMap<Object, IBeanTableModel<?>>();
 
-		final IEntityService entityService = ServiceProvider.getService(IEntityService.ID);
-		if (entityService != null) {
-			final List<IEntityLinkDescriptor> entityLinks = entityService.getEntityLinks(entityClass.getId());
-			if (entityLinks != null && !entityLinks.isEmpty()) {
-				int i = 0;
-				for (final IEntityLinkDescriptor link : entityLinks) {
-					final String linkedViewId = LINKED_TABLE_VIEW_ID + i;
-					links.put(linkedViewId, link);
-					i++;
+		final List<IEntityLinkDescriptor> entityLinks = entityService.getEntityLinks(entityClass.getId());
+		if (entityLinks != null && !entityLinks.isEmpty()) {
+			int i = 0;
+			for (final IEntityLinkDescriptor link : entityLinks) {
+				final String linkedViewId = LINKED_TABLE_VIEW_ID + i;
+				links.put(linkedViewId, link);
+				i++;
 
-					final IBeanTableModelBuilder<IBeanDto> builder = CapUiToolkit.beanTableModelBuilder(link.getLinkedTypeId());
-					builder.setParent(tableModel, LinkType.SELECTION_ALL);
-					linkedModels.put(link.getLinkedTypeId(), builder.build());
-				}
-				componentContext.setLayout(new EntityComponentMasterDetailLinksDetailLayout(entityClass, links).getLayout());
+				final IBeanTableModelBuilder<?> builder = CapUiToolkit.beanTableModelBuilder(
+						link.getLinkedTypeId(),
+						getBeanType(link.getLinkedTypeId()));
+				builder.setParent(tableModel, LinkType.SELECTION_ALL);
+				linkedModels.put(link.getLinkedTypeId(), builder.build());
 			}
-			else {
-				componentContext.setLayout(new EntityComponentMasterDetailLayout(entityClass).getLayout());
-			}
+			componentContext.setLayout(new EntityComponentMasterDetailLinksDetailLayout(entityClass, links).getLayout());
 		}
 		else {
 			componentContext.setLayout(new EntityComponentMasterDetailLayout(entityClass).getLayout());
 		}
+
 	}
 
 	@Override
@@ -185,6 +189,16 @@ public class EntityComponent extends AbstractComponent implements IComponent {
 			multiDetailView.getTablesForm().registerView(new BeanTableView(tableView.getTable()));
 		}
 		tableViews.add(tableView);
+	}
+
+	private Class<?> getBeanType(final Object entityId) {
+		final IBeanDtoDescriptor beanDtoDescriptor = entityService.getDescriptor(entityId);
+		if (beanDtoDescriptor != null) {
+			return beanDtoDescriptor.getBeanType();
+		}
+		else {
+			return IBeanDto.class;
+		}
 	}
 
 	private final class BeanTableView implements IBeanTableView<Object> {
