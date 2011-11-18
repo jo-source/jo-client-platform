@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.sample1.ui.workbench.component.user.command;
 
+import org.jowidgets.addons.icons.silkicons.SilkIcons;
 import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.api.image.Icons;
@@ -43,7 +44,6 @@ import org.jowidgets.cap.ui.api.execution.BeanSelectionPolicy;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.tools.execution.ExecutionInterceptorAdapter;
 import org.jowidgets.common.types.IVetoable;
-import org.jowidgets.examples.common.icons.SilkIcons;
 import org.jowidgets.tools.command.ActionWrapper;
 
 public class ChangeGenderAction extends ActionWrapper {

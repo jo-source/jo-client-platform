@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.sample1.plugins.ui.table;
 
+import org.jowidgets.addons.icons.silkicons.SilkIcons;
 import org.jowidgets.cap.sample1.common.entity.IUser;
 import org.jowidgets.cap.ui.api.command.ICreatorActionBuilder;
 import org.jowidgets.cap.ui.api.command.IDeleterActionBuilder;
@@ -35,7 +36,6 @@ import org.jowidgets.cap.ui.api.plugin.IBeanTableMenuInterceptorPlugin;
 import org.jowidgets.cap.ui.api.table.IBeanTableMenuInterceptor;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.cap.ui.tools.table.BeanTableMenuInterceptorAdapter;
-import org.jowidgets.examples.common.icons.SilkIcons;
 import org.jowidgets.plugin.api.IPluginProperties;
 
 public class UserMenuInterceptorPlugin extends BeanTableMenuInterceptorAdapter<IUser> implements

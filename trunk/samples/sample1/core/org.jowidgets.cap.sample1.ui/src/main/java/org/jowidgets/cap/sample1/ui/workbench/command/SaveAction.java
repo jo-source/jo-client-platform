@@ -28,11 +28,11 @@
 
 package org.jowidgets.cap.sample1.ui.workbench.command;
 
+import org.jowidgets.addons.icons.silkicons.SilkIcons;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.command.IDataModelAction;
 import org.jowidgets.cap.ui.api.command.IDataModelActionBuilder;
 import org.jowidgets.common.types.Modifier;
-import org.jowidgets.examples.common.icons.SilkIcons;
 
 final class SaveAction {
 

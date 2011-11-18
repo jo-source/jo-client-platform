@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.sample1.ui.workbench.component.user.view;
 
+import org.jowidgets.addons.icons.silkicons.SilkIcons;
 import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.command.IActionBuilder;
 import org.jowidgets.api.command.ICommandExecutor;
@@ -47,7 +48,6 @@ import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.common.widgets.controller.IInputListener;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
-import org.jowidgets.examples.common.icons.SilkIcons;
 import org.jowidgets.tools.layout.MigLayoutFactory;
 import org.jowidgets.util.ValueHolder;
 import org.jowidgets.workbench.api.IViewContext;

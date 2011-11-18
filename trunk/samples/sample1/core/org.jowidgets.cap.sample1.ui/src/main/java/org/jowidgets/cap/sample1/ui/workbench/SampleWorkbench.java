@@ -28,13 +28,13 @@
 
 package org.jowidgets.cap.sample1.ui.workbench;
 
+import org.jowidgets.addons.icons.silkicons.SilkIconsInitializer;
 import org.jowidgets.api.model.item.IMenuModel;
 import org.jowidgets.cap.sample1.ui.workbench.application.SampleApplication;
 import org.jowidgets.cap.sample1.ui.workbench.command.WorkbenchActions;
 import org.jowidgets.cap.ui.api.login.LoginService;
 import org.jowidgets.common.types.Dimension;
 import org.jowidgets.common.types.IVetoable;
-import org.jowidgets.examples.common.icons.DemoIconsInitializer;
 import org.jowidgets.workbench.api.ILoginCallback;
 import org.jowidgets.workbench.api.IWorkbench;
 import org.jowidgets.workbench.api.IWorkbenchFactory;
@@ -47,7 +47,7 @@ public class SampleWorkbench implements IWorkbenchFactory {
 
 	@Override
 	public IWorkbench create() {
-		DemoIconsInitializer.initialize();
+		SilkIconsInitializer.initializeFull();
 
 		final IWorkbenchModelBuilder builder = new WorkbenchModelBuilder();
 		builder.setInitialDimension(new Dimension(1024, 768));
