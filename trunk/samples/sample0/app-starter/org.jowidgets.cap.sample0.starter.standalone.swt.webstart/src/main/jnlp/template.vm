@@ -1,0 +1,18 @@
+<jnlp
+	spec="$jnlpspec"
+	codebase="$$context"
+	href="$$name">
+	<information>
+		<title>Sample0</title>
+		<vendor>jowidgets.org</vendor>
+	</information>
+	<security>
+		<all-permissions />
+	</security>
+	<resources>
+    	<j2se version="1.6+" />
+		$dependencies
+		<property name="server.url" value="$$context/remoting" />
+	</resources>
+	<application-desc main-class="$mainClass" />
+</jnlp>
