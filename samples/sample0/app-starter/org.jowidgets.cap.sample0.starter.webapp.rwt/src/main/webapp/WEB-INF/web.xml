@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="http://java.sun.com/xml/ns/j2ee"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
+  version="2.4">
+ 
+  <display-name>Cap Sample0</display-name>
+  <description>Cap Sample0</description>
+ 
+  <context-param>
+    <param-name>org.eclipse.rwt.entryPoints</param-name>
+    <param-value>org.jowidgets.cap.sample0.starter.webapp.rwt.Sample0StarterWebAppRwt</param-value>
+  </context-param>
+ 
+  <context-param>
+     <param-name>org.eclipse.rwt.brandings</param-name>
+     <param-value>org.jowidgets.cap.sample0.starter.webapp.rwt.RwtBranding</param-value>
+  </context-param>
+ 
+  <listener>
+    <listener-class>org.eclipse.rwt.internal.engine.RWTServletContextListener</listener-class>
+  </listener>
+ 
+  <servlet>
+    <servlet-name>Sample0</servlet-name>
+    <servlet-class>org.eclipse.rwt.internal.engine.RWTDelegate</servlet-class>
+  </servlet>
+ 
+  <servlet-mapping>
+    <servlet-name>Sample0</servlet-name>
+    <url-pattern>/Sample0</url-pattern>
+  </servlet-mapping>
+</web-app>
