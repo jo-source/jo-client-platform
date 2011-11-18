@@ -30,10 +30,10 @@ package org.jowidgets.cap.sample1.ui.workbench.application;
 
 import java.util.List;
 
+import org.jowidgets.addons.icons.silkicons.SilkIcons;
 import org.jowidgets.cap.sample1.ui.workbench.component.generic.GenericBeanComponent;
 import org.jowidgets.cap.sample1.ui.workbench.component.user.UserComponent;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
-import org.jowidgets.examples.common.icons.SilkIcons;
 import org.jowidgets.workbench.toolkit.api.IComponentNodeModel;
 import org.jowidgets.workbench.toolkit.api.IComponentNodeModelBuilder;
 import org.jowidgets.workbench.toolkit.api.IWorkbenchApplicationModel;
@@ -59,7 +59,8 @@ public class SampleApplication {
 	}
 
 	private void createComponentTree(final IWorkbenchApplicationModel model) {
-		final IComponentNodeModel usersFolder = model.addChild("USERS_FOLDER_ID", Messages.getString("SampleApplication.users"), SilkIcons.FOLDER); //$NON-NLS-1$ //$NON-NLS-2$
+		final IComponentNodeModel usersFolder = model.addChild(
+				"USERS_FOLDER_ID", Messages.getString("SampleApplication.users"), SilkIcons.FOLDER); //$NON-NLS-1$ //$NON-NLS-2$
 
 		final IComponentNodeModelBuilder nodeModelBuilder = new ComponentNodeModelBuilder();
 		nodeModelBuilder.setComponentFactory(UserComponent.class);
@@ -69,14 +70,14 @@ public class SampleApplication {
 			usersFolder.addChild(nodeModelBuilder.build());
 		}
 
-		final IComponentNodeModel miscFolder = model.addChild("MISC_FOLDER_ID", Messages.getString("SampleApplication.misc"), SilkIcons.FOLDER); //$NON-NLS-1$ //$NON-NLS-2$
+		final IComponentNodeModel miscFolder = model.addChild(
+				"MISC_FOLDER_ID", Messages.getString("SampleApplication.misc"), SilkIcons.FOLDER); //$NON-NLS-1$ //$NON-NLS-2$
 		nodeModelBuilder.setComponentFactory(GenericBeanComponent.class);
 		nodeModelBuilder.setId(GenericBeanComponent.class.getName());
 		nodeModelBuilder.setLabel(Messages.getString("SampleApplication.generic_bean")); //$NON-NLS-1$
 		miscFolder.addChild(nodeModelBuilder.build());
 
-		final IComponentNodeModel entitiesFolder = model.addChild(
-				"GENERIC_COMPONENTS_FOLDER_ID", //$NON-NLS-1$
+		final IComponentNodeModel entitiesFolder = model.addChild("GENERIC_COMPONENTS_FOLDER_ID", //$NON-NLS-1$
 				Messages.getString("SampleApplication.generic_components"), //$NON-NLS-1$
 				SilkIcons.FOLDER);
 		final List<IComponentNodeModel> entityNodes = CapUiToolkit.workbenchToolkit().entityComponentNodesFactory().createNodes();

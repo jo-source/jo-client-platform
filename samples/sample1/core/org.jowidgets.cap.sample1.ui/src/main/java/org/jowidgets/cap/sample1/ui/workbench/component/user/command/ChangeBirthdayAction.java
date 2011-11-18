@@ -31,6 +31,7 @@ package org.jowidgets.cap.sample1.ui.workbench.component.user.command;
 import java.util.Date;
 import java.util.List;
 
+import org.jowidgets.addons.icons.silkicons.SilkIcons;
 import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.api.toolkit.Toolkit;
@@ -45,7 +46,6 @@ import org.jowidgets.cap.ui.api.command.IExecutorActionBuilder;
 import org.jowidgets.cap.ui.api.execution.BeanSelectionPolicy;
 import org.jowidgets.cap.ui.api.execution.IParameterProvider;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
-import org.jowidgets.examples.common.icons.SilkIcons;
 import org.jowidgets.tools.command.ActionWrapper;
 import org.jowidgets.tools.content.SingleControlContent;
 import org.jowidgets.util.maybe.IMaybe;
