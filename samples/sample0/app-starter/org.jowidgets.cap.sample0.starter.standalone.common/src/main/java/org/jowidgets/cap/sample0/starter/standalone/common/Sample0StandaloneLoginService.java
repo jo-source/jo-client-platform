@@ -28,47 +28,12 @@
 
 package org.jowidgets.cap.sample0.starter.standalone.common;
 
-import org.jowidgets.api.login.ILoginInterceptor;
-import org.jowidgets.api.login.ILoginResultCallback;
-import org.jowidgets.api.toolkit.Toolkit;
-import org.jowidgets.cap.ui.api.login.ILoginService;
-import org.jowidgets.security.api.AuthenticationService;
-import org.jowidgets.security.api.AuthorizationService;
-import org.jowidgets.security.api.SecurityContextHolder;
-import org.jowidgets.security.tools.DefaultCredentials;
-import org.jowidgets.security.tools.DefaultPrincipal;
+import org.jowidgets.cap.tools.starter.standalone.common.StandaloneLoginService;
 
-public class StandaloneLoginService implements ILoginService {
+public final class Sample0StandaloneLoginService extends StandaloneLoginService {
 
-	@Override
-	public boolean doLogin() {
-		final ILoginInterceptor loginInterceptor = new ILoginInterceptor() {
-			@Override
-			public void login(final ILoginResultCallback resultCallback, final String username, final String password) {
-
-				DefaultPrincipal principal = AuthenticationService.authenticate(new DefaultCredentials(username, password));
-				if (principal != null) {
-					principal = AuthorizationService.authorize(principal);
-					if (principal != null) {
-						SecurityContextHolder.setSecurityContext(principal);
-						resultCallback.granted();
-					}
-					else {
-						resultCallback.denied("User not authorized");
-					}
-				}
-				else {
-					resultCallback.denied("Login incorrect");
-				}
-
-			}
-		};
-		if (Toolkit.getLoginPane().login("Sample0", loginInterceptor).isLoggedOn()) {
-			return true;
-		}
-		else {
-			return false;
-		}
+	public Sample0StandaloneLoginService() {
+		super("Sample0");
 	}
 
 }

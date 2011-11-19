@@ -19,8 +19,8 @@
 	</properties>
 	
 	<modules>
-	    <module>../app/parent/pom.xml</module>
-		<module>../app-starter/parent/pom.xml</module>
+	    <module>../app/parent/</module>
+		<module>../app-starter/parent/</module>
 	</modules>
 
 </project>

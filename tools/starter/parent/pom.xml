@@ -12,7 +12,9 @@
 	</parent>
 	
 	<modules>
+		<module>../org.jowidgets.cap.tools.starter.standalone.common</module>
 		<module>../org.jowidgets.cap.tools.starter.webapp.rwt</module>
+		<module>../org.jowidgets.cap.tools.starter.standalone</module>	
 	</modules>
 
 </project>

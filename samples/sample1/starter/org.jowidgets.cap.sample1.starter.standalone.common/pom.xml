@@ -31,8 +31,8 @@
 		</dependency>
 		<dependency>
 			<groupId>org.jowidgets</groupId>
-			<artifactId>org.jowidgets.impl</artifactId>
-			<version>${jowidgets.version}</version>
+			<artifactId>org.jowidgets.cap.tools.starter.standalone</artifactId>
+			<version>0.4.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.jowidgets</groupId>

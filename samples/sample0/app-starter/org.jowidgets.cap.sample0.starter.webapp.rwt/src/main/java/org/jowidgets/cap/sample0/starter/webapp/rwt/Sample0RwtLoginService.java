@@ -28,9 +28,9 @@
 
 package org.jowidgets.cap.sample0.starter.webapp.rwt;
 
-import org.jowidgets.cap.tools.starter.webapp.rwt.RwtLoginService;
+import org.jowidgets.cap.tools.starter.standalone.common.StandaloneLoginService;
 
-public final class Sample0RwtLoginService extends RwtLoginService {
+public final class Sample0RwtLoginService extends StandaloneLoginService {
 
 	public Sample0RwtLoginService() {
 		super("Sample0");
