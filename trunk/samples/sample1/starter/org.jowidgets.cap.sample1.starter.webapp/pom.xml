@@ -37,9 +37,28 @@
 			<version>${project.version}</version>
 			<scope>provided</scope>
 		</dependency>
+		<dependency>
+            <groupId>org.jowidgets</groupId>
+            <artifactId>org.jowidgets.cap.sample1.starter.client.swing.webstart</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jowidgets</groupId>
+            <artifactId>org.jowidgets.cap.sample1.starter.standalone.swt.webstart</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jowidgets</groupId>
+            <artifactId>org.jowidgets.cap.sample1.starter.standalone.swing.webstart</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
 	</dependencies>
 
 	<build>
+	    <finalName>sample1</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -60,6 +79,24 @@
 									<version>${project.version}</version>
 									<type>zip</type>
 								</artifactItem>
+								<artifactItem>
+                                    <groupId>org.jowidgets</groupId>
+                                    <artifactId>org.jowidgets.cap.sample1.starter.client.swing.webstart</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>zip</type>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.jowidgets</groupId>
+                                    <artifactId>org.jowidgets.cap.sample1.starter.standalone.swt.webstart</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>zip</type>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.jowidgets</groupId>
+                                    <artifactId>org.jowidgets.cap.sample1.starter.standalone.swing.webstart</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>zip</type>
+                                </artifactItem>
 							</artifactItems>
 							<outputDirectory>${project.build.directory}/${project.build.finalName}</outputDirectory>
 						</configuration>
