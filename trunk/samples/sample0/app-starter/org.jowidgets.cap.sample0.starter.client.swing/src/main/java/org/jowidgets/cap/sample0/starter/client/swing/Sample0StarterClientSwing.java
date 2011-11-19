@@ -41,7 +41,7 @@ public final class Sample0StarterClientSwing {
 		UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		System.setProperty("apple.laf.useScreenMenuBar", "true");
 		SwingOptions.setJoWidgetsTabLayout(true);
-		Sample0StarterClient.start();
+		Sample0StarterClient.startClient();
 		System.exit(0);
 	}
 

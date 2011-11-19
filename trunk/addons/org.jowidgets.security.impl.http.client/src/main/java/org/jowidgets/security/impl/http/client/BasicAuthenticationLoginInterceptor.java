@@ -36,7 +36,6 @@ import org.jowidgets.cap.common.api.service.IAuthorizationProviderService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.execution.IExecutionTask;
 import org.jowidgets.security.api.SecurityContextHolder;
-import org.jowidgets.security.tools.DefaultPrincipal;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.api.ServiceProvider;
 import org.jowidgets.util.Assert;
@@ -47,17 +46,18 @@ public final class BasicAuthenticationLoginInterceptor implements ILoginIntercep
 	private static final String LOGIN_FAILED = Messages.getString("BasicAuthenticationLoginInterceptor.login_failed"); //$NON-NLS-1$
 	private static final String TIMEOUT = Messages.getString("BasicAuthenticationLoginInterceptor.timeout"); //$NON-NLS-1$
 
-	private final IServiceId<IAuthorizationProviderService<DefaultPrincipal>> authorizationProviderServiceId;
+	private final IServiceId<? extends IAuthorizationProviderService<?>> authorizationProviderServiceId;
 
 	public BasicAuthenticationLoginInterceptor(
-		final IServiceId<IAuthorizationProviderService<DefaultPrincipal>> authorizationProviderServiceId) {
+		final IServiceId<? extends IAuthorizationProviderService<?>> authorizationProviderServiceId) {
 		Assert.paramNotNull(authorizationProviderServiceId, "authorizationProviderServiceId"); //$NON-NLS-1$
 		this.authorizationProviderServiceId = authorizationProviderServiceId;
 	}
 
+	@SuppressWarnings({"rawtypes", "unchecked"})
 	@Override
 	public void login(final ILoginResultCallback resultCallback, final String username, final String password) {
-		final IAuthorizationProviderService<DefaultPrincipal> authorizationService = ServiceProvider.getService(authorizationProviderServiceId);
+		final IAuthorizationProviderService<?> authorizationService = ServiceProvider.getService(authorizationProviderServiceId);
 		if (authorizationService == null) {
 			resultCallback.denied(AUTHORIZATION_SERVICE_NOT_AVAILABLE);
 			return;
@@ -72,9 +72,9 @@ public final class BasicAuthenticationLoginInterceptor implements ILoginIntercep
 		});
 
 		BasicAuthenticationInitializer.getInstance().setCredentials(username, password);
-		authorizationService.getPrincipal(new IResultCallback<DefaultPrincipal>() {
+		authorizationService.getPrincipal(new IResultCallback() {
 			@Override
-			public void finished(final DefaultPrincipal principal) {
+			public void finished(final Object principal) {
 				if (principal == null) {
 					resultCallback.denied(LOGIN_FAILED);
 					BasicAuthenticationInitializer.getInstance().clearCredentials();
