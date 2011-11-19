@@ -3,7 +3,7 @@
 	codebase="$$context"
 	href="$$name">
 	<information>
-		<title>$project.Name</title>
+		<title>Sample1</title>
 		<vendor>jowidgets.org</vendor>
 	</information>
 	<security>
