@@ -28,36 +28,13 @@
 
 package org.jowidgets.sample1.starter.server;
 
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.servlet.FilterHolder;
-import org.eclipse.jetty.servlet.FilterMapping;
-import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
-import org.jowidgets.invocation.common.impl.MessageBrokerId;
-import org.jowidgets.message.api.IExceptionCallback;
-import org.jowidgets.message.api.MessageToolkit;
-import org.jowidgets.security.impl.http.server.BasicAuthenticationFilter;
-import org.jowidgets.security.impl.http.server.SecurityRemotingServlet;
+import org.jowidgets.cap.tools.starter.server.CapServerStarter;
 
 public final class Sample1StarterServer {
 
 	private Sample1StarterServer() {}
 
 	public static void main(final String[] args) throws Exception {
-		MessageToolkit.addExceptionCallback(MessageBrokerId.INVOCATION_IMPL_BROKER_ID, new IExceptionCallback() {
-			@Override
-			public void exception(final Throwable throwable) {
-				//CHECKSTYLE:OFF
-				throwable.printStackTrace();
-				//CHECKSTYLE:ON
-			}
-		});
-		final Server server = new Server(8080);
-		final ServletContextHandler root = new ServletContextHandler(ServletContextHandler.SESSIONS);
-		root.addServlet(new ServletHolder(new SecurityRemotingServlet()), "/");
-		root.addFilter(new FilterHolder(new BasicAuthenticationFilter()), "/", FilterMapping.DEFAULT);
-		server.setHandler(root);
-		server.start();
-		server.join();
+		CapServerStarter.startServer();
 	}
 }

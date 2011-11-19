@@ -18,13 +18,8 @@
 		</dependency>
 		<dependency>
 			<groupId>org.jowidgets</groupId>
-			<artifactId>org.jowidgets.security.impl.http.server</artifactId>
+			<artifactId>org.jowidgets.cap.tools.starter.server</artifactId>
 			<version>${jocap.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.jetty</groupId>
-			<artifactId>jetty-servlet</artifactId>
-			<version>7.4.5.v20110725</version>
 		</dependency>
 	</dependencies>
 
