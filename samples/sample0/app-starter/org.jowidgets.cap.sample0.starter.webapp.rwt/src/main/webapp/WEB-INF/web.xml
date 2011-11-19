@@ -9,7 +9,7 @@
  
   <context-param>
     <param-name>org.eclipse.rwt.entryPoints</param-name>
-    <param-value>org.jowidgets.cap.sample0.starter.webapp.rwt.Sample0StarterWebAppRwt</param-value>
+    <param-value>org.jowidgets.cap.sample0.starter.webapp.rwt.Sample0RwtEntryPoint</param-value>
   </context-param>
  
   <context-param>
