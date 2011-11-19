@@ -24,18 +24,8 @@
 		</dependency>
 		<dependency>
 			<groupId>org.jowidgets</groupId>
-			<artifactId>org.jowidgets.impl</artifactId>
-			<version>${jowidgets.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.jowidgets</groupId>
-			<artifactId>org.jowidgets.workbench.impl</artifactId>
-			<version>${jowidgets.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.jowidgets</groupId>
-			<artifactId>org.jowidgets.spi.impl.rwt</artifactId>
-			<version>${jowidgets.version}</version>
+			<artifactId>org.jowidgets.cap.tools.starter.webapp.rwt</artifactId>
+			<version>${jocap.version}</version>
 		</dependency>
 	</dependencies>
 

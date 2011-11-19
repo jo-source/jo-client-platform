@@ -27,6 +27,7 @@
 		<module>../plugin/org.jowidgets.plugin</module>
 		<module>../service/parent</module>
 		<module>../addons/parent</module>
+		<module>../tools/parent</module>
 		<module>../samples/parent</module>
 	</modules>
 	
