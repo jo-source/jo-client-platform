@@ -26,49 +26,14 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.tools.starter.webapp.rwt;
+package org.jowidgets.cap.sample1.starter.standalone.common;
 
-import org.jowidgets.api.login.ILoginInterceptor;
-import org.jowidgets.api.login.ILoginResultCallback;
-import org.jowidgets.api.threads.IUiThreadAccess;
-import org.jowidgets.api.toolkit.Toolkit;
-import org.jowidgets.security.api.AuthenticationService;
-import org.jowidgets.security.api.AuthorizationService;
-import org.jowidgets.security.api.SecurityContextHolder;
-import org.jowidgets.security.tools.DefaultCredentials;
-import org.jowidgets.security.tools.DefaultPrincipal;
+import org.jowidgets.cap.tools.starter.standalone.common.StandaloneLoginService;
 
-public class RwtLoginInterceptor implements ILoginInterceptor {
+public final class Sample1StandaloneLoginService extends StandaloneLoginService {
 
-	private final IUiThreadAccess uiThreadAccess;
-
-	public RwtLoginInterceptor() {
-		this.uiThreadAccess = Toolkit.getUiThreadAccess();
-	}
-
-	@Override
-	public void login(final ILoginResultCallback resultCallback, final String username, final String password) {
-
-		DefaultPrincipal principal = AuthenticationService.authenticate(new DefaultCredentials(username, password));
-		if (principal != null) {
-			principal = AuthorizationService.authorize(principal);
-			if (principal != null) {
-				resultCallback.granted();
-				uiThreadAccess.invokeLater(new Runnable() {
-					@Override
-					public void run() {
-						SecurityContextHolder.setSecurityContext(new DefaultPrincipal(username));
-					}
-				});
-			}
-			else {
-				resultCallback.denied("User not authorized");
-			}
-		}
-		else {
-			resultCallback.denied("Login incorrect");
-		}
-
+	public Sample1StandaloneLoginService() {
+		super("Application1");
 	}
 
 }
