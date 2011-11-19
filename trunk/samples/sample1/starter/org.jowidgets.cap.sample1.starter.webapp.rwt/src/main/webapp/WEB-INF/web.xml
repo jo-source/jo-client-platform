@@ -9,7 +9,12 @@
  
   <context-param>
     <param-name>org.eclipse.rwt.entryPoints</param-name>
-    <param-value>org.jowidgets.cap.sample1.starter.webapp.rwt.Sample1StarterWebAppRwt</param-value>
+    <param-value>org.jowidgets.cap.sample1.starter.webapp.rwt.Sample1RwtEntryPoint</param-value>
+  </context-param>
+  
+  <context-param>
+     <param-name>org.eclipse.rwt.brandings</param-name>
+     <param-value>org.jowidgets.cap.sample1.starter.webapp.rwt.Sample1RwtBranding</param-value>
   </context-param>
  
   <listener>

@@ -30,7 +30,7 @@ package org.jowidgets.cap.sample0.starter.webapp.rwt;
 
 import org.eclipse.rwt.branding.AbstractBranding;
 
-public class RwtBranding extends AbstractBranding {
+public class Sample0RwtBranding extends AbstractBranding {
 
 	private static final String TITLE = "Sample0";
 	private static final String SERVLET_NAME = "Sample0";

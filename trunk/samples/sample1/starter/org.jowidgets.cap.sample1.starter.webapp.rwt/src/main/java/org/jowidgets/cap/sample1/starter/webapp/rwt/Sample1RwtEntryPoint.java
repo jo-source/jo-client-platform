@@ -28,19 +28,13 @@
 package org.jowidgets.cap.sample1.starter.webapp.rwt;
 
 import org.jowidgets.cap.sample1.ui.workbench.SampleWorkbench;
-import org.jowidgets.spi.impl.rwt.RwtEntryPoint;
-import org.jowidgets.workbench.impl.WorkbenchRunner;
+import org.jowidgets.cap.tools.starter.webapp.rwt.CapRwtEntryPoint;
 
-public final class Sample1StarterWebAppRwt extends RwtEntryPoint {
+public final class Sample1RwtEntryPoint extends CapRwtEntryPoint {
 
-	//StartUrl: http://127.0.0.1:8080/org.jowidgets.cap.sample1.starter.webapp.rwt/Sample1
-	public Sample1StarterWebAppRwt() {
-		super(new Runnable() {
-			@Override
-			public void run() {
-				new WorkbenchRunner().run(new SampleWorkbench());
-			}
-		});
+	//StartUrl: http://127.0.0.1:8080/sample1-web/Sample1
+	public Sample1RwtEntryPoint() {
+		super(new SampleWorkbench());
 	}
 
 }
