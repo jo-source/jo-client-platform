@@ -28,15 +28,20 @@
 
 package org.jowidgets.cap.sample0.starter.client.common;
 
-import org.jowidgets.api.toolkit.Toolkit;
+import org.jowidgets.cap.common.api.service.IAuthorizationProviderService;
 import org.jowidgets.cap.sample0.app.common.service.security.AuthorizationProviderServiceId;
-import org.jowidgets.cap.ui.api.login.ILoginService;
-import org.jowidgets.security.impl.http.client.BasicAuthenticationLoginInterceptor;
+import org.jowidgets.cap.tools.starter.client.AbstractRemoteLoginService;
+import org.jowidgets.service.api.IServiceId;
 
-public class RemoteLoginService implements ILoginService {
+public class Sample0RemoteLoginService extends AbstractRemoteLoginService {
+
+	public Sample0RemoteLoginService() {
+		super("Sample0");
+	}
 
 	@Override
-	public boolean doLogin() {
-		return Toolkit.getLoginPane().login("Sample0", new BasicAuthenticationLoginInterceptor(AuthorizationProviderServiceId.ID)).isLoggedOn();
+	protected IServiceId<? extends IAuthorizationProviderService<?>> getAuthorizationProviderServiceId() {
+		return AuthorizationProviderServiceId.ID;
 	}
+
 }

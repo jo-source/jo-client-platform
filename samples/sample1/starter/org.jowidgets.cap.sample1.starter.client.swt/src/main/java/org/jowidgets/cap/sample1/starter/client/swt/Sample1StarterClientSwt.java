@@ -37,7 +37,7 @@ public final class Sample1StarterClientSwt {
 
 	public static void main(final String[] args) throws Exception {
 		SwtOptions.setClassicTabs(true);
-		Sample1StarterClient.main(args);
+		Sample1StarterClient.startClient();
 		System.exit(0);
 	}
 

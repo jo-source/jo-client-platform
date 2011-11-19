@@ -29,34 +29,14 @@
 package org.jowidgets.cap.sample1.starter.client.common;
 
 import org.jowidgets.cap.sample1.ui.workbench.SampleWorkbench;
-import org.jowidgets.invocation.common.impl.MessageBrokerId;
-import org.jowidgets.message.api.IExceptionCallback;
-import org.jowidgets.message.api.MessageToolkit;
-import org.jowidgets.message.impl.http.client.IMessageBroker;
-import org.jowidgets.message.impl.http.client.MessageBrokerBuilder;
-import org.jowidgets.security.impl.http.client.BasicAuthenticationInitializer;
-import org.jowidgets.workbench.impl.WorkbenchRunner;
+import org.jowidgets.cap.tools.starter.client.CapClientWorkbenchRunner;
 
 public final class Sample1StarterClient {
 
 	private Sample1StarterClient() {}
 
-	public static void main(final String[] args) throws Exception {
-		final MessageBrokerBuilder builder = new MessageBrokerBuilder(MessageBrokerId.INVOCATION_IMPL_BROKER_ID);
-		builder.setUrl(System.getProperty("server.url", "http://localhost:8080/")).setHttpRequestInitializer(
-				BasicAuthenticationInitializer.getInstance());
-		final IMessageBroker messageBroker = builder.build();
-		MessageToolkit.addChannelBroker(messageBroker);
-		MessageToolkit.addReceiverBroker(messageBroker);
-		MessageToolkit.addExceptionCallback(MessageBrokerId.INVOCATION_IMPL_BROKER_ID, new IExceptionCallback() {
-			@Override
-			public void exception(final Throwable throwable) {
-				//CHECKSTYLE:OFF
-				throwable.printStackTrace();
-				//CHECKSTYLE:ON
-			}
-		});
-		new WorkbenchRunner().run(new SampleWorkbench());
+	public static void startClient() {
+		new CapClientWorkbenchRunner("http://localhost:8080/").run(new SampleWorkbench());
 	}
 
 }

@@ -29,64 +29,30 @@
 package org.jowidgets.cap.tools.starter.standalone.common;
 
 import org.jowidgets.api.login.ILoginInterceptor;
-import org.jowidgets.api.toolkit.Toolkit;
-import org.jowidgets.cap.ui.api.login.ILoginService;
+import org.jowidgets.cap.ui.tools.AbstractLoginService;
 import org.jowidgets.common.image.IImageConstant;
 
-public class StandaloneLoginService implements ILoginService {
-
-	private final IImageConstant logo;
-	private final String loginLabel;
-	private final Boolean decoratedLoginDialog;
+public class StandaloneLoginService extends AbstractLoginService {
 
 	public StandaloneLoginService(final String loginLabel) {
-		this(null, loginLabel, null);
+		super(loginLabel);
 	}
 
 	public StandaloneLoginService(final IImageConstant logo) {
-		this(logo, null, null);
+		super(logo);
 	}
 
 	public StandaloneLoginService(final IImageConstant logo, final boolean decoratedLoginDialog) {
-		this(logo, null, Boolean.valueOf(decoratedLoginDialog));
+		super(logo, decoratedLoginDialog);
 	}
 
 	public StandaloneLoginService(final String loginLabel, final boolean decoratedLoginDialog) {
-		this(null, loginLabel, Boolean.valueOf(decoratedLoginDialog));
-	}
-
-	private StandaloneLoginService(final IImageConstant logo, final String loginLabel, final Boolean decoratedLoginDialog) {
-		this.logo = logo;
-		this.loginLabel = loginLabel;
-		this.decoratedLoginDialog = decoratedLoginDialog;
+		super(loginLabel, decoratedLoginDialog);
 	}
 
 	@Override
-	public boolean doLogin() {
-		final ILoginInterceptor loginInterceptor = new StandaloneLoginInterceptor();
-		if (logInWithDialog(loginInterceptor)) {
-			return true;
-		}
-		else {
-			return false;
-		}
+	public ILoginInterceptor createLoginInterceptor() {
+		return new StandaloneLoginInterceptor();
 	}
 
-	private boolean logInWithDialog(final ILoginInterceptor loginInterceptor) {
-		if (decoratedLoginDialog != null && logo != null) {
-			return Toolkit.getLoginPane().login(decoratedLoginDialog.booleanValue(), logo, loginInterceptor).isLoggedOn();
-		}
-		else if (decoratedLoginDialog != null && loginLabel != null) {
-			return Toolkit.getLoginPane().login(decoratedLoginDialog.booleanValue(), loginLabel, loginInterceptor).isLoggedOn();
-		}
-		else if (decoratedLoginDialog == null && logo != null) {
-			return Toolkit.getLoginPane().login(logo, loginInterceptor).isLoggedOn();
-		}
-		else if (decoratedLoginDialog == null && loginLabel != null) {
-			return Toolkit.getLoginPane().login(loginLabel, loginInterceptor).isLoggedOn();
-		}
-		else {
-			return Toolkit.getLoginPane().login((String) null, loginInterceptor).isLoggedOn();
-		}
-	}
 }
