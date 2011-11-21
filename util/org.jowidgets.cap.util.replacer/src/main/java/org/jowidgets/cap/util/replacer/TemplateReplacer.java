@@ -52,31 +52,7 @@ public final class TemplateReplacer {
 	private TemplateReplacer() {}
 
 	public static void main(final String[] args) throws Exception {
-
-		if (args.length != 2) {
-			//CHECKSTYLE:OFF
-			System.out.println("Usage: " + TemplateReplacer.class.getSimpleName() + " <sourceDirectory> <destinationDirectory>");
-			//CHECKSTYLE:ON
-			return;
-		}
-
-		final File sourceDirectory = new File(args[0]);
-		if (!sourceDirectory.exists() || !sourceDirectory.isDirectory()) {
-			//CHECKSTYLE:OFF
-			System.out.println("Source directory doesn't exist: " + sourceDirectory);
-			//CHECKSTYLE:ON
-			return;
-		}
-
-		final File destDirectory = new File(args[1]);
-		if (destDirectory.exists()) {
-			//CHECKSTYLE:OFF
-			System.out.println("Destination directory is not empty: " + destDirectory);
-			//CHECKSTYLE:ON
-			return;
-		}
-
-		copyAndReplace(sourceDirectory, destDirectory, createConfig());
+		copyAndReplace(args, createConfig());
 	}
 
 	private static ReplacementConfig createConfig() {
@@ -114,7 +90,30 @@ public final class TemplateReplacer {
 		return config;
 	}
 
-	private static void copyAndReplace(final File source, final File destination, final ReplacementConfig config) throws Exception {
+	public static void copyAndReplace(final String[] args, final ReplacementConfig config) throws Exception {
+
+		if (args.length != 2) {
+			//CHECKSTYLE:OFF
+			System.out.println("Usage: " + TemplateReplacer.class.getSimpleName() + " <sourceDirectory> <destinationDirectory>");
+			//CHECKSTYLE:ON
+			return;
+		}
+
+		final File source = new File(args[0]);
+		if (!source.exists() || !source.isDirectory()) {
+			//CHECKSTYLE:OFF
+			System.out.println("Source directory doesn't exist: " + source);
+			//CHECKSTYLE:ON
+			return;
+		}
+
+		final File destination = new File(args[1]);
+		if (destination.exists()) {
+			//CHECKSTYLE:OFF
+			System.out.println("Destination directory is not empty: " + destination);
+			//CHECKSTYLE:ON
+			return;
+		}
 
 		final String encoding = config.getEncoding();
 
