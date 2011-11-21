@@ -30,7 +30,7 @@ package org.jowidgets.cap.sample0.starter.standalone.swing;
 
 import javax.swing.UIManager;
 
-import org.jowidgets.cap.sample0.app.ui.workbench.SampleWorkbench;
+import org.jowidgets.cap.sample0.app.ui.workbench.Sample0Workbench;
 import org.jowidgets.spi.impl.swing.options.SwingOptions;
 import org.jowidgets.workbench.impl.WorkbenchRunner;
 
@@ -42,7 +42,7 @@ public final class Sample0StarterStandaloneSwing {
 		UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		System.setProperty("apple.laf.useScreenMenuBar", "true");
 		SwingOptions.setJoWidgetsTabLayout(true);
-		new WorkbenchRunner().run(new SampleWorkbench());
+		new WorkbenchRunner().run(new Sample0Workbench());
 		System.exit(0);
 	}
 

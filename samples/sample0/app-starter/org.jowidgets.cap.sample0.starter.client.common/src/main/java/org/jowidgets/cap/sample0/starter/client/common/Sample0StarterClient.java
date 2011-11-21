@@ -28,7 +28,7 @@
 
 package org.jowidgets.cap.sample0.starter.client.common;
 
-import org.jowidgets.cap.sample0.app.ui.workbench.SampleWorkbench;
+import org.jowidgets.cap.sample0.app.ui.workbench.Sample0Workbench;
 import org.jowidgets.cap.tools.starter.client.CapClientWorkbenchRunner;
 
 public final class Sample0StarterClient {
@@ -36,7 +36,7 @@ public final class Sample0StarterClient {
 	private Sample0StarterClient() {}
 
 	public static void startClient() {
-		new CapClientWorkbenchRunner("http://localhost:8080/").run(new SampleWorkbench());
+		new CapClientWorkbenchRunner("http://localhost:8080/").run(new Sample0Workbench());
 	}
 
 }

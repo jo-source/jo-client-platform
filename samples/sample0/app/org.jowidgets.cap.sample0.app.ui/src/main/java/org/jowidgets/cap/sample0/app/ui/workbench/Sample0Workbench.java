@@ -39,7 +39,7 @@ import org.jowidgets.workbench.toolkit.api.IWorkbenchModelBuilder;
 import org.jowidgets.workbench.toolkit.api.WorkbenchToolkit;
 import org.jowidgets.workbench.tools.WorkbenchModelBuilder;
 
-public class SampleWorkbench implements IWorkbenchFactory {
+public class Sample0Workbench implements IWorkbenchFactory {
 
 	@Override
 	public IWorkbench create() {
@@ -47,7 +47,7 @@ public class SampleWorkbench implements IWorkbenchFactory {
 		final IWorkbenchModelBuilder builder = new WorkbenchModelBuilder();
 		builder.setInitialDimension(new Dimension(1024, 768));
 		builder.setInitialSplitWeight(0.2);
-		builder.setLabel("Hello World");
+		builder.setLabel("Sample0");
 		builder.setLoginCallback(new ILoginCallback() {
 			@Override
 			public void onLogin(final IVetoable vetoable) {
