@@ -13,13 +13,8 @@
 	<dependencies>
 	    <dependency>
 			<groupId>org.jowidgets.cap.sample0</groupId>
-			<artifactId>org.jowidgets.cap.sample0.starter.client.common</artifactId>
+			<artifactId>org.jowidgets.cap.sample0.starter.client.swt.common</artifactId>
 			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.jowidgets</groupId>
-			<artifactId>org.jowidgets.spi.impl.swt</artifactId>
-			<version>${jowidgets.version}</version>
 		</dependency>
 		<dependency>
             <groupId>org.eclipse</groupId>
