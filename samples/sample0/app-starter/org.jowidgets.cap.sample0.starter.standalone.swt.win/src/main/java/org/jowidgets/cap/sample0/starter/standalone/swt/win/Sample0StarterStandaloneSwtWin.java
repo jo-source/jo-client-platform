@@ -28,18 +28,14 @@
 
 package org.jowidgets.cap.sample0.starter.standalone.swt.win;
 
-import org.jowidgets.cap.sample0.app.ui.workbench.Sample0Workbench;
-import org.jowidgets.spi.impl.swt.options.SwtOptions;
-import org.jowidgets.workbench.impl.WorkbenchRunner;
+import org.jowidgets.cap.sample0.starter.standalone.swt.common.Sample0StarterStandaloneSwt;
 
 public final class Sample0StarterStandaloneSwtWin {
 
 	private Sample0StarterStandaloneSwtWin() {}
 
 	public static void main(final String[] args) throws Exception {
-		SwtOptions.setClassicTabs(true);
-		new WorkbenchRunner().run(new Sample0Workbench());
-		System.exit(0);
+		Sample0StarterStandaloneSwt.startClient();
 	}
 
 }

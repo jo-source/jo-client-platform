@@ -26,16 +26,20 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample0.starter.client.swt.win;
+package org.jowidgets.cap.sample0.starter.standalone.swt.common;
 
-import org.jowidgets.cap.sample0.starter.client.swt.common.Sample0StarterClientSwt;
+import org.jowidgets.cap.sample0.app.ui.workbench.Sample0Workbench;
+import org.jowidgets.spi.impl.swt.options.SwtOptions;
+import org.jowidgets.workbench.impl.WorkbenchRunner;
 
-public final class Sample0StarterClientSwtWin {
+public final class Sample0StarterStandaloneSwt {
 
-	private Sample0StarterClientSwtWin() {}
+	private Sample0StarterStandaloneSwt() {}
 
-	public static void main(final String[] args) throws Exception {
-		Sample0StarterClientSwt.startClient();
+	public static void startClient() {
+		SwtOptions.setClassicTabs(true);
+		new WorkbenchRunner().run(new Sample0Workbench());
+		System.exit(0);
 	}
 
 }
