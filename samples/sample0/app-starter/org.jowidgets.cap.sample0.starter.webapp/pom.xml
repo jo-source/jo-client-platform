@@ -92,6 +92,12 @@
                                     <type>zip</type>
                                 </artifactItem>
 								<artifactItem>
+                                    <groupId>org.jowidgets.cap.sample0</groupId>
+                                    <artifactId>org.jowidgets.cap.sample0.starter.client.swt.gtk64.webstart</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>zip</type>
+                                </artifactItem>
+								<artifactItem>
 									<groupId>org.jowidgets.cap.sample0</groupId>
 									<artifactId>org.jowidgets.cap.sample0.starter.client.swing.webstart</artifactId>
 									<version>${project.version}</version>
@@ -100,6 +106,12 @@
 								<artifactItem>
 									<groupId>org.jowidgets.cap.sample0</groupId>
 									<artifactId>org.jowidgets.cap.sample0.starter.standalone.swt.win.webstart</artifactId>
+									<version>${project.version}</version>
+									<type>zip</type>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.jowidgets.cap.sample0</groupId>
+									<artifactId>org.jowidgets.cap.sample0.starter.standalone.swt.gtk64.webstart</artifactId>
 									<version>${project.version}</version>
 									<type>zip</type>
 								</artifactItem>
