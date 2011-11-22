@@ -19,6 +19,8 @@
 		<module>../org.jowidgets.cap.sample0.starter.client.swt.common</module>
 		<module>../org.jowidgets.cap.sample0.starter.client.swt.win</module>
 		<module>../org.jowidgets.cap.sample0.starter.client.swt.win.webstart</module>
+		<module>../org.jowidgets.cap.sample0.starter.client.swt.gtk64</module>
+		<module>../org.jowidgets.cap.sample0.starter.client.swt.gtk64.webstart</module>
 		<module>../org.jowidgets.cap.sample0.starter.webapp</module>
 		<module>../org.jowidgets.cap.sample0.starter.webapp.rwt</module>
 		<module>../org.jowidgets.cap.sample0.starter.standalone.common</module>
@@ -27,6 +29,8 @@
 		<module>../org.jowidgets.cap.sample0.starter.standalone.swt.common</module>
 		<module>../org.jowidgets.cap.sample0.starter.standalone.swt.win</module>
 		<module>../org.jowidgets.cap.sample0.starter.standalone.swt.win.webstart</module>
+		<module>../org.jowidgets.cap.sample0.starter.standalone.swt.gtk64</module>
+		<module>../org.jowidgets.cap.sample0.starter.standalone.swt.gtk64.webstart</module>
 	</modules>
 
 </project>

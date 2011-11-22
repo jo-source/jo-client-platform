@@ -37,6 +37,12 @@
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.jowidgets.cap.sample0</groupId>
+            <artifactId>org.jowidgets.cap.sample0.starter.client.swt.gtk64.webstart</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
 		<dependency>
 			<groupId>org.jowidgets.cap.sample0</groupId>
 			<artifactId>org.jowidgets.cap.sample0.starter.client.swing.webstart</artifactId>
@@ -49,6 +55,12 @@
 			<version>${project.version}</version>
 			<scope>provided</scope>
 		</dependency>
+		<dependency>
+            <groupId>org.jowidgets.cap.sample0</groupId>
+            <artifactId>org.jowidgets.cap.sample0.starter.standalone.swt.gtk64.webstart</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
 		<dependency>
 			<groupId>org.jowidgets.cap.sample0</groupId>
 			<artifactId>org.jowidgets.cap.sample0.starter.standalone.swing.webstart</artifactId>
