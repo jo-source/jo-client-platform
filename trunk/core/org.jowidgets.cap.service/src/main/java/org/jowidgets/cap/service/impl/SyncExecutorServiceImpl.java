@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.service.impl;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -50,6 +51,7 @@ import org.jowidgets.cap.service.api.executor.IBeanExecutor;
 import org.jowidgets.cap.service.api.executor.IBeanListExecutor;
 import org.jowidgets.cap.service.tools.bean.BeanDtoFactoryHelper;
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.EmptyCheck;
 
 public final class SyncExecutorServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE> implements ISyncExecutorService<PARAM_TYPE> {
 
@@ -95,7 +97,13 @@ public final class SyncExecutorServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE> 
 
 		CapServiceToolkit.checkCanceled(executionCallback);
 
-		final List<BEAN_TYPE> beans = beanAccess.getBeans(keys, executionCallback);
+		final List<BEAN_TYPE> beans;
+		if (EmptyCheck.isEmpty(keys)) {
+			beans = Collections.emptyList();
+		}
+		else {
+			beans = beanAccess.getBeans(keys, executionCallback);
+		}
 
 		CapServiceToolkit.checkCanceled(executionCallback);
 
