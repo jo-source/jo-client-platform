@@ -26,21 +26,29 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample2.app.service;
+package org.jowidgets.cap.sample2.app.ui.component.user;
 
-import org.jowidgets.cap.common.api.service.IEntityService;
-import org.jowidgets.cap.sample2.app.common.service.security.AuthorizationProviderServiceId;
-import org.jowidgets.cap.sample2.app.service.entity.SampleEntityServiceBuilder;
-import org.jowidgets.cap.sample2.app.service.security.AuthorizationProviderServiceImpl;
-import org.jowidgets.service.tools.ServiceProviderBuilder;
+import org.jowidgets.api.widgets.IContainer;
+import org.jowidgets.cap.sample2.app.common.entity.IUser;
+import org.jowidgets.cap.ui.api.CapUiToolkit;
+import org.jowidgets.cap.ui.api.table.IBeanTableModel;
+import org.jowidgets.tools.layout.MigLayoutFactory;
+import org.jowidgets.workbench.api.IViewContext;
+import org.jowidgets.workbench.tools.AbstractView;
 
-public class SampleServiceProviderBuilder extends ServiceProviderBuilder {
+public class UserTableView extends AbstractView {
 
-	public SampleServiceProviderBuilder() {
-		super();
+	public static final String ID = UserTableView.class.getName();
+	public static final String DEFAULT_LABEL = "User";
 
-		addService(AuthorizationProviderServiceId.ID, new AuthorizationProviderServiceImpl());
-		addService(IEntityService.ID, new SampleEntityServiceBuilder(this).build());
+	private final IBeanTableModel<IUser> beanTableModel;
+
+	public UserTableView(final IViewContext context, final IBeanTableModel<IUser> tableModel) {
+		this.beanTableModel = tableModel;
+		final IContainer container = context.getContainer();
+		container.setLayout(MigLayoutFactory.growingInnerCellLayout());
+		container.add(CapUiToolkit.bluePrintFactory().beanTable(beanTableModel), MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
+		beanTableModel.load();
 	}
 
 }

@@ -26,21 +26,45 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample2.app.service;
+package org.jowidgets.cap.sample2.app.ui.command;
 
-import org.jowidgets.cap.common.api.service.IEntityService;
-import org.jowidgets.cap.sample2.app.common.service.security.AuthorizationProviderServiceId;
-import org.jowidgets.cap.sample2.app.service.entity.SampleEntityServiceBuilder;
-import org.jowidgets.cap.sample2.app.service.security.AuthorizationProviderServiceImpl;
-import org.jowidgets.service.tools.ServiceProviderBuilder;
+import org.jowidgets.cap.ui.api.command.IDataModelAction;
 
-public class SampleServiceProviderBuilder extends ServiceProviderBuilder {
+public final class WorkbenchActions {
 
-	public SampleServiceProviderBuilder() {
-		super();
+	private static ThreadLocal<IDataModelAction> loadAction = new ThreadLocal<IDataModelAction>();
+	private static ThreadLocal<IDataModelAction> saveAction = new ThreadLocal<IDataModelAction>();
+	private static ThreadLocal<IDataModelAction> undoAction = new ThreadLocal<IDataModelAction>();
+	private static ThreadLocal<IDataModelAction> cancelAction = new ThreadLocal<IDataModelAction>();
 
-		addService(AuthorizationProviderServiceId.ID, new AuthorizationProviderServiceImpl());
-		addService(IEntityService.ID, new SampleEntityServiceBuilder(this).build());
+	private WorkbenchActions() {}
+
+	public static IDataModelAction loadAction() {
+		if (loadAction.get() == null) {
+			loadAction.set(new LoadAction().getAction());
+		}
+		return loadAction.get();
+	}
+
+	public static IDataModelAction saveAction() {
+		if (saveAction.get() == null) {
+			saveAction.set(new SaveAction().getAction());
+		}
+		return saveAction.get();
+	}
+
+	public static IDataModelAction undoAction() {
+		if (undoAction.get() == null) {
+			undoAction.set(new UndoAction().getAction());
+		}
+		return undoAction.get();
+	}
+
+	public static IDataModelAction cancelAction() {
+		if (cancelAction.get() == null) {
+			cancelAction.set(new CancelAction().getAction());
+		}
+		return cancelAction.get();
 	}
 
 }

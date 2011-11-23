@@ -26,21 +26,43 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample2.app.service;
+package org.jowidgets.cap.sample2.app.service.entity;
 
-import org.jowidgets.cap.common.api.service.IEntityService;
-import org.jowidgets.cap.sample2.app.common.service.security.AuthorizationProviderServiceId;
-import org.jowidgets.cap.sample2.app.service.entity.SampleEntityServiceBuilder;
-import org.jowidgets.cap.sample2.app.service.security.AuthorizationProviderServiceImpl;
-import org.jowidgets.service.tools.ServiceProviderBuilder;
+import org.jowidgets.cap.common.api.bean.IBean;
+import org.jowidgets.cap.common.api.bean.IBeanPropertyBluePrint;
+import org.jowidgets.cap.common.tools.bean.BeanDtoDescriptorBuilder;
+import org.jowidgets.cap.sample2.app.common.entity.IUser;
 
-public class SampleServiceProviderBuilder extends ServiceProviderBuilder {
+public class UserDtoDescriptorBuilder extends BeanDtoDescriptorBuilder {
 
-	public SampleServiceProviderBuilder() {
-		super();
+	public UserDtoDescriptorBuilder() {
+		super(IUser.class);
 
-		addService(AuthorizationProviderServiceId.ID, new AuthorizationProviderServiceImpl());
-		addService(IEntityService.ID, new SampleEntityServiceBuilder(this).build());
+		setLabelSingular("User");
+		setLabelPlural("User");
+
+		IBeanPropertyBluePrint propertyBp = addProperty(IUser.NAME_PROPERTY);
+		propertyBp.setLabel("Name");
+		propertyBp.setDescription("The users name");
+		propertyBp.setMandatory(true);
+
+		propertyBp = addProperty(IUser.LAST_NAME_PROPERTY);
+		propertyBp.setLabel("Lastname");
+		propertyBp.setDescription("The users lastname");
+		propertyBp.setMandatory(true);
+
+		propertyBp = addProperty(IUser.LOGIN_NAME_PROPERTY);
+		propertyBp.setLabel("Login");
+		propertyBp.setLabelLong("Login name");
+		propertyBp.setDescription("The users login name");
+		propertyBp.setMandatory(true);
+
+		propertyBp = addProperty(IBean.ID_PROPERTY);
+		propertyBp.setLabel("Id");
+		propertyBp.setDescription("The users technical identifier");
+
+		propertyBp = addProperty(IBean.VERSION_PROPERTY);
+		propertyBp.setLabel("Version");
+		propertyBp.setDescription("The version of the dataset");
 	}
-
 }

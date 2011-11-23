@@ -26,21 +26,20 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample2.app.service;
+package org.jowidgets.cap.sample2.app.service.entity;
 
-import org.jowidgets.cap.common.api.service.IEntityService;
-import org.jowidgets.cap.sample2.app.common.service.security.AuthorizationProviderServiceId;
-import org.jowidgets.cap.sample2.app.service.entity.SampleEntityServiceBuilder;
-import org.jowidgets.cap.sample2.app.service.security.AuthorizationProviderServiceImpl;
-import org.jowidgets.service.tools.ServiceProviderBuilder;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 
-public class SampleServiceProviderBuilder extends ServiceProviderBuilder {
+public final class EntityManagerProvider {
 
-	public SampleServiceProviderBuilder() {
-		super();
+	private static final EntityManagerFactory INSTANCE = Persistence.createEntityManagerFactory("sample2PersistenceUnit");
 
-		addService(AuthorizationProviderServiceId.ID, new AuthorizationProviderServiceImpl());
-		addService(IEntityService.ID, new SampleEntityServiceBuilder(this).build());
+	private EntityManagerProvider() {}
+
+	public static EntityManager entityManager() {
+		return INSTANCE.createEntityManager();
 	}
 
 }

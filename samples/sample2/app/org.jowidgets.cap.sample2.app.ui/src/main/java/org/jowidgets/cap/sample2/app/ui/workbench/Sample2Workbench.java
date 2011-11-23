@@ -28,6 +28,10 @@
 
 package org.jowidgets.cap.sample2.app.ui.workbench;
 
+import org.jowidgets.addons.icons.silkicons.SilkIconsInitializer;
+import org.jowidgets.api.model.item.IMenuModel;
+import org.jowidgets.cap.sample2.app.ui.application.Sample2Application;
+import org.jowidgets.cap.sample2.app.ui.command.WorkbenchActions;
 import org.jowidgets.cap.ui.api.login.LoginService;
 import org.jowidgets.common.types.Dimension;
 import org.jowidgets.common.types.IVetoable;
@@ -43,6 +47,7 @@ public class Sample2Workbench implements IWorkbenchFactory {
 
 	@Override
 	public IWorkbench create() {
+		SilkIconsInitializer.initializeFull();
 
 		final IWorkbenchModelBuilder builder = new WorkbenchModelBuilder();
 		builder.setInitialDimension(new Dimension(1024, 768));
@@ -59,6 +64,21 @@ public class Sample2Workbench implements IWorkbenchFactory {
 		});
 
 		final IWorkbenchModel model = builder.build();
+
+		model.addApplication(new Sample2Application().getModel());
+
+		model.getToolBar().addAction(WorkbenchActions.loadAction());
+		model.getToolBar().addAction(WorkbenchActions.cancelAction());
+		model.getToolBar().addSeparator();
+		model.getToolBar().addAction(WorkbenchActions.undoAction());
+		model.getToolBar().addAction(WorkbenchActions.saveAction());
+
+		final IMenuModel dataMenu = model.getMenuBar().addMenu("Data");
+		dataMenu.addAction(WorkbenchActions.loadAction());
+		dataMenu.addAction(WorkbenchActions.cancelAction());
+		dataMenu.addSeparator();
+		dataMenu.addAction(WorkbenchActions.undoAction());
+		dataMenu.addAction(WorkbenchActions.saveAction());
 
 		return WorkbenchToolkit.getWorkbenchPartFactory().workbench(model);
 	}

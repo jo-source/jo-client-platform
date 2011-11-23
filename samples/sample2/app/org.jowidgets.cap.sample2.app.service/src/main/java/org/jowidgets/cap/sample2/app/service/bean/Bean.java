@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2011, H.Westphal
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -25,22 +25,33 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
+package org.jowidgets.cap.sample2.app.service.bean;
 
-package org.jowidgets.cap.sample2.app.service;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Version;
 
-import org.jowidgets.cap.common.api.service.IEntityService;
-import org.jowidgets.cap.sample2.app.common.service.security.AuthorizationProviderServiceId;
-import org.jowidgets.cap.sample2.app.service.entity.SampleEntityServiceBuilder;
-import org.jowidgets.cap.sample2.app.service.security.AuthorizationProviderServiceImpl;
-import org.jowidgets.service.tools.ServiceProviderBuilder;
+import org.jowidgets.cap.common.api.bean.IBean;
 
-public class SampleServiceProviderBuilder extends ServiceProviderBuilder {
+@Entity
+public class Bean implements IBean {
 
-	public SampleServiceProviderBuilder() {
-		super();
+	@Id
+	@GeneratedValue
+	private Long id;
 
-		addService(AuthorizationProviderServiceId.ID, new AuthorizationProviderServiceImpl());
-		addService(IEntityService.ID, new SampleEntityServiceBuilder(this).build());
+	@Version
+	private long version;
+
+	@Override
+	public Object getId() {
+		return id;
+	}
+
+	@Override
+	public long getVersion() {
+		return version;
 	}
 
 }

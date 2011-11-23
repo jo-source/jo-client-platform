@@ -26,21 +26,31 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample2.app.service;
+package org.jowidgets.cap.sample2.app.service.entity;
 
+import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
 import org.jowidgets.cap.common.api.service.IEntityService;
-import org.jowidgets.cap.sample2.app.common.service.security.AuthorizationProviderServiceId;
-import org.jowidgets.cap.sample2.app.service.entity.SampleEntityServiceBuilder;
-import org.jowidgets.cap.sample2.app.service.security.AuthorizationProviderServiceImpl;
-import org.jowidgets.service.tools.ServiceProviderBuilder;
+import org.jowidgets.cap.sample2.app.common.entity.IUser;
+import org.jowidgets.cap.sample2.app.service.reader.UserServiceFactory;
+import org.jowidgets.cap.service.api.CapServiceToolkit;
+import org.jowidgets.cap.service.api.entity.IBeanServicesProviderBuilder;
+import org.jowidgets.cap.service.tools.entity.EntityServiceBuilder;
+import org.jowidgets.service.api.IServiceRegistry;
 
-public class SampleServiceProviderBuilder extends ServiceProviderBuilder {
+public class SampleEntityServiceBuilder extends EntityServiceBuilder {
 
-	public SampleServiceProviderBuilder() {
-		super();
+	public SampleEntityServiceBuilder(final IServiceRegistry registry) {
 
-		addService(AuthorizationProviderServiceId.ID, new AuthorizationProviderServiceImpl());
-		addService(IEntityService.ID, new SampleEntityServiceBuilder(this).build());
+		//IUser
+		final IBeanDtoDescriptor descriptor = new UserDtoDescriptorBuilder().build();
+		final IBeanServicesProviderBuilder servicesBuilder = CapServiceToolkit.beanServicesProviderBuilder(
+				registry,
+				IEntityService.ID,
+				IUser.class);
+
+		servicesBuilder.setReaderService(UserServiceFactory.createReaderService());
+		servicesBuilder.setUpdaterService(UserServiceFactory.createUpdaterService());
+		servicesBuilder.setCreatorService(UserServiceFactory.createCreatorService());
+		add(IUser.class, descriptor, servicesBuilder.build());
 	}
-
 }

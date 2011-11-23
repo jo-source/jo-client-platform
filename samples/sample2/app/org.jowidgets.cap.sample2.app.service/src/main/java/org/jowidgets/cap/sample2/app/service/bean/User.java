@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2011, H.Westphal
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -25,22 +25,47 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
+package org.jowidgets.cap.sample2.app.service.bean;
 
-package org.jowidgets.cap.sample2.app.service;
+import javax.persistence.Entity;
 
-import org.jowidgets.cap.common.api.service.IEntityService;
-import org.jowidgets.cap.sample2.app.common.service.security.AuthorizationProviderServiceId;
-import org.jowidgets.cap.sample2.app.service.entity.SampleEntityServiceBuilder;
-import org.jowidgets.cap.sample2.app.service.security.AuthorizationProviderServiceImpl;
-import org.jowidgets.service.tools.ServiceProviderBuilder;
+import org.jowidgets.cap.sample2.app.common.entity.IUser;
 
-public class SampleServiceProviderBuilder extends ServiceProviderBuilder {
+@Entity
+public class User extends Bean implements IUser {
 
-	public SampleServiceProviderBuilder() {
-		super();
+	private String name;
+	private String lastname;
+	private String loginName;
 
-		addService(AuthorizationProviderServiceId.ID, new AuthorizationProviderServiceImpl());
-		addService(IEntityService.ID, new SampleEntityServiceBuilder(this).build());
+	@Override
+	public String getName() {
+		return name;
+	}
+
+	@Override
+	public void setName(final String name) {
+		this.name = name;
+	}
+
+	@Override
+	public String getLastname() {
+		return lastname;
+	}
+
+	@Override
+	public void setLastname(final String lastname) {
+		this.lastname = lastname;
+	}
+
+	@Override
+	public String getLoginName() {
+		return loginName;
+	}
+
+	@Override
+	public void setLoginName(final String loginName) {
+		this.loginName = loginName;
 	}
 
 }
