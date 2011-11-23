@@ -26,21 +26,41 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample2.app.service;
+package org.jowidgets.cap.sample2.app.service.util;
 
-import org.jowidgets.cap.common.api.service.IEntityService;
-import org.jowidgets.cap.sample2.app.common.service.security.AuthorizationProviderServiceId;
-import org.jowidgets.cap.sample2.app.service.entity.SampleEntityServiceBuilder;
-import org.jowidgets.cap.sample2.app.service.security.AuthorizationProviderServiceImpl;
-import org.jowidgets.service.tools.ServiceProviderBuilder;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.EntityTransaction;
+import javax.persistence.Persistence;
 
-public class SampleServiceProviderBuilder extends ServiceProviderBuilder {
+import org.jowidgets.cap.sample2.app.service.bean.User;
 
-	public SampleServiceProviderBuilder() {
-		super();
+public final class SampleDataGenerator {
 
-		addService(AuthorizationProviderServiceId.ID, new AuthorizationProviderServiceImpl());
-		addService(IEntityService.ID, new SampleEntityServiceBuilder(this).build());
+	private SampleDataGenerator() {}
+
+	public static void main(final String[] args) {
+		final EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("sample2PersistenceUnit");
+		final int outerCount = 1000;
+		final int innerCount = 1000;
+		for (int i = 0; i < outerCount; i++) {
+			final EntityManager entityManager = entityManagerFactory.createEntityManager();
+			final EntityTransaction tx = entityManager.getTransaction();
+			tx.begin();
+			for (int j = 0; j < innerCount; j++) {
+				final User user = new User();
+				final int nr = i * innerCount + j;
+				//CHECKSTYLE:OFF
+				System.out.println("DATASET NR: " + nr);
+				//CHECKSTYLE:ON
+				user.setName("Name " + nr);
+				user.setLastname("Lastname " + nr);
+				user.setLoginName("Login name " + nr);
+				entityManager.persist(user);
+				entityManager.flush();
+			}
+			tx.commit();
+			entityManager.close();
+		}
 	}
-
 }

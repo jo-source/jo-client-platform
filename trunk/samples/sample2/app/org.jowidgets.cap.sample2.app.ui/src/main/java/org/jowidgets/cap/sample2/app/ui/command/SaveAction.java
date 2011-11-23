@@ -26,21 +26,27 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample2.app.service;
+package org.jowidgets.cap.sample2.app.ui.command;
 
-import org.jowidgets.cap.common.api.service.IEntityService;
-import org.jowidgets.cap.sample2.app.common.service.security.AuthorizationProviderServiceId;
-import org.jowidgets.cap.sample2.app.service.entity.SampleEntityServiceBuilder;
-import org.jowidgets.cap.sample2.app.service.security.AuthorizationProviderServiceImpl;
-import org.jowidgets.service.tools.ServiceProviderBuilder;
+import org.jowidgets.addons.icons.silkicons.SilkIcons;
+import org.jowidgets.cap.ui.api.CapUiToolkit;
+import org.jowidgets.cap.ui.api.command.IDataModelAction;
+import org.jowidgets.cap.ui.api.command.IDataModelActionBuilder;
+import org.jowidgets.common.types.Modifier;
 
-public class SampleServiceProviderBuilder extends ServiceProviderBuilder {
+final class SaveAction {
 
-	public SampleServiceProviderBuilder() {
-		super();
+	private final IDataModelAction action;
 
-		addService(AuthorizationProviderServiceId.ID, new AuthorizationProviderServiceImpl());
-		addService(IEntityService.ID, new SampleEntityServiceBuilder(this).build());
+	SaveAction() {
+		final IDataModelActionBuilder builder = CapUiToolkit.actionFactory().dataModelSaveActionBuilder();
+		builder.setIcon(SilkIcons.DISK);
+		builder.setAccelerator('S', Modifier.CTRL);
+		action = builder.build();
+	}
+
+	IDataModelAction getAction() {
+		return action;
 	}
 
 }

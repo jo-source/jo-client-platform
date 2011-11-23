@@ -25,22 +25,49 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
+package org.jowidgets.cap.sample2.app.common.entity;
 
-package org.jowidgets.cap.sample2.app.service;
+import java.util.LinkedList;
+import java.util.List;
 
-import org.jowidgets.cap.common.api.service.IEntityService;
-import org.jowidgets.cap.sample2.app.common.service.security.AuthorizationProviderServiceId;
-import org.jowidgets.cap.sample2.app.service.entity.SampleEntityServiceBuilder;
-import org.jowidgets.cap.sample2.app.service.security.AuthorizationProviderServiceImpl;
-import org.jowidgets.service.tools.ServiceProviderBuilder;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
-public class SampleServiceProviderBuilder extends ServiceProviderBuilder {
+import org.jowidgets.cap.common.api.bean.IBean;
 
-	public SampleServiceProviderBuilder() {
-		super();
+public interface IUser extends IBean {
 
-		addService(AuthorizationProviderServiceId.ID, new AuthorizationProviderServiceImpl());
-		addService(IEntityService.ID, new SampleEntityServiceBuilder(this).build());
-	}
+	String NAME_PROPERTY = "name";
+	String LAST_NAME_PROPERTY = "lastname";
+	String LOGIN_NAME_PROPERTY = "loginName";
+
+	List<String> ALL_PROPERTIES = new LinkedList<String>() {
+		private static final long serialVersionUID = 1L;
+		{
+			add(NAME_PROPERTY);
+			add(LAST_NAME_PROPERTY);
+			add(LOGIN_NAME_PROPERTY);
+			add(IBean.ID_PROPERTY);
+			add(IBean.VERSION_PROPERTY);
+		}
+	};
+
+	@NotNull
+	@Size(min = 2, max = 50)
+	String getName();
+
+	void setName(String name);
+
+	@NotNull
+	@Size(min = 2, max = 50)
+	String getLastname();
+
+	void setLastname(String name);
+
+	@NotNull
+	@Size(min = 2, max = 20)
+	String getLoginName();
+
+	void setLoginName(String loginName);
 
 }

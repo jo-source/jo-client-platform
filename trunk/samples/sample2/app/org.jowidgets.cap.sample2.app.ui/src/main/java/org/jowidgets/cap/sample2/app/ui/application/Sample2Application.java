@@ -26,21 +26,40 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample2.app.service;
+package org.jowidgets.cap.sample2.app.ui.application;
 
-import org.jowidgets.cap.common.api.service.IEntityService;
-import org.jowidgets.cap.sample2.app.common.service.security.AuthorizationProviderServiceId;
-import org.jowidgets.cap.sample2.app.service.entity.SampleEntityServiceBuilder;
-import org.jowidgets.cap.sample2.app.service.security.AuthorizationProviderServiceImpl;
-import org.jowidgets.service.tools.ServiceProviderBuilder;
+import org.jowidgets.cap.sample2.app.ui.component.user.UserComponent;
+import org.jowidgets.workbench.toolkit.api.IComponentNodeModelBuilder;
+import org.jowidgets.workbench.toolkit.api.IWorkbenchApplicationModel;
+import org.jowidgets.workbench.toolkit.api.IWorkbenchApplicationModelBuilder;
+import org.jowidgets.workbench.tools.ComponentNodeModelBuilder;
+import org.jowidgets.workbench.tools.WorkbenchApplicationModelBuilder;
 
-public class SampleServiceProviderBuilder extends ServiceProviderBuilder {
+public class Sample2Application {
 
-	public SampleServiceProviderBuilder() {
-		super();
+	private final IWorkbenchApplicationModel model;
 
-		addService(AuthorizationProviderServiceId.ID, new AuthorizationProviderServiceImpl());
-		addService(IEntityService.ID, new SampleEntityServiceBuilder(this).build());
+	public Sample2Application() {
+		final IWorkbenchApplicationModelBuilder builder = new WorkbenchApplicationModelBuilder();
+		builder.setId(Sample2Application.class.getName());
+		builder.setLabel("Usermanagement");
+		this.model = builder.build();
+
+		createComponentTree(model);
+	}
+
+	public IWorkbenchApplicationModel getModel() {
+		return model;
+	}
+
+	private void createComponentTree(final IWorkbenchApplicationModel model) {
+
+		final IComponentNodeModelBuilder userNodeBuilder = new ComponentNodeModelBuilder();
+		userNodeBuilder.setComponentFactory(UserComponent.class);
+		userNodeBuilder.setId(UserComponent.class.getName());
+		userNodeBuilder.setLabel("User");
+		model.addChild(userNodeBuilder.build());
+
 	}
 
 }
