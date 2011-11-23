@@ -40,14 +40,14 @@ class BeanDtoImpl implements IBeanDto, Serializable {
 	private static final long serialVersionUID = -7085159195317664441L;
 
 	private final Object id;
-	private final Object entityTypeId;
+	private final String entityTypeId;
 	private final Map<String, Object> beanData;
 
 	BeanDtoImpl(final Object id, final long version, final Object entityTypeId, final Map<String, Object> beanData) {
 		Assert.paramNotNull(entityTypeId, "entityTypeId");
 		Assert.paramNotNull(beanData, "beanData");
 		this.id = id;
-		this.entityTypeId = entityTypeId;
+		this.entityTypeId = entityTypeId.getClass().getName();
 		this.beanData = beanData;
 
 		beanData.put(IBean.ID_PROPERTY, id);
