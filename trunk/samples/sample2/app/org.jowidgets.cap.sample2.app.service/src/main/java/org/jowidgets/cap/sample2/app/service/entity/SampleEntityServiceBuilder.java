@@ -51,6 +51,7 @@ public class SampleEntityServiceBuilder extends EntityServiceBuilder {
 		servicesBuilder.setReaderService(UserServiceFactory.createReaderService());
 		servicesBuilder.setUpdaterService(UserServiceFactory.createUpdaterService());
 		servicesBuilder.setCreatorService(UserServiceFactory.createCreatorService());
+		servicesBuilder.setDeleterService(UserServiceFactory.createDeleterService());
 		add(IUser.class, descriptor, servicesBuilder.build());
 	}
 }

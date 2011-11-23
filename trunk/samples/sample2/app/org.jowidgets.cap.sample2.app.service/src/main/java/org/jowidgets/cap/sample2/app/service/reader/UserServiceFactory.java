@@ -29,6 +29,7 @@
 package org.jowidgets.cap.sample2.app.service.reader;
 
 import org.jowidgets.cap.common.api.service.ICreatorService;
+import org.jowidgets.cap.common.api.service.IDeleterService;
 import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.common.api.service.IUpdaterService;
 import org.jowidgets.cap.sample2.app.common.entity.IUser;
@@ -37,6 +38,7 @@ import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.updater.IUpdaterServiceBuilder;
 import org.jowidgets.cap.service.impl.jpa.JpaBeanAccess;
 import org.jowidgets.cap.service.impl.jpa.JpaCreatorService;
+import org.jowidgets.cap.service.impl.jpa.JpaDeleterService;
 import org.jowidgets.cap.service.impl.jpa.JpaReaderService;
 import org.jowidgets.cap.service.impl.jpa.jpql.CriteriaQueryCreator;
 
@@ -65,5 +67,11 @@ public final class UserServiceFactory {
 		final JpaBeanAccess<User> beanAccess = new JpaBeanAccess<User>(User.class);
 		final JpaCreatorService creatorService = new JpaCreatorService(beanAccess, IUser.ALL_PROPERTIES);
 		return new JpaCreatorServiceDecorator(creatorService, beanAccess);
+	}
+
+	public static IDeleterService createDeleterService() {
+		final JpaBeanAccess<User> beanAccess = new JpaBeanAccess<User>(User.class);
+		final JpaDeleterService deleterService = new JpaDeleterService(beanAccess);
+		return new JpaDeleterServiceDecorator(deleterService, beanAccess);
 	}
 }
