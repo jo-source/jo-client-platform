@@ -96,6 +96,7 @@ public final class JpaCreatorServiceDecorator implements ICreatorService {
 		};
 
 		try {
+			tx.begin();
 			original.create(decoratedResultCallback, beansData, executionCallback);
 		}
 		catch (final Exception e) {
