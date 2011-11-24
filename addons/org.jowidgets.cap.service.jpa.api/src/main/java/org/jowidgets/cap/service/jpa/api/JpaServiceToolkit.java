@@ -60,10 +60,6 @@ public final class JpaServiceToolkit {
 		return getInstance().serviceFactory();
 	}
 
-	public static IJpaServiceFactory serviceFactory(final String persistenceUnitName) {
-		return getInstance().serviceFactory(persistenceUnitName);
-	}
-
 	private static synchronized void createInstance() {
 		if (instance == null) {
 			final ServiceLoader<IJpaServiceToolkit> serviceLoader = ServiceLoader.load(IJpaServiceToolkit.class);

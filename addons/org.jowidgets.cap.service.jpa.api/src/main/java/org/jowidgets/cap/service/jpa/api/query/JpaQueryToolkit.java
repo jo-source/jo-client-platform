@@ -31,6 +31,7 @@ package org.jowidgets.cap.service.jpa.api.query;
 import java.util.Iterator;
 import java.util.ServiceLoader;
 
+import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.util.Assert;
 
 public final class JpaQueryToolkit {
@@ -56,8 +57,9 @@ public final class JpaQueryToolkit {
 		return instance;
 	}
 
-	public static <PARAMETER_TYPE> ICriteriaQueryCreatorBuilder<PARAMETER_TYPE> criteriaQueryCreatorBuilder() {
-		return getInstance().criteriaQueryCreatorBuilder();
+	public static <PARAMETER_TYPE> ICriteriaQueryCreatorBuilder<PARAMETER_TYPE> criteriaQueryCreatorBuilder(
+		final Class<? extends IBean> beanType) {
+		return getInstance().criteriaQueryCreatorBuilder(beanType);
 	}
 
 	private static synchronized void createInstance() {

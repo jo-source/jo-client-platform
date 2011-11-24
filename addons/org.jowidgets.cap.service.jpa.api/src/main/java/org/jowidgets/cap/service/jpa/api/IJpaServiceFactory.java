@@ -47,22 +47,29 @@ public interface IJpaServiceFactory {
 
 	<BEAN_TYPE extends IBean> IBeanAccess<BEAN_TYPE> beanAccess(Class<? extends BEAN_TYPE> beanType);
 
-	IBeanServicesProvider beanServices(IServiceRegistry registry, Class<?> beanType, List<String> properties);
+	IBeanServicesProvider beanServices(IServiceRegistry registry, Class<? extends IBean> beanType, List<String> properties);
 
-	IBeanServicesProviderBuilder beanServicesBuilder(IServiceRegistry registry, Class<?> beanType, List<String> properties);
+	IBeanServicesProviderBuilder beanServicesBuilder(
+		IServiceRegistry registry,
+		Class<? extends IBean> beanType,
+		List<String> properties);
 
-	IBeanServicesProvider beanServices(IServiceRegistry registry, Object entityTypeId, Class<?> beanType, List<String> properties);
+	IBeanServicesProvider beanServices(
+		IServiceRegistry registry,
+		Object entityTypeId,
+		Class<? extends IBean> beanType,
+		List<String> properties);
 
 	IBeanServicesProviderBuilder beanServicesBuilder(
 		IServiceRegistry registry,
 		Object entityTypeId,
-		Class<?> beanType,
+		Class<? extends IBean> beanType,
 		List<String> properties);
 
 	<BEAN_TYPE extends IBean> IBeanServicesProvider beanServices(
 		IServiceRegistry registry,
 		Object entityTypeId,
-		Class<?> beanType,
+		Class<? extends BEAN_TYPE> beanType,
 		IBeanDtoFactory<BEAN_TYPE> beanDtoFactory,
 		IBeanInitializer<BEAN_TYPE> beanInitializer,
 		IBeanModifier<BEAN_TYPE> beanModifier);
@@ -70,29 +77,34 @@ public interface IJpaServiceFactory {
 	<BEAN_TYPE extends IBean> IBeanServicesProviderBuilder beanServicesBuilder(
 		IServiceRegistry registry,
 		Object entityTypeId,
-		Class<?> beanType,
+		Class<? extends BEAN_TYPE> beanType,
 		IBeanDtoFactory<BEAN_TYPE> beanDtoFactory,
 		IBeanInitializer<BEAN_TYPE> beanInitializer,
 		IBeanModifier<BEAN_TYPE> beanModifier);
 
-	ICreatorService creatorService(Class<?> beanType, final List<String> propertyNames);
+	ICreatorService creatorService(Class<? extends IBean> beanType, final List<String> propertyNames);
 
 	<BEAN_TYPE extends IBean> ICreatorService creatorService(
-		IBeanAccess<? extends BEAN_TYPE> beanAccess,
+		Class<? extends BEAN_TYPE> beanType,
 		IBeanDtoFactory<BEAN_TYPE> beanDtoFactory,
 		IBeanInitializer<BEAN_TYPE> beanInitializer);
 
-	IReaderService<Void> readerService(Class<?> beanType, IQueryCreator<?> queryCreator, final List<String> propertyNames);
+	<PARAM_TYPE> IReaderService<PARAM_TYPE> readerService(
+		Class<? extends IBean> beanType,
+		IQueryCreator<PARAM_TYPE> queryCreator,
+		final List<String> propertyNames);
 
-	<BEAN_TYPE extends IBean> IReaderService<Void> readerService(
+	<BEAN_TYPE extends IBean, PARAM_TYPE> IReaderService<PARAM_TYPE> readerService(
 		IBeanAccess<? extends BEAN_TYPE> beanAccess,
-		IQueryCreator<?> queryCreator,
+		IQueryCreator<PARAM_TYPE> queryCreator,
 		IBeanDtoFactory<BEAN_TYPE> beanDtoFactory);
 
-	IDeleterService deleterService(Class<?> beanType);
+	IDeleterService deleterService(Class<? extends IBean> beanType);
 
-	IDeleterService deleterService(Class<?> beanType, boolean allowDeletedData, boolean allowStaleData);
+	IDeleterService deleterService(Class<? extends IBean> beanType, boolean allowDeletedData, boolean allowStaleData);
 
-	IDeleterService deleterService(IBeanAccess<?> beanAccess, boolean allowDeletedData, boolean allowStaleData);
+	IDeleterService deleterService(IBeanAccess<? extends IBean> beanAccess);
+
+	IDeleterService deleterService(IBeanAccess<? extends IBean> beanAccess, boolean allowDeletedData, boolean allowStaleData);
 
 }

@@ -26,17 +26,42 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.api.adapter;
+package org.jowidgets.cap.service.jpa.impl;
 
 import java.util.Collection;
-import java.util.List;
 
-import org.jowidgets.cap.common.api.bean.IBeanDto;
+import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
+import org.jowidgets.cap.service.api.CapServiceToolkit;
+import org.jowidgets.cap.service.api.adapter.ISyncDeleterService;
+import org.jowidgets.cap.service.api.adapter.ISyncExecutorService;
+import org.jowidgets.cap.service.api.bean.IBeanAccess;
+import org.jowidgets.cap.service.api.executor.IBeanExecutor;
+import org.jowidgets.cap.service.api.executor.IExecutorServiceBuilder;
 
-public interface ISyncExecutorService<PARAM_TYPE> {
+final class SyncJpaDeleterServiceImpl implements ISyncDeleterService {
 
-	List<IBeanDto> execute(Collection<? extends IBeanKey> beanKeys, PARAM_TYPE parameter, IExecutionCallback executionCallback);
+	private final ISyncExecutorService<Void> executorService;
 
+	SyncJpaDeleterServiceImpl(final IBeanAccess<?> beanAccess, final boolean allowDeletedData, final boolean allowStaleData) {
+
+		final IExecutorServiceBuilder<IBean, Void> executorServiceBuilder = CapServiceToolkit.executorServiceBuilder(beanAccess);
+		executorServiceBuilder.setAllowDeletedBeans(allowDeletedData).setAllowStaleBeans(allowStaleData);
+		executorServiceBuilder.setExecutor(new IBeanExecutor<IBean, Void>() {
+			@Override
+			public IBean execute(final IBean data, final Void parameter, final IExecutionCallback executionCallback) {
+				CapServiceToolkit.checkCanceled(executionCallback);
+				EntityManagerProvider.get().remove(data);
+				CapServiceToolkit.checkCanceled(executionCallback);
+				return null;
+			}
+		});
+		this.executorService = executorServiceBuilder.buildSyncService();
+	}
+
+	@Override
+	public void delete(final Collection<? extends IBeanKey> beanKeys, final IExecutionCallback executionCallback) {
+		executorService.execute(beanKeys, null, executionCallback);
+	}
 }
