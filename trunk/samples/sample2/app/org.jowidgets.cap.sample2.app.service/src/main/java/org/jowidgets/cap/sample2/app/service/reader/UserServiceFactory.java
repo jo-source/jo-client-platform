@@ -35,43 +35,38 @@ import org.jowidgets.cap.common.api.service.IUpdaterService;
 import org.jowidgets.cap.sample2.app.common.entity.IUser;
 import org.jowidgets.cap.sample2.app.service.bean.User;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
+import org.jowidgets.cap.service.api.bean.IBeanAccess;
 import org.jowidgets.cap.service.api.updater.IUpdaterServiceBuilder;
-import org.jowidgets.cap.service.impl.jpa.JpaBeanAccess;
-import org.jowidgets.cap.service.impl.jpa.JpaCreatorService;
-import org.jowidgets.cap.service.impl.jpa.JpaDeleterService;
-import org.jowidgets.cap.service.impl.jpa.JpaReaderService;
-import org.jowidgets.cap.service.impl.jpa.jpql.CriteriaQueryCreator;
+import org.jowidgets.cap.service.jpa.api.IJpaServiceFactory;
+import org.jowidgets.cap.service.jpa.api.JpaServiceToolkit;
 
 public final class UserServiceFactory {
 
 	private UserServiceFactory() {}
 
 	public static IReaderService<Void> createReaderService() {
-		final JpaReaderService<Void> reader = new JpaReaderService<Void>(
-			new CriteriaQueryCreator(User.class),
-			IUser.ALL_PROPERTIES);
-		final JpaReaderService<Void> counter = new JpaReaderService<Void>(
-			new CriteriaQueryCreator(User.class),
-			IUser.ALL_PROPERTIES);
-		return new JpaReaderServiceDecorator<Void>(reader, counter);
+		final IJpaServiceFactory serviceFactory = JpaServiceToolkit.serviceFactory();
+		final IReaderService<Void> readerService = serviceFactory.readerService(User.class, IUser.ALL_PROPERTIES);
+		return new JpaReaderServiceDecorator<Void>(readerService);
 	}
 
 	public static IUpdaterService createUpdaterService() {
-		final JpaBeanAccess<User> beanAccess = new JpaBeanAccess<User>(User.class);
+		final IJpaServiceFactory serviceFactory = JpaServiceToolkit.serviceFactory();
+		final IBeanAccess<User> beanAccess = serviceFactory.beanAccess(User.class);
 		final IUpdaterServiceBuilder<User> builder = CapServiceToolkit.updaterServiceBuilder(beanAccess);
 		builder.setBeanDtoFactoryAndBeanModifier(IUser.ALL_PROPERTIES);
-		return new JpaUpdaterServiceDecorator(builder.buildSyncService(), beanAccess);
+		return new JpaUpdaterServiceDecorator(builder.build());
 	}
 
 	public static ICreatorService createCreatorService() {
-		final JpaBeanAccess<User> beanAccess = new JpaBeanAccess<User>(User.class);
-		final JpaCreatorService creatorService = new JpaCreatorService(beanAccess, IUser.ALL_PROPERTIES);
-		return new JpaCreatorServiceDecorator(creatorService, beanAccess);
+		final IJpaServiceFactory serviceFactory = JpaServiceToolkit.serviceFactory();
+		final ICreatorService creatorService = serviceFactory.creatorService(User.class, IUser.ALL_PROPERTIES);
+		return new JpaCreatorServiceDecorator(creatorService);
 	}
 
 	public static IDeleterService createDeleterService() {
-		final JpaBeanAccess<User> beanAccess = new JpaBeanAccess<User>(User.class);
-		final JpaDeleterService deleterService = new JpaDeleterService(beanAccess);
-		return new JpaDeleterServiceDecorator(deleterService, beanAccess);
+		final IJpaServiceFactory serviceFactory = JpaServiceToolkit.serviceFactory();
+		final IDeleterService deleterService = serviceFactory.deleterService(User.class);
+		return new JpaDeleterServiceDecorator(deleterService);
 	}
 }

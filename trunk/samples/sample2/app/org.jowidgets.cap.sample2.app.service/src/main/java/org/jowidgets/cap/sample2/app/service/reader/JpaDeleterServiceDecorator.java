@@ -38,17 +38,14 @@ import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.service.IDeleterService;
 import org.jowidgets.cap.sample2.app.service.entity.EntityManagerProvider;
-import org.jowidgets.cap.service.impl.jpa.JpaBeanAccess;
-import org.jowidgets.cap.service.impl.jpa.JpaDeleterService;
+import org.jowidgets.cap.service.jpa.api.EntityManagerHolder;
 
 public final class JpaDeleterServiceDecorator implements IDeleterService {
 
-	private final JpaDeleterService original;
-	private final JpaBeanAccess<?> beanAccess;
+	private final IDeleterService original;
 
-	public JpaDeleterServiceDecorator(final JpaDeleterService original, final JpaBeanAccess<?> beanAccess) {
+	public JpaDeleterServiceDecorator(final IDeleterService original) {
 		this.original = original;
-		this.beanAccess = beanAccess;
 	}
 
 	@Override
@@ -57,8 +54,7 @@ public final class JpaDeleterServiceDecorator implements IDeleterService {
 		final Collection<? extends IBeanKey> beanKeys,
 		final IExecutionCallback executionCallback) {
 		final EntityManager entityManager = EntityManagerProvider.entityManager();
-		beanAccess.setEntityManager(entityManager);
-		original.setEntityManager(entityManager);
+		EntityManagerHolder.set(entityManager);
 		final EntityTransaction tx = entityManager.getTransaction();
 
 		final IResultCallback<Void> decoratedResultCallback = new IResultCallback<Void>() {
@@ -111,8 +107,7 @@ public final class JpaDeleterServiceDecorator implements IDeleterService {
 			}
 			catch (final Exception e) {
 			}
-			beanAccess.setEntityManager(null);
-			original.setEntityManager(null);
+			EntityManagerHolder.set(null);
 			entityManager.close();
 		}
 

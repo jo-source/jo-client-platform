@@ -19,7 +19,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.jowidgets</groupId>
-			<artifactId>org.jowidgets.cap.service.impl.jpa</artifactId>
+			<artifactId>org.jowidgets.cap.service.jpa.impl</artifactId>
 			<version>${jocap.version}</version>
 		</dependency>
 

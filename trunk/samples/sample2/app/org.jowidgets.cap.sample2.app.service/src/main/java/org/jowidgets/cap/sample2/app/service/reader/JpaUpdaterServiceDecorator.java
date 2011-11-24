@@ -40,17 +40,14 @@ import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.service.IUpdaterService;
 import org.jowidgets.cap.sample2.app.service.entity.EntityManagerProvider;
-import org.jowidgets.cap.service.api.adapter.ISyncUpdaterService;
-import org.jowidgets.cap.service.impl.jpa.JpaBeanAccess;
+import org.jowidgets.cap.service.jpa.api.EntityManagerHolder;
 
 public final class JpaUpdaterServiceDecorator implements IUpdaterService {
 
-	private final ISyncUpdaterService original;
-	private final JpaBeanAccess<?> beanAccess;
+	private final IUpdaterService original;
 
-	public JpaUpdaterServiceDecorator(final ISyncUpdaterService original, final JpaBeanAccess<?> beanAccess) {
+	public JpaUpdaterServiceDecorator(final IUpdaterService original) {
 		this.original = original;
-		this.beanAccess = beanAccess;
 	}
 
 	@Override
@@ -58,24 +55,52 @@ public final class JpaUpdaterServiceDecorator implements IUpdaterService {
 		final IResultCallback<List<IBeanDto>> resultCallback,
 		final Collection<? extends IBeanModification> modifications,
 		final IExecutionCallback executionCallback) {
-
 		final EntityManager entityManager = EntityManagerProvider.entityManager();
-		beanAccess.setEntityManager(entityManager);
+		EntityManagerHolder.set(entityManager);
 		final EntityTransaction tx = entityManager.getTransaction();
+
+		final IResultCallback<List<IBeanDto>> decoratedResultCallback = new IResultCallback<List<IBeanDto>>() {
+
+			@Override
+			public void finished(final List<IBeanDto> result) {
+				try {
+					tx.commit();
+				}
+				catch (final Exception e) {
+					//CHECKSTYLE:OFF
+					e.printStackTrace();
+					//CHECKSTYLE:ON
+					exception(e);
+					return;
+				}
+				resultCallback.finished(result);
+			}
+
+			@Override
+			public void exception(final Throwable exception) {
+				//CHECKSTYLE:OFF
+				exception.printStackTrace();
+				//CHECKSTYLE:ON
+				resultCallback.exception(exception);
+			}
+
+			@Override
+			public void timeout() {
+				resultCallback.timeout();
+			}
+		};
 
 		try {
 			tx.begin();
-			final List<IBeanDto> result = original.update(modifications, executionCallback);
-			tx.commit();
-			resultCallback.finished(result);
+			original.update(decoratedResultCallback, modifications, executionCallback);
 		}
 		catch (final Exception e) {
-			resultCallback.exception(e);
 			//CHECKSTYLE:OFF
 			e.printStackTrace();
 			//CHECKSTYLE:ON
-			return;
+			resultCallback.exception(e);
 		}
+
 		finally {
 			try {
 				if (tx != null && tx.isActive()) {
@@ -84,7 +109,7 @@ public final class JpaUpdaterServiceDecorator implements IUpdaterService {
 			}
 			catch (final Exception e) {
 			}
-			beanAccess.setEntityManager(null);
+			EntityManagerHolder.set(null);
 			entityManager.close();
 		}
 
