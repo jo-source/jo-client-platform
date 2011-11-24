@@ -28,12 +28,41 @@
 
 package org.jowidgets.cap.service.jpa.api;
 
-import javax.persistence.EntityManagerFactory;
+import java.util.Collection;
 
-public interface IEntityManagerFactoryProvider {
+import org.jowidgets.service.api.IServicesDecoratorProvider;
 
-	String DEFAULT_PERSISTENCE_UNIT_NAME = "DefaultPersistenceUnit";
+public interface IJpaServiceDecoratorProviderBuilder {
 
-	EntityManagerFactory get(String persistenceUnitName);
+	int DEFAULT_ORDER = 1;
+
+	/**
+	 * Sets the services where the EntityManager should be set before invocation.
+	 * 
+	 * Before each service method will be invoked, a EntityManager will be set in the @link {@link EntityManagerHolder}.
+	 * After the method was invoked (in the finally block), the EntityManager will be set to null
+	 * 
+	 * @param services The services (must be interfaces) that needs a EntityManager
+	 * 
+	 * @return This builder
+	 */
+	IJpaServiceDecoratorProviderBuilder setEntityManagerServices(Collection<? extends Class<?>> services);
+
+	/**
+	 * Sets the services that should be transactional
+	 * 
+	 * @param services The services (must be interfaces) that should be transactional
+	 * 
+	 * @return This builder
+	 */
+	IJpaServiceDecoratorProviderBuilder setTransactionalServices(Collection<? extends Class<?>> services);
+
+	IJpaServiceDecoratorProviderBuilder addEntityManagerServices(Class<?>... services);
+
+	IJpaServiceDecoratorProviderBuilder addTransactionalServices(Class<?>... services);
+
+	IJpaServiceDecoratorProviderBuilder setOrder();
+
+	IServicesDecoratorProvider build();
 
 }
