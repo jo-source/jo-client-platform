@@ -39,11 +39,11 @@ import org.jowidgets.cap.common.api.service.IExecutorService;
 import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.common.api.service.IRefreshService;
 import org.jowidgets.cap.common.api.service.IUpdaterService;
-import org.jowidgets.cap.service.jpa.api.IJpaServiceDecoratorProviderBuilder;
+import org.jowidgets.cap.service.jpa.api.IJpaServicesDecoratorProviderBuilder;
 import org.jowidgets.service.api.IServicesDecoratorProvider;
 import org.jowidgets.util.Assert;
 
-final class JpaServiceDecoratorProviderBuilder implements IJpaServiceDecoratorProviderBuilder {
+final class JpaServicesDecoratorProviderBuilder implements IJpaServicesDecoratorProviderBuilder {
 
 	private final String persistenceUnitName;
 	private final Set<Class<?>> entityManagerServices;
@@ -51,10 +51,10 @@ final class JpaServiceDecoratorProviderBuilder implements IJpaServiceDecoratorPr
 
 	private int order;
 
-	JpaServiceDecoratorProviderBuilder(final String persistenceUnitName) {
+	JpaServicesDecoratorProviderBuilder(final String persistenceUnitName) {
 		Assert.paramNotEmpty(persistenceUnitName, "persistenceUnitName");
 		this.persistenceUnitName = persistenceUnitName;
-		this.order = IJpaServiceDecoratorProviderBuilder.DEFAULT_ORDER;
+		this.order = IJpaServicesDecoratorProviderBuilder.DEFAULT_ORDER;
 		this.entityManagerServices = new HashSet<Class<?>>();
 		this.transactionalServices = new HashSet<Class<?>>();
 
@@ -70,7 +70,7 @@ final class JpaServiceDecoratorProviderBuilder implements IJpaServiceDecoratorPr
 	}
 
 	@Override
-	public IJpaServiceDecoratorProviderBuilder setEntityManagerServices(final Collection<? extends Class<?>> services) {
+	public IJpaServicesDecoratorProviderBuilder setEntityManagerServices(final Collection<? extends Class<?>> services) {
 		Assert.paramNotNull(services, "services");
 		entityManagerServices.clear();
 		entityManagerServices.addAll(services);
@@ -78,7 +78,7 @@ final class JpaServiceDecoratorProviderBuilder implements IJpaServiceDecoratorPr
 	}
 
 	@Override
-	public IJpaServiceDecoratorProviderBuilder setTransactionalServices(final Collection<? extends Class<?>> services) {
+	public IJpaServicesDecoratorProviderBuilder setTransactionalServices(final Collection<? extends Class<?>> services) {
 		Assert.paramNotNull(services, "services");
 		transactionalServices.clear();
 		transactionalServices.addAll(services);
@@ -86,21 +86,21 @@ final class JpaServiceDecoratorProviderBuilder implements IJpaServiceDecoratorPr
 	}
 
 	@Override
-	public IJpaServiceDecoratorProviderBuilder addEntityManagerServices(final Class<?>... services) {
+	public IJpaServicesDecoratorProviderBuilder addEntityManagerServices(final Class<?>... services) {
 		Assert.paramNotNull(services, "services");
 		entityManagerServices.addAll(Arrays.asList(services));
 		return this;
 	}
 
 	@Override
-	public IJpaServiceDecoratorProviderBuilder addTransactionalServices(final Class<?>... services) {
+	public IJpaServicesDecoratorProviderBuilder addTransactionalServices(final Class<?>... services) {
 		Assert.paramNotNull(services, "services");
 		transactionalServices.addAll(Arrays.asList(services));
 		return this;
 	}
 
 	@Override
-	public IJpaServiceDecoratorProviderBuilder setOrder(final int order) {
+	public IJpaServicesDecoratorProviderBuilder setOrder(final int order) {
 		this.order = order;
 		return this;
 	}

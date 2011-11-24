@@ -47,13 +47,6 @@ public interface IJpaServiceFactory {
 
 	<BEAN_TYPE extends IBean> IBeanAccess<BEAN_TYPE> beanAccess(Class<? extends BEAN_TYPE> beanType);
 
-	IBeanServicesProvider beanServices(IServiceRegistry registry, Class<? extends IBean> beanType, List<String> properties);
-
-	IBeanServicesProviderBuilder beanServicesBuilder(
-		IServiceRegistry registry,
-		Class<? extends IBean> beanType,
-		List<String> properties);
-
 	IBeanServicesProvider beanServices(
 		IServiceRegistry registry,
 		Object entityTypeId,

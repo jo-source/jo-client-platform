@@ -60,7 +60,7 @@ public final class JpaServiceToolkit {
 		return getInstance().serviceFactory();
 	}
 
-	public static IJpaServiceDecoratorProviderBuilder serviceDecoratorProviderBuilder(final String persistenceUnitName) {
+	public static IJpaServicesDecoratorProviderBuilder serviceDecoratorProviderBuilder(final String persistenceUnitName) {
 		return getInstance().serviceDecoratorProviderBuilder(persistenceUnitName);
 	}
 

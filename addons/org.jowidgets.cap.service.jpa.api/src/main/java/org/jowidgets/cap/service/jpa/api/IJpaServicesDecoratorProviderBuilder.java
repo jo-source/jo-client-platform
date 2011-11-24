@@ -32,7 +32,7 @@ import java.util.Collection;
 
 import org.jowidgets.service.api.IServicesDecoratorProvider;
 
-public interface IJpaServiceDecoratorProviderBuilder {
+public interface IJpaServicesDecoratorProviderBuilder {
 
 	int DEFAULT_ORDER = 1;
 
@@ -46,7 +46,7 @@ public interface IJpaServiceDecoratorProviderBuilder {
 	 * 
 	 * @return This builder
 	 */
-	IJpaServiceDecoratorProviderBuilder setEntityManagerServices(Collection<? extends Class<?>> services);
+	IJpaServicesDecoratorProviderBuilder setEntityManagerServices(Collection<? extends Class<?>> services);
 
 	/**
 	 * Sets the services that should be transactional
@@ -55,13 +55,13 @@ public interface IJpaServiceDecoratorProviderBuilder {
 	 * 
 	 * @return This builder
 	 */
-	IJpaServiceDecoratorProviderBuilder setTransactionalServices(Collection<? extends Class<?>> services);
+	IJpaServicesDecoratorProviderBuilder setTransactionalServices(Collection<? extends Class<?>> services);
 
-	IJpaServiceDecoratorProviderBuilder addEntityManagerServices(Class<?>... services);
+	IJpaServicesDecoratorProviderBuilder addEntityManagerServices(Class<?>... services);
 
-	IJpaServiceDecoratorProviderBuilder addTransactionalServices(Class<?>... services);
+	IJpaServicesDecoratorProviderBuilder addTransactionalServices(Class<?>... services);
 
-	IJpaServiceDecoratorProviderBuilder setOrder(int order);
+	IJpaServicesDecoratorProviderBuilder setOrder(int order);
 
 	IServicesDecoratorProvider build();
 

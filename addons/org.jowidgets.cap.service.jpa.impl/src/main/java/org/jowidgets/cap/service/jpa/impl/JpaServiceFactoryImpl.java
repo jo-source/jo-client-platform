@@ -63,22 +63,6 @@ public class JpaServiceFactoryImpl implements IJpaServiceFactory {
 	@Override
 	public IBeanServicesProvider beanServices(
 		final IServiceRegistry registry,
-		final Class<? extends IBean> beanType,
-		final List<String> properties) {
-		return beanServicesBuilder(registry, beanType, properties).build();
-	}
-
-	@Override
-	public IBeanServicesProviderBuilder beanServicesBuilder(
-		final IServiceRegistry registry,
-		final Class<? extends IBean> beanType,
-		final List<String> properties) {
-		return beanServicesBuilder(registry, beanType, beanType, properties);
-	}
-
-	@Override
-	public IBeanServicesProvider beanServices(
-		final IServiceRegistry registry,
 		final Object entityTypeId,
 		final Class<? extends IBean> beanType,
 		final List<String> properties) {
