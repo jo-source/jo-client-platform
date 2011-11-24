@@ -108,7 +108,9 @@ public final class EntityManagerFactoryProvider {
 			EntityManagerFactory result = factories.get(persistenceUnitName);
 			if (result == null) {
 				result = Persistence.createEntityManagerFactory(persistenceUnitName);
-				factories.put(persistenceUnitName, result);
+				if (result != null) {
+					factories.put(persistenceUnitName, result);
+				}
 			}
 			return result;
 		}

@@ -61,7 +61,7 @@ public interface IJpaServiceDecoratorProviderBuilder {
 
 	IJpaServiceDecoratorProviderBuilder addTransactionalServices(Class<?>... services);
 
-	IJpaServiceDecoratorProviderBuilder setOrder();
+	IJpaServiceDecoratorProviderBuilder setOrder(int order);
 
 	IServicesDecoratorProvider build();
 
