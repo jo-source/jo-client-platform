@@ -43,6 +43,6 @@ public interface IJpaServiceToolkit {
 	 * @param persistenceUnitName The persistence unit to get the decorator builder for
 	 * @return The builder
 	 */
-	IJpaServiceDecoratorProviderBuilder serviceDecoratorProviderBuilder(String persistenceUnitName);
+	IJpaServicesDecoratorProviderBuilder serviceDecoratorProviderBuilder(String persistenceUnitName);
 
 }
