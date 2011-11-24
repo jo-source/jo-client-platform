@@ -32,6 +32,7 @@ import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.sample2.app.common.service.security.AuthorizationProviderServiceId;
 import org.jowidgets.cap.sample2.app.service.entity.SampleEntityServiceBuilder;
 import org.jowidgets.cap.sample2.app.service.security.AuthorizationProviderServiceImpl;
+import org.jowidgets.cap.service.jpa.api.JpaServiceToolkit;
 import org.jowidgets.service.tools.ServiceProviderBuilder;
 
 public class SampleServiceProviderBuilder extends ServiceProviderBuilder {
@@ -41,6 +42,8 @@ public class SampleServiceProviderBuilder extends ServiceProviderBuilder {
 
 		addService(AuthorizationProviderServiceId.ID, new AuthorizationProviderServiceImpl());
 		addService(IEntityService.ID, new SampleEntityServiceBuilder(this).build());
+
+		addServiceDecorator(JpaServiceToolkit.serviceDecoratorProviderBuilder("sample2PersistenceUnit").build());
 	}
 
 }

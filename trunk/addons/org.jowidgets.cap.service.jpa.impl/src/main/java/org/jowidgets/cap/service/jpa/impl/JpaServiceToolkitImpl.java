@@ -41,8 +41,7 @@ public final class JpaServiceToolkitImpl implements IJpaServiceToolkit {
 
 	@Override
 	public IJpaServiceDecoratorProviderBuilder serviceDecoratorProviderBuilder(final String persistenceUnitName) {
-		// TODO MG implement IJpaServiceDecoratorProviderBuilder
-		return null;
+		return new JpaServiceDecoratorProviderBuilder(persistenceUnitName);
 	}
 
 }

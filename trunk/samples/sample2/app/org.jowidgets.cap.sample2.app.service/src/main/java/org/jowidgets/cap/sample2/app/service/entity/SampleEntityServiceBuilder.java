@@ -31,7 +31,6 @@ package org.jowidgets.cap.sample2.app.service.entity;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
 import org.jowidgets.cap.sample2.app.common.entity.IUser;
 import org.jowidgets.cap.sample2.app.service.bean.User;
-import org.jowidgets.cap.sample2.app.service.reader.UserServiceFactory;
 import org.jowidgets.cap.service.api.entity.IBeanServicesProviderBuilder;
 import org.jowidgets.cap.service.jpa.api.IJpaServiceFactory;
 import org.jowidgets.cap.service.jpa.api.JpaServiceToolkit;
@@ -51,11 +50,6 @@ public class SampleEntityServiceBuilder extends EntityServiceBuilder {
 				IUser.class,
 				User.class,
 				IUser.ALL_PROPERTIES);
-
-		servicesBuilder.setReaderService(UserServiceFactory.createReaderService());
-		servicesBuilder.setUpdaterService(UserServiceFactory.createUpdaterService());
-		servicesBuilder.setCreatorService(UserServiceFactory.createCreatorService());
-		servicesBuilder.setDeleterService(UserServiceFactory.createDeleterService());
 		add(IUser.class, descriptor, servicesBuilder.build());
 	}
 }

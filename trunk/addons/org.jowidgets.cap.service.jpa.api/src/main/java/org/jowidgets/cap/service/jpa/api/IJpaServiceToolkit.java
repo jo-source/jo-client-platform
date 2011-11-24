@@ -38,7 +38,7 @@ public interface IJpaServiceToolkit {
 	 * Remark: If you want to use more that one persistence unit in an application,
 	 * you may use more than one IServiceProviderHolder, one for each persistence unit,
 	 * and decorate it manually (without java services injection).
-	 * TODO MG must be verified, if this is possible
+	 * TODO MG must be verified, if this is possible.
 	 * 
 	 * @param persistenceUnitName The persistence unit to get the decorator builder for
 	 * @return The builder
