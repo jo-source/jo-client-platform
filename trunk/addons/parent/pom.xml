@@ -16,13 +16,15 @@
 	
 	<modules>
 		<module>../org.jowidgets.cap.service.impl.jpa</module>
+		<module>../org.jowidgets.cap.service.jpa.api</module>
+		<module>../org.jowidgets.cap.service.jpa.impl</module>	
 		<module>../org.jowidgets.cap.service.impl.dummy</module>
 		<module>../org.jowidgets.cap.service.spring</module>
 		<module>../org.jowidgets.message.impl.akka</module>
 		<module>../org.jowidgets.security.impl.http.client</module>
 		<module>../org.jowidgets.security.impl.http.server</module>
 	</modules>
-
+	
 	<repositories>
 		<repository>
 			<id>eclipselink</id>
