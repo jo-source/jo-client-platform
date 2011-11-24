@@ -29,11 +29,12 @@
 package org.jowidgets.cap.sample2.app.service.entity;
 
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
-import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.sample2.app.common.entity.IUser;
+import org.jowidgets.cap.sample2.app.service.bean.User;
 import org.jowidgets.cap.sample2.app.service.reader.UserServiceFactory;
-import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.entity.IBeanServicesProviderBuilder;
+import org.jowidgets.cap.service.jpa.api.IJpaServiceFactory;
+import org.jowidgets.cap.service.jpa.api.JpaServiceToolkit;
 import org.jowidgets.cap.service.tools.entity.EntityServiceBuilder;
 import org.jowidgets.service.api.IServiceRegistry;
 
@@ -41,12 +42,15 @@ public class SampleEntityServiceBuilder extends EntityServiceBuilder {
 
 	public SampleEntityServiceBuilder(final IServiceRegistry registry) {
 
+		final IJpaServiceFactory serviceFactory = JpaServiceToolkit.serviceFactory();
+
 		//IUser
 		final IBeanDtoDescriptor descriptor = new UserDtoDescriptorBuilder().build();
-		final IBeanServicesProviderBuilder servicesBuilder = CapServiceToolkit.beanServicesProviderBuilder(
+		final IBeanServicesProviderBuilder servicesBuilder = serviceFactory.beanServicesBuilder(
 				registry,
-				IEntityService.ID,
-				IUser.class);
+				IUser.class,
+				User.class,
+				IUser.ALL_PROPERTIES);
 
 		servicesBuilder.setReaderService(UserServiceFactory.createReaderService());
 		servicesBuilder.setUpdaterService(UserServiceFactory.createUpdaterService());

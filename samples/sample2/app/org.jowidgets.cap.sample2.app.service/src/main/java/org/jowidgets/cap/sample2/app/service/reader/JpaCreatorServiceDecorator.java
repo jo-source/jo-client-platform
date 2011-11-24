@@ -40,17 +40,14 @@ import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.service.ICreatorService;
 import org.jowidgets.cap.sample2.app.service.entity.EntityManagerProvider;
-import org.jowidgets.cap.service.impl.jpa.JpaBeanAccess;
-import org.jowidgets.cap.service.impl.jpa.JpaCreatorService;
+import org.jowidgets.cap.service.jpa.api.EntityManagerHolder;
 
 public final class JpaCreatorServiceDecorator implements ICreatorService {
 
-	private final JpaCreatorService original;
-	private final JpaBeanAccess<?> beanAccess;
+	private final ICreatorService original;
 
-	public JpaCreatorServiceDecorator(final JpaCreatorService original, final JpaBeanAccess<?> beanAccess) {
+	public JpaCreatorServiceDecorator(final ICreatorService original) {
 		this.original = original;
-		this.beanAccess = beanAccess;
 	}
 
 	@Override
@@ -60,8 +57,7 @@ public final class JpaCreatorServiceDecorator implements ICreatorService {
 		final IExecutionCallback executionCallback) {
 
 		final EntityManager entityManager = EntityManagerProvider.entityManager();
-		beanAccess.setEntityManager(entityManager);
-		original.setEntityManager(entityManager);
+		EntityManagerHolder.set(entityManager);
 		final EntityTransaction tx = entityManager.getTransaction();
 
 		final IResultCallback<List<IBeanDto>> decoratedResultCallback = new IResultCallback<List<IBeanDto>>() {
@@ -114,8 +110,7 @@ public final class JpaCreatorServiceDecorator implements ICreatorService {
 			}
 			catch (final Exception e) {
 			}
-			beanAccess.setEntityManager(null);
-			original.setEntityManager(null);
+			EntityManagerHolder.set(null);
 			entityManager.close();
 		}
 	}

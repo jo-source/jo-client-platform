@@ -89,10 +89,16 @@ public interface IJpaServiceFactory {
 		IBeanDtoFactory<BEAN_TYPE> beanDtoFactory,
 		IBeanInitializer<BEAN_TYPE> beanInitializer);
 
+	<PARAM_TYPE> IReaderService<PARAM_TYPE> readerService(Class<? extends IBean> beanType, final List<String> propertyNames);
+
 	<PARAM_TYPE> IReaderService<PARAM_TYPE> readerService(
 		Class<? extends IBean> beanType,
 		IQueryCreator<PARAM_TYPE> queryCreator,
 		final List<String> propertyNames);
+
+	<BEAN_TYPE extends IBean, PARAM_TYPE> IReaderService<PARAM_TYPE> readerService(
+		IBeanAccess<? extends BEAN_TYPE> beanAccess,
+		IBeanDtoFactory<BEAN_TYPE> beanDtoFactory);
 
 	<BEAN_TYPE extends IBean, PARAM_TYPE> IReaderService<PARAM_TYPE> readerService(
 		IBeanAccess<? extends BEAN_TYPE> beanAccess,

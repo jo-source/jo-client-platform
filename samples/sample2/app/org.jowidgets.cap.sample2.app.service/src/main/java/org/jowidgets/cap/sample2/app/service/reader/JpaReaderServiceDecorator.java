@@ -40,20 +40,16 @@ import org.jowidgets.cap.common.api.filter.IFilter;
 import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.sample2.app.service.entity.EntityManagerProvider;
-import org.jowidgets.cap.service.impl.jpa.JpaReaderService;
+import org.jowidgets.cap.service.jpa.api.EntityManagerHolder;
 
 //This is just for test purpose, generic decoration will be done later
 public final class JpaReaderServiceDecorator<PARAM_TYPE> implements IReaderService<PARAM_TYPE> {
 
-	private final JpaReaderService<PARAM_TYPE> originalReader;
-	private final JpaReaderService<PARAM_TYPE> originalCounter;
+	private final IReaderService<PARAM_TYPE> original;
 
-	public JpaReaderServiceDecorator(
-		final JpaReaderService<PARAM_TYPE> originalReader,
-		final JpaReaderService<PARAM_TYPE> originalCounter) {
+	public JpaReaderServiceDecorator(final IReaderService<PARAM_TYPE> original) {
 		super();
-		this.originalReader = originalReader;
-		this.originalCounter = originalCounter;
+		this.original = original;
 	}
 
 	@Override
@@ -68,14 +64,14 @@ public final class JpaReaderServiceDecorator<PARAM_TYPE> implements IReaderServi
 		final IExecutionCallback executionCallback) {
 
 		final EntityManager entityManager = EntityManagerProvider.entityManager();
-		originalReader.setEntityManager(entityManager);
+		EntityManagerHolder.set(entityManager);
 
 		try {
-			originalReader.read(result, parentBeanKeys, filter, sorting, firstRow, maxRows, parameter, executionCallback);
+			original.read(result, parentBeanKeys, filter, sorting, firstRow, maxRows, parameter, executionCallback);
 		}
 		finally {
 			entityManager.close();
-			originalReader.setEntityManager(null);
+			EntityManagerHolder.set(null);
 		}
 
 	}
@@ -89,14 +85,14 @@ public final class JpaReaderServiceDecorator<PARAM_TYPE> implements IReaderServi
 		final IExecutionCallback executionCallback) {
 
 		final EntityManager entityManager = EntityManagerProvider.entityManager();
-		originalCounter.setEntityManager(entityManager);
+		EntityManagerHolder.set(entityManager);
 
 		try {
-			originalCounter.count(result, parentBeanKeys, filter, parameter, executionCallback);
+			original.count(result, parentBeanKeys, filter, parameter, executionCallback);
 		}
 		finally {
 			entityManager.close();
-			originalCounter.setEntityManager(null);
+			EntityManagerHolder.set(null);
 		}
 
 	}

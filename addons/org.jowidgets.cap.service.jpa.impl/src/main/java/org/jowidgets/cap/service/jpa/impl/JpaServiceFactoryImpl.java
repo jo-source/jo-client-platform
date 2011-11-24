@@ -167,6 +167,22 @@ public class JpaServiceFactoryImpl implements IJpaServiceFactory {
 	}
 
 	@Override
+	public <PARAM_TYPE> IReaderService<PARAM_TYPE> readerService(
+		final Class<? extends IBean> beanType,
+		final List<String> propertyNames) {
+		final ICriteriaQueryCreatorBuilder<PARAM_TYPE> queryCreatorBuilder = JpaQueryToolkit.criteriaQueryCreatorBuilder(beanType);
+		return readerService(beanType, queryCreatorBuilder.build(), propertyNames);
+	}
+
+	@Override
+	public <BEAN_TYPE extends IBean, PARAM_TYPE> IReaderService<PARAM_TYPE> readerService(
+		final IBeanAccess<? extends BEAN_TYPE> beanAccess,
+		final IBeanDtoFactory<BEAN_TYPE> beanDtoFactory) {
+		final ICriteriaQueryCreatorBuilder<PARAM_TYPE> queryCreatorBuilder = JpaQueryToolkit.criteriaQueryCreatorBuilder(beanAccess.getBeanType());
+		return readerService(beanAccess, queryCreatorBuilder.build(), beanDtoFactory);
+	}
+
+	@Override
 	public <BEAN_TYPE extends IBean, PARAM_TYPE> IReaderService<PARAM_TYPE> readerService(
 		final IBeanAccess<? extends BEAN_TYPE> beanAccess,
 		final IQueryCreator<PARAM_TYPE> queryCreator,
