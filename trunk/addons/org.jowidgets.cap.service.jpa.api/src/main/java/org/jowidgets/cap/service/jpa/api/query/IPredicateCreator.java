@@ -28,13 +28,22 @@
 
 package org.jowidgets.cap.service.jpa.api.query;
 
+import java.util.List;
+
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
-public interface IPredicateCreator {
+import org.jowidgets.cap.common.api.bean.IBeanKey;
 
-	Predicate createPredicate(CriteriaBuilder criteriaBuilder, Root<?> bean, CriteriaQuery<?> query);
+public interface IPredicateCreator<PARAMETER_TYPE> {
+
+	Predicate createPredicate(
+		final CriteriaBuilder criteriaBuilder,
+		final Root<?> bean,
+		final CriteriaQuery<?> query,
+		List<? extends IBeanKey> parentBeanKeys,
+		PARAMETER_TYPE parameter);
 
 }

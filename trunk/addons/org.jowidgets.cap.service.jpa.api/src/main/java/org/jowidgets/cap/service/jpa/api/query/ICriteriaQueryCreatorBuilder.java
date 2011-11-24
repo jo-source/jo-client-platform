@@ -30,13 +30,15 @@ package org.jowidgets.cap.service.jpa.api.query;
 
 public interface ICriteriaQueryCreatorBuilder<PARAMETER_TYPE> {
 
-	void setParentPropertyName(final String parentPropertyName);
+	ICriteriaQueryCreatorBuilder<PARAMETER_TYPE> setParentPropertyName(final String parentPropertyName);
 
-	void setCaseSensitve(final boolean caseSensitve);
+	ICriteriaQueryCreatorBuilder<PARAMETER_TYPE> setCaseSensitve(final boolean caseSensitve);
 
-	void addPredicateCreator(final IPredicateCreator predicateCreator);
+	ICriteriaQueryCreatorBuilder<PARAMETER_TYPE> addPredicateCreator(final IPredicateCreator<PARAMETER_TYPE> predicateCreator);
 
-	void addCustomFilterPredicateCreator(String filterType, ICustomFilterPredicateCreator customFilterPredicateCreators);
+	ICriteriaQueryCreatorBuilder<PARAMETER_TYPE> addCustomFilterPredicateCreator(
+		String filterType,
+		ICustomFilterPredicateCreator<PARAMETER_TYPE> customFilterPredicateCreators);
 
 	IQueryCreator<PARAMETER_TYPE> build();
 }

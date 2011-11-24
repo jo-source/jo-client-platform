@@ -33,8 +33,13 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 
-public interface ICustomFilterPredicateCreator {
+public interface ICustomFilterPredicateCreator<PARAMETER_TYPE> {
 
-	Predicate createPredicate(CriteriaBuilder criteriaBuilder, Path<?> path, CriteriaQuery<?> query, Object value);
+	Predicate createPredicate(
+		CriteriaBuilder criteriaBuilder,
+		Path<?> path,
+		CriteriaQuery<?> query,
+		Object value,
+		PARAMETER_TYPE parameter);
 
 }

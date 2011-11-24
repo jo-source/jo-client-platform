@@ -35,13 +35,7 @@ public final class JpaServiceToolkitImpl implements IJpaServiceToolkit {
 
 	@Override
 	public IJpaServiceFactory serviceFactory() {
-		return serviceFactory(IJpaServiceToolkit.DEFAULT_PERSISTENCE_UNIT_NAME);
-	}
-
-	@Override
-	public IJpaServiceFactory serviceFactory(final String persistenceUnitName) {
-		// TODO MG implements JpaServiceFactory
-		return null;
+		return new JpaServiceFactoryImpl();
 	}
 
 }

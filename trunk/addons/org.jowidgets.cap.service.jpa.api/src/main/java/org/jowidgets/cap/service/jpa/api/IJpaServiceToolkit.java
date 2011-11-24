@@ -30,24 +30,6 @@ package org.jowidgets.cap.service.jpa.api;
 
 public interface IJpaServiceToolkit {
 
-	String DEFAULT_PERSISTENCE_UNIT_NAME = "DefaultPersistenceUnit";
-
-	/**
-	 * Gets a jpa service factory for the {@link IJpaServiceToolkit#DEFAULT_PERSISTENCE_UNIT_NAME}
-	 * 
-	 * @return A jpa service factory, never null
-	 * @throws IllegalArgumentException if no factory could be created for the given persistence unit name
-	 */
 	IJpaServiceFactory serviceFactory();
-
-	/**
-	 * Gets a jpa service factory for the given persistence unit name
-	 * 
-	 * @param persistenceUnitName The persistence unit name to get the service factory for
-	 * 
-	 * @return A jpa service factory, never null
-	 * @throws IllegalArgumentException if no factory could be created for the given persistence unit name
-	 */
-	IJpaServiceFactory serviceFactory(String persistenceUnitName);
 
 }

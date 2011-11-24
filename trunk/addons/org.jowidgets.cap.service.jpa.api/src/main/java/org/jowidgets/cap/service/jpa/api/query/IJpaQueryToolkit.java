@@ -28,8 +28,10 @@
 
 package org.jowidgets.cap.service.jpa.api.query;
 
+import org.jowidgets.cap.common.api.bean.IBean;
+
 public interface IJpaQueryToolkit {
 
-	<PARAMETER_TYPE> ICriteriaQueryCreatorBuilder<PARAMETER_TYPE> criteriaQueryCreatorBuilder();
+	<PARAMETER_TYPE> ICriteriaQueryCreatorBuilder<PARAMETER_TYPE> criteriaQueryCreatorBuilder(Class<? extends IBean> beanType);
 
 }

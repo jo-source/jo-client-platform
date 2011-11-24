@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.service.impl;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -89,7 +90,7 @@ public final class SyncExecutorServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE> 
 
 	@Override
 	public List<IBeanDto> execute(
-		final List<? extends IBeanKey> keys,
+		final Collection<? extends IBeanKey> keys,
 		final PARAM_TYPE parameter,
 		final IExecutionCallback executionCallback) {
 
@@ -130,7 +131,7 @@ public final class SyncExecutorServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE> 
 	}
 
 	private void checkBeans(
-		final List<? extends IBeanKey> keys,
+		final Collection<? extends IBeanKey> keys,
 		final List<BEAN_TYPE> beans,
 		final IExecutionCallback executionCallback) {
 		//put beans into map to access them faster at the next step
@@ -159,7 +160,7 @@ public final class SyncExecutorServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE> 
 	private List<IBeanDto> executeBeanList(
 		final List<BEAN_TYPE> beans,
 		final PARAM_TYPE parameter,
-		final List<? extends IBeanKey> keys,
+		final Collection<? extends IBeanKey> keys,
 		final IExecutionCallback executionCallback) {
 
 		if (executableChecker != null) {
@@ -177,7 +178,7 @@ public final class SyncExecutorServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE> 
 	private List<IBeanDto> execute(
 		final List<BEAN_TYPE> beans,
 		final PARAM_TYPE parameter,
-		final List<? extends IBeanKey> keys,
+		final Collection<? extends IBeanKey> keys,
 		final IExecutionCallback executionCallback) {
 
 		final IBeanExecutor<BEAN_TYPE, PARAM_TYPE> beanExecutor = (IBeanExecutor<BEAN_TYPE, PARAM_TYPE>) executor;
@@ -200,7 +201,7 @@ public final class SyncExecutorServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE> 
 
 	private void checkExecutableStates(
 		final List<BEAN_TYPE> beans,
-		final List<? extends IBeanKey> keys,
+		final Collection<? extends IBeanKey> keys,
 		final IExecutionCallback executionCallback) {
 		for (final BEAN_TYPE bean : beans) {
 			final IExecutableState executableState = executableChecker.getExecutableState(bean);
@@ -216,7 +217,7 @@ public final class SyncExecutorServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE> 
 
 	private void checkExecutableState(
 		final BEAN_TYPE bean,
-		final List<? extends IBeanKey> keys,
+		final Collection<? extends IBeanKey> keys,
 		final IExecutionCallback executionCallback) {
 		final IExecutableState executableState = executableChecker.getExecutableState(bean);
 		if (!executableState.isExecutable()) {
@@ -227,7 +228,10 @@ public final class SyncExecutorServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE> 
 		}
 	}
 
-	private IBeanKey findKey(final List<? extends IBeanKey> keys, final IBean bean, final IExecutionCallback executionCallback) {
+	private IBeanKey findKey(
+		final Collection<? extends IBeanKey> keys,
+		final IBean bean,
+		final IExecutionCallback executionCallback) {
 		for (final IBeanKey key : keys) {
 			if (key.getId().equals(bean.getId())) {
 				return key;

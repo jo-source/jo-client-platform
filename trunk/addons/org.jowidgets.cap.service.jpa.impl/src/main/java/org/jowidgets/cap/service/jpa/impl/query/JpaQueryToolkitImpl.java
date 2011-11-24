@@ -28,15 +28,16 @@
 
 package org.jowidgets.cap.service.jpa.impl.query;
 
+import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.service.jpa.api.query.ICriteriaQueryCreatorBuilder;
 import org.jowidgets.cap.service.jpa.api.query.IJpaQueryToolkit;
 
 public class JpaQueryToolkitImpl implements IJpaQueryToolkit {
 
 	@Override
-	public <PARAMETER_TYPE> ICriteriaQueryCreatorBuilder<PARAMETER_TYPE> criteriaQueryCreatorBuilder() {
-		// TODO MG implement CriteriaQueryCreatorBuilder
-		return null;
+	public <PARAMETER_TYPE> ICriteriaQueryCreatorBuilder<PARAMETER_TYPE> criteriaQueryCreatorBuilder(
+		final Class<? extends IBean> beanType) {
+		return new CriteriaQueryCreatorBuilderImpl<PARAMETER_TYPE>(beanType);
 	}
 
 }

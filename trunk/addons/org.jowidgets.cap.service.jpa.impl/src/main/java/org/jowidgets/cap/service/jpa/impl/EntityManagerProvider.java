@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2011, H.Westphal, M. Grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -25,18 +25,21 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
+package org.jowidgets.cap.service.jpa.impl;
 
-package org.jowidgets.cap.service.api.adapter;
+import javax.persistence.EntityManager;
 
-import java.util.Collection;
-import java.util.List;
+import org.jowidgets.cap.service.jpa.api.EntityManagerHolder;
 
-import org.jowidgets.cap.common.api.bean.IBeanDto;
-import org.jowidgets.cap.common.api.bean.IBeanKey;
-import org.jowidgets.cap.common.api.execution.IExecutionCallback;
+final class EntityManagerProvider {
 
-public interface ISyncExecutorService<PARAM_TYPE> {
+	private EntityManagerProvider() {}
 
-	List<IBeanDto> execute(Collection<? extends IBeanKey> beanKeys, PARAM_TYPE parameter, IExecutionCallback executionCallback);
-
+	public static EntityManager get() {
+		final EntityManager result = EntityManagerHolder.get();
+		if (result == null) {
+			throw new IllegalStateException("No entity manager injected.");
+		}
+		return result;
+	}
 }
