@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.service.jpa.impl;
 
+import org.jowidgets.cap.service.jpa.api.IJpaServiceDecoratorProviderBuilder;
 import org.jowidgets.cap.service.jpa.api.IJpaServiceFactory;
 import org.jowidgets.cap.service.jpa.api.IJpaServiceToolkit;
 
@@ -36,6 +37,12 @@ public final class JpaServiceToolkitImpl implements IJpaServiceToolkit {
 	@Override
 	public IJpaServiceFactory serviceFactory() {
 		return new JpaServiceFactoryImpl();
+	}
+
+	@Override
+	public IJpaServiceDecoratorProviderBuilder serviceDecoratorProviderBuilder(final String persistenceUnitName) {
+		// TODO MG implement IJpaServiceDecoratorProviderBuilder
+		return null;
 	}
 
 }
