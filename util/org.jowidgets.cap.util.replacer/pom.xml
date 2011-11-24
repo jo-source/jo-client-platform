@@ -15,7 +15,7 @@
 	    <dependency>
             <groupId>org.jowidgets</groupId>
             <artifactId>org.jowidgets.util</artifactId>
-            <version>${project.version}</version>
+            <version>${jowidgets.version}</version>
         </dependency>
 		<dependency>
 			<groupId>commons-io</groupId>
