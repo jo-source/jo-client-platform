@@ -51,4 +51,9 @@ public class ServiceDecoratorProviderWrapper implements IServicesDecoratorProvid
 		return servicesDecoratorProvider.getDecorator(type);
 	}
 
+	@Override
+	public int getOrder() {
+		return servicesDecoratorProvider.getOrder();
+	}
+
 }

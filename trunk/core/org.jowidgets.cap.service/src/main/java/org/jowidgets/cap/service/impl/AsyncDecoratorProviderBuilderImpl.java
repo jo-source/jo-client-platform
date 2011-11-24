@@ -41,10 +41,12 @@ final class AsyncDecoratorProviderBuilderImpl implements IAsyncDecoratorProvider
 	private ScheduledExecutorService scheduledExecutorService;
 	private Long executorCallbackDelay;
 	private IExecutionInterceptor<Object> executionInterceptor;
+	private int order;
 
 	AsyncDecoratorProviderBuilderImpl(final Executor executor, final ScheduledExecutorService scheduledExecutorService) {
 		this.executor = executor;
 		this.scheduledExecutorService = scheduledExecutorService;
+		this.order = IAsyncDecoratorProviderBuilder.DEFAULT_ORDER;
 	}
 
 	@Override
@@ -73,8 +75,14 @@ final class AsyncDecoratorProviderBuilderImpl implements IAsyncDecoratorProvider
 	}
 
 	@Override
+	public IAsyncDecoratorProviderBuilder setOrder(final int order) {
+		this.order = order;
+		return this;
+	}
+
+	@Override
 	public IServicesDecoratorProvider build() {
-		return new AsyncDecoratorProvider(executor, scheduledExecutorService, executorCallbackDelay, executionInterceptor);
+		return new AsyncDecoratorProvider(executor, scheduledExecutorService, executorCallbackDelay, executionInterceptor, order);
 	}
 
 }

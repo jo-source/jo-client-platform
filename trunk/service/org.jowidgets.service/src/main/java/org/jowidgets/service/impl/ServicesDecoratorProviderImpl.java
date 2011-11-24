@@ -40,11 +40,15 @@ class ServicesDecoratorProviderImpl implements IServicesDecoratorProvider {
 
 	private final IDecorator<Object> defaultDecorator;
 	private final Map<Class, IDecorator> decorators;
+	private final int order;
 
-	ServicesDecoratorProviderImpl(final IDecorator<Object> defaultDecorator, final Map<Class<?>, IDecorator<?>> decorators) {
-		super();
+	ServicesDecoratorProviderImpl(
+		final IDecorator<Object> defaultDecorator,
+		final Map<Class<?>, IDecorator<?>> decorators,
+		final int order) {
 		this.defaultDecorator = defaultDecorator;
 		this.decorators = new HashMap<Class, IDecorator>(decorators);
+		this.order = order;
 	}
 
 	@Override
@@ -56,6 +60,11 @@ class ServicesDecoratorProviderImpl implements IServicesDecoratorProvider {
 	public <SERVICE_TYPE> IDecorator<SERVICE_TYPE> getDecorator(final Class<? extends SERVICE_TYPE> type) {
 		Assert.paramNotNull(type, "type");
 		return decorators.get(type);
+	}
+
+	@Override
+	public int getOrder() {
+		return order;
 	}
 
 }

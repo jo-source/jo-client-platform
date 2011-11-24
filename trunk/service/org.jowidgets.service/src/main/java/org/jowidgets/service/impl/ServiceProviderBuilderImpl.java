@@ -28,6 +28,8 @@
 
 package org.jowidgets.service.impl;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -53,12 +55,14 @@ final class ServiceProviderBuilderImpl extends AbstractSingleUseBuilder<IService
 	ServiceProviderBuilderImpl() {
 		this.services = new HashMap<IServiceId<? extends Object>, Object>();
 		this.serviceDecorators = getRegisteredServicesDecorators();
+		sortDecorators();
 	}
 
 	@Override
 	public IServiceProviderBuilder addServiceDecorator(final IServicesDecoratorProvider serviceDecorator) {
 		Assert.paramNotNull(serviceDecorator, "serviceDecorator");
 		serviceDecorators.add(serviceDecorator);
+		sortDecorators();
 		return this;
 	}
 
@@ -105,5 +109,17 @@ final class ServiceProviderBuilderImpl extends AbstractSingleUseBuilder<IService
 			}
 		}
 		return result;
+	}
+
+	private void sortDecorators() {
+		Collections.sort(serviceDecorators, new Comparator<IServicesDecoratorProvider>() {
+			@Override
+			public int compare(final IServicesDecoratorProvider provider1, final IServicesDecoratorProvider provider2) {
+				if (provider1 != null && provider2 != null) {
+					return provider1.getOrder() - provider2.getOrder();
+				}
+				return 0;
+			}
+		});
 	}
 }

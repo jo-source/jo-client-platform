@@ -48,4 +48,11 @@ public interface IServicesDecoratorProvider {
 	 */
 	<SERVICE_TYPE> IDecorator<SERVICE_TYPE> getDecorator(Class<? extends SERVICE_TYPE> type);
 
+	/**
+	 * Gets the order of the decorator. The services will be decorated in this order.
+	 * 
+	 * @return The order
+	 */
+	int getOrder();
+
 }
