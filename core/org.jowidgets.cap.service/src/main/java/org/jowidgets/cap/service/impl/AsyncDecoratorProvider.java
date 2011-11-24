@@ -42,18 +42,21 @@ final class AsyncDecoratorProvider implements IServicesDecoratorProvider {
 	private final ScheduledExecutorService scheduledExecutorService;
 	private final Long executionCallbackDelay;
 	private final IExecutionInterceptor<Object> executionInterceptor;
+	private final int order;
 
 	AsyncDecoratorProvider(
 		final Executor executor,
 		final ScheduledExecutorService scheduledExecutorService,
 		final Long executionCallbackDelay,
-		final IExecutionInterceptor<Object> executionInterceptor) {
+		final IExecutionInterceptor<Object> executionInterceptor,
+		final int order) {
 		Assert.paramNotNull(executor, "executor");
 		Assert.paramNotNull(scheduledExecutorService, "scheduledExecutorService");
 		this.executor = executor;
 		this.scheduledExecutorService = scheduledExecutorService;
 		this.executionCallbackDelay = executionCallbackDelay;
 		this.executionInterceptor = executionInterceptor;
+		this.order = order;
 	}
 
 	@Override
@@ -70,6 +73,11 @@ final class AsyncDecoratorProvider implements IServicesDecoratorProvider {
 			scheduledExecutorService,
 			executionCallbackDelay,
 			executionInterceptor);
+	}
+
+	@Override
+	public int getOrder() {
+		return order;
 	}
 
 }

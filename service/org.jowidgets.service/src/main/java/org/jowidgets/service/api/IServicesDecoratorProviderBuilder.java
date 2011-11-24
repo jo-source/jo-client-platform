@@ -36,6 +36,8 @@ public interface IServicesDecoratorProviderBuilder {
 
 	<SERVICE_TYPE> IServicesDecoratorProviderBuilder setServiceDecorator(Class<?> type, IDecorator<SERVICE_TYPE> decorator);
 
+	IServicesDecoratorProviderBuilder setOrder(int order);
+
 	IServicesDecoratorProvider build();
 
 }

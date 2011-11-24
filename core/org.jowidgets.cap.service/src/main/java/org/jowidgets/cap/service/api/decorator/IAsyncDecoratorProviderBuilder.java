@@ -35,6 +35,8 @@ import org.jowidgets.service.api.IServicesDecoratorProvider;
 
 public interface IAsyncDecoratorProviderBuilder {
 
+	int DEFAULT_ORDER = 0;
+
 	IAsyncDecoratorProviderBuilder setExecutor(Executor executor);
 
 	IAsyncDecoratorProviderBuilder setDelayExecutor(ScheduledExecutorService executorService);
@@ -42,6 +44,8 @@ public interface IAsyncDecoratorProviderBuilder {
 	IAsyncDecoratorProviderBuilder setExecutorCallbackDelay(long delay);
 
 	IAsyncDecoratorProviderBuilder setExecutionInterceptor(IExecutionInterceptor<?> executionInterceptor);
+
+	IAsyncDecoratorProviderBuilder setOrder(int order);
 
 	IServicesDecoratorProvider build();
 
