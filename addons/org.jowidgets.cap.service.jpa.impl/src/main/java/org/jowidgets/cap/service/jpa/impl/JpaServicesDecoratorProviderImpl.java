@@ -325,10 +325,11 @@ final class JpaServicesDecoratorProviderImpl implements IServicesDecoratorProvid
 			return new Tuple<EntityManager, Boolean>(entityManager, Boolean.valueOf(created));
 		}
 
-		private void entityManagerEnd(final Tuple<EntityManager, Boolean> entityManager) {
+		private void entityManagerEnd(final Tuple<EntityManager, Boolean> entityManagerTuple) {
 			//only close the entity manager if it was created by this decorator
-			if (entityManagerService && entityManager.getFirst() != null && entityManager.getSecond()) {
-				entityManager.getFirst().close();
+			final EntityManager entityManager = entityManagerTuple.getFirst();
+			if (entityManagerService && entityManager != null && entityManager.isOpen() && entityManagerTuple.getSecond()) {
+				entityManagerTuple.getFirst().close();
 				EntityManagerHolder.set(null);
 			}
 		}

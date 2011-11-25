@@ -28,14 +28,22 @@
 package org.jowidgets.cap.sample2.app.service.bean;
 
 import javax.persistence.Entity;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
+import org.hibernate.annotations.Index;
 import org.jowidgets.cap.sample2.app.common.entity.IPerson;
 
 @Entity
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"loginName"}))
 public class Person extends Bean implements IPerson {
 
+	@Index(name = "PersonNameIndex")
 	private String name;
+
+	@Index(name = "PersonLastnameIndex")
 	private String lastname;
+
 	private String loginName;
 
 	@Override
