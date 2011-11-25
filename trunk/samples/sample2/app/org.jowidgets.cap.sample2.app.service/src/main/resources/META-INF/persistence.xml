@@ -5,7 +5,8 @@
 	<persistence-unit name="sample2PersistenceUnit" >     
 		<description>Sample2</description>
 		<provider>org.hibernate.ejb.HibernatePersistence</provider> 
-		<class>org.jowidgets.cap.sample2.app.service.bean.User</class>
+		<class>org.jowidgets.cap.sample2.app.service.bean.Person</class>
+		<class>org.jowidgets.cap.sample2.app.service.bean.Role</class>
 		<properties>
 			<property name="hibernate.dialect" value="org.hibernate.dialect.OracleDialect" />
 			<property name="hibernate.connection.driver_class" value="oracle.jdbc.driver.OracleDriver"></property>

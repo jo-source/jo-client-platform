@@ -27,14 +27,14 @@
  */
 package org.jowidgets.cap.sample2.app.service.bean;
 
-import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.MappedSuperclass;
 import javax.persistence.Version;
 
 import org.jowidgets.cap.common.api.bean.IBean;
 
-@Entity
+@MappedSuperclass
 public class Bean implements IBean {
 
 	@Id

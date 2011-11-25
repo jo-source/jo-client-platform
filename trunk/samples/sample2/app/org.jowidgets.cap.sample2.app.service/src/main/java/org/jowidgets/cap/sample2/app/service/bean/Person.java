@@ -29,10 +29,10 @@ package org.jowidgets.cap.sample2.app.service.bean;
 
 import javax.persistence.Entity;
 
-import org.jowidgets.cap.sample2.app.common.entity.IUser;
+import org.jowidgets.cap.sample2.app.common.entity.IPerson;
 
 @Entity
-public class User extends Bean implements IUser {
+public class Person extends Bean implements IPerson {
 
 	private String name;
 	private String lastname;

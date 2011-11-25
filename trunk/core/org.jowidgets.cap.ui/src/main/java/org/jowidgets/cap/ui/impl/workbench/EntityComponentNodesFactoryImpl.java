@@ -31,8 +31,12 @@ package org.jowidgets.cap.ui.impl.workbench;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.jowidgets.cap.common.api.CapCommonToolkit;
+import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
 import org.jowidgets.cap.common.api.entity.IEntityClass;
+import org.jowidgets.cap.common.api.entity.IEntityClassBuilder;
 import org.jowidgets.cap.common.api.service.IEntityClassProviderService;
+import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.plugin.IEntityComponentNodesFactoryPlugin;
 import org.jowidgets.cap.ui.api.workbench.IEntityComponentNodesFactory;
@@ -40,6 +44,7 @@ import org.jowidgets.plugin.api.PluginProvider;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.api.ServiceProvider;
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.EmptyCheck;
 import org.jowidgets.workbench.toolkit.api.IComponentNodeModel;
 import org.jowidgets.workbench.toolkit.api.IComponentNodeModelBuilder;
 import org.jowidgets.workbench.tools.ComponentNodeModelBuilder;
@@ -72,6 +77,38 @@ final class EntityComponentNodesFactoryImpl implements IEntityComponentNodesFact
 			result.add(createNodeFromEntity(entityClass));
 		}
 		return result;
+	}
+
+	@Override
+	public IComponentNodeModel createNode(final IEntityClass entityClass) {
+		Assert.paramNotNull(entityClass, "entityClass");
+		return createNodeFromEntity(entityClass);
+	}
+
+	@Override
+	public IComponentNodeModel createNode(final Object entityId) {
+		Assert.paramNotNull(entityId, "entityId");
+		final IEntityService entityService = ServiceProvider.getService(IEntityService.ID);
+		if (entityService != null) {
+			final IBeanDtoDescriptor beanDtoDescriptor = entityService.getDescriptor(entityId);
+			if (beanDtoDescriptor != null) {
+				final String labelPlural = beanDtoDescriptor.getLabelPlural();
+				if (!EmptyCheck.isEmpty(labelPlural)) {
+					final IEntityClassBuilder entityClassBuilder = CapCommonToolkit.entityClassBuilder();
+					entityClassBuilder.setId(entityId).setLabel(labelPlural).setDescription(beanDtoDescriptor.getDescription());
+					return createNodeFromEntity(entityClassBuilder.build());
+				}
+				else {
+					throw new IllegalArgumentException("The was no label plural found for the entityId '" + entityId + "'");
+				}
+			}
+			else {
+				throw new IllegalArgumentException("The was no bean dto descriptor found for the entityId '" + entityId + "'");
+			}
+		}
+		else {
+			throw new IllegalStateException("There was no entity service found");
+		}
 	}
 
 	private IComponentNodeModel createNodeFromEntity(final IEntityClass entityClass) {

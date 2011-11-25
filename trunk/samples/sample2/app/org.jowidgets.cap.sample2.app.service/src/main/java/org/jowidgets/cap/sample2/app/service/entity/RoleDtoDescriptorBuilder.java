@@ -25,49 +25,37 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
-package org.jowidgets.cap.sample2.app.common.entity;
 
-import java.util.LinkedList;
-import java.util.List;
-
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
+package org.jowidgets.cap.sample2.app.service.entity;
 
 import org.jowidgets.cap.common.api.bean.IBean;
+import org.jowidgets.cap.common.api.bean.IBeanPropertyBluePrint;
+import org.jowidgets.cap.common.tools.bean.BeanDtoDescriptorBuilder;
+import org.jowidgets.cap.sample2.app.common.entity.IRole;
 
-public interface IUser extends IBean {
+public class RoleDtoDescriptorBuilder extends BeanDtoDescriptorBuilder {
 
-	String NAME_PROPERTY = "name";
-	String LAST_NAME_PROPERTY = "lastname";
-	String LOGIN_NAME_PROPERTY = "loginName";
+	public RoleDtoDescriptorBuilder() {
+		super(IRole.class);
 
-	List<String> ALL_PROPERTIES = new LinkedList<String>() {
-		private static final long serialVersionUID = 1L;
-		{
-			add(NAME_PROPERTY);
-			add(LAST_NAME_PROPERTY);
-			add(LOGIN_NAME_PROPERTY);
-			add(IBean.ID_PROPERTY);
-			add(IBean.VERSION_PROPERTY);
-		}
-	};
+		setLabelSingular("Role");
+		setLabelPlural("Roles");
 
-	@NotNull
-	@Size(min = 2, max = 50)
-	String getName();
+		IBeanPropertyBluePrint propertyBp = addProperty(IRole.NAME_PROPERTY);
+		propertyBp.setLabel("Name");
+		propertyBp.setDescription("The roles name");
+		propertyBp.setMandatory(true);
 
-	void setName(String name);
+		propertyBp = addProperty(IRole.DESCRIPTION_PROPERTY);
+		propertyBp.setLabel("Description");
+		propertyBp.setDescription("The roles description");
 
-	@NotNull
-	@Size(min = 2, max = 50)
-	String getLastname();
+		propertyBp = addProperty(IBean.ID_PROPERTY);
+		propertyBp.setLabel("Id");
+		propertyBp.setDescription("The roles technical identifier");
 
-	void setLastname(String name);
-
-	@NotNull
-	@Size(min = 2, max = 20)
-	String getLoginName();
-
-	void setLoginName(String loginName);
-
+		propertyBp = addProperty(IBean.VERSION_PROPERTY);
+		propertyBp.setLabel("Version");
+		propertyBp.setDescription("The version of the dataset");
+	}
 }

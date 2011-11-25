@@ -33,7 +33,8 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
 
-import org.jowidgets.cap.sample2.app.service.bean.User;
+import org.jowidgets.cap.sample2.app.service.bean.Person;
+import org.jowidgets.cap.sample2.app.service.bean.Role;
 
 public final class SampleDataGenerator {
 
@@ -41,14 +42,30 @@ public final class SampleDataGenerator {
 
 	public static void main(final String[] args) {
 		final EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("sample2PersistenceUnit");
-		final int outerCount = 1000;
+		dropData(entityManagerFactory);
+		createPersons(entityManagerFactory);
+		createRoles(entityManagerFactory);
+	}
+
+	private static void dropData(final EntityManagerFactory entityManagerFactory) {
+		final EntityManager entityManager = entityManagerFactory.createEntityManager();
+		final EntityTransaction tx = entityManager.getTransaction();
+		tx.begin();
+		entityManager.createQuery("delete from Person").executeUpdate();
+		entityManager.createQuery("delete from Role").executeUpdate();
+		tx.commit();
+		entityManager.close();
+	}
+
+	private static void createPersons(final EntityManagerFactory entityManagerFactory) {
+		final int outerCount = 1;
 		final int innerCount = 1000;
 		for (int i = 0; i < outerCount; i++) {
 			final EntityManager entityManager = entityManagerFactory.createEntityManager();
 			final EntityTransaction tx = entityManager.getTransaction();
 			tx.begin();
 			for (int j = 0; j < innerCount; j++) {
-				final User user = new User();
+				final Person user = new Person();
 				final int nr = i * innerCount + j;
 				//CHECKSTYLE:OFF
 				System.out.println("DATASET NR: " + nr);
@@ -62,5 +79,31 @@ public final class SampleDataGenerator {
 			tx.commit();
 			entityManager.close();
 		}
+	}
+
+	private static void createRoles(final EntityManagerFactory entityManagerFactory) {
+
+		final EntityManager entityManager = entityManagerFactory.createEntityManager();
+		final EntityTransaction tx = entityManager.getTransaction();
+		tx.begin();
+		Role role = new Role();
+		role.setName("Admin");
+		role.setDescription("The administrator role");
+		entityManager.persist(role);
+
+		role = new Role();
+		role.setName("Developer");
+		role.setDescription("The developers role");
+		entityManager.persist(role);
+
+		role = new Role();
+		role.setName("Guest");
+		role.setDescription("The guest role");
+		entityManager.persist(role);
+
+		entityManager.flush();
+		tx.commit();
+		entityManager.close();
+
 	}
 }

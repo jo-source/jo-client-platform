@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2011, H.Westphal
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -25,36 +25,36 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
+package org.jowidgets.cap.sample2.app.service.bean;
 
-package org.jowidgets.cap.sample2.app.service.entity;
+import javax.persistence.Entity;
 
-import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
-import org.jowidgets.cap.sample2.app.common.entity.IPerson;
 import org.jowidgets.cap.sample2.app.common.entity.IRole;
-import org.jowidgets.cap.sample2.app.service.bean.Person;
-import org.jowidgets.cap.sample2.app.service.bean.Role;
-import org.jowidgets.cap.service.api.entity.IBeanServicesProviderBuilder;
-import org.jowidgets.cap.service.jpa.api.IJpaServiceFactory;
-import org.jowidgets.cap.service.jpa.api.JpaServiceToolkit;
-import org.jowidgets.cap.service.tools.entity.EntityServiceBuilder;
-import org.jowidgets.service.api.IServiceRegistry;
 
-public class SampleEntityServiceBuilder extends EntityServiceBuilder {
+@Entity
+public class Role extends Bean implements IRole {
 
-	public SampleEntityServiceBuilder(final IServiceRegistry registry) {
+	private String name;
+	private String description;
 
-		final IJpaServiceFactory serviceFactory = JpaServiceToolkit.serviceFactory();
-		IBeanDtoDescriptor descriptor;
-		IBeanServicesProviderBuilder servicesBuilder;
-
-		//IPerson
-		descriptor = new PersonDtoDescriptorBuilder().build();
-		servicesBuilder = serviceFactory.beanServicesBuilder(registry, IPerson.class, Person.class, IPerson.ALL_PROPERTIES);
-		add(IPerson.class, descriptor, servicesBuilder.build());
-
-		//IRole
-		descriptor = new RoleDtoDescriptorBuilder().build();
-		servicesBuilder = serviceFactory.beanServicesBuilder(registry, IRole.class, Role.class, IRole.ALL_PROPERTIES);
-		add(IRole.class, descriptor, servicesBuilder.build());
+	@Override
+	public String getName() {
+		return name;
 	}
+
+	@Override
+	public void setName(final String name) {
+		this.name = name;
+	}
+
+	@Override
+	public String getDescription() {
+		return description;
+	}
+
+	@Override
+	public void setDescription(final String description) {
+		this.description = description;
+	}
+
 }
