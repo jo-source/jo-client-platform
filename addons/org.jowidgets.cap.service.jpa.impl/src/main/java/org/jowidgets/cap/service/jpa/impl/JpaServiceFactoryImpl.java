@@ -45,6 +45,7 @@ import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.cap.service.api.bean.IBeanInitializer;
 import org.jowidgets.cap.service.api.bean.IBeanModifier;
 import org.jowidgets.cap.service.api.entity.IBeanServicesProviderBuilder;
+import org.jowidgets.cap.service.api.updater.IUpdaterServiceBuilder;
 import org.jowidgets.cap.service.jpa.api.IJpaServiceFactory;
 import org.jowidgets.cap.service.jpa.api.query.ICriteriaQueryCreatorBuilder;
 import org.jowidgets.cap.service.jpa.api.query.IQueryCreator;
@@ -111,17 +112,30 @@ public class JpaServiceFactoryImpl implements IJpaServiceFactory {
 		Assert.paramNotNull(beanInitializer, "beanInitializer");
 		Assert.paramNotNull(beanModifier, "beanModifier");
 
+		final IBeanServicesProviderBuilder builder;
+		builder = CapServiceToolkit.beanServicesProviderBuilder(registry, IEntityService.ID, entityTypeId);
+
+		//create bean access
 		final IBeanAccess<BEAN_TYPE> beanAccess = beanAccess(beanType);
-		final IBeanServicesProviderBuilder builder = CapServiceToolkit.beanServicesProviderBuilder(
-				registry,
-				IEntityService.ID,
-				entityTypeId);
+
+		//set creator service
 		builder.setCreatorService(creatorService(beanType, beanDtoFactory, beanInitializer));
-		builder.setDeleterService(deleterService(beanAccess));
+
+		//set reader service
 		final ICriteriaQueryCreatorBuilder<Void> queryCreatorBuilder = JpaQueryToolkit.criteriaQueryCreatorBuilder(beanType);
 		builder.setReaderService(readerService(beanAccess, queryCreatorBuilder.build(), beanDtoFactory));
-		builder.setUpdaterService(CapServiceToolkit.updaterServiceBuilder(beanAccess).build());
-		builder.setRefreshService(CapServiceToolkit.refreshServiceBuilder(beanAccess).build());
+
+		//set refresh
+		builder.setRefreshService(CapServiceToolkit.refreshServiceBuilder(beanAccess).setBeanDtoFactory(beanDtoFactory).build());
+
+		//set updater service
+		final IUpdaterServiceBuilder<BEAN_TYPE> updaterServiceBuilder = CapServiceToolkit.updaterServiceBuilder(beanAccess);
+		updaterServiceBuilder.setBeanDtoFactory(beanDtoFactory).setBeanModifier(beanModifier);
+		builder.setUpdaterService(updaterServiceBuilder.build());
+
+		//set deleter service
+		builder.setDeleterService(deleterService(beanAccess));
+
 		return builder;
 	}
 

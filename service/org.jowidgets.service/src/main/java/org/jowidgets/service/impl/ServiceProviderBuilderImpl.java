@@ -116,7 +116,7 @@ final class ServiceProviderBuilderImpl extends AbstractSingleUseBuilder<IService
 			@Override
 			public int compare(final IServicesDecoratorProvider provider1, final IServicesDecoratorProvider provider2) {
 				if (provider1 != null && provider2 != null) {
-					return provider1.getOrder() - provider2.getOrder();
+					return provider2.getOrder() - provider1.getOrder();
 				}
 				return 0;
 			}
