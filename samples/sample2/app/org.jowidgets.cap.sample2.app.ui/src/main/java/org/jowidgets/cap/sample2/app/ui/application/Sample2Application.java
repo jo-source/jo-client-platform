@@ -28,11 +28,12 @@
 
 package org.jowidgets.cap.sample2.app.ui.application;
 
-import org.jowidgets.cap.sample2.app.ui.component.user.UserComponent;
-import org.jowidgets.workbench.toolkit.api.IComponentNodeModelBuilder;
+import org.jowidgets.cap.sample2.app.common.entity.IPerson;
+import org.jowidgets.cap.sample2.app.common.entity.IRole;
+import org.jowidgets.cap.ui.api.CapUiToolkit;
+import org.jowidgets.cap.ui.api.workbench.IEntityComponentNodesFactory;
 import org.jowidgets.workbench.toolkit.api.IWorkbenchApplicationModel;
 import org.jowidgets.workbench.toolkit.api.IWorkbenchApplicationModelBuilder;
-import org.jowidgets.workbench.tools.ComponentNodeModelBuilder;
 import org.jowidgets.workbench.tools.WorkbenchApplicationModelBuilder;
 
 public class Sample2Application {
@@ -53,13 +54,8 @@ public class Sample2Application {
 	}
 
 	private void createComponentTree(final IWorkbenchApplicationModel model) {
-
-		final IComponentNodeModelBuilder userNodeBuilder = new ComponentNodeModelBuilder();
-		userNodeBuilder.setComponentFactory(UserComponent.class);
-		userNodeBuilder.setId(UserComponent.class.getName());
-		userNodeBuilder.setLabel("User");
-		model.addChild(userNodeBuilder.build());
-
+		final IEntityComponentNodesFactory nodesFactory = CapUiToolkit.workbenchToolkit().entityComponentNodesFactory();
+		model.addChild(nodesFactory.createNode(IPerson.class));
+		model.addChild(nodesFactory.createNode(IRole.class));
 	}
-
 }

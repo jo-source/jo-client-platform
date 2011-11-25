@@ -31,27 +31,27 @@ package org.jowidgets.cap.sample2.app.service.entity;
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanPropertyBluePrint;
 import org.jowidgets.cap.common.tools.bean.BeanDtoDescriptorBuilder;
-import org.jowidgets.cap.sample2.app.common.entity.IUser;
+import org.jowidgets.cap.sample2.app.common.entity.IPerson;
 
-public class UserDtoDescriptorBuilder extends BeanDtoDescriptorBuilder {
+public class PersonDtoDescriptorBuilder extends BeanDtoDescriptorBuilder {
 
-	public UserDtoDescriptorBuilder() {
-		super(IUser.class);
+	public PersonDtoDescriptorBuilder() {
+		super(IPerson.class);
 
 		setLabelSingular("User");
 		setLabelPlural("User");
 
-		IBeanPropertyBluePrint propertyBp = addProperty(IUser.NAME_PROPERTY);
+		IBeanPropertyBluePrint propertyBp = addProperty(IPerson.NAME_PROPERTY);
 		propertyBp.setLabel("Name");
 		propertyBp.setDescription("The users name");
 		propertyBp.setMandatory(true);
 
-		propertyBp = addProperty(IUser.LAST_NAME_PROPERTY);
+		propertyBp = addProperty(IPerson.LAST_NAME_PROPERTY);
 		propertyBp.setLabel("Lastname");
 		propertyBp.setDescription("The users lastname");
 		propertyBp.setMandatory(true);
 
-		propertyBp = addProperty(IUser.LOGIN_NAME_PROPERTY);
+		propertyBp = addProperty(IPerson.LOGIN_NAME_PROPERTY);
 		propertyBp.setLabel("Login");
 		propertyBp.setLabelLong("Login name");
 		propertyBp.setDescription("The users login name");

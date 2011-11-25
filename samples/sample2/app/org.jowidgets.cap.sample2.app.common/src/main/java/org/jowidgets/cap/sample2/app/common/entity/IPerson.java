@@ -25,30 +25,49 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
+package org.jowidgets.cap.sample2.app.common.entity;
 
-package org.jowidgets.cap.sample2.app.ui.component.user;
+import java.util.LinkedList;
+import java.util.List;
 
-import org.jowidgets.api.widgets.IContainer;
-import org.jowidgets.cap.sample2.app.common.entity.IUser;
-import org.jowidgets.cap.ui.api.CapUiToolkit;
-import org.jowidgets.cap.ui.api.table.IBeanTableModel;
-import org.jowidgets.tools.layout.MigLayoutFactory;
-import org.jowidgets.workbench.api.IViewContext;
-import org.jowidgets.workbench.tools.AbstractView;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
-public class UserTableView extends AbstractView {
+import org.jowidgets.cap.common.api.bean.IBean;
 
-	public static final String ID = UserTableView.class.getName();
-	public static final String DEFAULT_LABEL = "User";
+public interface IPerson extends IBean {
 
-	private final IBeanTableModel<IUser> beanTableModel;
+	String NAME_PROPERTY = "name";
+	String LAST_NAME_PROPERTY = "lastname";
+	String LOGIN_NAME_PROPERTY = "loginName";
 
-	public UserTableView(final IViewContext context, final IBeanTableModel<IUser> tableModel) {
-		this.beanTableModel = tableModel;
-		final IContainer container = context.getContainer();
-		container.setLayout(MigLayoutFactory.growingInnerCellLayout());
-		container.add(CapUiToolkit.bluePrintFactory().beanTable(beanTableModel), MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
-		beanTableModel.load();
-	}
+	List<String> ALL_PROPERTIES = new LinkedList<String>() {
+		private static final long serialVersionUID = 1L;
+		{
+			add(NAME_PROPERTY);
+			add(LAST_NAME_PROPERTY);
+			add(LOGIN_NAME_PROPERTY);
+			add(IBean.ID_PROPERTY);
+			add(IBean.VERSION_PROPERTY);
+		}
+	};
+
+	@NotNull
+	@Size(min = 2, max = 50)
+	String getName();
+
+	void setName(String name);
+
+	@NotNull
+	@Size(min = 2, max = 50)
+	String getLastname();
+
+	void setLastname(String name);
+
+	@NotNull
+	@Size(min = 2, max = 20)
+	String getLoginName();
+
+	void setLoginName(String loginName);
 
 }

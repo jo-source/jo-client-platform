@@ -25,28 +25,39 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
+package org.jowidgets.cap.sample2.app.common.entity;
 
-package org.jowidgets.cap.sample2.app.ui.component.user;
+import java.util.LinkedList;
+import java.util.List;
 
-import org.jowidgets.api.widgets.IContainer;
-import org.jowidgets.cap.sample2.app.common.entity.IUser;
-import org.jowidgets.cap.ui.api.CapUiToolkit;
-import org.jowidgets.cap.ui.api.table.IBeanTableModel;
-import org.jowidgets.cap.ui.api.widgets.IBeanTableFormBluePrint;
-import org.jowidgets.tools.layout.MigLayoutFactory;
-import org.jowidgets.workbench.api.IViewContext;
-import org.jowidgets.workbench.tools.AbstractView;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
-public class UserDetailView extends AbstractView {
+import org.jowidgets.cap.common.api.bean.IBean;
 
-	public static final String ID = UserDetailView.class.getName();
-	public static final String DEFAULT_LABEL = "User details";
+public interface IRole extends IBean {
 
-	public UserDetailView(final IViewContext context, final IBeanTableModel<IUser> parentModel) {
-		final IContainer container = context.getContainer();
-		container.setLayout(MigLayoutFactory.growingCellLayout());
-		final IBeanTableFormBluePrint<IUser> beanTableFormBp = CapUiToolkit.bluePrintFactory().beanTableForm(parentModel);
-		beanTableFormBp.setHideReadonlyAttributes(false);
-		container.add(beanTableFormBp, MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
-	}
+	String NAME_PROPERTY = "name";
+	String DESCRIPTION_PROPERTY = "description";
+
+	List<String> ALL_PROPERTIES = new LinkedList<String>() {
+		private static final long serialVersionUID = 1L;
+		{
+			add(NAME_PROPERTY);
+			add(DESCRIPTION_PROPERTY);
+			add(IBean.ID_PROPERTY);
+			add(IBean.VERSION_PROPERTY);
+		}
+	};
+
+	@NotNull
+	@Size(min = 2, max = 50)
+	String getName();
+
+	void setName(String name);
+
+	String getDescription();
+
+	void setDescription(String name);
+
 }
