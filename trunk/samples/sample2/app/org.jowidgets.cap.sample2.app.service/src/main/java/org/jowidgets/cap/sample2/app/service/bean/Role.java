@@ -28,12 +28,17 @@
 package org.jowidgets.cap.sample2.app.service.bean;
 
 import javax.persistence.Entity;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
+import org.hibernate.annotations.Index;
 import org.jowidgets.cap.sample2.app.common.entity.IRole;
 
 @Entity
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"name"}))
 public class Role extends Bean implements IRole {
 
+	@Index(name = "RoleNameIndex")
 	private String name;
 	private String description;
 
