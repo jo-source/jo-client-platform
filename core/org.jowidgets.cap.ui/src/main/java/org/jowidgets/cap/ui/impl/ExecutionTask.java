@@ -256,43 +256,43 @@ public final class ExecutionTask implements IExecutionTask, IUserAnswerCallback,
 	}
 
 	private void fireCanceled() {
-		for (final IExecutionCallbackListener listener : executionCallbackListeners) {
+		for (final IExecutionCallbackListener listener : new LinkedList<IExecutionCallbackListener>(executionCallbackListeners)) {
 			listener.canceled();
 		}
 	}
 
 	void fireDescriptionChanged() {
-		for (final IExecutionTaskListener listener : executionTaskListeners) {
+		for (final IExecutionTaskListener listener : new LinkedList<IExecutionTaskListener>(executionTaskListeners)) {
 			listener.descriptionChanged(getDescription());
 		}
 	}
 
 	void fireTotalStepCountChanged() {
-		for (final IExecutionTaskListener listener : executionTaskListeners) {
+		for (final IExecutionTaskListener listener : new LinkedList<IExecutionTaskListener>(executionTaskListeners)) {
 			listener.totalStepCountChanged(getTotalStepCount());
 		}
 	}
 
 	void fireWorked() {
-		for (final IExecutionTaskListener listener : executionTaskListeners) {
+		for (final IExecutionTaskListener listener : new LinkedList<IExecutionTaskListener>(executionTaskListeners)) {
 			listener.worked(getWorked());
 		}
 	}
 
 	private void fireFinished() {
-		for (final IExecutionTaskListener listener : executionTaskListeners) {
+		for (final IExecutionTaskListener listener : new LinkedList<IExecutionTaskListener>(executionTaskListeners)) {
 			listener.finished();
 		}
 	}
 
 	private void fireUserQuestionAsked() {
-		for (final IExecutionTaskListener listener : executionTaskListeners) {
+		for (final IExecutionTaskListener listener : new LinkedList<IExecutionTaskListener>(executionTaskListeners)) {
 			listener.userQuestionAsked(userQuestion, this);
 		}
 	}
 
 	private void fireSubExecutionAdded(final IExecutionTask executionTask) {
-		for (final IExecutionTaskListener listener : executionTaskListeners) {
+		for (final IExecutionTaskListener listener : new LinkedList<IExecutionTaskListener>(executionTaskListeners)) {
 			listener.subExecutionAdded(executionTask);
 		}
 	}
