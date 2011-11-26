@@ -31,6 +31,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
@@ -67,7 +68,7 @@ public class Role extends Bean implements IRole {
 		this.description = description;
 	}
 
-	@OneToMany(mappedBy = "role")
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "role")
 	public Set<PersonRoleLink> getSetOfPersonRoleLink() {
 		return setOfPersonRoleLink;
 	}

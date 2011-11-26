@@ -37,6 +37,7 @@ import javax.servlet.ServletResponse;
 
 import org.jowidgets.cap.remoting.server.CapServerServicePublisher;
 import org.jowidgets.invocation.common.impl.MessageBrokerId;
+import org.jowidgets.message.api.IExceptionCallback;
 import org.jowidgets.message.api.MessageToolkit;
 import org.jowidgets.message.impl.http.server.MessageServlet;
 
@@ -51,6 +52,14 @@ public final class SecurityRemotingServlet extends GenericServlet {
 		messageServlet.addExecutionInterceptor(new SecurityExecutionInterceptor());
 		messageServlet.addExecutionInterceptor(new CurrentRequestExecutionInterceptor());
 		MessageToolkit.addReceiverBroker(messageServlet);
+		MessageToolkit.addExceptionCallback(MessageBrokerId.INVOCATION_IMPL_BROKER_ID, new IExceptionCallback() {
+			@Override
+			public void exception(final Throwable throwable) {
+				//CHECKSTYLE:OFF
+				throwable.printStackTrace();
+				//CHECKSTYLE:ON
+			}
+		});
 		new CapServerServicePublisher().publishServices();
 	}
 

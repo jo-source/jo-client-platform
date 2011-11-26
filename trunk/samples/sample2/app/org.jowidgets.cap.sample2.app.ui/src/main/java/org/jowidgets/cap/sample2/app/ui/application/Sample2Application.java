@@ -28,8 +28,7 @@
 
 package org.jowidgets.cap.sample2.app.ui.application;
 
-import org.jowidgets.cap.sample2.app.common.bean.IPerson;
-import org.jowidgets.cap.sample2.app.common.bean.IRole;
+import org.jowidgets.cap.sample2.app.common.entity.EntityIds;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.workbench.IEntityComponentNodesFactory;
 import org.jowidgets.workbench.toolkit.api.IWorkbenchApplicationModel;
@@ -55,7 +54,7 @@ public class Sample2Application {
 
 	private void createComponentTree(final IWorkbenchApplicationModel model) {
 		final IEntityComponentNodesFactory nodesFactory = CapUiToolkit.workbenchToolkit().entityComponentNodesFactory();
-		model.addChild(nodesFactory.createNode(IPerson.class));
-		model.addChild(nodesFactory.createNode(IRole.class));
+		model.addChild(nodesFactory.createNode(EntityIds.PERSON));
+		model.addChild(nodesFactory.createNode(EntityIds.ROLE));
 	}
 }

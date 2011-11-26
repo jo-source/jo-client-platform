@@ -28,29 +28,39 @@
 
 package org.jowidgets.cap.sample2.app.service.util;
 
+import java.util.Random;
+
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
+import javax.persistence.TypedQuery;
 
 import org.jowidgets.cap.sample2.app.service.bean.Person;
+import org.jowidgets.cap.sample2.app.service.bean.PersonRoleLink;
 import org.jowidgets.cap.sample2.app.service.bean.Role;
 
 public final class SampleDataGenerator {
+
+	private static final String ADMIN_ROLE_NAME = "Admin";
+	private static final String DEVELOPER_ROLE_NAME = "Developer";
+	private static final String GUEST_ROLE_NAME = "Guest";
+	private static final Random RANDOM = new Random();
 
 	private SampleDataGenerator() {}
 
 	public static void main(final String[] args) {
 		final EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("sample2PersistenceUnit");
 		dropData(entityManagerFactory);
-		createPersons(entityManagerFactory);
 		createRoles(entityManagerFactory);
+		createPersons(entityManagerFactory);
 	}
 
 	private static void dropData(final EntityManagerFactory entityManagerFactory) {
 		final EntityManager entityManager = entityManagerFactory.createEntityManager();
 		final EntityTransaction tx = entityManager.getTransaction();
 		tx.begin();
+		entityManager.createQuery("delete from PersonRoleLink").executeUpdate();
 		entityManager.createQuery("delete from Person").executeUpdate();
 		entityManager.createQuery("delete from Role").executeUpdate();
 		tx.commit();
@@ -62,6 +72,12 @@ public final class SampleDataGenerator {
 		final int innerCount = 1000;
 		for (int i = 0; i < outerCount; i++) {
 			final EntityManager entityManager = entityManagerFactory.createEntityManager();
+			final TypedQuery<Role> roleQuery = entityManager.createQuery(
+					"SELECT r FROM Role r WHERE r.name LIKE :roleName",
+					Role.class);
+			final Role adminRole = roleQuery.setParameter("roleName", ADMIN_ROLE_NAME).getSingleResult();
+			final Role developerRole = roleQuery.setParameter("roleName", DEVELOPER_ROLE_NAME).getSingleResult();
+			final Role guestRole = roleQuery.setParameter("roleName", GUEST_ROLE_NAME).getSingleResult();
 			final EntityTransaction tx = entityManager.getTransaction();
 			tx.begin();
 			for (int j = 0; j < innerCount; j++) {
@@ -74,11 +90,29 @@ public final class SampleDataGenerator {
 				user.setLastname("Lastname " + nr);
 				user.setLoginName("Login name " + nr);
 				entityManager.persist(user);
+
+				if (RANDOM.nextBoolean()) {
+					linkRole(user, adminRole, entityManager);
+				}
+				if (RANDOM.nextBoolean()) {
+					linkRole(user, developerRole, entityManager);
+				}
+				if (RANDOM.nextBoolean()) {
+					linkRole(user, guestRole, entityManager);
+				}
+
 				entityManager.flush();
 			}
 			tx.commit();
 			entityManager.close();
 		}
+	}
+
+	private static void linkRole(final Person person, final Role role, final EntityManager entityManager) {
+		final PersonRoleLink personRoleLink = new PersonRoleLink();
+		personRoleLink.setPerson(person);
+		personRoleLink.setRole(role);
+		entityManager.persist(personRoleLink);
 	}
 
 	private static void createRoles(final EntityManagerFactory entityManagerFactory) {
@@ -87,17 +121,17 @@ public final class SampleDataGenerator {
 		final EntityTransaction tx = entityManager.getTransaction();
 		tx.begin();
 		Role role = new Role();
-		role.setName("Admin");
+		role.setName(ADMIN_ROLE_NAME);
 		role.setDescription("The administrator role");
 		entityManager.persist(role);
 
 		role = new Role();
-		role.setName("Developer");
+		role.setName(DEVELOPER_ROLE_NAME);
 		role.setDescription("The developers role");
 		entityManager.persist(role);
 
 		role = new Role();
-		role.setName("Guest");
+		role.setName(GUEST_ROLE_NAME);
 		role.setDescription("The guest role");
 		entityManager.persist(role);
 

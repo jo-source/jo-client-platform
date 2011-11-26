@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.service.jpa.impl.query;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -46,7 +47,8 @@ final class CriteriaQueryCreatorBuilderImpl<PARAMETER_TYPE> implements ICriteria
 	private final List<IPredicateCreator<PARAMETER_TYPE>> predicateCreators;
 	private final Map<String, ICustomFilterPredicateCreator<PARAMETER_TYPE>> customFilterPredicateCreators;
 
-	private String parentPropertyName;
+	private IPredicateCreator<PARAMETER_TYPE> parentLinkPredicateCreator;
+
 	private boolean caseSensitive;
 
 	CriteriaQueryCreatorBuilderImpl(final Class<? extends IBean> beanType) {
@@ -60,7 +62,30 @@ final class CriteriaQueryCreatorBuilderImpl<PARAMETER_TYPE> implements ICriteria
 	@Override
 	public ICriteriaQueryCreatorBuilder<PARAMETER_TYPE> setParentPropertyName(final String parentPropertyName) {
 		Assert.paramNotEmpty(parentPropertyName, "parentPropertyName");
-		this.parentPropertyName = parentPropertyName;
+		return setParentPropertyPath(parentPropertyName);
+	}
+
+	@Override
+	public ICriteriaQueryCreatorBuilder<PARAMETER_TYPE> setParentPropertyPath(final String... parentPropertyPath) {
+		return setParentPropertyPath(true, parentPropertyPath);
+	}
+
+	@Override
+	public ICriteriaQueryCreatorBuilder<PARAMETER_TYPE> setParentPropertyName(
+		final boolean linked,
+		final String parentPropertyName) {
+		Assert.paramNotEmpty(parentPropertyName, "parentPropertyName");
+		return setParentPropertyPath(linked, parentPropertyName);
+	}
+
+	@Override
+	public ICriteriaQueryCreatorBuilder<PARAMETER_TYPE> setParentPropertyPath(
+		final boolean linked,
+		final String... parentPropertyPath) {
+		Assert.paramNotNull(parentPropertyPath, "parentPropertyPath");
+		this.parentLinkPredicateCreator = new ParentLinkPredicateCreator<PARAMETER_TYPE>(
+			linked,
+			Arrays.asList(parentPropertyPath));
 		return this;
 	}
 
@@ -90,11 +115,17 @@ final class CriteriaQueryCreatorBuilderImpl<PARAMETER_TYPE> implements ICriteria
 
 	@Override
 	public IQueryCreator<PARAMETER_TYPE> build() {
+
+		final List<IPredicateCreator<PARAMETER_TYPE>> predicateCreatorsComposite;
+		predicateCreatorsComposite = new LinkedList<IPredicateCreator<PARAMETER_TYPE>>(predicateCreators);
+		if (parentLinkPredicateCreator != null) {
+			predicateCreatorsComposite.add(parentLinkPredicateCreator);
+		}
+
 		return new CriteriaQueryCreator<PARAMETER_TYPE>(
 			beanType,
 			caseSensitive,
-			parentPropertyName,
-			predicateCreators,
+			predicateCreatorsComposite,
 			customFilterPredicateCreators);
 	}
 

@@ -53,7 +53,6 @@ final class EntityLinkDescriptorImpl implements IEntityLinkDescriptor, Serializa
 
 		Assert.paramNotNull(linkTypeId, "linkTypeId");
 		Assert.paramNotNull(linkedTypeId, "linkedTypeId");
-		Assert.paramNotNull(sourceProperties, "sourceProperties");
 
 		this.linkTypeId = linkTypeId;
 		this.linkedTypeId = linkedTypeId;
