@@ -38,6 +38,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 
+import org.jowidgets.cap.common.api.exception.ServiceCanceledException;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
@@ -129,7 +130,7 @@ final class JpaServicesDecoratorProviderImpl implements IServicesDecoratorProvid
 			}
 		}
 
-		private Object doInvoke(final Method method, final Object[] args) throws Exception {
+		private Object doInvoke(final Method method, final Object[] args) throws Throwable {
 			final Class<?>[] parameterTypes = method.getParameterTypes();
 
 			final int resultCallbackIndex = getFirstMatchingIndex(IResultCallback.class, parameterTypes);
@@ -150,7 +151,7 @@ final class JpaServicesDecoratorProviderImpl implements IServicesDecoratorProvid
 			}
 		}
 
-		private Object invokeSyncSignature(final Method method, final Object[] args) throws Exception {
+		private Object invokeSyncSignature(final Method method, final Object[] args) throws Throwable {
 			Tuple<EntityManager, Boolean> entityManagerTuple = null;
 			Tuple<EntityTransaction, Boolean> transactionTuple = null;
 			try {
@@ -276,7 +277,11 @@ final class JpaServicesDecoratorProviderImpl implements IServicesDecoratorProvid
 			return -1;
 		}
 
-		private Exception decorateException(final Throwable exception) {
+		private Throwable decorateException(final Throwable exception) {
+
+			if (exception instanceof ServiceCanceledException) {
+				return exception;
+			}
 			//TODO MG decorate jpa exceptions for the client
 			//CHECKSTYLE:OFF
 			exception.printStackTrace();

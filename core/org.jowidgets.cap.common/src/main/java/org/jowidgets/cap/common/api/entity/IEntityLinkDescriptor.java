@@ -86,7 +86,7 @@ public interface IEntityLinkDescriptor {
 	/**
 	 * Gets the link properties of the link source.
 	 * 
-	 * @return The link properties of the link source, never null
+	 * @return The link properties of the link source or null if link is readonly
 	 */
 	IEntityLinkProperties getSourceProperties();
 

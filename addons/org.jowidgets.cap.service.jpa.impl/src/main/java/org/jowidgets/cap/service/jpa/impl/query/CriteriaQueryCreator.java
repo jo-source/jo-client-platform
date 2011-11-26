@@ -39,7 +39,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -73,7 +72,6 @@ import org.jowidgets.util.Assert;
 final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE> {
 
 	private final Class<? extends IBean> beanType;
-	private final String parentPropertyName;
 	private final boolean caseInsensitive;
 	private final List<IPredicateCreator<PARAM_TYPE>> predicateCreators;
 	private final Map<String, ? extends ICustomFilterPredicateCreator<PARAM_TYPE>> customFilterPredicateCreators;
@@ -81,7 +79,6 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 	CriteriaQueryCreator(
 		final Class<? extends IBean> beanType,
 		final boolean caseSensitive,
-		final String parentPropertyName,
 		final Collection<? extends IPredicateCreator<PARAM_TYPE>> predicateCreators,
 		final Map<String, ? extends ICustomFilterPredicateCreator<PARAM_TYPE>> customFilterPredicateCreators) {
 
@@ -91,7 +88,6 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 
 		this.beanType = beanType;
 		this.caseInsensitive = !caseSensitive;
-		this.parentPropertyName = parentPropertyName;
 		this.predicateCreators = new LinkedList<IPredicateCreator<PARAM_TYPE>>(predicateCreators);
 		this.customFilterPredicateCreators = new HashMap<String, ICustomFilterPredicateCreator<PARAM_TYPE>>(
 			customFilterPredicateCreators);
@@ -141,6 +137,7 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 		return entityManager.createQuery(query.select(criteriaBuilder.count(bean)));
 	}
 
+	@SuppressWarnings("unchecked")
 	private Root<?> fillQuery(
 		final CriteriaQuery<?> query,
 		final CriteriaBuilder criteriaBuilder,
@@ -152,22 +149,21 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 		final Root<?> bean = query.from(persistenceClass);
 		final List<Predicate> predicates = new LinkedList<Predicate>();
 
-		for (final IPredicateCreator<PARAM_TYPE> predicateCreator : predicateCreators) {
-			predicates.add(predicateCreator.createPredicate(criteriaBuilder, bean, query, parentBeanKeys, parameter));
+		final List<Object> parentIds = new LinkedList<Object>();
+		if (parentBeanKeys != null) {
+			for (final IBeanKey parentBeanKey : parentBeanKeys) {
+				parentIds.add(parentBeanKey.getId());
+			}
 		}
 
-		if (parentBeanKeys != null && parentPropertyName != null) {
-			final Set<Object> parentIds = new HashSet<Object>();
-			if (parentBeanKeys.isEmpty()) {
-				parentIds.add(null);
-			}
-			else {
-				for (final IBeanKey parentBeanKey : parentBeanKeys) {
-					parentIds.add(parentBeanKey.getId());
-				}
-			}
-			final Path<?> parentPath = bean.get(parentPropertyName);
-			predicates.add(parentPath.get(IBean.ID_PROPERTY).in(parentIds));
+		for (final IPredicateCreator<PARAM_TYPE> predicateCreator : predicateCreators) {
+			predicates.add(predicateCreator.createPredicate(
+					criteriaBuilder,
+					bean,
+					query,
+					(List<IBeanKey>) parentBeanKeys,
+					parentIds,
+					parameter));
 		}
 
 		if (filter != null) {

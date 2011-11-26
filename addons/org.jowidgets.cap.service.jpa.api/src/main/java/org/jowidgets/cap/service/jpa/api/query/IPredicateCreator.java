@@ -43,7 +43,8 @@ public interface IPredicateCreator<PARAMETER_TYPE> {
 		final CriteriaBuilder criteriaBuilder,
 		final Root<?> bean,
 		final CriteriaQuery<?> query,
-		List<? extends IBeanKey> parentBeanKeys,
+		List<IBeanKey> parentBeanKeys,
+		List<Object> parentBeanIds,
 		PARAMETER_TYPE parameter);
 
 }

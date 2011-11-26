@@ -26,32 +26,16 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.jpa.api.query;
+package org.jowidgets.cap.sample2.app.common.entity;
 
-public interface ICriteriaQueryCreatorBuilder<PARAMETER_TYPE> {
+public enum EntityIds {
 
-	ICriteriaQueryCreatorBuilder<PARAMETER_TYPE> setParentPropertyName(final String parentPropertyName);
+	PERSON,
+	ROLE,
+	PERSON_ROLE_LINK,
+	LINKED_ROLES_OF_PERSONS,
+	LINKABLE_ROLES_OF_PERSONS,
+	LINKED_PERSONS_OF_ROLES,
+	LINKABLE_PERSONS_OF_ROLES;
 
-	ICriteriaQueryCreatorBuilder<PARAMETER_TYPE> setParentPropertyPath(final String... parentPropertyPath);
-
-	ICriteriaQueryCreatorBuilder<PARAMETER_TYPE> setParentPropertyName(boolean linked, final String parentPropertyName);
-
-	/**
-	 * Sets a predicate creator that evaluates if the object is linked (or not) with respect to the parent bean keys.
-	 * 
-	 * @param linked if true, the linked beans will be return, if false, the unlinked beans will be returned
-	 * @param parentPropertyPath The path to the parent property (the parent beans id can be omitted)
-	 * @return This builder
-	 */
-	ICriteriaQueryCreatorBuilder<PARAMETER_TYPE> setParentPropertyPath(boolean linked, final String... parentPropertyPath);
-
-	ICriteriaQueryCreatorBuilder<PARAMETER_TYPE> setCaseSensitve(final boolean caseSensitve);
-
-	ICriteriaQueryCreatorBuilder<PARAMETER_TYPE> addPredicateCreator(final IPredicateCreator<PARAMETER_TYPE> predicateCreator);
-
-	ICriteriaQueryCreatorBuilder<PARAMETER_TYPE> addCustomFilterPredicateCreator(
-		String filterType,
-		ICustomFilterPredicateCreator<PARAMETER_TYPE> customFilterPredicateCreators);
-
-	IQueryCreator<PARAMETER_TYPE> build();
 }

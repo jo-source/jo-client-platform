@@ -31,6 +31,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
@@ -79,7 +80,7 @@ public class Person extends Bean implements IPerson {
 		this.loginName = loginName;
 	}
 
-	@OneToMany(mappedBy = "person")
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "person")
 	public Set<PersonRoleLink> getSetOfPersonRoleLink() {
 		return setOfPersonRoleLink;
 	}
