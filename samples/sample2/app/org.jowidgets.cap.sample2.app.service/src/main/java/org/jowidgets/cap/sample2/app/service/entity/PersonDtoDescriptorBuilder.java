@@ -41,7 +41,19 @@ public class PersonDtoDescriptorBuilder extends BeanDtoDescriptorBuilder {
 		setLabelSingular("User");
 		setLabelPlural("User");
 
-		IBeanPropertyBluePrint propertyBp = addProperty(IPerson.NAME_PROPERTY);
+		IBeanPropertyBluePrint propertyBp;
+
+		propertyBp = addProperty(IBean.ID_PROPERTY);
+		propertyBp.setLabel("Id");
+		propertyBp.setDescription("The users technical identifier");
+
+		propertyBp = addProperty(IPerson.LOGIN_NAME_PROPERTY);
+		propertyBp.setLabel("Login");
+		propertyBp.setLabelLong("Login name");
+		propertyBp.setDescription("The users login name");
+		propertyBp.setMandatory(true);
+
+		propertyBp = addProperty(IPerson.NAME_PROPERTY);
 		propertyBp.setLabel("Name");
 		propertyBp.setDescription("The users name");
 		propertyBp.setMandatory(true);
@@ -50,16 +62,6 @@ public class PersonDtoDescriptorBuilder extends BeanDtoDescriptorBuilder {
 		propertyBp.setLabel("Lastname");
 		propertyBp.setDescription("The users lastname");
 		propertyBp.setMandatory(true);
-
-		propertyBp = addProperty(IPerson.LOGIN_NAME_PROPERTY);
-		propertyBp.setLabel("Login");
-		propertyBp.setLabelLong("Login name");
-		propertyBp.setDescription("The users login name");
-		propertyBp.setMandatory(true);
-
-		propertyBp = addProperty(IBean.ID_PROPERTY);
-		propertyBp.setLabel("Id");
-		propertyBp.setDescription("The users technical identifier");
 
 		propertyBp = addProperty(IBean.VERSION_PROPERTY);
 		propertyBp.setLabel("Version");

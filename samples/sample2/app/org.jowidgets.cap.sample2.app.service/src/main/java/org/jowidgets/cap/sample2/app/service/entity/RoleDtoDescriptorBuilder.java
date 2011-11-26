@@ -41,7 +41,13 @@ public class RoleDtoDescriptorBuilder extends BeanDtoDescriptorBuilder {
 		setLabelSingular("Role");
 		setLabelPlural("Roles");
 
-		IBeanPropertyBluePrint propertyBp = addProperty(IRole.NAME_PROPERTY);
+		IBeanPropertyBluePrint propertyBp;
+
+		propertyBp = addProperty(IBean.ID_PROPERTY);
+		propertyBp.setLabel("Id");
+		propertyBp.setDescription("The roles technical identifier");
+
+		propertyBp = addProperty(IRole.NAME_PROPERTY);
 		propertyBp.setLabel("Name");
 		propertyBp.setDescription("The roles name");
 		propertyBp.setMandatory(true);
@@ -49,10 +55,6 @@ public class RoleDtoDescriptorBuilder extends BeanDtoDescriptorBuilder {
 		propertyBp = addProperty(IRole.DESCRIPTION_PROPERTY);
 		propertyBp.setLabel("Description");
 		propertyBp.setDescription("The roles description");
-
-		propertyBp = addProperty(IBean.ID_PROPERTY);
-		propertyBp.setLabel("Id");
-		propertyBp.setDescription("The roles technical identifier");
 
 		propertyBp = addProperty(IBean.VERSION_PROPERTY);
 		propertyBp.setLabel("Version");
