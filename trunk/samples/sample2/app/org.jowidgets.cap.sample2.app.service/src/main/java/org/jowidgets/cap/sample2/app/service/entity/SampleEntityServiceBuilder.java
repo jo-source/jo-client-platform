@@ -40,6 +40,8 @@ import org.jowidgets.cap.sample2.app.common.bean.IRole;
 import org.jowidgets.cap.sample2.app.common.entity.EntityIds;
 import org.jowidgets.cap.sample2.app.service.bean.Person;
 import org.jowidgets.cap.sample2.app.service.bean.Role;
+import org.jowidgets.cap.sample2.app.service.descriptor.PersonDtoDescriptorBuilder;
+import org.jowidgets.cap.sample2.app.service.descriptor.RoleDtoDescriptorBuilder;
 import org.jowidgets.cap.service.api.entity.IBeanServicesProviderBuilder;
 import org.jowidgets.cap.service.jpa.api.IJpaServiceFactory;
 import org.jowidgets.cap.service.jpa.api.JpaServiceToolkit;
