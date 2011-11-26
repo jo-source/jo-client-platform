@@ -28,12 +28,14 @@
 package org.jowidgets.cap.sample2.app.service.bean;
 
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.Index;
@@ -80,13 +82,23 @@ public class Person extends Bean implements IPerson {
 		this.loginName = loginName;
 	}
 
-	@OneToMany(fetch = FetchType.LAZY, mappedBy = "person")
+	@OneToMany(mappedBy = "person")
 	public Set<PersonRoleLink> getSetOfPersonRoleLink() {
 		return setOfPersonRoleLink;
 	}
 
 	public void setSetOfPersonRoleLink(final Set<PersonRoleLink> setOfPersonRoleLink) {
 		this.setOfPersonRoleLink = setOfPersonRoleLink;
+	}
+
+	@Override
+	@Transient
+	public List<Long> getRoleIds() {
+		final List<Long> result = new LinkedList<Long>();
+		for (final PersonRoleLink personRoleLink : getSetOfPersonRoleLink()) {
+			result.add(personRoleLink.getRole().getId());
+		}
+		return result;
 	}
 
 }

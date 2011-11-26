@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, H.Westphal
+ * Copyright (c) 2011, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -25,54 +25,42 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
-package org.jowidgets.cap.sample2.app.service.bean;
 
-import java.util.HashSet;
-import java.util.Set;
+package org.jowidgets.cap.sample2.app.service.lookup;
 
-import javax.persistence.Entity;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 
-import org.hibernate.annotations.Index;
-import org.jowidgets.cap.sample2.app.common.bean.IRole;
+import javax.persistence.EntityManager;
+import javax.persistence.criteria.CriteriaQuery;
 
-@Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"name"}))
-public class Role extends Bean implements IRole {
+import org.jowidgets.cap.common.api.CapCommonToolkit;
+import org.jowidgets.cap.common.api.execution.IExecutionCallback;
+import org.jowidgets.cap.common.api.lookup.ILookUpEntry;
+import org.jowidgets.cap.common.api.lookup.ILookUpToolkit;
+import org.jowidgets.cap.sample2.app.service.bean.Role;
+import org.jowidgets.cap.service.api.adapter.ISyncLookUpService;
+import org.jowidgets.cap.service.jpa.api.EntityManagerHolder;
 
-	private String name;
-	private String description;
-	private Set<PersonRoleLink> setOfPersonRoleLink = new HashSet<PersonRoleLink>();
+public class RolesLookUpService implements ISyncLookUpService {
 
-	@Index(name = "RoleNameIndex")
-	@Override
-	public String getName() {
-		return name;
-	}
+	public static final String LOOK_UP_ID = RolesLookUpService.class.getName() + "_id";
 
 	@Override
-	public void setName(final String name) {
-		this.name = name;
-	}
+	public List<ILookUpEntry> readValues(final IExecutionCallback executionCallback) {
 
-	@Override
-	public String getDescription() {
-		return description;
-	}
+		final ILookUpToolkit lookUpToolkit = CapCommonToolkit.lookUpToolkit();
+		final List<ILookUpEntry> result = new LinkedList<ILookUpEntry>();
 
-	@Override
-	public void setDescription(final String description) {
-		this.description = description;
-	}
+		final EntityManager entityManager = EntityManagerHolder.get();
 
-	@OneToMany(mappedBy = "role")
-	public Set<PersonRoleLink> getSetOfPersonRoleLink() {
-		return setOfPersonRoleLink;
-	}
+		final CriteriaQuery<Role> criteriaQuery = entityManager.getCriteriaBuilder().createQuery(Role.class);
+		criteriaQuery.from(Role.class);
 
-	public void setSetOfPersonRoleLink(final Set<PersonRoleLink> setOfPersonRoleLink) {
-		this.setOfPersonRoleLink = setOfPersonRoleLink;
+		for (final Role role : entityManager.createQuery(criteriaQuery).getResultList()) {
+			result.add(lookUpToolkit.lookUpEntry(role.getId(), role.getName(), role.getDescription()));
+		}
+		return Collections.unmodifiableList(result);
 	}
 }
