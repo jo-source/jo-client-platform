@@ -29,11 +29,19 @@
 package org.jowidgets.cap.sample2.app.service;
 
 import org.jowidgets.cap.common.api.service.IEntityService;
+import org.jowidgets.cap.common.api.service.ILookUpService;
 import org.jowidgets.cap.sample2.app.common.service.security.AuthorizationProviderServiceId;
 import org.jowidgets.cap.sample2.app.service.entity.SampleEntityServiceBuilder;
+import org.jowidgets.cap.sample2.app.service.lookup.RolesLookUpService;
 import org.jowidgets.cap.sample2.app.service.security.AuthorizationProviderServiceImpl;
+import org.jowidgets.cap.service.api.CapServiceToolkit;
+import org.jowidgets.cap.service.api.adapter.ISyncLookUpService;
+import org.jowidgets.cap.service.jpa.api.IJpaServicesDecoratorProviderBuilder;
 import org.jowidgets.cap.service.jpa.api.JpaServiceToolkit;
+import org.jowidgets.service.api.IServicesDecoratorProvider;
+import org.jowidgets.service.tools.ServiceId;
 import org.jowidgets.service.tools.ServiceProviderBuilder;
+import org.jowidgets.util.IAdapterFactory;
 
 public class SampleServiceProviderBuilder extends ServiceProviderBuilder {
 
@@ -42,8 +50,22 @@ public class SampleServiceProviderBuilder extends ServiceProviderBuilder {
 
 		addService(AuthorizationProviderServiceId.ID, new AuthorizationProviderServiceImpl());
 		addService(IEntityService.ID, new SampleEntityServiceBuilder(this).build());
+		addDBLookUpService(RolesLookUpService.LOOK_UP_ID, new RolesLookUpService());
 
-		addServiceDecorator(JpaServiceToolkit.serviceDecoratorProviderBuilder("sample2PersistenceUnit").build());
+		addServiceDecorator(createJpaServiceDecoratorProvider());
 	}
 
+	private IServicesDecoratorProvider createJpaServiceDecoratorProvider() {
+		final IJpaServicesDecoratorProviderBuilder builder = JpaServiceToolkit.serviceDecoratorProviderBuilder("sample2PersistenceUnit");
+		builder.addEntityManagerServices(ILookUpService.class);
+		return builder.build();
+	}
+
+	private void addDBLookUpService(final Object lookUpId, final ISyncLookUpService lookUpService) {
+		final IAdapterFactory<ILookUpService, ISyncLookUpService> adapterFactoryProvider;
+		adapterFactoryProvider = CapServiceToolkit.adapterFactoryProvider().lookup();
+		final ILookUpService asyncService = adapterFactoryProvider.createAdapter(lookUpService);
+		final ServiceId<ILookUpService> serviceId = new ServiceId<ILookUpService>(lookUpId, ILookUpService.class);
+		addService(serviceId, asyncService);
+	}
 }

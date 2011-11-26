@@ -28,10 +28,10 @@
 
 package org.jowidgets.service.tools;
 
-import org.jowidgets.service.api.IServicesDecoratorProvider;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.api.IServiceProvider;
 import org.jowidgets.service.api.IServiceProviderBuilder;
+import org.jowidgets.service.api.IServicesDecoratorProvider;
 import org.jowidgets.service.api.ServiceToolkit;
 
 public class ServiceProviderBuilder implements IServiceProviderBuilder {
