@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2011, H.Westphal
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -25,36 +25,38 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
+package org.jowidgets.cap.sample2.app.service.bean;
 
-package org.jowidgets.cap.sample2.app.service.entity;
+import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 
-import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
-import org.jowidgets.cap.sample2.app.common.bean.IPerson;
-import org.jowidgets.cap.sample2.app.common.bean.IRole;
-import org.jowidgets.cap.sample2.app.service.bean.Person;
-import org.jowidgets.cap.sample2.app.service.bean.Role;
-import org.jowidgets.cap.service.api.entity.IBeanServicesProviderBuilder;
-import org.jowidgets.cap.service.jpa.api.IJpaServiceFactory;
-import org.jowidgets.cap.service.jpa.api.JpaServiceToolkit;
-import org.jowidgets.cap.service.tools.entity.EntityServiceBuilder;
-import org.jowidgets.service.api.IServiceRegistry;
+@Entity
+@Table(name = "PERSON_ROLE_LINK")
+public class PersonRoleLink extends Bean {
 
-public class SampleEntityServiceBuilder extends EntityServiceBuilder {
+	private Person person;
+	private Role role;
 
-	public SampleEntityServiceBuilder(final IServiceRegistry registry) {
-
-		final IJpaServiceFactory serviceFactory = JpaServiceToolkit.serviceFactory();
-		IBeanDtoDescriptor descriptor;
-		IBeanServicesProviderBuilder servicesBuilder;
-
-		//IPerson
-		descriptor = new PersonDtoDescriptorBuilder().build();
-		servicesBuilder = serviceFactory.beanServicesBuilder(registry, IPerson.class, Person.class, IPerson.ALL_PROPERTIES);
-		add(IPerson.class, descriptor, servicesBuilder.build());
-
-		//IRole
-		descriptor = new RoleDtoDescriptorBuilder().build();
-		servicesBuilder = serviceFactory.beanServicesBuilder(registry, IRole.class, Role.class, IRole.ALL_PROPERTIES);
-		add(IRole.class, descriptor, servicesBuilder.build());
+	@ManyToOne()
+	@JoinColumn(name = "PERSON_ID", nullable = false)
+	public Person getPerson() {
+		return person;
 	}
+
+	public void setPerson(final Person person) {
+		this.person = person;
+	}
+
+	@ManyToOne()
+	@JoinColumn(name = "ROLE_ID", nullable = false)
+	public Role getRole() {
+		return role;
+	}
+
+	public void setRole(final Role role) {
+		this.role = role;
+	}
+
 }

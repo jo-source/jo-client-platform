@@ -28,8 +28,8 @@
 
 package org.jowidgets.cap.sample2.app.ui.application;
 
-import org.jowidgets.cap.sample2.app.common.entity.IPerson;
-import org.jowidgets.cap.sample2.app.common.entity.IRole;
+import org.jowidgets.cap.sample2.app.common.bean.IPerson;
+import org.jowidgets.cap.sample2.app.common.bean.IRole;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.workbench.IEntityComponentNodesFactory;
 import org.jowidgets.workbench.toolkit.api.IWorkbenchApplicationModel;
