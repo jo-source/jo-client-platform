@@ -38,14 +38,11 @@ import org.jowidgets.cap.sample2.app.common.entity.IPerson;
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = {"loginName"}))
 public class Person extends Bean implements IPerson {
 
-	@Index(name = "PersonNameIndex")
 	private String name;
-
-	@Index(name = "PersonLastnameIndex")
 	private String lastname;
-
 	private String loginName;
 
+	@Index(name = "PersonNameIndex")
 	@Override
 	public String getName() {
 		return name;
@@ -56,6 +53,7 @@ public class Person extends Bean implements IPerson {
 		this.name = name;
 	}
 
+	@Index(name = "PersonLastnameIndex")
 	@Override
 	public String getLastname() {
 		return lastname;

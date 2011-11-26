@@ -38,10 +38,10 @@ import org.jowidgets.cap.sample2.app.common.entity.IRole;
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = {"name"}))
 public class Role extends Bean implements IRole {
 
-	@Index(name = "RoleNameIndex")
 	private String name;
 	private String description;
 
+	@Index(name = "RoleNameIndex")
 	@Override
 	public String getName() {
 		return name;
