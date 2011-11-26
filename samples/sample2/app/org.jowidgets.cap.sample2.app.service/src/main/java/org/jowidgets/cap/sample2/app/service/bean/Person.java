@@ -27,12 +27,16 @@
  */
 package org.jowidgets.cap.sample2.app.service.bean;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import javax.persistence.Entity;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.Index;
-import org.jowidgets.cap.sample2.app.common.entity.IPerson;
+import org.jowidgets.cap.sample2.app.common.bean.IPerson;
 
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = {"loginName"}))
@@ -41,6 +45,7 @@ public class Person extends Bean implements IPerson {
 	private String name;
 	private String lastname;
 	private String loginName;
+	private Set<PersonRoleLink> setOfPersonRoleLink = new HashSet<PersonRoleLink>();
 
 	@Index(name = "PersonNameIndex")
 	@Override
@@ -72,6 +77,15 @@ public class Person extends Bean implements IPerson {
 	@Override
 	public void setLoginName(final String loginName) {
 		this.loginName = loginName;
+	}
+
+	@OneToMany(mappedBy = "person")
+	public Set<PersonRoleLink> getSetOfPersonRoleLink() {
+		return setOfPersonRoleLink;
+	}
+
+	public void setSetOfPersonRoleLink(final Set<PersonRoleLink> setOfPersonRoleLink) {
+		this.setOfPersonRoleLink = setOfPersonRoleLink;
 	}
 
 }

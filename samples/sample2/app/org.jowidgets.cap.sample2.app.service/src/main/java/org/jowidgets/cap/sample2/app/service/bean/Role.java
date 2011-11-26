@@ -27,12 +27,16 @@
  */
 package org.jowidgets.cap.sample2.app.service.bean;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import javax.persistence.Entity;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.Index;
-import org.jowidgets.cap.sample2.app.common.entity.IRole;
+import org.jowidgets.cap.sample2.app.common.bean.IRole;
 
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = {"name"}))
@@ -40,6 +44,7 @@ public class Role extends Bean implements IRole {
 
 	private String name;
 	private String description;
+	private Set<PersonRoleLink> setOfPersonRoleLink = new HashSet<PersonRoleLink>();
 
 	@Index(name = "RoleNameIndex")
 	@Override
@@ -62,4 +67,12 @@ public class Role extends Bean implements IRole {
 		this.description = description;
 	}
 
+	@OneToMany(mappedBy = "role")
+	public Set<PersonRoleLink> getSetOfPersonRoleLink() {
+		return setOfPersonRoleLink;
+	}
+
+	public void setSetOfPersonRoleLink(final Set<PersonRoleLink> setOfPersonRoleLink) {
+		this.setOfPersonRoleLink = setOfPersonRoleLink;
+	}
 }

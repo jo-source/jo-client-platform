@@ -31,7 +31,7 @@ package org.jowidgets.cap.sample2.app.service.entity;
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanPropertyBluePrint;
 import org.jowidgets.cap.common.tools.bean.BeanDtoDescriptorBuilder;
-import org.jowidgets.cap.sample2.app.common.entity.IRole;
+import org.jowidgets.cap.sample2.app.common.bean.IRole;
 
 public class RoleDtoDescriptorBuilder extends BeanDtoDescriptorBuilder {
 
