@@ -33,11 +33,13 @@ import java.util.List;
 import java.util.Set;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Index;
 import org.jowidgets.cap.sample2.app.common.bean.IPerson;
 
@@ -82,7 +84,8 @@ public class Person extends Bean implements IPerson {
 		this.loginName = loginName;
 	}
 
-	@OneToMany(mappedBy = "person")
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "person")
+	@BatchSize(size = 1000)
 	public Set<PersonRoleLink> getSetOfPersonRoleLink() {
 		return setOfPersonRoleLink;
 	}
