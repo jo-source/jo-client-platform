@@ -35,11 +35,14 @@ import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
 import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
 import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptorBuilder;
 import org.jowidgets.cap.common.api.service.IReaderService;
+import org.jowidgets.cap.sample2.app.common.bean.ICountry;
 import org.jowidgets.cap.sample2.app.common.bean.IPerson;
 import org.jowidgets.cap.sample2.app.common.bean.IRole;
 import org.jowidgets.cap.sample2.app.common.entity.EntityIds;
+import org.jowidgets.cap.sample2.app.service.bean.Country;
 import org.jowidgets.cap.sample2.app.service.bean.Person;
 import org.jowidgets.cap.sample2.app.service.bean.Role;
+import org.jowidgets.cap.sample2.app.service.descriptor.CountryDtoDescriptorBuilder;
 import org.jowidgets.cap.sample2.app.service.descriptor.PersonDtoDescriptorBuilder;
 import org.jowidgets.cap.sample2.app.service.descriptor.RoleDtoDescriptorBuilder;
 import org.jowidgets.cap.service.api.entity.IBeanServicesProviderBuilder;
@@ -70,6 +73,11 @@ public class SampleEntityServiceBuilder extends EntityServiceBuilder {
 		descriptor = new RoleDtoDescriptorBuilder().build();
 		servicesBuilder = serviceFactory.beanServicesBuilder(registry, EntityIds.ROLE, Role.class, IRole.ALL_PROPERTIES);
 		add(EntityIds.ROLE, descriptor, servicesBuilder.build(), Collections.singletonList(createRolePersonLinkDescriptor()));
+
+		//ICountry
+		descriptor = new CountryDtoDescriptorBuilder().build();
+		servicesBuilder = serviceFactory.beanServicesBuilder(registry, EntityIds.COUNTRY, Country.class, ICountry.ALL_PROPERTIES);
+		add(EntityIds.COUNTRY, descriptor, servicesBuilder.build());
 
 		//Linked persons of roles
 		descriptor = new PersonDtoDescriptorBuilder().build();

@@ -26,36 +26,34 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample2.app.ui.application;
+package org.jowidgets.cap.sample2.app.service.descriptor;
 
-import org.jowidgets.cap.sample2.app.common.entity.EntityIds;
-import org.jowidgets.cap.ui.api.CapUiToolkit;
-import org.jowidgets.cap.ui.api.workbench.IEntityComponentNodesFactory;
-import org.jowidgets.workbench.toolkit.api.IWorkbenchApplicationModel;
-import org.jowidgets.workbench.toolkit.api.IWorkbenchApplicationModelBuilder;
-import org.jowidgets.workbench.tools.WorkbenchApplicationModelBuilder;
+import org.jowidgets.cap.common.api.bean.IBean;
+import org.jowidgets.cap.common.api.bean.IBeanPropertyBluePrint;
+import org.jowidgets.cap.common.tools.bean.BeanDtoDescriptorBuilder;
+import org.jowidgets.cap.sample2.app.common.bean.ICountry;
 
-public class Sample2Application {
+public class CountryDtoDescriptorBuilder extends BeanDtoDescriptorBuilder {
 
-	private final IWorkbenchApplicationModel model;
+	public CountryDtoDescriptorBuilder() {
+		super(ICountry.class);
 
-	public Sample2Application() {
-		final IWorkbenchApplicationModelBuilder builder = new WorkbenchApplicationModelBuilder();
-		builder.setId(Sample2Application.class.getName());
-		builder.setLabel("Administration");
-		this.model = builder.build();
+		setLabelSingular("Country");
+		setLabelPlural("Countries");
 
-		createComponentTree(model);
-	}
+		IBeanPropertyBluePrint propertyBp;
 
-	public IWorkbenchApplicationModel getModel() {
-		return model;
-	}
+		propertyBp = addProperty(IBean.ID_PROPERTY);
+		propertyBp.setLabel("Id");
+		propertyBp.setDescription("The country's technical identifier");
 
-	private void createComponentTree(final IWorkbenchApplicationModel model) {
-		final IEntityComponentNodesFactory nodesFactory = CapUiToolkit.workbenchToolkit().entityComponentNodesFactory();
-		model.addChild(nodesFactory.createNode(EntityIds.PERSON));
-		model.addChild(nodesFactory.createNode(EntityIds.ROLE));
-		model.addChild(nodesFactory.createNode(EntityIds.COUNTRY));
+		propertyBp = addProperty(ICountry.NAME_PROPERTY);
+		propertyBp.setLabel("Name");
+		propertyBp.setDescription("The country's name");
+		propertyBp.setMandatory(true);
+
+		propertyBp = addProperty(IBean.VERSION_PROPERTY);
+		propertyBp.setLabel("Version");
+		propertyBp.setDescription("The version of the dataset");
 	}
 }

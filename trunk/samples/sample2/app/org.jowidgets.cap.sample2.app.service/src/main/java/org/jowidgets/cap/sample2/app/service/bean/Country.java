@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2011, H.Westphal
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -25,37 +25,28 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
+package org.jowidgets.cap.sample2.app.service.bean;
 
-package org.jowidgets.cap.sample2.app.ui.application;
+import javax.persistence.Entity;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
-import org.jowidgets.cap.sample2.app.common.entity.EntityIds;
-import org.jowidgets.cap.ui.api.CapUiToolkit;
-import org.jowidgets.cap.ui.api.workbench.IEntityComponentNodesFactory;
-import org.jowidgets.workbench.toolkit.api.IWorkbenchApplicationModel;
-import org.jowidgets.workbench.toolkit.api.IWorkbenchApplicationModelBuilder;
-import org.jowidgets.workbench.tools.WorkbenchApplicationModelBuilder;
+import org.jowidgets.cap.sample2.app.common.bean.ICountry;
 
-public class Sample2Application {
+@Entity
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"name"}))
+public class Country extends Bean implements ICountry {
 
-	private final IWorkbenchApplicationModel model;
+	private String name;
 
-	public Sample2Application() {
-		final IWorkbenchApplicationModelBuilder builder = new WorkbenchApplicationModelBuilder();
-		builder.setId(Sample2Application.class.getName());
-		builder.setLabel("Administration");
-		this.model = builder.build();
-
-		createComponentTree(model);
+	@Override
+	public String getName() {
+		return name;
 	}
 
-	public IWorkbenchApplicationModel getModel() {
-		return model;
+	@Override
+	public void setName(final String name) {
+		this.name = name;
 	}
 
-	private void createComponentTree(final IWorkbenchApplicationModel model) {
-		final IEntityComponentNodesFactory nodesFactory = CapUiToolkit.workbenchToolkit().entityComponentNodesFactory();
-		model.addChild(nodesFactory.createNode(EntityIds.PERSON));
-		model.addChild(nodesFactory.createNode(EntityIds.ROLE));
-		model.addChild(nodesFactory.createNode(EntityIds.COUNTRY));
-	}
 }
