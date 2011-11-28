@@ -124,7 +124,6 @@ public class SampleEntityServiceBuilder extends EntityServiceBuilder {
 				EntityIds.USER_ROLE_LINK,
 				(IEntityData<? extends IBeanPropertyMap>) EntityDataStore.getEntityData(EntityIds.USER_ROLE_LINK),
 				UserRoleLinkInitializer.ALL_PROPERTIES);
-		servicesProviderBuilder.setReaderService(new LinkableRolesOfUsersReaderService());
 		add(EntityIds.USER_ROLE_LINK, descriptor, servicesProviderBuilder.build());
 
 		//Authorization

@@ -37,10 +37,12 @@ import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptorBuilder;
 import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.sample2.app.common.bean.ICountry;
 import org.jowidgets.cap.sample2.app.common.bean.IPerson;
+import org.jowidgets.cap.sample2.app.common.bean.IPersonRoleLink;
 import org.jowidgets.cap.sample2.app.common.bean.IRole;
 import org.jowidgets.cap.sample2.app.common.entity.EntityIds;
 import org.jowidgets.cap.sample2.app.service.bean.Country;
 import org.jowidgets.cap.sample2.app.service.bean.Person;
+import org.jowidgets.cap.sample2.app.service.bean.PersonRoleLink;
 import org.jowidgets.cap.sample2.app.service.bean.Role;
 import org.jowidgets.cap.sample2.app.service.descriptor.CountryDtoDescriptorBuilder;
 import org.jowidgets.cap.sample2.app.service.descriptor.PersonDtoDescriptorBuilder;
@@ -73,6 +75,15 @@ public class SampleEntityServiceBuilder extends EntityServiceBuilder {
 		descriptor = new RoleDtoDescriptorBuilder().build();
 		servicesBuilder = serviceFactory.beanServicesBuilder(registry, EntityIds.ROLE, Role.class, IRole.ALL_PROPERTIES);
 		add(EntityIds.ROLE, descriptor, servicesBuilder.build(), Collections.singletonList(createRolePersonLinkDescriptor()));
+
+		//IPersonRoleLink
+		descriptor = new RoleDtoDescriptorBuilder().build();
+		servicesBuilder = serviceFactory.beanServicesBuilder(
+				registry,
+				EntityIds.PERSON_ROLE_LINK,
+				PersonRoleLink.class,
+				IPersonRoleLink.ALL_PROPERTIES);
+		add(EntityIds.PERSON_ROLE_LINK, descriptor, servicesBuilder.build());
 
 		//ICountry
 		descriptor = new CountryDtoDescriptorBuilder().build();
@@ -125,8 +136,8 @@ public class SampleEntityServiceBuilder extends EntityServiceBuilder {
 		builder.setLinkTypeId(EntityIds.PERSON_ROLE_LINK);
 		builder.setLinkedTypeId(EntityIds.LINKED_PERSONS_OF_ROLES);
 		builder.setLinkableTypeId(EntityIds.LINKABLE_PERSONS_OF_ROLES);
-		//builder.setSourceProperties(IPerson.ID_PROPERTY, ?);
-		//builder.setDestinationProperties(IRole.ID_PROPERTY, ?);
+		builder.setSourceProperties(IRole.ID_PROPERTY, IPersonRoleLink.ROLE_ID_PROPERTY);
+		builder.setDestinationProperties(IPerson.ID_PROPERTY, IPersonRoleLink.PERSON_ID_PROPERTY);
 		return builder.build();
 	}
 
@@ -141,8 +152,8 @@ public class SampleEntityServiceBuilder extends EntityServiceBuilder {
 		builder.setLinkTypeId(EntityIds.PERSON_ROLE_LINK);
 		builder.setLinkedTypeId(EntityIds.LINKED_ROLES_OF_PERSONS);
 		builder.setLinkableTypeId(EntityIds.LINKABLE_ROLES_OF_PERSONS);
-		//builder.setSourceProperties(IPerson.ID_PROPERTY, ?);
-		//builder.setDestinationProperties(IRole.ID_PROPERTY, ?);
+		builder.setSourceProperties(IPerson.ID_PROPERTY, IPersonRoleLink.PERSON_ID_PROPERTY);
+		builder.setDestinationProperties(IRole.ID_PROPERTY, IPersonRoleLink.ROLE_ID_PROPERTY);
 		return builder.build();
 	}
 

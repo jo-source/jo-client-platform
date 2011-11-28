@@ -28,13 +28,18 @@
 package org.jowidgets.cap.sample2.app.service.bean;
 
 import javax.persistence.Entity;
+import javax.persistence.EntityManager;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
+
+import org.jowidgets.cap.sample2.app.common.bean.IPersonRoleLink;
+import org.jowidgets.cap.sample2.app.service.entity.EntityManagerProvider;
 
 @Entity
 @Table(name = "PERSON_ROLE_LINK")
-public class PersonRoleLink extends Bean {
+public class PersonRoleLink extends Bean implements IPersonRoleLink {
 
 	private Person person;
 	private Role role;
@@ -57,6 +62,62 @@ public class PersonRoleLink extends Bean {
 
 	public void setRole(final Role role) {
 		this.role = role;
+	}
+
+	@Transient
+	@Override
+	public Long getPersonId() {
+		if (person != null) {
+			return person.getId();
+		}
+		else {
+			return null;
+		}
+	}
+
+	@Override
+	public void setPersonId(final Long id) {
+		if (id != null) {
+			final EntityManager em = EntityManagerProvider.get();
+			final Person found = em.find(Person.class, id);
+			if (found != null) {
+				setPerson(found);
+			}
+			else {
+				throw new IllegalArgumentException("Can not find person with the id '" + id + "'");
+			}
+		}
+		else {
+			setPerson(null);
+		}
+	}
+
+	@Transient
+	@Override
+	public Long getRoleId() {
+		if (role != null) {
+			return role.getId();
+		}
+		else {
+			return null;
+		}
+	}
+
+	@Override
+	public void setRoleId(final Long id) {
+		if (id != null) {
+			final EntityManager em = EntityManagerProvider.get();
+			final Role found = em.find(Role.class, id);
+			if (found != null) {
+				setRole(found);
+			}
+			else {
+				throw new IllegalArgumentException("Can not find role with the id '" + id + "'");
+			}
+		}
+		else {
+			setRole(null);
+		}
 	}
 
 }
