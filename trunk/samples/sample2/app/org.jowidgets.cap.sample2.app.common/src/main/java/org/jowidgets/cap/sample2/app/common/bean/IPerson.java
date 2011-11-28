@@ -40,6 +40,7 @@ public interface IPerson extends IBean {
 	String NAME_PROPERTY = "name";
 	String LAST_NAME_PROPERTY = "lastname";
 	String LOGIN_NAME_PROPERTY = "loginName";
+	String COUNTRY_ID_PROPERTY = "countryId";
 	String ROLE_IDS_PROPERTY = "roleIds";
 
 	List<String> ALL_PROPERTIES = new LinkedList<String>() {
@@ -48,6 +49,7 @@ public interface IPerson extends IBean {
 			add(NAME_PROPERTY);
 			add(LAST_NAME_PROPERTY);
 			add(LOGIN_NAME_PROPERTY);
+			add(COUNTRY_ID_PROPERTY);
 			add(ROLE_IDS_PROPERTY);
 			add(IBean.ID_PROPERTY);
 			add(IBean.VERSION_PROPERTY);
@@ -71,6 +73,10 @@ public interface IPerson extends IBean {
 	String getLoginName();
 
 	void setLoginName(String loginName);
+
+	Long getCountryId();
+
+	void setCountryId(Long id);
 
 	List<Long> getRoleIds();
 

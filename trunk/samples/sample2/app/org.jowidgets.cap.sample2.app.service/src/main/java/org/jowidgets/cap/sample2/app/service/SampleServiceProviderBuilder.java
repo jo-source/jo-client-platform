@@ -32,6 +32,7 @@ import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.common.api.service.ILookUpService;
 import org.jowidgets.cap.sample2.app.common.service.security.AuthorizationProviderServiceId;
 import org.jowidgets.cap.sample2.app.service.entity.SampleEntityServiceBuilder;
+import org.jowidgets.cap.sample2.app.service.lookup.CountriesLookUpService;
 import org.jowidgets.cap.sample2.app.service.lookup.RolesLookUpService;
 import org.jowidgets.cap.sample2.app.service.security.AuthorizationProviderServiceImpl;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
@@ -50,7 +51,9 @@ public class SampleServiceProviderBuilder extends ServiceProviderBuilder {
 
 		addService(AuthorizationProviderServiceId.ID, new AuthorizationProviderServiceImpl());
 		addService(IEntityService.ID, new SampleEntityServiceBuilder(this).build());
+
 		addDBLookUpService(RolesLookUpService.LOOK_UP_ID, new RolesLookUpService());
+		addDBLookUpService(CountriesLookUpService.LOOK_UP_ID, new CountriesLookUpService());
 
 		addServiceDecorator(createJpaServiceDecoratorProvider());
 	}
