@@ -37,6 +37,8 @@ import java.util.Set;
 import javax.persistence.Entity;
 import javax.persistence.EntityManager;
 import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -54,6 +56,9 @@ public class Person extends Bean implements IPerson {
 	private String name;
 	private String lastname;
 	private String loginName;
+
+	private Country country;
+
 	private List<PersonRoleLink> setOfPersonRoleLink = new LinkedList<PersonRoleLink>();
 
 	@Index(name = "PersonNameIndex")
@@ -96,6 +101,16 @@ public class Person extends Bean implements IPerson {
 
 	public void setSetOfPersonRoleLink(final List<PersonRoleLink> setOfPersonRoleLink) {
 		this.setOfPersonRoleLink = setOfPersonRoleLink;
+	}
+
+	@ManyToOne()
+	@JoinColumn(name = "COUNTRY_ID", nullable = true)
+	public Country getCountry() {
+		return country;
+	}
+
+	public void setCountry(final Country country) {
+		this.country = country;
 	}
 
 	@Override

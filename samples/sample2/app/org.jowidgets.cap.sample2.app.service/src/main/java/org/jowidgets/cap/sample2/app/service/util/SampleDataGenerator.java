@@ -36,6 +36,7 @@ import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
 import javax.persistence.TypedQuery;
 
+import org.jowidgets.cap.sample2.app.service.bean.Country;
 import org.jowidgets.cap.sample2.app.service.bean.Person;
 import org.jowidgets.cap.sample2.app.service.bean.PersonRoleLink;
 import org.jowidgets.cap.sample2.app.service.bean.Role;
@@ -52,6 +53,8 @@ public final class SampleDataGenerator {
 	public static void main(final String[] args) {
 		final EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("sample2PersistenceUnit");
 		dropData(entityManagerFactory);
+
+		createCountries(entityManagerFactory);
 		createRoles(entityManagerFactory);
 		createPersons(entityManagerFactory);
 	}
@@ -63,8 +66,54 @@ public final class SampleDataGenerator {
 		entityManager.createQuery("delete from PersonRoleLink").executeUpdate();
 		entityManager.createQuery("delete from Person").executeUpdate();
 		entityManager.createQuery("delete from Role").executeUpdate();
+		entityManager.createQuery("delete from Country").executeUpdate();
 		tx.commit();
 		entityManager.close();
+	}
+
+	private static void createCountries(final EntityManagerFactory entityManagerFactory) {
+
+		final EntityManager entityManager = entityManagerFactory.createEntityManager();
+		final EntityTransaction tx = entityManager.getTransaction();
+		tx.begin();
+
+		for (final String countryName : Countries.COUNTRIES) {
+			final Country country = new Country();
+			country.setName(countryName);
+			entityManager.persist(country);
+		}
+
+		entityManager.flush();
+		tx.commit();
+		entityManager.close();
+
+	}
+
+	private static void createRoles(final EntityManagerFactory entityManagerFactory) {
+
+		final EntityManager entityManager = entityManagerFactory.createEntityManager();
+		final EntityTransaction tx = entityManager.getTransaction();
+		tx.begin();
+
+		Role role = new Role();
+		role.setName(ADMIN_ROLE_NAME);
+		role.setDescription("The administrator role");
+		entityManager.persist(role);
+
+		role = new Role();
+		role.setName(DEVELOPER_ROLE_NAME);
+		role.setDescription("The developers role");
+		entityManager.persist(role);
+
+		role = new Role();
+		role.setName(GUEST_ROLE_NAME);
+		role.setDescription("The guest role");
+		entityManager.persist(role);
+
+		entityManager.flush();
+		tx.commit();
+		entityManager.close();
+
 	}
 
 	private static void createPersons(final EntityManagerFactory entityManagerFactory) {
@@ -115,29 +164,4 @@ public final class SampleDataGenerator {
 		entityManager.persist(personRoleLink);
 	}
 
-	private static void createRoles(final EntityManagerFactory entityManagerFactory) {
-
-		final EntityManager entityManager = entityManagerFactory.createEntityManager();
-		final EntityTransaction tx = entityManager.getTransaction();
-		tx.begin();
-		Role role = new Role();
-		role.setName(ADMIN_ROLE_NAME);
-		role.setDescription("The administrator role");
-		entityManager.persist(role);
-
-		role = new Role();
-		role.setName(DEVELOPER_ROLE_NAME);
-		role.setDescription("The developers role");
-		entityManager.persist(role);
-
-		role = new Role();
-		role.setName(GUEST_ROLE_NAME);
-		role.setDescription("The guest role");
-		entityManager.persist(role);
-
-		entityManager.flush();
-		tx.commit();
-		entityManager.close();
-
-	}
 }

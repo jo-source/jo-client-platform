@@ -7,6 +7,7 @@
 		<provider>org.hibernate.ejb.HibernatePersistence</provider> 
 		<class>org.jowidgets.cap.sample2.app.service.bean.Person</class>
 		<class>org.jowidgets.cap.sample2.app.service.bean.Role</class>
+		<class>org.jowidgets.cap.sample2.app.service.bean.Country</class>
 		<class>org.jowidgets.cap.sample2.app.service.bean.PersonRoleLink</class>	
 		<properties>
 			<property name="hibernate.dialect" value="org.hibernate.dialect.OracleDialect" />
