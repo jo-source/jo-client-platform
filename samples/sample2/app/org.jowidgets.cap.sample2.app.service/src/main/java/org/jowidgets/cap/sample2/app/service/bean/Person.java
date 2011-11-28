@@ -27,12 +27,15 @@
  */
 package org.jowidgets.cap.sample2.app.service.bean;
 
-import java.util.HashSet;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.Entity;
+import javax.persistence.EntityManager;
 import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -42,6 +45,7 @@ import javax.persistence.UniqueConstraint;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Index;
 import org.jowidgets.cap.sample2.app.common.bean.IPerson;
+import org.jowidgets.cap.service.jpa.api.EntityManagerHolder;
 
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = {"loginName"}))
@@ -50,7 +54,7 @@ public class Person extends Bean implements IPerson {
 	private String name;
 	private String lastname;
 	private String loginName;
-	private Set<PersonRoleLink> setOfPersonRoleLink = new HashSet<PersonRoleLink>();
+	private List<PersonRoleLink> setOfPersonRoleLink = new LinkedList<PersonRoleLink>();
 
 	@Index(name = "PersonNameIndex")
 	@Override
@@ -86,11 +90,11 @@ public class Person extends Bean implements IPerson {
 
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "person")
 	@BatchSize(size = 1000)
-	public Set<PersonRoleLink> getSetOfPersonRoleLink() {
+	public List<PersonRoleLink> getSetOfPersonRoleLink() {
 		return setOfPersonRoleLink;
 	}
 
-	public void setSetOfPersonRoleLink(final Set<PersonRoleLink> setOfPersonRoleLink) {
+	public void setSetOfPersonRoleLink(final List<PersonRoleLink> setOfPersonRoleLink) {
 		this.setOfPersonRoleLink = setOfPersonRoleLink;
 	}
 
@@ -104,4 +108,51 @@ public class Person extends Bean implements IPerson {
 		return result;
 	}
 
+	@Override
+	public void setRoleIds(List<Long> newRoleIds) {
+		final EntityManager em = EntityManagerHolder.get();
+
+		if (newRoleIds == null) {
+			newRoleIds = new LinkedList<Long>();
+		}
+
+		final Set<Long> newRoleIdsSet = new LinkedHashSet<Long>(newRoleIds);
+
+		final List<PersonRoleLink> currentLinks = getSetOfPersonRoleLink();
+		final Map<Long, PersonRoleLink> currentLinksMap = new HashMap<Long, PersonRoleLink>();
+		for (final PersonRoleLink personRoleLink : new LinkedList<PersonRoleLink>(currentLinks)) {
+			final Long roleId = personRoleLink.getRole().getId();
+			if (newRoleIdsSet.remove(roleId)) {
+				currentLinksMap.put(roleId, personRoleLink);
+			}
+			else {
+				currentLinks.remove(personRoleLink);
+				em.remove(personRoleLink);
+			}
+		}
+
+		final List<PersonRoleLink> newLinks = new LinkedList<PersonRoleLink>();
+
+		for (final Long newId : newRoleIds) {
+			final PersonRoleLink link = currentLinksMap.get(newId);
+			if (link != null) {
+				newLinks.add(link);
+			}
+			else {
+				final PersonRoleLink newLink = new PersonRoleLink();
+				newLink.setPerson(this);
+				final Role newRole = em.find(Role.class, newId);
+				if (newRole != null) {
+					newLink.setRole(newRole);
+				}
+				else {
+					throw new IllegalArgumentException("Can not find role with the id '" + newId + "'");
+				}
+				em.persist(newLink);
+				newLinks.add(newLink);
+			}
+		}
+
+		setSetOfPersonRoleLink(newLinks);
+	}
 }
