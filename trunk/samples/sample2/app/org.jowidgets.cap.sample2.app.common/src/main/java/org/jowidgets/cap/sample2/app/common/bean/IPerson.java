@@ -74,4 +74,6 @@ public interface IPerson extends IBean {
 
 	List<Long> getRoleIds();
 
+	void setRoleIds(final List<Long> roleIds);
+
 }
