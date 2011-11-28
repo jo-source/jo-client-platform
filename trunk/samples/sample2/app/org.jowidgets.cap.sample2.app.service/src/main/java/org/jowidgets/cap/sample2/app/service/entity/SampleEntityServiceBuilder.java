@@ -132,7 +132,7 @@ public class SampleEntityServiceBuilder extends EntityServiceBuilder {
 
 	private IReaderService<Void> createPersonsOfRolesReader(final boolean linked) {
 		final ICriteriaQueryCreatorBuilder<Void> queryBuilder = JpaQueryToolkit.criteriaQueryCreatorBuilder(Person.class);
-		queryBuilder.setParentPropertyPath(linked, "setOfPersonRoleLink", "role");
+		queryBuilder.setParentPropertyPath(linked, "personRoleLinks", "role");
 		return serviceFactory.readerService(Person.class, queryBuilder.build(), IPerson.ALL_PROPERTIES);
 	}
 
@@ -148,7 +148,7 @@ public class SampleEntityServiceBuilder extends EntityServiceBuilder {
 
 	private IReaderService<Void> createRolesOfPersonsReader(final boolean linked) {
 		final ICriteriaQueryCreatorBuilder<Void> queryBuilder = JpaQueryToolkit.criteriaQueryCreatorBuilder(Role.class);
-		queryBuilder.setParentPropertyPath(linked, "setOfPersonRoleLink", "person");
+		queryBuilder.setParentPropertyPath(linked, "personRoleLinks", "person");
 		return serviceFactory.readerService(Role.class, queryBuilder.build(), IRole.ALL_PROPERTIES);
 	}
 }

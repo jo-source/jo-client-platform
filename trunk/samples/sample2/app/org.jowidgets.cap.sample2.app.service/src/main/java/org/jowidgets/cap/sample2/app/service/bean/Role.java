@@ -27,8 +27,8 @@
  */
 package org.jowidgets.cap.sample2.app.service.bean;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
@@ -44,7 +44,7 @@ public class Role extends Bean implements IRole {
 
 	private String name;
 	private String description;
-	private Set<PersonRoleLink> setOfPersonRoleLink = new HashSet<PersonRoleLink>();
+	private List<PersonRoleLink> personRoleLinks = new LinkedList<PersonRoleLink>();
 
 	@Index(name = "RoleNameIndex")
 	@Override
@@ -68,11 +68,11 @@ public class Role extends Bean implements IRole {
 	}
 
 	@OneToMany(mappedBy = "role")
-	public Set<PersonRoleLink> getSetOfPersonRoleLink() {
-		return setOfPersonRoleLink;
+	public List<PersonRoleLink> getPersonRoleLinks() {
+		return personRoleLinks;
 	}
 
-	public void setSetOfPersonRoleLink(final Set<PersonRoleLink> setOfPersonRoleLink) {
-		this.setOfPersonRoleLink = setOfPersonRoleLink;
+	public void setPersonRoleLinks(final List<PersonRoleLink> personRoleLinks) {
+		this.personRoleLinks = personRoleLinks;
 	}
 }

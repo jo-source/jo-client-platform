@@ -59,7 +59,7 @@ public class Person extends Bean implements IPerson {
 
 	private Country country;
 
-	private List<PersonRoleLink> setOfPersonRoleLink = new LinkedList<PersonRoleLink>();
+	private List<PersonRoleLink> personRoleLinks = new LinkedList<PersonRoleLink>();
 
 	@Index(name = "PersonNameIndex")
 	@Override
@@ -95,12 +95,12 @@ public class Person extends Bean implements IPerson {
 
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "person")
 	@BatchSize(size = 1000)
-	public List<PersonRoleLink> getSetOfPersonRoleLink() {
-		return setOfPersonRoleLink;
+	public List<PersonRoleLink> getPersonRoleLinks() {
+		return personRoleLinks;
 	}
 
-	public void setSetOfPersonRoleLink(final List<PersonRoleLink> setOfPersonRoleLink) {
-		this.setOfPersonRoleLink = setOfPersonRoleLink;
+	public void setPersonRoleLinks(final List<PersonRoleLink> personRoleLinks) {
+		this.personRoleLinks = personRoleLinks;
 	}
 
 	@ManyToOne()
@@ -145,7 +145,7 @@ public class Person extends Bean implements IPerson {
 	@Transient
 	public List<Long> getRoleIds() {
 		final List<Long> result = new LinkedList<Long>();
-		for (final PersonRoleLink personRoleLink : getSetOfPersonRoleLink()) {
+		for (final PersonRoleLink personRoleLink : getPersonRoleLinks()) {
 			result.add(personRoleLink.getRole().getId());
 		}
 		return result;
@@ -161,7 +161,7 @@ public class Person extends Bean implements IPerson {
 
 		final Set<Long> newRoleIdsSet = new LinkedHashSet<Long>(newRoleIds);
 
-		final List<PersonRoleLink> currentLinks = getSetOfPersonRoleLink();
+		final List<PersonRoleLink> currentLinks = getPersonRoleLinks();
 		final Map<Long, PersonRoleLink> currentLinksMap = new HashMap<Long, PersonRoleLink>();
 		for (final PersonRoleLink personRoleLink : new LinkedList<PersonRoleLink>(currentLinks)) {
 			final Long roleId = personRoleLink.getRole().getId();
@@ -196,6 +196,6 @@ public class Person extends Bean implements IPerson {
 			}
 		}
 
-		setSetOfPersonRoleLink(newLinks);
+		setPersonRoleLinks(newLinks);
 	}
 }
