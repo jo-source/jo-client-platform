@@ -36,6 +36,7 @@ import javax.persistence.criteria.From;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Subquery;
 import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.ManagedType;
 
@@ -65,6 +66,24 @@ public class ParentLinkPredicateCreator<PARAMETER_TYPE> implements IPredicateCre
 		final List<Object> parentBeanIds,
 		final PARAMETER_TYPE parameter) {
 
+		if (EmptyCheck.isEmpty(parentBeanIds)) {
+			return bean.get(IBean.ID_PROPERTY).in(-1);
+		}
+		else if (linked) {
+			return getParentPath(bean).get(IBean.ID_PROPERTY).in(parentBeanIds);
+		}
+		else {
+			@SuppressWarnings("unchecked")
+			final Class<Object> javaType = (Class<Object>) bean.getJavaType();
+			final Subquery<Object> subquery = query.subquery(javaType);
+			final Root<Object> subqueryRoot = subquery.from(javaType);
+			subquery.select(subqueryRoot.get(IBean.ID_PROPERTY));
+			subquery.where(getParentPath(subqueryRoot).get(IBean.ID_PROPERTY).in(parentBeanIds));
+			return criteriaBuilder.not(bean.get(IBean.ID_PROPERTY).in(subquery));
+		}
+	}
+
+	private Path<?> getParentPath(final Root<?> bean) {
 		Path<?> parentPath = bean;
 		ManagedType<?> type = bean.getModel();
 		for (final String propertyName : propertyPath) {
@@ -88,15 +107,6 @@ public class ParentLinkPredicateCreator<PARAMETER_TYPE> implements IPredicateCre
 				}
 			}
 		}
-
-		if (EmptyCheck.isEmpty(parentBeanIds)) {
-			return parentPath.get(IBean.ID_PROPERTY).in(-1);
-		}
-		else if (linked) {
-			return parentPath.get(IBean.ID_PROPERTY).in(parentBeanIds);
-		}
-		else {
-			return criteriaBuilder.not(parentPath.get(IBean.ID_PROPERTY).in(parentBeanIds));
-		}
+		return parentPath;
 	}
 }
