@@ -103,6 +103,7 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 
 		final CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
 		final CriteriaQuery<?> query = criteriaBuilder.createQuery(beanType);
+		query.distinct(true);
 		final Root<?> bean = fillQuery(query, criteriaBuilder, beanType, parentBeanKeys, filter, parameter);
 
 		if (sorting != null) {
@@ -157,13 +158,16 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 		}
 
 		for (final IPredicateCreator<PARAM_TYPE> predicateCreator : predicateCreators) {
-			predicates.add(predicateCreator.createPredicate(
+			final Predicate predicate = predicateCreator.createPredicate(
 					criteriaBuilder,
 					bean,
 					query,
 					(List<IBeanKey>) parentBeanKeys,
 					parentIds,
-					parameter));
+					parameter);
+			if (predicate != null) {
+				predicates.add(predicate);
+			}
 		}
 
 		if (filter != null) {
