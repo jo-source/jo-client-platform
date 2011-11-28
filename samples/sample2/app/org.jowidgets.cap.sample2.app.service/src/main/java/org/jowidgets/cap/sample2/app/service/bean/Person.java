@@ -47,7 +47,7 @@ import javax.persistence.UniqueConstraint;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Index;
 import org.jowidgets.cap.sample2.app.common.bean.IPerson;
-import org.jowidgets.cap.service.jpa.api.EntityManagerHolder;
+import org.jowidgets.cap.sample2.app.service.entity.EntityManagerProvider;
 
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = {"loginName"}))
@@ -115,6 +115,34 @@ public class Person extends Bean implements IPerson {
 
 	@Override
 	@Transient
+	public Long getCountryId() {
+		if (country != null) {
+			return country.getId();
+		}
+		else {
+			return null;
+		}
+	}
+
+	@Override
+	public void setCountryId(final Long id) {
+		if (id != null) {
+			final EntityManager em = EntityManagerProvider.get();
+			final Country foundCountry = em.find(Country.class, id);
+			if (foundCountry != null) {
+				setCountry(foundCountry);
+			}
+			else {
+				throw new IllegalArgumentException("Can not findcountry with the id '" + id + "'");
+			}
+		}
+		else {
+			setCountry(null);
+		}
+	}
+
+	@Override
+	@Transient
 	public List<Long> getRoleIds() {
 		final List<Long> result = new LinkedList<Long>();
 		for (final PersonRoleLink personRoleLink : getSetOfPersonRoleLink()) {
@@ -125,7 +153,7 @@ public class Person extends Bean implements IPerson {
 
 	@Override
 	public void setRoleIds(List<Long> newRoleIds) {
-		final EntityManager em = EntityManagerHolder.get();
+		final EntityManager em = EntityManagerProvider.get();
 
 		if (newRoleIds == null) {
 			newRoleIds = new LinkedList<Long>();

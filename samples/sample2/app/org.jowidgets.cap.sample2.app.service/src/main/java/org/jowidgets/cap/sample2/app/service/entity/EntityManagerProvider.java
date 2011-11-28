@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2011, H.Westphal, M. Grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -25,42 +25,21 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
-
-package org.jowidgets.cap.sample2.app.service.lookup;
-
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+package org.jowidgets.cap.sample2.app.service.entity;
 
 import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaQuery;
 
-import org.jowidgets.cap.common.api.CapCommonToolkit;
-import org.jowidgets.cap.common.api.execution.IExecutionCallback;
-import org.jowidgets.cap.common.api.lookup.ILookUpEntry;
-import org.jowidgets.cap.common.api.lookup.ILookUpToolkit;
-import org.jowidgets.cap.sample2.app.service.bean.Role;
-import org.jowidgets.cap.sample2.app.service.entity.EntityManagerProvider;
-import org.jowidgets.cap.service.api.adapter.ISyncLookUpService;
+import org.jowidgets.cap.service.jpa.api.EntityManagerHolder;
 
-public class RolesLookUpService implements ISyncLookUpService {
+public final class EntityManagerProvider {
 
-	public static final String LOOK_UP_ID = RolesLookUpService.class.getName() + "_id";
+	private EntityManagerProvider() {}
 
-	@Override
-	public List<ILookUpEntry> readValues(final IExecutionCallback executionCallback) {
-
-		final ILookUpToolkit lookUpToolkit = CapCommonToolkit.lookUpToolkit();
-		final List<ILookUpEntry> result = new LinkedList<ILookUpEntry>();
-
-		final EntityManager entityManager = EntityManagerProvider.get();
-
-		final CriteriaQuery<Role> criteriaQuery = entityManager.getCriteriaBuilder().createQuery(Role.class);
-		criteriaQuery.from(Role.class);
-
-		for (final Role role : entityManager.createQuery(criteriaQuery).getResultList()) {
-			result.add(lookUpToolkit.lookUpEntry(role.getId(), role.getName(), role.getDescription()));
+	public static EntityManager get() {
+		final EntityManager result = EntityManagerHolder.get();
+		if (result == null) {
+			throw new IllegalStateException("No entity manager injected.");
 		}
-		return Collections.unmodifiableList(result);
+		return result;
 	}
 }

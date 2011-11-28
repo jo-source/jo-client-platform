@@ -39,13 +39,13 @@ import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.lookup.ILookUpEntry;
 import org.jowidgets.cap.common.api.lookup.ILookUpToolkit;
-import org.jowidgets.cap.sample2.app.service.bean.Role;
+import org.jowidgets.cap.sample2.app.service.bean.Country;
 import org.jowidgets.cap.sample2.app.service.entity.EntityManagerProvider;
 import org.jowidgets.cap.service.api.adapter.ISyncLookUpService;
 
-public class RolesLookUpService implements ISyncLookUpService {
+public class CountriesLookUpService implements ISyncLookUpService {
 
-	public static final String LOOK_UP_ID = RolesLookUpService.class.getName() + "_id";
+	public static final String LOOK_UP_ID = CountriesLookUpService.class.getName() + "_id";
 
 	@Override
 	public List<ILookUpEntry> readValues(final IExecutionCallback executionCallback) {
@@ -55,11 +55,12 @@ public class RolesLookUpService implements ISyncLookUpService {
 
 		final EntityManager entityManager = EntityManagerProvider.get();
 
-		final CriteriaQuery<Role> criteriaQuery = entityManager.getCriteriaBuilder().createQuery(Role.class);
-		criteriaQuery.from(Role.class);
+		final CriteriaQuery<Country> criteriaQuery = entityManager.getCriteriaBuilder().createQuery(Country.class);
+		criteriaQuery.from(Country.class);
 
-		for (final Role role : entityManager.createQuery(criteriaQuery).getResultList()) {
-			result.add(lookUpToolkit.lookUpEntry(role.getId(), role.getName(), role.getDescription()));
+		result.add(lookUpToolkit.lookUpEntry(null, ""));
+		for (final Country country : entityManager.createQuery(criteriaQuery).getResultList()) {
+			result.add(lookUpToolkit.lookUpEntry(country.getId(), country.getName()));
 		}
 		return Collections.unmodifiableList(result);
 	}

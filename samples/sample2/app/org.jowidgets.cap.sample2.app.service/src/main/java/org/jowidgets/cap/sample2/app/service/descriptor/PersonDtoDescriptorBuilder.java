@@ -32,6 +32,7 @@ import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanPropertyBluePrint;
 import org.jowidgets.cap.common.tools.bean.BeanDtoDescriptorBuilder;
 import org.jowidgets.cap.sample2.app.common.bean.IPerson;
+import org.jowidgets.cap.sample2.app.service.lookup.CountriesLookUpService;
 import org.jowidgets.cap.sample2.app.service.lookup.RolesLookUpService;
 
 public class PersonDtoDescriptorBuilder extends BeanDtoDescriptorBuilder {
@@ -63,6 +64,13 @@ public class PersonDtoDescriptorBuilder extends BeanDtoDescriptorBuilder {
 		propertyBp.setLabel("Lastname");
 		propertyBp.setDescription("The users lastname");
 		propertyBp.setMandatory(true);
+
+		propertyBp = addProperty(IPerson.COUNTRY_ID_PROPERTY);
+		propertyBp.setLabel("Country");
+		propertyBp.setDescription("The country the user lives");
+		propertyBp.setLookUpValueRange(CountriesLookUpService.LOOK_UP_ID);
+		propertyBp.setSortable(false);
+		propertyBp.setFilterable(false);
 
 		propertyBp = addProperty(IPerson.ROLE_IDS_PROPERTY);
 		propertyBp.setLabel("Roles");
