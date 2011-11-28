@@ -135,7 +135,7 @@ final class LookUpConverter<KEY_TYPE> implements IConverter<KEY_TYPE> {
 	@Override
 	public String convertToString(final KEY_TYPE key) {
 		if (key == null) {
-			return null;
+			return "";
 		}
 		final ILookUp lookUp = getLookUp();
 		if (lookUp != null) {
