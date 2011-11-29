@@ -135,7 +135,7 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 		final CriteriaQuery<Long> query = criteriaBuilder.createQuery(Long.class);
 		final Root<?> bean = fillQuery(query, criteriaBuilder, beanType, parentBeanKeys, filter, parameter);
 
-		return entityManager.createQuery(query.select(criteriaBuilder.count(bean)));
+		return entityManager.createQuery(query.select(criteriaBuilder.countDistinct(bean)));
 	}
 
 	@SuppressWarnings("unchecked")

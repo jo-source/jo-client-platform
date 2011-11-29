@@ -28,6 +28,8 @@
 
 package org.jowidgets.cap.sample2.app.ui.workbench;
 
+import java.util.Locale;
+
 import org.jowidgets.addons.icons.silkicons.SilkIconsInitializer;
 import org.jowidgets.api.model.item.IMenuModel;
 import org.jowidgets.cap.sample2.app.ui.application.Sample2Application;
@@ -47,6 +49,8 @@ public class Sample2Workbench implements IWorkbenchFactory {
 
 	@Override
 	public IWorkbench create() {
+		Locale.setDefault(Locale.US);
+
 		SilkIconsInitializer.initializeFull();
 
 		final IWorkbenchModelBuilder builder = new WorkbenchModelBuilder();

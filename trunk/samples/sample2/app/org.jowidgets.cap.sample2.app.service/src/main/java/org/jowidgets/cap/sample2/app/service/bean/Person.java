@@ -184,6 +184,9 @@ public class Person extends Bean implements IPerson {
 			}
 			else {
 				final PersonRoleLink newLink = new PersonRoleLink();
+				if (getId() == null) {
+					em.persist(this);
+				}
 				newLink.setPerson(this);
 				final Role newRole = em.find(Role.class, newId);
 				if (newRole != null) {

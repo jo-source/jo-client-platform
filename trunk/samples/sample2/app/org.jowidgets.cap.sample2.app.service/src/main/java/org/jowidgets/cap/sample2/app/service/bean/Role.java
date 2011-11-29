@@ -31,12 +31,16 @@ import java.util.LinkedList;
 import java.util.List;
 
 import javax.persistence.Entity;
+import javax.persistence.EntityManager;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
+import javax.persistence.TypedQuery;
 import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.Index;
 import org.jowidgets.cap.sample2.app.common.bean.IRole;
+import org.jowidgets.cap.sample2.app.service.entity.EntityManagerProvider;
 
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = {"name"}))
@@ -74,5 +78,22 @@ public class Role extends Bean implements IRole {
 
 	public void setPersonRoleLinks(final List<PersonRoleLink> personRoleLinks) {
 		this.personRoleLinks = personRoleLinks;
+	}
+
+	@Transient
+	@Override
+	public boolean getInUse() {
+		if (getId() != null) {
+			final EntityManager entityManager = EntityManagerProvider.get();
+			final TypedQuery<PersonRoleLink> query = entityManager.createQuery(
+					"SELECT p FROM PersonRoleLink p WHERE p.role = :role",
+					PersonRoleLink.class);
+			query.setParameter("role", this);
+			query.setFirstResult(0).setMaxResults(1);
+			return query.getResultList().size() > 0;
+		}
+		else {
+			return false;
+		}
 	}
 }

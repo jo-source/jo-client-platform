@@ -20,6 +20,7 @@
 	
 	<modules>
 	    <module>../app/parent/</module>
+		<module>../plugins/parent/</module>
 		<module>../app-starter/parent/</module>
 	</modules>
 

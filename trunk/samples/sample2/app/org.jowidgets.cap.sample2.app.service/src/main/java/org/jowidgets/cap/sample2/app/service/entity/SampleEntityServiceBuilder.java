@@ -34,6 +34,7 @@ import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
 import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
 import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptorBuilder;
+import org.jowidgets.cap.common.api.service.IDeleterService;
 import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.sample2.app.common.bean.ICountry;
 import org.jowidgets.cap.sample2.app.common.bean.IPerson;
@@ -118,6 +119,7 @@ public class SampleEntityServiceBuilder extends EntityServiceBuilder {
 				Role.class,
 				IRole.ALL_PROPERTIES);
 		servicesBuilder.setReaderService(createRolesOfPersonsReader(true));
+		servicesBuilder.setDeleterService((IDeleterService) null);
 		add(EntityIds.LINKED_ROLES_OF_PERSONS, descriptor, servicesBuilder.build());
 
 		//Linkable roles of persons
