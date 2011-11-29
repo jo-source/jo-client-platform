@@ -128,7 +128,7 @@ public final class JpaEntityService implements IEntityService, InitializingBean 
 			propertyNames.add(property.getName());
 		}
 
-		final IJpaServiceFactory serviceFactory = JpaServiceToolkit.getInstance().serviceFactory();
+		final IJpaServiceFactory serviceFactory = JpaServiceToolkit.serviceFactory();
 
 		final TransactionProxyFactory tpf = new TransactionProxyFactory(transactionManager);
 

@@ -37,7 +37,7 @@ public final class JpaBeanAccessProvider implements IBeanAccessProvider {
 
 	@Override
 	public <BEAN_TYPE extends IBean> IBeanAccess<BEAN_TYPE> getBeanAccess(final Class<BEAN_TYPE> beanType) {
-		return JpaServiceToolkit.getInstance().serviceFactory().beanAccess(beanType);
+		return JpaServiceToolkit.serviceFactory().beanAccess(beanType);
 	}
 
 }
