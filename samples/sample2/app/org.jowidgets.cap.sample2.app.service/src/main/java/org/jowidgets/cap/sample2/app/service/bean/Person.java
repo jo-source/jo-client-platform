@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.EntityManager;
 import javax.persistence.FetchType;
@@ -93,7 +94,7 @@ public class Person extends Bean implements IPerson {
 		this.loginName = loginName;
 	}
 
-	@OneToMany(fetch = FetchType.LAZY, mappedBy = "person")
+	@OneToMany(cascade = CascadeType.REMOVE, fetch = FetchType.LAZY, mappedBy = "person")
 	@BatchSize(size = 1000)
 	public List<PersonRoleLink> getPersonRoleLinks() {
 		return personRoleLinks;
