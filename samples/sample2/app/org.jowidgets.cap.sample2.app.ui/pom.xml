@@ -22,6 +22,11 @@
 			<version>${jocap.version}</version>
 		</dependency>
 		<dependency>
+            <groupId>org.jowidgets.cap.sample2</groupId>
+            <artifactId>org.jowidgets.cap.sample2.plugins.ui</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+		<dependency>
 			<groupId>org.jowidgets</groupId>
 			<artifactId>org.jowidgets.workbench.tools</artifactId>
 			<version>${jowidgets.version}</version>

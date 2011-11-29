@@ -39,12 +39,14 @@ public interface IRole extends IBean {
 
 	String NAME_PROPERTY = "name";
 	String DESCRIPTION_PROPERTY = "description";
+	String IN_USE_PROPERTY = "inUse";
 
 	List<String> ALL_PROPERTIES = new LinkedList<String>() {
 		private static final long serialVersionUID = 1L;
 		{
 			add(NAME_PROPERTY);
 			add(DESCRIPTION_PROPERTY);
+			add(IN_USE_PROPERTY);
 			add(IBean.ID_PROPERTY);
 			add(IBean.VERSION_PROPERTY);
 		}
@@ -59,5 +61,7 @@ public interface IRole extends IBean {
 	String getDescription();
 
 	void setDescription(String name);
+
+	boolean getInUse();
 
 }

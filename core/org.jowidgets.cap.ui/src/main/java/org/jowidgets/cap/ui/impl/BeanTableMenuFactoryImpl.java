@@ -542,8 +542,13 @@ final class BeanTableMenuFactoryImpl<BEAN_TYPE> implements IBeanTableMenuFactory
 
 	@Override
 	public IAction creatorAction(final IBeanTable<BEAN_TYPE> table) {
-		//TODO Fix Nullpointer
-		return creatorActionBuilder(table).build();
+		final ICreatorActionBuilder<BEAN_TYPE> builder = creatorActionBuilder(table);
+		if (builder != null) {
+			return builder.build();
+		}
+		else {
+			return null;
+		}
 	}
 
 	@Override
@@ -565,7 +570,13 @@ final class BeanTableMenuFactoryImpl<BEAN_TYPE> implements IBeanTableMenuFactory
 
 	@Override
 	public IAction deleterAction(final IBeanTable<BEAN_TYPE> table) {
-		return deleterActionBuilder(table).build();
+		final IDeleterActionBuilder<BEAN_TYPE> builder = deleterActionBuilder(table);
+		if (builder != null) {
+			return builder.build();
+		}
+		else {
+			return null;
+		}
 	}
 
 }

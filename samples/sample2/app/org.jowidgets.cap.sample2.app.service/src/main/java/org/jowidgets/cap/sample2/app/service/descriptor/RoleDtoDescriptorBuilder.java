@@ -56,6 +56,12 @@ public class RoleDtoDescriptorBuilder extends BeanDtoDescriptorBuilder {
 		propertyBp.setLabel("Description");
 		propertyBp.setDescription("The roles description");
 
+		propertyBp = addProperty(IRole.IN_USE_PROPERTY);
+		propertyBp.setLabel("Used");
+		propertyBp.setDescription("Determines if the role is used");
+		propertyBp.setSortable(false);
+		propertyBp.setFilterable(false);
+
 		propertyBp = addProperty(IBean.VERSION_PROPERTY);
 		propertyBp.setLabel("Version");
 		propertyBp.setDescription("The version of the dataset");

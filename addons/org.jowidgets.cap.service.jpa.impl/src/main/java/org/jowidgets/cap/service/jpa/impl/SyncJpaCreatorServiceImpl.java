@@ -32,6 +32,8 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.persistence.EntityManager;
+
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanData;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
@@ -76,14 +78,18 @@ final class SyncJpaCreatorServiceImpl<BEAN_TYPE extends IBean> implements ISyncC
 			catch (final IllegalAccessException e) {
 				throw new RuntimeException(e);
 			}
-			CapServiceToolkit.checkCanceled(executionCallback);
-			EntityManagerProvider.get().persist(bean);
+			final EntityManager entityManager = EntityManagerProvider.get();
 
 			CapServiceToolkit.checkCanceled(executionCallback);
 			beanInitializer.initialize(bean, beanData);
 
 			CapServiceToolkit.checkCanceled(executionCallback);
-			EntityManagerProvider.get().flush();
+			if (bean.getId() == null) {
+				entityManager.persist(bean);
+			}
+
+			CapServiceToolkit.checkCanceled(executionCallback);
+			entityManager.flush();
 
 			result.add(dtoFactory.createDto(bean));
 		}

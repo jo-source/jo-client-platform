@@ -26,22 +26,30 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample2.starter.client.common;
+package org.jowidgets.cap.sample2.app.common.checker;
 
-import org.jowidgets.cap.common.api.service.IAuthorizationProviderService;
-import org.jowidgets.cap.sample2.app.common.security.AuthorizationProviderServiceId;
-import org.jowidgets.cap.tools.starter.client.AbstractRemoteLoginService;
-import org.jowidgets.service.api.IServiceId;
+import java.util.Collections;
+import java.util.Set;
 
-public class Sample2RemoteLoginService extends AbstractRemoteLoginService {
+import org.jowidgets.cap.common.api.execution.ExecutableState;
+import org.jowidgets.cap.common.api.execution.IExecutableChecker;
+import org.jowidgets.cap.common.api.execution.IExecutableState;
+import org.jowidgets.cap.sample2.app.common.bean.IRole;
 
-	public Sample2RemoteLoginService() {
-		super("Sample2");
+public class DeleteRoleExecutableChecker implements IExecutableChecker<IRole> {
+
+	@Override
+	public IExecutableState getExecutableState(final IRole role) {
+		if (role != null && role.getInUse()) {
+			return ExecutableState.notExecutable("The role is in use");
+		}
+		else {
+			return ExecutableState.EXECUTABLE;
+		}
 	}
 
 	@Override
-	protected IServiceId<? extends IAuthorizationProviderService<?>> getAuthorizationProviderServiceId() {
-		return AuthorizationProviderServiceId.ID;
+	public Set<String> getPropertyDependencies() {
+		return Collections.singleton(IRole.IN_USE_PROPERTY);
 	}
-
 }
