@@ -76,10 +76,15 @@ final class SyncJpaCreatorServiceImpl<BEAN_TYPE extends IBean> implements ISyncC
 			catch (final IllegalAccessException e) {
 				throw new RuntimeException(e);
 			}
-			beanInitializer.initialize(bean, beanData);
 			CapServiceToolkit.checkCanceled(executionCallback);
 			EntityManagerProvider.get().persist(bean);
+
 			CapServiceToolkit.checkCanceled(executionCallback);
+			beanInitializer.initialize(bean, beanData);
+
+			CapServiceToolkit.checkCanceled(executionCallback);
+			EntityManagerProvider.get().flush();
+
 			result.add(dtoFactory.createDto(bean));
 		}
 		return result;
