@@ -4,6 +4,7 @@
 
 	<bean class="org.jowidgets.cap.service.spring.jpa.SomeReaders" />
 
-	<bean class="org.jowidgets.cap.service.spring.jpa.JpaReaderAnnotationPostProcessor" />
+	<bean
+		class="org.jowidgets.cap.service.spring.jpa2.JpaReaderAnnotationPostProcessor" />
 
 </beans>
