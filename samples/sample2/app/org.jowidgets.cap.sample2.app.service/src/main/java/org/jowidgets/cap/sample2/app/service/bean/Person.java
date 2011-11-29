@@ -133,7 +133,7 @@ public class Person extends Bean implements IPerson {
 				setCountry(foundCountry);
 			}
 			else {
-				throw new IllegalArgumentException("Can not findcountry with the id '" + id + "'");
+				throw new IllegalArgumentException("Can not find country with the id '" + id + "'");
 			}
 		}
 		else {
