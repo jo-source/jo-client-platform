@@ -30,7 +30,7 @@ package org.jowidgets.cap.sample2.app.service;
 
 import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.common.api.service.ILookUpService;
-import org.jowidgets.cap.sample2.app.common.service.security.AuthorizationProviderServiceId;
+import org.jowidgets.cap.sample2.app.common.security.AuthorizationProviderServiceId;
 import org.jowidgets.cap.sample2.app.service.entity.SampleEntityServiceBuilder;
 import org.jowidgets.cap.sample2.app.service.lookup.CountriesLookUpService;
 import org.jowidgets.cap.sample2.app.service.lookup.RolesLookUpService;
