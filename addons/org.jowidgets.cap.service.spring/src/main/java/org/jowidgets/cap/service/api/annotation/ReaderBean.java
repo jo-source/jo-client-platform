@@ -34,7 +34,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import org.jowidgets.cap.common.api.bean.IBean;
-import org.jowidgets.cap.service.impl.jpa.jpql.CriteriaQueryCreator;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
@@ -43,5 +42,5 @@ public @interface ReaderBean {
 
 	boolean caseInsensitive() default true;
 
-	String parentPropertyName() default CriteriaQueryCreator.DEFAULT_PARENT_PROPERTY_NAME;
+	String parentPropertyName() default "parent";
 }
