@@ -26,18 +26,37 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.spring.jpa2;
+package org.jowidgets.cap.service.spring.jpa;
 
-import org.jowidgets.cap.common.api.bean.IBean;
-import org.jowidgets.cap.service.api.bean.IBeanAccess;
-import org.jowidgets.cap.service.jpa.api.JpaServiceToolkit;
-import org.jowidgets.cap.service.spring.IBeanAccessProvider;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 
-public final class JpaBeanAccessProvider implements IBeanAccessProvider {
+import org.jowidgets.cap.service.jpa.api.EntityManagerHolder;
+import org.jowidgets.cap.service.jpa.api.IEntityManagerHolder;
+import org.springframework.beans.factory.InitializingBean;
+
+public final class EntityManagerHolderBean implements IEntityManagerHolder, InitializingBean {
+
+	@PersistenceContext
+	private EntityManager entityManager;
+
+	public void setEntityManager(final EntityManager entityManager) {
+		this.entityManager = entityManager;
+	}
 
 	@Override
-	public <BEAN_TYPE extends IBean> IBeanAccess<BEAN_TYPE> getBeanAccess(final Class<BEAN_TYPE> beanType) {
-		return JpaServiceToolkit.serviceFactory().beanAccess(beanType);
+	public void afterPropertiesSet() throws Exception {
+		EntityManagerHolder.initialize(this);
+	}
+
+	@Override
+	public EntityManager get() {
+		return entityManager;
+	}
+
+	@Override
+	public void set(final EntityManager entityManager) {
+		throw new UnsupportedOperationException("overwriting the container-injected entity manager is not allowed");
 	}
 
 }
