@@ -26,7 +26,7 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.spring.jpa2;
+package org.jowidgets.cap.service.spring.jpa;
 
 import java.beans.PropertyDescriptor;
 import java.util.LinkedList;
