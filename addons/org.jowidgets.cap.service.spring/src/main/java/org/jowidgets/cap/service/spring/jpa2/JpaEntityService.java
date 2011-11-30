@@ -32,6 +32,8 @@ import java.beans.PropertyDescriptor;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.PersistenceUnit;
 import javax.persistence.metamodel.EntityType;
 
 import org.jowidgets.cap.common.api.bean.IBean;
@@ -50,7 +52,6 @@ import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.annotation.CapService;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
 import org.jowidgets.cap.service.api.entity.IBeanServicesProviderBuilder;
-import org.jowidgets.cap.service.jpa.api.EntityManagerHolder;
 import org.jowidgets.cap.service.jpa.api.IJpaServiceFactory;
 import org.jowidgets.cap.service.jpa.api.JpaServiceToolkit;
 import org.jowidgets.cap.service.spring.BeanTypeUtil;
@@ -65,8 +66,14 @@ import org.springframework.transaction.PlatformTransactionManager;
 @CapService
 public final class JpaEntityService implements IEntityService, InitializingBean {
 
+	@PersistenceUnit
+	private EntityManagerFactory entityManagerFactory;
 	private PlatformTransactionManager transactionManager;
 	private IEntityService entityService;
+
+	public void setEntityManagerFactory(final EntityManagerFactory entityManagerFactory) {
+		this.entityManagerFactory = entityManagerFactory;
+	}
 
 	@Required
 	public void setTransactionManager(final PlatformTransactionManager transactionManager) {
@@ -77,7 +84,7 @@ public final class JpaEntityService implements IEntityService, InitializingBean 
 	@SuppressWarnings("unchecked")
 	public void afterPropertiesSet() {
 		final EntityServiceBuilder entityServiceBuilder = new EntityServiceBuilder();
-		for (final EntityType<?> type : EntityManagerHolder.get().getMetamodel().getEntities()) {
+		for (final EntityType<?> type : entityManagerFactory.getMetamodel().getEntities()) {
 			final Class<?> clazz = type.getBindableJavaType();
 			if (IBean.class.isAssignableFrom(clazz)) {
 				final Class<? extends IBean> beanType = (Class<? extends IBean>) clazz;
