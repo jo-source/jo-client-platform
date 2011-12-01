@@ -60,6 +60,8 @@ public interface IBeanPropertyBuilder {
 
 	IBeanPropertyBuilder setMandatory(boolean mandatoryDefault);
 
+	IBeanPropertyBuilder setEditable(boolean editable);
+
 	IBeanPropertyBuilder setElementValueType(Class<?> elementValueType);
 
 	IBeanPropertyBuilder addValidator(IValidator<? extends Object> validator);

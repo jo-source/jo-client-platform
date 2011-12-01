@@ -74,21 +74,25 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 	private final Class<? extends IBean> beanType;
 	private final boolean caseInsensitive;
 	private final List<IPredicateCreator<PARAM_TYPE>> predicateCreators;
+	private final List<IFilter> filters;
 	private final Map<String, ? extends ICustomFilterPredicateCreator<PARAM_TYPE>> customFilterPredicateCreators;
 
 	CriteriaQueryCreator(
 		final Class<? extends IBean> beanType,
 		final boolean caseSensitive,
 		final Collection<? extends IPredicateCreator<PARAM_TYPE>> predicateCreators,
+		final Collection<? extends IFilter> filters,
 		final Map<String, ? extends ICustomFilterPredicateCreator<PARAM_TYPE>> customFilterPredicateCreators) {
 
 		Assert.paramNotNull(beanType, "beanType");
 		Assert.paramNotNull(predicateCreators, "predicateCreators");
+		Assert.paramNotNull(filters, "filters");
 		Assert.paramNotNull(customFilterPredicateCreators, "customFilterPredicateCreators");
 
 		this.beanType = beanType;
 		this.caseInsensitive = !caseSensitive;
 		this.predicateCreators = new LinkedList<IPredicateCreator<PARAM_TYPE>>(predicateCreators);
+		this.filters = new LinkedList<IFilter>(filters);
 		this.customFilterPredicateCreators = new HashMap<String, ICustomFilterPredicateCreator<PARAM_TYPE>>(
 			customFilterPredicateCreators);
 	}
@@ -168,6 +172,10 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 			if (predicate != null) {
 				predicates.add(predicate);
 			}
+		}
+
+		for (final IFilter customFilter : filters) {
+			predicates.add(createFilterPredicate(criteriaBuilder, bean, query, customFilter, parameter));
 		}
 
 		if (filter != null) {

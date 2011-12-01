@@ -26,53 +26,33 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.impl;
+package org.jowidgets.cap.sample2.plugins.ui.action;
 
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
+import org.jowidgets.addons.icons.silkicons.SilkIcons;
+import org.jowidgets.api.command.IAction;
+import org.jowidgets.cap.sample2.app.common.bean.IPerson;
+import org.jowidgets.cap.sample2.app.common.checker.PersonActivateExecutableChecker;
+import org.jowidgets.cap.sample2.app.common.executor.PersonExecutorServices;
+import org.jowidgets.cap.ui.api.CapUiToolkit;
+import org.jowidgets.cap.ui.api.command.IExecutorActionBuilder;
+import org.jowidgets.cap.ui.api.execution.BeanSelectionPolicy;
+import org.jowidgets.cap.ui.api.model.IBeanListModel;
+import org.jowidgets.tools.command.ActionWrapper;
 
-import org.jowidgets.cap.common.api.lookup.ILookUpEntry;
+public class PersonActivateAction extends ActionWrapper {
 
-final class LookUpEntryImpl implements ILookUpEntry, Serializable {
-
-	private static final long serialVersionUID = -2505678216816698271L;
-
-	private final Object key;
-	private final Map<String, Object> values;
-	private final String description;
-	private final boolean valid;
-
-	LookUpEntryImpl(final Object key, final Map<String, Object> values, final String description, final boolean valid) {
-		this.key = key;
-		this.values = new HashMap<String, Object>(values);
-		this.description = description;
-		this.valid = valid;
+	public PersonActivateAction(final IBeanListModel<IPerson> model) {
+		super(create(model));
 	}
 
-	@Override
-	public Object getKey() {
-		return key;
+	private static IAction create(final IBeanListModel<IPerson> model) {
+		final IExecutorActionBuilder<IPerson, Void> builder = CapUiToolkit.actionFactory().executorActionBuilder(model);
+		builder.setText("Activate user");
+		builder.setToolTipText("Deactivates the user");
+		builder.setIcon(SilkIcons.USER);
+		builder.setSelectionPolicy(BeanSelectionPolicy.MULTI_SELECTION);
+		builder.setExecutor(PersonExecutorServices.ACTIVATE_PERSON);
+		builder.addExecutableChecker(new PersonActivateExecutableChecker());
+		return builder.build();
 	}
-
-	@Override
-	public Object getValue(final String propertyName) {
-		return values.get(propertyName);
-	}
-
-	@Override
-	public String getDescription() {
-		return description;
-	}
-
-	@Override
-	public boolean isValid() {
-		return valid;
-	}
-
-	@Override
-	public String toString() {
-		return "LookUpEntryImpl [key=" + key + ", values=" + values + ", description=" + description + ", valid=" + valid + "]";
-	}
-
 }

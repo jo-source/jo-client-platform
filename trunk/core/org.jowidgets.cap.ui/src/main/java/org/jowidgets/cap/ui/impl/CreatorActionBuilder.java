@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.ui.impl;
 
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -69,6 +70,7 @@ final class CreatorActionBuilder<BEAN_TYPE> extends AbstractSingleUseBuilder<IAc
 
 	private ICreatorService creatorService;
 	private IBeanFormBluePrint<BEAN_TYPE> beanFormBp;
+	private List<IAttribute<?>> attributes;
 	private IBeanExecptionConverter exceptionConverter;
 
 	CreatorActionBuilder(final Class<? extends BEAN_TYPE> beanType, final IBeanListModel<BEAN_TYPE> model) {
@@ -149,6 +151,14 @@ final class CreatorActionBuilder<BEAN_TYPE> extends AbstractSingleUseBuilder<IAc
 	}
 
 	@Override
+	public ICreatorActionBuilder<BEAN_TYPE> setAttributes(final Collection<? extends IAttribute<?>> attributes) {
+		checkExhausted();
+		Assert.paramNotNull(attributes, "attributes");
+		this.attributes = new LinkedList<IAttribute<?>>(attributes);
+		return this;
+	}
+
+	@Override
 	public ICreatorActionBuilder<BEAN_TYPE> setBeanForm(final IBeanFormBluePrint<BEAN_TYPE> beanForm) {
 		checkExhausted();
 		Assert.paramNotNull(beanForm, "beanForm");
@@ -158,7 +168,7 @@ final class CreatorActionBuilder<BEAN_TYPE> extends AbstractSingleUseBuilder<IAc
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public ICreatorActionBuilder<BEAN_TYPE> setBeanForm(final List<? extends IAttribute<?>> attributes) {
+	public ICreatorActionBuilder<BEAN_TYPE> setBeanForm(final Collection<? extends IAttribute<?>> attributes) {
 		checkExhausted();
 		Assert.paramNotNull(attributes, "attributes");
 		return setBeanForm((IBeanFormBluePrint<BEAN_TYPE>) CapUiToolkit.bluePrintFactory().beanForm(attributes));
@@ -236,13 +246,29 @@ final class CreatorActionBuilder<BEAN_TYPE> extends AbstractSingleUseBuilder<IAc
 		return this;
 	}
 
+	private Collection<IAttribute<?>> getAttributes() {
+		if (attributes == null && beanFormBp != null) {
+			return beanFormBp.getAttributes();
+		}
+		return attributes;
+	}
+
+	@SuppressWarnings("unchecked")
+	private IBeanFormBluePrint<BEAN_TYPE> getBeanFormBp() {
+		if (beanFormBp == null && attributes != null) {
+			return (IBeanFormBluePrint<BEAN_TYPE>) CapUiToolkit.bluePrintFactory().beanForm(attributes);
+		}
+		return beanFormBp;
+	}
+
 	@Override
 	protected IAction doBuild() {
 		final BeanCreatorCommand<BEAN_TYPE> command = new BeanCreatorCommand<BEAN_TYPE>(
 			beanType,
 			beanPropertyValidators,
 			model,
-			beanFormBp,
+			getAttributes(),
+			getBeanFormBp(),
 			enabledCheckers,
 			anySelection,
 			creatorService,

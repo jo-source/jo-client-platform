@@ -28,13 +28,15 @@
 
 package org.jowidgets.cap.service.jpa.api.query;
 
+import org.jowidgets.cap.common.api.filter.IFilter;
+
 public interface ICriteriaQueryCreatorBuilder<PARAMETER_TYPE> {
 
-	ICriteriaQueryCreatorBuilder<PARAMETER_TYPE> setParentPropertyName(final String parentPropertyName);
+	ICriteriaQueryCreatorBuilder<PARAMETER_TYPE> setParentPropertyName(String parentPropertyName);
 
-	ICriteriaQueryCreatorBuilder<PARAMETER_TYPE> setParentPropertyPath(final String... parentPropertyPath);
+	ICriteriaQueryCreatorBuilder<PARAMETER_TYPE> setParentPropertyPath(String... parentPropertyPath);
 
-	ICriteriaQueryCreatorBuilder<PARAMETER_TYPE> setParentPropertyName(boolean linked, final String parentPropertyName);
+	ICriteriaQueryCreatorBuilder<PARAMETER_TYPE> setParentPropertyName(boolean linked, String parentPropertyName);
 
 	/**
 	 * Sets a predicate creator that evaluates if the object is linked (or not) with respect to the parent bean keys.
@@ -43,11 +45,13 @@ public interface ICriteriaQueryCreatorBuilder<PARAMETER_TYPE> {
 	 * @param parentPropertyPath The path to the parent property (the parent beans id can be omitted)
 	 * @return This builder
 	 */
-	ICriteriaQueryCreatorBuilder<PARAMETER_TYPE> setParentPropertyPath(boolean linked, final String... parentPropertyPath);
+	ICriteriaQueryCreatorBuilder<PARAMETER_TYPE> setParentPropertyPath(boolean linked, String... parentPropertyPath);
 
-	ICriteriaQueryCreatorBuilder<PARAMETER_TYPE> setCaseSensitve(final boolean caseSensitve);
+	ICriteriaQueryCreatorBuilder<PARAMETER_TYPE> setCaseSensitve(boolean caseSensitve);
 
-	ICriteriaQueryCreatorBuilder<PARAMETER_TYPE> addPredicateCreator(final IPredicateCreator<PARAMETER_TYPE> predicateCreator);
+	ICriteriaQueryCreatorBuilder<PARAMETER_TYPE> addPredicateCreator(IPredicateCreator<PARAMETER_TYPE> predicateCreator);
+
+	ICriteriaQueryCreatorBuilder<PARAMETER_TYPE> addFilter(IFilter filter);
 
 	ICriteriaQueryCreatorBuilder<PARAMETER_TYPE> addCustomFilterPredicateCreator(
 		String filterType,

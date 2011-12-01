@@ -82,7 +82,7 @@ public final class TemplateReplacer {
 		//		final Tuple<IOFileFilter, String> checkstyleReplacement = new Tuple<IOFileFilter, String>(
 		//			checkstyleFilter,
 		//			checkstyleText);
-		//config.setFileReplacements(Collections.singleton(checkstyleReplacement));
+		//		config.setFileReplacements(Collections.singleton(checkstyleReplacement));
 
 		config.setJavaHeader("/* \n * Copyright (c) 2011 \n */");
 

@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.ui.api.widgets;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.jowidgets.api.convert.IConverter;
@@ -49,7 +50,7 @@ public interface ICapApiBluePrintFactory {
 
 	IBeanTableSettingsDialogBluePrint beanTableSettingsDialog(IBeanTableModel<?> model);
 
-	<BEAN_TYPE> IBeanFormBluePrint<BEAN_TYPE> beanForm(List<? extends IAttribute<?>> attributes);
+	<BEAN_TYPE> IBeanFormBluePrint<BEAN_TYPE> beanForm(Collection<? extends IAttribute<?>> attributes);
 
 	IBeanTablesFormBluePrint beanTablesForm();
 

@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.ui.api.command;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.jowidgets.api.command.IAction;
@@ -69,9 +70,11 @@ public interface ICreatorActionBuilder<BEAN_TYPE> {
 
 	ICreatorActionBuilder<BEAN_TYPE> setAccelerator(final char key, final Modifier... modifier);
 
+	ICreatorActionBuilder<BEAN_TYPE> setAttributes(Collection<? extends IAttribute<?>> attributes);
+
 	ICreatorActionBuilder<BEAN_TYPE> setBeanForm(IBeanFormBluePrint<BEAN_TYPE> beanForm);
 
-	ICreatorActionBuilder<BEAN_TYPE> setBeanForm(List<? extends IAttribute<?>> attributes);
+	ICreatorActionBuilder<BEAN_TYPE> setBeanForm(Collection<? extends IAttribute<?>> attributes);
 
 	ICreatorActionBuilder<BEAN_TYPE> setBeanPropertyValidators(List<? extends IBeanPropertyValidator<BEAN_TYPE>> validators);
 

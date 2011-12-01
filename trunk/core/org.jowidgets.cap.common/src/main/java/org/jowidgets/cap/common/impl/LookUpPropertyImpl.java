@@ -87,4 +87,19 @@ final class LookUpPropertyImpl implements ILookUpProperty, Serializable {
 		return valueType;
 	}
 
+	@Override
+	public String toString() {
+		return "LookUpPropertyImpl [name="
+			+ name
+			+ ", displayFormatId="
+			+ displayFormatId
+			+ ", displayFormatName="
+			+ displayFormatName
+			+ ", displayFormatDescription="
+			+ displayFormatDescription
+			+ ", valueType="
+			+ valueType
+			+ "]";
+	}
+
 }

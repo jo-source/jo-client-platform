@@ -28,17 +28,34 @@
 
 package org.jowidgets.cap.sample2.app.service;
 
+import java.util.List;
+
+import org.jowidgets.cap.common.api.bean.IBean;
+import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.service.IEntityService;
+import org.jowidgets.cap.common.api.service.IExecutorService;
 import org.jowidgets.cap.common.api.service.ILookUpService;
+import org.jowidgets.cap.sample2.app.common.bean.IPerson;
+import org.jowidgets.cap.sample2.app.common.checker.PersonActivateExecutableChecker;
+import org.jowidgets.cap.sample2.app.common.checker.PersonDeactivateExecutableChecker;
+import org.jowidgets.cap.sample2.app.common.executor.PersonExecutorServices;
 import org.jowidgets.cap.sample2.app.common.security.AuthorizationProviderServiceId;
+import org.jowidgets.cap.sample2.app.service.bean.Person;
 import org.jowidgets.cap.sample2.app.service.entity.SampleEntityServiceBuilder;
+import org.jowidgets.cap.sample2.app.service.executor.PersonActivateExecutor;
+import org.jowidgets.cap.sample2.app.service.executor.PersonDeactivateExecutor;
 import org.jowidgets.cap.sample2.app.service.lookup.CountriesLookUpService;
+import org.jowidgets.cap.sample2.app.service.lookup.GenderLookUpService;
 import org.jowidgets.cap.sample2.app.service.lookup.RolesLookUpService;
 import org.jowidgets.cap.sample2.app.service.security.AuthorizationProviderServiceImpl;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.adapter.ISyncLookUpService;
+import org.jowidgets.cap.service.api.bean.IBeanAccess;
+import org.jowidgets.cap.service.api.executor.IBeanExecutor;
+import org.jowidgets.cap.service.api.executor.IExecutorServiceBuilder;
 import org.jowidgets.cap.service.jpa.api.IJpaServicesDecoratorProviderBuilder;
 import org.jowidgets.cap.service.jpa.api.JpaServiceToolkit;
+import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.api.IServicesDecoratorProvider;
 import org.jowidgets.service.tools.ServiceId;
 import org.jowidgets.service.tools.ServiceProviderBuilder;
@@ -52,8 +69,19 @@ public class SampleServiceProviderBuilder extends ServiceProviderBuilder {
 		addService(AuthorizationProviderServiceId.ID, new AuthorizationProviderServiceImpl());
 		addService(IEntityService.ID, new SampleEntityServiceBuilder(this).build());
 
-		addDBLookUpService(RolesLookUpService.LOOK_UP_ID, new RolesLookUpService());
-		addDBLookUpService(CountriesLookUpService.LOOK_UP_ID, new CountriesLookUpService());
+		addPersonExecutorService(
+				PersonExecutorServices.ACTIVATE_PERSON,
+				new PersonActivateExecutor(),
+				new PersonActivateExecutableChecker());
+
+		addPersonExecutorService(
+				PersonExecutorServices.DEACTIVATE_PERSON,
+				new PersonDeactivateExecutor(),
+				new PersonDeactivateExecutableChecker());
+
+		addLookUpService(RolesLookUpService.LOOK_UP_ID, new RolesLookUpService());
+		addLookUpService(CountriesLookUpService.LOOK_UP_ID, new CountriesLookUpService());
+		addLookUpService(GenderLookUpService.LOOK_UP_ID, new GenderLookUpService());
 
 		addServiceDecorator(createJpaServiceDecoratorProvider());
 	}
@@ -64,11 +92,34 @@ public class SampleServiceProviderBuilder extends ServiceProviderBuilder {
 		return builder.build();
 	}
 
-	private void addDBLookUpService(final Object lookUpId, final ISyncLookUpService lookUpService) {
+	private void addLookUpService(final Object lookUpId, final ISyncLookUpService lookUpService) {
 		final IAdapterFactory<ILookUpService, ISyncLookUpService> adapterFactoryProvider;
 		adapterFactoryProvider = CapServiceToolkit.adapterFactoryProvider().lookup();
 		final ILookUpService asyncService = adapterFactoryProvider.createAdapter(lookUpService);
 		final ServiceId<ILookUpService> serviceId = new ServiceId<ILookUpService>(lookUpId, ILookUpService.class);
 		addService(serviceId, asyncService);
+	}
+
+	private <BEAN_TYPE extends IBean, PARAM_TYPE> void addPersonExecutorService(
+		final IServiceId<? extends IExecutorService<PARAM_TYPE>> id,
+		final IBeanExecutor<? extends BEAN_TYPE, PARAM_TYPE> beanExecutor,
+		final IExecutableChecker<? extends BEAN_TYPE> executableChecker) {
+		final IBeanAccess<Person> beanAccess = JpaServiceToolkit.serviceFactory().beanAccess(Person.class);
+		addExecutorService(id, beanExecutor, executableChecker, beanAccess, IPerson.ALL_PROPERTIES);
+	}
+
+	private <BEAN_TYPE extends IBean, PARAM_TYPE> void addExecutorService(
+		final IServiceId<? extends IExecutorService<? extends PARAM_TYPE>> id,
+		final IBeanExecutor<? extends BEAN_TYPE, ? extends PARAM_TYPE> beanExecutor,
+		final IExecutableChecker<? extends BEAN_TYPE> executableChecker,
+		final IBeanAccess<? extends BEAN_TYPE> beanAccess,
+		final List<String> propertyNames) {
+
+		final IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> builder = CapServiceToolkit.executorServiceBuilder(beanAccess);
+		builder.setExecutor(beanExecutor);
+		builder.setExecutableChecker(executableChecker);
+		builder.setBeanDtoFactory(propertyNames);
+
+		addService(id, builder.build());
 	}
 }

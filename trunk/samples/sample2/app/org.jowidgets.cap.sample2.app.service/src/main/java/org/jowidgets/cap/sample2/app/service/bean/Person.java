@@ -57,6 +57,8 @@ public class Person extends Bean implements IPerson {
 	private String name;
 	private String lastname;
 	private String loginName;
+	private String gender;
+	private Boolean active;
 
 	private Country country;
 
@@ -92,6 +94,26 @@ public class Person extends Bean implements IPerson {
 	@Override
 	public void setLoginName(final String loginName) {
 		this.loginName = loginName;
+	}
+
+	@Override
+	public String getGender() {
+		return gender;
+	}
+
+	@Override
+	public void setGender(final String gender) {
+		this.gender = gender;
+	}
+
+	@Override
+	public Boolean getActive() {
+		return active;
+	}
+
+	@Override
+	public void setActive(final Boolean active) {
+		this.active = active;
 	}
 
 	@OneToMany(cascade = CascadeType.REMOVE, fetch = FetchType.LAZY, mappedBy = "person")

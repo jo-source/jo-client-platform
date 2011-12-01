@@ -140,6 +140,13 @@ final class BeanPropertyBluePrintImpl implements IBeanPropertyBluePrint {
 	}
 
 	@Override
+	public IBeanPropertyBluePrint setEditable(final boolean editable) {
+		checkExhausted();
+		builder.setEditable(editable);
+		return this;
+	}
+
+	@Override
 	public IBeanPropertyBluePrint setElementValueType(final Class<?> elementValueType) {
 		checkExhausted();
 		builder.setElementValueType(elementValueType);

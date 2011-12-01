@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.sample2.app.service.util;
 
+import java.util.List;
 import java.util.Random;
 
 import javax.persistence.EntityManager;
@@ -40,6 +41,7 @@ import org.jowidgets.cap.sample2.app.service.bean.Country;
 import org.jowidgets.cap.sample2.app.service.bean.Person;
 import org.jowidgets.cap.sample2.app.service.bean.PersonRoleLink;
 import org.jowidgets.cap.sample2.app.service.bean.Role;
+import org.jowidgets.cap.sample2.app.service.lookup.GenderLookUpService;
 
 public final class SampleDataGenerator {
 
@@ -86,7 +88,6 @@ public final class SampleDataGenerator {
 		entityManager.flush();
 		tx.commit();
 		entityManager.close();
-
 	}
 
 	private static void createRoles(final EntityManagerFactory entityManagerFactory) {
@@ -117,7 +118,7 @@ public final class SampleDataGenerator {
 	}
 
 	private static void createPersons(final EntityManagerFactory entityManagerFactory) {
-		final int outerCount = 1;
+		final int outerCount = 100;
 		final int innerCount = 1000;
 		for (int i = 0; i < outerCount; i++) {
 			final EntityManager entityManager = entityManagerFactory.createEntityManager();
@@ -127,6 +128,10 @@ public final class SampleDataGenerator {
 			final Role adminRole = roleQuery.setParameter("roleName", ADMIN_ROLE_NAME).getSingleResult();
 			final Role developerRole = roleQuery.setParameter("roleName", DEVELOPER_ROLE_NAME).getSingleResult();
 			final Role guestRole = roleQuery.setParameter("roleName", GUEST_ROLE_NAME).getSingleResult();
+
+			final List<Country> countries = entityManager.createQuery("SELECT c from Country c", Country.class).getResultList();
+			final Country[] countriesArray = countries.toArray(new Country[countries.size()]);
+
 			final EntityTransaction tx = entityManager.getTransaction();
 			tx.begin();
 			for (int j = 0; j < innerCount; j++) {
@@ -135,9 +140,19 @@ public final class SampleDataGenerator {
 				//CHECKSTYLE:OFF
 				System.out.println("DATASET NR: " + nr);
 				//CHECKSTYLE:ON
-				user.setName("Name " + nr);
-				user.setLastname("Lastname " + nr);
-				user.setLoginName("Login name " + nr);
+				if (RANDOM.nextBoolean()) {
+					user.setName(getRandomMaleName(RANDOM));
+					user.setGender(GenderLookUpService.MALE_KEY);
+				}
+				else {
+					user.setName(getRandomFemaleName(RANDOM));
+					user.setGender(GenderLookUpService.FEMALE_KEY);
+				}
+				user.setLastname(getRandomSurname(RANDOM));
+				user.setLoginName("LN" + nr);
+				user.setActive(Boolean.TRUE);
+				user.setCountry(countriesArray[RANDOM.nextInt(countries.size())]);
+
 				entityManager.persist(user);
 
 				if (RANDOM.nextBoolean()) {
@@ -162,6 +177,18 @@ public final class SampleDataGenerator {
 		personRoleLink.setPerson(person);
 		personRoleLink.setRole(role);
 		entityManager.persist(personRoleLink);
+	}
+
+	private static String getRandomSurname(final Random random) {
+		return DataResources.SURNAMES_DE.get(random.nextInt(DataResources.SURNAMES_DE.size()));
+	}
+
+	private static String getRandomFemaleName(final Random random) {
+		return DataResources.NAMES_FEMALE.get(random.nextInt(DataResources.NAMES_FEMALE.size()));
+	}
+
+	private static String getRandomMaleName(final Random random) {
+		return DataResources.NAMES_MALE.get(random.nextInt(DataResources.NAMES_MALE.size()));
 	}
 
 }

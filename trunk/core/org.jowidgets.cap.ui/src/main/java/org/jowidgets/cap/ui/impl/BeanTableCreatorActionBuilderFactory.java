@@ -64,6 +64,7 @@ final class BeanTableCreatorActionBuilderFactory {
 		builder.setBeanPropertyValidators(model.getBeanPropertyValidators());
 		builder.setEntityLabelSingular(model.getEntityLabelSingular());
 		builder.setCreatorService(model.getCreatorService());
+		builder.setAttributes(model.getAttributes());
 		builder.setBeanForm(model.getAttributes(AcceptEditableAttributesFilter.getInstance()));
 		builder.addExecutionInterceptor(new ExecutionInterceptorAdapter() {
 			@Override

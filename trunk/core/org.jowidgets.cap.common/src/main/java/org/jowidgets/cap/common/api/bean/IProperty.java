@@ -111,6 +111,11 @@ public interface IProperty {
 	boolean isReadonly();
 
 	/**
+	 * @return True if the property could be editited by the user, false otherwise
+	 */
+	boolean isEditable();
+
+	/**
 	 * @return True if the property could be used in the sorting
 	 */
 	boolean isSortable();

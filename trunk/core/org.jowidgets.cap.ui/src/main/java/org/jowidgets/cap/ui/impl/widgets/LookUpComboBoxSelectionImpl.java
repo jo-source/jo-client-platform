@@ -75,7 +75,6 @@ final class LookUpComboBoxSelectionImpl extends ComboBoxWrapper<Object> implemen
 	@Override
 	public void onChange(final ILookUp lookUp) {
 		initializationDelegate.initialize();
-
 		setElements(lookUp.getValidKeys());
 		super.setValue(lastValue);
 	}

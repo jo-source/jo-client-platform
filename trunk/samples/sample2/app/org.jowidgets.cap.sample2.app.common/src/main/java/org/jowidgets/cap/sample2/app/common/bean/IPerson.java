@@ -40,17 +40,21 @@ public interface IPerson extends IBean {
 	String NAME_PROPERTY = "name";
 	String LAST_NAME_PROPERTY = "lastname";
 	String LOGIN_NAME_PROPERTY = "loginName";
+	String GENDER_PROPERTY = "gender";
+	String ACTIVE_PROPERTY = "active";
 	String COUNTRY_ID_PROPERTY = "countryId";
 	String ROLE_IDS_PROPERTY = "roleIds";
 
 	List<String> ALL_PROPERTIES = new LinkedList<String>() {
 		private static final long serialVersionUID = 1L;
 		{
+			add(LOGIN_NAME_PROPERTY);
 			add(NAME_PROPERTY);
 			add(LAST_NAME_PROPERTY);
-			add(LOGIN_NAME_PROPERTY);
 			add(COUNTRY_ID_PROPERTY);
 			add(ROLE_IDS_PROPERTY);
+			add(GENDER_PROPERTY);
+			add(ACTIVE_PROPERTY);
 			add(IBean.ID_PROPERTY);
 			add(IBean.VERSION_PROPERTY);
 		}
@@ -73,6 +77,17 @@ public interface IPerson extends IBean {
 	String getLoginName();
 
 	void setLoginName(String loginName);
+
+	@NotNull
+	@Size(min = 1, max = 1)
+	String getGender();
+
+	void setGender(final String gender);
+
+	@NotNull
+	Boolean getActive();
+
+	void setActive(Boolean active);
 
 	Long getCountryId();
 

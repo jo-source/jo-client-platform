@@ -29,7 +29,7 @@
 package org.jowidgets.cap.sample2.plugins.ui.table;
 
 import org.jowidgets.cap.sample2.app.common.bean.IRole;
-import org.jowidgets.cap.sample2.app.common.checker.DeleteRoleExecutableChecker;
+import org.jowidgets.cap.sample2.app.common.checker.RoleDeleteExecutableChecker;
 import org.jowidgets.cap.ui.api.command.IDeleterActionBuilder;
 import org.jowidgets.cap.ui.api.plugin.IBeanTableMenuInterceptorPlugin;
 import org.jowidgets.cap.ui.api.table.IBeanTableMenuInterceptor;
@@ -49,7 +49,7 @@ public class RoleMenuInterceptorPlugin extends BeanTableMenuInterceptorAdapter<I
 	public IDeleterActionBuilder<IRole> deleterActionBuilder(
 		final IBeanTable<IRole> table,
 		final IDeleterActionBuilder<IRole> builder) {
-		builder.addExecutableChecker(new DeleteRoleExecutableChecker());
+		builder.addExecutableChecker(new RoleDeleteExecutableChecker());
 		return builder;
 	}
 

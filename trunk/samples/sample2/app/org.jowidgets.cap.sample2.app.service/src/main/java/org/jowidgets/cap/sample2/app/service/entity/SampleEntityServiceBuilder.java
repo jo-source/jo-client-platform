@@ -34,6 +34,8 @@ import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
 import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
 import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptorBuilder;
+import org.jowidgets.cap.common.api.filter.ArithmeticOperator;
+import org.jowidgets.cap.common.api.filter.IFilter;
 import org.jowidgets.cap.common.api.service.IDeleterService;
 import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.sample2.app.common.bean.ICountry;
@@ -146,6 +148,13 @@ public class SampleEntityServiceBuilder extends EntityServiceBuilder {
 	private IReaderService<Void> createPersonsOfRolesReader(final boolean linked) {
 		final ICriteriaQueryCreatorBuilder<Void> queryBuilder = JpaQueryToolkit.criteriaQueryCreatorBuilder(Person.class);
 		queryBuilder.setParentPropertyPath(linked, "personRoleLinks", "role");
+		if (!linked) {
+			final IFilter filter = CapCommonToolkit.filterFactory().arithmeticFilter(
+					IPerson.ACTIVE_PROPERTY,
+					ArithmeticOperator.EQUAL,
+					Boolean.TRUE);
+			queryBuilder.addFilter(filter);
+		}
 		return serviceFactory.readerService(Person.class, queryBuilder.build(), IPerson.ALL_PROPERTIES);
 	}
 

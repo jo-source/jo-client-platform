@@ -67,6 +67,8 @@ public interface IPropertyBuilder {
 
 	IPropertyBuilder setReadonly(boolean readonly);
 
+	IPropertyBuilder setEditable(boolean editable);
+
 	IPropertyBuilder setValueRange(IValueRange valueRange);
 
 	IPropertyBuilder setValueRange(boolean open, Collection<? extends Object> values);
