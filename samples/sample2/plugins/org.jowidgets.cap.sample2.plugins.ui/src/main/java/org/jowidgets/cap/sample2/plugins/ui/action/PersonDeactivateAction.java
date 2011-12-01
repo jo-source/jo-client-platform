@@ -26,30 +26,33 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample2.app.common.checker;
+package org.jowidgets.cap.sample2.plugins.ui.action;
 
-import java.util.Collections;
-import java.util.Set;
+import org.jowidgets.addons.icons.silkicons.SilkIcons;
+import org.jowidgets.api.command.IAction;
+import org.jowidgets.cap.sample2.app.common.bean.IPerson;
+import org.jowidgets.cap.sample2.app.common.checker.PersonDeactivateExecutableChecker;
+import org.jowidgets.cap.sample2.app.common.executor.PersonExecutorServices;
+import org.jowidgets.cap.ui.api.CapUiToolkit;
+import org.jowidgets.cap.ui.api.command.IExecutorActionBuilder;
+import org.jowidgets.cap.ui.api.execution.BeanSelectionPolicy;
+import org.jowidgets.cap.ui.api.model.IBeanListModel;
+import org.jowidgets.tools.command.ActionWrapper;
 
-import org.jowidgets.cap.common.api.execution.ExecutableState;
-import org.jowidgets.cap.common.api.execution.IExecutableChecker;
-import org.jowidgets.cap.common.api.execution.IExecutableState;
-import org.jowidgets.cap.sample2.app.common.bean.IRole;
+public class PersonDeactivateAction extends ActionWrapper {
 
-public class DeleteRoleExecutableChecker implements IExecutableChecker<IRole> {
-
-	@Override
-	public IExecutableState getExecutableState(final IRole role) {
-		if (role != null && role.getInUse()) {
-			return ExecutableState.notExecutable("The role is in use");
-		}
-		else {
-			return ExecutableState.EXECUTABLE;
-		}
+	public PersonDeactivateAction(final IBeanListModel<IPerson> model) {
+		super(create(model));
 	}
 
-	@Override
-	public Set<String> getPropertyDependencies() {
-		return Collections.singleton(IRole.IN_USE_PROPERTY);
+	private static IAction create(final IBeanListModel<IPerson> model) {
+		final IExecutorActionBuilder<IPerson, Void> builder = CapUiToolkit.actionFactory().executorActionBuilder(model);
+		builder.setText("Deactivate user");
+		builder.setToolTipText("Deactivates the user");
+		builder.setIcon(SilkIcons.USER_GRAY);
+		builder.setSelectionPolicy(BeanSelectionPolicy.MULTI_SELECTION);
+		builder.setExecutor(PersonExecutorServices.DEACTIVATE_PERSON);
+		builder.addExecutableChecker(new PersonDeactivateExecutableChecker());
+		return builder.build();
 	}
 }

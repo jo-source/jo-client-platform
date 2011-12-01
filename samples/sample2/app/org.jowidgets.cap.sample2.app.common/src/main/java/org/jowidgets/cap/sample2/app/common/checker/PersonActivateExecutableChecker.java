@@ -26,53 +26,30 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.impl;
+package org.jowidgets.cap.sample2.app.common.checker;
 
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Collections;
+import java.util.Set;
 
-import org.jowidgets.cap.common.api.lookup.ILookUpEntry;
+import org.jowidgets.cap.common.api.execution.ExecutableState;
+import org.jowidgets.cap.common.api.execution.IExecutableChecker;
+import org.jowidgets.cap.common.api.execution.IExecutableState;
+import org.jowidgets.cap.sample2.app.common.bean.IPerson;
 
-final class LookUpEntryImpl implements ILookUpEntry, Serializable {
+public class PersonActivateExecutableChecker implements IExecutableChecker<IPerson> {
 
-	private static final long serialVersionUID = -2505678216816698271L;
-
-	private final Object key;
-	private final Map<String, Object> values;
-	private final String description;
-	private final boolean valid;
-
-	LookUpEntryImpl(final Object key, final Map<String, Object> values, final String description, final boolean valid) {
-		this.key = key;
-		this.values = new HashMap<String, Object>(values);
-		this.description = description;
-		this.valid = valid;
+	@Override
+	public IExecutableState getExecutableState(final IPerson person) {
+		if (person != null && person.getActive()) {
+			return ExecutableState.notExecutable("Person is already activated");
+		}
+		else {
+			return ExecutableState.EXECUTABLE;
+		}
 	}
 
 	@Override
-	public Object getKey() {
-		return key;
+	public Set<String> getPropertyDependencies() {
+		return Collections.singleton(IPerson.ACTIVE_PROPERTY);
 	}
-
-	@Override
-	public Object getValue(final String propertyName) {
-		return values.get(propertyName);
-	}
-
-	@Override
-	public String getDescription() {
-		return description;
-	}
-
-	@Override
-	public boolean isValid() {
-		return valid;
-	}
-
-	@Override
-	public String toString() {
-		return "LookUpEntryImpl [key=" + key + ", values=" + values + ", description=" + description + ", valid=" + valid + "]";
-	}
-
 }

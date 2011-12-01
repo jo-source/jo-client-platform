@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.jowidgets.cap.common.api.bean.IBean;
+import org.jowidgets.cap.common.api.filter.IFilter;
 import org.jowidgets.cap.service.jpa.api.query.ICriteriaQueryCreatorBuilder;
 import org.jowidgets.cap.service.jpa.api.query.ICustomFilterPredicateCreator;
 import org.jowidgets.cap.service.jpa.api.query.IPredicateCreator;
@@ -45,6 +46,7 @@ final class CriteriaQueryCreatorBuilderImpl<PARAMETER_TYPE> implements ICriteria
 
 	private final Class<? extends IBean> beanType;
 	private final List<IPredicateCreator<PARAMETER_TYPE>> predicateCreators;
+	private final List<IFilter> filters;
 	private final Map<String, ICustomFilterPredicateCreator<PARAMETER_TYPE>> customFilterPredicateCreators;
 
 	private IPredicateCreator<PARAMETER_TYPE> parentLinkPredicateCreator;
@@ -56,6 +58,7 @@ final class CriteriaQueryCreatorBuilderImpl<PARAMETER_TYPE> implements ICriteria
 		this.beanType = beanType;
 		this.caseSensitive = false;
 		this.predicateCreators = new LinkedList<IPredicateCreator<PARAMETER_TYPE>>();
+		this.filters = new LinkedList<IFilter>();
 		this.customFilterPredicateCreators = new HashMap<String, ICustomFilterPredicateCreator<PARAMETER_TYPE>>();
 	}
 
@@ -104,6 +107,13 @@ final class CriteriaQueryCreatorBuilderImpl<PARAMETER_TYPE> implements ICriteria
 	}
 
 	@Override
+	public ICriteriaQueryCreatorBuilder<PARAMETER_TYPE> addFilter(final IFilter filter) {
+		Assert.paramNotNull(filter, "filter");
+		filters.add(filter);
+		return this;
+	}
+
+	@Override
 	public ICriteriaQueryCreatorBuilder<PARAMETER_TYPE> addCustomFilterPredicateCreator(
 		final String filterType,
 		final ICustomFilterPredicateCreator<PARAMETER_TYPE> customFilterPredicateCreator) {
@@ -126,6 +136,7 @@ final class CriteriaQueryCreatorBuilderImpl<PARAMETER_TYPE> implements ICriteria
 			beanType,
 			caseSensitive,
 			predicateCreatorsComposite,
+			filters,
 			customFilterPredicateCreators);
 	}
 

@@ -154,6 +154,11 @@ final class AttributesFactory {
 			}
 
 			@Override
+			public boolean isEditable() {
+				return attribute.isEditable();
+			}
+
+			@Override
 			public boolean isMandatoryDefault() {
 				return attribute.isMandatory();
 			}

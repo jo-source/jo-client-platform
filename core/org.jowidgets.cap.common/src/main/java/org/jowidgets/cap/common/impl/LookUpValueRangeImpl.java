@@ -70,4 +70,15 @@ final class LookUpValueRangeImpl implements ILookUpValueRange, Serializable {
 		return defaultValuePropertyName;
 	}
 
+	@Override
+	public String toString() {
+		return "LookUpValueRangeImpl [lookUpId="
+			+ lookUpId
+			+ ", valueProperties="
+			+ valueProperties
+			+ ", defaultValuePropertyName="
+			+ defaultValuePropertyName
+			+ "]";
+	}
+
 }

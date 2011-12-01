@@ -149,7 +149,7 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 		this.description = property.getDescriptionDefault();
 		this.visible = property.isVisibleDefault();
 		this.mandatory = property.isMandatoryDefault();
-		this.editable = !property.isReadonly();
+		this.editable = property.isEditable();
 		this.readonly = property.isReadonly();
 		this.sortable = property.isSortable();
 		this.filterable = property.isFilterable();

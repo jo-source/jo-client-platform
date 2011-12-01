@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.ui.impl;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -91,6 +92,7 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 		final Class<? extends BEAN_TYPE> beanType,
 		final List<IBeanPropertyValidator<BEAN_TYPE>> beanPropertyValidators,
 		final IBeanListModel<BEAN_TYPE> model,
+		final Collection<IAttribute<?>> attributes,
 		final IBeanFormBluePrint<BEAN_TYPE> beanFormBp,
 		final List<IEnabledChecker> enabledCheckers,
 		final boolean anySelection,
@@ -100,6 +102,7 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 
 		Assert.paramNotNull(beanType, "beanType");
 		Assert.paramNotNull(model, "model");
+		Assert.paramNotNull(attributes, "attributes");
 		Assert.paramNotNull(beanFormBp, "beanFormBp");
 		Assert.paramNotNull(beanFormBp.getAttributes(), "beanFormBp.getAttributes()");
 		Assert.paramNotNull(enabledCheckers, "enabledCheckers");
@@ -127,7 +130,7 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 
 		this.defaultValues = new HashMap<String, Object>();
 		this.properties = new LinkedList<String>();
-		for (final IAttribute<?> attribute : beanFormBp.getAttributes()) {
+		for (final IAttribute<?> attribute : attributes) {
 			final String propertyName = attribute.getPropertyName();
 			properties.add(propertyName);
 			final Object defaultValue = attribute.getDefaultValue();

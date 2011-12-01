@@ -54,6 +54,7 @@ final class PropertyImpl implements IProperty, Serializable {
 	private final Class<?> elementValueType;
 	private final Cardinality cardinality;
 	private final boolean readonly;
+	private final boolean editable;
 	private final boolean sortable;
 	private final boolean filterable;
 
@@ -71,6 +72,7 @@ final class PropertyImpl implements IProperty, Serializable {
 		final IValidator<Object> validator,
 		final Cardinality cardinality,
 		final boolean readonly,
+		final boolean editable,
 		final boolean sortable,
 		final boolean filterable) {
 
@@ -98,6 +100,7 @@ final class PropertyImpl implements IProperty, Serializable {
 		this.validator = validator;
 		this.cardinality = cardinality;
 		this.readonly = readonly;
+		this.editable = editable;
 		this.sortable = sortable;
 		this.filterable = filterable;
 	}
@@ -165,6 +168,11 @@ final class PropertyImpl implements IProperty, Serializable {
 	@Override
 	public boolean isReadonly() {
 		return readonly;
+	}
+
+	@Override
+	public boolean isEditable() {
+		return editable;
 	}
 
 	@Override

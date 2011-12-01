@@ -58,6 +58,7 @@ final class PropertyBuilder implements IPropertyBuilder {
 	private Class<?> valueType;
 	private Class<?> elementValueType;
 	private boolean readonly;
+	private Boolean editable;
 	private boolean sortable;
 	private boolean filterable;
 	private boolean beanValidatorAdded;
@@ -189,6 +190,12 @@ final class PropertyBuilder implements IPropertyBuilder {
 	}
 
 	@Override
+	public IPropertyBuilder setEditable(final boolean editable) {
+		this.editable = Boolean.valueOf(editable);
+		return this;
+	}
+
+	@Override
 	public IPropertyBuilder setSortable(final boolean sortable) {
 		this.sortable = sortable;
 		return this;
@@ -258,6 +265,7 @@ final class PropertyBuilder implements IPropertyBuilder {
 			validatorBuilder.build(valueType),
 			getCardinality(),
 			readonly,
+			editable != null ? editable.booleanValue() : !readonly,
 			sortable,
 			filterable);
 	}

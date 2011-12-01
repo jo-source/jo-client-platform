@@ -30,31 +30,36 @@ package org.jowidgets.cap.sample2.plugins.ui.table;
 
 import org.jowidgets.api.model.item.IMenuModel;
 import org.jowidgets.cap.sample2.app.common.bean.IPerson;
+import org.jowidgets.cap.sample2.plugins.ui.action.PersonActivateAction;
+import org.jowidgets.cap.sample2.plugins.ui.action.PersonDeactivateAction;
 import org.jowidgets.cap.ui.api.plugin.IBeanTableMenuContributionPlugin;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.plugin.api.IPluginProperties;
 import org.jowidgets.tools.model.item.MenuModel;
 
-public class PersonMenuContributionPlugin implements IBeanTableMenuContributionPlugin<IPerson> {
+public final class PersonMenuContributionPlugin implements IBeanTableMenuContributionPlugin<IPerson> {
 
 	@Override
 	public IMenuModel getCellMenu(final IPluginProperties properties, final IBeanTable<IPerson> table) {
 		final MenuModel result = new MenuModel();
-		//result.addActionItem("Plugged cell action");
+		result.addAction(new PersonActivateAction(table.getModel()));
+		result.addAction(new PersonDeactivateAction(table.getModel()));
 		return result;
 	}
 
 	@Override
 	public IMenuModel getHeaderMenu(final IPluginProperties properties, final IBeanTable<IPerson> table) {
 		final MenuModel result = new MenuModel();
-		//result.addActionItem("Plugged header action");
+		result.addAction(new PersonActivateAction(table.getModel()));
+		result.addAction(new PersonDeactivateAction(table.getModel()));
 		return result;
 	}
 
 	@Override
 	public IMenuModel getTableMenu(final IPluginProperties properties, final IBeanTable<IPerson> table) {
 		final MenuModel result = new MenuModel();
-		//result.addActionItem("Plugged table action");
+		result.addAction(new PersonActivateAction(table.getModel()));
+		result.addAction(new PersonDeactivateAction(table.getModel()));
 		return result;
 	}
 

@@ -33,6 +33,7 @@ import org.jowidgets.cap.common.api.bean.IBeanPropertyBluePrint;
 import org.jowidgets.cap.common.tools.bean.BeanDtoDescriptorBuilder;
 import org.jowidgets.cap.sample2.app.common.bean.IPerson;
 import org.jowidgets.cap.sample2.app.service.lookup.CountriesLookUpService;
+import org.jowidgets.cap.sample2.app.service.lookup.GenderLookUpService;
 import org.jowidgets.cap.sample2.app.service.lookup.RolesLookUpService;
 
 public class PersonDtoDescriptorBuilder extends BeanDtoDescriptorBuilder {
@@ -65,6 +66,12 @@ public class PersonDtoDescriptorBuilder extends BeanDtoDescriptorBuilder {
 		propertyBp.setDescription("The users lastname");
 		propertyBp.setMandatory(true);
 
+		propertyBp = addProperty(IPerson.GENDER_PROPERTY);
+		propertyBp.setLabel("Gender");
+		propertyBp.setDescription("The users gender");
+		propertyBp.setValueRange(GenderLookUpService.valueRange());
+		propertyBp.setMandatory(true);
+
 		propertyBp = addProperty(IPerson.COUNTRY_ID_PROPERTY);
 		propertyBp.setLabel("Country");
 		propertyBp.setDescription("The country the user lives");
@@ -80,8 +87,16 @@ public class PersonDtoDescriptorBuilder extends BeanDtoDescriptorBuilder {
 		propertyBp.setSortable(false);
 		propertyBp.setFilterable(false);
 
+		propertyBp = addProperty(IPerson.ACTIVE_PROPERTY);
+		propertyBp.setLabel("Active");
+		propertyBp.setDescription("Determines if the person is active");
+		propertyBp.setDefaultValue(Boolean.TRUE);
+		propertyBp.setMandatory(true);
+		propertyBp.setEditable(false);
+
 		propertyBp = addProperty(IBean.VERSION_PROPERTY);
 		propertyBp.setLabel("Version");
 		propertyBp.setDescription("The version of the dataset");
+
 	}
 }

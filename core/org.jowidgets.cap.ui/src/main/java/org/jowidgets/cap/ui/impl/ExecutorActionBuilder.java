@@ -102,7 +102,7 @@ final class ExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> extends AbstractSingleU
 		this.beanSelectionPolicy = BeanSelectionPolicy.SINGLE_SELECTION;
 		this.beanModificationStatePolicy = BeanModificationStatePolicy.NO_MODIFICATION;
 		this.beanMessageStatePolicy = BeanMessageStatePolicy.NO_WARNING_OR_ERROR;
-		this.beanListExecutionPolicy = BeanExecutionPolicy.PARALLEL;
+		this.beanListExecutionPolicy = BeanExecutionPolicy.BATCH;
 
 		this.exceptionConverter = new DefaultBeanExceptionConverter();
 	}
