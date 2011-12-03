@@ -141,6 +141,7 @@ public class Person extends Bean implements IPerson {
 		this.personRoleLinks = personRoleLinks;
 	}
 
+	@Override
 	public Country getCountry() {
 		return country;
 	}
