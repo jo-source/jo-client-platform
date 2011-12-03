@@ -75,7 +75,7 @@ public class Person extends Bean implements IPerson {
 	@Column(name = "COUNTRY_ID", nullable = true)
 	private Long countryId;
 
-	@ManyToOne()
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "COUNTRY_ID", nullable = true, insertable = false, updatable = false)
 	private Country country;
 
@@ -141,7 +141,6 @@ public class Person extends Bean implements IPerson {
 		this.personRoleLinks = personRoleLinks;
 	}
 
-	@Override
 	public Country getCountry() {
 		return country;
 	}

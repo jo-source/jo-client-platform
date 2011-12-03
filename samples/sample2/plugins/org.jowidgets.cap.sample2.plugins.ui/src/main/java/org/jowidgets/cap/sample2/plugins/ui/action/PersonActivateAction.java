@@ -48,7 +48,7 @@ public class PersonActivateAction extends ActionWrapper {
 	private static IAction create(final IBeanListModel<IPerson> model) {
 		final IExecutorActionBuilder<IPerson, Void> builder = CapUiToolkit.actionFactory().executorActionBuilder(model);
 		builder.setText("Activate user");
-		builder.setToolTipText("Deactivates the user");
+		builder.setToolTipText("Activates the user");
 		builder.setIcon(SilkIcons.USER);
 		builder.setSelectionPolicy(BeanSelectionPolicy.MULTI_SELECTION);
 		builder.setExecutor(PersonExecutorServices.ACTIVATE_PERSON);
