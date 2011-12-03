@@ -83,7 +83,7 @@ public class PersonDtoDescriptorBuilder extends BeanDtoDescriptorBuilder {
 		propertyBp.setElementValueType(Long.class);
 		propertyBp.setLookUpValueRange(RolesLookUpService.LOOK_UP_ID);
 		propertyBp.setSortable(false);
-		propertyBp.setFilterable(false);
+		propertyBp.setFilterable(true);
 
 		propertyBp = addProperty(IPerson.ACTIVE_PROPERTY);
 		propertyBp.setLabel("Active");

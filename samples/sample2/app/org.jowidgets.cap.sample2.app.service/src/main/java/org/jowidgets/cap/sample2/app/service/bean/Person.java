@@ -53,6 +53,7 @@ import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Index;
 import org.jowidgets.cap.sample2.app.common.bean.IPerson;
 import org.jowidgets.cap.sample2.app.service.entity.EntityManagerProvider;
+import org.jowidgets.cap.service.jpa.api.query.QueryPath;
 
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = {"loginName"}))
@@ -170,6 +171,7 @@ public class Person extends Bean implements IPerson {
 	}
 
 	@Override
+	@QueryPath(path = {"personRoleLinks", "role", "id"})
 	public List<Long> getRoleIds() {
 		return new LinkedList<Long>(personRoleLinks.keySet());
 	}
