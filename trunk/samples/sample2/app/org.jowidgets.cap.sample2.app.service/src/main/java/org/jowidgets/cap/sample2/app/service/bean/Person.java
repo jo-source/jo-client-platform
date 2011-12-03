@@ -27,11 +27,12 @@
  */
 package org.jowidgets.cap.sample2.app.service.bean;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.persistence.Basic;
@@ -42,7 +43,9 @@ import javax.persistence.EntityManager;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.MapKey;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
@@ -81,7 +84,9 @@ public class Person extends Bean implements IPerson {
 
 	@OneToMany(cascade = CascadeType.REMOVE, fetch = FetchType.LAZY, mappedBy = "person")
 	@BatchSize(size = 1000)
-	private List<PersonRoleLink> personRoleLinks = new LinkedList<PersonRoleLink>();
+	@MapKey(name = "roleId")
+	@OrderBy("roleId ASC")
+	private Map<Long, PersonRoleLink> personRoleLinks = new LinkedHashMap<Long, PersonRoleLink>();
 
 	@Override
 	public String getName() {
@@ -156,66 +161,48 @@ public class Person extends Bean implements IPerson {
 		this.country = null;
 	}
 
-	public List<PersonRoleLink> getPersonRoleLinks() {
+	public Map<Long, PersonRoleLink> getPersonRoleLinks() {
 		return personRoleLinks;
 	}
 
-	public void setPersonRoleLinks(final List<PersonRoleLink> personRoleLinks) {
+	public void setPersonRoleLinks(final Map<Long, PersonRoleLink> personRoleLinks) {
 		this.personRoleLinks = personRoleLinks;
 	}
 
 	@Override
 	public List<Long> getRoleIds() {
-		final List<Long> result = new LinkedList<Long>();
-		for (final PersonRoleLink personRoleLink : getPersonRoleLinks()) {
-			result.add(personRoleLink.getRole().getId());
-		}
-		return result;
+		return new LinkedList<Long>(personRoleLinks.keySet());
 	}
 
 	@Override
 	public void setRoleIds(List<Long> newRoleIds) {
-		final EntityManager em = EntityManagerProvider.get();
-
 		if (newRoleIds == null) {
 			newRoleIds = new LinkedList<Long>();
 		}
-
 		final Set<Long> newRoleIdsSet = new LinkedHashSet<Long>(newRoleIds);
+		final Map<Long, PersonRoleLink> newPersonRoleLinks = new LinkedHashMap<Long, PersonRoleLink>();
+		final EntityManager em = EntityManagerProvider.get();
 
-		final List<PersonRoleLink> currentLinks = getPersonRoleLinks();
-		final Map<Long, PersonRoleLink> currentLinksMap = new HashMap<Long, PersonRoleLink>();
-		for (final PersonRoleLink personRoleLink : new LinkedList<PersonRoleLink>(currentLinks)) {
-			final Long roleId = personRoleLink.getRoleId();
-			if (newRoleIdsSet.remove(roleId)) {
-				currentLinksMap.put(roleId, personRoleLink);
-			}
-			else {
-				currentLinks.remove(personRoleLink);
-				em.remove(personRoleLink);
+		for (final Entry<Long, PersonRoleLink> entry : personRoleLinks.entrySet()) {
+			if (!newRoleIdsSet.contains(entry.getKey())) {
+				em.remove(entry.getValue());
 			}
 		}
 
-		final List<PersonRoleLink> newLinks = new LinkedList<PersonRoleLink>();
-
 		for (final Long newId : newRoleIds) {
-			final PersonRoleLink link = currentLinksMap.get(newId);
-			if (link != null) {
-				newLinks.add(link);
-			}
-			else {
-				final PersonRoleLink newLink = new PersonRoleLink();
+			PersonRoleLink personRoleLink = personRoleLinks.get(newId);
+			if (personRoleLink == null) {
+				personRoleLink = new PersonRoleLink();
 				if (getId() == null) {
 					em.persist(this);
 				}
-				newLink.setPersonId(getId());
-				newLink.setRoleId(newId);
-
-				em.persist(newLink);
-				newLinks.add(newLink);
+				personRoleLink.setPersonId(getId());
+				personRoleLink.setRoleId(newId);
+				em.persist(personRoleLink);
 			}
+			newPersonRoleLinks.put(newId, personRoleLink);
 		}
 
-		setPersonRoleLinks(newLinks);
+		personRoleLinks = newPersonRoleLinks;
 	}
 }
