@@ -40,15 +40,18 @@ import org.jowidgets.cap.common.api.service.IDeleterService;
 import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.sample2.app.common.bean.ICountry;
 import org.jowidgets.cap.sample2.app.common.bean.IPerson;
+import org.jowidgets.cap.sample2.app.common.bean.IPersonRelationType;
 import org.jowidgets.cap.sample2.app.common.bean.IPersonRoleLink;
 import org.jowidgets.cap.sample2.app.common.bean.IRole;
 import org.jowidgets.cap.sample2.app.common.entity.EntityIds;
 import org.jowidgets.cap.sample2.app.service.bean.Country;
 import org.jowidgets.cap.sample2.app.service.bean.Person;
+import org.jowidgets.cap.sample2.app.service.bean.PersonRelationType;
 import org.jowidgets.cap.sample2.app.service.bean.PersonRoleLink;
 import org.jowidgets.cap.sample2.app.service.bean.Role;
 import org.jowidgets.cap.sample2.app.service.descriptor.CountryDtoDescriptorBuilder;
 import org.jowidgets.cap.sample2.app.service.descriptor.PersonDtoDescriptorBuilder;
+import org.jowidgets.cap.sample2.app.service.descriptor.PersonRelationTypeDtoDescriptorBuilder;
 import org.jowidgets.cap.sample2.app.service.descriptor.RoleDtoDescriptorBuilder;
 import org.jowidgets.cap.service.api.entity.IBeanServicesProviderBuilder;
 import org.jowidgets.cap.service.jpa.api.IJpaServiceFactory;
@@ -79,6 +82,20 @@ public class SampleEntityServiceBuilder extends EntityServiceBuilder {
 		servicesBuilder = serviceFactory.beanServicesBuilder(registry, EntityIds.ROLE, Role.class, IRole.ALL_PROPERTIES);
 		add(EntityIds.ROLE, descriptor, servicesBuilder.build(), Collections.singletonList(createRolePersonLinkDescriptor()));
 
+		//IPersonLinkType
+		descriptor = new PersonRelationTypeDtoDescriptorBuilder().build();
+		servicesBuilder = serviceFactory.beanServicesBuilder(
+				registry,
+				EntityIds.PERSON_LINK_TYPE,
+				PersonRelationType.class,
+				IPersonRelationType.ALL_PROPERTIES);
+		add(EntityIds.PERSON_LINK_TYPE, descriptor, servicesBuilder.build());
+
+		//ICountry
+		descriptor = new CountryDtoDescriptorBuilder().build();
+		servicesBuilder = serviceFactory.beanServicesBuilder(registry, EntityIds.COUNTRY, Country.class, ICountry.ALL_PROPERTIES);
+		add(EntityIds.COUNTRY, descriptor, servicesBuilder.build());
+
 		//IPersonRoleLink
 		descriptor = new RoleDtoDescriptorBuilder().build();
 		servicesBuilder = serviceFactory.beanServicesBuilder(
@@ -87,11 +104,6 @@ public class SampleEntityServiceBuilder extends EntityServiceBuilder {
 				PersonRoleLink.class,
 				IPersonRoleLink.ALL_PROPERTIES);
 		add(EntityIds.PERSON_ROLE_LINK, descriptor, servicesBuilder.build());
-
-		//ICountry
-		descriptor = new CountryDtoDescriptorBuilder().build();
-		servicesBuilder = serviceFactory.beanServicesBuilder(registry, EntityIds.COUNTRY, Country.class, ICountry.ALL_PROPERTIES);
-		add(EntityIds.COUNTRY, descriptor, servicesBuilder.build());
 
 		//Linked persons of roles
 		descriptor = new PersonDtoDescriptorBuilder().build();

@@ -28,6 +28,9 @@
 
 package org.jowidgets.cap.sample2.app.service.util;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -37,13 +40,48 @@ import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
 import javax.persistence.TypedQuery;
 
+import org.apache.commons.io.IOUtils;
 import org.jowidgets.cap.sample2.app.service.bean.Country;
 import org.jowidgets.cap.sample2.app.service.bean.Person;
+import org.jowidgets.cap.sample2.app.service.bean.PersonRelationType;
 import org.jowidgets.cap.sample2.app.service.bean.PersonRoleLink;
 import org.jowidgets.cap.sample2.app.service.bean.Role;
 import org.jowidgets.cap.sample2.app.service.lookup.GenderLookUpService;
 
 public final class SampleDataGenerator {
+
+	private static final String[] COUNTRIES = new String[] {
+			"Afghanistan", "Albania", "Algeria", "American Samoa", "Andorra", "Angola", "Anguilla", "Antigua and Barbuda",
+			"Argentina", "Armenia", "Aruba", "Ascension and Tristan da Cunha Saint Helena", "Australia", "Austria", "Azerbaijan",
+			"Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bermuda", "Bhutan",
+			"Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "British Virgin Islands", "Brunei", "Bulgaria",
+			"Burkina Faso", "Burundi", "Cambodia", "Cameroon", "Canada", "Cape Verde", "Cayman Islands",
+			"Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros", "Cook Islands", "Costa Rica",
+			"Côte d'Ivoire", "Croatia", "Cuba", "Curaçao", "Cyprus", "Czech Republic", "Dem. Rep. of the Congo", "Denmark",
+			"Djibouti", "Dominica", "Dominican Republic", "East Timor", "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea",
+			"Eritrea", "Estonia", "Ethiopia", "Falkland Islands", "Faroe Islands", "Federated States of Micronesia", "Fiji",
+			"Finland", "France", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Gibraltar", "Greece", "Greenland", "Grenada",
+			"Guam", "Guatemala", "Guernsey", "Guinea", "Guinea-Bissau", "Guyana", "Haiti", "Honduras", "Hong Kong", "Hungary",
+			"Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Isle of Man", "Israel", "Italy", "Jamaica", "Japan",
+			"Jersey", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Kuwait", "Kyrgyzstan", "Laos", "Latvia", "Lebanon",
+			"Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg", "Macau", "Madagascar", "Malawi",
+			"Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Moldova",
+			"Monaco", "Mongolia", "Montenegro", "Montserrat", "Morocco", "Mozambique", "Myanmar", "Namibia", "Nauru", "Nepal",
+			"Netherlands", "New Zealand", "Nicaragua", "Niger", "Nigeria", "Niue", "North Korea", "Northern Mariana Islands",
+			"Norway", "Oman", "Pakistan", "Palau", "Palestine", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines",
+			"Pitcairn Islands", "Poland", "Portugal", "Puerto Rico", "Qatar", "Republic of (China Taiwan)",
+			"Republic of Macedonia", "Republic of the Congo", "Romania", "Russia", "Rwanda", "Saint Kitts and Nevis",
+			"Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "São Tomé and Príncipe", "Saudi Arabia",
+			"Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Sint Maarten", "Slovakia", "Slovenia",
+			"Solomon Islands", "Somalia", "South Africa", "South Korea", "South Sudan", "Spain", "Sri Lanka", "Sudan",
+			"Suriname", "Swaziland", "Sweden", "Switzerland", "Syria", "Tajikistan", "Tanzania", "Thailand", "Togo", "Tokelau",
+			"Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Turks and Caicos Islands", "Tuvalu",
+			"U.S. Virgin Islands", "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States", "Uruguay",
+			"Uzbekistan", "Vanuatu", "Vatican City", "Venezuela", "Vietnam", "Western Sahara", "Yemen", "Zambia", "Zimbabwe"};
+
+	private static final List<String> NAMES_MALE = readResource("data/names_male.txt");
+	private static final List<String> NAMES_FEMALE = readResource("data/names_female.txt");
+	private static final List<String> SURNAMES_DE = readResource("data/surnames_de.txt");
 
 	private static final String ADMIN_ROLE_NAME = "Admin";
 	private static final String DEVELOPER_ROLE_NAME = "Developer";
@@ -56,6 +94,7 @@ public final class SampleDataGenerator {
 		final EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("sample2PersistenceUnit");
 		dropData(entityManagerFactory);
 
+		createPersonRelationTypes(entityManagerFactory);
 		createCountries(entityManagerFactory);
 		createRoles(entityManagerFactory);
 		createPersons(entityManagerFactory);
@@ -69,6 +108,28 @@ public final class SampleDataGenerator {
 		entityManager.createQuery("delete from Person").executeUpdate();
 		entityManager.createQuery("delete from Role").executeUpdate();
 		entityManager.createQuery("delete from Country").executeUpdate();
+		entityManager.createQuery("delete from PersonRelationType").executeUpdate();
+		tx.commit();
+		entityManager.close();
+	}
+
+	private static void createPersonRelationTypes(final EntityManagerFactory entityManagerFactory) {
+
+		final EntityManager entityManager = entityManagerFactory.createEntityManager();
+		final EntityTransaction tx = entityManager.getTransaction();
+		tx.begin();
+
+		PersonRelationType personRelationType = new PersonRelationType();
+		personRelationType.setSourceName("Supervisor");
+		personRelationType.setDestinationName("Subordinate");
+		entityManager.persist(personRelationType);
+
+		personRelationType = new PersonRelationType();
+		personRelationType.setSourceName("Parent");
+		personRelationType.setDestinationName("Child");
+		entityManager.persist(personRelationType);
+
+		entityManager.flush();
 		tx.commit();
 		entityManager.close();
 	}
@@ -79,7 +140,7 @@ public final class SampleDataGenerator {
 		final EntityTransaction tx = entityManager.getTransaction();
 		tx.begin();
 
-		for (final String countryName : Countries.COUNTRIES) {
+		for (final String countryName : COUNTRIES) {
 			final Country country = new Country();
 			country.setName(countryName);
 			entityManager.persist(country);
@@ -180,15 +241,41 @@ public final class SampleDataGenerator {
 	}
 
 	private static String getRandomSurname(final Random random) {
-		return DataResources.SURNAMES_DE.get(random.nextInt(DataResources.SURNAMES_DE.size()));
+		return SURNAMES_DE.get(random.nextInt(SURNAMES_DE.size()));
 	}
 
 	private static String getRandomFemaleName(final Random random) {
-		return DataResources.NAMES_FEMALE.get(random.nextInt(DataResources.NAMES_FEMALE.size()));
+		return NAMES_FEMALE.get(random.nextInt(NAMES_FEMALE.size()));
 	}
 
 	private static String getRandomMaleName(final Random random) {
-		return DataResources.NAMES_MALE.get(random.nextInt(DataResources.NAMES_MALE.size()));
+		return NAMES_MALE.get(random.nextInt(NAMES_MALE.size()));
+	}
+
+	private static List<String> readResource(final String resource) {
+
+		final InputStream inputStream = DataResources.class.getClassLoader().getResourceAsStream(resource);
+		if (inputStream == null) {
+			throw new IllegalArgumentException("Could not find resource '" + resource + "' in classpath.");
+		}
+
+		try {
+			try {
+				return new ArrayList<String>(IOUtils.readLines(inputStream));
+			}
+			catch (final IOException e) {
+				throw new RuntimeException(e);
+			}
+		}
+		finally {
+			IOUtils.closeQuietly(inputStream);
+		}
+	}
+
+	public final class DataResources {
+
+		private DataResources() {}
+
 	}
 
 }

@@ -25,19 +25,45 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
+package org.jowidgets.cap.sample2.app.common.bean;
 
-package org.jowidgets.cap.sample2.app.common.entity;
+import java.util.LinkedList;
+import java.util.List;
 
-public enum EntityIds {
+import org.jowidgets.cap.common.api.bean.IBean;
 
-	PERSON,
-	ROLE,
-	COUNTRY,
-	PERSON_LINK_TYPE,
-	PERSON_ROLE_LINK,
-	LINKED_ROLES_OF_PERSONS,
-	LINKABLE_ROLES_OF_PERSONS,
-	LINKED_PERSONS_OF_ROLES,
-	LINKABLE_PERSONS_OF_ROLES;
+public interface IPersonRelationType extends IBean {
 
+	String SOURCE_NAME_PROPERTY = "sourceName";
+	String DESTINATION_NAME_PROPERTY = "destinationName";
+	String SOURCE_DESCRIPTION_PROPERTY = "sourceDescription";
+	String DESTINATION_DESCRIPTION_PROPERTY = "destinationDescription";
+
+	List<String> ALL_PROPERTIES = new LinkedList<String>() {
+		private static final long serialVersionUID = 1L;
+		{
+			add(SOURCE_NAME_PROPERTY);
+			add(DESTINATION_NAME_PROPERTY);
+			add(SOURCE_DESCRIPTION_PROPERTY);
+			add(DESTINATION_DESCRIPTION_PROPERTY);
+			add(IBean.ID_PROPERTY);
+			add(IBean.VERSION_PROPERTY);
+		}
+	};
+
+	String getSourceName();
+
+	void setSourceName(final String name);
+
+	String getSourceDescription();
+
+	void setSourceDescription(final String description);
+
+	String getDestinationName();
+
+	void setDestinationName(final String name);
+
+	String getDestinationDescription();
+
+	void setDestinationDescription(final String description);
 }
