@@ -133,15 +133,10 @@ public class Person extends Bean implements IPerson {
 		this.active = active;
 	}
 
-	public List<PersonRoleLink> getPersonRoleLinks() {
-		return personRoleLinks;
-	}
-
-	public void setPersonRoleLinks(final List<PersonRoleLink> personRoleLinks) {
-		this.personRoleLinks = personRoleLinks;
-	}
-
 	public Country getCountry() {
+		if (country == null && countryId != null) {
+			country = EntityManagerProvider.get().find(Country.class, countryId);
+		}
 		return country;
 	}
 
@@ -158,6 +153,15 @@ public class Person extends Bean implements IPerson {
 	@Override
 	public void setCountryId(final Long id) {
 		this.countryId = id;
+		this.country = null;
+	}
+
+	public List<PersonRoleLink> getPersonRoleLinks() {
+		return personRoleLinks;
+	}
+
+	public void setPersonRoleLinks(final List<PersonRoleLink> personRoleLinks) {
+		this.personRoleLinks = personRoleLinks;
 	}
 
 	@Override
@@ -182,7 +186,7 @@ public class Person extends Bean implements IPerson {
 		final List<PersonRoleLink> currentLinks = getPersonRoleLinks();
 		final Map<Long, PersonRoleLink> currentLinksMap = new HashMap<Long, PersonRoleLink>();
 		for (final PersonRoleLink personRoleLink : new LinkedList<PersonRoleLink>(currentLinks)) {
-			final Long roleId = personRoleLink.getRole().getId();
+			final Long roleId = personRoleLink.getRoleId();
 			if (newRoleIdsSet.remove(roleId)) {
 				currentLinksMap.put(roleId, personRoleLink);
 			}
@@ -204,14 +208,9 @@ public class Person extends Bean implements IPerson {
 				if (getId() == null) {
 					em.persist(this);
 				}
-				newLink.setPerson(this);
-				final Role newRole = em.find(Role.class, newId);
-				if (newRole != null) {
-					newLink.setRole(newRole);
-				}
-				else {
-					throw new IllegalArgumentException("Can not find role with the id '" + newId + "'");
-				}
+				newLink.setPersonId(getId());
+				newLink.setRoleId(newId);
+
 				em.persist(newLink);
 				newLinks.add(newLink);
 			}
