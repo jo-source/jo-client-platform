@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2011, H.Westphal
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -25,42 +25,69 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
+package org.jowidgets.cap.sample2.app.service.bean;
 
-package org.jowidgets.cap.sample2.app.service.util;
+import javax.persistence.Basic;
+import javax.persistence.Entity;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
+import org.jowidgets.cap.sample2.app.common.bean.IPersonRelationType;
 
-import org.apache.commons.io.IOUtils;
+@Entity
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"sourceName", "destinationName"}))
+public class PersonRelationType extends Bean implements IPersonRelationType {
 
-public final class DataResources {
+	@Basic
+	private String sourceName;
 
-	static final List<String> NAMES_MALE = readResource("data/names_male.txt");
-	static final List<String> NAMES_FEMALE = readResource("data/names_female.txt");
-	static final List<String> SURNAMES_DE = readResource("data/surnames_de.txt");
+	@Basic
+	private String sourceDescription;
 
-	private DataResources() {}
+	@Basic
+	private String destinationName;
 
-	private static List<String> readResource(final String resource) {
+	@Basic
+	private String destinationDescription;
 
-		final InputStream inputStream = DataResources.class.getClassLoader().getResourceAsStream(resource);
-		if (inputStream == null) {
-			throw new IllegalArgumentException("Could not find resource '" + resource + "' in classpath.");
-		}
+	@Override
+	public String getSourceName() {
+		return sourceName;
+	}
 
-		try {
-			try {
-				return new ArrayList<String>(IOUtils.readLines(inputStream));
-			}
-			catch (final IOException e) {
-				throw new RuntimeException(e);
-			}
-		}
-		finally {
-			IOUtils.closeQuietly(inputStream);
-		}
+	@Override
+	public void setSourceName(final String sourceName) {
+		this.sourceName = sourceName;
+	}
+
+	@Override
+	public String getSourceDescription() {
+		return sourceDescription;
+	}
+
+	@Override
+	public void setSourceDescription(final String sourceDescription) {
+		this.sourceDescription = sourceDescription;
+	}
+
+	@Override
+	public String getDestinationName() {
+		return destinationName;
+	}
+
+	@Override
+	public void setDestinationName(final String destinationName) {
+		this.destinationName = destinationName;
+	}
+
+	@Override
+	public String getDestinationDescription() {
+		return destinationDescription;
+	}
+
+	@Override
+	public void setDestinationDescription(final String destinationDescription) {
+		this.destinationDescription = destinationDescription;
 	}
 
 }
