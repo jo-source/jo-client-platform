@@ -45,13 +45,16 @@ import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.From;
 import javax.persistence.criteria.Join;
+import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 import javax.persistence.metamodel.Attribute;
+import javax.persistence.metamodel.ManagedType;
 
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
@@ -238,15 +241,31 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 					+ propertyName.substring(1), null);
 				final Method readMethod = descriptor.getReadMethod();
 				final QueryPath queryPath = readMethod.getAnnotation(QueryPath.class);
+
+				Path<?> parentPath = bean;
+				ManagedType<?> type = bean.getModel();
 				if (queryPath != null) {
-					final String[] segments = queryPath.value().split("\\.");
-					if (segments.length >= 1) {
-						Path<?> path = bean;
-						for (final String segment : segments) {
-							path = path.get(segment);
+					for (final String pathSegment : queryPath.path()) {
+						final Attribute<?, ?> attribute;
+						if (type != null) {
+							attribute = type.getAttribute(pathSegment);
+							if (attribute != null) {
+								type = attribute.getDeclaringType();
+							}
 						}
-						return path;
+						else {
+							attribute = null;
+						}
+						if (attribute != null && attribute.isCollection() && parentPath instanceof From) {
+							final From<?, ?> from = (From<?, ?>) parentPath;
+							parentPath = from.join(pathSegment, JoinType.LEFT);
+						}
+						else {
+							parentPath = parentPath.get(pathSegment);
+						}
 					}
+
+					return parentPath;
 				}
 			}
 			catch (final IntrospectionException e) {
