@@ -118,7 +118,7 @@ public final class SampleDataGenerator {
 	}
 
 	private static void createPersons(final EntityManagerFactory entityManagerFactory) {
-		final int outerCount = 100;
+		final int outerCount = 1;
 		final int innerCount = 1000;
 		for (int i = 0; i < outerCount; i++) {
 			final EntityManager entityManager = entityManagerFactory.createEntityManager();

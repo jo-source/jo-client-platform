@@ -76,8 +76,6 @@ public class PersonDtoDescriptorBuilder extends BeanDtoDescriptorBuilder {
 		propertyBp.setLabel("Country");
 		propertyBp.setDescription("The country the user lives");
 		propertyBp.setLookUpValueRange(CountriesLookUpService.LOOK_UP_ID);
-		propertyBp.setSortable(false);
-		propertyBp.setFilterable(false);
 
 		propertyBp = addProperty(IPerson.ROLE_IDS_PROPERTY);
 		propertyBp.setLabel("Roles");

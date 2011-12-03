@@ -37,28 +37,21 @@ import org.jowidgets.cap.common.api.bean.IBean;
 @MappedSuperclass
 public class Bean implements IBean {
 
-	private Long id;
-	private long version;
-
 	@Id
 	@GeneratedValue
+	private Long id;
+
+	@Version
+	private long version;
+
 	@Override
 	public Long getId() {
 		return id;
 	}
 
-	public void setId(final Long id) {
-		this.id = id;
-	}
-
-	@Version
 	@Override
 	public long getVersion() {
 		return version;
-	}
-
-	public void setVersion(final long version) {
-		this.version = version;
 	}
 
 }

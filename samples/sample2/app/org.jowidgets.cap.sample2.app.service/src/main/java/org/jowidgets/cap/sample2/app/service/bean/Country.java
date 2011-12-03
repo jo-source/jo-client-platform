@@ -27,6 +27,7 @@
  */
 package org.jowidgets.cap.sample2.app.service.bean;
 
+import javax.persistence.Basic;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
@@ -37,6 +38,7 @@ import org.jowidgets.cap.sample2.app.common.bean.ICountry;
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = {"name"}))
 public class Country extends Bean implements ICountry {
 
+	@Basic
 	private String name;
 
 	@Override

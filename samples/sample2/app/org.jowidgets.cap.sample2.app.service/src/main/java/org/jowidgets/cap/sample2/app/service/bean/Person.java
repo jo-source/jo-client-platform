@@ -34,7 +34,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.persistence.Basic;
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityManager;
 import javax.persistence.FetchType;
@@ -42,7 +44,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.BatchSize;
@@ -54,17 +55,34 @@ import org.jowidgets.cap.sample2.app.service.entity.EntityManagerProvider;
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = {"loginName"}))
 public class Person extends Bean implements IPerson {
 
+	@Basic
+	@Index(name = "PersonNameIndex")
 	private String name;
+
+	@Basic
+	@Index(name = "PersonLastnameIndex")
 	private String lastname;
+
+	@Basic
 	private String loginName;
+
+	@Basic
 	private String gender;
+
+	@Basic
 	private Boolean active;
 
+	@Column(name = "COUNTRY_ID", nullable = true)
+	private Long countryId;
+
+	@ManyToOne()
+	@JoinColumn(name = "COUNTRY_ID", nullable = true, insertable = false, updatable = false)
 	private Country country;
 
+	@OneToMany(cascade = CascadeType.REMOVE, fetch = FetchType.LAZY, mappedBy = "person")
+	@BatchSize(size = 1000)
 	private List<PersonRoleLink> personRoleLinks = new LinkedList<PersonRoleLink>();
 
-	@Index(name = "PersonNameIndex")
 	@Override
 	public String getName() {
 		return name;
@@ -75,7 +93,6 @@ public class Person extends Bean implements IPerson {
 		this.name = name;
 	}
 
-	@Index(name = "PersonLastnameIndex")
 	@Override
 	public String getLastname() {
 		return lastname;
@@ -116,8 +133,6 @@ public class Person extends Bean implements IPerson {
 		this.active = active;
 	}
 
-	@OneToMany(cascade = CascadeType.REMOVE, fetch = FetchType.LAZY, mappedBy = "person")
-	@BatchSize(size = 1000)
 	public List<PersonRoleLink> getPersonRoleLinks() {
 		return personRoleLinks;
 	}
@@ -126,46 +141,26 @@ public class Person extends Bean implements IPerson {
 		this.personRoleLinks = personRoleLinks;
 	}
 
-	@ManyToOne()
-	@JoinColumn(name = "COUNTRY_ID", nullable = true)
 	public Country getCountry() {
 		return country;
 	}
 
 	public void setCountry(final Country country) {
 		this.country = country;
+		countryId = country != null ? country.getId() : null;
 	}
 
 	@Override
-	@Transient
 	public Long getCountryId() {
-		if (country != null) {
-			return country.getId();
-		}
-		else {
-			return null;
-		}
+		return countryId;
 	}
 
 	@Override
 	public void setCountryId(final Long id) {
-		if (id != null) {
-			final EntityManager em = EntityManagerProvider.get();
-			final Country foundCountry = em.find(Country.class, id);
-			if (foundCountry != null) {
-				setCountry(foundCountry);
-			}
-			else {
-				throw new IllegalArgumentException("Can not find country with the id '" + id + "'");
-			}
-		}
-		else {
-			setCountry(null);
-		}
+		this.countryId = id;
 	}
 
 	@Override
-	@Transient
 	public List<Long> getRoleIds() {
 		final List<Long> result = new LinkedList<Long>();
 		for (final PersonRoleLink personRoleLink : getPersonRoleLinks()) {

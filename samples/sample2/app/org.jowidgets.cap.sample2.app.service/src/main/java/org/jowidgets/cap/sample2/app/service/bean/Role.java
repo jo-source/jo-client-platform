@@ -30,11 +30,11 @@ package org.jowidgets.cap.sample2.app.service.bean;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.persistence.Basic;
 import javax.persistence.Entity;
 import javax.persistence.EntityManager;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import javax.persistence.TypedQuery;
 import javax.persistence.UniqueConstraint;
 
@@ -46,11 +46,16 @@ import org.jowidgets.cap.sample2.app.service.entity.EntityManagerProvider;
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = {"name"}))
 public class Role extends Bean implements IRole {
 
+	@Basic
+	@Index(name = "RoleNameIndex")
 	private String name;
+
+	@Basic
 	private String description;
+
+	@OneToMany(mappedBy = "role")
 	private List<PersonRoleLink> personRoleLinks = new LinkedList<PersonRoleLink>();
 
-	@Index(name = "RoleNameIndex")
 	@Override
 	public String getName() {
 		return name;
@@ -71,7 +76,6 @@ public class Role extends Bean implements IRole {
 		this.description = description;
 	}
 
-	@OneToMany(mappedBy = "role")
 	public List<PersonRoleLink> getPersonRoleLinks() {
 		return personRoleLinks;
 	}
@@ -80,7 +84,6 @@ public class Role extends Bean implements IRole {
 		this.personRoleLinks = personRoleLinks;
 	}
 
-	@Transient
 	@Override
 	public boolean getInUse() {
 		if (getId() != null) {
