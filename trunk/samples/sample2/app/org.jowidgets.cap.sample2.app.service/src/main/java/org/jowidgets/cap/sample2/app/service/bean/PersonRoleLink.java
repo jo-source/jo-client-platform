@@ -29,24 +29,26 @@ package org.jowidgets.cap.sample2.app.service.bean;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import org.jowidgets.cap.sample2.app.common.bean.IPersonRoleLink;
+import org.jowidgets.cap.sample2.app.service.entity.EntityManagerProvider;
 
 @Entity
 @Table(name = "PERSON_ROLE_LINK")
 public class PersonRoleLink extends Bean implements IPersonRoleLink {
 
-	@ManyToOne()
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "PERSON_ID", nullable = false, insertable = false, updatable = false)
 	private Person person;
 
 	@Column(name = "PERSON_ID", nullable = false)
 	private Long personId;
 
-	@ManyToOne()
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "ROLE_ID", nullable = false, insertable = false, updatable = false)
 	private Role role;
 
@@ -54,6 +56,9 @@ public class PersonRoleLink extends Bean implements IPersonRoleLink {
 	private Long roleId;
 
 	public Person getPerson() {
+		if (person == null && personId != null) {
+			person = EntityManagerProvider.get().find(Person.class, personId);
+		}
 		return person;
 	}
 
@@ -63,6 +68,9 @@ public class PersonRoleLink extends Bean implements IPersonRoleLink {
 	}
 
 	public Role getRole() {
+		if (role == null && roleId != null) {
+			role = EntityManagerProvider.get().find(Role.class, roleId);
+		}
 		return role;
 	}
 
@@ -79,6 +87,7 @@ public class PersonRoleLink extends Bean implements IPersonRoleLink {
 	@Override
 	public void setPersonId(final Long id) {
 		this.personId = id;
+		this.person = null;
 	}
 
 	@Override
@@ -89,6 +98,7 @@ public class PersonRoleLink extends Bean implements IPersonRoleLink {
 	@Override
 	public void setRoleId(final Long id) {
 		this.roleId = id;
+		this.role = null;
 	}
 
 }
