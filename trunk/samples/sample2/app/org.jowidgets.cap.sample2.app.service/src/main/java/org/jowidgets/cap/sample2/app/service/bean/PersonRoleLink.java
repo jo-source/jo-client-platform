@@ -53,6 +53,7 @@ public class PersonRoleLink extends Bean implements IPersonRoleLink {
 	@Column(name = "ROLE_ID", nullable = false)
 	private Long roleId;
 
+	@Override
 	public Person getPerson() {
 		return person;
 	}
@@ -62,6 +63,7 @@ public class PersonRoleLink extends Bean implements IPersonRoleLink {
 		personId = person != null ? person.getId() : null;
 	}
 
+	@Override
 	public Role getRole() {
 		return role;
 	}

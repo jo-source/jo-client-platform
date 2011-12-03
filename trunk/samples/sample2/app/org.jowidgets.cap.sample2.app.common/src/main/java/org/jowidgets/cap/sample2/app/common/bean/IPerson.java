@@ -89,6 +89,8 @@ public interface IPerson extends IBean {
 
 	void setActive(Boolean active);
 
+	ICountry getCountry();
+
 	Long getCountryId();
 
 	void setCountryId(Long id);
