@@ -145,4 +145,45 @@ public class PersonPersonLink extends Bean implements IPersonPersonLink {
 		this.relationTypeId = id;
 		this.relationType = null;
 	}
+
+	@Override
+	public String getSourcePersonName() {
+		return getSourcePerson().getName();
+	}
+
+	@Override
+	public void setSourcePersonName(final String name) {
+		getSourcePerson().setName(name);
+	}
+
+	@Override
+	public String getSourcePersonLastname() {
+		return getSourcePerson().getLastname();
+	}
+
+	@Override
+	public void setSourcePersonLastname(final String name) {
+		getSourcePerson().setLastname(name);
+	}
+
+	@Override
+	public String getDestinationPersonName() {
+		return getDestinationPerson().getName();
+	}
+
+	@Override
+	public void setDestinationPersonName(final String name) {
+		getDestinationPerson().setName(name);
+	}
+
+	@Override
+	public String getDestinationPersonLastname() {
+		return getDestinationPerson().getLastname();
+	}
+
+	@Override
+	public void setDestinationPersonLastname(final String name) {
+		getDestinationPerson().setLastname(name);
+	}
+
 }

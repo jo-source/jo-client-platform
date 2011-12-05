@@ -39,6 +39,7 @@ import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
 import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptorBuilder;
 import org.jowidgets.cap.common.api.filter.ArithmeticOperator;
 import org.jowidgets.cap.common.api.filter.IFilter;
+import org.jowidgets.cap.common.api.service.ICreatorService;
 import org.jowidgets.cap.common.api.service.IDeleterService;
 import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.sample2.app.common.bean.ICountry;
@@ -50,12 +51,14 @@ import org.jowidgets.cap.sample2.app.common.bean.IRole;
 import org.jowidgets.cap.sample2.app.common.entity.EntityIds;
 import org.jowidgets.cap.sample2.app.service.bean.Country;
 import org.jowidgets.cap.sample2.app.service.bean.Person;
+import org.jowidgets.cap.sample2.app.service.bean.PersonPersonLink;
 import org.jowidgets.cap.sample2.app.service.bean.PersonRelationType;
 import org.jowidgets.cap.sample2.app.service.bean.PersonRoleLink;
 import org.jowidgets.cap.sample2.app.service.bean.Role;
 import org.jowidgets.cap.sample2.app.service.descriptor.CountryDtoDescriptorBuilder;
 import org.jowidgets.cap.sample2.app.service.descriptor.PersonDtoDescriptorBuilder;
 import org.jowidgets.cap.sample2.app.service.descriptor.PersonRelationTypeDtoDescriptorBuilder;
+import org.jowidgets.cap.sample2.app.service.descriptor.PersonsOfSourcePersonLinkDtoDescriptorBuilder;
 import org.jowidgets.cap.sample2.app.service.descriptor.RoleDtoDescriptorBuilder;
 import org.jowidgets.cap.service.api.entity.IBeanServicesProviderBuilder;
 import org.jowidgets.cap.service.jpa.api.IJpaServiceFactory;
@@ -108,6 +111,35 @@ public class SampleEntityServiceBuilder extends EntityServiceBuilder {
 				PersonRoleLink.class,
 				IPersonRoleLink.ALL_PROPERTIES);
 		add(EntityIds.PERSON_ROLE_LINK, descriptor, servicesBuilder.build());
+
+		//IPersonsOfSourcePersonLink
+		descriptor = new RoleDtoDescriptorBuilder().build();
+		servicesBuilder = serviceFactory.beanServicesBuilder(
+				registry,
+				EntityIds.PERSONS_OF_SOURCE_PERSONS_LINK,
+				PersonPersonLink.class,
+				IPersonPersonLink.PERSONS_OF_SOURCE_PERSONS_PROPERTIES);
+		add(EntityIds.PERSONS_OF_SOURCE_PERSONS_LINK, descriptor, servicesBuilder.build());
+
+		//Linked persons of source persons
+		descriptor = new PersonsOfSourcePersonLinkDtoDescriptorBuilder().build();
+		servicesBuilder = serviceFactory.beanServicesBuilder(
+				registry,
+				EntityIds.LINKED_PERSONS_OF_SOURCE_PERSONS,
+				PersonPersonLink.class,
+				IPersonPersonLink.PERSONS_OF_SOURCE_PERSONS_PROPERTIES);
+		servicesBuilder.setReaderService(createLinkedPersonsOfSourcePersonsReader());
+		servicesBuilder.setCreatorService((ICreatorService) null);
+		add(EntityIds.LINKED_PERSONS_OF_SOURCE_PERSONS, descriptor, servicesBuilder.build());
+
+		//Linkable persons of source persons
+		descriptor = new PersonDtoDescriptorBuilder().build();
+		servicesBuilder = serviceFactory.beanServicesBuilder(
+				registry,
+				EntityIds.LINKABLE_PERSONS_OF_SOURCE_PERSONS,
+				Person.class,
+				IPerson.ALL_PROPERTIES);
+		add(EntityIds.LINKABLE_PERSONS_OF_SOURCE_PERSONS, descriptor, servicesBuilder.build());
 
 		//Linked persons of roles
 		descriptor = new PersonDtoDescriptorBuilder().build();
@@ -164,7 +196,7 @@ public class SampleEntityServiceBuilder extends EntityServiceBuilder {
 	private Collection<IEntityLinkDescriptor> createPersonLinkDescriptors() {
 		final List<IEntityLinkDescriptor> result = new LinkedList<IEntityLinkDescriptor>();
 		result.add(createPersonRoleLinkDescriptor());
-		//result.add(createPersonsOfSourcePersonsLinkDescriptor());
+		result.add(createPersonsOfSourcePersonsLinkDescriptor());
 		return result;
 	}
 
@@ -178,15 +210,23 @@ public class SampleEntityServiceBuilder extends EntityServiceBuilder {
 		return builder.build();
 	}
 
-	@SuppressWarnings("unused")
 	private IEntityLinkDescriptor createPersonsOfSourcePersonsLinkDescriptor() {
 		final IEntityLinkDescriptorBuilder builder = CapCommonToolkit.entityLinkDescriptorBuilder();
-		builder.setLinkTypeId(EntityIds.PERSON_PERSON_LINK);
+		builder.setLinkTypeId(EntityIds.PERSONS_OF_SOURCE_PERSONS_LINK);
 		builder.setLinkedTypeId(EntityIds.LINKED_PERSONS_OF_SOURCE_PERSONS);
 		builder.setLinkableTypeId(EntityIds.LINKABLE_PERSONS_OF_SOURCE_PERSONS);
 		builder.setSourceProperties(IPerson.ID_PROPERTY, IPersonPersonLink.SOURCE_PERSON_ID_PROPERTY);
 		builder.setDestinationProperties(IPerson.ID_PROPERTY, IPersonPersonLink.DESTINATION_PERSON_ID_PROPERTY);
 		return builder.build();
+	}
+
+	private IReaderService<Void> createLinkedPersonsOfSourcePersonsReader() {
+		final ICriteriaQueryCreatorBuilder<Void> queryBuilder = JpaQueryToolkit.criteriaQueryCreatorBuilder(PersonPersonLink.class);
+		queryBuilder.setParentPropertyPath("sourcePerson");
+		return serviceFactory.readerService(
+				PersonPersonLink.class,
+				queryBuilder.build(),
+				IPersonPersonLink.PERSONS_OF_SOURCE_PERSONS_PROPERTIES);
 	}
 
 	private IReaderService<Void> createPersonsOfRolesReader(final boolean linked) {
