@@ -35,6 +35,7 @@ import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -51,7 +52,7 @@ final class BeanInitializerImpl<BEAN_TYPE extends IBean> implements IBeanInitial
 		Assert.paramNotNull(beanType, "beanType");
 		Assert.paramNotNull(propertyNames, "propertyNames");
 
-		this.methods = new HashMap<String, Method>();
+		final Map<String, Method> unsortedMap = new HashMap<String, Method>();
 
 		try {
 			final BeanInfo beanInfo = Introspector.getBeanInfo(beanType);
@@ -60,13 +61,22 @@ final class BeanInitializerImpl<BEAN_TYPE extends IBean> implements IBeanInitial
 				if (propertyNames.contains(propertyName) && !propertyName.equals("version") && !propertyName.equals("id")) {
 					final Method writeMethod = propertyDescriptor.getWriteMethod();
 					if (writeMethod != null) {
-						methods.put(propertyName, propertyDescriptor.getWriteMethod());
+						unsortedMap.put(propertyName, propertyDescriptor.getWriteMethod());
 					}
 				}
 			}
 		}
 		catch (final IntrospectionException e) {
 			throw new RuntimeException(e);
+		}
+
+		//add the methods in that order they should be invoked when bean will be initialized
+		this.methods = new LinkedHashMap<String, Method>();
+		for (final String propertyName : propertyNames) {
+			final Method method = unsortedMap.get(propertyName);
+			if (method != null) {
+				methods.put(propertyName, method);
+			}
 		}
 	}
 
