@@ -79,6 +79,7 @@ final class LinkActionBuilderFactory {
 		final ILinkActionBuilder<BEAN_TYPE> builder) {
 		if (entityService != null && link != null && link.getLinkedTypeId() != null && link.getLinkableTypeId() != null) {
 
+			final IBeanDtoDescriptor linkTypeDescriptor = entityService.getDescriptor(link.getLinkTypeId());
 			final IBeanServicesProvider linkTypeServices = entityService.getBeanServices(link.getLinkTypeId());
 			final IBeanDtoDescriptor linkableTypeDescriptor = entityService.getDescriptor(link.getLinkableTypeId());
 			final IBeanServicesProvider linkableTypeServices = entityService.getBeanServices(link.getLinkableTypeId());
@@ -86,7 +87,13 @@ final class LinkActionBuilderFactory {
 			if (isBeanLinkableDescriptorOk(linkableTypeDescriptor)
 				&& isLinkServicesOk(linkTypeServices)
 				&& isLinkableServicesOk(linkableTypeServices)) {
-				return createLinkActionBuilder(link, linkTypeServices, linkableTypeDescriptor, linkableTypeServices, builder);
+				return createLinkActionBuilder(
+						link,
+						linkTypeServices,
+						linkTypeDescriptor,
+						linkableTypeDescriptor,
+						linkableTypeServices,
+						builder);
 			}
 
 		}
@@ -110,6 +117,7 @@ final class LinkActionBuilderFactory {
 	private static <BEAN_TYPE> ILinkActionBuilder<BEAN_TYPE> createLinkActionBuilder(
 		final IEntityLinkDescriptor link,
 		final IBeanServicesProvider linkTypeServices,
+		final IBeanDtoDescriptor linkTypeDescriptor,
 		final IBeanDtoDescriptor linkableTypeDescriptor,
 		final IBeanServicesProvider linkableTypeServices,
 		final ILinkActionBuilder<BEAN_TYPE> builder) {
@@ -117,6 +125,9 @@ final class LinkActionBuilderFactory {
 		builder.setDestinationEntityLabelPlural(linkableTypeDescriptor.getLabelPlural());
 
 		builder.setLinkCreatorService(linkTypeServices.creatorService());
+		if (linkTypeDescriptor != null) {
+			builder.setLinkAttributes(createAttributes(linkTypeDescriptor));
+		}
 
 		builder.setLinkableTableReaderService(linkableTypeServices.readerService());
 		builder.setLinkableTableEntityId(link.getLinkableTypeId());

@@ -69,6 +69,7 @@ final class LinkActionBuilderImpl<BEAN_TYPE> extends AbstractSingleUseBuilder<IA
 	private String text;
 	private String destinationEntityLabel;
 	private ICreatorService linkCreatorService;
+	private List<IAttribute<Object>> linkAttributes;
 	private IReaderService<Void> linkableReaderService;
 	private Object linkableTableEntityId;
 	private List<IAttribute<Object>> linkableTableAttributes;
@@ -155,6 +156,15 @@ final class LinkActionBuilderImpl<BEAN_TYPE> extends AbstractSingleUseBuilder<IA
 		checkExhausted();
 		Assert.paramNotNull(creatorService, "creatorService");
 		this.linkCreatorService = creatorService;
+		return this;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public ILinkActionBuilder<BEAN_TYPE> setLinkAttributes(final List<? extends IAttribute<?>> attributes) {
+		checkExhausted();
+		Assert.paramNotNull(attributes, "attributes");
+		this.linkAttributes = (List<IAttribute<Object>>) attributes;
 		return this;
 	}
 
@@ -307,6 +317,7 @@ final class LinkActionBuilderImpl<BEAN_TYPE> extends AbstractSingleUseBuilder<IA
 			model,
 			linkedDataModel,
 			linkCreatorService,
+			linkAttributes,
 			linkableTableEntityId,
 			linkableReaderService,
 			linkableTableAttributes,
