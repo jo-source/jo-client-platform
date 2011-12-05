@@ -28,7 +28,10 @@
 
 package org.jowidgets.cap.sample2.app.service.entity;
 
+import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
@@ -40,6 +43,7 @@ import org.jowidgets.cap.common.api.service.IDeleterService;
 import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.sample2.app.common.bean.ICountry;
 import org.jowidgets.cap.sample2.app.common.bean.IPerson;
+import org.jowidgets.cap.sample2.app.common.bean.IPersonPersonLink;
 import org.jowidgets.cap.sample2.app.common.bean.IPersonRelationType;
 import org.jowidgets.cap.sample2.app.common.bean.IPersonRoleLink;
 import org.jowidgets.cap.sample2.app.common.bean.IRole;
@@ -75,7 +79,7 @@ public class SampleEntityServiceBuilder extends EntityServiceBuilder {
 		//IPerson
 		descriptor = new PersonDtoDescriptorBuilder().build();
 		servicesBuilder = serviceFactory.beanServicesBuilder(registry, EntityIds.PERSON, Person.class, IPerson.ALL_PROPERTIES);
-		add(EntityIds.PERSON, descriptor, servicesBuilder.build(), Collections.singletonList(createPersonRoleLinkDescriptor()));
+		add(EntityIds.PERSON, descriptor, servicesBuilder.build(), createPersonLinkDescriptors());
 
 		//IRole
 		descriptor = new RoleDtoDescriptorBuilder().build();
@@ -157,6 +161,34 @@ public class SampleEntityServiceBuilder extends EntityServiceBuilder {
 		return builder.build();
 	}
 
+	private Collection<IEntityLinkDescriptor> createPersonLinkDescriptors() {
+		final List<IEntityLinkDescriptor> result = new LinkedList<IEntityLinkDescriptor>();
+		result.add(createPersonRoleLinkDescriptor());
+		//result.add(createPersonsOfSourcePersonsLinkDescriptor());
+		return result;
+	}
+
+	private IEntityLinkDescriptor createPersonRoleLinkDescriptor() {
+		final IEntityLinkDescriptorBuilder builder = CapCommonToolkit.entityLinkDescriptorBuilder();
+		builder.setLinkTypeId(EntityIds.PERSON_ROLE_LINK);
+		builder.setLinkedTypeId(EntityIds.LINKED_ROLES_OF_PERSONS);
+		builder.setLinkableTypeId(EntityIds.LINKABLE_ROLES_OF_PERSONS);
+		builder.setSourceProperties(IPerson.ID_PROPERTY, IPersonRoleLink.PERSON_ID_PROPERTY);
+		builder.setDestinationProperties(IRole.ID_PROPERTY, IPersonRoleLink.ROLE_ID_PROPERTY);
+		return builder.build();
+	}
+
+	@SuppressWarnings("unused")
+	private IEntityLinkDescriptor createPersonsOfSourcePersonsLinkDescriptor() {
+		final IEntityLinkDescriptorBuilder builder = CapCommonToolkit.entityLinkDescriptorBuilder();
+		builder.setLinkTypeId(EntityIds.PERSON_PERSON_LINK);
+		builder.setLinkedTypeId(EntityIds.LINKED_PERSONS_OF_SOURCE_PERSONS);
+		builder.setLinkableTypeId(EntityIds.LINKABLE_PERSONS_OF_SOURCE_PERSONS);
+		builder.setSourceProperties(IPerson.ID_PROPERTY, IPersonPersonLink.SOURCE_PERSON_ID_PROPERTY);
+		builder.setDestinationProperties(IPerson.ID_PROPERTY, IPersonPersonLink.DESTINATION_PERSON_ID_PROPERTY);
+		return builder.build();
+	}
+
 	private IReaderService<Void> createPersonsOfRolesReader(final boolean linked) {
 		final ICriteriaQueryCreatorBuilder<Void> queryBuilder = JpaQueryToolkit.criteriaQueryCreatorBuilder(Person.class);
 		queryBuilder.setParentPropertyPath(linked, "personRoleLinks", "role");
@@ -168,16 +200,6 @@ public class SampleEntityServiceBuilder extends EntityServiceBuilder {
 			queryBuilder.addFilter(filter);
 		}
 		return serviceFactory.readerService(Person.class, queryBuilder.build(), IPerson.ALL_PROPERTIES);
-	}
-
-	private IEntityLinkDescriptor createPersonRoleLinkDescriptor() {
-		final IEntityLinkDescriptorBuilder builder = CapCommonToolkit.entityLinkDescriptorBuilder();
-		builder.setLinkTypeId(EntityIds.PERSON_ROLE_LINK);
-		builder.setLinkedTypeId(EntityIds.LINKED_ROLES_OF_PERSONS);
-		builder.setLinkableTypeId(EntityIds.LINKABLE_ROLES_OF_PERSONS);
-		builder.setSourceProperties(IPerson.ID_PROPERTY, IPersonRoleLink.PERSON_ID_PROPERTY);
-		builder.setDestinationProperties(IRole.ID_PROPERTY, IPersonRoleLink.ROLE_ID_PROPERTY);
-		return builder.build();
 	}
 
 	private IReaderService<Void> createRolesOfPersonsReader(final boolean linked) {

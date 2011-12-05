@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.service.impl;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -76,7 +77,7 @@ final class EntityServiceBuilderImpl implements IEntityServiceBuilder {
 		final Object entityTypeId,
 		final IBeanDtoDescriptor descriptor,
 		final IBeanServicesProvider beanServicesProvider,
-		final List<IEntityLinkDescriptor> entityLinks) {
+		final Collection<? extends IEntityLinkDescriptor> entityLinks) {
 		Assert.paramNotNull(descriptor, "descriptor");
 		Assert.paramNotNull(beanServicesProvider, "beanServicesProvider");
 		Assert.paramNotNull(entityLinks, "entityLinks");
