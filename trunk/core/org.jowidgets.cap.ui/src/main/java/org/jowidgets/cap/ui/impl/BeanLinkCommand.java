@@ -87,6 +87,7 @@ final class BeanLinkCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
 	private final IDataModel linkedDataModel;
 
 	private final ICreatorService linkCreatorService;
+	private final List<IAttribute<Object>> linkAttributes;
 	private final Object linkableTableEntityId;
 	private final IReaderService<Void> linkableReaderService;
 	private final List<IAttribute<Object>> linkableTableAttributes;
@@ -106,6 +107,7 @@ final class BeanLinkCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
 		final IBeanListModel<BEAN_TYPE> model,
 		final IDataModel linkedDataModel,
 		final ICreatorService linkCreatorService,
+		final List<IAttribute<Object>> linkAttributes,
 		final Object linkableTableEntityId,
 		final IReaderService<Void> linkableReaderService,
 		final List<IAttribute<Object>> linkableTableAttributes,
@@ -137,6 +139,7 @@ final class BeanLinkCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
 		this.model = model;
 		this.linkedDataModel = linkedDataModel;
 		this.linkCreatorService = linkCreatorService;
+		this.linkAttributes = linkAttributes;
 		this.linkableTableEntityId = linkableTableEntityId;
 		this.linkableReaderService = linkableReaderService;
 		this.linkableTableAttributes = linkableTableAttributes;

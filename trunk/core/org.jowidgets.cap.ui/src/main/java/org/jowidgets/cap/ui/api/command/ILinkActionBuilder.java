@@ -74,6 +74,8 @@ public interface ILinkActionBuilder<BEAN_TYPE> {
 
 	ILinkActionBuilder<BEAN_TYPE> setLinkCreatorService(ICreatorService creatorService);
 
+	ILinkActionBuilder<BEAN_TYPE> setLinkAttributes(List<? extends IAttribute<?>> attributes);
+
 	ILinkActionBuilder<BEAN_TYPE> setLinkableTableAttributes(List<? extends IAttribute<?>> attributes);
 
 	ILinkActionBuilder<BEAN_TYPE> setLinkableTableEntityId(Object id);
