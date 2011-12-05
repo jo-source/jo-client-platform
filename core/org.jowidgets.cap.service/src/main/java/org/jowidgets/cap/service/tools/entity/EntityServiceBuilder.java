@@ -28,7 +28,7 @@
 
 package org.jowidgets.cap.service.tools.entity;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
 import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
@@ -58,7 +58,7 @@ public class EntityServiceBuilder implements IEntityServiceBuilder {
 		final Object entityTypeId,
 		final IBeanDtoDescriptor descriptor,
 		final IBeanServicesProvider beanServicesProvider,
-		final List<IEntityLinkDescriptor> entityLinks) {
+		final Collection<? extends IEntityLinkDescriptor> entityLinks) {
 		return builder.add(entityTypeId, descriptor, beanServicesProvider, entityLinks);
 	}
 

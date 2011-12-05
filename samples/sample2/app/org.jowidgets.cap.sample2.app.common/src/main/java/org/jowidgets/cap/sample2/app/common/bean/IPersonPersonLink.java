@@ -25,69 +25,45 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
-package org.jowidgets.cap.sample2.app.service.bean;
+package org.jowidgets.cap.sample2.app.common.bean;
 
-import javax.persistence.Basic;
-import javax.persistence.Entity;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
+import java.util.LinkedList;
+import java.util.List;
 
-import org.jowidgets.cap.sample2.app.common.bean.IPersonRelationType;
+import org.jowidgets.cap.common.api.bean.IBean;
 
-@Entity
-@Table(name = "PERSON_RELATION_TYPE", uniqueConstraints = @UniqueConstraint(columnNames = {"sourceName", "destinationName"}))
-public class PersonRelationType extends Bean implements IPersonRelationType {
+public interface IPersonPersonLink extends IBean {
 
-	@Basic
-	private String sourceName;
+	String SOURCE_PERSON_ID_PROPERTY = "sourcePersonId";
+	String DESTINATION_PERSON_ID_PROPERTY = "destinationPersonId";
+	String RELATION_TYPE_ID_PROPERTY = "relationTypeId";
+	String COMMENT_PROPERTY = "comment";
 
-	@Basic
-	private String sourceDescription;
+	List<String> ALL_PROPERTIES = new LinkedList<String>() {
+		private static final long serialVersionUID = 1L;
+		{
+			add(SOURCE_PERSON_ID_PROPERTY);
+			add(DESTINATION_PERSON_ID_PROPERTY);
+			add(RELATION_TYPE_ID_PROPERTY);
+			add(COMMENT_PROPERTY);
+			add(IBean.ID_PROPERTY);
+			add(IBean.VERSION_PROPERTY);
+		}
+	};
 
-	@Basic
-	private String destinationName;
+	Long getSourcePersonId();
 
-	@Basic
-	private String destinationDescription;
+	void setSourcePersonId(Long id);
 
-	@Override
-	public String getSourceName() {
-		return sourceName;
-	}
+	Long getDestinationPersonId();
 
-	@Override
-	public void setSourceName(final String sourceName) {
-		this.sourceName = sourceName;
-	}
+	void setDestinationPersonId(Long id);
 
-	@Override
-	public String getSourceDescription() {
-		return sourceDescription;
-	}
+	Long getRelationTypeId();
 
-	@Override
-	public void setSourceDescription(final String sourceDescription) {
-		this.sourceDescription = sourceDescription;
-	}
+	void setRelationTypeId(Long id);
 
-	@Override
-	public String getDestinationName() {
-		return destinationName;
-	}
+	String getComment();
 
-	@Override
-	public void setDestinationName(final String destinationName) {
-		this.destinationName = destinationName;
-	}
-
-	@Override
-	public String getDestinationDescription() {
-		return destinationDescription;
-	}
-
-	@Override
-	public void setDestinationDescription(final String destinationDescription) {
-		this.destinationDescription = destinationDescription;
-	}
-
+	void setComment(String comment);
 }
