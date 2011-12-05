@@ -38,6 +38,24 @@ public interface IPersonPersonLink extends IBean {
 	String DESTINATION_PERSON_ID_PROPERTY = "destinationPersonId";
 	String RELATION_TYPE_ID_PROPERTY = "relationTypeId";
 	String COMMENT_PROPERTY = "comment";
+	String SOURCE_PERSON_NAME_PROPERTY = "sourcePersonName";
+	String SOURCE_PERSON_LAST_NAME_PROPERTY = "sourcePersonLastname";
+	String DESTINATION_PERSON_NAME_PROPERTY = "destinationPersonName";
+	String DESTINATION_PERSON_LAST_NAME_PROPERTY = "destinationPersonLastname";
+
+	List<String> PERSONS_OF_SOURCE_PERSONS_PROPERTIES = new LinkedList<String>() {
+		private static final long serialVersionUID = 1L;
+		{
+			add(SOURCE_PERSON_ID_PROPERTY);
+			add(DESTINATION_PERSON_ID_PROPERTY);
+			add(RELATION_TYPE_ID_PROPERTY);
+			add(COMMENT_PROPERTY);
+			add(DESTINATION_PERSON_NAME_PROPERTY);
+			add(DESTINATION_PERSON_LAST_NAME_PROPERTY);
+			add(IBean.ID_PROPERTY);
+			add(IBean.VERSION_PROPERTY);
+		}
+	};
 
 	List<String> ALL_PROPERTIES = new LinkedList<String>() {
 		private static final long serialVersionUID = 1L;
@@ -46,6 +64,10 @@ public interface IPersonPersonLink extends IBean {
 			add(DESTINATION_PERSON_ID_PROPERTY);
 			add(RELATION_TYPE_ID_PROPERTY);
 			add(COMMENT_PROPERTY);
+			add(SOURCE_PERSON_NAME_PROPERTY);
+			add(SOURCE_PERSON_LAST_NAME_PROPERTY);
+			add(DESTINATION_PERSON_NAME_PROPERTY);
+			add(DESTINATION_PERSON_LAST_NAME_PROPERTY);
 			add(IBean.ID_PROPERTY);
 			add(IBean.VERSION_PROPERTY);
 		}
@@ -66,4 +88,20 @@ public interface IPersonPersonLink extends IBean {
 	String getComment();
 
 	void setComment(String comment);
+
+	String getSourcePersonName();
+
+	void setSourcePersonName(String name);
+
+	String getSourcePersonLastname();
+
+	void setSourcePersonLastname(String name);
+
+	String getDestinationPersonName();
+
+	void setDestinationPersonName(String name);
+
+	String getDestinationPersonLastname();
+
+	void setDestinationPersonLastname(String name);
 }
