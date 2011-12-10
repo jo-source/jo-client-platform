@@ -42,6 +42,7 @@ import java.util.Map;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+import javax.persistence.criteria.AbstractQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
@@ -198,10 +199,10 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 		final Predicate predicate;
 
 		if (filter instanceof IArithmeticFilter) {
-			predicate = createFilterPredicate(criteriaBuilder, bean, query, (IArithmeticFilter) filter);
+			predicate = createArithmeticFilterPredicate(criteriaBuilder, bean, query, (IArithmeticFilter) filter);
 		}
 		else if (filter instanceof IBooleanFilter) {
-			predicate = createFilterPredicate(criteriaBuilder, bean, query, (IBooleanFilter) filter, parameter);
+			predicate = createBooleanFilterPredicate(criteriaBuilder, bean, query, (IBooleanFilter) filter, parameter);
 		}
 		else if (filter instanceof ICustomFilter) {
 			final ICustomFilter customFilter = (ICustomFilter) filter;
@@ -222,191 +223,313 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 			// TODO HRW support IArithmeticPropertyFilter
 			throw new IllegalArgumentException("unsupported filter type: " + filter.getClass().getName());
 		}
-		if (filter.isInverted()) {
+		if (filter.isInverted() && !(filter instanceof IArithmeticFilter)) {
 			return criteriaBuilder.not(predicate);
 		}
 		return predicate;
 	}
 
-	private Path<?> getPath(final Root<?> bean, final String propertyName) {
-		try {
-			return bean.get(propertyName);
+	private Predicate createBooleanFilterPredicate(
+		final CriteriaBuilder criteriaBuilder,
+		final Root<?> bean,
+		final CriteriaQuery<?> query,
+		final IBooleanFilter filter,
+		final PARAM_TYPE parameter) {
+		final List<Predicate> predicates = new LinkedList<Predicate>();
+		for (final IFilter subFilter : filter.getFilters()) {
+			final Predicate predicate = createFilterPredicate(criteriaBuilder, bean, query, subFilter, parameter);
+			predicates.add(predicate);
 		}
-		catch (final IllegalArgumentException iae) {
-			// check for QueryPath annotation
-			final Class<?> beanClass = bean.getJavaType();
-			try {
-				final PropertyDescriptor descriptor = new PropertyDescriptor(propertyName, beanClass, "is"
-					+ propertyName.substring(0, 1).toUpperCase(Locale.ENGLISH)
-					+ propertyName.substring(1), null);
-				final Method readMethod = descriptor.getReadMethod();
-				final QueryPath queryPath = readMethod.getAnnotation(QueryPath.class);
-
-				Path<?> parentPath = bean;
-				ManagedType<?> type = bean.getModel();
-				if (queryPath != null) {
-					for (final String pathSegment : queryPath.path()) {
-						final Attribute<?, ?> attribute;
-						if (type != null) {
-							attribute = type.getAttribute(pathSegment);
-							if (attribute != null) {
-								type = attribute.getDeclaringType();
-							}
-						}
-						else {
-							attribute = null;
-						}
-						if (attribute != null && attribute.isCollection() && parentPath instanceof From) {
-							final From<?, ?> from = (From<?, ?>) parentPath;
-							parentPath = from.join(pathSegment, JoinType.LEFT);
-						}
-						else {
-							parentPath = parentPath.get(pathSegment);
-						}
-					}
-
-					return parentPath;
-				}
-			}
-			catch (final IntrospectionException e) {
-				throw iae;
-			}
-			throw iae;
+		if (filter.getOperator() == BooleanOperator.AND) {
+			return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
 		}
+		return criteriaBuilder.or(predicates.toArray(new Predicate[0]));
 	}
 
 	@SuppressWarnings("unchecked")
-	private Predicate createFilterPredicate(
+	private Predicate createArithmeticFilterPredicate(
 		final CriteriaBuilder criteriaBuilder,
 		final Root<?> bean,
 		final CriteriaQuery<?> query,
 		final IArithmeticFilter filter) {
 
-		final Path<?> path = getPath(bean, filter.getPropertyName());
-		final boolean isCollection = ((Attribute<?, ?>) path.getModel()).isCollection();
-		final boolean isJoined = path.getParentPath() instanceof Join;
+		if (isJoinQueryPath(bean, filter.getPropertyName())) {
+			final Class<Object> javaType = (Class<Object>) bean.getJavaType();
+			final Subquery<Object> subquery = query.subquery(javaType);
+			final Root<Object> subqueryRoot = subquery.from(javaType);
+			subquery.select(subqueryRoot.get(IBean.ID_PROPERTY));
+
+			final Predicate joinPredicate = criteriaBuilder.equal(
+					bean.get(IBean.ID_PROPERTY),
+					subqueryRoot.get(IBean.ID_PROPERTY));
+
+			final Predicate predicate = createArithmeticFilterPredicate(
+					criteriaBuilder,
+					subqueryRoot,
+					subquery,
+					filter,
+					getJoinQueryPath(subqueryRoot, filter.getPropertyName()));
+
+			subquery.where(criteriaBuilder.and(joinPredicate, predicate));
+
+			return bean.get(IBean.ID_PROPERTY).in(subquery);
+		}
+		else {
+			return createArithmeticFilterPredicate(criteriaBuilder, bean, query, filter, getPath(bean, filter.getPropertyName()));
+		}
+
+	}
+
+	private Predicate createArithmeticFilterPredicate(
+		final CriteriaBuilder criteriaBuilder,
+		final Root<?> bean,
+		final AbstractQuery<?> query,
+		final IArithmeticFilter filter,
+		final Path<?> path) {
 
 		switch (filter.getOperator()) {
 			case BETWEEN:
-				return criteriaBuilder.between(
-						(Expression<Comparable<Object>>) path,
-						criteriaBuilder.literal((Comparable<Object>) filter.getParameters()[0]),
-						criteriaBuilder.literal((Comparable<Object>) filter.getParameters()[1]));
+				return createBetweenPredicate(criteriaBuilder, filter, path);
 			case GREATER:
-				return criteriaBuilder.greaterThan(
-						(Expression<Comparable<Object>>) path,
-						criteriaBuilder.literal((Comparable<Object>) filter.getParameters()[0]));
+				return createGreaterPredicate(criteriaBuilder, filter, path);
 			case GREATER_EQUAL:
-				return criteriaBuilder.greaterThanOrEqualTo(
-						(Expression<Comparable<Object>>) path,
-						criteriaBuilder.literal((Comparable<Object>) filter.getParameters()[0]));
+				return createGreaterEqualPredicate(criteriaBuilder, filter, path);
 			case LESS:
-				return criteriaBuilder.lessThan(
-						(Expression<Comparable<Object>>) path,
-						criteriaBuilder.literal((Comparable<Object>) filter.getParameters()[0]));
+				return createLessPredicate(criteriaBuilder, filter, path);
 			case LESS_EQUAL:
-				return criteriaBuilder.lessThanOrEqualTo(
-						(Expression<Comparable<Object>>) path,
-						criteriaBuilder.literal((Comparable<Object>) filter.getParameters()[0]));
-				// CHECKSTYLE:OFF
-			case EQUAL: {
-				// CHECKSTYLE:ON
-				Expression<?> expr = path;
-				Object arg = filter.getParameters()[0];
-				if (arg instanceof String && path.getJavaType() == String.class) {
-					String s = (String) arg;
-					if (caseInsensitive) {
-						expr = criteriaBuilder.upper((Expression<String>) expr);
-						s = s.toUpperCase();
-						arg = s;
-					}
-					if (s.contains("*") || s.contains("%")) {
-						// like queries for collection attributes cause duplicate results
-						query.distinct(query.isDistinct() || isJoined || isCollection);
-						return criteriaBuilder.like((Expression<String>) expr, s.replace('*', '%'));
-						// TODO HRW add support for LIKE taxonomy queries
-					}
-				}
-				final Predicate eqPredicate = criteriaBuilder.equal(expr, arg);
-				final Predicate lookupPredicate = createLookupPredicate(
-						criteriaBuilder,
-						query,
-						expr,
-						arg,
-						bean.getJavaType(),
-						filter.getPropertyName());
-				if (lookupPredicate != null) {
-					return criteriaBuilder.or(eqPredicate, lookupPredicate);
-				}
-				return eqPredicate;
-			}
+				return createLessEqualPredicate(criteriaBuilder, filter, path);
+			case EQUAL:
+				return createEqualPredicate(criteriaBuilder, bean, query, filter, path);
 			case EMPTY:
-				if (isJoined && ((Attribute<?, ?>) path.getParentPath().getModel()).isCollection()) {
-					return criteriaBuilder.isEmpty((Expression<Collection<?>>) path.getParentPath());
-				}
-				if (isCollection) {
-					return criteriaBuilder.isEmpty((Expression<Collection<?>>) path);
-				}
-				if (path.getJavaType() == String.class) {
-					return criteriaBuilder.or(path.isNull(), criteriaBuilder.equal(path, ""));
-				}
-				return path.isNull();
-				// CHECKSTYLE:OFF
-			case CONTAINS_ANY: {
-				// CHECKSTYLE:ON
-				Expression<?> expr = path;
-				Collection<?> params = Arrays.asList(filter.getParameters());
-				if (caseInsensitive && path.getJavaType() == String.class) {
-					final Collection<String> newParams = new HashSet<String>();
-					for (final Object p : params) {
-						newParams.add(String.valueOf(p).toUpperCase());
-					}
-					params = newParams;
-					expr = criteriaBuilder.upper((Expression<String>) path);
-				}
-				final Predicate lookupPredicate = createLookupPredicate(
-						criteriaBuilder,
-						query,
-						expr,
-						params,
-						bean.getJavaType(),
-						filter.getPropertyName());
-				if (lookupPredicate != null) {
-					return criteriaBuilder.or(expr.in(params), lookupPredicate);
-				}
-				return expr.in(params);
-			}
-				// CHECKSTYLE:OFF
-			case CONTAINS_ALL: {
-				// CHECKSTYLE:ON
-				final Collection<?> params = Arrays.asList(filter.getParameters());
-				final Collection<Object> newParams = new HashSet<Object>();
-				final boolean toUpper = caseInsensitive && path.getJavaType() == String.class;
-				for (final Object p : params) {
-					if (p != null) {
-						if (toUpper) {
-							newParams.add(p.toString().toUpperCase());
-						}
-						else {
-							newParams.add(p);
-						}
-					}
-				}
-				final Subquery<Long> subquery = query.subquery(Long.class);
-				subquery.select(criteriaBuilder.count(criteriaBuilder.literal(1))).where(
-						(toUpper ? criteriaBuilder.upper((Expression<String>) path) : path).in(newParams));
-				return criteriaBuilder.ge(subquery, newParams.size());
-				// TODO HRW add support for CONTAINS_ALL taxonomy queries
-			}
+				return createEmptyPredicate(criteriaBuilder, filter, path);
+			case CONTAINS_ANY:
+				return createContainsAnyPredicate(criteriaBuilder, bean, query, filter, path);
+			case CONTAINS_ALL:
+				return createContainsAllPredicate(criteriaBuilder, bean, query, filter, path);
 			default:
 				throw new IllegalArgumentException("unsupported operator: " + filter.getOperator());
 		}
 	}
 
 	@SuppressWarnings("unchecked")
+	private Predicate createBetweenPredicate(
+		final CriteriaBuilder criteriaBuilder,
+		final IArithmeticFilter filter,
+		final Path<?> path) {
+		final Predicate result = criteriaBuilder.between(
+				(Expression<Comparable<Object>>) path,
+				criteriaBuilder.literal((Comparable<Object>) filter.getParameters()[0]),
+				criteriaBuilder.literal((Comparable<Object>) filter.getParameters()[1]));
+		return invertPredicateIfNeeded(criteriaBuilder, result, filter);
+	}
+
+	@SuppressWarnings("unchecked")
+	private Predicate createGreaterPredicate(
+		final CriteriaBuilder criteriaBuilder,
+		final IArithmeticFilter filter,
+		final Path<?> path) {
+		final Predicate result = criteriaBuilder.greaterThan(
+				(Expression<Comparable<Object>>) path,
+				criteriaBuilder.literal((Comparable<Object>) filter.getParameters()[0]));
+		return invertPredicateIfNeeded(criteriaBuilder, result, filter);
+	}
+
+	@SuppressWarnings("unchecked")
+	private Predicate createGreaterEqualPredicate(
+		final CriteriaBuilder criteriaBuilder,
+		final IArithmeticFilter filter,
+		final Path<?> path) {
+		final Predicate result = criteriaBuilder.greaterThanOrEqualTo(
+				(Expression<Comparable<Object>>) path,
+				criteriaBuilder.literal((Comparable<Object>) filter.getParameters()[0]));
+		return invertPredicateIfNeeded(criteriaBuilder, result, filter);
+	}
+
+	@SuppressWarnings("unchecked")
+	private Predicate createLessPredicate(
+		final CriteriaBuilder criteriaBuilder,
+		final IArithmeticFilter filter,
+		final Path<?> path) {
+		final Predicate result = criteriaBuilder.lessThan(
+				(Expression<Comparable<Object>>) path,
+				criteriaBuilder.literal((Comparable<Object>) filter.getParameters()[0]));
+		return invertPredicateIfNeeded(criteriaBuilder, result, filter);
+	}
+
+	@SuppressWarnings("unchecked")
+	private Predicate createLessEqualPredicate(
+		final CriteriaBuilder criteriaBuilder,
+		final IArithmeticFilter filter,
+		final Path<?> path) {
+		final Predicate result = criteriaBuilder.lessThanOrEqualTo(
+				(Expression<Comparable<Object>>) path,
+				criteriaBuilder.literal((Comparable<Object>) filter.getParameters()[0]));
+		return invertPredicateIfNeeded(criteriaBuilder, result, filter);
+	}
+
+	@SuppressWarnings("unchecked")
+	private Predicate createEmptyPredicate(
+		final CriteriaBuilder criteriaBuilder,
+		final IArithmeticFilter filter,
+		final Path<?> path) {
+		final boolean isCollection = ((Attribute<?, ?>) path.getModel()).isCollection();
+		final boolean isJoined = path.getParentPath() instanceof Join;
+
+		if (isJoined && ((Attribute<?, ?>) path.getParentPath().getModel()).isCollection()) {
+			if (filter.isInverted()) {
+				return criteriaBuilder.isNotEmpty((Expression<Collection<?>>) path.getParentPath());
+			}
+			else {
+				return criteriaBuilder.isEmpty((Expression<Collection<?>>) path.getParentPath());
+			}
+		}
+		if (isCollection) {
+			if (filter.isInverted()) {
+				return criteriaBuilder.isNotEmpty((Expression<Collection<?>>) path);
+			}
+			else {
+				return criteriaBuilder.isEmpty((Expression<Collection<?>>) path);
+			}
+		}
+		if (path.getJavaType() == String.class) {
+			if (filter.isInverted()) {
+				return criteriaBuilder.or(path.isNotNull(), criteriaBuilder.notEqual(path, ""));
+			}
+			else {
+				return criteriaBuilder.or(path.isNull(), criteriaBuilder.equal(path, ""));
+			}
+		}
+		if (filter.isInverted()) {
+			return path.isNotNull();
+		}
+		else {
+			return path.isNull();
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private Predicate createEqualPredicate(
+		final CriteriaBuilder criteriaBuilder,
+		final Root<?> bean,
+		final AbstractQuery<?> query,
+		final IArithmeticFilter filter,
+		final Path<?> path) {
+
+		Expression<?> expr = path;
+		Object arg = filter.getParameters()[0];
+		if (arg instanceof String && path.getJavaType() == String.class) {
+			String s = (String) arg;
+			if (caseInsensitive) {
+				expr = criteriaBuilder.upper((Expression<String>) expr);
+				s = s.toUpperCase();
+				arg = s;
+			}
+			if (s.contains("*") || s.contains("%")) {
+				return criteriaBuilder.like((Expression<String>) expr, s.replace('*', '%'));
+				// TODO HRW add support for LIKE taxonomy queries
+			}
+		}
+		final Predicate result;
+		final Predicate eqPredicate = criteriaBuilder.equal(expr, arg);
+		final Predicate lookupPredicate = createLookupPredicate(
+				criteriaBuilder,
+				query,
+				expr,
+				arg,
+				bean.getJavaType(),
+				filter.getPropertyName());
+		if (lookupPredicate != null) {
+			result = criteriaBuilder.or(eqPredicate, lookupPredicate);
+		}
+		else {
+			result = eqPredicate;
+		}
+
+		return invertPredicateIfNeeded(criteriaBuilder, result, filter);
+	}
+
+	@SuppressWarnings("unchecked")
+	private Predicate createContainsAnyPredicate(
+		final CriteriaBuilder criteriaBuilder,
+		final Root<?> bean,
+		final AbstractQuery<?> query,
+		final IArithmeticFilter filter,
+		final Path<?> path) {
+
+		Expression<?> expr = path;
+		Collection<?> params = Arrays.asList(filter.getParameters());
+		if (caseInsensitive && path.getJavaType() == String.class) {
+			final Collection<String> newParams = new HashSet<String>();
+			for (final Object p : params) {
+				newParams.add(String.valueOf(p).toUpperCase());
+			}
+			params = newParams;
+			expr = criteriaBuilder.upper((Expression<String>) path);
+		}
+		final Predicate result;
+		final Predicate lookupPredicate = createLookupPredicate(
+				criteriaBuilder,
+				query,
+				expr,
+				params,
+				bean.getJavaType(),
+				filter.getPropertyName());
+		if (lookupPredicate != null) {
+			result = criteriaBuilder.or(expr.in(params), lookupPredicate);
+		}
+		else {
+			result = expr.in(params);
+		}
+		return invertPredicateIfNeeded(criteriaBuilder, result, filter);
+	}
+
+	@SuppressWarnings("unchecked")
+	private Predicate createContainsAllPredicate(
+		final CriteriaBuilder criteriaBuilder,
+		final Root<?> bean,
+		final AbstractQuery<?> query,
+		final IArithmeticFilter filter,
+		final Path<?> path) {
+
+		final Collection<?> params = Arrays.asList(filter.getParameters());
+		final Collection<Object> newParams = new HashSet<Object>();
+		final boolean toUpper = caseInsensitive && path.getJavaType() == String.class;
+		for (final Object p : params) {
+			if (p != null) {
+				if (toUpper) {
+					newParams.add(p.toString().toUpperCase());
+				}
+				else {
+					newParams.add(p);
+				}
+			}
+		}
+		final Subquery<Long> subquery = query.subquery(Long.class);
+		subquery.select(criteriaBuilder.count(criteriaBuilder.literal(1))).where(
+				(toUpper ? criteriaBuilder.upper((Expression<String>) path) : path).in(newParams));
+
+		final Predicate result = criteriaBuilder.ge(subquery, newParams.size());
+		// TODO HRW add support for CONTAINS_ALL taxonomy queries
+
+		return invertPredicateIfNeeded(criteriaBuilder, result, filter);
+	}
+
+	private Predicate invertPredicateIfNeeded(
+		final CriteriaBuilder criteriaBuilder,
+		final Predicate predicate,
+		final IArithmeticFilter filter) {
+		if (filter.isInverted()) {
+			return criteriaBuilder.not(predicate);
+		}
+		else {
+			return predicate;
+		}
+	}
+
+	@SuppressWarnings("unchecked")
 	private Predicate createLookupPredicate(
 		final CriteriaBuilder criteriaBuilder,
-		final CriteriaQuery<?> query,
+		final AbstractQuery<?> query,
 		final Expression<?> expr,
 		final Object arg,
 		final Class<?> beanClass,
@@ -445,21 +568,91 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 		return expr.in(subquery);
 	}
 
-	private Predicate createFilterPredicate(
-		final CriteriaBuilder criteriaBuilder,
-		final Root<?> bean,
-		final CriteriaQuery<?> query,
-		final IBooleanFilter filter,
-		final PARAM_TYPE parameter) {
-		final List<Predicate> predicates = new LinkedList<Predicate>();
-		for (final IFilter subFilter : filter.getFilters()) {
-			final Predicate predicate = createFilterPredicate(criteriaBuilder, bean, query, subFilter, parameter);
-			predicates.add(predicate);
+	private Path<?> getPath(final Root<?> bean, final String propertyName) {
+		try {
+			return bean.get(propertyName);
 		}
-		if (filter.getOperator() == BooleanOperator.AND) {
-			return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+		catch (final IllegalArgumentException illegalArgumentException) {
+			final Path<?> joinQueryPath = getJoinQueryPath(bean, propertyName);
+			if (joinQueryPath != null) {
+				return joinQueryPath;
+			}
+			else {
+				throw illegalArgumentException;
+			}
 		}
-		return criteriaBuilder.or(predicates.toArray(new Predicate[0]));
+	}
+
+	private Path<?> getJoinQueryPath(final Root<?> bean, final String propertyName) {
+		final QueryPath queryPath = getQueryPath(bean, propertyName);
+		if (queryPath != null) {
+			Path<?> parentPath = bean;
+			ManagedType<?> type = bean.getModel();
+			for (final String pathSegment : queryPath.path()) {
+				final Attribute<?, ?> attribute;
+				if (type != null) {
+					attribute = type.getAttribute(pathSegment);
+					if (attribute != null) {
+						type = attribute.getDeclaringType();
+					}
+				}
+				else {
+					attribute = null;
+				}
+				if (attribute != null && attribute.isCollection() && parentPath instanceof From) {
+					final From<?, ?> from = (From<?, ?>) parentPath;
+					parentPath = from.join(pathSegment, JoinType.LEFT);
+				}
+				else {
+					parentPath = parentPath.get(pathSegment);
+				}
+			}
+			return parentPath;
+		}
+		else {
+			return null;
+		}
+	}
+
+	private boolean isJoinQueryPath(final Root<?> bean, final String propertyName) {
+		final QueryPath queryPath = getQueryPath(bean, propertyName);
+		if (queryPath != null) {
+			for (final String pathSegment : queryPath.path()) {
+				Path<?> path = bean;
+				ManagedType<?> type = bean.getModel();
+				final Attribute<?, ?> attribute;
+				if (type != null) {
+					attribute = type.getAttribute(pathSegment);
+					if (attribute != null) {
+						type = attribute.getDeclaringType();
+					}
+				}
+				else {
+					attribute = null;
+				}
+				if (attribute != null && attribute.isCollection()) {
+					return true;
+				}
+				else {
+					path = path.get(pathSegment);
+				}
+			}
+		}
+		return false;
+	}
+
+	private QueryPath getQueryPath(final Root<?> bean, final String propertyName) {
+		final Class<?> beanClass = bean.getJavaType();
+		try {
+			final PropertyDescriptor descriptor = new PropertyDescriptor(propertyName, beanClass, "is"
+				+ propertyName.substring(0, 1).toUpperCase(Locale.ENGLISH)
+				+ propertyName.substring(1), null);
+			final Method readMethod = descriptor.getReadMethod();
+			return readMethod.getAnnotation(QueryPath.class);
+		}
+		catch (final Exception e) {
+			return null;
+		}
 	}
 
 }
