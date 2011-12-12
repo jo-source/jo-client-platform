@@ -39,6 +39,9 @@ import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.ManagedType;
+import javax.persistence.metamodel.PluralAttribute;
+import javax.persistence.metamodel.SingularAttribute;
+import javax.persistence.metamodel.Type;
 
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
@@ -85,20 +88,18 @@ public class ParentLinkPredicateCreator<PARAMETER_TYPE> implements IPredicateCre
 
 	private Path<?> getParentPath(final Root<?> bean) {
 		Path<?> parentPath = bean;
-		ManagedType<?> type = bean.getModel();
+		Type<?> type = bean.getModel();
 		for (final String propertyName : propertyPath) {
 			if (!IBean.ID_PROPERTY.equals(propertyName)) {
 				final Attribute<?, ?> attribute;
-				if (type != null) {
-					attribute = type.getAttribute(propertyName);
-					if (attribute != null) {
-						type = attribute.getDeclaringType();
-					}
+				if (type != null && type instanceof ManagedType) {
+					attribute = ((ManagedType<?>) type).getAttribute(propertyName);
+					type = getType(attribute);
 				}
 				else {
 					attribute = null;
 				}
-				if (attribute != null && attribute.isCollection() && parentPath instanceof From) {
+				if (isJoinableType(attribute) && parentPath instanceof From) {
 					final From<?, ?> from = (From<?, ?>) parentPath;
 					parentPath = from.join(propertyName);
 				}
@@ -108,5 +109,26 @@ public class ParentLinkPredicateCreator<PARAMETER_TYPE> implements IPredicateCre
 			}
 		}
 		return parentPath;
+	}
+
+	private boolean isJoinableType(final Attribute<?, ?> attribute) {
+		return attribute != null && attribute.getPersistentAttributeType() != Attribute.PersistentAttributeType.BASIC;
+	}
+
+	private Type<?> getType(final Attribute<?, ?> attribute) {
+		if (attribute != null) {
+			if (attribute instanceof PluralAttribute) {
+				final PluralAttribute<?, ?, ?> pluralAttribute = (PluralAttribute<?, ?, ?>) attribute;
+				return pluralAttribute.getElementType();
+			}
+			else if (attribute instanceof SingularAttribute) {
+				final SingularAttribute<?, ?> singularAttribute = (SingularAttribute<?, ?>) attribute;
+				return singularAttribute.getType();
+			}
+			else {
+				return attribute.getDeclaringType();
+			}
+		}
+		return null;
 	}
 }
