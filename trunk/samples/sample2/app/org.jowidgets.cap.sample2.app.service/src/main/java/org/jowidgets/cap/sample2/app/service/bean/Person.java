@@ -171,7 +171,7 @@ public class Person extends Bean implements IPerson {
 	}
 
 	@Override
-	@QueryPath(path = {"personRoleLinks", "role", "id"})
+	@QueryPath(path = {"personRoleLinks", "roleId"})
 	public List<Long> getRoleIds() {
 		return new LinkedList<Long>(personRoleLinks.keySet());
 	}

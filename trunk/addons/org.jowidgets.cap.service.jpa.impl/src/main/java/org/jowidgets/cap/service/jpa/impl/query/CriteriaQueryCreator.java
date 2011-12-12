@@ -61,6 +61,7 @@ import javax.persistence.metamodel.Type;
 
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
+import org.jowidgets.cap.common.api.filter.ArithmeticOperator;
 import org.jowidgets.cap.common.api.filter.BooleanOperator;
 import org.jowidgets.cap.common.api.filter.IArithmeticFilter;
 import org.jowidgets.cap.common.api.filter.IBooleanFilter;
@@ -261,19 +262,33 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 			final Root<Object> subqueryRoot = subquery.from(javaType);
 			subquery.select(subqueryRoot.get(IBean.ID_PROPERTY));
 
+			final boolean existanceFilter = ArithmeticOperator.EMPTY == filter.getOperator();
+
 			final Predicate predicate = createArithmeticFilterPredicate(
 					criteriaBuilder,
 					subqueryRoot,
 					subquery,
 					filter,
-					getJoinQueryPath(subqueryRoot, filter.getPropertyName()));
+					getJoinQueryPath(subqueryRoot, filter.getPropertyName()),
+					existanceFilter);
 
 			subquery.where(predicate);
 
-			return bean.get(IBean.ID_PROPERTY).in(subquery);
+			if (filter.isInverted() && !existanceFilter) {
+				return criteriaBuilder.not(bean.get(IBean.ID_PROPERTY).in(subquery));
+			}
+			else {
+				return bean.get(IBean.ID_PROPERTY).in(subquery);
+			}
 		}
 		else {
-			return createArithmeticFilterPredicate(criteriaBuilder, bean, query, filter, getPath(bean, filter.getPropertyName()));
+			return createArithmeticFilterPredicate(
+					criteriaBuilder,
+					bean,
+					query,
+					filter,
+					getPath(bean, filter.getPropertyName()),
+					true);
 		}
 
 	}
@@ -283,27 +298,28 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 		final Root<?> bean,
 		final AbstractQuery<?> query,
 		final IArithmeticFilter filter,
-		final Path<?> path) {
+		final Path<?> path,
+		final boolean localInvert) {
 
 		switch (filter.getOperator()) {
 			case BETWEEN:
-				return createBetweenPredicate(criteriaBuilder, filter, path);
+				return createBetweenPredicate(criteriaBuilder, filter, path, localInvert);
 			case GREATER:
-				return createGreaterPredicate(criteriaBuilder, filter, path);
+				return createGreaterPredicate(criteriaBuilder, filter, path, localInvert);
 			case GREATER_EQUAL:
-				return createGreaterEqualPredicate(criteriaBuilder, filter, path);
+				return createGreaterEqualPredicate(criteriaBuilder, filter, path, localInvert);
 			case LESS:
-				return createLessPredicate(criteriaBuilder, filter, path);
+				return createLessPredicate(criteriaBuilder, filter, path, localInvert);
 			case LESS_EQUAL:
-				return createLessEqualPredicate(criteriaBuilder, filter, path);
+				return createLessEqualPredicate(criteriaBuilder, filter, path, localInvert);
 			case EQUAL:
-				return createEqualPredicate(criteriaBuilder, bean, query, filter, path);
+				return createEqualPredicate(criteriaBuilder, bean, query, filter, path, localInvert);
 			case EMPTY:
-				return createEmptyPredicate(criteriaBuilder, filter, path);
+				return createEmptyPredicate(criteriaBuilder, filter, path, localInvert);
 			case CONTAINS_ANY:
-				return createContainsAnyPredicate(criteriaBuilder, bean, query, filter, path);
+				return createContainsAnyPredicate(criteriaBuilder, bean, query, filter, path, localInvert);
 			case CONTAINS_ALL:
-				return createContainsAllPredicate(criteriaBuilder, bean, query, filter, path);
+				return createContainsAllPredicate(criteriaBuilder, bean, query, filter, path, localInvert);
 			default:
 				throw new IllegalArgumentException("unsupported operator: " + filter.getOperator());
 		}
@@ -313,67 +329,73 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 	private Predicate createBetweenPredicate(
 		final CriteriaBuilder criteriaBuilder,
 		final IArithmeticFilter filter,
-		final Path<?> path) {
+		final Path<?> path,
+		final boolean localInvert) {
 		final Predicate result = criteriaBuilder.between(
 				(Expression<Comparable<Object>>) path,
 				criteriaBuilder.literal((Comparable<Object>) filter.getParameters()[0]),
 				criteriaBuilder.literal((Comparable<Object>) filter.getParameters()[1]));
-		return invertPredicateIfNeeded(criteriaBuilder, result, filter);
+		return invertPredicateIfNeeded(criteriaBuilder, result, filter, localInvert);
 	}
 
 	@SuppressWarnings("unchecked")
 	private Predicate createGreaterPredicate(
 		final CriteriaBuilder criteriaBuilder,
 		final IArithmeticFilter filter,
-		final Path<?> path) {
+		final Path<?> path,
+		final boolean localInvert) {
 		final Predicate result = criteriaBuilder.greaterThan(
 				(Expression<Comparable<Object>>) path,
 				criteriaBuilder.literal((Comparable<Object>) filter.getParameters()[0]));
-		return invertPredicateIfNeeded(criteriaBuilder, result, filter);
+		return invertPredicateIfNeeded(criteriaBuilder, result, filter, localInvert);
 	}
 
 	@SuppressWarnings("unchecked")
 	private Predicate createGreaterEqualPredicate(
 		final CriteriaBuilder criteriaBuilder,
 		final IArithmeticFilter filter,
-		final Path<?> path) {
+		final Path<?> path,
+		final boolean localInvert) {
 		final Predicate result = criteriaBuilder.greaterThanOrEqualTo(
 				(Expression<Comparable<Object>>) path,
 				criteriaBuilder.literal((Comparable<Object>) filter.getParameters()[0]));
-		return invertPredicateIfNeeded(criteriaBuilder, result, filter);
+		return invertPredicateIfNeeded(criteriaBuilder, result, filter, localInvert);
 	}
 
 	@SuppressWarnings("unchecked")
 	private Predicate createLessPredicate(
 		final CriteriaBuilder criteriaBuilder,
 		final IArithmeticFilter filter,
-		final Path<?> path) {
+		final Path<?> path,
+		final boolean localInvert) {
 		final Predicate result = criteriaBuilder.lessThan(
 				(Expression<Comparable<Object>>) path,
 				criteriaBuilder.literal((Comparable<Object>) filter.getParameters()[0]));
-		return invertPredicateIfNeeded(criteriaBuilder, result, filter);
+		return invertPredicateIfNeeded(criteriaBuilder, result, filter, localInvert);
 	}
 
 	@SuppressWarnings("unchecked")
 	private Predicate createLessEqualPredicate(
 		final CriteriaBuilder criteriaBuilder,
 		final IArithmeticFilter filter,
-		final Path<?> path) {
+		final Path<?> path,
+		final boolean localInvert) {
 		final Predicate result = criteriaBuilder.lessThanOrEqualTo(
 				(Expression<Comparable<Object>>) path,
 				criteriaBuilder.literal((Comparable<Object>) filter.getParameters()[0]));
-		return invertPredicateIfNeeded(criteriaBuilder, result, filter);
+		return invertPredicateIfNeeded(criteriaBuilder, result, filter, localInvert);
 	}
 
 	@SuppressWarnings("unchecked")
 	private Predicate createEmptyPredicate(
 		final CriteriaBuilder criteriaBuilder,
 		final IArithmeticFilter filter,
-		final Path<?> path) {
+		final Path<?> path,
+		final boolean localInvert) {
 		final boolean isCollection = path.getModel() instanceof Attribute && ((Attribute<?, ?>) path.getModel()).isCollection();
 
 		if (isCollection) {
-			if (filter.isInverted()) {
+			if (filter.isInverted() && localInvert) {
 				return criteriaBuilder.isNotEmpty((Expression<Collection<?>>) path);
 			}
 			else {
@@ -381,14 +403,14 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 			}
 		}
 		if (path.getJavaType() == String.class) {
-			if (filter.isInverted()) {
+			if (filter.isInverted() && localInvert) {
 				return criteriaBuilder.or(path.isNotNull(), criteriaBuilder.notEqual(path, ""));
 			}
 			else {
 				return criteriaBuilder.or(path.isNull(), criteriaBuilder.equal(path, ""));
 			}
 		}
-		if (filter.isInverted()) {
+		if (filter.isInverted() && localInvert) {
 			return path.isNotNull();
 		}
 		else {
@@ -402,7 +424,8 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 		final Root<?> bean,
 		final AbstractQuery<?> query,
 		final IArithmeticFilter filter,
-		final Path<?> path) {
+		final Path<?> path,
+		final boolean localInvert) {
 
 		final Predicate result;
 
@@ -416,7 +439,7 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 				arg = s;
 			}
 			if (s.contains("*") || s.contains("%")) {
-				if (filter.isInverted()) {
+				if (filter.isInverted() && localInvert) {
 					return criteriaBuilder.or(
 							expr.isNull(),
 							criteriaBuilder.equal(path, ""),
@@ -438,11 +461,11 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 				filter.getPropertyName());
 		if (lookupPredicate != null) {
 			result = criteriaBuilder.or(criteriaBuilder.equal(expr, arg), lookupPredicate);
-			return invertPredicateIfNeeded(criteriaBuilder, result, filter);
+			return invertPredicateIfNeeded(criteriaBuilder, result, filter, localInvert);
 		}
 		else {
 			criteriaBuilder.equal(expr, arg);
-			if (filter.isInverted()) {
+			if (filter.isInverted() && localInvert) {
 				if (arg instanceof String && path.getJavaType() == String.class) {
 					return criteriaBuilder.or(expr.isNull(), criteriaBuilder.equal(path, ""), criteriaBuilder.notEqual(expr, arg));
 				}
@@ -463,7 +486,8 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 		final Root<?> bean,
 		final AbstractQuery<?> query,
 		final IArithmeticFilter filter,
-		final Path<?> path) {
+		final Path<?> path,
+		final boolean localInvert) {
 
 		Expression<?> expr = path;
 		Collection<?> params = Arrays.asList(filter.getParameters());
@@ -489,7 +513,7 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 		else {
 			result = expr.in(params);
 		}
-		return invertPredicateIfNeeded(criteriaBuilder, result, filter);
+		return invertPredicateIfNeeded(criteriaBuilder, result, filter, localInvert);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -498,7 +522,8 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 		final Root<?> bean,
 		final AbstractQuery<?> query,
 		final IArithmeticFilter filter,
-		final Path<?> path) {
+		final Path<?> path,
+		final boolean localInvert) {
 
 		final Collection<?> params = Arrays.asList(filter.getParameters());
 		final Collection<Object> newParams = new HashSet<Object>();
@@ -520,14 +545,15 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 		final Predicate result = criteriaBuilder.ge(subquery, newParams.size());
 		// TODO HRW add support for CONTAINS_ALL taxonomy queries
 
-		return invertPredicateIfNeeded(criteriaBuilder, result, filter);
+		return invertPredicateIfNeeded(criteriaBuilder, result, filter, localInvert);
 	}
 
 	private Predicate invertPredicateIfNeeded(
 		final CriteriaBuilder criteriaBuilder,
 		final Predicate predicate,
-		final IArithmeticFilter filter) {
-		if (filter.isInverted()) {
+		final IArithmeticFilter filter,
+		final boolean localInvert) {
+		if (filter.isInverted() && localInvert) {
 			return criteriaBuilder.not(predicate);
 		}
 		else {
