@@ -443,7 +443,12 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 		else {
 			criteriaBuilder.equal(expr, arg);
 			if (filter.isInverted()) {
-				return criteriaBuilder.or(expr.isNull(), criteriaBuilder.equal(path, ""), criteriaBuilder.notEqual(expr, arg));
+				if (arg instanceof String && path.getJavaType() == String.class) {
+					return criteriaBuilder.or(expr.isNull(), criteriaBuilder.equal(path, ""), criteriaBuilder.notEqual(expr, arg));
+				}
+				else {
+					return criteriaBuilder.notEqual(expr, arg);
+				}
 			}
 			else {
 				return criteriaBuilder.equal(expr, arg);
