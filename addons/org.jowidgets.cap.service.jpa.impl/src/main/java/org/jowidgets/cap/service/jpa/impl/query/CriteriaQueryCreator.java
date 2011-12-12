@@ -47,7 +47,6 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.From;
-import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Path;
@@ -56,6 +55,9 @@ import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.ManagedType;
+import javax.persistence.metamodel.PluralAttribute;
+import javax.persistence.metamodel.SingularAttribute;
+import javax.persistence.metamodel.Type;
 
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
@@ -118,7 +120,7 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 			final List<Order> order = new LinkedList<Order>();
 			for (final ISort sort : sorting) {
 				final Path<?> path = getPath(bean, sort.getPropertyName());
-				// TODO HRW fix sorting of joined attributes
+				// TODO MG fix sorting of joined attributes
 				if (sort.getSortOrder() == SortOrder.ASC) {
 					order.add(criteriaBuilder.asc(path));
 				}
@@ -259,10 +261,6 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 			final Root<Object> subqueryRoot = subquery.from(javaType);
 			subquery.select(subqueryRoot.get(IBean.ID_PROPERTY));
 
-			final Predicate joinPredicate = criteriaBuilder.equal(
-					bean.get(IBean.ID_PROPERTY),
-					subqueryRoot.get(IBean.ID_PROPERTY));
-
 			final Predicate predicate = createArithmeticFilterPredicate(
 					criteriaBuilder,
 					subqueryRoot,
@@ -270,7 +268,7 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 					filter,
 					getJoinQueryPath(subqueryRoot, filter.getPropertyName()));
 
-			subquery.where(criteriaBuilder.and(joinPredicate, predicate));
+			subquery.where(predicate);
 
 			return bean.get(IBean.ID_PROPERTY).in(subquery);
 		}
@@ -372,17 +370,8 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 		final CriteriaBuilder criteriaBuilder,
 		final IArithmeticFilter filter,
 		final Path<?> path) {
-		final boolean isCollection = ((Attribute<?, ?>) path.getModel()).isCollection();
-		final boolean isJoined = path.getParentPath() instanceof Join;
+		final boolean isCollection = path.getModel() instanceof Attribute && ((Attribute<?, ?>) path.getModel()).isCollection();
 
-		if (isJoined && ((Attribute<?, ?>) path.getParentPath().getModel()).isCollection()) {
-			if (filter.isInverted()) {
-				return criteriaBuilder.isNotEmpty((Expression<Collection<?>>) path.getParentPath());
-			}
-			else {
-				return criteriaBuilder.isEmpty((Expression<Collection<?>>) path.getParentPath());
-			}
-		}
 		if (isCollection) {
 			if (filter.isInverted()) {
 				return criteriaBuilder.isNotEmpty((Expression<Collection<?>>) path);
@@ -415,6 +404,8 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 		final IArithmeticFilter filter,
 		final Path<?> path) {
 
+		final Predicate result;
+
 		Expression<?> expr = path;
 		Object arg = filter.getParameters()[0];
 		if (arg instanceof String && path.getJavaType() == String.class) {
@@ -425,12 +416,19 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 				arg = s;
 			}
 			if (s.contains("*") || s.contains("%")) {
-				return criteriaBuilder.like((Expression<String>) expr, s.replace('*', '%'));
+				if (filter.isInverted()) {
+					return criteriaBuilder.or(
+							expr.isNull(),
+							criteriaBuilder.equal(path, ""),
+							criteriaBuilder.notLike((Expression<String>) expr, s.replace('*', '%')));
+				}
+				else {
+					return criteriaBuilder.like((Expression<String>) expr, s.replace('*', '%'));
+				}
 				// TODO HRW add support for LIKE taxonomy queries
 			}
 		}
-		final Predicate result;
-		final Predicate eqPredicate = criteriaBuilder.equal(expr, arg);
+		// TODO HRW taxonomy queries might not work correctly for inverted filters
 		final Predicate lookupPredicate = createLookupPredicate(
 				criteriaBuilder,
 				query,
@@ -439,13 +437,19 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 				bean.getJavaType(),
 				filter.getPropertyName());
 		if (lookupPredicate != null) {
-			result = criteriaBuilder.or(eqPredicate, lookupPredicate);
+			result = criteriaBuilder.or(criteriaBuilder.equal(expr, arg), lookupPredicate);
+			return invertPredicateIfNeeded(criteriaBuilder, result, filter);
 		}
 		else {
-			result = eqPredicate;
+			criteriaBuilder.equal(expr, arg);
+			if (filter.isInverted()) {
+				return criteriaBuilder.or(expr.isNull(), criteriaBuilder.equal(path, ""), criteriaBuilder.notEqual(expr, arg));
+			}
+			else {
+				return criteriaBuilder.equal(expr, arg);
+			}
 		}
 
-		return invertPredicateIfNeeded(criteriaBuilder, result, filter);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -587,19 +591,17 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 		final QueryPath queryPath = getQueryPath(bean, propertyName);
 		if (queryPath != null) {
 			Path<?> parentPath = bean;
-			ManagedType<?> type = bean.getModel();
+			Type<?> type = bean.getModel();
 			for (final String pathSegment : queryPath.path()) {
 				final Attribute<?, ?> attribute;
-				if (type != null) {
-					attribute = type.getAttribute(pathSegment);
-					if (attribute != null) {
-						type = attribute.getDeclaringType();
-					}
+				if (type != null && type instanceof ManagedType) {
+					attribute = ((ManagedType<?>) type).getAttribute(pathSegment);
+					type = getType(attribute);
 				}
 				else {
 					attribute = null;
 				}
-				if (attribute != null && attribute.isCollection() && parentPath instanceof From) {
+				if (isJoinableType(attribute) && parentPath instanceof From) {
 					final From<?, ?> from = (From<?, ?>) parentPath;
 					parentPath = from.join(pathSegment, JoinType.LEFT);
 				}
@@ -619,18 +621,16 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 		if (queryPath != null) {
 			for (final String pathSegment : queryPath.path()) {
 				Path<?> path = bean;
-				ManagedType<?> type = bean.getModel();
+				Type<?> type = bean.getModel();
 				final Attribute<?, ?> attribute;
-				if (type != null) {
-					attribute = type.getAttribute(pathSegment);
-					if (attribute != null) {
-						type = attribute.getDeclaringType();
-					}
+				if (type != null && type instanceof ManagedType) {
+					attribute = ((ManagedType<?>) type).getAttribute(pathSegment);
+					type = getType(attribute);
 				}
 				else {
 					attribute = null;
 				}
-				if (attribute != null && attribute.isCollection()) {
+				if (isJoinableType(attribute)) {
 					return true;
 				}
 				else {
@@ -639,6 +639,27 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 			}
 		}
 		return false;
+	}
+
+	private boolean isJoinableType(final Attribute<?, ?> attribute) {
+		return attribute != null && attribute.getPersistentAttributeType() != Attribute.PersistentAttributeType.BASIC;
+	}
+
+	private Type<?> getType(final Attribute<?, ?> attribute) {
+		if (attribute != null) {
+			if (attribute instanceof PluralAttribute) {
+				final PluralAttribute<?, ?, ?> pluralAttribute = (PluralAttribute<?, ?, ?>) attribute;
+				return pluralAttribute.getElementType();
+			}
+			else if (attribute instanceof SingularAttribute) {
+				final SingularAttribute<?, ?> singularAttribute = (SingularAttribute<?, ?>) attribute;
+				return singularAttribute.getType();
+			}
+			else {
+				return attribute.getDeclaringType();
+			}
+		}
+		return null;
 	}
 
 	private QueryPath getQueryPath(final Root<?> bean, final String propertyName) {
