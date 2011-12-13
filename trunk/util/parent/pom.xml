@@ -14,6 +14,7 @@
 	<modules>
 		<module>../org.jowidgets.cap.util.replacer</module>
 		<module>../org.jowidgets.cap.util.replacer.sample0</module>	
+		<module>../org.jowidgets.cap.util.ddl</module>	
 	</modules>
 
 </project>
