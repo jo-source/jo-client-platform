@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2011, H.Westphal
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,13 +26,22 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.api.filter;
+package org.jowidgets.cap.service.jpa.api.query;
 
-public interface IArithmeticPropertyFilter extends IPropertyFilter {
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 
-	@Override
-	ArithmeticOperator getOperator();
+import org.jowidgets.cap.common.api.filter.IPropertyFilter;
 
-	String[] getRightHandPropertyNames();
+public interface IPropertyFilterPredicateCreator<PARAMETER_TYPE> {
+
+	Predicate createPredicate(
+		CriteriaBuilder criteriaBuilder,
+		Root<?> path,
+		CriteriaQuery<?> query,
+		IPropertyFilter filter,
+		PARAMETER_TYPE parameter);
 
 }

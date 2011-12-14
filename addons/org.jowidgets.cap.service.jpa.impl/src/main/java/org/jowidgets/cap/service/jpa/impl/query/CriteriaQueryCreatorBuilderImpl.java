@@ -39,6 +39,7 @@ import org.jowidgets.cap.common.api.filter.IFilter;
 import org.jowidgets.cap.service.jpa.api.query.ICriteriaQueryCreatorBuilder;
 import org.jowidgets.cap.service.jpa.api.query.ICustomFilterPredicateCreator;
 import org.jowidgets.cap.service.jpa.api.query.IPredicateCreator;
+import org.jowidgets.cap.service.jpa.api.query.IPropertyFilterPredicateCreator;
 import org.jowidgets.cap.service.jpa.api.query.IQueryCreator;
 import org.jowidgets.util.Assert;
 
@@ -48,6 +49,7 @@ final class CriteriaQueryCreatorBuilderImpl<PARAMETER_TYPE> implements ICriteria
 	private final List<IPredicateCreator<PARAMETER_TYPE>> predicateCreators;
 	private final List<IFilter> filters;
 	private final Map<String, ICustomFilterPredicateCreator<PARAMETER_TYPE>> customFilterPredicateCreators;
+	private final Map<String, IPropertyFilterPredicateCreator<PARAMETER_TYPE>> propertyFilterPredicateCreators;
 
 	private IPredicateCreator<PARAMETER_TYPE> parentLinkPredicateCreator;
 
@@ -60,6 +62,7 @@ final class CriteriaQueryCreatorBuilderImpl<PARAMETER_TYPE> implements ICriteria
 		this.predicateCreators = new LinkedList<IPredicateCreator<PARAMETER_TYPE>>();
 		this.filters = new LinkedList<IFilter>();
 		this.customFilterPredicateCreators = new HashMap<String, ICustomFilterPredicateCreator<PARAMETER_TYPE>>();
+		this.propertyFilterPredicateCreators = new HashMap<String, IPropertyFilterPredicateCreator<PARAMETER_TYPE>>();
 	}
 
 	@Override
@@ -114,10 +117,20 @@ final class CriteriaQueryCreatorBuilderImpl<PARAMETER_TYPE> implements ICriteria
 	}
 
 	@Override
+	public ICriteriaQueryCreatorBuilder<PARAMETER_TYPE> addPropertyFilterPredicateCreator(
+		final String propertyName,
+		final IPropertyFilterPredicateCreator<PARAMETER_TYPE> predicateCreator) {
+		Assert.paramNotEmpty(propertyName, "propertyName");
+		Assert.paramNotNull(predicateCreator, "predicateCreator");
+		propertyFilterPredicateCreators.put(propertyName, predicateCreator);
+		return this;
+	}
+
+	@Override
 	public ICriteriaQueryCreatorBuilder<PARAMETER_TYPE> addCustomFilterPredicateCreator(
 		final String filterType,
 		final ICustomFilterPredicateCreator<PARAMETER_TYPE> customFilterPredicateCreator) {
-		Assert.paramNotNull(filterType, "filterType");
+		Assert.paramNotEmpty(filterType, "filterType");
 		Assert.paramNotNull(customFilterPredicateCreators, "customFilterPredicateCreators");
 		customFilterPredicateCreators.put(filterType, customFilterPredicateCreator);
 		return this;
@@ -137,7 +150,8 @@ final class CriteriaQueryCreatorBuilderImpl<PARAMETER_TYPE> implements ICriteria
 			caseSensitive,
 			predicateCreatorsComposite,
 			filters,
-			customFilterPredicateCreators);
+			customFilterPredicateCreators,
+			propertyFilterPredicateCreators);
 	}
 
 }

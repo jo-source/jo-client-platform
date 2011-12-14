@@ -28,11 +28,9 @@
 
 package org.jowidgets.cap.common.api.filter;
 
-public interface ICustomFilter extends IFilter {
+public interface ICustomFilter extends IPropertyFilter {
 
 	String getFilterType();
-
-	String getPropertyName();
 
 	Object getValue();
 

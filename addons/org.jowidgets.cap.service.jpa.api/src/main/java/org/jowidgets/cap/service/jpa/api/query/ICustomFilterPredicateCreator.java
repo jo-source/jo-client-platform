@@ -33,13 +33,15 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 
+import org.jowidgets.cap.common.api.filter.ICustomFilter;
+
 public interface ICustomFilterPredicateCreator<PARAMETER_TYPE> {
 
 	Predicate createPredicate(
 		CriteriaBuilder criteriaBuilder,
 		Path<?> path,
 		CriteriaQuery<?> query,
-		Object value,
+		ICustomFilter filter,
 		PARAMETER_TYPE parameter);
 
 }

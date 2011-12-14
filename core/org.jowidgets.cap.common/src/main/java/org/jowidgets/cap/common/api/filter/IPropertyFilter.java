@@ -28,11 +28,8 @@
 
 package org.jowidgets.cap.common.api.filter;
 
-public interface IArithmeticPropertyFilter extends IPropertyFilter {
+public interface IPropertyFilter extends IFilter {
 
-	@Override
-	ArithmeticOperator getOperator();
-
-	String[] getRightHandPropertyNames();
+	String getPropertyName();
 
 }
