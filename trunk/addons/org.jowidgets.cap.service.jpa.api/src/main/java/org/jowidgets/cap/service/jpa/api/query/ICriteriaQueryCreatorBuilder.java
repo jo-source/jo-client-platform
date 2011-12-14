@@ -53,9 +53,13 @@ public interface ICriteriaQueryCreatorBuilder<PARAMETER_TYPE> {
 
 	ICriteriaQueryCreatorBuilder<PARAMETER_TYPE> addFilter(IFilter filter);
 
+	ICriteriaQueryCreatorBuilder<PARAMETER_TYPE> addPropertyFilterPredicateCreator(
+		String propertyName,
+		IPropertyFilterPredicateCreator<PARAMETER_TYPE> predicateCreators);
+
 	ICriteriaQueryCreatorBuilder<PARAMETER_TYPE> addCustomFilterPredicateCreator(
 		String filterType,
-		ICustomFilterPredicateCreator<PARAMETER_TYPE> customFilterPredicateCreators);
+		ICustomFilterPredicateCreator<PARAMETER_TYPE> predicateCreator);
 
 	IQueryCreator<PARAMETER_TYPE> build();
 }

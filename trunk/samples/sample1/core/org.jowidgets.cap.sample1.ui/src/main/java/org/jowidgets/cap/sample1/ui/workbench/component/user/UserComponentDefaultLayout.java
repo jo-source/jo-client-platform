@@ -47,7 +47,7 @@ public class UserComponentDefaultLayout {
 	public static final String DEFAULT_LAYOUT_ID = "DEFAULT_LAYOUT_ID";
 	public static final String MASTER_FOLDER_ID = "MASTER_FOLDER_ID";
 	public static final String DETAIL_FOLDER_ID = "DETAIL_FOLDER_ID";
-	public static final String LINKED_FOLDER_ID = "DETAIL_FOLDER_ID";
+	public static final String LINKED_FOLDER_ID = "LINKED_DETAIL_FOLDER_ID";
 
 	private final ILayout layout;
 
