@@ -63,6 +63,7 @@ import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.filter.ArithmeticOperator;
 import org.jowidgets.cap.common.api.filter.BooleanOperator;
 import org.jowidgets.cap.common.api.filter.IArithmeticFilter;
+import org.jowidgets.cap.common.api.filter.IArithmeticPropertyFilter;
 import org.jowidgets.cap.common.api.filter.IBooleanFilter;
 import org.jowidgets.cap.common.api.filter.ICustomFilter;
 import org.jowidgets.cap.common.api.filter.IFilter;
@@ -202,6 +203,10 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 		if (filter instanceof IArithmeticFilter) {
 			predicate = createArithmeticFilterPredicate(criteriaBuilder, bean, query, (IArithmeticFilter) filter);
 		}
+		else if (filter instanceof IArithmeticPropertyFilter) {
+			// TODO MG support IArithmeticPropertyFilter
+			throw new IllegalArgumentException("unsupported filter type: " + filter.getClass().getName());
+		}
 		else if (filter instanceof IBooleanFilter) {
 			predicate = createBooleanFilterPredicate(criteriaBuilder, bean, query, (IBooleanFilter) filter, parameter);
 		}
@@ -221,7 +226,6 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 			}
 		}
 		else {
-			// TODO MG support IArithmeticPropertyFilter
 			throw new IllegalArgumentException("unsupported filter type: " + filter.getClass().getName());
 		}
 		if (filter.isInverted() && !(filter instanceof IArithmeticFilter)) {
@@ -247,7 +251,6 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 		return criteriaBuilder.or(predicates.toArray(new Predicate[0]));
 	}
 
-	@SuppressWarnings("unchecked")
 	private Predicate createArithmeticFilterPredicate(
 		final CriteriaBuilder criteriaBuilder,
 		final Root<?> bean,
@@ -255,29 +258,7 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 		final IArithmeticFilter filter) {
 
 		if (isJoinQueryPath(bean, filter.getPropertyName())) {
-			final Class<Object> javaType = (Class<Object>) bean.getJavaType();
-			final Subquery<Object> subquery = query.subquery(javaType);
-			final Root<Object> subqueryRoot = subquery.from(javaType);
-			subquery.select(subqueryRoot.get(IBean.ID_PROPERTY));
-
-			final boolean existanceFilter = ArithmeticOperator.EMPTY == filter.getOperator();
-
-			final Predicate predicate = createArithmeticFilterPredicate(
-					criteriaBuilder,
-					subqueryRoot,
-					subquery,
-					filter,
-					getJoinQueryPath(subqueryRoot, filter.getPropertyName()),
-					existanceFilter);
-
-			subquery.where(predicate);
-
-			if (filter.isInverted() && !existanceFilter) {
-				return criteriaBuilder.not(bean.get(IBean.ID_PROPERTY).in(subquery));
-			}
-			else {
-				return bean.get(IBean.ID_PROPERTY).in(subquery);
-			}
+			return createQueryPathArithmeticFilterPredicate(criteriaBuilder, bean, query, filter);
 		}
 		else {
 			return createArithmeticFilterPredicate(
@@ -288,7 +269,85 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 					getPath(bean, filter.getPropertyName()),
 					true);
 		}
+	}
 
+	private Predicate createQueryPathArithmeticFilterPredicate(
+		final CriteriaBuilder criteriaBuilder,
+		final Root<?> bean,
+		final CriteriaQuery<?> query,
+		final IArithmeticFilter filter) {
+
+		if (ArithmeticOperator.CONTAINS_ALL == filter.getOperator()) {
+			return createQueryPathContainsAllFilterPredicate(criteriaBuilder, bean, query, filter);
+		}
+		else {
+			return createQueryPathGenericArithmeticFilterPredicate(criteriaBuilder, bean, query, filter);
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private Predicate createQueryPathGenericArithmeticFilterPredicate(
+		final CriteriaBuilder criteriaBuilder,
+		final Root<?> bean,
+		final CriteriaQuery<?> query,
+		final IArithmeticFilter filter) {
+		final Class<Object> javaType = (Class<Object>) bean.getJavaType();
+		final Subquery<Object> subquery = query.subquery(javaType);
+		final Root<Object> subqueryRoot = subquery.from(javaType);
+		subquery.select(subqueryRoot.get(IBean.ID_PROPERTY));
+
+		final boolean existanceFilter = ArithmeticOperator.EMPTY == filter.getOperator();
+
+		final Predicate predicate = createArithmeticFilterPredicate(
+				criteriaBuilder,
+				subqueryRoot,
+				subquery,
+				filter,
+				getJoinQueryPath(subqueryRoot, filter.getPropertyName()),
+				existanceFilter);
+
+		subquery.where(predicate);
+
+		if (filter.isInverted() && !existanceFilter) {
+			return criteriaBuilder.not(bean.get(IBean.ID_PROPERTY).in(subquery));
+		}
+		else {
+			return bean.get(IBean.ID_PROPERTY).in(subquery);
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private Predicate createQueryPathContainsAllFilterPredicate(
+		final CriteriaBuilder criteriaBuilder,
+		final Root<?> bean,
+		final CriteriaQuery<?> query,
+		final IArithmeticFilter filter) {
+		final Predicate[] predicates = new Predicate[filter.getParameters().length];
+		int index = 0;
+		for (final Object parameter : filter.getParameters()) {
+			final Class<Object> javaType = (Class<Object>) bean.getJavaType();
+			final Subquery<Object> subquery = query.subquery(javaType);
+			final Root<Object> subqueryRoot = subquery.from(javaType);
+			subquery.select(subqueryRoot.get(IBean.ID_PROPERTY));
+
+			final Predicate predicate = createEqualPredicate(
+					criteriaBuilder,
+					filter,
+					getJoinQueryPath(subqueryRoot, filter.getPropertyName()),
+					false,
+					parameter);
+
+			subquery.where(predicate);
+
+			if (filter.isInverted()) {
+				predicates[index] = criteriaBuilder.not(bean.get(IBean.ID_PROPERTY).in(subquery));
+			}
+			else {
+				predicates[index] = bean.get(IBean.ID_PROPERTY).in(subquery);
+			}
+			index++;
+		}
+		return criteriaBuilder.and(predicates);
 	}
 
 	private Predicate createArithmeticFilterPredicate(
@@ -400,7 +459,7 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 				return criteriaBuilder.isEmpty((Expression<Collection<?>>) path);
 			}
 		}
-		if (path.getJavaType() == String.class) {
+		else if (path.getJavaType() == String.class) {
 			if (filter.isInverted() && doFilterInversion) {
 				return criteriaBuilder.or(path.isNotNull(), criteriaBuilder.notEqual(path, ""));
 			}
@@ -408,7 +467,7 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 				return criteriaBuilder.or(path.isNull(), criteriaBuilder.equal(path, ""));
 			}
 		}
-		if (filter.isInverted() && doFilterInversion) {
+		else if (filter.isInverted() && doFilterInversion) {
 			return path.isNotNull();
 		}
 		else {
@@ -421,16 +480,16 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 		final IArithmeticFilter filter,
 		final Path<?> path,
 		final boolean doFilterInversion) {
-		return createEqualPredicate(criteriaBuilder, filter, filter.getParameters()[0], path, doFilterInversion);
+		return createEqualPredicate(criteriaBuilder, filter, path, doFilterInversion, filter.getParameters()[0]);
 	}
 
 	@SuppressWarnings("unchecked")
 	private Predicate createEqualPredicate(
 		final CriteriaBuilder criteriaBuilder,
 		final IArithmeticFilter filter,
-		final Object parameter,
 		final Path<?> path,
-		final boolean doFilterInversion) {
+		final boolean doFilterInversion,
+		final Object parameter) {
 
 		if (parameter instanceof String && path.getJavaType() == String.class) {
 			Expression<?> expr = path;
@@ -466,7 +525,6 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 		else if (filter.isInverted() && doFilterInversion) {
 			return criteriaBuilder.or(path.isNull(), criteriaBuilder.notEqual(path, parameter));
 		}
-
 		else {
 			return criteriaBuilder.equal(path, parameter);
 		}
@@ -479,17 +537,39 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 		final Path<?> path,
 		final boolean doFilterInversion) {
 
-		Expression<?> expr = path;
-		Collection<?> params = Arrays.asList(filter.getParameters());
-		if (caseInsensitive && path.getJavaType() == String.class) {
+		if (path.getJavaType() == String.class) {
+			boolean havePlaceholder = false;
+			final Predicate[] predicates = new Predicate[filter.getParameters().length];
 			final Collection<String> newParams = new HashSet<String>();
-			for (final Object p : params) {
-				newParams.add(String.valueOf(p).toUpperCase());
+			int index = 0;
+			for (final Object param : filter.getParameters()) {
+				final String paramString = (String) param;
+				if (paramString.contains("*") || paramString.contains("%")) {
+					havePlaceholder = true;
+				}
+				if (caseInsensitive) {
+					newParams.add(paramString.toUpperCase());
+				}
+				else {
+					newParams.add(paramString);
+				}
+				predicates[index] = createEqualPredicate(criteriaBuilder, filter, path, false, param);
+				index++;
 			}
-			params = newParams;
-			expr = criteriaBuilder.upper((Expression<String>) path);
+			if (havePlaceholder) {//if the string have placeholders, use disjunction instead
+				return invertPredicateIfNeeded(criteriaBuilder, criteriaBuilder.or(predicates), filter, doFilterInversion);
+			}
+			else if (caseInsensitive) {
+				final Predicate predicate = criteriaBuilder.upper((Expression<String>) path).in(newParams);
+				return invertPredicateIfNeeded(criteriaBuilder, predicate, filter, doFilterInversion);
+			}
+			else {
+				return invertPredicateIfNeeded(criteriaBuilder, path.in(newParams), filter, doFilterInversion);
+			}
 		}
-		return invertPredicateIfNeeded(criteriaBuilder, expr.in(params), filter, doFilterInversion);
+		else {
+			return invertPredicateIfNeeded(criteriaBuilder, path.in(filter.getParameters()), filter, doFilterInversion);
+		}
 	}
 
 	@SuppressWarnings("unchecked")
