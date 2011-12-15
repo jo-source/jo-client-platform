@@ -61,8 +61,8 @@ final class JpaBeanAccessImpl<BEAN_TYPE extends IBean> implements IBeanAccess<BE
 		}
 		else {
 			final Collection<Object> ids = new HashSet<Object>(keys.size());
-			for (final IBeanKey beanInfo : keys) {
-				ids.add(beanInfo.getId());
+			for (final IBeanKey beanKey : keys) {
+				ids.add(beanKey.getId());
 			}
 			final EntityManager entityManager = EntityManagerProvider.get();
 			final CriteriaQuery<? extends BEAN_TYPE> query = entityManager.getCriteriaBuilder().createQuery(beanType);
