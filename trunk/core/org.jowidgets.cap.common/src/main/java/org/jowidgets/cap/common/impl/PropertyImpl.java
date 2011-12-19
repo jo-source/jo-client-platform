@@ -57,6 +57,7 @@ final class PropertyImpl implements IProperty, Serializable {
 	private final boolean editable;
 	private final boolean sortable;
 	private final boolean filterable;
+	private final boolean searchable;
 
 	PropertyImpl(
 		final String name,
@@ -74,7 +75,8 @@ final class PropertyImpl implements IProperty, Serializable {
 		final boolean readonly,
 		final boolean editable,
 		final boolean sortable,
-		final boolean filterable) {
+		final boolean filterable,
+		final boolean searchable) {
 
 		Assert.paramNotEmpty(name, "name");
 		Assert.paramNotNull(valueRange, "valueRange");
@@ -85,6 +87,10 @@ final class PropertyImpl implements IProperty, Serializable {
 
 		if (Collection.class.isAssignableFrom(elementValueType)) {
 			throw new IllegalArgumentException("The element type must not be a collection");
+		}
+
+		if (!filterable && searchable) {
+			throw new IllegalArgumentException("A property that is not filterable could not be searchable");
 		}
 
 		this.name = name;
@@ -103,6 +109,7 @@ final class PropertyImpl implements IProperty, Serializable {
 		this.editable = editable;
 		this.sortable = sortable;
 		this.filterable = filterable;
+		this.searchable = searchable;
 	}
 
 	@Override
@@ -183,6 +190,11 @@ final class PropertyImpl implements IProperty, Serializable {
 	@Override
 	public boolean isFilterable() {
 		return filterable;
+	}
+
+	@Override
+	public boolean isSearchable() {
+		return searchable;
 	}
 
 	@Override

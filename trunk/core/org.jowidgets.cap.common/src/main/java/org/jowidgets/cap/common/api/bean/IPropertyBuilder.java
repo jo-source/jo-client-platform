@@ -85,6 +85,8 @@ public interface IPropertyBuilder {
 
 	IPropertyBuilder setFilterable(boolean filterable);
 
+	IPropertyBuilder setSearchable(boolean searchable);
+
 	IProperty build();
 
 }

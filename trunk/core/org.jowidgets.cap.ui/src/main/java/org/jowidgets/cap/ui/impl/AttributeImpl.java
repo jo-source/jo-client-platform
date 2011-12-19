@@ -67,6 +67,7 @@ final class AttributeImpl<ELEMENT_VALUE_TYPE> implements IAttribute<ELEMENT_VALU
 	private final IAttributeGroup attributeGroup;
 	private final boolean sortable;
 	private final boolean filterable;
+	private final boolean searchable;
 	private final Class<?> valueType;
 	private final Class<ELEMENT_VALUE_TYPE> elementValueType;
 	private final IValidator<Object> validator;
@@ -96,6 +97,7 @@ final class AttributeImpl<ELEMENT_VALUE_TYPE> implements IAttribute<ELEMENT_VALU
 		final IAttributeGroup attributeGroup,
 		final boolean sortable,
 		final boolean filterable,
+		final boolean searchable,
 		final Class<?> valueType,
 		final Class<? extends ELEMENT_VALUE_TYPE> elementValueType,
 		final IValidator<Object> validator,
@@ -127,6 +129,10 @@ final class AttributeImpl<ELEMENT_VALUE_TYPE> implements IAttribute<ELEMENT_VALU
 			throw new IllegalArgumentException("The attribute must not be 'readonly' and 'editable'");
 		}
 
+		if (!filterable && searchable) {
+			throw new IllegalArgumentException("A property that is not filterable could not be searchable");
+		}
+
 		this.changeObservable = new ChangeObservable();
 
 		this.propertyName = propertyName;
@@ -145,6 +151,7 @@ final class AttributeImpl<ELEMENT_VALUE_TYPE> implements IAttribute<ELEMENT_VALU
 		this.attributeGroup = attributeGroup;
 		this.sortable = sortable;
 		this.filterable = filterable;
+		this.searchable = searchable;
 		this.valueType = valueType;
 		this.elementValueType = (Class<ELEMENT_VALUE_TYPE>) elementValueType;
 		this.validator = validator;
@@ -177,6 +184,11 @@ final class AttributeImpl<ELEMENT_VALUE_TYPE> implements IAttribute<ELEMENT_VALU
 	@Override
 	public boolean isFilterable() {
 		return filterable;
+	}
+
+	@Override
+	public boolean isSearchable() {
+		return searchable;
 	}
 
 	@Override

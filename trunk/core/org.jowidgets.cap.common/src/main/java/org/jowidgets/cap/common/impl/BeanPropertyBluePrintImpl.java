@@ -181,6 +181,13 @@ final class BeanPropertyBluePrintImpl implements IBeanPropertyBluePrint {
 		return this;
 	}
 
+	@Override
+	public IBeanPropertyBluePrint setSearchable(final boolean searchable) {
+		checkExhausted();
+		builder.setSearchable(searchable);
+		return this;
+	}
+
 	IProperty build() {
 		checkExhausted();
 		this.exhausted = true;

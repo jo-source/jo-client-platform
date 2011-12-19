@@ -72,6 +72,8 @@ public interface IBeanPropertyBuilder {
 
 	IBeanPropertyBuilder setFilterable(boolean filterable);
 
+	IBeanPropertyBuilder setSearchable(boolean searchable);
+
 	IProperty build();
 
 }

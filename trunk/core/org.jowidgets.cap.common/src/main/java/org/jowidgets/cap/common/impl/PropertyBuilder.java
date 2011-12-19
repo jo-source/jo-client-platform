@@ -61,6 +61,7 @@ final class PropertyBuilder implements IPropertyBuilder {
 	private Boolean editable;
 	private boolean sortable;
 	private boolean filterable;
+	private Boolean searchable;
 	private boolean beanValidatorAdded;
 
 	PropertyBuilder() {
@@ -207,6 +208,12 @@ final class PropertyBuilder implements IPropertyBuilder {
 		return this;
 	}
 
+	@Override
+	public IPropertyBuilder setSearchable(final boolean searchable) {
+		this.searchable = Boolean.valueOf(searchable);
+		return this;
+	}
+
 	boolean isBeanValidatorAdded() {
 		return beanValidatorAdded;
 	}
@@ -244,6 +251,15 @@ final class PropertyBuilder implements IPropertyBuilder {
 		}
 	}
 
+	private boolean getSearchable() {
+		if (searchable != null) {
+			return searchable.booleanValue();
+		}
+		else {
+			return filterable;
+		}
+	}
+
 	@Override
 	public IProperty build() {
 		for (final Class<?> beanValidatorClass : addedBeanValidators) {
@@ -267,6 +283,7 @@ final class PropertyBuilder implements IPropertyBuilder {
 			readonly,
 			editable != null ? editable.booleanValue() : !readonly,
 			sortable,
-			filterable);
+			filterable,
+			getSearchable());
 	}
 }

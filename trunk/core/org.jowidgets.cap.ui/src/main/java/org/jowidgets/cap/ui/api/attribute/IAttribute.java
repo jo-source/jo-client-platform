@@ -52,6 +52,8 @@ public interface IAttribute<ELEMENT_VALUE_TYPE> extends IChangeObservable {
 
 	boolean isFilterable();
 
+	boolean isSearchable();
+
 	boolean isMandatory();
 
 	boolean isEditable();

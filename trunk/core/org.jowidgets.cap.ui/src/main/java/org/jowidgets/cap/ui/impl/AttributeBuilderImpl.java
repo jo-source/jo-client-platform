@@ -78,6 +78,7 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 	private IAttributeGroup attributeGroup;
 	private boolean sortable;
 	private boolean filterable;
+	private Boolean searchable;
 	private Class<?> valueType;
 	private Class<? extends ELEMENT_VALUE_TYPE> elementValueType;
 	private IValidator<Object> validator;
@@ -125,6 +126,7 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 		this.attributeGroup = attribute.getGroup();
 		this.sortable = attribute.isSortable();
 		this.filterable = attribute.isFilterable();
+		this.searchable = attribute.isSearchable();
 		this.valueType = attribute.getValueType();
 		this.elementValueType = attribute.getElementValueType();
 		this.validator = attribute.getValidator();
@@ -153,6 +155,7 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 		this.readonly = property.isReadonly();
 		this.sortable = property.isSortable();
 		this.filterable = property.isFilterable();
+		this.searchable = property.isSearchable();
 	}
 
 	private AttributeBuilderImpl() {
@@ -293,6 +296,12 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 	@Override
 	public IAttributeBuilder<ELEMENT_VALUE_TYPE> setFilterable(final boolean filterable) {
 		this.filterable = filterable;
+		return this;
+	}
+
+	@Override
+	public IAttributeBluePrint<ELEMENT_VALUE_TYPE> setSearchable(final boolean searchable) {
+		this.searchable = Boolean.valueOf(searchable);
 		return this;
 	}
 
@@ -457,6 +466,15 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 		}
 	}
 
+	private boolean getSearchable() {
+		if (searchable != null) {
+			return searchable.booleanValue();
+		}
+		else {
+			return filterable;
+		}
+	}
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public IAttribute<ELEMENT_VALUE_TYPE> build() {
@@ -506,6 +524,7 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 			attributeGroup,
 			sortable,
 			filterable,
+			getSearchable(),
 			valueType,
 			elementValueType,
 			propertyValidatorBuilder.build(valueType),

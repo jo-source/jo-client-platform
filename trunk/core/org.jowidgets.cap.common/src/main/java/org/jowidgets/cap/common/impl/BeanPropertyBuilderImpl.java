@@ -222,6 +222,12 @@ final class BeanPropertyBuilderImpl implements IBeanPropertyBuilder {
 	}
 
 	@Override
+	public IBeanPropertyBuilder setSearchable(final boolean searchable) {
+		propertyBuilder.setSearchable(searchable);
+		return this;
+	}
+
+	@Override
 	public IProperty build() {
 		if (!propertyBuilder.isBeanValidatorAdded()) {
 			propertyBuilder.addBeanValidator(beanType);

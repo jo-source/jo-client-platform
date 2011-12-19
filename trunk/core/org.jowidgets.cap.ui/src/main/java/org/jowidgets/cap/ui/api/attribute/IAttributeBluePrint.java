@@ -77,6 +77,8 @@ public interface IAttributeBluePrint<ELEMENT_VALUE_TYPE> {
 
 	IAttributeBluePrint<ELEMENT_VALUE_TYPE> setFilterable(boolean filterable);
 
+	IAttributeBluePrint<ELEMENT_VALUE_TYPE> setSearchable(boolean searchable);
+
 	IAttributeBluePrint<ELEMENT_VALUE_TYPE> setLabelDisplayFormat(DisplayFormat displayFormat);
 
 	IAttributeBluePrint<ELEMENT_VALUE_TYPE> addValidator(IValidator<? extends Object> validator);

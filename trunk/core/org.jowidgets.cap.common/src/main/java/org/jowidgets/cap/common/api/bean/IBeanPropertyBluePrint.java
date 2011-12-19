@@ -72,4 +72,6 @@ public interface IBeanPropertyBluePrint {
 
 	IBeanPropertyBluePrint setFilterable(boolean filterable);
 
+	IBeanPropertyBluePrint setSearchable(boolean searchable);
+
 }

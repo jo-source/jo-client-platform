@@ -74,6 +74,7 @@ final class AttributeModifierBluePrint<ELEMENT_VALUE_TYPE> implements IAttribute
 	private IAttributeGroup attributeGroup;
 	private Boolean sortable;
 	private Boolean filterable;
+	private Boolean searchable;
 	private IDisplayFormat displayFormat;
 
 	@SuppressWarnings("rawtypes")
@@ -225,6 +226,13 @@ final class AttributeModifierBluePrint<ELEMENT_VALUE_TYPE> implements IAttribute
 	}
 
 	@Override
+	public IAttributeBluePrint<ELEMENT_VALUE_TYPE> setSearchable(final boolean searchable) {
+		checkExhausted();
+		this.searchable = Boolean.valueOf(searchable);
+		return this;
+	}
+
+	@Override
 	public IAttributeBluePrint<ELEMENT_VALUE_TYPE> addValidator(final IValidator<? extends Object> validator) {
 		checkExhausted();
 		Assert.paramNotNull(validator, "validator");
@@ -358,6 +366,9 @@ final class AttributeModifierBluePrint<ELEMENT_VALUE_TYPE> implements IAttribute
 		}
 		if (filterable != null) {
 			attributeBluePrint.setFilterable(filterable.booleanValue());
+		}
+		if (searchable != null) {
+			attributeBluePrint.setSearchable(searchable.booleanValue());
 		}
 		if (displayFormat != null) {
 			attributeBluePrint.setDisplayFormat(displayFormat);
