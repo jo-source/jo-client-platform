@@ -125,4 +125,9 @@ public interface IProperty {
 	 */
 	boolean isFilterable();
 
+	/**
+	 * @return True if the property could be used in the search filter
+	 */
+	boolean isSearchable();
+
 }

@@ -285,7 +285,7 @@ final class BeanTableSearchFilterToolbar<BEAN_TYPE> {
 				boolean predicateCreated = false;
 				for (final IAttribute<Object> attribute : attributes) {
 					checkCanceled();
-					if (attribute.isFilterable()) {
+					if (attribute.isSearchable()) {
 						final IUiFilter filter;
 						if (attribute.getValueRange() instanceof ILookUpValueRange) {
 							filter = createLookUpFilter(attribute, token);

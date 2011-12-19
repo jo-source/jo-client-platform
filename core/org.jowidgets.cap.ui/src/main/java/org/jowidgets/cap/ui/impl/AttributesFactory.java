@@ -169,6 +169,11 @@ final class AttributesFactory {
 			}
 
 			@Override
+			public boolean isSearchable() {
+				return attribute.isSearchable();
+			}
+
+			@Override
 			public Class<?> getValueType() {
 				return attribute.getValueType();
 			}
