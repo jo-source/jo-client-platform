@@ -47,6 +47,7 @@ import org.jowidgets.cap.ui.api.filter.IFilterToolkit;
 import org.jowidgets.cap.ui.api.form.IBeanFormToolkit;
 import org.jowidgets.cap.ui.api.lookup.ILookUpCache;
 import org.jowidgets.cap.ui.api.sort.ISortModelConfigBuilder;
+import org.jowidgets.cap.ui.api.tabfolder.IBeanTabFolderModelBuilder;
 import org.jowidgets.cap.ui.api.table.IBeanTableConfigBuilder;
 import org.jowidgets.cap.ui.api.table.IBeanTableMenuFactory;
 import org.jowidgets.cap.ui.api.table.IBeanTableMenuInterceptor;
@@ -89,7 +90,13 @@ public interface ICapUiToolkit {
 
 	<BEAN_TYPE> IBeanTableModelBuilder<BEAN_TYPE> beanTableModelBuilder(Object entityId, Class<BEAN_TYPE> beanType);
 
+	<BEAN_TYPE> IBeanTabFolderModelBuilder<BEAN_TYPE> beanTabFolderModelBuilder(Class<BEAN_TYPE> beanType);
+
+	<BEAN_TYPE> IBeanTabFolderModelBuilder<BEAN_TYPE> beanTabFolderModelBuilder(Object entityId, Class<BEAN_TYPE> beanType);
+
 	IBeanTableModelBuilder<IBeanDto> beanTableModelBuilder(Object entityId);
+
+	IBeanTabFolderModelBuilder<IBeanDto> beanTabFolderBuilder(Object entityId);
 
 	IBeanTableConfigBuilder beanTableConfigBuilder();
 

@@ -58,7 +58,7 @@ final class CriteriaQueryCreatorBuilderImpl<PARAMETER_TYPE> implements ICriteria
 	CriteriaQueryCreatorBuilderImpl(final Class<? extends IBean> beanType) {
 		Assert.paramNotNull(beanType, "beanType");
 		this.beanType = beanType;
-		this.caseSensitive = false;
+		this.caseSensitive = true;
 		this.predicateCreators = new LinkedList<IPredicateCreator<PARAMETER_TYPE>>();
 		this.filters = new LinkedList<IFilter>();
 		this.customFilterPredicateCreators = new HashMap<String, ICustomFilterPredicateCreator<PARAMETER_TYPE>>();

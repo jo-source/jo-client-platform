@@ -57,6 +57,7 @@ import org.jowidgets.cap.ui.api.form.IBeanFormToolkit;
 import org.jowidgets.cap.ui.api.icons.CapIcons;
 import org.jowidgets.cap.ui.api.lookup.ILookUpCache;
 import org.jowidgets.cap.ui.api.sort.ISortModelConfigBuilder;
+import org.jowidgets.cap.ui.api.tabfolder.IBeanTabFolderModelBuilder;
 import org.jowidgets.cap.ui.api.table.IBeanTableConfigBuilder;
 import org.jowidgets.cap.ui.api.table.IBeanTableMenuFactory;
 import org.jowidgets.cap.ui.api.table.IBeanTableMenuInterceptor;
@@ -66,6 +67,7 @@ import org.jowidgets.cap.ui.api.widgets.IBeanDialogBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanSelectionDialogBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanSelectionTableBluePrint;
+import org.jowidgets.cap.ui.api.widgets.IBeanTabFolderBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableFormBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableFormSetupBuilder;
@@ -82,6 +84,7 @@ import org.jowidgets.cap.ui.impl.widgets.BeanDialogFactory;
 import org.jowidgets.cap.ui.impl.widgets.BeanFormFactory;
 import org.jowidgets.cap.ui.impl.widgets.BeanSelectionDialogFactory;
 import org.jowidgets.cap.ui.impl.widgets.BeanSelectionTableFactory;
+import org.jowidgets.cap.ui.impl.widgets.BeanTabFolderFactory;
 import org.jowidgets.cap.ui.impl.widgets.BeanTableFactory;
 import org.jowidgets.cap.ui.impl.widgets.BeanTableFormFactory;
 import org.jowidgets.cap.ui.impl.widgets.BeanTableSettingsDialogFactory;
@@ -186,6 +189,20 @@ public final class CapUiToolkit {
 		return getInstance().beanTableModelBuilder(entityId);
 	}
 
+	public static <BEAN_TYPE> IBeanTabFolderModelBuilder<BEAN_TYPE> beanTabFolderModelBuilder(final Class<BEAN_TYPE> beanType) {
+		return getInstance().beanTabFolderModelBuilder(beanType);
+	}
+
+	public static <BEAN_TYPE> IBeanTabFolderModelBuilder<BEAN_TYPE> beanTabFolderBuilder(
+		final Object entityId,
+		final Class<BEAN_TYPE> beanType) {
+		return getInstance().beanTabFolderModelBuilder(entityId, beanType);
+	}
+
+	public static IBeanTabFolderModelBuilder<IBeanDto> beanTabFolderBuilder(final Object entityId) {
+		return getInstance().beanTabFolderBuilder(entityId);
+	}
+
 	public static IBeanTableConfigBuilder beanTableConfigBuilder() {
 		return getInstance().beanTableConfigBuilder();
 	}
@@ -229,6 +246,7 @@ public final class CapUiToolkit {
 		genericWidgetFactory.register(IAttributeFilterControlBluePrint.class, new AttributeFilterControlFactory());
 		genericWidgetFactory.register(ILookUpComboBoxSelectionBluePrint.class, new LookUpComboBoxSelectionFactory());
 		genericWidgetFactory.register(ILookUpCollectionInputFieldBluePrint.class, new LookUpCollectionInputFieldFactory());
+		genericWidgetFactory.register(IBeanTabFolderBluePrint.class, new BeanTabFolderFactory());
 
 		toolkit.getImageRegistry().registerImageConstant(CapIcons.TABLE_HIDE_COLUMN, IconsSmall.SUB);
 		toolkit.getImageRegistry().registerImageConstant(CapIcons.TABLE_UNHIDE_ALL_COLUMNS, IconsSmall.ADD_ALL);

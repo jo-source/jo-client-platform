@@ -32,6 +32,7 @@ import java.util.List;
 
 import org.jowidgets.addons.icons.silkicons.SilkIcons;
 import org.jowidgets.cap.sample1.ui.workbench.component.generic.GenericBeanComponent;
+import org.jowidgets.cap.sample1.ui.workbench.component.roles.RolesTabFolderComponent;
 import org.jowidgets.cap.sample1.ui.workbench.component.user.UserComponent;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.workbench.toolkit.api.IComponentNodeModel;
@@ -75,6 +76,11 @@ public class SampleApplication {
 		nodeModelBuilder.setComponentFactory(GenericBeanComponent.class);
 		nodeModelBuilder.setId(GenericBeanComponent.class.getName());
 		nodeModelBuilder.setLabel(Messages.getString("SampleApplication.generic_bean")); //$NON-NLS-1$
+		miscFolder.addChild(nodeModelBuilder.build());
+
+		nodeModelBuilder.setComponentFactory(RolesTabFolderComponent.class);
+		nodeModelBuilder.setId(RolesTabFolderComponent.class.getName());
+		nodeModelBuilder.setLabel("Roles Folder"); //$NON-NLS-1$
 		miscFolder.addChild(nodeModelBuilder.build());
 
 		final IComponentNodeModel entitiesFolder = model.addChild("GENERIC_COMPONENTS_FOLDER_ID", //$NON-NLS-1$

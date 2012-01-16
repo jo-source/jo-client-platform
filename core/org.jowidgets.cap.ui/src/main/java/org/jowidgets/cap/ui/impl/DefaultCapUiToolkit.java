@@ -49,6 +49,7 @@ import org.jowidgets.cap.ui.api.filter.IFilterToolkit;
 import org.jowidgets.cap.ui.api.form.IBeanFormToolkit;
 import org.jowidgets.cap.ui.api.lookup.ILookUpCache;
 import org.jowidgets.cap.ui.api.sort.ISortModelConfigBuilder;
+import org.jowidgets.cap.ui.api.tabfolder.IBeanTabFolderModelBuilder;
 import org.jowidgets.cap.ui.api.table.IBeanTableConfigBuilder;
 import org.jowidgets.cap.ui.api.table.IBeanTableMenuFactory;
 import org.jowidgets.cap.ui.api.table.IBeanTableMenuInterceptor;
@@ -188,6 +189,23 @@ public final class DefaultCapUiToolkit implements ICapUiToolkit {
 	@Override
 	public IBeanTableModelBuilder<IBeanDto> beanTableModelBuilder(final Object entityId) {
 		return new BeanTableModelBuilderImpl<IBeanDto>(entityId, IBeanDto.class);
+	}
+
+	@Override
+	public <BEAN_TYPE> IBeanTabFolderModelBuilder<BEAN_TYPE> beanTabFolderModelBuilder(final Class<BEAN_TYPE> beanType) {
+		return new BeanTabFolderModelBuilderImpl<BEAN_TYPE>(beanType, beanType);
+	}
+
+	@Override
+	public <BEAN_TYPE> IBeanTabFolderModelBuilder<BEAN_TYPE> beanTabFolderModelBuilder(
+		final Object entityId,
+		final Class<BEAN_TYPE> beanType) {
+		return new BeanTabFolderModelBuilderImpl<BEAN_TYPE>(entityId, beanType);
+	}
+
+	@Override
+	public IBeanTabFolderModelBuilder<IBeanDto> beanTabFolderBuilder(final Object entityId) {
+		return new BeanTabFolderModelBuilderImpl<IBeanDto>(entityId, IBeanDto.class);
 	}
 
 	@Override

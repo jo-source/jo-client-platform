@@ -449,6 +449,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 		final String propertyName) {
 		Assert.paramNotNull(propertyName, "propertyName");
 		final IBeanValidationResultListBuilder builder = CapCommonToolkit.beanValidationResultListBuilder();
+		builder.addResult(ValidationResult.ok(), propertyName);
 
 		addValidationResults(independentBeanPropertyValidators, builder, propertyName);
 		addValidationResults(dependendBeanPropertyValidators.get(propertyName), builder, propertyName);
@@ -940,7 +941,12 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 			return false;
 		}
 		else if (obj instanceof IBeanProxy) {
-			return beanDto.getId().equals(((IBeanProxy<?>) obj).getId());
+			if (beanDto.getId() != null) {
+				return beanDto.getId().equals(((IBeanProxy<?>) obj).getId());
+			}
+			else {
+				return this == obj;
+			}
 		}
 		else {
 			return false;
