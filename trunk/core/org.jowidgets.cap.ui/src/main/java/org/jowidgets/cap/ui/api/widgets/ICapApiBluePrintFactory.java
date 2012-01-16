@@ -34,6 +34,7 @@ import java.util.List;
 import org.jowidgets.api.convert.IConverter;
 import org.jowidgets.cap.common.api.lookup.ILookUpProperty;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
+import org.jowidgets.cap.ui.api.tabfolder.IBeanTabFolderModel;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 
 public interface ICapApiBluePrintFactory {
@@ -49,6 +50,8 @@ public interface ICapApiBluePrintFactory {
 	<BEAN_TYPE> IBeanSelectionDialogBluePrint<BEAN_TYPE> beanSelectionDialog(IBeanTableModel<BEAN_TYPE> model);
 
 	IBeanTableSettingsDialogBluePrint beanTableSettingsDialog(IBeanTableModel<?> model);
+
+	<BEAN_TYPE> IBeanFormBluePrint<BEAN_TYPE> beanForm();
 
 	<BEAN_TYPE> IBeanFormBluePrint<BEAN_TYPE> beanForm(Collection<? extends IAttribute<?>> attributes);
 
@@ -72,4 +75,5 @@ public interface ICapApiBluePrintFactory {
 		Object lookUpId,
 		ILookUpProperty lookUpProperty);
 
+	<BEAN_TYPE> IBeanTabFolderBluePrint<BEAN_TYPE> beanTabFolder(IBeanTabFolderModel<BEAN_TYPE> model);
 }
