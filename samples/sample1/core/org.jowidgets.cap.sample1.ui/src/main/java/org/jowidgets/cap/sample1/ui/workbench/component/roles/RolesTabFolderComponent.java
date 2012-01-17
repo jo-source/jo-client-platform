@@ -96,7 +96,7 @@ public class RolesTabFolderComponent extends AbstractComponent implements ICompo
 	}
 
 	private IBeanTabFolderModel<IBeanDto> createRoleModel() {
-		final IBeanTabFolderModelBuilder<IBeanDto> builder = CapUiToolkit.beanTabFolderBuilder(EntityIds.ROLE);
+		final IBeanTabFolderModelBuilder<IBeanDto> builder = CapUiToolkit.beanTabFolderModelBuilder(EntityIds.ROLE);
 		builder.setLabelRenderer(createLabelRenderer());
 		return builder.build();
 	}

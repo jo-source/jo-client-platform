@@ -193,13 +193,13 @@ public final class CapUiToolkit {
 		return getInstance().beanTabFolderModelBuilder(beanType);
 	}
 
-	public static <BEAN_TYPE> IBeanTabFolderModelBuilder<BEAN_TYPE> beanTabFolderBuilder(
+	public static <BEAN_TYPE> IBeanTabFolderModelBuilder<BEAN_TYPE> beanTabFolderModelBuilder(
 		final Object entityId,
 		final Class<BEAN_TYPE> beanType) {
 		return getInstance().beanTabFolderModelBuilder(entityId, beanType);
 	}
 
-	public static IBeanTabFolderModelBuilder<IBeanDto> beanTabFolderBuilder(final Object entityId) {
+	public static IBeanTabFolderModelBuilder<IBeanDto> beanTabFolderModelBuilder(final Object entityId) {
 		return getInstance().beanTabFolderBuilder(entityId);
 	}
 

@@ -50,6 +50,7 @@ import org.jowidgets.cap.ui.api.model.LinkType;
 import org.jowidgets.cap.ui.api.sort.ISortModelConfig;
 import org.jowidgets.cap.ui.api.tabfolder.IBeanTabFolderModel;
 import org.jowidgets.cap.ui.api.tabfolder.IBeanTabFolderModelBuilder;
+import org.jowidgets.cap.ui.api.tabfolder.IBeanTabFolderModelInterceptor;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.api.ServiceProvider;
 import org.jowidgets.util.Assert;
@@ -60,6 +61,7 @@ final class BeanTabFolderModelBuilderImpl<BEAN_TYPE> implements IBeanTabFolderMo
 	private final Class<? extends BEAN_TYPE> beanType;
 	private final Object entityId;
 	private final Set<IBeanValidator<BEAN_TYPE>> beanValidators;
+	private final List<IBeanTabFolderModelInterceptor<BEAN_TYPE>> interceptors;
 
 	private IReaderService<? extends Object> readerService;
 	private IProvider<? extends Object> readerParameterProvider;
@@ -82,6 +84,7 @@ final class BeanTabFolderModelBuilderImpl<BEAN_TYPE> implements IBeanTabFolderMo
 		Assert.paramNotNull(beanType, "beanType");
 
 		this.beanValidators = new LinkedHashSet<IBeanValidator<BEAN_TYPE>>();
+		this.interceptors = new LinkedList<IBeanTabFolderModelInterceptor<BEAN_TYPE>>();
 		this.beanType = beanType;
 		this.entityId = entityId;
 
@@ -256,6 +259,13 @@ final class BeanTabFolderModelBuilderImpl<BEAN_TYPE> implements IBeanTabFolderMo
 	}
 
 	@Override
+	public IBeanTabFolderModelBuilder<BEAN_TYPE> addInterceptor(final IBeanTabFolderModelInterceptor<BEAN_TYPE> interceptor) {
+		Assert.paramNotNull(interceptor, "interceptor");
+		interceptors.add(interceptor);
+		return this;
+	}
+
+	@Override
 	public IBeanTabFolderModel<BEAN_TYPE> build() {
 		return new BeanTabFolderModelImpl<BEAN_TYPE>(
 			entityId,
@@ -263,6 +273,7 @@ final class BeanTabFolderModelBuilderImpl<BEAN_TYPE> implements IBeanTabFolderMo
 			propertyNames,
 			renderer,
 			beanValidators,
+			interceptors,
 			sortModelConfig,
 			readerService,
 			readerParameterProvider,

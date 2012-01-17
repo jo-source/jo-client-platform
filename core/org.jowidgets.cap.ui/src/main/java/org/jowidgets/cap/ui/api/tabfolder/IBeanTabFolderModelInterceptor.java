@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,46 +26,22 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.tools.bean;
+package org.jowidgets.cap.ui.api.tabfolder;
 
-import java.io.Serializable;
+import java.util.List;
 
-import org.jowidgets.cap.common.api.CapCommonToolkit;
-import org.jowidgets.cap.common.api.bean.IBean;
-import org.jowidgets.cap.common.api.bean.IBeanKey;
-import org.jowidgets.cap.common.api.bean.IBeanKeyBuilder;
+import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 
-public final class BeanKey implements IBeanKey, Serializable {
+public interface IBeanTabFolderModelInterceptor<BEAN_TYPE> {
 
-	private static final long serialVersionUID = -2187638080064448186L;
-
-	private final IBeanKey key;
-
-	public BeanKey(final IBean bean) {
-		this(bean.getId(), bean.getVersion());
-	}
-
-	public BeanKey(final Object id, final long version) {
-		this(CapCommonToolkit.beanKeyBuilder().setId(id).setVersion(version));
-	}
-
-	private BeanKey(final IBeanKeyBuilder builder) {
-		this.key = builder.build();
-	}
-
-	@Override
-	public Object getId() {
-		return key.getId();
-	}
-
-	@Override
-	public long getVersion() {
-		return key.getVersion();
-	}
-
-	@Override
-	public String toString() {
-		return "BeanKey [key=" + key + "]";
-	}
+	/**
+	 * Will be invoked after data was loaded. This method could be used to
+	 * modify the loaded data, e.g. filter or reorder it. Also it is possible
+	 * to add e.g transient data after data was loaded.
+	 * 
+	 * @param newData The new data that was loaded, never null
+	 * @return The modified new data, never null
+	 */
+	List<IBeanProxy<BEAN_TYPE>> afterLoad(List<IBeanProxy<BEAN_TYPE>> newData);
 
 }

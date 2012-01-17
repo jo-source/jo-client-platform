@@ -88,6 +88,8 @@ public interface IBeanTabFolderModelBuilder<BEAN_TYPE> {
 
 	IBeanTabFolderModelBuilder<BEAN_TYPE> setLabelRenderer(IBeanProxyLabelRenderer<BEAN_TYPE> renderer);
 
+	IBeanTabFolderModelBuilder<BEAN_TYPE> addInterceptor(IBeanTabFolderModelInterceptor<BEAN_TYPE> interceptor);
+
 	IBeanTabFolderModel<BEAN_TYPE> build();
 
 }
