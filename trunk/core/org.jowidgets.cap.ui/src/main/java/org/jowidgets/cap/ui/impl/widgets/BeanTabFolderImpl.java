@@ -34,6 +34,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.jowidgets.api.controller.ITabFolderListener;
+import org.jowidgets.api.controller.ITabSelectionEvent;
 import org.jowidgets.api.widgets.ITabFolder;
 import org.jowidgets.api.widgets.ITabItem;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
@@ -46,6 +48,7 @@ import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTabFolder;
 import org.jowidgets.cap.ui.api.widgets.IBeanTabFolderBluePrint;
 import org.jowidgets.cap.ui.tools.model.BeanListModelAdapter;
+import org.jowidgets.common.types.IVetoable;
 import org.jowidgets.tools.layout.MigLayoutFactory;
 import org.jowidgets.tools.widgets.blueprint.BPF;
 import org.jowidgets.tools.widgets.wrapper.TabFolderWrapper;
@@ -75,6 +78,18 @@ final class BeanTabFolderImpl<BEAN_TYPE> extends TabFolderWrapper implements IBe
 			@Override
 			public void beansChanged() {
 				updateFromModel();
+			}
+		});
+
+		tabFolder.addTabFolderListener(new ITabFolderListener() {
+
+			@Override
+			public void onDeselection(final IVetoable vetoable, final ITabSelectionEvent item) {}
+
+			@Override
+			public void itemSelected(final ITabSelectionEvent selectionEvent) {
+				final int selectedIndex = tabFolder.getIndex(selectionEvent.getNewSelected());
+				model.setSelection(selectedIndex);
 			}
 		});
 

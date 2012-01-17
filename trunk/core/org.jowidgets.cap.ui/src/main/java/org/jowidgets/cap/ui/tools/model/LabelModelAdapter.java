@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,46 +26,26 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.tools.bean;
+package org.jowidgets.cap.ui.tools.model;
 
-import java.io.Serializable;
+import org.jowidgets.cap.ui.api.model.ILabelModel;
+import org.jowidgets.common.image.IImageConstant;
 
-import org.jowidgets.cap.common.api.CapCommonToolkit;
-import org.jowidgets.cap.common.api.bean.IBean;
-import org.jowidgets.cap.common.api.bean.IBeanKey;
-import org.jowidgets.cap.common.api.bean.IBeanKeyBuilder;
+public class LabelModelAdapter implements ILabelModel {
 
-public final class BeanKey implements IBeanKey, Serializable {
-
-	private static final long serialVersionUID = -2187638080064448186L;
-
-	private final IBeanKey key;
-
-	public BeanKey(final IBean bean) {
-		this(bean.getId(), bean.getVersion());
-	}
-
-	public BeanKey(final Object id, final long version) {
-		this(CapCommonToolkit.beanKeyBuilder().setId(id).setVersion(version));
-	}
-
-	private BeanKey(final IBeanKeyBuilder builder) {
-		this.key = builder.build();
+	@Override
+	public String getText() {
+		return null;
 	}
 
 	@Override
-	public Object getId() {
-		return key.getId();
+	public String getDescription() {
+		return null;
 	}
 
 	@Override
-	public long getVersion() {
-		return key.getVersion();
-	}
-
-	@Override
-	public String toString() {
-		return "BeanKey [key=" + key + "]";
+	public IImageConstant getIcon() {
+		return null;
 	}
 
 }

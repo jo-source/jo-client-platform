@@ -1317,7 +1317,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			}
 		}
 		if (!beanKeys.isEmpty() && linkType == LinkType.SELECTION_FIRST) {
-			return beanKeys.subList(0, 1);
+			return new LinkedList<IBeanKey>(beanKeys.subList(0, 1));
 		}
 		return beanKeys;
 	}

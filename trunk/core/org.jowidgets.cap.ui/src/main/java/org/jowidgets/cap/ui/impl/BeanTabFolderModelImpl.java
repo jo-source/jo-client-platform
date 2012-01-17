@@ -84,6 +84,7 @@ import org.jowidgets.cap.ui.api.model.LinkType;
 import org.jowidgets.cap.ui.api.sort.ISortModel;
 import org.jowidgets.cap.ui.api.sort.ISortModelConfig;
 import org.jowidgets.cap.ui.api.tabfolder.IBeanTabFolderModel;
+import org.jowidgets.cap.ui.api.tabfolder.IBeanTabFolderModelInterceptor;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.EmptyCheck;
 import org.jowidgets.util.IProvider;
@@ -113,6 +114,8 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 
 	private final List<IBeanPropertyValidator<BEAN_TYPE>> beanPropertyValidators;
 	private final List<IBeanPropertyValidator<BEAN_TYPE>> beanPropertyValidatorsView;
+
+	private final List<IBeanTabFolderModelInterceptor<BEAN_TYPE>> interceptors;
 
 	private final ICreatorService creatorService;
 	private final IReaderService<Object> readerService;
@@ -145,6 +148,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 		final List<String> propertyNames,
 		final IBeanProxyLabelRenderer<BEAN_TYPE> renderer,
 		final Set<IBeanValidator<BEAN_TYPE>> beanValidators,
+		final List<IBeanTabFolderModelInterceptor<BEAN_TYPE>> interceptors,
 		final ISortModelConfig sortModelConfig,
 		final IReaderService<? extends Object> readerService,
 		final IProvider<? extends Object> paramProvider,
@@ -156,6 +160,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 		final LinkType linkType) {
 
 		//arguments checks
+		Assert.paramNotNull(interceptors, "interceptors");
 		Assert.paramNotNull(entityId, "entityId");
 		Assert.paramNotNull(beanType, "beanType");
 		Assert.paramNotNull(renderer, "renderer");
@@ -176,6 +181,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 			this.parentModelListener = null;
 		}
 
+		this.interceptors = new LinkedList<IBeanTabFolderModelInterceptor<BEAN_TYPE>>(interceptors);
 		this.renderer = renderer;
 		this.readerService = (IReaderService<Object>) readerService;
 		this.readerParameterProvider = (IProvider<Object>) paramProvider;
@@ -515,7 +521,9 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 	@Override
 	public ArrayList<Integer> getSelection() {
 		final ArrayList<Integer> result = new ArrayList<Integer>();
-		result.add(selectedTab);
+		if (selectedTab != null) {
+			result.add(selectedTab);
+		}
 		return result;
 	}
 
@@ -560,7 +568,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 
 	@Override
 	public IBeanProxy<BEAN_TYPE> getSelectedBean() {
-		if (selectedTab != null) {
+		if (selectedTab != null && selectedTab.intValue() < data.size()) {
 			return data.get(selectedTab.intValue());
 		}
 		else {
@@ -668,7 +676,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 			}
 		}
 		if (!beanKeys.isEmpty() && linkType == LinkType.SELECTION_FIRST) {
-			return beanKeys.subList(0, 1);
+			return new LinkedList<IBeanKey>(beanKeys.subList(0, 1));
 		}
 		return beanKeys;
 	}
@@ -815,21 +823,35 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 			}
 
 			data.clear();
-			int index = 0;
+
+			List<IBeanProxy<BEAN_TYPE>> newData = new LinkedList<IBeanProxy<BEAN_TYPE>>();
 			for (final IBeanDto beanDto : beanDtos) {
 				final IBeanProxy<BEAN_TYPE> beanProxy = beanProxyFactory.createProxy(beanDto, propertyNames);
+				newData.add(beanProxy);
+			}
+
+			for (final IBeanTabFolderModelInterceptor<BEAN_TYPE> interceptor : interceptors) {
+				newData = interceptor.afterLoad(newData);
+			}
+
+			int index = 0;
+			for (final IBeanProxy<BEAN_TYPE> bean : newData) {
 				for (final IBeanPropertyValidator<BEAN_TYPE> validator : beanPropertyValidators) {
-					beanProxy.addBeanPropertyValidator(validator);
+					bean.addBeanPropertyValidator(validator);
 				}
-				data.add(beanProxy);
-				if (lastSelectedBean != null && lastSelectedBean.equals(beanProxy)) {
+				beansStateTracker.register(bean);
+				data.add(bean);
+				if (lastSelectedBean != null && lastSelectedBean.equals(bean)) {
 					selectedTab = Integer.valueOf(index);
 				}
-				beansStateTracker.register(beanProxy);
 				index++;
 			}
 
 			finished = true;
+
+			if (selectedTab != null && selectedTab.intValue() >= data.size()) {
+				selectedTab = null;
+			}
 
 			if (selectedTab == null && data.size() > 0) {
 				selectedTab = Integer.valueOf(0);
@@ -860,7 +882,6 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 				bean.setExecutionTask(null);
 				bean.addMessage(message);
 			}
-
 			finished = true;
 			beanListModelObservable.fireBeansChanged();
 		}
