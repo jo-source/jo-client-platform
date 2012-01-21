@@ -75,6 +75,8 @@ public interface IBeanFormBluePrint<BEAN_TYPE> extends
 
 	IBeanFormBluePrint<BEAN_TYPE> setCreateModeInputHint(String hint);
 
+	IBeanFormBluePrint<BEAN_TYPE> setCreateModeForegroundColor(final IColorConstant editModeColor);
+
 	@Mandatory
 	IBeanFormLayouter getLayouter();
 
@@ -104,5 +106,7 @@ public interface IBeanFormBluePrint<BEAN_TYPE> extends
 	String getEditModeInputHint();
 
 	String getCreateModeInputHint();
+
+	IColorConstant getCreateModeForegroundColor();
 
 }

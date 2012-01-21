@@ -93,6 +93,7 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 	private final IBeanFormLayouter layouter;
 	private final IDecorator<String> mandatoryLabelDecorator;
 	private final IColorConstant mandatoryBackgroundColor;
+	private final IColorConstant createModeForegroundColor;
 	private final IValidator<Object> mandatoryValidator;
 	private final String editModeInputHint;
 	private final String createModeInputHint;
@@ -121,6 +122,7 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 		this.layouter = bluePrint.getLayouter();
 		this.mandatoryLabelDecorator = bluePrint.getMandatoryLabelDecorator();
 		this.mandatoryBackgroundColor = bluePrint.getMandatoryBackgroundColor();
+		this.createModeForegroundColor = bluePrint.getCreateModeForegroundColor();
 		this.mandatoryValidator = bluePrint.getMandatoryValidator();
 		this.editModeInputHint = bluePrint.getEditModeInputHint();
 		this.createModeInputHint = bluePrint.getCreateModeInputHint();
@@ -199,6 +201,9 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 				if (mandatoryBackgroundColor != null && attribute.isMandatory()) {
 					control.setBackgroundColor(null);
 				}
+				if (createModeForegroundColor != null) {
+					control.setForegroundColor(null);
+				}
 			}
 			validationLabelContainer.layoutBegin();
 			createModeValidationLabel.setVisible(false);
@@ -230,6 +235,14 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 				}
 				else if (mandatoryBackgroundColor != null && attribute.isMandatory()) {
 					control.setBackgroundColor(backgroundColors.get(entry.getKey()));
+				}
+				if (createModeForegroundColor != null) {
+					if (bean.isTransient()) {
+						control.setForegroundColor(createModeForegroundColor);
+					}
+					else {
+						control.setForegroundColor(null);
+					}
 				}
 				control.setEditable(attribute.isEditable() && !bean.hasExecution() && !bean.hasErrors());
 				control.addInputListener(bindingListeners.get(propertyName));
