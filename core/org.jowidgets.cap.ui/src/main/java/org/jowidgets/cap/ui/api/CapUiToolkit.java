@@ -32,6 +32,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.WeakHashMap;
 
+import org.jowidgets.api.color.Colors;
 import org.jowidgets.api.image.IconsSmall;
 import org.jowidgets.api.toolkit.IToolkit;
 import org.jowidgets.api.toolkit.Toolkit;
@@ -327,6 +328,7 @@ public final class CapUiToolkit {
 					public void initialize(final IBeanFormBluePrint<?> bluePrint) {
 						bluePrint.setAutoResetValidation(true);
 						bluePrint.setContentScrolled(true);
+						bluePrint.setCreateModeForegroundColor(Colors.GREEN);
 						final IInputComponentValidationLabelBluePrint editModeValidationLabel = Toolkit.getBluePrintFactory().inputComponentValidationLabel();
 						final IDecorator<IValidationResult> editModeValidationDecorator = new IDecorator<IValidationResult>() {
 							@Override
