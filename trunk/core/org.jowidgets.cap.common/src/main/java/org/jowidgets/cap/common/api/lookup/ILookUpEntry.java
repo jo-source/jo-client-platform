@@ -45,6 +45,13 @@ public interface ILookUpEntry {
 	Object getValue(String propertyName);
 
 	/**
+	 * Gets the value for the default property
+	 * 
+	 * @return The value for the default property
+	 */
+	Object getValue();
+
+	/**
 	 * Gets a description for the entry, may be null
 	 * 
 	 * @return The description of the entry or null, if no description is available
