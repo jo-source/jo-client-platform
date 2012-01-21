@@ -33,6 +33,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.jowidgets.cap.common.api.lookup.ILookUpEntry;
+import org.jowidgets.cap.common.api.lookup.ILookUpProperty;
 
 final class LookUpEntryImpl implements ILookUpEntry, Serializable {
 
@@ -58,6 +59,11 @@ final class LookUpEntryImpl implements ILookUpEntry, Serializable {
 	@Override
 	public Object getValue(final String propertyName) {
 		return values.get(propertyName);
+	}
+
+	@Override
+	public Object getValue() {
+		return getValue(ILookUpProperty.DEFAULT_NAME);
 	}
 
 	@Override
