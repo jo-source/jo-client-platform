@@ -155,13 +155,13 @@ final class BeanFormLayouterImpl implements IBeanFormLayouter {
 				if (property.showLabel()) {
 					final AlignmentVertical labelAlignmentVertical = property.getLabelAlignmentVertical();
 					if (AlignmentVertical.TOP.equals(labelAlignmentVertical)) {
-						cell = "cell " + firstPropertyColumn + " " + row;
+						cell = "aligny top, cell " + firstPropertyColumn + " " + row;
 					}
 					else if (AlignmentVertical.CENTER.equals(labelAlignmentVertical)) {
-						cell = "cell " + firstPropertyColumn + " " + row + " 1 " + propertyRowSpan;
+						cell = "aligny center, cell " + firstPropertyColumn + " " + row + " 1 " + propertyRowSpan;
 					}
 					else if (AlignmentVertical.BOTTOM.equals(labelAlignmentVertical)) {
-						cell = "cell " + firstPropertyColumn + " " + (row + propertyRowSpan - 1);
+						cell = "aligny bottom, cell " + firstPropertyColumn + " " + (row + propertyRowSpan - 1);
 					}
 					else {
 						throw new IllegalStateException("Unknown vertical alignment '" + labelAlignmentVertical + "'.");
@@ -184,8 +184,9 @@ final class BeanFormLayouterImpl implements IBeanFormLayouter {
 					cell = "cell " + firstPropertyColumn + " " + row + " " + (3 * propertyColumnSpan - 1) + " " + propertyRowSpan;
 				}
 
-				//add control
-				container.add(controlCreator, constraints(cell, sizeGroupControl, controlConstraints, "growx", "growy"));
+				container.add(
+						controlCreator,
+						constraints(cell, sizeGroupControl, controlConstraints, getRowConstraints(row), "growx", "growy"));
 
 				//add validation label
 				if (validationLabelCreator != null) {
@@ -194,6 +195,16 @@ final class BeanFormLayouterImpl implements IBeanFormLayouter {
 
 				logicalColumn = logicalColumn + propertyColumnCount;
 			}
+		}
+	}
+
+	private String getRowConstraints(final int rowIndex) {
+		final Integer rowHeight = layout.getRowHeight(Integer.valueOf(rowIndex));
+		if (rowHeight != null) {
+			return "height " + rowHeight + "!";
+		}
+		else {
+			return "";
 		}
 	}
 

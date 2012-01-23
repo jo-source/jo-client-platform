@@ -43,16 +43,19 @@ final class BeanFormLayoutImpl implements IBeanFormLayout {
 	private final List<IBeanFormGroup> groups;
 	private final Map<Integer, Integer> minSizes;
 	private final Map<Integer, Integer> maxSizes;
+	private final Map<Integer, Integer> rowHeights;
 
 	BeanFormLayoutImpl(
 		final int columnCount,
 		final List<IBeanFormGroup> groups,
 		final Map<Integer, Integer> minSizes,
-		final Map<Integer, Integer> maxSizes) {
+		final Map<Integer, Integer> maxSizes,
+		final Map<Integer, Integer> rowHeights) {
 		this.columnCount = columnCount;
 		this.groups = Collections.unmodifiableList(new LinkedList<IBeanFormGroup>(groups));
 		this.minSizes = new HashMap<Integer, Integer>(minSizes);
 		this.maxSizes = new HashMap<Integer, Integer>(maxSizes);
+		this.rowHeights = new HashMap<Integer, Integer>(rowHeights);
 	}
 
 	@Override
@@ -68,6 +71,11 @@ final class BeanFormLayoutImpl implements IBeanFormLayout {
 	@Override
 	public Integer getControlMaxWidth(final int column) {
 		return maxSizes.get(Integer.valueOf(column));
+	}
+
+	@Override
+	public Integer getRowHeight(final int row) {
+		return rowHeights.get(Integer.valueOf(row));
 	}
 
 	@Override
