@@ -74,7 +74,7 @@ final class BeanFormGroupBuilderImpl implements IBeanFormGroupBuilder {
 	@Override
 	public IBeanFormGroupBuilder addProperty(final String property, final int rowSpan, final int columnSpan) {
 		final IBeanFormPropertyBuilder builder = getPropertyBuilder().setPropertyName(property);
-		builder.setRowSpan(rowSpan).setColumnSpan(columnSpan);
+		builder.setRowSpan(rowSpan).setRowCount(rowSpan).setColumnSpan(columnSpan).setColumnCount(columnSpan);
 		this.properties.add(builder.build());
 		return this;
 	}
