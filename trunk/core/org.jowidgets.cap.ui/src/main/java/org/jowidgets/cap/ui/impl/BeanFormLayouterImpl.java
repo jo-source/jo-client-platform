@@ -50,8 +50,8 @@ import org.jowidgets.util.Assert;
 
 final class BeanFormLayouterImpl implements IBeanFormLayouter {
 
-	private static final int DEFAULT_CONTROL_MIN_WIDTH = 100;
-	private static final int DEFAULT_CONTROL_MAX_WIDTH = 500;
+	private static final int DEFAULT_CONTROL_MIN_WIDTH = 60;
+	private static final int DEFAULT_CONTROL_MAX_WIDTH = 1000;
 
 	private final IBeanFormLayout layout;
 
