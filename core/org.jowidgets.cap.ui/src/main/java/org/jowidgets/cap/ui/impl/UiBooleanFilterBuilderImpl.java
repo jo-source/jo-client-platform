@@ -68,6 +68,11 @@ final class UiBooleanFilterBuilderImpl extends FilterBuilderImpl<IUiBooleanFilte
 	}
 
 	@Override
+	public boolean hasEntries() {
+		return !filters.isEmpty();
+	}
+
+	@Override
 	public IUiBooleanFilter build() {
 		return new UiBooleanFilterImpl(operator, filters, isInverted());
 	}

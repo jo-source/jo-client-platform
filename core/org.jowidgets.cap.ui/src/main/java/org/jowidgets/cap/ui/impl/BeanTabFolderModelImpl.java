@@ -466,6 +466,20 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 	}
 
 	@Override
+	public void exchangeBean(final IBeanProxy<BEAN_TYPE> oldBean, final IBeanProxy<BEAN_TYPE> newBean) {
+		Assert.paramNotNull(oldBean, "oldBean");
+		Assert.paramNotNull(newBean, "newBean");
+		final int beanIndex = getBeanIndex(oldBean);
+		if (beanIndex == -1) {
+			throw new IllegalArgumentException("Parameter 'oldBean' " + oldBean + " is not part of the model");
+		}
+		beansStateTracker.unregister(oldBean);
+		beansStateTracker.register(newBean);
+		data.set(beanIndex, newBean);
+		fireBeansChanged();
+	}
+
+	@Override
 	public void addBean(final IBeanProxy<BEAN_TYPE> bean) {
 		Assert.paramNotNull(bean, "bean");
 		beansStateTracker.register(bean);

@@ -550,6 +550,15 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 	@Override
 	public void load() {
+		load(null);
+	}
+
+	@Override
+	public void loadScheduled(final int delayMillis) {
+		load(Integer.valueOf(delayMillis));
+	}
+
+	private void load(final Integer scheduledLoadDelay) {
 		if (!Toolkit.getUiThreadAccess().isUiThread()) {
 			throw new IllegalStateException("Load must be invoked in the ui thread");
 		}
@@ -564,17 +573,11 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		maxPageIndex = 0;
 		data.clear();
 		addedData.clear();
-		scheduledLoadDelay = null;
+		this.scheduledLoadDelay = scheduledLoadDelay;
 		countedRowCount = null;
 		countLoader = new CountLoader();
 
 		dataModel.fireDataChanged();
-	}
-
-	@Override
-	public void loadScheduled(final int delayMillis) {
-		scheduledLoadDelay = Integer.valueOf(delayMillis);
-		load();
 	}
 
 	@Override
@@ -992,6 +995,17 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	@Override
 	public IAttribute<Object> getAttribute(final int columnIndex) {
 		return attributes.get(columnIndex);
+	}
+
+	@Override
+	public IAttribute<Object> getAttribute(final String propertyName) {
+		Assert.paramNotNull(propertyName, "propertyName");
+		for (final IAttribute<Object> attribute : attributes) {
+			if (propertyName.equals(attribute.getPropertyName())) {
+				return attribute;
+			}
+		}
+		return null;
 	}
 
 	@Override
