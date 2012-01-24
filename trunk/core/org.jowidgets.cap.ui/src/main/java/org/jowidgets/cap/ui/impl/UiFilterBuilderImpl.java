@@ -30,7 +30,7 @@ package org.jowidgets.cap.ui.impl;
 
 import org.jowidgets.cap.ui.api.filter.IUiFilterBuilder;
 
-public class UiFilterBuilderImpl<BUILDER_TYPE> implements IUiFilterBuilder<BUILDER_TYPE> {
+class UiFilterBuilderImpl<BUILDER_TYPE> implements IUiFilterBuilder<BUILDER_TYPE> {
 
 	private boolean inverted;
 

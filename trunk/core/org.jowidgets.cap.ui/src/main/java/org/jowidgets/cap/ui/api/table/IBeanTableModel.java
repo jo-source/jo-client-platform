@@ -97,6 +97,8 @@ public interface IBeanTableModel<BEAN_TYPE> extends IDataModel, IBeanListModel<B
 
 	IAttribute<Object> getAttribute(int columnIndex);
 
+	IAttribute<Object> getAttribute(String propertyName);
+
 	List<IAttribute<Object>> getAttributes();
 
 	List<IAttribute<Object>> getAttributes(IAttributeFilter filter);

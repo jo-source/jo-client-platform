@@ -40,6 +40,8 @@ public interface IUiBooleanFilterBuilder extends IUiFilterBuilder<IUiBooleanFilt
 
 	IUiBooleanFilterBuilder addFilter(IUiFilter filter);
 
+	boolean hasEntries();
+
 	IUiBooleanFilter build();
 
 }

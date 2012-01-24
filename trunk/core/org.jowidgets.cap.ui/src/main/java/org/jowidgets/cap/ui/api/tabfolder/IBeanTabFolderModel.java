@@ -90,6 +90,8 @@ public interface IBeanTabFolderModel<BEAN_TYPE> extends IDataModel, IBeanListMod
 
 	IBeanProxyLabelRenderer<BEAN_TYPE> getLabelRenderer();
 
+	void exchangeBean(final IBeanProxy<BEAN_TYPE> oldBean, final IBeanProxy<BEAN_TYPE> newBean);
+
 	void dispose();
 
 	boolean isDisposed();
