@@ -38,18 +38,16 @@ import org.jowidgets.api.controller.ITabFolderListener;
 import org.jowidgets.api.controller.ITabSelectionEvent;
 import org.jowidgets.api.widgets.ITabFolder;
 import org.jowidgets.api.widgets.ITabItem;
-import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyLabelRenderer;
 import org.jowidgets.cap.ui.api.model.ILabelModel;
 import org.jowidgets.cap.ui.api.tabfolder.IBeanTabFolderModel;
-import org.jowidgets.cap.ui.api.widgets.IBeanForm;
-import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
+import org.jowidgets.cap.ui.api.widgets.IBeanTab;
+import org.jowidgets.cap.ui.api.widgets.IBeanTabFactory;
 import org.jowidgets.cap.ui.api.widgets.IBeanTabFolder;
 import org.jowidgets.cap.ui.api.widgets.IBeanTabFolderBluePrint;
 import org.jowidgets.cap.ui.tools.model.BeanListModelAdapter;
 import org.jowidgets.common.types.IVetoable;
-import org.jowidgets.tools.layout.MigLayoutFactory;
 import org.jowidgets.tools.widgets.blueprint.BPF;
 import org.jowidgets.tools.widgets.wrapper.TabFolderWrapper;
 
@@ -57,9 +55,9 @@ final class BeanTabFolderImpl<BEAN_TYPE> extends TabFolderWrapper implements IBe
 
 	private final ITabFolder tabFolder;
 	private final IBeanTabFolderModel<BEAN_TYPE> model;
-	private final IBeanFormBluePrint<BEAN_TYPE> beanFormBp;
+	private final IBeanTabFactory<BEAN_TYPE> beanTabFactory;
 
-	private final Map<Integer, IBeanForm<BEAN_TYPE>> beanForms;
+	private final Map<Integer, IBeanTab<BEAN_TYPE>> beanTabs;
 
 	private final RenderLabelListener renderLabelListener;
 
@@ -68,10 +66,9 @@ final class BeanTabFolderImpl<BEAN_TYPE> extends TabFolderWrapper implements IBe
 
 		this.tabFolder = tabFolder;
 		this.model = bluePrint.getModel();
-		this.beanFormBp = CapUiToolkit.bluePrintFactory().beanForm();
-		beanFormBp.setSetup(bluePrint.getBeanForm());
+		this.beanTabFactory = bluePrint.getTabFactory();
 
-		this.beanForms = new HashMap<Integer, IBeanForm<BEAN_TYPE>>();
+		this.beanTabs = new HashMap<Integer, IBeanTab<BEAN_TYPE>>();
 		this.renderLabelListener = new RenderLabelListener();
 
 		model.addBeanListModelListener(new BeanListModelAdapter() {
@@ -107,7 +104,7 @@ final class BeanTabFolderImpl<BEAN_TYPE> extends TabFolderWrapper implements IBe
 			for (int i = 0; i < -tabsToAdd; i++) {
 				final int removeIndex = tabFolder.getItems().size() - 1;
 				tabFolder.removeItem(removeIndex);
-				beanForms.remove(Integer.valueOf(removeIndex));
+				beanTabs.remove(Integer.valueOf(removeIndex));
 			}
 		}
 		else {
@@ -123,8 +120,8 @@ final class BeanTabFolderImpl<BEAN_TYPE> extends TabFolderWrapper implements IBe
 
 			bean.addPropertyChangeListener(renderLabelListener);
 
-			final IBeanForm<BEAN_TYPE> beanForm = beanForms.get(Integer.valueOf(i));
-			beanForm.setValue(bean);
+			final IBeanTab<BEAN_TYPE> beanTab = beanTabs.get(Integer.valueOf(i));
+			beanTab.setBean(bean);
 			renderLabel(item, bean);
 		}
 	}
@@ -140,10 +137,9 @@ final class BeanTabFolderImpl<BEAN_TYPE> extends TabFolderWrapper implements IBe
 	private void addTab() {
 		final int newTabIndex = tabFolder.getItems().size();
 		final ITabItem tabItem = tabFolder.addItem(BPF.tabItem());
-		tabItem.setLayout(MigLayoutFactory.growingCellLayout());
-		final IBeanForm<BEAN_TYPE> beanForm = tabItem.add(beanFormBp, MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
+		final IBeanTab<BEAN_TYPE> beanTab = beanTabFactory.createTab(tabItem);
 		tabItem.layout();
-		beanForms.put(Integer.valueOf(newTabIndex), beanForm);
+		beanTabs.put(Integer.valueOf(newTabIndex), beanTab);
 	}
 
 	private class RenderLabelListener implements PropertyChangeListener {

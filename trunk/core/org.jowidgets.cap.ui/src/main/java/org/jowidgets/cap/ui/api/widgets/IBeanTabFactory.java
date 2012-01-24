@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -28,25 +28,10 @@
 
 package org.jowidgets.cap.ui.api.widgets;
 
-import org.jowidgets.api.widgets.blueprint.builder.ITabFolderSetupBuilder;
-import org.jowidgets.api.widgets.descriptor.setup.ITabFolderSetup;
-import org.jowidgets.cap.ui.api.tabfolder.IBeanTabFolderModel;
-import org.jowidgets.common.widgets.descriptor.IWidgetDescriptor;
-import org.jowidgets.common.widgets.descriptor.setup.mandatory.Mandatory;
+import org.jowidgets.api.widgets.ITabItem;
 
-public interface IBeanTabFolderBluePrint<BEAN_TYPE> extends
-		ITabFolderSetup,
-		ITabFolderSetupBuilder<IBeanTabFolderBluePrint<BEAN_TYPE>>,
-		IBeanTabFolderSetupConvenience<BEAN_TYPE, IBeanTabFolderBluePrint<BEAN_TYPE>>,
-		IWidgetDescriptor<IBeanTabFolder<BEAN_TYPE>> {
+public interface IBeanTabFactory<BEAN_TYPE> {
 
-	IBeanTabFolderBluePrint<BEAN_TYPE> setModel(IBeanTabFolderModel<BEAN_TYPE> model);
-
-	IBeanTabFolderBluePrint<BEAN_TYPE> setTabFactory(IBeanTabFactory<BEAN_TYPE> tabFactory);
-
-	@Mandatory
-	IBeanTabFolderModel<BEAN_TYPE> getModel();
-
-	IBeanTabFactory<BEAN_TYPE> getTabFactory();
+	IBeanTab<BEAN_TYPE> createTab(ITabItem tab);
 
 }
