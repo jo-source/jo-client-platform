@@ -218,7 +218,7 @@ final class CapApiBluePrintFactory implements ICapApiBluePrintFactory {
 				final IAttributeToolkit attributeToolkit = CapUiToolkit.attributeToolkit();
 				final List<IAttribute<Object>> attributes = attributeToolkit.createAttributes(properties);
 				final IBeanFormBluePrint<BEAN_TYPE> beanForm = beanForm(attributes);
-				result.setBeanForm(beanForm);
+				result.setTabFactory(beanForm);
 			}
 		}
 		return result;

@@ -37,6 +37,7 @@ import org.jowidgets.api.image.IconsSmall;
 import org.jowidgets.api.toolkit.IToolkit;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.types.InputDialogDefaultButtonPolicy;
+import org.jowidgets.api.widgets.ITabItem;
 import org.jowidgets.api.widgets.blueprint.IInputComponentValidationLabelBluePrint;
 import org.jowidgets.api.widgets.blueprint.defaults.IDefaultInitializer;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
@@ -45,6 +46,7 @@ import org.jowidgets.cap.ui.api.bean.BeanMessageType;
 import org.jowidgets.cap.ui.api.bean.IBeanKeyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeanMessageBuilder;
 import org.jowidgets.cap.ui.api.bean.IBeanMessageFixBuilder;
+import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeansStateTracker;
 import org.jowidgets.cap.ui.api.color.CapColors;
@@ -65,10 +67,14 @@ import org.jowidgets.cap.ui.api.table.IBeanTableMenuInterceptor;
 import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
 import org.jowidgets.cap.ui.api.widgets.IAttributeFilterControlBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanDialogBluePrint;
+import org.jowidgets.cap.ui.api.widgets.IBeanForm;
 import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanSelectionDialogBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanSelectionTableBluePrint;
+import org.jowidgets.cap.ui.api.widgets.IBeanTab;
+import org.jowidgets.cap.ui.api.widgets.IBeanTabFactory;
 import org.jowidgets.cap.ui.api.widgets.IBeanTabFolderBluePrint;
+import org.jowidgets.cap.ui.api.widgets.IBeanTabFolderSetupConvenience;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableFormBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableFormSetupBuilder;
@@ -94,8 +100,10 @@ import org.jowidgets.cap.ui.impl.widgets.LookUpCollectionInputFieldFactory;
 import org.jowidgets.cap.ui.impl.widgets.LookUpComboBoxSelectionFactory;
 import org.jowidgets.common.types.TableSelectionPolicy;
 import org.jowidgets.common.widgets.factory.IGenericWidgetFactory;
+import org.jowidgets.tools.layout.MigLayoutFactory;
 import org.jowidgets.tools.validation.MandatoryValidator;
 import org.jowidgets.tools.widgets.blueprint.BPF;
+import org.jowidgets.tools.widgets.blueprint.convenience.AbstractSetupBuilderConvenience;
 import org.jowidgets.util.IDecorator;
 import org.jowidgets.validation.IValidationResult;
 
@@ -370,6 +378,35 @@ public final class CapUiToolkit {
 						bluePrint.setMandatoryValidator(new MandatoryValidator<Object>());
 					}
 				});
+
+		toolkit.getBluePrintFactory().setSetupBuilderConvenience(
+				IBeanTabFolderBluePrint.class,
+				new BeanTabFolderSetupConvenience());
+
+	}
+
+	private static class BeanTabFolderSetupConvenience extends AbstractSetupBuilderConvenience<IBeanTabFolderBluePrint<Object>> implements
+			IBeanTabFolderSetupConvenience<Object, IBeanTabFolderBluePrint<Object>> {
+
+		@Override
+		public IBeanTabFolderBluePrint<Object> setTabFactory(final IBeanFormBluePrint<Object> beanFormBp) {
+			getBuilder().setTabFactory(new IBeanTabFactory<Object>() {
+				@Override
+				public IBeanTab<Object> createTab(final ITabItem tab) {
+					final IBeanFormBluePrint<Object> bluePrintCopy = CapUiToolkit.bluePrintFactory().beanForm();
+					bluePrintCopy.setSetup(beanFormBp);
+					tab.setLayout(MigLayoutFactory.growingCellLayout());
+					final IBeanForm<Object> beanForm = tab.add(bluePrintCopy, MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
+					return new IBeanTab<Object>() {
+						@Override
+						public void setBean(final IBeanProxy<Object> bean) {
+							beanForm.setValue(bean);
+						}
+					};
+				}
+			});
+			return getBuilder();
+		}
 
 	}
 }
