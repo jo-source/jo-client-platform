@@ -183,6 +183,10 @@ final class BeanTableSearchFilterToolbar<BEAN_TYPE> {
 		}
 	}
 
+	public void setSearchFilterToolbarText(final String text) {
+		textField.setText(text);
+	}
+
 	void requestSearchFocus() {
 		textField.requestFocus();
 	}
@@ -451,4 +455,5 @@ final class BeanTableSearchFilterToolbar<BEAN_TYPE> {
 		}
 
 	}
+
 }

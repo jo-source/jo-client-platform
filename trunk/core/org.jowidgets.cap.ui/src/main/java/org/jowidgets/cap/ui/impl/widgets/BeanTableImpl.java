@@ -555,6 +555,11 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 	}
 
 	@Override
+	public void setSearchFilterToolbarText(final String text) {
+		searchFilterToolbar.setSearchFilterToolbarText(text);
+	}
+
+	@Override
 	public void setFilterToolbarVisible(final boolean visible) {
 		filterToolbar.setVisible(visible);
 	}
