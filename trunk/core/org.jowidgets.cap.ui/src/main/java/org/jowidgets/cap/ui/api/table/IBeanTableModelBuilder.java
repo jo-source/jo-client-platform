@@ -95,6 +95,15 @@ public interface IBeanTableModelBuilder<BEAN_TYPE> {
 
 	IBeanTableModelBuilder<BEAN_TYPE> setAutoSelection(boolean autoSelect);
 
+	/**
+	 * If this option is set, data will only be loaded if any (not empty) filter is defined.
+	 * Otherwise data will be cleared on load. The default value is false,
+	 * 
+	 * @param clearOnEmptyFilter
+	 * @return This builder
+	 */
+	IBeanTableModelBuilder<BEAN_TYPE> setClearOnEmptyFilter(boolean clearOnEmptyFilter);
+
 	IBeanTableModel<BEAN_TYPE> build();
 
 }

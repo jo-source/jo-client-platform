@@ -72,6 +72,7 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> implements IBeanTableModelBuild
 	private LinkType linkType;
 	private boolean autoRowCount;
 	private boolean autoSelection;
+	private boolean clearOnEmptyFilter;
 	private List<IAttribute<Object>> attributes;
 	private String[] metaPropertyNames;
 
@@ -92,6 +93,7 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> implements IBeanTableModelBuild
 		this.entityId = entityId;
 		this.autoRowCount = true;
 		this.autoSelection = true;
+		this.clearOnEmptyFilter = false;
 
 		this.metaPropertyNames = new String[] {IBeanProxy.META_PROPERTY_PROGRESS, IBeanProxy.META_PROPERTY_MESSAGES};
 
@@ -293,6 +295,12 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> implements IBeanTableModelBuild
 		return this;
 	}
 
+	@Override
+	public IBeanTableModelBuilder<BEAN_TYPE> setClearOnEmptyFilter(final boolean clearOnEmptyFilter) {
+		this.clearOnEmptyFilter = clearOnEmptyFilter;
+		return this;
+	}
+
 	private List<IAttribute<Object>> getAttributes() {
 		final List<IAttribute<Object>> result = new LinkedList<IAttribute<Object>>(attributes);
 		if (metaPropertyNames != null) {
@@ -337,7 +345,8 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> implements IBeanTableModelBuild
 			parent,
 			linkType,
 			autoRowCount,
-			autoSelection);
+			autoSelection,
+			clearOnEmptyFilter);
 	}
 
 }
