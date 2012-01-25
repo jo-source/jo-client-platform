@@ -94,6 +94,7 @@ import org.jowidgets.cap.ui.api.bean.IBeansStateTracker;
 import org.jowidgets.cap.ui.api.color.CapColors;
 import org.jowidgets.cap.ui.api.execution.BeanExecutionPolicy;
 import org.jowidgets.cap.ui.api.execution.IExecutionTask;
+import org.jowidgets.cap.ui.api.filter.IUiBooleanFilter;
 import org.jowidgets.cap.ui.api.filter.IUiFilter;
 import org.jowidgets.cap.ui.api.filter.IUiFilterFactory;
 import org.jowidgets.cap.ui.api.filter.IUiFilterTools;
@@ -172,6 +173,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	private final LinkType linkType;
 
 	private final boolean autoRowCount;
+	private final boolean clearOnEmptyFilter;
 
 	private final BeanListModelObservable beanListModelObservable;
 	private final DisposeObservable disposeObservable;
@@ -222,7 +224,8 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		final IBeanListModel<?> parent,
 		final LinkType linkType,
 		final boolean autoRowCount,
-		final boolean autoSelect) {
+		final boolean autoSelect,
+		final boolean clearOnEmptyFilter) {
 
 		//arguments checks
 		Assert.paramNotNull(entityId, "entityId");
@@ -236,6 +239,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		this.parent = parent;
 		this.entityId = entityId;
 		this.autoRowCount = autoRowCount;
+		this.clearOnEmptyFilter = clearOnEmptyFilter;
 		this.beanType = (Class<BEAN_TYPE>) beanType;
 		this.labelSingular = labelSingular;
 		this.labelPlural = labelPlural;
@@ -562,22 +566,51 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		if (!Toolkit.getUiThreadAccess().isUiThread()) {
 			throw new IllegalStateException("Load must be invoked in the ui thread");
 		}
-		tryToCanceLoader();
-		lastSelectedBeans.clear();
-		lastSelectedBeans.addAll(removeSelection());
-		beansStateTracker.clearAll();
-		if (rowCount == 0) {
-			rowCount = 1;
+		if (clearOnEmptyFilter && isFilterEmpty()) {
+			clear();
 		}
-		dataCleared = false;
-		maxPageIndex = 0;
-		data.clear();
-		addedData.clear();
-		this.scheduledLoadDelay = scheduledLoadDelay;
-		countedRowCount = null;
-		countLoader = new CountLoader();
+		else {
+			tryToCanceLoader();
+			lastSelectedBeans.clear();
+			lastSelectedBeans.addAll(removeSelection());
+			beansStateTracker.clearAll();
+			if (rowCount == 0) {
+				rowCount = 1;
+			}
+			dataCleared = false;
+			maxPageIndex = 0;
+			data.clear();
+			addedData.clear();
+			this.scheduledLoadDelay = scheduledLoadDelay;
+			countedRowCount = null;
+			countLoader = new CountLoader();
 
-		dataModel.fireDataChanged();
+			dataModel.fireDataChanged();
+		}
+	}
+
+	private boolean isFilterEmpty() {
+		for (final IUiFilter filter : filters.values()) {
+			if (!isFilterEmpty(filter)) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private boolean isFilterEmpty(final IUiFilter filter) {
+		if (filter instanceof IUiBooleanFilter) {
+			final IUiBooleanFilter booleanFilter = (IUiBooleanFilter) filter;
+			for (final IUiFilter childFilter : booleanFilter.getFilters()) {
+				if (!isFilterEmpty(childFilter)) {
+					return false;
+				}
+			}
+			return true;
+		}
+		else {
+			return false;
+		}
 	}
 
 	@Override
