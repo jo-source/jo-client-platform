@@ -481,10 +481,21 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 
 	@Override
 	public void addBean(final IBeanProxy<BEAN_TYPE> bean) {
+		addBean(data.size(), bean);
+	}
+
+	@Override
+	public void addBean(final int index, final IBeanProxy<BEAN_TYPE> bean) {
 		Assert.paramNotNull(bean, "bean");
 		beansStateTracker.register(bean);
-		data.add(bean);
+		data.add(index, bean);
 		fireBeansChanged();
+	}
+
+	@Override
+	public void removeBean(final IBeanProxy<BEAN_TYPE> bean) {
+		Assert.paramNotNull(bean, "bean");
+		removeBeans(Collections.singletonList(bean));
 	}
 
 	@Override

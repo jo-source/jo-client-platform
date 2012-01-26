@@ -29,6 +29,7 @@
 package org.jowidgets.cap.ui.impl;
 
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.Set;
 
 import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
@@ -53,13 +54,13 @@ class BeanListModelObservable implements IBeanListModelObservable {
 	}
 
 	final void fireBeansChanged() {
-		for (final IBeanListModelListener listener : listeners) {
+		for (final IBeanListModelListener listener : new LinkedList<IBeanListModelListener>(listeners)) {
 			listener.beansChanged();
 		}
 	}
 
 	final void fireSelectionChanged() {
-		for (final IBeanListModelListener listener : listeners) {
+		for (final IBeanListModelListener listener : new LinkedList<IBeanListModelListener>(listeners)) {
 			listener.selectionChanged();
 		}
 	}
