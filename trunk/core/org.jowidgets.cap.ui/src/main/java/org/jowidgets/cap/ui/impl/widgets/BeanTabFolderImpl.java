@@ -56,10 +56,10 @@ final class BeanTabFolderImpl<BEAN_TYPE> extends TabFolderWrapper implements IBe
 	private final ITabFolder tabFolder;
 	private final IBeanTabFolderModel<BEAN_TYPE> model;
 	private final IBeanTabFactory<BEAN_TYPE> beanTabFactory;
-
 	private final Map<Integer, IBeanTab<BEAN_TYPE>> beanTabs;
-
 	private final RenderLabelListener renderLabelListener;
+	private final TabFolderSelectionListener tabFolderSelectionListener;
+	private final ModelSelectionListener modelSelectionListener;
 
 	BeanTabFolderImpl(final ITabFolder tabFolder, final IBeanTabFolderBluePrint<BEAN_TYPE> bluePrint) {
 		super(tabFolder);
@@ -70,6 +70,8 @@ final class BeanTabFolderImpl<BEAN_TYPE> extends TabFolderWrapper implements IBe
 
 		this.beanTabs = new HashMap<Integer, IBeanTab<BEAN_TYPE>>();
 		this.renderLabelListener = new RenderLabelListener();
+		this.tabFolderSelectionListener = new TabFolderSelectionListener();
+		this.modelSelectionListener = new ModelSelectionListener();
 
 		model.addBeanListModelListener(new BeanListModelAdapter() {
 			@Override
@@ -78,17 +80,8 @@ final class BeanTabFolderImpl<BEAN_TYPE> extends TabFolderWrapper implements IBe
 			}
 		});
 
-		tabFolder.addTabFolderListener(new ITabFolderListener() {
-
-			@Override
-			public void onDeselection(final IVetoable vetoable, final ITabSelectionEvent item) {}
-
-			@Override
-			public void itemSelected(final ITabSelectionEvent selectionEvent) {
-				final int selectedIndex = tabFolder.getIndex(selectionEvent.getNewSelected());
-				model.setSelection(selectedIndex);
-			}
-		});
+		model.addBeanListModelListener(modelSelectionListener);
+		tabFolder.addTabFolderListener(tabFolderSelectionListener);
 
 		updateFromModel();
 	}
@@ -156,5 +149,32 @@ final class BeanTabFolderImpl<BEAN_TYPE> extends TabFolderWrapper implements IBe
 				}
 			}
 		}
+	}
+
+	private class TabFolderSelectionListener implements ITabFolderListener {
+		@Override
+		public void onDeselection(final IVetoable vetoable, final ITabSelectionEvent item) {}
+
+		@Override
+		public void itemSelected(final ITabSelectionEvent selectionEvent) {
+			model.removeBeanListModelListener(modelSelectionListener);
+			final int selectedIndex = tabFolder.getIndex(selectionEvent.getNewSelected());
+			model.setSelection(selectedIndex);
+			model.addBeanListModelListener(modelSelectionListener);
+		}
+	}
+
+	private class ModelSelectionListener extends BeanListModelAdapter {
+
+		@Override
+		public void selectionChanged() {
+			final Integer selectionIndex = model.getSelectionIndex();
+			if (selectionIndex != null && selectionIndex.intValue() != -1) {
+				tabFolder.removeTabFolderListener(tabFolderSelectionListener);
+				tabFolder.setSelectedItem(selectionIndex.intValue());
+				tabFolder.addTabFolderListener(tabFolderSelectionListener);
+			}
+		}
+
 	}
 }
