@@ -35,13 +35,23 @@ import org.jowidgets.cap.ui.api.lookup.ILookUp;
 import org.jowidgets.cap.ui.api.lookup.ILookUpAccess;
 import org.jowidgets.cap.ui.api.lookup.ILookUpCallback;
 import org.jowidgets.cap.ui.api.widgets.ILookUpComboBoxSelectionBluePrint;
+import org.jowidgets.common.widgets.controller.IInputListener;
+import org.jowidgets.tools.controller.InputObservable;
+import org.jowidgets.tools.validation.CompoundValidator;
+import org.jowidgets.tools.validation.ValidationCache;
+import org.jowidgets.tools.validation.ValidationCache.IValidationResultCreator;
 import org.jowidgets.tools.widgets.wrapper.ComboBoxWrapper;
+import org.jowidgets.validation.IValidationConditionListener;
+import org.jowidgets.validation.IValidationResult;
+import org.jowidgets.validation.IValidator;
 
 final class LookUpComboBoxSelectionImpl extends ComboBoxWrapper<Object> implements ILookUpCallback {
 
 	private static final Object DUMMY_OBJECT = new Object();
-
 	private final LookUpControlInitializationDelegate initializationDelegate;
+	private final ValidationCache validationCache;
+	private final CompoundValidator<Object> compoundValidator;
+	private final InputObservable inputObservable;
 
 	private Object lastValue;
 
@@ -49,6 +59,20 @@ final class LookUpComboBoxSelectionImpl extends ComboBoxWrapper<Object> implemen
 		super(comboBox);
 
 		this.initializationDelegate = new LookUpControlInitializationDelegate(comboBox);
+		this.inputObservable = new InputObservable();
+		this.compoundValidator = new CompoundValidator<Object>();
+
+		final IValidator<Object> validator = setup.getValidator();
+		if (validator != null) {
+			compoundValidator.addValidator(validator);
+		}
+
+		this.validationCache = new ValidationCache(new IValidationResultCreator() {
+			@Override
+			public IValidationResult createValidationResult() {
+				return compoundValidator.validate(getValue());
+			}
+		});
 
 		this.lastValue = comboBox.getValue();
 		super.setValue(null);
@@ -65,6 +89,20 @@ final class LookUpComboBoxSelectionImpl extends ComboBoxWrapper<Object> implemen
 				lookUpAccess.removeCallback(LookUpComboBoxSelectionImpl.this);
 			}
 		});
+
+		comboBox.addInputListener(new IInputListener() {
+			@Override
+			public void inputChanged() {
+				inputObservable.fireInputChanged();
+			}
+		});
+
+		comboBox.addValidationConditionListener(new IValidationConditionListener() {
+			@Override
+			public void validationConditionsChanged() {
+				validationCache.setDirty();
+			}
+		});
 	}
 
 	@Override
@@ -74,9 +112,20 @@ final class LookUpComboBoxSelectionImpl extends ComboBoxWrapper<Object> implemen
 
 	@Override
 	public void onChange(final ILookUp lookUp) {
-		initializationDelegate.initialize();
-		setElements(lookUp.getValidKeys());
-		super.setValue(lastValue);
+
+		final boolean firstInitialize = !initializationDelegate.isInitialized();
+
+		if (firstInitialize) {
+			initializationDelegate.initialize();
+			setElements(lookUp.getValidKeys());
+			super.setValue(lastValue);
+			resetModificationState();
+		}
+		else {
+			setElements(lookUp.getValidKeys());
+		}
+
+		validationCache.setDirty();
 	}
 
 	@Override
@@ -90,11 +139,8 @@ final class LookUpComboBoxSelectionImpl extends ComboBoxWrapper<Object> implemen
 		if (initializationDelegate.isInitialized()) {
 			super.setValue(value);
 		}
-		else if (value != null) {
-			super.setValue(DUMMY_OBJECT);
-		}
 		else {
-			super.setValue(null);
+			super.setValue(DUMMY_OBJECT);
 		}
 	}
 
@@ -116,6 +162,36 @@ final class LookUpComboBoxSelectionImpl extends ComboBoxWrapper<Object> implemen
 	@Override
 	public void setEnabled(final boolean enabled) {
 		initializationDelegate.setEnabled(enabled);
+	}
+
+	@Override
+	public void addValidator(final IValidator<Object> validator) {
+		compoundValidator.addValidator(validator);
+	}
+
+	@Override
+	public IValidationResult validate() {
+		return validationCache.validate();
+	}
+
+	@Override
+	public void addValidationConditionListener(final IValidationConditionListener listener) {
+		validationCache.addValidationConditionListener(listener);
+	}
+
+	@Override
+	public void removeValidationConditionListener(final IValidationConditionListener listener) {
+		validationCache.removeValidationConditionListener(listener);
+	}
+
+	@Override
+	public void addInputListener(final IInputListener listener) {
+		inputObservable.addInputListener(listener);
+	}
+
+	@Override
+	public void removeInputListener(final IInputListener listener) {
+		inputObservable.removeInputListener(listener);
 	}
 
 }
