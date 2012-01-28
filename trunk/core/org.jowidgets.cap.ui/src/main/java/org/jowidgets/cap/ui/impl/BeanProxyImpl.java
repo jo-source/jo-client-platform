@@ -106,6 +106,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 	private IBeanDto beanDto;
 	private BEAN_TYPE proxy;
 	private boolean isDummy;
+	private boolean disposed;
 
 	BeanProxyImpl(
 		final IBeanDto beanDto,
@@ -116,6 +117,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 		Assert.paramNotNull(beanType, "beanType");
 		Assert.paramNotNull(properties, "properties");
 
+		this.disposed = false;
 		this.beanDto = beanDto;
 		this.beanType = beanType;
 		this.properties = new LinkedList<String>(properties);
@@ -166,16 +168,19 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 
 	@Override
 	public Object getId() {
+		checkDisposed();
 		return beanDto.getId();
 	}
 
 	@Override
 	public long getVersion() {
+		checkDisposed();
 		return beanDto.getVersion();
 	}
 
 	@Override
 	public Object getValue(final String propertyName) {
+		checkDisposed();
 		Assert.paramNotNull(propertyName, "propertyName");
 		if (propertyName == IBeanProxy.META_PROPERTY_PROGRESS) {
 			return getProgress();
@@ -193,6 +198,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 
 	@Override
 	public void setValue(final String propertyName, final Object newValue) {
+		checkDisposed();
 		Assert.paramNotNull(propertyName, "propertyName");
 
 		undoneModifications.clear();
@@ -228,6 +234,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 
 	@Override
 	public void update(final IBeanDto beanDto) {
+		checkDisposed();
 		Assert.paramNotNull(beanDto, "beanDto");
 		if (!isTransient && !this.beanDto.equals(beanDto)) {
 			throw new IllegalArgumentException("The given parameter 'beanDto' must have the same id and type than this proxy");
@@ -238,6 +245,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 
 	@Override
 	public void updateTransient(final IBeanDto beanDto) {
+		checkDisposed();
 		Assert.paramNotNull(beanDto, "beanDto");
 		if (!isTransient) {
 			throw new IllegalStateException("This bean is not transient");
@@ -262,22 +270,26 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 
 	@Override
 	public Collection<IBeanModification> getModifications() {
+		checkDisposed();
 		return modifications.values();
 	}
 
 	@Override
 	public boolean hasModifications() {
+		checkDisposed();
 		return modifications.size() > 0;
 	}
 
 	@Override
 	public boolean isModified(final String propertyName) {
+		checkDisposed();
 		Assert.paramNotNull(propertyName, "propertyName");
 		return modifications.containsKey(propertyName);
 	}
 
 	@Override
 	public void undoModifications() {
+		checkDisposed();
 		fireBeforeUndoModifications();
 		final boolean oldModificationState = hasModifications();
 		final List<PropertyChangeEvent> propertyChangeEvents = getPropertyChangesForClear();
@@ -296,6 +308,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 
 	@Override
 	public void redoModifications() {
+		checkDisposed();
 		fireBeforeRedoModifications();
 		final boolean oldModificationState = hasModifications();
 		final List<PropertyChangeEvent> propertyChangeEvents = getPropertyChangesForUndo();
@@ -314,11 +327,13 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 
 	@Override
 	public IValidationResult validate() {
+		checkDisposed();
 		return validationCache.validate();
 	}
 
 	@Override
 	public IValidationResult createValidationResult() {
+		checkDisposed();
 		final IValidationResultBuilder builder = ValidationResult.builder();
 
 		final IValidationResult independentResult = independentWorstResult.get();
@@ -339,6 +354,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 
 	@Override
 	public void validationConditionsChanged(final IExternalBeanValidator externalValidator, final Collection<String> properties) {
+		checkDisposed();
 		final List<IBeanValidationResult> beanValidationResults = new LinkedList<IBeanValidationResult>();
 		final ValueHolder<IBeanValidationResult> firstWorstIndependendResultHolder = new ValueHolder<IBeanValidationResult>();
 		for (final String propertyName : properties) {
@@ -520,16 +536,19 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 
 	@Override
 	public void addValidationStateListener(final IBeanValidationStateListener<BEAN_TYPE> listener) {
+		checkDisposed();
 		validationStateObservable.addValidationStateListener(listener);
 	}
 
 	@Override
 	public void removeValidationStateListener(final IBeanValidationStateListener<BEAN_TYPE> listener) {
+		checkDisposed();
 		validationStateObservable.removeValidationStateListener(listener);
 	}
 
 	@Override
 	public void addBeanPropertyValidator(final IBeanPropertyValidator<BEAN_TYPE> validator) {
+		checkDisposed();
 		Assert.paramNotNull(validator, "validator");
 		final Set<String> propertyDependencies = validator.getPropertyDependencies();
 		if (EmptyCheck.isEmpty(propertyDependencies)) {
@@ -544,6 +563,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 
 	@Override
 	public void registerExternalValidator(final IExternalBeanValidator validator) {
+		checkDisposed();
 		Assert.paramNotNull(validator, "validator");
 		for (final String propertyName : validator.getObservedProperties()) {
 			getExternalValidators(propertyName).add(validator);
@@ -554,6 +574,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 
 	@Override
 	public void unregisterExternalValidator(final IExternalBeanValidator validator) {
+		checkDisposed();
 		Assert.paramNotNull(validator, "validator");
 		for (final Set<IExternalBeanValidator> validators : externalValidators.values()) {
 			validators.remove(validator);
@@ -595,6 +616,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 	@SuppressWarnings("unchecked")
 	@Override
 	public BEAN_TYPE getBean() {
+		checkDisposed();
 		if (proxy == null) {
 			proxy = (BEAN_TYPE) Proxy.newProxyInstance(
 					beanType.getClassLoader(),
@@ -606,16 +628,19 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 
 	@Override
 	public IExecutionTask getExecutionTask() {
+		checkDisposed();
 		return executionTask;
 	}
 
 	@Override
 	public boolean hasExecution() {
+		checkDisposed();
 		return executionTask != null;
 	}
 
 	@Override
 	public void setExecutionTask(final IExecutionTask executionTask) {
+		checkDisposed();
 		if (!NullCompatibleEquivalence.equals(this.executionTask, executionTask)) {
 			if (this.executionTask != null) {
 				this.executionTask.removeExecutionTaskListener(executionTaskListener);
@@ -630,6 +655,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 
 	@Override
 	public void addMessage(final IBeanMessage message) {
+		checkDisposed();
 		final List<IBeanMessage> lastMessages = new LinkedList<IBeanMessage>(messagesList);
 
 		Assert.paramNotNull(message, "message");
@@ -644,6 +670,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 
 	@Override
 	public IBeanMessage getFirstWorstMessage() {
+		checkDisposed();
 		if (messagesMap.get(BeanMessageType.ERROR).size() > 0) {
 			return messagesMap.get(BeanMessageType.ERROR).get(0);
 		}
@@ -658,6 +685,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 
 	@Override
 	public IBeanMessage getFirstWorstMandatoryMessage() {
+		checkDisposed();
 		IBeanMessage result = getFirstMandatoryMessage((messagesMap.get(BeanMessageType.ERROR)));
 		if (result == null) {
 			result = getFirstMandatoryMessage((messagesMap.get(BeanMessageType.WARNING)));
@@ -679,16 +707,19 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 
 	@Override
 	public List<IBeanMessage> getMessages() {
+		checkDisposed();
 		return new LinkedList<IBeanMessage>(messagesList);
 	}
 
 	@Override
 	public boolean hasErrors() {
+		checkDisposed();
 		return !messagesMap.get(BeanMessageType.ERROR).isEmpty();
 	}
 
 	@Override
 	public void clearMessages() {
+		checkDisposed();
 		messagesList.clear();
 		messagesMap.get(BeanMessageType.INFO).clear();
 		messagesMap.get(BeanMessageType.WARNING).clear();
@@ -698,72 +729,86 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 
 	@Override
 	public void setTransient(final boolean isTransient) {
+		checkDisposed();
 		this.isTransient = isTransient;
 	}
 
 	@Override
 	public boolean isTransient() {
+		checkDisposed();
 		return isTransient;
 	}
 
 	@Override
 	public void setDummy(final boolean dummy) {
+		checkDisposed();
 		this.isDummy = dummy;
 	}
 
 	@Override
 	public boolean isDummy() {
+		checkDisposed();
 		return isDummy;
 	}
 
 	@Override
 	public void addPropertyChangeListener(final PropertyChangeListener listener) {
+		checkDisposed();
 		propertyChangeObservable.addPropertyChangeListener(listener);
 	}
 
 	@Override
 	public void removePropertyChangeListener(final PropertyChangeListener listener) {
+		checkDisposed();
 		propertyChangeObservable.removePropertyChangeListener(listener);
 	}
 
 	@Override
 	public void addModificationStateListener(final IBeanModificationStateListener<BEAN_TYPE> listener) {
+		checkDisposed();
 		modificationStateObservable.addModificationStateListener(listener);
 	}
 
 	@Override
 	public void removeModificationStateListener(final IBeanModificationStateListener<BEAN_TYPE> listener) {
+		checkDisposed();
 		modificationStateObservable.removeModificationStateListener(listener);
 	}
 
 	@Override
 	public void addProcessStateListener(final IBeanProcessStateListener<BEAN_TYPE> listener) {
+		checkDisposed();
 		processStateObservable.addProcessStateListener(listener);
 	}
 
 	@Override
 	public void removeProcessStateListener(final IBeanProcessStateListener<BEAN_TYPE> listener) {
+		checkDisposed();
 		processStateObservable.removeProcessStateListener(listener);
 	}
 
 	@Override
 	public void addMessageStateListener(final IBeanMessageStateListener<BEAN_TYPE> listener) {
+		checkDisposed();
 		messageStateObservable.addMessageStateListener(listener);
 	}
 
 	@Override
 	public void removeMessageStateListener(final IBeanMessageStateListener<BEAN_TYPE> listener) {
+		checkDisposed();
 		messageStateObservable.removeMessageStateListener(listener);
 	}
 
 	@Override
 	public void addBeanProxyListener(final IBeanProxyListener<BEAN_TYPE> listener) {
+		checkDisposed();
 		Assert.paramNotNull(listener, "listener");
 		beanProxyListeners.add(listener);
 	}
 
 	@Override
 	public void removeBeanProxyListener(final IBeanProxyListener<BEAN_TYPE> listener) {
+		checkDisposed();
 		Assert.paramNotNull(listener, "listener");
 		beanProxyListeners.remove(listener);
 	}
@@ -806,18 +851,32 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 
 	@Override
 	public void dispose() {
-		if (this.executionTask != null) {
-			this.executionTask.removeExecutionTaskListener(executionTaskListener);
+		if (!disposed) {
+			if (this.executionTask != null) {
+				this.executionTask.removeExecutionTaskListener(executionTaskListener);
+			}
+			modifications.clear();
+			modificationStateObservable.dispose();
+			processStateObservable.dispose();
+			messageStateObservable.dispose();
+			propertyChangeObservable.dispose();
+			validationStateObservable.dispose();
+			executionTask = null;
+			beanDto = null;
+			proxy = null;
+			disposed = true;
 		}
-		modifications.clear();
-		modificationStateObservable.dispose();
-		processStateObservable.dispose();
-		messageStateObservable.dispose();
-		propertyChangeObservable.dispose();
-		validationStateObservable.dispose();
-		executionTask = null;
-		beanDto = null;
-		proxy = null;
+	}
+
+	@Override
+	public boolean isDisposed() {
+		return disposed;
+	}
+
+	private void checkDisposed() {
+		if (disposed) {
+			throw new IllegalStateException("The bean is diposed");
+		}
 	}
 
 	private void fireValidationConditionsChanged() {
@@ -916,6 +975,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 
 	@Override
 	public String toString() {
+		checkDisposed();
 		return "BeanProxyImpl [beanType="
 			+ beanType
 			+ ", modifications="
@@ -929,11 +989,13 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 
 	@Override
 	public int hashCode() {
+		checkDisposed();
 		return beanDto.hashCode();
 	}
 
 	@Override
 	public boolean equals(final Object obj) {
+		checkDisposed();
 		if (this == obj) {
 			return true;
 		}

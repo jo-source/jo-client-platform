@@ -120,6 +120,8 @@ public interface IBeanProxy<BEAN_TYPE> extends
 
 	void dispose();
 
+	boolean isDisposed();
+
 	BEAN_TYPE getBean();
 
 	void addBeanProxyListener(IBeanProxyListener<BEAN_TYPE> listener);

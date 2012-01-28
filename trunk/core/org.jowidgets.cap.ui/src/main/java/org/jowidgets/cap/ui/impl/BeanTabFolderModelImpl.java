@@ -278,6 +278,9 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 		}
 		tryToCanceLoader();
 		data.clear();
+		for (final IBeanProxy<BEAN_TYPE> bean : data) {
+			beansStateTracker.unregister(bean);
+		}
 		beansStateTracker.clearAll();
 		beanListModelObservable.fireBeansChanged();
 	}
@@ -711,15 +714,15 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 
 		@Override
 		public void selectionChanged() {
-			loadTable();
+			loadScheduled();
 		}
 
 		@Override
 		public void beansChanged() {
-			loadTable();
+			loadScheduled();
 		}
 
-		private void loadTable() {
+		private void loadScheduled() {
 			clear();
 			if (schedule != null) {
 				schedule.cancel(false);
@@ -844,6 +847,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 			final IBeanProxy<BEAN_TYPE> lastSelectedBean = getSelectedBean();
 
 			for (final IBeanProxy<BEAN_TYPE> oldBean : oldBeans) {
+				oldBean.setExecutionTask(null);
 				beansStateTracker.unregister(oldBean);
 			}
 
@@ -883,10 +887,6 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 			}
 
 			beanListModelObservable.fireBeansChanged();
-
-			for (final IBeanProxy<BEAN_TYPE> oldBean : oldBeans) {
-				oldBean.dispose();
-			}
 		}
 
 		private void setExceptionLater(final Throwable exception) {
@@ -921,11 +921,14 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 		}
 
 		private void userCanceled() {
-			for (final IBeanProxy<BEAN_TYPE> bean : data) {
-				bean.setExecutionTask(null);
+			if (!canceled) {
+				for (final IBeanProxy<BEAN_TYPE> bean : data) {
+					bean.setExecutionTask(null);
+				}
+				finished = true;
+				canceled = true;
+				beanListModelObservable.fireBeansChanged();
 			}
-			finished = true;
-			beanListModelObservable.fireBeansChanged();
 		}
 
 	}

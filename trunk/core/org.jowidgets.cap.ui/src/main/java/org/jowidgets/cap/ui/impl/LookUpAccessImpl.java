@@ -33,6 +33,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import org.jowidgets.api.threads.IUiThreadAccess;
@@ -59,6 +61,7 @@ final class LookUpAccessImpl implements ILookUpAccess {
 	private final Set<ILookUpListener> listenersStrongRef;
 	private final IUiThreadAccess uiThreadAccess;
 	private final IResultCallback<List<ILookUpEntry>> lookUpCallback;
+	private final CountDownLatch initLatch;
 
 	private ILookUpService lookUpService;
 	private ILookUp lookUp;
@@ -73,6 +76,7 @@ final class LookUpAccessImpl implements ILookUpAccess {
 		this.listenersStrongRef = new HashSet<ILookUpListener>();
 		this.lookUpCallback = new LookUpReaderCallback();
 		this.uiThreadAccess = Toolkit.getUiThreadAccess();
+		this.initLatch = new CountDownLatch(1);
 
 		checkThread();
 	}
@@ -116,6 +120,22 @@ final class LookUpAccessImpl implements ILookUpAccess {
 	@Override
 	public boolean isInitialized() {
 		return lookUp != null;
+	}
+
+	@Override
+	public ILookUp getCurrentLookUpSync(final long timeout, final TimeUnit unit) {
+		checkThread();
+		if (lookUp != null) {
+			return lookUp;
+		}
+		else {
+			try {
+				initLatch.await(timeout, unit);
+			}
+			catch (final InterruptedException e) {
+			}
+			return lookUp;
+		}
 	}
 
 	@Override
@@ -202,10 +222,11 @@ final class LookUpAccessImpl implements ILookUpAccess {
 
 		@Override
 		public void finished(final List<ILookUpEntry> result) {
+			lookUp = new LookUpImpl(result);
+			initLatch.countDown();
 			uiThreadAccess.invokeLater(new Runnable() {
 				@Override
 				public void run() {
-					lookUp = new LookUpImpl(result);
 					for (final ILookUpCallback callback : callbacks.keySet()) {
 						callback.onChange(lookUp);
 					}
@@ -213,6 +234,7 @@ final class LookUpAccessImpl implements ILookUpAccess {
 					fireAfterLookUpChanged();
 				}
 			});
+
 		}
 
 		@Override
