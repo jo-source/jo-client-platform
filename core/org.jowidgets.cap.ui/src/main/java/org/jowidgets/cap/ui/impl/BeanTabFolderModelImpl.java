@@ -394,7 +394,6 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 			bean.undoModifications();
 		}
 		beansStateTracker.clearModifications();
-		beanListModelObservable.fireBeansChanged();
 	}
 
 	@Override
