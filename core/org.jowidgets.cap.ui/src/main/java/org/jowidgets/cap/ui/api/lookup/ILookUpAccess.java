@@ -28,6 +28,8 @@
 
 package org.jowidgets.cap.ui.api.lookup;
 
+import java.util.concurrent.TimeUnit;
+
 public interface ILookUpAccess {
 
 	/**
@@ -77,6 +79,14 @@ public interface ILookUpAccess {
 	 * @return the current look up, or null if the look up is not yet initialized
 	 */
 	ILookUp getCurrentLookUp();
+
+	/**
+	 * Gets the current look up synchronous. If the current look up is not yet initialized, this method
+	 * blocks, until the lookup is initialized or the timeout reached.
+	 * 
+	 * @return The current lookup, or null if the timeout was reached
+	 */
+	ILookUp getCurrentLookUpSync(long timeout, TimeUnit unit);
 
 	/**
 	 * Adds a look up listener
