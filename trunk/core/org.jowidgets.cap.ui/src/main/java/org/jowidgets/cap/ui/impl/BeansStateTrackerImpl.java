@@ -121,11 +121,13 @@ final class BeansStateTrackerImpl<BEAN_TYPE> implements IBeansStateTracker<BEAN_
 	public void register(final IBeanProxy<BEAN_TYPE> bean) {
 		Assert.paramNotNull(bean, "bean");
 		bean.addModificationStateListener(modificationStateListener);
+
 		if (bean.hasModifications()) {
 			addModifiedBean(bean);
-			validationDirtyBeans.add(bean);
-			validationCache.setDirty();
 		}
+
+		validationDirtyBeans.add(bean);
+		validationCache.setDirty();
 
 		bean.addProcessStateListener(processStateListener);
 		if (bean.hasExecution()) {
@@ -142,10 +144,8 @@ final class BeansStateTrackerImpl<BEAN_TYPE> implements IBeansStateTracker<BEAN_
 		removeUnmodifiedBean(bean);
 		bean.removeProcessStateListener(processStateListener);
 		removeUnprocessingBean(bean);
-		final boolean beanWasValidationDirty = validationDirtyBeans.remove(bean);
-		if (beanWasValidationDirty) {
-			validationCache.setDirty();
-		}
+		validationDirtyBeans.remove(bean);
+		validationCache.setDirty();
 	}
 
 	@Override
