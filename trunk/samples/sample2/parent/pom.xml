@@ -13,11 +13,6 @@
 		<relativePath>../../parent/pom.xml</relativePath>
 	</parent>
 	
-	<properties>
-	    <!-- change this if you want to use the sample template for your own to the desired version of cap-->
-		<jocap.version>0.4.0-SNAPSHOT</jocap.version>
-	</properties>
-	
 	<modules>
 	    <module>../app/parent/</module>
 		<module>../plugins/parent/</module>
