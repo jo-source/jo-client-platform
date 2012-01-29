@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>org.jowidgets.cap.sample0</groupId>
 		<artifactId>org.jowidgets.cap.sample0.starter.parent</artifactId>
-		<version>0.4.0-SNAPSHOT</version>
+		<version>0.4.0</version>
 		<relativePath>../parent/pom.xml</relativePath>
 	</parent>
 	
@@ -20,7 +20,7 @@
 		<dependency>
 			<groupId>org.jowidgets</groupId>
 			<artifactId>org.jowidgets.security.impl.http.server</artifactId>
-			<version>0.4.0-SNAPSHOT</version>
+			<version>0.4.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.codehaus.mojo.webstart</groupId>
