@@ -15,7 +15,7 @@
 	
 	<properties>
 	    <!-- change this if you want to use the sample template for your own to the desired version of cap-->
-		<jocap.version>${project.version}</jocap.version>
+		<jocap.version>0.4.0-SNAPSHOT</jocap.version>
 	</properties>
 	
 	<modules>
