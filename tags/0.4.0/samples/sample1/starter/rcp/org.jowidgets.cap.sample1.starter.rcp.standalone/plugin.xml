@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         id="sample1"
+         point="org.eclipse.core.runtime.applications">
+      <application>
+         <run
+               class="org.jowidgets.cap.sample1.starter.standalone.rcp.Sample1StarterStandaloneRcp">
+         </run>
+      </application>
+   </extension>
+   <extension
+         id="sample1"
+         point="org.eclipse.core.runtime.products">
+      <product
+            application="org.jowidgets.cap.sample1.starter.rcp.standalone.sample1"
+            name="org.jowidgets.workbench.impl.rcp.example">
+         <property
+               name="appName"
+               value="org.jowidgets.workbench.impl.rcp.example">
+         </property>
+      </product>
+   </extension>
+</plugin>
