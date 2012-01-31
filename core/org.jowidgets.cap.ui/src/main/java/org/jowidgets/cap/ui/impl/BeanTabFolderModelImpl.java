@@ -512,6 +512,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 			if (bean.equals(selectedBean)) {
 				wasSelected = true;
 			}
+			beansStateTracker.unregister(bean);
 			data.remove(bean);
 		}
 
