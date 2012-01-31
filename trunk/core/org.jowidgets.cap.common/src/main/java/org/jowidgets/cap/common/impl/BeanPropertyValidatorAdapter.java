@@ -65,10 +65,6 @@ final class BeanPropertyValidatorAdapter implements IValidator<Object>, Serializ
 				beanValidationResult = beanValidator.validateValue((Class<Object>) beanType, propertyName, value);
 			}
 			catch (final Exception e) {
-				//TODO MG change error handling (maybe ignore)
-				//CHECKSTYLE:OFF
-				e.printStackTrace();
-				//CHECKSTYLE:ON
 				propertyValidatable = false;
 				return ValidationResult.ok();
 			}
