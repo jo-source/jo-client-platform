@@ -276,13 +276,13 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 		if (!Toolkit.getUiThreadAccess().isUiThread()) {
 			throw new IllegalStateException("Clear must be invoked in the ui thread");
 		}
+		selectedTab = null;
 		tryToCanceLoader();
 		data.clear();
 		for (final IBeanProxy<BEAN_TYPE> bean : data) {
 			beansStateTracker.unregister(bean);
 		}
 		beansStateTracker.clearAll();
-		selectedTab = null;
 		beanListModelObservable.fireBeansChanged();
 	}
 
@@ -550,7 +550,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 	@Override
 	public ArrayList<Integer> getSelection() {
 		final ArrayList<Integer> result = new ArrayList<Integer>();
-		if (selectedTab != null) {
+		if (selectedTab != null && selectedTab.intValue() < data.size()) {
 			result.add(selectedTab);
 		}
 		return result;
@@ -558,7 +558,12 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 
 	@Override
 	public Integer getSelectionIndex() {
-		return selectedTab;
+		if (selectedTab != null && selectedTab.intValue() < data.size()) {
+			return selectedTab;
+		}
+		else {
+			return null;
+		}
 	}
 
 	@Override
@@ -568,7 +573,21 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 			selectedTab = null;
 		}
 		else if (selection.size() == 1) {
-			selectedTab = selection.iterator().next();
+			final Integer newSelection = selection.iterator().next();
+			if (newSelection != null) {
+				if (newSelection.intValue() < data.size()) {
+					selectedTab = newSelection;
+				}
+				else {
+					throw new IndexOutOfBoundsException("Index must be between '0' and '"
+						+ (data.size() - 1)
+						+ "' but is: "
+						+ newSelection.intValue());
+				}
+			}
+			else {
+				throw new IllegalArgumentException("Selection must not conatin null values");
+			}
 		}
 		else {
 			throw new IllegalArgumentException("Multiselection is not supported");
