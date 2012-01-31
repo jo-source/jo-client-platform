@@ -282,6 +282,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 			beansStateTracker.unregister(bean);
 		}
 		beansStateTracker.clearAll();
+		selectedTab = null;
 		beanListModelObservable.fireBeansChanged();
 	}
 
