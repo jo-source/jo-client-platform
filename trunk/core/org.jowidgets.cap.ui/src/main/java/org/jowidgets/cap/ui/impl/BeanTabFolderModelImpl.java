@@ -148,6 +148,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 		final List<String> propertyNames,
 		final IBeanProxyLabelRenderer<BEAN_TYPE> renderer,
 		final Set<IBeanValidator<BEAN_TYPE>> beanValidators,
+		final Set<IBeanPropertyValidator<BEAN_TYPE>> beanPropertyValidators,
 		final List<IBeanTabFolderModelInterceptor<BEAN_TYPE>> interceptors,
 		final ISortModelConfig sortModelConfig,
 		final IReaderService<? extends Object> readerService,
@@ -200,8 +201,8 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 		this.disposeObservable = new DisposeObservable();
 		this.filterChangeObservable = new ChangeObservable();
 		this.loadErrorMessage = Messages.getString("BeanTableModelImpl.load_error");
-		this.beanPropertyValidators = new LinkedList<IBeanPropertyValidator<BEAN_TYPE>>();
-		this.beanPropertyValidatorsView = Collections.unmodifiableList(beanPropertyValidators);
+		this.beanPropertyValidators = new LinkedList<IBeanPropertyValidator<BEAN_TYPE>>(beanPropertyValidators);
+		this.beanPropertyValidatorsView = Collections.unmodifiableList(this.beanPropertyValidators);
 		for (final IBeanValidator<BEAN_TYPE> beanValidator : beanValidators) {
 			addBeanValidator(beanValidator);
 		}

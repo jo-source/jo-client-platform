@@ -44,6 +44,10 @@ import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.common.api.service.IRefreshService;
 import org.jowidgets.cap.common.api.service.IUpdaterService;
 import org.jowidgets.cap.common.api.validation.IBeanValidator;
+import org.jowidgets.cap.ui.api.CapUiToolkit;
+import org.jowidgets.cap.ui.api.attribute.IAttribute;
+import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
+import org.jowidgets.cap.ui.api.bean.IBeanPropertyValidator;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyLabelRenderer;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.model.LinkType;
@@ -61,6 +65,7 @@ final class BeanTabFolderModelBuilderImpl<BEAN_TYPE> implements IBeanTabFolderMo
 	private final Class<? extends BEAN_TYPE> beanType;
 	private final Object entityId;
 	private final Set<IBeanValidator<BEAN_TYPE>> beanValidators;
+	private final Set<IBeanPropertyValidator<BEAN_TYPE>> beanPropertyValidators;
 	private final List<IBeanTabFolderModelInterceptor<BEAN_TYPE>> interceptors;
 
 	private IReaderService<? extends Object> readerService;
@@ -84,6 +89,7 @@ final class BeanTabFolderModelBuilderImpl<BEAN_TYPE> implements IBeanTabFolderMo
 		Assert.paramNotNull(beanType, "beanType");
 
 		this.beanValidators = new LinkedHashSet<IBeanValidator<BEAN_TYPE>>();
+		this.beanPropertyValidators = new LinkedHashSet<IBeanPropertyValidator<BEAN_TYPE>>();
 		this.interceptors = new LinkedList<IBeanTabFolderModelInterceptor<BEAN_TYPE>>();
 		this.beanType = beanType;
 		this.entityId = entityId;
@@ -96,13 +102,17 @@ final class BeanTabFolderModelBuilderImpl<BEAN_TYPE> implements IBeanTabFolderMo
 			}
 			final IBeanDtoDescriptor beanDtoDescriptor = entityService.getDescriptor(entityId);
 			if (beanDtoDescriptor != null) {
+				final List<IProperty> properties = beanDtoDescriptor.getProperties();
 				this.propertyNames = new LinkedList<String>();
-				for (final IProperty property : beanDtoDescriptor.getProperties()) {
+				for (final IProperty property : properties) {
 					propertyNames.add(property.getName());
 				}
 				for (final IBeanValidator<?> beanValidator : beanDtoDescriptor.getValidators()) {
 					addBeanValidator((IBeanValidator) beanValidator);
 				}
+				final IAttributeToolkit attributeToolkit = CapUiToolkit.attributeToolkit();
+				final List<IAttribute<Object>> attributes = attributeToolkit.createAttributes(properties);
+				beanPropertyValidators.add(new BeanPropertyValidatorImpl<BEAN_TYPE>(attributes));
 			}
 		}
 
@@ -273,6 +283,7 @@ final class BeanTabFolderModelBuilderImpl<BEAN_TYPE> implements IBeanTabFolderMo
 			propertyNames,
 			renderer,
 			beanValidators,
+			beanPropertyValidators,
 			interceptors,
 			sortModelConfig,
 			readerService,
