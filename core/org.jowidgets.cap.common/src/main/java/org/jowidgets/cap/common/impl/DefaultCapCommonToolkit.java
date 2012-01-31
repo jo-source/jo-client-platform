@@ -185,7 +185,16 @@ public final class DefaultCapCommonToolkit implements ICapCommonToolkit {
 	@Override
 	public Validator beanValidator() {
 		if (beanValidator == null) {
-			beanValidator = Validation.buildDefaultValidatorFactory().getValidator();
+			try {
+				beanValidator = Validation.buildDefaultValidatorFactory().getValidator();
+			}
+			catch (final RuntimeException e) {
+				//TODO MG change error handling (maybe ignore)
+				//CHECKSTYLE:OFF
+				e.printStackTrace();
+				//CHECKSTYLE:ON
+				throw e;
+			}
 		}
 		return beanValidator;
 	}
