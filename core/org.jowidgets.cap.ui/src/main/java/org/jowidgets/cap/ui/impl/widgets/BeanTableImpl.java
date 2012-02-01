@@ -756,6 +756,11 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 	}
 
 	@Override
+	public void setEditable(final boolean editable) {
+		table.setEditable(editable);
+	}
+
+	@Override
 	public Position getCellPosition(final int rowIndex, final int columnIndex) {
 		return table.getCellPosition(rowIndex, columnIndex);
 	}
