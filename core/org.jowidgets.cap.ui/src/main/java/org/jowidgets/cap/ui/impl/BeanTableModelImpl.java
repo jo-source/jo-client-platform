@@ -1399,7 +1399,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			final int pageIndex = getPage(rowIndex);
 			final ArrayList<IBeanProxy<BEAN_TYPE>> page = data.get(Integer.valueOf(pageIndex));
 
-			if ((countedRowCount != null && rowIndex >= countedRowCount) && rowIndex >= rowCount) {
+			if ((countedRowCount != null && rowIndex >= countedRowCount) || (countedRowCount == null && rowIndex >= rowCount)) {
 				final IBeanProxy<BEAN_TYPE> bean = getBean(rowIndex);
 				if (bean == null) {
 					//TODO MG this should not happen, if happens the the addedData array might be fixed
@@ -1438,7 +1438,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		}
 
 		private IBeanProxy<BEAN_TYPE> getBean(final int rowIndex) {
-			if ((countedRowCount != null && rowIndex >= countedRowCount) && rowIndex >= rowCount) {
+			if ((countedRowCount != null && rowIndex >= countedRowCount) || (countedRowCount == null && rowIndex >= rowCount)) {
 				return getBeanFromAddedData(rowIndex);
 			}
 			else {
