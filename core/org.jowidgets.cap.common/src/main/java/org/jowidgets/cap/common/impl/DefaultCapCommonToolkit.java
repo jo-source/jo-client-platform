@@ -31,6 +31,7 @@ package org.jowidgets.cap.common.impl;
 import java.util.Collection;
 
 import javax.validation.Validation;
+import javax.validation.ValidationException;
 import javax.validation.Validator;
 
 import org.jowidgets.cap.common.api.ICapCommonToolkit;
@@ -188,7 +189,7 @@ public final class DefaultCapCommonToolkit implements ICapCommonToolkit {
 			try {
 				beanValidator = Validation.buildDefaultValidatorFactory().getValidator();
 			}
-			catch (final RuntimeException e) {
+			catch (final ValidationException e) {
 				//TODO MG change error handling (maybe ignore)
 				//CHECKSTYLE:OFF
 				e.printStackTrace();

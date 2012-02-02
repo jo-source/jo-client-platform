@@ -575,8 +575,12 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 		}
 		else if (selection.size() == 1) {
 			final Integer newSelection = selection.iterator().next();
+
 			if (newSelection != null) {
-				if (newSelection.intValue() < data.size()) {
+				if (data.size() == 0 && newSelection.intValue() == 0) {
+					selectedTab = null;
+				}
+				else if (newSelection.intValue() < data.size()) {
 					selectedTab = newSelection;
 				}
 				else {
