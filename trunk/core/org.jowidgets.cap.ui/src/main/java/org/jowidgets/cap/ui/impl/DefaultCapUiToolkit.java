@@ -48,6 +48,7 @@ import org.jowidgets.cap.ui.api.execution.IExecutionTaskFactory;
 import org.jowidgets.cap.ui.api.filter.IFilterToolkit;
 import org.jowidgets.cap.ui.api.form.IBeanFormToolkit;
 import org.jowidgets.cap.ui.api.lookup.ILookUpCache;
+import org.jowidgets.cap.ui.api.model.ISingleBeanModelBuilder;
 import org.jowidgets.cap.ui.api.sort.ISortModelConfigBuilder;
 import org.jowidgets.cap.ui.api.tabfolder.IBeanTabFolderModelBuilder;
 import org.jowidgets.cap.ui.api.table.IBeanTableConfigBuilder;
@@ -206,6 +207,23 @@ public final class DefaultCapUiToolkit implements ICapUiToolkit {
 	@Override
 	public IBeanTabFolderModelBuilder<IBeanDto> beanTabFolderBuilder(final Object entityId) {
 		return new BeanTabFolderModelBuilderImpl<IBeanDto>(entityId, IBeanDto.class);
+	}
+
+	@Override
+	public <BEAN_TYPE> ISingleBeanModelBuilder<BEAN_TYPE> singleBeanModelBuilder(final Class<BEAN_TYPE> beanType) {
+		return new SingleBeanModelBuilder<BEAN_TYPE>(beanType, beanType);
+	}
+
+	@Override
+	public <BEAN_TYPE> ISingleBeanModelBuilder<BEAN_TYPE> singleBeanModelBuilder(
+		final Object entityId,
+		final Class<BEAN_TYPE> beanType) {
+		return new SingleBeanModelBuilder<BEAN_TYPE>(entityId, beanType);
+	}
+
+	@Override
+	public ISingleBeanModelBuilder<IBeanDto> singleBeanModelBuilder(final Object entityId) {
+		return new SingleBeanModelBuilder<IBeanDto>(entityId, IBeanDto.class);
 	}
 
 	@Override
