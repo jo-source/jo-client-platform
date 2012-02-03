@@ -42,6 +42,7 @@ final class BeanFormPropertyImpl implements IBeanFormProperty {
 	private final int rowCount;
 	private final int columnSpan;
 	private final int columnCount;
+	private final Integer height;
 
 	private final AlignmentHorizontal labelAlignmentHorizontal;
 	private final AlignmentHorizontal propertyAlignmentHorizontal;
@@ -58,6 +59,7 @@ final class BeanFormPropertyImpl implements IBeanFormProperty {
 		final int rowCount,
 		final int columnSpan,
 		final int columnCount,
+		final Integer height,
 		final AlignmentHorizontal labelAlignmentHorizontal,
 		final AlignmentHorizontal propertyAlignmentHorizontal,
 		final AlignmentVertical labelAlignmentVertical,
@@ -71,6 +73,7 @@ final class BeanFormPropertyImpl implements IBeanFormProperty {
 		this.rowCount = rowCount;
 		this.columnSpan = columnSpan;
 		this.columnCount = columnCount;
+		this.height = height;
 		this.labelAlignmentHorizontal = labelAlignmentHorizontal;
 		this.propertyAlignmentHorizontal = propertyAlignmentHorizontal;
 		this.labelAlignmentVertical = labelAlignmentVertical;
@@ -107,6 +110,11 @@ final class BeanFormPropertyImpl implements IBeanFormProperty {
 	@Override
 	public int getColumnCount() {
 		return columnCount;
+	}
+
+	@Override
+	public Integer getHeight() {
+		return height;
 	}
 
 	@Override

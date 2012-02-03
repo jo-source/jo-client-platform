@@ -40,7 +40,11 @@ public interface IBeanFormLayoutBuilder {
 
 	IBeanFormLayoutBuilder setColumnMaxSize(int columnIndex, int maxSize);
 
-	IBeanFormLayoutBuilder setRowHeight(int rowIndex, int rowHeight);
+	IBeanFormLayoutBuilder setMinWidth(int minWidth);
+
+	IBeanFormLayoutBuilder setWidth(int width);
+
+	IBeanFormLayoutBuilder setMaxWidth(int maxWidth);
 
 	IBeanFormLayoutBuilder addGroup(IBeanFormGroup group);
 

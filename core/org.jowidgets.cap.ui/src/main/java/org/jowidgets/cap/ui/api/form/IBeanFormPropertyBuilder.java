@@ -46,6 +46,8 @@ public interface IBeanFormPropertyBuilder {
 
 	IBeanFormPropertyBuilder setColumnCount(int columnCount);
 
+	IBeanFormPropertyBuilder setHeight(int height);
+
 	IBeanFormPropertyBuilder setLabelAlignmentHorizontal(AlignmentHorizontal alignment);
 
 	IBeanFormPropertyBuilder setPropertyAlignmentHorizontal(AlignmentHorizontal alignment);

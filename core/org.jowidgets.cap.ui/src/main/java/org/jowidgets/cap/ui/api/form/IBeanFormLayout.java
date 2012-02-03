@@ -38,7 +38,11 @@ public interface IBeanFormLayout {
 
 	Integer getControlMaxWidth(int column);
 
-	Integer getRowHeight(int row);
+	Integer getMinWidth();
+
+	Integer getWidth();
+
+	Integer getMaxWidth();
 
 	List<IBeanFormGroup> getGroups();
 

@@ -42,6 +42,8 @@ public interface IBeanFormGroupBuilder {
 
 	IBeanFormGroupBuilder addProperty(String property, int rowSpan, int columnSpan);
 
+	IBeanFormGroupBuilder addProperty(String property, int rowSpan, int columnSpan, int height);
+
 	IBeanFormGroupBuilder addProperty(IBeanFormProperty property);
 
 	IBeanFormGroupBuilder addProperty(IBeanFormPropertyBuilder propertyBuilder);

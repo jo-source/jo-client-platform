@@ -46,6 +46,8 @@ public interface IBeanFormProperty {
 
 	int getColumnCount();
 
+	Integer getHeight();
+
 	AlignmentHorizontal getLabelAlignmentHorizontal();
 
 	AlignmentHorizontal getPropertyAlignmentHorizontal();

@@ -50,7 +50,10 @@ final class BeanFormLayoutBuilderImpl implements IBeanFormLayoutBuilder {
 	private final List<IBeanFormGroup> groups;
 	private final Map<Integer, Integer> minSizes;
 	private final Map<Integer, Integer> maxSizes;
-	private final Map<Integer, Integer> rowHeights;
+
+	private Integer minWidth;
+	private Integer width;
+	private Integer maxWidth;
 
 	private int columnCount;
 
@@ -58,7 +61,6 @@ final class BeanFormLayoutBuilderImpl implements IBeanFormLayoutBuilder {
 		this.groups = new LinkedList<IBeanFormGroup>();
 		this.minSizes = new HashMap<Integer, Integer>();
 		this.maxSizes = new HashMap<Integer, Integer>();
-		this.rowHeights = new HashMap<Integer, Integer>();
 		this.columnCount = 1;
 	}
 
@@ -72,6 +74,24 @@ final class BeanFormLayoutBuilderImpl implements IBeanFormLayoutBuilder {
 	}
 
 	@Override
+	public IBeanFormLayoutBuilder setMinWidth(final int minWidth) {
+		this.minWidth = Integer.valueOf(minWidth);
+		return this;
+	}
+
+	@Override
+	public IBeanFormLayoutBuilder setWidth(final int width) {
+		this.width = Integer.valueOf(width);
+		return this;
+	}
+
+	@Override
+	public IBeanFormLayoutBuilder setMaxWidth(final int maxWidth) {
+		this.maxWidth = Integer.valueOf(maxWidth);
+		return this;
+	}
+
+	@Override
 	public IBeanFormLayoutBuilder setColumnMinSize(final int columnIndex, final int minSize) {
 		minSizes.put(Integer.valueOf(columnIndex), Integer.valueOf(minSize));
 		return this;
@@ -80,12 +100,6 @@ final class BeanFormLayoutBuilderImpl implements IBeanFormLayoutBuilder {
 	@Override
 	public IBeanFormLayoutBuilder setColumnMaxSize(final int columnIndex, final int maxSize) {
 		maxSizes.put(Integer.valueOf(columnIndex), Integer.valueOf(maxSize));
-		return this;
-	}
-
-	@Override
-	public IBeanFormLayoutBuilder setRowHeight(final int rowIndex, final int rowHeight) {
-		rowHeights.put(Integer.valueOf(rowIndex), Integer.valueOf(rowHeight));
 		return this;
 	}
 
@@ -142,7 +156,7 @@ final class BeanFormLayoutBuilderImpl implements IBeanFormLayoutBuilder {
 
 	@Override
 	public IBeanFormLayout build() {
-		return new BeanFormLayoutImpl(columnCount, groups, minSizes, maxSizes, rowHeights);
+		return new BeanFormLayoutImpl(columnCount, minWidth, width, maxWidth, groups, minSizes, maxSizes);
 	}
 
 	private IBeanFormPropertyBuilder getPropertyBuilder() {
