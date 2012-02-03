@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.jowidgets.api.toolkit.Toolkit;
+import org.jowidgets.api.widgets.IComposite;
 import org.jowidgets.api.widgets.IContainer;
 import org.jowidgets.api.widgets.IControl;
 import org.jowidgets.api.widgets.blueprint.ITextLabelBluePrint;
@@ -46,12 +47,12 @@ import org.jowidgets.common.types.AlignmentVertical;
 import org.jowidgets.common.types.Position;
 import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
+import org.jowidgets.tools.widgets.blueprint.BPF;
 import org.jowidgets.util.Assert;
 
 final class BeanFormLayouterImpl implements IBeanFormLayouter {
 
-	private static final int DEFAULT_CONTROL_MIN_WIDTH = 60;
-	private static final int DEFAULT_CONTROL_MAX_WIDTH = 2000;
+	private static final String DEFAULT_CONTROL_MIN_WIDTH = String.valueOf(60);
 
 	private final IBeanFormLayout layout;
 
@@ -62,7 +63,32 @@ final class BeanFormLayouterImpl implements IBeanFormLayouter {
 
 	@Override
 	public void layout(final IContainer globalContainer, final IBeanFormControlFactory controlFactory) {
-		globalContainer.setLayout(new MigLayoutDescriptor(getColumnsConstraints(layout), ""));
+		final Integer minWidth = layout.getMinWidth();
+		final Integer width = layout.getWidth();
+		final Integer maxWidth = layout.getMaxWidth();
+		if (minWidth != null || width != null || maxWidth != null) {
+			final String widthCC = getWidthConstraints(minWidth, width, maxWidth);
+			globalContainer.setLayout(new MigLayoutDescriptor("0[grow, 0::]0", "0[grow, " + widthCC + "]0"));
+			final IComposite innerContainer = globalContainer.add(BPF.composite(), "growx, growy, w " + widthCC + ", h 0::");
+			layoutInnerContainer(innerContainer, controlFactory);
+		}
+		else {
+			layoutInnerContainer(globalContainer, controlFactory);
+		}
+	}
+
+	private String getWidthConstraints(final Integer minWidth, final Integer width, final Integer maxWidth) {
+		final StringBuilder result = new StringBuilder();
+		result.append(minWidth != null ? minWidth.intValue() : "0");
+		result.append(":");
+		result.append(width != null ? width.intValue() : "");
+		result.append(":");
+		result.append(maxWidth != null ? maxWidth.intValue() : "");
+		return result.toString();
+	}
+
+	private void layoutInnerContainer(final IContainer innerContainer, final IBeanFormControlFactory controlFactory) {
+		innerContainer.setLayout(new MigLayoutDescriptor(getColumnsConstraints(layout), ""));
 
 		final List<boolean[]> globalGrid = new ArrayList<boolean[]>();
 
@@ -79,7 +105,7 @@ final class BeanFormLayouterImpl implements IBeanFormLayouter {
 			final IContainer container;
 			if (BeanFormGroupRendering.NONE.equals(rendering)) {
 				grid = globalGrid;
-				container = globalContainer;
+				container = innerContainer;
 			}
 			else if (BeanFormGroupRendering.SEPARATOR.equals(rendering)) {
 				final String baseConstraints = "growx, cell 0 " + row + " " + (3 * layout.getColumnCount()) + " 1";
@@ -89,24 +115,24 @@ final class BeanFormLayouterImpl implements IBeanFormLayouter {
 					final String gapTop = (row > 0) ? "gaptop 27" : "";
 					final String gapBottom = "gapbottom 7";
 					final String cell = constraints(baseConstraints, gapTop, gapBottom);
-					globalContainer.add(Toolkit.getBluePrintFactory().textSeparator(label), cell);
+					innerContainer.add(Toolkit.getBluePrintFactory().textSeparator(label), cell);
 				}
 				else if (row > 0 && showSeparators) {
 					final String cell = constraints(baseConstraints, "gaptop 17, gapbottom 17");
-					globalContainer.add(Toolkit.getBluePrintFactory().separator(), cell);
+					innerContainer.add(Toolkit.getBluePrintFactory().separator(), cell);
 				}
 				grid = globalGrid;
-				container = globalContainer;
+				container = innerContainer;
 			}
 			else if (BeanFormGroupRendering.BORDER.equals(rendering)) {
 				final String cell = "growx, cell 0 " + row + " " + (3 * layout.getColumnCount()) + " 1";
 
 				setUsed(globalGrid, row, 0, 1, layout.getColumnCount());
 				if (label != null && !"".equals(label)) {
-					container = globalContainer.add(Toolkit.getBluePrintFactory().composite(label), cell);
+					container = innerContainer.add(Toolkit.getBluePrintFactory().composite(label), cell);
 				}
 				else {
-					container = globalContainer.add(Toolkit.getBluePrintFactory().compositeWithBorder(), cell);
+					container = innerContainer.add(Toolkit.getBluePrintFactory().compositeWithBorder(), cell);
 				}
 				container.setLayout(new MigLayoutDescriptor(getColumnsConstraints(layout), ""));
 				grid = new ArrayList<boolean[]>();
@@ -186,7 +212,13 @@ final class BeanFormLayouterImpl implements IBeanFormLayouter {
 
 				container.add(
 						controlCreator,
-						constraints(cell, sizeGroupControl, controlConstraints, getRowConstraints(row), "growx", "growy"));
+						constraints(
+								cell,
+								sizeGroupControl,
+								controlConstraints,
+								getHeightConstraints(property.getHeight()),
+								"growx",
+								"growy"));
 
 				//add validation label
 				if (validationLabelCreator != null) {
@@ -198,10 +230,9 @@ final class BeanFormLayouterImpl implements IBeanFormLayouter {
 		}
 	}
 
-	private String getRowConstraints(final int rowIndex) {
-		final Integer rowHeight = layout.getRowHeight(Integer.valueOf(rowIndex));
-		if (rowHeight != null) {
-			return "height " + rowHeight + "!";
+	private String getHeightConstraints(final Integer height) {
+		if (height != null) {
+			return "height " + height + "!";
 		}
 		else {
 			return "";
@@ -289,34 +320,34 @@ final class BeanFormLayouterImpl implements IBeanFormLayouter {
 	}
 
 	private static String getColumnWidthConstraints(final IBeanFormLayout layout, final int column) {
-		final int controlMinWidth = getControlMinWidth(layout, column);
-		final int controlMaxWidth = getControlMaxWidth(layout, column);
+		final String controlMinWidth = getControlMinWidth(layout, column);
+		final String controlMaxWidth = getControlMaxWidth(layout, column);
 		return controlMinWidth + ":" + controlMinWidth + ":" + controlMaxWidth;
 	}
 
 	private static String getControlWidthConstraints(final IBeanFormLayout layout, final int column) {
-		final int controlMinWidth = getControlMinWidth(layout, column);
-		final int controlMaxWidth = getControlMaxWidth(layout, column);
+		final String controlMinWidth = getControlMinWidth(layout, column);
+		final String controlMaxWidth = getControlMaxWidth(layout, column);
 		return "width " + controlMinWidth + ":" + controlMinWidth + ":" + controlMaxWidth;
 	}
 
-	private static int getControlMinWidth(final IBeanFormLayout layout, final int column) {
+	private static String getControlMinWidth(final IBeanFormLayout layout, final int column) {
 		final Integer width = layout.getControlMinWidth(column);
 		if (width != null) {
-			return width.intValue();
+			return String.valueOf(width.intValue());
 		}
 		else {
 			return DEFAULT_CONTROL_MIN_WIDTH;
 		}
 	}
 
-	private static int getControlMaxWidth(final IBeanFormLayout layout, final int column) {
+	private static String getControlMaxWidth(final IBeanFormLayout layout, final int column) {
 		final Integer width = layout.getControlMaxWidth(column);
 		if (width != null) {
-			return width.intValue();
+			return String.valueOf(width.intValue());
 		}
 		else {
-			return DEFAULT_CONTROL_MAX_WIDTH;
+			return String.valueOf("");
 		}
 	}
 
@@ -325,7 +356,6 @@ final class BeanFormLayouterImpl implements IBeanFormLayouter {
 		result.append("0");
 		for (int column = 0; column < layout.getColumnCount(); column++) {
 			if (column > 0) {
-				// TODO NM add gap ?
 				result.append("0");
 			}
 
