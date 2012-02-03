@@ -46,6 +46,7 @@ import org.jowidgets.cap.ui.api.execution.IExecutionTaskFactory;
 import org.jowidgets.cap.ui.api.filter.IFilterToolkit;
 import org.jowidgets.cap.ui.api.form.IBeanFormToolkit;
 import org.jowidgets.cap.ui.api.lookup.ILookUpCache;
+import org.jowidgets.cap.ui.api.model.ISingleBeanModelBuilder;
 import org.jowidgets.cap.ui.api.sort.ISortModelConfigBuilder;
 import org.jowidgets.cap.ui.api.tabfolder.IBeanTabFolderModelBuilder;
 import org.jowidgets.cap.ui.api.table.IBeanTableConfigBuilder;
@@ -94,9 +95,15 @@ public interface ICapUiToolkit {
 
 	<BEAN_TYPE> IBeanTabFolderModelBuilder<BEAN_TYPE> beanTabFolderModelBuilder(Object entityId, Class<BEAN_TYPE> beanType);
 
+	<BEAN_TYPE> ISingleBeanModelBuilder<BEAN_TYPE> singleBeanModelBuilder(Class<BEAN_TYPE> beanType);
+
+	<BEAN_TYPE> ISingleBeanModelBuilder<BEAN_TYPE> singleBeanModelBuilder(Object entityId, Class<BEAN_TYPE> beanType);
+
 	IBeanTableModelBuilder<IBeanDto> beanTableModelBuilder(Object entityId);
 
 	IBeanTabFolderModelBuilder<IBeanDto> beanTabFolderBuilder(Object entityId);
+
+	ISingleBeanModelBuilder<IBeanDto> singleBeanModelBuilder(Object entityId);
 
 	IBeanTableConfigBuilder beanTableConfigBuilder();
 

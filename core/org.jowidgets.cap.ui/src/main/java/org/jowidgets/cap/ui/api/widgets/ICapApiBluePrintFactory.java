@@ -34,6 +34,7 @@ import java.util.List;
 import org.jowidgets.api.convert.IConverter;
 import org.jowidgets.cap.common.api.lookup.ILookUpProperty;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
+import org.jowidgets.cap.ui.api.model.ISingleBeanModel;
 import org.jowidgets.cap.ui.api.tabfolder.IBeanTabFolderModel;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 
@@ -60,6 +61,8 @@ public interface ICapApiBluePrintFactory {
 	<BEAN_TYPE> IBeanDialogBluePrint<BEAN_TYPE> beanDialog(IBeanFormBluePrint<BEAN_TYPE> beanForm);
 
 	<BEAN_TYPE> IBeanTableFormBluePrint<BEAN_TYPE> beanTableForm(IBeanTableModel<BEAN_TYPE> model);
+
+	<BEAN_TYPE> ISingleBeanFormBluePrint<BEAN_TYPE> singleBeanForm(ISingleBeanModel<BEAN_TYPE> model);
 
 	IAttributeFilterControlBluePrint attributeFilterControl(List<? extends IAttribute<?>> attributes);
 

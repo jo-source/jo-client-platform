@@ -43,6 +43,7 @@ import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
 import org.jowidgets.cap.ui.api.form.IBeanFormLayout;
 import org.jowidgets.cap.ui.api.form.IBeanFormToolkit;
+import org.jowidgets.cap.ui.api.model.ISingleBeanModel;
 import org.jowidgets.cap.ui.api.tabfolder.IBeanTabFolderModel;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.widgets.IAttributeFilterControlBluePrint;
@@ -58,6 +59,7 @@ import org.jowidgets.cap.ui.api.widgets.IBeanTablesFormBluePrint;
 import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
 import org.jowidgets.cap.ui.api.widgets.ILookUpCollectionInputFieldBluePrint;
 import org.jowidgets.cap.ui.api.widgets.ILookUpComboBoxSelectionBluePrint;
+import org.jowidgets.cap.ui.api.widgets.ISingleBeanFormBluePrint;
 import org.jowidgets.service.api.ServiceProvider;
 import org.jowidgets.util.Assert;
 
@@ -149,6 +151,12 @@ final class CapApiBluePrintFactory implements ICapApiBluePrintFactory {
 	@Override
 	public <BEAN_TYPE> IBeanTableFormBluePrint<BEAN_TYPE> beanTableForm(final IBeanTableModel<BEAN_TYPE> model) {
 		return bluePrintFactory.bluePrint(IBeanTableFormBluePrint.class).setModel(model);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public <BEAN_TYPE> ISingleBeanFormBluePrint<BEAN_TYPE> singleBeanForm(final ISingleBeanModel<BEAN_TYPE> model) {
+		return bluePrintFactory.bluePrint(ISingleBeanFormBluePrint.class).setModel(model);
 	}
 
 	@Override
