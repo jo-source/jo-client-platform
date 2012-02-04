@@ -61,6 +61,7 @@ final class BeanFormLayoutBuilderImpl implements IBeanFormLayoutBuilder {
 		this.groups = new LinkedList<IBeanFormGroup>();
 		this.minSizes = new HashMap<Integer, Integer>();
 		this.maxSizes = new HashMap<Integer, Integer>();
+		this.maxWidth = 800;
 		this.columnCount = 1;
 	}
 
