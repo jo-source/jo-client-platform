@@ -271,7 +271,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 	@Override
 	public Collection<IBeanModification> getModifications() {
 		checkDisposed();
-		return modifications.values();
+		return new HashSet<IBeanModification>(modifications.values());
 	}
 
 	@Override
