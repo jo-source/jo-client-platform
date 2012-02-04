@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, grossmann
+ * Copyright (c) 2011, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,34 +26,35 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.impl;
+package org.jowidgets.cap.sample1.ui.workbench.component.config;
 
-import org.jowidgets.cap.ui.api.model.ISingleBeanModel;
-import org.jowidgets.cap.ui.api.model.ISingleBeanModelBuilder;
+import org.jowidgets.workbench.api.ILayout;
+import org.jowidgets.workbench.toolkit.api.IFolderLayoutBuilder;
+import org.jowidgets.workbench.toolkit.api.ILayoutBuilder;
+import org.jowidgets.workbench.tools.FolderLayoutBuilder;
+import org.jowidgets.workbench.tools.LayoutBuilder;
 
-public class SingleBeanModelBuilder<BEAN_TYPE> extends
-		AbstractBeanModelBuilderImpl<BEAN_TYPE, ISingleBeanModelBuilder<BEAN_TYPE>> implements ISingleBeanModelBuilder<BEAN_TYPE> {
+public class SampleConfigComponentDefaultLayout {
 
-	SingleBeanModelBuilder(final Object entityId, final Class<BEAN_TYPE> beanType) {
-		super(entityId, beanType);
-		setMetaAttributes(new String[0]);
+	public static final String DEFAULT_LAYOUT_ID = "DEFAULT_LAYOUT_ID";
+	public static final String MAIN_FOLDER_ID = "MAIN_FOLDER_ID";
+
+	private final ILayout layout;
+
+	public SampleConfigComponentDefaultLayout() {
+		final ILayoutBuilder builder = new LayoutBuilder();
+		builder.setId(DEFAULT_LAYOUT_ID).setLayoutContainer(createMainFolder());
+		this.layout = builder.build();
 	}
 
-	@Override
-	public ISingleBeanModel<BEAN_TYPE> build() {
-		return new SingleBeanModelImpl<BEAN_TYPE>(
-			getBeanType(),
-			getEntityId(),
-			getReaderService(),
-			getReaderParameterProvider(),
-			getCreatorService(),
-			getRefreshService(),
-			getUpdaterService(),
-			getDeleterService(),
-			getBeanValidators(),
-			getParent(),
-			getLinkType(),
-			getAttributes());
+	public ILayout getLayout() {
+		return layout;
+	}
+
+	private IFolderLayoutBuilder createMainFolder() {
+		final IFolderLayoutBuilder result = new FolderLayoutBuilder(MAIN_FOLDER_ID);
+		result.addView(SampleConfigView.ID, SampleConfigView.DEFAULT_LABEL, SampleConfigView.DEFAULT_TOOLTIP);
+		return result;
 	}
 
 }

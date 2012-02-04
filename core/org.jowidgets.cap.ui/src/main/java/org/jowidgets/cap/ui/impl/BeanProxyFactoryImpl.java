@@ -42,6 +42,8 @@ import org.jowidgets.util.Assert;
 
 final class BeanProxyFactoryImpl<BEAN_TYPE> implements IBeanProxyFactory<BEAN_TYPE> {
 
+	private static final Object DUMMY_ID = new Object() {};
+
 	private final Class<? extends BEAN_TYPE> beanType;
 
 	BeanProxyFactoryImpl(final Class<? extends BEAN_TYPE> beanType) {
@@ -78,6 +80,33 @@ final class BeanProxyFactoryImpl<BEAN_TYPE> implements IBeanProxyFactory<BEAN_TY
 			defaultValues = new HashMap<String, Object>();
 		}
 		return new BeanProxyImpl<BEAN_TYPE>(new BeanDto(defaultValues), beanType, properties, true);
+	}
+
+	@Override
+	public IBeanProxy<BEAN_TYPE> createDummyProxy(final List<String> properties) {
+		Assert.paramNotNull(properties, "properties");
+		final IBeanProxy<BEAN_TYPE> result = createProxy(new DummyBeanDto(), properties);
+		result.setDummy(true);
+		return result;
+	}
+
+	private static class DummyBeanDto implements IBeanDto {
+
+		@Override
+		public Object getValue(final String propertyName) {
+			return null;
+		}
+
+		@Override
+		public Object getId() {
+			return DUMMY_ID;
+		}
+
+		@Override
+		public long getVersion() {
+			return 0;
+		}
+
 	}
 
 	private static final class BeanDto implements IBeanDto {

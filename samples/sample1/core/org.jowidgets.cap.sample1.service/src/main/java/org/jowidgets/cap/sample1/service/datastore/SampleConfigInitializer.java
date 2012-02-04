@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, grossmann
+ * Copyright (c) 2011, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,34 +26,46 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.impl;
+package org.jowidgets.cap.sample1.service.datastore;
 
-import org.jowidgets.cap.ui.api.model.ISingleBeanModel;
-import org.jowidgets.cap.ui.api.model.ISingleBeanModelBuilder;
+import org.jowidgets.cap.sample1.common.entity.ISampleConfig;
+import org.jowidgets.cap.sample1.service.entity.SampleConfig;
+import org.jowidgets.cap.service.impl.dummy.datastore.EntityDataFactory;
+import org.jowidgets.cap.service.impl.dummy.datastore.EntityDataStore;
+import org.jowidgets.cap.service.impl.dummy.datastore.IEntityData;
+import org.jowidgets.cap.service.impl.dummy.datastore.IEntityFactory;
 
-public class SingleBeanModelBuilder<BEAN_TYPE> extends
-		AbstractBeanModelBuilderImpl<BEAN_TYPE, ISingleBeanModelBuilder<BEAN_TYPE>> implements ISingleBeanModelBuilder<BEAN_TYPE> {
+final class SampleConfigInitializer {
 
-	SingleBeanModelBuilder(final Object entityId, final Class<BEAN_TYPE> beanType) {
-		super(entityId, beanType);
-		setMetaAttributes(new String[0]);
+	private SampleConfigInitializer() {}
+
+	public static void initialize() {
+
+		final IEntityData<ISampleConfig> data = EntityDataFactory.create(new IEntityFactory<ISampleConfig>() {
+
+			@Override
+			public ISampleConfig createBean(final Long id) {
+				return new SampleConfig(id);
+			}
+
+			@Override
+			public Class<? extends ISampleConfig> getBeanType() {
+				return ISampleConfig.class;
+			}
+		});
+
+		EntityDataStore.putEntityData(ISampleConfig.class, data);
+
+		final SampleConfig config = new SampleConfig(data.nextId());
+		config.setApplicationName("Sample Application 1");
+		config.setHostName("localhost");
+		config.setIp("127.0.0.1");
+		config.setPort(8081);
+		config.setRootHostName("localhost");
+		config.setRootIp("127.0.0.1");
+		config.setRootPort(8081);
+
+		data.add(config);
+
 	}
-
-	@Override
-	public ISingleBeanModel<BEAN_TYPE> build() {
-		return new SingleBeanModelImpl<BEAN_TYPE>(
-			getBeanType(),
-			getEntityId(),
-			getReaderService(),
-			getReaderParameterProvider(),
-			getCreatorService(),
-			getRefreshService(),
-			getUpdaterService(),
-			getDeleterService(),
-			getBeanValidators(),
-			getParent(),
-			getLinkType(),
-			getAttributes());
-	}
-
 }

@@ -41,33 +41,45 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.jowidgets.api.animation.IWaitAnimationProcessor;
+import org.jowidgets.api.color.Colors;
+import org.jowidgets.api.image.IconsSmall;
+import org.jowidgets.api.threads.IUiThreadAccess;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.widgets.IComposite;
 import org.jowidgets.api.widgets.IContainer;
 import org.jowidgets.api.widgets.IControl;
 import org.jowidgets.api.widgets.IInputComponentValidationLabel;
 import org.jowidgets.api.widgets.IInputControl;
+import org.jowidgets.api.widgets.ILabel;
 import org.jowidgets.api.widgets.IScrollComposite;
 import org.jowidgets.api.widgets.IValidationResultLabel;
 import org.jowidgets.api.widgets.blueprint.IInputComponentValidationLabelBluePrint;
+import org.jowidgets.api.widgets.blueprint.ILabelBluePrint;
 import org.jowidgets.api.widgets.blueprint.IValidationResultLabelBluePrint;
 import org.jowidgets.api.widgets.descriptor.setup.IInputComponentValidationLabelSetup;
 import org.jowidgets.api.widgets.descriptor.setup.IValidationLabelSetup;
 import org.jowidgets.cap.common.api.validation.IBeanValidationResult;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IControlPanelProvider;
+import org.jowidgets.cap.ui.api.bean.BeanMessageType;
+import org.jowidgets.cap.ui.api.bean.IBeanMessage;
 import org.jowidgets.cap.ui.api.bean.IBeanProcessStateListener;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyListener;
 import org.jowidgets.cap.ui.api.bean.IExternalBeanValidator;
 import org.jowidgets.cap.ui.api.bean.IExternalBeanValidatorListener;
+import org.jowidgets.cap.ui.api.execution.IExecutionTask;
+import org.jowidgets.cap.ui.api.execution.IExecutionTaskListener;
 import org.jowidgets.cap.ui.api.form.IBeanFormControlFactory;
 import org.jowidgets.cap.ui.api.form.IBeanFormLayouter;
 import org.jowidgets.cap.ui.api.widgets.IBeanForm;
 import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
 import org.jowidgets.cap.ui.tools.bean.BeanProxyListenerAdapter;
+import org.jowidgets.cap.ui.tools.execution.ExecutionTaskAdapter;
 import org.jowidgets.common.color.IColorConstant;
 import org.jowidgets.common.types.Dimension;
+import org.jowidgets.common.types.Markup;
 import org.jowidgets.common.widgets.controller.IInputListener;
 import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
 import org.jowidgets.common.widgets.factory.ICustomWidgetFactory;
@@ -76,9 +88,11 @@ import org.jowidgets.tools.layout.MigLayoutFactory;
 import org.jowidgets.tools.widgets.blueprint.BPF;
 import org.jowidgets.tools.widgets.wrapper.AbstractInputControl;
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.EmptyCheck;
 import org.jowidgets.util.EmptyCompatibleEquivalence;
 import org.jowidgets.util.IDecorator;
 import org.jowidgets.util.NullCompatibleEquivalence;
+import org.jowidgets.util.event.IChangeListener;
 import org.jowidgets.validation.IValidationConditionListener;
 import org.jowidgets.validation.IValidationResult;
 import org.jowidgets.validation.IValidationResultBuilder;
@@ -108,11 +122,14 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 	private final PropertyChangeListener propertyChangeListenerBinding;
 	private final IBeanProcessStateListener<BEAN_TYPE> beanProcessStateListener;
 	private final IBeanProxyListener<BEAN_TYPE> beanProxyListener;
+	private final IExecutionTaskListener executionTaskListener;
+	private final LabelWaitChangeListener labelWaitChangeListener;
 	private final Set<IExternalBeanValidatorListener> externalValidatorListeners;
 
 	private final IComposite validationLabelContainer;
 	private final IInputComponentValidationLabel editModeValidationLabel;
 	private final IInputComponentValidationLabel createModeValidationLabel;
+	private final ILabel processStateLabel;
 
 	private IBeanProxy<BEAN_TYPE> bean;
 
@@ -136,6 +153,8 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 		this.propertyChangeListenerBinding = new BeanPropertyChangeListenerBinding();
 		this.beanProcessStateListener = new BeanProcessStateListener();
 		this.beanProxyListener = new BeanProxyListener();
+		this.executionTaskListener = new ExecutionTaskListener();
+		this.labelWaitChangeListener = new LabelWaitChangeListener();
 		this.externalValidatorListeners = new LinkedHashSet<IExternalBeanValidatorListener>();
 
 		for (final IAttribute<?> attribute : bluePrint.getAttributes()) {
@@ -148,6 +167,14 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 		editModeValidationLabel = addValidationLabel(validationLabelContainer, bluePrint.getEditModeValidationLabel());
 		createModeValidationLabel = addValidationLabel(validationLabelContainer, bluePrint.getCreateModeValidationLabel());
 		createModeValidationLabel.setVisible(false);
+
+		final ILabelBluePrint processStateLabelBp = BPF.label();
+		processStateLabelBp.setMarkup(Markup.EMPHASIZED);
+		processStateLabelBp.setColor(Colors.STRONG);
+		processStateLabelBp.setIcon(IconsSmall.WAIT_1);
+		this.processStateLabel = validationLabelContainer.add(processStateLabelBp, "growx, growy, w 30::, h 20::, wrap");
+		processStateLabel.setMinSize(new Dimension(20, 20));
+		processStateLabel.setVisible(false);
 
 		final IScrollComposite contentPane = composite.add(BPF.scrollComposite(), MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
 
@@ -178,6 +205,8 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 			this.bean.removeProcessStateListener(beanProcessStateListener);
 			this.bean.removeBeanProxyListener(beanProxyListener);
 			this.bean.unregisterExternalValidator(this);
+			unregisterExecutionTaskListener(this.bean);
+			Toolkit.getWaitAnimationProcessor().removeChangeListener(labelWaitChangeListener);
 		}
 		super.dispose();
 	}
@@ -189,9 +218,14 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 			this.bean.removeProcessStateListener(beanProcessStateListener);
 			this.bean.removeBeanProxyListener(beanProxyListener);
 			this.bean.unregisterExternalValidator(this);
+			unregisterExecutionTaskListener(this.bean);
 		}
 
 		this.bean = bean;
+		updateExecutionTaskText(this.bean);
+		registerExecutionTaskListener(this.bean);
+		setValidationLabelsVisibility(this.bean);
+		setForegroundColors(this.bean);
 		if (bean == null || bean.isDummy()) {
 			for (final Entry<String, IInputControl<Object>> entry : controls.entrySet()) {
 				final IInputControl<Object> control = entry.getValue();
@@ -205,18 +239,8 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 					control.setForegroundColor(null);
 				}
 			}
-			validationLabelContainer.layoutBegin();
-			createModeValidationLabel.setVisible(false);
-			editModeValidationLabel.setVisible(true);
-			validationLabelContainer.layoutEnd();
 		}
 		else {
-			if (bean.isTransient() != createModeValidationLabel.isVisible()) {
-				validationLabelContainer.layoutBegin();
-				createModeValidationLabel.setVisible(bean.isTransient());
-				editModeValidationLabel.setVisible(!bean.isTransient());
-				validationLabelContainer.layoutEnd();
-			}
 			for (final Entry<String, IInputControl<Object>> entry : controls.entrySet()) {
 				final IAttribute<?> attribute = attributes.get(entry.getKey());
 				final String propertyName = attribute.getPropertyName();
@@ -224,9 +248,9 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 				control.removeInputListener(bindingListeners.get(propertyName));
 				control.removeValidationConditionListener(validationListeners.get(propertyName));
 				control.setValue(bean.getValue(entry.getKey()));
-				control.setEnabled(!bean.hasExecution() && !bean.hasErrors());
+				control.setEnabled(!bean.hasExecution());
 				if (mandatoryBackgroundColor != null && attribute.isMandatory() && attribute.isEditable()) {
-					if (bean.hasExecution() || bean.hasErrors()) {
+					if (bean.hasExecution()) {
 						control.setBackgroundColor(null);
 					}
 					else {
@@ -236,15 +260,8 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 				else if (mandatoryBackgroundColor != null && attribute.isMandatory()) {
 					control.setBackgroundColor(backgroundColors.get(entry.getKey()));
 				}
-				if (createModeForegroundColor != null) {
-					if (bean.isTransient()) {
-						control.setForegroundColor(createModeForegroundColor);
-					}
-					else {
-						control.setForegroundColor(null);
-					}
-				}
-				control.setEditable(attribute.isEditable() && !bean.hasExecution() && !bean.hasErrors());
+
+				control.setEditable(attribute.isEditable() && !bean.hasExecution());
 				control.addInputListener(bindingListeners.get(propertyName));
 				control.addValidationConditionListener(validationListeners.get(propertyName));
 			}
@@ -254,6 +271,107 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 			bean.registerExternalValidator(this);
 		}
 		validateAllProperties();
+	}
+
+	private void setForegroundColors(final IBeanProxy<BEAN_TYPE> bean) {
+		for (final IInputControl<Object> control : controls.values()) {
+			if (bean == null) {
+				control.setForegroundColor(null);
+			}
+			else if (bean.hasErrors()) {
+				control.setForegroundColor(Colors.ERROR);
+			}
+			else if (bean.isTransient() && createModeForegroundColor != null) {
+				control.setForegroundColor(createModeForegroundColor);
+			}
+			else {
+				control.setForegroundColor(null);
+			}
+		}
+	}
+
+	private void setValidationLabelsVisibility(final IBeanProxy<BEAN_TYPE> bean) {
+		if (bean == null) {
+			setValidationLabelsVisible(true, false, false);
+		}
+		else if (bean.hasExecution()) {
+			setValidationLabelsVisible(false, false, true);
+		}
+		else if (bean.isTransient()) {
+			setValidationLabelsVisible(false, true, false);
+		}
+		else {
+			setValidationLabelsVisible(true, false, false);
+		}
+	}
+
+	private void setValidationLabelsVisible(final boolean createMode, final boolean editMode, final boolean processMode) {
+		validationLabelContainer.layoutBegin();
+		createModeValidationLabel.setVisible(createMode);
+		editModeValidationLabel.setVisible(editMode);
+		processStateLabel.setVisible(processMode);
+		validationLabelContainer.layoutEnd();
+	}
+
+	private void registerExecutionTaskListener(final IBeanProxy<BEAN_TYPE> bean) {
+		if (bean != null) {
+			final IExecutionTask executionTask = this.bean.getExecutionTask();
+			if (executionTask != null) {
+				executionTask.addExecutionTaskListener(executionTaskListener);
+			}
+		}
+		Toolkit.getWaitAnimationProcessor().addChangeListener(labelWaitChangeListener);
+	}
+
+	private void unregisterExecutionTaskListener(final IBeanProxy<BEAN_TYPE> bean) {
+		if (bean != null) {
+			final IExecutionTask executionTask = this.bean.getExecutionTask();
+			if (executionTask != null) {
+				executionTask.removeExecutionTaskListener(executionTaskListener);
+			}
+		}
+		Toolkit.getWaitAnimationProcessor().removeChangeListener(labelWaitChangeListener);
+	}
+
+	private void updateExecutionTaskText(final IBeanProxy<BEAN_TYPE> bean) {
+		if (bean != null) {
+			final IExecutionTask executionTask = bean.getExecutionTask();
+			if (executionTask != null) {
+				processStateLabel.setText(computeLabelText(executionTask));
+			}
+			else {
+				processStateLabel.setText("");
+			}
+		}
+		else {
+			processStateLabel.setText("");
+		}
+	}
+
+	private String computeLabelText(final IExecutionTask executionTask) {
+		final StringBuilder result = new StringBuilder();
+		final String description = executionTask.getDescription();
+		if (!EmptyCheck.isEmpty(description)) {
+			result.append(description);
+		}
+		else {
+			result.append("Processing data");
+		}
+		result.append(" ");
+		result.append(computeProgressText(executionTask));
+		return result.toString();
+	}
+
+	private String computeProgressText(final IExecutionTask executionTask) {
+		final Integer totalStepCount = executionTask.getTotalStepCount();
+		if (totalStepCount != null && totalStepCount.intValue() > 0) {
+			final double progr = ((double) executionTask.getWorked() / totalStepCount.intValue()) * 100;
+			Math.floor(progr);
+			return "" + Math.floor(progr) + " %";
+		}
+		else {
+			return "...";
+		}
 	}
 
 	private void validateAllProperties() {
@@ -311,6 +429,15 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 	@Override
 	protected IValidationResult createValidationResult() {
 		final IValidationResultBuilder builder = ValidationResult.builder();
+		if (bean != null && bean.hasErrors()) {
+			final IBeanMessage worstMessage = bean.getFirstWorstMessage();
+			if (BeanMessageType.ERROR.equals(worstMessage.getType())) {
+				builder.addError(worstMessage.getMessage());
+			}
+			else if (BeanMessageType.WARNING.equals(worstMessage.getType())) {
+				builder.addWarning(worstMessage.getMessage());
+			}
+		}
 		for (final IValidationResult validationResult : validationResults.values()) {
 			builder.addResult(validationResult);
 		}
@@ -603,7 +730,7 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 	private final class BeanProcessStateListener implements IBeanProcessStateListener<BEAN_TYPE> {
 		@Override
 		public void processStateChanged(final IBeanProxy<BEAN_TYPE> bean) {
-			if (BeanFormImpl.this.bean != null) {
+			if (BeanFormImpl.this.bean != null && BeanFormImpl.this.bean == bean) {
 				for (final Entry<String, IInputControl<Object>> entry : controls.entrySet()) {
 					final IAttribute<?> attribute = attributes.get(entry.getKey());
 					final IInputControl<Object> control = entry.getValue();
@@ -618,7 +745,61 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 					}
 					control.setEditable(attribute.isEditable() && !bean.hasExecution());
 				}
+				resetValidation();
+				setForegroundColors(BeanFormImpl.this.bean);
+				setValidationLabelsVisibility(BeanFormImpl.this.bean);
+				updateExecutionTaskText(BeanFormImpl.this.bean);
+				final IExecutionTask executionTask = bean.getExecutionTask();
+				if (executionTask != null) {
+					registerExecutionTaskListener(BeanFormImpl.this.bean);
+				}
+				else {
+					unregisterExecutionTaskListener(BeanFormImpl.this.bean);
+				}
+
 			}
+		}
+	}
+
+	private final class LabelWaitChangeListener implements IChangeListener {
+		@Override
+		public void changed() {
+			final IWaitAnimationProcessor animationProcessor = Toolkit.getWaitAnimationProcessor();
+			processStateLabel.setIcon(animationProcessor.getWaitIcon());
+		}
+	}
+
+	private final class ExecutionTaskListener extends ExecutionTaskAdapter {
+
+		private final IUiThreadAccess uiThreadAccess = Toolkit.getUiThreadAccess();
+
+		@Override
+		public void worked(final int totalWorked) {
+			updateExecutionTaskLater();
+		}
+
+		@Override
+		public void totalStepCountChanged(final int totalStepCount) {
+			updateExecutionTaskLater();
+		}
+
+		@Override
+		public void finished() {
+			updateExecutionTaskLater();
+		}
+
+		@Override
+		public void descriptionChanged(final String decription) {
+			updateExecutionTaskLater();
+		}
+
+		private void updateExecutionTaskLater() {
+			uiThreadAccess.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					updateExecutionTaskText(bean);
+				}
+			});
 		}
 	}
 
