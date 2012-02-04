@@ -26,54 +26,50 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.impl.widgets;
+package org.jowidgets.cap.sample1.ui.workbench.component.config;
 
-import org.jowidgets.api.widgets.IComposite;
-import org.jowidgets.cap.ui.api.bean.IBeanProxy;
+import org.jowidgets.api.command.IAction;
+import org.jowidgets.api.command.IActionBuilder;
+import org.jowidgets.api.command.ICommandExecutor;
+import org.jowidgets.api.command.IExecutionContext;
+import org.jowidgets.api.widgets.IContainer;
+import org.jowidgets.cap.sample1.common.entity.ISampleConfig;
+import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.model.ISingleBeanModel;
-import org.jowidgets.cap.ui.api.widgets.IBeanForm;
-import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
-import org.jowidgets.cap.ui.api.widgets.ISingleBeanForm;
 import org.jowidgets.cap.ui.api.widgets.ISingleBeanFormBluePrint;
+import org.jowidgets.tools.command.ActionBuilder;
 import org.jowidgets.tools.layout.MigLayoutFactory;
-import org.jowidgets.tools.widgets.wrapper.ControlWrapper;
-import org.jowidgets.util.event.IChangeListener;
+import org.jowidgets.workbench.api.IViewContext;
+import org.jowidgets.workbench.tools.AbstractView;
 
-final class SingleBeanFormImpl<BEAN_TYPE> extends ControlWrapper implements ISingleBeanForm<BEAN_TYPE> {
+public class SampleConfigView extends AbstractView {
 
-	private final ISingleBeanModel<BEAN_TYPE> model;
+	public static final String ID = SampleConfigView.class.getName();
+	public static final String DEFAULT_LABEL = "Sample config";
+	public static final String DEFAULT_TOOLTIP = "Config for demonstration purpose, changes have not affect to the app";
 
-	SingleBeanFormImpl(final IComposite composite, final ISingleBeanFormBluePrint<BEAN_TYPE> bluePrint) {
-		super(composite);
-		this.model = bluePrint.getModel();
+	public SampleConfigView(final IViewContext context, final ISingleBeanModel<ISampleConfig> model) {
+		final IContainer container = context.getContainer();
+		container.setLayout(MigLayoutFactory.growingCellLayout());
 
-		final IBeanFormBluePrint<BEAN_TYPE> beanFormBp = bluePrint.getBeanForm();
+		final ISingleBeanFormBluePrint<ISampleConfig> formBp = CapUiToolkit.bluePrintFactory().singleBeanForm(model);
+		container.add(formBp, MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
 
-		composite.setLayout(MigLayoutFactory.growingInnerCellLayout());
-		final IBeanForm<BEAN_TYPE> beanForm = composite.add(beanFormBp, MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
+		model.load();
 
-		final IBeanProxy<BEAN_TYPE> bean = model.getBean();
-		if (bean != null) {
-			beanForm.setValue(model.getBean());
-		}
+		context.getToolBar().addAction(createClearAction(model));
+	}
 
-		model.addChangeListener(new IChangeListener() {
+	private IAction createClearAction(final ISingleBeanModel<ISampleConfig> model) {
+		final IActionBuilder builder = ActionBuilder.builder();
+		builder.setText("Clear view");
+		builder.setCommand(new ICommandExecutor() {
 			@Override
-			public void changed() {
-				beanForm.setValue(model.getBean());
+			public void execute(final IExecutionContext executionContext) throws Exception {
+				model.clear();
 			}
 		});
-
-	}
-
-	@Override
-	protected IComposite getWidget() {
-		return (IComposite) super.getWidget();
-	}
-
-	@Override
-	public ISingleBeanModel<BEAN_TYPE> getModel() {
-		return model;
+		return builder.build();
 	}
 
 }

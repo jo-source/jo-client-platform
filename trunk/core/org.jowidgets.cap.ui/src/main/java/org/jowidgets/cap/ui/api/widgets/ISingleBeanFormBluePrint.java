@@ -43,19 +43,10 @@ public interface ISingleBeanFormBluePrint<BEAN_TYPE> extends
 
 	ISingleBeanFormBluePrint<BEAN_TYPE> setBeanForm(IBeanFormBluePrint<BEAN_TYPE> beanFormBluePrint);
 
-	ISingleBeanFormBluePrint<BEAN_TYPE> setHideReadonlyAttributes(boolean hide);
-
-	ISingleBeanFormBluePrint<BEAN_TYPE> setHideMetaAttributes(boolean hide);
-
 	@Mandatory
 	ISingleBeanModel<BEAN_TYPE> getModel();
 
+	@Mandatory
 	IBeanFormBluePrint<BEAN_TYPE> getBeanForm();
-
-	@Mandatory
-	boolean getHideReadonlyAttributes();
-
-	@Mandatory
-	boolean getHideMetaAttributes();
 
 }

@@ -156,7 +156,12 @@ final class CapApiBluePrintFactory implements ICapApiBluePrintFactory {
 	@SuppressWarnings("unchecked")
 	@Override
 	public <BEAN_TYPE> ISingleBeanFormBluePrint<BEAN_TYPE> singleBeanForm(final ISingleBeanModel<BEAN_TYPE> model) {
-		return bluePrintFactory.bluePrint(ISingleBeanFormBluePrint.class).setModel(model);
+		Assert.paramNotNull(model, "model");
+		final ISingleBeanFormBluePrint<BEAN_TYPE> result = bluePrintFactory.bluePrint(ISingleBeanFormBluePrint.class);
+		result.setModel(model);
+		final IBeanFormBluePrint<BEAN_TYPE> beanForm = beanForm(model.getAttributes());
+		result.setBeanForm(beanForm);
+		return result;
 	}
 
 	@Override

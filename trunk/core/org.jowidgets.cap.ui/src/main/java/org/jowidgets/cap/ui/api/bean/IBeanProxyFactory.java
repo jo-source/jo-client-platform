@@ -44,4 +44,6 @@ public interface IBeanProxyFactory<BEAN_TYPE> {
 
 	IBeanProxy<BEAN_TYPE> createTransientProxy(List<String> properties, Map<String, Object> defaultValues);
 
+	IBeanProxy<BEAN_TYPE> createDummyProxy(List<String> properties);
+
 }

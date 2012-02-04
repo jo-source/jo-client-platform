@@ -37,6 +37,7 @@ import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
 import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptorBuilder;
 import org.jowidgets.cap.common.api.service.IBeanServicesProvider;
 import org.jowidgets.cap.sample1.common.entity.EntityIds;
+import org.jowidgets.cap.sample1.common.entity.ISampleConfig;
 import org.jowidgets.cap.sample1.common.entity.IUser;
 import org.jowidgets.cap.sample1.service.datastore.AuthorizationInitializer;
 import org.jowidgets.cap.sample1.service.datastore.GenericBeanInitializer;
@@ -143,6 +144,15 @@ public class SampleEntityServiceBuilder extends EntityServiceBuilder {
 				(IEntityData<? extends IBeanPropertyMap>) EntityDataStore.getEntityData(EntityIds.GENERIC_BEAN),
 				GenericBeanInitializer.ALL_PROPERTIES);
 		add(EntityIds.GENERIC_BEAN, descriptor, servicesProvider);
+
+		//IUser
+		descriptor = new SampleConfigDtoDescriptorBuilder().build();
+		servicesProvider = DummyServiceFactory.beanServices(
+				registry,
+				ISampleConfig.class,
+				EntityDataStore.getEntityData(ISampleConfig.class),
+				ISampleConfig.ALL_PROPERTIES);
+		add(ISampleConfig.class, descriptor, servicesProvider);
 
 	}
 

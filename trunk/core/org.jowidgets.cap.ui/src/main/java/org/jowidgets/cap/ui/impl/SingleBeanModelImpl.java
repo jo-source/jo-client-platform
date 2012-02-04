@@ -35,31 +35,45 @@ import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.jowidgets.api.threads.IUiThreadAccess;
 import org.jowidgets.api.toolkit.Toolkit;
+import org.jowidgets.cap.common.api.bean.IBeanDto;
+import org.jowidgets.cap.common.api.bean.IBeanKey;
+import org.jowidgets.cap.common.api.execution.IExecutionCallbackListener;
+import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.service.ICreatorService;
 import org.jowidgets.cap.common.api.service.IDeleterService;
 import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.common.api.service.IRefreshService;
 import org.jowidgets.cap.common.api.service.IUpdaterService;
+import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.common.api.validation.IBeanValidator;
+import org.jowidgets.cap.common.tools.bean.BeanKey;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IAttributeCollectionModifierBuilder;
 import org.jowidgets.cap.ui.api.attribute.IAttributeFilter;
 import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
+import org.jowidgets.cap.ui.api.bean.BeanMessageType;
+import org.jowidgets.cap.ui.api.bean.IBeanMessage;
+import org.jowidgets.cap.ui.api.bean.IBeanMessageBuilder;
 import org.jowidgets.cap.ui.api.bean.IBeanPropertyValidator;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeansStateTracker;
+import org.jowidgets.cap.ui.api.execution.IExecutionTask;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
 import org.jowidgets.cap.ui.api.model.IModificationStateListener;
 import org.jowidgets.cap.ui.api.model.IProcessStateListener;
 import org.jowidgets.cap.ui.api.model.ISingleBeanModel;
 import org.jowidgets.cap.ui.api.model.LinkType;
+import org.jowidgets.cap.ui.tools.execution.UiResultCallback;
+import org.jowidgets.cap.ui.tools.model.ProcessStateObservable;
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.EmptyCheck;
 import org.jowidgets.util.IProvider;
 import org.jowidgets.util.concurrent.DaemonThreadFactory;
 import org.jowidgets.util.event.ChangeObservable;
@@ -71,39 +85,41 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 
 	private static final int LISTENER_DELAY = 100;
 
+	private final String loadErrorMessage;
+	private final String saveErrorMessage;
+	private final String loadDataMessage;
+	private final String saveDataMessage;
+
 	private final Class<BEAN_TYPE> beanType;
 	private final Object entityId;
 
-	@SuppressWarnings("unused")
-	private final IReaderService<? extends Object> readerService;
-	@SuppressWarnings("unused")
-	private final IProvider<? extends Object> readerParameterProvider;
+	private final IReaderService<Object> readerService;
+	private final IProvider<Object> readerParameterProvider;
+
 	@SuppressWarnings("unused")
 	private final ICreatorService creatorService;
 	@SuppressWarnings("unused")
 	private final IRefreshService refreshService;
-	@SuppressWarnings("unused")
 	private final IUpdaterService updaterService;
 	@SuppressWarnings("unused")
 	private final IDeleterService deleterService;
 
-	@SuppressWarnings("unused")
-	private final Set<IBeanValidator<BEAN_TYPE>> beanValidators;
-
-	@SuppressWarnings("unused")
 	private final IBeanListModel<?> parent;
-	@SuppressWarnings("unused")
 	private final LinkType linkType;
 	private final List<IAttribute<Object>> attributes;
+	private final List<String> propertyNames;
+
+	private final ChangeObservable changeObservable;
+	private final ProcessStateObservable processStateObservable;
 
 	private final ParentModelListener parentModelListener;
 	private final List<IBeanPropertyValidator<BEAN_TYPE>> beanPropertyValidators;
-	@SuppressWarnings("unused")
-	private final List<IBeanPropertyValidator<BEAN_TYPE>> beanPropertyValidatorsView;
 	private final IBeansStateTracker<BEAN_TYPE> beansStateTracker;
-	private final ChangeObservable changeObservable;
-	@SuppressWarnings("unused")
 	private final IBeanProxyFactory<BEAN_TYPE> beanProxyFactory;
+
+	private IBeanProxy<BEAN_TYPE> bean;
+	private DataLoader dataLoader;
+	private DataModificationWriter dataModificationWriter;
 
 	@SuppressWarnings("unchecked")
 	SingleBeanModelImpl(
@@ -127,6 +143,12 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 		Assert.paramNotNull(beanValidators, "beanValidators");
 		Assert.paramNotNull(attributes, "attributes");
 
+		//TODO i18n
+		this.loadDataMessage = "Loading data";
+		this.saveDataMessage = "Saving data";
+		this.loadErrorMessage = "Error while data loading";
+		this.saveErrorMessage = "Error while saving data";
+
 		if (parent != null) {
 			Assert.paramNotNull(linkType, "linkType");
 			this.parentModelListener = new ParentModelListener();
@@ -144,29 +166,31 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 		this.attributes = Collections.unmodifiableList(new LinkedList<IAttribute<Object>>(attributes));
 
 		this.beanPropertyValidators = new LinkedList<IBeanPropertyValidator<BEAN_TYPE>>();
-		this.beanPropertyValidatorsView = Collections.unmodifiableList(beanPropertyValidators);
 		beanPropertyValidators.add(new BeanPropertyValidatorImpl<BEAN_TYPE>(attributes));
 		for (final IBeanValidator<BEAN_TYPE> beanValidator : beanValidators) {
-			addBeanValidator(beanValidator);
+			beanPropertyValidators.add(new BeanPropertyValidatorAdapter<BEAN_TYPE>(beanValidator));
 		}
+
+		this.propertyNames = createPropertyNames(attributes);
 
 		this.beanType = (Class<BEAN_TYPE>) beanType;
 		this.entityId = entityId;
 
-		this.readerService = readerService;
-		this.readerParameterProvider = readerParameterProvider;
+		this.readerService = (IReaderService<Object>) readerService;
+		this.readerParameterProvider = (IProvider<Object>) readerParameterProvider;
 		this.creatorService = creatorService;
 		this.refreshService = refreshService;
 		this.updaterService = updaterService;
 		this.deleterService = deleterService;
 
-		this.beanValidators = beanValidators;
 		this.parent = parent;
 		this.linkType = linkType;
 
 		this.beansStateTracker = CapUiToolkit.beansStateTracker();
 		this.beanProxyFactory = CapUiToolkit.beanProxyFactory(beanType);
+
 		this.changeObservable = new ChangeObservable();
+		this.processStateObservable = new ProcessStateObservable();
 	}
 
 	private static List<IAttribute<Object>> createReadonlyAttributes(final List<IAttribute<Object>> attributes) {
@@ -174,6 +198,14 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 		final IAttributeCollectionModifierBuilder modifierBuilder = attributeToolkit.createAttributeCollectionModifierBuilder();
 		modifierBuilder.addDefaultModifier().setEditable(false);
 		return CapUiToolkit.attributeToolkit().createAttributesCopy(attributes, modifierBuilder.build());
+	}
+
+	private static List<String> createPropertyNames(final List<IAttribute<Object>> attributesList) {
+		final List<String> result = new LinkedList<String>();
+		for (final IAttribute<Object> attribute : attributesList) {
+			result.add(attribute.getPropertyName());
+		}
+		return result;
 	}
 
 	@Override
@@ -226,30 +258,60 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 
 	@Override
 	public IBeanProxy<BEAN_TYPE> getBean() {
-		return null;
+		return bean;
 	}
 
 	@Override
-	public void setBean(final IBeanProxy<BEAN_TYPE> bean) {}
+	public void setBean(final IBeanProxy<BEAN_TYPE> bean) {
+		//TODO MG implement set bean
+	}
 
 	@Override
 	public void clear() {
-
+		tryCancelLoader();
+		if (bean != null) {
+			bean = null;
+			changeObservable.fireChangedEvent();
+		}
 	}
 
 	@Override
 	public void load() {
+		tryCancelLoader();
+		dataLoader = new DataLoader();
+		dataLoader.loadData();
+	}
 
+	private boolean isDataLoading() {
+		return dataLoader != null && !dataLoader.isDisposed();
 	}
 
 	@Override
 	public void save() {
+		tryCancelWriter();
+		dataModificationWriter = new DataModificationWriter();
+		dataModificationWriter.saveData();
+	}
 
+	private boolean isDataSaving() {
+		return dataModificationWriter != null && !dataModificationWriter.isDisposed();
 	}
 
 	@Override
 	public void undo() {
+		beansStateTracker.undoModifications();
+	}
 
+	private void tryCancelLoader() {
+		if (dataLoader != null && !dataLoader.isDisposed()) {
+			dataLoader.cancel();
+		}
+	}
+
+	private void tryCancelWriter() {
+		if (dataModificationWriter != null && !dataModificationWriter.isDisposed()) {
+			dataModificationWriter.cancel();
+		}
 	}
 
 	@Override
@@ -259,11 +321,13 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 
 	@Override
 	public boolean hasExecutions() {
-		return beansStateTracker.hasExecutingBeans();
+		return beansStateTracker.hasExecutingBeans() || isDataLoading() || isDataSaving();
 	}
 
 	@Override
 	public void cancelExecutions() {
+		tryCancelLoader();
+		tryCancelWriter();
 		beansStateTracker.cancelExecutions();
 	}
 
@@ -295,11 +359,13 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 	@Override
 	public void addProcessStateListener(final IProcessStateListener listener) {
 		beansStateTracker.addProcessStateListener(listener);
+		processStateObservable.addProcessStateListener(listener);
 	}
 
 	@Override
 	public void removeProcessStateListener(final IProcessStateListener listener) {
 		beansStateTracker.removeProcessStateListener(listener);
+		processStateObservable.removeProcessStateListener(listener);
 	}
 
 	@Override
@@ -310,6 +376,317 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 	@Override
 	public void removeChangeListener(final IChangeListener listener) {
 		changeObservable.removeChangeListener(listener);
+	}
+
+	private List<? extends IBeanKey> getParentBeanKeys() {
+		if (parent == null || EmptyCheck.isEmpty(parent.getSelection())) {
+			return null;
+		}
+		final List<IBeanKey> beanKeys = new LinkedList<IBeanKey>();
+		for (final int i : parent.getSelection()) {
+			final IBeanProxy<?> proxy = parent.getBean(i);
+			if (proxy != null && !proxy.isDummy() && !proxy.isTransient()) {
+				beanKeys.add(new BeanKey(proxy.getId(), proxy.getVersion()));
+			}
+		}
+		if (!beanKeys.isEmpty() && linkType == LinkType.SELECTION_FIRST) {
+			return new LinkedList<IBeanKey>(beanKeys.subList(0, 1));
+		}
+		return beanKeys;
+	}
+
+	private class DataLoader {
+
+		private final IUiThreadAccess uiThreadAccess;
+
+		private boolean canceled;
+		private boolean finished;
+
+		private IExecutionTask executionTask;
+
+		private IBeanProxy<BEAN_TYPE> oldBean;
+		private IBeanProxy<BEAN_TYPE> dummyBean;
+
+		DataLoader() {
+			this.uiThreadAccess = Toolkit.getUiThreadAccess();
+		}
+
+		void loadData() {
+			oldBean = bean;
+			if (oldBean != null) {
+				beansStateTracker.unregister(oldBean);
+			}
+
+			executionTask = CapUiToolkit.executionTaskFactory().create();
+			executionTask.setDescription(loadDataMessage);
+			executionTask.addExecutionCallbackListener(new IExecutionCallbackListener() {
+				@Override
+				public void canceled() {
+					if (!canceled) {//if canceled by user
+						userCanceledLater();
+					}
+				}
+			});
+
+			dummyBean = beanProxyFactory.createDummyProxy(propertyNames);
+			beansStateTracker.register(dummyBean);
+			dummyBean.setExecutionTask(executionTask);
+
+			final List<ISort> emptySort = Collections.emptyList();
+			readerService.read(
+					new UiResultCallback<List<IBeanDto>>(createResultCallback()),
+					getParentBeanKeys(),
+					null,
+					emptySort,
+					0,
+					1,
+					readerParameterProvider.get(),
+					executionTask);
+
+			bean = dummyBean;
+			changeObservable.fireChangedEvent();
+		}
+
+		boolean isDisposed() {
+			return canceled || finished;
+		}
+
+		void cancel() {
+			if (!canceled) {
+				if (executionTask != null) {
+					executionTask.cancel();
+				}
+				userCanceled();
+			}
+		}
+
+		private IResultCallback<List<IBeanDto>> createResultCallback() {
+			return new IResultCallback<List<IBeanDto>>() {
+
+				@Override
+				public void finished(final List<IBeanDto> beanDtos) {
+					if (!canceled && !executionTask.isCanceled()) {
+						setResult(beanDtos);
+					}
+				}
+
+				@Override
+				public void timeout() {
+					exception(new TimeoutException("Timeout while loading data"));
+				}
+
+				@Override
+				public void exception(final Throwable exception) {
+					setException(exception);
+				}
+
+			};
+		}
+
+		private void setResult(final List<IBeanDto> beanDtos) {
+			if (dummyBean != null) {
+				dummyBean.setExecutionTask(null);
+				beansStateTracker.unregister(dummyBean);
+			}
+
+			bean = null;
+
+			if (beanDtos.size() > 0) {
+				final IBeanDto beanDto = beanDtos.iterator().next();
+				bean = beanProxyFactory.createProxy(beanDto, propertyNames);
+				for (final IBeanPropertyValidator<BEAN_TYPE> validator : beanPropertyValidators) {
+					bean.addBeanPropertyValidator(validator);
+				}
+				beansStateTracker.register(bean);
+			}
+
+			finished = true;
+			changeObservable.fireChangedEvent();
+			processStateObservable.fireProcessStateChanged();
+		}
+
+		private void setException(final Throwable exception) {
+			final IBeanMessageBuilder beanMessageBuilder = CapUiToolkit.beanMessageBuilder(BeanMessageType.ERROR);
+			beanMessageBuilder.setException(exception);
+			beanMessageBuilder.setMessage(loadErrorMessage);
+			final IBeanMessage message = beanMessageBuilder.build();
+
+			if (dummyBean != null) {
+				dummyBean.setExecutionTask(null);
+				dummyBean.addMessage(message);
+			}
+
+			finished = true;
+			changeObservable.fireChangedEvent();
+			processStateObservable.fireProcessStateChanged();
+		}
+
+		private void userCanceledLater() {
+			uiThreadAccess.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					userCanceled();
+				}
+			});
+		}
+
+		private void userCanceled() {
+			if (!canceled) {
+				if (dummyBean != null) {
+					dummyBean.setExecutionTask(null);
+					beansStateTracker.unregister(dummyBean);
+				}
+				if (oldBean != null) {
+					beansStateTracker.register(oldBean);
+				}
+				bean = oldBean;
+
+				finished = true;
+				canceled = true;
+
+				processStateObservable.fireProcessStateChanged();
+				changeObservable.fireChangedEvent();
+			}
+		}
+
+	}
+
+	private class DataModificationWriter {
+
+		private final IUiThreadAccess uiThreadAccess;
+
+		private boolean canceled;
+		private boolean finished;
+
+		private IExecutionTask executionTask;
+
+		DataModificationWriter() {
+			this.uiThreadAccess = Toolkit.getUiThreadAccess();
+		}
+
+		void saveData() {
+			if (bean != null) {
+				executionTask = CapUiToolkit.executionTaskFactory().create();
+				executionTask.setDescription(saveDataMessage);
+				executionTask.addExecutionCallbackListener(new IExecutionCallbackListener() {
+					@Override
+					public void canceled() {
+						if (!canceled) {//if canceled by user
+							userCanceledLater();
+						}
+					}
+				});
+				beansStateTracker.unregister(bean);
+				bean.setExecutionTask(executionTask);
+				processStateObservable.fireProcessStateChanged();
+				updaterService.update(
+						new UiResultCallback<List<IBeanDto>>(createResultCallback()),
+						bean.getModifications(),
+						executionTask);
+			}
+		}
+
+		boolean isDisposed() {
+			return canceled || finished;
+		}
+
+		void cancel() {
+			if (!canceled) {
+				this.canceled = true;
+				if (bean != null) {
+					bean.setExecutionTask(null);
+					beansStateTracker.register(bean);
+				}
+				if (executionTask != null) {
+					executionTask.cancel();
+				}
+			}
+		}
+
+		private IResultCallback<List<IBeanDto>> createResultCallback() {
+			return new IResultCallback<List<IBeanDto>>() {
+
+				@Override
+				public void finished(final List<IBeanDto> beanDtos) {
+					if (!canceled && !executionTask.isCanceled()) {
+						setResult(beanDtos);
+					}
+				}
+
+				@Override
+				public void timeout() {
+					exception(new TimeoutException("Timeout while saving data"));
+				}
+
+				@Override
+				public void exception(final Throwable exception) {
+					setException(exception);
+				}
+
+			};
+		}
+
+		private void setResult(final List<IBeanDto> beanDtos) {
+			if (bean != null) {
+				if (beanDtos.size() > 0) {
+					final IBeanDto beanDto = beanDtos.iterator().next();
+					if (bean.isTransient()) {
+						bean.updateTransient(beanDto);
+					}
+					else {
+						bean.update(beanDto);
+					}
+					beansStateTracker.register(bean);
+					bean.setExecutionTask(null);
+				}
+				else {
+					bean.setExecutionTask(null);
+					bean = null;
+				}
+			}
+
+			finished = true;
+			changeObservable.fireChangedEvent();
+			processStateObservable.fireProcessStateChanged();
+		}
+
+		private void setException(final Throwable exception) {
+			final IBeanMessageBuilder beanMessageBuilder = CapUiToolkit.beanMessageBuilder(BeanMessageType.ERROR);
+			beanMessageBuilder.setException(exception);
+			beanMessageBuilder.setMessage(saveErrorMessage);
+			final IBeanMessage message = beanMessageBuilder.build();
+			if (bean != null) {
+				beansStateTracker.register(bean);
+				bean.setExecutionTask(null);
+				bean.addMessage(message);
+			}
+			finished = true;
+			processStateObservable.fireProcessStateChanged();
+			changeObservable.fireChangedEvent();
+		}
+
+		private void userCanceledLater() {
+			uiThreadAccess.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					userCanceled();
+				}
+			});
+		}
+
+		private void userCanceled() {
+			if (!canceled) {
+				if (bean != null) {
+					beansStateTracker.register(bean);
+					bean.setExecutionTask(null);
+				}
+				finished = true;
+				canceled = true;
+				processStateObservable.fireProcessStateChanged();
+				changeObservable.fireChangedEvent();
+			}
+		}
+
 	}
 
 	private class ParentModelListener implements IBeanListModelListener {

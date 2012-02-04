@@ -31,6 +31,7 @@ package org.jowidgets.cap.sample1.ui.workbench.application;
 import java.util.List;
 
 import org.jowidgets.addons.icons.silkicons.SilkIcons;
+import org.jowidgets.cap.sample1.ui.workbench.component.config.SampleConfigComponent;
 import org.jowidgets.cap.sample1.ui.workbench.component.generic.GenericBeanComponent;
 import org.jowidgets.cap.sample1.ui.workbench.component.roles.RolesTabFolderComponent;
 import org.jowidgets.cap.sample1.ui.workbench.component.user.UserComponent;
@@ -90,6 +91,12 @@ public class SampleApplication {
 		for (final IComponentNodeModel entityNode : entityNodes) {
 			entitiesFolder.addChild(entityNode);
 		}
+
+		nodeModelBuilder.setComponentFactory(SampleConfigComponent.class);
+		nodeModelBuilder.setId(SampleConfigComponent.class.getName());
+		nodeModelBuilder.setLabel("Sample config");
+		nodeModelBuilder.setIcon(SilkIcons.COG_EDIT);
+		model.addChild(nodeModelBuilder.build());
 	}
 
 }
