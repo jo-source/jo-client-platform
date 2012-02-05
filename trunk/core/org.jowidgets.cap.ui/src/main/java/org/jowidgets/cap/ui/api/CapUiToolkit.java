@@ -411,7 +411,8 @@ public final class CapUiToolkit {
 			getBuilder().setTabFactory(new IBeanTabFactory<Object>() {
 				@Override
 				public IBeanTab<Object> createTab(final ITabItem tab) {
-					final IBeanFormBluePrint<Object> bluePrintCopy = CapUiToolkit.bluePrintFactory().beanForm();
+					final ICapApiBluePrintFactory cbpf = CapUiToolkit.bluePrintFactory();
+					final IBeanFormBluePrint<Object> bluePrintCopy = cbpf.beanForm(beanFormBp.getEntityId());
 					bluePrintCopy.setSetup(beanFormBp);
 					tab.setLayout(MigLayoutFactory.growingCellLayout());
 					final IBeanForm<Object> beanForm = tab.add(bluePrintCopy, MigLayoutFactory.GROWING_CELL_CONSTRAINTS);

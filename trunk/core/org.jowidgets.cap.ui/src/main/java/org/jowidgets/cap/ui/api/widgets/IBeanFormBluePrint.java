@@ -47,6 +47,8 @@ public interface IBeanFormBluePrint<BEAN_TYPE> extends
 		IComponentSetupBuilder<IBeanFormBluePrint<BEAN_TYPE>>,
 		IWidgetDescriptor<IBeanForm<BEAN_TYPE>> {
 
+	IBeanFormBluePrint<BEAN_TYPE> setEntityId(Object entityId);
+
 	IBeanFormBluePrint<BEAN_TYPE> setLayouter(IBeanFormLayouter layouter);
 
 	IBeanFormBluePrint<BEAN_TYPE> setAttributes(Collection<? extends IAttribute<?>> attributes);
@@ -76,6 +78,8 @@ public interface IBeanFormBluePrint<BEAN_TYPE> extends
 	IBeanFormBluePrint<BEAN_TYPE> setCreateModeInputHint(String hint);
 
 	IBeanFormBluePrint<BEAN_TYPE> setCreateModeForegroundColor(final IColorConstant editModeColor);
+
+	Object getEntityId();
 
 	@Mandatory
 	IBeanFormLayouter getLayouter();

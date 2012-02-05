@@ -34,13 +34,9 @@ import java.util.List;
 import org.jowidgets.api.convert.IConverter;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.widgets.blueprint.factory.IBluePrintFactory;
-import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
-import org.jowidgets.cap.common.api.bean.IProperty;
 import org.jowidgets.cap.common.api.lookup.ILookUpProperty;
-import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
-import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
 import org.jowidgets.cap.ui.api.form.IBeanFormLayout;
 import org.jowidgets.cap.ui.api.form.IBeanFormToolkit;
 import org.jowidgets.cap.ui.api.model.ISingleBeanModel;
@@ -60,7 +56,6 @@ import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
 import org.jowidgets.cap.ui.api.widgets.ILookUpCollectionInputFieldBluePrint;
 import org.jowidgets.cap.ui.api.widgets.ILookUpComboBoxSelectionBluePrint;
 import org.jowidgets.cap.ui.api.widgets.ISingleBeanFormBluePrint;
-import org.jowidgets.service.api.ServiceProvider;
 import org.jowidgets.util.Assert;
 
 final class CapApiBluePrintFactory implements ICapApiBluePrintFactory {
@@ -122,10 +117,30 @@ final class CapApiBluePrintFactory implements ICapApiBluePrintFactory {
 		return bluePrintFactory.bluePrint(IBeanFormBluePrint.class);
 	}
 
+	@SuppressWarnings("unchecked")
+	@Override
+	public <BEAN_TYPE> IBeanFormBluePrint<BEAN_TYPE> beanForm(final Object entityId) {
+		final List<IAttribute<Object>> attributes = EntityServiceAttributesFactory.createAttributes(entityId);
+		if (attributes != null) {
+			return beanForm(entityId, attributes);
+		}
+		else {
+			return bluePrintFactory.bluePrint(IBeanFormBluePrint.class).setEntityId(entityId);
+		}
+	}
+
 	@Override
 	public <BEAN_TYPE> IBeanFormBluePrint<BEAN_TYPE> beanForm(final Collection<? extends IAttribute<?>> attributes) {
+		return beanForm(null, attributes);
+	}
+
+	@Override
+	public <BEAN_TYPE> IBeanFormBluePrint<BEAN_TYPE> beanForm(
+		final Object entityId,
+		final Collection<? extends IAttribute<?>> attributes) {
 		Assert.paramNotNull(attributes, "attributes");
 		final IBeanFormBluePrint<BEAN_TYPE> result = beanForm();
+		result.setEntityId(entityId);
 		result.setAttributes(attributes);
 		final IBeanFormToolkit beanFormToolkit = CapUiToolkit.beanFormToolkit();
 		final IBeanFormLayout layout = CapUiToolkit.beanFormToolkit().layoutBuilder().addGroups(attributes).build();
@@ -159,7 +174,7 @@ final class CapApiBluePrintFactory implements ICapApiBluePrintFactory {
 		Assert.paramNotNull(model, "model");
 		final ISingleBeanFormBluePrint<BEAN_TYPE> result = bluePrintFactory.bluePrint(ISingleBeanFormBluePrint.class);
 		result.setModel(model);
-		final IBeanFormBluePrint<BEAN_TYPE> beanForm = beanForm(model.getAttributes());
+		final IBeanFormBluePrint<BEAN_TYPE> beanForm = beanForm(model.getEntityId(), model.getAttributes());
 		result.setBeanForm(beanForm);
 		return result;
 	}
@@ -223,16 +238,9 @@ final class CapApiBluePrintFactory implements ICapApiBluePrintFactory {
 		@SuppressWarnings("unchecked")
 		final IBeanTabFolderBluePrint<BEAN_TYPE> result = bluePrintFactory.bluePrint(IBeanTabFolderBluePrint.class);
 		result.setModel(model);
-		final IEntityService entityService = ServiceProvider.getService(IEntityService.ID);
-		if (entityService != null) {
-			final IBeanDtoDescriptor descriptor = entityService.getDescriptor(model.getEntityId());
-			if (descriptor != null) {
-				final List<IProperty> properties = descriptor.getProperties();
-				final IAttributeToolkit attributeToolkit = CapUiToolkit.attributeToolkit();
-				final List<IAttribute<Object>> attributes = attributeToolkit.createAttributes(properties);
-				final IBeanFormBluePrint<BEAN_TYPE> beanForm = beanForm(attributes);
-				result.setTabFactory(beanForm);
-			}
+		final IBeanFormBluePrint<BEAN_TYPE> beanForm = beanForm(model.getEntityId());
+		if (beanForm.getAttributes() != null) {
+			result.setTabFactory(beanForm);
 		}
 		return result;
 	}

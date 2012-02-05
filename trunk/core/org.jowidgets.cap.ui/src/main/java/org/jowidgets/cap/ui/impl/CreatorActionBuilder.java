@@ -60,6 +60,7 @@ import org.jowidgets.util.builder.AbstractSingleUseBuilder;
 
 final class CreatorActionBuilder<BEAN_TYPE> extends AbstractSingleUseBuilder<IAction> implements ICreatorActionBuilder<BEAN_TYPE> {
 
+	private final Object entityId;
 	private final Class<? extends BEAN_TYPE> beanType;
 	private final IBeanListModel<BEAN_TYPE> model;
 	private final IActionBuilder builder;
@@ -73,9 +74,10 @@ final class CreatorActionBuilder<BEAN_TYPE> extends AbstractSingleUseBuilder<IAc
 	private List<IAttribute<?>> attributes;
 	private IBeanExecptionConverter exceptionConverter;
 
-	CreatorActionBuilder(final Class<? extends BEAN_TYPE> beanType, final IBeanListModel<BEAN_TYPE> model) {
+	CreatorActionBuilder(final Object entityId, final Class<? extends BEAN_TYPE> beanType, final IBeanListModel<BEAN_TYPE> model) {
 		Assert.paramNotNull(beanType, "beanType");
 		Assert.paramNotNull(model, "model");
+		this.entityId = entityId;
 		this.beanType = beanType;
 		this.model = model;
 		this.builder = Toolkit.getActionBuilderFactory().create();
@@ -246,29 +248,32 @@ final class CreatorActionBuilder<BEAN_TYPE> extends AbstractSingleUseBuilder<IAc
 		return this;
 	}
 
-	private Collection<IAttribute<?>> getAttributes() {
-		if (attributes == null && beanFormBp != null) {
-			return beanFormBp.getAttributes();
-		}
-		return attributes;
-	}
-
 	@SuppressWarnings("unchecked")
 	private IBeanFormBluePrint<BEAN_TYPE> getBeanFormBp() {
-		if (beanFormBp == null && attributes != null) {
-			return (IBeanFormBluePrint<BEAN_TYPE>) CapUiToolkit.bluePrintFactory().beanForm(attributes);
+		if (beanFormBp == null) {
+			if (attributes != null) {
+				return (IBeanFormBluePrint<BEAN_TYPE>) CapUiToolkit.bluePrintFactory().beanForm(entityId, attributes);
+			}
+			else if (entityId != null) {
+				return (IBeanFormBluePrint<BEAN_TYPE>) CapUiToolkit.bluePrintFactory().beanForm(entityId);
+			}
 		}
 		return beanFormBp;
 	}
 
 	@Override
 	protected IAction doBuild() {
+		final IBeanFormBluePrint<BEAN_TYPE> formBp = getBeanFormBp();
+		Collection<IAttribute<?>> attr = attributes;
+		if (attr == null && formBp != null) {
+			attr = formBp.getAttributes();
+		}
 		final BeanCreatorCommand<BEAN_TYPE> command = new BeanCreatorCommand<BEAN_TYPE>(
 			beanType,
 			beanPropertyValidators,
 			model,
-			getAttributes(),
-			getBeanFormBp(),
+			attr,
+			formBp,
 			enabledCheckers,
 			anySelection,
 			creatorService,

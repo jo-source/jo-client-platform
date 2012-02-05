@@ -60,7 +60,10 @@ final class BeanTableCreatorActionBuilderFactory {
 			}
 		};
 		final ICapActionFactory actionFactory = CapUiToolkit.actionFactory();
-		final ICreatorActionBuilder<BEAN_TYPE> builder = actionFactory.creatorActionBuilder(model.getBeanType(), wrappedModel);
+		final ICreatorActionBuilder<BEAN_TYPE> builder = actionFactory.creatorActionBuilder(
+				model.getEntityId(),
+				model.getBeanType(),
+				wrappedModel);
 		builder.setBeanPropertyValidators(model.getBeanPropertyValidators());
 		builder.setEntityLabelSingular(model.getEntityLabelSingular());
 		builder.setCreatorService(model.getCreatorService());
