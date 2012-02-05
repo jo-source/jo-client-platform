@@ -110,8 +110,9 @@ final class BeanTablesFormImpl extends ControlWrapper implements IBeanTablesForm
 	@Override
 	public void registerView(final IBeanTableView view) {
 		Assert.paramNotNull(view, "view");
-		final List<IAttribute<?>> attributes = getFilteredAttributes(view.getModel().getAttributes());
-		final IBeanFormBluePrint beanFormBp = CapUiToolkit.bluePrintFactory().beanForm(attributes);
+		final IBeanTableModel model = view.getModel();
+		final List<IAttribute<?>> attributes = getFilteredAttributes(model.getAttributes());
+		final IBeanFormBluePrint beanFormBp = CapUiToolkit.bluePrintFactory().beanForm(model.getEntityId(), attributes);
 		registerView(view, beanFormBp);
 	}
 

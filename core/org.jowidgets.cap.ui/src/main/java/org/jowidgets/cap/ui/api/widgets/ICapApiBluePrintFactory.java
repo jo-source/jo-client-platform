@@ -54,7 +54,11 @@ public interface ICapApiBluePrintFactory {
 
 	<BEAN_TYPE> IBeanFormBluePrint<BEAN_TYPE> beanForm();
 
+	<BEAN_TYPE> IBeanFormBluePrint<BEAN_TYPE> beanForm(Object entityId);
+
 	<BEAN_TYPE> IBeanFormBluePrint<BEAN_TYPE> beanForm(Collection<? extends IAttribute<?>> attributes);
+
+	<BEAN_TYPE> IBeanFormBluePrint<BEAN_TYPE> beanForm(Object entityId, Collection<? extends IAttribute<?>> attributes);
 
 	IBeanTablesFormBluePrint beanTablesForm();
 

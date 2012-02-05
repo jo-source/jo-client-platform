@@ -59,7 +59,7 @@ public class UserDetailThreeColumnView extends AbstractView {
 		final IContainer container = context.getContainer();
 		container.setLayout(MigLayoutFactory.growingCellLayout());
 		final List<IAttribute<Object>> attributes = new UserAttributesFactory().formAttributes();
-		final IBeanFormBluePrint<IUser> formBp = CapUiToolkit.bluePrintFactory().beanForm(attributes);
+		final IBeanFormBluePrint<IUser> formBp = CapUiToolkit.bluePrintFactory().beanForm(IUser.class, attributes);
 
 		final IBeanFormGroupBuilder groupBuilder = CapUiToolkit.beanFormToolkit().groupBuilder();
 		for (final IAttribute<Object> attribute : attributes) {
