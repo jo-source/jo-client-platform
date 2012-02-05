@@ -28,19 +28,17 @@
 
 package org.jowidgets.cap.ui.api.plugin;
 
-import java.util.List;
-
-import org.jowidgets.cap.ui.api.attribute.IAttribute;
+import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
 import org.jowidgets.plugin.api.IPluginId;
 import org.jowidgets.plugin.api.IPluginProperties;
 import org.jowidgets.util.ITypedKey;
 
-public interface IBeanTableModelPlugin {
+public interface IBeanFormPlugin {
 
-	IPluginId<IBeanTableModelPlugin> ID = new IPluginId<IBeanTableModelPlugin>() {};
+	IPluginId<IBeanFormPlugin> ID = new IPluginId<IBeanFormPlugin>() {};
 
 	ITypedKey<Object> ENTITIY_ID_PROPERTY_KEY = new ITypedKey<Object>() {};
 
-	List<IAttribute<Object>> modifyTableAttributes(IPluginProperties properties, List<IAttribute<Object>> attributes);
+	void modifySetup(IPluginProperties properties, IBeanFormBluePrint<?> bluePrint);
 
 }

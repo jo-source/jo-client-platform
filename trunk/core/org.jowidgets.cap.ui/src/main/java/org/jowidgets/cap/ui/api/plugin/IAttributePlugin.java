@@ -35,12 +35,12 @@ import org.jowidgets.plugin.api.IPluginId;
 import org.jowidgets.plugin.api.IPluginProperties;
 import org.jowidgets.util.ITypedKey;
 
-public interface IBeanTableModelPlugin {
+public interface IAttributePlugin {
 
-	IPluginId<IBeanTableModelPlugin> ID = new IPluginId<IBeanTableModelPlugin>() {};
+	IPluginId<IAttributePlugin> ID = new IPluginId<IAttributePlugin>() {};
 
 	ITypedKey<Object> ENTITIY_ID_PROPERTY_KEY = new ITypedKey<Object>() {};
 
-	List<IAttribute<Object>> modifyTableAttributes(IPluginProperties properties, List<IAttribute<Object>> attributes);
+	List<IAttribute<Object>> modifyAttributes(IPluginProperties properties, List<IAttribute<Object>> attributes);
 
 }

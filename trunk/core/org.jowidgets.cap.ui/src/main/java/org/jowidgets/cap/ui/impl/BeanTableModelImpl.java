@@ -328,7 +328,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		final IPluginProperties properties = propBuilder.build();
 
 		for (final IBeanTableModelPlugin plugin : PluginProvider.getPlugins(IBeanTableModelPlugin.ID, properties)) {
-			result = plugin.modify(properties, result);
+			result = plugin.modifyTableAttributes(properties, result);
 		}
 		return result;
 	}
