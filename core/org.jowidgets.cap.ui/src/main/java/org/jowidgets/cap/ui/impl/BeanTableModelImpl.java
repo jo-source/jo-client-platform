@@ -105,6 +105,7 @@ import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
 import org.jowidgets.cap.ui.api.model.IModificationStateListener;
 import org.jowidgets.cap.ui.api.model.IProcessStateListener;
 import org.jowidgets.cap.ui.api.model.LinkType;
+import org.jowidgets.cap.ui.api.plugin.IAttributePlugin;
 import org.jowidgets.cap.ui.api.plugin.IBeanTableModelPlugin;
 import org.jowidgets.cap.ui.api.sort.IPropertySort;
 import org.jowidgets.cap.ui.api.sort.ISortModel;
@@ -326,6 +327,10 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		final IPluginPropertiesBuilder propBuilder = PluginToolkit.pluginPropertiesBuilder();
 		propBuilder.add(IBeanTableModelPlugin.ENTITIY_ID_PROPERTY_KEY, entityId);
 		final IPluginProperties properties = propBuilder.build();
+
+		for (final IAttributePlugin plugin : PluginProvider.getPlugins(IAttributePlugin.ID, properties)) {
+			result = plugin.modifyAttributes(properties, result);
+		}
 
 		for (final IBeanTableModelPlugin plugin : PluginProvider.getPlugins(IBeanTableModelPlugin.ID, properties)) {
 			result = plugin.modifyTableAttributes(properties, result);
