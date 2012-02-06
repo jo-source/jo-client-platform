@@ -30,6 +30,7 @@ package org.jowidgets.cap.ui.impl;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -76,6 +77,8 @@ final class AttributeModifierBluePrint<ELEMENT_VALUE_TYPE> implements IAttribute
 	private Boolean filterable;
 	private Boolean searchable;
 	private IDisplayFormat displayFormat;
+
+	private boolean controlPanelsCleared = false;
 
 	@SuppressWarnings("rawtypes")
 	private final List controlPanels;
@@ -272,6 +275,7 @@ final class AttributeModifierBluePrint<ELEMENT_VALUE_TYPE> implements IAttribute
 		final Collection<? extends IControlPanelProvider<? extends ELEMENT_VALUE_TYPE>> controlPanels) {
 		checkExhausted();
 		this.controlPanels.clear();
+		controlPanelsCleared = true;
 		if (controlPanels != null) {
 			this.controlPanels.addAll(controlPanels);
 		}
@@ -294,6 +298,7 @@ final class AttributeModifierBluePrint<ELEMENT_VALUE_TYPE> implements IAttribute
 	public IControlPanelProviderBluePrint<ELEMENT_VALUE_TYPE> setControlPanel() {
 		checkExhausted();
 		this.controlPanels.clear();
+		controlPanelsCleared = true;
 		return addControlPanel(new DisplayFormatImpl(
 			ControlPanelProviderBuilderImpl.DEFAULT_DISPLAY_FORMAT_ID,
 			ControlPanelProviderBuilderImpl.DEFAULT_DISPLAY_NAME,
@@ -381,6 +386,9 @@ final class AttributeModifierBluePrint<ELEMENT_VALUE_TYPE> implements IAttribute
 		}
 		for (final Class<?> addedBeanValidator : addedBeanValidators) {
 			attributeBluePrint.addBeanValidator(addedBeanValidator);
+		}
+		if (controlPanelsCleared) {
+			attributeBluePrint.setControlPanels((Collection<? extends IControlPanelProvider<? extends ELEMENT_VALUE_TYPE>>) Collections.emptyList());
 		}
 		for (final Object controlPanel : controlPanels) {
 			if (controlPanel instanceof IControlPanelProvider) {
