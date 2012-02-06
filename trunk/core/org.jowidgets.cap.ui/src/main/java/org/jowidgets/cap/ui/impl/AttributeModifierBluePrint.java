@@ -388,7 +388,7 @@ final class AttributeModifierBluePrint<ELEMENT_VALUE_TYPE> implements IAttribute
 			attributeBluePrint.addBeanValidator(addedBeanValidator);
 		}
 		if (controlPanelsCleared) {
-			final List<IControlPanelProvider<ELEMENT_VALUE_TYPE>> emptyList = Collections.emptyList();
+			final List emptyList = Collections.emptyList();
 			attributeBluePrint.setControlPanels(emptyList);
 		}
 		for (final Object controlPanel : controlPanels) {
