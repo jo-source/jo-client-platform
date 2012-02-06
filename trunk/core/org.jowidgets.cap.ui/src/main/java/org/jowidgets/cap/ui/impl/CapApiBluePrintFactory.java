@@ -239,7 +239,7 @@ final class CapApiBluePrintFactory implements ICapApiBluePrintFactory {
 		final IBeanTabFolderBluePrint<BEAN_TYPE> result = bluePrintFactory.bluePrint(IBeanTabFolderBluePrint.class);
 		result.setModel(model);
 		final IBeanFormBluePrint<BEAN_TYPE> beanForm = beanForm(model.getEntityId());
-		if (beanForm.getAttributes() != null) {
+		if (beanForm.getEditModeAttributes() != null && beanForm.getCreateModeAttributes() != null) {
 			result.setTabFactory(beanForm);
 		}
 		return result;

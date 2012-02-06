@@ -41,6 +41,7 @@ import org.jowidgets.api.widgets.ITabItem;
 import org.jowidgets.api.widgets.blueprint.IInputComponentValidationLabelBluePrint;
 import org.jowidgets.api.widgets.blueprint.defaults.IDefaultInitializer;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
+import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
 import org.jowidgets.cap.ui.api.bean.BeanMessageType;
 import org.jowidgets.cap.ui.api.bean.IBeanKeyFactory;
@@ -56,6 +57,7 @@ import org.jowidgets.cap.ui.api.control.IInputControlSupportRegistry;
 import org.jowidgets.cap.ui.api.converter.ICapConverterFactory;
 import org.jowidgets.cap.ui.api.execution.IExecutionTaskFactory;
 import org.jowidgets.cap.ui.api.filter.IFilterToolkit;
+import org.jowidgets.cap.ui.api.form.IBeanFormLayouter;
 import org.jowidgets.cap.ui.api.form.IBeanFormToolkit;
 import org.jowidgets.cap.ui.api.icons.CapIcons;
 import org.jowidgets.cap.ui.api.lookup.ILookUpCache;
@@ -70,6 +72,7 @@ import org.jowidgets.cap.ui.api.widgets.IAttributeFilterControlBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanDialogBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanForm;
 import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
+import org.jowidgets.cap.ui.api.widgets.IBeanFormSetupConvenience;
 import org.jowidgets.cap.ui.api.widgets.IBeanSelectionDialogBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanSelectionTableBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTab;
@@ -401,6 +404,8 @@ public final class CapUiToolkit {
 				IBeanTabFolderBluePrint.class,
 				new BeanTabFolderSetupConvenience());
 
+		toolkit.getBluePrintFactory().setSetupBuilderConvenience(IBeanFormBluePrint.class, new BeanFormSetupConvenienve());
+
 	}
 
 	private static class BeanTabFolderSetupConvenience extends AbstractSetupBuilderConvenience<IBeanTabFolderBluePrint<Object>> implements
@@ -425,6 +430,27 @@ public final class CapUiToolkit {
 				}
 			});
 			return getBuilder();
+		}
+
+	}
+
+	private static class BeanFormSetupConvenienve extends AbstractSetupBuilderConvenience<IBeanFormBluePrint<Object>> implements
+			IBeanFormSetupConvenience<Object, IBeanFormBluePrint<Object>> {
+
+		@Override
+		public IBeanFormBluePrint<Object> setLayouter(final IBeanFormLayouter layouter) {
+			final IBeanFormBluePrint<Object> builder = getBuilder();
+			builder.setEditModeLayouter(layouter);
+			builder.setCreateModeLayouter(layouter);
+			return builder;
+		}
+
+		@Override
+		public IBeanFormBluePrint<Object> setAttributes(final Collection<? extends IAttribute<?>> attributes) {
+			final IBeanFormBluePrint<Object> builder = getBuilder();
+			builder.setEditModeAttributes(attributes);
+			builder.setCreateModeAttributes(attributes);
+			return builder;
 		}
 
 	}

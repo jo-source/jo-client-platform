@@ -104,7 +104,7 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 		Assert.paramNotNull(model, "model");
 		Assert.paramNotNull(attributes, "attributes");
 		Assert.paramNotNull(beanFormBp, "beanFormBp");
-		Assert.paramNotNull(beanFormBp.getAttributes(), "beanFormBp.getAttributes()");
+		Assert.paramNotNull(beanFormBp.getCreateModeAttributes(), "getCreateModeAttributes()");
 		Assert.paramNotNull(enabledCheckers, "enabledCheckers");
 		Assert.paramNotNull(anySelection, "anySelection");
 		Assert.paramNotNull(creatorService, "creatorService");
