@@ -136,7 +136,7 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 	@SuppressWarnings("unchecked")
 	BeanFormImpl(final IComposite composite, final IBeanFormBluePrint<BEAN_TYPE> bluePrint) {
 		super(composite);
-		this.layouter = bluePrint.getLayouter();
+		this.layouter = bluePrint.getCreateModeLayouter();
 		this.mandatoryLabelDecorator = bluePrint.getMandatoryLabelDecorator();
 		this.mandatoryBackgroundColor = bluePrint.getMandatoryBackgroundColor();
 		this.createModeForegroundColor = bluePrint.getCreateModeForegroundColor();
@@ -157,7 +157,7 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 		this.labelWaitChangeListener = new LabelWaitChangeListener();
 		this.externalValidatorListeners = new LinkedHashSet<IExternalBeanValidatorListener>();
 
-		for (final IAttribute<?> attribute : bluePrint.getAttributes()) {
+		for (final IAttribute<?> attribute : bluePrint.getCreateModeAttributes()) {
 			this.attributes.put(attribute.getPropertyName(), (IAttribute<Object>) attribute);
 		}
 

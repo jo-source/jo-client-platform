@@ -266,7 +266,7 @@ final class CreatorActionBuilder<BEAN_TYPE> extends AbstractSingleUseBuilder<IAc
 		final IBeanFormBluePrint<BEAN_TYPE> formBp = getBeanFormBp();
 		Collection<IAttribute<?>> attr = attributes;
 		if (attr == null && formBp != null) {
-			attr = formBp.getAttributes();
+			attr = formBp.getCreateModeAttributes();
 		}
 		final BeanCreatorCommand<BEAN_TYPE> command = new BeanCreatorCommand<BEAN_TYPE>(
 			beanType,

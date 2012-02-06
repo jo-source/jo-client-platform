@@ -45,13 +45,18 @@ import org.jowidgets.validation.IValidator;
 public interface IBeanFormBluePrint<BEAN_TYPE> extends
 		IComponentSetup,
 		IComponentSetupBuilder<IBeanFormBluePrint<BEAN_TYPE>>,
-		IWidgetDescriptor<IBeanForm<BEAN_TYPE>> {
+		IWidgetDescriptor<IBeanForm<BEAN_TYPE>>,
+		IBeanFormSetupConvenience<BEAN_TYPE, IBeanFormBluePrint<BEAN_TYPE>> {
 
 	IBeanFormBluePrint<BEAN_TYPE> setEntityId(Object entityId);
 
-	IBeanFormBluePrint<BEAN_TYPE> setLayouter(IBeanFormLayouter layouter);
+	IBeanFormBluePrint<BEAN_TYPE> setEditModeLayouter(IBeanFormLayouter layouter);
 
-	IBeanFormBluePrint<BEAN_TYPE> setAttributes(Collection<? extends IAttribute<?>> attributes);
+	IBeanFormBluePrint<BEAN_TYPE> setEditModeAttributes(Collection<? extends IAttribute<?>> attributes);
+
+	IBeanFormBluePrint<BEAN_TYPE> setCreateModeLayouter(IBeanFormLayouter layouter);
+
+	IBeanFormBluePrint<BEAN_TYPE> setCreateModeAttributes(Collection<? extends IAttribute<?>> attributes);
 
 	IBeanFormBluePrint<BEAN_TYPE> setAutoResetValidation(final boolean autoResetValidation);
 
@@ -82,10 +87,16 @@ public interface IBeanFormBluePrint<BEAN_TYPE> extends
 	Object getEntityId();
 
 	@Mandatory
-	IBeanFormLayouter getLayouter();
+	IBeanFormLayouter getEditModeLayouter();
 
 	@Mandatory
-	Collection<IAttribute<?>> getAttributes();
+	Collection<IAttribute<?>> getEditModeAttributes();
+
+	@Mandatory
+	IBeanFormLayouter getCreateModeLayouter();
+
+	@Mandatory
+	Collection<IAttribute<?>> getCreateModeAttributes();
 
 	@Mandatory
 	boolean isAutoResetValidation();
