@@ -70,8 +70,13 @@ import org.jowidgets.cap.ui.api.model.IModificationStateListener;
 import org.jowidgets.cap.ui.api.model.IProcessStateListener;
 import org.jowidgets.cap.ui.api.model.ISingleBeanModel;
 import org.jowidgets.cap.ui.api.model.LinkType;
+import org.jowidgets.cap.ui.api.plugin.IAttributePlugin;
 import org.jowidgets.cap.ui.tools.execution.UiResultCallback;
 import org.jowidgets.cap.ui.tools.model.ProcessStateObservable;
+import org.jowidgets.plugin.api.IPluginProperties;
+import org.jowidgets.plugin.api.IPluginPropertiesBuilder;
+import org.jowidgets.plugin.api.PluginProvider;
+import org.jowidgets.plugin.api.PluginToolkit;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.EmptyCheck;
 import org.jowidgets.util.IProvider;
@@ -163,6 +168,8 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 			attributes = createReadonlyAttributes(attributes);
 		}
 
+		attributes = createModifiedByPluginsAttributes(entityId, attributes);
+
 		this.attributes = Collections.unmodifiableList(new LinkedList<IAttribute<Object>>(attributes));
 
 		this.beanPropertyValidators = new LinkedList<IBeanPropertyValidator<BEAN_TYPE>>();
@@ -191,6 +198,22 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 
 		this.changeObservable = new ChangeObservable();
 		this.processStateObservable = new ProcessStateObservable();
+	}
+
+	private static List<IAttribute<Object>> createModifiedByPluginsAttributes(
+		final Object entityId,
+		final List<IAttribute<Object>> attributes) {
+
+		List<IAttribute<Object>> result = attributes;
+
+		final IPluginPropertiesBuilder propBuilder = PluginToolkit.pluginPropertiesBuilder();
+		propBuilder.add(IAttributePlugin.ENTITIY_ID_PROPERTY_KEY, entityId);
+		final IPluginProperties properties = propBuilder.build();
+		for (final IAttributePlugin plugin : PluginProvider.getPlugins(IAttributePlugin.ID, properties)) {
+			result = plugin.modifyAttributes(properties, result);
+		}
+
+		return result;
 	}
 
 	private static List<IAttribute<Object>> createReadonlyAttributes(final List<IAttribute<Object>> attributes) {
