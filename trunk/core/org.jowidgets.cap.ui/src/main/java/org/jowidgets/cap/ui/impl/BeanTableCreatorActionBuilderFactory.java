@@ -37,6 +37,7 @@ import org.jowidgets.cap.ui.api.command.ICapActionFactory;
 import org.jowidgets.cap.ui.api.command.ICreatorActionBuilder;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
+import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.cap.ui.tools.attribute.AcceptEditableAttributesFilter;
 import org.jowidgets.cap.ui.tools.execution.ExecutionInterceptorAdapter;
@@ -64,11 +65,18 @@ final class BeanTableCreatorActionBuilderFactory {
 				model.getEntityId(),
 				model.getBeanType(),
 				wrappedModel);
+
 		builder.setBeanPropertyValidators(model.getBeanPropertyValidators());
 		builder.setEntityLabelSingular(model.getEntityLabelSingular());
 		builder.setCreatorService(model.getCreatorService());
+
+		final IBeanFormBluePrint<BEAN_TYPE> beanFormBp = CapUiToolkit.bluePrintFactory().beanForm(
+				model.getEntityId(),
+				model.getAttributes(AcceptEditableAttributesFilter.getInstance()));
+
 		builder.setAttributes(model.getAttributes());
-		builder.setBeanForm(model.getAttributes(AcceptEditableAttributesFilter.getInstance()));
+		builder.setBeanForm(beanFormBp);
+
 		builder.addExecutionInterceptor(new ExecutionInterceptorAdapter() {
 			@Override
 			public void beforeExecution(final IExecutionContext executionContext, final IVetoable continueExecution) {
