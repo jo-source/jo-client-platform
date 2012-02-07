@@ -40,10 +40,15 @@ import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyListener;
 import org.jowidgets.cap.ui.api.bean.IExternalBeanValidator;
 import org.jowidgets.cap.ui.api.bean.IExternalBeanValidatorListener;
+import org.jowidgets.cap.ui.api.plugin.IBeanFormPlugin;
 import org.jowidgets.cap.ui.api.widgets.IBeanForm;
 import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
 import org.jowidgets.cap.ui.tools.bean.BeanProxyListenerAdapter;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
+import org.jowidgets.plugin.api.IPluginProperties;
+import org.jowidgets.plugin.api.IPluginPropertiesBuilder;
+import org.jowidgets.plugin.api.PluginProvider;
+import org.jowidgets.plugin.api.PluginToolkit;
 import org.jowidgets.tools.layout.MigLayoutFactory;
 import org.jowidgets.tools.widgets.blueprint.BPF;
 import org.jowidgets.tools.widgets.wrapper.AbstractInputControl;
@@ -67,6 +72,11 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 
 	BeanFormImpl(final IComposite composite, final IBeanFormBluePrint<BEAN_TYPE> bluePrint) {
 		super(composite);
+
+		final Object entityId = bluePrint.getEntityId();
+		if (entityId != null) {
+			modifyBeanFormBpByPlugins(entityId, bluePrint);
+		}
 
 		composite.setLayout(new MigLayoutDescriptor("hidemode 3", "0[grow, 0::]0", "0[grow, 0::]0"));
 		this.editFormComposite = composite.add(BPF.composite(), MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
@@ -100,6 +110,15 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 
 		this.beanProcessStateListener = new BeanProcessStateListener();
 		this.beanProxyListener = new BeanProxyListener();
+	}
+
+	private void modifyBeanFormBpByPlugins(final Object entityId, final IBeanFormBluePrint<BEAN_TYPE> beanFormBp) {
+		final IPluginPropertiesBuilder propBuilder = PluginToolkit.pluginPropertiesBuilder();
+		propBuilder.add(IBeanFormPlugin.ENTITIY_ID_PROPERTY_KEY, entityId);
+		final IPluginProperties properties = propBuilder.build();
+		for (final IBeanFormPlugin plugin : PluginProvider.getPlugins(IBeanFormPlugin.ID, properties)) {
+			plugin.modifySetup(properties, beanFormBp);
+		}
 	}
 
 	@Override
