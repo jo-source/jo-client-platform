@@ -111,7 +111,11 @@ final class BeanTablesFormImpl extends ControlWrapper implements IBeanTablesForm
 	public void registerView(final IBeanTableView view) {
 		Assert.paramNotNull(view, "view");
 		final IBeanTableModel model = view.getModel();
-		final List<IAttribute<?>> attributes = getFilteredAttributes(model.getAttributes());
+		List<IAttribute<Object>> attributes = EntityServiceAttributesFactory.createAttributes(model.getEntityId());
+		if (attributes == null) {
+			attributes = model.getAttributes();
+		}
+		attributes = getFilteredAttributes(attributes);
 		final IBeanFormBluePrint beanFormBp = CapUiToolkit.bluePrintFactory().beanForm(model.getEntityId(), attributes);
 		registerView(view, beanFormBp);
 	}
@@ -128,9 +132,9 @@ final class BeanTablesFormImpl extends ControlWrapper implements IBeanTablesForm
 		}
 	}
 
-	private List<IAttribute<?>> getFilteredAttributes(final List<IAttribute<?>> attributes) {
-		final List<IAttribute<?>> result = new LinkedList<IAttribute<?>>();
-		for (final IAttribute<?> attribute : attributes) {
+	private List<IAttribute<Object>> getFilteredAttributes(final List<IAttribute<Object>> attributes) {
+		final List<IAttribute<Object>> result = new LinkedList<IAttribute<Object>>();
+		for (final IAttribute<Object> attribute : attributes) {
 			if ((!hideReadonlyAttributes || attribute.isEditable())
 				&& (!hideMetaAttributes || !IBeanProxy.ALL_META_ATTRIBUTES.contains(attribute.getPropertyName()))) {
 				result.add(attribute);
