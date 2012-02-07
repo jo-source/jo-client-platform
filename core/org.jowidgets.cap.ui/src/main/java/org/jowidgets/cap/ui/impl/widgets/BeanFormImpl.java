@@ -44,6 +44,7 @@ import org.jowidgets.cap.ui.api.plugin.IBeanFormPlugin;
 import org.jowidgets.cap.ui.api.widgets.IBeanForm;
 import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
 import org.jowidgets.cap.ui.tools.bean.BeanProxyListenerAdapter;
+import org.jowidgets.common.widgets.controller.IInputListener;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
 import org.jowidgets.plugin.api.IPluginProperties;
 import org.jowidgets.plugin.api.IPluginPropertiesBuilder;
@@ -51,13 +52,13 @@ import org.jowidgets.plugin.api.PluginProvider;
 import org.jowidgets.plugin.api.PluginToolkit;
 import org.jowidgets.tools.layout.MigLayoutFactory;
 import org.jowidgets.tools.widgets.blueprint.BPF;
-import org.jowidgets.tools.widgets.wrapper.AbstractInputControl;
+import org.jowidgets.tools.widgets.wrapper.ControlWrapper;
 import org.jowidgets.util.Assert;
+import org.jowidgets.validation.IValidationConditionListener;
 import org.jowidgets.validation.IValidationResult;
+import org.jowidgets.validation.IValidator;
 
-final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN_TYPE>> implements
-		IBeanForm<BEAN_TYPE>,
-		IExternalBeanValidator {
+final class BeanFormImpl<BEAN_TYPE> extends ControlWrapper implements IBeanForm<BEAN_TYPE>, IExternalBeanValidator {
 
 	private final IComposite editFormComposite;
 	private final BeanFormControl<BEAN_TYPE> editForm;
@@ -157,6 +158,41 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 		}
 	}
 
+	@Override
+	public void addInputListener(final IInputListener listener) {
+		editForm.addInputListener(listener);
+		createForm.addInputListener(listener);
+	}
+
+	@Override
+	public void removeInputListener(final IInputListener listener) {
+		editForm.removeInputListener(listener);
+		createForm.removeInputListener(listener);
+	}
+
+	@Override
+	public IValidationResult validate() {
+		return getCurrentBeanForm().validate();
+	}
+
+	@Override
+	public void addValidationConditionListener(final IValidationConditionListener listener) {
+		editForm.addValidationConditionListener(listener);
+		createForm.addValidationConditionListener(listener);
+	}
+
+	@Override
+	public void removeValidationConditionListener(final IValidationConditionListener listener) {
+		editForm.removeValidationConditionListener(listener);
+		createForm.removeValidationConditionListener(listener);
+	}
+
+	@Override
+	public void addValidator(final IValidator<IBeanProxy<BEAN_TYPE>> validator) {
+		editForm.addValidator(validator);
+		createForm.addValidator(validator);
+	}
+
 	private void updateFormVisibility(final IBeanProxy<BEAN_TYPE> bean) {
 		if (isEditForm(bean)) {
 			if (!editForm.isVisible()) {
@@ -182,10 +218,10 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 
 	private BeanFormControl<BEAN_TYPE> getCurrentBeanForm() {
 		if (isEditForm(bean)) {
-			return createForm;
+			return editForm;
 		}
 		else {
-			return editForm;
+			return createForm;
 		}
 	}
 
@@ -219,11 +255,6 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 	public void resetValidation() {
 		editForm.resetValidation();
 		createForm.resetValidation();
-	}
-
-	@Override
-	protected IValidationResult createValidationResult() {
-		return getCurrentBeanForm().validate();
 	}
 
 	@Override
