@@ -30,6 +30,7 @@ package org.jowidgets.cap.ui.api.widgets;
 
 import java.util.Collection;
 
+import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.widgets.blueprint.builder.IComponentSetupBuilder;
 import org.jowidgets.api.widgets.descriptor.IInputComponentValidationLabelDescriptor;
 import org.jowidgets.api.widgets.descriptor.setup.IComponentSetup;
@@ -40,6 +41,7 @@ import org.jowidgets.common.types.Border;
 import org.jowidgets.common.widgets.descriptor.IWidgetDescriptor;
 import org.jowidgets.common.widgets.descriptor.setup.mandatory.Mandatory;
 import org.jowidgets.util.IDecorator;
+import org.jowidgets.util.IProvider;
 import org.jowidgets.validation.IValidator;
 
 public interface IBeanFormBluePrint<BEAN_TYPE> extends
@@ -84,6 +86,10 @@ public interface IBeanFormBluePrint<BEAN_TYPE> extends
 
 	IBeanFormBluePrint<BEAN_TYPE> setCreateModeForegroundColor(final IColorConstant editModeColor);
 
+	IBeanFormBluePrint<BEAN_TYPE> setSaveAction(IProvider<IAction> saveAction);
+
+	IBeanFormBluePrint<BEAN_TYPE> setUndoAction(IProvider<IAction> undoAction);
+
 	Object getEntityId();
 
 	@Mandatory
@@ -123,5 +129,9 @@ public interface IBeanFormBluePrint<BEAN_TYPE> extends
 	String getCreateModeInputHint();
 
 	IColorConstant getCreateModeForegroundColor();
+
+	IProvider<IAction> getSaveAction();
+
+	IProvider<IAction> getUndoAction();
 
 }

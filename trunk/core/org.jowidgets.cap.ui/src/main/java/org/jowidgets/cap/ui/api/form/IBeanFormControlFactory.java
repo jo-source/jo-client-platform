@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.ui.api.form;
 
+import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.widgets.IControl;
 import org.jowidgets.api.widgets.descriptor.setup.IValidationLabelSetup;
 import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
@@ -39,5 +40,9 @@ public interface IBeanFormControlFactory {
 	ICustomWidgetCreator<? extends IControl> createControl(String propertyName);
 
 	ICustomWidgetCreator<? extends IControl> createValidationLabel(String propertyName, IValidationLabelSetup setup);
+
+	IAction getSaveAction();
+
+	IAction getUndoAction();
 
 }
