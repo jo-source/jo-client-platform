@@ -163,12 +163,12 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 			this.parentModelListener = null;
 		}
 
+		attributes = createModifiedByPluginsAttributes(entityId, attributes);
+
 		//if no updater service available, set all attributes to editable false
 		if (updaterService == null) {
 			attributes = createReadonlyAttributes(attributes);
 		}
-
-		attributes = createModifiedByPluginsAttributes(entityId, attributes);
 
 		this.attributes = Collections.unmodifiableList(new LinkedList<IAttribute<Object>>(attributes));
 
