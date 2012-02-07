@@ -75,6 +75,7 @@ import org.jowidgets.cap.ui.api.execution.IExecutionTask;
 import org.jowidgets.cap.ui.api.execution.IExecutionTaskListener;
 import org.jowidgets.cap.ui.api.form.IBeanFormControlFactory;
 import org.jowidgets.cap.ui.api.form.IBeanFormLayouter;
+import org.jowidgets.cap.ui.api.plugin.IAttributePlugin;
 import org.jowidgets.cap.ui.api.widgets.IBeanForm;
 import org.jowidgets.cap.ui.tools.bean.BeanProxyListenerAdapter;
 import org.jowidgets.cap.ui.tools.execution.ExecutionTaskAdapter;
@@ -85,6 +86,10 @@ import org.jowidgets.common.widgets.controller.IInputListener;
 import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
 import org.jowidgets.common.widgets.factory.ICustomWidgetFactory;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
+import org.jowidgets.plugin.api.IPluginProperties;
+import org.jowidgets.plugin.api.IPluginPropertiesBuilder;
+import org.jowidgets.plugin.api.PluginProvider;
+import org.jowidgets.plugin.api.PluginToolkit;
 import org.jowidgets.tools.widgets.blueprint.BPF;
 import org.jowidgets.tools.widgets.wrapper.AbstractInputControl;
 import org.jowidgets.util.Assert;
@@ -137,7 +142,8 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 	@SuppressWarnings("unchecked")
 	BeanFormControl(
 		final IComposite composite,
-		final Collection<IAttribute<?>> attributes,
+		final Object entityId,
+		Collection<IAttribute<?>> attributes,
 		final IBeanFormLayouter layouter,
 		final IDecorator<String> manadtoryLabelDecorator,
 		final IColorConstant mandatoryBackgroundColor,
@@ -149,6 +155,8 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 		final IProvider<IAction> saveAction) {
 
 		super(composite);
+
+		attributes = createModifiedByPluginsAttributes(entityId, attributes);
 
 		this.mandatoryLabelDecorator = manadtoryLabelDecorator;
 		this.mandatoryBackgroundColor = mandatoryBackgroundColor;
@@ -194,6 +202,23 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 
 		//this must be the last invocation in this constructor
 		layouter.layout(contentPane, new BeanFormControlFactory());
+	}
+
+	@SuppressWarnings({"unchecked", "rawtypes"})
+	private static List<IAttribute<?>> createModifiedByPluginsAttributes(
+		final Object entityId,
+		final Collection<IAttribute<?>> attributes) {
+
+		List result = new LinkedList(attributes);
+
+		final IPluginPropertiesBuilder propBuilder = PluginToolkit.pluginPropertiesBuilder();
+		propBuilder.add(IAttributePlugin.ENTITIY_ID_PROPERTY_KEY, entityId);
+		final IPluginProperties properties = propBuilder.build();
+		for (final IAttributePlugin plugin : PluginProvider.getPlugins(IAttributePlugin.ID, properties)) {
+			result = plugin.modifyAttributes(properties, result);
+		}
+
+		return result;
 	}
 
 	private IInputComponentValidationLabel addValidationLabel(
