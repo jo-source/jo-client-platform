@@ -31,6 +31,7 @@ package org.jowidgets.cap.ui.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.widgets.IComposite;
 import org.jowidgets.api.widgets.IContainer;
@@ -46,6 +47,7 @@ import org.jowidgets.common.types.AlignmentHorizontal;
 import org.jowidgets.common.types.AlignmentVertical;
 import org.jowidgets.common.types.Position;
 import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
+import org.jowidgets.common.widgets.layout.ILayoutDescriptor;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
 import org.jowidgets.tools.widgets.blueprint.BPF;
 import org.jowidgets.util.Assert;
@@ -66,14 +68,45 @@ final class BeanFormLayouterImpl implements IBeanFormLayouter {
 		final Integer minWidth = layout.getMinWidth();
 		final Integer width = layout.getWidth();
 		final Integer maxWidth = layout.getMaxWidth();
-		if (minWidth != null || width != null || maxWidth != null) {
+		final IAction saveAction = controlFactory.getSaveAction();
+		final IAction undoAction = controlFactory.getUndoAction();
+		final boolean hasButtons = saveAction != null || undoAction != null;
+		if (minWidth != null || width != null || maxWidth != null || saveAction != null || undoAction != null) {
 			final String widthCC = getWidthConstraints(minWidth, width, maxWidth);
-			globalContainer.setLayout(new MigLayoutDescriptor("0[grow, 0::]0", "0[grow, " + widthCC + "]0"));
-			final IComposite innerContainer = globalContainer.add(BPF.composite(), "growx, growy, w " + widthCC + ", h 0::");
+			final String buttonBarCC = getButtonBarCC(hasButtons);
+			globalContainer.setLayout(new MigLayoutDescriptor("0[grow, 0::]0", "0[" + widthCC + "]" + buttonBarCC + "0"));
+			final IComposite innerContainer = globalContainer.add(BPF.composite(), "growx, w " + widthCC + ", h 0::, wrap");
 			layoutInnerContainer(innerContainer, controlFactory);
+			if (hasButtons) {
+				//TODO MG make the buttons align right with the controls (but not with the validation labels)
+				final IComposite buttonBar = globalContainer.add(BPF.composite(), "growx, w " + widthCC + ", alignx left");
+				buttonBar.setLayout(getButtonBarLayout(saveAction, undoAction));
+				if (undoAction != null) {
+					buttonBar.add(BPF.button(), "sg bg").setAction(undoAction);
+					buttonBar.add(BPF.button(), "sg bg").setAction(saveAction);
+				}
+			}
 		}
 		else {
 			layoutInnerContainer(globalContainer, controlFactory);
+		}
+	}
+
+	private ILayoutDescriptor getButtonBarLayout(final IAction saveAction, final IAction undoAction) {
+		if (saveAction != null && undoAction != null) {
+			return new MigLayoutDescriptor("0[]0", "0[][]0");
+		}
+		else {
+			return new MigLayoutDescriptor("0[]0", "0[]0");
+		}
+	}
+
+	private String getButtonBarCC(final boolean hasButtons) {
+		if (hasButtons) {
+			return "10[]";
+		}
+		else {
+			return "";
 		}
 	}
 

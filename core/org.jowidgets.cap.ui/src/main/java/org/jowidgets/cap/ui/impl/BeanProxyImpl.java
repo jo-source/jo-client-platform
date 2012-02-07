@@ -814,37 +814,37 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 	}
 
 	private void fireBeforeBeanUpdate() {
-		for (final IBeanProxyListener<BEAN_TYPE> listener : beanProxyListeners) {
+		for (final IBeanProxyListener<BEAN_TYPE> listener : new LinkedList<IBeanProxyListener<BEAN_TYPE>>(beanProxyListeners)) {
 			listener.beforeBeanUpdate(this);
 		}
 	}
 
 	private void fireAfterBeanUpdated() {
-		for (final IBeanProxyListener<BEAN_TYPE> listener : beanProxyListeners) {
+		for (final IBeanProxyListener<BEAN_TYPE> listener : new LinkedList<IBeanProxyListener<BEAN_TYPE>>(beanProxyListeners)) {
 			listener.afterBeanUpdated(this);
 		}
 	}
 
 	private void fireBeforeUndoModifications() {
-		for (final IBeanProxyListener<BEAN_TYPE> listener : beanProxyListeners) {
+		for (final IBeanProxyListener<BEAN_TYPE> listener : new LinkedList<IBeanProxyListener<BEAN_TYPE>>(beanProxyListeners)) {
 			listener.beforeUndoModifications(this);
 		}
 	}
 
 	private void fireAfterUndoModifications() {
-		for (final IBeanProxyListener<BEAN_TYPE> listener : beanProxyListeners) {
+		for (final IBeanProxyListener<BEAN_TYPE> listener : new LinkedList<IBeanProxyListener<BEAN_TYPE>>(beanProxyListeners)) {
 			listener.afterUndoModifications(this);
 		}
 	}
 
 	private void fireBeforeRedoModifications() {
-		for (final IBeanProxyListener<BEAN_TYPE> listener : beanProxyListeners) {
+		for (final IBeanProxyListener<BEAN_TYPE> listener : new LinkedList<IBeanProxyListener<BEAN_TYPE>>(beanProxyListeners)) {
 			listener.beforeRedoModifications(this);
 		}
 	}
 
 	void fireAfterRedoModifications() {
-		for (final IBeanProxyListener<BEAN_TYPE> listener : beanProxyListeners) {
+		for (final IBeanProxyListener<BEAN_TYPE> listener : new LinkedList<IBeanProxyListener<BEAN_TYPE>>(beanProxyListeners)) {
 			listener.afterRedoModifications(this);
 		}
 	}
