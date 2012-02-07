@@ -82,6 +82,7 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 		this.editFormComposite = composite.add(BPF.composite(), MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
 		this.editForm = new BeanFormControl<BEAN_TYPE>(
 			editFormComposite,
+			bluePrint.getEntityId(),
 			bluePrint.getEditModeAttributes(),
 			bluePrint.getEditModeLayouter(),
 			bluePrint.getMandatoryLabelDecorator(),
@@ -96,6 +97,7 @@ final class BeanFormImpl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN
 		this.createFormComposite = composite.add(BPF.composite(), MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
 		this.createForm = new BeanFormControl<BEAN_TYPE>(
 			createFormComposite,
+			bluePrint.getEntityId(),
 			bluePrint.getCreateModeAttributes(),
 			bluePrint.getCreateModeLayouter(),
 			bluePrint.getMandatoryLabelDecorator(),
