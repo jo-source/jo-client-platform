@@ -75,7 +75,8 @@ final class BeanFormLayouterImpl implements IBeanFormLayouter {
 			final String widthCC = getWidthConstraints(minWidth, width, maxWidth);
 			final String buttonBarCC = getButtonBarCC(hasButtons);
 			globalContainer.setLayout(new MigLayoutDescriptor("0[grow, 0::]0", "0[" + widthCC + "]" + buttonBarCC + "0"));
-			final IComposite innerContainer = globalContainer.add(BPF.composite(), "growx, w " + widthCC + ", h 0::, wrap");
+			final String innerContainerCC = getInnerContainerCC(hasButtons, widthCC);
+			final IComposite innerContainer = globalContainer.add(BPF.composite(), innerContainerCC);
 			layoutInnerContainer(innerContainer, controlFactory);
 			if (hasButtons) {
 				//TODO MG make the buttons align right with the controls (but not with the validation labels)
@@ -99,6 +100,14 @@ final class BeanFormLayouterImpl implements IBeanFormLayouter {
 		else {
 			return new MigLayoutDescriptor("0[]0", "0[]0");
 		}
+	}
+
+	private String getInnerContainerCC(final boolean hasButtons, final String widthCC) {
+		final StringBuilder result = new StringBuilder("growx, w " + widthCC + ", h 0::");
+		if (hasButtons) {
+			result.append(",wrap");
+		}
+		return result.toString();
 	}
 
 	private String getButtonBarCC(final boolean hasButtons) {
