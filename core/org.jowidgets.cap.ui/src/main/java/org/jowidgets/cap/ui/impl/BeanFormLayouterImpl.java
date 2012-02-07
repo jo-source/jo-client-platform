@@ -94,7 +94,7 @@ final class BeanFormLayouterImpl implements IBeanFormLayouter {
 
 	private ILayoutDescriptor getButtonBarLayout(final IAction saveAction, final IAction undoAction) {
 		if (saveAction != null && undoAction != null) {
-			return new MigLayoutDescriptor("0[]0", "0[][]0");
+			return new MigLayoutDescriptor("0[][]0", "0[]0");
 		}
 		else {
 			return new MigLayoutDescriptor("0[]0", "0[]0");
