@@ -80,7 +80,7 @@ final class BeanFormLayouterImpl implements IBeanFormLayouter {
 			layoutInnerContainer(innerContainer, controlFactory);
 			if (hasButtons) {
 				//TODO MG make the buttons align right with the controls (but not with the validation labels)
-				final IComposite buttonBar = globalContainer.add(BPF.composite(), "growx, w " + widthCC + ", alignx left");
+				final IComposite buttonBar = globalContainer.add(BPF.composite(), " alignx right");
 				buttonBar.setLayout(getButtonBarLayout(saveAction, undoAction));
 				if (undoAction != null) {
 					buttonBar.add(BPF.button(), "sg bg").setAction(undoAction);
@@ -95,10 +95,10 @@ final class BeanFormLayouterImpl implements IBeanFormLayouter {
 
 	private ILayoutDescriptor getButtonBarLayout(final IAction saveAction, final IAction undoAction) {
 		if (saveAction != null && undoAction != null) {
-			return new MigLayoutDescriptor("0[][]0", "0[]0");
+			return new MigLayoutDescriptor("0[][]28", "0[]0");
 		}
 		else {
-			return new MigLayoutDescriptor("0[]0", "0[]0");
+			return new MigLayoutDescriptor("0[]28", "0[]0");
 		}
 	}
 

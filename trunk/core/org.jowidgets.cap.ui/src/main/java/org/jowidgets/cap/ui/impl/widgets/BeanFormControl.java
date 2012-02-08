@@ -145,6 +145,7 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 		final Object entityId,
 		Collection<IAttribute<?>> attributes,
 		final IBeanFormLayouter layouter,
+		final Integer maxWidth,
 		final IDecorator<String> manadtoryLabelDecorator,
 		final IColorConstant mandatoryBackgroundColor,
 		final IColorConstant foregroundColor,
@@ -198,10 +199,22 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 		processStateLabel.setMinSize(new Dimension(20, 20));
 		processStateLabel.setVisible(false);
 
-		final IScrollComposite contentPane = composite.add(BPF.scrollComposite(), "growx, w 0::, h 0:: , wrap");
+		final String widthCC = getContentWidthConstraints(maxWidth);
+		final IScrollComposite contentPane = composite.add(BPF.scrollComposite(), "growx, w 0:: , h 0:: , wrap");
+		contentPane.setLayout(new MigLayoutDescriptor("0[grow, " + widthCC + "]0", "0[]0"));
+		final IScrollComposite scrollContentPane = contentPane.add(BPF.scrollComposite(), "growx, w 0:: , h 0:: ");
 
 		//this must be the last invocation in this constructor
-		layouter.layout(contentPane, new BeanFormControlFactory());
+		layouter.layout(scrollContentPane, new BeanFormControlFactory());
+	}
+
+	private static String getContentWidthConstraints(final Integer maxWidth) {
+		if (maxWidth != null) {
+			return "0::" + maxWidth.intValue();
+		}
+		else {
+			return "0::";
+		}
 	}
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
