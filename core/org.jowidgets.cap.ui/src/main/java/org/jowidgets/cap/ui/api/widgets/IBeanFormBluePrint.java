@@ -64,6 +64,8 @@ public interface IBeanFormBluePrint<BEAN_TYPE> extends
 
 	IBeanFormBluePrint<BEAN_TYPE> setContentScrolled(final boolean scrolledContent);
 
+	IBeanFormBluePrint<BEAN_TYPE> setMaxWidth(final Integer maxWidth);
+
 	IBeanFormBluePrint<BEAN_TYPE> setBorder(Border border);
 
 	IBeanFormBluePrint<BEAN_TYPE> setContentBorder(Border border);
@@ -109,6 +111,8 @@ public interface IBeanFormBluePrint<BEAN_TYPE> extends
 
 	@Mandatory
 	boolean isContentScrolled();
+
+	Integer getMaxWidth();
 
 	Border getBorder();
 

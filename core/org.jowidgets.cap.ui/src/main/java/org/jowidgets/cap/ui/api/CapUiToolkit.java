@@ -355,6 +355,8 @@ public final class CapUiToolkit {
 
 					@Override
 					public void initialize(final IBeanFormBluePrint<?> bluePrint) {
+						bluePrint.setMaxWidth(800);
+
 						bluePrint.setAutoResetValidation(true);
 						bluePrint.setContentScrolled(true);
 						bluePrint.setCreateModeForegroundColor(Colors.GREEN);
