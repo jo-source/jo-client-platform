@@ -50,7 +50,6 @@ import org.jowidgets.plugin.api.IPluginProperties;
 import org.jowidgets.plugin.api.IPluginPropertiesBuilder;
 import org.jowidgets.plugin.api.PluginProvider;
 import org.jowidgets.plugin.api.PluginToolkit;
-import org.jowidgets.tools.layout.MigLayoutFactory;
 import org.jowidgets.tools.widgets.blueprint.BPF;
 import org.jowidgets.tools.widgets.wrapper.ControlWrapper;
 import org.jowidgets.util.Assert;
@@ -79,8 +78,8 @@ final class BeanFormImpl<BEAN_TYPE> extends ControlWrapper implements IBeanForm<
 			modifyBeanFormBpByPlugins(entityId, bluePrint);
 		}
 
-		composite.setLayout(new MigLayoutDescriptor("hidemode 3", "0[grow, 0::]0", "0[grow, 0::]0"));
-		this.editFormComposite = composite.add(BPF.composite(), MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
+		composite.setLayout(new MigLayoutDescriptor("hidemode 3", "0[grow, 0::]0", "0[0::]0"));
+		this.editFormComposite = composite.add(BPF.composite(), "growx, w 0::, h 0::");
 		this.editForm = new BeanFormControl<BEAN_TYPE>(
 			editFormComposite,
 			bluePrint.getEntityId(),
@@ -95,7 +94,7 @@ final class BeanFormImpl<BEAN_TYPE> extends ControlWrapper implements IBeanForm<
 			bluePrint.getUndoAction(),
 			bluePrint.getSaveAction());
 
-		this.createFormComposite = composite.add(BPF.composite(), MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
+		this.createFormComposite = composite.add(BPF.composite(), "growx, w 0::, h 0::");
 		this.createForm = new BeanFormControl<BEAN_TYPE>(
 			createFormComposite,
 			bluePrint.getEntityId(),
