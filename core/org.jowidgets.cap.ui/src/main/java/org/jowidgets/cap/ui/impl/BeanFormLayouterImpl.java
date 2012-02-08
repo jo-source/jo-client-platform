@@ -74,7 +74,7 @@ final class BeanFormLayouterImpl implements IBeanFormLayouter {
 		if (minWidth != null || width != null || maxWidth != null || saveAction != null || undoAction != null) {
 			final String widthCC = getWidthConstraints(minWidth, width, maxWidth);
 			final String buttonBarCC = getButtonBarCC(hasButtons);
-			globalContainer.setLayout(new MigLayoutDescriptor("0[grow, 0::]0", "0[" + widthCC + "]" + buttonBarCC + "0"));
+			globalContainer.setLayout(new MigLayoutDescriptor("0[grow, " + widthCC + "]0", "0[]" + buttonBarCC + "0"));
 			final String innerContainerCC = getInnerContainerCC(hasButtons, widthCC);
 			final IComposite innerContainer = globalContainer.add(BPF.composite(), innerContainerCC);
 			layoutInnerContainer(innerContainer, controlFactory);
@@ -112,7 +112,7 @@ final class BeanFormLayouterImpl implements IBeanFormLayouter {
 
 	private String getButtonBarCC(final boolean hasButtons) {
 		if (hasButtons) {
-			return "10[]";
+			return "20[]";
 		}
 		else {
 			return "";
