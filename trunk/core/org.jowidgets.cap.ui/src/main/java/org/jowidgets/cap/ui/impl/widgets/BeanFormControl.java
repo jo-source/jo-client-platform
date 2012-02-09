@@ -200,7 +200,7 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 		processStateLabel.setVisible(false);
 
 		final String widthCC = getContentWidthConstraints(maxWidth);
-		final IScrollComposite contentPane = composite.add(BPF.scrollComposite(), "growx, w 0:: , h 0:: , wrap");
+		final IComposite contentPane = composite.add(BPF.composite(), "growx, w 0:: , h 0:: , wrap");
 		contentPane.setLayout(new MigLayoutDescriptor("0[grow, " + widthCC + "]0", "0[]0"));
 		final IScrollComposite scrollContentPane = contentPane.add(BPF.scrollComposite(), "growx, w 0:: , h 0:: ");
 
