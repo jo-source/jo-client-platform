@@ -70,6 +70,8 @@ public interface IAttributeCollectionModifierBuilder {
 	 */
 	<ELEMENT_VALUE_TYPE> IAttributeBluePrint<ELEMENT_VALUE_TYPE> addModifier(String propertyName);
 
+	boolean isModified();
+
 	IAttributeCollectionModifier build();
 
 }

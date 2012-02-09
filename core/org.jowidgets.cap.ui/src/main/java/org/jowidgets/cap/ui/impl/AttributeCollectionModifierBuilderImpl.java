@@ -53,17 +53,21 @@ final class AttributeCollectionModifierBuilderImpl implements IAttributeCollecti
 	private final Map<String, List<IAttributeModifier<Object>>> modifiers;
 	private final List<AttributeModifierBluePrint<?>> modifierBluePrints;
 
+	private boolean isModified;
+
 	AttributeCollectionModifierBuilderImpl() {
 		this.filters = new HashSet<IAttributeFilter>();
 		this.defaultModifiers = new LinkedList<IAttributeModifier<Object>>();
 		this.modifiers = new HashMap<String, List<IAttributeModifier<Object>>>();
 		this.modifierBluePrints = new LinkedList<AttributeModifierBluePrint<?>>();
+		this.isModified = false;
 	}
 
 	@Override
 	public IAttributeCollectionModifierBuilder addFilter(final IAttributeFilter filter) {
 		Assert.paramNotNull(filter, "filter");
 		this.filters.add(filter);
+		this.isModified = true;
 		return this;
 	}
 
@@ -81,6 +85,7 @@ final class AttributeCollectionModifierBuilderImpl implements IAttributeCollecti
 				}
 			}
 		});
+		this.isModified = true;
 		return this;
 	}
 
@@ -88,6 +93,7 @@ final class AttributeCollectionModifierBuilderImpl implements IAttributeCollecti
 	public IAttributeCollectionModifierBuilder addBlackListFilter(final String... propertyNames) {
 		Assert.paramNotEmpty(propertyNames, "propertyNames");
 		addBlackListFilter(Arrays.asList(propertyNames));
+		this.isModified = true;
 		return this;
 	}
 
@@ -105,6 +111,7 @@ final class AttributeCollectionModifierBuilderImpl implements IAttributeCollecti
 				}
 			}
 		});
+		this.isModified = true;
 		return this;
 	}
 
@@ -112,6 +119,7 @@ final class AttributeCollectionModifierBuilderImpl implements IAttributeCollecti
 	public IAttributeCollectionModifierBuilder addWhiteListFilter(final String... propertyNames) {
 		Assert.paramNotEmpty(propertyNames, "propertyNames");
 		addWhiteListFilter(Arrays.asList(propertyNames));
+		this.isModified = true;
 		return this;
 	}
 
@@ -128,6 +136,7 @@ final class AttributeCollectionModifierBuilderImpl implements IAttributeCollecti
 				}
 			}
 		});
+		this.isModified = true;
 		return this;
 	}
 
@@ -136,6 +145,7 @@ final class AttributeCollectionModifierBuilderImpl implements IAttributeCollecti
 	public IAttributeCollectionModifierBuilder addDefaultModifier(final IAttributeModifier<?> modifier) {
 		Assert.paramNotNull(modifier, "modifier");
 		defaultModifiers.add((IAttributeModifier<Object>) modifier);
+		this.isModified = true;
 		return this;
 	}
 
@@ -149,6 +159,7 @@ final class AttributeCollectionModifierBuilderImpl implements IAttributeCollecti
 			}
 		});
 		modifierBluePrints.add(attributeModifierBluePrint);
+		this.isModified = true;
 		return attributeModifierBluePrint;
 	}
 
@@ -165,6 +176,7 @@ final class AttributeCollectionModifierBuilderImpl implements IAttributeCollecti
 				}
 			}
 		});
+		this.isModified = true;
 		return this;
 	}
 
@@ -176,6 +188,7 @@ final class AttributeCollectionModifierBuilderImpl implements IAttributeCollecti
 				attributeBluePrint.setVisible(visible);
 			}
 		});
+		this.isModified = true;
 		return this;
 	}
 
@@ -192,6 +205,7 @@ final class AttributeCollectionModifierBuilderImpl implements IAttributeCollecti
 			modifiers.put(propertyName, modifierList);
 		}
 		modifierList.add((IAttributeModifier<Object>) modifier);
+		this.isModified = true;
 		return this;
 	}
 
@@ -205,7 +219,13 @@ final class AttributeCollectionModifierBuilderImpl implements IAttributeCollecti
 			}
 		});
 		modifierBluePrints.add(attributeModifierBluePrint);
+		this.isModified = true;
 		return attributeModifierBluePrint;
+	}
+
+	@Override
+	public boolean isModified() {
+		return isModified;
 	}
 
 	@Override
