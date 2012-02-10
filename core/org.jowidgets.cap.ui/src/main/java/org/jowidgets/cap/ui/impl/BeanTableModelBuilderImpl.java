@@ -73,6 +73,7 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> implements IBeanTableModelBuild
 	private boolean autoRowCount;
 	private boolean autoSelection;
 	private boolean clearOnEmptyFilter;
+	private Boolean clearOnEmptyParentBeans;
 	private List<IAttribute<Object>> attributes;
 	private String[] metaPropertyNames;
 
@@ -301,6 +302,12 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> implements IBeanTableModelBuild
 		return this;
 	}
 
+	@Override
+	public IBeanTableModelBuilder<BEAN_TYPE> setClearOnEmptyParentBeans(final boolean clearOnEmptyParentBeans) {
+		this.clearOnEmptyParentBeans = Boolean.valueOf(clearOnEmptyParentBeans);
+		return this;
+	}
+
 	private List<IAttribute<Object>> getAttributes() {
 		final List<IAttribute<Object>> result = new LinkedList<IAttribute<Object>>(attributes);
 		if (metaPropertyNames != null) {
@@ -326,6 +333,15 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> implements IBeanTableModelBuild
 		return entityLabelPlural;
 	}
 
+	private boolean getClearOnEmptyParentBeans() {
+		if (clearOnEmptyParentBeans != null) {
+			return clearOnEmptyParentBeans.booleanValue();
+		}
+		else {
+			return parent != null;
+		}
+	}
+
 	@Override
 	public IBeanTableModel<BEAN_TYPE> build() {
 		return new BeanTableModelImpl<BEAN_TYPE>(
@@ -346,7 +362,8 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> implements IBeanTableModelBuild
 			linkType,
 			autoRowCount,
 			autoSelection,
-			clearOnEmptyFilter);
+			clearOnEmptyFilter,
+			getClearOnEmptyParentBeans());
 	}
 
 }
