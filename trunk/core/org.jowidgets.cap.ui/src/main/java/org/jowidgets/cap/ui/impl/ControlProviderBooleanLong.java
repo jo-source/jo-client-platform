@@ -36,6 +36,10 @@ import org.jowidgets.cap.ui.api.control.IDisplayFormat;
 
 final class ControlProviderBooleanLong extends AbstractControlProviderBoolean {
 
+	ControlProviderBooleanLong(final boolean nullable) {
+		super(nullable);
+	}
+
 	@Override
 	public IDisplayFormat getDisplayFormat() {
 		return DisplayFormat.LONG;
