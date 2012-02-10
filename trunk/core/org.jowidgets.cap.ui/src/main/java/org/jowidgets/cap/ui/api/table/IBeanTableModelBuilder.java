@@ -97,12 +97,22 @@ public interface IBeanTableModelBuilder<BEAN_TYPE> {
 
 	/**
 	 * If this option is set, data will only be loaded if any (not empty) filter is defined.
-	 * Otherwise data will be cleared on load. The default value is false,
+	 * Otherwise data will be cleared on load. The default value is false.
 	 * 
 	 * @param clearOnEmptyFilter
 	 * @return This builder
 	 */
 	IBeanTableModelBuilder<BEAN_TYPE> setClearOnEmptyFilter(boolean clearOnEmptyFilter);
+
+	/**
+	 * If this option is set, data will only be loaded if any parent bean is selected.
+	 * Otherwise data will be cleared on load.
+	 * The default value is false, if no parent is set and true if a parent is set
+	 * 
+	 * @param clearOnEmptyFilter
+	 * @return This builder
+	 */
+	IBeanTableModelBuilder<BEAN_TYPE> setClearOnEmptyParentBeans(boolean clearOnEmptyParentBeans);
 
 	IBeanTableModel<BEAN_TYPE> build();
 

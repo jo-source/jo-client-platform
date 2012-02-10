@@ -175,6 +175,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 	private final boolean autoRowCount;
 	private final boolean clearOnEmptyFilter;
+	private final boolean clearOnEmptyParentBeans;
 
 	private final BeanListModelObservable beanListModelObservable;
 	private final DisposeObservable disposeObservable;
@@ -226,7 +227,8 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		final LinkType linkType,
 		final boolean autoRowCount,
 		final boolean autoSelect,
-		final boolean clearOnEmptyFilter) {
+		final boolean clearOnEmptyFilter,
+		final boolean clearOnEmptyParentBeans) {
 
 		//arguments checks
 		Assert.paramNotNull(entityId, "entityId");
@@ -241,6 +243,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		this.entityId = entityId;
 		this.autoRowCount = autoRowCount;
 		this.clearOnEmptyFilter = clearOnEmptyFilter;
+		this.clearOnEmptyParentBeans = clearOnEmptyParentBeans;
 		this.beanType = (Class<BEAN_TYPE>) beanType;
 		this.labelSingular = labelSingular;
 		this.labelPlural = labelPlural;
@@ -574,7 +577,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		if (!Toolkit.getUiThreadAccess().isUiThread()) {
 			throw new IllegalStateException("Load must be invoked in the ui thread");
 		}
-		if (clearOnEmptyFilter && isFilterEmpty()) {
+		if (clearOnEmptyFilter && isFilterEmpty() || clearOnEmptyParentBeans && EmptyCheck.isEmpty(getParentBeanKeys())) {
 			clear();
 		}
 		else {
