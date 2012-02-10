@@ -38,6 +38,12 @@ import org.jowidgets.cap.ui.api.control.IInputControlSupport;
 
 final class ControlSupportBoolean implements IInputControlSupport<Boolean> {
 
+	private final boolean nullable;
+
+	ControlSupportBoolean(final boolean nullable) {
+		this.nullable = nullable;
+	}
+
 	@Override
 	public IDisplayFormat getDefaultDisplayFormat() {
 		return DisplayFormat.LONG;
@@ -46,8 +52,8 @@ final class ControlSupportBoolean implements IInputControlSupport<Boolean> {
 	@Override
 	public List<IInputControlProvider<Boolean>> getControls() {
 		final List<IInputControlProvider<Boolean>> result = new LinkedList<IInputControlProvider<Boolean>>();
-		result.add(new ControlProviderBooleanShort());
-		result.add(new ControlProviderBooleanLong());
+		result.add(new ControlProviderBooleanShort(nullable));
+		result.add(new ControlProviderBooleanLong(nullable));
 		return result;
 	}
 

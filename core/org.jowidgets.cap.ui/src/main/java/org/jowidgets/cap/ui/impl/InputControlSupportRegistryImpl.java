@@ -47,8 +47,9 @@ final class InputControlSupportRegistryImpl implements IInputControlSupportRegis
 	InputControlSupportRegistryImpl() {
 		this.map = new HashMap<Object, IInputControlSupport>();
 
-		map.put(boolean.class, new ControlSupportBooleanPrimitive());
-		map.put(Boolean.class, new ControlSupportBoolean());
+		//map.put(boolean.class, new ControlSupportBooleanPrimitive());
+		map.put(boolean.class, new ControlSupportBoolean(false));
+		map.put(Boolean.class, new ControlSupportBoolean(true));
 
 		map.put(Date.class, new ControlSupportDate());
 

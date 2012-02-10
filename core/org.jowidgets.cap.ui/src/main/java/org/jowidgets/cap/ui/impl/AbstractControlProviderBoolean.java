@@ -38,8 +38,11 @@ import org.jowidgets.tools.widgets.blueprint.BPF;
 
 abstract class AbstractControlProviderBoolean extends ControlProviderDefault<Boolean> {
 
-	AbstractControlProviderBoolean() {
+	private final boolean nullable;
+
+	AbstractControlProviderBoolean(final boolean nullable) {
 		super(Boolean.class);
+		this.nullable = nullable;
 	}
 
 	@Override
@@ -50,7 +53,13 @@ abstract class AbstractControlProviderBoolean extends ControlProviderDefault<Boo
 			@Override
 			public IInputControl<Boolean> create(final ICustomWidgetFactory widgetFactory) {
 				final IComboBoxSelectionBluePrint<Boolean> cmbBp = BPF.comboBoxSelection(converter);
-				cmbBp.setElements(null, Boolean.TRUE, Boolean.FALSE);
+				if (nullable) {
+					cmbBp.setElements(null, Boolean.TRUE, Boolean.FALSE);
+				}
+				else {
+					cmbBp.setElements(Boolean.TRUE, Boolean.FALSE);
+					cmbBp.setValue(Boolean.FALSE);
+				}
 				addValueRangeValidator(cmbBp, valueRange);
 				return widgetFactory.create(cmbBp);
 			}
