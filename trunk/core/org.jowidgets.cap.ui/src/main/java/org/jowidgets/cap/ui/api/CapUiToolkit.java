@@ -106,6 +106,7 @@ import org.jowidgets.cap.ui.impl.widgets.LookUpComboBoxSelectionFactory;
 import org.jowidgets.cap.ui.impl.widgets.SingleBeanFormFactory;
 import org.jowidgets.common.types.TableSelectionPolicy;
 import org.jowidgets.common.widgets.factory.IGenericWidgetFactory;
+import org.jowidgets.tools.controller.TabItemAdapter;
 import org.jowidgets.tools.layout.MigLayoutFactory;
 import org.jowidgets.tools.validation.MandatoryValidator;
 import org.jowidgets.tools.widgets.blueprint.BPF;
@@ -416,14 +417,44 @@ public final class CapUiToolkit {
 			getBuilder().setTabFactory(new IBeanTabFactory<Object>() {
 				@Override
 				public IBeanTab<Object> createTab(final ITabItem tab) {
-					final ICapApiBluePrintFactory cbpf = CapUiToolkit.bluePrintFactory();
-					final IBeanFormBluePrint<Object> bluePrintCopy = cbpf.beanForm(beanFormBp.getEntityId());
-					bluePrintCopy.setSetup(beanFormBp);
-					tab.setLayout(MigLayoutFactory.growingCellLayout());
-					final IBeanForm<Object> beanForm = tab.add(bluePrintCopy, MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
+
 					return new IBeanTab<Object>() {
+
+						private IBeanForm<Object> beanForm;
+
+						private IBeanProxy<Object> bean;
+
+						{
+							tab.addTabItemListener(new TabItemAdapter() {
+
+								@Override
+								public void selectionChanged(final boolean selected) {
+									if (selected && beanForm == null) {
+										initialize();
+									}
+								}
+
+							});
+
+							if (tab.getParent().getItems().size() == 1 || tab.getParent().getSelectedItem() == tab) {
+								initialize();
+							}
+						}
+
 						@Override
-						public void setBean(final IBeanProxy<Object> bean) {
+						public void setBean(final IBeanProxy<Object> newBean) {
+							bean = newBean;
+							if (beanForm != null) {
+								beanForm.setValue(bean);
+							}
+						}
+
+						private void initialize() {
+							final ICapApiBluePrintFactory cbpf = CapUiToolkit.bluePrintFactory();
+							final IBeanFormBluePrint<Object> bluePrintCopy = cbpf.beanForm(beanFormBp.getEntityId());
+							bluePrintCopy.setSetup(beanFormBp);
+							tab.setLayout(MigLayoutFactory.growingCellLayout());
+							beanForm = tab.add(bluePrintCopy, MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
 							beanForm.setValue(bean);
 						}
 					};
@@ -431,7 +462,6 @@ public final class CapUiToolkit {
 			});
 			return getBuilder();
 		}
-
 	}
 
 	private static class BeanFormSetupConvenienve extends AbstractSetupBuilderConvenience<IBeanFormBluePrint<Object>> implements

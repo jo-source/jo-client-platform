@@ -131,7 +131,6 @@ final class BeanTabFolderImpl<BEAN_TYPE> extends TabFolderWrapper implements IBe
 		final int newTabIndex = tabFolder.getItems().size();
 		final ITabItem tabItem = tabFolder.addItem(BPF.tabItem());
 		final IBeanTab<BEAN_TYPE> beanTab = beanTabFactory.createTab(tabItem);
-		tabItem.layout();
 		beanTabs.put(Integer.valueOf(newTabIndex), beanTab);
 	}
 
