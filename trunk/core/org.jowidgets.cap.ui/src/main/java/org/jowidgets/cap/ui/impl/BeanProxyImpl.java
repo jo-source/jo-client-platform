@@ -70,6 +70,7 @@ import org.jowidgets.tools.validation.ValidationCache.IValidationResultCreator;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.EmptyCheck;
 import org.jowidgets.util.EmptyCompatibleEquivalence;
+import org.jowidgets.util.ITypedKey;
 import org.jowidgets.util.NullCompatibleEquivalence;
 import org.jowidgets.util.ValueHolder;
 import org.jowidgets.validation.IValidationResult;
@@ -82,6 +83,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 	private final List<String> properties;
 	private final Map<String, IBeanModification> modifications;
 	private final Map<String, IBeanModification> undoneModifications;
+	private final Map<ITypedKey<? extends Object>, Object> addedProperties;
 	private final PropertyChangeObservable propertyChangeObservable;
 	private final BeanModificationStateObservable<BEAN_TYPE> modificationStateObservable;
 	private final BeanMessageStateObservable<BEAN_TYPE> messageStateObservable;
@@ -123,6 +125,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 		this.properties = new LinkedList<String>(properties);
 		this.isTransient = isTransient;
 		this.modifications = new HashMap<String, IBeanModification>();
+		this.addedProperties = new HashMap<ITypedKey<? extends Object>, Object>();
 		this.undoneModifications = new HashMap<String, IBeanModification>();
 		this.propertyChangeObservable = new PropertyChangeObservable();
 		this.modificationStateObservable = new BeanModificationStateObservable<BEAN_TYPE>();
@@ -365,6 +368,18 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 			consolidatedResult = consolidateBeanValidationResult(firstWorstIndependendResultHolder, beanValidationResults).values();
 			setValidationResults(firstWorstIndependendResultHolder, externalValidator.validate(consolidatedResult));
 		}
+	}
+
+	@Override
+	public <PROPERTY_TYPE> void putProperty(final ITypedKey<PROPERTY_TYPE> key, final PROPERTY_TYPE value) {
+		Assert.paramNotNull(key, "key");
+		addedProperties.put(key, value);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public <PROPERTY_TYPE> PROPERTY_TYPE getProperty(final ITypedKey<PROPERTY_TYPE> key) {
+		return (PROPERTY_TYPE) addedProperties.get(key);
 	}
 
 	private void validateAllInternalProperties() {
@@ -855,6 +870,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 			if (this.executionTask != null) {
 				this.executionTask.removeExecutionTaskListener(executionTaskListener);
 			}
+			addedProperties.clear();
 			modifications.clear();
 			modificationStateObservable.dispose();
 			processStateObservable.dispose();
