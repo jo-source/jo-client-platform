@@ -36,6 +36,7 @@ import java.util.Set;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanModification;
 import org.jowidgets.cap.ui.api.execution.IExecutionTask;
+import org.jowidgets.util.ITypedKey;
 import org.jowidgets.validation.IValidationResult;
 
 public interface IBeanProxy<BEAN_TYPE> extends
@@ -127,4 +128,8 @@ public interface IBeanProxy<BEAN_TYPE> extends
 	void addBeanProxyListener(IBeanProxyListener<BEAN_TYPE> listener);
 
 	void removeBeanProxyListener(IBeanProxyListener<BEAN_TYPE> listener);
+
+	<PROPERTY_TYPE> void putProperty(ITypedKey<PROPERTY_TYPE> key, PROPERTY_TYPE value);
+
+	<PROPERTY_TYPE> PROPERTY_TYPE getProperty(ITypedKey<PROPERTY_TYPE> key);
 }
