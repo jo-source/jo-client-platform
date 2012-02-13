@@ -92,6 +92,9 @@ final class BeanTabFolderImpl<BEAN_TYPE> extends TabFolderWrapper implements IBe
 	}
 
 	private void updateFromModel() {
+		model.removeBeanListModelListener(modelSelectionListener);
+		tabFolder.removeTabFolderListener(tabFolderSelectionListener);
+
 		final int tabsToAdd = model.getSize() - tabFolder.getItems().size();
 		if (tabsToAdd < 0) {
 			for (int i = 0; i < -tabsToAdd; i++) {
@@ -117,6 +120,25 @@ final class BeanTabFolderImpl<BEAN_TYPE> extends TabFolderWrapper implements IBe
 			beanTab.setBean(bean);
 			renderLabel(item, bean);
 		}
+
+		tabFolder.addTabFolderListener(tabFolderSelectionListener);
+		model.addBeanListModelListener(modelSelectionListener);
+
+		if (tabFolder.getItems().size() > 0) {
+			final Integer selectionIndex = model.getSelectionIndex();
+			if (selectionIndex != null) {
+				if (selectionIndex.intValue() < tabFolder.getItems().size()) {
+					tabFolder.setSelectedItem(selectionIndex.intValue());
+				}
+				else {
+					model.setSelection(tabFolder.getSelectedIndex());
+				}
+			}
+			else {
+				model.setSelection(tabFolder.getSelectedIndex());
+			}
+		}
+
 	}
 
 	private void renderLabel(final ITabItem item, final IBeanProxy<BEAN_TYPE> bean) {
