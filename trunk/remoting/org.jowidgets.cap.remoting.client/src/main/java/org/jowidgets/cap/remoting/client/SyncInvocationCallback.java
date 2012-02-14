@@ -84,12 +84,6 @@ final class SyncInvocationCallback<RESULT_TYPE> implements IInvocationCallback<R
 		unblock();
 	}
 
-	@Override
-	public void timeout() {
-		this.timeout = true;
-		unblock();
-	}
-
 	private void unblock() {
 		if (currentThread != null) {
 			currentThread.interrupt();

@@ -36,7 +36,6 @@ public final class SyncResultCallback<RESULT_TYPE> implements IResultCallback<RE
 
 	private volatile RESULT_TYPE result;
 	private volatile Throwable exception;
-	private volatile boolean timeout;
 
 	private final CountDownLatch latch = new CountDownLatch(1);
 
@@ -49,12 +48,6 @@ public final class SyncResultCallback<RESULT_TYPE> implements IResultCallback<RE
 	@Override
 	public void exception(final Throwable exception) {
 		this.exception = exception;
-		latch.countDown();
-	}
-
-	@Override
-	public void timeout() {
-		timeout = true;
 		latch.countDown();
 	}
 
@@ -74,9 +67,7 @@ public final class SyncResultCallback<RESULT_TYPE> implements IResultCallback<RE
 			}
 			throw new RuntimeException(exception);
 		}
-		if (timeout) {
-			throw new RuntimeException("Timeout while waiting on result");
-		}
+
 		return result;
 	}
 

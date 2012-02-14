@@ -34,7 +34,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeoutException;
 
 import org.jowidgets.api.command.ICommand;
 import org.jowidgets.api.command.ICommandExecutor;
@@ -258,11 +257,6 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 		@Override
 		public void exception(final Throwable exception) {
 			setExceptionLater(exception);
-		}
-
-		@Override
-		public void timeout() {
-			exception(new TimeoutException("Timeout while creating bean"));
 		}
 
 		private void setExceptionLater(final Throwable exception) {

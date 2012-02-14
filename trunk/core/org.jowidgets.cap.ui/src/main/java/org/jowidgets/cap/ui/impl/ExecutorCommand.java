@@ -254,17 +254,6 @@ final class ExecutorCommand implements ICommand, ICommandExecutor {
 						});
 					}
 
-					@Override
-					public void timeout() {
-						helperCallback.timeout();
-						uiThreadAccess.invokeLater(new Runnable() {
-							@Override
-							public void run() {
-								executionObservable.fireAfterExecutionError(executionContext, null);
-							}
-						});
-					}
-
 				};
 
 				executorService.execute(resultCallback, keys, parameter, executionTask);

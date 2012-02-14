@@ -35,7 +35,6 @@ import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 import org.jowidgets.api.threads.IUiThreadAccess;
 import org.jowidgets.api.toolkit.Toolkit;
@@ -252,10 +251,6 @@ final class LookUpAccessImpl implements ILookUpAccess {
 			}
 		}
 
-		@Override
-		public void timeout() {
-			exception(new TimeoutException("Timout while loading lookup!"));
-		}
 	}
 
 }

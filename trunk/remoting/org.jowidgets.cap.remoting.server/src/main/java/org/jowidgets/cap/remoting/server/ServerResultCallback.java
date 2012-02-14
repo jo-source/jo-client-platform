@@ -52,9 +52,4 @@ final class ServerResultCallback implements IResultCallback<Object> {
 		}
 	}
 
-	@Override
-	public void timeout() {
-		invocationCallback.exeption(new RuntimeException("Timeout exception"));
-	}
-
 }

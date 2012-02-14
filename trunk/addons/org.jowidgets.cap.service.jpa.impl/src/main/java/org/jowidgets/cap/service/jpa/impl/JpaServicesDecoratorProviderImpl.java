@@ -238,20 +238,6 @@ final class JpaServicesDecoratorProviderImpl implements IServicesDecoratorProvid
 					}
 				}
 
-				@Override
-				public void timeout() {
-					try {
-						transactionRollback(transactionTuple);
-					}
-					catch (final Exception e) {
-						resultCallback.exception(decorateException(e));
-						return;
-					}
-					finally {
-						entityManagerEnd(entityManagerTuple);
-					}
-					resultCallback.timeout();
-				}
 			};
 
 			args[resultCallbackIndex] = decoratedResultCallback;

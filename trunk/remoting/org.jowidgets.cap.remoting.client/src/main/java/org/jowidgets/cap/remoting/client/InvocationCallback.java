@@ -76,13 +76,4 @@ final class InvocationCallback<RESULT_TYPE> implements IInvocationCallback<RESUL
 		}
 	}
 
-	@Override
-	public void timeout() {
-		if (resultCallback != null) {
-			resultCallback.timeout();
-		}
-		if (executionCallback != null) {
-			executionCallback.finshed();
-		}
-	}
 }

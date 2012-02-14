@@ -36,6 +36,4 @@ public interface IInvocationCallback<RESULT_TYPE> {
 
 	void exeption(Throwable exception);
 
-	void timeout();
-
 }

@@ -82,10 +82,6 @@ public final class JpaDeleterService implements IDeleterService {
 				resultCallback.finished(null);
 			}
 
-			@Override
-			public void timeout() {
-				resultCallback.timeout();
-			}
 		}, (List<? extends IBeanKey>) beanKeys, null, executionCallback);
 	}
 

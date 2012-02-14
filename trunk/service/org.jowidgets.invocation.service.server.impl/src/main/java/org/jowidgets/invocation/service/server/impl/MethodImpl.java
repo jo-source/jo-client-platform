@@ -28,8 +28,6 @@
 
 package org.jowidgets.invocation.service.server.impl;
 
-import java.util.concurrent.TimeoutException;
-
 import org.jowidgets.invocation.common.api.IInvocationCallbackService;
 import org.jowidgets.invocation.common.api.IMethod;
 import org.jowidgets.invocation.server.api.IInvocationServer;
@@ -85,11 +83,6 @@ public class MethodImpl implements IMethod {
 				cancelService.unregisterInvocation(invocationId);
 			}
 
-			@Override
-			public void timeout() {
-				invocationCallbackService.exeption(invocationId, new TimeoutException());
-				cancelService.unregisterInvocation(invocationId);
-			}
 		};
 
 		final IInterimResponseCallback<Object> interimResponseCallback = new IInterimResponseCallback<Object>() {

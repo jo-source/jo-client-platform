@@ -40,7 +40,6 @@ import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 import org.jowidgets.api.controller.IDisposeListener;
 import org.jowidgets.api.threads.IUiThreadAccess;
@@ -364,12 +363,6 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 						@Override
 						public void exception(final Throwable exception) {
 							helperCallback.exception(exception);
-							registerBeans();
-						}
-
-						@Override
-						public void timeout() {
-							helperCallback.timeout();
 							registerBeans();
 						}
 
@@ -843,11 +836,6 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 					if (!canceled && !executionTask.isCanceled()) {
 						setResultLater(beanDtos);
 					}
-				}
-
-				@Override
-				public void timeout() {
-					exception(new TimeoutException("Timeout while loading data"));
 				}
 
 				@Override
