@@ -44,7 +44,6 @@ import org.jowidgets.api.types.QuestionResult;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.execution.IExecutionCallbackListener;
-import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.service.IDeleterService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.bean.IBeanExecptionConverter;
@@ -56,6 +55,7 @@ import org.jowidgets.cap.ui.api.execution.BeanSelectionPolicy;
 import org.jowidgets.cap.ui.api.execution.IExecutionInterceptor;
 import org.jowidgets.cap.ui.api.execution.IExecutionTask;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
+import org.jowidgets.cap.ui.tools.execution.AbstractUiResultCallback;
 import org.jowidgets.tools.message.MessageReplacer;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.EmptyCheck;
@@ -208,38 +208,18 @@ final class BeanDeleterCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 		return result.toString();
 	}
 
-	private final class ResultCallback implements IResultCallback<Void> {
+	private final class ResultCallback extends AbstractUiResultCallback<Void> {
 
 		private final List<IBeanProxy<BEAN_TYPE>> beans;
 		private final IExecutionContext executionContext;
-		private final IUiThreadAccess uiThreadAccess;
 
 		private ResultCallback(final IExecutionContext executionContext, final List<IBeanProxy<BEAN_TYPE>> beans) {
 			this.beans = beans;
-			this.uiThreadAccess = Toolkit.getUiThreadAccess();
 			this.executionContext = executionContext;
 		}
 
 		@Override
-		public void finished(final Void result) {
-			onSuccessLater();
-		}
-
-		@Override
-		public void exception(final Throwable exception) {
-			onExceptionLater(exception);
-		}
-
-		private void onSuccessLater() {
-			uiThreadAccess.invokeLater(new Runnable() {
-				@Override
-				public void run() {
-					onSuccess();
-				}
-			});
-		}
-
-		private void onSuccess() {
+		protected void finishedUi(final Void result) {
 			for (final IBeanProxy<BEAN_TYPE> bean : beans) {
 				bean.setExecutionTask(null);
 			}
@@ -248,16 +228,8 @@ final class BeanDeleterCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 			executionObservable.fireAfterExecutionSuccess(executionContext);
 		}
 
-		private void onExceptionLater(final Throwable exception) {
-			uiThreadAccess.invokeLater(new Runnable() {
-				@Override
-				public void run() {
-					onException(exception);
-				}
-			});
-		}
-
-		private void onException(final Throwable exception) {
+		@Override
+		protected void exceptionUi(final Throwable exception) {
 			//CHECKSTYLE:OFF
 			exception.printStackTrace();
 			//CHECKSTYLE:ON
@@ -270,5 +242,6 @@ final class BeanDeleterCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 			model.fireBeansChanged();
 			executionObservable.fireAfterExecutionError(executionContext, exception);
 		}
+
 	}
 }

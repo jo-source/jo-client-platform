@@ -48,7 +48,6 @@ import org.jowidgets.cap.common.api.bean.IBeanData;
 import org.jowidgets.cap.common.api.bean.IBeanDataBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.execution.IExecutionCallbackListener;
-import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.service.ICreatorService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
@@ -66,6 +65,7 @@ import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.widgets.IBeanDialog;
 import org.jowidgets.cap.ui.api.widgets.IBeanDialogBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
+import org.jowidgets.cap.ui.tools.execution.AbstractUiResultCallback;
 import org.jowidgets.common.types.Rectangle;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.EmptyCheck;
@@ -237,47 +237,18 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 		return builder.build();
 	}
 
-	private final class ResultCallback implements IResultCallback<List<IBeanDto>> {
+	private final class ResultCallback extends AbstractUiResultCallback<List<IBeanDto>> {
 
-		private final IUiThreadAccess uiThreadAccess;
 		private final IExecutionContext executionContext;
 		private final IBeanProxy<BEAN_TYPE> bean;
 
 		ResultCallback(final IExecutionContext executionContext, final IBeanProxy<BEAN_TYPE> bean) {
-			this.uiThreadAccess = Toolkit.getUiThreadAccess();
 			this.executionContext = executionContext;
 			this.bean = bean;
 		}
 
 		@Override
-		public void finished(final List<IBeanDto> result) {
-			setResultLater(result);
-		}
-
-		@Override
-		public void exception(final Throwable exception) {
-			setExceptionLater(exception);
-		}
-
-		private void setExceptionLater(final Throwable exception) {
-			uiThreadAccess.invokeLater(new Runnable() {
-				@Override
-				public void run() {
-					setException(exception);
-				}
-			});
-		}
-
-		private void setResultLater(final List<IBeanDto> result) {
-			uiThreadAccess.invokeLater(new Runnable() {
-				@Override
-				public void run() {
-					setResult(result);
-				}
-			});
-		}
-
-		private void setResult(final List<IBeanDto> result) {
+		protected void finishedUi(final List<IBeanDto> result) {
 			if (!EmptyCheck.isEmpty(result)) {
 				bean.setExecutionTask(null);
 				bean.updateTransient(result.get(0));
@@ -285,11 +256,12 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 				executionObservable.fireAfterExecutionSuccess(executionContext);
 			}
 			else {
-				setException(null);
+				exceptionUi(null);
 			}
 		}
 
-		private void setException(final Throwable exception) {
+		@Override
+		protected void exceptionUi(final Throwable exception) {
 			bean.setExecutionTask(null);
 			if (exception != null) {
 				final List<IBeanProxy<BEAN_TYPE>> beans = new LinkedList<IBeanProxy<BEAN_TYPE>>();
@@ -307,5 +279,6 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 			model.fireBeansChanged();
 			executionObservable.fireAfterExecutionError(executionContext, exception);
 		}
+
 	}
 }

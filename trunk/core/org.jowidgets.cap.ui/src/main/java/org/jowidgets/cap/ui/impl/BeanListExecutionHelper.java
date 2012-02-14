@@ -49,6 +49,7 @@ import org.jowidgets.cap.ui.api.execution.IExecutionTask;
 import org.jowidgets.cap.ui.api.execution.IExecutionTaskListener;
 import org.jowidgets.cap.ui.api.execution.IUserAnswerCallback;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
+import org.jowidgets.cap.ui.tools.execution.AbstractUiResultCallback;
 import org.jowidgets.util.ValueHolder;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
@@ -103,27 +104,18 @@ final class BeanListExecutionHelper {
 	}
 
 	IResultCallback<List<IBeanDto>> createResultCallback(final List<IBeanProxy<?>> beansToExecute) {
-		return new IResultCallback<List<IBeanDto>>() {
+		return new AbstractUiResultCallback<List<IBeanDto>>() {
 			@Override
-			public void finished(final List<IBeanDto> result) {
-				invokeAfterExecutionLater(beansToExecute, result);
+			public void finishedUi(final List<IBeanDto> result) {
+				afterExecution(beansToExecute, result);
 			}
 
 			@Override
-			public void exception(final Throwable exception) {
-				invokeOnExceptionLater(beansToExecute, exception);
+			public void exceptionUi(final Throwable exception) {
+				onExecption(beansToExecute, exception);
 			}
 
 		};
-	}
-
-	void invokeAfterExecutionLater(final List<IBeanProxy<?>> executedBeans, final List<IBeanDto> result) {
-		uiThreadAccess.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				afterExecution(executedBeans, result);
-			}
-		});
 	}
 
 	void afterExecution(final List<IBeanProxy<?>> executedBeans, final List<IBeanDto> result) {
@@ -146,15 +138,6 @@ final class BeanListExecutionHelper {
 			bean.setExecutionTask(null);
 		}
 		listModel.fireBeansChanged();
-	}
-
-	void invokeOnExceptionLater(final List<IBeanProxy<?>> executedBeans, final Throwable exception) {
-		uiThreadAccess.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				onExecption(executedBeans, exception);
-			}
-		});
 	}
 
 	void onExecption(final List<IBeanProxy<?>> executedBeans, final Throwable exception) {

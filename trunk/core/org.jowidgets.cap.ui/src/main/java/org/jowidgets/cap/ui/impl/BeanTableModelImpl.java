@@ -113,6 +113,7 @@ import org.jowidgets.cap.ui.api.table.IBeanTableConfig;
 import org.jowidgets.cap.ui.api.table.IBeanTableConfigBuilder;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.table.IReaderParameterProvider;
+import org.jowidgets.cap.ui.tools.execution.AbstractUiResultCallback;
 import org.jowidgets.common.color.IColorConstant;
 import org.jowidgets.common.image.IImageConstant;
 import org.jowidgets.common.model.ITableCell;
@@ -2037,30 +2038,21 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		}
 
 		private IResultCallback<List<IBeanDto>> createResultCallback() {
-			return new IResultCallback<List<IBeanDto>>() {
+			return new AbstractUiResultCallback<List<IBeanDto>>() {
 
 				@Override
-				public void finished(final List<IBeanDto> beanDtos) {
+				public void finishedUi(final List<IBeanDto> beanDtos) {
 					if (!canceled && !executionTask.isCanceled()) {
-						setResultLater(beanDtos);
+						setResult(beanDtos);
 					}
 				}
 
 				@Override
-				public void exception(final Throwable exception) {
-					setExceptionLater(exception);
+				public void exceptionUi(final Throwable exception) {
+					setException(exception);
 				}
 
 			};
-		}
-
-		private void setResultLater(final List<IBeanDto> beanDtos) {
-			uiThreadAccess.invokeLater(new Runnable() {
-				@Override
-				public void run() {
-					setResult(beanDtos);
-				}
-			});
 		}
 
 		private void setResult(final List<IBeanDto> beanDtos) {
@@ -2150,15 +2142,6 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			if (autoSelection && pageIndex == 0 && rowCount > 0 && getSelection().isEmpty()) {
 				setSelection(Collections.singletonList(Integer.valueOf(0)));
 			}
-		}
-
-		private void setExceptionLater(final Throwable exception) {
-			uiThreadAccess.invokeLater(new Runnable() {
-				@Override
-				public void run() {
-					setException(exception);
-				}
-			});
 		}
 
 		private void setException(final Throwable exception) {

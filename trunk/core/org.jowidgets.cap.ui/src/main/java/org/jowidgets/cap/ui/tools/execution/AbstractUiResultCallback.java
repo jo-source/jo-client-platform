@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,28 +26,52 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.execution;
+package org.jowidgets.cap.ui.tools.execution;
 
-import java.util.List;
+import org.jowidgets.api.threads.IUiThreadAccess;
+import org.jowidgets.api.toolkit.Toolkit;
+import org.jowidgets.cap.common.api.execution.IResultCallback;
 
-import org.jowidgets.api.command.IExecutionContext;
-import org.jowidgets.cap.ui.api.bean.IBeanProxy;
+public abstract class AbstractUiResultCallback<RESULT_TYPE> implements IResultCallback<RESULT_TYPE> {
 
-public interface IExecutor<BEAN_TYPE, PARAMETER_TYPE> {
+	private final IUiThreadAccess uiThreadAccess;
+
+	public AbstractUiResultCallback() {
+		this.uiThreadAccess = Toolkit.getUiThreadAccess();
+	}
 
 	/**
-	 * Do some execution for the given beans and parameter in the ui thread.
+	 * The finished method that will be invoked in the ui thread
 	 * 
-	 * REMARK: The executor will be invoked in the ui thread, so do not make long lasting
-	 * things here to avoid that the ui freezes.
-	 * For long lasting executions use the IExecutorService instead
-	 * 
-	 * @param executionContext The execution context of the action
-	 * @param beans the beans to get the parameter for
-	 * @param defaultParameter The default parameter
-	 * 
-	 * @see IExecutorJob, IExecutorService
+	 * @param result The result of the service
 	 */
-	void execute(IExecutionContext executionContext, List<IBeanProxy<BEAN_TYPE>> beans, PARAMETER_TYPE defaultParameter) throws Exception;
+	protected abstract void finishedUi(RESULT_TYPE result);
+
+	/**
+	 * The exception method that will be invoked in the ui thread
+	 * 
+	 * @param exception The exception that occurred
+	 */
+	protected abstract void exceptionUi(Throwable exception);
+
+	@Override
+	public final void finished(final RESULT_TYPE result) {
+		uiThreadAccess.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				finishedUi(result);
+			}
+		});
+	}
+
+	@Override
+	public final void exception(final Throwable exception) {
+		uiThreadAccess.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				exceptionUi(exception);
+			}
+		});
+	}
 
 }
