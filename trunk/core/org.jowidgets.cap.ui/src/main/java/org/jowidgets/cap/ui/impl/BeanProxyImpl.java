@@ -733,6 +733,12 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 	}
 
 	@Override
+	public boolean hasWarnings() {
+		checkDisposed();
+		return !messagesMap.get(BeanMessageType.WARNING).isEmpty();
+	}
+
+	@Override
 	public void clearMessages() {
 		checkDisposed();
 		messagesList.clear();
