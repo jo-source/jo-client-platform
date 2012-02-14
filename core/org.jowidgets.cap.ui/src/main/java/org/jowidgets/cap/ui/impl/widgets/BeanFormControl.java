@@ -330,6 +330,9 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 			else if (bean.hasErrors()) {
 				control.setForegroundColor(Colors.ERROR);
 			}
+			else if (bean.hasWarnings()) {
+				control.setForegroundColor(Colors.WARNING);
+			}
 			else if (foregroundColor != null) {
 				control.setForegroundColor(foregroundColor);
 			}
@@ -471,13 +474,15 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 	@Override
 	protected IValidationResult createValidationResult() {
 		final IValidationResultBuilder builder = ValidationResult.builder();
-		if (bean != null && bean.hasErrors()) {
+		if (bean != null) {
 			final IBeanMessage worstMessage = bean.getFirstWorstMessage();
-			if (BeanMessageType.ERROR.equals(worstMessage.getType())) {
-				builder.addError(worstMessage.getMessage());
-			}
-			else if (BeanMessageType.WARNING.equals(worstMessage.getType())) {
-				builder.addWarning(worstMessage.getMessage());
+			if (worstMessage != null) {
+				if (BeanMessageType.ERROR.equals(worstMessage.getType())) {
+					builder.addError(worstMessage.getMessage());
+				}
+				else if (BeanMessageType.WARNING.equals(worstMessage.getType())) {
+					builder.addWarning(worstMessage.getMessage());
+				}
 			}
 		}
 		for (final IValidationResult validationResult : validationResults.values()) {
@@ -795,8 +800,9 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 				else {
 					unregisterExecutionTaskListener(BeanFormControl.this.bean);
 				}
-
+				setValidationCacheDirty();
 			}
+
 		}
 	}
 

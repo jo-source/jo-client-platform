@@ -102,6 +102,8 @@ public interface IBeanProxy<BEAN_TYPE> extends
 
 	boolean hasErrors();
 
+	boolean hasWarnings();
+
 	IBeanMessage getFirstWorstMessage();
 
 	IBeanMessage getFirstWorstMandatoryMessage();

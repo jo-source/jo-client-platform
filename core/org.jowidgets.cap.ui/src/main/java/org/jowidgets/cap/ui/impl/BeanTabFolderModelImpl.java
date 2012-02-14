@@ -350,19 +350,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 						modifications.addAll(bean.getModifications());
 					}
 					final IResultCallback<List<IBeanDto>> helperCallback = executionHelper.createResultCallback(preparedBeans);
-					final IResultCallback<List<IBeanDto>> resultCallback = new IResultCallback<List<IBeanDto>>() {
-						@Override
-						public void finished(final List<IBeanDto> result) {
-							helperCallback.finished(result);
-						}
-
-						@Override
-						public void exception(final Throwable exception) {
-							helperCallback.exception(exception);
-						}
-
-					};
-					updaterService.update(resultCallback, modifications, executionTask);
+					updaterService.update(helperCallback, modifications, executionTask);
 				}
 			}
 		}
