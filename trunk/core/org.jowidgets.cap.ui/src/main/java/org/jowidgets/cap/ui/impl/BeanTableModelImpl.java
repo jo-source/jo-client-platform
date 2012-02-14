@@ -763,7 +763,6 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public void save() {
 		final Set<IBeanProxy<BEAN_TYPE>> modifiedBeans = beansStateTracker.getModifiedBeans();
@@ -774,8 +773,6 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			BeanExecutionPolicy.BATCH,
 			new DefaultBeanExceptionConverter());
 
-		final IUiThreadAccess uiThreadAccess = Toolkit.getUiThreadAccess();
-
 		for (final List<IBeanProxy<?>> preparedBeans : executionHelper.prepareExecutions()) {
 			if (preparedBeans.size() > 0) {
 				final IExecutionTask executionTask = preparedBeans.get(0).getExecutionTask();
@@ -783,32 +780,19 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 					final List<IBeanModification> modifications = new LinkedList<IBeanModification>();
 					for (final IBeanProxy<?> bean : preparedBeans) {
 						modifications.addAll(bean.getModifications());
-						beansStateTracker.unregister((IBeanProxy<BEAN_TYPE>) bean);
 					}
 					final IResultCallback<List<IBeanDto>> helperCallback = executionHelper.createResultCallback(preparedBeans);
 					final IResultCallback<List<IBeanDto>> resultCallback = new IResultCallback<List<IBeanDto>>() {
 						@Override
 						public void finished(final List<IBeanDto> result) {
 							helperCallback.finished(result);
-							registerBeans();
 						}
 
 						@Override
 						public void exception(final Throwable exception) {
 							helperCallback.exception(exception);
-							registerBeans();
 						}
 
-						private void registerBeans() {
-							uiThreadAccess.invokeLater(new Runnable() {
-								@Override
-								public void run() {
-									for (final IBeanProxy<?> bean : preparedBeans) {
-										beansStateTracker.register((IBeanProxy<BEAN_TYPE>) bean);
-									}
-								}
-							});
-						}
 					};
 					updaterService.update(resultCallback, modifications, executionTask);
 				}

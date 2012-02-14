@@ -57,6 +57,9 @@ final class DataModelSaveCommand extends AbstractDataModelCommand {
 
 	@Override
 	IEnabledState getVetoEnabledState(final IDataModel model) {
+		if (model.hasExecutions()) {
+			return AbstractDataModelCommand.IN_PROCESS_STATE;
+		}
 		final IValidationResult validationResult = model.validate();
 		if (!validationResult.isValid()) {
 			final IValidationMessage worstFirst = validationResult.getWorstFirst();

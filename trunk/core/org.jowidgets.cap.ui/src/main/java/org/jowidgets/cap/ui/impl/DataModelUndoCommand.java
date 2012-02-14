@@ -54,6 +54,9 @@ final class DataModelUndoCommand extends AbstractDataModelCommand {
 
 	@Override
 	IEnabledState getVetoEnabledState(final IDataModel model) {
+		if (model.hasExecutions()) {
+			return AbstractDataModelCommand.IN_PROCESS_STATE;
+		}
 		return EnabledState.ENABLED;
 	}
 
