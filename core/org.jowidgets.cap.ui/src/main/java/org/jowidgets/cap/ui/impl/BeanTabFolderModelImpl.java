@@ -84,6 +84,7 @@ import org.jowidgets.cap.ui.api.sort.ISortModel;
 import org.jowidgets.cap.ui.api.sort.ISortModelConfig;
 import org.jowidgets.cap.ui.api.tabfolder.IBeanTabFolderModel;
 import org.jowidgets.cap.ui.api.tabfolder.IBeanTabFolderModelInterceptor;
+import org.jowidgets.cap.ui.tools.execution.AbstractUiResultCallback;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.EmptyCheck;
 import org.jowidgets.util.IProvider;
@@ -829,30 +830,21 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 		}
 
 		private IResultCallback<List<IBeanDto>> createResultCallback() {
-			return new IResultCallback<List<IBeanDto>>() {
+			return new AbstractUiResultCallback<List<IBeanDto>>() {
 
 				@Override
-				public void finished(final List<IBeanDto> beanDtos) {
+				public void finishedUi(final List<IBeanDto> beanDtos) {
 					if (!canceled && !executionTask.isCanceled()) {
-						setResultLater(beanDtos);
+						setResult(beanDtos);
 					}
 				}
 
 				@Override
-				public void exception(final Throwable exception) {
-					setExceptionLater(exception);
+				public void exceptionUi(final Throwable exception) {
+					setException(exception);
 				}
 
 			};
-		}
-
-		private void setResultLater(final List<IBeanDto> beanDtos) {
-			uiThreadAccess.invokeLater(new Runnable() {
-				@Override
-				public void run() {
-					setResult(beanDtos);
-				}
-			});
 		}
 
 		private void setResult(final List<IBeanDto> beanDtos) {
@@ -900,15 +892,6 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 			}
 
 			beanListModelObservable.fireBeansChanged();
-		}
-
-		private void setExceptionLater(final Throwable exception) {
-			uiThreadAccess.invokeLater(new Runnable() {
-				@Override
-				public void run() {
-					setException(exception);
-				}
-			});
 		}
 
 		private void setException(final Throwable exception) {

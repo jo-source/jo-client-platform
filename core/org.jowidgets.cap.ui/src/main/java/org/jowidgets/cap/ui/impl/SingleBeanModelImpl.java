@@ -70,7 +70,7 @@ import org.jowidgets.cap.ui.api.model.IProcessStateListener;
 import org.jowidgets.cap.ui.api.model.ISingleBeanModel;
 import org.jowidgets.cap.ui.api.model.LinkType;
 import org.jowidgets.cap.ui.api.plugin.IAttributePlugin;
-import org.jowidgets.cap.ui.tools.execution.UiResultCallback;
+import org.jowidgets.cap.ui.tools.execution.AbstractUiResultCallback;
 import org.jowidgets.cap.ui.tools.model.ProcessStateObservable;
 import org.jowidgets.plugin.api.IPluginProperties;
 import org.jowidgets.plugin.api.IPluginPropertiesBuilder;
@@ -456,7 +456,7 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 
 			final List<ISort> emptySort = Collections.emptyList();
 			readerService.read(
-					new UiResultCallback<List<IBeanDto>>(createResultCallback()),
+					createResultCallback(),
 					getParentBeanKeys(),
 					null,
 					emptySort,
@@ -483,17 +483,17 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 		}
 
 		private IResultCallback<List<IBeanDto>> createResultCallback() {
-			return new IResultCallback<List<IBeanDto>>() {
+			return new AbstractUiResultCallback<List<IBeanDto>>() {
 
 				@Override
-				public void finished(final List<IBeanDto> beanDtos) {
+				public void finishedUi(final List<IBeanDto> beanDtos) {
 					if (!canceled && !executionTask.isCanceled()) {
 						setResult(beanDtos);
 					}
 				}
 
 				@Override
-				public void exception(final Throwable exception) {
+				public void exceptionUi(final Throwable exception) {
 					setException(exception);
 				}
 
@@ -596,10 +596,7 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 				beansStateTracker.unregister(bean);
 				bean.setExecutionTask(executionTask);
 				processStateObservable.fireProcessStateChanged();
-				updaterService.update(
-						new UiResultCallback<List<IBeanDto>>(createResultCallback()),
-						bean.getModifications(),
-						executionTask);
+				updaterService.update(createResultCallback(), bean.getModifications(), executionTask);
 			}
 		}
 
@@ -621,17 +618,17 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 		}
 
 		private IResultCallback<List<IBeanDto>> createResultCallback() {
-			return new IResultCallback<List<IBeanDto>>() {
+			return new AbstractUiResultCallback<List<IBeanDto>>() {
 
 				@Override
-				public void finished(final List<IBeanDto> beanDtos) {
+				public void finishedUi(final List<IBeanDto> beanDtos) {
 					if (!canceled && !executionTask.isCanceled()) {
 						setResult(beanDtos);
 					}
 				}
 
 				@Override
-				public void exception(final Throwable exception) {
+				public void exceptionUi(final Throwable exception) {
 					setException(exception);
 				}
 
