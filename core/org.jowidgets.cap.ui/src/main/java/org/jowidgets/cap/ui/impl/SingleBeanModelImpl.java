@@ -35,7 +35,6 @@ import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 import org.jowidgets.api.threads.IUiThreadAccess;
 import org.jowidgets.api.toolkit.Toolkit;
@@ -494,11 +493,6 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 				}
 
 				@Override
-				public void timeout() {
-					exception(new TimeoutException("Timeout while loading data"));
-				}
-
-				@Override
 				public void exception(final Throwable exception) {
 					setException(exception);
 				}
@@ -634,11 +628,6 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 					if (!canceled && !executionTask.isCanceled()) {
 						setResult(beanDtos);
 					}
-				}
-
-				@Override
-				public void timeout() {
-					exception(new TimeoutException("Timeout while saving data"));
 				}
 
 				@Override

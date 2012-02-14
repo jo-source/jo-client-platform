@@ -34,6 +34,4 @@ public interface IResultCallback<RESULT_TYPE> {
 
 	void exception(Throwable exception);
 
-	void timeout();
-
 }

@@ -44,7 +44,6 @@ public final class BasicAuthenticationLoginInterceptor implements ILoginIntercep
 
 	private static final String AUTHORIZATION_SERVICE_NOT_AVAILABLE = Messages.getString("BasicAuthenticationLoginInterceptor.authorization_service_not_available"); //$NON-NLS-1$
 	private static final String LOGIN_FAILED = Messages.getString("BasicAuthenticationLoginInterceptor.login_failed"); //$NON-NLS-1$
-	private static final String TIMEOUT = Messages.getString("BasicAuthenticationLoginInterceptor.timeout"); //$NON-NLS-1$
 
 	private final IServiceId<? extends IAuthorizationProviderService<?>> authorizationProviderServiceId;
 
@@ -83,12 +82,6 @@ public final class BasicAuthenticationLoginInterceptor implements ILoginIntercep
 					SecurityContextHolder.setSecurityContext(principal);
 					resultCallback.granted();
 				}
-			}
-
-			@Override
-			public void timeout() {
-				resultCallback.denied(TIMEOUT);
-				BasicAuthenticationInitializer.getInstance().clearCredentials();
 			}
 
 			@Override

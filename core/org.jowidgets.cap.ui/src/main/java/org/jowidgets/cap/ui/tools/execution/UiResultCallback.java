@@ -64,14 +64,4 @@ public final class UiResultCallback<RESULT_TYPE> implements IResultCallback<RESU
 		});
 	}
 
-	@Override
-	public void timeout() {
-		uiThreadAccess.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				originalCallback.timeout();
-			}
-		});
-	}
-
 }

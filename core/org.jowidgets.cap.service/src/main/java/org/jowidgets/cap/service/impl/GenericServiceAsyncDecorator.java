@@ -182,12 +182,6 @@ final class GenericServiceAsyncDecorator implements IDecorator<Object> {
 						}
 					}
 
-					@Override
-					public void timeout() {
-						if (!executionCallback.isCanceled()) {
-							original.timeout();
-						}
-					}
 				};
 			}
 		}

@@ -33,7 +33,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeoutException;
 
 import org.jowidgets.api.threads.IUiThreadAccess;
 import org.jowidgets.api.toolkit.Toolkit;
@@ -115,10 +114,6 @@ final class BeanListExecutionHelper {
 				invokeOnExceptionLater(beansToExecute, exception);
 			}
 
-			@Override
-			public void timeout() {
-				invokeOnExceptionLater(beansToExecute, new TimeoutException());
-			}
 		};
 	}
 

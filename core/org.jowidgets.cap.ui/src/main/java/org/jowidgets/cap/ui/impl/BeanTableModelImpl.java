@@ -44,7 +44,6 @@ import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 import org.jowidgets.api.color.Colors;
 import org.jowidgets.api.controller.IDisposeListener;
@@ -796,12 +795,6 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 						@Override
 						public void exception(final Throwable exception) {
 							helperCallback.exception(exception);
-							registerBeans();
-						}
-
-						@Override
-						public void timeout() {
-							helperCallback.timeout();
 							registerBeans();
 						}
 
@@ -1815,11 +1808,6 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 				public void exception(final Throwable exception) {
 					setExceptionLater(exception);
 				}
-
-				@Override
-				public void timeout() {
-					exception(new TimeoutException("Timeout while reading table count"));
-				}
 			};
 		}
 
@@ -2059,11 +2047,6 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 				}
 
 				@Override
-				public void timeout() {
-					exception(new TimeoutException("Timeout while loading data"));
-				}
-
-				@Override
 				public void exception(final Throwable exception) {
 					setExceptionLater(exception);
 				}
@@ -2260,9 +2243,6 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 		@Override
 		public void exception(final Throwable exception) {}
-
-		@Override
-		public void timeout() {}
 
 	}
 
