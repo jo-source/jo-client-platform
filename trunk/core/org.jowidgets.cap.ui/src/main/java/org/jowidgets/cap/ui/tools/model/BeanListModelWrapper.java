@@ -31,6 +31,7 @@ package org.jowidgets.cap.ui.tools.model;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
@@ -71,6 +72,16 @@ public class BeanListModelWrapper<BEAN_TYPE> implements IBeanListModel<BEAN_TYPE
 	@Override
 	public void addBean(final IBeanProxy<BEAN_TYPE> bean) {
 		beanListModel.addBean(bean);
+	}
+
+	@Override
+	public IBeanProxy<BEAN_TYPE> addBeanDto(final IBeanDto beanDto) {
+		return beanListModel.addBeanDto(beanDto);
+	}
+
+	@Override
+	public IBeanProxy<BEAN_TYPE> addTransientBean() {
+		return beanListModel.addTransientBean();
 	}
 
 	@Override

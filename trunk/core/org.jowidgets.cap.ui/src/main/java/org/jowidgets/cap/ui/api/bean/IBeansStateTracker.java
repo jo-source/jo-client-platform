@@ -40,9 +40,18 @@ public interface IBeansStateTracker<BEAN_TYPE> extends IValidateable, IModificat
 
 	void unregister(IBeanProxy<BEAN_TYPE> bean);
 
-	Set<IBeanProxy<BEAN_TYPE>> getModifiedBeans();
+	Set<IBeanProxy<BEAN_TYPE>> getBeansToUpdate();
 
-	boolean hasModifiedBeans();
+	Set<IBeanProxy<BEAN_TYPE>> getBeansToCreate();
+
+	boolean hasBeansToUpdate();
+
+	boolean hasBeansToSave();
+
+	/**
+	 * @return True if there are beans to update or beans to create
+	 */
+	boolean hasModifications();
 
 	void undoModifications();
 

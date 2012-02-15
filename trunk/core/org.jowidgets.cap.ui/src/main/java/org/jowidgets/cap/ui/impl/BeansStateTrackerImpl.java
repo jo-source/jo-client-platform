@@ -29,14 +29,17 @@
 package org.jowidgets.cap.ui.impl;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Set;
 
 import org.jowidgets.cap.ui.api.bean.IBeanModificationStateListener;
 import org.jowidgets.cap.ui.api.bean.IBeanProcessStateListener;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
+import org.jowidgets.cap.ui.api.bean.IBeanTransientStateListener;
 import org.jowidgets.cap.ui.api.bean.IBeanValidationStateListener;
 import org.jowidgets.cap.ui.api.bean.IBeansStateTracker;
 import org.jowidgets.cap.ui.api.execution.IExecutionTask;
@@ -55,6 +58,7 @@ import org.jowidgets.validation.ValidationResult;
 final class BeansStateTrackerImpl<BEAN_TYPE> implements IBeansStateTracker<BEAN_TYPE>, IValidationResultCreator {
 
 	private final Set<IBeanProxy<BEAN_TYPE>> modifiedBeans;
+	private final Map<Object, IBeanProxy<BEAN_TYPE>> transientBeans;
 	private final Set<IBeanProxy<BEAN_TYPE>> processingBeans;
 	private final Set<IBeanProxy<BEAN_TYPE>> validationDirtyBeans;
 
@@ -62,6 +66,7 @@ final class BeansStateTrackerImpl<BEAN_TYPE> implements IBeansStateTracker<BEAN_
 	private final ProcessStateObservable processStateObservable;
 
 	private final IBeanModificationStateListener<BEAN_TYPE> modificationStateListener;
+	private final IBeanTransientStateListener<BEAN_TYPE> transientStateListener;
 	private final IBeanProcessStateListener<BEAN_TYPE> processStateListener;
 	private final IBeanValidationStateListener<BEAN_TYPE> validationStateListener;
 
@@ -69,6 +74,7 @@ final class BeansStateTrackerImpl<BEAN_TYPE> implements IBeansStateTracker<BEAN_
 
 	BeansStateTrackerImpl() {
 		this.modifiedBeans = new HashSet<IBeanProxy<BEAN_TYPE>>();
+		this.transientBeans = new HashMap<Object, IBeanProxy<BEAN_TYPE>>();
 		this.processingBeans = new HashSet<IBeanProxy<BEAN_TYPE>>();
 		this.validationDirtyBeans = new LinkedHashSet<IBeanProxy<BEAN_TYPE>>();
 
@@ -78,12 +84,22 @@ final class BeansStateTrackerImpl<BEAN_TYPE> implements IBeansStateTracker<BEAN_
 		this.modificationStateListener = new IBeanModificationStateListener<BEAN_TYPE>() {
 			@Override
 			public void modificationStateChanged(final IBeanProxy<BEAN_TYPE> bean) {
-				if (bean.hasModifications()) {
+				if (bean.hasModifications() && !bean.isTransient()) {
 					addModifiedBean(bean);
 				}
-				else {
+				else if (!bean.isTransient()) {
 					removeUnmodifiedBean(bean);
 				}
+			}
+		};
+
+		this.transientStateListener = new IBeanTransientStateListener<BEAN_TYPE>() {
+			@Override
+			public void transientStateChanged(final Object oldId, final IBeanProxy<BEAN_TYPE> newBean) {
+				if (!newBean.isTransient()) {
+					removeNotTransientBean(oldId, newBean);
+				}
+
 			}
 		};
 
@@ -115,6 +131,10 @@ final class BeansStateTrackerImpl<BEAN_TYPE> implements IBeansStateTracker<BEAN_
 		modificationStateObservable.dispose();
 		processStateObservable.dispose();
 		validationCache.dispose();
+		processingBeans.clear();
+		validationDirtyBeans.clear();
+		modifiedBeans.clear();
+		transientBeans.clear();
 	}
 
 	@Override
@@ -122,8 +142,11 @@ final class BeansStateTrackerImpl<BEAN_TYPE> implements IBeansStateTracker<BEAN_
 		Assert.paramNotNull(bean, "bean");
 		bean.addModificationStateListener(modificationStateListener);
 
-		if (bean.hasModifications()) {
+		if (bean.hasModifications() && !bean.isTransient()) {
 			addModifiedBean(bean);
+		}
+		if (bean.isTransient()) {
+			addTransientBean(bean);
 		}
 
 		validationDirtyBeans.add(bean);
@@ -142,6 +165,7 @@ final class BeansStateTrackerImpl<BEAN_TYPE> implements IBeansStateTracker<BEAN_
 		Assert.paramNotNull(bean, "bean");
 		bean.removeModificationStateListener(modificationStateListener);
 		removeUnmodifiedBean(bean);
+		removeNotTransientBean(bean.getId(), bean);
 		bean.removeProcessStateListener(processStateListener);
 		removeUnprocessingBean(bean);
 		validationDirtyBeans.remove(bean);
@@ -187,13 +211,28 @@ final class BeansStateTrackerImpl<BEAN_TYPE> implements IBeansStateTracker<BEAN_
 	}
 
 	@Override
-	public Set<IBeanProxy<BEAN_TYPE>> getModifiedBeans() {
+	public Set<IBeanProxy<BEAN_TYPE>> getBeansToUpdate() {
 		return Collections.unmodifiableSet(modifiedBeans);
 	}
 
 	@Override
-	public boolean hasModifiedBeans() {
+	public Set<IBeanProxy<BEAN_TYPE>> getBeansToCreate() {
+		return Collections.unmodifiableSet(new HashSet<IBeanProxy<BEAN_TYPE>>(transientBeans.values()));
+	}
+
+	@Override
+	public boolean hasBeansToUpdate() {
 		return !modifiedBeans.isEmpty();
+	}
+
+	@Override
+	public boolean hasBeansToSave() {
+		return !transientBeans.isEmpty();
+	}
+
+	@Override
+	public boolean hasModifications() {
+		return hasBeansToUpdate() || hasBeansToSave();
 	}
 
 	@Override
@@ -234,6 +273,7 @@ final class BeansStateTrackerImpl<BEAN_TYPE> implements IBeansStateTracker<BEAN_
 	@Override
 	public void clearModifications() {
 		modifiedBeans.clear();
+		transientBeans.clear();
 	}
 
 	@Override
@@ -263,17 +303,35 @@ final class BeansStateTrackerImpl<BEAN_TYPE> implements IBeansStateTracker<BEAN_
 	}
 
 	private void addModifiedBean(final IBeanProxy<BEAN_TYPE> bean) {
-		final boolean lastHasModifications = hasModifiedBeans();
+		final boolean lastDirty = hasModifications();
 		modifiedBeans.add(bean);
-		if (lastHasModifications != hasModifiedBeans()) {
+		if (lastDirty != hasModifications()) {
+			modificationStateObservable.fireModificationStateChanged();
+		}
+	}
+
+	private void addTransientBean(final IBeanProxy<BEAN_TYPE> bean) {
+		final boolean lastDirty = hasModifications();
+		transientBeans.put(bean.getId(), bean);
+		bean.addTransientStateListener(transientStateListener);
+		if (lastDirty != hasModifications()) {
+			modificationStateObservable.fireModificationStateChanged();
+		}
+	}
+
+	private void removeNotTransientBean(final Object oldId, final IBeanProxy<BEAN_TYPE> bean) {
+		final boolean lastDirty = hasModifications();
+		transientBeans.remove(oldId);
+		bean.removeTransientStateListener(transientStateListener);
+		if (lastDirty != hasModifications()) {
 			modificationStateObservable.fireModificationStateChanged();
 		}
 	}
 
 	private void removeUnmodifiedBean(final IBeanProxy<BEAN_TYPE> bean) {
-		final boolean lastHasModifications = hasModifiedBeans();
+		final boolean lastDirty = hasModifications();
 		modifiedBeans.remove(bean);
-		if (lastHasModifications != hasModifiedBeans()) {
+		if (lastDirty != hasModifications()) {
 			modificationStateObservable.fireModificationStateChanged();
 		}
 	}

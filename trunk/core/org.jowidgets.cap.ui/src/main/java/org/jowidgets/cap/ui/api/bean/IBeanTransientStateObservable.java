@@ -26,32 +26,12 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.model;
+package org.jowidgets.cap.ui.api.bean;
 
-import java.util.ArrayList;
-import java.util.Collection;
+public interface IBeanTransientStateObservable<BEAN_TYPE> {
 
-import org.jowidgets.cap.common.api.bean.IBeanDto;
-import org.jowidgets.cap.ui.api.bean.IBeanProxy;
+	void addTransientStateListener(IBeanTransientStateListener<BEAN_TYPE> listener);
 
-public interface IBeanListModel<BEAN_TYPE> extends IBeanListModelObservable {
-
-	int getSize();
-
-	IBeanProxy<BEAN_TYPE> getBean(int index);
-
-	void removeBeans(Collection<? extends IBeanProxy<BEAN_TYPE>> beans);
-
-	void addBean(IBeanProxy<BEAN_TYPE> bean);
-
-	IBeanProxy<BEAN_TYPE> addBeanDto(IBeanDto beanDto);
-
-	IBeanProxy<BEAN_TYPE> addTransientBean();
-
-	ArrayList<Integer> getSelection();
-
-	void setSelection(Collection<Integer> selection);
-
-	void fireBeansChanged();
+	void removeTransientStateListener(IBeanTransientStateListener<BEAN_TYPE> listener);
 
 }

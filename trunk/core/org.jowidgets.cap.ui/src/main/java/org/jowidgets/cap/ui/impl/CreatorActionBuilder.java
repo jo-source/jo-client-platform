@@ -41,7 +41,7 @@ import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.cap.common.api.service.ICreatorService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
-import org.jowidgets.cap.ui.api.bean.IBeanExecptionConverter;
+import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
 import org.jowidgets.cap.ui.api.bean.IBeanPropertyValidator;
 import org.jowidgets.cap.ui.api.command.ICreatorActionBuilder;
 import org.jowidgets.cap.ui.api.execution.IExecutionInterceptor;
@@ -72,7 +72,7 @@ final class CreatorActionBuilder<BEAN_TYPE> extends AbstractSingleUseBuilder<IAc
 	private ICreatorService creatorService;
 	private IBeanFormBluePrint<BEAN_TYPE> beanFormBp;
 	private List<IAttribute<?>> attributes;
-	private IBeanExecptionConverter exceptionConverter;
+	private IBeanExceptionConverter exceptionConverter;
 
 	CreatorActionBuilder(final Object entityId, final Class<? extends BEAN_TYPE> beanType, final IBeanListModel<BEAN_TYPE> model) {
 		Assert.paramNotNull(beanType, "beanType");
@@ -225,7 +225,7 @@ final class CreatorActionBuilder<BEAN_TYPE> extends AbstractSingleUseBuilder<IAc
 	}
 
 	@Override
-	public ICreatorActionBuilder<BEAN_TYPE> setExceptionConverter(final IBeanExecptionConverter exceptionConverter) {
+	public ICreatorActionBuilder<BEAN_TYPE> setExceptionConverter(final IBeanExceptionConverter exceptionConverter) {
 		checkExhausted();
 		Assert.paramNotNull(exceptionConverter, "exceptionConverter");
 		this.exceptionConverter = exceptionConverter;

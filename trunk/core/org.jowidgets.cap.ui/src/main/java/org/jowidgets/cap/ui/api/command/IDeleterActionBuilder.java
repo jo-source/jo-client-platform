@@ -32,7 +32,7 @@ import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.command.IEnabledChecker;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.service.IDeleterService;
-import org.jowidgets.cap.ui.api.bean.IBeanExecptionConverter;
+import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
 import org.jowidgets.cap.ui.api.execution.BeanMessageStatePolicy;
 import org.jowidgets.cap.ui.api.execution.IExecutionInterceptor;
 import org.jowidgets.common.image.IImageConstant;
@@ -94,7 +94,7 @@ public interface IDeleterActionBuilder<BEAN_TYPE> {
 
 	IDeleterActionBuilder<BEAN_TYPE> addExecutionInterceptor(IExecutionInterceptor interceptor);
 
-	IDeleterActionBuilder<BEAN_TYPE> setExceptionConverter(IBeanExecptionConverter exceptionConverter);
+	IDeleterActionBuilder<BEAN_TYPE> setExceptionConverter(IBeanExceptionConverter exceptionConverter);
 
 	/**
 	 * If auto selection is set, after bean deletion was delegated to the deleter service, the

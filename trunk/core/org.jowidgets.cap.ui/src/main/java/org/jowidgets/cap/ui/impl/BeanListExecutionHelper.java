@@ -29,59 +29,53 @@
 package org.jowidgets.cap.ui.impl;
 
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.jowidgets.api.threads.IUiThreadAccess;
-import org.jowidgets.api.toolkit.Toolkit;
-import org.jowidgets.api.types.QuestionResult;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.exception.ServiceCanceledException;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
-import org.jowidgets.cap.common.api.execution.UserQuestionResult;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
-import org.jowidgets.cap.ui.api.bean.IBeanExecptionConverter;
+import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.execution.BeanExecutionPolicy;
 import org.jowidgets.cap.ui.api.execution.IExecutionTask;
-import org.jowidgets.cap.ui.api.execution.IExecutionTaskListener;
-import org.jowidgets.cap.ui.api.execution.IUserAnswerCallback;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.tools.execution.AbstractUiResultCallback;
-import org.jowidgets.util.ValueHolder;
 
-@SuppressWarnings({"rawtypes", "unchecked"})
-final class BeanListExecutionHelper {
+final class BeanListExecutionHelper<BEAN_TYPE> {
 
-	private final IBeanListModel<Object> listModel;
-	private final Collection<? extends IBeanProxy> beans;
-	private final IBeanExecptionConverter exceptionConverter;
+	private final IBeanListModel<BEAN_TYPE> listModel;
+	private final Collection<? extends IBeanProxy<BEAN_TYPE>> beans;
+	private final IBeanExceptionConverter exceptionConverter;
 	private final BeanExecutionPolicy beanExecutionPolicy;
-	private final IUiThreadAccess uiThreadAccess;
+	private final boolean transientSourceBeans;
 
 	BeanListExecutionHelper(
-		final IBeanListModel listModel,
-		final Collection<? extends IBeanProxy> beans,
+		final IBeanListModel<BEAN_TYPE> listModel,
+		final Collection<? extends IBeanProxy<BEAN_TYPE>> beans,
 		final BeanExecutionPolicy beanExecutionPolicy,
-		final IBeanExecptionConverter exceptionConverter) {
+		final IBeanExceptionConverter exceptionConverter,
+		final boolean transientSourceBeans) {
 		super();
 		this.listModel = listModel;
 		this.beans = beans;
 		this.beanExecutionPolicy = beanExecutionPolicy;
 		this.exceptionConverter = exceptionConverter;
-		this.uiThreadAccess = Toolkit.getUiThreadAccess();
+		this.transientSourceBeans = transientSourceBeans;
 	}
 
-	List<List<IBeanProxy<?>>> prepareExecutions() {
-		final List<List<IBeanProxy<?>>> result = new LinkedList<List<IBeanProxy<?>>>();
+	List<List<IBeanProxy<BEAN_TYPE>>> prepareExecutions() {
+		final List<List<IBeanProxy<BEAN_TYPE>>> result = new LinkedList<List<IBeanProxy<BEAN_TYPE>>>();
 
 		if (BeanExecutionPolicy.BATCH == beanExecutionPolicy) {
 			final IExecutionTask executionTask = createExecutionTask();
-			final List<IBeanProxy<?>> subList = new LinkedList<IBeanProxy<?>>();
+			final List<IBeanProxy<BEAN_TYPE>> subList = new LinkedList<IBeanProxy<BEAN_TYPE>>();
 			result.add(subList);
-			for (final IBeanProxy bean : beans) {
+			for (final IBeanProxy<BEAN_TYPE> bean : beans) {
 				if (bean.getExecutionTask() == null) {
 					bean.setExecutionTask(executionTask);
 					subList.add(bean);
@@ -89,8 +83,8 @@ final class BeanListExecutionHelper {
 			}
 		}
 		else {
-			for (final IBeanProxy bean : beans) {
-				final List<IBeanProxy<?>> subList = new LinkedList<IBeanProxy<?>>();
+			for (final IBeanProxy<BEAN_TYPE> bean : beans) {
+				final List<IBeanProxy<BEAN_TYPE>> subList = new LinkedList<IBeanProxy<BEAN_TYPE>>();
 				result.add(subList);
 				if (bean.getExecutionTask() == null) {
 					final IExecutionTask executionTask = createExecutionTask();
@@ -103,7 +97,7 @@ final class BeanListExecutionHelper {
 		return result;
 	}
 
-	IResultCallback<List<IBeanDto>> createResultCallback(final List<IBeanProxy<?>> beansToExecute) {
+	IResultCallback<List<IBeanDto>> createResultCallback(final List<IBeanProxy<BEAN_TYPE>> beansToExecute) {
 		return new AbstractUiResultCallback<List<IBeanDto>>() {
 			@Override
 			public void finishedUi(final List<IBeanDto> result) {
@@ -118,30 +112,70 @@ final class BeanListExecutionHelper {
 		};
 	}
 
-	void afterExecution(final List<IBeanProxy<?>> executedBeans, final List<IBeanDto> result) {
+	void afterExecution(final List<IBeanProxy<BEAN_TYPE>> executedBeans, final List<IBeanDto> result) {
 		if (result != null) {
-			final Map<Object, IBeanDto> resultMap = new HashMap<Object, IBeanDto>();
-			for (final IBeanDto beanDto : result) {
-				resultMap.put(beanDto.getId(), beanDto);
+			if (transientSourceBeans) {
+				updateTransientBeans(executedBeans, result);
 			}
-
-			for (final IBeanProxy bean : executedBeans) {
-				final IBeanDto updatedBean = resultMap.get(bean.getId());
-				if (updatedBean != null) {
-					bean.update(updatedBean);
-				}
-				//TODO MG //else {}
+			else {
+				updateBeans(executedBeans, result);
 			}
 		}
-
-		for (final IBeanProxy bean : executedBeans) {
+		//clear the execution task
+		for (final IBeanProxy<BEAN_TYPE> bean : executedBeans) {
 			bean.setExecutionTask(null);
 		}
 		listModel.fireBeansChanged();
 	}
 
-	void onExecption(final List<IBeanProxy<?>> executedBeans, final Throwable exception) {
-		for (final IBeanProxy<?> bean : executedBeans) {
+	private void updateTransientBeans(final List<IBeanProxy<BEAN_TYPE>> executedBeans, final List<IBeanDto> result) {
+		if (executedBeans.size() != result.size()) {
+			listModel.removeBeans(executedBeans);
+			for (final IBeanDto beanDto : result) {
+				listModel.addBeanDto(beanDto);
+			}
+		}
+		else {
+			final Iterator<IBeanProxy<BEAN_TYPE>> sourceIterator = executedBeans.iterator();
+			final Iterator<IBeanDto> resultIterator = result.iterator();
+			while (sourceIterator.hasNext()) {
+				sourceIterator.next().updateTransient(resultIterator.next());
+			}
+		}
+	}
+
+	private void updateBeans(final List<IBeanProxy<BEAN_TYPE>> executedBeans, final List<IBeanDto> result) {
+		//put the resulting beans into a map for faster access later
+		final Map<Object, IBeanDto> resultMap = new LinkedHashMap<Object, IBeanDto>();
+		for (final IBeanDto beanDto : result) {
+			resultMap.put(beanDto.getId(), beanDto);
+		}
+
+		//update the executed beans with the beans get as result from the service
+		final List<IBeanProxy<BEAN_TYPE>> beansToDelete = new LinkedList<IBeanProxy<BEAN_TYPE>>();
+		for (final IBeanProxy<BEAN_TYPE> bean : executedBeans) {
+			final IBeanDto updatedBean = resultMap.remove(bean.getId());
+			if (updatedBean != null) {
+				bean.update(updatedBean);
+			}
+			else {
+				beansToDelete.add(bean);
+			}
+		}
+
+		//remove the beans from the model that was not returned by the service
+		if (!beansToDelete.isEmpty()) {
+			listModel.removeBeans(beansToDelete);
+		}
+
+		//add the beans to the model that was created by the service
+		for (final IBeanDto beanDto : resultMap.values()) {
+			listModel.addBeanDto(beanDto);
+		}
+	}
+
+	void onExecption(final List<IBeanProxy<BEAN_TYPE>> executedBeans, final Throwable exception) {
+		for (final IBeanProxy<BEAN_TYPE> bean : executedBeans) {
 			final IExecutionTask executionTask = bean.getExecutionTask();
 			final boolean canceled = (exception instanceof ServiceCanceledException)
 				|| (executionTask != null && executionTask.isCanceled());
@@ -154,81 +188,7 @@ final class BeanListExecutionHelper {
 	}
 
 	IExecutionTask createExecutionTask() {
-		final IExecutionTask executionTask = CapUiToolkit.executionTaskFactory().create();
-		executionTask.addExecutionTaskListener(new ExecutionTaskMonitor(executionTask));
-		return executionTask;
-	}
-
-	//TODO MG remove this later
-	private class ExecutionTaskMonitor implements IExecutionTaskListener {
-
-		private final IExecutionTask executionTask;
-
-		ExecutionTaskMonitor(final IExecutionTask executionTask) {
-			this.executionTask = executionTask;
-		}
-
-		@Override
-		public void worked(final int totalWorked) {
-			//CHECKSTYLE:OFF
-			System.out.println("WORKED " + totalWorked);
-			//CHECKSTYLE:ON
-		}
-
-		@Override
-		public void userQuestionAsked(final String question, final IUserAnswerCallback callback) {
-			final ValueHolder<QuestionResult> resultHolder = new ValueHolder<QuestionResult>();
-			try {
-				uiThreadAccess.invokeAndWait(new Runnable() {
-					@Override
-					public void run() {
-						final QuestionResult result = Toolkit.getQuestionPane().askYesNoQuestion(question);
-						resultHolder.set(result);
-					}
-				});
-			}
-			catch (final InterruptedException e) {
-				callback.setQuestionResult(UserQuestionResult.NO);
-			}
-
-			if (QuestionResult.YES == resultHolder.get()) {
-				callback.setQuestionResult(UserQuestionResult.YES);
-			}
-			else {
-				callback.setQuestionResult(UserQuestionResult.NO);
-			}
-
-		}
-
-		@Override
-		public void totalStepCountChanged(final int totalStepCount) {
-			//CHECKSTYLE:OFF
-			System.out.println("TOTAL STEP COUNT " + totalStepCount);
-			//CHECKSTYLE:ON
-		}
-
-		@Override
-		public void subExecutionAdded(final IExecutionTask executionTask) {
-			//CHECKSTYLE:OFF
-			System.out.println("SUB EXECUTION TASK ADDED ");
-			//CHECKSTYLE:ON
-			executionTask.addExecutionTaskListener(new ExecutionTaskMonitor(executionTask));
-		}
-
-		@Override
-		public void finished() {
-			//CHECKSTYLE:OFF
-			System.out.println("FINISHED " + executionTask.isFinshed());
-			//CHECKSTYLE:ON
-		}
-
-		@Override
-		public void descriptionChanged(final String description) {
-			//CHECKSTYLE:OFF
-			System.out.println("DESCRIPTION CHANGED " + description);
-			//CHECKSTYLE:ON
-		}
-
+		return CapUiToolkit.executionTaskFactory().create();
 	}
 
 }

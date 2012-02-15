@@ -52,7 +52,7 @@ import org.jowidgets.cap.common.api.service.ICreatorService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.bean.BeanMessageType;
-import org.jowidgets.cap.ui.api.bean.IBeanExecptionConverter;
+import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
 import org.jowidgets.cap.ui.api.bean.IBeanMessageBuilder;
 import org.jowidgets.cap.ui.api.bean.IBeanPropertyValidator;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
@@ -78,7 +78,7 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 	private final IBeanFormBluePrint<BEAN_TYPE> beanFormBp;
 	private final List<IBeanPropertyValidator<BEAN_TYPE>> beanPropertyValidators;
 	private final ICreatorService creatorService;
-	private final IBeanExecptionConverter exceptionConverter;
+	private final IBeanExceptionConverter exceptionConverter;
 	private final BeanListModelEnabledChecker<BEAN_TYPE> enabledChecker;
 	private final IBeanProxyFactory<BEAN_TYPE> beanFactory;
 	private final ExecutionObservable executionObservable;
@@ -96,7 +96,7 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 		final List<IEnabledChecker> enabledCheckers,
 		final boolean anySelection,
 		final ICreatorService creatorService,
-		final IBeanExecptionConverter exceptionConverter,
+		final IBeanExceptionConverter exceptionConverter,
 		final List<IExecutionInterceptor> executionInterceptors) {
 
 		Assert.paramNotNull(beanType, "beanType");

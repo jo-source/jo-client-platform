@@ -35,7 +35,7 @@ import org.jowidgets.api.widgets.descriptor.IInputDialogDescriptor;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.service.IExecutorService;
 import org.jowidgets.cap.common.api.service.IParameterProviderService;
-import org.jowidgets.cap.ui.api.bean.IBeanExecptionConverter;
+import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
 import org.jowidgets.cap.ui.api.execution.BeanExecutionPolicy;
 import org.jowidgets.cap.ui.api.execution.BeanMessageStatePolicy;
 import org.jowidgets.cap.ui.api.execution.BeanModificationStatePolicy;
@@ -100,7 +100,7 @@ public interface IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> {
 
 	IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> addExecutionInterceptor(IExecutionInterceptor interceptor);
 
-	IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setExceptionConverter(IBeanExecptionConverter exceptionConverter);
+	IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setExceptionConverter(IBeanExceptionConverter exceptionConverter);
 
 	IAction build();
 

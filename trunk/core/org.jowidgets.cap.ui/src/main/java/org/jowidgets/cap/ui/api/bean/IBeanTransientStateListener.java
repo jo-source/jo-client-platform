@@ -28,10 +28,8 @@
 
 package org.jowidgets.cap.ui.api.bean;
 
-import java.util.List;
+public interface IBeanTransientStateListener<BEAN_TYPE> {
 
-public interface IBeanExecptionConverter {
-
-	IBeanMessage convert(List<? extends IBeanProxy<?>> processedBeans, IBeanProxy<?> destinationBean, Throwable throwable);
+	void transientStateChanged(Object oldId, IBeanProxy<BEAN_TYPE> newBean);
 
 }
