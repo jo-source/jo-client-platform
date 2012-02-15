@@ -52,7 +52,7 @@ import org.jowidgets.cap.common.api.service.ICreatorService;
 import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
-import org.jowidgets.cap.ui.api.bean.IBeanExecptionConverter;
+import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.execution.BeanMessageStatePolicy;
 import org.jowidgets.cap.ui.api.execution.BeanModificationStatePolicy;
@@ -94,7 +94,7 @@ final class BeanLinkCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
 	private final IEntityLinkProperties sourceLinkProperties;
 	private final IEntityLinkProperties destinationLinkProperties;
 
-	private final IBeanExecptionConverter exceptionConverter;
+	private final IBeanExceptionConverter exceptionConverter;
 	private final ExecutionObservable executionObservable;
 	private final BeanListModelEnabledChecker<?> enabledChecker;
 
@@ -119,7 +119,7 @@ final class BeanLinkCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
 		final BeanModificationStatePolicy beanModificationStatePolicy,
 		final BeanMessageStatePolicy beanMessageStatePolicy,
 		final List<IExecutionInterceptor> executionInterceptors,
-		final IBeanExecptionConverter exceptionConverter) {
+		final IBeanExceptionConverter exceptionConverter) {
 
 		Assert.paramNotNull(model, "model");
 		Assert.paramNotNull(linkCreatorService, "linkCreatorService");

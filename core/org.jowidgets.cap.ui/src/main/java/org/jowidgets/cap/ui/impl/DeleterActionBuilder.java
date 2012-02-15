@@ -39,7 +39,7 @@ import org.jowidgets.api.image.IconsSmall;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.service.IDeleterService;
-import org.jowidgets.cap.ui.api.bean.IBeanExecptionConverter;
+import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
 import org.jowidgets.cap.ui.api.command.IDeleterActionBuilder;
 import org.jowidgets.cap.ui.api.execution.BeanMessageStatePolicy;
 import org.jowidgets.cap.ui.api.execution.BeanModificationStatePolicy;
@@ -76,7 +76,7 @@ final class DeleterActionBuilder<BEAN_TYPE> extends AbstractSingleUseBuilder<IAc
 
 	private final BeanModificationStatePolicy beanModificationStatePolicy;
 	private BeanMessageStatePolicy beanMessageStatePolicy;
-	private IBeanExecptionConverter exceptionConverter;
+	private IBeanExceptionConverter exceptionConverter;
 
 	DeleterActionBuilder(final IBeanListModel<BEAN_TYPE> model) {
 		checkExhausted();
@@ -227,7 +227,7 @@ final class DeleterActionBuilder<BEAN_TYPE> extends AbstractSingleUseBuilder<IAc
 	}
 
 	@Override
-	public DeleterActionBuilder<BEAN_TYPE> setExceptionConverter(final IBeanExecptionConverter exceptionConverter) {
+	public DeleterActionBuilder<BEAN_TYPE> setExceptionConverter(final IBeanExceptionConverter exceptionConverter) {
 		checkExhausted();
 		Assert.paramNotNull(exceptionConverter, "exceptionConverter");
 		this.exceptionConverter = exceptionConverter;

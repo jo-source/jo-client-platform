@@ -47,7 +47,6 @@ import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
-import org.jowidgets.cap.common.api.bean.IBeanModification;
 import org.jowidgets.cap.common.api.execution.IExecutionCallbackListener;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.filter.BooleanOperator;
@@ -62,7 +61,7 @@ import org.jowidgets.cap.common.api.validation.IBeanValidator;
 import org.jowidgets.cap.common.tools.bean.BeanKey;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.bean.BeanMessageType;
-import org.jowidgets.cap.ui.api.bean.IBeanKeyFactory;
+import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
 import org.jowidgets.cap.ui.api.bean.IBeanMessage;
 import org.jowidgets.cap.ui.api.bean.IBeanMessageBuilder;
 import org.jowidgets.cap.ui.api.bean.IBeanPropertyValidator;
@@ -120,9 +119,10 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 	private final ICreatorService creatorService;
 	private final IReaderService<Object> readerService;
 	private final IProvider<Object> readerParameterProvider;
-	private final IRefreshService refreshService;
-	private final IUpdaterService updaterService;
 	private final IDeleterService deleterService;
+
+	private final BeanListSaveDelegate<BEAN_TYPE> saveDelegate;
+	private final BeanListRefreshDelegate<BEAN_TYPE> refreshDelegate;
 
 	private final IBeanListModel<?> parent;
 	private final LinkType linkType;
@@ -157,6 +157,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 		final IRefreshService refreshService,
 		final IUpdaterService updaterService,
 		final IDeleterService deleterService,
+		final IBeanExceptionConverter exceptionConverter,
 		final IBeanListModel<?> parent,
 		final LinkType linkType) {
 
@@ -167,6 +168,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 		Assert.paramNotNull(renderer, "renderer");
 		Assert.paramNotNull(readerService, "readerService");
 		Assert.paramNotNull(paramProvider, "paramProvider");
+		Assert.paramNotNull(exceptionConverter, "exceptionConverter");
 
 		this.parent = parent;
 		this.entityId = entityId;
@@ -187,8 +189,6 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 		this.readerService = (IReaderService<Object>) readerService;
 		this.readerParameterProvider = (IProvider<Object>) paramProvider;
 		this.creatorService = creatorService;
-		this.refreshService = refreshService;
-		this.updaterService = updaterService;
 		this.deleterService = deleterService;
 		this.filters = new HashMap<String, IUiFilter>();
 		this.data = new ArrayList<IBeanProxy<BEAN_TYPE>>();
@@ -210,6 +210,21 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 		//configure sort model
 		sortModel.setConfig(sortModelConfig);
 		sortModel.addChangeListener(sortModelChangeListener);
+
+		this.saveDelegate = new BeanListSaveDelegate<BEAN_TYPE>(
+			this,
+			beansStateTracker,
+			exceptionConverter,
+			BeanExecutionPolicy.BATCH,
+			updaterService,
+			creatorService,
+			propertyNames);
+
+		this.refreshDelegate = new BeanListRefreshDelegate<BEAN_TYPE>(
+			this,
+			exceptionConverter,
+			BeanExecutionPolicy.BATCH,
+			refreshService);
 	}
 
 	@Override
@@ -310,56 +325,22 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 
 	@Override
 	public void refreshBeans(final Collection<IBeanProxy<BEAN_TYPE>> beans) {
-		if (refreshService != null) {
-			final BeanListExecutionHelper executionHelper = new BeanListExecutionHelper(
-				this,
-				beans,
-				BeanExecutionPolicy.BATCH,
-				new DefaultBeanExceptionConverter());
-
-			for (final List<IBeanProxy<?>> preparedBeans : executionHelper.prepareExecutions()) {
-				if (preparedBeans.size() > 0) {
-					final IExecutionTask executionTask = preparedBeans.get(0).getExecutionTask();
-					if (executionTask != null) {
-						final IBeanKeyFactory beanKeyFactory = CapUiToolkit.beanKeyFactory();
-						final List<IBeanKey> beanKeys = beanKeyFactory.createKeys(preparedBeans);
-						final IResultCallback<List<IBeanDto>> helperCallback = executionHelper.createResultCallback(preparedBeans);
-						refreshService.refresh(helperCallback, beanKeys, executionTask);
-					}
-				}
-			}
-		}
+		refreshDelegate.refresh(beans);
 	}
 
 	@Override
 	public void save() {
-		final Set<IBeanProxy<BEAN_TYPE>> modifiedBeans = beansStateTracker.getModifiedBeans();
-
-		final BeanListExecutionHelper executionHelper = new BeanListExecutionHelper(
-			this,
-			modifiedBeans,
-			BeanExecutionPolicy.BATCH,
-			new DefaultBeanExceptionConverter());
-
-		for (final List<IBeanProxy<?>> preparedBeans : executionHelper.prepareExecutions()) {
-			if (preparedBeans.size() > 0) {
-				final IExecutionTask executionTask = preparedBeans.get(0).getExecutionTask();
-				if (executionTask != null) {
-					final List<IBeanModification> modifications = new LinkedList<IBeanModification>();
-					for (final IBeanProxy<?> bean : preparedBeans) {
-						modifications.addAll(bean.getModifications());
-					}
-					final IResultCallback<List<IBeanDto>> helperCallback = executionHelper.createResultCallback(preparedBeans);
-					updaterService.update(helperCallback, modifications, executionTask);
-				}
-			}
-		}
+		saveDelegate.save();
 	}
 
 	@Override
 	public void undo() {
-		for (final IBeanProxy<BEAN_TYPE> bean : new HashSet<IBeanProxy<BEAN_TYPE>>(beansStateTracker.getModifiedBeans())) {
+		for (final IBeanProxy<BEAN_TYPE> bean : new HashSet<IBeanProxy<BEAN_TYPE>>(beansStateTracker.getBeansToUpdate())) {
 			bean.undoModifications();
+		}
+		for (final IBeanProxy<BEAN_TYPE> bean : new LinkedList<IBeanProxy<BEAN_TYPE>>(beansStateTracker.getBeansToCreate())) {
+			data.remove(bean);
+			beansStateTracker.unregister(bean);
 		}
 		beansStateTracker.clearModifications();
 	}
@@ -381,7 +362,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 
 	@Override
 	public boolean hasModifications() {
-		return beansStateTracker.hasModifiedBeans();
+		return beansStateTracker.hasModifications();
 	}
 
 	@Override
@@ -452,6 +433,34 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 	@Override
 	public void addBean(final IBeanProxy<BEAN_TYPE> bean) {
 		addBean(data.size(), bean);
+	}
+
+	@Override
+	public IBeanProxy<BEAN_TYPE> addBeanDto(final IBeanDto beanDto) {
+		final IBeanProxy<BEAN_TYPE> result = createBeanProxy(beanDto);
+		addBean(result);
+		return result;
+	}
+
+	@Override
+	public IBeanProxy<BEAN_TYPE> addTransientBean() {
+		//TODO MG this model should get the attributes to have default values
+		//then the beanPropertyValidators could be obtained from the attributes as well
+		//final IBeanProxy<BEAN_TYPE> result = beanProxyFactory.createTransientProxy(propertyNames, defaultValues);
+		final IBeanProxy<BEAN_TYPE> result = beanProxyFactory.createTransientProxy(propertyNames);
+		for (final IBeanPropertyValidator<BEAN_TYPE> validator : beanPropertyValidators) {
+			result.addBeanPropertyValidator(validator);
+		}
+		addBean(result);
+		return result;
+	}
+
+	private IBeanProxy<BEAN_TYPE> createBeanProxy(final IBeanDto beanDto) {
+		final IBeanProxy<BEAN_TYPE> beanProxy = beanProxyFactory.createProxy(beanDto, propertyNames);
+		for (final IBeanPropertyValidator<BEAN_TYPE> validator : beanPropertyValidators) {
+			beanProxy.addBeanPropertyValidator(validator);
+		}
+		return beanProxy;
 	}
 
 	@Override

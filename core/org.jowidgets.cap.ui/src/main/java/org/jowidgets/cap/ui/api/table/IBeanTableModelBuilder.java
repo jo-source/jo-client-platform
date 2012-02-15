@@ -38,6 +38,7 @@ import org.jowidgets.cap.common.api.service.IRefreshService;
 import org.jowidgets.cap.common.api.service.IUpdaterService;
 import org.jowidgets.cap.common.api.validation.IBeanValidator;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
+import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.model.LinkType;
 import org.jowidgets.cap.ui.api.sort.ISortModelConfig;
@@ -81,6 +82,8 @@ public interface IBeanTableModelBuilder<BEAN_TYPE> {
 
 	IBeanTableModelBuilder<BEAN_TYPE> setDeleterService(final IServiceId<IDeleterService> deleterServiceId);
 
+	IBeanTableModelBuilder<BEAN_TYPE> setExceptionConverter(IBeanExceptionConverter exceptionConverter);
+
 	IBeanTableModelBuilder<BEAN_TYPE> setParent(IBeanListModel<?> parent, LinkType linkType);
 
 	IBeanTableModelBuilder<BEAN_TYPE> setAttributes(List<? extends IAttribute<?>> attributes);
@@ -95,13 +98,6 @@ public interface IBeanTableModelBuilder<BEAN_TYPE> {
 
 	IBeanTableModelBuilder<BEAN_TYPE> setAutoSelection(boolean autoSelect);
 
-	/**
-	 * If this option is set, data will only be loaded if any (not empty) filter is defined.
-	 * Otherwise data will be cleared on load. The default value is false.
-	 * 
-	 * @param clearOnEmptyFilter
-	 * @return This builder
-	 */
 	IBeanTableModelBuilder<BEAN_TYPE> setClearOnEmptyFilter(boolean clearOnEmptyFilter);
 
 	/**

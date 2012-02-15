@@ -26,32 +26,42 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.model;
+package org.jowidgets.cap.ui.impl;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Set;
 
-import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
+import org.jowidgets.cap.ui.api.bean.IBeanTransientStateListener;
+import org.jowidgets.cap.ui.api.bean.IBeanTransientStateObservable;
 
-public interface IBeanListModel<BEAN_TYPE> extends IBeanListModelObservable {
+class BeanTransientStateObservable<BEAN_TYPE> implements IBeanTransientStateObservable<BEAN_TYPE> {
 
-	int getSize();
+	private final Set<IBeanTransientStateListener<BEAN_TYPE>> listeners;
 
-	IBeanProxy<BEAN_TYPE> getBean(int index);
+	BeanTransientStateObservable() {
+		this.listeners = new HashSet<IBeanTransientStateListener<BEAN_TYPE>>();
+	}
 
-	void removeBeans(Collection<? extends IBeanProxy<BEAN_TYPE>> beans);
+	@Override
+	public final void addTransientStateListener(final IBeanTransientStateListener<BEAN_TYPE> listener) {
+		listeners.add(listener);
+	}
 
-	void addBean(IBeanProxy<BEAN_TYPE> bean);
+	@Override
+	public final void removeTransientStateListener(final IBeanTransientStateListener<BEAN_TYPE> listener) {
+		listeners.remove(listener);
+	}
 
-	IBeanProxy<BEAN_TYPE> addBeanDto(IBeanDto beanDto);
+	public final void fireTransientStateChanged(final Object oldId, final IBeanProxy<BEAN_TYPE> newBean) {
+		for (final IBeanTransientStateListener<BEAN_TYPE> listener : new LinkedList<IBeanTransientStateListener<BEAN_TYPE>>(
+			listeners)) {
+			listener.transientStateChanged(oldId, newBean);
+		}
+	}
 
-	IBeanProxy<BEAN_TYPE> addTransientBean();
-
-	ArrayList<Integer> getSelection();
-
-	void setSelection(Collection<Integer> selection);
-
-	void fireBeansChanged();
-
+	public final void dispose() {
+		listeners.clear();
+	}
 }

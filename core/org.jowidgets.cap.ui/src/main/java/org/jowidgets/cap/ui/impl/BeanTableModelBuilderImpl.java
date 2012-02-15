@@ -45,6 +45,7 @@ import org.jowidgets.cap.common.api.validation.IBeanValidator;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
+import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.model.LinkType;
@@ -82,6 +83,8 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> implements IBeanTableModelBuild
 	private IUpdaterService updaterService;
 	private IDeleterService deleterService;
 
+	private IBeanExceptionConverter exceptionConverter;
+
 	private ISortModelConfig sortModelConfig;
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
@@ -95,6 +98,7 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> implements IBeanTableModelBuild
 		this.autoRowCount = true;
 		this.autoSelection = true;
 		this.clearOnEmptyFilter = false;
+		this.exceptionConverter = new DefaultBeanExceptionConverter();
 
 		this.metaPropertyNames = new String[] {IBeanProxy.META_PROPERTY_PROGRESS, IBeanProxy.META_PROPERTY_MESSAGES};
 
@@ -246,6 +250,13 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> implements IBeanTableModelBuild
 	}
 
 	@Override
+	public IBeanTableModelBuilder<BEAN_TYPE> setExceptionConverter(final IBeanExceptionConverter exceptionConverter) {
+		Assert.paramNotNull(exceptionConverter, "exceptionConverter");
+		this.exceptionConverter = exceptionConverter;
+		return this;
+	}
+
+	@Override
 	public IBeanTableModelBuilder<BEAN_TYPE> setParent(final IBeanListModel<?> parent, final LinkType linkType) {
 		Assert.paramNotNull(parent, "parent");
 		Assert.paramNotNull(linkType, "linkType");
@@ -358,6 +369,7 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> implements IBeanTableModelBuild
 			refreshService,
 			updaterService,
 			deleterService,
+			exceptionConverter,
 			parent,
 			linkType,
 			autoRowCount,

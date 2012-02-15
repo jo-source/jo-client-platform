@@ -45,7 +45,7 @@ import org.jowidgets.api.widgets.descriptor.IInputDialogDescriptor;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.service.IExecutorService;
 import org.jowidgets.cap.common.api.service.IParameterProviderService;
-import org.jowidgets.cap.ui.api.bean.IBeanExecptionConverter;
+import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.command.IExecutorActionBuilder;
 import org.jowidgets.cap.ui.api.execution.BeanExecutionPolicy;
@@ -81,7 +81,7 @@ final class ExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> extends AbstractSingleU
 
 	private PARAM_TYPE defaultParameter;
 	private Object executor;
-	private IBeanExecptionConverter exceptionConverter;
+	private IBeanExceptionConverter exceptionConverter;
 	private BeanExecutionPolicy beanListExecutionPolicy;
 	private BeanSelectionPolicy beanSelectionPolicy;
 	private BeanModificationStatePolicy beanModificationStatePolicy;
@@ -324,7 +324,7 @@ final class ExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> extends AbstractSingleU
 	}
 
 	@Override
-	public IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setExceptionConverter(final IBeanExecptionConverter exceptionConverter) {
+	public IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setExceptionConverter(final IBeanExceptionConverter exceptionConverter) {
 		Assert.paramNotNull(exceptionConverter, "exceptionConverter");
 		this.exceptionConverter = exceptionConverter;
 		return this;

@@ -46,7 +46,7 @@ import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.execution.IExecutionCallbackListener;
 import org.jowidgets.cap.common.api.service.IDeleterService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
-import org.jowidgets.cap.ui.api.bean.IBeanExecptionConverter;
+import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
 import org.jowidgets.cap.ui.api.bean.IBeanKeyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.execution.BeanMessageStatePolicy;
@@ -70,7 +70,7 @@ final class BeanDeleterCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 	private final IBeanListModel<BEAN_TYPE> model;
 	private final IDeleterService deleterService;
 	private final ExecutionObservable executionObservable;
-	private final IBeanExecptionConverter exceptionConverter;
+	private final IBeanExceptionConverter exceptionConverter;
 
 	private final BeanListModelEnabledChecker<BEAN_TYPE> enabledChecker;
 	private final boolean autoSelection;
@@ -85,7 +85,7 @@ final class BeanDeleterCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 		final boolean multiSelection,
 		final BeanModificationStatePolicy beanModificationStatePolicy,
 		final BeanMessageStatePolicy beanMessageStatePolicy,
-		final IBeanExecptionConverter exceptionConverter,
+		final IBeanExceptionConverter exceptionConverter,
 		final boolean autoSelection,
 		final boolean deletionConfirmDialog) {
 

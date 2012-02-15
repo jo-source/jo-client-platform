@@ -59,6 +59,7 @@ import org.jowidgets.cap.ui.api.bean.IBeanProcessStateListener;
 import org.jowidgets.cap.ui.api.bean.IBeanPropertyValidator;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyListener;
+import org.jowidgets.cap.ui.api.bean.IBeanTransientStateListener;
 import org.jowidgets.cap.ui.api.bean.IBeanValidationStateListener;
 import org.jowidgets.cap.ui.api.bean.IExternalBeanValidator;
 import org.jowidgets.cap.ui.api.bean.IExternalBeanValidatorListener;
@@ -86,6 +87,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 	private final Map<ITypedKey<? extends Object>, Object> addedProperties;
 	private final PropertyChangeObservable propertyChangeObservable;
 	private final BeanModificationStateObservable<BEAN_TYPE> modificationStateObservable;
+	private final BeanTransientStateObservable<BEAN_TYPE> transientStateObservable;
 	private final BeanMessageStateObservable<BEAN_TYPE> messageStateObservable;
 	private final BeanProcessStateObservable<BEAN_TYPE> processStateObservable;
 	private final BeanValidationStateObservable<BEAN_TYPE> validationStateObservable;
@@ -129,6 +131,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 		this.undoneModifications = new HashMap<String, IBeanModification>();
 		this.propertyChangeObservable = new PropertyChangeObservable();
 		this.modificationStateObservable = new BeanModificationStateObservable<BEAN_TYPE>();
+		this.transientStateObservable = new BeanTransientStateObservable<BEAN_TYPE>();
 		this.processStateObservable = new BeanProcessStateObservable<BEAN_TYPE>();
 		this.messageStateObservable = new BeanMessageStateObservable<BEAN_TYPE>();
 		this.validationStateObservable = new BeanValidationStateObservable<BEAN_TYPE>();
@@ -253,9 +256,11 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 		if (!isTransient) {
 			throw new IllegalStateException("This bean is not transient");
 		}
+		final Object oldId = getId();
 		fireBeforeBeanUpdate();
 		setTransient(false);
 		updateImpl(beanDto);
+		transientStateObservable.fireTransientStateChanged(oldId, this);
 	}
 
 	private void updateImpl(final IBeanDto beanDto) {
@@ -794,6 +799,18 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 	public void removeModificationStateListener(final IBeanModificationStateListener<BEAN_TYPE> listener) {
 		checkDisposed();
 		modificationStateObservable.removeModificationStateListener(listener);
+	}
+
+	@Override
+	public void addTransientStateListener(final IBeanTransientStateListener<BEAN_TYPE> listener) {
+		checkDisposed();
+		transientStateObservable.addTransientStateListener(listener);
+	}
+
+	@Override
+	public void removeTransientStateListener(final IBeanTransientStateListener<BEAN_TYPE> listener) {
+		checkDisposed();
+		transientStateObservable.removeTransientStateListener(listener);
 	}
 
 	@Override

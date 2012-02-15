@@ -37,6 +37,7 @@ import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.common.api.service.IRefreshService;
 import org.jowidgets.cap.common.api.service.IUpdaterService;
 import org.jowidgets.cap.common.api.validation.IBeanValidator;
+import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyLabelRenderer;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.model.LinkType;
@@ -79,6 +80,8 @@ public interface IBeanTabFolderModelBuilder<BEAN_TYPE> {
 	IBeanTabFolderModelBuilder<BEAN_TYPE> setDeleterService(final IDeleterService deleterService);
 
 	IBeanTabFolderModelBuilder<BEAN_TYPE> setDeleterService(final IServiceId<IDeleterService> deleterServiceId);
+
+	IBeanTabFolderModelBuilder<BEAN_TYPE> setExceptionConverter(IBeanExceptionConverter exceptionConverter);
 
 	IBeanTabFolderModelBuilder<BEAN_TYPE> setParent(IBeanListModel<?> parent, LinkType linkType);
 

@@ -44,6 +44,7 @@ public interface IBeanProxy<BEAN_TYPE> extends
 		IPropertyChangeObservable,
 		IBeanValidationStateObservable<BEAN_TYPE>,
 		IBeanModificationStateObservable<BEAN_TYPE>,
+		IBeanTransientStateObservable<BEAN_TYPE>,
 		IBeanProcessStateObservable<BEAN_TYPE>,
 		IBeanMessageStateObservable<BEAN_TYPE> {
 

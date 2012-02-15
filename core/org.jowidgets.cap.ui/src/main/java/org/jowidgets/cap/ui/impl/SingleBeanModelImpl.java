@@ -28,9 +28,13 @@
 
 package org.jowidgets.cap.ui.impl;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
@@ -112,8 +116,10 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 	private final LinkType linkType;
 	private final List<IAttribute<Object>> attributes;
 	private final List<String> propertyNames;
+	private final Map<String, Object> defaultValues;
 
 	private final ChangeObservable changeObservable;
+	private final BeanListModelObservable beanListModelObservable;
 	private final ProcessStateObservable processStateObservable;
 
 	private final ParentModelListener parentModelListener;
@@ -170,14 +176,22 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 		}
 
 		this.attributes = Collections.unmodifiableList(new LinkedList<IAttribute<Object>>(attributes));
+		this.propertyNames = new LinkedList<String>();
+		this.defaultValues = new HashMap<String, Object>();
+		for (final IAttribute<?> attribute : attributes) {
+			final String propertyName = attribute.getPropertyName();
+			propertyNames.add(propertyName);
+			final Object defaultValue = attribute.getDefaultValue();
+			if (defaultValue != null) {
+				defaultValues.put(propertyName, defaultValue);
+			}
+		}
 
 		this.beanPropertyValidators = new LinkedList<IBeanPropertyValidator<BEAN_TYPE>>();
 		beanPropertyValidators.add(new BeanPropertyValidatorImpl<BEAN_TYPE>(attributes));
 		for (final IBeanValidator<BEAN_TYPE> beanValidator : beanValidators) {
 			beanPropertyValidators.add(new BeanPropertyValidatorAdapter<BEAN_TYPE>(beanValidator));
 		}
-
-		this.propertyNames = createPropertyNames(attributes);
 
 		this.beanType = (Class<BEAN_TYPE>) beanType;
 		this.entityId = entityId;
@@ -196,6 +210,7 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 		this.beanProxyFactory = CapUiToolkit.beanProxyFactory(beanType);
 
 		this.changeObservable = new ChangeObservable();
+		this.beanListModelObservable = new BeanListModelObservable();
 		this.processStateObservable = new ProcessStateObservable();
 	}
 
@@ -220,14 +235,6 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 		final IAttributeCollectionModifierBuilder modifierBuilder = attributeToolkit.createAttributeCollectionModifierBuilder();
 		modifierBuilder.addDefaultModifier().setEditable(false);
 		return CapUiToolkit.attributeToolkit().createAttributesCopy(attributes, modifierBuilder.build());
-	}
-
-	private static List<String> createPropertyNames(final List<IAttribute<Object>> attributesList) {
-		final List<String> result = new LinkedList<String>();
-		for (final IAttribute<Object> attribute : attributesList) {
-			result.add(attribute.getPropertyName());
-		}
-		return result;
 	}
 
 	@Override
@@ -294,6 +301,7 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 		if (bean != null) {
 			bean = null;
 			changeObservable.fireChangedEvent();
+			beanListModelObservable.fireBeansChanged();
 		}
 	}
 
@@ -338,7 +346,7 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 
 	@Override
 	public boolean hasModifications() {
-		return beansStateTracker.hasModifiedBeans();
+		return beansStateTracker.hasModifications();
 	}
 
 	@Override
@@ -398,6 +406,110 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 	@Override
 	public void removeChangeListener(final IChangeListener listener) {
 		changeObservable.removeChangeListener(listener);
+	}
+
+	@Override
+	public int getSize() {
+		return bean == null ? 0 : 1;
+	}
+
+	@Override
+	public IBeanProxy<BEAN_TYPE> getBean(final int index) {
+		if (bean != null && index == 0) {
+			return bean;
+		}
+		else {
+			throw new IndexOutOfBoundsException("Model is empty, no index may match");
+		}
+	}
+
+	@Override
+	public void removeBeans(final Collection<? extends IBeanProxy<BEAN_TYPE>> beans) {
+		Assert.paramNotEmpty(beans, "beans");
+		if (beans.size() > 1) {
+			throw new IllegalArgumentException("Only one bean can be removed from a single bean model");
+		}
+		if (beans.iterator().next().equals(bean)) {
+			setBean(null);
+		}
+		else {
+			throw new IllegalArgumentException("Bean is not set at this model");
+		}
+	}
+
+	@Override
+	public void addBean(final IBeanProxy<BEAN_TYPE> bean) {
+		Assert.paramNotNull(bean, "bean");
+		if (this.bean == null) {
+			setBean(bean);
+		}
+		else {
+			throw new IllegalStateException("No bean could be added to a single bean model that has a bean set");
+		}
+	}
+
+	@Override
+	public IBeanProxy<BEAN_TYPE> addBeanDto(final IBeanDto beanDto) {
+		final IBeanProxy<BEAN_TYPE> result = createBeanProxy(beanDto);
+		addBean(result);
+		return result;
+	}
+
+	private IBeanProxy<BEAN_TYPE> createBeanProxy(final IBeanDto beanDto) {
+		final IBeanProxy<BEAN_TYPE> beanProxy = beanProxyFactory.createProxy(beanDto, propertyNames);
+		for (final IBeanPropertyValidator<BEAN_TYPE> validator : beanPropertyValidators) {
+			beanProxy.addBeanPropertyValidator(validator);
+		}
+		return beanProxy;
+	}
+
+	@Override
+	public IBeanProxy<BEAN_TYPE> addTransientBean() {
+		final IBeanProxy<BEAN_TYPE> result = beanProxyFactory.createTransientProxy(propertyNames, defaultValues);
+		for (final IBeanPropertyValidator<BEAN_TYPE> validator : beanPropertyValidators) {
+			result.addBeanPropertyValidator(validator);
+		}
+		addBean(result);
+		return result;
+	}
+
+	@Override
+	public ArrayList<Integer> getSelection() {
+		final ArrayList<Integer> result = new ArrayList<Integer>();
+		if (bean != null) {
+			result.add(0);
+			return result;
+		}
+		return null;
+	}
+
+	@Override
+	public void setSelection(final Collection<Integer> selection) {
+		Assert.paramNotNull(selection, "selection");
+		if (selection.size() > 1) {
+			throw new IllegalArgumentException("Multi selection is not supported");
+		}
+		final Integer index = selection.iterator().next();
+		Assert.paramNotNull(index, "index");
+		if (index.intValue() > 0) {
+			throw new IndexOutOfBoundsException("Index must be 0");
+		}
+	}
+
+	@Override
+	public void fireBeansChanged() {
+		changeObservable.fireChangedEvent();
+		beanListModelObservable.fireBeansChanged();
+	}
+
+	@Override
+	public void addBeanListModelListener(final IBeanListModelListener listener) {
+		beanListModelObservable.addBeanListModelListener(listener);
+	}
+
+	@Override
+	public void removeBeanListModelListener(final IBeanListModelListener listener) {
+		beanListModelObservable.removeBeanListModelListener(listener);
 	}
 
 	private List<? extends IBeanKey> getParentBeanKeys() {
@@ -467,6 +579,7 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 
 			bean = dummyBean;
 			changeObservable.fireChangedEvent();
+			beanListModelObservable.fireBeansChanged();
 		}
 
 		boolean isDisposed() {
@@ -519,6 +632,7 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 
 			finished = true;
 			changeObservable.fireChangedEvent();
+			beanListModelObservable.fireBeansChanged();
 			processStateObservable.fireProcessStateChanged();
 		}
 
@@ -535,6 +649,7 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 
 			finished = true;
 			changeObservable.fireChangedEvent();
+			beanListModelObservable.fireBeansChanged();
 			processStateObservable.fireProcessStateChanged();
 		}
 
@@ -563,6 +678,7 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 
 				processStateObservable.fireProcessStateChanged();
 				changeObservable.fireChangedEvent();
+				beanListModelObservable.fireBeansChanged();
 			}
 		}
 
@@ -656,6 +772,7 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 
 			finished = true;
 			changeObservable.fireChangedEvent();
+			beanListModelObservable.fireBeansChanged();
 			processStateObservable.fireProcessStateChanged();
 		}
 
@@ -672,6 +789,7 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 			finished = true;
 			processStateObservable.fireProcessStateChanged();
 			changeObservable.fireChangedEvent();
+			beanListModelObservable.fireBeansChanged();
 		}
 
 		private void userCanceledLater() {
@@ -693,6 +811,7 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 				canceled = true;
 				processStateObservable.fireProcessStateChanged();
 				changeObservable.fireChangedEvent();
+				beanListModelObservable.fireBeansChanged();
 			}
 		}
 

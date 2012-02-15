@@ -43,7 +43,7 @@ public interface IBeanMessageFix {
 	/**
 	 * Gets the execution. The execution will be executed in the event dispatcher thread.
 	 * 
-	 * @return The execution of the fix, must no be null.
+	 * @return The execution of the fix, must not be null.
 	 */
 	Runnable getExecution();
 

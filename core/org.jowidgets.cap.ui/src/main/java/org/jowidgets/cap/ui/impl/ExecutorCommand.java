@@ -45,7 +45,7 @@ import org.jowidgets.cap.common.api.execution.IExecutionCallbackListener;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.service.IExecutorService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
-import org.jowidgets.cap.ui.api.bean.IBeanExecptionConverter;
+import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
 import org.jowidgets.cap.ui.api.bean.IBeanKeyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.execution.BeanExecutionPolicy;
@@ -74,7 +74,7 @@ final class ExecutorCommand implements ICommand, ICommandExecutor {
 
 	private final Object defaultParameter;
 	private final Object executor;
-	private final IBeanExecptionConverter beanExceptionConverter;
+	private final IBeanExceptionConverter beanExceptionConverter;
 
 	ExecutorCommand(
 		final IBeanListModel listModel,
@@ -84,7 +84,7 @@ final class ExecutorCommand implements ICommand, ICommandExecutor {
 		final BeanMessageStatePolicy beanMessageStatePolicy,
 		final List<IEnabledChecker> enabledCheckers,
 		final List<IExecutableChecker<Object>> executableCheckers,
-		final IBeanExecptionConverter beanExceptionConverter,
+		final IBeanExceptionConverter beanExceptionConverter,
 		final List<Object> parameterProviders,
 		final List<IExecutionInterceptor> executionInterceptors,
 		final Object defaultParameter,
@@ -143,7 +143,8 @@ final class ExecutorCommand implements ICommand, ICommandExecutor {
 			listModel,
 			beans,
 			beanListExecutionPolicy,
-			beanExceptionConverter);
+			beanExceptionConverter,
+			false);
 
 		final List<List<IBeanProxy<?>>> preparedExecutions = executionHelper.prepareExecutions();
 		executionObservable.fireAfterExecutionPrepared(executionContext);

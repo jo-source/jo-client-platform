@@ -43,7 +43,7 @@ import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.service.ICreatorService;
 import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
-import org.jowidgets.cap.ui.api.bean.IBeanExecptionConverter;
+import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
 import org.jowidgets.cap.ui.api.command.ILinkActionBuilder;
 import org.jowidgets.cap.ui.api.execution.BeanMessageStatePolicy;
 import org.jowidgets.cap.ui.api.execution.BeanModificationStatePolicy;
@@ -79,7 +79,7 @@ final class LinkActionBuilderImpl<BEAN_TYPE> extends AbstractSingleUseBuilder<IA
 	private boolean multiSelection;
 	private BeanModificationStatePolicy beanModificationStatePolicy;
 	private BeanMessageStatePolicy beanMessageStatePolicy;
-	private IBeanExecptionConverter exceptionConverter;
+	private IBeanExceptionConverter exceptionConverter;
 	private IDataModel linkedDataModel;
 
 	LinkActionBuilderImpl(final IBeanListModel<BEAN_TYPE> model) {
@@ -290,7 +290,7 @@ final class LinkActionBuilderImpl<BEAN_TYPE> extends AbstractSingleUseBuilder<IA
 	}
 
 	@Override
-	public ILinkActionBuilder<BEAN_TYPE> setExceptionConverter(final IBeanExecptionConverter exceptionConverter) {
+	public ILinkActionBuilder<BEAN_TYPE> setExceptionConverter(final IBeanExceptionConverter exceptionConverter) {
 		checkExhausted();
 		Assert.paramNotNull(exceptionConverter, "exceptionConverter");
 		this.exceptionConverter = exceptionConverter;

@@ -47,6 +47,7 @@ import org.jowidgets.cap.common.api.validation.IBeanValidator;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
+import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
 import org.jowidgets.cap.ui.api.bean.IBeanPropertyValidator;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyLabelRenderer;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
@@ -78,6 +79,8 @@ final class BeanTabFolderModelBuilderImpl<BEAN_TYPE> implements IBeanTabFolderMo
 	private IUpdaterService updaterService;
 	private IDeleterService deleterService;
 
+	private IBeanExceptionConverter exceptionConverter;
+
 	private ISortModelConfig sortModelConfig;
 	private List<String> propertyNames;
 
@@ -91,6 +94,7 @@ final class BeanTabFolderModelBuilderImpl<BEAN_TYPE> implements IBeanTabFolderMo
 		this.beanValidators = new LinkedHashSet<IBeanValidator<BEAN_TYPE>>();
 		this.beanPropertyValidators = new LinkedHashSet<IBeanPropertyValidator<BEAN_TYPE>>();
 		this.interceptors = new LinkedList<IBeanTabFolderModelInterceptor<BEAN_TYPE>>();
+		this.exceptionConverter = new DefaultBeanExceptionConverter();
 		this.beanType = beanType;
 		this.entityId = entityId;
 
@@ -230,6 +234,13 @@ final class BeanTabFolderModelBuilderImpl<BEAN_TYPE> implements IBeanTabFolderMo
 	}
 
 	@Override
+	public IBeanTabFolderModelBuilder<BEAN_TYPE> setExceptionConverter(final IBeanExceptionConverter exceptionConverter) {
+		Assert.paramNotNull(exceptionConverter, "exceptionConverter");
+		this.exceptionConverter = exceptionConverter;
+		return this;
+	}
+
+	@Override
 	public IBeanTabFolderModelBuilder<BEAN_TYPE> setParent(final IBeanListModel<?> parent, final LinkType linkType) {
 		Assert.paramNotNull(parent, "parent");
 		Assert.paramNotNull(linkType, "linkType");
@@ -292,6 +303,7 @@ final class BeanTabFolderModelBuilderImpl<BEAN_TYPE> implements IBeanTabFolderMo
 			refreshService,
 			updaterService,
 			deleterService,
+			exceptionConverter,
 			parent,
 			linkType);
 	}
