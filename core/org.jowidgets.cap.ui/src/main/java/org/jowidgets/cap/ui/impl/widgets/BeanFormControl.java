@@ -483,6 +483,10 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 		validationResults.clear();
 	}
 
+	void invokeSetValidationCacheDirty() {
+		setValidationCacheDirty();
+	}
+
 	@Override
 	protected IValidationResult createValidationResult() {
 		final IValidationResultBuilder builder = ValidationResult.builder();

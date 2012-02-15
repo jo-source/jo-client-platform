@@ -775,9 +775,9 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		for (final IBeanProxy<BEAN_TYPE> bean : new HashSet<IBeanProxy<BEAN_TYPE>>(beansStateTracker.getBeansToUpdate())) {
 			bean.undoModifications();
 		}
-		for (final IBeanProxy<BEAN_TYPE> bean : new LinkedList<IBeanProxy<BEAN_TYPE>>(beansStateTracker.getBeansToCreate())) {
-			addedData.remove(bean);
-			beansStateTracker.unregister(bean);
+		final Set<IBeanProxy<BEAN_TYPE>> beansToCreate = beansStateTracker.getBeansToCreate();
+		if (!beansToCreate.isEmpty()) {
+			removeBeansImpl(beansToCreate, false);
 		}
 		beansStateTracker.clearModifications();
 		dataModel.fireDataChanged();
@@ -886,6 +886,10 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 	@Override
 	public void removeBeans(final Collection<? extends IBeanProxy<BEAN_TYPE>> beans) {
+		removeBeansImpl(beans, true);
+	}
+
+	private void removeBeansImpl(final Collection<? extends IBeanProxy<BEAN_TYPE>> beans, final boolean fireBeansChanged) {
 		Assert.paramNotNull(beans, "beans");
 		//data structure must rebuild, so do not load until this happens
 		tryToCanceLoader();
@@ -898,7 +902,9 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 		setSelection(newSelection);
 
-		fireBeansChanged();
+		if (fireBeansChanged) {
+			fireBeansChanged();
+		}
 	}
 
 	private void removeBeansFromData(

@@ -316,14 +316,9 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 		if (!Toolkit.getUiThreadAccess().isUiThread()) {
 			throw new IllegalStateException("Load must be invoked in the ui thread");
 		}
-		if (clearOnEmptyFilter && isFilterEmpty() || clearOnEmptyParentBeans && EmptyCheck.isEmpty(getParentBeanKeys())) {
-			clear();
-		}
-		else {
-			tryToCanceLoader();
-			dataLoader = new DataLoader();
-			dataLoader.loadData();
-		}
+		tryToCanceLoader();
+		dataLoader = new DataLoader();
+		dataLoader.loadData();
 	}
 
 	private boolean isFilterEmpty() {
@@ -376,9 +371,9 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 		for (final IBeanProxy<BEAN_TYPE> bean : new HashSet<IBeanProxy<BEAN_TYPE>>(beansStateTracker.getBeansToUpdate())) {
 			bean.undoModifications();
 		}
-		for (final IBeanProxy<BEAN_TYPE> bean : new LinkedList<IBeanProxy<BEAN_TYPE>>(beansStateTracker.getBeansToCreate())) {
-			data.remove(bean);
-			beansStateTracker.unregister(bean);
+		final Set<IBeanProxy<BEAN_TYPE>> beansToCreate = beansStateTracker.getBeansToCreate();
+		if (!beansToCreate.isEmpty()) {
+			removeBeansImpl(beansToCreate, false);
 		}
 		beansStateTracker.clearModifications();
 	}
@@ -517,6 +512,10 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 
 	@Override
 	public void removeBeans(final Collection<? extends IBeanProxy<BEAN_TYPE>> beans) {
+		removeBeansImpl(beans, true);
+	}
+
+	private void removeBeansImpl(final Collection<? extends IBeanProxy<BEAN_TYPE>> beans, final boolean fireBeansChanged) {
 		Assert.paramNotNull(beans, "beans");
 		tryToCanceLoader();
 
@@ -538,7 +537,9 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 			selectedTab = null;
 		}
 
-		fireBeansChanged();
+		if (fireBeansChanged) {
+			fireBeansChanged();
+		}
 	}
 
 	@Override
@@ -835,17 +836,30 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 			data.add(dummyBean);
 			selectedTab = Integer.valueOf(0);
 
-			readerService.read(
-					createResultCallback(),
-					getParentBeanKeys(),
-					filter,
-					sortModel.getSorting(),
-					0,
-					MAX_TABS,
-					readerParameterProvider.get(),
-					executionTask);
+			if (isLoadNeeded()) {
+				readerService.read(
+						createResultCallback(),
+						getParentBeanKeys(),
+						filter,
+						sortModel.getSorting(),
+						0,
+						MAX_TABS,
+						readerParameterProvider.get(),
+						executionTask);
+				fireBeansChanged();
+			}
+			else {
+				setResult(new LinkedList<IBeanDto>());
+			}
+		}
 
-			fireBeansChanged();
+		boolean isLoadNeeded() {
+			if (clearOnEmptyFilter && isFilterEmpty() || clearOnEmptyParentBeans && EmptyCheck.isEmpty(getParentBeanKeys())) {
+				return false;
+			}
+			else {
+				return true;
+			}
 		}
 
 		boolean isDisposed() {
