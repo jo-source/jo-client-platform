@@ -268,6 +268,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 		final List<PropertyChangeEvent> propertyChangeEvents = getPropertyChangesForUpdate(beanDto);
 		this.beanDto = beanDto;
 		modifications.clear();
+		clearMessages();
 		firePropertyChangeEvents(propertyChangeEvents);
 		if (oldModificationState) {
 			modificationStateObservable.fireModificationStateChanged(this);
