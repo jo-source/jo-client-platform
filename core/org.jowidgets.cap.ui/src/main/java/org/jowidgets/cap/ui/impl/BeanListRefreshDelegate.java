@@ -69,7 +69,7 @@ final class BeanListRefreshDelegate<BEAN_TYPE> {
 		this.refreshService = refreshService;
 
 		//TODO i18n
-		this.refreshString = "Reload";
+		this.refreshString = Messages.getString("BeanListRefreshDelegate.Reload");
 	}
 
 	void refresh(final Collection<IBeanProxy<BEAN_TYPE>> beans) {
