@@ -39,6 +39,7 @@ import org.jowidgets.cap.ui.api.bean.BeanMessageType;
 import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
 import org.jowidgets.cap.ui.api.bean.IBeanMessage;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
+import org.jowidgets.util.EmptyCheck;
 
 //TODO MG implement better converter
 //TODO i18n
@@ -90,7 +91,13 @@ final class DefaultBeanExceptionConverter implements IBeanExceptionConverter {
 				return new BeanMessageImpl(BeanMessageType.ERROR, message, throwable);
 			}
 			else {
-				return new BeanMessageImpl(BeanMessageType.ERROR, "Undefined runtime exception!", throwable);
+				final String userMessage = serviceException.getUserMessage();
+				if (!EmptyCheck.isEmpty(userMessage)) {
+					return new BeanMessageImpl(BeanMessageType.ERROR, userMessage, throwable);
+				}
+				else {
+					return new BeanMessageImpl(BeanMessageType.ERROR, "Undefined runtime exception!", throwable);
+				}
 			}
 		}
 		else {
