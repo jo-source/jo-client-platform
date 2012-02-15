@@ -44,6 +44,7 @@ import java.util.Set;
 import org.jowidgets.api.animation.IWaitAnimationProcessor;
 import org.jowidgets.api.color.Colors;
 import org.jowidgets.api.command.IAction;
+import org.jowidgets.api.controller.IDisposeListener;
 import org.jowidgets.api.image.IconsSmall;
 import org.jowidgets.api.threads.IUiThreadAccess;
 import org.jowidgets.api.toolkit.Toolkit;
@@ -210,6 +211,13 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 
 		//this must be the last invocation in this constructor
 		layouter.layout(scrollContentPane, new BeanFormControlFactory());
+
+		addDisposeListener(new IDisposeListener() {
+			@Override
+			public void onDispose() {
+				Toolkit.getWaitAnimationProcessor().removeChangeListener(labelWaitChangeListener);
+			}
+		});
 	}
 
 	private static String getContentWidthConstraints(final Integer maxWidth) {
@@ -814,7 +822,7 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 		@Override
 		public void changed() {
 			final IWaitAnimationProcessor animationProcessor = Toolkit.getWaitAnimationProcessor();
-			if (!isDisposed()) {
+			if (!isDisposed() && !processStateLabel.isDisposed()) {
 				processStateLabel.setIcon(animationProcessor.getWaitIcon());
 			}
 			else {

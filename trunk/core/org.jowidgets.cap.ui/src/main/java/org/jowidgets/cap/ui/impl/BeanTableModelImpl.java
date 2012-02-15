@@ -193,6 +193,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 	private final String userCanceledMessage;
 	private final String loadErrorMessage;
+	private final String loadingDataLabel;
 
 	private PageLoader evenPageLoader;
 	private PageLoader oddPageLoader;
@@ -307,6 +308,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		this.programmaticPageLoader = new HashMap<Integer, PageLoader>();
 		this.userCanceledMessage = Messages.getString("BeanTableModelImpl.user_canceled");
 		this.loadErrorMessage = Messages.getString("BeanTableModelImpl.load_error");
+		this.loadingDataLabel = Messages.getString("BeanTableModelImpl.load_data");
 		this.beanPropertyValidators = new LinkedList<IBeanPropertyValidator<BEAN_TYPE>>();
 		this.beanPropertyValidatorsView = Collections.unmodifiableList(beanPropertyValidators);
 		beanPropertyValidators.add(new BeanPropertyValidatorImpl<BEAN_TYPE>(attributes));
@@ -1929,6 +1931,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			dummyBeanProxy = beanProxyFactory.createProxy(new DummyBeanDto(), propertyNames);
 			dummyBeanProxy.setDummy(true);
 			executionTask = CapUiToolkit.executionTaskFactory().create();
+			executionTask.setDescription(loadingDataLabel);
 			executionTask.addExecutionCallbackListener(new IExecutionCallbackListener() {
 				@Override
 				public void canceled() {

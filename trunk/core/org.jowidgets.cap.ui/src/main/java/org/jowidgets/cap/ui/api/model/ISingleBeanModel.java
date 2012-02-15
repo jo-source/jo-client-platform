@@ -42,6 +42,8 @@ public interface ISingleBeanModel<BEAN_TYPE> extends IDataModel, IBeanListModel<
 
 	Object getEntityId();
 
+	void refresh();
+
 	IBeanProxy<BEAN_TYPE> getBean();
 
 	void setBean(IBeanProxy<BEAN_TYPE> bean);

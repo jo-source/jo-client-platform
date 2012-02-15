@@ -71,6 +71,7 @@ import org.jowidgets.cap.ui.api.bean.IBeanProxyLabelRenderer;
 import org.jowidgets.cap.ui.api.bean.IBeansStateTracker;
 import org.jowidgets.cap.ui.api.execution.BeanExecutionPolicy;
 import org.jowidgets.cap.ui.api.execution.IExecutionTask;
+import org.jowidgets.cap.ui.api.filter.IUiBooleanFilter;
 import org.jowidgets.cap.ui.api.filter.IUiFilter;
 import org.jowidgets.cap.ui.api.filter.IUiFilterFactory;
 import org.jowidgets.cap.ui.api.filter.IUiFilterTools;
@@ -126,6 +127,8 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 
 	private final IBeanListModel<?> parent;
 	private final LinkType linkType;
+	private final boolean clearOnEmptyFilter;
+	private final boolean clearOnEmptyParentBeans;
 
 	private final BeanListModelObservable beanListModelObservable;
 	private final DisposeObservable disposeObservable;
@@ -135,6 +138,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 	private final IBeanProxyLabelRenderer<BEAN_TYPE> renderer;
 
 	private final String loadErrorMessage;
+	private final String loadingDataLabel;
 
 	private Integer selectedTab;
 	private boolean disposed;
@@ -159,7 +163,9 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 		final IDeleterService deleterService,
 		final IBeanExceptionConverter exceptionConverter,
 		final IBeanListModel<?> parent,
-		final LinkType linkType) {
+		final LinkType linkType,
+		final boolean clearOnEmptyFilter,
+		final boolean clearOnEmptyParentBeans) {
 
 		//arguments checks
 		Assert.paramNotNull(interceptors, "interceptors");
@@ -173,6 +179,8 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 		this.parent = parent;
 		this.entityId = entityId;
 		this.beanType = (Class<BEAN_TYPE>) beanType;
+		this.clearOnEmptyFilter = clearOnEmptyFilter;
+		this.clearOnEmptyParentBeans = clearOnEmptyParentBeans;
 		this.propertyNames = new LinkedList<String>(propertyNames);
 		this.linkType = linkType;
 		if (parent != null) {
@@ -201,6 +209,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 		this.disposeObservable = new DisposeObservable();
 		this.filterChangeObservable = new ChangeObservable();
 		this.loadErrorMessage = Messages.getString("BeanTableModelImpl.load_error");
+		this.loadingDataLabel = Messages.getString("BeanTableModelImpl.load_data");
 		this.beanPropertyValidators = new LinkedList<IBeanPropertyValidator<BEAN_TYPE>>(beanPropertyValidators);
 		this.beanPropertyValidatorsView = Collections.unmodifiableList(this.beanPropertyValidators);
 		for (final IBeanValidator<BEAN_TYPE> beanValidator : beanValidators) {
@@ -294,10 +303,10 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 		}
 		selectedTab = null;
 		tryToCanceLoader();
-		data.clear();
 		for (final IBeanProxy<BEAN_TYPE> bean : data) {
 			beansStateTracker.unregister(bean);
 		}
+		data.clear();
 		beansStateTracker.clearAll();
 		beanListModelObservable.fireBeansChanged();
 	}
@@ -307,9 +316,38 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 		if (!Toolkit.getUiThreadAccess().isUiThread()) {
 			throw new IllegalStateException("Load must be invoked in the ui thread");
 		}
-		tryToCanceLoader();
-		dataLoader = new DataLoader();
-		dataLoader.loadData();
+		if (clearOnEmptyFilter && isFilterEmpty() || clearOnEmptyParentBeans && EmptyCheck.isEmpty(getParentBeanKeys())) {
+			clear();
+		}
+		else {
+			tryToCanceLoader();
+			dataLoader = new DataLoader();
+			dataLoader.loadData();
+		}
+	}
+
+	private boolean isFilterEmpty() {
+		for (final IUiFilter filter : filters.values()) {
+			if (!isFilterEmpty(filter)) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private boolean isFilterEmpty(final IUiFilter filter) {
+		if (filter instanceof IUiBooleanFilter) {
+			final IUiBooleanFilter booleanFilter = (IUiBooleanFilter) filter;
+			for (final IUiFilter childFilter : booleanFilter.getFilters()) {
+				if (!isFilterEmpty(childFilter)) {
+					return false;
+				}
+			}
+			return true;
+		}
+		else {
+			return false;
+		}
 	}
 
 	private void tryToCanceLoader() {
@@ -764,13 +802,24 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 
 		private IExecutionTask executionTask;
 
+		private ArrayList<IBeanProxy<BEAN_TYPE>> oldData;
+		private IBeanProxy<BEAN_TYPE> dummyBean;
+
 		DataLoader() {
 			this.uiThreadAccess = Toolkit.getUiThreadAccess();
 			this.filter = getFilter();
 		}
 
 		void loadData() {
+			oldData = new ArrayList<IBeanProxy<BEAN_TYPE>>();
+			for (final IBeanProxy<BEAN_TYPE> bean : data) {
+				oldData.add(bean);
+				beansStateTracker.unregister(bean);
+			}
+			data.clear();
+
 			executionTask = CapUiToolkit.executionTaskFactory().create();
+			executionTask.setDescription(loadingDataLabel);
 			executionTask.addExecutionCallbackListener(new IExecutionCallbackListener() {
 				@Override
 				public void canceled() {
@@ -779,9 +828,12 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 					}
 				}
 			});
-			for (final IBeanProxy<BEAN_TYPE> bean : data) {
-				bean.setExecutionTask(executionTask);
-			}
+
+			dummyBean = beanProxyFactory.createDummyProxy(propertyNames);
+			beansStateTracker.register(dummyBean);
+			dummyBean.setExecutionTask(executionTask);
+			data.add(dummyBean);
+			selectedTab = Integer.valueOf(0);
 
 			readerService.read(
 					createResultCallback(),
@@ -792,6 +844,8 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 					MAX_TABS,
 					readerParameterProvider.get(),
 					executionTask);
+
+			fireBeansChanged();
 		}
 
 		boolean isDisposed() {
@@ -800,13 +854,10 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 
 		void cancel() {
 			if (!canceled) {
-				this.canceled = true;
-				for (final IBeanProxy<BEAN_TYPE> bean : data) {
-					bean.setExecutionTask(null);
-				}
 				if (executionTask != null) {
 					executionTask.cancel();
 				}
+				userCanceled();
 			}
 		}
 
@@ -829,12 +880,9 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 		}
 
 		private void setResult(final List<IBeanDto> beanDtos) {
-			final List<IBeanProxy<BEAN_TYPE>> oldBeans = new LinkedList<IBeanProxy<BEAN_TYPE>>(data);
-			final IBeanProxy<BEAN_TYPE> lastSelectedBean = getSelectedBean();
-
-			for (final IBeanProxy<BEAN_TYPE> oldBean : oldBeans) {
-				oldBean.setExecutionTask(null);
-				beansStateTracker.unregister(oldBean);
+			if (dummyBean != null) {
+				dummyBean.setExecutionTask(null);
+				beansStateTracker.unregister(dummyBean);
 			}
 
 			data.clear();
@@ -849,29 +897,22 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 				newData = interceptor.afterLoad(newData);
 			}
 
-			int index = 0;
 			for (final IBeanProxy<BEAN_TYPE> bean : newData) {
 				for (final IBeanPropertyValidator<BEAN_TYPE> validator : beanPropertyValidators) {
 					bean.addBeanPropertyValidator(validator);
 				}
 				beansStateTracker.register(bean);
 				data.add(bean);
-				if (lastSelectedBean != null && lastSelectedBean.equals(bean)) {
-					selectedTab = Integer.valueOf(index);
-				}
-				index++;
 			}
 
-			finished = true;
-
-			if (selectedTab != null && selectedTab.intValue() >= data.size()) {
+			if (data.size() > 0) {
+				selectedTab = Integer.valueOf(0);
+			}
+			else {
 				selectedTab = null;
 			}
 
-			if (selectedTab == null && data.size() > 0) {
-				selectedTab = Integer.valueOf(0);
-			}
-
+			finished = true;
 			beanListModelObservable.fireBeansChanged();
 		}
 
@@ -880,10 +921,12 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 			beanMessageBuilder.setException(exception);
 			beanMessageBuilder.setMessage(loadErrorMessage);
 			final IBeanMessage message = beanMessageBuilder.build();
-			for (final IBeanProxy<BEAN_TYPE> bean : data) {
-				bean.setExecutionTask(null);
-				bean.addMessage(message);
+
+			if (dummyBean != null) {
+				dummyBean.setExecutionTask(null);
+				dummyBean.addMessage(message);
 			}
+
 			finished = true;
 			beanListModelObservable.fireBeansChanged();
 		}
@@ -899,9 +942,18 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 
 		private void userCanceled() {
 			if (!canceled) {
-				for (final IBeanProxy<BEAN_TYPE> bean : data) {
-					bean.setExecutionTask(null);
+				if (dummyBean != null) {
+					dummyBean.setExecutionTask(null);
+					beansStateTracker.unregister(dummyBean);
 				}
+				if (oldData != null) {
+					data.clear();
+					for (final IBeanProxy<BEAN_TYPE> oldBean : oldData) {
+						beansStateTracker.register(oldBean);
+					}
+					data.addAll(oldData);
+				}
+
 				finished = true;
 				canceled = true;
 				beanListModelObservable.fireBeansChanged();
