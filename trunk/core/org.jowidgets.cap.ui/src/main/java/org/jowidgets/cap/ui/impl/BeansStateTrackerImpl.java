@@ -84,11 +84,13 @@ final class BeansStateTrackerImpl<BEAN_TYPE> implements IBeansStateTracker<BEAN_
 		this.modificationStateListener = new IBeanModificationStateListener<BEAN_TYPE>() {
 			@Override
 			public void modificationStateChanged(final IBeanProxy<BEAN_TYPE> bean) {
-				if (bean.hasModifications() && !bean.isTransient()) {
-					addModifiedBean(bean);
-				}
-				else if (!bean.isTransient()) {
-					removeUnmodifiedBean(bean);
+				if (!bean.isTransient()) {
+					if (bean.hasModifications()) {
+						addModifiedBean(bean);
+					}
+					else {
+						removeUnmodifiedBean(bean);
+					}
 				}
 			}
 		};

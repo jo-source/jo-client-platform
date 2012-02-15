@@ -262,7 +262,6 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 
 		@Override
 		protected void exceptionUi(final Throwable exception) {
-			bean.setExecutionTask(null);
 			if (exception != null) {
 				final List<IBeanProxy<BEAN_TYPE>> beans = new LinkedList<IBeanProxy<BEAN_TYPE>>();
 				beans.add(bean);
@@ -276,6 +275,7 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 				messageBuilder.setDescription(description);
 				bean.addMessage(messageBuilder.build());
 			}
+			bean.setExecutionTask(null);
 			model.fireBeansChanged();
 			executionObservable.fireAfterExecutionError(executionContext, exception);
 		}
