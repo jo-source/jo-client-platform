@@ -29,7 +29,6 @@
 package org.jowidgets.cap.common.api.exception;
 
 import org.jowidgets.cap.common.api.bean.IBeanKey;
-import org.jowidgets.util.Assert;
 
 public class ServiceException extends RuntimeException {
 
@@ -56,7 +55,6 @@ public class ServiceException extends RuntimeException {
 
 	public ServiceException(final IBeanKey beanKey, final String message, final String userMessage, final Throwable cause) {
 		super(message, cause);
-		Assert.paramNotNull(beanKey, "beanKey");
 		this.beanKey = beanKey;
 		this.userMessage = userMessage;
 	}

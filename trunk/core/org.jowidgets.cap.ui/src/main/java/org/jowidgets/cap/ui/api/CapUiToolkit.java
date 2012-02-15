@@ -112,7 +112,9 @@ import org.jowidgets.tools.validation.MandatoryValidator;
 import org.jowidgets.tools.widgets.blueprint.BPF;
 import org.jowidgets.tools.widgets.blueprint.convenience.AbstractSetupBuilderConvenience;
 import org.jowidgets.util.IDecorator;
+import org.jowidgets.validation.IValidationMessage;
 import org.jowidgets.validation.IValidationResult;
+import org.jowidgets.validation.MessageType;
 
 public final class CapUiToolkit {
 
@@ -363,6 +365,12 @@ public final class CapUiToolkit {
 						final IDecorator<IValidationResult> editModeValidationDecorator = new IDecorator<IValidationResult>() {
 							@Override
 							public IValidationResult decorate(final IValidationResult original) {
+								if (original != null) {
+									final IValidationMessage worstFirst = original.getWorstFirst();
+									if (worstFirst != null && worstFirst.getType().equalOrWorse(MessageType.WARNING)) {
+										return original;
+									}
+								}
 								return null;
 							}
 						};
@@ -374,12 +382,13 @@ public final class CapUiToolkit {
 						final IDecorator<IValidationResult> createModeValidationDecorator = new IDecorator<IValidationResult>() {
 							@Override
 							public IValidationResult decorate(final IValidationResult original) {
-								if (!original.isValid()) {
-									return original;
+								if (original != null) {
+									final IValidationMessage worstFirst = original.getWorstFirst();
+									if (worstFirst != null && worstFirst.getType().equalOrWorse(MessageType.WARNING)) {
+										return original;
+									}
 								}
-								else {
-									return null;
-								}
+								return null;
 							}
 						};
 						createModeValidationLabel.setInitialValidationDecorator(createModeValidationDecorator);
