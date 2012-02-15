@@ -43,27 +43,21 @@ final class ExecutionTaskFactory implements IExecutionTaskFactory {
 	@Override
 	public IExecutionTask create() {
 		final ExecutionTask result = new ExecutionTask();
-		result.addExecutionTaskListener(new ExecutionTaskMonitor(result));
+		result.addExecutionTaskListener(new ExecutionTaskMonitor(result, Toolkit.getUiThreadAccess()));
 		return result;
 	}
 
 	//TODO MG enhance this , maybe a monitoring context could be given by the create method
 	private class ExecutionTaskMonitor implements IExecutionTaskListener {
 
-		private final IExecutionTask executionTask;
 		private final IUiThreadAccess uiThreadAccess;
 
-		ExecutionTaskMonitor(final IExecutionTask executionTask) {
-			this.executionTask = executionTask;
-			this.uiThreadAccess = Toolkit.getUiThreadAccess();
+		ExecutionTaskMonitor(final IExecutionTask executionTask, final IUiThreadAccess uiThreadAccess) {
+			this.uiThreadAccess = uiThreadAccess;
 		}
 
 		@Override
-		public void worked(final int totalWorked) {
-			//CHECKSTYLE:OFF
-			System.out.println("WORKED " + totalWorked);
-			//CHECKSTYLE:ON
-		}
+		public void worked(final int totalWorked) {}
 
 		@Override
 		public void userQuestionAsked(final String question, final IUserAnswerCallback callback) {
@@ -91,33 +85,18 @@ final class ExecutionTaskFactory implements IExecutionTaskFactory {
 		}
 
 		@Override
-		public void totalStepCountChanged(final int totalStepCount) {
-			//CHECKSTYLE:OFF
-			System.out.println("TOTAL STEP COUNT " + totalStepCount);
-			//CHECKSTYLE:ON
-		}
+		public void totalStepCountChanged(final int totalStepCount) {}
 
 		@Override
 		public void subExecutionAdded(final IExecutionTask executionTask) {
-			//CHECKSTYLE:OFF
-			System.out.println("SUB EXECUTION TASK ADDED ");
-			//CHECKSTYLE:ON
-			executionTask.addExecutionTaskListener(new ExecutionTaskMonitor(executionTask));
+			executionTask.addExecutionTaskListener(new ExecutionTaskMonitor(executionTask, uiThreadAccess));
 		}
 
 		@Override
-		public void finished() {
-			//CHECKSTYLE:OFF
-			System.out.println("FINISHED " + executionTask.isFinshed());
-			//CHECKSTYLE:ON
-		}
+		public void finished() {}
 
 		@Override
-		public void descriptionChanged(final String description) {
-			//CHECKSTYLE:OFF
-			System.out.println("DESCRIPTION CHANGED " + description);
-			//CHECKSTYLE:ON
-		}
+		public void descriptionChanged(final String description) {}
 
 	}
 }

@@ -73,6 +73,8 @@ final class BeanTabFolderModelBuilderImpl<BEAN_TYPE> implements IBeanTabFolderMo
 	private IProvider<? extends Object> readerParameterProvider;
 	private IBeanListModel<?> parent;
 	private LinkType linkType;
+	private boolean clearOnEmptyFilter;
+	private Boolean clearOnEmptyParentBeans;
 
 	private ICreatorService creatorService;
 	private IRefreshService refreshService;
@@ -95,6 +97,7 @@ final class BeanTabFolderModelBuilderImpl<BEAN_TYPE> implements IBeanTabFolderMo
 		this.beanPropertyValidators = new LinkedHashSet<IBeanPropertyValidator<BEAN_TYPE>>();
 		this.interceptors = new LinkedList<IBeanTabFolderModelInterceptor<BEAN_TYPE>>();
 		this.exceptionConverter = new DefaultBeanExceptionConverter();
+		this.clearOnEmptyFilter = false;
 		this.beanType = beanType;
 		this.entityId = entityId;
 
@@ -287,6 +290,27 @@ final class BeanTabFolderModelBuilderImpl<BEAN_TYPE> implements IBeanTabFolderMo
 	}
 
 	@Override
+	public IBeanTabFolderModelBuilder<BEAN_TYPE> setClearOnEmptyFilter(final boolean clearOnEmptyFilter) {
+		this.clearOnEmptyFilter = clearOnEmptyFilter;
+		return this;
+	}
+
+	@Override
+	public IBeanTabFolderModelBuilder<BEAN_TYPE> setClearOnEmptyParentBeans(final boolean clearOnEmptyParentBeans) {
+		this.clearOnEmptyParentBeans = Boolean.valueOf(clearOnEmptyParentBeans);
+		return this;
+	}
+
+	private boolean getClearOnEmptyParentBeans() {
+		if (clearOnEmptyParentBeans != null) {
+			return clearOnEmptyParentBeans.booleanValue();
+		}
+		else {
+			return parent != null;
+		}
+	}
+
+	@Override
 	public IBeanTabFolderModel<BEAN_TYPE> build() {
 		return new BeanTabFolderModelImpl<BEAN_TYPE>(
 			entityId,
@@ -305,7 +329,9 @@ final class BeanTabFolderModelBuilderImpl<BEAN_TYPE> implements IBeanTabFolderMo
 			deleterService,
 			exceptionConverter,
 			parent,
-			linkType);
+			linkType,
+			clearOnEmptyFilter,
+			getClearOnEmptyParentBeans());
 	}
 
 }

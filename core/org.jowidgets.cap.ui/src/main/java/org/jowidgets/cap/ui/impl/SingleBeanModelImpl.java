@@ -66,6 +66,7 @@ import org.jowidgets.cap.ui.api.bean.IBeanPropertyValidator;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeansStateTracker;
+import org.jowidgets.cap.ui.api.execution.BeanExecutionPolicy;
 import org.jowidgets.cap.ui.api.execution.IExecutionTask;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
@@ -94,9 +95,7 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 	private static final int LISTENER_DELAY = 100;
 
 	private final String loadErrorMessage;
-	private final String saveErrorMessage;
-	private final String loadDataMessage;
-	private final String saveDataMessage;
+	private final String loadingDataLabel;
 
 	private final Class<BEAN_TYPE> beanType;
 	private final Object entityId;
@@ -104,13 +103,8 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 	private final IReaderService<Object> readerService;
 	private final IProvider<Object> readerParameterProvider;
 
-	@SuppressWarnings("unused")
-	private final ICreatorService creatorService;
-	@SuppressWarnings("unused")
-	private final IRefreshService refreshService;
-	private final IUpdaterService updaterService;
-	@SuppressWarnings("unused")
-	private final IDeleterService deleterService;
+	private final BeanListSaveDelegate<BEAN_TYPE> saveDelegate;
+	private final BeanListRefreshDelegate<BEAN_TYPE> refreshDelegate;
 
 	private final IBeanListModel<?> parent;
 	private final LinkType linkType;
@@ -129,7 +123,6 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 
 	private IBeanProxy<BEAN_TYPE> bean;
 	private DataLoader dataLoader;
-	private DataModificationWriter dataModificationWriter;
 
 	@SuppressWarnings("unchecked")
 	SingleBeanModelImpl(
@@ -153,11 +146,8 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 		Assert.paramNotNull(beanValidators, "beanValidators");
 		Assert.paramNotNull(attributes, "attributes");
 
-		//TODO i18n
-		this.loadDataMessage = "Loading data";
-		this.saveDataMessage = "Saving data";
-		this.loadErrorMessage = "Error while data loading";
-		this.saveErrorMessage = "Error while saving data";
+		this.loadErrorMessage = Messages.getString("BeanTableModelImpl.load_error");
+		this.loadingDataLabel = Messages.getString("BeanTableModelImpl.load_data");
 
 		if (parent != null) {
 			Assert.paramNotNull(linkType, "linkType");
@@ -198,10 +188,6 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 
 		this.readerService = (IReaderService<Object>) readerService;
 		this.readerParameterProvider = (IProvider<Object>) readerParameterProvider;
-		this.creatorService = creatorService;
-		this.refreshService = refreshService;
-		this.updaterService = updaterService;
-		this.deleterService = deleterService;
 
 		this.parent = parent;
 		this.linkType = linkType;
@@ -212,6 +198,21 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 		this.changeObservable = new ChangeObservable();
 		this.beanListModelObservable = new BeanListModelObservable();
 		this.processStateObservable = new ProcessStateObservable();
+
+		this.saveDelegate = new BeanListSaveDelegate<BEAN_TYPE>(
+			this,
+			beansStateTracker,
+			new DefaultBeanExceptionConverter(),
+			BeanExecutionPolicy.BATCH,
+			updaterService,
+			creatorService,
+			propertyNames);
+
+		this.refreshDelegate = new BeanListRefreshDelegate<BEAN_TYPE>(
+			this,
+			new DefaultBeanExceptionConverter(),
+			BeanExecutionPolicy.BATCH,
+			refreshService);
 	}
 
 	private static List<IAttribute<Object>> createModifiedByPluginsAttributes(
@@ -318,13 +319,15 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 
 	@Override
 	public void save() {
-		tryCancelWriter();
-		dataModificationWriter = new DataModificationWriter();
-		dataModificationWriter.saveData();
+		saveDelegate.save();
 	}
 
-	private boolean isDataSaving() {
-		return dataModificationWriter != null && !dataModificationWriter.isDisposed();
+	@Override
+	public void refresh() {
+		if (bean != null) {
+			final List<IBeanProxy<BEAN_TYPE>> beans = Collections.singletonList(bean);
+			refreshDelegate.refresh(beans);
+		}
 	}
 
 	@Override
@@ -338,12 +341,6 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 		}
 	}
 
-	private void tryCancelWriter() {
-		if (dataModificationWriter != null && !dataModificationWriter.isDisposed()) {
-			dataModificationWriter.cancel();
-		}
-	}
-
 	@Override
 	public boolean hasModifications() {
 		return beansStateTracker.hasModifications();
@@ -351,13 +348,12 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 
 	@Override
 	public boolean hasExecutions() {
-		return beansStateTracker.hasExecutingBeans() || isDataLoading() || isDataSaving();
+		return beansStateTracker.hasExecutingBeans() || isDataLoading();
 	}
 
 	@Override
 	public void cancelExecutions() {
 		tryCancelLoader();
-		tryCancelWriter();
 		beansStateTracker.cancelExecutions();
 	}
 
@@ -552,7 +548,7 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 			}
 
 			executionTask = CapUiToolkit.executionTaskFactory().create();
-			executionTask.setDescription(loadDataMessage);
+			executionTask.setDescription(loadingDataLabel);
 			executionTask.addExecutionCallbackListener(new IExecutionCallbackListener() {
 				@Override
 				public void canceled() {
@@ -676,139 +672,6 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 				finished = true;
 				canceled = true;
 
-				processStateObservable.fireProcessStateChanged();
-				changeObservable.fireChangedEvent();
-				beanListModelObservable.fireBeansChanged();
-			}
-		}
-
-	}
-
-	private class DataModificationWriter {
-
-		private final IUiThreadAccess uiThreadAccess;
-
-		private boolean canceled;
-		private boolean finished;
-
-		private IExecutionTask executionTask;
-
-		DataModificationWriter() {
-			this.uiThreadAccess = Toolkit.getUiThreadAccess();
-		}
-
-		void saveData() {
-			if (bean != null) {
-				executionTask = CapUiToolkit.executionTaskFactory().create();
-				executionTask.setDescription(saveDataMessage);
-				executionTask.addExecutionCallbackListener(new IExecutionCallbackListener() {
-					@Override
-					public void canceled() {
-						if (!canceled) {//if canceled by user
-							userCanceledLater();
-						}
-					}
-				});
-				beansStateTracker.unregister(bean);
-				bean.setExecutionTask(executionTask);
-				processStateObservable.fireProcessStateChanged();
-				updaterService.update(createResultCallback(), bean.getModifications(), executionTask);
-			}
-		}
-
-		boolean isDisposed() {
-			return canceled || finished;
-		}
-
-		void cancel() {
-			if (!canceled) {
-				this.canceled = true;
-				if (bean != null) {
-					bean.setExecutionTask(null);
-					beansStateTracker.register(bean);
-				}
-				if (executionTask != null) {
-					executionTask.cancel();
-				}
-			}
-		}
-
-		private IResultCallback<List<IBeanDto>> createResultCallback() {
-			return new AbstractUiResultCallback<List<IBeanDto>>() {
-
-				@Override
-				public void finishedUi(final List<IBeanDto> beanDtos) {
-					if (!canceled && !executionTask.isCanceled()) {
-						setResult(beanDtos);
-					}
-				}
-
-				@Override
-				public void exceptionUi(final Throwable exception) {
-					setException(exception);
-				}
-
-			};
-		}
-
-		private void setResult(final List<IBeanDto> beanDtos) {
-			if (bean != null) {
-				if (beanDtos.size() > 0) {
-					final IBeanDto beanDto = beanDtos.iterator().next();
-					if (bean.isTransient()) {
-						bean.updateTransient(beanDto);
-					}
-					else {
-						bean.update(beanDto);
-					}
-					beansStateTracker.register(bean);
-					bean.setExecutionTask(null);
-				}
-				else {
-					bean.setExecutionTask(null);
-					bean = null;
-				}
-			}
-
-			finished = true;
-			changeObservable.fireChangedEvent();
-			beanListModelObservable.fireBeansChanged();
-			processStateObservable.fireProcessStateChanged();
-		}
-
-		private void setException(final Throwable exception) {
-			final IBeanMessageBuilder beanMessageBuilder = CapUiToolkit.beanMessageBuilder(BeanMessageType.ERROR);
-			beanMessageBuilder.setException(exception);
-			beanMessageBuilder.setMessage(saveErrorMessage);
-			final IBeanMessage message = beanMessageBuilder.build();
-			if (bean != null) {
-				beansStateTracker.register(bean);
-				bean.setExecutionTask(null);
-				bean.addMessage(message);
-			}
-			finished = true;
-			processStateObservable.fireProcessStateChanged();
-			changeObservable.fireChangedEvent();
-			beanListModelObservable.fireBeansChanged();
-		}
-
-		private void userCanceledLater() {
-			uiThreadAccess.invokeLater(new Runnable() {
-				@Override
-				public void run() {
-					userCanceled();
-				}
-			});
-		}
-
-		private void userCanceled() {
-			if (!canceled) {
-				if (bean != null) {
-					beansStateTracker.register(bean);
-					bean.setExecutionTask(null);
-				}
-				finished = true;
-				canceled = true;
 				processStateObservable.fireProcessStateChanged();
 				changeObservable.fireChangedEvent();
 				beanListModelObservable.fireBeansChanged();

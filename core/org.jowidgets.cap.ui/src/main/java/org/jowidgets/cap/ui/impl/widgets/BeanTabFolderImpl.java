@@ -61,8 +61,14 @@ final class BeanTabFolderImpl<BEAN_TYPE> extends TabFolderWrapper implements IBe
 	private final TabFolderSelectionListener tabFolderSelectionListener;
 	private final ModelSelectionListener modelSelectionListener;
 
+	private final String dummyBeanLabel;
+	private final String dummyBeanDecription;
+
 	BeanTabFolderImpl(final ITabFolder tabFolder, final IBeanTabFolderBluePrint<BEAN_TYPE> bluePrint) {
 		super(tabFolder);
+
+		this.dummyBeanLabel = Messages.getString("BeanTabFolderImpl.dummy_bean_label");
+		this.dummyBeanDecription = Messages.getString("BeanTabFolderImpl.dummy_bean_description");
 
 		this.tabFolder = tabFolder;
 		this.model = bluePrint.getModel();
@@ -142,11 +148,18 @@ final class BeanTabFolderImpl<BEAN_TYPE> extends TabFolderWrapper implements IBe
 	}
 
 	private void renderLabel(final ITabItem item, final IBeanProxy<BEAN_TYPE> bean) {
-		final ILabelModel label = model.getLabelRenderer().getLabel(bean);
+		if (bean.isDummy()) {
+			item.setText(dummyBeanLabel);
+			item.setToolTipText(dummyBeanDecription);
+			item.setIcon(null);
+		}
+		else {
+			final ILabelModel label = model.getLabelRenderer().getLabel(bean);
+			item.setText(label.getText());
+			item.setToolTipText(label.getDescription());
+			item.setIcon(label.getIcon());
+		}
 
-		item.setText(label.getText());
-		item.setToolTipText(label.getDescription());
-		item.setIcon(label.getIcon());
 	}
 
 	private void addTab() {

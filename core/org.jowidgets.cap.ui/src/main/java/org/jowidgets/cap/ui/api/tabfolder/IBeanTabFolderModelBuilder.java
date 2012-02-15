@@ -93,6 +93,18 @@ public interface IBeanTabFolderModelBuilder<BEAN_TYPE> {
 
 	IBeanTabFolderModelBuilder<BEAN_TYPE> addInterceptor(IBeanTabFolderModelInterceptor<BEAN_TYPE> interceptor);
 
+	IBeanTabFolderModelBuilder<BEAN_TYPE> setClearOnEmptyFilter(boolean clearOnEmptyFilter);
+
+	/**
+	 * If this option is set, data will only be loaded if any parent bean is selected.
+	 * Otherwise data will be cleared on load.
+	 * The default value is false, if no parent is set and true if a parent is set
+	 * 
+	 * @param clearOnEmptyFilter
+	 * @return This builder
+	 */
+	IBeanTabFolderModelBuilder<BEAN_TYPE> setClearOnEmptyParentBeans(boolean clearOnEmptyParentBeans);
+
 	IBeanTabFolderModel<BEAN_TYPE> build();
 
 }

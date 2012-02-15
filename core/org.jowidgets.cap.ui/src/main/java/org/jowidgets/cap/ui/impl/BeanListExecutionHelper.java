@@ -76,21 +76,24 @@ final class BeanListExecutionHelper<BEAN_TYPE> {
 			final List<IBeanProxy<BEAN_TYPE>> subList = new LinkedList<IBeanProxy<BEAN_TYPE>>();
 			result.add(subList);
 			for (final IBeanProxy<BEAN_TYPE> bean : beans) {
-				if (bean.getExecutionTask() == null) {
-					bean.setExecutionTask(executionTask);
-					subList.add(bean);
+				if (bean.getExecutionTask() != null) {
+					bean.getExecutionTask().cancel();
 				}
+				bean.setExecutionTask(executionTask);
+				subList.add(bean);
+
 			}
 		}
 		else {
 			for (final IBeanProxy<BEAN_TYPE> bean : beans) {
 				final List<IBeanProxy<BEAN_TYPE>> subList = new LinkedList<IBeanProxy<BEAN_TYPE>>();
 				result.add(subList);
-				if (bean.getExecutionTask() == null) {
-					final IExecutionTask executionTask = createExecutionTask();
-					bean.setExecutionTask(executionTask);
-					subList.add(bean);
+				if (bean.getExecutionTask() != null) {
+					bean.getExecutionTask().cancel();
 				}
+				final IExecutionTask executionTask = createExecutionTask();
+				bean.setExecutionTask(executionTask);
+				subList.add(bean);
 			}
 		}
 		listModel.fireBeansChanged();
