@@ -88,8 +88,8 @@ final class BeanListSaveDelegate<BEAN_TYPE> {
 		this.propertyNames = new LinkedList<String>(propertyNames);
 
 		//TODO i18n
-		this.saveString = "Save";
-		this.createString = "Create";
+		this.saveString = Messages.getString("BeanListSaveDelegate.Save");
+		this.createString = Messages.getString("BeanListSaveDelegate.Create");
 	}
 
 	void save() {

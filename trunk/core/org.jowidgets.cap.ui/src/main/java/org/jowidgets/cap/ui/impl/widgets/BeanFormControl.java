@@ -137,6 +137,8 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 	private final IAction saveAction;
 	private final IAction undoAction;
 
+	private final String processingDataLabel;
+
 	private IBeanProxy<BEAN_TYPE> bean;
 
 	@SuppressWarnings("unchecked")
@@ -158,6 +160,8 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 		super(composite);
 
 		attributes = createModifiedByPluginsAttributes(entityId, attributes);
+
+		this.processingDataLabel = Messages.getString("BeanFormControl.processing_data");
 
 		this.mandatoryLabelDecorator = manadtoryLabelDecorator;
 		this.mandatoryBackgroundColor = mandatoryBackgroundColor;
@@ -400,7 +404,7 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 			result.append(description);
 		}
 		else {
-			result.append("Processing data");
+			result.append(processingDataLabel);
 		}
 		result.append(" ");
 		result.append(computeProgressText(executionTask));
