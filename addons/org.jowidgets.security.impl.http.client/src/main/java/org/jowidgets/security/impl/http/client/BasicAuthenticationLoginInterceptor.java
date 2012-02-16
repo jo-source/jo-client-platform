@@ -31,6 +31,8 @@ package org.jowidgets.security.impl.http.client;
 import org.jowidgets.api.login.ILoginCancelListener;
 import org.jowidgets.api.login.ILoginInterceptor;
 import org.jowidgets.api.login.ILoginResultCallback;
+import org.jowidgets.api.threads.IUiThreadAccess;
+import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.service.IAuthorizationProviderService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
@@ -46,11 +48,13 @@ public final class BasicAuthenticationLoginInterceptor implements ILoginIntercep
 	private static final String LOGIN_FAILED = Messages.getString("BasicAuthenticationLoginInterceptor.login_failed"); //$NON-NLS-1$
 
 	private final IServiceId<? extends IAuthorizationProviderService<?>> authorizationProviderServiceId;
+	private final IUiThreadAccess uiThreadAccess;
 
 	public BasicAuthenticationLoginInterceptor(
 		final IServiceId<? extends IAuthorizationProviderService<?>> authorizationProviderServiceId) {
 		Assert.paramNotNull(authorizationProviderServiceId, "authorizationProviderServiceId"); //$NON-NLS-1$
 		this.authorizationProviderServiceId = authorizationProviderServiceId;
+		this.uiThreadAccess = Toolkit.getUiThreadAccess();
 	}
 
 	@SuppressWarnings({"rawtypes", "unchecked"})
@@ -62,34 +66,42 @@ public final class BasicAuthenticationLoginInterceptor implements ILoginIntercep
 			return;
 		}
 
-		final IExecutionTask executionTask = CapUiToolkit.executionTaskFactory().create();
-		resultCallback.addCancelListener(new ILoginCancelListener() {
+		uiThreadAccess.invokeLater(new Runnable() {
+
 			@Override
-			public void canceled() {
-				executionTask.cancel();
+			public void run() {
+				final IExecutionTask executionTask = CapUiToolkit.executionTaskFactory().create();
+				resultCallback.addCancelListener(new ILoginCancelListener() {
+					@Override
+					public void canceled() {
+						executionTask.cancel();
+					}
+				});
+
+				BasicAuthenticationInitializer.getInstance().setCredentials(username, password);
+				authorizationService.getPrincipal(new IResultCallback() {
+					@Override
+					public void finished(final Object principal) {
+						if (principal == null) {
+							resultCallback.denied(LOGIN_FAILED);
+							BasicAuthenticationInitializer.getInstance().clearCredentials();
+						}
+						else {
+							SecurityContextHolder.setSecurityContext(principal);
+							resultCallback.granted();
+						}
+					}
+
+					@Override
+					public void exception(final Throwable exception) {
+						resultCallback.denied(exception.getLocalizedMessage());
+						BasicAuthenticationInitializer.getInstance().clearCredentials();
+					}
+				}, executionTask);
+
 			}
 		});
 
-		BasicAuthenticationInitializer.getInstance().setCredentials(username, password);
-		authorizationService.getPrincipal(new IResultCallback() {
-			@Override
-			public void finished(final Object principal) {
-				if (principal == null) {
-					resultCallback.denied(LOGIN_FAILED);
-					BasicAuthenticationInitializer.getInstance().clearCredentials();
-				}
-				else {
-					SecurityContextHolder.setSecurityContext(principal);
-					resultCallback.granted();
-				}
-			}
-
-			@Override
-			public void exception(final Throwable exception) {
-				resultCallback.denied(exception.getLocalizedMessage());
-				BasicAuthenticationInitializer.getInstance().clearCredentials();
-			}
-		}, executionTask);
 	}
 
 }
