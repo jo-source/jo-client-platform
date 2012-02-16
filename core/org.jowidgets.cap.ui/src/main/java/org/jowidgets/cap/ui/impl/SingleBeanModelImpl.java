@@ -293,7 +293,16 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 
 	@Override
 	public void setBean(final IBeanProxy<BEAN_TYPE> bean) {
-		//TODO MG implement set bean
+		tryCancelLoader();
+		if (this.bean != null) {
+			beansStateTracker.unregister(this.bean);
+		}
+		if (bean != null) {
+			beansStateTracker.register(bean);
+		}
+		this.bean = bean;
+		changeObservable.fireChangedEvent();
+		beanListModelObservable.fireBeansChanged();
 	}
 
 	@Override
