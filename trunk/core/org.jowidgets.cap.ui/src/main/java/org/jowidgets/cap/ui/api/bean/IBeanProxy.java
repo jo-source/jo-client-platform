@@ -132,7 +132,16 @@ public interface IBeanProxy<BEAN_TYPE> extends
 
 	void removeBeanProxyListener(IBeanProxyListener<BEAN_TYPE> listener);
 
-	<PROPERTY_TYPE> void putProperty(ITypedKey<PROPERTY_TYPE> key, PROPERTY_TYPE value);
+	<PROPERTY_TYPE> void setCustomProperty(ITypedKey<PROPERTY_TYPE> key, PROPERTY_TYPE value);
 
-	<PROPERTY_TYPE> PROPERTY_TYPE getProperty(ITypedKey<PROPERTY_TYPE> key);
+	<PROPERTY_TYPE> PROPERTY_TYPE getCustomProperty(ITypedKey<PROPERTY_TYPE> key);
+
+	<PROPERTY_TYPE> void addCustomPropertyListener(
+		ITypedKey<PROPERTY_TYPE> key,
+		ICustomBeanPropertyListener<BEAN_TYPE, PROPERTY_TYPE> listener);
+
+	<PROPERTY_TYPE> void removeCustomPropertyListener(
+		ITypedKey<PROPERTY_TYPE> key,
+		ICustomBeanPropertyListener<BEAN_TYPE, PROPERTY_TYPE> listener);
+
 }
