@@ -430,7 +430,6 @@ public final class CapUiToolkit {
 					return new IBeanTab<Object>() {
 
 						private IBeanForm<Object> beanForm;
-
 						private IBeanProxy<Object> bean;
 
 						{

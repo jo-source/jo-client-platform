@@ -61,6 +61,7 @@ import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyListener;
 import org.jowidgets.cap.ui.api.bean.IBeanTransientStateListener;
 import org.jowidgets.cap.ui.api.bean.IBeanValidationStateListener;
+import org.jowidgets.cap.ui.api.bean.ICustomBeanPropertyListener;
 import org.jowidgets.cap.ui.api.bean.IExternalBeanValidator;
 import org.jowidgets.cap.ui.api.bean.IExternalBeanValidatorListener;
 import org.jowidgets.cap.ui.api.execution.IExecutionTask;
@@ -84,7 +85,8 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 	private final List<String> properties;
 	private final Map<String, IBeanModification> modifications;
 	private final Map<String, IBeanModification> undoneModifications;
-	private final Map<ITypedKey<? extends Object>, Object> addedProperties;
+	private final Map<ITypedKey<? extends Object>, Object> customProperties;
+	private final Map<ITypedKey<? extends Object>, Set<ICustomBeanPropertyListener<BEAN_TYPE, Object>>> customPropertiesListeners;
 	private final PropertyChangeObservable propertyChangeObservable;
 	private final BeanModificationStateObservable<BEAN_TYPE> modificationStateObservable;
 	private final BeanTransientStateObservable<BEAN_TYPE> transientStateObservable;
@@ -127,7 +129,8 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 		this.properties = new LinkedList<String>(properties);
 		this.isTransient = isTransient;
 		this.modifications = new HashMap<String, IBeanModification>();
-		this.addedProperties = new HashMap<ITypedKey<? extends Object>, Object>();
+		this.customProperties = new HashMap<ITypedKey<? extends Object>, Object>();
+		this.customPropertiesListeners = new HashMap<ITypedKey<? extends Object>, Set<ICustomBeanPropertyListener<BEAN_TYPE, Object>>>();
 		this.undoneModifications = new HashMap<String, IBeanModification>();
 		this.propertyChangeObservable = new PropertyChangeObservable();
 		this.modificationStateObservable = new BeanModificationStateObservable<BEAN_TYPE>();
@@ -377,15 +380,57 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 	}
 
 	@Override
-	public <PROPERTY_TYPE> void putProperty(final ITypedKey<PROPERTY_TYPE> key, final PROPERTY_TYPE value) {
+	public <PROPERTY_TYPE> void setCustomProperty(final ITypedKey<PROPERTY_TYPE> key, final PROPERTY_TYPE value) {
 		Assert.paramNotNull(key, "key");
-		addedProperties.put(key, value);
+		final Object oldValue = customProperties.get(key);
+		customProperties.put(key, value);
+		fireCustomPropertyChangedEvent(key, oldValue, value);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <PROPERTY_TYPE> PROPERTY_TYPE getProperty(final ITypedKey<PROPERTY_TYPE> key) {
-		return (PROPERTY_TYPE) addedProperties.get(key);
+	public <PROPERTY_TYPE> PROPERTY_TYPE getCustomProperty(final ITypedKey<PROPERTY_TYPE> key) {
+		return (PROPERTY_TYPE) customProperties.get(key);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public <PROPERTY_TYPE> void addCustomPropertyListener(
+		final ITypedKey<PROPERTY_TYPE> key,
+		final ICustomBeanPropertyListener<BEAN_TYPE, PROPERTY_TYPE> listener) {
+		Assert.paramNotNull(listener, "listener");
+		final Set<ICustomBeanPropertyListener<BEAN_TYPE, Object>> listeners = getPropertiesListeners(key);
+		listeners.add((ICustomBeanPropertyListener<BEAN_TYPE, Object>) listener);
+	}
+
+	@Override
+	public <PROPERTY_TYPE> void removeCustomPropertyListener(
+		final ITypedKey<PROPERTY_TYPE> key,
+		final ICustomBeanPropertyListener<BEAN_TYPE, PROPERTY_TYPE> listener) {
+		Assert.paramNotNull(listener, "listener");
+		final Set<ICustomBeanPropertyListener<BEAN_TYPE, Object>> listeners = getPropertiesListeners(key);
+		listeners.remove(listener);
+	}
+
+	private <PROPERTY_TYPE> Set<ICustomBeanPropertyListener<BEAN_TYPE, Object>> getPropertiesListeners(
+		final ITypedKey<PROPERTY_TYPE> key) {
+		Assert.paramNotNull(key, "key");
+		Set<ICustomBeanPropertyListener<BEAN_TYPE, Object>> result = customPropertiesListeners.get(key);
+		if (result == null) {
+			result = new LinkedHashSet<ICustomBeanPropertyListener<BEAN_TYPE, Object>>();
+			customPropertiesListeners.put(key, result);
+		}
+		return result;
+	}
+
+	private void fireCustomPropertyChangedEvent(
+		final ITypedKey<? extends Object> key,
+		final Object oldValue,
+		final Object newValue) {
+		for (final ICustomBeanPropertyListener<BEAN_TYPE, Object> listener : new LinkedList<ICustomBeanPropertyListener<BEAN_TYPE, Object>>(
+			getPropertiesListeners(key))) {
+			listener.propertyChanged(this, oldValue, newValue);
+		}
 	}
 
 	private void validateAllInternalProperties() {
@@ -894,7 +939,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 			if (this.executionTask != null) {
 				this.executionTask.removeExecutionTaskListener(executionTaskListener);
 			}
-			addedProperties.clear();
+			customProperties.clear();
 			modifications.clear();
 			modificationStateObservable.dispose();
 			processStateObservable.dispose();
