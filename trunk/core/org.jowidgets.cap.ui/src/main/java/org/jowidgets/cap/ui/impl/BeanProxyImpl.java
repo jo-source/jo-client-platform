@@ -940,6 +940,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 				this.executionTask.removeExecutionTaskListener(executionTaskListener);
 			}
 			customProperties.clear();
+			customPropertiesListeners.clear();
 			modifications.clear();
 			modificationStateObservable.dispose();
 			processStateObservable.dispose();
