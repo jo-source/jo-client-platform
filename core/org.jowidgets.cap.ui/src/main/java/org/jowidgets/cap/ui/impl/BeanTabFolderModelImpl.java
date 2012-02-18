@@ -376,6 +376,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 			removeBeansImpl(beansToCreate, false);
 		}
 		beansStateTracker.clearModifications();
+		fireBeansChanged();
 	}
 
 	@Override

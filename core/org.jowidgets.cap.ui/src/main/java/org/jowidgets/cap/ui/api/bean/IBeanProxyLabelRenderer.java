@@ -31,6 +31,7 @@ package org.jowidgets.cap.ui.api.bean;
 import java.util.Set;
 
 import org.jowidgets.cap.ui.api.model.ILabelModel;
+import org.jowidgets.util.ITypedKey;
 
 public interface IBeanProxyLabelRenderer<BEAN_TYPE> {
 
@@ -42,5 +43,12 @@ public interface IBeanProxyLabelRenderer<BEAN_TYPE> {
 	 * @return The dependend properties, null or an empty set
 	 */
 	Set<String> getPropertyDependencies();
+
+	/**
+	 * Gets the custom properties the label depends on. If null or empty the label depends on NO custom properties
+	 * 
+	 * @return The dependend custom properties, null or an empty set
+	 */
+	Set<? extends ITypedKey<?>> getCustomPropertyDependencies();
 
 }
