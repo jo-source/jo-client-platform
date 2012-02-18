@@ -804,7 +804,6 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 
 		private IExecutionTask executionTask;
 
-		private ArrayList<IBeanProxy<BEAN_TYPE>> oldData;
 		private IBeanProxy<BEAN_TYPE> dummyBean;
 
 		DataLoader() {
@@ -813,9 +812,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 		}
 
 		void loadData() {
-			oldData = new ArrayList<IBeanProxy<BEAN_TYPE>>();
 			for (final IBeanProxy<BEAN_TYPE> bean : data) {
-				oldData.add(bean);
 				beansStateTracker.unregister(bean);
 			}
 			data.clear();
@@ -961,13 +958,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 					dummyBean.setExecutionTask(null);
 					beansStateTracker.unregister(dummyBean);
 				}
-				if (oldData != null) {
-					data.clear();
-					for (final IBeanProxy<BEAN_TYPE> oldBean : oldData) {
-						beansStateTracker.register(oldBean);
-					}
-					data.addAll(oldData);
-				}
+				data.clear();
 
 				finished = true;
 				canceled = true;
