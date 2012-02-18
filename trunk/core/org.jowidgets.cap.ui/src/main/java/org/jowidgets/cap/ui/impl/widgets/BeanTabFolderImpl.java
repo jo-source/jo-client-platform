@@ -32,6 +32,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.jowidgets.api.controller.ITabFolderListener;
@@ -40,6 +41,7 @@ import org.jowidgets.api.widgets.ITabFolder;
 import org.jowidgets.api.widgets.ITabItem;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyLabelRenderer;
+import org.jowidgets.cap.ui.api.bean.ICustomBeanPropertyListener;
 import org.jowidgets.cap.ui.api.model.ILabelModel;
 import org.jowidgets.cap.ui.api.tabfolder.IBeanTabFolderModel;
 import org.jowidgets.cap.ui.api.widgets.IBeanTab;
@@ -50,7 +52,9 @@ import org.jowidgets.cap.ui.tools.model.BeanListModelAdapter;
 import org.jowidgets.common.types.IVetoable;
 import org.jowidgets.tools.widgets.blueprint.BPF;
 import org.jowidgets.tools.widgets.wrapper.TabFolderWrapper;
+import org.jowidgets.util.ITypedKey;
 
+@SuppressWarnings("rawtypes")
 final class BeanTabFolderImpl<BEAN_TYPE> extends TabFolderWrapper implements IBeanTabFolder<BEAN_TYPE> {
 
 	private final ITabFolder tabFolder;
@@ -58,6 +62,8 @@ final class BeanTabFolderImpl<BEAN_TYPE> extends TabFolderWrapper implements IBe
 	private final IBeanTabFactory<BEAN_TYPE> beanTabFactory;
 	private final Map<Integer, IBeanTab<BEAN_TYPE>> beanTabs;
 	private final RenderLabelListener renderLabelListener;
+
+	private final Map<ITypedKey, RenderLabelCustomPropertiesListener> renderLabelCustomPropertiesListeners;
 	private final TabFolderSelectionListener tabFolderSelectionListener;
 	private final ModelSelectionListener modelSelectionListener;
 
@@ -76,6 +82,15 @@ final class BeanTabFolderImpl<BEAN_TYPE> extends TabFolderWrapper implements IBe
 
 		this.beanTabs = new HashMap<Integer, IBeanTab<BEAN_TYPE>>();
 		this.renderLabelListener = new RenderLabelListener();
+		this.renderLabelCustomPropertiesListeners = new HashMap<ITypedKey, RenderLabelCustomPropertiesListener>();
+		final IBeanProxyLabelRenderer<BEAN_TYPE> labelRenderer = model.getLabelRenderer();
+		final Set<? extends ITypedKey<?>> customPropertyDependencies = labelRenderer.getCustomPropertyDependencies();
+		if (customPropertyDependencies != null) {
+			for (final ITypedKey<?> typedKey : customPropertyDependencies) {
+				renderLabelCustomPropertiesListeners.put(typedKey, new RenderLabelCustomPropertiesListener());
+			}
+		}
+
 		this.tabFolderSelectionListener = new TabFolderSelectionListener();
 		this.modelSelectionListener = new ModelSelectionListener();
 
@@ -97,6 +112,7 @@ final class BeanTabFolderImpl<BEAN_TYPE> extends TabFolderWrapper implements IBe
 		return model;
 	}
 
+	@SuppressWarnings("unchecked")
 	private void updateFromModel() {
 		model.removeBeanListModelListener(modelSelectionListener);
 		tabFolder.removeTabFolderListener(tabFolderSelectionListener);
@@ -121,6 +137,9 @@ final class BeanTabFolderImpl<BEAN_TYPE> extends TabFolderWrapper implements IBe
 			final ITabItem item = tabFolder.getItem(i);
 
 			bean.addPropertyChangeListener(renderLabelListener);
+			for (final Entry<ITypedKey, RenderLabelCustomPropertiesListener> entry : renderLabelCustomPropertiesListeners.entrySet()) {
+				bean.addCustomPropertyListener(entry.getKey(), entry.getValue());
+			}
 
 			final IBeanTab<BEAN_TYPE> beanTab = beanTabs.get(Integer.valueOf(i));
 			beanTab.setBean(bean);
@@ -181,6 +200,17 @@ final class BeanTabFolderImpl<BEAN_TYPE> extends TabFolderWrapper implements IBe
 				if (beanIndex != -1) {
 					renderLabel(tabFolder.getItem(beanIndex), source);
 				}
+			}
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private class RenderLabelCustomPropertiesListener implements ICustomBeanPropertyListener {
+		@Override
+		public void propertyChanged(final IBeanProxy bean, final Object oldValue, final Object newValue) {
+			final int beanIndex = model.getBeanIndex(bean);
+			if (beanIndex != -1) {
+				renderLabel(tabFolder.getItem(beanIndex), bean);
 			}
 		}
 	}

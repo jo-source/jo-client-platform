@@ -42,6 +42,7 @@ import org.jowidgets.cap.ui.api.tabfolder.IBeanTabFolderModel;
 import org.jowidgets.cap.ui.api.tabfolder.IBeanTabFolderModelBuilder;
 import org.jowidgets.common.image.IImageConstant;
 import org.jowidgets.common.types.IVetoable;
+import org.jowidgets.util.ITypedKey;
 import org.jowidgets.workbench.api.IComponent;
 import org.jowidgets.workbench.api.IComponentContext;
 import org.jowidgets.workbench.api.IView;
@@ -127,6 +128,11 @@ public class RolesTabFolderComponent extends AbstractComponent implements ICompo
 			@Override
 			public Set<String> getPropertyDependencies() {
 				return Collections.singleton("name");
+			}
+
+			@Override
+			public Set<? extends ITypedKey<?>> getCustomPropertyDependencies() {
+				return null;
 			}
 		};
 	}
