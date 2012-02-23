@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -28,21 +28,36 @@
 
 package org.jowidgets.cap.ui.impl.widgets;
 
-import org.jowidgets.api.toolkit.Toolkit;
-import org.jowidgets.api.widgets.IComboBox;
-import org.jowidgets.api.widgets.blueprint.IComboBoxSelectionBluePrint;
-import org.jowidgets.cap.ui.api.widgets.ILookUpComboBoxSelectionBluePrint;
-import org.jowidgets.common.widgets.factory.IWidgetFactory;
-import org.jowidgets.tools.widgets.blueprint.BPF;
+import org.jowidgets.api.toolkit.IToolkitInterceptor;
+import org.jowidgets.api.toolkit.IToolkitInterceptorHolder;
 
-final class LookUpComboBoxSelectionFactory implements
-		IWidgetFactory<IComboBox<Object>, ILookUpComboBoxSelectionBluePrint<Object>> {
+public final class CapToolkitInterceptorHolder implements IToolkitInterceptorHolder {
+
+	public static final int DEFAULT_ORDER = 1;
+
+	private final int order;
+
+	private IToolkitInterceptor interceptor;
+
+	public CapToolkitInterceptorHolder() {
+		this(DEFAULT_ORDER);
+	}
+
+	public CapToolkitInterceptorHolder(final int order) {
+		this.order = order;
+	}
 
 	@Override
-	public IComboBox<Object> create(final Object parentUiReference, final ILookUpComboBoxSelectionBluePrint<Object> descriptor) {
-		final IComboBoxSelectionBluePrint<Object> bluePrint = BPF.comboBoxSelection(descriptor.getObjectStringConverter());
-		bluePrint.setSetup(descriptor);
-		final IComboBox<Object> comboBox = Toolkit.getWidgetFactory().create(parentUiReference, bluePrint);
-		return new LookUpComboBoxSelectionImpl(comboBox, descriptor);
+	public IToolkitInterceptor getToolkitInterceptor() {
+		if (interceptor == null) {
+			interceptor = new CapToolkitInterceptor();
+		}
+		return interceptor;
 	}
+
+	@Override
+	public int getOrder() {
+		return order;
+	}
+
 }

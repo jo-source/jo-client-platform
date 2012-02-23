@@ -35,7 +35,7 @@ import org.jowidgets.cap.ui.api.widgets.IBeanForm;
 import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
 import org.jowidgets.common.widgets.factory.IWidgetFactory;
 
-public final class BeanFormFactory implements IWidgetFactory<IBeanForm<? extends Object>, IBeanFormBluePrint<Object>> {
+final class BeanFormFactory implements IWidgetFactory<IBeanForm<? extends Object>, IBeanFormBluePrint<Object>> {
 
 	@Override
 	public IBeanForm<Object> create(final Object parentUiReference, final IBeanFormBluePrint<Object> bluePrint) {

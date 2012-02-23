@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -28,21 +28,19 @@
 
 package org.jowidgets.cap.ui.impl.widgets;
 
-import org.jowidgets.api.toolkit.Toolkit;
-import org.jowidgets.api.widgets.IComboBox;
-import org.jowidgets.api.widgets.blueprint.IComboBoxSelectionBluePrint;
-import org.jowidgets.cap.ui.api.widgets.ILookUpComboBoxSelectionBluePrint;
-import org.jowidgets.common.widgets.factory.IWidgetFactory;
-import org.jowidgets.tools.widgets.blueprint.BPF;
+import org.jowidgets.api.widgets.blueprint.defaults.IDefaultInitializer;
+import org.jowidgets.cap.ui.api.widgets.IBeanTableSetupBuilder;
+import org.jowidgets.common.types.TableSelectionPolicy;
 
-final class LookUpComboBoxSelectionFactory implements
-		IWidgetFactory<IComboBox<Object>, ILookUpComboBoxSelectionBluePrint<Object>> {
-
+final class BeanTableDefaults implements IDefaultInitializer<IBeanTableSetupBuilder<?>> {
 	@Override
-	public IComboBox<Object> create(final Object parentUiReference, final ILookUpComboBoxSelectionBluePrint<Object> descriptor) {
-		final IComboBoxSelectionBluePrint<Object> bluePrint = BPF.comboBoxSelection(descriptor.getObjectStringConverter());
-		bluePrint.setSetup(descriptor);
-		final IComboBox<Object> comboBox = Toolkit.getWidgetFactory().create(parentUiReference, bluePrint);
-		return new LookUpComboBoxSelectionImpl(comboBox, descriptor);
+	public void initialize(final IBeanTableSetupBuilder<?> bluePrint) {
+		bluePrint.setSelectionPolicy(TableSelectionPolicy.MULTI_ROW_SELECTION);
+		bluePrint.setColumnsMoveable(true);
+		bluePrint.setColumnsResizeable(true);
+		bluePrint.setDefaultMenus(true);
+		bluePrint.setDefaultCreatorAction(true);
+		bluePrint.setDefaultDeleterAction(true);
+		bluePrint.setSearchFilterToolbarVisible(false);
 	}
 }

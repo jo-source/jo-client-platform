@@ -42,7 +42,7 @@ import org.jowidgets.cap.ui.api.widgets.IBeanTablesFormBluePrint;
 import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
 import org.jowidgets.common.widgets.factory.IWidgetFactory;
 
-public final class BeanTableFormFactory implements IWidgetFactory<IControl, IBeanTableFormBluePrint<?>> {
+final class BeanTableFormFactory implements IWidgetFactory<IControl, IBeanTableFormBluePrint<?>> {
 
 	@SuppressWarnings("unchecked")
 	@Override

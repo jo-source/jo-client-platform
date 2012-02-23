@@ -36,8 +36,7 @@ import org.jowidgets.cap.ui.api.widgets.IBeanTableSettingsDialog;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableSettingsDialogBluePrint;
 import org.jowidgets.common.widgets.factory.IWidgetFactory;
 
-public final class BeanTableSettingsDialogFactory implements
-		IWidgetFactory<IBeanTableSettingsDialog, IBeanTableSettingsDialogBluePrint> {
+final class BeanTableSettingsDialogFactory implements IWidgetFactory<IBeanTableSettingsDialog, IBeanTableSettingsDialogBluePrint> {
 
 	@Override
 	public IBeanTableSettingsDialog create(final Object parentUiReference, final IBeanTableSettingsDialogBluePrint setup) {

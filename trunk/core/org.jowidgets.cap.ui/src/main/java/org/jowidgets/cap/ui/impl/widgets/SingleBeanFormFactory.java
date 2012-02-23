@@ -35,7 +35,7 @@ import org.jowidgets.cap.ui.api.widgets.ISingleBeanForm;
 import org.jowidgets.cap.ui.api.widgets.ISingleBeanFormBluePrint;
 import org.jowidgets.common.widgets.factory.IWidgetFactory;
 
-public final class SingleBeanFormFactory implements IWidgetFactory<ISingleBeanForm<Object>, ISingleBeanFormBluePrint<Object>> {
+final class SingleBeanFormFactory implements IWidgetFactory<ISingleBeanForm<Object>, ISingleBeanFormBluePrint<Object>> {
 
 	@Override
 	public ISingleBeanForm<Object> create(final Object parentUiReference, final ISingleBeanFormBluePrint<Object> bluePrint) {

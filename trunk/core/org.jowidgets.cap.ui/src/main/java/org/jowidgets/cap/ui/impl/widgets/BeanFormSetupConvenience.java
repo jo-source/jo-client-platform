@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -28,21 +28,31 @@
 
 package org.jowidgets.cap.ui.impl.widgets;
 
-import org.jowidgets.api.toolkit.Toolkit;
-import org.jowidgets.api.widgets.IComboBox;
-import org.jowidgets.api.widgets.blueprint.IComboBoxSelectionBluePrint;
-import org.jowidgets.cap.ui.api.widgets.ILookUpComboBoxSelectionBluePrint;
-import org.jowidgets.common.widgets.factory.IWidgetFactory;
-import org.jowidgets.tools.widgets.blueprint.BPF;
+import java.util.Collection;
 
-final class LookUpComboBoxSelectionFactory implements
-		IWidgetFactory<IComboBox<Object>, ILookUpComboBoxSelectionBluePrint<Object>> {
+import org.jowidgets.cap.ui.api.attribute.IAttribute;
+import org.jowidgets.cap.ui.api.form.IBeanFormLayouter;
+import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
+import org.jowidgets.cap.ui.api.widgets.IBeanFormSetupConvenience;
+import org.jowidgets.tools.widgets.blueprint.convenience.AbstractSetupBuilderConvenience;
+
+final class BeanFormSetupConvenience extends AbstractSetupBuilderConvenience<IBeanFormBluePrint<Object>> implements
+		IBeanFormSetupConvenience<Object, IBeanFormBluePrint<Object>> {
 
 	@Override
-	public IComboBox<Object> create(final Object parentUiReference, final ILookUpComboBoxSelectionBluePrint<Object> descriptor) {
-		final IComboBoxSelectionBluePrint<Object> bluePrint = BPF.comboBoxSelection(descriptor.getObjectStringConverter());
-		bluePrint.setSetup(descriptor);
-		final IComboBox<Object> comboBox = Toolkit.getWidgetFactory().create(parentUiReference, bluePrint);
-		return new LookUpComboBoxSelectionImpl(comboBox, descriptor);
+	public IBeanFormBluePrint<Object> setLayouter(final IBeanFormLayouter layouter) {
+		final IBeanFormBluePrint<Object> builder = getBuilder();
+		builder.setEditModeLayouter(layouter);
+		builder.setCreateModeLayouter(layouter);
+		return builder;
 	}
+
+	@Override
+	public IBeanFormBluePrint<Object> setAttributes(final Collection<? extends IAttribute<?>> attributes) {
+		final IBeanFormBluePrint<Object> builder = getBuilder();
+		builder.setEditModeAttributes(attributes);
+		builder.setCreateModeAttributes(attributes);
+		return builder;
+	}
+
 }

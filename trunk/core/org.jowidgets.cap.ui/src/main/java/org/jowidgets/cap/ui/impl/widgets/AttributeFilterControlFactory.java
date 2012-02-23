@@ -35,8 +35,7 @@ import org.jowidgets.cap.ui.api.widgets.IAttributeFilterControl;
 import org.jowidgets.cap.ui.api.widgets.IAttributeFilterControlBluePrint;
 import org.jowidgets.common.widgets.factory.IWidgetFactory;
 
-public final class AttributeFilterControlFactory implements
-		IWidgetFactory<IAttributeFilterControl, IAttributeFilterControlBluePrint> {
+final class AttributeFilterControlFactory implements IWidgetFactory<IAttributeFilterControl, IAttributeFilterControlBluePrint> {
 
 	@Override
 	public IAttributeFilterControl create(final Object parentUiReference, final IAttributeFilterControlBluePrint bluePrint) {

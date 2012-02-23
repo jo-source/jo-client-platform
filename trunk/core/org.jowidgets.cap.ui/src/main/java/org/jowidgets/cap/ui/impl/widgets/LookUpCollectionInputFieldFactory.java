@@ -37,7 +37,7 @@ import org.jowidgets.cap.ui.api.widgets.ILookUpCollectionInputFieldBluePrint;
 import org.jowidgets.common.widgets.factory.IWidgetFactory;
 import org.jowidgets.tools.widgets.blueprint.BPF;
 
-public final class LookUpCollectionInputFieldFactory implements
+final class LookUpCollectionInputFieldFactory implements
 		IWidgetFactory<IInputControl<Collection<Object>>, ILookUpCollectionInputFieldBluePrint<Object>> {
 
 	@Override
