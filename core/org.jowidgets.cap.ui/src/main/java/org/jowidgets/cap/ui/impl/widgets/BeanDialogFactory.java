@@ -36,7 +36,7 @@ import org.jowidgets.cap.ui.api.widgets.IBeanDialogBluePrint;
 import org.jowidgets.common.widgets.factory.IWidgetFactory;
 import org.jowidgets.tools.widgets.blueprint.BPF;
 
-public final class BeanDialogFactory implements IWidgetFactory<IBeanDialog<Object>, IBeanDialogBluePrint<Object>> {
+final class BeanDialogFactory implements IWidgetFactory<IBeanDialog<Object>, IBeanDialogBluePrint<Object>> {
 
 	@Override
 	public IBeanDialog<Object> create(final Object parentUiReference, final IBeanDialogBluePrint<Object> beanDialogBp) {

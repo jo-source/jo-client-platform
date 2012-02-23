@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -28,21 +28,31 @@
 
 package org.jowidgets.cap.ui.impl.widgets;
 
-import org.jowidgets.api.toolkit.Toolkit;
-import org.jowidgets.api.widgets.IComboBox;
-import org.jowidgets.api.widgets.blueprint.IComboBoxSelectionBluePrint;
-import org.jowidgets.cap.ui.api.widgets.ILookUpComboBoxSelectionBluePrint;
-import org.jowidgets.common.widgets.factory.IWidgetFactory;
+import org.jowidgets.api.types.InputDialogDefaultButtonPolicy;
+import org.jowidgets.api.widgets.blueprint.IInputComponentValidationLabelBluePrint;
+import org.jowidgets.api.widgets.blueprint.defaults.IDefaultInitializer;
+import org.jowidgets.cap.ui.api.widgets.IBeanSelectionDialogBluePrint;
 import org.jowidgets.tools.widgets.blueprint.BPF;
+import org.jowidgets.util.IDecorator;
+import org.jowidgets.validation.IValidationResult;
 
-final class LookUpComboBoxSelectionFactory implements
-		IWidgetFactory<IComboBox<Object>, ILookUpComboBoxSelectionBluePrint<Object>> {
+final class BeanSelectionDialogDefaults implements IDefaultInitializer<IBeanSelectionDialogBluePrint<?>> {
 
 	@Override
-	public IComboBox<Object> create(final Object parentUiReference, final ILookUpComboBoxSelectionBluePrint<Object> descriptor) {
-		final IComboBoxSelectionBluePrint<Object> bluePrint = BPF.comboBoxSelection(descriptor.getObjectStringConverter());
-		bluePrint.setSetup(descriptor);
-		final IComboBox<Object> comboBox = Toolkit.getWidgetFactory().create(parentUiReference, bluePrint);
-		return new LookUpComboBoxSelectionImpl(comboBox, descriptor);
+	public void initialize(final IBeanSelectionDialogBluePrint<?> bluePrint) {
+		bluePrint.setContentScrolled(false);
+		bluePrint.setContentBorder();
+		bluePrint.setMissingInputHint("Bitte wählen Sie einen Datensatz aus");
+		bluePrint.setDefaultButtonPolicy(InputDialogDefaultButtonPolicy.DISABLED);
+		final IInputComponentValidationLabelBluePrint validationLabelBp = BPF.inputComponentValidationLabel();
+		validationLabelBp.setInitialValidationDecorator(new IDecorator<IValidationResult>() {
+			@Override
+			public IValidationResult decorate(final IValidationResult original) {
+				if (!original.isValid()) {
+					return original;
+				}
+				return null;
+			}
+		});
 	}
 }

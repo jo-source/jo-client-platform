@@ -35,7 +35,7 @@ import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
 import org.jowidgets.common.widgets.factory.IWidgetFactory;
 import org.jowidgets.tools.widgets.blueprint.BPF;
 
-public final class BeanTableFactory implements IWidgetFactory<IBeanTable<? extends Object>, IBeanTableBluePrint<Object>> {
+final class BeanTableFactory implements IWidgetFactory<IBeanTable<? extends Object>, IBeanTableBluePrint<Object>> {
 
 	@Override
 	public IBeanTable<Object> create(final Object parentUiReference, final IBeanTableBluePrint<Object> bluePrint) {

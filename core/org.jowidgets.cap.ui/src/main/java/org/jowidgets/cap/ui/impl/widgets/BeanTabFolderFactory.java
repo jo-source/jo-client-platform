@@ -36,8 +36,7 @@ import org.jowidgets.cap.ui.api.widgets.IBeanTabFolderBluePrint;
 import org.jowidgets.common.widgets.factory.IWidgetFactory;
 import org.jowidgets.tools.widgets.blueprint.BPF;
 
-public final class BeanTabFolderFactory implements
-		IWidgetFactory<IBeanTabFolder<? extends Object>, IBeanTabFolderBluePrint<Object>> {
+final class BeanTabFolderFactory implements IWidgetFactory<IBeanTabFolder<? extends Object>, IBeanTabFolderBluePrint<Object>> {
 
 	@Override
 	public IBeanTabFolder<Object> create(final Object parentUiReference, final IBeanTabFolderBluePrint<Object> bluePrint) {

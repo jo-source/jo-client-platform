@@ -39,7 +39,7 @@ import org.jowidgets.cap.ui.api.widgets.IBeanSelectionDialogBluePrint;
 import org.jowidgets.common.widgets.factory.IWidgetFactory;
 import org.jowidgets.tools.widgets.blueprint.BPF;
 
-public final class BeanSelectionDialogFactory implements
+final class BeanSelectionDialogFactory implements
 		IWidgetFactory<IBeanSelectionDialog<Object>, IBeanSelectionDialogBluePrint<Object>> {
 
 	@Override

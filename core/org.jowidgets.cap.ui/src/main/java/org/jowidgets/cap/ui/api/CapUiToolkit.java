@@ -29,37 +29,23 @@
 package org.jowidgets.cap.ui.api;
 
 import java.util.Collection;
-import java.util.Map;
-import java.util.WeakHashMap;
 
-import org.jowidgets.api.color.Colors;
-import org.jowidgets.api.image.IconsSmall;
-import org.jowidgets.api.toolkit.IToolkit;
 import org.jowidgets.api.toolkit.Toolkit;
-import org.jowidgets.api.types.InputDialogDefaultButtonPolicy;
-import org.jowidgets.api.widgets.ITabItem;
-import org.jowidgets.api.widgets.blueprint.IInputComponentValidationLabelBluePrint;
-import org.jowidgets.api.widgets.blueprint.defaults.IDefaultInitializer;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
-import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
 import org.jowidgets.cap.ui.api.bean.BeanMessageType;
 import org.jowidgets.cap.ui.api.bean.IBeanKeyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeanMessageBuilder;
 import org.jowidgets.cap.ui.api.bean.IBeanMessageFixBuilder;
-import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeansStateTracker;
-import org.jowidgets.cap.ui.api.color.CapColors;
 import org.jowidgets.cap.ui.api.command.ICapActionFactory;
 import org.jowidgets.cap.ui.api.control.IDisplayFormatFactory;
 import org.jowidgets.cap.ui.api.control.IInputControlSupportRegistry;
 import org.jowidgets.cap.ui.api.converter.ICapConverterFactory;
 import org.jowidgets.cap.ui.api.execution.IExecutionTaskFactory;
 import org.jowidgets.cap.ui.api.filter.IFilterToolkit;
-import org.jowidgets.cap.ui.api.form.IBeanFormLayouter;
 import org.jowidgets.cap.ui.api.form.IBeanFormToolkit;
-import org.jowidgets.cap.ui.api.icons.CapIcons;
 import org.jowidgets.cap.ui.api.lookup.ILookUpCache;
 import org.jowidgets.cap.ui.api.model.ISingleBeanModelBuilder;
 import org.jowidgets.cap.ui.api.sort.ISortModelConfigBuilder;
@@ -68,57 +54,14 @@ import org.jowidgets.cap.ui.api.table.IBeanTableConfigBuilder;
 import org.jowidgets.cap.ui.api.table.IBeanTableMenuFactory;
 import org.jowidgets.cap.ui.api.table.IBeanTableMenuInterceptor;
 import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
-import org.jowidgets.cap.ui.api.widgets.IAttributeFilterControlBluePrint;
-import org.jowidgets.cap.ui.api.widgets.IBeanDialogBluePrint;
-import org.jowidgets.cap.ui.api.widgets.IBeanForm;
-import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
-import org.jowidgets.cap.ui.api.widgets.IBeanFormSetupConvenience;
-import org.jowidgets.cap.ui.api.widgets.IBeanSelectionDialogBluePrint;
-import org.jowidgets.cap.ui.api.widgets.IBeanSelectionTableBluePrint;
-import org.jowidgets.cap.ui.api.widgets.IBeanTab;
-import org.jowidgets.cap.ui.api.widgets.IBeanTabFactory;
-import org.jowidgets.cap.ui.api.widgets.IBeanTabFolderBluePrint;
-import org.jowidgets.cap.ui.api.widgets.IBeanTabFolderSetupConvenience;
-import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
-import org.jowidgets.cap.ui.api.widgets.IBeanTableFormBluePrint;
-import org.jowidgets.cap.ui.api.widgets.IBeanTableFormSetupBuilder;
-import org.jowidgets.cap.ui.api.widgets.IBeanTableSettingsDialogBluePrint;
-import org.jowidgets.cap.ui.api.widgets.IBeanTableSetupBuilder;
-import org.jowidgets.cap.ui.api.widgets.IBeanTablesFormBluePrint;
 import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
-import org.jowidgets.cap.ui.api.widgets.ILookUpCollectionInputFieldBluePrint;
-import org.jowidgets.cap.ui.api.widgets.ILookUpComboBoxSelectionBluePrint;
-import org.jowidgets.cap.ui.api.widgets.ISingleBeanFormBluePrint;
 import org.jowidgets.cap.ui.api.workbench.ICapWorkbenchToolkit;
 import org.jowidgets.cap.ui.impl.DefaultCapUiToolkit;
-import org.jowidgets.cap.ui.impl.widgets.AttributeFilterControlFactory;
-import org.jowidgets.cap.ui.impl.widgets.BeanDialogFactory;
-import org.jowidgets.cap.ui.impl.widgets.BeanFormFactory;
-import org.jowidgets.cap.ui.impl.widgets.BeanSelectionDialogFactory;
-import org.jowidgets.cap.ui.impl.widgets.BeanSelectionTableFactory;
-import org.jowidgets.cap.ui.impl.widgets.BeanTabFolderFactory;
-import org.jowidgets.cap.ui.impl.widgets.BeanTableFactory;
-import org.jowidgets.cap.ui.impl.widgets.BeanTableFormFactory;
-import org.jowidgets.cap.ui.impl.widgets.BeanTableSettingsDialogFactory;
-import org.jowidgets.cap.ui.impl.widgets.BeanTablesFormFactory;
-import org.jowidgets.cap.ui.impl.widgets.LookUpCollectionInputFieldFactory;
-import org.jowidgets.cap.ui.impl.widgets.LookUpComboBoxSelectionFactory;
-import org.jowidgets.cap.ui.impl.widgets.SingleBeanFormFactory;
-import org.jowidgets.common.types.TableSelectionPolicy;
-import org.jowidgets.common.widgets.factory.IGenericWidgetFactory;
-import org.jowidgets.tools.controller.TabItemAdapter;
-import org.jowidgets.tools.layout.MigLayoutFactory;
-import org.jowidgets.tools.validation.MandatoryValidator;
-import org.jowidgets.tools.widgets.blueprint.BPF;
-import org.jowidgets.tools.widgets.blueprint.convenience.AbstractSetupBuilderConvenience;
-import org.jowidgets.util.IDecorator;
-import org.jowidgets.validation.IValidationMessage;
-import org.jowidgets.validation.IValidationResult;
-import org.jowidgets.validation.MessageType;
+import org.jowidgets.util.ITypedKey;
 
 public final class CapUiToolkit {
 
-	private static Map<IToolkit, ICapUiToolkit> toolkits = new WeakHashMap<IToolkit, ICapUiToolkit>();
+	private static final ITypedKey<ICapUiToolkit> CAP_TOOKIT_KEY = new ITypedKey<ICapUiToolkit>() {};
 
 	private CapUiToolkit() {}
 
@@ -127,11 +70,11 @@ public final class CapUiToolkit {
 	}
 
 	public static ICapUiToolkit getInstance() {
-		final IToolkit currentToolkit = Toolkit.getInstance();
-		ICapUiToolkit result = toolkits.get(currentToolkit);
+		//create one instance of the cap ui toolkit for each instance of the widgets toolkit
+		ICapUiToolkit result = Toolkit.getValue(CAP_TOOKIT_KEY);
 		if (result == null) {
-			result = createDefaultInstance(currentToolkit);
-			toolkits.put(currentToolkit, result);
+			result = new DefaultCapUiToolkit();
+			Toolkit.setValue(CAP_TOOKIT_KEY, result);
 		}
 		return result;
 	}
@@ -259,239 +202,4 @@ public final class CapUiToolkit {
 		return getInstance().lookUpCache();
 	}
 
-	private static ICapUiToolkit createDefaultInstance(final IToolkit toolkit) {
-		registerWidgets(toolkit);
-		return new DefaultCapUiToolkit();
-	}
-
-	@SuppressWarnings("unchecked")
-	private static void registerWidgets(final IToolkit toolkit) {
-		final IGenericWidgetFactory genericWidgetFactory = toolkit.getWidgetFactory();
-		genericWidgetFactory.register(IBeanTableBluePrint.class, new BeanTableFactory());
-		genericWidgetFactory.register(IBeanSelectionTableBluePrint.class, new BeanSelectionTableFactory());
-		genericWidgetFactory.register(IBeanSelectionDialogBluePrint.class, new BeanSelectionDialogFactory());
-		genericWidgetFactory.register(IBeanFormBluePrint.class, new BeanFormFactory());
-		genericWidgetFactory.register(IBeanDialogBluePrint.class, new BeanDialogFactory());
-		genericWidgetFactory.register(IBeanTablesFormBluePrint.class, new BeanTablesFormFactory());
-		genericWidgetFactory.register(IBeanTableFormBluePrint.class, new BeanTableFormFactory());
-		genericWidgetFactory.register(IBeanTableSettingsDialogBluePrint.class, new BeanTableSettingsDialogFactory());
-		genericWidgetFactory.register(ISingleBeanFormBluePrint.class, new SingleBeanFormFactory());
-		genericWidgetFactory.register(IAttributeFilterControlBluePrint.class, new AttributeFilterControlFactory());
-		genericWidgetFactory.register(ILookUpComboBoxSelectionBluePrint.class, new LookUpComboBoxSelectionFactory());
-		genericWidgetFactory.register(ILookUpCollectionInputFieldBluePrint.class, new LookUpCollectionInputFieldFactory());
-		genericWidgetFactory.register(IBeanTabFolderBluePrint.class, new BeanTabFolderFactory());
-
-		toolkit.getImageRegistry().registerImageConstant(CapIcons.TABLE_HIDE_COLUMN, IconsSmall.SUB);
-		toolkit.getImageRegistry().registerImageConstant(CapIcons.TABLE_UNHIDE_ALL_COLUMNS, IconsSmall.ADD_ALL);
-		toolkit.getImageRegistry().registerImageConstant(CapIcons.TABLE_SETTINGS, IconsSmall.SETTINGS);
-
-		toolkit.getBluePrintFactory().addDefaultsInitializer(
-				IBeanTableSetupBuilder.class,
-				new IDefaultInitializer<IBeanTableSetupBuilder<?>>() {
-					@Override
-					public void initialize(final IBeanTableSetupBuilder<?> bluePrint) {
-						bluePrint.setSelectionPolicy(TableSelectionPolicy.MULTI_ROW_SELECTION);
-						bluePrint.setColumnsMoveable(true);
-						bluePrint.setColumnsResizeable(true);
-						bluePrint.setDefaultMenus(true);
-						bluePrint.setDefaultCreatorAction(true);
-						bluePrint.setDefaultDeleterAction(true);
-						bluePrint.setSearchFilterToolbarVisible(false);
-					}
-				});
-
-		toolkit.getBluePrintFactory().addDefaultsInitializer(
-				IBeanSelectionTableBluePrint.class,
-				new IDefaultInitializer<IBeanSelectionTableBluePrint<?>>() {
-					@Override
-					public void initialize(final IBeanSelectionTableBluePrint<?> bluePrint) {
-						bluePrint.setSearchFilterToolbarVisible(true);
-						bluePrint.setMandatorySelectionValidator(true);
-					}
-				});
-
-		toolkit.getBluePrintFactory().addDefaultsInitializer(
-				IBeanSelectionDialogBluePrint.class,
-				new IDefaultInitializer<IBeanSelectionDialogBluePrint<?>>() {
-					@Override
-					public void initialize(final IBeanSelectionDialogBluePrint<?> bluePrint) {
-						bluePrint.setContentScrolled(false);
-						bluePrint.setContentBorder();
-						bluePrint.setMissingInputHint("Bitte wählen Sie einen Datensatz aus");
-						bluePrint.setDefaultButtonPolicy(InputDialogDefaultButtonPolicy.DISABLED);
-						final IInputComponentValidationLabelBluePrint validationLabelBp = BPF.inputComponentValidationLabel();
-						validationLabelBp.setInitialValidationDecorator(new IDecorator<IValidationResult>() {
-							@Override
-							public IValidationResult decorate(final IValidationResult original) {
-								if (!original.isValid()) {
-									return original;
-								}
-								return null;
-							}
-						});
-					}
-				});
-
-		toolkit.getBluePrintFactory().addDefaultsInitializer(
-				IBeanTableFormSetupBuilder.class,
-				new IDefaultInitializer<IBeanTableFormSetupBuilder<?>>() {
-					@Override
-					public void initialize(final IBeanTableFormSetupBuilder<?> bluePrint) {
-						bluePrint.setHideReadonlyAttributes(true);
-						bluePrint.setHideMetaAttributes(true);
-					}
-				});
-
-		toolkit.getBluePrintFactory().addDefaultsInitializer(
-				IBeanDialogBluePrint.class,
-				new IDefaultInitializer<IBeanDialogBluePrint<?>>() {
-					@Override
-					public void initialize(final IBeanDialogBluePrint<?> bluePrint) {
-						bluePrint.setOkButton(BPF.buttonOk());
-						bluePrint.setCancelButton(BPF.buttonCancel());
-					}
-				});
-
-		toolkit.getBluePrintFactory().addDefaultsInitializer(
-				IBeanFormBluePrint.class,
-				new IDefaultInitializer<IBeanFormBluePrint<?>>() {
-
-					@Override
-					public void initialize(final IBeanFormBluePrint<?> bluePrint) {
-						bluePrint.setAutoResetValidation(true);
-						bluePrint.setContentScrolled(true);
-						bluePrint.setCreateModeForegroundColor(Colors.GREEN);
-						final IInputComponentValidationLabelBluePrint editModeValidationLabel = Toolkit.getBluePrintFactory().inputComponentValidationLabel();
-						final IDecorator<IValidationResult> editModeValidationDecorator = new IDecorator<IValidationResult>() {
-							@Override
-							public IValidationResult decorate(final IValidationResult original) {
-								if (original != null) {
-									final IValidationMessage worstFirst = original.getWorstFirst();
-									if (worstFirst != null && worstFirst.getType().equalOrWorse(MessageType.WARNING)) {
-										return original;
-									}
-								}
-								return null;
-							}
-						};
-						editModeValidationLabel.setInitialValidationDecorator(editModeValidationDecorator);
-						editModeValidationLabel.setUnmodifiedValidationDecorator(editModeValidationDecorator);
-						bluePrint.setEditModeValidationLabel(editModeValidationLabel);
-
-						final IInputComponentValidationLabelBluePrint createModeValidationLabel = Toolkit.getBluePrintFactory().inputComponentValidationLabel();
-						final IDecorator<IValidationResult> createModeValidationDecorator = new IDecorator<IValidationResult>() {
-							@Override
-							public IValidationResult decorate(final IValidationResult original) {
-								if (original != null) {
-									final IValidationMessage worstFirst = original.getWorstFirst();
-									if (worstFirst != null && worstFirst.getType().equalOrWorse(MessageType.WARNING)) {
-										return original;
-									}
-								}
-								return null;
-							}
-						};
-						createModeValidationLabel.setInitialValidationDecorator(createModeValidationDecorator);
-						createModeValidationLabel.setUnmodifiedValidationDecorator(createModeValidationDecorator);
-						bluePrint.setCreateModeValidationLabel(createModeValidationLabel);
-						bluePrint.setCreateModeInputHint(Messages.getString("CapUiToolkit.fill_out_mandatory_fields"));
-
-						bluePrint.setMandatoryBackgroundColor(CapColors.MANDATORY_BACKGROUND);
-						bluePrint.setMandatoryLabelDecorator(new IDecorator<String>() {
-							@Override
-							public String decorate(final String original) {
-								if (original != null) {
-									return original + "*";
-								}
-								return null;
-							}
-						});
-						bluePrint.setMandatoryValidator(new MandatoryValidator<Object>());
-					}
-				});
-
-		toolkit.getBluePrintFactory().setSetupBuilderConvenience(
-				IBeanTabFolderBluePrint.class,
-				new BeanTabFolderSetupConvenience());
-
-		toolkit.getBluePrintFactory().setSetupBuilderConvenience(IBeanFormBluePrint.class, new BeanFormSetupConvenienve());
-
-	}
-
-	private static class BeanTabFolderSetupConvenience extends AbstractSetupBuilderConvenience<IBeanTabFolderBluePrint<Object>> implements
-			IBeanTabFolderSetupConvenience<Object, IBeanTabFolderBluePrint<Object>> {
-
-		@Override
-		public IBeanTabFolderBluePrint<Object> setTabFactory(final IBeanFormBluePrint<Object> beanFormBp) {
-			getBuilder().setTabFactory(new IBeanTabFactory<Object>() {
-				@Override
-				public IBeanTab<Object> createTab(final ITabItem tab) {
-
-					return new IBeanTab<Object>() {
-
-						private IBeanForm<Object> beanForm;
-						private IBeanProxy<Object> bean;
-
-						{
-							tab.addTabItemListener(new TabItemAdapter() {
-
-								@Override
-								public void selectionChanged(final boolean selected) {
-									if (selected && beanForm == null) {
-										initialize();
-									}
-								}
-
-							});
-
-							if (tab.getParent().getItems().size() == 1 || tab.getParent().getSelectedItem() == tab) {
-								initialize();
-							}
-						}
-
-						@Override
-						public void setBean(final IBeanProxy<Object> newBean) {
-							bean = newBean;
-							if (beanForm != null) {
-								beanForm.setValue(bean);
-							}
-						}
-
-						private void initialize() {
-							tab.layoutBegin();
-							final ICapApiBluePrintFactory cbpf = CapUiToolkit.bluePrintFactory();
-							final IBeanFormBluePrint<Object> bluePrintCopy = cbpf.beanForm(beanFormBp.getEntityId());
-							bluePrintCopy.setSetup(beanFormBp);
-							tab.setLayout(MigLayoutFactory.growingCellLayout());
-							beanForm = tab.add(bluePrintCopy, MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
-							beanForm.setValue(bean);
-							tab.layoutEnd();
-						}
-					};
-				}
-			});
-			return getBuilder();
-		}
-	}
-
-	private static class BeanFormSetupConvenienve extends AbstractSetupBuilderConvenience<IBeanFormBluePrint<Object>> implements
-			IBeanFormSetupConvenience<Object, IBeanFormBluePrint<Object>> {
-
-		@Override
-		public IBeanFormBluePrint<Object> setLayouter(final IBeanFormLayouter layouter) {
-			final IBeanFormBluePrint<Object> builder = getBuilder();
-			builder.setEditModeLayouter(layouter);
-			builder.setCreateModeLayouter(layouter);
-			return builder;
-		}
-
-		@Override
-		public IBeanFormBluePrint<Object> setAttributes(final Collection<? extends IAttribute<?>> attributes) {
-			final IBeanFormBluePrint<Object> builder = getBuilder();
-			builder.setEditModeAttributes(attributes);
-			builder.setCreateModeAttributes(attributes);
-			return builder;
-		}
-
-	}
 }
