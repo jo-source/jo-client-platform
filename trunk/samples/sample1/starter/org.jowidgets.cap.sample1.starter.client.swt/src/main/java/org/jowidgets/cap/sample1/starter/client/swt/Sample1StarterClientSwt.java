@@ -29,7 +29,7 @@
 package org.jowidgets.cap.sample1.starter.client.swt;
 
 import org.jowidgets.cap.sample1.starter.client.common.Sample1StarterClient;
-import org.jowidgets.spi.impl.swt.options.SwtOptions;
+import org.jowidgets.spi.impl.swt.common.options.SwtOptions;
 
 public final class Sample1StarterClientSwt {
 

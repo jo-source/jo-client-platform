@@ -29,7 +29,7 @@
 package org.jowidgets.cap.sample1.starter.standalone.swt;
 
 import org.jowidgets.cap.sample1.ui.workbench.SampleWorkbench;
-import org.jowidgets.spi.impl.swt.options.SwtOptions;
+import org.jowidgets.spi.impl.swt.common.options.SwtOptions;
 import org.jowidgets.workbench.impl.WorkbenchRunner;
 
 public final class Sample1StarterStandaloneSwt {
