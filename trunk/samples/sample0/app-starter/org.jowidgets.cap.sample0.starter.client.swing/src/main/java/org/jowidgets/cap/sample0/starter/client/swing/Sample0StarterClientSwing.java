@@ -31,7 +31,7 @@ package org.jowidgets.cap.sample0.starter.client.swing;
 import javax.swing.UIManager;
 
 import org.jowidgets.cap.sample0.starter.client.common.Sample0StarterClient;
-import org.jowidgets.spi.impl.swing.options.SwingOptions;
+import org.jowidgets.spi.impl.swing.common.options.SwingOptions;
 
 public final class Sample0StarterClientSwing {
 

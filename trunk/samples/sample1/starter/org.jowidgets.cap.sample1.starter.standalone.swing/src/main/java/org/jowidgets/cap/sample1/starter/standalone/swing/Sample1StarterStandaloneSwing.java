@@ -31,7 +31,7 @@ package org.jowidgets.cap.sample1.starter.standalone.swing;
 import javax.swing.UIManager;
 
 import org.jowidgets.cap.sample1.ui.workbench.SampleWorkbench;
-import org.jowidgets.spi.impl.swing.options.SwingOptions;
+import org.jowidgets.spi.impl.swing.common.options.SwingOptions;
 import org.jowidgets.workbench.impl.WorkbenchRunner;
 
 public final class Sample1StarterStandaloneSwing {
