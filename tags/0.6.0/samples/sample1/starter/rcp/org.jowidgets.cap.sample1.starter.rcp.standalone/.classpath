@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry exported="true" kind="lib" path="activation.jar"/>
+	<classpathentry exported="true" kind="lib" path="commons-logging.jar"/>
+	<classpathentry exported="true" kind="lib" path="hibernate-validator.jar"/>
+	<classpathentry exported="true" kind="lib" path="jaxb-api.jar"/>
+	<classpathentry exported="true" kind="lib" path="jaxb-impl.jar"/>
+	<classpathentry exported="true" kind="lib" path="miglayout-swt.jar"/>
+	<classpathentry exported="true" kind="lib" path="org.jowidgets.cap.common.jar"/>
+	<classpathentry exported="true" kind="lib" path="org.jowidgets.cap.sample1.common.jar"/>
+	<classpathentry exported="true" kind="lib" path="org.jowidgets.cap.sample1.service.jar"/>
+	<classpathentry exported="true" kind="lib" path="org.jowidgets.cap.sample1.starter.standalone.common.jar"/>
+	<classpathentry exported="true" kind="lib" path="org.jowidgets.cap.sample1.starter.standalone.swt.jar"/>
+	<classpathentry exported="true" kind="lib" path="org.jowidgets.cap.sample1.ui.jar"/>
+	<classpathentry exported="true" kind="lib" path="org.jowidgets.cap.service.impl.dummy.jar"/>
+	<classpathentry exported="true" kind="lib" path="org.jowidgets.cap.service.jar"/>
+	<classpathentry exported="true" kind="lib" path="org.jowidgets.cap.ui.jar"/>
+	<classpathentry exported="true" kind="lib" path="org.jowidgets.examples.common.jar"/>
+	<classpathentry exported="true" kind="lib" path="org.jowidgets.impl.jar"/>
+	<classpathentry exported="true" kind="lib" path="org.jowidgets.security.jar"/>
+	<classpathentry exported="true" kind="lib" path="org.jowidgets.service.jar"/>
+	<classpathentry exported="true" kind="lib" path="org.jowidgets.spi.impl.common.jar"/>
+	<classpathentry exported="true" kind="lib" path="org.jowidgets.spi.impl.swt.jar"/>
+	<classpathentry exported="true" kind="lib" path="org.jowidgets.spi.jar"/>
+	<classpathentry exported="true" kind="lib" path="org.jowidgets.test.api.jar"/>
+	<classpathentry exported="true" kind="lib" path="org.jowidgets.test.common.jar"/>
+	<classpathentry exported="true" kind="lib" path="org.jowidgets.test.spi.jar"/>
+	<classpathentry exported="true" kind="lib" path="org.jowidgets.workbench.impl.jar"/>
+	<classpathentry exported="true" kind="lib" path="org.jowidgets.workbench.toolkit.api.jar"/>
+	<classpathentry exported="true" kind="lib" path="org.jowidgets.workbench.tools.jar"/>
+	<classpathentry exported="true" kind="lib" path="slf4j-api.jar"/>
+	<classpathentry exported="true" kind="lib" path="slf4j-jcl.jar"/>
+	<classpathentry exported="true" kind="lib" path="stax-api.jar"/>
+	<classpathentry exported="true" kind="lib" path="validation-api.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
+	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
