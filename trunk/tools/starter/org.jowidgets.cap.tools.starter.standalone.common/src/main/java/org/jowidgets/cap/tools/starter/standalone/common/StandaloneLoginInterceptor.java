@@ -48,18 +48,24 @@ public class StandaloneLoginInterceptor implements ILoginInterceptor {
 
 	@Override
 	public void login(final ILoginResultCallback resultCallback, final String username, final String password) {
-
 		DefaultPrincipal principal = AuthenticationService.authenticate(new DefaultCredentials(username, password));
 		if (principal != null) {
 			principal = AuthorizationService.authorize(principal);
 			if (principal != null) {
+				final DefaultPrincipal finalPrincipal = principal;
+				try {
+					uiThreadAccess.invokeAndWait(new Runnable() {
+						@Override
+						public void run() {
+							SecurityContextHolder.setSecurityContext(finalPrincipal);
+						}
+					});
+				}
+				catch (final InterruptedException e) {
+					resultCallback.denied("Error on setting security context");
+					throw new RuntimeException("Error on setting security context", e);
+				}
 				resultCallback.granted();
-				uiThreadAccess.invokeLater(new Runnable() {
-					@Override
-					public void run() {
-						SecurityContextHolder.setSecurityContext(new DefaultPrincipal(username));
-					}
-				});
 			}
 			else {
 				resultCallback.denied("User not authorized");
@@ -68,7 +74,6 @@ public class StandaloneLoginInterceptor implements ILoginInterceptor {
 		else {
 			resultCallback.denied("Login incorrect");
 		}
-
 	}
 
 }
