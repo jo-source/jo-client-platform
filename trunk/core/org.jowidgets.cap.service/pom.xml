@@ -19,6 +19,11 @@
 			<artifactId>org.jowidgets.cap.common</artifactId>
 			<version>0.7.0-SNAPSHOT</version>
 		</dependency>
+		<dependency>
+            <groupId>org.jowidgets</groupId>
+            <artifactId>org.jowidgets.plugin</artifactId>
+            <version>0.7.0-SNAPSHOT</version>
+        </dependency>
 	</dependencies>
 
 	<build>

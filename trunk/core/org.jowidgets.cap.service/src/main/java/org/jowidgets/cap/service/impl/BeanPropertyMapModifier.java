@@ -28,14 +28,32 @@
 
 package org.jowidgets.cap.service.impl;
 
+import java.util.List;
+
+import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanModification;
 import org.jowidgets.cap.service.api.bean.IBeanModifier;
 import org.jowidgets.cap.service.api.bean.IBeanPropertyMap;
+import org.jowidgets.cap.service.api.plugin.IBeanModifierPlugin;
+import org.jowidgets.plugin.api.IPluginProperties;
+import org.jowidgets.plugin.api.IPluginPropertiesBuilder;
+import org.jowidgets.plugin.api.PluginProvider;
+import org.jowidgets.plugin.api.PluginToolkit;
 import org.jowidgets.util.NullCompatibleEquivalence;
 
 final class BeanPropertyMapModifier implements IBeanModifier<IBeanPropertyMap> {
 
-	BeanPropertyMapModifier() {}
+	private final IPluginProperties pluginProperties;
+
+	BeanPropertyMapModifier() {
+		this.pluginProperties = createPluginProperties();
+	}
+
+	private IPluginProperties createPluginProperties() {
+		final IPluginPropertiesBuilder builder = PluginToolkit.pluginPropertiesBuilder();
+		builder.add(IBeanModifierPlugin.BEAN_TYPE_PROPERTY_KEY, IBeanPropertyMap.class);
+		return builder.build();
+	}
 
 	@Override
 	public boolean isPropertyStale(final IBeanPropertyMap bean, final IBeanModification modification) {
@@ -49,7 +67,21 @@ final class BeanPropertyMapModifier implements IBeanModifier<IBeanPropertyMap> {
 
 	@Override
 	public void modify(final IBeanPropertyMap bean, final IBeanModification modification) {
+
+		//plugin before invocation
+		final List<IBeanModifierPlugin<IBean>> plugins;
+		plugins = PluginProvider.getPlugins(IBeanModifierPlugin.ID, pluginProperties);
+		for (final IBeanModifierPlugin<IBean> plugin : plugins) {
+			plugin.beforeModification(bean, modification);
+		}
+
+		//do modification
 		bean.setValue(modification.getPropertyName(), modification.getNewValue());
+
+		//plugin after invocation
+		for (final IBeanModifierPlugin<IBean> plugin : plugins) {
+			plugin.afterModification(bean, modification);
+		}
 	}
 
 }
