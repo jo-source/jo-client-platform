@@ -39,7 +39,6 @@ import java.util.Collection;
 
 import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.bean.Cardinality;
-import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanPropertyBuilder;
 import org.jowidgets.cap.common.api.bean.IProperty;
 import org.jowidgets.cap.common.api.bean.IValueRange;
@@ -60,54 +59,79 @@ final class BeanPropertyBuilderImpl implements IBeanPropertyBuilder {
 
 		propertyBuilder.setName(propertyName);
 
-		BeanInfo beanInfo;
+		final boolean isDefaultSet = setPropertyDefaults(beanType, propertyName, propertyBuilder);
+		if (!isDefaultSet) {
+			throw new RuntimeException("Can not set the property defaults for the property '"
+				+ propertyName
+				+ "' and the type '"
+				+ beanType.getName()
+				+ "'. Shure the is no typo?");
+		}
+	}
 
-		if (IBean.ID_PROPERTY.equals(propertyName)) {
-			propertyBuilder.setElementValueType(Object.class);
-			propertyBuilder.setValueType(Object.class);
-			propertyBuilder.setReadonly(true);
-		}
-		else if (IBean.VERSION_PROPERTY.equals(propertyName)) {
-			propertyBuilder.setElementValueType(long.class);
-			propertyBuilder.setValueType(long.class);
-			propertyBuilder.setReadonly(true);
-		}
-		else {
-			try {
-				beanInfo = Introspector.getBeanInfo(beanType);
-			}
-			catch (final IntrospectionException e) {
-				throw new RuntimeException(e);
-			}
-			for (final PropertyDescriptor propertyDescriptor : beanInfo.getPropertyDescriptors()) {
-				if (propertyDescriptor.getName().equals(propertyName)) {
-					final Class<?> propertyType = propertyDescriptor.getPropertyType();
-					propertyBuilder.setValueType(propertyType);
-					if (boolean.class.isAssignableFrom(propertyType)) {
-						propertyBuilder.setDefaultValue(false);
-					}
-					if (!Collection.class.isAssignableFrom(propertyType)) {
-						propertyBuilder.setElementValueType(propertyType);
-						propertyBuilder.setSortable(propertyType.isPrimitive() || Comparable.class.isAssignableFrom(propertyType));
-					}
-					else {
-						final Type returnType = propertyDescriptor.getReadMethod().getGenericReturnType();
-						if (returnType instanceof ParameterizedType) {
-							final ParameterizedType paramType = (ParameterizedType) returnType;
-							if (paramType.getActualTypeArguments().length == 1) {
-								final Type typeArg = paramType.getActualTypeArguments()[0];
-								if (typeArg instanceof Class<?>) {
-									propertyBuilder.setElementValueType((Class<?>) typeArg);
-								}
-							}
+	private static boolean setPropertyDefaults(
+		final Class<?> beanType,
+		final String propertyName,
+		final PropertyBuilder propertyBuilder) {
+		try {
+			final BeanInfo beanInfo = Introspector.getBeanInfo(beanType);
+			boolean isDefaultSet = setPropertyDefaults(beanInfo, propertyName, propertyBuilder);
+			if (!isDefaultSet) {
+				if (beanType.isInterface()) {
+					for (final Class<?> implementedInterface : beanType.getInterfaces()) {
+						isDefaultSet = setPropertyDefaults(implementedInterface, propertyName, propertyBuilder);
+						if (isDefaultSet) {
+							return true;
 						}
-						propertyBuilder.setSortable(false);
 					}
-					propertyBuilder.setReadonly(propertyDescriptor.getWriteMethod() == null);
+					return false;
+				}
+				else {
+					return false;
 				}
 			}
-			//TODO MG take respect of the super classes and implemented interfaces
+			else {
+				return true;
+			}
 		}
+		catch (final IntrospectionException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	private static boolean setPropertyDefaults(
+		final BeanInfo beanInfo,
+		final String propertyName,
+		final PropertyBuilder propertyBuilder) {
+		for (final PropertyDescriptor propertyDescriptor : beanInfo.getPropertyDescriptors()) {
+			if (propertyDescriptor.getName().equals(propertyName)) {
+				final Class<?> propertyType = propertyDescriptor.getPropertyType();
+				propertyBuilder.setValueType(propertyType);
+				if (boolean.class.isAssignableFrom(propertyType)) {
+					propertyBuilder.setDefaultValue(false);
+				}
+				if (!Collection.class.isAssignableFrom(propertyType)) {
+					propertyBuilder.setElementValueType(propertyType);
+					propertyBuilder.setSortable(propertyType.isPrimitive() || Comparable.class.isAssignableFrom(propertyType));
+				}
+				else {
+					final Type returnType = propertyDescriptor.getReadMethod().getGenericReturnType();
+					if (returnType instanceof ParameterizedType) {
+						final ParameterizedType paramType = (ParameterizedType) returnType;
+						if (paramType.getActualTypeArguments().length == 1) {
+							final Type typeArg = paramType.getActualTypeArguments()[0];
+							if (typeArg instanceof Class<?>) {
+								propertyBuilder.setElementValueType((Class<?>) typeArg);
+							}
+						}
+					}
+					propertyBuilder.setSortable(false);
+				}
+				propertyBuilder.setReadonly(propertyDescriptor.getWriteMethod() == null);
+				return true;
+			}
+		}
+		return false;
 	}
 
 	@Override
