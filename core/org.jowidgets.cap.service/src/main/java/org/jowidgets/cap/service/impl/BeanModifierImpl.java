@@ -34,18 +34,25 @@ import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanModification;
 import org.jowidgets.cap.common.api.exception.ServiceException;
 import org.jowidgets.cap.service.api.bean.IBeanModifier;
+import org.jowidgets.cap.service.api.plugin.IBeanModifierPlugin;
+import org.jowidgets.plugin.api.IPluginProperties;
+import org.jowidgets.plugin.api.IPluginPropertiesBuilder;
+import org.jowidgets.plugin.api.PluginProvider;
+import org.jowidgets.plugin.api.PluginToolkit;
 import org.jowidgets.util.NullCompatibleEquivalence;
 
 final class BeanModifierImpl<BEAN_TYPE extends IBean> implements IBeanModifier<BEAN_TYPE> {
 
 	private final Map<String, Method> writeMethods;
 	private final Map<String, Method> readMethods;
+	private final IPluginProperties pluginProperties;
 
 	BeanModifierImpl(final Class<? extends BEAN_TYPE> beanType, final Collection<String> propertyNames) {
 		this.writeMethods = new HashMap<String, Method>();
@@ -64,6 +71,14 @@ final class BeanModifierImpl<BEAN_TYPE extends IBean> implements IBeanModifier<B
 		catch (final Exception e) {
 			throw new RuntimeException(e);
 		}
+
+		this.pluginProperties = createPluginProperties(beanType);
+	}
+
+	private IPluginProperties createPluginProperties(final Class<? extends BEAN_TYPE> beanType) {
+		final IPluginPropertiesBuilder builder = PluginToolkit.pluginPropertiesBuilder();
+		builder.add(IBeanModifierPlugin.BEAN_TYPE_PROPERTY_KEY, beanType);
+		return builder.build();
 	}
 
 	@Override
@@ -94,11 +109,24 @@ final class BeanModifierImpl<BEAN_TYPE extends IBean> implements IBeanModifier<B
 	public void modify(final BEAN_TYPE bean, final IBeanModification modification) {
 		final Method writeMethod = writeMethods.get(modification.getPropertyName());
 		if (writeMethod != null) {
+			//plugin before invocation
+			final List<IBeanModifierPlugin<IBean>> plugins;
+			plugins = PluginProvider.getPlugins(IBeanModifierPlugin.ID, pluginProperties);
+			for (final IBeanModifierPlugin<IBean> plugin : plugins) {
+				plugin.beforeModification(bean, modification);
+			}
+
+			//do modification
 			try {
 				writeMethod.invoke(bean, modification.getNewValue());
 			}
 			catch (final Exception e) {
 				throw new RuntimeException(e);
+			}
+
+			//plugin after invocation
+			for (final IBeanModifierPlugin<IBean> plugin : plugins) {
+				plugin.afterModification(bean, modification);
 			}
 		}
 		else {

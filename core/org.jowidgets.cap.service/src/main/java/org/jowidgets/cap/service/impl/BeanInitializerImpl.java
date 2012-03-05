@@ -36,17 +36,24 @@ import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanData;
 import org.jowidgets.cap.service.api.bean.IBeanInitializer;
+import org.jowidgets.cap.service.api.plugin.IBeanInitializerPlugin;
+import org.jowidgets.plugin.api.IPluginProperties;
+import org.jowidgets.plugin.api.IPluginPropertiesBuilder;
+import org.jowidgets.plugin.api.PluginProvider;
+import org.jowidgets.plugin.api.PluginToolkit;
 import org.jowidgets.util.Assert;
 
 final class BeanInitializerImpl<BEAN_TYPE extends IBean> implements IBeanInitializer<BEAN_TYPE> {
 
 	private final Map<String, Method> methods;
+	private final IPluginProperties pluginProperties;
 
 	BeanInitializerImpl(final Class<? extends BEAN_TYPE> beanType, final Collection<String> propertyNames) {
 		Assert.paramNotNull(beanType, "beanType");
@@ -78,6 +85,14 @@ final class BeanInitializerImpl<BEAN_TYPE extends IBean> implements IBeanInitial
 				methods.put(propertyName, method);
 			}
 		}
+
+		this.pluginProperties = createPluginProperties(beanType);
+	}
+
+	private IPluginProperties createPluginProperties(final Class<? extends BEAN_TYPE> beanType) {
+		final IPluginPropertiesBuilder builder = PluginToolkit.pluginPropertiesBuilder();
+		builder.add(IBeanInitializerPlugin.BEAN_TYPE_PROPERTY_KEY, beanType);
+		return builder.build();
 	}
 
 	@Override
@@ -85,6 +100,14 @@ final class BeanInitializerImpl<BEAN_TYPE extends IBean> implements IBeanInitial
 		Assert.paramNotNull(bean, "bean");
 		Assert.paramNotNull(beanData, "beanData");
 
+		//plugin before invocation
+		final List<IBeanInitializerPlugin<IBean>> plugins;
+		plugins = PluginProvider.getPlugins(IBeanInitializerPlugin.ID, pluginProperties);
+		for (final IBeanInitializerPlugin<IBean> plugin : plugins) {
+			plugin.beforeInitialize(bean, beanData);
+		}
+
+		//set the values
 		for (final Entry<String, Method> entry : methods.entrySet()) {
 			try {
 				entry.getValue().invoke(bean, beanData.getValue(entry.getKey()));
@@ -92,6 +115,11 @@ final class BeanInitializerImpl<BEAN_TYPE extends IBean> implements IBeanInitial
 			catch (final Exception e) {
 				throw new RuntimeException("Error while setting property '" + entry.getKey() + "' on bean '" + bean + "'.", e);
 			}
+		}
+
+		//plugin after invocation
+		for (final IBeanInitializerPlugin<IBean> plugin : plugins) {
+			plugin.afterInitialize(bean, beanData);
 		}
 	}
 }

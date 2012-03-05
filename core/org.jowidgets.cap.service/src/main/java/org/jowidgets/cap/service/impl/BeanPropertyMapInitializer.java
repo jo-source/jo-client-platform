@@ -30,24 +30,51 @@ package org.jowidgets.cap.service.impl;
 
 import java.util.List;
 
+import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanData;
 import org.jowidgets.cap.service.api.bean.IBeanInitializer;
 import org.jowidgets.cap.service.api.bean.IBeanPropertyMap;
+import org.jowidgets.cap.service.api.plugin.IBeanInitializerPlugin;
+import org.jowidgets.plugin.api.IPluginProperties;
+import org.jowidgets.plugin.api.IPluginPropertiesBuilder;
+import org.jowidgets.plugin.api.PluginProvider;
+import org.jowidgets.plugin.api.PluginToolkit;
 import org.jowidgets.util.Assert;
 
 final class BeanPropertyMapInitializer implements IBeanInitializer<IBeanPropertyMap> {
 
 	private final List<String> propertyNames;
+	private final IPluginProperties pluginProperties;
 
 	BeanPropertyMapInitializer(final List<String> propertyNames) {
 		Assert.paramNotNull(propertyNames, "propertyNames");
 		this.propertyNames = propertyNames;
+		this.pluginProperties = createPluginProperties();
+	}
+
+	private IPluginProperties createPluginProperties() {
+		final IPluginPropertiesBuilder builder = PluginToolkit.pluginPropertiesBuilder();
+		builder.add(IBeanInitializerPlugin.BEAN_TYPE_PROPERTY_KEY, IBeanPropertyMap.class);
+		return builder.build();
 	}
 
 	@Override
 	public void initialize(final IBeanPropertyMap bean, final IBeanData beanData) {
+		//plugin before invocation
+		final List<IBeanInitializerPlugin<IBean>> plugins;
+		plugins = PluginProvider.getPlugins(IBeanInitializerPlugin.ID, pluginProperties);
+		for (final IBeanInitializerPlugin<IBean> plugin : plugins) {
+			plugin.beforeInitialize(bean, beanData);
+		}
+
+		//set the values
 		for (final String propertyName : propertyNames) {
 			bean.setValue(propertyName, beanData.getValue(propertyName));
+		}
+
+		//plugin after invocation
+		for (final IBeanInitializerPlugin<IBean> plugin : plugins) {
+			plugin.afterInitialize(bean, beanData);
 		}
 
 	}
