@@ -66,41 +66,46 @@ public final class BasicAuthenticationLoginInterceptor implements ILoginIntercep
 			return;
 		}
 
-		uiThreadAccess.invokeLater(new Runnable() {
+		try {
+			uiThreadAccess.invokeAndWait(new Runnable() {
 
-			@Override
-			public void run() {
-				final IExecutionTask executionTask = CapUiToolkit.executionTaskFactory().create();
-				resultCallback.addCancelListener(new ILoginCancelListener() {
-					@Override
-					public void canceled() {
-						executionTask.cancel();
-					}
-				});
+				@Override
+				public void run() {
+					final IExecutionTask executionTask = CapUiToolkit.executionTaskFactory().create();
+					resultCallback.addCancelListener(new ILoginCancelListener() {
+						@Override
+						public void canceled() {
+							executionTask.cancel();
+						}
+					});
 
-				BasicAuthenticationInitializer.getInstance().setCredentials(username, password);
-				authorizationService.getPrincipal(new IResultCallback() {
-					@Override
-					public void finished(final Object principal) {
-						if (principal == null) {
-							resultCallback.denied(LOGIN_FAILED);
+					BasicAuthenticationInitializer.getInstance().setCredentials(username, password);
+					authorizationService.getPrincipal(new IResultCallback() {
+						@Override
+						public void finished(final Object principal) {
+							if (principal == null) {
+								resultCallback.denied(LOGIN_FAILED);
+								BasicAuthenticationInitializer.getInstance().clearCredentials();
+							}
+							else {
+								SecurityContextHolder.setSecurityContext(principal);
+								resultCallback.granted();
+							}
+						}
+
+						@Override
+						public void exception(final Throwable exception) {
+							resultCallback.denied(exception.getLocalizedMessage());
 							BasicAuthenticationInitializer.getInstance().clearCredentials();
 						}
-						else {
-							SecurityContextHolder.setSecurityContext(principal);
-							resultCallback.granted();
-						}
-					}
+					}, executionTask);
 
-					@Override
-					public void exception(final Throwable exception) {
-						resultCallback.denied(exception.getLocalizedMessage());
-						BasicAuthenticationInitializer.getInstance().clearCredentials();
-					}
-				}, executionTask);
-
-			}
-		});
+				}
+			});
+		}
+		catch (final InterruptedException e) {
+			throw new RuntimeException(e);
+		}
 
 	}
 
