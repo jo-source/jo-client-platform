@@ -76,25 +76,25 @@
 								<artifactItem>
 									<groupId>org.jowidgets</groupId>
 									<artifactId>org.jowidgets.cap.sample1.starter.client.swt.webstart</artifactId>
-									<version>0.5.0-SNAPSHOT</version>
+									<version>${project.version}</version>
 									<type>zip</type>
 								</artifactItem>
 								<artifactItem>
                                     <groupId>org.jowidgets</groupId>
                                     <artifactId>org.jowidgets.cap.sample1.starter.client.swing.webstart</artifactId>
-                                    <version>0.5.0-SNAPSHOT</version>
+                                    <version>${project.version}</version>
                                     <type>zip</type>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>org.jowidgets</groupId>
                                     <artifactId>org.jowidgets.cap.sample1.starter.standalone.swt.webstart</artifactId>
-                                    <version>0.5.0-SNAPSHOT</version>
+                                    <version>${project.version}</version>
                                     <type>zip</type>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>org.jowidgets</groupId>
                                     <artifactId>org.jowidgets.cap.sample1.starter.standalone.swing.webstart</artifactId>
-                                    <version>0.5.0-SNAPSHOT</version>
+                                    <version>${project.version}</version>
                                     <type>zip</type>
                                 </artifactItem>
 							</artifactItems>
