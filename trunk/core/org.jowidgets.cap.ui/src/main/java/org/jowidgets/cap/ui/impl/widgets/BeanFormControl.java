@@ -375,9 +375,9 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 			final IExecutionTask executionTask = this.bean.getExecutionTask();
 			if (executionTask != null) {
 				executionTask.addExecutionTaskListener(executionTaskListener);
+				Toolkit.getWaitAnimationProcessor().addChangeListener(labelWaitChangeListener);
 			}
 		}
-		Toolkit.getWaitAnimationProcessor().addChangeListener(labelWaitChangeListener);
 	}
 
 	private void unregisterExecutionTaskListener(final IBeanProxy<BEAN_TYPE> bean) {
