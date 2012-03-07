@@ -28,12 +28,16 @@
 
 package org.jowidgets.cap.sample1.ui.workbench.component.user.view;
 
+import java.util.Date;
+import java.util.Random;
+
 import org.jowidgets.addons.icons.silkicons.SilkIcons;
 import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.command.IActionBuilder;
 import org.jowidgets.api.command.ICommandExecutor;
 import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.api.model.item.IContainerContentCreator;
+import org.jowidgets.api.model.item.IMenuModel;
 import org.jowidgets.api.model.item.IToolBarModel;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.widgets.IContainer;
@@ -46,9 +50,11 @@ import org.jowidgets.cap.sample1.ui.workbench.component.user.command.LongLasting
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
+import org.jowidgets.cap.ui.api.widgets.IPopupMenuListener;
 import org.jowidgets.common.widgets.controller.IInputListener;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
 import org.jowidgets.tools.layout.MigLayoutFactory;
+import org.jowidgets.tools.model.item.MenuModel;
 import org.jowidgets.util.ValueHolder;
 import org.jowidgets.workbench.api.IViewContext;
 import org.jowidgets.workbench.tools.AbstractView;
@@ -96,7 +102,35 @@ public class UserTableView extends AbstractView {
 		table.getCellPopMenu().addAction(new ChangeBirthdayAction(tableModel));
 		table.getCellPopMenu().addAction(new LongLastingAction(tableModel));
 
+		table.getCellPopMenu().addSeparator();
+
+		//example for dynamic menu
+		final Random random = new Random();
+		final IMenuModel dynamicMenuModel = createDynamicMenuModelStub();
+		table.getCellPopMenu().addItem(dynamicMenuModel);
+		table.addCellMenuListener(new IPopupMenuListener() {
+			@Override
+			public void beforeMenuShow() {
+				fillDynamicMenuModel(dynamicMenuModel, random);
+			}
+		});
+
 		beanTableModel.load();
+	}
+
+	private void fillDynamicMenuModel(final IMenuModel menuModel, final Random random) {
+		menuModel.removeAllItems();
+		menuModel.addActionItem("Its " + (new Date()));
+		final int count = random.nextInt(5) + 1;
+		for (int i = 0; i < count; i++) {
+			menuModel.addActionItem("Random item " + i);
+		}
+	}
+
+	private IMenuModel createDynamicMenuModelStub() {
+		final IMenuModel result = new MenuModel();
+		result.setText("Dynamic menu example");
+		return result;
 	}
 
 	private IAction createClearAction() {

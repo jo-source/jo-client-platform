@@ -28,53 +28,8 @@
 
 package org.jowidgets.cap.ui.api.widgets;
 
-import org.jowidgets.api.model.item.ICheckedItemModel;
-import org.jowidgets.api.model.item.IMenuModel;
-import org.jowidgets.api.widgets.ITable;
-import org.jowidgets.cap.ui.api.table.IBeanTableModel;
-import org.jowidgets.common.widgets.controller.ITableCellPopupEvent;
-import org.jowidgets.common.widgets.controller.ITableColumnPopupEvent;
-import org.jowidgets.util.ITypedKey;
+public interface IPopupMenuListener {
 
-public interface IBeanTable<BEAN_TYPE> extends ITable {
-
-	ITypedKey<ITableColumnPopupEvent> COLUMN_POPUP_EVENT_CONTEXT_KEY = new ITypedKey<ITableColumnPopupEvent>() {};
-	ITypedKey<ITableCellPopupEvent> CELL_POPUP_EVENT_CONTEXT_KEY = new ITypedKey<ITableCellPopupEvent>() {};
-
-	IMenuModel getTablePopupMenu();
-
-	IMenuModel getCellPopMenu();
-
-	IMenuModel getHeaderPopMenu();
-
-	void showSettingsDialog();
-
-	IBeanTableModel<BEAN_TYPE> getModel();
-
-	void setSearchFilterToolbarVisible(boolean visible);
-
-	void setSearchFilterToolbarText(String text);
-
-	ICheckedItemModel getSearchFilterToolbarItemModel();
-
-	void setFilterToolbarVisible(boolean visible);
-
-	ICheckedItemModel getFilterToolbarItemModel();
-
-	void setStatusBarVisible(boolean visible);
-
-	ICheckedItemModel getStatusBarItemModel();
-
-	void addTableMenuListener(IPopupMenuListener listener);
-
-	void removeTableMenuListener(IPopupMenuListener listener);
-
-	void addHeaderMenuListener(IPopupMenuListener listener);
-
-	void removeHeaderMenuListener(IPopupMenuListener listener);
-
-	void addCellMenuListener(IPopupMenuListener listener);
-
-	void removeCellMenuListener(IPopupMenuListener listener);
+	void beforeMenuShow();
 
 }
