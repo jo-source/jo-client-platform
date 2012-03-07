@@ -410,7 +410,6 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		final ITableModelFactory tableModelFactory = Toolkit.getModelFactoryProvider().getTableModelFactory();
 		final IDefaultTableColumnModel result = tableModelFactory.columnModel();
 
-		int columnIndex = 0;
 		for (final IAttribute<Object> attribute : attributes) {
 			final IDefaultTableColumnBuilder columnBuilder = new DefaultTableColumnBuilder();
 			columnBuilder.setText(attribute.getCurrentLabel());
@@ -419,7 +418,6 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			columnBuilder.setAlignment(attribute.getTableAlignment());
 			columnBuilder.setVisible(attribute.isVisible());
 			result.addColumn(columnBuilder.build());
-			columnIndex++;
 		}
 
 		return result;
