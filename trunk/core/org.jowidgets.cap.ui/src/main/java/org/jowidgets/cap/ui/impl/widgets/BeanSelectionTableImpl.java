@@ -42,6 +42,7 @@ import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.widgets.IBeanSelectionTable;
 import org.jowidgets.cap.ui.api.widgets.IBeanSelectionTableBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
+import org.jowidgets.cap.ui.api.widgets.IPopupMenuListener;
 import org.jowidgets.common.types.Dimension;
 import org.jowidgets.common.types.Position;
 import org.jowidgets.common.types.TablePackPolicy;
@@ -324,6 +325,36 @@ final class BeanSelectionTableImpl<BEAN_TYPE> extends AbstractInputControl<List<
 	@Override
 	public void removeTableCellListener(final ITableCellListener listener) {
 		table.removeTableCellListener(listener);
+	}
+
+	@Override
+	public void addTableMenuListener(final IPopupMenuListener listener) {
+		table.addTableMenuListener(listener);
+	}
+
+	@Override
+	public void removeTableMenuListener(final IPopupMenuListener listener) {
+		table.removeTableMenuListener(listener);
+	}
+
+	@Override
+	public void addHeaderMenuListener(final IPopupMenuListener listener) {
+		table.addHeaderMenuListener(listener);
+	}
+
+	@Override
+	public void removeHeaderMenuListener(final IPopupMenuListener listener) {
+		table.removeHeaderMenuListener(listener);
+	}
+
+	@Override
+	public void addCellMenuListener(final IPopupMenuListener listener) {
+		table.addCellMenuListener(listener);
+	}
+
+	@Override
+	public void removeCellMenuListener(final IPopupMenuListener listener) {
+		table.removeCellMenuListener(listener);
 	}
 
 	@Override

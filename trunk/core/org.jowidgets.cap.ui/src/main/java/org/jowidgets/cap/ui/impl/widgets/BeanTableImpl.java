@@ -63,6 +63,7 @@ import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableSettingsDialog;
 import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
+import org.jowidgets.cap.ui.api.widgets.IPopupMenuListener;
 import org.jowidgets.cap.ui.api.widgets.ITableMenuCreationInterceptor;
 import org.jowidgets.common.types.Dimension;
 import org.jowidgets.common.types.IVetoable;
@@ -72,6 +73,7 @@ import org.jowidgets.common.types.TablePackPolicy;
 import org.jowidgets.common.types.VirtualKey;
 import org.jowidgets.common.widgets.controller.IKeyEvent;
 import org.jowidgets.common.widgets.controller.IKeyListener;
+import org.jowidgets.common.widgets.controller.IPopupDetectionListener;
 import org.jowidgets.common.widgets.controller.ITableCellEditEvent;
 import org.jowidgets.common.widgets.controller.ITableCellEditorListener;
 import org.jowidgets.common.widgets.controller.ITableCellListener;
@@ -123,6 +125,9 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 	private final boolean hasDefaultCreatorAction;
 	private final boolean hasDefaultDeleterAction;
 	private final IBeanTableMenuFactory<BEAN_TYPE> menuFactory;
+	private final PopupMenuObservable tableMenuObservable;
+	private final PopupMenuObservable headerMenuObservable;
+	private final PopupMenuObservable cellMenuObservable;
 
 	private IAction creatorAction;
 	private IAction deleteAction;
@@ -145,6 +150,10 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 		contentComposite.setLayout(new MigLayoutDescriptor("hidemode 2", "0[]0[grow, 0::]0", "0[grow, 0::]0"));
 
 		this.table = contentComposite.add(tableBp, MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
+
+		this.tableMenuObservable = new PopupMenuObservable();
+		this.headerMenuObservable = new PopupMenuObservable();
+		this.cellMenuObservable = new PopupMenuObservable();
 
 		this.headerPopupMenus = new HashMap<Integer, IPopupMenu>();
 		this.cellPopupMenus = new HashMap<Integer, IPopupMenu>();
@@ -212,12 +221,23 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 
 			addMenuModel(tablePopupMenuModel, pluggedTablePopupMenuModell);
 
-			table.setPopupMenu(tablePopupMenuModel);
+			final IPopupMenu tablePopupMenu = table.createPopupMenu();
+			tablePopupMenu.setModel(tablePopupMenuModel);
+			table.addPopupDetectionListener(new IPopupDetectionListener() {
+				@Override
+				public void popupDetected(final Position position) {
+					tableMenuObservable.fireBeforeMenuShow();
+					if (tablePopupMenu.getChildren().size() > 0) {
+						tablePopupMenu.show(position);
+					}
+				}
+			});
 		}
 
 		table.addTableCellPopupDetectionListener(new ITableCellPopupDetectionListener() {
 			@Override
 			public void popupDetected(final ITableCellPopupEvent event) {
+				cellMenuObservable.fireBeforeMenuShow();
 				final IPopupMenu cellPopupMenu = getCellPopupMenu(event.getColumnIndex());
 				if (cellPopupMenu.getChildren().size() > 0) {
 					currentCellEvent = event;
@@ -231,6 +251,7 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 		table.addTableColumnPopupDetectionListener(new ITableColumnPopupDetectionListener() {
 			@Override
 			public void popupDetected(final ITableColumnPopupEvent event) {
+				headerMenuObservable.fireBeforeMenuShow();
 				final IPopupMenu headerPopupMenu = getHeaderPopupMenu(event.getColumnIndex());
 				if (headerPopupMenu.getChildren().size() > 0) {
 					currentColumnEvent = event;
@@ -597,6 +618,36 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 	@Override
 	public IMenuModel getHeaderPopMenu() {
 		return headerPopupMenuModel;
+	}
+
+	@Override
+	public void addTableMenuListener(final IPopupMenuListener listener) {
+		tableMenuObservable.addPopupMenuListener(listener);
+	}
+
+	@Override
+	public void removeTableMenuListener(final IPopupMenuListener listener) {
+		tableMenuObservable.removePopupMenuListener(listener);
+	}
+
+	@Override
+	public void addHeaderMenuListener(final IPopupMenuListener listener) {
+		headerMenuObservable.addPopupMenuListener(listener);
+	}
+
+	@Override
+	public void removeHeaderMenuListener(final IPopupMenuListener listener) {
+		headerMenuObservable.removePopupMenuListener(listener);
+	}
+
+	@Override
+	public void addCellMenuListener(final IPopupMenuListener listener) {
+		cellMenuObservable.addPopupMenuListener(listener);
+	}
+
+	@Override
+	public void removeCellMenuListener(final IPopupMenuListener listener) {
+		cellMenuObservable.removePopupMenuListener(listener);
 	}
 
 	private IBeanTableSettingsDialog getSettingsDialog() {
