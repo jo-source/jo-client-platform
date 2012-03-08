@@ -46,7 +46,7 @@ import org.jowidgets.plugin.api.IPluginProperties;
 import org.jowidgets.plugin.api.IPluginPropertiesBuilder;
 import org.jowidgets.plugin.api.PluginProvider;
 import org.jowidgets.plugin.api.PluginToolkit;
-import org.jowidgets.util.NullCompatibleEquivalence;
+import org.jowidgets.util.EmptyCompatibleEquivalence;
 
 final class BeanModifierImpl<BEAN_TYPE extends IBean> implements IBeanModifier<BEAN_TYPE> {
 
@@ -87,7 +87,7 @@ final class BeanModifierImpl<BEAN_TYPE extends IBean> implements IBeanModifier<B
 		if (readMethod != null) {
 			try {
 				final Object value = readMethod.invoke(bean);
-				if (NullCompatibleEquivalence.equals(value, modification.getOldValue())) {
+				if (EmptyCompatibleEquivalence.equals(value, modification.getOldValue())) {
 					return false;
 				}
 				else {

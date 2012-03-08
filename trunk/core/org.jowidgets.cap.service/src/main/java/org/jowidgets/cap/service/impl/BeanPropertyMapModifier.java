@@ -39,7 +39,7 @@ import org.jowidgets.plugin.api.IPluginProperties;
 import org.jowidgets.plugin.api.IPluginPropertiesBuilder;
 import org.jowidgets.plugin.api.PluginProvider;
 import org.jowidgets.plugin.api.PluginToolkit;
-import org.jowidgets.util.NullCompatibleEquivalence;
+import org.jowidgets.util.EmptyCompatibleEquivalence;
 
 final class BeanPropertyMapModifier implements IBeanModifier<IBeanPropertyMap> {
 
@@ -57,7 +57,7 @@ final class BeanPropertyMapModifier implements IBeanModifier<IBeanPropertyMap> {
 
 	@Override
 	public boolean isPropertyStale(final IBeanPropertyMap bean, final IBeanModification modification) {
-		if (NullCompatibleEquivalence.equals(bean.getValue(modification.getPropertyName()), modification.getOldValue())) {
+		if (EmptyCompatibleEquivalence.equals(bean.getValue(modification.getPropertyName()), modification.getOldValue())) {
 			return false;
 		}
 		else {
