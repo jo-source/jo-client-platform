@@ -30,7 +30,7 @@
 		<module>../addons/parent</module>
 		<module>../tools/parent</module>
 		<module>../util/parent</module>
-		<module>../samples/parent</module>
+		<!--module>../samples/parent</module-->
 	</modules>
 
 	<distributionManagement>
@@ -113,6 +113,14 @@
 				<configuration>
 					<downloadSources>true</downloadSources>
 					<downloadJavadocs>true</downloadJavadocs>
+					
+					<additionalBuildcommands>
+						<buildcommand>net.sf.eclipsecs.core.CheckstyleBuilder</buildcommand>
+					</additionalBuildcommands>
+					
+					<additionalProjectnatures>
+						<projectnature>net.sf.eclipsecs.core.CheckstyleNature</projectnature>
+					</additionalProjectnatures>
 				</configuration>
 			</plugin>
 
