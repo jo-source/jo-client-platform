@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.jowidgets</groupId>
@@ -6,15 +7,15 @@
 	<version>0.7.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>org.jowidgets.cap.parent</name>
-
+	
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<java.version>1.6</java.version>	
+		<java.version>1.6</java.version>
 		<maven.compiler.source>1.6</maven.compiler.source>
 		<maven.compiler.target>1.6</maven.compiler.target>
 		<jowidgets.version>0.9.0-SNAPSHOT</jowidgets.version>
 	</properties>
-	
+
 	<scm>
 		<connection>scm:svn:http://jo-client-platform.googlecode.com/svn/trunk/</connection>
 		<developerConnection>scm:svn:https://jo-client-platform.googlecode.com/svn/trunk/parent</developerConnection>
@@ -22,7 +23,7 @@
 	</scm>
 
 	<modules>
-	    <module>../core/parent</module>
+		<module>../core/parent</module>
 		<module>../remoting/parent</module>
 		<module>../plugin/org.jowidgets.plugin</module>
 		<module>../service/parent</module>
@@ -31,7 +32,7 @@
 		<module>../util/parent</module>
 		<module>../samples/parent</module>
 	</modules>
-	
+
 	<distributionManagement>
 		<repository>
 			<id>jowidgets-ftp-repository</id>
@@ -62,14 +63,43 @@
 	</repositories>
 
 	<build>
-	    <extensions>
+		<extensions>
 			<extension>
 				<groupId>org.apache.maven.wagon</groupId>
 				<artifactId>wagon-ftp</artifactId>
 				<version>1.0-beta-6</version>
 			</extension>
 		</extensions>
+		
 		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-checkstyle-plugin</artifactId>
+				<version>2.9.1</version>
+				<configuration>
+					<configLocation>org/jowidgets/checkstyle/checkstyle-checker.xml</configLocation>
+					<suppressionsLocation>org/jowidgets/checkstyle/checkstyle-suppressions.xml</suppressionsLocation>
+					<!-- checkstyle suppressions won't work inside eclipse, so do this workaround to 
+					omit generated classes from checking inside eclipse -->
+					<excludes>**/*Messages.java</excludes>
+				</configuration>
+				<executions>
+					<execution>
+						<phase>verify</phase>
+						<goals>
+							<goal>checkstyle</goal>
+						</goals>
+					</execution>
+				</executions>
+				<dependencies>
+					<dependency>
+						<groupId>org.jowidgets</groupId>
+						<artifactId>org.jowidgets.checkstyle</artifactId>
+						<version>${jowidgets.version}</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-deploy-plugin</artifactId>
@@ -79,7 +109,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-eclipse-plugin</artifactId>
-				<version>2.8</version>
+				<version>2.9</version>
 				<configuration>
 					<downloadSources>true</downloadSources>
 					<downloadJavadocs>true</downloadJavadocs>
@@ -110,7 +140,7 @@
 				</executions>
 			</plugin>
 
-		
+
 			<plugin>
 				<artifactId>maven-jar-plugin</artifactId>
 				<version>2.3.1</version>
@@ -120,7 +150,7 @@
 					</archive>
 				</configuration>
 			</plugin>
-			
+
 			<plugin>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-bundle-plugin</artifactId>
@@ -143,11 +173,11 @@
 				</executions>
 			</plugin>
 		</plugins>
-		
+
 		<pluginManagement>
 			<plugins>
-				<!--This plugin is used to filter some plugins for m2e.
-					It has no influence on the Maven build itself. -->
+				<!--This plugin is used to filter some plugins for m2e. It has no influence 
+					on the Maven build itself. -->
 				<plugin>
 					<groupId>org.eclipse.m2e</groupId>
 					<artifactId>lifecycle-mapping</artifactId>
@@ -206,7 +236,7 @@
 									<action>
 										<ignore></ignore>
 									</action>
-								</pluginExecution>		
+								</pluginExecution>
 							</pluginExecutions>
 						</lifecycleMappingMetadata>
 					</configuration>
