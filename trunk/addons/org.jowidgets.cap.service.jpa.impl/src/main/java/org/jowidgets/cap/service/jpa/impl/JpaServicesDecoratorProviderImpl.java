@@ -130,15 +130,6 @@ final class JpaServicesDecoratorProviderImpl implements IServicesDecoratorProvid
 
 		@Override
 		public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
-			try {
-				return doInvoke(method, args);
-			}
-			catch (final Exception e) {
-				throw new RuntimeException("Error while invoking method '" + method.getName() + "' on '" + proxy + "'", e);
-			}
-		}
-
-		private Object doInvoke(final Method method, final Object[] args) throws Throwable {
 			final Class<?>[] parameterTypes = method.getParameterTypes();
 
 			final int resultCallbackIndex = getFirstMatchingIndex(IResultCallback.class, parameterTypes);
