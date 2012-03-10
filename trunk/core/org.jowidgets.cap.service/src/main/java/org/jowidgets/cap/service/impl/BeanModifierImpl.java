@@ -39,7 +39,7 @@ import java.util.Map;
 
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanModification;
-import org.jowidgets.cap.common.api.exception.ServiceException;
+import org.jowidgets.cap.common.api.exception.BeanException;
 import org.jowidgets.cap.service.api.bean.IBeanModifier;
 import org.jowidgets.cap.service.api.plugin.IBeanModifierPlugin;
 import org.jowidgets.plugin.api.IPluginProperties;
@@ -99,7 +99,7 @@ final class BeanModifierImpl<BEAN_TYPE extends IBean> implements IBeanModifier<B
 			}
 		}
 		else {
-			throw new ServiceException(modification, "Tryed to get the property '"
+			throw new BeanException(modification.getId(), "Tryed to get the property '"
 				+ modification.getPropertyName()
 				+ "', but the property is not defined / allowed for this bean.");
 		}
@@ -130,7 +130,7 @@ final class BeanModifierImpl<BEAN_TYPE extends IBean> implements IBeanModifier<B
 			}
 		}
 		else {
-			throw new ServiceException(modification, "Tryed to set the property '"
+			throw new BeanException(modification.getId(), "Tryed to set the property '"
 				+ modification.getPropertyName()
 				+ "', but the property is not defined / allowed for this bean.");
 		}

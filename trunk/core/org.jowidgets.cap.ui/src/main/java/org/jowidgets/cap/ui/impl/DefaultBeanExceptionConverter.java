@@ -30,10 +30,9 @@ package org.jowidgets.cap.ui.impl;
 
 import java.util.List;
 
-import org.jowidgets.cap.common.api.bean.IBeanKey;
+import org.jowidgets.cap.common.api.exception.BeanException;
 import org.jowidgets.cap.common.api.exception.DeletedBeanException;
 import org.jowidgets.cap.common.api.exception.ExecutableCheckException;
-import org.jowidgets.cap.common.api.exception.ServiceException;
 import org.jowidgets.cap.common.api.exception.StaleBeanException;
 import org.jowidgets.cap.ui.api.bean.BeanMessageType;
 import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
@@ -53,39 +52,39 @@ final class DefaultBeanExceptionConverter implements IBeanExceptionConverter {
 		//CHECKSTYLE:OFF
 		throwable.printStackTrace();
 		//CHECKSTYLE:ON
-		if (throwable instanceof ServiceException) {
-			final ServiceException serviceException = ((ServiceException) throwable);
-			final IBeanKey exceptionBean = serviceException.getBeanKey();
+		if (throwable instanceof BeanException) {
+			final BeanException serviceException = ((BeanException) throwable);
+			final Object exceptionBeanId = serviceException.getBeanId();
 			String message = serviceException.getUserMessage();
 			if (serviceException instanceof ExecutableCheckException) {
 				if (message == null) {
-					if (destinationBean.getId().equals(exceptionBean.getId())) {
+					if (destinationBean.getId().equals(exceptionBeanId)) {
 						message = "Executable check failed!";
 					}
 					else {
-						message = "Executable check of the bean '" + serviceException.getBeanKey().getId() + "' failed!";
+						message = "Executable check of the bean '" + serviceException.getBeanId() + "' failed!";
 					}
 				}
 				return new BeanMessageImpl(BeanMessageType.WARNING, message, throwable);
 			}
 			else if (serviceException instanceof StaleBeanException) {
 				if (message == null) {
-					if (destinationBean.getId().equals(exceptionBean.getId())) {
+					if (destinationBean.getId().equals(exceptionBeanId)) {
 						message = "Stale data!";
 					}
 					else {
-						message = "Stale data (id= '" + serviceException.getBeanKey().getId() + "')!";
+						message = "Stale data (id= '" + serviceException.getBeanId() + "')!";
 					}
 				}
 				return new BeanMessageImpl(BeanMessageType.WARNING, message, throwable);
 			}
 			else if (serviceException instanceof DeletedBeanException) {
 				if (message == null) {
-					if (destinationBean.getId().equals(exceptionBean.getId())) {
+					if (destinationBean.getId().equals(exceptionBeanId)) {
 						message = "Deleted data!";
 					}
 					else {
-						message = "Deleted data (id= '" + serviceException.getBeanKey().getId() + "')!";
+						message = "Deleted data (id= '" + serviceException.getBeanId() + "')!";
 					}
 				}
 				return new BeanMessageImpl(BeanMessageType.ERROR, message, throwable);

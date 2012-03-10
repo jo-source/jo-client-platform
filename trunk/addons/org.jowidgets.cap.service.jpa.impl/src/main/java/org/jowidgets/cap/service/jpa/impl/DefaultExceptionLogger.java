@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,31 +26,19 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.api.exception;
+package org.jowidgets.cap.service.jpa.impl;
 
+import org.jowidgets.util.IExceptionLogger;
 
-public class ExecutableCheckException extends BeanException {
+final class DefaultExceptionLogger implements IExceptionLogger {
 
-	private static final long serialVersionUID = -7579908469741974763L;
-
-	public ExecutableCheckException(final Object beanId) {
-		super(beanId);
-	}
-
-	public ExecutableCheckException(final Object beanId, final String message) {
-		super(beanId, message);
-	}
-
-	public ExecutableCheckException(final Object beanId, final String message, final Throwable cause) {
-		super(beanId, message, cause);
-	}
-
-	public ExecutableCheckException(final Object beanId, final String message, final String userMessage) {
-		super(beanId, message, userMessage);
-	}
-
-	public ExecutableCheckException(final Object beanId, final String message, final String userMessage, final Throwable cause) {
-		super(beanId, message, userMessage, cause);
+	@Override
+	public void log(final Throwable exception) {
+		if (exception != null) {
+			//CHECKSTYLE:OFF
+			exception.printStackTrace();
+			//CHECKSTYLE:ON
+		}
 	}
 
 }

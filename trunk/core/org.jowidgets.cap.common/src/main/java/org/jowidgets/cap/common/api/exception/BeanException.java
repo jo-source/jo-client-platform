@@ -26,49 +26,40 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.jpa.api;
+package org.jowidgets.cap.common.api.exception;
 
-import java.util.Collection;
+public class BeanException extends ServiceException {
 
-import org.jowidgets.service.api.IServicesDecoratorProvider;
-import org.jowidgets.util.IDecorator;
-import org.jowidgets.util.IExceptionLogger;
+	private static final long serialVersionUID = -7579908469741974763L;
 
-public interface IJpaServicesDecoratorProviderBuilder {
+	private final Object beanId;
 
-	int DEFAULT_ORDER = 1;
+	public BeanException(final Object beanId) {
+		this(beanId, null, null, null);
+	}
+
+	public BeanException(final Object beanId, final String message) {
+		this(beanId, message, null, null);
+	}
+
+	public BeanException(final Object beanId, final String message, final Throwable cause) {
+		this(beanId, message, null, cause);
+	}
+
+	public BeanException(final Object beanId, final String message, final String userMessage) {
+		this(beanId, message, userMessage, null);
+	}
+
+	public BeanException(final Object beanId, final String message, final String userMessage, final Throwable cause) {
+		super(message, userMessage, cause);
+		this.beanId = beanId;
+	}
 
 	/**
-	 * Sets the services where the EntityManager should be set before invocation.
-	 * 
-	 * Before each service method will be invoked, a EntityManager will be set in the @link {@link EntityManagerHolder}.
-	 * After the method was invoked (in the finally block), the EntityManager will be set to null
-	 * 
-	 * @param services The services (must be interfaces) that needs a EntityManager
-	 * 
-	 * @return This builder
+	 * @return The id of the causing bean or null, if the id is unknown
 	 */
-	IJpaServicesDecoratorProviderBuilder setEntityManagerServices(Collection<? extends Class<?>> services);
-
-	/**
-	 * Sets the services that should be transactional
-	 * 
-	 * @param services The services (must be interfaces) that should be transactional
-	 * 
-	 * @return This builder
-	 */
-	IJpaServicesDecoratorProviderBuilder setTransactionalServices(Collection<? extends Class<?>> services);
-
-	IJpaServicesDecoratorProviderBuilder addEntityManagerServices(Class<?>... services);
-
-	IJpaServicesDecoratorProviderBuilder addTransactionalServices(Class<?>... services);
-
-	IJpaServicesDecoratorProviderBuilder setExceptionDecorator(IDecorator<Throwable> decorator);
-
-	IJpaServicesDecoratorProviderBuilder setExceptionLogger(IExceptionLogger logger);
-
-	IJpaServicesDecoratorProviderBuilder setOrder(int order);
-
-	IServicesDecoratorProvider build();
+	public final Object getBeanId() {
+		return beanId;
+	}
 
 }

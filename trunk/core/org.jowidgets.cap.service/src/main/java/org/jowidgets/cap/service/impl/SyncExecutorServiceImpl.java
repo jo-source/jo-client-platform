@@ -116,12 +116,12 @@ public final class SyncExecutorServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE> 
 		}
 
 		if (executor instanceof IBeanListExecutor) {
-			final List<IBeanDto> result = executeBeanList(beans, parameter, keys, executionCallback);
+			final List<IBeanDto> result = executeBeanList(beans, parameter, executionCallback);
 			CapServiceToolkit.checkCanceled(executionCallback);
 			return result;
 		}
 		else if (executor instanceof IBeanExecutor) {
-			final List<IBeanDto> result = execute(beans, parameter, keys, executionCallback);
+			final List<IBeanDto> result = execute(beans, parameter, executionCallback);
 			CapServiceToolkit.checkCanceled(executionCallback);
 			return result;
 		}
@@ -145,11 +145,11 @@ public final class SyncExecutorServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE> 
 		for (final IBeanKey key : keys) {
 			final BEAN_TYPE bean = beanMap.get(key.getId());
 			if (!allowDeletedBeans && bean == null) {
-				throw new DeletedBeanException(key);
+				throw new DeletedBeanException(key.getId());
 			}
 			else {
 				if (!allowStaleBeans && key.getVersion() != bean.getVersion()) {
-					throw new StaleBeanException(key);
+					throw new StaleBeanException(key.getId());
 				}
 			}
 			CapServiceToolkit.checkCanceled(executionCallback);
@@ -160,11 +160,10 @@ public final class SyncExecutorServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE> 
 	private List<IBeanDto> executeBeanList(
 		final List<BEAN_TYPE> beans,
 		final PARAM_TYPE parameter,
-		final Collection<? extends IBeanKey> keys,
 		final IExecutionCallback executionCallback) {
 
 		if (executableChecker != null) {
-			checkExecutableStates(beans, keys, executionCallback);
+			checkExecutableStates(beans, executionCallback);
 		}
 
 		final IBeanListExecutor<BEAN_TYPE, PARAM_TYPE> beanCollectionExecutor = (IBeanListExecutor<BEAN_TYPE, PARAM_TYPE>) executor;
@@ -178,7 +177,6 @@ public final class SyncExecutorServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE> 
 	private List<IBeanDto> execute(
 		final List<BEAN_TYPE> beans,
 		final PARAM_TYPE parameter,
-		final Collection<? extends IBeanKey> keys,
 		final IExecutionCallback executionCallback) {
 
 		final IBeanExecutor<BEAN_TYPE, PARAM_TYPE> beanExecutor = (IBeanExecutor<BEAN_TYPE, PARAM_TYPE>) executor;
@@ -186,7 +184,7 @@ public final class SyncExecutorServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE> 
 		final List<IBeanDto> result = new LinkedList<IBeanDto>();
 		for (final BEAN_TYPE bean : beans) {
 			if (executableChecker != null) {
-				checkExecutableState(bean, keys, executionCallback);
+				checkExecutableState(bean, executionCallback);
 			}
 			final BEAN_TYPE executionResult = beanExecutor.execute(bean, parameter, executionCallback);
 			CapServiceToolkit.checkCanceled(executionCallback);
@@ -199,15 +197,12 @@ public final class SyncExecutorServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE> 
 		return result;
 	}
 
-	private void checkExecutableStates(
-		final List<BEAN_TYPE> beans,
-		final Collection<? extends IBeanKey> keys,
-		final IExecutionCallback executionCallback) {
+	private void checkExecutableStates(final List<BEAN_TYPE> beans, final IExecutionCallback executionCallback) {
 		for (final BEAN_TYPE bean : beans) {
 			final IExecutableState executableState = executableChecker.getExecutableState(bean);
 			if (!executableState.isExecutable()) {
 				throw new ExecutableCheckException(
-					findKey(keys, bean, executionCallback),
+					bean.getId(),
 					"Executable check could not pass on service execution for bean '" + bean + "'",
 					executableState.getReason());
 			}
@@ -215,32 +210,13 @@ public final class SyncExecutorServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE> 
 		}
 	}
 
-	private void checkExecutableState(
-		final BEAN_TYPE bean,
-		final Collection<? extends IBeanKey> keys,
-		final IExecutionCallback executionCallback) {
+	private void checkExecutableState(final BEAN_TYPE bean, final IExecutionCallback executionCallback) {
 		final IExecutableState executableState = executableChecker.getExecutableState(bean);
 		if (!executableState.isExecutable()) {
-			throw new ExecutableCheckException(
-				findKey(keys, bean, executionCallback),
-				"Executable check could not pass on service execution for bean '" + bean + "'",
-				executableState.getReason());
+			throw new ExecutableCheckException(bean.getId(), "Executable check could not pass on service execution for bean '"
+				+ bean
+				+ "'", executableState.getReason());
 		}
 	}
 
-	private IBeanKey findKey(
-		final Collection<? extends IBeanKey> keys,
-		final IBean bean,
-		final IExecutionCallback executionCallback) {
-		for (final IBeanKey key : keys) {
-			if (key.getId().equals(bean.getId())) {
-				return key;
-			}
-			CapServiceToolkit.checkCanceled(executionCallback);
-		}
-		throw new IllegalStateException("Could not find key for bean '"
-			+ bean
-			+ "'. This seems too be a bug and may happen "
-			+ "e.g, if the implemented 'bean access' creates beans with id's that are different from that of the given keys.");
-	}
 }

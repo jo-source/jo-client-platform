@@ -28,8 +28,7 @@
 
 package org.jowidgets.cap.common.api.exception;
 
-
-public class ServiceCanceledException extends RuntimeException {
+public class ServiceCanceledException extends ServiceException {
 
 	private static final long serialVersionUID = -7579908469741974763L;
 

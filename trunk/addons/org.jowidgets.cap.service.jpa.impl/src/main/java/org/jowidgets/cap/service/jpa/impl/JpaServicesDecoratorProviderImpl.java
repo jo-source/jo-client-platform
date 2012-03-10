@@ -38,7 +38,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 
-import org.jowidgets.cap.common.api.exception.ServiceCanceledException;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
@@ -47,6 +46,7 @@ import org.jowidgets.cap.service.jpa.api.EntityManagerHolder;
 import org.jowidgets.service.api.IServicesDecoratorProvider;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.IDecorator;
+import org.jowidgets.util.IExceptionLogger;
 import org.jowidgets.util.Tuple;
 
 final class JpaServicesDecoratorProviderImpl implements IServicesDecoratorProvider {
@@ -54,17 +54,23 @@ final class JpaServicesDecoratorProviderImpl implements IServicesDecoratorProvid
 	private final EntityManagerFactory entityManagerFactory;
 	private final Set<Class<?>> entityManagerServices;
 	private final Set<Class<?>> transactionalServices;
+	private final IDecorator<Throwable> exceptionDecorator;
+	private final IExceptionLogger exceptionLogger;
 	private final int order;
 
 	JpaServicesDecoratorProviderImpl(
 		final String persistenceUnitName,
 		final Set<Class<?>> entityManagerServices,
 		final Set<Class<?>> transactionalServices,
+		final IDecorator<Throwable> exceptionDecorator,
+		final IExceptionLogger exceptionLogger,
 		final int order) {
 
 		Assert.paramNotNull(persistenceUnitName, "persistenceUnitName");
 		Assert.paramNotNull(entityManagerServices, "entityManagerServices");
 		Assert.paramNotNull(transactionalServices, "transactionalServices");
+		Assert.paramNotNull(exceptionDecorator, "exceptionDecorator");
+		Assert.paramNotNull(exceptionLogger, "exceptionLogger");
 
 		this.entityManagerFactory = EntityManagerFactoryProvider.get(persistenceUnitName);
 		if (entityManagerFactory == null && !entityManagerServices.isEmpty()) {
@@ -75,6 +81,8 @@ final class JpaServicesDecoratorProviderImpl implements IServicesDecoratorProvid
 
 		this.entityManagerServices = new HashSet<Class<?>>(entityManagerServices);
 		this.transactionalServices = new HashSet<Class<?>>(transactionalServices);
+		this.exceptionDecorator = exceptionDecorator;
+		this.exceptionLogger = exceptionLogger;
 		this.order = order;
 	}
 
@@ -264,15 +272,8 @@ final class JpaServicesDecoratorProviderImpl implements IServicesDecoratorProvid
 		}
 
 		private Throwable decorateException(final Throwable exception) {
-
-			if (exception instanceof ServiceCanceledException) {
-				return exception;
-			}
-			//TODO MG decorate jpa exceptions for the client
-			//CHECKSTYLE:OFF
-			exception.printStackTrace();
-			//CHECKSTYLE:ON
-			return new RuntimeException(exception);
+			exceptionLogger.log(exception);
+			return exceptionDecorator.decorate(exception);
 		}
 
 		private Tuple<EntityTransaction, Boolean> transactionBegin() {
