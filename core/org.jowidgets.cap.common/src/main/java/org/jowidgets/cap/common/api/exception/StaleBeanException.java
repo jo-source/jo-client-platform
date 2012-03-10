@@ -28,30 +28,29 @@
 
 package org.jowidgets.cap.common.api.exception;
 
-import org.jowidgets.cap.common.api.bean.IBeanKey;
 
-public class StaleBeanException extends ServiceException {
+public class StaleBeanException extends BeanException {
 
 	private static final long serialVersionUID = -7579908469741974763L;
 
-	public StaleBeanException(final IBeanKey staleBean) {
-		this(staleBean, "The bean with the key '" + staleBean + "' is stale.");
+	public StaleBeanException(final Object beanId) {
+		this(beanId, "The bean with the id '" + beanId + "' is stale.");
 	}
 
-	public StaleBeanException(final IBeanKey staleBean, final String message) {
-		super(staleBean, message);
+	public StaleBeanException(final Object beanId, final String message) {
+		super(beanId, message);
 	}
 
-	public StaleBeanException(final IBeanKey staleBean, final String message, final Throwable cause) {
-		super(staleBean, message, cause);
+	public StaleBeanException(final Object beanId, final String message, final Throwable cause) {
+		super(beanId, message, cause);
 	}
 
-	public StaleBeanException(final IBeanKey staleBean, final String message, final String userMessage) {
-		super(staleBean, message, userMessage);
+	public StaleBeanException(final Object beanId, final String message, final String userMessage) {
+		super(beanId, message, userMessage);
 	}
 
-	public StaleBeanException(final IBeanKey staleBean, final String message, final String userMessage, final Throwable cause) {
-		super(staleBean, message, userMessage, cause);
+	public StaleBeanException(final Object beanId, final String message, final String userMessage, final Throwable cause) {
+		super(beanId, message, userMessage, cause);
 	}
 
 }

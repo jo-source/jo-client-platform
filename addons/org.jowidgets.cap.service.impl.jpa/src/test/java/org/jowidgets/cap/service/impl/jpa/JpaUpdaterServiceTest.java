@@ -37,7 +37,7 @@ import javax.validation.ConstraintViolationException;
 import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.exception.DeletedBeanException;
-import org.jowidgets.cap.common.api.exception.ServiceException;
+import org.jowidgets.cap.common.api.exception.BeanException;
 import org.jowidgets.cap.common.api.exception.StaleBeanException;
 import org.jowidgets.cap.common.api.service.IUpdaterService;
 import org.jowidgets.cap.common.tools.execution.SyncResultCallback;
@@ -135,7 +135,7 @@ public class JpaUpdaterServiceTest extends AbstractJpaTest {
 		result.getResultSynchronious();
 	}
 
-	@Test(expected = ServiceException.class)
+	@Test(expected = BeanException.class)
 	public void testUpdateInvalidProperty() {
 		entityManager.getTransaction().begin();
 		final SyncResultCallback<List<IBeanDto>> result = new SyncResultCallback<List<IBeanDto>>();

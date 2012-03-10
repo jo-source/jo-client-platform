@@ -83,7 +83,7 @@ public final class SyncRefreshServiceImpl<BEAN_TYPE extends IBean> implements IS
 		for (final IBean bean : beans) {
 			final IBeanKey key = beanMap.get(bean.getId());
 			if (!allowDeletedBeans && key == null) {
-				throw new DeletedBeanException(key);
+				throw new DeletedBeanException(bean.getId());
 			}
 		}
 	}

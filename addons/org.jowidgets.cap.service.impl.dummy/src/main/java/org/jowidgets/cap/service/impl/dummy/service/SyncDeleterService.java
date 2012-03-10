@@ -59,10 +59,10 @@ final class SyncDeleterService implements ISyncDeleterService {
 		for (final IBeanKey key : keys) {
 			final IBean bean = data.getData(key.getId());
 			if (!allowDeletedData && bean == null) {
-				throw new DeletedBeanException(key);
+				throw new DeletedBeanException(key.getId());
 			}
 			if (!allowStaleData && bean != null && bean.getVersion() != key.getVersion()) {
-				throw new StaleBeanException(key);
+				throw new StaleBeanException(key.getId());
 			}
 			data.deleteData(key.getId());
 		}

@@ -41,7 +41,6 @@ import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.bean.IBeanModification;
 import org.jowidgets.cap.common.api.exception.StaleBeanException;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
-import org.jowidgets.cap.common.tools.bean.BeanKey;
 import org.jowidgets.cap.service.api.adapter.ISyncExecutorService;
 import org.jowidgets.cap.service.api.adapter.ISyncUpdaterService;
 import org.jowidgets.cap.service.api.bean.IBeanModifier;
@@ -70,7 +69,7 @@ public final class SyncUpdaterServiceImpl<BEAN_TYPE extends IBean> implements IS
 
 				for (final IBeanModification modification : modifications) {
 					if (!allowStaleBeans && beanModifier.isPropertyStale(bean, modification)) {
-						throw new StaleBeanException(new BeanKey(bean));
+						throw new StaleBeanException(bean.getId());
 					}
 					beanModifier.modify(bean, modification);
 				}

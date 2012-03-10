@@ -42,12 +42,17 @@ import org.jowidgets.cap.common.api.service.IUpdaterService;
 import org.jowidgets.cap.service.jpa.api.IJpaServicesDecoratorProviderBuilder;
 import org.jowidgets.service.api.IServicesDecoratorProvider;
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.IDecorator;
+import org.jowidgets.util.IExceptionLogger;
 
 final class JpaServicesDecoratorProviderBuilder implements IJpaServicesDecoratorProviderBuilder {
 
 	private final String persistenceUnitName;
 	private final Set<Class<?>> entityManagerServices;
 	private final Set<Class<?>> transactionalServices;
+
+	private IDecorator<Throwable> exceptionDecorator;
+	private IExceptionLogger exceptionLogger;
 
 	private int order;
 
@@ -57,6 +62,8 @@ final class JpaServicesDecoratorProviderBuilder implements IJpaServicesDecorator
 		this.order = IJpaServicesDecoratorProviderBuilder.DEFAULT_ORDER;
 		this.entityManagerServices = new HashSet<Class<?>>();
 		this.transactionalServices = new HashSet<Class<?>>();
+		this.exceptionDecorator = new DefaultJpaExceptionDecorator();
+		this.exceptionLogger = new DefaultExceptionLogger();
 
 		addEntityManagerServices(
 				ICreatorService.class,
@@ -100,6 +107,20 @@ final class JpaServicesDecoratorProviderBuilder implements IJpaServicesDecorator
 	}
 
 	@Override
+	public IJpaServicesDecoratorProviderBuilder setExceptionDecorator(final IDecorator<Throwable> decorator) {
+		Assert.paramNotNull(decorator, "decorator");
+		this.exceptionDecorator = decorator;
+		return this;
+	}
+
+	@Override
+	public IJpaServicesDecoratorProviderBuilder setExceptionLogger(final IExceptionLogger exceptionLogger) {
+		Assert.paramNotNull(exceptionLogger, "logger");
+		this.exceptionLogger = exceptionLogger;
+		return this;
+	}
+
+	@Override
 	public IJpaServicesDecoratorProviderBuilder setOrder(final int order) {
 		this.order = order;
 		return this;
@@ -107,7 +128,13 @@ final class JpaServicesDecoratorProviderBuilder implements IJpaServicesDecorator
 
 	@Override
 	public IServicesDecoratorProvider build() {
-		return new JpaServicesDecoratorProviderImpl(persistenceUnitName, entityManagerServices, transactionalServices, order);
+		return new JpaServicesDecoratorProviderImpl(
+			persistenceUnitName,
+			entityManagerServices,
+			transactionalServices,
+			exceptionDecorator,
+			exceptionLogger,
+			order);
 	}
 
 }

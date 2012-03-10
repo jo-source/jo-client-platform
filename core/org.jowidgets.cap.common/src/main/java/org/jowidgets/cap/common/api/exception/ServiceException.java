@@ -28,43 +28,101 @@
 
 package org.jowidgets.cap.common.api.exception;
 
-import org.jowidgets.cap.common.api.bean.IBeanKey;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
+/**
+ * The base exception of all service exceptions.
+ * 
+ * Remark: Service exception has no cause exception because they will
+ * potentially be used to notify the client layer about exceptions, and
+ * not all exception classes may be available in the client layer (e.g. PersistenceException).
+ * To make the information of the cause available in the client layer, the stack trace will
+ * be created from this exception and its cause when this exception will be created.
+ */
 public class ServiceException extends RuntimeException {
 
 	private static final long serialVersionUID = -7579908469741974763L;
 
-	private final IBeanKey beanKey;
 	private final String userMessage;
+	private final String stackTrace;
 
-	public ServiceException(final IBeanKey beanKey) {
-		this(beanKey, null, null, null);
+	public ServiceException() {
+		this(null, null, null);
 	}
 
-	public ServiceException(final IBeanKey beanKey, final String message) {
-		this(beanKey, message, null, null);
+	public ServiceException(final Throwable cause) {
+		this(null, null, cause);
 	}
 
-	public ServiceException(final IBeanKey beanKey, final String message, final Throwable cause) {
-		this(beanKey, message, null, cause);
+	public ServiceException(final String message) {
+		this(message, null, null);
 	}
 
-	public ServiceException(final IBeanKey beanKey, final String message, final String userMessage) {
-		this(beanKey, message, userMessage, null);
+	public ServiceException(final String message, final Throwable cause) {
+		this(message, null, cause);
 	}
 
-	public ServiceException(final IBeanKey beanKey, final String message, final String userMessage, final Throwable cause) {
+	public ServiceException(final String message, final String userMessage) {
+		this(message, userMessage, null);
+	}
+
+	/**
+	 * Creates a new ServiceException.
+	 * 
+	 * @param message The (technical) message of the exception
+	 * 
+	 * @param userMessage The (non technical, user domain specific) message that can be presented to the end user
+	 * 
+	 * @param cause The cause of the exception. Remark: The cause will not be returned with getCause(), instead the cause
+	 *            will be used to create a complete stack trace for this exception on creation time.
+	 */
+	public ServiceException(final String message, final String userMessage, final Throwable cause) {
 		super(message, cause);
-		this.beanKey = beanKey;
 		this.userMessage = userMessage;
+
+		final StringBuilder stackTraceBuilder = new StringBuilder(getStackTrace(this));
+
+		if (cause != null) {
+			if (cause instanceof ServiceException) {
+				stackTraceBuilder.append(((ServiceException) cause).getStackTraceString());
+			}
+			else {
+				stackTraceBuilder.append("\n" + getStackTrace(cause));
+			}
+		}
+
+		stackTrace = stackTraceBuilder.toString();
 	}
 
-	public IBeanKey getBeanKey() {
-		return beanKey;
-	}
-
-	public String getUserMessage() {
+	/**
+	 * Gets the user message of the exception.
+	 * The user message is a message that could be presented to the end user.
+	 * User messages should normally not presume technical / programming background
+	 * of the user. Instead they should describe the problem (and possible solution)
+	 * in the with words of the domain the application is designed for.
+	 * 
+	 * @return The user message or null, if no user message was set
+	 */
+	public final String getUserMessage() {
 		return userMessage;
 	}
 
+	/**
+	 * Gets the stack trace.
+	 * 
+	 * Remark: A ServiceException has no cause. When setting a cause on creation of a service exception,
+	 * the cause will be used to create the stack trace from.
+	 * 
+	 * @return The stack trace
+	 */
+	public final String getStackTraceString() {
+		return stackTrace;
+	}
+
+	private static String getStackTrace(final Throwable throwable) {
+		final StringWriter stringWriter = new StringWriter();
+		throwable.printStackTrace(new PrintWriter(stringWriter));
+		return stringWriter.toString();
+	}
 }

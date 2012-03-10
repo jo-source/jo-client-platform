@@ -28,30 +28,29 @@
 
 package org.jowidgets.cap.common.api.exception;
 
-import org.jowidgets.cap.common.api.bean.IBeanKey;
 
-public class DeletedBeanException extends ServiceException {
+public class DeletedBeanException extends BeanException {
 
 	private static final long serialVersionUID = -7579908469741974763L;
 
-	public DeletedBeanException(final IBeanKey deletedBean) {
-		super(deletedBean);
+	public DeletedBeanException(final Object beanId) {
+		super(beanId);
 	}
 
-	public DeletedBeanException(final IBeanKey deletedBean, final String message) {
-		super(deletedBean, message);
+	public DeletedBeanException(final Object beanId, final String message) {
+		super(beanId, message);
 	}
 
-	public DeletedBeanException(final IBeanKey deletedBean, final String message, final Throwable cause) {
-		super(deletedBean, message, cause);
+	public DeletedBeanException(final Object beanId, final String message, final Throwable cause) {
+		super(beanId, message, cause);
 	}
 
-	public DeletedBeanException(final IBeanKey deletedBean, final String message, final String userMessage) {
-		super(deletedBean, message, userMessage);
+	public DeletedBeanException(final Object beanId, final String message, final String userMessage) {
+		super(beanId, message, userMessage);
 	}
 
-	public DeletedBeanException(final IBeanKey deletedBean, final String message, final String userMessage, final Throwable cause) {
-		super(deletedBean, message, userMessage, cause);
+	public DeletedBeanException(final Object beanId, final String message, final String userMessage, final Throwable cause) {
+		super(beanId, message, userMessage, cause);
 	}
 
 }
