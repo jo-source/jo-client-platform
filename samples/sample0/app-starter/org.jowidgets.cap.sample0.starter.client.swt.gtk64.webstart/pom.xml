@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.jowidgets.cap.sample0</groupId>
 		<artifactId>org.jowidgets.cap.sample0.starter.parent</artifactId>
-		<version>0.7.0-SNAPSHOT</version>
+		<version>0.8.0-SNAPSHOT</version>
 		<relativePath>../parent/pom.xml</relativePath>
 	</parent>
 	
@@ -14,7 +14,7 @@
 	    <dependency>
 			<groupId>org.jowidgets.cap.sample0</groupId>
 			<artifactId>org.jowidgets.cap.sample0.starter.client.swt.gtk64</artifactId>
-			<version>0.7.0-SNAPSHOT</version>
+			<version>0.8.0-SNAPSHOT</version>
 			<scope>runtime</scope>
 		</dependency>
 	</dependencies>
