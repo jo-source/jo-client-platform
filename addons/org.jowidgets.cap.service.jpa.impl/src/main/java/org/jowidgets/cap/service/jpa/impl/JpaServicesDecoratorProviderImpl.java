@@ -40,6 +40,7 @@ import javax.persistence.EntityTransaction;
 
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
+import org.jowidgets.cap.common.tools.proxy.AbstractCapServiceInvocationHandler;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.jpa.api.EntityManagerFactoryProvider;
 import org.jowidgets.cap.service.jpa.api.EntityManagerHolder;
@@ -116,7 +117,7 @@ final class JpaServicesDecoratorProviderImpl implements IServicesDecoratorProvid
 		return order;
 	}
 
-	private final class JpaInvocationHandler implements InvocationHandler {
+	private final class JpaInvocationHandler extends AbstractCapServiceInvocationHandler {
 
 		private final Object original;
 		private final boolean entityManagerService;
@@ -129,35 +130,16 @@ final class JpaServicesDecoratorProviderImpl implements IServicesDecoratorProvid
 		}
 
 		@Override
-		public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
-			final Class<?>[] parameterTypes = method.getParameterTypes();
-
-			final int resultCallbackIndex = getFirstMatchingIndex(IResultCallback.class, parameterTypes);
-
-			if (resultCallbackIndex == -1) {
-				return invokeSyncSignature(method, args);
-			}
-			else {
-				final int executionCallbackIndex = getFirstMatchingIndex(IExecutionCallback.class, parameterTypes);
-				final IExecutionCallback executionCallback;
-				if (executionCallbackIndex != -1) {
-					executionCallback = (IExecutionCallback) args[executionCallbackIndex];
-				}
-				else {
-					executionCallback = null;
-				}
-				return invokeAsyncSignature(method, args, resultCallbackIndex, executionCallback);
-			}
-		}
-
-		private Object invokeSyncSignature(final Method method, final Object[] args) throws Throwable {
+		protected Object invokeSyncSignature(final Method method, final Object[] args, final IExecutionCallback executionCallback) throws Throwable {
 			Tuple<EntityManager, Boolean> entityManagerTuple = null;
 			Tuple<EntityTransaction, Boolean> transactionTuple = null;
 			try {
 				entityManagerTuple = entityManagerBegin();
 				transactionTuple = transactionBegin();
 				final Object result = method.invoke(original, args);
+				CapServiceToolkit.checkCanceled(executionCallback);
 				transactionCommit(transactionTuple);
+				CapServiceToolkit.checkCanceled(executionCallback);
 				return result;
 			}
 			catch (final Throwable e) {
@@ -173,15 +155,13 @@ final class JpaServicesDecoratorProviderImpl implements IServicesDecoratorProvid
 			}
 		}
 
-		private Object invokeAsyncSignature(
+		@Override
+		protected Object invokeAsyncSignature(
 			final Method method,
 			final Object[] args,
 			final int resultCallbackIndex,
-			final IExecutionCallback executionCallback) throws Exception {
-
-			@SuppressWarnings("unchecked")
-			final IResultCallback<Object> resultCallback = (IResultCallback<Object>) args[resultCallbackIndex];
-
+			final IResultCallback<Object> resultCallback,
+			final IExecutionCallback executionCallback) {
 			final Tuple<EntityManager, Boolean> entityManagerTuple;
 			final Tuple<EntityTransaction, Boolean> transactionTuple;
 
@@ -249,17 +229,6 @@ final class JpaServicesDecoratorProviderImpl implements IServicesDecoratorProvid
 				decoratedResultCallback.exception(exception);
 				return null;
 			}
-		}
-
-		private int getFirstMatchingIndex(final Class<?> interfaceType, final Class<?>[] paramTypes) {
-			if (paramTypes != null) {
-				for (int i = 0; i < paramTypes.length; i++) {
-					if (interfaceType.isAssignableFrom(paramTypes[i])) {
-						return i;
-					}
-				}
-			}
-			return -1;
 		}
 
 		private Throwable decorateException(final Throwable exception) {

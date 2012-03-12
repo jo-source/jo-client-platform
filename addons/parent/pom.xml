@@ -15,6 +15,7 @@
 		<module>../org.jowidgets.cap.service.impl.jpa</module>
 		<module>../org.jowidgets.cap.service.jpa.api</module>
 		<module>../org.jowidgets.cap.service.jpa.impl</module>	
+		<module>../org.jowidgets.cap.service.hibernate</module>
 		<module>../org.jowidgets.cap.service.impl.dummy</module>
 		<module>../org.jowidgets.cap.service.spring</module>
 		<module>../org.jowidgets.message.impl.akka</module>
