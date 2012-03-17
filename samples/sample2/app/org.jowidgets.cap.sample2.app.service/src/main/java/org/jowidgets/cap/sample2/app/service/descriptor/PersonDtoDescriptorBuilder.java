@@ -42,7 +42,7 @@ public class PersonDtoDescriptorBuilder extends BeanDtoDescriptorBuilder {
 		super(IPerson.class);
 
 		setLabelSingular("User");
-		setLabelPlural("User");
+		setLabelPlural("Users");
 
 		IBeanPropertyBluePrint propertyBp;
 
