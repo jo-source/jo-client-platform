@@ -63,9 +63,13 @@ import org.jowidgets.cap.common.api.filter.ICustomFilter;
 import org.jowidgets.cap.common.api.filter.IFilter;
 import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.common.api.sort.SortOrder;
-import org.jowidgets.cap.service.impl.jpa.IQueryCreator;
+import org.jowidgets.cap.service.jpa.api.query.IQueryCreator;
 import org.jowidgets.util.Assert;
 
+@Deprecated
+/**
+ * @deprecated Use module org.jowidgets.cap.service.jpa.impl instead.
+ */
 public final class CriteriaQueryCreator implements IQueryCreator<Void> {
 
 	public static final String DEFAULT_PARENT_PROPERTY_NAME = "parent";
@@ -81,7 +85,6 @@ public final class CriteriaQueryCreator implements IQueryCreator<Void> {
 		this.persistenceClass = persistenceClass;
 	}
 
-	@Override
 	public Class<? extends IBean> getPersistenceClass() {
 		return persistenceClass;
 	}
@@ -354,7 +357,7 @@ public final class CriteriaQueryCreator implements IQueryCreator<Void> {
 				}
 				return expr.in(params);
 			}
-				// CHECKSTYLE:OFF
+			// CHECKSTYLE:OFF
 			case CONTAINS_ALL: {
 				// CHECKSTYLE:ON
 				final Collection<?> params = Arrays.asList(filter.getParameters());
