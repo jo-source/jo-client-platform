@@ -879,15 +879,11 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	public void updateModel(
 		final Collection<? extends IBeanDto> beansToRemove,
 		final Collection<? extends IBeanDto> beansToAdd,
-		final boolean considerSort,
-		final boolean considerFilter) {
+		final boolean consistentInsert) {
 		Assert.paramNotNull(beansToRemove, "beansToRemove");
 		Assert.paramNotNull(beansToAdd, "beansToAdd");
 
-		//TODO remove beans
-		//		for (final IBeanDto bean : beansToRemove) {
-		//			
-		//		}
+		removeBeansImpl(beansToRemove, false);
 
 		for (final IBeanDto bean : beansToAdd) {
 			addBeanDtoImpl(bean, false);
@@ -919,7 +915,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		removeBeansImpl(beans, true);
 	}
 
-	private void removeBeansImpl(final Collection<? extends IBeanProxy<BEAN_TYPE>> beans, final boolean fireBeansChanged) {
+	private void removeBeansImpl(final Collection<? extends IBeanDto> beans, final boolean fireBeansChanged) {
 		Assert.paramNotNull(beans, "beans");
 		//data structure must rebuild, so do not load until this happens
 		tryToCanceLoader();
@@ -940,7 +936,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	private void removeBeansFromData(
 		final Set<IBeanProxy<BEAN_TYPE>> oldSelection,
 		final List<Integer> newSelection,
-		final Collection<? extends IBeanProxy<BEAN_TYPE>> beans) {
+		final Collection<? extends IBeanDto> beans) {
 		final Map<Integer, ArrayList<IBeanProxy<BEAN_TYPE>>> newData = getNewData(oldSelection, newSelection, beans);
 		data.clear();
 		for (final Entry<Integer, ArrayList<IBeanProxy<BEAN_TYPE>>> entry : newData.entrySet()) {
@@ -951,10 +947,10 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	private Map<Integer, ArrayList<IBeanProxy<BEAN_TYPE>>> getNewData(
 		final Set<IBeanProxy<BEAN_TYPE>> oldSelection,
 		final List<Integer> newSelection,
-		final Collection<? extends IBeanProxy<BEAN_TYPE>> beans) {
+		final Collection<? extends IBeanDto> beans) {
 
 		//hold the beans that should be deleted but that are currently not deleted
-		final Set<IBeanProxy<BEAN_TYPE>> beansToDelete = new HashSet<IBeanProxy<BEAN_TYPE>>(beans);
+		final Set<IBeanDto> beansToDelete = new HashSet<IBeanDto>(beans);
 
 		final Map<Integer, ArrayList<IBeanProxy<BEAN_TYPE>>> newData = new HashMap<Integer, ArrayList<IBeanProxy<BEAN_TYPE>>>();
 		int newPageIndex = 0;
@@ -1036,9 +1032,9 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	private void removeBeansFromAddedData(
 		final Set<IBeanProxy<BEAN_TYPE>> oldSelection,
 		final List<Integer> newSelection,
-		final Collection<? extends IBeanProxy<BEAN_TYPE>> beans) {
+		final Collection<? extends IBeanDto> beans) {
 		//hold the beans that should be deleted but that are currently not deleted
-		final Set<IBeanProxy<BEAN_TYPE>> beansToDelete = new HashSet<IBeanProxy<BEAN_TYPE>>(beans);
+		final Set<IBeanDto> beansToDelete = new HashSet<IBeanDto>(beans);
 		final LinkedList<IBeanProxy<BEAN_TYPE>> newAddedData = new LinkedList<IBeanProxy<BEAN_TYPE>>();
 		for (final IBeanProxy<BEAN_TYPE> addedBean : addedData) {
 			final boolean removed = beansToDelete.remove(addedBean);

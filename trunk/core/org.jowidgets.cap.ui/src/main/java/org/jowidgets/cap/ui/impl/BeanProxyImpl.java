@@ -1088,9 +1088,9 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 		if (obj == null) {
 			return false;
 		}
-		else if (obj instanceof IBeanProxy) {
+		else if (obj instanceof IBeanDto) {
 			if (beanDto.getId() != null) {
-				return beanDto.getId().equals(((IBeanProxy<?>) obj).getId());
+				return beanDto.getId().equals(((IBeanDto) obj).getId());
 			}
 			else {
 				return this == obj;
