@@ -65,7 +65,6 @@ final class DefaultJpaExceptionDecorator implements IDecorator<Throwable> {
 				final ConstraintViolation<?> violation = constraintViolations.iterator().next();
 				return new ExecutableCheckException(violation.getRootBean());
 			}
-			return new DeletedBeanException(null);
 		}
 		//TODO MG handle more jpa exceptions 
 

@@ -28,7 +28,6 @@
 
 package org.jowidgets.cap.common.api.exception;
 
-
 public class StaleBeanException extends BeanException {
 
 	private static final long serialVersionUID = -7579908469741974763L;
@@ -39,6 +38,10 @@ public class StaleBeanException extends BeanException {
 
 	public StaleBeanException(final Object beanId, final String message) {
 		super(beanId, message);
+	}
+
+	public StaleBeanException(final Object beanId, final Throwable cause) {
+		super(beanId, null, null, cause);
 	}
 
 	public StaleBeanException(final Object beanId, final String message, final Throwable cause) {

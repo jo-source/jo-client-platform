@@ -31,6 +31,8 @@ package org.jowidgets.cap.service.jpa.impl;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 import org.jowidgets.cap.common.api.service.ICreatorService;
@@ -50,8 +52,8 @@ final class JpaServicesDecoratorProviderBuilder implements IJpaServicesDecorator
 	private final String persistenceUnitName;
 	private final Set<Class<?>> entityManagerServices;
 	private final Set<Class<?>> transactionalServices;
+	private final List<IDecorator<Throwable>> exceptionDecorators;
 
-	private IDecorator<Throwable> exceptionDecorator;
 	private IExceptionLogger exceptionLogger;
 
 	private int order;
@@ -62,7 +64,8 @@ final class JpaServicesDecoratorProviderBuilder implements IJpaServicesDecorator
 		this.order = IJpaServicesDecoratorProviderBuilder.DEFAULT_ORDER;
 		this.entityManagerServices = new HashSet<Class<?>>();
 		this.transactionalServices = new HashSet<Class<?>>();
-		this.exceptionDecorator = new DefaultJpaExceptionDecorator();
+		this.exceptionDecorators = new LinkedList<IDecorator<Throwable>>();
+		exceptionDecorators.add(new DefaultJpaExceptionDecorator());
 		this.exceptionLogger = new DefaultExceptionLogger();
 
 		addEntityManagerServices(
@@ -107,9 +110,20 @@ final class JpaServicesDecoratorProviderBuilder implements IJpaServicesDecorator
 	}
 
 	@Override
-	public IJpaServicesDecoratorProviderBuilder setExceptionDecorator(final IDecorator<Throwable> decorator) {
+	public IJpaServicesDecoratorProviderBuilder setExceptionDecorators(
+		final Collection<? extends IDecorator<Throwable>> decorators) {
+		Assert.paramNotNull(decorators, "decorators");
+		exceptionDecorators.clear();
+		for (final IDecorator<Throwable> decorator : decorators) {
+			exceptionDecorators.add(0, decorator);
+		}
+		return this;
+	}
+
+	@Override
+	public IJpaServicesDecoratorProviderBuilder addExceptionDecorator(final IDecorator<Throwable> decorator) {
 		Assert.paramNotNull(decorator, "decorator");
-		this.exceptionDecorator = decorator;
+		exceptionDecorators.add(0, decorator);
 		return this;
 	}
 
@@ -132,7 +146,7 @@ final class JpaServicesDecoratorProviderBuilder implements IJpaServicesDecorator
 			persistenceUnitName,
 			entityManagerServices,
 			transactionalServices,
-			exceptionDecorator,
+			exceptionDecorators,
 			exceptionLogger,
 			order);
 	}

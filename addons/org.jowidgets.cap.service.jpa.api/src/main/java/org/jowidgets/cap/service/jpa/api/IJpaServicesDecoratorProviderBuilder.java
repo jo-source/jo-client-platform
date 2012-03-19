@@ -63,7 +63,18 @@ public interface IJpaServicesDecoratorProviderBuilder {
 
 	IJpaServicesDecoratorProviderBuilder addTransactionalServices(Class<?>... services);
 
-	IJpaServicesDecoratorProviderBuilder setExceptionDecorator(IDecorator<Throwable> decorator);
+	IJpaServicesDecoratorProviderBuilder setExceptionDecorators(Collection<? extends IDecorator<Throwable>> decorators);
+
+	/**
+	 * Adds an exception decorator to the list of exception decorators.
+	 * 
+	 * Remark: Exception decorators will be invoked in reverse order. This will be done because the default decorators
+	 * should be invoked after special decorators.
+	 * 
+	 * @param decorator The decorator to add
+	 * @return This builder.
+	 */
+	IJpaServicesDecoratorProviderBuilder addExceptionDecorator(IDecorator<Throwable> decorator);
 
 	IJpaServicesDecoratorProviderBuilder setExceptionLogger(IExceptionLogger logger);
 

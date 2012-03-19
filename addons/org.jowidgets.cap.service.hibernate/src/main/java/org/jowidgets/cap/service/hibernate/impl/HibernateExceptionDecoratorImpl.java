@@ -28,14 +28,28 @@
 
 package org.jowidgets.cap.service.hibernate.impl;
 
+import javax.persistence.OptimisticLockException;
+
+import org.hibernate.StaleObjectStateException;
+import org.jowidgets.cap.common.api.exception.StaleBeanException;
 import org.jowidgets.util.IDecorator;
 
 public class HibernateExceptionDecoratorImpl implements IDecorator<Throwable> {
 
 	@Override
 	public Throwable decorate(final Throwable original) {
-		//TODO MG implement hibernate exception decorator
+		if (original instanceof OptimisticLockException) {
+			final Throwable cause = original.getCause();
+			if (cause instanceof StaleObjectStateException) {
+				return getStaleBeanException((StaleObjectStateException) cause);
+			}
+		}
+		//TODO MG handle more hibernate exceptions 
 		return original;
+	}
+
+	private StaleBeanException getStaleBeanException(final StaleObjectStateException exception) {
+		return new StaleBeanException(exception.getIdentifier(), exception);
 	}
 
 }
