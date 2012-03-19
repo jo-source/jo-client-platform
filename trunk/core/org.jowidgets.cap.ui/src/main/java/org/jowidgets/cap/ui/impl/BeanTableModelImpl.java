@@ -845,6 +845,10 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	@Override
 	public void addBean(final IBeanProxy<BEAN_TYPE> bean) {
 		Assert.paramNotNull(bean, "bean");
+		addBeanImpl(bean, true);
+	}
+
+	private void addBeanImpl(final IBeanProxy<BEAN_TYPE> bean, final boolean fireBeansChanged) {
 		addedData.add(bean);
 		final int index = getSize() - 1;
 		bean.addPropertyChangeListener(new PropertyChangeListener() {
@@ -854,14 +858,42 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			}
 		});
 		beansStateTracker.register(bean);
-		fireBeansChanged();
+		if (fireBeansChanged) {
+			fireBeansChanged();
+		}
 	}
 
 	@Override
 	public IBeanProxy<BEAN_TYPE> addBeanDto(final IBeanDto beanDto) {
+		Assert.paramNotNull(beanDto, "beanDto");
+		return addBeanDtoImpl(beanDto, true);
+	}
+
+	private IBeanProxy<BEAN_TYPE> addBeanDtoImpl(final IBeanDto beanDto, final boolean fireBeansChanged) {
 		final IBeanProxy<BEAN_TYPE> result = createBeanProxy(beanDto);
-		addBean(result);
+		addBeanImpl(result, fireBeansChanged);
 		return result;
+	}
+
+	@Override
+	public void updateModel(
+		final Collection<? extends IBeanDto> beansToRemove,
+		final Collection<? extends IBeanDto> beansToAdd,
+		final boolean considerSort,
+		final boolean considerFilter) {
+		Assert.paramNotNull(beansToRemove, "beansToRemove");
+		Assert.paramNotNull(beansToAdd, "beansToAdd");
+
+		//TODO remove beans
+		//		for (final IBeanDto bean : beansToRemove) {
+		//			
+		//		}
+
+		for (final IBeanDto bean : beansToAdd) {
+			addBeanDtoImpl(bean, false);
+		}
+
+		fireBeansChanged();
 	}
 
 	@Override
