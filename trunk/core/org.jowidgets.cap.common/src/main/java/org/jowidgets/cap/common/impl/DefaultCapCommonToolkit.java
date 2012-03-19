@@ -29,6 +29,7 @@
 package org.jowidgets.cap.common.impl;
 
 import java.util.Collection;
+import java.util.Comparator;
 
 import javax.validation.Validation;
 import javax.validation.ValidationException;
@@ -50,8 +51,10 @@ import org.jowidgets.cap.common.api.bean.IStaticValueRangeFactory;
 import org.jowidgets.cap.common.api.entity.IEntityClassBuilder;
 import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptorBuilder;
 import org.jowidgets.cap.common.api.entity.IEntityLinkPropertiesBuilder;
+import org.jowidgets.cap.common.api.filter.IBeanDtoFilter;
 import org.jowidgets.cap.common.api.filter.IFilterFactory;
 import org.jowidgets.cap.common.api.lookup.ILookUpToolkit;
+import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.common.api.sort.ISortFactory;
 import org.jowidgets.cap.common.api.validation.IBeanValidationResultListBuilder;
 import org.jowidgets.cap.common.api.validation.IBeanValidator;
@@ -63,6 +66,7 @@ public final class DefaultCapCommonToolkit implements ICapCommonToolkit {
 	private final IFilterFactory filterFactory;
 	private final IStaticValueRangeFactory valueRangeFactory;
 	private final ILookUpToolkit lookUpToolkit;
+	private final IBeanDtoFilter beanDtoFilter;
 
 	private Validator beanValidator;
 
@@ -71,6 +75,7 @@ public final class DefaultCapCommonToolkit implements ICapCommonToolkit {
 		this.filterFactory = new FilterFactoryImpl();
 		this.valueRangeFactory = new StaticValueRangeFactoryImpl();
 		this.lookUpToolkit = new LookUpToolkitImpl();
+		this.beanDtoFilter = new BeanDtoFilterImpl();
 	}
 
 	@Override
@@ -166,6 +171,16 @@ public final class DefaultCapCommonToolkit implements ICapCommonToolkit {
 	@Override
 	public IFilterFactory filterFactory() {
 		return filterFactory;
+	}
+
+	@Override
+	public IBeanDtoFilter beanDtoFilter() {
+		return beanDtoFilter;
+	}
+
+	@Override
+	public Comparator<IBeanDto> beanDtoComparator(final Collection<ISort> sorting) {
+		return new BeanDtoComparatorImpl(sorting);
 	}
 
 	@Override

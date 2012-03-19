@@ -29,11 +29,13 @@
 package org.jowidgets.cap.common.api;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 
 import javax.validation.Validator;
 
 import org.jowidgets.cap.common.api.bean.IBeanDataBuilder;
+import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanDtoBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptorBuilder;
@@ -47,8 +49,10 @@ import org.jowidgets.cap.common.api.bean.IStaticValueRangeFactory;
 import org.jowidgets.cap.common.api.entity.IEntityClassBuilder;
 import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptorBuilder;
 import org.jowidgets.cap.common.api.entity.IEntityLinkPropertiesBuilder;
+import org.jowidgets.cap.common.api.filter.IBeanDtoFilter;
 import org.jowidgets.cap.common.api.filter.IFilterFactory;
 import org.jowidgets.cap.common.api.lookup.ILookUpToolkit;
+import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.common.api.sort.ISortFactory;
 import org.jowidgets.cap.common.api.validation.IBeanValidationResultListBuilder;
 import org.jowidgets.cap.common.api.validation.IBeanValidator;
@@ -145,6 +149,14 @@ public final class CapCommonToolkit {
 
 	public static IFilterFactory filterFactory() {
 		return getInstance().filterFactory();
+	}
+
+	public static IBeanDtoFilter beanDtoFilter() {
+		return getInstance().beanDtoFilter();
+	}
+
+	public static Comparator<IBeanDto> beanDtoComparator(final Collection<ISort> sorting) {
+		return getInstance().beanDtoComparator(sorting);
 	}
 
 	public static ILookUpToolkit lookUpToolkit() {
