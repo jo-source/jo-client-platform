@@ -55,10 +55,7 @@ final class BeanDtoFilterImpl implements IBeanDtoFilter {
 		final Collection<? extends IBeanDto> beanDtos,
 		final IFilter filter,
 		final IExecutionCallback executionCallback) {
-		//CHECKSTYLE:OFF
-		// TODO MG remove sysout in filter method
-		System.out.println("Filter: " + filter);
-		//CHECKSTYLE:ON
+
 		if (filter instanceof IBooleanFilter) {
 			return booleanFilter(beanDtos, (IBooleanFilter) filter, executionCallback);
 		}
