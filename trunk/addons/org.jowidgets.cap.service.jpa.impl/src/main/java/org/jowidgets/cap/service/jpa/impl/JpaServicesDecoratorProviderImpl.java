@@ -32,6 +32,8 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 import javax.persistence.EntityManager;
@@ -55,7 +57,7 @@ final class JpaServicesDecoratorProviderImpl implements IServicesDecoratorProvid
 	private final EntityManagerFactory entityManagerFactory;
 	private final Set<Class<?>> entityManagerServices;
 	private final Set<Class<?>> transactionalServices;
-	private final IDecorator<Throwable> exceptionDecorator;
+	private final List<IDecorator<Throwable>> exceptionDecorators;
 	private final IExceptionLogger exceptionLogger;
 	private final int order;
 
@@ -63,14 +65,14 @@ final class JpaServicesDecoratorProviderImpl implements IServicesDecoratorProvid
 		final String persistenceUnitName,
 		final Set<Class<?>> entityManagerServices,
 		final Set<Class<?>> transactionalServices,
-		final IDecorator<Throwable> exceptionDecorator,
+		final List<IDecorator<Throwable>> exceptionDecorators,
 		final IExceptionLogger exceptionLogger,
 		final int order) {
 
 		Assert.paramNotNull(persistenceUnitName, "persistenceUnitName");
 		Assert.paramNotNull(entityManagerServices, "entityManagerServices");
 		Assert.paramNotNull(transactionalServices, "transactionalServices");
-		Assert.paramNotNull(exceptionDecorator, "exceptionDecorator");
+		Assert.paramNotNull(exceptionDecorators, "exceptionDecorators");
 		Assert.paramNotNull(exceptionLogger, "exceptionLogger");
 
 		this.entityManagerFactory = EntityManagerFactoryProvider.get(persistenceUnitName);
@@ -82,7 +84,7 @@ final class JpaServicesDecoratorProviderImpl implements IServicesDecoratorProvid
 
 		this.entityManagerServices = new HashSet<Class<?>>(entityManagerServices);
 		this.transactionalServices = new HashSet<Class<?>>(transactionalServices);
-		this.exceptionDecorator = exceptionDecorator;
+		this.exceptionDecorators = new LinkedList<IDecorator<Throwable>>(exceptionDecorators);
 		this.exceptionLogger = exceptionLogger;
 		this.order = order;
 	}
@@ -143,7 +145,7 @@ final class JpaServicesDecoratorProviderImpl implements IServicesDecoratorProvid
 				return result;
 			}
 			catch (final Throwable e) {
-				throw decorateException(e);
+				throw decorateException(e, executionCallback);
 			}
 			finally {
 				try {
@@ -170,7 +172,7 @@ final class JpaServicesDecoratorProviderImpl implements IServicesDecoratorProvid
 				transactionTuple = transactionBegin();
 			}
 			catch (final Exception exception) {
-				resultCallback.exception(decorateException(exception));
+				resultCallback.exception(decorateException(exception, executionCallback));
 				return null;
 			}
 
@@ -204,7 +206,7 @@ final class JpaServicesDecoratorProviderImpl implements IServicesDecoratorProvid
 
 				@Override
 				public void exception(final Throwable exception) {
-					resultCallback.exception(decorateException(exception));
+					resultCallback.exception(decorateException(exception, executionCallback));
 					try {
 						transactionRollback(transactionTuple);
 					}
@@ -231,9 +233,15 @@ final class JpaServicesDecoratorProviderImpl implements IServicesDecoratorProvid
 			}
 		}
 
-		private Throwable decorateException(final Throwable exception) {
-			exceptionLogger.log(exception);
-			return exceptionDecorator.decorate(exception);
+		private Throwable decorateException(final Throwable exception, final IExecutionCallback executionCallback) {
+			if (executionCallback == null || !executionCallback.isCanceled()) {
+				exceptionLogger.log(exception);
+			}
+			Throwable result = exception;
+			for (final IDecorator<Throwable> exceptionDecorator : exceptionDecorators) {
+				result = exceptionDecorator.decorate(result);
+			}
+			return result;
 		}
 
 		private Tuple<EntityTransaction, Boolean> transactionBegin() {

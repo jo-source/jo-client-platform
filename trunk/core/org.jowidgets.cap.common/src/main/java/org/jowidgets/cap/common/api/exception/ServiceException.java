@@ -28,8 +28,11 @@
 
 package org.jowidgets.cap.common.api.exception;
 
+import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+
+import org.jowidgets.util.Assert;
 
 /**
  * The base exception of all service exceptions.
@@ -118,6 +121,23 @@ public class ServiceException extends RuntimeException {
 	 */
 	public final String getStackTraceString() {
 		return stackTrace;
+	}
+
+	@Override
+	public void printStackTrace() {
+		printStackTrace(System.err);
+	}
+
+	@Override
+	public void printStackTrace(final PrintStream stream) {
+		Assert.paramNotNull(stream, "stream");
+		stream.println(getStackTraceString());
+	}
+
+	@Override
+	public void printStackTrace(final PrintWriter writer) {
+		Assert.paramNotNull(writer, "writer");
+		writer.println(getStackTraceString());
 	}
 
 	private static String getStackTrace(final Throwable throwable) {

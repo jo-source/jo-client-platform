@@ -37,7 +37,6 @@ import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 
-import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IExecutionCallbackListener;
@@ -150,9 +149,11 @@ final class CancelServicesDecoratorProviderImpl implements IServicesDecoratorPro
 					@Override
 					public void canceled() {
 						try {
-							session.cancelQuery();
+							if (session.isOpen()) {
+								session.cancelQuery();
+							}
 						}
-						catch (final HibernateException e) {
+						catch (final Exception e) {
 							//TODO MG error handling
 							//CHECKSTYLE:OFF
 							e.printStackTrace();

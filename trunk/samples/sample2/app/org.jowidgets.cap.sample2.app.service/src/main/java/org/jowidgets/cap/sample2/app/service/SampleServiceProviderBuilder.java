@@ -53,6 +53,8 @@ import org.jowidgets.cap.service.api.adapter.ISyncLookUpService;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
 import org.jowidgets.cap.service.api.executor.IBeanExecutor;
 import org.jowidgets.cap.service.api.executor.IExecutorServiceBuilder;
+import org.jowidgets.cap.service.hibernate.api.HibernateServiceToolkit;
+import org.jowidgets.cap.service.hibernate.api.ICancelServicesDecoratorProviderBuilder;
 import org.jowidgets.cap.service.jpa.api.IJpaServicesDecoratorProviderBuilder;
 import org.jowidgets.cap.service.jpa.api.JpaServiceToolkit;
 import org.jowidgets.service.api.IServiceId;
@@ -84,11 +86,19 @@ public class SampleServiceProviderBuilder extends ServiceProviderBuilder {
 		addLookUpService(GenderLookUpService.LOOK_UP_ID, new GenderLookUpService());
 
 		addServiceDecorator(createJpaServiceDecoratorProvider());
+		addServiceDecorator(createCancelServiceDecoratorProvider());
 	}
 
 	private IServicesDecoratorProvider createJpaServiceDecoratorProvider() {
 		final IJpaServicesDecoratorProviderBuilder builder = JpaServiceToolkit.serviceDecoratorProviderBuilder("sample2PersistenceUnit");
 		builder.addEntityManagerServices(ILookUpService.class);
+		builder.addExceptionDecorator(HibernateServiceToolkit.exceptionDecorator());
+		return builder.build();
+	}
+
+	private IServicesDecoratorProvider createCancelServiceDecoratorProvider() {
+		final ICancelServicesDecoratorProviderBuilder builder = HibernateServiceToolkit.serviceDecoratorProviderBuilder("subscriber");
+		builder.addServices(ILookUpService.class);
 		return builder.build();
 	}
 
