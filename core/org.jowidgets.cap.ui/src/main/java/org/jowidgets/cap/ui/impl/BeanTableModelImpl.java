@@ -63,7 +63,9 @@ import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IExecutionCallbackListener;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
+import org.jowidgets.cap.common.api.filter.BeanDtoFilter;
 import org.jowidgets.cap.common.api.filter.BooleanOperator;
+import org.jowidgets.cap.common.api.filter.IBeanDtoFilter;
 import org.jowidgets.cap.common.api.filter.IBooleanFilterBuilder;
 import org.jowidgets.cap.common.api.filter.IFilter;
 import org.jowidgets.cap.common.api.lookup.ILookUpValueRange;
@@ -880,13 +882,18 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		final Collection<? extends IBeanDto> beansToRemove,
 		final Collection<? extends IBeanDto> beansToAdd,
 		final boolean consistentInsert) {
+
 		Assert.paramNotNull(beansToRemove, "beansToRemove");
 		Assert.paramNotNull(beansToAdd, "beansToAdd");
 
 		removeBeansImpl(beansToRemove, false);
 
+		final IFilter filter = getFilter();
+		final IBeanDtoFilter beanDtoFilter = BeanDtoFilter.instance();
 		for (final IBeanDto bean : beansToAdd) {
-			addBeanDtoImpl(bean, false);
+			if (!consistentInsert || filter == null || beanDtoFilter.accept(bean, getFilter())) {
+				addBeanDtoImpl(bean, false);
+			}
 		}
 
 		fireBeansChanged();
