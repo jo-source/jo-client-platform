@@ -154,10 +154,6 @@ final class CancelServicesDecoratorProviderImpl implements IServicesDecoratorPro
 							}
 						}
 						catch (final Exception e) {
-							//TODO MG error handling
-							//CHECKSTYLE:OFF
-							e.printStackTrace();
-							//CHECKSTYLE:ON
 						}
 					}
 				});
