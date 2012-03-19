@@ -40,8 +40,8 @@ import org.jowidgets.cap.service.api.ICapServiceToolkit;
 import org.jowidgets.cap.service.api.adapter.IAdapterFactoryProvider;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
-import org.jowidgets.cap.service.api.bean.IBeanDtoFilter;
-import org.jowidgets.cap.service.api.bean.IBeanDtoSorter;
+import org.jowidgets.cap.service.api.bean.IBeanDtoCollectionFilter;
+import org.jowidgets.cap.service.api.bean.IBeanDtoCollectionSorter;
 import org.jowidgets.cap.service.api.bean.IBeanInitializer;
 import org.jowidgets.cap.service.api.bean.IBeanModifier;
 import org.jowidgets.cap.service.api.bean.IBeanPropertyMap;
@@ -61,15 +61,15 @@ public final class DefaultCapServiceToolkit implements ICapServiceToolkit {
 	private final IAdapterFactoryProvider adapterFactoryProvider;
 	private final IDecoratorProviderFactory decoratorProviderFactory;
 	private final ScheduledExecutorService scheduledExecutorService;
-	private final IBeanDtoSorter beanDtoSorter;
-	private final IBeanDtoFilter beanDtoFilter;
+	private final IBeanDtoCollectionSorter beanDtoSorter;
+	private final IBeanDtoCollectionFilter beanDtoFilter;
 
 	public DefaultCapServiceToolkit() {
 		this.adapterFactoryProvider = new AdapterFactoryProviderImpl();
 		this.decoratorProviderFactory = new DecoratorProviderFactoryImpl();
 		this.scheduledExecutorService = Executors.newScheduledThreadPool(20, new DaemonThreadFactory());
-		this.beanDtoSorter = new BeanDtoSorterImpl();
-		this.beanDtoFilter = new BeanDtoFilterImpl();
+		this.beanDtoSorter = new BeanDtoCollectionSorterImpl();
+		this.beanDtoFilter = new BeanDtoCollectionFilterImpl();
 	}
 
 	@Override
@@ -98,12 +98,12 @@ public final class DefaultCapServiceToolkit implements ICapServiceToolkit {
 	}
 
 	@Override
-	public IBeanDtoSorter beanDtoSorter() {
+	public IBeanDtoCollectionSorter beanDtoCollectionSorter() {
 		return beanDtoSorter;
 	}
 
 	@Override
-	public IBeanDtoFilter beanDtoFilter() {
+	public IBeanDtoCollectionFilter beanDtoCollectionFilter() {
 		return beanDtoFilter;
 	}
 

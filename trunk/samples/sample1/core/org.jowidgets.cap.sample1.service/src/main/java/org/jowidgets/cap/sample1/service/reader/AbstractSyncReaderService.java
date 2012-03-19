@@ -57,7 +57,7 @@ public abstract class AbstractSyncReaderService implements ISyncReaderService<Vo
 		List<IBeanDto> result = getFilteredResult(parentBeanKeys, filter, executionCallback);
 
 		if (sorting != null && sorting.size() > 0) {
-			result = CapServiceToolkit.beanDtoSorter().sort(result, sorting, executionCallback);
+			result = CapServiceToolkit.beanDtoCollectionSorter().sort(result, sorting, executionCallback);
 		}
 
 		if (result.size() >= firstRow) {
@@ -92,7 +92,7 @@ public abstract class AbstractSyncReaderService implements ISyncReaderService<Vo
 				executionCallback);
 
 		if (filter != null) {
-			return CapServiceToolkit.beanDtoFilter().filter(result, filter, executionCallback);
+			return CapServiceToolkit.beanDtoCollectionFilter().filter(result, filter, executionCallback);
 		}
 		else {
 			return result;

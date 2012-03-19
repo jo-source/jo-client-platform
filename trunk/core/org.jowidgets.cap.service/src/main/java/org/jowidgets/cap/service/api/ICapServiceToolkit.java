@@ -37,8 +37,8 @@ import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.service.api.adapter.IAdapterFactoryProvider;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
-import org.jowidgets.cap.service.api.bean.IBeanDtoFilter;
-import org.jowidgets.cap.service.api.bean.IBeanDtoSorter;
+import org.jowidgets.cap.service.api.bean.IBeanDtoCollectionFilter;
+import org.jowidgets.cap.service.api.bean.IBeanDtoCollectionSorter;
 import org.jowidgets.cap.service.api.bean.IBeanInitializer;
 import org.jowidgets.cap.service.api.bean.IBeanModifier;
 import org.jowidgets.cap.service.api.bean.IBeanPropertyMap;
@@ -67,9 +67,9 @@ public interface ICapServiceToolkit {
 		Class<? extends BEAN_TYPE> beanType,
 		List<String> propertyNames);
 
-	IBeanDtoSorter beanDtoSorter();
+	IBeanDtoCollectionSorter beanDtoCollectionSorter();
 
-	IBeanDtoFilter beanDtoFilter();
+	IBeanDtoCollectionFilter beanDtoCollectionFilter();
 
 	<BEAN_TYPE extends IBean> IBeanInitializer<BEAN_TYPE> beanInitializer(
 		Class<? extends BEAN_TYPE> beanType,

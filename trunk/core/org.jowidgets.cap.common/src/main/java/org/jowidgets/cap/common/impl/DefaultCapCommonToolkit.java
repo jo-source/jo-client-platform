@@ -179,7 +179,7 @@ public final class DefaultCapCommonToolkit implements ICapCommonToolkit {
 	}
 
 	@Override
-	public Comparator<IBeanDto> beanDtoComparator(final Collection<ISort> sorting) {
+	public Comparator<IBeanDto> beanDtoComparator(final Collection<? extends ISort> sorting) {
 		return new BeanDtoComparatorImpl(sorting);
 	}
 

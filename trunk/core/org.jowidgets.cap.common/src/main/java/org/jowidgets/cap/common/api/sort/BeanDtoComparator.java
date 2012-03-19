@@ -38,7 +38,7 @@ public final class BeanDtoComparator {
 
 	private BeanDtoComparator() {}
 
-	public static Comparator<IBeanDto> create(final Collection<ISort> sorting) {
+	public static Comparator<IBeanDto> create(final Collection<? extends ISort> sorting) {
 		return CapCommonToolkit.beanDtoComparator(sorting);
 	}
 

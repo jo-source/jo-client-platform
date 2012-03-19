@@ -35,7 +35,7 @@ import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.filter.IFilter;
 
-public interface IBeanDtoFilter {
+public interface IBeanDtoCollectionFilter {
 
 	List<IBeanDto> filter(Collection<? extends IBeanDto> beanDtos, IFilter filter, IExecutionCallback executionCallback);
 

@@ -36,12 +36,12 @@ import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
+import org.jowidgets.cap.common.api.sort.BeanDtoComparator;
 import org.jowidgets.cap.common.api.sort.ISort;
-import org.jowidgets.cap.common.api.sort.SortOrder;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
-import org.jowidgets.cap.service.api.bean.IBeanDtoSorter;
+import org.jowidgets.cap.service.api.bean.IBeanDtoCollectionSorter;
 
-final class BeanDtoSorterImpl implements IBeanDtoSorter {
+final class BeanDtoCollectionSorterImpl implements IBeanDtoCollectionSorter {
 
 	@Override
 	public List<IBeanDto> sort(
@@ -49,70 +49,26 @@ final class BeanDtoSorterImpl implements IBeanDtoSorter {
 		final List<? extends ISort> sorting,
 		final IExecutionCallback executionCallback) {
 		final List<IBeanDto> result = new LinkedList<IBeanDto>(beanDtos);
-		Collections.sort(result, new BeanDtoComparator(sorting, executionCallback));
+		Collections.sort(result, new BeanDtoComparatorDecorator(sorting, executionCallback));
 		return result;
 	}
 
-	private class BeanDtoComparator implements Comparator<IBeanDto> {
+	private class BeanDtoComparatorDecorator implements Comparator<IBeanDto> {
 
-		private final List<? extends ISort> sorting;
+		private final Comparator<IBeanDto> original;
 		private final IExecutionCallback executionCallback;
 
-		public BeanDtoComparator(final List<? extends ISort> sorting, final IExecutionCallback executionCallback) {
-			this.sorting = sorting;
+		public BeanDtoComparatorDecorator(final List<? extends ISort> sorting, final IExecutionCallback executionCallback) {
+			this.original = BeanDtoComparator.create(sorting);
 			this.executionCallback = executionCallback;
 		}
 
 		@Override
 		public int compare(final IBeanDto firstBeanDto, final IBeanDto secondBeanDto) {
-			int result = 0;
-			for (final ISort sort : sorting) {
-				CapServiceToolkit.checkCanceled(executionCallback);
-				final String propertyName = sort.getPropertyName();
-				final SortOrder sortOrder = sort.getSortOrder();
-				if (null != sortOrder) {
-					if (sortOrder.equals(SortOrder.ASC)) {
-						result = compareWithCast(firstBeanDto, secondBeanDto, result, propertyName);
-					}
-					else if (sortOrder.equals(SortOrder.DESC)) {
-						result = -1 * compareWithCast(firstBeanDto, secondBeanDto, result, propertyName);
-					}
-				}
-				if (result != 0) {
-					return result;
-				}
-
-			}
-			return result;
+			CapServiceToolkit.checkCanceled(executionCallback);
+			return original.compare(firstBeanDto, secondBeanDto);
 		}
 
-		@SuppressWarnings({"unchecked", "rawtypes"})
-		private int compareWithCast(
-			final IBeanDto firstBeanDto,
-			final IBeanDto secondBeanDto,
-			int result,
-			final String propertyName) {
-			final Object firstValue = firstBeanDto.getValue(propertyName);
-			final Object secondValue = secondBeanDto.getValue(propertyName);
-			if (firstValue != null && secondValue != null) {
-				if (firstValue instanceof Comparable<?> && secondValue instanceof Comparable<?>) {
-					result = ((Comparable) firstValue).compareTo(secondValue);
-				}
-				else {
-					throw new IllegalArgumentException("The datatype of the property '" + propertyName + "' is not comparable");
-				}
-			}
-			else if (firstValue == null && secondValue == null) {
-				result = 0;
-			}
-			else if (firstValue == null) {
-				result = 1;
-			}
-			else {
-				result = -1;
-			}
-			return result;
-		}
 	}
 
 }
