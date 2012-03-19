@@ -28,23 +28,63 @@
 
 package org.jowidgets.cap.service.hibernate.impl;
 
+import java.sql.SQLException;
+
 import javax.persistence.OptimisticLockException;
+import javax.persistence.PersistenceException;
 
 import org.hibernate.StaleObjectStateException;
+import org.hibernate.exception.ConstraintViolationException;
+import org.jowidgets.cap.common.api.exception.ExecutableCheckException;
 import org.jowidgets.cap.common.api.exception.StaleBeanException;
+import org.jowidgets.util.EmptyCheck;
 import org.jowidgets.util.IDecorator;
 
 public class HibernateExceptionDecoratorImpl implements IDecorator<Throwable> {
 
 	@Override
 	public Throwable decorate(final Throwable original) {
-		if (original instanceof OptimisticLockException) {
-			final Throwable cause = original.getCause();
-			if (cause instanceof StaleObjectStateException) {
-				return getStaleBeanException((StaleObjectStateException) cause);
+		if (original instanceof PersistenceException) {
+			final PersistenceException persistenceException = (PersistenceException) original;
+			final Throwable cause = persistenceException.getCause();
+
+			if (original instanceof OptimisticLockException) {
+				if (cause instanceof StaleObjectStateException) {
+					return getStaleBeanException((StaleObjectStateException) cause);
+				}
 			}
+			else if (cause instanceof ConstraintViolationException) {
+				final ConstraintViolationException constViolationException = (ConstraintViolationException) cause;
+				final String message = constViolationException.getMessage();
+				final String constraintName = constViolationException.getConstraintName();
+				final String userBaseMessage = Messages.getString("HibernateExceptionDecoratorImpl.database_constraint_violated");
+				final String userMessage;
+				if (!EmptyCheck.isEmpty(constraintName)) {
+					userMessage = userBaseMessage.replace("%1", "'" + constraintName + "'");
+				}
+				else {
+					final SQLException sqlException = constViolationException.getSQLException();
+					if (sqlException != null) {
+						if (!EmptyCheck.isEmpty(sqlException.getLocalizedMessage())) {
+							userMessage = sqlException.getLocalizedMessage();
+						}
+						else if (!EmptyCheck.isEmpty(sqlException.getMessage())) {
+							userMessage = sqlException.getMessage();
+						}
+						else {
+							userMessage = userBaseMessage.replace("%1", ""); //$NON-NLS-1$
+						}
+					}
+					else {
+						userMessage = userBaseMessage.replace("%1", ""); //$NON-NLS-1$
+					}
+
+				}
+				return new ExecutableCheckException(null, message, userMessage);
+			}
+			//TODO MG handle more hibernate exceptions 
 		}
-		//TODO MG handle more hibernate exceptions 
+
 		return original;
 	}
 
