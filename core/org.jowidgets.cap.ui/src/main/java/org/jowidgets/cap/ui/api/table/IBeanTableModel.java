@@ -91,15 +91,13 @@ public interface IBeanTableModel<BEAN_TYPE> extends IDataModel, IBeanListModel<B
 	 * 
 	 * @param beansToRemove The beans that should be removed from the table
 	 * @param beansToAdd The beans that should be added to the table
-	 * @param considerFilter If set to true, only that beans will be added, that will be passed the currently set filter
-	 * @param considerSort If set to true, the beans will by added sorted as defined in the currently set sort model, else they
-	 *            will be added to the end
+	 * @param consistentInsert If set to true, beans will be added considering the current sort and filter, else beans will be
+	 *            added to the end
 	 */
 	void updateModel(
 		Collection<? extends IBeanDto> beansToRemove,
 		Collection<? extends IBeanDto> beansToAdd,
-		boolean considerSort,
-		boolean considerFilter);
+		boolean consistentInsert);
 
 	Class<BEAN_TYPE> getBeanType();
 
