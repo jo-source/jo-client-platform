@@ -95,10 +95,10 @@ public class AllUsersReaderService implements ISyncReaderService<Integer> {
 			List<IBeanDto> result = BeanDtoFactoryHelper.createDtos(dtoFactory, data.getAllData(), executionCallback);
 
 			if (filter != null) {
-				result = CapServiceToolkit.beanDtoFilter().filter(result, filter, executionCallback);
+				result = CapServiceToolkit.beanDtoCollectionFilter().filter(result, filter, executionCallback);
 			}
 			if (sorting != null && sorting.size() > 0) {
-				result = CapServiceToolkit.beanDtoSorter().sort(result, sorting, executionCallback);
+				result = CapServiceToolkit.beanDtoCollectionSorter().sort(result, sorting, executionCallback);
 			}
 
 			if (result.size() >= firstRow) {
@@ -121,7 +121,7 @@ public class AllUsersReaderService implements ISyncReaderService<Integer> {
 		}
 		else {
 			final List<IBeanDto> result = BeanDtoFactoryHelper.createDtos(dtoFactory, data.getAllData(), executionCallback);
-			return Integer.valueOf(CapServiceToolkit.beanDtoFilter().filter(result, filter, executionCallback).size());
+			return Integer.valueOf(CapServiceToolkit.beanDtoCollectionFilter().filter(result, filter, executionCallback).size());
 		}
 	}
 

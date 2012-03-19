@@ -72,10 +72,10 @@ final class SyncReaderService<BEAN_TYPE extends IBean> implements ISyncReaderSer
 			List<IBeanDto> result = BeanDtoFactoryHelper.createDtos(beanFactory, data.getAllData(), executionCallback);
 
 			if (filter != null) {
-				result = CapServiceToolkit.beanDtoFilter().filter(result, filter, executionCallback);
+				result = CapServiceToolkit.beanDtoCollectionFilter().filter(result, filter, executionCallback);
 			}
 			if (sortedProperties != null && sortedProperties.size() > 0) {
-				result = CapServiceToolkit.beanDtoSorter().sort(result, sortedProperties, executionCallback);
+				result = CapServiceToolkit.beanDtoCollectionSorter().sort(result, sortedProperties, executionCallback);
 			}
 
 			if (result.size() >= firstRow) {
@@ -100,7 +100,7 @@ final class SyncReaderService<BEAN_TYPE extends IBean> implements ISyncReaderSer
 		}
 		else {
 			final List<IBeanDto> result = BeanDtoFactoryHelper.createDtos(beanFactory, data.getAllData(), executionCallback);
-			return Integer.valueOf(CapServiceToolkit.beanDtoFilter().filter(result, filter, executionCallback).size());
+			return Integer.valueOf(CapServiceToolkit.beanDtoCollectionFilter().filter(result, filter, executionCallback).size());
 		}
 	}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2011, Michael Grossmann, Nikolaus Moll
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,20 +26,39 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.api.bean;
+package org.jowidgets.cap.service.impl;
 
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 
+import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
-import org.jowidgets.cap.common.api.sort.ISort;
+import org.jowidgets.cap.common.api.filter.IBeanDtoFilter;
+import org.jowidgets.cap.common.api.filter.IFilter;
+import org.jowidgets.cap.service.api.CapServiceToolkit;
+import org.jowidgets.cap.service.api.bean.IBeanDtoCollectionFilter;
 
-public interface IBeanDtoSorter {
+final class BeanDtoCollectionFilterImpl implements IBeanDtoCollectionFilter {
 
-	List<IBeanDto> sort(
-		Collection<? extends IBeanDto> beanDtos,
-		List<? extends ISort> sorting,
-		IExecutionCallback executionCallback);
+	@Override
+	public List<IBeanDto> filter(
+		final Collection<? extends IBeanDto> beanDtos,
+		final IFilter filter,
+		final IExecutionCallback executionCallback) {
+
+		final IBeanDtoFilter beanDtoFilter = CapCommonToolkit.beanDtoFilter();
+
+		final LinkedList<IBeanDto> result = new LinkedList<IBeanDto>();
+		for (final IBeanDto beanDto : beanDtos) {
+			CapServiceToolkit.checkCanceled(executionCallback);
+			if (beanDtoFilter.accept(beanDto, filter)) {
+				result.add(beanDto);
+			}
+		}
+
+		return result;
+	}
 
 }

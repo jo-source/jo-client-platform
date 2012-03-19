@@ -155,7 +155,7 @@ public final class CapCommonToolkit {
 		return getInstance().beanDtoFilter();
 	}
 
-	public static Comparator<IBeanDto> beanDtoComparator(final Collection<ISort> sorting) {
+	public static Comparator<IBeanDto> beanDtoComparator(final Collection<? extends ISort> sorting) {
 		return getInstance().beanDtoComparator(sorting);
 	}
 

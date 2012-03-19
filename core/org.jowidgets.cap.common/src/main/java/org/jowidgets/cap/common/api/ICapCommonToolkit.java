@@ -104,7 +104,7 @@ public interface ICapCommonToolkit {
 
 	IBeanDtoFilter beanDtoFilter();
 
-	Comparator<IBeanDto> beanDtoComparator(Collection<ISort> sorting);
+	Comparator<IBeanDto> beanDtoComparator(Collection<? extends ISort> sorting);
 
 	ILookUpToolkit lookUpToolkit();
 
