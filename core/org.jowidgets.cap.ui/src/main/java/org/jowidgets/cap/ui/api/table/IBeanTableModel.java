@@ -33,6 +33,7 @@ import java.util.List;
 
 import org.jowidgets.api.controller.IDisposeObservable;
 import org.jowidgets.api.model.table.ITableModel;
+import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.service.ICreatorService;
@@ -84,6 +85,21 @@ public interface IBeanTableModel<BEAN_TYPE> extends IDataModel, IBeanListModel<B
 	void refreshBean(IBeanProxy<BEAN_TYPE> bean);
 
 	void refreshBeans(Collection<IBeanProxy<BEAN_TYPE>> beans);
+
+	/**
+	 * Could be used to update the table dynamically.
+	 * 
+	 * @param beansToRemove The beans that should be removed from the table
+	 * @param beansToAdd The beans that should be added to the table
+	 * @param considerFilter If set to true, only that beans will be added, that will be passed the currently set filter
+	 * @param considerSort If set to true, the beans will by added sorted as defined in the currently set sort model, else they
+	 *            will be added to the end
+	 */
+	void updateModel(
+		Collection<? extends IBeanDto> beansToRemove,
+		Collection<? extends IBeanDto> beansToAdd,
+		boolean considerSort,
+		boolean considerFilter);
 
 	Class<BEAN_TYPE> getBeanType();
 
