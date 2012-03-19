@@ -892,6 +892,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		final IBeanDtoFilter beanDtoFilter = BeanDtoFilter.instance();
 		for (final IBeanDto bean : beansToAdd) {
 			if (!consistentInsert || filter == null || beanDtoFilter.accept(bean, getFilter())) {
+				//TODO MG beans must be added consistent (in correct order)
 				addBeanDtoImpl(bean, false);
 			}
 		}
