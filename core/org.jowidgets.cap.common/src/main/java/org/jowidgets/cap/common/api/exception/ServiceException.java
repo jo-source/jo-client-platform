@@ -81,7 +81,7 @@ public class ServiceException extends RuntimeException {
 	 *            will be used to create a complete stack trace for this exception on creation time.
 	 */
 	public ServiceException(final String message, final String userMessage, final Throwable cause) {
-		super(message, cause);
+		super(message);
 		this.userMessage = userMessage;
 
 		final StringBuilder stackTraceBuilder = new StringBuilder(getStackTrace(this));
