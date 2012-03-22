@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,50 +26,30 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.impl;
+package org.jowidgets.cap.ui.api.tree;
 
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Set;
+import java.util.Collection;
 
-import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
-import org.jowidgets.cap.ui.api.model.IBeanListModelObservable;
-import org.jowidgets.util.Assert;
+import org.jowidgets.cap.ui.api.model.IBeanListModel;
+import org.jowidgets.cap.ui.api.model.LinkType;
 
-class BeanListModelObservable implements IBeanListModelObservable {
+public interface IBeanRelationTreeModelBuilder<CHILD_BEAN_TYPE> extends
+		IBeanRelationNodeModelBluePrint<CHILD_BEAN_TYPE, IBeanRelationTreeModelBuilder<CHILD_BEAN_TYPE>> {
 
-	private final Set<IBeanListModelListener> listeners;
+	IBeanRelationTreeModelBuilder<CHILD_BEAN_TYPE> setNodeConfigurators(
+		Collection<? extends IBeanRelationNodeModelConfigurator> configurators);
 
-	BeanListModelObservable() {
-		this.listeners = new HashSet<IBeanListModelListener>();
-	}
+	IBeanRelationTreeModelBuilder<CHILD_BEAN_TYPE> addNodeConfigurator(IBeanRelationNodeModelConfigurator configurator);
 
-	@Override
-	public final void addBeanListModelListener(final IBeanListModelListener listener) {
-		Assert.paramNotNull(listener, "listener");
-		listeners.add(listener);
-	}
+	/**
+	 * Sets a reader service that uses the selection of the parent bean a result
+	 * 
+	 * @param parent The parent list model
+	 * @param linkType The link type
+	 * 
+	 * @return This builder
+	 */
+	IBeanRelationTreeModelBuilder<CHILD_BEAN_TYPE> setParentSelectionAsReader(IBeanListModel<?> parent, LinkType linkType);
 
-	@Override
-	public final void removeBeanListModelListener(final IBeanListModelListener listener) {
-		Assert.paramNotNull(listener, "listener");
-		listeners.remove(listener);
-	}
-
-	final void fireBeansChanged() {
-		for (final IBeanListModelListener listener : new LinkedList<IBeanListModelListener>(listeners)) {
-			listener.beansChanged();
-		}
-	}
-
-	final void fireSelectionChanged() {
-		for (final IBeanListModelListener listener : new LinkedList<IBeanListModelListener>(listeners)) {
-			listener.selectionChanged();
-		}
-	}
-
-	void dispose() {
-		listeners.clear();
-	}
-
+	IBeanRelationTreeModel<CHILD_BEAN_TYPE> build();
 }

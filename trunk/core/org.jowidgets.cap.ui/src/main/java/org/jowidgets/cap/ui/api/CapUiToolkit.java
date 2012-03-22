@@ -54,6 +54,7 @@ import org.jowidgets.cap.ui.api.table.IBeanTableConfigBuilder;
 import org.jowidgets.cap.ui.api.table.IBeanTableMenuFactory;
 import org.jowidgets.cap.ui.api.table.IBeanTableMenuInterceptor;
 import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
+import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeModelBuilder;
 import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
 import org.jowidgets.cap.ui.api.workbench.ICapWorkbenchToolkit;
 import org.jowidgets.cap.ui.impl.DefaultCapUiToolkit;
@@ -148,6 +149,17 @@ public final class CapUiToolkit {
 
 	public static IBeanTableModelBuilder<IBeanDto> beanTableModelBuilder(final Object entityId) {
 		return getInstance().beanTableModelBuilder(entityId);
+	}
+
+	public static <CHILD_BEAN_TYPE> IBeanRelationTreeModelBuilder<CHILD_BEAN_TYPE> beanRelationTreeModelBuilder(
+		final Class<CHILD_BEAN_TYPE> beanType) {
+		return getInstance().beanRelationTreeModelBuilder(beanType);
+	}
+
+	public static <CHILD_BEAN_TYPE> IBeanRelationTreeModelBuilder<CHILD_BEAN_TYPE> beanRelationTreeModelBuilder(
+		final Object entityId,
+		final Class<CHILD_BEAN_TYPE> beanType) {
+		return getInstance().beanRelationTreeModelBuilder(entityId, beanType);
 	}
 
 	public static <BEAN_TYPE> IBeanTabFolderModelBuilder<BEAN_TYPE> beanTabFolderModelBuilder(final Class<BEAN_TYPE> beanType) {

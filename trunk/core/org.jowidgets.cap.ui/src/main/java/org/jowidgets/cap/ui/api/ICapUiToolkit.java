@@ -53,6 +53,7 @@ import org.jowidgets.cap.ui.api.table.IBeanTableConfigBuilder;
 import org.jowidgets.cap.ui.api.table.IBeanTableMenuFactory;
 import org.jowidgets.cap.ui.api.table.IBeanTableMenuInterceptor;
 import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
+import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeModelBuilder;
 import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
 import org.jowidgets.cap.ui.api.workbench.ICapWorkbenchToolkit;
 
@@ -90,6 +91,12 @@ public interface ICapUiToolkit {
 	<BEAN_TYPE> IBeanTableModelBuilder<BEAN_TYPE> beanTableModelBuilder(Class<BEAN_TYPE> beanType);
 
 	<BEAN_TYPE> IBeanTableModelBuilder<BEAN_TYPE> beanTableModelBuilder(Object entityId, Class<BEAN_TYPE> beanType);
+
+	<CHILD_BEAN_TYPE> IBeanRelationTreeModelBuilder<CHILD_BEAN_TYPE> beanRelationTreeModelBuilder(Class<CHILD_BEAN_TYPE> beanType);
+
+	<CHILD_BEAN_TYPE> IBeanRelationTreeModelBuilder<CHILD_BEAN_TYPE> beanRelationTreeModelBuilder(
+		Object entityId,
+		Class<CHILD_BEAN_TYPE> beanType);
 
 	<BEAN_TYPE> IBeanTabFolderModelBuilder<BEAN_TYPE> beanTabFolderModelBuilder(Class<BEAN_TYPE> beanType);
 

@@ -26,50 +26,24 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.impl;
+package org.jowidgets.cap.ui.impl.workbench;
 
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Set;
+import org.jowidgets.api.widgets.IContainer;
+import org.jowidgets.cap.ui.api.CapUiToolkit;
+import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeModel;
+import org.jowidgets.tools.layout.MigLayoutFactory;
+import org.jowidgets.workbench.api.IViewContext;
+import org.jowidgets.workbench.tools.AbstractView;
 
-import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
-import org.jowidgets.cap.ui.api.model.IBeanListModelObservable;
-import org.jowidgets.util.Assert;
+public class EntityRelationTreeView extends AbstractView {
 
-class BeanListModelObservable implements IBeanListModelObservable {
+	public static final String ID = EntityRelationTreeView.class.getName();
 
-	private final Set<IBeanListModelListener> listeners;
-
-	BeanListModelObservable() {
-		this.listeners = new HashSet<IBeanListModelListener>();
-	}
-
-	@Override
-	public final void addBeanListModelListener(final IBeanListModelListener listener) {
-		Assert.paramNotNull(listener, "listener");
-		listeners.add(listener);
-	}
-
-	@Override
-	public final void removeBeanListModelListener(final IBeanListModelListener listener) {
-		Assert.paramNotNull(listener, "listener");
-		listeners.remove(listener);
-	}
-
-	final void fireBeansChanged() {
-		for (final IBeanListModelListener listener : new LinkedList<IBeanListModelListener>(listeners)) {
-			listener.beansChanged();
-		}
-	}
-
-	final void fireSelectionChanged() {
-		for (final IBeanListModelListener listener : new LinkedList<IBeanListModelListener>(listeners)) {
-			listener.selectionChanged();
-		}
-	}
-
-	void dispose() {
-		listeners.clear();
+	public EntityRelationTreeView(final IViewContext context, final IBeanRelationTreeModel<?> parentModel) {
+		final IContainer container = context.getContainer();
+		container.setLayout(MigLayoutFactory.growingInnerCellLayout());
+		container.add(CapUiToolkit.bluePrintFactory().beanRelationTree(parentModel), MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
+		parentModel.load();
 	}
 
 }

@@ -42,9 +42,11 @@ import org.jowidgets.cap.ui.api.form.IBeanFormToolkit;
 import org.jowidgets.cap.ui.api.model.ISingleBeanModel;
 import org.jowidgets.cap.ui.api.tabfolder.IBeanTabFolderModel;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
+import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeModel;
 import org.jowidgets.cap.ui.api.widgets.IAttributeFilterControlBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanDialogBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
+import org.jowidgets.cap.ui.api.widgets.IBeanRelationTreeBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanSelectionDialogBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanSelectionTableBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTabFolderBluePrint;
@@ -76,6 +78,21 @@ final class CapApiBluePrintFactory implements ICapApiBluePrintFactory {
 	public <BEAN_TYPE> IBeanTableBluePrint<BEAN_TYPE> beanTable(final IBeanTableModel<BEAN_TYPE> model) {
 		Assert.paramNotNull(model, "model");
 		final IBeanTableBluePrint<BEAN_TYPE> result = beanTable();
+		result.setModel(model);
+		return result;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public <CHILD_BEAN_TYPE> IBeanRelationTreeBluePrint<CHILD_BEAN_TYPE> beanRelationTree() {
+		return bluePrintFactory.bluePrint(IBeanRelationTreeBluePrint.class);
+	}
+
+	@Override
+	public <CHILD_BEAN_TYPE> IBeanRelationTreeBluePrint<CHILD_BEAN_TYPE> beanRelationTree(
+		final IBeanRelationTreeModel<CHILD_BEAN_TYPE> model) {
+		Assert.paramNotNull(model, "model");
+		final IBeanRelationTreeBluePrint<CHILD_BEAN_TYPE> result = beanRelationTree();
 		result.setModel(model);
 		return result;
 	}

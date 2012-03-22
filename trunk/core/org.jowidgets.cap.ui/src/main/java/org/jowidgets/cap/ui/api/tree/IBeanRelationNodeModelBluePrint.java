@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,50 +26,27 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.impl;
+package org.jowidgets.cap.ui.api.tree;
 
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Set;
+import org.jowidgets.cap.ui.api.bean.IBeanProxyLabelRenderer;
+import org.jowidgets.cap.ui.api.model.IBeanModelBuilder;
+import org.jowidgets.common.image.IImageConstant;
 
-import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
-import org.jowidgets.cap.ui.api.model.IBeanListModelObservable;
-import org.jowidgets.util.Assert;
+public interface IBeanRelationNodeModelBluePrint<CHILD_BEAN_TYPE, INSTANCE_TYPE> extends
+		IBeanModelBuilder<CHILD_BEAN_TYPE, INSTANCE_TYPE> {
 
-class BeanListModelObservable implements IBeanListModelObservable {
+	INSTANCE_TYPE setText(String text);
 
-	private final Set<IBeanListModelListener> listeners;
+	INSTANCE_TYPE setDescription(String description);
 
-	BeanListModelObservable() {
-		this.listeners = new HashSet<IBeanListModelListener>();
-	}
+	INSTANCE_TYPE setIcon(IImageConstant icon);
 
-	@Override
-	public final void addBeanListModelListener(final IBeanListModelListener listener) {
-		Assert.paramNotNull(listener, "listener");
-		listeners.add(listener);
-	}
+	INSTANCE_TYPE setChildRenderer(IBeanProxyLabelRenderer<CHILD_BEAN_TYPE> renderer);
 
-	@Override
-	public final void removeBeanListModelListener(final IBeanListModelListener listener) {
-		Assert.paramNotNull(listener, "listener");
-		listeners.remove(listener);
-	}
+	INSTANCE_TYPE addChildRelation(IEntityTypeId<?> entityTypeId);
 
-	final void fireBeansChanged() {
-		for (final IBeanListModelListener listener : new LinkedList<IBeanListModelListener>(listeners)) {
-			listener.beansChanged();
-		}
-	}
+	INSTANCE_TYPE addChildRelation(Object entityId, Class<?> beanType);
 
-	final void fireSelectionChanged() {
-		for (final IBeanListModelListener listener : new LinkedList<IBeanListModelListener>(listeners)) {
-			listener.selectionChanged();
-		}
-	}
-
-	void dispose() {
-		listeners.clear();
-	}
+	INSTANCE_TYPE addChildRelation(Class<?> beanType);
 
 }

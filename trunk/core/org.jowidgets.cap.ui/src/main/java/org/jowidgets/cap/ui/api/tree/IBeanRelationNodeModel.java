@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,50 +26,36 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.impl;
+package org.jowidgets.cap.ui.api.tree;
 
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Set;
+import java.util.List;
 
-import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
-import org.jowidgets.cap.ui.api.model.IBeanListModelObservable;
-import org.jowidgets.util.Assert;
+import org.jowidgets.cap.ui.api.attribute.IAttribute;
+import org.jowidgets.cap.ui.api.bean.IBeanProxy;
+import org.jowidgets.cap.ui.api.bean.IBeanProxyLabelRenderer;
+import org.jowidgets.cap.ui.api.model.IBeanListModel;
+import org.jowidgets.cap.ui.api.model.IDataModel;
+import org.jowidgets.cap.ui.api.model.ILabelModel;
 
-class BeanListModelObservable implements IBeanListModelObservable {
+public interface IBeanRelationNodeModel<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> extends
+		ILabelModel,
+		IDataModel,
+		IBeanListModel<CHILD_BEAN_TYPE> {
 
-	private final Set<IBeanListModelListener> listeners;
+	IBeanProxy<PARENT_BEAN_TYPE> getParentBean();
 
-	BeanListModelObservable() {
-		this.listeners = new HashSet<IBeanListModelListener>();
-	}
+	Object getParentEntityId();
 
-	@Override
-	public final void addBeanListModelListener(final IBeanListModelListener listener) {
-		Assert.paramNotNull(listener, "listener");
-		listeners.add(listener);
-	}
+	Class<PARENT_BEAN_TYPE> getParentBeanType();
 
-	@Override
-	public final void removeBeanListModelListener(final IBeanListModelListener listener) {
-		Assert.paramNotNull(listener, "listener");
-		listeners.remove(listener);
-	}
+	Object getChildEntityId();
 
-	final void fireBeansChanged() {
-		for (final IBeanListModelListener listener : new LinkedList<IBeanListModelListener>(listeners)) {
-			listener.beansChanged();
-		}
-	}
+	Class<CHILD_BEAN_TYPE> getChildBeanType();
 
-	final void fireSelectionChanged() {
-		for (final IBeanListModelListener listener : new LinkedList<IBeanListModelListener>(listeners)) {
-			listener.selectionChanged();
-		}
-	}
+	IBeanProxyLabelRenderer<CHILD_BEAN_TYPE> getChildRenderer();
 
-	void dispose() {
-		listeners.clear();
-	}
+	List<IAttribute<Object>> getChildBeanAttributes();
+
+	List<IEntityTypeId<Object>> getChildRelations();
 
 }

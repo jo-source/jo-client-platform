@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -28,48 +28,34 @@
 
 package org.jowidgets.cap.ui.impl;
 
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Set;
+import org.jowidgets.cap.ui.api.model.ILabelModel;
+import org.jowidgets.common.image.IImageConstant;
 
-import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
-import org.jowidgets.cap.ui.api.model.IBeanListModelObservable;
-import org.jowidgets.util.Assert;
+final class LabelModelImpl implements ILabelModel {
 
-class BeanListModelObservable implements IBeanListModelObservable {
+	private final String text;
+	private final String description;
+	private final IImageConstant icon;
 
-	private final Set<IBeanListModelListener> listeners;
-
-	BeanListModelObservable() {
-		this.listeners = new HashSet<IBeanListModelListener>();
+	LabelModelImpl(final String text, final String description, final IImageConstant icon) {
+		this.text = text;
+		this.description = description;
+		this.icon = icon;
 	}
 
 	@Override
-	public final void addBeanListModelListener(final IBeanListModelListener listener) {
-		Assert.paramNotNull(listener, "listener");
-		listeners.add(listener);
+	public String getText() {
+		return text;
 	}
 
 	@Override
-	public final void removeBeanListModelListener(final IBeanListModelListener listener) {
-		Assert.paramNotNull(listener, "listener");
-		listeners.remove(listener);
+	public String getDescription() {
+		return description;
 	}
 
-	final void fireBeansChanged() {
-		for (final IBeanListModelListener listener : new LinkedList<IBeanListModelListener>(listeners)) {
-			listener.beansChanged();
-		}
-	}
-
-	final void fireSelectionChanged() {
-		for (final IBeanListModelListener listener : new LinkedList<IBeanListModelListener>(listeners)) {
-			listener.selectionChanged();
-		}
-	}
-
-	void dispose() {
-		listeners.clear();
+	@Override
+	public IImageConstant getIcon() {
+		return icon;
 	}
 
 }
