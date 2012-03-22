@@ -86,9 +86,11 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 
 	private final ILabelModel label;
 
+	private final IEntityTypeId<PARENT_BEAN_TYPE> parentEntityTypeId;
 	private final IBeanProxy<PARENT_BEAN_TYPE> parentBean;
 	private final Object parentEntityId;
 	private final Class<PARENT_BEAN_TYPE> parentBeanType;
+	private final IEntityTypeId<CHILD_BEAN_TYPE> childEntityTypeId;
 	private final Object childEntityId;
 	private final Class<CHILD_BEAN_TYPE> childBeanType;
 	private final IBeanProxyLabelRenderer<CHILD_BEAN_TYPE> childRenderer;
@@ -122,6 +124,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 	private final ArrayList<IBeanProxy<CHILD_BEAN_TYPE>> data;
 
 	private DataLoader dataLoader;
+	private boolean hasInitialLoad;
 
 	@SuppressWarnings("unchecked")
 	BeanRelationNodeModelImpl(
@@ -151,8 +154,10 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 
 		this.label = label;
 		this.parentBean = parentBean;
+		this.parentEntityTypeId = parentEntityTypeId;
 		this.parentBeanType = parentEntityTypeId != null ? parentEntityTypeId.getBeanType() : null;
 		this.parentEntityId = parentEntityTypeId != null ? parentEntityTypeId.getEntityId() : null;
+		this.childEntityTypeId = childEntityTypeId;
 		this.childEntityId = childEntityTypeId.getEntityId();
 		this.childBeanType = childEntityTypeId.getBeanType();
 		this.childRenderer = childRenderer;
@@ -188,6 +193,8 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 			updaterService,
 			creatorService,
 			propertyNames);
+
+		this.hasInitialLoad = false;
 	}
 
 	private Map<String, Object> createDefaultValues(final List<IAttribute<Object>> attributes) {
@@ -230,6 +237,11 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 	}
 
 	@Override
+	public IEntityTypeId<PARENT_BEAN_TYPE> getParentEntityTypeId() {
+		return parentEntityTypeId;
+	}
+
+	@Override
 	public Object getParentEntityId() {
 		return parentEntityId;
 	}
@@ -237,6 +249,11 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 	@Override
 	public Class<PARENT_BEAN_TYPE> getParentBeanType() {
 		return parentBeanType;
+	}
+
+	@Override
+	public IEntityTypeId<CHILD_BEAN_TYPE> getChildEntityTypeId() {
+		return childEntityTypeId;
 	}
 
 	@Override
@@ -279,10 +296,18 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 	}
 
 	@Override
+	public void loadIfNotYetDone() {
+		if (!hasInitialLoad) {
+			load();
+		}
+	}
+
+	@Override
 	public void load() {
 		if (!Toolkit.getUiThreadAccess().isUiThread()) {
 			throw new IllegalStateException("Load must be invoked in the ui thread");
 		}
+		this.hasInitialLoad = true;
 		tryToCanceLoader();
 		dataLoader = new DataLoader();
 		dataLoader.loadData();

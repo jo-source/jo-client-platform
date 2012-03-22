@@ -29,43 +29,72 @@
 package org.jowidgets.cap.ui.impl.widgets;
 
 import org.jowidgets.api.widgets.ITree;
+import org.jowidgets.api.widgets.ITreeContainer;
 import org.jowidgets.api.widgets.ITreeNode;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyLabelRenderer;
 import org.jowidgets.cap.ui.api.model.ILabelModel;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationNodeModel;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeModel;
+import org.jowidgets.cap.ui.api.tree.IEntityTypeId;
 import org.jowidgets.cap.ui.api.widgets.IBeanRelationTree;
 import org.jowidgets.cap.ui.api.widgets.IBeanRelationTreeBluePrint;
 import org.jowidgets.cap.ui.tools.model.BeanListModelAdapter;
+import org.jowidgets.tools.controller.TreeNodeAdapter;
 import org.jowidgets.tools.widgets.wrapper.ControlWrapper;
 
 final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements IBeanRelationTree<CHILD_BEAN_TYPE> {
 
-	private final IBeanRelationTreeModel<CHILD_BEAN_TYPE> model;
+	private final IBeanRelationTreeModel<CHILD_BEAN_TYPE> treeModel;
 
+	@SuppressWarnings("unchecked")
 	BeanRelationTreeImpl(final ITree tree, final IBeanRelationTreeBluePrint<CHILD_BEAN_TYPE> bluePrint) {
 		super(tree);
-		this.model = bluePrint.getModel();
+		this.treeModel = bluePrint.getModel();
 
-		final IBeanRelationNodeModel<Void, CHILD_BEAN_TYPE> root = model.getRoot();
-		root.addBeanListModelListener(new BeanListModelAdapter() {
+		@SuppressWarnings("rawtypes")
+		final IBeanRelationNodeModel root = treeModel.getRoot();
+		createNodes(tree, root);
+	}
+
+	private void createNodes(final ITreeContainer node, final IBeanRelationNodeModel<Object, Object> model) {
+		model.addBeanListModelListener(new BeanListModelAdapter() {
 			@Override
 			public void beansChanged() {
-				tree.removeAllNodes();
-				for (int i = 0; i < root.getSize(); i++) {
-					final IBeanProxy<CHILD_BEAN_TYPE> bean = root.getBean(i);
-					final IBeanProxyLabelRenderer<CHILD_BEAN_TYPE> childRenderer = root.getChildRenderer();
+				node.removeAllNodes();
+				for (int i = 0; i < model.getSize(); i++) {
+					final IBeanProxy<Object> bean = model.getBean(i);
+					final IBeanProxyLabelRenderer<Object> childRenderer = model.getChildRenderer();
 					final ILabelModel label = childRenderer.getLabel(bean);
-					final ITreeNode node = tree.addNode();
-					node.setText(label.getText());
-					node.setToolTipText(label.getDescription());
-					node.setIcon(label.getIcon());
-				}
-				if (tree.getChildren().size() > 0) {
-					tree.getChildren().iterator().next().setSelected(true);
-				}
+					final ITreeNode childNode = node.addNode();
+					childNode.setText(label.getText());
+					childNode.setToolTipText(label.getDescription());
+					childNode.setIcon(label.getIcon());
 
+					for (final IEntityTypeId<Object> childEntityTypeId : model.getChildRelations()) {
+
+						final IBeanRelationNodeModel<Object, Object> childNodeModel = treeModel.getNode(
+								model.getChildEntityTypeId(),
+								bean,
+								childEntityTypeId);
+
+						final ITreeNode childRelationNode = childNode.addNode();
+						childRelationNode.setText(childNodeModel.getText());
+						childRelationNode.setToolTipText(childNodeModel.getDescription());
+						childRelationNode.setIcon(childNodeModel.getIcon());
+
+						createNodes(childRelationNode, childNodeModel);
+
+						childNode.addTreeNodeListener(new TreeNodeAdapter() {
+							@Override
+							public void expandedChanged(final boolean expanded) {
+								if (expanded) {
+									childNodeModel.loadIfNotYetDone();
+								}
+							}
+						});
+					}
+				}
 			}
 		});
 
@@ -78,7 +107,7 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 
 	@Override
 	public IBeanRelationTreeModel<CHILD_BEAN_TYPE> getModel() {
-		return model;
+		return treeModel;
 	}
 
 }

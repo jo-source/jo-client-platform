@@ -42,11 +42,17 @@ public interface IBeanRelationNodeModel<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> exten
 		IDataModel,
 		IBeanListModel<CHILD_BEAN_TYPE> {
 
+	void loadIfNotYetDone();
+
 	IBeanProxy<PARENT_BEAN_TYPE> getParentBean();
+
+	IEntityTypeId<PARENT_BEAN_TYPE> getParentEntityTypeId();
 
 	Object getParentEntityId();
 
 	Class<PARENT_BEAN_TYPE> getParentBeanType();
+
+	IEntityTypeId<CHILD_BEAN_TYPE> getChildEntityTypeId();
 
 	Object getChildEntityId();
 
