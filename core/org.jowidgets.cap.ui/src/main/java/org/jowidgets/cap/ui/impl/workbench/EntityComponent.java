@@ -51,6 +51,8 @@ import org.jowidgets.cap.ui.api.command.IDataModelAction;
 import org.jowidgets.cap.ui.api.model.LinkType;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
+import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeModel;
+import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeModelBuilder;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableView;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableViewListener;
@@ -72,6 +74,7 @@ public class EntityComponent extends AbstractComponent implements IComponent {
 
 	private final IEntityService entityService;
 	private final IBeanTableModel<?> tableModel;
+	private final IBeanRelationTreeModel<?> relationTreeModel;
 	private final List<IDataModelAction> dataModelActions;
 	private final Set<LinkedEntityTableView> tableViews;
 	private final Map<String, IEntityLinkDescriptor> links;
@@ -90,6 +93,7 @@ public class EntityComponent extends AbstractComponent implements IComponent {
 		}
 
 		this.tableModel = CapUiToolkit.beanTableModelBuilder(entityClass.getId(), getBeanType(entityClass.getId())).build();
+		this.relationTreeModel = createRelationTreeModel(tableModel, entityClass);
 		this.dataModelActions = getDataModelActions(componentNodeModel);
 		this.tableViews = new LinkedHashSet<LinkedEntityTableView>();
 		this.links = new LinkedHashMap<String, IEntityLinkDescriptor>();
@@ -117,10 +121,21 @@ public class EntityComponent extends AbstractComponent implements IComponent {
 
 	}
 
+	private IBeanRelationTreeModel<?> createRelationTreeModel(final IBeanTableModel<?> parentModel, final IEntityClass entityClass) {
+		final Object id = entityClass.getId();
+		final Class<?> beanType = getBeanType(id);
+		final IBeanRelationTreeModelBuilder<?> builder = CapUiToolkit.beanRelationTreeModelBuilder(id, beanType);
+		builder.setParentSelectionAsReader(parentModel, LinkType.SELECTION_ALL);
+		return builder.build();
+	}
+
 	@Override
 	public IView createView(final String viewId, final IViewContext context) {
 		if (ROOT_TABLE_VIEW_ID.equals(viewId)) {
 			return new EntityTableView(context, tableModel, links.values(), linkedModels);
+		}
+		else if (EntityRelationTreeView.ID.equals(viewId)) {
+			return new EntityRelationTreeView(context, relationTreeModel);
 		}
 		else if (EntityDetailView.ID.equals(viewId)) {
 			return new EntityDetailView(context, tableModel);

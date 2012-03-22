@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2010, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,50 +26,24 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.impl;
+package org.jowidgets.cap.ui.impl.widgets;
 
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Set;
+import org.jowidgets.api.toolkit.Toolkit;
+import org.jowidgets.api.widgets.ITree;
+import org.jowidgets.api.widgets.blueprint.ITreeBluePrint;
+import org.jowidgets.cap.ui.api.widgets.IBeanRelationTree;
+import org.jowidgets.cap.ui.api.widgets.IBeanRelationTreeBluePrint;
+import org.jowidgets.common.widgets.factory.IWidgetFactory;
+import org.jowidgets.tools.widgets.blueprint.BPF;
 
-import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
-import org.jowidgets.cap.ui.api.model.IBeanListModelObservable;
-import org.jowidgets.util.Assert;
-
-class BeanListModelObservable implements IBeanListModelObservable {
-
-	private final Set<IBeanListModelListener> listeners;
-
-	BeanListModelObservable() {
-		this.listeners = new HashSet<IBeanListModelListener>();
-	}
+final class BeanRelationTreeFactory implements
+		IWidgetFactory<IBeanRelationTree<? extends Object>, IBeanRelationTreeBluePrint<Object>> {
 
 	@Override
-	public final void addBeanListModelListener(final IBeanListModelListener listener) {
-		Assert.paramNotNull(listener, "listener");
-		listeners.add(listener);
+	public IBeanRelationTree<Object> create(final Object parentUiReference, final IBeanRelationTreeBluePrint<Object> bluePrint) {
+		final ITreeBluePrint treeBp = BPF.tree();
+		treeBp.setSetup(bluePrint);
+		final ITree tree = Toolkit.getWidgetFactory().create(parentUiReference, treeBp);
+		return new BeanRelationTreeImpl<Object>(tree, bluePrint);
 	}
-
-	@Override
-	public final void removeBeanListModelListener(final IBeanListModelListener listener) {
-		Assert.paramNotNull(listener, "listener");
-		listeners.remove(listener);
-	}
-
-	final void fireBeansChanged() {
-		for (final IBeanListModelListener listener : new LinkedList<IBeanListModelListener>(listeners)) {
-			listener.beansChanged();
-		}
-	}
-
-	final void fireSelectionChanged() {
-		for (final IBeanListModelListener listener : new LinkedList<IBeanListModelListener>(listeners)) {
-			listener.selectionChanged();
-		}
-	}
-
-	void dispose() {
-		listeners.clear();
-	}
-
 }

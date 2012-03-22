@@ -55,6 +55,7 @@ import org.jowidgets.cap.ui.api.table.IBeanTableConfigBuilder;
 import org.jowidgets.cap.ui.api.table.IBeanTableMenuFactory;
 import org.jowidgets.cap.ui.api.table.IBeanTableMenuInterceptor;
 import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
+import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeModelBuilder;
 import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
 import org.jowidgets.cap.ui.api.workbench.ICapWorkbenchToolkit;
 import org.jowidgets.cap.ui.impl.workbench.CapWorkbenchToolkitImpl;
@@ -190,6 +191,19 @@ public final class DefaultCapUiToolkit implements ICapUiToolkit {
 	@Override
 	public IBeanTableModelBuilder<IBeanDto> beanTableModelBuilder(final Object entityId) {
 		return new BeanTableModelBuilderImpl<IBeanDto>(entityId, IBeanDto.class);
+	}
+
+	@Override
+	public <CHILD_BEAN_TYPE> IBeanRelationTreeModelBuilder<CHILD_BEAN_TYPE> beanRelationTreeModelBuilder(
+		final Class<CHILD_BEAN_TYPE> beanType) {
+		return new BeanRelationTreeModelBuilderImpl<CHILD_BEAN_TYPE>(beanType, beanType);
+	}
+
+	@Override
+	public <CHILD_BEAN_TYPE> IBeanRelationTreeModelBuilder<CHILD_BEAN_TYPE> beanRelationTreeModelBuilder(
+		final Object entityId,
+		final Class<CHILD_BEAN_TYPE> beanType) {
+		return new BeanRelationTreeModelBuilderImpl<CHILD_BEAN_TYPE>(entityId, beanType);
 	}
 
 	@Override

@@ -26,50 +26,45 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.impl;
+package org.jowidgets.cap.ui.api.widgets;
 
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Set;
+import org.jowidgets.api.widgets.blueprint.builder.IComponentSetupBuilder;
+import org.jowidgets.api.widgets.descriptor.setup.IComponentSetup;
+import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeModel;
+import org.jowidgets.common.image.IImageConstant;
+import org.jowidgets.common.types.SelectionPolicy;
+import org.jowidgets.common.widgets.descriptor.setup.mandatory.Mandatory;
 
-import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
-import org.jowidgets.cap.ui.api.model.IBeanListModelObservable;
-import org.jowidgets.util.Assert;
+public interface IBeanRelationTreeSetupBuilder<CHILD_BEAN_TYPE> extends
+		IComponentSetup,
+		IComponentSetupBuilder<IBeanRelationTreeSetupBuilder<CHILD_BEAN_TYPE>> {
 
-class BeanListModelObservable implements IBeanListModelObservable {
+	IBeanRelationTreeSetupBuilder<CHILD_BEAN_TYPE> setModel(IBeanRelationTreeModel<CHILD_BEAN_TYPE> model);
 
-	private final Set<IBeanListModelListener> listeners;
+	IBeanRelationTreeSetupBuilder<CHILD_BEAN_TYPE> setSelectionPolicy(SelectionPolicy selectionPolicy);
 
-	BeanListModelObservable() {
-		this.listeners = new HashSet<IBeanListModelListener>();
-	}
+	IBeanRelationTreeSetupBuilder<CHILD_BEAN_TYPE> setContentScrolled(boolean contentScrolled);
 
-	@Override
-	public final void addBeanListModelListener(final IBeanListModelListener listener) {
-		Assert.paramNotNull(listener, "listener");
-		listeners.add(listener);
-	}
+	IBeanRelationTreeSetupBuilder<CHILD_BEAN_TYPE> setDefaultInnerIcon(IImageConstant icon);
 
-	@Override
-	public final void removeBeanListModelListener(final IBeanListModelListener listener) {
-		Assert.paramNotNull(listener, "listener");
-		listeners.remove(listener);
-	}
+	IBeanRelationTreeSetupBuilder<CHILD_BEAN_TYPE> setDefaultLeafIcon(IImageConstant icon);
 
-	final void fireBeansChanged() {
-		for (final IBeanListModelListener listener : new LinkedList<IBeanListModelListener>(listeners)) {
-			listener.beansChanged();
-		}
-	}
+	IBeanRelationTreeSetupBuilder<CHILD_BEAN_TYPE> setRenderRootRelation(boolean renderRootRelation);
 
-	final void fireSelectionChanged() {
-		for (final IBeanListModelListener listener : new LinkedList<IBeanListModelListener>(listeners)) {
-			listener.selectionChanged();
-		}
-	}
+	@Mandatory
+	IBeanRelationTreeModel<CHILD_BEAN_TYPE> getModel();
 
-	void dispose() {
-		listeners.clear();
-	}
+	@Mandatory
+	SelectionPolicy getSelectionPolicy();
+
+	@Mandatory
+	boolean getContentScrolled();
+
+	@Mandatory
+	boolean getRenderRootRelation();
+
+	IImageConstant getDefaultInnerIcon();
+
+	IImageConstant getDefaultLeafIcon();
 
 }

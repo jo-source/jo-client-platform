@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -28,48 +28,67 @@
 
 package org.jowidgets.cap.ui.impl;
 
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
+import org.jowidgets.api.threads.IUiThreadAccess;
+import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
-import org.jowidgets.cap.ui.api.model.IBeanListModelObservable;
+import org.jowidgets.cap.ui.api.model.IDataModel;
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.concurrent.DaemonThreadFactory;
 
-class BeanListModelObservable implements IBeanListModelObservable {
+final class ParentBeanListModelListener implements IBeanListModelListener {
 
-	private final Set<IBeanListModelListener> listeners;
+	private static final int LISTENER_DELAY = 100;
 
-	BeanListModelObservable() {
-		this.listeners = new HashSet<IBeanListModelListener>();
+	private final IDataModel dataModel;
+	private final long listenerDelay;
+
+	private ScheduledFuture<?> schedule;
+
+	ParentBeanListModelListener(final IDataModel dataModel) {
+		this(dataModel, LISTENER_DELAY);
+	}
+
+	ParentBeanListModelListener(final IDataModel dataModel, final long listenerDelay) {
+		Assert.paramNotNull(dataModel, "dataModel");
+		this.dataModel = dataModel;
+		this.listenerDelay = listenerDelay;
 	}
 
 	@Override
-	public final void addBeanListModelListener(final IBeanListModelListener listener) {
-		Assert.paramNotNull(listener, "listener");
-		listeners.add(listener);
+	public void selectionChanged() {
+		loadScheduled();
 	}
 
 	@Override
-	public final void removeBeanListModelListener(final IBeanListModelListener listener) {
-		Assert.paramNotNull(listener, "listener");
-		listeners.remove(listener);
+	public void beansChanged() {
+		loadScheduled();
 	}
 
-	final void fireBeansChanged() {
-		for (final IBeanListModelListener listener : new LinkedList<IBeanListModelListener>(listeners)) {
-			listener.beansChanged();
+	private void loadScheduled() {
+		dataModel.clear();
+		if (schedule != null) {
+			schedule.cancel(false);
 		}
+		final IUiThreadAccess uiThreadAccess = Toolkit.getUiThreadAccess();
+		final Runnable runnable = new Runnable() {
+			@Override
+			public void run() {
+				uiThreadAccess.invokeLater(new Runnable() {
+					@Override
+					public void run() {
+						schedule = null;
+						dataModel.load();
+					}
+				});
+			}
+		};
+		schedule = Executors.newSingleThreadScheduledExecutor(new DaemonThreadFactory()).schedule(
+				runnable,
+				listenerDelay,
+				TimeUnit.MILLISECONDS);
 	}
-
-	final void fireSelectionChanged() {
-		for (final IBeanListModelListener listener : new LinkedList<IBeanListModelListener>(listeners)) {
-			listener.selectionChanged();
-		}
-	}
-
-	void dispose() {
-		listeners.clear();
-	}
-
 }

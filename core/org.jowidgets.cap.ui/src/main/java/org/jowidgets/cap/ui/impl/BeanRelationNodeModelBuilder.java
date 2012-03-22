@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -28,48 +28,44 @@
 
 package org.jowidgets.cap.ui.impl;
 
-import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.Set;
 
-import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
-import org.jowidgets.cap.ui.api.model.IBeanListModelObservable;
-import org.jowidgets.util.Assert;
+import org.jowidgets.cap.ui.api.bean.IBeanProxy;
+import org.jowidgets.cap.ui.api.tree.IBeanRelationNodeModel;
+import org.jowidgets.cap.ui.api.tree.IEntityTypeId;
 
-class BeanListModelObservable implements IBeanListModelObservable {
+class BeanRelationNodeModelBuilder<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE, INSTANCE_TYPE> extends
+		BeanRelationNodeModelBluePrint<CHILD_BEAN_TYPE, INSTANCE_TYPE> {
 
-	private final Set<IBeanListModelListener> listeners;
+	private final IEntityTypeId<PARENT_BEAN_TYPE> parentEntityType;
+	private final IEntityTypeId<CHILD_BEAN_TYPE> childEntityType;
+	private final IBeanProxy<PARENT_BEAN_TYPE> parentBean;
 
-	BeanListModelObservable() {
-		this.listeners = new HashSet<IBeanListModelListener>();
+	BeanRelationNodeModelBuilder(
+		final IEntityTypeId<PARENT_BEAN_TYPE> parentEntityType,
+		final IBeanProxy<PARENT_BEAN_TYPE> parentBean,
+		final IEntityTypeId<CHILD_BEAN_TYPE> childEntityType) {
+		super(childEntityType.getEntityId(), childEntityType.getBeanType());
+		this.parentEntityType = parentEntityType;
+		this.parentBean = parentBean;
+		this.childEntityType = childEntityType;
 	}
 
-	@Override
-	public final void addBeanListModelListener(final IBeanListModelListener listener) {
-		Assert.paramNotNull(listener, "listener");
-		listeners.add(listener);
+	IBeanRelationNodeModel<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> build() {
+		return new BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE>(
+			getLabel(),
+			parentBean,
+			parentEntityType,
+			childEntityType,
+			getChildRenderer(),
+			new LinkedList<IEntityTypeId<Object>>(getChildRelations()),
+			getReaderService(),
+			getReaderParameterProvider(),
+			getCreatorService(),
+			getRefreshService(),
+			getUpdaterService(),
+			getDeleterService(),
+			getBeanValidators(),
+			getAttributes());
 	}
-
-	@Override
-	public final void removeBeanListModelListener(final IBeanListModelListener listener) {
-		Assert.paramNotNull(listener, "listener");
-		listeners.remove(listener);
-	}
-
-	final void fireBeansChanged() {
-		for (final IBeanListModelListener listener : new LinkedList<IBeanListModelListener>(listeners)) {
-			listener.beansChanged();
-		}
-	}
-
-	final void fireSelectionChanged() {
-		for (final IBeanListModelListener listener : new LinkedList<IBeanListModelListener>(listeners)) {
-			listener.selectionChanged();
-		}
-	}
-
-	void dispose() {
-		listeners.clear();
-	}
-
 }

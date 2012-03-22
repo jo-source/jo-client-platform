@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -28,48 +28,67 @@
 
 package org.jowidgets.cap.ui.impl;
 
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Set;
+import org.jowidgets.cap.ui.api.tree.IEntityTypeId;
 
-import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
-import org.jowidgets.cap.ui.api.model.IBeanListModelObservable;
-import org.jowidgets.util.Assert;
+final class EntityTypeIdImpl<BEAN_TYPE> implements IEntityTypeId<BEAN_TYPE> {
 
-class BeanListModelObservable implements IBeanListModelObservable {
+	private final Object entityId;
+	private final Class<BEAN_TYPE> beanType;
 
-	private final Set<IBeanListModelListener> listeners;
-
-	BeanListModelObservable() {
-		this.listeners = new HashSet<IBeanListModelListener>();
+	@SuppressWarnings("unchecked")
+	EntityTypeIdImpl(final Object entityId, final Class<? extends BEAN_TYPE> beanType) {
+		this.entityId = entityId;
+		this.beanType = (Class<BEAN_TYPE>) beanType;
 	}
 
 	@Override
-	public final void addBeanListModelListener(final IBeanListModelListener listener) {
-		Assert.paramNotNull(listener, "listener");
-		listeners.add(listener);
+	public Object getEntityId() {
+		return entityId;
 	}
 
 	@Override
-	public final void removeBeanListModelListener(final IBeanListModelListener listener) {
-		Assert.paramNotNull(listener, "listener");
-		listeners.remove(listener);
+	public Class<BEAN_TYPE> getBeanType() {
+		return beanType;
 	}
 
-	final void fireBeansChanged() {
-		for (final IBeanListModelListener listener : new LinkedList<IBeanListModelListener>(listeners)) {
-			listener.beansChanged();
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((beanType == null) ? 0 : beanType.hashCode());
+		result = prime * result + ((entityId == null) ? 0 : entityId.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(final Object obj) {
+		if (this == obj) {
+			return true;
 		}
-	}
-
-	final void fireSelectionChanged() {
-		for (final IBeanListModelListener listener : new LinkedList<IBeanListModelListener>(listeners)) {
-			listener.selectionChanged();
+		if (obj == null) {
+			return false;
 		}
-	}
-
-	void dispose() {
-		listeners.clear();
+		if (!(obj instanceof IEntityTypeId)) {
+			return false;
+		}
+		final IEntityTypeId<?> other = (IEntityTypeId<?>) obj;
+		if (beanType == null) {
+			if (other.getBeanType() != null) {
+				return false;
+			}
+		}
+		else if (!beanType.equals(other.getBeanType())) {
+			return false;
+		}
+		if (entityId == null) {
+			if (other.getEntityId() != null) {
+				return false;
+			}
+		}
+		else if (!entityId.equals(other.getEntityId())) {
+			return false;
+		}
+		return true;
 	}
 
 }

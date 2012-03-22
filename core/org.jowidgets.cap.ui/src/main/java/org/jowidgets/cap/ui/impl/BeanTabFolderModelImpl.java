@@ -37,9 +37,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 
 import org.jowidgets.api.controller.IDisposeListener;
 import org.jowidgets.api.threads.IUiThreadAccess;
@@ -88,7 +85,6 @@ import org.jowidgets.cap.ui.tools.execution.AbstractUiResultCallback;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.EmptyCheck;
 import org.jowidgets.util.IProvider;
-import org.jowidgets.util.concurrent.DaemonThreadFactory;
 import org.jowidgets.util.event.ChangeObservable;
 import org.jowidgets.util.event.IChangeListener;
 import org.jowidgets.validation.IValidationConditionListener;
@@ -97,7 +93,6 @@ import org.jowidgets.validation.IValidationResult;
 final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEAN_TYPE> {
 
 	private static final int MAX_TABS = 100;
-	private static final int LISTENER_DELAY = 100;
 
 	private final Object entityId;
 	private final Class<BEAN_TYPE> beanType;
@@ -133,7 +128,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 	private final BeanListModelObservable beanListModelObservable;
 	private final DisposeObservable disposeObservable;
 	private final IChangeListener sortModelChangeListener;
-	private final ParentModelListener parentModelListener;
+	private final IBeanListModelListener parentModelListener;
 
 	private final IBeanProxyLabelRenderer<BEAN_TYPE> renderer;
 
@@ -185,7 +180,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 		this.linkType = linkType;
 		if (parent != null) {
 			Assert.paramNotNull(linkType, "linkType");
-			this.parentModelListener = new ParentModelListener();
+			this.parentModelListener = new ParentBeanListModelListener(this);
 			parent.addBeanListModelListener(parentModelListener);
 		}
 		else {
@@ -747,44 +742,6 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 			return new LinkedList<IBeanKey>(beanKeys.subList(0, 1));
 		}
 		return beanKeys;
-	}
-
-	private class ParentModelListener implements IBeanListModelListener {
-		private ScheduledFuture<?> schedule;
-
-		@Override
-		public void selectionChanged() {
-			loadScheduled();
-		}
-
-		@Override
-		public void beansChanged() {
-			loadScheduled();
-		}
-
-		private void loadScheduled() {
-			clear();
-			if (schedule != null) {
-				schedule.cancel(false);
-			}
-			final IUiThreadAccess uiThreadAccess = Toolkit.getUiThreadAccess();
-			final Runnable runnable = new Runnable() {
-				@Override
-				public void run() {
-					uiThreadAccess.invokeLater(new Runnable() {
-						@Override
-						public void run() {
-							schedule = null;
-							load();
-						}
-					});
-				}
-			};
-			schedule = Executors.newSingleThreadScheduledExecutor(new DaemonThreadFactory()).schedule(
-					runnable,
-					LISTENER_DELAY,
-					TimeUnit.MILLISECONDS);
-		}
 	}
 
 	private class SortModelChangeListener implements IChangeListener {

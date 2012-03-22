@@ -53,6 +53,7 @@ public class EntityComponentMasterDetailLinksDetailLayout {
 	public static final String LINKED_DETAIL_FOLDER_ID = "LINKED_DETAIL_FOLDER_ID"; //$NON-NLS-1$
 
 	private static final String DETAIL_STRING = Messages.getString("EntityComponentDefaultLayout.detail"); //$NON-NLS-1$
+	private static final String LINKS_STRING = Messages.getString("EntityComponentDefaultLayout.links"); //$NON-NLS-1$
 
 	private final ILayout layout;
 
@@ -113,6 +114,7 @@ public class EntityComponentMasterDetailLinksDetailLayout {
 		final Map<String, IEntityLinkDescriptor> links) {
 		final IFolderLayoutBuilder result = new FolderLayoutBuilder(LINKED_MASTER_FOLDER_ID);
 		result.setViewsCloseable(false);
+		result.addView(EntityRelationTreeView.ID, entityClass.getLabel() + " " + LINKS_STRING, entityClass.getDescription()); //$NON-NLS-1$
 		for (final Entry<String, IEntityLinkDescriptor> linkEntry : links.entrySet()) {
 			final IEntityService entityService = ServiceProvider.getService(IEntityService.ID);
 			if (entityService != null) {
