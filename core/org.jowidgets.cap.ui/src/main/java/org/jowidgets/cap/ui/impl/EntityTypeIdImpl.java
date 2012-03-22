@@ -52,6 +52,11 @@ final class EntityTypeIdImpl<BEAN_TYPE> implements IEntityTypeId<BEAN_TYPE> {
 	}
 
 	@Override
+	public String toString() {
+		return "EntityTypeIdImpl [entityId=" + entityId + ", beanType=" + beanType + "]";
+	}
+
+	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;

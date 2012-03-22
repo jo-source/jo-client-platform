@@ -33,10 +33,13 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IBeanDto;
+import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
+import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.filter.IFilter;
+import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
@@ -47,6 +50,7 @@ import org.jowidgets.cap.ui.api.tree.IBeanRelationNodeModelConfigurator;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeModel;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeModelBuilder;
 import org.jowidgets.cap.ui.api.tree.IEntityTypeId;
+import org.jowidgets.service.api.ServiceProvider;
 import org.jowidgets.util.Assert;
 
 final class BeanRelationTreeModelBuilderImpl<CHILD_BEAN_TYPE> extends
@@ -57,7 +61,36 @@ final class BeanRelationTreeModelBuilderImpl<CHILD_BEAN_TYPE> extends
 
 	BeanRelationTreeModelBuilderImpl(final Object entityId, final Class<CHILD_BEAN_TYPE> beanType) {
 		super(entityId, beanType);
+
 		this.nodeConfigurators = new LinkedList<IBeanRelationNodeModelConfigurator>();
+		nodeConfigurators.add(new IBeanRelationNodeModelConfigurator() {
+			@Override
+			public <METHOD_CHILD_BEAN_TYPE> void configureNode(
+				final IEntityTypeId<METHOD_CHILD_BEAN_TYPE> entityTypeId,
+				final IBeanRelationNodeModelBluePrint<METHOD_CHILD_BEAN_TYPE, IBeanRelationNodeModelBluePrint<?, ?>> bluePrint) {
+				addChildRelations(entityTypeId, bluePrint);
+			}
+		});
+
+		addChildRelations(new EntityTypeIdImpl<Object>(entityId, beanType), this);
+	}
+
+	@SuppressWarnings({"unchecked", "rawtypes"})
+	private void addChildRelations(final IEntityTypeId<?> entityTypeId, final IBeanRelationNodeModelBluePrint bluePrint) {
+		final IEntityService entityService = ServiceProvider.getService(IEntityService.ID);
+		if (entityService != null) {
+			final IBeanDtoDescriptor dtoDescriptor = entityService.getDescriptor(entityTypeId.getEntityId());
+			if (dtoDescriptor != null) {
+				bluePrint.setText(dtoDescriptor.getLabelPlural());
+			}
+			final List<IEntityLinkDescriptor> links = entityService.getEntityLinks(entityTypeId.getEntityId());
+			if (links != null) {
+				for (final IEntityLinkDescriptor link : links) {
+					final Object linkedTypeId = link.getLinkedTypeId();
+					bluePrint.addChildRelation(linkedTypeId, IBeanDto.class);
+				}
+			}
+		}
 	}
 
 	@Override
