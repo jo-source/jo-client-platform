@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, grossmann
+ * Copyright (c) 2011, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,40 +26,19 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.impl;
+package org.jowidgets.cap.sample2.app.service.util;
 
-import org.jowidgets.cap.ui.api.model.ILabelModel;
-import org.jowidgets.common.image.IImageConstant;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 
-final class LabelModelImpl implements ILabelModel {
+public final class SampleDataGeneratorStarter {
 
-	private final String text;
-	private final String description;
-	private final IImageConstant icon;
+	private SampleDataGeneratorStarter() {}
 
-	LabelModelImpl(final String text) {
-		this(text, null, null);
-	}
-
-	LabelModelImpl(final String text, final String description, final IImageConstant icon) {
-		this.text = text;
-		this.description = description;
-		this.icon = icon;
-	}
-
-	@Override
-	public String getText() {
-		return text;
-	}
-
-	@Override
-	public String getDescription() {
-		return description;
-	}
-
-	@Override
-	public IImageConstant getIcon() {
-		return icon;
+	public static void main(final String[] args) {
+		final EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("sample2PersistenceUnit");
+		final SampleDataGenerator sampleDataGenerator = new SampleDataGenerator();
+		sampleDataGenerator.dropAndCreateAllData(entityManagerFactory, 1, 1000);
 	}
 
 }

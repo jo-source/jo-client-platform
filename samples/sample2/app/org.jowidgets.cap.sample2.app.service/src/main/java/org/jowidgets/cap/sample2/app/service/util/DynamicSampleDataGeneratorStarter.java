@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, grossmann
+ * Copyright (c) 2011, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,40 +26,27 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.impl;
+package org.jowidgets.cap.sample2.app.service.util;
 
-import org.jowidgets.cap.ui.api.model.ILabelModel;
-import org.jowidgets.common.image.IImageConstant;
+import java.util.Random;
 
-final class LabelModelImpl implements ILabelModel {
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 
-	private final String text;
-	private final String description;
-	private final IImageConstant icon;
+public final class DynamicSampleDataGeneratorStarter {
 
-	LabelModelImpl(final String text) {
-		this(text, null, null);
+	private DynamicSampleDataGeneratorStarter() {}
+
+	public static void main(final String[] args) throws Exception {
+		final EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("sample2PersistenceUnit");
+		final SampleDataGenerator sampleDataGenerator = new SampleDataGenerator();
+		final Random random = new Random();
+		long startOffset = 100000;
+		while (true) {
+			Thread.sleep(300);
+			final int count = random.nextInt(5);
+			sampleDataGenerator.createPersons(entityManagerFactory, startOffset, 1, count);
+			startOffset += count;
+		}
 	}
-
-	LabelModelImpl(final String text, final String description, final IImageConstant icon) {
-		this.text = text;
-		this.description = description;
-		this.icon = icon;
-	}
-
-	@Override
-	public String getText() {
-		return text;
-	}
-
-	@Override
-	public String getDescription() {
-		return description;
-	}
-
-	@Override
-	public IImageConstant getIcon() {
-		return icon;
-	}
-
 }

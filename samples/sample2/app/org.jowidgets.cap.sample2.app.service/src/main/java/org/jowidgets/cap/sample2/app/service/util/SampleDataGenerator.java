@@ -37,7 +37,6 @@ import java.util.Random;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
-import javax.persistence.Persistence;
 import javax.persistence.TypedQuery;
 
 import org.apache.commons.io.IOUtils;
@@ -88,19 +87,18 @@ public final class SampleDataGenerator {
 	private static final String GUEST_ROLE_NAME = "Guest";
 	private static final Random RANDOM = new Random();
 
-	private SampleDataGenerator() {}
+	SampleDataGenerator() {}
 
-	public static void main(final String[] args) {
-		final EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("sample2PersistenceUnit");
+	void dropAndCreateAllData(final EntityManagerFactory entityManagerFactory, final int outerCount, final int innerCount) {
 		dropData(entityManagerFactory);
 
 		createPersonRelationTypes(entityManagerFactory);
 		createCountries(entityManagerFactory);
 		createRoles(entityManagerFactory);
-		createPersons(entityManagerFactory);
+		createPersons(entityManagerFactory, 0, outerCount, innerCount);
 	}
 
-	private static void dropData(final EntityManagerFactory entityManagerFactory) {
+	void dropData(final EntityManagerFactory entityManagerFactory) {
 		final EntityManager entityManager = entityManagerFactory.createEntityManager();
 		final EntityTransaction tx = entityManager.getTransaction();
 		tx.begin();
@@ -114,7 +112,7 @@ public final class SampleDataGenerator {
 		entityManager.close();
 	}
 
-	private static void createPersonRelationTypes(final EntityManagerFactory entityManagerFactory) {
+	void createPersonRelationTypes(final EntityManagerFactory entityManagerFactory) {
 
 		final EntityManager entityManager = entityManagerFactory.createEntityManager();
 		final EntityTransaction tx = entityManager.getTransaction();
@@ -135,7 +133,7 @@ public final class SampleDataGenerator {
 		entityManager.close();
 	}
 
-	private static void createCountries(final EntityManagerFactory entityManagerFactory) {
+	void createCountries(final EntityManagerFactory entityManagerFactory) {
 
 		final EntityManager entityManager = entityManagerFactory.createEntityManager();
 		final EntityTransaction tx = entityManager.getTransaction();
@@ -152,7 +150,7 @@ public final class SampleDataGenerator {
 		entityManager.close();
 	}
 
-	private static void createRoles(final EntityManagerFactory entityManagerFactory) {
+	void createRoles(final EntityManagerFactory entityManagerFactory) {
 
 		final EntityManager entityManager = entityManagerFactory.createEntityManager();
 		final EntityTransaction tx = entityManager.getTransaction();
@@ -179,9 +177,11 @@ public final class SampleDataGenerator {
 
 	}
 
-	private static void createPersons(final EntityManagerFactory entityManagerFactory) {
-		final int outerCount = 1;
-		final int innerCount = 1000;
+	void createPersons(
+		final EntityManagerFactory entityManagerFactory,
+		final long startOffset,
+		final int outerCount,
+		final int innerCount) {
 		for (int i = 0; i < outerCount; i++) {
 			final EntityManager entityManager = entityManagerFactory.createEntityManager();
 			final TypedQuery<Role> roleQuery = entityManager.createQuery(
@@ -198,7 +198,7 @@ public final class SampleDataGenerator {
 			tx.begin();
 			for (int j = 0; j < innerCount; j++) {
 				final Person user = new Person();
-				final int nr = i * innerCount + j;
+				final long nr = startOffset + i * innerCount + j;
 				//CHECKSTYLE:OFF
 				System.out.println("DATASET NR: " + nr);
 				//CHECKSTYLE:ON

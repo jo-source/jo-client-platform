@@ -126,7 +126,7 @@ public interface ICapUiToolkit {
 
 	<BEAN_TYPE> IBeanProxyLabelRenderer<BEAN_TYPE> beanProxyLabelPatternRenderer(
 		String labelPattern,
-		Collection<IAttribute<?>> attributes);
+		Collection<? extends IAttribute<?>> attributes);
 
 	ILookUpCache lookUpCache();
 

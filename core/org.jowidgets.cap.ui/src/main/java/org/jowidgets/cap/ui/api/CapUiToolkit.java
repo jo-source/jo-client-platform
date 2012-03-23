@@ -214,7 +214,7 @@ public final class CapUiToolkit {
 
 	public static <BEAN_TYPE> IBeanProxyLabelRenderer<BEAN_TYPE> beanProxyLabelPatternRenderer(
 		final String labelPattern,
-		final Collection<IAttribute<?>> attributes) {
+		final Collection<? extends IAttribute<?>> attributes) {
 		return getInstance().beanProxyLabelPatternRenderer(labelPattern, attributes);
 	}
 

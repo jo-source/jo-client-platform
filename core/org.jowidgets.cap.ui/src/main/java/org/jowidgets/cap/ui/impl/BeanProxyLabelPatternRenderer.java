@@ -57,16 +57,37 @@ final class BeanProxyLabelPatternRenderer<BEAN_TYPE> implements IBeanProxyLabelR
 	private final Map<String, IObjectLabelConverter<Object>> converterMap;
 
 	@SuppressWarnings({"rawtypes", "unchecked"})
-	BeanProxyLabelPatternRenderer(final String pattern, final Collection<IAttribute<?>> attributes) {
+	BeanProxyLabelPatternRenderer(final String pattern, final Collection<? extends IAttribute<?>> attributes) {
 		Assert.paramNotNull(attributes, "attributes");
 		final HashSet<String> propertyDeps = new LinkedHashSet<String>();
 		this.propertyDependencies = Collections.unmodifiableSet(propertyDeps);
 		this.customPropertyDependencies = Collections.unmodifiableSet(new HashSet<ITypedKey<?>>());
 		if (pattern != null) {
-			//TODO parse propertyNames from pattern
-
-			//replace $propName1$ with %1, $propName2$ with %2 and so on
-			replacerPattern = null;
+			final StringBuilder replacerPatternBuilder = new StringBuilder();
+			int lastStart = -1;
+			for (int i = 0; i < pattern.length(); i++) {
+				final char c = pattern.charAt(i);
+				if (c == '$') {
+					if (lastStart == -1) {
+						lastStart = i;
+					}
+					else {
+						if (i - lastStart > 1) {
+							final String propertyName = pattern.substring(lastStart + 1, i);
+							propertyDeps.add(propertyName);
+							replacerPatternBuilder.append("%" + propertyDeps.size());
+							lastStart = -1;
+						}
+						else {
+							replacerPatternBuilder.append('$');
+						}
+					}
+				}
+				else if (lastStart == -1) {
+					replacerPatternBuilder.append(c);
+				}
+			}
+			replacerPattern = replacerPatternBuilder.toString();
 		}
 		else {
 			replacerPattern = null;
@@ -93,34 +114,30 @@ final class BeanProxyLabelPatternRenderer<BEAN_TYPE> implements IBeanProxyLabelR
 
 	@Override
 	public ILabelModel getLabel(final IBeanProxy<BEAN_TYPE> bean) {
-
-		final List<String> parameters = new LinkedList<String>();
-		for (final String property : propertyDependencies) {
-			final IObjectLabelConverter<Object> converter = converterMap.get(property);
-			if (converter != null) {
-				final Object value = bean.getValue(property);
-				if (value instanceof Collection) {
-					final Collection<?> collection = (Collection<?>) value;
-					if (collection.size() > 0) {
-						parameters.add(converter.convertToString(value) + " [" + collection.size() + "]");
-					}
-					else {
-						parameters.add("");
-					}
-				}
-				else if (value != null) {
-					parameters.add(converter.convertToString(value));
-				}
-				else {
-					parameters.add("");
-				}
-			}
-			else {
-				parameters.add("");
-			}
-
+		if (EmptyCheck.isEmpty(replacerPattern)) {
+			return new LabelModelImpl(bean.getId().toString());
 		}
-		return new LabelModelImpl(MessageReplacer.replace(replacerPattern, parameters), null, null);
+		else {
+			final List<String> parameters = new LinkedList<String>();
+			for (final String property : propertyDependencies) {
+				String parameter = "";
+				final IObjectLabelConverter<Object> converter = converterMap.get(property);
+				if (converter != null) {
+					final Object value = bean.getValue(property);
+					if (value instanceof Collection) {
+						final Collection<?> collection = (Collection<?>) value;
+						if (collection.size() > 0) {
+							parameter = converter.convertToString(value) + " [" + collection.size() + "]";
+						}
+					}
+					else if (value != null) {
+						parameter = converter.convertToString(value);
+					}
+				}
+				parameters.add(parameter);
+			}
+			return new LabelModelImpl(MessageReplacer.replace(replacerPattern, parameters));
+		}
 	}
 
 	@Override
