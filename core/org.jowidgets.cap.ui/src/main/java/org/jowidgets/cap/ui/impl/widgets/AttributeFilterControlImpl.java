@@ -113,6 +113,9 @@ final class AttributeFilterControlImpl extends AbstractInputControl<IUiConfigura
 		composite.setLayout(new MigLayoutDescriptor("0[][][grow]0", "0[]0"));
 
 		this.cmbNot = composite.add(comboBoxNotBp());
+		cmbNot.addInputListener(inputListener);
+		cmbNot.addValidationConditionListener(validationConditionListener);
+
 		this.cmbOperator = composite.add(comboBoxOperatorBp());
 
 		cmbOperator.addInputListener(operatorListener);
