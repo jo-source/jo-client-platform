@@ -149,7 +149,7 @@ public class SampleEntityServiceBuilder extends EntityServiceBuilder {
 				Person.class,
 				IPerson.ALL_PROPERTIES);
 		servicesBuilder.setReaderService(createPersonsOfRolesReader(true));
-		add(EntityIds.LINKED_PERSONS_OF_ROLES, descriptor, servicesBuilder.build());
+		add(EntityIds.LINKED_PERSONS_OF_ROLES, descriptor, servicesBuilder.build(), createPersonLinkDescriptors());
 
 		//Linkable persons of roles
 		descriptor = new PersonDtoDescriptorBuilder().build();
@@ -170,7 +170,11 @@ public class SampleEntityServiceBuilder extends EntityServiceBuilder {
 				IRole.ALL_PROPERTIES);
 		servicesBuilder.setReaderService(createRolesOfPersonsReader(true));
 		servicesBuilder.setDeleterService((IDeleterService) null);
-		add(EntityIds.LINKED_ROLES_OF_PERSONS, descriptor, servicesBuilder.build());
+		add(
+				EntityIds.LINKED_ROLES_OF_PERSONS,
+				descriptor,
+				servicesBuilder.build(),
+				Collections.singletonList(createRolePersonLinkDescriptor()));
 
 		//Linkable roles of persons
 		descriptor = new RoleDtoDescriptorBuilder().build();

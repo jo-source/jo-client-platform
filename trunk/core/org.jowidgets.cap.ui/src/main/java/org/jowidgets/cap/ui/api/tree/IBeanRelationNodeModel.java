@@ -42,7 +42,12 @@ public interface IBeanRelationNodeModel<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> exten
 		IDataModel,
 		IBeanListModel<CHILD_BEAN_TYPE> {
 
-	void loadIfNotYetDone();
+	/**
+	 * Loads the model if not yet done.
+	 * 
+	 * @return true, if load will be done, false if load will not be done because it was invoked before
+	 */
+	boolean loadIfNotYetDone();
 
 	IBeanProxy<PARENT_BEAN_TYPE> getParentBean();
 
