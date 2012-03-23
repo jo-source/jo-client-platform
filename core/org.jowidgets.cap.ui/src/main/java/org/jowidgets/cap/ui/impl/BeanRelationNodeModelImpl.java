@@ -296,9 +296,13 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 	}
 
 	@Override
-	public void loadIfNotYetDone() {
+	public boolean loadIfNotYetDone() {
 		if (!hasInitialLoad) {
 			load();
+			return true;
+		}
+		else {
+			return false;
 		}
 	}
 

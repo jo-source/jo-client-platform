@@ -95,10 +95,8 @@ public class BeanRelationTreeModelImpl<CHILD_BEAN_TYPE> implements IBeanRelation
 		final IBeanProxy<METHOD_PARENT_BEAN_TYPE> parentBean,
 		final IEntityTypeId<METHOD_CHILD_BEAN_TYPE> childEntityTypeId) {
 
-		final Tuple<IBeanProxy<METHOD_PARENT_BEAN_TYPE>, IEntityTypeId<METHOD_PARENT_BEAN_TYPE>> key;
-		key = new Tuple<IBeanProxy<METHOD_PARENT_BEAN_TYPE>, IEntityTypeId<METHOD_PARENT_BEAN_TYPE>>(
-			parentBean,
-			parentEntityTypeId);
+		final Tuple<IBeanProxy<METHOD_PARENT_BEAN_TYPE>, IEntityTypeId<METHOD_CHILD_BEAN_TYPE>> key;
+		key = new Tuple<IBeanProxy<METHOD_PARENT_BEAN_TYPE>, IEntityTypeId<METHOD_CHILD_BEAN_TYPE>>(parentBean, childEntityTypeId);
 
 		Object result = relationNodes.get(key);
 		if (result == null) {
