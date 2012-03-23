@@ -87,7 +87,13 @@ final class BeanRelationTreeModelBuilderImpl<CHILD_BEAN_TYPE> extends
 			if (links != null) {
 				for (final IEntityLinkDescriptor link : links) {
 					final Object linkedTypeId = link.getLinkedTypeId();
-					bluePrint.addChildRelation(linkedTypeId, IBeanDto.class);
+					final IBeanDtoDescriptor linkedDtoDescr = entityService.getDescriptor(linkedTypeId);
+					if (linkedDtoDescr != null && linkedDtoDescr.getBeanType() != null) {
+						bluePrint.addChildRelation(linkedTypeId, linkedDtoDescr.getBeanType());
+					}
+					else {
+						bluePrint.addChildRelation(linkedTypeId, IBeanDto.class);
+					}
 				}
 			}
 		}
