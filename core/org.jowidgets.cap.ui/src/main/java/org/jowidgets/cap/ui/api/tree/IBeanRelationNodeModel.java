@@ -69,4 +69,6 @@ public interface IBeanRelationNodeModel<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> exten
 
 	List<IEntityTypeId<Object>> getChildRelations();
 
+	void dispose();
+
 }
