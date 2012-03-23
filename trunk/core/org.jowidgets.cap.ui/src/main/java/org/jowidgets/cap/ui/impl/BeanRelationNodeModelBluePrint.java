@@ -31,12 +31,16 @@ package org.jowidgets.cap.ui.impl;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
+import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyLabelRenderer;
 import org.jowidgets.cap.ui.api.model.ILabelModel;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationNodeModelBluePrint;
 import org.jowidgets.cap.ui.api.tree.IEntityTypeId;
 import org.jowidgets.common.image.IImageConstant;
+import org.jowidgets.service.api.ServiceProvider;
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.EmptyCheck;
 
 class BeanRelationNodeModelBluePrint<CHILD_BEAN_TYPE, INSTANCE_TYPE> extends
 		AbstractBeanModelBuilderImpl<CHILD_BEAN_TYPE, INSTANCE_TYPE> implements
@@ -109,6 +113,16 @@ class BeanRelationNodeModelBluePrint<CHILD_BEAN_TYPE, INSTANCE_TYPE> extends
 
 	protected IBeanProxyLabelRenderer<CHILD_BEAN_TYPE> getChildRenderer() {
 		if (childRenderer == null) {
+			final IEntityService entityService = ServiceProvider.getService(IEntityService.ID);
+			if (entityService != null) {
+				final IBeanDtoDescriptor dtoDescriptor = entityService.getDescriptor(getEntityId());
+				if (dtoDescriptor != null) {
+					final String renderingPattern = dtoDescriptor.getRenderingPattern();
+					if (!EmptyCheck.isEmpty(renderingPattern)) {
+						return new BeanProxyLabelPatternRenderer<CHILD_BEAN_TYPE>(renderingPattern, getAttributes());
+					}
+				}
+			}
 			return new BeanByAttributesRenderer<CHILD_BEAN_TYPE>(getAttributes());
 		}
 		return childRenderer;

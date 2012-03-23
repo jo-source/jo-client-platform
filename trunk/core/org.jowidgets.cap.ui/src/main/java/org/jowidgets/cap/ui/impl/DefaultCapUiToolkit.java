@@ -270,7 +270,7 @@ public final class DefaultCapUiToolkit implements ICapUiToolkit {
 	@Override
 	public <BEAN_TYPE> IBeanProxyLabelRenderer<BEAN_TYPE> beanProxyLabelPatternRenderer(
 		final String labelPattern,
-		final Collection<IAttribute<?>> attributes) {
+		final Collection<? extends IAttribute<?>> attributes) {
 		return new BeanProxyLabelPatternRenderer<BEAN_TYPE>(labelPattern, attributes);
 	}
 
