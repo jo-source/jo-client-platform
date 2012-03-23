@@ -82,7 +82,7 @@ import org.jowidgets.validation.IValidationResult;
 public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implements
 		IBeanRelationNodeModel<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> {
 
-	private static final int MAX_CHILDREN = 1000;
+	private static final int MAX_CHILDREN = 200;
 
 	private final ILabelModel label;
 
@@ -214,6 +214,13 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 			result.add(attribute.getPropertyName());
 		}
 		return result;
+	}
+
+	@Override
+	public void dispose() {
+		beanStateTracker.dispose();
+		beanListModelObservable.dispose();
+		tryToCanceLoader();
 	}
 
 	@Override

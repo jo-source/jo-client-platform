@@ -114,12 +114,18 @@ public class BeanRelationTreeModelImpl<CHILD_BEAN_TYPE> implements IBeanRelation
 
 	@Override
 	public void load() {
+		clear();
 		root.load();
 	}
 
 	@Override
 	public void clear() {
 		root.clear();
+		for (final Object relationModelObject : relationNodes.values()) {
+			final IBeanRelationNodeModel<?, ?> relationModel = (IBeanRelationNodeModel<?, ?>) relationModelObject;
+			relationModel.dispose();
+		}
+		relationNodes.clear();
 	}
 
 	@Override
