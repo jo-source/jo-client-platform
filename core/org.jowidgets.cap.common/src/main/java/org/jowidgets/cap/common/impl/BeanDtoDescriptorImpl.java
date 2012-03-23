@@ -49,6 +49,7 @@ final class BeanDtoDescriptorImpl implements IBeanDtoDescriptor, Serializable {
 	private final String labelSingular;
 	private final String labelPlural;
 	private final String description;
+	private final String renderingPattern;
 	private final List<IProperty> unodifiableProperties;
 	private final Set<IBeanValidator<?>> unmodifieableBeanValidators;
 
@@ -73,10 +74,22 @@ final class BeanDtoDescriptorImpl implements IBeanDtoDescriptor, Serializable {
 		final String description,
 		final Collection<IProperty> properties,
 		final Collection<? extends IBeanValidator<?>> beanValidators) {
+		this(beanType, labelSingular, labelPlural, description, null, properties, beanValidators);
+	}
+
+	BeanDtoDescriptorImpl(
+		final Class<?> beanType,
+		final String labelSingular,
+		final String labelPlural,
+		final String description,
+		final String renderingPattern,
+		final Collection<IProperty> properties,
+		final Collection<? extends IBeanValidator<?>> beanValidators) {
 		this.beanType = beanType;
 		this.labelSingular = labelSingular;
 		this.labelPlural = labelPlural;
 		this.description = description;
+		this.renderingPattern = renderingPattern;
 		this.unodifiableProperties = Collections.unmodifiableList(new LinkedList<IProperty>(properties));
 		this.unmodifieableBeanValidators = Collections.unmodifiableSet(new LinkedHashSet<IBeanValidator<?>>(beanValidators));
 	}
@@ -109,6 +122,11 @@ final class BeanDtoDescriptorImpl implements IBeanDtoDescriptor, Serializable {
 	@Override
 	public String getDescription() {
 		return description;
+	}
+
+	@Override
+	public String getRenderingPattern() {
+		return renderingPattern;
 	}
 
 }

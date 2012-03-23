@@ -38,6 +38,24 @@ public interface IBeanDtoDescriptorBuilder {
 
 	IBeanDtoDescriptorBuilder setDescription(String description);
 
+	/**
+	 * Sets a pattern that will be used to render instances of the bean.
+	 * The pattern may contain property variables starting and ending with $.
+	 * The $ symbol could be escaped with a $ symbol.
+	 * 
+	 * Example:
+	 * 
+	 * $name$($country$, $age$, $$$acount$)
+	 * 
+	 * leads to labels like
+	 * 
+	 * Michael(Germany, 40, $1000)
+	 * Peter(France, 28, $200)
+	 * 
+	 * @return The rendering pattern or null
+	 */
+	IBeanDtoDescriptorBuilder setRenderingPattern(String pattern);
+
 	IBeanDtoDescriptorBuilder addValidator(IBeanValidator<?> validator);
 
 	IBeanPropertyBluePrint addProperty(String propertyName);
