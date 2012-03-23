@@ -40,6 +40,7 @@ public class RoleDtoDescriptorBuilder extends BeanDtoDescriptorBuilder {
 
 		setLabelSingular("Role");
 		setLabelPlural("Roles");
+		setRenderingPattern("$" + IRole.NAME_PROPERTY + "$");
 
 		IBeanPropertyBluePrint propertyBp;
 

@@ -43,12 +43,20 @@ public class PersonDtoDescriptorBuilder extends BeanDtoDescriptorBuilder {
 
 		setLabelSingular("User");
 		setLabelPlural("Users");
+		setRenderingPattern("$"
+			+ IPerson.NAME_PROPERTY
+			+ "$ $"
+			+ IPerson.LAST_NAME_PROPERTY
+			+ "$ ($"
+			+ IPerson.LOGIN_NAME_PROPERTY
+			+ "$)");
 
 		IBeanPropertyBluePrint propertyBp;
 
 		propertyBp = addProperty(IBean.ID_PROPERTY);
 		propertyBp.setLabel("Id");
 		propertyBp.setDescription("The users technical identifier");
+		propertyBp.setSortable(true);
 
 		propertyBp = addProperty(IPerson.LOGIN_NAME_PROPERTY);
 		propertyBp.setLabel("Login");

@@ -60,6 +60,11 @@ public class BeanDtoDescriptorBuilder implements IBeanDtoDescriptorBuilder {
 	}
 
 	@Override
+	public IBeanDtoDescriptorBuilder setRenderingPattern(final String pattern) {
+		return this.builder.setRenderingPattern(pattern);
+	}
+
+	@Override
 	public IBeanDtoDescriptorBuilder addValidator(final IBeanValidator<?> validator) {
 		return this.builder.addValidator(validator);
 	}

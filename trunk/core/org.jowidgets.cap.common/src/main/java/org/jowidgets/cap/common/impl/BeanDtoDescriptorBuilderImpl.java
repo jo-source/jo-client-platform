@@ -49,6 +49,7 @@ final class BeanDtoDescriptorBuilderImpl implements IBeanDtoDescriptorBuilder {
 	private String labelSingular;
 	private String labelPlural;
 	private String description;
+	private String renderingPattern;
 
 	BeanDtoDescriptorBuilderImpl(final Class<?> beanType) {
 		this.beanType = beanType;
@@ -75,6 +76,12 @@ final class BeanDtoDescriptorBuilderImpl implements IBeanDtoDescriptorBuilder {
 	}
 
 	@Override
+	public IBeanDtoDescriptorBuilder setRenderingPattern(final String renderingPattern) {
+		this.renderingPattern = renderingPattern;
+		return this;
+	}
+
+	@Override
 	public IBeanDtoDescriptorBuilder addValidator(final IBeanValidator<?> validator) {
 		Assert.paramNotNull(validator, "validator");
 		beanValidators.add(validator);
@@ -95,7 +102,14 @@ final class BeanDtoDescriptorBuilderImpl implements IBeanDtoDescriptorBuilder {
 		for (final BeanPropertyBluePrintImpl bluePrint : bluePrints) {
 			properties.add(bluePrint.build());
 		}
-		return new BeanDtoDescriptorImpl(beanType, labelSingular, labelPlural, description, properties, beanValidators);
+		return new BeanDtoDescriptorImpl(
+			beanType,
+			labelSingular,
+			labelPlural,
+			description,
+			renderingPattern,
+			properties,
+			beanValidators);
 	}
 
 }

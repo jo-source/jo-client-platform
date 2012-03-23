@@ -33,12 +33,14 @@ import java.util.Collections;
 
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.ui.api.ICapUiToolkit;
+import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
 import org.jowidgets.cap.ui.api.bean.BeanMessageType;
 import org.jowidgets.cap.ui.api.bean.IBeanKeyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeanMessageBuilder;
 import org.jowidgets.cap.ui.api.bean.IBeanMessageFixBuilder;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
+import org.jowidgets.cap.ui.api.bean.IBeanProxyLabelRenderer;
 import org.jowidgets.cap.ui.api.bean.IBeansStateTracker;
 import org.jowidgets.cap.ui.api.command.ICapActionFactory;
 import org.jowidgets.cap.ui.api.control.IDisplayFormatFactory;
@@ -263,6 +265,13 @@ public final class DefaultCapUiToolkit implements ICapUiToolkit {
 	@Override
 	public IBeanFormToolkit beanFormToolkit() {
 		return new BeanFormToolkitImpl();
+	}
+
+	@Override
+	public <BEAN_TYPE> IBeanProxyLabelRenderer<BEAN_TYPE> beanProxyLabelPatternRenderer(
+		final String labelPattern,
+		final Collection<IAttribute<?>> attributes) {
+		return new BeanProxyLabelPatternRenderer<BEAN_TYPE>(labelPattern, attributes);
 	}
 
 	@Override

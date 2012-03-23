@@ -70,6 +70,24 @@ public interface IBeanDtoDescriptor {
 	String getLabelPlural();
 
 	/**
+	 * Gets a pattern that could be used to render instances of the bean.
+	 * The pattern may contain property variables starting and ending with $.
+	 * The $ symbol could be escaped with a $ symbol
+	 * 
+	 * Example:
+	 * 
+	 * $name$($country$, $age$, $$$acount$)
+	 * 
+	 * leads to labels like
+	 * 
+	 * Michael(Germany, 40, $1000)
+	 * Peter(France, 28, $200)
+	 * 
+	 * @return The rendering pattern or null
+	 */
+	String getRenderingPattern();
+
+	/**
 	 * Gets the description
 	 * 
 	 * @return The decription or null
