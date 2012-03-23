@@ -29,6 +29,7 @@
 package org.jowidgets.cap.ui.impl;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -81,7 +82,7 @@ final class BeanRelationTreeModelBuilderImpl<CHILD_BEAN_TYPE> extends
 		if (entityService != null) {
 			final IBeanDtoDescriptor dtoDescriptor = entityService.getDescriptor(entityTypeId.getEntityId());
 			if (dtoDescriptor != null) {
-				bluePrint.setText(dtoDescriptor.getLabelPlural());
+				bluePrint.setText("<" + dtoDescriptor.getLabelPlural() + ">");
 			}
 			final List<IEntityLinkDescriptor> links = entityService.getEntityLinks(entityTypeId.getEntityId());
 			if (links != null) {
@@ -123,7 +124,7 @@ final class BeanRelationTreeModelBuilderImpl<CHILD_BEAN_TYPE> extends
 		Assert.paramNotNull(parent, "parent");
 		Assert.paramNotNull(linkType, "linkType");
 		setParent(parent, linkType);
-		setReaderService(new ParentSelectionReaderService(parent));
+		setReaderService(new ParentSelectionReaderService(parent, linkType));
 		return this;
 	}
 
@@ -163,9 +164,11 @@ final class BeanRelationTreeModelBuilderImpl<CHILD_BEAN_TYPE> extends
 	private final class ParentSelectionReaderService implements IReaderService<Void> {
 
 		private final IBeanListModel<?> parent;
+		private final LinkType linkType;
 
-		private ParentSelectionReaderService(final IBeanListModel<?> parent) {
+		private ParentSelectionReaderService(final IBeanListModel<?> parent, final LinkType linkType) {
 			this.parent = parent;
+			this.linkType = linkType;
 		}
 
 		@Override
@@ -181,18 +184,35 @@ final class BeanRelationTreeModelBuilderImpl<CHILD_BEAN_TYPE> extends
 
 			try {
 				final List<IBeanDto> result = new LinkedList<IBeanDto>();
-				for (final Integer index : parent.getSelection()) {
+
+				for (final Integer index : getSelection()) {
 					final IBeanProxy<?> bean = parent.getBean(index);
 					if (bean != null && !bean.isDisposed() && !bean.isDummy()) {
 						result.add(bean);
 					}
+					if (result.size() >= maxRows) {
+						break;
+					}
 				}
+
 				resultCallback.finished(result);
 			}
 			catch (final Exception e) {
 				resultCallback.exception(e);
 			}
 
+		}
+
+		private List<Integer> getSelection() {
+			if (linkType == LinkType.SELECTION_ALL) {
+				return parent.getSelection();
+			}
+			else if (parent.getSelection().size() > 0) {
+				return parent.getSelection().subList(0, 1);
+			}
+			else {
+				return Collections.emptyList();
+			}
 		}
 
 		@Override
@@ -204,7 +224,7 @@ final class BeanRelationTreeModelBuilderImpl<CHILD_BEAN_TYPE> extends
 			final IExecutionCallback executionCallback) {
 
 			try {
-				resultCallback.finished(parent.getSelection().size());
+				resultCallback.finished(getSelection().size());
 			}
 			catch (final Exception e) {
 				resultCallback.exception(e);

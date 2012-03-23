@@ -51,12 +51,14 @@ import org.jowidgets.util.Tuple;
 final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements IBeanRelationTree<CHILD_BEAN_TYPE> {
 
 	private final IBeanRelationTreeModel<CHILD_BEAN_TYPE> treeModel;
+	private final boolean autoSelection;
 	private final int autoExpandLevel;
 
 	@SuppressWarnings("unchecked")
 	BeanRelationTreeImpl(final ITree tree, final IBeanRelationTreeBluePrint<CHILD_BEAN_TYPE> bluePrint) {
 		super(tree);
 		this.treeModel = bluePrint.getModel();
+		this.autoSelection = bluePrint.getAutoSelection();
 		this.autoExpandLevel = bluePrint.getAutoExpandLevel();
 
 		@SuppressWarnings("rawtypes")
@@ -71,6 +73,10 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 			@Override
 			public void beansChanged() {
 				onBeansChanged(parentContainer, relationNodeModel);
+				final ITree tree = getWidget();
+				if (autoSelection && parentContainer == tree && tree.getChildren().size() > 0) {
+					tree.getChildren().iterator().next().setSelected(true);
+				}
 			}
 		});
 	}
@@ -98,7 +104,7 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 						childEntityTypeId);
 
 				final ITreeNode childRelationNode = childNode.addNode();
-				childRelationNode.setText("<" + childRelationNodeModel.getText() + ">");
+				childRelationNode.setText(childRelationNodeModel.getText());
 				childRelationNode.setToolTipText(childRelationNodeModel.getDescription());
 				childRelationNode.setIcon(childRelationNodeModel.getIcon());
 				childRelationNode.setMarkup(Markup.EMPHASIZED);

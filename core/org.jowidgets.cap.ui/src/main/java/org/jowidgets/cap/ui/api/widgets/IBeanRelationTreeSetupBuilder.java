@@ -39,6 +39,8 @@ public interface IBeanRelationTreeSetupBuilder<CHILD_BEAN_TYPE> extends
 		IComponentSetup,
 		IComponentSetupBuilder<IBeanRelationTreeSetupBuilder<CHILD_BEAN_TYPE>> {
 
+	IBeanRelationTreeSetupBuilder<CHILD_BEAN_TYPE> setAutoSelection(boolean autoSelection);
+
 	IBeanRelationTreeSetupBuilder<CHILD_BEAN_TYPE> setAutoExpandLevel(int level);
 
 	IBeanRelationTreeSetupBuilder<CHILD_BEAN_TYPE> setModel(IBeanRelationTreeModel<CHILD_BEAN_TYPE> model);
@@ -64,6 +66,9 @@ public interface IBeanRelationTreeSetupBuilder<CHILD_BEAN_TYPE> extends
 
 	@Mandatory
 	int getAutoExpandLevel();
+
+	@Mandatory
+	boolean getAutoSelection();
 
 	@Mandatory
 	boolean getRenderRootRelation();
