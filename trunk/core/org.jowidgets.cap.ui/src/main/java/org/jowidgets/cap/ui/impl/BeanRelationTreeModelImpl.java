@@ -34,6 +34,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
+import org.jowidgets.cap.ui.api.bean.IBeanSelectionListener;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
 import org.jowidgets.cap.ui.api.model.IModificationStateListener;
@@ -42,7 +43,6 @@ import org.jowidgets.cap.ui.api.model.LinkType;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationNodeModel;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationNodeModelBluePrint;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationNodeModelConfigurator;
-import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeListener;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeModel;
 import org.jowidgets.cap.ui.api.tree.IEntityTypeId;
 import org.jowidgets.util.Assert;
@@ -55,6 +55,7 @@ public class BeanRelationTreeModelImpl<CHILD_BEAN_TYPE> implements IBeanRelation
 	private final IBeanRelationNodeModel<Void, CHILD_BEAN_TYPE> root;
 	private final IBeanRelationNodeModelConfigurator nodeConfigurator;
 	private final IBeanListModelListener parentModelListener;
+	private final BeanSelectionObservable beanSelectionObservable;
 
 	@SuppressWarnings("rawtypes")
 	private final Map relationNodes;
@@ -81,6 +82,7 @@ public class BeanRelationTreeModelImpl<CHILD_BEAN_TYPE> implements IBeanRelation
 		}
 
 		this.relationNodes = new HashMap();
+		this.beanSelectionObservable = new BeanSelectionObservable();
 	}
 
 	@Override
@@ -175,10 +177,14 @@ public class BeanRelationTreeModelImpl<CHILD_BEAN_TYPE> implements IBeanRelation
 	public void removeProcessStateListener(final IProcessStateListener listener) {}
 
 	@Override
-	public void addBeanRelationTreeListener(final IBeanRelationTreeListener listener) {}
+	public void addBeanSelectionListener(final IBeanSelectionListener listener) {
+		beanSelectionObservable.addBeanSelectionListener(listener);
+	}
 
 	@Override
-	public void removeBeanRelationTreeListener(final IBeanRelationTreeListener listener) {}
+	public void removeBeanSelectionListener(final IBeanSelectionListener listener) {
+		beanSelectionObservable.removeBeanSelectionListener(listener);
+	}
 
 	@Override
 	public ArrayList<IBeanProxy<?>> getSelection() {

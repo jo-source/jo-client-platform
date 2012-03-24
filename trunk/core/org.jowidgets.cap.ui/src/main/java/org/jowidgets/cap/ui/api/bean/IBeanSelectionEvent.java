@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,47 +26,30 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample2.app.service.util;
+package org.jowidgets.cap.ui.api.bean;
 
-import java.util.Random;
+import java.util.List;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-import javax.persistence.Query;
+public interface IBeanSelectionEvent<BEAN_TYPE> {
 
-public final class DynamicSampleDataGeneratorStarter {
+	/**
+	 * @return The bean type of the selection
+	 */
+	Class<BEAN_TYPE> getBeanType();
 
-	private DynamicSampleDataGeneratorStarter() {}
+	/**
+	 * @return The entity id of the selection
+	 */
+	Object getEntityId();
 
-	public static void main(final String[] args) throws Exception {
-		final EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("sample2PersistenceUnit");
-		final SampleDataGenerator sampleDataGenerator = new SampleDataGenerator();
-		final Random random = new Random();
-		long startOffset = getMaxId(entityManagerFactory) + 1;
-		while (true) {
-			Thread.sleep(500);
-			final int count = random.nextInt(3);
-			sampleDataGenerator.createPersons(entityManagerFactory, startOffset, 1, count);
-			startOffset += count;
-		}
-	}
+	/**
+	 * @return The selection. May be empty but never null.
+	 */
+	List<IBeanProxy<BEAN_TYPE>> getSelection();
 
-	private static long getMaxId(final EntityManagerFactory entityManagerFactory) {
-		final EntityManager em = entityManagerFactory.createEntityManager();
-		final Query query = em.createQuery("SELECT MAX(p.id) FROM Person p");
-		Object result;
-		try {
-			result = query.getSingleResult();
-			if (result instanceof Number) {
-				return ((Number) result).longValue();
-			}
-		}
-		catch (final Exception e) {
-			//CHECKSTYLE:OFF
-			e.printStackTrace();
-			//CHECKSTYLE:ON
-		}
-		return -1;
-	}
+	/**
+	 * @return The first selected bean or null if nothing is selected.
+	 */
+	IBeanProxy<BEAN_TYPE> getFirstSelected();
+
 }
