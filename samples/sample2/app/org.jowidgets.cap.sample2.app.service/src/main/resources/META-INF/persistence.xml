@@ -13,7 +13,7 @@
 		<properties>
 			<property name="hibernate.dialect" value="org.hibernate.dialect.Oracle10gDialect" />
 			<property name="hibernate.connection.driver_class" value="oracle.jdbc.driver.OracleDriver"></property>
-			<property name="hibernate.show_sql" value="true"></property>
+			<property name="hibernate.show_sql" value="false"></property>
 			<property name="hibernate.connection.username" value="SAMPLE"></property>
 			<property name="hibernate.connection.password" value="sample"></property>
 			<property name="hibernate.connection.url" value="jdbc:oracle:thin:@127.0.0.1:1521:orcl"></property>

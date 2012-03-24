@@ -47,6 +47,7 @@ import org.jowidgets.cap.ui.api.filter.IUiFilter;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.model.IDataModel;
 import org.jowidgets.cap.ui.api.sort.ISortModel;
+import org.jowidgets.common.types.Interval;
 import org.jowidgets.util.event.IChangeListener;
 
 public interface IBeanTableModel<BEAN_TYPE> extends IDataModel, IBeanListModel<BEAN_TYPE>, IDisposeObservable {
@@ -81,6 +82,8 @@ public interface IBeanTableModel<BEAN_TYPE> extends IDataModel, IBeanListModel<B
 	void loadPage(IResultCallback<Void> resultCallback, int page, IExecutionCallback executionCallback);
 
 	void loadPage(int page);
+
+	void updateInBackground(Interval<Integer> visibleRows);
 
 	void refreshBean(IBeanProxy<BEAN_TYPE> bean);
 

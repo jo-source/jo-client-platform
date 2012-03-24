@@ -77,4 +77,12 @@ public interface IBeanTable<BEAN_TYPE> extends ITable {
 
 	void removeCellMenuListener(IPopupMenuListener listener);
 
+	void setAutoUpdateInterval(long updateIntervall);
+
+	long getAutoUpdateInterval();
+
+	void startAutoUpdateMode();
+
+	void stopAutoUpdateMode();
+
 }

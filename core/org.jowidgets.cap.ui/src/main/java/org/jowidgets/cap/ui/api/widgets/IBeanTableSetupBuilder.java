@@ -61,6 +61,8 @@ public interface IBeanTableSetupBuilder<BEAN_TYPE> extends
 
 	IBeanTableSetupBuilder<BEAN_TYPE> setSearchFilterToolbarVisible(boolean visible);
 
+	IBeanTableSetupBuilder<BEAN_TYPE> setAutoUpdateInterval(long autoUpdateInterval);
+
 	@Mandatory
 	TableSelectionPolicy getSelectionPolicy();
 
@@ -88,5 +90,8 @@ public interface IBeanTableSetupBuilder<BEAN_TYPE> extends
 
 	@Mandatory
 	boolean isSearchFilterToolbarVisible();
+
+	@Mandatory
+	long getAutoUpdateInterval();
 
 }

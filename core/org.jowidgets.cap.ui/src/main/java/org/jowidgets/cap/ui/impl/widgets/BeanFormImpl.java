@@ -53,6 +53,7 @@ import org.jowidgets.plugin.api.PluginToolkit;
 import org.jowidgets.tools.widgets.blueprint.BPF;
 import org.jowidgets.tools.widgets.wrapper.ControlWrapper;
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.NullCompatibleEquivalence;
 import org.jowidgets.validation.IValidationConditionListener;
 import org.jowidgets.validation.IValidationResult;
 import org.jowidgets.validation.IValidator;
@@ -139,23 +140,25 @@ final class BeanFormImpl<BEAN_TYPE> extends ControlWrapper implements IBeanForm<
 
 	@Override
 	public void setValue(final IBeanProxy<BEAN_TYPE> bean) {
-		if (this.bean != null) {
-			this.bean.removeProcessStateListener(beanProcessStateListener);
-			this.bean.removeBeanProxyListener(beanProxyListener);
-		}
-		this.bean = bean;
-		if (isEditForm(bean)) {
-			createForm.setValue(null);
-			editForm.setValue(bean);
-		}
-		else {
-			editForm.setValue(null);
-			createForm.setValue(bean);
-		}
-		updateFormVisibility(bean);
-		if (bean != null) {
-			bean.addProcessStateListener(beanProcessStateListener);
-			bean.addBeanProxyListener(beanProxyListener);
+		if (!NullCompatibleEquivalence.equals(this.bean, bean)) {
+			if (this.bean != null) {
+				this.bean.removeProcessStateListener(beanProcessStateListener);
+				this.bean.removeBeanProxyListener(beanProxyListener);
+			}
+			this.bean = bean;
+			if (isEditForm(bean)) {
+				createForm.setValue(null);
+				editForm.setValue(bean);
+			}
+			else {
+				editForm.setValue(null);
+				createForm.setValue(bean);
+			}
+			updateFormVisibility(bean);
+			if (bean != null) {
+				bean.addProcessStateListener(beanProcessStateListener);
+				bean.addBeanProxyListener(beanProxyListener);
+			}
 		}
 	}
 

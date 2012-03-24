@@ -180,7 +180,13 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 		this.linkType = linkType;
 		if (parent != null) {
 			Assert.paramNotNull(linkType, "linkType");
-			this.parentModelListener = new ParentBeanListModelListener(this);
+			final IProvider<Object> parentBeansProvider = new IProvider<Object>() {
+				@Override
+				public Object get() {
+					return getParentBeanKeys();
+				}
+			};
+			this.parentModelListener = new ParentBeanListModelListener(this, parentBeansProvider);
 			parent.addBeanListModelListener(parentModelListener);
 		}
 		else {
