@@ -26,10 +26,49 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.tree;
+package org.jowidgets.cap.ui.impl;
 
-public interface IBeanRelationTreeListener {
+import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.Set;
 
-	void selectionChanged();
+import org.jowidgets.cap.ui.api.bean.IBeanProxy;
+import org.jowidgets.cap.ui.api.bean.IBeanSelectionEvent;
+import org.jowidgets.cap.ui.api.bean.IBeanSelectionListener;
+import org.jowidgets.cap.ui.api.bean.IBeanSelectionObservable;
+import org.jowidgets.util.Assert;
 
+final class BeanSelectionObservable implements IBeanSelectionObservable {
+
+	private final Set<IBeanSelectionListener> listeners;
+
+	public BeanSelectionObservable() {
+		this.listeners = new LinkedHashSet<IBeanSelectionListener>();
+	}
+
+	@Override
+	public void addBeanSelectionListener(final IBeanSelectionListener listener) {
+		Assert.paramNotNull(listener, "listener");
+		listeners.add(listener);
+	}
+
+	@Override
+	public void removeBeanSelectionListener(final IBeanSelectionListener listener) {
+		Assert.paramNotNull(listener, "listener");
+		listeners.remove(listener);
+	}
+
+	void fireBeanSelectionEvent(final IBeanSelectionEvent<?> event) {
+		for (final IBeanSelectionListener listener : new LinkedList<IBeanSelectionListener>(listeners)) {
+			listener.selectionChanged(event);
+		}
+	}
+
+	<BEAN_TYPE> void fireBeanSelectionEvent(
+		final Class<BEAN_TYPE> beanType,
+		final Object entityId,
+		final Collection<? extends IBeanProxy<BEAN_TYPE>> selection) {
+		fireBeanSelectionEvent(new BeanSelectionEventImpl<BEAN_TYPE>(beanType, entityId, selection));
+	}
 }

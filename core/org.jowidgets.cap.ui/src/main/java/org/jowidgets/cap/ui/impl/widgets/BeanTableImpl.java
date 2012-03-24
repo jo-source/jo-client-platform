@@ -67,6 +67,7 @@ import org.jowidgets.cap.ui.api.widgets.IPopupMenuListener;
 import org.jowidgets.cap.ui.api.widgets.ITableMenuCreationInterceptor;
 import org.jowidgets.common.types.Dimension;
 import org.jowidgets.common.types.IVetoable;
+import org.jowidgets.common.types.Interval;
 import org.jowidgets.common.types.Modifier;
 import org.jowidgets.common.types.Position;
 import org.jowidgets.common.types.TablePackPolicy;
@@ -306,6 +307,26 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 
 		setSearchFilterToolbarVisible(bluePrint.isSearchFilterToolbarVisible());
 		setStatusBarVisible(true);
+
+		//CHECKSTYLE:OFF
+		//		final Integer autoUpdateIntervall = Integer.valueOf(1000);
+		//		if (autoUpdateIntervall != null) {
+		//			final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1, new DaemonThreadFactory());
+		//			final IUiThreadAccess uiThreadAccess = Toolkit.getUiThreadAccess();
+		//			final Runnable runnable = new Runnable() {
+		//				@Override
+		//				public void run() {
+		//					uiThreadAccess.invokeLater(new Runnable() {
+		//						@Override
+		//						public void run() {
+		//							System.out.println(getVisibleRows());
+		//						}
+		//					});
+		//				}
+		//			};
+		//			executorService.scheduleAtFixedRate(runnable, 0, autoUpdateIntervall, TimeUnit.MILLISECONDS);
+		//		}
+		//CHECKSTYLE:ON
 	}
 
 	@SuppressWarnings({"rawtypes", "unchecked"})
@@ -961,4 +982,8 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 		table.removeTableColumnListener(listener);
 	}
 
+	@Override
+	public Interval<Integer> getVisibleRows() {
+		return table.getVisibleRows();
+	}
 }

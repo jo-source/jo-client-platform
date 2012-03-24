@@ -26,12 +26,62 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.tree;
+package org.jowidgets.cap.ui.impl;
 
-public interface IBeanRelationTreeObservable {
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 
-	void addBeanRelationTreeListener(IBeanRelationTreeListener listener);
+import org.jowidgets.cap.ui.api.bean.IBeanProxy;
+import org.jowidgets.cap.ui.api.bean.IBeanSelectionEvent;
+import org.jowidgets.util.Assert;
 
-	void removeBeanRelationTreeListener(IBeanRelationTreeListener listener);
+final class BeanSelectionEventImpl<BEAN_TYPE> implements IBeanSelectionEvent<BEAN_TYPE> {
+
+	private final Class<BEAN_TYPE> beanType;
+	private final Object entityId;
+	private final List<IBeanProxy<BEAN_TYPE>> selection;
+	private final IBeanProxy<BEAN_TYPE> firstSelected;
+
+	BeanSelectionEventImpl(
+		final Class<BEAN_TYPE> beanType,
+		final Object entityId,
+		final Collection<? extends IBeanProxy<BEAN_TYPE>> selection) {
+
+		Assert.paramNotNull(beanType, "beanType");
+		Assert.paramNotNull(entityId, "entityId");
+		Assert.paramNotNull(selection, "selection");
+
+		this.beanType = beanType;
+		this.entityId = entityId;
+		this.selection = new LinkedList<IBeanProxy<BEAN_TYPE>>(selection);
+
+		if (selection.size() > 0) {
+			firstSelected = selection.iterator().next();
+		}
+		else {
+			firstSelected = null;
+		}
+	}
+
+	@Override
+	public Class<BEAN_TYPE> getBeanType() {
+		return beanType;
+	}
+
+	@Override
+	public Object getEntityId() {
+		return entityId;
+	}
+
+	@Override
+	public List<IBeanProxy<BEAN_TYPE>> getSelection() {
+		return selection;
+	}
+
+	@Override
+	public IBeanProxy<BEAN_TYPE> getFirstSelected() {
+		return firstSelected;
+	}
 
 }

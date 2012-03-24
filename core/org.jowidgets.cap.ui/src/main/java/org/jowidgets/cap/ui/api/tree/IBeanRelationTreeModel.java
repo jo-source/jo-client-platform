@@ -32,9 +32,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
+import org.jowidgets.cap.ui.api.bean.IBeanSelectionObservable;
 import org.jowidgets.cap.ui.api.model.IDataModel;
 
-public interface IBeanRelationTreeModel<CHILD_BEAN_TYPE> extends IDataModel, IBeanRelationTreeObservable {
+public interface IBeanRelationTreeModel<CHILD_BEAN_TYPE> extends IDataModel, IBeanSelectionObservable {
 
 	IBeanRelationNodeModel<Void, CHILD_BEAN_TYPE> getRoot();
 

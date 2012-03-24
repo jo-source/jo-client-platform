@@ -44,6 +44,7 @@ import org.jowidgets.cap.ui.api.widgets.IBeanSelectionTableBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.cap.ui.api.widgets.IPopupMenuListener;
 import org.jowidgets.common.types.Dimension;
+import org.jowidgets.common.types.Interval;
 import org.jowidgets.common.types.Position;
 import org.jowidgets.common.types.TablePackPolicy;
 import org.jowidgets.common.types.TableSelectionPolicy;
@@ -405,6 +406,11 @@ final class BeanSelectionTableImpl<BEAN_TYPE> extends AbstractInputControl<List<
 	@Override
 	public void removeTableColumnListener(final ITableColumnListener listener) {
 		table.removeTableColumnListener(listener);
+	}
+
+	@Override
+	public Interval<Integer> getVisibleRows() {
+		return table.getVisibleRows();
 	}
 
 }
