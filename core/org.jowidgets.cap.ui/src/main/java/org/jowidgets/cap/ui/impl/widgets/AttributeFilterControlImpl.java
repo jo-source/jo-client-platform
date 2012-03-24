@@ -222,6 +222,12 @@ final class AttributeFilterControlImpl extends AbstractInputControl<IUiConfigura
 			cmbOperator.addInputListener(operatorListener);
 			filterControl.setValue((IUiConfigurableFilter<Object>) value);
 
+			cmbNot.removeInputListener(inputListener);
+			cmbNot.removeValidationConditionListener(validationConditionListener);
+			cmbNot.setValue(value.isInverted());
+			cmbNot.addInputListener(inputListener);
+			cmbNot.addValidationConditionListener(validationConditionListener);
+
 			resetModificationState();
 			getWidget().layout();
 		}
