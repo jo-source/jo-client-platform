@@ -164,6 +164,11 @@ final class BeanSelectionTableImpl<BEAN_TYPE> extends AbstractInputControl<List<
 	}
 
 	@Override
+	public ICheckedItemModel getAutoUpdateItemModel() {
+		return table.getAutoUpdateItemModel();
+	}
+
+	@Override
 	public long getAutoUpdateInterval() {
 		return table.getAutoUpdateInterval();
 	}
