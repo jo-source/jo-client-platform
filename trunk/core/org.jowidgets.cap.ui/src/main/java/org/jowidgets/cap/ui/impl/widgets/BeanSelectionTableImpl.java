@@ -159,6 +159,26 @@ final class BeanSelectionTableImpl<BEAN_TYPE> extends AbstractInputControl<List<
 	}
 
 	@Override
+	public void setAutoUpdateInterval(final long updateInterval) {
+		table.setAutoUpdateInterval(updateInterval);
+	}
+
+	@Override
+	public long getAutoUpdateInterval() {
+		return table.getAutoUpdateInterval();
+	}
+
+	@Override
+	public void startAutoUpdateMode() {
+		table.startAutoUpdateMode();
+	}
+
+	@Override
+	public void stopAutoUpdateMode() {
+		table.stopAutoUpdateMode();
+	}
+
+	@Override
 	public void setEditable(final boolean editable) {
 		table.setEnabled(editable);
 	}

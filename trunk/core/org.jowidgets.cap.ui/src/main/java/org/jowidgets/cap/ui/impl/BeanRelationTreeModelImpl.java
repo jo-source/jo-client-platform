@@ -31,6 +31,8 @@ package org.jowidgets.cap.ui.impl;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
@@ -46,6 +48,7 @@ import org.jowidgets.cap.ui.api.tree.IBeanRelationNodeModelConfigurator;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeModel;
 import org.jowidgets.cap.ui.api.tree.IEntityTypeId;
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.IProvider;
 import org.jowidgets.util.Tuple;
 import org.jowidgets.validation.IValidationConditionListener;
 import org.jowidgets.validation.IValidationResult;
@@ -74,7 +77,17 @@ public class BeanRelationTreeModelImpl<CHILD_BEAN_TYPE> implements IBeanRelation
 		this.nodeConfigurator = nodeConfigurator;
 		if (parent != null) {
 			Assert.paramNotNull(linkType, "linkType");
-			this.parentModelListener = new ParentBeanListModelListener(this);
+			final IProvider<Object> parentBeanProvider = new IProvider<Object>() {
+				@Override
+				public Object get() {
+					final List<IBeanProxy<?>> parentBeans = new LinkedList<IBeanProxy<?>>();
+					for (final Integer selected : parent.getSelection()) {
+						parentBeans.add(parent.getBean(selected.intValue()));
+					}
+					return parentBeans;
+				}
+			};
+			this.parentModelListener = new ParentBeanListModelListener(this, parentBeanProvider);
 			parent.addBeanListModelListener(parentModelListener);
 		}
 		else {

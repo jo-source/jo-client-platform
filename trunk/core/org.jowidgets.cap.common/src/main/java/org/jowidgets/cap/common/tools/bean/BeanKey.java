@@ -65,7 +65,17 @@ public final class BeanKey implements IBeanKey, Serializable {
 
 	@Override
 	public String toString() {
-		return "BeanKey [key=" + key + "]";
+		return key.toString();
+	}
+
+	@Override
+	public int hashCode() {
+		return key.hashCode();
+	}
+
+	@Override
+	public boolean equals(final Object obj) {
+		return key.equals(obj);
 	}
 
 }

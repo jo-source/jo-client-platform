@@ -34,6 +34,10 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.command.IExecutionContext;
@@ -42,6 +46,7 @@ import org.jowidgets.api.model.item.ICheckedItemModel;
 import org.jowidgets.api.model.item.IMenuItemModel;
 import org.jowidgets.api.model.item.IMenuModel;
 import org.jowidgets.api.model.item.ISeparatorItemModel;
+import org.jowidgets.api.threads.IUiThreadAccess;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.widgets.IComposite;
 import org.jowidgets.api.widgets.IPopupMenu;
@@ -102,6 +107,7 @@ import org.jowidgets.tools.widgets.blueprint.BPF;
 import org.jowidgets.tools.widgets.wrapper.CompositeWrapper;
 import org.jowidgets.util.IDecorator;
 import org.jowidgets.util.ITypedKey;
+import org.jowidgets.util.concurrent.DaemonThreadFactory;
 
 final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTable<BEAN_TYPE> {
 
@@ -129,12 +135,16 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 	private final PopupMenuObservable tableMenuObservable;
 	private final PopupMenuObservable headerMenuObservable;
 	private final PopupMenuObservable cellMenuObservable;
+	private final ScheduledExecutorService autoUpdateExecutorService;
+	private final AutoUpdateRunnable autoUpdateRunnable;
 
 	private IAction creatorAction;
 	private IAction deleteAction;
 	private IBeanTableSettingsDialog settingsDialog;
 	private ITableCellPopupEvent currentCellEvent;
 	private ITableColumnPopupEvent currentColumnEvent;
+	private long currentAutoUpdateInterval;
+	private ScheduledFuture<?> autoUpdateFuture;
 
 	BeanTableImpl(final IComposite composite, final IBeanTableBluePrint<BEAN_TYPE> bluePrint) {
 		super(composite);
@@ -308,25 +318,9 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 		setSearchFilterToolbarVisible(bluePrint.isSearchFilterToolbarVisible());
 		setStatusBarVisible(true);
 
-		//CHECKSTYLE:OFF
-		//		final Integer autoUpdateIntervall = Integer.valueOf(1000);
-		//		if (autoUpdateIntervall != null) {
-		//			final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1, new DaemonThreadFactory());
-		//			final IUiThreadAccess uiThreadAccess = Toolkit.getUiThreadAccess();
-		//			final Runnable runnable = new Runnable() {
-		//				@Override
-		//				public void run() {
-		//					uiThreadAccess.invokeLater(new Runnable() {
-		//						@Override
-		//						public void run() {
-		//							System.out.println(getVisibleRows());
-		//						}
-		//					});
-		//				}
-		//			};
-		//			executorService.scheduleAtFixedRate(runnable, 0, autoUpdateIntervall, TimeUnit.MILLISECONDS);
-		//		}
-		//CHECKSTYLE:ON
+		this.currentAutoUpdateInterval = bluePrint.getAutoUpdateInterval();
+		this.autoUpdateExecutorService = Executors.newScheduledThreadPool(1, new DaemonThreadFactory());
+		this.autoUpdateRunnable = new AutoUpdateRunnable();
 	}
 
 	@SuppressWarnings({"rawtypes", "unchecked"})
@@ -578,6 +572,50 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 	}
 
 	@Override
+	public void setAutoUpdateInterval(final long updateIntervall) {
+		if (updateIntervall != currentAutoUpdateInterval) {
+			if (autoUpdateFuture != null && !autoUpdateFuture.isCancelled()) {
+				startAutoUpdateMode(updateIntervall);
+			}
+			else {
+				currentAutoUpdateInterval = updateIntervall;
+			}
+		}
+	}
+
+	@Override
+	public long getAutoUpdateInterval() {
+		return currentAutoUpdateInterval;
+	}
+
+	@Override
+	public void startAutoUpdateMode() {
+		startAutoUpdateMode(currentAutoUpdateInterval);
+	}
+
+	private void startAutoUpdateMode(final long updateIntervall) {
+		if (currentAutoUpdateInterval != updateIntervall || autoUpdateFuture == null || autoUpdateFuture.isCancelled()) {
+			currentAutoUpdateInterval = updateIntervall;
+			if (autoUpdateFuture != null && !autoUpdateFuture.isCancelled()) {
+				autoUpdateFuture.cancel(false);
+			}
+			autoUpdateFuture = autoUpdateExecutorService.scheduleAtFixedRate(
+					autoUpdateRunnable,
+					currentAutoUpdateInterval,
+					currentAutoUpdateInterval,
+					TimeUnit.MILLISECONDS);
+		}
+	}
+
+	@Override
+	public void stopAutoUpdateMode() {
+		if (autoUpdateFuture != null && !autoUpdateFuture.isCancelled()) {
+			autoUpdateFuture.cancel(false);
+		}
+		autoUpdateFuture.cancel(true);
+	}
+
+	@Override
 	public IBeanTableModel<BEAN_TYPE> getModel() {
 		return model;
 	}
@@ -715,6 +753,26 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 				}
 			}
 		};
+	}
+
+	private final class AutoUpdateRunnable implements Runnable {
+
+		private final IUiThreadAccess uiThreadAccess;
+
+		private AutoUpdateRunnable() {
+			this.uiThreadAccess = Toolkit.getUiThreadAccess();
+		}
+
+		@Override
+		public void run() {
+			uiThreadAccess.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					model.updateInBackground(getVisibleRows());
+				}
+			});
+		}
+
 	}
 
 	private class TableCellEditorListener extends TableCellEditorAdapter {
