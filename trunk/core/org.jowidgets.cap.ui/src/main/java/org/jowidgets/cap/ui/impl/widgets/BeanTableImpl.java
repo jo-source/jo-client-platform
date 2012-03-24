@@ -43,6 +43,8 @@ import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.api.convert.IStringObjectConverter;
 import org.jowidgets.api.model.item.ICheckedItemModel;
+import org.jowidgets.api.model.item.ICheckedItemModelBuilder;
+import org.jowidgets.api.model.item.IItemModelFactory;
 import org.jowidgets.api.model.item.IMenuItemModel;
 import org.jowidgets.api.model.item.IMenuModel;
 import org.jowidgets.api.model.item.ISeparatorItemModel;
@@ -77,6 +79,7 @@ import org.jowidgets.common.types.Modifier;
 import org.jowidgets.common.types.Position;
 import org.jowidgets.common.types.TablePackPolicy;
 import org.jowidgets.common.types.VirtualKey;
+import org.jowidgets.common.widgets.controller.IItemStateListener;
 import org.jowidgets.common.widgets.controller.IKeyEvent;
 import org.jowidgets.common.widgets.controller.IKeyListener;
 import org.jowidgets.common.widgets.controller.IPopupDetectionListener;
@@ -137,6 +140,7 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 	private final PopupMenuObservable cellMenuObservable;
 	private final ScheduledExecutorService autoUpdateExecutorService;
 	private final AutoUpdateRunnable autoUpdateRunnable;
+	private final ICheckedItemModel autoUpdateItemModel;
 
 	private IAction creatorAction;
 	private IAction deleteAction;
@@ -153,6 +157,7 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 		this.model = bluePrint.getModel();
 		this.menuInterceptors = getMenuInterceptorsFromPlugins(bluePrint.getMenuInterceptor(), model.getEntityId());
 		this.menuFactory = CapUiToolkit.beanTableMenuFactory(menuInterceptors);
+		this.autoUpdateItemModel = createAutoUpdateItemModel();
 
 		final ITableBluePrint tableBp = BPF.table(model.getTableModel());
 		tableBp.setSetup(bluePrint);
@@ -187,8 +192,6 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 				pluggedCellPopupMenuModel,
 				pluggedHeaderPopupMenuModel);
 
-		table.setPopupMenu(tablePopupMenuModel);
-
 		this.searchFilterToolbar = new BeanTableSearchFilterToolbar<BEAN_TYPE>(composite, this);
 		this.filterToolbar = new BeanTableFilterToolbar<BEAN_TYPE>(contentComposite, this, menuFactory);
 		this.statusBar = new BeanTableStatusBar<BEAN_TYPE>(composite, this);
@@ -209,6 +212,7 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 			tablePopupMenuModel.addSeparator();
 			tablePopupMenuModel.addItem(menuFactory.filterMenu(this));
 			tablePopupMenuModel.addAction(menuFactory.settingsAction(this));
+			tablePopupMenuModel.addItem(getAutoUpdateItemModel());
 			tablePopupMenuModel.addItem(getStatusBarItemModel());
 
 			if (hasDefaultCreatorAction && model.getCreatorService() != null) {
@@ -321,6 +325,27 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 		this.currentAutoUpdateInterval = bluePrint.getAutoUpdateInterval();
 		this.autoUpdateExecutorService = Executors.newScheduledThreadPool(1, new DaemonThreadFactory());
 		this.autoUpdateRunnable = new AutoUpdateRunnable();
+	}
+
+	private ICheckedItemModel createAutoUpdateItemModel() {
+		final IItemModelFactory modelFactory = Toolkit.getModelFactoryProvider().getItemModelFactory();
+		final ICheckedItemModelBuilder builder = modelFactory.checkedItemBuilder();
+		final String text = Messages.getString("BeanTableImpl.auto_update_text");
+		final String tooltip = Messages.getString("BeanTableImpl.auto_update_tooltip");
+		builder.setText(text).setToolTipText(tooltip);
+		final ICheckedItemModel result = builder.build();
+		result.addItemListener(new IItemStateListener() {
+			@Override
+			public void itemStateChanged() {
+				if (result.isSelected()) {
+					startAutoUpdateModeImpl();
+				}
+				else {
+					stopAutoUpdateModeImpl();
+				}
+			}
+		});
+		return result;
 	}
 
 	@SuppressWarnings({"rawtypes", "unchecked"})
@@ -590,6 +615,15 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 
 	@Override
 	public void startAutoUpdateMode() {
+		autoUpdateItemModel.setSelected(true);
+	}
+
+	@Override
+	public void stopAutoUpdateMode() {
+		autoUpdateItemModel.setSelected(false);
+	}
+
+	private void startAutoUpdateModeImpl() {
 		startAutoUpdateMode(currentAutoUpdateInterval);
 	}
 
@@ -607,12 +641,11 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 		}
 	}
 
-	@Override
-	public void stopAutoUpdateMode() {
+	private void stopAutoUpdateModeImpl() {
 		if (autoUpdateFuture != null && !autoUpdateFuture.isCancelled()) {
 			autoUpdateFuture.cancel(false);
+			autoUpdateFuture = null;
 		}
-		autoUpdateFuture.cancel(true);
 	}
 
 	@Override
@@ -662,6 +695,11 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 	@Override
 	public ICheckedItemModel getStatusBarItemModel() {
 		return statusBar.getStatusBarItemModel();
+	}
+
+	@Override
+	public ICheckedItemModel getAutoUpdateItemModel() {
+		return autoUpdateItemModel;
 	}
 
 	@Override

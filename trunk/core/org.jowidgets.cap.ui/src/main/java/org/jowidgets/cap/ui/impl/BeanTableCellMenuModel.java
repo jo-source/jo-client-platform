@@ -50,6 +50,7 @@ final class BeanTableCellMenuModel<BEAN_TYPE> extends MenuModel {
 		}
 		tryAddItem(menuFactory.filterCellMenu(table, columnIndex));
 		tryAddAction(settingsDialogAction);
+		tryAddItem(table.getAutoUpdateItemModel());
 		tryAddItem(table.getStatusBarItemModel());
 	}
 

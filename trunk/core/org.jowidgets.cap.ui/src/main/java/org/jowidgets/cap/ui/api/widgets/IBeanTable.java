@@ -77,6 +77,8 @@ public interface IBeanTable<BEAN_TYPE> extends ITable {
 
 	void removeCellMenuListener(IPopupMenuListener listener);
 
+	ICheckedItemModel getAutoUpdateItemModel();
+
 	void setAutoUpdateInterval(long updateIntervall);
 
 	long getAutoUpdateInterval();
