@@ -93,14 +93,9 @@ public interface IBeanTableModel<BEAN_TYPE> extends IDataModel, IBeanListModel<B
 	 * Could be used to update the table dynamically.
 	 * 
 	 * @param beansToRemove The beans that should be removed from the table
-	 * @param beansToAdd The beans that should be added to the table
-	 * @param consistentInsert If set to true, beans will be added considering the current sort and filter, else beans will be
-	 *            added to the end
+	 * @param beansToAdd The beans that should be added to the table (the beans will be added to the end, like new beans)
 	 */
-	void updateModel(
-		Collection<? extends IBeanDto> beansToRemove,
-		Collection<? extends IBeanDto> beansToAdd,
-		boolean consistentInsert);
+	void updateModel(Collection<? extends IBeanDto> beansToRemove, Collection<? extends IBeanDto> beansToAdd);
 
 	Class<BEAN_TYPE> getBeanType();
 

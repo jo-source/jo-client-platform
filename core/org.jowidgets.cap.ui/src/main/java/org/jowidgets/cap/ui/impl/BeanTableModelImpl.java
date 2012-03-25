@@ -64,9 +64,7 @@ import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IExecutionCallbackListener;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
-import org.jowidgets.cap.common.api.filter.BeanDtoFilter;
 import org.jowidgets.cap.common.api.filter.BooleanOperator;
-import org.jowidgets.cap.common.api.filter.IBeanDtoFilter;
 import org.jowidgets.cap.common.api.filter.IBooleanFilterBuilder;
 import org.jowidgets.cap.common.api.filter.IFilter;
 import org.jowidgets.cap.common.api.lookup.ILookUpValueRange;
@@ -155,6 +153,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	private final ChangeObservable filterChangeObservable;
 	private final ISortModel sortModel;
 
+	private final int pageSize;
 	private final Map<Integer, ArrayList<IBeanProxy<BEAN_TYPE>>> data;
 	private final ArrayList<IBeanProxy<BEAN_TYPE>> addedData;
 	private final Set<IBeanProxy<BEAN_TYPE>> lastSelectedBeans;
@@ -194,7 +193,6 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 	private final Set<AttributeLookUpListener> lookUpListenersStrongRef;
 	private final Map<Integer, PageLoader> programmaticPageLoader;
-	private final Map<Integer, BackgroundPageLoader> backgroundPageLoader;
 
 	private final String userCanceledMessage;
 	private final String loadErrorMessage;
@@ -203,8 +201,8 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	private PageLoader evenPageLoader;
 	private PageLoader oddPageLoader;
 	private CountLoader countLoader;
+	private BackgroundPageLoader backgroundPageLoader;
 
-	private final int pageSize;
 	private int rowCount;
 	private Integer countedRowCount;
 	private int maxPageIndex;
@@ -317,7 +315,6 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		this.disposeObservable = new DisposeObservable();
 		this.filterChangeObservable = new ChangeObservable();
 		this.programmaticPageLoader = new HashMap<Integer, PageLoader>();
-		this.backgroundPageLoader = new HashMap<Integer, BackgroundPageLoader>();
 		this.userCanceledMessage = Messages.getString("BeanTableModelImpl.user_canceled");
 		this.loadErrorMessage = Messages.getString("BeanTableModelImpl.load_error");
 		this.loadingDataLabel = Messages.getString("BeanTableModelImpl.load_data");
@@ -666,8 +663,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 	@Override
 	public boolean isPageLoading(final int pageIndex) {
-		final BackgroundPageLoader backgroundLoader = backgroundPageLoader.get(pageIndex);
-		if (backgroundLoader != null && !backgroundLoader.isDisposed()) {
+		if (backgroundPageLoader != null && backgroundPageLoader.isPageLoading(pageIndex)) {
 			return true;
 		}
 		final PageLoader loadingPageLoader = getLoadingPageLoader(pageIndex);
@@ -713,14 +709,29 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			final int startPageIndex = getPage(left.intValue());
 			final int endPageIndex = getPage(right.intValue());
 			for (int pageIndex = startPageIndex; pageIndex <= endPageIndex; pageIndex++) {
-				if (!isPageLoading(pageIndex)) {
-					final BackgroundPageLoader pageLoader = new BackgroundPageLoader(pageIndex);
-					backgroundPageLoader.put(Integer.valueOf(pageIndex), pageLoader);
-					pageLoader.loadInBackground();
+				if (isPageLoading(pageIndex)) {
+					//the is some loading for the vieport, so do not update unloaded pages
+					return;
 				}
 			}
+			//if the background pageLoader loads something outside the vieport, cancel this
+			tryToCancelBackgroundPageLoader();
+			backgroundPageLoader = new BackgroundPageLoader(startPageIndex, endPageIndex);
+			backgroundPageLoader.loadInBackground();
+			startCountLoaderIfNotRunning();
 		}
+		else {
+			if (rowCount == 0) {
+				startCountLoaderIfNotRunning();
+			}
+		}
+	}
 
+	private void startCountLoaderIfNotRunning() {
+		if (countLoader == null || !countLoader.started || countLoader.isDisposed()) {
+			countLoader = new CountLoader();
+			countLoader.loadCount();
+		}
 	}
 
 	private void loadEvenOddPage(final int pageIndex) {
@@ -763,14 +774,15 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	}
 
 	private void tryToCancelBackgroundPageLoader() {
-		for (final BackgroundPageLoader pageLoader : backgroundPageLoader.values()) {
-			tryToCancelBackgroundPageLoader(pageLoader);
+		if (backgroundPageLoader != null && !backgroundPageLoader.isDisposed()) {
+			backgroundPageLoader.cancel();
 		}
-		backgroundPageLoader.clear();
 	}
 
-	private void tryToCancelBackgroundPageLoader(final int page) {
-		tryToCancelBackgroundPageLoader(backgroundPageLoader.remove(page));
+	private void tryToCancelBackgroundPageLoader(final int index) {
+		if (backgroundPageLoader != null && backgroundPageLoader.isPageLoading(index)) {
+			backgroundPageLoader.cancel();
+		}
 	}
 
 	private void tryToCancelProgrammaticPageLoader() {
@@ -778,6 +790,21 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			tryToCancelPageLoader(pageLoader);
 		}
 		programmaticPageLoader.clear();
+	}
+
+	private void tryToCancelPageLoader(final int pageIndex) {
+		tryToCancelProgrammaticPageLoader(pageIndex);
+		final boolean even = pageIndex % 2 == 0;
+		if (even) {
+			if (evenPageLoader != null && evenPageLoader.pageIndex == pageIndex) {
+				tryToCancelPageLoader(evenPageLoader);
+			}
+		}
+		else {
+			if (oddPageLoader != null && oddPageLoader.pageIndex == pageIndex) {
+				tryToCancelPageLoader(oddPageLoader);
+			}
+		}
 	}
 
 	private void tryToCancelProgrammaticPageLoader(final int page) {
@@ -792,12 +819,6 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	private void tryToCancelCountLoader() {
 		if (countLoader != null && !countLoader.isDisposed()) {
 			countLoader.cancel();
-		}
-	}
-
-	private void tryToCancelBackgroundPageLoader(final BackgroundPageLoader pageLoader) {
-		if (pageLoader != null && !pageLoader.isDisposed()) {
-			pageLoader.cancel();
 		}
 	}
 
@@ -930,23 +951,15 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	}
 
 	@Override
-	public void updateModel(
-		final Collection<? extends IBeanDto> beansToRemove,
-		final Collection<? extends IBeanDto> beansToAdd,
-		final boolean consistentInsert) {
+	public void updateModel(final Collection<? extends IBeanDto> beansToRemove, final Collection<? extends IBeanDto> beansToAdd) {
 
 		Assert.paramNotNull(beansToRemove, "beansToRemove");
 		Assert.paramNotNull(beansToAdd, "beansToAdd");
 
 		removeBeansImpl(beansToRemove, false);
 
-		final IFilter filter = getFilter();
-		final IBeanDtoFilter beanDtoFilter = BeanDtoFilter.instance();
 		for (final IBeanDto bean : beansToAdd) {
-			if (!consistentInsert || filter == null || beanDtoFilter.accept(bean, getFilter())) {
-				//TODO MG beans must be added consistent (in correct order)
-				addBeanDtoImpl(bean, false);
-			}
+			addBeanDtoImpl(bean, false);
 		}
 
 		fireBeansChanged();
@@ -2119,7 +2132,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 				}
 			}
 
-			if (countedRowCount != null && rowCount > countedRowCount.intValue()) {
+			if (countedRowCount != null && rowCount != countedRowCount.intValue()) {
 				tryToCancelCountLoader();
 				countLoader = new CountLoader();
 				countLoader.loadCount();
@@ -2244,23 +2257,38 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 	private class BackgroundPageLoader {
 
-		private final int pageIndex;
+		private final int startPageIndex;
+		private final int endPageIndex;
+		private final int pageCount;
 		private final IUiThreadAccess uiThreadAccess;
 		private final IFilter filter;
 
 		private Object parameter;
+		private boolean started;
 		private boolean canceled;
 		private boolean finished;
 
 		private IExecutionTask executionTask;
 
-		BackgroundPageLoader(final int pageIndex) {
-			this.pageIndex = pageIndex;
+		BackgroundPageLoader(final int startPageIndex, final int endPageIndex) {
+			this.startPageIndex = startPageIndex;
+			this.endPageIndex = endPageIndex;
+			this.pageCount = 1 + (endPageIndex - startPageIndex);
 			this.uiThreadAccess = Toolkit.getUiThreadAccess();
 			this.filter = getFilter();
+
+			this.started = false;
+			this.canceled = false;
+			this.finished = false;
+		}
+
+		boolean isPageLoading(final int page) {
+			return started && !isDisposed() && page >= startPageIndex && page <= endPageIndex;
 		}
 
 		void loadInBackground() {
+			started = true;
+
 			executionTask = CapUiToolkit.executionTaskFactory().create();
 			executionTask.setDescription(loadingDataLabel);
 			executionTask.addExecutionCallbackListener(new IExecutionCallbackListener() {
@@ -2279,8 +2307,8 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 					getParentBeanKeys(),
 					filter,
 					sortModel.getSorting(),
-					(pageIndex * pageSize),
-					pageSize + 1,
+					(startPageIndex * pageSize),
+					(pageCount * pageSize) + 1,
 					parameter,
 					executionTask);
 
@@ -2317,63 +2345,71 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			};
 		}
 
-		private void setResult(final List<IBeanDto> beanDtos) {
+		private void setResult(final List<IBeanDto> resultBeanDtos) {
 			final List<IBeanProxy<BEAN_TYPE>> selectedBeans = getSelectedBeans();
 
-			final ArrayList<IBeanProxy<BEAN_TYPE>> oldPage = data.get(pageIndex);
-			final ArrayList<IBeanProxy<BEAN_TYPE>> newPage = new ArrayList<IBeanProxy<BEAN_TYPE>>();
-
 			boolean dataChanged = false;
-			final Iterator<IBeanDto> newDataIterator = beanDtos.iterator();
-			final int newPageSize = Math.max(oldPage.size(), beanDtos.size() - 1);
-			for (int i = 0; i < newPageSize; i++) {
-				final IBeanProxy<BEAN_TYPE> oldBean = i < oldPage.size() ? oldPage.get(i) : null;
-				if (newDataIterator.hasNext()) {
-					final IBeanDto newBean = newDataIterator.next();
-					if (oldBean == null || !oldBean.getId().equals(newBean.getId())) {
-						final int pageOffset = pageSize * pageIndex;
-						final int rowNr = pageOffset + i;
-
-						final IBeanProxy<BEAN_TYPE> newBeanProxy = createBeanProxy(newBean);
-						beansStateTracker.register(newBeanProxy);
-						newBeanProxy.addPropertyChangeListener(new PropertyChangeListener() {
-							@Override
-							public void propertyChange(final PropertyChangeEvent evt) {
-								dataModel.fireRowsChanged(new int[] {rowNr});
+			final Iterator<IBeanDto> newDataIterator = resultBeanDtos.iterator();
+			for (int pageIndex = startPageIndex; pageIndex <= endPageIndex; pageIndex++) {
+				ArrayList<IBeanProxy<BEAN_TYPE>> oldPage = data.get(pageIndex);
+				if (oldPage == null) {
+					oldPage = new ArrayList<IBeanProxy<BEAN_TYPE>>();
+				}
+				final ArrayList<IBeanProxy<BEAN_TYPE>> newPage = new ArrayList<IBeanProxy<BEAN_TYPE>>();
+				boolean pageChanged = false;
+				for (int i = 0; i < pageSize; i++) {
+					final IBeanProxy<BEAN_TYPE> oldBean = i < oldPage.size() ? oldPage.get(i) : null;
+					if (newDataIterator.hasNext()) {
+						final IBeanDto newBean = newDataIterator.next();
+						if (oldBean == null || !oldBean.getId().equals(newBean.getId())) {
+							final int pageOffset = pageSize * pageIndex;
+							final int rowNr = pageOffset + i;
+							final IBeanProxy<BEAN_TYPE> newBeanProxy = createBeanProxy(newBean);
+							beansStateTracker.register(newBeanProxy);
+							newBeanProxy.addPropertyChangeListener(new PropertyChangeListener() {
+								@Override
+								public void propertyChange(final PropertyChangeEvent evt) {
+									dataModel.fireRowsChanged(new int[] {rowNr});
+								}
+							});
+							if (oldBean != null) {
+								beansStateTracker.unregister(oldBean);
 							}
-						});
-						if (oldBean != null) {
-							beansStateTracker.unregister(oldBean);
+							newPage.add(newBeanProxy);
+							dataChanged = true;
+							pageChanged = true;
 						}
-						newPage.add(newBeanProxy);
-						dataChanged = true;
+						else {
+							newPage.add(oldBean);
+						}
 					}
 					else {
-						newPage.add(oldBean);
+						dataChanged = true;
+						pageChanged = true;
+						break;
 					}
 				}
-				else {
-					dataChanged = true;
-					break;
-				}
 
+				if (pageChanged && newPage.size() > 0) {
+					data.put(Integer.valueOf(pageIndex), newPage);
+				}
 			}
 
 			if (dataChanged) {
-				if (beanDtos.size() == 0 && pageIndex > 0) {
+				if (resultBeanDtos.size() == 0 && startPageIndex > 0) {
 					rowCount = 0;
 					countedRowCount = null;
 					load();
 					return;
 				}
-				else if (beanDtos.size() > pageSize && pageIndex >= maxPageIndex) {
-					rowCount = Math.max(rowCount, ((pageIndex + 1) * pageSize + pageSize - 1));
-					maxPageIndex = pageIndex;
+				else if (resultBeanDtos.size() > (pageSize * pageCount) && endPageIndex >= maxPageIndex) {
+					rowCount = Math.max(rowCount, ((endPageIndex + 1) * pageSize + 1));
+					maxPageIndex = startPageIndex;
 				}
-				else if (pageIndex >= maxPageIndex) {
-					rowCount = (pageIndex * pageSize + beanDtos.size());
-					maxPageIndex = pageIndex;
-					if (countedRowCount != null && beanDtos.size() < pageSize) {
+				else if (endPageIndex >= maxPageIndex) {
+					rowCount = (startPageIndex * pageSize + resultBeanDtos.size());
+					maxPageIndex = endPageIndex;
+					if (countedRowCount != null && resultBeanDtos.size() < (pageSize * pageCount)) {
 						countedRowCount = Integer.valueOf(rowCount);
 					}
 				}
@@ -2383,7 +2419,15 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 					countLoader.loadCount();
 				}
 
-				data.put(Integer.valueOf(pageIndex), newPage);
+				//if data is not consistent, delete pages before and after viewport
+				for (int pageIndex = 0; pageIndex < startPageIndex; pageIndex++) {
+					deletePage(pageIndex);
+				}
+				final int calculatedMaxPageIndex = calculateMaxPageIndex();
+				for (int pageIndex = endPageIndex + 1; pageIndex <= calculatedMaxPageIndex; pageIndex++) {
+					deletePage(pageIndex);
+				}
+				maxPageIndex = calculateMaxPageIndex();
 
 				setSelectedBeans(selectedBeans);
 
@@ -2391,9 +2435,31 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 				beanListModelObservable.fireBeansChanged();
 			}
 
-			backgroundPageLoader.remove(pageIndex);
+			backgroundPageLoader = null;
 			finished = true;
 
+		}
+
+		private int calculateMaxPageIndex() {
+			int result = 0;
+			for (final Integer index : data.keySet()) {
+				if (index.intValue() > result) {
+					result = index.intValue();
+				}
+			}
+			return result;
+		}
+
+		private void deletePage(final int pageIndex) {
+			tryToCancelPageLoader(pageIndex);
+			final ArrayList<IBeanProxy<BEAN_TYPE>> pageToDelete = data.get(pageIndex);
+			if (pageToDelete != null) {
+				for (final IBeanProxy<BEAN_TYPE> bean : pageToDelete) {
+					beansStateTracker.unregister(bean);
+				}
+				pageToDelete.clear();
+				data.remove(pageIndex);
+			}
 		}
 
 		private void setException(final Throwable exception) {
