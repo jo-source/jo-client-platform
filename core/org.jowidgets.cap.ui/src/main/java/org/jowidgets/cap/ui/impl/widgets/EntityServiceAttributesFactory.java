@@ -28,6 +28,8 @@
 
 package org.jowidgets.cap.ui.impl.widgets;
 
+import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
@@ -35,6 +37,11 @@ import org.jowidgets.cap.common.api.bean.IProperty;
 import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
+import org.jowidgets.cap.ui.api.plugin.IAttributePlugin;
+import org.jowidgets.plugin.api.IPluginProperties;
+import org.jowidgets.plugin.api.IPluginPropertiesBuilder;
+import org.jowidgets.plugin.api.PluginProvider;
+import org.jowidgets.plugin.api.PluginToolkit;
 import org.jowidgets.service.api.ServiceProvider;
 
 final class EntityServiceAttributesFactory {
@@ -49,12 +56,30 @@ final class EntityServiceAttributesFactory {
 				if (dtoDescriptor != null) {
 					final List<IProperty> properties = dtoDescriptor.getProperties();
 					if (properties != null) {
-						return CapUiToolkit.attributeToolkit().createAttributes(properties);
+						final List<IAttribute<Object>> attributes = CapUiToolkit.attributeToolkit().createAttributes(properties);
+						return createModifiedByPluginsAttributes(entityId, attributes);
 					}
 				}
 			}
 		}
 		return null;
+	}
+
+	@SuppressWarnings({"unchecked", "rawtypes"})
+	private static List<IAttribute<Object>> createModifiedByPluginsAttributes(
+		final Object entityId,
+		final Collection<IAttribute<Object>> attributes) {
+
+		List result = new LinkedList(attributes);
+
+		final IPluginPropertiesBuilder propBuilder = PluginToolkit.pluginPropertiesBuilder();
+		propBuilder.add(IAttributePlugin.ENTITIY_ID_PROPERTY_KEY, entityId);
+		final IPluginProperties properties = propBuilder.build();
+		for (final IAttributePlugin plugin : PluginProvider.getPlugins(IAttributePlugin.ID, properties)) {
+			result = plugin.modifyAttributes(properties, result);
+		}
+
+		return result;
 	}
 
 }
