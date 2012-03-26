@@ -114,7 +114,6 @@ public class EntityComponentMasterDetailLinksDetailLayout {
 		final Map<String, IEntityLinkDescriptor> links) {
 		final IFolderLayoutBuilder result = new FolderLayoutBuilder(LINKED_MASTER_FOLDER_ID);
 		result.setViewsCloseable(false);
-		result.addView(EntityRelationTreeView.ID, entityClass.getLabel() + " " + LINKS_STRING, entityClass.getDescription()); //$NON-NLS-1$
 		for (final Entry<String, IEntityLinkDescriptor> linkEntry : links.entrySet()) {
 			final IEntityService entityService = ServiceProvider.getService(IEntityService.ID);
 			if (entityService != null) {
@@ -123,6 +122,8 @@ public class EntityComponentMasterDetailLinksDetailLayout {
 			}
 
 		}
+		//TODO MG move this above, if the detail works for the tree
+		result.addView(EntityRelationTreeView.ID, entityClass.getLabel() + " " + LINKS_STRING, entityClass.getDescription()); //$NON-NLS-1$
 		return result;
 	}
 
