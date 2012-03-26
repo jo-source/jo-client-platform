@@ -90,6 +90,14 @@ public interface ICapCommonToolkit {
 		String description,
 		Collection<? extends IBeanValidator<?>> validators);
 
+	IBeanDtoDescriptor dtoDescriptor(
+		Collection<IProperty> properties,
+		String labelSingular,
+		String labelPlural,
+		String description,
+		String renderingPattern,
+		Collection<? extends IBeanValidator<?>> beanValidators);
+
 	IBeanDtoBuilder dtoBuilder(Object entityTypeId);
 
 	IBeanDataBuilder beanDataBuilder();

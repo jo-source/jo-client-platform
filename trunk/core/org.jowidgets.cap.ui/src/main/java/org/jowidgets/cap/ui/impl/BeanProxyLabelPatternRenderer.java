@@ -126,8 +126,11 @@ final class BeanProxyLabelPatternRenderer<BEAN_TYPE> implements IBeanProxyLabelR
 					final Object value = bean.getValue(property);
 					if (value instanceof Collection) {
 						final Collection<?> collection = (Collection<?>) value;
-						if (collection.size() > 0) {
-							parameter = converter.convertToString(value) + " [" + collection.size() + "]";
+						if (collection.size() > 1) {
+							parameter = converter.convertToString(collection.iterator().next()) + " [" + collection.size() + "]";
+						}
+						else if (collection.size() > 0) {
+							parameter = converter.convertToString(collection.iterator().next());
 						}
 					}
 					else if (value != null) {

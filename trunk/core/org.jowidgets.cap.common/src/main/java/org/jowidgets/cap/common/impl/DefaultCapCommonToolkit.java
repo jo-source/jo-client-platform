@@ -144,6 +144,24 @@ public final class DefaultCapCommonToolkit implements ICapCommonToolkit {
 	}
 
 	@Override
+	public IBeanDtoDescriptor dtoDescriptor(
+		final Collection<IProperty> properties,
+		final String labelSingular,
+		final String labelPlural,
+		final String description,
+		final String renderingPattern,
+		final Collection<? extends IBeanValidator<?>> validators) {
+		return new BeanDtoDescriptorImpl(
+			IBeanDto.class,
+			labelSingular,
+			labelPlural,
+			description,
+			renderingPattern,
+			properties,
+			validators);
+	}
+
+	@Override
 	public IBeanDtoDescriptorBuilder dtoDescriptorBuilder(final Class<?> beanType) {
 		return new BeanDtoDescriptorBuilderImpl(beanType);
 	}

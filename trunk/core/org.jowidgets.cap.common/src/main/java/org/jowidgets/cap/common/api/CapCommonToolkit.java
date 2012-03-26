@@ -104,14 +104,14 @@ public final class CapCommonToolkit {
 	}
 
 	public static IBeanDtoDescriptor dtoDescriptor(
-		final List<IProperty> properties,
+		final Collection<IProperty> properties,
 		final String labelSingular,
 		final String labelPlural) {
 		return getInstance().dtoDescriptor(properties, labelSingular, labelPlural);
 	}
 
 	public static IBeanDtoDescriptor dtoDescriptor(
-		final List<IProperty> properties,
+		final Collection<IProperty> properties,
 		final String labelSingular,
 		final String labelPlural,
 		final String description) {
@@ -125,6 +125,16 @@ public final class CapCommonToolkit {
 		final String description,
 		final Collection<? extends IBeanValidator<?>> validators) {
 		return getInstance().dtoDescriptor(properties, labelSingular, labelPlural, description, validators);
+	}
+
+	public static IBeanDtoDescriptor dtoDescriptor(
+		final Collection<IProperty> properties,
+		final String labelSingular,
+		final String labelPlural,
+		final String description,
+		final String renderingPattern,
+		final Collection<? extends IBeanValidator<?>> validators) {
+		return getInstance().dtoDescriptor(properties, labelSingular, labelPlural, description, renderingPattern, validators);
 	}
 
 	public static IBeanDtoBuilder dtoBuilder(final Object entityTypeId) {
