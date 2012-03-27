@@ -10,7 +10,7 @@
 		<all-permissions />
 	</security>
 	<resources>
-    	<j2se version="1.6+" />
+    	<j2se version="1.6+" java-vm-args="-esa -Xmx1024m -XX:MaxPermSize=128m"/>
 		$dependencies
 		<property name="server.url" value="$$context/remoting" />
 	</resources>
