@@ -63,6 +63,7 @@ import org.jowidgets.cap.ui.api.bean.IBeanPropertyValidator;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyLabelRenderer;
+import org.jowidgets.cap.ui.api.bean.IBeanSelectionListener;
 import org.jowidgets.cap.ui.api.bean.IBeansStateTracker;
 import org.jowidgets.cap.ui.api.execution.BeanExecutionPolicy;
 import org.jowidgets.cap.ui.api.execution.IExecutionTask;
@@ -116,6 +117,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 	private final String loadingDataLabel;
 
 	private final BeanListModelObservable beanListModelObservable;
+	private final BeanSelectionObservable<CHILD_BEAN_TYPE> beanSelectionObservable;
 	private final IBeansStateTracker<CHILD_BEAN_TYPE> beanStateTracker;
 	private final IBeanProxyFactory<CHILD_BEAN_TYPE> beanProxyFactory;
 
@@ -180,6 +182,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 		this.loadingDataLabel = Messages.getString("BeanTableModelImpl.load_data");
 
 		this.beanListModelObservable = new BeanListModelObservable();
+		this.beanSelectionObservable = new BeanSelectionObservable<CHILD_BEAN_TYPE>();
 		this.beanStateTracker = CapUiToolkit.beansStateTracker();
 		this.beanProxyFactory = CapUiToolkit.beanProxyFactory(childBeanType);
 
@@ -220,6 +223,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 	public void dispose() {
 		beanStateTracker.dispose();
 		beanListModelObservable.dispose();
+		beanSelectionObservable.dispose();
 		tryToCanceLoader();
 	}
 
@@ -489,6 +493,16 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 	@Override
 	public void removeBeanListModelListener(final IBeanListModelListener listener) {
 		beanListModelObservable.removeBeanListModelListener(listener);
+	}
+
+	@Override
+	public void addBeanSelectionListener(final IBeanSelectionListener<CHILD_BEAN_TYPE> listener) {
+		beanSelectionObservable.addBeanSelectionListener(listener);
+	}
+
+	@Override
+	public void removeBeanSelectionListener(final IBeanSelectionListener<CHILD_BEAN_TYPE> listener) {
+		beanSelectionObservable.removeBeanSelectionListener(listener);
 	}
 
 	private class DataLoader {

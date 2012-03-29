@@ -33,6 +33,7 @@ import java.util.Collection;
 
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
+import org.jowidgets.cap.ui.api.bean.IBeanSelectionListener;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
 
@@ -52,6 +53,16 @@ public class BeanListModelWrapper<BEAN_TYPE> implements IBeanListModel<BEAN_TYPE
 	@Override
 	public void removeBeanListModelListener(final IBeanListModelListener listener) {
 		beanListModel.removeBeanListModelListener(listener);
+	}
+
+	@Override
+	public void addBeanSelectionListener(final IBeanSelectionListener<BEAN_TYPE> listener) {
+		beanListModel.addBeanSelectionListener(listener);
+	}
+
+	@Override
+	public void removeBeanSelectionListener(final IBeanSelectionListener<BEAN_TYPE> listener) {
+		beanListModel.removeBeanSelectionListener(listener);
 	}
 
 	@Override
