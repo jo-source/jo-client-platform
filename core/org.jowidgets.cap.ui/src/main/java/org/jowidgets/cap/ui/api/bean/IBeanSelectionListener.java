@@ -28,8 +28,8 @@
 
 package org.jowidgets.cap.ui.api.bean;
 
-public interface IBeanSelectionListener {
+public interface IBeanSelectionListener<BEAN_TYPE> {
 
-	void selectionChanged(IBeanSelectionEvent<?> selectionEvent);
+	void selectionChanged(IBeanSelectionEvent<BEAN_TYPE> selectionEvent);
 
 }

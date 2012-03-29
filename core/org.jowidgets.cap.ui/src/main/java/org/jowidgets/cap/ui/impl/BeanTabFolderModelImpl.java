@@ -65,6 +65,7 @@ import org.jowidgets.cap.ui.api.bean.IBeanPropertyValidator;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyLabelRenderer;
+import org.jowidgets.cap.ui.api.bean.IBeanSelectionListener;
 import org.jowidgets.cap.ui.api.bean.IBeansStateTracker;
 import org.jowidgets.cap.ui.api.execution.BeanExecutionPolicy;
 import org.jowidgets.cap.ui.api.execution.IExecutionTask;
@@ -126,6 +127,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 	private final boolean clearOnEmptyParentBeans;
 
 	private final BeanListModelObservable beanListModelObservable;
+	private final BeanSelectionObservable<BEAN_TYPE> beanSelectionObservable;
 	private final DisposeObservable disposeObservable;
 	private final IChangeListener sortModelChangeListener;
 	private final IBeanListModelListener parentModelListener;
@@ -207,6 +209,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 		this.beansStateTracker = CapUiToolkit.beansStateTracker();
 		this.beanProxyFactory = CapUiToolkit.beanProxyFactory(beanType);
 		this.beanListModelObservable = new BeanListModelObservable();
+		this.beanSelectionObservable = new BeanSelectionObservable<BEAN_TYPE>();
 		this.disposeObservable = new DisposeObservable();
 		this.filterChangeObservable = new ChangeObservable();
 		this.loadErrorMessage = Messages.getString("BeanTableModelImpl.load_error");
@@ -253,6 +256,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 			disposeObservable.fireOnDispose();
 			clear();
 			beanListModelObservable.dispose();
+			beanSelectionObservable.dispose();
 			filterChangeObservable.dispose();
 			beansStateTracker.dispose();
 			sortModel.removeChangeListener(sortModelChangeListener);
@@ -565,6 +569,16 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 	}
 
 	@Override
+	public void addBeanSelectionListener(final IBeanSelectionListener<BEAN_TYPE> listener) {
+		beanSelectionObservable.addBeanSelectionListener(listener);
+	}
+
+	@Override
+	public void removeBeanSelectionListener(final IBeanSelectionListener<BEAN_TYPE> listener) {
+		beanSelectionObservable.removeBeanSelectionListener(listener);
+	}
+
+	@Override
 	public ArrayList<Integer> getSelection() {
 		final ArrayList<Integer> result = new ArrayList<Integer>();
 		if (selectedTab != null && selectedTab.intValue() < data.size()) {
@@ -613,7 +627,22 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 		else {
 			throw new IllegalArgumentException("Multiselection is not supported");
 		}
+		fireSelectionChanged();
+	}
+
+	private void fireSelectionChanged() {
 		beanListModelObservable.fireSelectionChanged();
+		beanSelectionObservable.fireBeanSelectionEvent(beanType, entityId, getSelectedBeans());
+	}
+
+	private List<IBeanProxy<BEAN_TYPE>> getSelectedBeans() {
+		final IBeanProxy<BEAN_TYPE> selectedBean = getSelectedBean();
+		if (selectedBean != null) {
+			return Collections.singletonList(selectedBean);
+		}
+		else {
+			return Collections.emptyList();
+		}
 	}
 
 	@Override

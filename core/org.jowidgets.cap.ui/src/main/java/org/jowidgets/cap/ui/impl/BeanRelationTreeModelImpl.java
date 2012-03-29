@@ -58,7 +58,7 @@ public class BeanRelationTreeModelImpl<CHILD_BEAN_TYPE> implements IBeanRelation
 	private final IBeanRelationNodeModel<Void, CHILD_BEAN_TYPE> root;
 	private final IBeanRelationNodeModelConfigurator nodeConfigurator;
 	private final IBeanListModelListener parentModelListener;
-	private final BeanSelectionObservable beanSelectionObservable;
+	private final BeanSelectionObservable<Object> beanSelectionObservable;
 
 	@SuppressWarnings("rawtypes")
 	private final Map relationNodes;
@@ -95,7 +95,7 @@ public class BeanRelationTreeModelImpl<CHILD_BEAN_TYPE> implements IBeanRelation
 		}
 
 		this.relationNodes = new HashMap();
-		this.beanSelectionObservable = new BeanSelectionObservable();
+		this.beanSelectionObservable = new BeanSelectionObservable<Object>();
 	}
 
 	@Override
@@ -190,12 +190,12 @@ public class BeanRelationTreeModelImpl<CHILD_BEAN_TYPE> implements IBeanRelation
 	public void removeProcessStateListener(final IProcessStateListener listener) {}
 
 	@Override
-	public void addBeanSelectionListener(final IBeanSelectionListener listener) {
+	public void addBeanSelectionListener(final IBeanSelectionListener<Object> listener) {
 		beanSelectionObservable.addBeanSelectionListener(listener);
 	}
 
 	@Override
-	public void removeBeanSelectionListener(final IBeanSelectionListener listener) {
+	public void removeBeanSelectionListener(final IBeanSelectionListener<Object> listener) {
 		beanSelectionObservable.removeBeanSelectionListener(listener);
 	}
 

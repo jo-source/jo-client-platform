@@ -90,6 +90,7 @@ import org.jowidgets.cap.ui.api.bean.IBeanMessageBuilder;
 import org.jowidgets.cap.ui.api.bean.IBeanPropertyValidator;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
+import org.jowidgets.cap.ui.api.bean.IBeanSelectionListener;
 import org.jowidgets.cap.ui.api.bean.IBeansStateTracker;
 import org.jowidgets.cap.ui.api.color.CapColors;
 import org.jowidgets.cap.ui.api.execution.BeanExecutionPolicy;
@@ -182,6 +183,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	private final boolean clearOnEmptyParentBeans;
 
 	private final BeanListModelObservable beanListModelObservable;
+	private final BeanSelectionObservable<BEAN_TYPE> beanSelectionObservable;
 	private final DisposeObservable disposeObservable;
 	private final TableDataModelListener tableDataModelListener;
 	private final IChangeListener sortModelChangeListener;
@@ -314,6 +316,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		this.beansStateTracker = CapUiToolkit.beansStateTracker();
 		this.beanProxyFactory = CapUiToolkit.beanProxyFactory(beanType);
 		this.beanListModelObservable = new BeanListModelObservable();
+		this.beanSelectionObservable = new BeanSelectionObservable<BEAN_TYPE>();
 		this.disposeObservable = new DisposeObservable();
 		this.filterChangeObservable = new ChangeObservable();
 		this.programmaticPageLoader = new HashMap<Integer, PageLoader>();
@@ -505,6 +508,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			disposeObservable.fireOnDispose();
 			clear();
 			beanListModelObservable.dispose();
+			beanSelectionObservable.dispose();
 			filterChangeObservable.dispose();
 			beansStateTracker.dispose();
 			for (final AttributeLookUpListener attributeLookUpListener : lookUpListenersStrongRef) {
@@ -1198,6 +1202,16 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	}
 
 	@Override
+	public void addBeanSelectionListener(final IBeanSelectionListener<BEAN_TYPE> listener) {
+		beanSelectionObservable.addBeanSelectionListener(listener);
+	}
+
+	@Override
+	public void removeBeanSelectionListener(final IBeanSelectionListener<BEAN_TYPE> listener) {
+		beanSelectionObservable.removeBeanSelectionListener(listener);
+	}
+
+	@Override
 	public ITableModel getTableModel() {
 		return tableModel;
 	}
@@ -1306,7 +1320,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			final List<Integer> emptySelection = Collections.emptyList();
 			setSelection(emptySelection);
 			dataModel.addDataModelListener(tableDataModelListener);
-			beanListModelObservable.fireSelectionChanged();
+			fireSelectionChanged();
 		}
 
 		return result;
@@ -1476,6 +1490,11 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			scheduledExecutorService = Executors.newSingleThreadScheduledExecutor(new DaemonThreadFactory());
 		}
 		return scheduledExecutorService;
+	}
+
+	private void fireSelectionChanged() {
+		beanListModelObservable.fireSelectionChanged();
+		beanSelectionObservable.fireBeanSelectionEvent(beanType, entityId, getSelectedBeans());
 	}
 
 	private class DataModel extends AbstractTableDataModel {
@@ -1754,7 +1773,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			//clear the last selected beans if user changes selection itself
 			//or on programmatic selection change (except changes from PageLoader)
 			lastSelectedBeans.clear();
-			beanListModelObservable.fireSelectionChanged();
+			fireSelectionChanged();
 		}
 	}
 
@@ -2042,7 +2061,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			beansStateTracker.register(dummyBeanProxy);
 
 			dataModel.fireDataChanged();
-			beanListModelObservable.fireBeansChanged();
+			fireSelectionChanged();
 
 			if (scheduledLoadDelay != null) {
 				readDataFromServiceScheduled(scheduledLoadDelay.intValue());
@@ -2186,7 +2205,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 				dataModel.addDataModelListener(tableDataModelListener);
 				if (!addedBeans.isEmpty()) {
 					lastSelectedBeans.removeAll(addedBeans);
-					beanListModelObservable.fireSelectionChanged();
+					fireSelectionChanged();
 				}
 				else {
 					tryAutoSelectFirst();
@@ -2206,6 +2225,9 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		}
 
 		private void setException(final Throwable exception) {
+			//CHECKSTYLE:OFF
+			exception.printStackTrace();
+			//CHECKSTYLE:ON
 			dummyBeanProxy.setExecutionTask(null);
 			final IBeanMessageBuilder beanMessageBuilder = CapUiToolkit.beanMessageBuilder(BeanMessageType.ERROR);
 			beanMessageBuilder.setException(exception);

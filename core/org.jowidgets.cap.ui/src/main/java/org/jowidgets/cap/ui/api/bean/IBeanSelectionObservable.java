@@ -28,10 +28,10 @@
 
 package org.jowidgets.cap.ui.api.bean;
 
-public interface IBeanSelectionObservable {
+public interface IBeanSelectionObservable<BEAN_TYPE> {
 
-	void addBeanSelectionListener(IBeanSelectionListener listener);
+	void addBeanSelectionListener(IBeanSelectionListener<BEAN_TYPE> listener);
 
-	void removeBeanSelectionListener(IBeanSelectionListener listener);
+	void removeBeanSelectionListener(IBeanSelectionListener<BEAN_TYPE> listener);
 
 }

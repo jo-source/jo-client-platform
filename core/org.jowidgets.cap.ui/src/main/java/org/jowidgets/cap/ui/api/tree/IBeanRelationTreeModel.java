@@ -35,7 +35,7 @@ import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionObservable;
 import org.jowidgets.cap.ui.api.model.IDataModel;
 
-public interface IBeanRelationTreeModel<CHILD_BEAN_TYPE> extends IDataModel, IBeanSelectionObservable {
+public interface IBeanRelationTreeModel<CHILD_BEAN_TYPE> extends IDataModel, IBeanSelectionObservable<Object> {
 
 	IBeanRelationNodeModel<Void, CHILD_BEAN_TYPE> getRoot();
 

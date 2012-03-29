@@ -62,6 +62,7 @@ import org.jowidgets.cap.ui.api.bean.IBeanMessageBuilder;
 import org.jowidgets.cap.ui.api.bean.IBeanPropertyValidator;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
+import org.jowidgets.cap.ui.api.bean.IBeanSelectionListener;
 import org.jowidgets.cap.ui.api.bean.IBeansStateTracker;
 import org.jowidgets.cap.ui.api.execution.BeanExecutionPolicy;
 import org.jowidgets.cap.ui.api.execution.IExecutionTask;
@@ -108,6 +109,7 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 
 	private final ChangeObservable changeObservable;
 	private final BeanListModelObservable beanListModelObservable;
+	private final BeanSelectionObservable<BEAN_TYPE> beanSelectionObservable;
 	private final ProcessStateObservable processStateObservable;
 
 	private final ParentBeanListModelListener parentModelListener;
@@ -197,6 +199,7 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 
 		this.changeObservable = new ChangeObservable();
 		this.beanListModelObservable = new BeanListModelObservable();
+		this.beanSelectionObservable = new BeanSelectionObservable<BEAN_TYPE>();
 		this.processStateObservable = new ProcessStateObservable();
 
 		this.saveDelegate = new BeanListSaveDelegate<BEAN_TYPE>(
@@ -301,8 +304,24 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 			beansStateTracker.register(bean);
 		}
 		this.bean = bean;
+
+		fireSelectionChanged();
 		changeObservable.fireChangedEvent();
 		beanListModelObservable.fireBeansChanged();
+	}
+
+	private void fireSelectionChanged() {
+		beanListModelObservable.fireSelectionChanged();
+		beanSelectionObservable.fireBeanSelectionEvent(beanType, entityId, getSelectedBeans());
+	}
+
+	private List<IBeanProxy<BEAN_TYPE>> getSelectedBeans() {
+		if (bean != null) {
+			return Collections.singletonList(bean);
+		}
+		else {
+			return Collections.emptyList();
+		}
 	}
 
 	@Override
@@ -515,6 +534,16 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 	@Override
 	public void removeBeanListModelListener(final IBeanListModelListener listener) {
 		beanListModelObservable.removeBeanListModelListener(listener);
+	}
+
+	@Override
+	public void addBeanSelectionListener(final IBeanSelectionListener<BEAN_TYPE> listener) {
+		beanSelectionObservable.addBeanSelectionListener(listener);
+	}
+
+	@Override
+	public void removeBeanSelectionListener(final IBeanSelectionListener<BEAN_TYPE> listener) {
+		beanSelectionObservable.removeBeanSelectionListener(listener);
 	}
 
 	private List<? extends IBeanKey> getParentBeanKeys() {

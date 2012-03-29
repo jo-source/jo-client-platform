@@ -39,36 +39,40 @@ import org.jowidgets.cap.ui.api.bean.IBeanSelectionListener;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionObservable;
 import org.jowidgets.util.Assert;
 
-final class BeanSelectionObservable implements IBeanSelectionObservable {
+final class BeanSelectionObservable<BEAN_TYPE> implements IBeanSelectionObservable<BEAN_TYPE> {
 
-	private final Set<IBeanSelectionListener> listeners;
+	private final Set<IBeanSelectionListener<BEAN_TYPE>> listeners;
 
 	public BeanSelectionObservable() {
-		this.listeners = new LinkedHashSet<IBeanSelectionListener>();
+		this.listeners = new LinkedHashSet<IBeanSelectionListener<BEAN_TYPE>>();
 	}
 
 	@Override
-	public void addBeanSelectionListener(final IBeanSelectionListener listener) {
+	public void addBeanSelectionListener(final IBeanSelectionListener<BEAN_TYPE> listener) {
 		Assert.paramNotNull(listener, "listener");
 		listeners.add(listener);
 	}
 
 	@Override
-	public void removeBeanSelectionListener(final IBeanSelectionListener listener) {
+	public void removeBeanSelectionListener(final IBeanSelectionListener<BEAN_TYPE> listener) {
 		Assert.paramNotNull(listener, "listener");
 		listeners.remove(listener);
 	}
 
-	void fireBeanSelectionEvent(final IBeanSelectionEvent<?> event) {
-		for (final IBeanSelectionListener listener : new LinkedList<IBeanSelectionListener>(listeners)) {
+	void fireBeanSelectionEvent(final IBeanSelectionEvent<BEAN_TYPE> event) {
+		for (final IBeanSelectionListener<BEAN_TYPE> listener : new LinkedList<IBeanSelectionListener<BEAN_TYPE>>(listeners)) {
 			listener.selectionChanged(event);
 		}
 	}
 
-	<BEAN_TYPE> void fireBeanSelectionEvent(
+	void fireBeanSelectionEvent(
 		final Class<BEAN_TYPE> beanType,
 		final Object entityId,
 		final Collection<? extends IBeanProxy<BEAN_TYPE>> selection) {
 		fireBeanSelectionEvent(new BeanSelectionEventImpl<BEAN_TYPE>(beanType, entityId, selection));
+	}
+
+	void dispose() {
+		listeners.clear();
 	}
 }
