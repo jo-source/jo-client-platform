@@ -57,6 +57,9 @@ import org.jowidgets.cap.common.api.service.IUpdaterService;
 import org.jowidgets.cap.common.api.validation.IBeanValidator;
 import org.jowidgets.cap.common.tools.bean.BeanKey;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
+import org.jowidgets.cap.ui.api.attribute.IAttribute;
+import org.jowidgets.cap.ui.api.attribute.IAttributeCollectionModifierBuilder;
+import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
 import org.jowidgets.cap.ui.api.bean.BeanMessageType;
 import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
 import org.jowidgets.cap.ui.api.bean.IBeanMessage;
@@ -78,11 +81,16 @@ import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
 import org.jowidgets.cap.ui.api.model.IModificationStateListener;
 import org.jowidgets.cap.ui.api.model.IProcessStateListener;
 import org.jowidgets.cap.ui.api.model.LinkType;
+import org.jowidgets.cap.ui.api.plugin.IAttributePlugin;
 import org.jowidgets.cap.ui.api.sort.ISortModel;
 import org.jowidgets.cap.ui.api.sort.ISortModelConfig;
 import org.jowidgets.cap.ui.api.tabfolder.IBeanTabFolderModel;
 import org.jowidgets.cap.ui.api.tabfolder.IBeanTabFolderModelInterceptor;
 import org.jowidgets.cap.ui.tools.execution.AbstractUiResultCallback;
+import org.jowidgets.plugin.api.IPluginProperties;
+import org.jowidgets.plugin.api.IPluginPropertiesBuilder;
+import org.jowidgets.plugin.api.PluginProvider;
+import org.jowidgets.plugin.api.PluginToolkit;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.EmptyCheck;
 import org.jowidgets.util.IProvider;
@@ -97,6 +105,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 
 	private final Object entityId;
 	private final Class<BEAN_TYPE> beanType;
+	private final Map<String, Object> defaultValues;
 	private final List<String> propertyNames;
 
 	private final Map<String, IUiFilter> filters;
@@ -146,10 +155,9 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 	BeanTabFolderModelImpl(
 		final Object entityId,
 		final Class<? extends BEAN_TYPE> beanType,
-		final List<String> propertyNames,
+		List<IAttribute<Object>> attributes,
 		final IBeanProxyLabelRenderer<BEAN_TYPE> renderer,
 		final Set<IBeanValidator<BEAN_TYPE>> beanValidators,
-		final Set<IBeanPropertyValidator<BEAN_TYPE>> beanPropertyValidators,
 		final List<IBeanTabFolderModelInterceptor<BEAN_TYPE>> interceptors,
 		final ISortModelConfig sortModelConfig,
 		final IReaderService<? extends Object> readerService,
@@ -171,6 +179,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 		Assert.paramNotNull(renderer, "renderer");
 		Assert.paramNotNull(readerService, "readerService");
 		Assert.paramNotNull(paramProvider, "paramProvider");
+		Assert.paramNotNull(attributes, "attributes");
 		Assert.paramNotNull(exceptionConverter, "exceptionConverter");
 
 		this.parent = parent;
@@ -178,7 +187,6 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 		this.beanType = (Class<BEAN_TYPE>) beanType;
 		this.clearOnEmptyFilter = clearOnEmptyFilter;
 		this.clearOnEmptyParentBeans = clearOnEmptyParentBeans;
-		this.propertyNames = new LinkedList<String>(propertyNames);
 		this.linkType = linkType;
 		if (parent != null) {
 			Assert.paramNotNull(linkType, "linkType");
@@ -193,6 +201,23 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 		}
 		else {
 			this.parentModelListener = null;
+		}
+
+		attributes = createModifiedByPluginsAttributes(entityId, attributes);
+		//if no updater service available, set all attributes to editable false
+		if (updaterService == null) {
+			attributes = createReadonlyAttributes(attributes);
+		}
+
+		this.propertyNames = new LinkedList<String>();
+		this.defaultValues = new HashMap<String, Object>();
+		for (final IAttribute<?> attribute : attributes) {
+			final String propertyName = attribute.getPropertyName();
+			propertyNames.add(propertyName);
+			final Object defaultValue = attribute.getDefaultValue();
+			if (defaultValue != null) {
+				defaultValues.put(propertyName, defaultValue);
+			}
 		}
 
 		this.interceptors = new LinkedList<IBeanTabFolderModelInterceptor<BEAN_TYPE>>(interceptors);
@@ -214,8 +239,9 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 		this.filterChangeObservable = new ChangeObservable();
 		this.loadErrorMessage = Messages.getString("BeanTableModelImpl.load_error");
 		this.loadingDataLabel = Messages.getString("BeanTableModelImpl.load_data");
-		this.beanPropertyValidators = new LinkedList<IBeanPropertyValidator<BEAN_TYPE>>(beanPropertyValidators);
+		this.beanPropertyValidators = new LinkedList<IBeanPropertyValidator<BEAN_TYPE>>();
 		this.beanPropertyValidatorsView = Collections.unmodifiableList(this.beanPropertyValidators);
+		beanPropertyValidators.add(new BeanPropertyValidatorImpl<BEAN_TYPE>(attributes));
 		for (final IBeanValidator<BEAN_TYPE> beanValidator : beanValidators) {
 			addBeanValidator(beanValidator);
 		}
@@ -238,6 +264,29 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 			exceptionConverter,
 			BeanExecutionPolicy.BATCH,
 			refreshService);
+	}
+
+	private static List<IAttribute<Object>> createModifiedByPluginsAttributes(
+		final Object entityId,
+		final List<IAttribute<Object>> attributes) {
+
+		List<IAttribute<Object>> result = attributes;
+
+		final IPluginPropertiesBuilder propBuilder = PluginToolkit.pluginPropertiesBuilder();
+		propBuilder.add(IAttributePlugin.ENTITIY_ID_PROPERTY_KEY, entityId);
+		final IPluginProperties properties = propBuilder.build();
+		for (final IAttributePlugin plugin : PluginProvider.getPlugins(IAttributePlugin.ID, properties)) {
+			result = plugin.modifyAttributes(properties, result);
+		}
+
+		return result;
+	}
+
+	private static List<IAttribute<Object>> createReadonlyAttributes(final List<IAttribute<Object>> attributes) {
+		final IAttributeToolkit attributeToolkit = CapUiToolkit.attributeToolkit();
+		final IAttributeCollectionModifierBuilder modifierBuilder = attributeToolkit.createAttributeCollectionModifierBuilder();
+		modifierBuilder.addDefaultModifier().setEditable(false);
+		return CapUiToolkit.attributeToolkit().createAttributesCopy(attributes, modifierBuilder.build());
 	}
 
 	@Override
@@ -483,10 +532,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 
 	@Override
 	public IBeanProxy<BEAN_TYPE> addTransientBean() {
-		//TODO MG this model should get the attributes to have default values
-		//then the beanPropertyValidators could be obtained from the attributes as well
-		//final IBeanProxy<BEAN_TYPE> result = beanProxyFactory.createTransientProxy(propertyNames, defaultValues);
-		final IBeanProxy<BEAN_TYPE> result = beanProxyFactory.createTransientProxy(propertyNames);
+		final IBeanProxy<BEAN_TYPE> result = beanProxyFactory.createTransientProxy(propertyNames, defaultValues);
 		for (final IBeanPropertyValidator<BEAN_TYPE> validator : beanPropertyValidators) {
 			result.addBeanPropertyValidator(validator);
 		}

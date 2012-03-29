@@ -31,7 +31,6 @@ package org.jowidgets.cap.ui.impl;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
 import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.common.api.service.IReaderService;
-import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
 import org.jowidgets.cap.ui.api.sort.ISortModelConfig;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
@@ -54,8 +53,6 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> extends
 	private boolean clearOnEmptyFilter;
 	private Boolean clearOnEmptyParentBeans;
 
-	private IBeanExceptionConverter exceptionConverter;
-
 	private ISortModelConfig sortModelConfig;
 
 	BeanTableModelBuilderImpl(final Object entityId, final Class<BEAN_TYPE> beanType) {
@@ -66,7 +63,6 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> extends
 		this.autoRowCount = true;
 		this.autoSelection = true;
 		this.clearOnEmptyFilter = false;
-		this.exceptionConverter = new DefaultBeanExceptionConverter();
 
 		final IEntityService entityService = ServiceProvider.getService(IEntityService.ID);
 		if (entityService != null) {
@@ -120,13 +116,6 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> extends
 		final IReaderParameterProvider<PARAM_TYPE> paramProvider) {
 		Assert.paramNotNull(readerServiceId, "readerServiceId");
 		return setReaderService(ServiceProvider.getService(readerServiceId), paramProvider);
-	}
-
-	@Override
-	public IBeanTableModelBuilder<BEAN_TYPE> setExceptionConverter(final IBeanExceptionConverter exceptionConverter) {
-		Assert.paramNotNull(exceptionConverter, "exceptionConverter");
-		this.exceptionConverter = exceptionConverter;
-		return this;
 	}
 
 	@Override
@@ -199,7 +188,7 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> extends
 			getRefreshService(),
 			getUpdaterService(),
 			getDeleterService(),
-			exceptionConverter,
+			getExceptionConverter(),
 			getParent(),
 			getLinkType(),
 			autoRowCount,

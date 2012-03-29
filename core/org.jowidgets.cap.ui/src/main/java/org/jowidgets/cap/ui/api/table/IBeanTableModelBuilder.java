@@ -29,7 +29,6 @@
 package org.jowidgets.cap.ui.api.table;
 
 import org.jowidgets.cap.common.api.service.IReaderService;
-import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
 import org.jowidgets.cap.ui.api.model.IBeanModelBuilder;
 import org.jowidgets.cap.ui.api.sort.ISortModelConfig;
 import org.jowidgets.service.api.IServiceId;
@@ -61,8 +60,6 @@ public interface IBeanTableModelBuilder<BEAN_TYPE> extends IBeanModelBuilder<BEA
 	<PARAM_TYPE> IBeanTableModelBuilder<BEAN_TYPE> setReaderService(
 		final IServiceId<IReaderService<PARAM_TYPE>> readerServiceId,
 		IReaderParameterProvider<PARAM_TYPE> paramProvider);
-
-	IBeanTableModelBuilder<BEAN_TYPE> setExceptionConverter(IBeanExceptionConverter exceptionConverter);
 
 	IBeanTableModelBuilder<BEAN_TYPE> setSorting(ISortModelConfig sorting);
 

@@ -50,6 +50,7 @@ public class SingleBeanModelBuilder<BEAN_TYPE> extends
 			getRefreshService(),
 			getUpdaterService(),
 			getDeleterService(),
+			getExceptionConverter(),
 			getBeanValidators(),
 			getParent(),
 			getLinkType(),

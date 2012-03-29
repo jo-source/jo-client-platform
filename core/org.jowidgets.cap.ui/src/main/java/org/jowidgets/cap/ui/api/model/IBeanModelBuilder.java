@@ -38,6 +38,7 @@ import org.jowidgets.cap.common.api.service.IRefreshService;
 import org.jowidgets.cap.common.api.service.IUpdaterService;
 import org.jowidgets.cap.common.api.validation.IBeanValidator;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
+import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.util.IProvider;
 
@@ -82,5 +83,7 @@ public interface IBeanModelBuilder<BEAN_TYPE, INSTANCE_TYPE> {
 	INSTANCE_TYPE setMetaAttributes(String... metaPropertyNames);
 
 	INSTANCE_TYPE addBeanValidator(IBeanValidator<BEAN_TYPE> beanValidator);
+
+	INSTANCE_TYPE setExceptionConverter(IBeanExceptionConverter exceptionConverter);
 
 }
