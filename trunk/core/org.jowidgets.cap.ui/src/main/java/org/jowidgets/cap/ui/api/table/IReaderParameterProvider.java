@@ -28,6 +28,12 @@
 
 package org.jowidgets.cap.ui.api.table;
 
+@Deprecated
+/**
+ * @deprecated use IProvider instead
+ *
+ * @param <PARAMETER_TYPE>
+ */
 public interface IReaderParameterProvider<PARAMETER_TYPE> {
 
 	PARAMETER_TYPE getParameter();

@@ -28,69 +28,41 @@
 
 package org.jowidgets.cap.ui.api.table;
 
-import java.util.List;
-
-import org.jowidgets.cap.common.api.service.IBeanServicesProvider;
-import org.jowidgets.cap.common.api.service.ICreatorService;
-import org.jowidgets.cap.common.api.service.IDeleterService;
 import org.jowidgets.cap.common.api.service.IReaderService;
-import org.jowidgets.cap.common.api.service.IRefreshService;
-import org.jowidgets.cap.common.api.service.IUpdaterService;
-import org.jowidgets.cap.common.api.validation.IBeanValidator;
-import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
-import org.jowidgets.cap.ui.api.model.IBeanListModel;
-import org.jowidgets.cap.ui.api.model.LinkType;
+import org.jowidgets.cap.ui.api.model.IBeanModelBuilder;
 import org.jowidgets.cap.ui.api.sort.ISortModelConfig;
 import org.jowidgets.service.api.IServiceId;
 
-public interface IBeanTableModelBuilder<BEAN_TYPE> {
+public interface IBeanTableModelBuilder<BEAN_TYPE> extends IBeanModelBuilder<BEAN_TYPE, IBeanTableModelBuilder<BEAN_TYPE>> {
 
 	IBeanTableModelBuilder<BEAN_TYPE> setEntityLabelSingular(final String label);
 
 	IBeanTableModelBuilder<BEAN_TYPE> setEntityLabelPlural(final String label);
 
-	IBeanTableModelBuilder<BEAN_TYPE> setReaderService(IReaderService<Void> readerService);
-
-	IBeanTableModelBuilder<BEAN_TYPE> setReaderService(IServiceId<IReaderService<Void>> readerServiceId);
-
+	@Deprecated
+	/**
+	 * @deprecated 
+	 * @param readerService
+	 * @param paramProvider
+	 * @return
+	 */
 	<PARAM_TYPE> IBeanTableModelBuilder<BEAN_TYPE> setReaderService(
 		final IReaderService<PARAM_TYPE> readerService,
 		IReaderParameterProvider<PARAM_TYPE> paramProvider);
 
+	@Deprecated
+	/**
+	 * @deprecated 
+	 * @param readerService
+	 * @param paramProvider
+	 * @return
+	 */
 	<PARAM_TYPE> IBeanTableModelBuilder<BEAN_TYPE> setReaderService(
 		final IServiceId<IReaderService<PARAM_TYPE>> readerServiceId,
 		IReaderParameterProvider<PARAM_TYPE> paramProvider);
 
-	IBeanTableModelBuilder<BEAN_TYPE> setEntityServices(IBeanServicesProvider beanServicesProvider);
-
-	IBeanTableModelBuilder<BEAN_TYPE> setEntityServices(final IServiceId<IBeanServicesProvider> entityServicesProviderId);
-
-	IBeanTableModelBuilder<BEAN_TYPE> setCreatorService(final ICreatorService creatorService);
-
-	IBeanTableModelBuilder<BEAN_TYPE> setCreatorService(final IServiceId<ICreatorService> creatorServiceId);
-
-	IBeanTableModelBuilder<BEAN_TYPE> setRefreshService(final IRefreshService refreshService);
-
-	IBeanTableModelBuilder<BEAN_TYPE> setRefreshService(final IServiceId<IRefreshService> refreshServiceId);
-
-	IBeanTableModelBuilder<BEAN_TYPE> setUpdaterService(final IUpdaterService updaterService);
-
-	IBeanTableModelBuilder<BEAN_TYPE> setUpdaterService(final IServiceId<IUpdaterService> updaterServiceId);
-
-	IBeanTableModelBuilder<BEAN_TYPE> setDeleterService(final IDeleterService deleterService);
-
-	IBeanTableModelBuilder<BEAN_TYPE> setDeleterService(final IServiceId<IDeleterService> deleterServiceId);
-
 	IBeanTableModelBuilder<BEAN_TYPE> setExceptionConverter(IBeanExceptionConverter exceptionConverter);
-
-	IBeanTableModelBuilder<BEAN_TYPE> setParent(IBeanListModel<?> parent, LinkType linkType);
-
-	IBeanTableModelBuilder<BEAN_TYPE> setAttributes(List<? extends IAttribute<?>> attributes);
-
-	IBeanTableModelBuilder<BEAN_TYPE> setMetaAttributes(String... metaPropertyNames);
-
-	IBeanTableModelBuilder<BEAN_TYPE> addBeanValidator(IBeanValidator<BEAN_TYPE> beanValidator);
 
 	IBeanTableModelBuilder<BEAN_TYPE> setSorting(ISortModelConfig sorting);
 

@@ -114,7 +114,6 @@ import org.jowidgets.cap.ui.api.sort.ISortModelConfig;
 import org.jowidgets.cap.ui.api.table.IBeanTableConfig;
 import org.jowidgets.cap.ui.api.table.IBeanTableConfigBuilder;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
-import org.jowidgets.cap.ui.api.table.IReaderParameterProvider;
 import org.jowidgets.cap.ui.tools.execution.AbstractUiResultCallback;
 import org.jowidgets.common.color.IColorConstant;
 import org.jowidgets.common.image.IImageConstant;
@@ -170,7 +169,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 	private final ICreatorService creatorService;
 	private final IReaderService<Object> readerService;
-	private final IReaderParameterProvider<Object> readerParameterProvider;
+	private final IProvider<Object> readerParameterProvider;
 	private final IDeleterService deleterService;
 	private final BeanListSaveDelegate<BEAN_TYPE> saveDelegate;
 	private final BeanListRefreshDelegate<BEAN_TYPE> refreshDelegate;
@@ -226,7 +225,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		List<IAttribute<Object>> attributes,
 		final ISortModelConfig sortModelConfig,
 		final IReaderService<? extends Object> readerService,
-		final IReaderParameterProvider<? extends Object> paramProvider,
+		final IProvider<? extends Object> paramProvider,
 		final ICreatorService creatorService,
 		final IRefreshService refreshService,
 		final IUpdaterService updaterService,
@@ -294,7 +293,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		}
 
 		this.readerService = (IReaderService<Object>) readerService;
-		this.readerParameterProvider = (IReaderParameterProvider<Object>) paramProvider;
+		this.readerParameterProvider = (IProvider<Object>) paramProvider;
 		this.creatorService = creatorService;
 		this.deleterService = deleterService;
 		this.autoSelection = autoSelect;
@@ -1872,7 +1871,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		void loadCount() {
 			started = true;
 			if (autoRowCount) {
-				this.parameter = readerParameterProvider.getParameter();
+				this.parameter = readerParameterProvider.get();
 				executionTask = CapUiToolkit.executionTaskFactory().create();
 				readerService.count(createResultCallback(), getParentBeanKeys(), filter, parameter, executionTask);
 			}
@@ -2055,7 +2054,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 			rowCount = Math.max(rowCount, count);
 
-			this.parameter = readerParameterProvider.getParameter();
+			this.parameter = readerParameterProvider.get();
 
 			dummyBeanProxy.setExecutionTask(executionTask);
 			beansStateTracker.register(dummyBeanProxy);
@@ -2328,7 +2327,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 				}
 			});
 
-			this.parameter = readerParameterProvider.getParameter();
+			this.parameter = readerParameterProvider.get();
 
 			readerService.read(
 					createResultCallback(),
