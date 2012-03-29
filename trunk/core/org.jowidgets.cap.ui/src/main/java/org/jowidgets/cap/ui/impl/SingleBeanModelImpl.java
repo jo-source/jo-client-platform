@@ -57,6 +57,7 @@ import org.jowidgets.cap.ui.api.attribute.IAttributeCollectionModifierBuilder;
 import org.jowidgets.cap.ui.api.attribute.IAttributeFilter;
 import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
 import org.jowidgets.cap.ui.api.bean.BeanMessageType;
+import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
 import org.jowidgets.cap.ui.api.bean.IBeanMessage;
 import org.jowidgets.cap.ui.api.bean.IBeanMessageBuilder;
 import org.jowidgets.cap.ui.api.bean.IBeanPropertyValidator;
@@ -130,6 +131,7 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 		final IRefreshService refreshService,
 		final IUpdaterService updaterService,
 		final IDeleterService deleterService,
+		final IBeanExceptionConverter exceptionConverter,
 		final Set<IBeanValidator<BEAN_TYPE>> beanValidators,
 		final IBeanListModel<?> parent,
 		final LinkType linkType,
@@ -139,6 +141,7 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 		Assert.paramNotNull(entityId, "entityId");
 		Assert.paramNotNull(readerService, "readerService");
 		Assert.paramNotNull(readerParameterProvider, "readerParameterProvider");
+		Assert.paramNotNull(exceptionConverter, "exceptionConverter");
 		Assert.paramNotNull(beanValidators, "beanValidators");
 		Assert.paramNotNull(attributes, "attributes");
 
@@ -205,7 +208,7 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 		this.saveDelegate = new BeanListSaveDelegate<BEAN_TYPE>(
 			this,
 			beansStateTracker,
-			new DefaultBeanExceptionConverter(),
+			exceptionConverter,
 			BeanExecutionPolicy.BATCH,
 			updaterService,
 			creatorService,
@@ -213,7 +216,7 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 
 		this.refreshDelegate = new BeanListRefreshDelegate<BEAN_TYPE>(
 			this,
-			new DefaultBeanExceptionConverter(),
+			exceptionConverter,
 			BeanExecutionPolicy.BATCH,
 			refreshService);
 	}

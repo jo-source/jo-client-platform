@@ -45,6 +45,7 @@ import org.jowidgets.cap.common.api.validation.IBeanValidator;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
+import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.model.IBeanModelBuilder;
@@ -72,6 +73,8 @@ abstract class AbstractBeanModelBuilderImpl<BEAN_TYPE, INSTANCE_TYPE> implements
 	private IUpdaterService updaterService;
 	private IDeleterService deleterService;
 
+	private IBeanExceptionConverter exceptionConverter;
+
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	AbstractBeanModelBuilderImpl(final Object entityId, final Class<BEAN_TYPE> beanType) {
 		Assert.paramNotNull(entityId, "entityId");
@@ -80,7 +83,7 @@ abstract class AbstractBeanModelBuilderImpl<BEAN_TYPE, INSTANCE_TYPE> implements
 		this.beanValidators = new LinkedHashSet<IBeanValidator<BEAN_TYPE>>();
 		this.beanType = beanType;
 		this.entityId = entityId;
-
+		this.exceptionConverter = new DefaultBeanExceptionConverter();
 		this.metaPropertyNames = new String[] {IBeanProxy.META_PROPERTY_PROGRESS, IBeanProxy.META_PROPERTY_MESSAGES};
 
 		final IEntityService entityService = ServiceProvider.getService(IEntityService.ID);
@@ -218,6 +221,14 @@ abstract class AbstractBeanModelBuilderImpl<BEAN_TYPE, INSTANCE_TYPE> implements
 
 	@SuppressWarnings("unchecked")
 	@Override
+	public INSTANCE_TYPE setExceptionConverter(final IBeanExceptionConverter exceptionConverter) {
+		Assert.paramNotNull(exceptionConverter, "exceptionConverter");
+		this.exceptionConverter = exceptionConverter;
+		return (INSTANCE_TYPE) this;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
 	public INSTANCE_TYPE setParent(final IBeanListModel<?> parent, final LinkType linkType) {
 		Assert.paramNotNull(parent, "parent");
 		Assert.paramNotNull(linkType, "linkType");
@@ -304,6 +315,10 @@ abstract class AbstractBeanModelBuilderImpl<BEAN_TYPE, INSTANCE_TYPE> implements
 
 	protected IDeleterService getDeleterService() {
 		return deleterService;
+	}
+
+	protected IBeanExceptionConverter getExceptionConverter() {
+		return exceptionConverter;
 	}
 
 }

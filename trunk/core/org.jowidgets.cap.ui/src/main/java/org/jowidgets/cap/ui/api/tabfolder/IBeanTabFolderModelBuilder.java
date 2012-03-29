@@ -28,64 +28,15 @@
 
 package org.jowidgets.cap.ui.api.tabfolder;
 
-import java.util.Collection;
-
-import org.jowidgets.cap.common.api.service.IBeanServicesProvider;
-import org.jowidgets.cap.common.api.service.ICreatorService;
-import org.jowidgets.cap.common.api.service.IDeleterService;
-import org.jowidgets.cap.common.api.service.IReaderService;
-import org.jowidgets.cap.common.api.service.IRefreshService;
-import org.jowidgets.cap.common.api.service.IUpdaterService;
-import org.jowidgets.cap.common.api.validation.IBeanValidator;
 import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyLabelRenderer;
-import org.jowidgets.cap.ui.api.model.IBeanListModel;
-import org.jowidgets.cap.ui.api.model.LinkType;
+import org.jowidgets.cap.ui.api.model.IBeanModelBuilder;
 import org.jowidgets.cap.ui.api.sort.ISortModelConfig;
-import org.jowidgets.service.api.IServiceId;
-import org.jowidgets.util.IProvider;
 
-public interface IBeanTabFolderModelBuilder<BEAN_TYPE> {
-
-	IBeanTabFolderModelBuilder<BEAN_TYPE> setPropertyNames(Collection<String> propertyNames);
-
-	IBeanTabFolderModelBuilder<BEAN_TYPE> setReaderService(IReaderService<Void> readerService);
-
-	IBeanTabFolderModelBuilder<BEAN_TYPE> setReaderService(IServiceId<IReaderService<Void>> readerServiceId);
-
-	<PARAM_TYPE> IBeanTabFolderModelBuilder<BEAN_TYPE> setReaderService(
-		final IReaderService<PARAM_TYPE> readerService,
-		IProvider<PARAM_TYPE> paramProvider);
-
-	<PARAM_TYPE> IBeanTabFolderModelBuilder<BEAN_TYPE> setReaderService(
-		final IServiceId<IReaderService<PARAM_TYPE>> readerServiceId,
-		IProvider<PARAM_TYPE> paramProvider);
-
-	IBeanTabFolderModelBuilder<BEAN_TYPE> setEntityServices(IBeanServicesProvider beanServicesProvider);
-
-	IBeanTabFolderModelBuilder<BEAN_TYPE> setEntityServices(final IServiceId<IBeanServicesProvider> entityServicesProviderId);
-
-	IBeanTabFolderModelBuilder<BEAN_TYPE> setCreatorService(final ICreatorService creatorService);
-
-	IBeanTabFolderModelBuilder<BEAN_TYPE> setCreatorService(final IServiceId<ICreatorService> creatorServiceId);
-
-	IBeanTabFolderModelBuilder<BEAN_TYPE> setRefreshService(final IRefreshService refreshService);
-
-	IBeanTabFolderModelBuilder<BEAN_TYPE> setRefreshService(final IServiceId<IRefreshService> refreshServiceId);
-
-	IBeanTabFolderModelBuilder<BEAN_TYPE> setUpdaterService(final IUpdaterService updaterService);
-
-	IBeanTabFolderModelBuilder<BEAN_TYPE> setUpdaterService(final IServiceId<IUpdaterService> updaterServiceId);
-
-	IBeanTabFolderModelBuilder<BEAN_TYPE> setDeleterService(final IDeleterService deleterService);
-
-	IBeanTabFolderModelBuilder<BEAN_TYPE> setDeleterService(final IServiceId<IDeleterService> deleterServiceId);
+public interface IBeanTabFolderModelBuilder<BEAN_TYPE> extends
+		IBeanModelBuilder<BEAN_TYPE, IBeanTabFolderModelBuilder<BEAN_TYPE>> {
 
 	IBeanTabFolderModelBuilder<BEAN_TYPE> setExceptionConverter(IBeanExceptionConverter exceptionConverter);
-
-	IBeanTabFolderModelBuilder<BEAN_TYPE> setParent(IBeanListModel<?> parent, LinkType linkType);
-
-	IBeanTabFolderModelBuilder<BEAN_TYPE> addBeanValidator(IBeanValidator<BEAN_TYPE> beanValidator);
 
 	IBeanTabFolderModelBuilder<BEAN_TYPE> setSorting(ISortModelConfig sorting);
 
