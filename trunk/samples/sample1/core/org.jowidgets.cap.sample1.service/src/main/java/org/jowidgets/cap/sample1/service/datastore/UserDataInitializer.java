@@ -203,7 +203,10 @@ final class UserDataInitializer {
 		user.setDateOfBirth(new GregorianCalendar(2000 - random.nextInt(80), random.nextInt(12) + 1, random.nextInt(28) + 1).getTime());
 		user.setCountry(random.nextInt(Countries.COUNTRIES.length));
 		for (int i = 0; i < random.nextInt(4); i++) {
-			user.addLanguage(random.nextInt(Languages.LANGUAGES.length));
+			final int language = random.nextInt(Languages.LANGUAGES.length);
+			if (!user.getLanguages().contains(language)) {
+				user.addLanguage(language);
+			}
 		}
 		if (random.nextBoolean()) {
 			user.setMarried(random.nextBoolean());

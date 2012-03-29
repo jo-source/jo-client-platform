@@ -36,9 +36,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 
 import org.jowidgets.api.threads.IUiThreadAccess;
 import org.jowidgets.api.toolkit.Toolkit;
@@ -84,15 +81,12 @@ import org.jowidgets.plugin.api.PluginToolkit;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.EmptyCheck;
 import org.jowidgets.util.IProvider;
-import org.jowidgets.util.concurrent.DaemonThreadFactory;
 import org.jowidgets.util.event.ChangeObservable;
 import org.jowidgets.util.event.IChangeListener;
 import org.jowidgets.validation.IValidationConditionListener;
 import org.jowidgets.validation.IValidationResult;
 
 final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE> {
-
-	private static final int LISTENER_DELAY = 100;
 
 	private final String loadErrorMessage;
 	private final String loadingDataLabel;
@@ -116,7 +110,7 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 	private final BeanListModelObservable beanListModelObservable;
 	private final ProcessStateObservable processStateObservable;
 
-	private final ParentModelListener parentModelListener;
+	private final ParentBeanListModelListener parentModelListener;
 	private final List<IBeanPropertyValidator<BEAN_TYPE>> beanPropertyValidators;
 	private final IBeansStateTracker<BEAN_TYPE> beansStateTracker;
 	private final IBeanProxyFactory<BEAN_TYPE> beanProxyFactory;
@@ -151,7 +145,13 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 
 		if (parent != null) {
 			Assert.paramNotNull(linkType, "linkType");
-			this.parentModelListener = new ParentModelListener();
+			final IProvider<Object> parentBeansProvider = new IProvider<Object>() {
+				@Override
+				public Object get() {
+					return getParentBeanKeys();
+				}
+			};
+			this.parentModelListener = new ParentBeanListModelListener(this, parentBeansProvider);
 			parent.addBeanListModelListener(parentModelListener);
 		}
 		else {
@@ -687,44 +687,6 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 			}
 		}
 
-	}
-
-	private class ParentModelListener implements IBeanListModelListener {
-		private ScheduledFuture<?> schedule;
-
-		@Override
-		public void selectionChanged() {
-			loadBean();
-		}
-
-		@Override
-		public void beansChanged() {
-			loadBean();
-		}
-
-		private void loadBean() {
-			clear();
-			if (schedule != null) {
-				schedule.cancel(false);
-			}
-			final IUiThreadAccess uiThreadAccess = Toolkit.getUiThreadAccess();
-			final Runnable runnable = new Runnable() {
-				@Override
-				public void run() {
-					uiThreadAccess.invokeLater(new Runnable() {
-						@Override
-						public void run() {
-							schedule = null;
-							load();
-						}
-					});
-				}
-			};
-			schedule = Executors.newSingleThreadScheduledExecutor(new DaemonThreadFactory()).schedule(
-					runnable,
-					LISTENER_DELAY,
-					TimeUnit.MILLISECONDS);
-		}
 	}
 
 }

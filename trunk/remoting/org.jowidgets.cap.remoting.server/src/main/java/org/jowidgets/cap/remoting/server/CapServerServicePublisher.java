@@ -34,13 +34,14 @@ import java.util.concurrent.ScheduledExecutorService;
 import org.jowidgets.cap.remoting.common.CapInvocationMethodNames;
 import org.jowidgets.invocation.service.server.api.IInvocationServiceServerRegistry;
 import org.jowidgets.invocation.service.server.api.InvocationServiceServerToolkit;
+import org.jowidgets.util.concurrent.DaemonThreadFactory;
 
 public class CapServerServicePublisher {
 
 	private static final long DEFAULT_PROGRESS_DELAY = 500;
 
 	public void publishServices() {
-		publishServices(Executors.newScheduledThreadPool(50), DEFAULT_PROGRESS_DELAY);
+		publishServices(Executors.newScheduledThreadPool(50, new DaemonThreadFactory()), DEFAULT_PROGRESS_DELAY);
 	}
 
 	public void publishServices(final ScheduledExecutorService progressExecutor, final long progressDelay) {
