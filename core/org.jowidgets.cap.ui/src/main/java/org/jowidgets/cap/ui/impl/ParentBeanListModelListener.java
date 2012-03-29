@@ -29,6 +29,7 @@
 package org.jowidgets.cap.ui.impl;
 
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -49,6 +50,7 @@ final class ParentBeanListModelListener implements IBeanListModelListener {
 	private final long listenerDelay;
 	private final IProvider<Object> reloadConditionProvider;
 
+	private ScheduledExecutorService executorService;
 	private ScheduledFuture<?> schedule;
 	private Object lastLoadCondition;
 
@@ -100,9 +102,14 @@ final class ParentBeanListModelListener implements IBeanListModelListener {
 				});
 			}
 		};
-		schedule = Executors.newSingleThreadScheduledExecutor(new DaemonThreadFactory()).schedule(
-				runnable,
-				listenerDelay,
-				TimeUnit.MILLISECONDS);
+
+		schedule = getExecutorService().schedule(runnable, listenerDelay, TimeUnit.MILLISECONDS);
+	}
+
+	private ScheduledExecutorService getExecutorService() {
+		if (executorService == null) {
+			executorService = Executors.newSingleThreadScheduledExecutor(new DaemonThreadFactory());
+		}
+		return executorService;
 	}
 }

@@ -34,6 +34,7 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -91,6 +92,7 @@ final class BeanTableSearchFilterToolbar<BEAN_TYPE> {
 	private final IInputListener inputListener;
 
 	private FilterResultLoader loader;
+	private ScheduledExecutorService executorService;
 
 	BeanTableSearchFilterToolbar(final IComposite composite, final BeanTableImpl<BEAN_TYPE> table) {
 		this.composite = composite;
@@ -234,10 +236,14 @@ final class BeanTableSearchFilterToolbar<BEAN_TYPE> {
 					});
 				}
 			};
-			schedule = Executors.newSingleThreadScheduledExecutor(new DaemonThreadFactory()).schedule(
-					runnable,
-					LISTENER_DELAY,
-					TimeUnit.MILLISECONDS);
+			schedule = getExecutorService().schedule(runnable, LISTENER_DELAY, TimeUnit.MILLISECONDS);
+		}
+
+		private ScheduledExecutorService getExecutorService() {
+			if (executorService == null) {
+				executorService = Executors.newSingleThreadScheduledExecutor(new DaemonThreadFactory());
+			}
+			return executorService;
 		}
 
 		void loadImediate() {

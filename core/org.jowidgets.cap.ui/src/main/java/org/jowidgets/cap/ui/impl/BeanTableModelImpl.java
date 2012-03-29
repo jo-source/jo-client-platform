@@ -43,6 +43,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -198,6 +199,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	private final String loadErrorMessage;
 	private final String loadingDataLabel;
 
+	private ScheduledExecutorService scheduledExecutorService;
 	private PageLoader evenPageLoader;
 	private PageLoader oddPageLoader;
 	private CountLoader countLoader;
@@ -1469,6 +1471,13 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		return beanKeys;
 	}
 
+	private ScheduledExecutorService getScheduledExecutorService() {
+		if (scheduledExecutorService == null) {
+			scheduledExecutorService = Executors.newSingleThreadScheduledExecutor(new DaemonThreadFactory());
+		}
+		return scheduledExecutorService;
+	}
+
 	private class DataModel extends AbstractTableDataModel {
 
 		@Override
@@ -2060,10 +2069,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 					});
 				}
 			};
-			schedule = Executors.newSingleThreadScheduledExecutor(new DaemonThreadFactory()).schedule(
-					runnable,
-					dealy,
-					TimeUnit.MILLISECONDS);
+			schedule = getScheduledExecutorService().schedule(runnable, dealy, TimeUnit.MILLISECONDS);
 		}
 
 		void readDataFromService() {
