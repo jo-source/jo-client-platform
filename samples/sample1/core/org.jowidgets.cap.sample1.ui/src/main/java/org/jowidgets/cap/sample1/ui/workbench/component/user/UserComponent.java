@@ -45,8 +45,8 @@ import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.model.LinkType;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
-import org.jowidgets.cap.ui.api.table.IReaderParameterProvider;
 import org.jowidgets.common.types.IVetoable;
+import org.jowidgets.util.IProvider;
 import org.jowidgets.util.ValueHolder;
 import org.jowidgets.workbench.api.IComponent;
 import org.jowidgets.workbench.api.IComponentContext;
@@ -135,10 +135,10 @@ public class UserComponent extends AbstractComponent implements IComponent {
 		return builder.build();
 	}
 
-	private IReaderParameterProvider<Integer> createReaderParameterProvider() {
-		return new IReaderParameterProvider<Integer>() {
+	private IProvider<Integer> createReaderParameterProvider() {
+		return new IProvider<Integer>() {
 			@Override
-			public Integer getParameter() {
+			public Integer get() {
 				return delayParameter.get();
 			}
 		};
