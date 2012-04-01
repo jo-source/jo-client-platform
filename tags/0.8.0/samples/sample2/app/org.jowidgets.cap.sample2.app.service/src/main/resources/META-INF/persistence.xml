@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence version="1.0"
+	xmlns="http://java.sun.com/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd">
+	<persistence-unit name="sample2PersistenceUnit" >     
+		<description>Sample2</description>
+		<provider>org.hibernate.ejb.HibernatePersistence</provider> 
+		<class>org.jowidgets.cap.sample2.app.service.bean.Person</class>
+		<class>org.jowidgets.cap.sample2.app.service.bean.Role</class>
+		<class>org.jowidgets.cap.sample2.app.service.bean.Country</class>
+		<class>org.jowidgets.cap.sample2.app.service.bean.PersonRoleLink</class>
+		<class>org.jowidgets.cap.sample2.app.service.bean.PersonPersonLink</class>	
+		<properties>
+			<property name="hibernate.dialect" value="org.hibernate.dialect.Oracle10gDialect" />
+			<property name="hibernate.connection.driver_class" value="oracle.jdbc.driver.OracleDriver"></property>
+			<property name="hibernate.show_sql" value="false"></property>
+			<property name="hibernate.connection.username" value="SAMPLE"></property>
+			<property name="hibernate.connection.password" value="sample"></property>
+			<property name="hibernate.connection.url" value="jdbc:oracle:thin:@127.0.0.1:1521:orcl"></property>
+		</properties>
+	</persistence-unit>
+</persistence>
