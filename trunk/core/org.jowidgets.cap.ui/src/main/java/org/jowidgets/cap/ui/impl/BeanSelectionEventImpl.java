@@ -84,4 +84,17 @@ final class BeanSelectionEventImpl<BEAN_TYPE> implements IBeanSelectionEvent<BEA
 		return firstSelected;
 	}
 
+	@Override
+	public String toString() {
+		return "BeanSelectionEventImpl [beanType="
+			+ beanType
+			+ ", entityId="
+			+ entityId
+			+ ", selection="
+			+ selection
+			+ ", firstSelected="
+			+ firstSelected
+			+ "]";
+	}
+
 }
