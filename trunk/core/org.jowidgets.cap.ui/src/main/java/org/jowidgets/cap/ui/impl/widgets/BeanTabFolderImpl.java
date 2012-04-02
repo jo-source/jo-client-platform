@@ -41,14 +41,16 @@ import org.jowidgets.api.widgets.ITabFolder;
 import org.jowidgets.api.widgets.ITabItem;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyLabelRenderer;
+import org.jowidgets.cap.ui.api.bean.IBeanSelectionEvent;
+import org.jowidgets.cap.ui.api.bean.IBeanSelectionListener;
 import org.jowidgets.cap.ui.api.bean.ICustomBeanPropertyListener;
+import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
 import org.jowidgets.cap.ui.api.model.ILabelModel;
 import org.jowidgets.cap.ui.api.tabfolder.IBeanTabFolderModel;
 import org.jowidgets.cap.ui.api.widgets.IBeanTab;
 import org.jowidgets.cap.ui.api.widgets.IBeanTabFactory;
 import org.jowidgets.cap.ui.api.widgets.IBeanTabFolder;
 import org.jowidgets.cap.ui.api.widgets.IBeanTabFolderBluePrint;
-import org.jowidgets.cap.ui.tools.model.BeanListModelAdapter;
 import org.jowidgets.common.types.IVetoable;
 import org.jowidgets.tools.widgets.blueprint.BPF;
 import org.jowidgets.tools.widgets.wrapper.TabFolderWrapper;
@@ -94,14 +96,14 @@ final class BeanTabFolderImpl<BEAN_TYPE> extends TabFolderWrapper implements IBe
 		this.tabFolderSelectionListener = new TabFolderSelectionListener();
 		this.modelSelectionListener = new ModelSelectionListener();
 
-		model.addBeanListModelListener(new BeanListModelAdapter() {
+		model.addBeanListModelListener(new IBeanListModelListener() {
 			@Override
 			public void beansChanged() {
 				updateFromModel();
 			}
 		});
 
-		model.addBeanListModelListener(modelSelectionListener);
+		model.addBeanSelectionListener(modelSelectionListener);
 		tabFolder.addTabFolderListener(tabFolderSelectionListener);
 
 		updateFromModel();
@@ -114,7 +116,7 @@ final class BeanTabFolderImpl<BEAN_TYPE> extends TabFolderWrapper implements IBe
 
 	@SuppressWarnings("unchecked")
 	private void updateFromModel() {
-		model.removeBeanListModelListener(modelSelectionListener);
+		model.removeBeanSelectionListener(modelSelectionListener);
 		tabFolder.removeTabFolderListener(tabFolderSelectionListener);
 
 		final int tabsToAdd = model.getSize() - tabFolder.getItems().size();
@@ -147,7 +149,7 @@ final class BeanTabFolderImpl<BEAN_TYPE> extends TabFolderWrapper implements IBe
 		}
 
 		tabFolder.addTabFolderListener(tabFolderSelectionListener);
-		model.addBeanListModelListener(modelSelectionListener);
+		model.addBeanSelectionListener(modelSelectionListener);
 
 		if (tabFolder.getItems().size() > 0) {
 			final Integer selectionIndex = model.getSelectionIndex();
@@ -221,17 +223,17 @@ final class BeanTabFolderImpl<BEAN_TYPE> extends TabFolderWrapper implements IBe
 
 		@Override
 		public void itemSelected(final ITabSelectionEvent selectionEvent) {
-			model.removeBeanListModelListener(modelSelectionListener);
+			model.removeBeanSelectionListener(modelSelectionListener);
 			final int selectedIndex = tabFolder.getIndex(selectionEvent.getNewSelected());
 			model.setSelection(selectedIndex);
-			model.addBeanListModelListener(modelSelectionListener);
+			model.addBeanSelectionListener(modelSelectionListener);
 		}
 	}
 
-	private class ModelSelectionListener extends BeanListModelAdapter {
+	private class ModelSelectionListener implements IBeanSelectionListener<BEAN_TYPE> {
 
 		@Override
-		public void selectionChanged() {
+		public void selectionChanged(final IBeanSelectionEvent<BEAN_TYPE> selectionEvent) {
 			final Integer selectionIndex = model.getSelectionIndex();
 			if (selectionIndex != null && selectionIndex.intValue() != -1) {
 				tabFolder.removeTabFolderListener(tabFolderSelectionListener);

@@ -36,6 +36,8 @@ import org.jowidgets.api.model.item.IItemModelFactory;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.widgets.IComposite;
 import org.jowidgets.api.widgets.ITextLabel;
+import org.jowidgets.cap.ui.api.bean.IBeanSelectionEvent;
+import org.jowidgets.cap.ui.api.bean.IBeanSelectionListener;
 import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.common.widgets.controller.IItemStateListener;
@@ -66,15 +68,16 @@ final class BeanTableStatusBar<BEAN_TYPE> {
 
 		final ITextLabel textLabel = statusbar.add(BPF.textLabel().setFontSize(7));
 
-		model.addBeanListModelListener(new IBeanListModelListener() {
-
+		model.addBeanSelectionListener(new IBeanSelectionListener<BEAN_TYPE>() {
 			@Override
-			public void selectionChanged() {
+			public void selectionChanged(final IBeanSelectionEvent<BEAN_TYPE> selectionEvent) {
 				statusbar.layoutBegin();
 				textLabel.setText(getStatusBarText());
 				statusbar.layoutEnd();
 			}
+		});
 
+		model.addBeanListModelListener(new IBeanListModelListener() {
 			@Override
 			public void beansChanged() {
 				statusbar.layoutBegin();

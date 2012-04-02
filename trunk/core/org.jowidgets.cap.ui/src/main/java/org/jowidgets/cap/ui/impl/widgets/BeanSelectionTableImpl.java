@@ -37,6 +37,8 @@ import java.util.Set;
 import org.jowidgets.api.model.item.ICheckedItemModel;
 import org.jowidgets.api.model.item.IMenuModel;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
+import org.jowidgets.cap.ui.api.bean.IBeanSelectionEvent;
+import org.jowidgets.cap.ui.api.bean.IBeanSelectionListener;
 import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.widgets.IBeanSelectionTable;
@@ -89,14 +91,15 @@ final class BeanSelectionTableImpl<BEAN_TYPE> extends AbstractInputControl<List<
 		unloadedSelectionErrorMessage = Messages.getString("BeanSelectionTableImpl.selection_contains_unloaded_data");
 		unhandledErrorMessagesErrorMessage = Messages.getString("BeanSelectionTableImpl.unhandeled_error_messages");
 
-		table.getModel().addBeanListModelListener(new IBeanListModelListener() {
-
+		table.getModel().addBeanSelectionListener(new IBeanSelectionListener<BEAN_TYPE>() {
 			@Override
-			public void selectionChanged() {
+			public void selectionChanged(final IBeanSelectionEvent<BEAN_TYPE> selectionEvent) {
 				fireInputChanged();
 				setValidationCacheDirty();
 			}
+		});
 
+		table.getModel().addBeanListModelListener(new IBeanListModelListener() {
 			@Override
 			public void beansChanged() {
 				setValidationCacheDirty();

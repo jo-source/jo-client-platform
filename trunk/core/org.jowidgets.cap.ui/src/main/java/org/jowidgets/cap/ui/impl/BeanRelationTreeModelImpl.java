@@ -38,7 +38,6 @@ import java.util.Map;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionListener;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
-import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
 import org.jowidgets.cap.ui.api.model.IModificationStateListener;
 import org.jowidgets.cap.ui.api.model.IProcessStateListener;
 import org.jowidgets.cap.ui.api.model.LinkType;
@@ -57,7 +56,7 @@ public class BeanRelationTreeModelImpl<CHILD_BEAN_TYPE> implements IBeanRelation
 
 	private final IBeanRelationNodeModel<Void, CHILD_BEAN_TYPE> root;
 	private final IBeanRelationNodeModelConfigurator nodeConfigurator;
-	private final IBeanListModelListener parentModelListener;
+	private final IBeanSelectionListener<Object> parentSelectionListener;
 	private final BeanSelectionObservable<Object> beanSelectionObservable;
 
 	@SuppressWarnings("rawtypes")
@@ -67,7 +66,7 @@ public class BeanRelationTreeModelImpl<CHILD_BEAN_TYPE> implements IBeanRelation
 	public BeanRelationTreeModelImpl(
 		final IBeanRelationNodeModel<Void, CHILD_BEAN_TYPE> root,
 		final IBeanRelationNodeModelConfigurator nodeConfigurator,
-		final IBeanListModel<?> parent,
+		final IBeanListModel<Object> parent,
 		final LinkType linkType) {
 
 		Assert.paramNotNull(root, "root");
@@ -87,11 +86,11 @@ public class BeanRelationTreeModelImpl<CHILD_BEAN_TYPE> implements IBeanRelation
 					return parentBeans;
 				}
 			};
-			this.parentModelListener = new ParentBeanListModelListener(this, parentBeanProvider);
-			parent.addBeanListModelListener(parentModelListener);
+			this.parentSelectionListener = new ParentSelectionListener<Object>(this, parentBeanProvider);
+			parent.addBeanSelectionListener(parentSelectionListener);
 		}
 		else {
-			this.parentModelListener = null;
+			this.parentSelectionListener = null;
 		}
 
 		this.relationNodes = new HashMap();

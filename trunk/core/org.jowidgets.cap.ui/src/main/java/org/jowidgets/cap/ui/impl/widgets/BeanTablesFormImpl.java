@@ -28,7 +28,6 @@
 
 package org.jowidgets.cap.ui.impl.widgets;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -39,7 +38,8 @@ import org.jowidgets.api.widgets.IComposite;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
-import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
+import org.jowidgets.cap.ui.api.bean.IBeanSelectionEvent;
+import org.jowidgets.cap.ui.api.bean.IBeanSelectionListener;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.widgets.IBeanForm;
 import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
@@ -58,7 +58,7 @@ final class BeanTablesFormImpl extends ControlWrapper implements IBeanTablesForm
 	private final boolean hideMetaAttributes;
 	private final Map<IBeanTableView<?>, IBeanForm<?>> forms;
 	private final Map<IBeanTableView<?>, TableViewListener> viewListeners;
-	private final Map<IBeanTableView<?>, TableModelListener<?>> tableModelListeners;
+	private final Map<IBeanTableView<?>, TableSelectionListener<?>> tableSelectionListeners;
 
 	BeanTablesFormImpl(final IComposite composite, final IBeanTablesFormBluePrint bluePrint) {
 		super(composite);
@@ -66,7 +66,7 @@ final class BeanTablesFormImpl extends ControlWrapper implements IBeanTablesForm
 		this.hideMetaAttributes = bluePrint.getHideMetaAttributes();
 		this.forms = new HashMap<IBeanTableView<?>, IBeanForm<?>>();
 		this.viewListeners = new HashMap<IBeanTableView<?>, TableViewListener>();
-		this.tableModelListeners = new HashMap<IBeanTableView<?>, TableModelListener<?>>();
+		this.tableSelectionListeners = new HashMap<IBeanTableView<?>, TableSelectionListener<?>>();
 		composite.setLayout(new MigLayoutDescriptor("hidemode 3", "0[grow, 0::]0", "0[grow, 0::]0"));
 	}
 
@@ -85,9 +85,9 @@ final class BeanTablesFormImpl extends ControlWrapper implements IBeanTablesForm
 			forms.put(view, beanForm);
 			final IBeanTableModel<BEAN_TYPE> model = view.getModel();
 
-			final TableModelListener<BEAN_TYPE> tableModelListener = new TableModelListener<BEAN_TYPE>(view, beanForm);
-			tableModelListeners.put(view, tableModelListener);
-			model.addBeanListModelListener(tableModelListener);
+			final TableSelectionListener<BEAN_TYPE> tableModelListener = new TableSelectionListener<BEAN_TYPE>(view, beanForm);
+			tableSelectionListeners.put(view, tableModelListener);
+			model.addBeanSelectionListener(tableModelListener);
 
 			final TableViewListener viewListener = new TableViewListener(view);
 			viewListeners.put(view, viewListener);
@@ -120,12 +120,14 @@ final class BeanTablesFormImpl extends ControlWrapper implements IBeanTablesForm
 		registerView(view, beanFormBp);
 	}
 
+	@SuppressWarnings({"unchecked", "rawtypes"})
 	@Override
 	public void unregisterView(final IBeanTableView<?> view) {
 		Assert.paramNotNull(view, "table");
-		final IBeanForm<?> form = forms.get(view);
+		final IBeanForm form = forms.get(view);
 		if (form != null) {
-			view.getModel().removeBeanListModelListener(tableModelListeners.get(view));
+			final IBeanTableModel model = view.getModel();
+			model.removeBeanSelectionListener(tableSelectionListeners.get(view));
 			view.removeViewListener(viewListeners.get(view));
 			getWidget().remove(form);
 			forms.remove(form);
@@ -154,39 +156,21 @@ final class BeanTablesFormImpl extends ControlWrapper implements IBeanTablesForm
 		}
 	}
 
-	private final class TableModelListener<BEAN_TYPE> implements IBeanListModelListener {
+	private final class TableSelectionListener<BEAN_TYPE> implements IBeanSelectionListener<BEAN_TYPE> {
 
 		private final IBeanTableView<BEAN_TYPE> view;
-		private final IBeanTableModel<BEAN_TYPE> model;
 		private final IBeanForm<BEAN_TYPE> beanForm;
 
-		private TableModelListener(final IBeanTableView<BEAN_TYPE> view, final IBeanForm<BEAN_TYPE> beanForm) {
+		private TableSelectionListener(final IBeanTableView<BEAN_TYPE> view, final IBeanForm<BEAN_TYPE> beanForm) {
 			super();
 			this.view = view;
-			this.model = view.getModel();
 			this.beanForm = beanForm;
 		}
 
 		@Override
-		public void selectionChanged() {
+		public void selectionChanged(final IBeanSelectionEvent<BEAN_TYPE> selectionEvent) {
 			switchToView(view);
-			setSelectedBeanValue();
-		}
-
-		@Override
-		public void beansChanged() {
-			setSelectedBeanValue();
-		}
-
-		private void setSelectedBeanValue() {
-
-			final ArrayList<Integer> selection = model.getSelection();
-			if (selection.size() > 0) {
-				beanForm.setValue(model.getBean(selection.get(0)));
-			}
-			else {
-				beanForm.setValue(null);
-			}
+			beanForm.setValue(selectionEvent.getFirstSelected());
 		}
 
 	}

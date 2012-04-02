@@ -28,7 +28,6 @@
 
 package org.jowidgets.cap.sample1.ui.workbench.component.user.view;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.jowidgets.api.widgets.IContainer;
@@ -39,11 +38,10 @@ import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.form.BeanFormGroupRendering;
 import org.jowidgets.cap.ui.api.form.IBeanFormGroupBuilder;
 import org.jowidgets.cap.ui.api.form.IBeanFormLayoutBuilder;
-import org.jowidgets.cap.ui.api.form.IBeanFormLayouter;
-import org.jowidgets.cap.ui.api.model.IBeanListModel;
-import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
-import org.jowidgets.cap.ui.api.widgets.IBeanForm;
+import org.jowidgets.cap.ui.api.form.IBeanFormPropertyBuilder;
+import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
+import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
 import org.jowidgets.tools.layout.MigLayoutFactory;
 import org.jowidgets.workbench.api.IViewContext;
 import org.jowidgets.workbench.tools.AbstractView;
@@ -59,60 +57,44 @@ public class UserDetailGroupsBorderView extends AbstractView {
 	private static final String COUNTRY_SETTINGS = Messages.getString("UserDetailGroupsBorderView.country_settings"); //$NON-NLS-1$
 	private static final String ADMINISTRATION = Messages.getString("UserDetailGroupsBorderView.administration"); //$NON-NLS-1$
 
-	public UserDetailGroupsBorderView(final IViewContext context, final IBeanListModel<IUser> parentModel) {
+	public UserDetailGroupsBorderView(final IViewContext context, final IBeanTableModel<IUser> parentModel) {
 		final IContainer container = context.getContainer();
 		container.setLayout(MigLayoutFactory.growingCellLayout());
 		final List<IAttribute<Object>> attributes = new UserAttributesFactory().formAttributes();
-		final IBeanFormBluePrint<IUser> formBp = CapUiToolkit.bluePrintFactory().beanForm(IUser.class, attributes);
+		final ICapApiBluePrintFactory cbpf = CapUiToolkit.bluePrintFactory();
+		final IBeanFormBluePrint<IUser> formBp = cbpf.beanForm(IUser.class, attributes);
 
 		final IBeanFormLayoutBuilder layoutBuilder = CapUiToolkit.beanFormToolkit().layoutBuilder();
 
-		final IBeanFormGroupBuilder nameGroupBuilder = CapUiToolkit.beanFormToolkit().groupBuilder().setLabel(USER_NAME).setRendering(
-				BeanFormGroupRendering.BORDER);
+		final IBeanFormGroupBuilder nameGroupBuilder = CapUiToolkit.beanFormToolkit().groupBuilder();
+		nameGroupBuilder.setLabel(USER_NAME).setRendering(BeanFormGroupRendering.BORDER);
 		nameGroupBuilder.addProperty(CapUiToolkit.beanFormToolkit().propertyBuilder().setPropertyName(IUser.NAME_PROPERTY));
 		nameGroupBuilder.addProperty(CapUiToolkit.beanFormToolkit().propertyBuilder().setPropertyName(IUser.LAST_NAME_PROPERTY));
 		layoutBuilder.addGroup(nameGroupBuilder);
 
-		final IBeanFormGroupBuilder detailsGroupBuilder = CapUiToolkit.beanFormToolkit().groupBuilder().setLabel(USER_DETAILS).setRendering(
-				BeanFormGroupRendering.BORDER);
-		detailsGroupBuilder.addProperty(CapUiToolkit.beanFormToolkit().propertyBuilder().setPropertyName(
-				IUser.DATE_OF_BIRTH_PROPERTY));
+		final IBeanFormGroupBuilder detailsGroupBuilder = CapUiToolkit.beanFormToolkit().groupBuilder();
+		detailsGroupBuilder.setLabel(USER_DETAILS).setRendering(BeanFormGroupRendering.BORDER);
+		final IBeanFormPropertyBuilder birdayProperty = CapUiToolkit.beanFormToolkit().propertyBuilder();
+		birdayProperty.setPropertyName(IUser.DATE_OF_BIRTH_PROPERTY);
+		detailsGroupBuilder.addProperty(birdayProperty);
 		detailsGroupBuilder.addProperty(CapUiToolkit.beanFormToolkit().propertyBuilder().setPropertyName(IUser.GENDER_PROPERTY));
 		detailsGroupBuilder.addProperty(CapUiToolkit.beanFormToolkit().propertyBuilder().setPropertyName(IUser.MARRIED_PROPERTY));
 		layoutBuilder.addGroup(detailsGroupBuilder);
 
-		final IBeanFormGroupBuilder countryGroupBuilder = CapUiToolkit.beanFormToolkit().groupBuilder().setLabel(COUNTRY_SETTINGS).setRendering(
-				BeanFormGroupRendering.BORDER);
+		final IBeanFormGroupBuilder countryGroupBuilder = CapUiToolkit.beanFormToolkit().groupBuilder();
+		countryGroupBuilder.setLabel(COUNTRY_SETTINGS).setRendering(BeanFormGroupRendering.BORDER);
 		countryGroupBuilder.addProperty(CapUiToolkit.beanFormToolkit().propertyBuilder().setPropertyName(IUser.COUNTRY_PROPERTY));
 		countryGroupBuilder.addProperty(CapUiToolkit.beanFormToolkit().propertyBuilder().setPropertyName(IUser.LANGUAGES_PROPERTY));
 		layoutBuilder.addGroup(countryGroupBuilder);
 
-		final IBeanFormGroupBuilder administrationGroupBuilder = CapUiToolkit.beanFormToolkit().groupBuilder().setLabel(
-				ADMINISTRATION).setRendering(BeanFormGroupRendering.BORDER);
-		administrationGroupBuilder.addProperty(CapUiToolkit.beanFormToolkit().propertyBuilder().setPropertyName(
-				IUser.ADMIN_PROPERTY));
+		final IBeanFormGroupBuilder administrationGroupBuilder = CapUiToolkit.beanFormToolkit().groupBuilder();
+		administrationGroupBuilder.setLabel(ADMINISTRATION).setRendering(BeanFormGroupRendering.BORDER);
+		final IBeanFormPropertyBuilder adminProperty = CapUiToolkit.beanFormToolkit().propertyBuilder();
+		adminProperty.setPropertyName(IUser.ADMIN_PROPERTY);
+		administrationGroupBuilder.addProperty(adminProperty);
 		layoutBuilder.addGroup(administrationGroupBuilder);
 
-		final IBeanFormLayouter layouter = CapUiToolkit.beanFormToolkit().layouter(layoutBuilder.build());
-
-		final IBeanForm<IUser> userForm = container.add(formBp.setLayouter(layouter), MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
-
-		parentModel.addBeanListModelListener(new IBeanListModelListener() {
-
-			@Override
-			public void selectionChanged() {
-				final ArrayList<Integer> selection = parentModel.getSelection();
-				if (selection.size() > 0) {
-					userForm.setValue(parentModel.getBean(selection.get(0)));
-				}
-				else {
-					userForm.setValue(null);
-				}
-			}
-
-			@Override
-			public void beansChanged() {}
-
-		});
+		formBp.setLayouter(CapUiToolkit.beanFormToolkit().layouter(layoutBuilder.build()));
+		container.add(cbpf.beanTableForm(parentModel).setBeanForm(formBp), MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
 	}
 }

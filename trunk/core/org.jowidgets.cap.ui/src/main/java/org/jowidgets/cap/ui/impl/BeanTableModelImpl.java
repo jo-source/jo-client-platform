@@ -174,7 +174,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	private final BeanListSaveDelegate<BEAN_TYPE> saveDelegate;
 	private final BeanListRefreshDelegate<BEAN_TYPE> refreshDelegate;
 
-	private final IBeanListModel<?> parent;
+	private final IBeanListModel<Object> parent;
 	private final LinkType linkType;
 
 	private final boolean autoRowCount;
@@ -186,7 +186,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	private final DisposeObservable disposeObservable;
 	private final TableDataModelListener tableDataModelListener;
 	private final IChangeListener sortModelChangeListener;
-	private final ParentBeanListModelListener parentModelListener;
+	private final ParentSelectionListener<Object> parentSelectionListener;
 	private final List<AttributeChangeListener> attributeChangeListeners;
 
 	private final IDefaultTableColumnModel columnModel;
@@ -231,7 +231,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		final IUpdaterService updaterService,
 		final IDeleterService deleterService,
 		final IBeanExceptionConverter exceptionConverter,
-		final IBeanListModel<?> parent,
+		final IBeanListModel<Object> parent,
 		final LinkType linkType,
 		final boolean autoRowCount,
 		final boolean autoSelect,
@@ -265,11 +265,11 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 					return getParentBeanKeys();
 				}
 			};
-			this.parentModelListener = new ParentBeanListModelListener(this, parentBeansProvider);
-			parent.addBeanListModelListener(parentModelListener);
+			this.parentSelectionListener = new ParentSelectionListener<Object>(this, parentBeansProvider);
+			parent.addBeanSelectionListener(parentSelectionListener);
 		}
 		else {
-			this.parentModelListener = null;
+			this.parentSelectionListener = null;
 		}
 
 		//inject table model plugins
@@ -516,8 +516,8 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			lookUpListenersStrongRef.clear();
 			sortModel.removeChangeListener(sortModelChangeListener);
 			dataModel.removeDataModelListener(tableDataModelListener);
-			if (parentModelListener != null && parent != null) {
-				parent.removeBeanListModelListener(parentModelListener);
+			if (parentSelectionListener != null && parent != null) {
+				parent.removeBeanSelectionListener(parentSelectionListener);
 			}
 			for (final AttributeChangeListener listener : attributeChangeListeners) {
 				listener.dispose();
@@ -1492,7 +1492,6 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	}
 
 	private void fireSelectionChanged() {
-		beanListModelObservable.fireSelectionChanged();
 		beanSelectionObservable.fireBeanSelectionEvent(beanType, entityId, getSelectedBeans());
 	}
 

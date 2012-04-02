@@ -62,12 +62,6 @@ class BeanListModelObservable implements IBeanListModelObservable {
 		}
 	}
 
-	final void fireSelectionChanged() {
-		for (final IBeanListModelListener listener : new LinkedList<IBeanListModelListener>(listeners)) {
-			listener.selectionChanged();
-		}
-	}
-
 	void dispose() {
 		listeners.clear();
 	}
