@@ -130,7 +130,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 	private final BeanListSaveDelegate<BEAN_TYPE> saveDelegate;
 	private final BeanListRefreshDelegate<BEAN_TYPE> refreshDelegate;
 
-	private final IBeanListModel<?> parent;
+	private final IBeanListModel<Object> parent;
 	private final LinkType linkType;
 	private final boolean clearOnEmptyFilter;
 	private final boolean clearOnEmptyParentBeans;
@@ -139,7 +139,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 	private final BeanSelectionObservable<BEAN_TYPE> beanSelectionObservable;
 	private final DisposeObservable disposeObservable;
 	private final IChangeListener sortModelChangeListener;
-	private final IBeanListModelListener parentModelListener;
+	private final IBeanSelectionListener<Object> parentSelectionListener;
 
 	private final IBeanProxyLabelRenderer<BEAN_TYPE> renderer;
 
@@ -167,7 +167,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 		final IUpdaterService updaterService,
 		final IDeleterService deleterService,
 		final IBeanExceptionConverter exceptionConverter,
-		final IBeanListModel<?> parent,
+		final IBeanListModel<Object> parent,
 		final LinkType linkType,
 		final boolean clearOnEmptyFilter,
 		final boolean clearOnEmptyParentBeans) {
@@ -196,11 +196,11 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 					return getParentBeanKeys();
 				}
 			};
-			this.parentModelListener = new ParentBeanListModelListener(this, parentBeansProvider);
-			parent.addBeanListModelListener(parentModelListener);
+			this.parentSelectionListener = new ParentSelectionListener<Object>(this, parentBeansProvider);
+			parent.addBeanSelectionListener(parentSelectionListener);
 		}
 		else {
-			this.parentModelListener = null;
+			this.parentSelectionListener = null;
 		}
 
 		attributes = createModifiedByPluginsAttributes(entityId, attributes);
@@ -309,8 +309,8 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 			filterChangeObservable.dispose();
 			beansStateTracker.dispose();
 			sortModel.removeChangeListener(sortModelChangeListener);
-			if (parentModelListener != null && parent != null) {
-				parent.removeBeanListModelListener(parentModelListener);
+			if (parentSelectionListener != null && parent != null) {
+				parent.removeBeanSelectionListener(parentSelectionListener);
 			}
 			disposeBeans();
 			disposed = true;
@@ -677,7 +677,6 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 	}
 
 	private void fireSelectionChanged() {
-		beanListModelObservable.fireSelectionChanged();
 		beanSelectionObservable.fireBeanSelectionEvent(beanType, entityId, getSelectedBeans());
 	}
 

@@ -35,14 +35,15 @@ import java.util.concurrent.TimeUnit;
 
 import org.jowidgets.api.threads.IUiThreadAccess;
 import org.jowidgets.api.toolkit.Toolkit;
-import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
+import org.jowidgets.cap.ui.api.bean.IBeanSelectionEvent;
+import org.jowidgets.cap.ui.api.bean.IBeanSelectionListener;
 import org.jowidgets.cap.ui.api.model.IDataModel;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.EmptyCompatibleEquivalence;
 import org.jowidgets.util.IProvider;
 import org.jowidgets.util.concurrent.DaemonThreadFactory;
 
-final class ParentBeanListModelListener implements IBeanListModelListener {
+final class ParentSelectionListener<BEAN_TYPE> implements IBeanSelectionListener<BEAN_TYPE> {
 
 	private static final int LISTENER_DELAY = 100;
 
@@ -54,14 +55,11 @@ final class ParentBeanListModelListener implements IBeanListModelListener {
 	private ScheduledFuture<?> schedule;
 	private Object lastLoadCondition;
 
-	ParentBeanListModelListener(final IDataModel dataModel, final IProvider<Object> reloadConditionProvider) {
+	ParentSelectionListener(final IDataModel dataModel, final IProvider<Object> reloadConditionProvider) {
 		this(dataModel, reloadConditionProvider, LISTENER_DELAY);
 	}
 
-	ParentBeanListModelListener(
-		final IDataModel dataModel,
-		final IProvider<Object> reloadConditionProvider,
-		final long listenerDelay) {
+	ParentSelectionListener(final IDataModel dataModel, final IProvider<Object> reloadConditionProvider, final long listenerDelay) {
 		Assert.paramNotNull(dataModel, "dataModel");
 
 		this.dataModel = dataModel;
@@ -70,14 +68,7 @@ final class ParentBeanListModelListener implements IBeanListModelListener {
 	}
 
 	@Override
-	public void selectionChanged() {
-		if (!EmptyCompatibleEquivalence.equals(lastLoadCondition, reloadConditionProvider.get())) {
-			loadScheduled();
-		}
-	}
-
-	@Override
-	public void beansChanged() {
+	public void selectionChanged(final IBeanSelectionEvent<BEAN_TYPE> selectionEvent) {
 		if (!EmptyCompatibleEquivalence.equals(lastLoadCondition, reloadConditionProvider.get())) {
 			loadScheduled();
 		}

@@ -293,8 +293,9 @@ abstract class AbstractBeanModelBuilderImpl<BEAN_TYPE, INSTANCE_TYPE> implements
 		return readerParameterProvider;
 	}
 
-	protected IBeanListModel<?> getParent() {
-		return parent;
+	@SuppressWarnings("unchecked")
+	protected IBeanListModel<Object> getParent() {
+		return (IBeanListModel<Object>) parent;
 	}
 
 	protected LinkType getLinkType() {

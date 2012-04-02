@@ -102,7 +102,7 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 	private final BeanListSaveDelegate<BEAN_TYPE> saveDelegate;
 	private final BeanListRefreshDelegate<BEAN_TYPE> refreshDelegate;
 
-	private final IBeanListModel<?> parent;
+	private final IBeanListModel<Object> parent;
 	private final LinkType linkType;
 	private final List<IAttribute<Object>> attributes;
 	private final List<String> propertyNames;
@@ -113,7 +113,7 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 	private final BeanSelectionObservable<BEAN_TYPE> beanSelectionObservable;
 	private final ProcessStateObservable processStateObservable;
 
-	private final ParentBeanListModelListener parentModelListener;
+	private final ParentSelectionListener<Object> parentModelListener;
 	private final List<IBeanPropertyValidator<BEAN_TYPE>> beanPropertyValidators;
 	private final IBeansStateTracker<BEAN_TYPE> beansStateTracker;
 	private final IBeanProxyFactory<BEAN_TYPE> beanProxyFactory;
@@ -133,7 +133,7 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 		final IDeleterService deleterService,
 		final IBeanExceptionConverter exceptionConverter,
 		final Set<IBeanValidator<BEAN_TYPE>> beanValidators,
-		final IBeanListModel<?> parent,
+		final IBeanListModel<Object> parent,
 		final LinkType linkType,
 		List<IAttribute<Object>> attributes) {
 
@@ -156,8 +156,8 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 					return getParentBeanKeys();
 				}
 			};
-			this.parentModelListener = new ParentBeanListModelListener(this, parentBeansProvider);
-			parent.addBeanListModelListener(parentModelListener);
+			this.parentModelListener = new ParentSelectionListener<Object>(this, parentBeansProvider);
+			parent.addBeanSelectionListener(parentModelListener);
 		}
 		else {
 			this.parentModelListener = null;
@@ -314,7 +314,6 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 	}
 
 	private void fireSelectionChanged() {
-		beanListModelObservable.fireSelectionChanged();
 		beanSelectionObservable.fireBeanSelectionEvent(beanType, entityId, getSelectedBeans());
 	}
 

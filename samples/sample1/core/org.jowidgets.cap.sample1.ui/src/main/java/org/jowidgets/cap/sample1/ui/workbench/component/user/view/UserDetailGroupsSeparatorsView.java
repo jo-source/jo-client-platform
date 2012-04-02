@@ -28,7 +28,6 @@
 
 package org.jowidgets.cap.sample1.ui.workbench.component.user.view;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.jowidgets.api.widgets.IContainer;
@@ -39,11 +38,9 @@ import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.form.BeanFormGroupRendering;
 import org.jowidgets.cap.ui.api.form.IBeanFormGroupBuilder;
 import org.jowidgets.cap.ui.api.form.IBeanFormLayoutBuilder;
-import org.jowidgets.cap.ui.api.form.IBeanFormLayouter;
-import org.jowidgets.cap.ui.api.model.IBeanListModel;
-import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
-import org.jowidgets.cap.ui.api.widgets.IBeanForm;
+import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
+import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
 import org.jowidgets.tools.layout.MigLayoutFactory;
 import org.jowidgets.workbench.api.IViewContext;
 import org.jowidgets.workbench.tools.AbstractView;
@@ -60,11 +57,12 @@ public class UserDetailGroupsSeparatorsView extends AbstractView {
 
 	private final boolean useLabels = true;
 
-	public UserDetailGroupsSeparatorsView(final IViewContext context, final IBeanListModel<IUser> parentModel) {
+	public UserDetailGroupsSeparatorsView(final IViewContext context, final IBeanTableModel<IUser> parentModel) {
 		final IContainer container = context.getContainer();
 		container.setLayout(MigLayoutFactory.growingCellLayout());
 		final List<IAttribute<Object>> attributes = new UserAttributesFactory().formAttributes();
-		final IBeanFormBluePrint<IUser> formBp = CapUiToolkit.bluePrintFactory().beanForm(IUser.class, attributes);
+		final ICapApiBluePrintFactory cbpf = CapUiToolkit.bluePrintFactory();
+		final IBeanFormBluePrint<IUser> formBp = cbpf.beanForm(IUser.class, attributes);
 
 		final IBeanFormLayoutBuilder layoutBuilder = CapUiToolkit.beanFormToolkit().layoutBuilder();
 
@@ -106,26 +104,8 @@ public class UserDetailGroupsSeparatorsView extends AbstractView {
 				IUser.ADMIN_PROPERTY));
 		layoutBuilder.addGroup(administrationGroupBuilder);
 
-		final IBeanFormLayouter layouter = CapUiToolkit.beanFormToolkit().layouter(layoutBuilder.build());
+		formBp.setLayouter(CapUiToolkit.beanFormToolkit().layouter(layoutBuilder.build()));
+		container.add(cbpf.beanTableForm(parentModel).setBeanForm(formBp), MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
 
-		final IBeanForm<IUser> userForm = container.add(formBp.setLayouter(layouter), MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
-
-		parentModel.addBeanListModelListener(new IBeanListModelListener() {
-
-			@Override
-			public void selectionChanged() {
-				final ArrayList<Integer> selection = parentModel.getSelection();
-				if (selection.size() > 0) {
-					userForm.setValue(parentModel.getBean(selection.get(0)));
-				}
-				else {
-					userForm.setValue(null);
-				}
-			}
-
-			@Override
-			public void beansChanged() {}
-
-		});
 	}
 }

@@ -45,11 +45,12 @@ import org.jowidgets.cap.ui.api.bean.IBeanMessageStateListener;
 import org.jowidgets.cap.ui.api.bean.IBeanModificationStateListener;
 import org.jowidgets.cap.ui.api.bean.IBeanProcessStateListener;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
+import org.jowidgets.cap.ui.api.bean.IBeanSelectionEvent;
+import org.jowidgets.cap.ui.api.bean.IBeanSelectionListener;
 import org.jowidgets.cap.ui.api.execution.BeanMessageStatePolicy;
 import org.jowidgets.cap.ui.api.execution.BeanModificationStatePolicy;
 import org.jowidgets.cap.ui.api.execution.BeanSelectionPolicy;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
-import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.event.ChangeObservable;
 import org.jowidgets.util.event.IChangeListener;
@@ -73,7 +74,7 @@ final class BeanListModelEnabledChecker<BEAN_TYPE> extends ChangeObservable impl
 	private final BeanMessageStatePolicy beanMessageStatePolicy;
 	private final boolean ignoreSelectedBeansState;
 
-	private List<IBeanProxy> lastSelection;
+	private List<IBeanProxy<BEAN_TYPE>> lastSelection;
 
 	BeanListModelEnabledChecker(
 		final IBeanListModel<BEAN_TYPE> listModel,
@@ -144,12 +145,11 @@ final class BeanListModelEnabledChecker<BEAN_TYPE> extends ChangeObservable impl
 			}
 		};
 
-		listModel.addBeanListModelListener(new IBeanListModelListener() {
+		listModel.addBeanSelectionListener(new IBeanSelectionListener<BEAN_TYPE>() {
 
 			@Override
-			public void selectionChanged() {
-
-				final List<IBeanProxy> selectedBeans = getSelectedBeans();
+			public void selectionChanged(final IBeanSelectionEvent<BEAN_TYPE> selectionEvent) {
+				final List<IBeanProxy<BEAN_TYPE>> selectedBeans = selectionEvent.getSelection();
 
 				if (!ignoreSelectedBeansState) {
 					for (final IBeanProxy bean : lastSelection) {
@@ -175,9 +175,6 @@ final class BeanListModelEnabledChecker<BEAN_TYPE> extends ChangeObservable impl
 
 				fireChangedEvent();
 			}
-
-			@Override
-			public void beansChanged() {}
 		});
 	}
 
@@ -250,8 +247,8 @@ final class BeanListModelEnabledChecker<BEAN_TYPE> extends ChangeObservable impl
 		return EnabledState.ENABLED;
 	}
 
-	private List<IBeanProxy> getSelectedBeans() {
-		final List<IBeanProxy> result = new LinkedList<IBeanProxy>();
+	private List<IBeanProxy<BEAN_TYPE>> getSelectedBeans() {
+		final List<IBeanProxy<BEAN_TYPE>> result = new LinkedList<IBeanProxy<BEAN_TYPE>>();
 		for (final Integer index : listModel.getSelection()) {
 			result.add(listModel.getBean(index.intValue()));
 		}

@@ -32,6 +32,4 @@ public interface IBeanListModelListener {
 
 	void beansChanged();
 
-	void selectionChanged();
-
 }

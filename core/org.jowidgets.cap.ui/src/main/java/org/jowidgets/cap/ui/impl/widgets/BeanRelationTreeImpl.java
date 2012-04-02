@@ -36,13 +36,13 @@ import org.jowidgets.api.widgets.ITreeContainer;
 import org.jowidgets.api.widgets.ITreeNode;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyLabelRenderer;
+import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
 import org.jowidgets.cap.ui.api.model.ILabelModel;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationNodeModel;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeModel;
 import org.jowidgets.cap.ui.api.tree.IEntityTypeId;
 import org.jowidgets.cap.ui.api.widgets.IBeanRelationTree;
 import org.jowidgets.cap.ui.api.widgets.IBeanRelationTreeBluePrint;
-import org.jowidgets.cap.ui.tools.model.BeanListModelAdapter;
 import org.jowidgets.common.types.Markup;
 import org.jowidgets.tools.controller.TreeNodeAdapter;
 import org.jowidgets.tools.widgets.wrapper.ControlWrapper;
@@ -69,7 +69,7 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 	private void registerRelationModel(
 		final ITreeContainer parentContainer,
 		final IBeanRelationNodeModel<Object, Object> relationNodeModel) {
-		relationNodeModel.addBeanListModelListener(new BeanListModelAdapter() {
+		relationNodeModel.addBeanListModelListener(new IBeanListModelListener() {
 			@Override
 			public void beansChanged() {
 				onBeansChanged(parentContainer, relationNodeModel);
