@@ -1492,7 +1492,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	}
 
 	private void fireSelectionChanged() {
-		beanSelectionObservable.fireBeanSelectionEvent(beanType, entityId, getSelectedBeans());
+		beanSelectionObservable.fireBeanSelectionEvent(this, beanType, entityId, getSelectedBeans());
 	}
 
 	private class DataModel extends AbstractTableDataModel {

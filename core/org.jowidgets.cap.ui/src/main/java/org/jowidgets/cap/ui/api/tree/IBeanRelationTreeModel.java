@@ -46,6 +46,6 @@ public interface IBeanRelationTreeModel<CHILD_BEAN_TYPE> extends IDataModel, IBe
 
 	ArrayList<IBeanProxy<?>> getSelection();
 
-	void setSelection(Collection<? extends IBeanProxy<IBeanProxy<?>>> selection);
+	void setSelection(Collection<? extends IBeanProxy<?>> selection);
 
 }

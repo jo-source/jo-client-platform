@@ -30,12 +30,14 @@ package org.jowidgets.cap.ui.impl;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
+import org.jowidgets.cap.ui.api.bean.IBeanSelectionEvent;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionListener;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.model.IModificationStateListener;
@@ -47,11 +49,13 @@ import org.jowidgets.cap.ui.api.tree.IBeanRelationNodeModelConfigurator;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeModel;
 import org.jowidgets.cap.ui.api.tree.IEntityTypeId;
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.EmptyCheck;
 import org.jowidgets.util.IProvider;
 import org.jowidgets.util.Tuple;
 import org.jowidgets.validation.IValidationConditionListener;
 import org.jowidgets.validation.IValidationResult;
 
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class BeanRelationTreeModelImpl<CHILD_BEAN_TYPE> implements IBeanRelationTreeModel<CHILD_BEAN_TYPE> {
 
 	private final IBeanRelationNodeModel<Void, CHILD_BEAN_TYPE> root;
@@ -59,10 +63,11 @@ public class BeanRelationTreeModelImpl<CHILD_BEAN_TYPE> implements IBeanRelation
 	private final IBeanSelectionListener<Object> parentSelectionListener;
 	private final BeanSelectionObservable<Object> beanSelectionObservable;
 
-	@SuppressWarnings("rawtypes")
+	private final BeanSelectionListener beanSelectionListener;
 	private final Map relationNodes;
 
-	@SuppressWarnings("rawtypes")
+	private ArrayList<IBeanProxy<?>> selection;
+
 	public BeanRelationTreeModelImpl(
 		final IBeanRelationNodeModel<Void, CHILD_BEAN_TYPE> root,
 		final IBeanRelationNodeModelConfigurator nodeConfigurator,
@@ -73,6 +78,7 @@ public class BeanRelationTreeModelImpl<CHILD_BEAN_TYPE> implements IBeanRelation
 		Assert.paramNotNull(nodeConfigurator, "nodeConfigurator");
 
 		this.root = root;
+
 		this.nodeConfigurator = nodeConfigurator;
 		if (parent != null) {
 			Assert.paramNotNull(linkType, "linkType");
@@ -95,6 +101,8 @@ public class BeanRelationTreeModelImpl<CHILD_BEAN_TYPE> implements IBeanRelation
 
 		this.relationNodes = new HashMap();
 		this.beanSelectionObservable = new BeanSelectionObservable<Object>();
+		this.beanSelectionListener = new BeanSelectionListener<Object>();
+		root.addBeanSelectionListener(beanSelectionListener);
 	}
 
 	@Override
@@ -102,7 +110,6 @@ public class BeanRelationTreeModelImpl<CHILD_BEAN_TYPE> implements IBeanRelation
 		return root;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public <METHOD_PARENT_BEAN_TYPE, METHOD_CHILD_BEAN_TYPE> IBeanRelationNodeModel<METHOD_PARENT_BEAN_TYPE, METHOD_CHILD_BEAN_TYPE> getNode(
 		final IEntityTypeId<METHOD_PARENT_BEAN_TYPE> parentEntityTypeId,
@@ -120,7 +127,9 @@ public class BeanRelationTreeModelImpl<CHILD_BEAN_TYPE> implements IBeanRelation
 				parentBean,
 				childEntityTypeId);
 			nodeConfigurator.configureNode(childEntityTypeId, builder);
-			result = builder.build();
+			final IBeanRelationNodeModel nodeModel = builder.build();
+			nodeModel.addBeanSelectionListener(beanSelectionListener);
+			result = nodeModel;
 			relationNodes.put(key, result);
 		}
 		return (IBeanRelationNodeModel<METHOD_PARENT_BEAN_TYPE, METHOD_CHILD_BEAN_TYPE>) result;
@@ -200,10 +209,66 @@ public class BeanRelationTreeModelImpl<CHILD_BEAN_TYPE> implements IBeanRelation
 
 	@Override
 	public ArrayList<IBeanProxy<?>> getSelection() {
-		return new ArrayList<IBeanProxy<?>>();
+		if (selection == null) {
+			return new ArrayList<IBeanProxy<?>>();
+		}
+		else {
+			return new ArrayList<IBeanProxy<?>>(selection);
+		}
 	}
 
 	@Override
-	public void setSelection(final Collection<? extends IBeanProxy<IBeanProxy<?>>> selection) {}
+	public void setSelection(final Collection<? extends IBeanProxy<?>> selection) {
+		if (EmptyCheck.isEmpty(selection)) {
+			for (final Object object : getRelationNodes()) {
+				final IBeanRelationNodeModel<Object, Object> relationNode = (IBeanRelationNodeModel<Object, Object>) object;
+				final List<Integer> emptySelection = Collections.emptyList();
+				relationNode.removeBeanSelectionListener(beanSelectionListener);
+				relationNode.setSelection(emptySelection);
+				relationNode.addBeanSelectionListener(beanSelectionListener);
+
+			}
+			this.selection = new ArrayList<IBeanProxy<?>>();
+			beanSelectionObservable.fireBeanSelectionEvent(BeanRelationTreeModelImpl.this, null, null, getSelection());
+		}
+		//		else {
+		//			TODO MG implement programmatic selection changed != emptySelection
+		//		}
+	}
+
+	private Collection getRelationNodes() {
+		final Collection result = new LinkedList(relationNodes.values());
+		result.add(root);
+		return result;
+	}
+
+	private final class BeanSelectionListener<BEAN_TYPE> implements IBeanSelectionListener<BEAN_TYPE> {
+
+		@Override
+		public void selectionChanged(final IBeanSelectionEvent<BEAN_TYPE> selectionEvent) {
+			IBeanRelationNodeModel<?, ?> changedNode = null;
+			for (final Object object : getRelationNodes()) {
+				final IBeanRelationNodeModel<Object, Object> relationNode = (IBeanRelationNodeModel<Object, Object>) object;
+				final List<Integer> emptySelection = Collections.emptyList();
+				if (selectionEvent.getSource() != relationNode) {
+					relationNode.removeBeanSelectionListener(beanSelectionListener);
+					relationNode.setSelection(emptySelection);
+					relationNode.addBeanSelectionListener(beanSelectionListener);
+				}
+				else {
+					changedNode = relationNode;
+				}
+			}
+			if (changedNode != null) {
+				selection = new ArrayList<IBeanProxy<?>>(changedNode.getSelectedBeans());
+				beanSelectionObservable.fireBeanSelectionEvent(
+						BeanRelationTreeModelImpl.this,
+						selectionEvent.getBeanType(),
+						selectionEvent.getEntityId(),
+						selectionEvent.getSelection());
+			}
+
+		}
+	}
 
 }

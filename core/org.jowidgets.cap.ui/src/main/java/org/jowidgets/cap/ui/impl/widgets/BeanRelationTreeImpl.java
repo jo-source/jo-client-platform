@@ -28,9 +28,15 @@
 
 package org.jowidgets.cap.ui.impl.widgets;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
+import org.jowidgets.api.controller.IDisposeListener;
+import org.jowidgets.api.controller.ITreeSelectionEvent;
+import org.jowidgets.api.controller.ITreeSelectionListener;
 import org.jowidgets.api.widgets.ITree;
 import org.jowidgets.api.widgets.ITreeContainer;
 import org.jowidgets.api.widgets.ITreeNode;
@@ -53,6 +59,7 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 	private final IBeanRelationTreeModel<CHILD_BEAN_TYPE> treeModel;
 	private final boolean autoSelection;
 	private final int autoExpandLevel;
+	private final Map<ITreeNode, Tuple<IBeanRelationNodeModel<Object, Object>, Integer>> nodesMap;
 
 	@SuppressWarnings("unchecked")
 	BeanRelationTreeImpl(final ITree tree, final IBeanRelationTreeBluePrint<CHILD_BEAN_TYPE> bluePrint) {
@@ -60,6 +67,38 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 		this.treeModel = bluePrint.getModel();
 		this.autoSelection = bluePrint.getAutoSelection();
 		this.autoExpandLevel = bluePrint.getAutoExpandLevel();
+		this.nodesMap = new HashMap<ITreeNode, Tuple<IBeanRelationNodeModel<Object, Object>, Integer>>();
+
+		tree.addTreeSelectionListener(new ITreeSelectionListener() {
+			@Override
+			public void selectionChanged(final ITreeSelectionEvent event) {
+				final List<Integer> newSelection = new LinkedList<Integer>();
+				IBeanRelationNodeModel<Object, Object> relationNodeModel = null;
+				for (final ITreeNode selected : event.getSelected()) {
+					final Tuple<IBeanRelationNodeModel<Object, Object>, Integer> tuple = nodesMap.get(selected);
+					if (tuple != null) {
+						if (relationNodeModel == null) {
+							relationNodeModel = tuple.getFirst();
+							newSelection.add(tuple.getSecond());
+						}
+						else if (relationNodeModel == tuple.getFirst()) {
+							newSelection.add(tuple.getSecond());
+						}
+						//else {
+						//TODO MG unsupported selection, all elements must have the same childEntityTypeId
+						//}
+					}
+				}
+				if (relationNodeModel != null) {
+					relationNodeModel.setSelection(newSelection);
+				}
+				else {
+					final List<IBeanProxy<?>> emptyList = Collections.emptyList();
+					treeModel.setSelection(emptyList);
+				}
+
+			}
+		});
 
 		@SuppressWarnings("rawtypes")
 		final IBeanRelationNodeModel root = treeModel.getRoot();
@@ -93,6 +132,15 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 			childNode.setText(label.getText());
 			childNode.setToolTipText(label.getDescription());
 			childNode.setIcon(label.getIcon());
+			Tuple<IBeanRelationNodeModel<Object, Object>, Integer> tuple;
+			tuple = new Tuple<IBeanRelationNodeModel<Object, Object>, Integer>(relationNodeModel, Integer.valueOf(i));
+			nodesMap.put(childNode, tuple);
+			childNode.addDisposeListener(new IDisposeListener() {
+				@Override
+				public void onDispose() {
+					nodesMap.remove(childNode);
+				}
+			});
 
 			final List<Tuple<IBeanRelationNodeModel<Object, Object>, ITreeNode>> unregisteredChildren;
 			unregisteredChildren = new LinkedList<Tuple<IBeanRelationNodeModel<Object, Object>, ITreeNode>>();
