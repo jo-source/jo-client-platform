@@ -125,6 +125,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 
 	private final ArrayList<IBeanProxy<CHILD_BEAN_TYPE>> data;
 
+	private ArrayList<Integer> selection;
 	private DataLoader dataLoader;
 	private boolean hasInitialLoad;
 
@@ -471,13 +472,27 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 
 	@Override
 	public ArrayList<Integer> getSelection() {
-		//TODO MG implement getSelection()
-		return new ArrayList<Integer>();
+		if (selection == null) {
+			return new ArrayList<Integer>();
+		}
+		else {
+			return new ArrayList<Integer>(selection);
+		}
+	}
+
+	@Override
+	public List<IBeanProxy<CHILD_BEAN_TYPE>> getSelectedBeans() {
+		final List<IBeanProxy<CHILD_BEAN_TYPE>> result = new LinkedList<IBeanProxy<CHILD_BEAN_TYPE>>();
+		for (final Integer selectionIndex : getSelection()) {
+			result.add(getBean(selectionIndex.intValue()));
+		}
+		return Collections.unmodifiableList(result);
 	}
 
 	@Override
 	public void setSelection(final Collection<Integer> selection) {
-		//TODO MG implement setSelection()
+		this.selection = new ArrayList<Integer>(selection);
+		beanSelectionObservable.fireBeanSelectionEvent(this, childBeanType, childEntityId, getSelectedBeans());
 	}
 
 	@Override

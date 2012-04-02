@@ -314,7 +314,7 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 	}
 
 	private void fireSelectionChanged() {
-		beanSelectionObservable.fireBeanSelectionEvent(beanType, entityId, getSelectedBeans());
+		beanSelectionObservable.fireBeanSelectionEvent(this, beanType, entityId, getSelectedBeans());
 	}
 
 	private List<IBeanProxy<BEAN_TYPE>> getSelectedBeans() {

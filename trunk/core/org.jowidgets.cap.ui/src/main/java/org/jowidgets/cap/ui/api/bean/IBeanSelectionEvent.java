@@ -33,12 +33,17 @@ import java.util.List;
 public interface IBeanSelectionEvent<BEAN_TYPE> {
 
 	/**
-	 * @return The bean type of the selection
+	 * @return The source of the event
+	 */
+	IBeanSelectionObservable<BEAN_TYPE> getSource();
+
+	/**
+	 * @return The bean type of the selection. May be null for empty selection
 	 */
 	Class<BEAN_TYPE> getBeanType();
 
 	/**
-	 * @return The entity id of the selection
+	 * @return The entity id of the selection. May be null for empty selection
 	 */
 	Object getEntityId();
 

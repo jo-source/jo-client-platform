@@ -45,7 +45,7 @@ import org.jowidgets.util.concurrent.DaemonThreadFactory;
 
 final class ParentSelectionListener<BEAN_TYPE> implements IBeanSelectionListener<BEAN_TYPE> {
 
-	private static final int LISTENER_DELAY = 100;
+	private static final int LISTENER_DELAY = 200;
 
 	private final IDataModel dataModel;
 	private final long listenerDelay;

@@ -34,24 +34,31 @@ import java.util.List;
 
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionEvent;
+import org.jowidgets.cap.ui.api.bean.IBeanSelectionObservable;
 import org.jowidgets.util.Assert;
 
 final class BeanSelectionEventImpl<BEAN_TYPE> implements IBeanSelectionEvent<BEAN_TYPE> {
 
+	private final IBeanSelectionObservable<BEAN_TYPE> source;
 	private final Class<BEAN_TYPE> beanType;
 	private final Object entityId;
 	private final List<IBeanProxy<BEAN_TYPE>> selection;
 	private final IBeanProxy<BEAN_TYPE> firstSelected;
 
 	BeanSelectionEventImpl(
+		final IBeanSelectionObservable<BEAN_TYPE> source,
 		final Class<BEAN_TYPE> beanType,
 		final Object entityId,
 		final Collection<? extends IBeanProxy<BEAN_TYPE>> selection) {
 
-		Assert.paramNotNull(beanType, "beanType");
-		Assert.paramNotNull(entityId, "entityId");
+		Assert.paramNotNull(source, "source");
 		Assert.paramNotNull(selection, "selection");
+		if (!selection.isEmpty()) {
+			Assert.paramNotNull(beanType, "beanType");
+			Assert.paramNotNull(entityId, "entityId");
+		}
 
+		this.source = source;
 		this.beanType = beanType;
 		this.entityId = entityId;
 		this.selection = new LinkedList<IBeanProxy<BEAN_TYPE>>(selection);
@@ -62,6 +69,11 @@ final class BeanSelectionEventImpl<BEAN_TYPE> implements IBeanSelectionEvent<BEA
 		else {
 			firstSelected = null;
 		}
+	}
+
+	@Override
+	public IBeanSelectionObservable<BEAN_TYPE> getSource() {
+		return source;
 	}
 
 	@Override

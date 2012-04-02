@@ -33,7 +33,6 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Set;
 
-import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionEvent;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionListener;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionObservable;
@@ -65,11 +64,13 @@ final class BeanSelectionObservable<BEAN_TYPE> implements IBeanSelectionObservab
 		}
 	}
 
+	@SuppressWarnings({"rawtypes", "unchecked"})
 	void fireBeanSelectionEvent(
-		final Class<BEAN_TYPE> beanType,
+		final IBeanSelectionObservable source,
+		final Class beanType,
 		final Object entityId,
-		final Collection<? extends IBeanProxy<BEAN_TYPE>> selection) {
-		fireBeanSelectionEvent(new BeanSelectionEventImpl<BEAN_TYPE>(beanType, entityId, selection));
+		final Collection selection) {
+		fireBeanSelectionEvent(new BeanSelectionEventImpl<BEAN_TYPE>(source, beanType, entityId, selection));
 	}
 
 	void dispose() {

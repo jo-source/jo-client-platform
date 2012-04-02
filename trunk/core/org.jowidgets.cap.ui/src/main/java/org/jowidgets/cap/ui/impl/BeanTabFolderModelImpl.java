@@ -677,7 +677,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 	}
 
 	private void fireSelectionChanged() {
-		beanSelectionObservable.fireBeanSelectionEvent(beanType, entityId, getSelectedBeans());
+		beanSelectionObservable.fireBeanSelectionEvent(this, beanType, entityId, getSelectedBeans());
 	}
 
 	private List<IBeanProxy<BEAN_TYPE>> getSelectedBeans() {
