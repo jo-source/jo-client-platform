@@ -105,7 +105,7 @@ public class UserDetailGroupsSeparatorsView extends AbstractView {
 		layoutBuilder.addGroup(administrationGroupBuilder);
 
 		formBp.setLayouter(CapUiToolkit.beanFormToolkit().layouter(layoutBuilder.build()));
-		container.add(cbpf.beanTableForm(parentModel).setBeanForm(formBp), MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
+		container.add(cbpf.beanSelectionForm(parentModel).setBeanForm(formBp), MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
 
 	}
 }

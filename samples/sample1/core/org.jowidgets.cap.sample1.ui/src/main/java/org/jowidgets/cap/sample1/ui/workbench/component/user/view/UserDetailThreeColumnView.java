@@ -87,6 +87,6 @@ public class UserDetailThreeColumnView extends AbstractView {
 		layoutBuilder.setColumnMinSize(2, 100).setColumnMaxSize(2, 500);
 
 		formBp.setLayouter(CapUiToolkit.beanFormToolkit().layouter(layoutBuilder.build()));
-		container.add(cbpf.beanTableForm(parentModel).setBeanForm(formBp), MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
+		container.add(cbpf.beanSelectionForm(parentModel).setBeanForm(formBp), MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
 	}
 }

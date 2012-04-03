@@ -32,7 +32,7 @@ import org.jowidgets.api.widgets.IContainer;
 import org.jowidgets.cap.sample1.common.entity.IUser;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
-import org.jowidgets.cap.ui.api.widgets.IBeanTableFormBluePrint;
+import org.jowidgets.cap.ui.api.widgets.IBeanSelectionFormBluePrint;
 import org.jowidgets.tools.layout.MigLayoutFactory;
 import org.jowidgets.workbench.api.IViewContext;
 import org.jowidgets.workbench.tools.AbstractView;
@@ -46,7 +46,7 @@ public class UserDetailView extends AbstractView {
 	public UserDetailView(final IViewContext context, final IBeanTableModel<IUser> parentModel) {
 		final IContainer container = context.getContainer();
 		container.setLayout(MigLayoutFactory.growingCellLayout());
-		final IBeanTableFormBluePrint<IUser> beanTableFormBp = CapUiToolkit.bluePrintFactory().beanTableForm(parentModel);
-		container.add(beanTableFormBp, MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
+		final IBeanSelectionFormBluePrint selectionFormBp = CapUiToolkit.bluePrintFactory().beanSelectionForm(parentModel);
+		container.add(selectionFormBp, MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
 	}
 }

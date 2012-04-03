@@ -43,11 +43,8 @@ import org.jowidgets.cap.ui.api.widgets.IBeanSelectionFormSetupBuilder;
 import org.jowidgets.cap.ui.api.widgets.IBeanSelectionTableBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTabFolderBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
-import org.jowidgets.cap.ui.api.widgets.IBeanTableFormBluePrint;
-import org.jowidgets.cap.ui.api.widgets.IBeanTableFormSetupBuilder;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableSettingsDialogBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableSetupBuilder;
-import org.jowidgets.cap.ui.api.widgets.IBeanTablesFormBluePrint;
 import org.jowidgets.cap.ui.api.widgets.ILookUpCollectionInputFieldBluePrint;
 import org.jowidgets.cap.ui.api.widgets.ILookUpComboBoxSelectionBluePrint;
 import org.jowidgets.cap.ui.api.widgets.ISingleBeanFormBluePrint;
@@ -72,8 +69,6 @@ final class CapToolkitInterceptor implements IToolkitInterceptor {
 		genericWidgetFactory.register(IBeanSelectionDialogBluePrint.class, new BeanSelectionDialogFactory());
 		genericWidgetFactory.register(IBeanFormBluePrint.class, new BeanFormFactory());
 		genericWidgetFactory.register(IBeanDialogBluePrint.class, new BeanDialogFactory());
-		genericWidgetFactory.register(IBeanTablesFormBluePrint.class, new BeanTablesFormFactory());
-		genericWidgetFactory.register(IBeanTableFormBluePrint.class, new BeanTableFormFactory());
 		genericWidgetFactory.register(IBeanTableSettingsDialogBluePrint.class, new BeanTableSettingsDialogFactory());
 		genericWidgetFactory.register(ISingleBeanFormBluePrint.class, new SingleBeanFormFactory());
 		genericWidgetFactory.register(IAttributeFilterControlBluePrint.class, new AttributeFilterControlFactory());
@@ -96,7 +91,6 @@ final class CapToolkitInterceptor implements IToolkitInterceptor {
 		bpf.addDefaultsInitializer(IBeanTableSetupBuilder.class, new BeanTableDefaults());
 		bpf.addDefaultsInitializer(IBeanSelectionTableBluePrint.class, new BeanSelectionTableDefaults());
 		bpf.addDefaultsInitializer(IBeanSelectionDialogBluePrint.class, new BeanSelectionDialogDefaults());
-		bpf.addDefaultsInitializer(IBeanTableFormSetupBuilder.class, new BeanTableFormDefaults());
 		bpf.addDefaultsInitializer(IBeanDialogBluePrint.class, new BeanDialogDefaults());
 		bpf.addDefaultsInitializer(IBeanFormBluePrint.class, new BeanFormDefaults());
 		bpf.addDefaultsInitializer(IBeanRelationTreeBluePrint.class, new BeanRelationTreeDefaults());

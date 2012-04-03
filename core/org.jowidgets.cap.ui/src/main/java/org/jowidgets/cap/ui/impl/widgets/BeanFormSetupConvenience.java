@@ -28,30 +28,31 @@
 
 package org.jowidgets.cap.ui.impl.widgets;
 
-import java.util.Collections;
+import java.util.Collection;
 
-import org.jowidgets.cap.ui.api.bean.IBeanSelectionObservable;
+import org.jowidgets.cap.ui.api.attribute.IAttribute;
+import org.jowidgets.cap.ui.api.form.IBeanFormLayouter;
 import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
-import org.jowidgets.cap.ui.api.widgets.IBeanSelectionFormSetupBuilder;
-import org.jowidgets.cap.ui.api.widgets.IBeanSelectionFormSetupConvenience;
+import org.jowidgets.cap.ui.api.widgets.IBeanFormSetupConvenience;
 import org.jowidgets.tools.widgets.blueprint.convenience.AbstractSetupBuilderConvenience;
 
-final class BeanFormSetupConvenience extends
-		AbstractSetupBuilderConvenience<IBeanSelectionFormSetupBuilder<IBeanSelectionFormSetupBuilder<?>>> implements
-		IBeanSelectionFormSetupConvenience<IBeanSelectionFormSetupBuilder<IBeanSelectionFormSetupBuilder<?>>> {
+final class BeanFormSetupConvenience extends AbstractSetupBuilderConvenience<IBeanFormBluePrint<Object>> implements
+		IBeanFormSetupConvenience<Object, IBeanFormBluePrint<Object>> {
 
 	@Override
-	public IBeanSelectionFormSetupBuilder<IBeanSelectionFormSetupBuilder<?>> setSelectionObservable(
-		final IBeanSelectionObservable<?> selectionObservable) {
-		final IBeanSelectionFormSetupBuilder<IBeanSelectionFormSetupBuilder<?>> builder = getBuilder();
-		builder.setSelectionObservables(Collections.singleton(selectionObservable));
+	public IBeanFormBluePrint<Object> setLayouter(final IBeanFormLayouter layouter) {
+		final IBeanFormBluePrint<Object> builder = getBuilder();
+		builder.setEditModeLayouter(layouter);
+		builder.setCreateModeLayouter(layouter);
 		return builder;
 	}
 
 	@Override
-	public IBeanSelectionFormSetupBuilder<IBeanSelectionFormSetupBuilder<?>> setBeanForm(final IBeanFormBluePrint<?> beanForm) {
-		final IBeanSelectionFormSetupBuilder<IBeanSelectionFormSetupBuilder<?>> builder = getBuilder();
-		builder.setBeanForms(Collections.singleton(beanForm));
+	public IBeanFormBluePrint<Object> setAttributes(final Collection<? extends IAttribute<?>> attributes) {
+		final IBeanFormBluePrint<Object> builder = getBuilder();
+		builder.setEditModeAttributes(attributes);
+		builder.setCreateModeAttributes(attributes);
 		return builder;
 	}
+
 }

@@ -37,6 +37,7 @@ import org.jowidgets.api.widgets.blueprint.factory.IBluePrintFactory;
 import org.jowidgets.cap.common.api.lookup.ILookUpProperty;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
+import org.jowidgets.cap.ui.api.bean.IBeanSelectionObservable;
 import org.jowidgets.cap.ui.api.form.IBeanFormLayout;
 import org.jowidgets.cap.ui.api.form.IBeanFormToolkit;
 import org.jowidgets.cap.ui.api.model.ISingleBeanModel;
@@ -48,12 +49,11 @@ import org.jowidgets.cap.ui.api.widgets.IBeanDialogBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanRelationTreeBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanSelectionDialogBluePrint;
+import org.jowidgets.cap.ui.api.widgets.IBeanSelectionFormBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanSelectionTableBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTabFolderBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
-import org.jowidgets.cap.ui.api.widgets.IBeanTableFormBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableSettingsDialogBluePrint;
-import org.jowidgets.cap.ui.api.widgets.IBeanTablesFormBluePrint;
 import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
 import org.jowidgets.cap.ui.api.widgets.ILookUpCollectionInputFieldBluePrint;
 import org.jowidgets.cap.ui.api.widgets.ILookUpComboBoxSelectionBluePrint;
@@ -175,14 +175,15 @@ final class CapApiBluePrintFactory implements ICapApiBluePrintFactory {
 	}
 
 	@Override
-	public IBeanTablesFormBluePrint beanTablesForm() {
-		return bluePrintFactory.bluePrint(IBeanTablesFormBluePrint.class);
+	public IBeanSelectionFormBluePrint beanSelectionForm() {
+		return bluePrintFactory.bluePrint(IBeanSelectionFormBluePrint.class);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public <BEAN_TYPE> IBeanTableFormBluePrint<BEAN_TYPE> beanTableForm(final IBeanTableModel<BEAN_TYPE> model) {
-		return bluePrintFactory.bluePrint(IBeanTableFormBluePrint.class).setModel(model);
+	public IBeanSelectionFormBluePrint beanSelectionForm(final IBeanSelectionObservable<?> observable) {
+		final IBeanSelectionFormBluePrint result = beanSelectionForm();
+		result.setSelectionObservable(observable);
+		return result;
 	}
 
 	@SuppressWarnings("unchecked")
