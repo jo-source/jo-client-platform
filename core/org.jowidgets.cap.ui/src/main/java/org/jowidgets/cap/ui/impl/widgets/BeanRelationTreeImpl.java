@@ -28,11 +28,14 @@
 
 package org.jowidgets.cap.ui.impl.widgets;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.jowidgets.api.controller.IDisposeListener;
 import org.jowidgets.api.controller.ITreeSelectionEvent;
@@ -52,6 +55,7 @@ import org.jowidgets.cap.ui.api.widgets.IBeanRelationTreeBluePrint;
 import org.jowidgets.common.types.Markup;
 import org.jowidgets.tools.controller.TreeNodeAdapter;
 import org.jowidgets.tools.widgets.wrapper.ControlWrapper;
+import org.jowidgets.util.EmptyCheck;
 import org.jowidgets.util.Tuple;
 
 final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements IBeanRelationTree<CHILD_BEAN_TYPE> {
@@ -134,9 +138,22 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 			Tuple<IBeanRelationNodeModel<Object, Object>, Integer> tuple;
 			tuple = new Tuple<IBeanRelationNodeModel<Object, Object>, Integer>(relationNodeModel, Integer.valueOf(i));
 			nodesMap.put(childNode, tuple);
+
+			final PropertyChangeListener propertyChangeListener = new PropertyChangeListener() {
+				@Override
+				public void propertyChange(final PropertyChangeEvent evt) {
+					final Set<String> propertyDependencies = childRenderer.getPropertyDependencies();
+					if (EmptyCheck.isEmpty(propertyDependencies) || propertyDependencies.contains(evt.getPropertyName())) {
+						renderNode(childNode, childRenderer.getLabel(bean));
+					}
+				}
+			};
+			bean.addPropertyChangeListener(propertyChangeListener);
+
 			childNode.addDisposeListener(new IDisposeListener() {
 				@Override
 				public void onDispose() {
+					bean.removePropertyChangeListener(propertyChangeListener);
 					nodesMap.remove(childNode);
 				}
 			});

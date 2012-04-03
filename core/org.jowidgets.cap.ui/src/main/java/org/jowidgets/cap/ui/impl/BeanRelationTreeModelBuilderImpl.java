@@ -145,7 +145,12 @@ final class BeanRelationTreeModelBuilderImpl<CHILD_BEAN_TYPE> extends
 			getDeleterService(),
 			getBeanValidators(),
 			getAttributes());
-		return new BeanRelationTreeModelImpl<CHILD_BEAN_TYPE>(rootNode, getNodeConfigurator(), getParent(), getLinkType());
+		return new BeanRelationTreeModelImpl<CHILD_BEAN_TYPE>(
+			rootNode,
+			getNodeConfigurator(),
+			getParent(),
+			getLinkType(),
+			getListenerDelay());
 	}
 
 	private IBeanRelationNodeModelConfigurator getNodeConfigurator() {

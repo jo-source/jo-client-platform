@@ -65,6 +65,7 @@ abstract class AbstractBeanModelBuilderImpl<BEAN_TYPE, INSTANCE_TYPE> implements
 	private IProvider<? extends Object> readerParameterProvider;
 	private IBeanListModel<?> parent;
 	private LinkType linkType;
+	private Long listenerDelay;
 	private List<IAttribute<Object>> attributes;
 	private String[] metaPropertyNames;
 
@@ -227,14 +228,24 @@ abstract class AbstractBeanModelBuilderImpl<BEAN_TYPE, INSTANCE_TYPE> implements
 		return (INSTANCE_TYPE) this;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public INSTANCE_TYPE setParent(final IBeanListModel<?> parent, final LinkType linkType) {
+		return setParentImpl(parent, linkType, null);
+	}
+
+	@Override
+	public INSTANCE_TYPE setParent(final IBeanListModel<?> parent, final LinkType linkType, final long listenerDelay) {
+		return setParentImpl(parent, linkType, Long.valueOf(listenerDelay));
+	}
+
+	@SuppressWarnings("unchecked")
+	private INSTANCE_TYPE setParentImpl(final IBeanListModel<?> parent, final LinkType linkType, final Long listenerDelay) {
 		Assert.paramNotNull(parent, "parent");
 		Assert.paramNotNull(linkType, "linkType");
 
 		this.parent = parent;
 		this.linkType = linkType;
+		this.listenerDelay = listenerDelay;
 
 		return (INSTANCE_TYPE) this;
 	}
@@ -300,6 +311,10 @@ abstract class AbstractBeanModelBuilderImpl<BEAN_TYPE, INSTANCE_TYPE> implements
 
 	protected LinkType getLinkType() {
 		return linkType;
+	}
+
+	protected Long getListenerDelay() {
+		return listenerDelay;
 	}
 
 	protected ICreatorService getCreatorService() {
