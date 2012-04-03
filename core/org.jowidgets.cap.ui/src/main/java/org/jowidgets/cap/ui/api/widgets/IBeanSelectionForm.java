@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, grossmann
+ * Copyright (c) 2011, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,32 +26,35 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.impl.widgets;
+package org.jowidgets.cap.ui.api.widgets;
 
-import java.util.Collections;
-
+import org.jowidgets.api.widgets.IControl;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionObservable;
-import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
-import org.jowidgets.cap.ui.api.widgets.IBeanSelectionFormSetupBuilder;
-import org.jowidgets.cap.ui.api.widgets.IBeanSelectionFormSetupConvenience;
-import org.jowidgets.tools.widgets.blueprint.convenience.AbstractSetupBuilderConvenience;
 
-final class BeanFormSetupConvenience extends
-		AbstractSetupBuilderConvenience<IBeanSelectionFormSetupBuilder<IBeanSelectionFormSetupBuilder<?>>> implements
-		IBeanSelectionFormSetupConvenience<IBeanSelectionFormSetupBuilder<IBeanSelectionFormSetupBuilder<?>>> {
+public interface IBeanSelectionForm extends IControl {
 
-	@Override
-	public IBeanSelectionFormSetupBuilder<IBeanSelectionFormSetupBuilder<?>> setSelectionObservable(
-		final IBeanSelectionObservable<?> selectionObservable) {
-		final IBeanSelectionFormSetupBuilder<IBeanSelectionFormSetupBuilder<?>> builder = getBuilder();
-		builder.setSelectionObservables(Collections.singleton(selectionObservable));
-		return builder;
-	}
+	void registerSelectionObservable(IBeanSelectionObservable<?> selectionObservable);
 
-	@Override
-	public IBeanSelectionFormSetupBuilder<IBeanSelectionFormSetupBuilder<?>> setBeanForm(final IBeanFormBluePrint<?> beanForm) {
-		final IBeanSelectionFormSetupBuilder<IBeanSelectionFormSetupBuilder<?>> builder = getBuilder();
-		builder.setBeanForms(Collections.singleton(beanForm));
-		return builder;
-	}
+	void unregisterSelectionObservable(IBeanSelectionObservable<?> selectionObservable);
+
+	/**
+	 * Registers a form for a specific entityId. If no form is registered, the
+	 * form will be created with help of the entity service (and plugins), if available.
+	 * 
+	 * Remark: The given bean form must have an entity id.
+	 * 
+	 * @param beanForm The bean form to register for the entity id, never null
+	 * 
+	 * @throws IllegalArgumentException if the bean form is null or the beanForms entity id is null
+	 */
+	void registerForm(IBeanFormBluePrint<?> beanForm);
+
+	/**
+	 * Unregisters a bean form for a specific entity id. If no bean form is registered for the entity id,
+	 * nothing will happen.
+	 * 
+	 * @param entityId The entity id to unregister the bean form for.
+	 */
+	void unregisterForm(Object entityId);
+
 }

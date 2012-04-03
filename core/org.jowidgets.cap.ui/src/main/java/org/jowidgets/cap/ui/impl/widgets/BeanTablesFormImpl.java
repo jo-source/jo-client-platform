@@ -58,7 +58,7 @@ final class BeanTablesFormImpl extends ControlWrapper implements IBeanTablesForm
 	private final boolean hideMetaAttributes;
 	private final Map<IBeanTableView<?>, IBeanForm<?>> forms;
 	private final Map<IBeanTableView<?>, TableViewListener> viewListeners;
-	private final Map<IBeanTableView<?>, TableSelectionListener<?>> tableSelectionListeners;
+	private final Map<IBeanTableView<?>, BeanSelectionListener<?>> tableSelectionListeners;
 
 	BeanTablesFormImpl(final IComposite composite, final IBeanTablesFormBluePrint bluePrint) {
 		super(composite);
@@ -66,7 +66,7 @@ final class BeanTablesFormImpl extends ControlWrapper implements IBeanTablesForm
 		this.hideMetaAttributes = bluePrint.getHideMetaAttributes();
 		this.forms = new HashMap<IBeanTableView<?>, IBeanForm<?>>();
 		this.viewListeners = new HashMap<IBeanTableView<?>, TableViewListener>();
-		this.tableSelectionListeners = new HashMap<IBeanTableView<?>, TableSelectionListener<?>>();
+		this.tableSelectionListeners = new HashMap<IBeanTableView<?>, BeanSelectionListener<?>>();
 		composite.setLayout(new MigLayoutDescriptor("hidemode 3", "0[grow, 0::]0", "0[grow, 0::]0"));
 	}
 
@@ -85,9 +85,9 @@ final class BeanTablesFormImpl extends ControlWrapper implements IBeanTablesForm
 			forms.put(view, beanForm);
 			final IBeanTableModel<BEAN_TYPE> model = view.getModel();
 
-			final TableSelectionListener<BEAN_TYPE> tableModelListener = new TableSelectionListener<BEAN_TYPE>(view, beanForm);
-			tableSelectionListeners.put(view, tableModelListener);
-			model.addBeanSelectionListener(tableModelListener);
+			final BeanSelectionListener<BEAN_TYPE> selectionListener = new BeanSelectionListener<BEAN_TYPE>(view, beanForm);
+			tableSelectionListeners.put(view, selectionListener);
+			model.addBeanSelectionListener(selectionListener);
 
 			final TableViewListener viewListener = new TableViewListener(view);
 			viewListeners.put(view, viewListener);
@@ -156,12 +156,12 @@ final class BeanTablesFormImpl extends ControlWrapper implements IBeanTablesForm
 		}
 	}
 
-	private final class TableSelectionListener<BEAN_TYPE> implements IBeanSelectionListener<BEAN_TYPE> {
+	private final class BeanSelectionListener<BEAN_TYPE> implements IBeanSelectionListener<BEAN_TYPE> {
 
 		private final IBeanTableView<BEAN_TYPE> view;
 		private final IBeanForm<BEAN_TYPE> beanForm;
 
-		private TableSelectionListener(final IBeanTableView<BEAN_TYPE> view, final IBeanForm<BEAN_TYPE> beanForm) {
+		private BeanSelectionListener(final IBeanTableView<BEAN_TYPE> view, final IBeanForm<BEAN_TYPE> beanForm) {
 			super();
 			this.view = view;
 			this.beanForm = beanForm;

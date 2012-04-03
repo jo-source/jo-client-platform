@@ -28,30 +28,14 @@
 
 package org.jowidgets.cap.ui.impl.widgets;
 
-import java.util.Collections;
-
-import org.jowidgets.cap.ui.api.bean.IBeanSelectionObservable;
-import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
+import org.jowidgets.api.widgets.blueprint.defaults.IDefaultInitializer;
 import org.jowidgets.cap.ui.api.widgets.IBeanSelectionFormSetupBuilder;
-import org.jowidgets.cap.ui.api.widgets.IBeanSelectionFormSetupConvenience;
-import org.jowidgets.tools.widgets.blueprint.convenience.AbstractSetupBuilderConvenience;
 
-final class BeanFormSetupConvenience extends
-		AbstractSetupBuilderConvenience<IBeanSelectionFormSetupBuilder<IBeanSelectionFormSetupBuilder<?>>> implements
-		IBeanSelectionFormSetupConvenience<IBeanSelectionFormSetupBuilder<IBeanSelectionFormSetupBuilder<?>>> {
+final class BeanSelectionFormDefaults implements IDefaultInitializer<IBeanSelectionFormSetupBuilder<?>> {
 
 	@Override
-	public IBeanSelectionFormSetupBuilder<IBeanSelectionFormSetupBuilder<?>> setSelectionObservable(
-		final IBeanSelectionObservable<?> selectionObservable) {
-		final IBeanSelectionFormSetupBuilder<IBeanSelectionFormSetupBuilder<?>> builder = getBuilder();
-		builder.setSelectionObservables(Collections.singleton(selectionObservable));
-		return builder;
-	}
-
-	@Override
-	public IBeanSelectionFormSetupBuilder<IBeanSelectionFormSetupBuilder<?>> setBeanForm(final IBeanFormBluePrint<?> beanForm) {
-		final IBeanSelectionFormSetupBuilder<IBeanSelectionFormSetupBuilder<?>> builder = getBuilder();
-		builder.setBeanForms(Collections.singleton(beanForm));
-		return builder;
+	public void initialize(final IBeanSelectionFormSetupBuilder<?> setupBuilder) {
+		setupBuilder.setHideReadonlyAttributes(true);
+		setupBuilder.setHideMetaAttributes(true);
 	}
 }
