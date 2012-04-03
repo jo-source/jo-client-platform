@@ -118,6 +118,7 @@ final class BeanSelectionFormImpl extends ControlWrapper implements IBeanSelecti
 				final IBeanProxy<Object> bean = beanForm.getValue();
 				getWidget().remove(beanForm);
 				final IBeanForm<Object> newBeanForm = getBeanForm(entityId);
+				newBeanForm.setVisible(true);
 				newBeanForm.setValue(bean);
 			}
 			else {
@@ -141,6 +142,7 @@ final class BeanSelectionFormImpl extends ControlWrapper implements IBeanSelecti
 			final IBeanForm<Object> form = getBeanForm(selectionEvent.getEntityId());
 			form.setValue(selectionEvent.getFirstSelected());
 			if (!form.isVisible()) {
+				getWidget().layoutBegin();
 				for (final IBeanForm<?> childForm : beanForms.values()) {
 					if (childForm != form) {
 						childForm.setVisible(false);
@@ -148,12 +150,15 @@ final class BeanSelectionFormImpl extends ControlWrapper implements IBeanSelecti
 				}
 				form.setVisible(true);
 				form.setSize(getWidget().getSize());
+				getWidget().layoutEnd();
 			}
 		}
 		else {
 			for (final IBeanForm<?> childForm : beanForms.values()) {
+				getWidget().layoutBegin();
 				childForm.setVisible(false);
 				childForm.setValue(null);
+				getWidget().layoutEnd();
 			}
 		}
 	}
@@ -169,7 +174,9 @@ final class BeanSelectionFormImpl extends ControlWrapper implements IBeanSelecti
 
 	private IBeanForm<Object> createBeanForm(final Object entityId) {
 		final IBeanFormBluePrint<Object> beanFormBp = getBeanFormBluePrint(entityId);
-		return getWidget().add(beanFormBp, MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
+		final IBeanForm<Object> result = getWidget().add(beanFormBp, MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
+		result.setVisible(false);
+		return result;
 	}
 
 	private IBeanFormBluePrint<Object> getBeanFormBluePrint(final Object entityId) {

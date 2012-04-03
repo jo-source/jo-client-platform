@@ -37,7 +37,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.jowidgets.api.command.IAction;
-import org.jowidgets.api.controller.IDisposeListener;
 import org.jowidgets.api.model.item.IActionItemModel;
 import org.jowidgets.api.model.item.IToolBarItemModel;
 import org.jowidgets.api.model.item.IToolBarModel;
@@ -53,13 +52,8 @@ import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeModel;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeModelBuilder;
-import org.jowidgets.cap.ui.api.widgets.IBeanTable;
-import org.jowidgets.cap.ui.api.widgets.IBeanTableView;
-import org.jowidgets.cap.ui.api.widgets.IBeanTableViewListener;
 import org.jowidgets.common.types.IVetoable;
-import org.jowidgets.common.widgets.controller.IFocusListener;
 import org.jowidgets.service.api.ServiceProvider;
-import org.jowidgets.util.Assert;
 import org.jowidgets.workbench.api.IComponent;
 import org.jowidgets.workbench.api.IComponentContext;
 import org.jowidgets.workbench.api.IView;
@@ -146,7 +140,7 @@ public class EntityComponent extends AbstractComponent implements IComponent {
 			}
 			multiDetailView = new EntityMultiDetailView(context);
 			for (final LinkedEntityTableView tableView : tableViews) {
-				multiDetailView.getTablesForm().registerView(new BeanTableView(tableView.getTable()));
+				multiDetailView.getBeanSelectionForm().registerSelectionObservable(tableView.getTable().getModel());
 			}
 			return multiDetailView;
 		}
@@ -201,7 +195,7 @@ public class EntityComponent extends AbstractComponent implements IComponent {
 
 	private void registerTableView(final LinkedEntityTableView tableView) {
 		if (multiDetailView != null) {
-			multiDetailView.getTablesForm().registerView(new BeanTableView(tableView.getTable()));
+			multiDetailView.getBeanSelectionForm().registerSelectionObservable(tableView.getTable().getModel());
 		}
 		tableViews.add(tableView);
 	}
@@ -214,67 +208,6 @@ public class EntityComponent extends AbstractComponent implements IComponent {
 		else {
 			return IBeanDto.class;
 		}
-	}
-
-	private final class BeanTableView implements IBeanTableView<Object> {
-
-		private final Set<IBeanTableViewListener> viewListeners;
-
-		private final IBeanTable<?> table;
-
-		private BeanTableView(final IBeanTable<?> table) {
-			this.table = table;
-			this.viewListeners = new LinkedHashSet<IBeanTableViewListener>();
-			final IFocusListener focusListener = new IFocusListener() {
-
-				@Override
-				public void focusLost() {}
-
-				@Override
-				public void focusGained() {
-					for (final IBeanTableViewListener listener : viewListeners) {
-						listener.viewActivated();
-					}
-				}
-			};
-			table.addFocusListener(focusListener);
-
-			table.addDisposeListener(new IDisposeListener() {
-				@Override
-				public void onDispose() {
-					table.removeFocusListener(focusListener);
-				}
-			});
-		}
-
-		@Override
-		public void addDisposeListener(final IDisposeListener listener) {
-			table.addDisposeListener(listener);
-		}
-
-		@Override
-		public void removeDisposeListener(final IDisposeListener listener) {
-			table.removeDisposeListener(listener);
-		}
-
-		@Override
-		public void addViewListener(final IBeanTableViewListener listener) {
-			Assert.paramNotNull(listener, "listener");
-			viewListeners.add(listener);
-		}
-
-		@Override
-		public void removeViewListener(final IBeanTableViewListener listener) {
-			Assert.paramNotNull(listener, "listener");
-			viewListeners.remove(listener);
-		}
-
-		@SuppressWarnings({"unchecked", "rawtypes"})
-		@Override
-		public IBeanTableModel getModel() {
-			return table.getModel();
-		}
-
 	}
 
 }

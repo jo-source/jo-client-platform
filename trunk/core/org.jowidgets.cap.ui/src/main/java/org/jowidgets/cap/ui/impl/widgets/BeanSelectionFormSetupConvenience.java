@@ -28,31 +28,30 @@
 
 package org.jowidgets.cap.ui.impl.widgets;
 
-import java.util.Collection;
+import java.util.Collections;
 
-import org.jowidgets.cap.ui.api.attribute.IAttribute;
-import org.jowidgets.cap.ui.api.form.IBeanFormLayouter;
+import org.jowidgets.cap.ui.api.bean.IBeanSelectionObservable;
 import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
-import org.jowidgets.cap.ui.api.widgets.IBeanFormSetupConvenience;
+import org.jowidgets.cap.ui.api.widgets.IBeanSelectionFormSetupBuilder;
+import org.jowidgets.cap.ui.api.widgets.IBeanSelectionFormSetupConvenience;
 import org.jowidgets.tools.widgets.blueprint.convenience.AbstractSetupBuilderConvenience;
 
-final class BeanSelectionFormSetupConvenience extends AbstractSetupBuilderConvenience<IBeanFormBluePrint<Object>> implements
-		IBeanFormSetupConvenience<Object, IBeanFormBluePrint<Object>> {
+final class BeanSelectionFormSetupConvenience extends
+		AbstractSetupBuilderConvenience<IBeanSelectionFormSetupBuilder<IBeanSelectionFormSetupBuilder<?>>> implements
+		IBeanSelectionFormSetupConvenience<IBeanSelectionFormSetupBuilder<IBeanSelectionFormSetupBuilder<?>>> {
 
 	@Override
-	public IBeanFormBluePrint<Object> setLayouter(final IBeanFormLayouter layouter) {
-		final IBeanFormBluePrint<Object> builder = getBuilder();
-		builder.setEditModeLayouter(layouter);
-		builder.setCreateModeLayouter(layouter);
+	public IBeanSelectionFormSetupBuilder<IBeanSelectionFormSetupBuilder<?>> setSelectionObservable(
+		final IBeanSelectionObservable<?> selectionObservable) {
+		final IBeanSelectionFormSetupBuilder<IBeanSelectionFormSetupBuilder<?>> builder = getBuilder();
+		builder.setSelectionObservables(Collections.singleton(selectionObservable));
 		return builder;
 	}
 
 	@Override
-	public IBeanFormBluePrint<Object> setAttributes(final Collection<? extends IAttribute<?>> attributes) {
-		final IBeanFormBluePrint<Object> builder = getBuilder();
-		builder.setEditModeAttributes(attributes);
-		builder.setCreateModeAttributes(attributes);
+	public IBeanSelectionFormSetupBuilder<IBeanSelectionFormSetupBuilder<?>> setBeanForm(final IBeanFormBluePrint<?> beanForm) {
+		final IBeanSelectionFormSetupBuilder<IBeanSelectionFormSetupBuilder<?>> builder = getBuilder();
+		builder.setBeanForms(Collections.singleton(beanForm));
 		return builder;
 	}
-
 }

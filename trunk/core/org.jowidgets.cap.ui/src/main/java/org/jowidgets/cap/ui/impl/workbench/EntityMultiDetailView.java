@@ -30,7 +30,7 @@ package org.jowidgets.cap.ui.impl.workbench;
 
 import org.jowidgets.api.widgets.IContainer;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
-import org.jowidgets.cap.ui.api.widgets.IBeanTablesForm;
+import org.jowidgets.cap.ui.api.widgets.IBeanSelectionForm;
 import org.jowidgets.tools.layout.MigLayoutFactory;
 import org.jowidgets.workbench.api.IViewContext;
 import org.jowidgets.workbench.tools.AbstractView;
@@ -41,17 +41,17 @@ public class EntityMultiDetailView extends AbstractView {
 
 	public static final String DEFAULT_LABEL = Messages.getString("MultiDetailView.details"); //$NON-NLS-1$
 
-	private final IBeanTablesForm tablesForm;
+	private final IBeanSelectionForm tablesForm;
 
 	public EntityMultiDetailView(final IViewContext context) {
 		final IContainer container = context.getContainer();
 		container.setLayout(MigLayoutFactory.growingCellLayout());
 		this.tablesForm = container.add(
-				CapUiToolkit.bluePrintFactory().beanTablesForm(),
+				CapUiToolkit.bluePrintFactory().beanSelectionForm(),
 				MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
 	}
 
-	public IBeanTablesForm getTablesForm() {
+	public IBeanSelectionForm getBeanSelectionForm() {
 		return tablesForm;
 	}
 
