@@ -144,7 +144,8 @@ final class ExecutorCommand implements ICommand, ICommandExecutor {
 			beans,
 			beanListExecutionPolicy,
 			beanExceptionConverter,
-			false);
+			false,
+			true);
 
 		final List<List<IBeanProxy<?>>> preparedExecutions = executionHelper.prepareExecutions();
 		executionObservable.fireAfterExecutionPrepared(executionContext);

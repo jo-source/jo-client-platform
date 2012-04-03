@@ -53,19 +53,22 @@ final class BeanListExecutionHelper<BEAN_TYPE> {
 	private final IBeanExceptionConverter exceptionConverter;
 	private final BeanExecutionPolicy beanExecutionPolicy;
 	private final boolean transientSourceBeans;
+	private final boolean fireBeansChanged;
 
 	BeanListExecutionHelper(
 		final IBeanListModel<BEAN_TYPE> listModel,
 		final Collection<? extends IBeanProxy<BEAN_TYPE>> beans,
 		final BeanExecutionPolicy beanExecutionPolicy,
 		final IBeanExceptionConverter exceptionConverter,
-		final boolean transientSourceBeans) {
+		final boolean transientSourceBeans,
+		final boolean fireBeansChanged) {
 		super();
 		this.listModel = listModel;
 		this.beans = beans;
 		this.beanExecutionPolicy = beanExecutionPolicy;
 		this.exceptionConverter = exceptionConverter;
 		this.transientSourceBeans = transientSourceBeans;
+		this.fireBeansChanged = fireBeansChanged;
 	}
 
 	List<List<IBeanProxy<BEAN_TYPE>>> prepareExecutions() {
@@ -96,7 +99,9 @@ final class BeanListExecutionHelper<BEAN_TYPE> {
 				subList.add(bean);
 			}
 		}
-		listModel.fireBeansChanged();
+		if (fireBeansChanged) {
+			listModel.fireBeansChanged();
+		}
 		return result;
 	}
 
@@ -128,7 +133,9 @@ final class BeanListExecutionHelper<BEAN_TYPE> {
 		for (final IBeanProxy<BEAN_TYPE> bean : executedBeans) {
 			bean.setExecutionTask(null);
 		}
-		listModel.fireBeansChanged();
+		if (fireBeansChanged) {
+			listModel.fireBeansChanged();
+		}
 	}
 
 	private void updateTransientBeans(final List<IBeanProxy<BEAN_TYPE>> executedBeans, final List<IBeanDto> result) {
@@ -187,7 +194,9 @@ final class BeanListExecutionHelper<BEAN_TYPE> {
 			}
 			bean.setExecutionTask(null);
 		}
-		listModel.fireBeansChanged();
+		if (fireBeansChanged) {
+			listModel.fireBeansChanged();
+		}
 	}
 
 	IExecutionTask createExecutionTask() {
