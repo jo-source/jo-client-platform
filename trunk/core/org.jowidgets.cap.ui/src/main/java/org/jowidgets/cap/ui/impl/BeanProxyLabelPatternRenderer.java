@@ -117,6 +117,9 @@ final class BeanProxyLabelPatternRenderer<BEAN_TYPE> implements IBeanProxyLabelR
 		if (EmptyCheck.isEmpty(replacerPattern)) {
 			return new LabelModelImpl(bean.getId().toString());
 		}
+		else if (bean != null && bean.isDummy()) {
+			return new LabelModelImpl("...");
+		}
 		else {
 			final List<String> parameters = new LinkedList<String>();
 			for (final String property : propertyDependencies) {
