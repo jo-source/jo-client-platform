@@ -139,9 +139,11 @@ public class EntityComponent extends AbstractComponent implements IComponent {
 				throw new IllegalStateException("MultiDetailView could only be used once in layout");
 			}
 			multiDetailView = new EntityMultiDetailView(context);
-			for (final LinkedEntityTableView tableView : tableViews) {
-				multiDetailView.getBeanSelectionForm().registerSelectionObservable(tableView.getTable().getModel());
-			}
+			multiDetailView.getBeanSelectionForm().registerSelectionObservable(relationTreeModel);
+			//TODO MG this will not work, until it is possible to determine the active view
+			//			for (final LinkedEntityTableView tableView : tableViews) {
+			//				multiDetailView.getBeanSelectionForm().registerSelectionObservable(tableView.getTable().getModel());
+			//			}
 			return multiDetailView;
 		}
 		else if (links.containsKey(viewId)) {
