@@ -71,10 +71,14 @@ final class BeanTableFormFactory implements IWidgetFactory<IControl, IBeanTableF
 		}
 
 		@Override
-		public void addDisposeListener(final IDisposeListener listener) {}
+		public void addDisposeListener(final IDisposeListener listener) {
+			model.addDisposeListener(listener);
+		}
 
 		@Override
-		public void removeDisposeListener(final IDisposeListener listener) {}
+		public void removeDisposeListener(final IDisposeListener listener) {
+			model.removeDisposeListener(listener);
+		}
 
 		@Override
 		public void addViewListener(final IBeanTableViewListener listener) {}

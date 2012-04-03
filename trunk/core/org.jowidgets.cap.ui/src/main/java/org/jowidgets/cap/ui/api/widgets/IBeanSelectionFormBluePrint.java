@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, grossmann
+ * Copyright (c) 2011, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,32 +26,12 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.impl.widgets;
+package org.jowidgets.cap.ui.api.widgets;
 
-import java.util.Collections;
+import org.jowidgets.common.widgets.descriptor.IWidgetDescriptor;
 
-import org.jowidgets.cap.ui.api.bean.IBeanSelectionObservable;
-import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
-import org.jowidgets.cap.ui.api.widgets.IBeanSelectionFormSetupBuilder;
-import org.jowidgets.cap.ui.api.widgets.IBeanSelectionFormSetupConvenience;
-import org.jowidgets.tools.widgets.blueprint.convenience.AbstractSetupBuilderConvenience;
+public interface IBeanSelectionFormBluePrint extends
+		IBeanSelectionFormSetupBuilder<IBeanSelectionFormBluePrint>,
+		IWidgetDescriptor<IBeanSelectionForm> {
 
-final class BeanFormSetupConvenience extends
-		AbstractSetupBuilderConvenience<IBeanSelectionFormSetupBuilder<IBeanSelectionFormSetupBuilder<?>>> implements
-		IBeanSelectionFormSetupConvenience<IBeanSelectionFormSetupBuilder<IBeanSelectionFormSetupBuilder<?>>> {
-
-	@Override
-	public IBeanSelectionFormSetupBuilder<IBeanSelectionFormSetupBuilder<?>> setSelectionObservable(
-		final IBeanSelectionObservable<?> selectionObservable) {
-		final IBeanSelectionFormSetupBuilder<IBeanSelectionFormSetupBuilder<?>> builder = getBuilder();
-		builder.setSelectionObservables(Collections.singleton(selectionObservable));
-		return builder;
-	}
-
-	@Override
-	public IBeanSelectionFormSetupBuilder<IBeanSelectionFormSetupBuilder<?>> setBeanForm(final IBeanFormBluePrint<?> beanForm) {
-		final IBeanSelectionFormSetupBuilder<IBeanSelectionFormSetupBuilder<?>> builder = getBuilder();
-		builder.setBeanForms(Collections.singleton(beanForm));
-		return builder;
-	}
 }

@@ -38,6 +38,8 @@ import org.jowidgets.cap.ui.api.widgets.IBeanDialogBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanRelationTreeBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanSelectionDialogBluePrint;
+import org.jowidgets.cap.ui.api.widgets.IBeanSelectionFormBluePrint;
+import org.jowidgets.cap.ui.api.widgets.IBeanSelectionFormSetupBuilder;
 import org.jowidgets.cap.ui.api.widgets.IBeanSelectionTableBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTabFolderBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
@@ -79,6 +81,7 @@ final class CapToolkitInterceptor implements IToolkitInterceptor {
 		genericWidgetFactory.register(ILookUpCollectionInputFieldBluePrint.class, new LookUpCollectionInputFieldFactory());
 		genericWidgetFactory.register(IBeanTabFolderBluePrint.class, new BeanTabFolderFactory());
 		genericWidgetFactory.register(IBeanRelationTreeBluePrint.class, new BeanRelationTreeFactory());
+		genericWidgetFactory.register(IBeanSelectionFormBluePrint.class, new BeanSelectionFormFactory());
 	}
 
 	private void registerIcons(final IToolkit toolkit) {
@@ -97,12 +100,14 @@ final class CapToolkitInterceptor implements IToolkitInterceptor {
 		bpf.addDefaultsInitializer(IBeanDialogBluePrint.class, new BeanDialogDefaults());
 		bpf.addDefaultsInitializer(IBeanFormBluePrint.class, new BeanFormDefaults());
 		bpf.addDefaultsInitializer(IBeanRelationTreeBluePrint.class, new BeanRelationTreeDefaults());
+		bpf.addDefaultsInitializer(IBeanSelectionFormSetupBuilder.class, new BeanSelectionFormDefaults());
 	}
 
 	private void setBuilderConvenience(final IToolkit toolkit) {
 		final IBluePrintFactory bpf = toolkit.getBluePrintFactory();
 		bpf.setSetupBuilderConvenience(IBeanTabFolderBluePrint.class, new BeanTabFolderSetupConvenience());
 		bpf.setSetupBuilderConvenience(IBeanFormBluePrint.class, new BeanFormSetupConvenience());
+		bpf.setSetupBuilderConvenience(IBeanSelectionFormSetupBuilder.class, new BeanSelectionFormSetupConvenience());
 	}
 
 }

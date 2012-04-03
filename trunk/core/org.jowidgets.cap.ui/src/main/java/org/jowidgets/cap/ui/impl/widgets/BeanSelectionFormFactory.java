@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, grossmann
+ * Copyright (c) 2010, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -28,30 +28,19 @@
 
 package org.jowidgets.cap.ui.impl.widgets;
 
-import java.util.Collections;
+import org.jowidgets.api.toolkit.Toolkit;
+import org.jowidgets.api.widgets.IComposite;
+import org.jowidgets.api.widgets.blueprint.factory.IBluePrintFactory;
+import org.jowidgets.cap.ui.api.widgets.IBeanSelectionForm;
+import org.jowidgets.cap.ui.api.widgets.IBeanSelectionFormBluePrint;
+import org.jowidgets.common.widgets.factory.IWidgetFactory;
 
-import org.jowidgets.cap.ui.api.bean.IBeanSelectionObservable;
-import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
-import org.jowidgets.cap.ui.api.widgets.IBeanSelectionFormSetupBuilder;
-import org.jowidgets.cap.ui.api.widgets.IBeanSelectionFormSetupConvenience;
-import org.jowidgets.tools.widgets.blueprint.convenience.AbstractSetupBuilderConvenience;
-
-final class BeanFormSetupConvenience extends
-		AbstractSetupBuilderConvenience<IBeanSelectionFormSetupBuilder<IBeanSelectionFormSetupBuilder<?>>> implements
-		IBeanSelectionFormSetupConvenience<IBeanSelectionFormSetupBuilder<IBeanSelectionFormSetupBuilder<?>>> {
+final class BeanSelectionFormFactory implements IWidgetFactory<IBeanSelectionForm, IBeanSelectionFormBluePrint> {
 
 	@Override
-	public IBeanSelectionFormSetupBuilder<IBeanSelectionFormSetupBuilder<?>> setSelectionObservable(
-		final IBeanSelectionObservable<?> selectionObservable) {
-		final IBeanSelectionFormSetupBuilder<IBeanSelectionFormSetupBuilder<?>> builder = getBuilder();
-		builder.setSelectionObservables(Collections.singleton(selectionObservable));
-		return builder;
-	}
-
-	@Override
-	public IBeanSelectionFormSetupBuilder<IBeanSelectionFormSetupBuilder<?>> setBeanForm(final IBeanFormBluePrint<?> beanForm) {
-		final IBeanSelectionFormSetupBuilder<IBeanSelectionFormSetupBuilder<?>> builder = getBuilder();
-		builder.setBeanForms(Collections.singleton(beanForm));
-		return builder;
+	public IBeanSelectionForm create(final Object parentUiReference, final IBeanSelectionFormBluePrint bluePrint) {
+		final IBluePrintFactory bpf = Toolkit.getBluePrintFactory();
+		final IComposite composite = Toolkit.getWidgetFactory().create(parentUiReference, bpf.composite());
+		return new BeanSelectionFormImpl(composite, bluePrint);
 	}
 }
