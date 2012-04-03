@@ -32,42 +32,50 @@ import org.jowidgets.cap.ui.api.model.ILabelModel;
 import org.jowidgets.common.color.IColorConstant;
 import org.jowidgets.common.image.IImageConstant;
 import org.jowidgets.common.types.Markup;
+import org.jowidgets.util.Assert;
 
-public class LabelModelAdapter implements ILabelModel {
+public class LabelModelWrapper implements ILabelModel {
+
+	private final ILabelModel original;
+
+	public LabelModelWrapper(final ILabelModel original) {
+		Assert.paramNotNull(original, "original");
+		this.original = original;
+	}
 
 	@Override
 	public String getText() {
-		return null;
+		return original.getText();
 	}
 
 	@Override
 	public String getDescription() {
-		return null;
+		return original.getDescription();
 	}
 
 	@Override
 	public IImageConstant getIcon() {
-		return null;
-	}
-
-	@Override
-	public Integer getFontSize() {
-		return null;
-	}
-
-	@Override
-	public String getFontName() {
-		return null;
-	}
-
-	@Override
-	public Markup getMarkup() {
-		return null;
+		return original.getIcon();
 	}
 
 	@Override
 	public IColorConstant getForegroundColor() {
-		return null;
+		return original.getForegroundColor();
+	}
+
+	@Override
+	public Integer getFontSize() {
+		return original.getFontSize();
+	}
+
+	@Override
+	public String getFontName() {
+		return original.getFontName();
+	}
+
+	@Override
+	public Markup getMarkup() {
+		return original.getMarkup();
 	}
 
 }

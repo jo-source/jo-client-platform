@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, grossmann
+ * Copyright (c) 2011, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,48 +26,20 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.tools.model;
+package org.jowidgets.cap.ui.api.plugin;
 
-import org.jowidgets.cap.ui.api.model.ILabelModel;
-import org.jowidgets.common.color.IColorConstant;
-import org.jowidgets.common.image.IImageConstant;
-import org.jowidgets.common.types.Markup;
+import org.jowidgets.cap.ui.api.bean.IBeanProxyLabelRenderer;
+import org.jowidgets.plugin.api.IPluginId;
+import org.jowidgets.plugin.api.IPluginProperties;
+import org.jowidgets.util.IDecorator;
+import org.jowidgets.util.ITypedKey;
 
-public class LabelModelAdapter implements ILabelModel {
+public interface IBeanProxyLabelRendererPlugin<BEAN_TYPE> {
 
-	@Override
-	public String getText() {
-		return null;
-	}
+	IPluginId<IBeanProxyLabelRendererPlugin<?>> ID = new IPluginId<IBeanProxyLabelRendererPlugin<?>>() {};
 
-	@Override
-	public String getDescription() {
-		return null;
-	}
+	ITypedKey<Object> ENTITIY_ID_PROPERTY_KEY = new ITypedKey<Object>() {};
 
-	@Override
-	public IImageConstant getIcon() {
-		return null;
-	}
-
-	@Override
-	public Integer getFontSize() {
-		return null;
-	}
-
-	@Override
-	public String getFontName() {
-		return null;
-	}
-
-	@Override
-	public Markup getMarkup() {
-		return null;
-	}
-
-	@Override
-	public IColorConstant getForegroundColor() {
-		return null;
-	}
+	IDecorator<IBeanProxyLabelRenderer<BEAN_TYPE>> getRendererDecorator(IPluginProperties properties);
 
 }

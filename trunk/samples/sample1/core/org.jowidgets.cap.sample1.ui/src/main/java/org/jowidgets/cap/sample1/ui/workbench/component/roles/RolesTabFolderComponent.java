@@ -40,7 +40,7 @@ import org.jowidgets.cap.ui.api.bean.IBeanProxyLabelRenderer;
 import org.jowidgets.cap.ui.api.model.ILabelModel;
 import org.jowidgets.cap.ui.api.tabfolder.IBeanTabFolderModel;
 import org.jowidgets.cap.ui.api.tabfolder.IBeanTabFolderModelBuilder;
-import org.jowidgets.common.image.IImageConstant;
+import org.jowidgets.cap.ui.tools.model.LabelModelAdapter;
 import org.jowidgets.common.types.IVetoable;
 import org.jowidgets.util.ITypedKey;
 import org.jowidgets.workbench.api.IComponent;
@@ -106,22 +106,13 @@ public class RolesTabFolderComponent extends AbstractComponent implements ICompo
 		return new IBeanProxyLabelRenderer<IBeanDto>() {
 			@Override
 			public ILabelModel getLabel(final IBeanProxy<IBeanDto> bean) {
-				return new ILabelModel() {
+				return new LabelModelAdapter() {
 
 					@Override
 					public String getText() {
 						return (String) bean.getValue("name");
 					}
 
-					@Override
-					public IImageConstant getIcon() {
-						return null;
-					}
-
-					@Override
-					public String getDescription() {
-						return null;
-					}
 				};
 			}
 

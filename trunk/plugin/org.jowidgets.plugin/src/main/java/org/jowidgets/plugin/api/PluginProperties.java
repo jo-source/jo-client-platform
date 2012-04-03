@@ -26,48 +26,19 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.tools.model;
+package org.jowidgets.plugin.api;
 
-import org.jowidgets.cap.ui.api.model.ILabelModel;
-import org.jowidgets.common.color.IColorConstant;
-import org.jowidgets.common.image.IImageConstant;
-import org.jowidgets.common.types.Markup;
+import org.jowidgets.util.ITypedKey;
 
-public class LabelModelAdapter implements ILabelModel {
+public final class PluginProperties {
 
-	@Override
-	public String getText() {
-		return null;
+	private PluginProperties() {}
+
+	public static <VALUE_TYPE> IPluginProperties create(final ITypedKey<VALUE_TYPE> key, final VALUE_TYPE value) {
+		return builder().add(key, value).build();
 	}
 
-	@Override
-	public String getDescription() {
-		return null;
+	public static IPluginPropertiesBuilder builder() {
+		return PluginToolkit.pluginPropertiesBuilder();
 	}
-
-	@Override
-	public IImageConstant getIcon() {
-		return null;
-	}
-
-	@Override
-	public Integer getFontSize() {
-		return null;
-	}
-
-	@Override
-	public String getFontName() {
-		return null;
-	}
-
-	@Override
-	public Markup getMarkup() {
-		return null;
-	}
-
-	@Override
-	public IColorConstant getForegroundColor() {
-		return null;
-	}
-
 }

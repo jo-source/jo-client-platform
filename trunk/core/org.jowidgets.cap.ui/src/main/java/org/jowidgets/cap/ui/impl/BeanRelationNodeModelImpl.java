@@ -71,11 +71,18 @@ import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
 import org.jowidgets.cap.ui.api.model.ILabelModel;
 import org.jowidgets.cap.ui.api.model.IModificationStateListener;
 import org.jowidgets.cap.ui.api.model.IProcessStateListener;
+import org.jowidgets.cap.ui.api.plugin.IBeanProxyLabelRendererPlugin;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationNodeModel;
 import org.jowidgets.cap.ui.api.tree.IEntityTypeId;
 import org.jowidgets.cap.ui.tools.execution.AbstractUiResultCallback;
+import org.jowidgets.common.color.IColorConstant;
 import org.jowidgets.common.image.IImageConstant;
+import org.jowidgets.common.types.Markup;
+import org.jowidgets.plugin.api.IPluginProperties;
+import org.jowidgets.plugin.api.PluginProperties;
+import org.jowidgets.plugin.api.PluginProvider;
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.IDecorator;
 import org.jowidgets.util.IProvider;
 import org.jowidgets.validation.IValidationConditionListener;
 import org.jowidgets.validation.IValidationResult;
@@ -163,7 +170,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 		this.childEntityTypeId = childEntityTypeId;
 		this.childEntityId = childEntityTypeId.getEntityId();
 		this.childBeanType = childEntityTypeId.getBeanType();
-		this.childRenderer = childRenderer;
+		this.childRenderer = getPluginDecoratedRenderer(childEntityId, childRenderer);
 		this.childRelations = new LinkedList<IEntityTypeId<Object>>(childRelations);
 		this.readerService = (IReaderService<Object>) readerService;
 		this.readerParameterProvider = (IProvider<Object>) readerParameterProvider;
@@ -199,6 +206,23 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 			propertyNames);
 
 		this.hasInitialLoad = false;
+	}
+
+	@SuppressWarnings({"rawtypes", "unchecked"})
+	private static IBeanProxyLabelRenderer getPluginDecoratedRenderer(
+		final Object entityId,
+		final IBeanProxyLabelRenderer renderer) {
+		final IPluginProperties properties = PluginProperties.create(
+				IBeanProxyLabelRendererPlugin.ENTITIY_ID_PROPERTY_KEY,
+				entityId);
+		IBeanProxyLabelRenderer result = renderer;
+		for (final IBeanProxyLabelRendererPlugin plugin : PluginProvider.getPlugins(IBeanProxyLabelRendererPlugin.ID, properties)) {
+			final IDecorator<IBeanProxyLabelRenderer<?>> decorator = plugin.getRendererDecorator(properties);
+			if (decorator != null) {
+				result = decorator.decorate(result);
+			}
+		}
+		return result;
 	}
 
 	private Map<String, Object> createDefaultValues(final List<IAttribute<Object>> attributes) {
@@ -241,6 +265,26 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 	@Override
 	public IImageConstant getIcon() {
 		return label.getIcon();
+	}
+
+	@Override
+	public Integer getFontSize() {
+		return label.getFontSize();
+	}
+
+	@Override
+	public String getFontName() {
+		return label.getFontName();
+	}
+
+	@Override
+	public Markup getMarkup() {
+		return label.getMarkup();
+	}
+
+	@Override
+	public IColorConstant getForegroundColor() {
+		return label.getForegroundColor();
 	}
 
 	@Override
