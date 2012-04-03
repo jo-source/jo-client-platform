@@ -79,7 +79,8 @@ final class BeanListRefreshDelegate<BEAN_TYPE> {
 				beans,
 				beanExecutionPolicy,
 				exceptionConverter,
-				false);
+				false,
+				true);
 
 			for (final List<IBeanProxy<BEAN_TYPE>> preparedBeans : executionHelper.prepareExecutions()) {
 				if (preparedBeans.size() > 0) {

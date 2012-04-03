@@ -203,7 +203,8 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 			BeanExecutionPolicy.BATCH,
 			updaterService,
 			creatorService,
-			propertyNames);
+			propertyNames,
+			false);
 
 		this.hasInitialLoad = false;
 	}
@@ -384,12 +385,20 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 			beanStateTracker.getBeansToUpdate())) {
 			bean.undoModifications();
 		}
+
 		final Set<IBeanProxy<CHILD_BEAN_TYPE>> beansToCreate = beanStateTracker.getBeansToCreate();
+		final boolean beansChanged;
 		if (!beansToCreate.isEmpty()) {
 			removeBeansImpl(beansToCreate, false);
+			beansChanged = true;
+		}
+		else {
+			beansChanged = false;
 		}
 		beanStateTracker.clearModifications();
-		fireBeansChanged();
+		if (beansChanged) {
+			fireBeansChanged();
+		}
 	}
 
 	private void tryToCanceLoader() {

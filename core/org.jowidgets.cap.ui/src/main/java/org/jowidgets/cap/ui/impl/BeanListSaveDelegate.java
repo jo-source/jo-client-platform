@@ -60,6 +60,7 @@ final class BeanListSaveDelegate<BEAN_TYPE> {
 	private final IUpdaterService updaterService;
 	private final ICreatorService creatorService;
 	private final Collection<String> propertyNames;
+	private final boolean fireBeansChanged;
 
 	private final String saveString;
 	private final String createString;
@@ -72,6 +73,26 @@ final class BeanListSaveDelegate<BEAN_TYPE> {
 		final IUpdaterService updaterService,
 		final ICreatorService creatorService,
 		final Collection<String> propertyNames) {
+		this(
+			listModel,
+			beansStateTracker,
+			exceptionConverter,
+			beanExecutionPolicy,
+			updaterService,
+			creatorService,
+			propertyNames,
+			true);
+	}
+
+	BeanListSaveDelegate(
+		final IBeanListModel<BEAN_TYPE> listModel,
+		final IBeansStateTracker<BEAN_TYPE> beansStateTracker,
+		final IBeanExceptionConverter exceptionConverter,
+		final BeanExecutionPolicy beanExecutionPolicy,
+		final IUpdaterService updaterService,
+		final ICreatorService creatorService,
+		final Collection<String> propertyNames,
+		final boolean fireBeansChanged) {
 
 		Assert.paramNotNull(listModel, "listModel");
 		Assert.paramNotNull(beansStateTracker, "beansStateTracker");
@@ -86,6 +107,7 @@ final class BeanListSaveDelegate<BEAN_TYPE> {
 		this.updaterService = updaterService;
 		this.creatorService = creatorService;
 		this.propertyNames = new LinkedList<String>(propertyNames);
+		this.fireBeansChanged = fireBeansChanged;
 
 		//TODO i18n
 		this.saveString = Messages.getString("BeanListSaveDelegate.Save");
@@ -109,7 +131,8 @@ final class BeanListSaveDelegate<BEAN_TYPE> {
 				beansToCreate,
 				beanExecutionPolicy,
 				exceptionConverter,
-				true);
+				true,
+				fireBeansChanged);
 
 			for (final List<IBeanProxy<BEAN_TYPE>> preparedBeans : executionHelper.prepareExecutions()) {
 				if (preparedBeans.size() > 0) {
@@ -151,7 +174,8 @@ final class BeanListSaveDelegate<BEAN_TYPE> {
 				modifiedBeans,
 				beanExecutionPolicy,
 				exceptionConverter,
-				false);
+				false,
+				fireBeansChanged);
 
 			for (final List<IBeanProxy<BEAN_TYPE>> preparedBeans : executionHelper.prepareExecutions()) {
 				if (preparedBeans.size() > 0) {
