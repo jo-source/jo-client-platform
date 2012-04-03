@@ -191,6 +191,7 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> extends
 			getExceptionConverter(),
 			getParent(),
 			getLinkType(),
+			getListenerDelay(),
 			autoRowCount,
 			autoSelection,
 			clearOnEmptyFilter,

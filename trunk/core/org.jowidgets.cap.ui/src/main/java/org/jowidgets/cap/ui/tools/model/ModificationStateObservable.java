@@ -28,32 +28,36 @@
 
 package org.jowidgets.cap.ui.tools.model;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.Set;
 
 import org.jowidgets.cap.ui.api.model.IModificationStateListener;
 import org.jowidgets.cap.ui.api.model.IModificationStateObservable;
+import org.jowidgets.util.Assert;
 
 public class ModificationStateObservable implements IModificationStateObservable {
 
 	private final Set<IModificationStateListener> listeners;
 
 	public ModificationStateObservable() {
-		this.listeners = new HashSet<IModificationStateListener>();
+		this.listeners = new LinkedHashSet<IModificationStateListener>();
 	}
 
 	@Override
 	public final void addModificationStateListener(final IModificationStateListener listener) {
+		Assert.paramNotNull(listener, "listener");
 		listeners.add(listener);
 	}
 
 	@Override
 	public final void removeModificationStateListener(final IModificationStateListener listener) {
+		Assert.paramNotNull(listener, "listener");
 		listeners.remove(listener);
 	}
 
 	public final void fireModificationStateChanged() {
-		for (final IModificationStateListener listener : listeners) {
+		for (final IModificationStateListener listener : new LinkedList<IModificationStateListener>(listeners)) {
 			listener.modificationStateChanged();
 		}
 	}

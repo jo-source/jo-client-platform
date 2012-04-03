@@ -135,6 +135,7 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 		final Set<IBeanValidator<BEAN_TYPE>> beanValidators,
 		final IBeanListModel<Object> parent,
 		final LinkType linkType,
+		final Long listenerDelay,
 		List<IAttribute<Object>> attributes) {
 
 		Assert.paramNotNull(beanType, "beanType");
@@ -156,7 +157,7 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 					return getParentBeanKeys();
 				}
 			};
-			this.parentModelListener = new ParentSelectionListener<Object>(this, parentBeansProvider);
+			this.parentModelListener = new ParentSelectionListener<Object>(this, parentBeansProvider, listenerDelay);
 			parent.addBeanSelectionListener(parentModelListener);
 		}
 		else {

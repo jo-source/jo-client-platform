@@ -28,32 +28,36 @@
 
 package org.jowidgets.cap.ui.tools.model;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.Set;
 
 import org.jowidgets.cap.ui.api.model.IProcessStateListener;
 import org.jowidgets.cap.ui.api.model.IProcessStateObservable;
+import org.jowidgets.util.Assert;
 
 public class ProcessStateObservable implements IProcessStateObservable {
 
 	private final Set<IProcessStateListener> listeners;
 
 	public ProcessStateObservable() {
-		this.listeners = new HashSet<IProcessStateListener>();
+		this.listeners = new LinkedHashSet<IProcessStateListener>();
 	}
 
 	@Override
 	public final void addProcessStateListener(final IProcessStateListener listener) {
+		Assert.paramNotNull(listener, "listener");
 		listeners.add(listener);
 	}
 
 	@Override
 	public final void removeProcessStateListener(final IProcessStateListener listener) {
+		Assert.paramNotNull(listener, "listener");
 		listeners.remove(listener);
 	}
 
 	public final void fireProcessStateChanged() {
-		for (final IProcessStateListener listener : listeners) {
+		for (final IProcessStateListener listener : new LinkedList<IProcessStateListener>(listeners)) {
 			listener.processStateChanged();
 		}
 	}

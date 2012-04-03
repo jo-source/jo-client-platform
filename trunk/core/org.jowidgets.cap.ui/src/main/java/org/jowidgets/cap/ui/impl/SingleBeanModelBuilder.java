@@ -54,6 +54,7 @@ public class SingleBeanModelBuilder<BEAN_TYPE> extends
 			getBeanValidators(),
 			getParent(),
 			getLinkType(),
+			getListenerDelay(),
 			getAttributes());
 	}
 

@@ -169,6 +169,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 		final IBeanExceptionConverter exceptionConverter,
 		final IBeanListModel<Object> parent,
 		final LinkType linkType,
+		final Long listenerDelay,
 		final boolean clearOnEmptyFilter,
 		final boolean clearOnEmptyParentBeans) {
 
@@ -196,7 +197,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 					return getParentBeanKeys();
 				}
 			};
-			this.parentSelectionListener = new ParentSelectionListener<Object>(this, parentBeansProvider);
+			this.parentSelectionListener = new ParentSelectionListener<Object>(this, parentBeansProvider, listenerDelay);
 			parent.addBeanSelectionListener(parentSelectionListener);
 		}
 		else {

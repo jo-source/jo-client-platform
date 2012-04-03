@@ -657,6 +657,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 			};
 		}
 
+		@SuppressWarnings("unchecked")
 		private void setResult(final List<IBeanDto> beanDtos) {
 			if (dummyBean != null) {
 				dummyBean.setExecutionTask(null);
@@ -667,7 +668,13 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 
 			final List<IBeanProxy<CHILD_BEAN_TYPE>> newData = new LinkedList<IBeanProxy<CHILD_BEAN_TYPE>>();
 			for (final IBeanDto beanDto : beanDtos) {
-				final IBeanProxy<CHILD_BEAN_TYPE> beanProxy = beanProxyFactory.createProxy(beanDto, propertyNames);
+				final IBeanProxy<CHILD_BEAN_TYPE> beanProxy;
+				if (beanDto instanceof IBeanProxy) {
+					beanProxy = (IBeanProxy<CHILD_BEAN_TYPE>) beanDto;
+				}
+				else {
+					beanProxy = beanProxyFactory.createProxy(beanDto, propertyNames);
+				}
 				newData.add(beanProxy);
 			}
 

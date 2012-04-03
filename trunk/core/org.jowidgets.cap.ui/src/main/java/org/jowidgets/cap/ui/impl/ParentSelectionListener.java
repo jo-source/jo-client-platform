@@ -45,7 +45,7 @@ import org.jowidgets.util.concurrent.DaemonThreadFactory;
 
 final class ParentSelectionListener<BEAN_TYPE> implements IBeanSelectionListener<BEAN_TYPE> {
 
-	private static final int LISTENER_DELAY = 200;
+	private static final long LISTENER_DELAY = 200;
 
 	private final IDataModel dataModel;
 	private final long listenerDelay;
@@ -55,27 +55,30 @@ final class ParentSelectionListener<BEAN_TYPE> implements IBeanSelectionListener
 	private ScheduledFuture<?> schedule;
 	private Object lastLoadCondition;
 
-	ParentSelectionListener(final IDataModel dataModel, final IProvider<Object> reloadConditionProvider) {
-		this(dataModel, reloadConditionProvider, LISTENER_DELAY);
-	}
-
-	ParentSelectionListener(final IDataModel dataModel, final IProvider<Object> reloadConditionProvider, final long listenerDelay) {
+	ParentSelectionListener(final IDataModel dataModel, final IProvider<Object> reloadConditionProvider, final Long listenerDelay) {
 		Assert.paramNotNull(dataModel, "dataModel");
 
 		this.dataModel = dataModel;
 		this.reloadConditionProvider = reloadConditionProvider;
-		this.listenerDelay = listenerDelay;
+		this.listenerDelay = listenerDelay != null ? listenerDelay.longValue() : LISTENER_DELAY;
 	}
 
 	@Override
 	public void selectionChanged(final IBeanSelectionEvent<BEAN_TYPE> selectionEvent) {
 		if (!EmptyCompatibleEquivalence.equals(lastLoadCondition, reloadConditionProvider.get())) {
-			loadScheduled();
+			if (listenerDelay > 0) {
+				loadScheduled();
+			}
+			else {
+				load();
+			}
 		}
 	}
 
 	private void loadScheduled() {
-		dataModel.clear();
+		if (listenerDelay > 0) {
+			dataModel.clear();
+		}
 		if (schedule != null) {
 			schedule.cancel(false);
 		}
@@ -87,14 +90,18 @@ final class ParentSelectionListener<BEAN_TYPE> implements IBeanSelectionListener
 					@Override
 					public void run() {
 						schedule = null;
-						lastLoadCondition = reloadConditionProvider.get();
-						dataModel.load();
+						load();
 					}
 				});
 			}
 		};
 
 		schedule = getExecutorService().schedule(runnable, listenerDelay, TimeUnit.MILLISECONDS);
+	}
+
+	private void load() {
+		lastLoadCondition = reloadConditionProvider.get();
+		dataModel.load();
 	}
 
 	private ScheduledExecutorService getExecutorService() {

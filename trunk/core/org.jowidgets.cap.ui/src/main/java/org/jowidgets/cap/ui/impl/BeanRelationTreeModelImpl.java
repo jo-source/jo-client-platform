@@ -48,20 +48,34 @@ import org.jowidgets.cap.ui.api.tree.IBeanRelationNodeModelBluePrint;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationNodeModelConfigurator;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeModel;
 import org.jowidgets.cap.ui.api.tree.IEntityTypeId;
+import org.jowidgets.cap.ui.tools.model.ModificationStateObservable;
+import org.jowidgets.cap.ui.tools.model.ProcessStateObservable;
+import org.jowidgets.tools.validation.ValidationCache;
+import org.jowidgets.tools.validation.ValidationCache.IValidationResultCreator;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.EmptyCheck;
 import org.jowidgets.util.IProvider;
 import org.jowidgets.util.Tuple;
 import org.jowidgets.validation.IValidationConditionListener;
 import org.jowidgets.validation.IValidationResult;
+import org.jowidgets.validation.IValidationResultBuilder;
+import org.jowidgets.validation.ValidationResult;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
-public class BeanRelationTreeModelImpl<CHILD_BEAN_TYPE> implements IBeanRelationTreeModel<CHILD_BEAN_TYPE> {
+public class BeanRelationTreeModelImpl<CHILD_BEAN_TYPE> implements
+		IBeanRelationTreeModel<CHILD_BEAN_TYPE>,
+		IValidationResultCreator {
 
 	private final IBeanRelationNodeModel<Void, CHILD_BEAN_TYPE> root;
 	private final IBeanRelationNodeModelConfigurator nodeConfigurator;
 	private final IBeanSelectionListener<Object> parentSelectionListener;
 	private final BeanSelectionObservable<Object> beanSelectionObservable;
+	private final ValidationCache validationCache;
+	private final IValidationConditionListener validationConditionListener;
+	private final ModificationStateObservable modificationStateObservable;
+	private final IModificationStateListener modificationStateListener;
+	private final ProcessStateObservable processStateObservable;
+	private final IProcessStateListener processStateListener;
 
 	private final BeanSelectionListener beanSelectionListener;
 	private final Map relationNodes;
@@ -72,7 +86,8 @@ public class BeanRelationTreeModelImpl<CHILD_BEAN_TYPE> implements IBeanRelation
 		final IBeanRelationNodeModel<Void, CHILD_BEAN_TYPE> root,
 		final IBeanRelationNodeModelConfigurator nodeConfigurator,
 		final IBeanListModel<Object> parent,
-		final LinkType linkType) {
+		final LinkType linkType,
+		final Long listenerDelay) {
 
 		Assert.paramNotNull(root, "root");
 		Assert.paramNotNull(nodeConfigurator, "nodeConfigurator");
@@ -92,7 +107,7 @@ public class BeanRelationTreeModelImpl<CHILD_BEAN_TYPE> implements IBeanRelation
 					return parentBeans;
 				}
 			};
-			this.parentSelectionListener = new ParentSelectionListener<Object>(this, parentBeanProvider);
+			this.parentSelectionListener = new ParentSelectionListener<Object>(this, parentBeanProvider, listenerDelay);
 			parent.addBeanSelectionListener(parentSelectionListener);
 		}
 		else {
@@ -100,9 +115,20 @@ public class BeanRelationTreeModelImpl<CHILD_BEAN_TYPE> implements IBeanRelation
 		}
 
 		this.relationNodes = new HashMap();
+
 		this.beanSelectionObservable = new BeanSelectionObservable<Object>();
 		this.beanSelectionListener = new BeanSelectionListener<Object>();
-		root.addBeanSelectionListener(beanSelectionListener);
+
+		this.validationCache = new ValidationCache(this);
+		this.validationConditionListener = new ValidationConditionListener();
+
+		this.modificationStateObservable = new ModificationStateObservable();
+		this.modificationStateListener = new ModificationStateListener();
+
+		this.processStateObservable = new ProcessStateObservable();
+		this.processStateListener = new ProcessStateListener();
+
+		registerListeners(root);
 	}
 
 	@Override
@@ -128,11 +154,18 @@ public class BeanRelationTreeModelImpl<CHILD_BEAN_TYPE> implements IBeanRelation
 				childEntityTypeId);
 			nodeConfigurator.configureNode(childEntityTypeId, builder);
 			final IBeanRelationNodeModel nodeModel = builder.build();
-			nodeModel.addBeanSelectionListener(beanSelectionListener);
+			registerListeners(nodeModel);
 			result = nodeModel;
 			relationNodes.put(key, result);
 		}
 		return (IBeanRelationNodeModel<METHOD_PARENT_BEAN_TYPE, METHOD_CHILD_BEAN_TYPE>) result;
+	}
+
+	private void registerListeners(final IBeanRelationNodeModel<?, ?> nodeModel) {
+		nodeModel.addBeanSelectionListener(beanSelectionListener);
+		nodeModel.addModificationStateListener(modificationStateListener);
+		nodeModel.addProcessStateListener(processStateListener);
+		nodeModel.addValidationConditionListener(validationConditionListener);
 	}
 
 	@Override
@@ -153,49 +186,112 @@ public class BeanRelationTreeModelImpl<CHILD_BEAN_TYPE> implements IBeanRelation
 
 	@Override
 	public void save() {
-		root.save();
+		if (root.hasModifications()) {
+			root.save();
+		}
+		for (final Object relationModelObject : relationNodes.values()) {
+			final IBeanRelationNodeModel<?, ?> relationModel = (IBeanRelationNodeModel<?, ?>) relationModelObject;
+			if (relationModel.hasModifications()) {
+				relationModel.save();
+			}
+		}
 	}
 
 	@Override
 	public void undo() {
-		root.undo();
+		if (root.hasModifications()) {
+			root.undo();
+		}
+		for (final Object relationModelObject : relationNodes.values()) {
+			final IBeanRelationNodeModel<?, ?> relationModel = (IBeanRelationNodeModel<?, ?>) relationModelObject;
+			if (relationModel.hasModifications()) {
+				relationModel.undo();
+			}
+		}
 	}
 
 	@Override
 	public boolean hasModifications() {
+		if (root.hasModifications()) {
+			return true;
+		}
+		for (final Object relationModelObject : relationNodes.values()) {
+			final IBeanRelationNodeModel<?, ?> relationModel = (IBeanRelationNodeModel<?, ?>) relationModelObject;
+			if (relationModel.hasModifications()) {
+				return true;
+			}
+		}
 		return false;
 	}
 
 	@Override
 	public boolean hasExecutions() {
+		if (root.hasExecutions()) {
+			return true;
+		}
+		for (final Object relationModelObject : relationNodes.values()) {
+			final IBeanRelationNodeModel<?, ?> relationModel = (IBeanRelationNodeModel<?, ?>) relationModelObject;
+			if (relationModel.hasExecutions()) {
+				return true;
+			}
+		}
 		return false;
 	}
 
 	@Override
-	public void cancelExecutions() {}
-
-	@Override
-	public IValidationResult validate() {
-		return null;
+	public void cancelExecutions() {
+		root.cancelExecutions();
+		for (final Object relationModelObject : relationNodes.values()) {
+			final IBeanRelationNodeModel<?, ?> relationModel = (IBeanRelationNodeModel<?, ?>) relationModelObject;
+			relationModel.cancelExecutions();
+		}
 	}
 
 	@Override
-	public void addValidationConditionListener(final IValidationConditionListener listener) {}
+	public IValidationResult validate() {
+		return validationCache.validate();
+	}
 
 	@Override
-	public void removeValidationConditionListener(final IValidationConditionListener listener) {}
+	public IValidationResult createValidationResult() {
+		final IValidationResultBuilder builder = ValidationResult.builder();
+		builder.addResult(root.validate());
+		for (final Object relationModelObject : relationNodes.values()) {
+			final IBeanRelationNodeModel<?, ?> relationModel = (IBeanRelationNodeModel<?, ?>) relationModelObject;
+			builder.addResult(relationModel.validate());
+		}
+		return builder.build();
+	}
 
 	@Override
-	public void addModificationStateListener(final IModificationStateListener listener) {}
+	public void addValidationConditionListener(final IValidationConditionListener listener) {
+		validationCache.addValidationConditionListener(listener);
+	}
 
 	@Override
-	public void removeModificationStateListener(final IModificationStateListener listener) {}
+	public void removeValidationConditionListener(final IValidationConditionListener listener) {
+		validationCache.removeValidationConditionListener(listener);
+	}
 
 	@Override
-	public void addProcessStateListener(final IProcessStateListener listener) {}
+	public void addModificationStateListener(final IModificationStateListener listener) {
+		modificationStateObservable.addModificationStateListener(listener);
+	}
 
 	@Override
-	public void removeProcessStateListener(final IProcessStateListener listener) {}
+	public void removeModificationStateListener(final IModificationStateListener listener) {
+		modificationStateObservable.removeModificationStateListener(listener);
+	}
+
+	@Override
+	public void addProcessStateListener(final IProcessStateListener listener) {
+		processStateObservable.addProcessStateListener(listener);
+	}
+
+	@Override
+	public void removeProcessStateListener(final IProcessStateListener listener) {
+		processStateObservable.removeProcessStateListener(listener);
+	}
 
 	@Override
 	public void addBeanSelectionListener(final IBeanSelectionListener<Object> listener) {
@@ -268,6 +364,27 @@ public class BeanRelationTreeModelImpl<CHILD_BEAN_TYPE> implements IBeanRelation
 						selectionEvent.getSelection());
 			}
 
+		}
+	}
+
+	private final class ModificationStateListener implements IModificationStateListener {
+		@Override
+		public void modificationStateChanged() {
+			modificationStateObservable.fireModificationStateChanged();
+		}
+	}
+
+	private final class ProcessStateListener implements IProcessStateListener {
+		@Override
+		public void processStateChanged() {
+			processStateObservable.fireProcessStateChanged();
+		}
+	}
+
+	private final class ValidationConditionListener implements IValidationConditionListener {
+		@Override
+		public void validationConditionsChanged() {
+			validationCache.setDirty();
 		}
 	}
 

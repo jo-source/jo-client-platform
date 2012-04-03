@@ -233,6 +233,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		final IBeanExceptionConverter exceptionConverter,
 		final IBeanListModel<Object> parent,
 		final LinkType linkType,
+		final Long listenerDelay,
 		final boolean autoRowCount,
 		final boolean autoSelect,
 		final boolean clearOnEmptyFilter,
@@ -265,7 +266,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 					return getParentBeanKeys();
 				}
 			};
-			this.parentSelectionListener = new ParentSelectionListener<Object>(this, parentBeansProvider);
+			this.parentSelectionListener = new ParentSelectionListener<Object>(this, parentBeansProvider, listenerDelay);
 			parent.addBeanSelectionListener(parentSelectionListener);
 		}
 		else {

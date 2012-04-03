@@ -78,6 +78,8 @@ public interface IBeanModelBuilder<BEAN_TYPE, INSTANCE_TYPE> {
 
 	INSTANCE_TYPE setParent(IBeanListModel<?> parent, LinkType linkType);
 
+	INSTANCE_TYPE setParent(IBeanListModel<?> parent, LinkType linkType, long listenerDelay);
+
 	INSTANCE_TYPE setAttributes(List<? extends IAttribute<?>> attributes);
 
 	INSTANCE_TYPE setMetaAttributes(String... metaPropertyNames);
