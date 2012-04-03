@@ -26,48 +26,38 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.tools.model;
+package org.jowidgets.cap.ui.tools.bean;
 
+import java.util.Set;
+
+import org.jowidgets.cap.ui.api.bean.IBeanProxy;
+import org.jowidgets.cap.ui.api.bean.IBeanProxyLabelRenderer;
 import org.jowidgets.cap.ui.api.model.ILabelModel;
-import org.jowidgets.common.color.IColorConstant;
-import org.jowidgets.common.image.IImageConstant;
-import org.jowidgets.common.types.Markup;
+import org.jowidgets.util.Assert;
+import org.jowidgets.util.ITypedKey;
 
-public class LabelModelAdapter implements ILabelModel {
+public class BeanProxyLabelRendererWrapper<BEAN_TYPE> implements IBeanProxyLabelRenderer<BEAN_TYPE> {
 
-	@Override
-	public String getText() {
-		return null;
+	private final IBeanProxyLabelRenderer<BEAN_TYPE> original;
+
+	public BeanProxyLabelRendererWrapper(final IBeanProxyLabelRenderer<BEAN_TYPE> original) {
+		Assert.paramNotNull(original, "original");
+		this.original = original;
 	}
 
 	@Override
-	public String getDescription() {
-		return null;
+	public ILabelModel getLabel(final IBeanProxy<BEAN_TYPE> bean) {
+		return original.getLabel(bean);
 	}
 
 	@Override
-	public IImageConstant getIcon() {
-		return null;
+	public Set<String> getPropertyDependencies() {
+		return original.getPropertyDependencies();
 	}
 
 	@Override
-	public Integer getFontSize() {
-		return null;
-	}
-
-	@Override
-	public String getFontName() {
-		return null;
-	}
-
-	@Override
-	public Markup getMarkup() {
-		return null;
-	}
-
-	@Override
-	public IColorConstant getForegroundColor() {
-		return null;
+	public Set<? extends ITypedKey<?>> getCustomPropertyDependencies() {
+		return original.getCustomPropertyDependencies();
 	}
 
 }

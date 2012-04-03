@@ -28,7 +28,9 @@
 
 package org.jowidgets.cap.ui.api.model;
 
+import org.jowidgets.common.color.IColorConstant;
 import org.jowidgets.common.image.IImageConstant;
+import org.jowidgets.common.types.Markup;
 
 public interface ILabelModel {
 
@@ -37,5 +39,13 @@ public interface ILabelModel {
 	String getDescription();
 
 	IImageConstant getIcon();
+
+	IColorConstant getForegroundColor();
+
+	Integer getFontSize();
+
+	String getFontName();
+
+	Markup getMarkup();
 
 }

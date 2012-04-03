@@ -29,22 +29,44 @@
 package org.jowidgets.cap.ui.impl;
 
 import org.jowidgets.cap.ui.api.model.ILabelModel;
+import org.jowidgets.common.color.IColorConstant;
 import org.jowidgets.common.image.IImageConstant;
+import org.jowidgets.common.types.Markup;
 
 final class LabelModelImpl implements ILabelModel {
 
 	private final String text;
 	private final String description;
 	private final IImageConstant icon;
+	private final IColorConstant foregroundColor;
+	private final Integer fontSize;
+	private final String fontName;
+	private final Markup markup;
 
 	LabelModelImpl(final String text) {
 		this(text, null, null);
 	}
 
 	LabelModelImpl(final String text, final String description, final IImageConstant icon) {
+		this(text, description, icon, null, null, null, null);
+	}
+
+	public LabelModelImpl(
+		final String text,
+		final String description,
+		final IImageConstant icon,
+		final IColorConstant foregroundColor,
+		final Integer fontSize,
+		final String fontName,
+		final Markup markup) {
+
 		this.text = text;
 		this.description = description;
 		this.icon = icon;
+		this.foregroundColor = foregroundColor;
+		this.fontSize = fontSize;
+		this.fontName = fontName;
+		this.markup = markup;
 	}
 
 	@Override
@@ -60,6 +82,26 @@ final class LabelModelImpl implements ILabelModel {
 	@Override
 	public IImageConstant getIcon() {
 		return icon;
+	}
+
+	@Override
+	public IColorConstant getForegroundColor() {
+		return foregroundColor;
+	}
+
+	@Override
+	public Integer getFontSize() {
+		return fontSize;
+	}
+
+	@Override
+	public String getFontName() {
+		return fontName;
+	}
+
+	@Override
+	public Markup getMarkup() {
+		return markup;
 	}
 
 }

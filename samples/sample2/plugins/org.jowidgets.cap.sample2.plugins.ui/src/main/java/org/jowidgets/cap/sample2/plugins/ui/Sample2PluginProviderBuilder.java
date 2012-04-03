@@ -7,9 +7,12 @@
 package org.jowidgets.cap.sample2.plugins.ui;
 
 import org.jowidgets.cap.sample2.app.common.entity.EntityIds;
+import org.jowidgets.cap.sample2.plugins.ui.bean.PersonLabelRendererPlugin;
+import org.jowidgets.cap.sample2.plugins.ui.bean.RoleLabelRendererPlugin;
 import org.jowidgets.cap.sample2.plugins.ui.table.PersonMenuContributionPlugin;
 import org.jowidgets.cap.sample2.plugins.ui.table.PersonMenuInterceptorPlugin;
 import org.jowidgets.cap.sample2.plugins.ui.table.RoleMenuInterceptorPlugin;
+import org.jowidgets.cap.ui.api.plugin.IBeanProxyLabelRendererPlugin;
 import org.jowidgets.cap.ui.api.plugin.IBeanTableMenuContributionPlugin;
 import org.jowidgets.cap.ui.api.plugin.IBeanTableMenuInterceptorPlugin;
 import org.jowidgets.plugin.tools.PluginProviderBuilder;
@@ -36,6 +39,22 @@ public final class Sample2PluginProviderBuilder extends PluginProviderBuilder {
 				new RoleMenuInterceptorPlugin(),
 				IBeanTableMenuInterceptorPlugin.ENTITIY_ID_PROPERTY_KEY,
 				EntityIds.ROLE);
+
+		addPlugin(
+				IBeanProxyLabelRendererPlugin.ID,
+				new PersonLabelRendererPlugin(),
+				IBeanProxyLabelRendererPlugin.ENTITIY_ID_PROPERTY_KEY,
+				EntityIds.PERSON,
+				EntityIds.LINKED_PERSONS_OF_ROLES,
+				EntityIds.LINKED_PERSONS_OF_SOURCE_PERSONS,
+				EntityIds.LINKED_PERSONS_OF_DESTINATION_PERSONS);
+
+		addPlugin(
+				IBeanProxyLabelRendererPlugin.ID,
+				new RoleLabelRendererPlugin(),
+				IBeanProxyLabelRendererPlugin.ENTITIY_ID_PROPERTY_KEY,
+				EntityIds.ROLE,
+				EntityIds.LINKED_ROLES_OF_PERSONS);
 
 	}
 

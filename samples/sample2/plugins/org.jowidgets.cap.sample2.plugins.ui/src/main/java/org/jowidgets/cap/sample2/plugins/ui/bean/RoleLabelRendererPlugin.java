@@ -26,48 +26,40 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.tools.model;
+package org.jowidgets.cap.sample2.plugins.ui.bean;
 
+import org.jowidgets.addons.icons.silkicons.SilkIcons;
+import org.jowidgets.cap.sample2.app.common.bean.IRole;
+import org.jowidgets.cap.ui.api.bean.IBeanProxy;
+import org.jowidgets.cap.ui.api.bean.IBeanProxyLabelRenderer;
 import org.jowidgets.cap.ui.api.model.ILabelModel;
-import org.jowidgets.common.color.IColorConstant;
+import org.jowidgets.cap.ui.api.plugin.IBeanProxyLabelRendererPlugin;
+import org.jowidgets.cap.ui.tools.bean.BeanProxyLabelRendererWrapper;
+import org.jowidgets.cap.ui.tools.model.LabelModelWrapper;
 import org.jowidgets.common.image.IImageConstant;
-import org.jowidgets.common.types.Markup;
+import org.jowidgets.plugin.api.IPluginProperties;
+import org.jowidgets.util.IDecorator;
 
-public class LabelModelAdapter implements ILabelModel {
-
-	@Override
-	public String getText() {
-		return null;
-	}
+public class RoleLabelRendererPlugin implements IBeanProxyLabelRendererPlugin<IRole> {
 
 	@Override
-	public String getDescription() {
-		return null;
-	}
-
-	@Override
-	public IImageConstant getIcon() {
-		return null;
-	}
-
-	@Override
-	public Integer getFontSize() {
-		return null;
-	}
-
-	@Override
-	public String getFontName() {
-		return null;
-	}
-
-	@Override
-	public Markup getMarkup() {
-		return null;
-	}
-
-	@Override
-	public IColorConstant getForegroundColor() {
-		return null;
+	public IDecorator<IBeanProxyLabelRenderer<IRole>> getRendererDecorator(final IPluginProperties properties) {
+		return new IDecorator<IBeanProxyLabelRenderer<IRole>>() {
+			@Override
+			public IBeanProxyLabelRenderer<IRole> decorate(final IBeanProxyLabelRenderer<IRole> original) {
+				return new BeanProxyLabelRendererWrapper<IRole>(original) {
+					@Override
+					public ILabelModel getLabel(final IBeanProxy<IRole> bean) {
+						return new LabelModelWrapper(original.getLabel(bean)) {
+							@Override
+							public IImageConstant getIcon() {
+								return SilkIcons.ROSETTE;
+							}
+						};
+					}
+				};
+			}
+		};
 	}
 
 }

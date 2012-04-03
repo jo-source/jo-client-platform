@@ -127,11 +127,10 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 		for (int i = 0; i < relationNodeModel.getSize(); i++) {
 			final IBeanProxy<Object> bean = relationNodeModel.getBean(i);
 			final IBeanProxyLabelRenderer<Object> childRenderer = relationNodeModel.getChildRenderer();
-			final ILabelModel label = childRenderer.getLabel(bean);
+
 			final ITreeNode childNode = parentContainer.addNode();
-			childNode.setText(label.getText());
-			childNode.setToolTipText(label.getDescription());
-			childNode.setIcon(label.getIcon());
+			renderNode(childNode, childRenderer.getLabel(bean));
+
 			Tuple<IBeanRelationNodeModel<Object, Object>, Integer> tuple;
 			tuple = new Tuple<IBeanRelationNodeModel<Object, Object>, Integer>(relationNodeModel, Integer.valueOf(i));
 			nodesMap.put(childNode, tuple);
@@ -152,10 +151,7 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 						childEntityTypeId);
 
 				final ITreeNode childRelationNode = childNode.addNode();
-				childRelationNode.setText(childRelationNodeModel.getText());
-				childRelationNode.setToolTipText(childRelationNodeModel.getDescription());
-				childRelationNode.setIcon(childRelationNodeModel.getIcon());
-				childRelationNode.setMarkup(Markup.EMPHASIZED);
+				renderRelationNode(childRelationNode, childRelationNodeModel);
 
 				unregisteredChildren.add(new Tuple<IBeanRelationNodeModel<Object, Object>, ITreeNode>(
 					childRelationNodeModel,
@@ -193,6 +189,26 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 			}
 
 		}
+
+	}
+
+	private void renderNode(final ITreeNode node, final ILabelModel label) {
+		node.setText(label.getText());
+		node.setToolTipText(label.getDescription());
+		node.setIcon(label.getIcon());
+		if (label.getMarkup() != null) {
+			node.setMarkup(label.getMarkup());
+		}
+		if (label.getForegroundColor() != null) {
+			node.setForegroundColor(label.getForegroundColor());
+		}
+	}
+
+	private void renderRelationNode(final ITreeNode node, final IBeanRelationNodeModel<Object, Object> model) {
+		node.setText(model.getText());
+		node.setToolTipText(model.getDescription());
+		node.setIcon(model.getIcon());
+		node.setMarkup(Markup.EMPHASIZED);
 
 	}
 

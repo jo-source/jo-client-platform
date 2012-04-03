@@ -26,48 +26,40 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.tools.model;
+package org.jowidgets.cap.sample2.plugins.ui.bean;
 
+import org.jowidgets.addons.icons.silkicons.SilkIcons;
+import org.jowidgets.cap.sample2.app.common.bean.IPerson;
+import org.jowidgets.cap.ui.api.bean.IBeanProxy;
+import org.jowidgets.cap.ui.api.bean.IBeanProxyLabelRenderer;
 import org.jowidgets.cap.ui.api.model.ILabelModel;
-import org.jowidgets.common.color.IColorConstant;
+import org.jowidgets.cap.ui.api.plugin.IBeanProxyLabelRendererPlugin;
+import org.jowidgets.cap.ui.tools.bean.BeanProxyLabelRendererWrapper;
+import org.jowidgets.cap.ui.tools.model.LabelModelWrapper;
 import org.jowidgets.common.image.IImageConstant;
-import org.jowidgets.common.types.Markup;
+import org.jowidgets.plugin.api.IPluginProperties;
+import org.jowidgets.util.IDecorator;
 
-public class LabelModelAdapter implements ILabelModel {
-
-	@Override
-	public String getText() {
-		return null;
-	}
+public class PersonLabelRendererPlugin implements IBeanProxyLabelRendererPlugin<IPerson> {
 
 	@Override
-	public String getDescription() {
-		return null;
-	}
-
-	@Override
-	public IImageConstant getIcon() {
-		return null;
-	}
-
-	@Override
-	public Integer getFontSize() {
-		return null;
-	}
-
-	@Override
-	public String getFontName() {
-		return null;
-	}
-
-	@Override
-	public Markup getMarkup() {
-		return null;
-	}
-
-	@Override
-	public IColorConstant getForegroundColor() {
-		return null;
+	public IDecorator<IBeanProxyLabelRenderer<IPerson>> getRendererDecorator(final IPluginProperties properties) {
+		return new IDecorator<IBeanProxyLabelRenderer<IPerson>>() {
+			@Override
+			public IBeanProxyLabelRenderer<IPerson> decorate(final IBeanProxyLabelRenderer<IPerson> original) {
+				return new BeanProxyLabelRendererWrapper<IPerson>(original) {
+					@Override
+					public ILabelModel getLabel(final IBeanProxy<IPerson> bean) {
+						return new LabelModelWrapper(original.getLabel(bean)) {
+							@Override
+							public IImageConstant getIcon() {
+								return SilkIcons.USER;
+							}
+						};
+					}
+				};
+			}
+		};
 	}
 
 }
