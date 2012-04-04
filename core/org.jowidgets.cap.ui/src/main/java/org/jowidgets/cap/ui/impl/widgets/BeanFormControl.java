@@ -631,32 +631,38 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 		public ICustomWidgetCreator<? extends IControl> createControl(final String propertyName) {
 			Assert.paramNotNull(propertyName, "propertyName");
 
-			final ICustomWidgetCreator<IInputControl<Object>> widgetCreator = getWidgetCreator(attributes.get(propertyName));
-			if (widgetCreator != null) {
-				return new ICustomWidgetCreator<IInputControl<Object>>() {
-					@Override
-					public IInputControl<Object> create(final ICustomWidgetFactory widgetFactory) {
-						if (controls.containsKey(propertyName)) {
-							throw new IllegalStateException("Control must not be created more than once for the property '"
-								+ propertyName
-								+ "'.");
+			final IAttribute<Object> attribute = attributes.get(propertyName);
+			if (attribute != null) {
+				final ICustomWidgetCreator<IInputControl<Object>> widgetCreator = getWidgetCreator(attribute);
+				if (widgetCreator != null) {
+					return new ICustomWidgetCreator<IInputControl<Object>>() {
+						@Override
+						public IInputControl<Object> create(final ICustomWidgetFactory widgetFactory) {
+							if (controls.containsKey(propertyName)) {
+								throw new IllegalStateException("Control must not be created more than once for the property '"
+									+ propertyName
+									+ "'.");
+							}
+
+							final IInputControl<Object> result = widgetCreator.create(widgetFactory);
+
+							if (mandatoryValidator != null && isMandatory(propertyName)) {
+								result.addValidator(mandatoryValidator);
+							}
+
+							backgroundColors.put(propertyName, result.getBackgroundColor());
+							result.setEnabled(false);
+							bindingListeners.put(propertyName, new BindingListener(propertyName, result));
+							validationListeners.put(propertyName, new ValidationConditionListener(propertyName));
+							controls.put(propertyName, result);
+
+							return result;
 						}
-
-						final IInputControl<Object> result = widgetCreator.create(widgetFactory);
-
-						if (mandatoryValidator != null && isMandatory(propertyName)) {
-							result.addValidator(mandatoryValidator);
-						}
-
-						backgroundColors.put(propertyName, result.getBackgroundColor());
-						result.setEnabled(false);
-						bindingListeners.put(propertyName, new BindingListener(propertyName, result));
-						validationListeners.put(propertyName, new ValidationConditionListener(propertyName));
-						controls.put(propertyName, result);
-
-						return result;
-					}
-				};
+					};
+				}
+			}
+			else {
+				throw new IllegalStateException("No attribute found for the property '" + propertyName + "'.");
 			}
 			return null;
 		}

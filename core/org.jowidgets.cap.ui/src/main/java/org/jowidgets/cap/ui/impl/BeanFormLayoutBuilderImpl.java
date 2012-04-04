@@ -134,19 +134,21 @@ final class BeanFormLayoutBuilderImpl implements IBeanFormLayoutBuilder {
 		IBeanFormGroupBuilder groupBuilder = null;
 		boolean first = true;
 		for (final IAttribute<?> attribute : attributes) {
-			final IAttributeGroup group = attribute.getGroup();
-			final String newGroupId = group != null ? group.getId() : null;
-			if (first || !NullCompatibleEquivalence.equals(oldGroupId, newGroupId)) {
-				first = false;
-				oldGroupId = newGroupId;
-				if (groupBuilder != null) {
-					addGroup(groupBuilder);
+			if (attribute.isVisible()) {
+				final IAttributeGroup group = attribute.getGroup();
+				final String newGroupId = group != null ? group.getId() : null;
+				if (first || !NullCompatibleEquivalence.equals(oldGroupId, newGroupId)) {
+					first = false;
+					oldGroupId = newGroupId;
+					if (groupBuilder != null) {
+						addGroup(groupBuilder);
+					}
+					final String newGroupLabel = group != null ? group.getLabel() : null;
+					groupBuilder = CapUiToolkit.beanFormToolkit().groupBuilder().setLabel(newGroupLabel);
 				}
-				final String newGroupLabel = group != null ? group.getLabel() : null;
-				groupBuilder = CapUiToolkit.beanFormToolkit().groupBuilder().setLabel(newGroupLabel);
+				defaultBuilder.setPropertyName(attribute.getPropertyName());
+				groupBuilder.addProperty(defaultBuilder);
 			}
-			defaultBuilder.setPropertyName(attribute.getPropertyName());
-			groupBuilder.addProperty(defaultBuilder);
 		}
 		if (groupBuilder != null) {
 			addGroup(groupBuilder);
