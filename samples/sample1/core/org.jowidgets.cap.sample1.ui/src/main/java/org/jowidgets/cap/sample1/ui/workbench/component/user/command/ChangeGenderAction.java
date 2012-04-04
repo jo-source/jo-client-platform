@@ -31,7 +31,6 @@ package org.jowidgets.cap.sample1.ui.workbench.component.user.command;
 import org.jowidgets.addons.icons.silkicons.SilkIcons;
 import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.command.IExecutionContext;
-import org.jowidgets.api.image.Icons;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.types.QuestionResult;
 import org.jowidgets.cap.sample1.common.entity.IUser;
@@ -71,7 +70,6 @@ public class ChangeGenderAction extends ActionWrapper {
 
 			@Override
 			public void beforeExecution(final IExecutionContext executionContext, final IVetoable continueExecution) {
-				final IAction action = executionContext.getAction();
 				final int size = model.getSelection().size();
 				final String question;
 				if (size == 1) {
@@ -87,11 +85,9 @@ public class ChangeGenderAction extends ActionWrapper {
 							String.valueOf(size));
 				}
 				final QuestionResult result = Toolkit.getQuestionPane().askYesNoQuestion(
-						action.getText(),
-						action.getIcon(),
+						executionContext,
 						question,
-						QuestionResult.NO,
-						Icons.QUESTION);
+						QuestionResult.NO);
 
 				if (result != QuestionResult.YES) {
 					continueExecution.veto();
