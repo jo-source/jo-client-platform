@@ -142,7 +142,6 @@ final class BeanSelectionFormImpl extends ControlWrapper implements IBeanSelecti
 			final IBeanForm<Object> form = getBeanForm(selectionEvent.getEntityId());
 			form.setValue(selectionEvent.getFirstSelected());
 			if (!form.isVisible()) {
-				getWidget().layoutBegin();
 				for (final IBeanForm<?> childForm : beanForms.values()) {
 					if (childForm != form) {
 						childForm.setVisible(false);
@@ -150,15 +149,12 @@ final class BeanSelectionFormImpl extends ControlWrapper implements IBeanSelecti
 				}
 				form.setVisible(true);
 				form.setSize(getWidget().getSize());
-				getWidget().layoutEnd();
 			}
 		}
 		else {
 			for (final IBeanForm<?> childForm : beanForms.values()) {
-				getWidget().layoutBegin();
 				childForm.setVisible(false);
 				childForm.setValue(null);
-				getWidget().layoutEnd();
 			}
 		}
 	}
