@@ -30,13 +30,9 @@ package org.jowidgets.cap.sample2.plugins.ui.bean;
 
 import org.jowidgets.addons.icons.silkicons.SilkIcons;
 import org.jowidgets.cap.sample2.app.common.bean.IPerson;
-import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyLabelRenderer;
-import org.jowidgets.cap.ui.api.model.ILabelModel;
 import org.jowidgets.cap.ui.api.plugin.IBeanProxyLabelRendererPlugin;
-import org.jowidgets.cap.ui.tools.bean.BeanProxyLabelRendererWrapper;
-import org.jowidgets.cap.ui.tools.model.LabelModelWrapper;
-import org.jowidgets.common.image.IImageConstant;
+import org.jowidgets.cap.ui.tools.bean.BeanLabelProxyRendererIconDecorator;
 import org.jowidgets.plugin.api.IPluginProperties;
 import org.jowidgets.util.IDecorator;
 
@@ -44,22 +40,7 @@ public class PersonLabelRendererPlugin implements IBeanProxyLabelRendererPlugin<
 
 	@Override
 	public IDecorator<IBeanProxyLabelRenderer<IPerson>> getRendererDecorator(final IPluginProperties properties) {
-		return new IDecorator<IBeanProxyLabelRenderer<IPerson>>() {
-			@Override
-			public IBeanProxyLabelRenderer<IPerson> decorate(final IBeanProxyLabelRenderer<IPerson> original) {
-				return new BeanProxyLabelRendererWrapper<IPerson>(original) {
-					@Override
-					public ILabelModel getLabel(final IBeanProxy<IPerson> bean) {
-						return new LabelModelWrapper(original.getLabel(bean)) {
-							@Override
-							public IImageConstant getIcon() {
-								return SilkIcons.USER;
-							}
-						};
-					}
-				};
-			}
-		};
+		return new BeanLabelProxyRendererIconDecorator<IPerson>(SilkIcons.USER);
 	}
 
 }
