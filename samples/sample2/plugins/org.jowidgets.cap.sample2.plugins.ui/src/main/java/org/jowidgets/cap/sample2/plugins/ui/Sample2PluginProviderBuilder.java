@@ -11,10 +11,12 @@ import org.jowidgets.cap.sample2.plugins.ui.bean.PersonLabelRendererPlugin;
 import org.jowidgets.cap.sample2.plugins.ui.bean.RoleLabelRendererPlugin;
 import org.jowidgets.cap.sample2.plugins.ui.table.PersonMenuContributionPlugin;
 import org.jowidgets.cap.sample2.plugins.ui.table.PersonMenuInterceptorPlugin;
+import org.jowidgets.cap.sample2.plugins.ui.table.PersonTablePlugin;
 import org.jowidgets.cap.sample2.plugins.ui.table.RoleMenuInterceptorPlugin;
 import org.jowidgets.cap.ui.api.plugin.IBeanProxyLabelRendererPlugin;
 import org.jowidgets.cap.ui.api.plugin.IBeanTableMenuContributionPlugin;
 import org.jowidgets.cap.ui.api.plugin.IBeanTableMenuInterceptorPlugin;
+import org.jowidgets.cap.ui.api.plugin.IBeanTablePlugin;
 import org.jowidgets.plugin.tools.PluginProviderBuilder;
 
 public final class Sample2PluginProviderBuilder extends PluginProviderBuilder {
@@ -55,6 +57,8 @@ public final class Sample2PluginProviderBuilder extends PluginProviderBuilder {
 				IBeanProxyLabelRendererPlugin.ENTITIY_ID_PROPERTY_KEY,
 				EntityIds.ROLE,
 				EntityIds.LINKED_ROLES_OF_PERSONS);
+
+		addPlugin(IBeanTablePlugin.ID, new PersonTablePlugin(), IBeanTablePlugin.ENTITIY_ID_PROPERTY_KEY, EntityIds.PERSON);
 
 	}
 
