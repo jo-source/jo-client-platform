@@ -61,6 +61,7 @@ import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.filter.FilterType;
 import org.jowidgets.cap.ui.api.plugin.IBeanTableMenuContributionPlugin;
 import org.jowidgets.cap.ui.api.plugin.IBeanTableMenuInterceptorPlugin;
+import org.jowidgets.cap.ui.api.plugin.IBeanTablePlugin;
 import org.jowidgets.cap.ui.api.sort.ISortModel;
 import org.jowidgets.cap.ui.api.table.IBeanTableConfig;
 import org.jowidgets.cap.ui.api.table.IBeanTableMenuFactory;
@@ -96,6 +97,7 @@ import org.jowidgets.common.widgets.controller.ITableSelectionListener;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
 import org.jowidgets.plugin.api.IPluginProperties;
 import org.jowidgets.plugin.api.IPluginPropertiesBuilder;
+import org.jowidgets.plugin.api.PluginProperties;
 import org.jowidgets.plugin.api.PluginProvider;
 import org.jowidgets.plugin.api.PluginToolkit;
 import org.jowidgets.tools.command.ActionWrapper;
@@ -152,6 +154,12 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 
 	BeanTableImpl(final IComposite composite, final IBeanTableBluePrint<BEAN_TYPE> bluePrint) {
 		super(composite);
+
+		final Object entityId = bluePrint.getModel().getEntityId();
+		if (entityId != null) {
+			modifyBeanTableBpByPlugins(entityId, bluePrint);
+		}
+
 		composite.setLayout(new MigLayoutDescriptor("hidemode 2", "0[grow, 0::]0", "0[]0[grow, 0::]0[]0"));
 
 		this.model = bluePrint.getModel();
@@ -325,6 +333,13 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 		this.currentAutoUpdateInterval = bluePrint.getAutoUpdateInterval();
 		this.autoUpdateExecutorService = Executors.newScheduledThreadPool(1, new DaemonThreadFactory());
 		this.autoUpdateRunnable = new AutoUpdateRunnable();
+	}
+
+	private void modifyBeanTableBpByPlugins(final Object entityId, final IBeanTableBluePrint<BEAN_TYPE> beanTableBp) {
+		final IPluginProperties properties = PluginProperties.create(IBeanTablePlugin.ENTITIY_ID_PROPERTY_KEY, entityId);
+		for (final IBeanTablePlugin plugin : PluginProvider.getPlugins(IBeanTablePlugin.ID, properties)) {
+			plugin.modifySetup(properties, beanTableBp);
+		}
 	}
 
 	private ICheckedItemModel createAutoUpdateItemModel() {
