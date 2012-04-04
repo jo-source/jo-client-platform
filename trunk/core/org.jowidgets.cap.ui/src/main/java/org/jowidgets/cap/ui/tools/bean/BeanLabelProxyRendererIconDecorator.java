@@ -26,21 +26,36 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample2.plugins.ui.bean;
+package org.jowidgets.cap.ui.tools.bean;
 
-import org.jowidgets.addons.icons.silkicons.SilkIcons;
-import org.jowidgets.cap.sample2.app.common.bean.IRole;
+import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyLabelRenderer;
-import org.jowidgets.cap.ui.api.plugin.IBeanProxyLabelRendererPlugin;
-import org.jowidgets.cap.ui.tools.bean.BeanLabelProxyRendererIconDecorator;
-import org.jowidgets.plugin.api.IPluginProperties;
+import org.jowidgets.cap.ui.api.model.ILabelModel;
+import org.jowidgets.cap.ui.tools.model.LabelModelWrapper;
+import org.jowidgets.common.image.IImageConstant;
 import org.jowidgets.util.IDecorator;
 
-public class RoleLabelRendererPlugin implements IBeanProxyLabelRendererPlugin<IRole> {
+public final class BeanLabelProxyRendererIconDecorator<BEAN_TYPE> implements IDecorator<IBeanProxyLabelRenderer<BEAN_TYPE>> {
+
+	private final IImageConstant icon;
+
+	public BeanLabelProxyRendererIconDecorator(final IImageConstant icon) {
+		this.icon = icon;
+	}
 
 	@Override
-	public IDecorator<IBeanProxyLabelRenderer<IRole>> getRendererDecorator(final IPluginProperties properties) {
-		return new BeanLabelProxyRendererIconDecorator<IRole>(SilkIcons.ROSETTE);
+	public IBeanProxyLabelRenderer<BEAN_TYPE> decorate(final IBeanProxyLabelRenderer<BEAN_TYPE> original) {
+		return new BeanProxyLabelRendererWrapper<BEAN_TYPE>(original) {
+			@Override
+			public ILabelModel getLabel(final IBeanProxy<BEAN_TYPE> bean) {
+				return new LabelModelWrapper(original.getLabel(bean)) {
+					@Override
+					public IImageConstant getIcon() {
+						return icon;
+					}
+				};
+			}
+		};
 	}
 
 }
