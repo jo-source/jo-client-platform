@@ -194,7 +194,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 			final IProvider<Object> parentBeansProvider = new IProvider<Object>() {
 				@Override
 				public Object get() {
-					return getParentBeanKeys();
+					return getParentBeanKeys(false);
 				}
 			};
 			this.parentSelectionListener = new ParentSelectionListener<Object>(this, parentBeansProvider, listenerDelay);
@@ -808,14 +808,14 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 		}
 	}
 
-	private List<? extends IBeanKey> getParentBeanKeys() {
+	private List<? extends IBeanKey> getParentBeanKeys(final boolean ignoreNonPersistent) {
 		if (parent == null || EmptyCheck.isEmpty(parent.getSelection())) {
 			return null;
 		}
 		final List<IBeanKey> beanKeys = new LinkedList<IBeanKey>();
 		for (final int i : parent.getSelection()) {
 			final IBeanProxy<?> proxy = parent.getBean(i);
-			if (proxy != null && !proxy.isDummy() && !proxy.isTransient()) {
+			if (proxy != null && !ignoreNonPersistent || (!proxy.isDummy() && !proxy.isTransient())) {
 				beanKeys.add(new BeanKey(proxy.getId(), proxy.getVersion()));
 			}
 		}
@@ -875,7 +875,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 			if (isLoadNeeded()) {
 				readerService.read(
 						createResultCallback(),
-						getParentBeanKeys(),
+						getParentBeanKeys(true),
 						filter,
 						sortModel.getSorting(),
 						0,
@@ -883,6 +883,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 						readerParameterProvider.get(),
 						executionTask);
 				fireBeansChanged();
+				fireSelectionChanged();
 			}
 			else {
 				setResult(new LinkedList<IBeanDto>());
@@ -890,7 +891,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 		}
 
 		boolean isLoadNeeded() {
-			if (clearOnEmptyFilter && isFilterEmpty() || clearOnEmptyParentBeans && EmptyCheck.isEmpty(getParentBeanKeys())) {
+			if (clearOnEmptyFilter && isFilterEmpty() || clearOnEmptyParentBeans && EmptyCheck.isEmpty(getParentBeanKeys(true))) {
 				return false;
 			}
 			else {
@@ -964,6 +965,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 
 			finished = true;
 			beanListModelObservable.fireBeansChanged();
+			fireSelectionChanged();
 		}
 
 		private void setException(final Throwable exception) {
