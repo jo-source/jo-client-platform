@@ -117,8 +117,11 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 			public void beansChanged() {
 				onBeansChanged(parentContainer, relationNodeModel);
 				final ITree tree = getWidget();
-				if (autoSelection && parentContainer == tree && tree.getChildren().size() > 0) {
-					tree.getChildren().iterator().next().setSelected(true);
+				if (autoSelection && parentContainer == tree && tree.getChildren().size() > 0 && relationNodeModel.getSize() > 0) {
+					final ITreeNode node = tree.getChildren().iterator().next();
+					if (!relationNodeModel.getBean(0).isDummy()) {
+						node.setSelected(true);
+					}
 				}
 			}
 		});
@@ -133,7 +136,12 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 			final IBeanProxyLabelRenderer<Object> childRenderer = relationNodeModel.getChildRenderer();
 
 			final ITreeNode childNode = parentContainer.addNode();
-			renderNode(childNode, childRenderer.getLabel(bean));
+			if (!bean.isDummy()) {
+				renderNode(childNode, childRenderer.getLabel(bean));
+			}
+			else {
+				renderDummyNode(childNode);
+			}
 
 			Tuple<IBeanRelationNodeModel<Object, Object>, Integer> tuple;
 			tuple = new Tuple<IBeanRelationNodeModel<Object, Object>, Integer>(relationNodeModel, Integer.valueOf(i));
@@ -144,7 +152,12 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 				public void propertyChange(final PropertyChangeEvent evt) {
 					final Set<String> propertyDependencies = childRenderer.getPropertyDependencies();
 					if (EmptyCheck.isEmpty(propertyDependencies) || propertyDependencies.contains(evt.getPropertyName())) {
-						renderNode(childNode, childRenderer.getLabel(bean));
+						if (!bean.isDummy()) {
+							renderNode(childNode, childRenderer.getLabel(bean));
+						}
+						else {
+							renderDummyNode(childNode);
+						}
 					}
 				}
 			};
@@ -219,6 +232,11 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 		if (label.getForegroundColor() != null) {
 			node.setForegroundColor(label.getForegroundColor());
 		}
+	}
+
+	private void renderDummyNode(final ITreeNode node) {
+		node.setText("...");
+		node.setToolTipText("Data will be loaded in background...");
 	}
 
 	private void renderRelationNode(final ITreeNode node, final IBeanRelationNodeModel<Object, Object> model) {
