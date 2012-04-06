@@ -140,9 +140,8 @@ final class BeanSelectionFormImpl extends ControlWrapper implements IBeanSelecti
 	private void onSelectionChanged(final IBeanSelectionEvent<Object> selectionEvent) {
 		if (selectionEvent.getEntityId() != null) {
 			final IBeanForm<Object> form = getBeanForm(selectionEvent.getEntityId());
-			final IBeanProxy<Object> selected = selectionEvent.getFirstSelected();
-			form.setValue(selected);
-			if (selected != null && !selected.isDummy() && !form.isVisible()) {
+			form.setValue(selectionEvent.getFirstSelected());
+			if (!form.isVisible()) {
 				for (final IBeanForm<?> childForm : beanForms.values()) {
 					if (childForm != form) {
 						childForm.setVisible(false);
