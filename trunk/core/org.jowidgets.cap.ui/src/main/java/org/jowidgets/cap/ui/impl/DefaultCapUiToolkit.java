@@ -46,6 +46,7 @@ import org.jowidgets.cap.ui.api.command.ICapActionFactory;
 import org.jowidgets.cap.ui.api.control.IDisplayFormatFactory;
 import org.jowidgets.cap.ui.api.control.IInputControlSupportRegistry;
 import org.jowidgets.cap.ui.api.converter.ICapConverterFactory;
+import org.jowidgets.cap.ui.api.decorator.IUiServiceDecoratorProviderFactory;
 import org.jowidgets.cap.ui.api.execution.IExecutionTaskFactory;
 import org.jowidgets.cap.ui.api.filter.IFilterToolkit;
 import org.jowidgets.cap.ui.api.form.IBeanFormToolkit;
@@ -75,6 +76,7 @@ public final class DefaultCapUiToolkit implements ICapUiToolkit {
 	private IDisplayFormatFactory displayFormatFactory;
 	private IInputControlSupportRegistry inputControlRegistry;
 	private ILookUpCache lookUpCache;
+	private IUiServiceDecoratorProviderFactory uiServiceDecoratorProviderFactory;
 
 	@Override
 	public ICapApiBluePrintFactory bluePrintFactory() {
@@ -98,6 +100,14 @@ public final class DefaultCapUiToolkit implements ICapUiToolkit {
 			converterFactory = new CapConverterFactoryImpl();
 		}
 		return converterFactory;
+	}
+
+	@Override
+	public IUiServiceDecoratorProviderFactory serviceDecoratorFactory() {
+		if (uiServiceDecoratorProviderFactory == null) {
+			uiServiceDecoratorProviderFactory = new UiServiceDecoratorProviderFactory();
+		}
+		return uiServiceDecoratorProviderFactory;
 	}
 
 	@Override

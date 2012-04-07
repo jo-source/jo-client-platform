@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,46 +26,23 @@
  * DAMAGE.
  */
 
-package org.jowidgets.invocation.common.impl;
+package org.jowidgets.cap.ui.impl;
 
-import java.io.Serializable;
+import org.jowidgets.cap.ui.api.decorator.IUiServiceDecoratorProviderFactory;
+import org.jowidgets.service.api.IServicesDecoratorProvider;
 
-public final class MethodInvocationMessage implements Serializable {
+final class UiServiceDecoratorProviderFactory implements IUiServiceDecoratorProviderFactory {
 
-	private static final long serialVersionUID = -4205299138579625114L;
+	private static final int DEFAULT_ORDER = 2;
 
-	private final Object invocationId;
-	private final String methodName;
-	private final Object parameter;
-
-	public MethodInvocationMessage(final Object invocationId, final String methodName, final Object parameter) {
-		super();
-		this.invocationId = invocationId;
-		this.methodName = methodName;
-		this.parameter = parameter;
-	}
-
-	public Object getInvocationId() {
-		return invocationId;
-	}
-
-	public String getMethodName() {
-		return methodName;
-	}
-
-	public Object getParameter() {
-		return parameter;
+	@Override
+	public IServicesDecoratorProvider cachedEntityService() {
+		return cachedEntityService(DEFAULT_ORDER);
 	}
 
 	@Override
-	public String toString() {
-		return "MethodInvocationMessage [invocationId="
-			+ invocationId
-			+ ", methodName="
-			+ methodName
-			+ ", parameter="
-			+ parameter
-			+ "]";
+	public IServicesDecoratorProvider cachedEntityService(final int order) {
+		return new EntityServiceDecoratorProviderImpl(order);
 	}
 
 }

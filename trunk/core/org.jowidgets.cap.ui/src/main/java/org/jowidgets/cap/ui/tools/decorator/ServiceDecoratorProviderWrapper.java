@@ -26,46 +26,34 @@
  * DAMAGE.
  */
 
-package org.jowidgets.invocation.common.impl;
+package org.jowidgets.cap.ui.tools.decorator;
 
-import java.io.Serializable;
+import org.jowidgets.service.api.IServicesDecoratorProvider;
+import org.jowidgets.util.Assert;
+import org.jowidgets.util.IDecorator;
 
-public final class MethodInvocationMessage implements Serializable {
+public class ServiceDecoratorProviderWrapper implements IServicesDecoratorProvider {
 
-	private static final long serialVersionUID = -4205299138579625114L;
+	private final IServicesDecoratorProvider servicesDecoratorProvider;
 
-	private final Object invocationId;
-	private final String methodName;
-	private final Object parameter;
-
-	public MethodInvocationMessage(final Object invocationId, final String methodName, final Object parameter) {
-		super();
-		this.invocationId = invocationId;
-		this.methodName = methodName;
-		this.parameter = parameter;
-	}
-
-	public Object getInvocationId() {
-		return invocationId;
-	}
-
-	public String getMethodName() {
-		return methodName;
-	}
-
-	public Object getParameter() {
-		return parameter;
+	public ServiceDecoratorProviderWrapper(final IServicesDecoratorProvider servicesDecoratorProvider) {
+		Assert.paramNotNull(servicesDecoratorProvider, "servicesDecoratorProvider");
+		this.servicesDecoratorProvider = servicesDecoratorProvider;
 	}
 
 	@Override
-	public String toString() {
-		return "MethodInvocationMessage [invocationId="
-			+ invocationId
-			+ ", methodName="
-			+ methodName
-			+ ", parameter="
-			+ parameter
-			+ "]";
+	public final IDecorator<Object> getDefaultDecorator() {
+		return servicesDecoratorProvider.getDefaultDecorator();
+	}
+
+	@Override
+	public final <SERVICE_TYPE> IDecorator<SERVICE_TYPE> getDecorator(final Class<? extends SERVICE_TYPE> type) {
+		return servicesDecoratorProvider.getDecorator(type);
+	}
+
+	@Override
+	public int getOrder() {
+		return servicesDecoratorProvider.getOrder();
 	}
 
 }
