@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,46 +26,14 @@
  * DAMAGE.
  */
 
-package org.jowidgets.invocation.common.impl;
+package org.jowidgets.cap.ui.api.decorator;
 
-import java.io.Serializable;
+import org.jowidgets.service.api.IServicesDecoratorProvider;
 
-public final class MethodInvocationMessage implements Serializable {
+public interface IUiServiceDecoratorProviderFactory {
 
-	private static final long serialVersionUID = -4205299138579625114L;
+	IServicesDecoratorProvider cachedEntityService(int order);
 
-	private final Object invocationId;
-	private final String methodName;
-	private final Object parameter;
-
-	public MethodInvocationMessage(final Object invocationId, final String methodName, final Object parameter) {
-		super();
-		this.invocationId = invocationId;
-		this.methodName = methodName;
-		this.parameter = parameter;
-	}
-
-	public Object getInvocationId() {
-		return invocationId;
-	}
-
-	public String getMethodName() {
-		return methodName;
-	}
-
-	public Object getParameter() {
-		return parameter;
-	}
-
-	@Override
-	public String toString() {
-		return "MethodInvocationMessage [invocationId="
-			+ invocationId
-			+ ", methodName="
-			+ methodName
-			+ ", parameter="
-			+ parameter
-			+ "]";
-	}
+	IServicesDecoratorProvider cachedEntityService();
 
 }

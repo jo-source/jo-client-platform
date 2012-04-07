@@ -45,6 +45,7 @@ import org.jowidgets.cap.ui.api.command.ICapActionFactory;
 import org.jowidgets.cap.ui.api.control.IDisplayFormatFactory;
 import org.jowidgets.cap.ui.api.control.IInputControlSupportRegistry;
 import org.jowidgets.cap.ui.api.converter.ICapConverterFactory;
+import org.jowidgets.cap.ui.api.decorator.IUiServiceDecoratorProviderFactory;
 import org.jowidgets.cap.ui.api.execution.IExecutionTaskFactory;
 import org.jowidgets.cap.ui.api.filter.IFilterToolkit;
 import org.jowidgets.cap.ui.api.form.IBeanFormToolkit;
@@ -92,6 +93,10 @@ public final class CapUiToolkit {
 
 	public static ICapConverterFactory converterFactory() {
 		return getInstance().converterFactory();
+	}
+
+	public static IUiServiceDecoratorProviderFactory serviceDecoratorFactory() {
+		return getInstance().serviceDecoratorFactory();
 	}
 
 	public static <BEAN_TYPE> IBeanTableMenuFactory<BEAN_TYPE> beanTableMenuFactory(
