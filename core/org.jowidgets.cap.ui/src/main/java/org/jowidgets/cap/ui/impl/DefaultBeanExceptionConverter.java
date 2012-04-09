@@ -49,9 +49,6 @@ final class DefaultBeanExceptionConverter implements IBeanExceptionConverter {
 		final List<? extends IBeanProxy<?>> processedBeans,
 		final IBeanProxy<?> destinationBean,
 		final Throwable throwable) {
-		//CHECKSTYLE:OFF
-		throwable.printStackTrace();
-		//CHECKSTYLE:ON
 		if (throwable instanceof BeanException) {
 			final BeanException serviceException = ((BeanException) throwable);
 			final Object exceptionBeanId = serviceException.getBeanId();
@@ -90,6 +87,9 @@ final class DefaultBeanExceptionConverter implements IBeanExceptionConverter {
 				return new BeanMessageImpl(BeanMessageType.ERROR, message, throwable);
 			}
 			else {
+				//CHECKSTYLE:OFF
+				throwable.printStackTrace();
+				//CHECKSTYLE:ON
 				final String userMessage = serviceException.getUserMessage();
 				if (!EmptyCheck.isEmpty(userMessage)) {
 					return new BeanMessageImpl(BeanMessageType.ERROR, userMessage, throwable);
@@ -100,6 +100,9 @@ final class DefaultBeanExceptionConverter implements IBeanExceptionConverter {
 			}
 		}
 		else {
+			//CHECKSTYLE:OFF
+			throwable.printStackTrace();
+			//CHECKSTYLE:ON
 			return new BeanMessageImpl(BeanMessageType.ERROR, "Undefined runtime exception!", throwable);
 		}
 	}
