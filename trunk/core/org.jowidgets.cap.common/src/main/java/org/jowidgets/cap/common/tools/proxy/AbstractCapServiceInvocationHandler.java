@@ -31,6 +31,7 @@ package org.jowidgets.cap.common.tools.proxy;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
+import org.jowidgets.cap.common.api.exception.ServiceCanceledException;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
 
@@ -44,11 +45,18 @@ public abstract class AbstractCapServiceInvocationHandler implements InvocationH
 
 		final int resultCallbackIndex = getFirstMatchingIndex(IResultCallback.class, parameterTypes);
 		if (resultCallbackIndex == -1) {
+			if (executionCallback != null && executionCallback.isCanceled()) {
+				throw new ServiceCanceledException();
+			}
 			return invokeSyncSignature(method, args, executionCallback);
 		}
 		else {
 			@SuppressWarnings("unchecked")
 			final IResultCallback<Object> resultCallback = (IResultCallback<Object>) args[resultCallbackIndex];
+			if (executionCallback != null && executionCallback.isCanceled()) {
+				resultCallback.exception(new ServiceCanceledException());
+				return null;
+			}
 			return invokeAsyncSignature(method, args, resultCallbackIndex, resultCallback, executionCallback);
 		}
 	}
