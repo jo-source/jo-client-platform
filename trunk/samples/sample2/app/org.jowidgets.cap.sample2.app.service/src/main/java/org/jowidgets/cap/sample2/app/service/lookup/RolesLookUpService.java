@@ -45,8 +45,6 @@ import org.jowidgets.cap.service.api.adapter.ISyncLookUpService;
 
 public class RolesLookUpService implements ISyncLookUpService {
 
-	public static final String LOOK_UP_ID = RolesLookUpService.class.getName() + "_id";
-
 	@Override
 	public List<ILookUpEntry> readValues(final IExecutionCallback executionCallback) {
 

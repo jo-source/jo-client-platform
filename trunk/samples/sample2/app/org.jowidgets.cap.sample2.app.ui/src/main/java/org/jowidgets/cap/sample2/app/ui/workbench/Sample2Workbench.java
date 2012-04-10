@@ -34,12 +34,15 @@ import org.jowidgets.addons.icons.silkicons.SilkIconsInitializer;
 import org.jowidgets.api.model.item.IMenuModel;
 import org.jowidgets.cap.sample2.app.ui.application.Sample2Application;
 import org.jowidgets.cap.sample2.app.ui.command.WorkbenchActions;
+import org.jowidgets.cap.sample2.app.ui.lookup.LookupInitializer;
 import org.jowidgets.cap.ui.api.login.LoginService;
 import org.jowidgets.common.types.Dimension;
 import org.jowidgets.common.types.IVetoable;
 import org.jowidgets.workbench.api.ILoginCallback;
 import org.jowidgets.workbench.api.IWorkbench;
+import org.jowidgets.workbench.api.IWorkbenchContext;
 import org.jowidgets.workbench.api.IWorkbenchFactory;
+import org.jowidgets.workbench.toolkit.api.IWorkbenchInitializeCallback;
 import org.jowidgets.workbench.toolkit.api.IWorkbenchModel;
 import org.jowidgets.workbench.toolkit.api.IWorkbenchModelBuilder;
 import org.jowidgets.workbench.toolkit.api.WorkbenchToolkit;
@@ -64,6 +67,12 @@ public class Sample2Workbench implements IWorkbenchFactory {
 				if (!doLogin) {
 					vetoable.veto();
 				}
+			}
+		});
+		builder.setInitializeCallback(new IWorkbenchInitializeCallback() {
+			@Override
+			public void onContextInitialize(final IWorkbenchContext context) {
+				LookupInitializer.initializeLookupsAsync();
 			}
 		});
 

@@ -39,6 +39,7 @@ import org.jowidgets.cap.sample2.app.common.bean.IPerson;
 import org.jowidgets.cap.sample2.app.common.checker.PersonActivateExecutableChecker;
 import org.jowidgets.cap.sample2.app.common.checker.PersonDeactivateExecutableChecker;
 import org.jowidgets.cap.sample2.app.common.executor.PersonExecutorServices;
+import org.jowidgets.cap.sample2.app.common.lookup.LookUpIds;
 import org.jowidgets.cap.sample2.app.common.security.AuthorizationProviderServiceId;
 import org.jowidgets.cap.sample2.app.service.bean.Person;
 import org.jowidgets.cap.sample2.app.service.entity.SampleEntityServiceBuilder;
@@ -81,9 +82,9 @@ public class SampleServiceProviderBuilder extends ServiceProviderBuilder {
 				new PersonDeactivateExecutor(),
 				new PersonDeactivateExecutableChecker());
 
-		addLookUpService(RolesLookUpService.LOOK_UP_ID, new RolesLookUpService());
-		addLookUpService(CountriesLookUpService.LOOK_UP_ID, new CountriesLookUpService());
-		addLookUpService(GenderLookUpService.LOOK_UP_ID, new GenderLookUpService());
+		addLookUpService(LookUpIds.ROLES, new RolesLookUpService());
+		addLookUpService(LookUpIds.COUNTRIES, new CountriesLookUpService());
+		addLookUpService(LookUpIds.GENDER, new GenderLookUpService());
 
 		addServiceDecorator(createJpaServiceDecoratorProvider());
 		addServiceDecorator(createCancelServiceDecoratorProvider());
