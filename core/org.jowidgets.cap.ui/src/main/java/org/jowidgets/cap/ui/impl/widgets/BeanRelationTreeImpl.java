@@ -63,188 +63,17 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 	private final IBeanRelationTreeModel<CHILD_BEAN_TYPE> treeModel;
 	private final boolean autoSelection;
 	private final int autoExpandLevel;
-	private final Map<ITreeNode, Tuple<IBeanRelationNodeModel<Object, Object>, Integer>> nodesMap;
+	private final Map<ITreeNode, Tuple<IBeanRelationNodeModel<Object, Object>, IBeanProxy<Object>>> nodesMap;
 
-	@SuppressWarnings("unchecked")
 	BeanRelationTreeImpl(final ITree tree, final IBeanRelationTreeBluePrint<CHILD_BEAN_TYPE> bluePrint) {
 		super(tree);
 		this.treeModel = bluePrint.getModel();
 		this.autoSelection = bluePrint.getAutoSelection();
 		this.autoExpandLevel = bluePrint.getAutoExpandLevel();
-		this.nodesMap = new HashMap<ITreeNode, Tuple<IBeanRelationNodeModel<Object, Object>, Integer>>();
+		this.nodesMap = new HashMap<ITreeNode, Tuple<IBeanRelationNodeModel<Object, Object>, IBeanProxy<Object>>>();
 
-		tree.addTreeSelectionListener(new ITreeSelectionListener() {
-			@Override
-			public void selectionChanged(final ITreeSelectionEvent event) {
-				final List<Integer> newSelection = new LinkedList<Integer>();
-				IBeanRelationNodeModel<Object, Object> relationNodeModel = null;
-				for (final ITreeNode selected : event.getSelected()) {
-					final Tuple<IBeanRelationNodeModel<Object, Object>, Integer> tuple = nodesMap.get(selected);
-					if (tuple != null) {
-						if (relationNodeModel == null) {
-							relationNodeModel = tuple.getFirst();
-							newSelection.add(tuple.getSecond());
-						}
-						else if (relationNodeModel == tuple.getFirst()) {
-							newSelection.add(tuple.getSecond());
-						}
-						//else {
-						//TODO MG unsupported selection, all elements must have the same childEntityTypeId
-						//}
-					}
-				}
-				if (relationNodeModel != null) {
-					relationNodeModel.setSelection(newSelection);
-				}
-				else {
-					final List<IBeanProxy<?>> emptyList = Collections.emptyList();
-					treeModel.setSelection(emptyList);
-				}
-
-			}
-		});
-
-		@SuppressWarnings("rawtypes")
-		final IBeanRelationNodeModel root = treeModel.getRoot();
-		registerRelationModel(tree, root);
-	}
-
-	private void registerRelationModel(
-		final ITreeContainer parentContainer,
-		final IBeanRelationNodeModel<Object, Object> relationNodeModel) {
-		relationNodeModel.addBeanListModelListener(new IBeanListModelListener() {
-			@Override
-			public void beansChanged() {
-				onBeansChanged(parentContainer, relationNodeModel);
-				final ITree tree = getWidget();
-				if (autoSelection && parentContainer == tree && tree.getChildren().size() > 0 && relationNodeModel.getSize() > 0) {
-					final ITreeNode node = tree.getChildren().iterator().next();
-					if (!relationNodeModel.getBean(0).isDummy()) {
-						node.setSelected(true);
-					}
-				}
-			}
-		});
-	}
-
-	private void onBeansChanged(
-		final ITreeContainer parentContainer,
-		final IBeanRelationNodeModel<Object, Object> relationNodeModel) {
-		parentContainer.removeAllNodes();
-		for (int i = 0; i < relationNodeModel.getSize(); i++) {
-			final IBeanProxy<Object> bean = relationNodeModel.getBean(i);
-			final IBeanProxyLabelRenderer<Object> childRenderer = relationNodeModel.getChildRenderer();
-
-			final ITreeNode childNode = parentContainer.addNode();
-			if (!bean.isDummy()) {
-				renderNode(childNode, childRenderer.getLabel(bean));
-			}
-			else {
-				renderDummyNode(childNode);
-			}
-
-			Tuple<IBeanRelationNodeModel<Object, Object>, Integer> tuple;
-			tuple = new Tuple<IBeanRelationNodeModel<Object, Object>, Integer>(relationNodeModel, Integer.valueOf(i));
-			nodesMap.put(childNode, tuple);
-
-			final PropertyChangeListener propertyChangeListener = new PropertyChangeListener() {
-				@Override
-				public void propertyChange(final PropertyChangeEvent evt) {
-					final Set<String> propertyDependencies = childRenderer.getPropertyDependencies();
-					if (EmptyCheck.isEmpty(propertyDependencies) || propertyDependencies.contains(evt.getPropertyName())) {
-						if (!bean.isDummy()) {
-							renderNode(childNode, childRenderer.getLabel(bean));
-						}
-						else {
-							renderDummyNode(childNode);
-						}
-					}
-				}
-			};
-			bean.addPropertyChangeListener(propertyChangeListener);
-
-			childNode.addDisposeListener(new IDisposeListener() {
-				@Override
-				public void onDispose() {
-					bean.removePropertyChangeListener(propertyChangeListener);
-					nodesMap.remove(childNode);
-				}
-			});
-
-			final List<Tuple<IBeanRelationNodeModel<Object, Object>, ITreeNode>> unregisteredChildren;
-			unregisteredChildren = new LinkedList<Tuple<IBeanRelationNodeModel<Object, Object>, ITreeNode>>();
-			for (final IEntityTypeId<Object> childEntityTypeId : relationNodeModel.getChildRelations()) {
-
-				final IBeanRelationNodeModel<Object, Object> childRelationNodeModel = treeModel.getNode(
-						relationNodeModel.getChildEntityTypeId(),
-						bean,
-						childEntityTypeId);
-
-				final ITreeNode childRelationNode = childNode.addNode();
-				renderRelationNode(childRelationNode, childRelationNodeModel);
-
-				unregisteredChildren.add(new Tuple<IBeanRelationNodeModel<Object, Object>, ITreeNode>(
-					childRelationNodeModel,
-					childRelationNode));
-			}
-
-			childNode.addTreeNodeListener(new TreeNodeAdapter() {
-				@Override
-				public void expandedChanged(final boolean expanded) {
-					if (expanded) {
-						if (unregisteredChildren.size() > 0) {
-							for (final Tuple<IBeanRelationNodeModel<Object, Object>, ITreeNode> tuple : unregisteredChildren) {
-								final IBeanRelationNodeModel<Object, Object> childRelationNodeModel = tuple.getFirst();
-								final ITreeNode childRelationNode = tuple.getSecond();
-								registerRelationModel(childRelationNode, childRelationNodeModel);
-								final boolean loadOccured = childRelationNodeModel.loadIfNotYetDone();
-								if (!loadOccured) {
-									onBeansChanged(childRelationNode, childRelationNodeModel);
-								}
-							}
-							unregisteredChildren.clear();
-						}
-					}
-				}
-
-			});
-
-			if (!bean.isDummy() && parentContainer.getLevel() < autoExpandLevel && parentContainer instanceof ITreeNode) {
-				final ITreeNode treeNode = (ITreeNode) parentContainer;
-				treeNode.setExpanded(true);
-			}
-
-			if (!bean.isDummy() && childNode.getLevel() < autoExpandLevel && !childNode.isLeaf()) {
-				childNode.setExpanded(true);
-			}
-
-		}
-
-	}
-
-	private void renderNode(final ITreeNode node, final ILabelModel label) {
-		node.setText(label.getText());
-		node.setToolTipText(label.getDescription());
-		node.setIcon(label.getIcon());
-		if (label.getMarkup() != null) {
-			node.setMarkup(label.getMarkup());
-		}
-		if (label.getForegroundColor() != null) {
-			node.setForegroundColor(label.getForegroundColor());
-		}
-	}
-
-	private void renderDummyNode(final ITreeNode node) {
-		node.setText("...");
-		node.setToolTipText("Data will be loaded in background...");
-	}
-
-	private void renderRelationNode(final ITreeNode node, final IBeanRelationNodeModel<Object, Object> model) {
-		node.setText(model.getText());
-		node.setToolTipText(model.getDescription());
-		node.setIcon(model.getIcon());
-		node.setMarkup(Markup.EMPHASIZED);
-
+		tree.addTreeSelectionListener(new TreeSelectionListener());
+		treeModel.getRoot().addBeanListModelListener(new RootModelListener());
 	}
 
 	@Override
@@ -257,4 +86,254 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 		return treeModel;
 	}
 
+	private void onBeansChanged(final ITreeContainer treeContainer, final IBeanRelationNodeModel<Object, Object> relationNodeModel) {
+
+		treeContainer.removeAllNodes();
+		for (int i = 0; i < relationNodeModel.getSize(); i++) {
+			//get the bean at index i
+			final IBeanProxy<Object> bean = relationNodeModel.getBean(i);
+
+			//add the bean to tree container
+			addBeanToTreeContainer(bean, i, treeContainer, relationNodeModel);
+		}
+
+		//auto expand the node if necessary
+		if (treeContainer.getLevel() < autoExpandLevel && treeContainer instanceof ITreeNode) {
+			final ITreeNode treeNode = (ITreeNode) treeContainer;
+			treeNode.setExpanded(true);
+		}
+
+	}
+
+	private void addBeanToTreeContainer(
+		final IBeanProxy<Object> bean,
+		final int index,
+		final ITreeContainer treeContainer,
+		final IBeanRelationNodeModel<Object, Object> relationNodeModel) {
+
+		//the renderer for the cild nodes
+		final IBeanProxyLabelRenderer<Object> renderer = relationNodeModel.getChildRenderer();
+
+		//create a child node for the bean
+		final ITreeNode childNode = treeContainer.addNode(index);
+		renderNode(childNode, bean, renderer);
+
+		//map the child node to the relation model
+		Tuple<IBeanRelationNodeModel<Object, Object>, IBeanProxy<Object>> tuple;
+		tuple = new Tuple<IBeanRelationNodeModel<Object, Object>, IBeanProxy<Object>>(relationNodeModel, bean);
+		nodesMap.put(childNode, tuple);
+
+		//register listener that re-renders node on property changes
+		bean.addPropertyChangeListener(new PropertyChangedRenderingListener(childNode, bean, renderer));
+
+		//register listener that removes node from nodes map on dispose
+		childNode.addDisposeListener(new TreeNodeDisposeListener(childNode));
+
+		//create the child relation nodes
+		final List<Tuple<IBeanRelationNodeModel<Object, Object>, ITreeNode>> lazyChildRelations;
+		lazyChildRelations = new LinkedList<Tuple<IBeanRelationNodeModel<Object, Object>, ITreeNode>>();
+		for (final IEntityTypeId<Object> childEntityTypeId : relationNodeModel.getChildRelations()) {
+
+			final IBeanRelationNodeModel<Object, Object> childRelationNodeModel = treeModel.getNode(
+					relationNodeModel.getChildEntityTypeId(),
+					bean,
+					childEntityTypeId);
+
+			final ITreeNode childRelationNode = childNode.addNode();
+			renderRelationNode(childRelationNode, childRelationNodeModel);
+
+			lazyChildRelations.add(new Tuple<IBeanRelationNodeModel<Object, Object>, ITreeNode>(
+				childRelationNodeModel,
+				childRelationNode));
+		}
+		childNode.addTreeNodeListener(new TreeNodeExpansionListener(childNode, lazyChildRelations));
+
+		//auto expand the child node if necessary
+		if (!bean.isDummy() && childNode.getLevel() < autoExpandLevel && !childNode.isLeaf()) {
+			childNode.setExpanded(true);
+		}
+	}
+
+	private static void renderNode(
+		final ITreeNode node,
+		final IBeanProxy<Object> bean,
+		final IBeanProxyLabelRenderer<Object> renderer) {
+		if (!bean.isDummy()) {
+			renderNodeWithLabel(node, renderer.getLabel(bean));
+		}
+		else {
+			renderDummyNode(node);
+		}
+	}
+
+	private static void renderNodeWithLabel(final ITreeNode node, final ILabelModel label) {
+		node.setText(label.getText());
+		node.setToolTipText(label.getDescription());
+		node.setIcon(label.getIcon());
+		if (label.getMarkup() != null) {
+			node.setMarkup(label.getMarkup());
+		}
+		if (label.getForegroundColor() != null) {
+			node.setForegroundColor(label.getForegroundColor());
+		}
+	}
+
+	private static void renderDummyNode(final ITreeNode node) {
+		node.setText("...");
+		node.setToolTipText("Data will be loaded in background...");
+	}
+
+	private static void renderRelationNode(final ITreeNode node, final IBeanRelationNodeModel<Object, Object> model) {
+		node.setText(model.getText());
+		node.setToolTipText(model.getDescription());
+		node.setIcon(model.getIcon());
+		node.setMarkup(Markup.EMPHASIZED);
+	}
+
+	private class TreeSelectionListener implements ITreeSelectionListener {
+
+		@Override
+		public void selectionChanged(final ITreeSelectionEvent event) {
+			final List<IBeanProxy<Object>> newSelection = new LinkedList<IBeanProxy<Object>>();
+			IBeanRelationNodeModel<Object, Object> relationNodeModel = null;
+			for (final ITreeNode selected : event.getSelected()) {
+				final Tuple<IBeanRelationNodeModel<Object, Object>, IBeanProxy<Object>> tuple = nodesMap.get(selected);
+				if (tuple != null) {
+					if (relationNodeModel == null) {
+						relationNodeModel = tuple.getFirst();
+						newSelection.add(tuple.getSecond());
+					}
+					else if (relationNodeModel == tuple.getFirst()) {
+						newSelection.add(tuple.getSecond());
+					}
+					//else {
+					//TODO MG unsupported selection, all elements must have the same childEntityTypeId
+					//}
+				}
+			}
+			if (relationNodeModel != null) {
+				relationNodeModel.setSelectedBeans(newSelection);
+			}
+			else {
+				final List<IBeanProxy<?>> emptyList = Collections.emptyList();
+				treeModel.setSelection(emptyList);
+			}
+		}
+	}
+
+	@SuppressWarnings({"rawtypes", "unchecked"})
+	private final class RootModelListener implements IBeanListModelListener {
+
+		private final IBeanRelationNodeModel root;
+		private final ITree tree;
+
+		private RootModelListener() {
+			this.root = treeModel.getRoot();
+			this.tree = getWidget();
+		}
+
+		@Override
+		public void beansChanged() {
+			onBeansChanged(tree, root);
+			if (autoSelection && tree.getChildren().size() > 0 && root.getSize() > 0) {
+				final ITreeNode node = tree.getChildren().iterator().next();
+				if (!root.getBean(0).isDummy()) {
+					node.setSelected(true);
+				}
+			}
+		}
+	}
+
+	private final class ChildModelListener implements IBeanListModelListener {
+
+		private final ITreeContainer parentNode;
+		private final IBeanRelationNodeModel<Object, Object> relationNodeModel;
+
+		public ChildModelListener(final ITreeNode parentNode, final IBeanRelationNodeModel<Object, Object> relationNodeModel) {
+			this.parentNode = parentNode;
+			this.relationNodeModel = relationNodeModel;
+		}
+
+		@Override
+		public void beansChanged() {
+			onBeansChanged(parentNode, relationNodeModel);
+		}
+	}
+
+	private final class PropertyChangedRenderingListener implements PropertyChangeListener {
+
+		private final ITreeNode node;
+		private final IBeanProxy<Object> bean;
+		private final IBeanProxyLabelRenderer<Object> renderer;
+
+		private PropertyChangedRenderingListener(
+			final ITreeNode node,
+			final IBeanProxy<Object> bean,
+			final IBeanProxyLabelRenderer<Object> renderer) {
+
+			this.node = node;
+			this.bean = bean;
+			this.renderer = renderer;
+		}
+
+		@Override
+		public void propertyChange(final PropertyChangeEvent evt) {
+			if (!node.isDisposed()) {
+				final Set<String> propertyDependencies = renderer.getPropertyDependencies();
+				if (EmptyCheck.isEmpty(propertyDependencies) || propertyDependencies.contains(evt.getPropertyName())) {
+					renderNode(node, bean, renderer);
+				}
+			}
+			else {
+				bean.removePropertyChangeListener(this);
+			}
+		}
+	}
+
+	private final class TreeNodeDisposeListener implements IDisposeListener {
+
+		private final ITreeNode node;
+
+		private TreeNodeDisposeListener(final ITreeNode node) {
+			this.node = node;
+		}
+
+		@Override
+		public void onDispose() {
+			nodesMap.remove(node);
+		}
+	}
+
+	private final class TreeNodeExpansionListener extends TreeNodeAdapter {
+
+		private final ITreeNode node;
+		private final List<Tuple<IBeanRelationNodeModel<Object, Object>, ITreeNode>> lazyChildRelations;
+
+		private TreeNodeExpansionListener(
+			final ITreeNode node,
+			final List<Tuple<IBeanRelationNodeModel<Object, Object>, ITreeNode>> lazyChildRelations) {
+			this.node = node;
+			this.lazyChildRelations = lazyChildRelations;
+		}
+
+		@Override
+		public void expandedChanged(final boolean expanded) {
+			if (expanded) {
+				for (final Tuple<IBeanRelationNodeModel<Object, Object>, ITreeNode> tuple : lazyChildRelations) {
+					final IBeanRelationNodeModel<Object, Object> childRelationNodeModel = tuple.getFirst();
+					final ITreeNode childRelationNode = tuple.getSecond();
+					childRelationNodeModel.addBeanListModelListener(new ChildModelListener(
+						childRelationNode,
+						childRelationNodeModel));
+					final boolean loadOccured = childRelationNodeModel.loadIfNotYetDone();
+					if (!loadOccured) {
+						onBeansChanged(childRelationNode, childRelationNodeModel);
+					}
+				}
+				lazyChildRelations.clear();
+
+				node.removeTreeNodeListener(this);
+			}
+		}
+	}
 }
