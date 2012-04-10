@@ -98,7 +98,9 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 		}
 
 		//auto expand the node if necessary
-		if (treeContainer.getLevel() < autoExpandLevel && treeContainer instanceof ITreeNode) {
+		if (treeContainer.getLevel() < autoExpandLevel
+			&& treeContainer instanceof ITreeNode
+			&& treeContainer.getChildren().size() > 0) {
 			final ITreeNode treeNode = (ITreeNode) treeContainer;
 			treeNode.setExpanded(true);
 		}
@@ -111,7 +113,7 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 		final ITreeContainer treeContainer,
 		final IBeanRelationNodeModel<Object, Object> relationNodeModel) {
 
-		//the renderer for the cild nodes
+		//the renderer for the child nodes
 		final IBeanProxyLabelRenderer<Object> renderer = relationNodeModel.getChildRenderer();
 
 		//create a child node for the bean
