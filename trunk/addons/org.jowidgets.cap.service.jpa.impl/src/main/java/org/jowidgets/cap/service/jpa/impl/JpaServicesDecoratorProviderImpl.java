@@ -200,7 +200,13 @@ final class JpaServicesDecoratorProviderImpl implements IServicesDecoratorProvid
 							entityManagerEnd(entityManagerTuple);
 						}
 					}
-					CapServiceToolkit.checkCanceled(executionCallback);
+					try {
+						CapServiceToolkit.checkCanceled(executionCallback);
+					}
+					catch (final Exception e) {
+						exception(e);
+						return;
+					}
 					resultCallback.finished(result);
 				}
 

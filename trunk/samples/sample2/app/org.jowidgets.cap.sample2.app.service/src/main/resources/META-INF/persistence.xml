@@ -19,7 +19,9 @@
 			<property name="hibernate.connection.url" value="jdbc:oracle:thin:@127.0.0.1:1521:orcl"></property>
 
 			<property name="hibernate.connection.provider_class"
-				value="org.hibernate.connection.C3P0ConnectionProvider" />
+				value="org.hibernate.connection.C3P0ConnectionProvider" />		
+			
+			<property name="hibernate.connection.release_mode" value="on_close" />
 				
 			<property name="hibernate.c3p0.max_size" value="100" />
 			<property name="hibernate.c3p0.min_size" value="5" />
