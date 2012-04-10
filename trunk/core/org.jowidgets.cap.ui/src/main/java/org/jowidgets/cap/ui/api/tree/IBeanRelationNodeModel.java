@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.ui.api.tree;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
@@ -70,6 +71,8 @@ public interface IBeanRelationNodeModel<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> exten
 	List<IEntityTypeId<Object>> getChildRelations();
 
 	List<IBeanProxy<CHILD_BEAN_TYPE>> getSelectedBeans();
+
+	void setSelectedBeans(Collection<? extends IBeanProxy<CHILD_BEAN_TYPE>> selectedBeans);
 
 	void dispose();
 
