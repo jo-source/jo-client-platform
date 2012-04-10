@@ -549,6 +549,21 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 	}
 
 	@Override
+	public void setSelectedBeans(final Collection<? extends IBeanProxy<CHILD_BEAN_TYPE>> selectedBeans) {
+		Assert.paramNotNull(selectedBeans, "selectedBeans");
+
+		final Set<Object> selectedMap = new HashSet<Object>(selectedBeans);
+		final Set<Integer> newSelection = new LinkedHashSet<Integer>();
+
+		for (int i = 0; i < data.size(); i++) {
+			if (selectedMap.contains(data.get(i))) {
+				newSelection.add(Integer.valueOf(i));
+			}
+		}
+		setSelection(newSelection);
+	}
+
+	@Override
 	public void fireBeansChanged() {
 		beanListModelObservable.fireBeansChanged();
 	}
