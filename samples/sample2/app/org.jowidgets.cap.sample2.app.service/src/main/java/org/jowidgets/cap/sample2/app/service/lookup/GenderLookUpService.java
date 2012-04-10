@@ -39,11 +39,10 @@ import org.jowidgets.cap.common.api.lookup.ILookUpEntryBuilder;
 import org.jowidgets.cap.common.api.lookup.ILookUpToolkit;
 import org.jowidgets.cap.common.api.lookup.ILookUpValueRange;
 import org.jowidgets.cap.common.api.lookup.ILookUpValueRangeBuilder;
+import org.jowidgets.cap.sample2.app.common.lookup.LookUpIds;
 import org.jowidgets.cap.service.api.adapter.ISyncLookUpService;
 
 public final class GenderLookUpService implements ISyncLookUpService {
-
-	public static final String LOOK_UP_ID = GenderLookUpService.class.getName() + "_id";
 
 	public static final String MALE_KEY = "M";
 	public static final String FEMALE_KEY = "F";
@@ -88,7 +87,7 @@ public final class GenderLookUpService implements ISyncLookUpService {
 	private static ILookUpValueRange createValueRange() {
 		final ILookUpToolkit lookUpToolkit = CapCommonToolkit.lookUpToolkit();
 		final ILookUpValueRangeBuilder builder = lookUpToolkit.lookUpValueRangeBuilder();
-		builder.setLookUpId(LOOK_UP_ID);
+		builder.setLookUpId(LookUpIds.GENDER);
 		builder.setDefaultValuePropertyName(LONG_PROPERTY_NAME);
 		builder.addValueProperty(lookUpToolkit.lookUpProperty(SHORT_PROPERTY_NAME, "Short"));
 		builder.addValueProperty(lookUpToolkit.lookUpProperty(LONG_PROPERTY_NAME, "Long"));
