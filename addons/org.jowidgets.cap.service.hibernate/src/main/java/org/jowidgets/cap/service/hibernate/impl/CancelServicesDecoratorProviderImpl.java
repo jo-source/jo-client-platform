@@ -33,11 +33,14 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 
 import org.hibernate.Session;
+import org.jowidgets.cap.common.api.exception.ServiceCanceledException;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IExecutionCallbackListener;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
@@ -112,7 +115,6 @@ final class CancelServicesDecoratorProviderImpl implements IServicesDecoratorPro
 		@Override
 		protected Object invokeSyncSignature(final Method method, final Object[] args, final IExecutionCallback executionCallback) throws Throwable {
 			try {
-				addCancelListener(executionCallback);
 				return method.invoke(original, args);
 			}
 			catch (final Throwable e) {
@@ -128,28 +130,112 @@ final class CancelServicesDecoratorProviderImpl implements IServicesDecoratorPro
 			final IResultCallback<Object> resultCallback,
 			final IExecutionCallback executionCallback) {
 
-			addCancelListener(executionCallback);
+			return new CancelableInvoker(original, method, args, resultCallbackIndex, resultCallback, executionCallback).invoke();
+		}
+
+	}
+
+	private final class CancelableInvoker {
+
+		private final Object original;
+		private final Method method;
+		private final Object[] args;
+		private final int resultCallbackIndex;
+		private final IResultCallback<Object> resultCallback;
+		private final IExecutionCallback executionCallback;
+		private final AtomicBoolean isRunning;
+		private final AtomicReference<Session> canceledSessionHolder;
+
+		private CancelableInvoker(
+			final Object original,
+			final Method method,
+			final Object[] args,
+			final int resultCallbackIndex,
+			final IResultCallback<Object> resultCallback,
+			final IExecutionCallback executionCallback) {
+
+			this.isRunning = new AtomicBoolean(false);
+			this.canceledSessionHolder = new AtomicReference<Session>();
+			this.original = original;
+			this.method = method;
+			this.args = args;
+			this.resultCallbackIndex = resultCallbackIndex;
+			this.resultCallback = resultCallback;
+			this.executionCallback = executionCallback;
+		}
+
+		private Object invoke() {
+
+			final IResultCallback<Object> decoratedResultCallback = new IResultCallback<Object>() {
+
+				@Override
+				public void finished(final Object result) {
+					isRunning.set(false);
+					checkCanceled();
+					resultCallback.finished(result);
+				}
+
+				@Override
+				public void exception(final Throwable exception) {
+					isRunning.set(false);
+					checkCanceled();
+					if (executionCallback != null
+						&& executionCallback.isCanceled()
+						&& !(exception instanceof ServiceCanceledException)) {
+						resultCallback.exception(new ServiceCanceledException());
+					}
+					else {
+						resultCallback.exception(exception);
+
+					}
+				}
+			};
+
+			args[resultCallbackIndex] = decoratedResultCallback;
+
 			try {
+				addCancelListener(executionCallback);
 				CapServiceToolkit.checkCanceled(executionCallback);
-				return method.invoke(original, args);
+				isRunning.set(true);
+				final Object result = method.invoke(original, args);
+				return result;
 			}
-			catch (final Exception exception) {
-				resultCallback.exception(exception);
+			catch (final Exception e) {
+				decoratedResultCallback.exception(e);
 				return null;
 			}
 
 		}
 
+		@SuppressWarnings("deprecation")
+		private void checkCanceled() {
+			final Session canceledSession = canceledSessionHolder.get();
+			if (canceledSession != null && canceledSession.isOpen()) {
+				try {
+					//If the session was canceled without any hibernate exception,
+					//the connection is in a dirty state what may lead
+					//to a timeout exception in future when connection will be recycled from
+					//another session.
+					//To avoid this, the connection will be rolled back. This only
+					//works if the release mode (hibernate.connection.release_mode) is set to 'on_close'
+					canceledSession.connection().rollback();
+				}
+				catch (final Exception e) {
+					//this exception can be ignored, because the service was already canceled
+				}
+			}
+		}
+
 		private void addCancelListener(final IExecutionCallback executionCallback) {
 			final EntityManager em = EntityManagerHolder.get();
-
 			if (executionCallback != null && em != null) {
 				final Session session = em.unwrap(Session.class);
 				executionCallback.addExecutionCallbackListener(new IExecutionCallbackListener() {
 					@Override
 					public void canceled() {
 						try {
-							if (session.isOpen()) {
+							if (session.isOpen() && isRunning.get()) {
+								canceledSessionHolder.set(session);
 								session.cancelQuery();
 							}
 						}
@@ -158,8 +244,8 @@ final class CancelServicesDecoratorProviderImpl implements IServicesDecoratorPro
 					}
 				});
 			}
-
 		}
+
 	}
 
 }
