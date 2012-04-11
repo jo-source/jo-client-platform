@@ -37,10 +37,12 @@ import org.jowidgets.api.command.IActionBuilder;
 import org.jowidgets.api.model.item.IMenuModel;
 import org.jowidgets.cap.ui.api.command.ICreatorActionBuilder;
 import org.jowidgets.cap.ui.api.command.IDeleterActionBuilder;
+import org.jowidgets.cap.ui.api.command.IExecutorActionBuilder;
 import org.jowidgets.cap.ui.api.filter.IFilterType;
 import org.jowidgets.cap.ui.api.table.IBeanTableMenuFactory;
 import org.jowidgets.cap.ui.api.table.IBeanTableMenuInterceptor;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
+import org.jowidgets.cap.ui.api.table.ICsvExportParameter;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.EmptyCheck;
@@ -265,6 +267,26 @@ final class BeanTableMenuFactoryImpl<BEAN_TYPE> implements IBeanTableMenuFactory
 	@Override
 	public IAction settingsAction(final IBeanTable<BEAN_TYPE> table) {
 		return settingsActionBuilder(table).build();
+	}
+
+	@Override
+	public IExecutorActionBuilder<BEAN_TYPE, ICsvExportParameter> csvExportActionBuilder(final IBeanTableModel<BEAN_TYPE> model) {
+		Assert.paramNotNull(model, "model");
+		IExecutorActionBuilder<BEAN_TYPE, ICsvExportParameter> builder = new BeanTableCsvExportActionBuilder<BEAN_TYPE>(model);
+		for (final IBeanTableMenuInterceptor<BEAN_TYPE> interceptor : interceptors) {
+			if (builder != null) {
+				builder = interceptor.csvExportActionBuilder(model, builder);
+			}
+			else {
+				break;
+			}
+		}
+		return builder;
+	}
+
+	@Override
+	public IAction csvExportAction(final IBeanTableModel<BEAN_TYPE> model) {
+		return csvExportActionBuilder(model).build();
 	}
 
 	@Override

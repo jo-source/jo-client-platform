@@ -32,6 +32,7 @@ import org.jowidgets.api.command.IActionBuilder;
 import org.jowidgets.api.model.item.IMenuModel;
 import org.jowidgets.cap.ui.api.command.ICreatorActionBuilder;
 import org.jowidgets.cap.ui.api.command.IDeleterActionBuilder;
+import org.jowidgets.cap.ui.api.command.IExecutorActionBuilder;
 import org.jowidgets.cap.ui.api.filter.IFilterType;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 
@@ -60,6 +61,10 @@ public interface IBeanTableMenuInterceptor<BEAN_TYPE> {
 	IMenuModel defaultSortMenu(IBeanTableModel<?> model, int columnIndex, IMenuModel menuModel);
 
 	IActionBuilder settingsActionBuilder(IBeanTable<BEAN_TYPE> table, IActionBuilder builder);
+
+	IExecutorActionBuilder<BEAN_TYPE, ICsvExportParameter> csvExportActionBuilder(
+		IBeanTableModel<BEAN_TYPE> model,
+		IExecutorActionBuilder<BEAN_TYPE, ICsvExportParameter> builder);
 
 	IActionBuilder hideColumnActionBuilder(IBeanTable<BEAN_TYPE> table, int columnIndex, IActionBuilder builder);
 

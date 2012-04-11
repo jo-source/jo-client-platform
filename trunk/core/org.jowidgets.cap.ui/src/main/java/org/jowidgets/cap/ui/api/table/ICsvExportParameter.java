@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,44 +26,40 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.impl;
+package org.jowidgets.cap.ui.api.table;
 
-import org.jowidgets.api.command.IAction;
-import org.jowidgets.api.model.item.IMenuItemModel;
-import org.jowidgets.api.model.item.IMenuModel;
-import org.jowidgets.cap.ui.api.table.IBeanTableMenuFactory;
-import org.jowidgets.cap.ui.api.widgets.IBeanTable;
-import org.jowidgets.tools.model.item.MenuModel;
+public interface ICsvExportParameter {
 
-final class BeanTableCellMenuModel<BEAN_TYPE> extends MenuModel {
+	ExportType getExportType();
 
-	BeanTableCellMenuModel(
-		final IBeanTable<BEAN_TYPE> table,
-		final IMenuModel headerPopupMenuModel,
-		final int columnIndex,
-		final IBeanTableMenuFactory<BEAN_TYPE> menuFactory) {
-		super();
+	boolean isExportHeader();
 
-		final IAction settingsDialogAction = menuFactory.settingsAction(table);
-		if (headerPopupMenuModel != null) {
-			tryAddItem(headerPopupMenuModel);
+	boolean isExportInvisibleProperties();
+
+	char getSeparator();
+
+	char getMask();
+
+	String getEncoding();
+
+	String getFilename();
+
+	enum ExportType {
+
+		SELECTION("Selected rows"),
+		TABLE("Whole table");
+
+		private final String label;
+
+		ExportType(final String label) {
+			this.label = label;
 		}
-		tryAddItem(menuFactory.filterCellMenu(table, columnIndex));
-		tryAddAction(settingsDialogAction);
-		tryAddAction(menuFactory.csvExportAction(table.getModel()));
-		tryAddItem(table.getAutoUpdateItemModel());
-		tryAddItem(table.getStatusBarItemModel());
+
+		@Override
+		public String toString() {
+			return label;
+		}
+
 	}
 
-	private void tryAddAction(final IAction action) {
-		if (action != null) {
-			addAction(action);
-		}
-	}
-
-	private void tryAddItem(final IMenuItemModel item) {
-		if (item != null) {
-			addItem(item);
-		}
-	}
 }

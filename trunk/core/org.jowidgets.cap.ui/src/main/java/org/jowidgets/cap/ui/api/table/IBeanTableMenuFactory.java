@@ -33,6 +33,7 @@ import org.jowidgets.api.command.IActionBuilder;
 import org.jowidgets.api.model.item.IMenuModel;
 import org.jowidgets.cap.ui.api.command.ICreatorActionBuilder;
 import org.jowidgets.cap.ui.api.command.IDeleterActionBuilder;
+import org.jowidgets.cap.ui.api.command.IExecutorActionBuilder;
 import org.jowidgets.cap.ui.api.filter.IFilterType;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 
@@ -75,6 +76,10 @@ public interface IBeanTableMenuFactory<BEAN_TYPE> {
 	IActionBuilder settingsActionBuilder(IBeanTable<BEAN_TYPE> table);
 
 	IAction settingsAction(IBeanTable<BEAN_TYPE> table);
+
+	IExecutorActionBuilder<BEAN_TYPE, ICsvExportParameter> csvExportActionBuilder(IBeanTableModel<BEAN_TYPE> model);
+
+	IAction csvExportAction(IBeanTableModel<BEAN_TYPE> model);
 
 	IActionBuilder hideColumnActionBuilder(IBeanTable<BEAN_TYPE> table, int columnIndex);
 

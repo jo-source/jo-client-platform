@@ -26,44 +26,14 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.impl;
+package org.jowidgets.cap.ui.api.widgets;
 
-import org.jowidgets.api.command.IAction;
-import org.jowidgets.api.model.item.IMenuItemModel;
-import org.jowidgets.api.model.item.IMenuModel;
-import org.jowidgets.cap.ui.api.table.IBeanTableMenuFactory;
-import org.jowidgets.cap.ui.api.widgets.IBeanTable;
-import org.jowidgets.tools.model.item.MenuModel;
+import org.jowidgets.api.widgets.IWindow;
 
-final class BeanTableCellMenuModel<BEAN_TYPE> extends MenuModel {
+public interface IExecutionTaskDialog extends IWindow {
 
-	BeanTableCellMenuModel(
-		final IBeanTable<BEAN_TYPE> table,
-		final IMenuModel headerPopupMenuModel,
-		final int columnIndex,
-		final IBeanTableMenuFactory<BEAN_TYPE> menuFactory) {
-		super();
+	void executionFinished(String message);
 
-		final IAction settingsDialogAction = menuFactory.settingsAction(table);
-		if (headerPopupMenuModel != null) {
-			tryAddItem(headerPopupMenuModel);
-		}
-		tryAddItem(menuFactory.filterCellMenu(table, columnIndex));
-		tryAddAction(settingsDialogAction);
-		tryAddAction(menuFactory.csvExportAction(table.getModel()));
-		tryAddItem(table.getAutoUpdateItemModel());
-		tryAddItem(table.getStatusBarItemModel());
-	}
+	void executionError(String message);
 
-	private void tryAddAction(final IAction action) {
-		if (action != null) {
-			addAction(action);
-		}
-	}
-
-	private void tryAddItem(final IMenuItemModel item) {
-		if (item != null) {
-			addItem(item);
-		}
-	}
 }
