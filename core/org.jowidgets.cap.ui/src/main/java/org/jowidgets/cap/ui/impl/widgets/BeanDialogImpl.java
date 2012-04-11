@@ -46,7 +46,7 @@ import org.jowidgets.tools.widgets.wrapper.WindowWrapper;
 import org.jowidgets.validation.IValidationConditionListener;
 import org.jowidgets.validation.IValidationResult;
 
-public class BeanDialogImpl<BEAN_TYPE> extends WindowWrapper implements IBeanDialog<BEAN_TYPE> {
+class BeanDialogImpl<BEAN_TYPE> extends WindowWrapper implements IBeanDialog<BEAN_TYPE> {
 
 	private final IBeanForm<BEAN_TYPE> beanForm;
 	private final String okButtonTooltip;

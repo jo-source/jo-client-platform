@@ -45,6 +45,7 @@ import org.jowidgets.cap.ui.api.widgets.IBeanTabFolderBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableSettingsDialogBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableSetupBuilder;
+import org.jowidgets.cap.ui.api.widgets.IExecutionTaskDialogBluePrint;
 import org.jowidgets.cap.ui.api.widgets.ILookUpCollectionInputFieldBluePrint;
 import org.jowidgets.cap.ui.api.widgets.ILookUpComboBoxSelectionBluePrint;
 import org.jowidgets.cap.ui.api.widgets.ISingleBeanFormBluePrint;
@@ -77,6 +78,7 @@ final class CapToolkitInterceptor implements IToolkitInterceptor {
 		genericWidgetFactory.register(IBeanTabFolderBluePrint.class, new BeanTabFolderFactory());
 		genericWidgetFactory.register(IBeanRelationTreeBluePrint.class, new BeanRelationTreeFactory());
 		genericWidgetFactory.register(IBeanSelectionFormBluePrint.class, new BeanSelectionFormFactory());
+		genericWidgetFactory.register(IExecutionTaskDialogBluePrint.class, new ExecutionTaskDialogFactory());
 	}
 
 	private void registerIcons(final IToolkit toolkit) {
@@ -95,6 +97,7 @@ final class CapToolkitInterceptor implements IToolkitInterceptor {
 		bpf.addDefaultsInitializer(IBeanFormBluePrint.class, new BeanFormDefaults());
 		bpf.addDefaultsInitializer(IBeanRelationTreeBluePrint.class, new BeanRelationTreeDefaults());
 		bpf.addDefaultsInitializer(IBeanSelectionFormSetupBuilder.class, new BeanSelectionFormDefaults());
+		bpf.addDefaultsInitializer(IExecutionTaskDialogBluePrint.class, new ExecutionTaskDialogDefaults());
 	}
 
 	private void setBuilderConvenience(final IToolkit toolkit) {

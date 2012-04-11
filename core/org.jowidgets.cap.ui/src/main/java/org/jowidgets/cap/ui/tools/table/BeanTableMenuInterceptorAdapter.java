@@ -32,9 +32,11 @@ import org.jowidgets.api.command.IActionBuilder;
 import org.jowidgets.api.model.item.IMenuModel;
 import org.jowidgets.cap.ui.api.command.ICreatorActionBuilder;
 import org.jowidgets.cap.ui.api.command.IDeleterActionBuilder;
+import org.jowidgets.cap.ui.api.command.IExecutorActionBuilder;
 import org.jowidgets.cap.ui.api.filter.IFilterType;
 import org.jowidgets.cap.ui.api.table.IBeanTableMenuInterceptor;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
+import org.jowidgets.cap.ui.api.table.ICsvExportParameter;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 
 public class BeanTableMenuInterceptorAdapter<BEAN_TYPE> implements IBeanTableMenuInterceptor<BEAN_TYPE> {
@@ -100,6 +102,13 @@ public class BeanTableMenuInterceptorAdapter<BEAN_TYPE> implements IBeanTableMen
 
 	@Override
 	public IActionBuilder settingsActionBuilder(final IBeanTable<BEAN_TYPE> table, final IActionBuilder builder) {
+		return builder;
+	}
+
+	@Override
+	public IExecutorActionBuilder<BEAN_TYPE, ICsvExportParameter> csvExportActionBuilder(
+		final IBeanTableModel<BEAN_TYPE> model,
+		final IExecutorActionBuilder<BEAN_TYPE, ICsvExportParameter> builder) {
 		return builder;
 	}
 

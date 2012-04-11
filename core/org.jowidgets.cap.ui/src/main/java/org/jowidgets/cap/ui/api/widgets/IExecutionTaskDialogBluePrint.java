@@ -26,44 +26,43 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.impl;
+package org.jowidgets.cap.ui.api.widgets;
 
-import org.jowidgets.api.command.IAction;
-import org.jowidgets.api.model.item.IMenuItemModel;
-import org.jowidgets.api.model.item.IMenuModel;
-import org.jowidgets.cap.ui.api.table.IBeanTableMenuFactory;
-import org.jowidgets.cap.ui.api.widgets.IBeanTable;
-import org.jowidgets.tools.model.item.MenuModel;
+import org.jowidgets.api.widgets.blueprint.builder.ITitledWindowSetupBuilder;
+import org.jowidgets.api.widgets.descriptor.setup.IButtonSetup;
+import org.jowidgets.api.widgets.descriptor.setup.ITitledWindowSetup;
+import org.jowidgets.cap.ui.api.execution.IExecutionTask;
+import org.jowidgets.common.types.Dimension;
+import org.jowidgets.common.widgets.descriptor.IWidgetDescriptor;
+import org.jowidgets.common.widgets.descriptor.setup.mandatory.Mandatory;
 
-final class BeanTableCellMenuModel<BEAN_TYPE> extends MenuModel {
+public interface IExecutionTaskDialogBluePrint extends
+		ITitledWindowSetup,
+		ITitledWindowSetupBuilder<IExecutionTaskDialogBluePrint>,
+		IWidgetDescriptor<IExecutionTaskDialog> {
 
-	BeanTableCellMenuModel(
-		final IBeanTable<BEAN_TYPE> table,
-		final IMenuModel headerPopupMenuModel,
-		final int columnIndex,
-		final IBeanTableMenuFactory<BEAN_TYPE> menuFactory) {
-		super();
+	IExecutionTaskDialogBluePrint setExecutionTask(IExecutionTask executionTask);
 
-		final IAction settingsDialogAction = menuFactory.settingsAction(table);
-		if (headerPopupMenuModel != null) {
-			tryAddItem(headerPopupMenuModel);
-		}
-		tryAddItem(menuFactory.filterCellMenu(table, columnIndex));
-		tryAddAction(settingsDialogAction);
-		tryAddAction(menuFactory.csvExportAction(table.getModel()));
-		tryAddItem(table.getAutoUpdateItemModel());
-		tryAddItem(table.getStatusBarItemModel());
-	}
+	IExecutionTaskDialogBluePrint setModal(boolean modal);
 
-	private void tryAddAction(final IAction action) {
-		if (action != null) {
-			addAction(action);
-		}
-	}
+	IExecutionTaskDialogBluePrint setCancelButton(final IButtonSetup buttonSetup);
 
-	private void tryAddItem(final IMenuItemModel item) {
-		if (item != null) {
-			addItem(item);
-		}
-	}
+	IExecutionTaskDialogBluePrint setMinSize(Dimension size);
+
+	IExecutionTaskDialogBluePrint setCloseable(boolean closeable);
+
+	@Mandatory
+	IExecutionTask getExecutionTask();
+
+	@Mandatory
+	boolean getModal();
+
+	@Mandatory
+	IButtonSetup getCancelButton();
+
+	@Mandatory
+	boolean getCloseable();
+
+	Dimension getMinSize();
+
 }

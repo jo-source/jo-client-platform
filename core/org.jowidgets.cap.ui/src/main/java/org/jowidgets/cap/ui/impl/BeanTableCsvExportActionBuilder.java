@@ -28,42 +28,23 @@
 
 package org.jowidgets.cap.ui.impl;
 
-import org.jowidgets.api.command.IAction;
-import org.jowidgets.api.model.item.IMenuItemModel;
-import org.jowidgets.api.model.item.IMenuModel;
-import org.jowidgets.cap.ui.api.table.IBeanTableMenuFactory;
-import org.jowidgets.cap.ui.api.widgets.IBeanTable;
-import org.jowidgets.tools.model.item.MenuModel;
+import org.jowidgets.cap.ui.api.execution.BeanSelectionPolicy;
+import org.jowidgets.cap.ui.api.table.IBeanTableModel;
+import org.jowidgets.cap.ui.api.table.ICsvExportParameter;
+import org.jowidgets.cap.ui.tools.command.ExecutorActionBuilder;
 
-final class BeanTableCellMenuModel<BEAN_TYPE> extends MenuModel {
+final class BeanTableCsvExportActionBuilder<BEAN_TYPE> extends ExecutorActionBuilder<BEAN_TYPE, ICsvExportParameter> {
 
-	BeanTableCellMenuModel(
-		final IBeanTable<BEAN_TYPE> table,
-		final IMenuModel headerPopupMenuModel,
-		final int columnIndex,
-		final IBeanTableMenuFactory<BEAN_TYPE> menuFactory) {
-		super();
+	BeanTableCsvExportActionBuilder(final IBeanTableModel<BEAN_TYPE> model) {
+		super(model);
+		setText(Messages.getString("BeanTableCsvExportActionBuilder.csv_export"));
+		setToolTipText(Messages.getString("BeanTableCsvExportActionBuilder.csv_export_tooltip"));
 
-		final IAction settingsDialogAction = menuFactory.settingsAction(table);
-		if (headerPopupMenuModel != null) {
-			tryAddItem(headerPopupMenuModel);
-		}
-		tryAddItem(menuFactory.filterCellMenu(table, columnIndex));
-		tryAddAction(settingsDialogAction);
-		tryAddAction(menuFactory.csvExportAction(table.getModel()));
-		tryAddItem(table.getAutoUpdateItemModel());
-		tryAddItem(table.getStatusBarItemModel());
+		setSelectionPolicy(BeanSelectionPolicy.ANY_SELECTION);
+
+		setDefaultParameter(new CsvExportParameter());
+		addParameterProvider(new CsvExportParameterContentProvider<BEAN_TYPE>(model));
+		setExecutor(new CsvExportExecutor<BEAN_TYPE>(model));
 	}
 
-	private void tryAddAction(final IAction action) {
-		if (action != null) {
-			addAction(action);
-		}
-	}
-
-	private void tryAddItem(final IMenuItemModel item) {
-		if (item != null) {
-			addItem(item);
-		}
-	}
 }

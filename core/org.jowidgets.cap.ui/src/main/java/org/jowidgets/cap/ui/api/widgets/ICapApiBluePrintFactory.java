@@ -31,10 +31,12 @@ package org.jowidgets.cap.ui.api.widgets;
 import java.util.Collection;
 import java.util.List;
 
+import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.api.convert.IConverter;
 import org.jowidgets.cap.common.api.lookup.ILookUpProperty;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionObservable;
+import org.jowidgets.cap.ui.api.execution.IExecutionTask;
 import org.jowidgets.cap.ui.api.model.ISingleBeanModel;
 import org.jowidgets.cap.ui.api.tabfolder.IBeanTabFolderModel;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
@@ -89,4 +91,8 @@ public interface ICapApiBluePrintFactory {
 		ILookUpProperty lookUpProperty);
 
 	<BEAN_TYPE> IBeanTabFolderBluePrint<BEAN_TYPE> beanTabFolder(IBeanTabFolderModel<BEAN_TYPE> model);
+
+	IExecutionTaskDialogBluePrint executionTaskDialog(IExecutionTask executionTask);
+
+	IExecutionTaskDialogBluePrint executionTaskDialog(IExecutionContext executionContext, IExecutionTask executionTask);
 }

@@ -31,6 +31,7 @@ package org.jowidgets.cap.ui.impl;
 import java.util.Collection;
 import java.util.List;
 
+import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.api.convert.IConverter;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.widgets.blueprint.factory.IBluePrintFactory;
@@ -38,6 +39,7 @@ import org.jowidgets.cap.common.api.lookup.ILookUpProperty;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionObservable;
+import org.jowidgets.cap.ui.api.execution.IExecutionTask;
 import org.jowidgets.cap.ui.api.form.IBeanFormLayout;
 import org.jowidgets.cap.ui.api.form.IBeanFormToolkit;
 import org.jowidgets.cap.ui.api.model.ISingleBeanModel;
@@ -55,6 +57,7 @@ import org.jowidgets.cap.ui.api.widgets.IBeanTabFolderBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableSettingsDialogBluePrint;
 import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
+import org.jowidgets.cap.ui.api.widgets.IExecutionTaskDialogBluePrint;
 import org.jowidgets.cap.ui.api.widgets.ILookUpCollectionInputFieldBluePrint;
 import org.jowidgets.cap.ui.api.widgets.ILookUpComboBoxSelectionBluePrint;
 import org.jowidgets.cap.ui.api.widgets.ISingleBeanFormBluePrint;
@@ -262,4 +265,22 @@ final class CapApiBluePrintFactory implements ICapApiBluePrintFactory {
 		}
 		return result;
 	}
+
+	@Override
+	public IExecutionTaskDialogBluePrint executionTaskDialog(final IExecutionTask executionTask) {
+		final IExecutionTaskDialogBluePrint result = bluePrintFactory.bluePrint(IExecutionTaskDialogBluePrint.class);
+		result.setExecutionTask(executionTask);
+		return result;
+	}
+
+	@Override
+	public IExecutionTaskDialogBluePrint executionTaskDialog(
+		final IExecutionContext executionContext,
+		final IExecutionTask executionTask) {
+		Assert.paramNotNull(executionTask, "executionTask");
+		final IExecutionTaskDialogBluePrint result = executionTaskDialog(executionTask);
+		result.setExecutionContext(executionContext);
+		return result;
+	}
+
 }
