@@ -41,8 +41,7 @@ class CsvExportParameter implements ICsvExportParameter {
 	private final String filename;
 
 	CsvExportParameter() {
-		//TODO SP remove default file name later
-		this(ExportType.TABLE, true, false, ';', '*', "UTF-8", "csv_export_test.txt");
+		this(ExportType.TABLE, true, false, ';', '*', "UTF-8", null);
 	}
 
 	CsvExportParameter(
