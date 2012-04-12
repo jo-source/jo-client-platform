@@ -102,11 +102,12 @@ final class CsvExportTableRunnable implements Runnable {
 					if (result.size() > PAGE_SIZE) {
 						hasMoreBeans = true;
 						currentPage++;
+						resultCallback.finished(result.subList(0, PAGE_SIZE));
 					}
 					else {
 						hasMoreBeans = false;
+						resultCallback.finished(result);
 					}
-					resultCallback.finished(result);
 				}
 
 				@Override
