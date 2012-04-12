@@ -83,6 +83,8 @@ public interface IBeanTableModel<BEAN_TYPE> extends IDataModel, IBeanListModel<B
 
 	void loadPage(int page);
 
+	void updateInBackground(IResultCallback<Void> resultCallback, Interval<Integer> visibleRows);
+
 	void updateInBackground(Interval<Integer> visibleRows);
 
 	void refreshBean(IBeanProxy<BEAN_TYPE> bean);
@@ -105,6 +107,15 @@ public interface IBeanTableModel<BEAN_TYPE> extends IDataModel, IBeanListModel<B
 
 	IDeleterService getDeleterService();
 
+	/**
+	 * Gets a reader that could be used to read the beans from a table external.
+	 * The read beans will not be associated with this model.
+	 * This could be used e.g. to export beans of this table
+	 * 
+	 * @return The external reader
+	 */
+	IExternalReader getExternalReader();
+
 	int getColumnCount();
 
 	IAttribute<Object> getAttribute(int columnIndex);
@@ -114,6 +125,8 @@ public interface IBeanTableModel<BEAN_TYPE> extends IDataModel, IBeanListModel<B
 	List<IAttribute<Object>> getAttributes();
 
 	List<IAttribute<Object>> getAttributes(IAttributeFilter filter);
+
+	List<String> getPropertyNames();
 
 	List<IBeanPropertyValidator<BEAN_TYPE>> getBeanPropertyValidators();
 
