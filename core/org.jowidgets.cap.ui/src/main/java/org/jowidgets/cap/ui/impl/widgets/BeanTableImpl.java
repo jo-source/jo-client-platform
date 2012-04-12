@@ -55,6 +55,8 @@ import org.jowidgets.api.widgets.IPopupMenu;
 import org.jowidgets.api.widgets.ITable;
 import org.jowidgets.api.widgets.IWidget;
 import org.jowidgets.api.widgets.blueprint.ITableBluePrint;
+import org.jowidgets.cap.common.api.execution.IResultCallback;
+import org.jowidgets.cap.common.tools.execution.ResultCallbackAdapter;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
@@ -150,6 +152,7 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 	private ITableCellPopupEvent currentCellEvent;
 	private ITableColumnPopupEvent currentColumnEvent;
 	private long currentAutoUpdateInterval;
+	private final boolean holdSelectionInViewportAfterAutoUpdate = true;
 	private ScheduledFuture<?> autoUpdateFuture;
 
 	BeanTableImpl(final IComposite composite, final IBeanTableBluePrint<BEAN_TYPE> bluePrint) {
@@ -821,11 +824,18 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 			uiThreadAccess.invokeLater(new Runnable() {
 				@Override
 				public void run() {
-					model.updateInBackground(getVisibleRows());
+					final IResultCallback<Void> resultCallback = new ResultCallbackAdapter<Void>() {
+						@Override
+						public void finished(final Void result) {
+							if (holdSelectionInViewportAfterAutoUpdate) {
+								table.showSelection();
+							}
+						}
+					};
+					model.updateInBackground(resultCallback, getVisibleRows());
 				}
 			});
 		}
-
 	}
 
 	private class TableCellEditorListener extends TableCellEditorAdapter {

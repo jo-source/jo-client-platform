@@ -28,38 +28,16 @@
 
 package org.jowidgets.cap.ui.api.table;
 
-public interface ICsvExportParameter {
+import java.util.List;
 
-	ExportType getExportType();
+import org.jowidgets.cap.common.api.bean.IBeanDto;
+import org.jowidgets.cap.common.api.execution.IExecutionCallback;
+import org.jowidgets.cap.common.api.execution.IResultCallback;
 
-	boolean isExportHeader();
+public interface IExternalReader {
 
-	boolean isExportInvisibleProperties();
+	void read(IResultCallback<List<IBeanDto>> result, int firstRow, int maxRows, IExecutionCallback executionCallback);
 
-	char getSeparator();
-
-	char getMask();
-
-	String getEncoding();
-
-	String getFilename();
-
-	enum ExportType {
-
-		TABLE("Whole table"),
-		SELECTION("Selected rows");
-
-		private final String label;
-
-		ExportType(final String label) {
-			this.label = label;
-		}
-
-		@Override
-		public String toString() {
-			return label;
-		}
-
-	}
+	void count(IResultCallback<Integer> result, IExecutionCallback executionCallback);
 
 }

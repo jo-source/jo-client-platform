@@ -141,7 +141,9 @@ class ExecutionTaskDialogImpl extends WindowWrapper implements IExecutionTaskDia
 			uiThreadAccess.invokeLater(new Runnable() {
 				@Override
 				public void run() {
-					description.setText(decription);
+					if (!description.isDisposed()) {
+						description.setText(decription);
+					}
 				}
 			});
 		}
@@ -151,7 +153,9 @@ class ExecutionTaskDialogImpl extends WindowWrapper implements IExecutionTaskDia
 			uiThreadAccess.invokeLater(new Runnable() {
 				@Override
 				public void run() {
-					progressBar.setMaximum(totalStepCount);
+					if (!progressBar.isDisposed()) {
+						progressBar.setMaximum(totalStepCount);
+					}
 				}
 			});
 		}
@@ -161,7 +165,9 @@ class ExecutionTaskDialogImpl extends WindowWrapper implements IExecutionTaskDia
 			uiThreadAccess.invokeLater(new Runnable() {
 				@Override
 				public void run() {
-					progressBar.setProgress(totalWorked);
+					if (!progressBar.isDisposed()) {
+						progressBar.setProgress(totalWorked);
+					}
 				}
 			});
 		}

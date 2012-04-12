@@ -26,40 +26,16 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.table;
+package org.jowidgets.cap.common.tools.execution;
 
-public interface ICsvExportParameter {
+import org.jowidgets.cap.common.api.execution.IResultCallback;
 
-	ExportType getExportType();
+public class ResultCallbackAdapter<RESULT_TYPE> implements IResultCallback<RESULT_TYPE> {
 
-	boolean isExportHeader();
+	@Override
+	public void finished(final RESULT_TYPE result) {}
 
-	boolean isExportInvisibleProperties();
-
-	char getSeparator();
-
-	char getMask();
-
-	String getEncoding();
-
-	String getFilename();
-
-	enum ExportType {
-
-		TABLE("Whole table"),
-		SELECTION("Selected rows");
-
-		private final String label;
-
-		ExportType(final String label) {
-			this.label = label;
-		}
-
-		@Override
-		public String toString() {
-			return label;
-		}
-
-	}
+	@Override
+	public void exception(final Throwable exception) {}
 
 }

@@ -77,6 +77,7 @@ import org.jowidgets.cap.common.api.service.IUpdaterService;
 import org.jowidgets.cap.common.api.sort.SortOrder;
 import org.jowidgets.cap.common.api.validation.IBeanValidator;
 import org.jowidgets.cap.common.tools.bean.BeanKey;
+import org.jowidgets.cap.common.tools.execution.ResultCallbackAdapter;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IAttributeCollectionModifierBuilder;
@@ -114,6 +115,7 @@ import org.jowidgets.cap.ui.api.sort.ISortModelConfig;
 import org.jowidgets.cap.ui.api.table.IBeanTableConfig;
 import org.jowidgets.cap.ui.api.table.IBeanTableConfigBuilder;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
+import org.jowidgets.cap.ui.api.table.IExternalReader;
 import org.jowidgets.cap.ui.tools.execution.AbstractUiResultCallback;
 import org.jowidgets.common.color.IColorConstant;
 import org.jowidgets.common.image.IImageConstant;
@@ -169,6 +171,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 	private final ICreatorService creatorService;
 	private final IReaderService<Object> readerService;
+	private final IExternalReader externalReader;
 	private final IProvider<Object> readerParameterProvider;
 	private final IDeleterService deleterService;
 	private final BeanListSaveDelegate<BEAN_TYPE> saveDelegate;
@@ -282,18 +285,21 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		}
 
 		this.attributes = new ArrayList<IAttribute<Object>>(attributes);
-		this.propertyNames = new LinkedList<String>();
+
+		final List<String> mutablePropertyNames = new LinkedList<String>();
 		this.defaultValues = new HashMap<String, Object>();
 		for (final IAttribute<?> attribute : attributes) {
 			final String propertyName = attribute.getPropertyName();
-			propertyNames.add(propertyName);
+			mutablePropertyNames.add(propertyName);
 			final Object defaultValue = attribute.getDefaultValue();
 			if (defaultValue != null) {
 				defaultValues.put(propertyName, defaultValue);
 			}
 		}
+		this.propertyNames = Collections.unmodifiableList(mutablePropertyNames);
 
 		this.readerService = (IReaderService<Object>) readerService;
+		this.externalReader = new ExternalReader();
 		this.readerParameterProvider = (IProvider<Object>) paramProvider;
 		this.creatorService = creatorService;
 		this.deleterService = deleterService;
@@ -579,6 +585,11 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	}
 
 	@Override
+	public IExternalReader getExternalReader() {
+		return externalReader;
+	}
+
+	@Override
 	public void clear() {
 		if (!Toolkit.getUiThreadAccess().isUiThread()) {
 			throw new IllegalStateException("Clear must be invoked in the ui thread");
@@ -709,6 +720,12 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 	@Override
 	public void updateInBackground(final Interval<Integer> visibleRows) {
+		updateInBackground(new ResultCallbackAdapter<Void>(), visibleRows);
+
+	}
+
+	@Override
+	public void updateInBackground(final IResultCallback<Void> resultCallback, final Interval<Integer> visibleRows) {
 		final Integer left = visibleRows.getLeftBoundary();
 		final Integer right = visibleRows.getRightBoundary();
 		if (left != null && right != null) {
@@ -716,13 +733,13 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			final int endPageIndex = getPage(right.intValue());
 			for (int pageIndex = startPageIndex; pageIndex <= endPageIndex; pageIndex++) {
 				if (isPageLoading(pageIndex)) {
-					//the is some loading for the vieport, so do not update unloaded pages
+					//the is some loading for the viewport, so do not update unloaded pages
 					return;
 				}
 			}
-			//if the background pageLoader loads something outside the vieport, cancel this
+			//if the background pageLoader loads something outside the viewport, cancel this
 			tryToCancelBackgroundPageLoader();
-			backgroundPageLoader = new BackgroundPageLoader(startPageIndex, endPageIndex);
+			backgroundPageLoader = new BackgroundPageLoader(startPageIndex, endPageIndex, resultCallback);
 			backgroundPageLoader.loadInBackground();
 			startCountLoaderIfNotRunning();
 		}
@@ -1153,6 +1170,11 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	}
 
 	@Override
+	public List<String> getPropertyNames() {
+		return propertyNames;
+	}
+
+	@Override
 	public List<IAttribute<Object>> getAttributes(final IAttributeFilter filter) {
 		Assert.paramNotNull(filter, "filter");
 		final List<IAttribute<Object>> result = new LinkedList<IAttribute<Object>>();
@@ -1550,7 +1572,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 					if (loadingPageLoader != null && !loadingPageLoader.isDisposed()) {
 						loadingPageLoader.fixPageSize();
 					}
-					else {
+					else if (backgroundPageLoader == null || !backgroundPageLoader.isPageLoading(pageIndex)) {
 						completeEvenOddPage(pageIndex);
 					}
 					return createDummyCell(rowIndex, columnIndex, null, attribute);
@@ -2286,6 +2308,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 		private final int startPageIndex;
 		private final int endPageIndex;
+		private final IResultCallback<Void> resultCallback;
 		private final int pageCount;
 		private final IUiThreadAccess uiThreadAccess;
 		private final IFilter filter;
@@ -2297,9 +2320,10 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 		private IExecutionTask executionTask;
 
-		BackgroundPageLoader(final int startPageIndex, final int endPageIndex) {
+		BackgroundPageLoader(final int startPageIndex, final int endPageIndex, final IResultCallback<Void> resultCallback) {
 			this.startPageIndex = startPageIndex;
 			this.endPageIndex = endPageIndex;
+			this.resultCallback = resultCallback;
 			this.pageCount = 1 + (endPageIndex - startPageIndex);
 			this.uiThreadAccess = Toolkit.getUiThreadAccess();
 			this.filter = getFilter();
@@ -2460,6 +2484,8 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 				dataModel.fireDataChanged();
 				beanListModelObservable.fireBeansChanged();
+
+				resultCallback.finished(null);
 			}
 
 			backgroundPageLoader = null;
@@ -2491,6 +2517,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 		private void setException(final Throwable exception) {
 			finished = true;
+			resultCallback.exception(exception);
 		}
 
 		private void userCanceledLater() {
@@ -2504,6 +2531,33 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 		private void userCanceled() {
 			finished = true;
+		}
+
+	}
+
+	private final class ExternalReader implements IExternalReader {
+
+		@Override
+		public void read(
+			final IResultCallback<List<IBeanDto>> result,
+			final int firstRow,
+			final int maxRows,
+			final IExecutionCallback executionCallback) {
+			readerService.read(
+					result,
+					getParentBeanKeys(),
+					getFilter(),
+					sortModel.getSorting(),
+					firstRow,
+					maxRows,
+					readerParameterProvider.get(),
+					executionCallback);
+
+		}
+
+		@Override
+		public void count(final IResultCallback<Integer> result, final IExecutionCallback executionCallback) {
+			readerService.count(result, getParentBeanKeys(), getFilter(), readerParameterProvider.get(), executionCallback);
 		}
 
 	}
