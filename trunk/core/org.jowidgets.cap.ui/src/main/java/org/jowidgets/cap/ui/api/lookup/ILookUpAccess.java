@@ -33,7 +33,7 @@ import java.util.concurrent.TimeUnit;
 public interface ILookUpAccess {
 
 	/**
-	 * Adds a callback to get the look up asynchronous, and the be informed about look up changes.
+	 * Adds a callback to get the look up asynchronous, and then get informed about look up changes.
 	 * This method forces the look up to get initialized, if not already done.
 	 * 
 	 * @see ILookUpAccess#initialize()

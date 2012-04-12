@@ -30,7 +30,6 @@ package org.jowidgets.cap.ui.impl;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -38,16 +37,11 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 import org.jowidgets.api.command.IExecutionContext;
-import org.jowidgets.api.convert.IObjectLabelConverter;
-import org.jowidgets.api.convert.IObjectStringConverter;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.widgets.IWindow;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
-import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
-import org.jowidgets.cap.ui.api.attribute.IAttribute;
-import org.jowidgets.cap.ui.api.attribute.IControlPanelProvider;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.execution.IExecutionTask;
 import org.jowidgets.cap.ui.api.execution.IExecutor;
@@ -80,36 +74,18 @@ class CsvExportExecutor<BEAN_TYPE> implements IExecutor<BEAN_TYPE, ICsvExportPar
 		final IExecutionTask executionTask = CapUiToolkit.executionTaskFactory().create();
 		final IExecutionTaskDialog executionTaskDialog = createExecutionTaskDialog(executionContext, executionTask);
 		final IResultCallback<String> resultCallback = new ResultCallback(executionTaskDialog);
-		final Map<String, IObjectStringConverter<Object>> converters = createConverterMap(parameter);
 
 		final Runnable exportRunnable;
 		if (parameter.getExportType() == ExportType.SELECTION) {
-			final List<IBeanDto> beanDtos = createBeanDtos(beans, converters.keySet());
-			exportRunnable = new SelectedExportRunnable(resultCallback, parameter, beanDtos, executionTask, converters);
+			final List<IBeanDto> beanDtos = createBeanDtos(beans, model.getPropertyNames());
+			exportRunnable = new CsvExportSelectedRunnable(model, resultCallback, parameter, beanDtos, executionTask);
 		}
 		else {
-			exportRunnable = new TableExportRunnable(resultCallback, parameter, executionTask, converters);
+			exportRunnable = new CsvExportTableRunnable(model, resultCallback, parameter, executionTask);
 		}
 
 		executionTaskDialog.setVisible(true);
 		executor.execute(exportRunnable);
-	}
-
-	private Map<String, IObjectStringConverter<Object>> createConverterMap(final ICsvExportParameter parameter) {
-		final Map<String, IObjectStringConverter<Object>> result = new LinkedHashMap<String, IObjectStringConverter<Object>>();
-		for (final IAttribute<Object> attribute : model.getAttributes()) {
-			final String propertyName = attribute.getPropertyName();
-			if (attribute.isVisible() || parameter.isExportInvisibleProperties()) {
-				final IControlPanelProvider<Object> controlPanel = attribute.getCurrentControlPanel();
-				if (controlPanel != null) {
-					final IObjectLabelConverter<Object> converter = controlPanel.getObjectLabelConverter();
-					if (converter != null) {
-						result.put(propertyName, converter);
-					}
-				}
-			}
-		}
-		return result;
 	}
 
 	private static IExecutionTaskDialog createExecutionTaskDialog(
@@ -131,108 +107,6 @@ class CsvExportExecutor<BEAN_TYPE> implements IExecutor<BEAN_TYPE, ICsvExportPar
 		return result;
 	}
 
-	@SuppressWarnings("unused")
-	private String beanToCsv(final IBeanDto bean, final ICsvExportParameter parameter) {
-		final StringBuilder result = new StringBuilder();
-		for (final IAttribute<Object> attribute : model.getAttributes()) {
-			final String propertyName = attribute.getPropertyName();
-			if (attribute.isVisible() || parameter.isExportInvisibleProperties()) {
-				final IControlPanelProvider<Object> controlPanel = attribute.getCurrentControlPanel();
-				if (controlPanel != null) {
-					final IObjectLabelConverter<Object> converter = controlPanel.getObjectLabelConverter();
-					if (converter != null) {
-						final String propValue = converter.convertToString(bean.getValue(propertyName));
-						//TODO SP add to result
-					}
-				}
-			}
-		}
-		return result.toString();
-	}
-
-	private final class SelectedExportRunnable implements Runnable {
-
-		private final IResultCallback<String> resultCallback;
-		@SuppressWarnings("unused")
-		private final ICsvExportParameter parameter;
-		@SuppressWarnings("unused")
-		private final List<IBeanDto> beans;
-		@SuppressWarnings("unused")
-		private final IExecutionCallback executionCallback;
-		@SuppressWarnings("unused")
-		private final Map<String, IObjectStringConverter<Object>> converters;
-
-		private SelectedExportRunnable(
-			final IResultCallback<String> resultCallback,
-			final ICsvExportParameter parameter,
-			final List<IBeanDto> beans,
-			final IExecutionCallback executionCallback,
-			final Map<String, IObjectStringConverter<Object>> converters) {
-
-			this.resultCallback = resultCallback;
-			this.parameter = parameter;
-			this.beans = beans;
-			this.executionCallback = executionCallback;
-			this.converters = converters;
-		}
-
-		@Override
-		public void run() {
-			resultCallback.finished("Exported all");
-		}
-
-	}
-
-	private final class TableExportRunnable implements Runnable {
-
-		private final IResultCallback<String> resultCallback;
-		@SuppressWarnings("unused")
-		private final ICsvExportParameter parameter;
-		private final IExecutionCallback executionCallback;
-		@SuppressWarnings("unused")
-		private final Map<String, IObjectStringConverter<Object>> converters;
-
-		private TableExportRunnable(
-			final IResultCallback<String> resultCallback,
-			final ICsvExportParameter parameter,
-			final IExecutionCallback executionCallback,
-			final Map<String, IObjectStringConverter<Object>> converters) {
-
-			this.resultCallback = resultCallback;
-			this.parameter = parameter;
-			this.executionCallback = executionCallback;
-			this.converters = converters;
-		}
-
-		@Override
-		public void run() {
-			final int steps = 1000;
-			executionCallback.setTotalStepCount(steps);
-			for (int i = 0; i < steps && !executionCallback.isCanceled(); i++) {
-				//CHECKSTYLE:OFF
-				System.out.println("step: " + i);
-				//CHECKSTYLE:ON
-				executionCallback.workedOne();
-				executionCallback.setDescription("Step: " + i);
-				try {
-					Thread.sleep(50);
-				}
-				catch (final InterruptedException e) {
-				}
-			}
-			if (executionCallback.isCanceled()) {
-				//CHECKSTYLE:OFF
-				System.out.println("CANCELED");
-				//CHECKSTYLE:ON
-				return;
-			}
-			else {
-				resultCallback.finished("Exported 1000 beans");
-			}
-		}
-
-	}
-
 	private static final class ResultCallback extends AbstractUiResultCallback<String> {
 
 		private final IExecutionTaskDialog executionTaskDialog;
@@ -248,7 +122,11 @@ class CsvExportExecutor<BEAN_TYPE> implements IExecutor<BEAN_TYPE, ICsvExportPar
 
 		@Override
 		public void exceptionUi(final Throwable exception) {
-			executionTaskDialog.executionFinished(exception.getMessage());
+			//TODO MG remove this later
+			//CHECKSTYLE:OFF
+			exception.printStackTrace();
+			//CHECKSTYLE:ON
+			executionTaskDialog.executionError(exception.getMessage());
 		}
 
 	}

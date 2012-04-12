@@ -31,6 +31,7 @@ package org.jowidgets.cap.ui.impl;
 import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.model.item.IMenuItemModel;
 import org.jowidgets.api.model.item.IMenuModel;
+import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.cap.ui.api.table.IBeanTableMenuFactory;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.tools.model.item.MenuModel;
@@ -50,7 +51,9 @@ final class BeanTableCellMenuModel<BEAN_TYPE> extends MenuModel {
 		}
 		tryAddItem(menuFactory.filterCellMenu(table, columnIndex));
 		tryAddAction(settingsDialogAction);
-		tryAddAction(menuFactory.csvExportAction(table.getModel()));
+		if (Toolkit.getSupportedWidgets().hasFileChooser()) {
+			tryAddAction(menuFactory.csvExportAction(table.getModel()));
+		}
 		tryAddItem(table.getAutoUpdateItemModel());
 		tryAddItem(table.getStatusBarItemModel());
 	}
