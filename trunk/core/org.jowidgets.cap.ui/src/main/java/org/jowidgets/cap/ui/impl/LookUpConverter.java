@@ -29,6 +29,7 @@
 package org.jowidgets.cap.ui.impl;
 
 import org.jowidgets.api.convert.IConverter;
+import org.jowidgets.api.threads.IUiThreadAccess;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.cap.common.api.lookup.ILookUpEntry;
 import org.jowidgets.cap.common.api.lookup.ILookUpProperty;
@@ -52,6 +53,8 @@ final class LookUpConverter<KEY_TYPE> implements IConverter<KEY_TYPE> {
 	private final IConverter<Object> valueConverter;
 	private final ILookUpListener lookUpListener;
 	private final IValidator<String> stringValidator;
+	private final IUiThreadAccess uiThreadAccess;
+	private final ILookUpAccess lookUpAccess;
 
 	private boolean onLoad;
 
@@ -70,7 +73,9 @@ final class LookUpConverter<KEY_TYPE> implements IConverter<KEY_TYPE> {
 		this.valueConverter = (IConverter<Object>) valueConverter;
 		this.onLoad = false;
 
-		final ILookUpAccess lookUpAccess = CapUiToolkit.lookUpCache().getAccess(lookUpId);
+		this.uiThreadAccess = Toolkit.getUiThreadAccess();
+
+		this.lookUpAccess = CapUiToolkit.lookUpCache().getAccess(lookUpId);
 
 		if (lookUpAccess != null) {
 			this.lookUpListener = new ILookUpListener() {
@@ -145,7 +150,7 @@ final class LookUpConverter<KEY_TYPE> implements IConverter<KEY_TYPE> {
 				return valueConverter.convertToString(value);
 			}
 			else if (!onLoad) {
-				Toolkit.getUiThreadAccess().invokeLater(new Runnable() {
+				uiThreadAccess.invokeLater(new Runnable() {
 					@Override
 					public void run() {
 						CapUiToolkit.lookUpCache().clearCache(lookUpId);
@@ -198,20 +203,14 @@ final class LookUpConverter<KEY_TYPE> implements IConverter<KEY_TYPE> {
 	}
 
 	private ILookUp getLookUp() {
-		final ILookUpAccess lookUpAccess = CapUiToolkit.lookUpCache().getAccess(lookUpId);
-		if (lookUpAccess != null) {
-			if (lookUpAccess.isInitialized()) {
-				return lookUpAccess.getCurrentLookUp();
-			}
-			else {
-				//trigger initialization to enhance probability that the 
-				//next access may work
-				lookUpAccess.initialize();
-				return null;
-			}
+		if (lookUpAccess.isInitialized()) {
+			return lookUpAccess.getCurrentLookUp();
 		}
 		else {
-			throw new IllegalStateException("No look up access found for the id '" + lookUpId + "'");
+			//trigger initialization to enhance probability that the 
+			//next access may work
+			lookUpAccess.initialize();
+			return null;
 		}
 	}
 
