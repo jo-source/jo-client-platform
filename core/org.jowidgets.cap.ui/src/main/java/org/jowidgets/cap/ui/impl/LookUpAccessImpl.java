@@ -139,7 +139,6 @@ final class LookUpAccessImpl implements ILookUpAccess {
 
 	@Override
 	public ILookUp getCurrentLookUp() {
-		checkThread();
 		return lookUp;
 	}
 
