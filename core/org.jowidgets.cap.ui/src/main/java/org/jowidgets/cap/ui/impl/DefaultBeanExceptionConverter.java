@@ -33,6 +33,7 @@ import java.util.List;
 import org.jowidgets.cap.common.api.exception.BeanException;
 import org.jowidgets.cap.common.api.exception.DeletedBeanException;
 import org.jowidgets.cap.common.api.exception.ExecutableCheckException;
+import org.jowidgets.cap.common.api.exception.ServiceException;
 import org.jowidgets.cap.common.api.exception.StaleBeanException;
 import org.jowidgets.cap.ui.api.bean.BeanMessageType;
 import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
@@ -97,6 +98,19 @@ final class DefaultBeanExceptionConverter implements IBeanExceptionConverter {
 				else {
 					return new BeanMessageImpl(BeanMessageType.ERROR, "Undefined runtime exception!", throwable);
 				}
+			}
+		}
+		else if (throwable instanceof ServiceException) {
+			//CHECKSTYLE:OFF
+			throwable.printStackTrace();
+			//CHECKSTYLE:ON
+			final ServiceException serviceException = ((ServiceException) throwable);
+			final String userMessage = serviceException.getUserMessage();
+			if (!EmptyCheck.isEmpty(userMessage)) {
+				return new BeanMessageImpl(BeanMessageType.ERROR, userMessage, throwable);
+			}
+			else {
+				return new BeanMessageImpl(BeanMessageType.ERROR, "Undefined runtime exception!", throwable);
 			}
 		}
 		else {
