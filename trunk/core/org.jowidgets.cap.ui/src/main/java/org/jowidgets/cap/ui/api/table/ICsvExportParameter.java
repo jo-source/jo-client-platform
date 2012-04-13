@@ -46,8 +46,9 @@ public interface ICsvExportParameter {
 
 	enum ExportType {
 
-		TABLE("Whole table"),
-		SELECTION("Selected rows");
+		//TODO i18n
+		TABLE("Whole Table"),
+		SELECTION("Selected Rows");
 
 		private final String label;
 
@@ -61,5 +62,4 @@ public interface ICsvExportParameter {
 		}
 
 	}
-
 }

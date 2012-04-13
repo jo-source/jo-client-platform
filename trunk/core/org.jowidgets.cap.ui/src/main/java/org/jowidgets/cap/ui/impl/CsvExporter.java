@@ -48,6 +48,7 @@ import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IControlPanelProvider;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.table.ICsvExportParameter;
+import org.jowidgets.tools.message.MessageReplacer;
 
 final class CsvExporter {
 
@@ -159,9 +160,10 @@ final class CsvExporter {
 			beanProvider.getBeans(result);
 		}
 		else {
-			//TODO SP i18n
-			//MessageReplacer.replace(message, parameter);
-			beanProvider.finished("Exported '" + exportedCount + "' " + model.getEntityLabelPlural());
+			beanProvider.finished(MessageReplacer.replace(
+					Messages.getString("CsvExporter.exported") + " ' %1 ' %2",
+					String.valueOf(exportedCount),
+					model.getEntityLabelPlural()));
 		}
 	}
 
@@ -182,20 +184,20 @@ final class CsvExporter {
 			if (!executionCallback.isCanceled()) {
 				exportedCount++;
 				if (totalCount != null) {
-					//MessageReplacer.replace(message, parameter);
-					//TODO SP i18n
-					executionCallback.setDescription("Export '"
-						+ exportedCount
-						+ "' of '"
-						+ totalCount
-						+ "' "
-						+ model.getEntityLabelPlural());
+					executionCallback.setDescription(MessageReplacer.replace(
+							Messages.getString("CsvExporter.Export")
+								+ " ' %1 ' "
+								+ Messages.getString("CsvExporter.of")
+								+ " ' %2 ' %3 ",
+							String.valueOf(exportedCount),
+							Integer.toString(totalCount),
+							model.getEntityLabelPlural()));
 
 					executionCallback.workedOne();
 				}
 				else {
-					//TODO SP i18n
-					executionCallback.setDescription("Export '" + exportedCount + "' " + model.getEntityLabelPlural());
+					executionCallback.setDescription(MessageReplacer.replace(Messages.getString("CsvExporter.Export")
+						+ "' %1 ' %2 ", String.valueOf(exportedCount), model.getEntityLabelPlural()));
 				}
 				ps.println(beanToCsv(bean));
 			}
@@ -215,7 +217,6 @@ final class CsvExporter {
 		for (final IAttribute<Object> attribute : model.getAttributes()) {
 			if (attribute.isVisible() || parameter.isExportInvisibleProperties()) {
 				final String label = attribute.getCurrentLabel();
-				//TODO SP add to result
 				result.append(label + ";");
 			}
 		}
@@ -243,7 +244,9 @@ final class CsvExporter {
 			else {
 				propValue = entry.getValue().convertToString(bean.getValue(entry.getKey()));
 			}
-			//TODO SP add to result
+			if (propValue == null) {
+				break;
+			}
 			result.append(propValue + ";");
 		}
 		return result.toString();
