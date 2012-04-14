@@ -152,7 +152,7 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 	private ITableCellPopupEvent currentCellEvent;
 	private ITableColumnPopupEvent currentColumnEvent;
 	private long currentAutoUpdateInterval;
-	private final boolean holdSelectionInViewportAfterAutoUpdate = true;
+	private final boolean holdSelectionInViewportAfterAutoUpdate = false;
 	private ScheduledFuture<?> autoUpdateFuture;
 
 	BeanTableImpl(final IComposite composite, final IBeanTableBluePrint<BEAN_TYPE> bluePrint) {

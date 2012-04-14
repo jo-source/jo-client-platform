@@ -60,11 +60,14 @@ import org.jowidgets.api.model.table.ITableModelFactory;
 import org.jowidgets.api.threads.IUiThreadAccess;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.cap.common.api.CapCommonToolkit;
+import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
+import org.jowidgets.cap.common.api.filter.ArithmeticOperator;
 import org.jowidgets.cap.common.api.filter.BooleanOperator;
+import org.jowidgets.cap.common.api.filter.IArithmeticFilterBuilder;
 import org.jowidgets.cap.common.api.filter.IBooleanFilterBuilder;
 import org.jowidgets.cap.common.api.filter.IFilter;
 import org.jowidgets.cap.common.api.lookup.ILookUpValueRange;
@@ -181,7 +184,6 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	private final IBeanListModel<Object> parent;
 	private final LinkType linkType;
 
-	private final boolean autoRowCount;
 	private final boolean clearOnEmptyFilter;
 	private final boolean clearOnEmptyParentBeans;
 
@@ -212,6 +214,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 	private int rowCount;
 	private Integer countedRowCount;
+	private boolean autoRowCount;
 	private int maxPageIndex;
 	private boolean dataCleared;
 	private boolean autoSelection;
@@ -790,6 +793,18 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		}
 	}
 
+	private void removePage(final int pageIndex) {
+		tryToCancelPageLoader(pageIndex);
+		final ArrayList<IBeanProxy<BEAN_TYPE>> pageToDelete = data.get(pageIndex);
+		if (pageToDelete != null) {
+			for (final IBeanProxy<BEAN_TYPE> bean : pageToDelete) {
+				beansStateTracker.unregister(bean);
+			}
+			pageToDelete.clear();
+			data.remove(pageIndex);
+		}
+	}
+
 	private void tryToCanceLoader() {
 		tryToCancelBackgroundPageLoader();
 		tryToCancelProgrammaticPageLoader();
@@ -817,6 +832,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	}
 
 	private void tryToCancelPageLoader(final int pageIndex) {
+		tryToCancelBackgroundPageLoader(pageIndex);
 		tryToCancelProgrammaticPageLoader(pageIndex);
 		final boolean even = pageIndex % 2 == 0;
 		if (even) {
@@ -1258,7 +1274,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	@Override
 	public void setSelectedBeans(final Collection<? extends IBeanProxy<BEAN_TYPE>> selectedBeans) {
 		Assert.paramNotNull(selectedBeans, "selectedBeans");
-		setSelectedBeans(new LinkedList<Integer>(), selectedBeans);
+		addSelectedBeansImpl(new LinkedList<Integer>(), selectedBeans);
 	}
 
 	@Override
@@ -1267,18 +1283,18 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	}
 
 	private List<IBeanProxy<BEAN_TYPE>> addSelectedBeansImpl(final Collection<? extends IBeanProxy<BEAN_TYPE>> selectedBeans) {
-		return setSelectedBeans(getSelection(), selectedBeans);
+		return addSelectedBeansImpl(getSelection(), selectedBeans);
 	}
 
 	@SuppressWarnings("unchecked")
-	private List<IBeanProxy<BEAN_TYPE>> setSelectedBeans(
+	private List<IBeanProxy<BEAN_TYPE>> addSelectedBeansImpl(
 		final List<Integer> currentSelection,
 		final Collection<? extends IBeanProxy<BEAN_TYPE>> selectedBeans) {
 
 		final Set<Integer> newSelection = new LinkedHashSet<Integer>(currentSelection);
 		final List<IBeanProxy<BEAN_TYPE>> result = new LinkedList<IBeanProxy<BEAN_TYPE>>();
 
-		boolean added = false;
+		boolean setSelection = EmptyCheck.isEmpty(currentSelection);
 
 		if (!EmptyCheck.isEmpty(selectedBeans)) {
 			//use hash set instead of collection for faster access
@@ -1295,23 +1311,23 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 				int relativeIndex = 0;
 				for (final IBeanProxy<BEAN_TYPE> bean : pageEntry.getValue()) {
 					if (bean != null && selectedBeansSet.contains(bean)) {
-						added = newSelection.add(Integer.valueOf(pageStartIndex + relativeIndex)) || added;
+						setSelection = newSelection.add(Integer.valueOf(pageStartIndex + relativeIndex)) || setSelection;
 						result.add(bean);
 					}
 					relativeIndex++;
 				}
 			}
 			final int dataRowCount = dataModel.getDataRowCount();
+			int relativeIndex = 0;
 			for (final IBeanProxy<BEAN_TYPE> bean : addedData) {
-				int relativeIndex = 0;
 				if (bean != null && selectedBeansSet.contains(bean)) {
-					added = newSelection.add(Integer.valueOf(dataRowCount + relativeIndex)) || added;
+					setSelection = newSelection.add(Integer.valueOf(dataRowCount + relativeIndex)) || setSelection;
 					result.add(bean);
 				}
 				relativeIndex++;
 			}
 		}
-		if (added) {
+		if (setSelection) {
 			setSelection(newSelection);
 		}
 
@@ -1478,18 +1494,46 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	}
 
 	private IFilter getFilter() {
-		if (filters.size() > 0) {
+		final IFilter addedDataFilter = getAddedDataFilter();
+
+		if (filters.size() > 0 || addedDataFilter != null) {
 			final IBooleanFilterBuilder builder = CapCommonToolkit.filterFactory().booleanFilterBuilder();
 			builder.setOperator(BooleanOperator.AND);
+
 			final IUiFilterFactory filterFactory = CapUiToolkit.filterToolkit().filterFactory();
 			for (final IUiFilter uiFilter : filters.values()) {
 				builder.addFilter(filterFactory.convert(uiFilter));
 			}
+
+			if (addedDataFilter != null) {
+				builder.addFilter(addedDataFilter);
+			}
+
 			return builder.build();
 		}
 		else {
 			return null;
 		}
+	}
+
+	private IFilter getAddedDataFilter() {
+		if (!EmptyCheck.isEmpty(addedData)) {
+			final IArithmeticFilterBuilder builder = CapCommonToolkit.filterFactory().arithmeticFilterBuilder();
+			builder.setInverted(true);
+			builder.setPropertyName(IBean.ID_PROPERTY);
+			builder.setOperator(ArithmeticOperator.CONTAINS_ANY);
+			boolean added = false;
+			for (final IBeanProxy<BEAN_TYPE> addedBean : addedData) {
+				if (!addedBean.isDummy() && !addedBean.isTransient()) {
+					builder.addParameter(addedBean.getId());
+					added = true;
+				}
+			}
+			if (added) {
+				return builder.build();
+			}
+		}
+		return null;
 	}
 
 	private List<? extends IBeanKey> getParentBeanKeys() {
@@ -1894,7 +1938,6 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			started = true;
 			if (autoRowCount) {
 				executionTask = CapUiToolkit.executionTaskFactory().create();
-
 				executionTask.addExecutionCallbackListener(new AbstractUiExecutionCallbackListener() {
 					@Override
 					public void canceledUi() {
@@ -1908,6 +1951,9 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 						filter,
 						readerParameterProvider.get(),
 						executionTask);
+			}
+			else {
+				finished = true;
 			}
 		}
 
@@ -1933,9 +1979,35 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		private void setResult(final Integer result) {
 			executionTask = null;
 			finished = true;
-			countedRowCount = result;
-			fixLoadingPages();
-			fireBeansChanged();
+			if (result != null) {
+				countedRowCount = result;
+
+				final List<IBeanProxy<BEAN_TYPE>> selectedBeans = getSelectedBeans();
+
+				//data may be deleted
+				if (countedRowCount < rowCount) {
+					//change the row count to the new row count
+					rowCount = countedRowCount.intValue();
+
+					//remove the pages after the new row count
+					final int newMaxPageIndex = getPage(rowCount);
+					for (int pageIndex = newMaxPageIndex + 1; pageIndex <= maxPageIndex; pageIndex++) {
+						removePage(pageIndex);
+					}
+					maxPageIndex = newMaxPageIndex;
+				}
+				else {
+					fixLoadingPages();
+				}
+
+				fireBeansChanged();
+
+				setSelectedBeans(selectedBeans);
+				fireSelectionChanged();
+			}
+			else {
+				autoRowCount = false;
+			}
 		}
 
 		private void fixLoadingPages() {
@@ -2356,7 +2428,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 					filter,
 					sortModel.getSorting(),
 					(startPageIndex * pageSize),
-					(pageCount * pageSize) + 1,
+					(pageCount * pageSize) + PAGE_LOAD_OVERLAP,
 					readerParameterProvider.get(),
 					executionTask);
 
@@ -2433,8 +2505,9 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 						}
 					}
 					else {
-						dataChanged = true;
-						pageChanged = true;
+						final boolean changed = oldBeanProxy != null;
+						dataChanged = dataChanged || changed;
+						pageChanged = pageChanged || changed;
 						break;
 					}
 				}
@@ -2445,6 +2518,9 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			}
 
 			if (dataChanged) {
+				//change the row count to the new row count
+				rowCount = startPageIndex * pageSize + resultBeanDtos.size();
+
 				//if the result is empty and the page is not the first page, reload the whole table
 				if (resultBeanDtos.size() == 0 && startPageIndex > 0) {
 					rowCount = 0;
@@ -2454,7 +2530,6 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 				}
 				//if the page is the last page, adapt the row count and maxPage index
 				else if (endPageIndex >= maxPageIndex) {
-					rowCount = startPageIndex * pageSize + resultBeanDtos.size();
 					maxPageIndex = endPageIndex;
 					//if the counted row count is potentially wrong, reset it (and recount on autoRowcount)
 					if (countedRowCount != null
@@ -2471,17 +2546,18 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 				//if data is not consistent, delete pages before and after viewport
 				for (int pageIndex = 0; pageIndex < startPageIndex; pageIndex++) {
-					deletePage(pageIndex);
+					removePage(pageIndex);
 				}
 				for (int pageIndex = endPageIndex + 1; pageIndex <= maxPageIndex; pageIndex++) {
-					deletePage(pageIndex);
+					removePage(pageIndex);
 				}
 				maxPageIndex = endPageIndex;
 
-				setSelectedBeans(selectedBeans);
-
 				dataModel.fireDataChanged();
 				beanListModelObservable.fireBeansChanged();
+
+				setSelectedBeans(selectedBeans);
+				fireSelectionChanged();
 
 				resultCallback.finished(null);
 			}
@@ -2489,18 +2565,6 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			backgroundPageLoader = null;
 			finished = true;
 
-		}
-
-		private void deletePage(final int pageIndex) {
-			tryToCancelPageLoader(pageIndex);
-			final ArrayList<IBeanProxy<BEAN_TYPE>> pageToDelete = data.get(pageIndex);
-			if (pageToDelete != null) {
-				for (final IBeanProxy<BEAN_TYPE> bean : pageToDelete) {
-					beansStateTracker.unregister(bean);
-				}
-				pageToDelete.clear();
-				data.remove(pageIndex);
-			}
 		}
 
 		private void setException(final Throwable exception) {
