@@ -69,6 +69,7 @@ import org.jowidgets.cap.ui.api.table.IBeanTableConfig;
 import org.jowidgets.cap.ui.api.table.IBeanTableMenuFactory;
 import org.jowidgets.cap.ui.api.table.IBeanTableMenuInterceptor;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
+import org.jowidgets.cap.ui.api.types.AutoScrollPolicy;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableSettingsDialog;
@@ -144,6 +145,7 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 	private final PopupMenuObservable cellMenuObservable;
 	private final ScheduledExecutorService autoUpdateExecutorService;
 	private final AutoUpdateRunnable autoUpdateRunnable;
+	private final boolean isAutoUpdateConfigurable;
 	private final ICheckedItemModel autoUpdateItemModel;
 
 	private IAction creatorAction;
@@ -152,7 +154,7 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 	private ITableCellPopupEvent currentCellEvent;
 	private ITableColumnPopupEvent currentColumnEvent;
 	private long currentAutoUpdateInterval;
-	private final boolean holdSelectionInViewportAfterAutoUpdate = false;
+	private final AutoScrollPolicy autoScrollPolicy;
 	private ScheduledFuture<?> autoUpdateFuture;
 
 	BeanTableImpl(final IComposite composite, final IBeanTableBluePrint<BEAN_TYPE> bluePrint) {
@@ -223,7 +225,9 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 			tablePopupMenuModel.addSeparator();
 			tablePopupMenuModel.addItem(menuFactory.filterMenu(this));
 			tablePopupMenuModel.addAction(menuFactory.settingsAction(this));
-			tablePopupMenuModel.addItem(getAutoUpdateItemModel());
+			if (bluePrint.getAutoUpdateConfigurable()) {
+				tablePopupMenuModel.addItem(getAutoUpdateItemModel());
+			}
 			tablePopupMenuModel.addItem(getStatusBarItemModel());
 
 			if (hasDefaultCreatorAction && model.getCreatorService() != null) {
@@ -330,10 +334,12 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 			}
 		});
 
-		setSearchFilterToolbarVisible(bluePrint.isSearchFilterToolbarVisible());
+		setSearchFilterToolbarVisible(bluePrint.getSearchFilterToolbarVisible());
 		setStatusBarVisible(true);
 
+		this.isAutoUpdateConfigurable = bluePrint.getAutoUpdateConfigurable();
 		this.currentAutoUpdateInterval = bluePrint.getAutoUpdateInterval();
+		this.autoScrollPolicy = bluePrint.getAutoScrollPolicy();
 		this.autoUpdateExecutorService = Executors.newScheduledThreadPool(1, new DaemonThreadFactory());
 		this.autoUpdateRunnable = new AutoUpdateRunnable();
 	}
@@ -632,6 +638,11 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 	}
 
 	@Override
+	public boolean isAutoUpdateConfigurable() {
+		return isAutoUpdateConfigurable;
+	}
+
+	@Override
 	public void startAutoUpdateMode() {
 		autoUpdateItemModel.setSelected(true);
 	}
@@ -827,8 +838,11 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 					final IResultCallback<Void> resultCallback = new ResultCallbackAdapter<Void>() {
 						@Override
 						public void finished(final Void result) {
-							if (holdSelectionInViewportAfterAutoUpdate) {
-								table.showSelection();
+							if (AutoScrollPolicy.TO_SELECTION == autoScrollPolicy) {
+								table.scrollToSelection();
+							}
+							else if (AutoScrollPolicy.TO_END == autoScrollPolicy) {
+								table.scrollToEnd();
 							}
 						}
 					};
@@ -984,8 +998,18 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 	}
 
 	@Override
-	public void showSelection() {
-		table.showSelection();
+	public void scrollToSelection() {
+		table.scrollToSelection();
+	}
+
+	@Override
+	public void scrollToEnd() {
+		table.scrollToEnd();
+	}
+
+	@Override
+	public void scrollToRow(final int rowIndex) {
+		table.scrollToRow(rowIndex);
 	}
 
 	@Override

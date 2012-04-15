@@ -32,6 +32,7 @@ import org.jowidgets.api.widgets.blueprint.builder.IComponentSetupBuilder;
 import org.jowidgets.api.widgets.descriptor.setup.IComponentSetup;
 import org.jowidgets.cap.ui.api.table.IBeanTableMenuInterceptor;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
+import org.jowidgets.cap.ui.api.types.AutoScrollPolicy;
 import org.jowidgets.common.types.TableSelectionPolicy;
 import org.jowidgets.common.widgets.descriptor.setup.mandatory.Mandatory;
 
@@ -61,7 +62,32 @@ public interface IBeanTableSetupBuilder<BEAN_TYPE> extends
 
 	IBeanTableSetupBuilder<BEAN_TYPE> setSearchFilterToolbarVisible(boolean visible);
 
+	/**
+	 * Determines if the auto update settings can be configured by the user
+	 * 
+	 * @param configurable
+	 * 
+	 * @return This builder
+	 */
+	IBeanTableSetupBuilder<BEAN_TYPE> setAutoUpdateConfigurable(boolean configurable);
+
+	/**
+	 * Sets the interval for the auto update in milliseconds
+	 * 
+	 * @param autoUpdateInterval The auto update interval in milliseconds
+	 * 
+	 * @return This builder
+	 */
 	IBeanTableSetupBuilder<BEAN_TYPE> setAutoUpdateInterval(long autoUpdateInterval);
+
+	/**
+	 * Sets the auto scroll policy that will be used after data loading occurred
+	 * 
+	 * @param autoScrollPolicy The auto scroll policy to set
+	 * 
+	 * @return This builder
+	 */
+	IBeanTableSetupBuilder<BEAN_TYPE> setAutoScrollPolicy(AutoScrollPolicy autoScrollPolicy);
 
 	@Mandatory
 	TableSelectionPolicy getSelectionPolicy();
@@ -89,9 +115,15 @@ public interface IBeanTableSetupBuilder<BEAN_TYPE> extends
 	IBeanTableMenuInterceptor<BEAN_TYPE> getMenuInterceptor();
 
 	@Mandatory
-	boolean isSearchFilterToolbarVisible();
+	boolean getSearchFilterToolbarVisible();
+
+	@Mandatory
+	boolean getAutoUpdateConfigurable();
 
 	@Mandatory
 	long getAutoUpdateInterval();
+
+	@Mandatory
+	AutoScrollPolicy getAutoScrollPolicy();
 
 }

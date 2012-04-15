@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,49 +26,12 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.impl;
+package org.jowidgets.cap.ui.api.types;
 
-import org.jowidgets.api.command.IAction;
-import org.jowidgets.api.model.item.IMenuItemModel;
-import org.jowidgets.api.model.item.IMenuModel;
-import org.jowidgets.api.toolkit.Toolkit;
-import org.jowidgets.cap.ui.api.table.IBeanTableMenuFactory;
-import org.jowidgets.cap.ui.api.widgets.IBeanTable;
-import org.jowidgets.tools.model.item.MenuModel;
+public enum AutoScrollPolicy {
 
-final class BeanTableCellMenuModel<BEAN_TYPE> extends MenuModel {
+	OFF,
+	TO_SELECTION,
+	TO_END;
 
-	BeanTableCellMenuModel(
-		final IBeanTable<BEAN_TYPE> table,
-		final IMenuModel headerPopupMenuModel,
-		final int columnIndex,
-		final IBeanTableMenuFactory<BEAN_TYPE> menuFactory) {
-		super();
-
-		final IAction settingsDialogAction = menuFactory.settingsAction(table);
-		if (headerPopupMenuModel != null) {
-			tryAddItem(headerPopupMenuModel);
-		}
-		tryAddItem(menuFactory.filterCellMenu(table, columnIndex));
-		tryAddAction(settingsDialogAction);
-		if (Toolkit.getSupportedWidgets().hasFileChooser()) {
-			tryAddAction(menuFactory.csvExportAction(table.getModel()));
-		}
-		if (table.isAutoUpdateConfigurable()) {
-			tryAddItem(table.getAutoUpdateItemModel());
-		}
-		tryAddItem(table.getStatusBarItemModel());
-	}
-
-	private void tryAddAction(final IAction action) {
-		if (action != null) {
-			addAction(action);
-		}
-	}
-
-	private void tryAddItem(final IMenuItemModel item) {
-		if (item != null) {
-			addItem(item);
-		}
-	}
 }
