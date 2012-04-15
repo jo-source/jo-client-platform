@@ -114,8 +114,8 @@ import org.jowidgets.cap.ui.api.plugin.IBeanTableModelPlugin;
 import org.jowidgets.cap.ui.api.sort.IPropertySort;
 import org.jowidgets.cap.ui.api.sort.ISortModel;
 import org.jowidgets.cap.ui.api.sort.ISortModelConfig;
-import org.jowidgets.cap.ui.api.table.IBeanTableConfig;
-import org.jowidgets.cap.ui.api.table.IBeanTableConfigBuilder;
+import org.jowidgets.cap.ui.api.table.IBeanTableModelConfig;
+import org.jowidgets.cap.ui.api.table.IBeanTableModelConfigBuilder;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.table.IExternalReader;
 import org.jowidgets.cap.ui.tools.execution.AbstractUiExecutionCallbackListener;
@@ -1448,7 +1448,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	}
 
 	@Override
-	public void setConfig(final IBeanTableConfig config) {
+	public void setConfig(final IBeanTableModelConfig config) {
 		Assert.paramNotNull(config, "config");
 		onSetConfig = true;
 		final Map<String, IAttributeConfig> attributeConfigs = config.getAttributeConfigs();
@@ -1477,8 +1477,8 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	}
 
 	@Override
-	public IBeanTableConfig getConfig() {
-		final IBeanTableConfigBuilder builder = CapUiToolkit.beanTableConfigBuilder();
+	public IBeanTableModelConfig getConfig() {
+		final IBeanTableModelConfigBuilder builder = CapUiToolkit.beanTableModelConfigBuilder();
 		for (final IAttribute<Object> attribute : attributes) {
 			builder.addAttributeConfig(attribute);
 		}

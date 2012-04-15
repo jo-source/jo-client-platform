@@ -36,8 +36,8 @@ import org.jowidgets.api.widgets.IFrame;
 import org.jowidgets.api.widgets.IInputField;
 import org.jowidgets.api.widgets.blueprint.factory.IBluePrintFactory;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
-import org.jowidgets.cap.ui.api.table.IBeanTableConfig;
-import org.jowidgets.cap.ui.api.table.IBeanTableConfigBuilder;
+import org.jowidgets.cap.ui.api.table.IBeanTableModelConfig;
+import org.jowidgets.cap.ui.api.table.IBeanTableModelConfigBuilder;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableSettingsDialog;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableSettingsDialogBluePrint;
@@ -54,7 +54,7 @@ final class BeanTableSettingsDialogImpl extends WindowWrapper implements IBeanTa
 	private final IFrame frame;
 
 	private final BeanTableAttributeListImpl beanTableAttributeListImpl;
-	private final IBeanTableConfig currentConfig;
+	private final IBeanTableModelConfig currentConfig;
 
 	private boolean okPressed;
 
@@ -101,7 +101,7 @@ final class BeanTableSettingsDialogImpl extends WindowWrapper implements IBeanTa
 	}
 
 	@Override
-	public IBeanTableConfig show() {
+	public IBeanTableModelConfig show() {
 		okPressed = false;
 		if (model.getConfig().isAutoSelection() != null) {
 			autoSelection.setValue(model.getConfig().isAutoSelection());
@@ -117,8 +117,8 @@ final class BeanTableSettingsDialogImpl extends WindowWrapper implements IBeanTa
 		}
 	}
 
-	private IBeanTableConfig getUserConfig() {
-		final IBeanTableConfigBuilder builder = CapUiToolkit.beanTableConfigBuilder();
+	private IBeanTableModelConfig getUserConfig() {
+		final IBeanTableModelConfigBuilder builder = CapUiToolkit.beanTableModelConfigBuilder();
 		beanTableAttributeListImpl.buildConfig(builder);
 		builder.setAutoSelection(autoSelection.getValue());
 		return builder.build();

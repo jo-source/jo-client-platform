@@ -52,7 +52,7 @@ import org.jowidgets.cap.ui.api.lookup.ILookUpCache;
 import org.jowidgets.cap.ui.api.model.ISingleBeanModelBuilder;
 import org.jowidgets.cap.ui.api.sort.ISortModelConfigBuilder;
 import org.jowidgets.cap.ui.api.tabfolder.IBeanTabFolderModelBuilder;
-import org.jowidgets.cap.ui.api.table.IBeanTableConfigBuilder;
+import org.jowidgets.cap.ui.api.table.IBeanTableModelConfigBuilder;
 import org.jowidgets.cap.ui.api.table.IBeanTableMenuFactory;
 import org.jowidgets.cap.ui.api.table.IBeanTableMenuInterceptor;
 import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
@@ -117,7 +117,7 @@ public interface ICapUiToolkit {
 
 	ISingleBeanModelBuilder<IBeanDto> singleBeanModelBuilder(Object entityId);
 
-	IBeanTableConfigBuilder beanTableConfigBuilder();
+	IBeanTableModelConfigBuilder beanTableModelConfigBuilder();
 
 	IBeanMessageBuilder beanMessageBuilder(BeanMessageType type);
 

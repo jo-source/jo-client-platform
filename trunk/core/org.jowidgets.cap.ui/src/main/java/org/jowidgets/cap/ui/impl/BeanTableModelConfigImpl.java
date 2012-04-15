@@ -33,16 +33,16 @@ import java.util.Map;
 import org.jowidgets.cap.ui.api.attribute.IAttributeConfig;
 import org.jowidgets.cap.ui.api.filter.IUiFilter;
 import org.jowidgets.cap.ui.api.sort.ISortModelConfig;
-import org.jowidgets.cap.ui.api.table.IBeanTableConfig;
+import org.jowidgets.cap.ui.api.table.IBeanTableModelConfig;
 
-final class BeanTableConfig implements IBeanTableConfig {
+final class BeanTableModelConfigImpl implements IBeanTableModelConfig {
 
 	private final Map<String, IAttributeConfig> attributeConfigs;
 	private final Boolean autoSelection;
 	private final ISortModelConfig sortModelConfig;
 	private final Map<String, IUiFilter> filters;
 
-	BeanTableConfig(
+	BeanTableModelConfigImpl(
 		final Map<String, IAttributeConfig> attributeConfigs,
 		final ISortModelConfig sortModelConfig,
 		final Map<String, IUiFilter> filters,

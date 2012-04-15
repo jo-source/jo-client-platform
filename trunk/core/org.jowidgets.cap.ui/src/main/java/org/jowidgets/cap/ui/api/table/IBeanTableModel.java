@@ -160,9 +160,9 @@ public interface IBeanTableModel<BEAN_TYPE> extends IDataModel, IBeanListModel<B
 
 	ISortModel getSortModel();
 
-	void setConfig(IBeanTableConfig config);
+	void setConfig(IBeanTableModelConfig config);
 
-	IBeanTableConfig getConfig();
+	IBeanTableModelConfig getConfig();
 
 	void dispose();
 
