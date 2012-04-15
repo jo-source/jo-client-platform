@@ -36,11 +36,11 @@ import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IAttributeConfig;
 import org.jowidgets.cap.ui.api.filter.IUiFilter;
 import org.jowidgets.cap.ui.api.sort.ISortModelConfig;
-import org.jowidgets.cap.ui.api.table.IBeanTableConfig;
-import org.jowidgets.cap.ui.api.table.IBeanTableConfigBuilder;
+import org.jowidgets.cap.ui.api.table.IBeanTableModelConfig;
+import org.jowidgets.cap.ui.api.table.IBeanTableModelConfigBuilder;
 import org.jowidgets.util.Assert;
 
-final class BeanTableConfigBuilder implements IBeanTableConfigBuilder {
+final class BeanTableModelConfigBuilderImpl implements IBeanTableModelConfigBuilder {
 
 	private ISortModelConfig sortModelConfig;
 	private Map<String, IUiFilter> filters;
@@ -48,13 +48,13 @@ final class BeanTableConfigBuilder implements IBeanTableConfigBuilder {
 	private Boolean autoSelection;
 
 	@Override
-	public IBeanTableConfigBuilder setSortModelConfig(final ISortModelConfig sortModelConfig) {
+	public IBeanTableModelConfigBuilder setSortModelConfig(final ISortModelConfig sortModelConfig) {
 		this.sortModelConfig = sortModelConfig;
 		return this;
 	}
 
 	@Override
-	public IBeanTableConfigBuilder setFilters(final Map<String, IUiFilter> filters) {
+	public IBeanTableModelConfigBuilder setFilters(final Map<String, IUiFilter> filters) {
 		Assert.paramNotNull(filters, "filters");
 
 		ensureFiltersMap();
@@ -66,7 +66,7 @@ final class BeanTableConfigBuilder implements IBeanTableConfigBuilder {
 	}
 
 	@Override
-	public IBeanTableConfigBuilder addFilter(final String id, final IUiFilter filter) {
+	public IBeanTableModelConfigBuilder addFilter(final String id, final IUiFilter filter) {
 		Assert.paramNotEmpty(id, "id");
 		Assert.paramNotNull(filter, "filter");
 
@@ -76,7 +76,7 @@ final class BeanTableConfigBuilder implements IBeanTableConfigBuilder {
 	}
 
 	@Override
-	public IBeanTableConfigBuilder setAttributeConfigs(final Map<String, IAttributeConfig> attributeConfigs) {
+	public IBeanTableModelConfigBuilder setAttributeConfigs(final Map<String, IAttributeConfig> attributeConfigs) {
 		Assert.paramNotNull(attributeConfigs, "attributeConfigs");
 
 		ensureAttributeConfigsMap();
@@ -88,7 +88,7 @@ final class BeanTableConfigBuilder implements IBeanTableConfigBuilder {
 	}
 
 	@Override
-	public IBeanTableConfigBuilder addAttributeConfig(final String propertyName, final IAttributeConfig attributeConfig) {
+	public IBeanTableModelConfigBuilder addAttributeConfig(final String propertyName, final IAttributeConfig attributeConfig) {
 		Assert.paramNotEmpty(propertyName, "propertyName");
 		Assert.paramNotNull(attributeConfig, "attributeConfig");
 
@@ -98,7 +98,7 @@ final class BeanTableConfigBuilder implements IBeanTableConfigBuilder {
 	}
 
 	@Override
-	public IBeanTableConfigBuilder addAttributeConfig(final IAttribute<?> attribute) {
+	public IBeanTableModelConfigBuilder addAttributeConfig(final IAttribute<?> attribute) {
 		Assert.paramNotNull(attribute, "attribute");
 
 		ensureAttributeConfigsMap();
@@ -107,14 +107,14 @@ final class BeanTableConfigBuilder implements IBeanTableConfigBuilder {
 	}
 
 	@Override
-	public IBeanTableConfigBuilder setAutoSelection(final boolean autoSelection) {
+	public IBeanTableModelConfigBuilder setAutoSelection(final boolean autoSelection) {
 		this.autoSelection = autoSelection;
 		return this;
 	}
 
 	@Override
-	public IBeanTableConfig build() {
-		return new BeanTableConfig(attributeConfigs, sortModelConfig, filters, autoSelection);
+	public IBeanTableModelConfig build() {
+		return new BeanTableModelConfigImpl(attributeConfigs, sortModelConfig, filters, autoSelection);
 	}
 
 	private void addToAttributeConfigsMap(final String propertyName, final IAttributeConfig attributeConfig) {

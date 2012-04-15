@@ -65,7 +65,7 @@ import org.jowidgets.cap.ui.api.plugin.IBeanTableMenuContributionPlugin;
 import org.jowidgets.cap.ui.api.plugin.IBeanTableMenuInterceptorPlugin;
 import org.jowidgets.cap.ui.api.plugin.IBeanTablePlugin;
 import org.jowidgets.cap.ui.api.sort.ISortModel;
-import org.jowidgets.cap.ui.api.table.IBeanTableConfig;
+import org.jowidgets.cap.ui.api.table.IBeanTableModelConfig;
 import org.jowidgets.cap.ui.api.table.IBeanTableMenuFactory;
 import org.jowidgets.cap.ui.api.table.IBeanTableMenuInterceptor;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
@@ -685,7 +685,7 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 	@Override
 	public void showSettingsDialog() {
 		final IBeanTableSettingsDialog dialog = getSettingsDialog();
-		final IBeanTableConfig tableConfig = dialog.show();
+		final IBeanTableModelConfig tableConfig = dialog.show();
 		if (dialog.isOkPressed()) {
 			model.setConfig(tableConfig);
 		}

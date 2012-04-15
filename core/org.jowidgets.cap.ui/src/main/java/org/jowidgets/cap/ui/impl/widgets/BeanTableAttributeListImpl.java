@@ -65,8 +65,8 @@ import org.jowidgets.cap.ui.api.attribute.IAttributeGroup;
 import org.jowidgets.cap.ui.api.attribute.IControlPanelProvider;
 import org.jowidgets.cap.ui.api.control.DisplayFormat;
 import org.jowidgets.cap.ui.api.control.IDisplayFormat;
-import org.jowidgets.cap.ui.api.table.IBeanTableConfig;
-import org.jowidgets.cap.ui.api.table.IBeanTableConfigBuilder;
+import org.jowidgets.cap.ui.api.table.IBeanTableModelConfig;
+import org.jowidgets.cap.ui.api.table.IBeanTableModelConfigBuilder;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.tools.sort.SortModelConfigBuilder;
 import org.jowidgets.common.color.ColorValue;
@@ -323,7 +323,7 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 		return result;
 	}
 
-	void updateValues(final IBeanTableConfig currentConfig) {
+	void updateValues(final IBeanTableModelConfig currentConfig) {
 		eventsDisabled = true;
 		currentSortingModel.clearSortIndices();
 		defaultSortingModel.clearSortIndices();
@@ -791,7 +791,7 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 			return getAttribute().isSortable();
 		}
 
-		public void updateValues(final IBeanTableConfig currentConfig) {
+		public void updateValues(final IBeanTableModelConfig currentConfig) {
 			final IAttributeConfig attributeConfig = currentConfig.getAttributeConfigs().get(propertyName);
 			if (attributeConfig == null) {
 				throw new IllegalStateException("No configuration set for '" + propertyName + "'."); //$NON-NLS-1$ //$NON-NLS-2$
@@ -2242,7 +2242,7 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 		}
 	}
 
-	public void buildConfig(final IBeanTableConfigBuilder builder) {
+	public void buildConfig(final IBeanTableModelConfigBuilder builder) {
 		for (final Entry<String, AttributeComposite> entry : attributeComposites.entrySet()) {
 			final AttributeComposite attributeComposite = entry.getValue();
 

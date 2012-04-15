@@ -62,7 +62,7 @@ import org.jowidgets.cap.ui.api.execution.IExecutionTask;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.model.IDataModel;
 import org.jowidgets.cap.ui.api.model.LinkType;
-import org.jowidgets.cap.ui.api.table.IBeanTableConfig;
+import org.jowidgets.cap.ui.api.table.IBeanTableModelConfig;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
 import org.jowidgets.cap.ui.api.widgets.IBeanSelectionDialog;
@@ -99,7 +99,7 @@ final class BeanLinkCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
 	private final BeanListModelEnabledChecker<?> enabledChecker;
 
 	private Rectangle lastDialogBounds;
-	private IBeanTableConfig lastTableModelConfig;
+	private IBeanTableModelConfig lastTableModelConfig;
 	private ArrayList<Integer> lastColumnPermutation;
 
 	BeanLinkCommand(
