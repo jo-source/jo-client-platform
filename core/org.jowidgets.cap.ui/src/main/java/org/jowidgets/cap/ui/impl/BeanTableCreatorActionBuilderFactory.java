@@ -56,7 +56,7 @@ final class BeanTableCreatorActionBuilderFactory {
 				super.addBean(bean);
 				if (model.getSize() > 0) {
 					model.setSelection(Collections.singletonList(Integer.valueOf(model.getSize() - 1)));
-					table.showSelection();
+					table.scrollToSelection();
 				}
 			}
 		};

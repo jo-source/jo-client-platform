@@ -177,6 +177,11 @@ final class BeanSelectionTableImpl<BEAN_TYPE> extends AbstractInputControl<List<
 	}
 
 	@Override
+	public boolean isAutoUpdateConfigurable() {
+		return table.isAutoUpdateConfigurable();
+	}
+
+	@Override
 	public void startAutoUpdateMode() {
 		table.startAutoUpdateMode();
 	}
@@ -287,8 +292,18 @@ final class BeanSelectionTableImpl<BEAN_TYPE> extends AbstractInputControl<List<
 	}
 
 	@Override
-	public void showSelection() {
-		table.showSelection();
+	public void scrollToSelection() {
+		table.scrollToSelection();
+	}
+
+	@Override
+	public void scrollToEnd() {
+		table.scrollToEnd();
+	}
+
+	@Override
+	public void scrollToRow(final int rowIndex) {
+		table.scrollToRow(rowIndex);
 	}
 
 	@Override

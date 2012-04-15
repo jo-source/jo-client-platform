@@ -29,10 +29,12 @@
 package org.jowidgets.cap.ui.impl.widgets;
 
 import org.jowidgets.api.widgets.blueprint.defaults.IDefaultInitializer;
+import org.jowidgets.cap.ui.api.types.AutoScrollPolicy;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableSetupBuilder;
 import org.jowidgets.common.types.TableSelectionPolicy;
 
 final class BeanTableDefaults implements IDefaultInitializer<IBeanTableSetupBuilder<?>> {
+
 	@Override
 	public void initialize(final IBeanTableSetupBuilder<?> bluePrint) {
 		bluePrint.setSelectionPolicy(TableSelectionPolicy.MULTI_ROW_SELECTION);
@@ -43,5 +45,7 @@ final class BeanTableDefaults implements IDefaultInitializer<IBeanTableSetupBuil
 		bluePrint.setDefaultDeleterAction(true);
 		bluePrint.setSearchFilterToolbarVisible(false);
 		bluePrint.setAutoUpdateInterval(1000);
+		bluePrint.setAutoScrollPolicy(AutoScrollPolicy.OFF);
+		bluePrint.setAutoUpdateConfigurable(false);
 	}
 }
