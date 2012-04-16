@@ -65,10 +65,12 @@ import org.jowidgets.cap.ui.api.plugin.IBeanTableMenuContributionPlugin;
 import org.jowidgets.cap.ui.api.plugin.IBeanTableMenuInterceptorPlugin;
 import org.jowidgets.cap.ui.api.plugin.IBeanTablePlugin;
 import org.jowidgets.cap.ui.api.sort.ISortModel;
-import org.jowidgets.cap.ui.api.table.IBeanTableModelConfig;
+import org.jowidgets.cap.ui.api.table.BeanTableSettings;
 import org.jowidgets.cap.ui.api.table.IBeanTableMenuFactory;
 import org.jowidgets.cap.ui.api.table.IBeanTableMenuInterceptor;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
+import org.jowidgets.cap.ui.api.table.IBeanTableSettings;
+import org.jowidgets.cap.ui.api.table.IBeanTableSettingsBuilder;
 import org.jowidgets.cap.ui.api.types.AutoScrollPolicy;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
@@ -113,6 +115,7 @@ import org.jowidgets.tools.layout.MigLayoutFactory;
 import org.jowidgets.tools.model.item.MenuModel;
 import org.jowidgets.tools.widgets.blueprint.BPF;
 import org.jowidgets.tools.widgets.wrapper.CompositeWrapper;
+import org.jowidgets.util.Assert;
 import org.jowidgets.util.IDecorator;
 import org.jowidgets.util.ITypedKey;
 import org.jowidgets.util.concurrent.DaemonThreadFactory;
@@ -153,8 +156,8 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 	private IBeanTableSettingsDialog settingsDialog;
 	private ITableCellPopupEvent currentCellEvent;
 	private ITableColumnPopupEvent currentColumnEvent;
-	private long currentAutoUpdateInterval;
-	private final AutoScrollPolicy autoScrollPolicy;
+	private int currentAutoUpdateInterval;
+	private AutoScrollPolicy autoScrollPolicy;
 	private ScheduledFuture<?> autoUpdateFuture;
 
 	BeanTableImpl(final IComposite composite, final IBeanTableBluePrint<BEAN_TYPE> bluePrint) {
@@ -621,7 +624,7 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 	}
 
 	@Override
-	public void setAutoUpdateInterval(final long updateIntervall) {
+	public void setAutoUpdateInterval(final int updateIntervall) {
 		if (updateIntervall != currentAutoUpdateInterval) {
 			if (autoUpdateFuture != null && !autoUpdateFuture.isCancelled()) {
 				startAutoUpdateMode(updateIntervall);
@@ -656,7 +659,7 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 		startAutoUpdateMode(currentAutoUpdateInterval);
 	}
 
-	private void startAutoUpdateMode(final long updateIntervall) {
+	private void startAutoUpdateMode(final int updateIntervall) {
 		if (currentAutoUpdateInterval != updateIntervall || autoUpdateFuture == null || autoUpdateFuture.isCancelled()) {
 			currentAutoUpdateInterval = updateIntervall;
 			if (autoUpdateFuture != null && !autoUpdateFuture.isCancelled()) {
@@ -666,7 +669,7 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 					autoUpdateRunnable,
 					currentAutoUpdateInterval,
 					currentAutoUpdateInterval,
-					TimeUnit.MILLISECONDS);
+					TimeUnit.SECONDS);
 		}
 	}
 
@@ -685,9 +688,9 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 	@Override
 	public void showSettingsDialog() {
 		final IBeanTableSettingsDialog dialog = getSettingsDialog();
-		final IBeanTableModelConfig tableConfig = dialog.show();
+		final IBeanTableSettings settings = dialog.show();
 		if (dialog.isOkPressed()) {
-			model.setConfig(tableConfig);
+			setSettings(settings);
 		}
 	}
 
@@ -779,9 +782,28 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 	private IBeanTableSettingsDialog getSettingsDialog() {
 		if (settingsDialog == null) {
 			final ICapApiBluePrintFactory bpf = CapUiToolkit.bluePrintFactory();
-			settingsDialog = Toolkit.getActiveWindow().createChildWindow(bpf.beanTableSettingsDialog(model));
+			settingsDialog = Toolkit.getActiveWindow().createChildWindow(bpf.beanTableSettingsDialog(this));
 		}
 		return settingsDialog;
+	}
+
+	@Override
+	public IBeanTableSettings getSettings() {
+		final IBeanTableSettingsBuilder builder = BeanTableSettings.builder();
+		builder.setModelConfig(model.getConfig());
+		builder.setAutoUpdate(autoUpdateItemModel.isSelected());
+		builder.setAutoUpdateInterval(currentAutoUpdateInterval);
+		builder.setAutoScrollPolicy(autoScrollPolicy);
+		return builder.build();
+	}
+
+	@Override
+	public void setSettings(final IBeanTableSettings settings) {
+		Assert.paramNotNull(settings, "settings");
+		model.setConfig(settings.getModelConfig());
+		currentAutoUpdateInterval = settings.getAutoUpdateInterval();
+		autoScrollPolicy = settings.getAutoScrollPolicy();
+		autoUpdateItemModel.setSelected(settings.isAutoUpdate());
 	}
 
 	private IDecorator<IAction> createDecorator(final boolean header) {

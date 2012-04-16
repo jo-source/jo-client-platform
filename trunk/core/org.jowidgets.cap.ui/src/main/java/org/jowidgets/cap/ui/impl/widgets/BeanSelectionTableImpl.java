@@ -41,6 +41,7 @@ import org.jowidgets.cap.ui.api.bean.IBeanSelectionEvent;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionListener;
 import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
+import org.jowidgets.cap.ui.api.table.IBeanTableSettings;
 import org.jowidgets.cap.ui.api.widgets.IBeanSelectionTable;
 import org.jowidgets.cap.ui.api.widgets.IBeanSelectionTableBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
@@ -162,7 +163,7 @@ final class BeanSelectionTableImpl<BEAN_TYPE> extends AbstractInputControl<List<
 	}
 
 	@Override
-	public void setAutoUpdateInterval(final long updateInterval) {
+	public void setAutoUpdateInterval(final int updateInterval) {
 		table.setAutoUpdateInterval(updateInterval);
 	}
 
@@ -189,6 +190,16 @@ final class BeanSelectionTableImpl<BEAN_TYPE> extends AbstractInputControl<List<
 	@Override
 	public void stopAutoUpdateMode() {
 		table.stopAutoUpdateMode();
+	}
+
+	@Override
+	public IBeanTableSettings getSettings() {
+		return table.getSettings();
+	}
+
+	@Override
+	public void setSettings(final IBeanTableSettings settings) {
+		table.setSettings(settings);
 	}
 
 	@Override

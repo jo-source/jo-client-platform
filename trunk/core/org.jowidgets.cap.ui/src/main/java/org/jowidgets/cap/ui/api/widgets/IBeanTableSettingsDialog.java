@@ -28,11 +28,11 @@
 package org.jowidgets.cap.ui.api.widgets;
 
 import org.jowidgets.api.widgets.IDisplay;
-import org.jowidgets.cap.ui.api.table.IBeanTableModelConfig;
+import org.jowidgets.cap.ui.api.table.IBeanTableSettings;
 
 public interface IBeanTableSettingsDialog extends IDisplay {
 
-	IBeanTableModelConfig show();
+	IBeanTableSettings show();
 
 	boolean isOkPressed();
 

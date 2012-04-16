@@ -56,6 +56,7 @@ import org.jowidgets.cap.ui.api.table.IBeanTableModelConfigBuilder;
 import org.jowidgets.cap.ui.api.table.IBeanTableMenuFactory;
 import org.jowidgets.cap.ui.api.table.IBeanTableMenuInterceptor;
 import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
+import org.jowidgets.cap.ui.api.table.IBeanTableSettingsBuilder;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeModelBuilder;
 import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
 import org.jowidgets.cap.ui.api.workbench.ICapWorkbenchToolkit;
@@ -118,6 +119,8 @@ public interface ICapUiToolkit {
 	ISingleBeanModelBuilder<IBeanDto> singleBeanModelBuilder(Object entityId);
 
 	IBeanTableModelConfigBuilder beanTableModelConfigBuilder();
+
+	IBeanTableSettingsBuilder beanTableSettingsBuilder();
 
 	IBeanMessageBuilder beanMessageBuilder(BeanMessageType type);
 

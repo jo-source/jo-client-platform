@@ -58,7 +58,7 @@ public interface ICapApiBluePrintFactory {
 
 	<BEAN_TYPE> IBeanSelectionDialogBluePrint<BEAN_TYPE> beanSelectionDialog(IBeanTableModel<BEAN_TYPE> model);
 
-	IBeanTableSettingsDialogBluePrint beanTableSettingsDialog(IBeanTableModel<?> model);
+	IBeanTableSettingsDialogBluePrint beanTableSettingsDialog(IBeanTable<?> table);
 
 	<BEAN_TYPE> IBeanFormBluePrint<BEAN_TYPE> beanForm();
 
