@@ -76,6 +76,7 @@ import org.jowidgets.cap.common.api.service.IDeleterService;
 import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.common.api.service.IRefreshService;
 import org.jowidgets.cap.common.api.service.IUpdaterService;
+import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.common.api.sort.SortOrder;
 import org.jowidgets.cap.common.api.validation.IBeanValidator;
 import org.jowidgets.cap.common.tools.bean.BeanKey;
@@ -114,9 +115,9 @@ import org.jowidgets.cap.ui.api.plugin.IBeanTableModelPlugin;
 import org.jowidgets.cap.ui.api.sort.IPropertySort;
 import org.jowidgets.cap.ui.api.sort.ISortModel;
 import org.jowidgets.cap.ui.api.sort.ISortModelConfig;
+import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.table.IBeanTableModelConfig;
 import org.jowidgets.cap.ui.api.table.IBeanTableModelConfigBuilder;
-import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.table.IExternalReader;
 import org.jowidgets.cap.ui.tools.execution.AbstractUiExecutionCallbackListener;
 import org.jowidgets.cap.ui.tools.execution.AbstractUiResultCallback;
@@ -175,7 +176,6 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 	private final ICreatorService creatorService;
 	private final IReaderService<Object> readerService;
-	private final IExternalReader externalReader;
 	private final IProvider<Object> readerParameterProvider;
 	private final IDeleterService deleterService;
 	private final BeanListSaveDelegate<BEAN_TYPE> saveDelegate;
@@ -303,7 +303,6 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		this.propertyNames = Collections.unmodifiableList(mutablePropertyNames);
 
 		this.readerService = (IReaderService<Object>) readerService;
-		this.externalReader = new ExternalReader();
 		this.readerParameterProvider = (IProvider<Object>) paramProvider;
 		this.creatorService = creatorService;
 		this.deleterService = deleterService;
@@ -589,8 +588,8 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	}
 
 	@Override
-	public IExternalReader getExternalReader() {
-		return externalReader;
+	public IExternalReader createExternalReader() {
+		return new ExternalReader();
 	}
 
 	@Override
@@ -2580,21 +2579,25 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 	private final class ExternalReader implements IExternalReader {
 
+		private final List<? extends IBeanKey> parentBeanKeys;
+		private final IFilter filter;
+		private final List<ISort> sorting;
+		private final Object parameter;
+
+		private ExternalReader() {
+			this.parentBeanKeys = getParentBeanKeys();
+			this.filter = getFilter();
+			this.sorting = new LinkedList<ISort>(sortModel.getSorting());
+			this.parameter = readerParameterProvider.get();
+		}
+
 		@Override
 		public void read(
 			final IResultCallback<List<IBeanDto>> result,
 			final int firstRow,
 			final int maxRows,
 			final IExecutionCallback executionCallback) {
-			readerService.read(
-					result,
-					getParentBeanKeys(),
-					getFilter(),
-					sortModel.getSorting(),
-					firstRow,
-					maxRows,
-					readerParameterProvider.get(),
-					executionCallback);
+			readerService.read(result, parentBeanKeys, filter, sorting, firstRow, maxRows, parameter, executionCallback);
 
 		}
 

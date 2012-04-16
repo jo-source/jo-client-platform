@@ -78,7 +78,7 @@ final class CsvExportTableRunnable implements Runnable {
 		private int currentPage;
 
 		private BeanProvider() {
-			this.reader = model.getExternalReader();
+			this.reader = model.createExternalReader();
 			this.hasMoreBeans = true;
 			this.currentPage = 0;
 		}
