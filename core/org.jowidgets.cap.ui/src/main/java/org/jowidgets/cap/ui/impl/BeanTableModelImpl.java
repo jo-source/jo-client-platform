@@ -1979,9 +1979,9 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			executionTask = null;
 			finished = true;
 			if (result != null) {
-				countedRowCount = result;
-
 				final List<IBeanProxy<BEAN_TYPE>> selectedBeans = getSelectedBeans();
+
+				countedRowCount = result;
 
 				//data may be deleted
 				if (countedRowCount < rowCount) {
@@ -2001,8 +2001,10 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 				fireBeansChanged();
 
+				dataModel.removeDataModelListener(tableDataModelListener);
 				setSelectedBeans(selectedBeans);
 				fireSelectionChanged();
+				dataModel.addDataModelListener(tableDataModelListener);
 			}
 			else {
 				autoRowCount = false;
@@ -2555,8 +2557,10 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 				dataModel.fireDataChanged();
 				beanListModelObservable.fireBeansChanged();
 
+				dataModel.removeDataModelListener(tableDataModelListener);
 				setSelectedBeans(selectedBeans);
 				fireSelectionChanged();
+				dataModel.addDataModelListener(tableDataModelListener);
 
 				resultCallback.finished(null);
 			}
