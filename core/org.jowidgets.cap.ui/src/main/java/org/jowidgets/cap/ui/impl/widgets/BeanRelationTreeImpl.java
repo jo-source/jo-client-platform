@@ -32,6 +32,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -64,6 +65,7 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 	private final boolean autoSelection;
 	private final int autoExpandLevel;
 	private final Map<ITreeNode, Tuple<IBeanRelationNodeModel<Object, Object>, IBeanProxy<Object>>> nodesMap;
+	private final Set<ExpandedNodeKey> expandedNodes;
 
 	BeanRelationTreeImpl(final ITree tree, final IBeanRelationTreeBluePrint<CHILD_BEAN_TYPE> bluePrint) {
 		super(tree);
@@ -71,6 +73,7 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 		this.autoSelection = bluePrint.getAutoSelection();
 		this.autoExpandLevel = bluePrint.getAutoExpandLevel();
 		this.nodesMap = new HashMap<ITreeNode, Tuple<IBeanRelationNodeModel<Object, Object>, IBeanProxy<Object>>>();
+		this.expandedNodes = new HashSet<ExpandedNodeKey>();
 
 		tree.addTreeSelectionListener(new TreeSelectionListener());
 		treeModel.getRoot().addBeanListModelListener(new RootModelListener());
@@ -87,14 +90,14 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 	}
 
 	private void onBeansChanged(final ITreeContainer treeContainer, final IBeanRelationNodeModel<Object, Object> relationNodeModel) {
+		final int oldSize = treeContainer.getChildren().size();
 
-		treeContainer.removeAllNodes();
 		for (int i = 0; i < relationNodeModel.getSize(); i++) {
 			//get the bean at index i
 			final IBeanProxy<Object> bean = relationNodeModel.getBean(i);
 
 			//add the bean to tree container
-			addBeanToTreeContainer(bean, i, treeContainer, relationNodeModel);
+			addBeanToTreeContainer(bean, treeContainer, relationNodeModel);
 		}
 
 		//auto expand the node if necessary
@@ -104,12 +107,18 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 			final ITreeNode treeNode = (ITreeNode) treeContainer;
 			treeNode.setExpanded(true);
 		}
+		if (treeContainer instanceof ITreeNode && expandedNodes.contains(new ExpandedNodeKey((ITreeNode) treeContainer))) {
+			final ITreeNode treeNode = (ITreeNode) treeContainer;
+			treeNode.setExpanded(true);
+		}
 
+		for (int i = 0; i < oldSize; i++) {
+			treeContainer.removeNode(0);
+		}
 	}
 
 	private void addBeanToTreeContainer(
 		final IBeanProxy<Object> bean,
-		final int index,
 		final ITreeContainer treeContainer,
 		final IBeanRelationNodeModel<Object, Object> relationNodeModel) {
 
@@ -117,7 +126,8 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 		final IBeanProxyLabelRenderer<Object> renderer = relationNodeModel.getChildRenderer();
 
 		//create a child node for the bean
-		final ITreeNode childNode = treeContainer.addNode(index);
+		final ITreeNode childNode = treeContainer.addNode();
+		childNode.addTreeNodeListener(new TreeNodeExpansionTrackingListener(childNode));
 		renderNode(childNode, bean, renderer);
 
 		//map the child node to the relation model
@@ -144,6 +154,8 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 			final ITreeNode childRelationNode = childNode.addNode();
 			renderRelationNode(childRelationNode, childRelationNodeModel);
 
+			childRelationNode.addTreeNodeListener(new TreeNodeExpansionTrackingListener(childRelationNode));
+
 			lazyChildRelations.add(new Tuple<IBeanRelationNodeModel<Object, Object>, ITreeNode>(
 				childRelationNodeModel,
 				childRelationNode));
@@ -152,6 +164,9 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 
 		//auto expand the child node if necessary
 		if (!bean.isDummy() && childNode.getLevel() < autoExpandLevel && !childNode.isLeaf()) {
+			childNode.setExpanded(true);
+		}
+		if (expandedNodes.contains(new ExpandedNodeKey(childNode))) {
 			childNode.setExpanded(true);
 		}
 	}
@@ -335,7 +350,89 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 				lazyChildRelations.clear();
 
 				node.removeTreeNodeListener(this);
+
+				expandedNodes.add(new ExpandedNodeKey(node));
+			}
+			else {
+				expandedNodes.remove(new ExpandedNodeKey(node));
 			}
 		}
+	}
+
+	private final class TreeNodeExpansionTrackingListener extends TreeNodeAdapter {
+
+		private final ExpandedNodeKey key;
+
+		private TreeNodeExpansionTrackingListener(final ITreeNode node) {
+			this.key = new ExpandedNodeKey(node);
+		}
+
+		@Override
+		public void expandedChanged(final boolean expanded) {
+			if (expanded) {
+				expandedNodes.add(key);
+			}
+			else {
+				expandedNodes.remove(key);
+			}
+		}
+
+	}
+
+	private final class ExpandedNodeKey {
+
+		private final List<Object> path;
+
+		private ExpandedNodeKey(final ITreeNode node) {
+			this.path = new LinkedList<Object>();
+			addPathObjects(path, node);
+		}
+
+		private void addPathObjects(final List<Object> result, final ITreeNode node) {
+			if (node != null) {
+				final Tuple<IBeanRelationNodeModel<Object, Object>, IBeanProxy<Object>> tuple = nodesMap.get(node);
+				if (tuple != null) {
+					path.add(tuple.getSecond());
+				}
+				else {
+					path.add(node.getText());
+				}
+				addPathObjects(result, node.getParent());
+			}
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((path == null) ? 0 : path.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(final Object obj) {
+			if (this == obj) {
+				return true;
+			}
+			if (obj == null) {
+				return false;
+			}
+			if (getClass() != obj.getClass()) {
+				return false;
+			}
+			@SuppressWarnings("unchecked")
+			final ExpandedNodeKey other = (ExpandedNodeKey) obj;
+
+			if (path == null) {
+				if (other.path != null) {
+					return false;
+				}
+			}
+			else if (!path.equals(other.path)) {
+				return false;
+			}
+			return true;
+		}
+
 	}
 }
