@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,21 +26,20 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.widgets;
+package org.jowidgets.cap.ui.api.table;
 
-import org.jowidgets.api.widgets.blueprint.builder.IComponentSetupBuilder;
-import org.jowidgets.api.widgets.descriptor.setup.IComponentSetup;
-import org.jowidgets.common.widgets.descriptor.IWidgetDescriptor;
-import org.jowidgets.common.widgets.descriptor.setup.mandatory.Mandatory;
+import org.jowidgets.cap.ui.api.types.AutoScrollPolicy;
 
-public interface IBeanTableSettingsDialogBluePrint extends
-		IComponentSetup,
-		IComponentSetupBuilder<IBeanTableSettingsDialogBluePrint>,
-		IWidgetDescriptor<IBeanTableSettingsDialog> {
+public interface IBeanTableSettingsBuilder {
 
-	IBeanTableSettingsDialogBluePrint setTable(IBeanTable<?> model);
+	IBeanTableSettingsBuilder setModelConfig(IBeanTableModelConfig config);
 
-	@Mandatory
-	IBeanTable<?> getTable();
+	IBeanTableSettingsBuilder setAutoUpdate(boolean autoUpdate);
+
+	IBeanTableSettingsBuilder setAutoUpdateInterval(int autoUpdateInterval);
+
+	IBeanTableSettingsBuilder setAutoScrollPolicy(AutoScrollPolicy autoScrollPolicy);
+
+	IBeanTableSettings build();
 
 }

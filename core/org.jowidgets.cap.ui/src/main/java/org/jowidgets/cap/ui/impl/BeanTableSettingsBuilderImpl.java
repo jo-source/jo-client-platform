@@ -26,26 +26,56 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.impl.widgets;
+package org.jowidgets.cap.ui.impl;
 
-import org.jowidgets.api.widgets.blueprint.defaults.IDefaultInitializer;
+import org.jowidgets.cap.ui.api.table.IBeanTableModelConfig;
+import org.jowidgets.cap.ui.api.table.IBeanTableSettings;
+import org.jowidgets.cap.ui.api.table.IBeanTableSettingsBuilder;
 import org.jowidgets.cap.ui.api.types.AutoScrollPolicy;
-import org.jowidgets.cap.ui.api.widgets.IBeanTableSetupBuilder;
-import org.jowidgets.common.types.TableSelectionPolicy;
+import org.jowidgets.util.Assert;
 
-final class BeanTableDefaults implements IDefaultInitializer<IBeanTableSetupBuilder<?>> {
+final class BeanTableSettingsBuilderImpl implements IBeanTableSettingsBuilder {
+
+	private IBeanTableModelConfig modelConfig;
+	private boolean autoUpdate;
+	private int autoUpdateInterval;
+	private AutoScrollPolicy autoScrollPolicy;
+
+	BeanTableSettingsBuilderImpl() {
+		this.autoUpdate = false;
+		this.autoUpdateInterval = 1000;
+		this.autoScrollPolicy = AutoScrollPolicy.OFF;
+	}
 
 	@Override
-	public void initialize(final IBeanTableSetupBuilder<?> bluePrint) {
-		bluePrint.setSelectionPolicy(TableSelectionPolicy.MULTI_ROW_SELECTION);
-		bluePrint.setColumnsMoveable(true);
-		bluePrint.setColumnsResizeable(true);
-		bluePrint.setDefaultMenus(true);
-		bluePrint.setDefaultCreatorAction(true);
-		bluePrint.setDefaultDeleterAction(true);
-		bluePrint.setSearchFilterToolbarVisible(false);
-		bluePrint.setAutoUpdateInterval(1);
-		bluePrint.setAutoScrollPolicy(AutoScrollPolicy.OFF);
-		bluePrint.setAutoUpdateConfigurable(false);
+	public IBeanTableSettingsBuilder setModelConfig(final IBeanTableModelConfig config) {
+		Assert.paramNotNull(config, "config");
+		this.modelConfig = config;
+		return this;
 	}
+
+	@Override
+	public IBeanTableSettingsBuilder setAutoUpdate(final boolean autoUpdate) {
+		this.autoUpdate = autoUpdate;
+		return this;
+	}
+
+	@Override
+	public IBeanTableSettingsBuilder setAutoUpdateInterval(final int autoUpdateInterval) {
+		this.autoUpdateInterval = autoUpdateInterval;
+		return this;
+	}
+
+	@Override
+	public IBeanTableSettingsBuilder setAutoScrollPolicy(final AutoScrollPolicy autoScrollPolicy) {
+		Assert.paramNotNull(autoScrollPolicy, "autoScrollPolicy");
+		this.autoScrollPolicy = autoScrollPolicy;
+		return this;
+	}
+
+	@Override
+	public IBeanTableSettings build() {
+		return new BeanTableSettingsImpl(modelConfig, autoUpdate, autoUpdateInterval, autoScrollPolicy);
+	}
+
 }

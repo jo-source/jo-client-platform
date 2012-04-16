@@ -53,10 +53,11 @@ import org.jowidgets.cap.ui.api.lookup.ILookUpCache;
 import org.jowidgets.cap.ui.api.model.ISingleBeanModelBuilder;
 import org.jowidgets.cap.ui.api.sort.ISortModelConfigBuilder;
 import org.jowidgets.cap.ui.api.tabfolder.IBeanTabFolderModelBuilder;
-import org.jowidgets.cap.ui.api.table.IBeanTableModelConfigBuilder;
 import org.jowidgets.cap.ui.api.table.IBeanTableMenuFactory;
 import org.jowidgets.cap.ui.api.table.IBeanTableMenuInterceptor;
 import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
+import org.jowidgets.cap.ui.api.table.IBeanTableModelConfigBuilder;
+import org.jowidgets.cap.ui.api.table.IBeanTableSettingsBuilder;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeModelBuilder;
 import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
 import org.jowidgets.cap.ui.api.workbench.ICapWorkbenchToolkit;
@@ -199,6 +200,10 @@ public final class CapUiToolkit {
 
 	public static IBeanTableModelConfigBuilder beanTableModelConfigBuilder() {
 		return getInstance().beanTableModelConfigBuilder();
+	}
+
+	public static IBeanTableSettingsBuilder beanTableSettingsBuilder() {
+		return getInstance().beanTableSettingsBuilder();
 	}
 
 	public static IBeanMessageBuilder beanMessageBuilder(final BeanMessageType type) {

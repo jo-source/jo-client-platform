@@ -74,14 +74,14 @@ public interface IBeanTableSetupBuilder<BEAN_TYPE> extends
 	/**
 	 * Sets the interval for the auto update in milliseconds
 	 * 
-	 * @param autoUpdateInterval The auto update interval in milliseconds
+	 * @param autoUpdateInterval The auto update interval in seconds
 	 * 
 	 * @return This builder
 	 */
-	IBeanTableSetupBuilder<BEAN_TYPE> setAutoUpdateInterval(long autoUpdateInterval);
+	IBeanTableSetupBuilder<BEAN_TYPE> setAutoUpdateInterval(int autoUpdateInterval);
 
 	/**
-	 * Sets the auto scroll policy that will be used after data loading occurred
+	 * Sets the auto scroll policy that will be used after auto update changed the data
 	 * 
 	 * @param autoScrollPolicy The auto scroll policy to set
 	 * 
@@ -121,7 +121,7 @@ public interface IBeanTableSetupBuilder<BEAN_TYPE> extends
 	boolean getAutoUpdateConfigurable();
 
 	@Mandatory
-	long getAutoUpdateInterval();
+	int getAutoUpdateInterval();
 
 	@Mandatory
 	AutoScrollPolicy getAutoScrollPolicy();

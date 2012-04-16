@@ -54,6 +54,7 @@ import org.jowidgets.cap.ui.api.widgets.IBeanSelectionDialogBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanSelectionFormBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanSelectionTableBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTabFolderBluePrint;
+import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableSettingsDialogBluePrint;
 import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
@@ -124,10 +125,10 @@ final class CapApiBluePrintFactory implements ICapApiBluePrintFactory {
 	}
 
 	@Override
-	public IBeanTableSettingsDialogBluePrint beanTableSettingsDialog(final IBeanTableModel<?> model) {
-		Assert.paramNotNull(model, "model");
+	public IBeanTableSettingsDialogBluePrint beanTableSettingsDialog(final IBeanTable<?> table) {
+		Assert.paramNotNull(table, "table");
 		final IBeanTableSettingsDialogBluePrint result = bluePrintFactory.bluePrint(IBeanTableSettingsDialogBluePrint.class);
-		result.setModel(model);
+		result.setTable(table);
 		return result;
 	}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,21 +26,53 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.widgets;
+package org.jowidgets.cap.ui.impl;
 
-import org.jowidgets.api.widgets.blueprint.builder.IComponentSetupBuilder;
-import org.jowidgets.api.widgets.descriptor.setup.IComponentSetup;
-import org.jowidgets.common.widgets.descriptor.IWidgetDescriptor;
-import org.jowidgets.common.widgets.descriptor.setup.mandatory.Mandatory;
+import org.jowidgets.cap.ui.api.table.IBeanTableModelConfig;
+import org.jowidgets.cap.ui.api.table.IBeanTableSettings;
+import org.jowidgets.cap.ui.api.types.AutoScrollPolicy;
+import org.jowidgets.util.Assert;
 
-public interface IBeanTableSettingsDialogBluePrint extends
-		IComponentSetup,
-		IComponentSetupBuilder<IBeanTableSettingsDialogBluePrint>,
-		IWidgetDescriptor<IBeanTableSettingsDialog> {
+final class BeanTableSettingsImpl implements IBeanTableSettings {
 
-	IBeanTableSettingsDialogBluePrint setTable(IBeanTable<?> model);
+	private final IBeanTableModelConfig modelConfig;
+	private final boolean autoUpdate;
+	private final int autoUpdateInterval;
+	private final AutoScrollPolicy autoScrollPolicy;
 
-	@Mandatory
-	IBeanTable<?> getTable();
+	BeanTableSettingsImpl(
+		final IBeanTableModelConfig modelConfig,
+		final boolean autoUpdate,
+		final int autoUpdateInterval,
+		final AutoScrollPolicy autoScrollPolicy) {
+
+		Assert.paramNotNull(modelConfig, "modelConfig");
+		Assert.paramNotNull(autoScrollPolicy, "autoScrollPolicy");
+
+		this.modelConfig = modelConfig;
+		this.autoUpdate = autoUpdate;
+		this.autoUpdateInterval = autoUpdateInterval;
+		this.autoScrollPolicy = autoScrollPolicy;
+	}
+
+	@Override
+	public IBeanTableModelConfig getModelConfig() {
+		return modelConfig;
+	}
+
+	@Override
+	public boolean isAutoUpdate() {
+		return autoUpdate;
+	}
+
+	@Override
+	public int getAutoUpdateInterval() {
+		return autoUpdateInterval;
+	}
+
+	@Override
+	public AutoScrollPolicy getAutoScrollPolicy() {
+		return autoScrollPolicy;
+	}
 
 }

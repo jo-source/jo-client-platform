@@ -32,6 +32,7 @@ import org.jowidgets.api.model.item.ICheckedItemModel;
 import org.jowidgets.api.model.item.IMenuModel;
 import org.jowidgets.api.widgets.ITable;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
+import org.jowidgets.cap.ui.api.table.IBeanTableSettings;
 import org.jowidgets.common.widgets.controller.ITableCellPopupEvent;
 import org.jowidgets.common.widgets.controller.ITableColumnPopupEvent;
 import org.jowidgets.util.ITypedKey;
@@ -81,12 +82,16 @@ public interface IBeanTable<BEAN_TYPE> extends ITable {
 
 	ICheckedItemModel getAutoUpdateItemModel();
 
-	void setAutoUpdateInterval(long updateIntervall);
+	void setAutoUpdateInterval(int updateIntervall);
 
 	long getAutoUpdateInterval();
 
 	void startAutoUpdateMode();
 
 	void stopAutoUpdateMode();
+
+	IBeanTableSettings getSettings();
+
+	void setSettings(IBeanTableSettings settings);
 
 }
