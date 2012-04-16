@@ -108,13 +108,17 @@ public interface IBeanTableModel<BEAN_TYPE> extends IDataModel, IBeanListModel<B
 	IDeleterService getDeleterService();
 
 	/**
-	 * Gets a reader that could be used to read the beans from a table external.
+	 * Creates a reader that could be used to read the beans from a table external.
 	 * The read beans will not be associated with this model.
-	 * This could be used e.g. to export beans of this table
+	 * This could be used e.g. to export beans of this table.
 	 * 
-	 * @return The external reader
+	 * REMARK: The filter, sorting and parent beans will be used from this model, when the reader was created.
+	 * They will not be updated on the external reader, when they will be changed inside the model.
+	 * 
+	 * 
+	 * @return A new created external reader
 	 */
-	IExternalReader getExternalReader();
+	IExternalReader createExternalReader();
 
 	int getColumnCount();
 
