@@ -82,6 +82,7 @@ class BeanRelationNodeModelBluePrint<CHILD_BEAN_TYPE, INSTANCE_TYPE> extends
 	@SuppressWarnings("unchecked")
 	@Override
 	public INSTANCE_TYPE setChildRenderer(final IBeanProxyLabelRenderer<CHILD_BEAN_TYPE> renderer) {
+		this.childRenderer = renderer;
 		return (INSTANCE_TYPE) this;
 	}
 
@@ -111,7 +112,8 @@ class BeanRelationNodeModelBluePrint<CHILD_BEAN_TYPE, INSTANCE_TYPE> extends
 		return childRelations;
 	}
 
-	protected IBeanProxyLabelRenderer<CHILD_BEAN_TYPE> getChildRenderer() {
+	@Override
+	public IBeanProxyLabelRenderer<CHILD_BEAN_TYPE> getChildRenderer() {
 		if (childRenderer == null) {
 			final IEntityService entityService = ServiceProvider.getService(IEntityService.ID);
 			if (entityService != null) {
