@@ -37,6 +37,7 @@ public final class PersonTablePlugin implements IBeanTablePlugin {
 	@Override
 	public void modifySetup(final IPluginProperties properties, final IBeanTableBluePrint<?> bluePrint) {
 		bluePrint.setSearchFilterToolbarVisible(true);
+		bluePrint.setAutoUpdateConfigurable(true);
 	}
 
 }
