@@ -220,7 +220,7 @@ final class CsvExporter {
 				result.append(label + parameter.getSeparator());
 			}
 		}
-		return result.toString();
+		return result.toString().substring(0, result.length() - 1);
 	}
 
 	private String beanToCsv(final IBeanDto bean) {
@@ -237,7 +237,7 @@ final class CsvExporter {
 				}
 				propValue = cellValue.toString().substring(0, cellValue.length() - 1) + parameter.getMask();
 				if (propValue.length() == 1) {
-					propValue = null;
+					propValue = propValue + parameter.getMask();
 				}
 			}
 			else {
