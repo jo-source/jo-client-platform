@@ -65,6 +65,7 @@ class BeanRelationNodeModelBuilder<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE, INSTANCE_T
 			getRefreshService(),
 			getUpdaterService(),
 			getDeleterService(),
+			getDefaultSort(),
 			getBeanValidators(),
 			getAttributes());
 	}

@@ -31,6 +31,7 @@ package org.jowidgets.cap.ui.api.tree;
 import java.util.Collection;
 import java.util.List;
 
+import org.jowidgets.cap.common.api.service.ICreatorService;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyLabelRenderer;
@@ -49,6 +50,8 @@ public interface IBeanRelationNodeModel<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> exten
 	 * @return true, if load will be done, false if load will not be done because it was invoked before
 	 */
 	boolean loadIfNotYetDone();
+
+	ICreatorService getCreatorService();
 
 	IBeanProxy<PARENT_BEAN_TYPE> getParentBean();
 
