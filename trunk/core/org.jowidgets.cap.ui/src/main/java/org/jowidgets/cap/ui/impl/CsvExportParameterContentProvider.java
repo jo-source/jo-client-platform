@@ -63,6 +63,7 @@ final class CsvExportParameterContentProvider<BEAN_TYPE> implements IInputConten
 
 	private final String userHomePath = System.getProperty("user.home");
 	private final IBeanTableModel<BEAN_TYPE> model;
+	private final List<IFileChooserFilter> filterList;
 
 	private IComboBox<String> separatorCmb;
 	private IComboBox<ICsvExportParameter.ExportType> exportTypeCmb;
@@ -76,6 +77,7 @@ final class CsvExportParameterContentProvider<BEAN_TYPE> implements IInputConten
 
 	CsvExportParameterContentProvider(final IBeanTableModel<BEAN_TYPE> model) {
 		this.model = model;
+		this.filterList = generateFilterList();
 	}
 
 	@Override
@@ -145,13 +147,13 @@ final class CsvExportParameterContentProvider<BEAN_TYPE> implements IInputConten
 		separatorCmb = container.add(separatorCmbBp, "growx, w 0::, wrap");
 
 		container.add(textLabelBp.setText(Messages.getString("CsvExportParameterContentProvider.mask")), "align r");
-		final IComboBoxSelectionBluePrint<String> maskCmbBp = BPF.comboBoxSelection("*", "\"");
+		final IComboBoxSelectionBluePrint<String> maskCmbBp = BPF.comboBoxSelection("*", String.valueOf('"'));
 		maskCmbBp.setValue("*").setAutoCompletion(false);
 		maskCmb = container.add(maskCmbBp, "growx, w 0::, wrap");
 
 		container.add(textLabelBp.setText(Messages.getString("CsvExportParameterContentProvider.encoding")), "alignx r");
 		final IComboBoxSelectionBluePrint<String> encodingCmbBp = BPF.comboBoxSelection("UTF-8", "Cp1250", "ISO8859_1");
-		encodingCmbBp.setValue("UTF-8").setAutoCompletion(false);
+		encodingCmbBp.setValue("Cp1250").setAutoCompletion(false);
 		encodingCmb = container.add(encodingCmbBp, "growx, w 0::");
 
 	}
@@ -188,7 +190,7 @@ final class CsvExportParameterContentProvider<BEAN_TYPE> implements IInputConten
 	}
 
 	private void createOpenFileButton(final IInputContentContainer container) {
-		final IButton openFileButton = container.add(BPF.button().setIcon(IconsSmall.EDIT), "w 0::25,h 0::25, wrap");
+		final IButton openFileButton = container.add(BPF.button().setIcon(IconsSmall.FOLDER), "w 0::25,h 0::25, wrap");
 		openFileButton.addActionListener(new IActionListener() {
 			@Override
 			public void actionPerformed() {
@@ -198,9 +200,7 @@ final class CsvExportParameterContentProvider<BEAN_TYPE> implements IInputConten
 	}
 
 	private void openFileChooser() {
-		final List<IFileChooserFilter> filterList = new LinkedList<IFileChooserFilter>();
-		filterList.add(new FileChooserFilter(Messages.getString("CsvExportParameterContentProvider.csv_file"), "csv"));
-		filterList.add(new FileChooserFilter(Messages.getString("CsvExportParameterContentProvider.text_file"), "txt"));
+
 		final IFileChooserBluePrint fcBp = BPF.fileChooser(FileChooserType.OPEN_FILE).setFilterList(filterList);
 		fileFC = Toolkit.getActiveWindow().createChildWindow(fcBp);
 		fileFC.setSelectedFile(new File(filenameTf.getValue()));
@@ -209,7 +209,17 @@ final class CsvExportParameterContentProvider<BEAN_TYPE> implements IInputConten
 			for (final File file : fileFC.getSelectedFiles()) {
 				filenameTf.setValue(file.getAbsolutePath());
 			}
+			if (!filenameTf.getValue().contains(fileFC.getSelectedFilter().getExtensions().get(0))) {
+				filenameTf.setValue(filenameTf.getValue() + "." + fileFC.getSelectedFilter().getExtensions().get(0));
+			}
 		}
+	}
+
+	private List<IFileChooserFilter> generateFilterList() {
+		final List<IFileChooserFilter> filterL = new LinkedList<IFileChooserFilter>();
+		filterL.add(new FileChooserFilter(Messages.getString("CsvExportParameterContentProvider.csv_file"), "csv"));
+		filterL.add(new FileChooserFilter(Messages.getString("CsvExportParameterContentProvider.text_file"), "txt"));
+		return filterL;
 	}
 
 	class FileNameValidator implements IValidator<String> {
@@ -225,9 +235,21 @@ final class CsvExportParameterContentProvider<BEAN_TYPE> implements IInputConten
 				return ValidationResult.warning(Messages.getString("CsvExportParameterContentProvider.file_overwritten"));
 			}
 
+			if (!checkFileType(value.substring(value.length() - 3))) {
+				return ValidationResult.infoError("Incompatible Filetype");
+			}
+
 			return ValidationResult.ok();
 		}
+	}
 
+	private boolean checkFileType(final String filetype) {
+		for (final IFileChooserFilter filter : filterList) {
+			if (filetype.equals(filter.getExtensions().get(0))) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 }
