@@ -45,6 +45,10 @@ public class BeanProxyLabelRendererWrapper<BEAN_TYPE> implements IBeanProxyLabel
 		this.original = original;
 	}
 
+	protected IBeanProxyLabelRenderer<BEAN_TYPE> getOriginal() {
+		return original;
+	}
+
 	@Override
 	public ILabelModel getLabel(final IBeanProxy<BEAN_TYPE> bean) {
 		return original.getLabel(bean);

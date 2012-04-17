@@ -49,4 +49,6 @@ public interface IBeanRelationNodeModelBluePrint<CHILD_BEAN_TYPE, INSTANCE_TYPE>
 
 	INSTANCE_TYPE addChildRelation(Class<?> beanType);
 
+	IBeanProxyLabelRenderer<CHILD_BEAN_TYPE> getChildRenderer();
+
 }
