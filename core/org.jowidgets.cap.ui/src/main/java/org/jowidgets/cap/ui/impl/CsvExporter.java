@@ -217,7 +217,7 @@ final class CsvExporter {
 		for (final IAttribute<Object> attribute : model.getAttributes()) {
 			if (attribute.isVisible() || parameter.isExportInvisibleProperties()) {
 				final String label = attribute.getCurrentLabel();
-				result.append(label + ";");
+				result.append(label + parameter.getSeparator());
 			}
 		}
 		return result.toString();
@@ -227,29 +227,28 @@ final class CsvExporter {
 		final StringBuilder result = new StringBuilder();
 		for (final Entry<String, IObjectStringConverter<Object>> entry : converter.entrySet()) {
 			final Object value = bean.getValue(entry.getKey());
-			final String propValue;
+			String propValue;
 			if (value instanceof Collection) {
 				final StringBuilder cellValue = new StringBuilder();
+				cellValue.append(parameter.getMask());
 				for (final Object element : (Collection<?>) value) {
 					final String elementString = entry.getValue().convertToString(element);
-					cellValue.append(elementString + " " + parameter.getMask() + "|" + " ");
+					cellValue.append(elementString + parameter.getSeparator());
 				}
-				if (cellValue.length() > 0) {
-					propValue = cellValue.substring(0, cellValue.length() - 4);
-				}
-				else {
-					propValue = cellValue.toString();
+				propValue = cellValue.toString().substring(0, cellValue.length() - 1) + parameter.getMask();
+				if (propValue.length() == 1) {
+					propValue = null;
 				}
 			}
 			else {
 				propValue = entry.getValue().convertToString(bean.getValue(entry.getKey()));
 			}
 			if (propValue == null) {
-				break;
+				propValue = ("");
 			}
-			result.append(propValue + ";");
+			result.append(propValue + parameter.getSeparator());
 		}
-		return result.toString();
+		return result.toString().substring(0, result.length() - 1);
 	}
 
 	interface IBeanProvider {
