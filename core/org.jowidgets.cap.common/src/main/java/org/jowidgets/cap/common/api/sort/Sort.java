@@ -26,38 +26,23 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.tree;
+package org.jowidgets.cap.common.api.sort;
 
-import java.util.Collection;
+import org.jowidgets.cap.common.api.CapCommonToolkit;
 
-import org.jowidgets.cap.common.api.sort.ISort;
-import org.jowidgets.cap.ui.api.bean.IBeanProxyLabelRenderer;
-import org.jowidgets.cap.ui.api.model.IBeanModelBuilder;
-import org.jowidgets.common.image.IImageConstant;
+public final class Sort {
 
-public interface IBeanRelationNodeModelBluePrint<CHILD_BEAN_TYPE, INSTANCE_TYPE> extends
-		IBeanModelBuilder<CHILD_BEAN_TYPE, INSTANCE_TYPE> {
+	private Sort() {}
 
-	INSTANCE_TYPE setText(String text);
+	public static ISort create(final String propertyName) {
+		return create(propertyName, SortOrder.ASC);
+	}
 
-	INSTANCE_TYPE setDescription(String description);
+	public static ISort create(final String propertyName, final SortOrder sortOrder) {
+		return CapCommonToolkit.sortFactory().create(propertyName, sortOrder);
+	}
 
-	INSTANCE_TYPE setIcon(IImageConstant icon);
-
-	INSTANCE_TYPE setChildRenderer(IBeanProxyLabelRenderer<CHILD_BEAN_TYPE> renderer);
-
-	INSTANCE_TYPE addChildRelation(IEntityTypeId<?> entityTypeId);
-
-	INSTANCE_TYPE addChildRelation(Object entityId, Class<?> beanType);
-
-	INSTANCE_TYPE addChildRelation(Class<?> beanType);
-
-	INSTANCE_TYPE addDefaultSort(ISort sort);
-
-	INSTANCE_TYPE setDefaultSort(ISort... defaultSort);
-
-	INSTANCE_TYPE setDefaultSort(Collection<? extends ISort> defaultSort);
-
-	IBeanProxyLabelRenderer<CHILD_BEAN_TYPE> getChildRenderer();
-
+	public static ISortFactory factory() {
+		return CapCommonToolkit.sortFactory();
+	}
 }

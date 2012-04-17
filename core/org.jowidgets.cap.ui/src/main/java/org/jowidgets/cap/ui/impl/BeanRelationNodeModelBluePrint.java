@@ -28,11 +28,14 @@
 
 package org.jowidgets.cap.ui.impl;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
 import org.jowidgets.cap.common.api.service.IEntityService;
+import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyLabelRenderer;
 import org.jowidgets.cap.ui.api.model.ILabelModel;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationNodeModelBluePrint;
@@ -47,6 +50,7 @@ class BeanRelationNodeModelBluePrint<CHILD_BEAN_TYPE, INSTANCE_TYPE> extends
 		IBeanRelationNodeModelBluePrint<CHILD_BEAN_TYPE, INSTANCE_TYPE> {
 
 	private final List<IEntityTypeId<Object>> childRelations;
+	private final List<ISort> defaultSort;
 
 	private String text;
 	private String description;
@@ -56,6 +60,7 @@ class BeanRelationNodeModelBluePrint<CHILD_BEAN_TYPE, INSTANCE_TYPE> extends
 	BeanRelationNodeModelBluePrint(final Object entityId, final Class<CHILD_BEAN_TYPE> beanType) {
 		super(entityId, beanType);
 		this.childRelations = new LinkedList<IEntityTypeId<Object>>();
+		this.defaultSort = new LinkedList<ISort>();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -104,12 +109,30 @@ class BeanRelationNodeModelBluePrint<CHILD_BEAN_TYPE, INSTANCE_TYPE> extends
 		return (INSTANCE_TYPE) this;
 	}
 
-	protected ILabelModel getLabel() {
-		return new LabelModelImpl(text, description, icon);
+	@SuppressWarnings("unchecked")
+	@Override
+	public INSTANCE_TYPE addDefaultSort(final ISort sort) {
+		Assert.paramNotNull(sort, "sort");
+		defaultSort.add(sort);
+		return (INSTANCE_TYPE) this;
 	}
 
-	protected List<IEntityTypeId<Object>> getChildRelations() {
-		return childRelations;
+	@SuppressWarnings("unchecked")
+	@Override
+	public INSTANCE_TYPE setDefaultSort(final ISort... defaultSort) {
+		Assert.paramNotNull(defaultSort, "defaultSort");
+		this.defaultSort.clear();
+		this.defaultSort.addAll(Arrays.asList(defaultSort));
+		return (INSTANCE_TYPE) this;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public INSTANCE_TYPE setDefaultSort(final Collection<? extends ISort> defaultSort) {
+		Assert.paramNotNull(defaultSort, "defaultSort");
+		this.defaultSort.clear();
+		this.defaultSort.addAll(defaultSort);
+		return (INSTANCE_TYPE) this;
 	}
 
 	@Override
@@ -128,6 +151,18 @@ class BeanRelationNodeModelBluePrint<CHILD_BEAN_TYPE, INSTANCE_TYPE> extends
 			return new BeanByAttributesRenderer<CHILD_BEAN_TYPE>(getAttributes());
 		}
 		return childRenderer;
+	}
+
+	protected ILabelModel getLabel() {
+		return new LabelModelImpl(text, description, icon);
+	}
+
+	protected List<IEntityTypeId<Object>> getChildRelations() {
+		return childRelations;
+	}
+
+	protected List<ISort> getDefaultSort() {
+		return defaultSort;
 	}
 
 }

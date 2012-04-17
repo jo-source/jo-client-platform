@@ -32,9 +32,11 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -101,12 +103,22 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 	private void onBeansChanged(final ITreeContainer treeContainer, final IBeanRelationNodeModel<Object, Object> relationNodeModel) {
 		final int oldSize = treeContainer.getChildren().size();
 
-		for (int i = 0; i < relationNodeModel.getSize(); i++) {
+		final int headMatching = getHeadMatchingLength(treeContainer, relationNodeModel);
+		final int tailMatching = getTailMatchingLength(treeContainer, relationNodeModel);
+		final int beansToDelete = oldSize - headMatching - tailMatching;
+
+		//add the new beans
+		for (int i = headMatching; i < (relationNodeModel.getSize() - tailMatching); i++) {
 			//get the bean at index i
 			final IBeanProxy<Object> bean = relationNodeModel.getBean(i);
 
 			//add the bean to tree container
-			addBeanToTreeContainer(bean, treeContainer, relationNodeModel);
+			addBeanToTreeContainer(bean, beansToDelete + i, treeContainer, relationNodeModel);
+		}
+
+		//remove the old beans
+		for (int i = 0; i < beansToDelete; i++) {
+			treeContainer.removeNode(headMatching);
 		}
 
 		//auto expand the node if necessary
@@ -120,14 +132,74 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 			final ITreeNode treeNode = (ITreeNode) treeContainer;
 			treeNode.setExpanded(true);
 		}
+	}
 
-		for (int i = 0; i < oldSize; i++) {
-			treeContainer.removeNode(0);
+	private int getHeadMatchingLength(
+		final ITreeContainer treeContainer,
+		final IBeanRelationNodeModel<Object, Object> relationNodeModel) {
+
+		final int maxMatching = getMaxMatchingLength(treeContainer, relationNodeModel);
+		if (maxMatching == 0) {
+			return 0;
 		}
+		final Iterator<ITreeNode> treeNodeIterator = treeContainer.getChildren().iterator();
+		for (int index = 0; index < relationNodeModel.getSize(); index++) {
+			if (treeNodeIterator.hasNext()) {
+				if (!isNodeAssociatedWithBean(treeNodeIterator.next(), relationNodeModel.getBean(index))) {
+					return index;
+				}
+			}
+			else {
+				return index;
+			}
+		}
+		return maxMatching;
+	}
+
+	private int getTailMatchingLength(
+		final ITreeContainer treeContainer,
+		final IBeanRelationNodeModel<Object, Object> relationNodeModel) {
+		final int maxMatching = getMaxMatchingLength(treeContainer, relationNodeModel);
+		if (maxMatching == 0) {
+			return 0;
+		}
+		final List<ITreeNode> children = treeContainer.getChildren();
+		final ListIterator<ITreeNode> treeNodeIterator = children.listIterator(children.size());
+		final int relationNodeModelSize = relationNodeModel.getSize();
+		for (int index = 0; index < relationNodeModelSize; index++) {
+			if (treeNodeIterator.hasPrevious()) {
+				final int beanIndex = relationNodeModelSize - index - 1;
+				if (!isNodeAssociatedWithBean(treeNodeIterator.previous(), relationNodeModel.getBean(beanIndex))) {
+					return index;
+				}
+			}
+			else {
+				return index;
+			}
+		}
+		return maxMatching;
+	}
+
+	private int getMaxMatchingLength(
+		final ITreeContainer treeContainer,
+		final IBeanRelationNodeModel<Object, Object> relationNodeModel) {
+		return Math.min(relationNodeModel.getSize(), treeContainer.getChildren().size());
+	}
+
+	private boolean isNodeAssociatedWithBean(final ITreeNode node, final IBeanProxy<Object> bean) {
+		final Tuple<IBeanRelationNodeModel<Object, Object>, IBeanProxy<Object>> tuple = nodesMap.get(node);
+		if (tuple != null) {
+			//Do not use equals here, it must be the same bean
+			if (bean == tuple.getSecond()) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private void addBeanToTreeContainer(
 		final IBeanProxy<Object> bean,
+		final int index,
 		final ITreeContainer treeContainer,
 		final IBeanRelationNodeModel<Object, Object> relationNodeModel) {
 
@@ -135,7 +207,7 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 		final IBeanProxyLabelRenderer<Object> renderer = relationNodeModel.getChildRenderer();
 
 		//create a child node for the bean
-		final ITreeNode childNode = treeContainer.addNode();
+		final ITreeNode childNode = treeContainer.addNode(index);
 		renderNode(childNode, bean, renderer);
 
 		//map the child node to the relation model
@@ -161,6 +233,19 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 
 			final ITreeNode childRelationNode = childNode.addNode();
 			renderRelationNode(childRelationNode, childRelationNodeModel);
+
+			//TODO MG remove this later BEGIN
+			//			final IMenuModel popupMenu = new MenuModel();
+			//			final ICapActionFactory actionFactory = CapUiToolkit.actionFactory();
+			//
+			//			final ICreatorActionBuilder<Object> actionBuilder = actionFactory.creatorActionBuilder(
+			//					childRelationNodeModel.getChildEntityId(),
+			//					childRelationNodeModel.getChildBeanType(),
+			//					childRelationNodeModel);
+			//			actionBuilder.setCreatorService(childRelationNodeModel.getCreatorService());
+			//			popupMenu.addAction(actionBuilder.build());
+			//			childRelationNode.setPopupMenu(popupMenu);
+			//TODO MG remove this later END
 
 			childRelationNode.addTreeNodeListener(new TreeNodeExpansionTrackingListener(childRelationNode));
 

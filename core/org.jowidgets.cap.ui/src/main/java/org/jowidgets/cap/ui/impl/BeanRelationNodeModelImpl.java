@@ -105,7 +105,6 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 	private final List<IEntityTypeId<Object>> childRelations;
 	private final IReaderService<Object> readerService;
 	private final IProvider<Object> readerParameterProvider;
-	@SuppressWarnings("unused")
 	private final ICreatorService creatorService;
 	@SuppressWarnings("unused")
 	private final IRefreshService refreshService;
@@ -113,6 +112,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 	private final IUpdaterService updaterService;
 	@SuppressWarnings("unused")
 	private final IDeleterService deleterService;
+	private final List<ISort> defaultSort;
 	@SuppressWarnings("unused")
 	private final Set<IBeanValidator<CHILD_BEAN_TYPE>> beanValidators;
 	private final Set<IBeanPropertyValidator<CHILD_BEAN_TYPE>> beanPropertyValidators;
@@ -150,6 +150,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 		final IRefreshService refreshService,
 		final IUpdaterService updaterService,
 		final IDeleterService deleterService,
+		final Collection<? extends ISort> defaultSort,
 		final Set<IBeanValidator<CHILD_BEAN_TYPE>> beanValidators,
 		final List<IAttribute<Object>> childBeanAttributes) {
 
@@ -159,6 +160,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 		Assert.paramNotNull(childRelations, "childRelations");
 		Assert.paramNotNull(readerService, "readerService");
 		Assert.paramNotNull(readerParameterProvider, "readerParameterProvider");
+		Assert.paramNotNull(defaultSort, "defaultSort");
 		Assert.paramNotNull(beanValidators, "beanValidators");
 		Assert.paramNotNull(childBeanAttributes, "childBeanAttributes");
 
@@ -178,6 +180,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 		this.refreshService = refreshService;
 		this.updaterService = updaterService;
 		this.deleterService = deleterService;
+		this.defaultSort = new LinkedList<ISort>(defaultSort);
 		this.beanValidators = new LinkedHashSet<IBeanValidator<CHILD_BEAN_TYPE>>(beanValidators);
 		this.childBeanAttributes = Collections.unmodifiableList(new LinkedList<IAttribute<Object>>(childBeanAttributes));
 
@@ -251,6 +254,11 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 		beanListModelObservable.dispose();
 		beanSelectionObservable.dispose();
 		tryToCanceLoader();
+	}
+
+	@Override
+	public ICreatorService getCreatorService() {
+		return creatorService;
 	}
 
 	@Override
@@ -627,7 +635,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 			dummyBean.setExecutionTask(executionTask);
 			data.add(dummyBean);
 
-			final List<ISort> sorting = Collections.emptyList();
+			final List<ISort> sorting = new LinkedList<ISort>(defaultSort);
 
 			final List<? extends IBeanKey> parentBeanKeys;
 			if (parentBean != null) {

@@ -143,6 +143,7 @@ final class BeanRelationTreeModelBuilderImpl<CHILD_BEAN_TYPE> extends
 			getRefreshService(),
 			getUpdaterService(),
 			getDeleterService(),
+			getDefaultSort(),
 			getBeanValidators(),
 			getAttributes());
 		return new BeanRelationTreeModelImpl<CHILD_BEAN_TYPE>(
