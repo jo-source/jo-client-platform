@@ -32,14 +32,13 @@ import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.jowidgets.api.convert.IObjectStringConverter;
 import org.jowidgets.api.image.IconsSmall;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.widgets.IButton;
-import org.jowidgets.api.widgets.ICheckBox;
 import org.jowidgets.api.widgets.IComboBox;
 import org.jowidgets.api.widgets.IFileChooser;
 import org.jowidgets.api.widgets.IInputComponent;
-import org.jowidgets.api.widgets.blueprint.ICheckBoxBluePrint;
 import org.jowidgets.api.widgets.blueprint.IComboBoxSelectionBluePrint;
 import org.jowidgets.api.widgets.blueprint.IFileChooserBluePrint;
 import org.jowidgets.api.widgets.blueprint.ITextLabelBluePrint;
@@ -54,42 +53,48 @@ import org.jowidgets.common.types.IFileChooserFilter;
 import org.jowidgets.common.widgets.controller.IActionListener;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
 import org.jowidgets.tools.types.FileChooserFilter;
-import org.jowidgets.tools.validation.MandatoryValidator;
 import org.jowidgets.tools.widgets.blueprint.BPF;
+import org.jowidgets.util.EmptyCheck;
 import org.jowidgets.validation.IValidationResult;
 import org.jowidgets.validation.IValidator;
 import org.jowidgets.validation.ValidationResult;
 
 final class CsvExportParameterContentProvider<BEAN_TYPE> implements IInputContentCreator<ICsvExportParameter> {
 
+	private final String userHomePath = System.getProperty("user.home");
+	private final IBeanTableModel<BEAN_TYPE> model;
+
 	private IComboBox<String> separatorCmb;
 	private IComboBox<ICsvExportParameter.ExportType> exportTypeCmb;
 	private IFileChooser fileFC;
-	private IInputComponent<String> filenameTL;
-	private String filename;
+	private IInputComponent<String> filenameTf;
 	private IComboBox<String> maskCmb;
-	private ICheckBox headerChb;
-	private ICheckBox propertiesChb;
+	private IComboBox<Boolean> headerCmb;
+	private IComboBox<Boolean> propertiesCmb;
 	private IComboBox<String> encodingCmb;
-	private String filePath;
-
 	private ICsvExportParameter parameter;
 
-	CsvExportParameterContentProvider(final IBeanTableModel<BEAN_TYPE> model) {}
+	CsvExportParameterContentProvider(final IBeanTableModel<BEAN_TYPE> model) {
+		this.model = model;
+	}
 
 	@Override
 	public void setValue(final ICsvExportParameter parameter) {
 		this.parameter = parameter;
 
 		if (parameter != null) {
-			filenameTL.setValue(parameter.getFilename());
-			filename = parameter.getFilename();
-			headerChb.setValue(parameter.isExportHeader());
-			propertiesChb.setValue(parameter.isExportInvisibleProperties());
+			headerCmb.setValue(parameter.isExportHeader());
+			propertiesCmb.setValue(parameter.isExportInvisibleProperties());
 			exportTypeCmb.setValue(parameter.getExportType());
 			separatorCmb.setValue(String.valueOf(parameter.getSeparator()));
 			maskCmb.setValue(String.valueOf(parameter.getMask()));
 			encodingCmb.setValue(parameter.getEncoding());
+			if (parameter.getFilename() == null) {
+				filenameTf.setValue(userHomePath + File.separator + model.getEntityLabelPlural() + ".csv");
+			}
+			else {
+				filenameTf.setValue(parameter.getFilename());
+			}
 		}
 	}
 
@@ -98,15 +103,12 @@ final class CsvExportParameterContentProvider<BEAN_TYPE> implements IInputConten
 		if (parameter != null) {
 			return new CsvExportParameter(
 				exportTypeCmb.getValue(),
-				headerChb.getValue(),
-				propertiesChb.getValue(),
+				headerCmb.getValue() != null ? headerCmb.getValue() : true,
+				propertiesCmb.getValue() != null ? propertiesCmb.getValue() : true,
 				separatorCmb.getValue().charAt(0),
 				maskCmb.getValue().charAt(0),
 				encodingCmb.getValue(),
-				//CHECKSTYLE:OFF
-				//TODO SP fix later
-				filename = (filename == null) ? "default_export" : filename);
-			//CHECKSTYLE:On
+				filenameTf.getValue());
 		}
 		else {
 			return parameter;
@@ -116,41 +118,21 @@ final class CsvExportParameterContentProvider<BEAN_TYPE> implements IInputConten
 	@Override
 	public void createContent(final IInputContentContainer container) {
 		final ITextLabelBluePrint textLabelBp = BPF.textLabel().alignRight();
-
 		container.setLayout(new MigLayoutDescriptor("[][grow, 250::]", "[][]"));
 
-		final IValidator<String> fileNameValidator = new IValidator<String>() {
-			@Override
-			public IValidationResult validate(final String value) {
-				if (filePath != null) {
-					if (new File(filePath).exists()) {
-						return ValidationResult.warning(Messages.getString("CsvExportParameterContentProvider.file_overwritten"));
-					}
-				}
-				return ValidationResult.ok();
-			}
-		};
-
 		container.add(textLabelBp.setText(Messages.getString("CsvExportParameterContentProvider.filename")), "alignx r");
-		filenameTL = container.add(BPF.inputFieldString().setEditable(true), "growx,w 0::,split");
-		filenameTL.addValidator(fileNameValidator);
-		filenameTL.addValidator(new MandatoryValidator<String>());
-
-		final IButton openFileButton = container.add(BPF.button().setIcon(IconsSmall.EDIT), "w 0::25,h 0::25, wrap");
-		openFileButton.addActionListener(new IActionListener() {
-			@Override
-			public void actionPerformed() {
-				openFileChooser();
-			}
-		});
+		filenameTf = container.add(BPF.inputFieldString().setEditable(true), "growx,w 0::,split");
+		filenameTf.addValidator(new FileNameValidator());
+		createOpenFileButton(container);
 
 		container.add(textLabelBp.setText(Messages.getString("CsvExportParameterContentProvider.header")), "alignx r");
-		final ICheckBoxBluePrint headerChbBp = BPF.checkBox();
-		headerChb = container.add(headerChbBp, "split 3, w  0::");
+		final IComboBoxSelectionBluePrint<Boolean> headerCmbBp = BPF.comboBoxSelectionBoolean().setAutoCompletion(false);
+		headerCmb = container.add(headerCmbBp, "growx ,w  0:: , wrap");
 
 		container.add(textLabelBp.setText(Messages.getString("CsvExportParameterContentProvider.properties")), "alignx r, growx");
-		final ICheckBoxBluePrint propertiesChbBp = BPF.checkBox();
-		propertiesChb = container.add(propertiesChbBp, "w 0::, wrap");
+		final IComboBoxSelectionBluePrint<Boolean> propertiesCmbBp = BPF.comboBoxSelection(createExportAttributesConverter());
+		propertiesCmbBp.setElements(Boolean.TRUE, Boolean.FALSE).setValue(Boolean.FALSE).setAutoCompletion(false);
+		propertiesCmb = container.add(propertiesCmbBp, "growx, w 0::, wrap");
 
 		container.add(textLabelBp.setText(Messages.getString("CsvExportParameterContentProvider.Export")), "alignx r");
 		final IComboBoxSelectionBluePrint<ExportType> exportTypeCmbBp = BPF.comboBoxSelection(ICsvExportParameter.ExportType.values());
@@ -163,15 +145,56 @@ final class CsvExportParameterContentProvider<BEAN_TYPE> implements IInputConten
 		separatorCmb = container.add(separatorCmbBp, "growx, w 0::, wrap");
 
 		container.add(textLabelBp.setText(Messages.getString("CsvExportParameterContentProvider.mask")), "align r");
-		final IComboBoxSelectionBluePrint<String> maskCmbBp = BPF.comboBoxSelection("*", " ");
+		final IComboBoxSelectionBluePrint<String> maskCmbBp = BPF.comboBoxSelection("*", "\"");
 		maskCmbBp.setValue("*").setAutoCompletion(false);
 		maskCmb = container.add(maskCmbBp, "growx, w 0::, wrap");
 
 		container.add(textLabelBp.setText(Messages.getString("CsvExportParameterContentProvider.encoding")), "alignx r");
-		final IComboBoxSelectionBluePrint<String> encodingCmbBp = BPF.comboBoxSelection("UTF-8", " ");
+		final IComboBoxSelectionBluePrint<String> encodingCmbBp = BPF.comboBoxSelection("UTF-8", "Cp1250", "ISO8859_1");
 		encodingCmbBp.setValue("UTF-8").setAutoCompletion(false);
 		encodingCmb = container.add(encodingCmbBp, "growx, w 0::");
 
+	}
+
+	private IObjectStringConverter<Boolean> createExportAttributesConverter() {
+		return new IObjectStringConverter<Boolean>() {
+
+			@Override
+			public String convertToString(final Boolean value) {
+				if (value != null) {
+					if (value.booleanValue()) {
+						return "Alle";
+					}
+					else {
+						return "Sichtbar";
+					}
+				}
+				return "";
+			}
+
+			@Override
+			public String getDescription(final Boolean value) {
+				if (value != null) {
+					if (value.booleanValue()) {
+						return "Es werden alle Spalten exportiert";
+					}
+					else {
+						return "Es werden nur die sichtbaren Spalten exportiert";
+					}
+				}
+				return "";
+			}
+		};
+	}
+
+	private void createOpenFileButton(final IInputContentContainer container) {
+		final IButton openFileButton = container.add(BPF.button().setIcon(IconsSmall.EDIT), "w 0::25,h 0::25, wrap");
+		openFileButton.addActionListener(new IActionListener() {
+			@Override
+			public void actionPerformed() {
+				openFileChooser();
+			}
+		});
 	}
 
 	private void openFileChooser() {
@@ -180,14 +203,31 @@ final class CsvExportParameterContentProvider<BEAN_TYPE> implements IInputConten
 		filterList.add(new FileChooserFilter(Messages.getString("CsvExportParameterContentProvider.text_file"), "txt"));
 		final IFileChooserBluePrint fcBp = BPF.fileChooser(FileChooserType.OPEN_FILE).setFilterList(filterList);
 		fileFC = Toolkit.getActiveWindow().createChildWindow(fcBp);
+		fileFC.setSelectedFile(new File(filenameTf.getValue()));
 		final DialogResult result = fileFC.open();
 		if (result == DialogResult.OK) {
 			for (final File file : fileFC.getSelectedFiles()) {
-				filePath = file.getPath();
-				filenameTL.setValue(file.getName());
-				filename = file.getAbsolutePath();
-
+				filenameTf.setValue(file.getAbsolutePath());
 			}
 		}
 	}
+
+	class FileNameValidator implements IValidator<String> {
+
+		@Override
+		public IValidationResult validate(final String value) {
+
+			if (EmptyCheck.isEmpty(value)) {
+				return ValidationResult.infoError("Choose File");
+			}
+
+			if (new File(filenameTf.getValue()).exists()) {
+				return ValidationResult.warning(Messages.getString("CsvExportParameterContentProvider.file_overwritten"));
+			}
+
+			return ValidationResult.ok();
+		}
+
+	}
+
 }
