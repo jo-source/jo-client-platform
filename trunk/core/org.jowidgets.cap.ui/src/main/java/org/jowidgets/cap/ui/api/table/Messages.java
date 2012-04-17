@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, grossmann
+ * Copyright (c) 2012, sapalm
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -28,36 +28,22 @@
 
 package org.jowidgets.cap.ui.api.table;
 
-public interface ICsvExportParameter {
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
 
-	ExportType getExportType();
+public class Messages {
+	private static final String BUNDLE_NAME = "org.jowidgets.cap.ui.api.table.messages"; //$NON-NLS-1$
 
-	boolean isExportHeader();
+	private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle(BUNDLE_NAME);
 
-	boolean isExportInvisibleProperties();
+	private Messages() {}
 
-	char getSeparator();
-
-	char getMask();
-
-	String getEncoding();
-
-	String getFilename();
-
-	enum ExportType {
-
-		TABLE(Messages.getString("ICsvExportParameter.whole_table")),
-		SELECTION(Messages.getString("ICsvExportParameter.selected_rows"));
-
-		private final String label;
-
-		ExportType(final String label) {
-			this.label = label;
+	public static String getString(String key) {
+		try {
+			return RESOURCE_BUNDLE.getString(key);
 		}
-
-		@Override
-		public String toString() {
-			return label;
+		catch (MissingResourceException e) {
+			return '!' + key + '!';
 		}
 	}
 }
