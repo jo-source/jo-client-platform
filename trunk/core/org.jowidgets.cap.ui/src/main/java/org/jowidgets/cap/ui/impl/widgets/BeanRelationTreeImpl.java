@@ -234,7 +234,7 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 			final ITreeNode childRelationNode = childNode.addNode();
 			renderRelationNode(childRelationNode, childRelationNodeModel);
 
-			//TODO MG remove this later BEGIN
+			//			//TODO MG remove this later BEGIN
 			//			final IMenuModel popupMenu = new MenuModel();
 			//			final ICapActionFactory actionFactory = CapUiToolkit.actionFactory();
 			//
