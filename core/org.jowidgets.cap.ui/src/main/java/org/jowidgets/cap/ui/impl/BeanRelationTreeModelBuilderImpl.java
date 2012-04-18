@@ -46,13 +46,18 @@ import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.model.LinkType;
+import org.jowidgets.cap.ui.api.plugin.IBeanRelationTreeModelPlugin;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationNodeModelBluePrint;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationNodeModelConfigurator;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeModel;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeModelBuilder;
 import org.jowidgets.cap.ui.api.tree.IEntityTypeId;
+import org.jowidgets.plugin.api.IPluginProperties;
+import org.jowidgets.plugin.api.PluginProperties;
+import org.jowidgets.plugin.api.PluginProvider;
 import org.jowidgets.service.api.ServiceProvider;
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.ITypedKey;
 
 final class BeanRelationTreeModelBuilderImpl<CHILD_BEAN_TYPE> extends
 		BeanRelationNodeModelBluePrint<CHILD_BEAN_TYPE, IBeanRelationTreeModelBuilder<CHILD_BEAN_TYPE>> implements
@@ -60,9 +65,11 @@ final class BeanRelationTreeModelBuilderImpl<CHILD_BEAN_TYPE> extends
 
 	private final List<IBeanRelationNodeModelConfigurator> nodeConfigurators;
 
+	private boolean build;
+
 	BeanRelationTreeModelBuilderImpl(final Object entityId, final Class<CHILD_BEAN_TYPE> beanType) {
 		super(entityId, beanType);
-
+		this.build = false;
 		this.nodeConfigurators = new LinkedList<IBeanRelationNodeModelConfigurator>();
 		nodeConfigurators.add(new IBeanRelationNodeModelConfigurator() {
 			@Override
@@ -130,6 +137,12 @@ final class BeanRelationTreeModelBuilderImpl<CHILD_BEAN_TYPE> extends
 
 	@Override
 	public IBeanRelationTreeModel<CHILD_BEAN_TYPE> build() {
+		if (build) {
+			throw new IllegalStateException("This is a single use builder and so it can only used once for build.");
+		}
+
+		modifyByPlugins();
+
 		final BeanRelationNodeModelImpl<Void, CHILD_BEAN_TYPE> rootNode = new BeanRelationNodeModelImpl<Void, CHILD_BEAN_TYPE>(
 			getLabel(),
 			null,
@@ -146,12 +159,29 @@ final class BeanRelationTreeModelBuilderImpl<CHILD_BEAN_TYPE> extends
 			getDefaultSort(),
 			getBeanValidators(),
 			getAttributes());
+
+		build = true;
+
 		return new BeanRelationTreeModelImpl<CHILD_BEAN_TYPE>(
 			rootNode,
 			getNodeConfigurator(),
 			getParent(),
 			getLinkType(),
 			getListenerDelay());
+	}
+
+	@SuppressWarnings({"rawtypes", "unchecked"})
+	private void modifyByPlugins() {
+
+		final ITypedKey<Object> entitiyIdKey = IBeanRelationTreeModelPlugin.ENTITIY_ID_PROPERTY_KEY;
+		final IPluginProperties properties = PluginProperties.create(entitiyIdKey, getEntityId());
+
+		final List<IBeanRelationTreeModelPlugin<?>> plugins;
+		plugins = PluginProvider.getPlugins(IBeanRelationTreeModelPlugin.ID, properties);
+
+		for (final IBeanRelationTreeModelPlugin plugin : plugins) {
+			plugin.modifySetup(properties, this);
+		}
 	}
 
 	private IBeanRelationNodeModelConfigurator getNodeConfigurator() {
