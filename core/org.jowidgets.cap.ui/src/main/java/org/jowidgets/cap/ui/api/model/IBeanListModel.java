@@ -33,9 +33,9 @@ import java.util.Collection;
 
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
-import org.jowidgets.cap.ui.api.bean.IBeanSelectionObservable;
+import org.jowidgets.cap.ui.api.bean.IBeanSelectionProvider;
 
-public interface IBeanListModel<BEAN_TYPE> extends IBeanListModelObservable, IBeanSelectionObservable<BEAN_TYPE> {
+public interface IBeanListModel<BEAN_TYPE> extends IBeanListModelObservable, IBeanSelectionProvider<BEAN_TYPE> {
 
 	int getSize();
 

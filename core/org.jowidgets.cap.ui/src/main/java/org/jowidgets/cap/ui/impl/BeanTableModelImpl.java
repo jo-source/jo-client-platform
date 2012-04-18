@@ -94,6 +94,7 @@ import org.jowidgets.cap.ui.api.bean.IBeanMessageBuilder;
 import org.jowidgets.cap.ui.api.bean.IBeanPropertyValidator;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
+import org.jowidgets.cap.ui.api.bean.IBeanSelection;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionListener;
 import org.jowidgets.cap.ui.api.bean.IBeansStateTracker;
 import org.jowidgets.cap.ui.api.color.CapColors;
@@ -1340,6 +1341,11 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			result.add(getBean(selectionIndex.intValue()));
 		}
 		return Collections.unmodifiableList(result);
+	}
+
+	@Override
+	public IBeanSelection<BEAN_TYPE> getBeanSelection() {
+		return new BeanSelectionImpl<BEAN_TYPE>(beanType, entityId, getSelectedBeans());
 	}
 
 	private List<IBeanProxy<BEAN_TYPE>> removeSelection() {

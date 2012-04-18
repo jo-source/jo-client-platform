@@ -63,6 +63,7 @@ import org.jowidgets.cap.ui.api.bean.IBeanPropertyValidator;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyLabelRenderer;
+import org.jowidgets.cap.ui.api.bean.IBeanSelection;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionListener;
 import org.jowidgets.cap.ui.api.bean.IBeansStateTracker;
 import org.jowidgets.cap.ui.api.execution.BeanExecutionPolicy;
@@ -548,6 +549,11 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 			result.add(getBean(selectionIndex.intValue()));
 		}
 		return Collections.unmodifiableList(result);
+	}
+
+	@Override
+	public IBeanSelection<CHILD_BEAN_TYPE> getBeanSelection() {
+		return new BeanSelectionImpl<CHILD_BEAN_TYPE>(childBeanType, childEntityId, getSelectedBeans());
 	}
 
 	@Override

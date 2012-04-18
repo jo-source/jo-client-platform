@@ -26,26 +26,30 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.tree;
+package org.jowidgets.cap.ui.api.bean;
 
-import java.util.Collection;
 import java.util.List;
 
-import org.jowidgets.cap.ui.api.bean.IBeanProxy;
-import org.jowidgets.cap.ui.api.bean.IBeanSelectionProvider;
-import org.jowidgets.cap.ui.api.model.IDataModel;
+public interface IBeanSelection<BEAN_TYPE> {
 
-public interface IBeanRelationTreeModel<CHILD_BEAN_TYPE> extends IDataModel, IBeanSelectionProvider<Object> {
+	/**
+	 * @return The bean type of the selection. May be null for empty selection.
+	 */
+	Class<? extends BEAN_TYPE> getBeanType();
 
-	IBeanRelationNodeModel<Void, CHILD_BEAN_TYPE> getRoot();
+	/**
+	 * @return The entity id of the selection. May be null for empty selection.
+	 */
+	Object getEntityId();
 
-	<METHOD_PARENT_BEAN_TYPE, METHOD_CHILD_BEAN_TYPE> IBeanRelationNodeModel<METHOD_PARENT_BEAN_TYPE, METHOD_CHILD_BEAN_TYPE> getNode(
-		IEntityTypeId<METHOD_PARENT_BEAN_TYPE> parentEntityTypeId,
-		IBeanProxy<METHOD_PARENT_BEAN_TYPE> parentBean,
-		IEntityTypeId<METHOD_CHILD_BEAN_TYPE> childEntityTypeId);
+	/**
+	 * @return The selection. May be empty but never null.
+	 */
+	List<IBeanProxy<BEAN_TYPE>> getSelection();
 
-	List<IBeanProxy<Object>> getSelection();
-
-	void setSelection(Collection<? extends IBeanProxy<?>> selection);
+	/**
+	 * @return The first selected bean or null if nothing is selected.
+	 */
+	IBeanProxy<BEAN_TYPE> getFirstSelected();
 
 }

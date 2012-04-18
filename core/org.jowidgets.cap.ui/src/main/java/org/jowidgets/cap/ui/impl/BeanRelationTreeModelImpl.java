@@ -28,7 +28,6 @@
 
 package org.jowidgets.cap.ui.impl;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -37,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
+import org.jowidgets.cap.ui.api.bean.IBeanSelection;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionEvent;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionListener;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
@@ -66,6 +66,8 @@ public class BeanRelationTreeModelImpl<CHILD_BEAN_TYPE> implements
 		IBeanRelationTreeModel<CHILD_BEAN_TYPE>,
 		IValidationResultCreator {
 
+	private static final IBeanSelection<Object> EMPTY_BEAN_SELECTION = new BeanSelectionImpl<Object>();
+
 	private final IBeanRelationNodeModel<Void, CHILD_BEAN_TYPE> root;
 	private final IBeanRelationNodeModelConfigurator nodeConfigurator;
 	private final IBeanSelectionListener<Object> parentSelectionListener;
@@ -80,7 +82,7 @@ public class BeanRelationTreeModelImpl<CHILD_BEAN_TYPE> implements
 	private final BeanSelectionListener beanSelectionListener;
 	private final Map relationNodes;
 
-	private ArrayList<IBeanProxy<?>> selection;
+	private IBeanSelection<Object> selection;
 
 	public BeanRelationTreeModelImpl(
 		final IBeanRelationNodeModel<Void, CHILD_BEAN_TYPE> root,
@@ -304,12 +306,20 @@ public class BeanRelationTreeModelImpl<CHILD_BEAN_TYPE> implements
 	}
 
 	@Override
-	public ArrayList<IBeanProxy<?>> getSelection() {
+	public List<IBeanProxy<Object>> getSelection() {
 		if (selection == null) {
-			return new ArrayList<IBeanProxy<?>>();
+			selection = EMPTY_BEAN_SELECTION;
+		}
+		return selection.getSelection();
+	}
+
+	@Override
+	public IBeanSelection<Object> getBeanSelection() {
+		if (selection != null) {
+			return selection;
 		}
 		else {
-			return new ArrayList<IBeanProxy<?>>(selection);
+			return EMPTY_BEAN_SELECTION;
 		}
 	}
 
@@ -324,7 +334,7 @@ public class BeanRelationTreeModelImpl<CHILD_BEAN_TYPE> implements
 				relationNode.addBeanSelectionListener(beanSelectionListener);
 
 			}
-			this.selection = new ArrayList<IBeanProxy<?>>();
+			this.selection = EMPTY_BEAN_SELECTION;
 			beanSelectionObservable.fireBeanSelectionEvent(BeanRelationTreeModelImpl.this, null, null, getSelection());
 		}
 		//		else {
@@ -356,12 +366,13 @@ public class BeanRelationTreeModelImpl<CHILD_BEAN_TYPE> implements
 				}
 			}
 			if (changedNode != null) {
-				selection = new ArrayList<IBeanProxy<?>>(changedNode.getSelectedBeans());
-				beanSelectionObservable.fireBeanSelectionEvent(
-						BeanRelationTreeModelImpl.this,
-						selectionEvent.getBeanType(),
-						selectionEvent.getEntityId(),
-						selectionEvent.getSelection());
+				final BeanSelectionEventImpl treeSelectionEvent = new BeanSelectionEventImpl(
+					BeanRelationTreeModelImpl.this,
+					selectionEvent.getBeanType(),
+					selectionEvent.getEntityId(),
+					selectionEvent.getSelection());
+				selection = treeSelectionEvent;
+				beanSelectionObservable.fireBeanSelectionEvent(treeSelectionEvent);
 			}
 
 		}
