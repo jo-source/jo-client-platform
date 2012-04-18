@@ -68,6 +68,7 @@ import org.jowidgets.cap.ui.api.bean.IBeanPropertyValidator;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyLabelRenderer;
+import org.jowidgets.cap.ui.api.bean.IBeanSelection;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionListener;
 import org.jowidgets.cap.ui.api.bean.IBeansStateTracker;
 import org.jowidgets.cap.ui.api.execution.BeanExecutionPolicy;
@@ -689,6 +690,11 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 		else {
 			return Collections.emptyList();
 		}
+	}
+
+	@Override
+	public IBeanSelection<BEAN_TYPE> getBeanSelection() {
+		return new BeanSelectionImpl<BEAN_TYPE>(beanType, entityId, getSelectedBeans());
 	}
 
 	@Override

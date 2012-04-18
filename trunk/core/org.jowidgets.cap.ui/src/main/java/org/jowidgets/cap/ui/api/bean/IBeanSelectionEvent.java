@@ -28,33 +28,11 @@
 
 package org.jowidgets.cap.ui.api.bean;
 
-import java.util.List;
-
-public interface IBeanSelectionEvent<BEAN_TYPE> {
+public interface IBeanSelectionEvent<BEAN_TYPE> extends IBeanSelection<BEAN_TYPE> {
 
 	/**
 	 * @return The source of the event
 	 */
 	IBeanSelectionObservable<BEAN_TYPE> getSource();
-
-	/**
-	 * @return The bean type of the selection. May be null for empty selection
-	 */
-	Class<BEAN_TYPE> getBeanType();
-
-	/**
-	 * @return The entity id of the selection. May be null for empty selection
-	 */
-	Object getEntityId();
-
-	/**
-	 * @return The selection. May be empty but never null.
-	 */
-	List<IBeanProxy<BEAN_TYPE>> getSelection();
-
-	/**
-	 * @return The first selected bean or null if nothing is selected.
-	 */
-	IBeanProxy<BEAN_TYPE> getFirstSelected();
 
 }

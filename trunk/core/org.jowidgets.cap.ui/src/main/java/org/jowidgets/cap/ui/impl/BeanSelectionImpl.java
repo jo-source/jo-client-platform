@@ -29,28 +29,80 @@
 package org.jowidgets.cap.ui.impl;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
-import org.jowidgets.cap.ui.api.bean.IBeanSelectionEvent;
-import org.jowidgets.cap.ui.api.bean.IBeanSelectionObservable;
+import org.jowidgets.cap.ui.api.bean.IBeanSelection;
+import org.jowidgets.util.Assert;
 
-final class BeanSelectionEventImpl<BEAN_TYPE> extends BeanSelectionImpl<BEAN_TYPE> implements IBeanSelectionEvent<BEAN_TYPE> {
+class BeanSelectionImpl<BEAN_TYPE> implements IBeanSelection<BEAN_TYPE> {
 
-	private final IBeanSelectionObservable<BEAN_TYPE> source;
+	private final Class<? extends BEAN_TYPE> beanType;
+	private final Object entityId;
+	private final List<IBeanProxy<BEAN_TYPE>> selection;
+	private final IBeanProxy<BEAN_TYPE> firstSelected;
 
-	BeanSelectionEventImpl(
-		final IBeanSelectionObservable<BEAN_TYPE> source,
+	@SuppressWarnings("unchecked")
+	BeanSelectionImpl() {
+		this(null, null, Collections.EMPTY_LIST);
+	}
+
+	BeanSelectionImpl(
 		final Class<? extends BEAN_TYPE> beanType,
 		final Object entityId,
 		final Collection<? extends IBeanProxy<BEAN_TYPE>> selection) {
-		super(beanType, entityId, selection);
 
-		this.source = source;
+		Assert.paramNotNull(selection, "selection");
+		if (!selection.isEmpty()) {
+			Assert.paramNotNull(beanType, "beanType");
+			Assert.paramNotNull(entityId, "entityId");
+		}
+
+		this.beanType = beanType;
+		this.entityId = entityId;
+		this.selection = new LinkedList<IBeanProxy<BEAN_TYPE>>(selection);
+
+		if (selection.size() > 0) {
+			firstSelected = selection.iterator().next();
+		}
+		else {
+			firstSelected = null;
+		}
 	}
 
 	@Override
-	public IBeanSelectionObservable<BEAN_TYPE> getSource() {
-		return source;
+	public final Class<? extends BEAN_TYPE> getBeanType() {
+		return beanType;
+	}
+
+	@Override
+	public final Object getEntityId() {
+		return entityId;
+	}
+
+	@Override
+	public final List<IBeanProxy<BEAN_TYPE>> getSelection() {
+		return selection;
+	}
+
+	@Override
+	public final IBeanProxy<BEAN_TYPE> getFirstSelected() {
+		return firstSelected;
+	}
+
+	@Override
+	public String toString() {
+		return "BeanSelectionImpl [beanType="
+			+ beanType
+			+ ", entityId="
+			+ entityId
+			+ ", selection="
+			+ selection
+			+ ", firstSelected="
+			+ firstSelected
+			+ "]";
 	}
 
 }
