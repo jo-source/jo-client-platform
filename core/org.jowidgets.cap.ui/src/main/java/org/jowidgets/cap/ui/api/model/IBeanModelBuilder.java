@@ -39,6 +39,7 @@ import org.jowidgets.cap.common.api.service.IUpdaterService;
 import org.jowidgets.cap.common.api.validation.IBeanValidator;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
+import org.jowidgets.cap.ui.api.bean.IBeanSelectionProvider;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.util.IProvider;
 
@@ -76,9 +77,9 @@ public interface IBeanModelBuilder<BEAN_TYPE, INSTANCE_TYPE> {
 
 	INSTANCE_TYPE setDeleterService(final IServiceId<IDeleterService> deleterServiceId);
 
-	INSTANCE_TYPE setParent(IBeanListModel<?> parent, LinkType linkType);
+	INSTANCE_TYPE setParent(IBeanSelectionProvider<?> parent, LinkType linkType);
 
-	INSTANCE_TYPE setParent(IBeanListModel<?> parent, LinkType linkType, long listenerDelay);
+	INSTANCE_TYPE setParent(IBeanSelectionProvider<?> parent, LinkType linkType, long listenerDelay);
 
 	INSTANCE_TYPE setAttributes(List<? extends IAttribute<?>> attributes);
 

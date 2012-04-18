@@ -93,6 +93,55 @@ class BeanSelectionImpl<BEAN_TYPE> implements IBeanSelection<BEAN_TYPE> {
 	}
 
 	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((beanType == null) ? 0 : beanType.hashCode());
+		result = prime * result + ((entityId == null) ? 0 : entityId.hashCode());
+		result = prime * result + ((selection == null) ? 0 : selection.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(final Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (!(obj instanceof IBeanSelection<?>)) {
+			return false;
+		}
+		final IBeanSelection<?> other = (IBeanSelection<?>) obj;
+		if (beanType == null) {
+			if (other.getBeanType() != null) {
+				return false;
+			}
+		}
+		else if (!beanType.equals(other.getBeanType())) {
+			return false;
+		}
+		if (entityId == null) {
+			if (other.getEntityId() != null) {
+				return false;
+			}
+		}
+		else if (!entityId.equals(other.getEntityId())) {
+			return false;
+		}
+		if (selection == null) {
+			if (other.getSelection() != null) {
+				return false;
+			}
+		}
+		else if (!selection.equals(other.getSelection())) {
+			return false;
+		}
+		return true;
+	}
+
+	@Override
 	public String toString() {
 		return "BeanSelectionImpl [beanType="
 			+ beanType

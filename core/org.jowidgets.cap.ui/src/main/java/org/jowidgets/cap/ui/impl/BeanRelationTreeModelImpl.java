@@ -39,7 +39,7 @@ import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanSelection;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionEvent;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionListener;
-import org.jowidgets.cap.ui.api.model.IBeanListModel;
+import org.jowidgets.cap.ui.api.bean.IBeanSelectionProvider;
 import org.jowidgets.cap.ui.api.model.IModificationStateListener;
 import org.jowidgets.cap.ui.api.model.IProcessStateListener;
 import org.jowidgets.cap.ui.api.model.LinkType;
@@ -54,7 +54,6 @@ import org.jowidgets.tools.validation.ValidationCache;
 import org.jowidgets.tools.validation.ValidationCache.IValidationResultCreator;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.EmptyCheck;
-import org.jowidgets.util.IProvider;
 import org.jowidgets.util.Tuple;
 import org.jowidgets.validation.IValidationConditionListener;
 import org.jowidgets.validation.IValidationResult;
@@ -87,7 +86,7 @@ public class BeanRelationTreeModelImpl<CHILD_BEAN_TYPE> implements
 	public BeanRelationTreeModelImpl(
 		final IBeanRelationNodeModel<Void, CHILD_BEAN_TYPE> root,
 		final IBeanRelationNodeModelConfigurator nodeConfigurator,
-		final IBeanListModel<Object> parent,
+		final IBeanSelectionProvider<Object> parent,
 		final LinkType linkType,
 		final Long listenerDelay) {
 
@@ -99,17 +98,7 @@ public class BeanRelationTreeModelImpl<CHILD_BEAN_TYPE> implements
 		this.nodeConfigurator = nodeConfigurator;
 		if (parent != null) {
 			Assert.paramNotNull(linkType, "linkType");
-			final IProvider<Object> parentBeanProvider = new IProvider<Object>() {
-				@Override
-				public Object get() {
-					final List<IBeanProxy<?>> parentBeans = new LinkedList<IBeanProxy<?>>();
-					for (final Integer selected : parent.getSelection()) {
-						parentBeans.add(parent.getBean(selected.intValue()));
-					}
-					return parentBeans;
-				}
-			};
-			this.parentSelectionListener = new ParentSelectionListener<Object>(this, parentBeanProvider, listenerDelay);
+			this.parentSelectionListener = new ParentSelectionListener<Object>(parent, this, listenerDelay);
 			parent.addBeanSelectionListener(parentSelectionListener);
 		}
 		else {

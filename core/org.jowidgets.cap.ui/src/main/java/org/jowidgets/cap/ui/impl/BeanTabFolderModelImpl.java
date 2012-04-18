@@ -70,6 +70,7 @@ import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyLabelRenderer;
 import org.jowidgets.cap.ui.api.bean.IBeanSelection;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionListener;
+import org.jowidgets.cap.ui.api.bean.IBeanSelectionProvider;
 import org.jowidgets.cap.ui.api.bean.IBeansStateTracker;
 import org.jowidgets.cap.ui.api.execution.BeanExecutionPolicy;
 import org.jowidgets.cap.ui.api.execution.IExecutionTask;
@@ -77,7 +78,6 @@ import org.jowidgets.cap.ui.api.filter.IUiBooleanFilter;
 import org.jowidgets.cap.ui.api.filter.IUiFilter;
 import org.jowidgets.cap.ui.api.filter.IUiFilterFactory;
 import org.jowidgets.cap.ui.api.filter.IUiFilterTools;
-import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
 import org.jowidgets.cap.ui.api.model.IModificationStateListener;
 import org.jowidgets.cap.ui.api.model.IProcessStateListener;
@@ -131,7 +131,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 	private final BeanListSaveDelegate<BEAN_TYPE> saveDelegate;
 	private final BeanListRefreshDelegate<BEAN_TYPE> refreshDelegate;
 
-	private final IBeanListModel<Object> parent;
+	private final IBeanSelectionProvider<Object> parent;
 	private final LinkType linkType;
 	private final boolean clearOnEmptyFilter;
 	private final boolean clearOnEmptyParentBeans;
@@ -168,7 +168,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 		final IUpdaterService updaterService,
 		final IDeleterService deleterService,
 		final IBeanExceptionConverter exceptionConverter,
-		final IBeanListModel<Object> parent,
+		final IBeanSelectionProvider<Object> parent,
 		final LinkType linkType,
 		final Long listenerDelay,
 		final boolean clearOnEmptyFilter,
@@ -192,13 +192,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 		this.linkType = linkType;
 		if (parent != null) {
 			Assert.paramNotNull(linkType, "linkType");
-			final IProvider<Object> parentBeansProvider = new IProvider<Object>() {
-				@Override
-				public Object get() {
-					return getParentBeanKeys(false);
-				}
-			};
-			this.parentSelectionListener = new ParentSelectionListener<Object>(this, parentBeansProvider, listenerDelay);
+			this.parentSelectionListener = new ParentSelectionListener<Object>(parent, this, listenerDelay);
 			parent.addBeanSelectionListener(parentSelectionListener);
 		}
 		else {
@@ -814,20 +808,27 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 		}
 	}
 
-	private List<? extends IBeanKey> getParentBeanKeys(final boolean ignoreNonPersistent) {
-		if (parent == null || EmptyCheck.isEmpty(parent.getSelection())) {
+	private List<? extends IBeanKey> getParentBeanKeys() {
+		if (parent == null) {
 			return null;
 		}
+
+		final IBeanSelection<Object> beanSelection = parent.getBeanSelection();
+		List<IBeanProxy<Object>> selection = beanSelection.getSelection();
+		if (EmptyCheck.isEmpty(selection)) {
+			return null;
+		}
+		else if (linkType == LinkType.SELECTION_FIRST) {
+			selection = selection.subList(0, 1);
+		}
+
 		final List<IBeanKey> beanKeys = new LinkedList<IBeanKey>();
-		for (final int i : parent.getSelection()) {
-			final IBeanProxy<?> proxy = parent.getBean(i);
-			if (proxy != null && !ignoreNonPersistent || (!proxy.isDummy() && !proxy.isTransient())) {
+		for (final IBeanProxy<Object> proxy : selection) {
+			if (proxy != null && !proxy.isDummy() && !proxy.isTransient()) {
 				beanKeys.add(new BeanKey(proxy.getId(), proxy.getVersion()));
 			}
 		}
-		if (!beanKeys.isEmpty() && linkType == LinkType.SELECTION_FIRST) {
-			return new LinkedList<IBeanKey>(beanKeys.subList(0, 1));
-		}
+
 		return beanKeys;
 	}
 
@@ -881,7 +882,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 			if (isLoadNeeded()) {
 				readerService.read(
 						createResultCallback(),
-						getParentBeanKeys(true),
+						getParentBeanKeys(),
 						filter,
 						sortModel.getSorting(),
 						0,
@@ -897,7 +898,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 		}
 
 		boolean isLoadNeeded() {
-			if (clearOnEmptyFilter && isFilterEmpty() || clearOnEmptyParentBeans && EmptyCheck.isEmpty(getParentBeanKeys(true))) {
+			if (clearOnEmptyFilter && isFilterEmpty() || clearOnEmptyParentBeans && EmptyCheck.isEmpty(getParentBeanKeys())) {
 				return false;
 			}
 			else {

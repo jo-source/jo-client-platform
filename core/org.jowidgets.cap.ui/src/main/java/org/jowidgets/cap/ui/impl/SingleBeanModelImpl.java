@@ -65,10 +65,10 @@ import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeanSelection;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionListener;
+import org.jowidgets.cap.ui.api.bean.IBeanSelectionProvider;
 import org.jowidgets.cap.ui.api.bean.IBeansStateTracker;
 import org.jowidgets.cap.ui.api.execution.BeanExecutionPolicy;
 import org.jowidgets.cap.ui.api.execution.IExecutionTask;
-import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
 import org.jowidgets.cap.ui.api.model.IModificationStateListener;
 import org.jowidgets.cap.ui.api.model.IProcessStateListener;
@@ -103,7 +103,7 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 	private final BeanListSaveDelegate<BEAN_TYPE> saveDelegate;
 	private final BeanListRefreshDelegate<BEAN_TYPE> refreshDelegate;
 
-	private final IBeanListModel<Object> parent;
+	private final IBeanSelectionProvider<Object> parent;
 	private final LinkType linkType;
 	private final List<IAttribute<Object>> attributes;
 	private final List<String> propertyNames;
@@ -134,7 +134,7 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 		final IDeleterService deleterService,
 		final IBeanExceptionConverter exceptionConverter,
 		final Set<IBeanValidator<BEAN_TYPE>> beanValidators,
-		final IBeanListModel<Object> parent,
+		final IBeanSelectionProvider<Object> parent,
 		final LinkType linkType,
 		final Long listenerDelay,
 		List<IAttribute<Object>> attributes) {
@@ -152,13 +152,7 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 
 		if (parent != null) {
 			Assert.paramNotNull(linkType, "linkType");
-			final IProvider<Object> parentBeansProvider = new IProvider<Object>() {
-				@Override
-				public Object get() {
-					return getParentBeanKeys();
-				}
-			};
-			this.parentModelListener = new ParentSelectionListener<Object>(this, parentBeansProvider, listenerDelay);
+			this.parentModelListener = new ParentSelectionListener<Object>(parent, this, listenerDelay);
 			parent.addBeanSelectionListener(parentModelListener);
 		}
 		else {
@@ -556,19 +550,26 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 	}
 
 	private List<? extends IBeanKey> getParentBeanKeys() {
-		if (parent == null || EmptyCheck.isEmpty(parent.getSelection())) {
+		if (parent == null) {
 			return null;
 		}
+
+		final IBeanSelection<Object> beanSelection = parent.getBeanSelection();
+		List<IBeanProxy<Object>> selection = beanSelection.getSelection();
+		if (EmptyCheck.isEmpty(selection)) {
+			return null;
+		}
+		else if (linkType == LinkType.SELECTION_FIRST) {
+			selection = selection.subList(0, 1);
+		}
+
 		final List<IBeanKey> beanKeys = new LinkedList<IBeanKey>();
-		for (final int i : parent.getSelection()) {
-			final IBeanProxy<?> proxy = parent.getBean(i);
+		for (final IBeanProxy<Object> proxy : selection) {
 			if (proxy != null && !proxy.isDummy() && !proxy.isTransient()) {
 				beanKeys.add(new BeanKey(proxy.getId(), proxy.getVersion()));
 			}
 		}
-		if (!beanKeys.isEmpty() && linkType == LinkType.SELECTION_FIRST) {
-			return new LinkedList<IBeanKey>(beanKeys.subList(0, 1));
-		}
+
 		return beanKeys;
 	}
 

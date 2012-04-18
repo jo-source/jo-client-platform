@@ -96,6 +96,7 @@ import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeanSelection;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionListener;
+import org.jowidgets.cap.ui.api.bean.IBeanSelectionProvider;
 import org.jowidgets.cap.ui.api.bean.IBeansStateTracker;
 import org.jowidgets.cap.ui.api.color.CapColors;
 import org.jowidgets.cap.ui.api.execution.BeanExecutionPolicy;
@@ -106,7 +107,6 @@ import org.jowidgets.cap.ui.api.filter.IUiFilterFactory;
 import org.jowidgets.cap.ui.api.filter.IUiFilterTools;
 import org.jowidgets.cap.ui.api.lookup.ILookUpAccess;
 import org.jowidgets.cap.ui.api.lookup.ILookUpListener;
-import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
 import org.jowidgets.cap.ui.api.model.IModificationStateListener;
 import org.jowidgets.cap.ui.api.model.IProcessStateListener;
@@ -182,7 +182,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	private final BeanListSaveDelegate<BEAN_TYPE> saveDelegate;
 	private final BeanListRefreshDelegate<BEAN_TYPE> refreshDelegate;
 
-	private final IBeanListModel<Object> parent;
+	private final IBeanSelectionProvider<Object> parent;
 	private final LinkType linkType;
 
 	private final boolean clearOnEmptyFilter;
@@ -239,7 +239,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		final IUpdaterService updaterService,
 		final IDeleterService deleterService,
 		final IBeanExceptionConverter exceptionConverter,
-		final IBeanListModel<Object> parent,
+		final IBeanSelectionProvider<Object> parent,
 		final LinkType linkType,
 		final Long listenerDelay,
 		final boolean autoRowCount,
@@ -268,13 +268,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		this.linkType = linkType;
 		if (parent != null) {
 			Assert.paramNotNull(linkType, "linkType");
-			final IProvider<Object> parentBeansProvider = new IProvider<Object>() {
-				@Override
-				public Object get() {
-					return getParentBeanKeys();
-				}
-			};
-			this.parentSelectionListener = new ParentSelectionListener<Object>(this, parentBeansProvider, listenerDelay);
+			this.parentSelectionListener = new ParentSelectionListener<Object>(parent, this, listenerDelay);
 			parent.addBeanSelectionListener(parentSelectionListener);
 		}
 		else {
@@ -1542,19 +1536,26 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	}
 
 	private List<? extends IBeanKey> getParentBeanKeys() {
-		if (parent == null || EmptyCheck.isEmpty(parent.getSelection())) {
+		if (parent == null) {
 			return null;
 		}
+
+		final IBeanSelection<Object> beanSelection = parent.getBeanSelection();
+		List<IBeanProxy<Object>> selection = beanSelection.getSelection();
+		if (EmptyCheck.isEmpty(selection)) {
+			return null;
+		}
+		else if (linkType == LinkType.SELECTION_FIRST) {
+			selection = selection.subList(0, 1);
+		}
+
 		final List<IBeanKey> beanKeys = new LinkedList<IBeanKey>();
-		for (final int i : parent.getSelection()) {
-			final IBeanProxy<?> proxy = parent.getBean(i);
+		for (final IBeanProxy<Object> proxy : selection) {
 			if (proxy != null && !proxy.isDummy() && !proxy.isTransient()) {
 				beanKeys.add(new BeanKey(proxy.getId(), proxy.getVersion()));
 			}
 		}
-		if (!beanKeys.isEmpty() && linkType == LinkType.SELECTION_FIRST) {
-			return new LinkedList<IBeanKey>(beanKeys.subList(0, 1));
-		}
+
 		return beanKeys;
 	}
 

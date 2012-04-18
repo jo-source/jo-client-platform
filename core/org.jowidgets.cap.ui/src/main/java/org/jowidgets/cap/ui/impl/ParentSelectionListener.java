@@ -35,37 +35,39 @@ import java.util.concurrent.TimeUnit;
 
 import org.jowidgets.api.threads.IUiThreadAccess;
 import org.jowidgets.api.toolkit.Toolkit;
+import org.jowidgets.cap.ui.api.bean.IBeanSelection;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionEvent;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionListener;
+import org.jowidgets.cap.ui.api.bean.IBeanSelectionProvider;
 import org.jowidgets.cap.ui.api.model.IDataModel;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.EmptyCompatibleEquivalence;
-import org.jowidgets.util.IProvider;
 import org.jowidgets.util.concurrent.DaemonThreadFactory;
 
 final class ParentSelectionListener<BEAN_TYPE> implements IBeanSelectionListener<BEAN_TYPE> {
 
 	private static final long LISTENER_DELAY = 200;
 
-	private final IDataModel dataModel;
+	private final IDataModel childModel;
 	private final long listenerDelay;
-	private final IProvider<Object> reloadConditionProvider;
+	private final IBeanSelectionProvider<?> parent;
 
 	private ScheduledExecutorService executorService;
 	private ScheduledFuture<?> schedule;
-	private Object lastLoadCondition;
+	private IBeanSelection<?> lastSelection;
 
-	ParentSelectionListener(final IDataModel dataModel, final IProvider<Object> reloadConditionProvider, final Long listenerDelay) {
-		Assert.paramNotNull(dataModel, "dataModel");
+	ParentSelectionListener(final IBeanSelectionProvider<?> parent, final IDataModel childModel, final Long listenerDelay) {
+		Assert.paramNotNull(parent, "parent");
+		Assert.paramNotNull(childModel, "childModel");
 
-		this.dataModel = dataModel;
-		this.reloadConditionProvider = reloadConditionProvider;
+		this.childModel = childModel;
+		this.parent = parent;
 		this.listenerDelay = listenerDelay != null ? listenerDelay.longValue() : LISTENER_DELAY;
 	}
 
 	@Override
 	public void selectionChanged(final IBeanSelectionEvent<BEAN_TYPE> selectionEvent) {
-		if (!EmptyCompatibleEquivalence.equals(lastLoadCondition, reloadConditionProvider.get())) {
+		if (!EmptyCompatibleEquivalence.equals(lastSelection, parent.getBeanSelection())) {
 			if (listenerDelay > 0) {
 				loadScheduled();
 			}
@@ -77,7 +79,7 @@ final class ParentSelectionListener<BEAN_TYPE> implements IBeanSelectionListener
 
 	private void loadScheduled() {
 		if (listenerDelay > 0) {
-			dataModel.clear();
+			childModel.clear();
 		}
 		if (schedule != null) {
 			schedule.cancel(false);
@@ -100,8 +102,8 @@ final class ParentSelectionListener<BEAN_TYPE> implements IBeanSelectionListener
 	}
 
 	private void load() {
-		lastLoadCondition = reloadConditionProvider.get();
-		dataModel.load();
+		lastSelection = parent.getBeanSelection();
+		childModel.load();
 	}
 
 	private ScheduledExecutorService getExecutorService() {
