@@ -46,7 +46,6 @@ import org.jowidgets.api.widgets.content.IInputContentContainer;
 import org.jowidgets.api.widgets.content.IInputContentCreator;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.table.ICsvExportParameter;
-import org.jowidgets.cap.ui.api.table.ICsvExportParameter.ExportType;
 import org.jowidgets.common.types.DialogResult;
 import org.jowidgets.common.types.FileChooserType;
 import org.jowidgets.common.types.IFileChooserFilter;
@@ -141,8 +140,8 @@ final class CsvExportParameterContentProvider<BEAN_TYPE> implements IInputConten
 		propertiesCmb = container.add(propertiesCmbBp, "growx, w 0::, wrap");
 
 		container.add(textLabelBp.setText(Messages.getString("CsvExportParameterContentProvider.Export")), "alignx r");
-		final IComboBoxSelectionBluePrint<ExportType> exportTypeCmbBp = BPF.comboBoxSelection(ICsvExportParameter.ExportType.values());
-		exportTypeCmbBp.setAutoCompletion(false);
+		final IComboBoxSelectionBluePrint<ICsvExportParameter.ExportType> exportTypeCmbBp = BPF.comboBoxSelection(createExportTypesConverter());
+		exportTypeCmbBp.setAutoCompletion(false).setElements(ICsvExportParameter.ExportType.values());
 		exportTypeCmb = container.add(exportTypeCmbBp, "growx, w 0::, wrap");
 
 		container.add(textLabelBp.setText(Messages.getString("CsvExportParameterContentProvider.separator")), "alignx r");
@@ -203,6 +202,37 @@ final class CsvExportParameterContentProvider<BEAN_TYPE> implements IInputConten
 		};
 	}
 
+	private IObjectStringConverter<ICsvExportParameter.ExportType> createExportTypesConverter() {
+		return new IObjectStringConverter<ICsvExportParameter.ExportType>() {
+
+			@Override
+			public String convertToString(final ICsvExportParameter.ExportType value) {
+				if (value != null) {
+					if (value == ICsvExportParameter.ExportType.ALL) {
+						return Messages.getString("CsvExportParameterContentProvider.all");
+					}
+					else {
+						return Messages.getString("CsvExportParameterContentProvider.selection");
+					}
+				}
+				return "";
+			}
+
+			@Override
+			public String getDescription(final ICsvExportParameter.ExportType value) {
+				if (value != null) {
+					if (value == ICsvExportParameter.ExportType.ALL) {
+						return Messages.getString("CsvExportParameterContentProvider.all_rows_will_be_exported");
+					}
+					else {
+						return Messages.getString("CsvExportParameterContentProvider.selected_rows_will_be_exported");
+					}
+				}
+				return "";
+			}
+		};
+	}
+
 	private void openFileChooser() {
 
 		final IFileChooserBluePrint fcBp = BPF.fileChooser(FileChooserType.OPEN_FILE).setFilterList(filterList);
@@ -240,7 +270,7 @@ final class CsvExportParameterContentProvider<BEAN_TYPE> implements IInputConten
 			}
 
 			if (!checkFileType(value.substring(value.length() - 3))) {
-				return ValidationResult.infoError(Messages.getString("CsvExportParameterContentProvider.incompatible_file"));
+				return ValidationResult.error(Messages.getString("CsvExportParameterContentProvider.incompatible_file"));
 			}
 
 			return ValidationResult.ok();

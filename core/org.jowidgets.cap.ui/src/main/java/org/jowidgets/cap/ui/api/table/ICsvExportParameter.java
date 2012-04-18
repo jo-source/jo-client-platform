@@ -45,19 +45,7 @@ public interface ICsvExportParameter {
 	String getFilename();
 
 	enum ExportType {
-
-		TABLE(Messages.getString("ICsvExportParameter.whole_table")),
-		SELECTION(Messages.getString("ICsvExportParameter.selected_rows"));
-
-		private final String label;
-
-		ExportType(final String label) {
-			this.label = label;
-		}
-
-		@Override
-		public String toString() {
-			return label;
-		}
+		ALL,
+		SELECTION;
 	}
 }
