@@ -47,7 +47,8 @@ import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
 import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
-import org.jowidgets.cap.ui.api.model.IBeanListModel;
+import org.jowidgets.cap.ui.api.bean.IBeanSelectionObservable;
+import org.jowidgets.cap.ui.api.bean.IBeanSelectionProvider;
 import org.jowidgets.cap.ui.api.model.IBeanModelBuilder;
 import org.jowidgets.cap.ui.api.model.LinkType;
 import org.jowidgets.service.api.IServiceId;
@@ -63,7 +64,7 @@ abstract class AbstractBeanModelBuilderImpl<BEAN_TYPE, INSTANCE_TYPE> implements
 
 	private IReaderService<? extends Object> readerService;
 	private IProvider<? extends Object> readerParameterProvider;
-	private IBeanListModel<?> parent;
+	private IBeanSelectionObservable<?> parent;
 	private LinkType linkType;
 	private Long listenerDelay;
 	private List<IAttribute<Object>> attributes;
@@ -229,17 +230,17 @@ abstract class AbstractBeanModelBuilderImpl<BEAN_TYPE, INSTANCE_TYPE> implements
 	}
 
 	@Override
-	public INSTANCE_TYPE setParent(final IBeanListModel<?> parent, final LinkType linkType) {
+	public INSTANCE_TYPE setParent(final IBeanSelectionProvider<?> parent, final LinkType linkType) {
 		return setParentImpl(parent, linkType, null);
 	}
 
 	@Override
-	public INSTANCE_TYPE setParent(final IBeanListModel<?> parent, final LinkType linkType, final long listenerDelay) {
+	public INSTANCE_TYPE setParent(final IBeanSelectionProvider<?> parent, final LinkType linkType, final long listenerDelay) {
 		return setParentImpl(parent, linkType, Long.valueOf(listenerDelay));
 	}
 
 	@SuppressWarnings("unchecked")
-	private INSTANCE_TYPE setParentImpl(final IBeanListModel<?> parent, final LinkType linkType, final Long listenerDelay) {
+	private INSTANCE_TYPE setParentImpl(final IBeanSelectionProvider<?> parent, final LinkType linkType, final Long listenerDelay) {
 		Assert.paramNotNull(parent, "parent");
 		Assert.paramNotNull(linkType, "linkType");
 
@@ -305,8 +306,8 @@ abstract class AbstractBeanModelBuilderImpl<BEAN_TYPE, INSTANCE_TYPE> implements
 	}
 
 	@SuppressWarnings("unchecked")
-	protected IBeanListModel<Object> getParent() {
-		return (IBeanListModel<Object>) parent;
+	protected IBeanSelectionProvider<Object> getParent() {
+		return (IBeanSelectionProvider<Object>) parent;
 	}
 
 	protected LinkType getLinkType() {
