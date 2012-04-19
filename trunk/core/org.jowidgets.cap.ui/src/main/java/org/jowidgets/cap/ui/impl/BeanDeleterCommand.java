@@ -72,7 +72,7 @@ final class BeanDeleterCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 	private final ExecutionObservable executionObservable;
 	private final IBeanExceptionConverter exceptionConverter;
 
-	private final BeanListModelEnabledChecker<BEAN_TYPE> enabledChecker;
+	private final BeanSelectionProviderEnabledChecker<BEAN_TYPE> enabledChecker;
 	private final boolean autoSelection;
 	private final boolean deletionConfirmDialog;
 
@@ -94,7 +94,7 @@ final class BeanDeleterCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 		Assert.paramNotNull(executionInterceptors, "executionInterceptors");
 		Assert.paramNotNull(exceptionConverter, "exceptionConverter");
 
-		this.enabledChecker = new BeanListModelEnabledChecker<BEAN_TYPE>(
+		this.enabledChecker = new BeanSelectionProviderEnabledChecker<BEAN_TYPE>(
 			model,
 			multiSelection ? BeanSelectionPolicy.MULTI_SELECTION : BeanSelectionPolicy.SINGLE_SELECTION,
 			beanModificationStatePolicy,

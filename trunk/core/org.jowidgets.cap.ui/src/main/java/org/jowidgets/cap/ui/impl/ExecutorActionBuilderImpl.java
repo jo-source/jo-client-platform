@@ -69,7 +69,7 @@ import org.jowidgets.util.maybe.IMaybe;
 import org.jowidgets.util.maybe.Nothing;
 import org.jowidgets.util.maybe.Some;
 
-final class ExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> extends AbstractSingleUseBuilder<IAction> implements
+final class ExecutorActionBuilderImpl<BEAN_TYPE, PARAM_TYPE> extends AbstractSingleUseBuilder<IAction> implements
 		IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> {
 
 	private final IBeanListModel<BEAN_TYPE> listModel;
@@ -90,7 +90,7 @@ final class ExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> extends AbstractSingleU
 	private String text;
 	private IImageConstant icon;
 
-	ExecutorActionBuilder(final IBeanListModel<BEAN_TYPE> listModel) {
+	ExecutorActionBuilderImpl(final IBeanListModel<BEAN_TYPE> listModel) {
 		Assert.paramNotNull(listModel, "listModel");
 		this.listModel = listModel;
 		this.builder = Toolkit.getActionBuilderFactory().create();

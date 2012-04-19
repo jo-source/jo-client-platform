@@ -31,7 +31,6 @@ package org.jowidgets.cap.ui.impl;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.jowidgets.api.command.EnabledState;
@@ -47,16 +46,16 @@ import org.jowidgets.cap.ui.api.bean.IBeanProcessStateListener;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionEvent;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionListener;
+import org.jowidgets.cap.ui.api.bean.IBeanSelectionProvider;
 import org.jowidgets.cap.ui.api.execution.BeanMessageStatePolicy;
 import org.jowidgets.cap.ui.api.execution.BeanModificationStatePolicy;
 import org.jowidgets.cap.ui.api.execution.BeanSelectionPolicy;
-import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.event.ChangeObservable;
 import org.jowidgets.util.event.IChangeListener;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
-final class BeanListModelEnabledChecker<BEAN_TYPE> extends ChangeObservable implements IEnabledChecker {
+final class BeanSelectionProviderEnabledChecker<BEAN_TYPE> extends ChangeObservable implements IEnabledChecker {
 
 	private final IEnabledState unloadedDataState = EnabledState.disabled(Messages.getString("BeanListModelEnabledChecker.the_selection_contains_unloaded_data")); //$NON-NLS-1$
 	private final IEnabledState isInProgressState = EnabledState.disabled(Messages.getString("BeanListModelEnabledChecker.there_is_some_other_execution_in_progress")); //$NON-NLS-1$
@@ -66,7 +65,7 @@ final class BeanListModelEnabledChecker<BEAN_TYPE> extends ChangeObservable impl
 	private final IEnabledState unsavedDataState = EnabledState.disabled(Messages.getString("BeanListModelEnabledChecker.the_record_has_unsaved_data")); //$NON-NLS-1$
 	private final IEnabledState unhandlesMessageState = EnabledState.disabled(Messages.getString("BeanListModelEnabledChecker.there_are_unhandled_messages")); //$NON-NLS-1$
 
-	private final IBeanListModel<BEAN_TYPE> listModel;
+	private final IBeanSelectionProvider<BEAN_TYPE> beanSelectionProvider;
 	private final List<IExecutableChecker<BEAN_TYPE>> executableCheckers;
 	private final List<IEnabledChecker> enabledCheckers;
 	private final BeanSelectionPolicy beanSelectionPolicy;
@@ -76,8 +75,8 @@ final class BeanListModelEnabledChecker<BEAN_TYPE> extends ChangeObservable impl
 
 	private List<IBeanProxy<BEAN_TYPE>> lastSelection;
 
-	BeanListModelEnabledChecker(
-		final IBeanListModel<BEAN_TYPE> listModel,
+	BeanSelectionProviderEnabledChecker(
+		final IBeanSelectionProvider<BEAN_TYPE> beanSelectionProvider,
 		final BeanSelectionPolicy beanSelectionPolicy,
 		final BeanModificationStatePolicy beanModificationStatePolicy,
 		final BeanMessageStatePolicy beanMessageStatePolicy,
@@ -85,12 +84,12 @@ final class BeanListModelEnabledChecker<BEAN_TYPE> extends ChangeObservable impl
 		final List<IExecutableChecker<BEAN_TYPE>> executableCheckers,
 		final boolean ignoreSelectedBeansState) {
 		super();
-		Assert.paramNotNull(listModel, "listModel");
+		Assert.paramNotNull(beanSelectionProvider, "beanSelectionProvider");
 		Assert.paramNotNull(beanSelectionPolicy, "beanSelectionPolicy");
 		Assert.paramNotNull(beanModificationStatePolicy, "beanModificationStatePolicy");
 		Assert.paramNotNull(enabledCheckers, "enabledCheckers");
 
-		this.listModel = listModel;
+		this.beanSelectionProvider = beanSelectionProvider;
 		this.beanSelectionPolicy = beanSelectionPolicy;
 		this.beanModificationStatePolicy = beanModificationStatePolicy;
 		this.beanMessageStatePolicy = beanMessageStatePolicy;
@@ -145,7 +144,7 @@ final class BeanListModelEnabledChecker<BEAN_TYPE> extends ChangeObservable impl
 			}
 		};
 
-		listModel.addBeanSelectionListener(new IBeanSelectionListener<BEAN_TYPE>() {
+		beanSelectionProvider.addBeanSelectionListener(new IBeanSelectionListener<BEAN_TYPE>() {
 
 			@Override
 			public void selectionChanged(final IBeanSelectionEvent<BEAN_TYPE> selectionEvent) {
@@ -248,11 +247,7 @@ final class BeanListModelEnabledChecker<BEAN_TYPE> extends ChangeObservable impl
 	}
 
 	private List<IBeanProxy<BEAN_TYPE>> getSelectedBeans() {
-		final List<IBeanProxy<BEAN_TYPE>> result = new LinkedList<IBeanProxy<BEAN_TYPE>>();
-		for (final Integer index : listModel.getSelection()) {
-			result.add(listModel.getBean(index.intValue()));
-		}
-		return result;
+		return beanSelectionProvider.getBeanSelection().getSelection();
 	}
 
 }
