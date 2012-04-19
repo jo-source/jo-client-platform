@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -28,37 +28,44 @@
 
 package org.jowidgets.cap.common.impl;
 
-import org.jowidgets.cap.common.api.bean.IBean;
-import org.jowidgets.cap.common.api.entity.IEntityLinkProperties;
-import org.jowidgets.cap.common.api.entity.IEntityLinkPropertiesBuilder;
+import java.io.Serializable;
+import java.util.Collection;
+
+import org.jowidgets.cap.common.api.execution.IExecutionCallback;
+import org.jowidgets.cap.common.api.execution.IResultCallback;
+import org.jowidgets.cap.common.api.service.ILinkDeleterService;
+import org.jowidgets.service.api.IServiceId;
+import org.jowidgets.service.api.ServiceProvider;
 import org.jowidgets.util.Assert;
 
-final class EntityLinkPropertiesBuilderImpl implements IEntityLinkPropertiesBuilder {
+final class LinkDeleterServiceProxy implements ILinkDeleterService, Serializable {
 
-	private String keyPropertyName;
-	private String foreignKeyPropertyName;
+	private static final long serialVersionUID = 850203997764661850L;
 
-	EntityLinkPropertiesBuilderImpl() {
-		this.keyPropertyName = IBean.ID_PROPERTY;
+	private final IServiceId<ILinkDeleterService> serviceId;
+
+	private ILinkDeleterService original;
+
+	public LinkDeleterServiceProxy(final IServiceId<ILinkDeleterService> serviceId) {
+		Assert.paramNotNull(serviceId, "serviceId");
+		this.serviceId = serviceId;
 	}
 
 	@Override
-	public IEntityLinkPropertiesBuilder setKeyPropertyName(final String keyPropertyName) {
-		Assert.paramNotEmpty(keyPropertyName, "keyPropertyName");
-		this.keyPropertyName = keyPropertyName;
-		return this;
+	public void delete(
+		final IResultCallback<Void> result,
+		final Collection<? extends ILinkDeletion> linksDeletions,
+		final IExecutionCallback executionCallback) {
+		getOriginal().delete(result, linksDeletions, executionCallback);
 	}
 
-	@Override
-	public IEntityLinkPropertiesBuilder setForeignKeyPropertyName(final String foreignKeyPropertyName) {
-		Assert.paramNotEmpty(foreignKeyPropertyName, "foreignKeyPropertyName");
-		this.foreignKeyPropertyName = foreignKeyPropertyName;
-		return this;
+	private ILinkDeleterService getOriginal() {
+		if (original == null) {
+			original = ServiceProvider.getService(serviceId);
+			if (original == null) {
+				throw new IllegalStateException("No link deleter service found for the entity id '" + serviceId + "'.");
+			}
+		}
+		return original;
 	}
-
-	@Override
-	public IEntityLinkProperties build() {
-		return new EntityLinkPropertiesImpl(keyPropertyName, foreignKeyPropertyName);
-	}
-
 }

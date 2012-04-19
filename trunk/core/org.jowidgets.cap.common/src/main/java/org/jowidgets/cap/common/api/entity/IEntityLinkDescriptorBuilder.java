@@ -28,21 +28,34 @@
 
 package org.jowidgets.cap.common.api.entity;
 
+import org.jowidgets.cap.common.api.service.ILinkCreatorService;
+import org.jowidgets.cap.common.api.service.ILinkDeleterService;
+import org.jowidgets.service.api.IServiceId;
+
 public interface IEntityLinkDescriptorBuilder {
 
-	IEntityLinkDescriptorBuilder setLinkTypeId(Object id);
+	IEntityLinkDescriptorBuilder setLinkEntityId(Object id);
 
-	IEntityLinkDescriptorBuilder setLinkedTypeId(Object id);
+	IEntityLinkDescriptorBuilder setLinkedEntityId(Object id);
 
-	IEntityLinkDescriptorBuilder setLinkableTypeId(Object id);
+	IEntityLinkDescriptorBuilder setLinkableEntityId(Object id);
 
 	IEntityLinkDescriptorBuilder setSourceProperties(IEntityLinkProperties properties);
 
 	IEntityLinkDescriptorBuilder setSourceProperties(String keyPropertyName, String foreignKeyPropertyname);
 
+	IEntityLinkDescriptorBuilder setSourceProperties(String foreignKeyPropertyName);
+
 	IEntityLinkDescriptorBuilder setDestinationProperties(IEntityLinkProperties properties);
 
 	IEntityLinkDescriptorBuilder setDestinationProperties(String keyPropertyName, String foreignKeyPropertyname);
 
+	IEntityLinkDescriptorBuilder setDestinationProperties(String foreignKeyPropertyName);
+
+	IEntityLinkDescriptorBuilder setLinkCreatorService(IServiceId<ILinkCreatorService> serviceId);
+
+	IEntityLinkDescriptorBuilder setLinkDeleterService(IServiceId<ILinkDeleterService> serviceId);
+
 	IEntityLinkDescriptor build();
+
 }

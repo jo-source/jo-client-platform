@@ -74,7 +74,7 @@ public class EntityTableView extends AbstractView {
 			final ILinkActionBuilder<?> linkActionBuilder;
 			linkActionBuilder = actionFactory.linkActionBuilder(table.getModel(), link);
 			if (linkActionBuilder != null) {
-				linkActionBuilder.setLinkedDataModel(linkedModels.get(link.getLinkedTypeId()));
+				linkActionBuilder.setLinkedDataModel(linkedModels.get(link.getLinkedEntityId()));
 				if (!actionCreated) {
 					tableCellMenu.addSeparator();
 					actionCreated = true;

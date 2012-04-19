@@ -32,48 +32,56 @@ import java.io.Serializable;
 
 import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
 import org.jowidgets.cap.common.api.entity.IEntityLinkProperties;
+import org.jowidgets.cap.common.api.service.ILinkCreatorService;
+import org.jowidgets.cap.common.api.service.ILinkDeleterService;
 import org.jowidgets.util.Assert;
 
 final class EntityLinkDescriptorImpl implements IEntityLinkDescriptor, Serializable {
 
 	private static final long serialVersionUID = -788776636135499105L;
 
-	private final Object linkTypeId;
-	private final Object linkedTypeId;
-	private final Object linkableTypeId;
+	private final Object linkEntityId;
+	private final Object linkedEntityId;
+	private final Object linkableEntityId;
 	private final IEntityLinkProperties sourceProperties;
 	private final IEntityLinkProperties destinationProperties;
+	private final ILinkCreatorService creatorService;
+	private final ILinkDeleterService deleterService;
 
 	EntityLinkDescriptorImpl(
 		final Object linkTypeId,
 		final Object linkedTypeId,
 		final Object linkableTypeId,
 		final IEntityLinkProperties sourceProperties,
-		final IEntityLinkProperties destinationProperties) {
+		final IEntityLinkProperties destinationProperties,
+		final ILinkCreatorService creatorService,
+		final ILinkDeleterService deleterService) {
 
 		Assert.paramNotNull(linkTypeId, "linkTypeId");
 		Assert.paramNotNull(linkedTypeId, "linkedTypeId");
 
-		this.linkTypeId = linkTypeId;
-		this.linkedTypeId = linkedTypeId;
-		this.linkableTypeId = linkableTypeId;
+		this.linkEntityId = linkTypeId;
+		this.linkedEntityId = linkedTypeId;
+		this.linkableEntityId = linkableTypeId;
 		this.sourceProperties = sourceProperties;
 		this.destinationProperties = destinationProperties;
+		this.creatorService = creatorService;
+		this.deleterService = deleterService;
 	}
 
 	@Override
-	public Object getLinkTypeId() {
-		return linkTypeId;
+	public Object getLinkEntityId() {
+		return linkEntityId;
 	}
 
 	@Override
-	public Object getLinkedTypeId() {
-		return linkedTypeId;
+	public Object getLinkedEntityId() {
+		return linkedEntityId;
 	}
 
 	@Override
-	public Object getLinkableTypeId() {
-		return linkableTypeId;
+	public Object getLinkableEntityId() {
+		return linkableEntityId;
 	}
 
 	@Override
@@ -84,6 +92,16 @@ final class EntityLinkDescriptorImpl implements IEntityLinkDescriptor, Serializa
 	@Override
 	public IEntityLinkProperties getDestinationProperties() {
 		return destinationProperties;
+	}
+
+	@Override
+	public ILinkCreatorService getLinkCreatorService() {
+		return creatorService;
+	}
+
+	@Override
+	public ILinkDeleterService getLinkDeleterService() {
+		return deleterService;
 	}
 
 }

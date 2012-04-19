@@ -102,10 +102,10 @@ public class EntityComponent extends AbstractComponent implements IComponent {
 				i++;
 
 				final IBeanTableModelBuilder<?> builder = CapUiToolkit.beanTableModelBuilder(
-						link.getLinkedTypeId(),
-						getBeanType(link.getLinkedTypeId()));
+						link.getLinkedEntityId(),
+						getBeanType(link.getLinkedEntityId()));
 				builder.setParent(tableModel, LinkType.SELECTION_ALL);
-				linkedModels.put(link.getLinkedTypeId(), builder.build());
+				linkedModels.put(link.getLinkedEntityId(), builder.build());
 			}
 			componentContext.setLayout(new EntityComponentMasterDetailLinksDetailLayout(entityClass, links).getLayout());
 		}
@@ -150,7 +150,7 @@ public class EntityComponent extends AbstractComponent implements IComponent {
 			final IEntityLinkDescriptor link = links.get(viewId);
 			final LinkedEntityTableView result = new LinkedEntityTableView(
 				context,
-				linkedModels.get(link.getLinkedTypeId()),
+				linkedModels.get(link.getLinkedEntityId()),
 				link);
 			registerTableView(result);
 			return result;

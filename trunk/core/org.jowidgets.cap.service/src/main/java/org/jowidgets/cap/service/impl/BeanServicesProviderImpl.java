@@ -158,7 +158,10 @@ final class BeanServicesProviderImpl implements IBeanServicesProvider, Serializa
 
 	@Override
 	public IDeleterService deleterService() {
-		return ServiceProvider.getService(deleterServiceId);
+		if (deleterServiceId != null) {
+			return ServiceProvider.getService(deleterServiceId);
+		}
+		return null;
 	}
 
 	private final class Id implements Serializable {

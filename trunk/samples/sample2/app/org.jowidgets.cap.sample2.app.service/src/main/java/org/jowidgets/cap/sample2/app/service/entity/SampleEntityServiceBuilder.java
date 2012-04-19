@@ -189,9 +189,9 @@ public class SampleEntityServiceBuilder extends EntityServiceBuilder {
 
 	private IEntityLinkDescriptor createRolePersonLinkDescriptor() {
 		final IEntityLinkDescriptorBuilder builder = CapCommonToolkit.entityLinkDescriptorBuilder();
-		builder.setLinkTypeId(EntityIds.PERSON_ROLE_LINK);
-		builder.setLinkedTypeId(EntityIds.LINKED_PERSONS_OF_ROLES);
-		builder.setLinkableTypeId(EntityIds.LINKABLE_PERSONS_OF_ROLES);
+		builder.setLinkEntityId(EntityIds.PERSON_ROLE_LINK);
+		builder.setLinkedEntityId(EntityIds.LINKED_PERSONS_OF_ROLES);
+		builder.setLinkableEntityId(EntityIds.LINKABLE_PERSONS_OF_ROLES);
 		builder.setSourceProperties(IRole.ID_PROPERTY, IPersonRoleLink.ROLE_ID_PROPERTY);
 		builder.setDestinationProperties(IPerson.ID_PROPERTY, IPersonRoleLink.PERSON_ID_PROPERTY);
 		return builder.build();
@@ -206,9 +206,9 @@ public class SampleEntityServiceBuilder extends EntityServiceBuilder {
 
 	private IEntityLinkDescriptor createPersonRoleLinkDescriptor() {
 		final IEntityLinkDescriptorBuilder builder = CapCommonToolkit.entityLinkDescriptorBuilder();
-		builder.setLinkTypeId(EntityIds.PERSON_ROLE_LINK);
-		builder.setLinkedTypeId(EntityIds.LINKED_ROLES_OF_PERSONS);
-		builder.setLinkableTypeId(EntityIds.LINKABLE_ROLES_OF_PERSONS);
+		builder.setLinkEntityId(EntityIds.PERSON_ROLE_LINK);
+		builder.setLinkedEntityId(EntityIds.LINKED_ROLES_OF_PERSONS);
+		builder.setLinkableEntityId(EntityIds.LINKABLE_ROLES_OF_PERSONS);
 		builder.setSourceProperties(IPerson.ID_PROPERTY, IPersonRoleLink.PERSON_ID_PROPERTY);
 		builder.setDestinationProperties(IRole.ID_PROPERTY, IPersonRoleLink.ROLE_ID_PROPERTY);
 		return builder.build();
@@ -216,9 +216,9 @@ public class SampleEntityServiceBuilder extends EntityServiceBuilder {
 
 	private IEntityLinkDescriptor createPersonsOfSourcePersonsLinkDescriptor() {
 		final IEntityLinkDescriptorBuilder builder = CapCommonToolkit.entityLinkDescriptorBuilder();
-		builder.setLinkTypeId(EntityIds.PERSONS_OF_SOURCE_PERSONS_LINK);
-		builder.setLinkedTypeId(EntityIds.LINKED_PERSONS_OF_SOURCE_PERSONS);
-		builder.setLinkableTypeId(EntityIds.LINKABLE_PERSONS_OF_SOURCE_PERSONS);
+		builder.setLinkEntityId(EntityIds.PERSONS_OF_SOURCE_PERSONS_LINK);
+		builder.setLinkedEntityId(EntityIds.LINKED_PERSONS_OF_SOURCE_PERSONS);
+		builder.setLinkableEntityId(EntityIds.LINKABLE_PERSONS_OF_SOURCE_PERSONS);
 		builder.setSourceProperties(IPerson.ID_PROPERTY, IPersonPersonLink.SOURCE_PERSON_ID_PROPERTY);
 		builder.setDestinationProperties(IPerson.ID_PROPERTY, IPersonPersonLink.DESTINATION_PERSON_ID_PROPERTY);
 		return builder.build();

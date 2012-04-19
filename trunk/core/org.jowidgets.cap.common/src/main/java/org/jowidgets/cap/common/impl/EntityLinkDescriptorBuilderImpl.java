@@ -29,39 +29,45 @@
 package org.jowidgets.cap.common.impl;
 
 import org.jowidgets.cap.common.api.CapCommonToolkit;
+import org.jowidgets.cap.common.api.entity.EntityLinkProperties;
 import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
 import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptorBuilder;
 import org.jowidgets.cap.common.api.entity.IEntityLinkProperties;
 import org.jowidgets.cap.common.api.entity.IEntityLinkPropertiesBuilder;
+import org.jowidgets.cap.common.api.service.ILinkCreatorService;
+import org.jowidgets.cap.common.api.service.ILinkDeleterService;
+import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.util.Assert;
 
 final class EntityLinkDescriptorBuilderImpl implements IEntityLinkDescriptorBuilder {
 
-	private Object linkTypeId;
-	private Object linkedTypeId;
-	private Object linkableTypeId;
+	private Object linkEntityId;
+	private Object linkedEntityId;
+	private Object linkableEntityId;
 	private IEntityLinkProperties sourceProperties;
 	private IEntityLinkProperties destinationProperties;
+	private ILinkCreatorService creatorService;
+	private ILinkDeleterService deleterService;
 
 	EntityLinkDescriptorBuilderImpl() {}
 
 	@Override
-	public IEntityLinkDescriptorBuilder setLinkTypeId(final Object id) {
+	public IEntityLinkDescriptorBuilder setLinkEntityId(final Object id) {
 		Assert.paramNotNull(id, "id");
-		this.linkTypeId = id;
+		this.linkEntityId = id;
 		return this;
 	}
 
 	@Override
-	public IEntityLinkDescriptorBuilder setLinkedTypeId(final Object id) {
+	public IEntityLinkDescriptorBuilder setLinkedEntityId(final Object id) {
 		Assert.paramNotNull(id, "id");
-		this.linkedTypeId = id;
+		this.linkedEntityId = id;
 		return this;
 	}
 
 	@Override
-	public IEntityLinkDescriptorBuilder setLinkableTypeId(final Object id) {
-		this.linkableTypeId = id;
+	public IEntityLinkDescriptorBuilder setLinkableEntityId(final Object id) {
+		this.linkableEntityId = id;
 		return this;
 	}
 
@@ -78,6 +84,13 @@ final class EntityLinkDescriptorBuilderImpl implements IEntityLinkDescriptorBuil
 	}
 
 	@Override
+	public IEntityLinkDescriptorBuilder setSourceProperties(final String foreignKeyPropertyName) {
+		Assert.paramNotNull(foreignKeyPropertyName, "foreignKeyPropertyName");
+		setSourceProperties(EntityLinkProperties.create(foreignKeyPropertyName));
+		return this;
+	}
+
+	@Override
 	public IEntityLinkDescriptorBuilder setDestinationProperties(final IEntityLinkProperties properties) {
 		this.destinationProperties = properties;
 		return this;
@@ -89,8 +102,22 @@ final class EntityLinkDescriptorBuilderImpl implements IEntityLinkDescriptorBuil
 	}
 
 	@Override
-	public IEntityLinkDescriptor build() {
-		return new EntityLinkDescriptorImpl(linkTypeId, linkedTypeId, linkableTypeId, sourceProperties, destinationProperties);
+	public IEntityLinkDescriptorBuilder setDestinationProperties(final String foreignKeyPropertyname) {
+		Assert.paramNotNull(foreignKeyPropertyname, "foreignKeyPropertyname");
+		setDestinationProperties(EntityLinkProperties.create(foreignKeyPropertyname));
+		return this;
+	}
+
+	@Override
+	public IEntityLinkDescriptorBuilder setLinkCreatorService(final IServiceId<ILinkCreatorService> serviceId) {
+		this.creatorService = new LinkCreatorServiceProxy(serviceId);
+		return this;
+	}
+
+	@Override
+	public IEntityLinkDescriptorBuilder setLinkDeleterService(final IServiceId<ILinkDeleterService> serviceId) {
+		this.deleterService = new LinkDeleterServiceProxy(serviceId);
+		return this;
 	}
 
 	private static IEntityLinkProperties createProperties(final String keyPropertyName, final String foreignKeyPropertyname) {
@@ -99,6 +126,18 @@ final class EntityLinkDescriptorBuilderImpl implements IEntityLinkDescriptorBuil
 		final IEntityLinkPropertiesBuilder builder = CapCommonToolkit.entityLinkPropertiesBuilder();
 		builder.setKeyPropertyName(keyPropertyName).setForeignKeyPropertyName(foreignKeyPropertyname);
 		return builder.build();
+	}
+
+	@Override
+	public IEntityLinkDescriptor build() {
+		return new EntityLinkDescriptorImpl(
+			linkEntityId,
+			linkedEntityId,
+			linkableEntityId,
+			sourceProperties,
+			destinationProperties,
+			creatorService,
+			deleterService);
 	}
 
 }
