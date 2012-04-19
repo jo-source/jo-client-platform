@@ -96,7 +96,7 @@ final class BeanLinkCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
 
 	private final IBeanExceptionConverter exceptionConverter;
 	private final ExecutionObservable executionObservable;
-	private final BeanListModelEnabledChecker<?> enabledChecker;
+	private final BeanSelectionProviderEnabledChecker<?> enabledChecker;
 
 	private Rectangle lastDialogBounds;
 	private IBeanTableModelConfig lastTableModelConfig;
@@ -126,7 +126,7 @@ final class BeanLinkCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
 		Assert.paramNotNull(linkableReaderService, "linkableReaderService");
 		Assert.paramNotNull(linkableTableAttributes, "linkableTableAttributes");
 
-		this.enabledChecker = new BeanListModelEnabledChecker<BEAN_TYPE>(
+		this.enabledChecker = new BeanSelectionProviderEnabledChecker<BEAN_TYPE>(
 			model,
 			multiSelection ? BeanSelectionPolicy.MULTI_SELECTION : BeanSelectionPolicy.SINGLE_SELECTION,
 			beanModificationStatePolicy,

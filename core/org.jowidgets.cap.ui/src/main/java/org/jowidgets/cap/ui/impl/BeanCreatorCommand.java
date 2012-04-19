@@ -79,7 +79,7 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 	private final List<IBeanPropertyValidator<BEAN_TYPE>> beanPropertyValidators;
 	private final ICreatorService creatorService;
 	private final IBeanExceptionConverter exceptionConverter;
-	private final BeanListModelEnabledChecker<BEAN_TYPE> enabledChecker;
+	private final BeanSelectionProviderEnabledChecker<BEAN_TYPE> enabledChecker;
 	private final IBeanProxyFactory<BEAN_TYPE> beanFactory;
 	private final ExecutionObservable executionObservable;
 	private final Map<String, Object> defaultValues;
@@ -110,7 +110,7 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 		Assert.paramNotNull(exceptionConverter, "exceptionConverter");
 		Assert.paramNotNull(executionInterceptors, "executionInterceptors");
 
-		this.enabledChecker = new BeanListModelEnabledChecker<BEAN_TYPE>(
+		this.enabledChecker = new BeanSelectionProviderEnabledChecker<BEAN_TYPE>(
 			model,
 			anySelection ? BeanSelectionPolicy.ANY_SELECTION : BeanSelectionPolicy.NO_SELECTION,
 			BeanModificationStatePolicy.ANY_MODIFICATION,

@@ -65,7 +65,7 @@ import org.jowidgets.util.maybe.Some;
 @SuppressWarnings({"rawtypes", "unchecked"})
 final class ExecutorCommand implements ICommand, ICommandExecutor {
 
-	private final BeanListModelEnabledChecker enabledChecker;
+	private final BeanSelectionProviderEnabledChecker enabledChecker;
 
 	private final IBeanListModel<Object> listModel;
 	private final List<Object> parameterProviders;
@@ -91,7 +91,7 @@ final class ExecutorCommand implements ICommand, ICommandExecutor {
 		final Object executor) {
 		super();
 
-		this.enabledChecker = new BeanListModelEnabledChecker(
+		this.enabledChecker = new BeanSelectionProviderEnabledChecker(
 			listModel,
 			beanSelectionPolicy,
 			beanModificationStatePolicy,
