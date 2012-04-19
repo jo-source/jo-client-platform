@@ -56,24 +56,20 @@ import org.jowidgets.cap.ui.api.execution.IExecutionInterceptor;
 import org.jowidgets.cap.ui.api.execution.IExecutor;
 import org.jowidgets.cap.ui.api.execution.IParameterProvider;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
-import org.jowidgets.common.image.IImageConstant;
-import org.jowidgets.common.types.Accelerator;
-import org.jowidgets.common.types.Modifier;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.api.ServiceProvider;
 import org.jowidgets.service.tools.ServiceId;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.IProvider;
-import org.jowidgets.util.builder.AbstractSingleUseBuilder;
 import org.jowidgets.util.maybe.IMaybe;
 import org.jowidgets.util.maybe.Nothing;
 import org.jowidgets.util.maybe.Some;
 
-final class ExecutorActionBuilderImpl<BEAN_TYPE, PARAM_TYPE> extends AbstractSingleUseBuilder<IAction> implements
+final class ExecutorActionBuilderImpl<BEAN_TYPE, PARAM_TYPE> extends
+		AbstractCapActionBuilderImpl<IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE>> implements
 		IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> {
 
 	private final IBeanListModel<BEAN_TYPE> listModel;
-	private final IActionBuilder builder;
 	private final List<IExecutableChecker<Object>> executableCheckers;
 	private final List<IEnabledChecker> enabledCheckers;
 	private final List<Object> parameterProviders;
@@ -87,13 +83,9 @@ final class ExecutorActionBuilderImpl<BEAN_TYPE, PARAM_TYPE> extends AbstractSin
 	private BeanModificationStatePolicy beanModificationStatePolicy;
 	private BeanMessageStatePolicy beanMessageStatePolicy;
 
-	private String text;
-	private IImageConstant icon;
-
 	ExecutorActionBuilderImpl(final IBeanListModel<BEAN_TYPE> listModel) {
 		Assert.paramNotNull(listModel, "listModel");
 		this.listModel = listModel;
-		this.builder = Toolkit.getActionBuilderFactory().create();
 		this.executableCheckers = new LinkedList<IExecutableChecker<Object>>();
 		this.enabledCheckers = new LinkedList<IEnabledChecker>();
 		this.parameterProviders = new LinkedList<Object>();
@@ -108,51 +100,8 @@ final class ExecutorActionBuilderImpl<BEAN_TYPE, PARAM_TYPE> extends AbstractSin
 	}
 
 	@Override
-	public IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setText(final String text) {
-		this.text = text;
-		builder.setText(text);
-		return this;
-	}
-
-	@Override
-	public IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setToolTipText(final String toolTipText) {
-		builder.setToolTipText(toolTipText);
-		return this;
-	}
-
-	@Override
-	public IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setIcon(final IImageConstant icon) {
-		this.icon = icon;
-		builder.setIcon(icon);
-		return this;
-	}
-
-	@Override
-	public IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setMnemonic(final Character mnemonic) {
-		builder.setMnemonic(mnemonic);
-		return this;
-	}
-
-	@Override
-	public IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setMnemonic(final char mnemonic) {
-		builder.setMnemonic(mnemonic);
-		return this;
-	}
-
-	@Override
-	public IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setAccelerator(final Accelerator accelerator) {
-		builder.setAccelerator(accelerator);
-		return this;
-	}
-
-	@Override
-	public IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setAccelerator(final char key, final Modifier... modifier) {
-		builder.setAccelerator(key, modifier);
-		return this;
-	}
-
-	@Override
 	public IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setDefaultParameter(final PARAM_TYPE defaultParameter) {
+		checkExhausted();
 		this.defaultParameter = defaultParameter;
 		return this;
 	}
@@ -160,6 +109,7 @@ final class ExecutorActionBuilderImpl<BEAN_TYPE, PARAM_TYPE> extends AbstractSin
 	@Override
 	public IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> addParameterProvider(
 		final IParameterProvider<BEAN_TYPE, PARAM_TYPE> parameterProvider) {
+		checkExhausted();
 		Assert.paramNotNull(parameterProvider, "parameterProvider");
 		parameterProviders.add(parameterProvider);
 		return this;
@@ -168,6 +118,7 @@ final class ExecutorActionBuilderImpl<BEAN_TYPE, PARAM_TYPE> extends AbstractSin
 	@Override
 	public IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> addParameterProvider(
 		final IParameterProviderService<PARAM_TYPE> parameterProviderService) {
+		checkExhausted();
 		Assert.paramNotNull(parameterProviderService, "parameterProviderService");
 		parameterProviders.add(parameterProviderService);
 		return this;
@@ -176,6 +127,7 @@ final class ExecutorActionBuilderImpl<BEAN_TYPE, PARAM_TYPE> extends AbstractSin
 	@Override
 	public IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> addParameterProvider(
 		final IServiceId<IParameterProviderService<PARAM_TYPE>> serviceId) {
+		checkExhausted();
 		Assert.paramNotNull(serviceId, "serviceId");
 		addParameterProvider(ServiceProvider.getService(serviceId));
 		return this;
@@ -184,12 +136,13 @@ final class ExecutorActionBuilderImpl<BEAN_TYPE, PARAM_TYPE> extends AbstractSin
 	@Override
 	public IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> addParameterProvider(
 		final IInputContentCreator<PARAM_TYPE> contentCreator) {
+		checkExhausted();
 		Assert.paramNotNull(contentCreator, "contentCreator");
 		return addParameterProvider(new IProvider<IInputDialogDescriptor<PARAM_TYPE>>() {
 			@Override
 			public IInputDialogDescriptor<PARAM_TYPE> get() {
 				final IInputDialogBluePrint<PARAM_TYPE> bp = Toolkit.getBluePrintFactory().inputDialog(contentCreator);
-				return bp.setTitle(text).setIcon(icon).setCloseable(false);
+				return bp.setTitle(getText()).setIcon(getIcon()).setCloseable(false);
 			}
 		});
 	}
@@ -197,6 +150,7 @@ final class ExecutorActionBuilderImpl<BEAN_TYPE, PARAM_TYPE> extends AbstractSin
 	@Override
 	public IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> addParameterProvider(
 		final IInputDialogDescriptor<PARAM_TYPE> inputDialogDescriptor) {
+		checkExhausted();
 		Assert.paramNotNull(inputDialogDescriptor, "inputDialogDescriptor");
 		addParameterProvider(new IProvider<IInputDialogDescriptor<PARAM_TYPE>>() {
 			@Override
@@ -245,6 +199,7 @@ final class ExecutorActionBuilderImpl<BEAN_TYPE, PARAM_TYPE> extends AbstractSin
 
 	@Override
 	public IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setExecutor(final IExecutor<BEAN_TYPE, PARAM_TYPE> executor) {
+		checkExhausted();
 		Assert.paramNotNull(executor, "executor");
 		this.executor = executor;
 		return this;
@@ -252,6 +207,7 @@ final class ExecutorActionBuilderImpl<BEAN_TYPE, PARAM_TYPE> extends AbstractSin
 
 	@Override
 	public IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setExecutor(final IExecutorService<PARAM_TYPE> excecuterService) {
+		checkExhausted();
 		Assert.paramNotNull(excecuterService, "excecuterService");
 		this.executor = excecuterService;
 		return this;
@@ -260,6 +216,7 @@ final class ExecutorActionBuilderImpl<BEAN_TYPE, PARAM_TYPE> extends AbstractSin
 	@Override
 	public IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setExecutor(
 		final IServiceId<IExecutorService<PARAM_TYPE>> excecuterServiceId) {
+		checkExhausted();
 		Assert.paramNotNull(excecuterServiceId, "excecuterServiceId");
 		setExecutor(ServiceProvider.getService(excecuterServiceId));
 		return this;
@@ -267,6 +224,7 @@ final class ExecutorActionBuilderImpl<BEAN_TYPE, PARAM_TYPE> extends AbstractSin
 
 	@Override
 	public IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setExecutor(final String excecuterServiceId) {
+		checkExhausted();
 		Assert.paramNotNull(excecuterServiceId, "excecuterServiceId");
 		setExecutor(new ServiceId<IExecutorService<PARAM_TYPE>>(excecuterServiceId, IExecutorService.class));
 		return this;
@@ -274,6 +232,7 @@ final class ExecutorActionBuilderImpl<BEAN_TYPE, PARAM_TYPE> extends AbstractSin
 
 	@Override
 	public IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setExecutionPolicy(final BeanExecutionPolicy policy) {
+		checkExhausted();
 		Assert.paramNotNull(policy, "policy");
 		this.beanListExecutionPolicy = policy;
 		return this;
@@ -281,6 +240,7 @@ final class ExecutorActionBuilderImpl<BEAN_TYPE, PARAM_TYPE> extends AbstractSin
 
 	@Override
 	public IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setSelectionPolicy(final BeanSelectionPolicy policy) {
+		checkExhausted();
 		Assert.paramNotNull(policy, "policy");
 		this.beanSelectionPolicy = policy;
 		return this;
@@ -288,6 +248,7 @@ final class ExecutorActionBuilderImpl<BEAN_TYPE, PARAM_TYPE> extends AbstractSin
 
 	@Override
 	public IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setModificationPolicy(final BeanModificationStatePolicy policy) {
+		checkExhausted();
 		Assert.paramNotNull(policy, "policy");
 		this.beanModificationStatePolicy = policy;
 		return this;
@@ -295,6 +256,7 @@ final class ExecutorActionBuilderImpl<BEAN_TYPE, PARAM_TYPE> extends AbstractSin
 
 	@Override
 	public IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setMessageStatePolicy(final BeanMessageStatePolicy policy) {
+		checkExhausted();
 		Assert.paramNotNull(policy, "policy");
 		this.beanMessageStatePolicy = policy;
 		return this;
@@ -302,6 +264,7 @@ final class ExecutorActionBuilderImpl<BEAN_TYPE, PARAM_TYPE> extends AbstractSin
 
 	@Override
 	public IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> addEnabledChecker(final IEnabledChecker enabledChecker) {
+		checkExhausted();
 		Assert.paramNotNull(enabledChecker, "enabledChecker");
 		enabledCheckers.add(enabledChecker);
 		return this;
@@ -311,6 +274,7 @@ final class ExecutorActionBuilderImpl<BEAN_TYPE, PARAM_TYPE> extends AbstractSin
 	@Override
 	public IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> addExecutableChecker(
 		final IExecutableChecker<BEAN_TYPE> executableChecker) {
+		checkExhausted();
 		Assert.paramNotNull(executableChecker, "executableChecker");
 		executableCheckers.add((IExecutableChecker<Object>) executableChecker);
 		return this;
@@ -318,6 +282,7 @@ final class ExecutorActionBuilderImpl<BEAN_TYPE, PARAM_TYPE> extends AbstractSin
 
 	@Override
 	public IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> addExecutionInterceptor(final IExecutionInterceptor interceptor) {
+		checkExhausted();
 		Assert.paramNotNull(interceptor, "interceptor");
 		executionInterceptors.add(interceptor);
 		return this;
@@ -325,6 +290,7 @@ final class ExecutorActionBuilderImpl<BEAN_TYPE, PARAM_TYPE> extends AbstractSin
 
 	@Override
 	public IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setExceptionConverter(final IBeanExceptionConverter exceptionConverter) {
+		checkExhausted();
 		Assert.paramNotNull(exceptionConverter, "exceptionConverter");
 		this.exceptionConverter = exceptionConverter;
 		return this;
@@ -345,6 +311,7 @@ final class ExecutorActionBuilderImpl<BEAN_TYPE, PARAM_TYPE> extends AbstractSin
 			executionInterceptors,
 			defaultParameter,
 			executor);
+		final IActionBuilder builder = getBuilder();
 		builder.setCommand((ICommand) command);
 		return builder.build();
 	}

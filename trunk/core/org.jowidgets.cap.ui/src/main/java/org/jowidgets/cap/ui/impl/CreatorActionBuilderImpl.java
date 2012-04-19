@@ -37,7 +37,6 @@ import org.jowidgets.api.command.IActionBuilder;
 import org.jowidgets.api.command.ICommand;
 import org.jowidgets.api.command.IEnabledChecker;
 import org.jowidgets.api.image.IconsSmall;
-import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.cap.common.api.service.ICreatorService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
@@ -47,8 +46,6 @@ import org.jowidgets.cap.ui.api.command.ICreatorActionBuilder;
 import org.jowidgets.cap.ui.api.execution.IExecutionInterceptor;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
-import org.jowidgets.common.image.IImageConstant;
-import org.jowidgets.common.types.Accelerator;
 import org.jowidgets.common.types.Modifier;
 import org.jowidgets.common.types.VirtualKey;
 import org.jowidgets.service.api.IServiceId;
@@ -56,14 +53,13 @@ import org.jowidgets.service.api.ServiceProvider;
 import org.jowidgets.service.tools.ServiceId;
 import org.jowidgets.tools.message.MessageReplacer;
 import org.jowidgets.util.Assert;
-import org.jowidgets.util.builder.AbstractSingleUseBuilder;
 
-final class CreatorActionBuilder<BEAN_TYPE> extends AbstractSingleUseBuilder<IAction> implements ICreatorActionBuilder<BEAN_TYPE> {
+final class CreatorActionBuilderImpl<BEAN_TYPE> extends AbstractCapActionBuilderImpl<ICreatorActionBuilder<BEAN_TYPE>> implements
+		ICreatorActionBuilder<BEAN_TYPE> {
 
 	private final Object entityId;
 	private final Class<? extends BEAN_TYPE> beanType;
 	private final IBeanListModel<BEAN_TYPE> model;
-	private final IActionBuilder builder;
 	private final List<IEnabledChecker> enabledCheckers;
 	private final List<IExecutionInterceptor> executionInterceptors;
 	private final List<IBeanPropertyValidator<BEAN_TYPE>> beanPropertyValidators;
@@ -74,13 +70,15 @@ final class CreatorActionBuilder<BEAN_TYPE> extends AbstractSingleUseBuilder<IAc
 	private List<IAttribute<?>> attributes;
 	private IBeanExceptionConverter exceptionConverter;
 
-	CreatorActionBuilder(final Object entityId, final Class<? extends BEAN_TYPE> beanType, final IBeanListModel<BEAN_TYPE> model) {
+	CreatorActionBuilderImpl(
+		final Object entityId,
+		final Class<? extends BEAN_TYPE> beanType,
+		final IBeanListModel<BEAN_TYPE> model) {
 		Assert.paramNotNull(beanType, "beanType");
 		Assert.paramNotNull(model, "model");
 		this.entityId = entityId;
 		this.beanType = beanType;
 		this.model = model;
-		this.builder = Toolkit.getActionBuilderFactory().create();
 		this.enabledCheckers = new LinkedList<IEnabledChecker>();
 		this.executionInterceptors = new LinkedList<IExecutionInterceptor>();
 		this.exceptionConverter = new DefaultBeanExceptionConverter();
@@ -88,24 +86,10 @@ final class CreatorActionBuilder<BEAN_TYPE> extends AbstractSingleUseBuilder<IAc
 
 		this.anySelection = true;
 
-		builder.setText(Messages.getString("CreatorActionBuilder.create_data_set"));
-		builder.setToolTipText(Messages.getString("CreatorActionBuilder.create_data_set_tooltip"));
-		builder.setAccelerator(VirtualKey.N, Modifier.CTRL);
-		builder.setIcon(IconsSmall.ADD);
-	}
-
-	@Override
-	public ICreatorActionBuilder<BEAN_TYPE> setText(final String text) {
-		checkExhausted();
-		builder.setText(text);
-		return this;
-	}
-
-	@Override
-	public ICreatorActionBuilder<BEAN_TYPE> setToolTipText(final String toolTipText) {
-		checkExhausted();
-		builder.setToolTipText(toolTipText);
-		return this;
+		setText(Messages.getString("CreatorActionBuilder.create_data_set"));
+		setToolTipText(Messages.getString("CreatorActionBuilder.create_data_set_tooltip"));
+		setAccelerator(VirtualKey.N, Modifier.CTRL);
+		setIcon(IconsSmall.ADD);
 	}
 
 	@Override
@@ -113,42 +97,7 @@ final class CreatorActionBuilder<BEAN_TYPE> extends AbstractSingleUseBuilder<IAc
 		checkExhausted();
 		Assert.paramNotEmpty(label, "label");
 		final String message = Messages.getString("CreatorActionBuilder.create_with_var");
-		builder.setText(MessageReplacer.replace(message, label));
-		return this;
-	}
-
-	@Override
-	public ICreatorActionBuilder<BEAN_TYPE> setIcon(final IImageConstant icon) {
-		checkExhausted();
-		builder.setIcon(icon);
-		return this;
-	}
-
-	@Override
-	public ICreatorActionBuilder<BEAN_TYPE> setMnemonic(final Character mnemonic) {
-		checkExhausted();
-		builder.setMnemonic(mnemonic);
-		return this;
-	}
-
-	@Override
-	public ICreatorActionBuilder<BEAN_TYPE> setMnemonic(final char mnemonic) {
-		checkExhausted();
-		builder.setMnemonic(mnemonic);
-		return this;
-	}
-
-	@Override
-	public ICreatorActionBuilder<BEAN_TYPE> setAccelerator(final Accelerator accelerator) {
-		checkExhausted();
-		builder.setAccelerator(accelerator);
-		return this;
-	}
-
-	@Override
-	public ICreatorActionBuilder<BEAN_TYPE> setAccelerator(final char key, final Modifier... modifier) {
-		checkExhausted();
-		builder.setAccelerator(key, modifier);
+		setText(MessageReplacer.replace(message, label));
 		return this;
 	}
 
@@ -219,6 +168,7 @@ final class CreatorActionBuilder<BEAN_TYPE> extends AbstractSingleUseBuilder<IAc
 
 	@Override
 	public ICreatorActionBuilder<BEAN_TYPE> addExecutionInterceptor(final IExecutionInterceptor interceptor) {
+		checkExhausted();
 		Assert.paramNotNull(interceptor, "interceptor");
 		executionInterceptors.add(interceptor);
 		return this;
@@ -235,6 +185,7 @@ final class CreatorActionBuilder<BEAN_TYPE> extends AbstractSingleUseBuilder<IAc
 	@Override
 	public ICreatorActionBuilder<BEAN_TYPE> setBeanPropertyValidators(
 		final List<? extends IBeanPropertyValidator<BEAN_TYPE>> validators) {
+		checkExhausted();
 		Assert.paramNotNull(validators, "validators");
 		beanPropertyValidators.clear();
 		beanPropertyValidators.addAll(validators);
@@ -243,6 +194,7 @@ final class CreatorActionBuilder<BEAN_TYPE> extends AbstractSingleUseBuilder<IAc
 
 	@Override
 	public ICreatorActionBuilder<BEAN_TYPE> addBeanPropertyValidator(final IBeanPropertyValidator<BEAN_TYPE> validator) {
+		checkExhausted();
 		Assert.paramNotNull(validator, "validator");
 		beanPropertyValidators.add(validator);
 		return this;
@@ -279,6 +231,8 @@ final class CreatorActionBuilder<BEAN_TYPE> extends AbstractSingleUseBuilder<IAc
 			creatorService,
 			exceptionConverter,
 			executionInterceptors);
+
+		final IActionBuilder builder = getBuilder();
 		builder.setCommand((ICommand) command);
 		return builder.build();
 	}

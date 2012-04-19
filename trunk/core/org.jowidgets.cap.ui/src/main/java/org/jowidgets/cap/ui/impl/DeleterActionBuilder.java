@@ -36,7 +36,6 @@ import org.jowidgets.api.command.IActionBuilder;
 import org.jowidgets.api.command.ICommand;
 import org.jowidgets.api.command.IEnabledChecker;
 import org.jowidgets.api.image.IconsSmall;
-import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.service.IDeleterService;
 import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
@@ -45,9 +44,6 @@ import org.jowidgets.cap.ui.api.execution.BeanMessageStatePolicy;
 import org.jowidgets.cap.ui.api.execution.BeanModificationStatePolicy;
 import org.jowidgets.cap.ui.api.execution.IExecutionInterceptor;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
-import org.jowidgets.common.image.IImageConstant;
-import org.jowidgets.common.types.Accelerator;
-import org.jowidgets.common.types.Modifier;
 import org.jowidgets.common.types.VirtualKey;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.api.ServiceProvider;
@@ -55,18 +51,15 @@ import org.jowidgets.service.tools.ServiceId;
 import org.jowidgets.tools.message.MessageReplacer;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.EmptyCheck;
-import org.jowidgets.util.builder.AbstractSingleUseBuilder;
 
-final class DeleterActionBuilder<BEAN_TYPE> extends AbstractSingleUseBuilder<IAction> implements IDeleterActionBuilder<BEAN_TYPE> {
+final class DeleterActionBuilder<BEAN_TYPE> extends AbstractCapActionBuilderImpl<IDeleterActionBuilder<BEAN_TYPE>> implements
+		IDeleterActionBuilder<BEAN_TYPE> {
 
 	private final IBeanListModel<BEAN_TYPE> model;
-	private final IActionBuilder builder;
 	private final List<IEnabledChecker> enabledCheckers;
 	private final List<IExecutableChecker<BEAN_TYPE>> executableCheckers;
 	private final List<IExecutionInterceptor> executionInterceptors;
 
-	private String text;
-	private String toolTipText;
 	private String entityLabelSingular;
 	private String entityLabelPlural;
 	private IDeleterService deleterService;
@@ -82,7 +75,6 @@ final class DeleterActionBuilder<BEAN_TYPE> extends AbstractSingleUseBuilder<IAc
 		checkExhausted();
 		Assert.paramNotNull(model, "model");
 		this.model = model;
-		this.builder = Toolkit.getActionBuilderFactory().create();
 		this.enabledCheckers = new LinkedList<IEnabledChecker>();
 		this.executableCheckers = new LinkedList<IExecutableChecker<BEAN_TYPE>>();
 		this.executionInterceptors = new LinkedList<IExecutionInterceptor>();
@@ -94,15 +86,8 @@ final class DeleterActionBuilder<BEAN_TYPE> extends AbstractSingleUseBuilder<IAc
 		this.beanModificationStatePolicy = BeanModificationStatePolicy.NO_MODIFICATION;
 		this.beanMessageStatePolicy = BeanMessageStatePolicy.NO_WARNING_OR_ERROR;
 
-		builder.setAccelerator(VirtualKey.DELETE);
-		builder.setIcon(IconsSmall.DELETE);
-	}
-
-	@Override
-	public DeleterActionBuilder<BEAN_TYPE> setText(final String text) {
-		checkExhausted();
-		this.text = text;
-		return this;
+		setAccelerator(VirtualKey.DELETE);
+		setIcon(IconsSmall.DELETE);
 	}
 
 	@Override
@@ -116,48 +101,6 @@ final class DeleterActionBuilder<BEAN_TYPE> extends AbstractSingleUseBuilder<IAc
 	public IDeleterActionBuilder<BEAN_TYPE> setEntityLabelPlural(final String label) {
 		checkExhausted();
 		this.entityLabelPlural = label;
-		return this;
-	}
-
-	@Override
-	public DeleterActionBuilder<BEAN_TYPE> setToolTipText(final String toolTipText) {
-		checkExhausted();
-		this.toolTipText = toolTipText;
-		return this;
-	}
-
-	@Override
-	public DeleterActionBuilder<BEAN_TYPE> setIcon(final IImageConstant icon) {
-		checkExhausted();
-		builder.setIcon(icon);
-		return this;
-	}
-
-	@Override
-	public DeleterActionBuilder<BEAN_TYPE> setMnemonic(final Character mnemonic) {
-		checkExhausted();
-		builder.setMnemonic(mnemonic);
-		return this;
-	}
-
-	@Override
-	public DeleterActionBuilder<BEAN_TYPE> setMnemonic(final char mnemonic) {
-		checkExhausted();
-		builder.setMnemonic(mnemonic);
-		return this;
-	}
-
-	@Override
-	public DeleterActionBuilder<BEAN_TYPE> setAccelerator(final Accelerator accelerator) {
-		checkExhausted();
-		builder.setAccelerator(accelerator);
-		return this;
-	}
-
-	@Override
-	public DeleterActionBuilder<BEAN_TYPE> setAccelerator(final char key, final Modifier... modifier) {
-		checkExhausted();
-		builder.setAccelerator(key, modifier);
 		return this;
 	}
 
@@ -236,52 +179,53 @@ final class DeleterActionBuilder<BEAN_TYPE> extends AbstractSingleUseBuilder<IAc
 
 	@Override
 	public IDeleterActionBuilder<BEAN_TYPE> setAutoSelection(final boolean autoSelection) {
+		checkExhausted();
 		this.autoSelection = autoSelection;
 		return this;
 	}
 
 	@Override
 	public IDeleterActionBuilder<BEAN_TYPE> setDeletionConfirmDialog(final boolean deletionConfirmDialog) {
+		checkExhausted();
 		this.deletionConfirmDialog = deletionConfirmDialog;
 		return this;
 	}
 
-	private String getText() {
-		if (!EmptyCheck.isEmpty(text)) {
-			return text;
-		}
-		else if (!EmptyCheck.isEmpty(entityLabelSingular) && !multiSelection) {
-			final String message = Messages.getString("DeleterActionBuilder.delete_single_var");
-			return MessageReplacer.replace(message, entityLabelSingular);
-		}
-		else if (!EmptyCheck.isEmpty(entityLabelPlural) && multiSelection) {
-			final String message = Messages.getString("DeleterActionBuilder.delete_multi_var");
-			return MessageReplacer.replace(message, entityLabelPlural);
-		}
-		else if (!multiSelection) {
-			return Messages.getString("DeleterActionBuilder.delete_single");
-		}
-		else {
-			return Messages.getString("DeleterActionBuilder.delete_multi");
+	private void setDefaultTextIfNecessary() {
+		if (EmptyCheck.isEmpty(getText())) {
+			if (!EmptyCheck.isEmpty(entityLabelSingular) && !multiSelection) {
+				final String message = Messages.getString("DeleterActionBuilder.delete_single_var");
+				setText(MessageReplacer.replace(message, entityLabelSingular));
+			}
+			else if (!EmptyCheck.isEmpty(entityLabelPlural) && multiSelection) {
+				final String message = Messages.getString("DeleterActionBuilder.delete_multi_var");
+				setText(MessageReplacer.replace(message, entityLabelPlural));
+			}
+			else if (!multiSelection) {
+				setText(Messages.getString("DeleterActionBuilder.delete_single"));
+			}
+			else {
+				setText(Messages.getString("DeleterActionBuilder.delete_multi"));
+			}
 		}
 	}
 
-	private String getTooltipText() {
-		if (!EmptyCheck.isEmpty(toolTipText)) {
-			return toolTipText;
-		}
-		else if (!multiSelection) {
-			return Messages.getString("DeleterActionBuilder.delete_single_tooltip");
-		}
-		else {
-			return Messages.getString("DeleterActionBuilder.delete_multi_tooltip");
+	private void setDefaultToolTipTextIfNecessary() {
+		if (EmptyCheck.isEmpty(getToolTipText())) {
+			if (!multiSelection) {
+				setToolTipText(Messages.getString("DeleterActionBuilder.delete_single_tooltip"));
+			}
+			else {
+				setToolTipText(Messages.getString("DeleterActionBuilder.delete_multi_tooltip"));
+			}
 		}
 	}
 
 	@Override
 	protected IAction doBuild() {
-		builder.setText(getText());
-		builder.setToolTipText(getTooltipText());
+		setDefaultTextIfNecessary();
+		setDefaultToolTipTextIfNecessary();
+
 		final BeanDeleterCommand<BEAN_TYPE> deleterCommand = new BeanDeleterCommand<BEAN_TYPE>(
 			model,
 			enabledCheckers,
@@ -294,6 +238,8 @@ final class DeleterActionBuilder<BEAN_TYPE> extends AbstractSingleUseBuilder<IAc
 			exceptionConverter,
 			autoSelection,
 			deletionConfirmDialog);
+
+		final IActionBuilder builder = getBuilder();
 		builder.setCommand((ICommand) deleterCommand);
 		return builder.build();
 	}

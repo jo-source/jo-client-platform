@@ -31,7 +31,6 @@ package org.jowidgets.cap.ui.api.command;
 import java.util.Collection;
 import java.util.List;
 
-import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.command.IEnabledChecker;
 import org.jowidgets.cap.common.api.service.ICreatorService;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
@@ -39,14 +38,9 @@ import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
 import org.jowidgets.cap.ui.api.bean.IBeanPropertyValidator;
 import org.jowidgets.cap.ui.api.execution.IExecutionInterceptor;
 import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
-import org.jowidgets.common.image.IImageConstant;
-import org.jowidgets.common.types.Accelerator;
-import org.jowidgets.common.types.Modifier;
 import org.jowidgets.service.api.IServiceId;
 
-public interface ICreatorActionBuilder<BEAN_TYPE> {
-
-	ICreatorActionBuilder<BEAN_TYPE> setText(String text);
+public interface ICreatorActionBuilder<BEAN_TYPE> extends ICapActionBuilder<ICreatorActionBuilder<BEAN_TYPE>> {
 
 	/**
 	 * Sets the entity label (singular).
@@ -57,18 +51,6 @@ public interface ICreatorActionBuilder<BEAN_TYPE> {
 	 * @return This builder
 	 */
 	ICreatorActionBuilder<BEAN_TYPE> setEntityLabelSingular(String label);
-
-	ICreatorActionBuilder<BEAN_TYPE> setToolTipText(final String toolTipText);
-
-	ICreatorActionBuilder<BEAN_TYPE> setIcon(IImageConstant icon);
-
-	ICreatorActionBuilder<BEAN_TYPE> setMnemonic(final Character mnemonic);
-
-	ICreatorActionBuilder<BEAN_TYPE> setMnemonic(final char mnemonic);
-
-	ICreatorActionBuilder<BEAN_TYPE> setAccelerator(Accelerator accelerator);
-
-	ICreatorActionBuilder<BEAN_TYPE> setAccelerator(final char key, final Modifier... modifier);
 
 	ICreatorActionBuilder<BEAN_TYPE> setAttributes(Collection<? extends IAttribute<?>> attributes);
 
@@ -93,7 +75,5 @@ public interface ICreatorActionBuilder<BEAN_TYPE> {
 	ICreatorActionBuilder<BEAN_TYPE> setExceptionConverter(IBeanExceptionConverter exceptionConverter);
 
 	ICreatorActionBuilder<BEAN_TYPE> addExecutionInterceptor(IExecutionInterceptor interceptor);
-
-	IAction build();
 
 }

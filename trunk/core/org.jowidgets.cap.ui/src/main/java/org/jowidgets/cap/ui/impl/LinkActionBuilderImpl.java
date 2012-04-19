@@ -35,7 +35,6 @@ import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.command.IActionBuilder;
 import org.jowidgets.api.command.ICommand;
 import org.jowidgets.api.command.IEnabledChecker;
-import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.entity.IEntityLinkProperties;
 import org.jowidgets.cap.common.api.entity.IEntityLinkPropertiesBuilder;
@@ -50,23 +49,19 @@ import org.jowidgets.cap.ui.api.execution.BeanModificationStatePolicy;
 import org.jowidgets.cap.ui.api.execution.IExecutionInterceptor;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.model.IDataModel;
-import org.jowidgets.common.image.IImageConstant;
-import org.jowidgets.common.types.Accelerator;
-import org.jowidgets.common.types.Modifier;
 import org.jowidgets.tools.message.MessageReplacer;
 import org.jowidgets.util.Assert;
-import org.jowidgets.util.builder.AbstractSingleUseBuilder;
+import org.jowidgets.util.EmptyCheck;
 
-final class LinkActionBuilderImpl<BEAN_TYPE> extends AbstractSingleUseBuilder<IAction> implements ILinkActionBuilder<BEAN_TYPE> {
+final class LinkActionBuilderImpl<BEAN_TYPE> extends AbstractCapActionBuilderImpl<ILinkActionBuilder<BEAN_TYPE>> implements
+		ILinkActionBuilder<BEAN_TYPE> {
 
-	private final IActionBuilder builder;
 	private final IBeanListModel<BEAN_TYPE> model;
 
 	private final List<IEnabledChecker> enabledCheckers;
 	private final List<IExecutableChecker<BEAN_TYPE>> executableCheckers;
 	private final List<IExecutionInterceptor> executionInterceptors;
 
-	private String text;
 	private String destinationEntityLabel;
 	private ICreatorService linkCreatorService;
 	private List<IAttribute<Object>> linkAttributes;
@@ -85,7 +80,6 @@ final class LinkActionBuilderImpl<BEAN_TYPE> extends AbstractSingleUseBuilder<IA
 	LinkActionBuilderImpl(final IBeanListModel<BEAN_TYPE> model) {
 		Assert.paramNotNull(model, "model");
 		this.model = model;
-		this.builder = Toolkit.getActionBuilderFactory().create();
 		this.enabledCheckers = new LinkedList<IEnabledChecker>();
 		this.executableCheckers = new LinkedList<IExecutableChecker<BEAN_TYPE>>();
 		this.beanModificationStatePolicy = BeanModificationStatePolicy.NO_MODIFICATION;
@@ -96,58 +90,9 @@ final class LinkActionBuilderImpl<BEAN_TYPE> extends AbstractSingleUseBuilder<IA
 	}
 
 	@Override
-	public ILinkActionBuilder<BEAN_TYPE> setText(final String text) {
-		checkExhausted();
-		this.text = text;
-		return this;
-	}
-
-	@Override
 	public ILinkActionBuilder<BEAN_TYPE> setDestinationEntityLabelPlural(final String label) {
 		checkExhausted();
 		this.destinationEntityLabel = label;
-		return this;
-	}
-
-	@Override
-	public ILinkActionBuilder<BEAN_TYPE> setToolTipText(final String toolTipText) {
-		checkExhausted();
-		builder.setToolTipText(toolTipText);
-		return this;
-	}
-
-	@Override
-	public ILinkActionBuilder<BEAN_TYPE> setIcon(final IImageConstant icon) {
-		checkExhausted();
-		builder.setIcon(icon);
-		return this;
-	}
-
-	@Override
-	public ILinkActionBuilder<BEAN_TYPE> setMnemonic(final Character mnemonic) {
-		checkExhausted();
-		builder.setMnemonic(mnemonic);
-		return this;
-	}
-
-	@Override
-	public ILinkActionBuilder<BEAN_TYPE> setMnemonic(final char mnemonic) {
-		checkExhausted();
-		builder.setMnemonic(mnemonic);
-		return this;
-	}
-
-	@Override
-	public ILinkActionBuilder<BEAN_TYPE> setAccelerator(final Accelerator accelerator) {
-		checkExhausted();
-		builder.setAccelerator(accelerator);
-		return this;
-	}
-
-	@Override
-	public ILinkActionBuilder<BEAN_TYPE> setAccelerator(final char key, final Modifier... modifier) {
-		checkExhausted();
-		builder.setAccelerator(key, modifier);
 		return this;
 	}
 
@@ -297,23 +242,19 @@ final class LinkActionBuilderImpl<BEAN_TYPE> extends AbstractSingleUseBuilder<IA
 		return this;
 	}
 
-	private String getText() {
-		if (text != null) {
-			return text;
-		}
-		else if (destinationEntityLabel != null) {
+	private void setDefaultTextIfNecessary() {
+		if (EmptyCheck.isEmpty(getText()) && !EmptyCheck.isEmpty(destinationEntityLabel)) {
 			final String message = Messages.getString("LinkActionBuilderImpl.link_var");
-			return MessageReplacer.replace(message, destinationEntityLabel);
+			setText(MessageReplacer.replace(message, destinationEntityLabel));
 		}
-		else {
-			return null;
-		}
+
 	}
 
 	@Override
 	protected IAction doBuild() {
-		builder.setText(getText());
-		builder.setCommand((ICommand) new BeanLinkCommand<BEAN_TYPE>(
+		setDefaultTextIfNecessary();
+
+		final ICommand command = new BeanLinkCommand<BEAN_TYPE>(
 			model,
 			linkedDataModel,
 			linkCreatorService,
@@ -330,7 +271,10 @@ final class LinkActionBuilderImpl<BEAN_TYPE> extends AbstractSingleUseBuilder<IA
 			beanModificationStatePolicy,
 			beanMessageStatePolicy,
 			executionInterceptors,
-			exceptionConverter));
+			exceptionConverter);
+
+		final IActionBuilder builder = getBuilder();
+		builder.setCommand(command);
 		return builder.build();
 	}
 }

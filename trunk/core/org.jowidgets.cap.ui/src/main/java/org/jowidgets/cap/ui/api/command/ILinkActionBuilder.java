@@ -30,7 +30,6 @@ package org.jowidgets.cap.ui.api.command;
 
 import java.util.List;
 
-import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.command.IEnabledChecker;
 import org.jowidgets.cap.common.api.entity.IEntityLinkProperties;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
@@ -42,13 +41,8 @@ import org.jowidgets.cap.ui.api.execution.BeanMessageStatePolicy;
 import org.jowidgets.cap.ui.api.execution.BeanModificationStatePolicy;
 import org.jowidgets.cap.ui.api.execution.IExecutionInterceptor;
 import org.jowidgets.cap.ui.api.model.IDataModel;
-import org.jowidgets.common.image.IImageConstant;
-import org.jowidgets.common.types.Accelerator;
-import org.jowidgets.common.types.Modifier;
 
-public interface ILinkActionBuilder<BEAN_TYPE> {
-
-	ILinkActionBuilder<BEAN_TYPE> setText(String text);
+public interface ILinkActionBuilder<BEAN_TYPE> extends ICapActionBuilder<ILinkActionBuilder<BEAN_TYPE>> {
 
 	/**
 	 * Sets the entity label plural.
@@ -59,18 +53,6 @@ public interface ILinkActionBuilder<BEAN_TYPE> {
 	 * @return This builder
 	 */
 	ILinkActionBuilder<BEAN_TYPE> setDestinationEntityLabelPlural(String label);
-
-	ILinkActionBuilder<BEAN_TYPE> setToolTipText(final String toolTipText);
-
-	ILinkActionBuilder<BEAN_TYPE> setIcon(IImageConstant icon);
-
-	ILinkActionBuilder<BEAN_TYPE> setMnemonic(final Character mnemonic);
-
-	ILinkActionBuilder<BEAN_TYPE> setMnemonic(final char mnemonic);
-
-	ILinkActionBuilder<BEAN_TYPE> setAccelerator(Accelerator accelerator);
-
-	ILinkActionBuilder<BEAN_TYPE> setAccelerator(final char key, final Modifier... modifier);
 
 	ILinkActionBuilder<BEAN_TYPE> setLinkCreatorService(ICreatorService creatorService);
 
@@ -114,7 +96,5 @@ public interface ILinkActionBuilder<BEAN_TYPE> {
 	 * @return This builder
 	 */
 	ILinkActionBuilder<BEAN_TYPE> setLinkedDataModel(IDataModel model);
-
-	IAction build();
 
 }
