@@ -28,7 +28,6 @@
 
 package org.jowidgets.cap.ui.api.command;
 
-import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.command.IEnabledChecker;
 import org.jowidgets.api.widgets.content.IInputContentCreator;
 import org.jowidgets.api.widgets.descriptor.IInputDialogDescriptor;
@@ -43,26 +42,10 @@ import org.jowidgets.cap.ui.api.execution.BeanSelectionPolicy;
 import org.jowidgets.cap.ui.api.execution.IExecutionInterceptor;
 import org.jowidgets.cap.ui.api.execution.IExecutor;
 import org.jowidgets.cap.ui.api.execution.IParameterProvider;
-import org.jowidgets.common.image.IImageConstant;
-import org.jowidgets.common.types.Accelerator;
-import org.jowidgets.common.types.Modifier;
 import org.jowidgets.service.api.IServiceId;
 
-public interface IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> {
-
-	IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setText(String text);
-
-	IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setToolTipText(final String toolTipText);
-
-	IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setIcon(IImageConstant icon);
-
-	IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setMnemonic(final Character mnemonic);
-
-	IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setMnemonic(final char mnemonic);
-
-	IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setAccelerator(Accelerator accelerator);
-
-	IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setAccelerator(final char key, final Modifier... modifier);
+public interface IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> extends
+		ICapActionBuilder<IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE>> {
 
 	IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setDefaultParameter(PARAM_TYPE defaultParameter);
 
@@ -101,7 +84,5 @@ public interface IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> {
 	IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> addExecutionInterceptor(IExecutionInterceptor interceptor);
 
 	IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setExceptionConverter(IBeanExceptionConverter exceptionConverter);
-
-	IAction build();
 
 }

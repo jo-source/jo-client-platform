@@ -104,7 +104,7 @@ final class CapActionFactoryImpl implements ICapActionFactory {
 		final Object entityId,
 		final Class<? extends BEAN_TYPE> beanType,
 		final IBeanListModel<BEAN_TYPE> model) {
-		return new CreatorActionBuilder<BEAN_TYPE>(entityId, beanType, model);
+		return new CreatorActionBuilderImpl<BEAN_TYPE>(entityId, beanType, model);
 	}
 
 	@Override

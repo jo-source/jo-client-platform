@@ -28,21 +28,15 @@
 
 package org.jowidgets.cap.ui.api.command;
 
-import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.command.IEnabledChecker;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.service.IDeleterService;
 import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
 import org.jowidgets.cap.ui.api.execution.BeanMessageStatePolicy;
 import org.jowidgets.cap.ui.api.execution.IExecutionInterceptor;
-import org.jowidgets.common.image.IImageConstant;
-import org.jowidgets.common.types.Accelerator;
-import org.jowidgets.common.types.Modifier;
 import org.jowidgets.service.api.IServiceId;
 
-public interface IDeleterActionBuilder<BEAN_TYPE> {
-
-	IDeleterActionBuilder<BEAN_TYPE> setText(String text);
+public interface IDeleterActionBuilder<BEAN_TYPE> extends ICapActionBuilder<IDeleterActionBuilder<BEAN_TYPE>> {
 
 	/**
 	 * Sets the entity label singular.
@@ -65,18 +59,6 @@ public interface IDeleterActionBuilder<BEAN_TYPE> {
 	 * @return This builder
 	 */
 	IDeleterActionBuilder<BEAN_TYPE> setEntityLabelPlural(String label);
-
-	IDeleterActionBuilder<BEAN_TYPE> setToolTipText(final String toolTipText);
-
-	IDeleterActionBuilder<BEAN_TYPE> setIcon(IImageConstant icon);
-
-	IDeleterActionBuilder<BEAN_TYPE> setMnemonic(final Character mnemonic);
-
-	IDeleterActionBuilder<BEAN_TYPE> setMnemonic(final char mnemonic);
-
-	IDeleterActionBuilder<BEAN_TYPE> setAccelerator(Accelerator accelerator);
-
-	IDeleterActionBuilder<BEAN_TYPE> setAccelerator(final char key, final Modifier... modifier);
 
 	IDeleterActionBuilder<BEAN_TYPE> setDeleterService(IDeleterService deleterService);
 
@@ -107,7 +89,5 @@ public interface IDeleterActionBuilder<BEAN_TYPE> {
 	IDeleterActionBuilder<BEAN_TYPE> setAutoSelection(boolean autoSelection);
 
 	IDeleterActionBuilder<BEAN_TYPE> setDeletionConfirmDialog(boolean deletionConfirmDialog);
-
-	IAction build();
 
 }

@@ -49,6 +49,7 @@ import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.common.image.IImageConstant;
 import org.jowidgets.common.types.Accelerator;
 import org.jowidgets.common.types.Modifier;
+import org.jowidgets.common.types.VirtualKey;
 import org.jowidgets.service.api.IServiceId;
 
 public class ExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> implements IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> {
@@ -92,6 +93,11 @@ public class ExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> implements IExecutorAc
 	@Override
 	public final IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setAccelerator(final char key, final Modifier... modifier) {
 		return original.setAccelerator(key, modifier);
+	}
+
+	@Override
+	public IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setAccelerator(final VirtualKey virtualKey, final Modifier... modifier) {
+		return original.setAccelerator(virtualKey, modifier);
 	}
 
 	@Override
