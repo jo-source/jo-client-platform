@@ -102,7 +102,7 @@ public class EntityComponentMasterDetailLinksDetailLayout {
 		for (final Entry<String, IEntityLinkDescriptor> linkEntry : links.entrySet()) {
 			final IEntityService entityService = ServiceProvider.getService(IEntityService.ID);
 			if (entityService != null) {
-				final IBeanDtoDescriptor descriptor = entityService.getDescriptor(linkEntry.getValue().getLinkedTypeId());
+				final IBeanDtoDescriptor descriptor = entityService.getDescriptor(linkEntry.getValue().getLinkedEntityId());
 				result.addView(linkEntry.getKey(), descriptor.getLabelPlural(), descriptor.getDescription());
 			}
 

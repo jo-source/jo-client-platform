@@ -26,39 +26,45 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.impl;
+package org.jowidgets.cap.common.api.service;
 
-import org.jowidgets.cap.common.api.bean.IBean;
-import org.jowidgets.cap.common.api.entity.IEntityLinkProperties;
-import org.jowidgets.cap.common.api.entity.IEntityLinkPropertiesBuilder;
-import org.jowidgets.util.Assert;
+import java.util.Collection;
+import java.util.List;
 
-final class EntityLinkPropertiesBuilderImpl implements IEntityLinkPropertiesBuilder {
+import org.jowidgets.cap.common.api.bean.IBeanData;
+import org.jowidgets.cap.common.api.bean.IBeanDto;
+import org.jowidgets.cap.common.api.execution.IExecutionCallback;
+import org.jowidgets.cap.common.api.execution.IResultCallback;
 
-	private String keyPropertyName;
-	private String foreignKeyPropertyName;
+public interface ILinkCreatorService {
 
-	EntityLinkPropertiesBuilderImpl() {
-		this.keyPropertyName = IBean.ID_PROPERTY;
+	/**
+	 * Creates new links of beans
+	 * 
+	 * @param linkedBeanResult The result callback for the linked beans created by the service
+	 * @param links the link information
+	 * @param executionCallback
+	 */
+	void create(
+		IResultCallback<List<IBeanDto>> linkedBeansResult,
+		Collection<? extends ILinkData> links,
+		IExecutionCallback executionCallback);
+
+	public interface ILinkData {
+
+		/**
+		 * @return The data for the source bean if a new bean should be created, else null
+		 */
+		Collection<? extends IBeanData> getSourceData();
+
+		/**
+		 * @return The data of the link or null for direct links.
+		 */
+		Collection<? extends IBeanData> getLinkData();
+
+		/**
+		 * @return The data for the linked bean if a new bean should be created or for direct links, else null
+		 */
+		Collection<? extends IBeanData> getLinkedData();
 	}
-
-	@Override
-	public IEntityLinkPropertiesBuilder setKeyPropertyName(final String keyPropertyName) {
-		Assert.paramNotEmpty(keyPropertyName, "keyPropertyName");
-		this.keyPropertyName = keyPropertyName;
-		return this;
-	}
-
-	@Override
-	public IEntityLinkPropertiesBuilder setForeignKeyPropertyName(final String foreignKeyPropertyName) {
-		Assert.paramNotEmpty(foreignKeyPropertyName, "foreignKeyPropertyName");
-		this.foreignKeyPropertyName = foreignKeyPropertyName;
-		return this;
-	}
-
-	@Override
-	public IEntityLinkProperties build() {
-		return new EntityLinkPropertiesImpl(keyPropertyName, foreignKeyPropertyName);
-	}
-
 }

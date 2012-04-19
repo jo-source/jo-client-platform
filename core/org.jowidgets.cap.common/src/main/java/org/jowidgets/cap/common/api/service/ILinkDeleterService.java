@@ -26,39 +26,42 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.impl;
+package org.jowidgets.cap.common.api.service;
 
-import org.jowidgets.cap.common.api.bean.IBean;
-import org.jowidgets.cap.common.api.entity.IEntityLinkProperties;
-import org.jowidgets.cap.common.api.entity.IEntityLinkPropertiesBuilder;
-import org.jowidgets.util.Assert;
+import java.util.Collection;
 
-final class EntityLinkPropertiesBuilderImpl implements IEntityLinkPropertiesBuilder {
+import org.jowidgets.cap.common.api.bean.IBeanData;
+import org.jowidgets.cap.common.api.bean.IBeanKey;
+import org.jowidgets.cap.common.api.execution.IExecutionCallback;
+import org.jowidgets.cap.common.api.execution.IResultCallback;
 
-	private String keyPropertyName;
-	private String foreignKeyPropertyName;
+public interface ILinkDeleterService {
 
-	EntityLinkPropertiesBuilderImpl() {
-		this.keyPropertyName = IBean.ID_PROPERTY;
+	void delete(
+		IResultCallback<Void> result,
+		Collection<? extends ILinkDeletion> linksDeletions,
+		IExecutionCallback executionCallback);
+
+	public interface ILinkDeletion {
+
+		/**
+		 * @return The key for the source bean, never null
+		 */
+		Collection<? extends IBeanKey> getSourceKey();
+
+		/**
+		 * @return True if the source should be deleted too
+		 */
+		boolean deleteSource();
+
+		/**
+		 * @return The key for the destination bean, never null
+		 */
+		Collection<? extends IBeanData> getDestinationKey();
+
+		/**
+		 * @return True if the destination should be deleted too
+		 */
+		boolean deleteDestination();
 	}
-
-	@Override
-	public IEntityLinkPropertiesBuilder setKeyPropertyName(final String keyPropertyName) {
-		Assert.paramNotEmpty(keyPropertyName, "keyPropertyName");
-		this.keyPropertyName = keyPropertyName;
-		return this;
-	}
-
-	@Override
-	public IEntityLinkPropertiesBuilder setForeignKeyPropertyName(final String foreignKeyPropertyName) {
-		Assert.paramNotEmpty(foreignKeyPropertyName, "foreignKeyPropertyName");
-		this.foreignKeyPropertyName = foreignKeyPropertyName;
-		return this;
-	}
-
-	@Override
-	public IEntityLinkProperties build() {
-		return new EntityLinkPropertiesImpl(keyPropertyName, foreignKeyPropertyName);
-	}
-
 }

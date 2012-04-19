@@ -28,60 +28,41 @@
 
 package org.jowidgets.cap.common.api.entity;
 
+import org.jowidgets.cap.common.api.service.ILinkCreatorService;
+import org.jowidgets.cap.common.api.service.ILinkDeleterService;
+
 public interface IEntityLinkDescriptor {
 
 	/**
-	 * Gets the type id of the entity that holds the link
+	 * Gets the id of the entity that holds the link
 	 * 
-	 * Creating objects of that type creates links
-	 * 
-	 * Reading objects of that type gets all links to the given source object
-	 * (the parent parameter of the loader holds them)
-	 * 
-	 * Deleting objects of that type deletes links
-	 * 
-	 * Updating objects of that type updates the link
-	 * 
-	 * 
-	 * @return The type of the object that hold the link, never null
+	 * @return The entity id that hold the link, may be null
 	 */
-	Object getLinkTypeId();
+	Object getLinkEntityId();
 
 	/**
-	 * Gets the type of the object that is linked (directly or indirectly) to the source
+	 * Gets the id of the entity that is linked (directly or indirectly) to the source
 	 * 
-	 * Creating objects of that type creates a new linked objects and new links
-	 * 
-	 * Reading objects of that type gets all objects that are currently linked with the given source object
+	 * Reading objects of that entity gets all objects that are currently linked with the given source object
 	 * (the parent parameter of the loader holds them)
 	 * 
-	 * Deleting objects of that type deletes the linked object and the link
-	 * 
-	 * Updating objects of that type dates up the linked object and/or the link (depends on the changed properties)
-	 * 
-	 * Remark: If the object is linked directly (e.g. has no link table), the link type and the linked type may be
+	 * Remark: If the object is linked directly (e.g. has no link table), the link entity and the linked entity may be
 	 * the same type
 	 * 
-	 * @return The type of the object that is linked, never null
+	 * @return The entity id that is linked, never null
 	 */
-	Object getLinkedTypeId();
+	Object getLinkedEntityId();
 
 	/**
-	 * Gets the type of the object that is linkable (indirectly) with the source. If the link is a direct link
+	 * Gets the id of the entity that is linkable (indirectly) with the source. If the link is a direct link
 	 * or if the link is readonly, null will be returned.
-	 * 
-	 * Creating objects of that type creates a new linked objects without creating links
 	 * 
 	 * Reading objects of that type gets all objects that could be potentially linked with the given source object
 	 * (e.g. all objects that are not currently linked)
 	 * 
-	 * Deleting objects of that type deletes the linked object but not the link (However a link should't exist).
-	 * 
-	 * Updating objects of that type dates up the linked object but not the link
-	 * 
-	 * @return The type of the object that is linkable or null, if the link is directly or readonly
+	 * @return The entity id that is linkable or null, if the link is directly or readonly
 	 */
-	Object getLinkableTypeId();
+	Object getLinkableEntityId();
 
 	/**
 	 * Gets the link properties of the link source.
@@ -96,4 +77,14 @@ public interface IEntityLinkDescriptor {
 	 * @return The link properties of the link destination or null for direct links
 	 */
 	IEntityLinkProperties getDestinationProperties();
+
+	/**
+	 * @return The creator service or null, if link is readonly
+	 */
+	ILinkCreatorService getLinkCreatorService();
+
+	/**
+	 * @return The deleter service or null if the link is readonly
+	 */
+	ILinkDeleterService getLinkDeleterService();
 }

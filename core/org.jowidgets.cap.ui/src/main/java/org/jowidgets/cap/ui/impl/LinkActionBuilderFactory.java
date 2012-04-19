@@ -59,7 +59,7 @@ final class LinkActionBuilderFactory {
 			final List<IEntityLinkDescriptor> links = entityService.getEntityLinks(model.getEntityId());
 			if (links != null) {
 				for (final IEntityLinkDescriptor link : links) {
-					if (link.getLinkedTypeId() == linkedModel.getEntityId()) {
+					if (link.getLinkedEntityId() == linkedModel.getEntityId()) {
 						final ILinkActionBuilder<BEAN_TYPE> result;
 						result = createLinkActionBuilder(link, new LinkActionBuilderImpl<BEAN_TYPE>(model));
 						if (result != null) {
@@ -77,12 +77,12 @@ final class LinkActionBuilderFactory {
 		final IEntityService entityService,
 		final IEntityLinkDescriptor link,
 		final ILinkActionBuilder<BEAN_TYPE> builder) {
-		if (entityService != null && link != null && link.getLinkedTypeId() != null && link.getLinkableTypeId() != null) {
+		if (entityService != null && link != null && link.getLinkedEntityId() != null && link.getLinkableEntityId() != null) {
 
-			final IBeanDtoDescriptor linkTypeDescriptor = entityService.getDescriptor(link.getLinkTypeId());
-			final IBeanServicesProvider linkTypeServices = entityService.getBeanServices(link.getLinkTypeId());
-			final IBeanDtoDescriptor linkableTypeDescriptor = entityService.getDescriptor(link.getLinkableTypeId());
-			final IBeanServicesProvider linkableTypeServices = entityService.getBeanServices(link.getLinkableTypeId());
+			final IBeanDtoDescriptor linkTypeDescriptor = entityService.getDescriptor(link.getLinkEntityId());
+			final IBeanServicesProvider linkTypeServices = entityService.getBeanServices(link.getLinkEntityId());
+			final IBeanDtoDescriptor linkableTypeDescriptor = entityService.getDescriptor(link.getLinkableEntityId());
+			final IBeanServicesProvider linkableTypeServices = entityService.getBeanServices(link.getLinkableEntityId());
 
 			if (isBeanLinkableDescriptorOk(linkableTypeDescriptor)
 				&& isLinkServicesOk(linkTypeServices)
@@ -130,7 +130,7 @@ final class LinkActionBuilderFactory {
 		}
 
 		builder.setLinkableTableReaderService(linkableTypeServices.readerService());
-		builder.setLinkableTableEntityId(link.getLinkableTypeId());
+		builder.setLinkableTableEntityId(link.getLinkableEntityId());
 		builder.setLinkableTableLabel(linkableTypeDescriptor.getLabelPlural());
 		builder.setLinkableTableAttributes(createAttributes(linkableTypeDescriptor));
 

@@ -158,9 +158,9 @@ public class SampleEntityServiceBuilder extends EntityServiceBuilder {
 
 	private IEntityLinkDescriptor createUserRoleLinkDescriptor() {
 		final IEntityLinkDescriptorBuilder builder = CapCommonToolkit.entityLinkDescriptorBuilder();
-		builder.setLinkTypeId(EntityIds.USER_ROLE_LINK);
-		builder.setLinkedTypeId(EntityIds.VIRTUAL_ROLES_OF_USERS);
-		builder.setLinkableTypeId(EntityIds.VIRTUAL_LINKABLE_ROLES_OF_USERS);
+		builder.setLinkEntityId(EntityIds.USER_ROLE_LINK);
+		builder.setLinkedEntityId(EntityIds.VIRTUAL_ROLES_OF_USERS);
+		builder.setLinkableEntityId(EntityIds.VIRTUAL_LINKABLE_ROLES_OF_USERS);
 		builder.setSourceProperties(IUser.ID_PROPERTY, UserRoleLinkInitializer.USER_ID);
 		builder.setDestinationProperties(IBean.ID_PROPERTY, UserRoleLinkInitializer.ROLE_ID);
 		return builder.build();
@@ -168,9 +168,9 @@ public class SampleEntityServiceBuilder extends EntityServiceBuilder {
 
 	private IEntityLinkDescriptor createRoleUserLinkDescriptor() {
 		final IEntityLinkDescriptorBuilder builder = CapCommonToolkit.entityLinkDescriptorBuilder();
-		builder.setLinkTypeId(EntityIds.USER_ROLE_LINK);
-		builder.setLinkedTypeId(EntityIds.VIRTUAL_USERS_OF_ROLES);
-		builder.setLinkableTypeId(EntityIds.VIRTUAL_LINKABLE_USERS_OF_ROLES);
+		builder.setLinkEntityId(EntityIds.USER_ROLE_LINK);
+		builder.setLinkedEntityId(EntityIds.VIRTUAL_USERS_OF_ROLES);
+		builder.setLinkableEntityId(EntityIds.VIRTUAL_LINKABLE_USERS_OF_ROLES);
 		builder.setSourceProperties(IBean.ID_PROPERTY, UserRoleLinkInitializer.ROLE_ID);
 		builder.setDestinationProperties(IUser.ID_PROPERTY, UserRoleLinkInitializer.USER_ID);
 		return builder.build();

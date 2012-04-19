@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,39 +26,15 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.impl;
+package org.jowidgets.cap.common.api.entity;
 
-import org.jowidgets.cap.common.api.bean.IBean;
-import org.jowidgets.cap.common.api.entity.IEntityLinkProperties;
-import org.jowidgets.cap.common.api.entity.IEntityLinkPropertiesBuilder;
-import org.jowidgets.util.Assert;
+import org.jowidgets.cap.common.api.CapCommonToolkit;
 
-final class EntityLinkPropertiesBuilderImpl implements IEntityLinkPropertiesBuilder {
+public final class EntityLinkDescriptor {
 
-	private String keyPropertyName;
-	private String foreignKeyPropertyName;
+	private EntityLinkDescriptor() {}
 
-	EntityLinkPropertiesBuilderImpl() {
-		this.keyPropertyName = IBean.ID_PROPERTY;
+	public static IEntityLinkDescriptorBuilder builder() {
+		return CapCommonToolkit.entityLinkDescriptorBuilder();
 	}
-
-	@Override
-	public IEntityLinkPropertiesBuilder setKeyPropertyName(final String keyPropertyName) {
-		Assert.paramNotEmpty(keyPropertyName, "keyPropertyName");
-		this.keyPropertyName = keyPropertyName;
-		return this;
-	}
-
-	@Override
-	public IEntityLinkPropertiesBuilder setForeignKeyPropertyName(final String foreignKeyPropertyName) {
-		Assert.paramNotEmpty(foreignKeyPropertyName, "foreignKeyPropertyName");
-		this.foreignKeyPropertyName = foreignKeyPropertyName;
-		return this;
-	}
-
-	@Override
-	public IEntityLinkProperties build() {
-		return new EntityLinkPropertiesImpl(keyPropertyName, foreignKeyPropertyName);
-	}
-
 }
