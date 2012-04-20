@@ -187,7 +187,6 @@ final class LinkServicesBuilderImpl<LINKED_BEAN_TYPE extends IBean> implements I
 
 	@Override
 	public ILinkDeleterService buildDeleterService() {
-
 		return new LinkDeleterServiceImpl(
 			linkReaderService,
 			sourceDeleterService,
@@ -196,4 +195,25 @@ final class LinkServicesBuilderImpl<LINKED_BEAN_TYPE extends IBean> implements I
 			sourceProperties,
 			destinationProperties);
 	}
+
+	@Override
+	public ILinkCreatorService tryBuildCreatorService() {
+		try {
+			return buildCreatorService();
+		}
+		catch (final Exception e) {
+			return null;
+		}
+	}
+
+	@Override
+	public ILinkDeleterService tryBuildDeleterService() {
+		try {
+			return buildDeleterService();
+		}
+		catch (final Exception e) {
+			return null;
+		}
+	}
+
 }

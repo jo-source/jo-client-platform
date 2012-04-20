@@ -78,6 +78,20 @@ public interface ILinkServicesBuilder<LINKED_BEAN_TYPE extends IBean> {
 
 	ILinkCreatorService buildCreatorService();
 
+	/**
+	 * Tries to build the creator service. If this is not possible, null will be returned;
+	 * 
+	 * @return The creator service or null
+	 */
+	ILinkCreatorService tryBuildCreatorService();
+
 	ILinkDeleterService buildDeleterService();
+
+	/**
+	 * Tries to build the deleter service. If this is not possible, null will be returned;
+	 * 
+	 * @return The deleter service or null
+	 */
+	ILinkDeleterService tryBuildDeleterService();
 
 }

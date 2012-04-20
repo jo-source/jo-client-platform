@@ -123,7 +123,7 @@ public class JpaServiceFactoryImpl implements IJpaServiceFactory {
 
 		//set reader service
 		final ICriteriaQueryCreatorBuilder<Void> queryCreatorBuilder = JpaQueryToolkit.criteriaQueryCreatorBuilder(beanType);
-		builder.setReaderService(readerService(beanAccess, queryCreatorBuilder.build(), beanDtoFactory));
+		builder.setReaderService(readerService(queryCreatorBuilder.build(), beanDtoFactory));
 
 		//set refresh
 		builder.setRefreshService(CapServiceToolkit.refreshServiceBuilder(beanAccess).setBeanDtoFactory(beanDtoFactory).build());
@@ -134,7 +134,7 @@ public class JpaServiceFactoryImpl implements IJpaServiceFactory {
 		builder.setUpdaterService(updaterServiceBuilder.build());
 
 		//set deleter service
-		builder.setDeleterService(deleterService(beanAccess));
+		builder.setDeleterService(deleterService(beanType));
 
 		return builder;
 	}
@@ -157,11 +157,19 @@ public class JpaServiceFactoryImpl implements IJpaServiceFactory {
 	}
 
 	@Override
+	public <BEAN_TYPE extends IBean, PARAM_TYPE> IReaderService<PARAM_TYPE> readerService(
+		final Class<? extends BEAN_TYPE> beanType,
+		final IBeanDtoFactory<BEAN_TYPE> beanDtoFactory) {
+		final ICriteriaQueryCreatorBuilder<PARAM_TYPE> queryCreatorBuilder = JpaQueryToolkit.criteriaQueryCreatorBuilder(beanType);
+		return readerService(queryCreatorBuilder.build(), beanDtoFactory);
+	}
+
+	@Override
 	public <PARAM_TYPE> IReaderService<PARAM_TYPE> readerService(
 		final Class<? extends IBean> beanType,
 		final IQueryCreator<PARAM_TYPE> queryCreator,
 		final List<String> propertyNames) {
-		return readerService(beanAccess(beanType), queryCreator, CapServiceToolkit.dtoFactory(beanType, propertyNames));
+		return readerService(queryCreator, CapServiceToolkit.dtoFactory(beanType, propertyNames));
 	}
 
 	@Override
@@ -174,15 +182,6 @@ public class JpaServiceFactoryImpl implements IJpaServiceFactory {
 
 	@Override
 	public <BEAN_TYPE extends IBean, PARAM_TYPE> IReaderService<PARAM_TYPE> readerService(
-		final IBeanAccess<? extends BEAN_TYPE> beanAccess,
-		final IBeanDtoFactory<BEAN_TYPE> beanDtoFactory) {
-		final ICriteriaQueryCreatorBuilder<PARAM_TYPE> queryCreatorBuilder = JpaQueryToolkit.criteriaQueryCreatorBuilder(beanAccess.getBeanType());
-		return readerService(beanAccess, queryCreatorBuilder.build(), beanDtoFactory);
-	}
-
-	@Override
-	public <BEAN_TYPE extends IBean, PARAM_TYPE> IReaderService<PARAM_TYPE> readerService(
-		final IBeanAccess<? extends BEAN_TYPE> beanAccess,
 		final IQueryCreator<PARAM_TYPE> queryCreator,
 		final IBeanDtoFactory<BEAN_TYPE> beanDtoFactory) {
 		final ISyncReaderService<PARAM_TYPE> result = new SyncJpaReaderServiceImpl<PARAM_TYPE>(queryCreator, beanDtoFactory);
@@ -201,20 +200,7 @@ public class JpaServiceFactoryImpl implements IJpaServiceFactory {
 		final Class<? extends IBean> beanType,
 		final boolean allowDeletedData,
 		final boolean allowStaleData) {
-		return deleterService(beanAccess(beanType), allowDeletedData, allowStaleData);
-	}
-
-	@Override
-	public IDeleterService deleterService(final IBeanAccess<? extends IBean> beanAccess) {
-		return deleterService(beanAccess, true, true);
-	}
-
-	@Override
-	public IDeleterService deleterService(
-		final IBeanAccess<? extends IBean> beanAccess,
-		final boolean allowDeletedData,
-		final boolean allowStaleData) {
-		final ISyncDeleterService result = new SyncJpaDeleterServiceImpl(beanAccess, allowDeletedData, allowStaleData);
+		final ISyncDeleterService result = new SyncJpaDeleterServiceImpl(beanAccess(beanType), allowDeletedData, allowStaleData);
 		return CapServiceToolkit.adapterFactoryProvider().deleter().createAdapter(result);
 	}
 
