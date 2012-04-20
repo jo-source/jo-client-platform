@@ -28,15 +28,20 @@
 
 package org.jowidgets.cap.service.jpa.impl;
 
-import org.jowidgets.cap.service.jpa.api.IJpaServicesDecoratorProviderBuilder;
 import org.jowidgets.cap.service.jpa.api.IJpaServiceFactory;
 import org.jowidgets.cap.service.jpa.api.IJpaServiceToolkit;
+import org.jowidgets.cap.service.jpa.api.IJpaServicesDecoratorProviderBuilder;
 
 public final class JpaServiceToolkitImpl implements IJpaServiceToolkit {
 
+	private IJpaServiceFactory serviceFactory;
+
 	@Override
 	public IJpaServiceFactory serviceFactory() {
-		return new JpaServiceFactoryImpl();
+		if (serviceFactory == null) {
+			serviceFactory = new JpaServiceFactoryImpl();
+		}
+		return serviceFactory;
 	}
 
 	@Override

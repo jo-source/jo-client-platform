@@ -26,16 +26,24 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.api.entity;
+package org.jowidgets.cap.service.jpa.tools.entity;
 
-public interface IBeanEntityServiceBuilder extends IEntityServiceBuilder {
+import org.jowidgets.cap.service.jpa.api.IJpaServiceFactory;
+import org.jowidgets.cap.service.jpa.api.JpaServiceToolkit;
+import org.jowidgets.cap.service.tools.entity.BeanEntityServiceBuilderWrapper;
+import org.jowidgets.service.api.IServiceRegistry;
 
-	/**
-	 * Adds an entity to the bean service.
-	 * The entity can be configured on the returned blue print.
-	 * 
-	 * @return The blue print to configure the entity
-	 */
-	IBeanEntityBluePrint addEntity();
+public class JpaEntityServiceBuilderWrapper extends BeanEntityServiceBuilderWrapper {
+
+	private final IJpaServiceFactory serviceFactory;
+
+	public JpaEntityServiceBuilderWrapper(final IServiceRegistry serviceRegistry) {
+		super(JpaServiceToolkit.serviceFactory(), serviceRegistry);
+		this.serviceFactory = JpaServiceToolkit.serviceFactory();
+	}
+
+	protected IJpaServiceFactory getServiceFactory() {
+		return serviceFactory;
+	}
 
 }

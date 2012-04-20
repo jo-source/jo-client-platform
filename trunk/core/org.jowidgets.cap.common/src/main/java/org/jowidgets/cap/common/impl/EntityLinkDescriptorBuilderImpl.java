@@ -110,13 +110,23 @@ final class EntityLinkDescriptorBuilderImpl implements IEntityLinkDescriptorBuil
 
 	@Override
 	public IEntityLinkDescriptorBuilder setLinkCreatorService(final IServiceId<ILinkCreatorService> serviceId) {
-		this.creatorService = new LinkCreatorServiceProxy(serviceId);
+		if (serviceId != null) {
+			this.creatorService = new LinkCreatorServiceProxy(serviceId);
+		}
+		else {
+			this.creatorService = null;
+		}
 		return this;
 	}
 
 	@Override
 	public IEntityLinkDescriptorBuilder setLinkDeleterService(final IServiceId<ILinkDeleterService> serviceId) {
-		this.deleterService = new LinkDeleterServiceProxy(serviceId);
+		if (serviceId != null) {
+			this.deleterService = new LinkDeleterServiceProxy(serviceId);
+		}
+		else {
+			this.deleterService = null;
+		}
 		return this;
 	}
 

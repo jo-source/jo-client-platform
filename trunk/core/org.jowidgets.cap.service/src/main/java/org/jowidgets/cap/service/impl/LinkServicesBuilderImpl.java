@@ -86,14 +86,12 @@ final class LinkServicesBuilderImpl<LINKED_BEAN_TYPE extends IBean> implements I
 
 	@Override
 	public ILinkServicesBuilder<LINKED_BEAN_TYPE> setSourceCreatorService(final ICreatorService creatorService) {
-		Assert.paramNotNull(creatorService, "creatorService");
 		this.sourceCreatorService = creatorService;
 		return this;
 	}
 
 	@Override
 	public ILinkServicesBuilder<LINKED_BEAN_TYPE> setSourceDeleterService(final IDeleterService deleterService) {
-		Assert.paramNotNull(deleterService, "deleterService");
 		this.sourceDeleterService = deleterService;
 		return this;
 	}
@@ -121,14 +119,12 @@ final class LinkServicesBuilderImpl<LINKED_BEAN_TYPE extends IBean> implements I
 
 	@Override
 	public ILinkServicesBuilder<LINKED_BEAN_TYPE> setLinkedCreatorService(final ICreatorService creatorService) {
-		Assert.paramNotNull(creatorService, "creatorService");
 		this.linkedCreatorService = creatorService;
 		return this;
 	}
 
 	@Override
 	public ILinkServicesBuilder<LINKED_BEAN_TYPE> setLinkedDeleterService(final IDeleterService deleterService) {
-		Assert.paramNotNull(deleterService, "deleterService");
 		this.linkedDeleterService = deleterService;
 		return this;
 	}
