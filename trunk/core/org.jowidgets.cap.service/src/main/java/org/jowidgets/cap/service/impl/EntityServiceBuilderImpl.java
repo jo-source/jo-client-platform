@@ -42,7 +42,7 @@ import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.service.api.entity.IEntityServiceBuilder;
 import org.jowidgets.util.Assert;
 
-final class EntityServiceBuilderImpl implements IEntityServiceBuilder {
+class EntityServiceBuilderImpl implements IEntityServiceBuilder {
 
 	private final Map<Object, IBeanDtoDescriptor> descriptors;
 	private final Map<Object, IBeanServicesProvider> beanServices;
@@ -60,7 +60,7 @@ final class EntityServiceBuilderImpl implements IEntityServiceBuilder {
 	}
 
 	@Override
-	public <BEAN_TYPE> IEntityServiceBuilder add(
+	public final <BEAN_TYPE> IEntityServiceBuilder add(
 		final Object entityTypeId,
 		final IBeanDtoDescriptor descriptor,
 		final IBeanServicesProvider beanServicesProvider) {
@@ -73,7 +73,7 @@ final class EntityServiceBuilderImpl implements IEntityServiceBuilder {
 	}
 
 	@Override
-	public <BEAN_TYPE> IEntityServiceBuilder add(
+	public final <BEAN_TYPE> IEntityServiceBuilder add(
 		final Object entityTypeId,
 		final IBeanDtoDescriptor descriptor,
 		final IBeanServicesProvider beanServicesProvider,
