@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,45 +26,17 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.api.service;
+package org.jowidgets.cap.service.api.link;
 
-import java.util.Collection;
-import java.util.List;
+import org.jowidgets.cap.common.api.bean.IBean;
+import org.jowidgets.cap.service.api.CapServiceToolkit;
 
-import org.jowidgets.cap.common.api.bean.IBeanData;
-import org.jowidgets.cap.common.api.bean.IBeanDto;
-import org.jowidgets.cap.common.api.execution.IExecutionCallback;
-import org.jowidgets.cap.common.api.execution.IResultCallback;
+public final class LinkServicesBuilder {
 
-public interface ILinkCreatorService {
+	private LinkServicesBuilder() {}
 
-	/**
-	 * Creates new links of beans
-	 * 
-	 * @param linkedBeanResult The result callback for the linked beans created by the service
-	 * @param links the link information
-	 * @param executionCallback
-	 */
-	void create(
-		IResultCallback<List<IBeanDto>> linkedBeansResult,
-		Collection<? extends ILinkData> links,
-		IExecutionCallback executionCallback);
-
-	public interface ILinkData {
-
-		/**
-		 * @return The data for the source bean if a new bean should be created, else null
-		 */
-		IBeanData getSourceData();
-
-		/**
-		 * @return The data of the link or null for direct links.
-		 */
-		IBeanData getLinkData();
-
-		/**
-		 * @return The data for the linked bean if a new bean should be created or for direct links, else null
-		 */
-		IBeanData getLinkedData();
+	public static <BEAN_TYPE extends IBean> ILinkServicesBuilder<BEAN_TYPE> create() {
+		return CapServiceToolkit.linkServicesBuilder();
 	}
+
 }

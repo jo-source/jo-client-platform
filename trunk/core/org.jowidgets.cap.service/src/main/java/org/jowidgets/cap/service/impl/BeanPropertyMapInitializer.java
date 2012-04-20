@@ -28,6 +28,8 @@
 
 package org.jowidgets.cap.service.impl;
 
+import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IBean;
@@ -46,9 +48,9 @@ final class BeanPropertyMapInitializer implements IBeanInitializer<IBeanProperty
 	private final List<String> propertyNames;
 	private final IPluginProperties pluginProperties;
 
-	BeanPropertyMapInitializer(final List<String> propertyNames) {
+	BeanPropertyMapInitializer(final Collection<String> propertyNames) {
 		Assert.paramNotNull(propertyNames, "propertyNames");
-		this.propertyNames = propertyNames;
+		this.propertyNames = new LinkedList<String>(propertyNames);
 		this.pluginProperties = createPluginProperties();
 	}
 

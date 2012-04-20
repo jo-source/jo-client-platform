@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.service.api;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -36,9 +37,9 @@ import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.service.api.adapter.IAdapterFactoryProvider;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
-import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.cap.service.api.bean.IBeanDtoCollectionFilter;
 import org.jowidgets.cap.service.api.bean.IBeanDtoCollectionSorter;
+import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.cap.service.api.bean.IBeanInitializer;
 import org.jowidgets.cap.service.api.bean.IBeanModifier;
 import org.jowidgets.cap.service.api.bean.IBeanPropertyMap;
@@ -47,6 +48,7 @@ import org.jowidgets.cap.service.api.entity.IBeanServicesProviderBuilder;
 import org.jowidgets.cap.service.api.entity.IEntityClassProviderServiceBuilder;
 import org.jowidgets.cap.service.api.entity.IEntityServiceBuilder;
 import org.jowidgets.cap.service.api.executor.IExecutorServiceBuilder;
+import org.jowidgets.cap.service.api.link.ILinkServicesBuilder;
 import org.jowidgets.cap.service.api.refresh.IRefreshServiceBuilder;
 import org.jowidgets.cap.service.api.updater.IUpdaterServiceBuilder;
 import org.jowidgets.cap.service.impl.DefaultCapServiceToolkit;
@@ -70,6 +72,10 @@ public final class CapServiceToolkit {
 		return getInstance().entityServiceBuilder();
 	}
 
+	public static <BEAN_TYPE extends IBean> ILinkServicesBuilder<BEAN_TYPE> linkServicesBuilder() {
+		return getInstance().linkServicesBuilder();
+	}
+
 	public static IEntityClassProviderServiceBuilder entityClassProviderServiceBuilder() {
 		return getInstance().entityClassProviderServiceBuilder();
 	}
@@ -83,19 +89,19 @@ public final class CapServiceToolkit {
 
 	public static <BEAN_TYPE extends IBean> IBeanInitializer<BEAN_TYPE> beanInitializer(
 		final Class<? extends BEAN_TYPE> beanType,
-		final List<String> propertyNames) {
+		final Collection<String> propertyNames) {
 		return getInstance().beanInitializer(beanType, propertyNames);
 	}
 
 	public static <BEAN_TYPE extends IBean> IBeanModifier<BEAN_TYPE> beanModifier(
 		final Class<? extends BEAN_TYPE> beanType,
-		final List<String> propertyNames) {
+		final Collection<String> propertyNames) {
 		return getInstance().beanModifier(beanType, propertyNames);
 	}
 
 	public static <BEAN_TYPE extends IBean> IBeanDtoFactory<BEAN_TYPE> dtoFactory(
 		final Class<? extends BEAN_TYPE> beanType,
-		final List<String> propertyNames) {
+		final Collection<String> propertyNames) {
 		return getInstance().dtoFactory(beanType, propertyNames);
 	}
 
