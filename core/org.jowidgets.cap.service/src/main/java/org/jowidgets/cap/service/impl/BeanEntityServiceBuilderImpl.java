@@ -107,7 +107,7 @@ final class BeanEntityServiceBuilderImpl extends EntityServiceBuilderImpl implem
 	}
 
 	@Override
-	public IBeanEntityBluePrint addBeanEntity() {
+	public IBeanEntityBluePrint addEntity() {
 		checkExhausted();
 		final BeanEntityBluePrintImpl result = new BeanEntityBluePrintImpl();
 		beanEntities.add(result);
