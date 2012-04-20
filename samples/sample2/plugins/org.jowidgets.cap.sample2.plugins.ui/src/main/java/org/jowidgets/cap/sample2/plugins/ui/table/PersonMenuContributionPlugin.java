@@ -49,18 +49,12 @@ public final class PersonMenuContributionPlugin implements IBeanTableMenuContrib
 
 	@Override
 	public IMenuModel getHeaderMenu(final IPluginProperties properties, final IBeanTable<IPerson> table) {
-		final MenuModel result = new MenuModel();
-		result.addAction(new PersonActivateAction(table.getModel()));
-		result.addAction(new PersonDeactivateAction(table.getModel()));
-		return result;
+		return new MenuModel();
 	}
 
 	@Override
 	public IMenuModel getTableMenu(final IPluginProperties properties, final IBeanTable<IPerson> table) {
-		final MenuModel result = new MenuModel();
-		result.addAction(new PersonActivateAction(table.getModel()));
-		result.addAction(new PersonDeactivateAction(table.getModel()));
-		return result;
+		return new MenuModel();
 	}
 
 }
