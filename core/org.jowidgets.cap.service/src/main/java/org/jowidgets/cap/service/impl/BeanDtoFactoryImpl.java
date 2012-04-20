@@ -33,8 +33,8 @@ import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -50,7 +50,7 @@ final class BeanDtoFactoryImpl<BEAN_TYPE extends IBean> implements IBeanDtoFacto
 	private final Class<? extends IBean> beanType;
 	private final Map<String, Method> methods;
 
-	BeanDtoFactoryImpl(final Class<? extends IBean> beanType, final List<String> propertyNames) {
+	BeanDtoFactoryImpl(final Class<? extends IBean> beanType, final Collection<String> propertyNames) {
 
 		Assert.paramNotNull(beanType, "beanType");
 		Assert.paramNotNull(propertyNames, "propertyNames");

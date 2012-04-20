@@ -30,7 +30,6 @@ package org.jowidgets.cap.common.api.service;
 
 import java.util.Collection;
 
-import org.jowidgets.cap.common.api.bean.IBeanData;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
@@ -47,7 +46,7 @@ public interface ILinkDeleterService {
 		/**
 		 * @return The key for the source bean, never null
 		 */
-		Collection<? extends IBeanKey> getSourceKey();
+		IBeanKey getSourceKey();
 
 		/**
 		 * @return True if the source should be deleted too
@@ -57,10 +56,10 @@ public interface ILinkDeleterService {
 		/**
 		 * @return The key for the destination bean, never null
 		 */
-		Collection<? extends IBeanData> getDestinationKey();
+		IBeanKey getDestinationKey();
 
 		/**
-		 * @return True if the destination should be deleted too
+		 * @return True if the destination should be deleted too (not relevant for direct links, they will be deleted always)
 		 */
 		boolean deleteDestination();
 	}

@@ -28,6 +28,8 @@
 
 package org.jowidgets.cap.service.impl;
 
+import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.jowidgets.cap.common.api.CapCommonToolkit;
@@ -41,9 +43,9 @@ final class BeanPropertyMapDtoFactory implements IBeanDtoFactory<IBeanPropertyMa
 
 	private final List<String> propertyNames;
 
-	BeanPropertyMapDtoFactory(final List<String> propertyNames) {
+	BeanPropertyMapDtoFactory(final Collection<String> propertyNames) {
 		Assert.paramNotNull(propertyNames, "propertyNames");
-		this.propertyNames = propertyNames;
+		this.propertyNames = new LinkedList<String>(propertyNames);
 	}
 
 	@Override

@@ -28,7 +28,7 @@
 
 package org.jowidgets.cap.service.api;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.jowidgets.cap.common.api.bean.IBean;
@@ -36,9 +36,9 @@ import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.service.api.adapter.IAdapterFactoryProvider;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
-import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.cap.service.api.bean.IBeanDtoCollectionFilter;
 import org.jowidgets.cap.service.api.bean.IBeanDtoCollectionSorter;
+import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.cap.service.api.bean.IBeanInitializer;
 import org.jowidgets.cap.service.api.bean.IBeanModifier;
 import org.jowidgets.cap.service.api.bean.IBeanPropertyMap;
@@ -47,6 +47,7 @@ import org.jowidgets.cap.service.api.entity.IBeanServicesProviderBuilder;
 import org.jowidgets.cap.service.api.entity.IEntityClassProviderServiceBuilder;
 import org.jowidgets.cap.service.api.entity.IEntityServiceBuilder;
 import org.jowidgets.cap.service.api.executor.IExecutorServiceBuilder;
+import org.jowidgets.cap.service.api.link.ILinkServicesBuilder;
 import org.jowidgets.cap.service.api.refresh.IRefreshServiceBuilder;
 import org.jowidgets.cap.service.api.updater.IUpdaterServiceBuilder;
 import org.jowidgets.service.api.IServiceId;
@@ -55,6 +56,8 @@ import org.jowidgets.service.api.IServiceRegistry;
 public interface ICapServiceToolkit {
 
 	IEntityServiceBuilder entityServiceBuilder();
+
+	<BEAN_TYPE extends IBean> ILinkServicesBuilder<BEAN_TYPE> linkServicesBuilder();
 
 	IEntityClassProviderServiceBuilder entityClassProviderServiceBuilder();
 
@@ -65,7 +68,7 @@ public interface ICapServiceToolkit {
 
 	<BEAN_TYPE extends IBean> IBeanDtoFactory<BEAN_TYPE> dtoFactory(
 		Class<? extends BEAN_TYPE> beanType,
-		List<String> propertyNames);
+		Collection<String> propertyNames);
 
 	IBeanDtoCollectionSorter beanDtoCollectionSorter();
 
@@ -73,17 +76,17 @@ public interface ICapServiceToolkit {
 
 	<BEAN_TYPE extends IBean> IBeanInitializer<BEAN_TYPE> beanInitializer(
 		Class<? extends BEAN_TYPE> beanType,
-		List<String> propertyNames);
+		Collection<String> propertyNames);
 
 	<BEAN_TYPE extends IBean> IBeanModifier<BEAN_TYPE> beanModifier(
 		Class<? extends BEAN_TYPE> beanType,
-		List<String> propertyNames);
+		Collection<String> propertyNames);
 
 	IBeanPropertyMap beanPropertyMap(Object entityTypeId);
 
-	IBeanDtoFactory<IBeanPropertyMap> beanPropertyMapDtoFactory(List<String> propertyNames);
+	IBeanDtoFactory<IBeanPropertyMap> beanPropertyMapDtoFactory(Collection<String> propertyNames);
 
-	IBeanInitializer<IBeanPropertyMap> beanPropertyMapInitializer(List<String> propertyNames);
+	IBeanInitializer<IBeanPropertyMap> beanPropertyMapInitializer(Collection<String> propertyNames);
 
 	IBeanModifier<IBeanPropertyMap> beanPropertyMapModifier();
 

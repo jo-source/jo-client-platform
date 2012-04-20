@@ -68,6 +68,11 @@ final class BooleanFilterBuilderImpl extends FilterBuilderImpl<IBooleanFilterBui
 	}
 
 	@Override
+	public boolean isEmpty() {
+		return filters.isEmpty();
+	}
+
+	@Override
 	public IBooleanFilter build() {
 		return new BooleanFilterImpl(operator, filters, isInverted());
 	}

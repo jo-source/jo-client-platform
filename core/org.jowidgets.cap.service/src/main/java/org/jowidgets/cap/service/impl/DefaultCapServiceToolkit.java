@@ -28,7 +28,7 @@
 
 package org.jowidgets.cap.service.impl;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -39,9 +39,9 @@ import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.service.api.ICapServiceToolkit;
 import org.jowidgets.cap.service.api.adapter.IAdapterFactoryProvider;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
-import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.cap.service.api.bean.IBeanDtoCollectionFilter;
 import org.jowidgets.cap.service.api.bean.IBeanDtoCollectionSorter;
+import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.cap.service.api.bean.IBeanInitializer;
 import org.jowidgets.cap.service.api.bean.IBeanModifier;
 import org.jowidgets.cap.service.api.bean.IBeanPropertyMap;
@@ -50,6 +50,7 @@ import org.jowidgets.cap.service.api.entity.IBeanServicesProviderBuilder;
 import org.jowidgets.cap.service.api.entity.IEntityClassProviderServiceBuilder;
 import org.jowidgets.cap.service.api.entity.IEntityServiceBuilder;
 import org.jowidgets.cap.service.api.executor.IExecutorServiceBuilder;
+import org.jowidgets.cap.service.api.link.ILinkServicesBuilder;
 import org.jowidgets.cap.service.api.refresh.IRefreshServiceBuilder;
 import org.jowidgets.cap.service.api.updater.IUpdaterServiceBuilder;
 import org.jowidgets.service.api.IServiceId;
@@ -78,6 +79,11 @@ public final class DefaultCapServiceToolkit implements ICapServiceToolkit {
 	}
 
 	@Override
+	public <BEAN_TYPE extends IBean> ILinkServicesBuilder<BEAN_TYPE> linkServicesBuilder() {
+		return new LinkServicesBuilderImpl<BEAN_TYPE>();
+	}
+
+	@Override
 	public IEntityClassProviderServiceBuilder entityClassProviderServiceBuilder() {
 		return new EntityClassProviderServiceBuilderImpl();
 	}
@@ -93,7 +99,7 @@ public final class DefaultCapServiceToolkit implements ICapServiceToolkit {
 	@Override
 	public <BEAN_TYPE extends IBean> IBeanDtoFactory<BEAN_TYPE> dtoFactory(
 		final Class<? extends BEAN_TYPE> beanType,
-		final List<String> propertyNames) {
+		final Collection<String> propertyNames) {
 		return new BeanDtoFactoryImpl<BEAN_TYPE>(beanType, propertyNames);
 	}
 
@@ -110,14 +116,14 @@ public final class DefaultCapServiceToolkit implements ICapServiceToolkit {
 	@Override
 	public <BEAN_TYPE extends IBean> IBeanInitializer<BEAN_TYPE> beanInitializer(
 		final Class<? extends BEAN_TYPE> beanType,
-		final List<String> propertyNames) {
+		final Collection<String> propertyNames) {
 		return new BeanInitializerImpl<BEAN_TYPE>(beanType, propertyNames);
 	}
 
 	@Override
 	public <BEAN_TYPE extends IBean> IBeanModifier<BEAN_TYPE> beanModifier(
 		final Class<? extends BEAN_TYPE> beanType,
-		final List<String> propertyNames) {
+		final Collection<String> propertyNames) {
 		return new BeanModifierImpl<BEAN_TYPE>(beanType, propertyNames);
 	}
 
@@ -127,12 +133,12 @@ public final class DefaultCapServiceToolkit implements ICapServiceToolkit {
 	}
 
 	@Override
-	public IBeanDtoFactory<IBeanPropertyMap> beanPropertyMapDtoFactory(final List<String> propertyNames) {
+	public IBeanDtoFactory<IBeanPropertyMap> beanPropertyMapDtoFactory(final Collection<String> propertyNames) {
 		return new BeanPropertyMapDtoFactory(propertyNames);
 	}
 
 	@Override
-	public IBeanInitializer<IBeanPropertyMap> beanPropertyMapInitializer(final List<String> propertyNames) {
+	public IBeanInitializer<IBeanPropertyMap> beanPropertyMapInitializer(final Collection<String> propertyNames) {
 		return new BeanPropertyMapInitializer(propertyNames);
 	}
 

@@ -38,6 +38,8 @@ public interface IBooleanFilterBuilder extends IFilterBuilder<IBooleanFilterBuil
 
 	IBooleanFilterBuilder addFilter(IFilter filter);
 
+	boolean isEmpty();
+
 	IBooleanFilter build();
 
 }
