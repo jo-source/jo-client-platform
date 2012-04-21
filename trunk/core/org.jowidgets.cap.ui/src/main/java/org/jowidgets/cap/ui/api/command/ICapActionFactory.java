@@ -30,6 +30,7 @@ package org.jowidgets.cap.ui.api.command;
 
 import org.jowidgets.api.command.IAction;
 import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
+import org.jowidgets.cap.ui.api.bean.IBeanSelectionProvider;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 
@@ -97,5 +98,17 @@ public interface ICapActionFactory {
 	 * @return The action or null
 	 */
 	<BEAN_TYPE> IAction linkAction(IBeanTableModel<BEAN_TYPE> model, IBeanTableModel<?> linkedModel);
+
+	<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> linkCreatorActionBuilder(
+		IBeanSelectionProvider<SOURCE_BEAN_TYPE> source);
+
+	<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> linkCreatorActionBuilder(
+		IBeanSelectionProvider<SOURCE_BEAN_TYPE> source,
+		IEntityLinkDescriptor linkDescriptor);
+
+	IAction linkCreatorAction(
+		final IBeanSelectionProvider<?> source,
+		final IBeanListModel<?> linkedModel,
+		IEntityLinkDescriptor linkDescriptor);
 
 }
