@@ -30,6 +30,7 @@ package org.jowidgets.cap.ui.impl;
 
 import org.jowidgets.api.command.IAction;
 import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
+import org.jowidgets.cap.ui.api.bean.IBeanSelectionProvider;
 import org.jowidgets.cap.ui.api.command.ICapActionFactory;
 import org.jowidgets.cap.ui.api.command.ICreatorActionBuilder;
 import org.jowidgets.cap.ui.api.command.IDataModelAction;
@@ -37,6 +38,7 @@ import org.jowidgets.cap.ui.api.command.IDataModelActionBuilder;
 import org.jowidgets.cap.ui.api.command.IDeleterActionBuilder;
 import org.jowidgets.cap.ui.api.command.IExecutorActionBuilder;
 import org.jowidgets.cap.ui.api.command.ILinkActionBuilder;
+import org.jowidgets.cap.ui.api.command.ILinkCreatorActionBuilder;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.util.Assert;
@@ -199,6 +201,34 @@ final class CapActionFactoryImpl implements ICapActionFactory {
 		else {
 			return null;
 		}
+	}
+
+	@Override
+	public <SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> linkCreatorActionBuilder(
+		final IBeanSelectionProvider<SOURCE_BEAN_TYPE> source) {
+		final ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> result;
+		result = new LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE>();
+		result.setSource(source);
+		return new LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE>();
+	}
+
+	@Override
+	public <SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> linkCreatorActionBuilder(
+		final IBeanSelectionProvider<SOURCE_BEAN_TYPE> source,
+		final IEntityLinkDescriptor linkDescriptor) {
+
+		return new LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE>(source, linkDescriptor);
+	}
+
+	@SuppressWarnings({"unchecked", "rawtypes"})
+	@Override
+	public IAction linkCreatorAction(
+		final IBeanSelectionProvider<?> source,
+		final IBeanListModel<?> linkedModel,
+		final IEntityLinkDescriptor linkDescriptor) {
+		final ILinkCreatorActionBuilder builder = linkCreatorActionBuilder(source, linkDescriptor);
+		builder.setLinkedModel(linkedModel);
+		return builder.build();
 	}
 
 }

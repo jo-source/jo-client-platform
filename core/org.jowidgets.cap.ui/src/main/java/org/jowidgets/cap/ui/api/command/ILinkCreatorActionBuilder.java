@@ -28,21 +28,35 @@
 
 package org.jowidgets.cap.ui.api.command;
 
-import java.util.List;
-
 import org.jowidgets.api.command.IEnabledChecker;
 import org.jowidgets.cap.common.api.entity.IEntityLinkProperties;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
-import org.jowidgets.cap.common.api.service.ICreatorService;
-import org.jowidgets.cap.common.api.service.IReaderService;
-import org.jowidgets.cap.ui.api.attribute.IAttribute;
+import org.jowidgets.cap.common.api.service.ILinkCreatorService;
 import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
+import org.jowidgets.cap.ui.api.bean.IBeanSelectionProvider;
 import org.jowidgets.cap.ui.api.execution.BeanMessageStatePolicy;
 import org.jowidgets.cap.ui.api.execution.BeanModificationStatePolicy;
 import org.jowidgets.cap.ui.api.execution.IExecutionInterceptor;
-import org.jowidgets.cap.ui.api.model.IDataModel;
+import org.jowidgets.cap.ui.api.model.IBeanListModel;
+import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
+import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
 
-public interface ILinkCreatorActionBuilder<BEAN_TYPE> extends ICapActionBuilder<ILinkCreatorActionBuilder<BEAN_TYPE>> {
+public interface ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> extends
+		ICapActionBuilder<ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE>> {
+
+	ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> setSource(
+		IBeanSelectionProvider<SOURCE_BEAN_TYPE> selectionProvider);
+
+	ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> setSourceMultiSelection(boolean multiSelection);
+
+	ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> setSourceModificationPolicy(
+		BeanModificationStatePolicy policy);
+
+	ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> setSourceMessageStatePolicy(
+		BeanMessageStatePolicy policy);
+
+	ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> addSourceExecutableChecker(
+		IExecutableChecker<SOURCE_BEAN_TYPE> executableChecker);
 
 	/**
 	 * Sets the entity label plural.
@@ -52,49 +66,51 @@ public interface ILinkCreatorActionBuilder<BEAN_TYPE> extends ICapActionBuilder<
 	 * 
 	 * @return This builder
 	 */
-	ILinkCreatorActionBuilder<BEAN_TYPE> setDestinationEntityLabelPlural(String label);
+	ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> setLinkedEntityLabelPlural(String label);
 
-	ILinkCreatorActionBuilder<BEAN_TYPE> setLinkCreatorService(ICreatorService creatorService);
+	ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> setLinkCreatorService(
+		ILinkCreatorService creatorService);
 
-	ILinkCreatorActionBuilder<BEAN_TYPE> setLinkAttributes(List<? extends IAttribute<?>> attributes);
+	ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> setLinkBeanForm(
+		IBeanFormBluePrint<LINK_BEAN_TYPE> beanForm);
 
-	ILinkCreatorActionBuilder<BEAN_TYPE> setLinkableTableAttributes(List<? extends IAttribute<?>> attributes);
+	ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> setLinkableBeanForm(
+		IBeanFormBluePrint<LINKABLE_BEAN_TYPE> beanForm);
 
-	ILinkCreatorActionBuilder<BEAN_TYPE> setLinkableTableEntityId(Object id);
+	ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> setLinkableTable(
+		IBeanTableBluePrint<LINKABLE_BEAN_TYPE> table);
 
-	ILinkCreatorActionBuilder<BEAN_TYPE> setLinkableTableLabel(String label);
+	ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> setSourceProperties(
+		IEntityLinkProperties properties);
 
-	ILinkCreatorActionBuilder<BEAN_TYPE> setLinkableTableReaderService(IReaderService<Void> readerService);
+	ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> setSourceProperties(
+		String keyPropertyName,
+		String foreignKeyPropertyName);
 
-	ILinkCreatorActionBuilder<BEAN_TYPE> setSourceProperties(IEntityLinkProperties properties);
+	ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> setDestinationProperties(
+		IEntityLinkProperties properties);
 
-	ILinkCreatorActionBuilder<BEAN_TYPE> setSourceProperties(String keyPropertyName, String foreignKeyPropertyName);
+	ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> setDestinationProperties(
+		String keyPropertyName,
+		String foreignKeyPropertyName);
 
-	ILinkCreatorActionBuilder<BEAN_TYPE> setDestinationProperties(IEntityLinkProperties properties);
+	ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> addEnabledChecker(
+		IEnabledChecker enabledChecker);
 
-	ILinkCreatorActionBuilder<BEAN_TYPE> setDestinationProperties(String keyPropertyName, String foreignKeyPropertyName);
+	ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> setExceptionConverter(
+		IBeanExceptionConverter exceptionConverter);
 
-	ILinkCreatorActionBuilder<BEAN_TYPE> setMultiSelection(boolean multiSelection);
-
-	ILinkCreatorActionBuilder<BEAN_TYPE> addEnabledChecker(IEnabledChecker enabledChecker);
-
-	ILinkCreatorActionBuilder<BEAN_TYPE> setModificationPolicy(BeanModificationStatePolicy policy);
-
-	ILinkCreatorActionBuilder<BEAN_TYPE> setMessageStatePolicy(BeanMessageStatePolicy policy);
-
-	ILinkCreatorActionBuilder<BEAN_TYPE> addExecutableChecker(IExecutableChecker<BEAN_TYPE> executableChecker);
-
-	ILinkCreatorActionBuilder<BEAN_TYPE> setExceptionConverter(IBeanExceptionConverter exceptionConverter);
-
-	ILinkCreatorActionBuilder<BEAN_TYPE> addExecutionInterceptor(IExecutionInterceptor interceptor);
+	ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> addExecutionInterceptor(
+		IExecutionInterceptor interceptor);
 
 	/**
-	 * If a linked data model is set, it will be reloaded after a link was created
+	 * If a linked model is set, the linked beans will be inserted in this model after link creation
 	 * 
 	 * @param model The model to set
 	 * 
 	 * @return This builder
 	 */
-	ILinkCreatorActionBuilder<BEAN_TYPE> setLinkedDataModel(IDataModel model);
+	ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> setLinkedModel(
+		IBeanListModel<LINKABLE_BEAN_TYPE> model);
 
 }
