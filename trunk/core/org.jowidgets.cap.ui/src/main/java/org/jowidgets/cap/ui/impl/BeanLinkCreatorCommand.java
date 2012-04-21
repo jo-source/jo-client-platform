@@ -35,6 +35,7 @@ import org.jowidgets.api.command.ICommandExecutor;
 import org.jowidgets.api.command.IEnabledChecker;
 import org.jowidgets.api.command.IExceptionHandler;
 import org.jowidgets.api.command.IExecutionContext;
+import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.cap.common.api.entity.IEntityLinkProperties;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.service.ILinkCreatorService;
@@ -131,9 +132,7 @@ final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BE
 
 	@Override
 	public void execute(final IExecutionContext executionContext) throws Exception {
-		//CHECKSTYLE:OFF
-		System.out.println("TODO implement link");
-		//CHECKSTYLE:ON
+		Toolkit.getMessagePane().showInfo(executionContext, "TODO must be implemented");
 	}
 
 }

@@ -552,6 +552,22 @@ final class BeanEntityServiceBuilderImpl extends EntityServiceBuilderImpl implem
 		}
 
 		IEntityLinkDescriptor build(final Map<Object, BeanEntityPreBuild> prebuilds) {
+			if (sourceProperties == null
+				|| destinationProperties == null
+				|| linkEntityId == null
+				|| linkableEntityId == null
+				|| linkedEntityId == null) {
+				throw new IllegalStateException("Missiing mandatory parameters: sourceProperties='"
+					+ sourceProperties
+					+ "', destinationProperties = '"
+					+ destinationProperties
+					+ "', linkEntityId = '"
+					+ linkEntityId
+					+ "', linkableEntityId = '"
+					+ linkableEntityId
+					+ "', linkedEntityId = '"
+					+ linkedEntityId);
+			}
 			final IEntityLinkDescriptorBuilder builder = EntityLinkDescriptor.builder();
 			builder.setLinkEntityId(linkEntityId).setLinkedEntityId(linkedEntityId).setLinkableEntityId(linkableEntityId);
 			builder.setSourceProperties(sourceProperties);
@@ -673,6 +689,7 @@ final class BeanEntityServiceBuilderImpl extends EntityServiceBuilderImpl implem
 			if (linkedPrebuild != null) {
 				final IBeanServicesProvider linkedServices = linkedPrebuild.getServices();
 				builder.setLinkedBeanAccess(beanServiceFactory.beanAccess(linkedPrebuild.getBeanType()));
+				builder.setLinkedDtoFactory(linkedPrebuild.getBeanType(), linkedPrebuild.getPropertyNames());
 				builder.setLinkedCreatorService(linkedServices.creatorService());
 				builder.setLinkedDeleterService(linkedServices.deleterService());
 			}
