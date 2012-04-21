@@ -28,23 +28,10 @@
 
 package org.jowidgets.cap.ui.api.widgets;
 
-import java.util.List;
+import org.jowidgets.api.widgets.IInputDialog;
+import org.jowidgets.cap.ui.api.widgets.IBeanLinkPanel.IBeanLink;
 
-import org.jowidgets.cap.ui.api.bean.IBeanProxy;
-import org.jowidgets.common.widgets.descriptor.IWidgetDescriptor;
-import org.jowidgets.common.widgets.descriptor.setup.mandatory.Mandatory;
-import org.jowidgets.validation.IValidator;
+public interface IBeanLinkDialog<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> extends
+		IInputDialog<IBeanLink<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE>> {
 
-public interface IBeanSelectionTableBluePrint<BEAN_TYPE> extends
-		IBeanTableSetupBuilder<BEAN_TYPE>,
-		IWidgetDescriptor<IBeanSelectionTable<BEAN_TYPE>> {
-
-	IBeanSelectionTableBluePrint<BEAN_TYPE> setValidator(IValidator<List<IBeanProxy<BEAN_TYPE>>> validator);
-
-	IBeanSelectionTableBluePrint<BEAN_TYPE> setMandatorySelectionValidator(boolean validatorvalidator);
-
-	IValidator<List<IBeanProxy<BEAN_TYPE>>> getValidator();
-
-	@Mandatory
-	boolean getMandatorySelectionValidator();
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,25 +26,57 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.widgets;
+package org.jowidgets.cap.ui.impl.widgets;
 
-import java.util.List;
+import org.jowidgets.api.widgets.IComposite;
+import org.jowidgets.cap.ui.api.widgets.IBeanLinkPanel;
+import org.jowidgets.cap.ui.api.widgets.IBeanLinkPanel.IBeanLink;
+import org.jowidgets.cap.ui.api.widgets.IBeanLinkPanelBluePrint;
+import org.jowidgets.tools.widgets.blueprint.BPF;
+import org.jowidgets.tools.widgets.wrapper.AbstractInputControl;
+import org.jowidgets.validation.IValidationResult;
+import org.jowidgets.validation.ValidationResult;
 
-import org.jowidgets.cap.ui.api.bean.IBeanProxy;
-import org.jowidgets.common.widgets.descriptor.IWidgetDescriptor;
-import org.jowidgets.common.widgets.descriptor.setup.mandatory.Mandatory;
-import org.jowidgets.validation.IValidator;
+final class BeanLinkPanelImpl<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> extends
+		AbstractInputControl<IBeanLink<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE>> implements
+		IBeanLinkPanel<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> {
 
-public interface IBeanSelectionTableBluePrint<BEAN_TYPE> extends
-		IBeanTableSetupBuilder<BEAN_TYPE>,
-		IWidgetDescriptor<IBeanSelectionTable<BEAN_TYPE>> {
+	public BeanLinkPanelImpl(
+		final IComposite composite,
+		final IBeanLinkPanelBluePrint<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> bluePrint) {
+		super(composite);
+		composite.add(BPF.textLabel("TODO"));
+	}
 
-	IBeanSelectionTableBluePrint<BEAN_TYPE> setValidator(IValidator<List<IBeanProxy<BEAN_TYPE>>> validator);
+	@Override
+	public boolean hasModifications() {
+		return false;
+	}
 
-	IBeanSelectionTableBluePrint<BEAN_TYPE> setMandatorySelectionValidator(boolean validatorvalidator);
+	@Override
+	public void resetModificationState() {
 
-	IValidator<List<IBeanProxy<BEAN_TYPE>>> getValidator();
+	}
 
-	@Mandatory
-	boolean getMandatorySelectionValidator();
+	@Override
+	public void setValue(final IBeanLink<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> value) {
+
+	}
+
+	@Override
+	public IBeanLink<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> getValue() {
+
+		return null;
+	}
+
+	@Override
+	public void setEditable(final boolean editable) {
+
+	}
+
+	@Override
+	protected IValidationResult createValidationResult() {
+		return ValidationResult.ok();
+	}
+
 }

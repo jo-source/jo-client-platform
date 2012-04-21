@@ -28,23 +28,21 @@
 
 package org.jowidgets.cap.ui.api.widgets;
 
-import java.util.List;
-
-import org.jowidgets.cap.ui.api.bean.IBeanProxy;
+import org.jowidgets.api.widgets.blueprint.builder.IInputDialogSetupBuilder;
+import org.jowidgets.api.widgets.descriptor.setup.IInputDialogSetup;
+import org.jowidgets.cap.ui.api.widgets.IBeanLinkPanel.IBeanLink;
 import org.jowidgets.common.widgets.descriptor.IWidgetDescriptor;
 import org.jowidgets.common.widgets.descriptor.setup.mandatory.Mandatory;
-import org.jowidgets.validation.IValidator;
 
-public interface IBeanSelectionTableBluePrint<BEAN_TYPE> extends
-		IBeanTableSetupBuilder<BEAN_TYPE>,
-		IWidgetDescriptor<IBeanSelectionTable<BEAN_TYPE>> {
+public interface IBeanLinkDialogBluePrint<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> extends
+		IInputDialogSetup<IBeanLink<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE>>,
+		IInputDialogSetupBuilder<IBeanLinkDialogBluePrint<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE>, IBeanLink<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE>>,
+		IWidgetDescriptor<IBeanLinkDialog<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE>> {
 
-	IBeanSelectionTableBluePrint<BEAN_TYPE> setValidator(IValidator<List<IBeanProxy<BEAN_TYPE>>> validator);
-
-	IBeanSelectionTableBluePrint<BEAN_TYPE> setMandatorySelectionValidator(boolean validatorvalidator);
-
-	IValidator<List<IBeanProxy<BEAN_TYPE>>> getValidator();
+	IBeanLinkDialogBluePrint<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> setBeanLinkPanel(
+		IBeanLinkPanelBluePrint<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> linkPanel);
 
 	@Mandatory
-	boolean getMandatorySelectionValidator();
+	IBeanLinkPanelBluePrint<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> getBeanLinkPanel();
+
 }

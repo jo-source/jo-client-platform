@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2010, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,25 +26,33 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.widgets;
+package org.jowidgets.cap.ui.impl.widgets;
 
-import java.util.List;
+import org.jowidgets.api.toolkit.Toolkit;
+import org.jowidgets.api.widgets.IInputDialog;
+import org.jowidgets.api.widgets.blueprint.IInputDialogBluePrint;
+import org.jowidgets.cap.ui.api.widgets.IBeanLinkDialog;
+import org.jowidgets.cap.ui.api.widgets.IBeanLinkDialogBluePrint;
+import org.jowidgets.cap.ui.api.widgets.IBeanLinkPanel.IBeanLink;
+import org.jowidgets.common.widgets.factory.IWidgetFactory;
+import org.jowidgets.tools.widgets.blueprint.BPF;
 
-import org.jowidgets.cap.ui.api.bean.IBeanProxy;
-import org.jowidgets.common.widgets.descriptor.IWidgetDescriptor;
-import org.jowidgets.common.widgets.descriptor.setup.mandatory.Mandatory;
-import org.jowidgets.validation.IValidator;
+final class BeanLinkDialogFactory implements
+		IWidgetFactory<IBeanLinkDialog<Object, Object>, IBeanLinkDialogBluePrint<Object, Object>> {
 
-public interface IBeanSelectionTableBluePrint<BEAN_TYPE> extends
-		IBeanTableSetupBuilder<BEAN_TYPE>,
-		IWidgetDescriptor<IBeanSelectionTable<BEAN_TYPE>> {
+	@Override
+	public IBeanLinkDialog<Object, Object> create(
+		final Object parentUiReference,
+		final IBeanLinkDialogBluePrint<Object, Object> bluePrint) {
 
-	IBeanSelectionTableBluePrint<BEAN_TYPE> setValidator(IValidator<List<IBeanProxy<BEAN_TYPE>>> validator);
+		final BeanLinkDialogContentCreator<Object, Object> contentCreator;
+		contentCreator = new BeanLinkDialogContentCreator<Object, Object>(bluePrint.getBeanLinkPanel());
 
-	IBeanSelectionTableBluePrint<BEAN_TYPE> setMandatorySelectionValidator(boolean validatorvalidator);
+		final IInputDialogBluePrint<IBeanLink<Object, Object>> inputDialogBp = BPF.inputDialog(contentCreator);
+		inputDialogBp.setSetup(bluePrint);
+		inputDialogBp.setContentCreator(contentCreator);
+		final IInputDialog<IBeanLink<Object, Object>> inputDialog = Toolkit.getWidgetFactory().create(inputDialogBp);
 
-	IValidator<List<IBeanProxy<BEAN_TYPE>>> getValidator();
-
-	@Mandatory
-	boolean getMandatorySelectionValidator();
+		return new BeanLinkDialogImpl<Object, Object>(inputDialog, bluePrint);
+	}
 }

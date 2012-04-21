@@ -49,6 +49,8 @@ import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeModel;
 import org.jowidgets.cap.ui.api.widgets.IAttributeFilterControlBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanDialogBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
+import org.jowidgets.cap.ui.api.widgets.IBeanLinkDialogBluePrint;
+import org.jowidgets.cap.ui.api.widgets.IBeanLinkPanelBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanRelationTreeBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanSelectionDialogBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanSelectionFormBluePrint;
@@ -129,6 +131,21 @@ final class CapApiBluePrintFactory implements ICapApiBluePrintFactory {
 		Assert.paramNotNull(table, "table");
 		final IBeanTableSettingsDialogBluePrint result = bluePrintFactory.bluePrint(IBeanTableSettingsDialogBluePrint.class);
 		result.setTable(table);
+		return result;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public <LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> IBeanLinkPanelBluePrint<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> beanLinkPanel() {
+		return bluePrintFactory.bluePrint(IBeanLinkPanelBluePrint.class);
+	}
+
+	@SuppressWarnings({"rawtypes", "unchecked"})
+	@Override
+	public <LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> IBeanLinkDialogBluePrint<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> beanLinkDialog(
+		final IBeanLinkPanelBluePrint<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> beanLinkPanel) {
+		final IBeanLinkDialogBluePrint result = bluePrintFactory.bluePrint(IBeanLinkDialogBluePrint.class);
+		result.setBeanLinkPanel(beanLinkPanel);
 		return result;
 	}
 

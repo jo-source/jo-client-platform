@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2010, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,25 +26,28 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.widgets;
+package org.jowidgets.cap.ui.impl.widgets;
 
-import java.util.List;
+import org.jowidgets.api.toolkit.Toolkit;
+import org.jowidgets.api.widgets.IComposite;
+import org.jowidgets.api.widgets.blueprint.ICompositeBluePrint;
+import org.jowidgets.cap.ui.api.widgets.IBeanLinkPanel;
+import org.jowidgets.cap.ui.api.widgets.IBeanLinkPanelBluePrint;
+import org.jowidgets.common.widgets.factory.IWidgetFactory;
+import org.jowidgets.tools.widgets.blueprint.BPF;
 
-import org.jowidgets.cap.ui.api.bean.IBeanProxy;
-import org.jowidgets.common.widgets.descriptor.IWidgetDescriptor;
-import org.jowidgets.common.widgets.descriptor.setup.mandatory.Mandatory;
-import org.jowidgets.validation.IValidator;
+final class BeanLinkPanelFactory implements
+		IWidgetFactory<IBeanLinkPanel<? extends Object, ? extends Object>, IBeanLinkPanelBluePrint<Object, Object>> {
 
-public interface IBeanSelectionTableBluePrint<BEAN_TYPE> extends
-		IBeanTableSetupBuilder<BEAN_TYPE>,
-		IWidgetDescriptor<IBeanSelectionTable<BEAN_TYPE>> {
+	@Override
+	public IBeanLinkPanel<? extends Object, ? extends Object> create(
+		final Object parentUiReference,
+		final IBeanLinkPanelBluePrint<Object, Object> bluePrint) {
 
-	IBeanSelectionTableBluePrint<BEAN_TYPE> setValidator(IValidator<List<IBeanProxy<BEAN_TYPE>>> validator);
+		final ICompositeBluePrint compositeBp = BPF.composite();
+		compositeBp.setSetup(bluePrint);
 
-	IBeanSelectionTableBluePrint<BEAN_TYPE> setMandatorySelectionValidator(boolean validatorvalidator);
-
-	IValidator<List<IBeanProxy<BEAN_TYPE>>> getValidator();
-
-	@Mandatory
-	boolean getMandatorySelectionValidator();
+		final IComposite composite = Toolkit.getWidgetFactory().create(parentUiReference, compositeBp);
+		return new BeanLinkPanelImpl<Object, Object>(composite, bluePrint);
+	}
 }
