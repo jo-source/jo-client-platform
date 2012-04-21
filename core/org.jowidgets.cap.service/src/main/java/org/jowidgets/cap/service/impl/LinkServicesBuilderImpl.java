@@ -132,6 +132,7 @@ final class LinkServicesBuilderImpl<LINKED_BEAN_TYPE extends IBean> implements I
 	@Override
 	public ILinkServicesBuilder<LINKED_BEAN_TYPE> setSourceProperties(final IEntityLinkProperties properties) {
 		Assert.paramNotNull(properties, "properties");
+		this.sourceProperties = properties;
 		return this;
 	}
 
@@ -139,19 +140,18 @@ final class LinkServicesBuilderImpl<LINKED_BEAN_TYPE extends IBean> implements I
 	public ILinkServicesBuilder<LINKED_BEAN_TYPE> setSourceProperties(
 		final String keyPropertyName,
 		final String foreignKeyPropertyname) {
-		setSourceProperties(EntityLinkProperties.create(keyPropertyName, foreignKeyPropertyname));
-		return this;
+		return setSourceProperties(EntityLinkProperties.create(keyPropertyName, foreignKeyPropertyname));
 	}
 
 	@Override
 	public ILinkServicesBuilder<LINKED_BEAN_TYPE> setSourceProperties(final String foreignKeyPropertyName) {
-		setSourceProperties(EntityLinkProperties.create(foreignKeyPropertyName));
-		return this;
+		return setSourceProperties(EntityLinkProperties.create(foreignKeyPropertyName));
 	}
 
 	@Override
 	public ILinkServicesBuilder<LINKED_BEAN_TYPE> setDestinationProperties(final IEntityLinkProperties properties) {
 		Assert.paramNotNull(properties, "properties");
+		this.destinationProperties = properties;
 		return this;
 	}
 
@@ -159,14 +159,12 @@ final class LinkServicesBuilderImpl<LINKED_BEAN_TYPE extends IBean> implements I
 	public ILinkServicesBuilder<LINKED_BEAN_TYPE> setDestinationProperties(
 		final String keyPropertyName,
 		final String foreignKeyPropertyname) {
-		setDestinationProperties(EntityLinkProperties.create(keyPropertyName, foreignKeyPropertyname));
-		return this;
+		return setDestinationProperties(EntityLinkProperties.create(keyPropertyName, foreignKeyPropertyname));
 	}
 
 	@Override
 	public ILinkServicesBuilder<LINKED_BEAN_TYPE> setDestinationProperties(final String foreignKeyPropertyName) {
-		setDestinationProperties(EntityLinkProperties.create(foreignKeyPropertyName));
-		return this;
+		return setDestinationProperties(EntityLinkProperties.create(foreignKeyPropertyName));
 	}
 
 	@Override

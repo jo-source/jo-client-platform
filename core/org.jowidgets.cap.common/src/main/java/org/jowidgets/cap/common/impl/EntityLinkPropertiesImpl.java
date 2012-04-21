@@ -57,4 +57,13 @@ final class EntityLinkPropertiesImpl implements IEntityLinkProperties, Serializa
 		return foreignKeyPropertyName;
 	}
 
+	@Override
+	public String toString() {
+		return "EntityLinkPropertiesImpl [keyPropertyName="
+			+ keyPropertyName
+			+ ", foreignKeyPropertyName="
+			+ foreignKeyPropertyName
+			+ "]";
+	}
+
 }

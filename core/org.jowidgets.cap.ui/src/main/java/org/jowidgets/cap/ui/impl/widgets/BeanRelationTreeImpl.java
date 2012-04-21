@@ -43,11 +43,17 @@ import java.util.Set;
 import org.jowidgets.api.controller.IDisposeListener;
 import org.jowidgets.api.controller.ITreeSelectionEvent;
 import org.jowidgets.api.controller.ITreeSelectionListener;
+import org.jowidgets.api.model.item.IMenuModel;
 import org.jowidgets.api.widgets.ITree;
 import org.jowidgets.api.widgets.ITreeContainer;
 import org.jowidgets.api.widgets.ITreeNode;
+import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
+import org.jowidgets.cap.common.api.service.IEntityService;
+import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyLabelRenderer;
+import org.jowidgets.cap.ui.api.bean.IBeanSelectionProvider;
+import org.jowidgets.cap.ui.api.command.ICapActionFactory;
 import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
 import org.jowidgets.cap.ui.api.model.ILabelModel;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationNodeModel;
@@ -55,8 +61,11 @@ import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeModel;
 import org.jowidgets.cap.ui.api.tree.IEntityTypeId;
 import org.jowidgets.cap.ui.api.widgets.IBeanRelationTree;
 import org.jowidgets.cap.ui.api.widgets.IBeanRelationTreeBluePrint;
+import org.jowidgets.cap.ui.tools.bean.SingleBeanSelectionProvider;
 import org.jowidgets.common.types.Markup;
+import org.jowidgets.service.api.ServiceProvider;
 import org.jowidgets.tools.controller.TreeNodeAdapter;
+import org.jowidgets.tools.model.item.MenuModel;
 import org.jowidgets.tools.widgets.wrapper.ControlWrapper;
 import org.jowidgets.util.EmptyCheck;
 import org.jowidgets.util.Tuple;
@@ -234,17 +243,8 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 			final ITreeNode childRelationNode = childNode.addNode();
 			renderRelationNode(childRelationNode, childRelationNodeModel);
 
-			//			//TODO MG remove this later BEGIN
-			//			final IMenuModel popupMenu = new MenuModel();
-			//			final ICapActionFactory actionFactory = CapUiToolkit.actionFactory();
-			//
-			//			final ICreatorActionBuilder<Object> actionBuilder = actionFactory.creatorActionBuilder(
-			//					childRelationNodeModel.getChildEntityId(),
-			//					childRelationNodeModel.getChildBeanType(),
-			//					childRelationNodeModel);
-			//			actionBuilder.setCreatorService(childRelationNodeModel.getCreatorService());
-			//			popupMenu.addAction(actionBuilder.build());
-			//			childRelationNode.setPopupMenu(popupMenu);
+			//TODO MG remove this later BEGIN
+			//childRelationNode.setPopupMenu(createMenus(childRelationNodeModel, bean));
 			//TODO MG remove this later END
 
 			childRelationNode.addTreeNodeListener(new TreeNodeExpansionTrackingListener(childRelationNode));
@@ -263,6 +263,30 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 		if (expandedNodesCache.contains(new ExpandedNodeKey(childNode))) {
 			childNode.setExpanded(true);
 		}
+	}
+
+	@SuppressWarnings("unused")
+	private IMenuModel createMenus(
+		final IBeanRelationNodeModel<Object, Object> childRelationNodeModel,
+		final IBeanProxy<Object> bean) {
+		final IMenuModel result = new MenuModel();
+
+		final ICapActionFactory actionFactory = CapUiToolkit.actionFactory();
+		final IEntityService entityService = ServiceProvider.getService(IEntityService.ID);
+		if (entityService != null) {
+			final List<IEntityLinkDescriptor> links = entityService.getEntityLinks(childRelationNodeModel.getParentEntityId());
+			for (final IEntityLinkDescriptor link : links) {
+				if (childRelationNodeModel.getChildEntityId().equals(link.getLinkedEntityId())) {
+					final IBeanSelectionProvider<?> source = new SingleBeanSelectionProvider<Object>(
+						bean,
+						childRelationNodeModel.getParentEntityId(),
+						childRelationNodeModel.getParentBeanType());
+					result.addAction(actionFactory.linkCreatorAction(source, childRelationNodeModel, link));
+				}
+			}
+		}
+
+		return result;
 	}
 
 	private static void renderNode(

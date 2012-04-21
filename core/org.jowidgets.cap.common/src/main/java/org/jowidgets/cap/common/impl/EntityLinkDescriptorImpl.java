@@ -104,4 +104,23 @@ final class EntityLinkDescriptorImpl implements IEntityLinkDescriptor, Serializa
 		return deleterService;
 	}
 
+	@Override
+	public String toString() {
+		return "EntityLinkDescriptorImpl [linkEntityId="
+			+ linkEntityId
+			+ ", linkedEntityId="
+			+ linkedEntityId
+			+ ", linkableEntityId="
+			+ linkableEntityId
+			+ ", sourceProperties="
+			+ sourceProperties
+			+ ", destinationProperties="
+			+ destinationProperties
+			+ ", creatorService="
+			+ creatorService
+			+ ", deleterService="
+			+ deleterService
+			+ "]";
+	}
+
 }
