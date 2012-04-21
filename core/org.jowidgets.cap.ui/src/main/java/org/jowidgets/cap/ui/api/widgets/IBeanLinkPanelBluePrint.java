@@ -28,23 +28,26 @@
 
 package org.jowidgets.cap.ui.api.widgets;
 
-import java.util.List;
-
-import org.jowidgets.cap.ui.api.bean.IBeanProxy;
+import org.jowidgets.api.widgets.blueprint.builder.IComponentSetupBuilder;
+import org.jowidgets.api.widgets.descriptor.setup.IComponentSetup;
 import org.jowidgets.common.widgets.descriptor.IWidgetDescriptor;
-import org.jowidgets.common.widgets.descriptor.setup.mandatory.Mandatory;
-import org.jowidgets.validation.IValidator;
 
-public interface IBeanSelectionTableBluePrint<BEAN_TYPE> extends
-		IBeanTableSetupBuilder<BEAN_TYPE>,
-		IWidgetDescriptor<IBeanSelectionTable<BEAN_TYPE>> {
+public interface IBeanLinkPanelBluePrint<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> extends
+		IComponentSetup,
+		IComponentSetupBuilder<IBeanLinkPanelBluePrint<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE>>,
+		IWidgetDescriptor<IBeanLinkPanel<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE>> {
 
-	IBeanSelectionTableBluePrint<BEAN_TYPE> setValidator(IValidator<List<IBeanProxy<BEAN_TYPE>>> validator);
+	IBeanLinkPanelBluePrint<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> setLinkBeanForm(IBeanFormBluePrint<LINK_BEAN_TYPE> beanForm);
 
-	IBeanSelectionTableBluePrint<BEAN_TYPE> setMandatorySelectionValidator(boolean validatorvalidator);
+	IBeanLinkPanelBluePrint<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> setLinkableBeanForm(
+		IBeanFormBluePrint<LINKABLE_BEAN_TYPE> beanForm);
 
-	IValidator<List<IBeanProxy<BEAN_TYPE>>> getValidator();
+	IBeanLinkPanelBluePrint<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> setLinkableTable(IBeanTableBluePrint<LINKABLE_BEAN_TYPE> table);
 
-	@Mandatory
-	boolean getMandatorySelectionValidator();
+	IBeanFormBluePrint<LINK_BEAN_TYPE> getLinkBeanForm();
+
+	IBeanFormBluePrint<LINKABLE_BEAN_TYPE> getLinkableBeanForm();
+
+	IBeanTableBluePrint<LINKABLE_BEAN_TYPE> getLinkableTable();
+
 }

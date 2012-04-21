@@ -30,21 +30,31 @@ package org.jowidgets.cap.ui.api.widgets;
 
 import java.util.List;
 
+import org.jowidgets.api.widgets.IInputControl;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
-import org.jowidgets.common.widgets.descriptor.IWidgetDescriptor;
-import org.jowidgets.common.widgets.descriptor.setup.mandatory.Mandatory;
-import org.jowidgets.validation.IValidator;
+import org.jowidgets.cap.ui.api.widgets.IBeanLinkPanel.IBeanLink;
 
-public interface IBeanSelectionTableBluePrint<BEAN_TYPE> extends
-		IBeanTableSetupBuilder<BEAN_TYPE>,
-		IWidgetDescriptor<IBeanSelectionTable<BEAN_TYPE>> {
+public interface IBeanLinkPanel<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> extends
+		IInputControl<IBeanLink<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE>> {
 
-	IBeanSelectionTableBluePrint<BEAN_TYPE> setValidator(IValidator<List<IBeanProxy<BEAN_TYPE>>> validator);
+	public interface IBeanLink<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> {
 
-	IBeanSelectionTableBluePrint<BEAN_TYPE> setMandatorySelectionValidator(boolean validatorvalidator);
+		/**
+		 * Gets the link bean. May be null, if the link bean has no additional properties
+		 * 
+		 * @return The link bean or null
+		 */
+		IBeanProxy<LINK_BEAN_TYPE> getLinkBean();
 
-	IValidator<List<IBeanProxy<BEAN_TYPE>>> getValidator();
+		/**
+		 * Gets the linked beans. The beans that was selected or created by the user.
+		 * 
+		 * Remark: The linked beans can be transient or not.
+		 * 
+		 * @return The linked beans. This may also be an empty list, if nothing was selected or created.
+		 */
+		List<IBeanProxy<LINKABLE_BEAN_TYPE>> getLinkedBeans();
 
-	@Mandatory
-	boolean getMandatorySelectionValidator();
+	}
+
 }

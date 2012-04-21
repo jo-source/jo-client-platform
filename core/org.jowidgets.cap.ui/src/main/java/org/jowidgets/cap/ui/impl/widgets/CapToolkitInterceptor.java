@@ -36,6 +36,8 @@ import org.jowidgets.cap.ui.api.icons.CapIcons;
 import org.jowidgets.cap.ui.api.widgets.IAttributeFilterControlBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanDialogBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
+import org.jowidgets.cap.ui.api.widgets.IBeanLinkDialogBluePrint;
+import org.jowidgets.cap.ui.api.widgets.IBeanLinkPanelBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanRelationTreeBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanSelectionDialogBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanSelectionFormBluePrint;
@@ -64,28 +66,30 @@ final class CapToolkitInterceptor implements IToolkitInterceptor {
 
 	@SuppressWarnings("unchecked")
 	private void registerWidgets(final IToolkit toolkit) {
-		final IGenericWidgetFactory genericWidgetFactory = toolkit.getWidgetFactory();
-		genericWidgetFactory.register(IBeanTableBluePrint.class, new BeanTableFactory());
-		genericWidgetFactory.register(IBeanSelectionTableBluePrint.class, new BeanSelectionTableFactory());
-		genericWidgetFactory.register(IBeanSelectionDialogBluePrint.class, new BeanSelectionDialogFactory());
-		genericWidgetFactory.register(IBeanFormBluePrint.class, new BeanFormFactory());
-		genericWidgetFactory.register(IBeanDialogBluePrint.class, new BeanDialogFactory());
-		genericWidgetFactory.register(IBeanTableSettingsDialogBluePrint.class, new BeanTableSettingsDialogFactory());
-		genericWidgetFactory.register(ISingleBeanFormBluePrint.class, new SingleBeanFormFactory());
-		genericWidgetFactory.register(IAttributeFilterControlBluePrint.class, new AttributeFilterControlFactory());
-		genericWidgetFactory.register(ILookUpComboBoxSelectionBluePrint.class, new LookUpComboBoxSelectionFactory());
-		genericWidgetFactory.register(ILookUpCollectionInputFieldBluePrint.class, new LookUpCollectionInputFieldFactory());
-		genericWidgetFactory.register(IBeanTabFolderBluePrint.class, new BeanTabFolderFactory());
-		genericWidgetFactory.register(IBeanRelationTreeBluePrint.class, new BeanRelationTreeFactory());
-		genericWidgetFactory.register(IBeanSelectionFormBluePrint.class, new BeanSelectionFormFactory());
-		genericWidgetFactory.register(IExecutionTaskDialogBluePrint.class, new ExecutionTaskDialogFactory());
+		final IGenericWidgetFactory factory = toolkit.getWidgetFactory();
+		factory.register(IBeanTableBluePrint.class, new BeanTableFactory());
+		factory.register(IBeanSelectionTableBluePrint.class, new BeanSelectionTableFactory());
+		factory.register(IBeanSelectionDialogBluePrint.class, new BeanSelectionDialogFactory());
+		factory.register(IBeanFormBluePrint.class, new BeanFormFactory());
+		factory.register(IBeanDialogBluePrint.class, new BeanDialogFactory());
+		factory.register(IBeanTableSettingsDialogBluePrint.class, new BeanTableSettingsDialogFactory());
+		factory.register(ISingleBeanFormBluePrint.class, new SingleBeanFormFactory());
+		factory.register(IAttributeFilterControlBluePrint.class, new AttributeFilterControlFactory());
+		factory.register(ILookUpComboBoxSelectionBluePrint.class, new LookUpComboBoxSelectionFactory());
+		factory.register(ILookUpCollectionInputFieldBluePrint.class, new LookUpCollectionInputFieldFactory());
+		factory.register(IBeanTabFolderBluePrint.class, new BeanTabFolderFactory());
+		factory.register(IBeanRelationTreeBluePrint.class, new BeanRelationTreeFactory());
+		factory.register(IBeanSelectionFormBluePrint.class, new BeanSelectionFormFactory());
+		factory.register(IExecutionTaskDialogBluePrint.class, new ExecutionTaskDialogFactory());
+		factory.register(IBeanLinkPanelBluePrint.class, new BeanLinkPanelFactory());
+		factory.register(IBeanLinkDialogBluePrint.class, new BeanLinkDialogFactory());
 	}
 
 	private void registerIcons(final IToolkit toolkit) {
-		final IImageRegistry imageRegistry = toolkit.getImageRegistry();
-		imageRegistry.registerImageConstant(CapIcons.TABLE_HIDE_COLUMN, IconsSmall.SUB);
-		imageRegistry.registerImageConstant(CapIcons.TABLE_UNHIDE_ALL_COLUMNS, IconsSmall.ADD_ALL);
-		imageRegistry.registerImageConstant(CapIcons.TABLE_SETTINGS, IconsSmall.SETTINGS);
+		final IImageRegistry registry = toolkit.getImageRegistry();
+		registry.registerImageConstant(CapIcons.TABLE_HIDE_COLUMN, IconsSmall.SUB);
+		registry.registerImageConstant(CapIcons.TABLE_UNHIDE_ALL_COLUMNS, IconsSmall.ADD_ALL);
+		registry.registerImageConstant(CapIcons.TABLE_SETTINGS, IconsSmall.SETTINGS);
 	}
 
 	private void addDefaultsInitializer(final IToolkit toolkit) {

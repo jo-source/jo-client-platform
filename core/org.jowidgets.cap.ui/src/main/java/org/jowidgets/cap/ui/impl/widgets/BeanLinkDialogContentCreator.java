@@ -26,25 +26,45 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.widgets;
+package org.jowidgets.cap.ui.impl.widgets;
 
-import java.util.List;
+import org.jowidgets.api.widgets.content.IInputContentContainer;
+import org.jowidgets.api.widgets.content.IInputContentCreator;
+import org.jowidgets.cap.ui.api.widgets.IBeanLinkPanel;
+import org.jowidgets.cap.ui.api.widgets.IBeanLinkPanel.IBeanLink;
+import org.jowidgets.cap.ui.api.widgets.IBeanLinkPanelBluePrint;
+import org.jowidgets.tools.layout.MigLayoutFactory;
 
-import org.jowidgets.cap.ui.api.bean.IBeanProxy;
-import org.jowidgets.common.widgets.descriptor.IWidgetDescriptor;
-import org.jowidgets.common.widgets.descriptor.setup.mandatory.Mandatory;
-import org.jowidgets.validation.IValidator;
+final class BeanLinkDialogContentCreator<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> implements
+		IInputContentCreator<IBeanLink<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE>> {
 
-public interface IBeanSelectionTableBluePrint<BEAN_TYPE> extends
-		IBeanTableSetupBuilder<BEAN_TYPE>,
-		IWidgetDescriptor<IBeanSelectionTable<BEAN_TYPE>> {
+	private final IBeanLinkPanelBluePrint<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> linkPanelBp;
 
-	IBeanSelectionTableBluePrint<BEAN_TYPE> setValidator(IValidator<List<IBeanProxy<BEAN_TYPE>>> validator);
+	private IBeanLinkPanel<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> linkPanel;
 
-	IBeanSelectionTableBluePrint<BEAN_TYPE> setMandatorySelectionValidator(boolean validatorvalidator);
+	BeanLinkDialogContentCreator(final IBeanLinkPanelBluePrint<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> linkPanel) {
+		this.linkPanelBp = linkPanel;
+	}
 
-	IValidator<List<IBeanProxy<BEAN_TYPE>>> getValidator();
+	@Override
+	public void createContent(final IInputContentContainer contentContainer) {
+		contentContainer.setLayout(MigLayoutFactory.growingInnerCellLayout());
+		linkPanel = contentContainer.add(linkPanelBp, MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
+	}
 
-	@Mandatory
-	boolean getMandatorySelectionValidator();
+	@Override
+	public void setValue(final IBeanLink<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> value) {
+		if (linkPanel != null) {
+			linkPanel.setValue(value);
+		}
+	}
+
+	@Override
+	public IBeanLink<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> getValue() {
+		if (linkPanel != null) {
+			linkPanel.getValue();
+		}
+		return null;
+	}
+
 }

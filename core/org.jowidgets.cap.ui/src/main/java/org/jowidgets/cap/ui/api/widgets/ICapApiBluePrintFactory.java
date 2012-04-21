@@ -60,6 +60,11 @@ public interface ICapApiBluePrintFactory {
 
 	IBeanTableSettingsDialogBluePrint beanTableSettingsDialog(IBeanTable<?> table);
 
+	<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> IBeanLinkPanelBluePrint<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> beanLinkPanel();
+
+	<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> IBeanLinkDialogBluePrint<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> beanLinkDialog(
+		IBeanLinkPanelBluePrint<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> beanLinkPanel);
+
 	<BEAN_TYPE> IBeanFormBluePrint<BEAN_TYPE> beanForm();
 
 	<BEAN_TYPE> IBeanFormBluePrint<BEAN_TYPE> beanForm(Object entityId);

@@ -77,7 +77,7 @@ final class BeanSelectionTableImpl<BEAN_TYPE> extends AbstractInputControl<List<
 	BeanSelectionTableImpl(final IBeanTable<BEAN_TYPE> table, final IBeanSelectionTableBluePrint<BEAN_TYPE> bluePrint) {
 		super(table);
 		this.table = table;
-		this.mandatorySelectionValidator = bluePrint.hasMandatorySelectionValidator();
+		this.mandatorySelectionValidator = bluePrint.getMandatorySelectionValidator();
 
 		if (bluePrint.getValidator() != null) {
 			addValidator(bluePrint.getValidator());
