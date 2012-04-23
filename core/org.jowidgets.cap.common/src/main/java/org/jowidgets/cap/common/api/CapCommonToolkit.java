@@ -51,6 +51,7 @@ import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptorBuilder;
 import org.jowidgets.cap.common.api.entity.IEntityLinkPropertiesBuilder;
 import org.jowidgets.cap.common.api.filter.IBeanDtoFilter;
 import org.jowidgets.cap.common.api.filter.IFilterFactory;
+import org.jowidgets.cap.common.api.link.ILinkDataBuilder;
 import org.jowidgets.cap.common.api.lookup.ILookUpToolkit;
 import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.common.api.sort.ISortFactory;
@@ -89,6 +90,10 @@ public final class CapCommonToolkit {
 
 	public static IBeanPropertyBuilder beanPropertyBuilder(final Class<?> beanType, final String propertyName) {
 		return getInstance().beanPropertyBuilder(beanType, propertyName);
+	}
+
+	public static ILinkDataBuilder linkDataBuilder() {
+		return getInstance().linkDataBuilder();
 	}
 
 	public static IStaticValueRangeFactory staticValueRangeFactory() {

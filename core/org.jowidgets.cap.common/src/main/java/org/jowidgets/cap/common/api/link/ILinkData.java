@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,27 +26,24 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.api.service;
+package org.jowidgets.cap.common.api.link;
 
-import java.util.Collection;
-import java.util.List;
+import org.jowidgets.cap.common.api.bean.IBeanData;
 
-import org.jowidgets.cap.common.api.bean.IBeanDto;
-import org.jowidgets.cap.common.api.execution.IExecutionCallback;
-import org.jowidgets.cap.common.api.execution.IResultCallback;
-import org.jowidgets.cap.common.api.link.ILinkData;
-
-public interface ILinkCreatorService {
+public interface ILinkData {
 
 	/**
-	 * Creates new links of beans
-	 * 
-	 * @param linkedBeanResult The result callback for the linked beans created by the service
-	 * @param links the link information
-	 * @param executionCallback
+	 * @return The data for the source bean if a new bean should be created, else null
 	 */
-	void create(
-		IResultCallback<List<IBeanDto>> linkedBeansResult,
-		Collection<? extends ILinkData> links,
-		IExecutionCallback executionCallback);
+	IBeanData getSourceData();
+
+	/**
+	 * @return The data of the link or null for direct links.
+	 */
+	IBeanData getLinkData();
+
+	/**
+	 * @return The data for the linked bean if a new bean should be created or for direct links, else null
+	 */
+	IBeanData getLinkedData();
 }

@@ -33,6 +33,7 @@ import java.util.Collection;
 
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
+import org.jowidgets.cap.common.api.link.ILinkDeletion;
 import org.jowidgets.cap.common.api.service.ILinkDeleterService;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.api.ServiceProvider;
