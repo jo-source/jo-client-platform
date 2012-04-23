@@ -76,6 +76,10 @@ public interface IBeanFormBluePrint<BEAN_TYPE> extends
 	IBeanFormBluePrint<BEAN_TYPE> setCreateModeValidationLabel(
 		final IInputComponentValidationLabelDescriptor validationLabelDescriptor);
 
+	IBeanFormBluePrint<BEAN_TYPE> setEditModeValidationLabelVisible(boolean visible);
+
+	IBeanFormBluePrint<BEAN_TYPE> setCreateModeValidationLabelVisible(boolean visible);
+
 	IBeanFormBluePrint<BEAN_TYPE> setMandatoryBackgroundColor(IColorConstant color);
 
 	IBeanFormBluePrint<BEAN_TYPE> setMandatoryLabelDecorator(IDecorator<String> decorator);
@@ -119,6 +123,12 @@ public interface IBeanFormBluePrint<BEAN_TYPE> extends
 	Border getContentBorder();
 
 	IInputComponentValidationLabelDescriptor getEditModeValidationLabel();
+
+	@Mandatory
+	boolean getEditModeValidationLabelVisible();
+
+	@Mandatory
+	boolean getCreateModeValidationLabelVisible();
 
 	IInputComponentValidationLabelDescriptor getCreateModeValidationLabel();
 

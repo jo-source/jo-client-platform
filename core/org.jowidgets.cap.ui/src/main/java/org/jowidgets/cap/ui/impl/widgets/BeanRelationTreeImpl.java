@@ -244,7 +244,7 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 			renderRelationNode(childRelationNode, childRelationNodeModel);
 
 			//TODO MG remove this later BEGIN
-			//childRelationNode.setPopupMenu(createMenus(childRelationNodeModel, bean));
+			childRelationNode.setPopupMenu(createMenus(childRelationNodeModel, bean));
 			//TODO MG remove this later END
 
 			childRelationNode.addTreeNodeListener(new TreeNodeExpansionTrackingListener(childRelationNode));
@@ -265,7 +265,6 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 		}
 	}
 
-	@SuppressWarnings("unused")
 	private IMenuModel createMenus(
 		final IBeanRelationNodeModel<Object, Object> childRelationNodeModel,
 		final IBeanProxy<Object> bean) {

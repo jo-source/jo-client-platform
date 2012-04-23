@@ -28,43 +28,34 @@
 
 package org.jowidgets.cap.sample2.app.service.descriptor;
 
-import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanPropertyBluePrint;
 import org.jowidgets.cap.common.tools.bean.BeanDtoDescriptorBuilder;
 import org.jowidgets.cap.sample2.app.common.bean.IPersonPersonLink;
+import org.jowidgets.cap.sample2.app.common.lookup.LookUpIds;
 
-public class PersonsOfSourcePersonLinkDtoDescriptorBuilder extends BeanDtoDescriptorBuilder {
+public class SourcePersonOfPersonLinkDtoDescriptorBuilder extends BeanDtoDescriptorBuilder {
 
-	public PersonsOfSourcePersonLinkDtoDescriptorBuilder() {
+	public SourcePersonOfPersonLinkDtoDescriptorBuilder() {
 		super(IPersonPersonLink.class);
 
-		setLabelSingular("Related person");
-		setLabelPlural("Related persons");
+		setLabelSingular("Related person link (backward)");
+		setLabelPlural("Related person links (backward)");
 
 		IBeanPropertyBluePrint propertyBp;
 
-		propertyBp = addProperty(IBean.ID_PROPERTY);
-		propertyBp.setLabel("Id");
-		propertyBp.setDescription("The relations technical identifier");
-
-		propertyBp = addProperty(IPersonPersonLink.DESTINATION_PERSON_NAME_PROPERTY);
-		propertyBp.setLabel("Name");
-		propertyBp.setDescription("The users name");
+		propertyBp = addProperty(IPersonPersonLink.SOURCE_PERSON_ID_PROPERTY);
+		propertyBp.setLabel("Source id");
 		propertyBp.setMandatory(true);
 
-		propertyBp = addProperty(IPersonPersonLink.DESTINATION_PERSON_LAST_NAME_PROPERTY);
-		propertyBp.setLabel("Lastname");
-		propertyBp.setDescription("The users lastname");
+		propertyBp = addProperty(IPersonPersonLink.DESTINATION_PERSON_ID_PROPERTY);
+		propertyBp.setLabel("Destination id");
 		propertyBp.setMandatory(true);
 
 		propertyBp = addProperty(IPersonPersonLink.RELATION_TYPE_ID_PROPERTY);
 		propertyBp.setLabel("Relation type");
 		propertyBp.setDescription("The relations type");
+		propertyBp.setLookUpValueRange(LookUpIds.SOURCE_PERSON_OF_PERSON_RELATION_TYPE);
+		propertyBp.setEditable(true);
 		propertyBp.setMandatory(true);
-
-		propertyBp = addProperty(IBean.VERSION_PROPERTY);
-		propertyBp.setLabel("Version");
-		propertyBp.setDescription("The version of the dataset");
-
 	}
 }

@@ -92,6 +92,7 @@ final class BeanFormImpl<BEAN_TYPE> extends ControlWrapper implements IBeanForm<
 			null,
 			bluePrint.getMandatoryValidator(),
 			bluePrint.getEditModeInputHint(),
+			bluePrint.getEditModeValidationLabelVisible(),
 			bluePrint.getEditModeValidationLabel(),
 			bluePrint.getUndoAction(),
 			bluePrint.getSaveAction());
@@ -108,6 +109,7 @@ final class BeanFormImpl<BEAN_TYPE> extends ControlWrapper implements IBeanForm<
 			bluePrint.getCreateModeForegroundColor(),
 			bluePrint.getMandatoryValidator(),
 			bluePrint.getCreateModeInputHint(),
+			bluePrint.getCreateModeValidationLabelVisible(),
 			bluePrint.getCreateModeValidationLabel(),
 			bluePrint.getUndoAction(),
 			bluePrint.getSaveAction());

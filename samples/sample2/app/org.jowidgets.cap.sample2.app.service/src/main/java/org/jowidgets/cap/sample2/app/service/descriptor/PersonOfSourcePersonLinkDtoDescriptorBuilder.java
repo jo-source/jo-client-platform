@@ -26,23 +26,36 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample2.app.common.entity;
+package org.jowidgets.cap.sample2.app.service.descriptor;
 
-public enum EntityIds {
+import org.jowidgets.cap.common.api.bean.IBeanPropertyBluePrint;
+import org.jowidgets.cap.common.tools.bean.BeanDtoDescriptorBuilder;
+import org.jowidgets.cap.sample2.app.common.bean.IPersonPersonLink;
+import org.jowidgets.cap.sample2.app.common.lookup.LookUpIds;
 
-	PERSON,
-	ROLE,
-	COUNTRY,
-	PERSON_LINK_TYPE,
-	PERSON_ROLE_LINK,
-	PERSONS_OF_SOURCE_PERSONS_LINK,
-	SOURCE_PERSONS_OF_PERSONS_LINK,
-	LINKED_PERSONS_OF_SOURCE_PERSONS,
-	LINKED_SOURCE_PERSONS_OF_PERSONS,
-	LINKABLE_PERSONS_OF_PERSONS,
-	LINKED_ROLES_OF_PERSONS,
-	LINKABLE_ROLES_OF_PERSONS,
-	LINKED_PERSONS_OF_ROLES,
-	LINKABLE_PERSONS_OF_ROLES;
+public class PersonOfSourcePersonLinkDtoDescriptorBuilder extends BeanDtoDescriptorBuilder {
 
+	public PersonOfSourcePersonLinkDtoDescriptorBuilder() {
+		super(IPersonPersonLink.class);
+
+		setLabelSingular("Related person link");
+		setLabelPlural("Related person links");
+
+		IBeanPropertyBluePrint propertyBp;
+
+		propertyBp = addProperty(IPersonPersonLink.SOURCE_PERSON_ID_PROPERTY);
+		propertyBp.setLabel("Source id");
+		propertyBp.setMandatory(true);
+
+		propertyBp = addProperty(IPersonPersonLink.DESTINATION_PERSON_ID_PROPERTY);
+		propertyBp.setLabel("Destination id");
+		propertyBp.setMandatory(true);
+
+		propertyBp = addProperty(IPersonPersonLink.RELATION_TYPE_ID_PROPERTY);
+		propertyBp.setLabel("Relation type");
+		propertyBp.setDescription("The relations type");
+		propertyBp.setLookUpValueRange(LookUpIds.PERSON_OF_SOURCE_PERSON_RELATION_TYPE);
+		propertyBp.setEditable(true);
+		propertyBp.setMandatory(true);
+	}
 }
