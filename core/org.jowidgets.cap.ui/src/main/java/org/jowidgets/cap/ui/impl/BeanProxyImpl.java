@@ -294,11 +294,17 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 		checkDisposed();
 		final IBeanDataBuilder builder = CapCommonToolkit.beanDataBuilder();
 		for (final String propertyName : properties) {
-			if (!isTransient() || propertyName.equals(IBean.ID_PROPERTY)) {
+			if (!isTransient() || !propertyName.equals(IBean.ID_PROPERTY)) {
 				builder.setProperty(propertyName, getValue(propertyName));
 			}
 		}
 		return builder.build();
+	}
+
+	@Override
+	public List<String> getProperties() {
+		checkDisposed();
+		return Collections.unmodifiableList(properties);
 	}
 
 	@Override

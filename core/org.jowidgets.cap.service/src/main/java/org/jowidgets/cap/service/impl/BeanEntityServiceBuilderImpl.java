@@ -593,7 +593,7 @@ final class BeanEntityServiceBuilderImpl extends EntityServiceBuilderImpl implem
 		}
 
 		private IServiceId<ILinkCreatorService> createCreatorService(final Map<Object, BeanEntityPreBuild> prebuilds) {
-			final ILinkDeleterService service = getLinkServicesBuilder(prebuilds).tryBuildDeleterService();
+			final ILinkCreatorService service = getLinkServicesBuilder(prebuilds).tryBuildCreatorService();
 			if (service != null) {
 				final Id id = new Id(
 					entityServiceId,
@@ -612,7 +612,7 @@ final class BeanEntityServiceBuilderImpl extends EntityServiceBuilderImpl implem
 		}
 
 		private IServiceId<ILinkDeleterService> createDeleterService(final Map<Object, BeanEntityPreBuild> prebuilds) {
-			final ILinkCreatorService service = getLinkServicesBuilder(prebuilds).tryBuildCreatorService();
+			final ILinkDeleterService service = getLinkServicesBuilder(prebuilds).tryBuildDeleterService();
 			if (service != null) {
 				final Id id = new Id(
 					entityServiceId,
@@ -687,11 +687,12 @@ final class BeanEntityServiceBuilderImpl extends EntityServiceBuilderImpl implem
 
 			final BeanEntityPreBuild linkedPrebuild = prebuilds.get(linkedEntityId);
 			if (linkedPrebuild != null) {
-				final IBeanServicesProvider linkedServices = linkedPrebuild.getServices();
-				builder.setLinkedBeanAccess(beanServiceFactory.beanAccess(linkedPrebuild.getBeanType()));
-				builder.setLinkedDtoFactory(linkedPrebuild.getBeanType(), linkedPrebuild.getPropertyNames());
-				builder.setLinkedCreatorService(linkedServices.creatorService());
-				builder.setLinkedDeleterService(linkedServices.deleterService());
+				final Class<? extends IBean> linkedBeanType = linkedPrebuild.getBeanType();
+				final Collection<String> linkedProperties = linkedPrebuild.getPropertyNames();
+				builder.setLinkedBeanAccess(beanServiceFactory.beanAccess(linkedBeanType));
+				builder.setLinkedDtoFactory(linkedBeanType, linkedProperties);
+				builder.setLinkedCreatorService(createCreatorService(linkedBeanType, linkedProperties));
+				builder.setLinkedDeleterService(createDeleterService(linkedBeanType));
 			}
 
 			return builder;

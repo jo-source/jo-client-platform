@@ -62,7 +62,7 @@ final class BeanLinkDialogContentCreator<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> imp
 	@Override
 	public IBeanLink<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> getValue() {
 		if (linkPanel != null) {
-			linkPanel.getValue();
+			return linkPanel.getValue();
 		}
 		return null;
 	}

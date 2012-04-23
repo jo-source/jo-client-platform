@@ -38,10 +38,19 @@ import org.jowidgets.api.command.ICommandExecutor;
 import org.jowidgets.api.command.IEnabledChecker;
 import org.jowidgets.api.command.IExceptionHandler;
 import org.jowidgets.api.command.IExecutionContext;
+import org.jowidgets.api.threads.IUiThreadAccess;
 import org.jowidgets.api.toolkit.Toolkit;
+import org.jowidgets.cap.common.api.CapCommonToolkit;
+import org.jowidgets.cap.common.api.bean.IBean;
+import org.jowidgets.cap.common.api.bean.IBeanDataBuilder;
+import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.entity.IEntityLinkProperties;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
+import org.jowidgets.cap.common.api.execution.IExecutionCallbackListener;
+import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.link.ILinkData;
+import org.jowidgets.cap.common.api.link.ILinkDataBuilder;
+import org.jowidgets.cap.common.api.link.LinkData;
 import org.jowidgets.cap.common.api.service.ILinkCreatorService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
@@ -62,11 +71,11 @@ import org.jowidgets.cap.ui.api.widgets.IBeanLinkPanel.IBeanLink;
 import org.jowidgets.cap.ui.api.widgets.IBeanLinkPanelBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
 import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
+import org.jowidgets.cap.ui.tools.execution.AbstractUiResultCallback;
 import org.jowidgets.common.types.Dimension;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.EmptyCheck;
 
-@SuppressWarnings("unused")
 final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> implements ICommand, ICommandExecutor {
 
 	private final String nothingSelectedMessage = Messages.getString("BeanLinkCommand.nothing_selected");
@@ -168,7 +177,6 @@ final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BE
 		final IBeanLink<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> beanLink = getBeanLink(executionContext);
 
 		if (beanLink != null) {
-			final IExecutionTask executionTask = CapUiToolkit.executionTaskFactory().create();
 			linkBeans(executionContext, selection, beanLink);
 		}
 	}
@@ -179,19 +187,89 @@ final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BE
 		final IBeanLink<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> beanLink) {
 
 		final IExecutionTask executionTask = CapUiToolkit.executionTaskFactory().create();
+		final IUiThreadAccess uiThreadAccess = Toolkit.getUiThreadAccess();
+		executionTask.addExecutionCallbackListener(new IExecutionCallbackListener() {
+			@Override
+			public void canceled() {
+				uiThreadAccess.invokeLater(new Runnable() {
+					@Override
+					public void run() {
+						for (final IBeanProxy<SOURCE_BEAN_TYPE> bean : selection) {
+							bean.setExecutionTask(null);
+						}
+						executionObservable.fireAfterExecutionCanceled(executionContext);
+					}
+				});
+			}
+		});
 
 		final List<ILinkData> linkData = new LinkedList<ILinkData>();
-		//		for (final IBeanProxy<SOURCE_BEAN_TYPE> bean : selection) {
-		//			bean.setExecutionTask(executionTask);
-		//			final ILinkDataBuilder linkDataBuilder = LinkData.builder();
-		//			if (beanLink.getLinkBean() != null) {
-		//				linkDataBuilder.setLinkData(beanLink.getLinkBean().getBeanData());
-		//			}
-		//			for (final IBeanProxy<LINKABLE_BEAN_TYPE> linkedBean : beanLink.getLinkedBeans()) {
-		//				
-		//			}
-		//		}
+		for (final IBeanProxy<SOURCE_BEAN_TYPE> bean : selection) {
+			bean.setExecutionTask(executionTask);
 
+			for (final IBeanProxy<LINKABLE_BEAN_TYPE> linkedBean : beanLink.getLinkedBeans()) {
+				final IBeanDataBuilder linkBeanBuilder = CapCommonToolkit.beanDataBuilder();
+				if (beanLink.getLinkBean() != null) {
+					setBeanData(beanLink.getLinkBean(), linkBeanBuilder);
+				}
+				linkBeanBuilder.setProperty(sourceProperties.getForeignKeyPropertyName(), bean.getId());
+
+				final ILinkDataBuilder linkDataBuilder = LinkData.builder();
+
+				if (linkedBean.isTransient()) {
+					linkDataBuilder.setLinkData(linkBeanBuilder.build());
+					linkDataBuilder.setLinkedData(linkedBean.getBeanData());
+				}
+				else {
+					linkBeanBuilder.setProperty(destinationProperties.getForeignKeyPropertyName(), linkedBean.getId());
+					linkDataBuilder.setLinkData(linkBeanBuilder.build());
+				}
+
+				linkData.add(linkDataBuilder.build());
+			}
+		}
+
+		executionObservable.fireAfterExecutionPrepared(executionContext);
+
+		linkCreatorService.create(createResultCallback(selection, executionContext), linkData, executionTask);
+
+	}
+
+	private IResultCallback<List<IBeanDto>> createResultCallback(
+		final List<IBeanProxy<SOURCE_BEAN_TYPE>> selection,
+		final IExecutionContext executionContext) {
+		return new AbstractUiResultCallback<List<IBeanDto>>() {
+
+			@Override
+			protected void finishedUi(final List<IBeanDto> result) {
+				for (final IBeanProxy<SOURCE_BEAN_TYPE> bean : selection) {
+					bean.setExecutionTask(null);
+				}
+				if (linkedModel != null) {
+					for (final IBeanDto resultBean : result) {
+						linkedModel.addBeanDto(resultBean);
+					}
+				}
+				executionObservable.fireAfterExecutionSuccess(executionContext);
+			}
+
+			@Override
+			protected void exceptionUi(final Throwable exception) {
+				for (final IBeanProxy<SOURCE_BEAN_TYPE> bean : selection) {
+					bean.setExecutionTask(null);
+					bean.addMessage(exceptionConverter.convert(selection, bean, exception));
+				}
+				executionObservable.fireAfterExecutionError(executionContext, exception);
+			}
+		};
+	}
+
+	private void setBeanData(final IBeanProxy<?> bean, final IBeanDataBuilder builder) {
+		for (final String propertyName : bean.getProperties()) {
+			if (!bean.isTransient() || !propertyName.equals(IBean.ID_PROPERTY)) {
+				builder.setProperty(propertyName, bean.getValue(propertyName));
+			}
+		}
 	}
 
 	private IBeanLink<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> getBeanLink(final IExecutionContext executionContext) {
