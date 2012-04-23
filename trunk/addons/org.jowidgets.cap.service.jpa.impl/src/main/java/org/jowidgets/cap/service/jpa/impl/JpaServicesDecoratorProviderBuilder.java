@@ -38,6 +38,8 @@ import java.util.Set;
 import org.jowidgets.cap.common.api.service.ICreatorService;
 import org.jowidgets.cap.common.api.service.IDeleterService;
 import org.jowidgets.cap.common.api.service.IExecutorService;
+import org.jowidgets.cap.common.api.service.ILinkCreatorService;
+import org.jowidgets.cap.common.api.service.ILinkDeleterService;
 import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.common.api.service.IRefreshService;
 import org.jowidgets.cap.common.api.service.IUpdaterService;
@@ -74,9 +76,17 @@ final class JpaServicesDecoratorProviderBuilder implements IJpaServicesDecorator
 				IRefreshService.class,
 				IUpdaterService.class,
 				IExecutorService.class,
-				IDeleterService.class);
+				IDeleterService.class,
+				ILinkCreatorService.class,
+				ILinkDeleterService.class);
 
-		addTransactionalServices(ICreatorService.class, IUpdaterService.class, IExecutorService.class, IDeleterService.class);
+		addTransactionalServices(
+				ICreatorService.class,
+				IUpdaterService.class,
+				IExecutorService.class,
+				IDeleterService.class,
+				ILinkCreatorService.class,
+				ILinkDeleterService.class);
 	}
 
 	@Override

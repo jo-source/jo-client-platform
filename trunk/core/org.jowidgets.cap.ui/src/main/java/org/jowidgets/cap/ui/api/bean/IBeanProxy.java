@@ -94,6 +94,8 @@ public interface IBeanProxy<BEAN_TYPE> extends
 
 	IBeanData getBeanData();
 
+	List<String> getProperties();
+
 	IExecutionTask getExecutionTask();
 
 	boolean hasExecution();
