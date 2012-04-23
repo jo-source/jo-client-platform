@@ -74,8 +74,14 @@ public interface ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LIN
 	ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> setLinkBeanForm(
 		IBeanFormBluePrint<LINK_BEAN_TYPE> beanForm);
 
+	ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> setLinkBeanType(
+		Class<? extends LINK_BEAN_TYPE> beanType);
+
 	ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> setLinkableBeanForm(
 		IBeanFormBluePrint<LINKABLE_BEAN_TYPE> beanForm);
+
+	ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> setLinkableBeanType(
+		Class<? extends LINKABLE_BEAN_TYPE> beanType);
 
 	ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> setLinkableTable(
 		IBeanTableBluePrint<LINKABLE_BEAN_TYPE> table);

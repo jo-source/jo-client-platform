@@ -49,7 +49,7 @@ public final class Sample2PluginProviderBuilder extends PluginProviderBuilder {
 				EntityIds.PERSON,
 				EntityIds.LINKED_PERSONS_OF_ROLES,
 				EntityIds.LINKED_PERSONS_OF_SOURCE_PERSONS,
-				EntityIds.LINKED_PERSONS_OF_DESTINATION_PERSONS);
+				EntityIds.LINKED_SOURCE_PERSONS_OF_PERSONS);
 
 		addPlugin(
 				IBeanProxyLabelRendererPlugin.ID,

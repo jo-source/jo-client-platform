@@ -28,6 +28,9 @@
 
 package org.jowidgets.cap.ui.impl;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.jowidgets.api.command.ICommand;
@@ -39,7 +42,11 @@ import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.cap.common.api.entity.IEntityLinkProperties;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.service.ILinkCreatorService;
+import org.jowidgets.cap.ui.api.CapUiToolkit;
+import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
+import org.jowidgets.cap.ui.api.bean.IBeanProxy;
+import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionProvider;
 import org.jowidgets.cap.ui.api.execution.BeanMessageStatePolicy;
 import org.jowidgets.cap.ui.api.execution.BeanModificationStatePolicy;
@@ -47,7 +54,13 @@ import org.jowidgets.cap.ui.api.execution.BeanSelectionPolicy;
 import org.jowidgets.cap.ui.api.execution.IExecutionInterceptor;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
+import org.jowidgets.cap.ui.api.widgets.IBeanLinkDialog;
+import org.jowidgets.cap.ui.api.widgets.IBeanLinkDialogBluePrint;
+import org.jowidgets.cap.ui.api.widgets.IBeanLinkPanel.IBeanLink;
+import org.jowidgets.cap.ui.api.widgets.IBeanLinkPanelBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
+import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
+import org.jowidgets.common.types.Dimension;
 import org.jowidgets.util.Assert;
 
 @SuppressWarnings("unused")
@@ -60,7 +73,9 @@ final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BE
 	private final ILinkCreatorService linkCreatorService;
 	private final IBeanSelectionProvider<SOURCE_BEAN_TYPE> source;
 	private final IBeanListModel<LINKABLE_BEAN_TYPE> linkedModel;
+	private final Class<? extends LINK_BEAN_TYPE> linkBeanType;
 	private final IBeanFormBluePrint<LINK_BEAN_TYPE> linkBeanForm;
+	private final Class<? extends LINKABLE_BEAN_TYPE> linkableBeanType;
 	private final IBeanFormBluePrint<LINKABLE_BEAN_TYPE> linkableBeanForm;
 	private final IBeanTableBluePrint<LINKABLE_BEAN_TYPE> linkableTable;
 	private final IBeanExceptionConverter exceptionConverter;
@@ -78,7 +93,9 @@ final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BE
 		final BeanMessageStatePolicy sourceMessageStatePolicy,
 		final List<IExecutableChecker<SOURCE_BEAN_TYPE>> sourceExecutableCheckers,
 		final IBeanListModel<LINKABLE_BEAN_TYPE> linkedModel,
+		final Class<? extends LINK_BEAN_TYPE> linkBeanType,
 		final IBeanFormBluePrint<LINK_BEAN_TYPE> linkBeanForm,
+		final Class<? extends LINKABLE_BEAN_TYPE> linkableBeanType,
 		final IBeanFormBluePrint<LINKABLE_BEAN_TYPE> linkableBeanForm,
 		final IBeanTableBluePrint<LINKABLE_BEAN_TYPE> linkableTable,
 		final List<IEnabledChecker> enabledCheckers,
@@ -108,7 +125,9 @@ final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BE
 		this.destinationProperties = destinationProperties;
 		this.linkCreatorService = linkCreatorService;
 		this.linkedModel = linkedModel;
+		this.linkBeanType = linkBeanType;
 		this.linkBeanForm = linkBeanForm;
+		this.linkableBeanType = linkableBeanType;
 		this.linkableBeanForm = linkableBeanForm;
 		this.linkableTable = linkableTable;
 		this.executionObservable = new ExecutionObservable(executionInterceptors);
@@ -132,7 +151,76 @@ final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BE
 
 	@Override
 	public void execute(final IExecutionContext executionContext) throws Exception {
-		Toolkit.getMessagePane().showInfo(executionContext, "TODO must be implemented");
+		final IBeanLink<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> beanLink = getBeanLink(executionContext);
 	}
 
+	private IBeanLink<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> getBeanLink(final IExecutionContext executionContext) {
+		final ICapApiBluePrintFactory cbpf = CapUiToolkit.bluePrintFactory();
+		final IBeanLinkPanelBluePrint<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> linkPanelBp = cbpf.beanLinkPanel();
+		linkPanelBp.setLinkBeanForm(linkBeanForm);
+		linkPanelBp.setLinkableBeanForm(linkableBeanForm);
+		linkPanelBp.setLinkableTable(linkableTable);
+
+		final IBeanLinkDialogBluePrint<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> dialogBp = cbpf.beanLinkDialog(linkPanelBp);
+		dialogBp.setMinPackSize(new Dimension(800, 600));
+		dialogBp.setMaxPackSize(new Dimension(1600, 1000));
+		dialogBp.setExecutionContext(executionContext);
+		dialogBp.setContentScrolled(false);
+
+		final IBeanLinkDialog<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> linkDialog;
+		linkDialog = Toolkit.getActiveWindow().createChildWindow(dialogBp);
+
+		final IBeanProxy<LINK_BEAN_TYPE> defaultLinkBean = createDefaultBean(linkBeanForm, linkBeanType);
+
+		final List<IBeanProxy<LINKABLE_BEAN_TYPE>> defaultLinkedBeans;
+		if (linkableBeanForm != null) {
+			defaultLinkedBeans = Collections.singletonList(createDefaultBean(linkableBeanForm, linkableBeanType));
+		}
+		else {
+			defaultLinkedBeans = Collections.emptyList();
+		}
+
+		linkDialog.setValue(new IBeanLink<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE>() {
+			@Override
+			public IBeanProxy<LINK_BEAN_TYPE> getLinkBean() {
+				return defaultLinkBean;
+			}
+
+			@Override
+			public List<IBeanProxy<LINKABLE_BEAN_TYPE>> getLinkedBeans() {
+				return defaultLinkedBeans;
+			}
+		});
+
+		linkDialog.setVisible(true);
+
+		if (linkDialog.isOkPressed()) {
+			return linkDialog.getValue();
+		}
+		else {
+			return null;
+		}
+	}
+
+	private <BEAN_TYPE> IBeanProxy<BEAN_TYPE> createDefaultBean(
+		final IBeanFormBluePrint<BEAN_TYPE> formBp,
+		final Class<? extends BEAN_TYPE> beanType) {
+		if (formBp != null) {
+			final HashMap<String, Object> defaultValues = new HashMap<String, Object>();
+			final LinkedList<String> properties = new LinkedList<String>();
+			for (final IAttribute<?> attribute : formBp.getCreateModeAttributes()) {
+				final String propertyName = attribute.getPropertyName();
+				properties.add(propertyName);
+				final Object defaultValue = attribute.getDefaultValue();
+				if (defaultValue != null) {
+					defaultValues.put(propertyName, defaultValue);
+				}
+			}
+			final IBeanProxyFactory<BEAN_TYPE> proxyFactory = CapUiToolkit.beanProxyFactory(beanType);
+			return proxyFactory.createTransientProxy(properties, defaultValues);
+		}
+		else {
+			return null;
+		}
+	}
 }

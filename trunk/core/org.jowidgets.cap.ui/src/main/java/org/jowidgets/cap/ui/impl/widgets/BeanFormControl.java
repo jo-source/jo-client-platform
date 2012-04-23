@@ -154,6 +154,7 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 		final IColorConstant foregroundColor,
 		final IValidator<Object> manadtoryValidator,
 		final String inputHint,
+		final boolean showValidationLabel,
 		final IInputComponentValidationLabelDescriptor validationLabel,
 		final IProvider<IAction> undoAction,
 		final IProvider<IAction> saveAction) {
@@ -191,8 +192,9 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 			this.attributes.put(attribute.getPropertyName(), (IAttribute<Object>) attribute);
 		}
 
-		composite.setLayout(new MigLayoutDescriptor("0[grow, 0::]0", "0[][0::]0"));
+		composite.setLayout(new MigLayoutDescriptor("hidemode 2", "0[grow, 0::]0", "0[][0::]0"));
 		this.validationLabelContainer = composite.add(BPF.composite(), "growx, w 30::, h 20::, wrap");
+		validationLabelContainer.setVisible(showValidationLabel);
 		validationLabelContainer.setLayout(new MigLayoutDescriptor("hidemode 3", "0[grow, 0::]0", "0[0::]0"));
 		mainValidationLabel = addValidationLabel(validationLabelContainer, validationLabel);
 

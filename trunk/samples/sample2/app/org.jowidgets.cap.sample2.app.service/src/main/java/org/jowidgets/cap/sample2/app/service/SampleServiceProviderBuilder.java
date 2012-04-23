@@ -47,7 +47,9 @@ import org.jowidgets.cap.sample2.app.service.executor.PersonActivateExecutor;
 import org.jowidgets.cap.sample2.app.service.executor.PersonDeactivateExecutor;
 import org.jowidgets.cap.sample2.app.service.lookup.CountriesLookUpService;
 import org.jowidgets.cap.sample2.app.service.lookup.GenderLookUpService;
+import org.jowidgets.cap.sample2.app.service.lookup.PersonOfSourcePersonRelationTypeLookUpService;
 import org.jowidgets.cap.sample2.app.service.lookup.RolesLookUpService;
+import org.jowidgets.cap.sample2.app.service.lookup.SourcePersonOfPersonRelationTypeLookUpService;
 import org.jowidgets.cap.sample2.app.service.security.AuthorizationProviderServiceImpl;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.adapter.ISyncLookUpService;
@@ -85,6 +87,8 @@ public class SampleServiceProviderBuilder extends ServiceProviderBuilder {
 		addLookUpService(LookUpIds.ROLES, new RolesLookUpService());
 		addLookUpService(LookUpIds.COUNTRIES, new CountriesLookUpService());
 		addLookUpService(LookUpIds.GENDER, new GenderLookUpService());
+		addLookUpService(LookUpIds.PERSON_OF_SOURCE_PERSON_RELATION_TYPE, new PersonOfSourcePersonRelationTypeLookUpService());
+		addLookUpService(LookUpIds.SOURCE_PERSON_OF_PERSON_RELATION_TYPE, new SourcePersonOfPersonRelationTypeLookUpService());
 
 		addServiceDecorator(createJpaServiceDecoratorProvider());
 		addServiceDecorator(createCancelServiceDecoratorProvider());
