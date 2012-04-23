@@ -280,7 +280,11 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 						bean,
 						childRelationNodeModel.getParentEntityId(),
 						childRelationNodeModel.getParentBeanType());
-					result.addAction(actionFactory.linkCreatorAction(source, childRelationNodeModel, link));
+					try {
+						result.addAction(actionFactory.linkCreatorAction(source, childRelationNodeModel, link));
+					}
+					catch (final Exception e) {
+					}
 				}
 			}
 		}
