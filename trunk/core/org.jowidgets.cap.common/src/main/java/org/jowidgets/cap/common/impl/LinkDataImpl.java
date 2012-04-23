@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,27 +26,40 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.api.service;
+package org.jowidgets.cap.common.impl;
 
-import java.util.Collection;
-import java.util.List;
+import java.io.Serializable;
 
-import org.jowidgets.cap.common.api.bean.IBeanDto;
-import org.jowidgets.cap.common.api.execution.IExecutionCallback;
-import org.jowidgets.cap.common.api.execution.IResultCallback;
+import org.jowidgets.cap.common.api.bean.IBeanData;
 import org.jowidgets.cap.common.api.link.ILinkData;
 
-public interface ILinkCreatorService {
+final class LinkDataImpl implements ILinkData, Serializable {
 
-	/**
-	 * Creates new links of beans
-	 * 
-	 * @param linkedBeanResult The result callback for the linked beans created by the service
-	 * @param links the link information
-	 * @param executionCallback
-	 */
-	void create(
-		IResultCallback<List<IBeanDto>> linkedBeansResult,
-		Collection<? extends ILinkData> links,
-		IExecutionCallback executionCallback);
+	private static final long serialVersionUID = 2496955441718314856L;
+
+	private final IBeanData sourceData;
+	private final IBeanData linkData;
+	private final IBeanData linkedData;
+
+	LinkDataImpl(final IBeanData sourceData, final IBeanData linkData, final IBeanData linkedData) {
+		this.sourceData = sourceData;
+		this.linkData = linkData;
+		this.linkedData = linkedData;
+	}
+
+	@Override
+	public IBeanData getSourceData() {
+		return sourceData;
+	}
+
+	@Override
+	public IBeanData getLinkData() {
+		return linkData;
+	}
+
+	@Override
+	public IBeanData getLinkedData() {
+		return linkedData;
+	}
+
 }

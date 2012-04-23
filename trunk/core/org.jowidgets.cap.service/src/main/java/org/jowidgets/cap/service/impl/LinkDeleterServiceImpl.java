@@ -47,6 +47,7 @@ import org.jowidgets.cap.common.api.filter.IArithmeticFilterBuilder;
 import org.jowidgets.cap.common.api.filter.IBooleanFilterBuilder;
 import org.jowidgets.cap.common.api.filter.IFilter;
 import org.jowidgets.cap.common.api.filter.IFilterFactory;
+import org.jowidgets.cap.common.api.link.ILinkDeletion;
 import org.jowidgets.cap.common.api.service.IDeleterService;
 import org.jowidgets.cap.common.api.service.ILinkDeleterService;
 import org.jowidgets.cap.common.api.service.IReaderService;
