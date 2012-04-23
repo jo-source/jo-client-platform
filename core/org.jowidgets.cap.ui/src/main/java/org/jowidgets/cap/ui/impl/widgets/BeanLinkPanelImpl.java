@@ -28,14 +28,31 @@
 
 package org.jowidgets.cap.ui.impl.widgets;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.jowidgets.api.widgets.IComposite;
 import org.jowidgets.api.widgets.IContainer;
 import org.jowidgets.api.widgets.IScrollComposite;
 import org.jowidgets.api.widgets.ISplitComposite;
+import org.jowidgets.cap.common.api.bean.IBeanModification;
+import org.jowidgets.cap.common.api.filter.BooleanOperator;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
+import org.jowidgets.cap.ui.api.attribute.IAttribute;
+import org.jowidgets.cap.ui.api.attribute.IControlPanelProvider;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
+import org.jowidgets.cap.ui.api.bean.IBeanSelectionEvent;
+import org.jowidgets.cap.ui.api.bean.IBeanSelectionListener;
+import org.jowidgets.cap.ui.api.filter.IFilterSupport;
+import org.jowidgets.cap.ui.api.filter.IFilterToolkit;
+import org.jowidgets.cap.ui.api.filter.IIncludingFilterFactory;
+import org.jowidgets.cap.ui.api.filter.IUiBooleanFilterBuilder;
+import org.jowidgets.cap.ui.api.filter.IUiFilterFactory;
+import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.widgets.IBeanForm;
 import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanLinkPanel;
@@ -48,21 +65,33 @@ import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
 import org.jowidgets.tools.layout.MigLayoutFactory;
 import org.jowidgets.tools.widgets.blueprint.BPF;
 import org.jowidgets.tools.widgets.wrapper.AbstractInputControl;
+import org.jowidgets.util.EmptyCheck;
+import org.jowidgets.validation.IValidationConditionListener;
 import org.jowidgets.validation.IValidationResult;
+import org.jowidgets.validation.IValidationResultBuilder;
 import org.jowidgets.validation.ValidationResult;
 
 final class BeanLinkPanelImpl<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> extends
 		AbstractInputControl<IBeanLink<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE>> implements
 		IBeanLinkPanel<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> {
 
+	private static final String BEAN_LINK_SEARCH_FILTER_ID = "BEAN_LINK_SEARCH_FILTER_ID";
+	private static final int LOAD_DELAY = 400;
+
+	private final BeanFilterListener beanFilterListener;
+
 	private IBeanForm<LINK_BEAN_TYPE> linkForm;
 	private IBeanForm<LINKABLE_BEAN_TYPE> linkableForm;
 	private IBeanTable<LINKABLE_BEAN_TYPE> linkableTable;
+
+	private IBeanProxy<LINKABLE_BEAN_TYPE> createdLinkableBean;
 
 	public BeanLinkPanelImpl(
 		final IComposite composite,
 		final IBeanLinkPanelBluePrint<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> bluePrint) {
 		super(composite);
+
+		this.beanFilterListener = new BeanFilterListener();
 
 		final IBeanFormBluePrint<LINK_BEAN_TYPE> linkFormBp = bluePrint.getLinkBeanForm();
 		final IBeanFormBluePrint<LINKABLE_BEAN_TYPE> linkableFormBp = bluePrint.getLinkableBeanForm();
@@ -83,6 +112,20 @@ final class BeanLinkPanelImpl<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> extends
 		else {
 			throw new IllegalArgumentException("The bean link blueprint has neither forms nor a table.");
 		}
+
+		final IValidationConditionListener validationConditionListener = new IValidationConditionListener() {
+			@Override
+			public void validationConditionsChanged() {
+				setValidationCacheDirty();
+			}
+		};
+
+		if (linkForm != null) {
+			linkForm.addValidationConditionListener(validationConditionListener);
+		}
+		if (linkableForm != null) {
+			linkableForm.addValidationConditionListener(validationConditionListener);
+		}
 	}
 
 	private void createWithSplit(
@@ -93,8 +136,9 @@ final class BeanLinkPanelImpl<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> extends
 
 		composite.setLayout(MigLayoutFactory.growingInnerCellLayout());
 		final ISplitComposite split = composite.add(BPF.splitVertical(), MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
-		createForms(split.getFirst(), linkFormBp, linkableFormBp);
-		createTable(split.getSecond(), linkableTableBp);
+
+		createTable(split.getFirst(), linkableTableBp);
+		createForms(split.getSecond(), linkFormBp, linkableFormBp);
 	}
 
 	private void createForms(
@@ -140,26 +184,113 @@ final class BeanLinkPanelImpl<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> extends
 		beanTableBpCopy.setSearchFilterToolbarVisible(true);
 		container.setLayout(MigLayoutFactory.growingInnerCellLayout());
 		this.linkableTable = container.add(beanTableBpCopy, MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
+
+		linkableTable.getModel().addBeanSelectionListener(new IBeanSelectionListener<LINKABLE_BEAN_TYPE>() {
+			@Override
+			public void selectionChanged(final IBeanSelectionEvent<LINKABLE_BEAN_TYPE> selectionEvent) {
+				final IBeanProxy<LINKABLE_BEAN_TYPE> firstSelected = selectionEvent.getFirstSelected();
+
+				if (firstSelected != null) {
+					if (linkableForm != null) {
+						if (createdLinkableBean != null && linkableTable != null) {
+							createdLinkableBean.removePropertyChangeListener(beanFilterListener);
+						}
+						linkableForm.setValue(firstSelected);
+						linkableForm.setEditable(false);
+					}
+				}
+				else {
+					if (linkableForm != null) {
+						linkableForm.setValue(createdLinkableBean);
+						if (createdLinkableBean != null && linkableTable != null) {
+							createdLinkableBean.addPropertyChangeListener(beanFilterListener);
+						}
+						linkableForm.setEditable(true);
+					}
+				}
+
+				setValidationCacheDirty();
+			}
+		});
+	}
+
+	@Override
+	protected IValidationResult createValidationResult() {
+		final IValidationResultBuilder builder = ValidationResult.builder();
+		if (!hasSelection()) {
+			if (linkableForm != null) {
+				if (!linkableForm.hasModifications()) {
+					if (linkableTable != null) {
+						//TODO i18n
+						builder.addInfoError("Please select or input a dataset");
+					}
+					else {
+						//TODO i18n
+						builder.addInfoError("Please input a dataset");
+					}
+				}
+				else {
+					builder.addResult(linkableForm.validate());
+				}
+			}
+			else {
+				//TODO i18n
+				builder.addInfoError("Please select a dataset");
+			}
+		}
+		if (linkForm != null) {
+			builder.addResult(linkForm.validate());
+		}
+		return builder.build();
+	}
+
+	private boolean hasSelection() {
+		if (linkableTable != null) {
+			return !linkableTable.getModel().getSelectedBeans().isEmpty();
+		}
+		return false;
 	}
 
 	@Override
 	public boolean hasModifications() {
+		if (linkableTable != null && !linkableTable.getModel().getSelectedBeans().isEmpty()) {
+			return true;
+		}
+		if (linkForm != null && linkForm.hasModifications()) {
+			return true;
+		}
+		if (linkableForm != null && linkableForm.hasModifications()) {
+			return true;
+		}
 		return false;
 	}
 
 	@Override
 	public void resetModificationState() {
-
+		if (linkForm != null) {
+			linkForm.resetModificationState();
+		}
+		if (linkableForm != null) {
+			linkableForm.resetModificationState();
+		}
 	}
 
 	@Override
 	public void setValue(final IBeanLink<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> value) {
+		if (createdLinkableBean != null && linkableTable != null) {
+			createdLinkableBean.removePropertyChangeListener(beanFilterListener);
+		}
+
 		if (value != null) {
 			if (linkForm != null) {
 				linkForm.setValue(value.getLinkBean());
 			}
 			if (linkableForm != null) {
 				linkableForm.setValue(getFirstTransientBean(value.getLinkedBeans()));
+				createdLinkableBean = linkableForm.getValue();
+				if (createdLinkableBean != null && linkableTable != null) {
+					createdLinkableBean.addPropertyChangeListener(beanFilterListener);
+				}
 			}
 		}
 		else {
@@ -168,10 +299,11 @@ final class BeanLinkPanelImpl<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> extends
 			}
 			if (linkableForm != null) {
 				linkableForm.setValue(null);
+				createdLinkableBean = null;
 			}
 		}
 		if (linkableTable != null) {
-			linkableTable.getModel().load();
+			doFilter(createdLinkableBean);
 		}
 	}
 
@@ -188,8 +320,49 @@ final class BeanLinkPanelImpl<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> extends
 
 	@Override
 	public IBeanLink<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> getValue() {
+		final IBeanProxy<LINK_BEAN_TYPE> linkBean = getLinkBean();
+		final List<IBeanProxy<LINKABLE_BEAN_TYPE>> linkedBeans = Collections.unmodifiableList(getLinkedBeans());
 
-		return null;
+		return new IBeanLink<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE>() {
+			@Override
+			public IBeanProxy<LINK_BEAN_TYPE> getLinkBean() {
+				return linkBean;
+			}
+
+			@Override
+			public List<IBeanProxy<LINKABLE_BEAN_TYPE>> getLinkedBeans() {
+				return linkedBeans;
+			}
+		};
+	}
+
+	private IBeanProxy<LINK_BEAN_TYPE> getLinkBean() {
+		if (linkForm != null) {
+			return linkForm.getValue();
+		}
+		else {
+			return null;
+		}
+	}
+
+	private List<IBeanProxy<LINKABLE_BEAN_TYPE>> getLinkedBeans() {
+		if (linkableTable != null) {
+			final List<IBeanProxy<LINKABLE_BEAN_TYPE>> selectedBeans = linkableTable.getModel().getSelectedBeans();
+			if (!EmptyCheck.isEmpty(selectedBeans)) {
+				return selectedBeans;
+			}
+		}
+		return getLinkedBeansFromForm();
+	}
+
+	private List<IBeanProxy<LINKABLE_BEAN_TYPE>> getLinkedBeansFromForm() {
+		if (linkableForm != null) {
+			final IBeanProxy<LINKABLE_BEAN_TYPE> value = linkableForm.getValue();
+			if (value != null) {
+				return Collections.singletonList(value);
+			}
+		}
+		return Collections.emptyList();
 	}
 
 	@Override
@@ -205,9 +378,74 @@ final class BeanLinkPanelImpl<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> extends
 		}
 	}
 
-	@Override
-	protected IValidationResult createValidationResult() {
-		return ValidationResult.ok();
+	private void doFilter(final IBeanProxy<LINKABLE_BEAN_TYPE> bean) {
+		final IBeanTableModel<LINKABLE_BEAN_TYPE> tableModel = linkableTable.getModel();
+
+		final IFilterToolkit filterToolkit = CapUiToolkit.filterToolkit();
+		final IUiFilterFactory filterFactory = filterToolkit.filterFactory();
+		final IUiBooleanFilterBuilder filterBuilder;
+		filterBuilder = filterFactory.booleanFilterBuilder().setOperator(BooleanOperator.AND);
+		if (bean != null) {
+			for (final IBeanModification modification : bean.getModifications()) {
+				final String propertyName = modification.getPropertyName();
+				final IAttribute<Object> attribute = tableModel.getAttribute(propertyName);
+
+				final IIncludingFilterFactory<Object> includingFilterFactory = getIncludingFilterFactory(attribute);
+				if (includingFilterFactory != null) {
+					final Object operand = getModifiedFilterOperand(modification.getNewValue());
+					filterBuilder.addFilter(includingFilterFactory.getIncludingFilter(operand));
+				}
+			}
+		}
+
+		if (filterBuilder.hasEntries()) {
+			tableModel.setFilter(BEAN_LINK_SEARCH_FILTER_ID, filterBuilder.build());
+		}
+		else {
+			tableModel.setFilter(BEAN_LINK_SEARCH_FILTER_ID, null);
+		}
+
+		tableModel.loadScheduled(LOAD_DELAY);
+	}
+
+	private IIncludingFilterFactory<Object> getIncludingFilterFactory(final IAttribute<Object> attribute) {
+		if (attribute.isFilterable() && attribute.isSearchable()) {
+			final IControlPanelProvider<Object> controlPanel = attribute.getCurrentControlPanel();
+			if (controlPanel != null) {
+				final IFilterSupport<Object> filterSupport = controlPanel.getFilterSupport();
+				if (filterSupport != null) {
+					return filterSupport.getIncludingFilterFactory();
+				}
+			}
+		}
+		return null;
+	}
+
+	private Object getModifiedFilterOperand(final Object value) {
+		if (value instanceof Collection<?>) {
+			final Collection<?> collection = (Collection<?>) value;
+			final List<Object> resultList = new LinkedList<Object>();
+			for (final Object element : collection) {
+				resultList.add(getModifiedFilterOperand(element));
+			}
+			return resultList;
+		}
+		else if (value instanceof String) {
+			return value.toString().trim() + "*";
+		}
+		else {
+			return value;
+		}
+	}
+
+	private final class BeanFilterListener implements PropertyChangeListener {
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public void propertyChange(final PropertyChangeEvent evt) {
+			doFilter((IBeanProxy<LINKABLE_BEAN_TYPE>) evt.getSource());
+		}
+
 	}
 
 }

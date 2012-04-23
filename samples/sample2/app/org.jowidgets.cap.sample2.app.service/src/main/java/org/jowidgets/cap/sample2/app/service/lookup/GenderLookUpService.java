@@ -67,6 +67,8 @@ public final class GenderLookUpService implements ISyncLookUpService {
 		final List<ILookUpEntry> result = new LinkedList<ILookUpEntry>();
 
 		ILookUpEntryBuilder entryBuilder = lookUpToolkit.lookUpEntryBuilder();
+		result.add(lookUpToolkit.lookUpEntry(null, "", ""));
+
 		entryBuilder.setKey(MALE_KEY).setValue(SHORT_PROPERTY_NAME, "M").setValue(LONG_PROPERTY_NAME, "Male");
 		result.add(entryBuilder.build());
 

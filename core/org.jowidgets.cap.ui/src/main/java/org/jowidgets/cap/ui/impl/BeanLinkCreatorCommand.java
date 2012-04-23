@@ -42,6 +42,7 @@ import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.cap.common.api.entity.IEntityLinkProperties;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.service.ILinkCreatorService;
+import org.jowidgets.cap.common.api.service.ILinkCreatorService.ILinkData;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
@@ -52,6 +53,7 @@ import org.jowidgets.cap.ui.api.execution.BeanMessageStatePolicy;
 import org.jowidgets.cap.ui.api.execution.BeanModificationStatePolicy;
 import org.jowidgets.cap.ui.api.execution.BeanSelectionPolicy;
 import org.jowidgets.cap.ui.api.execution.IExecutionInterceptor;
+import org.jowidgets.cap.ui.api.execution.IExecutionTask;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanLinkDialog;
@@ -62,6 +64,7 @@ import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
 import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
 import org.jowidgets.common.types.Dimension;
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.EmptyCheck;
 
 @SuppressWarnings("unused")
 final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> implements ICommand, ICommandExecutor {
@@ -151,7 +154,40 @@ final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BE
 
 	@Override
 	public void execute(final IExecutionContext executionContext) throws Exception {
+		if (!executionObservable.fireBeforeExecution(executionContext)) {
+			return;
+		}
+
+		final List<IBeanProxy<SOURCE_BEAN_TYPE>> selection = source.getBeanSelection().getSelection();
+
+		if (EmptyCheck.isEmpty(selection)) {
+			Toolkit.getMessagePane().showWarning(executionContext, nothingSelectedMessage);
+			return;
+		}
+
 		final IBeanLink<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> beanLink = getBeanLink(executionContext);
+
+		if (beanLink != null) {
+			final IExecutionTask executionTask = CapUiToolkit.executionTaskFactory().create();
+			linkBeans(executionContext, selection, beanLink);
+		}
+	}
+
+	private void linkBeans(
+		final IExecutionContext executionContext,
+		final List<IBeanProxy<SOURCE_BEAN_TYPE>> selection,
+		final IBeanLink<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> beanLink) {
+
+		final IExecutionTask executionTask = CapUiToolkit.executionTaskFactory().create();
+
+		final List<ILinkData> linkData = new LinkedList<ILinkData>();
+		for (final IBeanProxy<SOURCE_BEAN_TYPE> bean : selection) {
+			bean.setExecutionTask(executionTask);
+			//			for (final IBeanProxy<LINKABLE_BEAN_TYPE> linkedBean : beanLink.getLinkedBeans()) {
+			//				
+			//}
+		}
+
 	}
 
 	private IBeanLink<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> getBeanLink(final IExecutionContext executionContext) {
@@ -165,6 +201,7 @@ final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BE
 		dialogBp.setMinPackSize(new Dimension(800, 600));
 		dialogBp.setMaxPackSize(new Dimension(1600, 1000));
 		dialogBp.setExecutionContext(executionContext);
+		dialogBp.setMissingInputHint(null);
 		dialogBp.setContentScrolled(false);
 
 		final IBeanLinkDialog<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> linkDialog;
