@@ -46,6 +46,9 @@ import java.util.Set;
 import org.jowidgets.api.threads.IUiThreadAccess;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.cap.common.api.CapCommonToolkit;
+import org.jowidgets.cap.common.api.bean.IBean;
+import org.jowidgets.cap.common.api.bean.IBeanData;
+import org.jowidgets.cap.common.api.bean.IBeanDataBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanModification;
 import org.jowidgets.cap.common.api.bean.IBeanModificationBuilder;
@@ -284,6 +287,18 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 	public Collection<IBeanModification> getModifications() {
 		checkDisposed();
 		return new HashSet<IBeanModification>(modifications.values());
+	}
+
+	@Override
+	public IBeanData getBeanData() {
+		checkDisposed();
+		final IBeanDataBuilder builder = CapCommonToolkit.beanDataBuilder();
+		for (final String propertyName : properties) {
+			if (!isTransient() || propertyName.equals(IBean.ID_PROPERTY)) {
+				builder.setProperty(propertyName, getValue(propertyName));
+			}
+		}
+		return builder.build();
 	}
 
 	@Override

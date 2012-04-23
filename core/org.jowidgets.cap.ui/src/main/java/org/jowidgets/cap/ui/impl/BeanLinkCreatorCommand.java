@@ -181,12 +181,16 @@ final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BE
 		final IExecutionTask executionTask = CapUiToolkit.executionTaskFactory().create();
 
 		final List<ILinkData> linkData = new LinkedList<ILinkData>();
-		for (final IBeanProxy<SOURCE_BEAN_TYPE> bean : selection) {
-			bean.setExecutionTask(executionTask);
-			//			for (final IBeanProxy<LINKABLE_BEAN_TYPE> linkedBean : beanLink.getLinkedBeans()) {
-			//				
-			//}
-		}
+		//		for (final IBeanProxy<SOURCE_BEAN_TYPE> bean : selection) {
+		//			bean.setExecutionTask(executionTask);
+		//			final ILinkDataBuilder linkDataBuilder = LinkData.builder();
+		//			if (beanLink.getLinkBean() != null) {
+		//				linkDataBuilder.setLinkData(beanLink.getLinkBean().getBeanData());
+		//			}
+		//			for (final IBeanProxy<LINKABLE_BEAN_TYPE> linkedBean : beanLink.getLinkedBeans()) {
+		//				
+		//			}
+		//		}
 
 	}
 
