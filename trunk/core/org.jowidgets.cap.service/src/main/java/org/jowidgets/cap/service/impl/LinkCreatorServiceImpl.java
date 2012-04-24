@@ -55,34 +55,39 @@ import org.jowidgets.util.Assert;
 
 final class LinkCreatorServiceImpl<LINKED_BEAN_TYPE extends IBean> implements ILinkCreatorService {
 
+	private final Class<? extends IBean> linkBeanType;
 	private final IBeanAccess<LINKED_BEAN_TYPE> linkedBeanAccess;
-	private final IBeanDtoFactory<LINKED_BEAN_TYPE> beanDtoFactory;
+	private final IBeanDtoFactory<LINKED_BEAN_TYPE> linkedDtoFactory;
 	private final ICreatorService sourceCreatorService;
 	private final ICreatorService linkCreatorService;
-	private final ICreatorService linkedCreatorService;
+	private final ICreatorService linkableCreatorService;
 
 	private final IEntityLinkProperties sourceProperties;
 	private final IEntityLinkProperties destinationProperties;
 
 	LinkCreatorServiceImpl(
+		final Class<? extends IBean> linkBeanType,
 		final IBeanAccess<LINKED_BEAN_TYPE> linkedBeanAccess,
-		final IBeanDtoFactory<LINKED_BEAN_TYPE> beanDtoFactory,
+		final IBeanDtoFactory<LINKED_BEAN_TYPE> linkedDtoFactory,
 		final ICreatorService sourceCreatorService,
 		final ICreatorService linkCreatorService,
-		final ICreatorService linkedCreatorService,
+		final ICreatorService linkableCreatorService,
 		final IEntityLinkProperties sourceProperties,
 		final IEntityLinkProperties destinationProperties) {
 
-		Assert.paramNotNull(linkedBeanAccess, "beanAcces");
-		Assert.paramNotNull(beanDtoFactory, "beanDtoFactory");
+		Assert.paramNotNull(linkBeanType, "linkBeanType");
+		Assert.paramNotNull(linkedBeanAccess, "linkedBeanAccess");
+		Assert.paramNotNull(linkedDtoFactory, "linkedDtoFactory");
 		Assert.paramNotNull(sourceProperties, "sourceProperties");
 		Assert.paramNotNull(destinationProperties, "destinationProperties");
 
+		this.linkBeanType = linkBeanType;
+
 		this.linkedBeanAccess = linkedBeanAccess;
-		this.beanDtoFactory = beanDtoFactory;
+		this.linkedDtoFactory = linkedDtoFactory;
 		this.sourceCreatorService = sourceCreatorService;
 		this.linkCreatorService = linkCreatorService;
-		this.linkedCreatorService = linkedCreatorService;
+		this.linkableCreatorService = linkableCreatorService;
 		this.sourceProperties = sourceProperties;
 		this.destinationProperties = destinationProperties;
 	}
@@ -122,20 +127,23 @@ final class LinkCreatorServiceImpl<LINKED_BEAN_TYPE extends IBean> implements IL
 	private IBeanDto createLink(final ILinkData link, final IExecutionCallback executionCallback) {
 
 		final IBeanDto createdSourceBean = createBean(link.getSourceData(), sourceCreatorService, executionCallback);
-		final IBeanDto createdLinkedBean = createBean(link.getLinkedData(), linkedCreatorService, executionCallback);
+		final IBeanDto createdLinkableBean = createBean(link.getLinkableData(), linkableCreatorService, executionCallback);
 
 		final IBeanDto createdLinkBean;
 		final IBeanData linkData = link.getLinkData();
 		if (linkData != null) {
-			final IBeanData decoratedBeanData = new DecoratedBeanData(linkData, createdLinkedBean, createdSourceBean);
+			final IBeanData decoratedBeanData = new DecoratedBeanData(linkData, createdLinkableBean, createdSourceBean);
 			createdLinkBean = createBean(decoratedBeanData, linkCreatorService, executionCallback);
 		}
 		else {
 			createdLinkBean = null;
 		}
+		if (linkBeanType.equals(linkedBeanAccess.getBeanType())) {
+			return createdLinkBean;
+		}
 
-		if (createdLinkedBean != null) {
-			return createdLinkedBean;
+		else if (createdLinkableBean != null) {
+			return createdLinkableBean;
 		}
 		else if (createdLinkBean != null) {
 			return readLinkedBean(createdLinkBean, executionCallback);
@@ -149,7 +157,7 @@ final class LinkCreatorServiceImpl<LINKED_BEAN_TYPE extends IBean> implements IL
 		final IBeanKey beanKey = new BeanKey(linkedId, 0);
 		final List<LINKED_BEAN_TYPE> beans = linkedBeanAccess.getBeans(Collections.singleton(beanKey), executionCallback);
 		if (beans.size() > 0) {
-			return beanDtoFactory.createDto(beans.iterator().next());
+			return linkedDtoFactory.createDto(beans.iterator().next());
 		}
 		else {
 			throw new DeletedBeanException(linkedId);

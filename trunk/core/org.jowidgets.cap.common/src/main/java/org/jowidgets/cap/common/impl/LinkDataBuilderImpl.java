@@ -36,7 +36,7 @@ final class LinkDataBuilderImpl implements ILinkDataBuilder {
 
 	private IBeanData sourceData;
 	private IBeanData linkData;
-	private IBeanData linkedData;
+	private IBeanData linkableData;
 
 	@Override
 	public ILinkDataBuilder setSourceData(final IBeanData beanData) {
@@ -51,14 +51,14 @@ final class LinkDataBuilderImpl implements ILinkDataBuilder {
 	}
 
 	@Override
-	public ILinkDataBuilder setLinkedData(final IBeanData beanData) {
-		this.linkedData = beanData;
+	public ILinkDataBuilder setLinkableData(final IBeanData beanData) {
+		this.linkableData = beanData;
 		return this;
 	}
 
 	@Override
 	public ILinkData build() {
-		return new LinkDataImpl(sourceData, linkData, linkedData);
+		return new LinkDataImpl(sourceData, linkData, linkableData);
 	}
 
 }

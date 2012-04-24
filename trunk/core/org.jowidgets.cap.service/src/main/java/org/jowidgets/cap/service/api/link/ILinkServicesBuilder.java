@@ -42,6 +42,8 @@ import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 
 public interface ILinkServicesBuilder<LINKED_BEAN_TYPE extends IBean> {
 
+	ILinkServicesBuilder<LINKED_BEAN_TYPE> setLinkBeanType(Class<? extends IBean> beanType);
+
 	ILinkServicesBuilder<LINKED_BEAN_TYPE> setLinkedBeanAccess(IBeanAccess<LINKED_BEAN_TYPE> beanAccess);
 
 	ILinkServicesBuilder<LINKED_BEAN_TYPE> setLinkedDtoFactory(IBeanDtoFactory<LINKED_BEAN_TYPE> dtoFactory);
@@ -60,9 +62,9 @@ public interface ILinkServicesBuilder<LINKED_BEAN_TYPE extends IBean> {
 
 	ILinkServicesBuilder<LINKED_BEAN_TYPE> setLinkDeleterService(IDeleterService deleterService);
 
-	ILinkServicesBuilder<LINKED_BEAN_TYPE> setLinkedCreatorService(ICreatorService creatorService);
+	ILinkServicesBuilder<LINKED_BEAN_TYPE> setLinkableCreatorService(ICreatorService creatorService);
 
-	ILinkServicesBuilder<LINKED_BEAN_TYPE> setLinkedDeleterService(IDeleterService creatorService);
+	ILinkServicesBuilder<LINKED_BEAN_TYPE> setLinkableDeleterService(IDeleterService creatorService);
 
 	ILinkServicesBuilder<LINKED_BEAN_TYPE> setSourceProperties(IEntityLinkProperties properties);
 

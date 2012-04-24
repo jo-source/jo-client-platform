@@ -40,18 +40,18 @@ public interface ILinkDataBuilder {
 	ILinkDataBuilder setSourceData(IBeanData beanData);
 
 	/**
-	 * @param beanData The data of the link or null for direct links.
+	 * @param beanData The data of the link, never null.
 	 * 
 	 * @return This builder
 	 */
 	ILinkDataBuilder setLinkData(IBeanData beanData);
 
 	/**
-	 * @param beanData The data for the linked bean if a new bean should be created or for direct links, else null
+	 * @param beanData The data for the linkable bean if a new linkable bean should be created, else null
 	 * 
 	 * @return This builder
 	 */
-	ILinkDataBuilder setLinkedData(IBeanData beanData);
+	ILinkDataBuilder setLinkableData(IBeanData beanData);
 
 	ILinkData build();
 
