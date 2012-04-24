@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.ui.impl;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -48,7 +49,6 @@ import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.common.api.service.ILinkCreatorService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
-import org.jowidgets.cap.ui.api.attribute.IAttributeCollectionModifierBuilder;
 import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
 import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionProvider;
@@ -56,6 +56,7 @@ import org.jowidgets.cap.ui.api.command.ILinkCreatorActionBuilder;
 import org.jowidgets.cap.ui.api.execution.BeanMessageStatePolicy;
 import org.jowidgets.cap.ui.api.execution.BeanModificationStatePolicy;
 import org.jowidgets.cap.ui.api.execution.IExecutionInterceptor;
+import org.jowidgets.cap.ui.api.form.IBeanFormLayout;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.model.LinkType;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
@@ -65,6 +66,7 @@ import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
 import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
 import org.jowidgets.service.api.ServiceProvider;
 import org.jowidgets.tools.message.MessageReplacer;
+import org.jowidgets.util.ArrayUtils;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.EmptyCheck;
 
@@ -112,12 +114,15 @@ final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKA
 			if (linkEntityId != null) {
 				final IBeanDtoDescriptor descriptor = entityService.getDescriptor(linkEntityId);
 				if (descriptor != null && hasAdditionalProperties(descriptor, linkDescriptor)) {
-					final List<IAttribute<Object>> attributes = createAttributes(
-							descriptor,
+					final List<IAttribute<Object>> attributes = createAttributes(descriptor);
+					final IBeanFormBluePrint beanFormBp = cbpf.beanForm(linkEntityId, attributes);
+					final List<IAttribute<Object>> filteredAttributes = getFilteredAttributes(
+							attributes,
 							sourceProperties.getForeignKeyPropertyName(),
 							destinationProperties.getForeignKeyPropertyName());
+					final IBeanFormLayout layout = CapUiToolkit.beanFormToolkit().layoutBuilder().addGroups(filteredAttributes).build();
+					beanFormBp.setLayouter(CapUiToolkit.beanFormToolkit().layouter(layout));
 
-					final IBeanFormBluePrint beanFormBp = cbpf.beanForm(linkEntityId, attributes);
 					final Class beanType = descriptor.getBeanType();
 					setLinkBeanType(beanType);
 					setLinkBeanForm(beanFormBp);
@@ -132,7 +137,13 @@ final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKA
 					final Class linkableType = descriptor.getBeanType();
 					setLinkableBeanType(linkableType);
 
-					final IBeanFormBluePrint beanFormBp = cbpf.beanForm(linkableEntityId, createAttributes(descriptor));
+					final List<IAttribute<Object>> attributes = createAttributes(descriptor);
+
+					final IBeanFormBluePrint beanFormBp = cbpf.beanForm(linkableEntityId, attributes);
+					final List<IAttribute<Object>> filteredAttributes = getFilteredAttributes(attributes);
+					final IBeanFormLayout layout = CapUiToolkit.beanFormToolkit().layoutBuilder().addGroups(filteredAttributes).build();
+					beanFormBp.setLayouter(CapUiToolkit.beanFormToolkit().layouter(layout));
+
 					setLinkableBeanForm(beanFormBp);
 
 					final IBeanTableModelBuilder<?> linkableModelBuilder;
@@ -166,16 +177,23 @@ final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKA
 		this.exceptionConverter = new DefaultBeanExceptionConverter();
 	}
 
-	private static List<IAttribute<Object>> createAttributes(
-		final IBeanDtoDescriptor descriptor,
-		final String... filteredProperties) {
+	private static List<IAttribute<Object>> createAttributes(final IBeanDtoDescriptor descriptor) {
 		final IAttributeToolkit attributeToolkit = CapUiToolkit.attributeToolkit();
-		final IAttributeCollectionModifierBuilder modifierBuilder = attributeToolkit.createAttributeCollectionModifierBuilder();
-		modifierBuilder.addAcceptEditableAttributesFilter();
-		if (!EmptyCheck.isEmpty(filteredProperties)) {
-			modifierBuilder.addBlackListFilter(filteredProperties);
+
+		return attributeToolkit.createAttributes(descriptor.getProperties());
+	}
+
+	private static List<IAttribute<Object>> getFilteredAttributes(
+		final Collection<IAttribute<Object>> attributes,
+		final String... filteredProperties) {
+		final Set<String> blackList = ArrayUtils.toSet(filteredProperties);
+		final List<IAttribute<Object>> result = new LinkedList<IAttribute<Object>>();
+		for (final IAttribute<Object> attribute : attributes) {
+			if (attribute.isEditable() && !blackList.contains(attribute.getPropertyName())) {
+				result.add(attribute);
+			}
 		}
-		return attributeToolkit.createAttributes(descriptor.getProperties(), modifierBuilder.build());
+		return result;
 	}
 
 	private static boolean hasAdditionalProperties(final IBeanDtoDescriptor descriptor, final IEntityLinkDescriptor linkDescriptor) {
