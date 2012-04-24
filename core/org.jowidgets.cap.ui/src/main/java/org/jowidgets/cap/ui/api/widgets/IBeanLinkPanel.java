@@ -47,13 +47,13 @@ public interface IBeanLinkPanel<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> extends
 		IBeanProxy<LINK_BEAN_TYPE> getLinkBean();
 
 		/**
-		 * Gets the linked beans. The beans that was selected or created by the user.
+		 * Gets the linkable beans. The beans that was selected or created by the user.
 		 * 
-		 * Remark: The linked beans can be transient or not.
+		 * Remark: The linkable beans can be transient or not.
 		 * 
-		 * @return The linked beans. This may also be an empty list, if nothing was selected or created.
+		 * @return The linkable beans. This may also be an empty list, if nothing was selected or created.
 		 */
-		List<IBeanProxy<LINKABLE_BEAN_TYPE>> getLinkedBeans();
+		List<IBeanProxy<LINKABLE_BEAN_TYPE>> getLinkableBeans();
 
 	}
 

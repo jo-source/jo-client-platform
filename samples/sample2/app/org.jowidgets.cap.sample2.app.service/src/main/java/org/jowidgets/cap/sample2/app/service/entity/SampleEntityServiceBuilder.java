@@ -151,6 +151,7 @@ public class SampleEntityServiceBuilder extends JpaEntityServiceBuilderWrapper {
 	private void addPersonsOfSourcePersonsLinkDescriptor(final IBeanEntityBluePrint entityBp) {
 		final IBeanEntityLinkBluePrint bp = entityBp.addLink();
 		bp.setLinkEntityId(EntityIds.PERSONS_OF_SOURCE_PERSONS_LINK);
+		bp.setLinkBeanType(PersonPersonLink.class);
 		bp.setLinkedEntityId(EntityIds.LINKED_PERSONS_OF_SOURCE_PERSONS);
 		bp.setLinkableEntityId(EntityIds.LINKABLE_PERSONS_OF_PERSONS);
 		bp.setSourceProperties(IPersonPersonLink.SOURCE_PERSON_ID_PROPERTY);
@@ -160,6 +161,7 @@ public class SampleEntityServiceBuilder extends JpaEntityServiceBuilderWrapper {
 	private void addSourcePersonsOfPersonsLinkDescriptor(final IBeanEntityBluePrint entityBp) {
 		final IBeanEntityLinkBluePrint bp = entityBp.addLink();
 		bp.setLinkEntityId(EntityIds.SOURCE_PERSONS_OF_PERSONS_LINK);
+		bp.setLinkBeanType(PersonPersonLink.class);
 		bp.setLinkedEntityId(EntityIds.LINKED_SOURCE_PERSONS_OF_PERSONS);
 		bp.setLinkableEntityId(EntityIds.LINKABLE_PERSONS_OF_PERSONS);
 		bp.setSourceProperties(IPersonPersonLink.DESTINATION_PERSON_ID_PROPERTY);

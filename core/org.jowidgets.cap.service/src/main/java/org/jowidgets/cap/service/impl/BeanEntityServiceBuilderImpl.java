@@ -676,11 +676,13 @@ final class BeanEntityServiceBuilderImpl extends EntityServiceBuilderImpl implem
 							linkPrebuild.getBeanType(),
 							linkPrebuild.getPropertyNames()));
 				}
+				builder.setLinkBeanType(linkPrebuild.getBeanType());
 			}
 			else if (linkBeanType != null) {
 				final List<String> linkPropertyNames = new LinkedList<String>();
 				linkPropertyNames.add(sourceProperties.getForeignKeyPropertyName());
 				linkPropertyNames.add(destinationProperties.getForeignKeyPropertyName());
+				builder.setLinkBeanType(linkBeanType);
 				builder.setLinkCreatorService(createCreatorService(linkBeanType, linkPropertyNames));
 				builder.setAllLinksReaderService(createReaderService(linkBeanType, linkPropertyNames));
 			}
@@ -691,8 +693,14 @@ final class BeanEntityServiceBuilderImpl extends EntityServiceBuilderImpl implem
 				final Collection<String> linkedProperties = linkedPrebuild.getPropertyNames();
 				builder.setLinkedBeanAccess(beanServiceFactory.beanAccess(linkedBeanType));
 				builder.setLinkedDtoFactory(linkedBeanType, linkedProperties);
-				builder.setLinkedCreatorService(createCreatorService(linkedBeanType, linkedProperties));
-				builder.setLinkedDeleterService(createDeleterService(linkedBeanType));
+			}
+
+			final BeanEntityPreBuild linkablePrebuild = prebuilds.get(linkableEntityId);
+			if (linkablePrebuild != null) {
+				final Class<? extends IBean> linkableBeanType = linkablePrebuild.getBeanType();
+				final Collection<String> linkableProperties = linkablePrebuild.getPropertyNames();
+				builder.setLinkableCreatorService(createCreatorService(linkableBeanType, linkableProperties));
+				builder.setLinkableDeleterService(createDeleterService(linkableBeanType));
 			}
 
 			return builder;

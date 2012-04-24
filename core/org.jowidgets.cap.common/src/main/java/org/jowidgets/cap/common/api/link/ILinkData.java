@@ -38,12 +38,12 @@ public interface ILinkData {
 	IBeanData getSourceData();
 
 	/**
-	 * @return The data of the link or null for direct links.
+	 * @return The data of the link, never null.
 	 */
 	IBeanData getLinkData();
 
 	/**
-	 * @return The data for the linked bean if a new bean should be created or for direct links, else null
+	 * @return The data for the linkable bean if a new linkable bean should be created, else null
 	 */
-	IBeanData getLinkedData();
+	IBeanData getLinkableData();
 }

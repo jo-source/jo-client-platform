@@ -286,7 +286,7 @@ final class BeanLinkPanelImpl<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> extends
 				linkForm.setValue(value.getLinkBean());
 			}
 			if (linkableForm != null) {
-				linkableForm.setValue(getFirstTransientBean(value.getLinkedBeans()));
+				linkableForm.setValue(getFirstTransientBean(value.getLinkableBeans()));
 				createdLinkableBean = linkableForm.getValue();
 				if (createdLinkableBean != null && linkableTable != null) {
 					createdLinkableBean.addPropertyChangeListener(beanFilterListener);
@@ -330,7 +330,7 @@ final class BeanLinkPanelImpl<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> extends
 			}
 
 			@Override
-			public List<IBeanProxy<LINKABLE_BEAN_TYPE>> getLinkedBeans() {
+			public List<IBeanProxy<LINKABLE_BEAN_TYPE>> getLinkableBeans() {
 				return linkedBeans;
 			}
 		};

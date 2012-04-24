@@ -47,20 +47,28 @@ import org.jowidgets.util.Assert;
 final class LinkServicesBuilderImpl<LINKED_BEAN_TYPE extends IBean> implements ILinkServicesBuilder<LINKED_BEAN_TYPE> {
 
 	private IBeanAccess<LINKED_BEAN_TYPE> linkedBeanAccess;
+	private IBeanDtoFactory<LINKED_BEAN_TYPE> linkedDtoFactory;
 
-	private IBeanDtoFactory<LINKED_BEAN_TYPE> beanDtoFactory;
+	private Class<? extends IBean> linkBeanType;
 
 	private ICreatorService sourceCreatorService;
 	private ICreatorService linkCreatorService;
-	private ICreatorService linkedCreatorService;
+	private ICreatorService linkableCreatorService;
 
 	private IReaderService<Void> linkReaderService;
 	private IDeleterService sourceDeleterService;
 	private IDeleterService linkDeleterService;
-	private IDeleterService linkedDeleterService;
+	private IDeleterService linkableDeleterService;
 
 	private IEntityLinkProperties sourceProperties;
 	private IEntityLinkProperties destinationProperties;
+
+	@Override
+	public ILinkServicesBuilder<LINKED_BEAN_TYPE> setLinkBeanType(final Class<? extends IBean> beanType) {
+		Assert.paramNotNull(beanType, "beanType");
+		this.linkBeanType = beanType;
+		return this;
+	}
 
 	@Override
 	public ILinkServicesBuilder<LINKED_BEAN_TYPE> setLinkedBeanAccess(final IBeanAccess<LINKED_BEAN_TYPE> beanAccess) {
@@ -72,7 +80,7 @@ final class LinkServicesBuilderImpl<LINKED_BEAN_TYPE extends IBean> implements I
 	@Override
 	public ILinkServicesBuilder<LINKED_BEAN_TYPE> setLinkedDtoFactory(final IBeanDtoFactory<LINKED_BEAN_TYPE> dtoFactory) {
 		Assert.paramNotNull(dtoFactory, "dtoFactory");
-		this.beanDtoFactory = dtoFactory;
+		this.linkedDtoFactory = dtoFactory;
 		return this;
 	}
 
@@ -118,14 +126,14 @@ final class LinkServicesBuilderImpl<LINKED_BEAN_TYPE extends IBean> implements I
 	}
 
 	@Override
-	public ILinkServicesBuilder<LINKED_BEAN_TYPE> setLinkedCreatorService(final ICreatorService creatorService) {
-		this.linkedCreatorService = creatorService;
+	public ILinkServicesBuilder<LINKED_BEAN_TYPE> setLinkableCreatorService(final ICreatorService creatorService) {
+		this.linkableCreatorService = creatorService;
 		return this;
 	}
 
 	@Override
-	public ILinkServicesBuilder<LINKED_BEAN_TYPE> setLinkedDeleterService(final IDeleterService deleterService) {
-		this.linkedDeleterService = deleterService;
+	public ILinkServicesBuilder<LINKED_BEAN_TYPE> setLinkableDeleterService(final IDeleterService deleterService) {
+		this.linkableDeleterService = deleterService;
 		return this;
 	}
 
@@ -170,11 +178,12 @@ final class LinkServicesBuilderImpl<LINKED_BEAN_TYPE extends IBean> implements I
 	@Override
 	public ILinkCreatorService buildCreatorService() {
 		return new LinkCreatorServiceImpl<LINKED_BEAN_TYPE>(
+			linkBeanType,
 			linkedBeanAccess,
-			beanDtoFactory,
+			linkedDtoFactory,
 			sourceCreatorService,
 			linkCreatorService,
-			linkedCreatorService,
+			linkableCreatorService,
 			sourceProperties,
 			destinationProperties);
 	}
@@ -185,7 +194,7 @@ final class LinkServicesBuilderImpl<LINKED_BEAN_TYPE extends IBean> implements I
 			linkReaderService,
 			sourceDeleterService,
 			linkDeleterService,
-			linkedDeleterService,
+			linkableDeleterService,
 			sourceProperties,
 			destinationProperties);
 	}

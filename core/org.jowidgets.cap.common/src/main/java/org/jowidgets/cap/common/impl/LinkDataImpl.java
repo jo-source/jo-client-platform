@@ -39,12 +39,12 @@ final class LinkDataImpl implements ILinkData, Serializable {
 
 	private final IBeanData sourceData;
 	private final IBeanData linkData;
-	private final IBeanData linkedData;
+	private final IBeanData linkableData;
 
-	LinkDataImpl(final IBeanData sourceData, final IBeanData linkData, final IBeanData linkedData) {
+	LinkDataImpl(final IBeanData sourceData, final IBeanData linkData, final IBeanData linkableData) {
 		this.sourceData = sourceData;
 		this.linkData = linkData;
-		this.linkedData = linkedData;
+		this.linkableData = linkableData;
 	}
 
 	@Override
@@ -58,8 +58,8 @@ final class LinkDataImpl implements ILinkData, Serializable {
 	}
 
 	@Override
-	public IBeanData getLinkedData() {
-		return linkedData;
+	public IBeanData getLinkableData() {
+		return linkableData;
 	}
 
 }

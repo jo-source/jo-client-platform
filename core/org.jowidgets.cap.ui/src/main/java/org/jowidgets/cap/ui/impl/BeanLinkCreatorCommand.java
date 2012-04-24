@@ -207,7 +207,7 @@ final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BE
 		for (final IBeanProxy<SOURCE_BEAN_TYPE> bean : selection) {
 			bean.setExecutionTask(executionTask);
 
-			for (final IBeanProxy<LINKABLE_BEAN_TYPE> linkedBean : beanLink.getLinkedBeans()) {
+			for (final IBeanProxy<LINKABLE_BEAN_TYPE> linkableBean : beanLink.getLinkableBeans()) {
 				final IBeanDataBuilder linkBeanBuilder = CapCommonToolkit.beanDataBuilder();
 				if (beanLink.getLinkBean() != null) {
 					setBeanData(beanLink.getLinkBean(), linkBeanBuilder);
@@ -216,12 +216,12 @@ final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BE
 
 				final ILinkDataBuilder linkDataBuilder = LinkData.builder();
 
-				if (linkedBean.isTransient()) {
+				if (linkableBean.isTransient()) {
 					linkDataBuilder.setLinkData(linkBeanBuilder.build());
-					linkDataBuilder.setLinkedData(linkedBean.getBeanData());
+					linkDataBuilder.setLinkableData(linkableBean.getBeanData());
 				}
 				else {
-					linkBeanBuilder.setProperty(destinationProperties.getForeignKeyPropertyName(), linkedBean.getId());
+					linkBeanBuilder.setProperty(destinationProperties.getForeignKeyPropertyName(), linkableBean.getId());
 					linkDataBuilder.setLinkData(linkBeanBuilder.build());
 				}
 
@@ -306,7 +306,7 @@ final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BE
 			}
 
 			@Override
-			public List<IBeanProxy<LINKABLE_BEAN_TYPE>> getLinkedBeans() {
+			public List<IBeanProxy<LINKABLE_BEAN_TYPE>> getLinkableBeans() {
 				return defaultLinkedBeans;
 			}
 		});
