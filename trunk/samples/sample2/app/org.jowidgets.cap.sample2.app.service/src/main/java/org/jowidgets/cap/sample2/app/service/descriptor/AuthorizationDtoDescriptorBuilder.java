@@ -26,30 +26,45 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample2.app.common.entity;
+package org.jowidgets.cap.sample2.app.service.descriptor;
 
-public enum EntityIds {
+import org.jowidgets.cap.common.api.bean.IBean;
+import org.jowidgets.cap.common.api.bean.IBeanPropertyBluePrint;
+import org.jowidgets.cap.common.tools.bean.BeanDtoDescriptorBuilder;
+import org.jowidgets.cap.sample2.app.common.bean.IAuthorization;
 
-	PERSON,
-	ROLE,
-	COUNTRY,
-	PERSON_LINK_TYPE,
-	AUTHORIZATION,
-	ROLE_AUTHORIZATION_LINK,
+public class AuthorizationDtoDescriptorBuilder extends BeanDtoDescriptorBuilder {
 
-	PERSON_ROLE_LINK,
-	PERSONS_OF_SOURCE_PERSONS_LINK,
-	SOURCE_PERSONS_OF_PERSONS_LINK,
-	LINKED_PERSONS_OF_SOURCE_PERSONS,
-	LINKED_SOURCE_PERSONS_OF_PERSONS,
-	LINKABLE_PERSONS_OF_PERSONS,
-	LINKED_ROLES_OF_PERSONS,
-	LINKABLE_ROLES_OF_PERSONS,
-	LINKED_PERSONS_OF_ROLES,
-	LINKABLE_PERSONS_OF_ROLES,
-	LINKED_AUTHORIZATION_OF_ROLES,
-	LINKABLE_AUTHORIZATIONS_OF_ROLES,
-	LINKED_ROLES_OF_AUTHORIZATIONS,
-	LINKABLE_ROLES_OF_AUTHORIZATIONS;
+	public AuthorizationDtoDescriptorBuilder() {
+		super(IAuthorization.class);
 
+		setLabelSingular("Authorization");
+		setLabelPlural("Authorizations");
+		setRenderingPattern("$" + IAuthorization.KEY_PROPERTY + "$");
+
+		IBeanPropertyBluePrint propertyBp;
+
+		propertyBp = addProperty(IBean.ID_PROPERTY);
+		propertyBp.setLabel("Id");
+		propertyBp.setDescription("The authorizations technical identifier");
+
+		propertyBp = addProperty(IAuthorization.KEY_PROPERTY);
+		propertyBp.setLabel("Key");
+		propertyBp.setDescription("The authorizations key");
+		propertyBp.setMandatory(true);
+
+		propertyBp = addProperty(IAuthorization.DESCRIPTION_PROPERTY);
+		propertyBp.setLabel("Description");
+		propertyBp.setDescription("The authorizations description");
+
+		propertyBp = addProperty(IAuthorization.IN_USE_PROPERTY);
+		propertyBp.setLabel("Used");
+		propertyBp.setDescription("Determines if the authorization is used");
+		propertyBp.setSortable(false);
+		propertyBp.setFilterable(false);
+
+		propertyBp = addProperty(IBean.VERSION_PROPERTY);
+		propertyBp.setLabel("Version");
+		propertyBp.setDescription("The version of the dataset");
+	}
 }

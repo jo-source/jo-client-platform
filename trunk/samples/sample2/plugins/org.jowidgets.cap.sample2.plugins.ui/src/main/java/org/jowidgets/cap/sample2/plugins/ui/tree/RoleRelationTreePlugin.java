@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,30 +26,17 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample2.app.common.entity;
+package org.jowidgets.cap.sample2.plugins.ui.tree;
 
-public enum EntityIds {
+import org.jowidgets.cap.ui.api.plugin.IBeanRelationTreePlugin;
+import org.jowidgets.cap.ui.api.widgets.IBeanRelationTreeBluePrint;
+import org.jowidgets.plugin.api.IPluginProperties;
 
-	PERSON,
-	ROLE,
-	COUNTRY,
-	PERSON_LINK_TYPE,
-	AUTHORIZATION,
-	ROLE_AUTHORIZATION_LINK,
+public final class RoleRelationTreePlugin<CHILD_BEAN_TYPE> implements IBeanRelationTreePlugin<CHILD_BEAN_TYPE> {
 
-	PERSON_ROLE_LINK,
-	PERSONS_OF_SOURCE_PERSONS_LINK,
-	SOURCE_PERSONS_OF_PERSONS_LINK,
-	LINKED_PERSONS_OF_SOURCE_PERSONS,
-	LINKED_SOURCE_PERSONS_OF_PERSONS,
-	LINKABLE_PERSONS_OF_PERSONS,
-	LINKED_ROLES_OF_PERSONS,
-	LINKABLE_ROLES_OF_PERSONS,
-	LINKED_PERSONS_OF_ROLES,
-	LINKABLE_PERSONS_OF_ROLES,
-	LINKED_AUTHORIZATION_OF_ROLES,
-	LINKABLE_AUTHORIZATIONS_OF_ROLES,
-	LINKED_ROLES_OF_AUTHORIZATIONS,
-	LINKABLE_ROLES_OF_AUTHORIZATIONS;
+	@Override
+	public void modifySetup(final IPluginProperties properties, final IBeanRelationTreeBluePrint<CHILD_BEAN_TYPE> builder) {
+		builder.setAutoExpandLevel(1);
+	}
 
 }

@@ -10,6 +10,8 @@
 		<class>org.jowidgets.cap.sample2.app.service.bean.Country</class>
 		<class>org.jowidgets.cap.sample2.app.service.bean.PersonRoleLink</class>
 		<class>org.jowidgets.cap.sample2.app.service.bean.PersonPersonLink</class>
+		<class>org.jowidgets.cap.sample2.app.service.bean.Authorization</class>
+		<class>org.jowidgets.cap.sample2.app.service.bean.RoleAuthorizationLink</class>
 		<properties>
 			<property name="hibernate.dialect" value="org.hibernate.dialect.Oracle10gDialect" />
 			<property name="hibernate.connection.driver_class" value="oracle.jdbc.driver.OracleDriver"></property>

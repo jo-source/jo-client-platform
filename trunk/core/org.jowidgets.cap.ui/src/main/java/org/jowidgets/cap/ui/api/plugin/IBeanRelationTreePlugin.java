@@ -26,30 +26,19 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample2.app.common.entity;
+package org.jowidgets.cap.ui.api.plugin;
 
-public enum EntityIds {
+import org.jowidgets.cap.ui.api.widgets.IBeanRelationTreeBluePrint;
+import org.jowidgets.plugin.api.IPluginId;
+import org.jowidgets.plugin.api.IPluginProperties;
+import org.jowidgets.util.ITypedKey;
 
-	PERSON,
-	ROLE,
-	COUNTRY,
-	PERSON_LINK_TYPE,
-	AUTHORIZATION,
-	ROLE_AUTHORIZATION_LINK,
+public interface IBeanRelationTreePlugin<CHILD_BEAN_TYPE> {
 
-	PERSON_ROLE_LINK,
-	PERSONS_OF_SOURCE_PERSONS_LINK,
-	SOURCE_PERSONS_OF_PERSONS_LINK,
-	LINKED_PERSONS_OF_SOURCE_PERSONS,
-	LINKED_SOURCE_PERSONS_OF_PERSONS,
-	LINKABLE_PERSONS_OF_PERSONS,
-	LINKED_ROLES_OF_PERSONS,
-	LINKABLE_ROLES_OF_PERSONS,
-	LINKED_PERSONS_OF_ROLES,
-	LINKABLE_PERSONS_OF_ROLES,
-	LINKED_AUTHORIZATION_OF_ROLES,
-	LINKABLE_AUTHORIZATIONS_OF_ROLES,
-	LINKED_ROLES_OF_AUTHORIZATIONS,
-	LINKABLE_ROLES_OF_AUTHORIZATIONS;
+	IPluginId<IBeanRelationTreePlugin<?>> ID = new IPluginId<IBeanRelationTreePlugin<?>>() {};
+
+	ITypedKey<Object> ENTITIY_ID_PROPERTY_KEY = new ITypedKey<Object>() {};
+
+	void modifySetup(IPluginProperties properties, IBeanRelationTreeBluePrint<CHILD_BEAN_TYPE> builder);
 
 }
