@@ -39,10 +39,10 @@ public interface IEntityService {
 
 	IServiceId<IEntityService> ID = new ServiceId<IEntityService>(IEntityService.class.getName(), IEntityService.class);
 
-	IBeanDtoDescriptor getDescriptor(Object entityTypeId);
+	IBeanDtoDescriptor getDescriptor(Object entityId);
 
-	IBeanServicesProvider getBeanServices(Object entityTypeId);
+	IBeanServicesProvider getBeanServices(Object entityId);
 
-	List<IEntityLinkDescriptor> getEntityLinks(Object entityTypeId);
+	List<IEntityLinkDescriptor> getEntityLinks(Object entityId);
 
 }
