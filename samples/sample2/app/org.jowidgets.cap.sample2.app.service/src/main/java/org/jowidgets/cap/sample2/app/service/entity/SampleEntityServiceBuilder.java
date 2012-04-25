@@ -28,7 +28,7 @@
 
 package org.jowidgets.cap.sample2.app.service.entity;
 
-import org.jowidgets.cap.common.api.CapCommonToolkit;
+import org.jowidgets.cap.common.api.filter.ArithmeticFilter;
 import org.jowidgets.cap.common.api.filter.ArithmeticOperator;
 import org.jowidgets.cap.common.api.filter.IFilter;
 import org.jowidgets.cap.common.api.service.ICreatorService;
@@ -200,7 +200,7 @@ public class SampleEntityServiceBuilder extends JpaEntityServiceBuilderWrapper {
 		final ICriteriaQueryCreatorBuilder<Void> queryBuilder = JpaQueryToolkit.criteriaQueryCreatorBuilder(Person.class);
 		queryBuilder.setParentPropertyPath(linked, "personRoleLinks", "role");
 		if (!linked) {
-			final IFilter filter = CapCommonToolkit.filterFactory().arithmeticFilter(
+			final IFilter filter = ArithmeticFilter.create(
 					IPerson.ACTIVE_PROPERTY,
 					ArithmeticOperator.EQUAL,
 					Boolean.TRUE);
