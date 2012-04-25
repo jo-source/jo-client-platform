@@ -25,31 +25,43 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
+package org.jowidgets.cap.sample2.app.common.bean;
 
-package org.jowidgets.cap.sample2.app.common.entity;
+import java.util.LinkedList;
+import java.util.List;
 
-public enum EntityIds {
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
-	PERSON,
-	ROLE,
-	COUNTRY,
-	PERSON_LINK_TYPE,
-	AUTHORIZATION,
-	ROLE_AUTHORIZATION_LINK,
+import org.jowidgets.cap.common.api.bean.IBean;
 
-	PERSON_ROLE_LINK,
-	PERSONS_OF_SOURCE_PERSONS_LINK,
-	SOURCE_PERSONS_OF_PERSONS_LINK,
-	LINKED_PERSONS_OF_SOURCE_PERSONS,
-	LINKED_SOURCE_PERSONS_OF_PERSONS,
-	LINKABLE_PERSONS_OF_PERSONS,
-	LINKED_ROLES_OF_PERSONS,
-	LINKABLE_ROLES_OF_PERSONS,
-	LINKED_PERSONS_OF_ROLES,
-	LINKABLE_PERSONS_OF_ROLES,
-	LINKED_AUTHORIZATION_OF_ROLES,
-	LINKABLE_AUTHORIZATIONS_OF_ROLES,
-	LINKED_ROLES_OF_AUTHORIZATIONS,
-	LINKABLE_ROLES_OF_AUTHORIZATIONS;
+public interface IAuthorization extends IBean {
+
+	String KEY_PROPERTY = "key";
+	String DESCRIPTION_PROPERTY = "description";
+	String IN_USE_PROPERTY = "inUse";
+
+	List<String> ALL_PROPERTIES = new LinkedList<String>() {
+		private static final long serialVersionUID = 1L;
+		{
+			add(KEY_PROPERTY);
+			add(DESCRIPTION_PROPERTY);
+			add(IN_USE_PROPERTY);
+			add(IBean.ID_PROPERTY);
+			add(IBean.VERSION_PROPERTY);
+		}
+	};
+
+	@NotNull
+	@Size(min = 2, max = 50)
+	String getKey();
+
+	void setKey(String key);
+
+	String getDescription();
+
+	void setDescription(String name);
+
+	boolean getInUse();
 
 }

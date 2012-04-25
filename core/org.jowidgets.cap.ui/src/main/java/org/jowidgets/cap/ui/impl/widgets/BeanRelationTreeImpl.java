@@ -56,6 +56,7 @@ import org.jowidgets.cap.ui.api.bean.IBeanSelectionProvider;
 import org.jowidgets.cap.ui.api.command.ICapActionFactory;
 import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
 import org.jowidgets.cap.ui.api.model.ILabelModel;
+import org.jowidgets.cap.ui.api.plugin.IBeanRelationTreePlugin;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationNodeModel;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeModel;
 import org.jowidgets.cap.ui.api.tree.IEntityTypeId;
@@ -63,6 +64,9 @@ import org.jowidgets.cap.ui.api.widgets.IBeanRelationTree;
 import org.jowidgets.cap.ui.api.widgets.IBeanRelationTreeBluePrint;
 import org.jowidgets.cap.ui.tools.bean.SingleBeanSelectionProvider;
 import org.jowidgets.common.types.Markup;
+import org.jowidgets.plugin.api.IPluginProperties;
+import org.jowidgets.plugin.api.PluginProperties;
+import org.jowidgets.plugin.api.PluginProvider;
 import org.jowidgets.service.api.ServiceProvider;
 import org.jowidgets.tools.controller.TreeNodeAdapter;
 import org.jowidgets.tools.model.item.MenuModel;
@@ -80,8 +84,11 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 	private final Map<ITreeNode, Tuple<IBeanRelationNodeModel<Object, Object>, IBeanProxy<Object>>> nodesMap;
 	private final LinkedHashSet<ExpandedNodeKey> expandedNodesCache;
 
-	BeanRelationTreeImpl(final ITree tree, final IBeanRelationTreeBluePrint<CHILD_BEAN_TYPE> bluePrint) {
+	BeanRelationTreeImpl(final ITree tree, IBeanRelationTreeBluePrint<CHILD_BEAN_TYPE> bluePrint) {
 		super(tree);
+
+		bluePrint = modififySetupFromPlugins(bluePrint);
+
 		this.treeModel = bluePrint.getModel();
 		this.autoSelection = bluePrint.getAutoSelection();
 		this.autoExpandLevel = bluePrint.getAutoExpandLevel();
@@ -90,6 +97,24 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 
 		tree.addTreeSelectionListener(new TreeSelectionListener());
 		treeModel.getRoot().addBeanListModelListener(new RootModelListener());
+	}
+
+	@SuppressWarnings({"unchecked", "rawtypes"})
+	private IBeanRelationTreeBluePrint<CHILD_BEAN_TYPE> modififySetupFromPlugins(
+		final IBeanRelationTreeBluePrint<CHILD_BEAN_TYPE> bluePrint) {
+
+		final IBeanRelationTreeBluePrint<CHILD_BEAN_TYPE> result = CapUiToolkit.bluePrintFactory().beanRelationTree();
+		result.setSetup(bluePrint);
+
+		final Object entityId = bluePrint.getModel().getRoot().getChildEntityId();
+		final IPluginProperties pluginProperties;
+		pluginProperties = PluginProperties.create(IBeanRelationTreePlugin.ENTITIY_ID_PROPERTY_KEY, entityId);
+		final List<IBeanRelationTreePlugin<?>> plugins = PluginProvider.getPlugins(IBeanRelationTreePlugin.ID, pluginProperties);
+		for (final IBeanRelationTreePlugin plugin : plugins) {
+			plugin.modifySetup(pluginProperties, result);
+		}
+
+		return result;
 	}
 
 	@Override

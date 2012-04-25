@@ -39,34 +39,31 @@ import javax.persistence.TypedQuery;
 import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.Index;
-import org.jowidgets.cap.sample2.app.common.bean.IRole;
+import org.jowidgets.cap.sample2.app.common.bean.IAuthorization;
 import org.jowidgets.cap.sample2.app.service.entity.EntityManagerProvider;
 
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"name"}))
-public class Role extends Bean implements IRole {
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"key"}))
+public class Authorization extends Bean implements IAuthorization {
 
 	@Basic
-	@Index(name = "RoleNameIndex")
-	private String name;
+	@Index(name = "KeyIndex")
+	private String key;
 
 	@Basic
 	private String description;
 
-	@OneToMany(mappedBy = "role")
-	private List<PersonRoleLink> personRoleLinks = new LinkedList<PersonRoleLink>();
-
-	@OneToMany(mappedBy = "role")
+	@OneToMany(mappedBy = "authorization")
 	private List<RoleAuthorizationLink> roleAuthorizationLinks = new LinkedList<RoleAuthorizationLink>();
 
 	@Override
-	public String getName() {
-		return name;
+	public String getKey() {
+		return key;
 	}
 
 	@Override
-	public void setName(final String name) {
-		this.name = name;
+	public void setKey(final String key) {
+		this.key = key;
 	}
 
 	@Override
@@ -79,19 +76,11 @@ public class Role extends Bean implements IRole {
 		this.description = description;
 	}
 
-	public List<PersonRoleLink> getPersonRoleLinks() {
-		return personRoleLinks;
-	}
-
-	public void setPersonRoleLinks(final List<PersonRoleLink> personRoleLinks) {
-		this.personRoleLinks = personRoleLinks;
-	}
-
-	public List<RoleAuthorizationLink> getRoleAuthorizationLinks() {
+	public List<RoleAuthorizationLink> getPersonRoleLinks() {
 		return roleAuthorizationLinks;
 	}
 
-	public void setRoleAuthorizationLinks(final List<RoleAuthorizationLink> roleAuthorizationLinks) {
+	public void setPersonRoleLinks(final List<RoleAuthorizationLink> roleAuthorizationLinks) {
 		this.roleAuthorizationLinks = roleAuthorizationLinks;
 	}
 
@@ -99,10 +88,10 @@ public class Role extends Bean implements IRole {
 	public boolean getInUse() {
 		if (getId() != null) {
 			final EntityManager entityManager = EntityManagerProvider.get();
-			final TypedQuery<PersonRoleLink> query = entityManager.createQuery(
-					"SELECT p FROM PersonRoleLink p WHERE p.role = :role",
-					PersonRoleLink.class);
-			query.setParameter("role", this);
+			final TypedQuery<RoleAuthorizationLink> query = entityManager.createQuery(
+					"SELECT link FROM RoleAuthorizationLink link WHERE link.authorization = :authorization",
+					RoleAuthorizationLink.class);
+			query.setParameter("authorization", this);
 			query.setFirstResult(0).setMaxResults(1);
 			return query.getResultList().size() > 0;
 		}

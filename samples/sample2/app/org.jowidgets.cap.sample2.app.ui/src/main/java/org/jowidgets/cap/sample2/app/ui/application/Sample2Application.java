@@ -56,7 +56,9 @@ public class Sample2Application {
 		final IEntityComponentNodesFactory nodesFactory = CapUiToolkit.workbenchToolkit().entityComponentNodesFactory();
 		model.addChild(nodesFactory.createNode(EntityIds.PERSON));
 		model.addChild(nodesFactory.createNode(EntityIds.ROLE));
+		model.addChild(nodesFactory.createNode(EntityIds.AUTHORIZATION));
 		model.addChild(nodesFactory.createNode(EntityIds.PERSON_LINK_TYPE));
 		model.addChild(nodesFactory.createNode(EntityIds.COUNTRY));
 	}
+
 }
