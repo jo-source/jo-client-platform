@@ -42,6 +42,12 @@ public class LinkedPersonOfSourcePersonDtoDescriptorBuilder extends BeanDtoDescr
 		setLabelSingular("Related person");
 		setLabelPlural("Related persons");
 
+		setRenderingPattern("$"
+			+ IPersonPersonLink.DESTINATION_PERSON_NAME_PROPERTY
+			+ "$ $"
+			+ IPersonPersonLink.DESTINATION_PERSON_LAST_NAME_PROPERTY
+			+ "$");
+
 		IBeanPropertyBluePrint propertyBp;
 
 		propertyBp = addProperty(IBean.ID_PROPERTY);

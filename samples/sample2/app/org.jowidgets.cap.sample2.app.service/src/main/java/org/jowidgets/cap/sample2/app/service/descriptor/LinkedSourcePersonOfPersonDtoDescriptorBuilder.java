@@ -42,6 +42,12 @@ public class LinkedSourcePersonOfPersonDtoDescriptorBuilder extends BeanDtoDescr
 		setLabelSingular("Related person (backward)");
 		setLabelPlural("Related persons (backward)");
 
+		setRenderingPattern("$"
+			+ IPersonPersonLink.SOURCE_PERSON_NAME_PROPERTY
+			+ "$ $"
+			+ IPersonPersonLink.SOURCE_PERSON_LAST_NAME_PROPERTY
+			+ "$");
+
 		IBeanPropertyBluePrint propertyBp;
 
 		propertyBp = addProperty(IBean.ID_PROPERTY);
