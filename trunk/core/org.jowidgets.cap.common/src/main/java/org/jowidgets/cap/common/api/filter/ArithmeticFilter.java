@@ -38,21 +38,21 @@ public final class ArithmeticFilter {
 		return CapCommonToolkit.filterFactory().arithmeticFilterBuilder();
 	}
 
-	public static IArithmeticFilter arithmeticFilter(
+	public static IArithmeticFilter create(
 		final String propertyName,
 		final ArithmeticOperator operator,
 		final Object[] parameters) {
 		return CapCommonToolkit.filterFactory().arithmeticFilter(propertyName, operator, parameters);
 	}
 
-	public static IArithmeticFilter arithmeticFilter(
+	public static IArithmeticFilter create(
 		final String propertyName,
 		final ArithmeticOperator operator,
 		final Object parameter) {
 		return CapCommonToolkit.filterFactory().arithmeticFilter(propertyName, operator, parameter);
 	}
 
-	public static IArithmeticFilter arithmeticFilter(final String propertyName, final ArithmeticOperator operator) {
+	public static IArithmeticFilter create(final String propertyName, final ArithmeticOperator operator) {
 		return CapCommonToolkit.filterFactory().arithmeticFilter(propertyName, operator);
 	}
 }
