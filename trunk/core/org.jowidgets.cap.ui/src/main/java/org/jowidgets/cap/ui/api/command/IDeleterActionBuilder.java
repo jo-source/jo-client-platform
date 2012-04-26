@@ -74,7 +74,7 @@ public interface IDeleterActionBuilder<BEAN_TYPE> extends ICapActionBuilder<IDel
 
 	IDeleterActionBuilder<BEAN_TYPE> addExecutableChecker(IExecutableChecker<BEAN_TYPE> executableChecker);
 
-	IDeleterActionBuilder<BEAN_TYPE> addExecutionInterceptor(IExecutionInterceptor interceptor);
+	IDeleterActionBuilder<BEAN_TYPE> addExecutionInterceptor(IExecutionInterceptor<Void> interceptor);
 
 	IDeleterActionBuilder<BEAN_TYPE> setExceptionConverter(IBeanExceptionConverter exceptionConverter);
 

@@ -28,7 +28,10 @@
 
 package org.jowidgets.cap.ui.api.command;
 
+import java.util.List;
+
 import org.jowidgets.api.command.IEnabledChecker;
+import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.entity.IEntityLinkProperties;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.service.ILinkCreatorService;
@@ -107,7 +110,7 @@ public interface ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LIN
 		IBeanExceptionConverter exceptionConverter);
 
 	ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> addExecutionInterceptor(
-		IExecutionInterceptor interceptor);
+		IExecutionInterceptor<List<IBeanDto>> interceptor);
 
 	/**
 	 * If a linked model is set, the linked beans will be inserted in this model after link creation

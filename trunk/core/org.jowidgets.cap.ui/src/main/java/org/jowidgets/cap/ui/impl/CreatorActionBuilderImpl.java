@@ -37,6 +37,7 @@ import org.jowidgets.api.command.IActionBuilder;
 import org.jowidgets.api.command.ICommand;
 import org.jowidgets.api.command.IEnabledChecker;
 import org.jowidgets.api.image.IconsSmall;
+import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.service.ICreatorService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
@@ -61,7 +62,7 @@ final class CreatorActionBuilderImpl<BEAN_TYPE> extends AbstractCapActionBuilder
 	private final Class<? extends BEAN_TYPE> beanType;
 	private final IBeanListModel<BEAN_TYPE> model;
 	private final List<IEnabledChecker> enabledCheckers;
-	private final List<IExecutionInterceptor> executionInterceptors;
+	private final List<IExecutionInterceptor<List<IBeanDto>>> executionInterceptors;
 	private final List<IBeanPropertyValidator<BEAN_TYPE>> beanPropertyValidators;
 	private boolean anySelection;
 
@@ -80,7 +81,7 @@ final class CreatorActionBuilderImpl<BEAN_TYPE> extends AbstractCapActionBuilder
 		this.beanType = beanType;
 		this.model = model;
 		this.enabledCheckers = new LinkedList<IEnabledChecker>();
-		this.executionInterceptors = new LinkedList<IExecutionInterceptor>();
+		this.executionInterceptors = new LinkedList<IExecutionInterceptor<List<IBeanDto>>>();
 		this.exceptionConverter = new DefaultBeanExceptionConverter();
 		this.beanPropertyValidators = new LinkedList<IBeanPropertyValidator<BEAN_TYPE>>();
 
@@ -167,7 +168,7 @@ final class CreatorActionBuilderImpl<BEAN_TYPE> extends AbstractCapActionBuilder
 	}
 
 	@Override
-	public ICreatorActionBuilder<BEAN_TYPE> addExecutionInterceptor(final IExecutionInterceptor interceptor) {
+	public ICreatorActionBuilder<BEAN_TYPE> addExecutionInterceptor(final IExecutionInterceptor<List<IBeanDto>> interceptor) {
 		checkExhausted();
 		Assert.paramNotNull(interceptor, "interceptor");
 		executionInterceptors.add(interceptor);

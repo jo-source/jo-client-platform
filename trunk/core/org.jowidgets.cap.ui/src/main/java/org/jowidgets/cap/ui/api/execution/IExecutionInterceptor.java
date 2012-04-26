@@ -36,7 +36,7 @@ import org.jowidgets.common.types.IVetoable;
  * 
  * Remark: All methods will be invoked in the UiThread,
  */
-public interface IExecutionInterceptor {
+public interface IExecutionInterceptor<RESULT_TYPE> {
 
 	/**
 	 * Will be invoked before the execution occurs
@@ -68,7 +68,7 @@ public interface IExecutionInterceptor {
 	 * 
 	 * @param executionContext
 	 */
-	void afterExecutionSuccess(IExecutionContext executionContext);
+	void afterExecutionSuccess(IExecutionContext executionContext, RESULT_TYPE result);
 
 	/**
 	 * Will be invoked, after the execution has been finished with an error

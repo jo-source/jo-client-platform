@@ -28,10 +28,13 @@
 
 package org.jowidgets.cap.ui.tools.command;
 
+import java.util.List;
+
 import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.command.IEnabledChecker;
 import org.jowidgets.api.widgets.content.IInputContentCreator;
 import org.jowidgets.api.widgets.descriptor.IInputDialogDescriptor;
+import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.service.IExecutorService;
 import org.jowidgets.cap.common.api.service.IParameterProviderService;
@@ -188,7 +191,8 @@ public class ExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> implements IExecutorAc
 	}
 
 	@Override
-	public final IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> addExecutionInterceptor(final IExecutionInterceptor interceptor) {
+	public final IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> addExecutionInterceptor(
+		final IExecutionInterceptor<List<IBeanDto>> interceptor) {
 		return original.addExecutionInterceptor(interceptor);
 	}
 

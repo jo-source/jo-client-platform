@@ -81,7 +81,7 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 	private final IBeanExceptionConverter exceptionConverter;
 	private final BeanSelectionProviderEnabledChecker<BEAN_TYPE> enabledChecker;
 	private final IBeanProxyFactory<BEAN_TYPE> beanFactory;
-	private final ExecutionObservable executionObservable;
+	private final ExecutionObservable<List<IBeanDto>> executionObservable;
 	private final Map<String, Object> defaultValues;
 	private final List<String> properties;
 
@@ -97,7 +97,7 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 		final boolean anySelection,
 		final ICreatorService creatorService,
 		final IBeanExceptionConverter exceptionConverter,
-		final List<IExecutionInterceptor> executionInterceptors) {
+		final List<IExecutionInterceptor<List<IBeanDto>>> executionInterceptors) {
 
 		Assert.paramNotNull(beanType, "beanType");
 		Assert.paramNotNull(model, "model");
@@ -120,7 +120,7 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 			true);
 
 		this.beanFactory = CapUiToolkit.beanProxyFactory(beanType);
-		this.executionObservable = new ExecutionObservable(executionInterceptors);
+		this.executionObservable = new ExecutionObservable<List<IBeanDto>>(executionInterceptors);
 
 		this.model = model;
 		this.beanFormBp = beanFormBp;
@@ -253,7 +253,7 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 				bean.setExecutionTask(null);
 				bean.updateTransient(result.get(0));
 				model.fireBeansChanged();
-				executionObservable.fireAfterExecutionSuccess(executionContext);
+				executionObservable.fireAfterExecutionSuccess(executionContext, result);
 			}
 			else {
 				exceptionUi(null);

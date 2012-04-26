@@ -39,6 +39,7 @@ import org.jowidgets.api.command.IActionBuilder;
 import org.jowidgets.api.command.ICommand;
 import org.jowidgets.api.command.IEnabledChecker;
 import org.jowidgets.cap.common.api.bean.IBean;
+import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
 import org.jowidgets.cap.common.api.bean.IProperty;
 import org.jowidgets.cap.common.api.entity.EntityLinkProperties;
@@ -76,7 +77,7 @@ final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKA
 
 	private final List<IExecutableChecker<SOURCE_BEAN_TYPE>> sourceExecutableCheckers;
 	private final List<IEnabledChecker> enabledCheckers;
-	private final List<IExecutionInterceptor> executionInterceptors;
+	private final List<IExecutionInterceptor<List<IBeanDto>>> executionInterceptors;
 
 	private IEntityLinkProperties sourceProperties;
 	private IEntityLinkProperties destinationProperties;
@@ -180,7 +181,7 @@ final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKA
 		super();
 		this.sourceExecutableCheckers = new LinkedList<IExecutableChecker<SOURCE_BEAN_TYPE>>();
 		this.enabledCheckers = new LinkedList<IEnabledChecker>();
-		this.executionInterceptors = new LinkedList<IExecutionInterceptor>();
+		this.executionInterceptors = new LinkedList<IExecutionInterceptor<List<IBeanDto>>>();
 
 		this.sourceMultiSelection = false;
 		this.sourceModificationPolicy = BeanModificationStatePolicy.NO_MODIFICATION;
@@ -376,7 +377,7 @@ final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKA
 
 	@Override
 	public ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> addExecutionInterceptor(
-		final IExecutionInterceptor interceptor) {
+		final IExecutionInterceptor<List<IBeanDto>> interceptor) {
 		checkExhausted();
 		Assert.paramNotNull(interceptor, "interceptor");
 		this.executionInterceptors.add(interceptor);

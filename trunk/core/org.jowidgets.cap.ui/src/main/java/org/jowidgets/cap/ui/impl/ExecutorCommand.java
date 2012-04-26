@@ -69,7 +69,7 @@ final class ExecutorCommand implements ICommand, ICommandExecutor {
 
 	private final IBeanListModel<Object> listModel;
 	private final List<Object> parameterProviders;
-	private final ExecutionObservable executionObservable;
+	private final ExecutionObservable<List<IBeanDto>> executionObservable;
 	private final BeanExecutionPolicy beanListExecutionPolicy;
 
 	private final Object defaultParameter;
@@ -86,7 +86,7 @@ final class ExecutorCommand implements ICommand, ICommandExecutor {
 		final List<IExecutableChecker<Object>> executableCheckers,
 		final IBeanExceptionConverter beanExceptionConverter,
 		final List<Object> parameterProviders,
-		final List<IExecutionInterceptor> executionInterceptors,
+		final List<IExecutionInterceptor<List<IBeanDto>>> executionInterceptors,
 		final Object defaultParameter,
 		final Object executor) {
 		super();
@@ -104,7 +104,7 @@ final class ExecutorCommand implements ICommand, ICommandExecutor {
 		this.beanListExecutionPolicy = beanListExecutionPolicy;
 		this.beanExceptionConverter = beanExceptionConverter;
 		this.parameterProviders = parameterProviders;
-		this.executionObservable = new ExecutionObservable(executionInterceptors);
+		this.executionObservable = new ExecutionObservable<List<IBeanDto>>(executionInterceptors);
 		this.defaultParameter = defaultParameter;
 		this.executor = executor;
 
@@ -219,7 +219,7 @@ final class ExecutorCommand implements ICommand, ICommandExecutor {
 				try {
 					theExecutor.execute(executionContext, beans, parameter);
 					executionHelper.afterExecution(beans, null);
-					executionObservable.fireAfterExecutionSuccess(executionContext);
+					executionObservable.fireAfterExecutionSuccess(executionContext, createBeanDtos(beans));
 				}
 				catch (final Exception exception) {
 					executionHelper.onExecption(beans, exception);
@@ -240,7 +240,7 @@ final class ExecutorCommand implements ICommand, ICommandExecutor {
 						uiThreadAccess.invokeLater(new Runnable() {
 							@Override
 							public void run() {
-								executionObservable.fireAfterExecutionSuccess(executionContext);
+								executionObservable.fireAfterExecutionSuccess(executionContext, result);
 							}
 						});
 					}
@@ -260,6 +260,14 @@ final class ExecutorCommand implements ICommand, ICommandExecutor {
 
 				executorService.execute(resultCallback, keys, parameter, executionTask);
 			}
+		}
+
+		List<IBeanDto> createBeanDtos(final List<IBeanProxy<?>> beans) {
+			final List<IBeanDto> result = new LinkedList<IBeanDto>();
+			for (final IBeanProxy<?> bean : beans) {
+				result.add(bean.createCopy());
+			}
+			return result;
 		}
 
 		private IMaybe getParameter(final Object parameterProvider, final Object defaultParameter, final List<IBeanProxy<?>> beans) {

@@ -28,9 +28,12 @@
 
 package org.jowidgets.cap.ui.api.command;
 
+import java.util.List;
+
 import org.jowidgets.api.command.IEnabledChecker;
 import org.jowidgets.api.widgets.content.IInputContentCreator;
 import org.jowidgets.api.widgets.descriptor.IInputDialogDescriptor;
+import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.service.IExecutorService;
 import org.jowidgets.cap.common.api.service.IParameterProviderService;
@@ -81,7 +84,7 @@ public interface IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> extends
 
 	IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> addExecutableChecker(IExecutableChecker<BEAN_TYPE> executableChecker);
 
-	IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> addExecutionInterceptor(IExecutionInterceptor interceptor);
+	IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> addExecutionInterceptor(IExecutionInterceptor<List<IBeanDto>> interceptor);
 
 	IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setExceptionConverter(IBeanExceptionConverter exceptionConverter);
 

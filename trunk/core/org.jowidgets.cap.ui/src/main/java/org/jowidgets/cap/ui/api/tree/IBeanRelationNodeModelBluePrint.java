@@ -33,6 +33,7 @@ import java.util.Collection;
 import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyLabelRenderer;
 import org.jowidgets.cap.ui.api.model.IBeanModelBuilder;
+import org.jowidgets.cap.ui.api.types.IEntityTypeId;
 import org.jowidgets.common.image.IImageConstant;
 
 public interface IBeanRelationNodeModelBluePrint<CHILD_BEAN_TYPE, INSTANCE_TYPE> extends

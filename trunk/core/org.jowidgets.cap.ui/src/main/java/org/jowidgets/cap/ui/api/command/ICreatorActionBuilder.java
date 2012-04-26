@@ -32,6 +32,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.jowidgets.api.command.IEnabledChecker;
+import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.service.ICreatorService;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
@@ -74,6 +75,6 @@ public interface ICreatorActionBuilder<BEAN_TYPE> extends ICapActionBuilder<ICre
 
 	ICreatorActionBuilder<BEAN_TYPE> setExceptionConverter(IBeanExceptionConverter exceptionConverter);
 
-	ICreatorActionBuilder<BEAN_TYPE> addExecutionInterceptor(IExecutionInterceptor interceptor);
+	ICreatorActionBuilder<BEAN_TYPE> addExecutionInterceptor(IExecutionInterceptor<List<IBeanDto>> interceptor);
 
 }

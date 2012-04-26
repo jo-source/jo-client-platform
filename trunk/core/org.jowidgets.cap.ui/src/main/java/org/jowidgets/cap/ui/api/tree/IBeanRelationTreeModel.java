@@ -34,6 +34,7 @@ import java.util.List;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionProvider;
 import org.jowidgets.cap.ui.api.model.IDataModel;
+import org.jowidgets.cap.ui.api.types.IEntityTypeId;
 
 public interface IBeanRelationTreeModel<CHILD_BEAN_TYPE> extends IDataModel, IBeanSelectionProvider<Object> {
 
@@ -43,6 +44,8 @@ public interface IBeanRelationTreeModel<CHILD_BEAN_TYPE> extends IDataModel, IBe
 		IEntityTypeId<METHOD_PARENT_BEAN_TYPE> parentEntityTypeId,
 		IBeanProxy<METHOD_PARENT_BEAN_TYPE> parentBean,
 		IEntityTypeId<METHOD_CHILD_BEAN_TYPE> childEntityTypeId);
+
+	boolean hasNode(IBeanProxy<?> parentBean, IEntityTypeId<?> childEntityTypeId);
 
 	List<IBeanProxy<Object>> getSelection();
 

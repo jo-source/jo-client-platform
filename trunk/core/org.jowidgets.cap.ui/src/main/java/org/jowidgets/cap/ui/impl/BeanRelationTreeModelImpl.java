@@ -47,7 +47,7 @@ import org.jowidgets.cap.ui.api.tree.IBeanRelationNodeModel;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationNodeModelBluePrint;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationNodeModelConfigurator;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeModel;
-import org.jowidgets.cap.ui.api.tree.IEntityTypeId;
+import org.jowidgets.cap.ui.api.types.IEntityTypeId;
 import org.jowidgets.cap.ui.tools.model.ModificationStateObservable;
 import org.jowidgets.cap.ui.tools.model.ProcessStateObservable;
 import org.jowidgets.tools.validation.ValidationCache;
@@ -150,6 +150,11 @@ public class BeanRelationTreeModelImpl<CHILD_BEAN_TYPE> implements
 			relationNodes.put(key, result);
 		}
 		return (IBeanRelationNodeModel<METHOD_PARENT_BEAN_TYPE, METHOD_CHILD_BEAN_TYPE>) result;
+	}
+
+	@Override
+	public boolean hasNode(final IBeanProxy<?> parentBean, final IEntityTypeId<?> childEntityTypeId) {
+		return relationNodes.get(new Tuple(parentBean, childEntityTypeId)) != null;
 	}
 
 	private void registerListeners(final IBeanRelationNodeModel<?, ?> nodeModel) {

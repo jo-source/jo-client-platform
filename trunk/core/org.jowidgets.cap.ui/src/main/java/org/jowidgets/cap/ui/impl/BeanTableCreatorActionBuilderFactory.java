@@ -29,8 +29,10 @@
 package org.jowidgets.cap.ui.impl;
 
 import java.util.Collections;
+import java.util.List;
 
 import org.jowidgets.api.command.IExecutionContext;
+import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.command.ICapActionFactory;
@@ -77,7 +79,7 @@ final class BeanTableCreatorActionBuilderFactory {
 		builder.setAttributes(model.getAttributes());
 		builder.setBeanForm(beanFormBp);
 
-		builder.addExecutionInterceptor(new ExecutionInterceptorAdapter() {
+		builder.addExecutionInterceptor(new ExecutionInterceptorAdapter<List<IBeanDto>>() {
 			@Override
 			public void beforeExecution(final IExecutionContext executionContext, final IVetoable continueExecution) {
 				final int pageCount = model.getPageCount();

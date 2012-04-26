@@ -93,7 +93,7 @@ final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BE
 	private final IBeanExceptionConverter exceptionConverter;
 
 	private final BeanSelectionProviderEnabledChecker<SOURCE_BEAN_TYPE> enabledChecker;
-	private final ExecutionObservable executionObservable;
+	private final ExecutionObservable<List<IBeanDto>> executionObservable;
 
 	BeanLinkCreatorCommand(
 		final IEntityLinkProperties sourceProperties,
@@ -111,7 +111,7 @@ final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BE
 		final IBeanFormBluePrint<LINKABLE_BEAN_TYPE> linkableBeanForm,
 		final IBeanTableBluePrint<LINKABLE_BEAN_TYPE> linkableTable,
 		final List<IEnabledChecker> enabledCheckers,
-		final List<IExecutionInterceptor> executionInterceptors,
+		final List<IExecutionInterceptor<List<IBeanDto>>> executionInterceptors,
 		final IBeanExceptionConverter exceptionConverter) {
 
 		Assert.paramNotNull(sourceProperties, "sourceProperties");
@@ -142,7 +142,7 @@ final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BE
 		this.linkableBeanType = linkableBeanType;
 		this.linkableBeanForm = linkableBeanForm;
 		this.linkableTable = linkableTable;
-		this.executionObservable = new ExecutionObservable(executionInterceptors);
+		this.executionObservable = new ExecutionObservable<List<IBeanDto>>(executionInterceptors);
 		this.exceptionConverter = exceptionConverter;
 	}
 
@@ -250,7 +250,7 @@ final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BE
 						linkedModel.addBeanDto(resultBean);
 					}
 				}
-				executionObservable.fireAfterExecutionSuccess(executionContext);
+				executionObservable.fireAfterExecutionSuccess(executionContext, result);
 			}
 
 			@Override

@@ -52,12 +52,13 @@ import org.jowidgets.cap.ui.api.lookup.ILookUpCache;
 import org.jowidgets.cap.ui.api.model.ISingleBeanModelBuilder;
 import org.jowidgets.cap.ui.api.sort.ISortModelConfigBuilder;
 import org.jowidgets.cap.ui.api.tabfolder.IBeanTabFolderModelBuilder;
-import org.jowidgets.cap.ui.api.table.IBeanTableModelConfigBuilder;
 import org.jowidgets.cap.ui.api.table.IBeanTableMenuFactory;
 import org.jowidgets.cap.ui.api.table.IBeanTableMenuInterceptor;
 import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
+import org.jowidgets.cap.ui.api.table.IBeanTableModelConfigBuilder;
 import org.jowidgets.cap.ui.api.table.IBeanTableSettingsBuilder;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeModelBuilder;
+import org.jowidgets.cap.ui.api.types.IEntityTypeId;
 import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
 import org.jowidgets.cap.ui.api.workbench.ICapWorkbenchToolkit;
 
@@ -133,6 +134,10 @@ public interface ICapUiToolkit {
 	<BEAN_TYPE> IBeanProxyLabelRenderer<BEAN_TYPE> beanProxyLabelPatternRenderer(
 		String labelPattern,
 		Collection<? extends IAttribute<?>> attributes);
+
+	<BEAN_TYPE> IEntityTypeId<BEAN_TYPE> entityTypeId(Object entityId, Class<BEAN_TYPE> beanType);
+
+	<BEAN_TYPE> IEntityTypeId<BEAN_TYPE> entityTypeId(Class<BEAN_TYPE> beanType);
 
 	ILookUpCache lookUpCache();
 

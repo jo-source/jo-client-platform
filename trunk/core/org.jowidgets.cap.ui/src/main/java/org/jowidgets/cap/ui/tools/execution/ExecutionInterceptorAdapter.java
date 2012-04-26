@@ -32,7 +32,7 @@ import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.cap.ui.api.execution.IExecutionInterceptor;
 import org.jowidgets.common.types.IVetoable;
 
-public class ExecutionInterceptorAdapter implements IExecutionInterceptor {
+public class ExecutionInterceptorAdapter<RESULT_TYPE> implements IExecutionInterceptor<RESULT_TYPE> {
 
 	@Override
 	public void beforeExecution(final IExecutionContext executionContext, final IVetoable continueExecution) {}
@@ -44,7 +44,7 @@ public class ExecutionInterceptorAdapter implements IExecutionInterceptor {
 	public void afterExecutionPrepared(final IExecutionContext executionContext) {}
 
 	@Override
-	public void afterExecutionSuccess(final IExecutionContext executionContext) {}
+	public void afterExecutionSuccess(final IExecutionContext executionContext, final RESULT_TYPE result) {}
 
 	@Override
 	public void afterExecutionError(final IExecutionContext executionContext, final Throwable error) {}

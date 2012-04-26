@@ -60,6 +60,7 @@ import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
 import org.jowidgets.cap.ui.api.table.IBeanTableModelConfigBuilder;
 import org.jowidgets.cap.ui.api.table.IBeanTableSettingsBuilder;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeModelBuilder;
+import org.jowidgets.cap.ui.api.types.IEntityTypeId;
 import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
 import org.jowidgets.cap.ui.api.workbench.ICapWorkbenchToolkit;
 import org.jowidgets.cap.ui.impl.workbench.CapWorkbenchToolkitImpl;
@@ -288,6 +289,16 @@ public final class DefaultCapUiToolkit implements ICapUiToolkit {
 		final String labelPattern,
 		final Collection<? extends IAttribute<?>> attributes) {
 		return new BeanProxyLabelPatternRenderer<BEAN_TYPE>(labelPattern, attributes);
+	}
+
+	@Override
+	public <BEAN_TYPE> IEntityTypeId<BEAN_TYPE> entityTypeId(final Object entityId, final Class<BEAN_TYPE> beanType) {
+		return new EntityTypeIdImpl<BEAN_TYPE>(entityId, beanType);
+	}
+
+	@Override
+	public <BEAN_TYPE> IEntityTypeId<BEAN_TYPE> entityTypeId(final Class<BEAN_TYPE> beanType) {
+		return entityTypeId(beanType, beanType);
 	}
 
 	@Override
