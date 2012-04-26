@@ -43,13 +43,13 @@
 		</dependency>
 		
 
-        <!-- use your jdbc driver here-->
+        <!-- use your jdbc driver here>
 		<dependency>
 			<groupId>com.oracle</groupId>
 			<artifactId>ojdbc14</artifactId>
 			<version>10.2.0.3.0</version>
 			<scope>runtime</scope>
-		</dependency>
+		</dependency-->
 		
 		<dependency>
             <groupId>commons-io</groupId>
