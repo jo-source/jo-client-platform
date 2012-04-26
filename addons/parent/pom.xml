@@ -12,7 +12,6 @@
 	</parent>
 	
 	<modules>
-		<module>../org.jowidgets.cap.service.impl.jpa</module>
 		<module>../org.jowidgets.cap.service.jpa.api</module>
 		<module>../org.jowidgets.cap.service.jpa.impl</module>	
 		<module>../org.jowidgets.cap.service.hibernate</module>
