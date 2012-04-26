@@ -71,11 +71,7 @@ public class UserTableView extends AbstractView {
 
 	private IInputField<Integer> delayField;
 
-	public UserTableView(
-		final IViewContext context,
-		final IBeanTableModel<IUser> tableModel,
-		final ValueHolder<Integer> parameter,
-		final IAction userRoleLinkAction) {
+	public UserTableView(final IViewContext context, final IBeanTableModel<IUser> tableModel, final ValueHolder<Integer> parameter) {
 
 		this.beanTableModel = tableModel;
 		this.parameter = parameter;
@@ -92,11 +88,6 @@ public class UserTableView extends AbstractView {
 		toolBar.addContainer(createDelayFieldCreator());
 		toolBar.addAction(createClearAction());
 		toolBar.addAction(createPackAction());
-
-		if (userRoleLinkAction != null) {
-			table.getCellPopMenu().addAction(userRoleLinkAction);
-			table.getCellPopMenu().addSeparator();
-		}
 
 		table.getCellPopMenu().addAction(new ChangeGenderAction(tableModel));
 		table.getCellPopMenu().addAction(new ChangeBirthdayAction(tableModel));

@@ -78,7 +78,7 @@ import org.jowidgets.util.EmptyCheck;
 
 final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> implements ICommand, ICommandExecutor {
 
-	private final String nothingSelectedMessage = Messages.getString("BeanLinkCommand.nothing_selected");
+	private final String nothingSelectedMessage = Messages.getString("BeanLinkCreatorCommand.nothing_selected");
 
 	private final IEntityLinkProperties sourceProperties;
 	private final IEntityLinkProperties destinationProperties;

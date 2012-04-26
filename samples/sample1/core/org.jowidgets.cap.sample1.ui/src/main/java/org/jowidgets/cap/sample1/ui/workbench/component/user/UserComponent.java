@@ -28,7 +28,6 @@
 
 package org.jowidgets.cap.sample1.ui.workbench.component.user;
 
-import org.jowidgets.api.command.IAction;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.sample1.common.entity.EntityIds;
 import org.jowidgets.cap.sample1.common.entity.IUser;
@@ -60,20 +59,18 @@ public class UserComponent extends AbstractComponent implements IComponent {
 	private final ValueHolder<Integer> delayParameter;
 	private final IBeanTableModel<IUser> userTableModel;
 	private final IBeanTableModel<?> roleTableModel;
-	private final IAction userRoleLinkAction;
 
 	public UserComponent(final IComponentNodeModel componentNodeModel, final IComponentContext componentContext) {
 		componentContext.setLayout(new UserComponentDefaultLayout().getLayout());
 		this.delayParameter = new ValueHolder<Integer>(Integer.valueOf(0));
 		this.userTableModel = createUserTableModel();
 		this.roleTableModel = createRoleTableModel(userTableModel);
-		this.userRoleLinkAction = CapUiToolkit.actionFactory().linkAction(userTableModel, roleTableModel);
 	}
 
 	@Override
 	public IView createView(final String viewId, final IViewContext context) {
 		if (UserTableView.ID.equals(viewId)) {
-			return new UserTableView(context, userTableModel, delayParameter, userRoleLinkAction);
+			return new UserTableView(context, userTableModel, delayParameter);
 		}
 		else if (RoleTableView.ID.equals(viewId)) {
 			return new RoleTableView(context, roleTableModel);

@@ -393,7 +393,7 @@ final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKA
 
 	private void setDefaultTextIfNecessary() {
 		if (EmptyCheck.isEmpty(getText()) && !EmptyCheck.isEmpty(linkedEntityLabelPlural)) {
-			final String message = Messages.getString("LinkActionBuilderImpl.link_var");
+			final String message = Messages.getString("LinkCreatorActionBuilderImpl.link_var");
 			setText(MessageReplacer.replace(message, linkedEntityLabelPlural));
 		}
 
