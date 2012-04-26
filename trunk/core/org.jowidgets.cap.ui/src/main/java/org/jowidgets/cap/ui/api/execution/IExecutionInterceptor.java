@@ -67,6 +67,7 @@ public interface IExecutionInterceptor<RESULT_TYPE> {
 	 * Remark: For executions not running in batch mode, this may be invoked for each sub execution!
 	 * 
 	 * @param executionContext
+	 * @param result
 	 */
 	void afterExecutionSuccess(IExecutionContext executionContext, RESULT_TYPE result);
 
