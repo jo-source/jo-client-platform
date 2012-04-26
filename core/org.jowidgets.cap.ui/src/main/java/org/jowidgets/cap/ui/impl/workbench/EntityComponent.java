@@ -53,6 +53,7 @@ import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeModel;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeModelBuilder;
+import org.jowidgets.cap.ui.tools.execution.BeanRefreshInterceptor;
 import org.jowidgets.common.types.IVetoable;
 import org.jowidgets.service.api.ServiceProvider;
 import org.jowidgets.workbench.api.IComponent;
