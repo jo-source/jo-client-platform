@@ -47,6 +47,7 @@ import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
 import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.command.IDataModelAction;
+import org.jowidgets.cap.ui.api.command.ILinkCreatorActionBuilder;
 import org.jowidgets.cap.ui.api.model.LinkType;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
@@ -67,12 +68,13 @@ public class EntityComponent extends AbstractComponent implements IComponent {
 	public static final String LINKED_TABLE_VIEW_ID = EntityComponent.class.getName() + "_LINKED_TABLE_VIEW_";
 
 	private final IEntityService entityService;
-	private final IBeanTableModel<?> tableModel;
+	private final IBeanTableModel<Object> tableModel;
 	private final IBeanRelationTreeModel<?> relationTreeModel;
 	private final List<IDataModelAction> dataModelActions;
 	private final Set<LinkedEntityTableView> tableViews;
 	private final Map<String, IEntityLinkDescriptor> links;
 	private final Map<Object, IBeanTableModel<?>> linkedModels;
+	private final Map<Object, IAction> linkCreatorActions;
 
 	private EntityMultiDetailView multiDetailView;
 
@@ -92,6 +94,7 @@ public class EntityComponent extends AbstractComponent implements IComponent {
 		this.tableViews = new LinkedHashSet<LinkedEntityTableView>();
 		this.links = new LinkedHashMap<String, IEntityLinkDescriptor>();
 		this.linkedModels = new HashMap<Object, IBeanTableModel<?>>();
+		this.linkCreatorActions = new LinkedHashMap<Object, IAction>();
 
 		final List<IEntityLinkDescriptor> entityLinks = entityService.getEntityLinks(entityClass.getId());
 		if (entityLinks != null && !entityLinks.isEmpty()) {
@@ -101,11 +104,22 @@ public class EntityComponent extends AbstractComponent implements IComponent {
 				links.put(linkedViewId, link);
 				i++;
 
-				final IBeanTableModelBuilder<?> builder = CapUiToolkit.beanTableModelBuilder(
-						link.getLinkedEntityId(),
-						getBeanType(link.getLinkedEntityId()));
+				final Object linkedEntityId = link.getLinkedEntityId();
+				final Class<Object> linkedBeanType = getBeanType(linkedEntityId);
+
+				//create the linked model
+				final IBeanTableModelBuilder<Object> builder = CapUiToolkit.beanTableModelBuilder(linkedEntityId, linkedBeanType);
 				builder.setParent(tableModel, LinkType.SELECTION_ALL);
-				linkedModels.put(link.getLinkedEntityId(), builder.build());
+				final IBeanTableModel<Object> linkedModel = builder.build();
+				linkedModels.put(linkedEntityId, linkedModel);
+
+				//create the link creator action
+				if (link.getLinkCreatorService() != null) {
+					final ILinkCreatorActionBuilder<Object, Object, Object> linkCreatorActionBuilder;
+					linkCreatorActionBuilder = CapUiToolkit.actionFactory().linkCreatorActionBuilder(tableModel, link);
+					linkCreatorActionBuilder.setLinkedModel(linkedModel);
+					linkCreatorActions.put(linkedEntityId, linkCreatorActionBuilder.build());
+				}
 			}
 			componentContext.setLayout(new EntityComponentMasterDetailLinksDetailLayout(entityClass, links).getLayout());
 		}
@@ -126,7 +140,7 @@ public class EntityComponent extends AbstractComponent implements IComponent {
 	@Override
 	public IView createView(final String viewId, final IViewContext context) {
 		if (ROOT_TABLE_VIEW_ID.equals(viewId)) {
-			return new EntityTableView(context, tableModel, links.values(), linkedModels);
+			return new EntityTableView(context, tableModel, linkCreatorActions.values());
 		}
 		else if (EntityRelationTreeView.ID.equals(viewId)) {
 			return new EntityRelationTreeView(context, relationTreeModel);
@@ -151,7 +165,7 @@ public class EntityComponent extends AbstractComponent implements IComponent {
 			final LinkedEntityTableView result = new LinkedEntityTableView(
 				context,
 				linkedModels.get(link.getLinkedEntityId()),
-				link);
+				linkCreatorActions.get(link.getLinkedEntityId()));
 			registerTableView(result);
 			return result;
 		}
@@ -204,13 +218,14 @@ public class EntityComponent extends AbstractComponent implements IComponent {
 		tableViews.add(tableView);
 	}
 
-	private Class<?> getBeanType(final Object entityId) {
+	@SuppressWarnings("unchecked")
+	private <BEAN_TYPE> Class<BEAN_TYPE> getBeanType(final Object entityId) {
 		final IBeanDtoDescriptor beanDtoDescriptor = entityService.getDescriptor(entityId);
 		if (beanDtoDescriptor != null) {
-			return beanDtoDescriptor.getBeanType();
+			return (Class<BEAN_TYPE>) beanDtoDescriptor.getBeanType();
 		}
 		else {
-			return IBeanDto.class;
+			return (Class<BEAN_TYPE>) IBeanDto.class;
 		}
 	}
 
