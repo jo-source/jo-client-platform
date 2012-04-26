@@ -118,6 +118,8 @@ public class EntityComponent extends AbstractComponent implements IComponent {
 					final ILinkCreatorActionBuilder<Object, Object, Object> linkCreatorActionBuilder;
 					linkCreatorActionBuilder = CapUiToolkit.actionFactory().linkCreatorActionBuilder(tableModel, link);
 					linkCreatorActionBuilder.setLinkedModel(linkedModel);
+					final BeanRefreshInterceptor<Object> refreshInterceptor = new BeanRefreshInterceptor<Object>(tableModel);
+					linkCreatorActionBuilder.addExecutionInterceptor(refreshInterceptor);
 					linkCreatorActions.put(linkedEntityId, linkCreatorActionBuilder.build());
 				}
 			}

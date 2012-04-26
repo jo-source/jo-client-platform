@@ -32,7 +32,6 @@ import org.jowidgets.api.command.IAction;
 import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionProvider;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
-import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 
 public interface ICapActionFactory {
 
@@ -60,44 +59,6 @@ public interface ICapActionFactory {
 		IBeanListModel<BEAN_TYPE> model);
 
 	<BEAN_TYPE> IDeleterActionBuilder<BEAN_TYPE> deleterActionBuilder(IBeanListModel<BEAN_TYPE> model);
-
-	<BEAN_TYPE> ILinkActionBuilder<BEAN_TYPE> linkActionBuilder(IBeanListModel<BEAN_TYPE> model);
-
-	<BEAN_TYPE> ILinkActionBuilder<BEAN_TYPE> linkActionBuilder(IBeanTableModel<BEAN_TYPE> model);
-
-	<BEAN_TYPE> ILinkActionBuilder<BEAN_TYPE> linkActionBuilder(
-		IBeanListModel<BEAN_TYPE> model,
-		IEntityLinkDescriptor linkDescriptor);
-
-	<BEAN_TYPE> ILinkActionBuilder<BEAN_TYPE> linkActionBuilder(
-		IBeanTableModel<BEAN_TYPE> model,
-		IEntityLinkDescriptor linkDescriptor);
-
-	/**
-	 * Creates a link action builder with help of the default entity service. If no ILinkDecsripter will be provided
-	 * from the IEntityService of the model, null will be returned.
-	 * 
-	 * @param <BEAN_TYPE>
-	 * @param model
-	 * @param linkedModel
-	 * @return The builder or null
-	 */
-	<BEAN_TYPE> ILinkActionBuilder<BEAN_TYPE> linkActionBuilder(IBeanTableModel<BEAN_TYPE> model, IBeanTableModel<?> linkedModel);
-
-	<BEAN_TYPE> IAction linkAction(IBeanListModel<BEAN_TYPE> model, IEntityLinkDescriptor linkDescriptor);
-
-	<BEAN_TYPE> IAction linkAction(IBeanTableModel<BEAN_TYPE> model, IEntityLinkDescriptor linkDescriptor);
-
-	/**
-	 * Creates a link action with help of the default entity service. If no ILinkDecsripter will be provided
-	 * from the iEntityService of the model, null will be returned.
-	 * 
-	 * @param <BEAN_TYPE>
-	 * @param model
-	 * @param linkedModel
-	 * @return The action or null
-	 */
-	<BEAN_TYPE> IAction linkAction(IBeanTableModel<BEAN_TYPE> model, IBeanTableModel<?> linkedModel);
 
 	<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> linkCreatorActionBuilder(
 		IBeanSelectionProvider<SOURCE_BEAN_TYPE> source);

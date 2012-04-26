@@ -26,7 +26,7 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.impl;
+package org.jowidgets.cap.ui.impl.workbench;
 
 import java.util.List;
 
@@ -37,13 +37,13 @@ import org.jowidgets.cap.ui.tools.execution.ExecutionInterceptorAdapter;
 import org.jowidgets.common.types.IVetoable;
 import org.jowidgets.util.EmptyCheck;
 
-final class BeanTableLinkActionExecutionInterceptor<BEAN_TYPE> extends ExecutionInterceptorAdapter {
+final class BeanRefreshInterceptor<BEAN_TYPE> extends ExecutionInterceptorAdapter {
 
 	private final IBeanTableModel<BEAN_TYPE> tableModel;
 
 	private List<IBeanProxy<BEAN_TYPE>> lastSelection;
 
-	BeanTableLinkActionExecutionInterceptor(final IBeanTableModel<BEAN_TYPE> tableModel) {
+	BeanRefreshInterceptor(final IBeanTableModel<BEAN_TYPE> tableModel) {
 		this.tableModel = tableModel;
 	}
 
