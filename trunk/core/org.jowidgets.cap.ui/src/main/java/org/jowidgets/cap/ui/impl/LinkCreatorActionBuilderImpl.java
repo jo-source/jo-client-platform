@@ -153,6 +153,17 @@ final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKA
 					final IBeanTableModel linkableModel = linkableModelBuilder.build();
 					setLinkableTable(cbpf.beanTable(linkableModel));
 
+					//this may be overridden when linked entity id will be extracted
+					if (!EmptyCheck.isEmpty(descriptor.getLabelPlural())) {
+						setLinkedEntityLabelPlural(descriptor.getLabelPlural());
+					}
+				}
+			}
+
+			final Object linkedEntityId = linkDescriptor.getLinkedEntityId();
+			if (linkedEntityId != null) {
+				final IBeanDtoDescriptor descriptor = entityService.getDescriptor(linkedEntityId);
+				if (descriptor != null) {
 					if (!EmptyCheck.isEmpty(descriptor.getLabelPlural())) {
 						setLinkedEntityLabelPlural(descriptor.getLabelPlural());
 					}

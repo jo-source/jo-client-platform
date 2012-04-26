@@ -29,14 +29,11 @@
 package org.jowidgets.cap.ui.impl.workbench;
 
 import java.util.Collection;
-import java.util.Map;
 
+import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.model.item.IMenuModel;
 import org.jowidgets.api.widgets.IContainer;
-import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
-import org.jowidgets.cap.ui.api.command.ICapActionFactory;
-import org.jowidgets.cap.ui.api.command.ILinkActionBuilder;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
@@ -49,8 +46,7 @@ public class EntityTableView extends AbstractView {
 	public EntityTableView(
 		final IViewContext context,
 		final IBeanTableModel<?> tableModel,
-		final Collection<IEntityLinkDescriptor> links,
-		final Map<Object, IBeanTableModel<?>> linkedModels) {
+		final Collection<IAction> linkCreatorActions) {
 
 		final IContainer container = context.getContainer();
 		container.setLayout(MigLayoutFactory.growingInnerCellLayout());
@@ -58,29 +54,15 @@ public class EntityTableView extends AbstractView {
 		final IBeanTableBluePrint<?> tableBp = CapUiToolkit.bluePrintFactory().beanTable(tableModel);
 		final IBeanTable<?> table = container.add(tableBp, MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
 
-		addLinkActions(table, links, linkedModels);
+		addLinkActions(table, linkCreatorActions);
 
 		tableModel.load();
 	}
 
-	private static void addLinkActions(
-		final IBeanTable<?> table,
-		final Collection<IEntityLinkDescriptor> links,
-		final Map<Object, IBeanTableModel<?>> linkedModels) {
-		boolean actionCreated = false;
+	private void addLinkActions(final IBeanTable<?> table, final Collection<IAction> actions) {
 		final IMenuModel tableCellMenu = table.getCellPopMenu();
-		final ICapActionFactory actionFactory = CapUiToolkit.actionFactory();
-		for (final IEntityLinkDescriptor link : links) {
-			final ILinkActionBuilder<?> linkActionBuilder;
-			linkActionBuilder = actionFactory.linkActionBuilder(table.getModel(), link);
-			if (linkActionBuilder != null) {
-				linkActionBuilder.setLinkedDataModel(linkedModels.get(link.getLinkedEntityId()));
-				if (!actionCreated) {
-					tableCellMenu.addSeparator();
-					actionCreated = true;
-				}
-				tableCellMenu.addAction(linkActionBuilder.build());
-			}
+		for (final IAction action : actions) {
+			tableCellMenu.addAction(action);
 		}
 	}
 

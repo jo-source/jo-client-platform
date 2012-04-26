@@ -28,8 +28,8 @@
 
 package org.jowidgets.cap.ui.impl.workbench;
 
+import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.widgets.IContainer;
-import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
@@ -41,10 +41,15 @@ public class LinkedEntityTableView extends AbstractView {
 
 	private final IBeanTable<?> table;
 
-	public LinkedEntityTableView(final IViewContext context, final IBeanTableModel<?> model, final IEntityLinkDescriptor link) {
+	public LinkedEntityTableView(final IViewContext context, final IBeanTableModel<?> model, final IAction linkCreatorAction) {
 		final IContainer container = context.getContainer();
 		container.setLayout(MigLayoutFactory.growingInnerCellLayout());
 		this.table = container.add(CapUiToolkit.bluePrintFactory().beanTable(model), MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
+		if (linkCreatorAction != null) {
+			table.getCellPopMenu().addAction(linkCreatorAction);
+			table.getTablePopupMenu().addAction(linkCreatorAction);
+		}
+
 		model.load();
 	}
 
