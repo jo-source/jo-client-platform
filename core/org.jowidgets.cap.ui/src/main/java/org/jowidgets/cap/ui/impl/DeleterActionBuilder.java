@@ -58,7 +58,7 @@ final class DeleterActionBuilder<BEAN_TYPE> extends AbstractCapActionBuilderImpl
 	private final IBeanListModel<BEAN_TYPE> model;
 	private final List<IEnabledChecker> enabledCheckers;
 	private final List<IExecutableChecker<BEAN_TYPE>> executableCheckers;
-	private final List<IExecutionInterceptor> executionInterceptors;
+	private final List<IExecutionInterceptor<Void>> executionInterceptors;
 
 	private String entityLabelSingular;
 	private String entityLabelPlural;
@@ -77,7 +77,7 @@ final class DeleterActionBuilder<BEAN_TYPE> extends AbstractCapActionBuilderImpl
 		this.model = model;
 		this.enabledCheckers = new LinkedList<IEnabledChecker>();
 		this.executableCheckers = new LinkedList<IExecutableChecker<BEAN_TYPE>>();
-		this.executionInterceptors = new LinkedList<IExecutionInterceptor>();
+		this.executionInterceptors = new LinkedList<IExecutionInterceptor<Void>>();
 		this.exceptionConverter = new DefaultBeanExceptionConverter();
 
 		this.multiSelection = true;
@@ -162,7 +162,7 @@ final class DeleterActionBuilder<BEAN_TYPE> extends AbstractCapActionBuilderImpl
 	}
 
 	@Override
-	public IDeleterActionBuilder<BEAN_TYPE> addExecutionInterceptor(final IExecutionInterceptor interceptor) {
+	public IDeleterActionBuilder<BEAN_TYPE> addExecutionInterceptor(final IExecutionInterceptor<Void> interceptor) {
 		checkExhausted();
 		Assert.paramNotNull(interceptor, "interceptor");
 		executionInterceptors.add(interceptor);

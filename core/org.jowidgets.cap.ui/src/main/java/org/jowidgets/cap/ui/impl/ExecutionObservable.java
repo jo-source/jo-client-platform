@@ -37,13 +37,13 @@ import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.cap.ui.api.execution.IExecutionInterceptor;
 import org.jowidgets.tools.types.VetoHolder;
 
-final class ExecutionObservable {
+final class ExecutionObservable<RESULT_TYPE> {
 
-	private final Set<IExecutionInterceptor> interceptors;
+	private final Set<IExecutionInterceptor<RESULT_TYPE>> interceptors;
 
-	ExecutionObservable(final Collection<IExecutionInterceptor> interceptors) {
+	ExecutionObservable(final Collection<IExecutionInterceptor<RESULT_TYPE>> interceptors) {
 		if (interceptors != null) {
-			this.interceptors = new LinkedHashSet<IExecutionInterceptor>(interceptors);
+			this.interceptors = new LinkedHashSet<IExecutionInterceptor<RESULT_TYPE>>(interceptors);
 		}
 		else {
 			this.interceptors = Collections.emptySet();
@@ -58,14 +58,14 @@ final class ExecutionObservable {
 	 */
 	boolean fireBeforeExecution(final IExecutionContext executionContext) {
 		final VetoHolder vetoHolder = new VetoHolder();
-		for (final IExecutionInterceptor interceptor : interceptors) {
+		for (final IExecutionInterceptor<RESULT_TYPE> interceptor : interceptors) {
 			interceptor.beforeExecution(executionContext, vetoHolder);
 			if (vetoHolder.hasVeto()) {
 				break;
 			}
 		}
 		if (vetoHolder.hasVeto()) {
-			for (final IExecutionInterceptor interceptor : interceptors) {
+			for (final IExecutionInterceptor<RESULT_TYPE> interceptor : interceptors) {
 				interceptor.onExecutionVeto(executionContext);
 			}
 		}
@@ -73,25 +73,25 @@ final class ExecutionObservable {
 	}
 
 	void fireAfterExecutionPrepared(final IExecutionContext executionContext) {
-		for (final IExecutionInterceptor interceptor : interceptors) {
+		for (final IExecutionInterceptor<RESULT_TYPE> interceptor : interceptors) {
 			interceptor.afterExecutionPrepared(executionContext);
 		}
 	}
 
-	void fireAfterExecutionSuccess(final IExecutionContext executionContext) {
-		for (final IExecutionInterceptor interceptor : interceptors) {
-			interceptor.afterExecutionSuccess(executionContext);
+	void fireAfterExecutionSuccess(final IExecutionContext executionContext, final RESULT_TYPE result) {
+		for (final IExecutionInterceptor<RESULT_TYPE> interceptor : interceptors) {
+			interceptor.afterExecutionSuccess(executionContext, result);
 		}
 	}
 
 	void fireAfterExecutionError(final IExecutionContext executionContext, final Throwable error) {
-		for (final IExecutionInterceptor interceptor : interceptors) {
+		for (final IExecutionInterceptor<RESULT_TYPE> interceptor : interceptors) {
 			interceptor.afterExecutionError(executionContext, error);
 		}
 	}
 
 	void fireAfterExecutionCanceled(final IExecutionContext executionContext) {
-		for (final IExecutionInterceptor interceptor : interceptors) {
+		for (final IExecutionInterceptor<RESULT_TYPE> interceptor : interceptors) {
 			interceptor.afterExecutionUserCanceled(executionContext);
 		}
 	}

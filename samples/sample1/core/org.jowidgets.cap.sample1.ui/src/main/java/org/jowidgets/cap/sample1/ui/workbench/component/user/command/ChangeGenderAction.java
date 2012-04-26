@@ -28,11 +28,14 @@
 
 package org.jowidgets.cap.sample1.ui.workbench.component.user.command;
 
+import java.util.List;
+
 import org.jowidgets.addons.icons.silkicons.SilkIcons;
 import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.types.QuestionResult;
+import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.sample1.common.entity.IUser;
 import org.jowidgets.cap.sample1.common.service.executor.ChangeGenderExecutableChecker;
 import org.jowidgets.cap.sample1.common.service.executor.UserComponentExecutorServices;
@@ -66,7 +69,7 @@ public class ChangeGenderAction extends ActionWrapper {
 		builder.setExecutor(UserComponentExecutorServices.CHANGE_GENDER);
 		//TODO MG get checker from service (id oder so)
 		builder.addExecutableChecker(new ChangeGenderExecutableChecker());
-		builder.addExecutionInterceptor(new ExecutionInterceptorAdapter() {
+		builder.addExecutionInterceptor(new ExecutionInterceptorAdapter<List<IBeanDto>>() {
 
 			@Override
 			public void beforeExecution(final IExecutionContext executionContext, final IVetoable continueExecution) {

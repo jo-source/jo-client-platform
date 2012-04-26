@@ -179,6 +179,15 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 	}
 
 	@Override
+	public IBeanProxy<BEAN_TYPE> createCopy() {
+		final IBeanProxy<BEAN_TYPE> result = new BeanProxyImpl<BEAN_TYPE>(beanDto, beanType, properties, isTransient);
+		for (final IBeanModification modification : modifications.values()) {
+			result.setValue(modification.getPropertyName(), modification.getNewValue());
+		}
+		return result;
+	}
+
+	@Override
 	public Object getId() {
 		checkDisposed();
 		return beanDto.getId();

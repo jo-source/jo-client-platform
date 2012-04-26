@@ -42,6 +42,7 @@ import org.jowidgets.api.widgets.IWindow;
 import org.jowidgets.api.widgets.blueprint.IInputDialogBluePrint;
 import org.jowidgets.api.widgets.content.IInputContentCreator;
 import org.jowidgets.api.widgets.descriptor.IInputDialogDescriptor;
+import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.service.IExecutorService;
 import org.jowidgets.cap.common.api.service.IParameterProviderService;
@@ -73,7 +74,7 @@ final class ExecutorActionBuilderImpl<BEAN_TYPE, PARAM_TYPE> extends
 	private final List<IExecutableChecker<Object>> executableCheckers;
 	private final List<IEnabledChecker> enabledCheckers;
 	private final List<Object> parameterProviders;
-	private final List<IExecutionInterceptor> executionInterceptors;
+	private final List<IExecutionInterceptor<List<IBeanDto>>> executionInterceptors;
 
 	private PARAM_TYPE defaultParameter;
 	private Object executor;
@@ -89,7 +90,7 @@ final class ExecutorActionBuilderImpl<BEAN_TYPE, PARAM_TYPE> extends
 		this.executableCheckers = new LinkedList<IExecutableChecker<Object>>();
 		this.enabledCheckers = new LinkedList<IEnabledChecker>();
 		this.parameterProviders = new LinkedList<Object>();
-		this.executionInterceptors = new LinkedList<IExecutionInterceptor>();
+		this.executionInterceptors = new LinkedList<IExecutionInterceptor<List<IBeanDto>>>();
 
 		this.beanSelectionPolicy = BeanSelectionPolicy.SINGLE_SELECTION;
 		this.beanModificationStatePolicy = BeanModificationStatePolicy.NO_MODIFICATION;
@@ -281,7 +282,8 @@ final class ExecutorActionBuilderImpl<BEAN_TYPE, PARAM_TYPE> extends
 	}
 
 	@Override
-	public IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> addExecutionInterceptor(final IExecutionInterceptor interceptor) {
+	public IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> addExecutionInterceptor(
+		final IExecutionInterceptor<List<IBeanDto>> interceptor) {
 		checkExhausted();
 		Assert.paramNotNull(interceptor, "interceptor");
 		executionInterceptors.add(interceptor);

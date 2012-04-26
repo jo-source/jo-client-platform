@@ -37,6 +37,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.jowidgets.api.command.IAction;
+import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.api.model.item.IActionItemModel;
 import org.jowidgets.api.model.item.IToolBarItemModel;
 import org.jowidgets.api.model.item.IToolBarModel;
@@ -46,14 +47,19 @@ import org.jowidgets.cap.common.api.entity.IEntityClass;
 import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
 import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
+import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.command.IDataModelAction;
 import org.jowidgets.cap.ui.api.command.ILinkCreatorActionBuilder;
 import org.jowidgets.cap.ui.api.model.LinkType;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
+import org.jowidgets.cap.ui.api.tree.IBeanRelationNodeModel;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeModel;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeModelBuilder;
+import org.jowidgets.cap.ui.api.types.EntityTypeId;
+import org.jowidgets.cap.ui.api.types.IEntityTypeId;
 import org.jowidgets.cap.ui.tools.execution.BeanRefreshInterceptor;
+import org.jowidgets.cap.ui.tools.execution.ExecutionInterceptorAdapter;
 import org.jowidgets.common.types.IVetoable;
 import org.jowidgets.service.api.ServiceProvider;
 import org.jowidgets.workbench.api.IComponent;
@@ -89,7 +95,9 @@ public class EntityComponent extends AbstractComponent implements IComponent {
 			throw new IllegalStateException("No entity service found");
 		}
 
-		this.tableModel = CapUiToolkit.beanTableModelBuilder(entityClass.getId(), getBeanType(entityClass.getId())).build();
+		final Class<Object> beanType = getBeanType(entityClass.getId());
+		final IEntityTypeId<Object> entityTypeId = EntityTypeId.create(entityClass.getId(), beanType);
+		this.tableModel = CapUiToolkit.beanTableModelBuilder(entityClass.getId(), beanType).build();
 		this.relationTreeModel = createRelationTreeModel(tableModel, entityClass);
 		this.dataModelActions = getDataModelActions(componentNodeModel);
 		this.tableViews = new LinkedHashSet<LinkedEntityTableView>();
@@ -107,6 +115,7 @@ public class EntityComponent extends AbstractComponent implements IComponent {
 
 				final Object linkedEntityId = link.getLinkedEntityId();
 				final Class<Object> linkedBeanType = getBeanType(linkedEntityId);
+				final IEntityTypeId<Object> linkedEntityTypeId = EntityTypeId.create(linkedEntityId, linkedBeanType);
 
 				//create the linked model
 				final IBeanTableModelBuilder<Object> builder = CapUiToolkit.beanTableModelBuilder(linkedEntityId, linkedBeanType);
@@ -119,8 +128,17 @@ public class EntityComponent extends AbstractComponent implements IComponent {
 					final ILinkCreatorActionBuilder<Object, Object, Object> linkCreatorActionBuilder;
 					linkCreatorActionBuilder = CapUiToolkit.actionFactory().linkCreatorActionBuilder(tableModel, link);
 					linkCreatorActionBuilder.setLinkedModel(linkedModel);
-					final BeanRefreshInterceptor<Object> refreshInterceptor = new BeanRefreshInterceptor<Object>(tableModel);
+
+					//add interceptor that refreshs the source
+					final BeanRefreshInterceptor<Object, List<IBeanDto>> refreshInterceptor;
+					refreshInterceptor = new BeanRefreshInterceptor<Object, List<IBeanDto>>(tableModel);
 					linkCreatorActionBuilder.addExecutionInterceptor(refreshInterceptor);
+
+					//add interceptor that adds created links to tree nodes
+					final BeanAddToTreeInterceptor addBeanToTreeInterceptor;
+					addBeanToTreeInterceptor = new BeanAddToTreeInterceptor(entityTypeId, linkedEntityTypeId);
+					linkCreatorActionBuilder.addExecutionInterceptor(addBeanToTreeInterceptor);
+
 					linkCreatorActions.put(linkedEntityId, linkCreatorActionBuilder.build());
 				}
 			}
@@ -229,6 +247,37 @@ public class EntityComponent extends AbstractComponent implements IComponent {
 		}
 		else {
 			return (Class<BEAN_TYPE>) IBeanDto.class;
+		}
+	}
+
+	private final class BeanAddToTreeInterceptor extends ExecutionInterceptorAdapter<List<IBeanDto>> {
+
+		private final IEntityTypeId<Object> entityTypeId;
+		private final IEntityTypeId<Object> linkedEntityTypeId;
+
+		private List<IBeanProxy<Object>> selection;
+
+		private BeanAddToTreeInterceptor(final IEntityTypeId<Object> entityTypeId, final IEntityTypeId<Object> linkedEntityTypeId) {
+			this.entityTypeId = entityTypeId;
+			this.linkedEntityTypeId = linkedEntityTypeId;
+		}
+
+		@Override
+		public void beforeExecution(final IExecutionContext executionContext, final IVetoable continueExecution) {
+			this.selection = tableModel.getSelectedBeans();
+		}
+
+		@Override
+		public void afterExecutionSuccess(final IExecutionContext executionContext, final List<IBeanDto> result) {
+			for (final IBeanProxy<Object> bean : selection) {
+				if (relationTreeModel.hasNode(bean, linkedEntityTypeId)) {
+					final IBeanRelationNodeModel<Object, Object> relationNodeModel;
+					relationNodeModel = relationTreeModel.getNode(entityTypeId, bean, linkedEntityTypeId);
+					for (final IBeanDto beanDto : result) {
+						relationNodeModel.addBeanDto(beanDto);
+					}
+				}
+			}
 		}
 	}
 

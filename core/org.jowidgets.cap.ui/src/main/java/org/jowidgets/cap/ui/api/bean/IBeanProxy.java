@@ -133,6 +133,8 @@ public interface IBeanProxy<BEAN_TYPE> extends
 
 	BEAN_TYPE getBean();
 
+	IBeanProxy<BEAN_TYPE> createCopy();
+
 	void addBeanProxyListener(IBeanProxyListener<BEAN_TYPE> listener);
 
 	void removeBeanProxyListener(IBeanProxyListener<BEAN_TYPE> listener);

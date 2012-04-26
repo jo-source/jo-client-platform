@@ -26,14 +26,19 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.tree;
+package org.jowidgets.cap.ui.api.types;
 
-import org.jowidgets.cap.ui.api.types.IEntityTypeId;
+import org.jowidgets.cap.ui.api.CapUiToolkit;
 
-public interface IBeanRelationNodeModelConfigurator {
+public final class EntityTypeId {
 
-	<CHILD_BEAN_TYPE> void configureNode(
-		IEntityTypeId<CHILD_BEAN_TYPE> entityTypeId,
-		IBeanRelationNodeModelBluePrint<CHILD_BEAN_TYPE, IBeanRelationNodeModelBluePrint<?, ?>> bluePrint);
+	private EntityTypeId() {}
 
+	public static <BEAN_TYPE> IEntityTypeId<BEAN_TYPE> create(final Object entityId, final Class<BEAN_TYPE> beanType) {
+		return CapUiToolkit.entityTypeId(entityId, beanType);
+	}
+
+	public static <BEAN_TYPE> IEntityTypeId<BEAN_TYPE> create(final Class<BEAN_TYPE> beanType) {
+		return CapUiToolkit.entityTypeId(beanType);
+	}
 }

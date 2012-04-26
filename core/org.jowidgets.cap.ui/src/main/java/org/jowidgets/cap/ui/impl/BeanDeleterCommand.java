@@ -69,7 +69,7 @@ final class BeanDeleterCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 
 	private final IBeanListModel<BEAN_TYPE> model;
 	private final IDeleterService deleterService;
-	private final ExecutionObservable executionObservable;
+	private final ExecutionObservable<Void> executionObservable;
 	private final IBeanExceptionConverter exceptionConverter;
 
 	private final BeanSelectionProviderEnabledChecker<BEAN_TYPE> enabledChecker;
@@ -81,7 +81,7 @@ final class BeanDeleterCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 		final List<IEnabledChecker> enabledCheckers,
 		final List<IExecutableChecker<BEAN_TYPE>> executableCheckers,
 		final IDeleterService deleterService,
-		final List<IExecutionInterceptor> executionInterceptors,
+		final List<IExecutionInterceptor<Void>> executionInterceptors,
 		final boolean multiSelection,
 		final BeanModificationStatePolicy beanModificationStatePolicy,
 		final BeanMessageStatePolicy beanMessageStatePolicy,
@@ -105,7 +105,7 @@ final class BeanDeleterCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 
 		this.model = model;
 		this.deleterService = deleterService;
-		this.executionObservable = new ExecutionObservable(executionInterceptors);
+		this.executionObservable = new ExecutionObservable<Void>(executionInterceptors);
 		this.exceptionConverter = exceptionConverter;
 		this.autoSelection = autoSelection;
 		this.deletionConfirmDialog = deletionConfirmDialog;
@@ -225,7 +225,7 @@ final class BeanDeleterCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 			}
 			model.removeBeans(beans);
 			model.fireBeansChanged();
-			executionObservable.fireAfterExecutionSuccess(executionContext);
+			executionObservable.fireAfterExecutionSuccess(executionContext, result);
 		}
 
 		@Override

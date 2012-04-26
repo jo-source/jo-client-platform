@@ -26,7 +26,7 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.tree;
+package org.jowidgets.cap.ui.api.types;
 
 public interface IEntityTypeId<BEAN_TYPE> {
 

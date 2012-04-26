@@ -36,7 +36,7 @@ import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.common.types.IVetoable;
 import org.jowidgets.util.EmptyCheck;
 
-public final class BeanRefreshInterceptor<BEAN_TYPE> extends ExecutionInterceptorAdapter {
+public final class BeanRefreshInterceptor<BEAN_TYPE, RESULT_TYPE> extends ExecutionInterceptorAdapter<RESULT_TYPE> {
 
 	private final IBeanTableModel<BEAN_TYPE> tableModel;
 
@@ -57,7 +57,7 @@ public final class BeanRefreshInterceptor<BEAN_TYPE> extends ExecutionIntercepto
 	}
 
 	@Override
-	public void afterExecutionSuccess(final IExecutionContext executionContext) {
+	public void afterExecutionSuccess(final IExecutionContext executionContext, final RESULT_TYPE result) {
 		if (!EmptyCheck.isEmpty(lastSelection)) {
 			tableModel.refreshBeans(lastSelection);
 		}
