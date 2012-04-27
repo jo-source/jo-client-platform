@@ -54,10 +54,13 @@ import org.jowidgets.cap.service.api.bean.IBeanAccess;
 import org.jowidgets.cap.service.api.entity.IBeanServicesProviderBuilder;
 import org.jowidgets.cap.service.jpa.api.IJpaServiceFactory;
 import org.jowidgets.cap.service.jpa.api.JpaServiceToolkit;
+import org.jowidgets.cap.service.jpa.api.query.ICriteriaQueryCreatorBuilder;
+import org.jowidgets.cap.service.jpa.api.query.JpaQueryToolkit;
 import org.jowidgets.cap.service.spring.BeanTypeUtil;
 import org.jowidgets.cap.service.spring.SpringServiceProvider;
 import org.jowidgets.cap.service.spring.TransactionProxyFactory;
 import org.jowidgets.cap.service.tools.entity.EntityServiceBuilder;
+import org.jowidgets.cap.service.util.ParentLinkHelper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Required;
@@ -145,7 +148,12 @@ public final class JpaEntityService implements IEntityService, InitializingBean 
 		final IDeleterService deleterService = serviceFactory.deleterService(beanType);
 		builder.setDeleterService(tpf.createProxy(deleterService, "delete"));
 
-		final IReaderService<Void> readerService = serviceFactory.readerService(beanType, propertyNames);
+		// TODO: MvR -> Check genericity...
+		final ICriteriaQueryCreatorBuilder<Void> queryBuilder = JpaQueryToolkit.criteriaQueryCreatorBuilder(beanType);
+		if (ParentLinkHelper.hasParent(beanType)) {
+			queryBuilder.setParentPropertyName("parent");
+		}
+		final IReaderService<Void> readerService = serviceFactory.readerService(beanType, queryBuilder.build(), propertyNames);
 		builder.setReaderService(readerService);
 
 		final IBeanAccess<T> beanAccess = serviceFactory.beanAccess(beanType);

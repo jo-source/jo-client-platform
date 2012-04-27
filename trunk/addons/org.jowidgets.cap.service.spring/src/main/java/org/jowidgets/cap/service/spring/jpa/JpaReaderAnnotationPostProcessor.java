@@ -53,6 +53,7 @@ import org.jowidgets.cap.service.jpa.api.query.IQueryCreator;
 import org.jowidgets.cap.service.jpa.api.query.JpaQueryToolkit;
 import org.jowidgets.cap.service.spring.BeanTypeUtil;
 import org.jowidgets.cap.service.spring.SpringServiceProvider;
+import org.jowidgets.cap.service.util.ParentLinkHelper;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.tools.ServiceId;
 import org.jowidgets.util.Assert;
@@ -89,8 +90,13 @@ public final class JpaReaderAnnotationPostProcessor implements BeanPostProcessor
 					final IPredicateCreator<Object> predicateCreator = createPredicateCreator(beanFactory, beanName, method);
 
 					final ICriteriaQueryCreatorBuilder<Object> queryCreatorBuilder = JpaQueryToolkit.criteriaQueryCreatorBuilder(
-							beanType).setCaseSensitve(!beanAnnotation.caseInsensitive()).setParentPropertyName(
-							beanAnnotation.parentPropertyName());
+							beanType).setCaseSensitve(!beanAnnotation.caseInsensitive());
+
+					// TODO: MvR -> Check genericity...
+					if (ParentLinkHelper.hasParent(beanType)) {
+						queryCreatorBuilder.setParentPropertyName(beanAnnotation.parentPropertyName());
+					}
+
 					if (predicateCreator != null) {
 						queryCreatorBuilder.addPredicateCreator(predicateCreator);
 					}
