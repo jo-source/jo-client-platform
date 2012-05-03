@@ -127,12 +127,22 @@ final class AttributeFilterControlImpl extends AbstractInputControl<IUiConfigura
 		final IObjectStringConverter<IOperator> converter = new IObjectStringConverter<IOperator>() {
 			@Override
 			public String convertToString(final IOperator value) {
-				return value.getLabelLong();
+				if (value != null) {
+					return value.getLabelLong();
+				}
+				else {
+					return null;
+				}
 			}
 
 			@Override
 			public String getDescription(final IOperator value) {
-				return value.getDescription();
+				if (value != null) {
+					return value.getDescription();
+				}
+				else {
+					return null;
+				}
 			}
 		};
 		return bpf.comboBoxSelection(converter).autoSelectionOn();
