@@ -45,7 +45,7 @@ public interface IBeanServiceFactory {
 
 	<BEAN_TYPE extends IBean> IBeanServicesProviderBuilder beanServicesBuilder(
 		IServiceRegistry registry,
-		Object entityTypeId,
+		Object entityId,
 		Class<? extends BEAN_TYPE> beanType,
 		IBeanDtoFactory<BEAN_TYPE> beanDtoFactory,
 		IBeanInitializer<BEAN_TYPE> beanInitializer,
