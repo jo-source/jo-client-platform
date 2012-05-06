@@ -139,11 +139,7 @@ final class LinkCreatorServiceImpl<LINKED_BEAN_TYPE extends IBean> implements IL
 			createdLinkBean = null;
 		}
 		if (linkBeanType.equals(linkedBeanAccess.getBeanType())) {
-			return createdLinkBean;
-		}
-
-		else if (createdLinkableBean != null) {
-			return createdLinkableBean;
+			return readLinkBeanAsLinkedBean(createdLinkBean, executionCallback);
 		}
 		else if (createdLinkBean != null) {
 			return readLinkedBean(createdLinkBean, executionCallback);
@@ -152,15 +148,22 @@ final class LinkCreatorServiceImpl<LINKED_BEAN_TYPE extends IBean> implements IL
 	}
 
 	private IBeanDto readLinkedBean(final IBeanDto createdLinkBean, final IExecutionCallback executionCallback) {
+		return readLinkedBean(createdLinkBean.getValue(destinationProperties.getForeignKeyPropertyName()), executionCallback);
+	}
+
+	private IBeanDto readLinkBeanAsLinkedBean(final IBeanDto createdLinkBean, final IExecutionCallback executionCallback) {
+		return readLinkedBean(createdLinkBean.getId(), executionCallback);
+	}
+
+	private IBeanDto readLinkedBean(final Object id, final IExecutionCallback executionCallback) {
 		CapServiceToolkit.checkCanceled(executionCallback);
-		final Object linkedId = createdLinkBean.getValue(destinationProperties.getForeignKeyPropertyName());
-		final IBeanKey beanKey = new BeanKey(linkedId, 0);
+		final IBeanKey beanKey = new BeanKey(id, 0);
 		final List<LINKED_BEAN_TYPE> beans = linkedBeanAccess.getBeans(Collections.singleton(beanKey), executionCallback);
 		if (beans.size() > 0) {
 			return linkedDtoFactory.createDto(beans.iterator().next());
 		}
 		else {
-			throw new DeletedBeanException(linkedId);
+			throw new DeletedBeanException(id);
 		}
 	}
 
