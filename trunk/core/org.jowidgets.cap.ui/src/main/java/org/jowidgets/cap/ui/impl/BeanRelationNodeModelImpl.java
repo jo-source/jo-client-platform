@@ -644,7 +644,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 			final List<ISort> sorting = new LinkedList<ISort>(defaultSort);
 
 			final List<? extends IBeanKey> parentBeanKeys;
-			if (parentBean != null) {
+			if (parentBean != null && !parentBean.isTransient() && !parentBean.isDummy()) {
 				parentBeanKeys = Collections.singletonList(new BeanKey(parentBean.getId(), parentBean.getVersion()));
 			}
 			else {
