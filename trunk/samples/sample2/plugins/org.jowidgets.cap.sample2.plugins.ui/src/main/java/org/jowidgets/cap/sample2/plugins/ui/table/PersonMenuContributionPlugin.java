@@ -30,6 +30,7 @@ package org.jowidgets.cap.sample2.plugins.ui.table;
 
 import org.jowidgets.api.model.item.IMenuModel;
 import org.jowidgets.cap.sample2.app.common.bean.IPerson;
+import org.jowidgets.cap.sample2.plugins.ui.action.CreateTransientPersonAction;
 import org.jowidgets.cap.sample2.plugins.ui.action.PersonActivateAction;
 import org.jowidgets.cap.sample2.plugins.ui.action.PersonDeactivateAction;
 import org.jowidgets.cap.ui.api.plugin.IBeanTableMenuContributionPlugin;
@@ -44,6 +45,7 @@ public final class PersonMenuContributionPlugin implements IBeanTableMenuContrib
 		final MenuModel result = new MenuModel();
 		result.addAction(new PersonActivateAction(table.getModel()));
 		result.addAction(new PersonDeactivateAction(table.getModel()));
+		result.addAction(new CreateTransientPersonAction(table));
 		return result;
 	}
 
