@@ -89,6 +89,14 @@ public class Person extends Bean implements IPerson {
 	@OrderBy("roleId ASC")
 	private Map<Long, PersonRoleLink> personRoleLinks = new LinkedHashMap<Long, PersonRoleLink>();
 
+	@OneToMany(cascade = CascadeType.REMOVE, fetch = FetchType.LAZY, mappedBy = "destinationPerson")
+	@BatchSize(size = 1000)
+	private List<PersonPersonLink> personOfSourcePersonLinks;
+
+	@OneToMany(cascade = CascadeType.REMOVE, fetch = FetchType.LAZY, mappedBy = "sourcePerson")
+	@BatchSize(size = 1000)
+	private List<PersonPersonLink> sourcePersonOfPersonLinks;
+
 	@Override
 	public String getName() {
 		return name;
@@ -168,6 +176,22 @@ public class Person extends Bean implements IPerson {
 
 	public void setPersonRoleLinks(final Map<Long, PersonRoleLink> personRoleLinks) {
 		this.personRoleLinks = personRoleLinks;
+	}
+
+	public List<PersonPersonLink> getPersonOfSourcePersonLinks() {
+		return personOfSourcePersonLinks;
+	}
+
+	public void setPersonOfSourcePersonLinks(final List<PersonPersonLink> personOfSourcePersonLinks) {
+		this.personOfSourcePersonLinks = personOfSourcePersonLinks;
+	}
+
+	public List<PersonPersonLink> getSourcePersonOfPersonLinks() {
+		return sourcePersonOfPersonLinks;
+	}
+
+	public void setSourcePersonOfPersonLinks(final List<PersonPersonLink> sourcePersonOfPersonLinks) {
+		this.sourcePersonOfPersonLinks = sourcePersonOfPersonLinks;
 	}
 
 	@Override

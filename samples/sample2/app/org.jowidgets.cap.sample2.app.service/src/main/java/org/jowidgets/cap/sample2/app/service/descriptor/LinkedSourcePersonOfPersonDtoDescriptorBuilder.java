@@ -62,6 +62,10 @@ public class LinkedSourcePersonOfPersonDtoDescriptorBuilder extends BeanDtoDescr
 		propertyBp.setEditable(false);
 		propertyBp.setMandatory(true);
 
+		propertyBp = addProperty(IPersonPersonLink.COMMENT_PROPERTY);
+		propertyBp.setLabel("Comment");
+		propertyBp.setDescription("The commonent for the link");
+
 		propertyBp = addProperty(IPersonPersonLink.SOURCE_PERSON_NAME_PROPERTY);
 		propertyBp.setLabel("Name");
 		propertyBp.setDescription("The users name");

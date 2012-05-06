@@ -57,5 +57,9 @@ public class SourcePersonOfPersonLinkDtoDescriptorBuilder extends BeanDtoDescrip
 		propertyBp.setLookUpValueRange(LookUpIds.SOURCE_PERSON_OF_PERSON_RELATION_TYPE);
 		propertyBp.setEditable(true);
 		propertyBp.setMandatory(true);
+
+		propertyBp = addProperty(IPersonPersonLink.COMMENT_PROPERTY);
+		propertyBp.setLabel("Comment");
+		propertyBp.setDescription("The commonent for the link");
 	}
 }
