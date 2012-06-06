@@ -28,6 +28,17 @@
 
 package org.jowidgets.cap.sample2.app.service.entity;
 
+import java.util.List;
+
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.Path;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+
+import org.jowidgets.cap.common.api.bean.IBean;
+import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.filter.ArithmeticFilter;
 import org.jowidgets.cap.common.api.filter.ArithmeticOperator;
 import org.jowidgets.cap.common.api.filter.IFilter;
@@ -37,6 +48,7 @@ import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.sample2.app.common.bean.IAuthorization;
 import org.jowidgets.cap.sample2.app.common.bean.IPerson;
 import org.jowidgets.cap.sample2.app.common.bean.IPersonPersonLink;
+import org.jowidgets.cap.sample2.app.common.bean.IPersonRelationType;
 import org.jowidgets.cap.sample2.app.common.bean.IPersonRoleLink;
 import org.jowidgets.cap.sample2.app.common.bean.IRole;
 import org.jowidgets.cap.sample2.app.common.bean.IRoleAuthorizationLink;
@@ -55,20 +67,27 @@ import org.jowidgets.cap.sample2.app.service.descriptor.LinkedPersonOfSourcePers
 import org.jowidgets.cap.sample2.app.service.descriptor.LinkedSourcePersonOfPersonDtoDescriptorBuilder;
 import org.jowidgets.cap.sample2.app.service.descriptor.PersonDtoDescriptorBuilder;
 import org.jowidgets.cap.sample2.app.service.descriptor.PersonOfSourcePersonLinkDtoDescriptorBuilder;
+import org.jowidgets.cap.sample2.app.service.descriptor.PersonPersonLinkDtoDescriptorBuilder;
 import org.jowidgets.cap.sample2.app.service.descriptor.PersonRelationTypeDtoDescriptorBuilder;
 import org.jowidgets.cap.sample2.app.service.descriptor.RoleDtoDescriptorBuilder;
 import org.jowidgets.cap.sample2.app.service.descriptor.SourcePersonOfPersonLinkDtoDescriptorBuilder;
+import org.jowidgets.cap.sample2.app.service.loader.PersonRelationTypeLoader;
 import org.jowidgets.cap.service.api.entity.IBeanEntityBluePrint;
 import org.jowidgets.cap.service.api.entity.IBeanEntityLinkBluePrint;
 import org.jowidgets.cap.service.jpa.api.query.ICriteriaQueryCreatorBuilder;
+import org.jowidgets.cap.service.jpa.api.query.IPredicateCreator;
 import org.jowidgets.cap.service.jpa.api.query.JpaQueryToolkit;
 import org.jowidgets.cap.service.jpa.tools.entity.JpaEntityServiceBuilderWrapper;
 import org.jowidgets.service.api.IServiceRegistry;
 
 public class SampleEntityServiceBuilder extends JpaEntityServiceBuilderWrapper {
 
+	private final List<PersonRelationType> personRelationTypes;
+
 	public SampleEntityServiceBuilder(final IServiceRegistry registry) {
 		super(registry);
+
+		this.personRelationTypes = PersonRelationTypeLoader.load();
 
 		//IPerson
 		IBeanEntityBluePrint entityBp = addEntity().setEntityId(EntityIds.PERSON).setBeanType(Person.class);
@@ -169,7 +188,29 @@ public class SampleEntityServiceBuilder extends JpaEntityServiceBuilderWrapper {
 	}
 
 	private void addPersonLinkDescriptors(final IBeanEntityBluePrint entityBp) {
+		addPersonLinkDescriptors(entityBp, true);
+	}
+
+	private void addPersonLinkDescriptors(final IBeanEntityBluePrint entityBp, final boolean createEntities) {
 		addPersonRoleLinkDescriptor(entityBp);
+		for (final IPersonRelationType personRelationType : personRelationTypes) {
+			addPersonPersonLinkDescriptor(
+					entityBp,
+					createEntities,
+					false,
+					personRelationType.getId(),
+					personRelationType.getReverseRelationName(),
+					personRelationType.getReverseRelationName());
+
+			addPersonPersonLinkDescriptor(
+					entityBp,
+					createEntities,
+					true,
+					personRelationType.getId(),
+					personRelationType.getRelationName(),
+					personRelationType.getRelationName());
+		}
+
 		addPersonsOfSourcePersonsLinkDescriptor(entityBp);
 		addSourcePersonsOfPersonsLinkDescriptor(entityBp);
 	}
@@ -207,6 +248,96 @@ public class SampleEntityServiceBuilder extends JpaEntityServiceBuilderWrapper {
 		bp.setLinkableEntityId(EntityIds.LINKABLE_PERSONS_OF_PERSONS);
 		bp.setSourceProperties(IPersonPersonLink.DESTINATION_PERSON_ID_PROPERTY);
 		bp.setDestinationProperties(IPersonPersonLink.SOURCE_PERSON_ID_PROPERTY);
+	}
+
+	private void addPersonPersonLinkDescriptor(
+		final IBeanEntityBluePrint entityBp,
+		final boolean createEntities,
+		final boolean reverse,
+		final Object relationTypeId,
+		final String labelSingular,
+		final String labelPlural) {
+		final IBeanEntityLinkBluePrint link = entityBp.addLink();
+
+		final String linkEntityId = "PERSON_PERSON_LINK_" + relationTypeId + "_" + reverse;
+		final String linkedEntityId = "PERSON_PERSON_LINKED_" + relationTypeId + "_" + reverse;
+		final String linkableEntityId = "PERSON_PERSON_LINKABLE_" + relationTypeId + "_" + reverse;
+
+		link.setLinkEntityId(linkEntityId);
+		link.setLinkBeanType(PersonPersonLink.class);
+		link.setLinkedEntityId(linkedEntityId);
+		link.setLinkableEntityId(linkableEntityId);
+
+		if (reverse) {
+			link.setSourceProperties(IPersonPersonLink.DESTINATION_PERSON_ID_PROPERTY);
+			link.setDestinationProperties(IPersonPersonLink.SOURCE_PERSON_ID_PROPERTY);
+		}
+		else {
+			link.setSourceProperties(IPersonPersonLink.SOURCE_PERSON_ID_PROPERTY);
+			link.setDestinationProperties(IPersonPersonLink.DESTINATION_PERSON_ID_PROPERTY);
+		}
+
+		if (createEntities) {
+
+			final String personPersonLinkAttribute;
+			final String personAttribute;
+			if (reverse) {
+				personPersonLinkAttribute = "sourcePersonOfPersonLinks";
+				personAttribute = "destinationPerson";
+			}
+			else {
+				personPersonLinkAttribute = "personOfSourcePersonLinks";
+				personAttribute = "sourcePerson";
+			}
+
+			final IBeanEntityBluePrint linkEntityBp = addEntity();
+			linkEntityBp.setEntityId(linkEntityId).setBeanType(PersonPersonLink.class);
+			linkEntityBp.setDtoDescriptor(new PersonPersonLinkDtoDescriptorBuilder(
+				relationTypeId,
+				labelSingular + " link",
+				labelPlural + " links"));
+
+			final IPredicateCreator<Void> relationTypePredicateCreator = new IPredicateCreator<Void>() {
+				@Override
+				public Predicate createPredicate(
+					final CriteriaBuilder criteriaBuilder,
+					final Root<?> bean,
+					final CriteriaQuery<?> query,
+					final List<IBeanKey> parentBeanKeys,
+					final List<Object> parentBeanIds,
+					final Void parameter) {
+					final Join<Object, Object> linkPath = bean.join(personPersonLinkAttribute);
+					final Path<Object> relationTypePath = linkPath.get("relationType").get(IBean.ID_PROPERTY);
+					return relationTypePath.in(relationTypeId);
+				}
+			};
+
+			final ICriteriaQueryCreatorBuilder<Void> linkedQueryBuilder = JpaQueryToolkit.criteriaQueryCreatorBuilder(Person.class);
+			linkedQueryBuilder.setParentPropertyPath(true, personPersonLinkAttribute, personAttribute);
+			linkedQueryBuilder.addPredicateCreator(relationTypePredicateCreator);
+			final IReaderService<Void> linkedReader = getServiceFactory().readerService(
+					Person.class,
+					linkedQueryBuilder.build(),
+					IPerson.ALL_PROPERTIES);
+
+			final IBeanEntityBluePrint linkedEntityBp = addEntity().setEntityId(linkedEntityId).setBeanType(Person.class);
+			linkedEntityBp.setDtoDescriptor(new PersonDtoDescriptorBuilder(labelSingular, labelPlural));
+			linkedEntityBp.setReaderService(linkedReader);
+			linkedEntityBp.setCreatorService((ICreatorService) null);
+			addPersonLinkDescriptors(linkedEntityBp, false);
+
+			final ICriteriaQueryCreatorBuilder<Void> linakbleQueryBuilder = JpaQueryToolkit.criteriaQueryCreatorBuilder(Person.class);
+			linakbleQueryBuilder.setParentPropertyPath(false, personPersonLinkAttribute, personAttribute);
+			linkedQueryBuilder.addPredicateCreator(relationTypePredicateCreator);
+			final IReaderService<Void> linkableReader = getServiceFactory().readerService(
+					Person.class,
+					linakbleQueryBuilder.build(),
+					IPerson.ALL_PROPERTIES);
+
+			final IBeanEntityBluePrint linkableEntityBp = addEntity().setEntityId(linkableEntityId).setBeanType(Person.class);
+			linkableEntityBp.setReaderService(linkableReader);
+			linkableEntityBp.setDtoDescriptor(new PersonDtoDescriptorBuilder());
+		}
 	}
 
 	private void addRolePersonLinkDescriptor(final IBeanEntityBluePrint entityBp) {

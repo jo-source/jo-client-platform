@@ -38,10 +38,15 @@ import org.jowidgets.cap.sample2.app.service.lookup.GenderLookUpService;
 public class PersonDtoDescriptorBuilder extends BeanDtoDescriptorBuilder {
 
 	public PersonDtoDescriptorBuilder() {
+		this("User", "Users");
+	}
+
+	public PersonDtoDescriptorBuilder(final String labelSingular, final String labelPlural) {
 		super(IPerson.class);
 
-		setLabelSingular("User");
-		setLabelPlural("Users");
+		setLabelSingular(labelSingular);
+		setLabelPlural(labelPlural);
+
 		setRenderingPattern("$"
 			+ IPerson.NAME_PROPERTY
 			+ "$ $"

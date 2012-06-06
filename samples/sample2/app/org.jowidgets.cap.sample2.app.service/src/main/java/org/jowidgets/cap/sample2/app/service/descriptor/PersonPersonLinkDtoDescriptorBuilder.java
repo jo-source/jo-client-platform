@@ -25,33 +25,39 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
-package org.jowidgets.cap.sample2.app.common.bean;
 
-import java.util.LinkedList;
-import java.util.List;
+package org.jowidgets.cap.sample2.app.service.descriptor;
 
-import org.jowidgets.cap.common.api.bean.IBean;
+import org.jowidgets.cap.common.api.bean.IBeanPropertyBluePrint;
+import org.jowidgets.cap.common.tools.bean.BeanDtoDescriptorBuilder;
+import org.jowidgets.cap.sample2.app.common.bean.IPersonPersonLink;
 
-public interface IPersonRelationType extends IBean {
+public class PersonPersonLinkDtoDescriptorBuilder extends BeanDtoDescriptorBuilder {
 
-	String RELATION_NAME_PROPERTY = "relationName";
-	String REVERSE_RELATION_NAME = "reverseRelationName";
+	public PersonPersonLinkDtoDescriptorBuilder(final Object relationId, final String labelSingular, final String labelPlural) {
+		super(IPersonPersonLink.class);
 
-	List<String> ALL_PROPERTIES = new LinkedList<String>() {
-		private static final long serialVersionUID = 1L;
-		{
-			add(RELATION_NAME_PROPERTY);
-			add(REVERSE_RELATION_NAME);
-			add(IBean.ID_PROPERTY);
-			add(IBean.VERSION_PROPERTY);
-		}
-	};
+		setLabelSingular(labelSingular);
+		setLabelPlural(labelPlural);
 
-	String getRelationName();
+		IBeanPropertyBluePrint propertyBp;
 
-	void setRelationName(final String name);
+		propertyBp = addProperty(IPersonPersonLink.SOURCE_PERSON_ID_PROPERTY);
+		propertyBp.setLabel("Source id");
+		propertyBp.setMandatory(true);
 
-	String getReverseRelationName();
+		propertyBp = addProperty(IPersonPersonLink.DESTINATION_PERSON_ID_PROPERTY);
+		propertyBp.setLabel("Destination id");
+		propertyBp.setMandatory(true);
 
-	void setReverseRelationName(final String name);
+		propertyBp = addProperty(IPersonPersonLink.RELATION_TYPE_ID_PROPERTY);
+		propertyBp.setLabel("Relation type");
+		propertyBp.setDescription("The relations type");
+		propertyBp.setDefaultValue(relationId);
+		propertyBp.setEditable(false);
+
+		propertyBp = addProperty(IPersonPersonLink.COMMENT_PROPERTY);
+		propertyBp.setLabel("Comment");
+		propertyBp.setDescription("The commonent for the link");
+	}
 }

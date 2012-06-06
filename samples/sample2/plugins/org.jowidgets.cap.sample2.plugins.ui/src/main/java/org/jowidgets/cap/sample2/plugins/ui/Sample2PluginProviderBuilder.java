@@ -6,6 +6,7 @@
 
 package org.jowidgets.cap.sample2.plugins.ui;
 
+import org.jowidgets.cap.sample2.app.common.bean.IPerson;
 import org.jowidgets.cap.sample2.app.common.bean.IRole;
 import org.jowidgets.cap.sample2.app.common.entity.EntityIds;
 import org.jowidgets.cap.sample2.plugins.ui.bean.PersonLabelRendererPlugin;
@@ -48,11 +49,8 @@ public final class Sample2PluginProviderBuilder extends PluginProviderBuilder {
 		addPlugin(
 				IBeanProxyLabelRendererPlugin.ID,
 				new PersonLabelRendererPlugin(),
-				IBeanProxyLabelRendererPlugin.ENTITIY_ID_PROPERTY_KEY,
-				EntityIds.PERSON,
-				EntityIds.LINKED_PERSONS_OF_ROLES,
-				EntityIds.LINKED_PERSONS_OF_SOURCE_PERSONS,
-				EntityIds.LINKED_SOURCE_PERSONS_OF_PERSONS);
+				IBeanProxyLabelRendererPlugin.BEAN_TYPE_PROPERTY_KEY,
+				IPerson.class);
 
 		addPlugin(
 				IBeanProxyLabelRendererPlugin.ID,

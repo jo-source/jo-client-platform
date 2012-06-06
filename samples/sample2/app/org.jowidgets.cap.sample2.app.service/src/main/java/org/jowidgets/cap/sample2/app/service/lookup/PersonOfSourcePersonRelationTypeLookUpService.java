@@ -58,10 +58,7 @@ public class PersonOfSourcePersonRelationTypeLookUpService implements ISyncLookU
 		criteriaQuery.from(PersonRelationType.class);
 
 		for (final PersonRelationType relationType : entityManager.createQuery(criteriaQuery).getResultList()) {
-			result.add(lookUpToolkit.lookUpEntry(
-					relationType.getId(),
-					relationType.getDestinationName(),
-					relationType.getDestinationDescription()));
+			result.add(lookUpToolkit.lookUpEntry(relationType.getId(), relationType.getReverseRelationName()));
 		}
 		return Collections.unmodifiableList(result);
 	}
