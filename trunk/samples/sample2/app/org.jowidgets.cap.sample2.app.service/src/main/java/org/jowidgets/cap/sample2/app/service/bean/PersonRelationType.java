@@ -35,59 +35,33 @@ import javax.persistence.UniqueConstraint;
 import org.jowidgets.cap.sample2.app.common.bean.IPersonRelationType;
 
 @Entity
-@Table(name = "PERSON_RELATION_TYPE", uniqueConstraints = @UniqueConstraint(columnNames = {"sourceName", "destinationName"}))
+@Table(name = "PERSON_RELATION_TYPE", uniqueConstraints = @UniqueConstraint(columnNames = {"relationName", "reverseRelationName"}))
 public class PersonRelationType extends Bean implements IPersonRelationType {
 
 	@Basic
-	private String sourceName;
+	private String relationName;
 
 	@Basic
-	private String sourceDescription;
-
-	@Basic
-	private String destinationName;
-
-	@Basic
-	private String destinationDescription;
+	private String reverseRelationName;
 
 	@Override
-	public String getSourceName() {
-		return sourceName;
+	public String getRelationName() {
+		return relationName;
 	}
 
 	@Override
-	public void setSourceName(final String sourceName) {
-		this.sourceName = sourceName;
+	public void setRelationName(final String relationName) {
+		this.relationName = relationName;
 	}
 
 	@Override
-	public String getSourceDescription() {
-		return sourceDescription;
+	public String getReverseRelationName() {
+		return reverseRelationName;
 	}
 
 	@Override
-	public void setSourceDescription(final String sourceDescription) {
-		this.sourceDescription = sourceDescription;
-	}
-
-	@Override
-	public String getDestinationName() {
-		return destinationName;
-	}
-
-	@Override
-	public void setDestinationName(final String destinationName) {
-		this.destinationName = destinationName;
-	}
-
-	@Override
-	public String getDestinationDescription() {
-		return destinationDescription;
-	}
-
-	@Override
-	public void setDestinationDescription(final String destinationDescription) {
-		this.destinationDescription = destinationDescription;
+	public void setReverseRelationName(final String reverseRelationName) {
+		this.reverseRelationName = reverseRelationName;
 	}
 
 }

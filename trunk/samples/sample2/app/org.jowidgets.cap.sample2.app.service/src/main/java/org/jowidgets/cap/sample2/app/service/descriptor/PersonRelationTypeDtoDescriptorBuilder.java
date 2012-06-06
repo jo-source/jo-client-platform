@@ -47,23 +47,15 @@ public class PersonRelationTypeDtoDescriptorBuilder extends BeanDtoDescriptorBui
 		propertyBp.setLabel("Id");
 		propertyBp.setDescription("The relation types technical identifier");
 
-		propertyBp = addProperty(IPersonRelationType.SOURCE_NAME_PROPERTY);
-		propertyBp.setLabel("Source name");
-		propertyBp.setDescription("The relation types name considered from from the source side");
+		propertyBp = addProperty(IPersonRelationType.RELATION_NAME_PROPERTY);
+		propertyBp.setLabel("Relation name");
+		propertyBp.setDescription("The name of the relation");
 		propertyBp.setMandatory(true);
 
-		propertyBp = addProperty(IPersonRelationType.SOURCE_DESCRIPTION_PROPERTY);
-		propertyBp.setLabel("Source description");
-		propertyBp.setDescription("The relation types description considered from from the source side");
-
-		propertyBp = addProperty(IPersonRelationType.DESTINATION_NAME_PROPERTY);
-		propertyBp.setLabel("Destination name");
-		propertyBp.setDescription("The relation types name considered from from the destination side");
+		propertyBp = addProperty(IPersonRelationType.REVERSE_RELATION_NAME);
+		propertyBp.setLabel("Reverse relation name");
+		propertyBp.setDescription("The name of the reverse relation (destination related with source)");
 		propertyBp.setMandatory(true);
-
-		propertyBp = addProperty(IPersonRelationType.DESTINATION_DESCRIPTION_PROPERTY);
-		propertyBp.setLabel("Destination description");
-		propertyBp.setDescription("The relation types description considered from from the destination side");
 
 		propertyBp = addProperty(IBean.VERSION_PROPERTY);
 		propertyBp.setLabel("Version");

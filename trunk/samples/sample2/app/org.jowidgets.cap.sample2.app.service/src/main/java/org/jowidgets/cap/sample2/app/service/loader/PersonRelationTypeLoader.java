@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -25,33 +25,36 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
-package org.jowidgets.cap.sample2.app.common.bean;
 
-import java.util.LinkedList;
+package org.jowidgets.cap.sample2.app.service.loader;
+
 import java.util.List;
 
-import org.jowidgets.cap.common.api.bean.IBean;
+import javax.persistence.EntityManager;
+import javax.persistence.criteria.CriteriaQuery;
 
-public interface IPersonRelationType extends IBean {
+import org.jowidgets.cap.sample2.app.service.bean.PersonRelationType;
+import org.jowidgets.cap.service.jpa.api.EntityManagerFactoryProvider;
 
-	String RELATION_NAME_PROPERTY = "relationName";
-	String REVERSE_RELATION_NAME = "reverseRelationName";
+public final class PersonRelationTypeLoader {
 
-	List<String> ALL_PROPERTIES = new LinkedList<String>() {
-		private static final long serialVersionUID = 1L;
-		{
-			add(RELATION_NAME_PROPERTY);
-			add(REVERSE_RELATION_NAME);
-			add(IBean.ID_PROPERTY);
-			add(IBean.VERSION_PROPERTY);
+	private PersonRelationTypeLoader() {}
+
+	public static List<PersonRelationType> load() {
+		EntityManager entityManager = null;
+
+		try {
+			entityManager = EntityManagerFactoryProvider.get("sample2PersistenceUnit").createEntityManager();
+			final CriteriaQuery<PersonRelationType> criteriaQuery;
+			criteriaQuery = entityManager.getCriteriaBuilder().createQuery(PersonRelationType.class);
+			criteriaQuery.from(PersonRelationType.class);
+			return entityManager.createQuery(criteriaQuery).getResultList();
 		}
-	};
+		finally {
+			if (entityManager != null) {
+				entityManager.close();
+			}
+		}
+	}
 
-	String getRelationName();
-
-	void setRelationName(final String name);
-
-	String getReverseRelationName();
-
-	void setReverseRelationName(final String name);
 }
