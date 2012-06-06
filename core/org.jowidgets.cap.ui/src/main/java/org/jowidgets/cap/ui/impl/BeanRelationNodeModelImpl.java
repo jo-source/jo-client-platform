@@ -80,6 +80,7 @@ import org.jowidgets.common.color.IColorConstant;
 import org.jowidgets.common.image.IImageConstant;
 import org.jowidgets.common.types.Markup;
 import org.jowidgets.plugin.api.IPluginProperties;
+import org.jowidgets.plugin.api.IPluginPropertiesBuilder;
 import org.jowidgets.plugin.api.PluginProperties;
 import org.jowidgets.plugin.api.PluginProvider;
 import org.jowidgets.util.Assert;
@@ -173,7 +174,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 		this.childEntityTypeId = childEntityTypeId;
 		this.childEntityId = childEntityTypeId.getEntityId();
 		this.childBeanType = childEntityTypeId.getBeanType();
-		this.childRenderer = getPluginDecoratedRenderer(childEntityId, childRenderer);
+		this.childRenderer = getPluginDecoratedRenderer(childEntityId, childBeanType, childRenderer);
 		this.childRelations = new LinkedList<IEntityTypeId<Object>>(childRelations);
 		this.readerService = (IReaderService<Object>) readerService;
 		this.readerParameterProvider = (IProvider<Object>) readerParameterProvider;
@@ -216,10 +217,12 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 	@SuppressWarnings({"rawtypes", "unchecked"})
 	private static IBeanProxyLabelRenderer getPluginDecoratedRenderer(
 		final Object entityId,
+		final Class<?> entityType,
 		final IBeanProxyLabelRenderer renderer) {
-		final IPluginProperties properties = PluginProperties.create(
-				IBeanProxyLabelRendererPlugin.ENTITIY_ID_PROPERTY_KEY,
-				entityId);
+		final IPluginPropertiesBuilder propertiesBuilder = PluginProperties.builder();
+		propertiesBuilder.add(IBeanProxyLabelRendererPlugin.ENTITIY_ID_PROPERTY_KEY, entityId);
+		propertiesBuilder.add(IBeanProxyLabelRendererPlugin.BEAN_TYPE_PROPERTY_KEY, entityType);
+		final IPluginProperties properties = propertiesBuilder.build();
 		IBeanProxyLabelRenderer result = renderer;
 		for (final IBeanProxyLabelRendererPlugin plugin : PluginProvider.getPlugins(IBeanProxyLabelRendererPlugin.ID, properties)) {
 			final IDecorator<IBeanProxyLabelRenderer<?>> decorator = plugin.getRendererDecorator(properties);
