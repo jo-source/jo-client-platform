@@ -75,6 +75,7 @@ import org.jowidgets.cap.ui.tools.execution.AbstractUiResultCallback;
 import org.jowidgets.common.types.Dimension;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.EmptyCheck;
+import org.jowidgets.util.IFactory;
 
 final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> implements ICommand, ICommandExecutor {
 
@@ -87,6 +88,7 @@ final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BE
 	private final IBeanListModel<LINKABLE_BEAN_TYPE> linkedModel;
 	private final Class<? extends LINK_BEAN_TYPE> linkBeanType;
 	private final IBeanFormBluePrint<LINK_BEAN_TYPE> linkBeanForm;
+	private final IFactory<IBeanProxy<LINK_BEAN_TYPE>> linkDefaultFactory;
 	private final Class<? extends LINKABLE_BEAN_TYPE> linkableBeanType;
 	private final IBeanFormBluePrint<LINKABLE_BEAN_TYPE> linkableBeanForm;
 	private final IBeanTableBluePrint<LINKABLE_BEAN_TYPE> linkableTable;
@@ -107,6 +109,7 @@ final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BE
 		final IBeanListModel<LINKABLE_BEAN_TYPE> linkedModel,
 		final Class<? extends LINK_BEAN_TYPE> linkBeanType,
 		final IBeanFormBluePrint<LINK_BEAN_TYPE> linkBeanForm,
+		final IFactory<IBeanProxy<LINK_BEAN_TYPE>> linkDefaultFactory,
 		final Class<? extends LINKABLE_BEAN_TYPE> linkableBeanType,
 		final IBeanFormBluePrint<LINKABLE_BEAN_TYPE> linkableBeanForm,
 		final IBeanTableBluePrint<LINKABLE_BEAN_TYPE> linkableTable,
@@ -139,6 +142,7 @@ final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BE
 		this.linkedModel = linkedModel;
 		this.linkBeanType = linkBeanType;
 		this.linkBeanForm = linkBeanForm;
+		this.linkDefaultFactory = linkDefaultFactory;
 		this.linkableBeanType = linkableBeanType;
 		this.linkableBeanForm = linkableBeanForm;
 		this.linkableTable = linkableTable;
@@ -289,7 +293,13 @@ final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BE
 		final IBeanLinkDialog<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> linkDialog;
 		linkDialog = Toolkit.getActiveWindow().createChildWindow(dialogBp);
 
-		final IBeanProxy<LINK_BEAN_TYPE> defaultLinkBean = createDefaultBean(linkBeanForm, linkBeanType);
+		final IBeanProxy<LINK_BEAN_TYPE> defaultLinkBean;
+		if (linkDefaultFactory != null) {
+			defaultLinkBean = linkDefaultFactory.create();
+		}
+		else {
+			defaultLinkBean = createDefaultBean(linkBeanForm, linkBeanType);
+		}
 
 		final List<IBeanProxy<LINKABLE_BEAN_TYPE>> defaultLinkedBeans;
 		if (linkableBeanForm != null) {
@@ -314,7 +324,19 @@ final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BE
 		linkDialog.setVisible(true);
 
 		if (linkDialog.isOkPressed()) {
-			return linkDialog.getValue();
+			final IBeanLink<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> result = linkDialog.getValue();
+			return new IBeanLink<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE>() {
+				@Override
+				public IBeanProxy<LINK_BEAN_TYPE> getLinkBean() {
+					final IBeanProxy<LINK_BEAN_TYPE> original = result.getLinkBean();
+					return original != null ? original : defaultLinkBean;
+				}
+
+				@Override
+				public List<IBeanProxy<LINKABLE_BEAN_TYPE>> getLinkableBeans() {
+					return result.getLinkableBeans();
+				}
+			};
 		}
 		else {
 			return null;
