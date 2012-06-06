@@ -39,6 +39,7 @@ public interface IBeanProxyLabelRendererPlugin<BEAN_TYPE> {
 	IPluginId<IBeanProxyLabelRendererPlugin<?>> ID = new IPluginId<IBeanProxyLabelRendererPlugin<?>>() {};
 
 	ITypedKey<Object> ENTITIY_ID_PROPERTY_KEY = new ITypedKey<Object>() {};
+	ITypedKey<Class<?>> BEAN_TYPE_PROPERTY_KEY = new ITypedKey<Class<?>>() {};
 
 	IDecorator<IBeanProxyLabelRenderer<BEAN_TYPE>> getRendererDecorator(IPluginProperties properties);
 
