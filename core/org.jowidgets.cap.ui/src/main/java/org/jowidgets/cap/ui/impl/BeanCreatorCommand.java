@@ -174,8 +174,8 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 		}
 		beanDialogBp.setExecutionContext(executionContext);
 		final IBeanDialog<BEAN_TYPE> dialog = Toolkit.getActiveWindow().createChildWindow(beanDialogBp);
-		dialog.pack();
 		dialog.setBean(bean);
+		dialog.pack();
 
 		dialog.setSize(Math.max(dialog.getSize().getWidth(), INITIAL_MIN_WIDTH), dialog.getSize().getHeight());
 
