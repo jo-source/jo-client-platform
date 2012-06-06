@@ -121,13 +121,13 @@ public final class SampleDataGenerator {
 		tx.begin();
 
 		PersonRelationType personRelationType = new PersonRelationType();
-		personRelationType.setSourceName("Supervisor");
-		personRelationType.setDestinationName("Subordinate");
+		personRelationType.setRelationName("Supervisors");
+		personRelationType.setReverseRelationName("Subordinates");
 		entityManager.persist(personRelationType);
 
 		personRelationType = new PersonRelationType();
-		personRelationType.setSourceName("Parent");
-		personRelationType.setDestinationName("Child");
+		personRelationType.setRelationName("Parents");
+		personRelationType.setReverseRelationName("Children");
 		entityManager.persist(personRelationType);
 
 		entityManager.flush();
