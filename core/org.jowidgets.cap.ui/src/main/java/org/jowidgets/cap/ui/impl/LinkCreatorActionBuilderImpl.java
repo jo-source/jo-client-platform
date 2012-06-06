@@ -29,6 +29,7 @@
 package org.jowidgets.cap.ui.impl;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -52,6 +53,8 @@ import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
 import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
+import org.jowidgets.cap.ui.api.bean.IBeanProxy;
+import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionProvider;
 import org.jowidgets.cap.ui.api.command.ILinkCreatorActionBuilder;
 import org.jowidgets.cap.ui.api.execution.BeanMessageStatePolicy;
@@ -70,6 +73,7 @@ import org.jowidgets.tools.message.MessageReplacer;
 import org.jowidgets.util.ArrayUtils;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.EmptyCheck;
+import org.jowidgets.util.IFactory;
 
 final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> extends
 		AbstractCapActionBuilderImpl<ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE>> implements
@@ -89,6 +93,7 @@ final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKA
 	private IBeanListModel<LINKABLE_BEAN_TYPE> linkedModel;
 	private String linkedEntityLabelPlural;
 	private Class<? extends LINK_BEAN_TYPE> linkBeanType;
+	private IFactory<IBeanProxy<LINK_BEAN_TYPE>> linkDefaultFactory;
 	private Class<? extends LINKABLE_BEAN_TYPE> linkableBeanType;
 	private IBeanFormBluePrint<LINK_BEAN_TYPE> linkBeanForm;
 	private IBeanFormBluePrint<LINKABLE_BEAN_TYPE> linkableBeanForm;
@@ -114,19 +119,38 @@ final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKA
 			final Object linkEntityId = linkDescriptor.getLinkEntityId();
 			if (linkEntityId != null) {
 				final IBeanDtoDescriptor descriptor = entityService.getDescriptor(linkEntityId);
-				if (descriptor != null && hasAdditionalProperties(descriptor, linkDescriptor)) {
-					final List<IAttribute<Object>> attributes = createAttributes(descriptor);
-					final IBeanFormBluePrint beanFormBp = cbpf.beanForm(linkEntityId, attributes);
-					final List<IAttribute<Object>> filteredAttributes = getFilteredAttributes(
-							attributes,
-							sourceProperties.getForeignKeyPropertyName(),
-							destinationProperties.getForeignKeyPropertyName());
-					final IBeanFormLayout layout = CapUiToolkit.beanFormToolkit().layoutBuilder().addGroups(filteredAttributes).build();
-					beanFormBp.setLayouter(CapUiToolkit.beanFormToolkit().layouter(layout));
-
+				if (descriptor != null) {
 					final Class beanType = descriptor.getBeanType();
 					setLinkBeanType(beanType);
-					setLinkBeanForm(beanFormBp);
+					final List<IAttribute<Object>> attributes = createAttributes(descriptor);
+					setLinkDefaultFactory(new IFactory<IBeanProxy<LINK_BEAN_TYPE>>() {
+						@Override
+						public IBeanProxy<LINK_BEAN_TYPE> create() {
+							final HashMap<String, Object> defaultValues = new HashMap<String, Object>();
+							final LinkedList<String> properties = new LinkedList<String>();
+							for (final IAttribute<?> attribute : attributes) {
+								final String propertyName = attribute.getPropertyName();
+								properties.add(propertyName);
+								final Object defaultValue = attribute.getDefaultValue();
+								if (defaultValue != null) {
+									defaultValues.put(propertyName, defaultValue);
+								}
+							}
+							final IBeanProxyFactory<LINK_BEAN_TYPE> proxyFactory = CapUiToolkit.beanProxyFactory(linkBeanType);
+							return proxyFactory.createTransientProxy(properties, defaultValues);
+						}
+					});
+					if (hasAdditionalProperties(descriptor, linkDescriptor)) {
+						final IBeanFormBluePrint beanFormBp = cbpf.beanForm(linkEntityId, attributes);
+						final List<IAttribute<Object>> filteredAttributes = getFilteredAttributes(
+								attributes,
+								sourceProperties.getForeignKeyPropertyName(),
+								destinationProperties.getForeignKeyPropertyName());
+						final IBeanFormLayout layout = CapUiToolkit.beanFormToolkit().layoutBuilder().addGroups(
+								filteredAttributes).build();
+						beanFormBp.setLayouter(CapUiToolkit.beanFormToolkit().layouter(layout));
+						setLinkBeanForm(beanFormBp);
+					}
 				}
 			}
 
@@ -292,6 +316,14 @@ final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKA
 	}
 
 	@Override
+	public ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> setLinkDefaultFactory(
+		final IFactory<IBeanProxy<LINK_BEAN_TYPE>> defaultFactory) {
+		checkExhausted();
+		this.linkDefaultFactory = defaultFactory;
+		return this;
+	}
+
+	@Override
 	public ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> setLinkableBeanForm(
 		final IBeanFormBluePrint<LINKABLE_BEAN_TYPE> beanForm) {
 		checkExhausted();
@@ -415,6 +447,7 @@ final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKA
 			linkedModel,
 			linkBeanType,
 			linkBeanForm,
+			linkDefaultFactory,
 			linkableBeanType,
 			linkableBeanForm,
 			linkableTable,
