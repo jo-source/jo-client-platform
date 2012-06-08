@@ -76,6 +76,9 @@ final class BeanTableCreatorActionBuilderFactory {
 				model.getEntityId(),
 				model.getAttributes(AcceptEditableAttributesFilter.getInstance()));
 
+		//Bean form must have all attributes because a later pluged layouter may use them
+		beanFormBp.setAttributes(model.getAttributes());
+
 		builder.setAttributes(model.getAttributes());
 		builder.setBeanForm(beanFormBp);
 
@@ -90,5 +93,4 @@ final class BeanTableCreatorActionBuilderFactory {
 		});
 		return builder;
 	}
-
 }

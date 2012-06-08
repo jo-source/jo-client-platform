@@ -38,7 +38,7 @@ public final class SampleDataGeneratorStarter {
 	public static void main(final String[] args) {
 		final EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("sample2PersistenceUnit");
 		final SampleDataGenerator sampleDataGenerator = new SampleDataGenerator();
-		sampleDataGenerator.dropAndCreateAllData(entityManagerFactory, 1, 1000);
+		sampleDataGenerator.dropAndCreateAllData(entityManagerFactory, 10, 1000);
 	}
 
 }
