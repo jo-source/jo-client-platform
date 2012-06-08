@@ -146,6 +146,7 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 	BeanFormControl(
 		final IComposite composite,
 		final Object entityId,
+		final Class<BEAN_TYPE> beanType,
 		Collection<IAttribute<?>> attributes,
 		final IBeanFormLayouter layouter,
 		final Integer maxWidth,
@@ -161,7 +162,7 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 
 		super(composite);
 
-		attributes = createModifiedByPluginsAttributes(entityId, attributes);
+		attributes = createModifiedByPluginsAttributes(entityId, beanType, attributes);
 
 		this.processingDataLabel = Messages.getString("BeanFormControl.processing_data");
 
@@ -232,14 +233,16 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 	}
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	private static List<IAttribute<?>> createModifiedByPluginsAttributes(
+	private List<IAttribute<?>> createModifiedByPluginsAttributes(
 		final Object entityId,
+		final Class<BEAN_TYPE> beanType,
 		final Collection<IAttribute<?>> attributes) {
 
 		List result = new LinkedList(attributes);
 
 		final IPluginPropertiesBuilder propBuilder = PluginToolkit.pluginPropertiesBuilder();
 		propBuilder.add(IAttributePlugin.ENTITIY_ID_PROPERTY_KEY, entityId);
+		propBuilder.add(IAttributePlugin.BEAN_TYPE_PROPERTY_KEY, beanType);
 		final IPluginProperties properties = propBuilder.build();
 		for (final IAttributePlugin plugin : PluginProvider.getPlugins(IAttributePlugin.ID, properties)) {
 			result = plugin.modifyAttributes(properties, result);

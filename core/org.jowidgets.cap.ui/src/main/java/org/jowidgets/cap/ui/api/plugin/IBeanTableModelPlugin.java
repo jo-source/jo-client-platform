@@ -40,6 +40,7 @@ public interface IBeanTableModelPlugin {
 	IPluginId<IBeanTableModelPlugin> ID = new IPluginId<IBeanTableModelPlugin>() {};
 
 	ITypedKey<Object> ENTITIY_ID_PROPERTY_KEY = new ITypedKey<Object>() {};
+	ITypedKey<Class<?>> BEAN_TYPE_PROPERTY_KEY = new ITypedKey<Class<?>>() {};
 
 	List<IAttribute<Object>> modifyTableAttributes(IPluginProperties properties, List<IAttribute<Object>> attributes);
 

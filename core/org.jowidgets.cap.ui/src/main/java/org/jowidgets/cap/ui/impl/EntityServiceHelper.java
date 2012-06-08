@@ -37,9 +37,9 @@ import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.service.api.ServiceProvider;
 
-final class EntityServiceAttributesFactory {
+final class EntityServiceHelper {
 
-	private EntityServiceAttributesFactory() {}
+	private EntityServiceHelper() {}
 
 	static List<IAttribute<Object>> createAttributes(final Object entityId) {
 		if (entityId != null) {
@@ -57,4 +57,16 @@ final class EntityServiceAttributesFactory {
 		return null;
 	}
 
+	static Class<?> getBeanType(final Object entityId) {
+		if (entityId != null) {
+			final IEntityService entityService = ServiceProvider.getService(IEntityService.ID);
+			if (entityService != null) {
+				final IBeanDtoDescriptor dtoDescriptor = entityService.getDescriptor(entityId);
+				if (dtoDescriptor != null) {
+					return dtoDescriptor.getBeanType();
+				}
+			}
+		}
+		return null;
+	}
 }

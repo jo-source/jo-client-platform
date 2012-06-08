@@ -38,6 +38,7 @@ public interface IBeanFormPlugin {
 	IPluginId<IBeanFormPlugin> ID = new IPluginId<IBeanFormPlugin>() {};
 
 	ITypedKey<Object> ENTITIY_ID_PROPERTY_KEY = new ITypedKey<Object>() {};
+	ITypedKey<Class<?>> BEAN_TYPE_PROPERTY_KEY = new ITypedKey<Class<?>>() {};
 
 	void modifySetup(IPluginProperties properties, IBeanFormBluePrint<?> bluePrint);
 

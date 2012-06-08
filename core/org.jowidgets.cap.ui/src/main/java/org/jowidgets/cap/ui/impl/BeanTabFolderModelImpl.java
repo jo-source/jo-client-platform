@@ -199,7 +199,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 			this.parentSelectionListener = null;
 		}
 
-		attributes = createModifiedByPluginsAttributes(entityId, attributes);
+		attributes = createModifiedByPluginsAttributes(entityId, (Class<BEAN_TYPE>) beanType, attributes);
 		//if no updater service available, set all attributes to editable false
 		if (updaterService == null) {
 			attributes = createReadonlyAttributes(attributes);
@@ -262,14 +262,16 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 			refreshService);
 	}
 
-	private static List<IAttribute<Object>> createModifiedByPluginsAttributes(
+	private List<IAttribute<Object>> createModifiedByPluginsAttributes(
 		final Object entityId,
+		final Class<BEAN_TYPE> beanType,
 		final List<IAttribute<Object>> attributes) {
 
 		List<IAttribute<Object>> result = attributes;
 
 		final IPluginPropertiesBuilder propBuilder = PluginToolkit.pluginPropertiesBuilder();
 		propBuilder.add(IAttributePlugin.ENTITIY_ID_PROPERTY_KEY, entityId);
+		propBuilder.add(IAttributePlugin.BEAN_TYPE_PROPERTY_KEY, beanType);
 		final IPluginProperties properties = propBuilder.build();
 		for (final IAttributePlugin plugin : PluginProvider.getPlugins(IAttributePlugin.ID, properties)) {
 			result = plugin.modifyAttributes(properties, result);
