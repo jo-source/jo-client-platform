@@ -75,8 +75,9 @@ final class BeanFormImpl<BEAN_TYPE> extends ControlWrapper implements IBeanForm<
 		super(composite);
 
 		final Object entityId = bluePrint.getEntityId();
-		if (entityId != null) {
-			modifyBeanFormBpByPlugins(entityId, bluePrint);
+		final Class<BEAN_TYPE> beanType = bluePrint.getBeanType();
+		if (entityId != null || beanType != null) {
+			modifyBeanFormBpByPlugins(entityId, beanType, bluePrint);
 		}
 
 		composite.setLayout(new MigLayoutDescriptor("hidemode 3", "0[grow, 0::]0", "0[0::]0"));
@@ -84,6 +85,7 @@ final class BeanFormImpl<BEAN_TYPE> extends ControlWrapper implements IBeanForm<
 		this.editForm = new BeanFormControl<BEAN_TYPE>(
 			editFormComposite,
 			bluePrint.getEntityId(),
+			bluePrint.getBeanType(),
 			bluePrint.getEditModeAttributes(),
 			bluePrint.getEditModeLayouter(),
 			bluePrint.getMaxWidth(),
@@ -101,6 +103,7 @@ final class BeanFormImpl<BEAN_TYPE> extends ControlWrapper implements IBeanForm<
 		this.createForm = new BeanFormControl<BEAN_TYPE>(
 			createFormComposite,
 			bluePrint.getEntityId(),
+			bluePrint.getBeanType(),
 			bluePrint.getCreateModeAttributes(),
 			bluePrint.getCreateModeLayouter(),
 			bluePrint.getMaxWidth(),
@@ -119,9 +122,13 @@ final class BeanFormImpl<BEAN_TYPE> extends ControlWrapper implements IBeanForm<
 		this.beanProxyListener = new BeanProxyListener();
 	}
 
-	private void modifyBeanFormBpByPlugins(final Object entityId, final IBeanFormBluePrint<BEAN_TYPE> beanFormBp) {
+	private void modifyBeanFormBpByPlugins(
+		final Object entityId,
+		final Class<BEAN_TYPE> beanType,
+		final IBeanFormBluePrint<BEAN_TYPE> beanFormBp) {
 		final IPluginPropertiesBuilder propBuilder = PluginToolkit.pluginPropertiesBuilder();
 		propBuilder.add(IBeanFormPlugin.ENTITIY_ID_PROPERTY_KEY, entityId);
+		propBuilder.add(IBeanFormPlugin.BEAN_TYPE_PROPERTY_KEY, beanType);
 		final IPluginProperties properties = propBuilder.build();
 		for (final IBeanFormPlugin plugin : PluginProvider.getPlugins(IBeanFormPlugin.ID, properties)) {
 			plugin.modifySetup(properties, beanFormBp);

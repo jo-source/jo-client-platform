@@ -40,6 +40,7 @@ public interface IAttributePlugin {
 	IPluginId<IAttributePlugin> ID = new IPluginId<IAttributePlugin>() {};
 
 	ITypedKey<Object> ENTITIY_ID_PROPERTY_KEY = new ITypedKey<Object>() {};
+	ITypedKey<Class<?>> BEAN_TYPE_PROPERTY_KEY = new ITypedKey<Class<?>>() {};
 
 	List<IAttribute<Object>> modifyAttributes(IPluginProperties properties, List<IAttribute<Object>> attributes);
 

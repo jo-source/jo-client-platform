@@ -52,6 +52,8 @@ public interface IBeanFormBluePrint<BEAN_TYPE> extends
 
 	IBeanFormBluePrint<BEAN_TYPE> setEntityId(Object entityId);
 
+	IBeanFormBluePrint<BEAN_TYPE> setBeanType(Class<BEAN_TYPE> beanType);
+
 	IBeanFormBluePrint<BEAN_TYPE> setEditModeLayouter(IBeanFormLayouter layouter);
 
 	IBeanFormBluePrint<BEAN_TYPE> setEditModeAttributes(Collection<? extends IAttribute<?>> attributes);
@@ -60,21 +62,19 @@ public interface IBeanFormBluePrint<BEAN_TYPE> extends
 
 	IBeanFormBluePrint<BEAN_TYPE> setCreateModeAttributes(Collection<? extends IAttribute<?>> attributes);
 
-	IBeanFormBluePrint<BEAN_TYPE> setAutoResetValidation(final boolean autoResetValidation);
+	IBeanFormBluePrint<BEAN_TYPE> setAutoResetValidation(boolean autoResetValidation);
 
-	IBeanFormBluePrint<BEAN_TYPE> setContentScrolled(final boolean scrolledContent);
+	IBeanFormBluePrint<BEAN_TYPE> setContentScrolled(boolean scrolledContent);
 
-	IBeanFormBluePrint<BEAN_TYPE> setMaxWidth(final Integer maxWidth);
+	IBeanFormBluePrint<BEAN_TYPE> setMaxWidth(Integer maxWidth);
 
 	IBeanFormBluePrint<BEAN_TYPE> setBorder(Border border);
 
 	IBeanFormBluePrint<BEAN_TYPE> setContentBorder(Border border);
 
-	IBeanFormBluePrint<BEAN_TYPE> setEditModeValidationLabel(
-		final IInputComponentValidationLabelDescriptor validationLabelDescriptor);
+	IBeanFormBluePrint<BEAN_TYPE> setEditModeValidationLabel(IInputComponentValidationLabelDescriptor validationLabelDescriptor);
 
-	IBeanFormBluePrint<BEAN_TYPE> setCreateModeValidationLabel(
-		final IInputComponentValidationLabelDescriptor validationLabelDescriptor);
+	IBeanFormBluePrint<BEAN_TYPE> setCreateModeValidationLabel(IInputComponentValidationLabelDescriptor validationLabelDescriptor);
 
 	IBeanFormBluePrint<BEAN_TYPE> setEditModeValidationLabelVisible(boolean visible);
 
@@ -90,13 +90,15 @@ public interface IBeanFormBluePrint<BEAN_TYPE> extends
 
 	IBeanFormBluePrint<BEAN_TYPE> setCreateModeInputHint(String hint);
 
-	IBeanFormBluePrint<BEAN_TYPE> setCreateModeForegroundColor(final IColorConstant editModeColor);
+	IBeanFormBluePrint<BEAN_TYPE> setCreateModeForegroundColor(IColorConstant editModeColor);
 
 	IBeanFormBluePrint<BEAN_TYPE> setSaveAction(IProvider<IAction> saveAction);
 
 	IBeanFormBluePrint<BEAN_TYPE> setUndoAction(IProvider<IAction> undoAction);
 
 	Object getEntityId();
+
+	Class<BEAN_TYPE> getBeanType();
 
 	@Mandatory
 	IBeanFormLayouter getEditModeLayouter();

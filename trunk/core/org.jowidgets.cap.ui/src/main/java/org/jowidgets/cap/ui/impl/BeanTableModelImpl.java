@@ -276,7 +276,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		}
 
 		//inject table model plugins
-		attributes = createModifiedByPluginsAttributes(entityId, attributes);
+		attributes = createModifiedByPluginsAttributes(entityId, (Class<BEAN_TYPE>) beanType, attributes);
 
 		//if no updater service available, set all attributes to editable false
 		if (updaterService == null) {
@@ -367,14 +367,16 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			refreshService);
 	}
 
-	private static List<IAttribute<Object>> createModifiedByPluginsAttributes(
+	private List<IAttribute<Object>> createModifiedByPluginsAttributes(
 		final Object entityId,
+		final Class<BEAN_TYPE> beanType,
 		final List<IAttribute<Object>> attributes) {
 
 		List<IAttribute<Object>> result = attributes;
 
 		IPluginPropertiesBuilder propBuilder = PluginToolkit.pluginPropertiesBuilder();
 		propBuilder.add(IAttributePlugin.ENTITIY_ID_PROPERTY_KEY, entityId);
+		propBuilder.add(IAttributePlugin.BEAN_TYPE_PROPERTY_KEY, beanType);
 		IPluginProperties properties = propBuilder.build();
 		for (final IAttributePlugin plugin : PluginProvider.getPlugins(IAttributePlugin.ID, properties)) {
 			result = plugin.modifyAttributes(properties, result);
@@ -382,6 +384,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 		propBuilder = PluginToolkit.pluginPropertiesBuilder();
 		propBuilder.add(IBeanTableModelPlugin.ENTITIY_ID_PROPERTY_KEY, entityId);
+		propBuilder.add(IBeanTableModelPlugin.BEAN_TYPE_PROPERTY_KEY, beanType);
 		properties = propBuilder.build();
 		for (final IBeanTableModelPlugin plugin : PluginProvider.getPlugins(IBeanTableModelPlugin.ID, properties)) {
 			result = plugin.modifyTableAttributes(properties, result);

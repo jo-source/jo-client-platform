@@ -57,7 +57,7 @@ final class EntityServiceAttributesFactory {
 					final List<IProperty> properties = dtoDescriptor.getProperties();
 					if (properties != null) {
 						final List<IAttribute<Object>> attributes = CapUiToolkit.attributeToolkit().createAttributes(properties);
-						return createModifiedByPluginsAttributes(entityId, attributes);
+						return createModifiedByPluginsAttributes(entityId, dtoDescriptor.getBeanType(), attributes);
 					}
 				}
 			}
@@ -68,12 +68,14 @@ final class EntityServiceAttributesFactory {
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	private static List<IAttribute<Object>> createModifiedByPluginsAttributes(
 		final Object entityId,
+		final Class<?> beanType,
 		final Collection<IAttribute<Object>> attributes) {
 
 		List result = new LinkedList(attributes);
 
 		final IPluginPropertiesBuilder propBuilder = PluginToolkit.pluginPropertiesBuilder();
 		propBuilder.add(IAttributePlugin.ENTITIY_ID_PROPERTY_KEY, entityId);
+		propBuilder.add(IAttributePlugin.BEAN_TYPE_PROPERTY_KEY, beanType);
 		final IPluginProperties properties = propBuilder.build();
 		for (final IAttributePlugin plugin : PluginProvider.getPlugins(IAttributePlugin.ID, properties)) {
 			result = plugin.modifyAttributes(properties, result);

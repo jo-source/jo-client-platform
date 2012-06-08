@@ -158,12 +158,13 @@ final class CapApiBluePrintFactory implements ICapApiBluePrintFactory {
 	@SuppressWarnings("unchecked")
 	@Override
 	public <BEAN_TYPE> IBeanFormBluePrint<BEAN_TYPE> beanForm(final Object entityId) {
-		final List<IAttribute<Object>> attributes = EntityServiceAttributesFactory.createAttributes(entityId);
+		final Class<?> beanType = EntityServiceHelper.getBeanType(entityId);
+		final List<IAttribute<Object>> attributes = EntityServiceHelper.createAttributes(entityId);
 		if (attributes != null) {
 			return beanForm(entityId, attributes);
 		}
 		else {
-			return bluePrintFactory.bluePrint(IBeanFormBluePrint.class).setEntityId(entityId);
+			return bluePrintFactory.bluePrint(IBeanFormBluePrint.class).setEntityId(entityId).setBeanType(beanType);
 		}
 	}
 
@@ -172,6 +173,7 @@ final class CapApiBluePrintFactory implements ICapApiBluePrintFactory {
 		return beanForm(null, attributes);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public <BEAN_TYPE> IBeanFormBluePrint<BEAN_TYPE> beanForm(
 		final Object entityId,
@@ -179,6 +181,7 @@ final class CapApiBluePrintFactory implements ICapApiBluePrintFactory {
 		Assert.paramNotNull(attributes, "attributes");
 		final IBeanFormBluePrint<BEAN_TYPE> result = beanForm();
 		result.setEntityId(entityId);
+		result.setBeanType((Class<BEAN_TYPE>) EntityServiceHelper.getBeanType(entityId));
 		result.setAttributes(attributes);
 		final IBeanFormToolkit beanFormToolkit = CapUiToolkit.beanFormToolkit();
 		final IBeanFormLayout layout = CapUiToolkit.beanFormToolkit().layoutBuilder().addGroups(attributes).build();
