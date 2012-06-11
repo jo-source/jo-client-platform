@@ -142,10 +142,16 @@ final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKA
 					});
 					if (hasAdditionalProperties(descriptor, linkDescriptor)) {
 						final IBeanFormBluePrint beanFormBp = cbpf.beanForm(linkEntityId, attributes);
-						final List<IAttribute<Object>> filteredAttributes = getFilteredAttributes(
-								attributes,
-								sourceProperties.getForeignKeyPropertyName(),
-								destinationProperties.getForeignKeyPropertyName());
+						final List<IAttribute<Object>> filteredAttributes;
+						if (destinationProperties != null) {
+							filteredAttributes = getFilteredAttributes(
+									attributes,
+									sourceProperties.getForeignKeyPropertyName(),
+									destinationProperties.getForeignKeyPropertyName());
+						}
+						else {
+							filteredAttributes = getFilteredAttributes(attributes, sourceProperties.getForeignKeyPropertyName());
+						}
 						final IBeanFormLayout layout = CapUiToolkit.beanFormToolkit().layoutBuilder().addGroups(
 								filteredAttributes).build();
 						beanFormBp.setLayouter(CapUiToolkit.beanFormToolkit().layouter(layout));
@@ -237,7 +243,9 @@ final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKA
 		ignoreProperties.add(IBean.ID_PROPERTY);
 		ignoreProperties.add(IBean.VERSION_PROPERTY);
 		ignoreProperties.add(linkDescriptor.getSourceProperties().getForeignKeyPropertyName());
-		ignoreProperties.add(linkDescriptor.getDestinationProperties().getForeignKeyPropertyName());
+		if (linkDescriptor.getDestinationProperties() != null) {
+			ignoreProperties.add(linkDescriptor.getDestinationProperties().getForeignKeyPropertyName());
+		}
 		for (final IProperty property : descriptor.getProperties()) {
 			if (property.isEditable() && !ignoreProperties.contains(property.getName())) {
 				return true;
@@ -376,7 +384,6 @@ final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKA
 	public ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> setDestinationProperties(
 		final IEntityLinkProperties properties) {
 		checkExhausted();
-		Assert.paramNotNull(properties, "properties");
 		this.destinationProperties = properties;
 		return this;
 	}

@@ -552,11 +552,7 @@ final class BeanEntityServiceBuilderImpl extends EntityServiceBuilderImpl implem
 		}
 
 		IEntityLinkDescriptor build(final Map<Object, BeanEntityPreBuild> prebuilds) {
-			if (sourceProperties == null
-				|| destinationProperties == null
-				|| linkEntityId == null
-				|| linkableEntityId == null
-				|| linkedEntityId == null) {
+			if (sourceProperties == null || linkEntityId == null || linkedEntityId == null) {
 				throw new IllegalStateException("Missiing mandatory parameters: sourceProperties='"
 					+ sourceProperties
 					+ "', destinationProperties = '"

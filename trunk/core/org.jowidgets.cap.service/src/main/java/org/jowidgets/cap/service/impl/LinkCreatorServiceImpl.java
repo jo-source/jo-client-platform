@@ -79,7 +79,6 @@ final class LinkCreatorServiceImpl<LINKED_BEAN_TYPE extends IBean> implements IL
 		Assert.paramNotNull(linkedBeanAccess, "linkedBeanAccess");
 		Assert.paramNotNull(linkedDtoFactory, "linkedDtoFactory");
 		Assert.paramNotNull(sourceProperties, "sourceProperties");
-		Assert.paramNotNull(destinationProperties, "destinationProperties");
 
 		this.linkBeanType = linkBeanType;
 
@@ -201,7 +200,12 @@ final class LinkCreatorServiceImpl<LINKED_BEAN_TYPE extends IBean> implements IL
 		private DecoratedBeanData(final IBeanData original, final IBeanDto createdLinkedBean, final IBeanDto createdSourceBean) {
 			this.original = original;
 			this.sourceId = original.getValue(sourceProperties.getForeignKeyPropertyName());
-			this.linkedId = original.getValue(destinationProperties.getForeignKeyPropertyName());
+			if (destinationProperties != null) {
+				this.linkedId = original.getValue(destinationProperties.getForeignKeyPropertyName());
+			}
+			else {
+				linkedId = null;
+			}
 			this.createdLinkedBean = createdLinkedBean;
 			this.createdSourceBean = createdSourceBean;
 		}
@@ -213,7 +217,7 @@ final class LinkCreatorServiceImpl<LINKED_BEAN_TYPE extends IBean> implements IL
 					return createdSourceBean.getValue(sourceProperties.getKeyPropertyName());
 				}
 			}
-			if (destinationProperties.getForeignKeyPropertyName().equals(propertyName)) {
+			if (destinationProperties != null && destinationProperties.getForeignKeyPropertyName().equals(propertyName)) {
 				if (linkedId == null && createdLinkedBean != null) {
 					return createdLinkedBean.getValue(destinationProperties.getKeyPropertyName());
 				}

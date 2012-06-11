@@ -158,7 +158,6 @@ final class LinkServicesBuilderImpl<LINKED_BEAN_TYPE extends IBean> implements I
 
 	@Override
 	public ILinkServicesBuilder<LINKED_BEAN_TYPE> setDestinationProperties(final IEntityLinkProperties properties) {
-		Assert.paramNotNull(properties, "properties");
 		this.destinationProperties = properties;
 		return this;
 	}
