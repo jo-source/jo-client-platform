@@ -30,13 +30,10 @@ package org.jowidgets.cap.service.jpa.impl.query;
 
 import java.util.List;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.From;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import javax.persistence.criteria.Subquery;
 import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.ManagedType;
 import javax.persistence.metamodel.PluralAttribute;
@@ -44,45 +41,24 @@ import javax.persistence.metamodel.SingularAttribute;
 import javax.persistence.metamodel.Type;
 
 import org.jowidgets.cap.common.api.bean.IBean;
-import org.jowidgets.cap.common.api.bean.IBeanKey;
-import org.jowidgets.cap.service.jpa.api.query.IPredicateCreator;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.EmptyCheck;
 
-public class ParentLinkPredicateCreator<PARAMETER_TYPE> implements IPredicateCreator<PARAMETER_TYPE> {
+final class ParentLinkPredicateCreator<PARAMETER_TYPE> {
 
 	private final List<String> propertyPath;
-	private final boolean linked;
 
-	public ParentLinkPredicateCreator(final boolean linked, final List<String> propertyPath) {
+	ParentLinkPredicateCreator(final List<String> propertyPath) {
 		Assert.paramNotEmpty(propertyPath, "propertyPath");
 		this.propertyPath = propertyPath;
-		this.linked = linked;
 	}
 
-	@Override
-	public Predicate createPredicate(
-		final CriteriaBuilder criteriaBuilder,
-		final Root<?> bean,
-		final CriteriaQuery<?> query,
-		final List<IBeanKey> parentBeanKeys,
-		final List<Object> parentBeanIds,
-		final PARAMETER_TYPE parameter) {
-
+	Predicate createPredicate(final Root<?> bean, final List<Object> parentBeanIds) {
 		if (EmptyCheck.isEmpty(parentBeanIds)) {
 			return bean.get(IBean.ID_PROPERTY).in(-1);
 		}
-		else if (linked) {
-			return getParentPath(bean).get(IBean.ID_PROPERTY).in(parentBeanIds);
-		}
 		else {
-			@SuppressWarnings("unchecked")
-			final Class<Object> javaType = (Class<Object>) bean.getJavaType();
-			final Subquery<Object> subquery = query.subquery(javaType);
-			final Root<Object> subqueryRoot = subquery.from(javaType);
-			subquery.select(subqueryRoot.get(IBean.ID_PROPERTY));
-			subquery.where(getParentPath(subqueryRoot).get(IBean.ID_PROPERTY).in(parentBeanIds));
-			return criteriaBuilder.not(bean.get(IBean.ID_PROPERTY).in(subquery));
+			return getParentPath(bean).get(IBean.ID_PROPERTY).in(parentBeanIds);
 		}
 	}
 

@@ -36,9 +36,10 @@ import java.util.Map;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Predicate.BooleanOperator;
 import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Subquery;
 
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
@@ -58,8 +59,8 @@ final class CriteriaQueryCreatorBuilderImpl<PARAMETER_TYPE> implements ICriteria
 	private final Map<String, ICustomFilterPredicateCreator<PARAMETER_TYPE>> customFilterPredicateCreators;
 	private final Map<String, IPropertyFilterPredicateCreator<PARAMETER_TYPE>> propertyFilterPredicateCreators;
 
-	private final List<IPredicateCreator<PARAMETER_TYPE>> parentLinkPredicateCreators;
-	private final List<IPredicateCreator<PARAMETER_TYPE>> parentUnlinkPredicateCreators;
+	private final List<ParentLinkPredicateCreator<PARAMETER_TYPE>> parentLinkPredicateCreators;
+	private final List<ParentLinkPredicateCreator<PARAMETER_TYPE>> parentUnlinkPredicateCreators;
 
 	private boolean caseSensitive;
 
@@ -68,8 +69,8 @@ final class CriteriaQueryCreatorBuilderImpl<PARAMETER_TYPE> implements ICriteria
 		this.beanType = beanType;
 		this.caseSensitive = false;
 		this.predicateCreators = new LinkedList<IPredicateCreator<PARAMETER_TYPE>>();
-		this.parentLinkPredicateCreators = new LinkedList<IPredicateCreator<PARAMETER_TYPE>>();
-		this.parentUnlinkPredicateCreators = new LinkedList<IPredicateCreator<PARAMETER_TYPE>>();
+		this.parentLinkPredicateCreators = new LinkedList<ParentLinkPredicateCreator<PARAMETER_TYPE>>();
+		this.parentUnlinkPredicateCreators = new LinkedList<ParentLinkPredicateCreator<PARAMETER_TYPE>>();
 		this.filters = new LinkedList<IFilter>();
 		this.customFilterPredicateCreators = new HashMap<String, ICustomFilterPredicateCreator<PARAMETER_TYPE>>();
 		this.propertyFilterPredicateCreators = new HashMap<String, IPropertyFilterPredicateCreator<PARAMETER_TYPE>>();
@@ -99,8 +100,12 @@ final class CriteriaQueryCreatorBuilderImpl<PARAMETER_TYPE> implements ICriteria
 		final boolean linked,
 		final String... parentPropertyPath) {
 		Assert.paramNotNull(parentPropertyPath, "parentPropertyPath");
-		parentLinkPredicateCreators.clear();
-		parentUnlinkPredicateCreators.clear();
+		if (linked) {
+			parentLinkPredicateCreators.clear();
+		}
+		else {
+			parentUnlinkPredicateCreators.clear();
+		}
 		return addParentPropertyPath(linked, parentPropertyPath);
 	}
 
@@ -110,7 +115,7 @@ final class CriteriaQueryCreatorBuilderImpl<PARAMETER_TYPE> implements ICriteria
 		final String... parentPropertyPath) {
 		Assert.paramNotNull(parentPropertyPath, "parentPropertyPath");
 		final ParentLinkPredicateCreator<PARAMETER_TYPE> predicateCreator;
-		predicateCreator = new ParentLinkPredicateCreator<PARAMETER_TYPE>(linked, Arrays.asList(parentPropertyPath));
+		predicateCreator = new ParentLinkPredicateCreator<PARAMETER_TYPE>(Arrays.asList(parentPropertyPath));
 		if (linked) {
 			parentLinkPredicateCreators.add(predicateCreator);
 		}
@@ -163,12 +168,11 @@ final class CriteriaQueryCreatorBuilderImpl<PARAMETER_TYPE> implements ICriteria
 
 	@Override
 	public IQueryCreator<PARAMETER_TYPE> build() {
-
 		final List<IPredicateCreator<PARAMETER_TYPE>> predicateCreatorsComposite;
 		predicateCreatorsComposite = new LinkedList<IPredicateCreator<PARAMETER_TYPE>>(predicateCreators);
 
-		predicateCreatorsComposite.addAll(getParentPathPredicateCreators(parentLinkPredicateCreators, BooleanOperator.OR));
-		predicateCreatorsComposite.addAll(getParentPathPredicateCreators(parentUnlinkPredicateCreators, BooleanOperator.AND));
+		predicateCreatorsComposite.addAll(getParentPathPredicateCreators(parentLinkPredicateCreators, true));
+		predicateCreatorsComposite.addAll(getParentPathPredicateCreators(parentUnlinkPredicateCreators, false));
 
 		return new CriteriaQueryCreator<PARAMETER_TYPE>(
 			beanType,
@@ -179,12 +183,17 @@ final class CriteriaQueryCreatorBuilderImpl<PARAMETER_TYPE> implements ICriteria
 			propertyFilterPredicateCreators);
 	}
 
+	@SuppressWarnings("unchecked")
 	private List<IPredicateCreator<PARAMETER_TYPE>> getParentPathPredicateCreators(
-		final List<IPredicateCreator<PARAMETER_TYPE>> predicateCreators,
-		final BooleanOperator operator) {
-
+		final List<ParentLinkPredicateCreator<PARAMETER_TYPE>> predicateCreators,
+		final boolean linked) {
 		final List<IPredicateCreator<PARAMETER_TYPE>> result = new LinkedList<IPredicateCreator<PARAMETER_TYPE>>();
-		if (predicateCreators.size() > 0) {
+
+		//copy the predicate creators to allow the builder to be a multi use builder
+		final List<ParentLinkPredicateCreator<PARAMETER_TYPE>> predicateCreatorsCopy;
+		predicateCreatorsCopy = new LinkedList<ParentLinkPredicateCreator<PARAMETER_TYPE>>(predicateCreators);
+
+		if (predicateCreatorsCopy.size() > 0) {
 			result.add(new IPredicateCreator<PARAMETER_TYPE>() {
 				@Override
 				public Predicate createPredicate(
@@ -197,20 +206,28 @@ final class CriteriaQueryCreatorBuilderImpl<PARAMETER_TYPE> implements ICriteria
 
 					final Predicate[] predicates = new Predicate[predicateCreators.size()];
 					int i = 0;
-					for (final IPredicateCreator<PARAMETER_TYPE> parentLinkPredicateCreator : parentLinkPredicateCreators) {
-						predicates[i] = parentLinkPredicateCreator.createPredicate(
-								criteriaBuilder,
-								bean,
-								query,
-								parentBeanKeys,
-								parentBeanIds,
-								parameter);
+					for (final ParentLinkPredicateCreator<PARAMETER_TYPE> parentLinkPredicateCreator : predicateCreatorsCopy) {
+						final Class<Object> javaType = (Class<Object>) bean.getJavaType();
+						final Subquery<Object> subquery = query.subquery(javaType);
+						final Root<Object> subqueryRoot = subquery.from(javaType);
+						final Path<Object> selectPath = subqueryRoot.get(IBean.ID_PROPERTY);
+						subquery.select(selectPath);
+						subquery.where(parentLinkPredicateCreator.createPredicate(subqueryRoot, parentBeanIds));
+
+						final Predicate predicate = bean.get(IBean.ID_PROPERTY).in(subquery);
+						if (linked) {
+							predicates[i] = predicate;
+						}
+						else {
+							predicates[i] = criteriaBuilder.not(predicate);
+						}
+
 						i++;
 					}
 					if (predicates.length == 1) {
 						return predicates[0];
 					}
-					else if (operator == BooleanOperator.AND) {
+					else if (!linked) {
 						return criteriaBuilder.and(predicates);
 					}
 					else {
