@@ -233,7 +233,7 @@ final class BeanLinkPanelImpl<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> extends
 					builder.addResult(linkableForm.validate());
 				}
 			}
-			else {
+			else if (linkableTable != null) {
 				//TODO i18n
 				builder.addInfoError("Please select a dataset");
 			}

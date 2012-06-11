@@ -118,7 +118,6 @@ final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BE
 		final IBeanExceptionConverter exceptionConverter) {
 
 		Assert.paramNotNull(sourceProperties, "sourceProperties");
-		Assert.paramNotNull(destinationProperties, "destinationProperties");
 		Assert.paramNotNull(linkCreatorService, "linkCreatorService");
 		Assert.paramNotNull(sourceModificationPolicy, "sourceModificationPolicy");
 		Assert.paramNotNull(sourceMessageStatePolicy, "sourceMessageStatePolicy");
@@ -211,25 +210,38 @@ final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BE
 		for (final IBeanProxy<SOURCE_BEAN_TYPE> bean : selection) {
 			bean.setExecutionTask(executionTask);
 
-			for (final IBeanProxy<LINKABLE_BEAN_TYPE> linkableBean : beanLink.getLinkableBeans()) {
+			//direct link
+			if (beanLink.getLinkableBeans().isEmpty() && destinationProperties == null) {
 				final IBeanDataBuilder linkBeanBuilder = CapCommonToolkit.beanDataBuilder();
 				if (beanLink.getLinkBean() != null) {
 					setBeanData(beanLink.getLinkBean(), linkBeanBuilder);
 				}
 				linkBeanBuilder.setProperty(sourceProperties.getForeignKeyPropertyName(), bean.getId());
-
 				final ILinkDataBuilder linkDataBuilder = LinkData.builder();
-
-				if (linkableBean.isTransient()) {
-					linkDataBuilder.setLinkData(linkBeanBuilder.build());
-					linkDataBuilder.setLinkableData(linkableBean.getBeanData());
-				}
-				else {
-					linkBeanBuilder.setProperty(destinationProperties.getForeignKeyPropertyName(), linkableBean.getId());
-					linkDataBuilder.setLinkData(linkBeanBuilder.build());
-				}
-
+				linkDataBuilder.setLinkData(linkBeanBuilder.build());
 				linkData.add(linkDataBuilder.build());
+			}
+			else {
+				for (final IBeanProxy<LINKABLE_BEAN_TYPE> linkableBean : beanLink.getLinkableBeans()) {
+					final IBeanDataBuilder linkBeanBuilder = CapCommonToolkit.beanDataBuilder();
+					if (beanLink.getLinkBean() != null) {
+						setBeanData(beanLink.getLinkBean(), linkBeanBuilder);
+					}
+					linkBeanBuilder.setProperty(sourceProperties.getForeignKeyPropertyName(), bean.getId());
+
+					final ILinkDataBuilder linkDataBuilder = LinkData.builder();
+
+					if (linkableBean.isTransient()) {
+						linkDataBuilder.setLinkData(linkBeanBuilder.build());
+						linkDataBuilder.setLinkableData(linkableBean.getBeanData());
+					}
+					else if (destinationProperties != null) {
+						linkBeanBuilder.setProperty(destinationProperties.getForeignKeyPropertyName(), linkableBean.getId());
+					}
+					linkDataBuilder.setLinkData(linkBeanBuilder.build());
+
+					linkData.add(linkDataBuilder.build());
+				}
 			}
 		}
 
