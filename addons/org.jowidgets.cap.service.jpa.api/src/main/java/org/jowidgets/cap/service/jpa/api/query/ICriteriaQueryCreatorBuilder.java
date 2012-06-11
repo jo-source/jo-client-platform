@@ -47,6 +47,16 @@ public interface ICriteriaQueryCreatorBuilder<PARAMETER_TYPE> {
 	 */
 	ICriteriaQueryCreatorBuilder<PARAMETER_TYPE> setParentPropertyPath(boolean linked, String... parentPropertyPath);
 
+	/**
+	 * Adds a predicate creator that evaluates if the object is linked (or not) with respect to the parent bean keys.
+	 * 
+	 * @param linked if true, the linked beans will be returned (all paths will be disjuncted),
+	 *            if false, the unlinked beans will be returned (al path will be conjuncted)
+	 * @param parentPropertyPath The path to the parent property (the parent beans id can be omitted)
+	 * @return This builder
+	 */
+	ICriteriaQueryCreatorBuilder<PARAMETER_TYPE> addParentPropertyPath(boolean linked, String... parentPropertyPath);
+
 	ICriteriaQueryCreatorBuilder<PARAMETER_TYPE> setCaseSensitve(boolean caseSensitve);
 
 	ICriteriaQueryCreatorBuilder<PARAMETER_TYPE> addPredicateCreator(IPredicateCreator<PARAMETER_TYPE> predicateCreator);
