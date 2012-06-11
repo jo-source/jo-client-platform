@@ -89,7 +89,7 @@ public class EntityComponentMasterDetailLinksDetailLayout {
 		final ISplitLayoutBuilder result = new SplitLayoutBuilder();
 		result.setHorizontal().setWeight(0.3).setResizeBoth();
 		result.setFirstContainer(createLinkedMasterFolder(entityClass, links));
-		result.setSecondContainer(createLinkedDetailFolder(entityClass));
+		result.setSecondContainer(createLinkedDetailFolder(entityClass, links));
 		return result;
 	}
 
@@ -99,6 +99,15 @@ public class EntityComponentMasterDetailLinksDetailLayout {
 		final IFolderLayoutBuilder result = new FolderLayoutBuilder(LINKED_MASTER_FOLDER_ID);
 		result.setViewsCloseable(false);
 		result.addView(EntityRelationTreeView.ID, entityClass.getLabel() + " " + LINKS_STRING, entityClass.getDescription());
+		return result;
+	}
+
+	private IFolderLayoutBuilder createLinkedDetailFolder(
+		final IEntityClass entityClass,
+		final Map<String, IEntityLinkDescriptor> links) {
+		final IFolderLayoutBuilder result = new FolderLayoutBuilder(LINKED_DETAIL_FOLDER_ID);
+		result.setViewsCloseable(false);
+		result.addView(EntityMultiDetailView.ID, EntityMultiDetailView.DEFAULT_LABEL);
 		for (final Entry<String, IEntityLinkDescriptor> linkEntry : links.entrySet()) {
 			final IEntityService entityService = ServiceProvider.getService(IEntityService.ID);
 			if (entityService != null) {
@@ -107,13 +116,6 @@ public class EntityComponentMasterDetailLinksDetailLayout {
 			}
 
 		}
-		return result;
-	}
-
-	private IFolderLayoutBuilder createLinkedDetailFolder(final IEntityClass entityClass) {
-		final IFolderLayoutBuilder result = new FolderLayoutBuilder(LINKED_DETAIL_FOLDER_ID);
-		result.setViewsCloseable(false);
-		result.addView(EntityMultiDetailView.ID, EntityMultiDetailView.DEFAULT_LABEL);
 		return result;
 	}
 
