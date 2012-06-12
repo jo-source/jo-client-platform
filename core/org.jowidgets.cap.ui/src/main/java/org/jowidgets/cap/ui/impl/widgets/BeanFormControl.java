@@ -81,6 +81,7 @@ import org.jowidgets.cap.ui.api.widgets.IBeanForm;
 import org.jowidgets.cap.ui.tools.bean.BeanProxyListenerAdapter;
 import org.jowidgets.cap.ui.tools.execution.ExecutionTaskAdapter;
 import org.jowidgets.common.color.IColorConstant;
+import org.jowidgets.common.types.Border;
 import org.jowidgets.common.types.Dimension;
 import org.jowidgets.common.types.Markup;
 import org.jowidgets.common.widgets.controller.IInputListener;
@@ -157,6 +158,9 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 		final String inputHint,
 		final boolean showValidationLabel,
 		final IInputComponentValidationLabelDescriptor validationLabel,
+		final Border border,
+		final Border contentBorder,
+		final boolean scrolledContent,
 		final IProvider<IAction> undoAction,
 		final IProvider<IAction> saveAction) {
 
@@ -684,7 +688,7 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 				@Override
 				public IControl create(final ICustomWidgetFactory widgetFactory) {
 					if (validationLabels.containsKey(propertyName)) {
-						throw new IllegalStateException("Validation label must not be created more than onnce for the property '"
+						throw new IllegalStateException("Validation label must not be created more than once for the property '"
 							+ propertyName
 							+ "'.");
 					}

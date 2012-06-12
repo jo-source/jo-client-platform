@@ -33,6 +33,7 @@ import org.jowidgets.api.widgets.IComposite;
 import org.jowidgets.api.widgets.IFrame;
 import org.jowidgets.api.widgets.blueprint.IButtonBluePrint;
 import org.jowidgets.api.widgets.descriptor.setup.IButtonSetup;
+import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.widgets.IBeanDialog;
 import org.jowidgets.cap.ui.api.widgets.IBeanDialogBluePrint;
@@ -59,7 +60,8 @@ class BeanDialogImpl<BEAN_TYPE> extends WindowWrapper implements IBeanDialog<BEA
 		this.okPressed = false;
 
 		frame.setLayout(new MigLayoutDescriptor("[grow, 0::]", "[grow, 0::][]"));
-		final IBeanFormBluePrint<BEAN_TYPE> beanFormBp = bluePrint.getBeanForm();
+		final IBeanFormBluePrint<BEAN_TYPE> beanFormBp = CapUiToolkit.bluePrintFactory().beanForm();
+		beanFormBp.setSetup(bluePrint.getBeanForm());
 		beanFormBp.setSaveAction(null).setUndoAction(null);
 		beanForm = frame.add(beanFormBp, MigLayoutFactory.GROWING_CELL_CONSTRAINTS + ", wrap");
 
