@@ -172,9 +172,11 @@ final class BeanLinkPanelImpl<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> extends
 		cbpf.beanForm();
 		final IBeanFormBluePrint<BEAN_TYPE> result = CapUiToolkit.bluePrintFactory().beanForm();
 		result.setSetup(formBp);
-		result.setEditModeValidationLabelVisible(false);
-		result.setCreateModeValidationLabelVisible(false);
-		result.setContentScrolled(false);
+		result.setEditModeValidationLabel(null);
+		result.setCreateModeValidationLabel(null);
+		result.setSaveAction(null);
+		result.setUndoAction(null);
+		result.setScrollbarsAllowed(false);
 		return result;
 	}
 

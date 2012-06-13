@@ -31,19 +31,16 @@ package org.jowidgets.cap.ui.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.widgets.IComposite;
 import org.jowidgets.api.widgets.IContainer;
 import org.jowidgets.api.widgets.IControl;
-import org.jowidgets.api.widgets.blueprint.ITextLabelBluePrint;
 import org.jowidgets.cap.ui.api.form.BeanFormGroupRendering;
 import org.jowidgets.cap.ui.api.form.IBeanFormControlFactory;
 import org.jowidgets.cap.ui.api.form.IBeanFormGroup;
 import org.jowidgets.cap.ui.api.form.IBeanFormLayout;
 import org.jowidgets.cap.ui.api.form.IBeanFormLayouter;
 import org.jowidgets.cap.ui.api.form.IBeanFormProperty;
-import org.jowidgets.common.types.AlignmentHorizontal;
 import org.jowidgets.common.types.AlignmentVertical;
 import org.jowidgets.common.types.Position;
 import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
@@ -68,10 +65,10 @@ final class BeanFormLayouterImpl implements IBeanFormLayouter {
 		final Integer minWidth = layout.getMinWidth();
 		final Integer width = layout.getWidth();
 		final Integer maxWidth = layout.getMaxWidth();
-		final IAction saveAction = controlFactory.getSaveAction();
-		final IAction undoAction = controlFactory.getUndoAction();
-		final boolean hasButtons = saveAction != null || undoAction != null;
-		if (minWidth != null || width != null || maxWidth != null || saveAction != null || undoAction != null) {
+		final ICustomWidgetCreator<? extends IControl> saveButton = controlFactory.createSaveButton();
+		final ICustomWidgetCreator<? extends IControl> undoButton = controlFactory.createUndoButton();
+		final boolean hasButtons = saveButton != null || undoButton != null;
+		if (minWidth != null || width != null || maxWidth != null || saveButton != null || undoButton != null) {
 			final String widthCC = getWidthConstraints(minWidth, width, maxWidth);
 			final String buttonBarCC = getButtonBarCC(hasButtons);
 			globalContainer.setLayout(new MigLayoutDescriptor("0[grow, " + widthCC + "]0", "0[]" + buttonBarCC + "0"));
@@ -81,10 +78,12 @@ final class BeanFormLayouterImpl implements IBeanFormLayouter {
 			if (hasButtons) {
 				//TODO MG make the buttons align right with the controls (but not with the validation labels)
 				final IComposite buttonBar = globalContainer.add(BPF.composite(), " alignx right");
-				buttonBar.setLayout(getButtonBarLayout(saveAction, undoAction));
-				if (undoAction != null) {
-					buttonBar.add(BPF.button(), "sg bg").setAction(undoAction);
-					buttonBar.add(BPF.button(), "sg bg").setAction(saveAction);
+				buttonBar.setLayout(getButtonBarLayout(saveButton, undoButton));
+				if (saveButton != null) {
+					buttonBar.add(saveButton, "sg bg");
+				}
+				if (undoButton != null) {
+					buttonBar.add(undoButton, "sg bg");
 				}
 			}
 		}
@@ -93,8 +92,10 @@ final class BeanFormLayouterImpl implements IBeanFormLayouter {
 		}
 	}
 
-	private ILayoutDescriptor getButtonBarLayout(final IAction saveAction, final IAction undoAction) {
-		if (saveAction != null && undoAction != null) {
+	private ILayoutDescriptor getButtonBarLayout(
+		final ICustomWidgetCreator<? extends IControl> saveButton,
+		final ICustomWidgetCreator<? extends IControl> undoButton) {
+		if (saveButton != null && undoButton != null) {
 			return new MigLayoutDescriptor("0[][]28", "0[]0");
 		}
 		else {
@@ -209,11 +210,9 @@ final class BeanFormLayouterImpl implements IBeanFormLayouter {
 
 				currentRowHeight = Math.max(currentRowHeight, propertyRowCount);
 
-				final String sizeGroupLabel = "sg lbl";
+				final String sizeGroupLabel = "sg lbl" + logicalColumn;
 				final String sizeGroupControl = "sgy r" + row + "ctrlspn" + propertyRowSpan;
-				final ICustomWidgetCreator<? extends IControl> validationLabelCreator = controlFactory.createValidationLabel(
-						propertyName,
-						property.getValidationLabel());
+				final ICustomWidgetCreator<? extends IControl> validationLabelCreator = controlFactory.createPropertyValidationLabel(propertyName);
 				final String controlConstraints = getControlWidthConstraints(layout, logicalColumn);
 
 				final int firstPropertyColumn = (3 * logicalColumn);
@@ -235,10 +234,11 @@ final class BeanFormLayouterImpl implements IBeanFormLayouter {
 						throw new IllegalStateException("Unknown vertical alignment '" + labelAlignmentVertical + "'.");
 					}
 
-					final ITextLabelBluePrint textLabelBp = Toolkit.getBluePrintFactory().textLabel(
-							controlFactory.getLabel(propertyName));
-					setAlignmentHorizontal(property.getLabelAlignmentHorizontal(), textLabelBp);
-					container.add(textLabelBp, constraints(cell, sizeGroupLabel));
+					final ICustomWidgetCreator<? extends IControl> labelFactory = controlFactory.createLabel(
+							propertyName,
+							property.getLabelAlignmentHorizontal());
+					container.add(labelFactory, constraints(cell, sizeGroupLabel));
+
 					cell = "cell "
 						+ (firstPropertyColumn + 1)
 						+ " "
@@ -333,21 +333,6 @@ final class BeanFormLayouterImpl implements IBeanFormLayouter {
 		}
 
 		return new Position(column, row);
-	}
-
-	private static void setAlignmentHorizontal(final AlignmentHorizontal alignment, final ITextLabelBluePrint textLabelBp) {
-		if (AlignmentHorizontal.LEFT.equals(alignment)) {
-			textLabelBp.alignLeft();
-		}
-		else if (AlignmentHorizontal.CENTER.equals(alignment)) {
-			textLabelBp.alignCenter();
-		}
-		else if (AlignmentHorizontal.RIGHT.equals(alignment)) {
-			textLabelBp.alignRight();
-		}
-		else {
-			throw new IllegalStateException("Unknown horizontal alignment '" + alignment + "'.");
-		}
 	}
 
 	private static String constraints(final String... constraints) {

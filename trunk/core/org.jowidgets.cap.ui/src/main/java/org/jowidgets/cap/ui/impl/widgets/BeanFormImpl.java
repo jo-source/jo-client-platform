@@ -81,45 +81,41 @@ final class BeanFormImpl<BEAN_TYPE> extends ControlWrapper implements IBeanForm<
 		}
 
 		composite.setLayout(new MigLayoutDescriptor("hidemode 3", "0[grow, 0::]0", "0[0::]0"));
-		this.editFormComposite = composite.add(BPF.composite(), "growx, w 0::, h 0::");
+		this.editFormComposite = composite.add(BPF.composite().setBorder(bluePrint.getBorder()), "growx, w 0::, h 0::");
 		this.editForm = new BeanFormControl<BEAN_TYPE>(
 			editFormComposite,
 			bluePrint.getEntityId(),
 			bluePrint.getBeanType(),
 			bluePrint.getEditModeAttributes(),
 			bluePrint.getEditModeLayouter(),
+			bluePrint.getScrollbarsAllowed(),
 			bluePrint.getMaxWidth(),
 			bluePrint.getMandatoryLabelDecorator(),
 			bluePrint.getMandatoryBackgroundColor(),
 			null,
 			bluePrint.getMandatoryValidator(),
 			bluePrint.getEditModeInputHint(),
-			bluePrint.getEditModeValidationLabelVisible(),
 			bluePrint.getEditModeValidationLabel(),
-			bluePrint.getBorder(),
-			bluePrint.getContentBorder(),
-			bluePrint.isContentScrolled(),
+			bluePrint.getPropertyValidationLabel(),
 			bluePrint.getUndoAction(),
 			bluePrint.getSaveAction());
 
-		this.createFormComposite = composite.add(BPF.composite(), "growx, w 0::, h 0::");
+		this.createFormComposite = composite.add(BPF.composite().setBorder(bluePrint.getBorder()), "growx, w 0::, h 0::");
 		this.createForm = new BeanFormControl<BEAN_TYPE>(
 			createFormComposite,
 			bluePrint.getEntityId(),
 			bluePrint.getBeanType(),
 			bluePrint.getCreateModeAttributes(),
 			bluePrint.getCreateModeLayouter(),
+			bluePrint.getScrollbarsAllowed(),
 			bluePrint.getMaxWidth(),
 			bluePrint.getMandatoryLabelDecorator(),
 			bluePrint.getMandatoryBackgroundColor(),
 			bluePrint.getCreateModeForegroundColor(),
 			bluePrint.getMandatoryValidator(),
 			bluePrint.getCreateModeInputHint(),
-			bluePrint.getCreateModeValidationLabelVisible(),
 			bluePrint.getCreateModeValidationLabel(),
-			bluePrint.getBorder(),
-			bluePrint.getContentBorder(),
-			bluePrint.isContentScrolled(),
+			bluePrint.getPropertyValidationLabel(),
 			bluePrint.getUndoAction(),
 			bluePrint.getSaveAction());
 		createFormComposite.setVisible(false);

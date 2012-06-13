@@ -28,21 +28,69 @@
 
 package org.jowidgets.cap.ui.api.form;
 
-import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.widgets.IControl;
-import org.jowidgets.api.widgets.descriptor.setup.IValidationLabelSetup;
+import org.jowidgets.common.types.AlignmentHorizontal;
 import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
 
 public interface IBeanFormControlFactory {
 
-	String getLabel(String propertyName);
+	/**
+	 * Creates the main validation label
+	 * 
+	 * @return The main validation label or null, if no main validation label exists
+	 */
+	ICustomWidgetCreator<? extends IControl> createMainValidationLabel();
 
+	/**
+	 * Creates a label for the defined property
+	 * 
+	 * @param propertyName The property to get the label for
+	 * @param alignment The alignment of the label
+	 * 
+	 * @return The creator for the label, or null, if no label can be created for the property
+	 */
+	ICustomWidgetCreator<? extends IControl> createLabel(String propertyName, AlignmentHorizontal alignment);
+
+	/**
+	 * Creates a control for a defined property.
+	 * 
+	 * @param propertyName The property to get the control for
+	 * 
+	 * @return The control creator or null, of no control can be created for the property
+	 */
 	ICustomWidgetCreator<? extends IControl> createControl(String propertyName);
 
-	ICustomWidgetCreator<? extends IControl> createValidationLabel(String propertyName, IValidationLabelSetup setup);
+	/**
+	 * Creates a validation label for a defined property
+	 * 
+	 * @param propertyName The property to get the validation label for
+	 * 
+	 * @return The validation label creator or null, if no validation label can be created
+	 */
+	ICustomWidgetCreator<? extends IControl> createPropertyValidationLabel(String propertyName);
 
-	IAction getSaveAction();
+	/**
+	 * @return true, if the properties have validation labels, false otherwise
+	 */
+	boolean hasPropertyValidationLabels();
 
-	IAction getUndoAction();
+	/**
+	 * Determines if the bean form may have scrollbars (e.g. for the content). If bean forms
+	 * should be embedded or combined with other bean forms, it may be possible, that the parent container should have scrollbars,
+	 * so by returning false, the forms scrollbars could be deactivated.
+	 * 
+	 * @return true, if the bean form can have scroll bars, false otherwise.
+	 */
+	boolean getScrollbarsAllowed();
+
+	/**
+	 * @return The save button or null, if no save button exists
+	 */
+	ICustomWidgetCreator<? extends IControl> createSaveButton();
+
+	/**
+	 * @return The undo button or null, if no undo button exists
+	 */
+	ICustomWidgetCreator<? extends IControl> createUndoButton();
 
 }

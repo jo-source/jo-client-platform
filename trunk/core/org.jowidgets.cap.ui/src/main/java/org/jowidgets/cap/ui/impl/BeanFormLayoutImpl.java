@@ -36,6 +36,7 @@ import java.util.Map;
 
 import org.jowidgets.cap.ui.api.form.IBeanFormGroup;
 import org.jowidgets.cap.ui.api.form.IBeanFormLayout;
+import org.jowidgets.common.types.Border;
 
 final class BeanFormLayoutImpl implements IBeanFormLayout {
 
@@ -46,6 +47,7 @@ final class BeanFormLayoutImpl implements IBeanFormLayout {
 	private final Integer minWidth;
 	private final Integer width;
 	private final Integer maxWidth;
+	private final Border contentBorder;
 
 	BeanFormLayoutImpl(
 		final int columnCount,
@@ -54,7 +56,8 @@ final class BeanFormLayoutImpl implements IBeanFormLayout {
 		final Integer maxWidth,
 		final List<IBeanFormGroup> groups,
 		final Map<Integer, Integer> minSizes,
-		final Map<Integer, Integer> maxSizes) {
+		final Map<Integer, Integer> maxSizes,
+		final Border contentBorder) {
 
 		this.columnCount = columnCount;
 		this.groups = Collections.unmodifiableList(new LinkedList<IBeanFormGroup>(groups));
@@ -63,6 +66,7 @@ final class BeanFormLayoutImpl implements IBeanFormLayout {
 		this.maxWidth = maxWidth;
 		this.minSizes = new HashMap<Integer, Integer>(minSizes);
 		this.maxSizes = new HashMap<Integer, Integer>(maxSizes);
+		this.contentBorder = contentBorder;
 	}
 
 	@Override
@@ -98,6 +102,11 @@ final class BeanFormLayoutImpl implements IBeanFormLayout {
 	@Override
 	public List<IBeanFormGroup> getGroups() {
 		return groups;
+	}
+
+	@Override
+	public Border getContentBorder() {
+		return contentBorder;
 	}
 
 }

@@ -28,7 +28,6 @@
 
 package org.jowidgets.cap.ui.api.form;
 
-import org.jowidgets.api.widgets.descriptor.setup.IValidationLabelSetup;
 import org.jowidgets.common.types.AlignmentHorizontal;
 import org.jowidgets.common.types.AlignmentVertical;
 
@@ -55,10 +54,6 @@ public interface IBeanFormPropertyBuilder {
 	IBeanFormPropertyBuilder setLabelAlignmentVertical(AlignmentVertical alignment);
 
 	IBeanFormPropertyBuilder setPropertyAlignmentVertical(AlignmentVertical alignment);
-
-	IBeanFormPropertyBuilder setValidationLabel(IValidationLabelSetup validationLabel);
-
-	IBeanFormPropertyBuilder setValidationLabel(boolean validationLabel);
 
 	IBeanFormPropertyBuilder setValidationLabelMinSize(int minSize);
 

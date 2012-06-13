@@ -42,6 +42,7 @@ import org.jowidgets.cap.ui.api.form.IBeanFormGroupBuilder;
 import org.jowidgets.cap.ui.api.form.IBeanFormLayout;
 import org.jowidgets.cap.ui.api.form.IBeanFormLayoutBuilder;
 import org.jowidgets.cap.ui.api.form.IBeanFormPropertyBuilder;
+import org.jowidgets.common.types.Border;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.NullCompatibleEquivalence;
 
@@ -56,6 +57,8 @@ final class BeanFormLayoutBuilderImpl implements IBeanFormLayoutBuilder {
 	private Integer maxWidth;
 
 	private int columnCount;
+
+	private Border contentBorder;
 
 	BeanFormLayoutBuilderImpl() {
 		this.groups = new LinkedList<IBeanFormGroup>();
@@ -100,6 +103,12 @@ final class BeanFormLayoutBuilderImpl implements IBeanFormLayoutBuilder {
 	@Override
 	public IBeanFormLayoutBuilder setColumnMaxSize(final int columnIndex, final int maxSize) {
 		maxSizes.put(Integer.valueOf(columnIndex), Integer.valueOf(maxSize));
+		return this;
+	}
+
+	@Override
+	public IBeanFormLayoutBuilder setContentBorder(final Border border) {
+		this.contentBorder = border;
 		return this;
 	}
 
@@ -158,7 +167,7 @@ final class BeanFormLayoutBuilderImpl implements IBeanFormLayoutBuilder {
 
 	@Override
 	public IBeanFormLayout build() {
-		return new BeanFormLayoutImpl(columnCount, minWidth, width, maxWidth, groups, minSizes, maxSizes);
+		return new BeanFormLayoutImpl(columnCount, minWidth, width, maxWidth, groups, minSizes, maxSizes, contentBorder);
 	}
 
 	private IBeanFormPropertyBuilder getPropertyBuilder() {

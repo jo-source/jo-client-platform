@@ -28,9 +28,6 @@
 
 package org.jowidgets.cap.ui.impl;
 
-import org.jowidgets.api.toolkit.Toolkit;
-import org.jowidgets.api.widgets.blueprint.IValidationResultLabelBluePrint;
-import org.jowidgets.api.widgets.descriptor.setup.IValidationLabelSetup;
 import org.jowidgets.cap.ui.api.form.IBeanFormProperty;
 import org.jowidgets.cap.ui.api.form.IBeanFormPropertyBuilder;
 import org.jowidgets.common.types.AlignmentHorizontal;
@@ -53,7 +50,6 @@ final class BeanFormPropertyBuilderImpl implements IBeanFormPropertyBuilder {
 	private AlignmentVertical labelAlignmentVertical;
 	private AlignmentVertical propertyAlignmentVertical;
 
-	private IValidationLabelSetup validationLabel;
 	private Integer validationLabelMinSize;
 
 	BeanFormPropertyBuilderImpl() {
@@ -65,7 +61,6 @@ final class BeanFormPropertyBuilderImpl implements IBeanFormPropertyBuilder {
 		propertyAlignmentHorizontal = AlignmentHorizontal.LEFT;
 		propertyAlignmentVertical = AlignmentVertical.CENTER;
 
-		this.validationLabel = createDefaultValidationLabelSetup();
 		this.validationLabelMinSize = Integer.valueOf(18);
 	}
 
@@ -141,29 +136,6 @@ final class BeanFormPropertyBuilderImpl implements IBeanFormPropertyBuilder {
 	}
 
 	@Override
-	public IBeanFormPropertyBuilder setValidationLabel(final IValidationLabelSetup validationLabel) {
-		this.validationLabel = validationLabel;
-		return this;
-	}
-
-	@Override
-	public IBeanFormPropertyBuilder setValidationLabel(final boolean validationLabel) {
-		if (validationLabel) {
-			this.validationLabel = createDefaultValidationLabelSetup();
-		}
-		else {
-			this.validationLabel = null;
-		}
-		return this;
-	}
-
-	private IValidationLabelSetup createDefaultValidationLabelSetup() {
-		final IValidationResultLabelBluePrint result = Toolkit.getBluePrintFactory().validationResultLabel();
-		result.setShowValidationMessage(false);
-		return result;
-	}
-
-	@Override
 	public IBeanFormPropertyBuilder setValidationLabelMinSize(final int minSize) {
 		this.validationLabelMinSize = Integer.valueOf(minSize);
 		return this;
@@ -183,7 +155,6 @@ final class BeanFormPropertyBuilderImpl implements IBeanFormPropertyBuilder {
 			propertyAlignmentHorizontal,
 			labelAlignmentVertical,
 			propertyAlignmentVertical,
-			validationLabel,
 			validationLabelMinSize);
 	}
 

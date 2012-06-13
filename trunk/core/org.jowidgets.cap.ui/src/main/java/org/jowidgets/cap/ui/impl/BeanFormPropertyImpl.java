@@ -28,7 +28,6 @@
 
 package org.jowidgets.cap.ui.impl;
 
-import org.jowidgets.api.widgets.descriptor.setup.IValidationLabelSetup;
 import org.jowidgets.cap.ui.api.form.IBeanFormProperty;
 import org.jowidgets.common.types.AlignmentHorizontal;
 import org.jowidgets.common.types.AlignmentVertical;
@@ -49,7 +48,6 @@ final class BeanFormPropertyImpl implements IBeanFormProperty {
 	private final AlignmentVertical labelAlignmentVertical;
 	private final AlignmentVertical propertyAlignmentVertical;
 
-	private final IValidationLabelSetup validationLabel;
 	private final Integer validationLabelMinSize;
 
 	BeanFormPropertyImpl(
@@ -64,7 +62,6 @@ final class BeanFormPropertyImpl implements IBeanFormProperty {
 		final AlignmentHorizontal propertyAlignmentHorizontal,
 		final AlignmentVertical labelAlignmentVertical,
 		final AlignmentVertical propertyAlignmentVertical,
-		final IValidationLabelSetup validationLabel,
 		final Integer validationLabelMinSize) {
 		Assert.paramNotEmpty(propertyName, "propertyName");
 		this.propertyName = propertyName;
@@ -78,7 +75,6 @@ final class BeanFormPropertyImpl implements IBeanFormProperty {
 		this.propertyAlignmentHorizontal = propertyAlignmentHorizontal;
 		this.labelAlignmentVertical = labelAlignmentVertical;
 		this.propertyAlignmentVertical = propertyAlignmentVertical;
-		this.validationLabel = validationLabel;
 		this.validationLabelMinSize = validationLabelMinSize;
 	}
 
@@ -135,11 +131,6 @@ final class BeanFormPropertyImpl implements IBeanFormProperty {
 	@Override
 	public AlignmentVertical getPropertyAlignmentVertical() {
 		return propertyAlignmentVertical;
-	}
-
-	@Override
-	public IValidationLabelSetup getValidationLabel() {
-		return validationLabel;
 	}
 
 	@Override

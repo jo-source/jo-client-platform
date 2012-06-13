@@ -29,13 +29,13 @@
 package org.jowidgets.cap.ui.impl.widgets;
 
 import org.jowidgets.api.color.Colors;
-import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.widgets.blueprint.IInputComponentValidationLabelBluePrint;
 import org.jowidgets.api.widgets.blueprint.defaults.IDefaultInitializer;
 import org.jowidgets.cap.ui.api.Messages;
 import org.jowidgets.cap.ui.api.color.CapColors;
 import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
 import org.jowidgets.tools.validation.MandatoryValidator;
+import org.jowidgets.tools.widgets.blueprint.BPF;
 import org.jowidgets.util.IDecorator;
 import org.jowidgets.validation.IValidationMessage;
 import org.jowidgets.validation.IValidationResult;
@@ -46,11 +46,9 @@ final class BeanFormDefaults implements IDefaultInitializer<IBeanFormBluePrint<?
 	@Override
 	public void initialize(final IBeanFormBluePrint<?> bluePrint) {
 		bluePrint.setAutoResetValidation(true);
-		bluePrint.setContentScrolled(true);
-		bluePrint.setEditModeValidationLabelVisible(true);
-		bluePrint.setCreateModeValidationLabelVisible(true);
 		bluePrint.setCreateModeForegroundColor(Colors.GREEN);
-		final IInputComponentValidationLabelBluePrint editModeValidationLabel = Toolkit.getBluePrintFactory().inputComponentValidationLabel();
+		bluePrint.setScrollbarsAllowed(true);
+		final IInputComponentValidationLabelBluePrint editModeValidationLabel = BPF.inputComponentValidationLabel();
 		final IDecorator<IValidationResult> editModeValidationDecorator = new IDecorator<IValidationResult>() {
 			@Override
 			public IValidationResult decorate(final IValidationResult original) {
@@ -67,7 +65,7 @@ final class BeanFormDefaults implements IDefaultInitializer<IBeanFormBluePrint<?
 		editModeValidationLabel.setUnmodifiedValidationDecorator(editModeValidationDecorator);
 		bluePrint.setEditModeValidationLabel(editModeValidationLabel);
 
-		final IInputComponentValidationLabelBluePrint createModeValidationLabel = Toolkit.getBluePrintFactory().inputComponentValidationLabel();
+		final IInputComponentValidationLabelBluePrint createModeValidationLabel = BPF.inputComponentValidationLabel();
 		final IDecorator<IValidationResult> createModeValidationDecorator = new IDecorator<IValidationResult>() {
 			@Override
 			public IValidationResult decorate(final IValidationResult original) {
@@ -96,5 +94,6 @@ final class BeanFormDefaults implements IDefaultInitializer<IBeanFormBluePrint<?
 			}
 		});
 		bluePrint.setMandatoryValidator(new MandatoryValidator<Object>());
+		bluePrint.setPropertyValidationLabel(BPF.validationResultLabel().setShowValidationMessage(false));
 	}
 }

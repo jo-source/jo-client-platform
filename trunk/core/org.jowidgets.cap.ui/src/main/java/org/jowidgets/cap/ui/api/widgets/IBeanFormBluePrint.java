@@ -32,8 +32,9 @@ import java.util.Collection;
 
 import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.widgets.blueprint.builder.IComponentSetupBuilder;
-import org.jowidgets.api.widgets.descriptor.IInputComponentValidationLabelDescriptor;
 import org.jowidgets.api.widgets.descriptor.setup.IComponentSetup;
+import org.jowidgets.api.widgets.descriptor.setup.IInputComponentValidationLabelSetup;
+import org.jowidgets.api.widgets.descriptor.setup.IValidationLabelSetup;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.form.IBeanFormLayouter;
 import org.jowidgets.common.color.IColorConstant;
@@ -64,21 +65,24 @@ public interface IBeanFormBluePrint<BEAN_TYPE> extends
 
 	IBeanFormBluePrint<BEAN_TYPE> setAutoResetValidation(boolean autoResetValidation);
 
-	IBeanFormBluePrint<BEAN_TYPE> setContentScrolled(boolean scrolledContent);
+	/**
+	 * Determines if the bean form may have scrollbars (e.g. for the content). If bean forms
+	 * should be embedded or combined with other bean forms, it may be possible, that the parent container should have scrollbars,
+	 * so by returning false, the forms scrollbars could be deactivated.
+	 * 
+	 * @return this builder
+	 */
+	IBeanFormBluePrint<BEAN_TYPE> setScrollbarsAllowed(boolean scrollBarsAllowed);
 
 	IBeanFormBluePrint<BEAN_TYPE> setMaxWidth(Integer maxWidth);
 
 	IBeanFormBluePrint<BEAN_TYPE> setBorder(Border border);
 
-	IBeanFormBluePrint<BEAN_TYPE> setContentBorder(Border border);
+	IBeanFormBluePrint<BEAN_TYPE> setEditModeValidationLabel(IInputComponentValidationLabelSetup validationLabel);
 
-	IBeanFormBluePrint<BEAN_TYPE> setEditModeValidationLabel(IInputComponentValidationLabelDescriptor validationLabelDescriptor);
+	IBeanFormBluePrint<BEAN_TYPE> setCreateModeValidationLabel(IInputComponentValidationLabelSetup validationLabel);
 
-	IBeanFormBluePrint<BEAN_TYPE> setCreateModeValidationLabel(IInputComponentValidationLabelDescriptor validationLabelDescriptor);
-
-	IBeanFormBluePrint<BEAN_TYPE> setEditModeValidationLabelVisible(boolean visible);
-
-	IBeanFormBluePrint<BEAN_TYPE> setCreateModeValidationLabelVisible(boolean visible);
+	IBeanFormBluePrint<BEAN_TYPE> setPropertyValidationLabel(IValidationLabelSetup validationLabel);
 
 	IBeanFormBluePrint<BEAN_TYPE> setMandatoryBackgroundColor(IColorConstant color);
 
@@ -116,23 +120,15 @@ public interface IBeanFormBluePrint<BEAN_TYPE> extends
 	boolean isAutoResetValidation();
 
 	@Mandatory
-	boolean isContentScrolled();
+	boolean getScrollbarsAllowed();
 
 	Integer getMaxWidth();
 
 	Border getBorder();
 
-	Border getContentBorder();
+	IInputComponentValidationLabelSetup getEditModeValidationLabel();
 
-	IInputComponentValidationLabelDescriptor getEditModeValidationLabel();
-
-	@Mandatory
-	boolean getEditModeValidationLabelVisible();
-
-	@Mandatory
-	boolean getCreateModeValidationLabelVisible();
-
-	IInputComponentValidationLabelDescriptor getCreateModeValidationLabel();
+	IInputComponentValidationLabelSetup getCreateModeValidationLabel();
 
 	IColorConstant getMandatoryBackgroundColor();
 
@@ -149,5 +145,7 @@ public interface IBeanFormBluePrint<BEAN_TYPE> extends
 	IProvider<IAction> getSaveAction();
 
 	IProvider<IAction> getUndoAction();
+
+	IValidationLabelSetup getPropertyValidationLabel();
 
 }
