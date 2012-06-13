@@ -30,6 +30,8 @@ package org.jowidgets.cap.ui.api.form;
 
 import java.util.List;
 
+import org.jowidgets.common.types.Border;
+
 public interface IBeanFormLayout {
 
 	int getColumnCount();
@@ -45,5 +47,7 @@ public interface IBeanFormLayout {
 	Integer getMaxWidth();
 
 	List<IBeanFormGroup> getGroups();
+
+	Border getContentBorder();
 
 }

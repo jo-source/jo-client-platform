@@ -31,6 +31,7 @@ package org.jowidgets.cap.ui.api.form;
 import java.util.Collection;
 
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
+import org.jowidgets.common.types.Border;
 
 public interface IBeanFormLayoutBuilder {
 
@@ -45,6 +46,8 @@ public interface IBeanFormLayoutBuilder {
 	IBeanFormLayoutBuilder setWidth(int width);
 
 	IBeanFormLayoutBuilder setMaxWidth(int maxWidth);
+
+	IBeanFormLayoutBuilder setContentBorder(Border border);
 
 	IBeanFormLayoutBuilder addGroup(IBeanFormGroup group);
 
