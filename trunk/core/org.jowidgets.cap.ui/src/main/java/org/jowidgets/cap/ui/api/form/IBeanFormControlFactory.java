@@ -84,6 +84,11 @@ public interface IBeanFormControlFactory {
 	boolean getScrollbarsAllowed();
 
 	/**
+	 * @return The default max width or null if unbound
+	 */
+	Integer getMaxWidthDeafult();
+
+	/**
 	 * @return The save button or null, if no save button exists
 	 */
 	ICustomWidgetCreator<? extends IControl> createSaveButton();

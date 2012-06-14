@@ -55,7 +55,7 @@ public interface IBeanFormPropertyBuilder {
 
 	IBeanFormPropertyBuilder setPropertyAlignmentVertical(AlignmentVertical alignment);
 
-	IBeanFormPropertyBuilder setValidationLabelMinSize(int minSize);
+	IBeanFormPropertyBuilder setValidationLabelMinWidth(int minSize);
 
 	IBeanFormProperty build();
 

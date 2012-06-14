@@ -74,7 +74,17 @@ public interface IBeanFormBluePrint<BEAN_TYPE> extends
 	 */
 	IBeanFormBluePrint<BEAN_TYPE> setScrollbarsAllowed(boolean scrollBarsAllowed);
 
-	IBeanFormBluePrint<BEAN_TYPE> setMaxWidth(Integer maxWidth);
+	/**
+	 * Sets the default value for the maximal width of the forms content. If set to null, the width is unbounded.
+	 * This value can be used by a {@link IBeanFormLayouter} the determine the max width default.
+	 * 
+	 * Remark that the layouter may ignore or override this value!
+	 * 
+	 * @param maxWidth The max width to set or null
+	 * 
+	 * @return This builder
+	 */
+	IBeanFormBluePrint<BEAN_TYPE> setMaxWidthDefault(Integer maxWidth);
 
 	IBeanFormBluePrint<BEAN_TYPE> setBorder(Border border);
 
@@ -122,7 +132,7 @@ public interface IBeanFormBluePrint<BEAN_TYPE> extends
 	@Mandatory
 	boolean getScrollbarsAllowed();
 
-	Integer getMaxWidth();
+	Integer getMaxWidthDefault();
 
 	Border getBorder();
 

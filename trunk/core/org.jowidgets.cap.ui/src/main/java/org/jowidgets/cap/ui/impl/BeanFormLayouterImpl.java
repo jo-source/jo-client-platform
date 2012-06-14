@@ -51,77 +51,118 @@ import org.jowidgets.util.Assert;
 
 final class BeanFormLayouterImpl implements IBeanFormLayouter {
 
-	private static final String DEFAULT_CONTROL_MIN_WIDTH = String.valueOf(60);
-
 	private final IBeanFormLayout layout;
+
+	private int validationLabelGap;
 
 	BeanFormLayouterImpl(final IBeanFormLayout layout) {
 		Assert.paramNotNull(layout, "layout");
 		this.layout = layout;
+		this.validationLabelGap = 0;
 	}
 
 	@Override
-	public void layout(final IContainer globalContainer, final IBeanFormControlFactory controlFactory) {
-		final Integer minWidth = layout.getMinWidth();
-		final Integer width = layout.getWidth();
-		final Integer maxWidth = layout.getMaxWidth();
-		final ICustomWidgetCreator<? extends IControl> saveButton = controlFactory.createSaveButton();
-		final ICustomWidgetCreator<? extends IControl> undoButton = controlFactory.createUndoButton();
-		final boolean hasButtons = saveButton != null || undoButton != null;
-		if (minWidth != null || width != null || maxWidth != null || saveButton != null || undoButton != null) {
-			final String widthCC = getWidthConstraints(minWidth, width, maxWidth);
-			final String buttonBarCC = getButtonBarCC(hasButtons);
-			globalContainer.setLayout(new MigLayoutDescriptor("0[grow, " + widthCC + "]0", "0[]" + buttonBarCC + "0"));
-			final String innerContainerCC = getInnerContainerCC(hasButtons, widthCC);
-			final IComposite innerContainer = globalContainer.add(BPF.composite(), innerContainerCC);
-			layoutInnerContainer(innerContainer, controlFactory);
-			if (hasButtons) {
-				//TODO MG make the buttons align right with the controls (but not with the validation labels)
-				final IComposite buttonBar = globalContainer.add(BPF.composite(), " alignx right");
-				buttonBar.setLayout(getButtonBarLayout(saveButton, undoButton));
-				if (saveButton != null) {
-					buttonBar.add(saveButton, "sg bg");
-				}
-				if (undoButton != null) {
-					buttonBar.add(undoButton, "sg bg");
-				}
+	public void layout(final IContainer container, final IBeanFormControlFactory controlFactory) {
+
+		final ICustomWidgetCreator<? extends IControl> mainValidationLabel = controlFactory.createMainValidationLabel();
+
+		final int validationLabelHeight = layout.getValidationLabelHeight();
+		final StringBuilder rowConstraints = new StringBuilder();
+		rowConstraints.append("0");
+		if (mainValidationLabel != null) {
+			rowConstraints.append("[" + validationLabelHeight + "::]");
+		}
+		rowConstraints.append("[grow, 0::]");
+		rowConstraints.append("0");
+
+		container.setLayout(new MigLayoutDescriptor("[grow, 0::]", rowConstraints.toString()));
+
+		if (mainValidationLabel != null) {
+			container.add(mainValidationLabel, "growx, w 0::, h " + validationLabelHeight + "::, wrap");
+		}
+		final IContainer contentContainer = createAndAddContentContainer(container, controlFactory);
+		addContent(contentContainer, controlFactory);
+	}
+
+	private IContainer createAndAddContentContainer(final IContainer parent, final IBeanFormControlFactory controlFactory) {
+
+		final String widthCC = getMainWidthConstraints(controlFactory);
+
+		if (controlFactory.getScrollbarsAllowed()) {
+			final String scrollCompositeCC = constraints("growx", "growy", "w 0::", "h 0::");
+			final boolean hasWidthConstraints = !"w 0::".equals(widthCC);
+			if (hasWidthConstraints) {
+				final IContainer scrollComposite = parent.add(BPF.scrollComposite(), scrollCompositeCC);
+				scrollComposite.setLayout(new MigLayoutDescriptor("0[grow, 0::]0", "0[0::]0"));
+				return scrollComposite.add(
+						BPF.composite().setBorder(layout.getContentBorder()),
+						constraints("growx", widthCC, "h 0::", "aligny top"));
+			}
+			else {
+				return parent.add(BPF.scrollComposite().setBorder(layout.getContentBorder()), scrollCompositeCC);
 			}
 		}
 		else {
-			layoutInnerContainer(globalContainer, controlFactory);
+			return parent.add(
+					BPF.composite().setBorder(layout.getContentBorder()),
+					constraints("growx", widthCC, "h 0::", "aligny top"));
+		}
+	}
+
+	private void addContent(final IContainer contentContainer, final IBeanFormControlFactory controlFactory) {
+
+		final ICustomWidgetCreator<? extends IControl> saveButton = controlFactory.createSaveButton();
+		final ICustomWidgetCreator<? extends IControl> undoButton = controlFactory.createUndoButton();
+
+		if (saveButton != null || undoButton != null) {
+			contentContainer.setLayout(new MigLayoutDescriptor("0[grow, 0::]0", "0[0::]15[]0"));
+
+			//add the form
+			final IContainer formContainer = contentContainer.add(BPF.composite(), "growx, w 0::, wrap");
+			layoutForm(formContainer, controlFactory);
+
+			//add the button bar
+			final IComposite buttonBar = contentContainer.add(BPF.composite(), "alignx r");
+			buttonBar.setLayout(getButtonBarLayout(saveButton, undoButton));
+			if (saveButton != null) {
+				buttonBar.add(saveButton, "sg bg");
+			}
+			if (undoButton != null) {
+				buttonBar.add(undoButton, "sg bg");
+			}
+		}
+		else {
+			layoutForm(contentContainer, controlFactory);
 		}
 	}
 
 	private ILayoutDescriptor getButtonBarLayout(
 		final ICustomWidgetCreator<? extends IControl> saveButton,
 		final ICustomWidgetCreator<? extends IControl> undoButton) {
+
+		final int gap;
+		if (validationLabelGap > 0) {
+			gap = validationLabelGap + 3;
+		}
+		else {
+			gap = 0;
+		}
 		if (saveButton != null && undoButton != null) {
-			return new MigLayoutDescriptor("0[][]28", "0[]0");
+			return new MigLayoutDescriptor("0[][]" + gap, "0[]0");
 		}
 		else {
-			return new MigLayoutDescriptor("0[]28", "0[]0");
+			return new MigLayoutDescriptor("0[]" + gap, "0[]0");
 		}
 	}
 
-	private String getInnerContainerCC(final boolean hasButtons, final String widthCC) {
-		final StringBuilder result = new StringBuilder("growx, w " + widthCC + ", h 0::");
-		if (hasButtons) {
-			result.append(",wrap");
+	private String getMainWidthConstraints(final IBeanFormControlFactory controlFactory) {
+		final Integer minWidth = layout.getMinWidth();
+		final Integer width = layout.getPrefWidth();
+		Integer maxWidth = layout.getMaxWidth();
+		if (maxWidth == null) {
+			maxWidth = controlFactory.getMaxWidthDeafult();
 		}
-		return result.toString();
-	}
-
-	private String getButtonBarCC(final boolean hasButtons) {
-		if (hasButtons) {
-			return "20[]";
-		}
-		else {
-			return "";
-		}
-	}
-
-	private String getWidthConstraints(final Integer minWidth, final Integer width, final Integer maxWidth) {
-		final StringBuilder result = new StringBuilder();
+		final StringBuilder result = new StringBuilder("w ");
 		result.append(minWidth != null ? minWidth.intValue() : "0");
 		result.append(":");
 		result.append(width != null ? width.intValue() : "");
@@ -130,8 +171,8 @@ final class BeanFormLayouterImpl implements IBeanFormLayouter {
 		return result.toString();
 	}
 
-	private void layoutInnerContainer(final IContainer innerContainer, final IBeanFormControlFactory controlFactory) {
-		innerContainer.setLayout(new MigLayoutDescriptor(getColumnsConstraints(layout), ""));
+	private void layoutForm(final IContainer formContainer, final IBeanFormControlFactory controlFactory) {
+		formContainer.setLayout(new MigLayoutDescriptor(getColumnsConstraints(layout), ""));
 
 		final List<boolean[]> globalGrid = new ArrayList<boolean[]>();
 
@@ -148,7 +189,7 @@ final class BeanFormLayouterImpl implements IBeanFormLayouter {
 			final IContainer container;
 			if (BeanFormGroupRendering.NONE.equals(rendering)) {
 				grid = globalGrid;
-				container = innerContainer;
+				container = formContainer;
 			}
 			else if (BeanFormGroupRendering.SEPARATOR.equals(rendering)) {
 				final String baseConstraints = "growx, cell 0 " + row + " " + (3 * layout.getColumnCount()) + " 1";
@@ -158,24 +199,24 @@ final class BeanFormLayouterImpl implements IBeanFormLayouter {
 					final String gapTop = (row > 0) ? "gaptop 27" : "";
 					final String gapBottom = "gapbottom 7";
 					final String cell = constraints(baseConstraints, gapTop, gapBottom);
-					innerContainer.add(Toolkit.getBluePrintFactory().textSeparator(label), cell);
+					formContainer.add(Toolkit.getBluePrintFactory().textSeparator(label), cell);
 				}
 				else if (row > 0 && showSeparators) {
 					final String cell = constraints(baseConstraints, "gaptop 17, gapbottom 17");
-					innerContainer.add(Toolkit.getBluePrintFactory().separator(), cell);
+					formContainer.add(Toolkit.getBluePrintFactory().separator(), cell);
 				}
 				grid = globalGrid;
-				container = innerContainer;
+				container = formContainer;
 			}
 			else if (BeanFormGroupRendering.BORDER.equals(rendering)) {
 				final String cell = "growx, cell 0 " + row + " " + (3 * layout.getColumnCount()) + " 1";
 
 				setUsed(globalGrid, row, 0, 1, layout.getColumnCount());
 				if (label != null && !"".equals(label)) {
-					container = innerContainer.add(Toolkit.getBluePrintFactory().composite(label), cell);
+					container = formContainer.add(Toolkit.getBluePrintFactory().composite(label), cell);
 				}
 				else {
-					container = innerContainer.add(Toolkit.getBluePrintFactory().compositeWithBorder(), cell);
+					container = formContainer.add(Toolkit.getBluePrintFactory().compositeWithBorder(), cell);
 				}
 				container.setLayout(new MigLayoutDescriptor(getColumnsConstraints(layout), ""));
 				grid = new ArrayList<boolean[]>();
@@ -213,7 +254,6 @@ final class BeanFormLayouterImpl implements IBeanFormLayouter {
 				final String sizeGroupLabel = "sg lbl" + logicalColumn;
 				final String sizeGroupControl = "sgy r" + row + "ctrlspn" + propertyRowSpan;
 				final ICustomWidgetCreator<? extends IControl> validationLabelCreator = controlFactory.createPropertyValidationLabel(propertyName);
-				final String controlConstraints = getControlWidthConstraints(layout, logicalColumn);
 
 				final int firstPropertyColumn = (3 * logicalColumn);
 
@@ -234,10 +274,9 @@ final class BeanFormLayouterImpl implements IBeanFormLayouter {
 						throw new IllegalStateException("Unknown vertical alignment '" + labelAlignmentVertical + "'.");
 					}
 
-					final ICustomWidgetCreator<? extends IControl> labelFactory = controlFactory.createLabel(
-							propertyName,
-							property.getLabelAlignmentHorizontal());
-					container.add(labelFactory, constraints(cell, sizeGroupLabel));
+					final ICustomWidgetCreator<? extends IControl> labelCreator;
+					labelCreator = controlFactory.createLabel(propertyName, property.getLabelAlignmentHorizontal());
+					container.add(labelCreator, constraints(cell, sizeGroupLabel));
 
 					cell = "cell "
 						+ (firstPropertyColumn + 1)
@@ -257,14 +296,16 @@ final class BeanFormLayouterImpl implements IBeanFormLayouter {
 						constraints(
 								cell,
 								sizeGroupControl,
-								controlConstraints,
+								getControlWidthConstraints(layout, logicalColumn),
 								getHeightConstraints(property.getHeight()),
 								"growx",
 								"growy"));
 
 				//add validation label
 				if (validationLabelCreator != null) {
-					container.add(validationLabelCreator, "w 25::");
+					final int validationLabelMinWidth = property.getValidationLabelMinWidth();
+					container.add(validationLabelCreator, "w " + validationLabelMinWidth);
+					validationLabelGap = Math.max(validationLabelGap, validationLabelMinWidth);
 				}
 
 				logicalColumn = logicalColumn + propertyColumnCount;
@@ -348,14 +389,15 @@ final class BeanFormLayouterImpl implements IBeanFormLayouter {
 
 	private static String getColumnWidthConstraints(final IBeanFormLayout layout, final int column) {
 		final String controlMinWidth = getControlMinWidth(layout, column);
+		final String controlPrefWidth = getControlPrefWidth(layout, column);
 		final String controlMaxWidth = getControlMaxWidth(layout, column);
-		return controlMinWidth + ":" + controlMinWidth + ":" + controlMaxWidth;
+		return controlMinWidth + ":" + controlPrefWidth + ":" + controlMaxWidth;
 	}
 
 	private static String getControlWidthConstraints(final IBeanFormLayout layout, final int column) {
 		final String controlMinWidth = getControlMinWidth(layout, column);
-		final String controlMaxWidth = getControlMaxWidth(layout, column);
-		return "width " + controlMinWidth + ":" + controlMinWidth + ":" + controlMaxWidth;
+		final String controlPrefWidth = getControlPrefWidth(layout, column);
+		return "w " + controlMinWidth + ":" + controlPrefWidth + ":";
 	}
 
 	private static String getControlMinWidth(final IBeanFormLayout layout, final int column) {
@@ -364,7 +406,17 @@ final class BeanFormLayouterImpl implements IBeanFormLayouter {
 			return String.valueOf(width.intValue());
 		}
 		else {
-			return DEFAULT_CONTROL_MIN_WIDTH;
+			return String.valueOf("");
+		}
+	}
+
+	private static String getControlPrefWidth(final IBeanFormLayout layout, final int column) {
+		final Integer width = layout.getControlPrefWidth(column);
+		if (width != null) {
+			return String.valueOf(width.intValue());
+		}
+		else {
+			return getControlMinWidth(layout, column);
 		}
 	}
 

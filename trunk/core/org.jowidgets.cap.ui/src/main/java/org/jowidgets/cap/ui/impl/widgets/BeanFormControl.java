@@ -50,12 +50,10 @@ import org.jowidgets.api.threads.IUiThreadAccess;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.widgets.IButton;
 import org.jowidgets.api.widgets.IComposite;
-import org.jowidgets.api.widgets.IContainer;
 import org.jowidgets.api.widgets.IControl;
 import org.jowidgets.api.widgets.IInputComponentValidationLabel;
 import org.jowidgets.api.widgets.IInputControl;
 import org.jowidgets.api.widgets.ILabel;
-import org.jowidgets.api.widgets.IScrollComposite;
 import org.jowidgets.api.widgets.IValidationResultLabel;
 import org.jowidgets.api.widgets.blueprint.IInputComponentValidationLabelBluePrint;
 import org.jowidgets.api.widgets.blueprint.ILabelBluePrint;
@@ -120,8 +118,10 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 	private final String inputHint;
 	private final Map<String, IAttribute<Object>> attributes;
 
-	private final IValidationLabelSetup propertyValidationLabel;
+	private final IValidationLabelSetup propertyValidationLabelSetup;
+	private final IInputComponentValidationLabelSetup mainValidationLabelSetup;
 	private final boolean scrollbarsAllowed;
+	private final Integer maxWidthDefault;
 
 	private final Map<String, IInputControl<Object>> controls;
 	private final Map<String, IColorConstant> backgroundColors;
@@ -136,14 +136,14 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 	private final LabelWaitChangeListener labelWaitChangeListener;
 	private final Set<IExternalBeanValidatorListener> externalValidatorListeners;
 
-	private final IComposite validationLabelContainer;
-	private final IInputComponentValidationLabel mainValidationLabel;
-	private final ILabel processStateLabel;
-
 	private final IAction saveAction;
 	private final IAction undoAction;
 
 	private final String processingDataLabel;
+
+	private IComposite validationLabelContainer;
+	private IInputComponentValidationLabel mainValidationLabel;
+	private ILabel processStateLabel;
 
 	private IBeanProxy<BEAN_TYPE> bean;
 
@@ -161,8 +161,8 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 		final IColorConstant foregroundColor,
 		final IValidator<Object> manadtoryValidator,
 		final String inputHint,
-		final IInputComponentValidationLabelSetup validationLabel,
-		final IValidationLabelSetup propertyValidationLabel,
+		final IInputComponentValidationLabelSetup mainValidationLabelSetup,
+		final IValidationLabelSetup propertyValidationLabelSetup,
 		final IProvider<IAction> undoAction,
 		final IProvider<IAction> saveAction) {
 
@@ -173,12 +173,14 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 		this.processingDataLabel = Messages.getString("BeanFormControl.processing_data");
 
 		this.scrollbarsAllowed = scrollbarsAllowed;
+		this.maxWidthDefault = maxWidth;
 		this.mandatoryLabelDecorator = manadtoryLabelDecorator;
 		this.mandatoryBackgroundColor = mandatoryBackgroundColor;
 		this.foregroundColor = foregroundColor;
 		this.mandatoryValidator = manadtoryValidator;
 		this.inputHint = inputHint;
-		this.propertyValidationLabel = propertyValidationLabel;
+		this.propertyValidationLabelSetup = propertyValidationLabelSetup;
+		this.mainValidationLabelSetup = mainValidationLabelSetup;
 
 		this.saveAction = saveAction != null ? saveAction.get() : null;
 		this.undoAction = undoAction != null ? undoAction.get() : null;
@@ -201,27 +203,8 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 			this.attributes.put(attribute.getPropertyName(), (IAttribute<Object>) attribute);
 		}
 
-		composite.setLayout(new MigLayoutDescriptor("hidemode 2", "0[grow, 0::]0", "0[][0::]0"));
-		this.validationLabelContainer = composite.add(BPF.composite(), "growx, w 30::, h 20::, wrap");
-		validationLabelContainer.setVisible(validationLabel != null);
-		validationLabelContainer.setLayout(new MigLayoutDescriptor("hidemode 3", "0[grow, 0::]0", "0[0::]0"));
-		mainValidationLabel = addValidationLabel(validationLabelContainer, validationLabel);
-
-		final ILabelBluePrint processStateLabelBp = BPF.label();
-		processStateLabelBp.setMarkup(Markup.EMPHASIZED);
-		processStateLabelBp.setColor(Colors.STRONG);
-		processStateLabelBp.setIcon(IconsSmall.WAIT_1);
-		this.processStateLabel = validationLabelContainer.add(processStateLabelBp, "growx, w 30::, h 20::, wrap");
-		processStateLabel.setMinSize(new Dimension(20, 20));
-		processStateLabel.setVisible(false);
-
-		final String widthCC = getContentWidthConstraints(maxWidth);
-		final IComposite contentPane = composite.add(BPF.composite(), "growx, w 0:: , h 0:: , wrap");
-		contentPane.setLayout(new MigLayoutDescriptor("0[grow, " + widthCC + "]0", "0[]0"));
-		final IScrollComposite scrollContentPane = contentPane.add(BPF.scrollComposite(), "growx, w 0:: , h 0:: ");
-
 		//this must be the last invocation in this constructor
-		layouter.layout(scrollContentPane, new BeanFormControlFactory());
+		layouter.layout(composite, new BeanFormControlFactory());
 
 		addDisposeListener(new IDisposeListener() {
 			@Override
@@ -229,15 +212,6 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 				Toolkit.getWaitAnimationProcessor().removeChangeListener(labelWaitChangeListener);
 			}
 		});
-	}
-
-	private static String getContentWidthConstraints(final Integer maxWidth) {
-		if (maxWidth != null) {
-			return "0::" + maxWidth.intValue();
-		}
-		else {
-			return "0::";
-		}
 	}
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
@@ -257,22 +231,6 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 		}
 
 		return result;
-	}
-
-	private IInputComponentValidationLabel addValidationLabel(
-		final IContainer container,
-		final IInputComponentValidationLabelSetup validationLabel) {
-		if (validationLabel != null) {
-			final IInputComponentValidationLabelBluePrint validationLabelBp = BPF.inputComponentValidationLabel();
-			validationLabelBp.setSetup(validationLabel);
-			validationLabelBp.setInputComponent(this);
-			final IInputComponentValidationLabel result = container.add(validationLabelBp, "growx, w 30::, h 20::, wrap");
-			result.setMinSize(new Dimension(20, 20));
-			return result;
-		}
-		else {
-			return null;
-		}
 	}
 
 	@Override
@@ -382,12 +340,12 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 	}
 
 	private void setValidationLabelsVisible(final boolean processMode) {
-		validationLabelContainer.layoutBegin();
-		if (mainValidationLabel != null) {
+		if (validationLabelContainer != null) {
+			validationLabelContainer.layoutBegin();
 			mainValidationLabel.setVisible(!processMode);
+			processStateLabel.setVisible(processMode);
+			validationLabelContainer.layoutEnd();
 		}
-		processStateLabel.setVisible(processMode);
-		validationLabelContainer.layoutEnd();
 	}
 
 	private void registerExecutionTaskListener(final IBeanProxy<BEAN_TYPE> bean) {
@@ -395,7 +353,9 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 			final IExecutionTask executionTask = this.bean.getExecutionTask();
 			if (executionTask != null) {
 				executionTask.addExecutionTaskListener(executionTaskListener);
-				Toolkit.getWaitAnimationProcessor().addChangeListener(labelWaitChangeListener);
+				if (processStateLabel != null) {
+					Toolkit.getWaitAnimationProcessor().addChangeListener(labelWaitChangeListener);
+				}
 			}
 		}
 	}
@@ -411,17 +371,19 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 	}
 
 	private void updateExecutionTaskText(final IBeanProxy<BEAN_TYPE> bean) {
-		if (bean != null) {
-			final IExecutionTask executionTask = bean.getExecutionTask();
-			if (executionTask != null) {
-				processStateLabel.setText(computeLabelText(executionTask));
+		if (processStateLabel != null) {
+			if (bean != null) {
+				final IExecutionTask executionTask = bean.getExecutionTask();
+				if (executionTask != null) {
+					processStateLabel.setText(computeLabelText(executionTask));
+				}
+				else {
+					processStateLabel.setText("");
+				}
 			}
 			else {
 				processStateLabel.setText("");
 			}
-		}
-		else {
-			processStateLabel.setText("");
 		}
 	}
 
@@ -640,8 +602,30 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 
 		@Override
 		public ICustomWidgetCreator<? extends IControl> createMainValidationLabel() {
-			// TODO MG implement create main validation label
-			return null;
+			if (mainValidationLabelSetup != null) {
+				return new ICustomWidgetCreator<IControl>() {
+					@Override
+					public IControl create(final ICustomWidgetFactory widgetFactory) {
+						validationLabelContainer = widgetFactory.create(BPF.composite());
+						validationLabelContainer.setLayout(new MigLayoutDescriptor("hidemode 3", "0[grow, 0::]0", "0[0::]0"));
+						mainValidationLabel = validationLabelContainer.add(getMainValidationLabelBp(), "growx, w 30::, h 20::");
+						mainValidationLabel.setMinSize(new Dimension(20, 20));
+
+						final ILabelBluePrint processStateLabelBp = BPF.label();
+						processStateLabelBp.setMarkup(Markup.EMPHASIZED);
+						processStateLabelBp.setColor(Colors.STRONG);
+						processStateLabelBp.setIcon(IconsSmall.WAIT_1);
+						processStateLabel = validationLabelContainer.add(processStateLabelBp, "growx, w 30::, h 20::");
+						processStateLabel.setMinSize(new Dimension(20, 20));
+						processStateLabel.setVisible(false);
+
+						return validationLabelContainer;
+					}
+				};
+			}
+			else {
+				return null;
+			}
 		}
 
 		@Override
@@ -659,6 +643,11 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 		@Override
 		public boolean getScrollbarsAllowed() {
 			return scrollbarsAllowed;
+		}
+
+		@Override
+		public Integer getMaxWidthDeafult() {
+			return maxWidthDefault;
 		}
 
 		@Override
@@ -713,7 +702,7 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 							+ "'.");
 					}
 					final IValidationResultLabelBluePrint validationLabelBp = BPF.validationResultLabel();
-					validationLabelBp.setSetup(propertyValidationLabel);
+					validationLabelBp.setSetup(propertyValidationLabelSetup);
 					final IValidationResultLabel validationLabel = widgetFactory.create(validationLabelBp);
 					validationLabels.put(propertyName, validationLabel);
 					return validationLabel;
@@ -723,7 +712,7 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 
 		@Override
 		public boolean hasPropertyValidationLabels() {
-			return propertyValidationLabel != null;
+			return propertyValidationLabelSetup != null;
 		}
 
 		@Override
@@ -734,6 +723,13 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 		@Override
 		public ICustomWidgetCreator<? extends IControl> createUndoButton() {
 			return createButton(undoAction);
+		}
+
+		private IInputComponentValidationLabelBluePrint getMainValidationLabelBp() {
+			final IInputComponentValidationLabelBluePrint validationLabelBp = BPF.inputComponentValidationLabel();
+			validationLabelBp.setSetup(mainValidationLabelSetup);
+			validationLabelBp.setInputComponent(BeanFormControl.this);
+			return validationLabelBp;
 		}
 
 		private ICustomWidgetCreator<? extends IControl> createButton(final IAction action) {

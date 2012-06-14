@@ -38,13 +38,17 @@ public interface IBeanFormLayout {
 
 	Integer getControlMinWidth(int column);
 
+	Integer getControlPrefWidth(int column);
+
 	Integer getControlMaxWidth(int column);
 
 	Integer getMinWidth();
 
-	Integer getWidth();
+	Integer getPrefWidth();
 
 	Integer getMaxWidth();
+
+	int getValidationLabelHeight();
 
 	List<IBeanFormGroup> getGroups();
 

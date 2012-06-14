@@ -37,7 +37,6 @@ import java.util.List;
 
 import org.jowidgets.api.widgets.IComposite;
 import org.jowidgets.api.widgets.IContainer;
-import org.jowidgets.api.widgets.IScrollComposite;
 import org.jowidgets.api.widgets.ISplitComposite;
 import org.jowidgets.cap.common.api.bean.IBeanModification;
 import org.jowidgets.cap.common.api.filter.BooleanOperator;
@@ -146,22 +145,40 @@ final class BeanLinkPanelImpl<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> extends
 		final IBeanFormBluePrint<LINK_BEAN_TYPE> linkFormBp,
 		final IBeanFormBluePrint<LINKABLE_BEAN_TYPE> linkableFormBp) {
 
-		container.setLayout(MigLayoutFactory.growingInnerCellLayout());
-		final IScrollComposite content = container.add(BPF.scrollComposite(), MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
-
 		if (linkFormBp != null && linkableFormBp != null) {
+
+			final boolean scrolledContent = linkFormBp.getScrollbarsAllowed() && linkableFormBp.getScrollbarsAllowed();
+
+			final IContainer content;
+			if (scrolledContent) {
+				container.setLayout(MigLayoutFactory.growingInnerCellLayout());
+				content = container.add(BPF.scrollComposite(), MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
+			}
+			else {
+				content = container;
+			}
+
 			content.setLayout(new MigLayoutDescriptor("[grow, 0::]", "0[]0[]0[]0"));
-			this.linkForm = content.add(createModifiedFormBp(linkFormBp), "growx, w 0::, wrap");
+			final IBeanFormBluePrint<LINK_BEAN_TYPE> modifiedLinkFormBp = createModifiedFormBp(linkFormBp);
+			if (scrolledContent) {
+				modifiedLinkFormBp.setScrollbarsAllowed(false);
+			}
+			this.linkForm = content.add(modifiedLinkFormBp, "growx, w 0::, wrap");
+
 			content.add(BPF.separator(), "growx, w 0::, wrap");
-			this.linkableForm = content.add(createModifiedFormBp(linkableFormBp), "growx, w 0::");
+			final IBeanFormBluePrint<LINKABLE_BEAN_TYPE> modifiedLinkableFormBp = createModifiedFormBp(linkableFormBp);
+			if (scrolledContent) {
+				modifiedLinkableFormBp.setScrollbarsAllowed(false);
+			}
+			this.linkableForm = content.add(modifiedLinkableFormBp, "growx, w 0::");
 		}
 		else {
-			content.setLayout(new MigLayoutDescriptor("[grow, 0::]", "[]"));
+			container.setLayout(new MigLayoutDescriptor("[grow, 0::]", "[grow, 0::]"));
 			if (linkFormBp != null) {
-				this.linkForm = content.add(createModifiedFormBp(linkFormBp), "growx, w 0::");
+				this.linkForm = container.add(createModifiedFormBp(linkFormBp), "growx, w 0::, growy, h 0::");
 			}
 			if (linkableFormBp != null) {
-				this.linkableForm = content.add(createModifiedFormBp(linkableFormBp), "growx, w 0::");
+				this.linkableForm = container.add(createModifiedFormBp(linkableFormBp), "growx, w 0::, growy, h 0::");
 			}
 		}
 
@@ -176,7 +193,6 @@ final class BeanLinkPanelImpl<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> extends
 		result.setCreateModeValidationLabel(null);
 		result.setSaveAction(null);
 		result.setUndoAction(null);
-		result.setScrollbarsAllowed(false);
 		return result;
 	}
 
