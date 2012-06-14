@@ -55,6 +55,6 @@ public interface IBeanFormProperty {
 
 	AlignmentVertical getPropertyAlignmentVertical();
 
-	Integer getValidationLabelMinSize();
+	int getValidationLabelMinWidth();
 
 }

@@ -48,7 +48,7 @@ final class BeanFormPropertyImpl implements IBeanFormProperty {
 	private final AlignmentVertical labelAlignmentVertical;
 	private final AlignmentVertical propertyAlignmentVertical;
 
-	private final Integer validationLabelMinSize;
+	private final int validationLabelMinWidth;
 
 	BeanFormPropertyImpl(
 		final String propertyName,
@@ -62,7 +62,7 @@ final class BeanFormPropertyImpl implements IBeanFormProperty {
 		final AlignmentHorizontal propertyAlignmentHorizontal,
 		final AlignmentVertical labelAlignmentVertical,
 		final AlignmentVertical propertyAlignmentVertical,
-		final Integer validationLabelMinSize) {
+		final int validationLabelMinWidth) {
 		Assert.paramNotEmpty(propertyName, "propertyName");
 		this.propertyName = propertyName;
 		this.showLabel = showLabel;
@@ -75,7 +75,7 @@ final class BeanFormPropertyImpl implements IBeanFormProperty {
 		this.propertyAlignmentHorizontal = propertyAlignmentHorizontal;
 		this.labelAlignmentVertical = labelAlignmentVertical;
 		this.propertyAlignmentVertical = propertyAlignmentVertical;
-		this.validationLabelMinSize = validationLabelMinSize;
+		this.validationLabelMinWidth = validationLabelMinWidth;
 	}
 
 	@Override
@@ -134,8 +134,8 @@ final class BeanFormPropertyImpl implements IBeanFormProperty {
 	}
 
 	@Override
-	public Integer getValidationLabelMinSize() {
-		return validationLabelMinSize;
+	public int getValidationLabelMinWidth() {
+		return validationLabelMinWidth;
 	}
 
 }

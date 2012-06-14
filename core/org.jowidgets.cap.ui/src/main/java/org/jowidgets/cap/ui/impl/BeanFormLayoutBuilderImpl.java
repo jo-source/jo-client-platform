@@ -49,12 +49,19 @@ import org.jowidgets.util.NullCompatibleEquivalence;
 final class BeanFormLayoutBuilderImpl implements IBeanFormLayoutBuilder {
 
 	private final List<IBeanFormGroup> groups;
-	private final Map<Integer, Integer> minSizes;
-	private final Map<Integer, Integer> maxSizes;
+	private final Map<Integer, Integer> controlMinWidths;
+	private final Map<Integer, Integer> controlPrefWidths;
+	private final Map<Integer, Integer> controlMaxWidths;
+
+	private Integer controlMinWidthDefault;
+	private Integer controlPrefWidthDefault;
+	private Integer controlMaxWidthDefault;
 
 	private Integer minWidth;
 	private Integer width;
 	private Integer maxWidth;
+
+	private int validationLabelHeight;
 
 	private int columnCount;
 
@@ -62,8 +69,11 @@ final class BeanFormLayoutBuilderImpl implements IBeanFormLayoutBuilder {
 
 	BeanFormLayoutBuilderImpl() {
 		this.groups = new LinkedList<IBeanFormGroup>();
-		this.minSizes = new HashMap<Integer, Integer>();
-		this.maxSizes = new HashMap<Integer, Integer>();
+		this.controlMinWidthDefault = Integer.valueOf(60);
+		this.validationLabelHeight = 20;
+		this.controlMinWidths = new HashMap<Integer, Integer>();
+		this.controlPrefWidths = new HashMap<Integer, Integer>();
+		this.controlMaxWidths = new HashMap<Integer, Integer>();
 		this.columnCount = 1;
 	}
 
@@ -83,7 +93,7 @@ final class BeanFormLayoutBuilderImpl implements IBeanFormLayoutBuilder {
 	}
 
 	@Override
-	public IBeanFormLayoutBuilder setWidth(final int width) {
+	public IBeanFormLayoutBuilder setPrefWidth(final int width) {
 		this.width = Integer.valueOf(width);
 		return this;
 	}
@@ -95,14 +105,44 @@ final class BeanFormLayoutBuilderImpl implements IBeanFormLayoutBuilder {
 	}
 
 	@Override
-	public IBeanFormLayoutBuilder setColumnMinSize(final int columnIndex, final int minSize) {
-		minSizes.put(Integer.valueOf(columnIndex), Integer.valueOf(minSize));
+	public IBeanFormLayoutBuilder setControlMinWidthDefault(final int width) {
+		this.controlMinWidthDefault = Integer.valueOf(width);
 		return this;
 	}
 
 	@Override
-	public IBeanFormLayoutBuilder setColumnMaxSize(final int columnIndex, final int maxSize) {
-		maxSizes.put(Integer.valueOf(columnIndex), Integer.valueOf(maxSize));
+	public IBeanFormLayoutBuilder setControlPrefWidthDefault(final int width) {
+		this.controlPrefWidthDefault = Integer.valueOf(width);
+		return this;
+	}
+
+	@Override
+	public IBeanFormLayoutBuilder setControlMaxWidthDefault(final int width) {
+		this.controlMaxWidthDefault = Integer.valueOf(width);
+		return this;
+	}
+
+	@Override
+	public IBeanFormLayoutBuilder setControlMinWidth(final int columnIndex, final int width) {
+		controlMinWidths.put(Integer.valueOf(columnIndex), Integer.valueOf(width));
+		return this;
+	}
+
+	@Override
+	public IBeanFormLayoutBuilder setControlPrefWidth(final int columnIndex, final int width) {
+		controlPrefWidths.put(Integer.valueOf(columnIndex), Integer.valueOf(width));
+		return this;
+	}
+
+	@Override
+	public IBeanFormLayoutBuilder setControlMaxWidth(final int columnIndex, final int width) {
+		controlMaxWidths.put(Integer.valueOf(columnIndex), Integer.valueOf(width));
+		return this;
+	}
+
+	@Override
+	public IBeanFormLayoutBuilder setValidationLabelHeight(final int height) {
+		this.validationLabelHeight = height;
 		return this;
 	}
 
@@ -167,7 +207,20 @@ final class BeanFormLayoutBuilderImpl implements IBeanFormLayoutBuilder {
 
 	@Override
 	public IBeanFormLayout build() {
-		return new BeanFormLayoutImpl(columnCount, minWidth, width, maxWidth, groups, minSizes, maxSizes, contentBorder);
+		return new BeanFormLayoutImpl(
+			columnCount,
+			minWidth,
+			width,
+			maxWidth,
+			groups,
+			controlMinWidthDefault,
+			controlPrefWidthDefault,
+			controlMaxWidthDefault,
+			controlMinWidths,
+			controlPrefWidths,
+			controlMaxWidths,
+			validationLabelHeight,
+			contentBorder);
 	}
 
 	private IBeanFormPropertyBuilder getPropertyBuilder() {

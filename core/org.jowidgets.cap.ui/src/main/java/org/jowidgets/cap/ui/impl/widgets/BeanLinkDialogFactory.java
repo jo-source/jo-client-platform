@@ -51,6 +51,7 @@ final class BeanLinkDialogFactory implements
 		final IInputDialogBluePrint<IBeanLink<Object, Object>> inputDialogBp = BPF.inputDialog(contentCreator);
 		inputDialogBp.setSetup(bluePrint);
 		inputDialogBp.setContentCreator(contentCreator);
+		inputDialogBp.setContentScrolled(false);
 		final IInputDialog<IBeanLink<Object, Object>> inputDialog = Toolkit.getWidgetFactory().create(inputDialogBp);
 
 		return new BeanLinkDialogImpl<Object, Object>(inputDialog, bluePrint);

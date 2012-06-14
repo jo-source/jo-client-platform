@@ -50,7 +50,7 @@ final class BeanFormPropertyBuilderImpl implements IBeanFormPropertyBuilder {
 	private AlignmentVertical labelAlignmentVertical;
 	private AlignmentVertical propertyAlignmentVertical;
 
-	private Integer validationLabelMinSize;
+	private Integer validationLabelMinWidth;
 
 	BeanFormPropertyBuilderImpl() {
 		showLabel = true;
@@ -61,7 +61,7 @@ final class BeanFormPropertyBuilderImpl implements IBeanFormPropertyBuilder {
 		propertyAlignmentHorizontal = AlignmentHorizontal.LEFT;
 		propertyAlignmentVertical = AlignmentVertical.CENTER;
 
-		this.validationLabelMinSize = Integer.valueOf(18);
+		this.validationLabelMinWidth = Integer.valueOf(25);
 	}
 
 	@Override
@@ -136,8 +136,8 @@ final class BeanFormPropertyBuilderImpl implements IBeanFormPropertyBuilder {
 	}
 
 	@Override
-	public IBeanFormPropertyBuilder setValidationLabelMinSize(final int minSize) {
-		this.validationLabelMinSize = Integer.valueOf(minSize);
+	public IBeanFormPropertyBuilder setValidationLabelMinWidth(final int minSize) {
+		this.validationLabelMinWidth = Integer.valueOf(minSize);
 		return this;
 	}
 
@@ -155,7 +155,7 @@ final class BeanFormPropertyBuilderImpl implements IBeanFormPropertyBuilder {
 			propertyAlignmentHorizontal,
 			labelAlignmentVertical,
 			propertyAlignmentVertical,
-			validationLabelMinSize);
+			validationLabelMinWidth);
 	}
 
 }

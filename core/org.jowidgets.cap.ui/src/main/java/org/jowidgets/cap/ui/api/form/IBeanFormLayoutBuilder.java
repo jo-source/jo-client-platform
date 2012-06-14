@@ -37,13 +37,23 @@ public interface IBeanFormLayoutBuilder {
 
 	IBeanFormLayoutBuilder setColumnCount(int columnCount);
 
-	IBeanFormLayoutBuilder setColumnMinSize(int columnIndex, int minSize);
+	IBeanFormLayoutBuilder setControlMinWidthDefault(int width);
 
-	IBeanFormLayoutBuilder setColumnMaxSize(int columnIndex, int maxSize);
+	IBeanFormLayoutBuilder setControlPrefWidthDefault(int width);
+
+	IBeanFormLayoutBuilder setControlMaxWidthDefault(int width);
+
+	IBeanFormLayoutBuilder setControlMinWidth(int columnIndex, int width);
+
+	IBeanFormLayoutBuilder setControlPrefWidth(int columnIndex, int width);
+
+	IBeanFormLayoutBuilder setControlMaxWidth(int columnIndex, int width);
+
+	IBeanFormLayoutBuilder setValidationLabelHeight(int height);
 
 	IBeanFormLayoutBuilder setMinWidth(int minWidth);
 
-	IBeanFormLayoutBuilder setWidth(int width);
+	IBeanFormLayoutBuilder setPrefWidth(int width);
 
 	IBeanFormLayoutBuilder setMaxWidth(int maxWidth);
 

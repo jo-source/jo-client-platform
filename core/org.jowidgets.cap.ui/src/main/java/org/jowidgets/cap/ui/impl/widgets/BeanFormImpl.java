@@ -34,6 +34,7 @@ import java.util.HashSet;
 import java.util.List;
 
 import org.jowidgets.api.widgets.IComposite;
+import org.jowidgets.api.widgets.blueprint.ICompositeBluePrint;
 import org.jowidgets.cap.common.api.validation.IBeanValidationResult;
 import org.jowidgets.cap.ui.api.bean.IBeanProcessStateListener;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
@@ -50,6 +51,7 @@ import org.jowidgets.plugin.api.IPluginProperties;
 import org.jowidgets.plugin.api.IPluginPropertiesBuilder;
 import org.jowidgets.plugin.api.PluginProvider;
 import org.jowidgets.plugin.api.PluginToolkit;
+import org.jowidgets.tools.layout.MigLayoutFactory;
 import org.jowidgets.tools.widgets.blueprint.BPF;
 import org.jowidgets.tools.widgets.wrapper.ControlWrapper;
 import org.jowidgets.util.Assert;
@@ -80,8 +82,9 @@ final class BeanFormImpl<BEAN_TYPE> extends ControlWrapper implements IBeanForm<
 			modifyBeanFormBpByPlugins(entityId, beanType, bluePrint);
 		}
 
-		composite.setLayout(new MigLayoutDescriptor("hidemode 3", "0[grow, 0::]0", "0[0::]0"));
-		this.editFormComposite = composite.add(BPF.composite().setBorder(bluePrint.getBorder()), "growx, w 0::, h 0::");
+		composite.setLayout(new MigLayoutDescriptor("hidemode 3", "0[grow, 0::]0", "0[grow, 0::]0"));
+		final ICompositeBluePrint contentCompositeBp = BPF.composite().setBorder(bluePrint.getBorder());
+		this.editFormComposite = composite.add(contentCompositeBp, MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
 		this.editForm = new BeanFormControl<BEAN_TYPE>(
 			editFormComposite,
 			bluePrint.getEntityId(),
@@ -89,7 +92,7 @@ final class BeanFormImpl<BEAN_TYPE> extends ControlWrapper implements IBeanForm<
 			bluePrint.getEditModeAttributes(),
 			bluePrint.getEditModeLayouter(),
 			bluePrint.getScrollbarsAllowed(),
-			bluePrint.getMaxWidth(),
+			bluePrint.getMaxWidthDefault(),
 			bluePrint.getMandatoryLabelDecorator(),
 			bluePrint.getMandatoryBackgroundColor(),
 			null,
@@ -100,7 +103,7 @@ final class BeanFormImpl<BEAN_TYPE> extends ControlWrapper implements IBeanForm<
 			bluePrint.getUndoAction(),
 			bluePrint.getSaveAction());
 
-		this.createFormComposite = composite.add(BPF.composite().setBorder(bluePrint.getBorder()), "growx, w 0::, h 0::");
+		this.createFormComposite = composite.add(contentCompositeBp, MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
 		this.createForm = new BeanFormControl<BEAN_TYPE>(
 			createFormComposite,
 			bluePrint.getEntityId(),
@@ -108,7 +111,7 @@ final class BeanFormImpl<BEAN_TYPE> extends ControlWrapper implements IBeanForm<
 			bluePrint.getCreateModeAttributes(),
 			bluePrint.getCreateModeLayouter(),
 			bluePrint.getScrollbarsAllowed(),
-			bluePrint.getMaxWidth(),
+			bluePrint.getMaxWidthDefault(),
 			bluePrint.getMandatoryLabelDecorator(),
 			bluePrint.getMandatoryBackgroundColor(),
 			bluePrint.getCreateModeForegroundColor(),

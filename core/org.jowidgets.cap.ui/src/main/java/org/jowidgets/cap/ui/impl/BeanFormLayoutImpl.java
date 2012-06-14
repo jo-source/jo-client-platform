@@ -42,11 +42,16 @@ final class BeanFormLayoutImpl implements IBeanFormLayout {
 
 	private final int columnCount;
 	private final List<IBeanFormGroup> groups;
-	private final Map<Integer, Integer> minSizes;
-	private final Map<Integer, Integer> maxSizes;
+	private final Integer controlMinWidthDefault;
+	private final Integer controlPrefWidthDefault;
+	private final Integer controlMaxWidthDefault;
+	private final Map<Integer, Integer> controlMinWidths;
+	private final Map<Integer, Integer> controlPrefWidths;
+	private final Map<Integer, Integer> controlMaxWidths;
 	private final Integer minWidth;
 	private final Integer width;
 	private final Integer maxWidth;
+	private final int validationLabelHeight;
 	private final Border contentBorder;
 
 	BeanFormLayoutImpl(
@@ -55,8 +60,13 @@ final class BeanFormLayoutImpl implements IBeanFormLayout {
 		final Integer width,
 		final Integer maxWidth,
 		final List<IBeanFormGroup> groups,
-		final Map<Integer, Integer> minSizes,
-		final Map<Integer, Integer> maxSizes,
+		final Integer controlMinWidthDefault,
+		final Integer controlPrefWidthDefault,
+		final Integer controlMaxWidthDefault,
+		final Map<Integer, Integer> controlMinWidths,
+		final Map<Integer, Integer> controlPrefWidths,
+		final Map<Integer, Integer> controlMaxWidth,
+		final int validationLabelHeight,
 		final Border contentBorder) {
 
 		this.columnCount = columnCount;
@@ -64,8 +74,13 @@ final class BeanFormLayoutImpl implements IBeanFormLayout {
 		this.minWidth = minWidth;
 		this.width = width;
 		this.maxWidth = maxWidth;
-		this.minSizes = new HashMap<Integer, Integer>(minSizes);
-		this.maxSizes = new HashMap<Integer, Integer>(maxSizes);
+		this.controlMinWidthDefault = controlMinWidthDefault;
+		this.controlPrefWidthDefault = controlPrefWidthDefault;
+		this.controlMaxWidthDefault = controlMaxWidthDefault;
+		this.controlMinWidths = new HashMap<Integer, Integer>(controlMinWidths);
+		this.controlPrefWidths = new HashMap<Integer, Integer>(controlPrefWidths);
+		this.controlMaxWidths = new HashMap<Integer, Integer>(controlMaxWidth);
+		this.validationLabelHeight = validationLabelHeight;
 		this.contentBorder = contentBorder;
 	}
 
@@ -80,7 +95,7 @@ final class BeanFormLayoutImpl implements IBeanFormLayout {
 	}
 
 	@Override
-	public Integer getWidth() {
+	public Integer getPrefWidth() {
 		return width;
 	}
 
@@ -91,22 +106,50 @@ final class BeanFormLayoutImpl implements IBeanFormLayout {
 
 	@Override
 	public Integer getControlMinWidth(final int column) {
-		return minSizes.get(Integer.valueOf(column));
+		final Integer result = controlMinWidths.get(Integer.valueOf(column));
+		if (result == null) {
+			return controlMinWidthDefault;
+		}
+		else {
+			return result;
+		}
+	}
+
+	@Override
+	public Integer getControlPrefWidth(final int column) {
+		final Integer result = controlPrefWidths.get(Integer.valueOf(column));
+		if (result == null) {
+			return controlPrefWidthDefault;
+		}
+		else {
+			return result;
+		}
 	}
 
 	@Override
 	public Integer getControlMaxWidth(final int column) {
-		return maxSizes.get(Integer.valueOf(column));
+		final Integer result = controlMaxWidths.get(Integer.valueOf(column));
+		if (result == null) {
+			return controlMaxWidthDefault;
+		}
+		else {
+			return result;
+		}
 	}
 
 	@Override
-	public List<IBeanFormGroup> getGroups() {
-		return groups;
+	public int getValidationLabelHeight() {
+		return validationLabelHeight;
 	}
 
 	@Override
 	public Border getContentBorder() {
 		return contentBorder;
+	}
+
+	@Override
+	public List<IBeanFormGroup> getGroups() {
+		return groups;
 	}
 
 }
