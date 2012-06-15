@@ -43,6 +43,8 @@ import org.jowidgets.workbench.tools.AbstractView;
 
 public class EntityTableView extends AbstractView {
 
+	private final String addLabel = Messages.getString("EntityTableView.add"); //$NON-NLS-1$
+
 	public EntityTableView(
 		final IViewContext context,
 		final IBeanTableModel<?> tableModel,
@@ -60,9 +62,12 @@ public class EntityTableView extends AbstractView {
 	}
 
 	private void addLinkActions(final IBeanTable<?> table, final Collection<IAction> actions) {
-		final IMenuModel tableCellMenu = table.getCellPopMenu();
+		IMenuModel menu = table.getCellPopMenu();
+		if (actions.size() > 3) {
+			menu = menu.addMenu(addLabel);
+		}
 		for (final IAction action : actions) {
-			tableCellMenu.addAction(action);
+			menu.addAction(action);
 		}
 	}
 
