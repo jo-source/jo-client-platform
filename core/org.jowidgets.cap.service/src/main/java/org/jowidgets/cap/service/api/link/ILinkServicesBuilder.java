@@ -66,6 +66,21 @@ public interface ILinkServicesBuilder<LINKED_BEAN_TYPE extends IBean> {
 
 	ILinkServicesBuilder<LINKED_BEAN_TYPE> setLinkableDeleterService(IDeleterService creatorService);
 
+	/**
+	 * Sets the symmetric property, the default a 'false'
+	 * 
+	 * The link is symmetric if
+	 * 'a' is linked with 'b' implies 'b' is linked with 'a'
+	 * 
+	 * If the link will be set to symmetric, the default deleter service will also try to delete
+	 * the reverse link, e.g. if 'a' should be unlinked with 'b', 'b' will also be unlinked from 'a'.
+	 * 
+	 * @param symmetric If true the links is symmetric, false otherwise
+	 * 
+	 * @return This builder
+	 */
+	ILinkServicesBuilder<LINKED_BEAN_TYPE> setSymmetric(boolean symmetric);
+
 	ILinkServicesBuilder<LINKED_BEAN_TYPE> setSourceProperties(IEntityLinkProperties properties);
 
 	ILinkServicesBuilder<LINKED_BEAN_TYPE> setSourceProperties(String keyPropertyName, String foreignKeyPropertyname);

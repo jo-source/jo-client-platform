@@ -61,6 +61,7 @@ final class LinkDeleterServiceImpl implements ILinkDeleterService {
 	private final IDeleterService sourceDeleterService;
 	private final IDeleterService linkDeleterService;
 	private final IDeleterService linkedDeleterService;
+	private final boolean symmetric;
 	private final IEntityLinkProperties sourceProperties;
 	private final IEntityLinkProperties destinationProperties;
 
@@ -69,16 +70,18 @@ final class LinkDeleterServiceImpl implements ILinkDeleterService {
 		final IDeleterService sourceDeleterService,
 		final IDeleterService linkDeleterService,
 		final IDeleterService linkedDeleterService,
+		final boolean symmetric,
 		final IEntityLinkProperties sourceProperties,
 		final IEntityLinkProperties destinationProperties) {
 
+		Assert.paramNotNull(linkDeleterService, "linkDeleterService");
 		Assert.paramNotNull(sourceProperties, "sourceProperties");
-		Assert.paramNotNull(destinationProperties, "destinationProperties");
 
 		this.linkReaderService = linkReaderService;
 		this.sourceDeleterService = sourceDeleterService;
 		this.linkDeleterService = linkDeleterService;
 		this.linkedDeleterService = linkedDeleterService;
+		this.symmetric = symmetric;
 		this.sourceProperties = sourceProperties;
 		this.destinationProperties = destinationProperties;
 	}
@@ -121,11 +124,14 @@ final class LinkDeleterServiceImpl implements ILinkDeleterService {
 			}
 			if (linkDeleterService != linkedDeleterService) {
 				linkReaderFilterBuilder.addFilter(createLinkFilter(sourceKey, destinationKey));
+				if (symmetric) {
+					linkReaderFilterBuilder.addFilter(createLinkFilter(destinationKey, sourceKey));
+				}
 			}
 		}
 
-		if (linkReaderFilterBuilder.isEmpty()) {
-			deleteLinks(linkReaderFilterBuilder.build(), linksDeletions.size(), executionCallback);
+		if (!linkReaderFilterBuilder.isEmpty()) {
+			deleteLinks(linkReaderFilterBuilder.build(), linksDeletions.size() * 2, executionCallback);
 		}
 
 		deleteKeys(sourceKeys, sourceDeleterService, executionCallback);
@@ -168,7 +174,9 @@ final class LinkDeleterServiceImpl implements ILinkDeleterService {
 		final IBooleanFilterBuilder builder = BooleanFilter.builder();
 		builder.setOperator(BooleanOperator.AND);
 		builder.addFilter(createKeyFilter(sourceKey, sourceProperties));
-		builder.addFilter(createKeyFilter(destinationKey, destinationProperties));
+		if (destinationProperties != null) {
+			builder.addFilter(createKeyFilter(destinationKey, destinationProperties));
+		}
 		return builder.build();
 	}
 

@@ -63,6 +63,8 @@ final class LinkServicesBuilderImpl<LINKED_BEAN_TYPE extends IBean> implements I
 	private IEntityLinkProperties sourceProperties;
 	private IEntityLinkProperties destinationProperties;
 
+	private boolean symmetric;
+
 	@Override
 	public ILinkServicesBuilder<LINKED_BEAN_TYPE> setLinkBeanType(final Class<? extends IBean> beanType) {
 		Assert.paramNotNull(beanType, "beanType");
@@ -138,6 +140,12 @@ final class LinkServicesBuilderImpl<LINKED_BEAN_TYPE extends IBean> implements I
 	}
 
 	@Override
+	public ILinkServicesBuilder<LINKED_BEAN_TYPE> setSymmetric(final boolean symmetric) {
+		this.symmetric = symmetric;
+		return this;
+	}
+
+	@Override
 	public ILinkServicesBuilder<LINKED_BEAN_TYPE> setSourceProperties(final IEntityLinkProperties properties) {
 		Assert.paramNotNull(properties, "properties");
 		this.sourceProperties = properties;
@@ -194,6 +202,7 @@ final class LinkServicesBuilderImpl<LINKED_BEAN_TYPE extends IBean> implements I
 			sourceDeleterService,
 			linkDeleterService,
 			linkableDeleterService,
+			symmetric,
 			sourceProperties,
 			destinationProperties);
 	}
