@@ -38,6 +38,7 @@ import org.jowidgets.cap.ui.api.command.IDataModelActionBuilder;
 import org.jowidgets.cap.ui.api.command.IDeleterActionBuilder;
 import org.jowidgets.cap.ui.api.command.IExecutorActionBuilder;
 import org.jowidgets.cap.ui.api.command.ILinkCreatorActionBuilder;
+import org.jowidgets.cap.ui.api.command.ILinkDeleterActionBuilder;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 
 final class CapActionFactoryImpl implements ICapActionFactory {
@@ -137,6 +138,27 @@ final class CapActionFactoryImpl implements ICapActionFactory {
 		final ILinkCreatorActionBuilder builder = linkCreatorActionBuilder(source, linkDescriptor);
 		builder.setLinkedModel(linkedModel);
 		return builder.build();
+	}
+
+	@Override
+	public <SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> ILinkDeleterActionBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> linkDeleterActionBuilder() {
+		return new LinkDeleterActionBuilderImpl<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE>();
+	}
+
+	@Override
+	public <SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> ILinkDeleterActionBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> linkDeleterActionBuilder(
+		final IBeanSelectionProvider<SOURCE_BEAN_TYPE> source,
+		final IBeanListModel<LINKED_BEAN_TYPE> linkedModel,
+		final IEntityLinkDescriptor linkDescriptor) {
+		return new LinkDeleterActionBuilderImpl<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE>(source, linkedModel, linkDescriptor);
+	}
+
+	@Override
+	public IAction linkDeleterAction(
+		final IBeanSelectionProvider<?> source,
+		final IBeanListModel<?> linkedModel,
+		final IEntityLinkDescriptor linkDescriptor) {
+		return linkDeleterActionBuilder(source, linkedModel, linkDescriptor).build();
 	}
 
 }

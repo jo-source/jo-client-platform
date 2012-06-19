@@ -72,6 +72,21 @@ public interface IBeanEntityLinkBluePrint {
 	 */
 	IBeanEntityLinkBluePrint setLinkableEntityId(Object id);
 
+	/**
+	 * Sets the symmetric property, the default a 'false'
+	 * 
+	 * The link is symmetric if
+	 * 'a' is linked with 'b' implies 'b' is linked with 'a'
+	 * 
+	 * If the link will be set to symmetric, the default deleter service will also try to delete
+	 * the reverse link, e.g. if 'a' should be unlinked with 'b', 'b' will also be unlinked from 'a'.
+	 * 
+	 * @param symmetric If true the links is symmetric, false otherwise
+	 * 
+	 * @return This blue print
+	 */
+	IBeanEntityLinkBluePrint setSymmetric(boolean symmetric);
+
 	IBeanEntityLinkBluePrint setSourceProperties(IEntityLinkProperties properties);
 
 	IBeanEntityLinkBluePrint setSourceProperties(String keyPropertyName, String foreignKeyPropertyname);
