@@ -41,13 +41,21 @@ public class LinkedEntityTableView extends AbstractView {
 
 	private final IBeanTable<?> table;
 
-	public LinkedEntityTableView(final IViewContext context, final IBeanTableModel<?> model, final IAction linkCreatorAction) {
+	public LinkedEntityTableView(
+		final IViewContext context,
+		final IBeanTableModel<?> model,
+		final IAction linkCreatorAction,
+		final IAction linkDeleterAction) {
 		final IContainer container = context.getContainer();
 		container.setLayout(MigLayoutFactory.growingInnerCellLayout());
 		this.table = container.add(CapUiToolkit.bluePrintFactory().beanTable(model), MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
 		if (linkCreatorAction != null) {
 			table.getCellPopMenu().addAction(linkCreatorAction);
 			table.getTablePopupMenu().addAction(linkCreatorAction);
+		}
+		if (linkDeleterAction != null) {
+			table.getCellPopMenu().addAction(linkDeleterAction);
+			table.getTablePopupMenu().addAction(linkDeleterAction);
 		}
 
 		model.load();

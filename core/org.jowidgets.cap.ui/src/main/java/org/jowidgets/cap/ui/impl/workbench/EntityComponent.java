@@ -48,8 +48,10 @@ import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
 import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
+import org.jowidgets.cap.ui.api.command.ICapActionFactory;
 import org.jowidgets.cap.ui.api.command.IDataModelAction;
 import org.jowidgets.cap.ui.api.command.ILinkCreatorActionBuilder;
+import org.jowidgets.cap.ui.api.command.ILinkDeleterActionBuilder;
 import org.jowidgets.cap.ui.api.model.LinkType;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
@@ -80,8 +82,9 @@ public class EntityComponent extends AbstractComponent implements IComponent {
 	private final List<IDataModelAction> dataModelActions;
 	private final Set<LinkedEntityTableView> tableViews;
 	private final Map<String, IEntityLinkDescriptor> links;
-	private final Map<Object, IBeanTableModel<?>> linkedModels;
+	private final Map<Object, IBeanTableModel<Object>> linkedModels;
 	private final Map<Object, IAction> linkCreatorActions;
+	private final IEntityTypeId<Object> entityTypeId;
 
 	private EntityMultiDetailView multiDetailView;
 
@@ -96,13 +99,13 @@ public class EntityComponent extends AbstractComponent implements IComponent {
 		}
 
 		final Class<Object> beanType = getBeanType(entityClass.getId());
-		final IEntityTypeId<Object> entityTypeId = EntityTypeId.create(entityClass.getId(), beanType);
+		this.entityTypeId = EntityTypeId.create(entityClass.getId(), beanType);
 		this.tableModel = CapUiToolkit.beanTableModelBuilder(entityClass.getId(), beanType).build();
 		this.relationTreeModel = createRelationTreeModel(tableModel, entityClass);
 		this.dataModelActions = getDataModelActions(componentNodeModel);
 		this.tableViews = new LinkedHashSet<LinkedEntityTableView>();
 		this.links = new LinkedHashMap<String, IEntityLinkDescriptor>();
-		this.linkedModels = new HashMap<Object, IBeanTableModel<?>>();
+		this.linkedModels = new HashMap<Object, IBeanTableModel<Object>>();
 		this.linkCreatorActions = new LinkedHashMap<Object, IAction>();
 
 		final List<IEntityLinkDescriptor> entityLinks = entityService.getEntityLinks(entityClass.getId());
@@ -183,15 +186,50 @@ public class EntityComponent extends AbstractComponent implements IComponent {
 		}
 		else if (links.containsKey(viewId)) {
 			final IEntityLinkDescriptor link = links.get(viewId);
+			final IBeanTableModel<Object> linkedModel = linkedModels.get(link.getLinkedEntityId());
+			final IAction linkCreatorAction = linkCreatorActions.get(link.getLinkedEntityId());
+			final IAction linkDeletionAction = createLinkDeletionAction(link, linkedModel);
 			final LinkedEntityTableView result = new LinkedEntityTableView(
 				context,
-				linkedModels.get(link.getLinkedEntityId()),
-				linkCreatorActions.get(link.getLinkedEntityId()));
+				linkedModel,
+				linkCreatorAction,
+				linkDeletionAction);
 			registerTableView(result);
 			return result;
 		}
 		else {
 			throw new IllegalArgumentException("View id '" + viewId + "' is not known.");
+		}
+	}
+
+	private IAction createLinkDeletionAction(final IEntityLinkDescriptor link, final IBeanTableModel<Object> linkedModel) {
+		final ICapActionFactory actionFactory = CapUiToolkit.actionFactory();
+		if (link.getLinkDeleterService() != null) {
+
+			final ILinkDeleterActionBuilder<Object, ?> builder = actionFactory.linkDeleterActionBuilder(
+					tableModel,
+					linkedModel,
+					link);
+
+			//add interceptor that refreshs the source
+			final BeanRefreshInterceptor<Object, List<IBeanDto>> refreshInterceptor;
+			refreshInterceptor = new BeanRefreshInterceptor<Object, List<IBeanDto>>(tableModel);
+			builder.addExecutionInterceptor(refreshInterceptor);
+
+			//add interceptor that refreshs the linked model
+			final BeanRefreshInterceptor<Object, List<IBeanDto>> linkedRefreshInterceptor;
+			linkedRefreshInterceptor = new BeanRefreshInterceptor<Object, List<IBeanDto>>(linkedModel);
+			builder.addExecutionInterceptor(linkedRefreshInterceptor);
+
+			//add interceptor that removed deleted links from tree nodes
+			final BeanRemoveFromTreeInterceptor removeBeanFromTreeInterceptor;
+			removeBeanFromTreeInterceptor = new BeanRemoveFromTreeInterceptor(link, linkedModel);
+			builder.addExecutionInterceptor(removeBeanFromTreeInterceptor);
+
+			return builder.build();
+		}
+		else {
+			return null;
 		}
 	}
 
@@ -277,6 +315,39 @@ public class EntityComponent extends AbstractComponent implements IComponent {
 					for (final IBeanDto beanDto : result) {
 						relationNodeModel.addBeanDto(beanDto);
 					}
+				}
+			}
+		}
+	}
+
+	private final class BeanRemoveFromTreeInterceptor extends ExecutionInterceptorAdapter<List<IBeanDto>> {
+
+		private final IEntityTypeId<Object> linkedEntityTypeId;
+		private final IBeanTableModel<Object> linkedModel;
+
+		private List<IBeanProxy<Object>> sourceSelection;
+		private List<IBeanProxy<Object>> linkedSelection;
+
+		private BeanRemoveFromTreeInterceptor(final IEntityLinkDescriptor link, final IBeanTableModel<Object> linkedModel) {
+			final Object linkedEntityId = link.getLinkedEntityId();
+			final Class<Object> linkedBeanType = getBeanType(linkedEntityId);
+			this.linkedEntityTypeId = EntityTypeId.create(linkedEntityId, linkedBeanType);
+			this.linkedModel = linkedModel;
+		}
+
+		@Override
+		public void beforeExecution(final IExecutionContext executionContext, final IVetoable continueExecution) {
+			this.sourceSelection = tableModel.getSelectedBeans();
+			this.linkedSelection = linkedModel.getSelectedBeans();
+		}
+
+		@Override
+		public void afterExecutionSuccess(final IExecutionContext executionContext, final List<IBeanDto> result) {
+			for (final IBeanProxy<Object> bean : sourceSelection) {
+				if (relationTreeModel.hasNode(bean, linkedEntityTypeId)) {
+					final IBeanRelationNodeModel<Object, Object> relationNodeModel;
+					relationNodeModel = relationTreeModel.getNode(entityTypeId, bean, linkedEntityTypeId);
+					relationNodeModel.removeBeans(linkedSelection);
 				}
 			}
 		}

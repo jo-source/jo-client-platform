@@ -35,6 +35,7 @@ import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.command.IActionBuilder;
 import org.jowidgets.api.command.ICommand;
 import org.jowidgets.api.command.IEnabledChecker;
+import org.jowidgets.api.image.IconsSmall;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
 import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
@@ -58,6 +59,7 @@ final class LinkDeleterActionBuilderImpl<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> ext
 		ILinkDeleterActionBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> {
 
 	private final List<IExecutableChecker<SOURCE_BEAN_TYPE>> sourceExecutableCheckers;
+	private final List<IExecutableChecker<LINKED_BEAN_TYPE>> linkedExecutableCheckers;
 	private final List<IEnabledChecker> enabledCheckers;
 	private final List<IExecutionInterceptor<List<IBeanDto>>> executionInterceptors;
 
@@ -66,9 +68,15 @@ final class LinkDeleterActionBuilderImpl<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> ext
 	private boolean sourceMultiSelection;
 	private BeanModificationStatePolicy sourceModificationPolicy;
 	private BeanMessageStatePolicy sourceMessageStatePolicy;
+	private boolean linkedMultiSelection;
+	private BeanModificationStatePolicy linkedModificationPolicy;
+	private BeanMessageStatePolicy linkedMessageStatePolicy;
 	private IBeanListModel<LINKED_BEAN_TYPE> linkedModel;
+	private String linkedEntityLabelSingular;
 	private String linkedEntityLabelPlural;
 	private IBeanExceptionConverter exceptionConverter;
+	private boolean autoSelection;
+	private boolean deletionConfirmDialog;
 
 	LinkDeleterActionBuilderImpl(
 		final IBeanSelectionProvider<SOURCE_BEAN_TYPE> source,
@@ -90,6 +98,7 @@ final class LinkDeleterActionBuilderImpl<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> ext
 			if (linkedEntityId != null) {
 				final IBeanDtoDescriptor descriptor = entityService.getDescriptor(linkedEntityId);
 				if (descriptor != null) {
+					setLinkedEntityLabelSingular(descriptor.getLabelSingular());
 					setLinkedEntityLabelPlural(descriptor.getLabelPlural());
 				}
 			}
@@ -98,14 +107,24 @@ final class LinkDeleterActionBuilderImpl<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> ext
 
 	LinkDeleterActionBuilderImpl() {
 		super();
+		this.autoSelection = true;
+		this.deletionConfirmDialog = true;
+
 		this.sourceExecutableCheckers = new LinkedList<IExecutableChecker<SOURCE_BEAN_TYPE>>();
+		this.linkedExecutableCheckers = new LinkedList<IExecutableChecker<LINKED_BEAN_TYPE>>();
 		this.enabledCheckers = new LinkedList<IEnabledChecker>();
 		this.executionInterceptors = new LinkedList<IExecutionInterceptor<List<IBeanDto>>>();
 
 		this.sourceMultiSelection = false;
 		this.sourceModificationPolicy = BeanModificationStatePolicy.NO_MODIFICATION;
 		this.sourceMessageStatePolicy = BeanMessageStatePolicy.NO_WARNING_OR_ERROR;
+
+		this.linkedMultiSelection = true;
+		this.linkedModificationPolicy = BeanModificationStatePolicy.NO_MODIFICATION;
+		this.linkedMessageStatePolicy = BeanMessageStatePolicy.NO_WARNING_OR_ERROR;
 		this.exceptionConverter = new DefaultBeanExceptionConverter();
+
+		setIcon(IconsSmall.SUB);
 	}
 
 	@Override
@@ -125,11 +144,27 @@ final class LinkDeleterActionBuilderImpl<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> ext
 	}
 
 	@Override
+	public ILinkDeleterActionBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> setLinkedMultiSelection(final boolean multiSelection) {
+		checkExhausted();
+		this.linkedMultiSelection = multiSelection;
+		return this;
+	}
+
+	@Override
 	public ILinkDeleterActionBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> setSourceModificationPolicy(
 		final BeanModificationStatePolicy policy) {
 		checkExhausted();
 		Assert.paramNotNull(policy, "policy");
 		this.sourceModificationPolicy = policy;
+		return this;
+	}
+
+	@Override
+	public ILinkDeleterActionBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> setLinkedModificationPolicy(
+		final BeanModificationStatePolicy policy) {
+		checkExhausted();
+		Assert.paramNotNull(policy, "policy");
+		this.linkedModificationPolicy = policy;
 		return this;
 	}
 
@@ -143,11 +178,36 @@ final class LinkDeleterActionBuilderImpl<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> ext
 	}
 
 	@Override
+	public ILinkDeleterActionBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> setLinkedMessageStatePolicy(
+		final BeanMessageStatePolicy policy) {
+		checkExhausted();
+		Assert.paramNotNull(policy, "policy");
+		this.linkedMessageStatePolicy = policy;
+		return this;
+	}
+
+	@Override
 	public ILinkDeleterActionBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> addSourceExecutableChecker(
 		final IExecutableChecker<SOURCE_BEAN_TYPE> executableChecker) {
 		checkExhausted();
 		Assert.paramNotNull(executableChecker, "executableChecker");
 		sourceExecutableCheckers.add(executableChecker);
+		return this;
+	}
+
+	@Override
+	public ILinkDeleterActionBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> addLinkedExecutableChecker(
+		final IExecutableChecker<LINKED_BEAN_TYPE> executableChecker) {
+		checkExhausted();
+		Assert.paramNotNull(executableChecker, "executableChecker");
+		linkedExecutableCheckers.add(executableChecker);
+		return this;
+	}
+
+	@Override
+	public ILinkDeleterActionBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> setLinkedEntityLabelSingular(final String label) {
+		checkExhausted();
+		this.linkedEntityLabelSingular = label;
 		return this;
 	}
 
@@ -172,6 +232,20 @@ final class LinkDeleterActionBuilderImpl<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> ext
 		checkExhausted();
 		Assert.paramNotNull(enabledChecker, "enabledChecker");
 		this.enabledCheckers.add(enabledChecker);
+		return this;
+	}
+
+	@Override
+	public ILinkDeleterActionBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> setAutoSelection(final boolean autoSelection) {
+		checkExhausted();
+		this.autoSelection = autoSelection;
+		return this;
+	}
+
+	@Override
+	public ILinkDeleterActionBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> setDeletionConfirmDialog(
+		final boolean deletionConfirmDialog) {
+		this.deletionConfirmDialog = deletionConfirmDialog;
 		return this;
 	}
 
@@ -202,25 +276,54 @@ final class LinkDeleterActionBuilderImpl<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> ext
 	}
 
 	private void setDefaultTextIfNecessary() {
-		if (EmptyCheck.isEmpty(getText()) && !EmptyCheck.isEmpty(linkedEntityLabelPlural)) {
-			final String message = Messages.getString("LinkDeleterActionBuilderImpl.unlink_var");
-			setText(MessageReplacer.replace(message, linkedEntityLabelPlural));
+		if (EmptyCheck.isEmpty(getText())) {
+			if (!EmptyCheck.isEmpty(linkedEntityLabelSingular) && !linkedMultiSelection) {
+				final String message = Messages.getString("LinkDeleterActionBuilder.delete_single_var");
+				setText(MessageReplacer.replace(message, linkedEntityLabelSingular));
+			}
+			else if (!EmptyCheck.isEmpty(linkedEntityLabelPlural) && linkedMultiSelection) {
+				final String message = Messages.getString("LinkDeleterActionBuilder.delete_multi_var");
+				setText(MessageReplacer.replace(message, linkedEntityLabelPlural));
+			}
+			else if (!linkedMultiSelection) {
+				setText(Messages.getString("LinkDeleterActionBuilder.delete_single"));
+			}
+			else {
+				setText(Messages.getString("LinkDeleterActionBuilder.delete_multi"));
+			}
 		}
+	}
 
+	private void setDefaultToolTipTextIfNecessary() {
+		if (EmptyCheck.isEmpty(getToolTipText())) {
+			if (!linkedMultiSelection) {
+				setToolTipText(Messages.getString("LinkDeleterActionBuilder.delete_single_tooltip"));
+			}
+			else {
+				setToolTipText(Messages.getString("LinkDeleterActionBuilder.delete_multi_tooltip"));
+			}
+		}
 	}
 
 	@Override
 	protected IAction doBuild() {
 		setDefaultTextIfNecessary();
+		setDefaultToolTipTextIfNecessary();
 		final ICommand command = new BeanLinkDeleterCommand<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE>(
 			deleterService,
+			deletionConfirmDialog,
 			source,
 			sourceMultiSelection,
 			sourceModificationPolicy,
 			sourceMessageStatePolicy,
 			sourceExecutableCheckers,
 			linkedModel,
+			linkedMultiSelection,
+			linkedModificationPolicy,
+			linkedMessageStatePolicy,
+			linkedExecutableCheckers,
 			enabledCheckers,
+			autoSelection,
 			executionInterceptors,
 			exceptionConverter);
 

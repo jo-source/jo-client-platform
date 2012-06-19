@@ -56,9 +56,42 @@ public interface ILinkDeleterActionBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> e
 	ILinkDeleterActionBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> addSourceExecutableChecker(
 		IExecutableChecker<SOURCE_BEAN_TYPE> executableChecker);
 
+	ILinkDeleterActionBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> setLinkDeleterService(ILinkDeleterService deleterService);
+
+	ILinkDeleterActionBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> addEnabledChecker(IEnabledChecker enabledChecker);
+
+	ILinkDeleterActionBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> setExceptionConverter(IBeanExceptionConverter exceptionConverter);
+
+	ILinkDeleterActionBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> addExecutionInterceptor(
+		IExecutionInterceptor<List<IBeanDto>> interceptor);
+
+	/**
+	 * If auto selection is set, after bean deletion was delegated to the deleter service, the
+	 * next bean (the bean after the last selected) will be selected automatically
+	 * 
+	 * @param autoSelection
+	 * 
+	 * @return This builder
+	 */
+	ILinkDeleterActionBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> setAutoSelection(boolean autoSelection);
+
+	ILinkDeleterActionBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> setDeletionConfirmDialog(boolean deletionConfirmDialog);
+
+	ILinkDeleterActionBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> setLinkedModel(IBeanListModel<LINKED_BEAN_TYPE> model);
+
+	/**
+	 * Sets the entity label singular.
+	 * This will set a proper text with the entity label as a variable for single selection
+	 * 
+	 * @param label The label to set
+	 * 
+	 * @return This builder
+	 */
+	ILinkDeleterActionBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> setLinkedEntityLabelSingular(final String label);
+
 	/**
 	 * Sets the entity label plural.
-	 * This will set a proper text with the entity label as a variable
+	 * This will set a proper text with the entity label as a variable for multi selection
 	 * 
 	 * @param label The label to set
 	 * 
@@ -66,23 +99,13 @@ public interface ILinkDeleterActionBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> e
 	 */
 	ILinkDeleterActionBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> setLinkedEntityLabelPlural(String label);
 
-	ILinkDeleterActionBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> setLinkDeleterService(ILinkDeleterService deleterService);
+	ILinkDeleterActionBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> setLinkedMultiSelection(boolean multiSelection);
 
-	ILinkDeleterActionBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> addEnabledChecker(IEnabledChecker enabledChecker);
+	ILinkDeleterActionBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> setLinkedModificationPolicy(BeanModificationStatePolicy policy);
 
-	ILinkDeleterActionBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> setExceptionConverter(
-		IBeanExceptionConverter exceptionConverter);
+	ILinkDeleterActionBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> setLinkedMessageStatePolicy(BeanMessageStatePolicy policy);
 
-	ILinkDeleterActionBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> addExecutionInterceptor(
-		IExecutionInterceptor<List<IBeanDto>> interceptor);
-
-	/**
-	 * If a linked model is set, the linked beans will be removed from this model after link deletion
-	 * 
-	 * @param model The model to set
-	 * 
-	 * @return This builder
-	 */
-	ILinkDeleterActionBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> setLinkedModel(IBeanListModel<LINKED_BEAN_TYPE> model);
+	ILinkDeleterActionBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> addLinkedExecutableChecker(
+		IExecutableChecker<LINKED_BEAN_TYPE> executableChecker);
 
 }

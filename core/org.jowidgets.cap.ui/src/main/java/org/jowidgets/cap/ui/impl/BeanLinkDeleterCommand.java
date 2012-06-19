@@ -28,6 +28,8 @@
 
 package org.jowidgets.cap.ui.impl;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -37,6 +39,7 @@ import org.jowidgets.api.command.IEnabledChecker;
 import org.jowidgets.api.command.IExceptionHandler;
 import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.api.toolkit.Toolkit;
+import org.jowidgets.api.types.QuestionResult;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
@@ -56,30 +59,42 @@ import org.jowidgets.cap.ui.api.execution.IExecutionTask;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.tools.execution.AbstractUiExecutionCallbackListener;
 import org.jowidgets.cap.ui.tools.execution.AbstractUiResultCallback;
+import org.jowidgets.tools.command.EnabledCheckerCompositeBuilder;
+import org.jowidgets.tools.message.MessageReplacer;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.EmptyCheck;
 
 final class BeanLinkDeleterCommand<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> implements ICommand, ICommandExecutor {
 
+	private final String singleDeletionConfirmMessage = Messages.getString("BeanLinkDeleterCommand.single_deletion_confirm_message");
+	private final String multiDeletionConfirmMessage = Messages.getString("BeanLinkDeleterCommand.multi_deletion_confirm_message");
+	private final String couldNotBeUndoneMessage = Messages.getString("BeanLinkDeleterCommand.can_not_be_undone");
 	private final String nothingSelectedMessage = Messages.getString("BeanLinkDeleterCommand.nothing_selected");
 
 	private final ILinkDeleterService linkDeleterService;
 	private final IBeanSelectionProvider<SOURCE_BEAN_TYPE> source;
 	private final IBeanListModel<LINKED_BEAN_TYPE> linkedModel;
 	private final IBeanExceptionConverter exceptionConverter;
-
-	private final BeanSelectionProviderEnabledChecker<SOURCE_BEAN_TYPE> enabledChecker;
+	private final IEnabledChecker enabledChecker;
 	private final ExecutionObservable<List<IBeanDto>> executionObservable;
+	private final boolean autoSelection;
+	private final boolean deletionConfirmDialog;
 
 	BeanLinkDeleterCommand(
 		final ILinkDeleterService linkDeleterService,
+		final boolean deletionConfirmDialog,
 		final IBeanSelectionProvider<SOURCE_BEAN_TYPE> source,
 		final boolean sourceMultiSelection,
 		final BeanModificationStatePolicy sourceModificationPolicy,
 		final BeanMessageStatePolicy sourceMessageStatePolicy,
 		final List<IExecutableChecker<SOURCE_BEAN_TYPE>> sourceExecutableCheckers,
 		final IBeanListModel<LINKED_BEAN_TYPE> linkedModel,
+		final boolean linkedMultiSelection,
+		final BeanModificationStatePolicy linkedModificationPolicy,
+		final BeanMessageStatePolicy linkedMessageStatePolicy,
+		final List<IExecutableChecker<LINKED_BEAN_TYPE>> linkedExecutableCheckers,
 		final List<IEnabledChecker> enabledCheckers,
+		final boolean autoSelection,
 		final List<IExecutionInterceptor<List<IBeanDto>>> executionInterceptors,
 		final IBeanExceptionConverter exceptionConverter) {
 
@@ -87,17 +102,33 @@ final class BeanLinkDeleterCommand<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> implement
 		Assert.paramNotNull(sourceModificationPolicy, "sourceModificationPolicy");
 		Assert.paramNotNull(sourceMessageStatePolicy, "sourceMessageStatePolicy");
 		Assert.paramNotNull(sourceExecutableCheckers, "sourceExecutableCheckers");
+		Assert.paramNotNull(linkedModificationPolicy, "linkedModificationPolicy");
+		Assert.paramNotNull(linkedMessageStatePolicy, "linkedMessageStatePolicy");
+		Assert.paramNotNull(linkedExecutableCheckers, "linkedExecutableCheckers");
 		Assert.paramNotNull(enabledCheckers, "enabledCheckers");
 		Assert.paramNotNull(exceptionConverter, "exceptionConverter");
 
-		this.enabledChecker = new BeanSelectionProviderEnabledChecker<SOURCE_BEAN_TYPE>(
+		final EnabledCheckerCompositeBuilder enabledCheckerBuilder = new EnabledCheckerCompositeBuilder();
+
+		enabledCheckerBuilder.add(new BeanSelectionProviderEnabledChecker<SOURCE_BEAN_TYPE>(
 			source,
 			sourceMultiSelection ? BeanSelectionPolicy.MULTI_SELECTION : BeanSelectionPolicy.SINGLE_SELECTION,
 			sourceModificationPolicy,
 			sourceMessageStatePolicy,
 			enabledCheckers,
 			sourceExecutableCheckers,
-			false);
+			false));
+
+		enabledCheckerBuilder.add(new BeanSelectionProviderEnabledChecker<LINKED_BEAN_TYPE>(
+			linkedModel,
+			linkedMultiSelection ? BeanSelectionPolicy.MULTI_SELECTION : BeanSelectionPolicy.SINGLE_SELECTION,
+			linkedModificationPolicy,
+			linkedMessageStatePolicy,
+			new LinkedList<IEnabledChecker>(),
+			linkedExecutableCheckers,
+			false));
+
+		this.enabledChecker = enabledCheckerBuilder.build();
 
 		this.source = source;
 		this.linkDeleterService = linkDeleterService;
@@ -105,6 +136,8 @@ final class BeanLinkDeleterCommand<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> implement
 
 		this.executionObservable = new ExecutionObservable<List<IBeanDto>>(executionInterceptors);
 		this.exceptionConverter = exceptionConverter;
+		this.deletionConfirmDialog = deletionConfirmDialog;
+		this.autoSelection = autoSelection;
 	}
 
 	@Override
@@ -139,6 +172,12 @@ final class BeanLinkDeleterCommand<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> implement
 			return;
 		}
 
+		if (deletionConfirmDialog) {
+			if (!showDeletionConfirmDialog(executionContext, linkedSelection.size())) {
+				return;
+			}
+		}
+
 		new LinkDeleter(executionContext, sourceSelection, linkedSelection).delete();
 	}
 
@@ -148,6 +187,27 @@ final class BeanLinkDeleterCommand<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> implement
 			return false;
 		}
 		return true;
+	}
+
+	private boolean showDeletionConfirmDialog(final IExecutionContext executionContext, final int selectionCount) {
+		final QuestionResult questionResult = Toolkit.getQuestionPane().askYesNoQuestion(
+				executionContext,
+				getConfirmationMessage(selectionCount),
+				QuestionResult.YES);
+		return questionResult == QuestionResult.YES;
+	}
+
+	private String getConfirmationMessage(final int selectionCount) {
+		final StringBuilder result = new StringBuilder();
+		if (selectionCount == 1) {
+			result.append(singleDeletionConfirmMessage);
+		}
+		else {
+			result.append(MessageReplacer.replace(multiDeletionConfirmMessage, "" + selectionCount));
+		}
+		result.append("\n");
+		result.append(couldNotBeUndoneMessage);
+		return result.toString();
 	}
 
 	private final class LinkDeleter {
@@ -191,6 +251,17 @@ final class BeanLinkDeleterCommand<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> implement
 					executionObservable.fireAfterExecutionCanceled(executionContext);
 				}
 			});
+
+			if (autoSelection) {
+				final ArrayList<Integer> selection = linkedModel.getSelection();
+				if (!EmptyCheck.isEmpty(linkedSelection)) {
+					final int newSelectionIndex = selection.get(selection.size() - 1) + 1;
+					if (newSelectionIndex >= 0 && newSelectionIndex < linkedModel.getSize()) {
+						linkedModel.setSelection(Collections.singletonList(newSelectionIndex));
+					}
+				}
+			}
+			linkedModel.fireBeansChanged();
 
 			executionObservable.fireAfterExecutionPrepared(executionContext);
 

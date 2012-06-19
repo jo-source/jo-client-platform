@@ -69,6 +69,7 @@ import org.jowidgets.cap.service.api.entity.IBeanServicesProviderBuilder;
 import org.jowidgets.cap.service.api.factory.IBeanServiceFactory;
 import org.jowidgets.cap.service.api.link.ILinkServicesBuilder;
 import org.jowidgets.cap.service.api.link.LinkServicesBuilder;
+import org.jowidgets.cap.service.api.updater.IUpdaterServiceBuilder;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.api.IServiceRegistry;
 import org.jowidgets.service.tools.ServiceId;
@@ -366,31 +367,37 @@ final class BeanEntityServiceBuilderImpl extends EntityServiceBuilderImpl implem
 			final Class<? extends IBean> beanType,
 			final IBeanDtoDescriptor dtoDescriptor,
 			final Collection<String> propertyNames,
-			final IMaybe<IReaderService<Void>> readerService,
-			final IMaybe<ICreatorService> creatorService,
-			final IMaybe<IRefreshService> refreshService,
-			final IMaybe<IUpdaterService> updaterService,
-			final IMaybe<IDeleterService> deleterService) {
+			final IMaybe<IReaderService<Void>> readerServiceMaybe,
+			final IMaybe<ICreatorService> creatorServiceMaybe,
+			final IMaybe<IRefreshService> refreshServiceMaybe,
+			final IMaybe<IUpdaterService> updaterServiceMaybe,
+			final IMaybe<IDeleterService> deleterServiceMaybe) {
 
 			this.entityId = entityId;
 			this.beanType = beanType;
 			this.propertyNames = propertyNames;
 			this.dtoDescriptor = dtoDescriptor;
-			this.readerService = getReaderService(readerService);
-			this.creatorService = getCreatorService(creatorService);
-			this.refreshService = getRefreshService(refreshService);
-			this.updaterService = getUpdaterService(updaterService);
-			this.deleterService = getDeleterService(deleterService);
-			this.beanServicesProvider = createBeanServicesProvider(propertyNames);
+			this.readerService = getReaderService(readerServiceMaybe);
+			this.creatorService = getCreatorService(creatorServiceMaybe);
+			this.refreshService = getRefreshService(refreshServiceMaybe);
+			this.updaterService = getUpdaterService(updaterServiceMaybe);
+			this.deleterService = getDeleterService(deleterServiceMaybe);
+			this.beanServicesProvider = createBeanServicesProvider(
+					readerServiceMaybe,
+					creatorServiceMaybe,
+					refreshServiceMaybe,
+					updaterServiceMaybe,
+					deleterServiceMaybe,
+					propertyNames);
 		}
 
-		private IReaderService<Void> getReaderService(final IMaybe<IReaderService<Void>> readerService) {
-			if (readerService != null) {
-				if (readerService.isNothing()) {
+		private IReaderService<Void> getReaderService(final IMaybe<IReaderService<Void>> readerServiceMaybe) {
+			if (readerServiceMaybe != null) {
+				if (readerServiceMaybe.isNothing()) {
 					return null;
 				}
 				else {
-					return readerService.getValue();
+					return readerServiceMaybe.getValue();
 				}
 			}
 			else {
@@ -398,13 +405,13 @@ final class BeanEntityServiceBuilderImpl extends EntityServiceBuilderImpl implem
 			}
 		}
 
-		private ICreatorService getCreatorService(final IMaybe<ICreatorService> creatorService) {
-			if (creatorService != null) {
-				if (creatorService.isNothing()) {
+		private ICreatorService getCreatorService(final IMaybe<ICreatorService> creatorServiceMaybe) {
+			if (creatorServiceMaybe != null) {
+				if (creatorServiceMaybe.isNothing()) {
 					return null;
 				}
 				else {
-					return creatorService.getValue();
+					return creatorServiceMaybe.getValue();
 				}
 			}
 			else {
@@ -415,13 +422,13 @@ final class BeanEntityServiceBuilderImpl extends EntityServiceBuilderImpl implem
 			}
 		}
 
-		private IRefreshService getRefreshService(final IMaybe<IRefreshService> refreshService) {
-			if (refreshService != null) {
-				if (refreshService.isNothing()) {
+		private IRefreshService getRefreshService(final IMaybe<IRefreshService> refreshServiceMaybe) {
+			if (refreshServiceMaybe != null) {
+				if (refreshServiceMaybe.isNothing()) {
 					return null;
 				}
 				else {
-					return refreshService.getValue();
+					return refreshServiceMaybe.getValue();
 				}
 			}
 			else {
@@ -429,27 +436,28 @@ final class BeanEntityServiceBuilderImpl extends EntityServiceBuilderImpl implem
 			}
 		}
 
-		private IUpdaterService getUpdaterService(final IMaybe<IUpdaterService> updaterService) {
-			if (updaterService != null) {
-				if (updaterService.isNothing()) {
+		private IUpdaterService getUpdaterService(final IMaybe<IUpdaterService> updaterServiceMaybe) {
+			if (updaterServiceMaybe != null) {
+				if (updaterServiceMaybe.isNothing()) {
 					return null;
 				}
 				else {
-					return updaterService.getValue();
+					return updaterServiceMaybe.getValue();
 				}
 			}
 			else {
-				return CapServiceToolkit.updaterServiceBuilder(beanServiceFactory.beanAccess(beanType)).build();
+				final IUpdaterServiceBuilder<IBean> updaterServiceBuilder = CapServiceToolkit.updaterServiceBuilder(beanServiceFactory.beanAccess(beanType));
+				return updaterServiceBuilder.setBeanDtoFactoryAndBeanModifier(propertyNames).build();
 			}
 		}
 
-		private IDeleterService getDeleterService(final IMaybe<IDeleterService> deleterService) {
-			if (deleterService != null) {
-				if (deleterService.isNothing()) {
+		private IDeleterService getDeleterService(final IMaybe<IDeleterService> deleterServiceMaybe) {
+			if (deleterServiceMaybe != null) {
+				if (deleterServiceMaybe.isNothing()) {
 					return null;
 				}
 				else {
-					return deleterService.getValue();
+					return deleterServiceMaybe.getValue();
 				}
 			}
 			else {
@@ -489,7 +497,13 @@ final class BeanEntityServiceBuilderImpl extends EntityServiceBuilderImpl implem
 			return propertyNames;
 		}
 
-		private IBeanServicesProvider createBeanServicesProvider(final Collection<String> propertyNames) {
+		private IBeanServicesProvider createBeanServicesProvider(
+			final IMaybe<IReaderService<Void>> readerServiceMaybe,
+			final IMaybe<ICreatorService> creatorServiceMaybe,
+			final IMaybe<IRefreshService> refreshServiceMaybe,
+			final IMaybe<IUpdaterService> updaterServiceMaybe,
+			final IMaybe<IDeleterService> deleterServiceMaybe,
+			final Collection<String> propertyNames) {
 
 			final IBeanServicesProviderBuilder builder = beanServiceFactory.beanServicesBuilder(
 					serviceRegistry,
@@ -499,11 +513,21 @@ final class BeanEntityServiceBuilderImpl extends EntityServiceBuilderImpl implem
 					BeanInitializer.create(beanType, propertyNames),
 					BeanModifier.create(beanType, propertyNames));
 
-			builder.setCreatorService(creatorService);
-			builder.setReaderService(readerService);
-			builder.setRefreshService(refreshService);
-			builder.setUpdaterService(updaterService);
-			builder.setDeleterService(deleterService);
+			if (creatorServiceMaybe != null) {
+				builder.setCreatorService(creatorService);
+			}
+			if (readerServiceMaybe != null) {
+				builder.setReaderService(readerService);
+			}
+			if (refreshServiceMaybe != null) {
+				builder.setRefreshService(refreshService);
+			}
+			if (updaterServiceMaybe != null) {
+				builder.setUpdaterService(updaterService);
+			}
+			if (deleterServiceMaybe != null) {
+				builder.setDeleterService(deleterService);
+			}
 
 			return builder.build();
 		}
