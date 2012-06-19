@@ -79,7 +79,7 @@ final class UpdaterServiceBuilderImpl<BEAN_TYPE extends IBean> implements IUpdat
 	}
 
 	@Override
-	public IUpdaterServiceBuilder<BEAN_TYPE> setBeanDtoFactoryAndBeanModifier(final List<String> propertyNames) {
+	public IUpdaterServiceBuilder<BEAN_TYPE> setBeanDtoFactoryAndBeanModifier(final Collection<String> propertyNames) {
 		dataExecutorServiceBuilder.setBeanDtoFactory(propertyNames);
 		this.beanModifier = CapServiceToolkit.beanModifier(beanAccess.getBeanType(), propertyNames);
 		return this;

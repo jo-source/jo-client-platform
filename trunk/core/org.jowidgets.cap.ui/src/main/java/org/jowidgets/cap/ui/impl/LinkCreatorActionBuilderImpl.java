@@ -39,6 +39,7 @@ import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.command.IActionBuilder;
 import org.jowidgets.api.command.ICommand;
 import org.jowidgets.api.command.IEnabledChecker;
+import org.jowidgets.api.image.IconsSmall;
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
@@ -217,6 +218,8 @@ final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKA
 		this.sourceModificationPolicy = BeanModificationStatePolicy.NO_MODIFICATION;
 		this.sourceMessageStatePolicy = BeanMessageStatePolicy.NO_WARNING_OR_ERROR;
 		this.exceptionConverter = new DefaultBeanExceptionConverter();
+
+		setIcon(IconsSmall.ADD);
 	}
 
 	private static List<IAttribute<Object>> createAttributes(final IBeanDtoDescriptor descriptor) {

@@ -28,7 +28,7 @@
 
 package org.jowidgets.cap.service.api.updater;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
@@ -45,7 +45,7 @@ public interface IUpdaterServiceBuilder<BEAN_TYPE extends IBean> {
 
 	IUpdaterServiceBuilder<BEAN_TYPE> setBeanModifier(IBeanModifier<BEAN_TYPE> beanModifier);
 
-	IUpdaterServiceBuilder<BEAN_TYPE> setBeanDtoFactoryAndBeanModifier(final List<String> propertyNames);
+	IUpdaterServiceBuilder<BEAN_TYPE> setBeanDtoFactoryAndBeanModifier(final Collection<String> propertyNames);
 
 	IUpdaterServiceBuilder<BEAN_TYPE> setAllowDeletedBeans(boolean allowDeletedBeans);
 

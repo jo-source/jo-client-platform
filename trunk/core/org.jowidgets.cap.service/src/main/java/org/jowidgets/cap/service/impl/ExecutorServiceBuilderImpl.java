@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.service.impl;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -91,7 +92,7 @@ final class ExecutorServiceBuilderImpl<BEAN_TYPE extends IBean, PARAM_TYPE> impl
 	}
 
 	@Override
-	public IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> setBeanDtoFactory(final List<String> propertyNames) {
+	public IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> setBeanDtoFactory(final Collection<String> propertyNames) {
 		Assert.paramNotNull(propertyNames, "propertyNames");
 		this.beanDtoFactory = CapServiceToolkit.dtoFactory(beanType, propertyNames);
 		return this;

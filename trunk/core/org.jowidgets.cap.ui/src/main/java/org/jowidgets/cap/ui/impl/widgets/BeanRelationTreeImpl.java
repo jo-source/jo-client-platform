@@ -54,6 +54,7 @@ import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyLabelRenderer;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionProvider;
 import org.jowidgets.cap.ui.api.command.ICapActionFactory;
+import org.jowidgets.cap.ui.api.command.ILinkDeleterActionBuilder;
 import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
 import org.jowidgets.cap.ui.api.model.ILabelModel;
 import org.jowidgets.cap.ui.api.plugin.IBeanRelationTreePlugin;
@@ -64,6 +65,7 @@ import org.jowidgets.cap.ui.api.widgets.IBeanRelationTree;
 import org.jowidgets.cap.ui.api.widgets.IBeanRelationTreeBluePrint;
 import org.jowidgets.cap.ui.tools.bean.SingleBeanSelectionProvider;
 import org.jowidgets.common.types.Markup;
+import org.jowidgets.common.types.SelectionPolicy;
 import org.jowidgets.plugin.api.IPluginProperties;
 import org.jowidgets.plugin.api.PluginProperties;
 import org.jowidgets.plugin.api.PluginProvider;
@@ -80,6 +82,7 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 
 	private final IBeanRelationTreeModel<CHILD_BEAN_TYPE> treeModel;
 	private final boolean autoSelection;
+	private final boolean treeMultiSelection;
 	private final int autoExpandLevel;
 	private final Map<ITreeNode, Tuple<IBeanRelationNodeModel<Object, Object>, IBeanProxy<Object>>> nodesMap;
 	private final LinkedHashSet<ExpandedNodeKey> expandedNodesCache;
@@ -88,6 +91,8 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 		super(tree);
 
 		bluePrint = modififySetupFromPlugins(bluePrint);
+
+		this.treeMultiSelection = bluePrint.getSelectionPolicy() == SelectionPolicy.MULTI_SELECTION;
 
 		this.treeModel = bluePrint.getModel();
 		this.autoSelection = bluePrint.getAutoSelection();
@@ -341,7 +346,12 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 						relationNodeModel.getParentEntityId(),
 						relationNodeModel.getParentBeanType());
 					try {
-						result.addAction(actionFactory.linkDeleterAction(source, relationNodeModel, link));
+						final ILinkDeleterActionBuilder<?, Object> builder = actionFactory.linkDeleterActionBuilder(
+								source,
+								relationNodeModel,
+								link);
+						builder.setLinkedMultiSelection(treeMultiSelection);
+						result.addAction(builder.build());
 					}
 					catch (final Exception e) {
 					}
