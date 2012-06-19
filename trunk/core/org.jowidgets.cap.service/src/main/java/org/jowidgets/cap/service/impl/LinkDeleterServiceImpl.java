@@ -119,10 +119,10 @@ final class LinkDeleterServiceImpl implements ILinkDeleterService {
 			if (linkDeletion.deleteSource()) {
 				sourceKeys.add(sourceKey);
 			}
-			if (linkDeletion.deleteDestination() || linkDeleterService == linkedDeleterService) {
+			if (linkDeletion.deleteDestination() || linkDeleterService == linkedDeleterService || destinationProperties == null) {
 				destinationKeys.add(destinationKey);
 			}
-			if (linkDeleterService != linkedDeleterService) {
+			if (linkDeleterService != linkedDeleterService && destinationProperties != null) {
 				linkReaderFilterBuilder.addFilter(createLinkFilter(sourceKey, destinationKey));
 				if (symmetric) {
 					linkReaderFilterBuilder.addFilter(createLinkFilter(destinationKey, sourceKey));
@@ -134,8 +134,15 @@ final class LinkDeleterServiceImpl implements ILinkDeleterService {
 			deleteLinks(linkReaderFilterBuilder.build(), linksDeletions.size() * 2, executionCallback);
 		}
 
+		if (linkedDeleterService != null) {
+			deleteKeys(destinationKeys, linkedDeleterService, executionCallback);
+		}
+		else if (linkDeleterService != null && destinationProperties == null) {
+			deleteKeys(destinationKeys, linkDeleterService, executionCallback);
+		}
+
 		deleteKeys(sourceKeys, sourceDeleterService, executionCallback);
-		deleteKeys(destinationKeys, linkedDeleterService, executionCallback);
+
 	}
 
 	private void deleteLinks(final IFilter filter, final int maxRows, final IExecutionCallback executionCallback) {
@@ -174,9 +181,7 @@ final class LinkDeleterServiceImpl implements ILinkDeleterService {
 		final IBooleanFilterBuilder builder = BooleanFilter.builder();
 		builder.setOperator(BooleanOperator.AND);
 		builder.addFilter(createKeyFilter(sourceKey, sourceProperties));
-		if (destinationProperties != null) {
-			builder.addFilter(createKeyFilter(destinationKey, destinationProperties));
-		}
+		builder.addFilter(createKeyFilter(destinationKey, destinationProperties));
 		return builder.build();
 	}
 
