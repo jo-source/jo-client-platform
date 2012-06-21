@@ -179,7 +179,10 @@ final class BeanDeleterCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 
 		if (autoSelection) {
 			if (!EmptyCheck.isEmpty(selection)) {
-				model.setSelection(Collections.singletonList(selection.get(selection.size() - 1) + 1));
+				final int newSelectionIndex = selection.get(selection.size() - 1) + 1;
+				if (newSelectionIndex >= 0 && newSelectionIndex < model.getSize()) {
+					model.setSelection(Collections.singletonList(newSelectionIndex));
+				}
 			}
 		}
 		model.fireBeansChanged();
