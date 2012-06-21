@@ -101,7 +101,6 @@ public class EntityComponent extends AbstractComponent implements IComponent {
 		final Class<Object> beanType = getBeanType(entityClass.getId());
 		this.entityTypeId = EntityTypeId.create(entityClass.getId(), beanType);
 		this.tableModel = CapUiToolkit.beanTableModelBuilder(entityClass.getId(), beanType).build();
-		this.relationTreeModel = createRelationTreeModel(tableModel, entityClass);
 		this.dataModelActions = getDataModelActions(componentNodeModel);
 		this.tableViews = new LinkedHashSet<LinkedEntityTableView>();
 		this.links = new LinkedHashMap<String, IEntityLinkDescriptor>();
@@ -110,6 +109,7 @@ public class EntityComponent extends AbstractComponent implements IComponent {
 
 		final List<IEntityLinkDescriptor> entityLinks = entityService.getEntityLinks(entityClass.getId());
 		if (entityLinks != null && !entityLinks.isEmpty()) {
+			this.relationTreeModel = createRelationTreeModel(tableModel, entityClass);
 			int i = 0;
 			for (final IEntityLinkDescriptor link : entityLinks) {
 				final String linkedViewId = LINKED_TABLE_VIEW_ID + i;
@@ -148,6 +148,7 @@ public class EntityComponent extends AbstractComponent implements IComponent {
 			componentContext.setLayout(new EntityComponentMasterDetailLinksDetailLayout(entityClass, links).getLayout());
 		}
 		else {
+			this.relationTreeModel = null;
 			componentContext.setLayout(new EntityComponentMasterDetailLayout(entityClass).getLayout());
 		}
 
@@ -237,7 +238,9 @@ public class EntityComponent extends AbstractComponent implements IComponent {
 	public void onActivation() {
 		for (final IDataModelAction dataModelAction : dataModelActions) {
 			dataModelAction.addDataModel(tableModel);
-			dataModelAction.addDataModel(relationTreeModel);
+			if (relationTreeModel != null) {
+				dataModelAction.addDataModel(relationTreeModel);
+			}
 			for (final LinkedEntityTableView view : tableViews) {
 				dataModelAction.addDataModel(view.getTable().getModel());
 			}
@@ -248,7 +251,9 @@ public class EntityComponent extends AbstractComponent implements IComponent {
 	public void onDeactivation(final IVetoable vetoable) {
 		for (final IDataModelAction dataModelAction : dataModelActions) {
 			dataModelAction.removeDataModel(tableModel);
-			dataModelAction.removeDataModel(relationTreeModel);
+			if (relationTreeModel != null) {
+				dataModelAction.removeDataModel(relationTreeModel);
+			}
 			for (final LinkedEntityTableView view : tableViews) {
 				dataModelAction.removeDataModel(view.getTable().getModel());
 			}
