@@ -47,13 +47,17 @@ import org.jowidgets.api.model.item.IMenuModel;
 import org.jowidgets.api.widgets.ITree;
 import org.jowidgets.api.widgets.ITreeContainer;
 import org.jowidgets.api.widgets.ITreeNode;
+import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
 import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
+import org.jowidgets.cap.common.api.service.IBeanServicesProvider;
+import org.jowidgets.cap.common.api.service.IDeleterService;
 import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyLabelRenderer;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionProvider;
 import org.jowidgets.cap.ui.api.command.ICapActionFactory;
+import org.jowidgets.cap.ui.api.command.IDeleterActionBuilder;
 import org.jowidgets.cap.ui.api.command.ILinkDeleterActionBuilder;
 import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
 import org.jowidgets.cap.ui.api.model.ILabelModel;
@@ -337,24 +341,43 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 
 		final ICapActionFactory actionFactory = CapUiToolkit.actionFactory();
 		final IEntityService entityService = ServiceProvider.getService(IEntityService.ID);
-		if (entityService != null && relationNodeModel.getParentEntityId() != null && relationNodeModel.getParentBean() != null) {
-			final List<IEntityLinkDescriptor> links = entityService.getEntityLinks(relationNodeModel.getParentEntityId());
-			for (final IEntityLinkDescriptor link : links) {
-				if (relationNodeModel.getChildEntityId().equals(link.getLinkedEntityId()) && link.getLinkDeleterService() != null) {
-					final IBeanSelectionProvider<?> source = new SingleBeanSelectionProvider<Object>(
-						relationNodeModel.getParentBean(),
-						relationNodeModel.getParentEntityId(),
-						relationNodeModel.getParentBeanType());
-					try {
-						final ILinkDeleterActionBuilder<?, Object> builder = actionFactory.linkDeleterActionBuilder(
-								source,
-								relationNodeModel,
-								link);
-						builder.setLinkedMultiSelection(treeMultiSelection);
-						result.addAction(builder.build());
+		if (entityService != null) {
+			final Object childEntityId = relationNodeModel.getChildEntityId();
+			if (relationNodeModel.getParentEntityId() != null && relationNodeModel.getParentBean() != null) {
+				final List<IEntityLinkDescriptor> links = entityService.getEntityLinks(relationNodeModel.getParentEntityId());
+				for (final IEntityLinkDescriptor link : links) {
+					if (childEntityId.equals(link.getLinkedEntityId()) && link.getLinkDeleterService() != null) {
+						final IBeanSelectionProvider<?> source = new SingleBeanSelectionProvider<Object>(
+							relationNodeModel.getParentBean(),
+							relationNodeModel.getParentEntityId(),
+							relationNodeModel.getParentBeanType());
+						try {
+							final ILinkDeleterActionBuilder<?, Object> builder = actionFactory.linkDeleterActionBuilder(
+									source,
+									relationNodeModel,
+									link);
+							builder.setLinkedMultiSelection(treeMultiSelection);
+							result.addAction(builder.build());
+						}
+						catch (final Exception e) {
+						}
 					}
-					catch (final Exception e) {
+				}
+			}
+			final IBeanServicesProvider beanServices = entityService.getBeanServices(childEntityId);
+			if (beanServices != null) {
+				final IDeleterService deleterService = beanServices.deleterService();
+				if (deleterService != null) {
+					final IDeleterActionBuilder<Object> deleterBuilder = actionFactory.deleterActionBuilder(relationNodeModel);
+					deleterBuilder.setDeleterService(deleterService);
+					deleterBuilder.setMultiSelectionPolicy(false);
+					deleterBuilder.setAccelerator(null);
+					final IBeanDtoDescriptor descriptor = entityService.getDescriptor(childEntityId);
+					if (descriptor != null) {
+						deleterBuilder.setEntityLabelPlural(descriptor.getLabelPlural());
+						deleterBuilder.setEntityLabelSingular(descriptor.getLabelSingular());
 					}
+					result.addAction(deleterBuilder.build());
 				}
 			}
 		}
