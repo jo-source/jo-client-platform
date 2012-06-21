@@ -715,6 +715,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 				}
 				else {
 					beanProxy = beanProxyFactory.createProxy(beanDto, propertyNames);
+					beanStateTracker.register(beanProxy);
 				}
 				newData.add(beanProxy);
 			}
@@ -723,7 +724,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 				for (final IBeanPropertyValidator<CHILD_BEAN_TYPE> validator : beanPropertyValidators) {
 					bean.addBeanPropertyValidator(validator);
 				}
-				beanStateTracker.register(bean);
+
 				data.add(bean);
 			}
 
