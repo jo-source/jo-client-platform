@@ -36,6 +36,7 @@ import org.jowidgets.cap.service.api.bean.IBeanAccess;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.cap.service.api.bean.IBeanInitializer;
 import org.jowidgets.cap.service.api.bean.IBeanModifier;
+import org.jowidgets.cap.service.api.deleter.IDeleterServiceBuilder;
 import org.jowidgets.cap.service.api.entity.IBeanServicesProviderBuilder;
 import org.jowidgets.service.api.IServiceRegistry;
 
@@ -59,6 +60,8 @@ public interface IBeanServiceFactory {
 	<BEAN_TYPE extends IBean, PARAM_TYPE> IReaderService<PARAM_TYPE> readerService(
 		Class<? extends BEAN_TYPE> beanType,
 		IBeanDtoFactory<BEAN_TYPE> beanDtoFactory);
+
+	<BEAN_TYPE extends IBean> IDeleterServiceBuilder<BEAN_TYPE> deleterServiceBuilder(Class<? extends BEAN_TYPE> beanType);
 
 	IDeleterService deleterService(Class<? extends IBean> beanType, boolean allowDeletedData, boolean allowStaleData);
 

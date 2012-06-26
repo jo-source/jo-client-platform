@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -28,48 +28,29 @@
 
 package org.jowidgets.cap.service.jpa.impl;
 
-import java.util.Collection;
-
 import org.jowidgets.cap.common.api.bean.IBean;
-import org.jowidgets.cap.common.api.bean.IBeanKey;
-import org.jowidgets.cap.common.api.execution.IExecutableChecker;
-import org.jowidgets.cap.common.api.execution.IExecutionCallback;
+import org.jowidgets.cap.common.api.service.IDeleterService;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.adapter.ISyncDeleterService;
-import org.jowidgets.cap.service.api.adapter.ISyncExecutorService;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
-import org.jowidgets.cap.service.api.executor.IBeanExecutor;
-import org.jowidgets.cap.service.api.executor.IExecutorServiceBuilder;
+import org.jowidgets.cap.service.tools.deleter.AbstractDeleterServiceBuilder;
 
-final class SyncJpaDeleterServiceImpl implements ISyncDeleterService {
+final class JpaDeleterServiceBuilderImpl<BEAN_TYPE extends IBean> extends AbstractDeleterServiceBuilder<BEAN_TYPE> {
 
-	private final ISyncExecutorService<Void> executorService;
+	private final IBeanAccess<BEAN_TYPE> beanAccess;
 
-	SyncJpaDeleterServiceImpl(
-		final IBeanAccess<? extends IBean> beanAccess,
-		final IExecutableChecker<? extends IBean> executableChecker,
-		final boolean allowDeletedData,
-		final boolean allowStaleData) {
-
-		final IExecutorServiceBuilder<IBean, Void> executorServiceBuilder = CapServiceToolkit.executorServiceBuilder(beanAccess);
-		if (executableChecker != null) {
-			executorServiceBuilder.setExecutableChecker(executableChecker);
-		}
-		executorServiceBuilder.setAllowDeletedBeans(allowDeletedData).setAllowStaleBeans(allowStaleData);
-		executorServiceBuilder.setExecutor(new IBeanExecutor<IBean, Void>() {
-			@Override
-			public IBean execute(final IBean data, final Void parameter, final IExecutionCallback executionCallback) {
-				CapServiceToolkit.checkCanceled(executionCallback);
-				EntityManagerProvider.get().remove(data);
-				CapServiceToolkit.checkCanceled(executionCallback);
-				return null;
-			}
-		});
-		this.executorService = executorServiceBuilder.buildSyncService();
+	public JpaDeleterServiceBuilderImpl(final IBeanAccess<BEAN_TYPE> beanAccess) {
+		super();
+		this.beanAccess = beanAccess;
 	}
 
 	@Override
-	public void delete(final Collection<? extends IBeanKey> beanKeys, final IExecutionCallback executionCallback) {
-		executorService.execute(beanKeys, null, executionCallback);
+	public IDeleterService build() {
+		final ISyncDeleterService result = new SyncJpaDeleterServiceImpl(
+			beanAccess,
+			getExecutableChecker(),
+			isAllowDeletedBeans(),
+			isAllowStaleBeans());
+		return CapServiceToolkit.adapterFactoryProvider().deleter().createAdapter(result);
 	}
 }

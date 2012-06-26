@@ -49,6 +49,7 @@ import org.jowidgets.cap.common.api.bean.IStaticValueRangeFactory;
 import org.jowidgets.cap.common.api.entity.IEntityClassBuilder;
 import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptorBuilder;
 import org.jowidgets.cap.common.api.entity.IEntityLinkPropertiesBuilder;
+import org.jowidgets.cap.common.api.execution.IExecutableCheckerCompositeBuilder;
 import org.jowidgets.cap.common.api.filter.IBeanDtoFilter;
 import org.jowidgets.cap.common.api.filter.IFilterFactory;
 import org.jowidgets.cap.common.api.link.ILinkDataBuilder;
@@ -193,5 +194,9 @@ public final class CapCommonToolkit {
 
 	public static IBeanValidationResultListBuilder beanValidationResultListBuilder() {
 		return getInstance().beanValidationResultListBuilder();
+	}
+
+	public static <BEAN_TYPE> IExecutableCheckerCompositeBuilder<BEAN_TYPE> executableCheckerCompositeBuilder() {
+		return getInstance().executableCheckerCompositeBuilder();
 	}
 }

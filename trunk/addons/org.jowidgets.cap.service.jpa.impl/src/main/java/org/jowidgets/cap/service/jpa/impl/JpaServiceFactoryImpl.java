@@ -38,12 +38,12 @@ import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.adapter.ISyncCreatorService;
-import org.jowidgets.cap.service.api.adapter.ISyncDeleterService;
 import org.jowidgets.cap.service.api.adapter.ISyncReaderService;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.cap.service.api.bean.IBeanInitializer;
 import org.jowidgets.cap.service.api.bean.IBeanModifier;
+import org.jowidgets.cap.service.api.deleter.IDeleterServiceBuilder;
 import org.jowidgets.cap.service.api.entity.IBeanServicesProviderBuilder;
 import org.jowidgets.cap.service.api.updater.IUpdaterServiceBuilder;
 import org.jowidgets.cap.service.jpa.api.IJpaServiceFactory;
@@ -200,8 +200,15 @@ public class JpaServiceFactoryImpl implements IJpaServiceFactory {
 		final Class<? extends IBean> beanType,
 		final boolean allowDeletedData,
 		final boolean allowStaleData) {
-		final ISyncDeleterService result = new SyncJpaDeleterServiceImpl(beanAccess(beanType), allowDeletedData, allowStaleData);
-		return CapServiceToolkit.adapterFactoryProvider().deleter().createAdapter(result);
+		final IDeleterServiceBuilder<IBean> builder = deleterServiceBuilder(beanType);
+		builder.setAllowDeletedBeans(allowDeletedData).setAllowStaleBeans(allowStaleData);
+		return builder.build();
+	}
+
+	@Override
+	public <BEAN_TYPE extends IBean> IDeleterServiceBuilder<BEAN_TYPE> deleterServiceBuilder(
+		final Class<? extends BEAN_TYPE> beanType) {
+		return new JpaDeleterServiceBuilderImpl<BEAN_TYPE>(beanAccess(beanType));
 	}
 
 }
