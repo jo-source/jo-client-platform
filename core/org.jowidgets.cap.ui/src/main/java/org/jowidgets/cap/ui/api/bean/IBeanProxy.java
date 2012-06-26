@@ -84,7 +84,13 @@ public interface IBeanProxy<BEAN_TYPE> extends
 
 	Collection<IBeanModification> getModifications();
 
+	void setModifications(Collection<IBeanModification> modifications);
+
 	boolean hasModifications();
+
+	boolean equalsAllProperties(IBeanDto bean);
+
+	boolean equalsAllProperties(IBeanDto bean, boolean ignoreModifiedProperties);
 
 	boolean isModified(String propertyName);
 

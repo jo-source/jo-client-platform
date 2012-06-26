@@ -299,6 +299,37 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 	}
 
 	@Override
+	public void setModifications(final Collection<IBeanModification> modifications) {
+		checkDisposed();
+		Assert.paramNotNull(modifications, "modifications");
+		for (final IBeanModification modification : modifications) {
+			setValue(modification.getPropertyName(), modification.getNewValue());
+		}
+	}
+
+	@Override
+	public boolean equalsAllProperties(final IBeanDto bean) {
+		return equalsAllProperties(bean, false);
+	}
+
+	@Override
+	public boolean equalsAllProperties(final IBeanDto bean, final boolean ignoreModifiedProperties) {
+		if (bean != null) {
+			for (final String property : properties) {
+				final boolean isModiedProperty = modifications.containsKey(property);
+				if (!isModiedProperty || !ignoreModifiedProperties) {
+					final boolean equal = EmptyCompatibleEquivalence.equals(getValue(property), bean.getValue(property));
+					if (!equal) {
+						return false;
+					}
+				}
+			}
+			return true;
+		}
+		return false;
+	}
+
+	@Override
 	public IBeanData getBeanData() {
 		checkDisposed();
 		final IBeanDataBuilder builder = CapCommonToolkit.beanDataBuilder();

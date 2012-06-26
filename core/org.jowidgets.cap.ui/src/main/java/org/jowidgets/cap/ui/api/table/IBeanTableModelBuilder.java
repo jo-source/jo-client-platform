@@ -67,6 +67,8 @@ public interface IBeanTableModelBuilder<BEAN_TYPE> extends IBeanModelBuilder<BEA
 
 	IBeanTableModelBuilder<BEAN_TYPE> setAutoSelection(boolean autoSelect);
 
+	IBeanTableModelBuilder<BEAN_TYPE> setAutoRefreshSelection(boolean autoRefresh);
+
 	IBeanTableModelBuilder<BEAN_TYPE> setClearOnEmptyFilter(boolean clearOnEmptyFilter);
 
 	/**
