@@ -31,10 +31,15 @@ package org.jowidgets.cap.ui.impl;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
 import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.common.api.service.IReaderService;
+import org.jowidgets.cap.ui.api.plugin.IBeanTableModelBuilderPlugin;
 import org.jowidgets.cap.ui.api.sort.ISortModelConfig;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
 import org.jowidgets.cap.ui.api.table.IReaderParameterProvider;
+import org.jowidgets.plugin.api.IPluginProperties;
+import org.jowidgets.plugin.api.IPluginPropertiesBuilder;
+import org.jowidgets.plugin.api.PluginProvider;
+import org.jowidgets.plugin.api.PluginToolkit;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.api.ServiceProvider;
 import org.jowidgets.util.Assert;
@@ -48,6 +53,7 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> extends
 	private String entityLabelSingular;
 	private String entityLabelPlural;
 
+	private boolean autoRefreshSelection;
 	private boolean autoRowCount;
 	private boolean autoSelection;
 	private boolean clearOnEmptyFilter;
@@ -60,6 +66,7 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> extends
 		Assert.paramNotNull(entityId, "entityId");
 		Assert.paramNotNull(beanType, "beanType");
 
+		this.autoRefreshSelection = false;
 		this.autoRowCount = true;
 		this.autoSelection = true;
 		this.clearOnEmptyFilter = false;
@@ -126,6 +133,12 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> extends
 	}
 
 	@Override
+	public IBeanTableModelBuilder<BEAN_TYPE> setAutoRefreshSelection(final boolean autoRefresh) {
+		this.autoRefreshSelection = autoRefresh;
+		return this;
+	}
+
+	@Override
 	public IBeanTableModelBuilder<BEAN_TYPE> setAutoRowCount(final boolean autoRowCount) {
 		this.autoRowCount = autoRowCount;
 		return this;
@@ -172,8 +185,20 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> extends
 		}
 	}
 
+	@SuppressWarnings({"rawtypes", "unchecked"})
+	private void modifyFromPlugins() {
+		final IPluginPropertiesBuilder propBuilder = PluginToolkit.pluginPropertiesBuilder();
+		propBuilder.add(IBeanTableModelBuilderPlugin.ENTITIY_ID_PROPERTY_KEY, getEntityId());
+		propBuilder.add(IBeanTableModelBuilderPlugin.BEAN_TYPE_PROPERTY_KEY, getBeanType());
+		final IPluginProperties properties = propBuilder.build();
+		for (final IBeanTableModelBuilderPlugin plugin : PluginProvider.getPlugins(IBeanTableModelBuilderPlugin.ID, properties)) {
+			plugin.modify(this);
+		}
+	}
+
 	@Override
 	public IBeanTableModel<BEAN_TYPE> build() {
+		modifyFromPlugins();
 		return new BeanTableModelImpl<BEAN_TYPE>(
 			getEntityId(),
 			getBeanType(),
@@ -194,6 +219,7 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> extends
 			getListenerDelay(),
 			autoRowCount,
 			autoSelection,
+			autoRefreshSelection,
 			clearOnEmptyFilter,
 			getClearOnEmptyParentBeans());
 	}

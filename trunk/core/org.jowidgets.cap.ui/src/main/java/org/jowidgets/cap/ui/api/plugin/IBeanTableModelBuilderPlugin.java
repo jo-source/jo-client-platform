@@ -26,71 +26,19 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.impl;
+package org.jowidgets.cap.ui.api.plugin;
 
-import java.io.Serializable;
+import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
+import org.jowidgets.plugin.api.IPluginId;
+import org.jowidgets.util.ITypedKey;
 
-import org.jowidgets.cap.common.api.bean.IBeanModification;
-import org.jowidgets.util.Assert;
+public interface IBeanTableModelBuilderPlugin<BEAN_TYPE> {
 
-final class BeanModificationImpl implements IBeanModification, Serializable {
+	IPluginId<IBeanTableModelBuilderPlugin<?>> ID = new IPluginId<IBeanTableModelBuilderPlugin<?>>() {};
 
-	private static final long serialVersionUID = 8780660825215040481L;
+	ITypedKey<Object> ENTITIY_ID_PROPERTY_KEY = new ITypedKey<Object>() {};
+	ITypedKey<Class<?>> BEAN_TYPE_PROPERTY_KEY = new ITypedKey<Class<?>>() {};
 
-	private final Object id;
-	private final long version;
-	private final String property;
-	private final Object oldValue;
-	private final Object newValue;
-
-	BeanModificationImpl(final Object id, final long version, final String property, final Object oldValue, final Object newValue) {
-		Assert.paramNotNull(id, "id");
-		Assert.paramNotEmpty(property, "property");
-		this.id = id;
-		this.version = version;
-		this.property = property;
-		this.oldValue = oldValue;
-		this.newValue = newValue;
-	}
-
-	@Override
-	public Object getId() {
-		return id;
-	}
-
-	@Override
-	public long getVersion() {
-		return version;
-	}
-
-	@Override
-	public String getPropertyName() {
-		return property;
-	}
-
-	@Override
-	public Object getOldValue() {
-		return oldValue;
-	}
-
-	@Override
-	public Object getNewValue() {
-		return newValue;
-	}
-
-	@Override
-	public String toString() {
-		return "BeanModificationImpl [id="
-			+ id
-			+ ", version="
-			+ version
-			+ ", property="
-			+ property
-			+ ", oldValue="
-			+ oldValue
-			+ ", newValue="
-			+ newValue
-			+ "]";
-	}
+	void modify(IBeanTableModelBuilder<BEAN_TYPE> builder);
 
 }

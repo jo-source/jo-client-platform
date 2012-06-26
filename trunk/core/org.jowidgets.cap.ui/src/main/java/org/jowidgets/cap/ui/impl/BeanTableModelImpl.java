@@ -63,6 +63,7 @@ import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
+import org.jowidgets.cap.common.api.bean.IBeanModification;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.filter.ArithmeticOperator;
@@ -89,12 +90,14 @@ import org.jowidgets.cap.ui.api.attribute.IAttributeFilter;
 import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
 import org.jowidgets.cap.ui.api.bean.BeanMessageType;
 import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
+import org.jowidgets.cap.ui.api.bean.IBeanKeyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeanMessage;
 import org.jowidgets.cap.ui.api.bean.IBeanMessageBuilder;
 import org.jowidgets.cap.ui.api.bean.IBeanPropertyValidator;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeanSelection;
+import org.jowidgets.cap.ui.api.bean.IBeanSelectionEvent;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionListener;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionProvider;
 import org.jowidgets.cap.ui.api.bean.IBeansStateTracker;
@@ -139,6 +142,7 @@ import org.jowidgets.tools.model.table.TableModel;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.EmptyCheck;
 import org.jowidgets.util.IProvider;
+import org.jowidgets.util.NullCompatibleEquivalence;
 import org.jowidgets.util.concurrent.DaemonThreadFactory;
 import org.jowidgets.util.event.ChangeObservable;
 import org.jowidgets.util.event.IChangeListener;
@@ -149,6 +153,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 	private static final int DEFAULT_PAGE_SIZE = 1000;
 	private static final int INNER_PAGE_LOAD_DELAY = 100;
+	private static final int AUTO_REFRESH_DELAY = 250;
 	private static final int PAGE_LOAD_OVERLAP = 25;
 
 	private static final IResultCallback<Void> DUMMY_PAGE_LOAD_RESULT_CALLBACK = new ResultCallbackAdapter<Void>();
@@ -177,6 +182,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 	private final ICreatorService creatorService;
 	private final IReaderService<Object> readerService;
+	private final IRefreshService refreshService;
 	private final IProvider<Object> readerParameterProvider;
 	private final IDeleterService deleterService;
 	private final BeanListSaveDelegate<BEAN_TYPE> saveDelegate;
@@ -187,6 +193,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 	private final boolean clearOnEmptyFilter;
 	private final boolean clearOnEmptyParentBeans;
+	private final boolean autoRefreshSelection;
 
 	private final BeanListModelObservable beanListModelObservable;
 	private final BeanSelectionObservable<BEAN_TYPE> beanSelectionObservable;
@@ -206,12 +213,15 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	private final String userCanceledMessage;
 	private final String loadErrorMessage;
 	private final String loadingDataLabel;
+	private final String autoRefreshHeaderLabel;
+	private final String autoRefreshTextLabel;
 
 	private ScheduledExecutorService scheduledExecutorService;
 	private PageLoader evenPageLoader;
 	private PageLoader oddPageLoader;
 	private CountLoader countLoader;
 	private BackgroundPageLoader backgroundPageLoader;
+	private IExecutionTask autoRefreshExecutionTask;
 
 	private int rowCount;
 	private Integer countedRowCount;
@@ -244,6 +254,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		final Long listenerDelay,
 		final boolean autoRowCount,
 		final boolean autoSelect,
+		final boolean autoRefreshSelection,
 		final boolean clearOnEmptyFilter,
 		final boolean clearOnEmptyParentBeans) {
 
@@ -298,10 +309,12 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		this.propertyNames = Collections.unmodifiableList(mutablePropertyNames);
 
 		this.readerService = (IReaderService<Object>) readerService;
+		this.refreshService = refreshService;
 		this.readerParameterProvider = (IProvider<Object>) paramProvider;
 		this.creatorService = creatorService;
 		this.deleterService = deleterService;
 		this.autoSelection = autoSelect;
+		this.autoRefreshSelection = autoRefreshSelection;
 		this.onSetConfig = false;
 
 		this.filters = new HashMap<String, IUiFilter>();
@@ -327,6 +340,9 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		this.userCanceledMessage = Messages.getString("BeanTableModelImpl.user_canceled");
 		this.loadErrorMessage = Messages.getString("BeanTableModelImpl.load_error");
 		this.loadingDataLabel = Messages.getString("BeanTableModelImpl.load_data");
+		this.autoRefreshHeaderLabel = Messages.getString("BeanTableModelImpl.auto_refresh_header");
+		this.autoRefreshTextLabel = Messages.getString("BeanTableModelImpl.auto_refresh_text");
+
 		this.beanPropertyValidators = new LinkedList<IBeanPropertyValidator<BEAN_TYPE>>();
 		this.beanPropertyValidatorsView = Collections.unmodifiableList(beanPropertyValidators);
 		beanPropertyValidators.add(new BeanPropertyValidatorImpl<BEAN_TYPE>(attributes));
@@ -365,6 +381,10 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			exceptionConverter,
 			BeanExecutionPolicy.BATCH,
 			refreshService);
+
+		if (refreshService != null) {
+			addBeanSelectionListener(new AutoRefreshListener());
+		}
 	}
 
 	private List<IAttribute<Object>> createModifiedByPluginsAttributes(
@@ -512,6 +532,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	@Override
 	public void dispose() {
 		if (!disposed) {
+			tryCancelAutoRefreshExecutionTask();
 			disposeObservable.fireOnDispose();
 			clear();
 			beanListModelObservable.dispose();
@@ -532,6 +553,13 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			}
 			disposeBeans();
 			disposed = true;
+		}
+	}
+
+	private void tryCancelAutoRefreshExecutionTask() {
+		if (autoRefreshExecutionTask != null && !autoRefreshExecutionTask.isCanceled()) {
+			autoRefreshExecutionTask.cancel();
+			autoRefreshExecutionTask = null;
 		}
 	}
 
@@ -2589,6 +2617,83 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			finished = true;
 		}
 
+	}
+
+	private final class AutoRefreshListener implements IBeanSelectionListener<BEAN_TYPE> {
+
+		private ScheduledFuture<?> schedule;
+		private IBeanProxy<BEAN_TYPE> lastSelected;
+
+		@Override
+		public void selectionChanged(final IBeanSelectionEvent<BEAN_TYPE> selectionEvent) {
+			final IBeanProxy<BEAN_TYPE> selected = selectionEvent.getFirstSelected();
+			if (autoRefreshSelection
+				&& selected != null
+				&& !NullCompatibleEquivalence.equals(lastSelected, selected)
+				&& !selected.hasExecution()
+				&& !selected.isDummy()
+				&& !selected.isTransient()) {
+
+				tryCancelAutoRefreshExecutionTask();
+				if (schedule != null) {
+					schedule.cancel(false);
+					schedule = null;
+				}
+
+				lastSelected = selected;
+
+				final Runnable uiRunnable = new Runnable() {
+
+					@Override
+					public void run() {
+						final IExecutionTask executionTask = CapUiToolkit.executionTaskFactory().create();
+						autoRefreshExecutionTask = executionTask;
+						final IBeanKeyFactory beanKeyFactory = CapUiToolkit.beanKeyFactory();
+						final List<IBeanKey> beanKeys = beanKeyFactory.createKeys(Collections.singleton(selected));
+						final IResultCallback<List<IBeanDto>> result = new AbstractUiResultCallback<List<IBeanDto>>() {
+
+							@Override
+							protected void finishedUi(final List<IBeanDto> result) {
+								if (result.size() == 1) {
+									setResult(result.iterator().next());
+								}
+							}
+
+							@Override
+							protected void exceptionUi(final Throwable exception) {
+								//TODO MG handle exception
+							}
+
+							private void setResult(final IBeanDto refreshedBean) {
+								if (!executionTask.isCanceled()
+									&& selected == lastSelected
+									&& !selected.hasExecution()
+									&& !selected.equalsAllProperties(refreshedBean, true)) {
+									final Collection<IBeanModification> modifications = selected.getModifications();
+									selected.update(refreshedBean);
+									if (!EmptyCheck.isEmpty(modifications)) {
+										selected.setModifications(modifications);
+									}
+									Toolkit.getMessagePane().showInfo(autoRefreshHeaderLabel, autoRefreshTextLabel);
+								}
+							}
+						};
+
+						refreshService.refresh(result, beanKeys, executionTask);
+					}
+				};
+				final IUiThreadAccess uiThreadAccess = Toolkit.getUiThreadAccess();
+				final Runnable scheduleRunnable = new Runnable() {
+					@Override
+					public void run() {
+						uiThreadAccess.invokeLater(uiRunnable);
+					}
+				};
+
+				schedule = getScheduledExecutorService().schedule(scheduleRunnable, AUTO_REFRESH_DELAY, TimeUnit.MILLISECONDS);
+			}
+
+		}
 	}
 
 	private final class ExternalReader implements IExternalReader {
