@@ -2,7 +2,7 @@
 <feature
       id="org.jowidgets.cap.sample1.starter.rcp.standalone.feature"
       label="org.jowidgets.cap.sample1.starter.rcp.standalone.feature"
-      version="0.0.1.qualifier">
+      version="0.11.0.qualifier">
 
    <description url="http://www.example.com/description">
       [Enter Feature Description here.]
@@ -21,27 +21,6 @@
          version="0.0.0"/>
 
    <plugin
-         id="org.jowidgets.cap.sample1.starter.rcp.standalone"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.jowidgets.api"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.jowidgets.workbench.api"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="org.jowidgets.workbench.impl.rcp"
          download-size="0"
          install-size="0"
@@ -49,28 +28,14 @@
          unpack="false"/>
 
    <plugin
-         id="org.jowidgets.common"
+         id="org.jowidgets.workbench.impl.rcp.libs"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="org.jowidgets.tools"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.jowidgets.validation"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.jowidgets.util"
+         id="org.jowidgets.cap.sample1.starter.rcp.standalone"
          download-size="0"
          install-size="0"
          version="0.0.0"
