@@ -32,9 +32,11 @@ import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.swt.widgets.Display;
 import org.jowidgets.api.toolkit.Toolkit;
+import org.jowidgets.api.toolkit.ToolkitInterceptor;
 import org.jowidgets.cap.sample1.ui.workbench.SampleWorkbench;
+import org.jowidgets.cap.ui.impl.widgets.CapToolkitInterceptorHolder;
 import org.jowidgets.impl.toolkit.DefaultToolkitProvider;
-import org.jowidgets.spi.impl.swt.SwtWidgetsServiceProvider;
+import org.jowidgets.spi.impl.swt.common.SwtWidgetsServiceProvider;
 import org.jowidgets.workbench.impl.rcp.WorkbenchRunner;
 
 public class Sample1StarterStandaloneRcp implements IApplication {
@@ -42,6 +44,7 @@ public class Sample1StarterStandaloneRcp implements IApplication {
 	@Override
 	public Object start(final IApplicationContext context) throws Exception {
 		if (!Toolkit.isInitialized()) {
+			ToolkitInterceptor.registerTollkitInterceptorHolder(new CapToolkitInterceptorHolder());
 			Toolkit.initialize(new DefaultToolkitProvider(new SwtWidgetsServiceProvider(Display.getDefault())));
 		}
 		new WorkbenchRunner().run(new SampleWorkbench());
