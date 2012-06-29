@@ -7,7 +7,7 @@
 		<relativePath>../../parent/pom.xml</relativePath>
 	</parent>
 	<artifactId>org.jowidgets.cap.sample2.starter.rcp.parent</artifactId>
-	<name>org.jowidgets.cap.sample1.starter.rcp.parent</name>
+	<name>org.jowidgets.cap.sample2.starter.rcp.parent</name>
 	<packaging>pom</packaging>
 	
 	<properties>
