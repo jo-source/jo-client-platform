@@ -28,6 +28,8 @@
 
 package org.jowidgets.cap.sample2.starter.standalone.swt.common;
 
+import java.util.Locale;
+
 import org.jowidgets.cap.sample2.app.ui.workbench.Sample2Workbench;
 import org.jowidgets.spi.impl.swt.common.options.SwtOptions;
 import org.jowidgets.workbench.impl.WorkbenchRunner;
@@ -37,7 +39,9 @@ public final class Sample2StarterStandaloneSwt {
 	private Sample2StarterStandaloneSwt() {}
 
 	public static void startClient() {
-		SwtOptions.setClassicTabs(true);
+		Locale.setDefault(Locale.US);
+
+		SwtOptions.setClassicTabs(false);
 		new WorkbenchRunner().run(new Sample2Workbench());
 		System.exit(0);
 	}

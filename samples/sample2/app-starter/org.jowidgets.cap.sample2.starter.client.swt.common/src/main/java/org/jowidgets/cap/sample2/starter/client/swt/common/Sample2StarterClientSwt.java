@@ -28,6 +28,8 @@
 
 package org.jowidgets.cap.sample2.starter.client.swt.common;
 
+import java.util.Locale;
+
 import org.jowidgets.cap.sample2.starter.client.common.Sample2StarterClient;
 import org.jowidgets.spi.impl.swt.common.options.SwtOptions;
 
@@ -36,7 +38,9 @@ public final class Sample2StarterClientSwt {
 	private Sample2StarterClientSwt() {}
 
 	public static void startClient() {
-		SwtOptions.setClassicTabs(true);
+		Locale.setDefault(Locale.US);
+
+		SwtOptions.setClassicTabs(false);
 		Sample2StarterClient.startClient();
 		System.exit(0);
 	}
