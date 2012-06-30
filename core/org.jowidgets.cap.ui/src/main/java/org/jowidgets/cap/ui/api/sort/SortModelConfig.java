@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,47 +26,16 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.api.bean;
+package org.jowidgets.cap.ui.api.sort;
 
-import java.util.Collection;
+import org.jowidgets.cap.ui.api.CapUiToolkit;
 
-import org.jowidgets.cap.common.api.sort.ISort;
-import org.jowidgets.cap.common.api.validation.IBeanValidator;
+public final class SortModelConfig {
 
-public interface IBeanDtoDescriptorBuilder {
+	private SortModelConfig() {}
 
-	IBeanDtoDescriptorBuilder setLabelSingular(String label);
-
-	IBeanDtoDescriptorBuilder setLabelPlural(String label);
-
-	IBeanDtoDescriptorBuilder setDescription(String description);
-
-	IBeanDtoDescriptorBuilder setDefaultSorting(ISort... defaultSorting);
-
-	IBeanDtoDescriptorBuilder setDefaultSorting(Collection<ISort> defaultSorting);
-
-	/**
-	 * Sets a pattern that will be used to render instances of the bean.
-	 * The pattern may contain property variables starting and ending with $.
-	 * The $ symbol could be escaped with a $ symbol.
-	 * 
-	 * Example:
-	 * 
-	 * $name$($country$, $age$, $$$acount$)
-	 * 
-	 * leads to labels like
-	 * 
-	 * Michael(Germany, 40, $1000)
-	 * Peter(France, 28, $200)
-	 * 
-	 * @return The rendering pattern or null
-	 */
-	IBeanDtoDescriptorBuilder setRenderingPattern(String pattern);
-
-	IBeanDtoDescriptorBuilder addValidator(IBeanValidator<?> validator);
-
-	IBeanPropertyBluePrint addProperty(String propertyName);
-
-	IBeanDtoDescriptor build();
+	public static ISortModelConfigBuilder builder() {
+		return CapUiToolkit.sortModelConfigBuilder();
+	}
 
 }

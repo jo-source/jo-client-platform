@@ -28,6 +28,8 @@
 
 package org.jowidgets.cap.common.impl;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -37,6 +39,7 @@ import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptorBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanPropertyBluePrint;
 import org.jowidgets.cap.common.api.bean.IProperty;
+import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.common.api.validation.IBeanValidator;
 import org.jowidgets.util.Assert;
 
@@ -44,6 +47,7 @@ final class BeanDtoDescriptorBuilderImpl implements IBeanDtoDescriptorBuilder {
 
 	private final Class<?> beanType;
 	private final List<BeanPropertyBluePrintImpl> bluePrints;
+	private final List<ISort> defaultSorting;
 	private final Set<IBeanValidator<?>> beanValidators;
 
 	private String labelSingular;
@@ -55,6 +59,7 @@ final class BeanDtoDescriptorBuilderImpl implements IBeanDtoDescriptorBuilder {
 		this.beanType = beanType;
 		this.bluePrints = new LinkedList<BeanPropertyBluePrintImpl>();
 		this.beanValidators = new LinkedHashSet<IBeanValidator<?>>();
+		this.defaultSorting = new LinkedList<ISort>();
 	}
 
 	@Override
@@ -78,6 +83,21 @@ final class BeanDtoDescriptorBuilderImpl implements IBeanDtoDescriptorBuilder {
 	@Override
 	public IBeanDtoDescriptorBuilder setRenderingPattern(final String renderingPattern) {
 		this.renderingPattern = renderingPattern;
+		return this;
+	}
+
+	@Override
+	public IBeanDtoDescriptorBuilder setDefaultSorting(final ISort... defaultSorting) {
+		Assert.paramNotNull(defaultSorting, "defaultSorting");
+		setDefaultSorting(Arrays.asList(defaultSorting));
+		return this;
+	}
+
+	@Override
+	public IBeanDtoDescriptorBuilder setDefaultSorting(final Collection<ISort> defaultSorting) {
+		Assert.paramNotNull(defaultSorting, "defaultSorting");
+		this.defaultSorting.clear();
+		this.defaultSorting.addAll(defaultSorting);
 		return this;
 	}
 
@@ -109,6 +129,7 @@ final class BeanDtoDescriptorBuilderImpl implements IBeanDtoDescriptorBuilder {
 			description,
 			renderingPattern,
 			properties,
+			defaultSorting,
 			beanValidators);
 	}
 

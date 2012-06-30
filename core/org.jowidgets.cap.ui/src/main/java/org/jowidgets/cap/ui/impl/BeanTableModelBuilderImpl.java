@@ -28,9 +28,13 @@
 
 package org.jowidgets.cap.ui.impl;
 
+import java.util.Collections;
+import java.util.List;
+
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
 import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.common.api.service.IReaderService;
+import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.ui.api.plugin.IBeanTableModelBuilderPlugin;
 import org.jowidgets.cap.ui.api.sort.ISortModelConfig;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
@@ -70,6 +74,7 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> extends
 		this.autoRowCount = true;
 		this.autoSelection = true;
 		this.clearOnEmptyFilter = false;
+		this.sortModelConfig = new SortModelConfigImpl();
 
 		final IEntityService entityService = ServiceProvider.getService(IEntityService.ID);
 		if (entityService != null) {
@@ -83,10 +88,14 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> extends
 				if (!EmptyCheck.isEmpty(labelPlural)) {
 					this.entityLabelPlural = labelPlural;
 				}
+				final List<ISort> defaultSort = beanDtoDescriptor.getDefaultSorting();
+				if (!EmptyCheck.isEmpty(defaultSort)) {
+					final List<ISort> emptySort = Collections.emptyList();
+					this.sortModelConfig = new SortModelConfigImpl(defaultSort, emptySort);
+				}
 			}
 		}
 
-		this.sortModelConfig = new SortModelConfigImpl();
 	}
 
 	@Override

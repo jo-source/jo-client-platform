@@ -28,10 +28,13 @@
 
 package org.jowidgets.cap.common.tools.bean;
 
+import java.util.Collection;
+
 import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptorBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanPropertyBluePrint;
+import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.common.api.validation.IBeanValidator;
 import org.jowidgets.util.Assert;
 
@@ -67,6 +70,16 @@ public class BeanDtoDescriptorBuilder implements IBeanDtoDescriptorBuilder {
 	@Override
 	public IBeanDtoDescriptorBuilder addValidator(final IBeanValidator<?> validator) {
 		return this.builder.addValidator(validator);
+	}
+
+	@Override
+	public IBeanDtoDescriptorBuilder setDefaultSorting(final ISort... defaultSorting) {
+		return this.builder.setDefaultSorting(defaultSorting);
+	}
+
+	@Override
+	public IBeanDtoDescriptorBuilder setDefaultSorting(final Collection<ISort> defaultSorting) {
+		return this.builder.setDefaultSorting(defaultSorting);
 	}
 
 	@Override
