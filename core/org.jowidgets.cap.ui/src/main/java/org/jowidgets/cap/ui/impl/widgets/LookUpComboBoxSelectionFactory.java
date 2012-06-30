@@ -29,6 +29,7 @@
 package org.jowidgets.cap.ui.impl.widgets;
 
 import org.jowidgets.api.toolkit.Toolkit;
+import org.jowidgets.api.types.AutoSelectionPolicy;
 import org.jowidgets.api.widgets.IComboBox;
 import org.jowidgets.api.widgets.blueprint.IComboBoxSelectionBluePrint;
 import org.jowidgets.cap.ui.api.widgets.ILookUpComboBoxSelectionBluePrint;
@@ -41,7 +42,7 @@ final class LookUpComboBoxSelectionFactory implements
 	@Override
 	public IComboBox<Object> create(final Object parentUiReference, final ILookUpComboBoxSelectionBluePrint<Object> descriptor) {
 		final IComboBoxSelectionBluePrint<Object> bluePrint = BPF.comboBoxSelection(descriptor.getObjectStringConverter());
-		bluePrint.setSetup(descriptor);
+		bluePrint.setSetup(descriptor).setAutoSelectionPolicy(AutoSelectionPolicy.PREVIOUS_SELECTED);
 		final IComboBox<Object> comboBox = Toolkit.getWidgetFactory().create(parentUiReference, bluePrint);
 		return new LookUpComboBoxSelectionImpl(comboBox, descriptor);
 	}
