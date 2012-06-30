@@ -105,6 +105,15 @@ public interface ICapCommonToolkit {
 		String renderingPattern,
 		Collection<? extends IBeanValidator<?>> beanValidators);
 
+	IBeanDtoDescriptor dtoDescriptor(
+		Collection<IProperty> properties,
+		Collection<ISort> defaultSorting,
+		String labelSingular,
+		String labelPlural,
+		String description,
+		String renderingPattern,
+		Collection<? extends IBeanValidator<?>> beanValidators);
+
 	IBeanDtoBuilder dtoBuilder(Object entityTypeId);
 
 	IBeanDataBuilder beanDataBuilder();

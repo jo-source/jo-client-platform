@@ -39,11 +39,14 @@ import java.util.Set;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
 import org.jowidgets.cap.common.api.bean.IProperty;
+import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.common.api.validation.IBeanValidator;
 
 final class BeanDtoDescriptorImpl implements IBeanDtoDescriptor, Serializable {
 
 	private static final long serialVersionUID = 4875055093925862277L;
+
+	private static final List<ISort> EMPTY_SORT = Collections.emptyList();
 
 	private final Class<?> beanType;
 	private final String labelSingular;
@@ -52,6 +55,7 @@ final class BeanDtoDescriptorImpl implements IBeanDtoDescriptor, Serializable {
 	private final String renderingPattern;
 	private final List<IProperty> unodifiableProperties;
 	private final Set<IBeanValidator<?>> unmodifieableBeanValidators;
+	private final List<ISort> unmodifieableDefaultSorting;
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	BeanDtoDescriptorImpl(final Collection<IProperty> properties) {
@@ -85,12 +89,25 @@ final class BeanDtoDescriptorImpl implements IBeanDtoDescriptor, Serializable {
 		final String renderingPattern,
 		final Collection<IProperty> properties,
 		final Collection<? extends IBeanValidator<?>> beanValidators) {
+		this(beanType, labelSingular, labelPlural, description, renderingPattern, properties, EMPTY_SORT, beanValidators);
+	}
+
+	BeanDtoDescriptorImpl(
+		final Class<?> beanType,
+		final String labelSingular,
+		final String labelPlural,
+		final String description,
+		final String renderingPattern,
+		final Collection<IProperty> properties,
+		final Collection<ISort> defaultSorting,
+		final Collection<? extends IBeanValidator<?>> beanValidators) {
 		this.beanType = beanType;
 		this.labelSingular = labelSingular;
 		this.labelPlural = labelPlural;
 		this.description = description;
 		this.renderingPattern = renderingPattern;
 		this.unodifiableProperties = Collections.unmodifiableList(new LinkedList<IProperty>(properties));
+		this.unmodifieableDefaultSorting = Collections.unmodifiableList(new LinkedList<ISort>(defaultSorting));
 		this.unmodifieableBeanValidators = Collections.unmodifiableSet(new LinkedHashSet<IBeanValidator<?>>(beanValidators));
 	}
 
@@ -102,6 +119,11 @@ final class BeanDtoDescriptorImpl implements IBeanDtoDescriptor, Serializable {
 	@Override
 	public List<IProperty> getProperties() {
 		return unodifiableProperties;
+	}
+
+	@Override
+	public List<ISort> getDefaultSorting() {
+		return unmodifieableDefaultSorting;
 	}
 
 	@Override

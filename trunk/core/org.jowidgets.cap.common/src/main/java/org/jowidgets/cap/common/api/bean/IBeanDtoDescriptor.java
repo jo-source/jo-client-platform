@@ -31,6 +31,7 @@ package org.jowidgets.cap.common.api.bean;
 import java.util.List;
 import java.util.Set;
 
+import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.common.api.validation.IBeanValidator;
 
 public interface IBeanDtoDescriptor {
@@ -47,6 +48,11 @@ public interface IBeanDtoDescriptor {
 	 * @return The properties of the bean in the preferred order
 	 */
 	List<IProperty> getProperties();
+
+	/**
+	 * @return The default sorting of the bean
+	 */
+	List<ISort> getDefaultSorting();
 
 	/**
 	 * Gets the validators for the bean
