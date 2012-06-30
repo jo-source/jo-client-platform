@@ -39,6 +39,7 @@ import org.jowidgets.cap.ui.api.command.IDeleterActionBuilder;
 import org.jowidgets.cap.ui.api.command.IExecutorActionBuilder;
 import org.jowidgets.cap.ui.api.command.ILinkCreatorActionBuilder;
 import org.jowidgets.cap.ui.api.command.ILinkDeleterActionBuilder;
+import org.jowidgets.cap.ui.api.command.IRefreshLookUpsActionBuilder;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 
 final class CapActionFactoryImpl implements ICapActionFactory {
@@ -91,6 +92,16 @@ final class CapActionFactoryImpl implements ICapActionFactory {
 		final IDataModelActionBuilder builder = new DataModelActionBuilderImpl(new DataModelLoadCommand());
 		builder.setText(Messages.getString("CapActionFactoryImpl.reload")); //$NON-NLS-1$
 		return builder;
+	}
+
+	@Override
+	public IRefreshLookUpsActionBuilder refreshLookUpsActionBuilder() {
+		return new RefreshLookUpsActionBuilderImpl();
+	}
+
+	@Override
+	public IAction refreshLookUpsAction() {
+		return refreshLookUpsActionBuilder().build();
 	}
 
 	@Override

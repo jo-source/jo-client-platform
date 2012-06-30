@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,30 +26,16 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.command;
+package org.jowidgets.cap.ui.api.lookup;
 
-import org.jowidgets.api.command.IEnabledChecker;
-import org.jowidgets.api.command.IExceptionHandler;
+import org.jowidgets.cap.ui.api.CapUiToolkit;
 
-public interface IDataModelActionBuilder extends ICapActionBuilder<IDataModelActionBuilder> {
+public final class LookUpCache {
 
-	/**
-	 * Set's the ExceptionHandler of the action. The actions ExceptionHandler handles exceptions that are not
-	 * handled by the command's exception handler.
-	 * 
-	 * The actions ExceptionHandler should be implemented independently of the current command. If exception handling
-	 * is command specific, the commands exception handler should be used for that.
-	 * 
-	 * If no exception handler is set, a default handler will be used for the action.
-	 * 
-	 * @param exceptionHandler The ExceptionHandler to set
-	 * @return this instance
-	 */
-	IDataModelActionBuilder setActionExceptionHandler(IExceptionHandler exceptionHandler);
+	private LookUpCache() {}
 
-	IDataModelActionBuilder addEnabledChecker(IEnabledChecker enabledChecker);
-
-	@Override
-	IDataModelAction build();
+	public static ILookUpCache get() {
+		return CapUiToolkit.lookUpCache();
+	}
 
 }
