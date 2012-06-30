@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,30 +26,35 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.command;
+package org.jowidgets.cap.ui.impl;
 
+import org.jowidgets.api.command.ICommand;
+import org.jowidgets.api.command.ICommandExecutor;
 import org.jowidgets.api.command.IEnabledChecker;
 import org.jowidgets.api.command.IExceptionHandler;
+import org.jowidgets.api.command.IExecutionContext;
+import org.jowidgets.cap.ui.api.lookup.LookUpCache;
 
-public interface IDataModelActionBuilder extends ICapActionBuilder<IDataModelActionBuilder> {
-
-	/**
-	 * Set's the ExceptionHandler of the action. The actions ExceptionHandler handles exceptions that are not
-	 * handled by the command's exception handler.
-	 * 
-	 * The actions ExceptionHandler should be implemented independently of the current command. If exception handling
-	 * is command specific, the commands exception handler should be used for that.
-	 * 
-	 * If no exception handler is set, a default handler will be used for the action.
-	 * 
-	 * @param exceptionHandler The ExceptionHandler to set
-	 * @return this instance
-	 */
-	IDataModelActionBuilder setActionExceptionHandler(IExceptionHandler exceptionHandler);
-
-	IDataModelActionBuilder addEnabledChecker(IEnabledChecker enabledChecker);
+public class RefreshLookUpsCommand implements ICommand, ICommandExecutor {
 
 	@Override
-	IDataModelAction build();
+	public ICommandExecutor getCommandExecutor() {
+		return this;
+	}
+
+	@Override
+	public IEnabledChecker getEnabledChecker() {
+		return null;
+	}
+
+	@Override
+	public IExceptionHandler getExceptionHandler() {
+		return null;
+	}
+
+	@Override
+	public void execute(final IExecutionContext executionContext) throws Exception {
+		LookUpCache.get().clearCache();
+	}
 
 }

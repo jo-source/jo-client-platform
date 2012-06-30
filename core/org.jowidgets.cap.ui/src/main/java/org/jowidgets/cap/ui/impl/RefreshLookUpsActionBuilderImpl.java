@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,30 +26,28 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.command;
+package org.jowidgets.cap.ui.impl;
 
-import org.jowidgets.api.command.IEnabledChecker;
-import org.jowidgets.api.command.IExceptionHandler;
+import org.jowidgets.api.command.IAction;
+import org.jowidgets.api.command.IActionBuilder;
+import org.jowidgets.api.command.ICommand;
+import org.jowidgets.cap.ui.api.command.IRefreshLookUpsActionBuilder;
 
-public interface IDataModelActionBuilder extends ICapActionBuilder<IDataModelActionBuilder> {
+final class RefreshLookUpsActionBuilderImpl extends AbstractCapActionBuilderImpl<IRefreshLookUpsActionBuilder> implements
+		IRefreshLookUpsActionBuilder {
 
-	/**
-	 * Set's the ExceptionHandler of the action. The actions ExceptionHandler handles exceptions that are not
-	 * handled by the command's exception handler.
-	 * 
-	 * The actions ExceptionHandler should be implemented independently of the current command. If exception handling
-	 * is command specific, the commands exception handler should be used for that.
-	 * 
-	 * If no exception handler is set, a default handler will be used for the action.
-	 * 
-	 * @param exceptionHandler The ExceptionHandler to set
-	 * @return this instance
-	 */
-	IDataModelActionBuilder setActionExceptionHandler(IExceptionHandler exceptionHandler);
-
-	IDataModelActionBuilder addEnabledChecker(IEnabledChecker enabledChecker);
+	RefreshLookUpsActionBuilderImpl() {
+		setText(Messages.getString("RefreshLookUpsActionBuilderImpl.text"));
+		setToolTipText(Messages.getString("RefreshLookUpsActionBuilderImpl.tooltip"));
+	}
 
 	@Override
-	IDataModelAction build();
+	protected IAction doBuild() {
+		final ICommand command = new RefreshLookUpsCommand();
+
+		final IActionBuilder builder = getBuilder();
+		builder.setCommand(command);
+		return builder.build();
+	}
 
 }

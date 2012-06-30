@@ -51,6 +51,10 @@ public interface ICapActionFactory {
 
 	IDataModelActionBuilder dataModelCancelActionBuilder();
 
+	IRefreshLookUpsActionBuilder refreshLookUpsActionBuilder();
+
+	IAction refreshLookUpsAction();
+
 	<BEAN_TYPE, PARAM_TYPE> IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> executorActionBuilder(IBeanListModel<BEAN_TYPE> model);
 
 	<BEAN_TYPE> ICreatorActionBuilder<BEAN_TYPE> creatorActionBuilder(
