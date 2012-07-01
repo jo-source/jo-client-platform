@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>org.jowidgets.cap.sample2</groupId>
 		<artifactId>org.jowidgets.cap.sample2.starter.parent</artifactId>
-		<version>0.11.0-SNAPSHOT</version>
+		<version>0.11.0</version>
 		<relativePath>../parent/pom.xml</relativePath>
 	</parent>
 	
@@ -15,12 +15,12 @@
 	    <dependency>
 			<groupId>org.jowidgets.cap.sample2</groupId>
 			<artifactId>org.jowidgets.cap.sample2.app.service</artifactId>
-			<version>0.11.0-SNAPSHOT</version>
+			<version>0.11.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.jowidgets</groupId>
 			<artifactId>org.jowidgets.security.impl.http.server</artifactId>
-			<version>0.11.0-SNAPSHOT</version>
+			<version>0.11.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.codehaus.mojo.webstart</groupId>
@@ -34,37 +34,37 @@
 		<dependency>
             <groupId>org.jowidgets.cap.sample2</groupId>
             <artifactId>org.jowidgets.cap.sample2.starter.client.swt.win.webstart</artifactId>
-            <version>0.11.0-SNAPSHOT</version>
+            <version>0.11.0</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.jowidgets.cap.sample2</groupId>
             <artifactId>org.jowidgets.cap.sample2.starter.client.swt.gtk64.webstart</artifactId>
-            <version>0.11.0-SNAPSHOT</version>
+            <version>0.11.0</version>
             <scope>provided</scope>
         </dependency>
 		<dependency>
 			<groupId>org.jowidgets.cap.sample2</groupId>
 			<artifactId>org.jowidgets.cap.sample2.starter.client.swing.webstart</artifactId>
-			<version>0.11.0-SNAPSHOT</version>
+			<version>0.11.0</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.jowidgets.cap.sample2</groupId>
 			<artifactId>org.jowidgets.cap.sample2.starter.standalone.swt.win.webstart</artifactId>
-			<version>0.11.0-SNAPSHOT</version>
+			<version>0.11.0</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
             <groupId>org.jowidgets.cap.sample2</groupId>
             <artifactId>org.jowidgets.cap.sample2.starter.standalone.swt.gtk64.webstart</artifactId>
-            <version>0.11.0-SNAPSHOT</version>
+            <version>0.11.0</version>
             <scope>provided</scope>
         </dependency>
 		<dependency>
 			<groupId>org.jowidgets.cap.sample2</groupId>
 			<artifactId>org.jowidgets.cap.sample2.starter.standalone.swing.webstart</artifactId>
-			<version>0.11.0-SNAPSHOT</version>
+			<version>0.11.0</version>
 			<scope>provided</scope>
 		</dependency>
 	</dependencies>
