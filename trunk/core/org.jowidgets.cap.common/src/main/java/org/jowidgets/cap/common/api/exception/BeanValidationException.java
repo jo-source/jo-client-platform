@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, grossmann
+ * Copyright (c) 2011, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,22 +26,23 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.api.deleter;
+package org.jowidgets.cap.common.api.exception;
 
-import org.jowidgets.cap.common.api.bean.IBean;
-import org.jowidgets.cap.common.api.execution.IExecutableChecker;
-import org.jowidgets.cap.common.api.service.IDeleterService;
+import org.jowidgets.cap.common.api.validation.IBeanValidationResult;
 
-public interface IDeleterServiceBuilder<BEAN_TYPE extends IBean> {
+public class BeanValidationException extends BeanException {
 
-	IDeleterServiceBuilder<BEAN_TYPE> addExecutableChecker(IExecutableChecker<? extends BEAN_TYPE> executableChecker);
+	private static final long serialVersionUID = -7579908469741974763L;
 
-	IDeleterServiceBuilder<BEAN_TYPE> setExecutableChecker(IExecutableChecker<? extends BEAN_TYPE> executableChecker);
+	private final IBeanValidationResult validationResult;
 
-	IDeleterServiceBuilder<BEAN_TYPE> setAllowDeletedBeans(boolean allowDeletedBeans);
+	public BeanValidationException(final Object beanId, final IBeanValidationResult validationResult) {
+		super(beanId);
+		this.validationResult = validationResult;
+	}
 
-	IDeleterServiceBuilder<BEAN_TYPE> setAllowStaleBeans(boolean allowStaleBeans);
-
-	IDeleterService build();
+	public IBeanValidationResult getValidationResult() {
+		return validationResult;
+	}
 
 }

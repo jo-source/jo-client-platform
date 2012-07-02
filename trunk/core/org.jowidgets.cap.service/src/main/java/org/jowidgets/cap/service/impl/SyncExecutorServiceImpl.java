@@ -38,12 +38,16 @@ import java.util.Map;
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
+import org.jowidgets.cap.common.api.exception.BeanValidationException;
 import org.jowidgets.cap.common.api.exception.DeletedBeanException;
 import org.jowidgets.cap.common.api.exception.ExecutableCheckException;
 import org.jowidgets.cap.common.api.exception.StaleBeanException;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.execution.IExecutableState;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
+import org.jowidgets.cap.common.api.validation.IBeanValidationResult;
+import org.jowidgets.cap.common.api.validation.IBeanValidator;
+import org.jowidgets.cap.common.tools.validation.BeanValidationResultUtil;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.adapter.ISyncExecutorService;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
@@ -59,6 +63,7 @@ public final class SyncExecutorServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE> 
 	private final IBeanAccess<BEAN_TYPE> beanAccess;
 	private final Object executor;
 	private final IExecutableChecker<BEAN_TYPE> executableChecker;
+	private final IBeanValidator<BEAN_TYPE> beanValidator;
 	private final boolean allowDeletedBeans;
 	private final boolean allowStaleBeans;
 
@@ -70,6 +75,7 @@ public final class SyncExecutorServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE> 
 		final IBeanAccess<? extends BEAN_TYPE> beanAccess,
 		final Object executor,
 		final IExecutableChecker<? extends BEAN_TYPE> executableChecker,
+		final IBeanValidator<? extends BEAN_TYPE> beanValidator,
 		final IBeanDtoFactory<BEAN_TYPE> dtoFactory,
 		final boolean allowDeletedBeans,
 		final boolean allowStaleBeans) {
@@ -82,6 +88,7 @@ public final class SyncExecutorServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE> 
 		this.beanAccess = (IBeanAccess<BEAN_TYPE>) beanAccess;
 		this.executor = executor;
 		this.executableChecker = (IExecutableChecker<BEAN_TYPE>) executableChecker;
+		this.beanValidator = (IBeanValidator<BEAN_TYPE>) beanValidator;
 		this.allowDeletedBeans = allowDeletedBeans;
 		this.allowStaleBeans = allowStaleBeans;
 
@@ -169,6 +176,7 @@ public final class SyncExecutorServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE> 
 		final IBeanListExecutor<BEAN_TYPE, PARAM_TYPE> beanCollectionExecutor = (IBeanListExecutor<BEAN_TYPE, PARAM_TYPE>) executor;
 		final List<? extends BEAN_TYPE> executionResult = beanCollectionExecutor.execute(beans, parameter, executionCallback);
 		CapServiceToolkit.checkCanceled(executionCallback);
+		validate(beans);
 		beanAccess.flush();
 		return BeanDtoFactoryHelper.createDtos(dtoFactory, executionResult);
 	}
@@ -181,20 +189,40 @@ public final class SyncExecutorServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE> 
 
 		final IBeanExecutor<BEAN_TYPE, PARAM_TYPE> beanExecutor = (IBeanExecutor<BEAN_TYPE, PARAM_TYPE>) executor;
 
-		final List<IBeanDto> result = new LinkedList<IBeanDto>();
+		final List<BEAN_TYPE> executionResultList = new LinkedList<BEAN_TYPE>();
 		for (final BEAN_TYPE bean : beans) {
 			if (executableChecker != null) {
 				checkExecutableState(bean, executionCallback);
 			}
 			final BEAN_TYPE executionResult = beanExecutor.execute(bean, parameter, executionCallback);
 			CapServiceToolkit.checkCanceled(executionCallback);
-			beanAccess.flush();
+
 			if (executionResult != null) {
-				result.add(dtoFactory.createDto(executionResult));
+				executionResultList.add(executionResult);
+
 			}
 			CapServiceToolkit.checkCanceled(executionCallback);
 		}
+		validate(beans);
+		beanAccess.flush();
+
+		final List<IBeanDto> result = new LinkedList<IBeanDto>();
+		for (final BEAN_TYPE executionResult : executionResultList) {
+			result.add(dtoFactory.createDto(executionResult));
+		}
 		return result;
+	}
+
+	private void validate(final Collection<BEAN_TYPE> beans) {
+		if (beanValidator != null) {
+			for (final BEAN_TYPE bean : beans) {
+				final Collection<IBeanValidationResult> validationResults = beanValidator.validate(bean);
+				final IBeanValidationResult worstFirst = BeanValidationResultUtil.getWorstFirst(validationResults);
+				if (worstFirst != null && !worstFirst.getValidationResult().isValid()) {
+					throw new BeanValidationException(bean.getId(), worstFirst);
+				}
+			}
+		}
 	}
 
 	private void checkExecutableStates(final List<BEAN_TYPE> beans, final IExecutionCallback executionCallback) {

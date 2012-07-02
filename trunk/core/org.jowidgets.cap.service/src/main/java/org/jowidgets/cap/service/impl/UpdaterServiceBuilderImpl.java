@@ -36,6 +36,7 @@ import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanModification;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.service.IUpdaterService;
+import org.jowidgets.cap.common.api.validation.IBeanValidator;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.adapter.IAdapterFactoryProvider;
 import org.jowidgets.cap.service.api.adapter.ISyncUpdaterService;
@@ -45,6 +46,7 @@ import org.jowidgets.cap.service.api.bean.IBeanModifier;
 import org.jowidgets.cap.service.api.updater.IUpdaterServiceBuilder;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.IAdapterFactory;
+import org.jowidgets.validation.IValidator;
 
 final class UpdaterServiceBuilderImpl<BEAN_TYPE extends IBean> implements IUpdaterServiceBuilder<BEAN_TYPE> {
 
@@ -57,6 +59,26 @@ final class UpdaterServiceBuilderImpl<BEAN_TYPE extends IBean> implements IUpdat
 		this.beanAccess = beanAccess;
 		this.dataExecutorServiceBuilder = new ExecutorServiceBuilderImpl<BEAN_TYPE, Collection<? extends IBeanModification>>(
 			beanAccess);
+	}
+
+	@Override
+	public IUpdaterServiceBuilder<BEAN_TYPE> addBeanValidator(final IBeanValidator<? extends BEAN_TYPE> validator) {
+		dataExecutorServiceBuilder.addBeanValidator(validator);
+		return this;
+	}
+
+	@Override
+	public IUpdaterServiceBuilder<BEAN_TYPE> addPropertyValidator(
+		final String propertyName,
+		final IValidator<? extends Object> validator) {
+		dataExecutorServiceBuilder.addPropertyValidator(propertyName, validator);
+		return this;
+	}
+
+	@Override
+	public IUpdaterServiceBuilder<BEAN_TYPE> addExecutableChecker(final IExecutableChecker<? extends BEAN_TYPE> executableChecker) {
+		dataExecutorServiceBuilder.addExecutableChecker(executableChecker);
+		return this;
 	}
 
 	@Override

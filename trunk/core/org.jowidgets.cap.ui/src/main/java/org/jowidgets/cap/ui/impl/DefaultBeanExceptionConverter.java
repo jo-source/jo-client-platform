@@ -31,10 +31,12 @@ package org.jowidgets.cap.ui.impl;
 import java.util.List;
 
 import org.jowidgets.cap.common.api.exception.BeanException;
+import org.jowidgets.cap.common.api.exception.BeanValidationException;
 import org.jowidgets.cap.common.api.exception.DeletedBeanException;
 import org.jowidgets.cap.common.api.exception.ExecutableCheckException;
 import org.jowidgets.cap.common.api.exception.ServiceException;
 import org.jowidgets.cap.common.api.exception.StaleBeanException;
+import org.jowidgets.cap.common.api.validation.IBeanValidationResult;
 import org.jowidgets.cap.ui.api.bean.BeanMessageType;
 import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
 import org.jowidgets.cap.ui.api.bean.IBeanMessage;
@@ -54,7 +56,15 @@ final class DefaultBeanExceptionConverter implements IBeanExceptionConverter {
 			final BeanException serviceException = ((BeanException) throwable);
 			final Object exceptionBeanId = serviceException.getBeanId();
 			String message = serviceException.getUserMessage();
-			if (serviceException instanceof ExecutableCheckException) {
+			if (serviceException instanceof BeanValidationException) {
+				final BeanValidationException beanValidationException = (BeanValidationException) throwable;
+				final IBeanValidationResult firstWorstBeanResult = beanValidationException.getValidationResult();
+				return new BeanMessageImpl(
+					BeanMessageType.WARNING,
+					firstWorstBeanResult.getValidationResult().getWorstFirst().getText(),
+					throwable);
+			}
+			else if (serviceException instanceof ExecutableCheckException) {
 				if (message == null) {
 					if (destinationBean.getId().equals(exceptionBeanId)) {
 						message = "Executable check failed!";
@@ -85,7 +95,7 @@ final class DefaultBeanExceptionConverter implements IBeanExceptionConverter {
 						message = "Deleted data (id= '" + serviceException.getBeanId() + "')!";
 					}
 				}
-				return new BeanMessageImpl(BeanMessageType.ERROR, message, throwable);
+				return new BeanMessageImpl(BeanMessageType.WARNING, message, throwable);
 			}
 			else {
 				//CHECKSTYLE:OFF
@@ -120,5 +130,4 @@ final class DefaultBeanExceptionConverter implements IBeanExceptionConverter {
 			return new BeanMessageImpl(BeanMessageType.ERROR, "Undefined runtime exception!", throwable);
 		}
 	}
-
 }

@@ -45,6 +45,7 @@ import org.jowidgets.cap.common.api.filter.IFilter;
 import org.jowidgets.cap.common.api.service.ICreatorService;
 import org.jowidgets.cap.common.api.service.IDeleterService;
 import org.jowidgets.cap.common.api.service.IReaderService;
+import org.jowidgets.cap.common.api.service.IUpdaterService;
 import org.jowidgets.cap.sample2.app.common.bean.IAuthorization;
 import org.jowidgets.cap.sample2.app.common.bean.IPerson;
 import org.jowidgets.cap.sample2.app.common.bean.IPersonPersonLink;
@@ -72,8 +73,12 @@ import org.jowidgets.cap.sample2.app.service.descriptor.PersonRelationTypeDtoDes
 import org.jowidgets.cap.sample2.app.service.descriptor.RoleDtoDescriptorBuilder;
 import org.jowidgets.cap.sample2.app.service.descriptor.SourcePersonOfPersonLinkDtoDescriptorBuilder;
 import org.jowidgets.cap.sample2.app.service.loader.PersonRelationTypeLoader;
+import org.jowidgets.cap.sample2.app.service.validation.PersonLoginNameConstraintValidator;
+import org.jowidgets.cap.service.api.CapServiceToolkit;
+import org.jowidgets.cap.service.api.bean.IBeanAccess;
 import org.jowidgets.cap.service.api.entity.IBeanEntityBluePrint;
 import org.jowidgets.cap.service.api.entity.IBeanEntityLinkBluePrint;
+import org.jowidgets.cap.service.api.updater.IUpdaterServiceBuilder;
 import org.jowidgets.cap.service.jpa.api.query.ICriteriaQueryCreatorBuilder;
 import org.jowidgets.cap.service.jpa.api.query.IPredicateCreator;
 import org.jowidgets.cap.service.jpa.api.query.JpaQueryToolkit;
@@ -92,6 +97,7 @@ public class SampleEntityServiceBuilder extends JpaEntityServiceBuilderWrapper {
 		//IPerson
 		IBeanEntityBluePrint entityBp = addEntity().setEntityId(EntityIds.PERSON).setBeanType(Person.class);
 		entityBp.setDtoDescriptor(new PersonDtoDescriptorBuilder());
+		entityBp.setUpdaterService(createPersonUpdaterService());
 		addPersonLinkDescriptors(entityBp);
 
 		//IRole
@@ -140,6 +146,7 @@ public class SampleEntityServiceBuilder extends JpaEntityServiceBuilderWrapper {
 		entityBp = addEntity().setEntityId(EntityIds.LINKED_PERSONS_OF_ROLES).setBeanType(Person.class);
 		entityBp.setDtoDescriptor(new PersonDtoDescriptorBuilder());
 		entityBp.setReaderService(createPersonsOfRolesReader(true));
+		entityBp.setUpdaterService(createPersonUpdaterService());
 		addPersonLinkDescriptors(entityBp);
 
 		//Linkable persons of roles
@@ -323,6 +330,7 @@ public class SampleEntityServiceBuilder extends JpaEntityServiceBuilderWrapper {
 			final IBeanEntityBluePrint linkedEntityBp = addEntity().setEntityId(linkedEntityId).setBeanType(Person.class);
 			linkedEntityBp.setDtoDescriptor(new PersonDtoDescriptorBuilder(labelSingular, labelPlural));
 			linkedEntityBp.setReaderService(linkedReader);
+			linkedEntityBp.setUpdaterService(createPersonUpdaterService());
 			linkedEntityBp.setCreatorService((ICreatorService) null);
 			addPersonLinkDescriptors(linkedEntityBp, false);
 
@@ -414,5 +422,13 @@ public class SampleEntityServiceBuilder extends JpaEntityServiceBuilderWrapper {
 		final ICriteriaQueryCreatorBuilder<Void> queryBuilder = JpaQueryToolkit.criteriaQueryCreatorBuilder(Authorization.class);
 		queryBuilder.setParentPropertyPath(linked, "roleAuthorizationLinks", "role");
 		return getServiceFactory().readerService(Authorization.class, queryBuilder.build(), IAuthorization.ALL_PROPERTIES);
+	}
+
+	private IUpdaterService createPersonUpdaterService() {
+		final IBeanAccess<Person> beanAccess = getServiceFactory().beanAccess(Person.class);
+		final IUpdaterServiceBuilder<Person> builder = CapServiceToolkit.updaterServiceBuilder(beanAccess);
+		builder.setBeanDtoFactoryAndBeanModifier(IPerson.ALL_PROPERTIES);
+		builder.addBeanValidator(new PersonLoginNameConstraintValidator());
+		return builder.build();
 	}
 }

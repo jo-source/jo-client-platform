@@ -33,8 +33,10 @@ import java.util.Collection;
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.service.IExecutorService;
+import org.jowidgets.cap.common.api.validation.IBeanValidator;
 import org.jowidgets.cap.service.api.adapter.ISyncExecutorService;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
+import org.jowidgets.validation.IValidator;
 
 public interface IExecutorServiceBuilder<BEAN_TYPE extends IBean, PARAM_TYPE> {
 
@@ -44,7 +46,30 @@ public interface IExecutorServiceBuilder<BEAN_TYPE extends IBean, PARAM_TYPE> {
 	IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> setExecutor(
 		IBeanListExecutor<? extends BEAN_TYPE, ? extends PARAM_TYPE> beanListExecutor);
 
+	/**
+	 * Adds a bean validator that validates the bean after execution but before flush
+	 * 
+	 * @param validator The validator to add
+	 * 
+	 * @return This builder
+	 */
+	IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> addBeanValidator(IBeanValidator<? extends BEAN_TYPE> validator);
+
+	/**
+	 * Adds a roperty validator that validates the bean after execution but before flush
+	 * 
+	 * @param propertyName The name of the property to validate
+	 * @param validator The validator to add
+	 * 
+	 * @return This builder
+	 */
+	IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> addPropertyValidator(
+		String propertyName,
+		IValidator<? extends Object> validator);
+
 	IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> setExecutableChecker(IExecutableChecker<? extends BEAN_TYPE> executableChecker);
+
+	IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> addExecutableChecker(IExecutableChecker<? extends BEAN_TYPE> executableChecker);
 
 	IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> setBeanDtoFactory(IBeanDtoFactory<BEAN_TYPE> beanDtoFactory);
 

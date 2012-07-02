@@ -26,22 +26,27 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.api.deleter;
+package org.jowidgets.cap.common.tools.validation;
 
-import org.jowidgets.cap.common.api.bean.IBean;
-import org.jowidgets.cap.common.api.execution.IExecutableChecker;
-import org.jowidgets.cap.common.api.service.IDeleterService;
+import java.util.Collection;
 
-public interface IDeleterServiceBuilder<BEAN_TYPE extends IBean> {
+import org.jowidgets.cap.common.api.validation.IBeanValidationResult;
+import org.jowidgets.util.Assert;
 
-	IDeleterServiceBuilder<BEAN_TYPE> addExecutableChecker(IExecutableChecker<? extends BEAN_TYPE> executableChecker);
+public final class BeanValidationResultUtil {
 
-	IDeleterServiceBuilder<BEAN_TYPE> setExecutableChecker(IExecutableChecker<? extends BEAN_TYPE> executableChecker);
+	private BeanValidationResultUtil() {}
 
-	IDeleterServiceBuilder<BEAN_TYPE> setAllowDeletedBeans(boolean allowDeletedBeans);
-
-	IDeleterServiceBuilder<BEAN_TYPE> setAllowStaleBeans(boolean allowStaleBeans);
-
-	IDeleterService build();
+	public static IBeanValidationResult getWorstFirst(final Collection<IBeanValidationResult> validationResults) {
+		Assert.paramNotNull(validationResults, "validationResults");
+		IBeanValidationResult worstFirst = null;
+		for (final IBeanValidationResult validationResult : validationResults) {
+			if (worstFirst == null
+				|| validationResult.getValidationResult().getWorstFirst().worse(worstFirst.getValidationResult().getWorstFirst())) {
+				worstFirst = validationResult;
+			}
+		}
+		return worstFirst;
+	}
 
 }

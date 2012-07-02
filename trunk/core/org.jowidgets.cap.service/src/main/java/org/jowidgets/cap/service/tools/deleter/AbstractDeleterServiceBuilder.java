@@ -40,13 +40,13 @@ import org.jowidgets.util.Assert;
 
 public abstract class AbstractDeleterServiceBuilder<BEAN_TYPE extends IBean> implements IDeleterServiceBuilder<BEAN_TYPE> {
 
-	private final List<IExecutableChecker<? extends BEAN_TYPE>> checkers;
+	private final List<IExecutableChecker<? extends BEAN_TYPE>> executableCheckers;
 
 	private boolean allowDeletedBeans;
 	private boolean allowStaleBeans;
 
 	public AbstractDeleterServiceBuilder() {
-		this.checkers = new LinkedList<IExecutableChecker<? extends BEAN_TYPE>>();
+		this.executableCheckers = new LinkedList<IExecutableChecker<? extends BEAN_TYPE>>();
 		this.allowDeletedBeans = true;
 		this.allowStaleBeans = true;
 	}
@@ -55,7 +55,16 @@ public abstract class AbstractDeleterServiceBuilder<BEAN_TYPE extends IBean> imp
 	public final IDeleterServiceBuilder<BEAN_TYPE> addExecutableChecker(
 		final IExecutableChecker<? extends BEAN_TYPE> executableChecker) {
 		Assert.paramNotNull(executableChecker, "executableChecker");
-		this.checkers.add(executableChecker);
+		this.executableCheckers.add(executableChecker);
+		return this;
+	}
+
+	@Override
+	public IDeleterServiceBuilder<BEAN_TYPE> setExecutableChecker(final IExecutableChecker<? extends BEAN_TYPE> executableChecker) {
+		this.executableCheckers.clear();
+		if (executableChecker != null) {
+			addExecutableChecker(executableChecker);
+		}
 		return this;
 	}
 
@@ -73,12 +82,12 @@ public abstract class AbstractDeleterServiceBuilder<BEAN_TYPE extends IBean> imp
 
 	@SuppressWarnings("unchecked")
 	protected IExecutableChecker<BEAN_TYPE> getExecutableChecker() {
-		if (checkers.size() == 1) {
-			return (IExecutableChecker<BEAN_TYPE>) checkers.iterator().next();
+		if (executableCheckers.size() == 1) {
+			return (IExecutableChecker<BEAN_TYPE>) executableCheckers.iterator().next();
 		}
-		else if (checkers.size() > 1) {
+		else if (executableCheckers.size() > 1) {
 			final IExecutableCheckerCompositeBuilder<BEAN_TYPE> builder = ExecutableCheckerComposite.builder();
-			builder.set(checkers);
+			builder.set(executableCheckers);
 			return builder.build();
 		}
 		else {
