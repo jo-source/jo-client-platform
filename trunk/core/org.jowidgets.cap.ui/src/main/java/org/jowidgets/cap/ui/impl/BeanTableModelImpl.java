@@ -2632,7 +2632,8 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 				&& !NullCompatibleEquivalence.equals(lastSelected, selected)
 				&& !selected.hasExecution()
 				&& !selected.isDummy()
-				&& !selected.isTransient()) {
+				&& !selected.isTransient()
+				&& !selected.hasMessages()) {
 
 				tryCancelAutoRefreshExecutionTask();
 				if (schedule != null) {

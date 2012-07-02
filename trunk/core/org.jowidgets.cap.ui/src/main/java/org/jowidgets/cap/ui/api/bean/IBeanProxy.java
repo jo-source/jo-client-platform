@@ -112,9 +112,13 @@ public interface IBeanProxy<BEAN_TYPE> extends
 
 	List<IBeanMessage> getMessages();
 
+	boolean hasInfos();
+
 	boolean hasErrors();
 
 	boolean hasWarnings();
+
+	boolean hasMessages();
 
 	IBeanMessage getFirstWorstMessage();
 
