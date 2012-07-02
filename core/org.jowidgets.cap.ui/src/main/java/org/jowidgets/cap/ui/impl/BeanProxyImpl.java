@@ -839,6 +839,12 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 	}
 
 	@Override
+	public boolean hasInfos() {
+		checkDisposed();
+		return !messagesMap.get(BeanMessageType.INFO).isEmpty();
+	}
+
+	@Override
 	public boolean hasErrors() {
 		checkDisposed();
 		return !messagesMap.get(BeanMessageType.ERROR).isEmpty();
@@ -848,6 +854,11 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 	public boolean hasWarnings() {
 		checkDisposed();
 		return !messagesMap.get(BeanMessageType.WARNING).isEmpty();
+	}
+
+	@Override
+	public boolean hasMessages() {
+		return hasInfos() || hasWarnings() || hasErrors();
 	}
 
 	@Override
