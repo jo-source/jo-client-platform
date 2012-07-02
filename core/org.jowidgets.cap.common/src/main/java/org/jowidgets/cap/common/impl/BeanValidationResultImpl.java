@@ -28,11 +28,15 @@
 
 package org.jowidgets.cap.common.impl;
 
+import java.io.Serializable;
+
 import org.jowidgets.cap.common.api.validation.IBeanValidationResult;
 import org.jowidgets.util.Assert;
 import org.jowidgets.validation.IValidationResult;
 
-final class BeanValidationResultImpl implements IBeanValidationResult {
+final class BeanValidationResultImpl implements IBeanValidationResult, Serializable {
+
+	private static final long serialVersionUID = 6674695803714173699L;
 
 	private final String propertyName;
 	private final IValidationResult validationResult;

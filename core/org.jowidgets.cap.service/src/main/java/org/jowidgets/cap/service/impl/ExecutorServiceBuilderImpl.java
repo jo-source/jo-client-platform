@@ -30,12 +30,19 @@ package org.jowidgets.cap.service.impl;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.jowidgets.cap.common.api.bean.IBean;
+import org.jowidgets.cap.common.api.execution.ExecutableCheckerComposite;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
+import org.jowidgets.cap.common.api.execution.IExecutableCheckerCompositeBuilder;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.service.IExecutorService;
+import org.jowidgets.cap.common.api.validation.IBeanValidator;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.adapter.IAdapterFactoryProvider;
 import org.jowidgets.cap.service.api.adapter.ISyncExecutorService;
@@ -46,15 +53,18 @@ import org.jowidgets.cap.service.api.executor.IBeanListExecutor;
 import org.jowidgets.cap.service.api.executor.IExecutorServiceBuilder;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.IAdapterFactory;
+import org.jowidgets.validation.IValidator;
 
 final class ExecutorServiceBuilderImpl<BEAN_TYPE extends IBean, PARAM_TYPE> implements
 		IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> {
 
 	private final Class<? extends BEAN_TYPE> beanType;
 	private final IBeanAccess<? extends BEAN_TYPE> beanAccess;
+	private final List<IExecutableChecker<? extends BEAN_TYPE>> executableCheckers;
+	private final List<IBeanValidator<BEAN_TYPE>> beanValidators;
+	private final Map<String, List<IValidator<? extends Object>>> propertyValidators;
 
 	private Object executor;
-	private IExecutableChecker<? extends BEAN_TYPE> executableChecker;
 	private IBeanDtoFactory<BEAN_TYPE> beanDtoFactory;
 	private boolean allowDeletedBeans;
 	private boolean allowStaleBeans;
@@ -62,6 +72,10 @@ final class ExecutorServiceBuilderImpl<BEAN_TYPE extends IBean, PARAM_TYPE> impl
 	ExecutorServiceBuilderImpl(final IBeanAccess<? extends BEAN_TYPE> beanAccess) {
 		Assert.paramNotNull(beanAccess, "beanAccess");
 		Assert.paramNotNull(beanAccess.getBeanType(), "beanAccess.getBeanType()");
+
+		this.executableCheckers = new LinkedList<IExecutableChecker<? extends BEAN_TYPE>>();
+		this.beanValidators = new LinkedList<IBeanValidator<BEAN_TYPE>>();
+		this.propertyValidators = new HashMap<String, List<IValidator<? extends Object>>>();
 
 		this.beanType = beanAccess.getBeanType();
 		this.beanAccess = beanAccess;
@@ -84,10 +98,45 @@ final class ExecutorServiceBuilderImpl<BEAN_TYPE extends IBean, PARAM_TYPE> impl
 		return this;
 	}
 
+	@SuppressWarnings("unchecked")
+	@Override
+	public IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> addBeanValidator(final IBeanValidator<? extends BEAN_TYPE> validator) {
+		Assert.paramNotNull(validator, "validator");
+		beanValidators.add((IBeanValidator<BEAN_TYPE>) validator);
+		return this;
+	}
+
+	@Override
+	public IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> addPropertyValidator(
+		final String propertyName,
+		final IValidator<? extends Object> validator) {
+		Assert.paramNotNull(propertyName, "propertyName");
+		Assert.paramNotNull(validator, "validator");
+
+		List<IValidator<? extends Object>> validators = propertyValidators.get(propertyName);
+		if (validators == null) {
+			validators = new LinkedList<IValidator<? extends Object>>();
+			propertyValidators.put(propertyName, validators);
+		}
+		validators.add(validator);
+		return this;
+	}
+
+	@Override
+	public IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> addExecutableChecker(
+		final IExecutableChecker<? extends BEAN_TYPE> executableChecker) {
+		Assert.paramNotNull(executableChecker, "executableChecker");
+		this.executableCheckers.add(executableChecker);
+		return this;
+	}
+
 	@Override
 	public IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> setExecutableChecker(
 		final IExecutableChecker<? extends BEAN_TYPE> executableChecker) {
-		this.executableChecker = executableChecker;
+		this.executableCheckers.clear();
+		if (executableChecker != null) {
+			addExecutableChecker(executableChecker);
+		}
 		return this;
 	}
 
@@ -142,6 +191,43 @@ final class ExecutorServiceBuilderImpl<BEAN_TYPE extends IBean, PARAM_TYPE> impl
 		return executorAdapterFactory.createAdapter(buildSyncService());
 	}
 
+	@SuppressWarnings("unchecked")
+	private IExecutableChecker<BEAN_TYPE> getExecutableChecker() {
+		if (executableCheckers.size() == 1) {
+			return (IExecutableChecker<BEAN_TYPE>) executableCheckers.iterator().next();
+		}
+		else if (executableCheckers.size() > 1) {
+			final IExecutableCheckerCompositeBuilder<BEAN_TYPE> builder = ExecutableCheckerComposite.builder();
+			builder.set(executableCheckers);
+			return builder.build();
+		}
+		else {
+			return null;
+		}
+	}
+
+	private Collection<IBeanValidator<BEAN_TYPE>> getBeanValidators() {
+		final List<IBeanValidator<BEAN_TYPE>> result = new LinkedList<IBeanValidator<BEAN_TYPE>>();
+		for (final Entry<String, List<IValidator<? extends Object>>> entry : propertyValidators.entrySet()) {
+			beanValidators.add(new BeanPropertyToBeanValidatorAdapter<BEAN_TYPE>(beanType, entry.getKey(), entry.getValue()));
+		}
+		result.addAll(beanValidators);
+		return result;
+	}
+
+	private IBeanValidator<BEAN_TYPE> getBeanValidator() {
+		final Collection<IBeanValidator<BEAN_TYPE>> validators = getBeanValidators();
+		if (validators.size() == 1) {
+			return validators.iterator().next();
+		}
+		else if (validators.size() > 1) {
+			return new BeanValidatorComposite<BEAN_TYPE>(validators);
+		}
+		else {
+			return null;
+		}
+	}
+
 	@Override
 	public ISyncExecutorService<PARAM_TYPE> buildSyncService() {
 		if (executor == null) {
@@ -157,10 +243,10 @@ final class ExecutorServiceBuilderImpl<BEAN_TYPE extends IBean, PARAM_TYPE> impl
 			beanType,
 			beanAccess,
 			executor,
-			executableChecker,
+			getExecutableChecker(),
+			getBeanValidator(),
 			getBeanDtoFactory(),
 			allowDeletedBeans,
 			allowStaleBeans);
 	}
-
 }

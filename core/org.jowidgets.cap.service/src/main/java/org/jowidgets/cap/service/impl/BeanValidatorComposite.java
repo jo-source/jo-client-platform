@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,41 +26,49 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.api.updater;
+package org.jowidgets.cap.service.impl;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Set;
 
-import org.jowidgets.cap.common.api.bean.IBean;
-import org.jowidgets.cap.common.api.execution.IExecutableChecker;
-import org.jowidgets.cap.common.api.service.IUpdaterService;
+import org.jowidgets.cap.common.api.CapCommonToolkit;
+import org.jowidgets.cap.common.api.validation.IBeanValidationResult;
+import org.jowidgets.cap.common.api.validation.IBeanValidationResultListBuilder;
 import org.jowidgets.cap.common.api.validation.IBeanValidator;
-import org.jowidgets.cap.service.api.adapter.ISyncUpdaterService;
-import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
-import org.jowidgets.cap.service.api.bean.IBeanModifier;
-import org.jowidgets.validation.IValidator;
 
-public interface IUpdaterServiceBuilder<BEAN_TYPE extends IBean> {
+final class BeanValidatorComposite<BEAN_TYPE> implements IBeanValidator<BEAN_TYPE> {
 
-	IUpdaterServiceBuilder<BEAN_TYPE> addBeanValidator(IBeanValidator<? extends BEAN_TYPE> validator);
+	private final Collection<IBeanValidator<BEAN_TYPE>> validators;
+	private final Set<String> propertyDependencies;
 
-	IUpdaterServiceBuilder<BEAN_TYPE> addPropertyValidator(String propertyName, IValidator<? extends Object> validator);
+	BeanValidatorComposite(final Collection<IBeanValidator<BEAN_TYPE>> validators) {
+		this.validators = new LinkedList<IBeanValidator<BEAN_TYPE>>(validators);
+		this.propertyDependencies = createPropertyDependencies(validators);
+	}
 
-	IUpdaterServiceBuilder<BEAN_TYPE> addExecutableChecker(IExecutableChecker<? extends BEAN_TYPE> executableChecker);
+	private Set<String> createPropertyDependencies(final Collection<IBeanValidator<BEAN_TYPE>> validators) {
+		final Set<String> result = new HashSet<String>();
+		for (final IBeanValidator<BEAN_TYPE> validator : validators) {
+			result.addAll(validator.getPropertyDependencies());
+		}
+		return Collections.unmodifiableSet(result);
+	}
 
-	IUpdaterServiceBuilder<BEAN_TYPE> setExecutableChecker(IExecutableChecker<? extends BEAN_TYPE> executableChecker);
+	@Override
+	public Collection<IBeanValidationResult> validate(final BEAN_TYPE bean) {
+		final IBeanValidationResultListBuilder builder = CapCommonToolkit.beanValidationResultListBuilder();
+		for (final IBeanValidator<BEAN_TYPE> validator : validators) {
+			builder.addResult(validator.validate(bean));
+		}
+		return builder.build();
+	}
 
-	IUpdaterServiceBuilder<BEAN_TYPE> setBeanDtoFactory(IBeanDtoFactory<BEAN_TYPE> beanDtoFactory);
-
-	IUpdaterServiceBuilder<BEAN_TYPE> setBeanModifier(IBeanModifier<BEAN_TYPE> beanModifier);
-
-	IUpdaterServiceBuilder<BEAN_TYPE> setBeanDtoFactoryAndBeanModifier(final Collection<String> propertyNames);
-
-	IUpdaterServiceBuilder<BEAN_TYPE> setAllowDeletedBeans(boolean allowDeletedBeans);
-
-	IUpdaterServiceBuilder<BEAN_TYPE> setAllowStaleBeans(boolean allowStaleBeans);
-
-	ISyncUpdaterService buildSyncService();
-
-	IUpdaterService build();
+	@Override
+	public Set<String> getPropertyDependencies() {
+		return propertyDependencies;
+	}
 
 }
