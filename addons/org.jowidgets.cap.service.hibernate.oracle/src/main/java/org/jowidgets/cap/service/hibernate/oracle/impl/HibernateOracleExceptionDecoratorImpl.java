@@ -30,8 +30,10 @@ package org.jowidgets.cap.service.hibernate.oracle.impl;
 
 import java.lang.reflect.Field;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.Column;
 import javax.persistence.EntityManager;
@@ -47,7 +49,15 @@ import org.jowidgets.cap.service.jpa.api.EntityManagerHolder;
 import org.jowidgets.util.EmptyCheck;
 import org.jowidgets.util.IDecorator;
 
-public class HibernateOracleExceptionDecoratorImpl implements IDecorator<Throwable> {
+final class HibernateOracleExceptionDecoratorImpl implements IDecorator<Throwable> {
+
+	private final Map<String, ConstraintType> constraintTypes;
+	private final Map<String, List<String>> violatedProperties;
+
+	HibernateOracleExceptionDecoratorImpl() {
+		this.constraintTypes = new HashMap<String, ConstraintType>();
+		this.violatedProperties = new HashMap<String, List<String>>();
+	}
 
 	@Override
 	public Throwable decorate(final Throwable original) {
@@ -64,9 +74,9 @@ public class HibernateOracleExceptionDecoratorImpl implements IDecorator<Throwab
 						return new ForeignKeyConstraintViolationException();
 					}
 					else if (constraintType == ConstraintType.UNIQUE) {
-						final List<String> violatedProperties = getViolatedProperties(constraintName);
-						if (!EmptyCheck.isEmpty(violatedProperties)) {
-							return new UniqueConstraintViolationException(violatedProperties);
+						final List<String> properties = getViolatedProperties(constraintName);
+						if (!EmptyCheck.isEmpty(properties)) {
+							return new UniqueConstraintViolationException(properties);
 						}
 					}
 				}
@@ -116,6 +126,15 @@ public class HibernateOracleExceptionDecoratorImpl implements IDecorator<Throwab
 	}
 
 	private ConstraintType getConstraintType(final String constraintName) {
+		ConstraintType result = constraintTypes.get(constraintName);
+		if (result == null) {
+			result = readConstraintType(constraintName);
+			constraintTypes.put(constraintName, result);
+		}
+		return result;
+	}
+
+	private ConstraintType readConstraintType(final String constraintName) {
 		final EntityManager em = EntityManagerHolder.get();
 		final String sql = "select CONSTRAINT_TYPE from user_constraints where constraint_name ='" + constraintName + "'";
 		final Query query = em.createNativeQuery(sql);
@@ -133,6 +152,15 @@ public class HibernateOracleExceptionDecoratorImpl implements IDecorator<Throwab
 	}
 
 	private List<String> getViolatedProperties(final String constraintName) {
+		List<String> result = violatedProperties.get(constraintName);
+		if (result == null) {
+			result = readViolatedProperties(constraintName);
+			violatedProperties.put(constraintName, result);
+		}
+		return result;
+	}
+
+	private List<String> readViolatedProperties(final String constraintName) {
 		final List<String> result = new LinkedList<String>();
 		final EntityManager em = EntityManagerHolder.get();
 		final String sql = "select TABLE_NAME, COLUMN_NAME from user_cons_columns where constraint_name='" + constraintName + "'";
@@ -198,6 +226,5 @@ public class HibernateOracleExceptionDecoratorImpl implements IDecorator<Throwab
 			}
 		}
 		return javaType.getSimpleName().toUpperCase();
-
 	}
 }
