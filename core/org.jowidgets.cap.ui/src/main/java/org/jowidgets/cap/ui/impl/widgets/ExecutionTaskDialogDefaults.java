@@ -40,5 +40,6 @@ final class ExecutionTaskDialogDefaults implements IDefaultInitializer<IExecutio
 		bluePrint.setCancelButton(BPF.buttonCancel());
 		bluePrint.setMinSize(new Dimension(320, 130));
 		bluePrint.setCloseable(false);
+		bluePrint.setAutoDispose(true);
 	}
 }
