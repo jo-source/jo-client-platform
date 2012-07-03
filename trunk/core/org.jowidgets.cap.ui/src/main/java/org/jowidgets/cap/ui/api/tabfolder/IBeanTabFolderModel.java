@@ -35,6 +35,7 @@ import org.jowidgets.api.controller.IDisposeObservable;
 import org.jowidgets.cap.common.api.service.ICreatorService;
 import org.jowidgets.cap.common.api.service.IDeleterService;
 import org.jowidgets.cap.common.api.validation.IBeanValidator;
+import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.bean.IBeanPropertyValidator;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyLabelRenderer;
@@ -49,6 +50,8 @@ public interface IBeanTabFolderModel<BEAN_TYPE> extends IDataModel, IBeanListMod
 	Object getEntityId();
 
 	Class<BEAN_TYPE> getBeanType();
+
+	List<IAttribute<Object>> getAttributes();
 
 	void refreshBean(IBeanProxy<BEAN_TYPE> bean);
 

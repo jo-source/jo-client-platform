@@ -73,7 +73,6 @@ import org.jowidgets.cap.sample2.app.service.descriptor.PersonRelationTypeDtoDes
 import org.jowidgets.cap.sample2.app.service.descriptor.RoleDtoDescriptorBuilder;
 import org.jowidgets.cap.sample2.app.service.descriptor.SourcePersonOfPersonLinkDtoDescriptorBuilder;
 import org.jowidgets.cap.sample2.app.service.loader.PersonRelationTypeLoader;
-import org.jowidgets.cap.sample2.app.service.validation.PersonLoginNameConstraintValidator;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
 import org.jowidgets.cap.service.api.entity.IBeanEntityBluePrint;
@@ -428,7 +427,7 @@ public class SampleEntityServiceBuilder extends JpaEntityServiceBuilderWrapper {
 		final IBeanAccess<Person> beanAccess = getServiceFactory().beanAccess(Person.class);
 		final IUpdaterServiceBuilder<Person> builder = CapServiceToolkit.updaterServiceBuilder(beanAccess);
 		builder.setBeanDtoFactoryAndBeanModifier(IPerson.ALL_PROPERTIES);
-		builder.addBeanValidator(new PersonLoginNameConstraintValidator());
+		//builder.addBeanValidator(new PersonLoginNameConstraintValidator());
 		return builder.build();
 	}
 }

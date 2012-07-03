@@ -107,7 +107,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 	private final Object entityId;
 	private final Class<BEAN_TYPE> beanType;
 	private final Map<String, Object> defaultValues;
-	private final List<String> propertyNames;
+	private final List<IAttribute<Object>> attributes;
 
 	private final Map<String, IUiFilter> filters;
 	private final ChangeObservable filterChangeObservable;
@@ -156,7 +156,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 	BeanTabFolderModelImpl(
 		final Object entityId,
 		final Class<? extends BEAN_TYPE> beanType,
-		List<IAttribute<Object>> attributes,
+		final List<IAttribute<Object>> attributes,
 		final IBeanProxyLabelRenderer<BEAN_TYPE> renderer,
 		final Set<IBeanValidator<BEAN_TYPE>> beanValidators,
 		final List<IBeanTabFolderModelInterceptor<BEAN_TYPE>> interceptors,
@@ -199,15 +199,19 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 			this.parentSelectionListener = null;
 		}
 
-		attributes = createModifiedByPluginsAttributes(entityId, (Class<BEAN_TYPE>) beanType, attributes);
+		List<IAttribute<Object>> modfiedAttributes = createModifiedByPluginsAttributes(
+				entityId,
+				(Class<BEAN_TYPE>) beanType,
+				attributes);
 		//if no updater service available, set all attributes to editable false
 		if (updaterService == null) {
-			attributes = createReadonlyAttributes(attributes);
+			modfiedAttributes = createReadonlyAttributes(attributes);
 		}
+		this.attributes = modfiedAttributes;
 
-		this.propertyNames = new LinkedList<String>();
+		final LinkedList<String> propertyNames = new LinkedList<String>();
 		this.defaultValues = new HashMap<String, Object>();
-		for (final IAttribute<?> attribute : attributes) {
+		for (final IAttribute<?> attribute : this.attributes) {
 			final String propertyName = attribute.getPropertyName();
 			propertyNames.add(propertyName);
 			final Object defaultValue = attribute.getDefaultValue();
@@ -336,6 +340,11 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 	@Override
 	public Class<BEAN_TYPE> getBeanType() {
 		return beanType;
+	}
+
+	@Override
+	public List<IAttribute<Object>> getAttributes() {
+		return Collections.unmodifiableList(attributes);
 	}
 
 	@Override
@@ -530,7 +539,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 
 	@Override
 	public IBeanProxy<BEAN_TYPE> addTransientBean() {
-		final IBeanProxy<BEAN_TYPE> result = beanProxyFactory.createTransientProxy(propertyNames, defaultValues);
+		final IBeanProxy<BEAN_TYPE> result = beanProxyFactory.createTransientProxy(attributes, defaultValues);
 		for (final IBeanPropertyValidator<BEAN_TYPE> validator : beanPropertyValidators) {
 			result.addBeanPropertyValidator(validator);
 		}
@@ -539,7 +548,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 	}
 
 	private IBeanProxy<BEAN_TYPE> createBeanProxy(final IBeanDto beanDto) {
-		final IBeanProxy<BEAN_TYPE> beanProxy = beanProxyFactory.createProxy(beanDto, propertyNames);
+		final IBeanProxy<BEAN_TYPE> beanProxy = beanProxyFactory.createProxy(beanDto, attributes);
 		for (final IBeanPropertyValidator<BEAN_TYPE> validator : beanPropertyValidators) {
 			beanProxy.addBeanPropertyValidator(validator);
 		}
@@ -875,7 +884,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 				}
 			});
 
-			dummyBean = beanProxyFactory.createDummyProxy(propertyNames);
+			dummyBean = beanProxyFactory.createDummyProxy(attributes);
 			beansStateTracker.register(dummyBean);
 			dummyBean.setExecutionTask(executionTask);
 			data.add(dummyBean);
@@ -949,7 +958,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 
 			List<IBeanProxy<BEAN_TYPE>> newData = new LinkedList<IBeanProxy<BEAN_TYPE>>();
 			for (final IBeanDto beanDto : beanDtos) {
-				final IBeanProxy<BEAN_TYPE> beanProxy = beanProxyFactory.createProxy(beanDto, propertyNames);
+				final IBeanProxy<BEAN_TYPE> beanProxy = beanProxyFactory.createProxy(beanDto, attributes);
 				newData.add(beanProxy);
 			}
 

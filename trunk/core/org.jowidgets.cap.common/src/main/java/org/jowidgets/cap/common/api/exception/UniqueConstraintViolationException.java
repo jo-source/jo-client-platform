@@ -43,7 +43,7 @@ public class UniqueConstraintViolationException extends ServiceException {
 		this.propertyNames = Collections.unmodifiableList(new LinkedList<String>(propertyNames));
 	}
 
-	public Collection<String> getPropertNames() {
+	public Collection<String> getPropertyNames() {
 		return propertyNames;
 	}
 }

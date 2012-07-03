@@ -36,6 +36,7 @@ import java.util.Set;
 import org.jowidgets.cap.common.api.bean.IBeanData;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanModification;
+import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.execution.IExecutionTask;
 import org.jowidgets.util.ITypedKey;
 import org.jowidgets.validation.IValidationResult;
@@ -101,6 +102,10 @@ public interface IBeanProxy<BEAN_TYPE> extends
 	IBeanData getBeanData();
 
 	List<String> getProperties();
+
+	List<IAttribute<Object>> getAttributes();
+
+	IAttribute<Object> getAttribute(String propertyName);
 
 	IExecutionTask getExecutionTask();
 
