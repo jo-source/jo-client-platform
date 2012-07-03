@@ -51,6 +51,15 @@ public interface IExecutionTaskDialogBluePrint extends
 
 	IExecutionTaskDialogBluePrint setCloseable(boolean closeable);
 
+	/**
+	 * If set to true, the dialog will be disposed after visibility changed from true to false
+	 * 
+	 * @param autodispose
+	 * 
+	 * @return This builder
+	 */
+	IExecutionTaskDialogBluePrint setAutoDispose(boolean autoDispose);
+
 	@Mandatory
 	IExecutionTask getExecutionTask();
 
@@ -62,6 +71,9 @@ public interface IExecutionTaskDialogBluePrint extends
 
 	@Mandatory
 	boolean getCloseable();
+
+	@Mandatory
+	boolean getAutoDispose();
 
 	Dimension getMinSize();
 

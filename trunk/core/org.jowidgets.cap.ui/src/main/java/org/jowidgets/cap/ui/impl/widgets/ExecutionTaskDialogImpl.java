@@ -54,9 +54,12 @@ class ExecutionTaskDialogImpl extends WindowWrapper implements IExecutionTaskDia
 	private final ITextLabel description;
 	private final IProgressBar progressBar;
 	private final IButton cancelButton;
+	private final boolean autoDispose;
 
 	ExecutionTaskDialogImpl(final IFrame frame, final IExecutionTaskDialogBluePrint bluePrint) {
 		super(frame);
+
+		this.autoDispose = bluePrint.getAutoDispose();
 
 		Assert.paramNotNull(bluePrint.getExecutionTask(), "bluePrint.getExecutionTask()");
 		this.executionTask = bluePrint.getExecutionTask();
@@ -120,6 +123,9 @@ class ExecutionTaskDialogImpl extends WindowWrapper implements IExecutionTaskDia
 		public void windowClosed() {
 			if (!executionTask.isCanceled()) {
 				executionTask.cancel();
+			}
+			if (autoDispose) {
+				dispose();
 			}
 		}
 	}
