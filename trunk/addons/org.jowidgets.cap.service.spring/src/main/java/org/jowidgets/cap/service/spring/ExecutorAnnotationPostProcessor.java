@@ -53,8 +53,11 @@ import org.jowidgets.cap.service.api.bean.IBeanAccess;
 import org.jowidgets.cap.service.api.executor.IBeanExecutor;
 import org.jowidgets.cap.service.api.executor.IBeanListExecutor;
 import org.jowidgets.cap.service.api.executor.IExecutorServiceBuilder;
+import org.jowidgets.cap.service.impl.DefaultCapServiceToolkit;
 import org.jowidgets.service.api.IServiceId;
+import org.jowidgets.service.api.IServicesDecoratorProvider;
 import org.jowidgets.service.tools.ServiceId;
+import org.jowidgets.util.IDecorator;
 import org.jowidgets.util.maybe.IMaybe;
 import org.jowidgets.util.maybe.Nothing;
 import org.jowidgets.util.maybe.Some;
@@ -79,6 +82,7 @@ public final class ExecutorAnnotationPostProcessor implements BeanPostProcessor,
 	private IBeanAccessProvider beanAccessProvider;
 	private PlatformTransactionManager transactionManager;
 	private ListableBeanFactory beanFactory;
+	private boolean local;
 
 	@Required
 	public void setBeanAccessProvider(final IBeanAccessProvider beanAccessProvider) {
@@ -132,6 +136,14 @@ public final class ExecutorAnnotationPostProcessor implements BeanPostProcessor,
 					final IServiceId<IExecutorService<Object>> serviceId = new ServiceId<IExecutorService<Object>>(
 						executorAnnotation.id(),
 						IExecutorService.class);
+
+					if (isLocal()) {
+						final DefaultCapServiceToolkit defaultCapServiceToolkit = new DefaultCapServiceToolkit();
+						final IServicesDecoratorProvider asyncDecoratorProvider = defaultCapServiceToolkit.serviceDecoratorProvider().asyncDecoratorProvider();
+						final IDecorator<IExecutorService<Object>> decorator = asyncDecoratorProvider.getDecorator(serviceId.getServiceType());
+						executorService = decorator.decorate(executorService);
+					}
+
 					SpringServiceProvider.getInstance().addService(serviceId, executorService);
 				}
 			}
@@ -311,6 +323,14 @@ public final class ExecutorAnnotationPostProcessor implements BeanPostProcessor,
 	@Override
 	public void setApplicationContext(final ApplicationContext applicationContext) {
 		beanFactory = applicationContext;
+	}
+
+	public boolean isLocal() {
+		return local;
+	}
+
+	public void setLocal(final boolean local) {
+		this.local = local;
 	}
 
 }
