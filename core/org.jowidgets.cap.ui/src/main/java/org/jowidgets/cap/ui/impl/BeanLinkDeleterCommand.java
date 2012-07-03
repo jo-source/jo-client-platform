@@ -295,7 +295,11 @@ final class BeanLinkDeleterCommand<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> implement
 		private void onError(final Throwable exception) {
 			for (final IBeanProxy<?> bean : linkedSelection) {
 
-				bean.addMessage(exceptionConverter.convert(linkedSelection, bean, exception));
+				bean.addMessage(exceptionConverter.convert(
+						executionContext.getAction().getText(),
+						linkedSelection,
+						bean,
+						exception));
 				bean.setExecutionTask(null);
 			}
 		}

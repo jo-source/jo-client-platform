@@ -239,7 +239,7 @@ final class BeanDeleterCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 
 			for (final IBeanProxy<BEAN_TYPE> bean : beans) {
 				bean.setExecutionTask(null);
-				bean.addMessage(exceptionConverter.convert(beans, bean, exception));
+				bean.addMessage(exceptionConverter.convert(executionContext.getAction().getText(), beans, bean, exception));
 			}
 
 			model.fireBeansChanged();

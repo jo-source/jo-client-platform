@@ -48,6 +48,7 @@ import org.jowidgets.cap.ui.tools.execution.AbstractUiResultCallback;
 
 final class BeanListExecutionHelper<BEAN_TYPE> {
 
+	private final String actionText;
 	private final IBeanListModel<BEAN_TYPE> listModel;
 	private final Collection<? extends IBeanProxy<BEAN_TYPE>> beans;
 	private final IBeanExceptionConverter exceptionConverter;
@@ -56,13 +57,15 @@ final class BeanListExecutionHelper<BEAN_TYPE> {
 	private final boolean fireBeansChanged;
 
 	BeanListExecutionHelper(
+		final String actionText,
 		final IBeanListModel<BEAN_TYPE> listModel,
 		final Collection<? extends IBeanProxy<BEAN_TYPE>> beans,
 		final BeanExecutionPolicy beanExecutionPolicy,
 		final IBeanExceptionConverter exceptionConverter,
 		final boolean transientSourceBeans,
 		final boolean fireBeansChanged) {
-		super();
+
+		this.actionText = actionText;
 		this.listModel = listModel;
 		this.beans = beans;
 		this.beanExecutionPolicy = beanExecutionPolicy;
@@ -190,7 +193,7 @@ final class BeanListExecutionHelper<BEAN_TYPE> {
 			final boolean canceled = (exception instanceof ServiceCanceledException)
 				|| (executionTask != null && executionTask.isCanceled());
 			if (!canceled) {
-				bean.addMessage(exceptionConverter.convert(executedBeans, bean, exception));
+				bean.addMessage(exceptionConverter.convert(actionText, executedBeans, bean, exception));
 			}
 			bean.setExecutionTask(null);
 		}

@@ -34,8 +34,10 @@ import org.jowidgets.cap.common.api.exception.BeanException;
 import org.jowidgets.cap.common.api.exception.BeanValidationException;
 import org.jowidgets.cap.common.api.exception.DeletedBeanException;
 import org.jowidgets.cap.common.api.exception.ExecutableCheckException;
+import org.jowidgets.cap.common.api.exception.ForeignKeyConstraintViolationException;
 import org.jowidgets.cap.common.api.exception.ServiceException;
 import org.jowidgets.cap.common.api.exception.StaleBeanException;
+import org.jowidgets.cap.common.api.exception.UniqueConstraintViolationException;
 import org.jowidgets.cap.common.api.validation.IBeanValidationResult;
 import org.jowidgets.cap.ui.api.bean.BeanMessageType;
 import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
@@ -49,6 +51,7 @@ final class DefaultBeanExceptionConverter implements IBeanExceptionConverter {
 
 	@Override
 	public IBeanMessage convert(
+		final String actionText,
 		final List<? extends IBeanProxy<?>> processedBeans,
 		final IBeanProxy<?> destinationBean,
 		final Throwable throwable) {
@@ -61,6 +64,7 @@ final class DefaultBeanExceptionConverter implements IBeanExceptionConverter {
 				final IBeanValidationResult firstWorstBeanResult = beanValidationException.getValidationResult();
 				return new BeanMessageImpl(
 					BeanMessageType.WARNING,
+					actionText,
 					firstWorstBeanResult.getValidationResult().getWorstFirst().getText(),
 					throwable);
 			}
@@ -73,7 +77,7 @@ final class DefaultBeanExceptionConverter implements IBeanExceptionConverter {
 						message = "Executable check of the bean '" + serviceException.getBeanId() + "' failed!";
 					}
 				}
-				return new BeanMessageImpl(BeanMessageType.WARNING, message, throwable);
+				return new BeanMessageImpl(BeanMessageType.WARNING, actionText, message, throwable);
 			}
 			else if (serviceException instanceof StaleBeanException) {
 				if (message == null) {
@@ -84,7 +88,7 @@ final class DefaultBeanExceptionConverter implements IBeanExceptionConverter {
 						message = "Stale data (id= '" + serviceException.getBeanId() + "')!";
 					}
 				}
-				return new BeanMessageImpl(BeanMessageType.WARNING, message, throwable);
+				return new BeanMessageImpl(BeanMessageType.WARNING, actionText, message, throwable);
 			}
 			else if (serviceException instanceof DeletedBeanException) {
 				if (message == null) {
@@ -95,7 +99,7 @@ final class DefaultBeanExceptionConverter implements IBeanExceptionConverter {
 						message = "Deleted data (id= '" + serviceException.getBeanId() + "')!";
 					}
 				}
-				return new BeanMessageImpl(BeanMessageType.WARNING, message, throwable);
+				return new BeanMessageImpl(BeanMessageType.WARNING, actionText, message, throwable);
 			}
 			else {
 				//CHECKSTYLE:OFF
@@ -103,12 +107,20 @@ final class DefaultBeanExceptionConverter implements IBeanExceptionConverter {
 				//CHECKSTYLE:ON
 				final String userMessage = serviceException.getUserMessage();
 				if (!EmptyCheck.isEmpty(userMessage)) {
-					return new BeanMessageImpl(BeanMessageType.ERROR, userMessage, throwable);
+					return new BeanMessageImpl(BeanMessageType.ERROR, actionText, userMessage, throwable);
 				}
 				else {
-					return new BeanMessageImpl(BeanMessageType.ERROR, "Undefined runtime exception!", throwable);
+					return new BeanMessageImpl(BeanMessageType.ERROR, actionText, "Undefined runtime exception!", throwable);
 				}
 			}
+		}
+		else if (throwable instanceof ForeignKeyConstraintViolationException) {
+			final String message = "The dataset is referenced by at least one other dataset";
+			return new BeanMessageImpl(BeanMessageType.WARNING, actionText, message, throwable);
+		}
+		else if (throwable instanceof UniqueConstraintViolationException) {
+			final String message = "Another dataset with the same values for (TODO) alreay exists";
+			return new BeanMessageImpl(BeanMessageType.WARNING, actionText, message, throwable);
 		}
 		else if (throwable instanceof ServiceException) {
 			//CHECKSTYLE:OFF
@@ -117,17 +129,17 @@ final class DefaultBeanExceptionConverter implements IBeanExceptionConverter {
 			final ServiceException serviceException = ((ServiceException) throwable);
 			final String userMessage = serviceException.getUserMessage();
 			if (!EmptyCheck.isEmpty(userMessage)) {
-				return new BeanMessageImpl(BeanMessageType.ERROR, userMessage, throwable);
+				return new BeanMessageImpl(BeanMessageType.ERROR, actionText, userMessage, throwable);
 			}
 			else {
-				return new BeanMessageImpl(BeanMessageType.ERROR, "Undefined runtime exception!", throwable);
+				return new BeanMessageImpl(BeanMessageType.ERROR, actionText, "Undefined runtime exception!", throwable);
 			}
 		}
 		else {
 			//CHECKSTYLE:OFF
 			throwable.printStackTrace();
 			//CHECKSTYLE:ON
-			return new BeanMessageImpl(BeanMessageType.ERROR, "Undefined runtime exception!", throwable);
+			return new BeanMessageImpl(BeanMessageType.ERROR, actionText, "Undefined runtime exception!", throwable);
 		}
 	}
 }

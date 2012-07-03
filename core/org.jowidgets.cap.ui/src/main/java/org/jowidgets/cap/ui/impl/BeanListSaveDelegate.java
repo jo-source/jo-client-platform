@@ -127,6 +127,7 @@ final class BeanListSaveDelegate<BEAN_TYPE> {
 			}
 
 			final BeanListExecutionHelper<BEAN_TYPE> executionHelper = new BeanListExecutionHelper<BEAN_TYPE>(
+				createString,
 				listModel,
 				beansToCreate,
 				beanExecutionPolicy,
@@ -170,6 +171,7 @@ final class BeanListSaveDelegate<BEAN_TYPE> {
 			}
 
 			final BeanListExecutionHelper<BEAN_TYPE> executionHelper = new BeanListExecutionHelper<BEAN_TYPE>(
+				saveString,
 				listModel,
 				modifiedBeans,
 				beanExecutionPolicy,

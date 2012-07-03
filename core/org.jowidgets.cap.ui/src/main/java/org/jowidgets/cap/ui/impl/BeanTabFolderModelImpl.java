@@ -980,6 +980,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 		private void setException(final Throwable exception) {
 			final IBeanMessageBuilder beanMessageBuilder = CapUiToolkit.beanMessageBuilder(BeanMessageType.ERROR);
 			beanMessageBuilder.setException(exception);
+			beanMessageBuilder.setActionText(loadingDataLabel);
 			beanMessageBuilder.setMessage(loadErrorMessage);
 			final IBeanMessage message = beanMessageBuilder.build();
 

@@ -273,7 +273,7 @@ final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BE
 			protected void exceptionUi(final Throwable exception) {
 				for (final IBeanProxy<SOURCE_BEAN_TYPE> bean : selection) {
 					bean.setExecutionTask(null);
-					bean.addMessage(exceptionConverter.convert(selection, bean, exception));
+					bean.addMessage(exceptionConverter.convert(executionContext.getAction().getText(), selection, bean, exception));
 				}
 				executionObservable.fireAfterExecutionError(executionContext, exception);
 			}
