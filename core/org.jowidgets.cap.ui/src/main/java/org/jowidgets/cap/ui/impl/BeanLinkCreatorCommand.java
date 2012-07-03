@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.ui.impl;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -361,7 +362,8 @@ final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BE
 		if (formBp != null) {
 			final HashMap<String, Object> defaultValues = new HashMap<String, Object>();
 			final LinkedList<String> properties = new LinkedList<String>();
-			for (final IAttribute<?> attribute : formBp.getCreateModeAttributes()) {
+			final Collection<IAttribute<?>> attributes = formBp.getCreateModeAttributes();
+			for (final IAttribute<?> attribute : attributes) {
 				final String propertyName = attribute.getPropertyName();
 				properties.add(propertyName);
 				final Object defaultValue = attribute.getDefaultValue();
@@ -370,7 +372,7 @@ final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BE
 				}
 			}
 			final IBeanProxyFactory<BEAN_TYPE> proxyFactory = CapUiToolkit.beanProxyFactory(beanType);
-			return proxyFactory.createTransientProxy(properties, defaultValues);
+			return proxyFactory.createTransientProxy(attributes, defaultValues);
 		}
 		else {
 			return null;

@@ -28,6 +28,8 @@
 
 package org.jowidgets.cap.ui.impl;
 
+import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.jowidgets.cap.common.api.exception.BeanException;
@@ -39,6 +41,7 @@ import org.jowidgets.cap.common.api.exception.ServiceException;
 import org.jowidgets.cap.common.api.exception.StaleBeanException;
 import org.jowidgets.cap.common.api.exception.UniqueConstraintViolationException;
 import org.jowidgets.cap.common.api.validation.IBeanValidationResult;
+import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.bean.BeanMessageType;
 import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
 import org.jowidgets.cap.ui.api.bean.IBeanMessage;
@@ -119,7 +122,20 @@ final class DefaultBeanExceptionConverter implements IBeanExceptionConverter {
 			return new BeanMessageImpl(BeanMessageType.WARNING, actionText, message, throwable);
 		}
 		else if (throwable instanceof UniqueConstraintViolationException) {
-			final String message = "Another dataset with the same values for (TODO) alreay exists";
+			final UniqueConstraintViolationException ucvException = (UniqueConstraintViolationException) throwable;
+			final Collection<String> propertyNames = ucvException.getPropertyNames();
+			final Collection<String> propertyLabels = getPropertyLabels(destinationBean, propertyNames);
+			final String labels = concat(propertyLabels);
+			final String message;
+			if (propertyLabels.size() == 1) {
+				message = "Another dataset with the same value for '" + labels + "' already exists";
+			}
+			else if (propertyLabels.size() > 1) {
+				message = "Another dataset with the same values for '" + labels + "' already exists";
+			}
+			else {
+				message = "The dataset violates a unique constraint";
+			}
 			return new BeanMessageImpl(BeanMessageType.WARNING, actionText, message, throwable);
 		}
 		else if (throwable instanceof ServiceException) {
@@ -141,5 +157,29 @@ final class DefaultBeanExceptionConverter implements IBeanExceptionConverter {
 			//CHECKSTYLE:ON
 			return new BeanMessageImpl(BeanMessageType.ERROR, actionText, "Undefined runtime exception!", throwable);
 		}
+	}
+
+	private String concat(final Collection<String> labels) {
+		final StringBuilder result = new StringBuilder();
+		for (final String label : labels) {
+			result.append(label + ", ");
+		}
+		if (labels.size() > 0) {
+			result.replace(result.length() - 2, result.length(), "");
+		}
+		return result.toString();
+	}
+
+	private Collection<String> getPropertyLabels(final IBeanProxy<?> destinationBean, final Collection<String> propertyNames) {
+		final List<String> result = new LinkedList<String>();
+		if (destinationBean != null) {
+			for (final String propertyName : propertyNames) {
+				final IAttribute<Object> attribute = destinationBean.getAttribute(propertyName);
+				if (attribute != null) {
+					result.add(attribute.getCurrentLabel());
+				}
+			}
+		}
+		return result;
 	}
 }

@@ -54,6 +54,7 @@ import org.jowidgets.cap.common.api.bean.IBeanModification;
 import org.jowidgets.cap.common.api.bean.IBeanModificationBuilder;
 import org.jowidgets.cap.common.api.validation.IBeanValidationResult;
 import org.jowidgets.cap.common.api.validation.IBeanValidationResultListBuilder;
+import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.bean.BeanMessageType;
 import org.jowidgets.cap.ui.api.bean.IBeanMessage;
 import org.jowidgets.cap.ui.api.bean.IBeanMessageStateListener;
@@ -86,6 +87,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 
 	private final Class<? extends BEAN_TYPE> beanType;
 	private final List<String> properties;
+	private final List<IAttribute<Object>> attributes;
 	private final Map<String, IBeanModification> modifications;
 	private final Map<String, IBeanModification> undoneModifications;
 	private final Map<ITypedKey<? extends Object>, Object> customProperties;
@@ -109,6 +111,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 	private final IUiThreadAccess uiThreadAccess;
 	private final ValidationCache validationCache;
 
+	private Map<String, IAttribute<Object>> lazyAttributesMap;
 	private IExecutionTask executionTask;
 	private boolean isTransient;
 	private String lastProgress;
@@ -117,19 +120,25 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 	private boolean isDummy;
 	private boolean disposed;
 
+	@SuppressWarnings("unchecked")
 	BeanProxyImpl(
 		final IBeanDto beanDto,
 		final Class<? extends BEAN_TYPE> beanType,
-		final List<String> properties,
+		final Collection<? extends IAttribute<?>> attributes,
 		final boolean isTransient) {
 		Assert.paramNotNull(beanDto, "beanDto");
 		Assert.paramNotNull(beanType, "beanType");
-		Assert.paramNotNull(properties, "properties");
+		Assert.paramNotNull(attributes, "attributes");
+
+		this.attributes = (List<IAttribute<Object>>) attributes;
+		this.properties = new LinkedList<String>();
+		for (final IAttribute<?> attribute : attributes) {
+			properties.add(attribute.getPropertyName());
+		}
 
 		this.disposed = false;
 		this.beanDto = beanDto;
 		this.beanType = beanType;
-		this.properties = new LinkedList<String>(properties);
 		this.isTransient = isTransient;
 		this.modifications = new HashMap<String, IBeanModification>();
 		this.customProperties = new HashMap<ITypedKey<? extends Object>, Object>();
@@ -180,7 +189,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 
 	@Override
 	public IBeanProxy<BEAN_TYPE> createCopy() {
-		final IBeanProxy<BEAN_TYPE> result = new BeanProxyImpl<BEAN_TYPE>(beanDto, beanType, properties, isTransient);
+		final IBeanProxy<BEAN_TYPE> result = new BeanProxyImpl<BEAN_TYPE>(beanDto, beanType, attributes, isTransient);
 		for (final IBeanModification modification : modifications.values()) {
 			result.setValue(modification.getPropertyName(), modification.getNewValue());
 		}
@@ -345,6 +354,28 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 	public List<String> getProperties() {
 		checkDisposed();
 		return Collections.unmodifiableList(properties);
+	}
+
+	@Override
+	public List<IAttribute<Object>> getAttributes() {
+		checkDisposed();
+		return Collections.unmodifiableList(attributes);
+	}
+
+	@Override
+	public IAttribute<Object> getAttribute(final String propertyName) {
+		checkDisposed();
+		return getLazyAttributesMap().get(propertyName);
+	}
+
+	private Map<String, IAttribute<Object>> getLazyAttributesMap() {
+		if (lazyAttributesMap == null) {
+			lazyAttributesMap = new HashMap<String, IAttribute<Object>>();
+			for (final IAttribute<Object> attribute : attributes) {
+				lazyAttributesMap.put(attribute.getPropertyName(), attribute);
+			}
+		}
+		return lazyAttributesMap;
 	}
 
 	@Override

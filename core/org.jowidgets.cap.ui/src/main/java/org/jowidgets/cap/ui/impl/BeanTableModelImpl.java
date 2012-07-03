@@ -1033,7 +1033,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 	@Override
 	public IBeanProxy<BEAN_TYPE> addTransientBean() {
-		final IBeanProxy<BEAN_TYPE> result = beanProxyFactory.createTransientProxy(propertyNames, defaultValues);
+		final IBeanProxy<BEAN_TYPE> result = beanProxyFactory.createTransientProxy(attributes, defaultValues);
 		for (final IBeanPropertyValidator<BEAN_TYPE> validator : beanPropertyValidators) {
 			result.addBeanPropertyValidator(validator);
 		}
@@ -1042,7 +1042,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	}
 
 	private IBeanProxy<BEAN_TYPE> createBeanProxy(final IBeanDto beanDto) {
-		final IBeanProxy<BEAN_TYPE> beanProxy = beanProxyFactory.createProxy(beanDto, propertyNames);
+		final IBeanProxy<BEAN_TYPE> beanProxy = beanProxyFactory.createProxy(beanDto, attributes);
 		for (final IBeanPropertyValidator<BEAN_TYPE> validator : beanPropertyValidators) {
 			beanProxy.addBeanPropertyValidator(validator);
 		}
@@ -2148,7 +2148,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 		void startPageLoading() {
 
-			dummyBeanProxy = beanProxyFactory.createDummyProxy(propertyNames);
+			dummyBeanProxy = beanProxyFactory.createDummyProxy(attributes);
 			executionTask = CapUiToolkit.executionTaskFactory().create();
 			executionTask.setDescription(loadingDataLabel);
 			executionTask.addExecutionCallbackListener(new AbstractUiExecutionCallbackListener() {

@@ -485,7 +485,7 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 	}
 
 	private IBeanProxy<BEAN_TYPE> createBeanProxy(final IBeanDto beanDto) {
-		final IBeanProxy<BEAN_TYPE> beanProxy = beanProxyFactory.createProxy(beanDto, propertyNames);
+		final IBeanProxy<BEAN_TYPE> beanProxy = beanProxyFactory.createProxy(beanDto, attributes);
 		for (final IBeanPropertyValidator<BEAN_TYPE> validator : beanPropertyValidators) {
 			beanProxy.addBeanPropertyValidator(validator);
 		}
@@ -494,7 +494,7 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 
 	@Override
 	public IBeanProxy<BEAN_TYPE> addTransientBean() {
-		final IBeanProxy<BEAN_TYPE> result = beanProxyFactory.createTransientProxy(propertyNames, defaultValues);
+		final IBeanProxy<BEAN_TYPE> result = beanProxyFactory.createTransientProxy(attributes, defaultValues);
 		for (final IBeanPropertyValidator<BEAN_TYPE> validator : beanPropertyValidators) {
 			result.addBeanPropertyValidator(validator);
 		}
@@ -608,7 +608,7 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 				}
 			});
 
-			dummyBean = beanProxyFactory.createDummyProxy(propertyNames);
+			dummyBean = beanProxyFactory.createDummyProxy(attributes);
 			beansStateTracker.register(dummyBean);
 			dummyBean.setExecutionTask(executionTask);
 
@@ -669,7 +669,7 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 
 			if (beanDtos.size() > 0) {
 				final IBeanDto beanDto = beanDtos.iterator().next();
-				bean = beanProxyFactory.createProxy(beanDto, propertyNames);
+				bean = beanProxyFactory.createProxy(beanDto, attributes);
 				for (final IBeanPropertyValidator<BEAN_TYPE> validator : beanPropertyValidators) {
 					bean.addBeanPropertyValidator(validator);
 				}

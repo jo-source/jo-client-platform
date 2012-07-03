@@ -33,17 +33,20 @@ import java.util.List;
 import java.util.Map;
 
 import org.jowidgets.cap.common.api.bean.IBeanDto;
+import org.jowidgets.cap.ui.api.attribute.IAttribute;
 
 public interface IBeanProxyFactory<BEAN_TYPE> {
 
-	List<IBeanProxy<BEAN_TYPE>> createProxies(Collection<? extends IBeanDto> beanDtos, List<String> properties);
+	List<IBeanProxy<BEAN_TYPE>> createProxies(
+		Collection<? extends IBeanDto> beanDtos,
+		Collection<? extends IAttribute<?>> attributes);
 
-	IBeanProxy<BEAN_TYPE> createProxy(IBeanDto beanDto, List<String> properties);
+	IBeanProxy<BEAN_TYPE> createProxy(IBeanDto beanDto, Collection<? extends IAttribute<?>> attributes);
 
-	IBeanProxy<BEAN_TYPE> createTransientProxy(List<String> properties);
+	IBeanProxy<BEAN_TYPE> createTransientProxy(Collection<? extends IAttribute<?>> attributes);
 
-	IBeanProxy<BEAN_TYPE> createTransientProxy(List<String> properties, Map<String, Object> defaultValues);
+	IBeanProxy<BEAN_TYPE> createTransientProxy(Collection<? extends IAttribute<?>> attributes, Map<String, Object> defaultValues);
 
-	IBeanProxy<BEAN_TYPE> createDummyProxy(List<String> properties);
+	IBeanProxy<BEAN_TYPE> createDummyProxy(Collection<? extends IAttribute<?>> attributes);
 
 }

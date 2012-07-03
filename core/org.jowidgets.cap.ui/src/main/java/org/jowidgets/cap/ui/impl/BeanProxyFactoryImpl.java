@@ -36,6 +36,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.jowidgets.cap.common.api.bean.IBeanDto;
+import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
 import org.jowidgets.util.Assert;
@@ -52,40 +53,44 @@ final class BeanProxyFactoryImpl<BEAN_TYPE> implements IBeanProxyFactory<BEAN_TY
 	}
 
 	@Override
-	public List<IBeanProxy<BEAN_TYPE>> createProxies(final Collection<? extends IBeanDto> beanDtos, final List<String> properties) {
+	public List<IBeanProxy<BEAN_TYPE>> createProxies(
+		final Collection<? extends IBeanDto> beanDtos,
+		final Collection<? extends IAttribute<?>> attributes) {
 		Assert.paramNotNull(beanDtos, "beanDtos");
-		Assert.paramNotNull(properties, "properties");
+		Assert.paramNotNull(attributes, "attributes");
 		final List<IBeanProxy<BEAN_TYPE>> result = new LinkedList<IBeanProxy<BEAN_TYPE>>();
 		for (final IBeanDto beanDto : beanDtos) {
-			result.add(createProxy(beanDto, properties));
+			result.add(createProxy(beanDto, attributes));
 		}
 		return result;
 	}
 
 	@Override
-	public IBeanProxy<BEAN_TYPE> createProxy(final IBeanDto beanDto, final List<String> properties) {
+	public IBeanProxy<BEAN_TYPE> createProxy(final IBeanDto beanDto, final Collection<? extends IAttribute<?>> attributes) {
 		Assert.paramNotNull(beanDto, "beanDto");
-		Assert.paramNotNull(properties, "properties");
-		return new BeanProxyImpl<BEAN_TYPE>(beanDto, beanType, properties, false);
+		Assert.paramNotNull(attributes, "attributes");
+		return new BeanProxyImpl<BEAN_TYPE>(beanDto, beanType, attributes, false);
 	}
 
 	@Override
-	public IBeanProxy<BEAN_TYPE> createTransientProxy(final List<String> properties) {
-		return createTransientProxy(properties, new HashMap<String, Object>());
+	public IBeanProxy<BEAN_TYPE> createTransientProxy(final Collection<? extends IAttribute<?>> attributes) {
+		return createTransientProxy(attributes, new HashMap<String, Object>());
 	}
 
 	@Override
-	public IBeanProxy<BEAN_TYPE> createTransientProxy(final List<String> properties, Map<String, Object> defaultValues) {
+	public IBeanProxy<BEAN_TYPE> createTransientProxy(
+		final Collection<? extends IAttribute<?>> attributes,
+		Map<String, Object> defaultValues) {
 		if (defaultValues == null) {
 			defaultValues = new HashMap<String, Object>();
 		}
-		return new BeanProxyImpl<BEAN_TYPE>(new BeanDto(defaultValues), beanType, properties, true);
+		return new BeanProxyImpl<BEAN_TYPE>(new BeanDto(defaultValues), beanType, attributes, true);
 	}
 
 	@Override
-	public IBeanProxy<BEAN_TYPE> createDummyProxy(final List<String> properties) {
-		Assert.paramNotNull(properties, "properties");
-		final IBeanProxy<BEAN_TYPE> result = createProxy(new DummyBeanDto(), properties);
+	public IBeanProxy<BEAN_TYPE> createDummyProxy(final Collection<? extends IAttribute<?>> attributes) {
+		Assert.paramNotNull(attributes, "attributes");
+		final IBeanProxy<BEAN_TYPE> result = createProxy(new DummyBeanDto(), attributes);
 		result.setDummy(true);
 		return result;
 	}

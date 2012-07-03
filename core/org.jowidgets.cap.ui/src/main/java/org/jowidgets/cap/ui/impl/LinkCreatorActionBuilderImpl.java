@@ -128,17 +128,15 @@ final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKA
 						@Override
 						public IBeanProxy<LINK_BEAN_TYPE> create() {
 							final HashMap<String, Object> defaultValues = new HashMap<String, Object>();
-							final LinkedList<String> properties = new LinkedList<String>();
 							for (final IAttribute<?> attribute : attributes) {
 								final String propertyName = attribute.getPropertyName();
-								properties.add(propertyName);
 								final Object defaultValue = attribute.getDefaultValue();
 								if (defaultValue != null) {
 									defaultValues.put(propertyName, defaultValue);
 								}
 							}
 							final IBeanProxyFactory<LINK_BEAN_TYPE> proxyFactory = CapUiToolkit.beanProxyFactory(linkBeanType);
-							return proxyFactory.createTransientProxy(properties, defaultValues);
+							return proxyFactory.createTransientProxy(attributes, defaultValues);
 						}
 					});
 					if (hasAdditionalProperties(descriptor, linkDescriptor)) {

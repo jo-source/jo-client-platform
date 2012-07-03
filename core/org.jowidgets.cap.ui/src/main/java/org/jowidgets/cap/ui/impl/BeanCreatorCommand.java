@@ -83,7 +83,7 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 	private final IBeanProxyFactory<BEAN_TYPE> beanFactory;
 	private final ExecutionObservable<List<IBeanDto>> executionObservable;
 	private final Map<String, Object> defaultValues;
-	private final List<String> properties;
+	private final Collection<IAttribute<?>> attributes;
 
 	private Rectangle dialogBounds;
 
@@ -128,10 +128,9 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 		this.exceptionConverter = exceptionConverter;
 
 		this.defaultValues = new HashMap<String, Object>();
-		this.properties = new LinkedList<String>();
+		this.attributes = attributes;
 		for (final IAttribute<?> attribute : attributes) {
 			final String propertyName = attribute.getPropertyName();
-			properties.add(propertyName);
 			final Object defaultValue = attribute.getDefaultValue();
 			if (defaultValue != null) {
 				defaultValues.put(propertyName, defaultValue);
@@ -161,7 +160,7 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 			return;
 		}
 
-		final IBeanProxy<BEAN_TYPE> bean = beanFactory.createTransientProxy(properties, defaultValues);
+		final IBeanProxy<BEAN_TYPE> bean = beanFactory.createTransientProxy(attributes, defaultValues);
 		for (final IBeanPropertyValidator<BEAN_TYPE> validator : beanPropertyValidators) {
 			bean.addBeanPropertyValidator(validator);
 		}
@@ -191,7 +190,7 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 	}
 
 	private IBeanProxy<BEAN_TYPE> createUnmodifiedBean(final IBeanProxy<BEAN_TYPE> proxy) {
-		final IBeanProxy<BEAN_TYPE> result = beanFactory.createProxy(proxy, properties);
+		final IBeanProxy<BEAN_TYPE> result = beanFactory.createProxy(proxy, attributes);
 		result.setTransient(true);
 		for (final IBeanPropertyValidator<BEAN_TYPE> validator : beanPropertyValidators) {
 			result.addBeanPropertyValidator(validator);
@@ -229,7 +228,8 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 
 	private IBeanData createBeanData(final IBeanProxy<BEAN_TYPE> bean) {
 		final IBeanDataBuilder builder = CapCommonToolkit.beanDataBuilder();
-		for (final String propertyName : properties) {
+		for (final IAttribute<?> attribute : attributes) {
+			final String propertyName = attribute.getPropertyName();
 			if (propertyName != IBean.ID_PROPERTY) {
 				builder.setProperty(propertyName, bean.getValue(propertyName));
 			}

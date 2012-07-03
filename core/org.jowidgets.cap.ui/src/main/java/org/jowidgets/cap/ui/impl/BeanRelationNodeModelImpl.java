@@ -512,7 +512,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 
 	@Override
 	public IBeanProxy<CHILD_BEAN_TYPE> addTransientBean() {
-		final IBeanProxy<CHILD_BEAN_TYPE> result = beanProxyFactory.createTransientProxy(propertyNames, defaultValues);
+		final IBeanProxy<CHILD_BEAN_TYPE> result = beanProxyFactory.createTransientProxy(childBeanAttributes, defaultValues);
 		for (final IBeanPropertyValidator<CHILD_BEAN_TYPE> validator : beanPropertyValidators) {
 			result.addBeanPropertyValidator(validator);
 		}
@@ -521,7 +521,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 	}
 
 	private IBeanProxy<CHILD_BEAN_TYPE> createBeanProxy(final IBeanDto beanDto) {
-		final IBeanProxy<CHILD_BEAN_TYPE> beanProxy = beanProxyFactory.createProxy(beanDto, propertyNames);
+		final IBeanProxy<CHILD_BEAN_TYPE> beanProxy = beanProxyFactory.createProxy(beanDto, childBeanAttributes);
 		for (final IBeanPropertyValidator<CHILD_BEAN_TYPE> validator : beanPropertyValidators) {
 			beanProxy.addBeanPropertyValidator(validator);
 		}
@@ -639,7 +639,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 				}
 			});
 
-			dummyBean = beanProxyFactory.createDummyProxy(propertyNames);
+			dummyBean = beanProxyFactory.createDummyProxy(childBeanAttributes);
 			beanStateTracker.register(dummyBean);
 			dummyBean.setExecutionTask(executionTask);
 			data.add(dummyBean);
@@ -714,7 +714,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 					beanProxy = (IBeanProxy<CHILD_BEAN_TYPE>) beanDto;
 				}
 				else {
-					beanProxy = beanProxyFactory.createProxy(beanDto, propertyNames);
+					beanProxy = beanProxyFactory.createProxy(beanDto, childBeanAttributes);
 					beanStateTracker.register(beanProxy);
 				}
 				newData.add(beanProxy);
