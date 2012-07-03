@@ -685,6 +685,7 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 		private void setException(final Throwable exception) {
 			final IBeanMessageBuilder beanMessageBuilder = CapUiToolkit.beanMessageBuilder(BeanMessageType.ERROR);
 			beanMessageBuilder.setException(exception);
+			beanMessageBuilder.setActionText(loadingDataLabel);
 			beanMessageBuilder.setMessage(loadErrorMessage);
 			final IBeanMessage message = beanMessageBuilder.build();
 

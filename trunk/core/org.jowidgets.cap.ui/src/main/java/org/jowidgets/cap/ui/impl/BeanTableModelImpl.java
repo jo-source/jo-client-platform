@@ -1849,8 +1849,8 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			else {
 				cellBuilder = createDefaultCellBuilder(rowIndex, columnIndex);
 				if (hasMessages) {
-					final String message = bean.getFirstWorstMessage().getMessage();
-					cellBuilder.setText("---").setToolTipText(message);
+					final IBeanMessage worstMessage = bean.getFirstWorstMessage();
+					cellBuilder.setText("---").setToolTipText(worstMessage.getLabel());
 					cellBuilder.setForegroundColor(getCellForegroundColor(bean, false));
 				}
 				else {
@@ -2370,6 +2370,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			dummyBeanProxy.setExecutionTask(null);
 			final IBeanMessageBuilder beanMessageBuilder = CapUiToolkit.beanMessageBuilder(BeanMessageType.ERROR);
 			beanMessageBuilder.setException(exception);
+			beanMessageBuilder.setActionText(loadingDataLabel);
 			beanMessageBuilder.setMessage(loadErrorMessage);
 			dummyBeanProxy.addMessage(beanMessageBuilder.build());
 			programmaticPageLoader.remove(pageIndex);
@@ -2397,6 +2398,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			}
 			dummyBeanProxy.setExecutionTask(null);
 			final IBeanMessageBuilder beanMessageBuilder = CapUiToolkit.beanMessageBuilder(BeanMessageType.WARNING);
+			beanMessageBuilder.setActionText(loadingDataLabel);
 			beanMessageBuilder.setMessage(userCanceledMessage);
 			dummyBeanProxy.addMessage(beanMessageBuilder.build());
 			programmaticPageLoader.remove(pageIndex);

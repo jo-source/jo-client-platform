@@ -35,6 +35,13 @@ public interface IBeanMessage {
 
 	BeanMessageType getType();
 
+	/**
+	 * @return A label that holdes the action text (if available) followed by the message
+	 */
+	String getLabel();
+
+	String getActionText();
+
 	String getMessage();
 
 	String getDescription();

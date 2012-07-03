@@ -75,6 +75,7 @@ final class BeanListRefreshDelegate<BEAN_TYPE> {
 	void refresh(final Collection<IBeanProxy<BEAN_TYPE>> beans) {
 		if (refreshService != null) {
 			final BeanListExecutionHelper<BEAN_TYPE> executionHelper = new BeanListExecutionHelper<BEAN_TYPE>(
+				refreshString,
 				listModel,
 				beans,
 				beanExecutionPolicy,

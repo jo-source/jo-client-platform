@@ -735,6 +735,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 		private void setException(final Throwable exception) {
 			final IBeanMessageBuilder beanMessageBuilder = CapUiToolkit.beanMessageBuilder(BeanMessageType.ERROR);
 			beanMessageBuilder.setException(exception);
+			beanMessageBuilder.setActionText(loadingDataLabel);
 			beanMessageBuilder.setMessage(loadErrorMessage);
 			final IBeanMessage message = beanMessageBuilder.build();
 

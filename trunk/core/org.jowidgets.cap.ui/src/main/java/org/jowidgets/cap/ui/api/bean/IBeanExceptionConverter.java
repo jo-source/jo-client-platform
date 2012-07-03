@@ -32,6 +32,20 @@ import java.util.List;
 
 public interface IBeanExceptionConverter {
 
-	IBeanMessage convert(List<? extends IBeanProxy<?>> processedBeans, IBeanProxy<?> destinationBean, Throwable throwable);
+	/**
+	 * Converts a throwable into an IBeanMessage
+	 * 
+	 * @param actionText The text/label of the action that triggered the exception
+	 * @param processedBeans All beans that was processed by the action
+	 * @param destinationBean The bean to convert the message for
+	 * @param throwable The throwable itself
+	 * 
+	 * @return The bean message created from the throwable
+	 */
+	IBeanMessage convert(
+		String actionText,
+		List<? extends IBeanProxy<?>> processedBeans,
+		IBeanProxy<?> destinationBean,
+		Throwable throwable);
 
 }

@@ -478,10 +478,10 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 			final IBeanMessage worstMessage = bean.getFirstWorstMessage();
 			if (worstMessage != null) {
 				if (BeanMessageType.ERROR.equals(worstMessage.getType())) {
-					builder.addError(worstMessage.getMessage());
+					builder.addError(worstMessage.getLabel());
 				}
 				else if (BeanMessageType.WARNING.equals(worstMessage.getType())) {
-					builder.addWarning(worstMessage.getMessage());
+					builder.addWarning(worstMessage.getLabel());
 				}
 			}
 		}

@@ -140,6 +140,7 @@ final class ExecutorCommand implements ICommand, ICommandExecutor {
 		}
 
 		final BeanListExecutionHelper executionHelper = new BeanListExecutionHelper(
+			executionContext.getAction().getText(),
 			listModel,
 			beans,
 			beanListExecutionPolicy,

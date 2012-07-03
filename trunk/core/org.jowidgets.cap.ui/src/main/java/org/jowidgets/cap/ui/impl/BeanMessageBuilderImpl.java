@@ -42,6 +42,7 @@ final class BeanMessageBuilderImpl implements IBeanMessageBuilder {
 	private final BeanMessageType type;
 	private final List<IBeanMessageFix> fixes;
 
+	private String actionText;
 	private String message;
 	private String description;
 	private Throwable exception;
@@ -51,6 +52,12 @@ final class BeanMessageBuilderImpl implements IBeanMessageBuilder {
 		Assert.paramNotNull(type, "type");
 		this.type = type;
 		this.fixes = new LinkedList<IBeanMessageFix>();
+	}
+
+	@Override
+	public IBeanMessageBuilder setActionText(final String text) {
+		this.actionText = text;
+		return this;
 	}
 
 	@Override
@@ -86,7 +93,7 @@ final class BeanMessageBuilderImpl implements IBeanMessageBuilder {
 
 	@Override
 	public IBeanMessage build() {
-		return new BeanMessageImpl(type, message, description, exception, fixes, fixMandatory);
+		return new BeanMessageImpl(type, actionText, message, description, exception, fixes, fixMandatory);
 	}
 
 }

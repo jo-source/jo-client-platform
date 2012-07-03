@@ -37,10 +37,13 @@ import org.jowidgets.cap.ui.api.bean.BeanMessageType;
 import org.jowidgets.cap.ui.api.bean.IBeanMessage;
 import org.jowidgets.cap.ui.api.bean.IBeanMessageFix;
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.EmptyCheck;
 
 final class BeanMessageImpl implements IBeanMessage {
 
 	private final BeanMessageType type;
+
+	private final String actionText;
 	private final String message;
 	private final String description;
 	private final Throwable exception;
@@ -48,16 +51,19 @@ final class BeanMessageImpl implements IBeanMessage {
 	private final boolean fixMandatory;
 	private final List<IBeanMessageFix> fixes;
 
-	BeanMessageImpl(final BeanMessageType type, final String message) {
-		this(type, message, null, null, new LinkedList<IBeanMessageFix>(), false);
+	private String lazyLabel;
+
+	BeanMessageImpl(final BeanMessageType type, final String actionText, final String message) {
+		this(type, actionText, message, null, null, new LinkedList<IBeanMessageFix>(), false);
 	}
 
-	BeanMessageImpl(final BeanMessageType type, final String message, final Throwable exception) {
-		this(type, message, null, exception, new LinkedList<IBeanMessageFix>(), false);
+	BeanMessageImpl(final BeanMessageType type, final String actionText, final String message, final Throwable exception) {
+		this(type, actionText, message, null, exception, new LinkedList<IBeanMessageFix>(), false);
 	}
 
 	BeanMessageImpl(
 		final BeanMessageType type,
+		final String actionText,
 		final String message,
 		final String description,
 		final Throwable exception,
@@ -66,6 +72,7 @@ final class BeanMessageImpl implements IBeanMessage {
 		Assert.paramNotNull(type, "type");
 		Assert.paramNotNull(fixes, "fixes");
 		this.type = type;
+		this.actionText = actionText;
 		this.message = message;
 		this.description = description;
 		this.exception = exception;
@@ -77,6 +84,28 @@ final class BeanMessageImpl implements IBeanMessage {
 	@Override
 	public BeanMessageType getType() {
 		return type;
+	}
+
+	@Override
+	public String getLabel() {
+		if (lazyLabel == null) {
+			lazyLabel = createLabel();
+		}
+		return lazyLabel;
+	}
+
+	private String createLabel() {
+		if (!EmptyCheck.isEmpty(actionText)) {
+			return actionText + ": " + message;
+		}
+		else {
+			return message;
+		}
+	}
+
+	@Override
+	public String getActionText() {
+		return actionText;
 	}
 
 	@Override
