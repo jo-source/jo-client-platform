@@ -138,7 +138,13 @@ final class HibernateOracleExceptionDecoratorImpl implements IDecorator<Throwabl
 		final EntityManager em = EntityManagerHolder.get();
 		final String sql = "select CONSTRAINT_TYPE from user_constraints where constraint_name ='" + constraintName + "'";
 		final Query query = em.createNativeQuery(sql);
-		final Object queryResult = query.getSingleResult();
+		Object queryResult;
+		try {
+			queryResult = query.getSingleResult();
+		}
+		catch (final Exception e) {
+			return ConstraintType.UNSUPPORTED;
+		}
 
 		if ("U".equals(queryResult)) {
 			return ConstraintType.UNIQUE;
