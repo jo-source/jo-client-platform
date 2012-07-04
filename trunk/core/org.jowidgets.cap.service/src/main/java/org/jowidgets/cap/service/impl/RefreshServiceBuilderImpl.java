@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.service.impl;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -60,7 +61,7 @@ final class RefreshServiceBuilderImpl<BEAN_TYPE extends IBean> implements IRefre
 	}
 
 	@Override
-	public IRefreshServiceBuilder<BEAN_TYPE> setBeanDtoFactory(final List<String> propertyNames) {
+	public IRefreshServiceBuilder<BEAN_TYPE> setBeanDtoFactory(final Collection<String> propertyNames) {
 		Assert.paramNotNull(propertyNames, "propertyNames");
 		this.beanDtoFactory = CapServiceToolkit.dtoFactory(beanType, propertyNames);
 		return this;

@@ -26,7 +26,7 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.impl;
+package org.jowidgets.cap.common.tools.validation;
 
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
@@ -47,7 +47,7 @@ import org.jowidgets.util.Assert;
 import org.jowidgets.validation.IValidationResult;
 import org.jowidgets.validation.IValidator;
 
-final class BeanPropertyToBeanValidatorAdapter<BEAN_TYPE> implements IBeanValidator<BEAN_TYPE> {
+public final class BeanPropertyToBeanValidatorAdapter<BEAN_TYPE> implements IBeanValidator<BEAN_TYPE> {
 
 	private final List<IValidator<? extends Object>> propertyValidators;
 	private final String propertyName;
@@ -58,8 +58,11 @@ final class BeanPropertyToBeanValidatorAdapter<BEAN_TYPE> implements IBeanValida
 		final Class<? extends BEAN_TYPE> beanType,
 		final String propertyName,
 		final Collection<IValidator<? extends Object>> propertyValidators) {
+
+		Assert.paramNotNull(beanType, "beanType");
 		Assert.paramNotEmpty(propertyName, "propertyName");
 		Assert.paramNotNull(propertyValidators, "propertyValidators");
+
 		this.propertyValidators = new LinkedList<IValidator<? extends Object>>(propertyValidators);
 		this.propertyName = propertyName;
 		this.propertyDependecies = Collections.singleton(propertyName);

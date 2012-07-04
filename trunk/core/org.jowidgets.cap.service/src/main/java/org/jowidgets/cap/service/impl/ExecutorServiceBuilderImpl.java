@@ -43,6 +43,8 @@ import org.jowidgets.cap.common.api.execution.IExecutableCheckerCompositeBuilder
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.service.IExecutorService;
 import org.jowidgets.cap.common.api.validation.IBeanValidator;
+import org.jowidgets.cap.common.tools.validation.BeanPropertyToBeanValidatorAdapter;
+import org.jowidgets.cap.common.tools.validation.BeanValidatorComposite;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.adapter.IAdapterFactoryProvider;
 import org.jowidgets.cap.service.api.adapter.ISyncExecutorService;

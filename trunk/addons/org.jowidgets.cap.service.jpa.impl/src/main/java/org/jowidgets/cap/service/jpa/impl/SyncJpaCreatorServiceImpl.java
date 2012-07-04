@@ -37,7 +37,14 @@ import javax.persistence.EntityManager;
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanData;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
+import org.jowidgets.cap.common.api.exception.BeanValidationException;
+import org.jowidgets.cap.common.api.exception.ExecutableCheckException;
+import org.jowidgets.cap.common.api.execution.IExecutableChecker;
+import org.jowidgets.cap.common.api.execution.IExecutableState;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
+import org.jowidgets.cap.common.api.validation.IBeanValidationResult;
+import org.jowidgets.cap.common.api.validation.IBeanValidator;
+import org.jowidgets.cap.common.tools.validation.BeanValidationResultUtil;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.adapter.ISyncCreatorService;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
@@ -49,11 +56,15 @@ final class SyncJpaCreatorServiceImpl<BEAN_TYPE extends IBean> implements ISyncC
 	private final Class<? extends BEAN_TYPE> beanType;
 	private final IBeanDtoFactory<BEAN_TYPE> dtoFactory;
 	private final IBeanInitializer<BEAN_TYPE> beanInitializer;
+	private final IExecutableChecker<BEAN_TYPE> executableChecker;
+	private final IBeanValidator<BEAN_TYPE> beanValidator;
 
 	SyncJpaCreatorServiceImpl(
 		final Class<? extends BEAN_TYPE> beanType,
 		final IBeanDtoFactory<BEAN_TYPE> dtoFactory,
-		final IBeanInitializer<BEAN_TYPE> beanInitializer) {
+		final IBeanInitializer<BEAN_TYPE> beanInitializer,
+		final IExecutableChecker<BEAN_TYPE> executableChecker,
+		final IBeanValidator<BEAN_TYPE> beanValidator) {
 
 		Assert.paramNotNull(beanType, "beanType");
 		Assert.paramNotNull(dtoFactory, "dtoFactory");
@@ -62,6 +73,8 @@ final class SyncJpaCreatorServiceImpl<BEAN_TYPE extends IBean> implements ISyncC
 		this.beanType = beanType;
 		this.dtoFactory = dtoFactory;
 		this.beanInitializer = beanInitializer;
+		this.executableChecker = executableChecker;
+		this.beanValidator = beanValidator;
 	}
 
 	@Override
@@ -83,17 +96,41 @@ final class SyncJpaCreatorServiceImpl<BEAN_TYPE extends IBean> implements ISyncC
 			CapServiceToolkit.checkCanceled(executionCallback);
 			beanInitializer.initialize(bean, beanData);
 
+			checkExecutableStates(bean);
+			validate(bean);
+
 			CapServiceToolkit.checkCanceled(executionCallback);
+
 			if (bean.getId() == null) {
 				entityManager.persist(bean);
 			}
 
 			CapServiceToolkit.checkCanceled(executionCallback);
+
 			entityManager.flush();
 
 			result.add(dtoFactory.createDto(bean));
 		}
 		return result;
+	}
+
+	private void checkExecutableStates(final BEAN_TYPE bean) {
+		if (executableChecker != null) {
+			final IExecutableState checkResult = executableChecker.getExecutableState(bean);
+			if (checkResult != null && !checkResult.isExecutable()) {
+				throw new ExecutableCheckException(bean.getId(), checkResult.getReason());
+			}
+		}
+	}
+
+	private void validate(final BEAN_TYPE bean) {
+		if (beanValidator != null) {
+			final Collection<IBeanValidationResult> validationResults = beanValidator.validate(bean);
+			final IBeanValidationResult worstFirst = BeanValidationResultUtil.getWorstFirst(validationResults);
+			if (worstFirst != null && !worstFirst.getValidationResult().isValid()) {
+				throw new BeanValidationException(bean.getId(), worstFirst);
+			}
+		}
 	}
 
 }
