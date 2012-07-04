@@ -53,6 +53,7 @@ import org.jowidgets.cap.common.api.service.ILinkCreatorService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
+import org.jowidgets.cap.ui.api.bean.BeanExceptionConverter;
 import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
@@ -215,7 +216,7 @@ final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKA
 		this.sourceMultiSelection = false;
 		this.sourceModificationPolicy = BeanModificationStatePolicy.NO_MODIFICATION;
 		this.sourceMessageStatePolicy = BeanMessageStatePolicy.NO_WARNING_OR_ERROR;
-		this.exceptionConverter = new DefaultBeanExceptionConverter();
+		this.exceptionConverter = BeanExceptionConverter.get();
 
 		setIcon(IconsSmall.ADD);
 	}

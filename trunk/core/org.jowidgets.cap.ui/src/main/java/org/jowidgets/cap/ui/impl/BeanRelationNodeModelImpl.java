@@ -56,6 +56,7 @@ import org.jowidgets.cap.common.api.validation.IBeanValidator;
 import org.jowidgets.cap.common.tools.bean.BeanKey;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
+import org.jowidgets.cap.ui.api.bean.BeanExceptionConverter;
 import org.jowidgets.cap.ui.api.bean.BeanMessageType;
 import org.jowidgets.cap.ui.api.bean.IBeanMessage;
 import org.jowidgets.cap.ui.api.bean.IBeanMessageBuilder;
@@ -204,7 +205,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 		this.saveDelegate = new BeanListSaveDelegate<CHILD_BEAN_TYPE>(
 			this,
 			beanStateTracker,
-			new DefaultBeanExceptionConverter(),
+			BeanExceptionConverter.get(),
 			BeanExecutionPolicy.BATCH,
 			updaterService,
 			creatorService,

@@ -38,6 +38,7 @@ import org.jowidgets.api.command.IEnabledChecker;
 import org.jowidgets.api.image.IconsSmall;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.service.IDeleterService;
+import org.jowidgets.cap.ui.api.bean.BeanExceptionConverter;
 import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
 import org.jowidgets.cap.ui.api.command.IDeleterActionBuilder;
 import org.jowidgets.cap.ui.api.execution.BeanMessageStatePolicy;
@@ -78,7 +79,7 @@ final class DeleterActionBuilder<BEAN_TYPE> extends AbstractCapActionBuilderImpl
 		this.enabledCheckers = new LinkedList<IEnabledChecker>();
 		this.executableCheckers = new LinkedList<IExecutableChecker<BEAN_TYPE>>();
 		this.executionInterceptors = new LinkedList<IExecutionInterceptor<Void>>();
-		this.exceptionConverter = new DefaultBeanExceptionConverter();
+		this.exceptionConverter = BeanExceptionConverter.get();
 
 		this.multiSelection = true;
 		this.autoSelection = true;

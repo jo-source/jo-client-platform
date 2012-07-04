@@ -42,6 +42,7 @@ import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.common.api.service.ILinkDeleterService;
+import org.jowidgets.cap.ui.api.bean.BeanExceptionConverter;
 import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionProvider;
 import org.jowidgets.cap.ui.api.command.ILinkDeleterActionBuilder;
@@ -122,7 +123,7 @@ final class LinkDeleterActionBuilderImpl<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> ext
 		this.linkedMultiSelection = true;
 		this.linkedModificationPolicy = BeanModificationStatePolicy.NO_MODIFICATION;
 		this.linkedMessageStatePolicy = BeanMessageStatePolicy.NO_WARNING_OR_ERROR;
-		this.exceptionConverter = new DefaultBeanExceptionConverter();
+		this.exceptionConverter = BeanExceptionConverter.get();
 
 		setIcon(IconsSmall.SUB);
 	}

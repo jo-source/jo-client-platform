@@ -35,6 +35,7 @@ import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
 import org.jowidgets.cap.ui.api.bean.BeanMessageType;
+import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
 import org.jowidgets.cap.ui.api.bean.IBeanKeyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeanMessageBuilder;
 import org.jowidgets.cap.ui.api.bean.IBeanMessageFixBuilder;
@@ -239,6 +240,10 @@ public final class CapUiToolkit {
 
 	public static ILookUpCache lookUpCache() {
 		return getInstance().lookUpCache();
+	}
+
+	public static IBeanExceptionConverter defaultExceptionConverter() {
+		return getInstance().defaultExceptionConverter();
 	}
 
 }

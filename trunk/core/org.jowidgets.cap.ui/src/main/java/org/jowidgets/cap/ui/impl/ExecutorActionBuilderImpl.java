@@ -46,6 +46,7 @@ import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.service.IExecutorService;
 import org.jowidgets.cap.common.api.service.IParameterProviderService;
+import org.jowidgets.cap.ui.api.bean.BeanExceptionConverter;
 import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.command.IExecutorActionBuilder;
@@ -97,7 +98,7 @@ final class ExecutorActionBuilderImpl<BEAN_TYPE, PARAM_TYPE> extends
 		this.beanMessageStatePolicy = BeanMessageStatePolicy.NO_WARNING_OR_ERROR;
 		this.beanListExecutionPolicy = BeanExecutionPolicy.BATCH;
 
-		this.exceptionConverter = new DefaultBeanExceptionConverter();
+		this.exceptionConverter = BeanExceptionConverter.get();
 	}
 
 	@Override
