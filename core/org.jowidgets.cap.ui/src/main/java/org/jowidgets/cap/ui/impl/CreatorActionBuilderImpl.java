@@ -41,6 +41,7 @@ import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.service.ICreatorService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
+import org.jowidgets.cap.ui.api.bean.BeanExceptionConverter;
 import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
 import org.jowidgets.cap.ui.api.bean.IBeanPropertyValidator;
 import org.jowidgets.cap.ui.api.command.ICreatorActionBuilder;
@@ -82,7 +83,7 @@ final class CreatorActionBuilderImpl<BEAN_TYPE> extends AbstractCapActionBuilder
 		this.model = model;
 		this.enabledCheckers = new LinkedList<IEnabledChecker>();
 		this.executionInterceptors = new LinkedList<IExecutionInterceptor<List<IBeanDto>>>();
-		this.exceptionConverter = new DefaultBeanExceptionConverter();
+		this.exceptionConverter = BeanExceptionConverter.get();
 		this.beanPropertyValidators = new LinkedList<IBeanPropertyValidator<BEAN_TYPE>>();
 
 		this.anySelection = true;

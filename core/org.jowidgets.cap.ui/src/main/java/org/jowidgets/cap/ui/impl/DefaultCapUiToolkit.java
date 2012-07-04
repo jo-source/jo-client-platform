@@ -36,6 +36,7 @@ import org.jowidgets.cap.ui.api.ICapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
 import org.jowidgets.cap.ui.api.bean.BeanMessageType;
+import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
 import org.jowidgets.cap.ui.api.bean.IBeanKeyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeanMessageBuilder;
 import org.jowidgets.cap.ui.api.bean.IBeanMessageFixBuilder;
@@ -79,6 +80,7 @@ public final class DefaultCapUiToolkit implements ICapUiToolkit {
 	private IInputControlSupportRegistry inputControlRegistry;
 	private ILookUpCache lookUpCache;
 	private IUiServiceDecoratorProviderFactory uiServiceDecoratorProviderFactory;
+	private IBeanExceptionConverter defaultExceptionConverter;
 
 	@Override
 	public ICapApiBluePrintFactory bluePrintFactory() {
@@ -307,6 +309,14 @@ public final class DefaultCapUiToolkit implements ICapUiToolkit {
 			lookUpCache = new LookUpCacheImpl();
 		}
 		return lookUpCache;
+	}
+
+	@Override
+	public IBeanExceptionConverter defaultExceptionConverter() {
+		if (defaultExceptionConverter == null) {
+			defaultExceptionConverter = new BeanExceptionConverterImpl();
+		}
+		return defaultExceptionConverter;
 	}
 
 }
