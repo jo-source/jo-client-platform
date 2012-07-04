@@ -64,6 +64,8 @@ final class BeanListSaveDelegate<BEAN_TYPE> {
 
 	private final String saveString;
 	private final String createString;
+	private final String creationFailedString;
+	private final String saveFailedString;
 
 	BeanListSaveDelegate(
 		final IBeanListModel<BEAN_TYPE> listModel,
@@ -111,7 +113,9 @@ final class BeanListSaveDelegate<BEAN_TYPE> {
 
 		//TODO i18n
 		this.saveString = Messages.getString("BeanListSaveDelegate.Save");
+		this.saveFailedString = Messages.getString("BeanListSaveDelegate.Save_failed");
 		this.createString = Messages.getString("BeanListSaveDelegate.Create");
+		this.creationFailedString = Messages.getString("BeanListSaveDelegate.Creation_failed");
 	}
 
 	void save() {
@@ -127,7 +131,7 @@ final class BeanListSaveDelegate<BEAN_TYPE> {
 			}
 
 			final BeanListExecutionHelper<BEAN_TYPE> executionHelper = new BeanListExecutionHelper<BEAN_TYPE>(
-				createString,
+				creationFailedString,
 				listModel,
 				beansToCreate,
 				beanExecutionPolicy,
@@ -171,7 +175,7 @@ final class BeanListSaveDelegate<BEAN_TYPE> {
 			}
 
 			final BeanListExecutionHelper<BEAN_TYPE> executionHelper = new BeanListExecutionHelper<BEAN_TYPE>(
-				saveString,
+				saveFailedString,
 				listModel,
 				modifiedBeans,
 				beanExecutionPolicy,

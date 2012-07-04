@@ -66,6 +66,7 @@ final class BeanDeleterCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 	private final String multiDeletionConfirmMessage = Messages.getString("BeanDeleterCommand.multi_deletion_confirm_message");
 	private final String couldNotBeUndoneMessage = Messages.getString("BeanDeleterCommand.can_not_be_undone");
 	private final String nothingSelectedMessage = Messages.getString("BeanDeleterCommand.nothing_selected");
+	private final String deletionFailedMessage = Messages.getString("BeanDeleterCommand.deletion_failed");
 
 	private final IBeanListModel<BEAN_TYPE> model;
 	private final IDeleterService deleterService;
@@ -239,7 +240,7 @@ final class BeanDeleterCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 
 			for (final IBeanProxy<BEAN_TYPE> bean : beans) {
 				bean.setExecutionTask(null);
-				bean.addMessage(exceptionConverter.convert(executionContext.getAction().getText(), beans, bean, exception));
+				bean.addMessage(exceptionConverter.convert(deletionFailedMessage, beans, bean, exception));
 			}
 
 			model.fireBeansChanged();

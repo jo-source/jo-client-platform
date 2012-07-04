@@ -43,7 +43,7 @@ final class BeanMessageImpl implements IBeanMessage {
 
 	private final BeanMessageType type;
 
-	private final String actionText;
+	private final String shortMessage;
 	private final String message;
 	private final String description;
 	private final Throwable exception;
@@ -53,17 +53,17 @@ final class BeanMessageImpl implements IBeanMessage {
 
 	private String lazyLabel;
 
-	BeanMessageImpl(final BeanMessageType type, final String actionText, final String message) {
-		this(type, actionText, message, null, null, new LinkedList<IBeanMessageFix>(), false);
+	BeanMessageImpl(final BeanMessageType type, final String shortMessage, final String message) {
+		this(type, shortMessage, message, null, null, new LinkedList<IBeanMessageFix>(), false);
 	}
 
-	BeanMessageImpl(final BeanMessageType type, final String actionText, final String message, final Throwable exception) {
-		this(type, actionText, message, null, exception, new LinkedList<IBeanMessageFix>(), false);
+	BeanMessageImpl(final BeanMessageType type, final String shortMessage, final String message, final Throwable exception) {
+		this(type, shortMessage, message, null, exception, new LinkedList<IBeanMessageFix>(), false);
 	}
 
 	BeanMessageImpl(
 		final BeanMessageType type,
-		final String actionText,
+		final String shortMessage,
 		final String message,
 		final String description,
 		final Throwable exception,
@@ -72,7 +72,7 @@ final class BeanMessageImpl implements IBeanMessage {
 		Assert.paramNotNull(type, "type");
 		Assert.paramNotNull(fixes, "fixes");
 		this.type = type;
-		this.actionText = actionText;
+		this.shortMessage = shortMessage;
 		this.message = message;
 		this.description = description;
 		this.exception = exception;
@@ -95,17 +95,20 @@ final class BeanMessageImpl implements IBeanMessage {
 	}
 
 	private String createLabel() {
-		if (!EmptyCheck.isEmpty(actionText)) {
-			return actionText + ": " + message;
+		if (!EmptyCheck.isEmpty(shortMessage) && !EmptyCheck.isEmpty(message)) {
+			return shortMessage + ": " + message;
+		}
+		else if (!EmptyCheck.isEmpty(message)) {
+			return message;
 		}
 		else {
-			return message;
+			return shortMessage;
 		}
 	}
 
 	@Override
-	public String getActionText() {
-		return actionText;
+	public String getShortMessage() {
+		return shortMessage;
 	}
 
 	@Override

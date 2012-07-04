@@ -70,6 +70,7 @@ final class BeanLinkDeleterCommand<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> implement
 	private final String multiDeletionConfirmMessage = Messages.getString("BeanLinkDeleterCommand.multi_deletion_confirm_message");
 	private final String couldNotBeUndoneMessage = Messages.getString("BeanLinkDeleterCommand.can_not_be_undone");
 	private final String nothingSelectedMessage = Messages.getString("BeanLinkDeleterCommand.nothing_selected");
+	private final String shortErrorMessage = Messages.getString("BeanLinkDeleterCommand.short_error_message");
 
 	private final ILinkDeleterService linkDeleterService;
 	private final IBeanSelectionProvider<SOURCE_BEAN_TYPE> source;
@@ -294,14 +295,14 @@ final class BeanLinkDeleterCommand<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> implement
 
 		private void onError(final Throwable exception) {
 			for (final IBeanProxy<?> bean : linkedSelection) {
-
-				bean.addMessage(exceptionConverter.convert(
-						executionContext.getAction().getText(),
-						linkedSelection,
-						bean,
-						exception));
+				bean.addMessage(exceptionConverter.convert(getShortErrorMessage(), linkedSelection, bean, exception));
 				bean.setExecutionTask(null);
 			}
+		}
+
+		private String getShortErrorMessage() {
+			final String actionText = executionContext.getAction().getText().replaceAll("\\.", "").trim();
+			return MessageReplacer.replace(shortErrorMessage, actionText);
 		}
 
 		private void setExecutionTaskNull() {

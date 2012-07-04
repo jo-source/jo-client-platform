@@ -35,7 +35,8 @@ public interface IBeanExceptionConverter {
 	/**
 	 * Converts a throwable into an IBeanMessage
 	 * 
-	 * @param actionText The text/label of the action that triggered the exception
+	 * @param shortErrorMessage The short message that describes what action failed
+	 *            (e.g. 'Creation failed', 'Load failed', 'Save failed'), may be null
 	 * @param processedBeans All beans that was processed by the action
 	 * @param destinationBean The bean to convert the message for
 	 * @param throwable The throwable itself
@@ -43,7 +44,7 @@ public interface IBeanExceptionConverter {
 	 * @return The bean message created from the throwable
 	 */
 	IBeanMessage convert(
-		String actionText,
+		String shortErrorMessage,
 		List<? extends IBeanProxy<?>> processedBeans,
 		IBeanProxy<?> destinationBean,
 		Throwable throwable);
