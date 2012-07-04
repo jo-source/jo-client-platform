@@ -57,6 +57,7 @@ import org.jowidgets.cap.ui.api.execution.IExecutionTask;
 import org.jowidgets.cap.ui.api.execution.IExecutor;
 import org.jowidgets.cap.ui.api.execution.IParameterProvider;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
+import org.jowidgets.tools.message.MessageReplacer;
 import org.jowidgets.util.ValueHolder;
 import org.jowidgets.util.maybe.IMaybe;
 import org.jowidgets.util.maybe.Nothing;
@@ -64,6 +65,8 @@ import org.jowidgets.util.maybe.Some;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 final class ExecutorCommand implements ICommand, ICommandExecutor {
+
+	private final String shortErrorMessage = Messages.getString("ExecutorCommand.short_error_message");
 
 	private final BeanSelectionProviderEnabledChecker enabledChecker;
 
@@ -140,7 +143,7 @@ final class ExecutorCommand implements ICommand, ICommandExecutor {
 		}
 
 		final BeanListExecutionHelper executionHelper = new BeanListExecutionHelper(
-			executionContext.getAction().getText(),
+			getShortErrorMessage(executionContext),
 			listModel,
 			beans,
 			beanListExecutionPolicy,
@@ -155,6 +158,11 @@ final class ExecutorCommand implements ICommand, ICommandExecutor {
 			new Execution(preparedBeans, executionContext, executionHelper).execute();
 		}
 
+	}
+
+	private String getShortErrorMessage(final IExecutionContext executionContext) {
+		final String actionText = executionContext.getAction().getText().replaceAll("\\.", "").trim();
+		return MessageReplacer.replace(shortErrorMessage, actionText);
 	}
 
 	private class Execution {

@@ -74,6 +74,7 @@ import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
 import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
 import org.jowidgets.cap.ui.tools.execution.AbstractUiResultCallback;
 import org.jowidgets.common.types.Dimension;
+import org.jowidgets.tools.message.MessageReplacer;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.EmptyCheck;
 import org.jowidgets.util.IFactory;
@@ -81,6 +82,7 @@ import org.jowidgets.util.IFactory;
 final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> implements ICommand, ICommandExecutor {
 
 	private final String nothingSelectedMessage = Messages.getString("BeanLinkCreatorCommand.nothing_selected");
+	private final String shortErrorMessage = Messages.getString("BeanLinkCreatorCommand.short_error_message");
 
 	private final IEntityLinkProperties sourceProperties;
 	private final IEntityLinkProperties destinationProperties;
@@ -274,9 +276,14 @@ final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BE
 			protected void exceptionUi(final Throwable exception) {
 				for (final IBeanProxy<SOURCE_BEAN_TYPE> bean : selection) {
 					bean.setExecutionTask(null);
-					bean.addMessage(exceptionConverter.convert(executionContext.getAction().getText(), selection, bean, exception));
+					bean.addMessage(exceptionConverter.convert(getShortErrorMessage(), selection, bean, exception));
 				}
 				executionObservable.fireAfterExecutionError(executionContext, exception);
+			}
+
+			private String getShortErrorMessage() {
+				final String actionText = executionContext.getAction().getText().replaceAll("\\.", "").trim();
+				return MessageReplacer.replace(shortErrorMessage, actionText);
 			}
 		};
 	}

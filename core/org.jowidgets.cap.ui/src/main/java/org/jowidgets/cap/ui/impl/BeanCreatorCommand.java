@@ -262,17 +262,16 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 
 		@Override
 		protected void exceptionUi(final Throwable exception) {
-			final String actionText = executionContext.getAction().getText();
 			if (exception != null) {
 				final List<IBeanProxy<BEAN_TYPE>> beans = new LinkedList<IBeanProxy<BEAN_TYPE>>();
 				beans.add(bean);
-				bean.addMessage(exceptionConverter.convert(actionText, beans, bean, exception));
+				final String shortMessage = Messages.getString("BeanCreatorCommand.creation_failed");
+				bean.addMessage(exceptionConverter.convert(shortMessage, beans, bean, exception));
 			}
 			else {
 				final IBeanMessageBuilder messageBuilder = CapUiToolkit.beanMessageBuilder(BeanMessageType.ERROR);
 				final String message = Messages.getString("BeanCreatorCommand.object_not_created");
 				final String description = Messages.getString("BeanCreatorCommand.object_not_created_description");
-				messageBuilder.setActionText(actionText);
 				messageBuilder.setMessage(message);
 				messageBuilder.setDescription(description);
 				bean.addMessage(messageBuilder.build());

@@ -52,6 +52,7 @@ final class BeanListRefreshDelegate<BEAN_TYPE> {
 	private final IRefreshService refreshService;
 
 	private final String refreshString;
+	private final String refreshFailedString;
 
 	BeanListRefreshDelegate(
 		final IBeanListModel<BEAN_TYPE> listModel,
@@ -68,14 +69,14 @@ final class BeanListRefreshDelegate<BEAN_TYPE> {
 		this.beanExecutionPolicy = beanExecutionPolicy;
 		this.refreshService = refreshService;
 
-		//TODO i18n
 		this.refreshString = Messages.getString("BeanListRefreshDelegate.Reload");
+		this.refreshFailedString = Messages.getString("BeanListRefreshDelegate.Reload_failed");
 	}
 
 	void refresh(final Collection<IBeanProxy<BEAN_TYPE>> beans) {
 		if (refreshService != null) {
 			final BeanListExecutionHelper<BEAN_TYPE> executionHelper = new BeanListExecutionHelper<BEAN_TYPE>(
-				refreshString,
+				refreshFailedString,
 				listModel,
 				beans,
 				beanExecutionPolicy,

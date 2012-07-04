@@ -2370,7 +2370,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			dummyBeanProxy.setExecutionTask(null);
 			final IBeanMessageBuilder beanMessageBuilder = CapUiToolkit.beanMessageBuilder(BeanMessageType.ERROR);
 			beanMessageBuilder.setException(exception);
-			beanMessageBuilder.setActionText(loadingDataLabel);
+			beanMessageBuilder.setShortMessage(loadingDataLabel);
 			beanMessageBuilder.setMessage(loadErrorMessage);
 			dummyBeanProxy.addMessage(beanMessageBuilder.build());
 			programmaticPageLoader.remove(pageIndex);
@@ -2398,7 +2398,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			}
 			dummyBeanProxy.setExecutionTask(null);
 			final IBeanMessageBuilder beanMessageBuilder = CapUiToolkit.beanMessageBuilder(BeanMessageType.WARNING);
-			beanMessageBuilder.setActionText(loadingDataLabel);
+			beanMessageBuilder.setShortMessage(loadingDataLabel);
 			beanMessageBuilder.setMessage(userCanceledMessage);
 			dummyBeanProxy.addMessage(beanMessageBuilder.build());
 			programmaticPageLoader.remove(pageIndex);

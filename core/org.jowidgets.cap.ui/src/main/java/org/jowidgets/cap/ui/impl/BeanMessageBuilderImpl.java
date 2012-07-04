@@ -55,7 +55,7 @@ final class BeanMessageBuilderImpl implements IBeanMessageBuilder {
 	}
 
 	@Override
-	public IBeanMessageBuilder setActionText(final String text) {
+	public IBeanMessageBuilder setShortMessage(final String text) {
 		this.actionText = text;
 		return this;
 	}

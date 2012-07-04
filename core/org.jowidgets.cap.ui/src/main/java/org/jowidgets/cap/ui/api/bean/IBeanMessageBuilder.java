@@ -30,7 +30,7 @@ package org.jowidgets.cap.ui.api.bean;
 
 public interface IBeanMessageBuilder {
 
-	IBeanMessageBuilder setActionText(String text);
+	IBeanMessageBuilder setShortMessage(String message);
 
 	IBeanMessageBuilder setMessage(String message);
 
