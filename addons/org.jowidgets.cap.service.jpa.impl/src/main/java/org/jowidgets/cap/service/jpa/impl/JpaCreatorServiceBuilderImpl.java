@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,25 +26,29 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.api.refresh;
-
-import java.util.Collection;
+package org.jowidgets.cap.service.jpa.impl;
 
 import org.jowidgets.cap.common.api.bean.IBean;
-import org.jowidgets.cap.common.api.service.IRefreshService;
-import org.jowidgets.cap.service.api.adapter.ISyncRefreshService;
-import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
+import org.jowidgets.cap.common.api.service.ICreatorService;
+import org.jowidgets.cap.service.api.CapServiceToolkit;
+import org.jowidgets.cap.service.api.adapter.ISyncCreatorService;
+import org.jowidgets.cap.service.tools.creator.AbstractCreatorServiceBuilder;
 
-public interface IRefreshServiceBuilder<BEAN_TYPE extends IBean> {
+final class JpaCreatorServiceBuilderImpl<BEAN_TYPE extends IBean> extends AbstractCreatorServiceBuilder<BEAN_TYPE> {
 
-	IRefreshServiceBuilder<BEAN_TYPE> setBeanDtoFactory(IBeanDtoFactory<BEAN_TYPE> beanDtoFactory);
+	JpaCreatorServiceBuilderImpl(final Class<? extends BEAN_TYPE> beanType) {
+		super(beanType);
+	}
 
-	IRefreshServiceBuilder<BEAN_TYPE> setBeanDtoFactory(final Collection<String> propertyNames);
-
-	IRefreshServiceBuilder<BEAN_TYPE> setAllowDeletedBeans(boolean allowDeletedBeans);
-
-	ISyncRefreshService buildSyncService();
-
-	IRefreshService build();
+	@Override
+	public ICreatorService build() {
+		final ISyncCreatorService result = new SyncJpaCreatorServiceImpl<BEAN_TYPE>(
+			getBeanType(),
+			getBeanDtoFactory(),
+			getBeanInitializer(),
+			getExecutableChecker(),
+			getBeanValidator());
+		return CapServiceToolkit.adapterFactoryProvider().creator().createAdapter(result);
+	}
 
 }

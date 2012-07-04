@@ -28,56 +28,23 @@
 
 package org.jowidgets.cap.service.jpa.api;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.jowidgets.cap.common.api.bean.IBean;
-import org.jowidgets.cap.common.api.service.IBeanServicesProvider;
-import org.jowidgets.cap.common.api.service.ICreatorService;
-import org.jowidgets.cap.common.api.service.IDeleterService;
 import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
-import org.jowidgets.cap.service.api.bean.IBeanInitializer;
-import org.jowidgets.cap.service.api.bean.IBeanModifier;
-import org.jowidgets.cap.service.api.entity.IBeanServicesProviderBuilder;
 import org.jowidgets.cap.service.api.factory.IBeanServiceFactory;
 import org.jowidgets.cap.service.jpa.api.query.IQueryCreator;
-import org.jowidgets.service.api.IServiceRegistry;
 
 public interface IJpaServiceFactory extends IBeanServiceFactory {
-
-	IBeanServicesProvider beanServices(
-		IServiceRegistry registry,
-		Object entityTypeId,
-		Class<? extends IBean> beanType,
-		List<String> properties);
-
-	IBeanServicesProviderBuilder beanServicesBuilder(
-		IServiceRegistry registry,
-		Object entityTypeId,
-		Class<? extends IBean> beanType,
-		List<String> properties);
-
-	<BEAN_TYPE extends IBean> IBeanServicesProvider beanServices(
-		IServiceRegistry registry,
-		Object entityTypeId,
-		Class<? extends BEAN_TYPE> beanType,
-		IBeanDtoFactory<BEAN_TYPE> beanDtoFactory,
-		IBeanInitializer<BEAN_TYPE> beanInitializer,
-		IBeanModifier<BEAN_TYPE> beanModifier);
-
-	ICreatorService creatorService(Class<? extends IBean> beanType, final List<String> propertyNames);
-
-	<PARAM_TYPE> IReaderService<PARAM_TYPE> readerService(Class<? extends IBean> beanType, final List<String> propertyNames);
-
-	<PARAM_TYPE> IReaderService<PARAM_TYPE> readerService(
-		Class<? extends IBean> beanType,
-		IQueryCreator<PARAM_TYPE> queryCreator,
-		final List<String> propertyNames);
 
 	<BEAN_TYPE extends IBean, PARAM_TYPE> IReaderService<PARAM_TYPE> readerService(
 		IQueryCreator<PARAM_TYPE> queryCreator,
 		IBeanDtoFactory<BEAN_TYPE> beanDtoFactory);
 
-	IDeleterService deleterService(Class<? extends IBean> beanType);
+	<PARAM_TYPE> IReaderService<PARAM_TYPE> readerService(
+		Class<? extends IBean> beanType,
+		IQueryCreator<PARAM_TYPE> queryCreator,
+		final Collection<String> propertyNames);
 
 }

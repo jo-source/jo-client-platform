@@ -26,7 +26,7 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.impl;
+package org.jowidgets.cap.common.tools.validation;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -38,13 +38,15 @@ import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.validation.IBeanValidationResult;
 import org.jowidgets.cap.common.api.validation.IBeanValidationResultListBuilder;
 import org.jowidgets.cap.common.api.validation.IBeanValidator;
+import org.jowidgets.util.Assert;
 
-final class BeanValidatorComposite<BEAN_TYPE> implements IBeanValidator<BEAN_TYPE> {
+public final class BeanValidatorComposite<BEAN_TYPE> implements IBeanValidator<BEAN_TYPE> {
 
 	private final Collection<IBeanValidator<BEAN_TYPE>> validators;
 	private final Set<String> propertyDependencies;
 
-	BeanValidatorComposite(final Collection<IBeanValidator<BEAN_TYPE>> validators) {
+	public BeanValidatorComposite(final Collection<IBeanValidator<BEAN_TYPE>> validators) {
+		Assert.paramNotNull(validators, "validators");
 		this.validators = new LinkedList<IBeanValidator<BEAN_TYPE>>(validators);
 		this.propertyDependencies = createPropertyDependencies(validators);
 	}
