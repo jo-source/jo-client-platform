@@ -70,7 +70,11 @@ import org.jowidgets.cap.ui.api.bean.IExternalBeanValidator;
 import org.jowidgets.cap.ui.api.bean.IExternalBeanValidatorListener;
 import org.jowidgets.cap.ui.api.execution.IExecutionTask;
 import org.jowidgets.cap.ui.api.execution.IExecutionTaskListener;
+import org.jowidgets.cap.ui.api.plugin.IBeanProxyPlugin;
 import org.jowidgets.cap.ui.tools.execution.ExecutionTaskAdapter;
+import org.jowidgets.plugin.api.IPluginProperties;
+import org.jowidgets.plugin.api.PluginProperties;
+import org.jowidgets.plugin.api.PluginProvider;
 import org.jowidgets.tools.validation.ValidationCache;
 import org.jowidgets.tools.validation.ValidationCache.IValidationResultCreator;
 import org.jowidgets.util.Assert;
@@ -814,16 +818,34 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 	@Override
 	public void addMessage(final IBeanMessage message) {
 		checkDisposed();
-		final List<IBeanMessage> lastMessages = new LinkedList<IBeanMessage>(messagesList);
-
 		Assert.paramNotNull(message, "message");
-		Assert.paramNotNull(message.getType(), "message.getType()");
-		messagesList.add(0, message);
-		messagesMap.get(message.getType()).add(0, message);
 
-		propertyChange(BeanProxyImpl.this, IBeanProxy.META_PROPERTY_MESSAGES, lastMessages, getMessages());
+		final IBeanMessage modifiedMessage = getModifiedByPluginMessage(message);
 
-		messageStateObservable.fireMessageStateChanged(this);
+		if (modifiedMessage != null) {
+			final List<IBeanMessage> lastMessages = new LinkedList<IBeanMessage>(messagesList);
+
+			Assert.paramNotNull(message, "message");
+			Assert.paramNotNull(message.getType(), "message.getType()");
+			messagesList.add(0, message);
+			messagesMap.get(message.getType()).add(0, message);
+
+			propertyChange(BeanProxyImpl.this, IBeanProxy.META_PROPERTY_MESSAGES, lastMessages, getMessages());
+
+			messageStateObservable.fireMessageStateChanged(this);
+		}
+	}
+
+	private IBeanMessage getModifiedByPluginMessage(final IBeanMessage message) {
+		final IPluginProperties pluginProperties = PluginProperties.create(IBeanProxyPlugin.BEAN_TYPE_PROPERTY_KEY, beanType);
+		IBeanMessage result = message;
+		for (final IBeanProxyPlugin plugin : PluginProvider.getPlugins(IBeanProxyPlugin.ID, pluginProperties)) {
+			result = plugin.addMessage(this, result);
+			if (result == null) {
+				return null;
+			}
+		}
+		return result;
 	}
 
 	@Override
