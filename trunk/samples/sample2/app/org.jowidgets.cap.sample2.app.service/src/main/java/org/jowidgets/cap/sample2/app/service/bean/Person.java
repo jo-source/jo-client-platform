@@ -51,12 +51,15 @@ import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Index;
+import org.jowidgets.cap.common.api.annotation.BeanValidator;
 import org.jowidgets.cap.sample2.app.common.bean.IPerson;
 import org.jowidgets.cap.sample2.app.service.entity.EntityManagerProvider;
+import org.jowidgets.cap.sample2.app.service.validation.PersonLoginNameConstraintValidator;
 import org.jowidgets.cap.service.jpa.api.query.QueryPath;
 
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = {"loginName"}))
+@BeanValidator(PersonLoginNameConstraintValidator.class)
 public class Person extends Bean implements IPerson {
 
 	@Basic

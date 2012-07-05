@@ -43,6 +43,7 @@ import org.jowidgets.cap.common.api.execution.IExecutableCheckerCompositeBuilder
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.service.IExecutorService;
 import org.jowidgets.cap.common.api.validation.IBeanValidator;
+import org.jowidgets.cap.common.tools.annotation.ValidatorAnnotationCache;
 import org.jowidgets.cap.common.tools.validation.BeanPropertyToBeanValidatorAdapter;
 import org.jowidgets.cap.common.tools.validation.BeanValidatorComposite;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
@@ -64,26 +65,32 @@ final class ExecutorServiceBuilderImpl<BEAN_TYPE extends IBean, PARAM_TYPE> impl
 	private final IBeanAccess<? extends BEAN_TYPE> beanAccess;
 	private final List<IExecutableChecker<? extends BEAN_TYPE>> executableCheckers;
 	private final List<IBeanValidator<BEAN_TYPE>> beanValidators;
-	private final Map<String, List<IValidator<? extends Object>>> propertyValidators;
+	private final Map<String, Collection<IValidator<? extends Object>>> propertyValidators;
 
 	private Object executor;
 	private IBeanDtoFactory<BEAN_TYPE> beanDtoFactory;
 	private boolean allowDeletedBeans;
 	private boolean allowStaleBeans;
 
+	@SuppressWarnings({"rawtypes", "unchecked"})
 	ExecutorServiceBuilderImpl(final IBeanAccess<? extends BEAN_TYPE> beanAccess) {
 		Assert.paramNotNull(beanAccess, "beanAccess");
 		Assert.paramNotNull(beanAccess.getBeanType(), "beanAccess.getBeanType()");
 
 		this.executableCheckers = new LinkedList<IExecutableChecker<? extends BEAN_TYPE>>();
 		this.beanValidators = new LinkedList<IBeanValidator<BEAN_TYPE>>();
-		this.propertyValidators = new HashMap<String, List<IValidator<? extends Object>>>();
+		this.propertyValidators = new HashMap<String, Collection<IValidator<? extends Object>>>();
 
 		this.beanType = beanAccess.getBeanType();
 		this.beanAccess = beanAccess;
 
 		this.allowDeletedBeans = false;
 		this.allowStaleBeans = false;
+
+		beanValidators.addAll(ValidatorAnnotationCache.getBeanValidators(beanType));
+
+		final Map validatorsMap = ValidatorAnnotationCache.getPropertyValidators(beanType);
+		propertyValidators.putAll(validatorsMap);
 	}
 
 	@Override
@@ -115,7 +122,7 @@ final class ExecutorServiceBuilderImpl<BEAN_TYPE extends IBean, PARAM_TYPE> impl
 		Assert.paramNotNull(propertyName, "propertyName");
 		Assert.paramNotNull(validator, "validator");
 
-		List<IValidator<? extends Object>> validators = propertyValidators.get(propertyName);
+		Collection<IValidator<? extends Object>> validators = propertyValidators.get(propertyName);
 		if (validators == null) {
 			validators = new LinkedList<IValidator<? extends Object>>();
 			propertyValidators.put(propertyName, validators);
@@ -210,7 +217,7 @@ final class ExecutorServiceBuilderImpl<BEAN_TYPE extends IBean, PARAM_TYPE> impl
 
 	private Collection<IBeanValidator<BEAN_TYPE>> getBeanValidators() {
 		final List<IBeanValidator<BEAN_TYPE>> result = new LinkedList<IBeanValidator<BEAN_TYPE>>();
-		for (final Entry<String, List<IValidator<? extends Object>>> entry : propertyValidators.entrySet()) {
+		for (final Entry<String, Collection<IValidator<? extends Object>>> entry : propertyValidators.entrySet()) {
 			beanValidators.add(new BeanPropertyToBeanValidatorAdapter<BEAN_TYPE>(beanType, entry.getKey(), entry.getValue()));
 		}
 		result.addAll(beanValidators);

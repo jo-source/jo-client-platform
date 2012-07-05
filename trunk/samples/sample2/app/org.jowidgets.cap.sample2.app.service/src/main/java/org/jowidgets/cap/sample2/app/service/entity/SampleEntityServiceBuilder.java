@@ -73,7 +73,6 @@ import org.jowidgets.cap.sample2.app.service.descriptor.PersonRelationTypeDtoDes
 import org.jowidgets.cap.sample2.app.service.descriptor.RoleDtoDescriptorBuilder;
 import org.jowidgets.cap.sample2.app.service.descriptor.SourcePersonOfPersonLinkDtoDescriptorBuilder;
 import org.jowidgets.cap.sample2.app.service.loader.PersonRelationTypeLoader;
-import org.jowidgets.cap.sample2.app.service.validation.PersonLoginNameConstraintValidator;
 import org.jowidgets.cap.service.api.creator.ICreatorServiceBuilder;
 import org.jowidgets.cap.service.api.entity.IBeanEntityBluePrint;
 import org.jowidgets.cap.service.api.entity.IBeanEntityLinkBluePrint;
@@ -427,14 +426,14 @@ public class SampleEntityServiceBuilder extends JpaEntityServiceBuilderWrapper {
 	private IUpdaterService createPersonUpdaterService() {
 		final IUpdaterServiceBuilder<Person> builder = getServiceFactory().updaterServiceBuilder(Person.class);
 		builder.setBeanDtoFactoryAndBeanModifier(IPerson.ALL_PROPERTIES);
-		builder.addBeanValidator(new PersonLoginNameConstraintValidator());
+		//builder.addBeanValidator(new PersonLoginNameConstraintValidator());
 		return builder.build();
 	}
 
 	private ICreatorService createPersonCreatorService() {
 		final ICreatorServiceBuilder<Person> builder = getServiceFactory().creatorServiceBuilder(Person.class);
 		builder.setBeanDtoFactoryAndBeanInitializer(IPerson.ALL_PROPERTIES);
-		builder.addBeanValidator(new PersonLoginNameConstraintValidator());
+		//builder.addBeanValidator(new PersonLoginNameConstraintValidator());
 		return builder.build();
 	}
 }

@@ -33,8 +33,13 @@ import java.util.List;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import org.jowidgets.cap.common.api.annotation.BeanValidator;
+import org.jowidgets.cap.common.api.annotation.PropertyValidator;
 import org.jowidgets.cap.common.api.bean.IBean;
+import org.jowidgets.cap.sample2.app.common.validation.PersonNameUppercaseValidator;
+import org.jowidgets.cap.sample2.app.common.validation.PersonNameWordCountValidator;
 
+@BeanValidator(PersonNameWordCountValidator.class)
 public interface IPerson extends IBean {
 
 	String NAME_PROPERTY = "name";
@@ -62,6 +67,7 @@ public interface IPerson extends IBean {
 
 	@NotNull
 	@Size(min = 2, max = 50)
+	@PropertyValidator(PersonNameUppercaseValidator.class)
 	String getName();
 
 	void setName(String name);

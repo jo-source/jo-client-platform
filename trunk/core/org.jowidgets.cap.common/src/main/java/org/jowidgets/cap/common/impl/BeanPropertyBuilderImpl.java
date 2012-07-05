@@ -42,6 +42,7 @@ import org.jowidgets.cap.common.api.bean.Cardinality;
 import org.jowidgets.cap.common.api.bean.IBeanPropertyBuilder;
 import org.jowidgets.cap.common.api.bean.IProperty;
 import org.jowidgets.cap.common.api.bean.IValueRange;
+import org.jowidgets.cap.common.tools.annotation.ValidatorAnnotationCache;
 import org.jowidgets.util.Assert;
 import org.jowidgets.validation.IValidator;
 
@@ -66,6 +67,10 @@ final class BeanPropertyBuilderImpl implements IBeanPropertyBuilder {
 				+ "' and the type '"
 				+ beanType.getName()
 				+ "'. Shure the is no typo?");
+		}
+
+		for (final IValidator<Object> validator : ValidatorAnnotationCache.getPropertyValidators(beanType, propertyName)) {
+			propertyBuilder.addValidator(validator);
 		}
 	}
 
