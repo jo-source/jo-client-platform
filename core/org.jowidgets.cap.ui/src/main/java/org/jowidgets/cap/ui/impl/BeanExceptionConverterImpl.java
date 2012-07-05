@@ -29,6 +29,7 @@
 package org.jowidgets.cap.ui.impl;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -98,7 +99,7 @@ final class BeanExceptionConverterImpl implements IBeanExceptionConverter {
 
 	private IBeanMessage convertBeanException(final String shortMessage, final IBeanProxy<?> bean, final BeanException exception) {
 		if (exception instanceof BeanValidationException) {
-			return convertBeanValidationException(shortMessage, (BeanValidationException) exception);
+			return convertBeanValidationException(shortMessage, bean, (BeanValidationException) exception);
 		}
 		else if (exception instanceof ExecutableCheckException) {
 			return convertExecutableCheckException(shortMessage, bean, (ExecutableCheckException) exception);
@@ -114,13 +115,16 @@ final class BeanExceptionConverterImpl implements IBeanExceptionConverter {
 		}
 	}
 
-	private IBeanMessage convertBeanValidationException(final String shortMessage, final BeanValidationException exception) {
+	private IBeanMessage convertBeanValidationException(
+		final String shortMessage,
+		final IBeanProxy<?> bean,
+		final BeanValidationException exception) {
 		final IBeanValidationResult firstWorstBeanResult = exception.getValidationResult();
-		return new BeanMessageImpl(
-			BeanMessageType.WARNING,
-			shortMessage,
-			firstWorstBeanResult.getValidationResult().getWorstFirst().getText(),
-			exception);
+		final String propertyName = firstWorstBeanResult.getPropertyName();
+		final Collection<String> propertyLabel = getPropertyLabels(bean, Collections.singleton(propertyName));
+		final String labels = StringUtils.concatElementsSeparatedBy(propertyLabel, ',');
+		final String message = labels + " - " + firstWorstBeanResult.getValidationResult().getWorstFirst().getText();
+		return new BeanMessageImpl(BeanMessageType.WARNING, shortMessage, message, exception);
 	}
 
 	private IBeanMessage convertExecutableCheckException(

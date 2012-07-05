@@ -40,6 +40,8 @@ import org.jowidgets.cap.common.api.execution.ExecutableCheckerComposite;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.execution.IExecutableCheckerCompositeBuilder;
 import org.jowidgets.cap.common.api.validation.IBeanValidator;
+import org.jowidgets.cap.common.tools.annotation.ValidatorAnnotationCache;
+import org.jowidgets.cap.common.tools.annotation.ValidatorAnnotationUtil;
 import org.jowidgets.cap.common.tools.validation.BeanPropertyToBeanValidatorAdapter;
 import org.jowidgets.cap.common.tools.validation.BeanValidatorComposite;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
@@ -59,11 +61,17 @@ public abstract class AbstractCreatorServiceBuilder<BEAN_TYPE extends IBean> imp
 	private IBeanDtoFactory<BEAN_TYPE> beanDtoFactory;
 	private IBeanInitializer<BEAN_TYPE> beanInitializer;
 
+	@SuppressWarnings({"rawtypes", "unchecked"})
 	public AbstractCreatorServiceBuilder(final Class<? extends BEAN_TYPE> beanType) {
 		this.beanType = beanType;
 		this.executableCheckers = new LinkedList<IExecutableChecker<? extends BEAN_TYPE>>();
 		this.beanValidators = new LinkedList<IBeanValidator<BEAN_TYPE>>();
 		this.propertyValidators = new HashMap<String, List<IValidator<? extends Object>>>();
+
+		beanValidators.addAll(ValidatorAnnotationUtil.getBeanValidators(beanType));
+
+		final Map validatorsMap = ValidatorAnnotationCache.getPropertyValidators(beanType);
+		propertyValidators.putAll(validatorsMap);
 	}
 
 	@Override

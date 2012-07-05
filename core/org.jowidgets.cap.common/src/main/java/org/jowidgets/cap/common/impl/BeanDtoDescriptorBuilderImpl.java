@@ -41,6 +41,7 @@ import org.jowidgets.cap.common.api.bean.IBeanPropertyBluePrint;
 import org.jowidgets.cap.common.api.bean.IProperty;
 import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.common.api.validation.IBeanValidator;
+import org.jowidgets.cap.common.tools.annotation.ValidatorAnnotationUtil;
 import org.jowidgets.util.Assert;
 
 final class BeanDtoDescriptorBuilderImpl implements IBeanDtoDescriptorBuilder {
@@ -60,6 +61,8 @@ final class BeanDtoDescriptorBuilderImpl implements IBeanDtoDescriptorBuilder {
 		this.bluePrints = new LinkedList<BeanPropertyBluePrintImpl>();
 		this.beanValidators = new LinkedHashSet<IBeanValidator<?>>();
 		this.defaultSorting = new LinkedList<ISort>();
+
+		beanValidators.addAll(ValidatorAnnotationUtil.getBeanValidators(beanType));
 	}
 
 	@Override
