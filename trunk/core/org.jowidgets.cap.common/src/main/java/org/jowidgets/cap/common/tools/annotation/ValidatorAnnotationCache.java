@@ -60,10 +60,9 @@ public final class ValidatorAnnotationCache {
 		Assert.paramNotNull(beanType, "beanType");
 		Assert.paramNotNull(propertyName, "propertyName");
 		final Map<String, Collection<IValidator<Object>>> validatorsCache = getPropertyValidatorsCache(beanType);
-		Collection<IValidator<Object>> result = validatorsCache.get(propertyName);
+		final Collection<IValidator<Object>> result = validatorsCache.get(propertyName);
 		if (result == null) {
-			result = Collections.emptyList();
-			validatorsCache.put(propertyName, result);
+			return Collections.emptyList();
 		}
 		return Collections.unmodifiableCollection(result);
 	}
