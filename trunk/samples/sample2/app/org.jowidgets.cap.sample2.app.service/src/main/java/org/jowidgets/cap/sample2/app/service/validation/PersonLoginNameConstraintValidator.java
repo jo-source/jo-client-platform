@@ -68,23 +68,40 @@ public final class PersonLoginNameConstraintValidator extends AbstractSingleConc
 
 	private Person getConfictedPerson(final String loginName) {
 		final EntityManager entityManager = EntityManagerProvider.get();
-		final FlushModeType oldFlushMode = entityManager.getFlushMode();
+
 		//TODO MG This is a hack to avoid getting violation constraint exception on autoflush
-		if (oldFlushMode != FlushModeType.COMMIT) {
-			entityManager.setFlushMode(FlushModeType.COMMIT);
-		}
+		final FlushModeType oldFlushMode = setCommitFlushModel(entityManager);
+
 		final TypedQuery<Person> query = entityManager.createQuery(
 				"SELECT p FROM Person p WHERE p.loginName = :param",
 				Person.class);
 		query.setParameter("param", loginName);
 		query.setFirstResult(0).setMaxResults(1);
 		final List<Person> resultList = query.getResultList();
-		entityManager.setFlushMode(oldFlushMode);
+
+		//TODO MG This is a hack to avoid getting violation constraint exception on autoflush
+		setOldFlushModel(entityManager, oldFlushMode);
+
 		if (resultList.size() > 0) {
 			return resultList.get(0);
 		}
 		else {
 			return null;
+		}
+	}
+
+	private FlushModeType setCommitFlushModel(final EntityManager entityManager) {
+		final FlushModeType oldFlushMode = entityManager.getFlushMode();
+		if (oldFlushMode != FlushModeType.COMMIT) {
+			entityManager.setFlushMode(FlushModeType.COMMIT);
+		}
+		return oldFlushMode;
+	}
+
+	private void setOldFlushModel(final EntityManager entityManager, final FlushModeType oldFlushMode) {
+		//TODO MG This is a hack to avoid getting violation constraint exception on autoflush
+		if (oldFlushMode != FlushModeType.COMMIT) {
+			entityManager.setFlushMode(oldFlushMode);
 		}
 	}
 }
