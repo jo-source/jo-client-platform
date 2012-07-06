@@ -28,9 +28,6 @@
 
 package org.jowidgets.cap.common.tools.validation;
 
-import java.beans.BeanInfo;
-import java.beans.IntrospectionException;
-import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
 import java.util.Collection;
@@ -44,6 +41,7 @@ import org.jowidgets.cap.common.api.validation.IBeanValidationResult;
 import org.jowidgets.cap.common.api.validation.IBeanValidationResultListBuilder;
 import org.jowidgets.cap.common.api.validation.IBeanValidator;
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.reflection.IntrospectionCache;
 import org.jowidgets.validation.IValidationResult;
 import org.jowidgets.validation.IValidator;
 
@@ -70,19 +68,15 @@ public final class BeanPropertyToBeanValidatorAdapter<BEAN_TYPE> implements IBea
 	}
 
 	private static Method getReadMethod(final Class<?> beanType, final String propertyName) {
-		try {
-			final BeanInfo beanInfo = Introspector.getBeanInfo(beanType);
-			for (final PropertyDescriptor propertyDescriptor : beanInfo.getPropertyDescriptors()) {
-				final String decriptorPropertyName = propertyDescriptor.getName();
-				if (decriptorPropertyName.equals(propertyName)) {
-					return propertyDescriptor.getReadMethod();
-				}
+		final PropertyDescriptor propertyDscr = IntrospectionCache.getPropertyDescriptorFromHierarchy(beanType, propertyName);
+		if (propertyDscr != null) {
+			final Method result = propertyDscr.getReadMethod();
+			if (result != null) {
+				return result;
 			}
 		}
-		catch (final IntrospectionException e) {
-			throw new RuntimeException(e);
-		}
 		throw new IllegalArgumentException("Could not find property '" + propertyName + "' for bean type '" + beanType + "'");
+
 	}
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
