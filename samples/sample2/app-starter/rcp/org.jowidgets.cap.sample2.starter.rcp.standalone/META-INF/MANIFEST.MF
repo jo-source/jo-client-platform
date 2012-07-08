@@ -49,4 +49,5 @@ Bundle-ClassPath: .,
  lib/org.jowidgets.service.jar,
  lib/slf4j-api.jar,
  lib/slf4j-jcl.jar,
- lib/validation-api.jar
+ lib/validation-api.jar,
+ lib/org.jowidgets.cap.service.hibernate.oracle.jar
