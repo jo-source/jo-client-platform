@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.service.impl;
 
+import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.service.IBeanServicesProvider;
 import org.jowidgets.cap.common.api.service.ICreatorService;
 import org.jowidgets.cap.common.api.service.IDeleterService;
@@ -51,6 +52,7 @@ final class BeanServicesProviderBuilderImpl implements IBeanServicesProviderBuil
 
 	private final IServiceRegistry registry;
 	private final IServiceId<IEntityService> entityServiceId;
+	private final Class<? extends IBean> beanType;
 	private final Object entityId;
 
 	private IReaderService<Void> readerService;
@@ -62,10 +64,12 @@ final class BeanServicesProviderBuilderImpl implements IBeanServicesProviderBuil
 	BeanServicesProviderBuilderImpl(
 		final IServiceRegistry registry,
 		final IServiceId<IEntityService> entityServiceId,
+		final Class<? extends IBean> beanType,
 		final Object entityId) {
 		Assert.paramNotNull(registry, "registry");
 		this.registry = registry;
 		this.entityServiceId = entityServiceId;
+		this.beanType = beanType;
 		this.entityId = entityId;
 	}
 
@@ -130,6 +134,7 @@ final class BeanServicesProviderBuilderImpl implements IBeanServicesProviderBuil
 		return new BeanServicesProviderImpl(
 			registry,
 			entityServiceId,
+			beanType,
 			entityId,
 			readerService,
 			creatorService,

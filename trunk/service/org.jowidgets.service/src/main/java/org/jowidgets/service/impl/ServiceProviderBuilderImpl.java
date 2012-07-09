@@ -78,7 +78,10 @@ final class ServiceProviderBuilderImpl extends AbstractSingleUseBuilder<IService
 		final Map<IServiceId<?>, Object> decoratedServices = new HashMap<IServiceId<?>, Object>();
 		for (final Entry<IServiceId<? extends Object>, Object> entry : services.entrySet()) {
 			final IServiceId<? extends Object> id = entry.getKey();
-			decoratedServices.put(id, getDecoratedService(id, entry.getValue()));
+			final Object decoratedService = getDecoratedService(id, entry.getValue());
+			if (decoratedService != null) {
+				decoratedServices.put(id, decoratedService);
+			}
 		}
 		return new ServiceProviderImpl(decoratedServices);
 	}
@@ -89,6 +92,9 @@ final class ServiceProviderBuilderImpl extends AbstractSingleUseBuilder<IService
 				final IDecorator<Object> decorator = serviceDecorator.getDecorator(id);
 				if (decorator != null) {
 					result = decorator.decorate(result);
+					if (result == null) {
+						break;
+					}
 				}
 			}
 		}

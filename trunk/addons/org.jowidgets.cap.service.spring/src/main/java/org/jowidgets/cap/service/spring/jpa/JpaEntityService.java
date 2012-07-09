@@ -131,6 +131,7 @@ public final class JpaEntityService implements IEntityService, InitializingBean 
 		final IBeanServicesProviderBuilder builder = CapServiceToolkit.beanServicesProviderBuilder(
 				SpringServiceProvider.getInstance(),
 				IEntityService.ID,
+				beanType,
 				beanInterface);
 
 		final List<String> propertyNames = new LinkedList<String>();

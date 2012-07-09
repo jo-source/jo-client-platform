@@ -68,6 +68,7 @@ public interface ICapServiceToolkit {
 	IBeanServicesProviderBuilder beanServicesProviderBuilder(
 		IServiceRegistry registry,
 		IServiceId<IEntityService> entityServiceId,
+		Class<? extends IBean> beanType,
 		Object entityId);
 
 	<BEAN_TYPE extends IBean> IBeanDtoFactory<BEAN_TYPE> dtoFactory(
