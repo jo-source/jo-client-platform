@@ -44,7 +44,9 @@ import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.service.IBeanServicesProvider;
 import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.common.tools.proxy.AbstractCapServiceInvocationHandler;
+import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.api.IServicesDecoratorProvider;
+import org.jowidgets.util.Assert;
 import org.jowidgets.util.IDecorator;
 
 final class EntityServiceDecoratorProviderImpl implements IServicesDecoratorProvider {
@@ -77,12 +79,9 @@ final class EntityServiceDecoratorProviderImpl implements IServicesDecoratorProv
 	}
 
 	@Override
-	public IDecorator<Object> getDefaultDecorator() {
-		return null;
-	}
-
-	@Override
-	public <SERVICE_TYPE> IDecorator<SERVICE_TYPE> getDecorator(final Class<? extends SERVICE_TYPE> serviceType) {
+	public <SERVICE_TYPE> IDecorator<SERVICE_TYPE> getDecorator(final IServiceId<SERVICE_TYPE> id) {
+		Assert.paramNotNull(id, "id");
+		final Class<? extends SERVICE_TYPE> serviceType = id.getServiceType();
 		return new IDecorator<SERVICE_TYPE>() {
 			@SuppressWarnings("unchecked")
 			@Override

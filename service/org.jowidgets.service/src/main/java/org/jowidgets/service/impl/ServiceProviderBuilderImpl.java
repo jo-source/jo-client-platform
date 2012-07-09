@@ -86,11 +86,7 @@ final class ServiceProviderBuilderImpl extends AbstractSingleUseBuilder<IService
 	private Object getDecoratedService(final IServiceId id, Object result) {
 		if (result != null) {
 			for (final IServicesDecoratorProvider serviceDecorator : new LinkedList<IServicesDecoratorProvider>(serviceDecorators)) {
-				final IDecorator<Object> defaultDecorator = serviceDecorator.getDefaultDecorator();
-				if (defaultDecorator != null) {
-					result = defaultDecorator.decorate(result);
-				}
-				final IDecorator<Object> decorator = serviceDecorator.getDecorator(id.getServiceType());
+				final IDecorator<Object> decorator = serviceDecorator.getDecorator(id);
 				if (decorator != null) {
 					result = decorator.decorate(result);
 				}

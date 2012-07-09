@@ -48,6 +48,7 @@ import org.jowidgets.cap.common.tools.proxy.AbstractCapServiceInvocationHandler;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.jpa.api.EntityManagerFactoryProvider;
 import org.jowidgets.cap.service.jpa.api.EntityManagerHolder;
+import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.api.IServicesDecoratorProvider;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.IDecorator;
@@ -75,12 +76,9 @@ final class CancelServicesDecoratorProviderImpl implements IServicesDecoratorPro
 	}
 
 	@Override
-	public IDecorator<Object> getDefaultDecorator() {
-		return null;
-	}
-
-	@Override
-	public <SERVICE_TYPE> IDecorator<SERVICE_TYPE> getDecorator(final Class<? extends SERVICE_TYPE> serviceType) {
+	public <SERVICE_TYPE> IDecorator<SERVICE_TYPE> getDecorator(final IServiceId<SERVICE_TYPE> id) {
+		Assert.paramNotNull(id, "id");
+		final Class<? extends SERVICE_TYPE> serviceType = id.getServiceType();
 		return new IDecorator<SERVICE_TYPE>() {
 			@SuppressWarnings("unchecked")
 			@Override
