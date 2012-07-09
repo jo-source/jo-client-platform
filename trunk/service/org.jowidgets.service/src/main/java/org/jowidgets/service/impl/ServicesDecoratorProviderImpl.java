@@ -31,6 +31,7 @@ package org.jowidgets.service.impl;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.api.IServicesDecoratorProvider;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.IDecorator;
@@ -52,14 +53,27 @@ class ServicesDecoratorProviderImpl implements IServicesDecoratorProvider {
 	}
 
 	@Override
-	public IDecorator<Object> getDefaultDecorator() {
-		return defaultDecorator;
-	}
-
-	@Override
-	public <SERVICE_TYPE> IDecorator<SERVICE_TYPE> getDecorator(final Class<? extends SERVICE_TYPE> type) {
-		Assert.paramNotNull(type, "type");
-		return decorators.get(type);
+	public <SERVICE_TYPE> IDecorator<SERVICE_TYPE> getDecorator(final IServiceId<SERVICE_TYPE> id) {
+		Assert.paramNotNull(id, "id");
+		final IDecorator typeDecorator = decorators.get(id);
+		if (defaultDecorator != null || typeDecorator != null) {
+			return new IDecorator<SERVICE_TYPE>() {
+				@Override
+				public SERVICE_TYPE decorate(final SERVICE_TYPE original) {
+					SERVICE_TYPE result = original;
+					if (defaultDecorator != null) {
+						result = (SERVICE_TYPE) defaultDecorator.decorate(result);
+					}
+					if (typeDecorator != null) {
+						result = (SERVICE_TYPE) typeDecorator.decorate(result);
+					}
+					return result;
+				}
+			};
+		}
+		else {
+			return null;
+		}
 	}
 
 	@Override

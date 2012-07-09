@@ -32,21 +32,7 @@ import org.jowidgets.util.IDecorator;
 
 public interface IServicesDecoratorProvider {
 
-	/**
-	 * Gets a default decorator that decorates all service. The default decorator may be null
-	 * 
-	 * @return a default decorator or null
-	 */
-	IDecorator<Object> getDefaultDecorator();
-
-	/**
-	 * Gets a decorator for a specific service.
-	 * 
-	 * @param <SERVICE_TYPE> The type of the service to decorate
-	 * @param type The type of the service to decorate
-	 * @return The decorated service
-	 */
-	<SERVICE_TYPE> IDecorator<SERVICE_TYPE> getDecorator(Class<? extends SERVICE_TYPE> type);
+	<SERVICE_TYPE> IDecorator<SERVICE_TYPE> getDecorator(IServiceId<SERVICE_TYPE> id);
 
 	/**
 	 * Gets the order of the decorator. The services will be decorated in this order.

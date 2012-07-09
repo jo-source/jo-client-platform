@@ -56,7 +56,7 @@ public interface IExecutorServiceBuilder<BEAN_TYPE extends IBean, PARAM_TYPE> {
 	IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> addBeanValidator(IBeanValidator<? extends BEAN_TYPE> validator);
 
 	/**
-	 * Adds a roperty validator that validates the bean after execution but before flush
+	 * Adds a property validator that validates the bean after execution but before flush
 	 * 
 	 * @param propertyName The name of the property to validate
 	 * @param validator The validator to add

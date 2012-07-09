@@ -28,6 +28,7 @@
 
 package org.jowidgets.service.tools;
 
+import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.api.IServicesDecoratorProvider;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.IDecorator;
@@ -42,13 +43,8 @@ public class ServiceDecoratorProviderWrapper implements IServicesDecoratorProvid
 	}
 
 	@Override
-	public final IDecorator<Object> getDefaultDecorator() {
-		return servicesDecoratorProvider.getDefaultDecorator();
-	}
-
-	@Override
-	public final <SERVICE_TYPE> IDecorator<SERVICE_TYPE> getDecorator(final Class<? extends SERVICE_TYPE> type) {
-		return servicesDecoratorProvider.getDecorator(type);
+	public <SERVICE_TYPE> IDecorator<SERVICE_TYPE> getDecorator(final IServiceId<SERVICE_TYPE> id) {
+		return servicesDecoratorProvider.getDecorator(id);
 	}
 
 	@Override

@@ -140,7 +140,7 @@ public final class ExecutorAnnotationPostProcessor implements BeanPostProcessor,
 					if (isLocal()) {
 						final DefaultCapServiceToolkit defaultCapServiceToolkit = new DefaultCapServiceToolkit();
 						final IServicesDecoratorProvider asyncDecoratorProvider = defaultCapServiceToolkit.serviceDecoratorProvider().asyncDecoratorProvider();
-						final IDecorator<IExecutorService<Object>> decorator = asyncDecoratorProvider.getDecorator(serviceId.getServiceType());
+						final IDecorator<IExecutorService<Object>> decorator = asyncDecoratorProvider.getDecorator(serviceId);
 						executorService = decorator.decorate(executorService);
 					}
 
