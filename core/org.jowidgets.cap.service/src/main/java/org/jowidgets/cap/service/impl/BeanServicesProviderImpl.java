@@ -30,6 +30,7 @@ package org.jowidgets.cap.service.impl;
 
 import java.io.Serializable;
 
+import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.service.IBeanServicesProvider;
 import org.jowidgets.cap.common.api.service.ICreatorService;
 import org.jowidgets.cap.common.api.service.IDeleterService;
@@ -37,6 +38,10 @@ import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.common.api.service.IRefreshService;
 import org.jowidgets.cap.common.api.service.IUpdaterService;
+import org.jowidgets.cap.service.api.plugin.IBeanServicesProviderPlugin;
+import org.jowidgets.plugin.api.IPluginPropertiesBuilder;
+import org.jowidgets.plugin.api.PluginProperties;
+import org.jowidgets.plugin.api.PluginProvider;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.api.IServiceRegistry;
 import org.jowidgets.service.api.ServiceProvider;
@@ -56,6 +61,7 @@ final class BeanServicesProviderImpl implements IBeanServicesProvider, Serializa
 	BeanServicesProviderImpl(
 		final IServiceRegistry serviceRegistry,
 		final IServiceId<IEntityService> entityServiceId,
+		final Class<? extends IBean> beanType,
 		final Object entityId,
 		final IReaderService<Void> readerService,
 		final ICreatorService creatorService,
@@ -67,61 +73,98 @@ final class BeanServicesProviderImpl implements IBeanServicesProvider, Serializa
 		Assert.paramNotNull(entityServiceId, "entityServiceId");
 		Assert.paramNotNull(entityId, "entityId");
 
-		if (readerService != null) {
-			this.readerServiceId = new ServiceId<IReaderService<Void>>(new Id(
+		this.readerServiceId = addService(
+				serviceRegistry,
 				entityServiceId,
+				beanType,
 				entityId,
-				IReaderService.class.getName()), IReaderService.class);
-			serviceRegistry.addService(readerServiceId, readerService);
+				IReaderService.class,
+				readerService);
+
+		this.creatorServiceId = addService(
+				serviceRegistry,
+				entityServiceId,
+				beanType,
+				entityId,
+				ICreatorService.class,
+				creatorService);
+
+		this.refreshServiceId = addService(
+				serviceRegistry,
+				entityServiceId,
+				beanType,
+				entityId,
+				IRefreshService.class,
+				refreshService);
+
+		this.updaterServiceId = addService(
+				serviceRegistry,
+				entityServiceId,
+				beanType,
+				entityId,
+				IUpdaterService.class,
+				updaterService);
+
+		this.deleterServiceId = addService(
+				serviceRegistry,
+				entityServiceId,
+				beanType,
+				entityId,
+				IDeleterService.class,
+				deleterService);
+
+	}
+
+	@SuppressWarnings({"unchecked", "rawtypes"})
+	private static <SERVICE_TYPE> IServiceId<SERVICE_TYPE> addService(
+		final IServiceRegistry serviceRegistry,
+		final IServiceId<IEntityService> entityServiceId,
+		final Class<? extends IBean> beanType,
+		final Object entityId,
+		final Class serviceType,
+		final SERVICE_TYPE service) {
+
+		if (service != null) {
+			final IServiceId<SERVICE_TYPE> serviceId = createServiceId(entityServiceId, beanType, entityId, serviceType);
+			serviceRegistry.addService(serviceId, service);
+			return serviceId;
 		}
 		else {
-			this.readerServiceId = null;
+			return null;
+		}
+	}
+
+	private static <SERVICE_TYPE> IServiceId<SERVICE_TYPE> createServiceId(
+		final IServiceId<IEntityService> entityServiceId,
+		final Class<? extends IBean> beanType,
+		final Object entityId,
+		final Class<SERVICE_TYPE> serviceType) {
+		final ServiceId<SERVICE_TYPE> result = new ServiceId<SERVICE_TYPE>(new Id(
+			entityServiceId,
+			entityId,
+			serviceType.getName()), serviceType);
+		return decorateServiceId(result, entityServiceId, beanType, entityId, serviceType);
+	}
+
+	private static <SERVICE_TYPE> IServiceId<SERVICE_TYPE> decorateServiceId(
+		final IServiceId<SERVICE_TYPE> defaultId,
+		final IServiceId<IEntityService> entityServiceId,
+		final Class<? extends IBean> beanType,
+		final Object entityId,
+		final Class<SERVICE_TYPE> serviceType) {
+
+		IServiceId<SERVICE_TYPE> result = defaultId;
+
+		final IPluginPropertiesBuilder propertiesBuilder = PluginProperties.builder();
+		propertiesBuilder.add(IBeanServicesProviderPlugin.BEAN_TYPE_PROPERTY_KEY, beanType);
+		propertiesBuilder.add(IBeanServicesProviderPlugin.ENTITIY_ID_PROPERTY_KEY, entityId);
+		for (final IBeanServicesProviderPlugin plugin : PluginProvider.getPlugins(
+				IBeanServicesProviderPlugin.ID,
+				propertiesBuilder.build())) {
+			result = plugin.decorateServiceId(defaultId, entityServiceId, beanType, entityId, serviceType);
 		}
 
-		if (creatorService != null) {
-			this.creatorServiceId = new ServiceId<ICreatorService>(new Id(
-				entityServiceId,
-				entityId,
-				ICreatorService.class.getName()), ICreatorService.class);
-			serviceRegistry.addService(creatorServiceId, creatorService);
-		}
-		else {
-			this.creatorServiceId = null;
-		}
-
-		if (refreshService != null) {
-			this.refreshServiceId = new ServiceId<IRefreshService>(new Id(
-				entityServiceId,
-				entityId,
-				IRefreshService.class.getName()), IRefreshService.class);
-			serviceRegistry.addService(refreshServiceId, refreshService);
-		}
-		else {
-			this.refreshServiceId = null;
-		}
-
-		if (updaterService != null) {
-			this.updaterServiceId = new ServiceId<IUpdaterService>(new Id(
-				entityServiceId,
-				entityId,
-				IUpdaterService.class.getName()), IUpdaterService.class);
-			serviceRegistry.addService(updaterServiceId, updaterService);
-		}
-		else {
-			updaterServiceId = null;
-		}
-
-		if (deleterService != null) {
-			this.deleterServiceId = new ServiceId<IDeleterService>(new Id(
-				entityServiceId,
-				entityId,
-				IDeleterService.class.getName()), IDeleterService.class);
-			serviceRegistry.addService(deleterServiceId, deleterService);
-		}
-		else {
-			this.deleterServiceId = null;
-		}
-
+		return result;
 	}
 
 	@Override
@@ -164,7 +207,7 @@ final class BeanServicesProviderImpl implements IBeanServicesProvider, Serializa
 		return null;
 	}
 
-	private final class Id implements Serializable {
+	private static final class Id implements Serializable {
 
 		private static final long serialVersionUID = -2049008694890176142L;
 

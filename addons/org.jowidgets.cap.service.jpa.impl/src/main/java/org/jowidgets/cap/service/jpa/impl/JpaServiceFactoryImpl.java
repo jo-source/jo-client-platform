@@ -76,7 +76,7 @@ public class JpaServiceFactoryImpl extends AbstractBeanServiceFactory implements
 		Assert.paramNotNull(beanModifier, "beanModifier");
 
 		final IBeanServicesProviderBuilder builder;
-		builder = CapServiceToolkit.beanServicesProviderBuilder(registry, IEntityService.ID, entityTypeId);
+		builder = CapServiceToolkit.beanServicesProviderBuilder(registry, IEntityService.ID, beanType, entityTypeId);
 
 		//create bean access
 		final IBeanAccess<BEAN_TYPE> beanAccess = beanAccess(beanType);

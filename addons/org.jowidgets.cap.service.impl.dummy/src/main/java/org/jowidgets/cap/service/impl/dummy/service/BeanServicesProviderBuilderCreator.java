@@ -52,7 +52,7 @@ final class BeanServicesProviderBuilderCreator<BEAN_TYPE extends IBean> {
 		final IBeanInitializer<BEAN_TYPE> beanInitializer,
 		final IBeanModifier<BEAN_TYPE> beanModifier) {
 
-		this.builder = CapServiceToolkit.beanServicesProviderBuilder(registry, IEntityService.ID, entityTypeId);
+		this.builder = CapServiceToolkit.beanServicesProviderBuilder(registry, IEntityService.ID, IBean.class, entityTypeId);
 
 		//reader service
 		builder.setReaderService(new SyncReaderService<BEAN_TYPE>(data, beanDtoFactory));
