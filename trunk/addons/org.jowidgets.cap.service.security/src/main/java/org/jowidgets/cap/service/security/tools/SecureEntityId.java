@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,33 +26,51 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample2.plugins.ui.action;
+package org.jowidgets.cap.service.security.tools;
 
-import org.jowidgets.addons.icons.silkicons.SilkIcons;
-import org.jowidgets.api.command.IAction;
-import org.jowidgets.cap.sample2.app.common.bean.IPerson;
-import org.jowidgets.cap.sample2.app.common.checker.PersonDeactivateExecutableChecker;
-import org.jowidgets.cap.sample2.app.common.executor.ExecutorServices;
-import org.jowidgets.cap.ui.api.CapUiToolkit;
-import org.jowidgets.cap.ui.api.command.IExecutorActionBuilder;
-import org.jowidgets.cap.ui.api.execution.BeanSelectionPolicy;
-import org.jowidgets.cap.ui.api.model.IBeanListModel;
-import org.jowidgets.tools.command.ActionWrapper;
+import java.io.Serializable;
 
-public class PersonDeactivateAction extends ActionWrapper {
+import org.jowidgets.cap.service.security.api.CrudServiceType;
+import org.jowidgets.cap.service.security.api.ISecureEntityId;
+import org.jowidgets.cap.service.security.api.SecureServiceToolkit;
 
-	public PersonDeactivateAction(final IBeanListModel<IPerson> model) {
-		super(create(model));
+public class SecureEntityId<AUTHORIZATION_TYPE> implements ISecureEntityId<AUTHORIZATION_TYPE>, Serializable {
+
+	private static final long serialVersionUID = 163271039311211943L;
+
+	private final ISecureEntityId<AUTHORIZATION_TYPE> original;
+
+	public SecureEntityId(
+		final Object id,
+		final AUTHORIZATION_TYPE create,
+		final AUTHORIZATION_TYPE read,
+		final AUTHORIZATION_TYPE update,
+		final AUTHORIZATION_TYPE delete) {
+		this(SecureServiceToolkit.entityId(id, create, read, update, delete));
 	}
 
-	private static IAction create(final IBeanListModel<IPerson> model) {
-		final IExecutorActionBuilder<IPerson, Void> builder = CapUiToolkit.actionFactory().executorActionBuilder(model);
-		builder.setText("Deactivate user");
-		builder.setToolTipText("Deactivates the user");
-		builder.setIcon(SilkIcons.USER_GRAY);
-		builder.setSelectionPolicy(BeanSelectionPolicy.MULTI_SELECTION);
-		builder.setExecutor(ExecutorServices.DEACTIVATE_PERSON);
-		builder.addExecutableChecker(new PersonDeactivateExecutableChecker());
-		return builder.build();
+	private SecureEntityId(final ISecureEntityId<AUTHORIZATION_TYPE> original) {
+		this.original = original;
 	}
+
+	@Override
+	public AUTHORIZATION_TYPE getAuthorization(final CrudServiceType serviceType) {
+		return original.getAuthorization(serviceType);
+	}
+
+	@Override
+	public final int hashCode() {
+		return original.hashCode();
+	}
+
+	@Override
+	public final boolean equals(final Object obj) {
+		return original.equals(obj);
+	}
+
+	@Override
+	public final String toString() {
+		return original.toString();
+	}
+
 }

@@ -26,33 +26,24 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample2.plugins.ui.action;
+package org.jowidgets.cap.sample2.app.common.security;
 
-import org.jowidgets.addons.icons.silkicons.SilkIcons;
-import org.jowidgets.api.command.IAction;
-import org.jowidgets.cap.sample2.app.common.bean.IPerson;
-import org.jowidgets.cap.sample2.app.common.checker.PersonDeactivateExecutableChecker;
-import org.jowidgets.cap.sample2.app.common.executor.ExecutorServices;
-import org.jowidgets.cap.ui.api.CapUiToolkit;
-import org.jowidgets.cap.ui.api.command.IExecutorActionBuilder;
-import org.jowidgets.cap.ui.api.execution.BeanSelectionPolicy;
-import org.jowidgets.cap.ui.api.model.IBeanListModel;
-import org.jowidgets.tools.command.ActionWrapper;
+import java.util.Collection;
+import java.util.LinkedList;
 
-public class PersonDeactivateAction extends ActionWrapper {
+public final class AuthorizationKeys {
 
-	public PersonDeactivateAction(final IBeanListModel<IPerson> model) {
-		super(create(model));
-	}
+	public static final String ACTIVATE_PERSON = "ACTIVATE_PERSON";
+	public static final String DEACTIVATE_PERSON = "DEACTIVATE_PERSON";
 
-	private static IAction create(final IBeanListModel<IPerson> model) {
-		final IExecutorActionBuilder<IPerson, Void> builder = CapUiToolkit.actionFactory().executorActionBuilder(model);
-		builder.setText("Deactivate user");
-		builder.setToolTipText("Deactivates the user");
-		builder.setIcon(SilkIcons.USER_GRAY);
-		builder.setSelectionPolicy(BeanSelectionPolicy.MULTI_SELECTION);
-		builder.setExecutor(ExecutorServices.DEACTIVATE_PERSON);
-		builder.addExecutableChecker(new PersonDeactivateExecutableChecker());
-		return builder.build();
-	}
+	public static final Collection<String> ALL_AUTHORIZATIONS = new LinkedList<String>() {
+		private static final long serialVersionUID = 1404650177379798436L;
+		{
+			add(ACTIVATE_PERSON);
+			add(DEACTIVATE_PERSON);
+		}
+	};
+
+	private AuthorizationKeys() {}
+
 }

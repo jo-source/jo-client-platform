@@ -38,7 +38,7 @@ import org.jowidgets.cap.common.api.service.ILookUpService;
 import org.jowidgets.cap.sample2.app.common.bean.IPerson;
 import org.jowidgets.cap.sample2.app.common.checker.PersonActivateExecutableChecker;
 import org.jowidgets.cap.sample2.app.common.checker.PersonDeactivateExecutableChecker;
-import org.jowidgets.cap.sample2.app.common.executor.PersonExecutorServices;
+import org.jowidgets.cap.sample2.app.common.executor.ExecutorServices;
 import org.jowidgets.cap.sample2.app.common.lookup.LookUpIds;
 import org.jowidgets.cap.sample2.app.common.security.AuthorizationProviderServiceId;
 import org.jowidgets.cap.sample2.app.service.bean.Person;
@@ -61,6 +61,7 @@ import org.jowidgets.cap.service.hibernate.api.ICancelServicesDecoratorProviderB
 import org.jowidgets.cap.service.hibernate.oracle.api.HibernateOracleServiceToolkit;
 import org.jowidgets.cap.service.jpa.api.IJpaServicesDecoratorProviderBuilder;
 import org.jowidgets.cap.service.jpa.api.JpaServiceToolkit;
+import org.jowidgets.cap.service.security.api.SecureServiceToolkit;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.api.IServicesDecoratorProvider;
 import org.jowidgets.service.tools.ServiceId;
@@ -76,12 +77,12 @@ public class SampleServiceProviderBuilder extends ServiceProviderBuilder {
 		addService(IEntityService.ID, new SampleEntityServiceBuilder(this).build());
 
 		addPersonExecutorService(
-				PersonExecutorServices.ACTIVATE_PERSON,
+				ExecutorServices.ACTIVATE_PERSON,
 				new PersonActivateExecutor(),
 				new PersonActivateExecutableChecker());
 
 		addPersonExecutorService(
-				PersonExecutorServices.DEACTIVATE_PERSON,
+				ExecutorServices.DEACTIVATE_PERSON,
 				new PersonDeactivateExecutor(),
 				new PersonDeactivateExecutableChecker());
 
@@ -93,6 +94,7 @@ public class SampleServiceProviderBuilder extends ServiceProviderBuilder {
 
 		addServiceDecorator(createJpaServiceDecoratorProvider());
 		addServiceDecorator(createCancelServiceDecoratorProvider());
+		addServiceDecorator(createSecurityServiceDecoratorProvider());
 	}
 
 	private IServicesDecoratorProvider createJpaServiceDecoratorProvider() {
@@ -107,6 +109,10 @@ public class SampleServiceProviderBuilder extends ServiceProviderBuilder {
 		final ICancelServicesDecoratorProviderBuilder builder = HibernateServiceToolkit.serviceDecoratorProviderBuilder("sample2PersistenceUnit");
 		builder.addServices(ILookUpService.class);
 		return builder.build();
+	}
+
+	private IServicesDecoratorProvider createSecurityServiceDecoratorProvider() {
+		return SecureServiceToolkit.getInstance().serviceDecorator();
 	}
 
 	private void addLookUpService(final Object lookUpId, final ISyncLookUpService lookUpService) {

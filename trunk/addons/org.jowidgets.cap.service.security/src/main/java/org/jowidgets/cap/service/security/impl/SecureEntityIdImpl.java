@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,33 +26,56 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample2.plugins.ui.action;
+package org.jowidgets.cap.service.security.impl;
 
-import org.jowidgets.addons.icons.silkicons.SilkIcons;
-import org.jowidgets.api.command.IAction;
-import org.jowidgets.cap.sample2.app.common.bean.IPerson;
-import org.jowidgets.cap.sample2.app.common.checker.PersonDeactivateExecutableChecker;
-import org.jowidgets.cap.sample2.app.common.executor.ExecutorServices;
-import org.jowidgets.cap.ui.api.CapUiToolkit;
-import org.jowidgets.cap.ui.api.command.IExecutorActionBuilder;
-import org.jowidgets.cap.ui.api.execution.BeanSelectionPolicy;
-import org.jowidgets.cap.ui.api.model.IBeanListModel;
-import org.jowidgets.tools.command.ActionWrapper;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
-public class PersonDeactivateAction extends ActionWrapper {
+import org.jowidgets.cap.service.security.api.CrudServiceType;
+import org.jowidgets.cap.service.security.api.ISecureEntityId;
+import org.jowidgets.util.Assert;
 
-	public PersonDeactivateAction(final IBeanListModel<IPerson> model) {
-		super(create(model));
+final class SecureEntityIdImpl<AUTHORIZATION_TYPE> implements ISecureEntityId<AUTHORIZATION_TYPE>, Serializable {
+
+	private static final long serialVersionUID = -1844266122522882979L;
+
+	private final Object id;
+	private final Map<CrudServiceType, AUTHORIZATION_TYPE> authorizations;
+
+	SecureEntityIdImpl(
+		final Object id,
+		final AUTHORIZATION_TYPE create,
+		final AUTHORIZATION_TYPE read,
+		final AUTHORIZATION_TYPE update,
+		final AUTHORIZATION_TYPE delete) {
+		Assert.paramNotNull(id, "id");
+		this.id = id;
+		this.authorizations = new HashMap<CrudServiceType, AUTHORIZATION_TYPE>();
+		authorizations.put(CrudServiceType.CREATE, create);
+		authorizations.put(CrudServiceType.READ, read);
+		authorizations.put(CrudServiceType.UPDATE, update);
+		authorizations.put(CrudServiceType.DELETE, delete);
 	}
 
-	private static IAction create(final IBeanListModel<IPerson> model) {
-		final IExecutorActionBuilder<IPerson, Void> builder = CapUiToolkit.actionFactory().executorActionBuilder(model);
-		builder.setText("Deactivate user");
-		builder.setToolTipText("Deactivates the user");
-		builder.setIcon(SilkIcons.USER_GRAY);
-		builder.setSelectionPolicy(BeanSelectionPolicy.MULTI_SELECTION);
-		builder.setExecutor(ExecutorServices.DEACTIVATE_PERSON);
-		builder.addExecutableChecker(new PersonDeactivateExecutableChecker());
-		return builder.build();
+	@Override
+	public AUTHORIZATION_TYPE getAuthorization(final CrudServiceType serviceType) {
+		return authorizations.get(serviceType);
 	}
+
+	@Override
+	public int hashCode() {
+		return id.hashCode();
+	}
+
+	@Override
+	public boolean equals(final Object obj) {
+		return id.equals(obj);
+	}
+
+	@Override
+	public String toString() {
+		return id.toString();
+	}
+
 }

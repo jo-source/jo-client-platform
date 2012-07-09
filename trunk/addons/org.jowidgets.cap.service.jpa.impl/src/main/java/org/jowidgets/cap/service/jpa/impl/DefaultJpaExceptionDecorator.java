@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.service.jpa.impl;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Set;
 
 import javax.persistence.EntityNotFoundException;
@@ -65,6 +66,9 @@ final class DefaultJpaExceptionDecorator implements IDecorator<Throwable> {
 				final ConstraintViolation<?> violation = constraintViolations.iterator().next();
 				return new ExecutableCheckException(violation.getRootBean());
 			}
+		}
+		else if (exception instanceof InvocationTargetException) {
+			return decorate(((InvocationTargetException) exception).getTargetException());
 		}
 		//TODO MG handle more jpa exceptions 
 

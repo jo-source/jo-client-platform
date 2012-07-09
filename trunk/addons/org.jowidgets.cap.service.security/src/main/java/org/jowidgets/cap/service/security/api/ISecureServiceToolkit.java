@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,33 +26,36 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample2.plugins.ui.action;
+package org.jowidgets.cap.service.security.api;
 
-import org.jowidgets.addons.icons.silkicons.SilkIcons;
-import org.jowidgets.api.command.IAction;
-import org.jowidgets.cap.sample2.app.common.bean.IPerson;
-import org.jowidgets.cap.sample2.app.common.checker.PersonDeactivateExecutableChecker;
-import org.jowidgets.cap.sample2.app.common.executor.ExecutorServices;
-import org.jowidgets.cap.ui.api.CapUiToolkit;
-import org.jowidgets.cap.ui.api.command.IExecutorActionBuilder;
-import org.jowidgets.cap.ui.api.execution.BeanSelectionPolicy;
-import org.jowidgets.cap.ui.api.model.IBeanListModel;
-import org.jowidgets.tools.command.ActionWrapper;
+import org.jowidgets.cap.service.api.plugin.IBeanServicesProviderPlugin;
+import org.jowidgets.service.api.IServiceId;
+import org.jowidgets.service.api.IServicesDecoratorProvider;
 
-public class PersonDeactivateAction extends ActionWrapper {
+public interface ISecureServiceToolkit {
 
-	public PersonDeactivateAction(final IBeanListModel<IPerson> model) {
-		super(create(model));
-	}
+	IServicesDecoratorProvider serviceDecorator();
 
-	private static IAction create(final IBeanListModel<IPerson> model) {
-		final IExecutorActionBuilder<IPerson, Void> builder = CapUiToolkit.actionFactory().executorActionBuilder(model);
-		builder.setText("Deactivate user");
-		builder.setToolTipText("Deactivates the user");
-		builder.setIcon(SilkIcons.USER_GRAY);
-		builder.setSelectionPolicy(BeanSelectionPolicy.MULTI_SELECTION);
-		builder.setExecutor(ExecutorServices.DEACTIVATE_PERSON);
-		builder.addExecutableChecker(new PersonDeactivateExecutableChecker());
-		return builder.build();
-	}
+	<AUTHORIZATION_TYPE> ISecureServiceDecoratorBuilder<AUTHORIZATION_TYPE> serviceDecoratorBuilder();
+
+	IBeanServicesProviderPlugin beanServicesProviderPlugin();
+
+	<AUTHORIZATION_TYPE> IBeanServicesProviderPluginBuilder<AUTHORIZATION_TYPE> beanServicesProviderPluginBuilder();
+
+	<SERVICE_TYPE, AUTHORIZATION_TYPE> ISecureServiceId<SERVICE_TYPE, AUTHORIZATION_TYPE> serviceId(
+		Object id,
+		Class<?> serviceType,
+		AUTHORIZATION_TYPE authorization);
+
+	<SERVICE_TYPE, AUTHORIZATION_TYPE> ISecureServiceId<SERVICE_TYPE, AUTHORIZATION_TYPE> serviceId(
+		IServiceId<SERVICE_TYPE> serviceId,
+		AUTHORIZATION_TYPE authorization);
+
+	<AUTHORIZATION_TYPE> ISecureEntityId<AUTHORIZATION_TYPE> entityId(
+		Object id,
+		AUTHORIZATION_TYPE create,
+		AUTHORIZATION_TYPE read,
+		AUTHORIZATION_TYPE update,
+		AUTHORIZATION_TYPE delete);
+
 }

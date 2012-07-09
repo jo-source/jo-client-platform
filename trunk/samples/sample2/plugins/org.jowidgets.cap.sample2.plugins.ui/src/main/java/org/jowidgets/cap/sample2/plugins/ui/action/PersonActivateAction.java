@@ -32,7 +32,7 @@ import org.jowidgets.addons.icons.silkicons.SilkIcons;
 import org.jowidgets.api.command.IAction;
 import org.jowidgets.cap.sample2.app.common.bean.IPerson;
 import org.jowidgets.cap.sample2.app.common.checker.PersonActivateExecutableChecker;
-import org.jowidgets.cap.sample2.app.common.executor.PersonExecutorServices;
+import org.jowidgets.cap.sample2.app.common.executor.ExecutorServices;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.command.IExecutorActionBuilder;
 import org.jowidgets.cap.ui.api.execution.BeanSelectionPolicy;
@@ -51,7 +51,7 @@ public class PersonActivateAction extends ActionWrapper {
 		builder.setToolTipText("Activates the user");
 		builder.setIcon(SilkIcons.USER);
 		builder.setSelectionPolicy(BeanSelectionPolicy.MULTI_SELECTION);
-		builder.setExecutor(PersonExecutorServices.ACTIVATE_PERSON);
+		builder.setExecutor(ExecutorServices.ACTIVATE_PERSON);
 		builder.addExecutableChecker(new PersonActivateExecutableChecker());
 		return builder.build();
 	}

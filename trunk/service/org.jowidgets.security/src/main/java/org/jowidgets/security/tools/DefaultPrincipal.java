@@ -34,7 +34,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-public final class DefaultPrincipal implements Serializable {
+import org.jowidgets.security.api.IDefaultPrincipal;
+
+public final class DefaultPrincipal implements IDefaultPrincipal<String>, Serializable {
 
 	private static final long serialVersionUID = 7568678347480658843L;
 
@@ -50,10 +52,12 @@ public final class DefaultPrincipal implements Serializable {
 		this.grantedAuthorities.addAll(grantedAuthorities);
 	}
 
+	@Override
 	public String getUsername() {
 		return username;
 	}
 
+	@Override
 	public Set<String> getGrantedAuthorities() {
 		return Collections.unmodifiableSet(grantedAuthorities);
 	}

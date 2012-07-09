@@ -26,33 +26,22 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample2.plugins.ui.action;
+package org.jowidgets.cap.sample2.app.common.executor;
 
-import org.jowidgets.addons.icons.silkicons.SilkIcons;
-import org.jowidgets.api.command.IAction;
-import org.jowidgets.cap.sample2.app.common.bean.IPerson;
-import org.jowidgets.cap.sample2.app.common.checker.PersonDeactivateExecutableChecker;
-import org.jowidgets.cap.sample2.app.common.executor.ExecutorServices;
-import org.jowidgets.cap.ui.api.CapUiToolkit;
-import org.jowidgets.cap.ui.api.command.IExecutorActionBuilder;
-import org.jowidgets.cap.ui.api.execution.BeanSelectionPolicy;
-import org.jowidgets.cap.ui.api.model.IBeanListModel;
-import org.jowidgets.tools.command.ActionWrapper;
+import org.jowidgets.cap.common.api.service.IExecutorService;
+import org.jowidgets.cap.sample2.app.common.security.AuthorizationKeys;
+import org.jowidgets.cap.service.security.tools.SecureServiceId;
+import org.jowidgets.service.api.IServiceId;
 
-public class PersonDeactivateAction extends ActionWrapper {
+public final class ExecutorServices {
 
-	public PersonDeactivateAction(final IBeanListModel<IPerson> model) {
-		super(create(model));
+	public static final IServiceId<IExecutorService<Void>> ACTIVATE_PERSON = createId(AuthorizationKeys.ACTIVATE_PERSON);
+	public static final IServiceId<IExecutorService<Void>> DEACTIVATE_PERSON = createId(AuthorizationKeys.DEACTIVATE_PERSON);
+
+	private ExecutorServices() {};
+
+	private static <PARAMETER_TYPE> IServiceId<IExecutorService<PARAMETER_TYPE>> createId(final String id) {
+		return new SecureServiceId<IExecutorService<PARAMETER_TYPE>, String>(id, IExecutorService.class, id);
 	}
 
-	private static IAction create(final IBeanListModel<IPerson> model) {
-		final IExecutorActionBuilder<IPerson, Void> builder = CapUiToolkit.actionFactory().executorActionBuilder(model);
-		builder.setText("Deactivate user");
-		builder.setToolTipText("Deactivates the user");
-		builder.setIcon(SilkIcons.USER_GRAY);
-		builder.setSelectionPolicy(BeanSelectionPolicy.MULTI_SELECTION);
-		builder.setExecutor(ExecutorServices.DEACTIVATE_PERSON);
-		builder.addExecutableChecker(new PersonDeactivateExecutableChecker());
-		return builder.build();
-	}
 }
