@@ -26,33 +26,27 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample2.plugins.ui.action;
+package org.jowidgets.cap.common.api.exception;
 
-import org.jowidgets.addons.icons.silkicons.SilkIcons;
-import org.jowidgets.api.command.IAction;
-import org.jowidgets.cap.sample2.app.common.bean.IPerson;
-import org.jowidgets.cap.sample2.app.common.checker.PersonDeactivateExecutableChecker;
-import org.jowidgets.cap.sample2.app.common.executor.ExecutorServices;
-import org.jowidgets.cap.ui.api.CapUiToolkit;
-import org.jowidgets.cap.ui.api.command.IExecutorActionBuilder;
-import org.jowidgets.cap.ui.api.execution.BeanSelectionPolicy;
-import org.jowidgets.cap.ui.api.model.IBeanListModel;
-import org.jowidgets.tools.command.ActionWrapper;
+public class AuthorizationFailedException extends ServiceException {
 
-public class PersonDeactivateAction extends ActionWrapper {
+	private static final long serialVersionUID = -7579908469741974763L;
 
-	public PersonDeactivateAction(final IBeanListModel<IPerson> model) {
-		super(create(model));
+	private final String username;
+	private final Object authorisation;
+
+	public AuthorizationFailedException(final String username, final Object authorization) {
+		super("User " + username + "' is not authorized for the authorization '" + authorization + "'");
+		this.username = username;
+		this.authorisation = authorization;
 	}
 
-	private static IAction create(final IBeanListModel<IPerson> model) {
-		final IExecutorActionBuilder<IPerson, Void> builder = CapUiToolkit.actionFactory().executorActionBuilder(model);
-		builder.setText("Deactivate user");
-		builder.setToolTipText("Deactivates the user");
-		builder.setIcon(SilkIcons.USER_GRAY);
-		builder.setSelectionPolicy(BeanSelectionPolicy.MULTI_SELECTION);
-		builder.setExecutor(ExecutorServices.DEACTIVATE_PERSON);
-		builder.addExecutableChecker(new PersonDeactivateExecutableChecker());
-		return builder.build();
+	public String getUsername() {
+		return username;
 	}
+
+	public Object getAuthorisation() {
+		return authorisation;
+	}
+
 }

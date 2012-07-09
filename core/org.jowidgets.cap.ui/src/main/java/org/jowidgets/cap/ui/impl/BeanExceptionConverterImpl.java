@@ -33,6 +33,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.jowidgets.cap.common.api.exception.AuthorizationFailedException;
 import org.jowidgets.cap.common.api.exception.BeanException;
 import org.jowidgets.cap.common.api.exception.BeanValidationException;
 import org.jowidgets.cap.common.api.exception.DeletedBeanException;
@@ -63,6 +64,8 @@ final class BeanExceptionConverterImpl implements IBeanExceptionConverter {
 	private final String uniqueConstraintNoProp = Messages.getString("BeanExceptionConverterImpl.uniqueConstraintNoProp");
 	private final String uniqueConstraintSingleProp = Messages.getString("BeanExceptionConverterImpl.uniqueConstraintSingleProp");
 	private final String uniqueConstraintPluralProp = Messages.getString("BeanExceptionConverterImpl.uniqueConstraintPluralProp");
+	private final String authorizationFailed = Messages.getString("BeanExceptionConverterImpl.authorizationFailed");
+	private final String authorizationFailedNoKey = Messages.getString("BeanExceptionConverterImpl.authorizationFailedNoKey");
 	private final String undefinedRuntimeException = Messages.getString("BeanExceptionConverterImpl.undefinedRuntimeException");
 
 	@Override
@@ -85,6 +88,9 @@ final class BeanExceptionConverterImpl implements IBeanExceptionConverter {
 		final ServiceException exception) {
 		if (exception instanceof BeanException) {
 			return convertBeanException(shortMessage, bean, (BeanException) exception);
+		}
+		else if (exception instanceof AuthorizationFailedException) {
+			return convertAuthorizationFailedException(shortMessage, (AuthorizationFailedException) exception);
 		}
 		else if (exception instanceof ForeignKeyConstraintViolationException) {
 			return convertForeignKeyConstraintViolationException(shortMessage, exception);
@@ -173,6 +179,20 @@ final class BeanExceptionConverterImpl implements IBeanExceptionConverter {
 			}
 		}
 		return new BeanMessageImpl(BeanMessageType.WARNING, shortMessage, message, exception);
+	}
+
+	private IBeanMessage convertAuthorizationFailedException(
+		final String shortMessage,
+		final AuthorizationFailedException exception) {
+		final Object authorisation = exception.getAuthorisation();
+		String message;
+		if (EmptyCheck.isEmpty(authorisation)) {
+			message = authorizationFailedNoKey;
+		}
+		else {
+			message = MessageReplacer.replace(authorizationFailed, authorisation.toString());
+		}
+		return new BeanMessageImpl(BeanMessageType.ERROR, shortMessage, message, exception);
 	}
 
 	private IBeanMessage convertForeignKeyConstraintViolationException(final String shortMessage, final Throwable rootThrowable) {

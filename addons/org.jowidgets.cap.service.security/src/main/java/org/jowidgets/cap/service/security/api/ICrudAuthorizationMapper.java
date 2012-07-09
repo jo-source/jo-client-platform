@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,23 +26,15 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample2.app.common.executor;
+package org.jowidgets.cap.service.security.api;
 
-import org.jowidgets.cap.common.api.service.IExecutorService;
-import org.jowidgets.service.api.IServiceId;
-import org.jowidgets.service.tools.ServiceId;
+import org.jowidgets.cap.common.api.bean.IBean;
 
-public final class PersonExecutorServices {
+public interface ICrudAuthorizationMapper<AUTHORIZATION_TYPE> {
 
-	public static final IServiceId<IExecutorService<Void>> ACTIVATE_PERSON = createId("ACTIVATE");
-	public static final IServiceId<IExecutorService<Void>> DEACTIVATE_PERSON = createId("DEACTIVATE");
-
-	private PersonExecutorServices() {};
-
-	private static <PARAMETER_TYPE> IServiceId<IExecutorService<PARAMETER_TYPE>> createId(final String subId) {
-		return new ServiceId<IExecutorService<PARAMETER_TYPE>>(
-			PersonExecutorServices.class.getName() + "_" + subId,
-			IExecutorService.class);
-	}
+	AUTHORIZATION_TYPE getAuthorization(
+		final Class<? extends IBean> beanType,
+		final Object entityId,
+		final CrudServiceType serviceType);
 
 }
