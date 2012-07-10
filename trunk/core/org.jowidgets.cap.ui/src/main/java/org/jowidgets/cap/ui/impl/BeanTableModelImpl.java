@@ -216,6 +216,8 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	private final String autoRefreshHeaderLabel;
 	private final String autoRefreshTextLabel;
 
+	private final IBeanExceptionConverter exceptionConverter;
+
 	private ScheduledExecutorService scheduledExecutorService;
 	private PageLoader evenPageLoader;
 	private PageLoader oddPageLoader;
@@ -316,6 +318,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		this.autoSelection = autoSelect;
 		this.autoRefreshSelection = autoRefreshSelection;
 		this.onSetConfig = false;
+		this.exceptionConverter = exceptionConverter;
 
 		this.filters = new HashMap<String, IUiFilter>();
 		this.data = new HashMap<Integer, ArrayList<IBeanProxy<BEAN_TYPE>>>();
@@ -2368,11 +2371,8 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			exception.printStackTrace();
 			//CHECKSTYLE:ON
 			dummyBeanProxy.setExecutionTask(null);
-			final IBeanMessageBuilder beanMessageBuilder = CapUiToolkit.beanMessageBuilder(BeanMessageType.ERROR);
-			beanMessageBuilder.setException(exception);
-			beanMessageBuilder.setShortMessage(loadingDataLabel);
-			beanMessageBuilder.setMessage(loadErrorMessage);
-			dummyBeanProxy.addMessage(beanMessageBuilder.build());
+			final List<IBeanProxy<BEAN_TYPE>> dummyBeanList = Collections.singletonList(dummyBeanProxy);
+			dummyBeanProxy.addMessage(exceptionConverter.convert(loadErrorMessage, dummyBeanList, dummyBeanProxy, exception));
 			programmaticPageLoader.remove(pageIndex);
 			finished = true;
 			dataModel.fireDataChanged();

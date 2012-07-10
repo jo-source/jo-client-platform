@@ -62,12 +62,34 @@ final class SecureServiceIdImpl<SERVICE_TYPE, AUTHORIZATION_TYPE> implements
 
 	@Override
 	public int hashCode() {
-		return serviceId.hashCode();
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((serviceId == null) ? 0 : serviceId.hashCode());
+		return result;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public boolean equals(final Object obj) {
-		return serviceId.equals(obj);
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (!(obj instanceof SecureServiceIdImpl)) {
+			return false;
+		}
+		final SecureServiceIdImpl<SERVICE_TYPE, AUTHORIZATION_TYPE> other = (SecureServiceIdImpl<SERVICE_TYPE, AUTHORIZATION_TYPE>) obj;
+		if (serviceId == null) {
+			if (other.serviceId != null) {
+				return false;
+			}
+		}
+		else if (!serviceId.equals(other.serviceId)) {
+			return false;
+		}
+		return true;
 	}
 
 	@Override

@@ -31,8 +31,10 @@ package org.jowidgets.cap.service.security.api;
 import java.util.Iterator;
 import java.util.ServiceLoader;
 
+import org.jowidgets.cap.service.api.plugin.IBeanServicesProviderPlugin;
 import org.jowidgets.cap.service.security.impl.SecureServiceToolkitImpl;
 import org.jowidgets.service.api.IServiceId;
+import org.jowidgets.service.api.IServicesDecoratorProvider;
 import org.jowidgets.util.Assert;
 
 public final class SecureServiceToolkit {
@@ -49,6 +51,22 @@ public final class SecureServiceToolkit {
 		else {
 			throw new IllegalStateException("The SecurityServiceToolkit is already initialized");
 		}
+	}
+
+	public static IServicesDecoratorProvider serviceDecorator() {
+		return getInstance().serviceDecorator();
+	}
+
+	public static <AUTHORIZATION_TYPE> ISecureServiceDecoratorBuilder<AUTHORIZATION_TYPE> serviceDecoratorBuilder() {
+		return getInstance().serviceDecoratorBuilder();
+	}
+
+	public static IBeanServicesProviderPlugin beanServicesProviderPlugin() {
+		return getInstance().beanServicesProviderPlugin();
+	}
+
+	public static <AUTHORIZATION_TYPE> IBeanServicesProviderPluginBuilder<AUTHORIZATION_TYPE> beanServicesProviderPluginBuilder() {
+		return getInstance().beanServicesProviderPluginBuilder();
 	}
 
 	public static <SERVICE_TYPE, AUTHORIZATION_TYPE> ISecureServiceId<SERVICE_TYPE, AUTHORIZATION_TYPE> serviceId(

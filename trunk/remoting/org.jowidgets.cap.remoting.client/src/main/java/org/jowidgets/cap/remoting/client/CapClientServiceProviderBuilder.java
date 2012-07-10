@@ -37,7 +37,6 @@ import org.jowidgets.invocation.service.client.api.IInvocationServiceClient;
 import org.jowidgets.invocation.service.client.api.InvocationServiceClientToolkit;
 import org.jowidgets.invocation.service.common.api.IMethodInvocationService;
 import org.jowidgets.service.api.IServiceId;
-import org.jowidgets.service.tools.ServiceId;
 import org.jowidgets.service.tools.ServiceProviderBuilder;
 
 final class CapClientServiceProviderBuilder extends ServiceProviderBuilder {
@@ -45,14 +44,14 @@ final class CapClientServiceProviderBuilder extends ServiceProviderBuilder {
 	CapClientServiceProviderBuilder() {
 		super();
 		final IInvocationServiceClient invocationServiceClient = InvocationServiceClientToolkit.getClient();
-		final IMethodInvocationService<Set<IServiceId<?>>, Void, Void, Void, Void> methodService;
+		final IMethodInvocationService<Set<? extends IServiceId<?>>, Void, Void, Void, Void> methodService;
 		methodService = invocationServiceClient.getMethodService(CapInvocationMethodNames.SERVICE_LOCATOR_METHOD_NAME);
-		final SyncInvocationCallback<Set<IServiceId<?>>> invocationCallback = new SyncInvocationCallback<Set<IServiceId<?>>>();
+		final SyncInvocationCallback<Set<? extends IServiceId<?>>> invocationCallback = new SyncInvocationCallback<Set<? extends IServiceId<?>>>();
 		methodService.invoke(invocationCallback, null, null, null);
 		addServices(invocationCallback.getResultSynchronious());
 	}
 
-	private void addServices(final Set<IServiceId<?>> serviceIds) {
+	private void addServices(final Set<? extends IServiceId<?>> serviceIds) {
 		for (final IServiceId<?> serviceId : serviceIds) {
 			addService(serviceId);
 		}
@@ -64,7 +63,7 @@ final class CapClientServiceProviderBuilder extends ServiceProviderBuilder {
 
 	private Object getService(final IServiceId<?> serviceId) {
 		final Class<?> serviceType = serviceId.getServiceType();
-		final InvocationHandler invocationHandler = new RemoteMethodInvocationHandler((ServiceId<?>) serviceId);
+		final InvocationHandler invocationHandler = new RemoteMethodInvocationHandler(serviceId);
 		return Proxy.newProxyInstance(serviceType.getClassLoader(), new Class[] {serviceType}, invocationHandler);
 	}
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,32 +26,30 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.remoting.server;
+package org.jowidgets.cap.service.security.impl;
 
-import java.util.Set;
+import org.jowidgets.cap.common.api.bean.IBean;
+import org.jowidgets.cap.service.security.api.CrudServiceType;
+import org.jowidgets.cap.service.security.api.ICrudAuthorizationMapper;
+import org.jowidgets.cap.service.security.api.ISecureEntityId;
 
-import org.jowidgets.invocation.service.common.api.IInterimRequestCallback;
-import org.jowidgets.invocation.service.common.api.IInterimResponseCallback;
-import org.jowidgets.invocation.service.common.api.IInvocationCallback;
-import org.jowidgets.invocation.service.common.api.IMethodInvocationService;
-import org.jowidgets.service.api.IServiceId;
-import org.jowidgets.service.api.ServiceProvider;
+final class SecureEntityIdAuthorizationMapper<AUTHORIZATION_TYPE> implements ICrudAuthorizationMapper<AUTHORIZATION_TYPE> {
 
-final class ServiceLocatorMethod implements IMethodInvocationService<Set<? extends IServiceId<?>>, Void, Void, Void, Void> {
+	SecureEntityIdAuthorizationMapper() {}
 
-	private final Set<? extends IServiceId<?>> availableServices;
-
-	ServiceLocatorMethod() {
-		this.availableServices = ServiceProvider.getAvailableServices();
-	}
-
+	@SuppressWarnings("unchecked")
 	@Override
-	public void invoke(
-		final IInvocationCallback<Set<? extends IServiceId<?>>> invocationCallback,
-		final IInterimResponseCallback<Void> interimResponseCallback,
-		final IInterimRequestCallback<Void, Void> interimRequestCallback,
-		final Void parameter) {
-		invocationCallback.finished(availableServices);
+	public AUTHORIZATION_TYPE getAuthorization(
+		final Class<? extends IBean> beanType,
+		final Object entityId,
+		final CrudServiceType serviceType) {
+
+		if (entityId instanceof ISecureEntityId) {
+			return ((ISecureEntityId<AUTHORIZATION_TYPE>) entityId).getAuthorization(serviceType);
+		}
+		else {
+			return null;
+		}
 	}
 
 }

@@ -33,14 +33,82 @@ import java.util.LinkedList;
 
 public final class AuthorizationKeys {
 
-	public static final String ACTIVATE_PERSON = "ACTIVATE_PERSON";
-	public static final String DEACTIVATE_PERSON = "DEACTIVATE_PERSON";
+	public static final String ADMIN_MISC = "ADMIN_MISC";
+
+	public static final String EXECUTOR_ACTIVATE_PERSON = "EXECUTOR_ACTIVATE_PERSON";
+	public static final String EXECUTOR_DEACTIVATE_PERSON = "EXECUTOR_DEACTIVATE_PERSON";
+
+	public static final String CREATE_PERSON = "CREATE_PERSON";
+	public static final String READ_PERSON = "READ_PERSON";
+	public static final String UPDATE_PERSON = "UPDATE_PERSON";
+	public static final String DELETE_PERSON = "DELETE_PERSON";
+
+	public static final String CREATE_ROLE = "CREATE_ROLE";
+	public static final String READ_ROLE = "READ_ROLE";
+	public static final String UPDATE_ROLE = "UPDATE_ROLE";
+	public static final String DELETE_ROLE = "DELETE_ROLE";
+
+	public static final String CREATE_COUNTRY = "CREATE_COUNTRY";
+	public static final String READ_COUNTRY = "READ_COUNTRY";
+	public static final String UPDATE_COUNTRY = "UPDATE_COUNTRY";
+	public static final String DELETE_COUNTRY = "DELETE_COUNTRY";
+
+	public static final String CREATE_PERSON_LINK_TYPE = "CREATE_PERSON_LINK_TYPE";
+	public static final String READ_PERSON_LINK_TYPE = "READ_PERSON_LINK_TYPE";
+	public static final String UPDATE_PERSON_LINK_TYPE = "UPDATE_PERSON_LINK_TYPE";
+	public static final String DELETE_PERSON_LINK_TYPE = "DELETE_PERSON_LINK_TYPE";
+
+	public static final String CREATE_AUTHORIZATION = "CREATE_AUTHORIZATION";
+	public static final String READ_AUTHORIZATION = "READ_AUTHORIZATION";
+	public static final String UPDATE_AUTHORIZATION = "UPDATE_AUTHORIZATION";
+	public static final String DELETE_AUTHORIZATION = "DELETE_AUTHORIZATION";
 
 	public static final Collection<String> ALL_AUTHORIZATIONS = new LinkedList<String>() {
 		private static final long serialVersionUID = 1404650177379798436L;
 		{
-			add(ACTIVATE_PERSON);
-			add(DEACTIVATE_PERSON);
+			add(ADMIN_MISC);
+
+			add(EXECUTOR_ACTIVATE_PERSON);
+			add(EXECUTOR_DEACTIVATE_PERSON);
+
+			add(CREATE_PERSON);
+			add(READ_PERSON);
+			add(UPDATE_PERSON);
+			add(DELETE_PERSON);
+
+			add(CREATE_ROLE);
+			add(READ_ROLE);
+			add(UPDATE_ROLE);
+			add(DELETE_ROLE);
+
+			add(CREATE_COUNTRY);
+			add(READ_COUNTRY);
+			add(UPDATE_COUNTRY);
+			add(DELETE_COUNTRY);
+
+			add(CREATE_PERSON_LINK_TYPE);
+			add(READ_PERSON_LINK_TYPE);
+			add(UPDATE_PERSON_LINK_TYPE);
+			add(DELETE_PERSON_LINK_TYPE);
+
+			add(CREATE_AUTHORIZATION);
+			add(READ_AUTHORIZATION);
+			add(UPDATE_AUTHORIZATION);
+			add(DELETE_AUTHORIZATION);
+		}
+	};
+
+	public static final Collection<String> GUEST_AUTHORIZATIONS = new LinkedList<String>() {
+		private static final long serialVersionUID = 1404650177379798436L;
+		{
+			add(ADMIN_MISC);
+
+			add(READ_PERSON);
+			add(READ_ROLE);
+			add(READ_COUNTRY);
+			add(READ_PERSON_LINK_TYPE);
+			add(READ_AUTHORIZATION);
+
 		}
 	};
 

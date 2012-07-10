@@ -35,8 +35,8 @@ import org.jowidgets.service.api.IServiceId;
 
 public final class ExecutorServices {
 
-	public static final IServiceId<IExecutorService<Void>> ACTIVATE_PERSON = createId(AuthorizationKeys.ACTIVATE_PERSON);
-	public static final IServiceId<IExecutorService<Void>> DEACTIVATE_PERSON = createId(AuthorizationKeys.DEACTIVATE_PERSON);
+	public static final IServiceId<IExecutorService<Void>> ACTIVATE_PERSON = createId(AuthorizationKeys.EXECUTOR_ACTIVATE_PERSON);
+	public static final IServiceId<IExecutorService<Void>> DEACTIVATE_PERSON = createId(AuthorizationKeys.EXECUTOR_DEACTIVATE_PERSON);
 
 	private ExecutorServices() {};
 
