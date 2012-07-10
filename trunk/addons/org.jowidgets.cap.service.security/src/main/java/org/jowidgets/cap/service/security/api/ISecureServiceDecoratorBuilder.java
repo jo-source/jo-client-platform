@@ -32,15 +32,44 @@ import org.jowidgets.service.api.IServicesDecoratorProvider;
 
 public interface ISecureServiceDecoratorBuilder<AUTHORIZATION_TYPE> {
 
+	int DEFAULT_ORDER = 2;
+
+	/**
+	 * Sets the decoration mode. The default mode is ALLOW_UNSECURE
+	 * 
+	 * @param mode The mode to set
+	 * 
+	 * @return This builder
+	 */
 	ISecureServiceDecoratorBuilder<AUTHORIZATION_TYPE> setMode(DecorationMode mode);
 
+	/**
+	 * Sets the authorization checker. If no checker will be set, an default checker will be used, that gets the
+	 * authorizations from the security context.
+	 * 
+	 * Remark: The default (not setting this explicit) only works, if the default context uses the IDefaultPrincipal
+	 * 
+	 * @param checker The checker to add
+	 * 
+	 * @return This builder
+	 */
 	ISecureServiceDecoratorBuilder<AUTHORIZATION_TYPE> setAuthorizationChecker(IAuthorizationChecker<AUTHORIZATION_TYPE> checker);
 
+	/**
+	 * Sets the order of the service decorator. If not set, the DEFAULT_ORDER will be used.
+	 * 
+	 * @param order The order to set
+	 * 
+	 * @return This builder
+	 */
 	ISecureServiceDecoratorBuilder<AUTHORIZATION_TYPE> setOrder(int order);
 
+	/**
+	 * @return A IServicesDecoratorProvider that decorates all services with the security aspect.
+	 */
 	IServicesDecoratorProvider build();
 
-	public enum DecorationMode {
+	enum DecorationMode {
 
 		/**
 		 * All services that have not a ISecureServiceId as id will be allowed and not security checked

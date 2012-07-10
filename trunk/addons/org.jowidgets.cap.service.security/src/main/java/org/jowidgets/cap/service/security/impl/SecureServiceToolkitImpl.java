@@ -28,8 +28,8 @@
 
 package org.jowidgets.cap.service.security.impl;
 
-import org.jowidgets.cap.service.api.plugin.IBeanServicesProviderPlugin;
-import org.jowidgets.cap.service.security.api.IBeanServicesProviderPluginBuilder;
+import org.jowidgets.cap.service.api.plugin.IServiceIdDecoratorPlugin;
+import org.jowidgets.cap.service.security.api.IServiceIdDecoratorPluginBuilder;
 import org.jowidgets.cap.service.security.api.ISecureEntityId;
 import org.jowidgets.cap.service.security.api.ISecureServiceDecoratorBuilder;
 import org.jowidgets.cap.service.security.api.ISecureServiceId;
@@ -46,8 +46,8 @@ public final class SecureServiceToolkitImpl implements ISecureServiceToolkit {
 	}
 
 	@Override
-	public IBeanServicesProviderPlugin beanServicesProviderPlugin() {
-		return beanServicesProviderPluginBuilder().build();
+	public IServiceIdDecoratorPlugin serviceIdDecoratorPlugin() {
+		return serviceIdDecoratorPluginBuilder().build();
 	}
 
 	@Override
@@ -81,8 +81,8 @@ public final class SecureServiceToolkitImpl implements ISecureServiceToolkit {
 	}
 
 	@Override
-	public <AUTHORIZATION_TYPE> IBeanServicesProviderPluginBuilder<AUTHORIZATION_TYPE> beanServicesProviderPluginBuilder() {
-		return new BeanServicesProviderPluginBuilderImpl<AUTHORIZATION_TYPE>();
+	public <AUTHORIZATION_TYPE> IServiceIdDecoratorPluginBuilder<AUTHORIZATION_TYPE> serviceIdDecoratorPluginBuilder() {
+		return new ServiceIdDecoratorPluginBuilderImpl<AUTHORIZATION_TYPE>();
 	}
 
 }

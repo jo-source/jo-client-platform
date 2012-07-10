@@ -31,7 +31,7 @@ package org.jowidgets.cap.service.security.api;
 import java.util.Iterator;
 import java.util.ServiceLoader;
 
-import org.jowidgets.cap.service.api.plugin.IBeanServicesProviderPlugin;
+import org.jowidgets.cap.service.api.plugin.IServiceIdDecoratorPlugin;
 import org.jowidgets.cap.service.security.impl.SecureServiceToolkitImpl;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.api.IServicesDecoratorProvider;
@@ -61,12 +61,12 @@ public final class SecureServiceToolkit {
 		return getInstance().serviceDecoratorBuilder();
 	}
 
-	public static IBeanServicesProviderPlugin beanServicesProviderPlugin() {
-		return getInstance().beanServicesProviderPlugin();
+	public static IServiceIdDecoratorPlugin serviceIdDecoratorPlugin() {
+		return getInstance().serviceIdDecoratorPlugin();
 	}
 
-	public static <AUTHORIZATION_TYPE> IBeanServicesProviderPluginBuilder<AUTHORIZATION_TYPE> beanServicesProviderPluginBuilder() {
-		return getInstance().beanServicesProviderPluginBuilder();
+	public static <AUTHORIZATION_TYPE> IServiceIdDecoratorPluginBuilder<AUTHORIZATION_TYPE> serviceIdDecoratorPluginBuilder() {
+		return getInstance().serviceIdDecoratorPluginBuilder();
 	}
 
 	public static <SERVICE_TYPE, AUTHORIZATION_TYPE> ISecureServiceId<SERVICE_TYPE, AUTHORIZATION_TYPE> serviceId(

@@ -28,15 +28,25 @@
 
 package org.jowidgets.cap.service.security.api;
 
-public interface ISecureEntityId<AUTHORIZATION_TYPE> {
+import org.jowidgets.cap.service.api.plugin.IServiceIdDecoratorPlugin;
+
+public interface IServiceIdDecoratorPluginBuilder<AUTHORIZATION_TYPE> {
 
 	/**
-	 * Gets the authorization for a defined CRUD service type
+	 * Adds a mapper.
 	 * 
-	 * @param serviceType
+	 * Remark: Mappers will be invoked in reverse order, so mapping results (not null) of later
+	 * added mappers will override the results from earlier added mappers.
 	 * 
-	 * @return The authorization or null if the service is not secure
+	 * @param mapper The mapper to add
+	 * 
+	 * @return This builder
 	 */
-	AUTHORIZATION_TYPE getAuthorization(CrudServiceType serviceType);
+	IServiceIdDecoratorPluginBuilder<AUTHORIZATION_TYPE> addMapper(ICrudAuthorizationMapper<AUTHORIZATION_TYPE> mapper);
+
+	/**
+	 * @return A IServiceIdDecoratorPlugin that decorates all CRUD service id's by adding required authorizations
+	 */
+	IServiceIdDecoratorPlugin build();
 
 }

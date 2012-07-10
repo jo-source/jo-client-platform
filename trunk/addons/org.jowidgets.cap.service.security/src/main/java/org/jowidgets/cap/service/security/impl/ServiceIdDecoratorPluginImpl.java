@@ -37,21 +37,23 @@ import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.service.ICreatorService;
 import org.jowidgets.cap.common.api.service.IDeleterService;
 import org.jowidgets.cap.common.api.service.IEntityService;
+import org.jowidgets.cap.common.api.service.ILinkCreatorService;
+import org.jowidgets.cap.common.api.service.ILinkDeleterService;
 import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.common.api.service.IRefreshService;
 import org.jowidgets.cap.common.api.service.IUpdaterService;
-import org.jowidgets.cap.service.api.plugin.IBeanServicesProviderPlugin;
+import org.jowidgets.cap.service.api.plugin.IServiceIdDecoratorPlugin;
 import org.jowidgets.cap.service.security.api.CrudServiceType;
 import org.jowidgets.cap.service.security.api.ICrudAuthorizationMapper;
 import org.jowidgets.service.api.IServiceId;
 
-final class BeanServicesProviderPluginImpl<AUTHORIZATION_TYPE> implements IBeanServicesProviderPlugin {
+final class ServiceIdDecoratorPluginImpl<AUTHORIZATION_TYPE> implements IServiceIdDecoratorPlugin {
 
 	private static final Map<Class<?>, CrudServiceType> SERVICE_TYPES = createServiceTypes();
 
 	private final List<ICrudAuthorizationMapper<AUTHORIZATION_TYPE>> mappers;
 
-	BeanServicesProviderPluginImpl(final LinkedList<ICrudAuthorizationMapper<AUTHORIZATION_TYPE>> mappers) {
+	ServiceIdDecoratorPluginImpl(final LinkedList<ICrudAuthorizationMapper<AUTHORIZATION_TYPE>> mappers) {
 		this.mappers = new LinkedList<ICrudAuthorizationMapper<AUTHORIZATION_TYPE>>(mappers);
 
 	}
@@ -59,10 +61,12 @@ final class BeanServicesProviderPluginImpl<AUTHORIZATION_TYPE> implements IBeanS
 	private static Map<Class<?>, CrudServiceType> createServiceTypes() {
 		final Map<Class<?>, CrudServiceType> result = new HashMap<Class<?>, CrudServiceType>();
 		result.put(ICreatorService.class, CrudServiceType.CREATE);
+		result.put(ILinkCreatorService.class, CrudServiceType.CREATE);
 		result.put(IReaderService.class, CrudServiceType.READ);
 		result.put(IRefreshService.class, CrudServiceType.READ);
 		result.put(IUpdaterService.class, CrudServiceType.UPDATE);
 		result.put(IDeleterService.class, CrudServiceType.DELETE);
+		result.put(ILinkDeleterService.class, CrudServiceType.DELETE);
 		return result;
 	}
 

@@ -28,12 +28,12 @@
 
 package org.jowidgets.cap.sample2.app.common.security;
 
+import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.List;
 
-public final class AuthorizationKeys {
-
-	public static final String ADMIN_MISC = "ADMIN_MISC";
+public final class AuthKeys {
 
 	public static final String EXECUTOR_ACTIVATE_PERSON = "EXECUTOR_ACTIVATE_PERSON";
 	public static final String EXECUTOR_DEACTIVATE_PERSON = "EXECUTOR_DEACTIVATE_PERSON";
@@ -53,65 +53,67 @@ public final class AuthorizationKeys {
 	public static final String UPDATE_COUNTRY = "UPDATE_COUNTRY";
 	public static final String DELETE_COUNTRY = "DELETE_COUNTRY";
 
-	public static final String CREATE_PERSON_LINK_TYPE = "CREATE_PERSON_LINK_TYPE";
-	public static final String READ_PERSON_LINK_TYPE = "READ_PERSON_LINK_TYPE";
-	public static final String UPDATE_PERSON_LINK_TYPE = "UPDATE_PERSON_LINK_TYPE";
-	public static final String DELETE_PERSON_LINK_TYPE = "DELETE_PERSON_LINK_TYPE";
-
 	public static final String CREATE_AUTHORIZATION = "CREATE_AUTHORIZATION";
 	public static final String READ_AUTHORIZATION = "READ_AUTHORIZATION";
 	public static final String UPDATE_AUTHORIZATION = "UPDATE_AUTHORIZATION";
 	public static final String DELETE_AUTHORIZATION = "DELETE_AUTHORIZATION";
 
-	public static final Collection<String> ALL_AUTHORIZATIONS = new LinkedList<String>() {
-		private static final long serialVersionUID = 1404650177379798436L;
-		{
-			add(ADMIN_MISC);
+	public static final String CREATE_PERSON_LINK_TYPE = "CREATE_PERSON_LINK_TYPE";
+	public static final String READ_PERSON_LINK_TYPE = "READ_PERSON_LINK_TYPE";
+	public static final String UPDATE_PERSON_LINK_TYPE = "UPDATE_PERSON_LINK_TYPE";
+	public static final String DELETE_PERSON_LINK_TYPE = "DELETE_PERSON_LINK_TYPE";
 
-			add(EXECUTOR_ACTIVATE_PERSON);
-			add(EXECUTOR_DEACTIVATE_PERSON);
+	public static final String CREATE_PERSON_ROLE_LINK = "CREATE_PERSON_ROLE_LINK";
+	public static final String READ_PERSON_ROLE_LINK = "READ_PERSON_ROLE_LINK";
+	public static final String UPDATE_PERSON_ROLE_LINK = "UPDATE_PERSON_ROLE_LINK";
+	public static final String DELETE_PERSON_ROLE_LINK = "DELETE_PERSON_ROLE_LINK";
 
-			add(CREATE_PERSON);
-			add(READ_PERSON);
-			add(UPDATE_PERSON);
-			add(DELETE_PERSON);
+	public static final String CREATE_PERSON_PERSON_LINK = "CREATE_PERSON_PERSON_LINK";
+	public static final String READ_PERSON_PERSON_LINK = "READ_PERSON_PERSON_LINK";
+	public static final String UPDATE_PERSON_PERSON_LINK = "UPDATE_PERSON_PERSON_LINK";
+	public static final String DELETE_PERSON_PERSON_LINK = "DELETE_PERSON_PERSON_LINK";
 
-			add(CREATE_ROLE);
-			add(READ_ROLE);
-			add(UPDATE_ROLE);
-			add(DELETE_ROLE);
+	public static final String CREATE_ROLE_AUTHORIZATION_LINK = "CREATE_ROLE_AUTHORIZATION_LINK";
+	public static final String READ_ROLE_AUTHORIZATION_LINK = "READ_ROLE_AUTHORIZATION_LINK";
+	public static final String UPDATE_ROLE_AUTHORIZATION_LINK = "UPDATE_ROLE_AUTHORIZATION_LINK";
+	public static final String DELETE_ROLE_AUTHORIZATION_LINK = "DELETE_ROLE_AUTHORIZATION_LINK";
 
-			add(CREATE_COUNTRY);
-			add(READ_COUNTRY);
-			add(UPDATE_COUNTRY);
-			add(DELETE_COUNTRY);
+	public static final Collection<String> ALL_AUTHORIZATIONS = createAllAuthorizations();
+	public static final Collection<String> GUEST_AUTHORIZATIONS = createReadAuthorizations();
 
-			add(CREATE_PERSON_LINK_TYPE);
-			add(READ_PERSON_LINK_TYPE);
-			add(UPDATE_PERSON_LINK_TYPE);
-			add(DELETE_PERSON_LINK_TYPE);
+	private AuthKeys() {}
 
-			add(CREATE_AUTHORIZATION);
-			add(READ_AUTHORIZATION);
-			add(UPDATE_AUTHORIZATION);
-			add(DELETE_AUTHORIZATION);
+	private static List<String> createAllAuthorizations() {
+		final List<String> result = new LinkedList<String>();
+		for (final Field field : AuthKeys.class.getDeclaredFields()) {
+			if (field.getType().equals(String.class)) {
+				try {
+					result.add((String) field.get(AuthKeys.class));
+				}
+				catch (final Exception e) {
+					throw new RuntimeException(e);
+				}
+			}
 		}
-	};
+		return result;
+	}
 
-	public static final Collection<String> GUEST_AUTHORIZATIONS = new LinkedList<String>() {
-		private static final long serialVersionUID = 1404650177379798436L;
-		{
-			add(ADMIN_MISC);
-
-			add(READ_PERSON);
-			add(READ_ROLE);
-			add(READ_COUNTRY);
-			add(READ_PERSON_LINK_TYPE);
-			add(READ_AUTHORIZATION);
-
+	private static List<String> createReadAuthorizations() {
+		final List<String> result = new LinkedList<String>();
+		for (final Field field : AuthKeys.class.getDeclaredFields()) {
+			if (field.getType().equals(String.class)) {
+				try {
+					final String authorization = (String) field.get(AuthKeys.class);
+					if (authorization.startsWith("READ_")) {
+						result.add(authorization);
+					}
+				}
+				catch (final Exception e) {
+					throw new RuntimeException(e);
+				}
+			}
 		}
-	};
-
-	private AuthorizationKeys() {}
+		return result;
+	}
 
 }

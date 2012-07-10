@@ -32,6 +32,11 @@ import org.jowidgets.service.api.IServiceId;
 
 public interface ISecureServiceId<SERVICE_TYPE, AUTHORIZATION_TYPE> extends IServiceId<SERVICE_TYPE> {
 
+	/**
+	 * Gets the required authorization for this service
+	 * 
+	 * @return The authorization or null if the service is not secure
+	 */
 	AUTHORIZATION_TYPE getAuthorization();
 
 }

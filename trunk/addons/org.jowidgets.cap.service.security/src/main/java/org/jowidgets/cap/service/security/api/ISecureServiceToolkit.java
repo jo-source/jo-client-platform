@@ -28,7 +28,7 @@
 
 package org.jowidgets.cap.service.security.api;
 
-import org.jowidgets.cap.service.api.plugin.IBeanServicesProviderPlugin;
+import org.jowidgets.cap.service.api.plugin.IServiceIdDecoratorPlugin;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.api.IServicesDecoratorProvider;
 
@@ -38,9 +38,9 @@ public interface ISecureServiceToolkit {
 
 	<AUTHORIZATION_TYPE> ISecureServiceDecoratorBuilder<AUTHORIZATION_TYPE> serviceDecoratorBuilder();
 
-	IBeanServicesProviderPlugin beanServicesProviderPlugin();
+	IServiceIdDecoratorPlugin serviceIdDecoratorPlugin();
 
-	<AUTHORIZATION_TYPE> IBeanServicesProviderPluginBuilder<AUTHORIZATION_TYPE> beanServicesProviderPluginBuilder();
+	<AUTHORIZATION_TYPE> IServiceIdDecoratorPluginBuilder<AUTHORIZATION_TYPE> serviceIdDecoratorPluginBuilder();
 
 	<SERVICE_TYPE, AUTHORIZATION_TYPE> ISecureServiceId<SERVICE_TYPE, AUTHORIZATION_TYPE> serviceId(
 		Object id,

@@ -30,17 +30,17 @@ package org.jowidgets.cap.service.security.impl;
 
 import java.util.LinkedList;
 
-import org.jowidgets.cap.service.api.plugin.IBeanServicesProviderPlugin;
-import org.jowidgets.cap.service.security.api.IBeanServicesProviderPluginBuilder;
+import org.jowidgets.cap.service.api.plugin.IServiceIdDecoratorPlugin;
+import org.jowidgets.cap.service.security.api.IServiceIdDecoratorPluginBuilder;
 import org.jowidgets.cap.service.security.api.ICrudAuthorizationMapper;
 import org.jowidgets.util.Assert;
 
-final class BeanServicesProviderPluginBuilderImpl<AUTHORIZATION_TYPE> implements
-		IBeanServicesProviderPluginBuilder<AUTHORIZATION_TYPE> {
+final class ServiceIdDecoratorPluginBuilderImpl<AUTHORIZATION_TYPE> implements
+		IServiceIdDecoratorPluginBuilder<AUTHORIZATION_TYPE> {
 
 	private final LinkedList<ICrudAuthorizationMapper<AUTHORIZATION_TYPE>> mappers;
 
-	BeanServicesProviderPluginBuilderImpl() {
+	ServiceIdDecoratorPluginBuilderImpl() {
 		this.mappers = new LinkedList<ICrudAuthorizationMapper<AUTHORIZATION_TYPE>>();
 
 		mappers.addFirst(new BeanTypeAnnotationAuthorizationMapper<AUTHORIZATION_TYPE>());
@@ -49,7 +49,7 @@ final class BeanServicesProviderPluginBuilderImpl<AUTHORIZATION_TYPE> implements
 	}
 
 	@Override
-	public IBeanServicesProviderPluginBuilder<AUTHORIZATION_TYPE> addMapper(
+	public IServiceIdDecoratorPluginBuilder<AUTHORIZATION_TYPE> addMapper(
 		final ICrudAuthorizationMapper<AUTHORIZATION_TYPE> mapper) {
 		Assert.paramNotNull(mapper, "mapper");
 		mappers.addFirst(mapper);
@@ -57,8 +57,8 @@ final class BeanServicesProviderPluginBuilderImpl<AUTHORIZATION_TYPE> implements
 	}
 
 	@Override
-	public IBeanServicesProviderPlugin build() {
-		return new BeanServicesProviderPluginImpl<AUTHORIZATION_TYPE>(mappers);
+	public IServiceIdDecoratorPlugin build() {
+		return new ServiceIdDecoratorPluginImpl<AUTHORIZATION_TYPE>(mappers);
 	}
 
 }

@@ -31,10 +31,10 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IBean;
-import org.jowidgets.cap.sample2.app.common.security.AuthorizationKeys;
+import org.jowidgets.cap.sample2.app.common.security.AuthKeys;
 import org.jowidgets.cap.service.security.api.CrudAuthorizations;
 
-@CrudAuthorizations(create = AuthorizationKeys.CREATE_COUNTRY, read = AuthorizationKeys.READ_COUNTRY, update = AuthorizationKeys.UPDATE_COUNTRY, delete = AuthorizationKeys.DELETE_COUNTRY)
+@CrudAuthorizations(create = AuthKeys.CREATE_COUNTRY, read = AuthKeys.READ_COUNTRY, update = AuthKeys.UPDATE_COUNTRY, delete = AuthKeys.DELETE_COUNTRY)
 public interface ICountry extends IBean {
 
 	String NAME_PROPERTY = "name";
