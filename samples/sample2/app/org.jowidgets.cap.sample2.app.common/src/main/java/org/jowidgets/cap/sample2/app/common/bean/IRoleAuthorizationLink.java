@@ -31,7 +31,10 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IBean;
+import org.jowidgets.cap.sample2.app.common.security.AuthKeys;
+import org.jowidgets.cap.service.security.api.CrudAuthorizations;
 
+@CrudAuthorizations(create = AuthKeys.CREATE_ROLE_AUTHORIZATION_LINK, read = AuthKeys.READ_ROLE_AUTHORIZATION_LINK, update = AuthKeys.UPDATE_ROLE_AUTHORIZATION_LINK, delete = AuthKeys.DELETE_ROLE_AUTHORIZATION_LINK)
 public interface IRoleAuthorizationLink extends IBean {
 
 	String ROLE_ID_PROPERTY = "roleId";

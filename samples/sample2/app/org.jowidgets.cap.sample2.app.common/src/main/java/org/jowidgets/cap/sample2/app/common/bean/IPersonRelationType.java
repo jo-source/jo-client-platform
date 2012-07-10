@@ -31,7 +31,10 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IBean;
+import org.jowidgets.cap.sample2.app.common.security.AuthKeys;
+import org.jowidgets.cap.service.security.api.CrudAuthorizations;
 
+@CrudAuthorizations(create = AuthKeys.CREATE_PERSON_LINK_TYPE, read = AuthKeys.READ_PERSON_LINK_TYPE, update = AuthKeys.UPDATE_PERSON_LINK_TYPE, delete = AuthKeys.DELETE_PERSON_LINK_TYPE)
 public interface IPersonRelationType extends IBean {
 
 	String RELATION_NAME_PROPERTY = "relationName";

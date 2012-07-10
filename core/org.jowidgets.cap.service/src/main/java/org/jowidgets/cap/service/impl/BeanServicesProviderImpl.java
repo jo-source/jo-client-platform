@@ -38,7 +38,7 @@ import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.common.api.service.IRefreshService;
 import org.jowidgets.cap.common.api.service.IUpdaterService;
-import org.jowidgets.cap.service.api.plugin.IBeanServicesProviderPlugin;
+import org.jowidgets.cap.service.api.plugin.IServiceIdDecoratorPlugin;
 import org.jowidgets.plugin.api.IPluginPropertiesBuilder;
 import org.jowidgets.plugin.api.PluginProperties;
 import org.jowidgets.plugin.api.PluginProvider;
@@ -156,10 +156,10 @@ final class BeanServicesProviderImpl implements IBeanServicesProvider, Serializa
 		IServiceId<SERVICE_TYPE> result = defaultId;
 
 		final IPluginPropertiesBuilder propertiesBuilder = PluginProperties.builder();
-		propertiesBuilder.add(IBeanServicesProviderPlugin.BEAN_TYPE_PROPERTY_KEY, beanType);
-		propertiesBuilder.add(IBeanServicesProviderPlugin.ENTITIY_ID_PROPERTY_KEY, entityId);
-		for (final IBeanServicesProviderPlugin plugin : PluginProvider.getPlugins(
-				IBeanServicesProviderPlugin.ID,
+		propertiesBuilder.add(IServiceIdDecoratorPlugin.BEAN_TYPE_PROPERTY_KEY, beanType);
+		propertiesBuilder.add(IServiceIdDecoratorPlugin.ENTITIY_ID_PROPERTY_KEY, entityId);
+		for (final IServiceIdDecoratorPlugin plugin : PluginProvider.getPlugins(
+				IServiceIdDecoratorPlugin.ID,
 				propertiesBuilder.build())) {
 			result = plugin.decorateServiceId(defaultId, entityServiceId, beanType, entityId, serviceType);
 		}

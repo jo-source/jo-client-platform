@@ -28,15 +28,17 @@
 
 package org.jowidgets.cap.service.security.api;
 
-public interface ISecureEntityId<AUTHORIZATION_TYPE> {
+import org.jowidgets.service.api.IServicesDecoratorProvider;
 
-	/**
-	 * Gets the authorization for a defined CRUD service type
-	 * 
-	 * @param serviceType
-	 * 
-	 * @return The authorization or null if the service is not secure
-	 */
-	AUTHORIZATION_TYPE getAuthorization(CrudServiceType serviceType);
+public final class SecureServiceDecorator {
 
+	private SecureServiceDecorator() {}
+
+	public static IServicesDecoratorProvider create() {
+		return SecureServiceToolkit.serviceDecorator();
+	}
+
+	public static <AUTHORIZATION_TYPE> ISecureServiceDecoratorBuilder<AUTHORIZATION_TYPE> builder() {
+		return SecureServiceToolkit.serviceDecoratorBuilder();
+	}
 }

@@ -28,7 +28,7 @@
 
 package org.jowidgets.cap.sample2.app.service.security;
 
-import org.jowidgets.cap.sample2.app.common.security.AuthorizationKeys;
+import org.jowidgets.cap.sample2.app.common.security.AuthKeys;
 import org.jowidgets.security.api.IAuthenticationService;
 import org.jowidgets.security.tools.DefaultCredentials;
 import org.jowidgets.security.tools.DefaultPrincipal;
@@ -38,17 +38,18 @@ public class SampleAuthenticationService implements IAuthenticationService<Defau
 
 	@Override
 	public DefaultPrincipal authenticate(final DefaultCredentials credentials) {
+		//TODO MG get user / password and authorizations from db
 		if ("admin".equals(credentials.getUsername()) && "admin".equals(credentials.getPassword())) {
-			return new DefaultPrincipal(credentials.getUsername(), AuthorizationKeys.ALL_AUTHORIZATIONS);
+			return new DefaultPrincipal(credentials.getUsername(), AuthKeys.ALL_AUTHORIZATIONS);
 		}
 		else if ("jo".equals(credentials.getUsername()) && "miller".equals(credentials.getPassword())) {
-			return new DefaultPrincipal(credentials.getUsername(), AuthorizationKeys.ALL_AUTHORIZATIONS);
+			return new DefaultPrincipal(credentials.getUsername(), AuthKeys.ALL_AUTHORIZATIONS);
 		}
 		else if ("guest".equals(credentials.getUsername()) && "guest".equals(credentials.getPassword())) {
-			return new DefaultPrincipal(credentials.getUsername(), AuthorizationKeys.GUEST_AUTHORIZATIONS);
+			return new DefaultPrincipal(credentials.getUsername(), AuthKeys.GUEST_AUTHORIZATIONS);
 		}
 		else if (EmptyCheck.isEmpty(credentials.getUsername()) && EmptyCheck.isEmpty(credentials.getPassword())) {
-			return new DefaultPrincipal("guest", AuthorizationKeys.GUEST_AUTHORIZATIONS);
+			return new DefaultPrincipal("guest", AuthKeys.GUEST_AUTHORIZATIONS);
 		}
 		return null;
 	}

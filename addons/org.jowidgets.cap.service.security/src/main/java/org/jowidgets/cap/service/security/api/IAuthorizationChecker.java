@@ -31,8 +31,8 @@ package org.jowidgets.cap.service.security.api;
 public interface IAuthorizationChecker<AUTHORIZATION_TYPE> {
 
 	/**
-	 * Checks the authorization and throws an exception if the current user is not
-	 * authorized.
+	 * Checks the authorization and throws an AuthorizationFailedException if the
+	 * current user is not authorized.
 	 * 
 	 * @param authorization The authorization to check
 	 */

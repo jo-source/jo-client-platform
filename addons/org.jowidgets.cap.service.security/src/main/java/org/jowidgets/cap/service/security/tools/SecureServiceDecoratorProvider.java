@@ -28,13 +28,13 @@
 
 package org.jowidgets.cap.service.security.tools;
 
-import org.jowidgets.cap.service.security.api.SecureServiceToolkit;
+import org.jowidgets.cap.service.security.api.SecureServiceDecorator;
 import org.jowidgets.service.tools.ServiceDecoratorProviderWrapper;
 
 public class SecureServiceDecoratorProvider extends ServiceDecoratorProviderWrapper {
 
 	public SecureServiceDecoratorProvider() {
-		super(SecureServiceToolkit.serviceDecorator());
+		super(SecureServiceDecorator.create());
 	}
 
 }

@@ -45,9 +45,8 @@ final class BeanTypeAnnotationAuthorizationMapper<AUTHORIZATION_TYPE> extends
 		final CrudServiceType serviceType) {
 
 		if (beanType != null) {
-			final CrudAuthorizations authorizations = AnnotationCache.getTypeAnnotationFromHierarchy(
-					beanType,
-					CrudAuthorizations.class);
+			final CrudAuthorizations authorizations;
+			authorizations = AnnotationCache.getTypeAnnotationFromHierarchy(beanType, CrudAuthorizations.class);
 			if (authorizations != null) {
 				return getAuthorization(serviceType, authorizations);
 			}

@@ -29,14 +29,14 @@
 package org.jowidgets.cap.sample2.app.common.executor;
 
 import org.jowidgets.cap.common.api.service.IExecutorService;
-import org.jowidgets.cap.sample2.app.common.security.AuthorizationKeys;
+import org.jowidgets.cap.sample2.app.common.security.AuthKeys;
 import org.jowidgets.cap.service.security.tools.SecureServiceId;
 import org.jowidgets.service.api.IServiceId;
 
 public final class ExecutorServices {
 
-	public static final IServiceId<IExecutorService<Void>> ACTIVATE_PERSON = createId(AuthorizationKeys.EXECUTOR_ACTIVATE_PERSON);
-	public static final IServiceId<IExecutorService<Void>> DEACTIVATE_PERSON = createId(AuthorizationKeys.EXECUTOR_DEACTIVATE_PERSON);
+	public static final IServiceId<IExecutorService<Void>> ACTIVATE_PERSON = createId(AuthKeys.EXECUTOR_ACTIVATE_PERSON);
+	public static final IServiceId<IExecutorService<Void>> DEACTIVATE_PERSON = createId(AuthKeys.EXECUTOR_DEACTIVATE_PERSON);
 
 	private ExecutorServices() {};
 

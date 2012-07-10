@@ -47,7 +47,7 @@ final class SecureServiceDecoratorProviderBuilderImpl<AUTHORIZATION_TYPE> implem
 	SecureServiceDecoratorProviderBuilderImpl() {
 		this.decorationMode = DecorationMode.ALLOW_UNSECURE;
 		this.authorizationChecker = new DefaultAuthorizationChecker();
-		this.order = 2;
+		this.order = ISecureServiceDecoratorBuilder.DEFAULT_ORDER;
 	}
 
 	@Override

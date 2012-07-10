@@ -28,14 +28,12 @@
 
 package org.jowidgets.cap.service.security.tools;
 
-import org.jowidgets.cap.service.api.plugin.IBeanServicesProviderPlugin;
-import org.jowidgets.cap.service.security.api.SecureServiceToolkit;
-import org.jowidgets.plugin.tools.PluginProviderBuilder;
+import org.jowidgets.plugin.tools.PluginProviderHolder;
 
-class SecureBeanServicesPluginProviderBuilder extends PluginProviderBuilder {
+public final class SecureServicePluginProviderHolder extends PluginProviderHolder {
 
-	SecureBeanServicesPluginProviderBuilder() {
-		addPlugin(IBeanServicesProviderPlugin.ID, SecureServiceToolkit.beanServicesProviderPlugin());
+	public SecureServicePluginProviderHolder() {
+		super(new SecureServicePluginProviderBuilder(), 2);
 	}
 
 }

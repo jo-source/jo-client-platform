@@ -69,7 +69,11 @@ import org.jowidgets.cap.service.api.entity.IBeanServicesProviderBuilder;
 import org.jowidgets.cap.service.api.factory.IBeanServiceFactory;
 import org.jowidgets.cap.service.api.link.ILinkServicesBuilder;
 import org.jowidgets.cap.service.api.link.LinkServicesBuilder;
+import org.jowidgets.cap.service.api.plugin.IServiceIdDecoratorPlugin;
 import org.jowidgets.cap.service.api.updater.IUpdaterServiceBuilder;
+import org.jowidgets.plugin.api.IPluginPropertiesBuilder;
+import org.jowidgets.plugin.api.PluginProperties;
+import org.jowidgets.plugin.api.PluginProvider;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.api.IServiceRegistry;
 import org.jowidgets.service.tools.ServiceId;
@@ -690,14 +694,7 @@ final class BeanEntityServiceBuilderImpl extends EntityServiceBuilderImpl implem
 		private IServiceId<ILinkCreatorService> createCreatorService(final Map<Object, BeanEntityPreBuild> prebuilds) {
 			final ILinkCreatorService service = getLinkServicesBuilder(prebuilds).tryBuildCreatorService();
 			if (service != null) {
-				final Id id = new Id(
-					entityServiceId,
-					linkSource.getEntityId(),
-					linkEntityId,
-					linkedEntityId,
-					linkableEntityId,
-					ILinkCreatorService.class.getName());
-				final ServiceId<ILinkCreatorService> result = new ServiceId<ILinkCreatorService>(id, ILinkCreatorService.class);
+				final IServiceId<ILinkCreatorService> result = createServiceId(ILinkCreatorService.class);
 				serviceRegistry.addService(result, service);
 				return result;
 			}
@@ -709,20 +706,46 @@ final class BeanEntityServiceBuilderImpl extends EntityServiceBuilderImpl implem
 		private IServiceId<ILinkDeleterService> createDeleterService(final Map<Object, BeanEntityPreBuild> prebuilds) {
 			final ILinkDeleterService service = getLinkServicesBuilder(prebuilds).tryBuildDeleterService();
 			if (service != null) {
-				final Id id = new Id(
-					entityServiceId,
-					linkSource.getEntityId(),
-					linkEntityId,
-					linkedEntityId,
-					linkableEntityId,
-					ILinkDeleterService.class.getName());
-				final ServiceId<ILinkDeleterService> result = new ServiceId<ILinkDeleterService>(id, ILinkDeleterService.class);
+				final IServiceId<ILinkDeleterService> result = createServiceId(ILinkDeleterService.class);
 				serviceRegistry.addService(result, service);
 				return result;
 			}
 			else {
 				return null;
 			}
+		}
+
+		private <SERVICE_TYPE> IServiceId<SERVICE_TYPE> createServiceId(final Class<SERVICE_TYPE> serviceType) {
+			final Id id = new Id(
+				entityServiceId,
+				linkSource.getEntityId(),
+				linkEntityId,
+				linkedEntityId,
+				linkableEntityId,
+				serviceType.getName());
+			final ServiceId<SERVICE_TYPE> result = new ServiceId<SERVICE_TYPE>(id, serviceType);
+			return decorateServiceId(result, entityServiceId, linkBeanType, linkEntityId, serviceType);
+		}
+
+		private <SERVICE_TYPE> IServiceId<SERVICE_TYPE> decorateServiceId(
+			final IServiceId<SERVICE_TYPE> defaultId,
+			final IServiceId<IEntityService> entityServiceId,
+			final Class<? extends IBean> beanType,
+			final Object entityId,
+			final Class<SERVICE_TYPE> serviceType) {
+
+			IServiceId<SERVICE_TYPE> result = defaultId;
+
+			final IPluginPropertiesBuilder propertiesBuilder = PluginProperties.builder();
+			propertiesBuilder.add(IServiceIdDecoratorPlugin.BEAN_TYPE_PROPERTY_KEY, beanType);
+			propertiesBuilder.add(IServiceIdDecoratorPlugin.ENTITIY_ID_PROPERTY_KEY, entityId);
+			for (final IServiceIdDecoratorPlugin plugin : PluginProvider.getPlugins(
+					IServiceIdDecoratorPlugin.ID,
+					propertiesBuilder.build())) {
+				result = plugin.decorateServiceId(defaultId, entityServiceId, beanType, entityId, serviceType);
+			}
+
+			return result;
 		}
 
 		@SuppressWarnings("rawtypes")

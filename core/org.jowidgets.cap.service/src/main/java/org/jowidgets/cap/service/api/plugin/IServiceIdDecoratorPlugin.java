@@ -34,12 +34,11 @@ import org.jowidgets.plugin.api.IPluginId;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.util.ITypedKey;
 
-public interface IBeanServicesProviderPlugin {
+public interface IServiceIdDecoratorPlugin {
 
-	IPluginId<IBeanServicesProviderPlugin> ID = new IPluginId<IBeanServicesProviderPlugin>() {};
+	IPluginId<IServiceIdDecoratorPlugin> ID = new IPluginId<IServiceIdDecoratorPlugin>() {};
 
 	ITypedKey<Class<? extends IBean>> BEAN_TYPE_PROPERTY_KEY = new ITypedKey<Class<? extends IBean>>() {};
-
 	ITypedKey<Object> ENTITIY_ID_PROPERTY_KEY = new ITypedKey<Object>() {};
 
 	<SERVICE_TYPE> IServiceId<SERVICE_TYPE> decorateServiceId(

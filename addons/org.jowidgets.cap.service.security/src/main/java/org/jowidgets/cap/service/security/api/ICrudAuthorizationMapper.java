@@ -32,6 +32,15 @@ import org.jowidgets.cap.common.api.bean.IBean;
 
 public interface ICrudAuthorizationMapper<AUTHORIZATION_TYPE> {
 
+	/**
+	 * Gets the authorization for a defined CRUD service and an entity and/or type
+	 * 
+	 * @param beanType
+	 * @param entityId
+	 * @param serviceType
+	 * 
+	 * @return The authorization or null, if the service is not secure
+	 */
 	AUTHORIZATION_TYPE getAuthorization(
 		final Class<? extends IBean> beanType,
 		final Object entityId,

@@ -31,10 +31,10 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IBean;
-import org.jowidgets.cap.sample2.app.common.security.AuthorizationKeys;
+import org.jowidgets.cap.sample2.app.common.security.AuthKeys;
 import org.jowidgets.cap.service.security.api.CrudAuthorizations;
 
-@CrudAuthorizations(create = AuthorizationKeys.CREATE_PERSON_LINK_TYPE, read = AuthorizationKeys.READ_PERSON_LINK_TYPE, update = AuthorizationKeys.UPDATE_PERSON_LINK_TYPE, delete = AuthorizationKeys.DELETE_PERSON_LINK_TYPE)
+@CrudAuthorizations(create = AuthKeys.CREATE_PERSON_PERSON_LINK, read = AuthKeys.READ_PERSON_PERSON_LINK, update = AuthKeys.UPDATE_PERSON_PERSON_LINK, delete = AuthKeys.DELETE_PERSON_PERSON_LINK)
 public interface IPersonPersonLink extends IBean {
 
 	String SOURCE_PERSON_ID_PROPERTY = "sourcePersonId";
