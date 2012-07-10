@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,19 +26,34 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample2.app.service.util;
+package org.jowidgets.security.tools;
 
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
+import org.jowidgets.security.api.IDefaultPrincipal;
+import org.jowidgets.security.api.SecurityContextHolder;
 
-public final class SampleDataGeneratorStarter {
+public final class SecurityContext {
 
-	private SampleDataGeneratorStarter() {}
+	private SecurityContext() {}
 
-	public static void main(final String[] args) {
-		final EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("sample2PersistenceUnit");
-		final SampleDataGenerator sampleDataGenerator = new SampleDataGenerator();
-		sampleDataGenerator.dropAndCreateAllData(entityManagerFactory, 1, 100);
+	public static String getUsername() {
+		return getSecurityContext().getUsername();
 	}
 
+	public static boolean hasAuthorization(final Object authorization) {
+		return getSecurityContext().getGrantedAuthorities().contains(authorization);
+	}
+
+	private static IDefaultPrincipal<?> getSecurityContext() {
+		final Object securityContext = SecurityContextHolder.getSecurityContext();
+		if (securityContext instanceof IDefaultPrincipal<?>) {
+			return ((IDefaultPrincipal<?>) securityContext);
+		}
+		else {
+			throw new IllegalStateException("Security Context has wrong type. '"
+				+ IDefaultPrincipal.class
+				+ "' assumed, but '"
+				+ securityContext.getClass().getName()
+				+ "' found.");
+		}
+	}
 }

@@ -33,11 +33,15 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.jowidgets.util.EmptyCheck;
+
 public final class AuthKeys {
 
+	//Executor services
 	public static final String EXECUTOR_ACTIVATE_PERSON = "EXECUTOR_ACTIVATE_PERSON";
 	public static final String EXECUTOR_DEACTIVATE_PERSON = "EXECUTOR_DEACTIVATE_PERSON";
 
+	//CRUD services
 	public static final String CREATE_PERSON = "CREATE_PERSON";
 	public static final String READ_PERSON = "READ_PERSON";
 	public static final String UPDATE_PERSON = "UPDATE_PERSON";
@@ -78,34 +82,35 @@ public final class AuthKeys {
 	public static final String UPDATE_ROLE_AUTHORIZATION_LINK = "UPDATE_ROLE_AUTHORIZATION_LINK";
 	public static final String DELETE_ROLE_AUTHORIZATION_LINK = "DELETE_ROLE_AUTHORIZATION_LINK";
 
-	public static final Collection<String> ALL_AUTHORIZATIONS = createAllAuthorizations();
-	public static final Collection<String> GUEST_AUTHORIZATIONS = createReadAuthorizations();
+	//View components
+	public static final String VIEW_PERSON_COMPONENT = "VIEW_PERSON_COMPONENT";
+	public static final String VIEW_ROLE_COMPONENT = "VIEW_ROLE_COMPONENT";
+	public static final String VIEW_AUTHORIZATION_COMPONENT = "VIEW_AUTHORIZATION_COMPONENT";
+	public static final String VIEW_PERSON_LINK_TYPE_COMPONENT = "VIEW_PERSON_RELATION_TYPE_COMPONENT";
+	public static final String VIEW_COUNTRY_COMPONENT = "VIEW_COUNTRY_COMPONENT";
+
+	//Authorization collections
+	public static final Collection<String> ALL_AUTHORIZATIONS = createAuthorizations();
+	public static final Collection<String> GUEST_AUTHORIZATIONS = createAuthorizations("READ_", "VIEW_PERSON_COMPONENT");
 
 	private AuthKeys() {}
 
-	private static List<String> createAllAuthorizations() {
-		final List<String> result = new LinkedList<String>();
-		for (final Field field : AuthKeys.class.getDeclaredFields()) {
-			if (field.getType().equals(String.class)) {
-				try {
-					result.add((String) field.get(AuthKeys.class));
-				}
-				catch (final Exception e) {
-					throw new RuntimeException(e);
-				}
-			}
-		}
-		return result;
-	}
-
-	private static List<String> createReadAuthorizations() {
+	private static List<String> createAuthorizations(final String... startsWith) {
 		final List<String> result = new LinkedList<String>();
 		for (final Field field : AuthKeys.class.getDeclaredFields()) {
 			if (field.getType().equals(String.class)) {
 				try {
 					final String authorization = (String) field.get(AuthKeys.class);
-					if (authorization.startsWith("READ_")) {
+					if (EmptyCheck.isEmpty(startsWith)) {
 						result.add(authorization);
+					}
+					else {
+						for (final String prefix : startsWith) {
+							if (authorization.startsWith(prefix)) {
+								result.add(authorization);
+								break;
+							}
+						}
 					}
 				}
 				catch (final Exception e) {

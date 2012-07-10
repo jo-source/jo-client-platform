@@ -31,6 +31,7 @@ package org.jowidgets.cap.sample2.app.service.util;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 
@@ -40,11 +41,14 @@ import javax.persistence.EntityTransaction;
 import javax.persistence.TypedQuery;
 
 import org.apache.commons.io.IOUtils;
+import org.jowidgets.cap.sample2.app.common.security.AuthKeys;
+import org.jowidgets.cap.sample2.app.service.bean.Authorization;
 import org.jowidgets.cap.sample2.app.service.bean.Country;
 import org.jowidgets.cap.sample2.app.service.bean.Person;
 import org.jowidgets.cap.sample2.app.service.bean.PersonRelationType;
 import org.jowidgets.cap.sample2.app.service.bean.PersonRoleLink;
 import org.jowidgets.cap.sample2.app.service.bean.Role;
+import org.jowidgets.cap.sample2.app.service.bean.RoleAuthorizationLink;
 import org.jowidgets.cap.sample2.app.service.lookup.GenderLookUpService;
 
 public final class SampleDataGenerator {
@@ -98,7 +102,7 @@ public final class SampleDataGenerator {
 		createPersons(entityManagerFactory, 0, outerCount, innerCount);
 	}
 
-	void dropData(final EntityManagerFactory entityManagerFactory) {
+	private void dropData(final EntityManagerFactory entityManagerFactory) {
 		final EntityManager entityManager = entityManagerFactory.createEntityManager();
 		final EntityTransaction tx = entityManager.getTransaction();
 		tx.begin();
@@ -114,7 +118,7 @@ public final class SampleDataGenerator {
 		entityManager.close();
 	}
 
-	void createPersonRelationTypes(final EntityManagerFactory entityManagerFactory) {
+	private void createPersonRelationTypes(final EntityManagerFactory entityManagerFactory) {
 
 		final EntityManager entityManager = entityManagerFactory.createEntityManager();
 		final EntityTransaction tx = entityManager.getTransaction();
@@ -135,7 +139,7 @@ public final class SampleDataGenerator {
 		entityManager.close();
 	}
 
-	void createCountries(final EntityManagerFactory entityManagerFactory) {
+	private void createCountries(final EntityManagerFactory entityManagerFactory) {
 
 		final EntityManager entityManager = entityManagerFactory.createEntityManager();
 		final EntityTransaction tx = entityManager.getTransaction();
@@ -152,7 +156,7 @@ public final class SampleDataGenerator {
 		entityManager.close();
 	}
 
-	void createRoles(final EntityManagerFactory entityManagerFactory) {
+	private void createRoles(final EntityManagerFactory entityManagerFactory) {
 
 		final EntityManager entityManager = entityManagerFactory.createEntityManager();
 		final EntityTransaction tx = entityManager.getTransaction();
@@ -162,6 +166,8 @@ public final class SampleDataGenerator {
 		role.setName(ADMIN_ROLE_NAME);
 		role.setDescription("The administrator role");
 		entityManager.persist(role);
+
+		createAuthentications(role, AuthKeys.ALL_AUTHORIZATIONS, entityManager);
 
 		role = new Role();
 		role.setName(DEVELOPER_ROLE_NAME);
@@ -177,6 +183,19 @@ public final class SampleDataGenerator {
 		tx.commit();
 		entityManager.close();
 
+	}
+
+	private void createAuthentications(final Role role, final Collection<String> authorizations, final EntityManager entityManager) {
+		for (final String key : authorizations) {
+			final Authorization authorization = new Authorization();
+			authorization.setKey(key);
+			entityManager.persist(authorization);
+
+			final RoleAuthorizationLink link = new RoleAuthorizationLink();
+			link.setRole(role);
+			link.setAuthorization(authorization);
+			entityManager.persist(link);
+		}
 	}
 
 	void createPersons(

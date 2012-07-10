@@ -32,12 +32,17 @@ import java.util.Locale;
 
 import org.jowidgets.addons.icons.silkicons.SilkIconsInitializer;
 import org.jowidgets.api.model.item.IMenuModel;
+import org.jowidgets.api.widgets.IContainer;
+import org.jowidgets.api.widgets.content.IContentCreator;
 import org.jowidgets.cap.sample2.app.ui.application.Sample2Application;
 import org.jowidgets.cap.sample2.app.ui.command.WorkbenchActions;
 import org.jowidgets.cap.sample2.app.ui.lookup.LookupInitializer;
 import org.jowidgets.cap.ui.api.login.LoginService;
 import org.jowidgets.common.types.Dimension;
 import org.jowidgets.common.types.IVetoable;
+import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
+import org.jowidgets.security.tools.SecurityContext;
+import org.jowidgets.tools.widgets.blueprint.BPF;
 import org.jowidgets.workbench.api.ILoginCallback;
 import org.jowidgets.workbench.api.IWorkbench;
 import org.jowidgets.workbench.api.IWorkbenchContext;
@@ -49,6 +54,8 @@ import org.jowidgets.workbench.toolkit.api.WorkbenchToolkit;
 import org.jowidgets.workbench.tools.WorkbenchModelBuilder;
 
 public class Sample2Workbench implements IWorkbenchFactory {
+
+	private IWorkbenchModel model;
 
 	@Override
 	public IWorkbench create() {
@@ -73,12 +80,19 @@ public class Sample2Workbench implements IWorkbenchFactory {
 			@Override
 			public void onContextInitialize(final IWorkbenchContext context) {
 				LookupInitializer.initializeLookupsAsync();
+				model.addApplication(new Sample2Application().getModel());
+
+				model.setStatusBarCreator(new IContentCreator() {
+					@Override
+					public void createContent(final IContainer container) {
+						container.setLayout(new MigLayoutDescriptor("[grow, right]", "2[]2"));
+						container.add(BPF.textLabel(SecurityContext.getUsername()).alignRight(), "alignx r");
+					}
+				});
 			}
 		});
 
-		final IWorkbenchModel model = builder.build();
-
-		model.addApplication(new Sample2Application().getModel());
+		this.model = builder.build();
 
 		model.getToolBar().addAction(WorkbenchActions.loadAction());
 		model.getToolBar().addAction(WorkbenchActions.cancelAction());
