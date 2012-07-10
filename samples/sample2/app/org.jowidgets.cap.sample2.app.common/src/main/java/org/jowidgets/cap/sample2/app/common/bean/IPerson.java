@@ -36,10 +36,13 @@ import javax.validation.constraints.Size;
 import org.jowidgets.cap.common.api.annotation.BeanValidator;
 import org.jowidgets.cap.common.api.annotation.PropertyValidator;
 import org.jowidgets.cap.common.api.bean.IBean;
+import org.jowidgets.cap.sample2.app.common.security.AuthorizationKeys;
 import org.jowidgets.cap.sample2.app.common.validation.PersonNameUppercaseValidator;
 import org.jowidgets.cap.sample2.app.common.validation.PersonNameWordCountValidator;
+import org.jowidgets.cap.service.security.api.CrudAuthorizations;
 
 @BeanValidator(PersonNameWordCountValidator.class)
+@CrudAuthorizations(create = AuthorizationKeys.CREATE_PERSON, read = AuthorizationKeys.READ_PERSON, update = AuthorizationKeys.UPDATE_PERSON, delete = AuthorizationKeys.DELETE_PERSON)
 public interface IPerson extends IBean {
 
 	String NAME_PROPERTY = "name";
