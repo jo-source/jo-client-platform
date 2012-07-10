@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,32 +26,15 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.remoting.server;
+package org.jowidgets.cap.service.security.tools;
 
-import java.util.Set;
+import org.jowidgets.cap.service.security.api.SecureServiceToolkit;
+import org.jowidgets.service.tools.ServiceDecoratorProviderWrapper;
 
-import org.jowidgets.invocation.service.common.api.IInterimRequestCallback;
-import org.jowidgets.invocation.service.common.api.IInterimResponseCallback;
-import org.jowidgets.invocation.service.common.api.IInvocationCallback;
-import org.jowidgets.invocation.service.common.api.IMethodInvocationService;
-import org.jowidgets.service.api.IServiceId;
-import org.jowidgets.service.api.ServiceProvider;
+public class SecureServiceDecoratorProvider extends ServiceDecoratorProviderWrapper {
 
-final class ServiceLocatorMethod implements IMethodInvocationService<Set<? extends IServiceId<?>>, Void, Void, Void, Void> {
-
-	private final Set<? extends IServiceId<?>> availableServices;
-
-	ServiceLocatorMethod() {
-		this.availableServices = ServiceProvider.getAvailableServices();
-	}
-
-	@Override
-	public void invoke(
-		final IInvocationCallback<Set<? extends IServiceId<?>>> invocationCallback,
-		final IInterimResponseCallback<Void> interimResponseCallback,
-		final IInterimRequestCallback<Void, Void> interimRequestCallback,
-		final Void parameter) {
-		invocationCallback.finished(availableServices);
+	public SecureServiceDecoratorProvider() {
+		super(SecureServiceToolkit.serviceDecorator());
 	}
 
 }

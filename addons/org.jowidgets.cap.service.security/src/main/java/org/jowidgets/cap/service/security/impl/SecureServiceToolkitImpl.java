@@ -82,8 +82,7 @@ public final class SecureServiceToolkitImpl implements ISecureServiceToolkit {
 
 	@Override
 	public <AUTHORIZATION_TYPE> IBeanServicesProviderPluginBuilder<AUTHORIZATION_TYPE> beanServicesProviderPluginBuilder() {
-		// TODO Auto-generated method stub
-		return null;
+		return new BeanServicesProviderPluginBuilderImpl<AUTHORIZATION_TYPE>();
 	}
 
 }

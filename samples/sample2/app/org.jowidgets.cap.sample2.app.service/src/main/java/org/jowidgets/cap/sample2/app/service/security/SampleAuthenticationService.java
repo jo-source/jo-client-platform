@@ -44,8 +44,11 @@ public class SampleAuthenticationService implements IAuthenticationService<Defau
 		else if ("jo".equals(credentials.getUsername()) && "miller".equals(credentials.getPassword())) {
 			return new DefaultPrincipal(credentials.getUsername(), AuthorizationKeys.ALL_AUTHORIZATIONS);
 		}
+		else if ("guest".equals(credentials.getUsername()) && "guest".equals(credentials.getPassword())) {
+			return new DefaultPrincipal(credentials.getUsername(), AuthorizationKeys.GUEST_AUTHORIZATIONS);
+		}
 		else if (EmptyCheck.isEmpty(credentials.getUsername()) && EmptyCheck.isEmpty(credentials.getPassword())) {
-			return new DefaultPrincipal("guest");
+			return new DefaultPrincipal("guest", AuthorizationKeys.GUEST_AUTHORIZATIONS);
 		}
 		return null;
 	}

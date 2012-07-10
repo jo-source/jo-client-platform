@@ -43,15 +43,15 @@ import org.jowidgets.invocation.service.common.api.IInterimRequestCallback;
 import org.jowidgets.invocation.service.common.api.IInterimResponseCallback;
 import org.jowidgets.invocation.service.common.api.IInvocationCallback;
 import org.jowidgets.invocation.service.common.api.IMethodInvocationService;
-import org.jowidgets.service.tools.ServiceId;
+import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.util.Assert;
 
 final class RemoteMethodInvocationHandler implements InvocationHandler {
 
-	private final ServiceId<?> serviceId;
+	private final IServiceId<?> serviceId;
 	private final IInvocationServiceClient invocationServiceClient;
 
-	RemoteMethodInvocationHandler(final ServiceId<?> serviceId) {
+	RemoteMethodInvocationHandler(final IServiceId<?> serviceId) {
 		Assert.paramNotNull(serviceId, "serviceId");
 		this.serviceId = serviceId;
 		this.invocationServiceClient = InvocationServiceClientToolkit.getClient();

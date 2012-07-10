@@ -32,6 +32,16 @@ import org.jowidgets.cap.service.api.plugin.IBeanServicesProviderPlugin;
 
 public interface IBeanServicesProviderPluginBuilder<AUTHORIZATION_TYPE> {
 
+	/**
+	 * Adds a mapper.
+	 * 
+	 * Remark: Mappers will be invoked in reverse order, so mapping results (not null) of later
+	 * added mappers will override the results from earlier added mappers.
+	 * 
+	 * @param mapper The mapper to add
+	 * 
+	 * @return This builder
+	 */
 	IBeanServicesProviderPluginBuilder<AUTHORIZATION_TYPE> addMapper(ICrudAuthorizationMapper<AUTHORIZATION_TYPE> mapper);
 
 	IBeanServicesProviderPlugin build();

@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.sample2.app.common.validation;
 
+import java.io.Serializable;
 import java.util.regex.Pattern;
 
 import org.jowidgets.util.EmptyCheck;
@@ -35,7 +36,9 @@ import org.jowidgets.validation.IValidationResult;
 import org.jowidgets.validation.IValidator;
 import org.jowidgets.validation.ValidationResult;
 
-public final class PersonNameUppercaseValidator implements IValidator<String> {
+public final class PersonNameUppercaseValidator implements IValidator<String>, Serializable {
+
+	private static final long serialVersionUID = -1071037314651788314L;
 
 	@Override
 	public IValidationResult validate(final String name) {

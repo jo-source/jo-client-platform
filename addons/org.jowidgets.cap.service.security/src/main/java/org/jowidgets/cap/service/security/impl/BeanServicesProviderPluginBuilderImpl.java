@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,32 +26,37 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.remoting.server;
+package org.jowidgets.cap.service.security.impl;
 
-import java.util.Set;
+import java.util.LinkedList;
 
-import org.jowidgets.invocation.service.common.api.IInterimRequestCallback;
-import org.jowidgets.invocation.service.common.api.IInterimResponseCallback;
-import org.jowidgets.invocation.service.common.api.IInvocationCallback;
-import org.jowidgets.invocation.service.common.api.IMethodInvocationService;
-import org.jowidgets.service.api.IServiceId;
-import org.jowidgets.service.api.ServiceProvider;
+import org.jowidgets.cap.service.api.plugin.IBeanServicesProviderPlugin;
+import org.jowidgets.cap.service.security.api.IBeanServicesProviderPluginBuilder;
+import org.jowidgets.cap.service.security.api.ICrudAuthorizationMapper;
+import org.jowidgets.util.Assert;
 
-final class ServiceLocatorMethod implements IMethodInvocationService<Set<? extends IServiceId<?>>, Void, Void, Void, Void> {
+final class BeanServicesProviderPluginBuilderImpl<AUTHORIZATION_TYPE> implements
+		IBeanServicesProviderPluginBuilder<AUTHORIZATION_TYPE> {
 
-	private final Set<? extends IServiceId<?>> availableServices;
+	private final LinkedList<ICrudAuthorizationMapper<AUTHORIZATION_TYPE>> mappers;
 
-	ServiceLocatorMethod() {
-		this.availableServices = ServiceProvider.getAvailableServices();
+	BeanServicesProviderPluginBuilderImpl() {
+		this.mappers = new LinkedList<ICrudAuthorizationMapper<AUTHORIZATION_TYPE>>();
+
+		mappers.addFirst(new SecureEntityIdAuthorizationMapper<AUTHORIZATION_TYPE>());
 	}
 
 	@Override
-	public void invoke(
-		final IInvocationCallback<Set<? extends IServiceId<?>>> invocationCallback,
-		final IInterimResponseCallback<Void> interimResponseCallback,
-		final IInterimRequestCallback<Void, Void> interimRequestCallback,
-		final Void parameter) {
-		invocationCallback.finished(availableServices);
+	public IBeanServicesProviderPluginBuilder<AUTHORIZATION_TYPE> addMapper(
+		final ICrudAuthorizationMapper<AUTHORIZATION_TYPE> mapper) {
+		Assert.paramNotNull(mapper, "mapper");
+		mappers.addFirst(mapper);
+		return this;
+	}
+
+	@Override
+	public IBeanServicesProviderPlugin build() {
+		return new BeanServicesProviderPluginImpl<AUTHORIZATION_TYPE>(mappers);
 	}
 
 }
