@@ -28,37 +28,30 @@
 
 package org.jowidgets.cap.service.security.impl;
 
-import java.util.LinkedList;
-
-import org.jowidgets.cap.service.api.plugin.IBeanServicesProviderPlugin;
-import org.jowidgets.cap.service.security.api.IBeanServicesProviderPluginBuilder;
+import org.jowidgets.cap.service.security.api.CrudAuthorizations;
+import org.jowidgets.cap.service.security.api.CrudServiceType;
 import org.jowidgets.cap.service.security.api.ICrudAuthorizationMapper;
-import org.jowidgets.util.Assert;
 
-final class BeanServicesProviderPluginBuilderImpl<AUTHORIZATION_TYPE> implements
-		IBeanServicesProviderPluginBuilder<AUTHORIZATION_TYPE> {
+abstract class AbstractAnnotationAuthorizationMapper<AUTHORIZATION_TYPE> implements ICrudAuthorizationMapper<AUTHORIZATION_TYPE> {
 
-	private final LinkedList<ICrudAuthorizationMapper<AUTHORIZATION_TYPE>> mappers;
+	AbstractAnnotationAuthorizationMapper() {}
 
-	BeanServicesProviderPluginBuilderImpl() {
-		this.mappers = new LinkedList<ICrudAuthorizationMapper<AUTHORIZATION_TYPE>>();
-
-		mappers.addFirst(new BeanTypeAnnotationAuthorizationMapper<AUTHORIZATION_TYPE>());
-		mappers.addFirst(new SecureEntityIdAnnotationAuthorizationMapper<AUTHORIZATION_TYPE>());
-		mappers.addFirst(new SecureEntityIdAuthorizationMapper<AUTHORIZATION_TYPE>());
+	@SuppressWarnings("unchecked")
+	final AUTHORIZATION_TYPE getAuthorization(final CrudServiceType serviceType, final CrudAuthorizations authorizations) {
+		if (serviceType == CrudServiceType.CREATE) {
+			return (AUTHORIZATION_TYPE) authorizations.create();
+		}
+		else if (serviceType == CrudServiceType.READ) {
+			return (AUTHORIZATION_TYPE) authorizations.read();
+		}
+		else if (serviceType == CrudServiceType.UPDATE) {
+			return (AUTHORIZATION_TYPE) authorizations.update();
+		}
+		else if (serviceType == CrudServiceType.DELETE) {
+			return (AUTHORIZATION_TYPE) authorizations.delete();
+		}
+		else {
+			throw new IllegalArgumentException("CrudServiceType '" + serviceType + "' is not known");
+		}
 	}
-
-	@Override
-	public IBeanServicesProviderPluginBuilder<AUTHORIZATION_TYPE> addMapper(
-		final ICrudAuthorizationMapper<AUTHORIZATION_TYPE> mapper) {
-		Assert.paramNotNull(mapper, "mapper");
-		mappers.addFirst(mapper);
-		return this;
-	}
-
-	@Override
-	public IBeanServicesProviderPlugin build() {
-		return new BeanServicesProviderPluginImpl<AUTHORIZATION_TYPE>(mappers);
-	}
-
 }

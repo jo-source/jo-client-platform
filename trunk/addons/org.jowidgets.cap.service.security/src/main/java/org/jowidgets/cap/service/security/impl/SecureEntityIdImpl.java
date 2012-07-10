@@ -65,17 +65,39 @@ final class SecureEntityIdImpl<AUTHORIZATION_TYPE> implements ISecureEntityId<AU
 
 	@Override
 	public int hashCode() {
-		return id.hashCode();
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		return result;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public boolean equals(final Object obj) {
-		return id.equals(obj);
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (!(obj instanceof SecureEntityIdImpl)) {
+			return false;
+		}
+		final SecureEntityIdImpl<AUTHORIZATION_TYPE> other = (SecureEntityIdImpl<AUTHORIZATION_TYPE>) obj;
+		if (id == null) {
+			if (other.id != null) {
+				return false;
+			}
+		}
+		else if (!id.equals(other.id)) {
+			return false;
+		}
+		return true;
 	}
 
 	@Override
 	public String toString() {
-		return id.toString();
+		return "SecureEntityIdImpl [id=" + id + ", authorizations=" + authorizations + "]";
 	}
 
 }

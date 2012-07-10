@@ -28,37 +28,32 @@
 
 package org.jowidgets.cap.service.security.impl;
 
-import java.util.LinkedList;
+import org.jowidgets.cap.common.api.bean.IBean;
+import org.jowidgets.cap.service.security.api.CrudAuthorizations;
+import org.jowidgets.cap.service.security.api.CrudServiceType;
+import org.jowidgets.util.reflection.AnnotationCache;
 
-import org.jowidgets.cap.service.api.plugin.IBeanServicesProviderPlugin;
-import org.jowidgets.cap.service.security.api.IBeanServicesProviderPluginBuilder;
-import org.jowidgets.cap.service.security.api.ICrudAuthorizationMapper;
-import org.jowidgets.util.Assert;
+final class BeanTypeAnnotationAuthorizationMapper<AUTHORIZATION_TYPE> extends
+		AbstractAnnotationAuthorizationMapper<AUTHORIZATION_TYPE> {
 
-final class BeanServicesProviderPluginBuilderImpl<AUTHORIZATION_TYPE> implements
-		IBeanServicesProviderPluginBuilder<AUTHORIZATION_TYPE> {
-
-	private final LinkedList<ICrudAuthorizationMapper<AUTHORIZATION_TYPE>> mappers;
-
-	BeanServicesProviderPluginBuilderImpl() {
-		this.mappers = new LinkedList<ICrudAuthorizationMapper<AUTHORIZATION_TYPE>>();
-
-		mappers.addFirst(new BeanTypeAnnotationAuthorizationMapper<AUTHORIZATION_TYPE>());
-		mappers.addFirst(new SecureEntityIdAnnotationAuthorizationMapper<AUTHORIZATION_TYPE>());
-		mappers.addFirst(new SecureEntityIdAuthorizationMapper<AUTHORIZATION_TYPE>());
-	}
+	BeanTypeAnnotationAuthorizationMapper() {}
 
 	@Override
-	public IBeanServicesProviderPluginBuilder<AUTHORIZATION_TYPE> addMapper(
-		final ICrudAuthorizationMapper<AUTHORIZATION_TYPE> mapper) {
-		Assert.paramNotNull(mapper, "mapper");
-		mappers.addFirst(mapper);
-		return this;
-	}
+	public AUTHORIZATION_TYPE getAuthorization(
+		final Class<? extends IBean> beanType,
+		final Object entityId,
+		final CrudServiceType serviceType) {
 
-	@Override
-	public IBeanServicesProviderPlugin build() {
-		return new BeanServicesProviderPluginImpl<AUTHORIZATION_TYPE>(mappers);
+		if (beanType != null) {
+			final CrudAuthorizations authorizations = AnnotationCache.getTypeAnnotationFromHierarchy(
+					beanType,
+					CrudAuthorizations.class);
+			if (authorizations != null) {
+				return getAuthorization(serviceType, authorizations);
+			}
+		}
+
+		return null;
 	}
 
 }

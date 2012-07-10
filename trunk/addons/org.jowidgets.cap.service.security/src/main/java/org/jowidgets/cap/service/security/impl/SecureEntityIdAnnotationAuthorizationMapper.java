@@ -28,37 +28,41 @@
 
 package org.jowidgets.cap.service.security.impl;
 
-import java.util.LinkedList;
+import java.lang.reflect.Field;
 
-import org.jowidgets.cap.service.api.plugin.IBeanServicesProviderPlugin;
-import org.jowidgets.cap.service.security.api.IBeanServicesProviderPluginBuilder;
-import org.jowidgets.cap.service.security.api.ICrudAuthorizationMapper;
-import org.jowidgets.util.Assert;
+import org.jowidgets.cap.common.api.bean.IBean;
+import org.jowidgets.cap.service.security.api.CrudAuthorizations;
+import org.jowidgets.cap.service.security.api.CrudServiceType;
 
-final class BeanServicesProviderPluginBuilderImpl<AUTHORIZATION_TYPE> implements
-		IBeanServicesProviderPluginBuilder<AUTHORIZATION_TYPE> {
+final class SecureEntityIdAnnotationAuthorizationMapper<AUTHORIZATION_TYPE> extends
+		AbstractAnnotationAuthorizationMapper<AUTHORIZATION_TYPE> {
 
-	private final LinkedList<ICrudAuthorizationMapper<AUTHORIZATION_TYPE>> mappers;
-
-	BeanServicesProviderPluginBuilderImpl() {
-		this.mappers = new LinkedList<ICrudAuthorizationMapper<AUTHORIZATION_TYPE>>();
-
-		mappers.addFirst(new BeanTypeAnnotationAuthorizationMapper<AUTHORIZATION_TYPE>());
-		mappers.addFirst(new SecureEntityIdAnnotationAuthorizationMapper<AUTHORIZATION_TYPE>());
-		mappers.addFirst(new SecureEntityIdAuthorizationMapper<AUTHORIZATION_TYPE>());
-	}
+	SecureEntityIdAnnotationAuthorizationMapper() {}
 
 	@Override
-	public IBeanServicesProviderPluginBuilder<AUTHORIZATION_TYPE> addMapper(
-		final ICrudAuthorizationMapper<AUTHORIZATION_TYPE> mapper) {
-		Assert.paramNotNull(mapper, "mapper");
-		mappers.addFirst(mapper);
-		return this;
-	}
+	public AUTHORIZATION_TYPE getAuthorization(
+		final Class<? extends IBean> beanType,
+		final Object entityId,
+		final CrudServiceType serviceType) {
 
-	@Override
-	public IBeanServicesProviderPlugin build() {
-		return new BeanServicesProviderPluginImpl<AUTHORIZATION_TYPE>(mappers);
+		if (entityId != null) {
+			final Class<? extends Object> clazz = entityId.getClass();
+			if (clazz.isEnum()) {
+				try {
+					final String enumFieldName = ((Enum<?>) entityId).name();
+					final Field field = clazz.getField(enumFieldName);
+					final CrudAuthorizations annotation = field.getAnnotation(CrudAuthorizations.class);
+					if (annotation != null) {
+						return getAuthorization(serviceType, annotation);
+					}
+				}
+				catch (final Exception e) {
+					throw new RuntimeException(e);
+				}
+			}
+		}
+
+		return null;
 	}
 
 }
