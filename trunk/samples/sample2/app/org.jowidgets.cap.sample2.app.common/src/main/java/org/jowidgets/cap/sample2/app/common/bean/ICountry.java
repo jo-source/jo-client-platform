@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, H.Westphal
+ * Copyright (c) 2011, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,7 @@ import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.sample2.app.common.security.AuthKeys;
-import org.jowidgets.cap.service.security.api.CrudAuthorizations;
+import org.jowidgets.cap.security.common.api.CrudAuthorizations;
 
 @CrudAuthorizations(create = AuthKeys.CREATE_COUNTRY, read = AuthKeys.READ_COUNTRY, update = AuthKeys.UPDATE_COUNTRY, delete = AuthKeys.DELETE_COUNTRY)
 public interface ICountry extends IBean {
