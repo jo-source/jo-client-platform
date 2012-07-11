@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2011, riegen
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,33 +26,40 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample2.app.common.entity;
+package org.jowidgets.cap.sample2.app.service.lookup;
 
-public enum EntityIds {
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 
-	PERSON,
-	ROLE,
-	AUTHORIZATION,
-	COUNTRY,
-	PHONE,
+import javax.persistence.EntityManager;
+import javax.persistence.criteria.CriteriaQuery;
 
-	PERSON_LINK_TYPE,
-	PERSON_ROLE_LINK,
-	ROLE_AUTHORIZATION_LINK,
-	PERSONS_OF_SOURCE_PERSONS_LINK,
-	SOURCE_PERSONS_OF_PERSONS_LINK,
-	LINKED_PERSONS_OF_SOURCE_PERSONS,
-	LINKED_SOURCE_PERSONS_OF_PERSONS,
-	LINKABLE_PERSONS_OF_PERSONS,
-	LINKED_ROLES_OF_PERSONS,
-	LINKABLE_ROLES_OF_PERSONS,
-	LINKED_PERSONS_OF_ROLES,
-	LINKABLE_PERSONS_OF_ROLES,
-	LINKED_AUTHORIZATION_OF_ROLES,
-	LINKABLE_AUTHORIZATIONS_OF_ROLES,
-	LINKED_ROLES_OF_AUTHORIZATIONS,
-	LINKABLE_ROLES_OF_AUTHORIZATIONS,
-	LINKED_PHONES_OF_PERSONS,
-	LINKED_PERSONS_OF_PHONES
+import org.jowidgets.cap.common.api.CapCommonToolkit;
+import org.jowidgets.cap.common.api.execution.IExecutionCallback;
+import org.jowidgets.cap.common.api.lookup.ILookUpEntry;
+import org.jowidgets.cap.common.api.lookup.ILookUpToolkit;
+import org.jowidgets.cap.sample2.app.service.bean.Phone;
+import org.jowidgets.cap.sample2.app.service.entity.EntityManagerProvider;
+import org.jowidgets.cap.service.api.adapter.ISyncLookUpService;
 
+public class PhoneLookUpService implements ISyncLookUpService {
+
+	@Override
+	public List<ILookUpEntry> readValues(final IExecutionCallback executionCallback) {
+
+		final ILookUpToolkit lookUpToolkit = CapCommonToolkit.lookUpToolkit();
+		final List<ILookUpEntry> result = new LinkedList<ILookUpEntry>();
+
+		final EntityManager entityManager = EntityManagerProvider.get();
+
+		final CriteriaQuery<Phone> criteriaQuery = entityManager.getCriteriaBuilder().createQuery(Phone.class);
+		criteriaQuery.from(Phone.class);
+
+		result.add(lookUpToolkit.lookUpEntry(null, ""));
+		for (final Phone phone : entityManager.createQuery(criteriaQuery).getResultList()) {
+			result.add(lookUpToolkit.lookUpEntry(phone.getId(), phone.getPhone()));
+		}
+		return Collections.unmodifiableList(result);
+	}
 }
