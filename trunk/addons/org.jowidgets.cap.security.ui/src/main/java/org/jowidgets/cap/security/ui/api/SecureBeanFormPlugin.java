@@ -26,43 +26,19 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.security.service.impl;
+package org.jowidgets.cap.security.ui.api;
 
-import java.lang.reflect.Field;
+import org.jowidgets.cap.ui.api.plugin.IBeanFormPlugin;
 
-import org.jowidgets.cap.common.api.bean.IBean;
-import org.jowidgets.cap.security.common.api.CrudAuthorizations;
-import org.jowidgets.cap.security.common.api.CrudServiceType;
+public final class SecureBeanFormPlugin {
 
-final class SecureEntityIdAnnotationAuthorizationMapper<AUTHORIZATION_TYPE> extends
-		AbstractAnnotationAuthorizationMapper<AUTHORIZATION_TYPE> {
+	private SecureBeanFormPlugin() {}
 
-	SecureEntityIdAnnotationAuthorizationMapper() {}
-
-	@Override
-	public AUTHORIZATION_TYPE getAuthorization(
-		final Class<? extends IBean> beanType,
-		final Object entityId,
-		final CrudServiceType serviceType) {
-
-		if (entityId != null) {
-			final Class<? extends Object> clazz = entityId.getClass();
-			if (clazz.isEnum()) {
-				try {
-					final String enumFieldName = ((Enum<?>) entityId).name();
-					final Field field = clazz.getField(enumFieldName);
-					final CrudAuthorizations annotation = field.getAnnotation(CrudAuthorizations.class);
-					if (annotation != null) {
-						return getAuthorization(serviceType, annotation);
-					}
-				}
-				catch (final Exception e) {
-					throw new RuntimeException(e);
-				}
-			}
-		}
-
-		return null;
+	public static <AUTHORIZATION_TYPE> ISecureBeanFormPluginBuilder<AUTHORIZATION_TYPE> builder() {
+		return CapSecurityUiToolkit.secureBeanFormPluginBuilder();
 	}
 
+	public static IBeanFormPlugin create() {
+		return CapSecurityUiToolkit.secureBeanFormPlugin();
+	}
 }

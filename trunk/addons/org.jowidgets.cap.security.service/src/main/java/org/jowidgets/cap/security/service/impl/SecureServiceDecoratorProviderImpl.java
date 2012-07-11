@@ -32,8 +32,9 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
+import org.jowidgets.cap.common.api.exception.AuthorizationFailedException;
+import org.jowidgets.cap.security.common.api.IAuthorizationChecker;
 import org.jowidgets.cap.security.common.api.ISecureServiceId;
-import org.jowidgets.cap.security.service.api.IAuthorizationChecker;
 import org.jowidgets.cap.security.service.api.ISecureServiceDecoratorBuilder.DecorationMode;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.api.IServicesDecoratorProvider;
@@ -104,7 +105,9 @@ final class SecureServiceDecoratorProviderImpl implements IServicesDecoratorProv
 
 		@Override
 		public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
-			authorizationChecker.checkAuthorization(authorization);
+			if (!authorizationChecker.hasAuthorization(authorization)) {
+				throw new AuthorizationFailedException(authorization);
+			}
 			return method.invoke(original, args);
 		}
 

@@ -28,32 +28,50 @@
 
 package org.jowidgets.cap.security.ui.impl;
 
-import org.jowidgets.cap.security.ui.api.ICapSecurityUiToolkit;
+import java.util.LinkedList;
+
+import org.jowidgets.cap.security.common.api.AuthorizationChecker;
+import org.jowidgets.cap.security.common.api.CrudAuthorizationMapperFactory;
+import org.jowidgets.cap.security.common.api.IAuthorizationChecker;
+import org.jowidgets.cap.security.common.api.ICrudAuthorizationMapper;
 import org.jowidgets.cap.security.ui.api.ISecureBeanFormPluginBuilder;
-import org.jowidgets.cap.security.ui.api.ISecureServiceProviderDecoratorBuilder;
 import org.jowidgets.cap.ui.api.plugin.IBeanFormPlugin;
-import org.jowidgets.service.api.IServiceProviderDecoratorHolder;
+import org.jowidgets.util.Assert;
 
-public final class CapSecurityUiToolkitImpl implements ICapSecurityUiToolkit {
+@SuppressWarnings({"rawtypes", "unchecked"})
+final class SecureBeanFormPluginBuilder<AUTHORIZATION_TYPE> implements ISecureBeanFormPluginBuilder<AUTHORIZATION_TYPE> {
 
-	@Override
-	public <AUTHORIZATION_TYPE> ISecureServiceProviderDecoratorBuilder<AUTHORIZATION_TYPE> secureServiceProviderDecoratorBuilder() {
-		return new SecureServiceProviderDecoratorBuilderImpl<AUTHORIZATION_TYPE>();
+	private final LinkedList mappers;
+
+	private IAuthorizationChecker<AUTHORIZATION_TYPE> authorizationChecker;
+
+	SecureBeanFormPluginBuilder() {
+		this.authorizationChecker = AuthorizationChecker.getDefault();
+
+		this.mappers = new LinkedList();
+		mappers.addFirst(CrudAuthorizationMapperFactory.beanTypeAnnotationAuthorizationMapper());
+		mappers.addFirst(CrudAuthorizationMapperFactory.entityIdAnnotationAuthorizationMapper());
+		mappers.addFirst(CrudAuthorizationMapperFactory.secureEntityIdAuthorizationMapper());
 	}
 
 	@Override
-	public IServiceProviderDecoratorHolder secureServiceProviderDecorator() {
-		return secureServiceProviderDecoratorBuilder().build();
+	public ISecureBeanFormPluginBuilder<AUTHORIZATION_TYPE> addMapper(final ICrudAuthorizationMapper<AUTHORIZATION_TYPE> mapper) {
+		Assert.paramNotNull(mapper, "mapper");
+		mappers.addFirst(mapper);
+		return this;
 	}
 
 	@Override
-	public <AUTHORIZATION_TYPE> ISecureBeanFormPluginBuilder<AUTHORIZATION_TYPE> secureBeanFormPluginBuilder() {
-		return new SecureBeanFormPluginBuilder<AUTHORIZATION_TYPE>();
+	public ISecureBeanFormPluginBuilder<AUTHORIZATION_TYPE> setAuthorizationChecker(
+		final IAuthorizationChecker<AUTHORIZATION_TYPE> checker) {
+		Assert.paramNotNull(checker, "checker");
+		this.authorizationChecker = checker;
+		return this;
 	}
 
 	@Override
-	public IBeanFormPlugin secureBeanFormPlugin() {
-		return secureBeanFormPluginBuilder().build();
+	public IBeanFormPlugin build() {
+		return new SecureBeanFormPluginImpl(mappers, authorizationChecker);
 	}
 
 }

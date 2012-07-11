@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.security.ui.api;
 
+import org.jowidgets.cap.ui.api.plugin.IBeanFormPlugin;
 import org.jowidgets.service.api.IServiceProviderDecoratorHolder;
 
 public interface ICapSecurityUiToolkit {
@@ -35,4 +36,8 @@ public interface ICapSecurityUiToolkit {
 	<AUTHORIZATION_TYPE> ISecureServiceProviderDecoratorBuilder<AUTHORIZATION_TYPE> secureServiceProviderDecoratorBuilder();
 
 	IServiceProviderDecoratorHolder secureServiceProviderDecorator();
+
+	<AUTHORIZATION_TYPE> ISecureBeanFormPluginBuilder<AUTHORIZATION_TYPE> secureBeanFormPluginBuilder();
+
+	IBeanFormPlugin secureBeanFormPlugin();
 }

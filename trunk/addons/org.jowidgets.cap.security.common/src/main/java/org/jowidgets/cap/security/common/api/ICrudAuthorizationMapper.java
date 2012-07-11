@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,21 +26,24 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.api.exception;
+package org.jowidgets.cap.security.common.api;
 
-public class AuthorizationFailedException extends ServiceException {
+import org.jowidgets.cap.common.api.bean.IBean;
 
-	private static final long serialVersionUID = -7579908469741974763L;
+public interface ICrudAuthorizationMapper<AUTHORIZATION_TYPE> {
 
-	private final Object authorisation;
-
-	public AuthorizationFailedException(final Object authorization) {
-		super("User is not authorized for the authorization '" + authorization + "'");
-		this.authorisation = authorization;
-	}
-
-	public Object getAuthorisation() {
-		return authorisation;
-	}
+	/**
+	 * Gets the authorization for a defined CRUD service and an entity and/or type
+	 * 
+	 * @param beanType
+	 * @param entityId
+	 * @param serviceType
+	 * 
+	 * @return The authorization or null, if the service is not secure
+	 */
+	AUTHORIZATION_TYPE getAuthorization(
+		final Class<? extends IBean> beanType,
+		final Object entityId,
+		final CrudServiceType serviceType);
 
 }

@@ -26,25 +26,39 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.security.service.api;
+package org.jowidgets.cap.security.common.impl;
+
+import java.lang.reflect.Field;
 
 import org.jowidgets.cap.common.api.bean.IBean;
+import org.jowidgets.cap.security.common.api.CrudAuthorizations;
 import org.jowidgets.cap.security.common.api.CrudServiceType;
 
-public interface ICrudAuthorizationMapper<AUTHORIZATION_TYPE> {
+final class EntityIdAnnotationAuthorizationMapper extends AbstractAnnotationAuthorizationMapper<String> {
 
-	/**
-	 * Gets the authorization for a defined CRUD service and an entity and/or type
-	 * 
-	 * @param beanType
-	 * @param entityId
-	 * @param serviceType
-	 * 
-	 * @return The authorization or null, if the service is not secure
-	 */
-	AUTHORIZATION_TYPE getAuthorization(
-		final Class<? extends IBean> beanType,
-		final Object entityId,
-		final CrudServiceType serviceType);
+	EntityIdAnnotationAuthorizationMapper() {}
+
+	@Override
+	public String getAuthorization(final Class<? extends IBean> beanType, final Object entityId, final CrudServiceType serviceType) {
+
+		if (entityId != null) {
+			final Class<? extends Object> clazz = entityId.getClass();
+			if (clazz.isEnum()) {
+				try {
+					final String enumFieldName = ((Enum<?>) entityId).name();
+					final Field field = clazz.getField(enumFieldName);
+					final CrudAuthorizations annotation = field.getAnnotation(CrudAuthorizations.class);
+					if (annotation != null) {
+						return getAuthorization(serviceType, annotation);
+					}
+				}
+				catch (final Exception e) {
+					throw new RuntimeException(e);
+				}
+			}
+		}
+
+		return null;
+	}
 
 }

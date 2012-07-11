@@ -26,30 +26,29 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.security.service.impl;
+package org.jowidgets.cap.security.common.impl;
 
 import org.jowidgets.cap.common.api.bean.IBean;
+import org.jowidgets.cap.security.common.api.CrudAuthorizations;
 import org.jowidgets.cap.security.common.api.CrudServiceType;
-import org.jowidgets.cap.security.common.api.ISecureEntityId;
-import org.jowidgets.cap.security.service.api.ICrudAuthorizationMapper;
+import org.jowidgets.util.reflection.AnnotationCache;
 
-final class SecureEntityIdAuthorizationMapper<AUTHORIZATION_TYPE> implements ICrudAuthorizationMapper<AUTHORIZATION_TYPE> {
+final class BeanTypeAnnotationAuthorizationMapper extends AbstractAnnotationAuthorizationMapper<String> {
 
-	SecureEntityIdAuthorizationMapper() {}
+	BeanTypeAnnotationAuthorizationMapper() {}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public AUTHORIZATION_TYPE getAuthorization(
-		final Class<? extends IBean> beanType,
-		final Object entityId,
-		final CrudServiceType serviceType) {
+	public String getAuthorization(final Class<? extends IBean> beanType, final Object entityId, final CrudServiceType serviceType) {
 
-		if (entityId instanceof ISecureEntityId) {
-			return ((ISecureEntityId<AUTHORIZATION_TYPE>) entityId).getAuthorization(serviceType);
+		if (beanType != null) {
+			final CrudAuthorizations authorizations;
+			authorizations = AnnotationCache.getTypeAnnotationFromHierarchy(beanType, CrudAuthorizations.class);
+			if (authorizations != null) {
+				return getAuthorization(serviceType, authorizations);
+			}
 		}
-		else {
-			return null;
-		}
+
+		return null;
 	}
 
 }

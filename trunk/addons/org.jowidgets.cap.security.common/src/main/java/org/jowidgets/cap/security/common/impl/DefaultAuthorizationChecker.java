@@ -26,33 +26,38 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.security.service.impl;
+package org.jowidgets.cap.security.common.impl;
 
-import org.jowidgets.cap.common.api.bean.IBean;
-import org.jowidgets.cap.security.common.api.CrudAuthorizations;
-import org.jowidgets.cap.security.common.api.CrudServiceType;
-import org.jowidgets.util.reflection.AnnotationCache;
+import org.jowidgets.cap.common.api.exception.ServiceException;
+import org.jowidgets.cap.security.common.api.IAuthorizationChecker;
+import org.jowidgets.security.api.IDefaultPrincipal;
+import org.jowidgets.security.api.SecurityContextHolder;
+import org.jowidgets.security.tools.SecurityContext;
 
-final class BeanTypeAnnotationAuthorizationMapper<AUTHORIZATION_TYPE> extends
-		AbstractAnnotationAuthorizationMapper<AUTHORIZATION_TYPE> {
-
-	BeanTypeAnnotationAuthorizationMapper() {}
+final class DefaultAuthorizationChecker implements IAuthorizationChecker<Object> {
 
 	@Override
-	public AUTHORIZATION_TYPE getAuthorization(
-		final Class<? extends IBean> beanType,
-		final Object entityId,
-		final CrudServiceType serviceType) {
-
-		if (beanType != null) {
-			final CrudAuthorizations authorizations;
-			authorizations = AnnotationCache.getTypeAnnotationFromHierarchy(beanType, CrudAuthorizations.class);
-			if (authorizations != null) {
-				return getAuthorization(serviceType, authorizations);
+	public boolean hasAuthorization(final Object authorization) {
+		final Object securityContext = SecurityContextHolder.getSecurityContext();
+		if (securityContext instanceof IDefaultPrincipal) {
+			if (authorization != null) {
+				return SecurityContext.hasAuthorization(authorization);
+			}
+			else {
+				return true;
 			}
 		}
+		else if (securityContext != null) {
+			throw new ServiceException("Security Context has wrong type. '"
+				+ IDefaultPrincipal.class
+				+ "' assumed, but '"
+				+ securityContext.getClass().getName()
+				+ "' found.");
+		}
+		else {
+			throw new ServiceException("No security context set");
+		}
 
-		return null;
 	}
 
 }

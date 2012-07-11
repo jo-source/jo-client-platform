@@ -26,16 +26,38 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.security.service.api;
+package org.jowidgets.cap.security.ui.api;
 
-public interface IAuthorizationChecker<AUTHORIZATION_TYPE> {
+import org.jowidgets.cap.security.common.api.IAuthorizationChecker;
+import org.jowidgets.cap.security.common.api.ICrudAuthorizationMapper;
+import org.jowidgets.cap.ui.api.plugin.IBeanFormPlugin;
+
+public interface ISecureBeanFormPluginBuilder<AUTHORIZATION_TYPE> {
 
 	/**
-	 * Checks the authorization and throws an AuthorizationFailedException if the
-	 * current user is not authorized.
+	 * Adds a mapper. Even if no mappers will be added, the default mappers will be used
 	 * 
-	 * @param authorization The authorization to check
+	 * Remark: Mappers will be invoked in reverse order, so mapping results (not null) of later
+	 * added mappers will override the results from earlier added mappers.
+	 * 
+	 * @param mapper The mapper to add
+	 * 
+	 * @return This builder
 	 */
-	void checkAuthorization(AUTHORIZATION_TYPE authorization);
+	ISecureBeanFormPluginBuilder<AUTHORIZATION_TYPE> addMapper(ICrudAuthorizationMapper<AUTHORIZATION_TYPE> mapper);
+
+	/**
+	 * Sets the authorization checker. If no checker will be set, an default checker will be used, that gets the
+	 * authorizations from the security context.
+	 * 
+	 * Remark: The default (not setting this explicit) only works, if the default context uses the IDefaultPrincipal
+	 * 
+	 * @param checker The checker to add
+	 * 
+	 * @return This builder
+	 */
+	ISecureBeanFormPluginBuilder<AUTHORIZATION_TYPE> setAuthorizationChecker(IAuthorizationChecker<AUTHORIZATION_TYPE> checker);
+
+	IBeanFormPlugin build();
 
 }

@@ -28,12 +28,9 @@
 
 package org.jowidgets.cap.security.service.impl;
 
-import org.jowidgets.cap.common.api.exception.AuthorizationFailedException;
-import org.jowidgets.cap.common.api.exception.ServiceException;
-import org.jowidgets.cap.security.service.api.IAuthorizationChecker;
+import org.jowidgets.cap.security.common.api.AuthorizationChecker;
+import org.jowidgets.cap.security.common.api.IAuthorizationChecker;
 import org.jowidgets.cap.security.service.api.ISecureServiceDecoratorBuilder;
-import org.jowidgets.security.api.IDefaultPrincipal;
-import org.jowidgets.security.api.SecurityContextHolder;
 import org.jowidgets.service.api.IServicesDecoratorProvider;
 import org.jowidgets.util.Assert;
 
@@ -46,7 +43,7 @@ final class SecureServiceDecoratorProviderBuilderImpl<AUTHORIZATION_TYPE> implem
 
 	SecureServiceDecoratorProviderBuilderImpl() {
 		this.decorationMode = DecorationMode.ALLOW_UNSECURE;
-		this.authorizationChecker = new DefaultAuthorizationChecker();
+		this.authorizationChecker = AuthorizationChecker.getDefault();
 		this.order = ISecureServiceDecoratorBuilder.DEFAULT_ORDER;
 	}
 
@@ -76,29 +73,4 @@ final class SecureServiceDecoratorProviderBuilderImpl<AUTHORIZATION_TYPE> implem
 		return new SecureServiceDecoratorProviderImpl(authorizationChecker, decorationMode, order);
 	}
 
-	private final class DefaultAuthorizationChecker implements IAuthorizationChecker<AUTHORIZATION_TYPE> {
-
-		@SuppressWarnings({"unchecked", "rawtypes"})
-		@Override
-		public void checkAuthorization(final AUTHORIZATION_TYPE authorization) {
-			final Object securityContext = SecurityContextHolder.getSecurityContext();
-			if (securityContext instanceof IDefaultPrincipal) {
-				final IDefaultPrincipal<AUTHORIZATION_TYPE> defaultPrincipal = (IDefaultPrincipal) securityContext;
-				if (!defaultPrincipal.getGrantedAuthorities().contains(authorization)) {
-					throw new AuthorizationFailedException(defaultPrincipal.getUsername(), authorization);
-				}
-			}
-			else if (securityContext != null) {
-				throw new ServiceException("Security Context has wrong type. '"
-					+ IDefaultPrincipal.class
-					+ "' assumed, but '"
-					+ securityContext.getClass().getName()
-					+ "' found.");
-			}
-			else {
-				throw new ServiceException("No security context set");
-			}
-
-		}
-	}
 }

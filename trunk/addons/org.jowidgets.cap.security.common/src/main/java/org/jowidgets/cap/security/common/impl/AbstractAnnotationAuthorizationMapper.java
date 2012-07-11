@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,21 +26,32 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.api.exception;
+package org.jowidgets.cap.security.common.impl;
 
-public class AuthorizationFailedException extends ServiceException {
+import org.jowidgets.cap.security.common.api.CrudAuthorizations;
+import org.jowidgets.cap.security.common.api.CrudServiceType;
+import org.jowidgets.cap.security.common.api.ICrudAuthorizationMapper;
 
-	private static final long serialVersionUID = -7579908469741974763L;
+abstract class AbstractAnnotationAuthorizationMapper<AUTHORIZATION_TYPE> implements ICrudAuthorizationMapper<AUTHORIZATION_TYPE> {
 
-	private final Object authorisation;
+	AbstractAnnotationAuthorizationMapper() {}
 
-	public AuthorizationFailedException(final Object authorization) {
-		super("User is not authorized for the authorization '" + authorization + "'");
-		this.authorisation = authorization;
+	@SuppressWarnings("unchecked")
+	final AUTHORIZATION_TYPE getAuthorization(final CrudServiceType serviceType, final CrudAuthorizations authorizations) {
+		if (serviceType == CrudServiceType.CREATE) {
+			return (AUTHORIZATION_TYPE) authorizations.create();
+		}
+		else if (serviceType == CrudServiceType.READ) {
+			return (AUTHORIZATION_TYPE) authorizations.read();
+		}
+		else if (serviceType == CrudServiceType.UPDATE) {
+			return (AUTHORIZATION_TYPE) authorizations.update();
+		}
+		else if (serviceType == CrudServiceType.DELETE) {
+			return (AUTHORIZATION_TYPE) authorizations.delete();
+		}
+		else {
+			throw new IllegalArgumentException("CrudServiceType '" + serviceType + "' is not known");
+		}
 	}
-
-	public Object getAuthorisation() {
-		return authorisation;
-	}
-
 }

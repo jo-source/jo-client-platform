@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.security.service.api;
 
+import org.jowidgets.cap.security.common.api.IAuthorizationChecker;
 import org.jowidgets.service.api.IServicesDecoratorProvider;
 
 public interface ISecureServiceDecoratorBuilder<AUTHORIZATION_TYPE> {
