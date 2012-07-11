@@ -30,7 +30,7 @@ package org.jowidgets.cap.sample2.app.common.executor;
 
 import org.jowidgets.cap.common.api.service.IExecutorService;
 import org.jowidgets.cap.sample2.app.common.security.AuthKeys;
-import org.jowidgets.cap.service.security.tools.SecureServiceId;
+import org.jowidgets.cap.security.common.tools.SecureServiceId;
 import org.jowidgets.service.api.IServiceId;
 
 public final class ExecutorServices {

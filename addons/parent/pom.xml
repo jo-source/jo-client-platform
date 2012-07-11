@@ -23,6 +23,10 @@
 		<module>../org.jowidgets.message.impl.akka</module>
 		<module>../org.jowidgets.security.impl.http.client</module>
 		<module>../org.jowidgets.security.impl.http.server</module>
+		<module>../org.jowidgets.cap.security.common</module>
+		<module>../org.jowidgets.cap.security.service</module>
+		<module>../org.jowidgets.cap.security.service.plugin</module>
+		<module>../org.jowidgets.cap.security.ui</module>
 	</modules>
 	
 	<repositories>

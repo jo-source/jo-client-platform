@@ -35,7 +35,7 @@ import javax.validation.constraints.Size;
 
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.sample2.app.common.security.AuthKeys;
-import org.jowidgets.cap.service.security.api.CrudAuthorizations;
+import org.jowidgets.cap.security.common.api.CrudAuthorizations;
 
 @CrudAuthorizations(create = AuthKeys.CREATE_ROLE, read = AuthKeys.READ_ROLE, update = AuthKeys.UPDATE_ROLE, delete = AuthKeys.DELETE_ROLE)
 public interface IRole extends IBean {
