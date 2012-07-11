@@ -36,6 +36,11 @@ import java.util.Set;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionEvent;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionListener;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionObservable;
+import org.jowidgets.cap.ui.api.plugin.IBeanSelectionProviderPlugin;
+import org.jowidgets.plugin.api.IPluginProperties;
+import org.jowidgets.plugin.api.IPluginPropertiesBuilder;
+import org.jowidgets.plugin.api.PluginProvider;
+import org.jowidgets.plugin.api.PluginToolkit;
 import org.jowidgets.util.Assert;
 
 final class BeanSelectionObservable<BEAN_TYPE> implements IBeanSelectionObservable<BEAN_TYPE> {
@@ -61,6 +66,20 @@ final class BeanSelectionObservable<BEAN_TYPE> implements IBeanSelectionObservab
 	void fireBeanSelectionEvent(final IBeanSelectionEvent<BEAN_TYPE> event) {
 		for (final IBeanSelectionListener<BEAN_TYPE> listener : new LinkedList<IBeanSelectionListener<BEAN_TYPE>>(listeners)) {
 			listener.selectionChanged(event);
+		}
+		fireSelectionChangedOnPlugins(event);
+	}
+
+	@SuppressWarnings({"rawtypes", "unchecked"})
+	void fireSelectionChangedOnPlugins(final IBeanSelectionEvent event) {
+		final IPluginPropertiesBuilder propBuilder = PluginToolkit.pluginPropertiesBuilder();
+		propBuilder.add(IBeanSelectionProviderPlugin.ENTITIY_ID_PROPERTY_KEY, event.getEntityId());
+		propBuilder.add(IBeanSelectionProviderPlugin.BEAN_TYPE_PROPERTY_KEY, event.getBeanType());
+		propBuilder.add(IBeanSelectionProviderPlugin.SELECTION_SOURCE_TYPE_PROPERTY_KEY, event.getSource().getClass());
+		propBuilder.add(IBeanSelectionProviderPlugin.SELECTION_EMPTY_PROPERTY_KEY, event.getFirstSelected() == null);
+		final IPluginProperties properties = propBuilder.build();
+		for (final IBeanSelectionProviderPlugin<?> plugin : PluginProvider.getPlugins(IBeanSelectionProviderPlugin.ID, properties)) {
+			plugin.selectionChanged(event, properties);
 		}
 	}
 

@@ -11,6 +11,7 @@ import org.jowidgets.cap.sample2.app.common.bean.IRole;
 import org.jowidgets.cap.sample2.app.common.entity.EntityIds;
 import org.jowidgets.cap.sample2.plugins.ui.bean.PersonLabelRendererPlugin;
 import org.jowidgets.cap.sample2.plugins.ui.bean.RoleLabelRendererPlugin;
+import org.jowidgets.cap.sample2.plugins.ui.selection.PersonSelectionProvider;
 import org.jowidgets.cap.sample2.plugins.ui.table.PersonMenuContributionPlugin;
 import org.jowidgets.cap.sample2.plugins.ui.table.PersonMenuInterceptorPlugin;
 import org.jowidgets.cap.sample2.plugins.ui.table.PersonTablePlugin;
@@ -18,9 +19,13 @@ import org.jowidgets.cap.sample2.plugins.ui.table.RoleMenuInterceptorPlugin;
 import org.jowidgets.cap.sample2.plugins.ui.tree.RoleRelationTreePlugin;
 import org.jowidgets.cap.ui.api.plugin.IBeanProxyLabelRendererPlugin;
 import org.jowidgets.cap.ui.api.plugin.IBeanRelationTreePlugin;
+import org.jowidgets.cap.ui.api.plugin.IBeanSelectionProviderPlugin;
 import org.jowidgets.cap.ui.api.plugin.IBeanTableMenuContributionPlugin;
 import org.jowidgets.cap.ui.api.plugin.IBeanTableMenuInterceptorPlugin;
 import org.jowidgets.cap.ui.api.plugin.IBeanTablePlugin;
+import org.jowidgets.cap.ui.api.tree.IBeanRelationNodeModel;
+import org.jowidgets.plugin.api.IPluginFilter;
+import org.jowidgets.plugin.api.IPluginProperties;
 import org.jowidgets.plugin.tools.PluginProviderBuilder;
 
 public final class Sample2PluginProviderBuilder extends PluginProviderBuilder {
@@ -66,6 +71,17 @@ public final class Sample2PluginProviderBuilder extends PluginProviderBuilder {
 				new RoleRelationTreePlugin<IRole>(),
 				IBeanRelationTreePlugin.ENTITIY_ID_PROPERTY_KEY,
 				EntityIds.ROLE);
-	}
 
+		addPlugin(IBeanSelectionProviderPlugin.ID, new PersonSelectionProvider(), new IPluginFilter() {
+			@Override
+			public boolean accept(final IPluginProperties properties) {
+				if (!properties.getValue(IBeanSelectionProviderPlugin.SELECTION_EMPTY_PROPERTY_KEY)
+					&& properties.getValue(IBeanSelectionProviderPlugin.BEAN_TYPE_PROPERTY_KEY) == IPerson.class
+					&& (!IBeanRelationNodeModel.class.isAssignableFrom(properties.getValue(IBeanSelectionProviderPlugin.SELECTION_SOURCE_TYPE_PROPERTY_KEY)))) {
+					return true;
+				}
+				return false;
+			}
+		});
+	}
 }

@@ -26,36 +26,35 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.impl;
+package org.jowidgets.cap.sample2.plugins.ui.selection;
 
-import java.util.Collection;
-
+import org.jowidgets.cap.sample2.app.common.bean.IPerson;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionEvent;
-import org.jowidgets.cap.ui.api.bean.IBeanSelectionObservable;
+import org.jowidgets.cap.ui.api.plugin.IBeanSelectionProviderPlugin;
+import org.jowidgets.plugin.api.IPluginProperties;
 
-final class BeanSelectionEventImpl<BEAN_TYPE> extends BeanSelectionImpl<BEAN_TYPE> implements IBeanSelectionEvent<BEAN_TYPE> {
-
-	private final IBeanSelectionObservable<BEAN_TYPE> source;
-
-	BeanSelectionEventImpl(
-		final IBeanSelectionObservable<BEAN_TYPE> source,
-		final Class<? extends BEAN_TYPE> beanType,
-		final Object entityId,
-		final Collection<? extends IBeanProxy<BEAN_TYPE>> selection) {
-		super(beanType, entityId, selection);
-
-		this.source = source;
-	}
+public final class PersonSelectionProvider implements IBeanSelectionProviderPlugin<IPerson> {
 
 	@Override
-	public IBeanSelectionObservable<BEAN_TYPE> getSource() {
-		return source;
+	public void selectionChanged(final IBeanSelectionEvent<IPerson> selectionEvent, final IPluginProperties pluginProperties) {
+		//CHECKSTYLE:OFF
+		System.out.println("Selection plugin selected: "
+			+ getPersonName(selectionEvent)
+			+ " / SOURCE: "
+			+ selectionEvent.getSource());
+		//CHECKSTYLE:ON
 	}
 
-	@Override
-	public String toString() {
-		return "BeanSelectionEventImpl [source=" + source + ", " + super.toString() + "]";
+	private String getPersonName(final IBeanSelectionEvent<IPerson> selectionEvent) {
+		final IBeanProxy<IPerson> selected = selectionEvent.getFirstSelected();
+		if (selected == null) {
+			return "nothing";
+		}
+		else {
+			final IPerson person = selected.getBean();
+			return person.getName() + " " + person.getLastname();
+		}
 	}
 
 }
