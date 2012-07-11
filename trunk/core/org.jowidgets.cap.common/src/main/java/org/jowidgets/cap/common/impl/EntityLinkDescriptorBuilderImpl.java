@@ -46,8 +46,8 @@ final class EntityLinkDescriptorBuilderImpl implements IEntityLinkDescriptorBuil
 	private Object linkableEntityId;
 	private IEntityLinkProperties sourceProperties;
 	private IEntityLinkProperties destinationProperties;
-	private ILinkCreatorService creatorService;
-	private ILinkDeleterService deleterService;
+	private IServiceId<ILinkCreatorService> creatorServiceId;
+	private IServiceId<ILinkDeleterService> deleterServiceId;
 
 	EntityLinkDescriptorBuilderImpl() {}
 
@@ -110,23 +110,13 @@ final class EntityLinkDescriptorBuilderImpl implements IEntityLinkDescriptorBuil
 
 	@Override
 	public IEntityLinkDescriptorBuilder setLinkCreatorService(final IServiceId<ILinkCreatorService> serviceId) {
-		if (serviceId != null) {
-			this.creatorService = new LinkCreatorServiceProxy(serviceId);
-		}
-		else {
-			this.creatorService = null;
-		}
+		this.creatorServiceId = serviceId;
 		return this;
 	}
 
 	@Override
 	public IEntityLinkDescriptorBuilder setLinkDeleterService(final IServiceId<ILinkDeleterService> serviceId) {
-		if (serviceId != null) {
-			this.deleterService = new LinkDeleterServiceProxy(serviceId);
-		}
-		else {
-			this.deleterService = null;
-		}
+		this.deleterServiceId = serviceId;
 		return this;
 	}
 
@@ -146,8 +136,8 @@ final class EntityLinkDescriptorBuilderImpl implements IEntityLinkDescriptorBuil
 			linkableEntityId,
 			sourceProperties,
 			destinationProperties,
-			creatorService,
-			deleterService);
+			creatorServiceId,
+			deleterServiceId);
 	}
 
 }

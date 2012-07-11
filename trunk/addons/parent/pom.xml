@@ -25,6 +25,7 @@
 		<module>../org.jowidgets.cap.security.service</module>
 		<module>../org.jowidgets.cap.security.service.plugin</module>
 		<module>../org.jowidgets.cap.security.ui</module>
+		<module>../org.jowidgets.cap.security.ui.plugin</module>
 	</modules>
 	
 	<repositories>

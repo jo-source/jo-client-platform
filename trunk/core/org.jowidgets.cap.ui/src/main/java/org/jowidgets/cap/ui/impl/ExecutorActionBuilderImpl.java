@@ -208,10 +208,14 @@ final class ExecutorActionBuilderImpl<BEAN_TYPE, PARAM_TYPE> extends
 	}
 
 	@Override
-	public IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setExecutor(final IExecutorService<PARAM_TYPE> excecuterService) {
+	public IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setExecutor(final IExecutorService<PARAM_TYPE> executerService) {
 		checkExhausted();
-		Assert.paramNotNull(excecuterService, "excecuterService");
-		this.executor = excecuterService;
+		if (executerService != null) {
+			this.executor = executerService;
+		}
+		else {
+			this.executor = new NullExecutorService<BEAN_TYPE, PARAM_TYPE>();
+		}
 		return this;
 	}
 
@@ -299,6 +303,17 @@ final class ExecutorActionBuilderImpl<BEAN_TYPE, PARAM_TYPE> extends
 		return this;
 	}
 
+	private List<IEnabledChecker> getEnabledCheckers() {
+		if (executor instanceof NullExecutorService<?, ?>) {
+			final List<IEnabledChecker> result = new LinkedList<IEnabledChecker>(enabledCheckers);
+			result.add(new NullExecutorServiceEnabledChecker());
+			return result;
+		}
+		else {
+			return enabledCheckers;
+		}
+	}
+
 	@Override
 	public IAction doBuild() {
 		final ExecutorCommand command = new ExecutorCommand(
@@ -307,7 +322,7 @@ final class ExecutorActionBuilderImpl<BEAN_TYPE, PARAM_TYPE> extends
 			beanSelectionPolicy,
 			beanModificationStatePolicy,
 			beanMessageStatePolicy,
-			enabledCheckers,
+			getEnabledCheckers(),
 			executableCheckers,
 			exceptionConverter,
 			parameterProviders,

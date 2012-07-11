@@ -34,6 +34,8 @@ import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
 import org.jowidgets.cap.common.api.entity.IEntityLinkProperties;
 import org.jowidgets.cap.common.api.service.ILinkCreatorService;
 import org.jowidgets.cap.common.api.service.ILinkDeleterService;
+import org.jowidgets.service.api.IServiceId;
+import org.jowidgets.service.api.ServiceProvider;
 import org.jowidgets.util.Assert;
 
 final class EntityLinkDescriptorImpl implements IEntityLinkDescriptor, Serializable {
@@ -45,8 +47,8 @@ final class EntityLinkDescriptorImpl implements IEntityLinkDescriptor, Serializa
 	private final Object linkableEntityId;
 	private final IEntityLinkProperties sourceProperties;
 	private final IEntityLinkProperties destinationProperties;
-	private final ILinkCreatorService creatorService;
-	private final ILinkDeleterService deleterService;
+	private final IServiceId<ILinkCreatorService> creatorServiceId;
+	private final IServiceId<ILinkDeleterService> deleterServiceId;
 
 	EntityLinkDescriptorImpl(
 		final Object linkTypeId,
@@ -54,8 +56,8 @@ final class EntityLinkDescriptorImpl implements IEntityLinkDescriptor, Serializa
 		final Object linkableTypeId,
 		final IEntityLinkProperties sourceProperties,
 		final IEntityLinkProperties destinationProperties,
-		final ILinkCreatorService creatorService,
-		final ILinkDeleterService deleterService) {
+		final IServiceId<ILinkCreatorService> creatorServiceId,
+		final IServiceId<ILinkDeleterService> deleterServiceId) {
 
 		Assert.paramNotNull(linkTypeId, "linkTypeId");
 		Assert.paramNotNull(linkedTypeId, "linkedTypeId");
@@ -65,8 +67,8 @@ final class EntityLinkDescriptorImpl implements IEntityLinkDescriptor, Serializa
 		this.linkableEntityId = linkableTypeId;
 		this.sourceProperties = sourceProperties;
 		this.destinationProperties = destinationProperties;
-		this.creatorService = creatorService;
-		this.deleterService = deleterService;
+		this.creatorServiceId = creatorServiceId;
+		this.deleterServiceId = deleterServiceId;
 	}
 
 	@Override
@@ -96,12 +98,22 @@ final class EntityLinkDescriptorImpl implements IEntityLinkDescriptor, Serializa
 
 	@Override
 	public ILinkCreatorService getLinkCreatorService() {
-		return creatorService;
+		if (creatorServiceId != null) {
+			return ServiceProvider.getService(creatorServiceId);
+		}
+		else {
+			return null;
+		}
 	}
 
 	@Override
 	public ILinkDeleterService getLinkDeleterService() {
-		return deleterService;
+		if (deleterServiceId != null) {
+			return ServiceProvider.getService(deleterServiceId);
+		}
+		else {
+			return null;
+		}
 	}
 
 	@Override
@@ -116,10 +128,10 @@ final class EntityLinkDescriptorImpl implements IEntityLinkDescriptor, Serializa
 			+ sourceProperties
 			+ ", destinationProperties="
 			+ destinationProperties
-			+ ", creatorService="
-			+ creatorService
-			+ ", deleterService="
-			+ deleterService
+			+ ", creatorServiceId="
+			+ creatorServiceId
+			+ ", deleterServiceId="
+			+ deleterServiceId
 			+ "]";
 	}
 
