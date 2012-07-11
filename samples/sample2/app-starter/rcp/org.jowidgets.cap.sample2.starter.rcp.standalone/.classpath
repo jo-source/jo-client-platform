@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry exported="true" kind="lib" path="lib/org.jowidgets.cap.service.hibernate.oracle.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/antlr.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/asm.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/c3p0.jar"/>
@@ -28,7 +27,13 @@
 	<classpathentry exported="true" kind="lib" path="lib/org.jowidgets.cap.sample2.starter.standalone.common.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/org.jowidgets.cap.sample2.starter.standalone.swt.common.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/org.jowidgets.cap.sample2.starter.standalone.swt.win.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/org.jowidgets.cap.security.common.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/org.jowidgets.cap.security.service.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/org.jowidgets.cap.security.service.plugin.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/org.jowidgets.cap.security.ui.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/org.jowidgets.cap.security.ui.plugin.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/org.jowidgets.cap.service.hibernate.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/org.jowidgets.cap.service.hibernate.oracle.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/org.jowidgets.cap.service.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/org.jowidgets.cap.service.jpa.api.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/org.jowidgets.cap.service.jpa.impl.jar"/>
