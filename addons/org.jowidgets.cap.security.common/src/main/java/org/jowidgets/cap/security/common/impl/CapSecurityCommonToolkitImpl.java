@@ -28,13 +28,18 @@
 
 package org.jowidgets.cap.security.common.impl;
 
+import org.jowidgets.cap.security.common.api.IAuthorizationChecker;
+import org.jowidgets.cap.security.common.api.ICapSecurityCommonToolkit;
+import org.jowidgets.cap.security.common.api.ICrudAuthorizationMapperFactory;
 import org.jowidgets.cap.security.common.api.ISecureEntityId;
 import org.jowidgets.cap.security.common.api.ISecureServiceId;
-import org.jowidgets.cap.security.common.api.ICapSecurityCommonToolkit;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.tools.ServiceId;
 
 public final class CapSecurityCommonToolkitImpl implements ICapSecurityCommonToolkit {
+
+	private ICrudAuthorizationMapperFactory crudAuthorizationMapperProvider;
+	private IAuthorizationChecker<Object> defaultAuthorizationChecker;
 
 	@Override
 	public <SERVICE_TYPE, AUTHORIZATION_TYPE> ISecureServiceId<SERVICE_TYPE, AUTHORIZATION_TYPE> serviceId(
@@ -59,6 +64,23 @@ public final class CapSecurityCommonToolkitImpl implements ICapSecurityCommonToo
 		final AUTHORIZATION_TYPE update,
 		final AUTHORIZATION_TYPE delete) {
 		return new SecureEntityIdImpl<AUTHORIZATION_TYPE>(id, create, read, update, delete);
+	}
+
+	@Override
+	public ICrudAuthorizationMapperFactory crudAuthorizationMapperProvider() {
+		if (crudAuthorizationMapperProvider == null) {
+			crudAuthorizationMapperProvider = new CrudAuthorizationMapperFactoryImpl();
+		}
+		return crudAuthorizationMapperProvider;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public <AUTHORIZATION_TYPE> IAuthorizationChecker<AUTHORIZATION_TYPE> defaultAuthorizationChecker() {
+		if (defaultAuthorizationChecker == null) {
+			defaultAuthorizationChecker = new DefaultAuthorizationChecker();
+		}
+		return (IAuthorizationChecker<AUTHORIZATION_TYPE>) defaultAuthorizationChecker;
 	}
 
 }

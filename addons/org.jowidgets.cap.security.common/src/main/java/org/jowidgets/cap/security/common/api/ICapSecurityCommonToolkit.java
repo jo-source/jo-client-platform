@@ -48,4 +48,8 @@ public interface ICapSecurityCommonToolkit {
 		AUTHORIZATION_TYPE update,
 		AUTHORIZATION_TYPE delete);
 
+	ICrudAuthorizationMapperFactory crudAuthorizationMapperProvider();
+
+	<AUTHORIZATION_TYPE> IAuthorizationChecker<AUTHORIZATION_TYPE> defaultAuthorizationChecker();
+
 }

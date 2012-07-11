@@ -26,32 +26,35 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.security.service.impl;
+package org.jowidgets.cap.security.common.impl;
 
-import org.jowidgets.cap.security.common.api.CrudAuthorizations;
-import org.jowidgets.cap.security.common.api.CrudServiceType;
-import org.jowidgets.cap.security.service.api.ICrudAuthorizationMapper;
+import org.jowidgets.cap.security.common.api.ICrudAuthorizationMapper;
+import org.jowidgets.cap.security.common.api.ICrudAuthorizationMapperFactory;
 
-abstract class AbstractAnnotationAuthorizationMapper<AUTHORIZATION_TYPE> implements ICrudAuthorizationMapper<AUTHORIZATION_TYPE> {
+final class CrudAuthorizationMapperFactoryImpl implements ICrudAuthorizationMapperFactory {
 
-	AbstractAnnotationAuthorizationMapper() {}
+	private ICrudAuthorizationMapper<String> beanTypeAnnotationAuthorizationMapper;
+	private ICrudAuthorizationMapper<String> entityIdAnnotationAuthorizationMapper;
 
-	@SuppressWarnings("unchecked")
-	final AUTHORIZATION_TYPE getAuthorization(final CrudServiceType serviceType, final CrudAuthorizations authorizations) {
-		if (serviceType == CrudServiceType.CREATE) {
-			return (AUTHORIZATION_TYPE) authorizations.create();
+	@Override
+	public ICrudAuthorizationMapper<String> beanTypeAnnotationAuthorizationMapper() {
+		if (beanTypeAnnotationAuthorizationMapper == null) {
+			beanTypeAnnotationAuthorizationMapper = new BeanTypeAnnotationAuthorizationMapper();
 		}
-		else if (serviceType == CrudServiceType.READ) {
-			return (AUTHORIZATION_TYPE) authorizations.read();
-		}
-		else if (serviceType == CrudServiceType.UPDATE) {
-			return (AUTHORIZATION_TYPE) authorizations.update();
-		}
-		else if (serviceType == CrudServiceType.DELETE) {
-			return (AUTHORIZATION_TYPE) authorizations.delete();
-		}
-		else {
-			throw new IllegalArgumentException("CrudServiceType '" + serviceType + "' is not known");
-		}
+		return beanTypeAnnotationAuthorizationMapper;
 	}
+
+	@Override
+	public ICrudAuthorizationMapper<String> entityIdAnnotationAuthorizationMapper() {
+		if (entityIdAnnotationAuthorizationMapper == null) {
+			entityIdAnnotationAuthorizationMapper = new EntityIdAnnotationAuthorizationMapper();
+		}
+		return entityIdAnnotationAuthorizationMapper;
+	}
+
+	@Override
+	public <AUTHORIZATION_TYPE> ICrudAuthorizationMapper<AUTHORIZATION_TYPE> secureEntityIdAuthorizationMapper() {
+		return new SecureEntityIdAuthorizationMapper<AUTHORIZATION_TYPE>();
+	}
+
 }

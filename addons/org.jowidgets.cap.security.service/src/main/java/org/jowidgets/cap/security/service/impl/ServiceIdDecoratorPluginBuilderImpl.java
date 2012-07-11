@@ -30,22 +30,24 @@ package org.jowidgets.cap.security.service.impl;
 
 import java.util.LinkedList;
 
-import org.jowidgets.cap.security.service.api.ICrudAuthorizationMapper;
+import org.jowidgets.cap.security.common.api.CrudAuthorizationMapperFactory;
+import org.jowidgets.cap.security.common.api.ICrudAuthorizationMapper;
 import org.jowidgets.cap.security.service.api.IServiceIdDecoratorPluginBuilder;
 import org.jowidgets.cap.service.api.plugin.IServiceIdDecoratorPlugin;
 import org.jowidgets.util.Assert;
 
+@SuppressWarnings({"rawtypes", "unchecked"})
 final class ServiceIdDecoratorPluginBuilderImpl<AUTHORIZATION_TYPE> implements
 		IServiceIdDecoratorPluginBuilder<AUTHORIZATION_TYPE> {
 
-	private final LinkedList<ICrudAuthorizationMapper<AUTHORIZATION_TYPE>> mappers;
+	private final LinkedList mappers;
 
 	ServiceIdDecoratorPluginBuilderImpl() {
-		this.mappers = new LinkedList<ICrudAuthorizationMapper<AUTHORIZATION_TYPE>>();
+		this.mappers = new LinkedList();
 
-		mappers.addFirst(new BeanTypeAnnotationAuthorizationMapper<AUTHORIZATION_TYPE>());
-		mappers.addFirst(new SecureEntityIdAnnotationAuthorizationMapper<AUTHORIZATION_TYPE>());
-		mappers.addFirst(new SecureEntityIdAuthorizationMapper<AUTHORIZATION_TYPE>());
+		mappers.addFirst(CrudAuthorizationMapperFactory.beanTypeAnnotationAuthorizationMapper());
+		mappers.addFirst(CrudAuthorizationMapperFactory.entityIdAnnotationAuthorizationMapper());
+		mappers.addFirst(CrudAuthorizationMapperFactory.secureEntityIdAuthorizationMapper());
 	}
 
 	@Override

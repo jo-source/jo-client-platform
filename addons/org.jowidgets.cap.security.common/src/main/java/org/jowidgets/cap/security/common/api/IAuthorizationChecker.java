@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,21 +26,17 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.api.exception;
+package org.jowidgets.cap.security.common.api;
 
-public class AuthorizationFailedException extends ServiceException {
+public interface IAuthorizationChecker<AUTHORIZATION_TYPE> {
 
-	private static final long serialVersionUID = -7579908469741974763L;
-
-	private final Object authorisation;
-
-	public AuthorizationFailedException(final Object authorization) {
-		super("User is not authorized for the authorization '" + authorization + "'");
-		this.authorisation = authorization;
-	}
-
-	public Object getAuthorisation() {
-		return authorisation;
-	}
+	/**
+	 * Checks the authorization of the current user.
+	 * 
+	 * @param authorization The authorization to check
+	 * 
+	 * @return true, if the user has the authorization, false otherwise
+	 */
+	boolean hasAuthorization(AUTHORIZATION_TYPE authorization);
 
 }

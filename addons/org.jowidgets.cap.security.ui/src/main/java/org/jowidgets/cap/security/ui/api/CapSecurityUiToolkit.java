@@ -32,6 +32,7 @@ import java.util.Iterator;
 import java.util.ServiceLoader;
 
 import org.jowidgets.cap.security.ui.impl.CapSecurityUiToolkitImpl;
+import org.jowidgets.cap.ui.api.plugin.IBeanFormPlugin;
 import org.jowidgets.service.api.IServiceProviderDecoratorHolder;
 import org.jowidgets.util.Assert;
 
@@ -57,6 +58,14 @@ public final class CapSecurityUiToolkit {
 
 	public static IServiceProviderDecoratorHolder secureServiceProviderDecorator() {
 		return getInstance().secureServiceProviderDecorator();
+	}
+
+	public static <AUTHORIZATION_TYPE> ISecureBeanFormPluginBuilder<AUTHORIZATION_TYPE> secureBeanFormPluginBuilder() {
+		return getInstance().secureBeanFormPluginBuilder();
+	}
+
+	public static IBeanFormPlugin secureBeanFormPlugin() {
+		return getInstance().secureBeanFormPlugin();
 	}
 
 	public static ICapSecurityUiToolkit getInstance() {

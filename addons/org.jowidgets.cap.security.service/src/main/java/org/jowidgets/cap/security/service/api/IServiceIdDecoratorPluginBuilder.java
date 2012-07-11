@@ -28,12 +28,13 @@
 
 package org.jowidgets.cap.security.service.api;
 
+import org.jowidgets.cap.security.common.api.ICrudAuthorizationMapper;
 import org.jowidgets.cap.service.api.plugin.IServiceIdDecoratorPlugin;
 
 public interface IServiceIdDecoratorPluginBuilder<AUTHORIZATION_TYPE> {
 
 	/**
-	 * Adds a mapper.
+	 * Adds a mapper. Even if no mappers will be added, the default mappers will be used
 	 * 
 	 * Remark: Mappers will be invoked in reverse order, so mapping results (not null) of later
 	 * added mappers will override the results from earlier added mappers.

@@ -43,8 +43,8 @@ import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.common.api.service.IRefreshService;
 import org.jowidgets.cap.common.api.service.IUpdaterService;
 import org.jowidgets.cap.security.common.api.CrudServiceType;
+import org.jowidgets.cap.security.common.api.ICrudAuthorizationMapper;
 import org.jowidgets.cap.security.common.api.SecureServiceId;
-import org.jowidgets.cap.security.service.api.ICrudAuthorizationMapper;
 import org.jowidgets.cap.service.api.plugin.IServiceIdDecoratorPlugin;
 import org.jowidgets.service.api.IServiceId;
 

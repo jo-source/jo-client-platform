@@ -73,6 +73,14 @@ public final class CapSecurityCommonToolkit {
 		return getInstance().entityId(id, create, read, update, delete);
 	}
 
+	public static ICrudAuthorizationMapperFactory crudAuthorizationMapperProvider() {
+		return getInstance().crudAuthorizationMapperProvider();
+	}
+
+	public static <AUTHORIZATION_TYPE> IAuthorizationChecker<AUTHORIZATION_TYPE> defaultAuthorizationChecker() {
+		return getInstance().defaultAuthorizationChecker();
+	}
+
 	public static ICapSecurityCommonToolkit getInstance() {
 		if (instance == null) {
 			createInstance();

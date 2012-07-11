@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,21 +26,14 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.api.exception;
+package org.jowidgets.cap.security.common.api;
 
-public class AuthorizationFailedException extends ServiceException {
+public final class AuthorizationChecker {
 
-	private static final long serialVersionUID = -7579908469741974763L;
+	private AuthorizationChecker() {}
 
-	private final Object authorisation;
-
-	public AuthorizationFailedException(final Object authorization) {
-		super("User is not authorized for the authorization '" + authorization + "'");
-		this.authorisation = authorization;
-	}
-
-	public Object getAuthorisation() {
-		return authorisation;
+	public static <AUTHORIZATION_TYPE> IAuthorizationChecker<AUTHORIZATION_TYPE> getDefault() {
+		return CapSecurityCommonToolkit.defaultAuthorizationChecker();
 	}
 
 }
