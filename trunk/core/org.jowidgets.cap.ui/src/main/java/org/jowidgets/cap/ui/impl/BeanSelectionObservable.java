@@ -72,10 +72,12 @@ final class BeanSelectionObservable<BEAN_TYPE> implements IBeanSelectionObservab
 
 	@SuppressWarnings({"rawtypes", "unchecked"})
 	void fireSelectionChangedOnPlugins(final IBeanSelectionEvent event) {
+		final Class<?> beanType = event.getBeanType();
+		final Class<?> eventSourceType = event.getSource().getClass();
 		final IPluginPropertiesBuilder propBuilder = PluginToolkit.pluginPropertiesBuilder();
 		propBuilder.add(IBeanSelectionProviderPlugin.ENTITIY_ID_PROPERTY_KEY, event.getEntityId());
-		propBuilder.add(IBeanSelectionProviderPlugin.BEAN_TYPE_PROPERTY_KEY, event.getBeanType());
-		propBuilder.add(IBeanSelectionProviderPlugin.SELECTION_SOURCE_TYPE_PROPERTY_KEY, event.getSource().getClass());
+		propBuilder.add(IBeanSelectionProviderPlugin.BEAN_TYPE_PROPERTY_KEY, beanType);
+		propBuilder.add(IBeanSelectionProviderPlugin.SELECTION_SOURCE_TYPE_PROPERTY_KEY, eventSourceType);
 		propBuilder.add(IBeanSelectionProviderPlugin.SELECTION_EMPTY_PROPERTY_KEY, event.getFirstSelected() == null);
 		final IPluginProperties properties = propBuilder.build();
 		for (final IBeanSelectionProviderPlugin<?> plugin : PluginProvider.getPlugins(IBeanSelectionProviderPlugin.ID, properties)) {
