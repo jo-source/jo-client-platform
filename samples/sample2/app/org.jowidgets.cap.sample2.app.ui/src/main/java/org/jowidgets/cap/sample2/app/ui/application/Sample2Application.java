@@ -61,6 +61,7 @@ public class Sample2Application {
 		addComponent(model, EntityIds.AUTHORIZATION, AuthKeys.VIEW_AUTHORIZATION_COMPONENT);
 		addComponent(model, EntityIds.PERSON_LINK_TYPE, AuthKeys.VIEW_PERSON_LINK_TYPE_COMPONENT);
 		addComponent(model, EntityIds.COUNTRY, AuthKeys.VIEW_COUNTRY_COMPONENT);
+		addComponent(model, EntityIds.PHONE, AuthKeys.VIEW_PHONE_COMPONENT);
 	}
 
 	private void addComponent(final IComponentNodeContainerModel parent, final Object entityId, final String authorization) {

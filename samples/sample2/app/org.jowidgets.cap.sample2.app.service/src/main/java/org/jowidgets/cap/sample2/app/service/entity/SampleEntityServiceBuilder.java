@@ -51,6 +51,7 @@ import org.jowidgets.cap.sample2.app.common.bean.IPerson;
 import org.jowidgets.cap.sample2.app.common.bean.IPersonPersonLink;
 import org.jowidgets.cap.sample2.app.common.bean.IPersonRelationType;
 import org.jowidgets.cap.sample2.app.common.bean.IPersonRoleLink;
+import org.jowidgets.cap.sample2.app.common.bean.IPhone;
 import org.jowidgets.cap.sample2.app.common.bean.IRole;
 import org.jowidgets.cap.sample2.app.common.bean.IRoleAuthorizationLink;
 import org.jowidgets.cap.sample2.app.common.entity.EntityIds;
@@ -60,6 +61,7 @@ import org.jowidgets.cap.sample2.app.service.bean.Person;
 import org.jowidgets.cap.sample2.app.service.bean.PersonPersonLink;
 import org.jowidgets.cap.sample2.app.service.bean.PersonRelationType;
 import org.jowidgets.cap.sample2.app.service.bean.PersonRoleLink;
+import org.jowidgets.cap.sample2.app.service.bean.Phone;
 import org.jowidgets.cap.sample2.app.service.bean.Role;
 import org.jowidgets.cap.sample2.app.service.bean.RoleAuthorizationLink;
 import org.jowidgets.cap.sample2.app.service.descriptor.AuthorizationDtoDescriptorBuilder;
@@ -70,6 +72,7 @@ import org.jowidgets.cap.sample2.app.service.descriptor.PersonDtoDescriptorBuild
 import org.jowidgets.cap.sample2.app.service.descriptor.PersonOfSourcePersonLinkDtoDescriptorBuilder;
 import org.jowidgets.cap.sample2.app.service.descriptor.PersonPersonLinkDtoDescriptorBuilder;
 import org.jowidgets.cap.sample2.app.service.descriptor.PersonRelationTypeDtoDescriptorBuilder;
+import org.jowidgets.cap.sample2.app.service.descriptor.PhoneDtoDescriptorBuilder;
 import org.jowidgets.cap.sample2.app.service.descriptor.RoleDtoDescriptorBuilder;
 import org.jowidgets.cap.sample2.app.service.descriptor.SourcePersonOfPersonLinkDtoDescriptorBuilder;
 import org.jowidgets.cap.sample2.app.service.loader.PersonRelationTypeLoader;
@@ -116,6 +119,11 @@ public class SampleEntityServiceBuilder extends JpaEntityServiceBuilderWrapper {
 		//ICountry
 		entityBp = addEntity().setEntityId(EntityIds.COUNTRY).setBeanType(Country.class);
 		entityBp.setDtoDescriptor(new CountryDtoDescriptorBuilder());
+
+		//IPhone
+		entityBp = addEntity().setEntityId(EntityIds.PHONE).setBeanType(Phone.class);
+		entityBp.setDtoDescriptor(new PhoneDtoDescriptorBuilder());
+		addPersonsOfPhonesLinkDescriptor(entityBp);
 
 		//IPersonsOfSourcePersonLink
 		entityBp = addEntity().setEntityId(EntityIds.PERSONS_OF_SOURCE_PERSONS_LINK).setBeanType(PersonPersonLink.class);
@@ -191,6 +199,18 @@ public class SampleEntityServiceBuilder extends JpaEntityServiceBuilderWrapper {
 		entityBp.setDtoDescriptor(new AuthorizationDtoDescriptorBuilder());
 		entityBp.setReaderService(createAuthorizationsOfRolesReader(false));
 		entityBp.setDeleterService((IDeleterService) null);
+
+		// Linked phones of persons
+		entityBp = addEntity().setEntityId(EntityIds.LINKED_PHONES_OF_PERSONS).setBeanType(Phone.class);
+		entityBp.setDtoDescriptor(new PhoneDtoDescriptorBuilder());
+		entityBp.setCreatorService((ICreatorService) null);
+		entityBp.setReaderService(createPhonesOfPersonLinkReader());
+
+		// Linked persons of phones
+		entityBp = addEntity().setEntityId(EntityIds.LINKED_PERSONS_OF_PHONES).setBeanType(Person.class);
+		entityBp.setDtoDescriptor(new PersonDtoDescriptorBuilder());
+		entityBp.setCreatorService((ICreatorService) null);
+		entityBp.setReaderService(createPersonsOfPhonesLinkReader());
 	}
 
 	private void addPersonLinkDescriptors(final IBeanEntityBluePrint entityBp) {
@@ -219,6 +239,7 @@ public class SampleEntityServiceBuilder extends JpaEntityServiceBuilderWrapper {
 
 		addPersonsOfSourcePersonsLinkDescriptor(entityBp);
 		addSourcePersonsOfPersonsLinkDescriptor(entityBp);
+		addPhonesofPersonsLinkDescriptor(entityBp);
 	}
 
 	private void addRoleLinkDescriptors(final IBeanEntityBluePrint entityBp) {
@@ -254,6 +275,24 @@ public class SampleEntityServiceBuilder extends JpaEntityServiceBuilderWrapper {
 		bp.setLinkableEntityId(EntityIds.LINKABLE_PERSONS_OF_PERSONS);
 		bp.setSourceProperties(IPersonPersonLink.DESTINATION_PERSON_ID_PROPERTY);
 		bp.setDestinationProperties(IPersonPersonLink.SOURCE_PERSON_ID_PROPERTY);
+	}
+
+	private void addPhonesofPersonsLinkDescriptor(final IBeanEntityBluePrint entityBp) {
+		final IBeanEntityLinkBluePrint bp = entityBp.addLink();
+		bp.setLinkEntityId(EntityIds.LINKED_PHONES_OF_PERSONS);
+		bp.setLinkBeanType(Phone.class);
+		bp.setLinkedEntityId(EntityIds.LINKED_PHONES_OF_PERSONS);
+		bp.setSourceProperties(Phone.PERSON_PROPERTY);
+		bp.setLinkDeleterService(null);
+	}
+
+	private void addPersonsOfPhonesLinkDescriptor(final IBeanEntityBluePrint entityBp) {
+		final IBeanEntityLinkBluePrint bp = entityBp.addLink();
+		bp.setLinkEntityId(EntityIds.LINKED_PERSONS_OF_PHONES);
+		bp.setLinkBeanType(Person.class);
+		bp.setLinkedEntityId(EntityIds.LINKED_PERSONS_OF_PHONES);
+		bp.setSourceProperties(Person.ID_PROPERTY);
+		bp.setLinkDeleterService(null);
 	}
 
 	private void addPersonPersonLinkDescriptor(
@@ -409,6 +448,18 @@ public class SampleEntityServiceBuilder extends JpaEntityServiceBuilderWrapper {
 		final ICriteriaQueryCreatorBuilder<Void> queryBuilder = JpaQueryToolkit.criteriaQueryCreatorBuilder(Role.class);
 		queryBuilder.setParentPropertyPath(linked, "personRoleLinks", "person");
 		return getServiceFactory().readerService(Role.class, queryBuilder.build(), IRole.ALL_PROPERTIES);
+	}
+
+	private IReaderService<Void> createPhonesOfPersonLinkReader() {
+		final ICriteriaQueryCreatorBuilder<Void> queryBuilder = JpaQueryToolkit.criteriaQueryCreatorBuilder(Phone.class);
+		queryBuilder.setParentPropertyPath("person");
+		return getServiceFactory().readerService(Phone.class, queryBuilder.build(), IPhone.ALL_PROPERTIES);
+	}
+
+	private IReaderService<Void> createPersonsOfPhonesLinkReader() {
+		final ICriteriaQueryCreatorBuilder<Void> queryBuilder = JpaQueryToolkit.criteriaQueryCreatorBuilder(Person.class);
+		queryBuilder.setParentPropertyPath("phones");
+		return getServiceFactory().readerService(Person.class, queryBuilder.build(), Person.ALL_PROPERTIES);
 	}
 
 	private IReaderService<Void> createRolesOfAuthorizationsReader(final boolean linked) {

@@ -100,6 +100,11 @@ public class Person extends Bean implements IPerson {
 	@BatchSize(size = 1000)
 	private List<PersonPersonLink> sourcePersonOfPersonLinks;
 
+	@OneToMany(cascade = CascadeType.REMOVE, fetch = FetchType.LAZY, mappedBy = "person")
+	@BatchSize(size = 1000)
+	@MapKey(name = "PERSONID")
+	private List<Phone> phones;
+
 	@Override
 	public String getName() {
 		return name;
@@ -233,5 +238,13 @@ public class Person extends Bean implements IPerson {
 		}
 
 		personRoleLinks = newPersonRoleLinks;
+	}
+
+	public List<Phone> getPhones() {
+		return phones;
+	}
+
+	public void setPhones(final List<Phone> phones) {
+		this.phones = phones;
 	}
 }

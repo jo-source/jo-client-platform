@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2011, riegen
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -25,34 +25,64 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
+package org.jowidgets.cap.sample2.app.service.bean;
 
-package org.jowidgets.cap.sample2.app.common.entity;
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
-public enum EntityIds {
+import org.jowidgets.cap.sample2.app.common.bean.IPhone;
+import org.jowidgets.cap.sample2.app.service.entity.EntityManagerProvider;
 
-	PERSON,
-	ROLE,
-	AUTHORIZATION,
-	COUNTRY,
-	PHONE,
+@Entity
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"phone"}))
+public class Phone extends Bean implements IPhone {
 
-	PERSON_LINK_TYPE,
-	PERSON_ROLE_LINK,
-	ROLE_AUTHORIZATION_LINK,
-	PERSONS_OF_SOURCE_PERSONS_LINK,
-	SOURCE_PERSONS_OF_PERSONS_LINK,
-	LINKED_PERSONS_OF_SOURCE_PERSONS,
-	LINKED_SOURCE_PERSONS_OF_PERSONS,
-	LINKABLE_PERSONS_OF_PERSONS,
-	LINKED_ROLES_OF_PERSONS,
-	LINKABLE_ROLES_OF_PERSONS,
-	LINKED_PERSONS_OF_ROLES,
-	LINKABLE_PERSONS_OF_ROLES,
-	LINKED_AUTHORIZATION_OF_ROLES,
-	LINKABLE_AUTHORIZATIONS_OF_ROLES,
-	LINKED_ROLES_OF_AUTHORIZATIONS,
-	LINKABLE_ROLES_OF_AUTHORIZATIONS,
-	LINKED_PHONES_OF_PERSONS,
-	LINKED_PERSONS_OF_PHONES
+	@Basic
+	private String phone;
 
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "PERSONID", nullable = false, insertable = false, updatable = false)
+	private Person person;
+
+	@Column(name = "PERSONID", nullable = true)
+	private Long personId;
+
+	@Override
+	public String getPhone() {
+		return phone;
+	}
+
+	@Override
+	public void setPhone(final String phone) {
+		this.phone = phone;
+	}
+
+	@Override
+	public Long getPersonId() {
+		return personId;
+	}
+
+	@Override
+	public void setPersonId(final Long id) {
+		this.personId = id;
+		this.person = null;
+	}
+
+	public Person getPerson() {
+		if (person == null && personId != null) {
+			person = EntityManagerProvider.get().find(Person.class, personId);
+		}
+		return person;
+	}
+
+	public void setPerson(final Person person) {
+		this.person = person;
+		personId = person != null ? person.getId() : null;
+	}
 }

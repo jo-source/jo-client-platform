@@ -82,12 +82,18 @@ public final class AuthKeys {
 	public static final String UPDATE_ROLE_AUTHORIZATION_LINK = "UPDATE_ROLE_AUTHORIZATION_LINK";
 	public static final String DELETE_ROLE_AUTHORIZATION_LINK = "DELETE_ROLE_AUTHORIZATION_LINK";
 
+	public static final String CREATE_PHONE_AUTHORIZATION_LINK = "CREATE_PHONE_AUTHORIZATION_LINK";
+	public static final String READ_PHONE_AUTHORIZATION_LINK = "READ_PHONE_AUTHORIZATION_LINK";
+	public static final String UPDATE_PHONE_AUTHORIZATION_LINK = "UPDATE_PHONE_AUTHORIZATION_LINK";
+	public static final String DELETE_PHONE_AUTHORIZATION_LINK = "DELETE_PHONE_AUTHORIZATION_LINK";
+
 	//View components
 	public static final String VIEW_PERSON_COMPONENT = "VIEW_PERSON_COMPONENT";
 	public static final String VIEW_ROLE_COMPONENT = "VIEW_ROLE_COMPONENT";
 	public static final String VIEW_AUTHORIZATION_COMPONENT = "VIEW_AUTHORIZATION_COMPONENT";
 	public static final String VIEW_PERSON_LINK_TYPE_COMPONENT = "VIEW_PERSON_RELATION_TYPE_COMPONENT";
 	public static final String VIEW_COUNTRY_COMPONENT = "VIEW_COUNTRY_COMPONENT";
+	public static final String VIEW_PHONE_COMPONENT = "VIEW_PHONE_COMPONENT";
 
 	//Authorization collections
 	public static final Collection<String> ALL_AUTHORIZATIONS = createAuthorizations();
