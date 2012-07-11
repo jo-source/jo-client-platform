@@ -65,7 +65,6 @@ final class BeanExceptionConverterImpl implements IBeanExceptionConverter {
 	private final String uniqueConstraintSingleProp = Messages.getString("BeanExceptionConverterImpl.uniqueConstraintSingleProp");
 	private final String uniqueConstraintPluralProp = Messages.getString("BeanExceptionConverterImpl.uniqueConstraintPluralProp");
 	private final String authorizationFailed = Messages.getString("BeanExceptionConverterImpl.authorizationFailed");
-	private final String authorizationFailedNoKey = Messages.getString("BeanExceptionConverterImpl.authorizationFailedNoKey");
 	private final String undefinedRuntimeException = Messages.getString("BeanExceptionConverterImpl.undefinedRuntimeException");
 
 	@Override
@@ -184,15 +183,7 @@ final class BeanExceptionConverterImpl implements IBeanExceptionConverter {
 	private IBeanMessage convertAuthorizationFailedException(
 		final String shortMessage,
 		final AuthorizationFailedException exception) {
-		final Object authorisation = exception.getAuthorisation();
-		String message;
-		if (EmptyCheck.isEmpty(authorisation)) {
-			message = authorizationFailedNoKey;
-		}
-		else {
-			message = MessageReplacer.replace(authorizationFailed, authorisation.toString());
-		}
-		return new BeanMessageImpl(BeanMessageType.ERROR, shortMessage, message, exception);
+		return new BeanMessageImpl(BeanMessageType.ERROR, shortMessage, authorizationFailed, exception);
 	}
 
 	private IBeanMessage convertForeignKeyConstraintViolationException(final String shortMessage, final Throwable rootThrowable) {

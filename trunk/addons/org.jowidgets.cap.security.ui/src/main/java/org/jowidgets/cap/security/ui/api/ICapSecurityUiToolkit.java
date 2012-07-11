@@ -28,7 +28,11 @@
 
 package org.jowidgets.cap.security.ui.api;
 
+import org.jowidgets.service.api.IServiceProviderDecoratorHolder;
 
 public interface ICapSecurityUiToolkit {
 
+	<AUTHORIZATION_TYPE> ISecureServiceProviderDecoratorBuilder<AUTHORIZATION_TYPE> secureServiceProviderDecoratorBuilder();
+
+	IServiceProviderDecoratorHolder secureServiceProviderDecorator();
 }

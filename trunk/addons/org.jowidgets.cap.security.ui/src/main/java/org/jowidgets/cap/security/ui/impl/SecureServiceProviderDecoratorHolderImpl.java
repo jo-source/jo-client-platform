@@ -28,20 +28,28 @@
 
 package org.jowidgets.cap.security.ui.impl;
 
-import org.jowidgets.cap.security.ui.api.ICapSecurityUiToolkit;
-import org.jowidgets.cap.security.ui.api.ISecureServiceProviderDecoratorBuilder;
+import org.jowidgets.service.api.IServiceProvider;
 import org.jowidgets.service.api.IServiceProviderDecoratorHolder;
+import org.jowidgets.util.IDecorator;
 
-public final class CapSecurityUiToolkitImpl implements ICapSecurityUiToolkit {
+final class SecureServiceProviderDecoratorHolderImpl<AUTHORIZATION_TYPE> implements IServiceProviderDecoratorHolder {
 
-	@Override
-	public <AUTHORIZATION_TYPE> ISecureServiceProviderDecoratorBuilder<AUTHORIZATION_TYPE> secureServiceProviderDecoratorBuilder() {
-		return new SecureServiceProviderDecoratorBuilderImpl<AUTHORIZATION_TYPE>();
+	private final int order;
+	private final IDecorator<IServiceProvider> decorator;
+
+	SecureServiceProviderDecoratorHolderImpl(final int order) {
+		this.order = order;
+		this.decorator = new SecureServiceProviderDecoratorImpl();
 	}
 
 	@Override
-	public IServiceProviderDecoratorHolder secureServiceProviderDecorator() {
-		return secureServiceProviderDecoratorBuilder().build();
+	public IDecorator<IServiceProvider> getDecorator() {
+		return decorator;
+	}
+
+	@Override
+	public int getOrder() {
+		return order;
 	}
 
 }

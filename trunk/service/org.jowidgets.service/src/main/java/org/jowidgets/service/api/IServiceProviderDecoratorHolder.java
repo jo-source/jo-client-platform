@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, grossmann
+ * Copyright (c) 2011, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,22 +26,19 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.security.ui.impl;
+package org.jowidgets.service.api;
 
-import org.jowidgets.cap.security.ui.api.ICapSecurityUiToolkit;
-import org.jowidgets.cap.security.ui.api.ISecureServiceProviderDecoratorBuilder;
-import org.jowidgets.service.api.IServiceProviderDecoratorHolder;
+import org.jowidgets.util.IDecorator;
 
-public final class CapSecurityUiToolkitImpl implements ICapSecurityUiToolkit {
+public interface IServiceProviderDecoratorHolder {
 
-	@Override
-	public <AUTHORIZATION_TYPE> ISecureServiceProviderDecoratorBuilder<AUTHORIZATION_TYPE> secureServiceProviderDecoratorBuilder() {
-		return new SecureServiceProviderDecoratorBuilderImpl<AUTHORIZATION_TYPE>();
-	}
+	IDecorator<IServiceProvider> getDecorator();
 
-	@Override
-	public IServiceProviderDecoratorHolder secureServiceProviderDecorator() {
-		return secureServiceProviderDecoratorBuilder().build();
-	}
+	/**
+	 * Gets the order of the decorator. The service provider will be decorated in this order.
+	 * 
+	 * @return The order
+	 */
+	int getOrder();
 
 }

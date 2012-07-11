@@ -28,20 +28,45 @@
 
 package org.jowidgets.cap.security.ui.impl;
 
-import org.jowidgets.cap.security.ui.api.ICapSecurityUiToolkit;
-import org.jowidgets.cap.security.ui.api.ISecureServiceProviderDecoratorBuilder;
-import org.jowidgets.service.api.IServiceProviderDecoratorHolder;
+import java.util.Set;
 
-public final class CapSecurityUiToolkitImpl implements ICapSecurityUiToolkit {
+import org.jowidgets.service.api.IServiceId;
+import org.jowidgets.service.api.IServiceProvider;
+import org.jowidgets.util.Assert;
+import org.jowidgets.util.IDecorator;
 
-	@Override
-	public <AUTHORIZATION_TYPE> ISecureServiceProviderDecoratorBuilder<AUTHORIZATION_TYPE> secureServiceProviderDecoratorBuilder() {
-		return new SecureServiceProviderDecoratorBuilderImpl<AUTHORIZATION_TYPE>();
-	}
+final class SecureServiceProviderDecoratorImpl implements IDecorator<IServiceProvider> {
 
 	@Override
-	public IServiceProviderDecoratorHolder secureServiceProviderDecorator() {
-		return secureServiceProviderDecoratorBuilder().build();
+	public IServiceProvider decorate(final IServiceProvider original) {
+		return new DecoratedServiceProvider(original);
 	}
 
+	private final class DecoratedServiceProvider implements IServiceProvider {
+
+		private final IServiceProvider original;
+
+		private DecoratedServiceProvider(final IServiceProvider original) {
+			Assert.paramNotNull(original, "original");
+			this.original = original;
+		}
+
+		@Override
+		public Set<IServiceId<?>> getAvailableServices() {
+			return getFilteredServices(original.getAvailableServices());
+		}
+
+		@Override
+		public <SERVICE_TYPE> SERVICE_TYPE get(final IServiceId<SERVICE_TYPE> id) {
+			return getFilteredService(id, original.get(id));
+		}
+
+		private Set<IServiceId<?>> getFilteredServices(final Set<IServiceId<?>> original) {
+			return original;
+		}
+
+		private <SERVICE_TYPE> SERVICE_TYPE getFilteredService(final IServiceId<SERVICE_TYPE> id, final SERVICE_TYPE service) {
+			return service;
+		}
+	}
 }
