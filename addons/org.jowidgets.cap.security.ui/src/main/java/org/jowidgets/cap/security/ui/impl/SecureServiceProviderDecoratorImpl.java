@@ -28,8 +28,11 @@
 
 package org.jowidgets.cap.security.ui.impl;
 
+import java.util.HashSet;
 import java.util.Set;
 
+import org.jowidgets.cap.security.common.api.ISecureServiceId;
+import org.jowidgets.security.tools.SecurityContext;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.api.IServiceProvider;
 import org.jowidgets.util.Assert;
@@ -62,11 +65,35 @@ final class SecureServiceProviderDecoratorImpl implements IDecorator<IServicePro
 		}
 
 		private Set<IServiceId<?>> getFilteredServices(final Set<IServiceId<?>> original) {
-			return original;
+			final Set<IServiceId<?>> result = new HashSet<IServiceId<?>>();
+			for (final IServiceId<?> id : original) {
+				if (acceptService(id)) {
+					result.add(id);
+				}
+			}
+			return result;
 		}
 
 		private <SERVICE_TYPE> SERVICE_TYPE getFilteredService(final IServiceId<SERVICE_TYPE> id, final SERVICE_TYPE service) {
-			return service;
+			if (acceptService(id)) {
+				return service;
+			}
+			else {
+				return null;
+			}
+		}
+
+		private boolean acceptService(final IServiceId<?> id) {
+			if (id instanceof ISecureServiceId<?, ?>) {
+				return isAuthorized(((ISecureServiceId<?, ?>) id).getAuthorization());
+			}
+			else {
+				return true;
+			}
+		}
+
+		private boolean isAuthorized(final Object authorization) {
+			return SecurityContext.hasAuthorization(authorization);
 		}
 	}
 }

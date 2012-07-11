@@ -1,1 +1,2 @@
 org.jowidgets.cap.service.tools.AsyncServiceDecoratorProvider
+org.jowidgets.cap.ui.tools.decorator.CachedEntityServiceDecoratorProvider

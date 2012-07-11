@@ -111,7 +111,6 @@ final class BeanListSaveDelegate<BEAN_TYPE> {
 		this.propertyNames = new LinkedList<String>(propertyNames);
 		this.fireBeansChanged = fireBeansChanged;
 
-		//TODO i18n
 		this.saveString = Messages.getString("BeanListSaveDelegate.Save");
 		this.saveFailedString = Messages.getString("BeanListSaveDelegate.Save_failed");
 		this.createString = Messages.getString("BeanListSaveDelegate.Create");
