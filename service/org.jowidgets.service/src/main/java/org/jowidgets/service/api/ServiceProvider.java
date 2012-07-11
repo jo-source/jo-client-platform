@@ -28,8 +28,12 @@
 
 package org.jowidgets.service.api;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.ServiceLoader;
 import java.util.Set;
 
@@ -38,12 +42,20 @@ import org.jowidgets.util.Assert;
 public final class ServiceProvider {
 
 	private static CompositeServiceProviderHolder compositeServiceProviderHolder;
+	private static List<IServiceProviderDecoratorHolder> serviceProviderDecorators;
 
 	private ServiceProvider() {}
 
 	public static synchronized void registerServiceProviderHolder(final IServiceProviderHolder serviceProviderHolder) {
 		Assert.paramNotNull(serviceProviderHolder, "serviceProviderHolder");
 		getCompositeServiceProviderHolder().add(serviceProviderHolder);
+	}
+
+	public static synchronized void registerServiceProviderDecorator(final IServiceProviderDecoratorHolder decorator) {
+		Assert.paramNotNull(decorator, "decorator");
+		final List<IServiceProviderDecoratorHolder> decorators = getServiceProviderDecorators();
+		decorators.add(decorator);
+		sortDecorators(decorators);
 	}
 
 	private static synchronized CompositeServiceProviderHolder getCompositeServiceProviderHolder() {
@@ -59,7 +71,7 @@ public final class ServiceProvider {
 	}
 
 	public static IServiceProvider getInstance() {
-		return getCompositeServiceProviderHolder().getServiceProvider();
+		return getDecoratedInstance();
 	}
 
 	public static Set<IServiceId<?>> getAvailableServices() {
@@ -68,6 +80,58 @@ public final class ServiceProvider {
 
 	public static <SERVICE_TYPE> SERVICE_TYPE getService(final IServiceId<SERVICE_TYPE> id) {
 		return getInstance().get(id);
+	}
+
+	private static IServiceProvider getDecoratedInstance() {
+		IServiceProvider result = getUndecoratedInstance();
+		for (final IServiceProviderDecoratorHolder decorator : getServiceProviderDecorators()) {
+			result = decorator.getDecorator().decorate(result);
+			if (result == null) {
+				throw new IllegalStateException("Decorator must not return null: " + decorator.getClass().getName());
+			}
+		}
+		return result;
+	}
+
+	private static IServiceProvider getUndecoratedInstance() {
+		return getCompositeServiceProviderHolder().getServiceProvider();
+	}
+
+	private static List<IServiceProviderDecoratorHolder> getServiceProviderDecorators() {
+		if (serviceProviderDecorators == null) {
+			serviceProviderDecorators = createServiceProviderDecorators();
+		}
+		return serviceProviderDecorators;
+	}
+
+	private static List<IServiceProviderDecoratorHolder> createServiceProviderDecorators() {
+		final List<IServiceProviderDecoratorHolder> result = getRegisteredDecorators();
+		sortDecorators(result);
+		return result;
+	}
+
+	private static List<IServiceProviderDecoratorHolder> getRegisteredDecorators() {
+		final List<IServiceProviderDecoratorHolder> result = new LinkedList<IServiceProviderDecoratorHolder>();
+		final ServiceLoader<IServiceProviderDecoratorHolder> service = ServiceLoader.load(IServiceProviderDecoratorHolder.class);
+		if (service != null) {
+			final Iterator<IServiceProviderDecoratorHolder> iterator = service.iterator();
+			while (iterator.hasNext()) {
+				result.add(iterator.next());
+			}
+		}
+		return result;
+	}
+
+	private static void sortDecorators(final List<IServiceProviderDecoratorHolder> decorators) {
+		Collections.sort(decorators, new Comparator<IServiceProviderDecoratorHolder>() {
+			@Override
+			public int compare(final IServiceProviderDecoratorHolder decorator1, final IServiceProviderDecoratorHolder decorator2) {
+				if (decorator1 != null && decorator2 != null) {
+					return decorator2.getOrder() - decorator1.getOrder();
+				}
+				return 0;
+			}
+		});
 	}
 
 	private static class CompositeServiceProviderHolder implements IServiceProviderHolder {

@@ -26,22 +26,23 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.security.ui.impl;
+package org.jowidgets.cap.security.ui.api;
 
-import org.jowidgets.cap.security.ui.api.ICapSecurityUiToolkit;
-import org.jowidgets.cap.security.ui.api.ISecureServiceProviderDecoratorBuilder;
 import org.jowidgets.service.api.IServiceProviderDecoratorHolder;
 
-public final class CapSecurityUiToolkitImpl implements ICapSecurityUiToolkit {
+public interface ISecureServiceProviderDecoratorBuilder<AUTHORIZATION_TYPE> {
 
-	@Override
-	public <AUTHORIZATION_TYPE> ISecureServiceProviderDecoratorBuilder<AUTHORIZATION_TYPE> secureServiceProviderDecoratorBuilder() {
-		return new SecureServiceProviderDecoratorBuilderImpl<AUTHORIZATION_TYPE>();
-	}
+	int DEFAULT_ORDER = 2;
 
-	@Override
-	public IServiceProviderDecoratorHolder secureServiceProviderDecorator() {
-		return secureServiceProviderDecoratorBuilder().build();
-	}
+	/**
+	 * Sets the order of the decorator. If not set, the DEFAULT_ORDER will be used.
+	 * 
+	 * @param order The order to set
+	 * 
+	 * @return This builder
+	 */
+	ISecureServiceProviderDecoratorBuilder<AUTHORIZATION_TYPE> setOrder(int order);
+
+	IServiceProviderDecoratorHolder build();
 
 }

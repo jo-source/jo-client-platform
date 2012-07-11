@@ -32,6 +32,7 @@ import java.util.Iterator;
 import java.util.ServiceLoader;
 
 import org.jowidgets.cap.security.ui.impl.CapSecurityUiToolkitImpl;
+import org.jowidgets.service.api.IServiceProviderDecoratorHolder;
 import org.jowidgets.util.Assert;
 
 public final class CapSecurityUiToolkit {
@@ -48,6 +49,14 @@ public final class CapSecurityUiToolkit {
 		else {
 			throw new IllegalStateException("The CapSecurityUiToolkit is already initialized");
 		}
+	}
+
+	public static <AUTHORIZATION_TYPE> ISecureServiceProviderDecoratorBuilder<AUTHORIZATION_TYPE> secureServiceProviderDecoratorBuilder() {
+		return getInstance().secureServiceProviderDecoratorBuilder();
+	}
+
+	public static IServiceProviderDecoratorHolder secureServiceProviderDecorator() {
+		return getInstance().secureServiceProviderDecorator();
 	}
 
 	public static ICapSecurityUiToolkit getInstance() {
