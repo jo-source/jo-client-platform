@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, grossmann
+ * Copyright (c) 2011, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,36 +26,22 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.impl;
+package org.jowidgets.cap.ui.api.plugin;
 
-import java.util.Collection;
-
-import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionEvent;
-import org.jowidgets.cap.ui.api.bean.IBeanSelectionObservable;
+import org.jowidgets.plugin.api.IPluginId;
+import org.jowidgets.plugin.api.IPluginProperties;
+import org.jowidgets.util.ITypedKey;
 
-final class BeanSelectionEventImpl<BEAN_TYPE> extends BeanSelectionImpl<BEAN_TYPE> implements IBeanSelectionEvent<BEAN_TYPE> {
+public interface IBeanSelectionProviderPlugin<BEAN_TYPE> {
 
-	private final IBeanSelectionObservable<BEAN_TYPE> source;
+	IPluginId<IBeanSelectionProviderPlugin<?>> ID = new IPluginId<IBeanSelectionProviderPlugin<?>>() {};
 
-	BeanSelectionEventImpl(
-		final IBeanSelectionObservable<BEAN_TYPE> source,
-		final Class<? extends BEAN_TYPE> beanType,
-		final Object entityId,
-		final Collection<? extends IBeanProxy<BEAN_TYPE>> selection) {
-		super(beanType, entityId, selection);
+	ITypedKey<Object> ENTITIY_ID_PROPERTY_KEY = new ITypedKey<Object>() {};
+	ITypedKey<Class<?>> BEAN_TYPE_PROPERTY_KEY = new ITypedKey<Class<?>>() {};
+	ITypedKey<Class<?>> SELECTION_SOURCE_TYPE_PROPERTY_KEY = new ITypedKey<Class<?>>() {};
+	ITypedKey<Boolean> SELECTION_EMPTY_PROPERTY_KEY = new ITypedKey<Boolean>() {};
 
-		this.source = source;
-	}
-
-	@Override
-	public IBeanSelectionObservable<BEAN_TYPE> getSource() {
-		return source;
-	}
-
-	@Override
-	public String toString() {
-		return "BeanSelectionEventImpl [source=" + source + ", " + super.toString() + "]";
-	}
+	void selectionChanged(IBeanSelectionEvent<BEAN_TYPE> selectionEvent, IPluginProperties pluginProperties);
 
 }
