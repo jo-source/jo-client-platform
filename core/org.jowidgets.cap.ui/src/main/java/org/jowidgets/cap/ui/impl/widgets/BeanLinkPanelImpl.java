@@ -77,6 +77,9 @@ final class BeanLinkPanelImpl<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> extends
 	private static final String BEAN_LINK_SEARCH_FILTER_ID = "BEAN_LINK_SEARCH_FILTER_ID";
 	private static final int LOAD_DELAY = 400;
 
+	private final String selectDataset = Messages.getString("BeanLinkPanelImpl.selectDataset");
+	private final String selectOrInputDataset = Messages.getString("BeanLinkPanelImpl.selectOrInputDataset");
+
 	private final BeanFilterListener beanFilterListener;
 
 	private IBeanForm<LINK_BEAN_TYPE> linkForm;
@@ -239,12 +242,10 @@ final class BeanLinkPanelImpl<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> extends
 			if (linkableForm != null) {
 				if (!linkableForm.hasModifications()) {
 					if (linkableTable != null) {
-						//TODO i18n
-						builder.addInfoError("Please select or input a dataset");
+						builder.addInfoError(selectOrInputDataset);
 					}
 					else {
-						//TODO i18n
-						builder.addInfoError("Please input a dataset");
+						builder.addInfoError(selectDataset);
 					}
 				}
 				else {
@@ -252,8 +253,7 @@ final class BeanLinkPanelImpl<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> extends
 				}
 			}
 			else if (linkableTable != null) {
-				//TODO i18n
-				builder.addInfoError("Please select a dataset");
+				builder.addInfoError(selectDataset);
 			}
 		}
 		if (linkForm != null) {
@@ -464,6 +464,20 @@ final class BeanLinkPanelImpl<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> extends
 			doFilter((IBeanProxy<LINKABLE_BEAN_TYPE>) evt.getSource());
 		}
 
+	}
+
+	@Override
+	public void dispose() {
+		if (linkForm != null) {
+			linkForm.dispose();
+		}
+		if (linkableForm != null) {
+			linkableForm.dispose();
+		}
+		if (linkableTable != null) {
+			linkableTable.dispose();
+		}
+		super.dispose();
 	}
 
 }

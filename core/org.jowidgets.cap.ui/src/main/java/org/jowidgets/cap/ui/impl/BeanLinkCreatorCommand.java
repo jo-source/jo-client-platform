@@ -74,6 +74,7 @@ import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
 import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
 import org.jowidgets.cap.ui.tools.execution.AbstractUiResultCallback;
 import org.jowidgets.common.types.Dimension;
+import org.jowidgets.common.types.Rectangle;
 import org.jowidgets.tools.message.MessageReplacer;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.EmptyCheck;
@@ -99,6 +100,8 @@ final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BE
 
 	private final BeanSelectionProviderEnabledChecker<SOURCE_BEAN_TYPE> enabledChecker;
 	private final ExecutionObservable<List<IBeanDto>> executionObservable;
+
+	private Rectangle dialogBounds;
 
 	BeanLinkCreatorCommand(
 		final IEntityLinkProperties sourceProperties,
@@ -309,6 +312,10 @@ final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BE
 		dialogBp.setExecutionContext(executionContext);
 		dialogBp.setMissingInputHint(null);
 		dialogBp.setContentScrolled(false);
+		if (dialogBounds != null) {
+			dialogBp.setPosition(dialogBounds.getPosition()).setSize(dialogBounds.getSize());
+			dialogBp.autoPackOff().autoCenterOff();
+		}
 
 		final IBeanLinkDialog<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> linkDialog;
 		linkDialog = Toolkit.getActiveWindow().createChildWindow(dialogBp);
@@ -343,24 +350,30 @@ final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BE
 
 		linkDialog.setVisible(true);
 
+		final IBeanLink<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> result;
 		if (linkDialog.isOkPressed()) {
-			final IBeanLink<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> result = linkDialog.getValue();
-			return new IBeanLink<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE>() {
+			final IBeanLink<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> dialogValue = linkDialog.getValue();
+			result = new IBeanLink<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE>() {
 				@Override
 				public IBeanProxy<LINK_BEAN_TYPE> getLinkBean() {
-					final IBeanProxy<LINK_BEAN_TYPE> original = result.getLinkBean();
+					final IBeanProxy<LINK_BEAN_TYPE> original = dialogValue.getLinkBean();
 					return original != null ? original : defaultLinkBean;
 				}
 
 				@Override
 				public List<IBeanProxy<LINKABLE_BEAN_TYPE>> getLinkableBeans() {
-					return result.getLinkableBeans();
+					return dialogValue.getLinkableBeans();
 				}
 			};
 		}
 		else {
-			return null;
+			result = null;
 		}
+
+		dialogBounds = linkDialog.getBounds();
+		linkDialog.dispose();
+
+		return result;
 	}
 
 	private <BEAN_TYPE> IBeanProxy<BEAN_TYPE> createDefaultBean(
