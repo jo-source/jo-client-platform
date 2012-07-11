@@ -16,8 +16,6 @@
 		<module>../org.jowidgets.cap.service.jpa.impl</module>	
 		<module>../org.jowidgets.cap.service.hibernate</module>
 		<module>../org.jowidgets.cap.service.hibernate.oracle</module>
-		<module>../org.jowidgets.cap.service.security</module>
-		<module>../org.jowidgets.cap.service.security.plugin</module>
 		<module>../org.jowidgets.cap.service.impl.dummy</module>
 		<module>../org.jowidgets.cap.service.spring</module>
 		<module>../org.jowidgets.message.impl.akka</module>
