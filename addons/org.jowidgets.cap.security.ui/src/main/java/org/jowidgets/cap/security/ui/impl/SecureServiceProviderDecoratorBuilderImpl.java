@@ -28,6 +28,8 @@
 
 package org.jowidgets.cap.security.ui.impl;
 
+import org.jowidgets.cap.security.common.api.AuthorizationChecker;
+import org.jowidgets.cap.security.common.api.IAuthorizationChecker;
 import org.jowidgets.cap.security.ui.api.ISecureServiceProviderDecoratorBuilder;
 import org.jowidgets.service.api.IServiceProviderDecoratorHolder;
 
@@ -35,9 +37,11 @@ final class SecureServiceProviderDecoratorBuilderImpl<AUTHORIZATION_TYPE> implem
 		ISecureServiceProviderDecoratorBuilder<AUTHORIZATION_TYPE> {
 
 	private int order;
+	private final IAuthorizationChecker<AUTHORIZATION_TYPE> authorizationChecker;
 
 	SecureServiceProviderDecoratorBuilderImpl() {
 		this.order = ISecureServiceProviderDecoratorBuilder.DEFAULT_ORDER;
+		this.authorizationChecker = AuthorizationChecker.getDefault();
 	}
 
 	@Override
@@ -47,8 +51,15 @@ final class SecureServiceProviderDecoratorBuilderImpl<AUTHORIZATION_TYPE> implem
 	}
 
 	@Override
+	public ISecureServiceProviderDecoratorBuilder<AUTHORIZATION_TYPE> setAuthorizationChecker(
+		final IAuthorizationChecker<AUTHORIZATION_TYPE> checker) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
 	public IServiceProviderDecoratorHolder build() {
-		return new SecureServiceProviderDecoratorHolderImpl<AUTHORIZATION_TYPE>(order);
+		return new SecureServiceProviderDecoratorHolderImpl<AUTHORIZATION_TYPE>(order, authorizationChecker);
 	}
 
 }

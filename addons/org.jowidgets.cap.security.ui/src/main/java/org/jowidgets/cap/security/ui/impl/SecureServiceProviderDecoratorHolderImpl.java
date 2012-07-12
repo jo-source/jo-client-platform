@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.security.ui.impl;
 
+import org.jowidgets.cap.security.common.api.IAuthorizationChecker;
 import org.jowidgets.service.api.IServiceProvider;
 import org.jowidgets.service.api.IServiceProviderDecoratorHolder;
 import org.jowidgets.util.IDecorator;
@@ -37,9 +38,9 @@ final class SecureServiceProviderDecoratorHolderImpl<AUTHORIZATION_TYPE> impleme
 	private final int order;
 	private final IDecorator<IServiceProvider> decorator;
 
-	SecureServiceProviderDecoratorHolderImpl(final int order) {
+	SecureServiceProviderDecoratorHolderImpl(final int order, final IAuthorizationChecker<AUTHORIZATION_TYPE> authorizationChecker) {
 		this.order = order;
-		this.decorator = new SecureServiceProviderDecoratorImpl();
+		this.decorator = new SecureServiceProviderDecoratorImpl<AUTHORIZATION_TYPE>(authorizationChecker);
 	}
 
 	@Override
