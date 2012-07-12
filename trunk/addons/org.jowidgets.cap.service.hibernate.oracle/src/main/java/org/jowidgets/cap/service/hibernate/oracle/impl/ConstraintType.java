@@ -31,6 +31,8 @@ package org.jowidgets.cap.service.hibernate.oracle.impl;
 enum ConstraintType {
 
 	UNIQUE,
+	UNIQUE_INDEX,
+	UNIQUE_INDEX_FUNCTION_BASED,
 	FK,
 	UNSUPPORTED;
 

@@ -30,6 +30,7 @@ package org.jowidgets.cap.service.hibernate.oracle.impl;
 
 import java.lang.reflect.Field;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -73,8 +74,8 @@ final class HibernateOracleExceptionDecoratorImpl implements IDecorator<Throwabl
 					if (constraintType == ConstraintType.FK) {
 						return new ForeignKeyConstraintViolationException();
 					}
-					else if (constraintType == ConstraintType.UNIQUE) {
-						final List<String> properties = getViolatedProperties(constraintName);
+					else if (constraintType != ConstraintType.UNSUPPORTED) {
+						final List<String> properties = getViolatedProperties(constraintName, constraintType);
 						if (!EmptyCheck.isEmpty(properties)) {
 							return new UniqueConstraintViolationException(properties);
 						}
@@ -135,6 +136,17 @@ final class HibernateOracleExceptionDecoratorImpl implements IDecorator<Throwabl
 	}
 
 	private ConstraintType readConstraintType(final String constraintName) {
+		ConstraintType result = readConstraintTypeFromUserConstraints(constraintName);
+		if (result == null) {
+			result = readConstraintTypeFromUserIndexes(constraintName);
+		}
+		if (result == null) {
+			result = ConstraintType.UNSUPPORTED;
+		}
+		return result;
+	}
+
+	private ConstraintType readConstraintTypeFromUserConstraints(final String constraintName) {
 		final EntityManager em = EntityManagerHolder.get();
 		final String sql = "select CONSTRAINT_TYPE from user_constraints where constraint_name ='" + constraintName + "'";
 		final Query query = em.createNativeQuery(sql);
@@ -143,7 +155,7 @@ final class HibernateOracleExceptionDecoratorImpl implements IDecorator<Throwabl
 			queryResult = query.getSingleResult();
 		}
 		catch (final Exception e) {
-			return ConstraintType.UNSUPPORTED;
+			return null;
 		}
 
 		if ("U".equals(queryResult)) {
@@ -152,24 +164,81 @@ final class HibernateOracleExceptionDecoratorImpl implements IDecorator<Throwabl
 		else if ("R".equals(queryResult)) {
 			return ConstraintType.FK;
 		}
-		else {
-			return ConstraintType.UNSUPPORTED;
-		}
+		return null;
 	}
 
-	private List<String> getViolatedProperties(final String constraintName) {
+	private ConstraintType readConstraintTypeFromUserIndexes(final String constraintName) {
+		final EntityManager em = EntityManagerHolder.get();
+		final String sql = "select INDEX_TYPE from user_indexes where UNIQUENESS='UNIQUE' AND index_name ='"
+			+ constraintName
+			+ "'";
+		final Query query = em.createNativeQuery(sql);
+		Object queryResult;
+		try {
+			queryResult = query.getSingleResult();
+		}
+		catch (final Exception e) {
+			return null;
+		}
+
+		if ("NORMAL".equals(queryResult)) {
+			return ConstraintType.UNIQUE_INDEX;
+		}
+		else if ("FUNCTION-BASED NORMAL".equals(queryResult)) {
+			return ConstraintType.UNIQUE_INDEX_FUNCTION_BASED;
+		}
+		return null;
+	}
+
+	private List<String> getViolatedProperties(final String constraintName, final ConstraintType constraintType) {
 		List<String> result = violatedProperties.get(constraintName);
 		if (result == null) {
-			result = readViolatedProperties(constraintName);
+			result = readViolatedProperties(constraintName, constraintType);
 			violatedProperties.put(constraintName, result);
 		}
 		return result;
 	}
 
-	private List<String> readViolatedProperties(final String constraintName) {
+	private List<String> readViolatedProperties(final String constraintName, final ConstraintType constraintType) {
+		if (ConstraintType.UNIQUE == constraintType) {
+			return readViolatedPropertiesFromUserConsColumns(constraintName, constraintType);
+		}
+		else if (ConstraintType.UNIQUE_INDEX == constraintType) {
+			return readViolatedPropertiesFromUserIndColumns(constraintName, constraintType);
+		}
+		else if (ConstraintType.UNIQUE_INDEX_FUNCTION_BASED == constraintType) {
+			return readViolatedPropertiesFromUserIndExpressions(constraintName, constraintType);
+		}
+		else {
+			return Collections.emptyList();
+		}
+	}
+
+	private List<String> readViolatedPropertiesFromUserConsColumns(
+		final String constraintName,
+		final ConstraintType constraintType) {
+		final String sql = "select TABLE_NAME, COLUMN_NAME from user_cons_columns where constraint_name='" + constraintName + "'";
+		return readViolatedPropertiesFromQuery(sql, constraintType);
+	}
+
+	private List<String> readViolatedPropertiesFromUserIndColumns(final String constraintName, final ConstraintType constraintType) {
+		final String sql = "select TABLE_NAME, COLUMN_NAME from user_ind_columns where index_name='" + constraintName + "'";
+		return readViolatedPropertiesFromQuery(sql, constraintType);
+	}
+
+	private List<String> readViolatedPropertiesFromUserIndExpressions(
+		final String constraintName,
+		final ConstraintType constraintType) {
+		final String sql = "select TABLE_NAME, COLUMN_EXPRESSION from user_ind_expressions where index_name='"
+			+ constraintName
+			+ "'";
+		return readViolatedPropertiesFromQuery(sql, constraintType);
+	}
+
+	private List<String> readViolatedPropertiesFromQuery(final String queryString, final ConstraintType constraintType) {
 		final List<String> result = new LinkedList<String>();
 		final EntityManager em = EntityManagerHolder.get();
-		final String sql = "select TABLE_NAME, COLUMN_NAME from user_cons_columns where constraint_name='" + constraintName + "'";
+		final String sql = queryString;
 		final Query query = em.createNativeQuery(sql);
 		@SuppressWarnings("rawtypes")
 		final List resultList = query.getResultList();
@@ -178,18 +247,42 @@ final class HibernateOracleExceptionDecoratorImpl implements IDecorator<Throwabl
 				final Object[] array = (Object[]) obj;
 				if (array[0] instanceof String && array[1] instanceof String) {
 					final String tableName = (String) array[0];
-					final String columnName = (String) array[1];
-					final EntityType<?> entity = getEntityForTableName(em, tableName);
-					if (entity != null) {
-						final String propertyName = getPropertyForColumnName(entity, columnName);
-						if (!EmptyCheck.isEmpty(propertyName)) {
-							result.add(propertyName);
+					final String columnName;
+					if (constraintType == ConstraintType.UNIQUE_INDEX_FUNCTION_BASED) {
+						columnName = getColumnNameFromColumnExpression((String) array[1]);
+					}
+					else {
+						columnName = (String) array[1];
+					}
+					if (columnName != null) {
+						final EntityType<?> entity = getEntityForTableName(em, tableName);
+						if (entity != null) {
+							final String propertyName = getPropertyForColumnName(entity, columnName);
+							if (!EmptyCheck.isEmpty(propertyName)) {
+								result.add(propertyName);
+							}
 						}
 					}
 				}
 			}
 		}
 		return result;
+	}
+
+	private String getColumnNameFromColumnExpression(final String columnExpression) {
+		//TODO ANYBODY This may not work for all function based unique indices, but for my upper indices
+		//it works fine. Feel free to enhance this method
+		if (columnExpression != null) {
+			final int startIndex = columnExpression.indexOf('"');
+			if (startIndex != -1) {
+				final String suffix = columnExpression.substring(startIndex + 1);
+				final int endIndex = suffix.indexOf('"');
+				if (endIndex != -1) {
+					return suffix.substring(0, endIndex);
+				}
+			}
+		}
+		return null;
 	}
 
 	private String getPropertyForColumnName(final EntityType<?> entity, final String columnName) {
