@@ -32,7 +32,6 @@ import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanPropertyBluePrint;
 import org.jowidgets.cap.common.tools.bean.BeanDtoDescriptorBuilder;
 import org.jowidgets.cap.sample2.app.common.bean.IPhone;
-import org.jowidgets.cap.sample2.app.common.lookup.LookUpIds;
 
 public class PhoneDtoDescriptorBuilder extends BeanDtoDescriptorBuilder {
 
@@ -54,11 +53,10 @@ public class PhoneDtoDescriptorBuilder extends BeanDtoDescriptorBuilder {
 		propertyBp.setDescription("The phone number");
 		propertyBp.setMandatory(true);
 
-		propertyBp = addProperty(IPhone.PERSON_PROPERTY);
+		propertyBp = addProperty(IPhone.PERSON_LABEL_PROPERTY);
 		propertyBp.setLabel("Person");
 		propertyBp.setDescription("Person who owns the phone");
 		propertyBp.setMandatory(false);
-		propertyBp.setLookUpValueRange(LookUpIds.PERSON);
 
 		propertyBp = addProperty(IBean.VERSION_PROPERTY);
 		propertyBp.setLabel("Version");

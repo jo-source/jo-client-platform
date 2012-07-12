@@ -62,6 +62,11 @@ public final class AuthKeys {
 	public static final String UPDATE_AUTHORIZATION = "UPDATE_AUTHORIZATION";
 	public static final String DELETE_AUTHORIZATION = "DELETE_AUTHORIZATION";
 
+	public static final String CREATE_PHONE = "CREATE_PHONE";
+	public static final String READ_PHONE = "READ_PHONE";
+	public static final String UPDATE_PHONE = "UPDATE_PHONE";
+	public static final String DELETE_PHONE = "DELETE_PHONE";
+
 	public static final String CREATE_PERSON_LINK_TYPE = "CREATE_PERSON_LINK_TYPE";
 	public static final String READ_PERSON_LINK_TYPE = "READ_PERSON_LINK_TYPE";
 	public static final String UPDATE_PERSON_LINK_TYPE = "UPDATE_PERSON_LINK_TYPE";
@@ -81,11 +86,6 @@ public final class AuthKeys {
 	public static final String READ_ROLE_AUTHORIZATION_LINK = "READ_ROLE_AUTHORIZATION_LINK";
 	public static final String UPDATE_ROLE_AUTHORIZATION_LINK = "UPDATE_ROLE_AUTHORIZATION_LINK";
 	public static final String DELETE_ROLE_AUTHORIZATION_LINK = "DELETE_ROLE_AUTHORIZATION_LINK";
-
-	public static final String CREATE_PHONE_AUTHORIZATION_LINK = "CREATE_PHONE_AUTHORIZATION_LINK";
-	public static final String READ_PHONE_AUTHORIZATION_LINK = "READ_PHONE_AUTHORIZATION_LINK";
-	public static final String UPDATE_PHONE_AUTHORIZATION_LINK = "UPDATE_PHONE_AUTHORIZATION_LINK";
-	public static final String DELETE_PHONE_AUTHORIZATION_LINK = "DELETE_PHONE_AUTHORIZATION_LINK";
 
 	//View components
 	public static final String VIEW_PERSON_COMPONENT = "VIEW_PERSON_COMPONENT";
