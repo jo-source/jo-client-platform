@@ -64,6 +64,17 @@ public class Phone extends Bean implements IPhone {
 	}
 
 	@Override
+	public String getPersonLabel() {
+		final Person currentPerson = getPerson();
+		if (currentPerson != null) {
+			return currentPerson.getName() + " " + currentPerson.getLastname();
+		}
+		else {
+			return null;
+		}
+	}
+
+	@Override
 	public Long getPersonId() {
 		return personId;
 	}

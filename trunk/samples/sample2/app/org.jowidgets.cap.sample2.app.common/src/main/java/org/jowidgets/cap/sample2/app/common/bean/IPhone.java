@@ -31,17 +31,22 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IBean;
+import org.jowidgets.cap.sample2.app.common.security.AuthKeys;
+import org.jowidgets.cap.security.common.api.CrudAuthorizations;
 
+@CrudAuthorizations(create = AuthKeys.CREATE_PHONE, read = AuthKeys.READ_PHONE, update = AuthKeys.UPDATE_PHONE, delete = AuthKeys.DELETE_PHONE)
 public interface IPhone extends IBean {
 
 	String PHONE_PROPERTY = "phone";
-	String PERSON_PROPERTY = "personId";
+	String PERSON_ID_PROPERTY = "personId";
+	String PERSON_LABEL_PROPERTY = "personLabel";
 
 	List<String> ALL_PROPERTIES = new LinkedList<String>() {
 		private static final long serialVersionUID = 1L;
 		{
 			add(PHONE_PROPERTY);
-			add(PERSON_PROPERTY);
+			add(PERSON_ID_PROPERTY);
+			add(PERSON_LABEL_PROPERTY);
 			add(IBean.ID_PROPERTY);
 			add(IBean.VERSION_PROPERTY);
 		}
@@ -54,5 +59,7 @@ public interface IPhone extends IBean {
 	Long getPersonId();
 
 	void setPersonId(final Long id);
+
+	String getPersonLabel();
 
 }

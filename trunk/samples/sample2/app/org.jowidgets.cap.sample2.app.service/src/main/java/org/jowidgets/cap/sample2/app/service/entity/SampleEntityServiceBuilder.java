@@ -202,6 +202,7 @@ public class SampleEntityServiceBuilder extends JpaEntityServiceBuilderWrapper {
 
 		// Linked phones of persons
 		entityBp = addEntity().setEntityId(EntityIds.LINKED_PHONES_OF_PERSONS).setBeanType(Phone.class);
+		entityBp.setProperties(IPhone.ALL_PROPERTIES);
 		entityBp.setDtoDescriptor(new PhoneDtoDescriptorBuilder());
 		entityBp.setCreatorService((ICreatorService) null);
 		entityBp.setReaderService(createPhonesOfPersonLinkReader());
@@ -282,7 +283,7 @@ public class SampleEntityServiceBuilder extends JpaEntityServiceBuilderWrapper {
 		bp.setLinkEntityId(EntityIds.LINKED_PHONES_OF_PERSONS);
 		bp.setLinkBeanType(Phone.class);
 		bp.setLinkedEntityId(EntityIds.LINKED_PHONES_OF_PERSONS);
-		bp.setSourceProperties(Phone.PERSON_PROPERTY);
+		bp.setSourceProperties(Phone.PERSON_ID_PROPERTY);
 		bp.setLinkDeleterService(null);
 	}
 
