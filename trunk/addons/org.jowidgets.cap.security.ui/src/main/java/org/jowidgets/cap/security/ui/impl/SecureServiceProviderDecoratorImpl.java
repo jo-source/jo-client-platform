@@ -31,14 +31,20 @@ package org.jowidgets.cap.security.ui.impl;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.jowidgets.cap.security.common.api.IAuthorizationChecker;
 import org.jowidgets.cap.security.common.api.ISecureServiceId;
-import org.jowidgets.security.tools.SecurityContext;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.api.IServiceProvider;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.IDecorator;
 
-final class SecureServiceProviderDecoratorImpl implements IDecorator<IServiceProvider> {
+final class SecureServiceProviderDecoratorImpl<AUTHORIZATION_TYPE> implements IDecorator<IServiceProvider> {
+
+	private final IAuthorizationChecker<AUTHORIZATION_TYPE> authorizationChecker;
+
+	SecureServiceProviderDecoratorImpl(final IAuthorizationChecker<AUTHORIZATION_TYPE> authorizationChecker) {
+		this.authorizationChecker = authorizationChecker;
+	}
 
 	@Override
 	public IServiceProvider decorate(final IServiceProvider original) {
@@ -92,8 +98,9 @@ final class SecureServiceProviderDecoratorImpl implements IDecorator<IServicePro
 			}
 		}
 
+		@SuppressWarnings("unchecked")
 		private boolean isAuthorized(final Object authorization) {
-			return SecurityContext.hasAuthorization(authorization);
+			return authorizationChecker.hasAuthorization((AUTHORIZATION_TYPE) authorization);
 		}
 	}
 }

@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.security.ui.api;
 
+import org.jowidgets.cap.security.common.api.IAuthorizationChecker;
 import org.jowidgets.service.api.IServiceProviderDecoratorHolder;
 
 public interface ISecureServiceProviderDecoratorBuilder<AUTHORIZATION_TYPE> {
@@ -42,6 +43,19 @@ public interface ISecureServiceProviderDecoratorBuilder<AUTHORIZATION_TYPE> {
 	 * @return This builder
 	 */
 	ISecureServiceProviderDecoratorBuilder<AUTHORIZATION_TYPE> setOrder(int order);
+
+	/**
+	 * Sets the authorization checker. If no checker will be set, an default checker will be used, that gets the
+	 * authorizations from the security context.
+	 * 
+	 * Remark: The default (not setting this explicit) only works, if the default context uses the IDefaultPrincipal
+	 * 
+	 * @param checker The checker to add
+	 * 
+	 * @return This builder
+	 */
+	ISecureServiceProviderDecoratorBuilder<AUTHORIZATION_TYPE> setAuthorizationChecker(
+		IAuthorizationChecker<AUTHORIZATION_TYPE> checker);
 
 	IServiceProviderDecoratorHolder build();
 
