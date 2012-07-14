@@ -28,10 +28,13 @@
 
 package org.jowidgets.cap.security.common.api;
 
-import org.jowidgets.service.api.IServiceId;
+public interface ISecureObject<AUTHORIZATION_TYPE> {
 
-public interface ISecureServiceId<SERVICE_TYPE, AUTHORIZATION_TYPE> extends
-		IServiceId<SERVICE_TYPE>,
-		ISecureObject<AUTHORIZATION_TYPE> {
+	/**
+	 * Gets the required authorization for the secure object
+	 * 
+	 * @return The authorization or null if the object is not secure
+	 */
+	AUTHORIZATION_TYPE getAuthorization();
 
 }

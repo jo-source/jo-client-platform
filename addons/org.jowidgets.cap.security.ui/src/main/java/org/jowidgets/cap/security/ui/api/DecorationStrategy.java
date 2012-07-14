@@ -26,12 +26,19 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.security.common.api;
+package org.jowidgets.cap.security.ui.api;
 
-import org.jowidgets.service.api.IServiceId;
+public enum DecorationStrategy {
 
-public interface ISecureServiceId<SERVICE_TYPE, AUTHORIZATION_TYPE> extends
-		IServiceId<SERVICE_TYPE>,
-		ISecureObject<AUTHORIZATION_TYPE> {
+	/**
+	 * Filters the service from the available services, if secure and not authorized
+	 */
+	FILTER,
+
+	/**
+	 * Decorates each service with an secure service id by let the service implement
+	 * the ISecureObject interface with help of an proxy
+	 */
+	ADD_AUTHORIZATION;
 
 }

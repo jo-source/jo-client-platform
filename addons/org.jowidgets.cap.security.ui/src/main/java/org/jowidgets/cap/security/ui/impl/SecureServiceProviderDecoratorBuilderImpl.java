@@ -30,18 +30,22 @@ package org.jowidgets.cap.security.ui.impl;
 
 import org.jowidgets.cap.security.common.api.AuthorizationChecker;
 import org.jowidgets.cap.security.common.api.IAuthorizationChecker;
+import org.jowidgets.cap.security.ui.api.IDecorationStrategySelector;
 import org.jowidgets.cap.security.ui.api.ISecureServiceProviderDecoratorBuilder;
 import org.jowidgets.service.api.IServiceProviderDecoratorHolder;
+import org.jowidgets.util.Assert;
 
 final class SecureServiceProviderDecoratorBuilderImpl<AUTHORIZATION_TYPE> implements
 		ISecureServiceProviderDecoratorBuilder<AUTHORIZATION_TYPE> {
 
 	private int order;
-	private final IAuthorizationChecker<AUTHORIZATION_TYPE> authorizationChecker;
+	private IAuthorizationChecker<AUTHORIZATION_TYPE> authorizationChecker;
+	private IDecorationStrategySelector decorationStrategySelector;
 
 	SecureServiceProviderDecoratorBuilderImpl() {
 		this.order = ISecureServiceProviderDecoratorBuilder.DEFAULT_ORDER;
 		this.authorizationChecker = AuthorizationChecker.getDefault();
+		this.decorationStrategySelector = new DefaultDecorationStrategySelector();
 	}
 
 	@Override
@@ -51,15 +55,27 @@ final class SecureServiceProviderDecoratorBuilderImpl<AUTHORIZATION_TYPE> implem
 	}
 
 	@Override
+	public ISecureServiceProviderDecoratorBuilder<AUTHORIZATION_TYPE> setDecorationStrategy(
+		final IDecorationStrategySelector strategySelector) {
+		Assert.paramNotNull(strategySelector, "strategySelector");
+		this.decorationStrategySelector = strategySelector;
+		return this;
+	}
+
+	@Override
 	public ISecureServiceProviderDecoratorBuilder<AUTHORIZATION_TYPE> setAuthorizationChecker(
 		final IAuthorizationChecker<AUTHORIZATION_TYPE> checker) {
-		// TODO Auto-generated method stub
-		return null;
+		Assert.paramNotNull(authorizationChecker, "authorizationChecker");
+		this.authorizationChecker = checker;
+		return this;
 	}
 
 	@Override
 	public IServiceProviderDecoratorHolder build() {
-		return new SecureServiceProviderDecoratorHolderImpl<AUTHORIZATION_TYPE>(order, authorizationChecker);
+		return new SecureServiceProviderDecoratorHolderImpl<AUTHORIZATION_TYPE>(
+			order,
+			decorationStrategySelector,
+			authorizationChecker);
 	}
 
 }

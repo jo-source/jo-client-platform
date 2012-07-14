@@ -45,6 +45,15 @@ public interface ISecureServiceProviderDecoratorBuilder<AUTHORIZATION_TYPE> {
 	ISecureServiceProviderDecoratorBuilder<AUTHORIZATION_TYPE> setOrder(int order);
 
 	/**
+	 * Sets the decoration strategy selector. If no strategy selector is set, a default strategy selector will be used
+	 * 
+	 * @param strategySelector The strategy selector to use
+	 * 
+	 * @return This builder
+	 */
+	ISecureServiceProviderDecoratorBuilder<AUTHORIZATION_TYPE> setDecorationStrategy(IDecorationStrategySelector strategySelector);
+
+	/**
 	 * Sets the authorization checker. If no checker will be set, an default checker will be used, that gets the
 	 * authorizations from the security context.
 	 * 

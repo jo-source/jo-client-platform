@@ -26,12 +26,17 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.security.common.api;
+package org.jowidgets.cap.security.ui.impl;
 
+import org.jowidgets.cap.security.ui.api.DecorationStrategy;
+import org.jowidgets.cap.security.ui.api.IDecorationStrategySelector;
 import org.jowidgets.service.api.IServiceId;
 
-public interface ISecureServiceId<SERVICE_TYPE, AUTHORIZATION_TYPE> extends
-		IServiceId<SERVICE_TYPE>,
-		ISecureObject<AUTHORIZATION_TYPE> {
+final class DefaultDecorationStrategySelector implements IDecorationStrategySelector {
+
+	@Override
+	public <SERVICE_TYPE> DecorationStrategy getStrategy(final IServiceId<SERVICE_TYPE> id, final SERVICE_TYPE service) {
+		return DecorationStrategy.FILTER;
+	}
 
 }
