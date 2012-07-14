@@ -28,11 +28,21 @@
 
 package org.jowidgets.cap.security.ui.impl;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.jowidgets.cap.common.api.exception.AuthorizationFailedException;
+import org.jowidgets.cap.common.api.execution.IExecutionCallback;
+import org.jowidgets.cap.common.api.execution.IResultCallback;
+import org.jowidgets.cap.common.tools.proxy.AbstractCapServiceInvocationHandler;
 import org.jowidgets.cap.security.common.api.IAuthorizationChecker;
+import org.jowidgets.cap.security.common.api.ISecureObject;
 import org.jowidgets.cap.security.common.api.ISecureServiceId;
+import org.jowidgets.cap.security.ui.api.DecorationStrategy;
+import org.jowidgets.cap.security.ui.api.IDecorationStrategySelector;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.api.IServiceProvider;
 import org.jowidgets.util.Assert;
@@ -41,8 +51,12 @@ import org.jowidgets.util.IDecorator;
 final class SecureServiceProviderDecoratorImpl<AUTHORIZATION_TYPE> implements IDecorator<IServiceProvider> {
 
 	private final IAuthorizationChecker<AUTHORIZATION_TYPE> authorizationChecker;
+	private final IDecorationStrategySelector decorationStrategySelector;
 
-	SecureServiceProviderDecoratorImpl(final IAuthorizationChecker<AUTHORIZATION_TYPE> authorizationChecker) {
+	SecureServiceProviderDecoratorImpl(
+		final IDecorationStrategySelector decorationStrategySelector,
+		final IAuthorizationChecker<AUTHORIZATION_TYPE> authorizationChecker) {
+		this.decorationStrategySelector = decorationStrategySelector;
 		this.authorizationChecker = authorizationChecker;
 	}
 
@@ -62,22 +76,50 @@ final class SecureServiceProviderDecoratorImpl<AUTHORIZATION_TYPE> implements ID
 
 		@Override
 		public Set<IServiceId<?>> getAvailableServices() {
-			return getFilteredServices(original.getAvailableServices());
-		}
-
-		@Override
-		public <SERVICE_TYPE> SERVICE_TYPE get(final IServiceId<SERVICE_TYPE> id) {
-			return getFilteredService(id, original.get(id));
-		}
-
-		private Set<IServiceId<?>> getFilteredServices(final Set<IServiceId<?>> original) {
 			final Set<IServiceId<?>> result = new HashSet<IServiceId<?>>();
-			for (final IServiceId<?> id : original) {
-				if (acceptService(id)) {
+			for (final IServiceId<?> id : original.getAvailableServices()) {
+				if (get(id) != null) {
 					result.add(id);
 				}
 			}
 			return result;
+		}
+
+		@Override
+		public <SERVICE_TYPE> SERVICE_TYPE get(final IServiceId<SERVICE_TYPE> id) {
+			final SERVICE_TYPE originalService = original.get(id);
+			if (originalService != null) {
+				final DecorationStrategy strategy = decorationStrategySelector.getStrategy(id, originalService);
+				if (DecorationStrategy.FILTER == strategy) {
+					return getFilteredService(id, originalService);
+				}
+				else if (DecorationStrategy.ADD_AUTHORIZATION == strategy) {
+					return getDecoratedService(id, originalService);
+				}
+				else if (null == strategy) {
+					throw new IllegalArgumentException("Decoration strategy must not be null");
+				}
+				else {
+					throw new IllegalArgumentException("DecorationStrategy '" + strategy + "' is not supported");
+				}
+			}
+			else {
+				return null;
+			}
+		}
+
+		@SuppressWarnings("unchecked")
+		private <SERVICE_TYPE> SERVICE_TYPE getDecoratedService(final IServiceId<SERVICE_TYPE> id, final SERVICE_TYPE service) {
+			if (id instanceof ISecureServiceId<?, ?>) {
+				final Object authorization = ((ISecureServiceId<?, ?>) id).getAuthorization();
+				if (!isAuthorized(authorization)) {
+					final Class<SERVICE_TYPE> serviceType = id.getServiceType();
+					final Class<?>[] interfaces = new Class[] {serviceType, ISecureObject.class};
+					final InvocationHandler invocationHandler = new AddAuthorizationInvocationHandler(original);
+					return (SERVICE_TYPE) Proxy.newProxyInstance(serviceType.getClassLoader(), interfaces, invocationHandler);
+				}
+			}
+			return service;
 		}
 
 		private <SERVICE_TYPE> SERVICE_TYPE getFilteredService(final IServiceId<SERVICE_TYPE> id, final SERVICE_TYPE service) {
@@ -102,5 +144,46 @@ final class SecureServiceProviderDecoratorImpl<AUTHORIZATION_TYPE> implements ID
 		private boolean isAuthorized(final Object authorization) {
 			return authorizationChecker.hasAuthorization((AUTHORIZATION_TYPE) authorization);
 		}
+	}
+
+	private final class AddAuthorizationInvocationHandler extends AbstractCapServiceInvocationHandler {
+
+		private final Object authorization;
+
+		private AddAuthorizationInvocationHandler(final Object authorization) {
+			this.authorization = authorization;
+		}
+
+		@Override
+		protected Object invokeSyncSignature(final Method method, final Object[] args, final IExecutionCallback executionCallback) throws Throwable {
+			if ("getAuthorization".equals(method.getName())) {
+				return authorization;
+			}
+			else {
+				throw createAuthorizationFailedException();
+			}
+		}
+
+		@Override
+		protected Object invokeAsyncSignature(
+			final Method method,
+			final Object[] args,
+			final int resultCallbackIndex,
+			final IResultCallback<Object> resultCallback,
+			final IExecutionCallback executionCallback) {
+
+			if (resultCallback != null) {
+				resultCallback.exception(createAuthorizationFailedException());
+				return null;
+			}
+			else {
+				throw createAuthorizationFailedException();
+			}
+		}
+
+		private AuthorizationFailedException createAuthorizationFailedException() {
+			return new AuthorizationFailedException(authorization);
+		}
+
 	}
 }

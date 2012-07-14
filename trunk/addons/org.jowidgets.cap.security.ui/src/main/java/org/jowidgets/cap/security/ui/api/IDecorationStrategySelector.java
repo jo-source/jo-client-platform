@@ -26,12 +26,19 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.security.common.api;
+package org.jowidgets.cap.security.ui.api;
 
 import org.jowidgets.service.api.IServiceId;
 
-public interface ISecureServiceId<SERVICE_TYPE, AUTHORIZATION_TYPE> extends
-		IServiceId<SERVICE_TYPE>,
-		ISecureObject<AUTHORIZATION_TYPE> {
+public interface IDecorationStrategySelector {
+
+	/**
+	 * Gets the decoration strategy for a defined service / service id
+	 * 
+	 * @param id The service id to get the strategy for
+	 * @param service The service to get the strategy for
+	 * @return The strategy , never null
+	 */
+	<SERVICE_TYPE> DecorationStrategy getStrategy(IServiceId<SERVICE_TYPE> id, SERVICE_TYPE service);
 
 }
