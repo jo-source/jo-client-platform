@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,30 +26,41 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample2.plugins.ui.action;
+package org.jowidgets.cap.security.ui.impl;
 
-import org.jowidgets.addons.icons.silkicons.SilkIcons;
-import org.jowidgets.api.command.IAction;
-import org.jowidgets.cap.sample2.app.common.bean.IPerson;
-import org.jowidgets.cap.sample2.app.common.checker.PersonDeactivateExecutableChecker;
-import org.jowidgets.cap.sample2.app.common.executor.ExecutorServices;
-import org.jowidgets.cap.ui.api.CapUiToolkit;
-import org.jowidgets.cap.ui.api.command.IExecutorActionBuilder;
-import org.jowidgets.cap.ui.api.execution.BeanSelectionPolicy;
-import org.jowidgets.cap.ui.api.model.IBeanListModel;
+import org.jowidgets.api.model.item.IActionItemVisibilityAspectPlugin;
+import org.jowidgets.cap.security.common.api.AuthorizationChecker;
+import org.jowidgets.cap.security.common.api.IAuthorizationChecker;
+import org.jowidgets.cap.security.ui.api.ISecureActionItemVisibilityAspectPluginBuilder;
+import org.jowidgets.util.Assert;
 
-public final class PersonDeactivateAction {
+final class SecureActionItemVisibilityAspectPluginBuilderImpl<AUTHORIZATION_TYPE> implements
+		ISecureActionItemVisibilityAspectPluginBuilder<AUTHORIZATION_TYPE> {
 
-	private PersonDeactivateAction() {}
+	private int order;
+	private IAuthorizationChecker<AUTHORIZATION_TYPE> authorizationChecker;
 
-	public static IAction create(final IBeanListModel<IPerson> model) {
-		final IExecutorActionBuilder<IPerson, Void> builder = CapUiToolkit.actionFactory().executorActionBuilder(model);
-		builder.setText("Deactivate user");
-		builder.setToolTipText("Deactivates the user");
-		builder.setIcon(SilkIcons.USER_GRAY);
-		builder.setSelectionPolicy(BeanSelectionPolicy.MULTI_SELECTION);
-		builder.setExecutor(ExecutorServices.DEACTIVATE_PERSON);
-		builder.addExecutableChecker(new PersonDeactivateExecutableChecker());
-		return builder.build();
+	SecureActionItemVisibilityAspectPluginBuilderImpl() {
+		this.order = ISecureActionItemVisibilityAspectPluginBuilder.DEFAULT_ORDER;
+		this.authorizationChecker = AuthorizationChecker.getDefault();
+	}
+
+	@Override
+	public ISecureActionItemVisibilityAspectPluginBuilder<AUTHORIZATION_TYPE> setOrder(final int order) {
+		this.order = order;
+		return this;
+	}
+
+	@Override
+	public ISecureActionItemVisibilityAspectPluginBuilder<AUTHORIZATION_TYPE> setAuthorizationChecker(
+		final IAuthorizationChecker<AUTHORIZATION_TYPE> checker) {
+		Assert.paramNotNull(authorizationChecker, "authorizationChecker");
+		this.authorizationChecker = checker;
+		return this;
+	}
+
+	@Override
+	public IActionItemVisibilityAspectPlugin build() {
+		return new SecureActionItemVisibilityAspectPluginImpl<AUTHORIZATION_TYPE>(order, authorizationChecker);
 	}
 }

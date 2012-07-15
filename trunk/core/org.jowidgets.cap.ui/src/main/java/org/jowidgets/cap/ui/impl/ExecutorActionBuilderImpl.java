@@ -58,6 +58,10 @@ import org.jowidgets.cap.ui.api.execution.IExecutionInterceptor;
 import org.jowidgets.cap.ui.api.execution.IExecutor;
 import org.jowidgets.cap.ui.api.execution.IParameterProvider;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
+import org.jowidgets.cap.ui.api.plugin.IServiceActionDecoratorPlugin;
+import org.jowidgets.plugin.api.IPluginProperties;
+import org.jowidgets.plugin.api.PluginProperties;
+import org.jowidgets.plugin.api.PluginProvider;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.api.ServiceProvider;
 import org.jowidgets.service.tools.ServiceId;
@@ -316,6 +320,32 @@ final class ExecutorActionBuilderImpl<BEAN_TYPE, PARAM_TYPE> extends
 
 	@Override
 	public IAction doBuild() {
+		final IAction result = buildAction();
+		if (executor instanceof IExecutorService<?>) {
+			return decorateActionWithPlugins(result);
+		}
+		return result;
+	}
+
+	private IAction decorateActionWithPlugins(final IAction action) {
+		IAction result = action;
+		final IPluginProperties properties = PluginProperties.create(
+				IServiceActionDecoratorPlugin.SERVICE_TYPE_PROPERTY_KEY,
+				IExecutorService.class);
+		final IExecutorService<?> executorService = (IExecutorService<?>) executor;
+		final List<IServiceActionDecoratorPlugin> plugins = PluginProvider.getPlugins(
+				IServiceActionDecoratorPlugin.ID,
+				properties);
+		for (final IServiceActionDecoratorPlugin plugin : plugins) {
+			result = plugin.decorate(result, executorService);
+			if (result == null) {
+				return null;
+			}
+		}
+		return result;
+	}
+
+	private IAction buildAction() {
 		final ExecutorCommand command = new ExecutorCommand(
 			listModel,
 			beanListExecutionPolicy,

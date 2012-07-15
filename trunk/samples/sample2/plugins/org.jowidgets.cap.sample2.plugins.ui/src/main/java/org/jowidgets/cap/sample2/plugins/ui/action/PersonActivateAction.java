@@ -37,15 +37,12 @@ import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.command.IExecutorActionBuilder;
 import org.jowidgets.cap.ui.api.execution.BeanSelectionPolicy;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
-import org.jowidgets.tools.command.ActionWrapper;
 
-public class PersonActivateAction extends ActionWrapper {
+public final class PersonActivateAction {
 
-	public PersonActivateAction(final IBeanListModel<IPerson> model) {
-		super(create(model));
-	}
+	private PersonActivateAction() {}
 
-	private static IAction create(final IBeanListModel<IPerson> model) {
+	public static IAction create(final IBeanListModel<IPerson> model) {
 		final IExecutorActionBuilder<IPerson, Void> builder = CapUiToolkit.actionFactory().executorActionBuilder(model);
 		builder.setText("Activate user");
 		builder.setToolTipText("Activates the user");
