@@ -28,10 +28,14 @@
 
 package org.jowidgets.cap.security.ui.impl;
 
+import org.jowidgets.api.model.item.IActionItemVisibilityAspectPlugin;
 import org.jowidgets.cap.security.ui.api.ICapSecurityUiToolkit;
+import org.jowidgets.cap.security.ui.api.ISecureActionItemVisibilityAspectPluginBuilder;
 import org.jowidgets.cap.security.ui.api.ISecureBeanFormPluginBuilder;
+import org.jowidgets.cap.security.ui.api.ISecureServiceActionDecoratorPluginBuilder;
 import org.jowidgets.cap.security.ui.api.ISecureServiceProviderDecoratorBuilder;
 import org.jowidgets.cap.ui.api.plugin.IBeanFormPlugin;
+import org.jowidgets.cap.ui.api.plugin.IServiceActionDecoratorPlugin;
 import org.jowidgets.service.api.IServiceProviderDecoratorHolder;
 
 public final class CapSecurityUiToolkitImpl implements ICapSecurityUiToolkit {
@@ -44,6 +48,26 @@ public final class CapSecurityUiToolkitImpl implements ICapSecurityUiToolkit {
 	@Override
 	public IServiceProviderDecoratorHolder secureServiceProviderDecorator() {
 		return secureServiceProviderDecoratorBuilder().build();
+	}
+
+	@Override
+	public ISecureServiceActionDecoratorPluginBuilder secureServiceActionDecoratorPluginBuilder() {
+		return new SecureServiceActionDecoratorPluginBuilderImpl();
+	}
+
+	@Override
+	public IServiceActionDecoratorPlugin secureServiceActionDecoratorPlugin() {
+		return secureServiceActionDecoratorPluginBuilder().build();
+	}
+
+	@Override
+	public IActionItemVisibilityAspectPlugin secureActionItemVisibilityAspectPlugin() {
+		return secureActionItemVisibilityAspectPluginBuilder().build();
+	}
+
+	@Override
+	public <AUTHORIZATION_TYPE> ISecureActionItemVisibilityAspectPluginBuilder<AUTHORIZATION_TYPE> secureActionItemVisibilityAspectPluginBuilder() {
+		return new SecureActionItemVisibilityAspectPluginBuilderImpl<AUTHORIZATION_TYPE>();
 	}
 
 	@Override

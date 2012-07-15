@@ -26,30 +26,18 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample2.plugins.ui.action;
+package org.jowidgets.cap.ui.api.plugin;
 
-import org.jowidgets.addons.icons.silkicons.SilkIcons;
 import org.jowidgets.api.command.IAction;
-import org.jowidgets.cap.sample2.app.common.bean.IPerson;
-import org.jowidgets.cap.sample2.app.common.checker.PersonDeactivateExecutableChecker;
-import org.jowidgets.cap.sample2.app.common.executor.ExecutorServices;
-import org.jowidgets.cap.ui.api.CapUiToolkit;
-import org.jowidgets.cap.ui.api.command.IExecutorActionBuilder;
-import org.jowidgets.cap.ui.api.execution.BeanSelectionPolicy;
-import org.jowidgets.cap.ui.api.model.IBeanListModel;
+import org.jowidgets.plugin.api.IPluginId;
+import org.jowidgets.util.ITypedKey;
 
-public final class PersonDeactivateAction {
+public interface IServiceActionDecoratorPlugin {
 
-	private PersonDeactivateAction() {}
+	IPluginId<IServiceActionDecoratorPlugin> ID = new IPluginId<IServiceActionDecoratorPlugin>() {};
 
-	public static IAction create(final IBeanListModel<IPerson> model) {
-		final IExecutorActionBuilder<IPerson, Void> builder = CapUiToolkit.actionFactory().executorActionBuilder(model);
-		builder.setText("Deactivate user");
-		builder.setToolTipText("Deactivates the user");
-		builder.setIcon(SilkIcons.USER_GRAY);
-		builder.setSelectionPolicy(BeanSelectionPolicy.MULTI_SELECTION);
-		builder.setExecutor(ExecutorServices.DEACTIVATE_PERSON);
-		builder.addExecutableChecker(new PersonDeactivateExecutableChecker());
-		return builder.build();
-	}
+	ITypedKey<Class<?>> SERVICE_TYPE_PROPERTY_KEY = new ITypedKey<Class<?>>() {};
+
+	IAction decorate(IAction action, Object service);
+
 }

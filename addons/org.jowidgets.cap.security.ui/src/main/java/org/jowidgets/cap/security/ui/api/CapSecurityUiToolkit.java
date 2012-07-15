@@ -31,8 +31,10 @@ package org.jowidgets.cap.security.ui.api;
 import java.util.Iterator;
 import java.util.ServiceLoader;
 
+import org.jowidgets.api.model.item.IActionItemVisibilityAspectPlugin;
 import org.jowidgets.cap.security.ui.impl.CapSecurityUiToolkitImpl;
 import org.jowidgets.cap.ui.api.plugin.IBeanFormPlugin;
+import org.jowidgets.cap.ui.api.plugin.IServiceActionDecoratorPlugin;
 import org.jowidgets.service.api.IServiceProviderDecoratorHolder;
 import org.jowidgets.util.Assert;
 
@@ -58,6 +60,22 @@ public final class CapSecurityUiToolkit {
 
 	public static IServiceProviderDecoratorHolder secureServiceProviderDecorator() {
 		return getInstance().secureServiceProviderDecorator();
+	}
+
+	public static ISecureServiceActionDecoratorPluginBuilder secureServiceActionDecoratorPluginBuilder() {
+		return getInstance().secureServiceActionDecoratorPluginBuilder();
+	}
+
+	public static IServiceActionDecoratorPlugin secureServiceActionDecoratorPlugin() {
+		return getInstance().secureServiceActionDecoratorPlugin();
+	}
+
+	public static IActionItemVisibilityAspectPlugin secureActionItemVisibilityAspectPlugin() {
+		return getInstance().secureActionItemVisibilityAspectPlugin();
+	}
+
+	public static <AUTHORIZATION_TYPE> ISecureActionItemVisibilityAspectPluginBuilder<AUTHORIZATION_TYPE> secureActionItemVisibilityAspectPluginBuilder() {
+		return getInstance().secureActionItemVisibilityAspectPluginBuilder();
 	}
 
 	public static <AUTHORIZATION_TYPE> ISecureBeanFormPluginBuilder<AUTHORIZATION_TYPE> secureBeanFormPluginBuilder() {

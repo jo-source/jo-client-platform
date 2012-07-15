@@ -29,13 +29,16 @@
 package org.jowidgets.cap.security.ui.tools;
 
 import org.jowidgets.cap.security.ui.api.SecureBeanFormPlugin;
+import org.jowidgets.cap.security.ui.api.SecureServiceActionDecoratorPlugin;
 import org.jowidgets.cap.ui.api.plugin.IBeanFormPlugin;
+import org.jowidgets.cap.ui.api.plugin.IServiceActionDecoratorPlugin;
 import org.jowidgets.plugin.tools.PluginProviderBuilder;
 
 class CapSecurityUiPluginProviderBuilder extends PluginProviderBuilder {
 
 	CapSecurityUiPluginProviderBuilder() {
 		addPlugin(IBeanFormPlugin.ID, SecureBeanFormPlugin.create());
+		addPlugin(IServiceActionDecoratorPlugin.ID, SecureServiceActionDecoratorPlugin.create());
 	}
 
 }

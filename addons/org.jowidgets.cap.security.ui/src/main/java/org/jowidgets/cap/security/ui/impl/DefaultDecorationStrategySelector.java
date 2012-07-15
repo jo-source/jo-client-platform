@@ -36,7 +36,7 @@ final class DefaultDecorationStrategySelector implements IDecorationStrategySele
 
 	@Override
 	public <SERVICE_TYPE> DecorationStrategy getStrategy(final IServiceId<SERVICE_TYPE> id, final SERVICE_TYPE service) {
-		return DecorationStrategy.FILTER;
+		return DecorationStrategy.ADD_AUTHORIZATION;
 	}
 
 }

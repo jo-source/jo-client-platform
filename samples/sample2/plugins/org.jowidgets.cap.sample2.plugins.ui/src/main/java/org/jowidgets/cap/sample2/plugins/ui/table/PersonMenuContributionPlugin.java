@@ -28,7 +28,11 @@
 
 package org.jowidgets.cap.sample2.plugins.ui.table;
 
+import org.jowidgets.api.command.IAction;
+import org.jowidgets.api.model.item.IActionItemModel;
+import org.jowidgets.api.model.item.IActionItemModelBuilder;
 import org.jowidgets.api.model.item.IMenuModel;
+import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.cap.sample2.app.common.bean.IPerson;
 import org.jowidgets.cap.sample2.plugins.ui.action.CreateTransientPersonAction;
 import org.jowidgets.cap.sample2.plugins.ui.action.PersonActivateAction;
@@ -36,6 +40,7 @@ import org.jowidgets.cap.sample2.plugins.ui.action.PersonDeactivateAction;
 import org.jowidgets.cap.ui.api.plugin.IBeanTableMenuContributionPlugin;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.plugin.api.IPluginProperties;
+import org.jowidgets.tools.model.item.EnabledStateVisibilityAspect;
 import org.jowidgets.tools.model.item.MenuModel;
 
 public final class PersonMenuContributionPlugin implements IBeanTableMenuContributionPlugin<IPerson> {
@@ -43,10 +48,17 @@ public final class PersonMenuContributionPlugin implements IBeanTableMenuContrib
 	@Override
 	public IMenuModel getCellMenu(final IPluginProperties properties, final IBeanTable<IPerson> table) {
 		final MenuModel result = new MenuModel();
-		result.addAction(new PersonActivateAction(table.getModel()));
-		result.addAction(new PersonDeactivateAction(table.getModel()));
+		result.addItem(createActionModelWithVisibilityAspect(PersonActivateAction.create(table.getModel())));
+		result.addItem(createActionModelWithVisibilityAspect(PersonDeactivateAction.create(table.getModel())));
 		result.addAction(new CreateTransientPersonAction(table));
 		return result;
+	}
+
+	private IActionItemModel createActionModelWithVisibilityAspect(final IAction action) {
+		final IActionItemModelBuilder builder = Toolkit.getModelFactoryProvider().getItemModelFactory().actionItemBuilder();
+		builder.setAction(action);
+		builder.addVisibilityAspect(new EnabledStateVisibilityAspect());
+		return builder.build();
 	}
 
 	@Override
