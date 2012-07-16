@@ -206,12 +206,14 @@ public class SampleEntityServiceBuilder extends JpaEntityServiceBuilderWrapper {
 		entityBp.setDtoDescriptor(new PhoneDtoDescriptorBuilder());
 		entityBp.setCreatorService((ICreatorService) null);
 		entityBp.setReaderService(createPhonesOfPersonLinkReader());
+		addPersonsOfPhonesLinkDescriptor(entityBp);
 
 		// Linked persons of phones
 		entityBp = addEntity().setEntityId(EntityIds.LINKED_PERSONS_OF_PHONES).setBeanType(Person.class);
 		entityBp.setDtoDescriptor(new PersonDtoDescriptorBuilder());
 		entityBp.setCreatorService((ICreatorService) null);
 		entityBp.setReaderService(createPersonsOfPhonesLinkReader());
+		addPersonLinkDescriptors(entityBp);
 	}
 
 	private void addPersonLinkDescriptors(final IBeanEntityBluePrint entityBp) {
