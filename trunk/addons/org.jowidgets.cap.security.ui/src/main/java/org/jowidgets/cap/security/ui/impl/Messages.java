@@ -28,34 +28,22 @@
 
 package org.jowidgets.cap.security.ui.impl;
 
-import org.jowidgets.api.command.IAction;
-import org.jowidgets.cap.security.common.api.IAuthorizationChecker;
-import org.jowidgets.cap.security.common.api.ISecureObject;
-import org.jowidgets.cap.ui.api.plugin.IServiceActionDecoratorPlugin;
-import org.jowidgets.util.wrapper.WrapperUtil;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
 
-final class SecureServiceActionDecoratorPluginImpl<AUTHORIZATION_TYPE> implements IServiceActionDecoratorPlugin {
+public class Messages {
+	private static final String BUNDLE_NAME = "org.jowidgets.cap.security.ui.impl.messages"; //$NON-NLS-1$
 
-	private final IAuthorizationChecker<AUTHORIZATION_TYPE> authorizationChecker;
+	private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle(BUNDLE_NAME);
 
-	public SecureServiceActionDecoratorPluginImpl(final IAuthorizationChecker<AUTHORIZATION_TYPE> authorizationChecker) {
-		this.authorizationChecker = authorizationChecker;
-	}
+	private Messages() {}
 
-	@Override
-	public IAction decorate(final IAction action, final Object service) {
-		if (action != null) {
-			@SuppressWarnings("unchecked")
-			final ISecureObject<AUTHORIZATION_TYPE> secureObject = WrapperUtil.tryToCast(service, ISecureObject.class);
-			if (secureObject != null) {
-				final AUTHORIZATION_TYPE authorization = secureObject.getAuthorization();
-				return new SecureServiceActionImpl<Object>(
-					action,
-					authorization,
-					authorizationChecker.hasAuthorization(authorization));
-			}
+	public static String getString(String key) {
+		try {
+			return RESOURCE_BUNDLE.getString(key);
 		}
-		return action;
+		catch (MissingResourceException e) {
+			return '!' + key + '!';
+		}
 	}
-
 }

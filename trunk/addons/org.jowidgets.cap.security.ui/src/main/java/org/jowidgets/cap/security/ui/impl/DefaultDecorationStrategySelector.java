@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.security.ui.impl;
 
+import org.jowidgets.cap.common.api.service.IExecutorService;
 import org.jowidgets.cap.security.ui.api.DecorationStrategy;
 import org.jowidgets.cap.security.ui.api.IDecorationStrategySelector;
 import org.jowidgets.service.api.IServiceId;
@@ -36,7 +37,11 @@ final class DefaultDecorationStrategySelector implements IDecorationStrategySele
 
 	@Override
 	public <SERVICE_TYPE> DecorationStrategy getStrategy(final IServiceId<SERVICE_TYPE> id, final SERVICE_TYPE service) {
-		return DecorationStrategy.ADD_AUTHORIZATION;
+		if (service instanceof IExecutorService<?>) {
+			return DecorationStrategy.ADD_AUTHORIZATION;
+		}
+		else {
+			return DecorationStrategy.FILTER;
+		}
 	}
-
 }

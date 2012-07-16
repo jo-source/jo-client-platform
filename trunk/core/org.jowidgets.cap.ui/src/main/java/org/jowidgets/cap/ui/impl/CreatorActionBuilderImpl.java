@@ -47,9 +47,13 @@ import org.jowidgets.cap.ui.api.bean.IBeanPropertyValidator;
 import org.jowidgets.cap.ui.api.command.ICreatorActionBuilder;
 import org.jowidgets.cap.ui.api.execution.IExecutionInterceptor;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
+import org.jowidgets.cap.ui.api.plugin.IServiceActionDecoratorPlugin;
 import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
 import org.jowidgets.common.types.Modifier;
 import org.jowidgets.common.types.VirtualKey;
+import org.jowidgets.plugin.api.IPluginProperties;
+import org.jowidgets.plugin.api.PluginProperties;
+import org.jowidgets.plugin.api.PluginProvider;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.api.ServiceProvider;
 import org.jowidgets.service.tools.ServiceId;
@@ -216,7 +220,28 @@ final class CreatorActionBuilderImpl<BEAN_TYPE> extends AbstractCapActionBuilder
 	}
 
 	@Override
-	protected IAction doBuild() {
+	public IAction doBuild() {
+		return decorateActionWithPlugins(buildAction());
+	}
+
+	private IAction decorateActionWithPlugins(final IAction action) {
+		IAction result = action;
+		final IPluginProperties properties = PluginProperties.create(
+				IServiceActionDecoratorPlugin.SERVICE_TYPE_PROPERTY_KEY,
+				ICreatorService.class);
+		final List<IServiceActionDecoratorPlugin> plugins = PluginProvider.getPlugins(
+				IServiceActionDecoratorPlugin.ID,
+				properties);
+		for (final IServiceActionDecoratorPlugin plugin : plugins) {
+			result = plugin.decorate(result, creatorService);
+			if (result == null) {
+				return null;
+			}
+		}
+		return result;
+	}
+
+	private IAction buildAction() {
 		final IBeanFormBluePrint<BEAN_TYPE> formBp = getBeanFormBp();
 		Collection<IAttribute<?>> attr = attributes;
 		if (attr == null && formBp != null) {

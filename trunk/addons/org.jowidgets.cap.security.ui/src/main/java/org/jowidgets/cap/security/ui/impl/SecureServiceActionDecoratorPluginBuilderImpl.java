@@ -28,14 +28,31 @@
 
 package org.jowidgets.cap.security.ui.impl;
 
+import org.jowidgets.cap.security.common.api.AuthorizationChecker;
+import org.jowidgets.cap.security.common.api.IAuthorizationChecker;
 import org.jowidgets.cap.security.ui.api.ISecureServiceActionDecoratorPluginBuilder;
 import org.jowidgets.cap.ui.api.plugin.IServiceActionDecoratorPlugin;
+import org.jowidgets.util.Assert;
 
-final class SecureServiceActionDecoratorPluginBuilderImpl implements ISecureServiceActionDecoratorPluginBuilder {
+final class SecureServiceActionDecoratorPluginBuilderImpl<AUTHORIZATION_TYPE> implements
+		ISecureServiceActionDecoratorPluginBuilder<AUTHORIZATION_TYPE> {
+
+	private IAuthorizationChecker<AUTHORIZATION_TYPE> authorizationChecker;
+
+	SecureServiceActionDecoratorPluginBuilderImpl() {
+		this.authorizationChecker = AuthorizationChecker.getDefault();
+	}
+
+	@Override
+	public ISecureServiceActionDecoratorPluginBuilder<AUTHORIZATION_TYPE> setAuthorizationChecker(
+		final IAuthorizationChecker<AUTHORIZATION_TYPE> authorizationChecker) {
+		Assert.paramNotNull(authorizationChecker, "authorizationChecker");
+		this.authorizationChecker = authorizationChecker;
+		return this;
+	}
 
 	@Override
 	public IServiceActionDecoratorPlugin build() {
-		return new SecureServiceActionDecoratorPluginImpl();
+		return new SecureServiceActionDecoratorPluginImpl<AUTHORIZATION_TYPE>(authorizationChecker);
 	}
-
 }

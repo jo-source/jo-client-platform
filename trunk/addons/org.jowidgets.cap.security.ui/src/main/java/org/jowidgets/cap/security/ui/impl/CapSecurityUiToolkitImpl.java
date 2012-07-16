@@ -51,8 +51,8 @@ public final class CapSecurityUiToolkitImpl implements ICapSecurityUiToolkit {
 	}
 
 	@Override
-	public ISecureServiceActionDecoratorPluginBuilder secureServiceActionDecoratorPluginBuilder() {
-		return new SecureServiceActionDecoratorPluginBuilderImpl();
+	public <AUTHORIZATION_TYPE> ISecureServiceActionDecoratorPluginBuilder<AUTHORIZATION_TYPE> secureServiceActionDecoratorPluginBuilder() {
+		return new SecureServiceActionDecoratorPluginBuilderImpl<AUTHORIZATION_TYPE>();
 	}
 
 	@Override

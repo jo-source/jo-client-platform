@@ -35,15 +35,39 @@ import org.jowidgets.tools.command.ActionWrapper;
 final class SecureServiceActionImpl<AUTHORIZATION_TYPE> extends ActionWrapper implements ISecureObject<AUTHORIZATION_TYPE> {
 
 	private final AUTHORIZATION_TYPE authorization;
+	private final boolean hasAuthorization;
 
-	SecureServiceActionImpl(final IAction action, final AUTHORIZATION_TYPE authorization) {
+	private final String authorizationFailed = Messages.getString("SecureServiceActionImpl.authorizationFailed");
+
+	SecureServiceActionImpl(final IAction action, final AUTHORIZATION_TYPE authorization, final boolean hasAuthorization) {
 		super(action);
 		this.authorization = authorization;
+		this.hasAuthorization = hasAuthorization;
 	}
 
 	@Override
 	public AUTHORIZATION_TYPE getAuthorization() {
 		return authorization;
+	}
+
+	@Override
+	public String getToolTipText() {
+		if (hasAuthorization) {
+			return super.getToolTipText();
+		}
+		else {
+			return authorizationFailed;
+		}
+	}
+
+	@Override
+	public boolean isEnabled() {
+		if (hasAuthorization) {
+			return super.isEnabled();
+		}
+		else {
+			return false;
+		}
 	}
 
 }
