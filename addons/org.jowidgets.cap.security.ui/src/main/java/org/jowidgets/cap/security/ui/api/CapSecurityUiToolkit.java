@@ -62,7 +62,7 @@ public final class CapSecurityUiToolkit {
 		return getInstance().secureServiceProviderDecorator();
 	}
 
-	public static ISecureServiceActionDecoratorPluginBuilder secureServiceActionDecoratorPluginBuilder() {
+	public static <AUTHORIZATION_TYPE> ISecureServiceActionDecoratorPluginBuilder<AUTHORIZATION_TYPE> secureServiceActionDecoratorPluginBuilder() {
 		return getInstance().secureServiceActionDecoratorPluginBuilder();
 	}
 

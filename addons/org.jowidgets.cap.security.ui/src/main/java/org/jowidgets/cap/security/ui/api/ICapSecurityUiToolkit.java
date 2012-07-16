@@ -39,7 +39,7 @@ public interface ICapSecurityUiToolkit {
 
 	IServiceProviderDecoratorHolder secureServiceProviderDecorator();
 
-	ISecureServiceActionDecoratorPluginBuilder secureServiceActionDecoratorPluginBuilder();
+	<AUTHORIZATION_TYPE> ISecureServiceActionDecoratorPluginBuilder<AUTHORIZATION_TYPE> secureServiceActionDecoratorPluginBuilder();
 
 	IServiceActionDecoratorPlugin secureServiceActionDecoratorPlugin();
 

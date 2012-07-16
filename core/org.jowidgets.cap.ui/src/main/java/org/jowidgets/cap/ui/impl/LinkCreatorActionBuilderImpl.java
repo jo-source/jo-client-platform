@@ -65,11 +65,15 @@ import org.jowidgets.cap.ui.api.execution.IExecutionInterceptor;
 import org.jowidgets.cap.ui.api.form.IBeanFormLayout;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.model.LinkType;
+import org.jowidgets.cap.ui.api.plugin.IServiceActionDecoratorPlugin;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
 import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
 import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
+import org.jowidgets.plugin.api.IPluginProperties;
+import org.jowidgets.plugin.api.PluginProperties;
+import org.jowidgets.plugin.api.PluginProvider;
 import org.jowidgets.service.api.ServiceProvider;
 import org.jowidgets.tools.message.MessageReplacer;
 import org.jowidgets.util.ArrayUtils;
@@ -442,7 +446,28 @@ final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKA
 	}
 
 	@Override
-	protected IAction doBuild() {
+	public IAction doBuild() {
+		return decorateActionWithPlugins(buildAction());
+	}
+
+	private IAction decorateActionWithPlugins(final IAction action) {
+		IAction result = action;
+		final IPluginProperties properties = PluginProperties.create(
+				IServiceActionDecoratorPlugin.SERVICE_TYPE_PROPERTY_KEY,
+				ILinkCreatorService.class);
+		final List<IServiceActionDecoratorPlugin> plugins = PluginProvider.getPlugins(
+				IServiceActionDecoratorPlugin.ID,
+				properties);
+		for (final IServiceActionDecoratorPlugin plugin : plugins) {
+			result = plugin.decorate(result, linkCreatorService);
+			if (result == null) {
+				return null;
+			}
+		}
+		return result;
+	}
+
+	private IAction buildAction() {
 		setDefaultTextIfNecessary();
 		final ICommand command = new BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE>(
 			sourceProperties,
