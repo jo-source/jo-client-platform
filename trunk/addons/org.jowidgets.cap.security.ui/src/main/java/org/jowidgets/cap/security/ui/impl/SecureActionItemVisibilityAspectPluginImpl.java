@@ -36,6 +36,7 @@ import org.jowidgets.cap.security.common.api.ISecureObject;
 import org.jowidgets.util.priority.IPriorityValue;
 import org.jowidgets.util.priority.LowHighPriority;
 import org.jowidgets.util.priority.PriorityValue;
+import org.jowidgets.util.wrapper.WrapperUtil;
 
 final class SecureActionItemVisibilityAspectPluginImpl<AUTHORIZATION_TYPE> implements IActionItemVisibilityAspectPlugin {
 
@@ -66,8 +67,8 @@ final class SecureActionItemVisibilityAspectPluginImpl<AUTHORIZATION_TYPE> imple
 		@SuppressWarnings("unchecked")
 		@Override
 		public IPriorityValue<Boolean, LowHighPriority> getVisibility(final IAction action) {
-			if (action instanceof ISecureObject<?>) {
-				final ISecureObject<AUTHORIZATION_TYPE> secureObject = (ISecureObject<AUTHORIZATION_TYPE>) action;
+			final ISecureObject<AUTHORIZATION_TYPE> secureObject = WrapperUtil.tryToCast(action, ISecureObject.class);
+			if (secureObject != null) {
 				if (!authorizationChecker.hasAuthorization(secureObject.getAuthorization())) {
 					return new PriorityValue<Boolean, LowHighPriority>(Boolean.FALSE, LowHighPriority.HIGH);
 				}
