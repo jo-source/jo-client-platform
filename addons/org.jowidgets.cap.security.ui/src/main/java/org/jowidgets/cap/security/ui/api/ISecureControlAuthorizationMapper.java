@@ -26,26 +26,37 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.security.ui.impl;
+package org.jowidgets.cap.security.ui.api;
 
-import org.jowidgets.cap.common.api.service.IExecutorService;
-import org.jowidgets.cap.common.api.service.IReaderService;
-import org.jowidgets.cap.security.ui.api.DecorationStrategy;
-import org.jowidgets.cap.security.ui.api.IDecorationStrategySelector;
-import org.jowidgets.service.api.IServiceId;
+import org.jowidgets.api.widgets.IControl;
+import org.jowidgets.common.image.IImageConstant;
+import org.jowidgets.common.widgets.descriptor.IWidgetDescriptor;
 
-final class DefaultDecorationStrategySelector implements IDecorationStrategySelector {
+public interface ISecureControlAuthorizationMapper<WIDGET_TYPE extends IControl, DESCRIPTOR_TYPE extends IWidgetDescriptor<? extends WIDGET_TYPE>, AUTHORIZATION_TYPE> {
 
-	@Override
-	public <SERVICE_TYPE> DecorationStrategy getStrategy(final IServiceId<SERVICE_TYPE> id, final SERVICE_TYPE service) {
-		if (service instanceof IExecutorService<?>) {
-			return DecorationStrategy.ADD_AUTHORIZATION;
-		}
-		else if (service instanceof IReaderService<?>) {
-			return DecorationStrategy.ADD_AUTHORIZATION;
-		}
-		else {
-			return DecorationStrategy.FILTER;
-		}
-	}
+	/**
+	 * Gets the authorization for a descriptor
+	 * 
+	 * @param descriptor The descriptor to get the authorization for
+	 * 
+	 * @return The authorization or null, if widgets has no required authorization
+	 */
+	AUTHORIZATION_TYPE getAuthorization(DESCRIPTOR_TYPE descriptor);
+
+	/**
+	 * Gets the text that should be shown, if user has not the required authorization
+	 * 
+	 * @return The text to show on authorization fail or null
+	 */
+	String getAuthorizationFailedText(DESCRIPTOR_TYPE descriptor, WIDGET_TYPE widget);
+
+	/**
+	 * Gets the icon that should be shown, if user has not the required authorization
+	 * 
+	 * @return The icon to show on authorization fail or null
+	 */
+	IImageConstant getAuthorizationFailedIcon(DESCRIPTOR_TYPE descriptor, WIDGET_TYPE widget);
+
+	Class<?> getWidgetType();
+
 }

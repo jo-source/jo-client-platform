@@ -26,26 +26,18 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.security.ui.impl;
+package org.jowidgets.cap.security.ui.api;
 
-import org.jowidgets.cap.common.api.service.IExecutorService;
-import org.jowidgets.cap.common.api.service.IReaderService;
-import org.jowidgets.cap.security.ui.api.DecorationStrategy;
-import org.jowidgets.cap.security.ui.api.IDecorationStrategySelector;
-import org.jowidgets.service.api.IServiceId;
+import org.jowidgets.cap.ui.api.widgets.IBeanTable;
+import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
 
-final class DefaultDecorationStrategySelector implements IDecorationStrategySelector {
+public final class SecureControlAuthorizationMapperFactory {
 
-	@Override
-	public <SERVICE_TYPE> DecorationStrategy getStrategy(final IServiceId<SERVICE_TYPE> id, final SERVICE_TYPE service) {
-		if (service instanceof IExecutorService<?>) {
-			return DecorationStrategy.ADD_AUTHORIZATION;
-		}
-		else if (service instanceof IReaderService<?>) {
-			return DecorationStrategy.ADD_AUTHORIZATION;
-		}
-		else {
-			return DecorationStrategy.FILTER;
-		}
+	private SecureControlAuthorizationMapperFactory() {}
+
+	public static <BEAN_TYPE, AUTHORIZATION_TYPE> ISecureControlAuthorizationMapper<IBeanTable<BEAN_TYPE>, IBeanTableBluePrint<BEAN_TYPE>, AUTHORIZATION_TYPE> beanTable() {
+		final ISecureControlAuthorizationMapperFactory<AUTHORIZATION_TYPE> factory = CapSecurityUiToolkit.secureControlAuthorizationMapperFactory();
+		return factory.beanTable();
 	}
+
 }

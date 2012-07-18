@@ -26,26 +26,20 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.security.ui.impl;
+package org.jowidgets.cap.security.ui.tools;
 
-import org.jowidgets.cap.common.api.service.IExecutorService;
-import org.jowidgets.cap.common.api.service.IReaderService;
-import org.jowidgets.cap.security.ui.api.DecorationStrategy;
-import org.jowidgets.cap.security.ui.api.IDecorationStrategySelector;
-import org.jowidgets.service.api.IServiceId;
+import org.jowidgets.api.toolkit.IToolkitInterceptor;
+import org.jowidgets.tools.toolkit.AbstractToolkitInterceptorHolder;
 
-final class DefaultDecorationStrategySelector implements IDecorationStrategySelector {
+public final class CapSecurityUiToolkitInterceptorHolder extends AbstractToolkitInterceptorHolder {
+
+	public CapSecurityUiToolkitInterceptorHolder() {
+		super(Integer.MAX_VALUE);
+	}
 
 	@Override
-	public <SERVICE_TYPE> DecorationStrategy getStrategy(final IServiceId<SERVICE_TYPE> id, final SERVICE_TYPE service) {
-		if (service instanceof IExecutorService<?>) {
-			return DecorationStrategy.ADD_AUTHORIZATION;
-		}
-		else if (service instanceof IReaderService<?>) {
-			return DecorationStrategy.ADD_AUTHORIZATION;
-		}
-		else {
-			return DecorationStrategy.FILTER;
-		}
+	protected IToolkitInterceptor createToolkitInterceptor() {
+		return new CapSecurityUiToolkitInterceptor();
 	}
+
 }

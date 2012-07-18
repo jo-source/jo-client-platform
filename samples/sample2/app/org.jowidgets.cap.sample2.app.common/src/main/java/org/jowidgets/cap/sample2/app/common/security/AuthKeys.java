@@ -98,7 +98,7 @@ public final class AuthKeys {
 	//Authorization collections
 	public static final Collection<String> ALL_AUTHORIZATIONS = createAuthorizations();
 	public static final Collection<String> GUEST_AUTHORIZATIONS = createAuthorizations(
-			"READ_",
+			"READ_PERSON",
 			"VIEW_PERSON_COMPONENT",
 			"VIEW_COUNTRY_COMPONENT");
 

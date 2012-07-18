@@ -28,24 +28,36 @@
 
 package org.jowidgets.cap.security.ui.impl;
 
-import org.jowidgets.cap.common.api.service.IExecutorService;
-import org.jowidgets.cap.common.api.service.IReaderService;
-import org.jowidgets.cap.security.ui.api.DecorationStrategy;
-import org.jowidgets.cap.security.ui.api.IDecorationStrategySelector;
-import org.jowidgets.service.api.IServiceId;
+import org.jowidgets.api.widgets.IComposite;
+import org.jowidgets.api.widgets.IControl;
+import org.jowidgets.common.image.IImageConstant;
+import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
+import org.jowidgets.common.widgets.factory.ICustomWidgetFactory;
+import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
+import org.jowidgets.tools.layout.MigLayoutFactory;
+import org.jowidgets.tools.widgets.blueprint.BPF;
 
-final class DefaultDecorationStrategySelector implements IDecorationStrategySelector {
+final class DefaultSecureControlCreatorImpl implements ICustomWidgetCreator<IControl> {
+
+	private final String label;
+	private final IImageConstant icon;
+
+	DefaultSecureControlCreatorImpl(final String label, final IImageConstant icon) {
+		this.label = label;
+		this.icon = icon;
+	}
 
 	@Override
-	public <SERVICE_TYPE> DecorationStrategy getStrategy(final IServiceId<SERVICE_TYPE> id, final SERVICE_TYPE service) {
-		if (service instanceof IExecutorService<?>) {
-			return DecorationStrategy.ADD_AUTHORIZATION;
-		}
-		else if (service instanceof IReaderService<?>) {
-			return DecorationStrategy.ADD_AUTHORIZATION;
-		}
-		else {
-			return DecorationStrategy.FILTER;
-		}
+	public IControl create(final ICustomWidgetFactory widgetFactory) {
+
+		final IComposite composite = widgetFactory.create(BPF.composite());
+		composite.setLayout(MigLayoutFactory.growingInnerCellLayout());
+
+		final IComposite labelComposite = composite.add(BPF.composite(), "alignx c, aligny c");
+		labelComposite.setLayout(new MigLayoutDescriptor("0[grow, 0::]0", "0[grow, 0::][grow, 0::]0"));
+		labelComposite.add(BPF.icon(icon), "alignx c, wrap");
+		labelComposite.add(BPF.textLabel(label), "alignx c");
+		return composite;
 	}
+
 }
