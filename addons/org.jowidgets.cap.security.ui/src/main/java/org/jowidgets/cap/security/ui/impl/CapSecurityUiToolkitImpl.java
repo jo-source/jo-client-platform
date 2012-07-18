@@ -33,8 +33,8 @@ import org.jowidgets.api.widgets.IControl;
 import org.jowidgets.cap.security.ui.api.ICapSecurityUiToolkit;
 import org.jowidgets.cap.security.ui.api.ISecureActionItemVisibilityAspectPluginBuilder;
 import org.jowidgets.cap.security.ui.api.ISecureBeanFormPluginBuilder;
-import org.jowidgets.cap.security.ui.api.ISecureControlAuthorizationMapper;
-import org.jowidgets.cap.security.ui.api.ISecureControlAuthorizationMapperFactory;
+import org.jowidgets.cap.security.ui.api.ISecureControlMapper;
+import org.jowidgets.cap.security.ui.api.ISecureControlMapperFactory;
 import org.jowidgets.cap.security.ui.api.ISecureControlFactoryDecoratorBuilder;
 import org.jowidgets.cap.security.ui.api.ISecureServiceActionDecoratorPluginBuilder;
 import org.jowidgets.cap.security.ui.api.ISecureServiceProviderDecoratorBuilder;
@@ -90,20 +90,20 @@ public final class CapSecurityUiToolkitImpl implements ICapSecurityUiToolkit {
 
 	@Override
 	public <WIDGET_TYPE extends IControl, DESCRIPTOR_TYPE extends IWidgetDescriptor<? extends WIDGET_TYPE>, AUTHORIZATION_TYPE> ISecureControlFactoryDecoratorBuilder<WIDGET_TYPE, DESCRIPTOR_TYPE, AUTHORIZATION_TYPE> secureControlFactoryDecoratorBuilder(
-		final ISecureControlAuthorizationMapper<WIDGET_TYPE, DESCRIPTOR_TYPE, AUTHORIZATION_TYPE> mapper) {
+		final ISecureControlMapper<WIDGET_TYPE, DESCRIPTOR_TYPE, AUTHORIZATION_TYPE> mapper) {
 		return new SecureControlFactoryDecoratorBuilderImpl<WIDGET_TYPE, DESCRIPTOR_TYPE, AUTHORIZATION_TYPE>(mapper);
 	}
 
 	@Override
 	public <WIDGET_TYPE extends IControl, DESCRIPTOR_TYPE extends IWidgetDescriptor<? extends WIDGET_TYPE>, AUTHORIZATION_TYPE> IDecorator<IWidgetFactory<WIDGET_TYPE, DESCRIPTOR_TYPE>> secureControlFactoryDecorator(
-		final ISecureControlAuthorizationMapper<WIDGET_TYPE, DESCRIPTOR_TYPE, AUTHORIZATION_TYPE> mapper) {
+		final ISecureControlMapper<WIDGET_TYPE, DESCRIPTOR_TYPE, AUTHORIZATION_TYPE> mapper) {
 		Assert.paramNotNull(mapper, "mapper");
 		return secureControlFactoryDecoratorBuilder(mapper).build();
 	}
 
 	@Override
-	public <AUTHORIZATION_TYPE> ISecureControlAuthorizationMapperFactory<AUTHORIZATION_TYPE> secureControlAuthorizationMapperFactory() {
-		return new SecureControlAuthorizationMapperFactoryImpl<AUTHORIZATION_TYPE>();
+	public <AUTHORIZATION_TYPE> ISecureControlMapperFactory<AUTHORIZATION_TYPE> secureControlMapperFactory() {
+		return new SecureControlMapperFactoryImpl<AUTHORIZATION_TYPE>();
 	}
 
 }

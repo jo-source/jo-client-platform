@@ -28,16 +28,38 @@
 
 package org.jowidgets.cap.security.ui.api;
 
-import org.jowidgets.cap.ui.api.widgets.IBeanTable;
-import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
+import org.jowidgets.api.widgets.IControl;
+import org.jowidgets.common.image.IImageConstant;
+import org.jowidgets.common.widgets.descriptor.IWidgetDescriptor;
 
-public final class SecureControlAuthorizationMapperFactory {
+public interface ISecureControlMapper<WIDGET_TYPE extends IControl, DESCRIPTOR_TYPE extends IWidgetDescriptor<? extends WIDGET_TYPE>, AUTHORIZATION_TYPE> {
 
-	private SecureControlAuthorizationMapperFactory() {}
+	/**
+	 * Gets the authorization for a descriptor
+	 * 
+	 * @param descriptor The descriptor to get the authorization for
+	 * 
+	 * @return The authorization or null, if widgets has no required authorization
+	 */
+	AUTHORIZATION_TYPE getAuthorization(DESCRIPTOR_TYPE descriptor);
 
-	public static <BEAN_TYPE, AUTHORIZATION_TYPE> ISecureControlAuthorizationMapper<IBeanTable<BEAN_TYPE>, IBeanTableBluePrint<BEAN_TYPE>, AUTHORIZATION_TYPE> beanTable() {
-		final ISecureControlAuthorizationMapperFactory<AUTHORIZATION_TYPE> factory = CapSecurityUiToolkit.secureControlAuthorizationMapperFactory();
-		return factory.beanTable();
-	}
+	/**
+	 * Gets the text that should be shown, if user has not the required authorization
+	 * 
+	 * @return The text to show on authorization fail or null if default text should be used
+	 */
+	String getAuthorizationFailedText(DESCRIPTOR_TYPE descriptor, WIDGET_TYPE widget);
+
+	/**
+	 * Gets the icon that should be shown, if user has not the required authorization
+	 * 
+	 * @return The icon to show on authorization fail or null
+	 */
+	IImageConstant getAuthorizationFailedIcon(DESCRIPTOR_TYPE descriptor, WIDGET_TYPE widget);
+
+	/**
+	 * @return The type of the widget this mapper maps
+	 */
+	Class<?> getWidgetType();
 
 }

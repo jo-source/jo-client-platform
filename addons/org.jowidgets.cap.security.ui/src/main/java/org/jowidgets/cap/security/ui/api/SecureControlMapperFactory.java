@@ -28,35 +28,16 @@
 
 package org.jowidgets.cap.security.ui.api;
 
-import org.jowidgets.api.widgets.IControl;
-import org.jowidgets.common.image.IImageConstant;
-import org.jowidgets.common.widgets.descriptor.IWidgetDescriptor;
+import org.jowidgets.cap.ui.api.widgets.IBeanTable;
+import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
 
-public interface ISecureControlAuthorizationMapper<WIDGET_TYPE extends IControl, DESCRIPTOR_TYPE extends IWidgetDescriptor<? extends WIDGET_TYPE>, AUTHORIZATION_TYPE> {
+public final class SecureControlMapperFactory {
 
-	/**
-	 * Gets the authorization for a descriptor
-	 * 
-	 * @param descriptor The descriptor to get the authorization for
-	 * 
-	 * @return The authorization or null, if widgets has no required authorization
-	 */
-	AUTHORIZATION_TYPE getAuthorization(DESCRIPTOR_TYPE descriptor);
+	private SecureControlMapperFactory() {}
 
-	/**
-	 * Gets the text that should be shown, if user has not the required authorization
-	 * 
-	 * @return The text to show on authorization fail or null
-	 */
-	String getAuthorizationFailedText(DESCRIPTOR_TYPE descriptor, WIDGET_TYPE widget);
-
-	/**
-	 * Gets the icon that should be shown, if user has not the required authorization
-	 * 
-	 * @return The icon to show on authorization fail or null
-	 */
-	IImageConstant getAuthorizationFailedIcon(DESCRIPTOR_TYPE descriptor, WIDGET_TYPE widget);
-
-	Class<?> getWidgetType();
+	public static <BEAN_TYPE, AUTHORIZATION_TYPE> ISecureControlMapper<IBeanTable<BEAN_TYPE>, IBeanTableBluePrint<BEAN_TYPE>, AUTHORIZATION_TYPE> beanTable() {
+		final ISecureControlMapperFactory<AUTHORIZATION_TYPE> factory = CapSecurityUiToolkit.secureControlMapperFactory();
+		return factory.beanTable();
+	}
 
 }

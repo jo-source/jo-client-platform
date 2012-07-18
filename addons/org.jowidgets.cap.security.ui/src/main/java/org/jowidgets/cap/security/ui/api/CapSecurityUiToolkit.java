@@ -91,17 +91,17 @@ public final class CapSecurityUiToolkit {
 	}
 
 	public static <WIDGET_TYPE extends IControl, DESCRIPTOR_TYPE extends IWidgetDescriptor<? extends WIDGET_TYPE>, AUTHORIZATION_TYPE> ISecureControlFactoryDecoratorBuilder<WIDGET_TYPE, DESCRIPTOR_TYPE, AUTHORIZATION_TYPE> secureControlFactoryDecoratorBuilder(
-		final ISecureControlAuthorizationMapper<WIDGET_TYPE, DESCRIPTOR_TYPE, AUTHORIZATION_TYPE> mapper) {
+		final ISecureControlMapper<WIDGET_TYPE, DESCRIPTOR_TYPE, AUTHORIZATION_TYPE> mapper) {
 		return getInstance().secureControlFactoryDecoratorBuilder(mapper);
 	}
 
 	public static <WIDGET_TYPE extends IControl, DESCRIPTOR_TYPE extends IWidgetDescriptor<? extends WIDGET_TYPE>, AUTHORIZATION_TYPE> IDecorator<IWidgetFactory<WIDGET_TYPE, DESCRIPTOR_TYPE>> secureControlFactoryDecorator(
-		final ISecureControlAuthorizationMapper<WIDGET_TYPE, DESCRIPTOR_TYPE, AUTHORIZATION_TYPE> mapper) {
+		final ISecureControlMapper<WIDGET_TYPE, DESCRIPTOR_TYPE, AUTHORIZATION_TYPE> mapper) {
 		return getInstance().secureControlFactoryDecorator(mapper);
 	}
 
-	public static <AUTHORIZATION_TYPE> ISecureControlAuthorizationMapperFactory<AUTHORIZATION_TYPE> secureControlAuthorizationMapperFactory() {
-		return getInstance().secureControlAuthorizationMapperFactory();
+	public static <AUTHORIZATION_TYPE> ISecureControlMapperFactory<AUTHORIZATION_TYPE> secureControlMapperFactory() {
+		return getInstance().secureControlMapperFactory();
 	}
 
 	public static ICapSecurityUiToolkit getInstance() {

@@ -37,7 +37,7 @@ import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.widgets.IComposite;
 import org.jowidgets.api.widgets.IControl;
 import org.jowidgets.cap.security.common.api.IAuthorizationChecker;
-import org.jowidgets.cap.security.ui.api.ISecureControlAuthorizationMapper;
+import org.jowidgets.cap.security.ui.api.ISecureControlMapper;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.common.image.IImageConstant;
 import org.jowidgets.common.widgets.IWidgetCommon;
@@ -56,14 +56,15 @@ final class SecureControlFactoryDecoratorImpl<WIDGET_TYPE extends IControl, DESC
 
 	private final String defaultFailedText = Messages.getString("SecureControlFactoryDecoratorImpl.defaultFailedText");
 
-	private final ISecureControlAuthorizationMapper<WIDGET_TYPE, DESCRIPTOR_TYPE, AUTHORIZATION_TYPE> controlAuthorizationMapper;
+	private final ISecureControlMapper<WIDGET_TYPE, DESCRIPTOR_TYPE, AUTHORIZATION_TYPE> controlAuthorizationMapper;
 	private final IAuthorizationChecker<AUTHORIZATION_TYPE> authorizationChecker;
 	private final ICustomWidgetCreator<? extends IControl> controlCreator;
 
 	SecureControlFactoryDecoratorImpl(
-		final ISecureControlAuthorizationMapper<WIDGET_TYPE, DESCRIPTOR_TYPE, AUTHORIZATION_TYPE> controlAuthorizationMapper,
+		final ISecureControlMapper<WIDGET_TYPE, DESCRIPTOR_TYPE, AUTHORIZATION_TYPE> controlAuthorizationMapper,
 		final IAuthorizationChecker<AUTHORIZATION_TYPE> authorizationChecker,
 		final ICustomWidgetCreator<? extends IControl> controlCreator) {
+
 		this.controlAuthorizationMapper = controlAuthorizationMapper;
 		this.authorizationChecker = authorizationChecker;
 		this.controlCreator = controlCreator;

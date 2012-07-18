@@ -40,22 +40,22 @@ public final class SecureControlFactoryDecorator {
 	private SecureControlFactoryDecorator() {}
 
 	public static <BEAN_TYPE> IDecorator<IWidgetFactory<IBeanTable<BEAN_TYPE>, IBeanTableBluePrint<BEAN_TYPE>>> beanTable() {
-		final ISecureControlAuthorizationMapper<IBeanTable<BEAN_TYPE>, IBeanTableBluePrint<BEAN_TYPE>, Object> mapper = SecureControlAuthorizationMapperFactory.beanTable();
+		final ISecureControlMapper<IBeanTable<BEAN_TYPE>, IBeanTableBluePrint<BEAN_TYPE>, Object> mapper = SecureControlMapperFactory.beanTable();
 		return create(mapper);
 	}
 
 	public static <BEAN_TYPE, AUTHORIZATION_TYPE> ISecureControlFactoryDecoratorBuilder<IBeanTable<BEAN_TYPE>, IBeanTableBluePrint<BEAN_TYPE>, AUTHORIZATION_TYPE> beanTableBuilder() {
-		final ISecureControlAuthorizationMapper<IBeanTable<BEAN_TYPE>, IBeanTableBluePrint<BEAN_TYPE>, AUTHORIZATION_TYPE> mapper = SecureControlAuthorizationMapperFactory.beanTable();
+		final ISecureControlMapper<IBeanTable<BEAN_TYPE>, IBeanTableBluePrint<BEAN_TYPE>, AUTHORIZATION_TYPE> mapper = SecureControlMapperFactory.beanTable();
 		return builder(mapper);
 	}
 
 	public static <WIDGET_TYPE extends IControl, DESCRIPTOR_TYPE extends IWidgetDescriptor<? extends WIDGET_TYPE>, AUTHORIZATION_TYPE> IDecorator<IWidgetFactory<WIDGET_TYPE, DESCRIPTOR_TYPE>> create(
-		final ISecureControlAuthorizationMapper<WIDGET_TYPE, DESCRIPTOR_TYPE, AUTHORIZATION_TYPE> mapper) {
+		final ISecureControlMapper<WIDGET_TYPE, DESCRIPTOR_TYPE, AUTHORIZATION_TYPE> mapper) {
 		return CapSecurityUiToolkit.secureControlFactoryDecorator(mapper);
 	}
 
 	public static <WIDGET_TYPE extends IControl, DESCRIPTOR_TYPE extends IWidgetDescriptor<? extends WIDGET_TYPE>, AUTHORIZATION_TYPE> ISecureControlFactoryDecoratorBuilder<WIDGET_TYPE, DESCRIPTOR_TYPE, AUTHORIZATION_TYPE> builder(
-		final ISecureControlAuthorizationMapper<WIDGET_TYPE, DESCRIPTOR_TYPE, AUTHORIZATION_TYPE> mapper) {
+		final ISecureControlMapper<WIDGET_TYPE, DESCRIPTOR_TYPE, AUTHORIZATION_TYPE> mapper) {
 		return CapSecurityUiToolkit.secureControlFactoryDecoratorBuilder(mapper);
 	}
 }
