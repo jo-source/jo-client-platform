@@ -56,10 +56,10 @@ public interface ICapSecurityUiToolkit {
 	<AUTHORIZATION_TYPE> ISecureActionItemVisibilityAspectPluginBuilder<AUTHORIZATION_TYPE> secureActionItemVisibilityAspectPluginBuilder();
 
 	<WIDGET_TYPE extends IControl, DESCRIPTOR_TYPE extends IWidgetDescriptor<? extends WIDGET_TYPE>, AUTHORIZATION_TYPE> ISecureControlFactoryDecoratorBuilder<WIDGET_TYPE, DESCRIPTOR_TYPE, AUTHORIZATION_TYPE> secureControlFactoryDecoratorBuilder(
-		ISecureControlAuthorizationMapper<WIDGET_TYPE, DESCRIPTOR_TYPE, AUTHORIZATION_TYPE> mapper);
+		ISecureControlMapper<WIDGET_TYPE, DESCRIPTOR_TYPE, AUTHORIZATION_TYPE> mapper);
 
 	<WIDGET_TYPE extends IControl, DESCRIPTOR_TYPE extends IWidgetDescriptor<? extends WIDGET_TYPE>, AUTHORIZATION_TYPE> IDecorator<IWidgetFactory<WIDGET_TYPE, DESCRIPTOR_TYPE>> secureControlFactoryDecorator(
-		ISecureControlAuthorizationMapper<WIDGET_TYPE, DESCRIPTOR_TYPE, AUTHORIZATION_TYPE> mapper);
+		ISecureControlMapper<WIDGET_TYPE, DESCRIPTOR_TYPE, AUTHORIZATION_TYPE> mapper);
 
-	<AUTHORIZATION_TYPE> ISecureControlAuthorizationMapperFactory<AUTHORIZATION_TYPE> secureControlAuthorizationMapperFactory();
+	<AUTHORIZATION_TYPE> ISecureControlMapperFactory<AUTHORIZATION_TYPE> secureControlMapperFactory();
 }

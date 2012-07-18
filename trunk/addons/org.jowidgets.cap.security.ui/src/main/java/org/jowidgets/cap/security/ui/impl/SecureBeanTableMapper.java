@@ -30,7 +30,7 @@ package org.jowidgets.cap.security.ui.impl;
 
 import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.security.common.api.ISecureObject;
-import org.jowidgets.cap.security.ui.api.ISecureControlAuthorizationMapper;
+import org.jowidgets.cap.security.ui.api.ISecureControlMapper;
 import org.jowidgets.cap.security.ui.api.SecurityIcons;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
@@ -40,8 +40,8 @@ import org.jowidgets.tools.message.MessageReplacer;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.EmptyCheck;
 
-final class SecureBeanTableAuthorizationMapper<BEAN_TYPE, AUTHORIZATION_TYPE> implements
-		ISecureControlAuthorizationMapper<IBeanTable<BEAN_TYPE>, IBeanTableBluePrint<BEAN_TYPE>, AUTHORIZATION_TYPE> {
+final class SecureBeanTableMapper<BEAN_TYPE, AUTHORIZATION_TYPE> implements
+		ISecureControlMapper<IBeanTable<BEAN_TYPE>, IBeanTableBluePrint<BEAN_TYPE>, AUTHORIZATION_TYPE> {
 
 	private final String authorizationFailed = Messages.getString("SecureBeanTableAuthorizationMapper.authorizationFailed");
 	private final String authorizationFailedWithEntity = Messages.getString("SecureBeanTableAuthorizationMapper.authorizationFailedWithEntity");

@@ -26,19 +26,13 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.security.ui.impl;
+package org.jowidgets.cap.security.ui.api;
 
-import org.jowidgets.cap.security.ui.api.ISecureControlAuthorizationMapper;
-import org.jowidgets.cap.security.ui.api.ISecureControlAuthorizationMapperFactory;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
 
-final class SecureControlAuthorizationMapperFactoryImpl<AUTHORIZATION_TYPE> implements
-		ISecureControlAuthorizationMapperFactory<AUTHORIZATION_TYPE> {
+public interface ISecureControlMapperFactory<AUTHORIZATION_TYPE> {
 
-	@Override
-	public <BEAN_TYPE> ISecureControlAuthorizationMapper<IBeanTable<BEAN_TYPE>, IBeanTableBluePrint<BEAN_TYPE>, AUTHORIZATION_TYPE> beanTable() {
-		return new SecureBeanTableAuthorizationMapper<BEAN_TYPE, AUTHORIZATION_TYPE>();
-	}
+	<BEAN_TYPE> ISecureControlMapper<IBeanTable<BEAN_TYPE>, IBeanTableBluePrint<BEAN_TYPE>, AUTHORIZATION_TYPE> beanTable();
 
 }
