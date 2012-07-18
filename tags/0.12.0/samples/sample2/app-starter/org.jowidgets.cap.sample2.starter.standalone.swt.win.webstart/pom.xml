@@ -1,0 +1,69 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<artifactId>org.jowidgets.cap.sample2.starter.standalone.swt.win.webstart</artifactId>
+	
+	<parent>
+		<groupId>org.jowidgets.cap.sample2</groupId>
+		<artifactId>org.jowidgets.cap.sample2.starter.parent</artifactId>
+		<version>0.12.0</version>
+		<relativePath>../parent/pom.xml</relativePath>
+	</parent>
+	
+	<dependencies>
+	    <dependency>
+			<groupId>org.jowidgets.cap.sample2</groupId>
+			<artifactId>org.jowidgets.cap.sample2.starter.standalone.swt.win</artifactId>
+			<version>0.12.0</version>
+			<scope>runtime</scope>
+		</dependency>
+	</dependencies>
+	
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>bundle-manifest</id>
+						<phase>none</phase>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo.webstart</groupId>
+				<artifactId>webstart-maven-plugin</artifactId>
+				<version>1.0-beta-1</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>jnlp-inline</goal>
+						</goals>
+						<phase>package</phase>
+					</execution>
+				</executions>
+				<configuration>
+					<sign>
+                        <keystore>${basedir}/keystore</keystore>
+                        <keypass>keystore</keypass>
+                        <storepass>keystore</storepass>
+                        <alias>key</alias>
+
+                        <verify>true</verify> 
+
+                        <keystoreConfig>
+                            <delete>false</delete> 
+                            <gen>false</gen>       
+                        </keystoreConfig>
+                    </sign>
+					<jnlp>
+						<outputFile>sample2_standalone_swt_win.jnlp</outputFile>
+						<mainClass>org.jowidgets.cap.sample2.starter.standalone.swt.win.Sample2StarterStandaloneSwtWin</mainClass>
+					</jnlp>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+	
+</project>

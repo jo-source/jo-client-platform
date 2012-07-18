@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry exported="true" kind="lib" path="lib/antlr.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/asm.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/c3p0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/cglib.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-collections.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-io.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-logging.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/dom4j.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/hibernate-c3p0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/hibernate-commons-annotations.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/hibernate-core.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/hibernate-entitymanager.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/hibernate-jpa-2.0-api.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/hibernate-validator.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/javassist.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/javax.persistence.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jta.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/miglayout-swt.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/ojdbc14.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/org.jowidgets.cap.common.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/org.jowidgets.cap.sample2.app.common.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/org.jowidgets.cap.sample2.app.service.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/org.jowidgets.cap.sample2.app.ui.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/org.jowidgets.cap.sample2.plugins.ui.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/org.jowidgets.cap.sample2.starter.standalone.common.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/org.jowidgets.cap.sample2.starter.standalone.swt.common.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/org.jowidgets.cap.sample2.starter.standalone.swt.win.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/org.jowidgets.cap.security.common.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/org.jowidgets.cap.security.service.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/org.jowidgets.cap.security.service.plugin.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/org.jowidgets.cap.security.ui.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/org.jowidgets.cap.security.ui.plugin.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/org.jowidgets.cap.service.hibernate.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/org.jowidgets.cap.service.hibernate.oracle.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/org.jowidgets.cap.service.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/org.jowidgets.cap.service.jpa.api.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/org.jowidgets.cap.service.jpa.impl.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/org.jowidgets.cap.tools.starter.standalone.common.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/org.jowidgets.cap.tools.starter.standalone.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/org.jowidgets.cap.ui.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/org.jowidgets.plugin.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/org.jowidgets.security.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/org.jowidgets.service.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/slf4j-api.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/slf4j-jcl.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/validation-api.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
+	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
+	<classpathentry kind="src" path="src/"/>
+	<classpathentry kind="output" path="target/classes"/>
+</classpath>

@@ -1,0 +1,13 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+	<bean class="org.jowidgets.cap.service.spring.EchoService" />
+
+	<bean class="org.jowidgets.cap.service.spring.ExtendedEchoService" />
+
+	<bean class="org.jowidgets.cap.service.spring.BrokenEchoService" />
+
+	<bean class="org.jowidgets.cap.service.spring.ServicePostProcessor" />
+
+</beans>

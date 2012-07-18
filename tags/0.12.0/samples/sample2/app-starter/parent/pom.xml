@@ -1,0 +1,36 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	
+	<artifactId>org.jowidgets.cap.sample2.starter.parent</artifactId>
+	<packaging>pom</packaging>
+
+	<parent>
+		<groupId>org.jowidgets.cap.sample2</groupId>
+		<artifactId>org.jowidgets.cap.sample2.parent</artifactId>
+		<version>0.12.0</version>
+		<relativePath>../../parent/pom.xml</relativePath>
+	</parent>
+	
+	<modules>
+		<module>../org.jowidgets.cap.sample2.starter.server</module>
+		<module>../org.jowidgets.cap.sample2.starter.client.common</module>
+		<module>../org.jowidgets.cap.sample2.starter.client.swing</module>
+		<module>../org.jowidgets.cap.sample2.starter.client.swing.webstart</module>
+		<module>../org.jowidgets.cap.sample2.starter.client.swt.common</module>
+		<module>../org.jowidgets.cap.sample2.starter.client.swt.win</module>
+		<module>../org.jowidgets.cap.sample2.starter.client.swt.win.webstart</module>
+		<module>../org.jowidgets.cap.sample2.starter.client.swt.gtk64</module>
+		<module>../org.jowidgets.cap.sample2.starter.client.swt.gtk64.webstart</module>
+		<module>../org.jowidgets.cap.sample2.starter.webapp</module>
+		<module>../org.jowidgets.cap.sample2.starter.webapp.rwt</module>
+		<module>../org.jowidgets.cap.sample2.starter.standalone.common</module>
+		<module>../org.jowidgets.cap.sample2.starter.standalone.swing</module>
+		<module>../org.jowidgets.cap.sample2.starter.standalone.swing.webstart</module>
+		<module>../org.jowidgets.cap.sample2.starter.standalone.swt.common</module>
+		<module>../org.jowidgets.cap.sample2.starter.standalone.swt.win</module>
+		<module>../org.jowidgets.cap.sample2.starter.standalone.swt.win.webstart</module>
+		<module>../org.jowidgets.cap.sample2.starter.standalone.swt.gtk64</module>
+		<module>../org.jowidgets.cap.sample2.starter.standalone.swt.gtk64.webstart</module>
+	</modules>
+
+</project>
