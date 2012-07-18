@@ -299,11 +299,21 @@ abstract class AbstractBeanModelBuilderImpl<BEAN_TYPE, INSTANCE_TYPE> implements
 	}
 
 	protected IReaderService<? extends Object> getReaderService() {
-		return readerService;
+		if (readerService != null) {
+			return readerService;
+		}
+		else {
+			return new DummyReaderService<Object>();
+		}
 	}
 
 	protected IProvider<? extends Object> getReaderParameterProvider() {
-		return readerParameterProvider;
+		if (readerParameterProvider != null) {
+			return readerParameterProvider;
+		}
+		else {
+			return new DummyParameterProvider<Object>();
+		}
 	}
 
 	@SuppressWarnings("unchecked")

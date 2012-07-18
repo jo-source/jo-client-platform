@@ -26,26 +26,23 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.security.ui.impl;
+package org.jowidgets.cap.security.ui.tools;
 
-import org.jowidgets.cap.common.api.service.IExecutorService;
-import org.jowidgets.cap.common.api.service.IReaderService;
-import org.jowidgets.cap.security.ui.api.DecorationStrategy;
-import org.jowidgets.cap.security.ui.api.IDecorationStrategySelector;
-import org.jowidgets.service.api.IServiceId;
+import org.jowidgets.api.toolkit.IToolkit;
+import org.jowidgets.api.toolkit.IToolkitInterceptor;
+import org.jowidgets.cap.security.ui.api.SecureControlFactoryDecorator;
+import org.jowidgets.cap.security.ui.api.SecurityIcons;
+import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
+import org.jowidgets.common.widgets.factory.IGenericWidgetFactory;
+import org.jowidgets.util.IDecorator;
 
-final class DefaultDecorationStrategySelector implements IDecorationStrategySelector {
+final class CapSecurityUiToolkitInterceptor implements IToolkitInterceptor {
 
+	@SuppressWarnings({"unchecked", "rawtypes"})
 	@Override
-	public <SERVICE_TYPE> DecorationStrategy getStrategy(final IServiceId<SERVICE_TYPE> id, final SERVICE_TYPE service) {
-		if (service instanceof IExecutorService<?>) {
-			return DecorationStrategy.ADD_AUTHORIZATION;
-		}
-		else if (service instanceof IReaderService<?>) {
-			return DecorationStrategy.ADD_AUTHORIZATION;
-		}
-		else {
-			return DecorationStrategy.FILTER;
-		}
+	public void onToolkitCreate(final IToolkit toolkit) {
+		toolkit.getImageRegistry().registerImageEnum(SecurityIcons.class);
+		final IGenericWidgetFactory widgetFactory = toolkit.getWidgetFactory();
+		widgetFactory.addWidgetFactoryDecorator(IBeanTableBluePrint.class, (IDecorator) SecureControlFactoryDecorator.beanTable());
 	}
 }

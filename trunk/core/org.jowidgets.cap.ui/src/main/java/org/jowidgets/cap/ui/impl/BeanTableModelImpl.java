@@ -617,6 +617,11 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	}
 
 	@Override
+	public IReaderService<Object> getReaderService() {
+		return readerService;
+	}
+
+	@Override
 	public IExternalReader createExternalReader() {
 		return new ExternalReader();
 	}

@@ -26,26 +26,40 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.security.ui.impl;
+package org.jowidgets.cap.security.ui.api;
 
-import org.jowidgets.cap.common.api.service.IExecutorService;
-import org.jowidgets.cap.common.api.service.IReaderService;
-import org.jowidgets.cap.security.ui.api.DecorationStrategy;
-import org.jowidgets.cap.security.ui.api.IDecorationStrategySelector;
-import org.jowidgets.service.api.IServiceId;
+import org.jowidgets.api.widgets.IControl;
+import org.jowidgets.cap.security.common.api.IAuthorizationChecker;
+import org.jowidgets.common.widgets.descriptor.IWidgetDescriptor;
+import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
+import org.jowidgets.common.widgets.factory.IWidgetFactory;
+import org.jowidgets.util.IDecorator;
 
-final class DefaultDecorationStrategySelector implements IDecorationStrategySelector {
+public interface ISecureControlFactoryDecoratorBuilder<WIDGET_TYPE extends IControl, DESCRIPTOR_TYPE extends IWidgetDescriptor<? extends WIDGET_TYPE>, AUTHORIZATION_TYPE> {
 
-	@Override
-	public <SERVICE_TYPE> DecorationStrategy getStrategy(final IServiceId<SERVICE_TYPE> id, final SERVICE_TYPE service) {
-		if (service instanceof IExecutorService<?>) {
-			return DecorationStrategy.ADD_AUTHORIZATION;
-		}
-		else if (service instanceof IReaderService<?>) {
-			return DecorationStrategy.ADD_AUTHORIZATION;
-		}
-		else {
-			return DecorationStrategy.FILTER;
-		}
-	}
+	/**
+	 * Sets the creator for the control, that will be shown if the user has not the authorization to view the original control.
+	 * 
+	 * @param creator The creator to set
+	 * 
+	 * @return This builder
+	 */
+	ISecureControlFactoryDecoratorBuilder<WIDGET_TYPE, DESCRIPTOR_TYPE, AUTHORIZATION_TYPE> setControlCreator(
+		ICustomWidgetCreator<? extends IControl> creator);
+
+	/**
+	 * Sets the authorization checker. If no checker will be set, an default checker will be used, that gets the
+	 * authorizations from the security context.
+	 * 
+	 * Remark: The default (not setting this explicit) only works, if the default context uses the IDefaultPrincipal
+	 * 
+	 * @param checker The checker to add
+	 * 
+	 * @return This builder
+	 */
+	ISecureControlFactoryDecoratorBuilder<WIDGET_TYPE, DESCRIPTOR_TYPE, AUTHORIZATION_TYPE> setAuthorizationChecker(
+		IAuthorizationChecker<AUTHORIZATION_TYPE> checker);
+
+	IDecorator<IWidgetFactory<WIDGET_TYPE, DESCRIPTOR_TYPE>> build();
+
 }

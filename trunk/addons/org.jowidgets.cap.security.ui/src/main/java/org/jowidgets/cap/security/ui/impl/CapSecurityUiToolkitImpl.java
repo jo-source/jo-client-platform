@@ -29,14 +29,22 @@
 package org.jowidgets.cap.security.ui.impl;
 
 import org.jowidgets.api.model.item.IActionItemVisibilityAspectPlugin;
+import org.jowidgets.api.widgets.IControl;
 import org.jowidgets.cap.security.ui.api.ICapSecurityUiToolkit;
 import org.jowidgets.cap.security.ui.api.ISecureActionItemVisibilityAspectPluginBuilder;
 import org.jowidgets.cap.security.ui.api.ISecureBeanFormPluginBuilder;
+import org.jowidgets.cap.security.ui.api.ISecureControlAuthorizationMapper;
+import org.jowidgets.cap.security.ui.api.ISecureControlAuthorizationMapperFactory;
+import org.jowidgets.cap.security.ui.api.ISecureControlFactoryDecoratorBuilder;
 import org.jowidgets.cap.security.ui.api.ISecureServiceActionDecoratorPluginBuilder;
 import org.jowidgets.cap.security.ui.api.ISecureServiceProviderDecoratorBuilder;
 import org.jowidgets.cap.ui.api.plugin.IBeanFormPlugin;
 import org.jowidgets.cap.ui.api.plugin.IServiceActionDecoratorPlugin;
+import org.jowidgets.common.widgets.descriptor.IWidgetDescriptor;
+import org.jowidgets.common.widgets.factory.IWidgetFactory;
 import org.jowidgets.service.api.IServiceProviderDecoratorHolder;
+import org.jowidgets.util.Assert;
+import org.jowidgets.util.IDecorator;
 
 public final class CapSecurityUiToolkitImpl implements ICapSecurityUiToolkit {
 
@@ -78,6 +86,24 @@ public final class CapSecurityUiToolkitImpl implements ICapSecurityUiToolkit {
 	@Override
 	public IBeanFormPlugin secureBeanFormPlugin() {
 		return secureBeanFormPluginBuilder().build();
+	}
+
+	@Override
+	public <WIDGET_TYPE extends IControl, DESCRIPTOR_TYPE extends IWidgetDescriptor<? extends WIDGET_TYPE>, AUTHORIZATION_TYPE> ISecureControlFactoryDecoratorBuilder<WIDGET_TYPE, DESCRIPTOR_TYPE, AUTHORIZATION_TYPE> secureControlFactoryDecoratorBuilder(
+		final ISecureControlAuthorizationMapper<WIDGET_TYPE, DESCRIPTOR_TYPE, AUTHORIZATION_TYPE> mapper) {
+		return new SecureControlFactoryDecoratorBuilderImpl<WIDGET_TYPE, DESCRIPTOR_TYPE, AUTHORIZATION_TYPE>(mapper);
+	}
+
+	@Override
+	public <WIDGET_TYPE extends IControl, DESCRIPTOR_TYPE extends IWidgetDescriptor<? extends WIDGET_TYPE>, AUTHORIZATION_TYPE> IDecorator<IWidgetFactory<WIDGET_TYPE, DESCRIPTOR_TYPE>> secureControlFactoryDecorator(
+		final ISecureControlAuthorizationMapper<WIDGET_TYPE, DESCRIPTOR_TYPE, AUTHORIZATION_TYPE> mapper) {
+		Assert.paramNotNull(mapper, "mapper");
+		return secureControlFactoryDecoratorBuilder(mapper).build();
+	}
+
+	@Override
+	public <AUTHORIZATION_TYPE> ISecureControlAuthorizationMapperFactory<AUTHORIZATION_TYPE> secureControlAuthorizationMapperFactory() {
+		return new SecureControlAuthorizationMapperFactoryImpl<AUTHORIZATION_TYPE>();
 	}
 
 }

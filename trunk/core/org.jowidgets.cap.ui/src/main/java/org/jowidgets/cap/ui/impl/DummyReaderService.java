@@ -26,26 +26,43 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.security.ui.impl;
+package org.jowidgets.cap.ui.impl;
 
-import org.jowidgets.cap.common.api.service.IExecutorService;
+import java.util.Collections;
+import java.util.List;
+
+import org.jowidgets.cap.common.api.bean.IBeanDto;
+import org.jowidgets.cap.common.api.bean.IBeanKey;
+import org.jowidgets.cap.common.api.execution.IExecutionCallback;
+import org.jowidgets.cap.common.api.execution.IResultCallback;
+import org.jowidgets.cap.common.api.filter.IFilter;
 import org.jowidgets.cap.common.api.service.IReaderService;
-import org.jowidgets.cap.security.ui.api.DecorationStrategy;
-import org.jowidgets.cap.security.ui.api.IDecorationStrategySelector;
-import org.jowidgets.service.api.IServiceId;
+import org.jowidgets.cap.common.api.sort.ISort;
 
-final class DefaultDecorationStrategySelector implements IDecorationStrategySelector {
+final class DummyReaderService<PARAM_TYPE> implements IReaderService<PARAM_TYPE> {
 
 	@Override
-	public <SERVICE_TYPE> DecorationStrategy getStrategy(final IServiceId<SERVICE_TYPE> id, final SERVICE_TYPE service) {
-		if (service instanceof IExecutorService<?>) {
-			return DecorationStrategy.ADD_AUTHORIZATION;
-		}
-		else if (service instanceof IReaderService<?>) {
-			return DecorationStrategy.ADD_AUTHORIZATION;
-		}
-		else {
-			return DecorationStrategy.FILTER;
-		}
+	public void read(
+		final IResultCallback<List<IBeanDto>> result,
+		final List<? extends IBeanKey> parentBeanKeys,
+		final IFilter filter,
+		final List<? extends ISort> sorting,
+		final int firstRow,
+		final int maxRows,
+		final PARAM_TYPE parameter,
+		final IExecutionCallback executionCallback) {
+		final List<IBeanDto> emptyList = Collections.emptyList();
+		result.finished(emptyList);
 	}
+
+	@Override
+	public void count(
+		final IResultCallback<Integer> result,
+		final List<? extends IBeanKey> parentBeanKeys,
+		final IFilter filter,
+		final PARAM_TYPE parameter,
+		final IExecutionCallback executionCallback) {
+		result.finished(0);
+	}
+
 }

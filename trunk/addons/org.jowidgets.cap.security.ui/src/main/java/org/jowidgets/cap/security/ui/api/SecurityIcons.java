@@ -26,26 +26,27 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.security.ui.impl;
+package org.jowidgets.cap.security.ui.api;
 
-import org.jowidgets.cap.common.api.service.IExecutorService;
-import org.jowidgets.cap.common.api.service.IReaderService;
-import org.jowidgets.cap.security.ui.api.DecorationStrategy;
-import org.jowidgets.cap.security.ui.api.IDecorationStrategySelector;
-import org.jowidgets.service.api.IServiceId;
+import java.net.URL;
 
-final class DefaultDecorationStrategySelector implements IDecorationStrategySelector {
+import org.jowidgets.common.image.IImageUrlProvider;
+
+public enum SecurityIcons implements IImageUrlProvider {
+
+	READ_NOT_ALLOWED_BIG("read_not_allowed_big.png");
+
+	private final String rootPath = "icons/";
+
+	private final URL url;
+
+	private SecurityIcons(final String path) {
+		this.url = getClass().getClassLoader().getResource(rootPath + path);
+	}
 
 	@Override
-	public <SERVICE_TYPE> DecorationStrategy getStrategy(final IServiceId<SERVICE_TYPE> id, final SERVICE_TYPE service) {
-		if (service instanceof IExecutorService<?>) {
-			return DecorationStrategy.ADD_AUTHORIZATION;
-		}
-		else if (service instanceof IReaderService<?>) {
-			return DecorationStrategy.ADD_AUTHORIZATION;
-		}
-		else {
-			return DecorationStrategy.FILTER;
-		}
+	public URL getImageUrl() {
+		return url;
 	}
+
 }
