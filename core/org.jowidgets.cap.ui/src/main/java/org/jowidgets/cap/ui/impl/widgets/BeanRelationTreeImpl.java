@@ -40,6 +40,7 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 
+import org.jowidgets.api.color.Colors;
 import org.jowidgets.api.controller.IDisposeListener;
 import org.jowidgets.api.controller.ITreeSelectionEvent;
 import org.jowidgets.api.controller.ITreeSelectionListener;
@@ -53,6 +54,9 @@ import org.jowidgets.cap.common.api.service.IBeanServicesProvider;
 import org.jowidgets.cap.common.api.service.IDeleterService;
 import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
+import org.jowidgets.cap.ui.api.bean.BeanMessageType;
+import org.jowidgets.cap.ui.api.bean.IBeanMessage;
+import org.jowidgets.cap.ui.api.bean.IBeanMessageStateListener;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyLabelRenderer;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionProvider;
@@ -83,6 +87,9 @@ import org.jowidgets.util.Tuple;
 final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements IBeanRelationTree<CHILD_BEAN_TYPE> {
 
 	private static final int MAX_EXPANDED_NODES_CACHE = 2500;
+
+	private final String waitText = Messages.getString("BeanRelationTreeImpl.wait_text");
+	private final String waitTooltip = Messages.getString("BeanRelationTreeImpl.wait_tooltip");
 
 	private final IBeanRelationTreeModel<CHILD_BEAN_TYPE> treeModel;
 	private final boolean autoSelection;
@@ -268,6 +275,11 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 		//register listener that re-renders node on property changes
 		bean.addPropertyChangeListener(new PropertyChangedRenderingListener(childNode, bean, renderer));
 
+		//registers a listener that re-renders dummy nodes on message state change
+		if (bean.isDummy()) {
+			bean.addMessageStateListener(new DummyBeanMessageStateRenderingListener(childNode, renderer));
+		}
+
 		//register listener that removes node from nodes map on dispose
 		childNode.addDisposeListener(new TreeNodeDisposeListener(childNode));
 
@@ -385,16 +397,19 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 		return result;
 	}
 
-	private static void renderNode(
-		final ITreeNode node,
-		final IBeanProxy<Object> bean,
-		final IBeanProxyLabelRenderer<Object> renderer) {
+	private void renderNode(final ITreeNode node, final IBeanProxy<Object> bean, final IBeanProxyLabelRenderer<Object> renderer) {
 		if (!bean.isDummy()) {
 			renderNodeWithLabel(node, renderer.getLabel(bean));
 		}
 		else {
-			renderDummyNode(node);
+			if (bean.hasExecution()) {
+				renderLoadingDummyNode(node);
+			}
+			else if (bean.hasMessages()) {
+				renderErrorDummyNode(node, bean.getFirstWorstMessage());
+			}
 		}
+
 	}
 
 	private static void renderNodeWithLabel(final ITreeNode node, final ILabelModel label) {
@@ -409,9 +424,19 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 		}
 	}
 
-	private static void renderDummyNode(final ITreeNode node) {
-		node.setText("...");
-		node.setToolTipText("Data will be loaded in background...");
+	private void renderLoadingDummyNode(final ITreeNode node) {
+		node.setText(waitText);
+		node.setToolTipText(waitTooltip);
+	}
+
+	private static void renderErrorDummyNode(final ITreeNode node, final IBeanMessage message) {
+		if (BeanMessageType.ERROR == message.getType()) {
+			node.setForegroundColor(Colors.ERROR);
+		}
+		else if (BeanMessageType.WARNING == message.getType()) {
+			node.setForegroundColor(Colors.WARNING);
+		}
+		node.setText(message.getLabel());
 	}
 
 	private static void renderRelationNode(final ITreeNode node, final IBeanRelationNodeModel<Object, Object> model) {
@@ -517,6 +542,27 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 			}
 			else {
 				bean.removePropertyChangeListener(this);
+			}
+		}
+	}
+
+	private final class DummyBeanMessageStateRenderingListener implements IBeanMessageStateListener<Object> {
+
+		private final ITreeNode node;
+		private final IBeanProxyLabelRenderer<Object> renderer;
+
+		private DummyBeanMessageStateRenderingListener(final ITreeNode node, final IBeanProxyLabelRenderer<Object> renderer) {
+			this.node = node;
+			this.renderer = renderer;
+		}
+
+		@Override
+		public void messageStateChanged(final IBeanProxy<Object> bean) {
+			if (!node.isDisposed()) {
+				renderNode(node, bean, renderer);
+			}
+			else {
+				bean.removeMessageStateListener(this);
 			}
 		}
 	}
