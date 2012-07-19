@@ -116,9 +116,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 	@SuppressWarnings("unused")
 	private final IDeleterService deleterService;
 	private final List<ISort> defaultSort;
-	@SuppressWarnings("unused")
-	private final Set<IBeanValidator<CHILD_BEAN_TYPE>> beanValidators;
-	private final Set<IBeanPropertyValidator<CHILD_BEAN_TYPE>> beanPropertyValidators;
+	private final List<IBeanPropertyValidator<CHILD_BEAN_TYPE>> beanPropertyValidators;
 	private final List<IAttribute<Object>> childBeanAttributes;
 	private final List<String> propertyNames;
 	private final Map<String, Object> defaultValues;
@@ -184,11 +182,14 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 		this.updaterService = updaterService;
 		this.deleterService = deleterService;
 		this.defaultSort = new LinkedList<ISort>(defaultSort);
-		this.beanValidators = new LinkedHashSet<IBeanValidator<CHILD_BEAN_TYPE>>(beanValidators);
 		this.childBeanAttributes = Collections.unmodifiableList(new LinkedList<IAttribute<Object>>(childBeanAttributes));
 
-		//TODO MG get the validators
-		this.beanPropertyValidators = new LinkedHashSet<IBeanPropertyValidator<CHILD_BEAN_TYPE>>();
+		this.beanPropertyValidators = new LinkedList<IBeanPropertyValidator<CHILD_BEAN_TYPE>>();
+		beanPropertyValidators.add(new BeanPropertyValidatorImpl<CHILD_BEAN_TYPE>(childBeanAttributes));
+		for (final IBeanValidator<CHILD_BEAN_TYPE> beanValidator : beanValidators) {
+			beanPropertyValidators.add(new BeanPropertyValidatorAdapter<CHILD_BEAN_TYPE>(beanValidator));
+		}
+
 		this.propertyNames = createPropertyNames(childBeanAttributes);
 		this.defaultValues = createDefaultValues(childBeanAttributes);
 
@@ -344,6 +345,11 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 	@Override
 	public List<IAttribute<Object>> getChildBeanAttributes() {
 		return childBeanAttributes;
+	}
+
+	@Override
+	public List<IBeanPropertyValidator<CHILD_BEAN_TYPE>> getChildBeanPropertyValidators() {
+		return Collections.unmodifiableList(beanPropertyValidators);
 	}
 
 	@Override

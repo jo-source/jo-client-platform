@@ -36,6 +36,7 @@ import org.jowidgets.cap.common.api.entity.IEntityLinkProperties;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.service.ILinkCreatorService;
 import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
+import org.jowidgets.cap.ui.api.bean.IBeanPropertyValidator;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionProvider;
 import org.jowidgets.cap.ui.api.execution.BeanMessageStatePolicy;
@@ -85,6 +86,12 @@ public interface ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LIN
 	ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> setLinkBeanType(
 		Class<? extends LINK_BEAN_TYPE> beanType);
 
+	ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> setLinkBeanPropertyValidators(
+		List<? extends IBeanPropertyValidator<LINK_BEAN_TYPE>> validators);
+
+	ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> addLinkBeanPropertyValidator(
+		IBeanPropertyValidator<LINK_BEAN_TYPE> validator);
+
 	ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> setLinkableBeanForm(
 		IBeanFormBluePrint<LINKABLE_BEAN_TYPE> beanForm);
 
@@ -93,6 +100,12 @@ public interface ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LIN
 
 	ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> setLinkableTable(
 		IBeanTableBluePrint<LINKABLE_BEAN_TYPE> table);
+
+	ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> setLinkableBeanPropertyValidators(
+		List<? extends IBeanPropertyValidator<LINKABLE_BEAN_TYPE>> validators);
+
+	ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> addLinkableBeanPropertyValidator(
+		IBeanPropertyValidator<LINKABLE_BEAN_TYPE> validator);
 
 	ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> setSourceProperties(
 		IEntityLinkProperties properties);
