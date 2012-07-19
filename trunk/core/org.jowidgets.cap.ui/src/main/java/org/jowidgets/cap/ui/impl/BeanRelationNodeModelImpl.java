@@ -57,9 +57,8 @@ import org.jowidgets.cap.common.tools.bean.BeanKey;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.bean.BeanExceptionConverter;
-import org.jowidgets.cap.ui.api.bean.BeanMessageType;
+import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
 import org.jowidgets.cap.ui.api.bean.IBeanMessage;
-import org.jowidgets.cap.ui.api.bean.IBeanMessageBuilder;
 import org.jowidgets.cap.ui.api.bean.IBeanPropertyValidator;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
@@ -120,6 +119,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 	private final List<IAttribute<Object>> childBeanAttributes;
 	private final List<String> propertyNames;
 	private final Map<String, Object> defaultValues;
+	private final IBeanExceptionConverter exceptionConverter;
 
 	private final String loadErrorMessage;
 	private final String loadingDataLabel;
@@ -153,7 +153,8 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 		final IDeleterService deleterService,
 		final Collection<? extends ISort> defaultSort,
 		final Set<IBeanValidator<CHILD_BEAN_TYPE>> beanValidators,
-		final List<IAttribute<Object>> childBeanAttributes) {
+		final List<IAttribute<Object>> childBeanAttributes,
+		final IBeanExceptionConverter exceptionConverter) {
 
 		Assert.paramNotNull(label, "label");
 		Assert.paramNotNull(childEntityTypeId, "childEntityTypeId");
@@ -164,6 +165,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 		Assert.paramNotNull(defaultSort, "defaultSort");
 		Assert.paramNotNull(beanValidators, "beanValidators");
 		Assert.paramNotNull(childBeanAttributes, "childBeanAttributes");
+		Assert.paramNotNull(exceptionConverter, "exceptionConverter");
 
 		this.label = label;
 		this.parentBean = parentBean;
@@ -183,6 +185,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 		this.deleterService = deleterService;
 		this.defaultSort = new LinkedList<ISort>(defaultSort);
 		this.childBeanAttributes = Collections.unmodifiableList(new LinkedList<IAttribute<Object>>(childBeanAttributes));
+		this.exceptionConverter = exceptionConverter;
 
 		this.beanPropertyValidators = new LinkedList<IBeanPropertyValidator<CHILD_BEAN_TYPE>>();
 		beanPropertyValidators.add(new BeanPropertyValidatorImpl<CHILD_BEAN_TYPE>(childBeanAttributes));
@@ -193,8 +196,8 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 		this.propertyNames = createPropertyNames(childBeanAttributes);
 		this.defaultValues = createDefaultValues(childBeanAttributes);
 
-		this.loadErrorMessage = Messages.getString("BeanTableModelImpl.load_error");
-		this.loadingDataLabel = Messages.getString("BeanTableModelImpl.load_data");
+		this.loadErrorMessage = Messages.getString("BeanRelationNodeModelImpl.load_error");
+		this.loadingDataLabel = Messages.getString("BeanRelationNodeModelImpl.load_data");
 
 		this.beanListModelObservable = new BeanListModelObservable();
 		this.beanSelectionObservable = new BeanSelectionObservable<CHILD_BEAN_TYPE>();
@@ -740,11 +743,8 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 		}
 
 		private void setException(final Throwable exception) {
-			final IBeanMessageBuilder beanMessageBuilder = CapUiToolkit.beanMessageBuilder(BeanMessageType.ERROR);
-			beanMessageBuilder.setException(exception);
-			beanMessageBuilder.setShortMessage(loadingDataLabel);
-			beanMessageBuilder.setMessage(loadErrorMessage);
-			final IBeanMessage message = beanMessageBuilder.build();
+			final List<IBeanProxy<CHILD_BEAN_TYPE>> beans = Collections.singletonList(dummyBean);
+			final IBeanMessage message = exceptionConverter.convert(loadErrorMessage, beans, dummyBean, exception);
 
 			if (dummyBean != null) {
 				dummyBean.setExecutionTask(null);

@@ -67,6 +67,7 @@ class BeanRelationNodeModelBuilder<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE, INSTANCE_T
 			getDeleterService(),
 			getDefaultSort(),
 			getBeanValidators(),
-			getAttributes());
+			getAttributes(),
+			getExceptionConverter());
 	}
 }
