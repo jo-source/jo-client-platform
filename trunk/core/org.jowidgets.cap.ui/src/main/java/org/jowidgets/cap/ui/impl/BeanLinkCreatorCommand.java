@@ -56,6 +56,7 @@ import org.jowidgets.cap.common.api.service.ILinkCreatorService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
+import org.jowidgets.cap.ui.api.bean.IBeanPropertyValidator;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionProvider;
@@ -93,9 +94,11 @@ final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BE
 	private final Class<? extends LINK_BEAN_TYPE> linkBeanType;
 	private final IBeanFormBluePrint<LINK_BEAN_TYPE> linkBeanForm;
 	private final IFactory<IBeanProxy<LINK_BEAN_TYPE>> linkDefaultFactory;
+	private final List<IBeanPropertyValidator<LINK_BEAN_TYPE>> linkBeanPropertyValidators;
 	private final Class<? extends LINKABLE_BEAN_TYPE> linkableBeanType;
 	private final IBeanFormBluePrint<LINKABLE_BEAN_TYPE> linkableBeanForm;
 	private final IBeanTableBluePrint<LINKABLE_BEAN_TYPE> linkableTable;
+	private final List<IBeanPropertyValidator<LINKABLE_BEAN_TYPE>> linkableBeanPropertyValidators;
 	private final IBeanExceptionConverter exceptionConverter;
 
 	private final BeanSelectionProviderEnabledChecker<SOURCE_BEAN_TYPE> enabledChecker;
@@ -116,9 +119,11 @@ final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BE
 		final Class<? extends LINK_BEAN_TYPE> linkBeanType,
 		final IBeanFormBluePrint<LINK_BEAN_TYPE> linkBeanForm,
 		final IFactory<IBeanProxy<LINK_BEAN_TYPE>> linkDefaultFactory,
+		final List<IBeanPropertyValidator<LINK_BEAN_TYPE>> linkBeanPropertyValidators,
 		final Class<? extends LINKABLE_BEAN_TYPE> linkableBeanType,
 		final IBeanFormBluePrint<LINKABLE_BEAN_TYPE> linkableBeanForm,
 		final IBeanTableBluePrint<LINKABLE_BEAN_TYPE> linkableTable,
+		final List<IBeanPropertyValidator<LINKABLE_BEAN_TYPE>> linkableBeanPropertyValidators,
 		final List<IEnabledChecker> enabledCheckers,
 		final List<IExecutionInterceptor<List<IBeanDto>>> executionInterceptors,
 		final IBeanExceptionConverter exceptionConverter) {
@@ -130,6 +135,8 @@ final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BE
 		Assert.paramNotNull(sourceExecutableCheckers, "sourceExecutableCheckers");
 		Assert.paramNotNull(enabledCheckers, "enabledCheckers");
 		Assert.paramNotNull(exceptionConverter, "exceptionConverter");
+		Assert.paramNotNull(linkBeanPropertyValidators, "linkBeanPropertyValidators");
+		Assert.paramNotNull(linkableBeanPropertyValidators, "linkableBeanPropertyValidators");
 
 		this.enabledChecker = new BeanSelectionProviderEnabledChecker<SOURCE_BEAN_TYPE>(
 			source,
@@ -148,9 +155,12 @@ final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BE
 		this.linkBeanType = linkBeanType;
 		this.linkBeanForm = linkBeanForm;
 		this.linkDefaultFactory = linkDefaultFactory;
+		this.linkBeanPropertyValidators = new LinkedList<IBeanPropertyValidator<LINK_BEAN_TYPE>>(linkBeanPropertyValidators);
 		this.linkableBeanType = linkableBeanType;
 		this.linkableBeanForm = linkableBeanForm;
 		this.linkableTable = linkableTable;
+		this.linkableBeanPropertyValidators = new LinkedList<IBeanPropertyValidator<LINKABLE_BEAN_TYPE>>(
+			linkableBeanPropertyValidators);
 		this.executionObservable = new ExecutionObservable<List<IBeanDto>>(executionInterceptors);
 		this.exceptionConverter = exceptionConverter;
 	}
@@ -325,12 +335,15 @@ final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BE
 			defaultLinkBean = linkDefaultFactory.create();
 		}
 		else {
-			defaultLinkBean = createDefaultBean(linkBeanForm, linkBeanType);
+			defaultLinkBean = createDefaultBean(linkBeanForm, linkBeanType, linkBeanPropertyValidators);
 		}
 
 		final List<IBeanProxy<LINKABLE_BEAN_TYPE>> defaultLinkedBeans;
 		if (linkableBeanForm != null) {
-			defaultLinkedBeans = Collections.singletonList(createDefaultBean(linkableBeanForm, linkableBeanType));
+			defaultLinkedBeans = Collections.singletonList(createDefaultBean(
+					linkableBeanForm,
+					linkableBeanType,
+					linkableBeanPropertyValidators));
 		}
 		else {
 			defaultLinkedBeans = Collections.emptyList();
@@ -378,7 +391,8 @@ final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BE
 
 	private <BEAN_TYPE> IBeanProxy<BEAN_TYPE> createDefaultBean(
 		final IBeanFormBluePrint<BEAN_TYPE> formBp,
-		final Class<? extends BEAN_TYPE> beanType) {
+		final Class<? extends BEAN_TYPE> beanType,
+		final List<IBeanPropertyValidator<BEAN_TYPE>> validators) {
 		if (formBp != null) {
 			final HashMap<String, Object> defaultValues = new HashMap<String, Object>();
 			final LinkedList<String> properties = new LinkedList<String>();
@@ -392,6 +406,10 @@ final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BE
 				}
 			}
 			final IBeanProxyFactory<BEAN_TYPE> proxyFactory = CapUiToolkit.beanProxyFactory(beanType);
+			final IBeanProxy<BEAN_TYPE> result = proxyFactory.createTransientProxy(attributes, defaultValues);
+			for (final IBeanPropertyValidator<BEAN_TYPE> validator : validators) {
+				result.addBeanPropertyValidator(validator);
+			}
 			return proxyFactory.createTransientProxy(attributes, defaultValues);
 		}
 		else {

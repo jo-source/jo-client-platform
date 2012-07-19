@@ -50,11 +50,13 @@ import org.jowidgets.cap.common.api.entity.IEntityLinkProperties;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.common.api.service.ILinkCreatorService;
+import org.jowidgets.cap.common.api.validation.IBeanValidator;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
 import org.jowidgets.cap.ui.api.bean.BeanExceptionConverter;
 import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
+import org.jowidgets.cap.ui.api.bean.IBeanPropertyValidator;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionProvider;
@@ -88,6 +90,8 @@ final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKA
 	private final List<IExecutableChecker<SOURCE_BEAN_TYPE>> sourceExecutableCheckers;
 	private final List<IEnabledChecker> enabledCheckers;
 	private final List<IExecutionInterceptor<List<IBeanDto>>> executionInterceptors;
+	private final List<IBeanPropertyValidator<LINK_BEAN_TYPE>> linkBeanPropertyValidators;
+	private final List<IBeanPropertyValidator<LINKABLE_BEAN_TYPE>> linkableBeanPropertyValidators;
 
 	private IEntityLinkProperties sourceProperties;
 	private IEntityLinkProperties destinationProperties;
@@ -160,6 +164,13 @@ final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKA
 								filteredAttributes).build();
 						beanFormBp.setLayouter(CapUiToolkit.beanFormToolkit().layouter(layout));
 						setLinkBeanForm(beanFormBp);
+
+						final List<IBeanPropertyValidator<LINK_BEAN_TYPE>> linkValidators = new LinkedList<IBeanPropertyValidator<LINK_BEAN_TYPE>>();
+						linkValidators.add(new BeanPropertyValidatorImpl<LINK_BEAN_TYPE>(filteredAttributes));
+						for (final IBeanValidator beanValidator : descriptor.getValidators()) {
+							linkValidators.add(new BeanPropertyValidatorAdapter<LINK_BEAN_TYPE>(beanValidator));
+						}
+						setLinkBeanPropertyValidators(linkValidators);
 					}
 				}
 			}
@@ -187,6 +198,7 @@ final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKA
 					linkableModelBuilder.setAutoSelection(false);
 					final IBeanTableModel linkableModel = linkableModelBuilder.build();
 					setLinkableTable(cbpf.beanTable(linkableModel));
+					setLinkableBeanPropertyValidators(linkableModel.getBeanPropertyValidators());
 
 					//this may be overridden when linked entity id will be extracted
 					if (!EmptyCheck.isEmpty(descriptor.getLabelPlural())) {
@@ -216,6 +228,8 @@ final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKA
 		this.sourceExecutableCheckers = new LinkedList<IExecutableChecker<SOURCE_BEAN_TYPE>>();
 		this.enabledCheckers = new LinkedList<IEnabledChecker>();
 		this.executionInterceptors = new LinkedList<IExecutionInterceptor<List<IBeanDto>>>();
+		this.linkBeanPropertyValidators = new LinkedList<IBeanPropertyValidator<LINK_BEAN_TYPE>>();
+		this.linkableBeanPropertyValidators = new LinkedList<IBeanPropertyValidator<LINKABLE_BEAN_TYPE>>();
 
 		this.sourceMultiSelection = false;
 		this.sourceModificationPolicy = BeanModificationStatePolicy.NO_MODIFICATION;
@@ -338,6 +352,25 @@ final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKA
 	}
 
 	@Override
+	public ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> setLinkBeanPropertyValidators(
+		final List<? extends IBeanPropertyValidator<LINK_BEAN_TYPE>> validators) {
+		Assert.paramNotNull(validators, "validators");
+		checkExhausted();
+		linkBeanPropertyValidators.clear();
+		linkBeanPropertyValidators.addAll(validators);
+		return this;
+	}
+
+	@Override
+	public ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> addLinkBeanPropertyValidator(
+		final IBeanPropertyValidator<LINK_BEAN_TYPE> validator) {
+		Assert.paramNotNull(validator, "validators");
+		checkExhausted();
+		linkBeanPropertyValidators.add(validator);
+		return this;
+	}
+
+	@Override
 	public ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> setLinkableBeanForm(
 		final IBeanFormBluePrint<LINKABLE_BEAN_TYPE> beanForm) {
 		checkExhausted();
@@ -366,6 +399,25 @@ final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKA
 		final IBeanTableBluePrint<LINKABLE_BEAN_TYPE> table) {
 		checkExhausted();
 		this.linkableTable = table;
+		return this;
+	}
+
+	@Override
+	public ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> setLinkableBeanPropertyValidators(
+		final List<? extends IBeanPropertyValidator<LINKABLE_BEAN_TYPE>> validators) {
+		Assert.paramNotNull(validators, "validators");
+		checkExhausted();
+		linkableBeanPropertyValidators.clear();
+		linkableBeanPropertyValidators.addAll(validators);
+		return this;
+	}
+
+	@Override
+	public ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> addLinkableBeanPropertyValidator(
+		final IBeanPropertyValidator<LINKABLE_BEAN_TYPE> validator) {
+		Assert.paramNotNull(validator, "validators");
+		checkExhausted();
+		linkableBeanPropertyValidators.add(validator);
 		return this;
 	}
 
@@ -482,9 +534,11 @@ final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKA
 			linkBeanType,
 			linkBeanForm,
 			linkDefaultFactory,
+			linkBeanPropertyValidators,
 			linkableBeanType,
 			linkableBeanForm,
 			linkableTable,
+			linkableBeanPropertyValidators,
 			enabledCheckers,
 			executionInterceptors,
 			exceptionConverter);

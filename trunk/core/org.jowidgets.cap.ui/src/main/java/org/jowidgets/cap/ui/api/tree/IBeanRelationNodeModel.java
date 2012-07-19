@@ -33,6 +33,7 @@ import java.util.List;
 
 import org.jowidgets.cap.common.api.service.ICreatorService;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
+import org.jowidgets.cap.ui.api.bean.IBeanPropertyValidator;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyLabelRenderer;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
@@ -71,6 +72,8 @@ public interface IBeanRelationNodeModel<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> exten
 	IBeanProxyLabelRenderer<CHILD_BEAN_TYPE> getChildRenderer();
 
 	List<IAttribute<Object>> getChildBeanAttributes();
+
+	List<IBeanPropertyValidator<CHILD_BEAN_TYPE>> getChildBeanPropertyValidators();
 
 	List<IEntityTypeId<Object>> getChildRelations();
 
