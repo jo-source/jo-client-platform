@@ -303,7 +303,7 @@ abstract class AbstractBeanModelBuilderImpl<BEAN_TYPE, INSTANCE_TYPE> implements
 			return readerService;
 		}
 		else {
-			return new DummyReaderService<Object>();
+			return new NullReaderService<Object>();
 		}
 	}
 
@@ -312,7 +312,7 @@ abstract class AbstractBeanModelBuilderImpl<BEAN_TYPE, INSTANCE_TYPE> implements
 			return readerParameterProvider;
 		}
 		else {
-			return new DummyParameterProvider<Object>();
+			return new NullParameterProvider<Object>();
 		}
 	}
 

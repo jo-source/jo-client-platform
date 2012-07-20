@@ -112,15 +112,20 @@ import org.jowidgets.tools.controller.ListModelAdapter;
 import org.jowidgets.tools.controller.TableCellEditorAdapter;
 import org.jowidgets.tools.controller.TableColumnAdapter;
 import org.jowidgets.tools.layout.MigLayoutFactory;
+import org.jowidgets.tools.message.MessageReplacer;
 import org.jowidgets.tools.model.item.MenuModel;
 import org.jowidgets.tools.widgets.blueprint.BPF;
 import org.jowidgets.tools.widgets.wrapper.CompositeWrapper;
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.EmptyCheck;
 import org.jowidgets.util.IDecorator;
 import org.jowidgets.util.ITypedKey;
 import org.jowidgets.util.concurrent.DaemonThreadFactory;
 
 final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTable<BEAN_TYPE> {
+
+	private final String noServiceAvailableEntityLabel = Messages.getString("BeanTableImpl.noServiceAvailableEntityLabel");
+	private final String noServiceAvailable = Messages.getString("BeanTableImpl.noServiceAvailable");
 
 	private final ITable table;
 	private final IBeanTableModel<BEAN_TYPE> model;
@@ -168,9 +173,29 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 			modifyBeanTableBpByPlugins(entityId, bluePrint);
 		}
 
-		composite.setLayout(new MigLayoutDescriptor("hidemode 2", "0[grow, 0::]0", "0[]0[grow, 0::]0[]0"));
-
 		this.model = bluePrint.getModel();
+
+		final IComposite mainComposite;
+		if (model.getReaderService() == null) {
+			composite.setLayout(new MigLayoutDescriptor("hidemode 3", "0[grow, 0::]0", "0[grow, 0::]0"));
+			mainComposite = composite.add(BPF.composite(), MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
+			mainComposite.setVisible(false);
+			final String entityLabelPlural = model.getEntityLabelPlural();
+			final String label;
+			if (EmptyCheck.isEmpty(entityLabelPlural)) {
+				label = noServiceAvailable;
+			}
+			else {
+				label = MessageReplacer.replace(noServiceAvailableEntityLabel, entityLabelPlural);
+			}
+			composite.add(BPF.textLabel(label).alignCenter(), "alignx c, aligny c");
+		}
+		else {
+			mainComposite = composite;
+		}
+
+		mainComposite.setLayout(new MigLayoutDescriptor("hidemode 2", "0[grow, 0::]0", "0[]0[grow, 0::]0[]0"));
+
 		this.menuInterceptors = getMenuInterceptorsFromPlugins(bluePrint.getMenuInterceptor(), model.getEntityId());
 		this.menuFactory = CapUiToolkit.beanTableMenuFactory(menuInterceptors);
 		this.autoUpdateItemModel = createAutoUpdateItemModel();
@@ -178,7 +203,8 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 		final ITableBluePrint tableBp = BPF.table(model.getTableModel());
 		tableBp.setSetup(bluePrint);
 
-		final IComposite contentComposite = composite.add(BPF.composite(), MigLayoutFactory.GROWING_CELL_CONSTRAINTS + ", wrap");
+		final IComposite contentComposite = mainComposite.add(BPF.composite(), MigLayoutFactory.GROWING_CELL_CONSTRAINTS
+			+ ", wrap");
 		contentComposite.setLayout(new MigLayoutDescriptor("hidemode 2", "0[]0[grow, 0::]0", "0[grow, 0::]0"));
 
 		this.table = contentComposite.add(tableBp, MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
@@ -208,9 +234,9 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 				pluggedCellPopupMenuModel,
 				pluggedHeaderPopupMenuModel);
 
-		this.searchFilterToolbar = new BeanTableSearchFilterToolbar<BEAN_TYPE>(composite, this);
+		this.searchFilterToolbar = new BeanTableSearchFilterToolbar<BEAN_TYPE>(mainComposite, this);
 		this.filterToolbar = new BeanTableFilterToolbar<BEAN_TYPE>(contentComposite, this, menuFactory);
-		this.statusBar = new BeanTableStatusBar<BEAN_TYPE>(composite, this);
+		this.statusBar = new BeanTableStatusBar<BEAN_TYPE>(mainComposite, this);
 
 		headerPopupMenuModel.addListModelListener(new CustomMenuModelListener());
 		cellPopupMenuModel.addListModelListener(new CustomMenuModelListener());
