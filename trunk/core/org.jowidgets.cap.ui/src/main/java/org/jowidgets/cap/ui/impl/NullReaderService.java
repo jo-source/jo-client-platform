@@ -28,13 +28,41 @@
 
 package org.jowidgets.cap.ui.impl;
 
-import org.jowidgets.util.IProvider;
+import java.util.Collections;
+import java.util.List;
 
-final class DummyParameterProvider<PARAMETER_TYPE> implements IProvider<PARAMETER_TYPE> {
+import org.jowidgets.cap.common.api.bean.IBeanDto;
+import org.jowidgets.cap.common.api.bean.IBeanKey;
+import org.jowidgets.cap.common.api.execution.IExecutionCallback;
+import org.jowidgets.cap.common.api.execution.IResultCallback;
+import org.jowidgets.cap.common.api.filter.IFilter;
+import org.jowidgets.cap.common.api.service.IReaderService;
+import org.jowidgets.cap.common.api.sort.ISort;
+
+final class NullReaderService<PARAM_TYPE> implements IReaderService<PARAM_TYPE> {
 
 	@Override
-	public PARAMETER_TYPE get() {
-		return null;
+	public void read(
+		final IResultCallback<List<IBeanDto>> result,
+		final List<? extends IBeanKey> parentBeanKeys,
+		final IFilter filter,
+		final List<? extends ISort> sorting,
+		final int firstRow,
+		final int maxRows,
+		final PARAM_TYPE parameter,
+		final IExecutionCallback executionCallback) {
+		final List<IBeanDto> emptyList = Collections.emptyList();
+		result.finished(emptyList);
+	}
+
+	@Override
+	public void count(
+		final IResultCallback<Integer> result,
+		final List<? extends IBeanKey> parentBeanKeys,
+		final IFilter filter,
+		final PARAM_TYPE parameter,
+		final IExecutionCallback executionCallback) {
+		result.finished(0);
 	}
 
 }

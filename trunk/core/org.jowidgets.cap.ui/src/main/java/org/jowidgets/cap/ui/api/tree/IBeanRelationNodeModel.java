@@ -32,6 +32,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.jowidgets.cap.common.api.service.ICreatorService;
+import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.bean.IBeanPropertyValidator;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
@@ -54,6 +55,8 @@ public interface IBeanRelationNodeModel<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> exten
 	boolean loadIfNotYetDone();
 
 	ICreatorService getCreatorService();
+
+	IReaderService<Object> getReaderService();
 
 	IBeanProxy<PARENT_BEAN_TYPE> getParentBean();
 

@@ -283,34 +283,40 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 		//register listener that removes node from nodes map on dispose
 		childNode.addDisposeListener(new TreeNodeDisposeListener(childNode));
 
-		//create the child relation nodes
-		final List<Tuple<IBeanRelationNodeModel<Object, Object>, ITreeNode>> lazyChildRelations;
-		lazyChildRelations = new LinkedList<Tuple<IBeanRelationNodeModel<Object, Object>, ITreeNode>>();
-		for (final IEntityTypeId<Object> childEntityTypeId : relationNodeModel.getChildRelations()) {
+		if (!bean.isDummy()) {
+			//create the child relation nodes
+			final List<Tuple<IBeanRelationNodeModel<Object, Object>, ITreeNode>> lazyChildRelations;
+			lazyChildRelations = new LinkedList<Tuple<IBeanRelationNodeModel<Object, Object>, ITreeNode>>();
+			for (final IEntityTypeId<Object> childEntityTypeId : relationNodeModel.getChildRelations()) {
 
-			final IBeanRelationNodeModel<Object, Object> childRelationNodeModel = treeModel.getNode(
-					relationNodeModel.getChildEntityTypeId(),
-					bean,
-					childEntityTypeId);
+				final IBeanRelationNodeModel<Object, Object> childRelationNodeModel = treeModel.getNode(
+						relationNodeModel.getChildEntityTypeId(),
+						bean,
+						childEntityTypeId);
 
-			final ITreeNode childRelationNode = childNode.addNode();
-			renderRelationNode(childRelationNode, childRelationNodeModel);
+				if (childRelationNodeModel.getReaderService() != null) {
+					final ITreeNode childRelationNode = childNode.addNode();
+					renderRelationNode(childRelationNode, childRelationNodeModel);
 
-			//TODO MG remove this later BEGIN
-			final IMenuModel relationMenu = createRelationNodeMenus(childRelationNodeModel, bean);
-			if (relationMenu.getChildren().size() > 0) {
-				childRelationNode.setPopupMenu(relationMenu);
+					//TODO MG remove this later BEGIN
+					final IMenuModel relationMenu = createRelationNodeMenus(childRelationNodeModel, bean);
+					if (relationMenu.getChildren().size() > 0) {
+						childRelationNode.setPopupMenu(relationMenu);
+					}
+					//TODO MG remove this later END
+
+					childRelationNode.addTreeNodeListener(new TreeNodeExpansionTrackingListener(childRelationNode));
+
+					lazyChildRelations.add(new Tuple<IBeanRelationNodeModel<Object, Object>, ITreeNode>(
+						childRelationNodeModel,
+						childRelationNode));
+				}
 			}
-			//TODO MG remove this later END
-
-			childRelationNode.addTreeNodeListener(new TreeNodeExpansionTrackingListener(childRelationNode));
-
-			lazyChildRelations.add(new Tuple<IBeanRelationNodeModel<Object, Object>, ITreeNode>(
-				childRelationNodeModel,
-				childRelationNode));
+			if (lazyChildRelations.size() > 0) {
+				childNode.addTreeNodeListener(new TreeNodeExpansionListener(childNode, lazyChildRelations));
+				childNode.addTreeNodeListener(new TreeNodeExpansionTrackingListener(childNode));
+			}
 		}
-		childNode.addTreeNodeListener(new TreeNodeExpansionListener(childNode, lazyChildRelations));
-		childNode.addTreeNodeListener(new TreeNodeExpansionTrackingListener(childNode));
 
 		//auto expand the child node if necessary
 		if (!bean.isDummy() && childNode.getLevel() < autoExpandLevel && !childNode.isLeaf()) {
@@ -437,6 +443,7 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 			node.setForegroundColor(Colors.WARNING);
 		}
 		node.setText(message.getLabel());
+		node.setToolTipText(null);
 	}
 
 	private static void renderRelationNode(final ITreeNode node, final IBeanRelationNodeModel<Object, Object> model) {

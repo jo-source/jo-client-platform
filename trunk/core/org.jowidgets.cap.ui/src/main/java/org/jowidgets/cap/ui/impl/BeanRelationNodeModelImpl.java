@@ -271,6 +271,18 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 	}
 
 	@Override
+	public IReaderService<Object> getReaderService() {
+		//Do not return the null reader service. It is only used to make this
+		//implementation more robust. The reader service set on this model is null
+		if (readerService instanceof NullReaderService<?>) {
+			return null;
+		}
+		else {
+			return readerService;
+		}
+	}
+
+	@Override
 	public String getText() {
 		return label.getText();
 	}
