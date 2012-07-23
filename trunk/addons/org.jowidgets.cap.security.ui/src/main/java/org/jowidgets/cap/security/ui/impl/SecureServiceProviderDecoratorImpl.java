@@ -32,11 +32,18 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
+import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
+import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
 import org.jowidgets.cap.common.api.exception.AuthorizationFailedException;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
+import org.jowidgets.cap.common.api.service.IBeanServicesProvider;
+import org.jowidgets.cap.common.api.service.IEntityService;
+import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.common.tools.proxy.AbstractCapServiceInvocationHandler;
 import org.jowidgets.cap.security.common.api.IAuthorizationChecker;
 import org.jowidgets.cap.security.common.api.ISecureObject;
@@ -52,12 +59,16 @@ final class SecureServiceProviderDecoratorImpl<AUTHORIZATION_TYPE> implements ID
 
 	private final IAuthorizationChecker<AUTHORIZATION_TYPE> authorizationChecker;
 	private final IDecorationStrategySelector decorationStrategySelector;
+	private final boolean filterUnreadableLinkDescriptors;
 
 	SecureServiceProviderDecoratorImpl(
 		final IDecorationStrategySelector decorationStrategySelector,
-		final IAuthorizationChecker<AUTHORIZATION_TYPE> authorizationChecker) {
+		final IAuthorizationChecker<AUTHORIZATION_TYPE> authorizationChecker,
+		final boolean filterUnreadableLinkDescriptors) {
+
 		this.decorationStrategySelector = decorationStrategySelector;
 		this.authorizationChecker = authorizationChecker;
+		this.filterUnreadableLinkDescriptors = filterUnreadableLinkDescriptors;
 	}
 
 	@Override
@@ -85,31 +96,45 @@ final class SecureServiceProviderDecoratorImpl<AUTHORIZATION_TYPE> implements ID
 			return result;
 		}
 
+		@SuppressWarnings("unchecked")
 		@Override
 		public <SERVICE_TYPE> SERVICE_TYPE get(final IServiceId<SERVICE_TYPE> id) {
 			final SERVICE_TYPE originalService = original.get(id);
-			if (originalService != null) {
-				final DecorationStrategy strategy = decorationStrategySelector.getStrategy(id, originalService);
-				if (DecorationStrategy.FILTER == strategy) {
-					return getFilteredService(id, originalService);
-				}
-				else if (DecorationStrategy.ADD_AUTHORIZATION == strategy) {
-					return getDecoratedService(id, originalService);
-				}
-				else if (null == strategy) {
-					throw new IllegalArgumentException("Decoration strategy must not be null");
-				}
-				else {
-					throw new IllegalArgumentException("DecorationStrategy '" + strategy + "' is not supported");
-				}
+			if (originalService instanceof IEntityService && filterUnreadableLinkDescriptors) {
+				return getDecoratedService(id, (SERVICE_TYPE) new DecoratedEntityService((IEntityService) originalService));
+			}
+			else if (originalService != null) {
+				return getDecoratedService(id, originalService);
 			}
 			else {
 				return null;
 			}
 		}
 
+		private <SERVICE_TYPE> SERVICE_TYPE getDecoratedService(
+			final IServiceId<SERVICE_TYPE> id,
+			final SERVICE_TYPE originalService) {
+
+			final DecorationStrategy strategy = decorationStrategySelector.getStrategy(id, originalService);
+			if (DecorationStrategy.FILTER == strategy) {
+				return getFilteredService(id, originalService);
+			}
+			else if (DecorationStrategy.ADD_AUTHORIZATION == strategy) {
+				return getAuthorizationAddedService(id, originalService);
+			}
+			else if (null == strategy) {
+				throw new IllegalArgumentException("Decoration strategy must not be null");
+			}
+			else {
+				throw new IllegalArgumentException("DecorationStrategy '" + strategy + "' is not supported");
+			}
+
+		}
+
 		@SuppressWarnings("unchecked")
-		private <SERVICE_TYPE> SERVICE_TYPE getDecoratedService(final IServiceId<SERVICE_TYPE> id, final SERVICE_TYPE service) {
+		private <SERVICE_TYPE> SERVICE_TYPE getAuthorizationAddedService(
+			final IServiceId<SERVICE_TYPE> id,
+			final SERVICE_TYPE service) {
 			if (id instanceof ISecureServiceId<?, ?>) {
 				final Object authorization = ((ISecureServiceId<?, ?>) id).getAuthorization();
 				if (!isAuthorized(authorization)) {
@@ -185,5 +210,54 @@ final class SecureServiceProviderDecoratorImpl<AUTHORIZATION_TYPE> implements ID
 			return new AuthorizationFailedException(authorization);
 		}
 
+	}
+
+	private final class DecoratedEntityService implements IEntityService {
+
+		private final IEntityService original;
+
+		public DecoratedEntityService(final IEntityService original) {
+			this.original = original;
+		}
+
+		@Override
+		public IBeanDtoDescriptor getDescriptor(final Object entityId) {
+			return original.getDescriptor(entityId);
+		}
+
+		@Override
+		public IBeanServicesProvider getBeanServices(final Object entityId) {
+			return original.getBeanServices(entityId);
+		}
+
+		@Override
+		public List<IEntityLinkDescriptor> getEntityLinks(final Object entityId) {
+			final List<IEntityLinkDescriptor> links = original.getEntityLinks(entityId);
+			if (links != null) {
+				final List<IEntityLinkDescriptor> result = new LinkedList<IEntityLinkDescriptor>();
+				for (final IEntityLinkDescriptor link : links) {
+					if (!filter(link)) {
+						result.add(link);
+					}
+				}
+				return result;
+			}
+			return links;
+		}
+
+		@SuppressWarnings("unchecked")
+		private boolean filter(final IEntityLinkDescriptor link) {
+			final Object linkedEntityId = link.getLinkedEntityId();
+			final IBeanServicesProvider beanServices = getBeanServices(linkedEntityId);
+			if (beanServices != null) {
+				final IReaderService<Void> readerService = beanServices.readerService();
+				if (readerService != null) {
+					if (readerService instanceof ISecureObject) {
+						return !authorizationChecker.hasAuthorization((AUTHORIZATION_TYPE) ((ISecureObject<?>) readerService).getAuthorization());
+					}
+				}
+			}
+			return false;
+		}
 	}
 }

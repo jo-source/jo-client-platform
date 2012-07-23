@@ -28,11 +28,15 @@
 
 package org.jowidgets.cap.sample2.app.ui.application;
 
+import org.jowidgets.cap.common.api.service.IBeanServicesProvider;
+import org.jowidgets.cap.common.api.service.IEntityService;
+import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.sample2.app.common.entity.EntityIds;
-import org.jowidgets.cap.sample2.app.common.security.AuthKeys;
+import org.jowidgets.cap.security.common.api.ISecureObject;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.workbench.IEntityComponentNodesFactory;
 import org.jowidgets.security.tools.SecurityContext;
+import org.jowidgets.service.api.ServiceProvider;
 import org.jowidgets.workbench.toolkit.api.IComponentNodeContainerModel;
 import org.jowidgets.workbench.toolkit.api.IWorkbenchApplicationModel;
 import org.jowidgets.workbench.toolkit.api.IWorkbenchApplicationModelBuilder;
@@ -56,19 +60,43 @@ public class Sample2Application {
 	}
 
 	private void createComponentTree(final IWorkbenchApplicationModel model) {
-		addComponent(model, EntityIds.PERSON, AuthKeys.VIEW_PERSON_COMPONENT);
-		addComponent(model, EntityIds.ROLE, AuthKeys.VIEW_ROLE_COMPONENT);
-		addComponent(model, EntityIds.AUTHORIZATION, AuthKeys.VIEW_AUTHORIZATION_COMPONENT);
-		addComponent(model, EntityIds.PERSON_LINK_TYPE, AuthKeys.VIEW_PERSON_LINK_TYPE_COMPONENT);
-		addComponent(model, EntityIds.COUNTRY, AuthKeys.VIEW_COUNTRY_COMPONENT);
-		addComponent(model, EntityIds.PHONE, AuthKeys.VIEW_PHONE_COMPONENT);
+		addEntityComponent(model, EntityIds.PERSON);
+		addEntityComponent(model, EntityIds.ROLE);
+		addEntityComponent(model, EntityIds.AUTHORIZATION);
+		addEntityComponent(model, EntityIds.PERSON_LINK_TYPE);
+		addEntityComponent(model, EntityIds.COUNTRY);
+		addEntityComponent(model, EntityIds.PHONE);
 	}
 
-	private void addComponent(final IComponentNodeContainerModel parent, final Object entityId, final String authorization) {
+	private void addEntityComponent(final IComponentNodeContainerModel parent, final Object entityId) {
 		final IEntityComponentNodesFactory nodesFactory = CapUiToolkit.workbenchToolkit().entityComponentNodesFactory();
-		if (SecurityContext.hasAuthorization(authorization)) {
+		if (hasReaderServiceAuthorization(entityId)) {
 			parent.addChild(nodesFactory.createNode(entityId));
 		}
+	}
+
+	private boolean hasReaderServiceAuthorization(final Object entityId) {
+		final Object authorization = getReaderServiceAuthorization(entityId);
+		if (authorization != null) {
+			return SecurityContext.hasAuthorization(authorization);
+		}
+		else {
+			return true;
+		}
+	}
+
+	private Object getReaderServiceAuthorization(final Object entityId) {
+		final IEntityService entityService = ServiceProvider.getService(IEntityService.ID);
+		if (entityService != null) {
+			final IBeanServicesProvider beanServices = entityService.getBeanServices(entityId);
+			if (beanServices != null) {
+				final IReaderService<Void> readerService = beanServices.readerService();
+				if (readerService instanceof ISecureObject<?>) {
+					return ((ISecureObject<?>) readerService).getAuthorization();
+				}
+			}
+		}
+		return null;
 	}
 
 }

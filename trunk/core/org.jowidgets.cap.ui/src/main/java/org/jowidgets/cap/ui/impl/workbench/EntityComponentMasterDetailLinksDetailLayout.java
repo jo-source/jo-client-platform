@@ -34,7 +34,9 @@ import java.util.Map.Entry;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
 import org.jowidgets.cap.common.api.entity.IEntityClass;
 import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
+import org.jowidgets.cap.common.api.service.IBeanServicesProvider;
 import org.jowidgets.cap.common.api.service.IEntityService;
+import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.service.api.ServiceProvider;
 import org.jowidgets.workbench.api.ILayout;
 import org.jowidgets.workbench.toolkit.api.IFolderLayoutBuilder;
@@ -112,9 +114,17 @@ public class EntityComponentMasterDetailLinksDetailLayout {
 			final IEntityService entityService = ServiceProvider.getService(IEntityService.ID);
 			if (entityService != null) {
 				final IBeanDtoDescriptor descriptor = entityService.getDescriptor(linkEntry.getValue().getLinkedEntityId());
-				result.addView(linkEntry.getKey(), descriptor.getLabelPlural(), descriptor.getDescription());
-			}
+				if (descriptor != null) {
+					final IBeanServicesProvider beanServices = entityService.getBeanServices(linkEntry.getValue().getLinkedEntityId());
+					if (beanServices != null) {
+						final IReaderService<Void> readerService = beanServices.readerService();
+						if (readerService != null) {
+							result.addView(linkEntry.getKey(), descriptor.getLabelPlural(), descriptor.getDescription());
+						}
+					}
 
+				}
+			}
 		}
 		return result;
 	}

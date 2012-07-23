@@ -54,6 +54,16 @@ public interface ISecureServiceProviderDecoratorBuilder<AUTHORIZATION_TYPE> {
 	ISecureServiceProviderDecoratorBuilder<AUTHORIZATION_TYPE> setDecorationStrategy(IDecorationStrategySelector strategySelector);
 
 	/**
+	 * If set true, all link descriptors from the entity services will be filtered, if the user has not the authorization
+	 * to read the link. The default setting is true.
+	 * 
+	 * @param filter If true, filter, if false do not filter
+	 * 
+	 * @return This builder
+	 */
+	ISecureServiceProviderDecoratorBuilder<AUTHORIZATION_TYPE> setFilterUnreadableLinkDescriptors(boolean filter);
+
+	/**
 	 * Sets the authorization checker. If no checker will be set, an default checker will be used, that gets the
 	 * authorizations from the security context.
 	 * 
