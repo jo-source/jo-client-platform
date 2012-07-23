@@ -28,8 +28,14 @@
 
 package org.jowidgets.cap.security.ui.api;
 
+import org.jowidgets.cap.ui.api.widgets.IBeanRelationTree;
+import org.jowidgets.cap.ui.api.widgets.IBeanRelationTreeBluePrint;
+import org.jowidgets.cap.ui.api.widgets.IBeanTabFolder;
+import org.jowidgets.cap.ui.api.widgets.IBeanTabFolderBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
+import org.jowidgets.cap.ui.api.widgets.ISingleBeanForm;
+import org.jowidgets.cap.ui.api.widgets.ISingleBeanFormBluePrint;
 
 public final class SecureControlMapperFactory {
 
@@ -40,4 +46,18 @@ public final class SecureControlMapperFactory {
 		return factory.beanTable();
 	}
 
+	public static <BEAN_TYPE, AUTHORIZATION_TYPE> ISecureControlMapper<IBeanRelationTree<BEAN_TYPE>, IBeanRelationTreeBluePrint<BEAN_TYPE>, AUTHORIZATION_TYPE> beanRelationTree() {
+		final ISecureControlMapperFactory<AUTHORIZATION_TYPE> factory = CapSecurityUiToolkit.secureControlMapperFactory();
+		return factory.beanRelationTree();
+	}
+
+	public static <BEAN_TYPE, AUTHORIZATION_TYPE> ISecureControlMapper<IBeanTabFolder<BEAN_TYPE>, IBeanTabFolderBluePrint<BEAN_TYPE>, AUTHORIZATION_TYPE> beanTabFolder() {
+		final ISecureControlMapperFactory<AUTHORIZATION_TYPE> factory = CapSecurityUiToolkit.secureControlMapperFactory();
+		return factory.beanTabFolder();
+	}
+
+	public static <BEAN_TYPE, AUTHORIZATION_TYPE> ISecureControlMapper<ISingleBeanForm<BEAN_TYPE>, ISingleBeanFormBluePrint<BEAN_TYPE>, AUTHORIZATION_TYPE> singleBeanForm() {
+		final ISecureControlMapperFactory<AUTHORIZATION_TYPE> factory = CapSecurityUiToolkit.secureControlMapperFactory();
+		return factory.singleBeanForm();
+	}
 }

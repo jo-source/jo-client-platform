@@ -358,6 +358,11 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 	}
 
 	@Override
+	public IReaderService<Object> getReaderService() {
+		return readerService;
+	}
+
+	@Override
 	public void clear() {
 		if (!Toolkit.getUiThreadAccess().isUiThread()) {
 			throw new IllegalStateException("Clear must be invoked in the ui thread");

@@ -28,37 +28,43 @@
 
 package org.jowidgets.cap.security.ui.impl;
 
+import org.jowidgets.api.widgets.IControl;
+import org.jowidgets.cap.common.api.service.IReaderService;
+import org.jowidgets.cap.security.common.api.ISecureObject;
 import org.jowidgets.cap.security.ui.api.ISecureControlMapper;
-import org.jowidgets.cap.security.ui.api.ISecureControlMapperFactory;
-import org.jowidgets.cap.ui.api.widgets.IBeanRelationTree;
-import org.jowidgets.cap.ui.api.widgets.IBeanRelationTreeBluePrint;
-import org.jowidgets.cap.ui.api.widgets.IBeanTabFolder;
-import org.jowidgets.cap.ui.api.widgets.IBeanTabFolderBluePrint;
-import org.jowidgets.cap.ui.api.widgets.IBeanTable;
-import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
-import org.jowidgets.cap.ui.api.widgets.ISingleBeanForm;
-import org.jowidgets.cap.ui.api.widgets.ISingleBeanFormBluePrint;
+import org.jowidgets.cap.security.ui.api.SecurityIcons;
+import org.jowidgets.common.image.IImageConstant;
+import org.jowidgets.common.widgets.descriptor.IWidgetDescriptor;
+import org.jowidgets.util.Assert;
 
-final class SecureControlMapperFactoryImpl<AUTHORIZATION_TYPE> implements ISecureControlMapperFactory<AUTHORIZATION_TYPE> {
+abstract class AbstractSecureControlMapper<WIDGET_TYPE extends IControl, DESCRIPTOR_TYPE extends IWidgetDescriptor<? extends WIDGET_TYPE>, AUTHORIZATION_TYPE> implements
+		ISecureControlMapper<WIDGET_TYPE, DESCRIPTOR_TYPE, AUTHORIZATION_TYPE> {
 
+	private final String readAuthorizationFailed = Messages.getString("AbstractSecureControlMapper.readAuthorizationFailed");
+
+	abstract IReaderService<Object> getReaderService(DESCRIPTOR_TYPE descriptor);
+
+	@SuppressWarnings("unchecked")
 	@Override
-	public <BEAN_TYPE> ISecureControlMapper<IBeanTable<BEAN_TYPE>, IBeanTableBluePrint<BEAN_TYPE>, AUTHORIZATION_TYPE> beanTable() {
-		return new SecureBeanTableMapper<BEAN_TYPE, AUTHORIZATION_TYPE>();
+	public final AUTHORIZATION_TYPE getAuthorization(final DESCRIPTOR_TYPE descriptor) {
+		Assert.paramNotNull(descriptor, "descriptor");
+		final IReaderService<Object> readerService = getReaderService(descriptor);
+		if (readerService instanceof ISecureObject<?>) {
+			return (AUTHORIZATION_TYPE) ((ISecureObject<?>) readerService).getAuthorization();
+		}
+		else {
+			return null;
+		}
 	}
 
 	@Override
-	public <BEAN_TYPE> ISecureControlMapper<IBeanRelationTree<BEAN_TYPE>, IBeanRelationTreeBluePrint<BEAN_TYPE>, AUTHORIZATION_TYPE> beanRelationTree() {
-		return new SecureBeanRelationTreeMapper<BEAN_TYPE, AUTHORIZATION_TYPE>();
+	public String getAuthorizationFailedText(final DESCRIPTOR_TYPE bluePrint, final WIDGET_TYPE widget) {
+		return readAuthorizationFailed;
 	}
 
 	@Override
-	public <BEAN_TYPE> ISecureControlMapper<IBeanTabFolder<BEAN_TYPE>, IBeanTabFolderBluePrint<BEAN_TYPE>, AUTHORIZATION_TYPE> beanTabFolder() {
-		return new SecureBeanTabFolderMapper<BEAN_TYPE, AUTHORIZATION_TYPE>();
-	}
-
-	@Override
-	public <BEAN_TYPE> ISecureControlMapper<ISingleBeanForm<BEAN_TYPE>, ISingleBeanFormBluePrint<BEAN_TYPE>, AUTHORIZATION_TYPE> singleBeanForm() {
-		return new SecureSingleBeanFormMapper<BEAN_TYPE, AUTHORIZATION_TYPE>();
+	public IImageConstant getAuthorizationFailedIcon(final DESCRIPTOR_TYPE bluePrint, final WIDGET_TYPE widget) {
+		return SecurityIcons.READ_NOT_ALLOWED_BIG;
 	}
 
 }

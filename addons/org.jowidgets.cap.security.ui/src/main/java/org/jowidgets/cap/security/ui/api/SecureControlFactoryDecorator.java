@@ -29,8 +29,14 @@
 package org.jowidgets.cap.security.ui.api;
 
 import org.jowidgets.api.widgets.IControl;
+import org.jowidgets.cap.ui.api.widgets.IBeanRelationTree;
+import org.jowidgets.cap.ui.api.widgets.IBeanRelationTreeBluePrint;
+import org.jowidgets.cap.ui.api.widgets.IBeanTabFolder;
+import org.jowidgets.cap.ui.api.widgets.IBeanTabFolderBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
+import org.jowidgets.cap.ui.api.widgets.ISingleBeanForm;
+import org.jowidgets.cap.ui.api.widgets.ISingleBeanFormBluePrint;
 import org.jowidgets.common.widgets.descriptor.IWidgetDescriptor;
 import org.jowidgets.common.widgets.factory.IWidgetFactory;
 import org.jowidgets.util.IDecorator;
@@ -46,6 +52,36 @@ public final class SecureControlFactoryDecorator {
 
 	public static <BEAN_TYPE, AUTHORIZATION_TYPE> ISecureControlFactoryDecoratorBuilder<IBeanTable<BEAN_TYPE>, IBeanTableBluePrint<BEAN_TYPE>, AUTHORIZATION_TYPE> beanTableBuilder() {
 		final ISecureControlMapper<IBeanTable<BEAN_TYPE>, IBeanTableBluePrint<BEAN_TYPE>, AUTHORIZATION_TYPE> mapper = SecureControlMapperFactory.beanTable();
+		return builder(mapper);
+	}
+
+	public static <BEAN_TYPE> IDecorator<IWidgetFactory<IBeanRelationTree<BEAN_TYPE>, IBeanRelationTreeBluePrint<BEAN_TYPE>>> beanRelationTree() {
+		final ISecureControlMapper<IBeanRelationTree<BEAN_TYPE>, IBeanRelationTreeBluePrint<BEAN_TYPE>, Object> mapper = SecureControlMapperFactory.beanRelationTree();
+		return create(mapper);
+	}
+
+	public static <BEAN_TYPE, AUTHORIZATION_TYPE> ISecureControlFactoryDecoratorBuilder<IBeanRelationTree<BEAN_TYPE>, IBeanRelationTreeBluePrint<BEAN_TYPE>, AUTHORIZATION_TYPE> beanRelationTreeBuilder() {
+		final ISecureControlMapper<IBeanRelationTree<BEAN_TYPE>, IBeanRelationTreeBluePrint<BEAN_TYPE>, AUTHORIZATION_TYPE> mapper = SecureControlMapperFactory.beanRelationTree();
+		return builder(mapper);
+	}
+
+	public static <BEAN_TYPE> IDecorator<IWidgetFactory<IBeanTabFolder<BEAN_TYPE>, IBeanTabFolderBluePrint<BEAN_TYPE>>> beanTabFolder() {
+		final ISecureControlMapper<IBeanTabFolder<BEAN_TYPE>, IBeanTabFolderBluePrint<BEAN_TYPE>, Object> mapper = SecureControlMapperFactory.beanTabFolder();
+		return create(mapper);
+	}
+
+	public static <BEAN_TYPE, AUTHORIZATION_TYPE> ISecureControlFactoryDecoratorBuilder<IBeanTabFolder<BEAN_TYPE>, IBeanTabFolderBluePrint<BEAN_TYPE>, AUTHORIZATION_TYPE> beanTabFolderBuilder() {
+		final ISecureControlMapper<IBeanTabFolder<BEAN_TYPE>, IBeanTabFolderBluePrint<BEAN_TYPE>, AUTHORIZATION_TYPE> mapper = SecureControlMapperFactory.beanTabFolder();
+		return builder(mapper);
+	}
+
+	public static <BEAN_TYPE> IDecorator<IWidgetFactory<ISingleBeanForm<BEAN_TYPE>, ISingleBeanFormBluePrint<BEAN_TYPE>>> singleBeanForm() {
+		final ISecureControlMapper<ISingleBeanForm<BEAN_TYPE>, ISingleBeanFormBluePrint<BEAN_TYPE>, Object> mapper = SecureControlMapperFactory.singleBeanForm();
+		return create(mapper);
+	}
+
+	public static <BEAN_TYPE, AUTHORIZATION_TYPE> ISecureControlFactoryDecoratorBuilder<ISingleBeanForm<BEAN_TYPE>, ISingleBeanFormBluePrint<BEAN_TYPE>, AUTHORIZATION_TYPE> singleBeanFormBuilder() {
+		final ISecureControlMapper<ISingleBeanForm<BEAN_TYPE>, ISingleBeanFormBluePrint<BEAN_TYPE>, AUTHORIZATION_TYPE> mapper = SecureControlMapperFactory.singleBeanForm();
 		return builder(mapper);
 	}
 

@@ -32,7 +32,10 @@ import org.jowidgets.api.toolkit.IToolkit;
 import org.jowidgets.api.toolkit.IToolkitInterceptor;
 import org.jowidgets.cap.security.ui.api.SecureControlFactoryDecorator;
 import org.jowidgets.cap.security.ui.api.SecurityIcons;
+import org.jowidgets.cap.ui.api.widgets.IBeanRelationTreeBluePrint;
+import org.jowidgets.cap.ui.api.widgets.IBeanTabFolderBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
+import org.jowidgets.cap.ui.api.widgets.ISingleBeanFormBluePrint;
 import org.jowidgets.common.widgets.factory.IGenericWidgetFactory;
 import org.jowidgets.util.IDecorator;
 
@@ -44,5 +47,14 @@ final class CapSecurityUiToolkitInterceptor implements IToolkitInterceptor {
 		toolkit.getImageRegistry().registerImageEnum(SecurityIcons.class);
 		final IGenericWidgetFactory widgetFactory = toolkit.getWidgetFactory();
 		widgetFactory.addWidgetFactoryDecorator(IBeanTableBluePrint.class, (IDecorator) SecureControlFactoryDecorator.beanTable());
+		widgetFactory.addWidgetFactoryDecorator(
+				IBeanRelationTreeBluePrint.class,
+				(IDecorator) SecureControlFactoryDecorator.beanRelationTree());
+		widgetFactory.addWidgetFactoryDecorator(
+				IBeanTabFolderBluePrint.class,
+				(IDecorator) SecureControlFactoryDecorator.beanTabFolder());
+		widgetFactory.addWidgetFactoryDecorator(
+				ISingleBeanFormBluePrint.class,
+				(IDecorator) SecureControlFactoryDecorator.singleBeanForm());
 	}
 }
