@@ -87,35 +87,24 @@ public final class AuthKeys {
 	public static final String UPDATE_ROLE_AUTHORIZATION_LINK = "UPDATE_ROLE_AUTHORIZATION_LINK";
 	public static final String DELETE_ROLE_AUTHORIZATION_LINK = "DELETE_ROLE_AUTHORIZATION_LINK";
 
-	//View components
-	public static final String VIEW_PERSON_COMPONENT = "VIEW_PERSON_COMPONENT";
-	public static final String VIEW_ROLE_COMPONENT = "VIEW_ROLE_COMPONENT";
-	public static final String VIEW_AUTHORIZATION_COMPONENT = "VIEW_AUTHORIZATION_COMPONENT";
-	public static final String VIEW_PERSON_LINK_TYPE_COMPONENT = "VIEW_PERSON_RELATION_TYPE_COMPONENT";
-	public static final String VIEW_COUNTRY_COMPONENT = "VIEW_COUNTRY_COMPONENT";
-	public static final String VIEW_PHONE_COMPONENT = "VIEW_PHONE_COMPONENT";
-
 	//Authorization collections
 	public static final Collection<String> ALL_AUTHORIZATIONS = createAuthorizations();
-	public static final Collection<String> GUEST_AUTHORIZATIONS = createAuthorizations(
-			"READ_PERSON",
-			"VIEW_PERSON_COMPONENT",
-			"VIEW_COUNTRY_COMPONENT");
+	public static final Collection<String> GUEST_AUTHORIZATIONS = createAuthorizations("READ_PERSON");
 
 	private AuthKeys() {}
 
-	private static List<String> createAuthorizations(final String... startsWith) {
+	private static List<String> createAuthorizations(final String... grantedAuthorizations) {
 		final List<String> result = new LinkedList<String>();
 		for (final Field field : AuthKeys.class.getDeclaredFields()) {
 			if (field.getType().equals(String.class)) {
 				try {
 					final String authorization = (String) field.get(AuthKeys.class);
-					if (EmptyCheck.isEmpty(startsWith)) {
+					if (EmptyCheck.isEmpty(grantedAuthorizations)) {
 						result.add(authorization);
 					}
 					else {
-						for (final String prefix : startsWith) {
-							if (authorization.startsWith(prefix)) {
+						for (final String grantedAuthorization : grantedAuthorizations) {
+							if (authorization.equals(grantedAuthorization)) {
 								result.add(authorization);
 								break;
 							}

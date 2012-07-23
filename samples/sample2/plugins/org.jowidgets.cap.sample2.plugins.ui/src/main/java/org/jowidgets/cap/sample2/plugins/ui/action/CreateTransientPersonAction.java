@@ -35,6 +35,8 @@ import org.jowidgets.addons.icons.silkicons.SilkIcons;
 import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.cap.sample2.app.common.bean.IPerson;
+import org.jowidgets.cap.sample2.app.common.security.AuthKeys;
+import org.jowidgets.cap.security.common.api.ISecureObject;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.command.IExecutorActionBuilder;
@@ -44,10 +46,15 @@ import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.tools.command.ActionWrapper;
 
-public class CreateTransientPersonAction extends ActionWrapper {
+public class CreateTransientPersonAction extends ActionWrapper implements ISecureObject<String> {
 
 	public CreateTransientPersonAction(final IBeanTable<IPerson> table) {
 		super(create(table));
+	}
+
+	@Override
+	public String getAuthorization() {
+		return AuthKeys.CREATE_PERSON;
 	}
 
 	private static IAction create(final IBeanTable<IPerson> table) {
@@ -74,4 +81,5 @@ public class CreateTransientPersonAction extends ActionWrapper {
 			}
 		};
 	}
+
 }

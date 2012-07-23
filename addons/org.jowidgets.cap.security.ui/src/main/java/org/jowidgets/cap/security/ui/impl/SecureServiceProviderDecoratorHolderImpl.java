@@ -42,11 +42,13 @@ final class SecureServiceProviderDecoratorHolderImpl<AUTHORIZATION_TYPE> impleme
 	SecureServiceProviderDecoratorHolderImpl(
 		final int order,
 		final IDecorationStrategySelector decorationStrategySelector,
-		final IAuthorizationChecker<AUTHORIZATION_TYPE> authorizationChecker) {
+		final IAuthorizationChecker<AUTHORIZATION_TYPE> authorizationChecker,
+		final boolean filterUnreadableLinkDescriptors) {
 		this.order = order;
 		this.decorator = new SecureServiceProviderDecoratorImpl<AUTHORIZATION_TYPE>(
 			decorationStrategySelector,
-			authorizationChecker);
+			authorizationChecker,
+			filterUnreadableLinkDescriptors);
 	}
 
 	@Override

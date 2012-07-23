@@ -41,11 +41,13 @@ final class SecureServiceProviderDecoratorBuilderImpl<AUTHORIZATION_TYPE> implem
 	private int order;
 	private IAuthorizationChecker<AUTHORIZATION_TYPE> authorizationChecker;
 	private IDecorationStrategySelector decorationStrategySelector;
+	private boolean filterUnreadableLinkDescriptors;
 
 	SecureServiceProviderDecoratorBuilderImpl() {
 		this.order = ISecureServiceProviderDecoratorBuilder.DEFAULT_ORDER;
 		this.authorizationChecker = AuthorizationChecker.getDefault();
 		this.decorationStrategySelector = new DefaultDecorationStrategySelector();
+		this.filterUnreadableLinkDescriptors = true;
 	}
 
 	@Override
@@ -63,6 +65,13 @@ final class SecureServiceProviderDecoratorBuilderImpl<AUTHORIZATION_TYPE> implem
 	}
 
 	@Override
+	public ISecureServiceProviderDecoratorBuilder<AUTHORIZATION_TYPE> setFilterUnreadableLinkDescriptors(
+		final boolean filterUnreadableLinkDescriptors) {
+		this.filterUnreadableLinkDescriptors = filterUnreadableLinkDescriptors;
+		return this;
+	}
+
+	@Override
 	public ISecureServiceProviderDecoratorBuilder<AUTHORIZATION_TYPE> setAuthorizationChecker(
 		final IAuthorizationChecker<AUTHORIZATION_TYPE> checker) {
 		Assert.paramNotNull(authorizationChecker, "authorizationChecker");
@@ -75,7 +84,8 @@ final class SecureServiceProviderDecoratorBuilderImpl<AUTHORIZATION_TYPE> implem
 		return new SecureServiceProviderDecoratorHolderImpl<AUTHORIZATION_TYPE>(
 			order,
 			decorationStrategySelector,
-			authorizationChecker);
+			authorizationChecker,
+			filterUnreadableLinkDescriptors);
 	}
 
 }
