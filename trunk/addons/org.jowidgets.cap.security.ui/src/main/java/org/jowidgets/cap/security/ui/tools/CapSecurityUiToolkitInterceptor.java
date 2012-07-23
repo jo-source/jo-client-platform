@@ -46,13 +46,17 @@ final class CapSecurityUiToolkitInterceptor implements IToolkitInterceptor {
 	public void onToolkitCreate(final IToolkit toolkit) {
 		toolkit.getImageRegistry().registerImageEnum(SecurityIcons.class);
 		final IGenericWidgetFactory widgetFactory = toolkit.getWidgetFactory();
+
 		widgetFactory.addWidgetFactoryDecorator(IBeanTableBluePrint.class, (IDecorator) SecureControlFactoryDecorator.beanTable());
+
 		widgetFactory.addWidgetFactoryDecorator(
 				IBeanRelationTreeBluePrint.class,
 				(IDecorator) SecureControlFactoryDecorator.beanRelationTree());
+
 		widgetFactory.addWidgetFactoryDecorator(
 				IBeanTabFolderBluePrint.class,
 				(IDecorator) SecureControlFactoryDecorator.beanTabFolder());
+
 		widgetFactory.addWidgetFactoryDecorator(
 				ISingleBeanFormBluePrint.class,
 				(IDecorator) SecureControlFactoryDecorator.singleBeanForm());
