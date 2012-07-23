@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,20 +26,28 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.plugin;
+package org.jowidgets.cap.ui.impl.widgets;
 
-import org.jowidgets.cap.ui.api.widgets.IBeanRelationTreeBluePrint;
-import org.jowidgets.plugin.api.IPluginId;
-import org.jowidgets.plugin.api.IPluginProperties;
-import org.jowidgets.util.ITypedKey;
+import org.jowidgets.cap.ui.api.tree.IBeanRelationNodeModel;
+import org.jowidgets.cap.ui.api.widgets.IBeanRelationTreeSetupBuilder;
+import org.jowidgets.cap.ui.api.widgets.IBeanRelationTreeSetupConvenience;
+import org.jowidgets.tools.widgets.blueprint.convenience.AbstractSetupBuilderConvenience;
+import org.jowidgets.util.Assert;
+import org.jowidgets.util.FilterComposite;
+import org.jowidgets.util.IFilter;
 
-public interface IBeanRelationTreePlugin<CHILD_BEAN_TYPE> {
+final class BeanRelationTreeSetupConvenience extends
+		AbstractSetupBuilderConvenience<IBeanRelationTreeSetupBuilder<IBeanRelationTreeSetupBuilder<?>>> implements
+		IBeanRelationTreeSetupConvenience<IBeanRelationTreeSetupBuilder<IBeanRelationTreeSetupBuilder<?>>> {
 
-	IPluginId<IBeanRelationTreePlugin<?>> ID = new IPluginId<IBeanRelationTreePlugin<?>>() {};
-
-	ITypedKey<Object> ENTITIY_ID_PROPERTY_KEY = new ITypedKey<Object>() {};
-	ITypedKey<Class<?>> BEAN_TYPE_PROPERTY_KEY = new ITypedKey<Class<?>>() {};
-
-	void modifySetup(IPluginProperties properties, IBeanRelationTreeBluePrint<CHILD_BEAN_TYPE> builder);
+	@Override
+	public IBeanRelationTreeSetupBuilder<IBeanRelationTreeSetupBuilder<?>> addChildRelationFilter(
+		final IFilter<IBeanRelationNodeModel<Object, Object>> filter) {
+		Assert.paramNotNull(filter, "filter");
+		final IBeanRelationTreeSetupBuilder<IBeanRelationTreeSetupBuilder<?>> builder = getBuilder();
+		final IFilter<IBeanRelationNodeModel<Object, Object>> currentFilter = builder.getChildRelationFilter();
+		builder.setChildRelationFilter(FilterComposite.create(currentFilter, filter));
+		return builder;
+	}
 
 }

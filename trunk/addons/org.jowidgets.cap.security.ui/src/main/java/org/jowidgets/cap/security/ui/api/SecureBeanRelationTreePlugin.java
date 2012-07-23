@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,20 +26,19 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.plugin;
+package org.jowidgets.cap.security.ui.api;
 
-import org.jowidgets.cap.ui.api.widgets.IBeanRelationTreeBluePrint;
-import org.jowidgets.plugin.api.IPluginId;
-import org.jowidgets.plugin.api.IPluginProperties;
-import org.jowidgets.util.ITypedKey;
+import org.jowidgets.cap.ui.api.plugin.IBeanRelationTreePlugin;
 
-public interface IBeanRelationTreePlugin<CHILD_BEAN_TYPE> {
+public final class SecureBeanRelationTreePlugin {
 
-	IPluginId<IBeanRelationTreePlugin<?>> ID = new IPluginId<IBeanRelationTreePlugin<?>>() {};
+	private SecureBeanRelationTreePlugin() {}
 
-	ITypedKey<Object> ENTITIY_ID_PROPERTY_KEY = new ITypedKey<Object>() {};
-	ITypedKey<Class<?>> BEAN_TYPE_PROPERTY_KEY = new ITypedKey<Class<?>>() {};
+	public static <AUTHORIZATION_TYPE> ISecureBeanRelationTreePluginBuilder<AUTHORIZATION_TYPE> builder() {
+		return CapSecurityUiToolkit.secureBeanRelationTreePluginBuilder();
+	}
 
-	void modifySetup(IPluginProperties properties, IBeanRelationTreeBluePrint<CHILD_BEAN_TYPE> builder);
-
+	public static IBeanRelationTreePlugin<Object> create() {
+		return CapSecurityUiToolkit.secureBeanRelationTreePlugin();
+	}
 }

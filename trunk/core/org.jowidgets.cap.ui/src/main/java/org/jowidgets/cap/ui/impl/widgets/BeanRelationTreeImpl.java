@@ -75,6 +75,7 @@ import org.jowidgets.cap.ui.tools.bean.SingleBeanSelectionProvider;
 import org.jowidgets.common.types.Markup;
 import org.jowidgets.common.types.SelectionPolicy;
 import org.jowidgets.plugin.api.IPluginProperties;
+import org.jowidgets.plugin.api.IPluginPropertiesBuilder;
 import org.jowidgets.plugin.api.PluginProperties;
 import org.jowidgets.plugin.api.PluginProvider;
 import org.jowidgets.service.api.ServiceProvider;
@@ -82,6 +83,7 @@ import org.jowidgets.tools.controller.TreeNodeAdapter;
 import org.jowidgets.tools.model.item.MenuModel;
 import org.jowidgets.tools.widgets.wrapper.ControlWrapper;
 import org.jowidgets.util.EmptyCheck;
+import org.jowidgets.util.IFilter;
 import org.jowidgets.util.Tuple;
 
 final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements IBeanRelationTree<CHILD_BEAN_TYPE> {
@@ -92,6 +94,7 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 	private final String waitTooltip = Messages.getString("BeanRelationTreeImpl.wait_tooltip");
 
 	private final IBeanRelationTreeModel<CHILD_BEAN_TYPE> treeModel;
+	private final IFilter<IBeanRelationNodeModel<Object, Object>> childRelationFilter;
 	private final boolean autoSelection;
 	private final boolean treeMultiSelection;
 	private final int autoExpandLevel;
@@ -104,10 +107,10 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 		bluePrint = modififySetupFromPlugins(bluePrint);
 
 		this.treeMultiSelection = bluePrint.getSelectionPolicy() == SelectionPolicy.MULTI_SELECTION;
-
 		this.treeModel = bluePrint.getModel();
 		this.autoSelection = bluePrint.getAutoSelection();
 		this.autoExpandLevel = bluePrint.getAutoExpandLevel();
+		this.childRelationFilter = bluePrint.getChildRelationFilter();
 		this.nodesMap = new HashMap<ITreeNode, Tuple<IBeanRelationNodeModel<Object, Object>, IBeanProxy<Object>>>();
 		this.expandedNodesCache = new LinkedHashSet<ExpandedNodeKey>();
 
@@ -122,9 +125,11 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 		final IBeanRelationTreeBluePrint<CHILD_BEAN_TYPE> result = CapUiToolkit.bluePrintFactory().beanRelationTree();
 		result.setSetup(bluePrint);
 
-		final Object entityId = bluePrint.getModel().getRoot().getChildEntityId();
-		final IPluginProperties pluginProperties;
-		pluginProperties = PluginProperties.create(IBeanRelationTreePlugin.ENTITIY_ID_PROPERTY_KEY, entityId);
+		final IBeanRelationNodeModel<Void, CHILD_BEAN_TYPE> rootNode = bluePrint.getModel().getRoot();
+		final IPluginPropertiesBuilder propertiesBuilder = PluginProperties.builder();
+		propertiesBuilder.add(IBeanRelationTreePlugin.ENTITIY_ID_PROPERTY_KEY, rootNode.getChildEntityId());
+		propertiesBuilder.add(IBeanRelationTreePlugin.BEAN_TYPE_PROPERTY_KEY, rootNode.getChildBeanType());
+		final IPluginProperties pluginProperties = propertiesBuilder.build();
 		final List<IBeanRelationTreePlugin<?>> plugins = PluginProvider.getPlugins(IBeanRelationTreePlugin.ID, pluginProperties);
 		for (final IBeanRelationTreePlugin plugin : plugins) {
 			plugin.modifySetup(pluginProperties, result);
@@ -294,7 +299,7 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 						bean,
 						childEntityTypeId);
 
-				if (childRelationNodeModel.getReaderService() != null) {
+				if (!filterChildReleation(childRelationNodeModel)) {
 					final ITreeNode childRelationNode = childNode.addNode();
 					renderRelationNode(childRelationNode, childRelationNodeModel);
 
@@ -324,6 +329,24 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 		}
 		if (expandedNodesCache.contains(new ExpandedNodeKey(childNode))) {
 			childNode.setExpanded(true);
+		}
+	}
+
+	/**
+	 * Filter a child relation
+	 * 
+	 * @param childRelationNode The relation to filter
+	 * @return True, if the relation should be filter, false if the relation should be accepted
+	 */
+	private boolean filterChildReleation(final IBeanRelationNodeModel<Object, Object> childRelationNode) {
+		if (childRelationNode.getReaderService() == null) {
+			return true;
+		}
+		else if (childRelationFilter != null) {
+			return !childRelationFilter.accept(childRelationNode);
+		}
+		else {
+			return false;
 		}
 	}
 

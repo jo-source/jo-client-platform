@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,20 +26,44 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.plugin;
+package org.jowidgets.cap.security.ui.impl;
 
+import org.jowidgets.cap.common.api.service.IReaderService;
+import org.jowidgets.cap.security.common.api.IAuthorizationChecker;
+import org.jowidgets.cap.security.common.api.ISecureObject;
+import org.jowidgets.cap.ui.api.plugin.IBeanRelationTreePlugin;
+import org.jowidgets.cap.ui.api.tree.IBeanRelationNodeModel;
 import org.jowidgets.cap.ui.api.widgets.IBeanRelationTreeBluePrint;
-import org.jowidgets.plugin.api.IPluginId;
 import org.jowidgets.plugin.api.IPluginProperties;
-import org.jowidgets.util.ITypedKey;
+import org.jowidgets.util.IFilter;
 
-public interface IBeanRelationTreePlugin<CHILD_BEAN_TYPE> {
+final class SecureBeanRelationTreePluginImpl<AUTHORIZATION_TYPE> implements IBeanRelationTreePlugin<Object> {
 
-	IPluginId<IBeanRelationTreePlugin<?>> ID = new IPluginId<IBeanRelationTreePlugin<?>>() {};
+	private final IAuthorizationChecker<AUTHORIZATION_TYPE> authorizationChecker;
 
-	ITypedKey<Object> ENTITIY_ID_PROPERTY_KEY = new ITypedKey<Object>() {};
-	ITypedKey<Class<?>> BEAN_TYPE_PROPERTY_KEY = new ITypedKey<Class<?>>() {};
+	SecureBeanRelationTreePluginImpl(final IAuthorizationChecker<AUTHORIZATION_TYPE> authorizationChecker) {
+		this.authorizationChecker = authorizationChecker;
+	}
 
-	void modifySetup(IPluginProperties properties, IBeanRelationTreeBluePrint<CHILD_BEAN_TYPE> builder);
+	@Override
+	public void modifySetup(final IPluginProperties properties, final IBeanRelationTreeBluePrint<Object> builder) {
+		builder.addChildRelationFilter(new SecureBeanRelationNodeModelFilter());
+	}
+
+	private final class SecureBeanRelationNodeModelFilter implements IFilter<IBeanRelationNodeModel<Object, Object>> {
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public boolean accept(final IBeanRelationNodeModel<Object, Object> childRelationModel) {
+			final IReaderService<Object> readerService = childRelationModel.getReaderService();
+			if (readerService instanceof ISecureObject<?>) {
+				return authorizationChecker.hasAuthorization(((ISecureObject<AUTHORIZATION_TYPE>) readerService).getAuthorization());
+			}
+			else {
+				return true;
+			}
+		}
+
+	}
 
 }
