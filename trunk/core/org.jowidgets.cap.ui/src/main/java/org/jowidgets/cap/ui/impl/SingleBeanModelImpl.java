@@ -286,6 +286,11 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 	}
 
 	@Override
+	public IReaderService<Object> getReaderService() {
+		return readerService;
+	}
+
+	@Override
 	public void addBeanValidator(final IBeanValidator<BEAN_TYPE> beanValidator) {
 		beanPropertyValidators.add(new BeanPropertyValidatorAdapter<BEAN_TYPE>(beanValidator));
 	}

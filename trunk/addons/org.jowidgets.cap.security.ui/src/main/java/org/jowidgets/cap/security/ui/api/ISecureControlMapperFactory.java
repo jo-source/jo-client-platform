@@ -28,11 +28,23 @@
 
 package org.jowidgets.cap.security.ui.api;
 
+import org.jowidgets.cap.ui.api.widgets.IBeanRelationTree;
+import org.jowidgets.cap.ui.api.widgets.IBeanRelationTreeBluePrint;
+import org.jowidgets.cap.ui.api.widgets.IBeanTabFolder;
+import org.jowidgets.cap.ui.api.widgets.IBeanTabFolderBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
+import org.jowidgets.cap.ui.api.widgets.ISingleBeanForm;
+import org.jowidgets.cap.ui.api.widgets.ISingleBeanFormBluePrint;
 
 public interface ISecureControlMapperFactory<AUTHORIZATION_TYPE> {
 
 	<BEAN_TYPE> ISecureControlMapper<IBeanTable<BEAN_TYPE>, IBeanTableBluePrint<BEAN_TYPE>, AUTHORIZATION_TYPE> beanTable();
+
+	<BEAN_TYPE> ISecureControlMapper<IBeanRelationTree<BEAN_TYPE>, IBeanRelationTreeBluePrint<BEAN_TYPE>, AUTHORIZATION_TYPE> beanRelationTree();
+
+	<BEAN_TYPE> ISecureControlMapper<IBeanTabFolder<BEAN_TYPE>, IBeanTabFolderBluePrint<BEAN_TYPE>, AUTHORIZATION_TYPE> beanTabFolder();
+
+	<BEAN_TYPE> ISecureControlMapper<ISingleBeanForm<BEAN_TYPE>, ISingleBeanFormBluePrint<BEAN_TYPE>, AUTHORIZATION_TYPE> singleBeanForm();
 
 }

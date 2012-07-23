@@ -34,6 +34,7 @@ import java.util.List;
 import org.jowidgets.api.controller.IDisposeObservable;
 import org.jowidgets.cap.common.api.service.ICreatorService;
 import org.jowidgets.cap.common.api.service.IDeleterService;
+import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.common.api.validation.IBeanValidator;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.bean.IBeanPropertyValidator;
@@ -60,6 +61,8 @@ public interface IBeanTabFolderModel<BEAN_TYPE> extends IDataModel, IBeanListMod
 	ICreatorService getCreatorService();
 
 	IDeleterService getDeleterService();
+
+	IReaderService<Object> getReaderService();
 
 	List<IBeanPropertyValidator<BEAN_TYPE>> getBeanPropertyValidators();
 

@@ -30,6 +30,7 @@ package org.jowidgets.cap.ui.api.model;
 
 import java.util.List;
 
+import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.common.api.validation.IBeanValidator;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IAttributeFilter;
@@ -57,4 +58,6 @@ public interface ISingleBeanModel<BEAN_TYPE> extends IDataModel, IBeanListModel<
 	List<IAttribute<Object>> getAttributes(IAttributeFilter filter);
 
 	void addBeanValidator(IBeanValidator<BEAN_TYPE> beanValidator);
+
+	IReaderService<Object> getReaderService();
 }

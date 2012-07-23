@@ -28,37 +28,21 @@
 
 package org.jowidgets.cap.security.ui.impl;
 
-import org.jowidgets.cap.security.ui.api.ISecureControlMapper;
-import org.jowidgets.cap.security.ui.api.ISecureControlMapperFactory;
-import org.jowidgets.cap.ui.api.widgets.IBeanRelationTree;
-import org.jowidgets.cap.ui.api.widgets.IBeanRelationTreeBluePrint;
+import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.ui.api.widgets.IBeanTabFolder;
 import org.jowidgets.cap.ui.api.widgets.IBeanTabFolderBluePrint;
-import org.jowidgets.cap.ui.api.widgets.IBeanTable;
-import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
-import org.jowidgets.cap.ui.api.widgets.ISingleBeanForm;
-import org.jowidgets.cap.ui.api.widgets.ISingleBeanFormBluePrint;
 
-final class SecureControlMapperFactoryImpl<AUTHORIZATION_TYPE> implements ISecureControlMapperFactory<AUTHORIZATION_TYPE> {
+final class SecureBeanTabFolderMapper<BEAN_TYPE, AUTHORIZATION_TYPE> extends
+		AbstractSecureControlMapper<IBeanTabFolder<BEAN_TYPE>, IBeanTabFolderBluePrint<BEAN_TYPE>, AUTHORIZATION_TYPE> {
 
 	@Override
-	public <BEAN_TYPE> ISecureControlMapper<IBeanTable<BEAN_TYPE>, IBeanTableBluePrint<BEAN_TYPE>, AUTHORIZATION_TYPE> beanTable() {
-		return new SecureBeanTableMapper<BEAN_TYPE, AUTHORIZATION_TYPE>();
+	IReaderService<Object> getReaderService(final IBeanTabFolderBluePrint<BEAN_TYPE> bluePrint) {
+		return bluePrint.getModel().getReaderService();
 	}
 
 	@Override
-	public <BEAN_TYPE> ISecureControlMapper<IBeanRelationTree<BEAN_TYPE>, IBeanRelationTreeBluePrint<BEAN_TYPE>, AUTHORIZATION_TYPE> beanRelationTree() {
-		return new SecureBeanRelationTreeMapper<BEAN_TYPE, AUTHORIZATION_TYPE>();
-	}
-
-	@Override
-	public <BEAN_TYPE> ISecureControlMapper<IBeanTabFolder<BEAN_TYPE>, IBeanTabFolderBluePrint<BEAN_TYPE>, AUTHORIZATION_TYPE> beanTabFolder() {
-		return new SecureBeanTabFolderMapper<BEAN_TYPE, AUTHORIZATION_TYPE>();
-	}
-
-	@Override
-	public <BEAN_TYPE> ISecureControlMapper<ISingleBeanForm<BEAN_TYPE>, ISingleBeanFormBluePrint<BEAN_TYPE>, AUTHORIZATION_TYPE> singleBeanForm() {
-		return new SecureSingleBeanFormMapper<BEAN_TYPE, AUTHORIZATION_TYPE>();
+	public Class<?> getWidgetType() {
+		return IBeanTabFolder.class;
 	}
 
 }
