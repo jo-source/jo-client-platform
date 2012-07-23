@@ -31,6 +31,7 @@ package org.jowidgets.cap.security.ui.api;
 import org.jowidgets.api.model.item.IActionItemVisibilityAspectPlugin;
 import org.jowidgets.api.widgets.IControl;
 import org.jowidgets.cap.ui.api.plugin.IBeanFormPlugin;
+import org.jowidgets.cap.ui.api.plugin.IBeanRelationTreePlugin;
 import org.jowidgets.cap.ui.api.plugin.IServiceActionDecoratorPlugin;
 import org.jowidgets.common.widgets.descriptor.IWidgetDescriptor;
 import org.jowidgets.common.widgets.factory.IWidgetFactory;
@@ -50,6 +51,10 @@ public interface ICapSecurityUiToolkit {
 	<AUTHORIZATION_TYPE> ISecureBeanFormPluginBuilder<AUTHORIZATION_TYPE> secureBeanFormPluginBuilder();
 
 	IBeanFormPlugin secureBeanFormPlugin();
+
+	<AUTHORIZATION_TYPE> ISecureBeanRelationTreePluginBuilder<AUTHORIZATION_TYPE> secureBeanRelationTreePluginBuilder();
+
+	IBeanRelationTreePlugin<Object> secureBeanRelationTreePlugin();
 
 	IActionItemVisibilityAspectPlugin secureActionItemVisibilityAspectPlugin();
 

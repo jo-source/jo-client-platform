@@ -39,6 +39,7 @@ import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanLinkDialogBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanLinkPanelBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanRelationTreeBluePrint;
+import org.jowidgets.cap.ui.api.widgets.IBeanRelationTreeSetupBuilder;
 import org.jowidgets.cap.ui.api.widgets.IBeanSelectionDialogBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanSelectionFormBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanSelectionFormSetupBuilder;
@@ -109,6 +110,7 @@ final class CapToolkitInterceptor implements IToolkitInterceptor {
 		bpf.setSetupBuilderConvenience(IBeanTabFolderBluePrint.class, new BeanTabFolderSetupConvenience());
 		bpf.setSetupBuilderConvenience(IBeanFormBluePrint.class, new BeanFormSetupConvenience());
 		bpf.setSetupBuilderConvenience(IBeanSelectionFormSetupBuilder.class, new BeanSelectionFormSetupConvenience());
+		bpf.setSetupBuilderConvenience(IBeanRelationTreeSetupBuilder.class, new BeanRelationTreeSetupConvenience());
 	}
 
 }

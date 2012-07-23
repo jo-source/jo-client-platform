@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,20 +26,25 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.plugin;
+package org.jowidgets.cap.security.ui.api;
 
-import org.jowidgets.cap.ui.api.widgets.IBeanRelationTreeBluePrint;
-import org.jowidgets.plugin.api.IPluginId;
-import org.jowidgets.plugin.api.IPluginProperties;
-import org.jowidgets.util.ITypedKey;
+import org.jowidgets.cap.security.common.api.IAuthorizationChecker;
+import org.jowidgets.cap.ui.api.plugin.IBeanRelationTreePlugin;
 
-public interface IBeanRelationTreePlugin<CHILD_BEAN_TYPE> {
+public interface ISecureBeanRelationTreePluginBuilder<AUTHORIZATION_TYPE> {
 
-	IPluginId<IBeanRelationTreePlugin<?>> ID = new IPluginId<IBeanRelationTreePlugin<?>>() {};
+	/**
+	 * Sets the authorization checker. If no checker will be set, an default checker will be used, that gets the
+	 * authorizations from the security context.
+	 * 
+	 * Remark: The default (not setting this explicit) only works, if the default context uses the IDefaultPrincipal
+	 * 
+	 * @param checker The checker to add
+	 * 
+	 * @return This builder
+	 */
+	ISecureBeanRelationTreePluginBuilder<AUTHORIZATION_TYPE> setAuthorizationChecker(IAuthorizationChecker<AUTHORIZATION_TYPE> checker);
 
-	ITypedKey<Object> ENTITIY_ID_PROPERTY_KEY = new ITypedKey<Object>() {};
-	ITypedKey<Class<?>> BEAN_TYPE_PROPERTY_KEY = new ITypedKey<Class<?>>() {};
-
-	void modifySetup(IPluginProperties properties, IBeanRelationTreeBluePrint<CHILD_BEAN_TYPE> builder);
+	IBeanRelationTreePlugin<Object> build();
 
 }

@@ -30,14 +30,19 @@ package org.jowidgets.cap.ui.api.widgets;
 
 import org.jowidgets.api.widgets.blueprint.builder.IComponentSetupBuilder;
 import org.jowidgets.api.widgets.descriptor.setup.IComponentSetup;
+import org.jowidgets.cap.ui.api.tree.IBeanRelationNodeModel;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeModel;
 import org.jowidgets.common.image.IImageConstant;
 import org.jowidgets.common.types.SelectionPolicy;
 import org.jowidgets.common.widgets.descriptor.setup.mandatory.Mandatory;
+import org.jowidgets.util.IFilter;
 
 public interface IBeanRelationTreeSetupBuilder<CHILD_BEAN_TYPE> extends
 		IComponentSetup,
-		IComponentSetupBuilder<IBeanRelationTreeSetupBuilder<CHILD_BEAN_TYPE>> {
+		IComponentSetupBuilder<IBeanRelationTreeSetupBuilder<CHILD_BEAN_TYPE>>,
+		IBeanRelationTreeSetupConvenience<IBeanRelationTreeSetupBuilder<CHILD_BEAN_TYPE>> {
+
+	IBeanRelationTreeSetupBuilder<CHILD_BEAN_TYPE> setChildRelationFilter(IFilter<IBeanRelationNodeModel<Object, Object>> filter);
 
 	IBeanRelationTreeSetupBuilder<CHILD_BEAN_TYPE> setAutoSelection(boolean autoSelection);
 
@@ -76,5 +81,7 @@ public interface IBeanRelationTreeSetupBuilder<CHILD_BEAN_TYPE> extends
 	IImageConstant getDefaultInnerIcon();
 
 	IImageConstant getDefaultLeafIcon();
+
+	IFilter<IBeanRelationNodeModel<Object, Object>> getChildRelationFilter();
 
 }

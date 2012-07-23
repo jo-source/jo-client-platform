@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,20 +26,34 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.plugin;
+package org.jowidgets.cap.security.ui.impl;
 
-import org.jowidgets.cap.ui.api.widgets.IBeanRelationTreeBluePrint;
-import org.jowidgets.plugin.api.IPluginId;
-import org.jowidgets.plugin.api.IPluginProperties;
-import org.jowidgets.util.ITypedKey;
+import org.jowidgets.cap.security.common.api.AuthorizationChecker;
+import org.jowidgets.cap.security.common.api.IAuthorizationChecker;
+import org.jowidgets.cap.security.ui.api.ISecureBeanRelationTreePluginBuilder;
+import org.jowidgets.cap.ui.api.plugin.IBeanRelationTreePlugin;
+import org.jowidgets.util.Assert;
 
-public interface IBeanRelationTreePlugin<CHILD_BEAN_TYPE> {
+final class SecureBeanRelationTreePluginBuilderImpl<AUTHORIZATION_TYPE> implements
+		ISecureBeanRelationTreePluginBuilder<AUTHORIZATION_TYPE> {
 
-	IPluginId<IBeanRelationTreePlugin<?>> ID = new IPluginId<IBeanRelationTreePlugin<?>>() {};
+	private IAuthorizationChecker<AUTHORIZATION_TYPE> authorizationChecker;
 
-	ITypedKey<Object> ENTITIY_ID_PROPERTY_KEY = new ITypedKey<Object>() {};
-	ITypedKey<Class<?>> BEAN_TYPE_PROPERTY_KEY = new ITypedKey<Class<?>>() {};
+	SecureBeanRelationTreePluginBuilderImpl() {
+		this.authorizationChecker = AuthorizationChecker.getDefault();
+	}
 
-	void modifySetup(IPluginProperties properties, IBeanRelationTreeBluePrint<CHILD_BEAN_TYPE> builder);
+	@Override
+	public ISecureBeanRelationTreePluginBuilder<AUTHORIZATION_TYPE> setAuthorizationChecker(
+		final IAuthorizationChecker<AUTHORIZATION_TYPE> authorizationChecker) {
+		Assert.paramNotNull(authorizationChecker, "authorizationChecker");
+		this.authorizationChecker = authorizationChecker;
+		return this;
+	}
+
+	@Override
+	public IBeanRelationTreePlugin<Object> build() {
+		return new SecureBeanRelationTreePluginImpl<AUTHORIZATION_TYPE>(authorizationChecker);
+	}
 
 }

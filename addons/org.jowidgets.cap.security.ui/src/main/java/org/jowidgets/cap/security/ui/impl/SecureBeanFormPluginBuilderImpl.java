@@ -39,13 +39,13 @@ import org.jowidgets.cap.ui.api.plugin.IBeanFormPlugin;
 import org.jowidgets.util.Assert;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
-final class SecureBeanFormPluginBuilder<AUTHORIZATION_TYPE> implements ISecureBeanFormPluginBuilder<AUTHORIZATION_TYPE> {
+final class SecureBeanFormPluginBuilderImpl<AUTHORIZATION_TYPE> implements ISecureBeanFormPluginBuilder<AUTHORIZATION_TYPE> {
 
 	private final LinkedList mappers;
 
 	private IAuthorizationChecker<AUTHORIZATION_TYPE> authorizationChecker;
 
-	SecureBeanFormPluginBuilder() {
+	SecureBeanFormPluginBuilderImpl() {
 		this.authorizationChecker = AuthorizationChecker.getDefault();
 
 		this.mappers = new LinkedList();

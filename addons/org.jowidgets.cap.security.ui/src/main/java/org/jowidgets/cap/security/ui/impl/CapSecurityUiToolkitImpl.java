@@ -33,12 +33,14 @@ import org.jowidgets.api.widgets.IControl;
 import org.jowidgets.cap.security.ui.api.ICapSecurityUiToolkit;
 import org.jowidgets.cap.security.ui.api.ISecureActionItemVisibilityAspectPluginBuilder;
 import org.jowidgets.cap.security.ui.api.ISecureBeanFormPluginBuilder;
+import org.jowidgets.cap.security.ui.api.ISecureBeanRelationTreePluginBuilder;
+import org.jowidgets.cap.security.ui.api.ISecureControlFactoryDecoratorBuilder;
 import org.jowidgets.cap.security.ui.api.ISecureControlMapper;
 import org.jowidgets.cap.security.ui.api.ISecureControlMapperFactory;
-import org.jowidgets.cap.security.ui.api.ISecureControlFactoryDecoratorBuilder;
 import org.jowidgets.cap.security.ui.api.ISecureServiceActionDecoratorPluginBuilder;
 import org.jowidgets.cap.security.ui.api.ISecureServiceProviderDecoratorBuilder;
 import org.jowidgets.cap.ui.api.plugin.IBeanFormPlugin;
+import org.jowidgets.cap.ui.api.plugin.IBeanRelationTreePlugin;
 import org.jowidgets.cap.ui.api.plugin.IServiceActionDecoratorPlugin;
 import org.jowidgets.common.widgets.descriptor.IWidgetDescriptor;
 import org.jowidgets.common.widgets.factory.IWidgetFactory;
@@ -80,12 +82,22 @@ public final class CapSecurityUiToolkitImpl implements ICapSecurityUiToolkit {
 
 	@Override
 	public <AUTHORIZATION_TYPE> ISecureBeanFormPluginBuilder<AUTHORIZATION_TYPE> secureBeanFormPluginBuilder() {
-		return new SecureBeanFormPluginBuilder<AUTHORIZATION_TYPE>();
+		return new SecureBeanFormPluginBuilderImpl<AUTHORIZATION_TYPE>();
 	}
 
 	@Override
 	public IBeanFormPlugin secureBeanFormPlugin() {
 		return secureBeanFormPluginBuilder().build();
+	}
+
+	@Override
+	public <AUTHORIZATION_TYPE> ISecureBeanRelationTreePluginBuilder<AUTHORIZATION_TYPE> secureBeanRelationTreePluginBuilder() {
+		return new SecureBeanRelationTreePluginBuilderImpl<AUTHORIZATION_TYPE>();
+	}
+
+	@Override
+	public IBeanRelationTreePlugin<Object> secureBeanRelationTreePlugin() {
+		return secureBeanRelationTreePluginBuilder().build();
 	}
 
 	@Override
