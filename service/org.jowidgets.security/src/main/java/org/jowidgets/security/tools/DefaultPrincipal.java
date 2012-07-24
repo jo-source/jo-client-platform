@@ -41,15 +41,16 @@ public final class DefaultPrincipal implements IDefaultPrincipal<String>, Serial
 	private static final long serialVersionUID = 7568678347480658843L;
 
 	private final String username;
-	private final Set<String> grantedAuthorities = new HashSet<String>();
+	private final Set<String> grantedAuthorities;
 
+	@SuppressWarnings("unchecked")
 	public DefaultPrincipal(final String username) {
-		this.username = username;
+		this(username, Collections.EMPTY_SET);
 	}
 
 	public DefaultPrincipal(final String username, final Collection<String> grantedAuthorities) {
-		this(username);
-		this.grantedAuthorities.addAll(grantedAuthorities);
+		this.username = username;
+		this.grantedAuthorities = new HashSet<String>(grantedAuthorities);
 	}
 
 	@Override
