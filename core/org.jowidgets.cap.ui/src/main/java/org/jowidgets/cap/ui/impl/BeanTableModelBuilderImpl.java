@@ -54,6 +54,8 @@ import org.jowidgets.util.IProvider;
 final class BeanTableModelBuilderImpl<BEAN_TYPE> extends
 		AbstractBeanModelBuilderImpl<BEAN_TYPE, IBeanTableModelBuilder<BEAN_TYPE>> implements IBeanTableModelBuilder<BEAN_TYPE> {
 
+	private static final int DEFAULT_PAGE_SIZE = 1000;
+
 	private String entityLabelSingular;
 	private String entityLabelPlural;
 
@@ -62,6 +64,7 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> extends
 	private boolean autoSelection;
 	private boolean clearOnEmptyFilter;
 	private Boolean clearOnEmptyParentBeans;
+	private int pageSize;
 
 	private ISortModelConfig sortModelConfig;
 
@@ -75,6 +78,7 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> extends
 		this.autoSelection = true;
 		this.clearOnEmptyFilter = false;
 		this.sortModelConfig = new SortModelConfigImpl();
+		this.pageSize = DEFAULT_PAGE_SIZE;
 
 		final IEntityService entityService = ServiceProvider.getService(IEntityService.ID);
 		if (entityService != null) {
@@ -171,6 +175,15 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> extends
 		return this;
 	}
 
+	@Override
+	public IBeanTableModelBuilder<BEAN_TYPE> setPageSize(final int pageSize) {
+		if (pageSize < 2 || pageSize > 100000) {
+			throw new IllegalArgumentException("Parameter 'pageSize' must be between '2' and '100000'");
+		}
+		this.pageSize = pageSize;
+		return this;
+	}
+
 	private String getEntityLabelSingular() {
 		if (EmptyCheck.isEmpty(entityLabelSingular)) {
 			entityLabelSingular = Messages.getString("BeanTableModelBuilderImpl.dataset");
@@ -230,7 +243,8 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> extends
 			autoSelection,
 			autoRefreshSelection,
 			clearOnEmptyFilter,
-			getClearOnEmptyParentBeans());
+			getClearOnEmptyParentBeans(),
+			pageSize);
 	}
 
 }

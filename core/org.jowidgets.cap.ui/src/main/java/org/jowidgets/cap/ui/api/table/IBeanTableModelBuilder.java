@@ -81,6 +81,8 @@ public interface IBeanTableModelBuilder<BEAN_TYPE> extends IBeanModelBuilder<BEA
 	 */
 	IBeanTableModelBuilder<BEAN_TYPE> setClearOnEmptyParentBeans(boolean clearOnEmptyParentBeans);
 
+	IBeanTableModelBuilder<BEAN_TYPE> setPageSize(int pageSize);
+
 	IBeanTableModel<BEAN_TYPE> build();
 
 }
