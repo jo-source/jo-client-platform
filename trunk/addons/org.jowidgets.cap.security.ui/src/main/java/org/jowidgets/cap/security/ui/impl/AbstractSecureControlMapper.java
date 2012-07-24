@@ -36,6 +36,7 @@ import org.jowidgets.cap.security.ui.api.SecurityIcons;
 import org.jowidgets.common.image.IImageConstant;
 import org.jowidgets.common.widgets.descriptor.IWidgetDescriptor;
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.wrapper.WrapperUtil;
 
 abstract class AbstractSecureControlMapper<WIDGET_TYPE extends IControl, DESCRIPTOR_TYPE extends IWidgetDescriptor<? extends WIDGET_TYPE>, AUTHORIZATION_TYPE> implements
 		ISecureControlMapper<WIDGET_TYPE, DESCRIPTOR_TYPE, AUTHORIZATION_TYPE> {
@@ -49,8 +50,9 @@ abstract class AbstractSecureControlMapper<WIDGET_TYPE extends IControl, DESCRIP
 	public final AUTHORIZATION_TYPE getAuthorization(final DESCRIPTOR_TYPE descriptor) {
 		Assert.paramNotNull(descriptor, "descriptor");
 		final IReaderService<Object> readerService = getReaderService(descriptor);
-		if (readerService instanceof ISecureObject<?>) {
-			return (AUTHORIZATION_TYPE) ((ISecureObject<?>) readerService).getAuthorization();
+		final ISecureObject<?> secureObject = WrapperUtil.tryToCast(readerService, ISecureObject.class);
+		if (secureObject != null) {
+			return (AUTHORIZATION_TYPE) secureObject.getAuthorization();
 		}
 		else {
 			return null;

@@ -28,24 +28,39 @@
 
 package org.jowidgets.cap.security.ui.impl;
 
-import org.jowidgets.cap.common.api.service.IExecutorService;
-import org.jowidgets.cap.common.api.service.IReaderService;
+import java.util.HashSet;
+import java.util.Set;
+
+import org.jowidgets.cap.common.api.service.ICreatorService;
+import org.jowidgets.cap.common.api.service.IDeleterService;
+import org.jowidgets.cap.common.api.service.ILinkCreatorService;
+import org.jowidgets.cap.common.api.service.ILinkDeleterService;
+import org.jowidgets.cap.common.api.service.IUpdaterService;
 import org.jowidgets.cap.security.ui.api.DecorationStrategy;
 import org.jowidgets.cap.security.ui.api.IDecorationStrategySelector;
 import org.jowidgets.service.api.IServiceId;
 
 final class DefaultDecorationStrategySelector implements IDecorationStrategySelector {
 
+	private static final Set<Class<?>> FILTER_SERVICES = createFilterServices();
+
 	@Override
 	public <SERVICE_TYPE> DecorationStrategy getStrategy(final IServiceId<SERVICE_TYPE> id, final SERVICE_TYPE service) {
-		if (service instanceof IExecutorService<?>) {
-			return DecorationStrategy.ADD_AUTHORIZATION;
-		}
-		else if (service instanceof IReaderService<?>) {
-			return DecorationStrategy.ADD_AUTHORIZATION;
-		}
-		else {
+		if (FILTER_SERVICES.contains(id.getServiceType())) {
 			return DecorationStrategy.FILTER;
 		}
+		else {
+			return DecorationStrategy.ADD_AUTHORIZATION;
+		}
+	}
+
+	private static Set<Class<?>> createFilterServices() {
+		final Set<Class<?>> result = new HashSet<Class<?>>();
+		result.add(ICreatorService.class);
+		result.add(IUpdaterService.class);
+		result.add(IDeleterService.class);
+		result.add(ILinkCreatorService.class);
+		result.add(ILinkDeleterService.class);
+		return result;
 	}
 }

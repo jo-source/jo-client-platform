@@ -39,6 +39,7 @@ import org.jowidgets.common.image.IImageConstant;
 import org.jowidgets.tools.message.MessageReplacer;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.EmptyCheck;
+import org.jowidgets.util.wrapper.WrapperUtil;
 
 final class SecureBeanTableMapper<BEAN_TYPE, AUTHORIZATION_TYPE> implements
 		ISecureControlMapper<IBeanTable<BEAN_TYPE>, IBeanTableBluePrint<BEAN_TYPE>, AUTHORIZATION_TYPE> {
@@ -53,8 +54,9 @@ final class SecureBeanTableMapper<BEAN_TYPE, AUTHORIZATION_TYPE> implements
 		final IBeanTableModel<BEAN_TYPE> model = bluePrint.getModel();
 		if (model != null) {
 			final IReaderService<Object> readerService = model.getReaderService();
-			if (readerService instanceof ISecureObject<?>) {
-				return (AUTHORIZATION_TYPE) ((ISecureObject<?>) readerService).getAuthorization();
+			final ISecureObject<?> secureObject = WrapperUtil.tryToCast(readerService, ISecureObject.class);
+			if (secureObject != null) {
+				return (AUTHORIZATION_TYPE) secureObject.getAuthorization();
 			}
 		}
 		return null;
