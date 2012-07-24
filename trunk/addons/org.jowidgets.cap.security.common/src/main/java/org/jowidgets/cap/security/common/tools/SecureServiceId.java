@@ -30,8 +30,8 @@ package org.jowidgets.cap.security.common.tools;
 
 import java.io.Serializable;
 
-import org.jowidgets.cap.security.common.api.ISecureServiceId;
 import org.jowidgets.cap.security.common.api.CapSecurityCommonToolkit;
+import org.jowidgets.cap.security.common.api.ISecureServiceId;
 import org.jowidgets.service.api.IServiceId;
 
 public class SecureServiceId<SERVICE_TYPE, AUTHORIZATION_TYPE> implements
@@ -42,9 +42,16 @@ public class SecureServiceId<SERVICE_TYPE, AUTHORIZATION_TYPE> implements
 
 	private final ISecureServiceId<SERVICE_TYPE, AUTHORIZATION_TYPE> original;
 
+	public SecureServiceId(final AUTHORIZATION_TYPE authorization, final Class<?> serviceType) {
+		this(authorization, serviceType, authorization);
+	}
+
 	@SuppressWarnings("unchecked")
 	public SecureServiceId(final Object id, final Class<?> serviceType, final AUTHORIZATION_TYPE authorization) {
-		this((ISecureServiceId<SERVICE_TYPE, AUTHORIZATION_TYPE>) CapSecurityCommonToolkit.serviceId(id, serviceType, authorization));
+		this((ISecureServiceId<SERVICE_TYPE, AUTHORIZATION_TYPE>) CapSecurityCommonToolkit.serviceId(
+				id,
+				serviceType,
+				authorization));
 	}
 
 	public SecureServiceId(final IServiceId<SERVICE_TYPE> serviceId, final AUTHORIZATION_TYPE authorization) {
