@@ -151,7 +151,6 @@ import org.jowidgets.validation.IValidationResult;
 
 final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
 
-	private static final int DEFAULT_PAGE_SIZE = 1000;
 	private static final int INNER_PAGE_LOAD_DELAY = 100;
 	private static final int AUTO_REFRESH_DELAY = 250;
 	private static final int PAGE_LOAD_OVERLAP = 25;
@@ -258,7 +257,8 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		final boolean autoSelect,
 		final boolean autoRefreshSelection,
 		final boolean clearOnEmptyFilter,
-		final boolean clearOnEmptyParentBeans) {
+		final boolean clearOnEmptyParentBeans,
+		final int pageSize) {
 
 		//arguments checks
 		Assert.paramNotNull(entityId, "entityId");
@@ -330,7 +330,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		this.attributeChangeListeners = new LinkedList<AttributeChangeListener>();
 		this.dataCleared = true;
 		this.disposed = false;
-		this.pageSize = DEFAULT_PAGE_SIZE;
+		this.pageSize = pageSize;
 		this.rowCount = 0;
 		this.maxPageIndex = 0;
 		this.beansStateTracker = CapUiToolkit.beansStateTracker();
