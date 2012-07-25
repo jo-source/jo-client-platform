@@ -32,8 +32,10 @@ import java.util.Collection;
 import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.Cardinality;
+import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
 import org.jowidgets.cap.common.api.bean.IProperty;
 import org.jowidgets.cap.common.api.bean.IValueRange;
+import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IAttributeBuilder;
 import org.jowidgets.cap.ui.api.attribute.IAttributeCollectionModifier;
@@ -43,6 +45,7 @@ import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
 import org.jowidgets.cap.ui.api.attribute.IControlPanelProviderBuilder;
 import org.jowidgets.cap.ui.api.bean.IBeanMessage;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
+import org.jowidgets.service.api.ServiceProvider;
 import org.jowidgets.util.Assert;
 
 final class AttributeToolkitImpl implements IAttributeToolkit {
@@ -93,6 +96,30 @@ final class AttributeToolkitImpl implements IAttributeToolkit {
 	@Override
 	public List<IAttribute<Object>> createAttributes(final Collection<? extends IProperty> properties) {
 		return attributesFactory.createAttributes(properties, null);
+	}
+
+	@Override
+	public List<IAttribute<Object>> createAttributes(
+		final Object entityID,
+		final IAttributeCollectionModifier attributeCollectionModifier) {
+		Assert.paramNotNull(entityID, "entityID");
+
+		final IEntityService entityService = ServiceProvider.getService(IEntityService.ID);
+		if (entityService != null) {
+			final IBeanDtoDescriptor descriptor = entityService.getDescriptor(entityID);
+			if (descriptor != null) {
+				final List<IProperty> properties = descriptor.getProperties();
+				if (properties != null) {
+					return createAttributes(properties, attributeCollectionModifier);
+				}
+			}
+		}
+		throw new IllegalArgumentException("Could not retrieve properties for entityId '" + entityID + "'");
+	}
+
+	@Override
+	public List<IAttribute<Object>> createAttributes(final Object entityID) {
+		return createAttributes(entityID, null);
 	}
 
 	@Override
