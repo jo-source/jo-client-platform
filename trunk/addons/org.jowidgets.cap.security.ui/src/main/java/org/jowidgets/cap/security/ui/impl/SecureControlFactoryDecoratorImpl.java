@@ -148,13 +148,14 @@ final class SecureControlFactoryDecoratorImpl<WIDGET_TYPE extends IControl, DESC
 			final WIDGET_TYPE widget) {
 			ISecureControlCreator<? extends IControl> result = controlCreator;
 			final IPluginPropertiesBuilder propertiesBuilder = PluginProperties.builder();
-			propertiesBuilder.add(ISecureControlCreatorDecoratorPlugin.WIDGETS_DESCRIPTOR_PROPERTY_KEY, descriptor);
-			propertiesBuilder.add(ISecureControlCreatorDecoratorPlugin.WIDGETS_PROPERTY_KEY, widget);
+			propertiesBuilder.add(
+					ISecureControlCreatorDecoratorPlugin.DESCRIPTOR_INTERFACE_PROPERTY_KEY,
+					descriptor.getDescriptorInterface());
 			final IPluginProperties pluginProperties = propertiesBuilder.build();
 			List<ISecureControlCreatorDecoratorPlugin> plugins;
 			plugins = PluginProvider.getPlugins(ISecureControlCreatorDecoratorPlugin.ID, pluginProperties);
 			for (final ISecureControlCreatorDecoratorPlugin plugin : plugins) {
-				result = plugin.decorate((ISecureControlCreator<IControl>) result, pluginProperties);
+				result = plugin.decorate((ISecureControlCreator<IControl>) result, descriptor, widget, pluginProperties);
 			}
 			return result;
 		}
