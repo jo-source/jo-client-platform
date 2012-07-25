@@ -45,7 +45,7 @@ final class SecureServiceProviderDecoratorBuilderImpl<AUTHORIZATION_TYPE> implem
 
 	SecureServiceProviderDecoratorBuilderImpl() {
 		this.order = ISecureServiceProviderDecoratorBuilder.DEFAULT_ORDER;
-		this.authorizationChecker = AuthorizationChecker.getDefault();
+		this.authorizationChecker = AuthorizationChecker.get();
 		this.decorationStrategySelector = new DefaultDecorationStrategySelector();
 		this.filterUnreadableLinkDescriptors = true;
 	}

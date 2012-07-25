@@ -50,6 +50,21 @@ public interface ICapSecurityCommonToolkit {
 
 	ICrudAuthorizationMapperFactory crudAuthorizationMapperProvider();
 
+	/**
+	 * Gets the default authorization checker. The default authorization checker uses the default security
+	 * context and assumes that the context holder hold an IDefaultPrincipal. In other cases, class cast exceptions
+	 * will occur on authorization checking
+	 * 
+	 * @return The default authorization checker, never null
+	 */
 	<AUTHORIZATION_TYPE> IAuthorizationChecker<AUTHORIZATION_TYPE> defaultAuthorizationChecker();
+
+	/**
+	 * Gets the authorization checker. This is the default authorization checker decorated with the plugged
+	 * in authorization checkers (@see IAuthorizationCheckerDecoratorPlugin).
+	 * 
+	 * @return The authorization checker, never null
+	 */
+	<AUTHORIZATION_TYPE> IAuthorizationChecker<AUTHORIZATION_TYPE> authorizationChecker();
 
 }

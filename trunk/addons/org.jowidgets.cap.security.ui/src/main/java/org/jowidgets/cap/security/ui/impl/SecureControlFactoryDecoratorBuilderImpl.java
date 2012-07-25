@@ -50,7 +50,7 @@ final class SecureControlFactoryDecoratorBuilderImpl<WIDGET_TYPE extends IContro
 
 	SecureControlFactoryDecoratorBuilderImpl(final ISecureControlMapper<WIDGET_TYPE, DESCRIPTOR_TYPE, AUTHORIZATION_TYPE> mapper) {
 		this.controlAuthorizationMapper = mapper;
-		this.authorizationChecker = AuthorizationChecker.getDefault();
+		this.authorizationChecker = AuthorizationChecker.get();
 		if (IBeanTabFolder.class.isAssignableFrom(mapper.getWidgetType())) {
 			this.controlCreator = new DefaultSecureControlCreatorImpl(true);
 		}

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,48 +26,15 @@
  * DAMAGE.
  */
 
-package org.jowidgets.plugin.tools;
+package org.jowidgets.cap.security.common.tools;
 
-import org.jowidgets.plugin.api.IPluginFilter;
-import org.jowidgets.plugin.api.IPluginId;
-import org.jowidgets.plugin.api.IPluginProvider;
-import org.jowidgets.plugin.api.IPluginProviderBuilder;
-import org.jowidgets.plugin.api.PluginToolkit;
-import org.jowidgets.util.ITypedKey;
+import org.jowidgets.cap.security.common.api.IAuthorizationChecker;
 
-public class PluginProviderBuilder implements IPluginProviderBuilder {
-
-	private final IPluginProviderBuilder builder;
-
-	public PluginProviderBuilder() {
-		this.builder = PluginToolkit.pluginProviderBuilder();
-	}
+public final class DisableSecurityAuthorizationChecker<AUTHORIZATION_TYPE> implements IAuthorizationChecker<AUTHORIZATION_TYPE> {
 
 	@Override
-	public final <SERVICE_TYPE> void addPlugin(final IPluginId<? extends SERVICE_TYPE> id, final SERVICE_TYPE service) {
-		builder.addPlugin(id, service);
-	}
-
-	@Override
-	public <PLUGIN_TYPE> void addPlugin(
-		final IPluginId<? extends PLUGIN_TYPE> id,
-		final PLUGIN_TYPE plugin,
-		final IPluginFilter filter) {
-		builder.addPlugin(id, plugin, filter);
-	}
-
-	@Override
-	public <PLUGIN_TYPE, PROPERTY_VALUE_TYPE> void addPlugin(
-		final IPluginId<? extends PLUGIN_TYPE> id,
-		final PLUGIN_TYPE plugin,
-		final ITypedKey<PROPERTY_VALUE_TYPE> key,
-		final PROPERTY_VALUE_TYPE... propertyValues) {
-		builder.addPlugin(id, plugin, key, propertyValues);
-	}
-
-	@Override
-	public final IPluginProvider build() {
-		return builder.build();
+	public boolean hasAuthorization(final AUTHORIZATION_TYPE authorization) {
+		return true;
 	}
 
 }

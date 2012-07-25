@@ -28,6 +28,7 @@
 
 package org.jowidgets.plugin.api;
 
+import org.jowidgets.util.ITypedKey;
 
 public interface IPluginRegistry {
 
@@ -35,4 +36,9 @@ public interface IPluginRegistry {
 
 	<PLUGIN_TYPE> void addPlugin(final IPluginId<? extends PLUGIN_TYPE> id, final PLUGIN_TYPE plugin, IPluginFilter filter);
 
+	<PLUGIN_TYPE, PROPERTY_VALUE_TYPE> void addPlugin(
+		final IPluginId<? extends PLUGIN_TYPE> id,
+		final PLUGIN_TYPE plugin,
+		final ITypedKey<PROPERTY_VALUE_TYPE> key,
+		final PROPERTY_VALUE_TYPE... propertyValues);
 }

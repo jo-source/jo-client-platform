@@ -26,48 +26,15 @@
  * DAMAGE.
  */
 
-package org.jowidgets.plugin.tools;
+package org.jowidgets.cap.security.common.api.plugin;
 
-import org.jowidgets.plugin.api.IPluginFilter;
+import org.jowidgets.cap.security.common.api.IAuthorizationChecker;
 import org.jowidgets.plugin.api.IPluginId;
-import org.jowidgets.plugin.api.IPluginProvider;
-import org.jowidgets.plugin.api.IPluginProviderBuilder;
-import org.jowidgets.plugin.api.PluginToolkit;
-import org.jowidgets.util.ITypedKey;
 
-public class PluginProviderBuilder implements IPluginProviderBuilder {
+public interface IAuthorizationCheckerDecoratorPlugin {
 
-	private final IPluginProviderBuilder builder;
+	IPluginId<IAuthorizationCheckerDecoratorPlugin> ID = new IPluginId<IAuthorizationCheckerDecoratorPlugin>() {};
 
-	public PluginProviderBuilder() {
-		this.builder = PluginToolkit.pluginProviderBuilder();
-	}
-
-	@Override
-	public final <SERVICE_TYPE> void addPlugin(final IPluginId<? extends SERVICE_TYPE> id, final SERVICE_TYPE service) {
-		builder.addPlugin(id, service);
-	}
-
-	@Override
-	public <PLUGIN_TYPE> void addPlugin(
-		final IPluginId<? extends PLUGIN_TYPE> id,
-		final PLUGIN_TYPE plugin,
-		final IPluginFilter filter) {
-		builder.addPlugin(id, plugin, filter);
-	}
-
-	@Override
-	public <PLUGIN_TYPE, PROPERTY_VALUE_TYPE> void addPlugin(
-		final IPluginId<? extends PLUGIN_TYPE> id,
-		final PLUGIN_TYPE plugin,
-		final ITypedKey<PROPERTY_VALUE_TYPE> key,
-		final PROPERTY_VALUE_TYPE... propertyValues) {
-		builder.addPlugin(id, plugin, key, propertyValues);
-	}
-
-	@Override
-	public final IPluginProvider build() {
-		return builder.build();
-	}
+	<AUTHORIZATION_TYPE> IAuthorizationChecker<AUTHORIZATION_TYPE> decorate(IAuthorizationChecker<AUTHORIZATION_TYPE> original);
 
 }

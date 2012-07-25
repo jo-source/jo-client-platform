@@ -40,7 +40,7 @@ final class SecureServiceActionDecoratorPluginBuilderImpl<AUTHORIZATION_TYPE> im
 	private IAuthorizationChecker<AUTHORIZATION_TYPE> authorizationChecker;
 
 	SecureServiceActionDecoratorPluginBuilderImpl() {
-		this.authorizationChecker = AuthorizationChecker.getDefault();
+		this.authorizationChecker = AuthorizationChecker.get();
 	}
 
 	@Override

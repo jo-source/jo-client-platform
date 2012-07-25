@@ -26,52 +26,24 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.security.ui.impl;
+package org.jowidgets.cap.security.common.tools;
 
-import java.util.LinkedList;
-
-import org.jowidgets.cap.security.common.api.AuthorizationChecker;
-import org.jowidgets.cap.security.common.api.CrudAuthorizationMapperFactory;
 import org.jowidgets.cap.security.common.api.IAuthorizationChecker;
-import org.jowidgets.cap.security.common.api.ICrudAuthorizationMapper;
-import org.jowidgets.cap.security.ui.api.ISecureBeanFormPluginBuilder;
-import org.jowidgets.cap.ui.api.plugin.IBeanFormPlugin;
-import org.jowidgets.util.Assert;
+import org.jowidgets.cap.security.common.api.plugin.IAuthorizationCheckerDecoratorPlugin;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
-final class SecureBeanFormPluginBuilderImpl<AUTHORIZATION_TYPE> implements ISecureBeanFormPluginBuilder<AUTHORIZATION_TYPE> {
+public final class DisableSecurityAuthorizationCheckerPlugin implements IAuthorizationCheckerDecoratorPlugin {
 
-	private final LinkedList mappers;
+	private final IAuthorizationChecker authorizationChecker;
 
-	private IAuthorizationChecker<AUTHORIZATION_TYPE> authorizationChecker;
-
-	SecureBeanFormPluginBuilderImpl() {
-		this.authorizationChecker = AuthorizationChecker.get();
-
-		this.mappers = new LinkedList();
-		mappers.addFirst(CrudAuthorizationMapperFactory.beanTypeAnnotationAuthorizationMapper());
-		mappers.addFirst(CrudAuthorizationMapperFactory.entityIdAnnotationAuthorizationMapper());
-		mappers.addFirst(CrudAuthorizationMapperFactory.secureEntityIdAuthorizationMapper());
+	public DisableSecurityAuthorizationCheckerPlugin() {
+		authorizationChecker = new DisableSecurityAuthorizationChecker();
 	}
 
 	@Override
-	public ISecureBeanFormPluginBuilder<AUTHORIZATION_TYPE> addMapper(final ICrudAuthorizationMapper<AUTHORIZATION_TYPE> mapper) {
-		Assert.paramNotNull(mapper, "mapper");
-		mappers.addFirst(mapper);
-		return this;
-	}
-
-	@Override
-	public ISecureBeanFormPluginBuilder<AUTHORIZATION_TYPE> setAuthorizationChecker(
-		final IAuthorizationChecker<AUTHORIZATION_TYPE> checker) {
-		Assert.paramNotNull(checker, "checker");
-		this.authorizationChecker = checker;
-		return this;
-	}
-
-	@Override
-	public IBeanFormPlugin build() {
-		return new SecureBeanFormPluginImpl(mappers, authorizationChecker);
+	public <AUTHORIZATION_TYPE> IAuthorizationChecker<AUTHORIZATION_TYPE> decorate(
+		final IAuthorizationChecker<AUTHORIZATION_TYPE> original) {
+		return authorizationChecker;
 	}
 
 }
