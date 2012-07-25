@@ -32,12 +32,12 @@ import org.jowidgets.cap.security.common.api.IAuthorizationChecker;
 import org.jowidgets.cap.security.common.api.plugin.IAuthorizationCheckerDecoratorPlugin;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
-public final class DisableSecurityAuthorizationCheckerPlugin implements IAuthorizationCheckerDecoratorPlugin {
+public final class AcceptAllAuthorizationCheckerPlugin implements IAuthorizationCheckerDecoratorPlugin {
 
 	private final IAuthorizationChecker authorizationChecker;
 
-	public DisableSecurityAuthorizationCheckerPlugin() {
-		authorizationChecker = new DisableSecurityAuthorizationChecker();
+	public AcceptAllAuthorizationCheckerPlugin() {
+		authorizationChecker = new AcceptAllAuthorizationChecker();
 	}
 
 	@Override
