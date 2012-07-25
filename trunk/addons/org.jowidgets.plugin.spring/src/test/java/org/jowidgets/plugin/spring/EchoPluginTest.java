@@ -26,26 +26,32 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.security.common.api;
+package org.jowidgets.plugin.spring;
 
-public final class CrudAuthorizationMapperFactory {
+import java.util.List;
 
-	private CrudAuthorizationMapperFactory() {}
+import junit.framework.Assert;
 
-	public static ICrudAuthorizationMapperFactory getInstance() {
-		return CapSecurityCommonToolkit.crudAuthorizationMapperFactory();
-	}
+import org.jowidgets.plugin.api.PluginProvider;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-	public static ICrudAuthorizationMapper<String> beanTypeAnnotationAuthorizationMapper() {
-		return getInstance().beanTypeAnnotationAuthorizationMapper();
-	}
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = {
+		"classpath:META-INF/spring/EchoPluginTest-context.xml",
+		"classpath*:META-INF/spring/org.jowidgets.plugin.spring-context.xml"})
+public class EchoPluginTest {
 
-	public static ICrudAuthorizationMapper<String> entityIdAnnotationAuthorizationMapper() {
-		return getInstance().entityIdAnnotationAuthorizationMapper();
-	}
+	@Test
+	public void testEchoPlugin() {
+		final List<IEchoPlugin> plugins = PluginProvider.getPlugins(IEchoPlugin.ID);
+		Assert.assertNotNull(plugins);
+		Assert.assertEquals(1, plugins.size());
 
-	public static <AUTHORIZATION_TYPE> ICrudAuthorizationMapper<AUTHORIZATION_TYPE> secureEntityIdAuthorizationMapper() {
-		return getInstance().secureEntityIdAuthorizationMapper();
+		final String echo = plugins.get(0).echo("HUHU");
+		Assert.assertEquals(EchoPlugin.ECHO + "HUHU", echo);
 	}
 
 }

@@ -69,7 +69,7 @@ public final class CapSecurityCommonToolkitImpl implements ICapSecurityCommonToo
 	}
 
 	@Override
-	public ICrudAuthorizationMapperFactory crudAuthorizationMapperProvider() {
+	public ICrudAuthorizationMapperFactory crudAuthorizationMapperFactory() {
 		if (crudAuthorizationMapperProvider == null) {
 			crudAuthorizationMapperProvider = new CrudAuthorizationMapperFactoryImpl();
 		}
