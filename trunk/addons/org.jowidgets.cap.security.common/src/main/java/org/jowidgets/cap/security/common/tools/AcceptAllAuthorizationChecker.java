@@ -30,7 +30,7 @@ package org.jowidgets.cap.security.common.tools;
 
 import org.jowidgets.cap.security.common.api.IAuthorizationChecker;
 
-public final class DisableSecurityAuthorizationChecker<AUTHORIZATION_TYPE> implements IAuthorizationChecker<AUTHORIZATION_TYPE> {
+public final class AcceptAllAuthorizationChecker<AUTHORIZATION_TYPE> implements IAuthorizationChecker<AUTHORIZATION_TYPE> {
 
 	@Override
 	public boolean hasAuthorization(final AUTHORIZATION_TYPE authorization) {
