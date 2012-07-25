@@ -39,11 +39,12 @@ public interface ISecureControlCreatorDecoratorPlugin {
 
 	IPluginId<ISecureControlCreatorDecoratorPlugin> ID = new IPluginId<ISecureControlCreatorDecoratorPlugin>() {};
 
-	ITypedKey<IControl> WIDGETS_PROPERTY_KEY = new ITypedKey<IControl>() {};
-	ITypedKey<IWidgetDescriptor<?>> WIDGETS_DESCRIPTOR_PROPERTY_KEY = new ITypedKey<IWidgetDescriptor<?>>() {};
+	ITypedKey<Class<? extends IWidgetDescriptor<?>>> DESCRIPTOR_INTERFACE_PROPERTY_KEY = new ITypedKey<Class<? extends IWidgetDescriptor<?>>>() {};
 
-	ISecureControlCreator<? extends IControl> decorate(
+	<WIDGET_TYPE extends IControl, DESCRIPTOR_TYPE extends IWidgetDescriptor<? extends WIDGET_TYPE>> ISecureControlCreator<? extends IControl> decorate(
 		ISecureControlCreator<IControl> controlCreator,
+		DESCRIPTOR_TYPE descriptor,
+		WIDGET_TYPE widget,
 		IPluginProperties properties);
 
 }
