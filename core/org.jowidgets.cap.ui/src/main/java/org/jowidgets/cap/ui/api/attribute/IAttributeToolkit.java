@@ -56,6 +56,10 @@ public interface IAttributeToolkit {
 
 	List<IAttribute<Object>> createAttributes(Collection<? extends IProperty> properties);
 
+	List<IAttribute<Object>> createAttributes(Object entityID, IAttributeCollectionModifier attributeCollectionModifier);
+
+	List<IAttribute<Object>> createAttributes(Object entityID);
+
 	List<IAttribute<Object>> createAttributesCopy(
 		Collection<? extends IAttribute<?>> attributes,
 		IAttributeCollectionModifier attributeCollectionModifier);
