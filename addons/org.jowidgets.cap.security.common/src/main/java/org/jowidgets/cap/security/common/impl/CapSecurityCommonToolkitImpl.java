@@ -33,6 +33,8 @@ import org.jowidgets.cap.security.common.api.ICapSecurityCommonToolkit;
 import org.jowidgets.cap.security.common.api.ICrudAuthorizationMapperFactory;
 import org.jowidgets.cap.security.common.api.ISecureEntityId;
 import org.jowidgets.cap.security.common.api.ISecureServiceId;
+import org.jowidgets.cap.security.common.api.plugin.IAuthorizationCheckerDecoratorPlugin;
+import org.jowidgets.plugin.api.PluginProvider;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.tools.ServiceId;
 
@@ -81,6 +83,18 @@ public final class CapSecurityCommonToolkitImpl implements ICapSecurityCommonToo
 			defaultAuthorizationChecker = new DefaultAuthorizationChecker();
 		}
 		return (IAuthorizationChecker<AUTHORIZATION_TYPE>) defaultAuthorizationChecker;
+	}
+
+	@Override
+	public <AUTHORIZATION_TYPE> IAuthorizationChecker<AUTHORIZATION_TYPE> authorizationChecker() {
+		IAuthorizationChecker<AUTHORIZATION_TYPE> result = defaultAuthorizationChecker();
+		for (final IAuthorizationCheckerDecoratorPlugin plugin : PluginProvider.getPlugins(IAuthorizationCheckerDecoratorPlugin.ID)) {
+			result = plugin.decorate(result);
+			if (result == null) {
+				throw new IllegalStateException("IAuthorizationCheckerDecoratorPlugin must not return null");
+			}
+		}
+		return result;
 	}
 
 }

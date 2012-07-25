@@ -42,7 +42,7 @@ final class SecureActionItemVisibilityAspectPluginBuilderImpl<AUTHORIZATION_TYPE
 
 	SecureActionItemVisibilityAspectPluginBuilderImpl() {
 		this.order = ISecureActionItemVisibilityAspectPluginBuilder.DEFAULT_ORDER;
-		this.authorizationChecker = AuthorizationChecker.getDefault();
+		this.authorizationChecker = AuthorizationChecker.get();
 	}
 
 	@Override

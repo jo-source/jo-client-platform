@@ -40,7 +40,7 @@ final class SecureBeanRelationTreePluginBuilderImpl<AUTHORIZATION_TYPE> implemen
 	private IAuthorizationChecker<AUTHORIZATION_TYPE> authorizationChecker;
 
 	SecureBeanRelationTreePluginBuilderImpl() {
-		this.authorizationChecker = AuthorizationChecker.getDefault();
+		this.authorizationChecker = AuthorizationChecker.get();
 	}
 
 	@Override

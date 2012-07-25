@@ -43,7 +43,7 @@ final class SecureServiceDecoratorProviderBuilderImpl<AUTHORIZATION_TYPE> implem
 
 	SecureServiceDecoratorProviderBuilderImpl() {
 		this.decorationMode = DecorationMode.ALLOW_UNSECURE;
-		this.authorizationChecker = AuthorizationChecker.getDefault();
+		this.authorizationChecker = AuthorizationChecker.get();
 		this.order = ISecureServiceDecoratorBuilder.DEFAULT_ORDER;
 	}
 
