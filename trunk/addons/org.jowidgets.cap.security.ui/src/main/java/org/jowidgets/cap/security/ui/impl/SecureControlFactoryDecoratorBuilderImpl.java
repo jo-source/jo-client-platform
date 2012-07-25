@@ -31,10 +31,11 @@ package org.jowidgets.cap.security.ui.impl;
 import org.jowidgets.api.widgets.IControl;
 import org.jowidgets.cap.security.common.api.AuthorizationChecker;
 import org.jowidgets.cap.security.common.api.IAuthorizationChecker;
-import org.jowidgets.cap.security.ui.api.ISecureControlMapper;
+import org.jowidgets.cap.security.ui.api.ISecureControlCreator;
 import org.jowidgets.cap.security.ui.api.ISecureControlFactoryDecoratorBuilder;
+import org.jowidgets.cap.security.ui.api.ISecureControlMapper;
+import org.jowidgets.cap.ui.api.widgets.IBeanTabFolder;
 import org.jowidgets.common.widgets.descriptor.IWidgetDescriptor;
-import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
 import org.jowidgets.common.widgets.factory.IWidgetFactory;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.IDecorator;
@@ -44,19 +45,23 @@ final class SecureControlFactoryDecoratorBuilderImpl<WIDGET_TYPE extends IContro
 
 	private final ISecureControlMapper<WIDGET_TYPE, DESCRIPTOR_TYPE, AUTHORIZATION_TYPE> controlAuthorizationMapper;
 
-	private ICustomWidgetCreator<? extends IControl> controlCreator;
+	private ISecureControlCreator<? extends IControl> controlCreator;
 	private IAuthorizationChecker<AUTHORIZATION_TYPE> authorizationChecker;
 
-	SecureControlFactoryDecoratorBuilderImpl(
-		final ISecureControlMapper<WIDGET_TYPE, DESCRIPTOR_TYPE, AUTHORIZATION_TYPE> mapper) {
-
+	SecureControlFactoryDecoratorBuilderImpl(final ISecureControlMapper<WIDGET_TYPE, DESCRIPTOR_TYPE, AUTHORIZATION_TYPE> mapper) {
 		this.controlAuthorizationMapper = mapper;
 		this.authorizationChecker = AuthorizationChecker.getDefault();
+		if (IBeanTabFolder.class.isAssignableFrom(mapper.getWidgetType())) {
+			this.controlCreator = new DefaultSecureControlCreatorImpl(true);
+		}
+		else {
+			this.controlCreator = new DefaultSecureControlCreatorImpl();
+		}
 	}
 
 	@Override
 	public ISecureControlFactoryDecoratorBuilder<WIDGET_TYPE, DESCRIPTOR_TYPE, AUTHORIZATION_TYPE> setControlCreator(
-		final ICustomWidgetCreator<? extends IControl> controlCreator) {
+		final ISecureControlCreator<? extends IControl> controlCreator) {
 		Assert.paramNotNull(controlCreator, "controlCreator");
 		this.controlCreator = controlCreator;
 		return this;

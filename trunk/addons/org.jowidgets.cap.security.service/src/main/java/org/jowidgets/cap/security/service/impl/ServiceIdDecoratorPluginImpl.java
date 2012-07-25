@@ -56,7 +56,6 @@ final class ServiceIdDecoratorPluginImpl<AUTHORIZATION_TYPE> implements IService
 
 	ServiceIdDecoratorPluginImpl(final LinkedList<ICrudAuthorizationMapper<AUTHORIZATION_TYPE>> mappers) {
 		this.mappers = new LinkedList<ICrudAuthorizationMapper<AUTHORIZATION_TYPE>>(mappers);
-
 	}
 
 	private static Map<Class<?>, CrudServiceType> createServiceTypes() {

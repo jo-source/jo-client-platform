@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, grossmann
+ * Copyright (c) 2011, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,39 +26,24 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.security.ui.api;
+package org.jowidgets.cap.security.ui.api.plugin;
 
 import org.jowidgets.api.widgets.IControl;
-import org.jowidgets.cap.security.common.api.IAuthorizationChecker;
+import org.jowidgets.cap.security.ui.api.ISecureControlCreator;
 import org.jowidgets.common.widgets.descriptor.IWidgetDescriptor;
-import org.jowidgets.common.widgets.factory.IWidgetFactory;
-import org.jowidgets.util.IDecorator;
+import org.jowidgets.plugin.api.IPluginId;
+import org.jowidgets.plugin.api.IPluginProperties;
+import org.jowidgets.util.ITypedKey;
 
-public interface ISecureControlFactoryDecoratorBuilder<WIDGET_TYPE extends IControl, DESCRIPTOR_TYPE extends IWidgetDescriptor<? extends WIDGET_TYPE>, AUTHORIZATION_TYPE> {
+public interface ISecureControlCreatorDecoratorPlugin {
 
-	/**
-	 * Sets the creator for the control, that will be shown if the user has not the authorization to view the original control.
-	 * 
-	 * @param creator The creator to set
-	 * 
-	 * @return This builder
-	 */
-	ISecureControlFactoryDecoratorBuilder<WIDGET_TYPE, DESCRIPTOR_TYPE, AUTHORIZATION_TYPE> setControlCreator(
-		ISecureControlCreator<? extends IControl> creator);
+	IPluginId<ISecureControlCreatorDecoratorPlugin> ID = new IPluginId<ISecureControlCreatorDecoratorPlugin>() {};
 
-	/**
-	 * Sets the authorization checker. If no checker will be set, an default checker will be used, that gets the
-	 * authorizations from the security context.
-	 * 
-	 * Remark: The default (not setting this explicit) only works, if the default context uses the IDefaultPrincipal
-	 * 
-	 * @param checker The checker to add
-	 * 
-	 * @return This builder
-	 */
-	ISecureControlFactoryDecoratorBuilder<WIDGET_TYPE, DESCRIPTOR_TYPE, AUTHORIZATION_TYPE> setAuthorizationChecker(
-		IAuthorizationChecker<AUTHORIZATION_TYPE> checker);
+	ITypedKey<IControl> WIDGETS_PROPERTY_KEY = new ITypedKey<IControl>() {};
+	ITypedKey<IWidgetDescriptor<?>> WIDGETS_DESCRIPTOR_PROPERTY_KEY = new ITypedKey<IWidgetDescriptor<?>>() {};
 
-	IDecorator<IWidgetFactory<WIDGET_TYPE, DESCRIPTOR_TYPE>> build();
+	ISecureControlCreator<? extends IControl> decorate(
+		ISecureControlCreator<IControl> controlCreator,
+		IPluginProperties properties);
 
 }

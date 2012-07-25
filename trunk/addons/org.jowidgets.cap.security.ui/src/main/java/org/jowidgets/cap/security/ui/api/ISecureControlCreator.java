@@ -29,36 +29,11 @@
 package org.jowidgets.cap.security.ui.api;
 
 import org.jowidgets.api.widgets.IControl;
-import org.jowidgets.cap.security.common.api.IAuthorizationChecker;
-import org.jowidgets.common.widgets.descriptor.IWidgetDescriptor;
-import org.jowidgets.common.widgets.factory.IWidgetFactory;
-import org.jowidgets.util.IDecorator;
+import org.jowidgets.common.image.IImageConstant;
+import org.jowidgets.common.widgets.factory.ICustomWidgetFactory;
 
-public interface ISecureControlFactoryDecoratorBuilder<WIDGET_TYPE extends IControl, DESCRIPTOR_TYPE extends IWidgetDescriptor<? extends WIDGET_TYPE>, AUTHORIZATION_TYPE> {
+public interface ISecureControlCreator<WIDGET_TYPE extends IControl> {
 
-	/**
-	 * Sets the creator for the control, that will be shown if the user has not the authorization to view the original control.
-	 * 
-	 * @param creator The creator to set
-	 * 
-	 * @return This builder
-	 */
-	ISecureControlFactoryDecoratorBuilder<WIDGET_TYPE, DESCRIPTOR_TYPE, AUTHORIZATION_TYPE> setControlCreator(
-		ISecureControlCreator<? extends IControl> creator);
-
-	/**
-	 * Sets the authorization checker. If no checker will be set, an default checker will be used, that gets the
-	 * authorizations from the security context.
-	 * 
-	 * Remark: The default (not setting this explicit) only works, if the default context uses the IDefaultPrincipal
-	 * 
-	 * @param checker The checker to add
-	 * 
-	 * @return This builder
-	 */
-	ISecureControlFactoryDecoratorBuilder<WIDGET_TYPE, DESCRIPTOR_TYPE, AUTHORIZATION_TYPE> setAuthorizationChecker(
-		IAuthorizationChecker<AUTHORIZATION_TYPE> checker);
-
-	IDecorator<IWidgetFactory<WIDGET_TYPE, DESCRIPTOR_TYPE>> build();
+	WIDGET_TYPE create(ICustomWidgetFactory widgetFactory, String label, IImageConstant icon);
 
 }

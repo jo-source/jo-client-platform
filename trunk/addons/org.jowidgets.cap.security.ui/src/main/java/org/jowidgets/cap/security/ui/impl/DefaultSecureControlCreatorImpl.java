@@ -30,27 +30,33 @@ package org.jowidgets.cap.security.ui.impl;
 
 import org.jowidgets.api.widgets.IComposite;
 import org.jowidgets.api.widgets.IControl;
+import org.jowidgets.api.widgets.blueprint.ICompositeBluePrint;
+import org.jowidgets.cap.security.ui.api.ISecureControlCreator;
 import org.jowidgets.common.image.IImageConstant;
-import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
 import org.jowidgets.common.widgets.factory.ICustomWidgetFactory;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
 import org.jowidgets.tools.layout.MigLayoutFactory;
 import org.jowidgets.tools.widgets.blueprint.BPF;
 
-final class DefaultSecureControlCreatorImpl implements ICustomWidgetCreator<IControl> {
+final class DefaultSecureControlCreatorImpl implements ISecureControlCreator<IControl> {
 
-	private final String label;
-	private final IImageConstant icon;
+	private final boolean border;
 
-	DefaultSecureControlCreatorImpl(final String label, final IImageConstant icon) {
-		this.label = label;
-		this.icon = icon;
+	DefaultSecureControlCreatorImpl() {
+		this(false);
+	}
+
+	DefaultSecureControlCreatorImpl(final boolean border) {
+		this.border = border;
 	}
 
 	@Override
-	public IControl create(final ICustomWidgetFactory widgetFactory) {
-
-		final IComposite composite = widgetFactory.create(BPF.composite());
+	public IControl create(final ICustomWidgetFactory widgetFactory, final String label, final IImageConstant icon) {
+		final ICompositeBluePrint compositeBp = BPF.composite();
+		if (border) {
+			compositeBp.setBorder();
+		}
+		final IComposite composite = widgetFactory.create(compositeBp);
 		composite.setLayout(MigLayoutFactory.growingInnerCellLayout());
 
 		final IComposite labelComposite = composite.add(BPF.composite(), "alignx c, aligny c");

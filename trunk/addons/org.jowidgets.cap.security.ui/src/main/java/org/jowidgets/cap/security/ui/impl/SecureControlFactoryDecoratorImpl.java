@@ -31,20 +31,28 @@ package org.jowidgets.cap.security.ui.impl;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.List;
 import java.util.Set;
 
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.widgets.IComposite;
 import org.jowidgets.api.widgets.IControl;
 import org.jowidgets.cap.security.common.api.IAuthorizationChecker;
+import org.jowidgets.cap.security.ui.api.ISecureControlCreator;
 import org.jowidgets.cap.security.ui.api.ISecureControlMapper;
+import org.jowidgets.cap.security.ui.api.plugin.ISecureControlCreatorDecoratorPlugin;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.common.image.IImageConstant;
 import org.jowidgets.common.widgets.IWidgetCommon;
 import org.jowidgets.common.widgets.descriptor.IWidgetDescriptor;
 import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
+import org.jowidgets.common.widgets.factory.ICustomWidgetFactory;
 import org.jowidgets.common.widgets.factory.IWidgetFactory;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
+import org.jowidgets.plugin.api.IPluginProperties;
+import org.jowidgets.plugin.api.IPluginPropertiesBuilder;
+import org.jowidgets.plugin.api.PluginProperties;
+import org.jowidgets.plugin.api.PluginProvider;
 import org.jowidgets.tools.layout.MigLayoutFactory;
 import org.jowidgets.tools.widgets.blueprint.BPF;
 import org.jowidgets.util.Assert;
@@ -58,12 +66,12 @@ final class SecureControlFactoryDecoratorImpl<WIDGET_TYPE extends IControl, DESC
 
 	private final ISecureControlMapper<WIDGET_TYPE, DESCRIPTOR_TYPE, AUTHORIZATION_TYPE> controlAuthorizationMapper;
 	private final IAuthorizationChecker<AUTHORIZATION_TYPE> authorizationChecker;
-	private final ICustomWidgetCreator<? extends IControl> controlCreator;
+	private final ISecureControlCreator<? extends IControl> controlCreator;
 
 	SecureControlFactoryDecoratorImpl(
 		final ISecureControlMapper<WIDGET_TYPE, DESCRIPTOR_TYPE, AUTHORIZATION_TYPE> controlAuthorizationMapper,
 		final IAuthorizationChecker<AUTHORIZATION_TYPE> authorizationChecker,
-		final ICustomWidgetCreator<? extends IControl> controlCreator) {
+		final ISecureControlCreator<? extends IControl> controlCreator) {
 
 		this.controlAuthorizationMapper = controlAuthorizationMapper;
 		this.authorizationChecker = authorizationChecker;
@@ -100,6 +108,7 @@ final class SecureControlFactoryDecoratorImpl<WIDGET_TYPE extends IControl, DESC
 			final IComposite composite = Toolkit.getWidgetFactory().create(parentUiReference, BPF.composite());
 			composite.setLayout(new MigLayoutDescriptor("hidemode 3", "0[grow, 0::]0", "0[grow, 0::]0"));
 			final WIDGET_TYPE originalWidget = originalFactory.create(composite.getUiReference(), bluePrint);
+
 			composite.add(getControlCreator(bluePrint, originalWidget), MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
 			originalWidget.setVisible(false);
 
@@ -117,17 +126,37 @@ final class SecureControlFactoryDecoratorImpl<WIDGET_TYPE extends IControl, DESC
 		private ICustomWidgetCreator<? extends IControl> getControlCreator(
 			final DESCRIPTOR_TYPE descriptor,
 			final WIDGET_TYPE widget) {
-			if (controlCreator != null) {
-				return controlCreator;
+
+			String failedText = controlAuthorizationMapper.getAuthorizationFailedText(descriptor, widget);
+			if (failedText == null) {
+				failedText = defaultFailedText;
 			}
-			else {
-				String failedText = controlAuthorizationMapper.getAuthorizationFailedText(descriptor, widget);
-				if (failedText == null) {
-					failedText = defaultFailedText;
+			final String label = failedText;
+			final IImageConstant icon = controlAuthorizationMapper.getAuthorizationFailedIcon(descriptor, widget);
+
+			return new ICustomWidgetCreator<IControl>() {
+				@Override
+				public IControl create(final ICustomWidgetFactory widgetFactory) {
+					return getDecoratedControlCreator(descriptor, widget).create(widgetFactory, label, icon);
 				}
-				final IImageConstant failedIcon = controlAuthorizationMapper.getAuthorizationFailedIcon(descriptor, widget);
-				return new DefaultSecureControlCreatorImpl(failedText, failedIcon);
+			};
+		}
+
+		@SuppressWarnings("unchecked")
+		private ISecureControlCreator<? extends IControl> getDecoratedControlCreator(
+			final DESCRIPTOR_TYPE descriptor,
+			final WIDGET_TYPE widget) {
+			ISecureControlCreator<? extends IControl> result = controlCreator;
+			final IPluginPropertiesBuilder propertiesBuilder = PluginProperties.builder();
+			propertiesBuilder.add(ISecureControlCreatorDecoratorPlugin.WIDGETS_DESCRIPTOR_PROPERTY_KEY, descriptor);
+			propertiesBuilder.add(ISecureControlCreatorDecoratorPlugin.WIDGETS_PROPERTY_KEY, widget);
+			final IPluginProperties pluginProperties = propertiesBuilder.build();
+			List<ISecureControlCreatorDecoratorPlugin> plugins;
+			plugins = PluginProvider.getPlugins(ISecureControlCreatorDecoratorPlugin.ID, pluginProperties);
+			for (final ISecureControlCreatorDecoratorPlugin plugin : plugins) {
+				result = plugin.decorate((ISecureControlCreator<IControl>) result, pluginProperties);
 			}
+			return result;
 		}
 	}
 
