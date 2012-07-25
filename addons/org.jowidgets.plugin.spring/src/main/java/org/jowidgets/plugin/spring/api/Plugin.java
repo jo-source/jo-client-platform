@@ -26,26 +26,22 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.security.common.api;
+package org.jowidgets.plugin.spring.api;
 
-public final class CrudAuthorizationMapperFactory {
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-	private CrudAuthorizationMapperFactory() {}
+import org.jowidgets.plugin.api.IPluginFilter;
+import org.jowidgets.plugin.tools.AcceptAllPluginFilter;
 
-	public static ICrudAuthorizationMapperFactory getInstance() {
-		return CapSecurityCommonToolkit.crudAuthorizationMapperFactory();
-	}
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.TYPE})
+public @interface Plugin {
 
-	public static ICrudAuthorizationMapper<String> beanTypeAnnotationAuthorizationMapper() {
-		return getInstance().beanTypeAnnotationAuthorizationMapper();
-	}
+	int order() default 2;
 
-	public static ICrudAuthorizationMapper<String> entityIdAnnotationAuthorizationMapper() {
-		return getInstance().entityIdAnnotationAuthorizationMapper();
-	}
-
-	public static <AUTHORIZATION_TYPE> ICrudAuthorizationMapper<AUTHORIZATION_TYPE> secureEntityIdAuthorizationMapper() {
-		return getInstance().secureEntityIdAuthorizationMapper();
-	}
+	Class<? extends IPluginFilter> filter() default AcceptAllPluginFilter.class;
 
 }

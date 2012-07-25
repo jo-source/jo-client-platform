@@ -26,26 +26,15 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.security.common.api;
+package org.jowidgets.plugin.spring;
 
-public final class CrudAuthorizationMapperFactory {
+public class EchoPlugin implements IEchoPlugin {
 
-	private CrudAuthorizationMapperFactory() {}
+	public static final String ECHO = "echo";
 
-	public static ICrudAuthorizationMapperFactory getInstance() {
-		return CapSecurityCommonToolkit.crudAuthorizationMapperFactory();
-	}
-
-	public static ICrudAuthorizationMapper<String> beanTypeAnnotationAuthorizationMapper() {
-		return getInstance().beanTypeAnnotationAuthorizationMapper();
-	}
-
-	public static ICrudAuthorizationMapper<String> entityIdAnnotationAuthorizationMapper() {
-		return getInstance().entityIdAnnotationAuthorizationMapper();
-	}
-
-	public static <AUTHORIZATION_TYPE> ICrudAuthorizationMapper<AUTHORIZATION_TYPE> secureEntityIdAuthorizationMapper() {
-		return getInstance().secureEntityIdAuthorizationMapper();
+	@Override
+	public String echo(final String string) {
+		return ECHO + string;
 	}
 
 }

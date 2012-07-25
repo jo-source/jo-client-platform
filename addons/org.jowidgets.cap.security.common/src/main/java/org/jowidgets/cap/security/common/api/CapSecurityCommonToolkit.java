@@ -73,8 +73,8 @@ public final class CapSecurityCommonToolkit {
 		return getInstance().entityId(id, create, read, update, delete);
 	}
 
-	public static ICrudAuthorizationMapperFactory crudAuthorizationMapperProvider() {
-		return getInstance().crudAuthorizationMapperProvider();
+	public static ICrudAuthorizationMapperFactory crudAuthorizationMapperFactory() {
+		return getInstance().crudAuthorizationMapperFactory();
 	}
 
 	/**

@@ -48,7 +48,7 @@ public interface ICapSecurityCommonToolkit {
 		AUTHORIZATION_TYPE update,
 		AUTHORIZATION_TYPE delete);
 
-	ICrudAuthorizationMapperFactory crudAuthorizationMapperProvider();
+	ICrudAuthorizationMapperFactory crudAuthorizationMapperFactory();
 
 	/**
 	 * Gets the default authorization checker. The default authorization checker uses the default security
