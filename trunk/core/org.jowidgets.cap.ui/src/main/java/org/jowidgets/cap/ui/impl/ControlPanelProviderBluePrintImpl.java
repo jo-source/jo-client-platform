@@ -59,6 +59,7 @@ final class ControlPanelProviderBluePrintImpl<ELEMENT_VALUE_TYPE> implements ICo
 	private IMaybe<IStringObjectConverter<ELEMENT_VALUE_TYPE>> stringObjectConverter;
 	private IMaybe<IConverter<? extends ELEMENT_VALUE_TYPE>> converter;
 	private IMaybe<IFilterSupport<?>> filterSupport;
+	private IMaybe<IConverter<ELEMENT_VALUE_TYPE>> filterSupportElementValueConverter;
 	private IMaybe<ICustomWidgetCreator<? extends IInputControl<? extends ELEMENT_VALUE_TYPE>>> controlCreator;
 	private IMaybe<ICustomWidgetCreator<? extends IInputControl<? extends Collection<? extends ELEMENT_VALUE_TYPE>>>> collectionControlCreator;
 	private IMaybe<ICustomWidgetCreator<? extends IInputControl<? extends Collection<? extends ELEMENT_VALUE_TYPE>>>> filterCollectionControlCreator;
@@ -73,6 +74,7 @@ final class ControlPanelProviderBluePrintImpl<ELEMENT_VALUE_TYPE> implements ICo
 		this.stringObjectConverter = Nothing.getInstance();
 		this.converter = Nothing.getInstance();
 		this.filterSupport = Nothing.getInstance();
+		this.filterSupportElementValueConverter = Nothing.getInstance();
 		this.controlCreator = Nothing.getInstance();
 		this.collectionControlCreator = Nothing.getInstance();
 		this.filterCollectionControlCreator = Nothing.getInstance();
@@ -125,8 +127,18 @@ final class ControlPanelProviderBluePrintImpl<ELEMENT_VALUE_TYPE> implements ICo
 	@Override
 	public IControlPanelProviderBluePrint<ELEMENT_VALUE_TYPE> setFilterSupport(final IFilterSupport<?> filterSupport) {
 		checkExhausted();
+		this.filterSupportElementValueConverter = Nothing.getInstance();
 		this.filterSupport = new Some<IFilterSupport<?>>(filterSupport);
 		return this;
+	}
+
+	@Override
+	public IControlPanelProviderBluePrint<ELEMENT_VALUE_TYPE> setFilterSupport(
+		final IConverter<ELEMENT_VALUE_TYPE> elementValueConverter) {
+		checkExhausted();
+		this.filterSupport = Nothing.getInstance();
+		this.filterSupportElementValueConverter = new Some<IConverter<ELEMENT_VALUE_TYPE>>(elementValueConverter);
+		return null;
 	}
 
 	@Override
@@ -201,6 +213,9 @@ final class ControlPanelProviderBluePrintImpl<ELEMENT_VALUE_TYPE> implements ICo
 		}
 		if (filterSupport.isSomething()) {
 			bluePrint.setFilterSupport(filterSupport.getValue());
+		}
+		if (filterSupportElementValueConverter.isSomething()) {
+			bluePrint.setFilterSupport(filterSupportElementValueConverter.getValue());
 		}
 		if (controlCreator.isSomething()) {
 			bluePrint.setControlCreator(controlCreator.getValue());

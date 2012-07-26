@@ -36,13 +36,16 @@ import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.sample1.common.entity.IUser;
 import org.jowidgets.cap.sample1.ui.converter.GenderConverterLong;
 import org.jowidgets.cap.sample1.ui.converter.GenderConverterShort;
+import org.jowidgets.cap.sample1.ui.converter.GenderLabelConverter;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IAttributeBluePrint;
 import org.jowidgets.cap.ui.api.attribute.IAttributeCollectionModifierBuilder;
 import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
+import org.jowidgets.cap.ui.api.attribute.IControlPanelProviderBluePrint;
 import org.jowidgets.cap.ui.api.control.DateDisplayFormat;
 import org.jowidgets.cap.ui.api.control.DisplayFormat;
+import org.jowidgets.cap.ui.api.control.IconDisplayFormat;
 import org.jowidgets.common.types.AlignmentHorizontal;
 import org.jowidgets.service.api.ServiceProvider;
 
@@ -61,10 +64,13 @@ public class UserAttributesFactory {
 
 		modifierBuilder.addDefaultEditableModifier(true);
 
-		final IAttributeBluePrint<Object> genderAttributeBp = modifierBuilder.addModifier(IUser.GENDER_PROPERTY);
+		final IAttributeBluePrint<String> genderAttributeBp = modifierBuilder.addModifier(IUser.GENDER_PROPERTY);
+		final IControlPanelProviderBluePrint<String> iconControlPanel = genderAttributeBp.addControlPanel(IconDisplayFormat.getInstance());
+		iconControlPanel.setObjectLabelConverter(new GenderLabelConverter());
+		iconControlPanel.setFilterSupport(new GenderConverterLong().getConverter());
 		genderAttributeBp.addControlPanel(DisplayFormat.SHORT).setConverter(new GenderConverterShort().getConverter());
 		genderAttributeBp.addControlPanel(DisplayFormat.LONG).setConverter(new GenderConverterLong().getConverter());
-		genderAttributeBp.setDisplayFormat(DisplayFormat.SHORT).setTableAlignment(AlignmentHorizontal.CENTER);
+		genderAttributeBp.setDisplayFormat(IconDisplayFormat.getInstance()).setTableAlignment(AlignmentHorizontal.CENTER);
 
 		final IAttributeBluePrint<Date> birthdayAttributeBp = modifierBuilder.addModifier(IUser.DATE_OF_BIRTH_PROPERTY);
 		birthdayAttributeBp.setLabelDisplayFormat(DisplayFormat.LONG).setDisplayFormat(DateDisplayFormat.DATE);

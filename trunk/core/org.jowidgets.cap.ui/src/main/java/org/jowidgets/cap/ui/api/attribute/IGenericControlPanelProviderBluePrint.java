@@ -50,6 +50,8 @@ public interface IGenericControlPanelProviderBluePrint<ELEMENT_VALUE_TYPE, INSTA
 
 	INSTANCE_TYPE setFilterSupport(IFilterSupport<?> filterSupport);
 
+	INSTANCE_TYPE setFilterSupport(IConverter<ELEMENT_VALUE_TYPE> elementValueConverter);
+
 	INSTANCE_TYPE setControlCreator(ICustomWidgetCreator<? extends IInputControl<? extends ELEMENT_VALUE_TYPE>> controlCreator);
 
 	INSTANCE_TYPE setCollectionControlCreator(
