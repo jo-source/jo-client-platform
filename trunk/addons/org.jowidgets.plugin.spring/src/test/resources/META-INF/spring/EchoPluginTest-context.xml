@@ -6,7 +6,7 @@
 
 	<bean class="org.jowidgets.plugin.spring.tools.PluginDescriptor">
 		<constructor-arg>
-			<bean class="org.jowidgets.plugin.spring.EchoPlugin2" />
+			<bean class="org.jowidgets.plugin.spring.EchoPlugin" />
 		</constructor-arg>
 	</bean>
 
