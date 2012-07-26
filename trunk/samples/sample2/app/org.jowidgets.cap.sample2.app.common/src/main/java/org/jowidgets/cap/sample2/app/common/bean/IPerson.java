@@ -39,7 +39,7 @@ import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.sample2.app.common.security.AuthKeys;
 import org.jowidgets.cap.sample2.app.common.validation.PersonNameUppercaseValidator;
 import org.jowidgets.cap.sample2.app.common.validation.PersonNameWordCountValidator;
-import org.jowidgets.cap.security.common.api.CrudAuthorizations;
+import org.jowidgets.cap.security.common.api.annotation.CrudAuthorizations;
 
 @BeanValidator(PersonNameWordCountValidator.class)
 @CrudAuthorizations(create = AuthKeys.CREATE_PERSON, read = AuthKeys.READ_PERSON, update = AuthKeys.UPDATE_PERSON, delete = AuthKeys.DELETE_PERSON)

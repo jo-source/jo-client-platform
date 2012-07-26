@@ -31,8 +31,8 @@ package org.jowidgets.cap.security.common.impl;
 import java.lang.reflect.Field;
 
 import org.jowidgets.cap.common.api.bean.IBean;
-import org.jowidgets.cap.security.common.api.CrudAuthorizations;
 import org.jowidgets.cap.security.common.api.CrudServiceType;
+import org.jowidgets.cap.security.common.api.annotation.CrudAuthorizations;
 
 final class EntityIdAnnotationAuthorizationMapper extends AbstractAnnotationAuthorizationMapper<String> {
 

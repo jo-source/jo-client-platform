@@ -28,9 +28,9 @@
 
 package org.jowidgets.cap.security.common.impl;
 
-import org.jowidgets.cap.security.common.api.CrudAuthorizations;
 import org.jowidgets.cap.security.common.api.CrudServiceType;
 import org.jowidgets.cap.security.common.api.ICrudAuthorizationMapper;
+import org.jowidgets.cap.security.common.api.annotation.CrudAuthorizations;
 
 abstract class AbstractAnnotationAuthorizationMapper<AUTHORIZATION_TYPE> implements ICrudAuthorizationMapper<AUTHORIZATION_TYPE> {
 
