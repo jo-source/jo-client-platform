@@ -30,10 +30,15 @@ package org.jowidgets.cap.security.common.impl;
 
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.security.common.api.CrudServiceType;
+import org.jowidgets.cap.security.common.api.ICrudAuthorizationMapper;
+import org.jowidgets.cap.security.common.api.annotation.CreateAuthorization;
 import org.jowidgets.cap.security.common.api.annotation.CrudAuthorizations;
+import org.jowidgets.cap.security.common.api.annotation.DeleteAuthorization;
+import org.jowidgets.cap.security.common.api.annotation.ReadAuthorization;
+import org.jowidgets.cap.security.common.api.annotation.UpdateAuthorization;
 import org.jowidgets.util.reflection.AnnotationCache;
 
-final class BeanTypeAnnotationAuthorizationMapper extends AbstractAnnotationAuthorizationMapper<String> {
+final class BeanTypeAnnotationAuthorizationMapper implements ICrudAuthorizationMapper<String> {
 
 	BeanTypeAnnotationAuthorizationMapper() {}
 
@@ -41,11 +46,50 @@ final class BeanTypeAnnotationAuthorizationMapper extends AbstractAnnotationAuth
 	public String getAuthorization(final Class<? extends IBean> beanType, final Object entityId, final CrudServiceType serviceType) {
 
 		if (beanType != null) {
-			final CrudAuthorizations authorizations;
-			authorizations = AnnotationCache.getTypeAnnotationFromHierarchy(beanType, CrudAuthorizations.class);
-			if (authorizations != null) {
-				return getAuthorization(serviceType, authorizations);
+			final CrudAuthorizations crudAuthorizations;
+			crudAuthorizations = AnnotationCache.getTypeAnnotationFromHierarchy(beanType, CrudAuthorizations.class);
+
+			if (CrudServiceType.CREATE == serviceType) {
+				final CreateAuthorization authorization;
+				authorization = AnnotationCache.getTypeAnnotationFromHierarchy(beanType, CreateAuthorization.class);
+				if (authorization != null) {
+					return authorization.value();
+				}
+				else if (crudAuthorizations != null) {
+					return crudAuthorizations.create();
+				}
 			}
+			else if (CrudServiceType.READ == serviceType) {
+				final ReadAuthorization authorization;
+				authorization = AnnotationCache.getTypeAnnotationFromHierarchy(beanType, ReadAuthorization.class);
+				if (authorization != null) {
+					return authorization.value();
+				}
+				else if (crudAuthorizations != null) {
+					return crudAuthorizations.read();
+				}
+			}
+			else if (CrudServiceType.UPDATE == serviceType) {
+				final UpdateAuthorization authorization;
+				authorization = AnnotationCache.getTypeAnnotationFromHierarchy(beanType, UpdateAuthorization.class);
+				if (authorization != null) {
+					return authorization.value();
+				}
+				else if (crudAuthorizations != null) {
+					return crudAuthorizations.update();
+				}
+			}
+			else if (CrudServiceType.DELETE == serviceType) {
+				final DeleteAuthorization authorization;
+				authorization = AnnotationCache.getTypeAnnotationFromHierarchy(beanType, DeleteAuthorization.class);
+				if (authorization != null) {
+					return authorization.value();
+				}
+				else if (crudAuthorizations != null) {
+					return crudAuthorizations.delete();
+				}
+			}
+
 		}
 
 		return null;

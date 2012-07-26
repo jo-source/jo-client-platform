@@ -35,9 +35,15 @@ import javax.validation.constraints.Size;
 
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.sample2.app.common.security.AuthKeys;
-import org.jowidgets.cap.security.common.api.annotation.CrudAuthorizations;
+import org.jowidgets.cap.security.common.api.annotation.CreateAuthorization;
+import org.jowidgets.cap.security.common.api.annotation.DeleteAuthorization;
+import org.jowidgets.cap.security.common.api.annotation.ReadAuthorization;
+import org.jowidgets.cap.security.common.api.annotation.UpdateAuthorization;
 
-@CrudAuthorizations(create = AuthKeys.CREATE_AUTHORIZATION, read = AuthKeys.READ_AUTHORIZATION, update = AuthKeys.UPDATE_AUTHORIZATION, delete = AuthKeys.DELETE_AUTHORIZATION)
+@CreateAuthorization(AuthKeys.CREATE_AUTHORIZATION)
+@ReadAuthorization(AuthKeys.READ_AUTHORIZATION)
+@UpdateAuthorization(AuthKeys.UPDATE_AUTHORIZATION)
+@DeleteAuthorization(AuthKeys.DELETE_AUTHORIZATION)
 public interface IAuthorization extends IBean {
 
 	String KEY_PROPERTY = "key";

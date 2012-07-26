@@ -39,10 +39,16 @@ import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.sample2.app.common.security.AuthKeys;
 import org.jowidgets.cap.sample2.app.common.validation.PersonNameUppercaseValidator;
 import org.jowidgets.cap.sample2.app.common.validation.PersonNameWordCountValidator;
-import org.jowidgets.cap.security.common.api.annotation.CrudAuthorizations;
+import org.jowidgets.cap.security.common.api.annotation.CreateAuthorization;
+import org.jowidgets.cap.security.common.api.annotation.DeleteAuthorization;
+import org.jowidgets.cap.security.common.api.annotation.ReadAuthorization;
+import org.jowidgets.cap.security.common.api.annotation.UpdateAuthorization;
 
 @BeanValidator(PersonNameWordCountValidator.class)
-@CrudAuthorizations(create = AuthKeys.CREATE_PERSON, read = AuthKeys.READ_PERSON, update = AuthKeys.UPDATE_PERSON, delete = AuthKeys.DELETE_PERSON)
+@CreateAuthorization(AuthKeys.CREATE_PERSON)
+@ReadAuthorization(AuthKeys.READ_PERSON)
+@UpdateAuthorization(AuthKeys.UPDATE_PERSON)
+@DeleteAuthorization(AuthKeys.DELETE_PERSON)
 public interface IPerson extends IBean {
 
 	String NAME_PROPERTY = "name";

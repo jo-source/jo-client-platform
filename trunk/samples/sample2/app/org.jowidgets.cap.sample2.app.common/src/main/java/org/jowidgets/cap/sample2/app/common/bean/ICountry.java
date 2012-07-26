@@ -32,9 +32,15 @@ import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.sample2.app.common.security.AuthKeys;
-import org.jowidgets.cap.security.common.api.annotation.CrudAuthorizations;
+import org.jowidgets.cap.security.common.api.annotation.CreateAuthorization;
+import org.jowidgets.cap.security.common.api.annotation.DeleteAuthorization;
+import org.jowidgets.cap.security.common.api.annotation.ReadAuthorization;
+import org.jowidgets.cap.security.common.api.annotation.UpdateAuthorization;
 
-@CrudAuthorizations(create = AuthKeys.CREATE_COUNTRY, read = AuthKeys.READ_COUNTRY, update = AuthKeys.UPDATE_COUNTRY, delete = AuthKeys.DELETE_COUNTRY)
+@CreateAuthorization(AuthKeys.CREATE_COUNTRY)
+@ReadAuthorization(AuthKeys.READ_COUNTRY)
+@UpdateAuthorization(AuthKeys.UPDATE_COUNTRY)
+@DeleteAuthorization(AuthKeys.DELETE_COUNTRY)
 public interface ICountry extends IBean {
 
 	String NAME_PROPERTY = "name";

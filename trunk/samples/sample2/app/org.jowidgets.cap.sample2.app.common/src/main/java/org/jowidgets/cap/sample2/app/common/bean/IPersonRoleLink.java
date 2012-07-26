@@ -32,9 +32,15 @@ import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.sample2.app.common.security.AuthKeys;
-import org.jowidgets.cap.security.common.api.annotation.CrudAuthorizations;
+import org.jowidgets.cap.security.common.api.annotation.CreateAuthorization;
+import org.jowidgets.cap.security.common.api.annotation.DeleteAuthorization;
+import org.jowidgets.cap.security.common.api.annotation.ReadAuthorization;
+import org.jowidgets.cap.security.common.api.annotation.UpdateAuthorization;
 
-@CrudAuthorizations(create = AuthKeys.CREATE_PERSON_ROLE_LINK, read = AuthKeys.READ_PERSON_ROLE_LINK, update = AuthKeys.UPDATE_PERSON_ROLE_LINK, delete = AuthKeys.DELETE_PERSON_ROLE_LINK)
+@CreateAuthorization(AuthKeys.CREATE_PERSON_ROLE_LINK)
+@ReadAuthorization(AuthKeys.READ_PERSON_ROLE_LINK)
+@UpdateAuthorization(AuthKeys.UPDATE_PERSON_ROLE_LINK)
+@DeleteAuthorization(AuthKeys.DELETE_PERSON_ROLE_LINK)
 public interface IPersonRoleLink extends IBean {
 
 	String PERSON_ID_PROPERTY = "personId";
