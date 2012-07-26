@@ -33,15 +33,20 @@ import org.jowidgets.cap.security.common.api.ICapSecurityCommonToolkit;
 import org.jowidgets.cap.security.common.api.ICrudAuthorizationMapperFactory;
 import org.jowidgets.cap.security.common.api.ISecureEntityId;
 import org.jowidgets.cap.security.common.api.ISecureServiceId;
-import org.jowidgets.cap.security.common.api.plugin.IAuthorizationCheckerDecoratorPlugin;
-import org.jowidgets.plugin.api.PluginProvider;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.tools.ServiceId;
 
 public final class CapSecurityCommonToolkitImpl implements ICapSecurityCommonToolkit {
 
+	private final IAuthorizationChecker<Object> defaultAuthorizationChecker;
+	private final IAuthorizationChecker<Object> authorizationChecker;
+
 	private ICrudAuthorizationMapperFactory crudAuthorizationMapperProvider;
-	private IAuthorizationChecker<Object> defaultAuthorizationChecker;
+
+	public CapSecurityCommonToolkitImpl() {
+		this.defaultAuthorizationChecker = new DefaultAuthorizationChecker();
+		this.authorizationChecker = new LazyAuthorizationChecker(defaultAuthorizationChecker);
+	}
 
 	@Override
 	public <SERVICE_TYPE, AUTHORIZATION_TYPE> ISecureServiceId<SERVICE_TYPE, AUTHORIZATION_TYPE> serviceId(
@@ -79,22 +84,13 @@ public final class CapSecurityCommonToolkitImpl implements ICapSecurityCommonToo
 	@SuppressWarnings("unchecked")
 	@Override
 	public <AUTHORIZATION_TYPE> IAuthorizationChecker<AUTHORIZATION_TYPE> defaultAuthorizationChecker() {
-		if (defaultAuthorizationChecker == null) {
-			defaultAuthorizationChecker = new DefaultAuthorizationChecker();
-		}
 		return (IAuthorizationChecker<AUTHORIZATION_TYPE>) defaultAuthorizationChecker;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public <AUTHORIZATION_TYPE> IAuthorizationChecker<AUTHORIZATION_TYPE> authorizationChecker() {
-		IAuthorizationChecker<AUTHORIZATION_TYPE> result = defaultAuthorizationChecker();
-		for (final IAuthorizationCheckerDecoratorPlugin plugin : PluginProvider.getPlugins(IAuthorizationCheckerDecoratorPlugin.ID)) {
-			result = plugin.decorate(result);
-			if (result == null) {
-				throw new IllegalStateException("IAuthorizationCheckerDecoratorPlugin must not return null");
-			}
-		}
-		return result;
+		return (IAuthorizationChecker<AUTHORIZATION_TYPE>) authorizationChecker;
 	}
 
 }
