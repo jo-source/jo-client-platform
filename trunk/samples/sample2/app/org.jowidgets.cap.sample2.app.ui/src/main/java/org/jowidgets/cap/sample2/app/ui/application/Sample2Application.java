@@ -32,10 +32,10 @@ import org.jowidgets.cap.common.api.service.IBeanServicesProvider;
 import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.sample2.app.common.entity.EntityIds;
+import org.jowidgets.cap.security.common.api.AuthorizationChecker;
 import org.jowidgets.cap.security.common.api.ISecureObject;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.workbench.IEntityComponentNodesFactory;
-import org.jowidgets.security.tools.SecurityContext;
 import org.jowidgets.service.api.ServiceProvider;
 import org.jowidgets.workbench.toolkit.api.IComponentNodeContainerModel;
 import org.jowidgets.workbench.toolkit.api.IWorkbenchApplicationModel;
@@ -78,7 +78,7 @@ public class Sample2Application {
 	private boolean hasReaderServiceAuthorization(final Object entityId) {
 		final Object authorization = getReaderServiceAuthorization(entityId);
 		if (authorization != null) {
-			return SecurityContext.hasAuthorization(authorization);
+			return AuthorizationChecker.hasAuthorization(authorization);
 		}
 		else {
 			return true;
