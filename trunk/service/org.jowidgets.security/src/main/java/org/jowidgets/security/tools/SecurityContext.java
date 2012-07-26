@@ -28,7 +28,7 @@
 
 package org.jowidgets.security.tools;
 
-import org.jowidgets.security.api.IDefaultPrincipal;
+import org.jowidgets.security.api.IPrincipal;
 import org.jowidgets.security.api.SecurityContextHolder;
 
 public final class SecurityContext {
@@ -43,14 +43,14 @@ public final class SecurityContext {
 		return getSecurityContext().getGrantedAuthorities().contains(authorization);
 	}
 
-	private static IDefaultPrincipal<?> getSecurityContext() {
+	private static IPrincipal<?> getSecurityContext() {
 		final Object securityContext = SecurityContextHolder.getSecurityContext();
-		if (securityContext instanceof IDefaultPrincipal<?>) {
-			return ((IDefaultPrincipal<?>) securityContext);
+		if (securityContext instanceof IPrincipal<?>) {
+			return ((IPrincipal<?>) securityContext);
 		}
 		else {
 			throw new IllegalStateException("Security Context has wrong type. '"
-				+ IDefaultPrincipal.class
+				+ IPrincipal.class
 				+ "' assumed, but '"
 				+ securityContext.getClass().getName()
 				+ "' found.");
