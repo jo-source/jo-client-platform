@@ -28,6 +28,8 @@
 
 package org.jowidgets.plugin.spring.tools;
 
+import java.lang.reflect.Field;
+
 import org.jowidgets.plugin.api.IPluginFilter;
 import org.jowidgets.plugin.api.IPluginId;
 import org.jowidgets.plugin.spring.api.IPluginDescriptor;
@@ -42,6 +44,26 @@ public final class PluginDescriptor<PLUGIN_TYPE> implements IPluginDescriptor<PL
 	private final PLUGIN_TYPE plugin;
 	private final IPluginFilter filter;
 	private final int order;
+
+	@SuppressWarnings("unchecked")
+	public PluginDescriptor(final PLUGIN_TYPE plugin) {
+		this(findPluginId(plugin), plugin);
+	}
+
+	@SuppressWarnings("unchecked")
+	public PluginDescriptor(final PLUGIN_TYPE plugin, final int order) {
+		this(findPluginId(plugin), plugin, order);
+	}
+
+	@SuppressWarnings("unchecked")
+	public PluginDescriptor(final PLUGIN_TYPE plugin, final IPluginFilter filter) {
+		this(findPluginId(plugin), plugin, filter);
+	}
+
+	@SuppressWarnings("unchecked")
+	public PluginDescriptor(final PLUGIN_TYPE plugin, final IPluginFilter filter, final int order) {
+		this(findPluginId(plugin), plugin, filter, order);
+	}
 
 	public PluginDescriptor(final IPluginId<PLUGIN_TYPE> id, final PLUGIN_TYPE plugin) {
 		this(id, plugin, new AcceptAllPluginFilter(), DEFAULT_ORDER);
@@ -64,6 +86,35 @@ public final class PluginDescriptor<PLUGIN_TYPE> implements IPluginDescriptor<PL
 		this.plugin = plugin;
 		this.filter = filter;
 		this.order = order;
+	}
+
+	@SuppressWarnings("rawtypes")
+	private static IPluginId findPluginId(final Object bean) {
+		Assert.paramNotNull(bean, "bean");
+		IPluginId<?> result = null;
+		for (final Field field : bean.getClass().getFields()) {
+			if (field.getDeclaringClass().isInterface() && IPluginId.class.isAssignableFrom(field.getType())) {
+				if (result == null) {
+					try {
+						result = (IPluginId<?>) field.get(bean);
+					}
+					catch (final Exception e) {
+						throw new IllegalArgumentException("Plugin id can not be resolved.", e);
+					}
+				}
+				else {
+					throw new IllegalArgumentException(
+						"Plugin id can not be resolved. There is more than one PluginId available in the type hierarchy");
+				}
+			}
+		}
+		if (result == null) {
+			throw new IllegalArgumentException(
+				"Plugin id can not be resolved. There is no PluginId available in the type hierarchy");
+		}
+		else {
+			return result;
+		}
 	}
 
 	@Override

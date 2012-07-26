@@ -28,14 +28,37 @@
 
 package org.jowidgets.plugin.spring;
 
-import org.jowidgets.plugin.spring.api.Plugin;
+import java.util.List;
 
-@Plugin
-public class EchoPlugin2 implements IEchoPlugin {
+import junit.framework.Assert;
 
-	@Override
-	public String echo(final String string) {
-		return ECHO + string;
+import org.jowidgets.plugin.api.PluginProvider;
+import org.junit.After;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = {
+		"classpath:META-INF/spring/EchoPluginTest3-context.xml",
+		"classpath:META-INF/spring/org.jowidgets.plugin.spring-context.xml"})
+public class EchoPluginTest3 {
+
+	@Test
+	public void testEchoPlugin() {
+		final List<IEchoPlugin> plugins = PluginProvider.getPlugins(IEchoPlugin.ID);
+
+		Assert.assertNotNull(plugins);
+		Assert.assertEquals(1, plugins.size());
+
+		final String echo = plugins.get(0).echo("HUHU");
+		Assert.assertEquals(IEchoPlugin.ECHO + "HUHU", echo);
+	}
+
+	@After
+	public void tearDown() {
+		PluginProvider.unregisterAllPlugins();
 	}
 
 }
