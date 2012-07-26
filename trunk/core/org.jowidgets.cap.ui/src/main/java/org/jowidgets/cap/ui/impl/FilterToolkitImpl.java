@@ -32,11 +32,15 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.jowidgets.api.convert.IConverter;
 import org.jowidgets.api.widgets.IInputControl;
 import org.jowidgets.cap.common.api.bean.Cardinality;
+import org.jowidgets.cap.common.api.bean.IProperty;
 import org.jowidgets.cap.common.api.bean.IValueRange;
 import org.jowidgets.cap.common.api.filter.ArithmeticOperator;
+import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttributeFilter;
+import org.jowidgets.cap.ui.api.attribute.IControlPanelProviderBuilder;
 import org.jowidgets.cap.ui.api.filter.IFilterPanelProvider;
 import org.jowidgets.cap.ui.api.filter.IFilterSupport;
 import org.jowidgets.cap.ui.api.filter.IFilterToolkit;
@@ -168,6 +172,40 @@ final class FilterToolkitImpl implements IFilterToolkit {
 			}
 		};
 
+	}
+
+	@Override
+	public <ELEMENT_VALUE_TYPE> IFilterSupport<?> filterSupport(
+		final IProperty property,
+		final IConverter<ELEMENT_VALUE_TYPE> elementValueConverter) {
+		return filterSupport(
+				property.getName(),
+				property.getValueType(),
+				property.getElementValueType(),
+				property.getValueRange(),
+				property.getCardinality(),
+				elementValueConverter);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public <ELEMENT_VALUE_TYPE> IFilterSupport<?> filterSupport(
+		final String propertyName,
+		final Class<?> type,
+		final Class<?> elementValueType,
+		final IValueRange valueRange,
+		final Cardinality cardinality,
+		final IConverter<ELEMENT_VALUE_TYPE> elementValueConverter) {
+
+		final IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> builder = CapUiToolkit.attributeToolkit().createControlPanelProviderBuilder(
+				propertyName,
+				type,
+				(Class<? extends ELEMENT_VALUE_TYPE>) elementValueType,
+				valueRange,
+				cardinality);
+		builder.setConverter(elementValueConverter);
+
+		return builder.build().getFilterSupport();
 	}
 
 	@Override
