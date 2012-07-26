@@ -32,7 +32,7 @@ import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.sample2.app.common.security.AuthKeys;
-import org.jowidgets.cap.security.common.api.CrudAuthorizations;
+import org.jowidgets.cap.security.common.api.annotation.CrudAuthorizations;
 
 @CrudAuthorizations(create = AuthKeys.CREATE_PERSON_ROLE_LINK, read = AuthKeys.READ_PERSON_ROLE_LINK, update = AuthKeys.UPDATE_PERSON_ROLE_LINK, delete = AuthKeys.DELETE_PERSON_ROLE_LINK)
 public interface IPersonRoleLink extends IBean {

@@ -26,7 +26,7 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.security.common.api;
+package org.jowidgets.cap.security.common.api.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -35,13 +35,8 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.FIELD})
-public @interface CrudAuthorizations {
+public @interface ReadAuthorization {
 
-	String create();
+	String value();
 
-	String read();
-
-	String update();
-
-	String delete();
 }

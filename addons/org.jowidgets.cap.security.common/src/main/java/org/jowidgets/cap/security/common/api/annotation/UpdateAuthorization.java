@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -25,36 +25,18 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
-package org.jowidgets.cap.sample2.app.common.bean;
 
-import java.util.LinkedList;
-import java.util.List;
+package org.jowidgets.cap.security.common.api.annotation;
 
-import org.jowidgets.cap.common.api.bean.IBean;
-import org.jowidgets.cap.sample2.app.common.security.AuthKeys;
-import org.jowidgets.cap.security.common.api.annotation.CrudAuthorizations;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-@CrudAuthorizations(create = AuthKeys.CREATE_PERSON_LINK_TYPE, read = AuthKeys.READ_PERSON_LINK_TYPE, update = AuthKeys.UPDATE_PERSON_LINK_TYPE, delete = AuthKeys.DELETE_PERSON_LINK_TYPE)
-public interface IPersonRelationType extends IBean {
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.TYPE, ElementType.FIELD})
+public @interface UpdateAuthorization {
 
-	String RELATION_NAME_PROPERTY = "relationName";
-	String REVERSE_RELATION_NAME = "reverseRelationName";
+	String value();
 
-	List<String> ALL_PROPERTIES = new LinkedList<String>() {
-		private static final long serialVersionUID = 1L;
-		{
-			add(RELATION_NAME_PROPERTY);
-			add(REVERSE_RELATION_NAME);
-			add(IBean.ID_PROPERTY);
-			add(IBean.VERSION_PROPERTY);
-		}
-	};
-
-	String getRelationName();
-
-	void setRelationName(final String name);
-
-	String getReverseRelationName();
-
-	void setReverseRelationName(final String name);
 }

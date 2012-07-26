@@ -32,7 +32,7 @@ import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.sample2.app.common.security.AuthKeys;
-import org.jowidgets.cap.security.common.api.CrudAuthorizations;
+import org.jowidgets.cap.security.common.api.annotation.CrudAuthorizations;
 
 @CrudAuthorizations(create = AuthKeys.CREATE_PHONE, read = AuthKeys.READ_PHONE, update = AuthKeys.UPDATE_PHONE, delete = AuthKeys.DELETE_PHONE)
 public interface IPhone extends IBean {
