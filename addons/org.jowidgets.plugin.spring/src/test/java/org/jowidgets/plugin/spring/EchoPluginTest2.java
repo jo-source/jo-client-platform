@@ -41,7 +41,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
-		"classpath:META-INF/spring/EchoPluginTest3-context.xml",
+		"classpath:META-INF/spring/EchoPluginTest2-context.xml",
 		"classpath:META-INF/spring/org.jowidgets.plugin.spring-context.xml"})
 public class EchoPluginTest2 {
 
