@@ -184,6 +184,19 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 		return this;
 	}
 
+	@Override
+	public IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> setFilterSupport(
+		final IConverter<ELEMENT_VALUE_TYPE> elementValueConverter) {
+		setFilterSupport(CapUiToolkit.filterToolkit().filterSupport(
+				propertyName,
+				valueType,
+				elementValueType,
+				valueRange,
+				cardinality,
+				elementValueConverter));
+		return this;
+	}
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> setControlCreator(
