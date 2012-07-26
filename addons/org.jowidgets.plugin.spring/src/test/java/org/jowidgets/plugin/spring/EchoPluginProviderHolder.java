@@ -28,14 +28,19 @@
 
 package org.jowidgets.plugin.spring;
 
-import org.jowidgets.plugin.spring.api.Plugin;
+import org.jowidgets.plugin.api.IPluginProvider;
+import org.jowidgets.plugin.tools.PluginProviderBuilder;
+import org.jowidgets.plugin.tools.PluginProviderHolder;
 
-@Plugin
-public class EchoPlugin2 implements IEchoPlugin {
+public class EchoPluginProviderHolder extends PluginProviderHolder {
 
-	@Override
-	public String echo(final String string) {
-		return ECHO + string;
+	public EchoPluginProviderHolder() {
+		super(createPluginProvider(), 2);
 	}
 
+	private static IPluginProvider createPluginProvider() {
+		final PluginProviderBuilder builder = new PluginProviderBuilder();
+		builder.addPlugin(IEchoPlugin.ID, new EchoPlugin());
+		return builder.build();
+	}
 }

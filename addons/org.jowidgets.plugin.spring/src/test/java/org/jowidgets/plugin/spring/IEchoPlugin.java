@@ -34,6 +34,8 @@ public interface IEchoPlugin {
 
 	IPluginId<IEchoPlugin> ID = new IPluginId<IEchoPlugin>() {};
 
+	String ECHO = "echo";
+
 	String echo(String string);
 
 }

@@ -33,6 +33,7 @@ import java.util.List;
 import junit.framework.Assert;
 
 import org.jowidgets.plugin.api.PluginProvider;
+import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
@@ -51,7 +52,11 @@ public class EchoPluginTest {
 		Assert.assertEquals(1, plugins.size());
 
 		final String echo = plugins.get(0).echo("HUHU");
-		Assert.assertEquals(EchoPlugin.ECHO + "HUHU", echo);
+		Assert.assertEquals(IEchoPlugin.ECHO + "HUHU", echo);
 	}
 
+	@After
+	public void tearDown() {
+		PluginProvider.unregisterAllPlugins();
+	}
 }

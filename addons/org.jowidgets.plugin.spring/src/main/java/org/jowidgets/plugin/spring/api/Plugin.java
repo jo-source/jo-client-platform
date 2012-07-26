@@ -34,13 +34,14 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import org.jowidgets.plugin.api.IPluginFilter;
+import org.jowidgets.plugin.spring.tools.PluginDescriptor;
 import org.jowidgets.plugin.tools.AcceptAllPluginFilter;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE})
 public @interface Plugin {
 
-	int order() default 2;
+	int order() default PluginDescriptor.DEFAULT_ORDER;
 
 	Class<? extends IPluginFilter> filter() default AcceptAllPluginFilter.class;
 

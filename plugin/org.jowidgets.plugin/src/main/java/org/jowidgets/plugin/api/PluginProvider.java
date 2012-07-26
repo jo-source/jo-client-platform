@@ -48,6 +48,17 @@ public final class PluginProvider {
 		getCompositePluginProviderHolder().add(pluginProviderHolder);
 	}
 
+	/**
+	 * Unregisters all registered plugins.
+	 * 
+	 * REMARK: This method should never be invoked under normal circumstances except in JUnits Tests for example.
+	 * All explicit registered plugins are unavailable after that. All plugins injected with java services will be
+	 * resolved again.
+	 */
+	public static synchronized void unregisterAllPlugins() {
+		compositePluginProviderHolder = null;
+	}
+
 	private static synchronized CompositePluginProviderHolder getCompositePluginProviderHolder() {
 		if (compositePluginProviderHolder == null) {
 			compositePluginProviderHolder = new CompositePluginProviderHolder();

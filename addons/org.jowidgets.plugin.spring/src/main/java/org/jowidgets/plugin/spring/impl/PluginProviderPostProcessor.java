@@ -33,7 +33,10 @@ import org.jowidgets.plugin.api.IPluginProviderHolder;
 import org.jowidgets.plugin.api.PluginProvider;
 import org.jowidgets.plugin.api.PluginToolkit;
 import org.jowidgets.plugin.spring.api.IPluginDescriptor;
+import org.jowidgets.plugin.spring.api.Plugin;
+import org.jowidgets.plugin.spring.tools.PluginDescriptor;
 import org.jowidgets.plugin.tools.PluginProviderHolder;
+import org.jowidgets.util.reflection.AnnotationCache;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 
 public final class PluginProviderPostProcessor implements BeanPostProcessor {
@@ -53,6 +56,12 @@ public final class PluginProviderPostProcessor implements BeanPostProcessor {
 		else if (bean instanceof IPluginDescriptor<?>) {
 			addPluginDescriptor((IPluginDescriptor<?>) bean);
 		}
+		else {
+			final Plugin plugin = AnnotationCache.getTypeAnnotationFromHierarchy(bean.getClass(), Plugin.class);
+			if (plugin != null) {
+				addPluginDescriptor(new PluginDescriptor<Object>(bean, plugin.order()));
+			}
+		}
 		return bean;
 	}
 
@@ -63,4 +72,5 @@ public final class PluginProviderPostProcessor implements BeanPostProcessor {
 		//TODO MG do not create one holder for each plugin
 		PluginProvider.registerPluginProviderHolder(new PluginProviderHolder(builder, pluginDescriptor.getOrder()));
 	}
+
 }

@@ -30,8 +30,6 @@ package org.jowidgets.plugin.spring;
 
 public class EchoPlugin implements IEchoPlugin {
 
-	public static final String ECHO = "echo";
-
 	@Override
 	public String echo(final String string) {
 		return ECHO + string;
