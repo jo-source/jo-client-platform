@@ -53,4 +53,7 @@ public final class AuthorizationChecker {
 		return CapSecurityCommonToolkit.authorizationChecker();
 	}
 
+	public static boolean hasAuthorization(final Object authorization) {
+		return get().hasAuthorization(authorization);
+	}
 }
