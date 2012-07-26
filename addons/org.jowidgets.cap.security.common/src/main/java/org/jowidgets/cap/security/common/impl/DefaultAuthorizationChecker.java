@@ -30,7 +30,7 @@ package org.jowidgets.cap.security.common.impl;
 
 import org.jowidgets.cap.common.api.exception.ServiceException;
 import org.jowidgets.cap.security.common.api.IAuthorizationChecker;
-import org.jowidgets.security.api.IDefaultPrincipal;
+import org.jowidgets.security.api.IPrincipal;
 import org.jowidgets.security.api.SecurityContextHolder;
 import org.jowidgets.security.tools.SecurityContext;
 
@@ -39,7 +39,7 @@ final class DefaultAuthorizationChecker implements IAuthorizationChecker<Object>
 	@Override
 	public boolean hasAuthorization(final Object authorization) {
 		final Object securityContext = SecurityContextHolder.getSecurityContext();
-		if (securityContext instanceof IDefaultPrincipal) {
+		if (securityContext instanceof IPrincipal) {
 			if (authorization != null) {
 				return SecurityContext.hasAuthorization(authorization);
 			}
@@ -49,7 +49,7 @@ final class DefaultAuthorizationChecker implements IAuthorizationChecker<Object>
 		}
 		else if (securityContext != null) {
 			throw new ServiceException("Security Context has wrong type. '"
-				+ IDefaultPrincipal.class
+				+ IPrincipal.class
 				+ "' assumed, but '"
 				+ securityContext.getClass().getName()
 				+ "' found.");

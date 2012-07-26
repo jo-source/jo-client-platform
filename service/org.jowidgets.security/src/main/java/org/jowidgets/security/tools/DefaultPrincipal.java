@@ -34,9 +34,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.jowidgets.security.api.IDefaultPrincipal;
+import org.jowidgets.security.api.IPrincipal;
 
-public final class DefaultPrincipal implements IDefaultPrincipal<String>, Serializable {
+public final class DefaultPrincipal implements IPrincipal<String>, Serializable {
 
 	private static final long serialVersionUID = 7568678347480658843L;
 

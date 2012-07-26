@@ -30,7 +30,7 @@ package org.jowidgets.security.api;
 
 import java.util.Set;
 
-public interface IDefaultPrincipal<AUTHORIZATION_TYPE> {
+public interface IPrincipal<AUTHORIZATION_TYPE> {
 
 	String getUsername();
 
