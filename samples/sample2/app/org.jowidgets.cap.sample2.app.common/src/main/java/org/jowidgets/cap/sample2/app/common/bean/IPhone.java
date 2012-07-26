@@ -32,9 +32,15 @@ import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.sample2.app.common.security.AuthKeys;
-import org.jowidgets.cap.security.common.api.annotation.CrudAuthorizations;
+import org.jowidgets.cap.security.common.api.annotation.CreateAuthorization;
+import org.jowidgets.cap.security.common.api.annotation.DeleteAuthorization;
+import org.jowidgets.cap.security.common.api.annotation.ReadAuthorization;
+import org.jowidgets.cap.security.common.api.annotation.UpdateAuthorization;
 
-@CrudAuthorizations(create = AuthKeys.CREATE_PHONE, read = AuthKeys.READ_PHONE, update = AuthKeys.UPDATE_PHONE, delete = AuthKeys.DELETE_PHONE)
+@CreateAuthorization(AuthKeys.CREATE_PHONE)
+@ReadAuthorization(AuthKeys.READ_PHONE)
+@UpdateAuthorization(AuthKeys.UPDATE_PHONE)
+@DeleteAuthorization(AuthKeys.DELETE_PHONE)
 public interface IPhone extends IBean {
 
 	String PHONE_PROPERTY = "phone";
