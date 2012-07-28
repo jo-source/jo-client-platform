@@ -41,6 +41,7 @@ import org.jowidgets.cap.ui.api.command.ILinkCreatorActionBuilder;
 import org.jowidgets.cap.ui.api.command.ILinkDeleterActionBuilder;
 import org.jowidgets.cap.ui.api.command.IRefreshLookUpsActionBuilder;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
+import org.jowidgets.common.types.Modifier;
 
 final class CapActionFactoryImpl implements ICapActionFactory {
 
@@ -77,6 +78,7 @@ final class CapActionFactoryImpl implements ICapActionFactory {
 	public IDataModelActionBuilder dataModelSaveActionBuilder() {
 		final IDataModelActionBuilder builder = new DataModelActionBuilderImpl(new DataModelSaveCommand());
 		builder.setText(Messages.getString("CapActionFactoryImpl.save")); //$NON-NLS-1$
+		builder.setAccelerator('S', Modifier.CTRL);
 		return builder;
 	}
 
@@ -84,6 +86,7 @@ final class CapActionFactoryImpl implements ICapActionFactory {
 	public IDataModelActionBuilder dataModelUndoActionBuilder() {
 		final IDataModelActionBuilder builder = new DataModelActionBuilderImpl(new DataModelUndoCommand());
 		builder.setText(Messages.getString("CapActionFactoryImpl.undo")); //$NON-NLS-1$
+		builder.setAccelerator('Z', Modifier.CTRL);
 		return builder;
 	}
 
