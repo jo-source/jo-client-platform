@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,16 +26,35 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.workbench;
+package org.jowidgets.cap.ui.tools.workbench;
 
-public interface ICapWorkbenchToolkit {
+import org.jowidgets.cap.ui.api.login.LoginService;
+import org.jowidgets.cap.ui.api.workbench.CapMenuFactory;
+import org.jowidgets.common.types.Dimension;
+import org.jowidgets.common.types.IVetoable;
+import org.jowidgets.workbench.api.ILoginCallback;
+import org.jowidgets.workbench.tools.WorkbenchModelBuilder;
 
-	IEntityComponentFactory entityComponentFactory();
+public class CapWorkbenchModelBuilder extends WorkbenchModelBuilder {
 
-	IEntityComponentNodesFactory entityComponentNodesFactory();
+	public CapWorkbenchModelBuilder() {
 
-	ICapWorkbenchActionsProvider workbenchActionsProvider();
+		setInitialDimension(new Dimension(1024, 768));
+		setInitialSplitWeight(0.2);
 
-	ICapWorkbenchMenuFactory workbenchMenuFactory();
+		setLoginCallback(new ILoginCallback() {
+			@Override
+			public void onLogin(final IVetoable vetoable) {
+				final boolean doLogin = LoginService.doLogin();
+				if (!doLogin) {
+					vetoable.veto();
+				}
+			}
+		});
+
+		setToolBar(CapMenuFactory.toolBar());
+		setMenuBar(CapMenuFactory.menuBar());
+
+	}
 
 }

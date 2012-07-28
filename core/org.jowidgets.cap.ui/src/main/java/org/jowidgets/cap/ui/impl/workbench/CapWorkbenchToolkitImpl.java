@@ -28,6 +28,8 @@
 
 package org.jowidgets.cap.ui.impl.workbench;
 
+import org.jowidgets.cap.ui.api.workbench.ICapWorkbenchActionsProvider;
+import org.jowidgets.cap.ui.api.workbench.ICapWorkbenchMenuFactory;
 import org.jowidgets.cap.ui.api.workbench.ICapWorkbenchToolkit;
 import org.jowidgets.cap.ui.api.workbench.IEntityComponentFactory;
 import org.jowidgets.cap.ui.api.workbench.IEntityComponentNodesFactory;
@@ -36,6 +38,8 @@ public final class CapWorkbenchToolkitImpl implements ICapWorkbenchToolkit {
 
 	private IEntityComponentFactory entityComponentFactory;
 	private IEntityComponentNodesFactory entityComponentNodesFactory;
+	private ICapWorkbenchActionsProvider capWorkbenchActionsProvider;
+	private ICapWorkbenchMenuFactory capWorkbenchMenuFactory;
 
 	public CapWorkbenchToolkitImpl() {}
 
@@ -53,6 +57,22 @@ public final class CapWorkbenchToolkitImpl implements ICapWorkbenchToolkit {
 			this.entityComponentNodesFactory = new EntityComponentNodesFactoryImpl();
 		}
 		return entityComponentNodesFactory;
+	}
+
+	@Override
+	public ICapWorkbenchActionsProvider workbenchActionsProvider() {
+		if (capWorkbenchActionsProvider == null) {
+			this.capWorkbenchActionsProvider = new CapWorkbenchActionsProviderImpl();
+		}
+		return capWorkbenchActionsProvider;
+	}
+
+	@Override
+	public ICapWorkbenchMenuFactory workbenchMenuFactory() {
+		if (capWorkbenchMenuFactory == null) {
+			capWorkbenchMenuFactory = new CapWorkbenchMenuFactoryImpl();
+		}
+		return capWorkbenchMenuFactory;
 	}
 
 }

@@ -31,31 +31,21 @@ package org.jowidgets.cap.sample2.app.ui.workbench;
 import java.util.Locale;
 
 import org.jowidgets.addons.icons.silkicons.SilkIconsInitializer;
-import org.jowidgets.api.model.item.IMenuBarModel;
-import org.jowidgets.api.model.item.IMenuModel;
-import org.jowidgets.api.model.item.IToolBarModel;
 import org.jowidgets.api.widgets.IContainer;
 import org.jowidgets.api.widgets.content.IContentCreator;
-import org.jowidgets.cap.sample2.app.ui.application.Sample2Application;
-import org.jowidgets.cap.sample2.app.ui.command.WorkbenchActions;
+import org.jowidgets.cap.sample2.app.ui.application.Sample2ApplicationFactory;
 import org.jowidgets.cap.sample2.app.ui.lookup.LookupInitializer;
-import org.jowidgets.cap.ui.api.login.LoginService;
-import org.jowidgets.common.types.Dimension;
-import org.jowidgets.common.types.IVetoable;
+import org.jowidgets.cap.ui.tools.workbench.CapWorkbenchModelBuilder;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
 import org.jowidgets.security.tools.SecurityContext;
-import org.jowidgets.tools.model.item.MenuBarModel;
-import org.jowidgets.tools.model.item.ToolBarModel;
 import org.jowidgets.tools.widgets.blueprint.BPF;
-import org.jowidgets.workbench.api.ILoginCallback;
 import org.jowidgets.workbench.api.IWorkbench;
 import org.jowidgets.workbench.api.IWorkbenchContext;
 import org.jowidgets.workbench.api.IWorkbenchFactory;
 import org.jowidgets.workbench.toolkit.api.IWorkbenchInitializeCallback;
 import org.jowidgets.workbench.toolkit.api.IWorkbenchModel;
 import org.jowidgets.workbench.toolkit.api.IWorkbenchModelBuilder;
-import org.jowidgets.workbench.toolkit.api.WorkbenchToolkit;
-import org.jowidgets.workbench.tools.WorkbenchModelBuilder;
+import org.jowidgets.workbench.toolkit.api.WorkbenchPartFactory;
 
 public class Sample2Workbench implements IWorkbenchFactory {
 
@@ -65,37 +55,8 @@ public class Sample2Workbench implements IWorkbenchFactory {
 
 		SilkIconsInitializer.initializeFull();
 
-		final IWorkbenchModelBuilder builder = new WorkbenchModelBuilder();
-		builder.setInitialDimension(new Dimension(1024, 768));
-		builder.setInitialSplitWeight(0.2);
+		final IWorkbenchModelBuilder builder = new CapWorkbenchModelBuilder();
 		builder.setLabel("Sample2");
-		builder.setLoginCallback(new ILoginCallback() {
-			@Override
-			public void onLogin(final IVetoable vetoable) {
-				final boolean doLogin = LoginService.doLogin();
-				if (!doLogin) {
-					vetoable.veto();
-				}
-			}
-		});
-
-		final IToolBarModel toolBarModel = new ToolBarModel();
-		builder.setToolBar(toolBarModel);
-
-		toolBarModel.addAction(WorkbenchActions.loadAction());
-		toolBarModel.addAction(WorkbenchActions.cancelAction());
-		toolBarModel.addSeparator();
-		toolBarModel.addAction(WorkbenchActions.undoAction());
-		toolBarModel.addAction(WorkbenchActions.saveAction());
-
-		final IMenuBarModel menuBarModel = new MenuBarModel();
-		builder.setMenuBar(menuBarModel);
-		final IMenuModel dataMenu = menuBarModel.addMenu("Data");
-		dataMenu.addAction(WorkbenchActions.loadAction());
-		dataMenu.addAction(WorkbenchActions.cancelAction());
-		dataMenu.addSeparator();
-		dataMenu.addAction(WorkbenchActions.undoAction());
-		dataMenu.addAction(WorkbenchActions.saveAction());
 
 		builder.setStatusBarCreator(new IContentCreator() {
 			@Override
@@ -109,11 +70,11 @@ public class Sample2Workbench implements IWorkbenchFactory {
 			@Override
 			public void onContextInitialize(final IWorkbenchModel model, final IWorkbenchContext context) {
 				LookupInitializer.initializeLookupsAsync();
-				model.addApplication(new Sample2Application().getModel());
+				model.addApplication(Sample2ApplicationFactory.create());
 			}
 		});
 
-		return WorkbenchToolkit.getWorkbenchPartFactory().workbench(builder.build());
+		return WorkbenchPartFactory.workbench(builder.build());
 	}
 
 }

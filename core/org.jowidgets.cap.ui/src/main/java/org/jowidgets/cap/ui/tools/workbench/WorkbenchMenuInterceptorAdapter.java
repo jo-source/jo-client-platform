@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,16 +26,55 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.workbench;
+package org.jowidgets.cap.ui.tools.workbench;
 
-public interface ICapWorkbenchToolkit {
+import org.jowidgets.api.model.item.IMenuBarModel;
+import org.jowidgets.api.model.item.IMenuModel;
+import org.jowidgets.api.model.item.IToolBarModel;
+import org.jowidgets.cap.ui.api.command.IDataModelActionBuilder;
+import org.jowidgets.cap.ui.api.command.IRefreshLookUpsActionBuilder;
+import org.jowidgets.cap.ui.api.workbench.IWorkbenchMenuInterceptor;
 
-	IEntityComponentFactory entityComponentFactory();
+public class WorkbenchMenuInterceptorAdapter implements IWorkbenchMenuInterceptor {
 
-	IEntityComponentNodesFactory entityComponentNodesFactory();
+	@Override
+	public IDataModelActionBuilder loadAction(final IDataModelActionBuilder builder) {
+		return builder;
+	}
 
-	ICapWorkbenchActionsProvider workbenchActionsProvider();
+	@Override
+	public IDataModelActionBuilder saveAction(final IDataModelActionBuilder builder) {
+		return builder;
+	}
 
-	ICapWorkbenchMenuFactory workbenchMenuFactory();
+	@Override
+	public IDataModelActionBuilder undoAction(final IDataModelActionBuilder builder) {
+		return builder;
+	}
+
+	@Override
+	public IDataModelActionBuilder cancelAction(final IDataModelActionBuilder builder) {
+		return builder;
+	}
+
+	@Override
+	public IRefreshLookUpsActionBuilder refreshLookUpsAction(final IRefreshLookUpsActionBuilder builder) {
+		return builder;
+	}
+
+	@Override
+	public IToolBarModel toolBarModel(final IToolBarModel model) {
+		return model;
+	}
+
+	@Override
+	public IMenuModel dataMenuModel(final IMenuModel menuModel) {
+		return menuModel;
+	}
+
+	@Override
+	public IMenuBarModel menuBarModel(final IMenuBarModel menuBarModel) {
+		return menuBarModel;
+	}
 
 }

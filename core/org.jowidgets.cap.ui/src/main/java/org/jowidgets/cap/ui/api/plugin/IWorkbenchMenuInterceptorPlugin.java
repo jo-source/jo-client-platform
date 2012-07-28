@@ -26,16 +26,15 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.workbench;
+package org.jowidgets.cap.ui.api.plugin;
 
-public interface ICapWorkbenchToolkit {
+import org.jowidgets.cap.ui.api.workbench.IWorkbenchMenuInterceptor;
+import org.jowidgets.plugin.api.IPluginId;
 
-	IEntityComponentFactory entityComponentFactory();
+public interface IWorkbenchMenuInterceptorPlugin {
 
-	IEntityComponentNodesFactory entityComponentNodesFactory();
+	IPluginId<IWorkbenchMenuInterceptorPlugin> ID = new IPluginId<IWorkbenchMenuInterceptorPlugin>() {};
 
-	ICapWorkbenchActionsProvider workbenchActionsProvider();
-
-	ICapWorkbenchMenuFactory workbenchMenuFactory();
+	IWorkbenchMenuInterceptor getMenuInterceptor();
 
 }

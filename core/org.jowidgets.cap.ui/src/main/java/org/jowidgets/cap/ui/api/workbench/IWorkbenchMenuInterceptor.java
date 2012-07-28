@@ -28,14 +28,28 @@
 
 package org.jowidgets.cap.ui.api.workbench;
 
-public interface ICapWorkbenchToolkit {
+import org.jowidgets.api.model.item.IMenuBarModel;
+import org.jowidgets.api.model.item.IMenuModel;
+import org.jowidgets.api.model.item.IToolBarModel;
+import org.jowidgets.cap.ui.api.command.IDataModelActionBuilder;
+import org.jowidgets.cap.ui.api.command.IRefreshLookUpsActionBuilder;
 
-	IEntityComponentFactory entityComponentFactory();
+public interface IWorkbenchMenuInterceptor {
 
-	IEntityComponentNodesFactory entityComponentNodesFactory();
+	IDataModelActionBuilder loadAction(IDataModelActionBuilder builder);
 
-	ICapWorkbenchActionsProvider workbenchActionsProvider();
+	IDataModelActionBuilder saveAction(IDataModelActionBuilder builder);
 
-	ICapWorkbenchMenuFactory workbenchMenuFactory();
+	IDataModelActionBuilder undoAction(IDataModelActionBuilder builder);
+
+	IDataModelActionBuilder cancelAction(IDataModelActionBuilder builder);
+
+	IRefreshLookUpsActionBuilder refreshLookUpsAction(IRefreshLookUpsActionBuilder builder);
+
+	IToolBarModel toolBarModel(IToolBarModel model);
+
+	IMenuModel dataMenuModel(IMenuModel menuModel);
+
+	IMenuBarModel menuBarModel(IMenuBarModel menuBarModel);
 
 }
