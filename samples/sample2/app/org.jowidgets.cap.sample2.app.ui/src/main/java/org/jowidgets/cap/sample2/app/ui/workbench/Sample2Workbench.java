@@ -31,7 +31,9 @@ package org.jowidgets.cap.sample2.app.ui.workbench;
 import java.util.Locale;
 
 import org.jowidgets.addons.icons.silkicons.SilkIconsInitializer;
+import org.jowidgets.api.model.item.IMenuBarModel;
 import org.jowidgets.api.model.item.IMenuModel;
+import org.jowidgets.api.model.item.IToolBarModel;
 import org.jowidgets.api.widgets.IContainer;
 import org.jowidgets.api.widgets.content.IContentCreator;
 import org.jowidgets.cap.sample2.app.ui.application.Sample2Application;
@@ -42,6 +44,8 @@ import org.jowidgets.common.types.Dimension;
 import org.jowidgets.common.types.IVetoable;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
 import org.jowidgets.security.tools.SecurityContext;
+import org.jowidgets.tools.model.item.MenuBarModel;
+import org.jowidgets.tools.model.item.ToolBarModel;
 import org.jowidgets.tools.widgets.blueprint.BPF;
 import org.jowidgets.workbench.api.ILoginCallback;
 import org.jowidgets.workbench.api.IWorkbench;
@@ -54,8 +58,6 @@ import org.jowidgets.workbench.toolkit.api.WorkbenchToolkit;
 import org.jowidgets.workbench.tools.WorkbenchModelBuilder;
 
 public class Sample2Workbench implements IWorkbenchFactory {
-
-	private IWorkbenchModel model;
 
 	@Override
 	public IWorkbench create() {
@@ -76,38 +78,42 @@ public class Sample2Workbench implements IWorkbenchFactory {
 				}
 			}
 		});
-		builder.setInitializeCallback(new IWorkbenchInitializeCallback() {
-			@Override
-			public void onContextInitialize(final IWorkbenchContext context) {
-				LookupInitializer.initializeLookupsAsync();
-				model.addApplication(new Sample2Application().getModel());
 
-				model.setStatusBarCreator(new IContentCreator() {
-					@Override
-					public void createContent(final IContainer container) {
-						container.setLayout(new MigLayoutDescriptor("[grow, right]", "2[]2"));
-						container.add(BPF.textLabel(SecurityContext.getUsername()).alignRight(), "alignx r");
-					}
-				});
-			}
-		});
+		final IToolBarModel toolBarModel = new ToolBarModel();
+		builder.setToolBar(toolBarModel);
 
-		this.model = builder.build();
+		toolBarModel.addAction(WorkbenchActions.loadAction());
+		toolBarModel.addAction(WorkbenchActions.cancelAction());
+		toolBarModel.addSeparator();
+		toolBarModel.addAction(WorkbenchActions.undoAction());
+		toolBarModel.addAction(WorkbenchActions.saveAction());
 
-		model.getToolBar().addAction(WorkbenchActions.loadAction());
-		model.getToolBar().addAction(WorkbenchActions.cancelAction());
-		model.getToolBar().addSeparator();
-		model.getToolBar().addAction(WorkbenchActions.undoAction());
-		model.getToolBar().addAction(WorkbenchActions.saveAction());
-
-		final IMenuModel dataMenu = model.getMenuBar().addMenu("Data");
+		final IMenuBarModel menuBarModel = new MenuBarModel();
+		builder.setMenuBar(menuBarModel);
+		final IMenuModel dataMenu = menuBarModel.addMenu("Data");
 		dataMenu.addAction(WorkbenchActions.loadAction());
 		dataMenu.addAction(WorkbenchActions.cancelAction());
 		dataMenu.addSeparator();
 		dataMenu.addAction(WorkbenchActions.undoAction());
 		dataMenu.addAction(WorkbenchActions.saveAction());
 
-		return WorkbenchToolkit.getWorkbenchPartFactory().workbench(model);
+		builder.setStatusBarCreator(new IContentCreator() {
+			@Override
+			public void createContent(final IContainer container) {
+				container.setLayout(new MigLayoutDescriptor("[grow, right]", "2[]2"));
+				container.add(BPF.textLabel(SecurityContext.getUsername()).alignRight(), "alignx r");
+			}
+		});
+
+		builder.setInitializeCallback(new IWorkbenchInitializeCallback() {
+			@Override
+			public void onContextInitialize(final IWorkbenchModel model, final IWorkbenchContext context) {
+				LookupInitializer.initializeLookupsAsync();
+				model.addApplication(new Sample2Application().getModel());
+			}
+		});
+
+		return WorkbenchToolkit.getWorkbenchPartFactory().workbench(builder.build());
 	}
 
 }
