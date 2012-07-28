@@ -17,14 +17,12 @@ import org.jowidgets.cap.sample2.plugins.ui.table.PersonMenuInterceptorPlugin;
 import org.jowidgets.cap.sample2.plugins.ui.table.PersonTablePlugin;
 import org.jowidgets.cap.sample2.plugins.ui.table.RoleMenuInterceptorPlugin;
 import org.jowidgets.cap.sample2.plugins.ui.tree.RoleRelationTreePlugin;
-import org.jowidgets.cap.sample2.plugins.ui.workbench.WorkbenchMenuInterceptorPlugin;
 import org.jowidgets.cap.ui.api.plugin.IBeanProxyLabelRendererPlugin;
 import org.jowidgets.cap.ui.api.plugin.IBeanRelationTreePlugin;
 import org.jowidgets.cap.ui.api.plugin.IBeanSelectionProviderPlugin;
 import org.jowidgets.cap.ui.api.plugin.IBeanTableMenuContributionPlugin;
 import org.jowidgets.cap.ui.api.plugin.IBeanTableMenuInterceptorPlugin;
 import org.jowidgets.cap.ui.api.plugin.IBeanTablePlugin;
-import org.jowidgets.cap.ui.api.plugin.IWorkbenchMenuInterceptorPlugin;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationNodeModel;
 import org.jowidgets.plugin.api.IPluginFilter;
 import org.jowidgets.plugin.api.IPluginProperties;
@@ -33,8 +31,6 @@ import org.jowidgets.plugin.tools.PluginProviderBuilder;
 public final class Sample2PluginProviderBuilder extends PluginProviderBuilder {
 
 	public Sample2PluginProviderBuilder() {
-		addPlugin(IWorkbenchMenuInterceptorPlugin.ID, new WorkbenchMenuInterceptorPlugin());
-
 		addPlugin(
 				IBeanTableMenuInterceptorPlugin.ID,
 				new PersonMenuInterceptorPlugin(),
