@@ -34,32 +34,28 @@ import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.sample2.app.common.entity.EntityIds;
 import org.jowidgets.cap.security.common.api.AuthorizationChecker;
 import org.jowidgets.cap.security.common.api.ISecureObject;
-import org.jowidgets.cap.ui.api.CapUiToolkit;
+import org.jowidgets.cap.ui.api.workbench.CapWorkbenchToolkit;
 import org.jowidgets.cap.ui.api.workbench.IEntityComponentNodesFactory;
 import org.jowidgets.service.api.ServiceProvider;
-import org.jowidgets.workbench.toolkit.api.IComponentNodeContainerModel;
 import org.jowidgets.workbench.toolkit.api.IWorkbenchApplicationModel;
 import org.jowidgets.workbench.toolkit.api.IWorkbenchApplicationModelBuilder;
 import org.jowidgets.workbench.tools.WorkbenchApplicationModelBuilder;
 
-public class Sample2Application {
+public final class Sample2ApplicationFactory {
 
-	private final IWorkbenchApplicationModel model;
+	private Sample2ApplicationFactory() {}
 
-	public Sample2Application() {
+	public static IWorkbenchApplicationModel create() {
 		final IWorkbenchApplicationModelBuilder builder = new WorkbenchApplicationModelBuilder();
-		builder.setId(Sample2Application.class.getName());
+
+		builder.setId(Sample2ApplicationFactory.class.getName());
 		builder.setLabel("Administration");
-		this.model = builder.build();
+		createComponentTree(builder);
 
-		createComponentTree(model);
+		return builder.build();
 	}
 
-	public IWorkbenchApplicationModel getModel() {
-		return model;
-	}
-
-	private void createComponentTree(final IWorkbenchApplicationModel model) {
+	private static void createComponentTree(final IWorkbenchApplicationModelBuilder model) {
 		addEntityComponent(model, EntityIds.PERSON);
 		addEntityComponent(model, EntityIds.ROLE);
 		addEntityComponent(model, EntityIds.AUTHORIZATION);
@@ -68,14 +64,14 @@ public class Sample2Application {
 		addEntityComponent(model, EntityIds.PHONE);
 	}
 
-	private void addEntityComponent(final IComponentNodeContainerModel parent, final Object entityId) {
-		final IEntityComponentNodesFactory nodesFactory = CapUiToolkit.workbenchToolkit().entityComponentNodesFactory();
+	private static void addEntityComponent(final IWorkbenchApplicationModelBuilder parent, final Object entityId) {
+		final IEntityComponentNodesFactory nodesFactory = CapWorkbenchToolkit.entityComponentNodesFactory();
 		if (hasReaderServiceAuthorization(entityId)) {
 			parent.addChild(nodesFactory.createNode(entityId));
 		}
 	}
 
-	private boolean hasReaderServiceAuthorization(final Object entityId) {
+	private static boolean hasReaderServiceAuthorization(final Object entityId) {
 		final Object authorization = getReaderServiceAuthorization(entityId);
 		if (authorization != null) {
 			return AuthorizationChecker.hasAuthorization(authorization);
@@ -85,7 +81,7 @@ public class Sample2Application {
 		}
 	}
 
-	private Object getReaderServiceAuthorization(final Object entityId) {
+	private static Object getReaderServiceAuthorization(final Object entityId) {
 		final IEntityService entityService = ServiceProvider.getService(IEntityService.ID);
 		if (entityService != null) {
 			final IBeanServicesProvider beanServices = entityService.getBeanServices(entityId);

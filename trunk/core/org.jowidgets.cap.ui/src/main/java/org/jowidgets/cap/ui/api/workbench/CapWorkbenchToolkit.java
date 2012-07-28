@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -28,14 +28,26 @@
 
 package org.jowidgets.cap.ui.api.workbench;
 
-public interface ICapWorkbenchToolkit {
+import org.jowidgets.cap.ui.api.CapUiToolkit;
 
-	IEntityComponentFactory entityComponentFactory();
+public final class CapWorkbenchToolkit {
 
-	IEntityComponentNodesFactory entityComponentNodesFactory();
+	private CapWorkbenchToolkit() {}
 
-	ICapWorkbenchActionsProvider workbenchActionsProvider();
+	public static IEntityComponentFactory entityComponentFactory() {
+		return CapUiToolkit.workbenchToolkit().entityComponentFactory();
+	}
 
-	ICapWorkbenchMenuFactory workbenchMenuFactory();
+	public static IEntityComponentNodesFactory entityComponentNodesFactory() {
+		return CapUiToolkit.workbenchToolkit().entityComponentNodesFactory();
+	}
+
+	public static ICapWorkbenchActionsProvider workbenchActionsProvider() {
+		return CapUiToolkit.workbenchToolkit().workbenchActionsProvider();
+	}
+
+	public static ICapWorkbenchMenuFactory workbenchMenuFactory() {
+		return CapUiToolkit.workbenchToolkit().workbenchMenuFactory();
+	}
 
 }
