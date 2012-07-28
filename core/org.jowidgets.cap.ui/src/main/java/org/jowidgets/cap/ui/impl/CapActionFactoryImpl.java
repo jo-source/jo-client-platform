@@ -29,6 +29,7 @@
 package org.jowidgets.cap.ui.impl;
 
 import org.jowidgets.api.command.IAction;
+import org.jowidgets.api.image.IconsSmall;
 import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionProvider;
 import org.jowidgets.cap.ui.api.command.ICapActionFactory;
@@ -71,6 +72,7 @@ final class CapActionFactoryImpl implements ICapActionFactory {
 	public IDataModelActionBuilder dataModelCancelActionBuilder() {
 		final IDataModelActionBuilder builder = new DataModelActionBuilderImpl(new DataModelCancelCommand());
 		builder.setText(Messages.getString("CapActionFactoryImpl.cancel")); //$NON-NLS-1$
+		builder.setIcon(IconsSmall.CANCEL);
 		return builder;
 	}
 
@@ -78,6 +80,7 @@ final class CapActionFactoryImpl implements ICapActionFactory {
 	public IDataModelActionBuilder dataModelSaveActionBuilder() {
 		final IDataModelActionBuilder builder = new DataModelActionBuilderImpl(new DataModelSaveCommand());
 		builder.setText(Messages.getString("CapActionFactoryImpl.save")); //$NON-NLS-1$
+		builder.setIcon(IconsSmall.DISK);
 		builder.setAccelerator('S', Modifier.CTRL);
 		return builder;
 	}
@@ -87,6 +90,7 @@ final class CapActionFactoryImpl implements ICapActionFactory {
 		final IDataModelActionBuilder builder = new DataModelActionBuilderImpl(new DataModelUndoCommand());
 		builder.setText(Messages.getString("CapActionFactoryImpl.undo")); //$NON-NLS-1$
 		builder.setAccelerator('Z', Modifier.CTRL);
+		builder.setIcon(IconsSmall.UNDO);
 		return builder;
 	}
 
@@ -94,6 +98,7 @@ final class CapActionFactoryImpl implements ICapActionFactory {
 	public IDataModelActionBuilder dataModelLoadActionBuilder() {
 		final IDataModelActionBuilder builder = new DataModelActionBuilderImpl(new DataModelLoadCommand());
 		builder.setText(Messages.getString("CapActionFactoryImpl.reload")); //$NON-NLS-1$
+		builder.setIcon(IconsSmall.REFRESH);
 		return builder;
 	}
 

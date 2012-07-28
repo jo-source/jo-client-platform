@@ -31,6 +31,7 @@ package org.jowidgets.cap.ui.impl;
 import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.command.IActionBuilder;
 import org.jowidgets.api.command.ICommand;
+import org.jowidgets.api.image.IconsSmall;
 import org.jowidgets.cap.ui.api.command.IRefreshLookUpsActionBuilder;
 
 final class RefreshLookUpsActionBuilderImpl extends AbstractCapActionBuilderImpl<IRefreshLookUpsActionBuilder> implements
@@ -39,6 +40,7 @@ final class RefreshLookUpsActionBuilderImpl extends AbstractCapActionBuilderImpl
 	RefreshLookUpsActionBuilderImpl() {
 		setText(Messages.getString("RefreshLookUpsActionBuilderImpl.text"));
 		setToolTipText(Messages.getString("RefreshLookUpsActionBuilderImpl.tooltip"));
+		setIcon(IconsSmall.REFRESH);
 	}
 
 	@Override
