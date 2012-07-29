@@ -28,9 +28,18 @@
 
 package org.jowidgets.cap.service.tools;
 
+import java.util.List;
+
+import org.jowidgets.cap.common.api.bean.IBean;
+import org.jowidgets.cap.common.api.execution.IExecutableChecker;
+import org.jowidgets.cap.common.api.service.IExecutorService;
 import org.jowidgets.cap.common.api.service.ILookUpService;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.adapter.ISyncLookUpService;
+import org.jowidgets.cap.service.api.bean.IBeanAccess;
+import org.jowidgets.cap.service.api.executor.IBeanExecutor;
+import org.jowidgets.cap.service.api.executor.IExecutorServiceBuilder;
+import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.tools.ServiceId;
 import org.jowidgets.service.tools.ServiceProviderBuilder;
 import org.jowidgets.util.IAdapterFactory;
@@ -43,6 +52,32 @@ public class CapServiceProviderBuilder extends ServiceProviderBuilder {
 		final ILookUpService asyncService = adapterFactoryProvider.createAdapter(lookUpService);
 		final ServiceId<ILookUpService> serviceId = new ServiceId<ILookUpService>(lookUpId, ILookUpService.class);
 		addService(serviceId, asyncService);
+	}
+
+	protected <BEAN_TYPE extends IBean, PARAM_TYPE> void addExecutorService(
+		final IServiceId<? extends IExecutorService<? extends PARAM_TYPE>> id,
+		final IBeanExecutor<? extends BEAN_TYPE, ? extends PARAM_TYPE> beanExecutor,
+		final IBeanAccess<? extends BEAN_TYPE> beanAccess,
+		final List<String> propertyNames) {
+
+		addExecutorService(id, beanExecutor, null, beanAccess, propertyNames);
+	}
+
+	protected <BEAN_TYPE extends IBean, PARAM_TYPE> void addExecutorService(
+		final IServiceId<? extends IExecutorService<? extends PARAM_TYPE>> id,
+		final IBeanExecutor<? extends BEAN_TYPE, ? extends PARAM_TYPE> beanExecutor,
+		final IExecutableChecker<? extends BEAN_TYPE> executableChecker,
+		final IBeanAccess<? extends BEAN_TYPE> beanAccess,
+		final List<String> propertyNames) {
+
+		final IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> builder = CapServiceToolkit.executorServiceBuilder(beanAccess);
+		builder.setExecutor(beanExecutor);
+		if (executableChecker != null) {
+			builder.setExecutableChecker(executableChecker);
+		}
+		builder.setBeanDtoFactory(propertyNames);
+
+		addService(id, builder.build());
 	}
 
 }
