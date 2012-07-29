@@ -26,14 +26,27 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample2.plugins.ui;
+package org.jowidgets.cap.security.service.tools;
 
-import org.jowidgets.plugin.tools.PluginProviderHolder;
+import org.jowidgets.cap.common.api.execution.IExecutionCallback;
+import org.jowidgets.cap.common.api.execution.IResultCallback;
+import org.jowidgets.cap.common.api.service.IAuthorizationProviderService;
+import org.jowidgets.security.api.IPrincipal;
+import org.jowidgets.security.api.SecurityContextHolder;
 
-public class Sample2PluginProviderHolder extends PluginProviderHolder {
+public final class DefaultAuthorizationProviderService<AUTHORIZATION_TYPE> implements
+		IAuthorizationProviderService<IPrincipal<AUTHORIZATION_TYPE>> {
 
-	public Sample2PluginProviderHolder() {
-		super(new Sample2PluginProviderBuilder(), 2);
+	@SuppressWarnings("unchecked")
+	@Override
+	public void getPrincipal(
+		final IResultCallback<IPrincipal<AUTHORIZATION_TYPE>> result,
+		final IExecutionCallback executionCallback) {
+		try {
+			result.finished((IPrincipal<AUTHORIZATION_TYPE>) SecurityContextHolder.getSecurityContext());
+		}
+		catch (final Exception exception) {
+			result.exception(exception);
+		}
 	}
-
 }

@@ -26,14 +26,23 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample2.plugins.ui;
+package org.jowidgets.cap.service.tools;
 
-import org.jowidgets.plugin.tools.PluginProviderHolder;
+import org.jowidgets.cap.common.api.service.ILookUpService;
+import org.jowidgets.cap.service.api.CapServiceToolkit;
+import org.jowidgets.cap.service.api.adapter.ISyncLookUpService;
+import org.jowidgets.service.tools.ServiceId;
+import org.jowidgets.service.tools.ServiceProviderBuilder;
+import org.jowidgets.util.IAdapterFactory;
 
-public class Sample2PluginProviderHolder extends PluginProviderHolder {
+public class CapServiceProviderBuilder extends ServiceProviderBuilder {
 
-	public Sample2PluginProviderHolder() {
-		super(new Sample2PluginProviderBuilder(), 2);
+	protected void addLookUpService(final Object lookUpId, final ISyncLookUpService lookUpService) {
+		final IAdapterFactory<ILookUpService, ISyncLookUpService> adapterFactoryProvider;
+		adapterFactoryProvider = CapServiceToolkit.adapterFactoryProvider().lookup();
+		final ILookUpService asyncService = adapterFactoryProvider.createAdapter(lookUpService);
+		final ServiceId<ILookUpService> serviceId = new ServiceId<ILookUpService>(lookUpId, ILookUpService.class);
+		addService(serviceId, asyncService);
 	}
 
 }

@@ -26,14 +26,26 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample2.plugins.ui;
+package org.jowidgets.cap.common.api.lookup;
 
-import org.jowidgets.plugin.tools.PluginProviderHolder;
+public final class LookUpProperty {
 
-public class Sample2PluginProviderHolder extends PluginProviderHolder {
+	private LookUpProperty() {}
 
-	public Sample2PluginProviderHolder() {
-		super(new Sample2PluginProviderBuilder(), 2);
+	public static ILookUpProperty create(final String name, final String displayFormatName, final String displayFormatDescription) {
+		return LookUpToolkit.lookUpProperty(name, displayFormatName, displayFormatDescription);
+	}
+
+	public static ILookUpProperty create(final String name, final String displayFormatName) {
+		return LookUpToolkit.lookUpProperty(name, displayFormatName);
+	}
+
+	public static ILookUpProperty create() {
+		return LookUpToolkit.lookUpProperty();
+	}
+
+	public static ILookUpPropertyBuilder builder() {
+		return LookUpToolkit.lookUpPropertyBuilder();
 	}
 
 }

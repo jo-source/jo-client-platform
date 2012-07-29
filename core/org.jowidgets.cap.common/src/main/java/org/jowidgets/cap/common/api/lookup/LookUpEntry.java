@@ -26,14 +26,22 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample2.plugins.ui;
+package org.jowidgets.cap.common.api.lookup;
 
-import org.jowidgets.plugin.tools.PluginProviderHolder;
+public final class LookUpEntry {
 
-public class Sample2PluginProviderHolder extends PluginProviderHolder {
+	private LookUpEntry() {}
 
-	public Sample2PluginProviderHolder() {
-		super(new Sample2PluginProviderBuilder(), 2);
+	public static ILookUpEntry create(final Object key, final Object value, final String description) {
+		return LookUpToolkit.lookUpEntry(key, value, description);
+	}
+
+	public static ILookUpEntry create(final Object key, final Object value) {
+		return LookUpToolkit.lookUpEntry(key, value);
+	}
+
+	public static ILookUpEntryBuilder builder() {
+		return LookUpToolkit.lookUpEntryBuilder();
 	}
 
 }

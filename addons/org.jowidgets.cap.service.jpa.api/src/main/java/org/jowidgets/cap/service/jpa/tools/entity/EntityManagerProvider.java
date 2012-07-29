@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, grossmann
+ * Copyright (c) 2011,  M. Grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -25,15 +25,21 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
+package org.jowidgets.cap.service.jpa.tools.entity;
 
-package org.jowidgets.cap.sample2.plugins.ui;
+import javax.persistence.EntityManager;
 
-import org.jowidgets.plugin.tools.PluginProviderHolder;
+import org.jowidgets.cap.service.jpa.api.EntityManagerHolder;
 
-public class Sample2PluginProviderHolder extends PluginProviderHolder {
+public final class EntityManagerProvider {
 
-	public Sample2PluginProviderHolder() {
-		super(new Sample2PluginProviderBuilder(), 2);
+	private EntityManagerProvider() {}
+
+	public static EntityManager get() {
+		final EntityManager result = EntityManagerHolder.get();
+		if (result == null) {
+			throw new IllegalStateException("No entity manager injected.");
+		}
+		return result;
 	}
-
 }
