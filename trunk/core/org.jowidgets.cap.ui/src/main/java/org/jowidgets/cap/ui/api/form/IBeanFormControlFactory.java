@@ -29,6 +29,7 @@
 package org.jowidgets.cap.ui.api.form;
 
 import org.jowidgets.api.widgets.IControl;
+import org.jowidgets.api.widgets.ITextLabel;
 import org.jowidgets.common.types.AlignmentHorizontal;
 import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
 
@@ -49,7 +50,7 @@ public interface IBeanFormControlFactory {
 	 * 
 	 * @return The creator for the label, or null, if no label can be created for the property
 	 */
-	ICustomWidgetCreator<? extends IControl> createLabel(String propertyName, AlignmentHorizontal alignment);
+	ICustomWidgetCreator<ITextLabel> createLabel(String propertyName, AlignmentHorizontal alignment);
 
 	/**
 	 * Creates a control for a defined property.

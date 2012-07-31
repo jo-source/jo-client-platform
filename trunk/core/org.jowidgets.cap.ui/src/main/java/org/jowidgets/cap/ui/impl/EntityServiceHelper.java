@@ -31,7 +31,6 @@ package org.jowidgets.cap.ui.impl;
 import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
-import org.jowidgets.cap.common.api.bean.IProperty;
 import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
@@ -42,19 +41,12 @@ final class EntityServiceHelper {
 	private EntityServiceHelper() {}
 
 	static List<IAttribute<Object>> createAttributes(final Object entityId) {
-		if (entityId != null) {
-			final IEntityService entityService = ServiceProvider.getService(IEntityService.ID);
-			if (entityService != null) {
-				final IBeanDtoDescriptor dtoDescriptor = entityService.getDescriptor(entityId);
-				if (dtoDescriptor != null) {
-					final List<IProperty> properties = dtoDescriptor.getProperties();
-					if (properties != null) {
-						return CapUiToolkit.attributeToolkit().createAttributes(properties);
-					}
-				}
-			}
+		try {
+			return CapUiToolkit.attributeToolkit().createAttributes(entityId);
 		}
-		return null;
+		catch (final Exception e) {
+			return null;
+		}
 	}
 
 	static Class<?> getBeanType(final Object entityId) {

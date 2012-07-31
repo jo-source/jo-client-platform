@@ -40,8 +40,6 @@ import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionObservable;
 import org.jowidgets.cap.ui.api.execution.IExecutionTask;
-import org.jowidgets.cap.ui.api.form.IBeanFormLayout;
-import org.jowidgets.cap.ui.api.form.IBeanFormToolkit;
 import org.jowidgets.cap.ui.api.model.ISingleBeanModel;
 import org.jowidgets.cap.ui.api.tabfolder.IBeanTabFolderModel;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
@@ -183,9 +181,6 @@ final class CapApiBluePrintFactory implements ICapApiBluePrintFactory {
 		result.setEntityId(entityId);
 		result.setBeanType((Class<BEAN_TYPE>) EntityServiceHelper.getBeanType(entityId));
 		result.setAttributes(attributes);
-		final IBeanFormToolkit beanFormToolkit = CapUiToolkit.beanFormToolkit();
-		final IBeanFormLayout layout = CapUiToolkit.beanFormToolkit().layoutBuilder().addGroups(attributes).build();
-		result.setLayouter(beanFormToolkit.layouter(layout));
 		return result;
 	}
 
