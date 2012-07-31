@@ -54,6 +54,7 @@ import org.jowidgets.api.widgets.IControl;
 import org.jowidgets.api.widgets.IInputComponentValidationLabel;
 import org.jowidgets.api.widgets.IInputControl;
 import org.jowidgets.api.widgets.ILabel;
+import org.jowidgets.api.widgets.ITextLabel;
 import org.jowidgets.api.widgets.IValidationResultLabel;
 import org.jowidgets.api.widgets.blueprint.IInputComponentValidationLabelBluePrint;
 import org.jowidgets.api.widgets.blueprint.ILabelBluePrint;
@@ -62,6 +63,7 @@ import org.jowidgets.api.widgets.blueprint.IValidationResultLabelBluePrint;
 import org.jowidgets.api.widgets.descriptor.setup.IInputComponentValidationLabelSetup;
 import org.jowidgets.api.widgets.descriptor.setup.IValidationLabelSetup;
 import org.jowidgets.cap.common.api.validation.IBeanValidationResult;
+import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IControlPanelProvider;
 import org.jowidgets.cap.ui.api.bean.BeanMessageType;
@@ -74,7 +76,9 @@ import org.jowidgets.cap.ui.api.bean.IExternalBeanValidatorListener;
 import org.jowidgets.cap.ui.api.execution.IExecutionTask;
 import org.jowidgets.cap.ui.api.execution.IExecutionTaskListener;
 import org.jowidgets.cap.ui.api.form.IBeanFormControlFactory;
+import org.jowidgets.cap.ui.api.form.IBeanFormLayout;
 import org.jowidgets.cap.ui.api.form.IBeanFormLayouter;
+import org.jowidgets.cap.ui.api.form.IBeanFormToolkit;
 import org.jowidgets.cap.ui.api.plugin.IAttributePlugin;
 import org.jowidgets.cap.ui.api.widgets.IBeanForm;
 import org.jowidgets.cap.ui.tools.bean.BeanProxyListenerAdapter;
@@ -153,7 +157,7 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 		final Object entityId,
 		final Class<BEAN_TYPE> beanType,
 		Collection<IAttribute<?>> attributes,
-		final IBeanFormLayouter layouter,
+		IBeanFormLayouter layouter,
 		final boolean scrollbarsAllowed,
 		final Integer maxWidth,
 		final IDecorator<String> manadtoryLabelDecorator,
@@ -203,15 +207,21 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 			this.attributes.put(attribute.getPropertyName(), (IAttribute<Object>) attribute);
 		}
 
-		//this must be the last invocation in this constructor
-		layouter.layout(composite, new BeanFormControlFactory());
-
 		addDisposeListener(new IDisposeListener() {
 			@Override
 			public void onDispose() {
 				Toolkit.getWaitAnimationProcessor().removeChangeListener(labelWaitChangeListener);
 			}
 		});
+
+		if (layouter == null) {
+			final IBeanFormToolkit beanFormToolkit = CapUiToolkit.beanFormToolkit();
+			final IBeanFormLayout layout = beanFormToolkit.layoutBuilder().addGroups(attributes).build();
+			layouter = beanFormToolkit.layouter(layout);
+		}
+
+		//this must be the last invocation in this constructor
+		layouter.layout(composite, new BeanFormControlFactory());
 	}
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
@@ -629,10 +639,10 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 		}
 
 		@Override
-		public ICustomWidgetCreator<? extends IControl> createLabel(final String propertyName, final AlignmentHorizontal alignment) {
-			return new ICustomWidgetCreator<IControl>() {
+		public ICustomWidgetCreator<ITextLabel> createLabel(final String propertyName, final AlignmentHorizontal alignment) {
+			return new ICustomWidgetCreator<ITextLabel>() {
 				@Override
-				public IControl create(final ICustomWidgetFactory widgetFactory) {
+				public ITextLabel create(final ICustomWidgetFactory widgetFactory) {
 					final ITextLabelBluePrint textLabelBp = BPF.textLabel(getLabel(propertyName));
 					setAlignmentHorizontal(alignment, textLabelBp);
 					return widgetFactory.create(textLabelBp);

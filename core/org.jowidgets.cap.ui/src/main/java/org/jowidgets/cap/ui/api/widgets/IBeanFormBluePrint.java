@@ -114,13 +114,11 @@ public interface IBeanFormBluePrint<BEAN_TYPE> extends
 
 	Class<BEAN_TYPE> getBeanType();
 
-	@Mandatory
 	IBeanFormLayouter getEditModeLayouter();
 
 	@Mandatory
 	Collection<IAttribute<?>> getEditModeAttributes();
 
-	@Mandatory
 	IBeanFormLayouter getCreateModeLayouter();
 
 	@Mandatory
