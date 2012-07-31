@@ -67,10 +67,16 @@ public final class SyncUpdaterServiceImpl<BEAN_TYPE extends IBean> implements IS
 				final Collection<? extends IBeanModification> modifications,
 				final IExecutionCallback executionCallback) {
 
-				for (final IBeanModification modification : modifications) {
-					if (!allowStaleBeans && beanModifier.isPropertyStale(bean, modification)) {
-						throw new StaleBeanException(bean.getId());
+				if (!allowStaleBeans) {
+					for (final IBeanModification modification : modifications) {
+						if (!allowStaleBeans && beanModifier.isPropertyStale(bean, modification)) {
+							throw new StaleBeanException(bean.getId(), "The bean property '"
+								+ modification.getPropertyName()
+								+ "' is stale");
+						}
 					}
+				}
+				for (final IBeanModification modification : modifications) {
 					beanModifier.modify(bean, modification);
 				}
 				return bean;
