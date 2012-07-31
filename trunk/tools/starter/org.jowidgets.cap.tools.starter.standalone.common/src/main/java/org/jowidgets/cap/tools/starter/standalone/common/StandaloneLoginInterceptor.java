@@ -34,9 +34,9 @@ import org.jowidgets.api.threads.IUiThreadAccess;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.security.api.AuthenticationService;
 import org.jowidgets.security.api.AuthorizationService;
+import org.jowidgets.security.api.IPrincipal;
 import org.jowidgets.security.api.SecurityContextHolder;
 import org.jowidgets.security.tools.DefaultCredentials;
-import org.jowidgets.security.tools.DefaultPrincipal;
 
 public class StandaloneLoginInterceptor implements ILoginInterceptor {
 
@@ -48,11 +48,11 @@ public class StandaloneLoginInterceptor implements ILoginInterceptor {
 
 	@Override
 	public void login(final ILoginResultCallback resultCallback, final String username, final String password) {
-		DefaultPrincipal principal = AuthenticationService.authenticate(new DefaultCredentials(username, password));
+		IPrincipal<String> principal = AuthenticationService.authenticate(new DefaultCredentials(username, password));
 		if (principal != null) {
 			principal = AuthorizationService.authorize(principal);
 			if (principal != null) {
-				final DefaultPrincipal finalPrincipal = principal;
+				final IPrincipal<String> finalPrincipal = principal;
 				try {
 					uiThreadAccess.invokeAndWait(new Runnable() {
 						@Override

@@ -31,7 +31,6 @@ package org.jowidgets.security.api;
 import java.util.Iterator;
 import java.util.ServiceLoader;
 
-import org.jowidgets.security.tools.DefaultCredentials;
 import org.jowidgets.security.tools.DefaultPrincipal;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
@@ -66,8 +65,8 @@ public final class AuthenticationService {
 			return new IAuthenticationService() {
 				@Override
 				public Object authenticate(final Object credentials) {
-					if (credentials instanceof DefaultCredentials) {
-						return new DefaultPrincipal(((DefaultCredentials) credentials).getUsername());
+					if (credentials instanceof ICredentials) {
+						return new DefaultPrincipal(((ICredentials) credentials).getUsername());
 					}
 					return null;
 				}

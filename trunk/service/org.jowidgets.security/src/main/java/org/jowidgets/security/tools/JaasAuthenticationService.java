@@ -37,9 +37,11 @@ import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
 import org.jowidgets.security.api.IAuthenticationService;
+import org.jowidgets.security.api.ICredentials;
+import org.jowidgets.security.api.IPrincipal;
 import org.jowidgets.util.Assert;
 
-public final class JaasAuthenticationService implements IAuthenticationService<DefaultPrincipal, DefaultCredentials> {
+public final class JaasAuthenticationService implements IAuthenticationService<IPrincipal<String>, ICredentials> {
 
 	private String loginContextName = "default";
 
@@ -49,7 +51,7 @@ public final class JaasAuthenticationService implements IAuthenticationService<D
 	}
 
 	@Override
-	public DefaultPrincipal authenticate(final DefaultCredentials credentials) {
+	public IPrincipal<String> authenticate(final ICredentials credentials) {
 		try {
 			final LoginContext loginContext = new LoginContext(loginContextName, new CallbackHandler() {
 				@Override
