@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,28 +26,12 @@
  * DAMAGE.
  */
 
-package org.jowidgets.security.tools;
+package org.jowidgets.security.api;
 
-import org.jowidgets.security.api.ICredentials;
+public interface ICredentials {
 
-public final class DefaultCredentials implements ICredentials {
+	String getUsername();
 
-	private final String username;
-	private final String password;
-
-	public DefaultCredentials(final String username, final String password) {
-		this.username = username;
-		this.password = password;
-	}
-
-	@Override
-	public String getUsername() {
-		return username;
-	}
-
-	@Override
-	public String getPassword() {
-		return password;
-	}
+	String getPassword();
 
 }

@@ -29,14 +29,15 @@
 package org.jowidgets.cap.sample1.service.security;
 
 import org.jowidgets.security.api.IAuthenticationService;
-import org.jowidgets.security.tools.DefaultCredentials;
+import org.jowidgets.security.api.ICredentials;
+import org.jowidgets.security.api.IPrincipal;
 import org.jowidgets.security.tools.DefaultPrincipal;
 import org.jowidgets.util.EmptyCheck;
 
-public class SampleAuthenticationService implements IAuthenticationService<DefaultPrincipal, DefaultCredentials> {
+public class SampleAuthenticationService implements IAuthenticationService<IPrincipal<String>, ICredentials> {
 
 	@Override
-	public DefaultPrincipal authenticate(final DefaultCredentials credentials) {
+	public IPrincipal<String> authenticate(final ICredentials credentials) {
 		if ("admin".equals(credentials.getUsername()) && "admin".equals(credentials.getPassword())) {
 			return new DefaultPrincipal(credentials.getUsername());
 		}
