@@ -38,4 +38,6 @@ public interface IOperator {
 
 	String getDescription();
 
+	boolean isInvertible();
+
 }

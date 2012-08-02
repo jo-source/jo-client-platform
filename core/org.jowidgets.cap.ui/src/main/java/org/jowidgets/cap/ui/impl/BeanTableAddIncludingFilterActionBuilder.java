@@ -28,18 +28,19 @@
 
 package org.jowidgets.cap.ui.impl;
 
+import org.jowidgets.api.command.ICommand;
 import org.jowidgets.api.image.IconsSmall;
-import org.jowidgets.cap.ui.api.table.IBeanTableModel;
+import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.tools.command.ActionBuilder;
 
 final class BeanTableAddIncludingFilterActionBuilder extends ActionBuilder {
 
-	BeanTableAddIncludingFilterActionBuilder(final IBeanTableModel<?> model, final int columnIndex) {
+	BeanTableAddIncludingFilterActionBuilder(final IBeanTable<?> table, final int columnIndex) {
 		super();
 		setText(Messages.getString("BeanTableAddIncludingFilterActionBuilder.including_filter")); //$NON-NLS-1$
 		setToolTipText(Messages.getString("BeanTableAddIncludingFilterActionBuilder.includes_the_selected_value_from_the_filter")); //$NON-NLS-1$
 		setIcon(IconsSmall.FILTER_INCLUDING);
 
-		setCommand(new BeanTableAddInlineFilterCommandExecutor(model, columnIndex, false));
+		setCommand((ICommand) new BeanTableAddInlineFilterCommandExecutor(table, columnIndex, false));
 	}
 }

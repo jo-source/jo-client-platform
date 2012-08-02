@@ -76,6 +76,7 @@ final class AttributeFilterControlImpl extends AbstractInputControl<IUiConfigura
 	private final IComboBox<IOperator> cmbOperator;
 
 	private IFilterControl<IOperator, Object, IUiConfigurableFilter<Object>> filterControl;
+	private IOperatorProvider<IOperator> operatorProvider;
 	private boolean editable;
 
 	AttributeFilterControlImpl(final IComposite composite, final IAttributeFilterControlBluePrint bluePrint) {
@@ -103,14 +104,16 @@ final class AttributeFilterControlImpl extends AbstractInputControl<IUiConfigura
 			public void inputChanged() {
 				if (filterControl != null) {
 					final Object currentOperand = getCurrentOperand();
-					filterControl.setOperator(cmbOperator.getValue());
+					final IOperator operator = cmbOperator.getValue();
+					filterControl.setOperator(operator);
+					setCmbNotEnabledByOperator(operator);
 					tryToSetOldOperand(currentOperand);
 					getWidget().layout();
 				}
 			}
 		};
 
-		composite.setLayout(new MigLayoutDescriptor("0[][][grow]0", "0[]0"));
+		composite.setLayout(new MigLayoutDescriptor("hidemode 2", "0[][][grow]0", "0[]0"));
 
 		this.cmbNot = composite.add(comboBoxNotBp());
 		cmbNot.addInputListener(inputListener);
@@ -262,7 +265,7 @@ final class AttributeFilterControlImpl extends AbstractInputControl<IUiConfigura
 		Assert.paramNotNull(attribute, "attribute");
 		Assert.paramNotNull(filterType, "filterType");
 
-		final IFilterPanelProvider<?> filterPanelProvider = getFilterPanelProvider(attribute, filterType);
+		final IFilterPanelProvider<IOperator> filterPanelProvider = getFilterPanelProvider(attribute, filterType);
 
 		final ICustomWidgetCreator<IFilterControl<IOperator, Object, IUiConfigurableFilter<Object>>> creator;
 		creator = createPanelCreator(filterPanelProvider);
@@ -277,14 +280,19 @@ final class AttributeFilterControlImpl extends AbstractInputControl<IUiConfigura
 		filterControl.addInputListener(inputListener);
 		filterControl.addValidationConditionListener(validationConditionListener);
 
-		final IOperatorProvider<?> operatorProvider = filterPanelProvider.getOperatorProvider();
+		this.operatorProvider = filterPanelProvider.getOperatorProvider();
 		cmbOperator.removeInputListener(operatorListener);
 		cmbOperator.setElements(operatorProvider.getOperators());
-		if (setDefaultOperator) {
-			final IOperator defaultOperator = operatorProvider.getDefaultOperator();
-			cmbOperator.setValue(defaultOperator);
-			filterControl.setOperator(defaultOperator);
+
+		final IOperator defaultOperator = operatorProvider.getDefaultOperator();
+		if (defaultOperator != null) {
+			if (setDefaultOperator) {
+				cmbOperator.setValue(defaultOperator);
+				filterControl.setOperator(defaultOperator);
+			}
+			setCmbNotEnabledByOperator(defaultOperator);
 		}
+
 		cmbOperator.addInputListener(operatorListener);
 	}
 
@@ -329,6 +337,21 @@ final class AttributeFilterControlImpl extends AbstractInputControl<IUiConfigura
 		}
 	}
 
+	private void setCmbNotEnabledByOperator(final IOperator operator) {
+		if (operator != null) {
+			final boolean invertibale = operatorProvider != null && operatorProvider.isInvertible(operator);
+			if (!invertibale) {
+				cmbNot.setValue(Boolean.FALSE);
+			}
+			final boolean wasVisible = cmbNot.isVisible();
+			if (wasVisible != invertibale) {
+				getWidget().layoutBegin();
+				cmbNot.setVisible(invertibale);
+				getWidget().layoutEnd();
+			}
+		}
+	}
+
 	private ICustomWidgetCreator<IFilterControl<IOperator, Object, IUiConfigurableFilter<Object>>> createPanelCreator(
 		final IFilterPanelProvider<?> filterPanelProvider) {
 
@@ -344,7 +367,8 @@ final class AttributeFilterControlImpl extends AbstractInputControl<IUiConfigura
 		};
 	}
 
-	private IFilterPanelProvider<?> getFilterPanelProvider(final IAttribute<?> attribute, final IFilterType filterType) {
+	@SuppressWarnings("unchecked")
+	private IFilterPanelProvider<IOperator> getFilterPanelProvider(final IAttribute<?> attribute, final IFilterType filterType) {
 
 		final IControlPanelProvider<?> controlPanel = attribute.getCurrentControlPanel();
 
@@ -362,7 +386,7 @@ final class AttributeFilterControlImpl extends AbstractInputControl<IUiConfigura
 
 		for (final IFilterPanelProvider<?> filterPanelProvider : filterSupport.getFilterPanels()) {
 			if (filterType.getId().equals(filterPanelProvider.getType().getId())) {
-				return filterPanelProvider;
+				return (IFilterPanelProvider<IOperator>) filterPanelProvider;
 			}
 		}
 

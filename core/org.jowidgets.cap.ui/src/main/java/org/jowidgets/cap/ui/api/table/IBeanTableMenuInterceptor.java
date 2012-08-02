@@ -78,11 +78,11 @@ public interface IBeanTableMenuInterceptor<BEAN_TYPE> {
 
 	IActionBuilder clearDefaultSortActionBuilder(IBeanTableModel<?> model, IActionBuilder builder);
 
-	IActionBuilder addIncludingFilterActionBuilder(IBeanTableModel<?> model, int columnIndex, IActionBuilder builder);
+	IActionBuilder addIncludingFilterActionBuilder(IBeanTable<?> table, int columnIndex, IActionBuilder builder);
 
-	IActionBuilder addExcludingFilterActionBuilder(IBeanTableModel<?> model, int columnIndex, IActionBuilder builder);
+	IActionBuilder addExcludingFilterActionBuilder(IBeanTable<?> table, int columnIndex, IActionBuilder builder);
 
-	IActionBuilder addCustomFilterActionBuilder(IBeanTableModel<?> model, int columnIndex, IActionBuilder builder);
+	IActionBuilder addCustomFilterActionBuilder(IBeanTable<?> table, int columnIndex, IActionBuilder builder);
 
 	IActionBuilder addFilterActionBuilder(
 		IBeanTableModel<?> model,

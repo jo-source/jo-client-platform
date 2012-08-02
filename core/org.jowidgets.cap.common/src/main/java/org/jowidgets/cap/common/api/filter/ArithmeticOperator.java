@@ -88,4 +88,9 @@ public enum ArithmeticOperator implements IOperator {
 		return description;
 	}
 
+	@Override
+	public boolean isInvertible() {
+		return true;
+	}
+
 }

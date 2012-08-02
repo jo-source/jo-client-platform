@@ -28,19 +28,20 @@
 
 package org.jowidgets.cap.ui.impl;
 
+import org.jowidgets.api.command.ICommand;
 import org.jowidgets.api.image.IconsSmall;
-import org.jowidgets.cap.ui.api.table.IBeanTableModel;
+import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.tools.command.ActionBuilder;
 
 final class BeanTableAddExcludingFilterActionBuilder extends ActionBuilder {
 
-	BeanTableAddExcludingFilterActionBuilder(final IBeanTableModel<?> model, final int columnIndex) {
+	BeanTableAddExcludingFilterActionBuilder(final IBeanTable<?> table, final int columnIndex) {
 		super();
 		setText(Messages.getString("BeanTableAddExcludingFilterActionBuilder.excluding_filter")); //$NON-NLS-1$
 		setToolTipText(Messages.getString("BeanTableAddExcludingFilterActionBuilder.excludes_the_selected_value_from_the_filter")); //$NON-NLS-1$
 		setIcon(IconsSmall.FILTER_EXCLUDING);
 
-		setCommand(new BeanTableAddInlineFilterCommandExecutor(model, columnIndex, true));
+		setCommand((ICommand) new BeanTableAddInlineFilterCommandExecutor(table, columnIndex, true));
 	}
 
 }

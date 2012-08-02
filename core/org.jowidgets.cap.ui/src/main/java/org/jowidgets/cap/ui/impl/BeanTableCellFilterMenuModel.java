@@ -55,10 +55,12 @@ final class BeanTableCellFilterMenuModel<BEAN_TYPE> extends MenuModel {
 
 		final IAttribute<Object> attribute = model.getAttribute(columnIndex);
 		if (attribute.isFilterable()) {
-			tryAddAction(menuFactory.addIncludingFilterAction(model, columnIndex));
-			tryAddAction(menuFactory.addExcludingFilterAction(model, columnIndex));
-			if (hasCustomFilterSupport(attribute)) {
-				tryAddAction(menuFactory.addCustomFilterAction(model, columnIndex));
+			if (hasIncludingFilterSupport(attribute)) {
+				tryAddAction(menuFactory.addIncludingFilterAction(table, columnIndex));
+				tryAddAction(menuFactory.addExcludingFilterAction(table, columnIndex));
+				if (hasCustomFilterSupport(attribute)) {
+					tryAddAction(menuFactory.addCustomFilterAction(table, columnIndex));
+				}
 			}
 			final List<IFilterType> filterTypes = attribute.getSupportedFilterTypes();
 			if (filterTypes.size() > 0) {
@@ -80,6 +82,14 @@ final class BeanTableCellFilterMenuModel<BEAN_TYPE> extends MenuModel {
 		addSeparator();
 		tryAddItem(table.getFilterToolbarItemModel());
 		tryAddItem(table.getSearchFilterToolbarItemModel());
+	}
+
+	private static boolean hasIncludingFilterSupport(final IAttribute<?> attribute) {
+		final IFilterSupport<Object> filterSupport = attribute.getCurrentControlPanel().getFilterSupport();
+		if (filterSupport != null) {
+			return filterSupport.getIncludingFilterFactory() != null;
+		}
+		return false;
 	}
 
 	private static boolean hasCustomFilterSupport(final IAttribute<?> attribute) {

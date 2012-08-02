@@ -38,6 +38,7 @@ import org.jowidgets.cap.common.api.bean.Cardinality;
 import org.jowidgets.cap.common.api.bean.IProperty;
 import org.jowidgets.cap.common.api.bean.IValueRange;
 import org.jowidgets.cap.common.api.filter.ArithmeticOperator;
+import org.jowidgets.cap.common.api.filter.IOperator;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttributeFilter;
 import org.jowidgets.cap.ui.api.attribute.IControlPanelProviderBuilder;
@@ -134,6 +135,7 @@ final class FilterToolkitImpl implements IFilterToolkit {
 	}
 
 	@Override
+	@SuppressWarnings({"rawtypes", "unchecked"})
 	public <ELEMENT_VALUE_TYPE, VALUE_TYPE> IFilterSupport<?> filterSupport(
 		final String propertyName,
 		final Class<?> type,
@@ -145,7 +147,7 @@ final class FilterToolkitImpl implements IFilterToolkit {
 		final ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> controlCreator,
 		final ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> collectionControlCreator) {
 
-		final List<IFilterPanelProvider<?>> result = new LinkedList<IFilterPanelProvider<?>>();
+		final List result = new LinkedList();
 
 		if (arithmeticOperatorProvider != null) {
 			result.add(arithmeticFilterPanel(
@@ -162,7 +164,7 @@ final class FilterToolkitImpl implements IFilterToolkit {
 
 		return new IFilterSupport<VALUE_TYPE>() {
 			@Override
-			public List<IFilterPanelProvider<?>> getFilterPanels() {
+			public List<IFilterPanelProvider<IOperator>> getFilterPanels() {
 				return result;
 			}
 

@@ -148,9 +148,9 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 	private final boolean hasDefaultCreatorAction;
 	private final boolean hasDefaultDeleterAction;
 	private final IBeanTableMenuFactory<BEAN_TYPE> menuFactory;
-	private final PopupMenuObservable tableMenuObservable;
-	private final PopupMenuObservable headerMenuObservable;
-	private final PopupMenuObservable cellMenuObservable;
+	private final PopupMenuObservable<Position> tableMenuObservable;
+	private final PopupMenuObservable<ITableColumnPopupEvent> headerMenuObservable;
+	private final PopupMenuObservable<ITableCellPopupEvent> cellMenuObservable;
 	private final ScheduledExecutorService autoUpdateExecutorService;
 	private final AutoUpdateRunnable autoUpdateRunnable;
 	private final boolean isAutoUpdateConfigurable;
@@ -209,9 +209,9 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 
 		this.table = contentComposite.add(tableBp, MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
 
-		this.tableMenuObservable = new PopupMenuObservable();
-		this.headerMenuObservable = new PopupMenuObservable();
-		this.cellMenuObservable = new PopupMenuObservable();
+		this.tableMenuObservable = new PopupMenuObservable<Position>();
+		this.headerMenuObservable = new PopupMenuObservable<ITableColumnPopupEvent>();
+		this.cellMenuObservable = new PopupMenuObservable<ITableCellPopupEvent>();
 
 		this.headerPopupMenus = new HashMap<Integer, IPopupMenu>();
 		this.cellPopupMenus = new HashMap<Integer, IPopupMenu>();
@@ -285,7 +285,7 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 			table.addPopupDetectionListener(new IPopupDetectionListener() {
 				@Override
 				public void popupDetected(final Position position) {
-					tableMenuObservable.fireBeforeMenuShow();
+					tableMenuObservable.fireBeforeMenuShow(position);
 					if (tablePopupMenu.getChildren().size() > 0) {
 						tablePopupMenu.show(position);
 					}
@@ -296,8 +296,8 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 		table.addTableCellPopupDetectionListener(new ITableCellPopupDetectionListener() {
 			@Override
 			public void popupDetected(final ITableCellPopupEvent event) {
-				cellMenuObservable.fireBeforeMenuShow();
 				final IPopupMenu cellPopupMenu = getCellPopupMenu(event.getColumnIndex());
+				cellMenuObservable.fireBeforeMenuShow(event);
 				if (cellPopupMenu.getChildren().size() > 0) {
 					currentCellEvent = event;
 					//simulate a column event
@@ -310,8 +310,8 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 		table.addTableColumnPopupDetectionListener(new ITableColumnPopupDetectionListener() {
 			@Override
 			public void popupDetected(final ITableColumnPopupEvent event) {
-				headerMenuObservable.fireBeforeMenuShow();
 				final IPopupMenu headerPopupMenu = getHeaderPopupMenu(event.getColumnIndex());
+				headerMenuObservable.fireBeforeMenuShow(event);
 				if (headerPopupMenu.getChildren().size() > 0) {
 					currentColumnEvent = event;
 					headerPopupMenu.show(event.getPosition());
@@ -776,32 +776,32 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 	}
 
 	@Override
-	public void addTableMenuListener(final IPopupMenuListener listener) {
+	public void addTableMenuListener(final IPopupMenuListener<Position> listener) {
 		tableMenuObservable.addPopupMenuListener(listener);
 	}
 
 	@Override
-	public void removeTableMenuListener(final IPopupMenuListener listener) {
+	public void removeTableMenuListener(final IPopupMenuListener<Position> listener) {
 		tableMenuObservable.removePopupMenuListener(listener);
 	}
 
 	@Override
-	public void addHeaderMenuListener(final IPopupMenuListener listener) {
+	public void addHeaderMenuListener(final IPopupMenuListener<ITableColumnPopupEvent> listener) {
 		headerMenuObservable.addPopupMenuListener(listener);
 	}
 
 	@Override
-	public void removeHeaderMenuListener(final IPopupMenuListener listener) {
+	public void removeHeaderMenuListener(final IPopupMenuListener<ITableColumnPopupEvent> listener) {
 		headerMenuObservable.removePopupMenuListener(listener);
 	}
 
 	@Override
-	public void addCellMenuListener(final IPopupMenuListener listener) {
+	public void addCellMenuListener(final IPopupMenuListener<ITableCellPopupEvent> listener) {
 		cellMenuObservable.addPopupMenuListener(listener);
 	}
 
 	@Override
-	public void removeCellMenuListener(final IPopupMenuListener listener) {
+	public void removeCellMenuListener(final IPopupMenuListener<ITableCellPopupEvent> listener) {
 		cellMenuObservable.removePopupMenuListener(listener);
 	}
 

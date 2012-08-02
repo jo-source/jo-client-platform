@@ -33,6 +33,7 @@ import org.jowidgets.api.model.item.IMenuModel;
 import org.jowidgets.api.widgets.ITable;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.table.IBeanTableSettings;
+import org.jowidgets.common.types.Position;
 import org.jowidgets.common.widgets.controller.ITableCellPopupEvent;
 import org.jowidgets.common.widgets.controller.ITableColumnPopupEvent;
 import org.jowidgets.util.ITypedKey;
@@ -66,17 +67,17 @@ public interface IBeanTable<BEAN_TYPE> extends ITable {
 
 	ICheckedItemModel getStatusBarItemModel();
 
-	void addTableMenuListener(IPopupMenuListener listener);
+	void addTableMenuListener(IPopupMenuListener<Position> listener);
 
-	void removeTableMenuListener(IPopupMenuListener listener);
+	void removeTableMenuListener(IPopupMenuListener<Position> listener);
 
-	void addHeaderMenuListener(IPopupMenuListener listener);
+	void addHeaderMenuListener(IPopupMenuListener<ITableColumnPopupEvent> listener);
 
-	void removeHeaderMenuListener(IPopupMenuListener listener);
+	void removeHeaderMenuListener(IPopupMenuListener<ITableColumnPopupEvent> listener);
 
-	void addCellMenuListener(IPopupMenuListener listener);
+	void addCellMenuListener(IPopupMenuListener<ITableCellPopupEvent> listener);
 
-	void removeCellMenuListener(IPopupMenuListener listener);
+	void removeCellMenuListener(IPopupMenuListener<ITableCellPopupEvent> listener);
 
 	boolean isAutoUpdateConfigurable();
 

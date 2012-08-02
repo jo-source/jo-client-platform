@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,41 +26,30 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.impl;
+package org.jowidgets.cap.ui.tools.filter;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
-import org.jowidgets.cap.common.api.filter.IOperator;
-import org.jowidgets.cap.ui.api.filter.IOperatorProvider;
+import org.jowidgets.cap.ui.api.filter.IFilterType;
+import org.jowidgets.cap.ui.api.filter.IIncludingFilterFactory;
+import org.jowidgets.cap.ui.api.filter.IUiConfigurableFilter;
 import org.jowidgets.util.Assert;
 
-final class OperatorProvider<OPERATOR_TYPE extends IOperator> implements IOperatorProvider<OPERATOR_TYPE> {
+public class IncludingFilterFactoryWrapper<VALUE_TYPE> implements IIncludingFilterFactory<VALUE_TYPE> {
 
-	private final List<OPERATOR_TYPE> operators;
-	private final OPERATOR_TYPE defaultOperator;
+	private final IIncludingFilterFactory<VALUE_TYPE> original;
 
-	OperatorProvider(final OPERATOR_TYPE defaultOperator, final OPERATOR_TYPE... operators) {
-		Assert.paramNotNull(defaultOperator, "defaultOperator");
-		Assert.paramNotNull(operators, "operators");
-		this.defaultOperator = defaultOperator;
-		this.operators = Collections.unmodifiableList(Arrays.asList(operators));
+	public IncludingFilterFactoryWrapper(final IIncludingFilterFactory<VALUE_TYPE> original) {
+		Assert.paramNotNull(original, "original");
+		this.original = original;
 	}
 
 	@Override
-	public List<OPERATOR_TYPE> getOperators() {
-		return operators;
+	public IFilterType getFilterType() {
+		return original.getFilterType();
 	}
 
 	@Override
-	public OPERATOR_TYPE getDefaultOperator() {
-		return defaultOperator;
-	}
-
-	@Override
-	public boolean isInvertible(final OPERATOR_TYPE operator) {
-		return operator.isInvertible();
+	public IUiConfigurableFilter<?> getIncludingFilter(final VALUE_TYPE attributeValue) {
+		return original.getIncludingFilter(attributeValue);
 	}
 
 }
