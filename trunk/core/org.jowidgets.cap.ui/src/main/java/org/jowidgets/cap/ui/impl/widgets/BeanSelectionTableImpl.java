@@ -54,8 +54,10 @@ import org.jowidgets.common.types.TableSelectionPolicy;
 import org.jowidgets.common.widgets.controller.ITableCellEditorListener;
 import org.jowidgets.common.widgets.controller.ITableCellListener;
 import org.jowidgets.common.widgets.controller.ITableCellPopupDetectionListener;
+import org.jowidgets.common.widgets.controller.ITableCellPopupEvent;
 import org.jowidgets.common.widgets.controller.ITableColumnListener;
 import org.jowidgets.common.widgets.controller.ITableColumnPopupDetectionListener;
+import org.jowidgets.common.widgets.controller.ITableColumnPopupEvent;
 import org.jowidgets.common.widgets.controller.ITableSelectionListener;
 import org.jowidgets.tools.widgets.wrapper.AbstractInputControl;
 import org.jowidgets.util.EmptyCheck;
@@ -383,32 +385,32 @@ final class BeanSelectionTableImpl<BEAN_TYPE> extends AbstractInputControl<List<
 	}
 
 	@Override
-	public void addTableMenuListener(final IPopupMenuListener listener) {
+	public void addTableMenuListener(final IPopupMenuListener<Position> listener) {
 		table.addTableMenuListener(listener);
 	}
 
 	@Override
-	public void removeTableMenuListener(final IPopupMenuListener listener) {
+	public void removeTableMenuListener(final IPopupMenuListener<Position> listener) {
 		table.removeTableMenuListener(listener);
 	}
 
 	@Override
-	public void addHeaderMenuListener(final IPopupMenuListener listener) {
+	public void addHeaderMenuListener(final IPopupMenuListener<ITableColumnPopupEvent> listener) {
 		table.addHeaderMenuListener(listener);
 	}
 
 	@Override
-	public void removeHeaderMenuListener(final IPopupMenuListener listener) {
+	public void removeHeaderMenuListener(final IPopupMenuListener<ITableColumnPopupEvent> listener) {
 		table.removeHeaderMenuListener(listener);
 	}
 
 	@Override
-	public void addCellMenuListener(final IPopupMenuListener listener) {
+	public void addCellMenuListener(final IPopupMenuListener<ITableCellPopupEvent> listener) {
 		table.addCellMenuListener(listener);
 	}
 
 	@Override
-	public void removeCellMenuListener(final IPopupMenuListener listener) {
+	public void removeCellMenuListener(final IPopupMenuListener<ITableCellPopupEvent> listener) {
 		table.removeCellMenuListener(listener);
 	}
 

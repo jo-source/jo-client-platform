@@ -147,7 +147,7 @@ public class BeanTableMenuInterceptorAdapter<BEAN_TYPE> implements IBeanTableMen
 
 	@Override
 	public IActionBuilder addIncludingFilterActionBuilder(
-		final IBeanTableModel<?> model,
+		final IBeanTable<?> table,
 		final int columnIndex,
 		final IActionBuilder builder) {
 		return builder;
@@ -155,7 +155,7 @@ public class BeanTableMenuInterceptorAdapter<BEAN_TYPE> implements IBeanTableMen
 
 	@Override
 	public IActionBuilder addExcludingFilterActionBuilder(
-		final IBeanTableModel<?> model,
+		final IBeanTable<?> table,
 		final int columnIndex,
 		final IActionBuilder builder) {
 		return builder;
@@ -163,7 +163,7 @@ public class BeanTableMenuInterceptorAdapter<BEAN_TYPE> implements IBeanTableMen
 
 	@Override
 	public IActionBuilder addCustomFilterActionBuilder(
-		final IBeanTableModel<?> model,
+		final IBeanTable<?> table,
 		final int columnIndex,
 		final IActionBuilder builder) {
 		return builder;

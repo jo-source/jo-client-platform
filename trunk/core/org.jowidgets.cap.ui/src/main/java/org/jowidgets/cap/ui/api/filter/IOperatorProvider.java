@@ -38,4 +38,6 @@ public interface IOperatorProvider<OPERATOR_TYPE extends IOperator> {
 
 	OPERATOR_TYPE getDefaultOperator();
 
+	boolean isInvertible(OPERATOR_TYPE operator);
+
 }

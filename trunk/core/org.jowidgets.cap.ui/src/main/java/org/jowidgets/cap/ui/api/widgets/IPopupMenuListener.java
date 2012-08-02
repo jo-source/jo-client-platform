@@ -28,8 +28,8 @@
 
 package org.jowidgets.cap.ui.api.widgets;
 
-public interface IPopupMenuListener {
+public interface IPopupMenuListener<EVENT_TYPE> {
 
-	void beforeMenuShow();
+	void beforeMenuShow(EVENT_TYPE event);
 
 }

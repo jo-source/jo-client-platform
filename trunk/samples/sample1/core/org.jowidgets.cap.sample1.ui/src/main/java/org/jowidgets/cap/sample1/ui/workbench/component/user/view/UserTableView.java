@@ -52,6 +52,7 @@ import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.cap.ui.api.widgets.IPopupMenuListener;
 import org.jowidgets.common.widgets.controller.IInputListener;
+import org.jowidgets.common.widgets.controller.ITableCellPopupEvent;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
 import org.jowidgets.tools.layout.MigLayoutFactory;
 import org.jowidgets.tools.model.item.MenuModel;
@@ -99,18 +100,20 @@ public class UserTableView extends AbstractView {
 		final Random random = new Random();
 		final IMenuModel dynamicMenuModel = createDynamicMenuModelStub();
 		table.getCellPopMenu().addItem(dynamicMenuModel);
-		table.addCellMenuListener(new IPopupMenuListener() {
+		table.addCellMenuListener(new IPopupMenuListener<ITableCellPopupEvent>() {
 			@Override
-			public void beforeMenuShow() {
-				fillDynamicMenuModel(dynamicMenuModel, random);
+			public void beforeMenuShow(final ITableCellPopupEvent event) {
+				fillDynamicMenuModel(dynamicMenuModel, random, event);
 			}
 		});
 
 		beanTableModel.load();
 	}
 
-	private void fillDynamicMenuModel(final IMenuModel menuModel, final Random random) {
+	private void fillDynamicMenuModel(final IMenuModel menuModel, final Random random, final ITableCellPopupEvent event) {
 		menuModel.removeAllItems();
+		menuModel.addActionItem("Clicked row '" + event.getRowIndex() + "' and column '" + event.getColumnIndex() + "'");
+		menuModel.addActionItem("Clicked value '" + table.getModel().getValue(event.getRowIndex(), event.getColumnIndex()) + "'");
 		menuModel.addActionItem("Its " + (new Date()));
 		final int count = random.nextInt(5) + 1;
 		for (int i = 0; i < count; i++) {

@@ -66,4 +66,10 @@ public enum BooleanOperator implements IOperator {
 	public String getDescription() {
 		return description;
 	}
+
+	@Override
+	public boolean isInvertible() {
+		return true;
+	}
+
 }

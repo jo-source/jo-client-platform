@@ -105,17 +105,17 @@ public interface IBeanTableMenuFactory<BEAN_TYPE> {
 
 	IAction clearDefaultSortAction(IBeanTableModel<BEAN_TYPE> model);
 
-	IActionBuilder addIncludingFilterActionBuilder(IBeanTableModel<BEAN_TYPE> model, int columnIndex);
+	IActionBuilder addIncludingFilterActionBuilder(IBeanTable<BEAN_TYPE> table, int columnIndex);
 
-	IAction addIncludingFilterAction(IBeanTableModel<BEAN_TYPE> model, int columnIndex);
+	IAction addIncludingFilterAction(IBeanTable<BEAN_TYPE> table, int columnIndex);
 
-	IActionBuilder addExcludingFilterActionBuilder(IBeanTableModel<BEAN_TYPE> model, int columnIndex);
+	IActionBuilder addExcludingFilterActionBuilder(IBeanTable<BEAN_TYPE> table, int columnIndex);
 
-	IAction addExcludingFilterAction(IBeanTableModel<BEAN_TYPE> model, int columnIndex);
+	IAction addExcludingFilterAction(IBeanTable<BEAN_TYPE> table, int columnIndex);
 
-	IActionBuilder addCustomFilterActionBuilder(IBeanTableModel<BEAN_TYPE> model, int columnIndex);
+	IActionBuilder addCustomFilterActionBuilder(IBeanTable<BEAN_TYPE> table, int columnIndex);
 
-	IAction addCustomFilterAction(IBeanTableModel<BEAN_TYPE> model, int columnIndex);
+	IAction addCustomFilterAction(IBeanTable<BEAN_TYPE> table, int columnIndex);
 
 	IActionBuilder addFilterActionBuilder(IBeanTableModel<BEAN_TYPE> model, IFilterType filterType, int columnIndex);
 

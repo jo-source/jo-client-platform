@@ -410,11 +410,11 @@ final class BeanTableMenuFactoryImpl<BEAN_TYPE> implements IBeanTableMenuFactory
 	}
 
 	@Override
-	public IActionBuilder addIncludingFilterActionBuilder(final IBeanTableModel<BEAN_TYPE> model, final int columnIndex) {
-		IActionBuilder builder = new BeanTableAddIncludingFilterActionBuilder(model, columnIndex);
+	public IActionBuilder addIncludingFilterActionBuilder(final IBeanTable<BEAN_TYPE> table, final int columnIndex) {
+		IActionBuilder builder = new BeanTableAddIncludingFilterActionBuilder(table, columnIndex);
 		for (final IBeanTableMenuInterceptor<BEAN_TYPE> interceptor : interceptors) {
 			if (builder != null) {
-				builder = interceptor.addIncludingFilterActionBuilder(model, columnIndex, builder);
+				builder = interceptor.addIncludingFilterActionBuilder(table, columnIndex, builder);
 			}
 			else {
 				break;
@@ -424,16 +424,16 @@ final class BeanTableMenuFactoryImpl<BEAN_TYPE> implements IBeanTableMenuFactory
 	}
 
 	@Override
-	public IAction addIncludingFilterAction(final IBeanTableModel<BEAN_TYPE> model, final int columnIndex) {
-		return addIncludingFilterActionBuilder(model, columnIndex).build();
+	public IAction addIncludingFilterAction(final IBeanTable<BEAN_TYPE> table, final int columnIndex) {
+		return addIncludingFilterActionBuilder(table, columnIndex).build();
 	}
 
 	@Override
-	public IActionBuilder addExcludingFilterActionBuilder(final IBeanTableModel<BEAN_TYPE> model, final int columnIndex) {
-		IActionBuilder builder = new BeanTableAddExcludingFilterActionBuilder(model, columnIndex);
+	public IActionBuilder addExcludingFilterActionBuilder(final IBeanTable<BEAN_TYPE> table, final int columnIndex) {
+		IActionBuilder builder = new BeanTableAddExcludingFilterActionBuilder(table, columnIndex);
 		for (final IBeanTableMenuInterceptor<BEAN_TYPE> interceptor : interceptors) {
 			if (builder != null) {
-				builder = interceptor.addExcludingFilterActionBuilder(model, columnIndex, builder);
+				builder = interceptor.addExcludingFilterActionBuilder(table, columnIndex, builder);
 			}
 			else {
 				break;
@@ -443,16 +443,16 @@ final class BeanTableMenuFactoryImpl<BEAN_TYPE> implements IBeanTableMenuFactory
 	}
 
 	@Override
-	public IAction addExcludingFilterAction(final IBeanTableModel<BEAN_TYPE> model, final int columnIndex) {
-		return addExcludingFilterActionBuilder(model, columnIndex).build();
+	public IAction addExcludingFilterAction(final IBeanTable<BEAN_TYPE> table, final int columnIndex) {
+		return addExcludingFilterActionBuilder(table, columnIndex).build();
 	}
 
 	@Override
-	public IActionBuilder addCustomFilterActionBuilder(final IBeanTableModel<BEAN_TYPE> model, final int columnIndex) {
-		IActionBuilder builder = new BeanTableAddCustomFilterActionBuilder(model, columnIndex);
+	public IActionBuilder addCustomFilterActionBuilder(final IBeanTable<BEAN_TYPE> table, final int columnIndex) {
+		IActionBuilder builder = new BeanTableAddCustomFilterActionBuilder(table, columnIndex);
 		for (final IBeanTableMenuInterceptor<BEAN_TYPE> interceptor : interceptors) {
 			if (builder != null) {
-				builder = interceptor.addCustomFilterActionBuilder(model, columnIndex, builder);
+				builder = interceptor.addCustomFilterActionBuilder(table, columnIndex, builder);
 			}
 			else {
 				break;
@@ -462,8 +462,8 @@ final class BeanTableMenuFactoryImpl<BEAN_TYPE> implements IBeanTableMenuFactory
 	}
 
 	@Override
-	public IAction addCustomFilterAction(final IBeanTableModel<BEAN_TYPE> model, final int columnIndex) {
-		return addCustomFilterActionBuilder(model, columnIndex).build();
+	public IAction addCustomFilterAction(final IBeanTable<BEAN_TYPE> table, final int columnIndex) {
+		return addCustomFilterActionBuilder(table, columnIndex).build();
 	}
 
 	@Override

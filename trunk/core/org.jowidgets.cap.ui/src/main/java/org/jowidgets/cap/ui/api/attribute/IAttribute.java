@@ -32,6 +32,7 @@ import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.Cardinality;
 import org.jowidgets.cap.common.api.bean.IValueRange;
+import org.jowidgets.cap.common.api.filter.IOperator;
 import org.jowidgets.cap.ui.api.control.DisplayFormat;
 import org.jowidgets.cap.ui.api.control.IDisplayFormat;
 import org.jowidgets.cap.ui.api.filter.IFilterPanelProvider;
@@ -68,6 +69,8 @@ public interface IAttribute<ELEMENT_VALUE_TYPE> extends IChangeObservable {
 
 	String getCurrentLabel();
 
+	String getValueAsString(Object value);
+
 	String getDescription();
 
 	DisplayFormat getLabelDisplayFormat();
@@ -86,7 +89,7 @@ public interface IAttribute<ELEMENT_VALUE_TYPE> extends IChangeObservable {
 
 	List<IFilterType> getSupportedFilterTypes();
 
-	IFilterPanelProvider<?> getFilterPanelProvider(IFilterType filterType);
+	IFilterPanelProvider<IOperator> getFilterPanelProvider(IFilterType filterType);
 
 	boolean isVisible();
 

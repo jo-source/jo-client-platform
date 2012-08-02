@@ -35,27 +35,27 @@ import java.util.Set;
 import org.jowidgets.cap.ui.api.widgets.IPopupMenuListener;
 import org.jowidgets.util.Assert;
 
-final class PopupMenuObservable {
+final class PopupMenuObservable<EVENT_TYPE> {
 
-	private final Set<IPopupMenuListener> listeners;
+	private final Set<IPopupMenuListener<EVENT_TYPE>> listeners;
 
 	PopupMenuObservable() {
-		this.listeners = new LinkedHashSet<IPopupMenuListener>();
+		this.listeners = new LinkedHashSet<IPopupMenuListener<EVENT_TYPE>>();
 	}
 
-	void addPopupMenuListener(final IPopupMenuListener listener) {
+	void addPopupMenuListener(final IPopupMenuListener<EVENT_TYPE> listener) {
 		Assert.paramNotNull(listener, "listener");
 		listeners.add(listener);
 	}
 
-	void removePopupMenuListener(final IPopupMenuListener listener) {
+	void removePopupMenuListener(final IPopupMenuListener<EVENT_TYPE> listener) {
 		Assert.paramNotNull(listener, "listener");
 		listeners.remove(listener);
 	}
 
-	void fireBeforeMenuShow() {
-		for (final IPopupMenuListener listener : new LinkedList<IPopupMenuListener>(listeners)) {
-			listener.beforeMenuShow();
+	void fireBeforeMenuShow(final EVENT_TYPE event) {
+		for (final IPopupMenuListener<EVENT_TYPE> listener : new LinkedList<IPopupMenuListener<EVENT_TYPE>>(listeners)) {
+			listener.beforeMenuShow(event);
 		}
 	}
 }

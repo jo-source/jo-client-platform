@@ -28,56 +28,19 @@
 
 package org.jowidgets.cap.ui.impl;
 
-import org.jowidgets.api.command.ICommandExecutor;
-import org.jowidgets.api.command.IExecutionContext;
+import org.jowidgets.api.command.ICommand;
 import org.jowidgets.api.image.IconsSmall;
-import org.jowidgets.api.toolkit.Toolkit;
-import org.jowidgets.api.widgets.IInputDialog;
-import org.jowidgets.api.widgets.blueprint.IInputDialogBluePrint;
-import org.jowidgets.cap.ui.api.attribute.IAttribute;
-import org.jowidgets.cap.ui.api.filter.IFilterSupport;
-import org.jowidgets.cap.ui.api.filter.IIncludingFilterFactory;
-import org.jowidgets.cap.ui.api.filter.IUiConfigurableFilter;
-import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
-import org.jowidgets.common.widgets.controller.ITableCellPopupEvent;
 import org.jowidgets.tools.command.ActionBuilder;
 
 final class BeanTableAddCustomFilterActionBuilder extends ActionBuilder {
 
-	BeanTableAddCustomFilterActionBuilder(final IBeanTableModel<?> model, final int columnIndex) {
+	BeanTableAddCustomFilterActionBuilder(final IBeanTable<?> table, final int columnIndex) {
 		super();
 		setText(Messages.getString("BeanTableAddCustomFilterActionBuilder.custom_filter_periode")); //$NON-NLS-1$
 		setToolTipText(Messages.getString("BeanTableAddCustomFilterActionBuilder.adds_an_custom_filter_to_this_column")); //$NON-NLS-1$
 		setIcon(IconsSmall.FILTER);
-		setCommand(new ICommandExecutor() {
-			@Override
-			public void execute(final IExecutionContext executionContext) throws Exception {
-				final IAttribute<Object> attribute = model.getAttribute(columnIndex);
-
-				final ITableCellPopupEvent cellPopupEvent = executionContext.getValue(IBeanTable.CELL_POPUP_EVENT_CONTEXT_KEY);
-				final Object cellValue = model.getValue(cellPopupEvent.getRowIndex(), columnIndex);
-
-				final IFilterSupport<Object> filterSupport = attribute.getCurrentControlPanel().getFilterSupport();
-				final IIncludingFilterFactory<Object> includingFilterFactory = filterSupport.getIncludingFilterFactory();
-				final IUiConfigurableFilter<?> includingFilter = includingFilterFactory.getIncludingFilter(cellValue);
-
-				final IInputDialogBluePrint<IUiConfigurableFilter<? extends Object>> dialogBp;
-				dialogBp = AttributeFilterDialogBluePrintFactory.createDialogBluePrint(model, columnIndex, executionContext, null);
-
-				final IInputDialog<IUiConfigurableFilter<?>> dialog = Toolkit.getActiveWindow().createChildWindow(dialogBp);
-				dialog.setValue(includingFilter);
-				dialog.setVisible(true);
-
-				if (dialog.isOkPressed()) {
-					model.addFilter(IBeanTableModel.UI_FILTER_ID, dialog.getValue());
-					model.load();
-				}
-
-				dialog.dispose();
-			}
-
-		});
+		setCommand((ICommand) new BeanTableAddCustomFilterCommandExecutor(table, columnIndex));
 	}
 
 	//TODO MG remove this after the filter dialog was finished

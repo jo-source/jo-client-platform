@@ -29,44 +29,50 @@
 package org.jowidgets.cap.ui.impl;
 
 import org.jowidgets.api.command.IExecutionContext;
-import org.jowidgets.cap.ui.api.CapUiToolkit;
-import org.jowidgets.cap.ui.api.filter.IUiFilter;
+import org.jowidgets.api.toolkit.Toolkit;
+import org.jowidgets.api.widgets.IInputDialog;
+import org.jowidgets.api.widgets.blueprint.IInputDialogBluePrint;
+import org.jowidgets.cap.ui.api.filter.IUiConfigurableFilter;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.tools.message.MessageReplacer;
 
-final class BeanTableAddInlineFilterCommandExecutor extends AbstractBeanTableAddFilterCommandExecutor {
+final class BeanTableAddCustomFilterCommandExecutor extends AbstractBeanTableAddFilterCommandExecutor {
 
-	private final String noIncludingFilterMessage = Messages.getString("BeanTableAddInlineFilterCommandExecutor.noIncludingFilter");
-	private final String noExcludingFilterMessage = Messages.getString("BeanTableAddInlineFilterCommandExecutor.noExcludingFilter");
+	private final String noUserDefinedFilterMessage = Messages.getString("BeanTableAddCustomFilterCommandExecutor.noUserDefinedFilter");
 
 	private final IBeanTableModel<?> model;
-	private final boolean invert;
+	private final int columnIndex;
 
-	BeanTableAddInlineFilterCommandExecutor(final IBeanTable<?> table, final int columnIndex, final boolean invert) {
-		super(table, columnIndex, invert);
+	BeanTableAddCustomFilterCommandExecutor(final IBeanTable<?> table, final int columnIndex) {
+		super(table, columnIndex, false);
 		this.model = table.getModel();
-		this.invert = invert;
+		this.columnIndex = columnIndex;
 	}
 
 	@Override
 	public void execute(final IExecutionContext executionContext) throws Exception {
-		IUiFilter includingFilter = getIncludingFilter(executionContext);
-		if (invert) {
-			includingFilter = CapUiToolkit.filterToolkit().filterTools().invert(includingFilter);
+
+		final IUiConfigurableFilter<?> includingFilter = getIncludingFilter(executionContext);
+
+		final IInputDialogBluePrint<IUiConfigurableFilter<? extends Object>> dialogBp;
+		dialogBp = AttributeFilterDialogBluePrintFactory.createDialogBluePrint(model, columnIndex, executionContext, null);
+
+		final IInputDialog<IUiConfigurableFilter<?>> dialog = Toolkit.getActiveWindow().createChildWindow(dialogBp);
+		dialog.setValue(includingFilter);
+		dialog.setVisible(true);
+
+		if (dialog.isOkPressed()) {
+			model.addFilter(IBeanTableModel.UI_FILTER_ID, dialog.getValue());
+			model.load();
 		}
-		model.addFilter(IBeanTableModel.UI_FILTER_ID, includingFilter);
-		model.load();
+
+		dialog.dispose();
 	}
 
 	@Override
 	String getDisabledMessageOnNoIncludingFilter(final String value) {
-		if (!invert) {
-			return MessageReplacer.replace(noIncludingFilterMessage, value);
-		}
-		else {
-			return MessageReplacer.replace(noExcludingFilterMessage, value);
-		}
+		return MessageReplacer.replace(noUserDefinedFilterMessage, value);
 	}
 
 }

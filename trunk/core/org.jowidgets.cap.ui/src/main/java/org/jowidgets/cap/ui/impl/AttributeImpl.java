@@ -33,8 +33,10 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.jowidgets.api.convert.IObjectLabelConverter;
 import org.jowidgets.cap.common.api.bean.Cardinality;
 import org.jowidgets.cap.common.api.bean.IValueRange;
+import org.jowidgets.cap.common.api.filter.IOperator;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IAttributeConfig;
 import org.jowidgets.cap.ui.api.attribute.IAttributeGroup;
@@ -247,6 +249,42 @@ final class AttributeImpl<ELEMENT_VALUE_TYPE> implements IAttribute<ELEMENT_VALU
 	}
 
 	@Override
+	public String getValueAsString(final Object value) {
+		final IControlPanelProvider<ELEMENT_VALUE_TYPE> controlPanel = getCurrentControlPanel();
+		if (controlPanel != null) {
+			final IObjectLabelConverter<ELEMENT_VALUE_TYPE> converter = controlPanel.getObjectLabelConverter();
+			if (converter != null) {
+				return getValueAsString(converter, value);
+			}
+		}
+		return null;
+	}
+
+	@SuppressWarnings("unchecked")
+	private String getValueAsString(final IObjectLabelConverter<ELEMENT_VALUE_TYPE> converter, final Object value) {
+		if (value instanceof Collection<?>) {
+			final Collection<ELEMENT_VALUE_TYPE> collection = (Collection<ELEMENT_VALUE_TYPE>) value;
+			final int collectionSize = collection.size();
+			if (collectionSize > 0) {
+				final ELEMENT_VALUE_TYPE firstElement = collection.iterator().next();
+				if (collectionSize > 1) {
+					return getValueAsString(converter, firstElement) + " [" + collectionSize + "]";
+				}
+				else {
+					return getValueAsString(converter, firstElement);
+				}
+			}
+			else {
+				return null;
+			}
+		}
+		else {
+			return converter.convertToString((ELEMENT_VALUE_TYPE) value);
+		}
+
+	}
+
+	@Override
 	public String getDescription() {
 		return description;
 	}
@@ -304,11 +342,11 @@ final class AttributeImpl<ELEMENT_VALUE_TYPE> implements IAttribute<ELEMENT_VALU
 	}
 
 	@Override
-	public IFilterPanelProvider<?> getFilterPanelProvider(final IFilterType filterType) {
+	public IFilterPanelProvider<IOperator> getFilterPanelProvider(final IFilterType filterType) {
 		for (final IControlPanelProvider<ELEMENT_VALUE_TYPE> controlPanelProvider : controlPanels) {
-			final IFilterSupport<?> filterSupport = controlPanelProvider.getFilterSupport();
+			final IFilterSupport<Object> filterSupport = controlPanelProvider.getFilterSupport();
 			if (filterSupport != null) {
-				for (final IFilterPanelProvider<?> filterPanelProvider : filterSupport.getFilterPanels()) {
+				for (final IFilterPanelProvider<IOperator> filterPanelProvider : filterSupport.getFilterPanels()) {
 					if (filterType.equals(filterPanelProvider.getType())) {
 						return filterPanelProvider;
 					}
