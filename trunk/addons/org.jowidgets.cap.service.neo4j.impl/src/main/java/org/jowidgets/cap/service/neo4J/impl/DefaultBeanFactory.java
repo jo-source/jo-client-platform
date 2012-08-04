@@ -127,13 +127,13 @@ final class DefaultBeanFactory implements IBeanFactory {
 				return null;
 			}
 			else if (method.getName().startsWith("get")) {
-				return node.getProperty(toPropertyName(method.getName(), 3));
+				return getProperty(node, toPropertyName(method.getName(), 3));
 			}
 			else if (method.getName().startsWith("has")) {
-				return node.getProperty(toPropertyName(method.getName(), 3));
+				return getProperty(node, toPropertyName(method.getName(), 3));
 			}
 			else if (method.getName().startsWith("is")) {
-				return node.getProperty(toPropertyName(method.getName(), 2));
+				return getProperty(node, toPropertyName(method.getName(), 2));
 			}
 			else if (method.getName().startsWith("set")) {
 				if (args == null || args.length != 1) {
@@ -145,6 +145,15 @@ final class DefaultBeanFactory implements IBeanFactory {
 			else {
 				throw new IllegalStateException(
 					"Method name start with 'get', 'has', 'is', 'set' or must be 'toString', 'equals', 'hashCode'.");
+			}
+		}
+
+		private Object getProperty(final Node node, final String propertyName) {
+			if (node.hasProperty(propertyName)) {
+				return node.getProperty(propertyName);
+			}
+			else {
+				return null;
 			}
 		}
 
