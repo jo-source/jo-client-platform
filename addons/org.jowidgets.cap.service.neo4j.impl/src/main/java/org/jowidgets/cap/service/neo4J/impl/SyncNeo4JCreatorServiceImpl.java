@@ -142,6 +142,7 @@ final class SyncNeo4JCreatorServiceImpl<BEAN_TYPE extends IBean> implements ISyn
 			}
 		};
 		final Node result = factory.getOrCreate(IBean.ID_PROPERTY, idGenerator.createUniqueId(beanTypeIdString));
+		result.setProperty(IBean.VERSION_PROPERTY, 0L);
 		result.setProperty(beanTypePropertyName, beanTypeIdString);
 		nodeIndex.add(result, beanTypePropertyName, beanTypeIdString);
 		return result;
