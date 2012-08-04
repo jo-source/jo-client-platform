@@ -28,31 +28,18 @@
 
 package org.jowidgets.cap.service.neo4J.impl;
 
-import org.jowidgets.cap.service.neo4j.api.IGraphDBConfigBuilder;
-import org.jowidgets.cap.service.neo4j.api.INeo4JServiceFactory;
-import org.jowidgets.cap.service.neo4j.api.INeo4JServiceToolkit;
-import org.jowidgets.cap.service.neo4j.api.INeo4JServicesDecoratorProviderBuilder;
+import org.jowidgets.cap.common.api.exception.ServiceCanceledException;
+import org.jowidgets.util.IExceptionLogger;
 
-public final class Neo4JServiceToolkitImpl implements INeo4JServiceToolkit {
-
-	private INeo4JServiceFactory serviceFactory;
+final class DefaultExceptionLogger implements IExceptionLogger {
 
 	@Override
-	public INeo4JServiceFactory serviceFactory() {
-		if (serviceFactory == null) {
-			serviceFactory = new Neo4JServiceFactoryImpl();
+	public void log(final Throwable exception) {
+		if (exception != null && !(exception instanceof ServiceCanceledException)) {
+			//CHECKSTYLE:OFF
+			exception.printStackTrace();
+			//CHECKSTYLE:ON
 		}
-		return serviceFactory;
-	}
-
-	@Override
-	public IGraphDBConfigBuilder graphDBConfigBuilder() {
-		return new GraphDbConfigBuilderImpl();
-	}
-
-	@Override
-	public INeo4JServicesDecoratorProviderBuilder serviceDecoratorProviderBuilder() {
-		return new Neo4JServicesDecoratorProviderBuilder();
 	}
 
 }
