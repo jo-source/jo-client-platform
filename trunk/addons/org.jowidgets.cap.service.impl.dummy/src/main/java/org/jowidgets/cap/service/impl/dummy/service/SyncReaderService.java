@@ -28,80 +28,30 @@
 
 package org.jowidgets.cap.service.impl.dummy.service;
 
-import java.util.LinkedList;
 import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IBean;
-import org.jowidgets.cap.common.api.bean.IBeanDto;
-import org.jowidgets.cap.common.api.bean.IBeanKey;
-import org.jowidgets.cap.common.api.execution.IExecutionCallback;
-import org.jowidgets.cap.common.api.filter.IFilter;
-import org.jowidgets.cap.common.api.sort.ISort;
-import org.jowidgets.cap.service.api.CapServiceToolkit;
-import org.jowidgets.cap.service.api.adapter.ISyncReaderService;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.cap.service.impl.dummy.datastore.IEntityData;
-import org.jowidgets.cap.service.tools.bean.BeanDtoFactoryHelper;
+import org.jowidgets.cap.service.tools.reader.AbstractSimpleReaderService;
 
-final class SyncReaderService<BEAN_TYPE extends IBean> implements ISyncReaderService<Void> {
+final class SyncReaderService<BEAN_TYPE extends IBean> extends AbstractSimpleReaderService<IBean, Void> {
 
-	private final IBeanDtoFactory<BEAN_TYPE> beanFactory;
 	private final IEntityData<? extends BEAN_TYPE> data;
 
 	SyncReaderService(final IEntityData<? extends BEAN_TYPE> data, final IBeanDtoFactory<BEAN_TYPE> beanFactory) {
-		this.beanFactory = beanFactory;
+		super(beanFactory);
 		this.data = data;
 	}
 
 	@Override
-	public List<IBeanDto> read(
-		final List<? extends IBeanKey> parentBeans,
-		final IFilter filter,
-		final List<? extends ISort> sortedProperties,
-		final int firstRow,
-		final int maxRows,
-		final Void parameter,
-		IExecutionCallback executionCallback) {
-
-		executionCallback = CapServiceToolkit.delayedExecutionCallback(executionCallback);
-
-		if (filter == null && (sortedProperties == null || sortedProperties.size() == 0)) {
-			return BeanDtoFactoryHelper.createDtos(beanFactory, data.getAllData(firstRow, maxRows), executionCallback);
-		}
-		else {
-			List<IBeanDto> result = BeanDtoFactoryHelper.createDtos(beanFactory, data.getAllData(), executionCallback);
-
-			if (filter != null) {
-				result = CapServiceToolkit.beanDtoCollectionFilter().filter(result, filter, executionCallback);
-			}
-			if (sortedProperties != null && sortedProperties.size() > 0) {
-				result = CapServiceToolkit.beanDtoCollectionSorter().sort(result, sortedProperties, executionCallback);
-			}
-
-			if (result.size() >= firstRow) {
-				return new LinkedList<IBeanDto>(result.subList(firstRow, Math.min(firstRow + maxRows, result.size())));
-			}
-			else {
-				return new LinkedList<IBeanDto>();
-			}
-		}
-
+	protected List<? extends IBean> getAllBeans() {
+		return data.getAllData();
 	}
 
 	@Override
-	public Integer count(
-		final List<? extends IBeanKey> parentBeans,
-		final IFilter filter,
-		final Void parameter,
-		final IExecutionCallback executionCallback) {
-
-		if (filter == null) {
-			return Integer.valueOf(data.getAllData().size());
-		}
-		else {
-			final List<IBeanDto> result = BeanDtoFactoryHelper.createDtos(beanFactory, data.getAllData(), executionCallback);
-			return Integer.valueOf(CapServiceToolkit.beanDtoCollectionFilter().filter(result, filter, executionCallback).size());
-		}
+	protected List<? extends IBean> getBeans(final int firstRow, final int maxRows) {
+		return data.getAllData(firstRow, maxRows);
 	}
 
 }

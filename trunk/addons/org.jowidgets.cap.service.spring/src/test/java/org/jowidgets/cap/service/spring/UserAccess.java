@@ -60,6 +60,11 @@ public class UserAccess implements IBeanAccess<User>, IBeanAccessProvider {
 	}
 
 	@Override
+	public Object getBeanTypeId() {
+		return getBeanType();
+	}
+
+	@Override
 	public void flush() {}
 
 	@SuppressWarnings("unchecked")

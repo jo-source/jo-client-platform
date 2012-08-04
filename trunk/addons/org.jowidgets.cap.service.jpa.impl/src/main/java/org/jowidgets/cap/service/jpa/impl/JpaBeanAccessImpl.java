@@ -47,10 +47,13 @@ import org.jowidgets.util.EmptyCheck;
 final class JpaBeanAccessImpl<BEAN_TYPE extends IBean> implements IBeanAccess<BEAN_TYPE> {
 
 	private final Class<? extends BEAN_TYPE> beanType;
+	private final Object beanTypeId;
 
-	JpaBeanAccessImpl(final Class<? extends BEAN_TYPE> beanType) {
+	JpaBeanAccessImpl(final Class<? extends BEAN_TYPE> beanType, final Object beanTypeId) {
 		Assert.paramNotNull(beanType, "beanType");
+		Assert.paramNotNull(beanTypeId, "beanTypeId");
 		this.beanType = beanType;
+		this.beanTypeId = beanTypeId;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -79,6 +82,11 @@ final class JpaBeanAccessImpl<BEAN_TYPE extends IBean> implements IBeanAccess<BE
 	@Override
 	public Class<BEAN_TYPE> getBeanType() {
 		return (Class<BEAN_TYPE>) beanType;
+	}
+
+	@Override
+	public Object getBeanTypeId() {
+		return beanTypeId;
 	}
 
 	@Override

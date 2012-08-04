@@ -114,7 +114,7 @@ public interface ICapCommonToolkit {
 		String renderingPattern,
 		Collection<? extends IBeanValidator<?>> beanValidators);
 
-	IBeanDtoBuilder dtoBuilder(Object entityTypeId);
+	IBeanDtoBuilder dtoBuilder(Object beanTypeId);
 
 	IBeanDataBuilder beanDataBuilder();
 

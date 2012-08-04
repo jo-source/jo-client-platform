@@ -40,14 +40,20 @@ class BeanDtoImpl implements IBeanDto, Serializable {
 	private static final long serialVersionUID = -7085159195317664441L;
 
 	private final Object id;
-	private final String entityTypeId;
+	private final String beanTypeId;
 	private final Map<String, Object> beanData;
 
-	BeanDtoImpl(final Object id, final long version, final Object entityTypeId, final Map<String, Object> beanData) {
-		Assert.paramNotNull(entityTypeId, "entityTypeId");
+	BeanDtoImpl(final Object id, final long version, final Object beanTypeId, final Map<String, Object> beanData) {
+		Assert.paramNotNull(beanTypeId, "beanTypeId");
 		Assert.paramNotNull(beanData, "beanData");
 		this.id = id;
-		this.entityTypeId = entityTypeId.getClass().getName();
+		if (beanTypeId instanceof Class) {
+			this.beanTypeId = ((Class<?>) beanTypeId).getName();
+		}
+		else {
+			this.beanTypeId = beanTypeId.toString();
+		}
+
 		this.beanData = beanData;
 
 		beanData.put(IBean.ID_PROPERTY, id);
@@ -80,7 +86,7 @@ class BeanDtoImpl implements IBeanDto, Serializable {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((entityTypeId == null) ? 0 : entityTypeId.hashCode());
+		result = prime * result + ((beanTypeId == null) ? 0 : beanTypeId.hashCode());
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		return result;
 	}
@@ -97,12 +103,12 @@ class BeanDtoImpl implements IBeanDto, Serializable {
 			return false;
 		}
 		final BeanDtoImpl other = (BeanDtoImpl) obj;
-		if (entityTypeId == null) {
-			if (other.entityTypeId != null) {
+		if (beanTypeId == null) {
+			if (other.beanTypeId != null) {
 				return false;
 			}
 		}
-		else if (!entityTypeId.equals(other.entityTypeId)) {
+		else if (!beanTypeId.equals(other.beanTypeId)) {
 			return false;
 		}
 		if (id == null) {
@@ -118,7 +124,7 @@ class BeanDtoImpl implements IBeanDto, Serializable {
 
 	@Override
 	public String toString() {
-		return "BeanDtoImpl [id=" + id + ", entityTypeId=" + entityTypeId + ", beanData=" + beanData + "]";
+		return "BeanDtoImpl [id=" + id + ", beanTypeId=" + beanTypeId + ", beanData=" + beanData + "]";
 	}
 
 }

@@ -55,6 +55,16 @@ public interface IBeanEntityLinkBluePrint {
 	IBeanEntityLinkBluePrint setLinkBeanType(Class<? extends IBean> beanType);
 
 	/**
+	 * The link bean type id
+	 * (mandatory, if no entity blue print was created for the entity id and beanTypeId differs from bean type)
+	 * 
+	 * @param beanTypeId The type id of the link bean
+	 * 
+	 * @return This blue print
+	 */
+	IBeanEntityLinkBluePrint setLinkBeanTypeId(Object beanTypeId);
+
+	/**
 	 * The entity id of the linked entity (mandatory)
 	 * 
 	 * @param id The entity id of the linked entity

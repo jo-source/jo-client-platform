@@ -37,14 +37,14 @@ import org.jowidgets.util.Assert;
 
 final class BeanPropertyMapImpl implements IBeanPropertyMap {
 
-	private final Object entityTypeId;
+	private final Object entityId;
 	private Object id;
 	private long version;
 	private final Map<String, Object> values;
 
-	BeanPropertyMapImpl(final Object entityTypeId) {
-		Assert.paramNotNull(entityTypeId, "entityTypeId");
-		this.entityTypeId = entityTypeId;
+	BeanPropertyMapImpl(final Object entityId) {
+		Assert.paramNotNull(entityId, "entityId");
+		this.entityId = entityId;
 		this.values = new HashMap<String, Object>();
 	}
 
@@ -94,8 +94,8 @@ final class BeanPropertyMapImpl implements IBeanPropertyMap {
 	}
 
 	@Override
-	public Object getEntityTypeId() {
-		return entityTypeId;
+	public Object getBeanTypeId() {
+		return entityId;
 	}
 
 }

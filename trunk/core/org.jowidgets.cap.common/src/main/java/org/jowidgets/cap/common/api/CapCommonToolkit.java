@@ -166,8 +166,8 @@ public final class CapCommonToolkit {
 				beanValidators);
 	}
 
-	public static IBeanDtoBuilder dtoBuilder(final Object entityTypeId) {
-		return getInstance().dtoBuilder(entityTypeId);
+	public static IBeanDtoBuilder dtoBuilder(final Object beanTypeId) {
+		return getInstance().dtoBuilder(beanTypeId);
 	}
 
 	public static IBeanDataBuilder beanDataBuilder() {
