@@ -107,7 +107,7 @@ final class DefaultBeanFactory implements IBeanFactory {
 				return beanTypeId;
 			}
 			else if (isGetIdMethod(method)) {
-				return node.getId();
+				return node.getProperty(IBean.ID_PROPERTY);
 			}
 			else if (isGetVersionMethod(method)) {
 				return node.getProperty(IBean.VERSION_PROPERTY);

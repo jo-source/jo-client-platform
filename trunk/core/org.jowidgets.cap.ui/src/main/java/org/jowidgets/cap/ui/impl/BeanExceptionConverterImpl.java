@@ -213,6 +213,7 @@ final class BeanExceptionConverterImpl implements IBeanExceptionConverter {
 
 	private IBeanMessage convertUndefinedServiceException(final String shortMessage, final ServiceException exception) {
 		//CHECKSTYLE:OFF
+		System.out.println(exception.getMessage());
 		exception.printStackTrace();
 		//CHECKSTYLE:ON
 		final String userMessage = exception.getUserMessage();
@@ -226,6 +227,7 @@ final class BeanExceptionConverterImpl implements IBeanExceptionConverter {
 
 	private IBeanMessage convertUndefinedException(final String shortMessage, final Throwable throwable) {
 		//CHECKSTYLE:OFF
+		System.out.println(throwable.getMessage());
 		throwable.printStackTrace();
 		//CHECKSTYLE:ON
 		return new BeanMessageImpl(BeanMessageType.ERROR, shortMessage, undefinedRuntimeException, throwable);
