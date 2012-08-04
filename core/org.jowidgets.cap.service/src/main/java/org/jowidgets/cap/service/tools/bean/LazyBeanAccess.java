@@ -58,6 +58,11 @@ public final class LazyBeanAccess<BEAN_TYPE extends IBean> implements IBeanAcces
 	}
 
 	@Override
+	public Object getBeanTypeId() {
+		return beanAccessProvider.get().getBeanTypeId();
+	}
+
+	@Override
 	public void flush() {
 		beanAccessProvider.get().flush();
 	}

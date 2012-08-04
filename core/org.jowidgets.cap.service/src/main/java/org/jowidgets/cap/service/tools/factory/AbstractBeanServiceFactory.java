@@ -34,6 +34,7 @@ import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.service.IBeanServicesProvider;
 import org.jowidgets.cap.common.api.service.ICreatorService;
 import org.jowidgets.cap.common.api.service.IDeleterService;
+import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.common.api.service.IRefreshService;
 import org.jowidgets.cap.common.api.service.IUpdaterService;
@@ -41,16 +42,96 @@ import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.bean.BeanDtoFactory;
 import org.jowidgets.cap.service.api.bean.BeanInitializer;
 import org.jowidgets.cap.service.api.bean.BeanModifier;
+import org.jowidgets.cap.service.api.bean.IBeanAccess;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.cap.service.api.bean.IBeanInitializer;
 import org.jowidgets.cap.service.api.bean.IBeanModifier;
+import org.jowidgets.cap.service.api.creator.ICreatorServiceBuilder;
+import org.jowidgets.cap.service.api.deleter.IDeleterServiceBuilder;
 import org.jowidgets.cap.service.api.entity.IBeanServicesProviderBuilder;
 import org.jowidgets.cap.service.api.factory.IBeanServiceFactory;
 import org.jowidgets.cap.service.api.refresh.IRefreshServiceBuilder;
 import org.jowidgets.cap.service.api.updater.IUpdaterServiceBuilder;
 import org.jowidgets.service.api.IServiceRegistry;
+import org.jowidgets.util.Assert;
 
 public abstract class AbstractBeanServiceFactory implements IBeanServiceFactory {
+
+	@Override
+	public <BEAN_TYPE extends IBean> IBeanServicesProviderBuilder beanServicesBuilder(
+		final IServiceRegistry registry,
+		final Object entityId,
+		final Class<? extends BEAN_TYPE> beanType,
+		final Object beanTypeId,
+		final IBeanDtoFactory<BEAN_TYPE> beanDtoFactory,
+		final IBeanInitializer<BEAN_TYPE> beanInitializer,
+		final IBeanModifier<BEAN_TYPE> beanModifier) {
+
+		Assert.paramNotNull(registry, "registry");
+		Assert.paramNotNull(entityId, "entityId");
+		Assert.paramNotNull(beanType, "beanType");
+		Assert.paramNotNull(beanDtoFactory, "beanDtoFactory");
+		Assert.paramNotNull(beanInitializer, "beanInitializer");
+		Assert.paramNotNull(beanModifier, "beanModifier");
+
+		final IBeanServicesProviderBuilder builder;
+		builder = CapServiceToolkit.beanServicesProviderBuilder(registry, IEntityService.ID, beanType, entityId);
+
+		//create bean access
+		final IBeanAccess<BEAN_TYPE> beanAccess = beanAccess(beanType, beanTypeId);
+
+		//set creator service
+		final ICreatorServiceBuilder<BEAN_TYPE> creatorServiceBuilder = creatorServiceBuilder(beanType, beanTypeId);
+		creatorServiceBuilder.setBeanDtoFactory(beanDtoFactory).setBeanInitializer(beanInitializer);
+		builder.setCreatorService(creatorServiceBuilder.build());
+
+		//set reader service
+		final IReaderService<Void> readerService = readerService(beanType, beanTypeId, beanDtoFactory);
+		builder.setReaderService(readerService);
+
+		//set refresh
+		builder.setRefreshService(CapServiceToolkit.refreshServiceBuilder(beanAccess).setBeanDtoFactory(beanDtoFactory).build());
+
+		//set updater service
+		final IUpdaterServiceBuilder<BEAN_TYPE> updaterServiceBuilder = CapServiceToolkit.updaterServiceBuilder(beanAccess);
+		updaterServiceBuilder.setBeanDtoFactory(beanDtoFactory).setBeanModifier(beanModifier);
+		builder.setUpdaterService(updaterServiceBuilder.build());
+
+		//set deleter service
+		builder.setDeleterService(deleterService(beanType, beanTypeId));
+
+		return builder;
+	}
+
+	@Override
+	public <BEAN_TYPE extends IBean> IBeanAccess<BEAN_TYPE> beanAccess(final Class<? extends BEAN_TYPE> beanType) {
+		return beanAccess(beanType, beanType);
+	}
+
+	@Override
+	public <BEAN_TYPE extends IBean> IBeanServicesProviderBuilder beanServicesBuilder(
+		final IServiceRegistry registry,
+		final Object entityId,
+		final Class<? extends BEAN_TYPE> beanType,
+		final IBeanDtoFactory<BEAN_TYPE> beanDtoFactory,
+		final IBeanInitializer<BEAN_TYPE> beanInitializer,
+		final IBeanModifier<BEAN_TYPE> beanModifier) {
+		return beanServicesBuilder(registry, entityId, beanType, beanType, beanDtoFactory, beanInitializer, beanModifier);
+	}
+
+	@Override
+	public <BEAN_TYPE extends IBean> ICreatorServiceBuilder<BEAN_TYPE> creatorServiceBuilder(
+		final Class<? extends BEAN_TYPE> beanType) {
+		Assert.paramNotNull(beanType, "beanType");
+		return creatorServiceBuilder(beanType, beanType);
+	}
+
+	@Override
+	public <BEAN_TYPE extends IBean, PARAM_TYPE> IReaderService<PARAM_TYPE> readerService(
+		final Class<? extends BEAN_TYPE> beanType,
+		final IBeanDtoFactory<BEAN_TYPE> beanDtoFactory) {
+		return readerService(beanType, beanType, beanDtoFactory);
+	}
 
 	@Override
 	public <BEAN_TYPE extends IBean> IRefreshServiceBuilder<BEAN_TYPE> refreshServiceBuilder(
@@ -62,6 +143,26 @@ public abstract class AbstractBeanServiceFactory implements IBeanServiceFactory 
 	public <BEAN_TYPE extends IBean> IUpdaterServiceBuilder<BEAN_TYPE> updaterServiceBuilder(
 		final Class<? extends BEAN_TYPE> beanType) {
 		return CapServiceToolkit.updaterServiceBuilder(beanAccess(beanType));
+	}
+
+	@Override
+	public <BEAN_TYPE extends IBean> IRefreshServiceBuilder<BEAN_TYPE> refreshServiceBuilder(
+		final Class<? extends BEAN_TYPE> beanType,
+		final Object beanTypeId) {
+		return CapServiceToolkit.refreshServiceBuilder(beanAccess(beanType, beanTypeId));
+	}
+
+	@Override
+	public <BEAN_TYPE extends IBean> IUpdaterServiceBuilder<BEAN_TYPE> updaterServiceBuilder(
+		final Class<? extends BEAN_TYPE> beanType,
+		final Object beanTypeId) {
+		return CapServiceToolkit.updaterServiceBuilder(beanAccess(beanType, beanTypeId));
+	}
+
+	@Override
+	public <BEAN_TYPE extends IBean> IDeleterServiceBuilder<BEAN_TYPE> deleterServiceBuilder(
+		final Class<? extends BEAN_TYPE> beanType) {
+		return deleterServiceBuilder(beanType, beanType);
 	}
 
 	@Override
@@ -124,6 +225,43 @@ public abstract class AbstractBeanServiceFactory implements IBeanServiceFactory 
 	@Override
 	public IDeleterService deleterService(final Class<? extends IBean> beanType) {
 		return deleterServiceBuilder(beanType).build();
+	}
+
+	@Override
+	public ICreatorService creatorService(
+		final Class<? extends IBean> beanType,
+		final Object beanTypeId,
+		final Collection<String> propertyNames) {
+		return creatorServiceBuilder(beanType, beanTypeId).setBeanDtoFactoryAndBeanInitializer(propertyNames).build();
+	}
+
+	@Override
+	public <PARAM_TYPE> IReaderService<PARAM_TYPE> readerService(
+		final Class<? extends IBean> beanType,
+		final Object beanTypeId,
+		final Collection<String> propertyNames) {
+		return readerService(beanType, beanTypeId, BeanDtoFactory.create(beanType, propertyNames));
+	}
+
+	@Override
+	public IRefreshService refreshService(
+		final Class<? extends IBean> beanType,
+		final Object beanTypeId,
+		final Collection<String> propertyNames) {
+		return refreshServiceBuilder(beanType, beanTypeId).setBeanDtoFactory(propertyNames).build();
+	}
+
+	@Override
+	public IUpdaterService updaterService(
+		final Class<? extends IBean> beanType,
+		final Object beanTypeId,
+		final Collection<String> propertyNames) {
+		return updaterServiceBuilder(beanType, beanTypeId).setBeanDtoFactoryAndBeanModifier(propertyNames).build();
+	}
+
+	@Override
+	public IDeleterService deleterService(final Class<? extends IBean> beanType, final Object beanTypeId) {
+		return deleterServiceBuilder(beanType, beanTypeId).build();
 	}
 
 }

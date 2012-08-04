@@ -50,6 +50,48 @@ import org.jowidgets.service.api.IServiceRegistry;
 
 public interface IBeanServiceFactory {
 
+	<BEAN_TYPE extends IBean> IBeanAccess<BEAN_TYPE> beanAccess(Class<? extends BEAN_TYPE> beanType, Object beanTypeId);
+
+	<BEAN_TYPE extends IBean> ICreatorServiceBuilder<BEAN_TYPE> creatorServiceBuilder(
+		Class<? extends BEAN_TYPE> beanType,
+		Object beanTypeId);
+
+	<BEAN_TYPE extends IBean, PARAM_TYPE> IReaderService<PARAM_TYPE> readerService(
+		Class<? extends BEAN_TYPE> beanType,
+		Object beanTypeId,
+		IBeanDtoFactory<BEAN_TYPE> beanDtoFactory);
+
+	<BEAN_TYPE extends IBean> IDeleterServiceBuilder<BEAN_TYPE> deleterServiceBuilder(
+		Class<? extends BEAN_TYPE> beanType,
+		Object beanTypeId);
+
+	//************************************************Convenience delegate to cap methods starts here**************************
+	//Use AbstractBeanServiceFactory for implementation
+
+	<BEAN_TYPE extends IBean> IRefreshServiceBuilder<BEAN_TYPE> refreshServiceBuilder(Class<? extends BEAN_TYPE> beanType);
+
+	<BEAN_TYPE extends IBean> IUpdaterServiceBuilder<BEAN_TYPE> updaterServiceBuilder(Class<? extends BEAN_TYPE> beanType);
+
+	<BEAN_TYPE extends IBean> IRefreshServiceBuilder<BEAN_TYPE> refreshServiceBuilder(
+		Class<? extends BEAN_TYPE> beanType,
+		Object beanTypeId);
+
+	<BEAN_TYPE extends IBean> IUpdaterServiceBuilder<BEAN_TYPE> updaterServiceBuilder(
+		Class<? extends BEAN_TYPE> beanType,
+		Object beanTypeId);
+
+	//************************************************Convenience methods starts here*******************************************
+	//Use AbstractBeanServiceFactory for implementation
+
+	<BEAN_TYPE extends IBean> IBeanServicesProviderBuilder beanServicesBuilder(
+		IServiceRegistry registry,
+		Object entityId,
+		Class<? extends BEAN_TYPE> beanType,
+		Object beanTypeId,
+		IBeanDtoFactory<BEAN_TYPE> beanDtoFactory,
+		IBeanInitializer<BEAN_TYPE> beanInitializer,
+		IBeanModifier<BEAN_TYPE> beanModifier);
+
 	<BEAN_TYPE extends IBean> IBeanAccess<BEAN_TYPE> beanAccess(Class<? extends BEAN_TYPE> beanType);
 
 	<BEAN_TYPE extends IBean> IBeanServicesProviderBuilder beanServicesBuilder(
@@ -67,16 +109,6 @@ public interface IBeanServiceFactory {
 		IBeanDtoFactory<BEAN_TYPE> beanDtoFactory);
 
 	<BEAN_TYPE extends IBean> IDeleterServiceBuilder<BEAN_TYPE> deleterServiceBuilder(Class<? extends BEAN_TYPE> beanType);
-
-	//************************************************Convenience delegate to cap methods starts here**************************
-	//Use AbstractBeanServiceFactory for implementation
-
-	<BEAN_TYPE extends IBean> IRefreshServiceBuilder<BEAN_TYPE> refreshServiceBuilder(Class<? extends BEAN_TYPE> beanType);
-
-	<BEAN_TYPE extends IBean> IUpdaterServiceBuilder<BEAN_TYPE> updaterServiceBuilder(Class<? extends BEAN_TYPE> beanType);
-
-	//************************************************Convenience methods starts here*******************************************
-	//Use AbstractBeanServiceFactory for implementation
 
 	IBeanServicesProviderBuilder beanServicesBuilder(
 		IServiceRegistry registry,
@@ -107,5 +139,18 @@ public interface IBeanServiceFactory {
 	IUpdaterService updaterService(Class<? extends IBean> beanType, Collection<String> propertyNames);
 
 	IDeleterService deleterService(Class<? extends IBean> beanType);
+
+	ICreatorService creatorService(Class<? extends IBean> beanType, Object beanTypeId, Collection<String> propertyNames);
+
+	<PARAM_TYPE> IReaderService<PARAM_TYPE> readerService(
+		Class<? extends IBean> beanType,
+		Object beanTypeId,
+		Collection<String> propertyNames);
+
+	IRefreshService refreshService(Class<? extends IBean> beanType, Object beanTypeId, Collection<String> propertyNames);
+
+	IUpdaterService updaterService(Class<? extends IBean> beanType, Object beanTypeId, Collection<String> propertyNames);
+
+	IDeleterService deleterService(Class<? extends IBean> beanType, Object beanTypeId);
 
 }

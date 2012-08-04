@@ -32,14 +32,14 @@ import org.jowidgets.cap.common.api.bean.IBean;
 
 public interface IBeanPropertyMap extends IBean {
 
-	void setId(final Object id);
+	void setId(Object id);
 
-	void setVersion(final long version);
+	void setVersion(long version);
 
 	void setValue(String propertyName, Object value);
 
 	Object getValue(String propertyName);
 
-	Object getEntityTypeId();
+	Object getBeanTypeId();
 
 }

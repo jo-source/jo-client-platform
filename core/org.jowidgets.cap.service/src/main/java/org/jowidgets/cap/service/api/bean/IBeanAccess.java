@@ -41,6 +41,8 @@ public interface IBeanAccess<BEAN_TYPE extends IBean> {
 
 	Class<BEAN_TYPE> getBeanType();
 
+	Object getBeanTypeId();
+
 	//TODO MG,HRW review
 	void flush();
 

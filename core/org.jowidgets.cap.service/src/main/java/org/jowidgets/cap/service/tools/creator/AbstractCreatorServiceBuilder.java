@@ -54,6 +54,7 @@ import org.jowidgets.validation.IValidator;
 public abstract class AbstractCreatorServiceBuilder<BEAN_TYPE extends IBean> implements ICreatorServiceBuilder<BEAN_TYPE> {
 
 	private final Class<? extends BEAN_TYPE> beanType;
+	private final Object beanTypeId;
 	private final List<IExecutableChecker<? extends BEAN_TYPE>> executableCheckers;
 	private final List<IBeanValidator<BEAN_TYPE>> beanValidators;
 	private final Map<String, List<IValidator<? extends Object>>> propertyValidators;
@@ -61,9 +62,14 @@ public abstract class AbstractCreatorServiceBuilder<BEAN_TYPE extends IBean> imp
 	private IBeanDtoFactory<BEAN_TYPE> beanDtoFactory;
 	private IBeanInitializer<BEAN_TYPE> beanInitializer;
 
-	@SuppressWarnings({"rawtypes", "unchecked"})
 	public AbstractCreatorServiceBuilder(final Class<? extends BEAN_TYPE> beanType) {
+		this(beanType, beanType);
+	}
+
+	@SuppressWarnings({"rawtypes", "unchecked"})
+	public AbstractCreatorServiceBuilder(final Class<? extends BEAN_TYPE> beanType, final Object beanTypeId) {
 		this.beanType = beanType;
+		this.beanTypeId = beanTypeId;
 		this.executableCheckers = new LinkedList<IExecutableChecker<? extends BEAN_TYPE>>();
 		this.beanValidators = new LinkedList<IBeanValidator<BEAN_TYPE>>();
 		this.propertyValidators = new HashMap<String, List<IValidator<? extends Object>>>();
@@ -140,6 +146,10 @@ public abstract class AbstractCreatorServiceBuilder<BEAN_TYPE extends IBean> imp
 
 	protected final Class<? extends BEAN_TYPE> getBeanType() {
 		return beanType;
+	}
+
+	protected final Object getBeanTypeId() {
+		return beanTypeId;
 	}
 
 	protected final IBeanDtoFactory<BEAN_TYPE> getBeanDtoFactory() {

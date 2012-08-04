@@ -36,8 +36,8 @@ public final class BeanDtoBuilder implements IBeanDtoBuilder {
 
 	private final IBeanDtoBuilder builder;
 
-	public BeanDtoBuilder(final Object entityTypeId) {
-		this.builder = CapCommonToolkit.dtoBuilder(entityTypeId);
+	public BeanDtoBuilder(final Object beanTypeId) {
+		this.builder = CapCommonToolkit.dtoBuilder(beanTypeId);
 	}
 
 	@Override

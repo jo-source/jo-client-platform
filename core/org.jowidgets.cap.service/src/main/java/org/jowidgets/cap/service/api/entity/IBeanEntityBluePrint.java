@@ -49,6 +49,22 @@ public interface IBeanEntityBluePrint {
 	/**
 	 * Sets the entity id.
 	 * 
+	 * For each beanTypeId there can exists an arbitrary amount of entityId's.
+	 * An entityId describes an beanTypeId more concrete.
+	 * 
+	 * Example1:
+	 * 
+	 * BeanType: User.class
+	 * BeanTypeId: User.class
+	 * EntityIds: USER, USERS_LINKED_WITH_ROLES, USERS_LINKED_WITH_USERS
+	 * 
+	 * Example2:
+	 * 
+	 * BeanType: IBeanPropertyMap.class
+	 * BeanTypeId: USER
+	 * EntityIds: USER, USERS_LINKED_WITH_ROLES, USERS_LINKED_WITH_USERS
+	 * 
+	 * 
 	 * @param entityId The entity id (mandatory)
 	 * 
 	 * @return This bluePrint
@@ -58,11 +74,27 @@ public interface IBeanEntityBluePrint {
 	/**
 	 * Sets the bean type.
 	 * 
+	 * The java type this bean is represented with. This can be a generic type, e.g. IBeanPropertyMap.class,
+	 * or a concrete type e.g. Person.class.
+	 * 
+	 * 
 	 * @param beanType The bean type (mandatory)
 	 * 
 	 * @return This blue print
 	 */
 	IBeanEntityBluePrint setBeanType(Class<? extends IBean> beanType);
+
+	/**
+	 * Sets the beanTypeId id.
+	 * 
+	 * If each type has its on java type to represent, the beanTypeId and the beanType may be the same.
+	 * If the bean type is a generic type, the bean type id describes the bean (e.g. PERSON, ROLE, ...)
+	 * 
+	 * @param beanTypeId The beanTypeId id (mandatory)
+	 * 
+	 * @return This bluePrint
+	 */
+	IBeanEntityBluePrint setBeanTypeId(Object beanTypeId);
 
 	/**
 	 * Sets the dto descriptor.

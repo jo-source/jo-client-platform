@@ -50,7 +50,7 @@ final class BeanPropertyMapDtoFactory implements IBeanDtoFactory<IBeanPropertyMa
 
 	@Override
 	public IBeanDto createDto(final IBeanPropertyMap bean) {
-		final IBeanDtoBuilder builder = CapCommonToolkit.dtoBuilder(bean.getEntityTypeId());
+		final IBeanDtoBuilder builder = CapCommonToolkit.dtoBuilder(bean.getBeanTypeId());
 		builder.setId(bean.getId());
 		builder.setVersion(bean.getVersion());
 		for (final String propertyName : propertyNames) {

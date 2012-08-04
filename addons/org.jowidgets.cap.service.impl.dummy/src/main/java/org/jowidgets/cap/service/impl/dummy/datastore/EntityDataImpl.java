@@ -127,6 +127,11 @@ final class EntityDataImpl<BEAN_TYPE extends IBean> implements IEntityData<BEAN_
 	}
 
 	@Override
+	public Object getBeanTypeId() {
+		return beanType;
+	}
+
+	@Override
 	public BEAN_TYPE createData() {
 		final BEAN_TYPE bean = entityFactory.createBean(nextId());
 		add(bean);
