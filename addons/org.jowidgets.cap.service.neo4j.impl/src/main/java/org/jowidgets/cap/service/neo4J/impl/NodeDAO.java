@@ -52,7 +52,7 @@ final class NodeDAO {
 		Node result = null;
 		for (final Node node : nodeIndex.get(IBean.ID_PROPERTY, id)) {
 			if (beanTypeId.equals(node.getProperty(beanTypePropertyName))) {
-				if (result != null) {
+				if (result == null) {
 					result = node;
 				}
 				else {
