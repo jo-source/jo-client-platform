@@ -64,6 +64,10 @@ public final class Neo4JServiceToolkit {
 		return getInstance().graphDBConfigBuilder();
 	}
 
+	public static INeo4JServicesDecoratorProviderBuilder serviceDecoratorProviderBuilder() {
+		return getInstance().serviceDecoratorProviderBuilder();
+	}
+
 	private static synchronized void createInstance() {
 		if (instance == null) {
 			final ServiceLoader<INeo4JServiceToolkit> serviceLoader = ServiceLoader.load(INeo4JServiceToolkit.class);

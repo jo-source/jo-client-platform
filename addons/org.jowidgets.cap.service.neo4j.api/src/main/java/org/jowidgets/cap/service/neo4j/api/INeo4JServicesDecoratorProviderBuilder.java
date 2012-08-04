@@ -26,33 +26,46 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.neo4J.impl;
+package org.jowidgets.cap.service.neo4j.api;
 
-import org.jowidgets.cap.service.neo4j.api.IGraphDBConfigBuilder;
-import org.jowidgets.cap.service.neo4j.api.INeo4JServiceFactory;
-import org.jowidgets.cap.service.neo4j.api.INeo4JServiceToolkit;
-import org.jowidgets.cap.service.neo4j.api.INeo4JServicesDecoratorProviderBuilder;
+import java.util.Collection;
 
-public final class Neo4JServiceToolkitImpl implements INeo4JServiceToolkit {
+import org.jowidgets.service.api.IServicesDecoratorProvider;
+import org.jowidgets.util.IDecorator;
+import org.jowidgets.util.IExceptionLogger;
 
-	private INeo4JServiceFactory serviceFactory;
+public interface INeo4JServicesDecoratorProviderBuilder {
 
-	@Override
-	public INeo4JServiceFactory serviceFactory() {
-		if (serviceFactory == null) {
-			serviceFactory = new Neo4JServiceFactoryImpl();
-		}
-		return serviceFactory;
-	}
+	int DEFAULT_ORDER = 1;
 
-	@Override
-	public IGraphDBConfigBuilder graphDBConfigBuilder() {
-		return new GraphDbConfigBuilderImpl();
-	}
+	/**
+	 * Sets the services that should be transactional
+	 * 
+	 * @param services The services (must be interfaces) that should be transactional
+	 * 
+	 * @return This builder
+	 */
+	INeo4JServicesDecoratorProviderBuilder setTransactionalServices(Collection<? extends Class<?>> services);
 
-	@Override
-	public INeo4JServicesDecoratorProviderBuilder serviceDecoratorProviderBuilder() {
-		return new Neo4JServicesDecoratorProviderBuilder();
-	}
+	INeo4JServicesDecoratorProviderBuilder addTransactionalServices(Class<?>... services);
+
+	INeo4JServicesDecoratorProviderBuilder setExceptionDecorators(Collection<? extends IDecorator<Throwable>> decorators);
+
+	/**
+	 * Adds an exception decorator to the list of exception decorators.
+	 * 
+	 * Remark: Exception decorators will be invoked in reverse order. This will be done because the default decorators
+	 * should be invoked after special decorators.
+	 * 
+	 * @param decorator The decorator to add
+	 * @return This builder.
+	 */
+	INeo4JServicesDecoratorProviderBuilder addExceptionDecorator(IDecorator<Throwable> decorator);
+
+	INeo4JServicesDecoratorProviderBuilder setExceptionLogger(IExceptionLogger logger);
+
+	INeo4JServicesDecoratorProviderBuilder setOrder(int order);
+
+	IServicesDecoratorProvider build();
 
 }
