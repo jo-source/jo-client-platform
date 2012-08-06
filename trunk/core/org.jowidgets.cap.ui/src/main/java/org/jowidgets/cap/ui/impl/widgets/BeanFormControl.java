@@ -168,7 +168,8 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 		final IInputComponentValidationLabelSetup mainValidationLabelSetup,
 		final IValidationLabelSetup propertyValidationLabelSetup,
 		final IProvider<IAction> undoAction,
-		final IProvider<IAction> saveAction) {
+		final IProvider<IAction> saveAction,
+		final boolean createMode) {
 
 		super(composite);
 
@@ -215,13 +216,27 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 		});
 
 		if (layouter == null) {
+			final Collection<IAttribute<?>> layoutAttributes = getDefaultLayoutAttributes(createMode, attributes);
 			final IBeanFormToolkit beanFormToolkit = CapUiToolkit.beanFormToolkit();
-			final IBeanFormLayout layout = beanFormToolkit.layoutBuilder().addGroups(attributes).build();
+			final IBeanFormLayout layout = beanFormToolkit.layoutBuilder().addGroups(layoutAttributes).build();
 			layouter = beanFormToolkit.layouter(layout);
 		}
 
 		//this must be the last invocation in this constructor
 		layouter.layout(composite, new BeanFormControlFactory());
+	}
+
+	private static Collection<IAttribute<?>> getDefaultLayoutAttributes(
+		final boolean createMode,
+		final Collection<IAttribute<?>> attributes) {
+
+		final List<IAttribute<?>> result = new LinkedList<IAttribute<?>>();
+		for (final IAttribute<?> attribute : attributes) {
+			if ((attribute.isEditable() || !createMode) && attribute.isVisible()) {
+				result.add(attribute);
+			}
+		}
+		return result;
 	}
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
