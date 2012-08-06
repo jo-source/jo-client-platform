@@ -28,21 +28,10 @@
 
 package org.jowidgets.cap.service.neo4j.api;
 
-import org.jowidgets.cap.common.api.bean.IBean;
-import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
-public interface IBeanFactory {
+public interface IRelationshipBean extends IPropertyContainerBean {
 
-	<BEAN_TYPE extends IBean> BEAN_TYPE createNodeBean(Class<BEAN_TYPE> beanType, Object beanTypeId, Node node);
-
-	<BEAN_TYPE extends IBean> BEAN_TYPE createRelationshipBean(
-		Class<BEAN_TYPE> beanType,
-		Object beanTypeId,
-		Relationship relationship);
-
-	<BEAN_TYPE extends IBean> boolean isNodeBean(Class<BEAN_TYPE> beanType, Object beanTypeId);
-
-	<BEAN_TYPE extends IBean> boolean isRelationshipBean(Class<BEAN_TYPE> beanType, Object beanTypeId);
+	Relationship getRelationship();
 
 }

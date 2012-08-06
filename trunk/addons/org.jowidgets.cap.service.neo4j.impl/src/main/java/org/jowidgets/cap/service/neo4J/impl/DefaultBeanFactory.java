@@ -28,32 +28,100 @@
 
 package org.jowidgets.cap.service.neo4J.impl;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
 import org.jowidgets.cap.common.api.bean.IBean;
-import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.service.api.bean.IBeanPropertyMap;
 import org.jowidgets.cap.service.neo4j.api.IBeanFactory;
 import org.jowidgets.cap.service.neo4j.api.INodeBean;
+import org.jowidgets.cap.service.neo4j.api.IRelationshipBean;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.EmptyCheck;
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
 
 final class DefaultBeanFactory implements IBeanFactory {
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public <BEAN_TYPE extends IBean> BEAN_TYPE create(final Class<BEAN_TYPE> beanType, final Object beanTypeId, final Node node) {
+	public <BEAN_TYPE extends IBean> BEAN_TYPE createNodeBean(
+		final Class<BEAN_TYPE> beanType,
+		final Object beanTypeId,
+		final Node node) {
 		Assert.paramNotNull(beanType, "beanType");
 		Assert.paramNotNull(beanTypeId, "beanTypeId");
 		Assert.paramNotNull(node, "node");
+
+		if (beanType.isInterface()) {
+			return createNodeBeanProxy(beanType, beanTypeId, node);
+		}
+		else {
+			return createNodeBeanInstance(beanType, beanTypeId, node);
+		}
+	}
+
+	@Override
+	public <BEAN_TYPE extends IBean> BEAN_TYPE createRelationshipBean(
+		final Class<BEAN_TYPE> beanType,
+		final Object beanTypeId,
+		final Relationship relationship) {
+		if (!beanType.isInterface()) {
+			return createRelationshipBeanInstance(beanType, beanTypeId, relationship);
+		}
+		else {
+			throw new IllegalArgumentException("Bean type must be a class for relationship beans");
+		}
+	}
+
+	@Override
+	public <BEAN_TYPE extends IBean> boolean isNodeBean(final Class<BEAN_TYPE> beanType, final Object beanTypeId) {
+		Assert.paramNotNull(beanType, "beanType");
+		Assert.paramNotNull(beanTypeId, "beanTypeId");
+		return INodeBean.class.isAssignableFrom(beanType);
+	}
+
+	@Override
+	public <BEAN_TYPE extends IBean> boolean isRelationshipBean(final Class<BEAN_TYPE> beanType, final Object beanTypeId) {
+		Assert.paramNotNull(beanType, "beanType");
+		Assert.paramNotNull(beanTypeId, "beanTypeId");
+		return IRelationshipBean.class.isAssignableFrom(beanType);
+	}
+
+	private <BEAN_TYPE extends IBean> BEAN_TYPE createNodeBeanInstance(
+		final Class<BEAN_TYPE> beanType,
+		final Object beanTypeId,
+		final Node node) {
+		try {
+			final Constructor<BEAN_TYPE> constructor = beanType.getConstructor(Node.class);
+			return constructor.newInstance(node);
+		}
+		catch (final Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	private <BEAN_TYPE extends IBean> BEAN_TYPE createRelationshipBeanInstance(
+		final Class<BEAN_TYPE> beanType,
+		final Object beanTypeId,
+		final Relationship relationship) {
+		try {
+			final Constructor<BEAN_TYPE> constructor = beanType.getConstructor(Relationship.class);
+			return constructor.newInstance(relationship);
+		}
+		catch (final Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private <BEAN_TYPE extends IBean> BEAN_TYPE createNodeBeanProxy(
+		final Class<BEAN_TYPE> beanType,
+		final Object beanTypeId,
+		final Node node) {
 		return (BEAN_TYPE) Proxy.newProxyInstance(beanType.getClassLoader(), new Class[] {
-				beanType, IBeanDto.class, INodeBean.class, IBeanPropertyMap.class}, new ProxyInvocationHandler(
-			node,
-			beanType,
-			beanTypeId));
+				beanType, INodeBean.class, IBeanPropertyMap.class}, new ProxyInvocationHandler(node, beanType, beanTypeId));
 	}
 
 	final class ProxyInvocationHandler implements InvocationHandler {
@@ -107,14 +175,19 @@ final class DefaultBeanFactory implements IBeanFactory {
 				return beanTypeId;
 			}
 			else if (isGetIdMethod(method)) {
-				return node.getProperty(IBean.ID_PROPERTY);
+				return getProperty(node, IBean.ID_PROPERTY);
 			}
 			else if (isGetVersionMethod(method)) {
-				return node.getProperty(IBean.VERSION_PROPERTY);
+				if (node.hasProperty(IBean.VERSION_PROPERTY)) {
+					return node.getProperty(IBean.VERSION_PROPERTY);
+				}
+				else {
+					return -1;
+				}
 			}
 			else if (isGetValueMethod(method)) {
 				if (!EmptyCheck.isEmpty(args)) {
-					return node.getProperty((String) args[0]);
+					return getProperty(node, ((String) args[0]));
 				}
 				else {
 					return null;
@@ -122,7 +195,7 @@ final class DefaultBeanFactory implements IBeanFactory {
 			}
 			else if (isSetValueMethod(method)) {
 				if (!EmptyCheck.isEmpty(args) && args.length == 2) {
-					node.setProperty((String) args[0], args[1]);
+					setProperty(node, (String) args[0], args[1]);
 				}
 				return null;
 			}
@@ -139,7 +212,7 @@ final class DefaultBeanFactory implements IBeanFactory {
 				if (args == null || args.length != 1) {
 					throw new IllegalStateException("Setter must have exactly one argument");
 				}
-				node.setProperty(toPropertyName(method.getName(), 3), args[0]);
+				setProperty(node, toPropertyName(method.getName(), 3), args[0]);
 				return null;
 			}
 			else {
@@ -154,6 +227,15 @@ final class DefaultBeanFactory implements IBeanFactory {
 			}
 			else {
 				return null;
+			}
+		}
+
+		private void setProperty(final Node node, final String propertyName, final Object value) {
+			if (value != null) {
+				node.setProperty(propertyName, value);
+			}
+			else {
+				node.removeProperty(propertyName);
 			}
 		}
 

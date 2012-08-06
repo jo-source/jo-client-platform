@@ -26,23 +26,17 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.neo4j.api;
+package org.jowidgets.cap.service.neo4J.impl;
 
-import org.jowidgets.cap.common.api.bean.IBean;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
+import java.util.UUID;
 
-public interface IBeanFactory {
+import org.jowidgets.cap.service.neo4j.api.IIdGenerator;
 
-	<BEAN_TYPE extends IBean> BEAN_TYPE createNodeBean(Class<BEAN_TYPE> beanType, Object beanTypeId, Node node);
+final class DefaultIdGenerator implements IIdGenerator {
 
-	<BEAN_TYPE extends IBean> BEAN_TYPE createRelationshipBean(
-		Class<BEAN_TYPE> beanType,
-		Object beanTypeId,
-		Relationship relationship);
-
-	<BEAN_TYPE extends IBean> boolean isNodeBean(Class<BEAN_TYPE> beanType, Object beanTypeId);
-
-	<BEAN_TYPE extends IBean> boolean isRelationshipBean(Class<BEAN_TYPE> beanType, Object beanTypeId);
+	@Override
+	public String createUniqueId(final String beanTypeId) {
+		return UUID.randomUUID().toString() + "@" + beanTypeId;
+	}
 
 }

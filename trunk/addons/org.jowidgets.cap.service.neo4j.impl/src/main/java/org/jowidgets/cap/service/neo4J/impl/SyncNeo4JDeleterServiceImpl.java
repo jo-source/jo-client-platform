@@ -43,6 +43,7 @@ import org.jowidgets.cap.service.api.executor.IBeanExecutor;
 import org.jowidgets.cap.service.api.executor.IExecutorServiceBuilder;
 import org.jowidgets.cap.service.neo4j.api.GraphDBConfig;
 import org.jowidgets.cap.service.neo4j.api.INodeBean;
+import org.jowidgets.cap.service.neo4j.api.NodeAccess;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
@@ -52,7 +53,6 @@ final class SyncNeo4JDeleterServiceImpl implements ISyncDeleterService {
 
 	private final ISyncExecutorService<Void> executorService;
 	private final Index<Node> nodeIndex;
-	private final NodeDAO nodeDAO;
 
 	SyncNeo4JDeleterServiceImpl(
 		final IBeanAccess<? extends IBean> beanAccess,
@@ -73,7 +73,7 @@ final class SyncNeo4JDeleterServiceImpl implements ISyncDeleterService {
 					deleteNode(((INodeBean) data).getNode());
 				}
 				else {
-					final Node node = nodeDAO.findNode(data.getId());
+					final Node node = NodeAccess.findNode(beanAccess.getBeanTypeId(), data.getId());
 					if (node != null) {
 						deleteNode(node);
 					}
@@ -95,7 +95,6 @@ final class SyncNeo4JDeleterServiceImpl implements ISyncDeleterService {
 		});
 		this.executorService = executorServiceBuilder.buildSyncService();
 		this.nodeIndex = GraphDBConfig.getNodeIndex();
-		this.nodeDAO = new NodeDAO(BeanTypeIdUtil.toString(beanAccess.getBeanTypeId()));
 	}
 
 	@Override

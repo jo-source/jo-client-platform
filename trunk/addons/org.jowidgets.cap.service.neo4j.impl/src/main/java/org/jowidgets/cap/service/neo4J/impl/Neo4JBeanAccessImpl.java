@@ -39,6 +39,7 @@ import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
 import org.jowidgets.cap.service.neo4j.api.GraphDBConfig;
 import org.jowidgets.cap.service.neo4j.api.IBeanFactory;
+import org.jowidgets.cap.service.neo4j.api.NodeAccess;
 import org.jowidgets.util.Assert;
 import org.neo4j.graphdb.Node;
 
@@ -46,9 +47,7 @@ final class Neo4JBeanAccessImpl<BEAN_TYPE extends IBean> implements IBeanAccess<
 
 	private final Class<BEAN_TYPE> beanType;
 	private final Object beanTypeId;
-	private final String beanTypeIdString;
 	private final IBeanFactory beanFactory;
-	private final NodeDAO nodeDAO;
 
 	@SuppressWarnings("unchecked")
 	Neo4JBeanAccessImpl(final Class<? extends BEAN_TYPE> beanType, final Object beanTypeId) {
@@ -57,9 +56,7 @@ final class Neo4JBeanAccessImpl<BEAN_TYPE extends IBean> implements IBeanAccess<
 
 		this.beanType = (Class<BEAN_TYPE>) beanType;
 		this.beanTypeId = beanTypeId;
-		this.beanTypeIdString = BeanTypeIdUtil.toString(beanTypeId);
 		this.beanFactory = GraphDBConfig.getBeanFactory();
-		this.nodeDAO = new NodeDAO(beanTypeIdString);
 	}
 
 	@Override
@@ -70,9 +67,9 @@ final class Neo4JBeanAccessImpl<BEAN_TYPE extends IBean> implements IBeanAccess<
 
 		for (final IBeanKey key : keys) {
 			CapServiceToolkit.checkCanceled(executionCallback);
-			final Node node = nodeDAO.findNode(key.getId());
+			final Node node = NodeAccess.findNode(beanTypeId, key.getId());
 			if (node != null) {
-				result.add(beanFactory.create(beanType, beanTypeId, node));
+				result.add(beanFactory.createNodeBean(beanType, beanTypeId, node));
 			}
 		}
 

@@ -32,10 +32,14 @@ import org.jowidgets.cap.service.neo4j.api.IGraphDBConfigBuilder;
 import org.jowidgets.cap.service.neo4j.api.INeo4JServiceFactory;
 import org.jowidgets.cap.service.neo4j.api.INeo4JServiceToolkit;
 import org.jowidgets.cap.service.neo4j.api.INeo4JServicesDecoratorProviderBuilder;
+import org.jowidgets.cap.service.neo4j.api.INodeAccess;
+import org.jowidgets.cap.service.neo4j.api.IRelationshipAccess;
 
 public final class Neo4JServiceToolkitImpl implements INeo4JServiceToolkit {
 
 	private INeo4JServiceFactory serviceFactory;
+	private INodeAccess nodeAccess;
+	private IRelationshipAccess relationshipAccess;
 
 	@Override
 	public INeo4JServiceFactory serviceFactory() {
@@ -43,6 +47,22 @@ public final class Neo4JServiceToolkitImpl implements INeo4JServiceToolkit {
 			serviceFactory = new Neo4JServiceFactoryImpl();
 		}
 		return serviceFactory;
+	}
+
+	@Override
+	public INodeAccess nodeAccess() {
+		if (nodeAccess == null) {
+			nodeAccess = new NodeAccessImpl();
+		}
+		return nodeAccess;
+	}
+
+	@Override
+	public IRelationshipAccess relationshipAccess() {
+		if (relationshipAccess == null) {
+			relationshipAccess = new RelationshipAccessImpl();
+		}
+		return relationshipAccess;
 	}
 
 	@Override

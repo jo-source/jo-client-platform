@@ -28,52 +28,70 @@
 
 package org.jowidgets.cap.service.neo4j.tools;
 
-import org.jowidgets.cap.service.neo4j.api.IBeanFactory;
-import org.jowidgets.cap.service.neo4j.api.IGraphDBConfig;
-import org.jowidgets.cap.service.neo4j.api.IIdGenerator;
+import org.jowidgets.cap.service.neo4j.api.GraphDBConfig;
+import org.jowidgets.cap.service.neo4j.api.IPropertyContainerBean;
 import org.jowidgets.util.Assert;
-import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
-import org.neo4j.graphdb.index.Index;
+import org.neo4j.graphdb.PropertyContainer;
 
-public class GraphDbConfigWrapper implements IGraphDBConfig {
+public class PropertyContainerBean implements IPropertyContainerBean {
 
-	private final IGraphDBConfig original;
+	private final String beanTypePropertyName;
 
-	public GraphDbConfigWrapper(final IGraphDBConfig original) {
-		Assert.paramNotNull(original, "original");
-		this.original = original;
+	private PropertyContainer propertyContainer;
+
+	public PropertyContainerBean(final PropertyContainer propertyContainer) {
+		Assert.paramNotNull(propertyContainer, "propertyContainer");
+		this.propertyContainer = propertyContainer;
+		this.beanTypePropertyName = GraphDBConfig.getBeanTypePropertyName();
 	}
 
 	@Override
-	public GraphDatabaseService getGraphDbService() {
-		return original.getGraphDbService();
+	public Object getId() {
+		return getProperty(ID_PROPERTY);
 	}
 
 	@Override
-	public Index<Node> getNodeIndex() {
-		return original.getNodeIndex();
+	public long getVersion() {
+		final Object version = getProperty(VERSION_PROPERTY);
+		if (version instanceof Long) {
+			return ((Long) version).longValue();
+		}
+		else {
+			return -1;
+		}
 	}
 
 	@Override
-	public Index<Relationship> getRelationshipIndex() {
-		return original.getRelationshipIndex();
+	public String getBeanType() {
+		return (String) getProperty(beanTypePropertyName);
 	}
 
-	@Override
-	public IBeanFactory getBeanFactory() {
-		return original.getBeanFactory();
+	@SuppressWarnings("unchecked")
+	protected <RESULT_TYPE> RESULT_TYPE getProperty(final String propertyName) {
+		if (propertyContainer.hasProperty(propertyName)) {
+			return (RESULT_TYPE) propertyContainer.getProperty(propertyName);
+		}
+		else {
+			return null;
+		}
 	}
 
-	@Override
-	public String getBeanTypePropertyName() {
-		return original.getBeanTypePropertyName();
+	protected void setProperty(final String propertyName, final Object value) {
+		if (value != null) {
+			propertyContainer.setProperty(propertyName, value);
+		}
+		else {
+			propertyContainer.removeProperty(propertyName);
+		}
 	}
 
-	@Override
-	public IIdGenerator getIdGenerator() {
-		return original.getIdGenerator();
+	protected PropertyContainer getPropertyContainer() {
+		return propertyContainer;
+	}
+
+	protected void setPropertyContainer(final PropertyContainer propertyContainer) {
+		Assert.paramNotNull(propertyContainer, "propertyContainer");
+		this.propertyContainer = propertyContainer;
 	}
 
 }

@@ -28,21 +28,32 @@
 
 package org.jowidgets.cap.service.neo4j.api;
 
-import org.jowidgets.cap.common.api.bean.IBean;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.RelationshipType;
 
-public interface IBeanFactory {
+public final class RelationshipAccess {
 
-	<BEAN_TYPE extends IBean> BEAN_TYPE createNodeBean(Class<BEAN_TYPE> beanType, Object beanTypeId, Node node);
+	private RelationshipAccess() {}
 
-	<BEAN_TYPE extends IBean> BEAN_TYPE createRelationshipBean(
-		Class<BEAN_TYPE> beanType,
-		Object beanTypeId,
-		Relationship relationship);
+	public static IRelationshipAccess getInstance() {
+		return Neo4JServiceToolkit.relationshipAccess();
+	}
 
-	<BEAN_TYPE extends IBean> boolean isNodeBean(Class<BEAN_TYPE> beanType, Object beanTypeId);
+	public static Relationship findRelationship(final Object beanTypeId, final Object nodeId) {
+		return getInstance().findRelationship(beanTypeId, nodeId);
+	}
 
-	<BEAN_TYPE extends IBean> boolean isRelationshipBean(Class<BEAN_TYPE> beanType, Object beanTypeId);
+	public static Relationship createRelationship(
+		final Object beanTypeId,
+		final RelationshipType relationshipType,
+		final Node startNode,
+		final Node endNode) {
+		return getInstance().createRelationship(beanTypeId, relationshipType, startNode, endNode);
+	}
+
+	public static Relationship createDummyRelationship(final Object beanTypeId) {
+		return getInstance().createDummyRelationship(beanTypeId);
+	}
 
 }

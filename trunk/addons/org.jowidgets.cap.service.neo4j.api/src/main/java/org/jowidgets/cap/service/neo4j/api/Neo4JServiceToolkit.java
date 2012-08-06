@@ -60,6 +60,14 @@ public final class Neo4JServiceToolkit {
 		return getInstance().serviceFactory();
 	}
 
+	public static INodeAccess nodeAccess() {
+		return getInstance().nodeAccess();
+	}
+
+	public static IRelationshipAccess relationshipAccess() {
+		return getInstance().relationshipAccess();
+	}
+
 	public static IGraphDBConfigBuilder graphDBConfigBuilder() {
 		return getInstance().graphDBConfigBuilder();
 	}

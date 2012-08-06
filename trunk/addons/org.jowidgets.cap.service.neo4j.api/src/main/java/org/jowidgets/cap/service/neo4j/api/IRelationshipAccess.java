@@ -26,17 +26,18 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.neo4J.impl;
+package org.jowidgets.cap.service.neo4j.api;
 
-import java.util.UUID;
+import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.RelationshipType;
 
-import org.jowidgets.cap.service.neo4j.api.INodeIdGenerator;
+public interface IRelationshipAccess {
 
-final class DefaultNodeIdGenerator implements INodeIdGenerator {
+	Relationship findRelationship(Object beanTypeId, Object nodeId);
 
-	@Override
-	public String createUniqueId(final String beanTypeId) {
-		return UUID.randomUUID().toString() + "@" + beanTypeId;
-	}
+	Relationship createRelationship(Object beanTypeId, RelationshipType relationshipType, Node startNode, Node endNode);
+
+	Relationship createDummyRelationship(Object beanTypeId);
 
 }

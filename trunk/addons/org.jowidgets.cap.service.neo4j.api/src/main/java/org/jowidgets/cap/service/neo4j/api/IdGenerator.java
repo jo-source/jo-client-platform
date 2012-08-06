@@ -28,21 +28,16 @@
 
 package org.jowidgets.cap.service.neo4j.api;
 
-import org.jowidgets.cap.common.api.bean.IBean;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
+public final class IdGenerator {
 
-public interface IBeanFactory {
+	private IdGenerator() {}
 
-	<BEAN_TYPE extends IBean> BEAN_TYPE createNodeBean(Class<BEAN_TYPE> beanType, Object beanTypeId, Node node);
+	public static IIdGenerator getInstance() {
+		return GraphDBConfig.getIdGenerator();
+	}
 
-	<BEAN_TYPE extends IBean> BEAN_TYPE createRelationshipBean(
-		Class<BEAN_TYPE> beanType,
-		Object beanTypeId,
-		Relationship relationship);
-
-	<BEAN_TYPE extends IBean> boolean isNodeBean(Class<BEAN_TYPE> beanType, Object beanTypeId);
-
-	<BEAN_TYPE extends IBean> boolean isRelationshipBean(Class<BEAN_TYPE> beanType, Object beanTypeId);
+	public static String createUniqueId(final String beanTypeId) {
+		return getInstance().createUniqueId(beanTypeId);
+	}
 
 }

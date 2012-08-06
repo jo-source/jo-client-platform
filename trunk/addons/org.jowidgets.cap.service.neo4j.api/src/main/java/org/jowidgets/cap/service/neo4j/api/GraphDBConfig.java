@@ -34,6 +34,7 @@ import java.util.ServiceLoader;
 import org.jowidgets.util.Assert;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.index.Index;
 
 public final class GraphDBConfig {
@@ -67,6 +68,10 @@ public final class GraphDBConfig {
 		return getInstance().getNodeIndex();
 	}
 
+	public static Index<Relationship> getRelationshipIndex() {
+		return getInstance().getRelationshipIndex();
+	}
+
 	public static IBeanFactory getBeanFactory() {
 		return getInstance().getBeanFactory();
 	}
@@ -75,7 +80,7 @@ public final class GraphDBConfig {
 		return getInstance().getBeanTypePropertyName();
 	}
 
-	public static INodeIdGenerator getIdGenerator() {
+	public static IIdGenerator getIdGenerator() {
 		return getInstance().getIdGenerator();
 	}
 

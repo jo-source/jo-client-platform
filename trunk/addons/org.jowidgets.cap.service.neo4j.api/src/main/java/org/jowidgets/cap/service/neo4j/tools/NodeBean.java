@@ -26,23 +26,29 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.neo4j.api;
+package org.jowidgets.cap.service.neo4j.tools;
 
-import org.jowidgets.cap.common.api.bean.IBean;
+import org.jowidgets.cap.service.neo4j.api.GraphDBConfig;
+import org.jowidgets.cap.service.neo4j.api.INodeBean;
 import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
 
-public interface IBeanFactory {
+public class NodeBean extends PropertyContainerBean implements INodeBean {
 
-	<BEAN_TYPE extends IBean> BEAN_TYPE createNodeBean(Class<BEAN_TYPE> beanType, Object beanTypeId, Node node);
+	private final String beanTypePropertyName;
 
-	<BEAN_TYPE extends IBean> BEAN_TYPE createRelationshipBean(
-		Class<BEAN_TYPE> beanType,
-		Object beanTypeId,
-		Relationship relationship);
+	public NodeBean(final Node node) {
+		super(node);
+		this.beanTypePropertyName = GraphDBConfig.getBeanTypePropertyName();
+	}
 
-	<BEAN_TYPE extends IBean> boolean isNodeBean(Class<BEAN_TYPE> beanType, Object beanTypeId);
+	@Override
+	public String getBeanType() {
+		return (String) getProperty(beanTypePropertyName);
+	}
 
-	<BEAN_TYPE extends IBean> boolean isRelationshipBean(Class<BEAN_TYPE> beanType, Object beanTypeId);
+	@Override
+	public Node getNode() {
+		return (Node) getPropertyContainer();
+	}
 
 }
