@@ -31,10 +31,11 @@ package org.jowidgets.cap.service.neo4J.impl;
 import org.jowidgets.cap.service.neo4j.api.IBeanFactory;
 import org.jowidgets.cap.service.neo4j.api.IGraphDBConfig;
 import org.jowidgets.cap.service.neo4j.api.IGraphDBConfigBuilder;
-import org.jowidgets.cap.service.neo4j.api.INodeIdGenerator;
+import org.jowidgets.cap.service.neo4j.api.IIdGenerator;
 import org.jowidgets.util.Assert;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.index.Index;
 
@@ -45,17 +46,20 @@ final class GraphDbConfigBuilderImpl implements IGraphDBConfigBuilder {
 	private boolean autoShutdown;
 	private Index<Node> nodeIndex;
 	private String nodeIndexName;
+	private Index<Relationship> relationshipIndex;
+	private String relationshipIndexName;
 	private IBeanFactory beanFactory;
 	private String beanTypePropertyName;
-	private INodeIdGenerator idGenerator;
+	private IIdGenerator idGenerator;
 
 	GraphDbConfigBuilderImpl() {
 		this.embeddedGraphDbPath = DEFAULT_EMBEDDED_GRAPH_DB_PATH;
 		this.autoShutdown = true;
 		this.nodeIndexName = DEFAULT_NODE_INDEX_NAME;
+		this.relationshipIndexName = DEFAULT_RELATIONSHIP_INDEX_NAME;
 		this.beanTypePropertyName = DEFAULT_BEAN_TYPE_PROPERTY_NAME;
 		this.beanFactory = new DefaultBeanFactory();
-		this.idGenerator = new DefaultNodeIdGenerator();
+		this.idGenerator = new DefaultIdGenerator();
 	}
 
 	@Override
@@ -97,6 +101,22 @@ final class GraphDbConfigBuilderImpl implements IGraphDBConfigBuilder {
 	}
 
 	@Override
+	public IGraphDBConfigBuilder setRelationshipIndex(final Index<Relationship> index) {
+		Assert.paramNotNull(index, "index");
+		this.relationshipIndexName = null;
+		this.relationshipIndex = index;
+		return this;
+	}
+
+	@Override
+	public IGraphDBConfigBuilder setRelationshipIndex(final String indexName) {
+		Assert.paramNotEmpty(indexName, "indexName");
+		this.relationshipIndex = null;
+		this.relationshipIndexName = indexName;
+		return this;
+	}
+
+	@Override
 	public IGraphDBConfigBuilder setBeanFactory(final IBeanFactory beanFactory) {
 		Assert.paramNotNull(beanFactory, "beanFactory");
 		this.beanFactory = beanFactory;
@@ -111,7 +131,7 @@ final class GraphDbConfigBuilderImpl implements IGraphDBConfigBuilder {
 	}
 
 	@Override
-	public IGraphDBConfigBuilder setIdGenerator(final INodeIdGenerator idGenerator) {
+	public IGraphDBConfigBuilder setIdGenerator(final IIdGenerator idGenerator) {
 		Assert.paramNotNull(idGenerator, "idGenerator");
 		this.idGenerator = idGenerator;
 		return this;
@@ -135,6 +155,15 @@ final class GraphDbConfigBuilderImpl implements IGraphDBConfigBuilder {
 		}
 	}
 
+	private Index<Relationship> getRelationshipIndex(final GraphDatabaseService graphDbService) {
+		if (relationshipIndex != null) {
+			return relationshipIndex;
+		}
+		else {
+			return graphDbService.index().forRelationships(relationshipIndexName);
+		}
+	}
+
 	@Override
 	public IGraphDBConfig build() {
 		final GraphDatabaseService graphDbService = getGraphDbService();
@@ -142,6 +171,7 @@ final class GraphDbConfigBuilderImpl implements IGraphDBConfigBuilder {
 			graphDbService,
 			autoShutdown,
 			getNodeIndex(graphDbService),
+			getRelationshipIndex(graphDbService),
 			beanFactory,
 			beanTypePropertyName,
 			idGenerator);

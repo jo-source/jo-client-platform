@@ -30,12 +30,14 @@ package org.jowidgets.cap.service.neo4j.api;
 
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.index.Index;
 
 public interface IGraphDBConfigBuilder {
 
 	String DEFAULT_EMBEDDED_GRAPH_DB_PATH = "NEO4J_DB";
 	String DEFAULT_NODE_INDEX_NAME = "nodeIndex";
+	String DEFAULT_RELATIONSHIP_INDEX_NAME = "relationshipIndex";
 	String DEFAULT_BEAN_TYPE_PROPERTY_NAME = "type";
 
 	/**
@@ -85,6 +87,24 @@ public interface IGraphDBConfigBuilder {
 	IGraphDBConfigBuilder setNodeIndex(String indexName);
 
 	/**
+	 * Sets the relationship index that will be used to hold all relationships by id and by type
+	 * 
+	 * @param index The index to set
+	 * 
+	 * @return This builder
+	 */
+	IGraphDBConfigBuilder setRelationshipIndex(Index<Relationship> index);
+
+	/**
+	 * Sets the relationship index that will be used to hold all relationship by id and by type
+	 * 
+	 * @param index The index name to set
+	 * 
+	 * @return This builder
+	 */
+	IGraphDBConfigBuilder setRelationshipIndex(String indexName);
+
+	/**
 	 * Sets the bean factory that creates beans form nodes
 	 * 
 	 * @param beanFactory The bean factory to set
@@ -103,13 +123,13 @@ public interface IGraphDBConfigBuilder {
 	IGraphDBConfigBuilder setBeanTypePropertyName(String beanTypePropertyName);
 
 	/**
-	 * Sets the id generator that will be used to generate unique id's for each created node
+	 * Sets the id generator that will be used to generate unique id's for each created node or relationship
 	 * 
 	 * @param idGenerator The id generator to set
 	 * 
 	 * @return This builder
 	 */
-	IGraphDBConfigBuilder setIdGenerator(INodeIdGenerator idGenerator);
+	IGraphDBConfigBuilder setIdGenerator(IIdGenerator idGenerator);
 
 	/**
 	 * @return The newly created graph db config

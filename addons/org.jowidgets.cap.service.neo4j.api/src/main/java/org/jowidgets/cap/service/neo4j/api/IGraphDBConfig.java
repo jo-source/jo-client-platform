@@ -30,6 +30,7 @@ package org.jowidgets.cap.service.neo4j.api;
 
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.index.Index;
 
 public interface IGraphDBConfig {
@@ -45,6 +46,13 @@ public interface IGraphDBConfig {
 	 * @return The nodes index, never null
 	 */
 	Index<Node> getNodeIndex();
+
+	/**
+	 * Gets the index that hold all relationships by id and by type
+	 * 
+	 * @return The relationships index, never null
+	 */
+	Index<Relationship> getRelationshipIndex();
 
 	/**
 	 * Gets the bean factory to create beans form nodes
@@ -67,6 +75,6 @@ public interface IGraphDBConfig {
 	 * 
 	 * @return The id generator, never null
 	 */
-	INodeIdGenerator getIdGenerator();
+	IIdGenerator getIdGenerator();
 
 }

@@ -28,53 +28,66 @@
 
 package org.jowidgets.cap.service.neo4J.impl;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.Map;
 
 import org.jowidgets.cap.common.api.bean.IBean;
-import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
+import org.jowidgets.cap.common.api.exception.ServiceException;
 import org.jowidgets.cap.service.neo4j.api.GraphDBConfig;
-import org.jowidgets.cap.service.neo4j.api.IBeanFactory;
-import org.jowidgets.cap.service.tools.reader.AbstractSimpleReaderService;
+import org.jowidgets.cap.service.neo4j.api.INodeAccess;
+import org.jowidgets.cap.service.neo4j.api.IdGenerator;
 import org.jowidgets.util.Assert;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.index.Index;
+import org.neo4j.graphdb.index.UniqueFactory;
 
-//TODO MG this implementation is not made for production use
-final class SyncNeo4JSimpleReaderServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE> extends
-		AbstractSimpleReaderService<BEAN_TYPE, PARAM_TYPE> {
+final class NodeAccessImpl implements INodeAccess {
 
-	private final Class<? extends BEAN_TYPE> beanType;
-	private final Object beanTypeId;
-	private final String beanTypeIdString;
 	private final Index<Node> nodeIndex;
 	private final String beanTypePropertyName;
-	private final IBeanFactory beanFactory;
 
-	SyncNeo4JSimpleReaderServiceImpl(
-		final Class<? extends BEAN_TYPE> beanType,
-		final Object beanTypeId,
-		final IBeanDtoFactory<BEAN_TYPE> beanFactory) {
-		super(beanFactory);
-		Assert.paramNotNull(beanType, "beanType");
-		Assert.paramNotNull(beanTypeId, "beanTypeId");
-		Assert.paramNotNull(beanFactory, "beanFactory");
-
-		this.beanType = beanType;
-		this.beanTypeId = beanTypeId;
-		this.beanTypeIdString = BeanTypeIdUtil.toString(beanTypeId);
-
-		this.beanFactory = GraphDBConfig.getBeanFactory();
+	NodeAccessImpl() {
 		this.nodeIndex = GraphDBConfig.getNodeIndex();
 		this.beanTypePropertyName = GraphDBConfig.getBeanTypePropertyName();
 	}
 
 	@Override
-	protected List<? extends BEAN_TYPE> getAllBeans() {
-		final List<BEAN_TYPE> result = new LinkedList<BEAN_TYPE>();
-		for (final Node node : nodeIndex.get(beanTypePropertyName, beanTypeIdString)) {
-			result.add(beanFactory.createNodeBean(beanType, beanTypeId, node));
+	public Node findNode(final Object beanTypeId, final Object nodeId) {
+		Assert.paramNotNull(beanTypeId, "beanTypeId");
+		Assert.paramNotNull(nodeId, "nodeId");
+
+		Node result = null;
+		final String beanTypeIdString = BeanTypeIdUtil.toString(beanTypeId);
+		for (final Node node : nodeIndex.get(IBean.ID_PROPERTY, nodeId)) {
+			if (beanTypeIdString.equals(node.getProperty(beanTypePropertyName))) {
+				if (result == null) {
+					result = node;
+				}
+				else {
+					throw new ServiceException("More than one node found for the id '"
+						+ nodeId
+						+ "' and the type '"
+						+ beanTypeIdString
+						+ "'.");
+				}
+			}
 		}
+		return result;
+	}
+
+	@Override
+	public Node createNewNode(final Object beanTypeId) {
+		Assert.paramNotNull(beanTypeId, "beanTypeId");
+
+		final String beanTypeIdString = BeanTypeIdUtil.toString(beanTypeId);
+		final UniqueFactory<Node> factory = new UniqueFactory.UniqueNodeFactory(nodeIndex) {
+			@Override
+			protected void initialize(final Node created, final Map<String, Object> properties) {
+				created.setProperty(IBean.ID_PROPERTY, properties.get(IBean.ID_PROPERTY));
+			}
+		};
+		final Node result = factory.getOrCreate(IBean.ID_PROPERTY, IdGenerator.createUniqueId(beanTypeIdString));
+		result.setProperty(beanTypePropertyName, beanTypeIdString);
+		nodeIndex.add(result, beanTypePropertyName, beanTypeIdString);
 		return result;
 	}
 

@@ -28,8 +28,12 @@
 
 package org.jowidgets.cap.service.neo4j.api;
 
-public interface INodeIdGenerator {
+import org.neo4j.graphdb.Node;
 
-	String createUniqueId(String beanTypeId);
+public interface INodeAccess {
+
+	Node findNode(Object beanTypeId, Object nodeId);
+
+	Node createNewNode(Object beanTypeId);
 
 }

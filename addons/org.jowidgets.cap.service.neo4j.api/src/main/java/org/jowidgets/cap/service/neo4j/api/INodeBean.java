@@ -28,12 +28,9 @@
 
 package org.jowidgets.cap.service.neo4j.api;
 
-import org.jowidgets.cap.common.api.bean.IBean;
 import org.neo4j.graphdb.Node;
 
-public interface INodeBean extends IBean {
-
-	String getType();
+public interface INodeBean extends IPropertyContainerBean {
 
 	Node getNode();
 

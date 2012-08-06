@@ -30,29 +30,33 @@ package org.jowidgets.cap.service.neo4J.impl;
 
 import org.jowidgets.cap.service.neo4j.api.IBeanFactory;
 import org.jowidgets.cap.service.neo4j.api.IGraphDBConfig;
-import org.jowidgets.cap.service.neo4j.api.INodeIdGenerator;
+import org.jowidgets.cap.service.neo4j.api.IIdGenerator;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.index.Index;
 
 final class GraphDbConfigImpl implements IGraphDBConfig {
 
 	private final GraphDatabaseService graphDb;
 	private final Index<Node> nodeIndex;
+	private final Index<Relationship> relationshipIndex;
 	private final IBeanFactory beanFactory;
 	private final String beanTypePropertyName;
-	private final INodeIdGenerator idGenerator;
+	private final IIdGenerator idGenerator;
 
 	GraphDbConfigImpl(
 		final GraphDatabaseService graphDb,
 		final boolean autoShuttdown,
 		final Index<Node> nodeIndex,
+		final Index<Relationship> relationshipIndex,
 		final IBeanFactory beanFactory,
 		final String beanTypePropertyName,
-		final INodeIdGenerator idGenerator) {
+		final IIdGenerator idGenerator) {
 
 		this.graphDb = graphDb;
 		this.nodeIndex = nodeIndex;
+		this.relationshipIndex = relationshipIndex;
 		this.beanFactory = beanFactory;
 		this.beanTypePropertyName = beanTypePropertyName;
 		this.idGenerator = idGenerator;
@@ -82,6 +86,11 @@ final class GraphDbConfigImpl implements IGraphDBConfig {
 	}
 
 	@Override
+	public Index<Relationship> getRelationshipIndex() {
+		return relationshipIndex;
+	}
+
+	@Override
 	public IBeanFactory getBeanFactory() {
 		return beanFactory;
 	}
@@ -92,7 +101,7 @@ final class GraphDbConfigImpl implements IGraphDBConfig {
 	}
 
 	@Override
-	public INodeIdGenerator getIdGenerator() {
+	public IIdGenerator getIdGenerator() {
 		return idGenerator;
 	}
 

@@ -34,6 +34,10 @@ public interface INeo4JServiceToolkit {
 
 	IGraphDBConfigBuilder graphDBConfigBuilder();
 
+	INodeAccess nodeAccess();
+
+	IRelationshipAccess relationshipAccess();
+
 	INeo4JServicesDecoratorProviderBuilder serviceDecoratorProviderBuilder();
 
 }
