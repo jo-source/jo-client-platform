@@ -128,7 +128,7 @@ final class CreatorActionBuilderImpl<BEAN_TYPE> extends AbstractCapActionBuilder
 	public ICreatorActionBuilder<BEAN_TYPE> setBeanForm(final Collection<? extends IAttribute<?>> attributes) {
 		checkExhausted();
 		Assert.paramNotNull(attributes, "attributes");
-		return setBeanForm((IBeanFormBluePrint<BEAN_TYPE>) CapUiToolkit.bluePrintFactory().beanForm(attributes));
+		return setBeanForm((IBeanFormBluePrint<BEAN_TYPE>) CapUiToolkit.bluePrintFactory().beanForm(entityId, attributes));
 	}
 
 	@Override
