@@ -101,7 +101,8 @@ final class BeanFormImpl<BEAN_TYPE> extends ControlWrapper implements IBeanForm<
 			bluePrint.getEditModeValidationLabel(),
 			bluePrint.getPropertyValidationLabel(),
 			bluePrint.getUndoAction(),
-			bluePrint.getSaveAction());
+			bluePrint.getSaveAction(),
+			false);
 
 		this.createFormComposite = composite.add(contentCompositeBp, MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
 		this.createForm = new BeanFormControl<BEAN_TYPE>(
@@ -120,7 +121,8 @@ final class BeanFormImpl<BEAN_TYPE> extends ControlWrapper implements IBeanForm<
 			bluePrint.getCreateModeValidationLabel(),
 			bluePrint.getPropertyValidationLabel(),
 			bluePrint.getUndoAction(),
-			bluePrint.getSaveAction());
+			bluePrint.getSaveAction(),
+			true);
 		createFormComposite.setVisible(false);
 
 		this.beanProcessStateListener = new BeanProcessStateListener();

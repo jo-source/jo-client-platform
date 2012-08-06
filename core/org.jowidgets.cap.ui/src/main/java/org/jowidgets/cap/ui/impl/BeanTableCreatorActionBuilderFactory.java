@@ -34,17 +34,13 @@ import java.util.List;
 import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
-import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.command.ICapActionFactory;
 import org.jowidgets.cap.ui.api.command.ICreatorActionBuilder;
-import org.jowidgets.cap.ui.api.form.IBeanFormLayout;
-import org.jowidgets.cap.ui.api.form.IBeanFormToolkit;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
-import org.jowidgets.cap.ui.tools.attribute.AcceptEditableAttributesFilter;
 import org.jowidgets.cap.ui.tools.execution.ExecutionInterceptorAdapter;
 import org.jowidgets.cap.ui.tools.model.BeanListModelWrapper;
 import org.jowidgets.common.types.IVetoable;
@@ -79,11 +75,6 @@ final class BeanTableCreatorActionBuilderFactory {
 		final IBeanFormBluePrint<BEAN_TYPE> beanFormBp = CapUiToolkit.bluePrintFactory().beanForm(
 				model.getEntityId(),
 				model.getAttributes());
-
-		final IBeanFormToolkit beanFormToolkit = CapUiToolkit.beanFormToolkit();
-		final List<IAttribute<Object>> editableAttributes = model.getAttributes(AcceptEditableAttributesFilter.getInstance());
-		final IBeanFormLayout layout = beanFormToolkit.layoutBuilder().addGroups(editableAttributes).build();
-		beanFormBp.setLayouter(beanFormToolkit.layouter(layout));
 
 		builder.setAttributes(model.getAttributes());
 		builder.setBeanForm(beanFormBp);
