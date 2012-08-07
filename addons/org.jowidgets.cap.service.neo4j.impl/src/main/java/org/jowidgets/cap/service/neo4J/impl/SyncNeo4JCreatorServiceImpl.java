@@ -50,6 +50,7 @@ import org.jowidgets.cap.service.api.bean.IBeanInitializer;
 import org.jowidgets.cap.service.neo4j.api.GraphDBConfig;
 import org.jowidgets.cap.service.neo4j.api.IBeanFactory;
 import org.jowidgets.cap.service.neo4j.api.NodeAccess;
+import org.jowidgets.cap.service.neo4j.api.RelationshipAccess;
 import org.jowidgets.util.Assert;
 
 final class SyncNeo4JCreatorServiceImpl<BEAN_TYPE extends IBean> implements ISyncCreatorService {
@@ -90,7 +91,7 @@ final class SyncNeo4JCreatorServiceImpl<BEAN_TYPE extends IBean> implements ISyn
 		final List<IBeanDto> result = new LinkedList<IBeanDto>();
 		for (final IBeanData beanData : beansData) {
 
-			final BEAN_TYPE bean = beanFactory.createNodeBean(beanType, beanTypeId, NodeAccess.createNewNode(beanTypeId));
+			final BEAN_TYPE bean = createBean();
 
 			CapServiceToolkit.checkCanceled(executionCallback);
 			beanInitializer.initialize(bean, beanData);
@@ -101,6 +102,21 @@ final class SyncNeo4JCreatorServiceImpl<BEAN_TYPE extends IBean> implements ISyn
 			result.add(dtoFactory.createDto(bean));
 		}
 		return result;
+	}
+
+	private BEAN_TYPE createBean() {
+		if (beanFactory.isNodeBean(beanType, beanTypeId)) {
+			return beanFactory.createNodeBean(beanType, beanTypeId, NodeAccess.createNewNode(beanTypeId));
+		}
+		else if (beanFactory.isRelationshipBean(beanType, beanTypeId)) {
+			return beanFactory.createRelationshipBean(
+					beanType,
+					beanTypeId,
+					RelationshipAccess.createDummyRelationship(beanTypeId));
+		}
+		else {
+			throw new IllegalStateException("The bean type '" + beanType + "' is neither a node bean nor a relationship bean.");
+		}
 	}
 
 	private void checkExecutableStates(final BEAN_TYPE bean) {
