@@ -40,8 +40,10 @@ import org.jowidgets.cap.service.api.bean.IBeanAccess;
 import org.jowidgets.cap.service.neo4j.api.GraphDBConfig;
 import org.jowidgets.cap.service.neo4j.api.IBeanFactory;
 import org.jowidgets.cap.service.neo4j.api.NodeAccess;
+import org.jowidgets.cap.service.neo4j.api.RelationshipAccess;
 import org.jowidgets.util.Assert;
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
 
 final class Neo4JBeanAccessImpl<BEAN_TYPE extends IBean> implements IBeanAccess<BEAN_TYPE> {
 
@@ -67,13 +69,37 @@ final class Neo4JBeanAccessImpl<BEAN_TYPE extends IBean> implements IBeanAccess<
 
 		for (final IBeanKey key : keys) {
 			CapServiceToolkit.checkCanceled(executionCallback);
-			final Node node = NodeAccess.findNode(beanTypeId, key.getId());
-			if (node != null) {
-				result.add(beanFactory.createNodeBean(beanType, beanTypeId, node));
+			final BEAN_TYPE bean = findBean(key.getId());
+			if (bean != null) {
+				result.add(bean);
 			}
 		}
 
 		return result;
+	}
+
+	private BEAN_TYPE findBean(final Object id) {
+		if (beanFactory.isNodeBean(beanType, beanTypeId)) {
+			final Node node = NodeAccess.findNode(beanTypeId, id);
+			if (node != null) {
+				return beanFactory.createNodeBean(beanType, beanTypeId, node);
+			}
+			else {
+				return null;
+			}
+		}
+		else if (beanFactory.isRelationshipBean(beanType, beanTypeId)) {
+			final Relationship relationship = RelationshipAccess.findRelationship(beanTypeId, id);
+			if (relationship != null) {
+				return beanFactory.createRelationshipBean(beanType, beanTypeId, relationship);
+			}
+			else {
+				return null;
+			}
+		}
+		else {
+			throw new IllegalStateException("The bean type '" + beanType + "' is neither a node bean nor a relationship bean.");
+		}
 	}
 
 	@Override

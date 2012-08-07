@@ -38,6 +38,7 @@ import org.jowidgets.cap.service.neo4j.api.IBeanFactory;
 import org.jowidgets.cap.service.tools.reader.AbstractSimpleReaderService;
 import org.jowidgets.util.Assert;
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.index.Index;
 
 //TODO MG this implementation is not made for production use
@@ -48,6 +49,7 @@ final class SyncNeo4JSimpleReaderServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE
 	private final Object beanTypeId;
 	private final String beanTypeIdString;
 	private final Index<Node> nodeIndex;
+	private final Index<Relationship> relationshipIndex;
 	private final String beanTypePropertyName;
 	private final IBeanFactory beanFactory;
 
@@ -66,16 +68,28 @@ final class SyncNeo4JSimpleReaderServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE
 
 		this.beanFactory = GraphDBConfig.getBeanFactory();
 		this.nodeIndex = GraphDBConfig.getNodeIndex();
+		this.relationshipIndex = GraphDBConfig.getRelationshipIndex();
 		this.beanTypePropertyName = GraphDBConfig.getBeanTypePropertyName();
 	}
 
 	@Override
 	protected List<? extends BEAN_TYPE> getAllBeans() {
 		final List<BEAN_TYPE> result = new LinkedList<BEAN_TYPE>();
-		for (final Node node : nodeIndex.get(beanTypePropertyName, beanTypeIdString)) {
-			result.add(beanFactory.createNodeBean(beanType, beanTypeId, node));
+
+		if (beanFactory.isNodeBean(beanType, beanTypeId)) {
+			for (final Node node : nodeIndex.get(beanTypePropertyName, beanTypeIdString)) {
+				result.add(beanFactory.createNodeBean(beanType, beanTypeId, node));
+			}
 		}
+		else if (beanFactory.isRelationshipBean(beanType, beanTypeId)) {
+			for (final Relationship relationship : relationshipIndex.get(beanTypePropertyName, beanTypeIdString)) {
+				result.add(beanFactory.createRelationshipBean(beanType, beanTypeId, relationship));
+			}
+		}
+		else {
+			throw new IllegalStateException("The bean type '" + beanType + "' is neither a node bean nor a relationship bean.");
+		}
+
 		return result;
 	}
-
 }
