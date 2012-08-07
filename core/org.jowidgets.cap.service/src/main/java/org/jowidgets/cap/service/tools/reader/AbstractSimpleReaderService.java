@@ -59,7 +59,7 @@ public abstract class AbstractSimpleReaderService<BEAN_TYPE extends IBean, PARAM
 		this.beanFactory = beanFactory;
 	}
 
-	protected abstract List<? extends BEAN_TYPE> getAllBeans();
+	protected abstract List<? extends BEAN_TYPE> getAllBeans(List<? extends IBeanKey> parentBeans, PARAM_TYPE parameter);
 
 	@Override
 	public final List<IBeanDto> read(
@@ -72,11 +72,14 @@ public abstract class AbstractSimpleReaderService<BEAN_TYPE extends IBean, PARAM
 		final IExecutionCallback executionCallback) {
 
 		if (filter == null && (sortedProperties == null || sortedProperties.size() == 0)) {
-			final Collection<? extends BEAN_TYPE> beans = getBeans(firstRow, maxRows);
+			final Collection<? extends BEAN_TYPE> beans = getBeans(parentBeans, parameter, firstRow, maxRows);
 			return BeanDtoFactoryHelper.createDtos(beanFactory, beans, executionCallback);
 		}
 		else {
-			List<IBeanDto> result = BeanDtoFactoryHelper.createDtos(beanFactory, getAllBeans(), executionCallback);
+			List<IBeanDto> result = BeanDtoFactoryHelper.createDtos(
+					beanFactory,
+					getAllBeans(parentBeans, parameter),
+					executionCallback);
 
 			if (filter != null) {
 				result = CapServiceToolkit.beanDtoCollectionFilter().filter(result, filter, executionCallback);
@@ -102,16 +105,23 @@ public abstract class AbstractSimpleReaderService<BEAN_TYPE extends IBean, PARAM
 		final IExecutionCallback executionCallback) {
 
 		if (filter == null) {
-			return Integer.valueOf(getAllBeans().size());
+			return Integer.valueOf(getAllBeans(parentBeans, parameter).size());
 		}
 		else {
-			final List<IBeanDto> result = BeanDtoFactoryHelper.createDtos(beanFactory, getAllBeans(), executionCallback);
+			final List<IBeanDto> result = BeanDtoFactoryHelper.createDtos(
+					beanFactory,
+					getAllBeans(parentBeans, parameter),
+					executionCallback);
 			return Integer.valueOf(CapServiceToolkit.beanDtoCollectionFilter().filter(result, filter, executionCallback).size());
 		}
 	}
 
-	protected List<? extends BEAN_TYPE> getBeans(final int firstRow, final int maxRows) {
-		final List<? extends BEAN_TYPE> result = getAllBeans();
+	protected List<? extends BEAN_TYPE> getBeans(
+		final List<? extends IBeanKey> parentBeans,
+		final PARAM_TYPE parameter,
+		final int firstRow,
+		final int maxRows) {
+		final List<? extends BEAN_TYPE> result = getAllBeans(parentBeans, parameter);
 		if (result.size() >= firstRow) {
 			return new LinkedList<BEAN_TYPE>(result.subList(firstRow, Math.min(firstRow + maxRows, result.size())));
 		}

@@ -70,7 +70,7 @@ public class RelationshipBean extends PropertyContainerBean implements IRelation
 		}
 		final Node endNode = getEndNode();
 		if (endNode != null) {
-			createRelationship(beanTypeId, relationshipType, startNode, endNode);
+			createRelationship(getClass(), relationshipType, startNode, endNode);
 			tempStartNode = null;
 			tempEndNode = null;
 		}
@@ -90,7 +90,7 @@ public class RelationshipBean extends PropertyContainerBean implements IRelation
 		}
 		final Node startNode = getStartNode();
 		if (startNode != null) {
-			createRelationship(beanTypeId, relationshipType, startNode, endNode);
+			createRelationship(getClass(), relationshipType, startNode, endNode);
 			tempStartNode = null;
 			tempEndNode = null;
 		}

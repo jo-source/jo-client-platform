@@ -28,69 +28,124 @@
 
 package org.jowidgets.cap.service.neo4J.impl;
 
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.cap.service.neo4j.api.GraphDBConfig;
 import org.jowidgets.cap.service.neo4j.api.IBeanFactory;
+import org.jowidgets.cap.service.neo4j.api.NodeAccess;
 import org.jowidgets.cap.service.tools.reader.AbstractSimpleReaderService;
 import org.jowidgets.util.Assert;
+import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.RelationshipType;
 import org.neo4j.graphdb.index.Index;
 
 //TODO MG this implementation is not made for production use
-final class SyncNeo4JSimpleReaderServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE> extends
+final class SyncNeo4JSimpleRelatedReaderServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE> extends
 		AbstractSimpleReaderService<BEAN_TYPE, PARAM_TYPE> {
 
 	private final Class<? extends BEAN_TYPE> beanType;
+	private final Object parentBeanTypeId;
 	private final Object beanTypeId;
 	private final String beanTypeIdString;
 	private final Index<Node> nodeIndex;
-	private final Index<Relationship> relationshipIndex;
 	private final String beanTypePropertyName;
 	private final IBeanFactory beanFactory;
+	private final RelationshipType relationshipType;
+	private final Direction direction;
+	private final boolean related;
 
-	SyncNeo4JSimpleReaderServiceImpl(
+	SyncNeo4JSimpleRelatedReaderServiceImpl(
+		final Object parentBeanTypeId,
 		final Class<? extends BEAN_TYPE> beanType,
 		final Object beanTypeId,
+		final RelationshipType relationshipType,
+		final Direction direction,
+		final boolean related,
 		final IBeanDtoFactory<BEAN_TYPE> beanFactory) {
+
 		super(beanFactory);
+
+		Assert.paramNotNull(parentBeanTypeId, "parentBeanTypeId");
 		Assert.paramNotNull(beanType, "beanType");
 		Assert.paramNotNull(beanTypeId, "beanTypeId");
 		Assert.paramNotNull(beanFactory, "beanFactory");
+		Assert.paramNotNull(relationshipType, "relationshipType");
+		Assert.paramNotNull(direction, "direction");
 
+		this.parentBeanTypeId = parentBeanTypeId;
 		this.beanType = beanType;
 		this.beanTypeId = beanTypeId;
 		this.beanTypeIdString = BeanTypeIdUtil.toString(beanTypeId);
+		this.relationshipType = relationshipType;
+		this.direction = direction;
+		this.related = related;
 
 		this.beanFactory = GraphDBConfig.getBeanFactory();
 		this.nodeIndex = GraphDBConfig.getNodeIndex();
-		this.relationshipIndex = GraphDBConfig.getRelationshipIndex();
 		this.beanTypePropertyName = GraphDBConfig.getBeanTypePropertyName();
 	}
 
 	@Override
 	protected List<? extends BEAN_TYPE> getAllBeans(final List<? extends IBeanKey> parentBeans, final PARAM_TYPE parameter) {
-		final List<BEAN_TYPE> result = new LinkedList<BEAN_TYPE>();
+		if (related) {
+			return getAllRelatedBeans(parentBeans);
+		}
+		else {
+			return getAllUnrelatedBeans(parentBeans);
+		}
+	}
 
-		if (beanFactory.isNodeBean(beanType, beanTypeId)) {
-			for (final Node node : nodeIndex.get(beanTypePropertyName, beanTypeIdString)) {
-				result.add(beanFactory.createNodeBean(beanType, beanTypeId, node));
+	private List<? extends BEAN_TYPE> getAllRelatedBeans(final List<? extends IBeanKey> parentBeans) {
+		final Set<BEAN_TYPE> result = new LinkedHashSet<BEAN_TYPE>();
+
+		for (final IBeanKey beanKey : parentBeans) {
+			final Node parentNode = NodeAccess.findNode(parentBeanTypeId, beanKey.getId());
+			if (parentNode != null) {
+				for (final Relationship relationship : parentNode.getRelationships(direction, relationshipType)) {
+					result.add(beanFactory.createNodeBean(beanType, beanTypeId, relationship.getOtherNode(parentNode)));
+				}
 			}
 		}
-		else if (beanFactory.isRelationshipBean(beanType, beanTypeId)) {
-			for (final Relationship relationship : relationshipIndex.get(beanTypePropertyName, beanTypeIdString)) {
-				result.add(beanFactory.createRelationshipBean(beanType, beanTypeId, relationship));
+
+		return new LinkedList<BEAN_TYPE>(result);
+	}
+
+	private List<? extends BEAN_TYPE> getAllUnrelatedBeans(final List<? extends IBeanKey> parentBeans) {
+		final List<BEAN_TYPE> result = new LinkedList<BEAN_TYPE>();
+		if (beanFactory.isNodeBean(beanType, beanTypeId)) {
+			for (final Node node : nodeIndex.get(beanTypePropertyName, beanTypeIdString)) {
+				if (!isRelatedWith(node, parentBeans)) {
+					result.add(beanFactory.createNodeBean(beanType, beanTypeId, node));
+				}
 			}
 		}
 		else {
-			throw new IllegalStateException("The bean type '" + beanType + "' is neither a node bean nor a relationship bean.");
+			throw new IllegalStateException("The bean type '" + beanType + "' is not a node bean.");
 		}
-
 		return result;
 	}
+
+	private boolean isRelatedWith(final Node node, final List<? extends IBeanKey> parentBeans) {
+		final Object nodeId = node.getProperty(IBean.ID_PROPERTY);
+		for (final IBeanKey beanKey : parentBeans) {
+			final Node parentNode = NodeAccess.findNode(parentBeanTypeId, beanKey.getId());
+			if (parentNode != null) {
+				for (final Relationship relationship : parentNode.getRelationships(direction, relationshipType)) {
+					if (nodeId.equals(relationship.getOtherNode(parentNode).getProperty(IBean.ID_PROPERTY))) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+
 }
