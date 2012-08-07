@@ -26,43 +26,24 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.neo4j.api;
+package org.jowidgets.cap.service.neo4j.tools;
 
-import java.util.Collection;
+import org.jowidgets.cap.service.neo4j.api.INeo4JServiceFactory;
+import org.jowidgets.cap.service.neo4j.api.Neo4JServiceToolkit;
+import org.jowidgets.cap.service.tools.entity.BeanEntityServiceBuilderWrapper;
+import org.jowidgets.service.api.IServiceRegistry;
 
-import org.jowidgets.cap.common.api.bean.IBean;
-import org.jowidgets.cap.common.api.service.IReaderService;
-import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
-import org.jowidgets.cap.service.api.factory.IBeanServiceFactory;
-import org.neo4j.graphdb.Direction;
-import org.neo4j.graphdb.RelationshipType;
+public class Neo4JEntityServiceBuilderWrapper extends BeanEntityServiceBuilderWrapper {
 
-public interface INeo4JServiceFactory extends IBeanServiceFactory {
+	private final INeo4JServiceFactory serviceFactory;
 
-	<BEAN_TYPE extends IBean, PARAM_TYPE> IReaderService<PARAM_TYPE> readerService(
-		Object parentBeanTypeId,
-		Class<? extends BEAN_TYPE> beanType,
-		Object beanTypeId,
-		RelationshipType relationshipType,
-		Direction direction,
-		boolean related,
-		IBeanDtoFactory<BEAN_TYPE> beanDtoFactory);
+	public Neo4JEntityServiceBuilderWrapper(final IServiceRegistry serviceRegistry) {
+		super(Neo4JServiceToolkit.serviceFactory(), serviceRegistry);
+		this.serviceFactory = Neo4JServiceToolkit.serviceFactory();
+	}
 
-	<BEAN_TYPE extends IBean, PARAM_TYPE> IReaderService<PARAM_TYPE> readerService(
-		Object parentBeanTypeId,
-		Class<? extends BEAN_TYPE> beanType,
-		Object beanTypeId,
-		RelationshipType relationshipType,
-		Direction direction,
-		boolean related,
-		Collection<String> propertyNames);
-
-	<BEAN_TYPE extends IBean, PARAM_TYPE> IReaderService<PARAM_TYPE> readerService(
-		Object parentBeanTypeId,
-		Class<? extends BEAN_TYPE> beanType,
-		RelationshipType relationshipType,
-		Direction direction,
-		boolean related,
-		Collection<String> propertyNames);
+	protected INeo4JServiceFactory getServiceFactory() {
+		return serviceFactory;
+	}
 
 }
