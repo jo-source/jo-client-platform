@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,26 +26,24 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.impl.workbench;
+package org.jowidgets.cap.addons.widgets.graph.impl.swt;
 
-import org.jowidgets.api.widgets.IContainer;
-import org.jowidgets.cap.ui.api.CapUiToolkit;
-import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeModel;
-import org.jowidgets.cap.ui.api.widgets.IBeanRelationTreeBluePrint;
-import org.jowidgets.tools.layout.MigLayoutFactory;
-import org.jowidgets.workbench.api.IViewContext;
-import org.jowidgets.workbench.tools.AbstractView;
+import org.jowidgets.addons.bridge.swt.awt.ISwtAwtControl;
+import org.jowidgets.addons.bridge.swt.awt.SwtAwtControlFactory;
+import org.jowidgets.cap.addons.widgets.graph.impl.swing.common.SwingGraphFactory;
+import org.jowidgets.cap.ui.api.addons.widgets.IBeanRelationGraph;
+import org.jowidgets.cap.ui.api.addons.widgets.IBeanRelationGraphBluePrint;
+import org.jowidgets.common.widgets.factory.IWidgetFactory;
 
-public class EntityRelationTreeView extends AbstractView {
+final class BeanRelationGraphFactory<CHILD_BEAN_TYPE> implements
+		IWidgetFactory<IBeanRelationGraph<CHILD_BEAN_TYPE>, IBeanRelationGraphBluePrint<CHILD_BEAN_TYPE>> {
 
-	public static final String ID = EntityRelationTreeView.class.getName();
-
-	public EntityRelationTreeView(final IViewContext context, final IBeanRelationTreeModel<?> parentModel) {
-		final IContainer container = context.getContainer();
-		container.setLayout(MigLayoutFactory.growingInnerCellLayout());
-		final IBeanRelationTreeBluePrint<?> beanRelationTreeBp = CapUiToolkit.bluePrintFactory().beanRelationTree(parentModel);
-		beanRelationTreeBp.setAutoExpandLevel(2);
-		container.add(beanRelationTreeBp, MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
+	@Override
+	public IBeanRelationGraph<CHILD_BEAN_TYPE> create(
+		final Object parentUiReference,
+		final IBeanRelationGraphBluePrint<CHILD_BEAN_TYPE> bluePrint) {
+		final ISwtAwtControl awtSwtControl = SwtAwtControlFactory.getInstance().createSwtAwtControl(parentUiReference);
+		return SwingGraphFactory.createBeanRelationGraph(awtSwtControl, awtSwtControl.getAwtContainer(), bluePrint);
 	}
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,26 +26,37 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.impl.workbench;
+package org.jowidgets.cap.addons.widgets.graph.impl.swing.common;
 
-import org.jowidgets.api.widgets.IContainer;
-import org.jowidgets.cap.ui.api.CapUiToolkit;
+import java.awt.BorderLayout;
+import java.awt.Container;
+
+import javax.swing.JLabel;
+
+import org.jowidgets.api.widgets.IControl;
+import org.jowidgets.cap.ui.api.addons.widgets.IBeanRelationGraph;
+import org.jowidgets.cap.ui.api.addons.widgets.IBeanRelationGraphSetupBuilder;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeModel;
-import org.jowidgets.cap.ui.api.widgets.IBeanRelationTreeBluePrint;
-import org.jowidgets.tools.layout.MigLayoutFactory;
-import org.jowidgets.workbench.api.IViewContext;
-import org.jowidgets.workbench.tools.AbstractView;
+import org.jowidgets.tools.widgets.wrapper.ControlWrapper;
 
-public class EntityRelationTreeView extends AbstractView {
+class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements IBeanRelationGraph<CHILD_BEAN_TYPE> {
 
-	public static final String ID = EntityRelationTreeView.class.getName();
+	private final IBeanRelationTreeModel<CHILD_BEAN_TYPE> relationTreeModel;
 
-	public EntityRelationTreeView(final IViewContext context, final IBeanRelationTreeModel<?> parentModel) {
-		final IContainer container = context.getContainer();
-		container.setLayout(MigLayoutFactory.growingInnerCellLayout());
-		final IBeanRelationTreeBluePrint<?> beanRelationTreeBp = CapUiToolkit.bluePrintFactory().beanRelationTree(parentModel);
-		beanRelationTreeBp.setAutoExpandLevel(2);
-		container.add(beanRelationTreeBp, MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
+	BeanRelationGraphImpl(
+		final IControl control,
+		final Container swingContainer,
+		final IBeanRelationGraphSetupBuilder<CHILD_BEAN_TYPE, ?> setup) {
+		super(control);
+		this.relationTreeModel = setup.getModel();
+
+		swingContainer.setLayout(new BorderLayout());
+		swingContainer.add(new JLabel("TODO implement BeanRelationGraph"), BorderLayout.CENTER);
+	}
+
+	@Override
+	public IBeanRelationTreeModel<CHILD_BEAN_TYPE> getModel() {
+		return relationTreeModel;
 	}
 
 }

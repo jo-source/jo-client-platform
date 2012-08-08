@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,26 +26,41 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.impl.workbench;
+package org.jowidgets.cap.ui.api.addons.widgets;
 
-import org.jowidgets.api.widgets.IContainer;
-import org.jowidgets.cap.ui.api.CapUiToolkit;
+import org.jowidgets.api.widgets.blueprint.builder.IComponentSetupBuilder;
+import org.jowidgets.api.widgets.descriptor.setup.IComponentSetup;
+import org.jowidgets.cap.ui.api.tree.IBeanRelationNodeModel;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeModel;
-import org.jowidgets.cap.ui.api.widgets.IBeanRelationTreeBluePrint;
-import org.jowidgets.tools.layout.MigLayoutFactory;
-import org.jowidgets.workbench.api.IViewContext;
-import org.jowidgets.workbench.tools.AbstractView;
+import org.jowidgets.common.widgets.descriptor.setup.mandatory.Mandatory;
+import org.jowidgets.util.IFilter;
 
-public class EntityRelationTreeView extends AbstractView {
+public interface IBeanRelationGraphSetupBuilder<CHILD_BEAN_TYPE, INSTANCE_TYPE extends IBeanRelationGraphSetupBuilder<?, ?>> extends
+		IComponentSetup,
+		IComponentSetupBuilder<INSTANCE_TYPE> {
 
-	public static final String ID = EntityRelationTreeView.class.getName();
+	INSTANCE_TYPE setBorder(boolean border);
 
-	public EntityRelationTreeView(final IViewContext context, final IBeanRelationTreeModel<?> parentModel) {
-		final IContainer container = context.getContainer();
-		container.setLayout(MigLayoutFactory.growingInnerCellLayout());
-		final IBeanRelationTreeBluePrint<?> beanRelationTreeBp = CapUiToolkit.bluePrintFactory().beanRelationTree(parentModel);
-		beanRelationTreeBp.setAutoExpandLevel(2);
-		container.add(beanRelationTreeBp, MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
-	}
+	INSTANCE_TYPE setChildRelationFilter(IFilter<IBeanRelationNodeModel<Object, Object>> filter);
+
+	INSTANCE_TYPE setAutoSelection(boolean autoSelection);
+
+	INSTANCE_TYPE setAutoExpandLevel(int level);
+
+	INSTANCE_TYPE setModel(IBeanRelationTreeModel<CHILD_BEAN_TYPE> model);
+
+	@Mandatory
+	boolean hasBorder();
+
+	@Mandatory
+	IBeanRelationTreeModel<CHILD_BEAN_TYPE> getModel();
+
+	@Mandatory
+	int getAutoExpandLevel();
+
+	@Mandatory
+	boolean getAutoSelection();
+
+	IFilter<IBeanRelationNodeModel<Object, Object>> getChildRelationFilter();
 
 }

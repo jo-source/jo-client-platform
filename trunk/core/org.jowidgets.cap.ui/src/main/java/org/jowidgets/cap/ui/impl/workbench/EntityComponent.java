@@ -170,6 +170,9 @@ public class EntityComponent extends AbstractComponent implements IComponent {
 		else if (EntityRelationTreeView.ID.equals(viewId)) {
 			return new EntityRelationTreeView(context, relationTreeModel);
 		}
+		else if (EntityRelationGraphView.ID.equals(viewId)) {
+			return new EntityRelationGraphView(context, relationTreeModel);
+		}
 		else if (EntityDetailView.ID.equals(viewId)) {
 			return new EntityDetailView(context, tableModel);
 		}
