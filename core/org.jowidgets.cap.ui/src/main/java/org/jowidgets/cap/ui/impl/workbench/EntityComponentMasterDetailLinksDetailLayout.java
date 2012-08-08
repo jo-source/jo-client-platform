@@ -31,12 +31,14 @@ package org.jowidgets.cap.ui.impl.workbench;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
 import org.jowidgets.cap.common.api.entity.IEntityClass;
 import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
 import org.jowidgets.cap.common.api.service.IBeanServicesProvider;
 import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.common.api.service.IReaderService;
+import org.jowidgets.cap.ui.api.addons.widgets.IBeanRelationGraphBluePrint;
 import org.jowidgets.service.api.ServiceProvider;
 import org.jowidgets.workbench.api.ILayout;
 import org.jowidgets.workbench.toolkit.api.IFolderLayoutBuilder;
@@ -110,6 +112,9 @@ public class EntityComponentMasterDetailLinksDetailLayout {
 		final IFolderLayoutBuilder result = new FolderLayoutBuilder(LINKED_DETAIL_FOLDER_ID);
 		result.setViewsCloseable(false);
 		result.addView(EntityMultiDetailView.ID, EntityMultiDetailView.DEFAULT_LABEL);
+		if (hasBeanRelationGraphImpl()) {
+			result.addView(EntityRelationGraphView.ID, EntityRelationGraphView.DEFAULT_LABEL);
+		}
 		for (final Entry<String, IEntityLinkDescriptor> linkEntry : links.entrySet()) {
 			final IEntityService entityService = ServiceProvider.getService(IEntityService.ID);
 			if (entityService != null) {
@@ -127,6 +132,11 @@ public class EntityComponentMasterDetailLinksDetailLayout {
 			}
 		}
 		return result;
+	}
+
+	@SuppressWarnings("unchecked")
+	private boolean hasBeanRelationGraphImpl() {
+		return Toolkit.getWidgetFactory().getFactory(IBeanRelationGraphBluePrint.class) != null;
 	}
 
 }

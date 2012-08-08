@@ -29,6 +29,7 @@
 		<module>../org.jowidgets.cap.security.ui</module>
 		<module>../org.jowidgets.cap.security.ui.plugin</module>
 		<module>../org.jowidgets.plugin.spring</module>
+		<module>../widgets/parent</module>
 	</modules>
 	
 	<repositories>

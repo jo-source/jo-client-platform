@@ -29,23 +29,25 @@
 package org.jowidgets.cap.ui.impl.workbench;
 
 import org.jowidgets.api.widgets.IContainer;
-import org.jowidgets.cap.ui.api.CapUiToolkit;
+import org.jowidgets.cap.ui.api.addons.widgets.GraphBPF;
+import org.jowidgets.cap.ui.api.addons.widgets.IBeanRelationGraphBluePrint;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeModel;
-import org.jowidgets.cap.ui.api.widgets.IBeanRelationTreeBluePrint;
 import org.jowidgets.tools.layout.MigLayoutFactory;
 import org.jowidgets.workbench.api.IViewContext;
 import org.jowidgets.workbench.tools.AbstractView;
 
-public class EntityRelationTreeView extends AbstractView {
+public class EntityRelationGraphView extends AbstractView {
 
-	public static final String ID = EntityRelationTreeView.class.getName();
+	public static final String ID = EntityRelationGraphView.class.getName();
 
-	public EntityRelationTreeView(final IViewContext context, final IBeanRelationTreeModel<?> parentModel) {
+	public static final String DEFAULT_LABEL = Messages.getString("EntityRelationGraphView.graph"); //$NON-NLS-1$
+
+	public EntityRelationGraphView(final IViewContext context, final IBeanRelationTreeModel<?> parentModel) {
 		final IContainer container = context.getContainer();
 		container.setLayout(MigLayoutFactory.growingInnerCellLayout());
-		final IBeanRelationTreeBluePrint<?> beanRelationTreeBp = CapUiToolkit.bluePrintFactory().beanRelationTree(parentModel);
-		beanRelationTreeBp.setAutoExpandLevel(2);
-		container.add(beanRelationTreeBp, MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
+		final IBeanRelationGraphBluePrint<?> beanRelationGraphBp = GraphBPF.beanRelationGraph(parentModel);
+		beanRelationGraphBp.setAutoExpandLevel(2);
+		container.add(beanRelationGraphBp, MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
 	}
 
 }

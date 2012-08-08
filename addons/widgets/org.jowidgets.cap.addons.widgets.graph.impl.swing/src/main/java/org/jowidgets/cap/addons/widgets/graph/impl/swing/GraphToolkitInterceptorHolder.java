@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,26 +26,16 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.impl.workbench;
+package org.jowidgets.cap.addons.widgets.graph.impl.swing;
 
-import org.jowidgets.api.widgets.IContainer;
-import org.jowidgets.cap.ui.api.CapUiToolkit;
-import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeModel;
-import org.jowidgets.cap.ui.api.widgets.IBeanRelationTreeBluePrint;
-import org.jowidgets.tools.layout.MigLayoutFactory;
-import org.jowidgets.workbench.api.IViewContext;
-import org.jowidgets.workbench.tools.AbstractView;
+import org.jowidgets.api.toolkit.IToolkitInterceptor;
+import org.jowidgets.tools.toolkit.AbstractToolkitInterceptorHolder;
 
-public class EntityRelationTreeView extends AbstractView {
+public final class GraphToolkitInterceptorHolder extends AbstractToolkitInterceptorHolder {
 
-	public static final String ID = EntityRelationTreeView.class.getName();
-
-	public EntityRelationTreeView(final IViewContext context, final IBeanRelationTreeModel<?> parentModel) {
-		final IContainer container = context.getContainer();
-		container.setLayout(MigLayoutFactory.growingInnerCellLayout());
-		final IBeanRelationTreeBluePrint<?> beanRelationTreeBp = CapUiToolkit.bluePrintFactory().beanRelationTree(parentModel);
-		beanRelationTreeBp.setAutoExpandLevel(2);
-		container.add(beanRelationTreeBp, MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
+	@Override
+	protected IToolkitInterceptor createToolkitInterceptor() {
+		return new GraphToolkitInterceptor();
 	}
 
 }

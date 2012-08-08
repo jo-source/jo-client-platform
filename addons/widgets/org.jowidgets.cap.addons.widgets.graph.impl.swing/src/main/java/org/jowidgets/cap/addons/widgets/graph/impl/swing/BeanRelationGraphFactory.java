@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,26 +26,32 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.impl.workbench;
+package org.jowidgets.cap.addons.widgets.graph.impl.swing;
 
-import org.jowidgets.api.widgets.IContainer;
-import org.jowidgets.cap.ui.api.CapUiToolkit;
-import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeModel;
-import org.jowidgets.cap.ui.api.widgets.IBeanRelationTreeBluePrint;
-import org.jowidgets.tools.layout.MigLayoutFactory;
-import org.jowidgets.workbench.api.IViewContext;
-import org.jowidgets.workbench.tools.AbstractView;
+import java.awt.Container;
 
-public class EntityRelationTreeView extends AbstractView {
+import org.jowidgets.api.toolkit.Toolkit;
+import org.jowidgets.api.widgets.IComposite;
+import org.jowidgets.cap.addons.widgets.graph.impl.swing.common.SwingGraphFactory;
+import org.jowidgets.cap.ui.api.addons.widgets.IBeanRelationGraph;
+import org.jowidgets.cap.ui.api.addons.widgets.IBeanRelationGraphBluePrint;
+import org.jowidgets.common.widgets.factory.IWidgetFactory;
+import org.jowidgets.tools.widgets.blueprint.BPF;
 
-	public static final String ID = EntityRelationTreeView.class.getName();
+final class BeanRelationGraphFactory<CHILD_BEAN_TYPE> implements
+		IWidgetFactory<IBeanRelationGraph<CHILD_BEAN_TYPE>, IBeanRelationGraphBluePrint<CHILD_BEAN_TYPE>> {
 
-	public EntityRelationTreeView(final IViewContext context, final IBeanRelationTreeModel<?> parentModel) {
-		final IContainer container = context.getContainer();
-		container.setLayout(MigLayoutFactory.growingInnerCellLayout());
-		final IBeanRelationTreeBluePrint<?> beanRelationTreeBp = CapUiToolkit.bluePrintFactory().beanRelationTree(parentModel);
-		beanRelationTreeBp.setAutoExpandLevel(2);
-		container.add(beanRelationTreeBp, MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
+	@Override
+	public IBeanRelationGraph<CHILD_BEAN_TYPE> create(
+		final Object parentUiReference,
+		final IBeanRelationGraphBluePrint<CHILD_BEAN_TYPE> bluePrint) {
+		final IComposite composite = Toolkit.getWidgetFactory().create(parentUiReference, BPF.composite());
+		if (composite.getUiReference() instanceof Container) {
+			return SwingGraphFactory.createBeanRelationGraph(composite, (Container) composite.getUiReference(), bluePrint);
+		}
+		else {
+			throw new IllegalArgumentException("The given composite must be an swing container");
+		}
 	}
 
 }
