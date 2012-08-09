@@ -312,6 +312,15 @@ final class BeanEntityServiceBuilderImpl extends EntityServiceBuilderImpl implem
 		}
 
 		@Override
+		public IBeanEntityBluePrint setReadonly() {
+			checkExhausted();
+			setUpdaterService((IUpdaterService) null);
+			setCreatorService((ICreatorService) null);
+			setDeleterService((IDeleterService) null);
+			return this;
+		}
+
+		@Override
 		public IBeanEntityLinkBluePrint addLink() {
 			checkExhausted();
 			final BeanEntityLinkBluePrintImpl result = new BeanEntityLinkBluePrintImpl(this);

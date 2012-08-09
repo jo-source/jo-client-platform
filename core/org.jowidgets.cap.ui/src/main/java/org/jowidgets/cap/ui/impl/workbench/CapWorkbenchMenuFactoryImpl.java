@@ -30,7 +30,10 @@ package org.jowidgets.cap.ui.impl.workbench;
 
 import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.model.item.IMenuBarModel;
+import org.jowidgets.api.model.item.IMenuItemModel;
 import org.jowidgets.api.model.item.IMenuModel;
+import org.jowidgets.api.model.item.ISeparatorItemModel;
+import org.jowidgets.api.model.item.IToolBarItemModel;
 import org.jowidgets.api.model.item.IToolBarModel;
 import org.jowidgets.cap.ui.api.command.IDataModelAction;
 import org.jowidgets.cap.ui.api.plugin.IWorkbenchMenuInterceptorPlugin;
@@ -91,6 +94,14 @@ final class CapWorkbenchMenuFactoryImpl implements ICapWorkbenchMenuFactory {
 			result.addAction(refreshLookUpsAction);
 		}
 
+		final int size = result.getChildren().size();
+		if (size > 0) {
+			final IMenuItemModel itemModel = result.getChildren().get(size - 1);
+			if (itemModel instanceof ISeparatorItemModel) {
+				result.removeItem(itemModel);
+			}
+		}
+
 		//Modify with plugins
 		for (final IWorkbenchMenuInterceptorPlugin plugin : PluginProvider.getPlugins(IWorkbenchMenuInterceptorPlugin.ID)) {
 			result = plugin.getMenuInterceptor().dataMenuModel(result);
@@ -130,6 +141,14 @@ final class CapWorkbenchMenuFactoryImpl implements ICapWorkbenchMenuFactory {
 			result.addAction(saveAction);
 		}
 
+		final int size = result.getItems().size();
+		if (size > 0) {
+			final IToolBarItemModel itemModel = result.getItems().get(size - 1);
+			if (itemModel instanceof ISeparatorItemModel) {
+				result.removeItem(itemModel);
+			}
+		}
+
 		//Modify with plugins
 		for (final IWorkbenchMenuInterceptorPlugin plugin : PluginProvider.getPlugins(IWorkbenchMenuInterceptorPlugin.ID)) {
 			result = plugin.getMenuInterceptor().toolBarModel(result);
@@ -144,5 +163,4 @@ final class CapWorkbenchMenuFactoryImpl implements ICapWorkbenchMenuFactory {
 			return new ToolBarModel();
 		}
 	}
-
 }
