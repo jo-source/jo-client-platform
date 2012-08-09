@@ -215,6 +215,13 @@ public interface IBeanEntityBluePrint {
 	IBeanEntityBluePrint setDeleterService(ISyncDeleterService deleterService);
 
 	/**
+	 * Convenience method to set the updater service and creator service to null
+	 * 
+	 * @return This builder
+	 */
+	IBeanEntityBluePrint setReadonly();
+
+	/**
 	 * Adds a link to the entity. The link can be configured on the returned ILinkEntityBluePrint
 	 * 
 	 * @return The blueprint to configure the link

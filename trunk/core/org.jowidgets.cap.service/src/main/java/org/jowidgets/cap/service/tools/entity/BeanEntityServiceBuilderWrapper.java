@@ -73,7 +73,7 @@ public class BeanEntityServiceBuilderWrapper implements IBeanEntityServiceBuilde
 	}
 
 	@Override
-	public final IBeanEntityBluePrint addEntity() {
+	public IBeanEntityBluePrint addEntity() {
 		return original.addEntity();
 	}
 
