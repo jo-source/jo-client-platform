@@ -31,7 +31,11 @@
 			<version>${jowidgets.version}</version>
 		</dependency>
 
-
+		<dependency>
+			<groupId>org.prefuse</groupId>
+			<artifactId>prefuse</artifactId>
+			<version>2007.10.21</version>
+		</dependency>
 
 	</dependencies>
 </project>
