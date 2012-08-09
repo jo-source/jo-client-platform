@@ -48,6 +48,8 @@ public interface IBeanRelationTreeSetupBuilder<CHILD_BEAN_TYPE> extends
 
 	IBeanRelationTreeSetupBuilder<CHILD_BEAN_TYPE> setAutoExpandLevel(int level);
 
+	IBeanRelationTreeSetupBuilder<CHILD_BEAN_TYPE> setExpansionCacheEnabled(boolean enabled);
+
 	IBeanRelationTreeSetupBuilder<CHILD_BEAN_TYPE> setModel(IBeanRelationTreeModel<CHILD_BEAN_TYPE> model);
 
 	IBeanRelationTreeSetupBuilder<CHILD_BEAN_TYPE> setSelectionPolicy(SelectionPolicy selectionPolicy);
@@ -71,6 +73,9 @@ public interface IBeanRelationTreeSetupBuilder<CHILD_BEAN_TYPE> extends
 
 	@Mandatory
 	int getAutoExpandLevel();
+
+	@Mandatory
+	boolean getExpansionCacheEnabled();
 
 	@Mandatory
 	boolean getAutoSelection();

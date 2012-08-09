@@ -100,6 +100,7 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 	private final int autoExpandLevel;
 	private final Map<ITreeNode, Tuple<IBeanRelationNodeModel<Object, Object>, IBeanProxy<Object>>> nodesMap;
 	private final LinkedHashSet<ExpandedNodeKey> expandedNodesCache;
+	private final boolean expansionCacheEnabled;
 
 	BeanRelationTreeImpl(final ITree tree, IBeanRelationTreeBluePrint<CHILD_BEAN_TYPE> bluePrint) {
 		super(tree);
@@ -111,6 +112,7 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 		this.autoSelection = bluePrint.getAutoSelection();
 		this.autoExpandLevel = bluePrint.getAutoExpandLevel();
 		this.childRelationFilter = bluePrint.getChildRelationFilter();
+		this.expansionCacheEnabled = bluePrint.getExpansionCacheEnabled();
 		this.nodesMap = new HashMap<ITreeNode, Tuple<IBeanRelationNodeModel<Object, Object>, IBeanProxy<Object>>>();
 		this.expandedNodesCache = new LinkedHashSet<ExpandedNodeKey>();
 
@@ -310,7 +312,9 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 					}
 					//TODO MG remove this later END
 
-					childRelationNode.addTreeNodeListener(new TreeNodeExpansionTrackingListener(childRelationNode));
+					if (expansionCacheEnabled) {
+						childRelationNode.addTreeNodeListener(new TreeNodeExpansionTrackingListener(childRelationNode));
+					}
 
 					lazyChildRelations.add(new Tuple<IBeanRelationNodeModel<Object, Object>, ITreeNode>(
 						childRelationNodeModel,
@@ -319,7 +323,9 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 			}
 			if (lazyChildRelations.size() > 0) {
 				childNode.addTreeNodeListener(new TreeNodeExpansionListener(childNode, lazyChildRelations));
-				childNode.addTreeNodeListener(new TreeNodeExpansionTrackingListener(childNode));
+				if (expansionCacheEnabled) {
+					childNode.addTreeNodeListener(new TreeNodeExpansionTrackingListener(childNode));
+				}
 			}
 		}
 
