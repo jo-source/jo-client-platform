@@ -2,7 +2,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<artifactId>org.jowidgets.cap.addons.widgets.graph.impl.swt</artifactId>
+	<artifactId>org.jowidgets.cap.addons.widgets.graph.impl.prefuse.swing.common</artifactId>
 
 	<parent>
 		<groupId>org.jowidgets</groupId>
@@ -15,22 +15,23 @@
 
 		<dependency>
 			<groupId>org.jowidgets</groupId>
-			<artifactId>org.jowidgets.cap.addons.widgets.graph.impl.swing.common</artifactId>
+			<artifactId>org.jowidgets.cap.ui</artifactId>
 			<version>0.13.0-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.jowidgets</groupId>
-			<artifactId> org.jowidgets.addons.bridge.swt.awt</artifactId>
+			<artifactId>org.jowidgets.tools</artifactId>
 			<version>${jowidgets.version}</version>
 		</dependency>
 
 		<dependency>
-			<groupId>org.eclipse</groupId>
-			<artifactId>swt-win32-win32-x86</artifactId>
-			<version>3.6.2</version>
-			<scope>provided</scope>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.spi.impl.swing.common</artifactId>
+			<version>${jowidgets.version}</version>
 		</dependency>
+
+
 
 	</dependencies>
 </project>
