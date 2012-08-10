@@ -44,6 +44,7 @@ final class BeanRelationGraphFactory<CHILD_BEAN_TYPE> implements
 		final IBeanRelationGraphBluePrint<CHILD_BEAN_TYPE> bluePrint) {
 		final ISwtAwtControl swtAwtControl = SwtAwtControlFactory.getInstance().createSwtAwtControl(parentUiReference);
 		return SwingGraphFactory.createBeanRelationGraph(swtAwtControl, swtAwtControl.getAwtContainer(), bluePrint);
+
 	}
 
 }
