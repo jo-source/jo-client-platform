@@ -126,9 +126,15 @@ abstract class AbstractBeanTableAddFilterCommandExecutor implements ICommand, IC
 		else if (invert) {
 			final IAttribute<Object> attribute = model.getAttribute(columnIndex);
 			final IFilterPanelProvider<IOperator> filterPanelProvider = attribute.getFilterPanelProvider(includingFilter.getType());
-			final IOperator operator = includingFilter.getOperator();
-			if (!filterPanelProvider.getOperatorProvider().isInvertible(operator)) {
-				return EnabledState.disabled(MessageReplacer.replace(operatorNotInvertibleMessage, operator.getLabelLong()));
+			if (filterPanelProvider != null) {
+				final IOperator operator = includingFilter.getOperator();
+				if (!filterPanelProvider.getOperatorProvider().isInvertible(operator)) {
+					return EnabledState.disabled(MessageReplacer.replace(operatorNotInvertibleMessage, operator.getLabelLong()));
+				}
+			}
+			else {
+				final String valueAsString = attribute.getValueAsString(value);
+				EnabledState.disabled(getDisabledMessageOnNoIncludingFilter(valueAsString));
 			}
 		}
 		return EnabledState.ENABLED;
