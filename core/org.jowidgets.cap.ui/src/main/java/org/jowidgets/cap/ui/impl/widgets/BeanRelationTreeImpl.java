@@ -88,7 +88,7 @@ import org.jowidgets.util.Tuple;
 
 final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements IBeanRelationTree<CHILD_BEAN_TYPE> {
 
-	private static final int MAX_EXPANDED_NODES_CACHE = 2500;
+	private static final int MAX_EXPANDED_NODES_CACHE = 500;
 
 	private final String waitText = Messages.getString("BeanRelationTreeImpl.wait_text");
 	private final String waitTooltip = Messages.getString("BeanRelationTreeImpl.wait_tooltip");
@@ -291,38 +291,11 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 		childNode.addDisposeListener(new TreeNodeDisposeListener(childNode));
 
 		if (!bean.isDummy()) {
-			//create the child relation nodes
-			final List<Tuple<IBeanRelationNodeModel<Object, Object>, ITreeNode>> lazyChildRelations;
-			lazyChildRelations = new LinkedList<Tuple<IBeanRelationNodeModel<Object, Object>, ITreeNode>>();
-			for (final IEntityTypeId<Object> childEntityTypeId : relationNodeModel.getChildRelations()) {
-
-				final IBeanRelationNodeModel<Object, Object> childRelationNodeModel = treeModel.getNode(
-						relationNodeModel.getChildEntityTypeId(),
-						bean,
-						childEntityTypeId);
-
-				if (!filterChildReleation(childRelationNodeModel)) {
-					final ITreeNode childRelationNode = childNode.addNode();
-					renderRelationNode(childRelationNode, childRelationNodeModel);
-
-					//TODO MG remove this later BEGIN
-					final IMenuModel relationMenu = createRelationNodeMenus(childRelationNodeModel, bean);
-					if (relationMenu.getChildren().size() > 0) {
-						childRelationNode.setPopupMenu(relationMenu);
-					}
-					//TODO MG remove this later END
-
-					if (expansionCacheEnabled) {
-						childRelationNode.addTreeNodeListener(new TreeNodeExpansionTrackingListener(childRelationNode));
-					}
-
-					lazyChildRelations.add(new Tuple<IBeanRelationNodeModel<Object, Object>, ITreeNode>(
-						childRelationNodeModel,
-						childRelationNode));
-				}
-			}
-			if (lazyChildRelations.size() > 0) {
-				childNode.addTreeNodeListener(new TreeNodeExpansionListener(childNode, lazyChildRelations));
+			//create the dummy child relation node
+			if (relationNodeModel.getChildRelations().size() > 0) {
+				final ITreeNode childRelationDummyNode = childNode.addNode();
+				childRelationDummyNode.setText("dummy");
+				childNode.addTreeNodeListener(new TreeNodeExpansionListener(childNode, relationNodeModel, bean));
 				if (expansionCacheEnabled) {
 					childNode.addTreeNodeListener(new TreeNodeExpansionTrackingListener(childNode));
 				}
@@ -613,6 +586,7 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 
 		@Override
 		public void onDispose() {
+			node.setPopupMenu(null);
 			nodesMap.remove(node);
 		}
 	}
@@ -620,32 +594,61 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 	private final class TreeNodeExpansionListener extends TreeNodeAdapter {
 
 		private final ITreeNode node;
-		private final List<Tuple<IBeanRelationNodeModel<Object, Object>, ITreeNode>> lazyChildRelations;
+		private final IBeanRelationNodeModel<Object, Object> relationNodeModel;
+		private final IBeanProxy<Object> bean;
 
 		private TreeNodeExpansionListener(
 			final ITreeNode node,
-			final List<Tuple<IBeanRelationNodeModel<Object, Object>, ITreeNode>> lazyChildRelations) {
+			final IBeanRelationNodeModel<Object, Object> relationNodeModel,
+			final IBeanProxy<Object> bean) {
 			this.node = node;
-			this.lazyChildRelations = lazyChildRelations;
+			this.relationNodeModel = relationNodeModel;
+			this.bean = bean;
 		}
 
 		@Override
 		public void expandedChanged(final boolean expanded) {
 			if (expanded) {
-				for (final Tuple<IBeanRelationNodeModel<Object, Object>, ITreeNode> tuple : lazyChildRelations) {
-					final IBeanRelationNodeModel<Object, Object> childRelationNodeModel = tuple.getFirst();
-					final ITreeNode childRelationNode = tuple.getSecond();
-					childRelationNodeModel.addBeanListModelListener(new ChildModelListener(
-						childRelationNode,
-						childRelationNodeModel));
-					final boolean loadOccured = childRelationNodeModel.loadIfNotYetDone();
-					if (!loadOccured) {
-						onBeansChanged(childRelationNode, childRelationNodeModel);
+
+				for (final IEntityTypeId<Object> childEntityTypeId : relationNodeModel.getChildRelations()) {
+
+					final IBeanRelationNodeModel<Object, Object> childRelationNodeModel = treeModel.getNode(
+							relationNodeModel.getChildEntityTypeId(),
+							bean,
+							childEntityTypeId);
+
+					if (!filterChildReleation(childRelationNodeModel)) {
+						final ITreeNode childRelationNode = node.addNode();
+						renderRelationNode(childRelationNode, childRelationNodeModel);
+
+						//TODO MG remove this later BEGIN
+						final IMenuModel relationMenu = createRelationNodeMenus(
+								childRelationNodeModel,
+								childRelationNodeModel.getParentBean());
+
+						if (relationMenu.getChildren().size() > 0) {
+							childRelationNode.setPopupMenu(relationMenu);
+						}
+						//TODO MG remove this later END
+
+						if (expansionCacheEnabled) {
+							childRelationNode.addTreeNodeListener(new TreeNodeExpansionTrackingListener(childRelationNode));
+						}
+
+						childRelationNodeModel.addBeanListModelListener(new ChildModelListener(
+							childRelationNode,
+							childRelationNodeModel));
+
+						final boolean loadOccured = childRelationNodeModel.loadIfNotYetDone();
+						if (!loadOccured) {
+							onBeansChanged(childRelationNode, childRelationNodeModel);
+						}
 					}
 				}
-				lazyChildRelations.clear();
 
 				node.removeTreeNodeListener(this);
+				//remove the dummy node
+				node.removeNode(0);
 			}
 		}
 	}
