@@ -56,17 +56,18 @@ import org.jowidgets.cap.ui.api.execution.IExecutionInterceptor;
 import org.jowidgets.cap.ui.api.execution.IExecutionTask;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.tools.execution.AbstractUiResultCallback;
+import org.jowidgets.i18n.api.IMessage;
 import org.jowidgets.tools.message.MessageReplacer;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.EmptyCheck;
 
 final class BeanDeleterCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
 
-	private final String singleDeletionConfirmMessage = Messages.getString("BeanDeleterCommand.single_deletion_confirm_message");
-	private final String multiDeletionConfirmMessage = Messages.getString("BeanDeleterCommand.multi_deletion_confirm_message");
-	private final String couldNotBeUndoneMessage = Messages.getString("BeanDeleterCommand.can_not_be_undone");
-	private final String nothingSelectedMessage = Messages.getString("BeanDeleterCommand.nothing_selected");
-	private final String deletionFailedMessage = Messages.getString("BeanDeleterCommand.deletion_failed");
+	private static final IMessage SINGLE_DELETION_CONFIRM = Messages.getMessage("BeanDeleterCommand.single_deletion_confirm_message");
+	private static final IMessage MULTI_DELETION_CONFIRM = Messages.getMessage("BeanDeleterCommand.multi_deletion_confirm_message");
+	private static final IMessage CAN_NOT_BE_UNDONE = Messages.getMessage("BeanDeleterCommand.can_not_be_undone");
+	private static final IMessage NOTHING_SELECTED = Messages.getMessage("BeanDeleterCommand.nothing_selected");
+	private static final IMessage DELETION_FAILED = Messages.getMessage("BeanDeleterCommand.deletion_failed");
 
 	private final IBeanListModel<BEAN_TYPE> model;
 	private final IDeleterService deleterService;
@@ -136,7 +137,7 @@ final class BeanDeleterCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 		final ArrayList<Integer> selection = model.getSelection();
 
 		if (selection == null || selection.size() == 0) {
-			Toolkit.getMessagePane().showWarning(executionContext, nothingSelectedMessage);
+			Toolkit.getMessagePane().showWarning(executionContext, NOTHING_SELECTED.get());
 			return;
 		}
 
@@ -202,13 +203,13 @@ final class BeanDeleterCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 	private String getConfirmationMessage(final int selectionCount) {
 		final StringBuilder result = new StringBuilder();
 		if (selectionCount == 1) {
-			result.append(singleDeletionConfirmMessage);
+			result.append(SINGLE_DELETION_CONFIRM);
 		}
 		else {
-			result.append(MessageReplacer.replace(multiDeletionConfirmMessage, "" + selectionCount));
+			result.append(MessageReplacer.replace(MULTI_DELETION_CONFIRM.get(), "" + selectionCount));
 		}
 		result.append("\n");
-		result.append(couldNotBeUndoneMessage);
+		result.append(CAN_NOT_BE_UNDONE);
 		return result.toString();
 	}
 
@@ -240,7 +241,7 @@ final class BeanDeleterCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 
 			for (final IBeanProxy<BEAN_TYPE> bean : beans) {
 				bean.setExecutionTask(null);
-				bean.addMessage(exceptionConverter.convert(deletionFailedMessage, beans, bean, exception));
+				bean.addMessage(exceptionConverter.convert(DELETION_FAILED.get(), beans, bean, exception));
 			}
 
 			model.fireBeansChanged();

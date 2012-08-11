@@ -35,13 +35,14 @@ import org.jowidgets.cap.security.ui.api.ISecureControlMapper;
 import org.jowidgets.cap.security.ui.api.SecurityIcons;
 import org.jowidgets.common.image.IImageConstant;
 import org.jowidgets.common.widgets.descriptor.IWidgetDescriptor;
+import org.jowidgets.i18n.api.IMessage;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.wrapper.WrapperUtil;
 
 abstract class AbstractSecureControlMapper<WIDGET_TYPE extends IControl, DESCRIPTOR_TYPE extends IWidgetDescriptor<? extends WIDGET_TYPE>, AUTHORIZATION_TYPE> implements
 		ISecureControlMapper<WIDGET_TYPE, DESCRIPTOR_TYPE, AUTHORIZATION_TYPE> {
 
-	private final String readAuthorizationFailed = Messages.getString("AbstractSecureControlMapper.readAuthorizationFailed");
+	private static final IMessage READ_AUTHORIZATION_FAILED = Messages.getMessage("AbstractSecureControlMapper.readAuthorizationFailed");
 
 	abstract IReaderService<Object> getReaderService(DESCRIPTOR_TYPE descriptor);
 
@@ -61,7 +62,7 @@ abstract class AbstractSecureControlMapper<WIDGET_TYPE extends IControl, DESCRIP
 
 	@Override
 	public String getAuthorizationFailedText(final DESCRIPTOR_TYPE bluePrint, final WIDGET_TYPE widget) {
-		return readAuthorizationFailed;
+		return READ_AUTHORIZATION_FAILED.get();
 	}
 
 	@Override

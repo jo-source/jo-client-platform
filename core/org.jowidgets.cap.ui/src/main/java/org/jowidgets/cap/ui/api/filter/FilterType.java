@@ -28,17 +28,22 @@
 
 package org.jowidgets.cap.ui.api.filter;
 
+import org.jowidgets.i18n.api.IMessage;
+
 public enum FilterType implements IFilterType {
 
-	ARITHMETIC_FILTER(Messages.getString("FilterType.arithmetic_filter"), //$NON-NLS-1$
-		Messages.getString("FilterType.arithmetic_filter_description")), //$NON-NLS-1$ 
-	ARITHMETIC_PROPERTY_FILTER(Messages.getString("FilterType.arithmetic_property_filter"), //$NON-NLS-1$
-		Messages.getString("FilterType.arithmetic_property_filter_description")); //$NON-NLS-1$
+	ARITHMETIC_FILTER(
+		Messages.getMessage("FilterType.arithmetic_filter"),
+		Messages.getMessage("FilterType.arithmetic_filter_description")),
 
-	private final String label;
-	private final String description;
+	ARITHMETIC_PROPERTY_FILTER(
+		Messages.getMessage("FilterType.arithmetic_property_filter"),
+		Messages.getMessage("FilterType.arithmetic_property_filter_description"));
 
-	private FilterType(final String label, final String description) {
+	private final IMessage label;
+	private final IMessage description;
+
+	private FilterType(final IMessage label, final IMessage description) {
 		this.label = label;
 		this.description = description;
 	}
@@ -50,12 +55,12 @@ public enum FilterType implements IFilterType {
 
 	@Override
 	public String getLabel() {
-		return label;
+		return label.get();
 	}
 
 	@Override
 	public String getDescription() {
-		return description;
+		return description.get();
 	}
 
 }

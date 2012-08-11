@@ -42,17 +42,18 @@ import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.execution.BeanExecutionPolicy;
 import org.jowidgets.cap.ui.api.execution.IExecutionTask;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
+import org.jowidgets.i18n.api.IMessage;
 import org.jowidgets.util.Assert;
 
 final class BeanListRefreshDelegate<BEAN_TYPE> {
+
+	private static final IMessage REFRESH = Messages.getMessage("BeanListRefreshDelegate.Reload");;
+	private static final IMessage REFRESH_FAILED = Messages.getMessage("BeanListRefreshDelegate.Reload_failed");
 
 	private final IBeanListModel<BEAN_TYPE> listModel;
 	private final IBeanExceptionConverter exceptionConverter;
 	private final BeanExecutionPolicy beanExecutionPolicy;
 	private final IRefreshService refreshService;
-
-	private final String refreshString;
-	private final String refreshFailedString;
 
 	BeanListRefreshDelegate(
 		final IBeanListModel<BEAN_TYPE> listModel,
@@ -68,15 +69,12 @@ final class BeanListRefreshDelegate<BEAN_TYPE> {
 		this.exceptionConverter = exceptionConverter;
 		this.beanExecutionPolicy = beanExecutionPolicy;
 		this.refreshService = refreshService;
-
-		this.refreshString = Messages.getString("BeanListRefreshDelegate.Reload");
-		this.refreshFailedString = Messages.getString("BeanListRefreshDelegate.Reload_failed");
 	}
 
 	void refresh(final Collection<IBeanProxy<BEAN_TYPE>> beans) {
 		if (refreshService != null) {
 			final BeanListExecutionHelper<BEAN_TYPE> executionHelper = new BeanListExecutionHelper<BEAN_TYPE>(
-				refreshFailedString,
+				REFRESH_FAILED.get(),
 				listModel,
 				beans,
 				beanExecutionPolicy,
@@ -88,7 +86,7 @@ final class BeanListRefreshDelegate<BEAN_TYPE> {
 				if (preparedBeans.size() > 0) {
 					final IExecutionTask executionTask = preparedBeans.get(0).getExecutionTask();
 					if (executionTask != null) {
-						executionTask.setDescription(refreshString);
+						executionTask.setDescription(REFRESH.get());
 						final IBeanKeyFactory beanKeyFactory = CapUiToolkit.beanKeyFactory();
 						final List<IBeanKey> beanKeys = beanKeyFactory.createKeys(preparedBeans);
 						final IResultCallback<List<IBeanDto>> helperCallback = executionHelper.createResultCallback(preparedBeans);

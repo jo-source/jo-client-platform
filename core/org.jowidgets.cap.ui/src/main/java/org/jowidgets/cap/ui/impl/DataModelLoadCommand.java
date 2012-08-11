@@ -52,7 +52,7 @@ final class DataModelLoadCommand extends AbstractDataModelCommand {
 	@Override
 	IEnabledState getVetoEnabledState(final IDataModel model) {
 		if (model.hasExecutions()) {
-			return AbstractDataModelCommand.IN_PROCESS_STATE;
+			return AbstractDataModelCommand.IN_PROCESS_STATE.get();
 		}
 		return EnabledState.ENABLED;
 	}

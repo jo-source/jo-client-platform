@@ -49,6 +49,7 @@ import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
 import org.jowidgets.common.widgets.factory.ICustomWidgetFactory;
 import org.jowidgets.common.widgets.factory.IWidgetFactory;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
+import org.jowidgets.i18n.api.IMessage;
 import org.jowidgets.plugin.api.IPluginProperties;
 import org.jowidgets.plugin.api.IPluginPropertiesBuilder;
 import org.jowidgets.plugin.api.PluginProperties;
@@ -62,7 +63,7 @@ import org.jowidgets.util.reflection.ReflectionCache;
 final class SecureControlFactoryDecoratorImpl<WIDGET_TYPE extends IControl, DESCRIPTOR_TYPE extends IWidgetDescriptor<? extends WIDGET_TYPE>, AUTHORIZATION_TYPE> implements
 		IDecorator<IWidgetFactory<WIDGET_TYPE, DESCRIPTOR_TYPE>> {
 
-	private final String defaultFailedText = Messages.getString("SecureControlFactoryDecoratorImpl.defaultFailedText");
+	private static final IMessage DEFAULT_FAILED_MESSAGE = Messages.getMessage("SecureControlFactoryDecoratorImpl.defaultFailedText");
 
 	private final ISecureControlMapper<WIDGET_TYPE, DESCRIPTOR_TYPE, AUTHORIZATION_TYPE> controlAuthorizationMapper;
 	private final IAuthorizationChecker<AUTHORIZATION_TYPE> authorizationChecker;
@@ -129,7 +130,7 @@ final class SecureControlFactoryDecoratorImpl<WIDGET_TYPE extends IControl, DESC
 
 			String failedText = controlAuthorizationMapper.getAuthorizationFailedText(descriptor, widget);
 			if (failedText == null) {
-				failedText = defaultFailedText;
+				failedText = DEFAULT_FAILED_MESSAGE.get();
 			}
 			final String label = failedText;
 			final IImageConstant icon = controlAuthorizationMapper.getAuthorizationFailedIcon(descriptor, widget);

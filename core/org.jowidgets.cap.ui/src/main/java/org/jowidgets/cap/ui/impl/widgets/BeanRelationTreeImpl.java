@@ -582,6 +582,7 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 
 		@Override
 		public void onDispose() {
+			nodesMap.remove(node);
 			node.setPopupMenu(null);
 		}
 	}

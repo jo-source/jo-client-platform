@@ -28,44 +28,42 @@
 
 package org.jowidgets.cap.common.api.filter;
 
+import org.jowidgets.i18n.api.IMessage;
+
 public enum ArithmeticOperator implements IOperator {
 
-	EMPTY(Messages.getString("ArithmeticOperator.empty_short"), //$NON-NLS-1$ 
-		Messages.getString("ArithmeticOperator.empty_long"), //$NON-NLS-1$ 
-		null),
-	EQUAL(Messages.getString("ArithmeticOperator.equal_short"), //$NON-NLS-1$
-		Messages.getString("ArithmeticOperator.equal_long"), //$NON-NLS-1$
-		null),
-	LESS(Messages.getString("ArithmeticOperator.less_short"), //$NON-NLS-1$
-		Messages.getString("ArithmeticOperator.less_long"), //$NON-NLS-1$
-		null),
-	LESS_EQUAL(Messages.getString("ArithmeticOperator.less_equal_short"), //$NON-NLS-1$
-		Messages.getString("ArithmeticOperator.less_equal_long"), //$NON-NLS-1$
-		null),
-	GREATER(Messages.getString("ArithmeticOperator.greater_short"), //$NON-NLS-1$
-		Messages.getString("ArithmeticOperator.greater_long"), //$NON-NLS-1$
-		null),
-	GREATER_EQUAL(Messages.getString("ArithmeticOperator.greaer_equal_short"), //$NON-NLS-1$ 
-		Messages.getString("ArithmeticOperator.greater_equal_long"), //$NON-NLS-1$
-		null),
-	BETWEEN(Messages.getString("ArithmeticOperator.between_short"), //$NON-NLS-1$
-		Messages.getString("ArithmeticOperator.between_long"), //$NON-NLS-1$
-		null),
-	CONTAINS_ANY(Messages.getString("ArithmeticOperator.contains_short"), //$NON-NLS-1$
-		Messages.getString("ArithmeticOperator.contains_long"), //$NON-NLS-1$
-		null),
-	CONTAINS_ALL(Messages.getString("ArithmeticOperator.contains_all_short"), //$NON-NLS-1$
-		Messages.getString("ArithmeticOperator.contains_all_long"), //$NON-NLS-1$
-		null);
+	EMPTY(Messages.getMessage("ArithmeticOperator.empty_short"), Messages.getMessage("ArithmeticOperator.empty_long")),
 
-	private final String label;
-	private final String labelLong;
-	private final String description;
+	EQUAL(Messages.getMessage("ArithmeticOperator.equal_short"), Messages.getMessage("ArithmeticOperator.equal_long")),
 
-	private ArithmeticOperator(final String label, final String labelLong, final String description) {
+	LESS(Messages.getMessage("ArithmeticOperator.less_short"), Messages.getMessage("ArithmeticOperator.less_long")),
+
+	LESS_EQUAL(
+		Messages.getMessage("ArithmeticOperator.less_equal_short"),
+		Messages.getMessage("ArithmeticOperator.less_equal_long")),
+
+	GREATER(Messages.getMessage("ArithmeticOperator.greater_short"), Messages.getMessage("ArithmeticOperator.greater_long")),
+
+	GREATER_EQUAL(
+		Messages.getMessage("ArithmeticOperator.greaer_equal_short"),
+		Messages.getMessage("ArithmeticOperator.greater_equal_long")),
+
+	BETWEEN(Messages.getMessage("ArithmeticOperator.between_short"), Messages.getMessage("ArithmeticOperator.between_long")),
+
+	CONTAINS_ANY(
+		Messages.getMessage("ArithmeticOperator.contains_short"),
+		Messages.getMessage("ArithmeticOperator.contains_long")),
+
+	CONTAINS_ALL(
+		Messages.getMessage("ArithmeticOperator.contains_all_short"),
+		Messages.getMessage("ArithmeticOperator.contains_all_long"));
+
+	private final IMessage label;
+	private final IMessage labelLong;
+
+	private ArithmeticOperator(final IMessage label, final IMessage labelLong) {
 		this.label = label;
 		this.labelLong = labelLong;
-		this.description = description;
 	}
 
 	@Override
@@ -75,17 +73,17 @@ public enum ArithmeticOperator implements IOperator {
 
 	@Override
 	public String getLabel() {
-		return label;
+		return label.get();
 	}
 
 	@Override
 	public String getLabelLong() {
-		return labelLong;
+		return labelLong.get();
 	}
 
 	@Override
 	public String getDescription() {
-		return description;
+		return null;
 	}
 
 	@Override
