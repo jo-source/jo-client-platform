@@ -286,21 +286,17 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 		if (bean.isDummy()) {
 			bean.addMessageStateListener(new DummyBeanMessageStateRenderingListener(childNode, renderer));
 		}
+		else if (relationNodeModel.getChildRelations().size() > 0) {
+			//add dummy relation node
+			childNode.addNode();
+			childNode.addTreeNodeListener(new TreeNodeExpansionListener(childNode, relationNodeModel, bean));
+			if (expansionCacheEnabled) {
+				childNode.addTreeNodeListener(new TreeNodeExpansionTrackingListener(childNode));
+			}
+		}
 
 		//register listener that removes node from nodes map on dispose
 		childNode.addDisposeListener(new TreeNodeDisposeListener(childNode));
-
-		if (!bean.isDummy()) {
-			//create the dummy child relation node
-			if (relationNodeModel.getChildRelations().size() > 0) {
-				final ITreeNode childRelationDummyNode = childNode.addNode();
-				childRelationDummyNode.setText("dummy");
-				childNode.addTreeNodeListener(new TreeNodeExpansionListener(childNode, relationNodeModel, bean));
-				if (expansionCacheEnabled) {
-					childNode.addTreeNodeListener(new TreeNodeExpansionTrackingListener(childNode));
-				}
-			}
-		}
 
 		//auto expand the child node if necessary
 		if (!bean.isDummy() && childNode.getLevel() < autoExpandLevel && !childNode.isLeaf()) {
@@ -587,7 +583,6 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 		@Override
 		public void onDispose() {
 			node.setPopupMenu(null);
-			nodesMap.remove(node);
 		}
 	}
 
@@ -693,7 +688,7 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 			if (node != null) {
 				final Tuple<IBeanRelationNodeModel<Object, Object>, IBeanProxy<Object>> tuple = nodesMap.get(node);
 				if (tuple != null) {
-					path.add(tuple.getSecond());
+					path.add(IBeanProxy.class.getName() + "ID:" + tuple.getSecond().getId());
 				}
 				else {
 					path.add(node.getText());

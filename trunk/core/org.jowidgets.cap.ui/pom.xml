@@ -26,6 +26,12 @@
 		
 		<dependency>
 			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.i18n</artifactId>
+			<version>${jowidgets.version}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.jowidgets</groupId>
 			<artifactId>org.jowidgets.tools</artifactId>
 			<version>${jowidgets.version}</version>
 		</dependency>
