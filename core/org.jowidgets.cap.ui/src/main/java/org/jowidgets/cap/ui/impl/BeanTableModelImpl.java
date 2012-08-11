@@ -2129,7 +2129,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			this.resultCallback = resultCallback;
 		}
 
-		public void fixPageSize() {
+		void fixPageSize() {
 			final int dataModelRowCount = dataModel.getDataRowCount();
 			while (page.size() < pageSize && dataModelRowCount > pageIndex * pageSize + page.size()) {
 				page.add(dummyBeanProxy);
@@ -2368,6 +2368,8 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 				tryAutoSelectFirst();
 			}
 
+			page = null;
+
 			//inform callback of success
 			doCallbackSuccess();
 		}
@@ -2388,6 +2390,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			programmaticPageLoader.remove(pageIndex);
 			finished = true;
 			dataModel.fireDataChanged();
+			page = null;
 			doCallbackError(exception);
 		}
 
@@ -2399,6 +2402,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 				programmaticPageLoader.remove(pageIndex);
 				pageRemoved = true;
 				finished = true;
+				page = null;
 				dataModel.fireDataChanged();
 			}
 		}
