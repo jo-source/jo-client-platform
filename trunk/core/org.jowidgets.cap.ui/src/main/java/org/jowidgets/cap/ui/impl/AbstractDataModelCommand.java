@@ -41,9 +41,9 @@ import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.cap.ui.api.model.IDataModel;
 import org.jowidgets.cap.ui.api.model.IModificationStateListener;
 import org.jowidgets.cap.ui.api.model.IProcessStateListener;
-import org.jowidgets.i18n.api.ILocaleSingleton;
-import org.jowidgets.i18n.api.IValueFactory;
-import org.jowidgets.i18n.api.LocaleSingleton;
+import org.jowidgets.i18n.api.ILocaleLocal;
+import org.jowidgets.i18n.api.LocaleLocal;
+import org.jowidgets.i18n.api.LocaleLocal.IValueFactory;
 import org.jowidgets.tools.command.EnabledChecker;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.event.IChangeListener;
@@ -51,10 +51,10 @@ import org.jowidgets.validation.IValidationConditionListener;
 
 abstract class AbstractDataModelCommand implements ICommand, ICommandExecutor, IEnabledChecker {
 
-	static final ILocaleSingleton<IEnabledState> NO_MODIFICATIONS_STATE = createDisabledState("AbstractDataModelCommand.there_is_no_modified_data");
-	static final ILocaleSingleton<IEnabledState> IN_PROCESS_STATE = createDisabledState("AbstractDataModelCommand.the_data_is_in_process");
-	static final ILocaleSingleton<IEnabledState> NOT_IN_PROCESS_STATE = createDisabledState("AbstractDataModelCommand.there_is_no_data_in_process");
-	private static final ILocaleSingleton<IEnabledState> NO_DATA_NODE_STATE = createDisabledState("AbstractDataModelCommand.there_is_no_selected_data_node");
+	static final ILocaleLocal<IEnabledState> NO_MODIFICATIONS_STATE = createDisabledState("AbstractDataModelCommand.there_is_no_modified_data");
+	static final ILocaleLocal<IEnabledState> IN_PROCESS_STATE = createDisabledState("AbstractDataModelCommand.the_data_is_in_process");
+	static final ILocaleLocal<IEnabledState> NOT_IN_PROCESS_STATE = createDisabledState("AbstractDataModelCommand.there_is_no_data_in_process");
+	private static final ILocaleLocal<IEnabledState> NO_DATA_NODE_STATE = createDisabledState("AbstractDataModelCommand.there_is_no_selected_data_node");
 
 	private final Set<IDataModel> dataModels;
 	private final EnabledChecker enabledChecker;
@@ -90,8 +90,8 @@ abstract class AbstractDataModelCommand implements ICommand, ICommandExecutor, I
 		};
 	}
 
-	private static ILocaleSingleton<IEnabledState> createDisabledState(final String string) {
-		return LocaleSingleton.create(new IValueFactory<IEnabledState>() {
+	private static ILocaleLocal<IEnabledState> createDisabledState(final String string) {
+		return LocaleLocal.create(new IValueFactory<IEnabledState>() {
 			@Override
 			public IEnabledState create() {
 				return EnabledState.disabled(Messages.getString(string));

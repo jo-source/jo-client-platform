@@ -50,9 +50,9 @@ import org.jowidgets.cap.ui.api.bean.IBeanSelectionProvider;
 import org.jowidgets.cap.ui.api.execution.BeanMessageStatePolicy;
 import org.jowidgets.cap.ui.api.execution.BeanModificationStatePolicy;
 import org.jowidgets.cap.ui.api.execution.BeanSelectionPolicy;
-import org.jowidgets.i18n.api.ILocaleSingleton;
-import org.jowidgets.i18n.api.IValueFactory;
-import org.jowidgets.i18n.api.LocaleSingleton;
+import org.jowidgets.i18n.api.ILocaleLocal;
+import org.jowidgets.i18n.api.LocaleLocal;
+import org.jowidgets.i18n.api.LocaleLocal.IValueFactory;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.event.ChangeObservable;
 import org.jowidgets.util.event.IChangeListener;
@@ -60,13 +60,13 @@ import org.jowidgets.util.event.IChangeListener;
 @SuppressWarnings({"rawtypes", "unchecked"})
 final class BeanSelectionProviderEnabledChecker<BEAN_TYPE> extends ChangeObservable implements IEnabledChecker {
 
-	private static final ILocaleSingleton<IEnabledState> UNLOADED_DATA_STATE = createDisabledState("BeanListModelEnabledChecker.the_selection_contains_unloaded_data");
-	private static final ILocaleSingleton<IEnabledState> IS_IN_PROGRESS_STATE = createDisabledState("BeanListModelEnabledChecker.there_is_some_other_execution_in_progress");
-	private static final ILocaleSingleton<IEnabledState> SINGLE_SELECTION_STATE = createDisabledState("BeanListModelEnabledChecker.there_must_be_selected_exactly_one_record");
-	private static final ILocaleSingleton<IEnabledState> MULTI_SELECTION_STATE = createDisabledState("BeanListModelEnabledChecker.there_must_be_selected_at_least_one_record");
-	private static final ILocaleSingleton<IEnabledState> NO_SELECTION_STATE = createDisabledState("BeanListModelEnabledChecker.there_must_not_be_selected_any_record");
-	private static final ILocaleSingleton<IEnabledState> UNSAVED_DATA_STATE = createDisabledState("BeanListModelEnabledChecker.the_record_has_unsaved_data");
-	private static final ILocaleSingleton<IEnabledState> UNHANDLED_MESSAGES_STATE = createDisabledState("BeanListModelEnabledChecker.there_are_unhandled_messages");
+	private static final ILocaleLocal<IEnabledState> UNLOADED_DATA_STATE = createDisabledState("BeanListModelEnabledChecker.the_selection_contains_unloaded_data");
+	private static final ILocaleLocal<IEnabledState> IS_IN_PROGRESS_STATE = createDisabledState("BeanListModelEnabledChecker.there_is_some_other_execution_in_progress");
+	private static final ILocaleLocal<IEnabledState> SINGLE_SELECTION_STATE = createDisabledState("BeanListModelEnabledChecker.there_must_be_selected_exactly_one_record");
+	private static final ILocaleLocal<IEnabledState> MULTI_SELECTION_STATE = createDisabledState("BeanListModelEnabledChecker.there_must_be_selected_at_least_one_record");
+	private static final ILocaleLocal<IEnabledState> NO_SELECTION_STATE = createDisabledState("BeanListModelEnabledChecker.there_must_not_be_selected_any_record");
+	private static final ILocaleLocal<IEnabledState> UNSAVED_DATA_STATE = createDisabledState("BeanListModelEnabledChecker.the_record_has_unsaved_data");
+	private static final ILocaleLocal<IEnabledState> UNHANDLED_MESSAGES_STATE = createDisabledState("BeanListModelEnabledChecker.there_are_unhandled_messages");
 
 	private final IBeanSelectionProvider<BEAN_TYPE> beanSelectionProvider;
 	private final List<IExecutableChecker<BEAN_TYPE>> executableCheckers;
@@ -180,8 +180,8 @@ final class BeanSelectionProviderEnabledChecker<BEAN_TYPE> extends ChangeObserva
 		});
 	}
 
-	private static ILocaleSingleton<IEnabledState> createDisabledState(final String key) {
-		return LocaleSingleton.create(new IValueFactory<IEnabledState>() {
+	private static ILocaleLocal<IEnabledState> createDisabledState(final String key) {
+		return LocaleLocal.create(new IValueFactory<IEnabledState>() {
 			@Override
 			public IEnabledState create() {
 				return EnabledState.disabled(Messages.getString(key));
