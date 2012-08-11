@@ -55,9 +55,9 @@ abstract class AbstractBeanTableSortMenuModel extends MenuModel {
 
 		this.sortModel = model.getSortModel();
 
-		this.noSortItem = addRadioItem(Messages.getString("AbstractBeanTableSortMenuModel.no_sort")); //$NON-NLS-1$
-		this.ascendingItem = addRadioItem(Messages.getString("AbstractBeanTableSortMenuModel.ascending")); //$NON-NLS-1$
-		this.descendingItem = addRadioItem(Messages.getString("AbstractBeanTableSortMenuModel.descending")); //$NON-NLS-1$
+		this.noSortItem = addRadioItem(Messages.getString("AbstractBeanTableSortMenuModel.no_sort"));
+		this.ascendingItem = addRadioItem(Messages.getString("AbstractBeanTableSortMenuModel.ascending"));
+		this.descendingItem = addRadioItem(Messages.getString("AbstractBeanTableSortMenuModel.descending"));
 
 		this.attribute = model.getAttribute(columnIndex);
 

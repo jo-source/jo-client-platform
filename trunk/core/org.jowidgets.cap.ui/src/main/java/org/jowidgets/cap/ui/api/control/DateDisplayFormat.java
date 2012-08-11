@@ -28,21 +28,22 @@
 
 package org.jowidgets.cap.ui.api.control;
 
+import org.jowidgets.i18n.api.IMessage;
+
 public enum DateDisplayFormat implements IDisplayFormat {
 
-	DATE(Messages.getString("DateDisplayFormat.date"), //$NON-NLS-1$
-		Messages.getString("DateDisplayFormat.displays_the_date_without_time")), //$NON-NLS-1$
+	DATE(Messages.getMessage("DateDisplayFormat.date"), Messages.getMessage("DateDisplayFormat.displays_the_date_without_time")),
 
-	TIME(Messages.getString("DateDisplayFormat.time"), //$NON-NLS-1$
-		Messages.getString("DateDisplayFormat.displays_the_time_without_date")), //$NON-NLS-1$
+	TIME(Messages.getMessage("DateDisplayFormat.time"), Messages.getMessage("DateDisplayFormat.displays_the_time_without_date")),
 
-	DATE_TIME(Messages.getString("DateDisplayFormat.date_and_time"), //$NON-NLS-1$
-		Messages.getString("DateDisplayFormat.displays_the_date_and_the_time")); //$NON-NLS-1$ 
+	DATE_TIME(
+		Messages.getMessage("DateDisplayFormat.date_and_time"),
+		Messages.getMessage("DateDisplayFormat.displays_the_date_and_the_time"));
 
-	private String name;
-	private String description;
+	private IMessage name;
+	private IMessage description;
 
-	private DateDisplayFormat(final String name, final String description) {
+	private DateDisplayFormat(final IMessage name, final IMessage description) {
 		this.name = name;
 		this.description = description;
 	}
@@ -54,12 +55,12 @@ public enum DateDisplayFormat implements IDisplayFormat {
 
 	@Override
 	public String getName() {
-		return name;
+		return name.get();
 	}
 
 	@Override
 	public String getDescription() {
-		return description;
+		return description.get();
 	}
 
 }

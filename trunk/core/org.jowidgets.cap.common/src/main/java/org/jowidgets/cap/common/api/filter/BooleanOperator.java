@@ -28,23 +28,20 @@
 
 package org.jowidgets.cap.common.api.filter;
 
+import org.jowidgets.i18n.api.IMessage;
+
 public enum BooleanOperator implements IOperator {
 
-	AND(Messages.getString("BooleanOperator.and_short"), //$NON-NLS-1$
-		Messages.getString("BooleanOperator.and_long"), //$NON-NLS-1$ 
-		null),
-	OR(Messages.getString("BooleanOperator.or_short"), //$NON-NLS-1$
-		Messages.getString("BooleanOperator.or_long"), //$NON-NLS-1$
-		null);
+	AND(Messages.getMessage("BooleanOperator.and_short"), Messages.getMessage("BooleanOperator.and_long")),
 
-	private final String label;
-	private final String labelLong;
-	private final String description;
+	OR(Messages.getMessage("BooleanOperator.or_short"), Messages.getMessage("BooleanOperator.or_long"));
 
-	BooleanOperator(final String label, final String labelLong, final String description) {
+	private final IMessage label;
+	private final IMessage labelLong;
+
+	BooleanOperator(final IMessage label, final IMessage labelLong) {
 		this.label = label;
 		this.labelLong = labelLong;
-		this.description = description;
 	}
 
 	@Override
@@ -54,17 +51,17 @@ public enum BooleanOperator implements IOperator {
 
 	@Override
 	public String getLabel() {
-		return label;
+		return label.get();
 	}
 
 	@Override
 	public String getLabelLong() {
-		return labelLong;
+		return labelLong.get();
 	}
 
 	@Override
 	public String getDescription() {
-		return description;
+		return null;
 	}
 
 	@Override

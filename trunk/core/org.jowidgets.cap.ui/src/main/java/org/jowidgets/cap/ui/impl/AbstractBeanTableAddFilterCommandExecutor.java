@@ -45,13 +45,14 @@ import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.cap.ui.api.widgets.IPopupMenuListener;
 import org.jowidgets.common.widgets.controller.ITableCellPopupEvent;
+import org.jowidgets.i18n.api.IMessage;
 import org.jowidgets.tools.command.EnabledChecker;
 import org.jowidgets.tools.message.MessageReplacer;
 import org.jowidgets.util.event.IChangeListener;
 
 abstract class AbstractBeanTableAddFilterCommandExecutor implements ICommand, ICommandExecutor, IEnabledChecker {
 
-	private final String operatorNotInvertibleMessage = Messages.getString("AbstractBeanTableAddFilterCommandExecutor.operatorNotInvertibe");
+	private static final IMessage OPERATOR_NOT_INVERTIBLE = Messages.getMessage("AbstractBeanTableAddFilterCommandExecutor.operatorNotInvertibe");
 
 	private final IBeanTableModel<?> model;
 	private final int columnIndex;
@@ -129,7 +130,7 @@ abstract class AbstractBeanTableAddFilterCommandExecutor implements ICommand, IC
 			if (filterPanelProvider != null) {
 				final IOperator operator = includingFilter.getOperator();
 				if (!filterPanelProvider.getOperatorProvider().isInvertible(operator)) {
-					return EnabledState.disabled(MessageReplacer.replace(operatorNotInvertibleMessage, operator.getLabelLong()));
+					return EnabledState.disabled(MessageReplacer.replace(OPERATOR_NOT_INVERTIBLE.get(), operator.getLabelLong()));
 				}
 			}
 			else {

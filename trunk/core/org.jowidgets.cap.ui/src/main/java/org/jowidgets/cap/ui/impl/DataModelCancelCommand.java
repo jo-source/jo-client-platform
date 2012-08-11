@@ -47,7 +47,7 @@ final class DataModelCancelCommand extends AbstractDataModelCommand {
 	@Override
 	IEnabledState getEnabledState(final IDataModel model) {
 		if (!model.hasExecutions()) {
-			return AbstractDataModelCommand.NOT_IN_PROCESS_STATE;
+			return AbstractDataModelCommand.NOT_IN_PROCESS_STATE.get();
 		}
 		return EnabledState.ENABLED;
 	}

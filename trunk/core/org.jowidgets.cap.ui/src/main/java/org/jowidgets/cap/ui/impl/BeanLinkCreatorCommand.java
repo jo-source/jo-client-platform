@@ -76,6 +76,7 @@ import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
 import org.jowidgets.cap.ui.tools.execution.AbstractUiResultCallback;
 import org.jowidgets.common.types.Dimension;
 import org.jowidgets.common.types.Rectangle;
+import org.jowidgets.i18n.api.IMessage;
 import org.jowidgets.tools.message.MessageReplacer;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.EmptyCheck;
@@ -83,8 +84,8 @@ import org.jowidgets.util.IFactory;
 
 final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> implements ICommand, ICommandExecutor {
 
-	private final String nothingSelectedMessage = Messages.getString("BeanLinkCreatorCommand.nothing_selected");
-	private final String shortErrorMessage = Messages.getString("BeanLinkCreatorCommand.short_error_message");
+	private static final IMessage NOTHING_SELECTED = Messages.getMessage("BeanLinkCreatorCommand.nothing_selected");
+	private static final IMessage SHORT_ERROR = Messages.getMessage("BeanLinkCreatorCommand.short_error_message");
 
 	private final IEntityLinkProperties sourceProperties;
 	private final IEntityLinkProperties destinationProperties;
@@ -189,7 +190,7 @@ final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BE
 		final List<IBeanProxy<SOURCE_BEAN_TYPE>> selection = source.getBeanSelection().getSelection();
 
 		if (EmptyCheck.isEmpty(selection)) {
-			Toolkit.getMessagePane().showWarning(executionContext, nothingSelectedMessage);
+			Toolkit.getMessagePane().showWarning(executionContext, NOTHING_SELECTED.get());
 			return;
 		}
 
@@ -296,7 +297,7 @@ final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BE
 
 			private String getShortErrorMessage() {
 				final String actionText = executionContext.getAction().getText().replaceAll("\\.", "").trim();
-				return MessageReplacer.replace(shortErrorMessage, actionText);
+				return MessageReplacer.replace(SHORT_ERROR.get(), actionText);
 			}
 		};
 	}

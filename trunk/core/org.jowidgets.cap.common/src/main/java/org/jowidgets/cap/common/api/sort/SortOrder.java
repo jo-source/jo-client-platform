@@ -28,24 +28,26 @@
 
 package org.jowidgets.cap.common.api.sort;
 
+import org.jowidgets.i18n.api.IMessage;
+
 public enum SortOrder {
 
-	ASC(Messages.getString("SortOrder.ascending")), //$NON-NLS-1$
-	DESC(Messages.getString("SortOrder.descending")); //$NON-NLS-1$
+	ASC(Messages.getMessage("SortOrder.ascending")),
+	DESC(Messages.getMessage("SortOrder.descending"));
 
-	private String label;
+	private IMessage label;
 
-	private SortOrder(final String label) {
+	private SortOrder(final IMessage label) {
 		this.label = label;
 	}
 
 	public String getLabel() {
-		return label;
+		return label.get();
 	}
 
 	@Override
 	public String toString() {
-		return label;
+		return label.get();
 	}
 
 }

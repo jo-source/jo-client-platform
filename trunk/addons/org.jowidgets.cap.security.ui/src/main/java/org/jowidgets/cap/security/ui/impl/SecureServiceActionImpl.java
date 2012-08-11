@@ -30,14 +30,15 @@ package org.jowidgets.cap.security.ui.impl;
 
 import org.jowidgets.api.command.IAction;
 import org.jowidgets.cap.security.common.api.ISecureObject;
+import org.jowidgets.i18n.api.IMessage;
 import org.jowidgets.tools.command.ActionWrapper;
 
 final class SecureServiceActionImpl<AUTHORIZATION_TYPE> extends ActionWrapper implements ISecureObject<AUTHORIZATION_TYPE> {
 
+	private static final IMessage AUTHORIZATION_FAILED = Messages.getMessage("SecureServiceActionImpl.authorizationFailed");
+
 	private final AUTHORIZATION_TYPE authorization;
 	private final boolean hasAuthorization;
-
-	private final String authorizationFailed = Messages.getString("SecureServiceActionImpl.authorizationFailed");
 
 	SecureServiceActionImpl(final IAction action, final AUTHORIZATION_TYPE authorization, final boolean hasAuthorization) {
 		super(action);
@@ -56,7 +57,7 @@ final class SecureServiceActionImpl<AUTHORIZATION_TYPE> extends ActionWrapper im
 			return super.getToolTipText();
 		}
 		else {
-			return authorizationFailed;
+			return AUTHORIZATION_FAILED.get();
 		}
 	}
 

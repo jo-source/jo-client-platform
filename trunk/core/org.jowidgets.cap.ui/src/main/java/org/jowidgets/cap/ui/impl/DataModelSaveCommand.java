@@ -50,7 +50,7 @@ final class DataModelSaveCommand extends AbstractDataModelCommand {
 	@Override
 	IEnabledState getEnabledState(final IDataModel model) {
 		if (!model.hasModifications()) {
-			return AbstractDataModelCommand.NO_MODIFICATIONS_STATE;
+			return AbstractDataModelCommand.NO_MODIFICATIONS_STATE.get();
 		}
 		return EnabledState.ENABLED;
 	}
@@ -58,7 +58,7 @@ final class DataModelSaveCommand extends AbstractDataModelCommand {
 	@Override
 	IEnabledState getVetoEnabledState(final IDataModel model) {
 		if (model.hasExecutions()) {
-			return AbstractDataModelCommand.IN_PROCESS_STATE;
+			return AbstractDataModelCommand.IN_PROCESS_STATE.get();
 		}
 		final IValidationResult validationResult = model.validate();
 		if (!validationResult.isValid()) {

@@ -48,24 +48,25 @@ import org.jowidgets.cap.ui.api.bean.BeanMessageType;
 import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
 import org.jowidgets.cap.ui.api.bean.IBeanMessage;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
+import org.jowidgets.i18n.api.IMessage;
 import org.jowidgets.tools.message.MessageReplacer;
 import org.jowidgets.util.EmptyCheck;
 import org.jowidgets.util.StringUtils;
 
 final class BeanExceptionConverterImpl implements IBeanExceptionConverter {
 
-	private final String executableCheckBean = Messages.getString("BeanExceptionConverterImpl.executableCheckBean");
-	private final String executableCheck = Messages.getString("BeanExceptionConverterImpl.executableCheck");
-	private final String staleDataBean = Messages.getString("BeanExceptionConverterImpl.staleDataBean");
-	private final String staleData = Messages.getString("BeanExceptionConverterImpl.staleData");
-	private final String deletedDataBean = Messages.getString("BeanExceptionConverterImpl.deletedDataBean");
-	private final String deletedData = Messages.getString("BeanExceptionConverterImpl.deletedData");
-	private final String fkConstraint = Messages.getString("BeanExceptionConverterImpl.fkConstraint");
-	private final String uniqueConstraintNoProp = Messages.getString("BeanExceptionConverterImpl.uniqueConstraintNoProp");
-	private final String uniqueConstraintSingleProp = Messages.getString("BeanExceptionConverterImpl.uniqueConstraintSingleProp");
-	private final String uniqueConstraintPluralProp = Messages.getString("BeanExceptionConverterImpl.uniqueConstraintPluralProp");
-	private final String authorizationFailed = Messages.getString("BeanExceptionConverterImpl.authorizationFailed");
-	private final String undefinedRuntimeException = Messages.getString("BeanExceptionConverterImpl.undefinedRuntimeException");
+	private static final IMessage EXECUTABLE_CHECK_BEAN = Messages.getMessage("BeanExceptionConverterImpl.executableCheckBean");
+	private static final IMessage EXECUTABLE_CHECK = Messages.getMessage("BeanExceptionConverterImpl.executableCheck");
+	private static final IMessage STALE_DATA_BEAN = Messages.getMessage("BeanExceptionConverterImpl.staleDataBean");
+	private static final IMessage STALE_DATA = Messages.getMessage("BeanExceptionConverterImpl.staleData");
+	private static final IMessage DELETED_DATA_BEAN = Messages.getMessage("BeanExceptionConverterImpl.deletedDataBean");
+	private static final IMessage DELETED_DATA = Messages.getMessage("BeanExceptionConverterImpl.deletedData");
+	private static final IMessage FK_CONSTRAINT = Messages.getMessage("BeanExceptionConverterImpl.fkConstraint");
+	private static final IMessage UNIQUE_CONSTRAINT_NO_PROP = Messages.getMessage("BeanExceptionConverterImpl.uniqueConstraintNoProp");
+	private static final IMessage UNIQUE_CONSTRAINT_SINGLE_PROP = Messages.getMessage("BeanExceptionConverterImpl.uniqueConstraintSingleProp");
+	private static final IMessage UNIQUE_CONSTRAINT_PLURAL_PROP = Messages.getMessage("BeanExceptionConverterImpl.uniqueConstraintPluralProp");
+	private static final IMessage AUTHORIZATION_FAILED = Messages.getMessage("BeanExceptionConverterImpl.authorizationFailed");
+	private static final IMessage UNDEFINED_RUNTIME_EXCEPTION = Messages.getMessage("BeanExceptionConverterImpl.undefinedRuntimeException");
 
 	@Override
 	public IBeanMessage convert(
@@ -139,10 +140,10 @@ final class BeanExceptionConverterImpl implements IBeanExceptionConverter {
 		String message = exception.getUserMessage();
 		if (EmptyCheck.isEmpty(message)) {
 			if (bean.getId().equals(exception.getBeanId())) {
-				message = executableCheck;
+				message = EXECUTABLE_CHECK.get();
 			}
 			else {
-				message = MessageReplacer.replace(executableCheckBean, exception.getBeanId().toString());
+				message = MessageReplacer.replace(EXECUTABLE_CHECK_BEAN.get(), exception.getBeanId().toString());
 			}
 		}
 		return new BeanMessageImpl(BeanMessageType.WARNING, shortMessage, message, exception);
@@ -155,10 +156,10 @@ final class BeanExceptionConverterImpl implements IBeanExceptionConverter {
 		String message = exception.getUserMessage();
 		if (EmptyCheck.isEmpty(message)) {
 			if (bean.getId().equals(exception.getBeanId())) {
-				message = staleData;
+				message = STALE_DATA.get();
 			}
 			else {
-				message = MessageReplacer.replace(staleDataBean, exception.getBeanId().toString());
+				message = MessageReplacer.replace(STALE_DATA_BEAN.get(), exception.getBeanId().toString());
 			}
 		}
 		return new BeanMessageImpl(BeanMessageType.WARNING, shortMessage, message, exception);
@@ -171,10 +172,10 @@ final class BeanExceptionConverterImpl implements IBeanExceptionConverter {
 		String message = exception.getUserMessage();
 		if (message == null) {
 			if (bean.getId().equals(exception.getBeanId())) {
-				message = deletedData;
+				message = DELETED_DATA.get();
 			}
 			else {
-				message = MessageReplacer.replace(deletedDataBean, exception.getBeanId().toString());
+				message = MessageReplacer.replace(DELETED_DATA_BEAN.get(), exception.getBeanId().toString());
 			}
 		}
 		return new BeanMessageImpl(BeanMessageType.WARNING, shortMessage, message, exception);
@@ -183,11 +184,11 @@ final class BeanExceptionConverterImpl implements IBeanExceptionConverter {
 	private IBeanMessage convertAuthorizationFailedException(
 		final String shortMessage,
 		final AuthorizationFailedException exception) {
-		return new BeanMessageImpl(BeanMessageType.ERROR, shortMessage, authorizationFailed, exception);
+		return new BeanMessageImpl(BeanMessageType.ERROR, shortMessage, AUTHORIZATION_FAILED.get(), exception);
 	}
 
 	private IBeanMessage convertForeignKeyConstraintViolationException(final String shortMessage, final Throwable rootThrowable) {
-		return new BeanMessageImpl(BeanMessageType.WARNING, shortMessage, fkConstraint, rootThrowable);
+		return new BeanMessageImpl(BeanMessageType.WARNING, shortMessage, FK_CONSTRAINT.get(), rootThrowable);
 	}
 
 	private IBeanMessage convertUniqueConstraintViolationException(
@@ -199,14 +200,14 @@ final class BeanExceptionConverterImpl implements IBeanExceptionConverter {
 		final String labels = StringUtils.concatElementsSeparatedBy(propertyLabels, ',');
 		final String message;
 		if (propertyLabels.size() == 1) {
-			MessageReplacer.replace(uniqueConstraintSingleProp, labels);
-			message = MessageReplacer.replace(uniqueConstraintSingleProp, labels);
+			MessageReplacer.replace(UNIQUE_CONSTRAINT_SINGLE_PROP.get(), labels);
+			message = MessageReplacer.replace(UNIQUE_CONSTRAINT_SINGLE_PROP.get(), labels);
 		}
 		else if (propertyLabels.size() > 1) {
-			message = MessageReplacer.replace(uniqueConstraintPluralProp, labels);
+			message = MessageReplacer.replace(UNIQUE_CONSTRAINT_PLURAL_PROP.get(), labels);
 		}
 		else {
-			message = uniqueConstraintNoProp;
+			message = UNIQUE_CONSTRAINT_NO_PROP.get();
 		}
 		return new BeanMessageImpl(BeanMessageType.WARNING, shortMessage, message, exception);
 	}
@@ -221,7 +222,7 @@ final class BeanExceptionConverterImpl implements IBeanExceptionConverter {
 			return new BeanMessageImpl(BeanMessageType.ERROR, shortMessage, userMessage, exception);
 		}
 		else {
-			return new BeanMessageImpl(BeanMessageType.ERROR, shortMessage, undefinedRuntimeException, exception);
+			return new BeanMessageImpl(BeanMessageType.ERROR, shortMessage, UNDEFINED_RUNTIME_EXCEPTION.get(), exception);
 		}
 	}
 
@@ -230,7 +231,7 @@ final class BeanExceptionConverterImpl implements IBeanExceptionConverter {
 		System.out.println(throwable.getMessage());
 		throwable.printStackTrace();
 		//CHECKSTYLE:ON
-		return new BeanMessageImpl(BeanMessageType.ERROR, shortMessage, undefinedRuntimeException, throwable);
+		return new BeanMessageImpl(BeanMessageType.ERROR, shortMessage, UNDEFINED_RUNTIME_EXCEPTION.get(), throwable);
 	}
 
 	private Collection<String> getPropertyLabels(final IBeanProxy<?> destinationBean, final Collection<String> propertyNames) {

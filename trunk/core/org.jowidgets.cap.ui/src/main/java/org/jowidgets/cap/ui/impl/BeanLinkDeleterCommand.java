@@ -59,6 +59,7 @@ import org.jowidgets.cap.ui.api.execution.IExecutionTask;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.tools.execution.AbstractUiExecutionCallbackListener;
 import org.jowidgets.cap.ui.tools.execution.AbstractUiResultCallback;
+import org.jowidgets.i18n.api.IMessage;
 import org.jowidgets.tools.command.EnabledCheckerCompositeBuilder;
 import org.jowidgets.tools.message.MessageReplacer;
 import org.jowidgets.util.Assert;
@@ -66,11 +67,11 @@ import org.jowidgets.util.EmptyCheck;
 
 final class BeanLinkDeleterCommand<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> implements ICommand, ICommandExecutor {
 
-	private final String singleDeletionConfirmMessage = Messages.getString("BeanLinkDeleterCommand.single_deletion_confirm_message");
-	private final String multiDeletionConfirmMessage = Messages.getString("BeanLinkDeleterCommand.multi_deletion_confirm_message");
-	private final String couldNotBeUndoneMessage = Messages.getString("BeanLinkDeleterCommand.can_not_be_undone");
-	private final String nothingSelectedMessage = Messages.getString("BeanLinkDeleterCommand.nothing_selected");
-	private final String shortErrorMessage = Messages.getString("BeanLinkDeleterCommand.short_error_message");
+	private static final IMessage SINGLE_DELETION_CONFIRM = Messages.getMessage("BeanLinkDeleterCommand.single_deletion_confirm_message");
+	private static final IMessage MULTI_DELETION_CONFIRM = Messages.getMessage("BeanLinkDeleterCommand.multi_deletion_confirm_message");
+	private static final IMessage CAN_NOT_BE_UNDONE = Messages.getMessage("BeanLinkDeleterCommand.can_not_be_undone");
+	private static final IMessage NOTHING_SELECTED = Messages.getMessage("BeanLinkDeleterCommand.nothing_selected");
+	private static final IMessage SHORT_ERROR = Messages.getMessage("BeanLinkDeleterCommand.short_error_message");
 
 	private final ILinkDeleterService linkDeleterService;
 	private final IBeanSelectionProvider<SOURCE_BEAN_TYPE> source;
@@ -184,7 +185,7 @@ final class BeanLinkDeleterCommand<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> implement
 
 	private boolean checkSelection(final List<?> selection, final IExecutionContext executionContext) {
 		if (EmptyCheck.isEmpty(selection)) {
-			Toolkit.getMessagePane().showWarning(executionContext, nothingSelectedMessage);
+			Toolkit.getMessagePane().showWarning(executionContext, NOTHING_SELECTED.get());
 			return false;
 		}
 		return true;
@@ -201,13 +202,13 @@ final class BeanLinkDeleterCommand<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> implement
 	private String getConfirmationMessage(final int selectionCount) {
 		final StringBuilder result = new StringBuilder();
 		if (selectionCount == 1) {
-			result.append(singleDeletionConfirmMessage);
+			result.append(SINGLE_DELETION_CONFIRM);
 		}
 		else {
-			result.append(MessageReplacer.replace(multiDeletionConfirmMessage, "" + selectionCount));
+			result.append(MessageReplacer.replace(MULTI_DELETION_CONFIRM.get(), "" + selectionCount));
 		}
 		result.append("\n");
-		result.append(couldNotBeUndoneMessage);
+		result.append(CAN_NOT_BE_UNDONE);
 		return result.toString();
 	}
 
@@ -302,7 +303,7 @@ final class BeanLinkDeleterCommand<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> implement
 
 		private String getShortErrorMessage() {
 			final String actionText = executionContext.getAction().getText().replaceAll("\\.", "").trim();
-			return MessageReplacer.replace(shortErrorMessage, actionText);
+			return MessageReplacer.replace(SHORT_ERROR.get(), actionText);
 		}
 
 		private void setExecutionTaskNull() {

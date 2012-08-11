@@ -36,6 +36,7 @@ import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
 import org.jowidgets.common.image.IImageConstant;
+import org.jowidgets.i18n.api.IMessage;
 import org.jowidgets.tools.message.MessageReplacer;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.EmptyCheck;
@@ -44,8 +45,8 @@ import org.jowidgets.util.wrapper.WrapperUtil;
 final class SecureBeanTableMapper<BEAN_TYPE, AUTHORIZATION_TYPE> implements
 		ISecureControlMapper<IBeanTable<BEAN_TYPE>, IBeanTableBluePrint<BEAN_TYPE>, AUTHORIZATION_TYPE> {
 
-	private final String authorizationFailed = Messages.getString("SecureBeanTableAuthorizationMapper.authorizationFailed");
-	private final String authorizationFailedWithEntity = Messages.getString("SecureBeanTableAuthorizationMapper.authorizationFailedWithEntity");
+	private static final IMessage AUTHORIZATION_FAILED = Messages.getMessage("SecureBeanTableAuthorizationMapper.authorizationFailed");
+	private static final IMessage AUTHORIZATION_FAILED_WITH_ENTITY = Messages.getMessage("SecureBeanTableAuthorizationMapper.authorizationFailedWithEntity");
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -69,10 +70,10 @@ final class SecureBeanTableMapper<BEAN_TYPE, AUTHORIZATION_TYPE> implements
 		if (model != null) {
 			final String entityLabelPlural = model.getEntityLabelPlural();
 			if (!EmptyCheck.isEmpty(entityLabelPlural)) {
-				return MessageReplacer.replace(authorizationFailedWithEntity, entityLabelPlural);
+				return MessageReplacer.replace(AUTHORIZATION_FAILED_WITH_ENTITY.get(), entityLabelPlural);
 			}
 		}
-		return authorizationFailed;
+		return AUTHORIZATION_FAILED.get();
 	}
 
 	@Override
