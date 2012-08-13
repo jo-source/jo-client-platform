@@ -48,10 +48,16 @@ import org.jowidgets.cap.ui.api.bean.IBeansStateTracker;
 import org.jowidgets.cap.ui.api.execution.BeanExecutionPolicy;
 import org.jowidgets.cap.ui.api.execution.IExecutionTask;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
+import org.jowidgets.i18n.api.IMessage;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.EmptyCheck;
 
 final class BeanListSaveDelegate<BEAN_TYPE> {
+
+	private static final IMessage SAVE = Messages.getMessage("BeanListSaveDelegate.Save");
+	private static final IMessage CREATE = Messages.getMessage("BeanListSaveDelegate.Create");
+	private static final IMessage CREATION_FAILED = Messages.getMessage("BeanListSaveDelegate.Save_failed");
+	private static final IMessage SAVE_FAILED = Messages.getMessage("BeanListSaveDelegate.Save_failed");
 
 	private final IBeanListModel<BEAN_TYPE> listModel;
 	private final IBeansStateTracker<BEAN_TYPE> beansStateTracker;
@@ -61,11 +67,6 @@ final class BeanListSaveDelegate<BEAN_TYPE> {
 	private final ICreatorService creatorService;
 	private final Collection<String> propertyNames;
 	private final boolean fireBeansChanged;
-
-	private final String saveString;
-	private final String createString;
-	private final String creationFailedString;
-	private final String saveFailedString;
 
 	BeanListSaveDelegate(
 		final IBeanListModel<BEAN_TYPE> listModel,
@@ -110,11 +111,6 @@ final class BeanListSaveDelegate<BEAN_TYPE> {
 		this.creatorService = creatorService;
 		this.propertyNames = new LinkedList<String>(propertyNames);
 		this.fireBeansChanged = fireBeansChanged;
-
-		this.saveString = Messages.getString("BeanListSaveDelegate.Save");
-		this.saveFailedString = Messages.getString("BeanListSaveDelegate.Save_failed");
-		this.createString = Messages.getString("BeanListSaveDelegate.Create");
-		this.creationFailedString = Messages.getString("BeanListSaveDelegate.Creation_failed");
 	}
 
 	void save() {
@@ -130,7 +126,7 @@ final class BeanListSaveDelegate<BEAN_TYPE> {
 			}
 
 			final BeanListExecutionHelper<BEAN_TYPE> executionHelper = new BeanListExecutionHelper<BEAN_TYPE>(
-				creationFailedString,
+				CREATION_FAILED.get(),
 				listModel,
 				beansToCreate,
 				beanExecutionPolicy,
@@ -142,7 +138,7 @@ final class BeanListSaveDelegate<BEAN_TYPE> {
 				if (preparedBeans.size() > 0) {
 					final IExecutionTask executionTask = preparedBeans.get(0).getExecutionTask();
 					if (executionTask != null) {
-						executionTask.setDescription(createString);
+						executionTask.setDescription(CREATE.get());
 
 						final List<IBeanData> beansData = new LinkedList<IBeanData>();
 						for (final IBeanProxy<BEAN_TYPE> bean : preparedBeans) {
@@ -174,7 +170,7 @@ final class BeanListSaveDelegate<BEAN_TYPE> {
 			}
 
 			final BeanListExecutionHelper<BEAN_TYPE> executionHelper = new BeanListExecutionHelper<BEAN_TYPE>(
-				saveFailedString,
+				SAVE_FAILED.get(),
 				listModel,
 				modifiedBeans,
 				beanExecutionPolicy,
@@ -186,7 +182,7 @@ final class BeanListSaveDelegate<BEAN_TYPE> {
 				if (preparedBeans.size() > 0) {
 					final IExecutionTask executionTask = preparedBeans.get(0).getExecutionTask();
 					if (executionTask != null) {
-						executionTask.setDescription(saveString);
+						executionTask.setDescription(SAVE.get());
 						final List<IBeanModification> modifications = new LinkedList<IBeanModification>();
 						for (final IBeanProxy<?> bean : preparedBeans) {
 							modifications.addAll(bean.getModifications());
