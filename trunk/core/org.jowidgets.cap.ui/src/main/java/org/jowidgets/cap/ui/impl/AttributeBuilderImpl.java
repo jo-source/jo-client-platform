@@ -55,6 +55,8 @@ import org.jowidgets.cap.ui.api.control.IInputControlProvider;
 import org.jowidgets.cap.ui.api.control.IInputControlSupport;
 import org.jowidgets.common.types.AlignmentHorizontal;
 import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
+import org.jowidgets.i18n.api.IMessage;
+import org.jowidgets.i18n.tools.StaticMessage;
 import org.jowidgets.util.Assert;
 import org.jowidgets.validation.IValidator;
 
@@ -65,9 +67,9 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 	private String propertyName;
 	private IValueRange valueRange;
 	private Object defaultValue;
-	private String label;
-	private String labelLong;
-	private String description;
+	private IMessage label;
+	private IMessage labelLong;
+	private IMessage description;
 	private DisplayFormat labelDisplayFormat;
 	private boolean visible;
 	private boolean mandatory;
@@ -220,21 +222,40 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 	}
 
 	@Override
-	public IAttributeBuilder<ELEMENT_VALUE_TYPE> setLabel(final String label) {
-		Assert.paramNotEmpty(label, "label");
+	public IAttributeBluePrint<ELEMENT_VALUE_TYPE> setLabel(final IMessage label) {
+		Assert.paramNotNull(label, "label");
 		this.label = label;
 		return this;
 	}
 
 	@Override
-	public IAttributeBuilder<ELEMENT_VALUE_TYPE> setLabelLong(final String labelLong) {
+	public IAttributeBuilder<ELEMENT_VALUE_TYPE> setLabel(final String label) {
+		Assert.paramNotEmpty(label, "label");
+		this.label = new StaticMessage(label);
+		return this;
+	}
+
+	@Override
+	public IAttributeBluePrint<ELEMENT_VALUE_TYPE> setLabelLong(final IMessage labelLong) {
 		this.labelLong = labelLong;
 		return this;
 	}
 
 	@Override
-	public IAttributeBuilder<ELEMENT_VALUE_TYPE> setDescription(final String description) {
+	public IAttributeBuilder<ELEMENT_VALUE_TYPE> setLabelLong(final String labelLong) {
+		this.labelLong = new StaticMessage(labelLong);
+		return this;
+	}
+
+	@Override
+	public IAttributeBluePrint<ELEMENT_VALUE_TYPE> setDescription(final IMessage description) {
 		this.description = description;
+		return this;
+	}
+
+	@Override
+	public IAttributeBuilder<ELEMENT_VALUE_TYPE> setDescription(final String description) {
+		this.description = new StaticMessage(description);
 		return this;
 	}
 

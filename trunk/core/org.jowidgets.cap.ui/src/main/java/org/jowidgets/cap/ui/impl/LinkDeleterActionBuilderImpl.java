@@ -103,8 +103,8 @@ final class LinkDeleterActionBuilderImpl<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> ext
 			if (linkedEntityId != null) {
 				final IBeanDtoDescriptor descriptor = entityService.getDescriptor(linkedEntityId);
 				if (descriptor != null) {
-					setLinkedEntityLabelSingular(descriptor.getLabelSingular());
-					setLinkedEntityLabelPlural(descriptor.getLabelPlural());
+					setLinkedEntityLabelSingular(descriptor.getLabelSingular().get());
+					setLinkedEntityLabelPlural(descriptor.getLabelPlural().get());
 				}
 			}
 		}

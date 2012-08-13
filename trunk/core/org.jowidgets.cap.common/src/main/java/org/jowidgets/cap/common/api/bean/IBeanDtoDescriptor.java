@@ -33,6 +33,7 @@ import java.util.Set;
 
 import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.common.api.validation.IBeanValidator;
+import org.jowidgets.i18n.api.IMessage;
 
 public interface IBeanDtoDescriptor {
 
@@ -66,14 +67,21 @@ public interface IBeanDtoDescriptor {
 	 * 
 	 * @return The label in the singular or null
 	 */
-	String getLabelSingular();
+	IMessage getLabelSingular();
 
 	/**
 	 * Gets the label in the plural, e.g. Roles, Authentications, Members, ...
 	 * 
 	 * @return The label in the plural or null
 	 */
-	String getLabelPlural();
+	IMessage getLabelPlural();
+
+	/**
+	 * Gets the description
+	 * 
+	 * @return The decription or null
+	 */
+	IMessage getDescription();
 
 	/**
 	 * Gets a pattern that could be used to render instances of the bean.
@@ -91,13 +99,6 @@ public interface IBeanDtoDescriptor {
 	 * 
 	 * @return The rendering pattern or null
 	 */
-	String getRenderingPattern();
-
-	/**
-	 * Gets the description
-	 * 
-	 * @return The decription or null
-	 */
-	String getDescription();
+	IMessage getRenderingPattern();
 
 }

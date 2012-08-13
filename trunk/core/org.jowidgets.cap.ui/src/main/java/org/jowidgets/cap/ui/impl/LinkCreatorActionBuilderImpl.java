@@ -201,8 +201,8 @@ final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKA
 					setLinkableBeanPropertyValidators(linkableModel.getBeanPropertyValidators());
 
 					//this may be overridden when linked entity id will be extracted
-					if (!EmptyCheck.isEmpty(descriptor.getLabelPlural())) {
-						setLinkedEntityLabelPlural(descriptor.getLabelPlural());
+					if (!EmptyCheck.isEmpty(descriptor.getLabelPlural().get())) {
+						setLinkedEntityLabelPlural(descriptor.getLabelPlural().get());
 					}
 				}
 			}
@@ -212,7 +212,7 @@ final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKA
 				final IBeanDtoDescriptor descriptor = entityService.getDescriptor(linkedEntityId);
 				if (descriptor != null) {
 					if (!EmptyCheck.isEmpty(descriptor.getLabelPlural())) {
-						setLinkedEntityLabelPlural(descriptor.getLabelPlural());
+						setLinkedEntityLabelPlural(descriptor.getLabelPlural().get());
 					}
 				}
 			}

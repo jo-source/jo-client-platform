@@ -36,6 +36,7 @@ import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptorBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanPropertyBluePrint;
 import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.common.api.validation.IBeanValidator;
+import org.jowidgets.i18n.api.IMessage;
 import org.jowidgets.util.Assert;
 
 public class BeanDtoDescriptorBuilder implements IBeanDtoDescriptorBuilder {
@@ -48,8 +49,18 @@ public class BeanDtoDescriptorBuilder implements IBeanDtoDescriptorBuilder {
 	}
 
 	@Override
+	public IBeanDtoDescriptorBuilder setLabelSingular(final IMessage label) {
+		return this.builder.setLabelSingular(label);
+	}
+
+	@Override
 	public IBeanDtoDescriptorBuilder setLabelSingular(final String label) {
 		return this.builder.setLabelSingular(label);
+	}
+
+	@Override
+	public IBeanDtoDescriptorBuilder setLabelPlural(final IMessage label) {
+		return this.builder.setLabelPlural(label);
 	}
 
 	@Override
@@ -58,8 +69,18 @@ public class BeanDtoDescriptorBuilder implements IBeanDtoDescriptorBuilder {
 	}
 
 	@Override
+	public IBeanDtoDescriptorBuilder setDescription(final IMessage description) {
+		return this.builder.setDescription(description);
+	}
+
+	@Override
 	public IBeanDtoDescriptorBuilder setDescription(final String description) {
 		return this.builder.setDescription(description);
+	}
+
+	@Override
+	public IBeanDtoDescriptorBuilder setRenderingPattern(final IMessage pattern) {
+		return this.builder.setRenderingPattern(pattern);
 	}
 
 	@Override

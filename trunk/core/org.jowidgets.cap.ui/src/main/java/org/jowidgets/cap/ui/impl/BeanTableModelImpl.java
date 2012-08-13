@@ -453,7 +453,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		for (final IAttribute<Object> attribute : attributes) {
 			final IDefaultTableColumnBuilder columnBuilder = new DefaultTableColumnBuilder();
 			columnBuilder.setText(attribute.getCurrentLabel());
-			columnBuilder.setToolTipText(attribute.getDescription());
+			columnBuilder.setToolTipText(attribute.getDescription().get());
 			columnBuilder.setWidth(attribute.getTableWidth());
 			columnBuilder.setAlignment(attribute.getTableAlignment());
 			columnBuilder.setVisible(attribute.isVisible());

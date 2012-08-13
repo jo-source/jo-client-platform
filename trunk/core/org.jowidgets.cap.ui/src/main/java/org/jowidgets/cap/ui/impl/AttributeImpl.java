@@ -47,6 +47,8 @@ import org.jowidgets.cap.ui.api.filter.IFilterPanelProvider;
 import org.jowidgets.cap.ui.api.filter.IFilterSupport;
 import org.jowidgets.cap.ui.api.filter.IFilterType;
 import org.jowidgets.common.types.AlignmentHorizontal;
+import org.jowidgets.i18n.api.IMessage;
+import org.jowidgets.i18n.tools.StaticMessage;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.event.ChangeObservable;
 import org.jowidgets.util.event.IChangeListener;
@@ -59,10 +61,10 @@ final class AttributeImpl<ELEMENT_VALUE_TYPE> implements IAttribute<ELEMENT_VALU
 	private final String propertyName;
 	private final IValueRange valueRange;
 	private final Object defaultValue;
-	private final String label;
-	private final String labelLong;
+	private final IMessage label;
+	private final IMessage labelLong;
+	private final IMessage description;
 	private DisplayFormat labelDisplayFormat;
-	private final String description;
 	private final boolean mandatory;
 	private final boolean editable;
 	private final boolean readonly;
@@ -86,10 +88,10 @@ final class AttributeImpl<ELEMENT_VALUE_TYPE> implements IAttribute<ELEMENT_VALU
 		final String propertyName,
 		final IValueRange valueRange,
 		final Object defaultValue,
-		final String label,
-		final String labelLong,
+		final IMessage label,
+		final IMessage labelLong,
 		final DisplayFormat labelDisplayFormat,
-		final String description,
+		final IMessage description,
 		final boolean visible,
 		final boolean mandatory,
 		final boolean editable,
@@ -109,7 +111,7 @@ final class AttributeImpl<ELEMENT_VALUE_TYPE> implements IAttribute<ELEMENT_VALU
 
 		Assert.paramNotEmpty(propertyName, "propertyName");
 		Assert.paramNotNull(valueRange, "valueRange");
-		Assert.paramNotEmpty(label, "label");
+		Assert.paramNotNull(label, "label");
 		Assert.paramNotNull(labelDisplayFormat, "labelDisplayFormat");
 		Assert.paramNotNull(tableAlignment, "tableAlignment");
 		Assert.paramNotNull(valueType, "valueType");
@@ -141,9 +143,19 @@ final class AttributeImpl<ELEMENT_VALUE_TYPE> implements IAttribute<ELEMENT_VALU
 		this.valueRange = valueRange;
 		this.defaultValue = defaultValue;
 		this.label = label;
-		this.labelLong = labelLong;
+		if (labelLong != null) {
+			this.labelLong = labelLong;
+		}
+		else {
+			this.labelLong = new StaticMessage();
+		}
+		if (description != null) {
+			this.description = description;
+		}
+		else {
+			this.description = new StaticMessage();
+		}
 		this.labelDisplayFormat = labelDisplayFormat;
-		this.description = description;
 		this.visible = visible;
 		this.mandatory = mandatory;
 		this.editable = editable;
@@ -229,22 +241,22 @@ final class AttributeImpl<ELEMENT_VALUE_TYPE> implements IAttribute<ELEMENT_VALU
 	}
 
 	@Override
-	public String getLabel() {
+	public IMessage getLabel() {
 		return label;
 	}
 
 	@Override
-	public String getLabelLong() {
+	public IMessage getLabelLong() {
 		return labelLong;
 	}
 
 	@Override
 	public String getCurrentLabel() {
 		if (DisplayFormat.LONG == labelDisplayFormat) {
-			return getLabelLong();
+			return getLabelLong().get();
 		}
 		else {
-			return getLabel();
+			return getLabel().get();
 		}
 	}
 
@@ -285,7 +297,7 @@ final class AttributeImpl<ELEMENT_VALUE_TYPE> implements IAttribute<ELEMENT_VALU
 	}
 
 	@Override
-	public String getDescription() {
+	public IMessage getDescription() {
 		return description;
 	}
 

@@ -69,7 +69,7 @@ final class BeanTableColumnsVisibilityMenuModel extends MenuModel {
 			}
 
 			if (EmptyCheck.isEmpty(attribute.getDescription())) {
-				checkedItem.setToolTipText(attribute.getDescription());
+				checkedItem.setToolTipText(attribute.getDescription().get());
 			}
 			checkedItem.setSelected(attribute.isVisible());
 

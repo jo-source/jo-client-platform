@@ -61,6 +61,7 @@ import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.common.api.sort.ISortFactory;
 import org.jowidgets.cap.common.api.validation.IBeanValidationResultListBuilder;
 import org.jowidgets.cap.common.api.validation.IBeanValidator;
+import org.jowidgets.i18n.tools.StaticMessage;
 import org.jowidgets.util.Assert;
 
 public final class DefaultCapCommonToolkit implements ICapCommonToolkit {
@@ -133,7 +134,8 @@ public final class DefaultCapCommonToolkit implements ICapCommonToolkit {
 		final String labelPlural,
 		final String description) {
 		Assert.paramNotNull(properties, "properties");
-		return new BeanDtoDescriptorImpl(labelSingular, labelPlural, description, properties);
+		return new BeanDtoDescriptorImpl(new StaticMessage(labelSingular), new StaticMessage(labelPlural), new StaticMessage(
+			description), properties);
 	}
 
 	@Override

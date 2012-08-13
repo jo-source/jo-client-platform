@@ -43,6 +43,7 @@ import org.jowidgets.cap.common.api.bean.IBeanPropertyBuilder;
 import org.jowidgets.cap.common.api.bean.IProperty;
 import org.jowidgets.cap.common.api.bean.IValueRange;
 import org.jowidgets.cap.common.tools.annotation.ValidatorAnnotationCache;
+import org.jowidgets.i18n.api.IMessage;
 import org.jowidgets.util.Assert;
 import org.jowidgets.validation.IValidator;
 
@@ -185,14 +186,32 @@ final class BeanPropertyBuilderImpl implements IBeanPropertyBuilder {
 	}
 
 	@Override
+	public IBeanPropertyBuilder setLabel(final IMessage labelDefault) {
+		propertyBuilder.setLabel(labelDefault);
+		return this;
+	}
+
+	@Override
 	public IBeanPropertyBuilder setLabel(final String labelDefault) {
 		propertyBuilder.setLabel(labelDefault);
 		return this;
 	}
 
 	@Override
+	public IBeanPropertyBuilder setLabelLong(final IMessage labelLongDefault) {
+		propertyBuilder.setLabelLong(labelLongDefault);
+		return this;
+	}
+
+	@Override
 	public IBeanPropertyBuilder setLabelLong(final String labelLongDefault) {
 		propertyBuilder.setLabelLong(labelLongDefault);
+		return this;
+	}
+
+	@Override
+	public IBeanPropertyBuilder setDescription(final IMessage descriptionDefault) {
+		propertyBuilder.setDescription(descriptionDefault);
 		return this;
 	}
 

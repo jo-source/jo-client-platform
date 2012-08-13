@@ -35,11 +35,22 @@ import org.jowidgets.cap.common.api.bean.IValueRange;
 import org.jowidgets.cap.ui.api.control.DisplayFormat;
 import org.jowidgets.cap.ui.api.control.IDisplayFormat;
 import org.jowidgets.common.types.AlignmentHorizontal;
+import org.jowidgets.i18n.api.IMessage;
 import org.jowidgets.validation.IValidator;
 
 public interface IAttributeBluePrint<ELEMENT_VALUE_TYPE> {
 
+	IAttributeBluePrint<ELEMENT_VALUE_TYPE> setLabel(IMessage label);
+
+	IAttributeBluePrint<ELEMENT_VALUE_TYPE> setLabelLong(IMessage labelLong);
+
+	IAttributeBluePrint<ELEMENT_VALUE_TYPE> setDescription(IMessage description);
+
 	IAttributeBluePrint<ELEMENT_VALUE_TYPE> setLabel(String label);
+
+	IAttributeBluePrint<ELEMENT_VALUE_TYPE> setLabelLong(String labelLong);
+
+	IAttributeBluePrint<ELEMENT_VALUE_TYPE> setDescription(String description);
 
 	IAttributeBluePrint<ELEMENT_VALUE_TYPE> setValueRange(IValueRange valueRange);
 
@@ -54,10 +65,6 @@ public interface IAttributeBluePrint<ELEMENT_VALUE_TYPE> {
 	IAttributeBluePrint<ELEMENT_VALUE_TYPE> setDefaultValue(Object value);
 
 	IAttributeBluePrint<ELEMENT_VALUE_TYPE> setCardinality(Cardinality cardinality);
-
-	IAttributeBluePrint<ELEMENT_VALUE_TYPE> setLabelLong(String labelLong);
-
-	IAttributeBluePrint<ELEMENT_VALUE_TYPE> setDescription(String description);
 
 	IAttributeBluePrint<ELEMENT_VALUE_TYPE> setVisible(boolean visible);
 

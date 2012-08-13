@@ -765,7 +765,7 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 
 		@Override
 		protected String getLabelText() {
-			return getAttribute().getLabel();
+			return getAttribute().getLabel().get();
 		}
 
 		@Override
@@ -2184,8 +2184,8 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 		}
 
 		final StringBuilder attributeText = new StringBuilder();
-		appendText(attributeText, attribute.getLabel());
-		appendText(attributeText, attribute.getLabelLong());
+		appendText(attributeText, attribute.getLabel().get());
+		appendText(attributeText, attribute.getLabelLong().get());
 		appendText(attributeText, attributeComposite.getColumnAlignment());
 		appendText(attributeText, attributeComposite.getHeaderFormat());
 		appendText(attributeText, attributeComposite.getContentFormat());

@@ -42,6 +42,8 @@ import org.jowidgets.cap.common.api.bean.IProperty;
 import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.common.api.validation.IBeanValidator;
 import org.jowidgets.cap.common.tools.annotation.ValidatorAnnotationUtil;
+import org.jowidgets.i18n.api.IMessage;
+import org.jowidgets.i18n.tools.StaticMessage;
 import org.jowidgets.util.Assert;
 
 final class BeanDtoDescriptorBuilderImpl implements IBeanDtoDescriptorBuilder {
@@ -51,10 +53,10 @@ final class BeanDtoDescriptorBuilderImpl implements IBeanDtoDescriptorBuilder {
 	private final List<ISort> defaultSorting;
 	private final Set<IBeanValidator<?>> beanValidators;
 
-	private String labelSingular;
-	private String labelPlural;
-	private String description;
-	private String renderingPattern;
+	private IMessage labelSingular;
+	private IMessage labelPlural;
+	private IMessage description;
+	private IMessage renderingPattern;
 
 	BeanDtoDescriptorBuilderImpl(final Class<?> beanType) {
 		this.beanType = beanType;
@@ -66,26 +68,50 @@ final class BeanDtoDescriptorBuilderImpl implements IBeanDtoDescriptorBuilder {
 	}
 
 	@Override
-	public IBeanDtoDescriptorBuilder setLabelSingular(final String label) {
+	public IBeanDtoDescriptorBuilder setLabelSingular(final IMessage label) {
 		this.labelSingular = label;
 		return this;
 	}
 
 	@Override
-	public IBeanDtoDescriptorBuilder setLabelPlural(final String label) {
+	public IBeanDtoDescriptorBuilder setLabelPlural(final IMessage label) {
 		this.labelPlural = label;
 		return this;
 	}
 
 	@Override
-	public IBeanDtoDescriptorBuilder setDescription(final String description) {
+	public IBeanDtoDescriptorBuilder setDescription(final IMessage description) {
 		this.description = description;
 		return this;
 	}
 
 	@Override
+	public IBeanDtoDescriptorBuilder setRenderingPattern(final IMessage pattern) {
+		this.renderingPattern = pattern;
+		return this;
+	}
+
+	@Override
+	public IBeanDtoDescriptorBuilder setLabelSingular(final String label) {
+		this.labelSingular = new StaticMessage(label);
+		return this;
+	}
+
+	@Override
+	public IBeanDtoDescriptorBuilder setLabelPlural(final String label) {
+		this.labelPlural = new StaticMessage(label);
+		return this;
+	}
+
+	@Override
+	public IBeanDtoDescriptorBuilder setDescription(final String description) {
+		this.description = new StaticMessage(description);
+		return this;
+	}
+
+	@Override
 	public IBeanDtoDescriptorBuilder setRenderingPattern(final String renderingPattern) {
-		this.renderingPattern = renderingPattern;
+		this.renderingPattern = new StaticMessage(renderingPattern);
 		return this;
 	}
 

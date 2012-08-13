@@ -42,6 +42,7 @@ import org.jowidgets.cap.ui.api.control.IDisplayFormat;
 import org.jowidgets.cap.ui.api.filter.IFilterPanelProvider;
 import org.jowidgets.cap.ui.api.filter.IFilterType;
 import org.jowidgets.common.types.AlignmentHorizontal;
+import org.jowidgets.i18n.api.IMessage;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.event.IChangeListener;
 import org.jowidgets.validation.IValidator;
@@ -116,12 +117,12 @@ public class AttributeWrapper<ELEMENT_VALUE_TYPE> implements IAttribute<ELEMENT_
 	}
 
 	@Override
-	public String getLabel() {
+	public IMessage getLabel() {
 		return original.getLabel();
 	}
 
 	@Override
-	public String getLabelLong() {
+	public IMessage getLabelLong() {
 		return original.getLabelLong();
 	}
 
@@ -136,7 +137,7 @@ public class AttributeWrapper<ELEMENT_VALUE_TYPE> implements IAttribute<ELEMENT_
 	}
 
 	@Override
-	public String getDescription() {
+	public IMessage getDescription() {
 		return original.getDescription();
 	}
 

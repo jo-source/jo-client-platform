@@ -142,7 +142,7 @@ class BeanRelationNodeModelBluePrint<CHILD_BEAN_TYPE, INSTANCE_TYPE> extends
 			if (entityService != null) {
 				final IBeanDtoDescriptor dtoDescriptor = entityService.getDescriptor(getEntityId());
 				if (dtoDescriptor != null) {
-					final String renderingPattern = dtoDescriptor.getRenderingPattern();
+					final String renderingPattern = dtoDescriptor.getRenderingPattern().get();
 					if (!EmptyCheck.isEmpty(renderingPattern)) {
 						return new BeanProxyLabelPatternRenderer<CHILD_BEAN_TYPE>(renderingPattern, getAttributes());
 					}
