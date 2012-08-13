@@ -41,6 +41,8 @@ import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
 import org.jowidgets.cap.common.api.bean.IProperty;
 import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.common.api.validation.IBeanValidator;
+import org.jowidgets.i18n.api.IMessage;
+import org.jowidgets.i18n.tools.StaticMessage;
 
 final class BeanDtoDescriptorImpl implements IBeanDtoDescriptor, Serializable {
 
@@ -49,26 +51,31 @@ final class BeanDtoDescriptorImpl implements IBeanDtoDescriptor, Serializable {
 	private static final List<ISort> EMPTY_SORT = Collections.emptyList();
 
 	private final Class<?> beanType;
-	private final String labelSingular;
-	private final String labelPlural;
-	private final String description;
-	private final String renderingPattern;
+	private final IMessage labelSingular;
+	private final IMessage labelPlural;
+	private final IMessage description;
+	private final IMessage renderingPattern;
 	private final List<IProperty> unodifiableProperties;
 	private final Set<IBeanValidator<?>> unmodifieableBeanValidators;
 	private final List<ISort> unmodifieableDefaultSorting;
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	BeanDtoDescriptorImpl(final Collection<IProperty> properties) {
-		this(IBeanDto.class, null, null, null, properties, (Set) Collections.emptySet());
+		this(
+			IBeanDto.class,
+			new StaticMessage(null),
+			new StaticMessage(null),
+			new StaticMessage(null),
+			properties,
+			(Set) Collections.emptySet());
 	}
 
-	@SuppressWarnings({"unchecked", "rawtypes"})
 	BeanDtoDescriptorImpl(
 		final String labelSingular,
 		final String labelPlural,
 		final String description,
 		final Collection<IProperty> properties) {
-		this(IBeanDto.class, labelSingular, labelPlural, description, properties, (Set) Collections.emptySet());
+		this(new StaticMessage(labelSingular), new StaticMessage(labelPlural), new StaticMessage(description), properties);
 	}
 
 	BeanDtoDescriptorImpl(
@@ -78,7 +85,13 @@ final class BeanDtoDescriptorImpl implements IBeanDtoDescriptor, Serializable {
 		final String description,
 		final Collection<IProperty> properties,
 		final Collection<? extends IBeanValidator<?>> beanValidators) {
-		this(beanType, labelSingular, labelPlural, description, null, properties, beanValidators);
+		this(
+			beanType,
+			new StaticMessage(labelSingular),
+			new StaticMessage(labelPlural),
+			new StaticMessage(description),
+			properties,
+			beanValidators);
 	}
 
 	BeanDtoDescriptorImpl(
@@ -89,7 +102,14 @@ final class BeanDtoDescriptorImpl implements IBeanDtoDescriptor, Serializable {
 		final String renderingPattern,
 		final Collection<IProperty> properties,
 		final Collection<? extends IBeanValidator<?>> beanValidators) {
-		this(beanType, labelSingular, labelPlural, description, renderingPattern, properties, EMPTY_SORT, beanValidators);
+		this(
+			beanType,
+			new StaticMessage(labelSingular),
+			new StaticMessage(labelPlural),
+			new StaticMessage(description),
+			new StaticMessage(renderingPattern),
+			properties,
+			beanValidators);
 	}
 
 	BeanDtoDescriptorImpl(
@@ -101,11 +121,81 @@ final class BeanDtoDescriptorImpl implements IBeanDtoDescriptor, Serializable {
 		final Collection<IProperty> properties,
 		final Collection<ISort> defaultSorting,
 		final Collection<? extends IBeanValidator<?>> beanValidators) {
+		this(
+			beanType,
+			new StaticMessage(labelSingular),
+			new StaticMessage(labelPlural),
+			new StaticMessage(description),
+			new StaticMessage(renderingPattern),
+			properties,
+			defaultSorting,
+			beanValidators);
+	}
+
+	@SuppressWarnings({"unchecked", "rawtypes"})
+	BeanDtoDescriptorImpl(
+		final IMessage labelSingular,
+		final IMessage labelPlural,
+		final IMessage description,
+		final Collection<IProperty> properties) {
+		this(IBeanDto.class, labelSingular, labelPlural, description, properties, (Set) Collections.emptySet());
+	}
+
+	BeanDtoDescriptorImpl(
+		final Class<?> beanType,
+		final IMessage labelSingular,
+		final IMessage labelPlural,
+		final IMessage description,
+		final Collection<IProperty> properties,
+		final Collection<? extends IBeanValidator<?>> beanValidators) {
+		this(beanType, labelSingular, labelPlural, description, null, properties, beanValidators);
+	}
+
+	BeanDtoDescriptorImpl(
+		final Class<?> beanType,
+		final IMessage labelSingular,
+		final IMessage labelPlural,
+		final IMessage description,
+		final IMessage renderingPattern,
+		final Collection<IProperty> properties,
+		final Collection<? extends IBeanValidator<?>> beanValidators) {
+		this(beanType, labelSingular, labelPlural, description, renderingPattern, properties, EMPTY_SORT, beanValidators);
+	}
+
+	BeanDtoDescriptorImpl(
+		final Class<?> beanType,
+		final IMessage labelSingular,
+		final IMessage labelPlural,
+		final IMessage description,
+		final IMessage renderingPattern,
+		final Collection<IProperty> properties,
+		final Collection<ISort> defaultSorting,
+		final Collection<? extends IBeanValidator<?>> beanValidators) {
 		this.beanType = beanType;
-		this.labelSingular = labelSingular;
-		this.labelPlural = labelPlural;
-		this.description = description;
-		this.renderingPattern = renderingPattern;
+		if (labelSingular != null) {
+			this.labelSingular = labelSingular;
+		}
+		else {
+			this.labelSingular = new StaticMessage();
+		}
+		if (labelPlural != null) {
+			this.labelPlural = labelPlural;
+		}
+		else {
+			this.labelPlural = new StaticMessage();
+		}
+		if (description != null) {
+			this.description = description;
+		}
+		else {
+			this.description = new StaticMessage();
+		}
+		if (renderingPattern != null) {
+			this.renderingPattern = renderingPattern;
+		}
+		else {
+			this.renderingPattern = new StaticMessage();
+		}
 		this.unodifiableProperties = Collections.unmodifiableList(new LinkedList<IProperty>(properties));
 		this.unmodifieableDefaultSorting = Collections.unmodifiableList(new LinkedList<ISort>(defaultSorting));
 		this.unmodifieableBeanValidators = Collections.unmodifiableSet(new LinkedHashSet<IBeanValidator<?>>(beanValidators));
@@ -132,22 +222,22 @@ final class BeanDtoDescriptorImpl implements IBeanDtoDescriptor, Serializable {
 	}
 
 	@Override
-	public String getLabelSingular() {
+	public IMessage getLabelSingular() {
 		return labelSingular;
 	}
 
 	@Override
-	public String getLabelPlural() {
+	public IMessage getLabelPlural() {
 		return labelPlural;
 	}
 
 	@Override
-	public String getDescription() {
+	public IMessage getDescription() {
 		return description;
 	}
 
 	@Override
-	public String getRenderingPattern() {
+	public IMessage getRenderingPattern() {
 		return renderingPattern;
 	}
 

@@ -32,18 +32,43 @@ import java.util.Collection;
 
 import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.common.api.validation.IBeanValidator;
+import org.jowidgets.i18n.api.IMessage;
 
 public interface IBeanDtoDescriptorBuilder {
 
+	IBeanDtoDescriptorBuilder setLabelSingular(IMessage label);
+
 	IBeanDtoDescriptorBuilder setLabelSingular(String label);
+
+	IBeanDtoDescriptorBuilder setLabelPlural(IMessage label);
 
 	IBeanDtoDescriptorBuilder setLabelPlural(String label);
 
 	IBeanDtoDescriptorBuilder setDescription(String description);
 
+	IBeanDtoDescriptorBuilder setDescription(IMessage description);
+
 	IBeanDtoDescriptorBuilder setDefaultSorting(ISort... defaultSorting);
 
 	IBeanDtoDescriptorBuilder setDefaultSorting(Collection<ISort> defaultSorting);
+
+	/**
+	 * Sets a pattern that will be used to render instances of the bean.
+	 * The pattern may contain property variables starting and ending with $.
+	 * The $ symbol could be escaped with a $ symbol.
+	 * 
+	 * Example:
+	 * 
+	 * $name$($country$, $age$, $$$acount$)
+	 * 
+	 * leads to labels like
+	 * 
+	 * Michael(Germany, 40, $1000)
+	 * Peter(France, 28, $200)
+	 * 
+	 * @return The rendering pattern or null
+	 */
+	IBeanDtoDescriptorBuilder setRenderingPattern(IMessage pattern);
 
 	/**
 	 * Sets a pattern that will be used to render instances of the bean.

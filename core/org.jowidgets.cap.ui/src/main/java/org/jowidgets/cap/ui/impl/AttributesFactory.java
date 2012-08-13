@@ -40,6 +40,7 @@ import org.jowidgets.cap.ui.api.attribute.IAttributeBuilder;
 import org.jowidgets.cap.ui.api.attribute.IAttributeCollectionModifier;
 import org.jowidgets.cap.ui.api.attribute.IAttributeFilter;
 import org.jowidgets.cap.ui.api.attribute.IAttributeModifier;
+import org.jowidgets.i18n.api.IMessage;
 import org.jowidgets.util.Assert;
 import org.jowidgets.validation.IValidator;
 
@@ -184,12 +185,12 @@ final class AttributesFactory {
 			}
 
 			@Override
-			public String getLabelLongDefault() {
+			public IMessage getLabelLongDefault() {
 				return attribute.getLabelLong();
 			}
 
 			@Override
-			public String getLabelDefault() {
+			public IMessage getLabelDefault() {
 				return attribute.getLabel();
 			}
 
@@ -209,7 +210,7 @@ final class AttributesFactory {
 			}
 
 			@Override
-			public String getDescriptionDefault() {
+			public IMessage getDescriptionDefault() {
 				return attribute.getDescription();
 			}
 		};

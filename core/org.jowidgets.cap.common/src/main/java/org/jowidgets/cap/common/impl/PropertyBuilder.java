@@ -38,6 +38,8 @@ import org.jowidgets.cap.common.api.bean.Cardinality;
 import org.jowidgets.cap.common.api.bean.IProperty;
 import org.jowidgets.cap.common.api.bean.IPropertyBuilder;
 import org.jowidgets.cap.common.api.bean.IValueRange;
+import org.jowidgets.i18n.api.IMessage;
+import org.jowidgets.i18n.tools.StaticMessage;
 import org.jowidgets.util.Assert;
 import org.jowidgets.validation.IValidator;
 
@@ -50,9 +52,9 @@ final class PropertyBuilder implements IPropertyBuilder {
 	private IValueRange valueRange;
 	private Object defaultValue;
 	private Cardinality cardinality;
-	private String labelDefault;
-	private String labelLongDefault;
-	private String descriptionDefault;
+	private IMessage labelDefault;
+	private IMessage labelLongDefault;
+	private IMessage descriptionDefault;
 	private boolean visibleDefault;
 	private boolean mandatoryDefault;
 	private Class<?> valueType;
@@ -123,20 +125,38 @@ final class PropertyBuilder implements IPropertyBuilder {
 	}
 
 	@Override
-	public IPropertyBuilder setLabel(final String labelDefault) {
+	public IPropertyBuilder setLabel(final IMessage labelDefault) {
 		this.labelDefault = labelDefault;
 		return this;
 	}
 
 	@Override
-	public IPropertyBuilder setLabelLong(final String labelLongDefault) {
+	public IPropertyBuilder setLabel(final String labelDefault) {
+		this.labelDefault = new StaticMessage(labelDefault);
+		return this;
+	}
+
+	@Override
+	public IPropertyBuilder setLabelLong(final IMessage labelLongDefault) {
 		this.labelLongDefault = labelLongDefault;
 		return this;
 	}
 
 	@Override
-	public IPropertyBuilder setDescription(final String descriptionDefault) {
+	public IPropertyBuilder setLabelLong(final String labelLongDefault) {
+		this.labelLongDefault = new StaticMessage(labelLongDefault);
+		return this;
+	}
+
+	@Override
+	public IPropertyBuilder setDescription(final IMessage descriptionDefault) {
 		this.descriptionDefault = descriptionDefault;
+		return this;
+	}
+
+	@Override
+	public IPropertyBuilder setDescription(final String descriptionDefault) {
+		this.descriptionDefault = new StaticMessage(descriptionDefault);
 		return this;
 	}
 
@@ -218,9 +238,9 @@ final class PropertyBuilder implements IPropertyBuilder {
 		return beanValidatorAdded;
 	}
 
-	private String getLabelDefault() {
+	private IMessage getLabelDefault() {
 		if (labelDefault == null) {
-			return name;
+			return new StaticMessage(name);
 		}
 		else {
 			return labelDefault;

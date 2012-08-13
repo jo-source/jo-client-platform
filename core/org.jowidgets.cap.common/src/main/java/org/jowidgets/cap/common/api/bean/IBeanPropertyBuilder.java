@@ -30,11 +30,22 @@ package org.jowidgets.cap.common.api.bean;
 
 import java.util.Collection;
 
+import org.jowidgets.i18n.api.IMessage;
 import org.jowidgets.validation.IValidator;
 
 public interface IBeanPropertyBuilder {
 
+	IBeanPropertyBuilder setLabel(IMessage labelDefault);
+
 	IBeanPropertyBuilder setLabel(String labelDefault);
+
+	IBeanPropertyBuilder setLabelLong(IMessage labelLongDefault);
+
+	IBeanPropertyBuilder setLabelLong(String labelLongDefault);
+
+	IBeanPropertyBuilder setDescription(IMessage descriptionDefault);
+
+	IBeanPropertyBuilder setDescription(String descriptionDefault);
 
 	IBeanPropertyBuilder setValueRange(IValueRange valueRange);
 
@@ -51,10 +62,6 @@ public interface IBeanPropertyBuilder {
 	IBeanPropertyBuilder setDefaultValue(Object value);
 
 	IBeanPropertyBuilder setCardinality(Cardinality cardinality);
-
-	IBeanPropertyBuilder setLabelLong(String labelLongDefault);
-
-	IBeanPropertyBuilder setDescription(String descriptionDefault);
 
 	IBeanPropertyBuilder setVisible(boolean visibleDefault);
 

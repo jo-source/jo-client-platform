@@ -164,7 +164,7 @@ public class ArithmeticPropertyFilterControl<ELEMENT_VALUE_TYPE> extends
 
 			@Override
 			public String getDescription(final IAttribute<?> value) {
-				return value.getDescription();
+				return value.getDescription().get();
 			}
 		};
 	}

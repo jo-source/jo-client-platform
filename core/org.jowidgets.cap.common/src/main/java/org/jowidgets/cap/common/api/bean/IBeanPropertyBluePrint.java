@@ -30,11 +30,22 @@ package org.jowidgets.cap.common.api.bean;
 
 import java.util.Collection;
 
+import org.jowidgets.i18n.api.IMessage;
 import org.jowidgets.validation.IValidator;
 
 public interface IBeanPropertyBluePrint {
 
+	IBeanPropertyBluePrint setLabel(IMessage labelDefault);
+
 	IBeanPropertyBluePrint setLabel(String labelDefault);
+
+	IBeanPropertyBluePrint setLabelLong(IMessage labelLongDefault);
+
+	IBeanPropertyBluePrint setLabelLong(String labelLongDefault);
+
+	IBeanPropertyBluePrint setDescription(IMessage descriptionDefault);
+
+	IBeanPropertyBluePrint setDescription(String descriptionDefault);
 
 	IBeanPropertyBluePrint setValueRange(IValueRange valueRange);
 
@@ -51,10 +62,6 @@ public interface IBeanPropertyBluePrint {
 	IBeanPropertyBluePrint setDefaultValue(Object value);
 
 	IBeanPropertyBluePrint setCardinality(Cardinality cardinality);
-
-	IBeanPropertyBluePrint setLabelLong(String labelLongDefault);
-
-	IBeanPropertyBluePrint setDescription(String descriptionDefault);
 
 	IBeanPropertyBluePrint setVisible(boolean visibleDefault);
 

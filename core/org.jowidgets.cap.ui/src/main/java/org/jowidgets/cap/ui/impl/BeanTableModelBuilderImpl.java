@@ -84,11 +84,11 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> extends
 		if (entityService != null) {
 			final IBeanDtoDescriptor beanDtoDescriptor = entityService.getDescriptor(entityId);
 			if (beanDtoDescriptor != null) {
-				final String labelSingular = beanDtoDescriptor.getLabelSingular();
+				final String labelSingular = beanDtoDescriptor.getLabelSingular().get();
 				if (!EmptyCheck.isEmpty(labelSingular)) {
 					this.entityLabelSingular = labelSingular;
 				}
-				final String labelPlural = beanDtoDescriptor.getLabelPlural();
+				final String labelPlural = beanDtoDescriptor.getLabelPlural().get();
 				if (!EmptyCheck.isEmpty(labelPlural)) {
 					this.entityLabelPlural = labelPlural;
 				}

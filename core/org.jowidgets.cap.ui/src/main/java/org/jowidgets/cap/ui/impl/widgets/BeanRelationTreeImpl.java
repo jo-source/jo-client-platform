@@ -391,8 +391,8 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 					deleterBuilder.setAccelerator(null);
 					final IBeanDtoDescriptor descriptor = entityService.getDescriptor(childEntityId);
 					if (descriptor != null) {
-						deleterBuilder.setEntityLabelPlural(descriptor.getLabelPlural());
-						deleterBuilder.setEntityLabelSingular(descriptor.getLabelSingular());
+						deleterBuilder.setEntityLabelPlural(descriptor.getLabelPlural().get());
+						deleterBuilder.setEntityLabelSingular(descriptor.getLabelSingular().get());
 					}
 					result.addAction(deleterBuilder.build());
 				}

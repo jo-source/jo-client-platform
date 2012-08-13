@@ -35,6 +35,7 @@ import org.jowidgets.cap.common.api.bean.IBeanPropertyBluePrint;
 import org.jowidgets.cap.common.api.bean.IBeanPropertyBuilder;
 import org.jowidgets.cap.common.api.bean.IProperty;
 import org.jowidgets.cap.common.api.bean.IValueRange;
+import org.jowidgets.i18n.api.IMessage;
 import org.jowidgets.validation.IValidator;
 
 final class BeanPropertyBluePrintImpl implements IBeanPropertyBluePrint {
@@ -49,9 +50,44 @@ final class BeanPropertyBluePrintImpl implements IBeanPropertyBluePrint {
 	}
 
 	@Override
+	public IBeanPropertyBluePrint setLabel(final IMessage labelDefault) {
+		checkExhausted();
+		builder.setLabel(labelDefault);
+		return this;
+	}
+
+	@Override
 	public IBeanPropertyBluePrint setLabel(final String labelDefault) {
 		checkExhausted();
 		builder.setLabel(labelDefault);
+		return this;
+	}
+
+	@Override
+	public IBeanPropertyBluePrint setLabelLong(final IMessage labelLongDefault) {
+		checkExhausted();
+		builder.setLabelLong(labelLongDefault);
+		return this;
+	}
+
+	@Override
+	public IBeanPropertyBluePrint setLabelLong(final String labelLongDefault) {
+		checkExhausted();
+		builder.setLabelLong(labelLongDefault);
+		return this;
+	}
+
+	@Override
+	public IBeanPropertyBluePrint setDescription(final IMessage descriptionDefault) {
+		checkExhausted();
+		builder.setDescription(descriptionDefault);
+		return this;
+	}
+
+	@Override
+	public IBeanPropertyBluePrint setDescription(final String descriptionDefault) {
+		checkExhausted();
+		builder.setDescription(descriptionDefault);
 		return this;
 	}
 
@@ -108,20 +144,6 @@ final class BeanPropertyBluePrintImpl implements IBeanPropertyBluePrint {
 	public IBeanPropertyBluePrint setCardinality(final Cardinality cardinality) {
 		checkExhausted();
 		builder.setCardinality(cardinality);
-		return this;
-	}
-
-	@Override
-	public IBeanPropertyBluePrint setLabelLong(final String labelLongDefault) {
-		checkExhausted();
-		builder.setLabelLong(labelLongDefault);
-		return this;
-	}
-
-	@Override
-	public IBeanPropertyBluePrint setDescription(final String descriptionDefault) {
-		checkExhausted();
-		builder.setDescription(descriptionDefault);
 		return this;
 	}
 

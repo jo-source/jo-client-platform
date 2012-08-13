@@ -38,6 +38,7 @@ import org.jowidgets.cap.ui.api.control.IDisplayFormat;
 import org.jowidgets.cap.ui.api.filter.IFilterPanelProvider;
 import org.jowidgets.cap.ui.api.filter.IFilterType;
 import org.jowidgets.common.types.AlignmentHorizontal;
+import org.jowidgets.i18n.api.IMessage;
 import org.jowidgets.util.event.IChangeObservable;
 import org.jowidgets.validation.IValidator;
 
@@ -63,15 +64,15 @@ public interface IAttribute<ELEMENT_VALUE_TYPE> extends IChangeObservable {
 
 	IAttributeGroup getGroup();
 
-	String getLabel();
+	IMessage getLabel();
 
-	String getLabelLong();
+	IMessage getLabelLong();
+
+	IMessage getDescription();
 
 	String getCurrentLabel();
 
 	String getValueAsString(Object value);
-
-	String getDescription();
 
 	DisplayFormat getLabelDisplayFormat();
 

@@ -89,7 +89,7 @@ final class BeanRelationTreeModelBuilderImpl<CHILD_BEAN_TYPE> extends
 		if (entityService != null) {
 			final IBeanDtoDescriptor dtoDescriptor = entityService.getDescriptor(entityTypeId.getEntityId());
 			if (dtoDescriptor != null) {
-				bluePrint.setText("<" + dtoDescriptor.getLabelPlural() + ">");
+				bluePrint.setText("<" + dtoDescriptor.getLabelPlural().get() + ">");
 			}
 			final List<IEntityLinkDescriptor> links = entityService.getEntityLinks(entityTypeId.getEntityId());
 			if (links != null) {

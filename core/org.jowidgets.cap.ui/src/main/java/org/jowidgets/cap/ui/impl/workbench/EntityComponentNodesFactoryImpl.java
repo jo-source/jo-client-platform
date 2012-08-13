@@ -92,10 +92,11 @@ final class EntityComponentNodesFactoryImpl implements IEntityComponentNodesFact
 		if (entityService != null) {
 			final IBeanDtoDescriptor beanDtoDescriptor = entityService.getDescriptor(entityId);
 			if (beanDtoDescriptor != null) {
-				final String labelPlural = beanDtoDescriptor.getLabelPlural();
+				final String labelPlural = beanDtoDescriptor.getLabelPlural().get();
 				if (!EmptyCheck.isEmpty(labelPlural)) {
 					final IEntityClassBuilder entityClassBuilder = CapCommonToolkit.entityClassBuilder();
-					entityClassBuilder.setId(entityId).setLabel(labelPlural).setDescription(beanDtoDescriptor.getDescription());
+					entityClassBuilder.setId(entityId).setLabel(labelPlural).setDescription(
+							beanDtoDescriptor.getDescription().get());
 					return createNodeFromEntity(entityClassBuilder.build());
 				}
 				else {

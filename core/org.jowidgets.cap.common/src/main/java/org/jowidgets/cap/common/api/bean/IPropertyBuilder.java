@@ -30,6 +30,7 @@ package org.jowidgets.cap.common.api.bean;
 
 import java.util.Collection;
 
+import org.jowidgets.i18n.api.IMessage;
 import org.jowidgets.validation.IValidator;
 
 public interface IPropertyBuilder {
@@ -38,9 +39,15 @@ public interface IPropertyBuilder {
 
 	IPropertyBuilder setLabel(String labelDefault);
 
+	IPropertyBuilder setLabel(IMessage labelDefault);
+
 	IPropertyBuilder setLabelLong(String labelLongDefault);
 
+	IPropertyBuilder setLabelLong(IMessage labelLongDefault);
+
 	IPropertyBuilder setDescription(String descriptionDefault);
+
+	IPropertyBuilder setDescription(IMessage descriptionDefault);
 
 	IPropertyBuilder setVisible(boolean visibleDefault);
 

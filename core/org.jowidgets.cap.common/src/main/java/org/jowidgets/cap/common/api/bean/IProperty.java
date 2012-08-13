@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.common.api.bean;
 
+import org.jowidgets.i18n.api.IMessage;
 import org.jowidgets.validation.IValidator;
 
 public interface IProperty {
@@ -52,17 +53,17 @@ public interface IProperty {
 	/**
 	 * @return Gets the i18n default label of the property in a short version, never null
 	 */
-	String getLabelDefault();
+	IMessage getLabelDefault();
 
 	/**
 	 * @return Gets the i18n default label of the property in a long version or null
 	 */
-	String getLabelLongDefault();
+	IMessage getLabelLongDefault();
 
 	/**
 	 * @return Gets the i18n property description. This will be used e.g. for tool tips
 	 */
-	String getDescriptionDefault();
+	IMessage getDescriptionDefault();
 
 	/**
 	 * @return True if the property should be visible by default, false otherwise

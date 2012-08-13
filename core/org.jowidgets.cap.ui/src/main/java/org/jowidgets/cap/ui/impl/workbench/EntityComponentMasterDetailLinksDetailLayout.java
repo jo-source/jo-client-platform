@@ -125,7 +125,10 @@ public class EntityComponentMasterDetailLinksDetailLayout {
 					if (beanServices != null) {
 						final IReaderService<Void> readerService = beanServices.readerService();
 						if (readerService != null) {
-							result.addView(linkEntry.getKey(), descriptor.getLabelPlural(), descriptor.getDescription());
+							result.addView(
+									linkEntry.getKey(),
+									descriptor.getLabelPlural().get(),
+									descriptor.getDescription().get());
 						}
 					}
 

@@ -45,6 +45,8 @@ import org.jowidgets.cap.ui.api.attribute.IGenericControlPanelProviderBluePrint;
 import org.jowidgets.cap.ui.api.control.DisplayFormat;
 import org.jowidgets.cap.ui.api.control.IDisplayFormat;
 import org.jowidgets.common.types.AlignmentHorizontal;
+import org.jowidgets.i18n.api.IMessage;
+import org.jowidgets.i18n.tools.StaticMessage;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.maybe.IMaybe;
 import org.jowidgets.util.maybe.Nothing;
@@ -62,10 +64,10 @@ final class AttributeModifierBluePrint<ELEMENT_VALUE_TYPE> implements IAttribute
 	private IMaybe<Object> defaultValue;
 	private Cardinality cardinality;
 	private boolean cardinalitySet;
-	private String label;
-	private String labelLong;
+	private IMessage label;
+	private IMessage labelLong;
+	private IMessage description;
 	private DisplayFormat labelDisplayFormat;
-	private String description;
 	private Boolean visible;
 	private Boolean mandatory;
 	private Boolean editable;
@@ -136,17 +138,48 @@ final class AttributeModifierBluePrint<ELEMENT_VALUE_TYPE> implements IAttribute
 	}
 
 	@Override
-	public IAttributeBluePrint<ELEMENT_VALUE_TYPE> setLabel(final String label) {
-		Assert.paramNotEmpty(label, "label");
+	public IAttributeBluePrint<ELEMENT_VALUE_TYPE> setLabel(final IMessage label) {
+		Assert.paramNotNull(label, "label");
 		checkExhausted();
 		this.label = label;
 		return this;
 	}
 
 	@Override
-	public IAttributeBluePrint<ELEMENT_VALUE_TYPE> setLabelLong(final String labelLong) {
+	public IAttributeBluePrint<ELEMENT_VALUE_TYPE> setLabel(final String label) {
+		Assert.paramNotEmpty(label, "label");
+		checkExhausted();
+		this.label = new StaticMessage(label);
+		return this;
+	}
+
+	@Override
+	public IAttributeBluePrint<ELEMENT_VALUE_TYPE> setLabelLong(final IMessage labelLong) {
+		Assert.paramNotNull(labelLong, "labelLong");
 		checkExhausted();
 		this.labelLong = labelLong;
+		return this;
+	}
+
+	@Override
+	public IAttributeBluePrint<ELEMENT_VALUE_TYPE> setLabelLong(final String labelLong) {
+		checkExhausted();
+		this.labelLong = new StaticMessage(labelLong);
+		return this;
+	}
+
+	@Override
+	public IAttributeBluePrint<ELEMENT_VALUE_TYPE> setDescription(final IMessage description) {
+		Assert.paramNotNull(description, "description");
+		checkExhausted();
+		this.description = description;
+		return this;
+	}
+
+	@Override
+	public IAttributeBluePrint<ELEMENT_VALUE_TYPE> setDescription(final String description) {
+		checkExhausted();
+		this.description = new StaticMessage(description);
 		return this;
 	}
 
@@ -154,13 +187,6 @@ final class AttributeModifierBluePrint<ELEMENT_VALUE_TYPE> implements IAttribute
 	public IAttributeBluePrint<ELEMENT_VALUE_TYPE> setLabelDisplayFormat(final DisplayFormat displayFormat) {
 		checkExhausted();
 		this.labelDisplayFormat = displayFormat;
-		return this;
-	}
-
-	@Override
-	public IAttributeBluePrint<ELEMENT_VALUE_TYPE> setDescription(final String description) {
-		checkExhausted();
-		this.description = description;
 		return this;
 	}
 

@@ -34,6 +34,8 @@ import java.util.Collection;
 import org.jowidgets.cap.common.api.bean.Cardinality;
 import org.jowidgets.cap.common.api.bean.IProperty;
 import org.jowidgets.cap.common.api.bean.IValueRange;
+import org.jowidgets.i18n.api.IMessage;
+import org.jowidgets.i18n.tools.StaticMessage;
 import org.jowidgets.util.Assert;
 import org.jowidgets.validation.IValidator;
 
@@ -45,9 +47,9 @@ final class PropertyImpl implements IProperty, Serializable {
 	private final IValueRange valueRange;
 	private final IValidator<Object> validator;
 	private final Object defaultValue;
-	private final String labelDefault;
-	private final String labelLongDefault;
-	private final String descriptionDefault;
+	private final IMessage labelDefault;
+	private final IMessage labelLongDefault;
+	private final IMessage descriptionDefault;
 	private final boolean visibleDefault;
 	private final boolean mandatoryDefault;
 	private final Class<?> valueType;
@@ -63,9 +65,9 @@ final class PropertyImpl implements IProperty, Serializable {
 		final String name,
 		final IValueRange valueRange,
 		final Object defaultValue,
-		final String labelDefault,
-		final String labelLongDefault,
-		final String descriptionDefault,
+		final IMessage labelDefault,
+		final IMessage labelLongDefault,
+		final IMessage descriptionDefault,
 		final boolean visibleDefault,
 		final boolean mandatoryDefault,
 		final Class<?> valueType,
@@ -80,7 +82,7 @@ final class PropertyImpl implements IProperty, Serializable {
 
 		Assert.paramNotEmpty(name, "name");
 		Assert.paramNotNull(valueRange, "valueRange");
-		Assert.paramNotEmpty(labelDefault, "labelDefault");
+		Assert.paramNotNull(labelDefault, "labelDefault");
 		Assert.paramNotNull(valueType, "valueType");
 		Assert.paramNotNull(elementValueType, "elementValueType");
 		Assert.paramNotNull(cardinality, "cardinality");
@@ -97,8 +99,18 @@ final class PropertyImpl implements IProperty, Serializable {
 		this.valueRange = valueRange;
 		this.defaultValue = defaultValue;
 		this.labelDefault = labelDefault;
-		this.labelLongDefault = labelLongDefault;
-		this.descriptionDefault = descriptionDefault;
+		if (labelLongDefault != null) {
+			this.labelLongDefault = labelLongDefault;
+		}
+		else {
+			this.labelLongDefault = new StaticMessage();
+		}
+		if (descriptionDefault != null) {
+			this.descriptionDefault = descriptionDefault;
+		}
+		else {
+			this.descriptionDefault = new StaticMessage();
+		}
 		this.visibleDefault = visibleDefault;
 		this.mandatoryDefault = mandatoryDefault;
 		this.valueType = valueType;
@@ -128,17 +140,17 @@ final class PropertyImpl implements IProperty, Serializable {
 	}
 
 	@Override
-	public String getLabelDefault() {
+	public IMessage getLabelDefault() {
 		return labelDefault;
 	}
 
 	@Override
-	public String getLabelLongDefault() {
+	public IMessage getLabelLongDefault() {
 		return labelLongDefault;
 	}
 
 	@Override
-	public String getDescriptionDefault() {
+	public IMessage getDescriptionDefault() {
 		return descriptionDefault;
 	}
 
