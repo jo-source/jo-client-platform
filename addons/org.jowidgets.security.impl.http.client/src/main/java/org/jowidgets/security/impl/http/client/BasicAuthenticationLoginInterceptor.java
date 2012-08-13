@@ -37,6 +37,7 @@ import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.service.IAuthorizationProviderService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.execution.IExecutionTask;
+import org.jowidgets.i18n.api.IMessage;
 import org.jowidgets.security.api.SecurityContextHolder;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.api.ServiceProvider;
@@ -44,8 +45,8 @@ import org.jowidgets.util.Assert;
 
 public final class BasicAuthenticationLoginInterceptor implements ILoginInterceptor {
 
-	private static final String AUTHORIZATION_SERVICE_NOT_AVAILABLE = Messages.getString("BasicAuthenticationLoginInterceptor.authorization_service_not_available"); //$NON-NLS-1$
-	private static final String LOGIN_FAILED = Messages.getString("BasicAuthenticationLoginInterceptor.login_failed"); //$NON-NLS-1$
+	private static final IMessage AUTHORIZATION_SERVICE_NOT_AVAILABLE = Messages.getMessage("BasicAuthenticationLoginInterceptor.authorization_service_not_available"); //$NON-NLS-1$
+	private static final IMessage LOGIN_FAILED = Messages.getMessage("BasicAuthenticationLoginInterceptor.login_failed"); //$NON-NLS-1$
 
 	private final IServiceId<? extends IAuthorizationProviderService<?>> authorizationProviderServiceId;
 	private final IUiThreadAccess uiThreadAccess;
@@ -62,7 +63,7 @@ public final class BasicAuthenticationLoginInterceptor implements ILoginIntercep
 	public void login(final ILoginResultCallback resultCallback, final String username, final String password) {
 		final IAuthorizationProviderService<?> authorizationService = ServiceProvider.getService(authorizationProviderServiceId);
 		if (authorizationService == null) {
-			resultCallback.denied(AUTHORIZATION_SERVICE_NOT_AVAILABLE);
+			resultCallback.denied(AUTHORIZATION_SERVICE_NOT_AVAILABLE.get());
 			return;
 		}
 
@@ -84,7 +85,7 @@ public final class BasicAuthenticationLoginInterceptor implements ILoginIntercep
 						@Override
 						public void finished(final Object principal) {
 							if (principal == null) {
-								resultCallback.denied(LOGIN_FAILED);
+								resultCallback.denied(LOGIN_FAILED.get());
 								BasicAuthenticationInitializer.getInstance().clearCredentials();
 							}
 							else {
