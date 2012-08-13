@@ -79,6 +79,7 @@ import org.jowidgets.cap.ui.tools.execution.AbstractUiResultCallback;
 import org.jowidgets.common.color.IColorConstant;
 import org.jowidgets.common.image.IImageConstant;
 import org.jowidgets.common.types.Markup;
+import org.jowidgets.i18n.api.IMessage;
 import org.jowidgets.plugin.api.IPluginProperties;
 import org.jowidgets.plugin.api.IPluginPropertiesBuilder;
 import org.jowidgets.plugin.api.PluginProperties;
@@ -91,6 +92,9 @@ import org.jowidgets.validation.IValidationResult;
 
 public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implements
 		IBeanRelationNodeModel<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> {
+
+	private static final IMessage LOAD_ERROR_MESSAGE = Messages.getMessage("BeanRelationNodeModelImpl.load_error");
+	private static final IMessage LOADING_DATA_LABEL = Messages.getMessage("BeanRelationNodeModelImpl.load_data");
 
 	private static final int MAX_CHILDREN = 200;
 
@@ -120,9 +124,6 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 	private final List<String> propertyNames;
 	private final Map<String, Object> defaultValues;
 	private final IBeanExceptionConverter exceptionConverter;
-
-	private final String loadErrorMessage;
-	private final String loadingDataLabel;
 
 	private final BeanListModelObservable beanListModelObservable;
 	private final BeanSelectionObservable<CHILD_BEAN_TYPE> beanSelectionObservable;
@@ -195,9 +196,6 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 
 		this.propertyNames = createPropertyNames(childBeanAttributes);
 		this.defaultValues = createDefaultValues(childBeanAttributes);
-
-		this.loadErrorMessage = Messages.getString("BeanRelationNodeModelImpl.load_error");
-		this.loadingDataLabel = Messages.getString("BeanRelationNodeModelImpl.load_data");
 
 		this.beanListModelObservable = new BeanListModelObservable();
 		this.beanSelectionObservable = new BeanSelectionObservable<CHILD_BEAN_TYPE>();
@@ -651,7 +649,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 			data.clear();
 
 			executionTask = CapUiToolkit.executionTaskFactory().create();
-			executionTask.setDescription(loadingDataLabel);
+			executionTask.setDescription(LOADING_DATA_LABEL.get());
 			executionTask.addExecutionCallbackListener(new IExecutionCallbackListener() {
 				@Override
 				public void canceled() {
@@ -756,7 +754,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 
 		private void setException(final Throwable exception) {
 			final List<IBeanProxy<CHILD_BEAN_TYPE>> beans = Collections.singletonList(dummyBean);
-			final IBeanMessage message = exceptionConverter.convert(loadErrorMessage, beans, dummyBean, exception);
+			final IBeanMessage message = exceptionConverter.convert(LOAD_ERROR_MESSAGE.get(), beans, dummyBean, exception);
 
 			if (dummyBean != null) {
 				dummyBean.setExecutionTask(null);

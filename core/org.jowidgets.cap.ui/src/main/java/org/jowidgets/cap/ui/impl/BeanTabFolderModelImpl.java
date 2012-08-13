@@ -88,6 +88,7 @@ import org.jowidgets.cap.ui.api.sort.ISortModelConfig;
 import org.jowidgets.cap.ui.api.tabfolder.IBeanTabFolderModel;
 import org.jowidgets.cap.ui.api.tabfolder.IBeanTabFolderModelInterceptor;
 import org.jowidgets.cap.ui.tools.execution.AbstractUiResultCallback;
+import org.jowidgets.i18n.api.IMessage;
 import org.jowidgets.plugin.api.IPluginProperties;
 import org.jowidgets.plugin.api.IPluginPropertiesBuilder;
 import org.jowidgets.plugin.api.PluginProvider;
@@ -101,6 +102,9 @@ import org.jowidgets.validation.IValidationConditionListener;
 import org.jowidgets.validation.IValidationResult;
 
 final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEAN_TYPE> {
+
+	private static final IMessage LOAD_ERROR = Messages.getMessage("BeanTableModelImpl.load_error");
+	private static final IMessage LOADING_DATA = Messages.getMessage("BeanTableModelImpl.load_data");
 
 	private static final int MAX_TABS = 100;
 
@@ -143,9 +147,6 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 	private final IBeanSelectionListener<Object> parentSelectionListener;
 
 	private final IBeanProxyLabelRenderer<BEAN_TYPE> renderer;
-
-	private final String loadErrorMessage;
-	private final String loadingDataLabel;
 
 	private Integer selectedTab;
 	private boolean disposed;
@@ -237,8 +238,6 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 		this.beanSelectionObservable = new BeanSelectionObservable<BEAN_TYPE>();
 		this.disposeObservable = new DisposeObservable();
 		this.filterChangeObservable = new ChangeObservable();
-		this.loadErrorMessage = Messages.getString("BeanTableModelImpl.load_error");
-		this.loadingDataLabel = Messages.getString("BeanTableModelImpl.load_data");
 		this.beanPropertyValidators = new LinkedList<IBeanPropertyValidator<BEAN_TYPE>>();
 		this.beanPropertyValidatorsView = Collections.unmodifiableList(this.beanPropertyValidators);
 		beanPropertyValidators.add(new BeanPropertyValidatorImpl<BEAN_TYPE>(attributes));
@@ -879,7 +878,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 			data.clear();
 
 			executionTask = CapUiToolkit.executionTaskFactory().create();
-			executionTask.setDescription(loadingDataLabel);
+			executionTask.setDescription(LOADING_DATA.get());
 			executionTask.addExecutionCallbackListener(new IExecutionCallbackListener() {
 				@Override
 				public void canceled() {
@@ -994,8 +993,8 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 		private void setException(final Throwable exception) {
 			final IBeanMessageBuilder beanMessageBuilder = CapUiToolkit.beanMessageBuilder(BeanMessageType.ERROR);
 			beanMessageBuilder.setException(exception);
-			beanMessageBuilder.setShortMessage(loadingDataLabel);
-			beanMessageBuilder.setMessage(loadErrorMessage);
+			beanMessageBuilder.setShortMessage(LOADING_DATA.get());
+			beanMessageBuilder.setMessage(LOAD_ERROR.get());
 			final IBeanMessage message = beanMessageBuilder.build();
 
 			if (dummyBean != null) {
