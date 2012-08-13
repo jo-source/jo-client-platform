@@ -35,11 +35,12 @@ import org.jowidgets.api.widgets.blueprint.IInputDialogBluePrint;
 import org.jowidgets.cap.ui.api.filter.IUiConfigurableFilter;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
+import org.jowidgets.i18n.api.IMessage;
 import org.jowidgets.tools.message.MessageReplacer;
 
 final class BeanTableAddCustomFilterCommandExecutor extends AbstractBeanTableAddFilterCommandExecutor {
 
-	private final String noUserDefinedFilterMessage = Messages.getString("BeanTableAddCustomFilterCommandExecutor.noUserDefinedFilter");
+	private static final IMessage NO_USER_DEFINED_FILTER = Messages.getMessage("BeanTableAddCustomFilterCommandExecutor.noUserDefinedFilter");
 
 	private final IBeanTableModel<?> model;
 	private final int columnIndex;
@@ -72,7 +73,7 @@ final class BeanTableAddCustomFilterCommandExecutor extends AbstractBeanTableAdd
 
 	@Override
 	String getDisabledMessageOnNoIncludingFilter(final String value) {
-		return MessageReplacer.replace(noUserDefinedFilterMessage, value);
+		return MessageReplacer.replace(NO_USER_DEFINED_FILTER.get(), value);
 	}
 
 }

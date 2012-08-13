@@ -100,6 +100,7 @@ import org.jowidgets.common.widgets.controller.ITableColumnPopupDetectionListene
 import org.jowidgets.common.widgets.controller.ITableColumnPopupEvent;
 import org.jowidgets.common.widgets.controller.ITableSelectionListener;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
+import org.jowidgets.i18n.api.IMessage;
 import org.jowidgets.plugin.api.IPluginProperties;
 import org.jowidgets.plugin.api.IPluginPropertiesBuilder;
 import org.jowidgets.plugin.api.PluginProperties;
@@ -124,8 +125,8 @@ import org.jowidgets.util.concurrent.DaemonThreadFactory;
 
 final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTable<BEAN_TYPE> {
 
-	private final String noServiceAvailableEntityLabel = Messages.getString("BeanTableImpl.noServiceAvailableEntityLabel");
-	private final String noServiceAvailable = Messages.getString("BeanTableImpl.noServiceAvailable");
+	private static final IMessage NO_SERVICE_AVAILABLE_ENTITY = Messages.getMessage("BeanTableImpl.noServiceAvailableEntityLabel");
+	private static final IMessage NO_SERVICE_AVAILABLE = Messages.getMessage("BeanTableImpl.noServiceAvailable");
 
 	private final ITable table;
 	private final IBeanTableModel<BEAN_TYPE> model;
@@ -183,10 +184,10 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 			final String entityLabelPlural = model.getEntityLabelPlural();
 			final String label;
 			if (EmptyCheck.isEmpty(entityLabelPlural)) {
-				label = noServiceAvailable;
+				label = NO_SERVICE_AVAILABLE.get();
 			}
 			else {
-				label = MessageReplacer.replace(noServiceAvailableEntityLabel, entityLabelPlural);
+				label = MessageReplacer.replace(NO_SERVICE_AVAILABLE_ENTITY.get(), entityLabelPlural);
 			}
 			composite.add(BPF.textLabel(label).alignCenter(), "alignx c, aligny c");
 		}

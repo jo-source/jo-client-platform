@@ -53,6 +53,7 @@ import org.jowidgets.cap.ui.api.widgets.IBeanTableSettingsDialogBluePrint;
 import org.jowidgets.common.widgets.controller.IActionListener;
 import org.jowidgets.common.widgets.controller.IInputListener;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
+import org.jowidgets.i18n.api.IMessage;
 import org.jowidgets.tools.widgets.blueprint.BPF;
 import org.jowidgets.tools.widgets.wrapper.WindowWrapper;
 import org.jowidgets.util.Assert;
@@ -222,20 +223,20 @@ final class BeanTableSettingsDialogImpl extends WindowWrapper implements IBeanTa
 
 	private static class AutoScrollPolicyConverter implements IObjectStringConverter<AutoScrollPolicy> {
 
-		private final String off = Messages.getString("BeanTableSettingsDialogImpl.auto_scroll_off");//"of"; //$NON-NLS-1$
-		private final String selection = Messages.getString("BeanTableSettingsDialogImpl.auto_scroll_selection");//"Selected"; //$NON-NLS-1$
-		private final String end = Messages.getString("BeanTableSettingsDialogImpl.auto_scroll_end");//"end"; //$NON-NLS-1$
+		private static final IMessage OFF = Messages.getMessage("BeanTableSettingsDialogImpl.auto_scroll_off");//"of"; //$NON-NLS-1$
+		private static final IMessage SELECTION = Messages.getMessage("BeanTableSettingsDialogImpl.auto_scroll_selection");//"Selected"; //$NON-NLS-1$
+		private static final IMessage END = Messages.getMessage("BeanTableSettingsDialogImpl.auto_scroll_end");//"end"; //$NON-NLS-1$
 
 		@Override
 		public String convertToString(final AutoScrollPolicy value) {
 			if (value == AutoScrollPolicy.OFF) {
-				return off;
+				return OFF.get();
 			}
 			else if (value == AutoScrollPolicy.TO_SELECTION) {
-				return selection;
+				return SELECTION.get();
 			}
 			else if (value == AutoScrollPolicy.TO_END) {
-				return end;
+				return END.get();
 			}
 			return null;
 		}

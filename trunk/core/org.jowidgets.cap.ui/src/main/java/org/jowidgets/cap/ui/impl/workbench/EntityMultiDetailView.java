@@ -31,6 +31,7 @@ package org.jowidgets.cap.ui.impl.workbench;
 import org.jowidgets.api.widgets.IContainer;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.widgets.IBeanSelectionForm;
+import org.jowidgets.i18n.api.IMessage;
 import org.jowidgets.tools.layout.MigLayoutFactory;
 import org.jowidgets.workbench.api.IViewContext;
 import org.jowidgets.workbench.tools.AbstractView;
@@ -39,7 +40,7 @@ public class EntityMultiDetailView extends AbstractView {
 
 	public static final String ID = EntityMultiDetailView.class.getName();
 
-	public static final String DEFAULT_LABEL = Messages.getString("MultiDetailView.details"); //$NON-NLS-1$
+	public static final IMessage DEFAULT_LABEL = Messages.getMessage("MultiDetailView.details"); //$NON-NLS-1$
 
 	private final IBeanSelectionForm tablesForm;
 

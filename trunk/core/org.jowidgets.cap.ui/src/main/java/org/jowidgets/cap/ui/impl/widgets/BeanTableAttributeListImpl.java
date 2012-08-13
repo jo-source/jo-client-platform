@@ -65,9 +65,9 @@ import org.jowidgets.cap.ui.api.attribute.IAttributeGroup;
 import org.jowidgets.cap.ui.api.attribute.IControlPanelProvider;
 import org.jowidgets.cap.ui.api.control.DisplayFormat;
 import org.jowidgets.cap.ui.api.control.IDisplayFormat;
+import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.table.IBeanTableModelConfig;
 import org.jowidgets.cap.ui.api.table.IBeanTableModelConfigBuilder;
-import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.tools.sort.SortModelConfigBuilder;
 import org.jowidgets.common.color.ColorValue;
 import org.jowidgets.common.color.IColorConstant;
@@ -78,6 +78,7 @@ import org.jowidgets.common.widgets.controller.IInputListener;
 import org.jowidgets.common.widgets.descriptor.IWidgetDescriptor;
 import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
+import org.jowidgets.i18n.api.IMessage;
 import org.jowidgets.tools.command.ActionBuilder;
 import org.jowidgets.tools.controller.InputObservable;
 import org.jowidgets.tools.converter.AbstractConverter;
@@ -88,13 +89,13 @@ import org.jowidgets.tools.widgets.wrapper.ContainerWrapper;
 import org.jowidgets.util.NullCompatibleEquivalence;
 
 final class BeanTableAttributeListImpl extends CompositeWrapper {
-	private static final String ALL_LABEL_TEXT = Messages.getString("BeanTableAttributeListImpl.all"); //$NON-NLS-1$
-	private static final String SEARCH_LABEL_TEXT = Messages.getString("BeanTableAttributeListImpl.search"); //$NON-NLS-1$
-	private static final String TEXT_CLEAR_SORTING = Messages.getString("BeanTableAttributeListImpl.no_sorting"); //$NON-NLS-1$
-	private static final String DEFAULT_GROUP_NAME = Messages.getString("BeanTableAttributeListImpl.default"); //$NON-NLS-1$
-	private static final String ALL_VISIBLE = Messages.getString("BeanTableAttributeListImpl.all_visible"); //$NON-NLS-1$
-	private static final String ALL_HIDDEN = Messages.getString("BeanTableAttributeListImpl.all_hidden"); //$NON-NLS-1$
-	private static final String VISIBLE_HIDDEN = Messages.getString("BeanTableAttributeListImpl.n_visible_m_hidden"); //$NON-NLS-1$
+	private static final IMessage ALL_LABEL_TEXT = Messages.getMessage("BeanTableAttributeListImpl.all"); //$NON-NLS-1$
+	private static final IMessage SEARCH_LABEL_TEXT = Messages.getMessage("BeanTableAttributeListImpl.search"); //$NON-NLS-1$
+	private static final IMessage TEXT_CLEAR_SORTING = Messages.getMessage("BeanTableAttributeListImpl.no_sorting"); //$NON-NLS-1$
+	private static final IMessage DEFAULT_GROUP_NAME = Messages.getMessage("BeanTableAttributeListImpl.default"); //$NON-NLS-1$
+	private static final IMessage ALL_VISIBLE = Messages.getMessage("BeanTableAttributeListImpl.all_visible"); //$NON-NLS-1$
+	private static final IMessage ALL_HIDDEN = Messages.getMessage("BeanTableAttributeListImpl.all_hidden"); //$NON-NLS-1$
+	private static final IMessage VISIBLE_HIDDEN = Messages.getMessage("BeanTableAttributeListImpl.n_visible_m_hidden"); //$NON-NLS-1$
 
 	private static final boolean USE_AUTO_COMPLETION = false;
 
@@ -253,7 +254,7 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 				attributeGroupId = attribute.getGroup().getId();
 			}
 			else {
-				attributeGroupId = DEFAULT_GROUP_NAME;
+				attributeGroupId = DEFAULT_GROUP_NAME.get();
 			}
 
 			AttributeGroupComposite groupContainer = groups.get(attributeGroupId);
@@ -1460,7 +1461,7 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 
 		@Override
 		public String getLabelText() {
-			return SEARCH_LABEL_TEXT;
+			return SEARCH_LABEL_TEXT.get();
 		}
 
 		@Override
@@ -1564,7 +1565,7 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 
 		@Override
 		public String getLabelText() {
-			return ALL_LABEL_TEXT;
+			return ALL_LABEL_TEXT.get();
 		}
 
 		@Override
@@ -1662,7 +1663,7 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 		@Override
 		public String getLabelText() {
 			if (group == null) {
-				return DEFAULT_GROUP_NAME;
+				return DEFAULT_GROUP_NAME.get();
 			}
 			return group.getId();
 		}
@@ -1945,17 +1946,17 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 			if (Visibility.PARTIAL.equals(visibility)) {
 				setSelected(true);
 				setToolTipText(Toolkit.getMessageReplacer().replace(
-						VISIBLE_HIDDEN,
+						VISIBLE_HIDDEN.get(),
 						String.valueOf(visibleCount),
 						String.valueOf(invisibleCount)));
 			}
 			else if (Visibility.ALL.equals(visibility)) {
 				setSelected(true);
-				setToolTipText(ALL_VISIBLE);
+				setToolTipText(ALL_VISIBLE.get());
 			}
 			else if (Visibility.NONE.equals(visibility)) {
 				setSelected(false);
-				setToolTipText(ALL_HIDDEN);
+				setToolTipText(ALL_HIDDEN.get());
 			}
 			else {
 				throw new IllegalStateException("Unkown visibility '" + visibility + "'."); //$NON-NLS-1$ //$NON-NLS-2$
@@ -2511,7 +2512,7 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 
 	private static enum ComboBoxSortOrder {
 		NOT_SET(""), //$NON-NLS-1$
-		CLEAR_SORTING(TEXT_CLEAR_SORTING),
+		CLEAR_SORTING(TEXT_CLEAR_SORTING.get()),
 		ASC(SortOrder.ASC),
 		DESC(SortOrder.DESC);
 

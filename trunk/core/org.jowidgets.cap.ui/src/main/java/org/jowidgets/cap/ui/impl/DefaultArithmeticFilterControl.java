@@ -44,6 +44,7 @@ import org.jowidgets.cap.ui.api.filter.IUiFilterFactory;
 import org.jowidgets.common.widgets.controller.IInputListener;
 import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
+import org.jowidgets.i18n.api.IMessage;
 import org.jowidgets.tools.validation.MandatoryValidator;
 import org.jowidgets.tools.widgets.wrapper.AbstractInputControl;
 import org.jowidgets.util.Assert;
@@ -56,10 +57,10 @@ import org.jowidgets.validation.ValidationResult;
 public class DefaultArithmeticFilterControl<ELEMENT_VALUE_TYPE> extends AbstractInputControl<IUiArithmeticFilter<Object>> implements
 		IFilterControl<ArithmeticOperator, Object, IUiArithmeticFilter<Object>> {
 
-	private static final String AND = Messages.getString("DefaultArithmeticFilterControl.and"); //$NON-NLS-1$
-	private static final String OPERAND_EMPTY = Messages.getString("DefaultArithmeticFilterControl.operand_must_not_be_empty"); //$NON-NLS-1$
-	private static final String FIRST_OPERAND_EMPTY = Messages.getString("DefaultArithmeticFilterControl.first_operand_must_not_be_empty"); //$NON-NLS-1$
-	private static final String SECOND_OPERAND_EMPTY = Messages.getString("DefaultArithmeticFilterControl.second_operand_must_not_be_empty"); //$NON-NLS-1$
+	private static final IMessage AND = Messages.getMessage("DefaultArithmeticFilterControl.and"); //$NON-NLS-1$
+	private static final IMessage OPERAND_EMPTY = Messages.getMessage("DefaultArithmeticFilterControl.operand_must_not_be_empty"); //$NON-NLS-1$
+	private static final IMessage FIRST_OPERAND_EMPTY = Messages.getMessage("DefaultArithmeticFilterControl.first_operand_must_not_be_empty"); //$NON-NLS-1$
+	private static final IMessage SECOND_OPERAND_EMPTY = Messages.getMessage("DefaultArithmeticFilterControl.second_operand_must_not_be_empty"); //$NON-NLS-1$
 
 	private final String propertyName;
 	private final Class<?> elementValueType;
@@ -194,7 +195,7 @@ public class DefaultArithmeticFilterControl<ELEMENT_VALUE_TYPE> extends Abstract
 			if (ArithmeticOperator.BETWEEN == operator) {
 				getWidget().setLayout(new MigLayoutDescriptor("0[grow][][grow]0", "0[]0")); //$NON-NLS-1$ //$NON-NLS-2$
 				control1 = getWidget().add(controlCreator, "growx"); //$NON-NLS-1$
-				getWidget().add(Toolkit.getBluePrintFactory().textLabel(AND));
+				getWidget().add(Toolkit.getBluePrintFactory().textLabel(AND.get()));
 				control2 = getWidget().add(controlCreator, "growx"); //$NON-NLS-1$
 			}
 			else if (ArithmeticOperator.EMPTY != operator) {
@@ -315,12 +316,12 @@ public class DefaultArithmeticFilterControl<ELEMENT_VALUE_TYPE> extends Abstract
 
 	private void addValidators() {
 		if (ArithmeticOperator.BETWEEN == operator) {
-			addValidator(control1, FIRST_OPERAND_EMPTY);
-			addValidator(control2, SECOND_OPERAND_EMPTY);
+			addValidator(control1, FIRST_OPERAND_EMPTY.get());
+			addValidator(control2, SECOND_OPERAND_EMPTY.get());
 		}
 		else if (ArithmeticOperator.EMPTY != operator) {
-			addValidator(control1, OPERAND_EMPTY);
-			addValidator(collectionControl, OPERAND_EMPTY);
+			addValidator(control1, OPERAND_EMPTY.get());
+			addValidator(collectionControl, OPERAND_EMPTY.get());
 		}
 	}
 

@@ -54,6 +54,7 @@ import org.jowidgets.common.widgets.controller.IInputListener;
 import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
 import org.jowidgets.common.widgets.factory.ICustomWidgetFactory;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
+import org.jowidgets.i18n.api.IMessage;
 import org.jowidgets.tools.widgets.wrapper.AbstractInputControl;
 import org.jowidgets.util.Assert;
 import org.jowidgets.validation.IValidationConditionListener;
@@ -63,7 +64,7 @@ import org.jowidgets.validation.ValidationResult;
 final class AttributeFilterControlImpl extends AbstractInputControl<IUiConfigurableFilter<? extends Object>> implements
 		IAttributeFilterControl {
 
-	private static final String NOT = Messages.getString("AttributeFilterControlImpl.not");
+	private static final IMessage NOT = Messages.getMessage("AttributeFilterControlImpl.not");
 
 	private final List<IAttribute<?>> attributes;
 	private final Map<String, IAttribute<?>> attributesMap;
@@ -157,7 +158,7 @@ final class AttributeFilterControlImpl extends AbstractInputControl<IUiConfigura
 			@Override
 			public String convertToString(final Boolean bool) {
 				if (bool) {
-					return NOT;
+					return NOT.get();
 				}
 				else {
 					return "";
@@ -167,7 +168,7 @@ final class AttributeFilterControlImpl extends AbstractInputControl<IUiConfigura
 			@Override
 			public String getDescription(final Boolean bool) {
 				if (bool) {
-					return NOT;
+					return NOT.get();
 				}
 				else {
 					return "";

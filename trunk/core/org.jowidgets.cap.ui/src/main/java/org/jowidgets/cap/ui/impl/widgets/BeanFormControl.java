@@ -91,6 +91,7 @@ import org.jowidgets.common.widgets.controller.IInputListener;
 import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
 import org.jowidgets.common.widgets.factory.ICustomWidgetFactory;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
+import org.jowidgets.i18n.api.IMessage;
 import org.jowidgets.plugin.api.IPluginProperties;
 import org.jowidgets.plugin.api.IPluginPropertiesBuilder;
 import org.jowidgets.plugin.api.PluginProvider;
@@ -114,6 +115,8 @@ import org.jowidgets.validation.ValidationResult;
 final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN_TYPE>> implements
 		IBeanForm<BEAN_TYPE>,
 		IExternalBeanValidator {
+
+	private static final IMessage PROCESSING_DATA = Messages.getMessage("BeanFormControl.processing_data");
 
 	private final IDecorator<String> mandatoryLabelDecorator;
 	private final IColorConstant mandatoryBackgroundColor;
@@ -142,8 +145,6 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 
 	private final IAction saveAction;
 	private final IAction undoAction;
-
-	private final String processingDataLabel;
 
 	private IComposite validationLabelContainer;
 	private IInputComponentValidationLabel mainValidationLabel;
@@ -174,8 +175,6 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 		super(composite);
 
 		attributes = createModifiedByPluginsAttributes(entityId, beanType, attributes);
-
-		this.processingDataLabel = Messages.getString("BeanFormControl.processing_data");
 
 		this.scrollbarsAllowed = scrollbarsAllowed;
 		this.maxWidthDefault = maxWidth;
@@ -419,7 +418,7 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 			result.append(description);
 		}
 		else {
-			result.append(processingDataLabel);
+			result.append(PROCESSING_DATA.get());
 		}
 		result.append(" ");
 		result.append(computeProgressText(executionTask));

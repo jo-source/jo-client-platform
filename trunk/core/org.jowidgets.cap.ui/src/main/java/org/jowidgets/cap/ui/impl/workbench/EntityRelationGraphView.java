@@ -32,6 +32,7 @@ import org.jowidgets.api.widgets.IContainer;
 import org.jowidgets.cap.ui.api.addons.widgets.GraphBPF;
 import org.jowidgets.cap.ui.api.addons.widgets.IBeanRelationGraphBluePrint;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeModel;
+import org.jowidgets.i18n.api.IMessage;
 import org.jowidgets.tools.layout.MigLayoutFactory;
 import org.jowidgets.workbench.api.IViewContext;
 import org.jowidgets.workbench.tools.AbstractView;
@@ -40,7 +41,7 @@ public class EntityRelationGraphView extends AbstractView {
 
 	public static final String ID = EntityRelationGraphView.class.getName();
 
-	public static final String DEFAULT_LABEL = Messages.getString("EntityRelationGraphView.graph"); //$NON-NLS-1$
+	public static final IMessage DEFAULT_LABEL = Messages.getMessage("EntityRelationGraphView.graph"); //$NON-NLS-1$
 
 	public EntityRelationGraphView(final IViewContext context, final IBeanRelationTreeModel<?> parentModel) {
 		final IContainer container = context.getContainer();

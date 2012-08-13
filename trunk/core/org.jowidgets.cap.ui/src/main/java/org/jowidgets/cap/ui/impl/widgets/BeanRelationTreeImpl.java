@@ -74,6 +74,7 @@ import org.jowidgets.cap.ui.api.widgets.IBeanRelationTreeBluePrint;
 import org.jowidgets.cap.ui.tools.bean.SingleBeanSelectionProvider;
 import org.jowidgets.common.types.Markup;
 import org.jowidgets.common.types.SelectionPolicy;
+import org.jowidgets.i18n.api.IMessage;
 import org.jowidgets.plugin.api.IPluginProperties;
 import org.jowidgets.plugin.api.IPluginPropertiesBuilder;
 import org.jowidgets.plugin.api.PluginProperties;
@@ -90,8 +91,8 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 
 	private static final int MAX_EXPANDED_NODES_CACHE = 500;
 
-	private final String waitText = Messages.getString("BeanRelationTreeImpl.wait_text");
-	private final String waitTooltip = Messages.getString("BeanRelationTreeImpl.wait_tooltip");
+	private static final IMessage WAIT_TEXT = Messages.getMessage("BeanRelationTreeImpl.wait_text");
+	private static final IMessage WAIT_TOOLTIP = Messages.getMessage("BeanRelationTreeImpl.wait_tooltip");
 
 	private final IBeanRelationTreeModel<CHILD_BEAN_TYPE> treeModel;
 	private final IFilter<IBeanRelationNodeModel<Object, Object>> childRelationFilter;
@@ -429,8 +430,8 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 	}
 
 	private void renderLoadingDummyNode(final ITreeNode node) {
-		node.setText(waitText);
-		node.setToolTipText(waitTooltip);
+		node.setText(WAIT_TEXT.get());
+		node.setToolTipText(WAIT_TOOLTIP.get());
 	}
 
 	private static void renderErrorDummyNode(final ITreeNode node, final IBeanMessage message) {

@@ -33,12 +33,13 @@ import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.filter.IUiFilter;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
+import org.jowidgets.i18n.api.IMessage;
 import org.jowidgets.tools.message.MessageReplacer;
 
 final class BeanTableAddInlineFilterCommandExecutor extends AbstractBeanTableAddFilterCommandExecutor {
 
-	private final String noIncludingFilterMessage = Messages.getString("BeanTableAddInlineFilterCommandExecutor.noIncludingFilter");
-	private final String noExcludingFilterMessage = Messages.getString("BeanTableAddInlineFilterCommandExecutor.noExcludingFilter");
+	private static final IMessage NO_INCLUDING_FILTER = Messages.getMessage("BeanTableAddInlineFilterCommandExecutor.noIncludingFilter");
+	private static final IMessage NO_EXCLUDING_FILTER = Messages.getMessage("BeanTableAddInlineFilterCommandExecutor.noExcludingFilter");
 
 	private final IBeanTableModel<?> model;
 	private final boolean invert;
@@ -62,10 +63,10 @@ final class BeanTableAddInlineFilterCommandExecutor extends AbstractBeanTableAdd
 	@Override
 	String getDisabledMessageOnNoIncludingFilter(final String value) {
 		if (!invert) {
-			return MessageReplacer.replace(noIncludingFilterMessage, value);
+			return MessageReplacer.replace(NO_INCLUDING_FILTER.get(), value);
 		}
 		else {
-			return MessageReplacer.replace(noExcludingFilterMessage, value);
+			return MessageReplacer.replace(NO_EXCLUDING_FILTER.get(), value);
 		}
 	}
 
