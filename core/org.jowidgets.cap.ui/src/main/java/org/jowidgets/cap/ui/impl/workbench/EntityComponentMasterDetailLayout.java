@@ -29,6 +29,7 @@
 package org.jowidgets.cap.ui.impl.workbench;
 
 import org.jowidgets.cap.common.api.entity.IEntityClass;
+import org.jowidgets.i18n.api.IMessage;
 import org.jowidgets.workbench.api.ILayout;
 import org.jowidgets.workbench.toolkit.api.IFolderLayoutBuilder;
 import org.jowidgets.workbench.toolkit.api.ILayoutBuilder;
@@ -43,7 +44,7 @@ public class EntityComponentMasterDetailLayout {
 	public static final String MASTER_FOLDER_ID = "MASTER_FOLDER_ID"; //$NON-NLS-1$
 	public static final String DETAIL_FOLDER_ID = "DETAIL_FOLDER_ID"; //$NON-NLS-1$
 
-	private static final String DETAIL_STRING = Messages.getString("EntityComponentDefaultLayout.detail"); //$NON-NLS-1$
+	private static final IMessage DETAIL_STRING = Messages.getMessage("EntityComponentDefaultLayout.detail"); //$NON-NLS-1$
 
 	private final ILayout layout;
 
@@ -75,7 +76,7 @@ public class EntityComponentMasterDetailLayout {
 	private IFolderLayoutBuilder createDetailFolder(final IEntityClass entityClass) {
 		final IFolderLayoutBuilder result = new FolderLayoutBuilder(DETAIL_FOLDER_ID);
 		result.setViewsCloseable(false);
-		result.addView(EntityDetailView.ID, entityClass.getLabel() + " " + DETAIL_STRING, entityClass.getDescription()); //$NON-NLS-1$
+		result.addView(EntityDetailView.ID, entityClass.getLabel() + " " + DETAIL_STRING.get(), entityClass.getDescription()); //$NON-NLS-1$
 		return result;
 	}
 

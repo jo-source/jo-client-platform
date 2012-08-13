@@ -39,6 +39,7 @@ import org.jowidgets.cap.common.api.service.IBeanServicesProvider;
 import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.ui.api.addons.widgets.IBeanRelationGraphBluePrint;
+import org.jowidgets.i18n.api.IMessage;
 import org.jowidgets.service.api.ServiceProvider;
 import org.jowidgets.workbench.api.ILayout;
 import org.jowidgets.workbench.toolkit.api.IFolderLayoutBuilder;
@@ -56,7 +57,7 @@ public class EntityComponentMasterDetailLinksDetailLayout {
 	public static final String LINKED_MASTER_FOLDER_ID = "LINKED_MASTER_FOLDER_ID";
 	public static final String LINKED_DETAIL_FOLDER_ID = "LINKED_DETAIL_FOLDER_ID";
 
-	private static final String LINKS_STRING = Messages.getString("EntityComponentDefaultLayout.links");
+	private static final IMessage LINKS_STRING = Messages.getMessage("EntityComponentDefaultLayout.links");
 
 	private final ILayout layout;
 
@@ -102,7 +103,7 @@ public class EntityComponentMasterDetailLinksDetailLayout {
 		final Map<String, IEntityLinkDescriptor> links) {
 		final IFolderLayoutBuilder result = new FolderLayoutBuilder(LINKED_MASTER_FOLDER_ID);
 		result.setViewsCloseable(false);
-		result.addView(EntityRelationTreeView.ID, entityClass.getLabel() + " " + LINKS_STRING, entityClass.getDescription());
+		result.addView(EntityRelationTreeView.ID, entityClass.getLabel() + " " + LINKS_STRING.get(), entityClass.getDescription());
 		return result;
 	}
 

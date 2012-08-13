@@ -52,12 +52,16 @@ import org.jowidgets.cap.ui.api.widgets.IBeanTabFactory;
 import org.jowidgets.cap.ui.api.widgets.IBeanTabFolder;
 import org.jowidgets.cap.ui.api.widgets.IBeanTabFolderBluePrint;
 import org.jowidgets.common.types.IVetoable;
+import org.jowidgets.i18n.api.IMessage;
 import org.jowidgets.tools.widgets.blueprint.BPF;
 import org.jowidgets.tools.widgets.wrapper.TabFolderWrapper;
 import org.jowidgets.util.ITypedKey;
 
 @SuppressWarnings("rawtypes")
 final class BeanTabFolderImpl<BEAN_TYPE> extends TabFolderWrapper implements IBeanTabFolder<BEAN_TYPE> {
+
+	private static final IMessage DUMMY_BEAN_LABEL = Messages.getMessage("BeanTabFolderImpl.dummy_bean_label");
+	private static final IMessage DUMMY_BEAN_DESCRIPTION = Messages.getMessage("BeanTabFolderImpl.dummy_bean_description");
 
 	private final ITabFolder tabFolder;
 	private final IBeanTabFolderModel<BEAN_TYPE> model;
@@ -69,14 +73,8 @@ final class BeanTabFolderImpl<BEAN_TYPE> extends TabFolderWrapper implements IBe
 	private final TabFolderSelectionListener tabFolderSelectionListener;
 	private final ModelSelectionListener modelSelectionListener;
 
-	private final String dummyBeanLabel;
-	private final String dummyBeanDecription;
-
 	BeanTabFolderImpl(final ITabFolder tabFolder, final IBeanTabFolderBluePrint<BEAN_TYPE> bluePrint) {
 		super(tabFolder);
-
-		this.dummyBeanLabel = Messages.getString("BeanTabFolderImpl.dummy_bean_label");
-		this.dummyBeanDecription = Messages.getString("BeanTabFolderImpl.dummy_bean_description");
 
 		this.tabFolder = tabFolder;
 		this.model = bluePrint.getModel();
@@ -170,8 +168,8 @@ final class BeanTabFolderImpl<BEAN_TYPE> extends TabFolderWrapper implements IBe
 
 	private void renderLabel(final ITabItem item, final IBeanProxy<BEAN_TYPE> bean) {
 		if (bean.isDummy()) {
-			item.setText(dummyBeanLabel);
-			item.setToolTipText(dummyBeanDecription);
+			item.setText(DUMMY_BEAN_LABEL.get());
+			item.setToolTipText(DUMMY_BEAN_DESCRIPTION.get());
 			item.setIcon(null);
 		}
 		else {

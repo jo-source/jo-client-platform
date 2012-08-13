@@ -130,6 +130,7 @@ import org.jowidgets.common.image.IImageConstant;
 import org.jowidgets.common.model.ITableCell;
 import org.jowidgets.common.types.Interval;
 import org.jowidgets.common.types.Markup;
+import org.jowidgets.i18n.api.IMessage;
 import org.jowidgets.plugin.api.IPluginProperties;
 import org.jowidgets.plugin.api.IPluginPropertiesBuilder;
 import org.jowidgets.plugin.api.PluginProvider;
@@ -150,6 +151,12 @@ import org.jowidgets.validation.IValidationConditionListener;
 import org.jowidgets.validation.IValidationResult;
 
 final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
+
+	private static final IMessage USER_CANCELED = Messages.getMessage("BeanTableModelImpl.user_canceled");
+	private static final IMessage LOAD_ERROR = Messages.getMessage("BeanTableModelImpl.load_error");
+	private static final IMessage LOADING_DATA = Messages.getMessage("BeanTableModelImpl.load_data");
+	private static final IMessage AUTO_REFRESH_HEADER = Messages.getMessage("BeanTableModelImpl.auto_refresh_header");
+	private static final IMessage AUTO_REFRESH_TEXT = Messages.getMessage("BeanTableModelImpl.auto_refresh_text");
 
 	private static final int INNER_PAGE_LOAD_DELAY = 100;
 	private static final int AUTO_REFRESH_DELAY = 250;
@@ -208,12 +215,6 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 	private final Set<AttributeLookUpListener> lookUpListenersStrongRef;
 	private final Map<Integer, PageLoader> programmaticPageLoader;
-
-	private final String userCanceledMessage;
-	private final String loadErrorMessage;
-	private final String loadingDataLabel;
-	private final String autoRefreshHeaderLabel;
-	private final String autoRefreshTextLabel;
 
 	private final IBeanExceptionConverter exceptionConverter;
 
@@ -340,11 +341,6 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		this.disposeObservable = new DisposeObservable();
 		this.filterChangeObservable = new ChangeObservable();
 		this.programmaticPageLoader = new HashMap<Integer, PageLoader>();
-		this.userCanceledMessage = Messages.getString("BeanTableModelImpl.user_canceled");
-		this.loadErrorMessage = Messages.getString("BeanTableModelImpl.load_error");
-		this.loadingDataLabel = Messages.getString("BeanTableModelImpl.load_data");
-		this.autoRefreshHeaderLabel = Messages.getString("BeanTableModelImpl.auto_refresh_header");
-		this.autoRefreshTextLabel = Messages.getString("BeanTableModelImpl.auto_refresh_text");
 
 		this.beanPropertyValidators = new LinkedList<IBeanPropertyValidator<BEAN_TYPE>>();
 		this.beanPropertyValidatorsView = Collections.unmodifiableList(beanPropertyValidators);
@@ -2165,7 +2161,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 			dummyBeanProxy = beanProxyFactory.createDummyProxy(attributes);
 			executionTask = CapUiToolkit.executionTaskFactory().create();
-			executionTask.setDescription(loadingDataLabel);
+			executionTask.setDescription(LOADING_DATA.get());
 			executionTask.addExecutionCallbackListener(new AbstractUiExecutionCallbackListener() {
 				@Override
 				public void canceledUi() {
@@ -2386,7 +2382,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			//CHECKSTYLE:ON
 			dummyBeanProxy.setExecutionTask(null);
 			final List<IBeanProxy<BEAN_TYPE>> dummyBeanList = Collections.singletonList(dummyBeanProxy);
-			dummyBeanProxy.addMessage(exceptionConverter.convert(loadErrorMessage, dummyBeanList, dummyBeanProxy, exception));
+			dummyBeanProxy.addMessage(exceptionConverter.convert(LOAD_ERROR.get(), dummyBeanList, dummyBeanProxy, exception));
 			programmaticPageLoader.remove(pageIndex);
 			finished = true;
 			dataModel.fireDataChanged();
@@ -2414,8 +2410,8 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			}
 			dummyBeanProxy.setExecutionTask(null);
 			final IBeanMessageBuilder beanMessageBuilder = CapUiToolkit.beanMessageBuilder(BeanMessageType.WARNING);
-			beanMessageBuilder.setShortMessage(loadingDataLabel);
-			beanMessageBuilder.setMessage(userCanceledMessage);
+			beanMessageBuilder.setShortMessage(LOADING_DATA.get());
+			beanMessageBuilder.setMessage(USER_CANCELED.get());
 			dummyBeanProxy.addMessage(beanMessageBuilder.build());
 			programmaticPageLoader.remove(pageIndex);
 			finished = true;
@@ -2469,7 +2465,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			started = true;
 
 			executionTask = CapUiToolkit.executionTaskFactory().create();
-			executionTask.setDescription(loadingDataLabel);
+			executionTask.setDescription(LOADING_DATA.get());
 			executionTask.addExecutionCallbackListener(new AbstractUiExecutionCallbackListener() {
 				@Override
 				public void canceledUi() {
@@ -2693,7 +2689,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 									if (!EmptyCheck.isEmpty(modifications)) {
 										selected.setModifications(modifications);
 									}
-									Toolkit.getMessagePane().showInfo(autoRefreshHeaderLabel, autoRefreshTextLabel);
+									Toolkit.getMessagePane().showInfo(AUTO_REFRESH_HEADER.get(), AUTO_REFRESH_TEXT.get());
 								}
 							}
 						};

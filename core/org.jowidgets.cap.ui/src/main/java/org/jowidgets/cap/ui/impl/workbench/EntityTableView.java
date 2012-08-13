@@ -37,13 +37,14 @@ import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
+import org.jowidgets.i18n.api.IMessage;
 import org.jowidgets.tools.layout.MigLayoutFactory;
 import org.jowidgets.workbench.api.IViewContext;
 import org.jowidgets.workbench.tools.AbstractView;
 
 public class EntityTableView extends AbstractView {
 
-	private final String addLabel = Messages.getString("EntityTableView.add"); //$NON-NLS-1$
+	private static final IMessage ADD = Messages.getMessage("EntityTableView.add"); //$NON-NLS-1$
 
 	public EntityTableView(
 		final IViewContext context,
@@ -64,7 +65,7 @@ public class EntityTableView extends AbstractView {
 	private void addLinkActions(final IBeanTable<?> table, final Collection<IAction> actions) {
 		IMenuModel menu = table.getCellPopMenu();
 		if (actions.size() > 3) {
-			menu = menu.addMenu(addLabel);
+			menu = menu.addMenu(ADD.get());
 		}
 		for (final IAction action : actions) {
 			menu.addAction(action);

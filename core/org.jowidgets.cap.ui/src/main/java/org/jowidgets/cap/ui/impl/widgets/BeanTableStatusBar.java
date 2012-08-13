@@ -42,25 +42,25 @@ import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.common.widgets.controller.IItemStateListener;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
+import org.jowidgets.i18n.api.IMessage;
 import org.jowidgets.tools.message.MessageReplacer;
 import org.jowidgets.tools.widgets.blueprint.BPF;
 import org.jowidgets.util.EmptyCheck;
 
 final class BeanTableStatusBar<BEAN_TYPE> {
 
+	private static final IMessage MESSAGE_SELECTION = Messages.getMessage("BeanTableStatusBar.row_n_of_n");
+	private static final IMessage MESSAGE_NO_SELECTION = Messages.getMessage("BeanTableStatusBar.n_rows");
+
 	private final IComposite composite;
 	private final IBeanTableModel<BEAN_TYPE> model;
 	private final IComposite statusbar;
 	private final ICheckedItemModel statusBarItemModel;
 	private final IItemStateListener statusBarItemListener;
-	private final String messageSelection;
-	private final String messageNoSelection;
 
 	BeanTableStatusBar(final IComposite composite, final BeanTableImpl<BEAN_TYPE> table) {
 		this.composite = composite;
 		this.model = table.getModel();
-		this.messageSelection = Messages.getString("BeanTableStatusBar.row_n_of_n");
-		this.messageNoSelection = Messages.getString("BeanTableStatusBar.n_rows");
 
 		this.statusbar = composite.add(2, BPF.composite(), "growx, w 0::");
 		statusbar.setLayout(new MigLayoutDescriptor("3[]1", "3[]0"));
@@ -100,10 +100,10 @@ final class BeanTableStatusBar<BEAN_TYPE> {
 	private String getStatusBarText() {
 		final ArrayList<Integer> selection = model.getSelection();
 		if (!EmptyCheck.isEmpty(selection)) {
-			return MessageReplacer.replace(messageSelection, "" + (selection.get(0).intValue() + 1), "" + model.getSize());
+			return MessageReplacer.replace(MESSAGE_SELECTION.get(), "" + (selection.get(0).intValue() + 1), "" + model.getSize());
 		}
 		else {
-			return MessageReplacer.replace(messageNoSelection, "" + model.getSize());
+			return MessageReplacer.replace(MESSAGE_NO_SELECTION.get(), "" + model.getSize());
 		}
 	}
 

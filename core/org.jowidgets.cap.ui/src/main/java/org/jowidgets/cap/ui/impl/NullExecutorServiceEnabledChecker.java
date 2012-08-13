@@ -31,15 +31,16 @@ package org.jowidgets.cap.ui.impl;
 import org.jowidgets.api.command.EnabledState;
 import org.jowidgets.api.command.IEnabledChecker;
 import org.jowidgets.api.command.IEnabledState;
+import org.jowidgets.i18n.api.IMessage;
 import org.jowidgets.util.event.IChangeListener;
 
 public class NullExecutorServiceEnabledChecker implements IEnabledChecker {
 
-	private final String serviceNotAvailable = Messages.getString("NullExecutorServiceEnabledChecker.serviceNotAvailable");
+	private static final IMessage SERVICE_NOT_AVAILABLE = Messages.getMessage("NullExecutorServiceEnabledChecker.serviceNotAvailable");
 
 	@Override
 	public IEnabledState getEnabledState() {
-		return EnabledState.disabled(serviceNotAvailable);
+		return EnabledState.disabled(SERVICE_NOT_AVAILABLE.get());
 	}
 
 	@Override

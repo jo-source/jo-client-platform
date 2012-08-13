@@ -77,6 +77,7 @@ import org.jowidgets.cap.ui.api.model.LinkType;
 import org.jowidgets.cap.ui.api.plugin.IAttributePlugin;
 import org.jowidgets.cap.ui.tools.execution.AbstractUiResultCallback;
 import org.jowidgets.cap.ui.tools.model.ProcessStateObservable;
+import org.jowidgets.i18n.api.IMessage;
 import org.jowidgets.plugin.api.IPluginProperties;
 import org.jowidgets.plugin.api.IPluginPropertiesBuilder;
 import org.jowidgets.plugin.api.PluginProvider;
@@ -91,8 +92,8 @@ import org.jowidgets.validation.IValidationResult;
 
 final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE> {
 
-	private final String loadErrorMessage;
-	private final String loadingDataLabel;
+	private static final IMessage LOAD_ERROR = Messages.getMessage("BeanTableModelImpl.load_error");
+	private static final IMessage LOADING_DATA = Messages.getMessage("BeanTableModelImpl.load_data");
 
 	private final Class<BEAN_TYPE> beanType;
 	private final Object entityId;
@@ -146,9 +147,6 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 		Assert.paramNotNull(exceptionConverter, "exceptionConverter");
 		Assert.paramNotNull(beanValidators, "beanValidators");
 		Assert.paramNotNull(attributes, "attributes");
-
-		this.loadErrorMessage = Messages.getString("BeanTableModelImpl.load_error");
-		this.loadingDataLabel = Messages.getString("BeanTableModelImpl.load_data");
 
 		if (parent != null) {
 			Assert.paramNotNull(linkType, "linkType");
@@ -603,7 +601,7 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 			}
 
 			executionTask = CapUiToolkit.executionTaskFactory().create();
-			executionTask.setDescription(loadingDataLabel);
+			executionTask.setDescription(LOADING_DATA.get());
 			executionTask.addExecutionCallbackListener(new IExecutionCallbackListener() {
 				@Override
 				public void canceled() {
@@ -690,8 +688,8 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 		private void setException(final Throwable exception) {
 			final IBeanMessageBuilder beanMessageBuilder = CapUiToolkit.beanMessageBuilder(BeanMessageType.ERROR);
 			beanMessageBuilder.setException(exception);
-			beanMessageBuilder.setShortMessage(loadingDataLabel);
-			beanMessageBuilder.setMessage(loadErrorMessage);
+			beanMessageBuilder.setShortMessage(LOADING_DATA.get());
+			beanMessageBuilder.setMessage(LOAD_ERROR.get());
 			final IBeanMessage message = beanMessageBuilder.build();
 
 			if (dummyBean != null) {

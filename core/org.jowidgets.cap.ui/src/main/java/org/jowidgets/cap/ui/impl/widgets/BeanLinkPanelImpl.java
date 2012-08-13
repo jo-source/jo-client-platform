@@ -61,6 +61,7 @@ import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
 import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
+import org.jowidgets.i18n.api.IMessage;
 import org.jowidgets.tools.layout.MigLayoutFactory;
 import org.jowidgets.tools.widgets.blueprint.BPF;
 import org.jowidgets.tools.widgets.wrapper.AbstractInputControl;
@@ -75,10 +76,11 @@ final class BeanLinkPanelImpl<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> extends
 		IBeanLinkPanel<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> {
 
 	private static final String BEAN_LINK_SEARCH_FILTER_ID = "BEAN_LINK_SEARCH_FILTER_ID";
-	private static final int LOAD_DELAY = 400;
 
-	private final String selectDataset = Messages.getString("BeanLinkPanelImpl.selectDataset");
-	private final String selectOrInputDataset = Messages.getString("BeanLinkPanelImpl.selectOrInputDataset");
+	private static final IMessage SELECT_DATASET = Messages.getMessage("BeanLinkPanelImpl.selectDataset");
+	private static final IMessage SELECT_OR_INPUT_DATASET = Messages.getMessage("BeanLinkPanelImpl.selectOrInputDataset");
+
+	private static final int LOAD_DELAY = 400;
 
 	private final BeanFilterListener beanFilterListener;
 
@@ -242,10 +244,10 @@ final class BeanLinkPanelImpl<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> extends
 			if (linkableForm != null) {
 				if (!linkableForm.hasModifications()) {
 					if (linkableTable != null) {
-						builder.addInfoError(selectOrInputDataset);
+						builder.addInfoError(SELECT_OR_INPUT_DATASET.get());
 					}
 					else {
-						builder.addInfoError(selectDataset);
+						builder.addInfoError(SELECT_DATASET.get());
 					}
 				}
 				else {
@@ -253,7 +255,7 @@ final class BeanLinkPanelImpl<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> extends
 				}
 			}
 			else if (linkableTable != null) {
-				builder.addInfoError(selectDataset);
+				builder.addInfoError(SELECT_DATASET.get());
 			}
 		}
 		if (linkForm != null) {

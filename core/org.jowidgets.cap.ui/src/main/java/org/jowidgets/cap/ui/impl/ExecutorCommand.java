@@ -57,6 +57,7 @@ import org.jowidgets.cap.ui.api.execution.IExecutionTask;
 import org.jowidgets.cap.ui.api.execution.IExecutor;
 import org.jowidgets.cap.ui.api.execution.IParameterProvider;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
+import org.jowidgets.i18n.api.IMessage;
 import org.jowidgets.tools.message.MessageReplacer;
 import org.jowidgets.util.ValueHolder;
 import org.jowidgets.util.maybe.IMaybe;
@@ -66,7 +67,7 @@ import org.jowidgets.util.maybe.Some;
 @SuppressWarnings({"rawtypes", "unchecked"})
 final class ExecutorCommand implements ICommand, ICommandExecutor {
 
-	private final String shortErrorMessage = Messages.getString("ExecutorCommand.short_error_message");
+	private static final IMessage SHORT_ERROR = Messages.getMessage("ExecutorCommand.short_error_message");
 
 	private final BeanSelectionProviderEnabledChecker enabledChecker;
 
@@ -162,7 +163,7 @@ final class ExecutorCommand implements ICommand, ICommandExecutor {
 
 	private String getShortErrorMessage(final IExecutionContext executionContext) {
 		final String actionText = executionContext.getAction().getText().replaceAll("\\.", "").trim();
-		return MessageReplacer.replace(shortErrorMessage, actionText);
+		return MessageReplacer.replace(SHORT_ERROR.get(), actionText);
 	}
 
 	private class Execution {
