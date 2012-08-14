@@ -202,13 +202,13 @@ final class BeanLinkDeleterCommand<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> implement
 	private String getConfirmationMessage(final int selectionCount) {
 		final StringBuilder result = new StringBuilder();
 		if (selectionCount == 1) {
-			result.append(SINGLE_DELETION_CONFIRM);
+			result.append(SINGLE_DELETION_CONFIRM.get());
 		}
 		else {
 			result.append(MessageReplacer.replace(MULTI_DELETION_CONFIRM.get(), "" + selectionCount));
 		}
 		result.append("\n");
-		result.append(CAN_NOT_BE_UNDONE);
+		result.append(CAN_NOT_BE_UNDONE.get());
 		return result.toString();
 	}
 
