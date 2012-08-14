@@ -48,7 +48,7 @@ public final class GraphBPF {
 		final IBeanRelationGraphBluePrint<CHILD_BEAN_TYPE> result;
 		result = Toolkit.getBluePrintFactory().bluePrint(IBeanRelationGraphBluePrint.class);
 		result.setModel(model);
-		return Toolkit.getBluePrintFactory().bluePrint(IBeanRelationGraphBluePrint.class);
+		return result;
 	}
 
 }
