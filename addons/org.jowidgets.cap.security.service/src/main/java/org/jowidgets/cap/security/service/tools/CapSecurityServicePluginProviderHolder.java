@@ -33,7 +33,7 @@ import org.jowidgets.plugin.tools.PluginProviderHolder;
 public final class CapSecurityServicePluginProviderHolder extends PluginProviderHolder {
 
 	public CapSecurityServicePluginProviderHolder() {
-		super(new CapSecurityServicePluginProviderBuilder(), 2);
+		super(new CapSecurityServicePluginProviderBuilder(), Integer.MAX_VALUE);
 	}
 
 }

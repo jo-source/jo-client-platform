@@ -52,7 +52,7 @@ public interface ICapSecurityCommonToolkit {
 
 	/**
 	 * Gets the default authorization checker. The default authorization checker uses the default security
-	 * context and assumes that the context holder hold an IDefaultPrincipal. In other cases, class cast exceptions
+	 * context and assumes that the context holder hold an IPrincipal. In other cases, class cast exceptions
 	 * will occur on authorization checking
 	 * 
 	 * @return The default authorization checker, never null

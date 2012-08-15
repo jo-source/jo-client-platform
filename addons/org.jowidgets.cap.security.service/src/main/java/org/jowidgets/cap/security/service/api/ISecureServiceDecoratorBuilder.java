@@ -48,7 +48,7 @@ public interface ISecureServiceDecoratorBuilder<AUTHORIZATION_TYPE> {
 	 * Sets the authorization checker. If no checker will be set, an default checker will be used, that gets the
 	 * authorizations from the security context.
 	 * 
-	 * Remark: The default (not setting this explicit) only works, if the default context uses the IDefaultPrincipal
+	 * Remark: The default (not setting this explicit) only works, if the default context uses the IPrincipal
 	 * 
 	 * @param checker The checker to add
 	 * 
