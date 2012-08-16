@@ -161,7 +161,7 @@ final class BeanServicesProviderImpl implements IBeanServicesProvider, Serializa
 		for (final IServiceIdDecoratorPlugin plugin : PluginProvider.getPlugins(
 				IServiceIdDecoratorPlugin.ID,
 				propertiesBuilder.build())) {
-			result = plugin.decorateServiceId(defaultId, entityServiceId, beanType, entityId, serviceType);
+			result = plugin.decorateServiceId(result, entityServiceId, beanType, entityId, serviceType);
 		}
 
 		return result;
