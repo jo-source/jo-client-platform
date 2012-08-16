@@ -150,6 +150,7 @@ final class BeanRelationTreeModelBuilderImpl<CHILD_BEAN_TYPE> extends
 			new EntityTypeIdImpl<CHILD_BEAN_TYPE>(getEntityId(), getBeanType()),
 			getChildRenderer(),
 			new LinkedList<IEntityTypeId<Object>>(getChildRelations()),
+			getPageSize(),
 			getReaderService(),
 			getReaderParameterProvider(),
 			getCreatorService(),

@@ -59,6 +59,7 @@ class BeanRelationNodeModelBuilder<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE, INSTANCE_T
 			childEntityType,
 			getChildRenderer(),
 			new LinkedList<IEntityTypeId<Object>>(getChildRelations()),
+			getPageSize(),
 			getReaderService(),
 			getReaderParameterProvider(),
 			getCreatorService(),

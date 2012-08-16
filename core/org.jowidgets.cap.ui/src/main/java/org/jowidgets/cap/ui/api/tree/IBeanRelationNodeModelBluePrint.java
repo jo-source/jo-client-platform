@@ -59,6 +59,8 @@ public interface IBeanRelationNodeModelBluePrint<CHILD_BEAN_TYPE, INSTANCE_TYPE>
 
 	INSTANCE_TYPE setDefaultSort(Collection<? extends ISort> defaultSort);
 
+	INSTANCE_TYPE setPageSize(int pageSize);
+
 	IBeanProxyLabelRenderer<CHILD_BEAN_TYPE> getChildRenderer();
 
 }

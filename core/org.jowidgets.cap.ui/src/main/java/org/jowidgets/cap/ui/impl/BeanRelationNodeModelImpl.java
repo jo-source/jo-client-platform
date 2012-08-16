@@ -96,8 +96,6 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 	private static final IMessage LOAD_ERROR_MESSAGE = Messages.getMessage("BeanRelationNodeModelImpl.load_error");
 	private static final IMessage LOADING_DATA_LABEL = Messages.getMessage("BeanRelationNodeModelImpl.load_data");
 
-	private static final int MAX_CHILDREN = 200;
-
 	private final ILabelModel label;
 
 	private final IEntityTypeId<PARENT_BEAN_TYPE> parentEntityTypeId;
@@ -129,10 +127,9 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 	private final BeanSelectionObservable<CHILD_BEAN_TYPE> beanSelectionObservable;
 	private final IBeansStateTracker<CHILD_BEAN_TYPE> beanStateTracker;
 	private final IBeanProxyFactory<CHILD_BEAN_TYPE> beanProxyFactory;
-
 	private final BeanListSaveDelegate<CHILD_BEAN_TYPE> saveDelegate;
-
 	private final ArrayList<IBeanProxy<CHILD_BEAN_TYPE>> data;
+	private final int pageSize;
 
 	private ArrayList<Integer> selection;
 	private DataLoader dataLoader;
@@ -146,6 +143,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 		final IEntityTypeId<CHILD_BEAN_TYPE> childEntityTypeId,
 		final IBeanProxyLabelRenderer<CHILD_BEAN_TYPE> childRenderer,
 		final List<IEntityTypeId<Object>> childRelations,
+		final int pageSize,
 		final IReaderService<? extends Object> readerService,
 		final IProvider<? extends Object> readerParameterProvider,
 		final ICreatorService creatorService,
@@ -179,6 +177,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 		this.childRenderer = getPluginDecoratedRenderer(childEntityId, childBeanType, childRenderer);
 		this.childRelations = new LinkedList<IEntityTypeId<Object>>(childRelations);
 		this.readerService = (IReaderService<Object>) readerService;
+		this.pageSize = pageSize;
 		this.readerParameterProvider = (IProvider<Object>) readerParameterProvider;
 		this.creatorService = creatorService;
 		this.refreshService = refreshService;
@@ -680,7 +679,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 					filter,
 					sorting,
 					0,
-					MAX_CHILDREN,
+					pageSize,
 					readerParameterProvider.get(),
 					executionTask);
 			fireBeansChanged();
