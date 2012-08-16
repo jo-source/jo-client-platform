@@ -49,6 +49,8 @@ class BeanRelationNodeModelBluePrint<CHILD_BEAN_TYPE, INSTANCE_TYPE> extends
 		AbstractBeanModelBuilderImpl<CHILD_BEAN_TYPE, INSTANCE_TYPE> implements
 		IBeanRelationNodeModelBluePrint<CHILD_BEAN_TYPE, INSTANCE_TYPE> {
 
+	private static final int DEFAULT_PAGE_SIZE = 500;
+
 	private final List<IEntityTypeId<Object>> childRelations;
 	private final List<ISort> defaultSort;
 
@@ -56,11 +58,13 @@ class BeanRelationNodeModelBluePrint<CHILD_BEAN_TYPE, INSTANCE_TYPE> extends
 	private String description;
 	private IImageConstant icon;
 	private IBeanProxyLabelRenderer<CHILD_BEAN_TYPE> childRenderer;
+	private int pageSize;
 
 	BeanRelationNodeModelBluePrint(final Object entityId, final Class<CHILD_BEAN_TYPE> beanType) {
 		super(entityId, beanType);
 		this.childRelations = new LinkedList<IEntityTypeId<Object>>();
 		this.defaultSort = new LinkedList<ISort>();
+		this.pageSize = DEFAULT_PAGE_SIZE;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -88,6 +92,13 @@ class BeanRelationNodeModelBluePrint<CHILD_BEAN_TYPE, INSTANCE_TYPE> extends
 	@Override
 	public INSTANCE_TYPE setChildRenderer(final IBeanProxyLabelRenderer<CHILD_BEAN_TYPE> renderer) {
 		this.childRenderer = renderer;
+		return (INSTANCE_TYPE) this;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public INSTANCE_TYPE setPageSize(final int pageSize) {
+		this.pageSize = pageSize;
 		return (INSTANCE_TYPE) this;
 	}
 
@@ -163,6 +174,10 @@ class BeanRelationNodeModelBluePrint<CHILD_BEAN_TYPE, INSTANCE_TYPE> extends
 
 	protected List<ISort> getDefaultSort() {
 		return defaultSort;
+	}
+
+	protected int getPageSize() {
+		return pageSize;
 	}
 
 }
