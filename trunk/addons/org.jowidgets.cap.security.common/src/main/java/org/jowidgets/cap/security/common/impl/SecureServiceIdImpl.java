@@ -33,9 +33,11 @@ import java.io.Serializable;
 import org.jowidgets.cap.security.common.api.ISecureServiceId;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.wrapper.IWrapper;
 
 final class SecureServiceIdImpl<SERVICE_TYPE, AUTHORIZATION_TYPE> implements
 		ISecureServiceId<SERVICE_TYPE, AUTHORIZATION_TYPE>,
+		IWrapper<IServiceId<SERVICE_TYPE>>,
 		Serializable {
 
 	private static final long serialVersionUID = -5942074317483952205L;
@@ -95,6 +97,11 @@ final class SecureServiceIdImpl<SERVICE_TYPE, AUTHORIZATION_TYPE> implements
 	@Override
 	public String toString() {
 		return "SecureServiceIdImpl [serviceId=" + serviceId + ", authorization=" + authorization + "]";
+	}
+
+	@Override
+	public IServiceId<SERVICE_TYPE> unwrap() {
+		return serviceId;
 	}
 
 }
