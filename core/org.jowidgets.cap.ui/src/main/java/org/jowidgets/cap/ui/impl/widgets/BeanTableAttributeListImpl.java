@@ -1698,17 +1698,8 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 	}
 
 	private static boolean hasShortAndLongLabel(final IAttribute<?> attribute) {
-		return ((attribute.getLabelLong() != null) && (!attribute.getLabelLong().equals(attribute.getLabel())));
+		return ((attribute.getLabelLong().get() != null) && (!attribute.getLabelLong().get().equals(attribute.getLabel().get())));
 	}
-
-	//	private static String getDisplayFormatNameById(final Object id, final IAttribute<?> attribute) {
-	//		for (final IControlPanelProvider<?> provider : attribute.getControlPanels()) {
-	//			if (provider.getDisplayFormat().getId().equals(id)) {
-	//				return provider.getDisplayFormat().getName();
-	//			}
-	//		}
-	//		return null;
-	//	}
 
 	private class ComboBox<TYPE> extends ComboBoxWrapper<TYPE> {
 		private final InputObservable inputObservable = new InputObservable();

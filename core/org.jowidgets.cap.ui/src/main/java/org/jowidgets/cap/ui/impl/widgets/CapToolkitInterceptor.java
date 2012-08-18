@@ -91,6 +91,8 @@ final class CapToolkitInterceptor implements IToolkitInterceptor {
 		registry.registerImageConstant(CapIcons.TABLE_HIDE_COLUMN, IconsSmall.SUB);
 		registry.registerImageConstant(CapIcons.TABLE_UNHIDE_ALL_COLUMNS, IconsSmall.ADD_ALL);
 		registry.registerImageConstant(CapIcons.TABLE_SETTINGS, IconsSmall.SETTINGS);
+		registry.registerImageConstant(CapIcons.ADD_LINK, IconsSmall.ADD);
+		registry.registerImageConstant(CapIcons.REMOVE_LINK, IconsSmall.SUB);
 	}
 
 	private void addDefaultsInitializer(final IToolkit toolkit) {

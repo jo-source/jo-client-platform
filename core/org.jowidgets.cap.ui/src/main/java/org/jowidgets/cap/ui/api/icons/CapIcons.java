@@ -33,6 +33,8 @@ public enum CapIcons implements IImageConstant {
 
 	TABLE_HIDE_COLUMN,
 	TABLE_UNHIDE_ALL_COLUMNS,
-	TABLE_SETTINGS;
+	TABLE_SETTINGS,
+	ADD_LINK,
+	REMOVE_LINK;
 
 }
