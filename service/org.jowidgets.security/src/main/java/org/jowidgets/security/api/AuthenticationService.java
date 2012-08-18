@@ -36,12 +36,12 @@ import org.jowidgets.security.tools.DefaultPrincipal;
 @SuppressWarnings({"rawtypes", "unchecked"})
 public final class AuthenticationService {
 
-	private static final IAuthenticationService AUTHENTICATION_SERVICE = createAuthenticationService();
+	private static final IAuthenticationService INSTANCE = createAuthenticationService();
 
 	private AuthenticationService() {}
 
 	public static <PRINCIPAL_TYPE, CREDENTIAL_TYPE> IAuthenticationService<PRINCIPAL_TYPE, CREDENTIAL_TYPE> getAuthenticationService() {
-		return AUTHENTICATION_SERVICE;
+		return INSTANCE;
 	}
 
 	public static <PRINCIPAL_TYPE, CREDENTIAL_TYPE> PRINCIPAL_TYPE authenticate(final CREDENTIAL_TYPE credentials) {

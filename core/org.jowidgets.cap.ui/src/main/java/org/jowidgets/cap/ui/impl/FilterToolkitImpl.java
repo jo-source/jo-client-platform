@@ -44,6 +44,7 @@ import org.jowidgets.cap.ui.api.attribute.IAttributeFilter;
 import org.jowidgets.cap.ui.api.attribute.IControlPanelProviderBuilder;
 import org.jowidgets.cap.ui.api.filter.IFilterPanelProvider;
 import org.jowidgets.cap.ui.api.filter.IFilterSupport;
+import org.jowidgets.cap.ui.api.filter.IFilterSupportBuilder;
 import org.jowidgets.cap.ui.api.filter.IFilterToolkit;
 import org.jowidgets.cap.ui.api.filter.IIncludingFilterFactory;
 import org.jowidgets.cap.ui.api.filter.IOperatorProvider;
@@ -98,6 +99,11 @@ final class FilterToolkitImpl implements IFilterToolkit {
 		final Class<? extends VALUE_TYPE> type,
 		final Cardinality cardinality) {
 		return new DefaultIncludingFilterFactory<VALUE_TYPE>(propertyName, type, cardinality);
+	}
+
+	@Override
+	public <ELEMENT_VALUE_TYPE> IFilterSupportBuilder<ELEMENT_VALUE_TYPE> filterSupportBuilder() {
+		return new FilterSupportBuilderImpl<ELEMENT_VALUE_TYPE>();
 	}
 
 	@Override

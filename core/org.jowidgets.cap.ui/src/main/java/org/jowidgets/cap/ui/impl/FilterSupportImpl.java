@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,19 +26,40 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample2.app.service.util;
+package org.jowidgets.cap.ui.impl;
 
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 
-public final class SampleDataGeneratorStarter {
+import org.jowidgets.cap.common.api.filter.IOperator;
+import org.jowidgets.cap.ui.api.filter.IFilterPanelProvider;
+import org.jowidgets.cap.ui.api.filter.IFilterSupport;
+import org.jowidgets.cap.ui.api.filter.IIncludingFilterFactory;
+import org.jowidgets.util.Assert;
 
-	private SampleDataGeneratorStarter() {}
+final class FilterSupportImpl<ELEMENT_VALUE_TYPE> implements IFilterSupport<ELEMENT_VALUE_TYPE> {
 
-	public static void main(final String[] args) {
-		final EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("sample2PersistenceUnit");
-		final SampleDataGenerator sampleDataGenerator = new SampleDataGenerator();
-		sampleDataGenerator.dropAndCreateAllData(entityManagerFactory, 10, 1000);
+	private final List<IFilterPanelProvider<IOperator>> providers;
+	private final IIncludingFilterFactory<ELEMENT_VALUE_TYPE> includingFilterFactory;
+
+	FilterSupportImpl(
+		final List<IFilterPanelProvider<IOperator>> providers,
+		final IIncludingFilterFactory<ELEMENT_VALUE_TYPE> includingFilterFactory) {
+		Assert.paramNotNull(providers, "providers");
+		Assert.paramNotNull(includingFilterFactory, "includingFilterFactory");
+		this.providers = Collections.unmodifiableList(new LinkedList<IFilterPanelProvider<IOperator>>(providers));
+		this.includingFilterFactory = includingFilterFactory;
+	}
+
+	@Override
+	public List<IFilterPanelProvider<IOperator>> getFilterPanels() {
+		return providers;
+	}
+
+	@Override
+	public IIncludingFilterFactory<ELEMENT_VALUE_TYPE> getIncludingFilterFactory() {
+		return includingFilterFactory;
 	}
 
 }

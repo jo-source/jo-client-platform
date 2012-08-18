@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2011, nimoll
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,19 +26,25 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample2.app.service.util;
+package org.jowidgets.cap.tools.starter.standalone.common;
 
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
+import org.jowidgets.i18n.api.IMessage;
+import org.jowidgets.i18n.api.IMessageProvider;
+import org.jowidgets.i18n.api.MessageProvider;
 
-public final class SampleDataGeneratorStarter {
+public final class Messages {
 
-	private SampleDataGeneratorStarter() {}
+	private static final IMessageProvider MESSAGE_PROVIDER = MessageProvider.create(
+			"org.jowidgets.cap.tools.starter.standalone.common.messages",
+			Messages.class);
 
-	public static void main(final String[] args) {
-		final EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("sample2PersistenceUnit");
-		final SampleDataGenerator sampleDataGenerator = new SampleDataGenerator();
-		sampleDataGenerator.dropAndCreateAllData(entityManagerFactory, 10, 1000);
+	private Messages() {}
+
+	public static String getString(final String key) {
+		return MESSAGE_PROVIDER.getString(key);
 	}
 
+	public static IMessage getMessage(final String key) {
+		return MESSAGE_PROVIDER.getMessage(key);
+	}
 }
