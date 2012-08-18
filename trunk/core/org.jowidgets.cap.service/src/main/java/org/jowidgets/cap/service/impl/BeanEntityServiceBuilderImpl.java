@@ -710,15 +710,10 @@ final class BeanEntityServiceBuilderImpl extends EntityServiceBuilderImpl implem
 		}
 
 		IEntityLinkDescriptor build(final Map<Object, BeanEntityPreBuild> prebuilds) {
-			if (sourceProperties == null || linkEntityId == null || linkedEntityId == null) {
-				throw new IllegalStateException("Missiing mandatory parameters: sourceProperties='"
-					+ sourceProperties
-					+ "', destinationProperties = '"
-					+ destinationProperties
-					+ "', linkEntityId = '"
+			if (linkedEntityId == null) {
+				throw new IllegalStateException("Missing mandatory parameters: "
+					+ "linkEntityId = '"
 					+ linkEntityId
-					+ "', linkableEntityId = '"
-					+ linkableEntityId
 					+ "', linkedEntityId = '"
 					+ linkedEntityId);
 			}
@@ -732,7 +727,7 @@ final class BeanEntityServiceBuilderImpl extends EntityServiceBuilderImpl implem
 					builder.setLinkCreatorService(creatorService.getValue());
 				}
 			}
-			else {
+			else if (sourceProperties != null) {
 				builder.setLinkCreatorService(createCreatorService(prebuilds));
 			}
 			if (deleterService != null) {
@@ -740,7 +735,7 @@ final class BeanEntityServiceBuilderImpl extends EntityServiceBuilderImpl implem
 					builder.setLinkDeleterService(deleterService.getValue());
 				}
 			}
-			else {
+			else if (sourceProperties != null) {
 				builder.setLinkDeleterService(createDeleterService(prebuilds));
 			}
 			return builder.build();

@@ -53,7 +53,6 @@ final class EntityLinkDescriptorBuilderImpl implements IEntityLinkDescriptorBuil
 
 	@Override
 	public IEntityLinkDescriptorBuilder setLinkEntityId(final Object id) {
-		Assert.paramNotNull(id, "id");
 		this.linkEntityId = id;
 		return this;
 	}
@@ -73,7 +72,6 @@ final class EntityLinkDescriptorBuilderImpl implements IEntityLinkDescriptorBuil
 
 	@Override
 	public IEntityLinkDescriptorBuilder setSourceProperties(final IEntityLinkProperties properties) {
-		Assert.paramNotNull(properties, "properties");
 		this.sourceProperties = properties;
 		return this;
 	}
