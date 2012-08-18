@@ -167,12 +167,12 @@ final class BeanTableMenuFactoryImpl<BEAN_TYPE> implements IBeanTableMenuFactory
 	@Override
 	public IMenuModel headerFormatMenu(final IBeanTableModel<BEAN_TYPE> model, final int columnIndex) {
 		Assert.paramNotNull(model, "model");
-		if (EmptyCheck.isEmpty(model.getAttribute(columnIndex).getLabelLong())) {
+		if (EmptyCheck.isEmpty(model.getAttribute(columnIndex).getLabelLong().get())) {
 			return null;
 		}
 		else if (NullCompatibleEquivalence.equals(
-				model.getAttribute(columnIndex).getLabel(),
-				model.getAttribute(columnIndex).getLabelLong())) {
+				model.getAttribute(columnIndex).getLabel().get(),
+				model.getAttribute(columnIndex).getLabelLong().get())) {
 			return null;
 		}
 		else {
