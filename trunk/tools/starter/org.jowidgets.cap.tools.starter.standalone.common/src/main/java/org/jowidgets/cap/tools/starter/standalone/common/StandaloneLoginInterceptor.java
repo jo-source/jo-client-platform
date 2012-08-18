@@ -62,17 +62,17 @@ public class StandaloneLoginInterceptor implements ILoginInterceptor {
 					});
 				}
 				catch (final InterruptedException e) {
-					resultCallback.denied("Error on setting security context");
+					resultCallback.denied(Messages.getString("StandaloneLoginInterceptor.error_on_login"));
 					throw new RuntimeException("Error on setting security context", e);
 				}
 				resultCallback.granted();
 			}
 			else {
-				resultCallback.denied("User not authorized");
+				resultCallback.denied(Messages.getString("StandaloneLoginInterceptor.login_failed"));
 			}
 		}
 		else {
-			resultCallback.denied("Login incorrect");
+			resultCallback.denied(Messages.getString("StandaloneLoginInterceptor.login_failed"));
 		}
 	}
 

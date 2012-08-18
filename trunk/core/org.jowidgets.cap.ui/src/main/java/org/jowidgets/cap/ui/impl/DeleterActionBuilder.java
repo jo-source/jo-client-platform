@@ -198,7 +198,7 @@ final class DeleterActionBuilder<BEAN_TYPE> extends AbstractCapActionBuilderImpl
 
 	private void setDefaultTextIfNecessary() {
 		if (EmptyCheck.isEmpty(getText())) {
-			if (!EmptyCheck.isEmpty(entityLabelSingular) && !multiSelection) {
+			if (!EmptyCheck.isEmpty(entityLabelSingular)) {
 				final String message = Messages.getString("DeleterActionBuilder.delete_single_var");
 				setText(MessageReplacer.replace(message, entityLabelSingular));
 			}

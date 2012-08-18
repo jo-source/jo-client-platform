@@ -26,19 +26,16 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample2.app.service.util;
+package org.jowidgets.cap.ui.api.filter;
 
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
+import org.jowidgets.cap.common.api.filter.IOperator;
 
-public final class SampleDataGeneratorStarter {
+public interface IFilterSupportBuilder<VALUE_TYPE> {
 
-	private SampleDataGeneratorStarter() {}
+	IFilterSupportBuilder<VALUE_TYPE> addFilterPanelProvider(IFilterPanelProvider<? extends IOperator> provider);
 
-	public static void main(final String[] args) {
-		final EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("sample2PersistenceUnit");
-		final SampleDataGenerator sampleDataGenerator = new SampleDataGenerator();
-		sampleDataGenerator.dropAndCreateAllData(entityManagerFactory, 10, 1000);
-	}
+	IFilterSupportBuilder<VALUE_TYPE> setIncludingFilterFactory(IIncludingFilterFactory<VALUE_TYPE> includingFilterFactory);
+
+	IFilterSupport<VALUE_TYPE> build();
 
 }

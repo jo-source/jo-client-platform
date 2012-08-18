@@ -46,14 +46,15 @@ import org.jowidgets.util.Assert;
 public final class BasicAuthenticationLoginInterceptor implements ILoginInterceptor {
 
 	private static final IMessage AUTHORIZATION_SERVICE_NOT_AVAILABLE = Messages.getMessage("BasicAuthenticationLoginInterceptor.authorization_service_not_available"); //$NON-NLS-1$
-	private static final IMessage LOGIN_FAILED = Messages.getMessage("BasicAuthenticationLoginInterceptor.login_failed"); //$NON-NLS-1$
+	private static final IMessage LOGIN_FAILED = Messages.getMessage("BasicAuthenticationLoginInterceptor.login_failed");
+	private static final IMessage ERROR_ON_LOGIN = Messages.getMessage("BasicAuthenticationLoginInterceptor.error_on_login");
 
 	private final IServiceId<? extends IAuthorizationProviderService<?>> authorizationProviderServiceId;
 	private final IUiThreadAccess uiThreadAccess;
 
 	public BasicAuthenticationLoginInterceptor(
 		final IServiceId<? extends IAuthorizationProviderService<?>> authorizationProviderServiceId) {
-		Assert.paramNotNull(authorizationProviderServiceId, "authorizationProviderServiceId"); //$NON-NLS-1$
+		Assert.paramNotNull(authorizationProviderServiceId, "authorizationProviderServiceId");
 		this.authorizationProviderServiceId = authorizationProviderServiceId;
 		this.uiThreadAccess = Toolkit.getUiThreadAccess();
 	}
@@ -96,7 +97,7 @@ public final class BasicAuthenticationLoginInterceptor implements ILoginIntercep
 
 						@Override
 						public void exception(final Throwable exception) {
-							resultCallback.denied(exception.getLocalizedMessage());
+							resultCallback.denied(ERROR_ON_LOGIN.get());
 							BasicAuthenticationInitializer.getInstance().clearCredentials();
 						}
 					}, executionTask);

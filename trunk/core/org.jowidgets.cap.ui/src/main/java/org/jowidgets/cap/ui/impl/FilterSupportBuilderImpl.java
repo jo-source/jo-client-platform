@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,19 +26,48 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.sample2.app.service.util;
+package org.jowidgets.cap.ui.impl;
 
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
+import java.util.LinkedList;
+import java.util.List;
 
-public final class SampleDataGeneratorStarter {
+import org.jowidgets.cap.common.api.filter.IOperator;
+import org.jowidgets.cap.ui.api.filter.IFilterPanelProvider;
+import org.jowidgets.cap.ui.api.filter.IFilterSupport;
+import org.jowidgets.cap.ui.api.filter.IFilterSupportBuilder;
+import org.jowidgets.cap.ui.api.filter.IIncludingFilterFactory;
+import org.jowidgets.util.Assert;
 
-	private SampleDataGeneratorStarter() {}
+@SuppressWarnings({"unchecked", "rawtypes"})
+final class FilterSupportBuilderImpl<ELEMENT_VALUE_TYPE> implements IFilterSupportBuilder<ELEMENT_VALUE_TYPE> {
 
-	public static void main(final String[] args) {
-		final EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("sample2PersistenceUnit");
-		final SampleDataGenerator sampleDataGenerator = new SampleDataGenerator();
-		sampleDataGenerator.dropAndCreateAllData(entityManagerFactory, 10, 1000);
+	private final List providers;
+
+	private IIncludingFilterFactory<ELEMENT_VALUE_TYPE> includingFilterFactory;
+
+	FilterSupportBuilderImpl() {
+		this.providers = new LinkedList();
+	}
+
+	@Override
+	public IFilterSupportBuilder<ELEMENT_VALUE_TYPE> addFilterPanelProvider(
+		final IFilterPanelProvider<? extends IOperator> provider) {
+		Assert.paramNotNull(provider, "provider");
+		providers.add(provider);
+		return this;
+	}
+
+	@Override
+	public IFilterSupportBuilder<ELEMENT_VALUE_TYPE> setIncludingFilterFactory(
+		final IIncludingFilterFactory<ELEMENT_VALUE_TYPE> includingFilterFactory) {
+		Assert.paramNotNull(includingFilterFactory, "includingFilterFactory");
+		this.includingFilterFactory = includingFilterFactory;
+		return null;
+	}
+
+	@Override
+	public IFilterSupport<ELEMENT_VALUE_TYPE> build() {
+		return new FilterSupportImpl<ELEMENT_VALUE_TYPE>(providers, includingFilterFactory);
 	}
 
 }

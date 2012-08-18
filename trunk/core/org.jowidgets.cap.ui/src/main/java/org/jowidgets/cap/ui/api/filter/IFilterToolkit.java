@@ -62,6 +62,8 @@ public interface IFilterToolkit {
 		Class<? extends VALUE_TYPE> type,
 		Cardinality cardinality);
 
+	<ELEMENT_VALUE_TYPE> IFilterSupportBuilder<ELEMENT_VALUE_TYPE> filterSupportBuilder();
+
 	<ELEMENT_VALUE_TYPE> IFilterSupport<?> filterSupport(
 		String propertyName,
 		Class<?> type,
