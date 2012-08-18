@@ -59,7 +59,6 @@ final class EntityLinkDescriptorImpl implements IEntityLinkDescriptor, Serializa
 		final IServiceId<ILinkCreatorService> creatorServiceId,
 		final IServiceId<ILinkDeleterService> deleterServiceId) {
 
-		Assert.paramNotNull(linkTypeId, "linkTypeId");
 		Assert.paramNotNull(linkedTypeId, "linkedTypeId");
 
 		this.linkEntityId = linkTypeId;
