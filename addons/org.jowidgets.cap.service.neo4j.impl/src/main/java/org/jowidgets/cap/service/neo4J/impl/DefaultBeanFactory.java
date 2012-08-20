@@ -63,6 +63,22 @@ final class DefaultBeanFactory implements IBeanFactory {
 	}
 
 	@Override
+	public <BEAN_TYPE extends IBean> BEAN_TYPE createRelatedNodeBean(
+		final Class<BEAN_TYPE> beanType,
+		final Object beanTypeId,
+		final Node node,
+		final Relationship relationship) {
+
+		if (beanType.isInterface()) {
+			//TODO MG use relation
+			return createNodeBeanProxy(beanType, beanTypeId, node);
+		}
+		else {
+			return createRelatedNodeBeanInstance(beanType, beanTypeId, node, relationship);
+		}
+	}
+
+	@Override
 	public <BEAN_TYPE extends IBean> BEAN_TYPE createRelationshipBean(
 		final Class<BEAN_TYPE> beanType,
 		final Object beanTypeId,
@@ -87,6 +103,20 @@ final class DefaultBeanFactory implements IBeanFactory {
 		Assert.paramNotNull(beanType, "beanType");
 		Assert.paramNotNull(beanTypeId, "beanTypeId");
 		return IRelationshipBean.class.isAssignableFrom(beanType);
+	}
+
+	private <BEAN_TYPE extends IBean> BEAN_TYPE createRelatedNodeBeanInstance(
+		final Class<BEAN_TYPE> beanType,
+		final Object beanTypeId,
+		final Node node,
+		final Relationship relationship) {
+		try {
+			final Constructor<BEAN_TYPE> constructor = beanType.getConstructor(Node.class, Relationship.class);
+			return constructor.newInstance(node, relationship);
+		}
+		catch (final Exception e) {
+			return createNodeBeanInstance(beanType, beanTypeId, node);
+		}
 	}
 
 	private <BEAN_TYPE extends IBean> BEAN_TYPE createNodeBeanInstance(

@@ -110,7 +110,11 @@ final class SyncNeo4JSimpleRelatedReaderServiceImpl<BEAN_TYPE extends IBean, PAR
 			final Node parentNode = NodeAccess.findNode(parentBeanTypeId, beanKey.getId());
 			if (parentNode != null) {
 				for (final Relationship relationship : parentNode.getRelationships(direction, relationshipType)) {
-					result.add(beanFactory.createNodeBean(beanType, beanTypeId, relationship.getOtherNode(parentNode)));
+					result.add(beanFactory.createRelatedNodeBean(
+							beanType,
+							beanTypeId,
+							relationship.getOtherNode(parentNode),
+							relationship));
 				}
 			}
 		}

@@ -67,7 +67,7 @@ public class PropertyContainerBean implements IPropertyContainerBean {
 	}
 
 	@SuppressWarnings("unchecked")
-	protected <RESULT_TYPE> RESULT_TYPE getProperty(final String propertyName) {
+	public <RESULT_TYPE> RESULT_TYPE getProperty(final String propertyName) {
 		if (propertyContainer.hasProperty(propertyName)) {
 			return (RESULT_TYPE) propertyContainer.getProperty(propertyName);
 		}
@@ -76,7 +76,7 @@ public class PropertyContainerBean implements IPropertyContainerBean {
 		}
 	}
 
-	protected void setProperty(final String propertyName, final Object value) {
+	public void setProperty(final String propertyName, final Object value) {
 		if (value != null) {
 			propertyContainer.setProperty(propertyName, value);
 		}
