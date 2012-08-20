@@ -36,6 +36,12 @@ public interface IBeanFactory {
 
 	<BEAN_TYPE extends IBean> BEAN_TYPE createNodeBean(Class<BEAN_TYPE> beanType, Object beanTypeId, Node node);
 
+	<BEAN_TYPE extends IBean> BEAN_TYPE createRelatedNodeBean(
+		Class<BEAN_TYPE> beanType,
+		Object beanTypeId,
+		Node node,
+		Relationship relationship);
+
 	<BEAN_TYPE extends IBean> BEAN_TYPE createRelationshipBean(
 		Class<BEAN_TYPE> beanType,
 		Object beanTypeId,
