@@ -624,6 +624,19 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 		beanSelectionObservable.removeBeanSelectionListener(listener);
 	}
 
+	@Override
+	public String toString() {
+		return "BeanRelationNodeModelImpl [label="
+			+ label
+			+ ", parentEntityTypeId="
+			+ parentEntityTypeId
+			+ ", parentBean="
+			+ parentBean
+			+ ", childEntityTypeId="
+			+ childEntityTypeId
+			+ "]";
+	}
+
 	private class DataLoader {
 
 		private final IUiThreadAccess uiThreadAccess;

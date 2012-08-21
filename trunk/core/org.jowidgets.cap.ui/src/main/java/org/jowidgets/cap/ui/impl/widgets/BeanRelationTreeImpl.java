@@ -475,10 +475,12 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 			}
 			if (relationNodeModel != null) {
 				relationNodeModel.setSelectedBeans(newSelection);
+				treeModel.setTreeSelection(relationNodeModel, newSelection);
 			}
 			else {
 				final List<IBeanProxy<?>> emptyList = Collections.emptyList();
 				treeModel.setSelection(emptyList);
+				treeModel.setTreeSelection(null, emptyList);
 			}
 		}
 	}
