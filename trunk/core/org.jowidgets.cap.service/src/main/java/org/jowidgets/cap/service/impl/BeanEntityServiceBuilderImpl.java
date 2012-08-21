@@ -28,7 +28,6 @@
 
 package org.jowidgets.cap.service.impl;
 
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -766,13 +765,13 @@ final class BeanEntityServiceBuilderImpl extends EntityServiceBuilderImpl implem
 		}
 
 		private <SERVICE_TYPE> IServiceId<SERVICE_TYPE> createServiceId(final Class<SERVICE_TYPE> serviceType) {
-			final Id id = new Id(
-				entityServiceId,
-				linkSource.getEntityId(),
-				linkEntityId,
-				linkedEntityId,
-				linkableEntityId,
-				serviceType.getName());
+			final List<Object> id = new LinkedList<Object>();
+			id.add(entityServiceId);
+			id.add(linkSource.getEntityId());
+			id.add(linkEntityId);
+			id.add(linkedEntityId);
+			id.add(linkableEntityId);
+			id.add(serviceType.getName());
 			final ServiceId<SERVICE_TYPE> result = new ServiceId<SERVICE_TYPE>(id, serviceType);
 			return decorateServiceId(result, entityServiceId, linkBeanType, linkEntityId, serviceType);
 		}
@@ -900,109 +899,4 @@ final class BeanEntityServiceBuilderImpl extends EntityServiceBuilderImpl implem
 		}
 	}
 
-	private static final class Id implements Serializable {
-
-		private static final long serialVersionUID = -1013030060315128693L;
-
-		private final IServiceId<IEntityService> entityServiceId;
-		private final Object sourceEntityId;
-		private final Object linkEntityId;
-		private final Object linkedEntityId;
-		private final Object linkableEntityId;
-		private final String service;
-
-		private Id(
-			final IServiceId<IEntityService> entityServiceId,
-			final Object sourceEntityId,
-			final Object linkEntityId,
-			final Object linkedEntityId,
-			final Object linkableEntityId,
-			final String service) {
-
-			this.entityServiceId = entityServiceId;
-			this.sourceEntityId = sourceEntityId;
-			this.linkEntityId = linkEntityId;
-			this.linkedEntityId = linkedEntityId;
-			this.linkableEntityId = linkableEntityId;
-			this.service = service;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((entityServiceId == null) ? 0 : entityServiceId.hashCode());
-			result = prime * result + ((linkEntityId == null) ? 0 : linkEntityId.hashCode());
-			result = prime * result + ((linkableEntityId == null) ? 0 : linkableEntityId.hashCode());
-			result = prime * result + ((linkedEntityId == null) ? 0 : linkedEntityId.hashCode());
-			result = prime * result + ((service == null) ? 0 : service.hashCode());
-			result = prime * result + ((sourceEntityId == null) ? 0 : sourceEntityId.hashCode());
-			return result;
-		}
-
-		@Override
-		public boolean equals(final Object obj) {
-			if (this == obj) {
-				return true;
-			}
-			if (obj == null) {
-				return false;
-			}
-			if (!(obj instanceof Id)) {
-				return false;
-			}
-			final Id other = (Id) obj;
-
-			if (entityServiceId == null) {
-				if (other.entityServiceId != null) {
-					return false;
-				}
-			}
-			else if (!entityServiceId.equals(other.entityServiceId)) {
-				return false;
-			}
-			if (linkEntityId == null) {
-				if (other.linkEntityId != null) {
-					return false;
-				}
-			}
-			else if (!linkEntityId.equals(other.linkEntityId)) {
-				return false;
-			}
-			if (linkableEntityId == null) {
-				if (other.linkableEntityId != null) {
-					return false;
-				}
-			}
-			else if (!linkableEntityId.equals(other.linkableEntityId)) {
-				return false;
-			}
-			if (linkedEntityId == null) {
-				if (other.linkedEntityId != null) {
-					return false;
-				}
-			}
-			else if (!linkedEntityId.equals(other.linkedEntityId)) {
-				return false;
-			}
-			if (service == null) {
-				if (other.service != null) {
-					return false;
-				}
-			}
-			else if (!service.equals(other.service)) {
-				return false;
-			}
-			if (sourceEntityId == null) {
-				if (other.sourceEntityId != null) {
-					return false;
-				}
-			}
-			else if (!sourceEntityId.equals(other.sourceEntityId)) {
-				return false;
-			}
-			return true;
-		}
-
-	}
 }
