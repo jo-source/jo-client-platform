@@ -28,85 +28,59 @@
 
 package org.jowidgets.cap.ui.impl;
 
-import org.jowidgets.cap.ui.api.model.ILabelModel;
-import org.jowidgets.common.color.IColorConstant;
-import org.jowidgets.common.image.IImageConstant;
-import org.jowidgets.common.types.Markup;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 
-final class LabelModelImpl implements ILabelModel {
+import org.jowidgets.cap.ui.api.bean.IBeanProxy;
+import org.jowidgets.cap.ui.api.tree.IBeanRelationNodeModel;
+import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeSelection;
+import org.jowidgets.util.Assert;
 
-	private final String text;
-	private final String description;
-	private final IImageConstant icon;
-	private final IColorConstant foregroundColor;
-	private final Integer fontSize;
-	private final String fontName;
-	private final Markup markup;
+final class BeanRelationTreeSelectionImpl implements IBeanRelationTreeSelection {
 
-	LabelModelImpl(final String text) {
-		this(text, null, null);
+	private final IBeanRelationNodeModel<Object, Object> parentRelation;
+	private final List<IBeanProxy<Object>> beans;
+
+	@SuppressWarnings("unchecked")
+	BeanRelationTreeSelectionImpl() {
+		this(null, Collections.EMPTY_LIST);
 	}
 
-	LabelModelImpl(final String text, final String description, final IImageConstant icon) {
-		this(text, description, icon, null, null, null, null);
-	}
-
-	public LabelModelImpl(
-		final String text,
-		final String description,
-		final IImageConstant icon,
-		final IColorConstant foregroundColor,
-		final Integer fontSize,
-		final String fontName,
-		final Markup markup) {
-
-		this.text = text;
-		this.description = description;
-		this.icon = icon;
-		this.foregroundColor = foregroundColor;
-		this.fontSize = fontSize;
-		this.fontName = fontName;
-		this.markup = markup;
+	@SuppressWarnings({"unchecked", "rawtypes"})
+	BeanRelationTreeSelectionImpl(
+		final IBeanRelationNodeModel<Object, Object> parentRelation,
+		final Collection<? extends IBeanProxy> beans) {
+		Assert.paramNotNull(beans, "beans");
+		this.parentRelation = parentRelation;
+		this.beans = Collections.unmodifiableList(new LinkedList<IBeanProxy<Object>>(
+			(Collection<? extends IBeanProxy<Object>>) beans));
 	}
 
 	@Override
-	public String getText() {
-		return text;
+	public Collection<IBeanProxy<Object>> getBeans() {
+		return beans;
 	}
 
 	@Override
-	public String getDescription() {
-		return description;
+	public IBeanProxy<Object> getFirstBean() {
+		if (beans.size() > 0) {
+			return beans.iterator().next();
+		}
+		else {
+			return null;
+		}
 	}
 
 	@Override
-	public IImageConstant getIcon() {
-		return icon;
-	}
-
-	@Override
-	public IColorConstant getForegroundColor() {
-		return foregroundColor;
-	}
-
-	@Override
-	public Integer getFontSize() {
-		return fontSize;
-	}
-
-	@Override
-	public String getFontName() {
-		return fontName;
-	}
-
-	@Override
-	public Markup getMarkup() {
-		return markup;
+	public IBeanRelationNodeModel<Object, Object> getParentRelation() {
+		return parentRelation;
 	}
 
 	@Override
 	public String toString() {
-		return "LabelModelImpl [text=" + text + ", description=" + description + "]";
+		return "BeanRelationTreeSelectionImpl [parentRelation=" + parentRelation + ", beans=" + beans + "]";
 	}
 
 }

@@ -26,36 +26,41 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.tree;
+package org.jowidgets.cap.ui.impl;
 
-import java.util.Collection;
-import java.util.List;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.Set;
 
-import org.jowidgets.cap.ui.api.bean.IBeanProxy;
-import org.jowidgets.cap.ui.api.bean.IBeanSelectionProvider;
-import org.jowidgets.cap.ui.api.model.IDataModel;
-import org.jowidgets.cap.ui.api.types.IEntityTypeId;
+import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeSelection;
+import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeSelectionListener;
+import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeSelectionObservable;
+import org.jowidgets.util.Assert;
 
-public interface IBeanRelationTreeModel<CHILD_BEAN_TYPE> extends
-		IDataModel,
-		IBeanSelectionProvider<Object>,
-		IBeanRelationTreeSelectionObservable {
+final class BeanRelationTreeSelectionObservableImpl implements IBeanRelationTreeSelectionObservable {
 
-	IBeanRelationNodeModel<Void, CHILD_BEAN_TYPE> getRoot();
+	private final Set<IBeanRelationTreeSelectionListener> listeners;
 
-	<METHOD_PARENT_BEAN_TYPE, METHOD_CHILD_BEAN_TYPE> IBeanRelationNodeModel<METHOD_PARENT_BEAN_TYPE, METHOD_CHILD_BEAN_TYPE> getNode(
-		IEntityTypeId<METHOD_PARENT_BEAN_TYPE> parentEntityTypeId,
-		IBeanProxy<METHOD_PARENT_BEAN_TYPE> parentBean,
-		IEntityTypeId<METHOD_CHILD_BEAN_TYPE> childEntityTypeId);
+	BeanRelationTreeSelectionObservableImpl() {
+		this.listeners = new LinkedHashSet<IBeanRelationTreeSelectionListener>();
+	}
 
-	boolean hasNode(IBeanProxy<?> parentBean, IEntityTypeId<?> childEntityTypeId);
+	@Override
+	public void addBeanRelationTreeSelectionListener(final IBeanRelationTreeSelectionListener listener) {
+		Assert.paramNotNull(listener, "listener");
+		listeners.add(listener);
+	}
 
-	List<IBeanProxy<Object>> getSelection();
+	@Override
+	public void removeBeanRelationTreeSelectionListener(final IBeanRelationTreeSelectionListener listener) {
+		Assert.paramNotNull(listener, "listener");
+		listeners.remove(listener);
+	}
 
-	void setSelection(Collection<? extends IBeanProxy<?>> selection);
-
-	IBeanRelationTreeSelection getTreeSelection();
-
-	void setTreeSelection(IBeanRelationNodeModel<Object, Object> parentRelation, Collection<? extends IBeanProxy<?>> beans);
+	void fireBeanRelationNodeChangeEvent(final IBeanRelationTreeSelection selection) {
+		for (final IBeanRelationTreeSelectionListener listener : new LinkedList<IBeanRelationTreeSelectionListener>(listeners)) {
+			listener.selectionChanged(selection);
+		}
+	}
 
 }

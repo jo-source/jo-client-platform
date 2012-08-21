@@ -28,34 +28,10 @@
 
 package org.jowidgets.cap.ui.api.tree;
 
-import java.util.Collection;
-import java.util.List;
+public interface IBeanRelationTreeSelectionObservable {
 
-import org.jowidgets.cap.ui.api.bean.IBeanProxy;
-import org.jowidgets.cap.ui.api.bean.IBeanSelectionProvider;
-import org.jowidgets.cap.ui.api.model.IDataModel;
-import org.jowidgets.cap.ui.api.types.IEntityTypeId;
+	void addBeanRelationTreeSelectionListener(IBeanRelationTreeSelectionListener listener);
 
-public interface IBeanRelationTreeModel<CHILD_BEAN_TYPE> extends
-		IDataModel,
-		IBeanSelectionProvider<Object>,
-		IBeanRelationTreeSelectionObservable {
-
-	IBeanRelationNodeModel<Void, CHILD_BEAN_TYPE> getRoot();
-
-	<METHOD_PARENT_BEAN_TYPE, METHOD_CHILD_BEAN_TYPE> IBeanRelationNodeModel<METHOD_PARENT_BEAN_TYPE, METHOD_CHILD_BEAN_TYPE> getNode(
-		IEntityTypeId<METHOD_PARENT_BEAN_TYPE> parentEntityTypeId,
-		IBeanProxy<METHOD_PARENT_BEAN_TYPE> parentBean,
-		IEntityTypeId<METHOD_CHILD_BEAN_TYPE> childEntityTypeId);
-
-	boolean hasNode(IBeanProxy<?> parentBean, IEntityTypeId<?> childEntityTypeId);
-
-	List<IBeanProxy<Object>> getSelection();
-
-	void setSelection(Collection<? extends IBeanProxy<?>> selection);
-
-	IBeanRelationTreeSelection getTreeSelection();
-
-	void setTreeSelection(IBeanRelationNodeModel<Object, Object> parentRelation, Collection<? extends IBeanProxy<?>> beans);
+	void removeBeanRelationTreeSelectionListener(IBeanRelationTreeSelectionListener listener);
 
 }

@@ -58,6 +58,8 @@ import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationNodeModel;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeModel;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeModelBuilder;
+import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeSelection;
+import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeSelectionListener;
 import org.jowidgets.cap.ui.api.types.EntityTypeId;
 import org.jowidgets.cap.ui.api.types.IEntityTypeId;
 import org.jowidgets.cap.ui.tools.execution.BeanRefreshInterceptor;
@@ -110,6 +112,14 @@ public class EntityComponent extends AbstractComponent implements IComponent {
 		final List<IEntityLinkDescriptor> entityLinks = entityService.getEntityLinks(entityClass.getId());
 		if (entityLinks != null && !entityLinks.isEmpty()) {
 			this.relationTreeModel = createRelationTreeModel(tableModel, entityClass);
+
+			relationTreeModel.addBeanRelationTreeSelectionListener(new IBeanRelationTreeSelectionListener() {
+				@Override
+				public void selectionChanged(final IBeanRelationTreeSelection selection) {
+					System.out.println(selection);
+				}
+			});
+
 			int i = 0;
 			for (final IEntityLinkDescriptor link : entityLinks) {
 				final String linkedViewId = LINKED_TABLE_VIEW_ID + i;

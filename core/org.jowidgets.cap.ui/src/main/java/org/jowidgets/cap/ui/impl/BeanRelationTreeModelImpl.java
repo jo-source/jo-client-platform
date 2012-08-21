@@ -47,6 +47,8 @@ import org.jowidgets.cap.ui.api.tree.IBeanRelationNodeModel;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationNodeModelBluePrint;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationNodeModelConfigurator;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeModel;
+import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeSelection;
+import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeSelectionListener;
 import org.jowidgets.cap.ui.api.types.IEntityTypeId;
 import org.jowidgets.cap.ui.tools.model.ModificationStateObservable;
 import org.jowidgets.cap.ui.tools.model.ProcessStateObservable;
@@ -66,11 +68,13 @@ public class BeanRelationTreeModelImpl<CHILD_BEAN_TYPE> implements
 		IValidationResultCreator {
 
 	private static final IBeanSelection<Object> EMPTY_BEAN_SELECTION = new BeanSelectionImpl<Object>();
+	private static final IBeanRelationTreeSelection EMPTY_TREE_SELECTION = new BeanRelationTreeSelectionImpl();
 
 	private final IBeanRelationNodeModel<Void, CHILD_BEAN_TYPE> root;
 	private final IBeanRelationNodeModelConfigurator nodeConfigurator;
 	private final IBeanSelectionListener<Object> parentSelectionListener;
 	private final BeanSelectionObservable<Object> beanSelectionObservable;
+	private final BeanRelationTreeSelectionObservableImpl beanRelationTreeSelectionObservable;
 	private final ValidationCache validationCache;
 	private final IValidationConditionListener validationConditionListener;
 	private final ModificationStateObservable modificationStateObservable;
@@ -82,6 +86,7 @@ public class BeanRelationTreeModelImpl<CHILD_BEAN_TYPE> implements
 	private final Map relationNodes;
 
 	private IBeanSelection<Object> selection;
+	private IBeanRelationTreeSelection treeSelection;
 
 	public BeanRelationTreeModelImpl(
 		final IBeanRelationNodeModel<Void, CHILD_BEAN_TYPE> root,
@@ -108,6 +113,8 @@ public class BeanRelationTreeModelImpl<CHILD_BEAN_TYPE> implements
 		this.relationNodes = new HashMap();
 
 		this.beanSelectionObservable = new BeanSelectionObservable<Object>();
+		this.beanRelationTreeSelectionObservable = new BeanRelationTreeSelectionObservableImpl();
+
 		this.beanSelectionListener = new BeanSelectionListener<Object>();
 
 		this.validationCache = new ValidationCache(this);
@@ -300,6 +307,16 @@ public class BeanRelationTreeModelImpl<CHILD_BEAN_TYPE> implements
 	}
 
 	@Override
+	public void addBeanRelationTreeSelectionListener(final IBeanRelationTreeSelectionListener listener) {
+		beanRelationTreeSelectionObservable.addBeanRelationTreeSelectionListener(listener);
+	}
+
+	@Override
+	public void removeBeanRelationTreeSelectionListener(final IBeanRelationTreeSelectionListener listener) {
+		beanRelationTreeSelectionObservable.removeBeanRelationTreeSelectionListener(listener);
+	}
+
+	@Override
 	public List<IBeanProxy<Object>> getSelection() {
 		if (selection == null) {
 			selection = EMPTY_BEAN_SELECTION;
@@ -334,6 +351,25 @@ public class BeanRelationTreeModelImpl<CHILD_BEAN_TYPE> implements
 		//		else {
 		//			TODO MG implement programmatic selection changed != emptySelection
 		//		}
+	}
+
+	@Override
+	public IBeanRelationTreeSelection getTreeSelection() {
+		if (treeSelection != null) {
+			return treeSelection;
+		}
+		else {
+			return EMPTY_TREE_SELECTION;
+		}
+	}
+
+	@Override
+	public void setTreeSelection(
+		final IBeanRelationNodeModel<Object, Object> parentRelation,
+		final Collection<? extends IBeanProxy<?>> beans) {
+		Assert.paramNotNull(beans, "beans");
+		this.treeSelection = new BeanRelationTreeSelectionImpl(parentRelation, beans);
+		beanRelationTreeSelectionObservable.fireBeanRelationNodeChangeEvent(treeSelection);
 	}
 
 	private Collection getRelationNodes() {
