@@ -54,6 +54,7 @@ import org.jowidgets.cap.common.api.filter.IFilterFactory;
 import org.jowidgets.cap.common.api.link.ILinkDataBuilder;
 import org.jowidgets.cap.common.api.link.ILinkDeletionBuilder;
 import org.jowidgets.cap.common.api.lookup.ILookUpToolkit;
+import org.jowidgets.cap.common.api.service.IBeanServicesProviderFactory;
 import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.common.api.sort.ISortFactory;
 import org.jowidgets.cap.common.api.validation.IBeanValidationResultListBuilder;
@@ -113,6 +114,8 @@ public interface ICapCommonToolkit {
 		String description,
 		String renderingPattern,
 		Collection<? extends IBeanValidator<?>> beanValidators);
+
+	IBeanServicesProviderFactory beanServicesProviderFactory();
 
 	IBeanDtoBuilder dtoBuilder(Object beanTypeId);
 

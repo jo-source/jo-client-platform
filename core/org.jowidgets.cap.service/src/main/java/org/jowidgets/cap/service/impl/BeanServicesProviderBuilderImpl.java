@@ -131,16 +131,16 @@ final class BeanServicesProviderBuilderImpl implements IBeanServicesProviderBuil
 
 	@Override
 	public IBeanServicesProvider build() {
-		return new BeanServicesProviderImpl(
-			registry,
-			entityServiceId,
-			beanType,
-			entityId,
-			readerService,
-			creatorService,
-			refreshService,
-			updaterService,
-			deleterService);
+		return BeanServicesProviderBuilderHelper.create(
+				registry,
+				entityServiceId,
+				beanType,
+				entityId,
+				readerService,
+				creatorService,
+				refreshService,
+				updaterService,
+				deleterService);
 	}
 
 }
