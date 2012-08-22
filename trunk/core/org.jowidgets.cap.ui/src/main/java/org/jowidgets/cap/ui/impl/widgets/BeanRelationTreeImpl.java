@@ -461,27 +461,31 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 			for (final ITreeNode selected : event.getSelected()) {
 				final Tuple<IBeanRelationNodeModel<Object, Object>, IBeanProxy<Object>> tuple = nodesMap.get(selected);
 				if (tuple != null) {
+					final IBeanProxy<Object> bean = tuple.getSecond();
 					if (relationNodeModel == null) {
 						relationNodeModel = tuple.getFirst();
-						newSelection.add(tuple.getSecond());
+						if (bean != null) {
+							newSelection.add(bean);
+						}
 					}
 					else if (relationNodeModel == tuple.getFirst()) {
-						newSelection.add(tuple.getSecond());
+						if (bean != null) {
+							newSelection.add(bean);
+						}
 					}
 					//else {
 					//TODO MG unsupported selection, all elements must have the same childEntityTypeId
 					//}
 				}
 			}
-			if (relationNodeModel != null) {
+			if (relationNodeModel != null && newSelection.size() > 0) {
 				relationNodeModel.setSelectedBeans(newSelection);
-				treeModel.setTreeSelection(relationNodeModel, newSelection);
 			}
 			else {
 				final List<IBeanProxy<?>> emptyList = Collections.emptyList();
 				treeModel.setSelection(emptyList);
-				treeModel.setTreeSelection(null, emptyList);
 			}
+			treeModel.setTreeSelection(relationNodeModel, newSelection);
 		}
 	}
 
@@ -620,6 +624,16 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 						final ITreeNode childRelationNode = node.addNode();
 						renderRelationNode(childRelationNode, childRelationNodeModel);
 
+						//put node to nodes map
+						final Tuple<IBeanRelationNodeModel<Object, Object>, IBeanProxy<Object>> tuple;
+						tuple = new Tuple<IBeanRelationNodeModel<Object, Object>, IBeanProxy<Object>>(
+							childRelationNodeModel,
+							null);
+						nodesMap.put(childRelationNode, tuple);
+
+						//register listener that removes node from nodes map on dispose
+						childRelationNode.addDisposeListener(new TreeNodeDisposeListener(childRelationNode));
+
 						//TODO MG remove this later BEGIN
 						final IMenuModel relationMenu = createRelationNodeMenus(
 								childRelationNodeModel,
@@ -691,7 +705,7 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 		private void addPathObjects(final List<Object> result, final ITreeNode node) {
 			if (node != null) {
 				final Tuple<IBeanRelationNodeModel<Object, Object>, IBeanProxy<Object>> tuple = nodesMap.get(node);
-				if (tuple != null) {
+				if (tuple != null && tuple.getSecond() != null) {
 					path.add(IBeanProxy.class.getName() + "ID:" + tuple.getSecond().getId());
 				}
 				else {
