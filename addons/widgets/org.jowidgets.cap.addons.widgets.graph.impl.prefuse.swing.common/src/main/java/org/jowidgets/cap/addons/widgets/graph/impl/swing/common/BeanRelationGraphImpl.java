@@ -30,7 +30,6 @@ package org.jowidgets.cap.addons.widgets.graph.impl.swing.common;
 
 import java.awt.BorderLayout;
 import java.awt.Container;
-import java.awt.Font;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -49,16 +48,17 @@ import org.jowidgets.cap.ui.api.tree.IBeanRelationNodeModel;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeModel;
 import org.jowidgets.cap.ui.api.types.IEntityTypeId;
 import org.jowidgets.tools.widgets.wrapper.ControlWrapper;
-import org.jowidgets.util.Tuple;
 
 import prefuse.Display;
 import prefuse.Visualization;
 import prefuse.action.ActionList;
 import prefuse.action.RepaintAction;
 import prefuse.action.assignment.ColorAction;
-import prefuse.action.assignment.FontAction;
 import prefuse.action.layout.graph.ForceDirectedLayout;
 import prefuse.activity.Activity;
+import prefuse.controls.DragControl;
+import prefuse.controls.FocusControl;
+import prefuse.controls.NeighborHighlightControl;
 import prefuse.data.Graph;
 import prefuse.data.Node;
 import prefuse.render.DefaultRendererFactory;
@@ -68,55 +68,68 @@ import prefuse.visual.VisualItem;
 
 class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements IBeanRelationGraph<CHILD_BEAN_TYPE> {
 
-	private final IBeanRelationTreeModel<CHILD_BEAN_TYPE> relationTreeModel;
-	private final Map<Node, Tuple<IBeanRelationNodeModel<Object, Object>, IBeanProxy<Object>>> nodesMap;
+	private static final String NODES = "graph.nodes";
+	private static final String EDGES = "graph.edges";
 
-	private final Map<Integer, Node> nodeMap;
+	private final IBeanRelationTreeModel<CHILD_BEAN_TYPE> relationTreeModel;
+
+	private final Map<IBeanProxy<Object>, Node> nodeMap;
+	private final HashMap<Integer, Node> nodeMapInt;
 
 	private final Visualization vis;
 	private final Graph graph;
-	private final Display d;
+	private final Display display;
 
 	BeanRelationGraphImpl(
 		final IControl control,
 		final Container swingContainer,
 		final IBeanRelationGraphSetupBuilder<CHILD_BEAN_TYPE, ?> setup) {
 		super(control);
+
 		this.relationTreeModel = setup.getModel();
-		this.nodesMap = new HashMap<Node, Tuple<IBeanRelationNodeModel<Object, Object>, IBeanProxy<Object>>>();
-		this.nodeMap = new HashMap<Integer, Node>();
+		this.nodeMap = new HashMap<IBeanProxy<Object>, Node>();
+		this.nodeMapInt = new HashMap<Integer, Node>();
 		graph = new Graph();
 		graph.addColumn("name", String.class);
 		vis = new Visualization();
 		vis.add("graph", graph);
-		final ColorAction text = new ColorAction("graph.nodes", VisualItem.TEXTCOLOR, ColorLib.gray(0));
-		final ColorAction edges = new ColorAction("graph.edges", VisualItem.STROKECOLOR, ColorLib.gray(200));
-		final FontAction textFont = new FontAction("graph.nodes", new Font(Font.SANS_SERIF, 0, 15));
+
 		final ActionList color = new ActionList();
-		color.add(textFont);
-		color.add(text);
-		color.add(edges);
+		color.add(new ColorAction(NODES, VisualItem.FILLCOLOR, ColorLib.rgb(200, 200, 255)));
+		color.add(new ColorAction(NODES, VisualItem.STROKECOLOR, 0));
+		color.add(new ColorAction(NODES, VisualItem.TEXTCOLOR, ColorLib.rgb(0, 0, 0)));
+		color.add(new ColorAction(EDGES, VisualItem.FILLCOLOR, ColorLib.gray(200)));
+		color.add(new ColorAction(EDGES, VisualItem.STROKECOLOR, ColorLib.gray(200)));
+
+		final ForceDirectedLayout fdl = new ForceDirectedLayout("graph", true);
 
 		final ActionList layout = new ActionList(Activity.INFINITY);
-		layout.add(new ForceDirectedLayout("graph", true));
-		layout.add(new RepaintAction(vis));
+		layout.add(fdl);
+		layout.add(new RepaintAction());
+		//		layout.add(new NodeLinkTreeLayout("graph", Constants.ORIENT_LEFT_RIGHT, 50, 0, 8));
+		//		layout.add(new RepaintAction(vis));
 
 		vis.putAction("color", color);
 		vis.putAction("layout", layout);
 
 		final LabelRenderer r = new LabelRenderer("name");
-		r.setRoundedCorner(8, 8);
+		//		r.setRoundedCorner(8, 8);
 
 		vis.setRendererFactory(new DefaultRendererFactory(r));
 
-		d = new Display(vis);
-		d.setSize(300, 300);
-		d.setHighQuality(true);
+		display = new Display(vis);
+		display.setHighQuality(true);
+
+		display.addControlListener(new DragControl());
+		display.addControlListener(new FocusControl(1));
+		display.addControlListener(new NeighborHighlightControl());
 		final JPanel panel = new JPanel(new BorderLayout());
-		panel.add(d, BorderLayout.CENTER);
+		panel.add(display, BorderLayout.CENTER);
+
 		relationTreeModel.getRoot().addBeanListModelListener(new RootModelListener());
 		swingContainer.setLayout(new BorderLayout());
 		swingContainer.add(panel, BorderLayout.SOUTH);
+
 	}
 
 	@Override
@@ -126,21 +139,11 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 
 	private void onBeansChanged(final IBeanRelationNodeModel<Object, Object> relationNodeModel) {
 
-		//		final int headMatching = getHeadMatchingLength(relationNodeModel);
-		//		final int tailMatching = getTailMatchingLength(relationNodeModel);
-		//		final int beansToDelete = oldSize - headMatching - tailMatching;
 		for (int i = 0; i < relationNodeModel.getSize(); i++) {
 			final IBeanProxy<Object> bean = relationNodeModel.getBean(i);
 			addBeanToGraph(bean, i + nodeMap.size(), relationNodeModel);
 		}
 
-		//		for (int i = 0; i < beansToDelete; i++) {
-		//			if (relationNodeModel.getSize() > 0) {
-		//
-		//				final IBeanProxy<Object> bean = relationNodeModel.getBean(i);
-		//				final Node node = nodeMap.get(bean);
-		//			}
-		//		}
 	}
 
 	private void addBeanToGraph(
@@ -149,32 +152,25 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		final IBeanRelationNodeModel<Object, Object> beanRelationNodeModel) {
 
 		final IBeanProxyLabelRenderer<Object> renderer = beanRelationNodeModel.getChildRenderer();
-		if (nodeMap.get(index) != null) {
+		if (nodeMapInt.get(index) != null) {
 			graph.removeNode(nodeMap.get(index));
-			nodeMap.remove(index);
-
+			nodeMapInt.remove(index);
+			nodeMap.remove(bean);
 		}
 
 		final Node childNode = graph.addNode();
-		//		graph.addEdge(rootNode, childNode);
-		Tuple<IBeanRelationNodeModel<Object, Object>, IBeanProxy<Object>> tuple;
-		tuple = new Tuple<IBeanRelationNodeModel<Object, Object>, IBeanProxy<Object>>(beanRelationNodeModel, bean);
-		nodesMap.put(childNode, tuple);
-		nodeMap.put(index, childNode);
+		final Node parentNode = nodeMap.get(beanRelationNodeModel.getParentBean());
+
+		if (parentNode != null && (!bean.isDummy())) {
+			graph.addEdge(parentNode, childNode);
+		}
+
+		nodeMap.put(bean, childNode);
 
 		renderNode(childNode, bean, renderer);
 
 		if (bean.isDummy()) {
 			bean.addMessageStateListener(new DummyBeanMessageStateRenderingListener(childNode, renderer));
-		}
-		else if (beanRelationNodeModel.getChildRelations().size() > 0) {
-			//add dummy relation node
-			final Node childDummyNode = graph.addNode();
-			graph.addEdge(childNode, childDummyNode);
-			//			childNode.addTreeNodeListener(new TreeNodeExpansionListener(childNode, relationNodeModel, bean));
-			//			if (expansionCacheEnabled) {
-			//				childNode.addTreeNodeListener(new TreeNodeExpansionTrackingListener(childNode));
-			//			}
 		}
 
 		for (final IEntityTypeId<Object> childEntityTypeId : beanRelationNodeModel.getChildRelations()) {
@@ -200,9 +196,10 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		@SuppressWarnings("unchecked")
 		@Override
 		public void beansChanged() {
-			onBeansChanged(root);
-			vis.run("color");
-			vis.run("layout");
+			graph.clear();
+			synchronized (vis) {
+				onBeansChanged(root);
+			}
 		}
 	}
 
@@ -216,9 +213,11 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 
 		@Override
 		public void beansChanged() {
-			onBeansChanged(relationNodeModel);
-			vis.run("color");
+			synchronized (vis) {
+				onBeansChanged(relationNodeModel);
+			}
 			vis.run("layout");
+			vis.run("color");
 		}
 	}
 
@@ -242,77 +241,12 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 	}
 
 	private void renderLoadingDummyNode(final Node node) {
-		node.set("name", "...");
+		//		node.set("name", "...");
 	}
 
 	private static void renderErrorDummyNode(final Node node, final IBeanMessage message) {
 		node.set("name", message.getMessage());
 	}
-
-	//	private int getHeadMatchingLength(final IBeanRelationNodeModel<Object, Object> relationNodeModel) {
-	//
-	//		final int maxMatching = getMaxMatchingLength(relationNodeModel);
-	//		if (maxMatching == 0) {
-	//			return 0;
-	//		}
-	//		final List<Node> children = new ArrayList<Node>();
-	//		for (int i = 0; i < graph.getNodeCount(); i++) {
-	//
-	//			children.add(graph.getNode(i));
-	//		}
-	//
-	//		final ListIterator<Node> treeNodeIterator = children.listIterator(children.size());
-	//		for (int index = 0; index < relationNodeModel.getSize(); index++) {
-	//			if (treeNodeIterator.hasNext()) {
-	//				if (!isNodeAssociatedWithBean(treeNodeIterator.next(), index)) {
-	//					return index;
-	//				}
-	//			}
-	//			else {
-	//				return index;
-	//			}
-	//		}
-	//		return maxMatching;
-	//	}
-	//
-	//	private int getTailMatchingLength(final IBeanRelationNodeModel<Object, Object> relationNodeModel) {
-	//		final int maxMatching = getMaxMatchingLength(relationNodeModel);
-	//		if (maxMatching == 0) {
-	//			return 0;
-	//		}
-	//
-	//		final List<Node> children = new ArrayList<Node>();
-	//		for (int i = 0; i < graph.getNodeCount(); i++) {
-	//			children.add(graph.getNode(i));
-	//		}
-	//
-	//		final ListIterator<Node> treeNodeIterator = children.listIterator(children.size());
-	//		final int relationNodeModelSize = relationNodeModel.getSize();
-	//		for (int index = 0; index < relationNodeModelSize; index++) {
-	//			if (treeNodeIterator.hasPrevious()) {
-	//				final int beanIndex = relationNodeModelSize - index - 1;
-	//				if (!isNodeAssociatedWithBean(treeNodeIterator.previous(), beanIndex)) {
-	//					return index;
-	//				}
-	//			}
-	//			else {
-	//				return index;
-	//			}
-	//		}
-	//		return maxMatching;
-	//	}
-	//
-	//	private int getMaxMatchingLength(final IBeanRelationNodeModel<Object, Object> relationNodeModel) {
-	//		return Math.min(relationNodeModel.getSize(), graph.getNodeCount());
-	//	}
-	//
-	//	private boolean isNodeAssociatedWithBean(final Node node, final int beanIndex) {
-	//		final Node tmpNode = nodeMap.get(beanIndex);
-	//		if (tmpNode != null) {
-	//			return true;
-	//		}
-	//		return false;
-	//	}
 
 	private final class DummyBeanMessageStateRenderingListener implements IBeanMessageStateListener<Object> {
 
