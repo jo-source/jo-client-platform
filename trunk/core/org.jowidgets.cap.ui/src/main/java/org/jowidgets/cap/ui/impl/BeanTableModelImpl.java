@@ -532,8 +532,11 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	public void dispose() {
 		if (!disposed) {
 			tryCancelAutoRefreshExecutionTask();
+			tryToCanceLoader();
 			disposeObservable.fireOnDispose();
-			clear();
+			lastSelectedBeans.clear();
+			data.clear();
+			addedData.clear();
 			beanListModelObservable.dispose();
 			beanSelectionObservable.dispose();
 			filterChangeObservable.dispose();
@@ -1927,6 +1930,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			column.removeChangeListener(columnChangeListener);
 			column.setVisible(attribute.isVisible());
 			column.setAlignment(attribute.getTableAlignment());
+			column.setWidth(attribute.getTableWidth());
 			if (!onSetConfig) {
 				dataModel.fireDataChanged();
 			}

@@ -86,7 +86,7 @@ public class EntityComponent extends AbstractComponent implements IComponent {
 	private final Map<Object, IAction> linkCreatorActions;
 	private final IEntityTypeId<Object> entityTypeId;
 
-	private EntityMultiDetailView multiDetailView;
+	private BeanRelationTreeDetailView beanRelationTreeDetail;
 
 	public EntityComponent(
 		final IComponentNodeModel componentNodeModel,
@@ -177,17 +177,12 @@ public class EntityComponent extends AbstractComponent implements IComponent {
 		else if (EntityDetailView.ID.equals(viewId)) {
 			return new EntityDetailView(context, tableModel);
 		}
-		else if (EntityMultiDetailView.ID.equals(viewId)) {
-			if (multiDetailView != null) {
-				throw new IllegalStateException("MultiDetailView could only be used once in layout");
+		else if (BeanRelationTreeDetailView.ID.equals(viewId)) {
+			if (beanRelationTreeDetail != null) {
+				throw new IllegalStateException("BeanRelationTreeDetail could only be used once in layout");
 			}
-			multiDetailView = new EntityMultiDetailView(context);
-			multiDetailView.getBeanSelectionForm().registerSelectionObservable(relationTreeModel);
-			//TODO MG this will not work, until it is possible to determine the active view
-			//			for (final LinkedEntityTableView tableView : tableViews) {
-			//				multiDetailView.getBeanSelectionForm().registerSelectionObservable(tableView.getTable().getModel());
-			//			}
-			return multiDetailView;
+			beanRelationTreeDetail = new BeanRelationTreeDetailView(context, relationTreeModel);
+			return beanRelationTreeDetail;
 		}
 		else if (links.containsKey(viewId)) {
 			final IEntityLinkDescriptor link = links.get(viewId);

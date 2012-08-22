@@ -52,6 +52,11 @@ public interface ICapApiBluePrintFactory {
 
 	<CHILD_BEAN_TYPE> IBeanRelationTreeBluePrint<CHILD_BEAN_TYPE> beanRelationTree(IBeanRelationTreeModel<CHILD_BEAN_TYPE> model);
 
+	<CHILD_BEAN_TYPE> IBeanRelationTreeDetailBluePrint<CHILD_BEAN_TYPE> beanRelationTreeDetail();
+
+	<CHILD_BEAN_TYPE> IBeanRelationTreeDetailBluePrint<CHILD_BEAN_TYPE> beanRelationTreeDetail(
+		IBeanRelationTreeModel<CHILD_BEAN_TYPE> model);
+
 	<BEAN_TYPE> IBeanSelectionTableBluePrint<BEAN_TYPE> beanSelectionTable(IBeanTableModel<BEAN_TYPE> model);
 
 	<BEAN_TYPE> IBeanSelectionDialogBluePrint<BEAN_TYPE> beanSelectionDialog();

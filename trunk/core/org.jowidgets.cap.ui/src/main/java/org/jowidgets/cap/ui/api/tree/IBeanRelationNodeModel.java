@@ -41,6 +41,7 @@ import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.model.IDataModel;
 import org.jowidgets.cap.ui.api.model.ILabelModel;
 import org.jowidgets.cap.ui.api.types.IEntityTypeId;
+import org.jowidgets.util.IProvider;
 
 public interface IBeanRelationNodeModel<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> extends
 		ILabelModel,
@@ -57,6 +58,8 @@ public interface IBeanRelationNodeModel<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> exten
 	ICreatorService getCreatorService();
 
 	IReaderService<Object> getReaderService();
+
+	IProvider<Object> getReaderParameterProvider();
 
 	IBeanProxy<PARENT_BEAN_TYPE> getParentBean();
 

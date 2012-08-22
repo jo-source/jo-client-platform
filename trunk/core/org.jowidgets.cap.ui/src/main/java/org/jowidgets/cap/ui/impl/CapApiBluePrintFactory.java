@@ -50,6 +50,7 @@ import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanLinkDialogBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanLinkPanelBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanRelationTreeBluePrint;
+import org.jowidgets.cap.ui.api.widgets.IBeanRelationTreeDetailBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanSelectionDialogBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanSelectionFormBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanSelectionTableBluePrint;
@@ -97,6 +98,21 @@ final class CapApiBluePrintFactory implements ICapApiBluePrintFactory {
 		final IBeanRelationTreeModel<CHILD_BEAN_TYPE> model) {
 		Assert.paramNotNull(model, "model");
 		final IBeanRelationTreeBluePrint<CHILD_BEAN_TYPE> result = beanRelationTree();
+		result.setModel(model);
+		return result;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public <CHILD_BEAN_TYPE> IBeanRelationTreeDetailBluePrint<CHILD_BEAN_TYPE> beanRelationTreeDetail() {
+		return bluePrintFactory.bluePrint(IBeanRelationTreeDetailBluePrint.class);
+	}
+
+	@Override
+	public <CHILD_BEAN_TYPE> IBeanRelationTreeDetailBluePrint<CHILD_BEAN_TYPE> beanRelationTreeDetail(
+		final IBeanRelationTreeModel<CHILD_BEAN_TYPE> model) {
+		Assert.paramNotNull(model, "model");
+		final IBeanRelationTreeDetailBluePrint<CHILD_BEAN_TYPE> result = beanRelationTreeDetail();
 		result.setModel(model);
 		return result;
 	}

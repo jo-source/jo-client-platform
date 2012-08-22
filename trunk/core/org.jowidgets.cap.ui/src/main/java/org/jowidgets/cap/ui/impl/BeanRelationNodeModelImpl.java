@@ -280,6 +280,11 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 	}
 
 	@Override
+	public IProvider<Object> getReaderParameterProvider() {
+		return readerParameterProvider;
+	}
+
+	@Override
 	public String getText() {
 		return label.getText();
 	}
