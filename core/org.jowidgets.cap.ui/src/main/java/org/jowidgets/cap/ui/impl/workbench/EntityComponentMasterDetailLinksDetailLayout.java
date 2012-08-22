@@ -112,7 +112,7 @@ public class EntityComponentMasterDetailLinksDetailLayout {
 		final Map<String, IEntityLinkDescriptor> links) {
 		final IFolderLayoutBuilder result = new FolderLayoutBuilder(LINKED_DETAIL_FOLDER_ID);
 		result.setViewsCloseable(false);
-		result.addView(EntityMultiDetailView.ID, EntityMultiDetailView.DEFAULT_LABEL.get());
+		result.addView(BeanRelationTreeDetailView.ID, BeanRelationTreeDetailView.DEFAULT_LABEL.get());
 		if (hasBeanRelationGraphImpl()) {
 			result.addView(EntityRelationGraphView.ID, EntityRelationGraphView.DEFAULT_LABEL.get());
 		}
