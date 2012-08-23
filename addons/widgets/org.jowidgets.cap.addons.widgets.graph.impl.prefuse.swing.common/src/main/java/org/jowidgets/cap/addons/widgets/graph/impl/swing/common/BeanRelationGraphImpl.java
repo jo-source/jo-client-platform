@@ -33,8 +33,6 @@ import java.awt.Container;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.swing.JPanel;
-
 import org.jowidgets.api.widgets.IControl;
 import org.jowidgets.cap.ui.api.addons.widgets.IBeanRelationGraph;
 import org.jowidgets.cap.ui.api.addons.widgets.IBeanRelationGraphSetupBuilder;
@@ -59,11 +57,23 @@ import prefuse.activity.Activity;
 import prefuse.controls.DragControl;
 import prefuse.controls.FocusControl;
 import prefuse.controls.NeighborHighlightControl;
+import prefuse.controls.PanControl;
+import prefuse.controls.ToolTipControl;
+import prefuse.controls.WheelZoomControl;
+import prefuse.controls.ZoomControl;
+import prefuse.controls.ZoomToFitControl;
 import prefuse.data.Graph;
 import prefuse.data.Node;
+import prefuse.data.Tuple;
+import prefuse.data.event.TupleSetListener;
+import prefuse.data.tuple.TupleSet;
 import prefuse.render.DefaultRendererFactory;
 import prefuse.render.LabelRenderer;
 import prefuse.util.ColorLib;
+import prefuse.util.force.DragForce;
+import prefuse.util.force.ForceSimulator;
+import prefuse.util.force.NBodyForce;
+import prefuse.util.force.SpringForce;
 import prefuse.visual.VisualItem;
 
 class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements IBeanRelationGraph<CHILD_BEAN_TYPE> {
@@ -85,14 +95,28 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		final Container swingContainer,
 		final IBeanRelationGraphSetupBuilder<CHILD_BEAN_TYPE, ?> setup) {
 		super(control);
-
 		this.relationTreeModel = setup.getModel();
 		this.nodeMap = new HashMap<IBeanProxy<Object>, Node>();
 		this.nodeMapInt = new HashMap<Integer, Node>();
 		graph = new Graph();
 		graph.addColumn("name", String.class);
 		vis = new Visualization();
-		vis.add("graph", graph);
+		vis.addGraph("graph", graph);
+
+		final TupleSet focusGroup = vis.getGroup(Visualization.FOCUS_ITEMS);
+		focusGroup.addTupleSetListener(new TupleSetListener() {
+			@Override
+			public void tupleSetChanged(final TupleSet ts, final Tuple[] add, final Tuple[] rem) {
+				for (int i = 0; i < rem.length; ++i) {
+					((VisualItem) rem[i]).setFixed(false);
+				}
+				for (int i = 0; i < add.length; ++i) {
+					((VisualItem) add[i]).setFixed(false);
+					((VisualItem) add[i]).setFixed(true);
+				}
+				vis.run("color");
+			}
+		});
 
 		final ActionList color = new ActionList();
 		color.add(new ColorAction(NODES, VisualItem.FILLCOLOR, ColorLib.rgb(200, 200, 255)));
@@ -101,34 +125,42 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		color.add(new ColorAction(EDGES, VisualItem.FILLCOLOR, ColorLib.gray(200)));
 		color.add(new ColorAction(EDGES, VisualItem.STROKECOLOR, ColorLib.gray(200)));
 
+		final ColorAction fill = new ColorAction(NODES, VisualItem.FILLCOLOR, ColorLib.rgb(200, 200, 255));
+		fill.add("_fixed", ColorLib.rgb(255, 100, 100));
+		fill.add("_highlight", ColorLib.rgb(255, 200, 125));
+
 		final ForceDirectedLayout fdl = new ForceDirectedLayout("graph", true);
+		fdl.setForceSimulator(setForces());
 
 		final ActionList layout = new ActionList(Activity.INFINITY);
 		layout.add(fdl);
+		layout.add(fill);
 		layout.add(new RepaintAction());
 		//		layout.add(new NodeLinkTreeLayout("graph", Constants.ORIENT_LEFT_RIGHT, 50, 0, 8));
 		//		layout.add(new RepaintAction(vis));
 
 		vis.putAction("color", color);
 		vis.putAction("layout", layout);
-
 		final LabelRenderer r = new LabelRenderer("name");
-		//		r.setRoundedCorner(8, 8);
+		r.setRoundedCorner(8, 8);
 
 		vis.setRendererFactory(new DefaultRendererFactory(r));
 
 		display = new Display(vis);
 		display.setHighQuality(true);
-
-		display.addControlListener(new DragControl());
 		display.addControlListener(new FocusControl(1));
+		display.addControlListener(new DragControl());
+		display.addControlListener(new PanControl());
+		display.addControlListener(new ZoomControl());
+		display.addControlListener(new WheelZoomControl());
+		display.addControlListener(new ZoomToFitControl());
 		display.addControlListener(new NeighborHighlightControl());
-		final JPanel panel = new JPanel(new BorderLayout());
-		panel.add(display, BorderLayout.CENTER);
 
+		final ToolTipControl ttc = new ToolTipControl("name");
+		display.addControlListener(ttc);
 		relationTreeModel.getRoot().addBeanListModelListener(new RootModelListener());
 		swingContainer.setLayout(new BorderLayout());
-		swingContainer.add(panel, BorderLayout.SOUTH);
+		swingContainer.add(display, BorderLayout.CENTER);
 
 	}
 
@@ -141,6 +173,11 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 
 		for (int i = 0; i < relationNodeModel.getSize(); i++) {
 			final IBeanProxy<Object> bean = relationNodeModel.getBean(i);
+			if (nodeMapInt.get(i + nodeMap.size()) != null) {
+				graph.removeNode(nodeMap.get(i + nodeMap.size()));
+				nodeMapInt.remove(i + nodeMap.size());
+				nodeMap.remove(bean);
+			}
 			addBeanToGraph(bean, i + nodeMap.size(), relationNodeModel);
 		}
 
@@ -152,11 +189,6 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		final IBeanRelationNodeModel<Object, Object> beanRelationNodeModel) {
 
 		final IBeanProxyLabelRenderer<Object> renderer = beanRelationNodeModel.getChildRenderer();
-		if (nodeMapInt.get(index) != null) {
-			graph.removeNode(nodeMap.get(index));
-			nodeMapInt.remove(index);
-			nodeMap.remove(bean);
-		}
 
 		final Node childNode = graph.addNode();
 		final Node parentNode = nodeMap.get(beanRelationNodeModel.getParentBean());
@@ -178,8 +210,8 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 					beanRelationNodeModel.getChildEntityTypeId(),
 					bean,
 					childEntityTypeId);
-
-			childRelationNodeModel.addBeanListModelListener(new ChildModelListener(childRelationNodeModel));
+			final ChildModelListener childModelListener = new ChildModelListener(childRelationNodeModel);
+			childRelationNodeModel.addBeanListModelListener(childModelListener);
 		}
 
 	}
@@ -197,6 +229,8 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		@Override
 		public void beansChanged() {
 			graph.clear();
+			nodeMap.clear();
+			nodeMapInt.clear();
 			synchronized (vis) {
 				onBeansChanged(root);
 			}
@@ -234,6 +268,18 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 			}
 		}
 
+	}
+
+	private ForceSimulator setForces() {
+		final SpringForce springForce = new SpringForce(5.95E-5F, 120);
+		final NBodyForce nBodyForce = new NBodyForce(-10, 320, 0);
+		final DragForce dragForce = new DragForce(0.100f);
+
+		final ForceSimulator forceSimulator = new ForceSimulator();
+		forceSimulator.addForce(dragForce);
+		forceSimulator.addForce(nBodyForce);
+		forceSimulator.addForce(springForce);
+		return forceSimulator;
 	}
 
 	private static void renderNodeWithLabel(final Node node, final ILabelModel label) {
