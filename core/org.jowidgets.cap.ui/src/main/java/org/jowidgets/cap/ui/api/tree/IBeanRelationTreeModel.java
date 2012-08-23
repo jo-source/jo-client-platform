@@ -58,4 +58,8 @@ public interface IBeanRelationTreeModel<CHILD_BEAN_TYPE> extends
 
 	void setTreeSelection(IBeanRelationNodeModel<Object, Object> parentRelation, Collection<? extends IBeanProxy<?>> beans);
 
+	void addDataModel(IDataModel dataModel);
+
+	void removeDataModel(IDataModel dataModel);
+
 }

@@ -31,15 +31,18 @@ package org.jowidgets.cap.ui.impl;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanSelection;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionEvent;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionListener;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionProvider;
+import org.jowidgets.cap.ui.api.model.IDataModel;
 import org.jowidgets.cap.ui.api.model.IModificationStateListener;
 import org.jowidgets.cap.ui.api.model.IProcessStateListener;
 import org.jowidgets.cap.ui.api.model.LinkType;
@@ -81,9 +84,9 @@ public class BeanRelationTreeModelImpl<CHILD_BEAN_TYPE> implements
 	private final IModificationStateListener modificationStateListener;
 	private final ProcessStateObservable processStateObservable;
 	private final IProcessStateListener processStateListener;
-
 	private final BeanSelectionListener beanSelectionListener;
 	private final Map relationNodes;
+	private final Set<IDataModel> externalDataModels;
 
 	private IBeanSelection<Object> selection;
 	private IBeanRelationTreeSelection treeSelection;
@@ -111,6 +114,7 @@ public class BeanRelationTreeModelImpl<CHILD_BEAN_TYPE> implements
 		}
 
 		this.relationNodes = new HashMap();
+		this.externalDataModels = new LinkedHashSet();
 
 		this.beanSelectionObservable = new BeanSelectionObservable<Object>();
 		this.beanRelationTreeSelectionObservable = new BeanRelationTreeSelectionObservableImpl();
@@ -175,6 +179,9 @@ public class BeanRelationTreeModelImpl<CHILD_BEAN_TYPE> implements
 	public void load() {
 		clear();
 		root.load();
+		for (final IDataModel dataModel : externalDataModels) {
+			dataModel.load();
+		}
 	}
 
 	@Override
@@ -183,6 +190,9 @@ public class BeanRelationTreeModelImpl<CHILD_BEAN_TYPE> implements
 		for (final Object relationModelObject : relationNodes.values()) {
 			final IBeanRelationNodeModel<?, ?> relationModel = (IBeanRelationNodeModel<?, ?>) relationModelObject;
 			relationModel.dispose();
+		}
+		for (final IDataModel dataModel : externalDataModels) {
+			dataModel.clear();
 		}
 		relationNodes.clear();
 	}
@@ -198,6 +208,11 @@ public class BeanRelationTreeModelImpl<CHILD_BEAN_TYPE> implements
 				relationModel.save();
 			}
 		}
+		for (final IDataModel dataModel : externalDataModels) {
+			if (dataModel.hasModifications()) {
+				dataModel.save();
+			}
+		}
 	}
 
 	@Override
@@ -211,6 +226,11 @@ public class BeanRelationTreeModelImpl<CHILD_BEAN_TYPE> implements
 				relationModel.undo();
 			}
 		}
+		for (final IDataModel dataModel : externalDataModels) {
+			if (dataModel.hasModifications()) {
+				dataModel.undo();
+			}
+		}
 	}
 
 	@Override
@@ -221,6 +241,11 @@ public class BeanRelationTreeModelImpl<CHILD_BEAN_TYPE> implements
 		for (final Object relationModelObject : relationNodes.values()) {
 			final IBeanRelationNodeModel<?, ?> relationModel = (IBeanRelationNodeModel<?, ?>) relationModelObject;
 			if (relationModel.hasModifications()) {
+				return true;
+			}
+		}
+		for (final IDataModel dataModel : externalDataModels) {
+			if (dataModel.hasModifications()) {
 				return true;
 			}
 		}
@@ -238,6 +263,11 @@ public class BeanRelationTreeModelImpl<CHILD_BEAN_TYPE> implements
 				return true;
 			}
 		}
+		for (final IDataModel dataModel : externalDataModels) {
+			if (dataModel.hasExecutions()) {
+				return true;
+			}
+		}
 		return false;
 	}
 
@@ -247,6 +277,9 @@ public class BeanRelationTreeModelImpl<CHILD_BEAN_TYPE> implements
 		for (final Object relationModelObject : relationNodes.values()) {
 			final IBeanRelationNodeModel<?, ?> relationModel = (IBeanRelationNodeModel<?, ?>) relationModelObject;
 			relationModel.cancelExecutions();
+		}
+		for (final IDataModel dataModel : externalDataModels) {
+			dataModel.cancelExecutions();
 		}
 	}
 
@@ -263,7 +296,28 @@ public class BeanRelationTreeModelImpl<CHILD_BEAN_TYPE> implements
 			final IBeanRelationNodeModel<?, ?> relationModel = (IBeanRelationNodeModel<?, ?>) relationModelObject;
 			builder.addResult(relationModel.validate());
 		}
+		for (final IDataModel dataModel : externalDataModels) {
+			builder.addResult(dataModel.validate());
+		}
 		return builder.build();
+	}
+
+	@Override
+	public void addDataModel(final IDataModel dataModel) {
+		Assert.paramNotNull(dataModel, "dataModel");
+		externalDataModels.add(dataModel);
+		dataModel.addModificationStateListener(modificationStateListener);
+		dataModel.addValidationConditionListener(validationConditionListener);
+		dataModel.addProcessStateListener(processStateListener);
+	}
+
+	@Override
+	public void removeDataModel(final IDataModel dataModel) {
+		Assert.paramNotNull(dataModel, "dataModel");
+		externalDataModels.remove(dataModel);
+		dataModel.removeModificationStateListener(modificationStateListener);
+		dataModel.removeValidationConditionListener(validationConditionListener);
+		dataModel.removeProcessStateListener(processStateListener);
 	}
 
 	@Override

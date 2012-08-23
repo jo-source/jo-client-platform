@@ -181,7 +181,7 @@ public class EntityComponent extends AbstractComponent implements IComponent {
 			if (beanRelationTreeDetail != null) {
 				throw new IllegalStateException("BeanRelationTreeDetail could only be used once in layout");
 			}
-			beanRelationTreeDetail = new BeanRelationTreeDetailView(context, relationTreeModel);
+			beanRelationTreeDetail = new BeanRelationTreeDetailView(context, tableModel, relationTreeModel);
 			return beanRelationTreeDetail;
 		}
 		else if (links.containsKey(viewId)) {
