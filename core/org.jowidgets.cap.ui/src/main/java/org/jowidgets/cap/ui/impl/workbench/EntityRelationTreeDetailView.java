@@ -67,6 +67,9 @@ final class EntityRelationTreeDetailView extends AbstractView {
 	private final IBeanTableModel<Object> rootTableModel;
 	private final IEntityService entityService;
 
+	private IBeanTableModel<Object> currentRelationTableModel;
+	private IBeanRelationNodeModel<Object, Object> currentRelationNode;
+
 	EntityRelationTreeDetailView(
 		final IViewContext context,
 		final IBeanTableModel<Object> rootTableModel,
@@ -90,6 +93,14 @@ final class EntityRelationTreeDetailView extends AbstractView {
 		treeDetail.addBeanTableLifecycleInterceptor(interceptor);
 	}
 
+	IBeanTableModel<Object> getCurrentRelationTableModel() {
+		return currentRelationTableModel;
+	}
+
+	IBeanRelationNodeModel<Object, Object> getCurrentRelationNode() {
+		return currentRelationNode;
+	}
+
 	private final class BeanTableLifecycleInterceptorAdapterImpl extends BeanTableLifecycleInterceptorAdapter<Object> {
 
 		@Override
@@ -110,6 +121,14 @@ final class EntityRelationTreeDetailView extends AbstractView {
 			if (link != null && link.getLinkDeleterService() != null) {
 				table.getCellPopMenu().addAction(createLinkDeleterAction(relationNode, table, link));
 			}
+			currentRelationNode = relationNode;
+			currentRelationTableModel = table.getModel();
+		}
+
+		@Override
+		public void beforeTableDispose(final IBeanTable<Object> table) {
+			currentRelationNode = null;
+			currentRelationTableModel = null;
 		}
 
 		private IAction createLinkCreatorAction(

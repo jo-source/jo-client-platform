@@ -74,7 +74,7 @@ class EntityComponent extends AbstractComponent implements IComponent {
 	private final List<IAction> linkCreatorActions;
 	private final IEntityTypeId<Object> entityTypeId;
 
-	private EntityRelationTreeDetailView beanRelationTreeDetail;
+	private EntityRelationTreeDetailView relationTreeDetail;
 
 	EntityComponent(
 		final IComponentNodeModel componentNodeModel,
@@ -116,6 +116,11 @@ class EntityComponent extends AbstractComponent implements IComponent {
 					addBeanToTreeInterceptor = new BeanAddToTreeInterceptor(entityTypeId, linkedEntityTypeId);
 					linkCreatorActionBuilder.addExecutionInterceptor(addBeanToTreeInterceptor);
 
+					//add interceptor that adds created links to the tree details table
+					BeanAddToTreeDetailInterceptor beanAddToTreeDetailInterceptor;
+					beanAddToTreeDetailInterceptor = new BeanAddToTreeDetailInterceptor(linkedEntityTypeId);
+					linkCreatorActionBuilder.addExecutionInterceptor(beanAddToTreeDetailInterceptor);
+
 					linkCreatorActions.add(linkCreatorActionBuilder.build());
 				}
 			}
@@ -151,11 +156,11 @@ class EntityComponent extends AbstractComponent implements IComponent {
 			return new EntityDetailView(context, tableModel);
 		}
 		else if (EntityRelationTreeDetailView.ID.equals(viewId)) {
-			if (beanRelationTreeDetail != null) {
+			if (relationTreeDetail != null) {
 				throw new IllegalStateException("BeanRelationTreeDetail could only be used once in layout");
 			}
-			beanRelationTreeDetail = new EntityRelationTreeDetailView(context, tableModel, relationTreeModel);
-			return beanRelationTreeDetail;
+			relationTreeDetail = new EntityRelationTreeDetailView(context, tableModel, relationTreeModel);
+			return relationTreeDetail;
 		}
 		else {
 			throw new IllegalArgumentException("View id '" + viewId + "' is not known.");
@@ -233,6 +238,40 @@ class EntityComponent extends AbstractComponent implements IComponent {
 					relationNodeModel = relationTreeModel.getNode(entityTypeId, bean, linkedEntityTypeId);
 					for (final IBeanDto beanDto : result) {
 						relationNodeModel.addBeanDto(beanDto);
+					}
+				}
+			}
+		}
+	}
+
+	private final class BeanAddToTreeDetailInterceptor extends ExecutionInterceptorAdapter<List<IBeanDto>> {
+
+		private final IEntityTypeId<Object> linkedEntityTypeId;
+
+		private List<IBeanProxy<Object>> selection;
+
+		private BeanAddToTreeDetailInterceptor(final IEntityTypeId<Object> linkedEntityTypeId) {
+			this.linkedEntityTypeId = linkedEntityTypeId;
+		}
+
+		@Override
+		public void beforeExecution(final IExecutionContext executionContext, final IVetoable continueExecution) {
+			this.selection = tableModel.getSelectedBeans();
+		}
+
+		@Override
+		public void afterExecutionSuccess(final IExecutionContext executionContext, final List<IBeanDto> result) {
+			if (relationTreeDetail != null) {
+				final IBeanTableModel<Object> relationTableModel = relationTreeDetail.getCurrentRelationTableModel();
+				final IBeanRelationNodeModel<Object, Object> relationNode = relationTreeDetail.getCurrentRelationNode();
+				if (relationNode != null && relationTableModel != null) {
+					for (final IBeanProxy<Object> bean : selection) {
+						if (linkedEntityTypeId.equals(relationNode.getChildEntityTypeId())
+							&& bean.equals(relationNode.getParentBean())) {
+							for (final IBeanDto beanDto : result) {
+								relationTableModel.addBeanDto(beanDto);
+							}
+						}
 					}
 				}
 			}
