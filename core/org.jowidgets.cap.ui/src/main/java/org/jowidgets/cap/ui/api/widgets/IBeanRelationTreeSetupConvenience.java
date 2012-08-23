@@ -28,10 +28,13 @@
 package org.jowidgets.cap.ui.api.widgets;
 
 import org.jowidgets.cap.ui.api.tree.IBeanRelationNodeModel;
+import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeMenuInterceptor;
 import org.jowidgets.util.IFilter;
 
 public interface IBeanRelationTreeSetupConvenience<INSTANCE_TYPE> {
 
 	INSTANCE_TYPE addChildRelationFilter(IFilter<IBeanRelationNodeModel<Object, Object>> filter);
+
+	INSTANCE_TYPE addMenuInterceptor(IBeanRelationTreeMenuInterceptor interceptor);
 
 }
