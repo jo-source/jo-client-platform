@@ -87,6 +87,10 @@ public interface IBeanRelationNodeModel<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> exten
 
 	void setSelectedBeans(Collection<? extends IBeanProxy<CHILD_BEAN_TYPE>> selectedBeans);
 
+	void refreshBean(final IBeanProxy<CHILD_BEAN_TYPE> bean);
+
+	void refreshBeans(final Collection<IBeanProxy<CHILD_BEAN_TYPE>> beans);
+
 	void dispose();
 
 }

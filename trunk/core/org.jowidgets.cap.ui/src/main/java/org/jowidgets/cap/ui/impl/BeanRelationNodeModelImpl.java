@@ -110,12 +110,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 	private final IReaderService<Object> readerService;
 	private final IProvider<Object> readerParameterProvider;
 	private final ICreatorService creatorService;
-	@SuppressWarnings("unused")
-	private final IRefreshService refreshService;
-	@SuppressWarnings("unused")
-	private final IUpdaterService updaterService;
-	@SuppressWarnings("unused")
-	private final IDeleterService deleterService;
+	private final BeanListRefreshDelegate<CHILD_BEAN_TYPE> refreshDelegate;
 	private final List<ISort> defaultSort;
 	private final List<IBeanPropertyValidator<CHILD_BEAN_TYPE>> beanPropertyValidators;
 	private final List<IAttribute<Object>> childBeanAttributes;
@@ -180,9 +175,6 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 		this.pageSize = pageSize;
 		this.readerParameterProvider = (IProvider<Object>) readerParameterProvider;
 		this.creatorService = creatorService;
-		this.refreshService = refreshService;
-		this.updaterService = updaterService;
-		this.deleterService = deleterService;
 		this.defaultSort = new LinkedList<ISort>(defaultSort);
 		this.childBeanAttributes = Collections.unmodifiableList(new LinkedList<IAttribute<Object>>(childBeanAttributes));
 		this.exceptionConverter = exceptionConverter;
@@ -212,6 +204,12 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 			creatorService,
 			propertyNames,
 			false);
+
+		this.refreshDelegate = new BeanListRefreshDelegate<CHILD_BEAN_TYPE>(
+			this,
+			exceptionConverter,
+			BeanExecutionPolicy.BATCH,
+			refreshService);
 
 		this.hasInitialLoad = false;
 	}
@@ -282,6 +280,16 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 	@Override
 	public IProvider<Object> getReaderParameterProvider() {
 		return readerParameterProvider;
+	}
+
+	@Override
+	public void refreshBean(final IBeanProxy<CHILD_BEAN_TYPE> bean) {
+		refreshBeans(Collections.singletonList(bean));
+	}
+
+	@Override
+	public void refreshBeans(final Collection<IBeanProxy<CHILD_BEAN_TYPE>> beans) {
+		refreshDelegate.refresh(beans);
 	}
 
 	@Override

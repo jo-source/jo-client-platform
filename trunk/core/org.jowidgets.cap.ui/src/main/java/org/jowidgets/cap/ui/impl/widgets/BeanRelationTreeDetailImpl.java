@@ -202,6 +202,7 @@ final class BeanRelationTreeDetailImpl<CHILD_BEAN_TYPE> extends ControlWrapper i
 		fireOnModelCreate(relation, builder);
 		final IBeanTableModel<Object> result = builder.build();
 		fireAfterModelCreated(relation, result);
+		treeModel.addDataModel(result);
 		return result;
 	}
 
@@ -229,6 +230,7 @@ final class BeanRelationTreeDetailImpl<CHILD_BEAN_TYPE> extends ControlWrapper i
 		if (lastBeanTable != null) {
 			final IBeanTableModel<Object> model = lastBeanTable.getModel();
 			fireBeforeTableDispose(lastBeanTable);
+			treeModel.removeDataModel(model);
 			tableContainer.removeAll();
 			fireBeforeModelDispose(model);
 			model.dispose();
