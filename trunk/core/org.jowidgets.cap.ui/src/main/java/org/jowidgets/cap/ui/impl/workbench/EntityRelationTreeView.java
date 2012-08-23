@@ -36,11 +36,11 @@ import org.jowidgets.tools.layout.MigLayoutFactory;
 import org.jowidgets.workbench.api.IViewContext;
 import org.jowidgets.workbench.tools.AbstractView;
 
-public class EntityRelationTreeView extends AbstractView {
+class EntityRelationTreeView extends AbstractView {
 
-	public static final String ID = EntityRelationTreeView.class.getName();
+	static final String ID = EntityRelationTreeView.class.getName();
 
-	public EntityRelationTreeView(final IViewContext context, final IBeanRelationTreeModel<?> parentModel) {
+	EntityRelationTreeView(final IViewContext context, final IBeanRelationTreeModel<?> parentModel) {
 		final IContainer container = context.getContainer();
 		container.setLayout(MigLayoutFactory.growingInnerCellLayout());
 		final IBeanRelationTreeBluePrint<?> beanRelationTreeBp = CapUiToolkit.bluePrintFactory().beanRelationTree(parentModel);

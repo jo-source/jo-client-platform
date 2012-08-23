@@ -37,13 +37,13 @@ import org.jowidgets.tools.layout.MigLayoutFactory;
 import org.jowidgets.workbench.api.IViewContext;
 import org.jowidgets.workbench.tools.AbstractView;
 
-public class EntityRelationGraphView extends AbstractView {
+class EntityRelationGraphView extends AbstractView {
 
 	public static final String ID = EntityRelationGraphView.class.getName();
 
-	public static final IMessage DEFAULT_LABEL = Messages.getMessage("EntityRelationGraphView.graph"); //$NON-NLS-1$
+	public static final IMessage DEFAULT_LABEL = Messages.getMessage("EntityRelationGraphView.graph");
 
-	public EntityRelationGraphView(final IViewContext context, final IBeanRelationTreeModel<?> parentModel) {
+	EntityRelationGraphView(final IViewContext context, final IBeanRelationTreeModel<?> parentModel) {
 		final IContainer container = context.getContainer();
 		container.setLayout(MigLayoutFactory.growingInnerCellLayout());
 		final IBeanRelationGraphBluePrint<?> beanRelationGraphBp = GraphBPF.beanRelationGraph(parentModel);

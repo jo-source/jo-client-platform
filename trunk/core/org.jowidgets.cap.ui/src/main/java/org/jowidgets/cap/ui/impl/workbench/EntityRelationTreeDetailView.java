@@ -59,15 +59,15 @@ import org.jowidgets.tools.layout.MigLayoutFactory;
 import org.jowidgets.workbench.api.IViewContext;
 import org.jowidgets.workbench.tools.AbstractView;
 
-public final class BeanRelationTreeDetailView extends AbstractView {
+final class EntityRelationTreeDetailView extends AbstractView {
 
-	public static final String ID = BeanRelationTreeDetailView.class.getName();
-	public static final IMessage DEFAULT_LABEL = Messages.getMessage("MultiDetailView.details");
+	public static final String ID = EntityRelationTreeDetailView.class.getName();
+	public static final IMessage DEFAULT_LABEL = Messages.getMessage("EntityRelationTreeDetailView.details");
 
 	private final IBeanTableModel<Object> rootTableModel;
 	private final IEntityService entityService;
 
-	BeanRelationTreeDetailView(
+	EntityRelationTreeDetailView(
 		final IViewContext context,
 		final IBeanTableModel<Object> rootTableModel,
 		final IBeanRelationTreeModel<?> treeModel) {
@@ -96,15 +96,16 @@ public final class BeanRelationTreeDetailView extends AbstractView {
 		public void onTableCreate(
 			final IBeanRelationNodeModel<Object, Object> relationNode,
 			final IBeanTableSetupBuilder<Object> builder) {
-			builder.setDefaultCreatorAction(false).setDefaultDeleterAction(false);
+			builder.setDefaultCreatorAction(false);
 		}
 
 		@Override
 		public void afterTableCreated(final IBeanRelationNodeModel<Object, Object> relationNode, final IBeanTable<Object> table) {
-
 			final IEntityLinkDescriptor link = getLinkDescriptor(relationNode);
 			if (link != null && link.getLinkCreatorService() != null) {
-				table.getCellPopMenu().addAction(createLinkCreatorAction(relationNode, table, link));
+				final IAction linkCreatorAction = createLinkCreatorAction(relationNode, table, link);
+				table.getCellPopMenu().addAction(linkCreatorAction);
+				table.getTablePopupMenu().addAction(linkCreatorAction);
 			}
 			if (link != null && link.getLinkDeleterService() != null) {
 				table.getCellPopMenu().addAction(createLinkDeleterAction(relationNode, table, link));
