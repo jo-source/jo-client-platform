@@ -26,32 +26,29 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.impl.workbench;
+package org.jowidgets.cap.ui.api.tree;
 
-import org.jowidgets.api.widgets.IContainer;
-import org.jowidgets.cap.ui.api.CapUiToolkit;
-import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeMenuInterceptor;
-import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeModel;
-import org.jowidgets.cap.ui.api.widgets.IBeanRelationTreeBluePrint;
-import org.jowidgets.tools.layout.MigLayoutFactory;
-import org.jowidgets.workbench.api.IViewContext;
-import org.jowidgets.workbench.tools.AbstractView;
+import org.jowidgets.api.model.item.IMenuModel;
+import org.jowidgets.cap.ui.api.command.IDeleterActionBuilder;
+import org.jowidgets.cap.ui.api.command.ILinkCreatorActionBuilder;
+import org.jowidgets.cap.ui.api.command.ILinkDeleterActionBuilder;
 
-class EntityRelationTreeView extends AbstractView {
+public interface IBeanRelationTreeMenuInterceptor {
 
-	static final String ID = EntityRelationTreeView.class.getName();
+	IMenuModel relationMenu(IBeanRelationNodeModel<Object, Object> relationNode, IMenuModel menuModel);
 
-	EntityRelationTreeView(
-		final IViewContext context,
-		final IBeanRelationTreeModel<?> parentModel,
-		final IBeanRelationTreeMenuInterceptor treeMenuInterceptor) {
-		final IContainer container = context.getContainer();
-		container.setLayout(MigLayoutFactory.growingInnerCellLayout());
-		final IBeanRelationTreeBluePrint<?> beanRelationTreeBp = CapUiToolkit.bluePrintFactory().beanRelationTree(parentModel);
-		beanRelationTreeBp.addMenuInterceptor(treeMenuInterceptor);
+	IMenuModel nodeMenu(IBeanRelationNodeModel<Object, Object> relationNode, IMenuModel menuModel);
 
-		beanRelationTreeBp.setAutoExpandLevel(2);
-		container.add(beanRelationTreeBp, MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
-	}
+	ILinkCreatorActionBuilder<Object, Object, Object> linkCreatorActionBuilder(
+		IBeanRelationNodeModel<Object, Object> relationNode,
+		ILinkCreatorActionBuilder<Object, Object, Object> builder);
+
+	ILinkDeleterActionBuilder<Object, Object> linkDeleterActionBuilder(
+		IBeanRelationNodeModel<Object, Object> relationNode,
+		ILinkDeleterActionBuilder<Object, Object> builder);
+
+	IDeleterActionBuilder<Object> deleterActionBuilder(
+		IBeanRelationNodeModel<Object, Object> relationNode,
+		IDeleterActionBuilder<Object> builder);
 
 }

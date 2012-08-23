@@ -26,38 +26,46 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.impl.widgets;
+package org.jowidgets.cap.ui.tools.tree;
 
+import org.jowidgets.api.model.item.IMenuModel;
+import org.jowidgets.cap.ui.api.command.IDeleterActionBuilder;
+import org.jowidgets.cap.ui.api.command.ILinkCreatorActionBuilder;
+import org.jowidgets.cap.ui.api.command.ILinkDeleterActionBuilder;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationNodeModel;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeMenuInterceptor;
-import org.jowidgets.cap.ui.api.widgets.IBeanRelationTreeSetupBuilder;
-import org.jowidgets.cap.ui.api.widgets.IBeanRelationTreeSetupConvenience;
-import org.jowidgets.tools.widgets.blueprint.convenience.AbstractSetupBuilderConvenience;
-import org.jowidgets.util.Assert;
-import org.jowidgets.util.FilterComposite;
-import org.jowidgets.util.IFilter;
 
-final class BeanRelationTreeSetupConvenience extends
-		AbstractSetupBuilderConvenience<IBeanRelationTreeSetupBuilder<IBeanRelationTreeSetupBuilder<?>>> implements
-		IBeanRelationTreeSetupConvenience<IBeanRelationTreeSetupBuilder<IBeanRelationTreeSetupBuilder<?>>> {
+public class BeanRelationTreeMenuInterceptorAdapter implements IBeanRelationTreeMenuInterceptor {
 
 	@Override
-	public IBeanRelationTreeSetupBuilder<IBeanRelationTreeSetupBuilder<?>> addChildRelationFilter(
-		final IFilter<IBeanRelationNodeModel<Object, Object>> filter) {
-		Assert.paramNotNull(filter, "filter");
-		final IBeanRelationTreeSetupBuilder<IBeanRelationTreeSetupBuilder<?>> builder = getBuilder();
-		final IFilter<IBeanRelationNodeModel<Object, Object>> currentFilter = builder.getChildRelationFilter();
-		builder.setChildRelationFilter(FilterComposite.create(currentFilter, filter));
+	public IMenuModel relationMenu(final IBeanRelationNodeModel<Object, Object> relationNode, final IMenuModel menuModel) {
+		return menuModel;
+	}
+
+	@Override
+	public IMenuModel nodeMenu(final IBeanRelationNodeModel<Object, Object> relationNode, final IMenuModel menuModel) {
+		return menuModel;
+	}
+
+	@Override
+	public ILinkCreatorActionBuilder<Object, Object, Object> linkCreatorActionBuilder(
+		final IBeanRelationNodeModel<Object, Object> relationNode,
+		final ILinkCreatorActionBuilder<Object, Object, Object> builder) {
 		return builder;
 	}
 
 	@Override
-	public IBeanRelationTreeSetupBuilder<IBeanRelationTreeSetupBuilder<?>> addMenuInterceptor(
-		final IBeanRelationTreeMenuInterceptor addedInterceptor) {
-		Assert.paramNotNull(addedInterceptor, "addedInterceptor");
-		final IBeanRelationTreeSetupBuilder<IBeanRelationTreeSetupBuilder<?>> builder = getBuilder();
-		final IBeanRelationTreeMenuInterceptor currentInterceptor = builder.getMenuInterceptor();
-		builder.setMenuInterceptor(BeanRelationTreeMenuInterceptorComposite.create(currentInterceptor, addedInterceptor));
+	public ILinkDeleterActionBuilder<Object, Object> linkDeleterActionBuilder(
+		final IBeanRelationNodeModel<Object, Object> relationNode,
+		final ILinkDeleterActionBuilder<Object, Object> builder) {
 		return builder;
 	}
+
+	@Override
+	public IDeleterActionBuilder<Object> deleterActionBuilder(
+		final IBeanRelationNodeModel<Object, Object> relationNode,
+		final IDeleterActionBuilder<Object> builder) {
+		return builder;
+	}
+
 }

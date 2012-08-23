@@ -41,6 +41,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.jowidgets.api.color.Colors;
+import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.controller.IDisposeListener;
 import org.jowidgets.api.controller.ITreeSelectionEvent;
 import org.jowidgets.api.controller.ITreeSelectionListener;
@@ -62,11 +63,13 @@ import org.jowidgets.cap.ui.api.bean.IBeanProxyLabelRenderer;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionProvider;
 import org.jowidgets.cap.ui.api.command.ICapActionFactory;
 import org.jowidgets.cap.ui.api.command.IDeleterActionBuilder;
+import org.jowidgets.cap.ui.api.command.ILinkCreatorActionBuilder;
 import org.jowidgets.cap.ui.api.command.ILinkDeleterActionBuilder;
 import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
 import org.jowidgets.cap.ui.api.model.ILabelModel;
 import org.jowidgets.cap.ui.api.plugin.IBeanRelationTreePlugin;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationNodeModel;
+import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeMenuInterceptor;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeModel;
 import org.jowidgets.cap.ui.api.types.IEntityTypeId;
 import org.jowidgets.cap.ui.api.widgets.IBeanRelationTree;
@@ -96,6 +99,7 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 
 	private final IBeanRelationTreeModel<CHILD_BEAN_TYPE> treeModel;
 	private final IFilter<IBeanRelationNodeModel<Object, Object>> childRelationFilter;
+	private final IBeanRelationTreeMenuInterceptor menuInterceptor;
 	private final boolean autoSelection;
 	private final boolean treeMultiSelection;
 	private final int autoExpandLevel;
@@ -114,6 +118,7 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 		this.autoExpandLevel = bluePrint.getAutoExpandLevel();
 		this.childRelationFilter = bluePrint.getChildRelationFilter();
 		this.expansionCacheEnabled = bluePrint.getExpansionCacheEnabled();
+		this.menuInterceptor = bluePrint.getMenuInterceptor();
 		this.nodesMap = new HashMap<ITreeNode, Tuple<IBeanRelationNodeModel<Object, Object>, IBeanProxy<Object>>>();
 		this.expandedNodesCache = new LinkedHashSet<ExpandedNodeKey>();
 
@@ -158,7 +163,10 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 		return treeModel;
 	}
 
-	private void onBeansChanged(final ITreeContainer treeContainer, final IBeanRelationNodeModel<Object, Object> relationNodeModel) {
+	private void onBeansChanged(
+		final ITreeContainer treeContainer,
+		final IBeanRelationNodeModel<Object, Object> relationNodeModel,
+		final IMenuModel nodeMenu) {
 		final int oldSize = treeContainer.getChildren().size();
 
 		final int headMatching = getHeadMatchingLength(treeContainer, relationNodeModel);
@@ -171,7 +179,7 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 			final IBeanProxy<Object> bean = relationNodeModel.getBean(i);
 
 			//add the bean to tree container
-			addBeanToTreeContainer(bean, beansToDelete + i, treeContainer, relationNodeModel);
+			addBeanToTreeContainer(bean, beansToDelete + i, treeContainer, relationNodeModel, nodeMenu);
 		}
 
 		//remove the old beans
@@ -259,7 +267,8 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 		final IBeanProxy<Object> bean,
 		final int index,
 		final ITreeContainer treeContainer,
-		final IBeanRelationNodeModel<Object, Object> relationNodeModel) {
+		final IBeanRelationNodeModel<Object, Object> relationNodeModel,
+		final IMenuModel nodeMenu) {
 
 		//the renderer for the child nodes
 		final IBeanProxyLabelRenderer<Object> renderer = relationNodeModel.getChildRenderer();
@@ -268,12 +277,9 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 		final ITreeNode childNode = treeContainer.addNode(index);
 		renderNode(childNode, bean, renderer);
 
-		//TODO MG remove this later BEGIN
-		final IMenuModel menu = createNodeMenus(relationNodeModel);
-		if (menu.getChildren().size() > 0) {
-			childNode.setPopupMenu(menu);
+		if (nodeMenu.getChildren().size() > 0) {
+			childNode.setPopupMenu(nodeMenu);
 		}
-		//TODO MG remove this later END
 
 		//map the child node to the relation model
 		Tuple<IBeanRelationNodeModel<Object, Object>, IBeanProxy<Object>> tuple;
@@ -326,80 +332,140 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 		}
 	}
 
-	private IMenuModel createRelationNodeMenus(
-		final IBeanRelationNodeModel<Object, Object> childRelationNodeModel,
-		final IBeanProxy<Object> bean) {
+	private IMenuModel createRelationNodeMenus(final IBeanRelationNodeModel<Object, Object> relationNodeModel) {
 		final IMenuModel result = new MenuModel();
-
-		final ICapActionFactory actionFactory = CapUiToolkit.actionFactory();
 		final IEntityService entityService = ServiceProvider.getService(IEntityService.ID);
 		if (entityService != null) {
-			final List<IEntityLinkDescriptor> links = entityService.getEntityLinks(childRelationNodeModel.getParentEntityId());
+			final List<IEntityLinkDescriptor> links = entityService.getEntityLinks(relationNodeModel.getParentEntityId());
 			for (final IEntityLinkDescriptor link : links) {
-				if (childRelationNodeModel.getChildEntityId().equals(link.getLinkedEntityId())) {
-					final IBeanSelectionProvider<?> source = new SingleBeanSelectionProvider<Object>(
-						bean,
-						childRelationNodeModel.getParentEntityId(),
-						childRelationNodeModel.getParentBeanType());
-					try {
-						result.addAction(actionFactory.linkCreatorAction(source, childRelationNodeModel, link));
-					}
-					catch (final Exception e) {
+				if (relationNodeModel.getChildEntityId().equals(link.getLinkedEntityId())) {
+					final IAction linkCreatorAction = createLinkCreatorAction(relationNodeModel, link);
+					if (linkCreatorAction != null) {
+						result.addAction(linkCreatorAction);
 					}
 				}
 			}
 		}
+		if (menuInterceptor != null) {
+			return menuInterceptor.relationMenu(relationNodeModel, result);
+		}
+		else {
+			return result;
+		}
+	}
 
-		return result;
+	private IAction createLinkCreatorAction(
+		final IBeanRelationNodeModel<Object, Object> relationNodeModel,
+		final IEntityLinkDescriptor link) {
+		final ICapActionFactory actionFactory = CapUiToolkit.actionFactory();
+		final IBeanSelectionProvider<Object> source = new SingleBeanSelectionProvider<Object>(
+			relationNodeModel.getParentBean(),
+			relationNodeModel.getParentEntityId(),
+			relationNodeModel.getParentBeanType());
+		try {
+			if (link.getLinkCreatorService() != null) {
+				ILinkCreatorActionBuilder<Object, Object, Object> builder = actionFactory.linkCreatorActionBuilder(source, link);
+				builder.setLinkedModel(relationNodeModel);
+				if (menuInterceptor != null) {
+					builder = menuInterceptor.linkCreatorActionBuilder(relationNodeModel, builder);
+				}
+				if (builder != null) {
+					return builder.build();
+				}
+			}
+		}
+		catch (final Exception e) {
+		}
+		return null;
 	}
 
 	private IMenuModel createNodeMenus(final IBeanRelationNodeModel<Object, Object> relationNodeModel) {
 		final IMenuModel result = new MenuModel();
 
-		final ICapActionFactory actionFactory = CapUiToolkit.actionFactory();
 		final IEntityService entityService = ServiceProvider.getService(IEntityService.ID);
 		if (entityService != null) {
 			final Object childEntityId = relationNodeModel.getChildEntityId();
 			if (relationNodeModel.getParentEntityId() != null && relationNodeModel.getParentBean() != null) {
 				final List<IEntityLinkDescriptor> links = entityService.getEntityLinks(relationNodeModel.getParentEntityId());
 				for (final IEntityLinkDescriptor link : links) {
-					if (childEntityId.equals(link.getLinkedEntityId()) && link.getLinkDeleterService() != null) {
-						final IBeanSelectionProvider<?> source = new SingleBeanSelectionProvider<Object>(
-							relationNodeModel.getParentBean(),
-							relationNodeModel.getParentEntityId(),
-							relationNodeModel.getParentBeanType());
-						try {
-							final ILinkDeleterActionBuilder<?, Object> builder = actionFactory.linkDeleterActionBuilder(
-									source,
-									relationNodeModel,
-									link);
-							builder.setLinkedMultiSelection(treeMultiSelection);
-							result.addAction(builder.build());
-						}
-						catch (final Exception e) {
+					if (childEntityId.equals(link.getLinkedEntityId())) {
+						final IAction linkDeleterAction = createLinkDeleterAction(relationNodeModel, link);
+						if (linkDeleterAction != null) {
+							result.addAction(linkDeleterAction);
 						}
 					}
 				}
 			}
+			final IAction deleterAction = createDeleterAction(relationNodeModel);
+			if (deleterAction != null) {
+				result.addAction(deleterAction);
+			}
+		}
+
+		if (menuInterceptor != null) {
+			return menuInterceptor.nodeMenu(relationNodeModel, result);
+		}
+		else {
+			return result;
+		}
+	}
+
+	private IAction createLinkDeleterAction(
+		final IBeanRelationNodeModel<Object, Object> relationNodeModel,
+		final IEntityLinkDescriptor link) {
+		final ICapActionFactory actionFactory = CapUiToolkit.actionFactory();
+		final IBeanSelectionProvider<Object> source = new SingleBeanSelectionProvider<Object>(
+			relationNodeModel.getParentBean(),
+			relationNodeModel.getParentEntityId(),
+			relationNodeModel.getParentBeanType());
+		try {
+			if (link.getLinkDeleterService() != null) {
+				ILinkDeleterActionBuilder<Object, Object> builder = actionFactory.linkDeleterActionBuilder(
+						source,
+						relationNodeModel,
+						link);
+				builder.setLinkedMultiSelection(treeMultiSelection);
+				if (menuInterceptor != null) {
+					builder = menuInterceptor.linkDeleterActionBuilder(relationNodeModel, builder);
+				}
+				if (builder != null) {
+					return builder.build();
+				}
+			}
+		}
+		catch (final Exception e) {
+		}
+		return null;
+	}
+
+	private IAction createDeleterAction(final IBeanRelationNodeModel<Object, Object> relationNodeModel) {
+		final IEntityService entityService = ServiceProvider.getService(IEntityService.ID);
+		if (entityService != null) {
+			final ICapActionFactory actionFactory = CapUiToolkit.actionFactory();
+			final Object childEntityId = relationNodeModel.getChildEntityId();
 			final IBeanServicesProvider beanServices = entityService.getBeanServices(childEntityId);
 			if (beanServices != null) {
 				final IDeleterService deleterService = beanServices.deleterService();
 				if (deleterService != null) {
-					final IDeleterActionBuilder<Object> deleterBuilder = actionFactory.deleterActionBuilder(relationNodeModel);
-					deleterBuilder.setDeleterService(deleterService);
-					deleterBuilder.setMultiSelectionPolicy(false);
-					deleterBuilder.setAccelerator(null);
+					IDeleterActionBuilder<Object> builder = actionFactory.deleterActionBuilder(relationNodeModel);
+					builder.setDeleterService(deleterService);
+					builder.setMultiSelectionPolicy(false);
+					builder.setAccelerator(null);
 					final IBeanDtoDescriptor descriptor = entityService.getDescriptor(childEntityId);
 					if (descriptor != null) {
-						deleterBuilder.setEntityLabelPlural(descriptor.getLabelPlural().get());
-						deleterBuilder.setEntityLabelSingular(descriptor.getLabelSingular().get());
+						builder.setEntityLabelPlural(descriptor.getLabelPlural().get());
+						builder.setEntityLabelSingular(descriptor.getLabelSingular().get());
 					}
-					result.addAction(deleterBuilder.build());
+					if (menuInterceptor != null) {
+						builder = menuInterceptor.deleterActionBuilder(relationNodeModel, builder);
+					}
+					if (builder != null) {
+						return builder.build();
+					}
 				}
 			}
 		}
-
-		return result;
+		return null;
 	}
 
 	private void renderNode(final ITreeNode node, final IBeanProxy<Object> bean, final IBeanProxyLabelRenderer<Object> renderer) {
@@ -414,7 +480,6 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 				renderErrorDummyNode(node, bean.getFirstWorstMessage());
 			}
 		}
-
 	}
 
 	private static void renderNodeWithLabel(final ITreeNode node, final ILabelModel label) {
@@ -494,15 +559,17 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 
 		private final IBeanRelationNodeModel root;
 		private final ITree tree;
+		private final IMenuModel nodeMenu;
 
 		private RootModelListener() {
 			this.root = treeModel.getRoot();
 			this.tree = getWidget();
+			this.nodeMenu = new MenuModel();
 		}
 
 		@Override
 		public void beansChanged() {
-			onBeansChanged(tree, root);
+			onBeansChanged(tree, root, nodeMenu);
 			if (autoSelection && tree.getChildren().size() > 0 && root.getSize() > 0) {
 				final ITreeNode node = tree.getChildren().iterator().next();
 				if (!root.getBean(0).isDummy()) {
@@ -516,15 +583,20 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 
 		private final ITreeContainer parentNode;
 		private final IBeanRelationNodeModel<Object, Object> relationNodeModel;
+		private final IMenuModel nodeMenu;
 
-		public ChildModelListener(final ITreeNode parentNode, final IBeanRelationNodeModel<Object, Object> relationNodeModel) {
+		public ChildModelListener(
+			final ITreeNode parentNode,
+			final IBeanRelationNodeModel<Object, Object> relationNodeModel,
+			final IMenuModel nodeMenu) {
 			this.parentNode = parentNode;
 			this.relationNodeModel = relationNodeModel;
+			this.nodeMenu = nodeMenu;
 		}
 
 		@Override
 		public void beansChanged() {
-			onBeansChanged(parentNode, relationNodeModel);
+			onBeansChanged(parentNode, relationNodeModel, nodeMenu);
 		}
 	}
 
@@ -634,15 +706,14 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 						//register listener that removes node from nodes map on dispose
 						childRelationNode.addDisposeListener(new TreeNodeDisposeListener(childRelationNode));
 
-						//TODO MG remove this later BEGIN
-						final IMenuModel relationMenu = createRelationNodeMenus(
-								childRelationNodeModel,
-								childRelationNodeModel.getParentBean());
-
+						//create the menu for the relation node
+						final IMenuModel relationMenu = createRelationNodeMenus(childRelationNodeModel);
 						if (relationMenu.getChildren().size() > 0) {
 							childRelationNode.setPopupMenu(relationMenu);
 						}
-						//TODO MG remove this later END
+
+						//create the menu for the nodes
+						final IMenuModel nodesMenu = createNodeMenus(childRelationNodeModel);
 
 						if (expansionCacheEnabled) {
 							childRelationNode.addTreeNodeListener(new TreeNodeExpansionTrackingListener(childRelationNode));
@@ -650,11 +721,12 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 
 						childRelationNodeModel.addBeanListModelListener(new ChildModelListener(
 							childRelationNode,
-							childRelationNodeModel));
+							childRelationNodeModel,
+							nodesMenu));
 
 						final boolean loadOccured = childRelationNodeModel.loadIfNotYetDone();
 						if (!loadOccured) {
-							onBeansChanged(childRelationNode, childRelationNodeModel);
+							onBeansChanged(childRelationNode, childRelationNodeModel, nodesMenu);
 						}
 					}
 				}
