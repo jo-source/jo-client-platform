@@ -38,23 +38,23 @@ import org.jowidgets.workbench.tools.FolderLayoutBuilder;
 import org.jowidgets.workbench.tools.LayoutBuilder;
 import org.jowidgets.workbench.tools.SplitLayoutBuilder;
 
-public class EntityComponentMasterDetailLayout {
+class EntityComponentMasterDetailLayout {
 
-	public static final String DEFAULT_LAYOUT_ID = "DEFAULT_LAYOUT_ID"; //$NON-NLS-1$
-	public static final String MASTER_FOLDER_ID = "MASTER_FOLDER_ID"; //$NON-NLS-1$
-	public static final String DETAIL_FOLDER_ID = "DETAIL_FOLDER_ID"; //$NON-NLS-1$
+	public static final String DEFAULT_LAYOUT_ID = "DEFAULT_LAYOUT_ID";
+	public static final String MASTER_FOLDER_ID = "MASTER_FOLDER_ID";
+	public static final String DETAIL_FOLDER_ID = "DETAIL_FOLDER_ID";
 
-	private static final IMessage DETAIL_STRING = Messages.getMessage("EntityComponentDefaultLayout.detail"); //$NON-NLS-1$
+	private static final IMessage DETAIL_STRING = Messages.getMessage("EntityComponentDefaultLayout.detail");
 
 	private final ILayout layout;
 
-	public EntityComponentMasterDetailLayout(final IEntityClass entityClass) {
+	EntityComponentMasterDetailLayout(final IEntityClass entityClass) {
 		final ILayoutBuilder builder = new LayoutBuilder();
 		builder.setId(DEFAULT_LAYOUT_ID).setLayoutContainer(createMasterDetailSplit(entityClass));
 		this.layout = builder.build();
 	}
 
-	public ILayout getLayout() {
+	ILayout getLayout() {
 		return layout;
 	}
 
@@ -69,14 +69,14 @@ public class EntityComponentMasterDetailLayout {
 	private IFolderLayoutBuilder createMasterFolder(final IEntityClass entityClass) {
 		final IFolderLayoutBuilder result = new FolderLayoutBuilder(MASTER_FOLDER_ID);
 		result.setViewsCloseable(false);
-		result.addView(EntityComponent.ROOT_TABLE_VIEW_ID, entityClass.getLabel(), entityClass.getDescription()); //$NON-NLS-1$
+		result.addView(EntityComponent.ROOT_TABLE_VIEW_ID, entityClass.getLabel(), entityClass.getDescription());
 		return result;
 	}
 
 	private IFolderLayoutBuilder createDetailFolder(final IEntityClass entityClass) {
 		final IFolderLayoutBuilder result = new FolderLayoutBuilder(DETAIL_FOLDER_ID);
 		result.setViewsCloseable(false);
-		result.addView(EntityDetailView.ID, entityClass.getLabel() + " " + DETAIL_STRING.get(), entityClass.getDescription()); //$NON-NLS-1$
+		result.addView(EntityDetailView.ID, entityClass.getLabel() + " " + DETAIL_STRING.get(), entityClass.getDescription());
 		return result;
 	}
 

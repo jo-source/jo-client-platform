@@ -42,14 +42,11 @@ import org.jowidgets.tools.layout.MigLayoutFactory;
 import org.jowidgets.workbench.api.IViewContext;
 import org.jowidgets.workbench.tools.AbstractView;
 
-public class EntityTableView extends AbstractView {
+class EntityTableView extends AbstractView {
 
-	private static final IMessage ADD = Messages.getMessage("EntityTableView.add"); //$NON-NLS-1$
+	private static final IMessage ADD = Messages.getMessage("EntityTableView.add");
 
-	public EntityTableView(
-		final IViewContext context,
-		final IBeanTableModel<?> tableModel,
-		final Collection<IAction> linkCreatorActions) {
+	EntityTableView(final IViewContext context, final IBeanTableModel<?> tableModel, final Collection<IAction> linkCreatorActions) {
 
 		final IContainer container = context.getContainer();
 		container.setLayout(MigLayoutFactory.growingInnerCellLayout());

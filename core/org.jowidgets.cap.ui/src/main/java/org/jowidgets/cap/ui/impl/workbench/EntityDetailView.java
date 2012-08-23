@@ -35,11 +35,11 @@ import org.jowidgets.tools.layout.MigLayoutFactory;
 import org.jowidgets.workbench.api.IViewContext;
 import org.jowidgets.workbench.tools.AbstractView;
 
-public class EntityDetailView extends AbstractView {
+class EntityDetailView extends AbstractView {
 
-	public static final String ID = EntityDetailView.class.getName();
+	static final String ID = EntityDetailView.class.getName();
 
-	public EntityDetailView(final IViewContext context, final IBeanTableModel<?> parentModel) {
+	EntityDetailView(final IViewContext context, final IBeanTableModel<?> parentModel) {
 		final IContainer container = context.getContainer();
 		container.setLayout(MigLayoutFactory.growingCellLayout());
 		container.add(CapUiToolkit.bluePrintFactory().beanSelectionForm(parentModel), MigLayoutFactory.GROWING_CELL_CONSTRAINTS);

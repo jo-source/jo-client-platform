@@ -63,10 +63,9 @@ import org.jowidgets.workbench.api.IViewContext;
 import org.jowidgets.workbench.toolkit.api.IComponentNodeModel;
 import org.jowidgets.workbench.tools.AbstractComponent;
 
-public class EntityComponent extends AbstractComponent implements IComponent {
+class EntityComponent extends AbstractComponent implements IComponent {
 
-	public static final String ROOT_TABLE_VIEW_ID = EntityComponent.class.getName() + "_ROOT_TABLE_VIEW";
-	public static final String LINKED_TABLE_VIEW_ID = EntityComponent.class.getName() + "_LINKED_TABLE_VIEW_";
+	static final String ROOT_TABLE_VIEW_ID = EntityComponent.class.getName() + "_ROOT_TABLE_VIEW";
 
 	private final IEntityService entityService;
 	private final IBeanTableModel<Object> tableModel;
@@ -75,9 +74,9 @@ public class EntityComponent extends AbstractComponent implements IComponent {
 	private final List<IAction> linkCreatorActions;
 	private final IEntityTypeId<Object> entityTypeId;
 
-	private BeanRelationTreeDetailView beanRelationTreeDetail;
+	private EntityRelationTreeDetailView beanRelationTreeDetail;
 
-	public EntityComponent(
+	EntityComponent(
 		final IComponentNodeModel componentNodeModel,
 		final IComponentContext componentContext,
 		final IEntityClass entityClass) {
@@ -151,11 +150,11 @@ public class EntityComponent extends AbstractComponent implements IComponent {
 		else if (EntityDetailView.ID.equals(viewId)) {
 			return new EntityDetailView(context, tableModel);
 		}
-		else if (BeanRelationTreeDetailView.ID.equals(viewId)) {
+		else if (EntityRelationTreeDetailView.ID.equals(viewId)) {
 			if (beanRelationTreeDetail != null) {
 				throw new IllegalStateException("BeanRelationTreeDetail could only be used once in layout");
 			}
-			beanRelationTreeDetail = new BeanRelationTreeDetailView(context, tableModel, relationTreeModel);
+			beanRelationTreeDetail = new EntityRelationTreeDetailView(context, tableModel, relationTreeModel);
 			return beanRelationTreeDetail;
 		}
 		else {

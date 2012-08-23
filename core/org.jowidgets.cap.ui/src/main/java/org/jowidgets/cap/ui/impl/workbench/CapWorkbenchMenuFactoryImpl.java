@@ -58,7 +58,6 @@ final class CapWorkbenchMenuFactoryImpl implements ICapWorkbenchMenuFactory {
 
 	@Override
 	public IMenuModel dataMenu() {
-		//TODO i18n
 		IMenuModel result = new MenuModel(Messages.getString("CapWorkbenchMenuFactoryImpl.data"));
 		final IDataModelAction loadAction = CapWorkbenchActionsProvider.loadAction();
 		boolean separator = false;
