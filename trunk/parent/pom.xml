@@ -29,7 +29,6 @@
 		<module>../addons/parent</module>
 		<module>../tools/parent</module>
 		<module>../util/parent</module>
-		<module>../samples/parent</module>
 	</modules>
 
 	<distributionManagement>
