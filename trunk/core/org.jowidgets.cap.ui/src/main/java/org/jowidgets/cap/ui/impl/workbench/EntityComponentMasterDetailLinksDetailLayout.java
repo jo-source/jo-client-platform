@@ -28,19 +28,10 @@
 
 package org.jowidgets.cap.ui.impl.workbench;
 
-import java.util.Map;
-import java.util.Map.Entry;
-
 import org.jowidgets.api.toolkit.Toolkit;
-import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
 import org.jowidgets.cap.common.api.entity.IEntityClass;
-import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
-import org.jowidgets.cap.common.api.service.IBeanServicesProvider;
-import org.jowidgets.cap.common.api.service.IEntityService;
-import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.ui.api.addons.widgets.IBeanRelationGraphBluePrint;
 import org.jowidgets.i18n.api.IMessage;
-import org.jowidgets.service.api.ServiceProvider;
 import org.jowidgets.workbench.api.ILayout;
 import org.jowidgets.workbench.toolkit.api.IFolderLayoutBuilder;
 import org.jowidgets.workbench.toolkit.api.ILayoutBuilder;
@@ -49,7 +40,7 @@ import org.jowidgets.workbench.tools.FolderLayoutBuilder;
 import org.jowidgets.workbench.tools.LayoutBuilder;
 import org.jowidgets.workbench.tools.SplitLayoutBuilder;
 
-public class EntityComponentMasterDetailLinksDetailLayout {
+final class EntityComponentMasterDetailLinksDetailLayout {
 
 	public static final String DEFAULT_LAYOUT_ID = "DEFAULT_LAYOUT_ID";
 	public static final String MASTER_FOLDER_ID = "MASTER_FOLDER_ID";
@@ -61,23 +52,21 @@ public class EntityComponentMasterDetailLinksDetailLayout {
 
 	private final ILayout layout;
 
-	public EntityComponentMasterDetailLinksDetailLayout(
-		final IEntityClass entityClass,
-		final Map<String, IEntityLinkDescriptor> links) {
+	EntityComponentMasterDetailLinksDetailLayout(final IEntityClass entityClass) {
 		final ILayoutBuilder builder = new LayoutBuilder();
-		builder.setId(DEFAULT_LAYOUT_ID).setLayoutContainer(createMainSplit(entityClass, links));
+		builder.setId(DEFAULT_LAYOUT_ID).setLayoutContainer(createMainSplit(entityClass));
 		this.layout = builder.build();
 	}
 
-	public ILayout getLayout() {
+	ILayout getLayout() {
 		return layout;
 	}
 
-	private ISplitLayoutBuilder createMainSplit(final IEntityClass entityClass, final Map<String, IEntityLinkDescriptor> links) {
+	private ISplitLayoutBuilder createMainSplit(final IEntityClass entityClass) {
 		final ISplitLayoutBuilder result = new SplitLayoutBuilder();
 		result.setVertical().setWeight(0.5).setResizeFirst();
 		result.setFirstContainer(createMasterFolder(entityClass));
-		result.setSecondContainer(createLinkedMasterDetailSplit(entityClass, links));
+		result.setSecondContainer(createLinkedMasterDetailSplit(entityClass));
 		return result;
 	}
 
@@ -88,52 +77,27 @@ public class EntityComponentMasterDetailLinksDetailLayout {
 		return result;
 	}
 
-	private ISplitLayoutBuilder createLinkedMasterDetailSplit(
-		final IEntityClass entityClass,
-		final Map<String, IEntityLinkDescriptor> links) {
+	private ISplitLayoutBuilder createLinkedMasterDetailSplit(final IEntityClass entityClass) {
 		final ISplitLayoutBuilder result = new SplitLayoutBuilder();
 		result.setHorizontal().setWeight(0.3).setResizeBoth();
-		result.setFirstContainer(createLinkedMasterFolder(entityClass, links));
-		result.setSecondContainer(createLinkedDetailFolder(entityClass, links));
+		result.setFirstContainer(createLinkedMasterFolder(entityClass));
+		result.setSecondContainer(createLinkedDetailFolder(entityClass));
 		return result;
 	}
 
-	private IFolderLayoutBuilder createLinkedMasterFolder(
-		final IEntityClass entityClass,
-		final Map<String, IEntityLinkDescriptor> links) {
+	private IFolderLayoutBuilder createLinkedMasterFolder(final IEntityClass entityClass) {
 		final IFolderLayoutBuilder result = new FolderLayoutBuilder(LINKED_MASTER_FOLDER_ID);
 		result.setViewsCloseable(false);
 		result.addView(EntityRelationTreeView.ID, entityClass.getLabel() + " " + LINKS_STRING.get(), entityClass.getDescription());
 		return result;
 	}
 
-	private IFolderLayoutBuilder createLinkedDetailFolder(
-		final IEntityClass entityClass,
-		final Map<String, IEntityLinkDescriptor> links) {
+	private IFolderLayoutBuilder createLinkedDetailFolder(final IEntityClass entityClass) {
 		final IFolderLayoutBuilder result = new FolderLayoutBuilder(LINKED_DETAIL_FOLDER_ID);
 		result.setViewsCloseable(false);
 		result.addView(BeanRelationTreeDetailView.ID, BeanRelationTreeDetailView.DEFAULT_LABEL.get());
 		if (hasBeanRelationGraphImpl()) {
 			result.addView(EntityRelationGraphView.ID, EntityRelationGraphView.DEFAULT_LABEL.get());
-		}
-		for (final Entry<String, IEntityLinkDescriptor> linkEntry : links.entrySet()) {
-			final IEntityService entityService = ServiceProvider.getService(IEntityService.ID);
-			if (entityService != null) {
-				final IBeanDtoDescriptor descriptor = entityService.getDescriptor(linkEntry.getValue().getLinkedEntityId());
-				if (descriptor != null) {
-					final IBeanServicesProvider beanServices = entityService.getBeanServices(linkEntry.getValue().getLinkedEntityId());
-					if (beanServices != null) {
-						final IReaderService<Void> readerService = beanServices.readerService();
-						if (readerService != null) {
-							result.addView(
-									linkEntry.getKey(),
-									descriptor.getLabelPlural().get(),
-									descriptor.getDescription().get());
-						}
-					}
-
-				}
-			}
 		}
 		return result;
 	}
