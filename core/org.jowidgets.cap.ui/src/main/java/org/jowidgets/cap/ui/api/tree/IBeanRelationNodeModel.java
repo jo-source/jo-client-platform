@@ -31,12 +31,14 @@ package org.jowidgets.cap.ui.api.tree;
 import java.util.Collection;
 import java.util.List;
 
+import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.service.ICreatorService;
 import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.bean.IBeanPropertyValidator;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyLabelRenderer;
+import org.jowidgets.cap.ui.api.filter.IUiFilter;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.model.IDataModel;
 import org.jowidgets.cap.ui.api.model.ILabelModel;
@@ -54,6 +56,8 @@ public interface IBeanRelationNodeModel<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> exten
 	 * @return true, if load will be done, false if load will not be done because it was invoked before
 	 */
 	boolean loadIfNotYetDone();
+
+	void load(IResultCallback<Void> resultCallback);
 
 	ICreatorService getCreatorService();
 
@@ -90,6 +94,16 @@ public interface IBeanRelationNodeModel<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> exten
 	void refreshBean(final IBeanProxy<CHILD_BEAN_TYPE> bean);
 
 	void refreshBeans(final Collection<IBeanProxy<CHILD_BEAN_TYPE>> beans);
+
+	void setFilter(String id, IUiFilter filter);
+
+	void addFilter(String id, IUiFilter addedFilter);
+
+	void removeFiltersForProperty(String id, String propertyName);
+
+	void removeFilter(String id);
+
+	IUiFilter getFilter(String id);
 
 	void dispose();
 

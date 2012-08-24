@@ -41,10 +41,13 @@ import java.util.Set;
 
 import org.jowidgets.api.threads.IUiThreadAccess;
 import org.jowidgets.api.toolkit.Toolkit;
+import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutionCallbackListener;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
+import org.jowidgets.cap.common.api.filter.BooleanOperator;
+import org.jowidgets.cap.common.api.filter.IBooleanFilterBuilder;
 import org.jowidgets.cap.common.api.filter.IFilter;
 import org.jowidgets.cap.common.api.service.ICreatorService;
 import org.jowidgets.cap.common.api.service.IDeleterService;
@@ -54,6 +57,7 @@ import org.jowidgets.cap.common.api.service.IUpdaterService;
 import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.common.api.validation.IBeanValidator;
 import org.jowidgets.cap.common.tools.bean.BeanKey;
+import org.jowidgets.cap.common.tools.execution.ResultCallbackAdapter;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.bean.BeanExceptionConverter;
@@ -68,6 +72,9 @@ import org.jowidgets.cap.ui.api.bean.IBeanSelectionListener;
 import org.jowidgets.cap.ui.api.bean.IBeansStateTracker;
 import org.jowidgets.cap.ui.api.execution.BeanExecutionPolicy;
 import org.jowidgets.cap.ui.api.execution.IExecutionTask;
+import org.jowidgets.cap.ui.api.filter.IUiFilter;
+import org.jowidgets.cap.ui.api.filter.IUiFilterFactory;
+import org.jowidgets.cap.ui.api.filter.IUiFilterTools;
 import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
 import org.jowidgets.cap.ui.api.model.ILabelModel;
 import org.jowidgets.cap.ui.api.model.IModificationStateListener;
@@ -125,6 +132,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 	private final BeanListSaveDelegate<CHILD_BEAN_TYPE> saveDelegate;
 	private final ArrayList<IBeanProxy<CHILD_BEAN_TYPE>> data;
 	private final int pageSize;
+	private final Map<String, IUiFilter> filters;
 
 	private ArrayList<Integer> selection;
 	private DataLoader dataLoader;
@@ -178,6 +186,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 		this.defaultSort = new LinkedList<ISort>(defaultSort);
 		this.childBeanAttributes = Collections.unmodifiableList(new LinkedList<IAttribute<Object>>(childBeanAttributes));
 		this.exceptionConverter = exceptionConverter;
+		this.filters = new HashMap<String, IUiFilter>();
 
 		this.beanPropertyValidators = new LinkedList<IBeanPropertyValidator<CHILD_BEAN_TYPE>>();
 		beanPropertyValidators.add(new BeanPropertyValidatorImpl<CHILD_BEAN_TYPE>(childBeanAttributes));
@@ -409,12 +418,18 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 
 	@Override
 	public void load() {
+		load(new ResultCallbackAdapter<Void>());
+	}
+
+	@Override
+	public void load(final IResultCallback<Void> resultCallback) {
+		Assert.paramNotNull(resultCallback, "resultCallback");
 		if (!Toolkit.getUiThreadAccess().isUiThread()) {
 			throw new IllegalStateException("Load must be invoked in the ui thread");
 		}
 		this.hasInitialLoad = true;
 		tryToCanceLoader();
-		dataLoader = new DataLoader();
+		dataLoader = new DataLoader(resultCallback);
 		dataLoader.loadData();
 	}
 
@@ -613,6 +628,65 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 	}
 
 	@Override
+	public void setFilter(final String id, final IUiFilter filter) {
+		Assert.paramNotNull(id, "id");
+		if (filter != null) {
+			filters.put(id, filter);
+		}
+		else {
+			filters.remove(id);
+		}
+	}
+
+	@Override
+	public void addFilter(final String id, final IUiFilter addedFilter) {
+		Assert.paramNotNull(id, "id");
+		Assert.paramNotNull(addedFilter, "addedFilter");
+
+		final IUiFilterTools filterTools = CapUiToolkit.filterToolkit().filterTools();
+		final IUiFilter currentFilter = getFilter(id);
+		setFilter(id, filterTools.addFilter(currentFilter, addedFilter));
+	}
+
+	@Override
+	public void removeFilter(final String id) {
+		Assert.paramNotNull(id, "id");
+		filters.remove(id);
+	}
+
+	@Override
+	public void removeFiltersForProperty(final String id, final String propertyName) {
+		final IUiFilterTools filterTools = CapUiToolkit.filterToolkit().filterTools();
+		final IUiFilter currentFilter = getFilter(id);
+		if (currentFilter != null) {
+			setFilter(id, filterTools.removeProperty(currentFilter, propertyName));
+		}
+	}
+
+	@Override
+	public IUiFilter getFilter(final String id) {
+		Assert.paramNotNull(id, "id");
+		return filters.get(id);
+	}
+
+	private IFilter getFilter() {
+		if (filters.size() > 0) {
+			final IBooleanFilterBuilder builder = CapCommonToolkit.filterFactory().booleanFilterBuilder();
+			builder.setOperator(BooleanOperator.AND);
+
+			final IUiFilterFactory filterFactory = CapUiToolkit.filterToolkit().filterFactory();
+			for (final IUiFilter uiFilter : filters.values()) {
+				builder.addFilter(filterFactory.convert(uiFilter));
+			}
+
+			return builder.build();
+		}
+		else {
+			return null;
+		}
+	}
+
+	@Override
 	public void fireBeansChanged() {
 		beanListModelObservable.fireBeansChanged();
 	}
@@ -652,6 +726,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 
 	private class DataLoader {
 
+		private final IResultCallback<Void> resultCallback;
 		private final IUiThreadAccess uiThreadAccess;
 		private final IFilter filter;
 
@@ -662,9 +737,10 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 
 		private IBeanProxy<CHILD_BEAN_TYPE> dummyBean;
 
-		DataLoader() {
+		DataLoader(final IResultCallback<Void> resultCallback) {
+			this.resultCallback = resultCallback;
 			this.uiThreadAccess = Toolkit.getUiThreadAccess();
-			this.filter = null;
+			this.filter = getFilter();
 		}
 
 		void loadData() {
@@ -775,6 +851,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 
 			finished = true;
 			beanListModelObservable.fireBeansChanged();
+			resultCallback.finished(null);
 		}
 
 		private void setException(final Throwable exception) {
@@ -788,6 +865,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 
 			finished = true;
 			beanListModelObservable.fireBeansChanged();
+			resultCallback.exception(exception);
 		}
 
 		private void userCanceledLater() {
@@ -810,6 +888,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 				finished = true;
 				canceled = true;
 				beanListModelObservable.fireBeansChanged();
+				resultCallback.finished(null);
 			}
 		}
 

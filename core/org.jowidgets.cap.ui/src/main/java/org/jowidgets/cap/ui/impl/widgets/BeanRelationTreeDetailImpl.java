@@ -41,6 +41,7 @@ import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.api.widgets.IComposite;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
+import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
@@ -48,6 +49,7 @@ import org.jowidgets.cap.ui.api.bean.IBeanSelectionProvider;
 import org.jowidgets.cap.ui.api.command.IDeleterActionBuilder;
 import org.jowidgets.cap.ui.api.command.ILinkCreatorActionBuilder;
 import org.jowidgets.cap.ui.api.command.ILinkDeleterActionBuilder;
+import org.jowidgets.cap.ui.api.filter.IUiFilter;
 import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
 import org.jowidgets.cap.ui.api.model.LinkType;
 import org.jowidgets.cap.ui.api.table.BeanTableModel;
@@ -77,6 +79,7 @@ import org.jowidgets.tools.widgets.blueprint.BPF;
 import org.jowidgets.tools.widgets.wrapper.ControlWrapper;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.Tuple;
+import org.jowidgets.util.event.IChangeListener;
 
 final class BeanRelationTreeDetailImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements
 		IBeanRelationTreeDetail<CHILD_BEAN_TYPE> {
@@ -91,6 +94,7 @@ final class BeanRelationTreeDetailImpl<CHILD_BEAN_TYPE> extends ControlWrapper i
 	private final IComposite beanFormContainer;
 	private final IBeanRelationTreeSelectionListener treeSelectionListener;
 	private final RelationModelChangeListener relationModelChangeListener;
+	private final FilterChangeListener filterChangeListener;
 
 	private IBeanTable<Object> lastBeanTable;
 	private IBeanRelationNodeModel<Object, Object> lastParentRelation;
@@ -116,6 +120,7 @@ final class BeanRelationTreeDetailImpl<CHILD_BEAN_TYPE> extends ControlWrapper i
 		tableContainer.setVisible(false);
 
 		this.relationModelChangeListener = new RelationModelChangeListener();
+		this.filterChangeListener = new FilterChangeListener();
 		this.treeSelectionListener = new IBeanRelationTreeSelectionListener() {
 			@Override
 			public void selectionChanged(final IBeanRelationTreeSelection selection) {
@@ -189,6 +194,9 @@ final class BeanRelationTreeDetailImpl<CHILD_BEAN_TYPE> extends ControlWrapper i
 			if (lastParentRelation != null) {
 				lastParentRelation.removeBeanListModelListener(relationModelChangeListener);
 			}
+			if (lastBeanTable != null) {
+				lastBeanTable.getModel().removeFilterChangeListener(filterChangeListener);
+			}
 
 			getWidget().layoutBegin();
 
@@ -227,6 +235,7 @@ final class BeanRelationTreeDetailImpl<CHILD_BEAN_TYPE> extends ControlWrapper i
 			getWidget().layoutEnd();
 
 			relation.addBeanListModelListener(relationModelChangeListener);
+			tableModel.addFilterChangeListener(filterChangeListener);
 		}
 	}
 
@@ -272,6 +281,7 @@ final class BeanRelationTreeDetailImpl<CHILD_BEAN_TYPE> extends ControlWrapper i
 		if (lastBeanTable != null) {
 			final IBeanTableModel<Object> model = lastBeanTable.getModel();
 			fireBeforeTableDispose(lastBeanTable);
+			lastBeanTable.getModel().removeFilterChangeListener(filterChangeListener);
 			treeModel.removeDataModel(model);
 			tableContainer.removeAll();
 			fireBeforeModelDispose(model);
@@ -411,6 +421,31 @@ final class BeanRelationTreeDetailImpl<CHILD_BEAN_TYPE> extends ControlWrapper i
 		public void beansChanged() {
 			if (lastBeanTable != null) {
 				lastBeanTable.getModel().load();
+			}
+		}
+	}
+
+	private final class FilterChangeListener implements IChangeListener {
+		@Override
+		public void changed() {
+			if (lastBeanTable != null && lastParentRelation != null) {
+				final IBeanTableModel<Object> tableModel = lastBeanTable.getModel();
+				final IUiFilter uiFilter = tableModel.getFilter(IBeanTableModel.UI_FILTER_ID);
+				lastParentRelation.setFilter(IBeanTableModel.UI_FILTER_ID, uiFilter);
+				final IUiFilter uiSearchFilter = tableModel.getFilter(IBeanTableModel.UI_SEARCH_FILTER_ID);
+				lastParentRelation.setFilter(IBeanTableModel.UI_SEARCH_FILTER_ID, uiSearchFilter);
+				lastParentRelation.removeBeanListModelListener(relationModelChangeListener);
+				lastParentRelation.load(new IResultCallback<Void>() {
+					@Override
+					public void finished(final Void result) {
+						lastParentRelation.addBeanListModelListener(relationModelChangeListener);
+					}
+
+					@Override
+					public void exception(final Throwable exception) {
+						lastParentRelation.addBeanListModelListener(relationModelChangeListener);
+					}
+				});
 			}
 		}
 	}
