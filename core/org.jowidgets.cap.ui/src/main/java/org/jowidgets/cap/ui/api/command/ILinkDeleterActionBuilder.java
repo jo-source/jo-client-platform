@@ -53,6 +53,8 @@ public interface ILinkDeleterActionBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> e
 	ILinkDeleterActionBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> addSourceExecutableChecker(
 		IExecutableChecker<SOURCE_BEAN_TYPE> executableChecker);
 
+	ILinkDeleterActionBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> setSourceSelectionAutoRefresh(boolean autoRefresh);
+
 	ILinkDeleterActionBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> setLinkDeleterService(ILinkDeleterService deleterService);
 
 	ILinkDeleterActionBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> addEnabledChecker(IEnabledChecker enabledChecker);

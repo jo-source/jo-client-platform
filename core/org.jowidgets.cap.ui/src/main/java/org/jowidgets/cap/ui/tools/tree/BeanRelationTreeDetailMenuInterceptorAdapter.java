@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,26 +26,27 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.widgets;
+package org.jowidgets.cap.ui.tools.tree;
 
-import org.jowidgets.api.widgets.blueprint.builder.IComponentSetupBuilder;
-import org.jowidgets.api.widgets.descriptor.setup.IComponentSetup;
+import org.jowidgets.cap.ui.api.command.ILinkCreatorActionBuilder;
+import org.jowidgets.cap.ui.api.command.ILinkDeleterActionBuilder;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeDetailMenuInterceptor;
-import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeModel;
-import org.jowidgets.common.widgets.descriptor.setup.mandatory.Mandatory;
+import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 
-public interface IBeanRelationTreeDetailSetupBuilder<CHILD_BEAN_TYPE> extends
-		IComponentSetup,
-		IComponentSetupBuilder<IBeanRelationTreeDetailSetupBuilder<CHILD_BEAN_TYPE>>,
-		IBeanRelationTreeDetailSetupConvenience<IBeanRelationTreeDetailSetupBuilder<CHILD_BEAN_TYPE>> {
+public class BeanRelationTreeDetailMenuInterceptorAdapter implements IBeanRelationTreeDetailMenuInterceptor {
 
-	IBeanRelationTreeDetailSetupBuilder<CHILD_BEAN_TYPE> setModel(IBeanRelationTreeModel<CHILD_BEAN_TYPE> model);
+	@Override
+	public ILinkCreatorActionBuilder<Object, Object, Object> linkCreatorActionBuilder(
+		final IBeanTable<Object> table,
+		final ILinkCreatorActionBuilder<Object, Object, Object> builder) {
+		return builder;
+	}
 
-	IBeanRelationTreeDetailSetupBuilder<CHILD_BEAN_TYPE> setMenuInterceptor(IBeanRelationTreeDetailMenuInterceptor interceptor);
-
-	@Mandatory
-	IBeanRelationTreeModel<CHILD_BEAN_TYPE> getModel();
-
-	IBeanRelationTreeDetailMenuInterceptor getMenuInterceptor();
+	@Override
+	public ILinkDeleterActionBuilder<Object, Object> linkDeleterActionBuilder(
+		final IBeanTable<Object> table,
+		final ILinkDeleterActionBuilder<Object, Object> builder) {
+		return builder;
+	}
 
 }

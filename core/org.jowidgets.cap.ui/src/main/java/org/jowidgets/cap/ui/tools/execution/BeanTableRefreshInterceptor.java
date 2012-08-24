@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, grossmann
+ * Copyright (c) 2011, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,41 +26,42 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.impl.workbench;
+package org.jowidgets.cap.ui.tools.execution;
 
-import org.jowidgets.api.widgets.IContainer;
-import org.jowidgets.cap.common.api.service.IEntityService;
-import org.jowidgets.cap.ui.api.CapUiToolkit;
+import java.util.List;
+
+import org.jowidgets.api.command.IExecutionContext;
+import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
-import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeModel;
-import org.jowidgets.cap.ui.api.widgets.IBeanRelationTreeDetailBluePrint;
-import org.jowidgets.i18n.api.IMessage;
-import org.jowidgets.service.api.ServiceProvider;
-import org.jowidgets.tools.layout.MigLayoutFactory;
-import org.jowidgets.workbench.api.IViewContext;
-import org.jowidgets.workbench.tools.AbstractView;
+import org.jowidgets.common.types.IVetoable;
+import org.jowidgets.util.EmptyCheck;
 
-final class EntityRelationTreeDetailView extends AbstractView {
+public final class BeanTableRefreshInterceptor<BEAN_TYPE, RESULT_TYPE> extends ExecutionInterceptorAdapter<RESULT_TYPE> {
 
-	public static final String ID = EntityRelationTreeDetailView.class.getName();
-	public static final IMessage DEFAULT_LABEL = Messages.getMessage("EntityRelationTreeDetailView.details");
+	private final IBeanTableModel<BEAN_TYPE> tableModel;
 
-	private final IEntityService entityService;
+	private List<IBeanProxy<BEAN_TYPE>> lastSelection;
 
-	EntityRelationTreeDetailView(
-		final IViewContext context,
-		final IBeanTableModel<Object> rootTableModel,
-		final IBeanRelationTreeModel<?> treeModel) {
-
-		this.entityService = ServiceProvider.getService(IEntityService.ID);
-		if (entityService == null) {
-			throw new IllegalStateException("No entity service found");
-		}
-
-		final IContainer container = context.getContainer();
-		container.setLayout(MigLayoutFactory.growingInnerCellLayout());
-		final IBeanRelationTreeDetailBluePrint<?> treeDetailBp = CapUiToolkit.bluePrintFactory().beanRelationTreeDetail(treeModel);
-
-		container.add(treeDetailBp, MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
+	public BeanTableRefreshInterceptor(final IBeanTableModel<BEAN_TYPE> tableModel) {
+		this.tableModel = tableModel;
 	}
+
+	@Override
+	public void beforeExecution(final IExecutionContext executionContext, final IVetoable continueExecution) {
+		lastSelection = tableModel.getSelectedBeans();
+	}
+
+	@Override
+	public void onExecutionVeto(final IExecutionContext executionContext) {
+		lastSelection = null;
+	}
+
+	@Override
+	public void afterExecutionSuccess(final IExecutionContext executionContext, final RESULT_TYPE result) {
+		if (!EmptyCheck.isEmpty(lastSelection)) {
+			tableModel.refreshBeans(lastSelection);
+		}
+		lastSelection = null;
+	}
+
 }

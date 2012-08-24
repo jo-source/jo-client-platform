@@ -85,6 +85,7 @@ final class BeanLinkDeleterCommand<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> implement
 		final ILinkDeleterService linkDeleterService,
 		final boolean deletionConfirmDialog,
 		final IBeanSelectionProvider<SOURCE_BEAN_TYPE> source,
+		final boolean sourceSelectionAutoRefresh,
 		final boolean sourceMultiSelection,
 		final BeanModificationStatePolicy sourceModificationPolicy,
 		final BeanMessageStatePolicy sourceMessageStatePolicy,
@@ -139,6 +140,12 @@ final class BeanLinkDeleterCommand<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> implement
 		this.exceptionConverter = exceptionConverter;
 		this.deletionConfirmDialog = deletionConfirmDialog;
 		this.autoSelection = autoSelection;
+
+		if (sourceSelectionAutoRefresh) {
+			BeanSelectionProviderRefreshInterceptor<SOURCE_BEAN_TYPE, Void> refreshInterceptor;
+			refreshInterceptor = new BeanSelectionProviderRefreshInterceptor<SOURCE_BEAN_TYPE, Void>(source);
+			executionObservable.addExecutionInterceptor(refreshInterceptor);
+		}
 	}
 
 	@Override

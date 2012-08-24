@@ -55,7 +55,7 @@ import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeModel;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeModelBuilder;
 import org.jowidgets.cap.ui.api.types.EntityTypeId;
 import org.jowidgets.cap.ui.api.types.IEntityTypeId;
-import org.jowidgets.cap.ui.tools.execution.BeanRefreshInterceptor;
+import org.jowidgets.cap.ui.tools.execution.BeanTableRefreshInterceptor;
 import org.jowidgets.cap.ui.tools.execution.ExecutionInterceptorAdapter;
 import org.jowidgets.cap.ui.tools.tree.BeanRelationTreeMenuInterceptorAdapter;
 import org.jowidgets.common.types.IVetoable;
@@ -124,7 +124,7 @@ class EntityComponent extends AbstractComponent implements IComponent {
 		if (link.getLinkCreatorService() != null) {
 			final ILinkCreatorActionBuilder<Object, Object, Object> builder;
 			builder = CapUiToolkit.actionFactory().linkCreatorActionBuilder(tableModel, link);
-			builder.addExecutionInterceptor(new BeanRefreshInterceptor<Object, List<IBeanDto>>(tableModel));
+			builder.addExecutionInterceptor(new BeanTableRefreshInterceptor<Object, List<IBeanDto>>(tableModel));
 			builder.addExecutionInterceptor(new BeanAddToTreeInterceptor(entityTypeId, linkedEntityTypeId));
 			return builder.build();
 		}
@@ -248,7 +248,7 @@ class EntityComponent extends AbstractComponent implements IComponent {
 		public ILinkCreatorActionBuilder<Object, Object, Object> linkCreatorActionBuilder(
 			final IBeanRelationNodeModel<Object, Object> relationNode,
 			final ILinkCreatorActionBuilder<Object, Object, Object> builder) {
-			builder.addExecutionInterceptor(new BeanRefreshInterceptor<Object, List<IBeanDto>>(tableModel));
+			builder.addExecutionInterceptor(new BeanTableRefreshInterceptor<Object, List<IBeanDto>>(tableModel));
 			return builder;
 		}
 
@@ -256,7 +256,7 @@ class EntityComponent extends AbstractComponent implements IComponent {
 		public ILinkDeleterActionBuilder<Object, Object> linkDeleterActionBuilder(
 			final IBeanRelationNodeModel<Object, Object> relationNode,
 			final ILinkDeleterActionBuilder<Object, Object> builder) {
-			builder.addExecutionInterceptor(new BeanRefreshInterceptor<Object, Void>(tableModel));
+			builder.addExecutionInterceptor(new BeanTableRefreshInterceptor<Object, Void>(tableModel));
 			return builder;
 		}
 
@@ -264,7 +264,7 @@ class EntityComponent extends AbstractComponent implements IComponent {
 		public IDeleterActionBuilder<Object> deleterActionBuilder(
 			final IBeanRelationNodeModel<Object, Object> relationNode,
 			final IDeleterActionBuilder<Object> builder) {
-			builder.addExecutionInterceptor(new BeanRefreshInterceptor<Object, Void>(tableModel));
+			builder.addExecutionInterceptor(new BeanTableRefreshInterceptor<Object, Void>(tableModel));
 			return builder;
 		}
 

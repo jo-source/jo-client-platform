@@ -72,6 +72,7 @@ final class LinkDeleterActionBuilderImpl<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> ext
 	private boolean sourceMultiSelection;
 	private BeanModificationStatePolicy sourceModificationPolicy;
 	private BeanMessageStatePolicy sourceMessageStatePolicy;
+	private boolean sourceSelectionAutoRefresh;
 	private boolean linkedMultiSelection;
 	private BeanModificationStatePolicy linkedModificationPolicy;
 	private BeanMessageStatePolicy linkedMessageStatePolicy;
@@ -119,6 +120,7 @@ final class LinkDeleterActionBuilderImpl<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> ext
 		this.enabledCheckers = new LinkedList<IEnabledChecker>();
 		this.executionInterceptors = new LinkedList<IExecutionInterceptor<Void>>();
 
+		this.sourceSelectionAutoRefresh = true;
 		this.sourceMultiSelection = false;
 		this.sourceModificationPolicy = BeanModificationStatePolicy.NO_MODIFICATION;
 		this.sourceMessageStatePolicy = BeanMessageStatePolicy.NO_WARNING_OR_ERROR;
@@ -151,6 +153,13 @@ final class LinkDeleterActionBuilderImpl<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> ext
 	public ILinkDeleterActionBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> setLinkedMultiSelection(final boolean multiSelection) {
 		checkExhausted();
 		this.linkedMultiSelection = multiSelection;
+		return this;
+	}
+
+	@Override
+	public ILinkDeleterActionBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> setSourceSelectionAutoRefresh(final boolean autoRefresh) {
+		checkExhausted();
+		this.sourceSelectionAutoRefresh = autoRefresh;
 		return this;
 	}
 
@@ -338,6 +347,7 @@ final class LinkDeleterActionBuilderImpl<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> ext
 			deleterService,
 			deletionConfirmDialog,
 			source,
+			sourceSelectionAutoRefresh,
 			sourceMultiSelection,
 			sourceModificationPolicy,
 			sourceMessageStatePolicy,

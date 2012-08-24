@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,26 +26,25 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.widgets;
+package org.jowidgets.cap.ui.impl.widgets;
 
-import org.jowidgets.api.widgets.blueprint.builder.IComponentSetupBuilder;
-import org.jowidgets.api.widgets.descriptor.setup.IComponentSetup;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeDetailMenuInterceptor;
-import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeModel;
-import org.jowidgets.common.widgets.descriptor.setup.mandatory.Mandatory;
+import org.jowidgets.cap.ui.api.widgets.IBeanRelationTreeDetailSetupBuilder;
+import org.jowidgets.cap.ui.api.widgets.IBeanRelationTreeDetailSetupConvenience;
+import org.jowidgets.tools.widgets.blueprint.convenience.AbstractSetupBuilderConvenience;
+import org.jowidgets.util.Assert;
 
-public interface IBeanRelationTreeDetailSetupBuilder<CHILD_BEAN_TYPE> extends
-		IComponentSetup,
-		IComponentSetupBuilder<IBeanRelationTreeDetailSetupBuilder<CHILD_BEAN_TYPE>>,
-		IBeanRelationTreeDetailSetupConvenience<IBeanRelationTreeDetailSetupBuilder<CHILD_BEAN_TYPE>> {
+final class BeanRelationTreeDetailSetupConvenience extends
+		AbstractSetupBuilderConvenience<IBeanRelationTreeDetailSetupBuilder<IBeanRelationTreeDetailSetupBuilder<?>>> implements
+		IBeanRelationTreeDetailSetupConvenience<IBeanRelationTreeDetailSetupBuilder<IBeanRelationTreeDetailSetupBuilder<?>>> {
 
-	IBeanRelationTreeDetailSetupBuilder<CHILD_BEAN_TYPE> setModel(IBeanRelationTreeModel<CHILD_BEAN_TYPE> model);
-
-	IBeanRelationTreeDetailSetupBuilder<CHILD_BEAN_TYPE> setMenuInterceptor(IBeanRelationTreeDetailMenuInterceptor interceptor);
-
-	@Mandatory
-	IBeanRelationTreeModel<CHILD_BEAN_TYPE> getModel();
-
-	IBeanRelationTreeDetailMenuInterceptor getMenuInterceptor();
-
+	@Override
+	public IBeanRelationTreeDetailSetupBuilder<IBeanRelationTreeDetailSetupBuilder<?>> addMenuInterceptor(
+		final IBeanRelationTreeDetailMenuInterceptor addedInterceptor) {
+		Assert.paramNotNull(addedInterceptor, "addedInterceptor");
+		final IBeanRelationTreeDetailSetupBuilder<IBeanRelationTreeDetailSetupBuilder<?>> builder = getBuilder();
+		final IBeanRelationTreeDetailMenuInterceptor currentInterceptor = builder.getMenuInterceptor();
+		builder.setMenuInterceptor(BeanRelationTreeDetailMenuInterceptorComposite.create(currentInterceptor, addedInterceptor));
+		return builder;
+	}
 }

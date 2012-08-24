@@ -26,26 +26,20 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.widgets;
+package org.jowidgets.cap.ui.api.tree;
 
-import org.jowidgets.api.widgets.blueprint.builder.IComponentSetupBuilder;
-import org.jowidgets.api.widgets.descriptor.setup.IComponentSetup;
-import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeDetailMenuInterceptor;
-import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeModel;
-import org.jowidgets.common.widgets.descriptor.setup.mandatory.Mandatory;
+import org.jowidgets.cap.ui.api.command.ILinkCreatorActionBuilder;
+import org.jowidgets.cap.ui.api.command.ILinkDeleterActionBuilder;
+import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 
-public interface IBeanRelationTreeDetailSetupBuilder<CHILD_BEAN_TYPE> extends
-		IComponentSetup,
-		IComponentSetupBuilder<IBeanRelationTreeDetailSetupBuilder<CHILD_BEAN_TYPE>>,
-		IBeanRelationTreeDetailSetupConvenience<IBeanRelationTreeDetailSetupBuilder<CHILD_BEAN_TYPE>> {
+public interface IBeanRelationTreeDetailMenuInterceptor {
 
-	IBeanRelationTreeDetailSetupBuilder<CHILD_BEAN_TYPE> setModel(IBeanRelationTreeModel<CHILD_BEAN_TYPE> model);
+	ILinkCreatorActionBuilder<Object, Object, Object> linkCreatorActionBuilder(
+		IBeanTable<Object> table,
+		ILinkCreatorActionBuilder<Object, Object, Object> builder);
 
-	IBeanRelationTreeDetailSetupBuilder<CHILD_BEAN_TYPE> setMenuInterceptor(IBeanRelationTreeDetailMenuInterceptor interceptor);
-
-	@Mandatory
-	IBeanRelationTreeModel<CHILD_BEAN_TYPE> getModel();
-
-	IBeanRelationTreeDetailMenuInterceptor getMenuInterceptor();
+	ILinkDeleterActionBuilder<Object, Object> linkDeleterActionBuilder(
+		IBeanTable<Object> table,
+		ILinkDeleterActionBuilder<Object, Object> builder);
 
 }
