@@ -43,7 +43,6 @@ import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
 import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
-import org.jowidgets.cap.ui.api.bean.IBeanSelectionProvider;
 import org.jowidgets.cap.ui.api.command.IDataModelAction;
 import org.jowidgets.cap.ui.api.command.IDeleterActionBuilder;
 import org.jowidgets.cap.ui.api.command.ILinkCreatorActionBuilder;
@@ -56,7 +55,6 @@ import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeModel;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeModelBuilder;
 import org.jowidgets.cap.ui.api.types.EntityTypeId;
 import org.jowidgets.cap.ui.api.types.IEntityTypeId;
-import org.jowidgets.cap.ui.tools.bean.SingleBeanSelectionProvider;
 import org.jowidgets.cap.ui.tools.execution.BeanRefreshInterceptor;
 import org.jowidgets.cap.ui.tools.execution.ExecutionInterceptorAdapter;
 import org.jowidgets.cap.ui.tools.tree.BeanRelationTreeMenuInterceptorAdapter;
@@ -103,33 +101,12 @@ class EntityComponent extends AbstractComponent implements IComponent {
 		final List<IEntityLinkDescriptor> entityLinks = entityService.getEntityLinks(entityClass.getId());
 		if (entityLinks != null && !entityLinks.isEmpty()) {
 			this.relationTreeModel = createRelationTreeModel(tableModel, entityClass);
-
 			for (final IEntityLinkDescriptor link : entityLinks) {
-				final Object linkedEntityId = link.getLinkedEntityId();
-				final Class<Object> linkedBeanType = getBeanType(linkedEntityId);
-				final IEntityTypeId<Object> linkedEntityTypeId = EntityTypeId.create(linkedEntityId, linkedBeanType);
-
-				//create the link creator action
 				if (link.getLinkCreatorService() != null) {
-					final ILinkCreatorActionBuilder<Object, Object, Object> linkCreatorActionBuilder;
-					linkCreatorActionBuilder = CapUiToolkit.actionFactory().linkCreatorActionBuilder(tableModel, link);
-
-					//add interceptor that refreshs the source
-					final BeanRefreshInterceptor<Object, List<IBeanDto>> refreshInterceptor;
-					refreshInterceptor = new BeanRefreshInterceptor<Object, List<IBeanDto>>(tableModel);
-					linkCreatorActionBuilder.addExecutionInterceptor(refreshInterceptor);
-
-					//add interceptor that adds created links to tree nodes
-					final BeanAddToTreeInterceptor addBeanToTreeInterceptor;
-					addBeanToTreeInterceptor = new BeanAddToTreeInterceptor(entityTypeId, linkedEntityTypeId);
-					linkCreatorActionBuilder.addExecutionInterceptor(addBeanToTreeInterceptor);
-
-					//add interceptor that adds created links to the tree details table
-					BeanAddToTreeDetailInterceptor beanAddToTreeDetailInterceptor;
-					beanAddToTreeDetailInterceptor = new BeanAddToTreeDetailInterceptor(tableModel, linkedEntityTypeId);
-					linkCreatorActionBuilder.addExecutionInterceptor(beanAddToTreeDetailInterceptor);
-
-					linkCreatorActions.add(linkCreatorActionBuilder.build());
+					final IAction linkCreatorAction = createLinkCreatorAction(link);
+					if (linkCreatorAction != null) {
+						linkCreatorActions.add(linkCreatorAction);
+					}
 				}
 			}
 			componentContext.setLayout(new EntityComponentMasterDetailLinksDetailLayout(entityClass).getLayout());
@@ -138,7 +115,20 @@ class EntityComponent extends AbstractComponent implements IComponent {
 			this.relationTreeModel = null;
 			componentContext.setLayout(new EntityComponentMasterDetailLayout(entityClass).getLayout());
 		}
+	}
 
+	private IAction createLinkCreatorAction(final IEntityLinkDescriptor link) {
+		final Object linkedEntityId = link.getLinkedEntityId();
+		final Class<Object> linkedBeanType = getBeanType(linkedEntityId);
+		final IEntityTypeId<Object> linkedEntityTypeId = EntityTypeId.create(linkedEntityId, linkedBeanType);
+		if (link.getLinkCreatorService() != null) {
+			final ILinkCreatorActionBuilder<Object, Object, Object> builder;
+			builder = CapUiToolkit.actionFactory().linkCreatorActionBuilder(tableModel, link);
+			builder.addExecutionInterceptor(new BeanRefreshInterceptor<Object, List<IBeanDto>>(tableModel));
+			builder.addExecutionInterceptor(new BeanAddToTreeInterceptor(entityTypeId, linkedEntityTypeId));
+			return builder.build();
+		}
+		return null;
 	}
 
 	private IBeanRelationTreeModel<?> createRelationTreeModel(final IBeanTableModel<?> parentModel, final IEntityClass entityClass) {
@@ -252,71 +242,6 @@ class EntityComponent extends AbstractComponent implements IComponent {
 		}
 	}
 
-	private final class BeanAddToTreeDetailInterceptor extends ExecutionInterceptorAdapter<List<IBeanDto>> {
-
-		private final IEntityTypeId<Object> linkedEntityTypeId;
-		private final IBeanSelectionProvider<Object> source;
-
-		private List<IBeanProxy<Object>> selection;
-
-		private BeanAddToTreeDetailInterceptor(
-			final IBeanSelectionProvider<Object> source,
-			final IEntityTypeId<Object> linkedEntityTypeId) {
-			this.source = source;
-			this.linkedEntityTypeId = linkedEntityTypeId;
-		}
-
-		@Override
-		public void beforeExecution(final IExecutionContext executionContext, final IVetoable continueExecution) {
-			this.selection = source.getBeanSelection().getSelection();
-		}
-
-		@Override
-		public void afterExecutionSuccess(final IExecutionContext executionContext, final List<IBeanDto> result) {
-			if (relationTreeDetail != null) {
-				final IBeanTableModel<Object> relationTableModel = relationTreeDetail.getCurrentRelationTableModel();
-				final IBeanRelationNodeModel<Object, Object> relationNode = relationTreeDetail.getCurrentRelationNode();
-				if (relationNode != null && relationTableModel != null) {
-					for (final IBeanProxy<Object> bean : selection) {
-						if (linkedEntityTypeId.equals(relationNode.getChildEntityTypeId())
-							&& bean.equals(relationNode.getParentBean())) {
-							for (final IBeanDto beanDto : result) {
-								relationTableModel.addBeanDto(beanDto);
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
-	private final class RemoveFromTreeDetailInterceptor extends ExecutionInterceptorAdapter<Void> {
-
-		private final IBeanRelationNodeModel<Object, Object> relationNode;
-
-		private List<IBeanProxy<Object>> selection;
-
-		private RemoveFromTreeDetailInterceptor(final IBeanRelationNodeModel<Object, Object> relationNode) {
-			this.relationNode = relationNode;
-		}
-
-		@Override
-		public void beforeExecution(final IExecutionContext executionContext, final IVetoable continueExecution) {
-			this.selection = relationNode.getSelectedBeans();
-		}
-
-		@Override
-		public void afterExecutionSuccess(final IExecutionContext executionContext, final Void result) {
-			if (relationTreeDetail != null) {
-				final IBeanTableModel<Object> relationTableModel = relationTreeDetail.getCurrentRelationTableModel();
-				final IBeanRelationNodeModel<Object, Object> currentRelationNode = relationTreeDetail.getCurrentRelationNode();
-				if (relationNode == currentRelationNode) {
-					relationTableModel.removeBeans(selection);
-				}
-			}
-		}
-	}
-
 	private final class TreeMenuInterceptor extends BeanRelationTreeMenuInterceptorAdapter {
 
 		@Override
@@ -324,11 +249,6 @@ class EntityComponent extends AbstractComponent implements IComponent {
 			final IBeanRelationNodeModel<Object, Object> relationNode,
 			final ILinkCreatorActionBuilder<Object, Object, Object> builder) {
 			builder.addExecutionInterceptor(new BeanRefreshInterceptor<Object, List<IBeanDto>>(tableModel));
-			final SingleBeanSelectionProvider<Object> source = new SingleBeanSelectionProvider<Object>(
-				relationNode.getParentBean(),
-				relationNode.getChildEntityId(),
-				relationNode.getChildBeanType());
-			builder.addExecutionInterceptor(new BeanAddToTreeDetailInterceptor(source, relationNode.getChildEntityTypeId()));
 			return builder;
 		}
 
@@ -337,7 +257,6 @@ class EntityComponent extends AbstractComponent implements IComponent {
 			final IBeanRelationNodeModel<Object, Object> relationNode,
 			final ILinkDeleterActionBuilder<Object, Object> builder) {
 			builder.addExecutionInterceptor(new BeanRefreshInterceptor<Object, Void>(tableModel));
-			builder.addExecutionInterceptor(new RemoveFromTreeDetailInterceptor(relationNode));
 			return builder;
 		}
 
@@ -346,7 +265,6 @@ class EntityComponent extends AbstractComponent implements IComponent {
 			final IBeanRelationNodeModel<Object, Object> relationNode,
 			final IDeleterActionBuilder<Object> builder) {
 			builder.addExecutionInterceptor(new BeanRefreshInterceptor<Object, Void>(tableModel));
-			builder.addExecutionInterceptor(new RemoveFromTreeDetailInterceptor(relationNode));
 			return builder;
 		}
 

@@ -197,7 +197,10 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 
 		mainComposite.setLayout(new MigLayoutDescriptor("hidemode 2", "0[grow, 0::]0", "0[]0[grow, 0::]0[]0"));
 
-		this.menuInterceptors = getMenuInterceptorsFromPlugins(bluePrint.getMenuInterceptor(), model.getEntityId());
+		this.menuInterceptors = getMenuInterceptorsFromPlugins(
+				bluePrint.getMenuInterceptor(),
+				model.getEntityId(),
+				model.getBeanType());
 		this.menuFactory = CapUiToolkit.beanTableMenuFactory(menuInterceptors);
 		this.autoUpdateItemModel = createAutoUpdateItemModel();
 
@@ -438,7 +441,8 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	private List<IBeanTableMenuInterceptor<BEAN_TYPE>> getMenuInterceptorsFromPlugins(
 		final IBeanTableMenuInterceptor<BEAN_TYPE> initialInterceptor,
-		final Object entityId) {
+		final Object entityId,
+		final Class<BEAN_TYPE> beanType) {
 
 		final List<IBeanTableMenuInterceptor<BEAN_TYPE>> result = new LinkedList<IBeanTableMenuInterceptor<BEAN_TYPE>>();
 
@@ -448,6 +452,7 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 
 		final IPluginPropertiesBuilder propBuilder = PluginToolkit.pluginPropertiesBuilder();
 		propBuilder.add(IBeanTableMenuInterceptorPlugin.ENTITIY_ID_PROPERTY_KEY, entityId);
+		propBuilder.add(IBeanTableMenuInterceptorPlugin.BEAN_TYPE_PROPERTY_KEY, beanType);
 		final IPluginProperties properties = propBuilder.build();
 
 		final List<IBeanTableMenuInterceptorPlugin<?>> plugins = PluginProvider.getPlugins(

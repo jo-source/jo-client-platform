@@ -38,7 +38,8 @@ import org.jowidgets.common.widgets.descriptor.setup.mandatory.Mandatory;
 
 public interface IBeanTableSetupBuilder<BEAN_TYPE> extends
 		IComponentSetup,
-		IComponentSetupBuilder<IBeanTableSetupBuilder<BEAN_TYPE>> {
+		IComponentSetupBuilder<IBeanTableSetupBuilder<BEAN_TYPE>>,
+		IBeanTableSetupConvenience<IBeanTableSetupBuilder<BEAN_TYPE>, BEAN_TYPE> {
 
 	IBeanTableSetupBuilder<BEAN_TYPE> setModel(IBeanTableModel<BEAN_TYPE> model);
 
