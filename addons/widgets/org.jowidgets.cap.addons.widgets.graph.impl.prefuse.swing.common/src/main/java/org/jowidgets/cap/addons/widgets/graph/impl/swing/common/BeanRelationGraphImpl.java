@@ -37,7 +37,8 @@ import java.awt.event.HierarchyEvent;
 import java.awt.event.HierarchyListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.awt.geom.Point2D;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -69,10 +70,9 @@ import prefuse.Visualization;
 import prefuse.action.ActionList;
 import prefuse.action.RepaintAction;
 import prefuse.action.assignment.ColorAction;
-import prefuse.action.layout.CollapsedSubtreeLayout;
 import prefuse.action.layout.graph.ForceDirectedLayout;
-import prefuse.action.layout.graph.NodeLinkTreeLayout;
 import prefuse.activity.Activity;
+import prefuse.controls.DragControl;
 import prefuse.controls.FocusControl;
 import prefuse.controls.NeighborHighlightControl;
 import prefuse.controls.PanControl;
@@ -163,8 +163,6 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		layout.add(fdl);
 		layout.add(fill);
 		layout.add(new RepaintAction());
-		//		layout.add(new NodeLinkTreeLayout("graph", Constants.ORIENT_LEFT_RIGHT, 50, 0, 8));
-		//		layout.add(new RepaintAction(vis));
 
 		vis.putAction("color", color);
 		vis.putAction("layout", layout);
@@ -176,6 +174,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		display = new Display(vis);
 		display.setHighQuality(true);
 		display.addControlListener(new FocusControl(1));
+		display.addControlListener(new DragControl());
 		display.addControlListener(new PanControl());
 		display.addControlListener(new ZoomControl());
 		display.addControlListener(new WheelZoomControl());
@@ -333,25 +332,48 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		final JToolBar jToolBar = new JToolBar();
 		final JTextField jTextField = new JTextField(4);
 		jTextField.setMaximumSize(new Dimension(15, 25));
-		jToolBar.add(new JLabel("Anzahl der Nodes"));
-		jToolBar.add(jTextField);
-		final JButton okButton = new JButton("Ok");
-		okButton.addActionListener(new ActionListener() {
+		jTextField.setText(String.valueOf(maxNodeCount));
+		jTextField.addKeyListener(new KeyListener() {
 
 			@Override
-			public void actionPerformed(final ActionEvent e) {
-				try {
-					final int parseInt = Integer.parseInt(jTextField.getText());
-					maxNodeCount = parseInt;
-					relationTreeModel.getRoot().fireBeansChanged();
+			public void keyTyped(final KeyEvent e) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void keyReleased(final KeyEvent e) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void keyPressed(final KeyEvent e) {
+				if (e.getKeyCode() == KeyEvent.VK_UP) {
+					maxNodeCount++;
 				}
-				catch (final NumberFormatException nfe) {
-					maxNodeCount = 50;
+				if (e.getKeyCode() == KeyEvent.VK_DOWN) {
+					maxNodeCount--;
 				}
+				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+					try {
+						final int parseInt = Integer.parseInt(jTextField.getText());
+						maxNodeCount = parseInt;
+						relationTreeModel.getRoot().fireBeansChanged();
+					}
+					catch (final NumberFormatException nfe) {
+						maxNodeCount = 50;
+					}
+				}
+				e.consume();
+				jTextField.setText(String.valueOf(maxNodeCount));
 			}
 		});
-		jToolBar.add(okButton);
+		jToolBar.add(new JLabel("Maximale Anzahl der Nodes"));
+		jToolBar.add(jTextField);
+
 		jToolBar.addSeparator();
+
 		final JButton controlDialogButton = new JButton("Settings");
 		controlDialogButton.addActionListener(new ActionListener() {
 
@@ -363,20 +385,21 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 				else {
 					dialog.setVisible(true);
 				}
-
 			}
 		});
 
-		final JToggleButton onOffButton = new JToggleButton("On", true);
+		final JToggleButton onOffButton = new JToggleButton("Animation aus", true);
 		onOffButton.addItemListener(new ItemListener() {
 
 			@Override
 			public void itemStateChanged(final ItemEvent e) {
 				if (e.getStateChange() == ItemEvent.SELECTED) {
+					onOffButton.setText("Animation aus");
 					vis.setValue(NODES, null, VisualItem.FIXED, false);
 					vis.setValue(EDGES, null, VisualItem.FIXED, false);
 				}
 				else {
+					onOffButton.setText("Animation an");
 					vis.setValue(NODES, null, VisualItem.FIXED, true);
 					vis.setValue(EDGES, null, VisualItem.FIXED, true);
 				}
@@ -392,53 +415,59 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 	}
 
 	private JComboBox initComboBox() {
-		final JComboBox jComboBox = new JComboBox(new String[] {"ForceDirectedLayout", "NodeLinkTreeLayout", "anyOtherLayout"});
+		final JComboBox jComboBox = new JComboBox(new String[] {"ForceDirectedLayout", "anyOtherLayout"});
+
 		jComboBox.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				if ("NodeLinkTreeLayout".equals(((JComboBox) e.getSource()).getSelectedItem())) {
-					initNodeLinkLayout();
-				}
-				else if ("ForceDirectedLayout".equals(((JComboBox) e.getSource()).getSelectedItem())) {
-					initForceDLayout();
-				}
-
+				//				if ("NodeLinkTreeLayout".equals(((JComboBox) e.getSource()).getSelectedItem())) {
+				//					initNodeLinkLayout();
+				//				}
+				//				else if ("ForceDirectedLayout".equals(((JComboBox) e.getSource()).getSelectedItem())) {
+				//					initForceDLayout();
+				//				}
 			}
 		});
+
+		jComboBox.setPreferredSize(new Dimension(50, 10));
 
 		return jComboBox;
 	}
 
-	private void initForceDLayout() {
-		final ColorAction fill = new ColorAction(NODES, VisualItem.FILLCOLOR, ColorLib.rgb(200, 200, 255));
-		fill.add("_fixed", ColorLib.rgb(255, 100, 100));
-		fill.add("_highlight", ColorLib.rgb(255, 200, 125));
-
-		final ForceDirectedLayout fdl = new ForceDirectedLayout("graph", true);
-		fdl.setForceSimulator(setForces());
-
-		final ActionList layout = new ActionList(Activity.INFINITY);
-		layout.add(fdl);
-		layout.add(fill);
-		layout.add(new RepaintAction());
-		//		layout.add(new NodeLinkTreeLayout("graph", Constants.ORIENT_LEFT_RIGHT, 50, 0, 8));
-		//		layout.add(new RepaintAction(vis));
-
-		vis.putAction("layout", layout);
-		vis.run("layout");
-		vis.run("color");
-	}
-
-	private void initNodeLinkLayout() {
-		final NodeLinkTreeLayout treeLayout = new NodeLinkTreeLayout("graph", Constants.ORIENT_LEFT_RIGHT, 50, 0, 8);
-		treeLayout.setLayoutAnchor(new Point2D.Double(25, 300));
-		final CollapsedSubtreeLayout subLayout = new CollapsedSubtreeLayout("graph", Constants.ORIENT_LEFT_RIGHT);
-		vis.putAction("layout", treeLayout);
-		vis.putAction("subLayout", subLayout);
-		vis.run("layout");
-		vis.run("color");
-	}
+	//	private void initForceDLayout() {
+	//		synchronized (vis) {
+	//
+	//			final ColorAction fill = new ColorAction(NODES, VisualItem.FILLCOLOR, ColorLib.rgb(200, 200, 255));
+	//			fill.add("_fixed", ColorLib.rgb(255, 100, 100));
+	//			fill.add("_highlight", ColorLib.rgb(255, 200, 125));
+	//
+	//			final ForceDirectedLayout fdl = new ForceDirectedLayout("graph", true);
+	//			fdl.setForceSimulator(setForces());
+	//
+	//			final ActionList layout = new ActionList(Activity.INFINITY);
+	//			layout.add(fdl);
+	//			layout.add(fill);
+	//			layout.add(new RepaintAction());
+	//			//		layout.add(new NodeLinkTreeLayout("graph", Constants.ORIENT_LEFT_RIGHT, 50, 0, 8));
+	//			//		layout.add(new RepaintAction(vis));
+	//
+	//			vis.putAction("layout", layout);
+	//		}
+	//		vis.run("layout");
+	//		vis.run("color");
+	//	}
+	//
+	//	private void initNodeLinkLayout() {
+	//		synchronized (vis) {
+	//			final ActionList layout = new ActionList(Activity.INFINITY);
+	//			layout.add(new NodeLinkTreeLayout("graph", Constants.ORIENT_LEFT_RIGHT, 50, 0, 8));
+	//			layout.add(new RepaintAction(vis));
+	//			vis.putAction("layout", layout);
+	//		}
+	//		vis.run("layout");
+	//		vis.run("color");
+	//	}
 
 	private static void renderNodeWithLabel(final Node node, final ILabelModel label) {
 		node.set("name", label.getText());
