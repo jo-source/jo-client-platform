@@ -64,6 +64,9 @@ public interface ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LIN
 	ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> addSourceExecutableChecker(
 		IExecutableChecker<SOURCE_BEAN_TYPE> executableChecker);
 
+	ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> setSourceSelectionAutoRefresh(
+		boolean autoRefresh);
+
 	/**
 	 * Sets the entity label plural.
 	 * This will set a proper text with the entity label as a variable

@@ -29,13 +29,13 @@
 package org.jowidgets.cap.ui.impl;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.cap.ui.api.execution.IExecutionInterceptor;
 import org.jowidgets.tools.types.VetoHolder;
+import org.jowidgets.util.Assert;
 
 final class ExecutionObservable<RESULT_TYPE> {
 
@@ -46,8 +46,13 @@ final class ExecutionObservable<RESULT_TYPE> {
 			this.interceptors = new LinkedHashSet<IExecutionInterceptor<RESULT_TYPE>>(interceptors);
 		}
 		else {
-			this.interceptors = Collections.emptySet();
+			this.interceptors = new LinkedHashSet<IExecutionInterceptor<RESULT_TYPE>>();
 		}
+	}
+
+	void addExecutionInterceptor(final IExecutionInterceptor<RESULT_TYPE> interceptor) {
+		Assert.paramNotNull(interceptor, "interceptor");
+		interceptors.add(interceptor);
 	}
 
 	/**

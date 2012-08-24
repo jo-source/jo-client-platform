@@ -98,6 +98,7 @@ final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKA
 	private ILinkCreatorService linkCreatorService;
 	private IBeanSelectionProvider<SOURCE_BEAN_TYPE> source;
 	private boolean sourceMultiSelection;
+	private boolean sourceSelectionAutoRefresh;
 	private BeanModificationStatePolicy sourceModificationPolicy;
 	private BeanMessageStatePolicy sourceMessageStatePolicy;
 	private IBeanListModel<LINKABLE_BEAN_TYPE> linkedModel;
@@ -232,6 +233,7 @@ final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKA
 		this.linkableBeanPropertyValidators = new LinkedList<IBeanPropertyValidator<LINKABLE_BEAN_TYPE>>();
 
 		this.sourceMultiSelection = false;
+		this.sourceSelectionAutoRefresh = true;
 		this.sourceModificationPolicy = BeanModificationStatePolicy.NO_MODIFICATION;
 		this.sourceMessageStatePolicy = BeanMessageStatePolicy.NO_WARNING_OR_ERROR;
 		this.exceptionConverter = BeanExceptionConverter.get();
@@ -315,6 +317,14 @@ final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKA
 		checkExhausted();
 		Assert.paramNotNull(executableChecker, "executableChecker");
 		sourceExecutableCheckers.add(executableChecker);
+		return this;
+	}
+
+	@Override
+	public ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> setSourceSelectionAutoRefresh(
+		final boolean autoRefresh) {
+		checkExhausted();
+		this.sourceSelectionAutoRefresh = autoRefresh;
 		return this;
 	}
 
@@ -526,6 +536,7 @@ final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKA
 			destinationProperties,
 			linkCreatorService,
 			source,
+			sourceSelectionAutoRefresh,
 			sourceMultiSelection,
 			sourceModificationPolicy,
 			sourceMessageStatePolicy,

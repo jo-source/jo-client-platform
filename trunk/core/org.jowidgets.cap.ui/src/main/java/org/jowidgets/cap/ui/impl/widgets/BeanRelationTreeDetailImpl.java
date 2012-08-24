@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -55,6 +55,7 @@ import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
 import org.jowidgets.cap.ui.api.table.IBeanTableModelConfig;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationNodeModel;
+import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeDetailMenuInterceptor;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeModel;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeSelection;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeSelectionListener;
@@ -81,6 +82,8 @@ final class BeanRelationTreeDetailImpl<CHILD_BEAN_TYPE> extends ControlWrapper i
 		IBeanRelationTreeDetail<CHILD_BEAN_TYPE> {
 
 	private final IBeanRelationTreeModel<CHILD_BEAN_TYPE> treeModel;
+	private final IBeanRelationTreeDetailMenuInterceptor menuInterceptor;
+
 	private final Map<Object, Tuple<IBeanTableModelConfig, ArrayList<Integer>>> tableConfigs;
 	private final Set<IBeanTableLifecycleInterceptor<Object>> tableLifecycleInterceptors;
 	private final ICapApiBluePrintFactory cbpf;
@@ -97,6 +100,7 @@ final class BeanRelationTreeDetailImpl<CHILD_BEAN_TYPE> extends ControlWrapper i
 		Assert.paramNotNull(bluePrint.getModel(), "bluePrint.getModel()");
 
 		this.treeModel = bluePrint.getModel();
+		this.menuInterceptor = bluePrint.getMenuInterceptor();
 		this.tableConfigs = new HashMap<Object, Tuple<IBeanTableModelConfig, ArrayList<Integer>>>();
 		this.tableLifecycleInterceptors = new LinkedHashSet<IBeanTableLifecycleInterceptor<Object>>();
 		this.cbpf = CapUiToolkit.bluePrintFactory();
@@ -233,8 +237,8 @@ final class BeanRelationTreeDetailImpl<CHILD_BEAN_TYPE> extends ControlWrapper i
 		if (relation.getParentBean() != null) {
 			builder.setParent(new SingleBeanSelectionProvider<Object>(
 				relation.getParentBean(),
-				relation.getChildEntityId(),
-				relation.getChildBeanType()), LinkType.SELECTION_FIRST);
+				relation.getParentEntityId(),
+				relation.getParentBeanType()), LinkType.SELECTION_FIRST);
 		}
 
 		fireOnModelCreate(relation, builder);
@@ -327,11 +331,16 @@ final class BeanRelationTreeDetailImpl<CHILD_BEAN_TYPE> extends ControlWrapper i
 		final IEntityLinkDescriptor link = getLinkDescriptor(relationNode);
 		if (link != null && link.getLinkCreatorService() != null) {
 			final IAction linkCreatorAction = createLinkCreatorAction(relationNode, table, link);
-			table.getCellPopMenu().addAction(linkCreatorAction);
-			table.getTablePopupMenu().addAction(linkCreatorAction);
+			if (linkCreatorAction != null) {
+				table.getCellPopMenu().addAction(linkCreatorAction);
+				table.getTablePopupMenu().addAction(linkCreatorAction);
+			}
 		}
 		if (link != null && link.getLinkDeleterService() != null) {
-			table.getCellPopMenu().addAction(createLinkDeleterAction(relationNode, table, link));
+			final IAction linkDeleterAction = createLinkDeleterAction(relationNode, table, link);
+			if (linkDeleterAction != null) {
+				table.getCellPopMenu().addAction(linkDeleterAction);
+			}
 		}
 	}
 
@@ -342,14 +351,23 @@ final class BeanRelationTreeDetailImpl<CHILD_BEAN_TYPE> extends ControlWrapper i
 
 		final SingleBeanSelectionProvider<Object> linkSource = new SingleBeanSelectionProvider<Object>(
 			relationNode.getParentBean(),
-			relationNode.getChildEntityId(),
-			relationNode.getChildBeanType());
+			relationNode.getParentEntityId(),
+			relationNode.getParentBeanType());
 
-		final ILinkCreatorActionBuilder<Object, Object, Object> builder;
+		ILinkCreatorActionBuilder<Object, Object, Object> builder;
 		builder = CapUiToolkit.actionFactory().linkCreatorActionBuilder(linkSource, link);
 		builder.setLinkedModel(table.getModel());
 		builder.addExecutionInterceptor(new AddBeanInterceptor(relationNode));
-		return builder.build();
+
+		if (menuInterceptor != null) {
+			builder = menuInterceptor.linkCreatorActionBuilder(table, builder);
+		}
+		if (builder != null) {
+			return builder.build();
+		}
+		else {
+			return null;
+		}
 	}
 
 	private IAction createLinkDeleterAction(
@@ -357,14 +375,22 @@ final class BeanRelationTreeDetailImpl<CHILD_BEAN_TYPE> extends ControlWrapper i
 		final IBeanTable<Object> table,
 		final IEntityLinkDescriptor link) {
 
-		final ILinkDeleterActionBuilder<Object, Object> builder;
+		ILinkDeleterActionBuilder<Object, Object> builder;
 		final SingleBeanSelectionProvider<Object> linkSource = new SingleBeanSelectionProvider<Object>(
 			relationNode.getParentBean(),
-			relationNode.getChildEntityId(),
-			relationNode.getChildBeanType());
+			relationNode.getParentEntityId(),
+			relationNode.getParentBeanType());
 		builder = CapUiToolkit.actionFactory().linkDeleterActionBuilder(linkSource, table.getModel(), link);
 		builder.addExecutionInterceptor(new RemoveBeanInterceptor(relationNode, table.getModel()));
-		return builder.build();
+		if (menuInterceptor != null) {
+			builder = menuInterceptor.linkDeleterActionBuilder(table, builder);
+		}
+		if (builder != null) {
+			return builder.build();
+		}
+		else {
+			return null;
+		}
 	}
 
 	private IEntityLinkDescriptor getLinkDescriptor(final IBeanRelationNodeModel<Object, Object> relationNode) {

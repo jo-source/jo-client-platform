@@ -112,6 +112,7 @@ final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BE
 		final IEntityLinkProperties destinationProperties,
 		final ILinkCreatorService linkCreatorService,
 		final IBeanSelectionProvider<SOURCE_BEAN_TYPE> source,
+		final boolean sourceSelectionAutoRefresh,
 		final boolean sourceMultiSelection,
 		final BeanModificationStatePolicy sourceModificationPolicy,
 		final BeanMessageStatePolicy sourceMessageStatePolicy,
@@ -162,8 +163,15 @@ final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BE
 		this.linkableTable = linkableTable;
 		this.linkableBeanPropertyValidators = new LinkedList<IBeanPropertyValidator<LINKABLE_BEAN_TYPE>>(
 			linkableBeanPropertyValidators);
+
 		this.executionObservable = new ExecutionObservable<List<IBeanDto>>(executionInterceptors);
 		this.exceptionConverter = exceptionConverter;
+
+		if (sourceSelectionAutoRefresh) {
+			BeanSelectionProviderRefreshInterceptor<SOURCE_BEAN_TYPE, List<IBeanDto>> refreshInterceptor;
+			refreshInterceptor = new BeanSelectionProviderRefreshInterceptor<SOURCE_BEAN_TYPE, List<IBeanDto>>(source);
+			executionObservable.addExecutionInterceptor(refreshInterceptor);
+		}
 	}
 
 	@Override
