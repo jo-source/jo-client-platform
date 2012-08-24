@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,21 +26,23 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.plugin;
+package org.jowidgets.cap.ui.impl.widgets;
 
 import org.jowidgets.cap.ui.api.table.IBeanTableMenuInterceptor;
-import org.jowidgets.cap.ui.api.widgets.IBeanTable;
-import org.jowidgets.plugin.api.IPluginId;
-import org.jowidgets.plugin.api.IPluginProperties;
-import org.jowidgets.util.ITypedKey;
+import org.jowidgets.cap.ui.api.widgets.IBeanTableSetupBuilder;
+import org.jowidgets.cap.ui.api.widgets.IBeanTableSetupConvenience;
+import org.jowidgets.tools.widgets.blueprint.convenience.AbstractSetupBuilderConvenience;
+import org.jowidgets.util.Assert;
 
-public interface IBeanTableMenuInterceptorPlugin<BEAN_TYPE> {
+final class BeanTableSetupConvenience extends AbstractSetupBuilderConvenience<IBeanTableSetupBuilder<Object>> implements
+		IBeanTableSetupConvenience<IBeanTableSetupBuilder<Object>, Object> {
 
-	IPluginId<IBeanTableMenuInterceptorPlugin<?>> ID = new IPluginId<IBeanTableMenuInterceptorPlugin<?>>() {};
-
-	ITypedKey<Object> ENTITIY_ID_PROPERTY_KEY = new ITypedKey<Object>() {};
-	ITypedKey<Class<?>> BEAN_TYPE_PROPERTY_KEY = new ITypedKey<Class<?>>() {};
-
-	IBeanTableMenuInterceptor<BEAN_TYPE> getMenuInterceptor(IPluginProperties properties, IBeanTable<BEAN_TYPE> table);
-
+	@Override
+	public IBeanTableSetupBuilder<Object> addMenuInterceptor(final IBeanTableMenuInterceptor<Object> addedInterceptor) {
+		Assert.paramNotNull(addedInterceptor, "addedInterceptor");
+		final IBeanTableSetupBuilder<Object> builder = getBuilder();
+		final IBeanTableMenuInterceptor<Object> currentInterceptor = builder.getMenuInterceptor();
+		builder.setMenuInterceptor(BeanTableMenuInterceptorComposite.create(currentInterceptor, addedInterceptor));
+		return builder;
+	}
 }

@@ -28,31 +28,12 @@
 
 package org.jowidgets.cap.ui.impl.workbench;
 
-import java.util.List;
-
-import org.jowidgets.api.command.IAction;
-import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.api.widgets.IContainer;
-import org.jowidgets.cap.common.api.bean.IBeanDto;
-import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
 import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
-import org.jowidgets.cap.ui.api.bean.IBeanProxy;
-import org.jowidgets.cap.ui.api.command.ILinkCreatorActionBuilder;
-import org.jowidgets.cap.ui.api.command.ILinkDeleterActionBuilder;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
-import org.jowidgets.cap.ui.api.tree.IBeanRelationNodeModel;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeModel;
-import org.jowidgets.cap.ui.api.widgets.IBeanRelationTreeDetail;
 import org.jowidgets.cap.ui.api.widgets.IBeanRelationTreeDetailBluePrint;
-import org.jowidgets.cap.ui.api.widgets.IBeanTable;
-import org.jowidgets.cap.ui.api.widgets.IBeanTableLifecycleInterceptor;
-import org.jowidgets.cap.ui.api.widgets.IBeanTableSetupBuilder;
-import org.jowidgets.cap.ui.tools.bean.SingleBeanSelectionProvider;
-import org.jowidgets.cap.ui.tools.execution.BeanRefreshInterceptor;
-import org.jowidgets.cap.ui.tools.execution.ExecutionInterceptorAdapter;
-import org.jowidgets.cap.ui.tools.widgets.BeanTableLifecycleInterceptorAdapter;
-import org.jowidgets.common.types.IVetoable;
 import org.jowidgets.i18n.api.IMessage;
 import org.jowidgets.service.api.ServiceProvider;
 import org.jowidgets.tools.layout.MigLayoutFactory;
@@ -64,18 +45,12 @@ final class EntityRelationTreeDetailView extends AbstractView {
 	public static final String ID = EntityRelationTreeDetailView.class.getName();
 	public static final IMessage DEFAULT_LABEL = Messages.getMessage("EntityRelationTreeDetailView.details");
 
-	private final IBeanTableModel<Object> rootTableModel;
 	private final IEntityService entityService;
-
-	private IBeanTableModel<Object> currentRelationTableModel;
-	private IBeanRelationNodeModel<Object, Object> currentRelationNode;
 
 	EntityRelationTreeDetailView(
 		final IViewContext context,
 		final IBeanTableModel<Object> rootTableModel,
 		final IBeanRelationTreeModel<?> treeModel) {
-
-		this.rootTableModel = rootTableModel;
 
 		this.entityService = ServiceProvider.getService(IEntityService.ID);
 		if (entityService == null) {
@@ -86,138 +61,7 @@ final class EntityRelationTreeDetailView extends AbstractView {
 		container.setLayout(MigLayoutFactory.growingInnerCellLayout());
 		final IBeanRelationTreeDetailBluePrint<?> treeDetailBp = CapUiToolkit.bluePrintFactory().beanRelationTreeDetail(treeModel);
 
-		final IBeanRelationTreeDetail<?> treeDetail = container.add(treeDetailBp, MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
-
-		final IBeanTableLifecycleInterceptor<Object> interceptor = new BeanTableLifecycleInterceptorAdapterImpl();
-
-		treeDetail.addBeanTableLifecycleInterceptor(interceptor);
-	}
-
-	IBeanTableModel<Object> getCurrentRelationTableModel() {
-		return currentRelationTableModel;
-	}
-
-	IBeanRelationNodeModel<Object, Object> getCurrentRelationNode() {
-		return currentRelationNode;
-	}
-
-	private final class BeanTableLifecycleInterceptorAdapterImpl extends BeanTableLifecycleInterceptorAdapter<Object> {
-
-		@Override
-		public void onTableCreate(
-			final IBeanRelationNodeModel<Object, Object> relationNode,
-			final IBeanTableSetupBuilder<Object> builder) {
-			builder.setDefaultCreatorAction(false);
-		}
-
-		@Override
-		public void afterTableCreated(final IBeanRelationNodeModel<Object, Object> relationNode, final IBeanTable<Object> table) {
-			final IEntityLinkDescriptor link = getLinkDescriptor(relationNode);
-			if (link != null && link.getLinkCreatorService() != null) {
-				final IAction linkCreatorAction = createLinkCreatorAction(relationNode, table, link);
-				table.getCellPopMenu().addAction(linkCreatorAction);
-				table.getTablePopupMenu().addAction(linkCreatorAction);
-			}
-			if (link != null && link.getLinkDeleterService() != null) {
-				table.getCellPopMenu().addAction(createLinkDeleterAction(relationNode, table, link));
-			}
-			currentRelationNode = relationNode;
-			currentRelationTableModel = table.getModel();
-		}
-
-		@Override
-		public void beforeTableDispose(final IBeanTable<Object> table) {
-			currentRelationNode = null;
-			currentRelationTableModel = null;
-		}
-
-		private IAction createLinkCreatorAction(
-			final IBeanRelationNodeModel<Object, Object> relationNode,
-			final IBeanTable<Object> table,
-			final IEntityLinkDescriptor link) {
-
-			final SingleBeanSelectionProvider<Object> linkSource = new SingleBeanSelectionProvider<Object>(
-				relationNode.getParentBean(),
-				relationNode.getChildEntityId(),
-				relationNode.getChildBeanType());
-
-			final ILinkCreatorActionBuilder<Object, Object, Object> builder;
-			builder = CapUiToolkit.actionFactory().linkCreatorActionBuilder(linkSource, link);
-			builder.setLinkedModel(table.getModel());
-			builder.addExecutionInterceptor(new AddBeanInterceptor(relationNode));
-			builder.addExecutionInterceptor(new BeanRefreshInterceptor<Object, List<IBeanDto>>(rootTableModel));
-
-			return builder.build();
-		}
-
-		private IAction createLinkDeleterAction(
-			final IBeanRelationNodeModel<Object, Object> relationNode,
-			final IBeanTable<Object> table,
-			final IEntityLinkDescriptor link) {
-
-			final ILinkDeleterActionBuilder<Object, Object> builder;
-			final SingleBeanSelectionProvider<Object> linkSource = new SingleBeanSelectionProvider<Object>(
-				relationNode.getParentBean(),
-				relationNode.getChildEntityId(),
-				relationNode.getChildBeanType());
-			builder = CapUiToolkit.actionFactory().linkDeleterActionBuilder(linkSource, table.getModel(), link);
-			builder.addExecutionInterceptor(new RemoveBeanInterceptor(relationNode, table.getModel()));
-			builder.addExecutionInterceptor(new BeanRefreshInterceptor<Object, Void>(rootTableModel));
-			return builder.build();
-		}
-
-		private IEntityLinkDescriptor getLinkDescriptor(final IBeanRelationNodeModel<Object, Object> relationNode) {
-			final List<IEntityLinkDescriptor> links = entityService.getEntityLinks(relationNode.getParentEntityId());
-			if (links != null) {
-				for (final IEntityLinkDescriptor link : links) {
-					if (link.getLinkedEntityId().equals(relationNode.getChildEntityId())) {
-						return link;
-					}
-				}
-			}
-			return null;
-		}
-	}
-
-	private final class AddBeanInterceptor extends ExecutionInterceptorAdapter<List<IBeanDto>> {
-
-		private final IBeanRelationNodeModel<Object, Object> relationNode;
-
-		private AddBeanInterceptor(final IBeanRelationNodeModel<Object, Object> relationNode) {
-			this.relationNode = relationNode;
-		}
-
-		@Override
-		public void afterExecutionSuccess(final IExecutionContext executionContext, final List<IBeanDto> result) {
-			for (final IBeanDto beanDto : result) {
-				relationNode.addBeanDto(beanDto);
-			}
-		}
-	}
-
-	private final class RemoveBeanInterceptor extends ExecutionInterceptorAdapter<Void> {
-
-		private final IBeanRelationNodeModel<Object, Object> relationNode;
-		private final IBeanTableModel<Object> linkedModel;
-
-		private List<IBeanProxy<Object>> linkedSelection;
-
-		private RemoveBeanInterceptor(
-			final IBeanRelationNodeModel<Object, Object> relationNode,
-			final IBeanTableModel<Object> linkedModel) {
-			this.relationNode = relationNode;
-			this.linkedModel = linkedModel;
-		}
-
-		@Override
-		public void beforeExecution(final IExecutionContext executionContext, final IVetoable continueExecution) {
-			this.linkedSelection = linkedModel.getSelectedBeans();
-		}
-
-		@Override
-		public void afterExecutionSuccess(final IExecutionContext executionContext, final Void result) {
-			relationNode.removeBeans(linkedSelection);
-		}
+		container.add(treeDetailBp, MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
 	}
 
 }

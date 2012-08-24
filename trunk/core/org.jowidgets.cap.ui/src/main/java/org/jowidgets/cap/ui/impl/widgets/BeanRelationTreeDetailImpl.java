@@ -32,11 +32,23 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.jowidgets.api.command.IAction;
+import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.api.widgets.IComposite;
+import org.jowidgets.cap.common.api.bean.IBeanDto;
+import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
+import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
+import org.jowidgets.cap.ui.api.bean.IBeanProxy;
+import org.jowidgets.cap.ui.api.bean.IBeanSelectionProvider;
+import org.jowidgets.cap.ui.api.command.IDeleterActionBuilder;
+import org.jowidgets.cap.ui.api.command.ILinkCreatorActionBuilder;
+import org.jowidgets.cap.ui.api.command.ILinkDeleterActionBuilder;
+import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
 import org.jowidgets.cap.ui.api.model.LinkType;
 import org.jowidgets.cap.ui.api.table.BeanTableModel;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
@@ -54,7 +66,11 @@ import org.jowidgets.cap.ui.api.widgets.IBeanTableLifecycleInterceptor;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableSetupBuilder;
 import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
 import org.jowidgets.cap.ui.tools.bean.SingleBeanSelectionProvider;
+import org.jowidgets.cap.ui.tools.execution.ExecutionInterceptorAdapter;
+import org.jowidgets.cap.ui.tools.table.BeanTableMenuInterceptorAdapter;
+import org.jowidgets.common.types.IVetoable;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
+import org.jowidgets.service.api.ServiceProvider;
 import org.jowidgets.tools.layout.MigLayoutFactory;
 import org.jowidgets.tools.widgets.blueprint.BPF;
 import org.jowidgets.tools.widgets.wrapper.ControlWrapper;
@@ -71,6 +87,7 @@ final class BeanRelationTreeDetailImpl<CHILD_BEAN_TYPE> extends ControlWrapper i
 	private final IComposite tableContainer;
 	private final IComposite beanFormContainer;
 	private final IBeanRelationTreeSelectionListener treeSelectionListener;
+	private final RelationModelChangeListener relationModelChangeListener;
 
 	private IBeanTable<Object> lastBeanTable;
 	private IBeanRelationNodeModel<Object, Object> lastParentRelation;
@@ -94,13 +111,13 @@ final class BeanRelationTreeDetailImpl<CHILD_BEAN_TYPE> extends ControlWrapper i
 		tableContainer.setLayout(MigLayoutFactory.growingInnerCellLayout());
 		tableContainer.setVisible(false);
 
+		this.relationModelChangeListener = new RelationModelChangeListener();
 		this.treeSelectionListener = new IBeanRelationTreeSelectionListener() {
 			@Override
 			public void selectionChanged(final IBeanRelationTreeSelection selection) {
 				onSelectionChanged(selection);
 			}
 		};
-
 		treeModel.addBeanRelationTreeSelectionListener(treeSelectionListener);
 	}
 
@@ -157,11 +174,18 @@ final class BeanRelationTreeDetailImpl<CHILD_BEAN_TYPE> extends ControlWrapper i
 		}
 		disposeTable();
 		lastBeanTable = null;
-		lastParentRelation = null;
+		if (lastParentRelation != null) {
+			lastParentRelation.removeBeanListModelListener(relationModelChangeListener);
+			lastParentRelation = null;
+		}
 	}
 
 	private void onParentRelationChanged(final IBeanRelationNodeModel<Object, Object> relation) {
 		if (relation != lastParentRelation) {
+			if (lastParentRelation != null) {
+				lastParentRelation.removeBeanListModelListener(relationModelChangeListener);
+			}
+
 			getWidget().layoutBegin();
 
 			lastParentRelation = relation;
@@ -172,11 +196,23 @@ final class BeanRelationTreeDetailImpl<CHILD_BEAN_TYPE> extends ControlWrapper i
 			final IBeanTableModel<Object> tableModel = createBeanTableModel(lastParentRelation);
 
 			final IBeanTableBluePrint<Object> beanTableBp = cbpf.beanTable(tableModel);
+			beanTableBp.setDefaultCreatorAction(false);
+			beanTableBp.addMenuInterceptor(new BeanTableMenuInterceptorAdapter<Object>() {
+				@Override
+				public IDeleterActionBuilder<Object> deleterActionBuilder(
+					final IBeanTable<Object> table,
+					final IDeleterActionBuilder<Object> builder) {
+					builder.addExecutionInterceptor(new DeleteBeanInterceptor(tableModel, relation));
+					return builder;
+				}
+			});
+
 			fireOnTableCreate(relation, beanTableBp);
 			lastBeanTable = tableContainer.add(beanTableBp, MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
 
 			setTableConfigIfExists();
 
+			addTableActions(relation, lastBeanTable);
 			fireAfterTableCreated(relation, lastBeanTable);
 
 			tableModel.load();
@@ -185,6 +221,8 @@ final class BeanRelationTreeDetailImpl<CHILD_BEAN_TYPE> extends ControlWrapper i
 				tableContainer.setVisible(true);
 			}
 			getWidget().layoutEnd();
+
+			relation.addBeanListModelListener(relationModelChangeListener);
 		}
 	}
 
@@ -282,6 +320,138 @@ final class BeanRelationTreeDetailImpl<CHILD_BEAN_TYPE> extends ControlWrapper i
 		for (final IBeanTableLifecycleInterceptor<Object> interceptor : new LinkedList<IBeanTableLifecycleInterceptor<Object>>(
 			tableLifecycleInterceptors)) {
 			interceptor.beforeModelDispose(model);
+		}
+	}
+
+	private void addTableActions(final IBeanRelationNodeModel<Object, Object> relationNode, final IBeanTable<Object> table) {
+		final IEntityLinkDescriptor link = getLinkDescriptor(relationNode);
+		if (link != null && link.getLinkCreatorService() != null) {
+			final IAction linkCreatorAction = createLinkCreatorAction(relationNode, table, link);
+			table.getCellPopMenu().addAction(linkCreatorAction);
+			table.getTablePopupMenu().addAction(linkCreatorAction);
+		}
+		if (link != null && link.getLinkDeleterService() != null) {
+			table.getCellPopMenu().addAction(createLinkDeleterAction(relationNode, table, link));
+		}
+	}
+
+	private IAction createLinkCreatorAction(
+		final IBeanRelationNodeModel<Object, Object> relationNode,
+		final IBeanTable<Object> table,
+		final IEntityLinkDescriptor link) {
+
+		final SingleBeanSelectionProvider<Object> linkSource = new SingleBeanSelectionProvider<Object>(
+			relationNode.getParentBean(),
+			relationNode.getChildEntityId(),
+			relationNode.getChildBeanType());
+
+		final ILinkCreatorActionBuilder<Object, Object, Object> builder;
+		builder = CapUiToolkit.actionFactory().linkCreatorActionBuilder(linkSource, link);
+		builder.setLinkedModel(table.getModel());
+		builder.addExecutionInterceptor(new AddBeanInterceptor(relationNode));
+		return builder.build();
+	}
+
+	private IAction createLinkDeleterAction(
+		final IBeanRelationNodeModel<Object, Object> relationNode,
+		final IBeanTable<Object> table,
+		final IEntityLinkDescriptor link) {
+
+		final ILinkDeleterActionBuilder<Object, Object> builder;
+		final SingleBeanSelectionProvider<Object> linkSource = new SingleBeanSelectionProvider<Object>(
+			relationNode.getParentBean(),
+			relationNode.getChildEntityId(),
+			relationNode.getChildBeanType());
+		builder = CapUiToolkit.actionFactory().linkDeleterActionBuilder(linkSource, table.getModel(), link);
+		builder.addExecutionInterceptor(new RemoveBeanInterceptor(relationNode, table.getModel()));
+		return builder.build();
+	}
+
+	private IEntityLinkDescriptor getLinkDescriptor(final IBeanRelationNodeModel<Object, Object> relationNode) {
+		final IEntityService entityService = ServiceProvider.getService(IEntityService.ID);
+		final List<IEntityLinkDescriptor> links = entityService.getEntityLinks(relationNode.getParentEntityId());
+		if (links != null) {
+			for (final IEntityLinkDescriptor link : links) {
+				if (link.getLinkedEntityId().equals(relationNode.getChildEntityId())) {
+					return link;
+				}
+			}
+		}
+		return null;
+	}
+
+	private final class RelationModelChangeListener implements IBeanListModelListener {
+		@Override
+		public void beansChanged() {
+			if (lastBeanTable != null) {
+				lastBeanTable.getModel().load();
+			}
+		}
+	}
+
+	private final class AddBeanInterceptor extends ExecutionInterceptorAdapter<List<IBeanDto>> {
+
+		private final IBeanRelationNodeModel<Object, Object> relationNode;
+
+		private AddBeanInterceptor(final IBeanRelationNodeModel<Object, Object> relationNode) {
+			this.relationNode = relationNode;
+		}
+
+		@Override
+		public void afterExecutionSuccess(final IExecutionContext executionContext, final List<IBeanDto> result) {
+			for (final IBeanDto beanDto : result) {
+				relationNode.addBeanDto(beanDto);
+			}
+		}
+	}
+
+	private final class RemoveBeanInterceptor extends ExecutionInterceptorAdapter<Void> {
+
+		private final IBeanRelationNodeModel<Object, Object> relationNode;
+		private final IBeanTableModel<Object> linkedModel;
+
+		private List<IBeanProxy<Object>> linkedSelection;
+
+		private RemoveBeanInterceptor(
+			final IBeanRelationNodeModel<Object, Object> relationNode,
+			final IBeanTableModel<Object> linkedModel) {
+			this.relationNode = relationNode;
+			this.linkedModel = linkedModel;
+		}
+
+		@Override
+		public void beforeExecution(final IExecutionContext executionContext, final IVetoable continueExecution) {
+			this.linkedSelection = linkedModel.getSelectedBeans();
+		}
+
+		@Override
+		public void afterExecutionSuccess(final IExecutionContext executionContext, final Void result) {
+			relationNode.removeBeans(linkedSelection);
+		}
+	}
+
+	private final class DeleteBeanInterceptor extends ExecutionInterceptorAdapter<Void> {
+
+		private final IBeanSelectionProvider<Object> source;
+		private final IBeanRelationNodeModel<Object, Object> relationNode;
+
+		private List<IBeanProxy<Object>> selection;
+
+		private DeleteBeanInterceptor(
+			final IBeanSelectionProvider<Object> source,
+			final IBeanRelationNodeModel<Object, Object> relationNode) {
+			this.source = source;
+			this.relationNode = relationNode;
+		}
+
+		@Override
+		public void beforeExecution(final IExecutionContext executionContext, final IVetoable continueExecution) {
+			this.selection = source.getBeanSelection().getSelection();
+		}
+
+		@Override
+		public void afterExecutionSuccess(final IExecutionContext executionContext, final Void result) {
+			relationNode.removeBeans(selection);
 		}
 	}
 }

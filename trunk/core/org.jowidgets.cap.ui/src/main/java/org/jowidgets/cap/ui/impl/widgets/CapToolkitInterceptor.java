@@ -111,6 +111,7 @@ final class CapToolkitInterceptor implements IToolkitInterceptor {
 
 	private void setBuilderConvenience(final IToolkit toolkit) {
 		final IBluePrintFactory bpf = toolkit.getBluePrintFactory();
+		bpf.setSetupBuilderConvenience(IBeanTableSetupBuilder.class, new BeanTableSetupConvenience());
 		bpf.setSetupBuilderConvenience(IBeanTabFolderBluePrint.class, new BeanTabFolderSetupConvenience());
 		bpf.setSetupBuilderConvenience(IBeanFormBluePrint.class, new BeanFormSetupConvenience());
 		bpf.setSetupBuilderConvenience(IBeanSelectionFormSetupBuilder.class, new BeanSelectionFormSetupConvenience());
