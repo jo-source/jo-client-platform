@@ -28,10 +28,7 @@
 
 package org.jowidgets.cap.ui.api.command;
 
-import java.util.List;
-
 import org.jowidgets.api.command.IEnabledChecker;
-import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.service.ILinkDeleterService;
 import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
@@ -62,8 +59,7 @@ public interface ILinkDeleterActionBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> e
 
 	ILinkDeleterActionBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> setExceptionConverter(IBeanExceptionConverter exceptionConverter);
 
-	ILinkDeleterActionBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> addExecutionInterceptor(
-		IExecutionInterceptor<List<IBeanDto>> interceptor);
+	ILinkDeleterActionBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> addExecutionInterceptor(IExecutionInterceptor<Void> interceptor);
 
 	/**
 	 * If auto selection is set, after bean deletion was delegated to the deleter service, the

@@ -162,7 +162,7 @@ final class EntityRelationTreeDetailView extends AbstractView {
 				relationNode.getChildBeanType());
 			builder = CapUiToolkit.actionFactory().linkDeleterActionBuilder(linkSource, table.getModel(), link);
 			builder.addExecutionInterceptor(new RemoveBeanInterceptor(relationNode, table.getModel()));
-			builder.addExecutionInterceptor(new BeanRefreshInterceptor<Object, List<IBeanDto>>(rootTableModel));
+			builder.addExecutionInterceptor(new BeanRefreshInterceptor<Object, Void>(rootTableModel));
 			return builder.build();
 		}
 
@@ -195,7 +195,7 @@ final class EntityRelationTreeDetailView extends AbstractView {
 		}
 	}
 
-	private final class RemoveBeanInterceptor extends ExecutionInterceptorAdapter<List<IBeanDto>> {
+	private final class RemoveBeanInterceptor extends ExecutionInterceptorAdapter<Void> {
 
 		private final IBeanRelationNodeModel<Object, Object> relationNode;
 		private final IBeanTableModel<Object> linkedModel;
@@ -215,7 +215,7 @@ final class EntityRelationTreeDetailView extends AbstractView {
 		}
 
 		@Override
-		public void afterExecutionSuccess(final IExecutionContext executionContext, final List<IBeanDto> result) {
+		public void afterExecutionSuccess(final IExecutionContext executionContext, final Void result) {
 			relationNode.removeBeans(linkedSelection);
 		}
 	}

@@ -35,7 +35,6 @@ import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.command.IActionBuilder;
 import org.jowidgets.api.command.ICommand;
 import org.jowidgets.api.command.IEnabledChecker;
-import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
 import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
@@ -66,7 +65,7 @@ final class LinkDeleterActionBuilderImpl<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> ext
 	private final List<IExecutableChecker<SOURCE_BEAN_TYPE>> sourceExecutableCheckers;
 	private final List<IExecutableChecker<LINKED_BEAN_TYPE>> linkedExecutableCheckers;
 	private final List<IEnabledChecker> enabledCheckers;
-	private final List<IExecutionInterceptor<List<IBeanDto>>> executionInterceptors;
+	private final List<IExecutionInterceptor<Void>> executionInterceptors;
 
 	private ILinkDeleterService deleterService;
 	private IBeanSelectionProvider<SOURCE_BEAN_TYPE> source;
@@ -118,7 +117,7 @@ final class LinkDeleterActionBuilderImpl<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> ext
 		this.sourceExecutableCheckers = new LinkedList<IExecutableChecker<SOURCE_BEAN_TYPE>>();
 		this.linkedExecutableCheckers = new LinkedList<IExecutableChecker<LINKED_BEAN_TYPE>>();
 		this.enabledCheckers = new LinkedList<IEnabledChecker>();
-		this.executionInterceptors = new LinkedList<IExecutionInterceptor<List<IBeanDto>>>();
+		this.executionInterceptors = new LinkedList<IExecutionInterceptor<Void>>();
 
 		this.sourceMultiSelection = false;
 		this.sourceModificationPolicy = BeanModificationStatePolicy.NO_MODIFICATION;
@@ -265,7 +264,7 @@ final class LinkDeleterActionBuilderImpl<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> ext
 
 	@Override
 	public ILinkDeleterActionBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> addExecutionInterceptor(
-		final IExecutionInterceptor<List<IBeanDto>> interceptor) {
+		final IExecutionInterceptor<Void> interceptor) {
 		checkExhausted();
 		Assert.paramNotNull(interceptor, "interceptor");
 		this.executionInterceptors.add(interceptor);
