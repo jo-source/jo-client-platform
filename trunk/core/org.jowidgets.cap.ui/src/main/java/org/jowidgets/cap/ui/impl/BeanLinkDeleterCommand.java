@@ -40,7 +40,6 @@ import org.jowidgets.api.command.IExceptionHandler;
 import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.types.QuestionResult;
-import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.link.ILinkDeletion;
@@ -78,7 +77,7 @@ final class BeanLinkDeleterCommand<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> implement
 	private final IBeanListModel<LINKED_BEAN_TYPE> linkedModel;
 	private final IBeanExceptionConverter exceptionConverter;
 	private final IEnabledChecker enabledChecker;
-	private final ExecutionObservable<List<IBeanDto>> executionObservable;
+	private final ExecutionObservable<Void> executionObservable;
 	private final boolean autoSelection;
 	private final boolean deletionConfirmDialog;
 
@@ -97,7 +96,7 @@ final class BeanLinkDeleterCommand<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> implement
 		final List<IExecutableChecker<LINKED_BEAN_TYPE>> linkedExecutableCheckers,
 		final List<IEnabledChecker> enabledCheckers,
 		final boolean autoSelection,
-		final List<IExecutionInterceptor<List<IBeanDto>>> executionInterceptors,
+		final List<IExecutionInterceptor<Void>> executionInterceptors,
 		final IBeanExceptionConverter exceptionConverter) {
 
 		Assert.paramNotNull(linkDeleterService, "linkDeleterService");
@@ -136,7 +135,7 @@ final class BeanLinkDeleterCommand<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> implement
 		this.linkDeleterService = linkDeleterService;
 		this.linkedModel = linkedModel;
 
-		this.executionObservable = new ExecutionObservable<List<IBeanDto>>(executionInterceptors);
+		this.executionObservable = new ExecutionObservable<Void>(executionInterceptors);
 		this.exceptionConverter = exceptionConverter;
 		this.deletionConfirmDialog = deletionConfirmDialog;
 		this.autoSelection = autoSelection;
@@ -276,7 +275,7 @@ final class BeanLinkDeleterCommand<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> implement
 					setExecutionTaskNull();
 					linkedModel.removeBeans(linkedSelection);
 					linkedModel.fireBeansChanged();
-					executionObservable.fireAfterExecutionSuccess(executionContext, new LinkedList<IBeanDto>());
+					executionObservable.fireAfterExecutionSuccess(executionContext, null);
 				}
 
 				@Override

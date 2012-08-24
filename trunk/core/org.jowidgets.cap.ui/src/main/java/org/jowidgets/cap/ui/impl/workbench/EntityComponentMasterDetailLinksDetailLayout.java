@@ -79,7 +79,7 @@ final class EntityComponentMasterDetailLinksDetailLayout {
 
 	private ISplitLayoutBuilder createLinkedMasterDetailSplit(final IEntityClass entityClass) {
 		final ISplitLayoutBuilder result = new SplitLayoutBuilder();
-		result.setHorizontal().setWeight(0.3).setResizeBoth();
+		result.setHorizontal().setWeight(0.33).setResizeSecond();
 		result.setFirstContainer(createLinkedMasterFolder(entityClass));
 		result.setSecondContainer(createLinkedDetailFolder(entityClass));
 		return result;
