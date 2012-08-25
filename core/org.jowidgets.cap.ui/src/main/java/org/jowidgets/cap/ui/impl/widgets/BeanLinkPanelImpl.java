@@ -35,6 +35,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.jowidgets.api.controller.IDisposeListener;
 import org.jowidgets.api.widgets.IComposite;
 import org.jowidgets.api.widgets.IContainer;
 import org.jowidgets.api.widgets.ISplitComposite;
@@ -208,7 +209,7 @@ final class BeanLinkPanelImpl<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> extends
 		container.setLayout(MigLayoutFactory.growingInnerCellLayout());
 		this.linkableTable = container.add(beanTableBpCopy, MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
 
-		linkableTable.getModel().addBeanSelectionListener(new IBeanSelectionListener<LINKABLE_BEAN_TYPE>() {
+		final IBeanSelectionListener<LINKABLE_BEAN_TYPE> selectionListener = new IBeanSelectionListener<LINKABLE_BEAN_TYPE>() {
 			@Override
 			public void selectionChanged(final IBeanSelectionEvent<LINKABLE_BEAN_TYPE> selectionEvent) {
 				final IBeanProxy<LINKABLE_BEAN_TYPE> firstSelected = selectionEvent.getFirstSelected();
@@ -233,6 +234,14 @@ final class BeanLinkPanelImpl<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> extends
 				}
 
 				setValidationCacheDirty();
+			}
+		};
+		linkableTable.getModel().addBeanSelectionListener(selectionListener);
+
+		linkableTable.addDisposeListener(new IDisposeListener() {
+			@Override
+			public void onDispose() {
+				linkableTable.getModel().removeBeanSelectionListener(selectionListener);
 			}
 		});
 	}

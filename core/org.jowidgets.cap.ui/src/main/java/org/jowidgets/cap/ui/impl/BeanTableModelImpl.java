@@ -384,6 +384,13 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		if (refreshService != null) {
 			addBeanSelectionListener(new AutoRefreshListener());
 		}
+
+		beansStateTracker.addProcessStateListener(new IProcessStateListener() {
+			@Override
+			public void processStateChanged() {
+				fireBeansChanged();
+			}
+		});
 	}
 
 	private List<IAttribute<Object>> createModifiedByPluginsAttributes(

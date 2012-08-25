@@ -30,6 +30,7 @@ package org.jowidgets.cap.ui.impl.widgets;
 
 import java.util.ArrayList;
 
+import org.jowidgets.api.controller.IDisposeListener;
 import org.jowidgets.api.model.item.ICheckedItemModel;
 import org.jowidgets.api.model.item.ICheckedItemModelBuilder;
 import org.jowidgets.api.model.item.IItemModelFactory;
@@ -68,23 +69,25 @@ final class BeanTableStatusBar<BEAN_TYPE> {
 
 		final ITextLabel textLabel = statusbar.add(BPF.textLabel().setFontSize(7));
 
-		model.addBeanSelectionListener(new IBeanSelectionListener<BEAN_TYPE>() {
+		final IBeanSelectionListener<BEAN_TYPE> beanSelectionListener = new IBeanSelectionListener<BEAN_TYPE>() {
 			@Override
 			public void selectionChanged(final IBeanSelectionEvent<BEAN_TYPE> selectionEvent) {
 				statusbar.layoutBegin();
 				textLabel.setText(getStatusBarText());
 				statusbar.layoutEnd();
 			}
-		});
+		};
+		model.addBeanSelectionListener(beanSelectionListener);
 
-		model.addBeanListModelListener(new IBeanListModelListener() {
+		final IBeanListModelListener listModelListener = new IBeanListModelListener() {
 			@Override
 			public void beansChanged() {
 				statusbar.layoutBegin();
 				textLabel.setText(getStatusBarText());
 				statusbar.layoutEnd();
 			}
-		});
+		};
+		model.addBeanListModelListener(listModelListener);
 
 		this.statusBarItemModel = createStatusBarItemModel();
 		this.statusBarItemListener = new IItemStateListener() {
@@ -95,6 +98,14 @@ final class BeanTableStatusBar<BEAN_TYPE> {
 			}
 		};
 		statusBarItemModel.addItemListener(statusBarItemListener);
+
+		composite.addDisposeListener(new IDisposeListener() {
+			@Override
+			public void onDispose() {
+				model.removeBeanSelectionListener(beanSelectionListener);
+				model.removeBeanListModelListener(listModelListener);
+			}
+		});
 	}
 
 	private String getStatusBarText() {
