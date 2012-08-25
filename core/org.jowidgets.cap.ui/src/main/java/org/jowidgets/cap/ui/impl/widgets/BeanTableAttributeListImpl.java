@@ -795,7 +795,7 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 		public void updateValues(final IBeanTableModelConfig currentConfig) {
 			final IAttributeConfig attributeConfig = currentConfig.getAttributeConfigs().get(propertyName);
 			if (attributeConfig == null) {
-				throw new IllegalStateException("No configuration set for '" + propertyName + "'."); //$NON-NLS-1$ //$NON-NLS-2$
+				throw new IllegalStateException("No configuration set for '" + propertyName + "'.");
 			}
 
 			if (getHeaderFormat() != null) {
