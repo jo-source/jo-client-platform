@@ -75,7 +75,6 @@ final class BeanSelectionProviderRefreshInterceptor<BEAN_TYPE, RESULT_TYPE> exte
 	public void afterExecutionSuccess(final IExecutionContext executionContext, final RESULT_TYPE result) {
 		final IRefreshService refreshService = getRefreshService();
 		if (refreshService != null) {
-			CapUiToolkit.defaultExceptionConverter();
 			final BeanListRefreshDelegate<BEAN_TYPE> refreshDelegate = new BeanListRefreshDelegate<BEAN_TYPE>(
 				getListModel(),
 				CapUiToolkit.defaultExceptionConverter(),
