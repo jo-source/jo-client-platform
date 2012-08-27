@@ -65,11 +65,11 @@ public interface ISortModel extends ISortModelConfig, IChangeObservable {
 
 	ISortModelConfig getConfig();
 
-	void setSorting(List<ISort> defaultSorting, List<ISort> currentSorting);
+	void setSorting(Iterable<? extends ISort> defaultSorting, Iterable<? extends ISort> currentSorting);
 
-	void setCurrentSorting(List<ISort> sorting);
+	void setCurrentSorting(Iterable<? extends ISort> sorting);
 
-	void setDefaultSorting(List<ISort> sorting);
+	void setDefaultSorting(Iterable<? extends ISort> sorting);
 
 	void clearSorting();
 

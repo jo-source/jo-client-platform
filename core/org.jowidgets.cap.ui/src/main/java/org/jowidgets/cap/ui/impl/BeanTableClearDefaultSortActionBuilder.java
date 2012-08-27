@@ -77,7 +77,7 @@ final class BeanTableClearDefaultSortActionBuilder extends ActionBuilder {
 	}
 
 	private void sortModelStateChanged() {
-		if (sortModel.getDefaultSorting().isEmpty()) {
+		if (sortModel.getDefaultSorting().iterator().hasNext()) {
 			enabledChecker.setEnabledState(EnabledState.disabled(Messages.getString("BeanTableClearDefaultSortActionBuilder.there_is_no_default_sorting"))); //$NON-NLS-1$
 		}
 		else {

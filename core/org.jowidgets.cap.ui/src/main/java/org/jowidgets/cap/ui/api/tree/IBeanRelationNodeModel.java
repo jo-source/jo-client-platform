@@ -42,6 +42,7 @@ import org.jowidgets.cap.ui.api.filter.IUiFilter;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.model.IDataModel;
 import org.jowidgets.cap.ui.api.model.ILabelModel;
+import org.jowidgets.cap.ui.api.sort.ISortModel;
 import org.jowidgets.cap.ui.api.types.IEntityTypeId;
 import org.jowidgets.util.IProvider;
 
@@ -102,6 +103,8 @@ public interface IBeanRelationNodeModel<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> exten
 	void removeFiltersForProperty(String id, String propertyName);
 
 	void removeFilter(String id);
+
+	ISortModel getSortModel();
 
 	IUiFilter getFilter(String id);
 

@@ -69,7 +69,7 @@ final class BeanTableClearCurrentSortActionBuilder extends ActionBuilder {
 	}
 
 	private void sortModelStateChanged() {
-		if (sortModel.getCurrentSorting().isEmpty()) {
+		if (sortModel.getCurrentSorting().iterator().hasNext()) {
 			enabledChecker.setEnabledState(EnabledState.disabled(Messages.getString("BeanTableClearCurrentSortActionBuilder.there_is_no_current_sorting"))); //$NON-NLS-1$
 		}
 		else {
