@@ -44,13 +44,13 @@ import org.jowidgets.cap.ui.api.bean.IBeanProxyLabelRenderer;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionEvent;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionListener;
 import org.jowidgets.cap.ui.api.bean.ICustomBeanPropertyListener;
-import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
 import org.jowidgets.cap.ui.api.model.ILabelModel;
 import org.jowidgets.cap.ui.api.tabfolder.IBeanTabFolderModel;
 import org.jowidgets.cap.ui.api.widgets.IBeanTab;
 import org.jowidgets.cap.ui.api.widgets.IBeanTabFactory;
 import org.jowidgets.cap.ui.api.widgets.IBeanTabFolder;
 import org.jowidgets.cap.ui.api.widgets.IBeanTabFolderBluePrint;
+import org.jowidgets.cap.ui.tools.model.BeanListModelListenerAdapter;
 import org.jowidgets.common.types.IVetoable;
 import org.jowidgets.i18n.api.IMessage;
 import org.jowidgets.tools.widgets.blueprint.BPF;
@@ -94,7 +94,7 @@ final class BeanTabFolderImpl<BEAN_TYPE> extends TabFolderWrapper implements IBe
 		this.tabFolderSelectionListener = new TabFolderSelectionListener();
 		this.modelSelectionListener = new ModelSelectionListener();
 
-		model.addBeanListModelListener(new IBeanListModelListener() {
+		model.addBeanListModelListener(new BeanListModelListenerAdapter<BEAN_TYPE>() {
 			@Override
 			public void beansChanged() {
 				updateFromModel();

@@ -57,11 +57,11 @@ import org.jowidgets.cap.ui.api.bean.IBeanMessage;
 import org.jowidgets.cap.ui.api.bean.IBeanMessageStateListener;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyLabelRenderer;
-import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
 import org.jowidgets.cap.ui.api.model.ILabelModel;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationNodeModel;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeModel;
 import org.jowidgets.cap.ui.api.types.IEntityTypeId;
+import org.jowidgets.cap.ui.tools.model.BeanListModelListenerAdapter;
 import org.jowidgets.tools.widgets.wrapper.ControlWrapper;
 
 import prefuse.Constants;
@@ -264,7 +264,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 	}
 
 	@SuppressWarnings("rawtypes")
-	private final class RootModelListener implements IBeanListModelListener {
+	private final class RootModelListener extends BeanListModelListenerAdapter<CHILD_BEAN_TYPE> {
 
 		private final IBeanRelationNodeModel root;
 
@@ -284,7 +284,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		}
 	}
 
-	private final class ChildModelListener implements IBeanListModelListener {
+	private final class ChildModelListener extends BeanListModelListenerAdapter<Object> {
 
 		private final IBeanRelationNodeModel<Object, Object> relationNodeModel;
 

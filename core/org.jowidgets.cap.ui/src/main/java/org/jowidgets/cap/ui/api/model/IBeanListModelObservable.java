@@ -28,10 +28,10 @@
 
 package org.jowidgets.cap.ui.api.model;
 
-public interface IBeanListModelObservable {
+public interface IBeanListModelObservable<BEAN_TYPE> {
 
-	void addBeanListModelListener(IBeanListModelListener listener);
+	void addBeanListModelListener(IBeanListModelListener<BEAN_TYPE> listener);
 
-	void removeBeanListModelListener(IBeanListModelListener listener);
+	void removeBeanListModelListener(IBeanListModelListener<BEAN_TYPE> listener);
 
 }

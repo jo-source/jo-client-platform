@@ -47,12 +47,12 @@ public class BeanListModelWrapper<BEAN_TYPE> implements IBeanListModel<BEAN_TYPE
 	}
 
 	@Override
-	public void addBeanListModelListener(final IBeanListModelListener listener) {
+	public void addBeanListModelListener(final IBeanListModelListener<BEAN_TYPE> listener) {
 		beanListModel.addBeanListModelListener(listener);
 	}
 
 	@Override
-	public void removeBeanListModelListener(final IBeanListModelListener listener) {
+	public void removeBeanListModelListener(final IBeanListModelListener<BEAN_TYPE> listener) {
 		beanListModel.removeBeanListModelListener(listener);
 	}
 
@@ -77,7 +77,7 @@ public class BeanListModelWrapper<BEAN_TYPE> implements IBeanListModel<BEAN_TYPE
 	}
 
 	@Override
-	public void removeBeans(final Collection<? extends IBeanProxy<BEAN_TYPE>> beans) {
+	public void removeBeans(final Iterable<? extends IBeanProxy<BEAN_TYPE>> beans) {
 		beanListModel.removeBeans(beans);
 	}
 

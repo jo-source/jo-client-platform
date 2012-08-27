@@ -39,13 +39,13 @@ import org.jowidgets.api.model.item.IMenuModel;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionEvent;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionListener;
-import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.table.IBeanTableSettings;
 import org.jowidgets.cap.ui.api.widgets.IBeanSelectionTable;
 import org.jowidgets.cap.ui.api.widgets.IBeanSelectionTableBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.cap.ui.api.widgets.IPopupMenuListener;
+import org.jowidgets.cap.ui.tools.model.BeanListModelListenerAdapter;
 import org.jowidgets.common.types.Dimension;
 import org.jowidgets.common.types.Interval;
 import org.jowidgets.common.types.Position;
@@ -102,7 +102,7 @@ final class BeanSelectionTableImpl<BEAN_TYPE> extends AbstractInputControl<List<
 			}
 		});
 
-		table.getModel().addBeanListModelListener(new IBeanListModelListener() {
+		table.getModel().addBeanListModelListener(new BeanListModelListenerAdapter<BEAN_TYPE>() {
 			@Override
 			public void beansChanged() {
 				setValidationCacheDirty();
