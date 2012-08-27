@@ -50,13 +50,18 @@ final class EntityServiceHelper {
 	}
 
 	static Class<?> getBeanType(final Object entityId) {
+		final IBeanDtoDescriptor dtoDescriptor = getDtoDescriptor(entityId);
+		if (dtoDescriptor != null) {
+			return dtoDescriptor.getBeanType();
+		}
+		return null;
+	}
+
+	static IBeanDtoDescriptor getDtoDescriptor(final Object entityId) {
 		if (entityId != null) {
 			final IEntityService entityService = ServiceProvider.getService(IEntityService.ID);
 			if (entityService != null) {
-				final IBeanDtoDescriptor dtoDescriptor = entityService.getDescriptor(entityId);
-				if (dtoDescriptor != null) {
-					return dtoDescriptor.getBeanType();
-				}
+				return entityService.getDescriptor(entityId);
 			}
 		}
 		return null;
