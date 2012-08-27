@@ -46,7 +46,7 @@ import org.jowidgets.util.IAdapterFactory;
 
 public class CapServiceProviderBuilder extends ServiceProviderBuilder {
 
-	protected void addLookUpService(final Object lookUpId, final ISyncLookUpService lookUpService) {
+	public void addLookUpService(final Object lookUpId, final ISyncLookUpService lookUpService) {
 		final IAdapterFactory<ILookUpService, ISyncLookUpService> adapterFactoryProvider;
 		adapterFactoryProvider = CapServiceToolkit.adapterFactoryProvider().lookup();
 		final ILookUpService asyncService = adapterFactoryProvider.createAdapter(lookUpService);
@@ -54,7 +54,7 @@ public class CapServiceProviderBuilder extends ServiceProviderBuilder {
 		addService(serviceId, asyncService);
 	}
 
-	protected <BEAN_TYPE extends IBean, PARAM_TYPE> void addExecutorService(
+	public <BEAN_TYPE extends IBean, PARAM_TYPE> void addExecutorService(
 		final IServiceId<? extends IExecutorService<? extends PARAM_TYPE>> id,
 		final IBeanExecutor<? extends BEAN_TYPE, ? extends PARAM_TYPE> beanExecutor,
 		final IBeanAccess<? extends BEAN_TYPE> beanAccess,
@@ -63,7 +63,7 @@ public class CapServiceProviderBuilder extends ServiceProviderBuilder {
 		addExecutorService(id, beanExecutor, null, beanAccess, propertyNames);
 	}
 
-	protected <BEAN_TYPE extends IBean, PARAM_TYPE> void addExecutorService(
+	public <BEAN_TYPE extends IBean, PARAM_TYPE> void addExecutorService(
 		final IServiceId<? extends IExecutorService<? extends PARAM_TYPE>> id,
 		final IBeanExecutor<? extends BEAN_TYPE, ? extends PARAM_TYPE> beanExecutor,
 		final IExecutableChecker<? extends BEAN_TYPE> executableChecker,
