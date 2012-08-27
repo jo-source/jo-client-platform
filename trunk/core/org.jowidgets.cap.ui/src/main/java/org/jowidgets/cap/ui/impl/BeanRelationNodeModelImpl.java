@@ -80,6 +80,7 @@ import org.jowidgets.cap.ui.api.model.ILabelModel;
 import org.jowidgets.cap.ui.api.model.IModificationStateListener;
 import org.jowidgets.cap.ui.api.model.IProcessStateListener;
 import org.jowidgets.cap.ui.api.plugin.IBeanProxyLabelRendererPlugin;
+import org.jowidgets.cap.ui.api.sort.ISortModel;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationNodeModel;
 import org.jowidgets.cap.ui.api.types.IEntityTypeId;
 import org.jowidgets.cap.ui.tools.execution.AbstractUiResultCallback;
@@ -118,7 +119,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 	private final IProvider<Object> readerParameterProvider;
 	private final ICreatorService creatorService;
 	private final BeanListRefreshDelegate<CHILD_BEAN_TYPE> refreshDelegate;
-	private final List<ISort> defaultSort;
+	private final ISortModel sortModel;
 	private final List<IBeanPropertyValidator<CHILD_BEAN_TYPE>> beanPropertyValidators;
 	private final List<IAttribute<Object>> childBeanAttributes;
 	private final List<String> propertyNames;
@@ -183,10 +184,8 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 		this.pageSize = pageSize;
 		this.readerParameterProvider = (IProvider<Object>) readerParameterProvider;
 		this.creatorService = creatorService;
-		this.defaultSort = new LinkedList<ISort>(defaultSort);
 		this.childBeanAttributes = Collections.unmodifiableList(new LinkedList<IAttribute<Object>>(childBeanAttributes));
 		this.exceptionConverter = exceptionConverter;
-		this.filters = new HashMap<String, IUiFilter>();
 
 		this.beanPropertyValidators = new LinkedList<IBeanPropertyValidator<CHILD_BEAN_TYPE>>();
 		beanPropertyValidators.add(new BeanPropertyValidatorImpl<CHILD_BEAN_TYPE>(childBeanAttributes));
@@ -201,6 +200,10 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 		this.beanSelectionObservable = new BeanSelectionObservable<CHILD_BEAN_TYPE>();
 		this.beanStateTracker = CapUiToolkit.beansStateTracker();
 		this.beanProxyFactory = CapUiToolkit.beanProxyFactory(childBeanType);
+		this.filters = new HashMap<String, IUiFilter>();
+
+		this.sortModel = new SortModelImpl();
+		sortModel.setDefaultSorting(defaultSort);
 
 		this.data = new ArrayList<IBeanProxy<CHILD_BEAN_TYPE>>();
 
@@ -690,6 +693,11 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 	}
 
 	@Override
+	public ISortModel getSortModel() {
+		return sortModel;
+	}
+
+	@Override
 	public void fireBeansChanged() {
 		beanListModelObservable.fireBeansChanged();
 	}
@@ -768,8 +776,6 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 			dummyBean.setExecutionTask(executionTask);
 			data.add(dummyBean);
 
-			final List<ISort> sorting = new LinkedList<ISort>(defaultSort);
-
 			final List<? extends IBeanKey> parentBeanKeys;
 			if (parentBean != null && !parentBean.isTransient() && !parentBean.isDummy()) {
 				parentBeanKeys = Collections.singletonList(new BeanKey(parentBean.getId(), parentBean.getVersion()));
@@ -782,7 +788,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 					createResultCallback(),
 					parentBeanKeys,
 					filter,
-					sorting,
+					sortModel.getSorting(),
 					0,
 					pageSize,
 					readerParameterProvider.get(),

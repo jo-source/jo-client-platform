@@ -50,6 +50,7 @@ import org.jowidgets.cap.ui.api.command.ILinkCreatorActionBuilder;
 import org.jowidgets.cap.ui.api.command.ILinkDeleterActionBuilder;
 import org.jowidgets.cap.ui.api.filter.IUiFilter;
 import org.jowidgets.cap.ui.api.model.LinkType;
+import org.jowidgets.cap.ui.api.sort.ISortModelConfig;
 import org.jowidgets.cap.ui.api.table.BeanTableModel;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
@@ -94,6 +95,7 @@ final class BeanRelationTreeDetailImpl<CHILD_BEAN_TYPE> extends ControlWrapper i
 	private final IBeanRelationTreeSelectionListener treeSelectionListener;
 	private final RelationModelChangeListener relationModelChangeListener;
 	private final FilterChangeListener filterChangeListener;
+	private final SortChangeListener sortChangeListener;
 
 	private IBeanTable<Object> lastBeanTable;
 	private IBeanRelationNodeModel<Object, Object> lastParentRelation;
@@ -120,6 +122,7 @@ final class BeanRelationTreeDetailImpl<CHILD_BEAN_TYPE> extends ControlWrapper i
 
 		this.relationModelChangeListener = new RelationModelChangeListener();
 		this.filterChangeListener = new FilterChangeListener();
+		this.sortChangeListener = new SortChangeListener();
 		this.treeSelectionListener = new IBeanRelationTreeSelectionListener() {
 			@Override
 			public void selectionChanged(final IBeanRelationTreeSelection selection) {
@@ -195,6 +198,7 @@ final class BeanRelationTreeDetailImpl<CHILD_BEAN_TYPE> extends ControlWrapper i
 			}
 			if (lastBeanTable != null) {
 				lastBeanTable.getModel().removeFilterChangeListener(filterChangeListener);
+				lastBeanTable.getModel().getSortModel().removeChangeListener(sortChangeListener);
 			}
 
 			getWidget().layoutBegin();
@@ -223,6 +227,11 @@ final class BeanRelationTreeDetailImpl<CHILD_BEAN_TYPE> extends ControlWrapper i
 
 			setTableConfigIfExists();
 
+			tableModel.setFilter(IBeanTableModel.UI_FILTER_ID, relation.getFilter(IBeanTableModel.UI_FILTER_ID));
+			tableModel.setFilter(IBeanTableModel.UI_SEARCH_FILTER_ID, relation.getFilter(IBeanTableModel.UI_SEARCH_FILTER_ID));
+
+			tableModel.getSortModel().setConfig(relation.getSortModel().getConfig());
+
 			addTableActions(relation, lastBeanTable);
 			fireAfterTableCreated(relation, lastBeanTable);
 
@@ -235,6 +244,7 @@ final class BeanRelationTreeDetailImpl<CHILD_BEAN_TYPE> extends ControlWrapper i
 
 			relation.addBeanListModelListener(relationModelChangeListener);
 			tableModel.addFilterChangeListener(filterChangeListener);
+			tableModel.getSortModel().addChangeListener(sortChangeListener);
 		}
 	}
 
@@ -251,6 +261,7 @@ final class BeanRelationTreeDetailImpl<CHILD_BEAN_TYPE> extends ControlWrapper i
 
 		fireOnModelCreate(relation, builder);
 		final IBeanTableModel<Object> result = builder.build();
+
 		fireAfterModelCreated(relation, result);
 		treeModel.addDataModel(result);
 		return result;
@@ -281,6 +292,7 @@ final class BeanRelationTreeDetailImpl<CHILD_BEAN_TYPE> extends ControlWrapper i
 			final IBeanTableModel<Object> model = lastBeanTable.getModel();
 			fireBeforeTableDispose(lastBeanTable);
 			lastBeanTable.getModel().removeFilterChangeListener(filterChangeListener);
+			lastBeanTable.getModel().getSortModel().removeChangeListener(sortChangeListener);
 			treeModel.removeDataModel(model);
 			tableContainer.removeAll();
 			fireBeforeModelDispose(model);
@@ -445,6 +457,18 @@ final class BeanRelationTreeDetailImpl<CHILD_BEAN_TYPE> extends ControlWrapper i
 				lastParentRelation.setFilter(IBeanTableModel.UI_FILTER_ID, uiFilter);
 				final IUiFilter uiSearchFilter = tableModel.getFilter(IBeanTableModel.UI_SEARCH_FILTER_ID);
 				lastParentRelation.setFilter(IBeanTableModel.UI_SEARCH_FILTER_ID, uiSearchFilter);
+				lastParentRelation.load();
+			}
+		}
+	}
+
+	private final class SortChangeListener implements IChangeListener {
+		@Override
+		public void changed() {
+			if (lastBeanTable != null && lastParentRelation != null) {
+				final IBeanTableModel<Object> tableModel = lastBeanTable.getModel();
+				final ISortModelConfig sortModelConfig = tableModel.getSortModel().getConfig();
+				lastParentRelation.getSortModel().setConfig(sortModelConfig);
 				lastParentRelation.load();
 			}
 		}

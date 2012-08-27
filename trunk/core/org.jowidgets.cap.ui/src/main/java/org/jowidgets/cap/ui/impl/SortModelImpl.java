@@ -105,7 +105,7 @@ final class SortModelImpl extends ChangeObservable implements ISortModel {
 	}
 
 	@Override
-	public void setSorting(final List<ISort> defaultSorting, final List<ISort> currentSorting) {
+	public void setSorting(final Iterable<? extends ISort> defaultSorting, final Iterable<? extends ISort> currentSorting) {
 		Assert.paramNotNull(defaultSorting, "defaultSorting");
 		Assert.paramNotNull(currentSorting, "currentSorting");
 		this.defaultSorting.clear();
@@ -116,7 +116,7 @@ final class SortModelImpl extends ChangeObservable implements ISortModel {
 	}
 
 	@Override
-	public void setCurrentSorting(final List<ISort> sorting) {
+	public void setCurrentSorting(final Iterable<? extends ISort> sorting) {
 		Assert.paramNotNull(sorting, "sorting");
 		this.currentSorting.clear();
 		addToCurrentSorting(sorting);
@@ -124,7 +124,7 @@ final class SortModelImpl extends ChangeObservable implements ISortModel {
 	}
 
 	@Override
-	public void setDefaultSorting(final List<ISort> sorting) {
+	public void setDefaultSorting(final Iterable<? extends ISort> sorting) {
 		Assert.paramNotNull(sorting, "sorting");
 		this.defaultSorting.clear();
 		addToDefaultSorting(sorting);
@@ -276,13 +276,13 @@ final class SortModelImpl extends ChangeObservable implements ISortModel {
 		return "SortModelImpl [currentSorting=" + currentSorting + ", defaultSorting=" + defaultSorting + "]";
 	}
 
-	private void addToCurrentSorting(final List<ISort> sorting) {
+	private void addToCurrentSorting(final Iterable<? extends ISort> sorting) {
 		for (final ISort sort : sorting) {
 			currentSorting.add(CapCommonToolkit.sortFactory().create(sort.getPropertyName(), sort.getSortOrder()));
 		}
 	}
 
-	private void addToDefaultSorting(final List<ISort> sorting) {
+	private void addToDefaultSorting(final Iterable<? extends ISort> sorting) {
 		for (final ISort sort : sorting) {
 			defaultSorting.add(CapCommonToolkit.sortFactory().create(sort.getPropertyName(), sort.getSortOrder()));
 		}
