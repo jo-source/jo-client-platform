@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -111,7 +112,7 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 	private final Map<String, Object> defaultValues;
 
 	private final ChangeObservable changeObservable;
-	private final BeanListModelObservable beanListModelObservable;
+	private final BeanListModelObservable<BEAN_TYPE> beanListModelObservable;
 	private final BeanSelectionObservable<BEAN_TYPE> beanSelectionObservable;
 	private final ProcessStateObservable processStateObservable;
 
@@ -195,7 +196,7 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 		this.beanProxyFactory = CapUiToolkit.beanProxyFactory(beanType);
 
 		this.changeObservable = new ChangeObservable();
-		this.beanListModelObservable = new BeanListModelObservable();
+		this.beanListModelObservable = new BeanListModelObservable<BEAN_TYPE>();
 		this.beanSelectionObservable = new BeanSelectionObservable<BEAN_TYPE>();
 		this.processStateObservable = new ProcessStateObservable();
 
@@ -456,13 +457,14 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 	}
 
 	@Override
-	public void removeBeans(final Collection<? extends IBeanProxy<BEAN_TYPE>> beans) {
+	public void removeBeans(final Iterable<? extends IBeanProxy<BEAN_TYPE>> beans) {
 		Assert.paramNotEmpty(beans, "beans");
-		if (beans.size() > 1) {
-			throw new IllegalArgumentException("Only one bean can be removed from a single bean model");
-		}
-		if (beans.iterator().next().equals(bean)) {
+		final Iterator<? extends IBeanProxy<BEAN_TYPE>> iterator = beans.iterator();
+		if (iterator.next().equals(bean)) {
 			setBean(null);
+			if (iterator.hasNext()) {
+				throw new IllegalArgumentException("Only one bean can be removed from a single bean model");
+			}
 		}
 		else {
 			throw new IllegalArgumentException("Bean is not set at this model");
@@ -535,12 +537,12 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 	}
 
 	@Override
-	public void addBeanListModelListener(final IBeanListModelListener listener) {
+	public void addBeanListModelListener(final IBeanListModelListener<BEAN_TYPE> listener) {
 		beanListModelObservable.addBeanListModelListener(listener);
 	}
 
 	@Override
-	public void removeBeanListModelListener(final IBeanListModelListener listener) {
+	public void removeBeanListModelListener(final IBeanListModelListener<BEAN_TYPE> listener) {
 		beanListModelObservable.removeBeanListModelListener(listener);
 	}
 

@@ -28,8 +28,33 @@
 
 package org.jowidgets.cap.ui.api.model;
 
-public interface IBeanListModelListener {
+import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 
+public interface IBeanListModelListener<BEAN_TYPE> {
+
+	/**
+	 * This method will be invoked, if the list of the beans model has been changed.
+	 * E.g beans has bean added or removed or both or the complete structure of the list has been changed
+	 * (e.g. after an (re)load of the model)
+	 */
 	void beansChanged();
+
+	/**
+	 * This method will me invoked, if beans was added to the model with the addBean method.
+	 * 
+	 * Remark : This method will not be invoked after a (re)load of the data or a complete structure change of the list
+	 * 
+	 * @param addedBeans The beans that was added to the list
+	 */
+	void beansAdded(Iterable<IBeanProxy<BEAN_TYPE>> addedBeans);
+
+	/**
+	 * This method will me invoked, if beans was removed from the model with the removeBeans method.
+	 * 
+	 * Remark : This method will not be invoked after a (re)load of the data or a complete structure change of the list
+	 * 
+	 * @param addedBeans The beans that was removed from the list
+	 */
+	void beansRemoved(Iterable<IBeanProxy<BEAN_TYPE>> removeBeans);
 
 }

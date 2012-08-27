@@ -141,6 +141,7 @@ import org.jowidgets.tools.model.table.DefaultTableColumnBuilder;
 import org.jowidgets.tools.model.table.TableCellBuilder;
 import org.jowidgets.tools.model.table.TableModel;
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.CollectionUtils;
 import org.jowidgets.util.EmptyCheck;
 import org.jowidgets.util.IProvider;
 import org.jowidgets.util.NullCompatibleEquivalence;
@@ -201,7 +202,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	private final boolean clearOnEmptyParentBeans;
 	private final boolean autoRefreshSelection;
 
-	private final BeanListModelObservable beanListModelObservable;
+	private final BeanListModelObservable<BEAN_TYPE> beanListModelObservable;
 	private final BeanSelectionObservable<BEAN_TYPE> beanSelectionObservable;
 	private final DisposeObservable disposeObservable;
 	private final TableDataModelListener tableDataModelListener;
@@ -336,7 +337,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		this.maxPageIndex = 0;
 		this.beansStateTracker = CapUiToolkit.beansStateTracker();
 		this.beanProxyFactory = CapUiToolkit.beanProxyFactory(beanType);
-		this.beanListModelObservable = new BeanListModelObservable();
+		this.beanListModelObservable = new BeanListModelObservable<BEAN_TYPE>();
 		this.beanSelectionObservable = new BeanSelectionObservable<BEAN_TYPE>();
 		this.disposeObservable = new DisposeObservable();
 		this.filterChangeObservable = new ChangeObservable();
@@ -936,7 +937,11 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		}
 		final Set<IBeanProxy<BEAN_TYPE>> beansToCreate = beansStateTracker.getBeansToCreate();
 		if (!beansToCreate.isEmpty()) {
-			removeBeansImpl(beansToCreate, false);
+			final List<IBeanProxy<BEAN_TYPE>> removedBeans = removeBeansImpl(beansToCreate, false);
+			if (removedBeans.size() > 0) {
+				beanListModelObservable.fireBeansRemoved(removedBeans);
+				beanListModelObservable.fireBeansChanged();
+			}
 		}
 		beansStateTracker.clearModifications();
 		dataModel.fireDataChanged();
@@ -1008,6 +1013,8 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	public void addBean(final IBeanProxy<BEAN_TYPE> bean) {
 		Assert.paramNotNull(bean, "bean");
 		addBeanImpl(bean, true);
+		beanListModelObservable.fireBeansAdded(bean);
+		beanListModelObservable.fireBeansChanged();
 	}
 
 	private void addBeanImpl(final IBeanProxy<BEAN_TYPE> bean, final boolean fireBeansChanged) {
@@ -1028,7 +1035,10 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	@Override
 	public IBeanProxy<BEAN_TYPE> addBeanDto(final IBeanDto beanDto) {
 		Assert.paramNotNull(beanDto, "beanDto");
-		return addBeanDtoImpl(beanDto, true);
+		final IBeanProxy<BEAN_TYPE> addedBeanProxy = addBeanDtoImpl(beanDto, true);
+		beanListModelObservable.fireBeansAdded(addedBeanProxy);
+		beanListModelObservable.fireBeansChanged();
+		return addedBeanProxy;
 	}
 
 	private IBeanProxy<BEAN_TYPE> addBeanDtoImpl(final IBeanDto beanDto, final boolean fireBeansChanged) {
@@ -1043,10 +1053,24 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		Assert.paramNotNull(beansToRemove, "beansToRemove");
 		Assert.paramNotNull(beansToAdd, "beansToAdd");
 
-		removeBeansImpl(beansToRemove, false);
+		final List<IBeanProxy<BEAN_TYPE>> removedBeans = removeBeansImpl(beansToRemove, false);
 
+		final List<IBeanProxy<BEAN_TYPE>> addedBeans = new LinkedList<IBeanProxy<BEAN_TYPE>>();
 		for (final IBeanDto bean : beansToAdd) {
-			addBeanDtoImpl(bean, false);
+			addedBeans.add(addBeanDtoImpl(bean, false));
+		}
+
+		boolean changed = false;
+		if (removedBeans.size() > 0) {
+			changed = true;
+			beanListModelObservable.fireBeansRemoved(removedBeans);
+		}
+		if (addedBeans.size() > 0) {
+			changed = true;
+			beanListModelObservable.fireBeansAdded(addedBeans);
+		}
+		if (changed) {
+			beanListModelObservable.fireBeansChanged();
 		}
 
 		fireBeansChanged();
@@ -1071,11 +1095,15 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	}
 
 	@Override
-	public void removeBeans(final Collection<? extends IBeanProxy<BEAN_TYPE>> beans) {
-		removeBeansImpl(beans, true);
+	public void removeBeans(final Iterable<? extends IBeanProxy<BEAN_TYPE>> beans) {
+		final List<IBeanProxy<BEAN_TYPE>> removedBeans = removeBeansImpl(beans, true);
+		if (removedBeans.size() > 0) {
+			beanListModelObservable.fireBeansRemoved(removedBeans);
+			beanListModelObservable.fireBeansChanged();
+		}
 	}
 
-	private void removeBeansImpl(final Collection<? extends IBeanDto> beans, final boolean fireBeansChanged) {
+	private List<IBeanProxy<BEAN_TYPE>> removeBeansImpl(final Iterable<? extends IBeanDto> beans, final boolean fireEvents) {
 		Assert.paramNotNull(beans, "beans");
 		//data structure must rebuild, so do not load until this happens
 		tryToCanceLoader();
@@ -1083,34 +1111,45 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		final List<IBeanProxy<BEAN_TYPE>> selectedBeans = getSelectedBeans();
 		final List<Integer> newSelection = new LinkedList<Integer>();
 
-		removeBeansFromData(new HashSet<IBeanProxy<BEAN_TYPE>>(selectedBeans), newSelection, beans);
-		removeBeansFromAddedData(new HashSet<IBeanProxy<BEAN_TYPE>>(selectedBeans), newSelection, beans);
+		final List<IBeanProxy<BEAN_TYPE>> result = new LinkedList<IBeanProxy<BEAN_TYPE>>();
+
+		result.addAll(removeBeansFromData(new HashSet<IBeanProxy<BEAN_TYPE>>(selectedBeans), newSelection, beans));
+		result.addAll(removeBeansFromAddedData(new HashSet<IBeanProxy<BEAN_TYPE>>(selectedBeans), newSelection, beans));
 
 		setSelection(newSelection);
 
-		if (fireBeansChanged) {
+		if (fireEvents) {
 			fireBeansChanged();
 		}
+
+		return result;
 	}
 
-	private void removeBeansFromData(
+	private List<IBeanProxy<BEAN_TYPE>> removeBeansFromData(
 		final Set<IBeanProxy<BEAN_TYPE>> oldSelection,
 		final List<Integer> newSelection,
-		final Collection<? extends IBeanDto> beans) {
-		final Map<Integer, ArrayList<IBeanProxy<BEAN_TYPE>>> newData = getNewData(oldSelection, newSelection, beans);
+		final Iterable<? extends IBeanDto> beans) {
+		final List<IBeanProxy<BEAN_TYPE>> removedBeanProxies = new LinkedList<IBeanProxy<BEAN_TYPE>>();
+		final Map<Integer, ArrayList<IBeanProxy<BEAN_TYPE>>> newData = getNewData(
+				oldSelection,
+				newSelection,
+				beans,
+				removedBeanProxies);
 		data.clear();
 		for (final Entry<Integer, ArrayList<IBeanProxy<BEAN_TYPE>>> entry : newData.entrySet()) {
 			data.put(entry.getKey(), entry.getValue());
 		}
+		return removedBeanProxies;
 	}
 
 	private Map<Integer, ArrayList<IBeanProxy<BEAN_TYPE>>> getNewData(
 		final Set<IBeanProxy<BEAN_TYPE>> oldSelection,
 		final List<Integer> newSelection,
-		final Collection<? extends IBeanDto> beans) {
+		final Iterable<? extends IBeanDto> beans,
+		final List<IBeanProxy<BEAN_TYPE>> removedBeanProxies) {
 
 		//hold the beans that should be deleted but that are currently not deleted
-		final Set<IBeanDto> beansToDelete = new HashSet<IBeanDto>(beans);
+		final Set<IBeanDto> beansToDelete = CollectionUtils.createHashSet(beans);
 
 		final Map<Integer, ArrayList<IBeanProxy<BEAN_TYPE>>> newData = new HashMap<Integer, ArrayList<IBeanProxy<BEAN_TYPE>>>();
 		int newPageIndex = 0;
@@ -1126,6 +1165,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 					final boolean deletedBeanRemoved = beansToDelete.remove(bean);
 					if (deletedBeanRemoved) {
 						beansStateTracker.unregister(bean);
+						removedBeanProxies.add(bean);
 						rowCount--;
 						if (countedRowCount != null) {
 							countedRowCount = Integer.valueOf(countedRowCount.intValue() - 1);
@@ -1189,17 +1229,19 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		return newData;
 	}
 
-	private void removeBeansFromAddedData(
+	private List<IBeanProxy<BEAN_TYPE>> removeBeansFromAddedData(
 		final Set<IBeanProxy<BEAN_TYPE>> oldSelection,
 		final List<Integer> newSelection,
-		final Collection<? extends IBeanDto> beans) {
+		final Iterable<? extends IBeanDto> beans) {
+		final List<IBeanProxy<BEAN_TYPE>> result = new LinkedList<IBeanProxy<BEAN_TYPE>>();
 		//hold the beans that should be deleted but that are currently not deleted
-		final Set<IBeanDto> beansToDelete = new HashSet<IBeanDto>(beans);
+		final Set<IBeanDto> beansToDelete = CollectionUtils.createHashSet(beans);
 		final LinkedList<IBeanProxy<BEAN_TYPE>> newAddedData = new LinkedList<IBeanProxy<BEAN_TYPE>>();
 		for (final IBeanProxy<BEAN_TYPE> addedBean : addedData) {
 			final boolean removed = beansToDelete.remove(addedBean);
 			if (removed) {
 				beansStateTracker.unregister(addedBean);
+				result.add(addedBean);
 			}
 			else {
 				newAddedData.add(addedBean);
@@ -1210,6 +1252,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		}
 		addedData.clear();
 		addedData.addAll(newAddedData);
+		return result;
 	}
 
 	@Override
@@ -1278,12 +1321,12 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	}
 
 	@Override
-	public void addBeanListModelListener(final IBeanListModelListener listener) {
+	public void addBeanListModelListener(final IBeanListModelListener<BEAN_TYPE> listener) {
 		beanListModelObservable.addBeanListModelListener(listener);
 	}
 
 	@Override
-	public void removeBeanListModelListener(final IBeanListModelListener listener) {
+	public void removeBeanListModelListener(final IBeanListModelListener<BEAN_TYPE> listener) {
 		beanListModelObservable.removeBeanListModelListener(listener);
 	}
 

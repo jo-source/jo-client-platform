@@ -65,7 +65,6 @@ import org.jowidgets.cap.ui.api.command.ICapActionFactory;
 import org.jowidgets.cap.ui.api.command.IDeleterActionBuilder;
 import org.jowidgets.cap.ui.api.command.ILinkCreatorActionBuilder;
 import org.jowidgets.cap.ui.api.command.ILinkDeleterActionBuilder;
-import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
 import org.jowidgets.cap.ui.api.model.ILabelModel;
 import org.jowidgets.cap.ui.api.plugin.IBeanRelationTreePlugin;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationNodeModel;
@@ -75,6 +74,7 @@ import org.jowidgets.cap.ui.api.types.IEntityTypeId;
 import org.jowidgets.cap.ui.api.widgets.IBeanRelationTree;
 import org.jowidgets.cap.ui.api.widgets.IBeanRelationTreeBluePrint;
 import org.jowidgets.cap.ui.tools.bean.SingleBeanSelectionProvider;
+import org.jowidgets.cap.ui.tools.model.BeanListModelListenerAdapter;
 import org.jowidgets.common.types.Markup;
 import org.jowidgets.common.types.SelectionPolicy;
 import org.jowidgets.i18n.api.IMessage;
@@ -555,7 +555,7 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 	}
 
 	@SuppressWarnings({"rawtypes", "unchecked"})
-	private final class RootModelListener implements IBeanListModelListener {
+	private final class RootModelListener extends BeanListModelListenerAdapter<CHILD_BEAN_TYPE> {
 
 		private final IBeanRelationNodeModel root;
 		private final ITree tree;
@@ -579,7 +579,7 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 		}
 	}
 
-	private final class ChildModelListener implements IBeanListModelListener {
+	private final class ChildModelListener extends BeanListModelListenerAdapter<Object> {
 
 		private final ITreeContainer parentNode;
 		private final IBeanRelationNodeModel<Object, Object> relationNodeModel;

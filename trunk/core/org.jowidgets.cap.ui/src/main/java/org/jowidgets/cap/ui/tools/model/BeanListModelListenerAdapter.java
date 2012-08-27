@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,33 +26,20 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.model;
+package org.jowidgets.cap.ui.tools.model;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
-import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
-import org.jowidgets.cap.ui.api.bean.IBeanSelectionProvider;
+import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
 
-public interface IBeanListModel<BEAN_TYPE> extends IBeanListModelObservable<BEAN_TYPE>, IBeanSelectionProvider<BEAN_TYPE> {
+public class BeanListModelListenerAdapter<BEAN_TYPE> implements IBeanListModelListener<BEAN_TYPE> {
 
-	int getSize();
+	@Override
+	public void beansChanged() {}
 
-	IBeanProxy<BEAN_TYPE> getBean(int index);
+	@Override
+	public void beansAdded(final Iterable<IBeanProxy<BEAN_TYPE>> addedBeans) {}
 
-	void removeBeans(Iterable<? extends IBeanProxy<BEAN_TYPE>> beans);
-
-	void addBean(IBeanProxy<BEAN_TYPE> bean);
-
-	IBeanProxy<BEAN_TYPE> addBeanDto(IBeanDto beanDto);
-
-	IBeanProxy<BEAN_TYPE> addTransientBean();
-
-	ArrayList<Integer> getSelection();
-
-	void setSelection(Collection<Integer> selection);
-
-	void fireBeansChanged();
+	@Override
+	public void beansRemoved(final Iterable<IBeanProxy<BEAN_TYPE>> removeBeans) {}
 
 }

@@ -140,7 +140,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 	private final boolean clearOnEmptyFilter;
 	private final boolean clearOnEmptyParentBeans;
 
-	private final BeanListModelObservable beanListModelObservable;
+	private final BeanListModelObservable<BEAN_TYPE> beanListModelObservable;
 	private final BeanSelectionObservable<BEAN_TYPE> beanSelectionObservable;
 	private final DisposeObservable disposeObservable;
 	private final IChangeListener sortModelChangeListener;
@@ -234,7 +234,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 		this.disposed = false;
 		this.beansStateTracker = CapUiToolkit.beansStateTracker();
 		this.beanProxyFactory = CapUiToolkit.beanProxyFactory(beanType);
-		this.beanListModelObservable = new BeanListModelObservable();
+		this.beanListModelObservable = new BeanListModelObservable<BEAN_TYPE>();
 		this.beanSelectionObservable = new BeanSelectionObservable<BEAN_TYPE>();
 		this.disposeObservable = new DisposeObservable();
 		this.filterChangeObservable = new ChangeObservable();
@@ -564,6 +564,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 		Assert.paramNotNull(bean, "bean");
 		beansStateTracker.register(bean);
 		data.add(index, bean);
+		beanListModelObservable.fireBeansAdded(bean);
 		fireBeansChanged();
 	}
 
@@ -574,11 +575,11 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 	}
 
 	@Override
-	public void removeBeans(final Collection<? extends IBeanProxy<BEAN_TYPE>> beans) {
+	public void removeBeans(final Iterable<? extends IBeanProxy<BEAN_TYPE>> beans) {
 		removeBeansImpl(beans, true);
 	}
 
-	private void removeBeansImpl(final Collection<? extends IBeanProxy<BEAN_TYPE>> beans, final boolean fireBeansChanged) {
+	private void removeBeansImpl(final Iterable<? extends IBeanProxy<BEAN_TYPE>> beans, final boolean fireBeansChanged) {
 		Assert.paramNotNull(beans, "beans");
 		tryToCanceLoader();
 
@@ -603,6 +604,8 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 		if (fireBeansChanged) {
 			fireBeansChanged();
 		}
+
+		beanListModelObservable.fireBeansRemoved(beans);
 	}
 
 	@Override
@@ -616,12 +619,12 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 	}
 
 	@Override
-	public void addBeanListModelListener(final IBeanListModelListener listener) {
+	public void addBeanListModelListener(final IBeanListModelListener<BEAN_TYPE> listener) {
 		beanListModelObservable.addBeanListModelListener(listener);
 	}
 
 	@Override
-	public void removeBeanListModelListener(final IBeanListModelListener listener) {
+	public void removeBeanListModelListener(final IBeanListModelListener<BEAN_TYPE> listener) {
 		beanListModelObservable.removeBeanListModelListener(listener);
 	}
 

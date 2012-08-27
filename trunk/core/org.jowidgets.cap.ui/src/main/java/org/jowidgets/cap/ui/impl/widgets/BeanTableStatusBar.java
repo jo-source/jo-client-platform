@@ -41,6 +41,7 @@ import org.jowidgets.cap.ui.api.bean.IBeanSelectionEvent;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionListener;
 import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
+import org.jowidgets.cap.ui.tools.model.BeanListModelListenerAdapter;
 import org.jowidgets.common.widgets.controller.IItemStateListener;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
 import org.jowidgets.i18n.api.IMessage;
@@ -79,7 +80,7 @@ final class BeanTableStatusBar<BEAN_TYPE> {
 		};
 		model.addBeanSelectionListener(beanSelectionListener);
 
-		final IBeanListModelListener listModelListener = new IBeanListModelListener() {
+		final IBeanListModelListener<BEAN_TYPE> listModelListener = new BeanListModelListenerAdapter<BEAN_TYPE>() {
 			@Override
 			public void beansChanged() {
 				statusbar.layoutBegin();

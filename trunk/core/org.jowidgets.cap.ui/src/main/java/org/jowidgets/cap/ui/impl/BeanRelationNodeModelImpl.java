@@ -125,7 +125,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 	private final Map<String, Object> defaultValues;
 	private final IBeanExceptionConverter exceptionConverter;
 
-	private final BeanListModelObservable beanListModelObservable;
+	private final BeanListModelObservable<CHILD_BEAN_TYPE> beanListModelObservable;
 	private final BeanSelectionObservable<CHILD_BEAN_TYPE> beanSelectionObservable;
 	private final IBeansStateTracker<CHILD_BEAN_TYPE> beanStateTracker;
 	private final IBeanProxyFactory<CHILD_BEAN_TYPE> beanProxyFactory;
@@ -197,7 +197,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 		this.propertyNames = createPropertyNames(childBeanAttributes);
 		this.defaultValues = createDefaultValues(childBeanAttributes);
 
-		this.beanListModelObservable = new BeanListModelObservable();
+		this.beanListModelObservable = new BeanListModelObservable<CHILD_BEAN_TYPE>();
 		this.beanSelectionObservable = new BeanSelectionObservable<CHILD_BEAN_TYPE>();
 		this.beanStateTracker = CapUiToolkit.beansStateTracker();
 		this.beanProxyFactory = CapUiToolkit.beanProxyFactory(childBeanType);
@@ -527,11 +527,11 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 	}
 
 	@Override
-	public void removeBeans(final Collection<? extends IBeanProxy<CHILD_BEAN_TYPE>> beans) {
+	public void removeBeans(final Iterable<? extends IBeanProxy<CHILD_BEAN_TYPE>> beans) {
 		removeBeansImpl(beans, true);
 	}
 
-	private void removeBeansImpl(final Collection<? extends IBeanProxy<CHILD_BEAN_TYPE>> beans, final boolean fireBeansChanged) {
+	private void removeBeansImpl(final Iterable<? extends IBeanProxy<CHILD_BEAN_TYPE>> beans, final boolean fireBeansChanged) {
 		Assert.paramNotNull(beans, "beans");
 		tryToCanceLoader();
 
@@ -543,6 +543,8 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 		if (fireBeansChanged) {
 			fireBeansChanged();
 		}
+
+		beanListModelObservable.fireBeansRemoved(beans);
 	}
 
 	@Override
@@ -575,10 +577,11 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 		return beanProxy;
 	}
 
-	public void addBean(final int index, final IBeanProxy<CHILD_BEAN_TYPE> bean) {
+	private void addBean(final int index, final IBeanProxy<CHILD_BEAN_TYPE> bean) {
 		Assert.paramNotNull(bean, "bean");
 		beanStateTracker.register(bean);
 		data.add(index, bean);
+		beanListModelObservable.fireBeansAdded(bean);
 		fireBeansChanged();
 	}
 
@@ -692,12 +695,12 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 	}
 
 	@Override
-	public void addBeanListModelListener(final IBeanListModelListener listener) {
+	public void addBeanListModelListener(final IBeanListModelListener<CHILD_BEAN_TYPE> listener) {
 		beanListModelObservable.addBeanListModelListener(listener);
 	}
 
 	@Override
-	public void removeBeanListModelListener(final IBeanListModelListener listener) {
+	public void removeBeanListModelListener(final IBeanListModelListener<CHILD_BEAN_TYPE> listener) {
 		beanListModelObservable.removeBeanListModelListener(listener);
 	}
 

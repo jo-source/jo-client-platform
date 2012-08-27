@@ -28,37 +28,58 @@
 
 package org.jowidgets.cap.ui.impl;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
 
+import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
 import org.jowidgets.cap.ui.api.model.IBeanListModelObservable;
 import org.jowidgets.util.Assert;
 
-class BeanListModelObservable implements IBeanListModelObservable {
+class BeanListModelObservable<BEAN_TYPE> implements IBeanListModelObservable<BEAN_TYPE> {
 
-	private final Set<IBeanListModelListener> listeners;
+	private final Set<IBeanListModelListener<BEAN_TYPE>> listeners;
 
 	BeanListModelObservable() {
-		this.listeners = new HashSet<IBeanListModelListener>();
+		this.listeners = new HashSet<IBeanListModelListener<BEAN_TYPE>>();
 	}
 
 	@Override
-	public final void addBeanListModelListener(final IBeanListModelListener listener) {
+	public final void addBeanListModelListener(final IBeanListModelListener<BEAN_TYPE> listener) {
 		Assert.paramNotNull(listener, "listener");
 		listeners.add(listener);
 	}
 
 	@Override
-	public final void removeBeanListModelListener(final IBeanListModelListener listener) {
+	public final void removeBeanListModelListener(final IBeanListModelListener<BEAN_TYPE> listener) {
 		Assert.paramNotNull(listener, "listener");
 		listeners.remove(listener);
 	}
 
 	final void fireBeansChanged() {
-		for (final IBeanListModelListener listener : new LinkedList<IBeanListModelListener>(listeners)) {
+		for (final IBeanListModelListener<BEAN_TYPE> listener : new LinkedList<IBeanListModelListener<BEAN_TYPE>>(listeners)) {
 			listener.beansChanged();
+		}
+	}
+
+	final void fireBeansAdded(final IBeanProxy<BEAN_TYPE> addedBean) {
+		final Set<IBeanProxy<BEAN_TYPE>> addedBeans = Collections.singleton(addedBean);
+		fireBeansAdded(addedBeans);
+	}
+
+	@SuppressWarnings("unchecked")
+	final void fireBeansAdded(final Iterable<? extends IBeanProxy<BEAN_TYPE>> addedBeans) {
+		for (final IBeanListModelListener<BEAN_TYPE> listener : new LinkedList<IBeanListModelListener<BEAN_TYPE>>(listeners)) {
+			listener.beansAdded((Iterable<IBeanProxy<BEAN_TYPE>>) addedBeans);
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	final void fireBeansRemoved(final Iterable<? extends IBeanProxy<BEAN_TYPE>> removeBeans) {
+		for (final IBeanListModelListener<BEAN_TYPE> listener : new LinkedList<IBeanListModelListener<BEAN_TYPE>>(listeners)) {
+			listener.beansRemoved((Iterable<IBeanProxy<BEAN_TYPE>>) removeBeans);
 		}
 	}
 
