@@ -63,8 +63,18 @@ class BeanRelationNodeModelBluePrint<CHILD_BEAN_TYPE, INSTANCE_TYPE> extends
 	BeanRelationNodeModelBluePrint(final Object entityId, final Class<CHILD_BEAN_TYPE> beanType) {
 		super(entityId, beanType);
 		this.childRelations = new LinkedList<IEntityTypeId<Object>>();
-		this.defaultSort = new LinkedList<ISort>();
+		this.defaultSort = getDefaultSort(entityId);
 		this.pageSize = DEFAULT_PAGE_SIZE;
+	}
+
+	private static List<ISort> getDefaultSort(final Object entityId) {
+		final IBeanDtoDescriptor descriptor = EntityServiceHelper.getDtoDescriptor(entityId);
+		if (descriptor != null) {
+			return new LinkedList<ISort>(descriptor.getDefaultSorting());
+		}
+		else {
+			return new LinkedList<ISort>();
+		}
 	}
 
 	@SuppressWarnings("unchecked")
