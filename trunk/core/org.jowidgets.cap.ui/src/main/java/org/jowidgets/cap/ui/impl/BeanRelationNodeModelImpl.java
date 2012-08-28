@@ -138,6 +138,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 	private ArrayList<Integer> selection;
 	private DataLoader dataLoader;
 	private boolean hasInitialLoad;
+	private IBeanProxy<CHILD_BEAN_TYPE> endOfPageDummy;
 
 	@SuppressWarnings("unchecked")
 	BeanRelationNodeModelImpl(
@@ -425,14 +426,23 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 	}
 
 	@Override
+	public void loadNextPage() {
+		loadImpl(false, new ResultCallbackAdapter<Void>());
+	}
+
+	@Override
 	public void load(final IResultCallback<Void> resultCallback) {
+		loadImpl(true, resultCallback);
+	}
+
+	private void loadImpl(final boolean clearData, final IResultCallback<Void> resultCallback) {
 		Assert.paramNotNull(resultCallback, "resultCallback");
 		if (!Toolkit.getUiThreadAccess().isUiThread()) {
 			throw new IllegalStateException("Load must be invoked in the ui thread");
 		}
 		this.hasInitialLoad = true;
 		tryToCanceLoader();
-		dataLoader = new DataLoader(resultCallback);
+		dataLoader = new DataLoader(clearData, resultCallback);
 		dataLoader.loadData();
 	}
 
@@ -521,12 +531,25 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 
 	@Override
 	public int getSize() {
-		return data.size();
+		if (endOfPageDummy == null) {
+			return data.size();
+		}
+		else {
+			return data.size() + 1;
+		}
 	}
 
 	@Override
 	public IBeanProxy<CHILD_BEAN_TYPE> getBean(final int index) {
-		return data.get(index);
+		if (index >= 0 && index < data.size()) {
+			return data.get(index);
+		}
+		else if (index == data.size() && endOfPageDummy != null) {
+			return endOfPageDummy;
+		}
+		else {
+			throw new IndexOutOfBoundsException("Index must be 0 <= index < '" + getSize() + "'");
+		}
 	}
 
 	@Override
@@ -743,22 +766,27 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 
 		private boolean canceled;
 		private boolean finished;
+		private final boolean clearData;
 
 		private IExecutionTask executionTask;
 
 		private IBeanProxy<CHILD_BEAN_TYPE> dummyBean;
 
-		DataLoader(final IResultCallback<Void> resultCallback) {
+		DataLoader(final boolean clearData, final IResultCallback<Void> resultCallback) {
+			this.clearData = clearData;
 			this.resultCallback = resultCallback;
 			this.uiThreadAccess = Toolkit.getUiThreadAccess();
 			this.filter = getFilter();
 		}
 
 		void loadData() {
-			for (final IBeanProxy<CHILD_BEAN_TYPE> bean : data) {
-				beanStateTracker.unregister(bean);
+			if (clearData) {
+				for (final IBeanProxy<CHILD_BEAN_TYPE> bean : data) {
+					beanStateTracker.unregister(bean);
+				}
+				data.clear();
 			}
-			data.clear();
+			endOfPageDummy = null;
 
 			executionTask = CapUiToolkit.executionTaskFactory().create();
 			executionTask.setDescription(LOADING_DATA_LABEL.get());
@@ -789,12 +817,12 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 					parentBeanKeys,
 					filter,
 					sortModel.getSorting(),
-					0,
-					pageSize,
+					data.size() - 1,
+					pageSize + 1,
 					readerParameterProvider.get(),
 					executionTask);
-			fireBeansChanged();
 
+			fireBeansChanged();
 		}
 
 		boolean isDisposed() {
@@ -833,9 +861,8 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 			if (dummyBean != null) {
 				dummyBean.setExecutionTask(null);
 				beanStateTracker.unregister(dummyBean);
+				data.remove(data.size() - 1);
 			}
-
-			data.clear();
 
 			final List<IBeanProxy<CHILD_BEAN_TYPE>> newData = new LinkedList<IBeanProxy<CHILD_BEAN_TYPE>>();
 			for (final IBeanDto beanDto : beanDtos) {
@@ -854,8 +881,12 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 				for (final IBeanPropertyValidator<CHILD_BEAN_TYPE> validator : beanPropertyValidators) {
 					bean.addBeanPropertyValidator(validator);
 				}
-
 				data.add(bean);
+			}
+
+			if (beanDtos.size() > pageSize) {
+				endOfPageDummy = beanProxyFactory.createDummyProxy(childBeanAttributes);
+				endOfPageDummy.setCustomProperty(IS_PAGE_END_DUMMY, Boolean.TRUE);
 			}
 
 			finished = true;
