@@ -513,7 +513,9 @@ final class BeanRelationTreeDetailImpl<CHILD_BEAN_TYPE> extends ControlWrapper i
 
 		@Override
 		public void afterExecutionSuccess(final IExecutionContext executionContext, final Void result) {
+			relationNode.removeBeanListModelListener(relationModelChangeListener);
 			relationNode.removeBeans(linkedSelection);
+			relationNode.addBeanListModelListener(relationModelChangeListener);
 		}
 	}
 
@@ -538,7 +540,9 @@ final class BeanRelationTreeDetailImpl<CHILD_BEAN_TYPE> extends ControlWrapper i
 
 		@Override
 		public void afterExecutionSuccess(final IExecutionContext executionContext, final Void result) {
+			relationNode.removeBeanListModelListener(relationModelChangeListener);
 			relationNode.removeBeans(selection);
+			relationNode.addBeanListModelListener(relationModelChangeListener);
 		}
 	}
 }
