@@ -39,6 +39,7 @@ import org.jowidgets.api.model.item.IMenuModel;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionEvent;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionListener;
+import org.jowidgets.cap.ui.api.table.IBeanTableConfig;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.table.IBeanTableSettings;
 import org.jowidgets.cap.ui.api.widgets.IBeanSelectionTable;
@@ -202,6 +203,16 @@ final class BeanSelectionTableImpl<BEAN_TYPE> extends AbstractInputControl<List<
 	@Override
 	public void setSettings(final IBeanTableSettings settings) {
 		table.setSettings(settings);
+	}
+
+	@Override
+	public IBeanTableConfig getConfig() {
+		return table.getConfig();
+	}
+
+	@Override
+	public void setConfig(final IBeanTableConfig config) {
+		table.setConfig(config);
 	}
 
 	@Override

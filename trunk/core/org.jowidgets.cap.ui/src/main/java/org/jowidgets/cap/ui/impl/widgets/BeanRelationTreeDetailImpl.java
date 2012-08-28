@@ -28,7 +28,6 @@
 
 package org.jowidgets.cap.ui.impl.widgets;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -52,6 +51,7 @@ import org.jowidgets.cap.ui.api.filter.IUiFilter;
 import org.jowidgets.cap.ui.api.model.LinkType;
 import org.jowidgets.cap.ui.api.sort.ISortModelConfig;
 import org.jowidgets.cap.ui.api.table.BeanTableModel;
+import org.jowidgets.cap.ui.api.table.IBeanTableConfig;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
 import org.jowidgets.cap.ui.api.table.IBeanTableModelConfig;
@@ -87,7 +87,7 @@ final class BeanRelationTreeDetailImpl<CHILD_BEAN_TYPE> extends ControlWrapper i
 	private final IBeanRelationTreeModel<CHILD_BEAN_TYPE> treeModel;
 	private final IBeanRelationTreeDetailMenuInterceptor menuInterceptor;
 
-	private final Map<Object, Tuple<IBeanTableModelConfig, ArrayList<Integer>>> tableConfigs;
+	private final Map<Object, Tuple<IBeanTableModelConfig, IBeanTableConfig>> tableConfigs;
 	private final Set<IBeanTableLifecycleInterceptor<Object>> tableLifecycleInterceptors;
 	private final ICapApiBluePrintFactory cbpf;
 	private final IComposite tableContainer;
@@ -106,7 +106,7 @@ final class BeanRelationTreeDetailImpl<CHILD_BEAN_TYPE> extends ControlWrapper i
 
 		this.treeModel = bluePrint.getModel();
 		this.menuInterceptor = bluePrint.getMenuInterceptor();
-		this.tableConfigs = new HashMap<Object, Tuple<IBeanTableModelConfig, ArrayList<Integer>>>();
+		this.tableConfigs = new HashMap<Object, Tuple<IBeanTableModelConfig, IBeanTableConfig>>();
 		this.tableLifecycleInterceptors = new LinkedHashSet<IBeanTableLifecycleInterceptor<Object>>();
 		this.cbpf = CapUiToolkit.bluePrintFactory();
 
@@ -270,19 +270,19 @@ final class BeanRelationTreeDetailImpl<CHILD_BEAN_TYPE> extends ControlWrapper i
 	private void saveTableConfig() {
 		if (lastBeanTable != null && lastParentRelation != null) {
 			final IBeanTableModelConfig tableModelConfig = lastBeanTable.getModel().getConfig();
-			final ArrayList<Integer> columnPermutation = lastBeanTable.getColumnPermutation();
-			Tuple<IBeanTableModelConfig, ArrayList<Integer>> config;
-			config = new Tuple<IBeanTableModelConfig, ArrayList<Integer>>(tableModelConfig, columnPermutation);
+			final IBeanTableConfig tableConfig = lastBeanTable.getConfig();
+			Tuple<IBeanTableModelConfig, IBeanTableConfig> config;
+			config = new Tuple<IBeanTableModelConfig, IBeanTableConfig>(tableModelConfig, tableConfig);
 			tableConfigs.put(lastParentRelation.getChildEntityId(), config);
 		}
 	}
 
 	private void setTableConfigIfExists() {
 		if (lastBeanTable != null && lastParentRelation != null) {
-			final Tuple<IBeanTableModelConfig, ArrayList<Integer>> config = tableConfigs.get(lastParentRelation.getChildEntityId());
+			final Tuple<IBeanTableModelConfig, IBeanTableConfig> config = tableConfigs.get(lastParentRelation.getChildEntityId());
 			if (config != null) {
 				lastBeanTable.getModel().setConfig(config.getFirst());
-				lastBeanTable.setColumnPermutation(config.getSecond());
+				lastBeanTable.setConfig(config.getSecond());
 			}
 		}
 	}
