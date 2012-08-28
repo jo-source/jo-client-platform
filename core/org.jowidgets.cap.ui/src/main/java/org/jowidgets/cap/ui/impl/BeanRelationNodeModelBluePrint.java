@@ -49,7 +49,7 @@ class BeanRelationNodeModelBluePrint<CHILD_BEAN_TYPE, INSTANCE_TYPE> extends
 		AbstractBeanModelBuilderImpl<CHILD_BEAN_TYPE, INSTANCE_TYPE> implements
 		IBeanRelationNodeModelBluePrint<CHILD_BEAN_TYPE, INSTANCE_TYPE> {
 
-	private static final int DEFAULT_PAGE_SIZE = 500;
+	private static final int DEFAULT_PAGE_SIZE = 100;
 
 	private final List<IEntityTypeId<Object>> childRelations;
 	private final List<ISort> defaultSort;

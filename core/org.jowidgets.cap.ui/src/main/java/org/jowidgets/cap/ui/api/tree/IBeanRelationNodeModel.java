@@ -45,11 +45,14 @@ import org.jowidgets.cap.ui.api.model.ILabelModel;
 import org.jowidgets.cap.ui.api.sort.ISortModel;
 import org.jowidgets.cap.ui.api.types.IEntityTypeId;
 import org.jowidgets.util.IProvider;
+import org.jowidgets.util.ITypedKey;
 
 public interface IBeanRelationNodeModel<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> extends
 		ILabelModel,
 		IDataModel,
 		IBeanListModel<CHILD_BEAN_TYPE> {
+
+	ITypedKey<Boolean> IS_PAGE_END_DUMMY = new ITypedKey<Boolean>() {};
 
 	/**
 	 * Loads the model if not yet done.
@@ -57,6 +60,8 @@ public interface IBeanRelationNodeModel<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> exten
 	 * @return true, if load will be done, false if load will not be done because it was invoked before
 	 */
 	boolean loadIfNotYetDone();
+
+	void loadNextPage();
 
 	void load(IResultCallback<Void> resultCallback);
 
