@@ -38,6 +38,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import org.jowidgets.api.controller.IDisposeListener;
 import org.jowidgets.api.convert.IStringObjectConverter;
 import org.jowidgets.api.image.IconsSmall;
 import org.jowidgets.api.model.item.ICheckedItemModel;
@@ -60,12 +61,14 @@ import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IControlPanelProvider;
 import org.jowidgets.cap.ui.api.filter.IUiArithmeticFilter;
+import org.jowidgets.cap.ui.api.filter.IUiBooleanFilter;
 import org.jowidgets.cap.ui.api.filter.IUiBooleanFilterBuilder;
 import org.jowidgets.cap.ui.api.filter.IUiFilter;
 import org.jowidgets.cap.ui.api.filter.IUiFilterFactory;
 import org.jowidgets.cap.ui.api.lookup.ILookUp;
 import org.jowidgets.cap.ui.api.lookup.ILookUpAccess;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
+import org.jowidgets.cap.ui.tools.filter.UiBooleanFilterWrapper;
 import org.jowidgets.common.types.VirtualKey;
 import org.jowidgets.common.widgets.controller.IActionListener;
 import org.jowidgets.common.widgets.controller.IInputListener;
@@ -76,6 +79,7 @@ import org.jowidgets.tools.controller.KeyAdapter;
 import org.jowidgets.tools.widgets.blueprint.BPF;
 import org.jowidgets.util.EmptyCheck;
 import org.jowidgets.util.concurrent.DaemonThreadFactory;
+import org.jowidgets.util.event.IChangeListener;
 
 final class BeanTableSearchFilterToolbar<BEAN_TYPE> {
 
@@ -86,10 +90,12 @@ final class BeanTableSearchFilterToolbar<BEAN_TYPE> {
 	private final List<IAttribute<Object>> attributes;
 	private final IComposite toolbar;
 	private final ITextControl textField;
+	private final IToolBarButton closeButton;
 	private final ICheckedItemModel searchFilterItemModel;
 	private final IItemStateListener searchFilterItemListener;
 	private final String searchFilterItemTooltip;
 	private final IInputListener inputListener;
+	private final IChangeListener filterChangeListener;
 
 	private FilterResultLoader loader;
 	private ScheduledExecutorService executorService;
@@ -107,7 +113,7 @@ final class BeanTableSearchFilterToolbar<BEAN_TYPE> {
 		final IToolBarButtonBluePrint closeButtonBp = BPF.toolBarButton().setIcon(IconsSmall.DELETE);
 		final String closeButtonTooltip = Messages.getString("BeanTableSearchFilterToolbar.hide_toolbar");
 		closeButtonBp.setToolTipText(closeButtonTooltip);
-		final IToolBarButton closeButton = toolBar1.addItem(closeButtonBp);
+		this.closeButton = toolBar1.addItem(closeButtonBp);
 
 		toolBar1.pack();
 
@@ -164,6 +170,44 @@ final class BeanTableSearchFilterToolbar<BEAN_TYPE> {
 			}
 		};
 		searchFilterItemModel.addItemListener(searchFilterItemListener);
+
+		if (!EmptyCheck.isEmpty(textField.getText()) && !toolbar.isVisible()) {
+			setVisible(true);
+		}
+
+		this.filterChangeListener = new IChangeListener() {
+			@Override
+			public void changed() {
+				onFilterChanged();
+			}
+		};
+		model.addFilterChangeListener(filterChangeListener);
+
+		toolbar.addDisposeListener(new IDisposeListener() {
+			@Override
+			public void onDispose() {
+				if (!model.isDisposed()) {
+					model.removeFilterChangeListener(filterChangeListener);
+				}
+			}
+		});
+
+		onFilterChanged();
+	}
+
+	private void onFilterChanged() {
+		final SearchFilter searchFilter = (SearchFilter) model.getFilter(IBeanTableModel.UI_SEARCH_FILTER_ID);
+		if (searchFilter != null) {
+			final String searchText = searchFilter.getSearchText();
+			textField.removeInputListener(inputListener);
+			textField.setText(searchText);
+			textField.addInputListener(inputListener);
+			final boolean hasSearchText = !EmptyCheck.isEmpty(searchText);
+			closeButton.setEnabled(!hasSearchText);
+			if (hasSearchText && !toolbar.isVisible()) {
+				toolbar.setVisible(true);
+			}
+		}
 	}
 
 	private ICheckedItemModel createSearchFilterItemModel() {
@@ -255,7 +299,9 @@ final class BeanTableSearchFilterToolbar<BEAN_TYPE> {
 				return;
 			}
 			if (!canceled) {
+				model.removeFilterChangeListener(filterChangeListener);
 				model.setFilter(IBeanTableModel.UI_SEARCH_FILTER_ID, filter);
+				model.addFilterChangeListener(filterChangeListener);
 				model.load();
 			}
 			loader = null;
@@ -320,7 +366,7 @@ final class BeanTableSearchFilterToolbar<BEAN_TYPE> {
 					andFilterBuilder.addFilter(orFilterBuilder.build());
 				}
 			}
-			return andFilterBuilder.build();
+			return new SearchFilter(andFilterBuilder.build(), text);
 		}
 
 		private IUiFilter createManifoldTypeFilter(final IAttribute<Object> attribute, final String string) {
@@ -460,6 +506,20 @@ final class BeanTableSearchFilterToolbar<BEAN_TYPE> {
 			return regex.toString();
 		}
 
+	}
+
+	private static final class SearchFilter extends UiBooleanFilterWrapper {
+
+		private final String searchText;
+
+		private SearchFilter(final IUiBooleanFilter original, final String searchText) {
+			super(original);
+			this.searchText = searchText;
+		}
+
+		private String getSearchText() {
+			return searchText;
+		}
 	}
 
 }
