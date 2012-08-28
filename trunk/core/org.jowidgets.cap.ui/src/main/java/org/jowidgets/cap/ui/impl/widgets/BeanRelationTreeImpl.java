@@ -97,6 +97,8 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 
 	private static final IMessage WAIT_TEXT = Messages.getMessage("BeanRelationTreeImpl.wait_text");
 	private static final IMessage WAIT_TOOLTIP = Messages.getMessage("BeanRelationTreeImpl.wait_tooltip");
+	private static final IMessage LOAD_MORE_DATASETS_LABEL = Messages.getMessage("BeanRelationTreeImpl.load_more_datasets_label");
+	private static final IMessage LOAD_MORE_DATASETS_TOOLTIP = Messages.getMessage("BeanRelationTreeImpl.load_more_datasets_tooltip");
 
 	private final IBeanRelationTreeModel<CHILD_BEAN_TYPE> treeModel;
 	private final IFilter<IBeanRelationNodeModel<Object, Object>> childRelationFilter;
@@ -524,9 +526,8 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 		final ITreeNode node,
 		final IBeanProxy<Object> bean,
 		final IBeanRelationNodeModel<Object, Object> relationNodeModel) {
-
-		node.setText("-> Weitere Datensätze laden <-");
-		node.setToolTipText("Bei Selektion werden weitere Datensätze nachgeladen");
+		node.setText(LOAD_MORE_DATASETS_LABEL.get());
+		node.setToolTipText(LOAD_MORE_DATASETS_TOOLTIP.get());
 		node.setMarkup(Markup.EMPHASIZED);
 		node.setForegroundColor(Colors.STRONG);
 		final TreeNodeAdapter loadPageListener = new TreeNodeAdapter() {
