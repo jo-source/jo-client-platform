@@ -484,9 +484,11 @@ final class BeanRelationTreeDetailImpl<CHILD_BEAN_TYPE> extends ControlWrapper i
 
 		@Override
 		public void afterExecutionSuccess(final IExecutionContext executionContext, final List<IBeanDto> result) {
+			relationNode.removeBeanListModelListener(relationModelChangeListener);
 			for (final IBeanDto beanDto : result) {
 				relationNode.addBeanDto(beanDto);
 			}
+			relationNode.addBeanListModelListener(relationModelChangeListener);
 		}
 	}
 
