@@ -29,6 +29,12 @@
 			<artifactId>org.jowidgets.spi.impl.swing.common</artifactId>
 			<version>${jowidgets.version}</version>
 		</dependency>
+		
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.spi.impl.swing.addons</artifactId>
+			<version>${jowidgets.version}</version>
+		</dependency>
 
 		<dependency>
 			<groupId>org.prefuse</groupId>
