@@ -65,7 +65,10 @@ import org.jowidgets.cap.ui.api.plugin.IBeanTableMenuContributionPlugin;
 import org.jowidgets.cap.ui.api.plugin.IBeanTableMenuInterceptorPlugin;
 import org.jowidgets.cap.ui.api.plugin.IBeanTablePlugin;
 import org.jowidgets.cap.ui.api.sort.ISortModel;
+import org.jowidgets.cap.ui.api.table.BeanTableConfig;
 import org.jowidgets.cap.ui.api.table.BeanTableSettings;
+import org.jowidgets.cap.ui.api.table.IBeanTableConfig;
+import org.jowidgets.cap.ui.api.table.IBeanTableConfigBuilder;
 import org.jowidgets.cap.ui.api.table.IBeanTableMenuFactory;
 import org.jowidgets.cap.ui.api.table.IBeanTableMenuInterceptor;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
@@ -836,6 +839,31 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 		currentAutoUpdateInterval = settings.getAutoUpdateInterval();
 		autoScrollPolicy = settings.getAutoScrollPolicy();
 		autoUpdateItemModel.setSelected(settings.isAutoUpdate());
+	}
+
+	@Override
+	public IBeanTableConfig getConfig() {
+		final IBeanTableConfigBuilder builder = BeanTableConfig.builder();
+		builder.setColumnPermutation(getColumnPermutation());
+		builder.setAutoUpdate(autoUpdateItemModel.isSelected());
+		builder.setAutoUpdateInterval(currentAutoUpdateInterval);
+		builder.setAutoScrollPolicy(autoScrollPolicy);
+		builder.setFilterToolbarVisible(getFilterToolbarItemModel().isSelected());
+		builder.setSearchFilterToolbarVisible(getSearchFilterToolbarItemModel().isSelected());
+		builder.setStatusBarVisible(getStatusBarItemModel().isSelected());
+		return builder.build();
+	}
+
+	@Override
+	public void setConfig(final IBeanTableConfig config) {
+		Assert.paramNotNull(config, "config");
+		setColumnPermutation(config.getColumnPermutation());
+		setFilterToolbarVisible(config.isFilterToolbarVisible());
+		setSearchFilterToolbarVisible(config.isSearchFilterToolbarVisible());
+		setStatusBarVisible(config.isStatusBarVisible());
+		autoUpdateItemModel.setSelected(config.isAutoUpdate());
+		autoScrollPolicy = config.getAutoScrollPolicy();
+		setAutoUpdateInterval(config.getAutoUpdateInterval());
 	}
 
 	private IDecorator<IAction> createDecorator(final boolean header) {

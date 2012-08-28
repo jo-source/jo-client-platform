@@ -31,6 +31,7 @@ package org.jowidgets.cap.ui.api.widgets;
 import org.jowidgets.api.model.item.ICheckedItemModel;
 import org.jowidgets.api.model.item.IMenuModel;
 import org.jowidgets.api.widgets.ITable;
+import org.jowidgets.cap.ui.api.table.IBeanTableConfig;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.table.IBeanTableSettings;
 import org.jowidgets.common.types.Position;
@@ -94,5 +95,9 @@ public interface IBeanTable<BEAN_TYPE> extends ITable {
 	IBeanTableSettings getSettings();
 
 	void setSettings(IBeanTableSettings settings);
+
+	IBeanTableConfig getConfig();
+
+	void setConfig(IBeanTableConfig config);
 
 }
