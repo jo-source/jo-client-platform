@@ -419,7 +419,7 @@ final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BE
 			for (final IBeanPropertyValidator<BEAN_TYPE> validator : validators) {
 				result.addBeanPropertyValidator(validator);
 			}
-			return proxyFactory.createTransientProxy(attributes, defaultValues);
+			return result;
 		}
 		else {
 			return null;

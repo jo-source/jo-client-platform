@@ -183,14 +183,9 @@ final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKA
 
 					final Class linkableType = descriptor.getBeanType();
 					setLinkableBeanType(linkableType);
-
 					final List<IAttribute<Object>> attributes = createAttributes(descriptor);
-
 					final IBeanFormBluePrint beanFormBp = cbpf.beanForm(linkableEntityId, attributes);
-					final List<IAttribute<Object>> filteredAttributes = getFilteredAttributes(attributes);
-					final IBeanFormLayout layout = CapUiToolkit.beanFormToolkit().layoutBuilder().addGroups(filteredAttributes).build();
-					beanFormBp.setLayouter(CapUiToolkit.beanFormToolkit().layouter(layout));
-
+					beanFormBp.setBeanType(linkableType);
 					setLinkableBeanForm(beanFormBp);
 
 					final IBeanTableModelBuilder<?> linkableModelBuilder;
@@ -253,7 +248,7 @@ final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKA
 		final Set<String> blackList = ArrayUtils.toSet(filteredProperties);
 		final List<IAttribute<Object>> result = new LinkedList<IAttribute<Object>>();
 		for (final IAttribute<Object> attribute : attributes) {
-			if (attribute.isEditable() && !blackList.contains(attribute.getPropertyName())) {
+			if (!blackList.contains(attribute.getPropertyName())) {
 				result.add(attribute);
 			}
 		}
