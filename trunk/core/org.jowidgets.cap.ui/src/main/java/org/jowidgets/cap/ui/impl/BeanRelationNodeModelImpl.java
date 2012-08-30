@@ -42,11 +42,14 @@ import java.util.Set;
 import org.jowidgets.api.threads.IUiThreadAccess;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.cap.common.api.CapCommonToolkit;
+import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutionCallbackListener;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
+import org.jowidgets.cap.common.api.filter.ArithmeticOperator;
 import org.jowidgets.cap.common.api.filter.BooleanOperator;
+import org.jowidgets.cap.common.api.filter.IArithmeticFilterBuilder;
 import org.jowidgets.cap.common.api.filter.IBooleanFilterBuilder;
 import org.jowidgets.cap.common.api.filter.IFilter;
 import org.jowidgets.cap.common.api.service.ICreatorService;
@@ -93,6 +96,7 @@ import org.jowidgets.plugin.api.IPluginPropertiesBuilder;
 import org.jowidgets.plugin.api.PluginProperties;
 import org.jowidgets.plugin.api.PluginProvider;
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.EmptyCheck;
 import org.jowidgets.util.IDecorator;
 import org.jowidgets.util.IProvider;
 import org.jowidgets.validation.IValidationConditionListener;
@@ -132,6 +136,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 	private final IBeanProxyFactory<CHILD_BEAN_TYPE> beanProxyFactory;
 	private final BeanListSaveDelegate<CHILD_BEAN_TYPE> saveDelegate;
 	private final ArrayList<IBeanProxy<CHILD_BEAN_TYPE>> data;
+	private final ArrayList<IBeanProxy<CHILD_BEAN_TYPE>> addedData;
 	private final int pageSize;
 	private final Map<String, IUiFilter> filters;
 
@@ -207,6 +212,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 		sortModel.setDefaultSorting(defaultSort);
 
 		this.data = new ArrayList<IBeanProxy<CHILD_BEAN_TYPE>>();
+		this.addedData = new ArrayList<IBeanProxy<CHILD_BEAN_TYPE>>();
 
 		this.saveDelegate = new BeanListSaveDelegate<CHILD_BEAN_TYPE>(
 			this,
@@ -405,6 +411,10 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 			beanStateTracker.unregister(bean);
 		}
 		data.clear();
+		for (final IBeanProxy<CHILD_BEAN_TYPE> bean : addedData) {
+			beanStateTracker.unregister(bean);
+		}
+		addedData.clear();
 		beanStateTracker.clearAll();
 		beanListModelObservable.fireBeansChanged();
 	}
@@ -532,19 +542,23 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 	@Override
 	public int getSize() {
 		if (endOfPageDummy == null) {
-			return data.size();
+			return data.size() + addedData.size();
 		}
 		else {
-			return data.size() + 1;
+			return data.size() + addedData.size() + 1;
 		}
 	}
 
 	@Override
 	public IBeanProxy<CHILD_BEAN_TYPE> getBean(final int index) {
+		final int addedDataIndex = index - data.size();
 		if (index >= 0 && index < data.size()) {
 			return data.get(index);
 		}
-		else if (index == data.size() && endOfPageDummy != null) {
+		else if (addedDataIndex >= 0 && addedDataIndex < addedData.size()) {
+			return addedData.get(addedDataIndex);
+		}
+		else if (index == (data.size() + addedData.size()) && endOfPageDummy != null) {
 			return endOfPageDummy;
 		}
 		else {
@@ -564,6 +578,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 		for (final IBeanProxy<CHILD_BEAN_TYPE> bean : beans) {
 			beanStateTracker.unregister(bean);
 			data.remove(bean);
+			addedData.remove(bean);
 		}
 
 		if (fireBeansChanged) {
@@ -575,7 +590,11 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 
 	@Override
 	public void addBean(final IBeanProxy<CHILD_BEAN_TYPE> bean) {
-		addBean(data.size(), bean);
+		Assert.paramNotNull(bean, "bean");
+		beanStateTracker.register(bean);
+		addedData.add(bean);
+		beanListModelObservable.fireBeansAdded(bean);
+		fireBeansChanged();
 	}
 
 	@Override
@@ -601,14 +620,6 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 			beanProxy.addBeanPropertyValidator(validator);
 		}
 		return beanProxy;
-	}
-
-	private void addBean(final int index, final IBeanProxy<CHILD_BEAN_TYPE> bean) {
-		Assert.paramNotNull(bean, "bean");
-		beanStateTracker.register(bean);
-		data.add(index, bean);
-		beanListModelObservable.fireBeansAdded(bean);
-		fireBeansChanged();
 	}
 
 	@Override
@@ -651,6 +662,11 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 		for (int i = 0; i < data.size(); i++) {
 			if (selectedMap.contains(data.get(i))) {
 				newSelection.add(Integer.valueOf(i));
+			}
+		}
+		for (int i = 0; i < addedData.size(); i++) {
+			if (selectedMap.contains(addedData.get(i))) {
+				newSelection.add(Integer.valueOf(data.size() + i));
 			}
 		}
 		setSelection(newSelection);
@@ -699,7 +715,9 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 	}
 
 	private IFilter getFilter() {
-		if (filters.size() > 0) {
+		final IFilter addedDataFilter = getAddedDataFilter();
+
+		if (filters.size() > 0 || addedDataFilter != null) {
 			final IBooleanFilterBuilder builder = CapCommonToolkit.filterFactory().booleanFilterBuilder();
 			builder.setOperator(BooleanOperator.AND);
 
@@ -708,11 +726,35 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 				builder.addFilter(filterFactory.convert(uiFilter));
 			}
 
+			if (addedDataFilter != null) {
+				builder.addFilter(addedDataFilter);
+			}
+
 			return builder.build();
 		}
 		else {
-			return null;
+			return addedDataFilter;
 		}
+	}
+
+	private IFilter getAddedDataFilter() {
+		if (!EmptyCheck.isEmpty(addedData)) {
+			final IArithmeticFilterBuilder builder = CapCommonToolkit.filterFactory().arithmeticFilterBuilder();
+			builder.setInverted(true);
+			builder.setPropertyName(IBean.ID_PROPERTY);
+			builder.setOperator(ArithmeticOperator.CONTAINS_ANY);
+			boolean added = false;
+			for (final IBeanProxy<CHILD_BEAN_TYPE> addedBean : addedData) {
+				if (!addedBean.isDummy() && !addedBean.isTransient()) {
+					builder.addParameter(addedBean.getId());
+					added = true;
+				}
+			}
+			if (added) {
+				return builder.build();
+			}
+		}
+		return null;
 	}
 
 	@Override
@@ -785,6 +827,10 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 					beanStateTracker.unregister(bean);
 				}
 				data.clear();
+				for (final IBeanProxy<CHILD_BEAN_TYPE> bean : addedData) {
+					beanStateTracker.unregister(bean);
+				}
+				addedData.clear();
 			}
 			endOfPageDummy = null;
 
@@ -802,7 +848,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 			dummyBean = beanProxyFactory.createDummyProxy(childBeanAttributes);
 			beanStateTracker.register(dummyBean);
 			dummyBean.setExecutionTask(executionTask);
-			data.add(dummyBean);
+			addedData.add(dummyBean);
 
 			final List<? extends IBeanKey> parentBeanKeys;
 			if (parentBean != null && !parentBean.isTransient() && !parentBean.isDummy()) {
@@ -817,7 +863,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 					parentBeanKeys,
 					filter,
 					sortModel.getSorting(),
-					data.size() - 1,
+					data.size(),
 					pageSize + 1,
 					readerParameterProvider.get(),
 					executionTask);
@@ -861,7 +907,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 			if (dummyBean != null) {
 				dummyBean.setExecutionTask(null);
 				beanStateTracker.unregister(dummyBean);
-				data.remove(data.size() - 1);
+				addedData.remove(addedData.size() - 1);
 			}
 
 			final List<IBeanProxy<CHILD_BEAN_TYPE>> newData = new LinkedList<IBeanProxy<CHILD_BEAN_TYPE>>();
@@ -922,8 +968,8 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 				if (dummyBean != null) {
 					dummyBean.setExecutionTask(null);
 					beanStateTracker.unregister(dummyBean);
+					addedData.remove(addedData.size() - 1);
 				}
-				data.clear();
 
 				finished = true;
 				canceled = true;
