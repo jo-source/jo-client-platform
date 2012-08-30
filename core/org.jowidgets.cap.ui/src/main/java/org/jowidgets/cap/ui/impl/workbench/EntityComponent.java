@@ -136,6 +136,7 @@ class EntityComponent extends AbstractComponent implements IComponent {
 		final Class<?> beanType = getBeanType(id);
 		final IBeanRelationTreeModelBuilder<?> builder = CapUiToolkit.beanRelationTreeModelBuilder(id, beanType);
 		builder.setParentSelectionAsReader(parentModel, LinkType.SELECTION_ALL);
+		builder.setBeanProxyContext(parentModel.getBeanProxyContext());
 		return builder.build();
 	}
 

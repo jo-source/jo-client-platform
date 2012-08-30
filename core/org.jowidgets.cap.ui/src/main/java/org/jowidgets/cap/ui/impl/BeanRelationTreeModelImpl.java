@@ -38,6 +38,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
+import org.jowidgets.cap.ui.api.bean.IBeanProxyContext;
 import org.jowidgets.cap.ui.api.bean.IBeanSelection;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionEvent;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionListener;
@@ -75,6 +76,7 @@ public class BeanRelationTreeModelImpl<CHILD_BEAN_TYPE> implements
 
 	private final IBeanRelationNodeModel<Void, CHILD_BEAN_TYPE> root;
 	private final IBeanRelationNodeModelConfigurator nodeConfigurator;
+	private final IBeanProxyContext beanProxyContext;
 	private final IBeanSelectionListener<Object> parentSelectionListener;
 	private final BeanSelectionObservable<Object> beanSelectionObservable;
 	private final BeanRelationTreeSelectionObservableImpl beanRelationTreeSelectionObservable;
@@ -94,16 +96,19 @@ public class BeanRelationTreeModelImpl<CHILD_BEAN_TYPE> implements
 	public BeanRelationTreeModelImpl(
 		final IBeanRelationNodeModel<Void, CHILD_BEAN_TYPE> root,
 		final IBeanRelationNodeModelConfigurator nodeConfigurator,
+		final IBeanProxyContext beanProxyContext,
 		final IBeanSelectionProvider<Object> parent,
 		final LinkType linkType,
 		final Long listenerDelay) {
 
 		Assert.paramNotNull(root, "root");
 		Assert.paramNotNull(nodeConfigurator, "nodeConfigurator");
+		Assert.paramNotNull(beanProxyContext, "beanProxyContext");
 
 		this.root = root;
 
 		this.nodeConfigurator = nodeConfigurator;
+		this.beanProxyContext = beanProxyContext;
 		if (parent != null) {
 			Assert.paramNotNull(linkType, "linkType");
 			this.parentSelectionListener = new ParentSelectionListener<Object>(parent, this, listenerDelay);
@@ -154,6 +159,7 @@ public class BeanRelationTreeModelImpl<CHILD_BEAN_TYPE> implements
 				parentEntityTypeId,
 				parentBean,
 				childEntityTypeId);
+			builder.setBeanProxyContext(beanProxyContext);
 			nodeConfigurator.configureNode(childEntityTypeId, builder);
 			final IBeanRelationNodeModel nodeModel = builder.build();
 			registerListeners(nodeModel);

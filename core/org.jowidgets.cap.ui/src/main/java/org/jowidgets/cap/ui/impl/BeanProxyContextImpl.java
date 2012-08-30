@@ -59,6 +59,12 @@ final class BeanProxyContextImpl implements IBeanProxyContext {
 				registeredBeanTuple = new Tuple<IBeanProxy<?>, List<Object>>(bean, owners);
 				beans.put(bean, registeredBeanTuple);
 			}
+			else {
+				final IBeanProxy<?> registeredBean = registeredBeanTuple.getFirst();
+				if (!registeredBean.hasModifications()) {
+					registeredBean.update(bean.getBeanDto());
+				}
+			}
 			return (IBeanProxy<BEAN_TYPE>) registeredBeanTuple.getFirst();
 		}
 		return bean;
