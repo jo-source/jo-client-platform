@@ -48,6 +48,7 @@ import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
 import org.jowidgets.cap.ui.api.bean.BeanExceptionConverter;
 import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
+import org.jowidgets.cap.ui.api.bean.IBeanProxyContext;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionObservable;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionProvider;
 import org.jowidgets.cap.ui.api.model.IBeanModelBuilder;
@@ -76,6 +77,8 @@ abstract class AbstractBeanModelBuilderImpl<BEAN_TYPE, INSTANCE_TYPE> implements
 	private IUpdaterService updaterService;
 	private IDeleterService deleterService;
 
+	private IBeanProxyContext beanProxyContext;
+
 	private IBeanExceptionConverter exceptionConverter;
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
@@ -86,6 +89,8 @@ abstract class AbstractBeanModelBuilderImpl<BEAN_TYPE, INSTANCE_TYPE> implements
 		this.beanValidators = new LinkedHashSet<IBeanValidator<BEAN_TYPE>>();
 		this.beanType = beanType;
 		this.entityId = entityId;
+
+		this.beanProxyContext = new LocalBeanProxyContext();
 		this.exceptionConverter = BeanExceptionConverter.get();
 		this.metaPropertyNames = new String[] {IBeanProxy.META_PROPERTY_PROGRESS, IBeanProxy.META_PROPERTY_MESSAGES};
 
@@ -275,6 +280,14 @@ abstract class AbstractBeanModelBuilderImpl<BEAN_TYPE, INSTANCE_TYPE> implements
 		return (INSTANCE_TYPE) this;
 	}
 
+	@SuppressWarnings("unchecked")
+	@Override
+	public INSTANCE_TYPE setBeanProxyContext(final IBeanProxyContext context) {
+		Assert.paramNotNull(context, "context");
+		this.beanProxyContext = context;
+		return (INSTANCE_TYPE) this;
+	}
+
 	protected List<IAttribute<Object>> getAttributes() {
 		final List<IAttribute<Object>> result = new LinkedList<IAttribute<Object>>(attributes);
 		if (metaPropertyNames != null) {
@@ -347,6 +360,10 @@ abstract class AbstractBeanModelBuilderImpl<BEAN_TYPE, INSTANCE_TYPE> implements
 
 	protected IBeanExceptionConverter getExceptionConverter() {
 		return exceptionConverter;
+	}
+
+	protected IBeanProxyContext getBeanProxyContext() {
+		return beanProxyContext;
 	}
 
 }

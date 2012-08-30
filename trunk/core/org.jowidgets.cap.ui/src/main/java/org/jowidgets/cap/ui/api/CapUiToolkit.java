@@ -39,6 +39,7 @@ import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
 import org.jowidgets.cap.ui.api.bean.IBeanKeyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeanMessageBuilder;
 import org.jowidgets.cap.ui.api.bean.IBeanMessageFixBuilder;
+import org.jowidgets.cap.ui.api.bean.IBeanProxyContext;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyLabelRenderer;
 import org.jowidgets.cap.ui.api.bean.IBeansStateTracker;
@@ -142,6 +143,10 @@ public final class CapUiToolkit {
 
 	public static <BEAN_TYPE> IBeanProxyFactory<BEAN_TYPE> beanProxyFactory(final Class<? extends BEAN_TYPE> proxyType) {
 		return getInstance().beanProxyFactory(proxyType);
+	}
+
+	public static IBeanProxyContext beanProxyContext() {
+		return getInstance().beanProxyContext();
 	}
 
 	public static IBeanKeyFactory beanKeyFactory() {

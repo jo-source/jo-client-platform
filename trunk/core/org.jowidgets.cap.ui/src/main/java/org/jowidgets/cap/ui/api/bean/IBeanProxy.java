@@ -75,16 +75,6 @@ public interface IBeanProxy<BEAN_TYPE> extends
 
 	void update(IBeanDto beanDto);
 
-	/**
-	 * Updates a transient bean. The transient state will set to false
-	 * and the bean will be updated.
-	 * 
-	 * @param beanDto The bean to update
-	 * 
-	 * @throws IllegalStateException if this bean is not transient
-	 */
-	void updateTransient(IBeanDto beanDto);
-
 	Collection<IBeanModification> getModifications();
 
 	void setModifications(Collection<IBeanModification> modifications);
@@ -102,6 +92,8 @@ public interface IBeanProxy<BEAN_TYPE> extends
 	void redoModifications();
 
 	IBeanData getBeanData();
+
+	IBeanDto getBeanDto();
 
 	List<String> getProperties();
 
@@ -133,11 +125,7 @@ public interface IBeanProxy<BEAN_TYPE> extends
 
 	void clearMessages();
 
-	void setTransient(boolean isTransient);
-
 	boolean isTransient();
-
-	void setDummy(boolean dummy);
 
 	/**
 	 * @return true if the bean is a dummy bean.
@@ -151,6 +139,13 @@ public interface IBeanProxy<BEAN_TYPE> extends
 	BEAN_TYPE getBean();
 
 	IBeanProxy<BEAN_TYPE> createCopy();
+
+	/**
+	 * Creates a copy of this bean. The copy has all modifications than this bean has, but is not modified itself.
+	 * 
+	 * @return A copy of this bean, where hasModifications returns false
+	 */
+	IBeanProxy<BEAN_TYPE> createUnmodifiedCopy();
 
 	void addBeanProxyListener(IBeanProxyListener<BEAN_TYPE> listener);
 
