@@ -32,9 +32,14 @@ import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Font;
 import java.awt.Image;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.HierarchyEvent;
 import java.awt.event.HierarchyListener;
 import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -93,6 +98,7 @@ import prefuse.action.animate.QualityControlAnimator;
 import prefuse.action.animate.VisibilityAnimator;
 import prefuse.action.assignment.ColorAction;
 import prefuse.action.assignment.FontAction;
+import prefuse.action.layout.CollapsedSubtreeLayout;
 import prefuse.action.layout.Layout;
 import prefuse.action.layout.graph.ForceDirectedLayout;
 import prefuse.action.layout.graph.NodeLinkTreeLayout;
@@ -160,6 +166,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 	private Position dialogPosition;
 
 	private final ImageFactory imageFactory;
+	private final LabelEdgeLayout labelEdgeLayout;
 
 	BeanRelationGraphImpl(
 		final IControl control,
@@ -196,6 +203,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		});
 
 		final ActionList color = new ActionList();
+		color.add(new ColorAction("graph.nodes.group1", VisualItem.FILLCOLOR, ColorLib.rgb(200, 200, 255)));
 		color.add(new ColorAction(NODES, VisualItem.FILLCOLOR, ColorLib.rgb(200, 200, 255)));
 		color.add(new ColorAction(NODES, VisualItem.STROKECOLOR, 0));
 		color.add(new ColorAction(NODES, VisualItem.TEXTCOLOR, ColorLib.rgb(0, 0, 0)));
@@ -204,8 +212,6 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		color.add(new FontAction(NODES, new Font("Tahoma", Font.BOLD, 10)));
 
 		vis.putAction("color", color);
-
-		initForceDLayout();
 
 		final LabelRenderer r = new LabelRenderer("name", "image");
 		r.setRoundedCorner(8, 8);
@@ -220,6 +226,8 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 
 		DECORATOR_SCHEMA.setDefault(VisualItem.TEXTCOLOR, ColorLib.gray(0));
 		vis.addDecorators(EDGE_DECORATORS, EDGES, DECORATOR_SCHEMA);
+		labelEdgeLayout = new LabelEdgeLayout(EDGE_DECORATORS);
+		initForceDLayout();
 
 		display = new Display(vis);
 		display.setHighQuality(true);
@@ -296,7 +304,6 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 			childNode = graph.addNode();
 			nodeMap.put(bean, childNode);
 		}
-
 		final Node parentNode = nodeMap.get(beanRelationNodeModel.getParentBean());
 		if (parentNode != null && (!bean.isDummy())) {
 			if (graph.getEdge(parentNode, childNode) == null) {
@@ -480,6 +487,34 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		model.addSeparator();
 
 		model.addAction(settingsDialogAction);
+		final ICheckedItemModel edgeCheckedItem = model.addCheckedItem("Edge Label");
+		edgeCheckedItem.setSelected(true);
+		edgeCheckedItem.addItemListener(new IItemStateListener() {
+
+			@Override
+			public void itemStateChanged() {
+				labelEdgeLayout.setTrigger(edgeCheckedItem.isSelected());
+			}
+		});
+
+		final IActionBuilder screenShotActionBuilder = actionBF.create();
+		screenShotActionBuilder.setIcon(IconsSmall.DISK).setToolTipText("In Zwischenablage kopieren");
+		screenShotActionBuilder.setCommand(new ICommandExecutor() {
+			@Override
+			public void execute(final IExecutionContext executionContext) throws Exception {
+				final BufferedImage bufImage = new BufferedImage(
+					display.getSize().width,
+					display.getSize().height,
+					BufferedImage.TYPE_INT_RGB);
+				display.paint(bufImage.createGraphics());
+
+				java.awt.Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new ImageSelection(bufImage), null);
+
+			}
+		});
+		final ICommandAction screenShotAction = screenShotActionBuilder.build();
+		model.addAction(screenShotAction);
+
 		return model;
 	}
 
@@ -487,7 +522,6 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		synchronized (vis) {
 			vis.removeAction("layout");
 			final ColorAction fill = new ColorAction(NODES, VisualItem.FILLCOLOR, ColorLib.rgb(200, 200, 255));
-			fill.add("_fixed", ColorLib.rgb(255, 100, 100));
 			fill.add("_highlight", ColorLib.rgb(255, 200, 125));
 
 			final ForceDirectedLayout fdl = new ForceDirectedLayout("graph", true);
@@ -496,7 +530,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 			final ActionList layout = new ActionList(Activity.INFINITY);
 			layout.add(fdl);
 			layout.add(fill);
-			layout.add(new LabelEdgeLayout(EDGE_DECORATORS));
+			layout.add(labelEdgeLayout);
 			layout.add(new RepaintAction());
 
 			vis.putAction("layout", layout);
@@ -510,12 +544,11 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		synchronized (vis) {
 			vis.removeAction("layout");
 			final ColorAction fill = new ColorAction(NODES, VisualItem.FILLCOLOR, ColorLib.rgb(200, 200, 255));
-			fill.add("_fixed", ColorLib.rgb(255, 100, 100));
 			fill.add("_highlight", ColorLib.rgb(255, 200, 125));
 			final ActionList layout = new ActionList(Activity.INFINITY);
 			final NodeLinkTreeLayout nodeLinkTreeLayout = new NodeLinkTreeLayout("graph", Constants.ORIENT_LEFT_RIGHT, 50, 5, 5);
 			layout.add(nodeLinkTreeLayout);
-			layout.add(new LabelEdgeLayout(EDGE_DECORATORS));
+			layout.add(labelEdgeLayout);
 			layout.add(new RepaintAction(vis));
 			layout.add(fill);
 			vis.putAction("layout", layout);
@@ -527,16 +560,20 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 	private void initRadialTreeLayout() {
 		synchronized (vis) {
 			vis.removeAction("layout");
+
 			final ActionList layout = new ActionList(Activity.INFINITY);
 			final RadialTreeLayout treeLayout = new RadialTreeLayout("graph");
 			layout.add(treeLayout);
 			layout.add(new RepaintAction(vis));
 			layout.add(new TreeRootAction("graph"));
+			final CollapsedSubtreeLayout subLayout = new CollapsedSubtreeLayout("graph");
+			layout.add(subLayout);
+
 			final ColorAction fill = new ColorAction(NODES, VisualItem.FILLCOLOR, ColorLib.rgb(200, 200, 255));
-			fill.add("_fixed", ColorLib.rgb(255, 100, 100));
 			fill.add("_highlight", ColorLib.rgb(255, 200, 125));
-			layout.add(new LabelEdgeLayout(EDGE_DECORATORS));
+			layout.add(labelEdgeLayout);
 			layout.add(fill);
+
 			final ActionList animate = new ActionList(1250);
 			animate.setPacingFunction(new SlowInSlowOutPacer());
 			animate.add(new QualityControlAnimator());
@@ -544,7 +581,9 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 			animate.add(new PolarLocationAnimator(NODES, "linear"));
 			animate.add(new ColorAnimator(NODES));
 			animate.add(new RepaintAction());
+
 			display.setItemSorter(new TreeDepthItemSorter());
+
 			vis.putAction("animate", animate);
 			vis.putAction("layout", layout);
 			vis.alwaysRunAfter("layout", "animate");
@@ -611,26 +650,64 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 	}
 
 	private class LabelEdgeLayout extends Layout {
+		private boolean trigger;
+
 		public LabelEdgeLayout(final String group) {
 			super(group);
+			trigger = true;
 		}
 
 		@SuppressWarnings("rawtypes")
 		@Override
 		public void run(final double frac) {
+
 			final Iterator iter = m_vis.items(m_group);
 			while (iter.hasNext()) {
 				final DecoratorItem decorator = (DecoratorItem) iter.next();
-				final VisualItem decoratedItem = decorator.getDecoratedItem();
-				final Rectangle2D bounds = decoratedItem.getBounds();
-
-				final double x = bounds.getCenterX();
-				final double y = bounds.getCenterY();
-
-				setX(decorator, null, x);
-				setY(decorator, null, y);
+				decorator.setVisible(true);
+				if (trigger) {
+					final VisualItem decoratedItem = decorator.getDecoratedItem();
+					final Rectangle2D bounds = decoratedItem.getBounds();
+					final double x = bounds.getCenterX();
+					final double y = bounds.getCenterY();
+					setX(decorator, null, x);
+					setY(decorator, null, y);
+				}
+				else {
+					decorator.setVisible(false);
+				}
 			}
+
+		}
+
+		public void setTrigger(final boolean onOff) {
+			trigger = onOff;
 		}
 	}
 
+	private static class ImageSelection implements Transferable {
+		private final Image image;
+
+		public ImageSelection(final Image image) {
+			this.image = image;
+		}
+
+		@Override
+		public DataFlavor[] getTransferDataFlavors() {
+			return new DataFlavor[] {DataFlavor.imageFlavor};
+		}
+
+		@Override
+		public boolean isDataFlavorSupported(final DataFlavor flavor) {
+			return DataFlavor.imageFlavor.equals(flavor);
+		}
+
+		@Override
+		public Object getTransferData(final DataFlavor flavor) throws UnsupportedFlavorException, IOException {
+			if (!DataFlavor.imageFlavor.equals(flavor)) {
+				throw new UnsupportedFlavorException(flavor);
+			}
+			return image;
+		}
+	}
 }
