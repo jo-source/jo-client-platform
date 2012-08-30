@@ -251,7 +251,7 @@ final class BeanRelationTreeDetailImpl<CHILD_BEAN_TYPE> extends ControlWrapper i
 	private IBeanTableModel<Object> createBeanTableModel(final IBeanRelationNodeModel<Object, Object> relation) {
 		final IBeanTableModelBuilder<Object> builder;
 		builder = BeanTableModel.builder(relation.getChildEntityId(), relation.getChildBeanType());
-
+		builder.setBeanProxyContext(relation.getBeanProxyContext());
 		if (relation.getParentBean() != null) {
 			builder.setParent(new SingleBeanSelectionProvider<Object>(
 				relation.getParentBean(),

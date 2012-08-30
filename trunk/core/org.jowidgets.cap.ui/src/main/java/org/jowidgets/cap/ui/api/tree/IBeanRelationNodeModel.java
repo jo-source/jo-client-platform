@@ -37,6 +37,7 @@ import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.bean.IBeanPropertyValidator;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
+import org.jowidgets.cap.ui.api.bean.IBeanProxyContext;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyLabelRenderer;
 import org.jowidgets.cap.ui.api.filter.IUiFilter;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
@@ -84,6 +85,8 @@ public interface IBeanRelationNodeModel<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> exten
 	Object getChildEntityId();
 
 	Class<CHILD_BEAN_TYPE> getChildBeanType();
+
+	IBeanProxyContext getBeanProxyContext();
 
 	IBeanProxyLabelRenderer<CHILD_BEAN_TYPE> getChildRenderer();
 

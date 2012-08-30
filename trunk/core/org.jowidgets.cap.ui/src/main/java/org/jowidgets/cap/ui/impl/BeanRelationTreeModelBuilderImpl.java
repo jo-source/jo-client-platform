@@ -79,7 +79,6 @@ final class BeanRelationTreeModelBuilderImpl<CHILD_BEAN_TYPE> extends
 				addChildRelations(entityTypeId, bluePrint);
 			}
 		});
-
 		addChildRelations(new EntityTypeIdImpl<Object>(entityId, beanType), this);
 	}
 
@@ -160,13 +159,15 @@ final class BeanRelationTreeModelBuilderImpl<CHILD_BEAN_TYPE> extends
 			getDefaultSort(),
 			getBeanValidators(),
 			getAttributes(),
-			getExceptionConverter());
+			getExceptionConverter(),
+			getBeanProxyContext());
 
 		build = true;
 
 		return new BeanRelationTreeModelImpl<CHILD_BEAN_TYPE>(
 			rootNode,
 			getNodeConfigurator(),
+			getBeanProxyContext(),
 			getParent(),
 			getLinkType(),
 			getListenerDelay());

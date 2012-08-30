@@ -244,7 +244,8 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> extends
 			autoRefreshSelection,
 			clearOnEmptyFilter,
 			getClearOnEmptyParentBeans(),
-			pageSize);
+			pageSize,
+			getBeanProxyContext());
 	}
 
 }

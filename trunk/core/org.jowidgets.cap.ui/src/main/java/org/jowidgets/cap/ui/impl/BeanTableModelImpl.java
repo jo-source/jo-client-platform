@@ -95,11 +95,13 @@ import org.jowidgets.cap.ui.api.bean.IBeanMessage;
 import org.jowidgets.cap.ui.api.bean.IBeanMessageBuilder;
 import org.jowidgets.cap.ui.api.bean.IBeanPropertyValidator;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
+import org.jowidgets.cap.ui.api.bean.IBeanProxyContext;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeanSelection;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionEvent;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionListener;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionProvider;
+import org.jowidgets.cap.ui.api.bean.IBeanTransientStateListener;
 import org.jowidgets.cap.ui.api.bean.IBeansStateTracker;
 import org.jowidgets.cap.ui.api.color.CapColors;
 import org.jowidgets.cap.ui.api.execution.BeanExecutionPolicy;
@@ -181,6 +183,8 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 	private final IBeanProxyFactory<BEAN_TYPE> beanProxyFactory;
 	private final IBeansStateTracker<BEAN_TYPE> beansStateTracker;
+	private final IBeanProxyContext beanProxyContext;
+	private final IBeanTransientStateListener<BEAN_TYPE> beanTransientStateListener;
 	private final ArrayList<IAttribute<Object>> attributes;
 	private final Map<String, Object> defaultValues;
 	private final List<String> propertyNames;
@@ -260,7 +264,8 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		final boolean autoRefreshSelection,
 		final boolean clearOnEmptyFilter,
 		final boolean clearOnEmptyParentBeans,
-		final int pageSize) {
+		final int pageSize,
+		final IBeanProxyContext beanProxyContext) {
 
 		//arguments checks
 		Assert.paramNotNull(entityId, "entityId");
@@ -271,6 +276,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		Assert.paramNotNull(readerService, "readerService");
 		Assert.paramNotNull(paramProvider, "paramProvider");
 		Assert.paramNotNull(exceptionConverter, "exceptionConverter");
+		Assert.paramNotNull(beanProxyContext, "beanProxyContext");
 
 		this.parent = parent;
 		this.entityId = entityId;
@@ -321,6 +327,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		this.autoRefreshSelection = autoRefreshSelection;
 		this.onSetConfig = false;
 		this.exceptionConverter = exceptionConverter;
+		this.beanProxyContext = beanProxyContext;
 
 		this.filters = new HashMap<String, IUiFilter>();
 		this.data = new HashMap<Integer, ArrayList<IBeanProxy<BEAN_TYPE>>>();
@@ -329,6 +336,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		this.sortModel = new SortModelImpl();
 		this.sortModelChangeListener = new SortModelChangeListener();
 		this.tableDataModelListener = new TableDataModelListener();
+		this.beanTransientStateListener = new BeanTransientStateListener();
 		this.attributeChangeListeners = new LinkedList<AttributeChangeListener>();
 		this.dataCleared = true;
 		this.disposed = false;
@@ -543,6 +551,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			tryToCanceLoader();
 			disposeObservable.fireOnDispose();
 			lastSelectedBeans.clear();
+			unregisterBeansFromContext();
 			data.clear();
 			addedData.clear();
 			beanListModelObservable.dispose();
@@ -561,7 +570,6 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			for (final AttributeChangeListener listener : attributeChangeListeners) {
 				listener.dispose();
 			}
-			disposeBeans();
 			disposed = true;
 		}
 	}
@@ -573,17 +581,17 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		}
 	}
 
-	private void disposeBeans() {
+	private void unregisterBeansFromContext() {
 		for (final ArrayList<IBeanProxy<BEAN_TYPE>> page : data.values()) {
 			for (final IBeanProxy<BEAN_TYPE> bean : page) {
 				if (bean != null) {
-					bean.dispose();
+					beanProxyContext.unregisterBean(bean, this);
 				}
 			}
 		}
 		for (final IBeanProxy<BEAN_TYPE> addedBean : addedData) {
 			if (addedBean != null) {
-				addedBean.dispose();
+				beanProxyContext.unregisterBean(addedBean, this);
 			}
 		}
 	}
@@ -601,6 +609,11 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	@Override
 	public Class<BEAN_TYPE> getBeanType() {
 		return beanType;
+	}
+
+	@Override
+	public IBeanProxyContext getBeanProxyContext() {
+		return beanProxyContext;
 	}
 
 	@Override
@@ -652,6 +665,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		countedRowCount = null;
 		maxPageIndex = 0;
 		dataCleared = true;
+		unregisterBeansFromContext();
 		data.clear();
 		addedData.clear();
 		beansStateTracker.clearAll();
@@ -685,6 +699,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			}
 			dataCleared = false;
 			maxPageIndex = 0;
+			unregisterBeansFromContext();
 			data.clear();
 			addedData.clear();
 			this.scheduledLoadDelay = scheduledLoadDelay;
@@ -845,6 +860,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		final ArrayList<IBeanProxy<BEAN_TYPE>> pageToDelete = data.get(pageIndex);
 		if (pageToDelete != null) {
 			for (final IBeanProxy<BEAN_TYPE> bean : pageToDelete) {
+				beanProxyContext.unregisterBean(bean, this);
 				beansStateTracker.unregister(bean);
 			}
 			pageToDelete.clear();
@@ -937,6 +953,9 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		}
 		final Set<IBeanProxy<BEAN_TYPE>> beansToCreate = beansStateTracker.getBeansToCreate();
 		if (!beansToCreate.isEmpty()) {
+			for (final IBeanProxy<BEAN_TYPE> beanToCreate : beansToCreate) {
+				beanToCreate.removeTransientStateListener(beanTransientStateListener);
+			}
 			final List<IBeanProxy<BEAN_TYPE>> removedBeans = removeBeansImpl(beansToCreate, false);
 			if (removedBeans.size() > 0) {
 				beanListModelObservable.fireBeansRemoved(removedBeans);
@@ -1012,8 +1031,9 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	@Override
 	public void addBean(final IBeanProxy<BEAN_TYPE> bean) {
 		Assert.paramNotNull(bean, "bean");
-		addBeanImpl(bean, true);
-		beanListModelObservable.fireBeansAdded(bean);
+		final IBeanProxy<BEAN_TYPE> registeredBean = beanProxyContext.registerBean(bean, this);
+		addBeanImpl(registeredBean, true);
+		beanListModelObservable.fireBeansAdded(registeredBean);
 		beanListModelObservable.fireBeansChanged();
 	}
 
@@ -1083,6 +1103,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			result.addBeanPropertyValidator(validator);
 		}
 		addBean(result);
+		result.addTransientStateListener(beanTransientStateListener);
 		return result;
 	}
 
@@ -1091,7 +1112,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		for (final IBeanPropertyValidator<BEAN_TYPE> validator : beanPropertyValidators) {
 			beanProxy.addBeanPropertyValidator(validator);
 		}
-		return beanProxy;
+		return beanProxyContext.registerBean(beanProxy, this);
 	}
 
 	@Override
@@ -1165,6 +1186,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 					final boolean deletedBeanRemoved = beansToDelete.remove(bean);
 					if (deletedBeanRemoved) {
 						beansStateTracker.unregister(bean);
+						beanProxyContext.unregisterBean(bean, this);
 						removedBeanProxies.add(bean);
 						rowCount--;
 						if (countedRowCount != null) {
@@ -1240,6 +1262,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		for (final IBeanProxy<BEAN_TYPE> addedBean : addedData) {
 			final boolean removed = beansToDelete.remove(addedBean);
 			if (removed) {
+				beanProxyContext.unregisterBean(addedBean, this);
 				beansStateTracker.unregister(addedBean);
 				result.add(addedBean);
 			}
@@ -2685,6 +2708,14 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			finished = true;
 		}
 
+	}
+
+	private final class BeanTransientStateListener implements IBeanTransientStateListener<BEAN_TYPE> {
+		@Override
+		public void transientStateChanged(final Object oldId, final IBeanProxy<BEAN_TYPE> newBean) {
+			beanProxyContext.registerBean(newBean, BeanTableModelImpl.this);
+			newBean.removeTransientStateListener(beanTransientStateListener);
+		}
 	}
 
 	private final class AutoRefreshListener implements IBeanSelectionListener<BEAN_TYPE> {

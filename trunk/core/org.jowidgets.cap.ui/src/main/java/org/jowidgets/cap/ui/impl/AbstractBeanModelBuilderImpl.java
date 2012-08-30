@@ -46,6 +46,7 @@ import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
 import org.jowidgets.cap.ui.api.bean.BeanExceptionConverter;
+import org.jowidgets.cap.ui.api.bean.BeanProxyContext;
 import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyContext;
@@ -90,7 +91,7 @@ abstract class AbstractBeanModelBuilderImpl<BEAN_TYPE, INSTANCE_TYPE> implements
 		this.beanType = beanType;
 		this.entityId = entityId;
 
-		this.beanProxyContext = new LocalBeanProxyContext();
+		this.beanProxyContext = BeanProxyContext.create();
 		this.exceptionConverter = BeanExceptionConverter.get();
 		this.metaPropertyNames = new String[] {IBeanProxy.META_PROPERTY_PROGRESS, IBeanProxy.META_PROPERTY_MESSAGES};
 
