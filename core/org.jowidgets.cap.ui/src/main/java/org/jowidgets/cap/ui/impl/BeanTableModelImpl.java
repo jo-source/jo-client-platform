@@ -1606,7 +1606,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			return builder.build();
 		}
 		else {
-			return null;
+			return addedDataFilter;
 		}
 	}
 
