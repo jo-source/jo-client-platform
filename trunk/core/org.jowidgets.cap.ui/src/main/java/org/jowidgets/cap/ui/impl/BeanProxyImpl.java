@@ -201,6 +201,11 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 	}
 
 	@Override
+	public Class<? extends BEAN_TYPE> getBeanType() {
+		return beanType;
+	}
+
+	@Override
 	public Object getId() {
 		checkDisposed();
 		return beanDto.getId();
