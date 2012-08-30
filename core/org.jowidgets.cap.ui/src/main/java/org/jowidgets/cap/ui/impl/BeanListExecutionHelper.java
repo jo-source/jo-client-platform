@@ -152,7 +152,7 @@ final class BeanListExecutionHelper<BEAN_TYPE> {
 			final Iterator<IBeanProxy<BEAN_TYPE>> sourceIterator = executedBeans.iterator();
 			final Iterator<IBeanDto> resultIterator = result.iterator();
 			while (sourceIterator.hasNext()) {
-				sourceIterator.next().updateTransient(resultIterator.next());
+				sourceIterator.next().update(resultIterator.next());
 			}
 		}
 	}

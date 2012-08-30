@@ -180,22 +180,13 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 
 		dialog.setVisible(true);
 		if (dialog.isOkPressed()) {
-			createBean(executionContext, createUnmodifiedBean(bean));
+			createBean(executionContext, bean.createUnmodifiedCopy());
 		}
 		else {
 			executionObservable.fireAfterExecutionCanceled(executionContext);
 		}
 		dialogBounds = dialog.getBounds();
 		dialog.dispose();
-	}
-
-	private IBeanProxy<BEAN_TYPE> createUnmodifiedBean(final IBeanProxy<BEAN_TYPE> proxy) {
-		final IBeanProxy<BEAN_TYPE> result = beanFactory.createProxy(proxy, attributes);
-		result.setTransient(true);
-		for (final IBeanPropertyValidator<BEAN_TYPE> validator : beanPropertyValidators) {
-			result.addBeanPropertyValidator(validator);
-		}
-		return result;
 	}
 
 	private void createBean(final IExecutionContext executionContext, final IBeanProxy<BEAN_TYPE> bean) {
@@ -251,7 +242,7 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 		protected void finishedUi(final List<IBeanDto> result) {
 			if (!EmptyCheck.isEmpty(result)) {
 				bean.setExecutionTask(null);
-				bean.updateTransient(result.get(0));
+				bean.update(result.get(0));
 				model.fireBeansChanged();
 				executionObservable.fireAfterExecutionSuccess(executionContext, result);
 			}

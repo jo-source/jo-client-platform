@@ -38,6 +38,7 @@ import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
 import org.jowidgets.cap.ui.api.bean.IBeanKeyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeanMessageBuilder;
 import org.jowidgets.cap.ui.api.bean.IBeanMessageFixBuilder;
+import org.jowidgets.cap.ui.api.bean.IBeanProxyContext;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyLabelRenderer;
 import org.jowidgets.cap.ui.api.bean.IBeansStateTracker;
@@ -94,6 +95,8 @@ public interface ICapUiToolkit {
 	<BEAN_TYPE> IBeansStateTracker<BEAN_TYPE> beansStateTracker();
 
 	<BEAN_TYPE> IBeanProxyFactory<BEAN_TYPE> beanProxyFactory(Class<? extends BEAN_TYPE> beanType);
+
+	IBeanProxyContext beanProxyContext();
 
 	IBeanKeyFactory beanKeyFactory();
 

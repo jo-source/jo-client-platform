@@ -114,6 +114,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 	private final List<IBeanMessage> messagesList;
 	private final IUiThreadAccess uiThreadAccess;
 	private final ValidationCache validationCache;
+	private final boolean isDummy;
 
 	private Map<String, IAttribute<Object>> lazyAttributesMap;
 	private IExecutionTask executionTask;
@@ -121,7 +122,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 	private String lastProgress;
 	private IBeanDto beanDto;
 	private BEAN_TYPE proxy;
-	private boolean isDummy;
+
 	private boolean disposed;
 
 	@SuppressWarnings("unchecked")
@@ -129,6 +130,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 		final IBeanDto beanDto,
 		final Class<? extends BEAN_TYPE> beanType,
 		final Collection<? extends IAttribute<?>> attributes,
+		final boolean isDummy,
 		final boolean isTransient) {
 		Assert.paramNotNull(beanDto, "beanDto");
 		Assert.paramNotNull(beanType, "beanType");
@@ -143,6 +145,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 		this.disposed = false;
 		this.beanDto = beanDto;
 		this.beanType = beanType;
+		this.isDummy = isDummy;
 		this.isTransient = isTransient;
 		this.modifications = new HashMap<String, IBeanModification>();
 		this.customProperties = new HashMap<ITypedKey<? extends Object>, Object>();
@@ -193,11 +196,30 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 
 	@Override
 	public IBeanProxy<BEAN_TYPE> createCopy() {
-		final IBeanProxy<BEAN_TYPE> result = new BeanProxyImpl<BEAN_TYPE>(beanDto, beanType, attributes, isTransient);
+		final IBeanProxy<BEAN_TYPE> result = new BeanProxyImpl<BEAN_TYPE>(beanDto, beanType, attributes, isDummy, isTransient);
 		for (final IBeanModification modification : modifications.values()) {
 			result.setValue(modification.getPropertyName(), modification.getNewValue());
 		}
+		setValidators(result);
 		return result;
+	}
+
+	@Override
+	public IBeanProxy<BEAN_TYPE> createUnmodifiedCopy() {
+		final BeanProxyImpl<BEAN_TYPE> result = new BeanProxyImpl<BEAN_TYPE>(this, beanType, attributes, isDummy, isTransient);
+		setValidators(result);
+		return result;
+	}
+
+	private void setValidators(final IBeanProxy<BEAN_TYPE> bean) {
+		for (final IBeanPropertyValidator<BEAN_TYPE> validator : independentBeanPropertyValidators) {
+			bean.addBeanPropertyValidator(validator);
+		}
+		for (final Entry<String, Set<IBeanPropertyValidator<BEAN_TYPE>>> entry : dependendBeanPropertyValidators.entrySet()) {
+			for (final IBeanPropertyValidator<BEAN_TYPE> validator : entry.getValue()) {
+				bean.addBeanPropertyValidator(validator);
+			}
+		}
 	}
 
 	@Override
@@ -279,19 +301,17 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 			throw new IllegalArgumentException("The given parameter 'beanDto' must have the same id and type than this proxy");
 		}
 		fireBeforeBeanUpdate();
-		updateImpl(beanDto);
+		if (isTransient) {
+			updateTransient(beanDto);
+		}
+		else {
+			updateImpl(beanDto);
+		}
 	}
 
-	@Override
-	public void updateTransient(final IBeanDto beanDto) {
-		checkDisposed();
-		Assert.paramNotNull(beanDto, "beanDto");
-		if (!isTransient) {
-			throw new IllegalStateException("This bean is not transient");
-		}
+	private void updateTransient(final IBeanDto beanDto) {
 		final Object oldId = getId();
-		fireBeforeBeanUpdate();
-		setTransient(false);
+		this.isTransient = false;
 		updateImpl(beanDto);
 		transientStateObservable.fireTransientStateChanged(oldId, this);
 	}
@@ -357,6 +377,16 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 			}
 		}
 		return builder.build();
+	}
+
+	@Override
+	public IBeanDto getBeanDto() {
+		if (beanDto instanceof IBeanProxy<?>) {
+			return ((IBeanProxy<?>) beanDto).getBeanDto();
+		}
+		else {
+			return beanDto;
+		}
 	}
 
 	@Override
@@ -930,21 +960,9 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 	}
 
 	@Override
-	public void setTransient(final boolean isTransient) {
-		checkDisposed();
-		this.isTransient = isTransient;
-	}
-
-	@Override
 	public boolean isTransient() {
 		checkDisposed();
 		return isTransient;
-	}
-
-	@Override
-	public void setDummy(final boolean dummy) {
-		checkDisposed();
-		this.isDummy = dummy;
 	}
 
 	@Override
@@ -1218,17 +1236,17 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 		if (obj == null) {
 			return false;
 		}
+		else if (obj instanceof IBeanProxy<?>) {
+			if (beanDto.getId() != null) {
+				return beanDto.equals(((IBeanProxy<?>) obj).getBeanDto());
+			}
+		}
 		else if (obj instanceof IBeanDto) {
 			if (beanDto.getId() != null) {
-				return beanDto.getId().equals(((IBeanDto) obj).getId());
-			}
-			else {
-				return this == obj;
+				return beanDto.equals(obj);
 			}
 		}
-		else {
-			return false;
-		}
+		return false;
 	}
 
 }
