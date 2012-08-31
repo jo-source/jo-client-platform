@@ -62,6 +62,8 @@ public interface IBeanRelationNodeModel<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> exten
 	 */
 	boolean loadIfNotYetDone();
 
+	boolean hasInitialLoad();
+
 	void loadNextPage();
 
 	void load(IResultCallback<Void> resultCallback);

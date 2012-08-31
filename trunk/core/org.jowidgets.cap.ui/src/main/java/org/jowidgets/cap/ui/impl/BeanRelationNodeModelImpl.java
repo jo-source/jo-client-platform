@@ -461,6 +461,11 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 	}
 
 	@Override
+	public boolean hasInitialLoad() {
+		return hasInitialLoad;
+	}
+
+	@Override
 	public void load() {
 		load(new ResultCallbackAdapter<Void>());
 	}
