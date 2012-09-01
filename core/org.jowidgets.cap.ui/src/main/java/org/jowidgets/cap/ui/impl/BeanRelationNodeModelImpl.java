@@ -73,7 +73,6 @@ import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyLabelRenderer;
 import org.jowidgets.cap.ui.api.bean.IBeanSelection;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionListener;
-import org.jowidgets.cap.ui.api.bean.IBeanTransientStateListener;
 import org.jowidgets.cap.ui.api.bean.IBeansStateTracker;
 import org.jowidgets.cap.ui.api.execution.BeanExecutionPolicy;
 import org.jowidgets.cap.ui.api.execution.IExecutionTask;
@@ -132,7 +131,6 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 	private final Map<String, Object> defaultValues;
 	private final IBeanExceptionConverter exceptionConverter;
 	private final IBeanProxyContext beanProxyContext;
-	private final IBeanTransientStateListener<CHILD_BEAN_TYPE> beanTransientStateListener;
 
 	private final BeanListModelObservable<CHILD_BEAN_TYPE> beanListModelObservable;
 	private final BeanSelectionObservable<CHILD_BEAN_TYPE> beanSelectionObservable;
@@ -198,9 +196,6 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 		this.creatorService = creatorService;
 		this.childBeanAttributes = Collections.unmodifiableList(new LinkedList<IAttribute<Object>>(childBeanAttributes));
 		this.exceptionConverter = exceptionConverter;
-		this.beanProxyContext = beanProxyContext;
-
-		this.beanTransientStateListener = new BeanTransientStateListener();
 
 		this.beanPropertyValidators = new LinkedList<IBeanPropertyValidator<CHILD_BEAN_TYPE>>();
 		beanPropertyValidators.add(new BeanPropertyValidatorImpl<CHILD_BEAN_TYPE>(childBeanAttributes));
@@ -213,7 +208,8 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 
 		this.beanListModelObservable = new BeanListModelObservable<CHILD_BEAN_TYPE>();
 		this.beanSelectionObservable = new BeanSelectionObservable<CHILD_BEAN_TYPE>();
-		this.beanStateTracker = CapUiToolkit.beansStateTracker();
+		this.beanProxyContext = beanProxyContext;
+		this.beanStateTracker = CapUiToolkit.beansStateTracker(beanProxyContext);
 		this.beanProxyFactory = CapUiToolkit.beanProxyFactory(childBeanType);
 		this.filters = new HashMap<String, IUiFilter>();
 
@@ -282,24 +278,10 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 
 	@Override
 	public void dispose() {
-		unregisterBeansFromContext();
 		beanStateTracker.dispose();
 		beanListModelObservable.dispose();
 		beanSelectionObservable.dispose();
 		tryToCanceLoader();
-	}
-
-	private void unregisterBeansFromContext() {
-		for (final IBeanProxy<CHILD_BEAN_TYPE> addedBean : data) {
-			if (addedBean != null) {
-				beanProxyContext.unregisterBean(addedBean, this);
-			}
-		}
-		for (final IBeanProxy<CHILD_BEAN_TYPE> addedBean : addedData) {
-			if (addedBean != null) {
-				beanProxyContext.unregisterBean(addedBean, this);
-			}
-		}
 	}
 
 	@Override
@@ -436,12 +418,10 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 		}
 		tryToCanceLoader();
 		for (final IBeanProxy<CHILD_BEAN_TYPE> bean : data) {
-			beanProxyContext.unregisterBean(bean, this);
 			beanStateTracker.unregister(bean);
 		}
 		data.clear();
 		for (final IBeanProxy<CHILD_BEAN_TYPE> bean : addedData) {
-			beanProxyContext.unregisterBean(bean, this);
 			beanStateTracker.unregister(bean);
 		}
 		addedData.clear();
@@ -506,9 +486,6 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 		final Set<IBeanProxy<CHILD_BEAN_TYPE>> beansToCreate = beanStateTracker.getBeansToCreate();
 		final boolean beansChanged;
 		if (!beansToCreate.isEmpty()) {
-			for (final IBeanProxy<CHILD_BEAN_TYPE> beanToCreate : beansToCreate) {
-				beanToCreate.removeTransientStateListener(beanTransientStateListener);
-			}
 			removeBeansImpl(beansToCreate, false);
 			beansChanged = true;
 		}
@@ -614,7 +591,6 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 		tryToCanceLoader();
 
 		for (final IBeanProxy<CHILD_BEAN_TYPE> bean : beans) {
-			beanProxyContext.unregisterBean(bean, this);
 			beanStateTracker.unregister(bean);
 			data.remove(bean);
 			addedData.remove(bean);
@@ -630,10 +606,9 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 	@Override
 	public void addBean(final IBeanProxy<CHILD_BEAN_TYPE> bean) {
 		Assert.paramNotNull(bean, "bean");
-		final IBeanProxy<CHILD_BEAN_TYPE> registeredBean = beanProxyContext.registerBean(bean, this);
-		beanStateTracker.register(registeredBean);
-		addedData.add(registeredBean);
-		beanListModelObservable.fireBeansAdded(registeredBean);
+		beanStateTracker.register(bean);
+		addedData.add(bean);
+		beanListModelObservable.fireBeansAdded(bean);
 		fireBeansChanged();
 	}
 
@@ -651,7 +626,6 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 			result.addBeanPropertyValidator(validator);
 		}
 		addBean(result);
-		result.addTransientStateListener(beanTransientStateListener);
 		return result;
 	}
 
@@ -660,7 +634,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 		for (final IBeanPropertyValidator<CHILD_BEAN_TYPE> validator : beanPropertyValidators) {
 			beanProxy.addBeanPropertyValidator(validator);
 		}
-		return beanProxyContext.registerBean(beanProxy, this);
+		return beanProxy;
 	}
 
 	@Override
@@ -841,14 +815,6 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 			+ "]";
 	}
 
-	private final class BeanTransientStateListener implements IBeanTransientStateListener<CHILD_BEAN_TYPE> {
-		@Override
-		public void transientStateChanged(final Object oldId, final IBeanProxy<CHILD_BEAN_TYPE> newBean) {
-			beanProxyContext.registerBean(newBean, BeanRelationNodeModelImpl.this);
-			newBean.removeTransientStateListener(beanTransientStateListener);
-		}
-	}
-
 	private class DataLoader {
 
 		private final IResultCallback<Void> resultCallback;
@@ -873,12 +839,10 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 		void loadData() {
 			if (clearData) {
 				for (final IBeanProxy<CHILD_BEAN_TYPE> bean : data) {
-					beanProxyContext.unregisterBean(bean, BeanRelationNodeModelImpl.this);
 					beanStateTracker.unregister(bean);
 				}
 				data.clear();
 				for (final IBeanProxy<CHILD_BEAN_TYPE> bean : addedData) {
-					beanProxyContext.unregisterBean(bean, BeanRelationNodeModelImpl.this);
 					beanStateTracker.unregister(bean);
 				}
 				addedData.clear();

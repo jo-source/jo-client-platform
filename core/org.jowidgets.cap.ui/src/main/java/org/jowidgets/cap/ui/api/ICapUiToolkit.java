@@ -94,6 +94,8 @@ public interface ICapUiToolkit {
 
 	<BEAN_TYPE> IBeansStateTracker<BEAN_TYPE> beansStateTracker();
 
+	<BEAN_TYPE> IBeansStateTracker<BEAN_TYPE> beansStateTracker(IBeanProxyContext context);
+
 	<BEAN_TYPE> IBeanProxyFactory<BEAN_TYPE> beanProxyFactory(Class<? extends BEAN_TYPE> beanType);
 
 	IBeanProxyContext beanProxyContext();

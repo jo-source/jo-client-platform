@@ -28,65 +28,197 @@
 
 package org.jowidgets.cap.ui.impl;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
+import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyContext;
+import org.jowidgets.cap.ui.tools.bean.BeanProxyListenerAdapter;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.Tuple;
 
 final class BeanProxyContextImpl implements IBeanProxyContext {
 
-	private final Map<IBeanProxy<?>, Tuple<IBeanProxy<?>, List<Object>>> beans;
+	private final Map<IBeanDto, Tuple<PresentationModel, Set<Object>>> presentationModels;
 
 	BeanProxyContextImpl() {
-		this.beans = new HashMap<IBeanProxy<?>, Tuple<IBeanProxy<?>, List<Object>>>();
+		this.presentationModels = new HashMap<IBeanDto, Tuple<PresentationModel, Set<Object>>>();
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public <BEAN_TYPE> IBeanProxy<BEAN_TYPE> registerBean(final IBeanProxy<BEAN_TYPE> bean, final Object owner) {
+	public void registerBean(final IBeanProxy<?> bean, final Object owner) {
 		Assert.paramNotNull(bean, "bean");
 		Assert.paramNotNull(owner, "owner");
 		if (!bean.isTransient() && !bean.isDummy()) {
-			Tuple<IBeanProxy<?>, List<Object>> registeredBeanTuple = beans.get(bean);
-			if (registeredBeanTuple == null) {
-				final List<Object> owners = new LinkedList<Object>();
+			Tuple<PresentationModel, Set<Object>> presentationModelTuple = presentationModels.get(bean.getBeanDto());
+			if (presentationModelTuple == null) {
+				final Set<Object> owners = new LinkedHashSet<Object>();
 				owners.add(owner);
-				registeredBeanTuple = new Tuple<IBeanProxy<?>, List<Object>>(bean, owners);
-				beans.put(bean, registeredBeanTuple);
+				final PresentationModel presentationModel = new PresentationModel(bean);
+				presentationModelTuple = new Tuple<PresentationModel, Set<Object>>(presentationModel, owners);
+				presentationModels.put(bean.getBeanDto(), presentationModelTuple);
 			}
 			else {
-				final IBeanProxy<?> registeredBean = registeredBeanTuple.getFirst();
-				if (!registeredBean.hasModifications()) {
-					registeredBean.update(bean.getBeanDto());
-				}
+				final PresentationModel presentationModel = presentationModelTuple.getFirst();
+				presentationModel.bind(bean);
+				presentationModelTuple.getSecond().add(owner);
 			}
-			return (IBeanProxy<BEAN_TYPE>) registeredBeanTuple.getFirst();
 		}
-		return bean;
 	}
 
 	@Override
 	public void unregisterBean(final IBeanProxy<?> bean, final Object owner) {
 		Assert.paramNotNull(bean, "bean");
 		Assert.paramNotNull(owner, "owner");
-		final Tuple<IBeanProxy<?>, List<Object>> registeredBeanTuple = beans.get(bean);
-		if (registeredBeanTuple != null) {
-			final List<Object> owners = registeredBeanTuple.getSecond();
+		final Tuple<PresentationModel, Set<Object>> presentationModelTuple = presentationModels.get(bean.getBeanDto());
+		if (presentationModelTuple != null) {
+			final PresentationModel presentationModel = presentationModelTuple.getFirst();
+			presentationModel.unbind(bean);
+			final Set<Object> owners = presentationModelTuple.getSecond();
 			owners.remove(owner);
 			if (owners.size() == 0) {
-				beans.remove(bean);
+				presentationModels.remove(bean.getBeanDto());
 			}
 		}
 	}
 
 	@Override
-	public void clear() {
-		beans.clear();
+	public boolean isMaster(final IBeanProxy<?> bean, final Object owner) {
+		Assert.paramNotNull(bean, "bean");
+		Assert.paramNotNull(owner, "owner");
+		final Tuple<PresentationModel, Set<Object>> presentationModelTuple = presentationModels.get(bean.getBeanDto());
+		if (presentationModelTuple != null) {
+			final Set<Object> owners = presentationModelTuple.getSecond();
+			if (owners.size() > 0) {
+				if (owners.iterator().next() == owner) {
+					return true;
+				}
+				else {
+					return false;
+				}
+			}
+		}
+		return true;
 	}
 
+	private static final class PresentationModel {
+
+		private final Set<BeanProxyInstance> boundBeans;
+		private final BindingListener bindingListener;
+		private final UpdateListener updateListener;
+
+		private PresentationModel(final IBeanProxy<?> beanProxy) {
+			this.boundBeans = new LinkedHashSet<BeanProxyInstance>();
+			this.bindingListener = new BindingListener();
+			this.updateListener = new UpdateListener();
+			bind(beanProxy);
+		}
+
+		@SuppressWarnings({"unchecked", "rawtypes"})
+		private void bind(final IBeanProxy bean) {
+			for (final BeanProxyInstance boundBeanInstance : boundBeans) {
+				final IBeanProxy boundBean = boundBeanInstance.getInstance();
+				if (bean != boundBean) {
+					if (!boundBean.hasModifications()) {
+						boundBean.removePropertyChangeListener(bindingListener);
+						boundBean.removeBeanProxyListener(updateListener);
+						boundBean.update(bean.getBeanDto());
+						boundBean.addBeanProxyListener(updateListener);
+						boundBean.addPropertyChangeListener(bindingListener);
+					}
+					else {
+						bean.update(boundBean.getBeanDto());
+						bean.setModifications(boundBean.getModifications());
+					}
+				}
+			}
+			boundBeans.add(new BeanProxyInstance(bean));
+			bean.addPropertyChangeListener(bindingListener);
+			bean.addBeanProxyListener(updateListener);
+		}
+
+		@SuppressWarnings({"unchecked", "rawtypes"})
+		private void unbind(final IBeanProxy bean) {
+			boundBeans.remove(bean);
+			bean.removePropertyChangeListener(bindingListener);
+			bean.addBeanProxyListener(updateListener);
+		}
+
+		private final class BindingListener implements PropertyChangeListener {
+			@Override
+			public void propertyChange(final PropertyChangeEvent event) {
+				for (final BeanProxyInstance boundBeanInstance : boundBeans) {
+					final IBeanProxy<?> bean = boundBeanInstance.getInstance();
+					if (bean != event.getSource()) {
+						bean.removePropertyChangeListener(bindingListener);
+						bean.setValue(event.getPropertyName(), event.getNewValue());
+						bean.addPropertyChangeListener(bindingListener);
+					}
+				}
+			}
+		}
+
+		private final class UpdateListener extends BeanProxyListenerAdapter<Object> {
+
+			@Override
+			public void beforeBeanUpdate(final IBeanProxy<Object> bean) {
+				for (final BeanProxyInstance boundBeanInstance : boundBeans) {
+					final IBeanProxy<?> boundBean = boundBeanInstance.getInstance();
+					boundBean.removePropertyChangeListener(bindingListener);
+				}
+			}
+
+			@SuppressWarnings({"unchecked", "rawtypes"})
+			@Override
+			public void afterBeanUpdated(final IBeanProxy<Object> bean) {
+				for (final BeanProxyInstance boundBeanInstance : boundBeans) {
+					final IBeanProxy boundBean = boundBeanInstance.getInstance();
+					if (boundBean != bean) {
+						boundBean.removeBeanProxyListener(updateListener);
+						boundBean.update(bean.getBeanDto());
+						boundBean.addBeanProxyListener(updateListener);
+					}
+					boundBean.addPropertyChangeListener(bindingListener);
+				}
+			}
+		}
+	}
+
+	private static final class BeanProxyInstance {
+
+		private final IBeanProxy<?> instance;
+
+		private BeanProxyInstance(final IBeanProxy<?> instance) {
+			this.instance = instance;
+		}
+
+		IBeanProxy<?> getInstance() {
+			return instance;
+		}
+
+		@Override
+		public int hashCode() {
+			return instance.hashCode();
+		}
+
+		@Override
+		public boolean equals(final Object obj) {
+			if (this == obj) {
+				return true;
+			}
+			if (obj == null) {
+				return false;
+			}
+			if (BeanProxyInstance.class.isAssignableFrom(obj.getClass())) {
+				return instance == ((BeanProxyInstance) obj).instance;
+			}
+			return false;
+		}
+
+	}
 }

@@ -66,6 +66,7 @@ import org.jowidgets.cap.ui.api.bean.IBeanMessage;
 import org.jowidgets.cap.ui.api.bean.IBeanMessageBuilder;
 import org.jowidgets.cap.ui.api.bean.IBeanPropertyValidator;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
+import org.jowidgets.cap.ui.api.bean.IBeanProxyContext;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyLabelRenderer;
 import org.jowidgets.cap.ui.api.bean.IBeanSelection;
@@ -173,7 +174,8 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 		final LinkType linkType,
 		final Long listenerDelay,
 		final boolean clearOnEmptyFilter,
-		final boolean clearOnEmptyParentBeans) {
+		final boolean clearOnEmptyParentBeans,
+		final IBeanProxyContext beanProxyContext) {
 
 		//arguments checks
 		Assert.paramNotNull(interceptors, "interceptors");
@@ -232,7 +234,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 		this.sortModel = new SortModelImpl();
 		this.sortModelChangeListener = new SortModelChangeListener();
 		this.disposed = false;
-		this.beansStateTracker = CapUiToolkit.beansStateTracker();
+		this.beansStateTracker = CapUiToolkit.beansStateTracker(beanProxyContext);
 		this.beanProxyFactory = CapUiToolkit.beanProxyFactory(beanType);
 		this.beanListModelObservable = new BeanListModelObservable<BEAN_TYPE>();
 		this.beanSelectionObservable = new BeanSelectionObservable<BEAN_TYPE>();

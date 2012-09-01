@@ -42,6 +42,8 @@ public interface IBeansStateTracker<BEAN_TYPE> extends IValidateable, IModificat
 
 	Set<IBeanProxy<BEAN_TYPE>> getBeansToUpdate();
 
+	Set<IBeanProxy<BEAN_TYPE>> getMasterBeansToUpdate();
+
 	Set<IBeanProxy<BEAN_TYPE>> getBeansToCreate();
 
 	boolean hasBeansToUpdate();
