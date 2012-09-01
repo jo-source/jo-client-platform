@@ -32,15 +32,12 @@ public interface IBeanProxyContext {
 
 	/**
 	 * Registers a bean to the context for a specific owner. If the bean already exists in the context,
-	 * the existing bean will be updated and returned, else the given bean will be returned.
+	 * the bean will be bound to the bean in the context
 	 * 
 	 * @param bean The bean to add
 	 * @param owner The owner of the bean
-	 * 
-	 * @return The added bean, if the bean not exists in the context before. If the bean was already added, the previous added and
-	 *         updated bean will be returned
 	 */
-	<BEAN_TYPE> IBeanProxy<BEAN_TYPE> registerBean(IBeanProxy<BEAN_TYPE> bean, Object owner);
+	void registerBean(IBeanProxy<?> bean, Object owner);
 
 	/**
 	 * Unregisters a bean for a specific owner. If the owner was the last owner that has been registered the bean, the
@@ -52,7 +49,13 @@ public interface IBeanProxyContext {
 	void unregisterBean(IBeanProxy<?> bean, Object owner);
 
 	/**
-	 * Clears the context, so all cached beans will not be referenced any more
+	 * Returns true, if the given owner is the master of the bean. Only one owner can be the master.
+	 * The master owner will be determined in that order, the beans has been registered.
+	 * 
+	 * @param owner The owner to check if it is the master
+	 * 
+	 * @return True if the given owner is the master, false otherwise
 	 */
-	void clear();
+	boolean isMaster(IBeanProxy<?> bean, Object owner);
+
 }

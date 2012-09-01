@@ -163,7 +163,7 @@ final class BeanListSaveDelegate<BEAN_TYPE> {
 	}
 
 	private void update() {
-		final Set<IBeanProxy<BEAN_TYPE>> modifiedBeans = beansStateTracker.getBeansToUpdate();
+		final Set<IBeanProxy<BEAN_TYPE>> modifiedBeans = beansStateTracker.getMasterBeansToUpdate();
 		if (!EmptyCheck.isEmpty(modifiedBeans)) {
 			if (updaterService == null) {
 				throw new IllegalStateException("No updater service set. Could not update modfied beans");

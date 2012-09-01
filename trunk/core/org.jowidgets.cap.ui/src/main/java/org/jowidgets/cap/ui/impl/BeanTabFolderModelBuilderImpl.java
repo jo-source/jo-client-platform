@@ -123,7 +123,8 @@ final class BeanTabFolderModelBuilderImpl<BEAN_TYPE> extends
 			getLinkType(),
 			getListenerDelay(),
 			clearOnEmptyFilter,
-			getClearOnEmptyParentBeans());
+			getClearOnEmptyParentBeans(),
+			getBeanProxyContext());
 	}
 
 }

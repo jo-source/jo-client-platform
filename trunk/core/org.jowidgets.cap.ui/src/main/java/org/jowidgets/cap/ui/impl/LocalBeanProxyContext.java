@@ -28,35 +28,29 @@
 
 package org.jowidgets.cap.ui.impl;
 
-import org.jowidgets.cap.ui.api.model.ISingleBeanModel;
-import org.jowidgets.cap.ui.api.model.ISingleBeanModelBuilder;
+import org.jowidgets.cap.ui.api.bean.IBeanProxy;
+import org.jowidgets.cap.ui.api.bean.IBeanProxyContext;
+import org.jowidgets.util.Assert;
 
-public class SingleBeanModelBuilder<BEAN_TYPE> extends
-		AbstractBeanModelBuilderImpl<BEAN_TYPE, ISingleBeanModelBuilder<BEAN_TYPE>> implements ISingleBeanModelBuilder<BEAN_TYPE> {
+final class LocalBeanProxyContext implements IBeanProxyContext {
 
-	SingleBeanModelBuilder(final Object entityId, final Class<BEAN_TYPE> beanType) {
-		super(entityId, beanType);
-		setMetaAttributes(new String[0]);
+	@Override
+	public void registerBean(final IBeanProxy<?> bean, final Object owner) {
+		Assert.paramNotNull(bean, "bean");
+		Assert.paramNotNull(owner, "owner");
 	}
 
 	@Override
-	public ISingleBeanModel<BEAN_TYPE> build() {
-		return new SingleBeanModelImpl<BEAN_TYPE>(
-			getBeanType(),
-			getEntityId(),
-			getReaderService(),
-			getReaderParameterProvider(),
-			getCreatorService(),
-			getRefreshService(),
-			getUpdaterService(),
-			getDeleterService(),
-			getExceptionConverter(),
-			getBeanValidators(),
-			getParent(),
-			getLinkType(),
-			getListenerDelay(),
-			getAttributes(),
-			getBeanProxyContext());
+	public void unregisterBean(final IBeanProxy<?> bean, final Object owner) {
+		Assert.paramNotNull(bean, "bean");
+		Assert.paramNotNull(owner, "owner");
+	}
+
+	@Override
+	public boolean isMaster(final IBeanProxy<?> bean, final Object owner) {
+		Assert.paramNotNull(bean, "bean");
+		Assert.paramNotNull(owner, "owner");
+		return true;
 	}
 
 }

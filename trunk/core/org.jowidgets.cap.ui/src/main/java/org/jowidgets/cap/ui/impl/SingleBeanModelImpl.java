@@ -63,6 +63,7 @@ import org.jowidgets.cap.ui.api.bean.IBeanMessage;
 import org.jowidgets.cap.ui.api.bean.IBeanMessageBuilder;
 import org.jowidgets.cap.ui.api.bean.IBeanPropertyValidator;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
+import org.jowidgets.cap.ui.api.bean.IBeanProxyContext;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeanSelection;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionListener;
@@ -139,7 +140,8 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 		final IBeanSelectionProvider<Object> parent,
 		final LinkType linkType,
 		final Long listenerDelay,
-		List<IAttribute<Object>> attributes) {
+		List<IAttribute<Object>> attributes,
+		final IBeanProxyContext beanProxyContext) {
 
 		Assert.paramNotNull(beanType, "beanType");
 		Assert.paramNotNull(entityId, "entityId");
@@ -192,7 +194,7 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 		this.parent = parent;
 		this.linkType = linkType;
 
-		this.beansStateTracker = CapUiToolkit.beansStateTracker();
+		this.beansStateTracker = CapUiToolkit.beansStateTracker(beanProxyContext);
 		this.beanProxyFactory = CapUiToolkit.beanProxyFactory(beanType);
 
 		this.changeObservable = new ChangeObservable();
