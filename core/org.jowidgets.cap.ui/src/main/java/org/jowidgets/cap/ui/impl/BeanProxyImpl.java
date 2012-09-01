@@ -158,7 +158,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 		this.messageStateObservable = new BeanMessageStateObservable<BEAN_TYPE>();
 		this.validationStateObservable = new BeanValidationStateObservable<BEAN_TYPE>();
 		this.beanProxyListeners = new LinkedHashSet<IBeanProxyListener<BEAN_TYPE>>();
-		this.independentBeanPropertyValidators = new HashSet<IBeanPropertyValidator<BEAN_TYPE>>();
+		this.independentBeanPropertyValidators = new LinkedHashSet<IBeanPropertyValidator<BEAN_TYPE>>();
 		this.dependendBeanPropertyValidators = new LinkedHashMap<String, Set<IBeanPropertyValidator<BEAN_TYPE>>>();
 		this.externalValidators = new LinkedHashMap<String, Set<IExternalBeanValidator>>();
 		this.validationResults = new HashMap<String, IValidationResult>();
@@ -783,7 +783,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 	private Set<IBeanPropertyValidator<BEAN_TYPE>> getDependentBeanPropertyValidators(final String propertyName) {
 		Set<IBeanPropertyValidator<BEAN_TYPE>> result = dependendBeanPropertyValidators.get(propertyName);
 		if (result == null) {
-			result = new HashSet<IBeanPropertyValidator<BEAN_TYPE>>();
+			result = new LinkedHashSet<IBeanPropertyValidator<BEAN_TYPE>>();
 			dependendBeanPropertyValidators.put(propertyName, result);
 		}
 		return result;
