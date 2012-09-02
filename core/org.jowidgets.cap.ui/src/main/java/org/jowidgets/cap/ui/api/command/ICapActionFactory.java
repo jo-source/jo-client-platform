@@ -35,6 +35,10 @@ import org.jowidgets.cap.ui.api.model.IBeanListModel;
 
 public interface ICapActionFactory {
 
+	IPasswordChangeActionBuilder passwordChangeActionBuilder();
+
+	IAction passwordChangeAction();
+
 	IDataModelAction dataModelLoadAction();
 
 	IDataModelActionBuilder dataModelLoadActionBuilder();

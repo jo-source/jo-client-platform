@@ -40,6 +40,7 @@ import org.jowidgets.cap.ui.api.command.IDeleterActionBuilder;
 import org.jowidgets.cap.ui.api.command.IExecutorActionBuilder;
 import org.jowidgets.cap.ui.api.command.ILinkCreatorActionBuilder;
 import org.jowidgets.cap.ui.api.command.ILinkDeleterActionBuilder;
+import org.jowidgets.cap.ui.api.command.IPasswordChangeActionBuilder;
 import org.jowidgets.cap.ui.api.command.IRefreshLookUpsActionBuilder;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.common.types.Modifier;
@@ -47,6 +48,16 @@ import org.jowidgets.common.types.Modifier;
 final class CapActionFactoryImpl implements ICapActionFactory {
 
 	CapActionFactoryImpl() {}
+
+	@Override
+	public IPasswordChangeActionBuilder passwordChangeActionBuilder() {
+		return new PasswordChangeActionBuilderImpl();
+	}
+
+	@Override
+	public IAction passwordChangeAction() {
+		return passwordChangeActionBuilder().build();
+	}
 
 	@Override
 	public IDataModelAction dataModelSaveAction() {
