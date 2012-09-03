@@ -52,7 +52,6 @@ import org.jowidgets.api.command.IActionBuilderFactory;
 import org.jowidgets.api.command.ICommandAction;
 import org.jowidgets.api.command.ICommandExecutor;
 import org.jowidgets.api.command.IExecutionContext;
-import org.jowidgets.api.image.IconsSmall;
 import org.jowidgets.api.model.item.ICheckedItemModel;
 import org.jowidgets.api.model.item.IToolBarModel;
 import org.jowidgets.api.toolkit.Toolkit;
@@ -66,6 +65,7 @@ import org.jowidgets.cap.ui.api.addons.widgets.IBeanRelationGraph;
 import org.jowidgets.cap.ui.api.addons.widgets.IBeanRelationGraphSetupBuilder;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyLabelRenderer;
+import org.jowidgets.cap.ui.api.icons.CapIcons;
 import org.jowidgets.cap.ui.api.model.ILabelModel;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationNodeModel;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeModel;
@@ -497,7 +497,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		model.addSeparator();
 
 		final IActionBuilder settingsDialogActionBuilder = actionBF.create();
-		settingsDialogActionBuilder.setIcon(IconsSmall.SETTINGS);
+		settingsDialogActionBuilder.setIcon(CapIcons.GRAPH_SETTINGS);
 		settingsDialogActionBuilder.setCommand(new ICommandExecutor() {
 			@Override
 			public void execute(final IExecutionContext executionContext) throws Exception {
@@ -540,7 +540,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		model.addItem(comboBox);
 
 		final ICheckedItemModel checkItemModel = model.addCheckedItem(
-				IconsSmall.NAVIGATION_NEXT_TINY,
+				CapIcons.GRAPH_ANIMATION,
 				Messages.getMessage("BeanRelationGraphImpl.animation.on").get());
 		checkItemModel.setSelected(true);
 		checkItemModel.addItemListener(new IItemStateListener() {
@@ -566,6 +566,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 
 		model.addAction(settingsDialogAction);
 		final ICheckedItemModel edgeCheckedItem = model.addCheckedItem("Edge Label");
+		edgeCheckedItem.setIcon(CapIcons.GRAPH_LETTERING);
 		edgeCheckedItem.setSelected(false);
 		edgeCheckedItem.addItemListener(new IItemStateListener() {
 
@@ -577,6 +578,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 
 		final IActionBuilder screenShotActionBuilder = actionBF.create();
 		screenShotActionBuilder.setText(Messages.getMessage("BeanRelationGraphImpl.screenshot").get());
+		screenShotActionBuilder.setIcon(CapIcons.GRAPH_SNAPSHOT);
 		screenShotActionBuilder.setToolTipText(Messages.getMessage("BeanRelationGraphImpl.copy.in.clipboard").get());
 		screenShotActionBuilder.setCommand(new ICommandExecutor() {
 			@Override

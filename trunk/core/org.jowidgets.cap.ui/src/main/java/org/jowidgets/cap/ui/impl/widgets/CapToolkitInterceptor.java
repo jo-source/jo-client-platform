@@ -28,6 +28,8 @@
 
 package org.jowidgets.cap.ui.impl.widgets;
 
+import java.net.URL;
+
 import org.jowidgets.api.image.IconsSmall;
 import org.jowidgets.api.toolkit.IToolkit;
 import org.jowidgets.api.toolkit.IToolkitInterceptor;
@@ -54,6 +56,7 @@ import org.jowidgets.cap.ui.api.widgets.IExecutionTaskDialogBluePrint;
 import org.jowidgets.cap.ui.api.widgets.ILookUpCollectionInputFieldBluePrint;
 import org.jowidgets.cap.ui.api.widgets.ILookUpComboBoxSelectionBluePrint;
 import org.jowidgets.cap.ui.api.widgets.ISingleBeanFormBluePrint;
+import org.jowidgets.common.image.IImageConstant;
 import org.jowidgets.common.image.IImageRegistry;
 import org.jowidgets.common.widgets.factory.IGenericWidgetFactory;
 
@@ -96,6 +99,15 @@ final class CapToolkitInterceptor implements IToolkitInterceptor {
 		registry.registerImageConstant(CapIcons.TABLE_SETTINGS, IconsSmall.SETTINGS);
 		registry.registerImageConstant(CapIcons.ADD_LINK, IconsSmall.ADD);
 		registry.registerImageConstant(CapIcons.REMOVE_LINK, IconsSmall.SUB);
+		registerImage(registry, CapIcons.GRAPH_ANIMATION, "graph_animation.png");
+		registerImage(registry, CapIcons.GRAPH_LETTERING, "graph_lettering.png");
+		registerImage(registry, CapIcons.GRAPH_SETTINGS, "graph_settings.gif");
+		registerImage(registry, CapIcons.GRAPH_SNAPSHOT, "graph_snapshot.png");
+	}
+
+	private void registerImage(final IImageRegistry registry, final IImageConstant imageConstant, final String relPath) {
+		final URL url = getClass().getClassLoader().getResource("icons/" + relPath);
+		registry.registerImageConstant(imageConstant, url);
 	}
 
 	private void addDefaultsInitializer(final IToolkit toolkit) {
