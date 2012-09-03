@@ -28,12 +28,14 @@
 
 package org.jowidgets.cap.addons.widgets.graph.impl.swt;
 
-import org.jowidgets.addons.bridge.swt.awt.ISwtAwtControl;
-import org.jowidgets.addons.bridge.swt.awt.SwtAwtControlFactory;
+import org.jowidgets.addons.bridge.swt.awt.SwtAwtConverterFactory;
+import org.jowidgets.api.toolkit.Toolkit;
+import org.jowidgets.api.widgets.IComposite;
 import org.jowidgets.cap.addons.widgets.graph.impl.swing.common.SwingGraphFactory;
 import org.jowidgets.cap.ui.api.addons.widgets.IBeanRelationGraph;
 import org.jowidgets.cap.ui.api.addons.widgets.IBeanRelationGraphBluePrint;
 import org.jowidgets.common.widgets.factory.IWidgetFactory;
+import org.jowidgets.tools.widgets.blueprint.BPF;
 
 final class BeanRelationGraphFactory<CHILD_BEAN_TYPE> implements
 		IWidgetFactory<IBeanRelationGraph<CHILD_BEAN_TYPE>, IBeanRelationGraphBluePrint<CHILD_BEAN_TYPE>> {
@@ -42,9 +44,8 @@ final class BeanRelationGraphFactory<CHILD_BEAN_TYPE> implements
 	public IBeanRelationGraph<CHILD_BEAN_TYPE> create(
 		final Object parentUiReference,
 		final IBeanRelationGraphBluePrint<CHILD_BEAN_TYPE> bluePrint) {
-		final ISwtAwtControl swtAwtControl = SwtAwtControlFactory.getInstance().createSwtAwtControl(parentUiReference);
-		return SwingGraphFactory.createBeanRelationGraph(swtAwtControl, swtAwtControl.getAwtContainer(), bluePrint);
-
+		final IComposite composite = Toolkit.getWidgetFactory().create(parentUiReference, BPF.composite());
+		return SwingGraphFactory.createBeanRelationGraph(composite, SwtAwtConverterFactory.createCompositeConverter(), bluePrint);
 	}
 
 }

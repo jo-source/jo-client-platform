@@ -41,13 +41,11 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import javax.swing.ImageIcon;
-import javax.swing.JPanel;
 
 import org.jowidgets.api.command.IActionBuilder;
 import org.jowidgets.api.command.IActionBuilderFactory;
@@ -59,7 +57,6 @@ import org.jowidgets.api.model.item.ICheckedItemModel;
 import org.jowidgets.api.model.item.IToolBarModel;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.widgets.IComposite;
-import org.jowidgets.api.widgets.IControl;
 import org.jowidgets.api.widgets.IFrame;
 import org.jowidgets.api.widgets.IToolBar;
 import org.jowidgets.api.widgets.blueprint.IComboBoxSelectionBluePrint;
@@ -74,18 +71,21 @@ import org.jowidgets.cap.ui.api.tree.IBeanRelationNodeModel;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeModel;
 import org.jowidgets.cap.ui.api.types.IEntityTypeId;
 import org.jowidgets.cap.ui.tools.model.BeanListModelListenerAdapter;
+import org.jowidgets.common.image.IImageConstant;
+import org.jowidgets.common.image.IImageHandle;
+import org.jowidgets.common.types.Dimension;
+import org.jowidgets.common.types.Orientation;
 import org.jowidgets.common.types.Position;
 import org.jowidgets.common.widgets.controller.IInputListener;
 import org.jowidgets.common.widgets.controller.IItemStateListener;
-import org.jowidgets.spi.impl.swing.addons.JoToSwing;
-import org.jowidgets.spi.impl.swing.addons.SwingToJo;
+import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
 import org.jowidgets.spi.impl.swing.common.image.SwingImageRegistry;
 import org.jowidgets.tools.layout.MigLayoutFactory;
 import org.jowidgets.tools.model.item.InputControlItemModel;
 import org.jowidgets.tools.model.item.ToolBarModel;
-import org.jowidgets.tools.powo.JoComposite;
 import org.jowidgets.tools.widgets.blueprint.BPF;
 import org.jowidgets.tools.widgets.wrapper.ControlWrapper;
+import org.jowidgets.util.IConverter;
 
 import prefuse.Constants;
 import prefuse.Display;
@@ -152,6 +152,8 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 
 	private static final Schema DECORATOR_SCHEMA = createDecoratorSchema();
 
+	private final IConverter<IComposite, Container> awtConverter;
+
 	private final IBeanRelationTreeModel<CHILD_BEAN_TYPE> relationTreeModel;
 
 	private final Map<IBeanProxy<Object>, Node> nodeMap;
@@ -161,7 +163,6 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 	private final Visualization vis;
 	private final Graph graph;
 	private final Display display;
-	private final JoComposite jotoolBarPanel;
 
 	private final LabelEdgeLayout labelEdgeLayout;
 	private final ImageFactory imageFactory;
@@ -176,11 +177,12 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 	private ICheckedItemModel nodeCountItem;
 
 	BeanRelationGraphImpl(
-		final IControl control,
-		final Container swingContainer,
+		final IComposite composite,
+		final IConverter<IComposite, Container> awtConverter,
 		final IBeanRelationGraphSetupBuilder<CHILD_BEAN_TYPE, ?> setup) {
-		super(control);
+		super(composite);
 
+		this.awtConverter = awtConverter;
 		relationTreeModel = setup.getModel();
 		nodeMap = new HashMap<IBeanProxy<Object>, Node>();
 		entityGroupMap = new HashMap<Class<Object>, String>();
@@ -266,15 +268,15 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		final ToolTipControl ttc = new ToolTipControl("name");
 		display.addControlListener(ttc);
 
-		final JPanel toolBarPanel = new JPanel();
-		jotoolBarPanel = SwingToJo.create(toolBarPanel);
+		composite.setLayout(new MigLayoutDescriptor("0[grow, 0::]0", "0[][]0[grow, 0::]0"));
+		final IToolBar toolbar = composite.add(BPF.toolBar(), "wrap");
+		composite.add(BPF.separator().setOrientation(Orientation.HORIZONTAL), "growx, w 0::, wrap");
+		final IComposite content = composite.add(BPF.composite(), MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
 
-		final IToolBar toolbar = jotoolBarPanel.add(BPF.toolBar());
-		toolbar.setModel(initToolBar());
+		final Container swingContainer = awtConverter.convert(content);
 
 		swingContainer.setLayout(new BorderLayout());
 		swingContainer.add(display, BorderLayout.CENTER);
-		swingContainer.add(toolBarPanel, BorderLayout.NORTH);
 
 		swingContainer.addHierarchyListener(new HierarchyListener() {
 
@@ -291,6 +293,8 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 				}
 			}
 		});
+
+		toolbar.setModel(initToolBar());
 
 		relationTreeModel.getRoot().addBeanListModelListener(new RootModelListener());
 	}
@@ -431,11 +435,28 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 	}
 
 	private void loadIcon(final Node node, final IBeanProxy<Object> bean, final IBeanProxyLabelRenderer<Object> renderer) {
-
-		final ImageIcon imageIcon = SwingImageRegistry.getInstance().getImageIcon(renderer.getLabel(bean).getIcon());
-		if (imageIcon != null) {
-			imageFactory.addImage(imageIcon.getImage().toString(), imageIcon.getImage());
-			node.set("image", imageIcon.getImage());
+		final IImageConstant icon = renderer.getLabel(bean).getIcon();
+		if (icon != null) {
+			final IImageHandle imageHandle = Toolkit.getImageRegistry().getImageHandle(icon);
+			if (imageHandle != null) {
+				final Object image = imageHandle.getImage();
+				final URL imageUrl = imageHandle.getImageUrl();
+				if (image instanceof Image) {
+					final Image awtImage = (Image) image;
+					imageFactory.addImage(awtImage.toString(), awtImage);
+					node.set("image", awtImage);
+				}
+				else if (imageUrl != null) {
+					IImageHandle awtImageHandle = SwingImageRegistry.getInstance().getImageHandle(icon);
+					if (awtImageHandle == null) {
+						SwingImageRegistry.getInstance().registerImageConstant(icon, imageUrl);
+						awtImageHandle = SwingImageRegistry.getInstance().getImageHandle(icon);
+					}
+					final Image awtImage = (Image) awtImageHandle.getImage();
+					imageFactory.addImage(awtImage.toString(), awtImage);
+					node.set("image", awtImage);
+				}
+			}
 		}
 	}
 
@@ -473,29 +494,6 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		});
 		model.addItem(textField);
 		model.addSeparator();
-
-		final ICheckedItemModel checkItemModel = model.addCheckedItem(
-				IconsSmall.NAVIGATION_NEXT_TINY,
-				Messages.getMessage("BeanRelationGraphImpl.animation.on").get());
-		checkItemModel.setSelected(true);
-		checkItemModel.addItemListener(new IItemStateListener() {
-			private boolean on = true;
-
-			@Override
-			public void itemStateChanged() {
-				if (on) {
-					checkItemModel.setText(Messages.getMessage("BeanRelationGraphImpl.animation.on").get());
-					vis.setValue(NODES, null, VisualItem.FIXED, true);
-					vis.setValue(EDGES, null, VisualItem.FIXED, true);
-				}
-				else {
-					checkItemModel.setText(Messages.getMessage("BeanRelationGraphImpl.animation.off").get());
-					vis.setValue(NODES, null, VisualItem.FIXED, false);
-					vis.setValue(EDGES, null, VisualItem.FIXED, false);
-				}
-				on = !on;
-			}
-		});
 
 		final IActionBuilder settingsDialogActionBuilder = actionBF.create();
 		settingsDialogActionBuilder.setIcon(IconsSmall.SETTINGS);
@@ -537,10 +535,32 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 
 			}
 		});
-
 		comboBox.setValue("ForceDirectedLayout");
-
 		model.addItem(comboBox);
+
+		final ICheckedItemModel checkItemModel = model.addCheckedItem(
+				IconsSmall.NAVIGATION_NEXT_TINY,
+				Messages.getMessage("BeanRelationGraphImpl.animation.on").get());
+		checkItemModel.setSelected(true);
+		checkItemModel.addItemListener(new IItemStateListener() {
+			private boolean on = true;
+
+			@Override
+			public void itemStateChanged() {
+				if (on) {
+					checkItemModel.setText(Messages.getMessage("BeanRelationGraphImpl.animation.on").get());
+					vis.setValue(NODES, null, VisualItem.FIXED, true);
+					vis.setValue(EDGES, null, VisualItem.FIXED, true);
+				}
+				else {
+					checkItemModel.setText(Messages.getMessage("BeanRelationGraphImpl.animation.off").get());
+					vis.setValue(NODES, null, VisualItem.FIXED, false);
+					vis.setValue(EDGES, null, VisualItem.FIXED, false);
+				}
+				on = !on;
+			}
+		});
+
 		model.addSeparator();
 
 		model.addAction(settingsDialogAction);
@@ -555,8 +575,8 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		});
 
 		final IActionBuilder screenShotActionBuilder = actionBF.create();
-		screenShotActionBuilder.setText(Messages.getMessage("BeanRelationGraphImpl.screenshot").get()).setToolTipText(
-				Messages.getMessage("BeanRelationGraphImpl.copy.in.clipboard").get());
+		screenShotActionBuilder.setText(Messages.getMessage("BeanRelationGraphImpl.screenshot").get());
+		screenShotActionBuilder.setToolTipText(Messages.getMessage("BeanRelationGraphImpl.copy.in.clipboard").get());
 		screenShotActionBuilder.setCommand(new ICommandExecutor() {
 			@Override
 			public void execute(final IExecutionContext executionContext) throws Exception {
@@ -648,14 +668,15 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 	}
 
 	private IFrame getControlDialog() {
-		final IDialogBluePrint dialogBP = BPF.dialog().setResizable(false).setModal(false);
+		final IDialogBluePrint dialogBP = BPF.dialog().setModal(false);
+		dialogBP.setMinPackSize(new Dimension(300, 300));
 
 		final IFrame childWindow = Toolkit.getActiveWindow().createChildWindow(dialogBP);
 		childWindow.setLayout(MigLayoutFactory.growingInnerCellLayout());
 
 		final IComposite composite = childWindow.add(BPF.composite(), MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
 
-		final JPanel panel = JoToSwing.convert(composite);
+		final Container panel = awtConverter.convert(composite);
 		panel.setLayout(new BorderLayout());
 		panel.add(new JForcePanel(forceSimulator), BorderLayout.CENTER);
 

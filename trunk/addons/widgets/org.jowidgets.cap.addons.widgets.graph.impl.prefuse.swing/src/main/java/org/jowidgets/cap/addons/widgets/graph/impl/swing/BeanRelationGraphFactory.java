@@ -37,6 +37,7 @@ import org.jowidgets.cap.ui.api.addons.widgets.IBeanRelationGraph;
 import org.jowidgets.cap.ui.api.addons.widgets.IBeanRelationGraphBluePrint;
 import org.jowidgets.common.widgets.factory.IWidgetFactory;
 import org.jowidgets.tools.widgets.blueprint.BPF;
+import org.jowidgets.util.IConverter;
 
 final class BeanRelationGraphFactory<CHILD_BEAN_TYPE> implements
 		IWidgetFactory<IBeanRelationGraph<CHILD_BEAN_TYPE>, IBeanRelationGraphBluePrint<CHILD_BEAN_TYPE>> {
@@ -47,7 +48,13 @@ final class BeanRelationGraphFactory<CHILD_BEAN_TYPE> implements
 		final IBeanRelationGraphBluePrint<CHILD_BEAN_TYPE> bluePrint) {
 		final IComposite composite = Toolkit.getWidgetFactory().create(parentUiReference, BPF.composite());
 		if (composite.getUiReference() instanceof Container) {
-			return SwingGraphFactory.createBeanRelationGraph(composite, (Container) composite.getUiReference(), bluePrint);
+			final IConverter<IComposite, Container> converter = new IConverter<IComposite, Container>() {
+				@Override
+				public Container convert(final IComposite source) {
+					return (Container) source.getUiReference();
+				}
+			};
+			return SwingGraphFactory.createBeanRelationGraph(composite, converter, bluePrint);
 		}
 		else {
 			throw new IllegalArgumentException("The given composite must be an swing container");

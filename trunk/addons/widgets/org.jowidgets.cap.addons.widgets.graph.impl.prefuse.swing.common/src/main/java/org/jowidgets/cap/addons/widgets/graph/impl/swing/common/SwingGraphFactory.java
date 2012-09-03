@@ -30,19 +30,20 @@ package org.jowidgets.cap.addons.widgets.graph.impl.swing.common;
 
 import java.awt.Container;
 
-import org.jowidgets.api.widgets.IControl;
+import org.jowidgets.api.widgets.IComposite;
 import org.jowidgets.cap.ui.api.addons.widgets.IBeanRelationGraph;
 import org.jowidgets.cap.ui.api.addons.widgets.IBeanRelationGraphBluePrint;
+import org.jowidgets.util.IConverter;
 
 public final class SwingGraphFactory {
 
 	private SwingGraphFactory() {}
 
 	public static <CHILD_BEAN_TYPE> IBeanRelationGraph<CHILD_BEAN_TYPE> createBeanRelationGraph(
-		final IControl control,
-		final Container swingContainer,
+		final IComposite control,
+		final IConverter<IComposite, Container> awtConverter,
 		final IBeanRelationGraphBluePrint<CHILD_BEAN_TYPE> bluePrint) {
-		return new BeanRelationGraphImpl<CHILD_BEAN_TYPE>(control, swingContainer, bluePrint);
+		return new BeanRelationGraphImpl<CHILD_BEAN_TYPE>(control, awtConverter, bluePrint);
 	}
 
 }
