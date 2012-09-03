@@ -229,6 +229,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		vis.addDecorators(EDGE_DECORATORS, EDGES, DECORATOR_SCHEMA);
 
 		labelEdgeLayout = new LabelEdgeLayout();
+		labelEdgeLayout.setEdgesVisible(false);
 		initForceDLayout();
 
 		display = new Display(vis);
@@ -565,7 +566,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 
 		model.addAction(settingsDialogAction);
 		final ICheckedItemModel edgeCheckedItem = model.addCheckedItem("Edge Label");
-		edgeCheckedItem.setSelected(true);
+		edgeCheckedItem.setSelected(false);
 		edgeCheckedItem.addItemListener(new IItemStateListener() {
 
 			@Override
