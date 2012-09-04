@@ -174,7 +174,6 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 
 	private int maxNodeCount = MAX_NODE_COUNT_DEFAULT;
 	private int groupCount;
-	private ICheckedItemModel nodeCountItem;
 
 	BeanRelationGraphImpl(
 		final IComposite composite,
@@ -429,13 +428,13 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 
 	private void renderNode(final Node node, final IBeanProxy<Object> bean, final IBeanProxyLabelRenderer<Object> renderer) {
 		if (!bean.isDummy()) {
-			loadIcon(node, bean, renderer);
+			renderIcon(node, bean, renderer);
 			renderNodeWithLabel(node, renderer.getLabel(bean));
 		}
 
 	}
 
-	private void loadIcon(final Node node, final IBeanProxy<Object> bean, final IBeanProxyLabelRenderer<Object> renderer) {
+	private void renderIcon(final Node node, final IBeanProxy<Object> bean, final IBeanProxyLabelRenderer<Object> renderer) {
 		final IImageConstant icon = renderer.getLabel(bean).getIcon();
 		if (icon != null) {
 			final IImageHandle imageHandle = Toolkit.getImageRegistry().getImageHandle(icon);
@@ -443,9 +442,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 				final Object image = imageHandle.getImage();
 				final URL imageUrl = imageHandle.getImageUrl();
 				if (image instanceof Image) {
-					final Image awtImage = (Image) image;
-					imageFactory.addImage(awtImage.toString(), awtImage);
-					node.set("image", awtImage);
+					renderIcon(node, (Image) image);
 				}
 				else if (imageUrl != null) {
 					IImageHandle awtImageHandle = SwingImageRegistry.getInstance().getImageHandle(icon);
@@ -453,12 +450,15 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 						SwingImageRegistry.getInstance().registerImageConstant(icon, imageUrl);
 						awtImageHandle = SwingImageRegistry.getInstance().getImageHandle(icon);
 					}
-					final Image awtImage = (Image) awtImageHandle.getImage();
-					imageFactory.addImage(awtImage.toString(), awtImage);
-					node.set("image", awtImage);
+					renderIcon(node, (Image) awtImageHandle.getImage());
 				}
 			}
 		}
+	}
+
+	private void renderIcon(final Node node, final Image awtImage) {
+		imageFactory.addImage(awtImage.toString(), awtImage);
+		node.set("image", awtImage);
 	}
 
 	private ForceSimulator setForces() {
@@ -477,11 +477,10 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 	private IToolBarModel initToolBar() {
 		final IActionBuilderFactory actionBF = Toolkit.getActionBuilderFactory();
 		final ToolBarModel model = new ToolBarModel();
-		nodeCountItem = model.addCheckedItem(Messages.getMessage("BeanRelationGraphImpl.max.nodecount").get());
-		nodeCountItem.setEnabled(false);
+
+		model.addTextLabel(Messages.getString("BeanRelationGraphImpl.max.nodecount") + " ");
 
 		final IInputFieldBluePrint<Integer> textFieldBP = BPF.inputFieldIntegerNumber().setMaxLength(3).setValue(maxNodeCount);
-
 		final InputControlItemModel<Integer> textField = new InputControlItemModel<Integer>(textFieldBP, 30);
 		textField.addInputListener(new IInputListener() {
 
