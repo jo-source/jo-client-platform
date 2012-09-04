@@ -510,32 +510,31 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		});
 		final ICommandAction settingsDialogAction = settingsDialogActionBuilder.build();
 
-		final IComboBoxSelectionBluePrint<String> comboBoxBp = BPF.comboBoxSelection(
-				"ForceDirectedLayout",
-				"NodeLinkTreeLayout",
-				"RadialTreeLayout");
+		final IComboBoxSelectionBluePrint<GraphLayout> comboBoxBp = BPF.comboBoxSelection(GraphLayout.values());
+
 		comboBoxBp.setAutoCompletion(false);
-		final InputControlItemModel<String> comboBox = new InputControlItemModel<String>(comboBoxBp, 150);
+		final InputControlItemModel<GraphLayout> comboBox = new InputControlItemModel<GraphLayout>(comboBoxBp, 150);
 		comboBox.addInputListener(new IInputListener() {
 
 			@Override
 			public void inputChanged() {
-				if ("ForceDirectedLayout".equals(comboBox.getValue())) {
+				final GraphLayout value = comboBox.getValue();
+				if (GraphLayout.FORCE_DIRECTED_LAYOUT == value) {
 					settingsDialogAction.setEnabled(true);
 					initForceDLayout();
 				}
-				else if ("NodeLinkTreeLayout".equals(comboBox.getValue())) {
+				else if (GraphLayout.NODE_TREE_LINK_LAYOUT == value) {
 					settingsDialogAction.setEnabled(false);
 					initNodeLinkLayout();
 				}
-				else if ("RadialTreeLayout".equals(comboBox.getValue())) {
+				else if (GraphLayout.RADIAL_TREE_LAYOUT == value) {
 					settingsDialogAction.setEnabled(false);
 					initRadialTreeLayout();
 				}
 
 			}
 		});
-		comboBox.setValue("ForceDirectedLayout");
+		comboBox.setValue(GraphLayout.FORCE_DIRECTED_LAYOUT);
 		model.addItem(comboBox);
 
 		final ICheckedItemModel checkItemModel = model.addCheckedItem(
@@ -779,5 +778,25 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 			}
 			return image;
 		}
+	}
+
+	private static enum GraphLayout {
+
+		//TODO i18n
+		FORCE_DIRECTED_LAYOUT("Force directed layout"),
+		NODE_TREE_LINK_LAYOUT("Node tree layout"),
+		RADIAL_TREE_LAYOUT("Radial tree layout");
+
+		private final String label;
+
+		private GraphLayout(final String label) {
+			this.label = label;
+		}
+
+		@Override
+		public String toString() {
+			return label;
+		}
+
 	}
 }
