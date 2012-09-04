@@ -31,12 +31,13 @@ package org.jowidgets.cap.ui.impl.widgets;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.StringTokenizer;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.jowidgets.api.controller.IDisposeListener;
 import org.jowidgets.api.convert.IStringObjectConverter;
@@ -82,6 +83,8 @@ import org.jowidgets.util.concurrent.DaemonThreadFactory;
 import org.jowidgets.util.event.IChangeListener;
 
 final class BeanTableSearchFilterToolbar<BEAN_TYPE> {
+
+	private static final Pattern TOKENIZE_PATTERN = Pattern.compile("\"([^\"]*)\"|(\\S+)");
 
 	private static final int LISTENER_DELAY = 500;
 
@@ -335,14 +338,20 @@ final class BeanTableSearchFilterToolbar<BEAN_TYPE> {
 				return null;
 			}
 
-			final StringTokenizer tokenizer = new StringTokenizer(text);
+			final Matcher matcher = TOKENIZE_PATTERN.matcher(text);
 
 			final IUiFilterFactory factory = CapUiToolkit.filterToolkit().filterFactory();
 			final IUiBooleanFilterBuilder andFilterBuilder = factory.booleanFilterBuilder().setOperator(BooleanOperator.AND);
 
-			while (tokenizer.hasMoreElements()) {
+			while (matcher.find()) {
 				checkCanceled();
-				final String token = tokenizer.nextToken();
+				final String token;
+				if (matcher.group(1) != null) {
+					token = matcher.group(1);
+				}
+				else {
+					token = matcher.group(2);
+				}
 				final IUiBooleanFilterBuilder orFilterBuilder = factory.booleanFilterBuilder().setOperator(BooleanOperator.OR);
 				boolean predicateCreated = false;
 				for (final IAttribute<Object> attribute : attributes) {
