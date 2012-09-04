@@ -198,15 +198,21 @@ final class BeanTableSearchFilterToolbar<BEAN_TYPE> {
 	private void onFilterChanged() {
 		final SearchFilter searchFilter = (SearchFilter) model.getFilter(IBeanTableModel.UI_SEARCH_FILTER_ID);
 		if (searchFilter != null) {
-			final String searchText = searchFilter.getSearchText();
-			textField.removeInputListener(inputListener);
-			textField.setText(searchText);
-			textField.addInputListener(inputListener);
-			final boolean hasSearchText = !EmptyCheck.isEmpty(searchText);
-			closeButton.setEnabled(!hasSearchText);
-			if (hasSearchText && !toolbar.isVisible()) {
-				toolbar.setVisible(true);
-			}
+			setSearchFilterTextWithoutEvents(searchFilter.getSearchText());
+		}
+		else {
+			setSearchFilterTextWithoutEvents(null);
+		}
+	}
+
+	private void setSearchFilterTextWithoutEvents(final String searchText) {
+		textField.removeInputListener(inputListener);
+		textField.setText(searchText);
+		textField.addInputListener(inputListener);
+		final boolean hasSearchText = !EmptyCheck.isEmpty(searchText);
+		closeButton.setEnabled(!hasSearchText);
+		if (hasSearchText && !toolbar.isVisible()) {
+			toolbar.setVisible(true);
 		}
 	}
 
