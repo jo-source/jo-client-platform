@@ -40,7 +40,7 @@ import org.jowidgets.common.widgets.factory.IWidgetFactory;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.IDecorator;
 
-final class SecureControlFactoryDecoratorBuilderImpl<WIDGET_TYPE extends IControl, DESCRIPTOR_TYPE extends IWidgetDescriptor<? extends WIDGET_TYPE>, AUTHORIZATION_TYPE> implements
+final class SecureControlFactoryDecoratorBuilderImpl<WIDGET_TYPE extends IControl, DESCRIPTOR_TYPE extends IWidgetDescriptor<WIDGET_TYPE>, AUTHORIZATION_TYPE> implements
 		ISecureControlFactoryDecoratorBuilder<WIDGET_TYPE, DESCRIPTOR_TYPE, AUTHORIZATION_TYPE> {
 
 	private final ISecureControlMapper<WIDGET_TYPE, DESCRIPTOR_TYPE, AUTHORIZATION_TYPE> controlAuthorizationMapper;

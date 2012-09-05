@@ -37,10 +37,10 @@ import org.jowidgets.common.widgets.factory.IWidgetFactory;
 import org.jowidgets.tools.widgets.blueprint.BPF;
 
 final class BeanLinkPanelFactory implements
-		IWidgetFactory<IBeanLinkPanel<? extends Object, ? extends Object>, IBeanLinkPanelBluePrint<Object, Object>> {
+		IWidgetFactory<IBeanLinkPanel<Object, Object>, IBeanLinkPanelBluePrint<Object, Object>> {
 
 	@Override
-	public IBeanLinkPanel<? extends Object, ? extends Object> create(
+	public IBeanLinkPanel<Object, Object> create(
 		final Object parentUiReference,
 		final IBeanLinkPanelBluePrint<Object, Object> bluePrint) {
 

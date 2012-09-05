@@ -101,13 +101,13 @@ public final class CapSecurityUiToolkitImpl implements ICapSecurityUiToolkit {
 	}
 
 	@Override
-	public <WIDGET_TYPE extends IControl, DESCRIPTOR_TYPE extends IWidgetDescriptor<? extends WIDGET_TYPE>, AUTHORIZATION_TYPE> ISecureControlFactoryDecoratorBuilder<WIDGET_TYPE, DESCRIPTOR_TYPE, AUTHORIZATION_TYPE> secureControlFactoryDecoratorBuilder(
+	public <WIDGET_TYPE extends IControl, DESCRIPTOR_TYPE extends IWidgetDescriptor<WIDGET_TYPE>, AUTHORIZATION_TYPE> ISecureControlFactoryDecoratorBuilder<WIDGET_TYPE, DESCRIPTOR_TYPE, AUTHORIZATION_TYPE> secureControlFactoryDecoratorBuilder(
 		final ISecureControlMapper<WIDGET_TYPE, DESCRIPTOR_TYPE, AUTHORIZATION_TYPE> mapper) {
 		return new SecureControlFactoryDecoratorBuilderImpl<WIDGET_TYPE, DESCRIPTOR_TYPE, AUTHORIZATION_TYPE>(mapper);
 	}
 
 	@Override
-	public <WIDGET_TYPE extends IControl, DESCRIPTOR_TYPE extends IWidgetDescriptor<? extends WIDGET_TYPE>, AUTHORIZATION_TYPE> IDecorator<IWidgetFactory<WIDGET_TYPE, DESCRIPTOR_TYPE>> secureControlFactoryDecorator(
+	public <WIDGET_TYPE extends IControl, DESCRIPTOR_TYPE extends IWidgetDescriptor<WIDGET_TYPE>, AUTHORIZATION_TYPE> IDecorator<IWidgetFactory<WIDGET_TYPE, DESCRIPTOR_TYPE>> secureControlFactoryDecorator(
 		final ISecureControlMapper<WIDGET_TYPE, DESCRIPTOR_TYPE, AUTHORIZATION_TYPE> mapper) {
 		Assert.paramNotNull(mapper, "mapper");
 		return secureControlFactoryDecoratorBuilder(mapper).build();
