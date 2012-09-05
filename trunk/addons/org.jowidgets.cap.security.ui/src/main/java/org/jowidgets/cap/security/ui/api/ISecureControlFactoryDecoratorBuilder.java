@@ -34,7 +34,7 @@ import org.jowidgets.common.widgets.descriptor.IWidgetDescriptor;
 import org.jowidgets.common.widgets.factory.IWidgetFactory;
 import org.jowidgets.util.IDecorator;
 
-public interface ISecureControlFactoryDecoratorBuilder<WIDGET_TYPE extends IControl, DESCRIPTOR_TYPE extends IWidgetDescriptor<? extends WIDGET_TYPE>, AUTHORIZATION_TYPE> {
+public interface ISecureControlFactoryDecoratorBuilder<WIDGET_TYPE extends IControl, DESCRIPTOR_TYPE extends IWidgetDescriptor<WIDGET_TYPE>, AUTHORIZATION_TYPE> {
 
 	/**
 	 * Sets the creator for the control, that will be shown if the user has not the authorization to view the original control.

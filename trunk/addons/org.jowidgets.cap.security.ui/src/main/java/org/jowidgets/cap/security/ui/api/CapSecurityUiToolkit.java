@@ -99,12 +99,12 @@ public final class CapSecurityUiToolkit {
 		return getInstance().secureBeanRelationTreePlugin();
 	}
 
-	public static <WIDGET_TYPE extends IControl, DESCRIPTOR_TYPE extends IWidgetDescriptor<? extends WIDGET_TYPE>, AUTHORIZATION_TYPE> ISecureControlFactoryDecoratorBuilder<WIDGET_TYPE, DESCRIPTOR_TYPE, AUTHORIZATION_TYPE> secureControlFactoryDecoratorBuilder(
+	public static <WIDGET_TYPE extends IControl, DESCRIPTOR_TYPE extends IWidgetDescriptor<WIDGET_TYPE>, AUTHORIZATION_TYPE> ISecureControlFactoryDecoratorBuilder<WIDGET_TYPE, DESCRIPTOR_TYPE, AUTHORIZATION_TYPE> secureControlFactoryDecoratorBuilder(
 		final ISecureControlMapper<WIDGET_TYPE, DESCRIPTOR_TYPE, AUTHORIZATION_TYPE> mapper) {
 		return getInstance().secureControlFactoryDecoratorBuilder(mapper);
 	}
 
-	public static <WIDGET_TYPE extends IControl, DESCRIPTOR_TYPE extends IWidgetDescriptor<? extends WIDGET_TYPE>, AUTHORIZATION_TYPE> IDecorator<IWidgetFactory<WIDGET_TYPE, DESCRIPTOR_TYPE>> secureControlFactoryDecorator(
+	public static <WIDGET_TYPE extends IControl, DESCRIPTOR_TYPE extends IWidgetDescriptor<WIDGET_TYPE>, AUTHORIZATION_TYPE> IDecorator<IWidgetFactory<WIDGET_TYPE, DESCRIPTOR_TYPE>> secureControlFactoryDecorator(
 		final ISecureControlMapper<WIDGET_TYPE, DESCRIPTOR_TYPE, AUTHORIZATION_TYPE> mapper) {
 		return getInstance().secureControlFactoryDecorator(mapper);
 	}

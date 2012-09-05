@@ -37,7 +37,7 @@ import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
 import org.jowidgets.common.widgets.factory.IWidgetFactory;
 
 final class BeanSelectionTableFactory implements
-		IWidgetFactory<IBeanSelectionTable<? extends Object>, IBeanSelectionTableBluePrint<Object>> {
+		IWidgetFactory<IBeanSelectionTable<Object>, IBeanSelectionTableBluePrint<Object>> {
 
 	@Override
 	public IBeanSelectionTable<Object> create(final Object parentUiReference, final IBeanSelectionTableBluePrint<Object> bluePrint) {

@@ -36,8 +36,7 @@ import org.jowidgets.cap.ui.api.widgets.IBeanRelationTreeBluePrint;
 import org.jowidgets.common.widgets.factory.IWidgetFactory;
 import org.jowidgets.tools.widgets.blueprint.BPF;
 
-final class BeanRelationTreeFactory implements
-		IWidgetFactory<IBeanRelationTree<? extends Object>, IBeanRelationTreeBluePrint<Object>> {
+final class BeanRelationTreeFactory implements IWidgetFactory<IBeanRelationTree<Object>, IBeanRelationTreeBluePrint<Object>> {
 
 	@Override
 	public IBeanRelationTree<Object> create(final Object parentUiReference, final IBeanRelationTreeBluePrint<Object> bluePrint) {

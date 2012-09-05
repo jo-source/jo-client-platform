@@ -37,10 +37,10 @@ import org.jowidgets.common.widgets.factory.IWidgetFactory;
 import org.jowidgets.tools.widgets.blueprint.BPF;
 
 final class BeanRelationTreeDetailFactory implements
-		IWidgetFactory<IBeanRelationTreeDetail<? extends Object>, IBeanRelationTreeDetailBluePrint<Object>> {
+		IWidgetFactory<IBeanRelationTreeDetail<Object>, IBeanRelationTreeDetailBluePrint<Object>> {
 
 	@Override
-	public IBeanRelationTreeDetail<? extends Object> create(
+	public IBeanRelationTreeDetail<Object> create(
 		final Object parentUiReference,
 		final IBeanRelationTreeDetailBluePrint<Object> bluePrint) {
 		final ICompositeBluePrint bp = BPF.composite();

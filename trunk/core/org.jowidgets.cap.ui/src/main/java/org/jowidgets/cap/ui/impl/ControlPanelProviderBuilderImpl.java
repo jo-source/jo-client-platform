@@ -205,19 +205,19 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 		return this;
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({"unchecked", "rawtypes"})
 	@Override
 	public IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> setCollectionControlCreator(
-		final ICustomWidgetCreator<? extends IInputControl<? extends Collection<? extends ELEMENT_VALUE_TYPE>>> collectionControlCreator) {
-		this.collectionControlCreator = (ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>>) collectionControlCreator;
+		final ICustomWidgetCreator collectionControlCreator) {
+		this.collectionControlCreator = collectionControlCreator;
 		return this;
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({"unchecked", "rawtypes"})
 	@Override
 	public IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> setFilterCollectionControlCreator(
-		final ICustomWidgetCreator<? extends IInputControl<? extends Collection<? extends ELEMENT_VALUE_TYPE>>> collectionControlCreator) {
-		this.filterCollectionControlCreator = (ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>>) collectionControlCreator;
+		final ICustomWidgetCreator collectionControlCreator) {
+		this.filterCollectionControlCreator = collectionControlCreator;
 		return this;
 	}
 

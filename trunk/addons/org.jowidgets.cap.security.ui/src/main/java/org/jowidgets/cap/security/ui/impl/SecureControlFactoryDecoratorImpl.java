@@ -60,7 +60,7 @@ import org.jowidgets.util.Assert;
 import org.jowidgets.util.IDecorator;
 import org.jowidgets.util.reflection.ReflectionCache;
 
-final class SecureControlFactoryDecoratorImpl<WIDGET_TYPE extends IControl, DESCRIPTOR_TYPE extends IWidgetDescriptor<? extends WIDGET_TYPE>, AUTHORIZATION_TYPE> implements
+final class SecureControlFactoryDecoratorImpl<WIDGET_TYPE extends IControl, DESCRIPTOR_TYPE extends IWidgetDescriptor<WIDGET_TYPE>, AUTHORIZATION_TYPE> implements
 		IDecorator<IWidgetFactory<WIDGET_TYPE, DESCRIPTOR_TYPE>> {
 
 	private static final IMessage DEFAULT_FAILED_MESSAGE = Messages.getMessage("SecureControlFactoryDecoratorImpl.defaultFailedText");
