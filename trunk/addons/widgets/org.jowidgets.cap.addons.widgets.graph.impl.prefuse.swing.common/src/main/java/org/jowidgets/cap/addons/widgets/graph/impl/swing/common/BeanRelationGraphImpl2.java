@@ -446,9 +446,9 @@ class BeanRelationGraphImpl2<CHILD_BEAN_TYPE> extends ControlWrapper implements 
 	}
 
 	private ForceSimulator setForces() {
-		final SpringForce springForce = new SpringForce(5.95E-5F, 120);
+		final SpringForce springForce = new SpringForce(1E-4f, 120);
 		final NBodyForce nBodyForce = new NBodyForce(-10, 320, 0);
-		final DragForce dragForce = new DragForce(0.100f);
+		final DragForce dragForce = new DragForce(0.1f);
 
 		forceSimulator = new ForceSimulator();
 		forceSimulator.addForce(dragForce);
