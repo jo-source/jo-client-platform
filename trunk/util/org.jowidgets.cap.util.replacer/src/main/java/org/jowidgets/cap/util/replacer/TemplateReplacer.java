@@ -52,21 +52,24 @@ public final class TemplateReplacer {
 	private TemplateReplacer() {}
 
 	public static void main(final String[] args) throws Exception {
-		copyAndReplace(args, createConfig());
+		copyAndReplace(
+				new String[] {"C:/projects/jocap-samples/eclipse/template/sample1/modules", "C:/TEMP/myapp/modules"},
+				createConfig());
 	}
 
 	private static ReplacementConfig createConfig() {
 		final ReplacementConfig config = new ReplacementConfig();
 
 		final Set<Tuple<String, String>> replacements = new HashSet<Tuple<String, String>>();
-		replacements.add(new Tuple<String, String>("Sample0", "MyApp"));
-		replacements.add(new Tuple<String, String>("sample0", "myapp"));
+		replacements.add(new Tuple<String, String>("Sample1", "MyApp"));
+		replacements.add(new Tuple<String, String>("sample1", "myapp"));
 		replacements.add(new Tuple<String, String>("<vendor>jowidgets.org</vendor>", "<vendor>myorg.com</vendor>"));
 
 		config.setReplacements(replacements);
 
 		final Set<Tuple<String[], String[]>> packageReplacements = new HashSet<Tuple<String[], String[]>>();
-		final String[] packageReplacementSource = new String[] {"org", "jowidgets", "cap", "sample0"};
+
+		final String[] packageReplacementSource = new String[] {"org", "jowidgets", "samples", "template", "sample1"};
 		final String[] packageReplacementDestination = new String[] {"com", "myorg", "myapp"};
 		packageReplacements.add(new Tuple<String[], String[]>(packageReplacementSource, packageReplacementDestination));
 		config.setPackageReplacements(packageReplacements);
@@ -76,13 +79,6 @@ public final class TemplateReplacer {
 				"org.jowidgets.cap.ui.api.login.ILoginService", "org.jowidgets.security.api.IAuthenticationService",
 				"org.jowidgets.service.api.IServiceProviderHolder"}, IOCase.INSENSITIVE);
 		config.setModififyFilesFilter(modifyFilesFilter);
-
-		//		final IOFileFilter checkstyleFilter = new SuffixFileFilter(new String[] {"checkstyle"}, IOCase.INSENSITIVE);
-		//		final String checkstyleText = "New checkstyle config";
-		//		final Tuple<IOFileFilter, String> checkstyleReplacement = new Tuple<IOFileFilter, String>(
-		//			checkstyleFilter,
-		//			checkstyleText);
-		//		config.setFileReplacements(Collections.singleton(checkstyleReplacement));
 
 		config.setJavaHeader("/* \n * Copyright (c) 2011 \n */");
 
