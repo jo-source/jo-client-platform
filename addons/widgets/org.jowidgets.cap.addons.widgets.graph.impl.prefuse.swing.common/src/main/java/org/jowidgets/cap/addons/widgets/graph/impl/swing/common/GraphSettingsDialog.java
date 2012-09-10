@@ -32,16 +32,19 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.jowidgets.api.toolkit.Toolkit;
+import org.jowidgets.api.widgets.IComposite;
+import org.jowidgets.api.widgets.IContainer;
+import org.jowidgets.api.widgets.IInputField;
 import org.jowidgets.api.widgets.ISlider;
-import org.jowidgets.api.widgets.ITextControl;
-import org.jowidgets.api.widgets.blueprint.ITextFieldBluePrint;
+import org.jowidgets.api.widgets.blueprint.IInputFieldBluePrint;
+import org.jowidgets.api.widgets.blueprint.ISliderBluePrint;
 import org.jowidgets.api.widgets.blueprint.ITextLabelBluePrint;
-import org.jowidgets.api.widgets.blueprint.factory.IBluePrintFactory;
 import org.jowidgets.common.types.Dimension;
 import org.jowidgets.common.widgets.controller.IInputListener;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
+import org.jowidgets.tools.layout.MigLayoutFactory;
 import org.jowidgets.tools.powo.JoFrame;
+import org.jowidgets.tools.widgets.blueprint.BPF;
 
 import prefuse.util.force.DragForce;
 import prefuse.util.force.Force;
@@ -57,24 +60,26 @@ public class GraphSettingsDialog extends JoFrame {
 			Messages.getString("GraphSettingsDialog.drag_force"), Messages.getString("GraphSettingsDialog.drag_coefficient")}; //$NON-NLS-1$ //$NON-NLS-2$
 	private static final String[] NBODY_FORCE = {
 			Messages.getString("GraphSettingsDialog.nbody_force"), Messages.getString("GraphSettingsDialog.gravitational_constant"), Messages.getString("GraphSettingsDialog.distance"), Messages.getString("GraphSettingsDialog.barneshuttheta")}; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-	private static final String[] DISPLAY_PERCENT_PARAMETER = {"SpringCoefficient"};
+	private static final String[] DISPLAY_PERCENT_PARAMETER = {"SpringCoefficient", "DragCoefficient", "BarnesHutTheta"};
 	private static final Map<String, Float> MODIFIED_VALUES = new HashMap<String, Float>();
 
 	private final ForceSimulator forceSimulator;
 
-	private final IBluePrintFactory bpF;
 	private final ITextLabelBluePrint labelBp;
-	private final ITextFieldBluePrint textBp;
+	private final IInputFieldBluePrint<Integer> inputFieldBp;
+	private final IComposite scrollComposite;
+	private final IContainer content;
 
 	public GraphSettingsDialog(final ForceSimulator forceSimulator) {
 		super(Messages.getString("GraphSettingsDialog.settings")); //$NON-NLS-1$
-		this.setMinPackSize(new Dimension(300, 325));
-		setLayout(new MigLayoutDescriptor("[0::][150::][right, 50!]", "[]5[]")); //$NON-NLS-1$ //$NON-NLS-2$
+		this.setMinPackSize(new Dimension(300, 300));
 		initializeOwnValues();
 
-		bpF = Toolkit.getBluePrintFactory();
-		labelBp = bpF.textLabel().alignLeft();
-		textBp = bpF.textField();
+		labelBp = BPF.textLabel().alignLeft();
+		inputFieldBp = BPF.inputFieldIntegerNumber();
+		scrollComposite = this.add(BPF.scrollComposite(), MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
+		content = scrollComposite.add(BPF.composite(), MigLayoutFactory.growingCellLayout());
+		content.setLayout(new MigLayoutDescriptor("[100::][grow, 150::][right, 50!]", ""));
 
 		this.forceSimulator = forceSimulator;
 		final Force[] forces = this.forceSimulator.getForces();
@@ -103,7 +108,7 @@ public class GraphSettingsDialog extends JoFrame {
 	}
 
 	private void initializeForceComponent(final String[] parameterNames, final Force force) {
-		this.add(bpF.textSeparator(parameterNames[0]).alignCenter().setStrong(), "grow, span, wrap"); //$NON-NLS-1$
+		content.add(BPF.textSeparator(parameterNames[0]).alignCenter().setStrong(), "grow, span, gapy 15, wrap"); //$NON-NLS-1$
 		for (int j = 0; j < force.getParameterCount(); j++) {
 			createSliderComponent(force, j, parameterNames[1 + j]);
 		}
@@ -120,66 +125,119 @@ public class GraphSettingsDialog extends JoFrame {
 		final double max = MODIFIED_VALUES.containsKey(forceParameter + "_MAX")
 				? MODIFIED_VALUES.get(forceParameter + "_MAX") : force.getMaxValue(param);
 
-		final double step = (max - min) / 100;
 		final boolean displayPercent;
+		final double step = (max - min) / 100;
 
-		this.add(labelBp.setText(description), "sg lg"); //$NON-NLS-1$
-		final ISlider slider = this.add(bpF.slider(), "growx"); //$NON-NLS-1$
-		slider.setValue((int) ((value - min) / step));
+		content.add(labelBp.setText(description), "sg lg"); //$NON-NLS-1$
+		final ISliderBluePrint sbp = BPF.slider();
+		final ISlider slider;
 
-		final ITextControl textControl = this.add(textBp.setText("0"), "growx, wrap"); //$NON-NLS-1$ //$NON-NLS-2$
+		IInputField<Integer> inputField; //$NON-NLS-1$ //$NON-NLS-2$
 		if (Arrays.asList(DISPLAY_PERCENT_PARAMETER).contains(forceParameter)) {
-			textControl.setText(slider.getValue() + " %"); //$NON-NLS-1$
+			sbp.setMaximum(100).setMinimum(0).setTickSpacing(10);
+			slider = content.add(sbp, "growx"); //$NON-NLS-1$
+			slider.setValue((int) (100 / max * value));
+			inputField = content.add(inputFieldBp, "growx, split2");
+			content.add(BPF.label().setText("%"), "wrap");
+			inputField.setValue((int) (slider.getValue())); //$NON-NLS-1$
 			displayPercent = true;
 		}
 		else {
-			textControl.setText(String.format("%.3f", (float) (min + slider.getValue() * step))); //$NON-NLS-1$
+			sbp.setMaximum((int) max).setMinimum((int) min).setTickSpacing((int) (max - min) / 10);
+			slider = content.add(sbp, "growx"); //$NON-NLS-1$
+			slider.setValue((int) value);
+
+			inputField = content.add(inputFieldBp, "growx, wrap");
+
+			inputField.setValue((int) value); //$NON-NLS-1$
 			displayPercent = false;
 		}
 
-		slider.addInputListener(new SliderListener(slider, textControl, force, param, step, min, displayPercent));
+		inputField.addInputListener(new ParameterListener(
+			slider,
+			inputField,
+			force,
+			param,
+			step,
+			min,
+			displayPercent,
+			Listener.INPUTFIELD));
+		slider.addInputListener(new ParameterListener(
+			slider,
+			inputField,
+			force,
+			param,
+			step,
+			min,
+			displayPercent,
+			Listener.SLIDER));
 	}
 
-	//Define own Values with Syntax : ForceParameterName_(MIN | MAX | DEFAULT)
+	//Define own values with syntax : ForceParameterName_(MIN | MAX | DEFAULT)
 	private void initializeOwnValues() {
 		MODIFIED_VALUES.put("DefaultSpringLength_MAX", 500.0f);
+		MODIFIED_VALUES.put("DragCoefficient_DEFAULT", 0.03f);
 	}
 
-	private class SliderListener implements IInputListener {
+	private class ParameterListener implements IInputListener {
 		private final ISlider slider;
-		private final ITextControl textControl;
+		private final IInputField<Integer> inputField;
 		private final double step;
 		private final double min;
 		private final Force force;
 		private final int param;
 		private final boolean percent;
+		private final Listener type;
 
-		public SliderListener(
+		public ParameterListener(
 			final ISlider slider,
-			final ITextControl textControl,
+			final IInputField<Integer> inputField,
 			final Force force,
 			final int param,
 			final double step,
 			final double min,
-			final boolean percent) {
+			final boolean percent,
+			final Listener type) {
 			this.slider = slider;
-			this.textControl = textControl;
+			this.inputField = inputField;
 			this.step = step;
 			this.min = min;
 			this.force = force;
 			this.param = param;
 			this.percent = percent;
+			this.type = type;
 		}
 
 		@Override
 		public void inputChanged() {
-			if (percent) {
-				textControl.setText(slider.getValue() + " %"); //$NON-NLS-1$
+			if (type == Listener.SLIDER) {
+
+				inputField.setValue((int) slider.getValue());
+				if (percent) {
+					force.setParameter(param, (float) (min + slider.getValue() * step));
+				}
+				else {
+					force.setParameter(param, slider.getValue());
+				}
 			}
-			else {
-				textControl.setText(String.format("%.3f", (float) (min + slider.getValue() * step))); //$NON-NLS-1$
+
+			if (type == Listener.INPUTFIELD) {
+				if (inputField.getValue() != null) {
+					if (percent) {
+						slider.setValue((int) (inputField.getValue()));
+					}
+					else {
+						slider.setValue(inputField.getValue());
+					}
+				}
 			}
-			force.setParameter(param, (float) (min + slider.getValue() * step));
+
 		}
 	}
+
+	private enum Listener {
+		INPUTFIELD,
+		SLIDER;
+	}
+
 }
