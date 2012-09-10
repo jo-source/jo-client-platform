@@ -37,7 +37,7 @@ import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
 import org.jowidgets.cap.common.api.service.IBeanServicesProvider;
 import org.jowidgets.cap.common.api.service.IEntityService;
 
-final class EntityServiceCompositeImpl implements IEntityService {
+public final class EntityServiceCompositeImpl implements IEntityService {
 
 	private final List<IEntityService> services;
 
