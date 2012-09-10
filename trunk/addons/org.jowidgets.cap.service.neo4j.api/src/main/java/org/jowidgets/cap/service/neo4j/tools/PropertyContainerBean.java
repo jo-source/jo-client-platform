@@ -28,6 +28,8 @@
 
 package org.jowidgets.cap.service.neo4j.tools;
 
+import java.util.Date;
+
 import org.jowidgets.cap.service.neo4j.api.GraphDBConfig;
 import org.jowidgets.cap.service.neo4j.api.IPropertyContainerBean;
 import org.jowidgets.util.Assert;
@@ -64,6 +66,24 @@ public class PropertyContainerBean implements IPropertyContainerBean {
 	@Override
 	public String getBeanType() {
 		return (String) getProperty(beanTypePropertyName);
+	}
+
+	public Date getDateProperty(final String propertyName) {
+		if (propertyContainer.hasProperty(propertyName)) {
+			return new Date(((Long) propertyContainer.getProperty(propertyName)).longValue());
+		}
+		else {
+			return null;
+		}
+	}
+
+	public void setDateProperty(final String propertyName, final Date value) {
+		if (value != null) {
+			propertyContainer.setProperty(propertyName, value.getTime());
+		}
+		else {
+			propertyContainer.removeProperty(propertyName);
+		}
 	}
 
 	@SuppressWarnings("unchecked")
