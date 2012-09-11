@@ -31,6 +31,7 @@ package org.jowidgets.cap.service.neo4j.api;
 import java.util.Iterator;
 import java.util.ServiceLoader;
 
+import org.jowidgets.cap.service.api.transaction.ITransactionTemplate;
 import org.jowidgets.util.Assert;
 
 public final class Neo4JServiceToolkit {
@@ -66,6 +67,10 @@ public final class Neo4JServiceToolkit {
 
 	public static IRelationshipAccess relationshipAccess() {
 		return getInstance().relationshipAccess();
+	}
+
+	public static ITransactionTemplate transactionTemplate() {
+		return getInstance().transactionTemplate();
 	}
 
 	public static IGraphDBConfigBuilder graphDBConfigBuilder() {

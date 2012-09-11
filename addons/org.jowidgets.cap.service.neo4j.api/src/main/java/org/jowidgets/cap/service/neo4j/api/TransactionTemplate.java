@@ -28,20 +28,19 @@
 
 package org.jowidgets.cap.service.neo4j.api;
 
+import java.util.concurrent.Callable;
+
 import org.jowidgets.cap.service.api.transaction.ITransactionTemplate;
 
-public interface INeo4JServiceToolkit {
+public final class TransactionTemplate {
 
-	INeo4JServiceFactory serviceFactory();
+	private TransactionTemplate() {}
 
-	IGraphDBConfigBuilder graphDBConfigBuilder();
+	public static ITransactionTemplate getInstance() {
+		return Neo4JServiceToolkit.transactionTemplate();
+	}
 
-	INodeAccess nodeAccess();
-
-	IRelationshipAccess relationshipAccess();
-
-	INeo4JServicesDecoratorProviderBuilder serviceDecoratorProviderBuilder();
-
-	ITransactionTemplate transactionTemplate();
-
+	public static <RESULT_TYPE> RESULT_TYPE callInTransaction(final Callable<RESULT_TYPE> callable) {
+		return getInstance().callInTransaction(callable);
+	}
 }

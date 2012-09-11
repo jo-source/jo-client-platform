@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.service.neo4J.impl;
 
+import org.jowidgets.cap.service.api.transaction.ITransactionTemplate;
 import org.jowidgets.cap.service.neo4j.api.IGraphDBConfigBuilder;
 import org.jowidgets.cap.service.neo4j.api.INeo4JServiceFactory;
 import org.jowidgets.cap.service.neo4j.api.INeo4JServiceToolkit;
@@ -40,6 +41,7 @@ public final class Neo4JServiceToolkitImpl implements INeo4JServiceToolkit {
 	private INeo4JServiceFactory serviceFactory;
 	private INodeAccess nodeAccess;
 	private IRelationshipAccess relationshipAccess;
+	private ITransactionTemplate transactionTemplate;
 
 	@Override
 	public INeo4JServiceFactory serviceFactory() {
@@ -63,6 +65,14 @@ public final class Neo4JServiceToolkitImpl implements INeo4JServiceToolkit {
 			relationshipAccess = new RelationshipAccessImpl();
 		}
 		return relationshipAccess;
+	}
+
+	@Override
+	public ITransactionTemplate transactionTemplate() {
+		if (transactionTemplate == null) {
+			transactionTemplate = new TransactionTemplateImpl();
+		}
+		return transactionTemplate;
 	}
 
 	@Override

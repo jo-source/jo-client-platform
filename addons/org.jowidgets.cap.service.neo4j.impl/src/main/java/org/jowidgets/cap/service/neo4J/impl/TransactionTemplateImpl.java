@@ -26,22 +26,41 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.neo4j.api;
+package org.jowidgets.cap.service.neo4J.impl;
+
+import java.util.concurrent.Callable;
 
 import org.jowidgets.cap.service.api.transaction.ITransactionTemplate;
+import org.jowidgets.cap.service.neo4j.api.GraphDBConfig;
+import org.jowidgets.util.Assert;
+import org.neo4j.graphdb.Transaction;
 
-public interface INeo4JServiceToolkit {
+final class TransactionTemplateImpl implements ITransactionTemplate {
 
-	INeo4JServiceFactory serviceFactory();
-
-	IGraphDBConfigBuilder graphDBConfigBuilder();
-
-	INodeAccess nodeAccess();
-
-	IRelationshipAccess relationshipAccess();
-
-	INeo4JServicesDecoratorProviderBuilder serviceDecoratorProviderBuilder();
-
-	ITransactionTemplate transactionTemplate();
+	@Override
+	public <RESULT_TYPE> RESULT_TYPE callInTransaction(final Callable<RESULT_TYPE> callable) {
+		Assert.paramNotNull(callable, "callable");
+		final Transaction tx = GraphDBConfig.getGraphDbService().beginTx();
+		try {
+			final RESULT_TYPE result = callable.call();
+			tx.success();
+			return result;
+		}
+		catch (final Throwable throwable) {
+			tx.failure();
+			if (throwable instanceof Error) {
+				throw (Error) throwable;
+			}
+			else if (throwable instanceof RuntimeException) {
+				throw (RuntimeException) throwable;
+			}
+			else {
+				throw new RuntimeException(throwable);
+			}
+		}
+		finally {
+			tx.finish();
+		}
+	}
 
 }
