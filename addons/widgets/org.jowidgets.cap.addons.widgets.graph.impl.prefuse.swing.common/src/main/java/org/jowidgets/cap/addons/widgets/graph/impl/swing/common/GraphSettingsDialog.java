@@ -32,11 +32,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.jowidgets.api.widgets.IComposite;
-import org.jowidgets.api.widgets.IContainer;
 import org.jowidgets.api.widgets.IInputField;
+import org.jowidgets.api.widgets.IScrollComposite;
 import org.jowidgets.api.widgets.ISlider;
-import org.jowidgets.api.widgets.blueprint.IInputFieldBluePrint;
 import org.jowidgets.api.widgets.blueprint.ISliderBluePrint;
 import org.jowidgets.api.widgets.blueprint.ITextLabelBluePrint;
 import org.jowidgets.common.types.Dimension;
@@ -52,37 +50,33 @@ import prefuse.util.force.ForceSimulator;
 import prefuse.util.force.NBodyForce;
 import prefuse.util.force.SpringForce;
 
-public class GraphSettingsDialog extends JoFrame {
+final class GraphSettingsDialog extends JoFrame {
 
 	private static final String[] SPRING_FORCE = {
-			Messages.getString("GraphSettingsDialog.spring_force"), Messages.getString("GraphSettingsDialog.spring_coefficient"), Messages.getString("GraphSettingsDialog.default_spring_length")}; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			Messages.getString("GraphSettingsDialog.spring_force"), Messages.getString("GraphSettingsDialog.spring_coefficient"),
+			Messages.getString("GraphSettingsDialog.default_spring_length")};
 	private static final String[] DRAG_FORCE = {
-			Messages.getString("GraphSettingsDialog.drag_force"), Messages.getString("GraphSettingsDialog.drag_coefficient")}; //$NON-NLS-1$ //$NON-NLS-2$
+			Messages.getString("GraphSettingsDialog.drag_force"), Messages.getString("GraphSettingsDialog.drag_coefficient")};
 	private static final String[] NBODY_FORCE = {
-			Messages.getString("GraphSettingsDialog.nbody_force"), Messages.getString("GraphSettingsDialog.gravitational_constant"), Messages.getString("GraphSettingsDialog.distance"), Messages.getString("GraphSettingsDialog.barneshuttheta")}; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			Messages.getString("GraphSettingsDialog.nbody_force"),
+			Messages.getString("GraphSettingsDialog.gravitational_constant"), Messages.getString("GraphSettingsDialog.distance"),
+			Messages.getString("GraphSettingsDialog.barneshuttheta")};
 	private static final String[] DISPLAY_PERCENT_PARAMETER = {"SpringCoefficient", "DragCoefficient", "BarnesHutTheta"};
 	private static final Map<String, Float> MODIFIED_VALUES = new HashMap<String, Float>();
 
-	private final ForceSimulator forceSimulator;
+	GraphSettingsDialog(final ForceSimulator forceSimulator) {
+		super(Messages.getString("GraphSettingsDialog.settings"));
 
-	private final ITextLabelBluePrint labelBp;
-	private final IInputFieldBluePrint<Integer> inputFieldBp;
-	private final IComposite scrollComposite;
-	private final IContainer content;
+		setLayout(MigLayoutFactory.growingInnerCellLayout());
 
-	public GraphSettingsDialog(final ForceSimulator forceSimulator) {
-		super(Messages.getString("GraphSettingsDialog.settings")); //$NON-NLS-1$
-		this.setMinPackSize(new Dimension(300, 300));
+		setMinPackSize(new Dimension(300, 300));
 		initializeOwnValues();
 
-		labelBp = BPF.textLabel().alignLeft();
-		inputFieldBp = BPF.inputFieldIntegerNumber();
-		scrollComposite = this.add(BPF.scrollComposite(), MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
-		content = scrollComposite.add(BPF.composite(), MigLayoutFactory.growingCellLayout());
-		content.setLayout(new MigLayoutDescriptor("[100::][grow, 150::][right, 50!]", ""));
+		final IScrollComposite content = add(BPF.scrollComposite(), MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
 
-		this.forceSimulator = forceSimulator;
-		final Force[] forces = this.forceSimulator.getForces();
+		content.setLayout(new MigLayoutDescriptor("[0::][grow, 150::][right, 50!]", ""));
+
+		final Force[] forces = forceSimulator.getForces();
 		for (int i = 0; i < forces.length; i++) {
 			String[] paramNames = null;
 			final String forceName = forces[i].getClass().getSimpleName();
@@ -103,18 +97,22 @@ public class GraphSettingsDialog extends JoFrame {
 				}
 				paramNames = parameterNames;
 			}
-			initializeForceComponent(paramNames, forces[i]);
+			initializeForceComponent(content, paramNames, forces[i]);
 		}
 	}
 
-	private void initializeForceComponent(final String[] parameterNames, final Force force) {
-		content.add(BPF.textSeparator(parameterNames[0]).alignCenter().setStrong(), "grow, span, gapy 15, wrap"); //$NON-NLS-1$
+	private void initializeForceComponent(final IScrollComposite content, final String[] parameterNames, final Force force) {
+		content.add(BPF.textSeparator(parameterNames[0]).alignLeft().setStrong(), "growx, w 0::, span, gapy 20, wrap");
 		for (int j = 0; j < force.getParameterCount(); j++) {
-			createSliderComponent(force, j, parameterNames[1 + j]);
+			createSliderComponent(content, force, j, parameterNames[1 + j]);
 		}
 	}
 
-	private void createSliderComponent(final Force force, final int param, final String description) {
+	private void createSliderComponent(
+		final IScrollComposite content,
+		final Force force,
+		final int param,
+		final String description) {
 
 		final String forceParameter = force.getParameterName(param);
 
@@ -128,28 +126,30 @@ public class GraphSettingsDialog extends JoFrame {
 		final boolean displayPercent;
 		final double step = (max - min) / 100;
 
-		content.add(labelBp.setText(description), "sg lg"); //$NON-NLS-1$
-		final ISliderBluePrint sbp = BPF.slider();
+		final ITextLabelBluePrint labelBp = BPF.textLabel().alignRight();
+
+		content.add(labelBp.setText(description), "sg lg");
+		final ISliderBluePrint sliderBp = BPF.slider();
 		final ISlider slider;
 
-		IInputField<Integer> inputField; //$NON-NLS-1$ //$NON-NLS-2$
+		IInputField<Integer> inputField;
 		if (Arrays.asList(DISPLAY_PERCENT_PARAMETER).contains(forceParameter)) {
-			sbp.setMaximum(100).setMinimum(0).setTickSpacing(10);
-			slider = content.add(sbp, "growx"); //$NON-NLS-1$
+			sliderBp.setMaximum(100).setMinimum(0).setTickSpacing(5);
+			slider = content.add(sliderBp, "growx, w 0::");
 			slider.setValue((int) (100 / max * value));
-			inputField = content.add(inputFieldBp, "growx, split2");
+
+			inputField = content.add(BPF.inputFieldIntegerNumber(), "growx, w 0::, split2");
 			content.add(BPF.label().setText("%"), "wrap");
-			inputField.setValue((int) (slider.getValue())); //$NON-NLS-1$
+			inputField.setValue((int) (slider.getValue()));
 			displayPercent = true;
 		}
 		else {
-			sbp.setMaximum((int) max).setMinimum((int) min).setTickSpacing((int) (max - min) / 10);
-			slider = content.add(sbp, "growx"); //$NON-NLS-1$
+			sliderBp.setMaximum((int) max).setMinimum((int) min).setTickSpacing((int) (max - min) / 20);
+			slider = content.add(sliderBp, "growx, w 0::");
 			slider.setValue((int) value);
 
-			inputField = content.add(inputFieldBp, "growx, wrap");
-
-			inputField.setValue((int) value); //$NON-NLS-1$
+			inputField = content.add(BPF.inputFieldIntegerNumber(), "growx, w 0::, wrap");
+			inputField.setValue((int) value);
 			displayPercent = false;
 		}
 
