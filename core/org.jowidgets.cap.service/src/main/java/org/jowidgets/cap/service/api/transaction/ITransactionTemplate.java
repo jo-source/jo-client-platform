@@ -34,4 +34,6 @@ public interface ITransactionTemplate {
 
 	<RESULT_TYPE> RESULT_TYPE callInTransaction(Callable<RESULT_TYPE> callable);
 
+	void doInTransaction(Runnable runnable);
+
 }

@@ -63,4 +63,17 @@ final class TransactionTemplateImpl implements ITransactionTemplate {
 		}
 	}
 
+	@Override
+	public void doInTransaction(final Runnable runnable) {
+		Assert.paramNotNull(runnable, "runnable");
+		callInTransaction(new Callable<Void>() {
+			@Override
+			public Void call() throws Exception {
+				runnable.run();
+				return null;
+			}
+		});
+
+	}
+
 }
