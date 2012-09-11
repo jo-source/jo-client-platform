@@ -43,4 +43,8 @@ public final class TransactionTemplate {
 	public static <RESULT_TYPE> RESULT_TYPE callInTransaction(final Callable<RESULT_TYPE> callable) {
 		return getInstance().callInTransaction(callable);
 	}
+
+	public static void doInTransaction(final Runnable runnable) {
+		getInstance().doInTransaction(runnable);
+	}
 }
