@@ -76,7 +76,13 @@ final class NodeAccessImpl implements INodeAccess {
 
 	@Override
 	public Node createNewNode(final Object beanTypeId) {
+		return getOrCreateNode(beanTypeId, IdGenerator.createUniqueId(BeanTypeIdUtil.toString(beanTypeId)));
+	}
+
+	@Override
+	public Node getOrCreateNode(final Object beanTypeId, final Object id) {
 		Assert.paramNotNull(beanTypeId, "beanTypeId");
+		Assert.paramNotNull(id, "id");
 
 		final String beanTypeIdString = BeanTypeIdUtil.toString(beanTypeId);
 		final UniqueFactory<Node> factory = new UniqueFactory.UniqueNodeFactory(nodeIndex) {
@@ -85,7 +91,7 @@ final class NodeAccessImpl implements INodeAccess {
 				created.setProperty(IBean.ID_PROPERTY, properties.get(IBean.ID_PROPERTY));
 			}
 		};
-		final Node result = factory.getOrCreate(IBean.ID_PROPERTY, IdGenerator.createUniqueId(beanTypeIdString));
+		final Node result = factory.getOrCreate(IBean.ID_PROPERTY, id);
 		result.setProperty(beanTypePropertyName, beanTypeIdString);
 		nodeIndex.add(result, beanTypePropertyName, beanTypeIdString);
 		return result;
