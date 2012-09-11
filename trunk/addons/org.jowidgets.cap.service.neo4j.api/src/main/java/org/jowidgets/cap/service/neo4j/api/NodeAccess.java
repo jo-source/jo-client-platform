@@ -45,4 +45,8 @@ public final class NodeAccess {
 	public static Node createNewNode(final Object beanTypeId) {
 		return getInstance().createNewNode(beanTypeId);
 	}
+
+	public static Node getOrCreateNode(final Object beanTypeId, final Object id) {
+		return getInstance().getOrCreateNode(beanTypeId, id);
+	}
 }

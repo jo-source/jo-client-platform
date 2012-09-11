@@ -36,4 +36,6 @@ public interface INodeAccess {
 
 	Node createNewNode(Object beanTypeId);
 
+	Node getOrCreateNode(Object beanTypeId, Object id);
+
 }
