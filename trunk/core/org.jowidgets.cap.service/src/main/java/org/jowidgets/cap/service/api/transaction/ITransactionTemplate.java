@@ -26,22 +26,12 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.neo4j.api;
+package org.jowidgets.cap.service.api.transaction;
 
-import org.jowidgets.cap.service.api.transaction.ITransactionTemplate;
+import java.util.concurrent.Callable;
 
-public interface INeo4JServiceToolkit {
+public interface ITransactionTemplate {
 
-	INeo4JServiceFactory serviceFactory();
-
-	IGraphDBConfigBuilder graphDBConfigBuilder();
-
-	INodeAccess nodeAccess();
-
-	IRelationshipAccess relationshipAccess();
-
-	INeo4JServicesDecoratorProviderBuilder serviceDecoratorProviderBuilder();
-
-	ITransactionTemplate transactionTemplate();
+	<RESULT_TYPE> RESULT_TYPE callInTransaction(Callable<RESULT_TYPE> callable);
 
 }
