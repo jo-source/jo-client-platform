@@ -67,6 +67,10 @@ public final class JpaServiceToolkit {
 		return getInstance().transactionTemplate(entityManagerFactory);
 	}
 
+	public static IEntityManagerContextTemplate entityManagerContextTemplate(final EntityManagerFactory entityManagerFactory) {
+		return getInstance().entityManagerContextTemplate(entityManagerFactory);
+	}
+
 	public static IJpaServicesDecoratorProviderBuilder serviceDecoratorProviderBuilder(final String persistenceUnitName) {
 		return getInstance().serviceDecoratorProviderBuilder(persistenceUnitName);
 	}

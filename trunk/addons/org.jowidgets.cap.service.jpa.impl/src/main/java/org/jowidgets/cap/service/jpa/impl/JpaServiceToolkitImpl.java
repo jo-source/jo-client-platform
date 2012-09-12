@@ -31,6 +31,7 @@ package org.jowidgets.cap.service.jpa.impl;
 import javax.persistence.EntityManagerFactory;
 
 import org.jowidgets.cap.service.api.transaction.ITransactionTemplate;
+import org.jowidgets.cap.service.jpa.api.IEntityManagerContextTemplate;
 import org.jowidgets.cap.service.jpa.api.IJpaServiceFactory;
 import org.jowidgets.cap.service.jpa.api.IJpaServiceToolkit;
 import org.jowidgets.cap.service.jpa.api.IJpaServicesDecoratorProviderBuilder;
@@ -55,6 +56,11 @@ public final class JpaServiceToolkitImpl implements IJpaServiceToolkit {
 	@Override
 	public ITransactionTemplate transactionTemplate(final EntityManagerFactory entityManagerFactory) {
 		return new JpaTransactionTemplateImpl(entityManagerFactory);
+	}
+
+	@Override
+	public IEntityManagerContextTemplate entityManagerContextTemplate(final EntityManagerFactory entityManagerFactory) {
+		return new EntityManagerContextTemplateImpl(entityManagerFactory);
 	}
 
 }
