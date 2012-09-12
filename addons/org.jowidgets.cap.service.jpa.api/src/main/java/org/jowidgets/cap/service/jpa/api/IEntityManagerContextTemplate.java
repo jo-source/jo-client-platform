@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -28,29 +28,12 @@
 
 package org.jowidgets.cap.service.jpa.api;
 
-import javax.persistence.EntityManagerFactory;
+import java.util.concurrent.Callable;
 
-import org.jowidgets.cap.service.api.transaction.ITransactionTemplate;
+public interface IEntityManagerContextTemplate {
 
-public interface IJpaServiceToolkit {
+	<RESULT_TYPE> RESULT_TYPE callInEntityManagerContext(Callable<RESULT_TYPE> callable);
 
-	IJpaServiceFactory serviceFactory();
-
-	/**
-	 * Gets a default builder to decorate jpa services for given persistence unit.
-	 * 
-	 * Remark: If you want to use more that one persistence unit in an application,
-	 * you may use more than one IServiceProviderHolder, one for each persistence unit,
-	 * and decorate it manually (without java services injection).
-	 * TODO MG must be verified, if this is possible.
-	 * 
-	 * @param persistenceUnitName The persistence unit to get the decorator builder for
-	 * @return The builder
-	 */
-	IJpaServicesDecoratorProviderBuilder serviceDecoratorProviderBuilder(String persistenceUnitName);
-
-	ITransactionTemplate transactionTemplate(EntityManagerFactory entityManagerFactory);
-
-	IEntityManagerContextTemplate entityManagerContextTemplate(EntityManagerFactory entityManagerFactory);
+	void doInEntityManagerContext(Runnable runnable);
 
 }

@@ -32,78 +32,65 @@ import java.util.concurrent.Callable;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.EntityTransaction;
 
-import org.jowidgets.cap.service.api.transaction.ITransactionTemplate;
 import org.jowidgets.cap.service.jpa.api.EntityManagerHolder;
 import org.jowidgets.cap.service.jpa.api.IEntityManagerContextTemplate;
-import org.jowidgets.cap.service.jpa.api.EntityManagerContextTemplate;
 import org.jowidgets.util.Assert;
 
-final class JpaTransactionTemplateImpl implements ITransactionTemplate {
+final class EntityManagerContextTemplateImpl implements IEntityManagerContextTemplate {
 
-	private final IEntityManagerContextTemplate entityManagerContextTemplate;
+	private final EntityManagerFactory entityManagerFactory;
 
-	JpaTransactionTemplateImpl(final EntityManagerFactory entityManagerFactory) {
+	EntityManagerContextTemplateImpl(final EntityManagerFactory entityManagerFactory) {
 		Assert.paramNotNull(entityManagerFactory, "entityManagerFactory");
-		this.entityManagerContextTemplate = EntityManagerContextTemplate.create(entityManagerFactory);
+		this.entityManagerFactory = entityManagerFactory;
 	}
 
 	@Override
-	public <RESULT_TYPE> RESULT_TYPE callInTransaction(final Callable<RESULT_TYPE> callable) {
+	public <RESULT_TYPE> RESULT_TYPE callInEntityManagerContext(final Callable<RESULT_TYPE> callable) {
 		Assert.paramNotNull(callable, "callable");
 
-		return entityManagerContextTemplate.callInEntityManagerContext(new Callable<RESULT_TYPE>() {
-			@Override
-			public RESULT_TYPE call() throws Exception {
-				boolean transactionStarted = false;
-				EntityTransaction tx = null;
-				try {
-					final EntityManager entityManager = EntityManagerHolder.get();
-					if (entityManager == null) {
-						throw new IllegalStateException("Entity manager context not set");
-					}
-					tx = entityManager.getTransaction();
-					if (tx != null && !tx.isActive()) {
-						tx.begin();
-						transactionStarted = true;
-					}
-					final RESULT_TYPE result = callable.call();
-					if (transactionStarted) {
-						tx.commit();
-					}
-					return result;
-				}
-				catch (final Throwable throwable) {
-					if (tx != null && tx.isActive() && transactionStarted) {
-						tx.rollback();
-					}
-					if (throwable instanceof Error) {
-						throw (Error) throwable;
-					}
-					else if (throwable instanceof RuntimeException) {
-						throw (RuntimeException) throwable;
-					}
-					else {
-						throw new RuntimeException(throwable);
-					}
-				}
+		boolean entityManagerCreated = false;
+		EntityManager entityManager = null;
+		try {
+			entityManager = EntityManagerHolder.get();
+			if (entityManager == null) {
+				entityManager = entityManagerFactory.createEntityManager();
+				entityManagerCreated = true;
+				EntityManagerHolder.set(entityManager);
 			}
-		});
-
+			final RESULT_TYPE result = callable.call();
+			return result;
+		}
+		catch (final Throwable throwable) {
+			if (throwable instanceof Error) {
+				throw (Error) throwable;
+			}
+			else if (throwable instanceof RuntimeException) {
+				throw (RuntimeException) throwable;
+			}
+			else {
+				throw new RuntimeException(throwable);
+			}
+		}
+		finally {
+			if (entityManager != null && entityManagerCreated && entityManager.isOpen()) {
+				EntityManagerHolder.set(null);
+				entityManager.close();
+			}
+		}
 	}
 
 	@Override
-	public void doInTransaction(final Runnable runnable) {
+	public void doInEntityManagerContext(final Runnable runnable) {
 		Assert.paramNotNull(runnable, "runnable");
-		callInTransaction(new Callable<Void>() {
+		callInEntityManagerContext(new Callable<Void>() {
 			@Override
 			public Void call() throws Exception {
 				runnable.run();
 				return null;
 			}
 		});
-
 	}
 
 }

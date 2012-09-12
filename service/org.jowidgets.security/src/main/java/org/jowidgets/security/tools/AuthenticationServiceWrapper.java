@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,31 +26,24 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.jpa.api;
+package org.jowidgets.security.tools;
 
-import javax.persistence.EntityManagerFactory;
+import org.jowidgets.security.api.IAuthenticationService;
+import org.jowidgets.util.Assert;
 
-import org.jowidgets.cap.service.api.transaction.ITransactionTemplate;
+public class AuthenticationServiceWrapper<PRINCIPAL_TYPE, CREDENTIAL_TYPE> implements
+		IAuthenticationService<PRINCIPAL_TYPE, CREDENTIAL_TYPE> {
 
-public interface IJpaServiceToolkit {
+	private final IAuthenticationService<PRINCIPAL_TYPE, CREDENTIAL_TYPE> original;
 
-	IJpaServiceFactory serviceFactory();
+	public AuthenticationServiceWrapper(final IAuthenticationService<PRINCIPAL_TYPE, CREDENTIAL_TYPE> original) {
+		Assert.paramNotNull(original, "original");
+		this.original = original;
+	}
 
-	/**
-	 * Gets a default builder to decorate jpa services for given persistence unit.
-	 * 
-	 * Remark: If you want to use more that one persistence unit in an application,
-	 * you may use more than one IServiceProviderHolder, one for each persistence unit,
-	 * and decorate it manually (without java services injection).
-	 * TODO MG must be verified, if this is possible.
-	 * 
-	 * @param persistenceUnitName The persistence unit to get the decorator builder for
-	 * @return The builder
-	 */
-	IJpaServicesDecoratorProviderBuilder serviceDecoratorProviderBuilder(String persistenceUnitName);
-
-	ITransactionTemplate transactionTemplate(EntityManagerFactory entityManagerFactory);
-
-	IEntityManagerContextTemplate entityManagerContextTemplate(EntityManagerFactory entityManagerFactory);
+	@Override
+	public PRINCIPAL_TYPE authenticate(final CREDENTIAL_TYPE credentials) {
+		return original.authenticate(credentials);
+	}
 
 }
