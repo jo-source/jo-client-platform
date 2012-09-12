@@ -31,6 +31,9 @@ package org.jowidgets.cap.service.jpa.api;
 import java.util.Iterator;
 import java.util.ServiceLoader;
 
+import javax.persistence.EntityManagerFactory;
+
+import org.jowidgets.cap.service.api.transaction.ITransactionTemplate;
 import org.jowidgets.util.Assert;
 
 public final class JpaServiceToolkit {
@@ -58,6 +61,10 @@ public final class JpaServiceToolkit {
 
 	public static IJpaServiceFactory serviceFactory() {
 		return getInstance().serviceFactory();
+	}
+
+	public static ITransactionTemplate transactionTemplate(final EntityManagerFactory entityManagerFactory) {
+		return getInstance().transactionTemplate(entityManagerFactory);
 	}
 
 	public static IJpaServicesDecoratorProviderBuilder serviceDecoratorProviderBuilder(final String persistenceUnitName) {

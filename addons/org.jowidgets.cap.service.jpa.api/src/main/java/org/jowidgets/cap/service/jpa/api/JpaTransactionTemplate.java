@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,35 +26,18 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.jpa.impl;
+package org.jowidgets.cap.service.jpa.api;
 
 import javax.persistence.EntityManagerFactory;
 
 import org.jowidgets.cap.service.api.transaction.ITransactionTemplate;
-import org.jowidgets.cap.service.jpa.api.IJpaServiceFactory;
-import org.jowidgets.cap.service.jpa.api.IJpaServiceToolkit;
-import org.jowidgets.cap.service.jpa.api.IJpaServicesDecoratorProviderBuilder;
 
-public final class JpaServiceToolkitImpl implements IJpaServiceToolkit {
+public final class JpaTransactionTemplate {
 
-	private IJpaServiceFactory serviceFactory;
+	private JpaTransactionTemplate() {}
 
-	@Override
-	public IJpaServiceFactory serviceFactory() {
-		if (serviceFactory == null) {
-			serviceFactory = new JpaServiceFactoryImpl();
-		}
-		return serviceFactory;
-	}
-
-	@Override
-	public IJpaServicesDecoratorProviderBuilder serviceDecoratorProviderBuilder(final String persistenceUnitName) {
-		return new JpaServicesDecoratorProviderBuilder(persistenceUnitName);
-	}
-
-	@Override
-	public ITransactionTemplate transactionTemplate(final EntityManagerFactory entityManagerFactory) {
-		return new JpaTransactionTemplateImpl(entityManagerFactory);
+	public static ITransactionTemplate create(final EntityManagerFactory entityManagerFactory) {
+		return JpaServiceToolkit.transactionTemplate(entityManagerFactory);
 	}
 
 }

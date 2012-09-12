@@ -70,7 +70,7 @@ public final class Neo4JServiceToolkitImpl implements INeo4JServiceToolkit {
 	@Override
 	public ITransactionTemplate transactionTemplate() {
 		if (transactionTemplate == null) {
-			transactionTemplate = new TransactionTemplateImpl();
+			transactionTemplate = new Neo4JTransactionTemplateImpl();
 		}
 		return transactionTemplate;
 	}
