@@ -28,6 +28,10 @@
 
 package org.jowidgets.cap.service.jpa.api;
 
+import javax.persistence.EntityManagerFactory;
+
+import org.jowidgets.cap.service.api.transaction.ITransactionTemplate;
+
 public interface IJpaServiceToolkit {
 
 	IJpaServiceFactory serviceFactory();
@@ -44,5 +48,7 @@ public interface IJpaServiceToolkit {
 	 * @return The builder
 	 */
 	IJpaServicesDecoratorProviderBuilder serviceDecoratorProviderBuilder(String persistenceUnitName);
+
+	ITransactionTemplate transactionTemplate(EntityManagerFactory entityManagerFactory);
 
 }

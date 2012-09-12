@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,35 +26,25 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.jpa.impl;
+package org.jowidgets.cap.service.neo4j.api;
 
-import javax.persistence.EntityManagerFactory;
+import java.util.concurrent.Callable;
 
 import org.jowidgets.cap.service.api.transaction.ITransactionTemplate;
-import org.jowidgets.cap.service.jpa.api.IJpaServiceFactory;
-import org.jowidgets.cap.service.jpa.api.IJpaServiceToolkit;
-import org.jowidgets.cap.service.jpa.api.IJpaServicesDecoratorProviderBuilder;
 
-public final class JpaServiceToolkitImpl implements IJpaServiceToolkit {
+public final class Neo4JTransactionTemplate {
 
-	private IJpaServiceFactory serviceFactory;
+	private Neo4JTransactionTemplate() {}
 
-	@Override
-	public IJpaServiceFactory serviceFactory() {
-		if (serviceFactory == null) {
-			serviceFactory = new JpaServiceFactoryImpl();
-		}
-		return serviceFactory;
+	public static ITransactionTemplate getInstance() {
+		return Neo4JServiceToolkit.transactionTemplate();
 	}
 
-	@Override
-	public IJpaServicesDecoratorProviderBuilder serviceDecoratorProviderBuilder(final String persistenceUnitName) {
-		return new JpaServicesDecoratorProviderBuilder(persistenceUnitName);
+	public static <RESULT_TYPE> RESULT_TYPE callInTransaction(final Callable<RESULT_TYPE> callable) {
+		return getInstance().callInTransaction(callable);
 	}
 
-	@Override
-	public ITransactionTemplate transactionTemplate(final EntityManagerFactory entityManagerFactory) {
-		return new JpaTransactionTemplateImpl(entityManagerFactory);
+	public static void doInTransaction(final Runnable runnable) {
+		getInstance().doInTransaction(runnable);
 	}
-
 }

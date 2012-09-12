@@ -26,28 +26,59 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.neo4J.impl;
+package org.jowidgets.cap.service.jpa.impl;
 
 import java.util.concurrent.Callable;
 
-import org.jowidgets.cap.service.api.transaction.ITransactionTemplate;
-import org.jowidgets.cap.service.neo4j.api.GraphDBConfig;
-import org.jowidgets.util.Assert;
-import org.neo4j.graphdb.Transaction;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.EntityTransaction;
 
-final class TransactionTemplateImpl implements ITransactionTemplate {
+import org.jowidgets.cap.service.api.transaction.ITransactionTemplate;
+import org.jowidgets.cap.service.jpa.api.EntityManagerHolder;
+import org.jowidgets.util.Assert;
+
+final class JpaTransactionTemplateImpl implements ITransactionTemplate {
+
+	private final EntityManagerFactory entityManagerFactory;
+
+	JpaTransactionTemplateImpl(final EntityManagerFactory entityManagerFactory) {
+		Assert.paramNotNull(entityManagerFactory, "entityManagerFactory");
+		this.entityManagerFactory = entityManagerFactory;
+	}
 
 	@Override
 	public <RESULT_TYPE> RESULT_TYPE callInTransaction(final Callable<RESULT_TYPE> callable) {
 		Assert.paramNotNull(callable, "callable");
-		final Transaction tx = GraphDBConfig.getGraphDbService().beginTx();
+
+		boolean entityManagerCreated = false;
+		boolean transactionStarted = false;
+
+		EntityManager entityManager = null;
+		EntityTransaction tx = null;
+
 		try {
+			entityManager = EntityManagerHolder.get();
+			if (entityManager == null) {
+				entityManager = entityManagerFactory.createEntityManager();
+				entityManagerCreated = true;
+				EntityManagerHolder.set(entityManager);
+			}
+			tx = entityManager.getTransaction();
+			if (tx != null && !tx.isActive()) {
+				tx.begin();
+				transactionStarted = true;
+			}
 			final RESULT_TYPE result = callable.call();
-			tx.success();
+			if (transactionStarted) {
+				tx.commit();
+			}
 			return result;
 		}
 		catch (final Throwable throwable) {
-			tx.failure();
+			if (tx != null && tx.isActive() && transactionStarted) {
+				tx.rollback();
+			}
 			if (throwable instanceof Error) {
 				throw (Error) throwable;
 			}
@@ -59,7 +90,10 @@ final class TransactionTemplateImpl implements ITransactionTemplate {
 			}
 		}
 		finally {
-			tx.finish();
+			if (entityManager != null && entityManager.isOpen() && entityManagerCreated) {
+				EntityManagerHolder.set(null);
+				entityManager.close();
+			}
 		}
 	}
 
