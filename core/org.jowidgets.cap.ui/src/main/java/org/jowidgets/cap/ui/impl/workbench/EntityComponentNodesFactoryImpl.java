@@ -74,16 +74,16 @@ final class EntityComponentNodesFactoryImpl implements IEntityComponentNodesFact
 		for (final IEntityComponentNodesFactoryPlugin plugin : PluginProvider.getPlugins(IEntityComponentNodesFactoryPlugin.ID)) {
 			entities = plugin.modify(entities);
 		}
-		for (final IEntityApplicationNode entityClass : entities) {
-			result.add(createNodeFromEntity(entityClass));
+		for (final IEntityApplicationNode entityNode : entities) {
+			result.add(createNodeFromEntity(entityNode));
 		}
 		return result;
 	}
 
 	@Override
-	public IComponentNodeModel createNode(final IEntityApplicationNode entityClass) {
-		Assert.paramNotNull(entityClass, "entityClass");
-		return createNodeFromEntity(entityClass);
+	public IComponentNodeModel createNode(final IEntityApplicationNode entityNode) {
+		Assert.paramNotNull(entityNode, "entityNode");
+		return createNodeFromEntity(entityNode);
 	}
 
 	@Override
@@ -115,13 +115,29 @@ final class EntityComponentNodesFactoryImpl implements IEntityComponentNodesFact
 
 	private IComponentNodeModel createNodeFromEntity(final IEntityApplicationNode applicationNode) {
 		final IComponentNodeModelBuilder builder = new ComponentNodeModelBuilder();
-		//TODO MG the id of workbench parts should be an object
-		builder.setId(applicationNode.getEntityId().toString());
-		builder.setLabel(applicationNode.getLabel().get());
+		final Object entityId = applicationNode.getEntityId();
+		String label = applicationNode.getLabel().get();
+		if (entityId == null) {
+			builder.setId(label);
+		}
+		else {
+			//TODO MG the id of workbench parts should be an object
+			builder.setId(entityId.toString());
+			if (EmptyCheck.isEmpty(label)) {
+				final IEntityService entityService = ServiceProvider.getService(IEntityService.ID);
+				final IBeanDtoDescriptor beanDtoDescriptor = entityService.getDescriptor(entityId);
+				if (beanDtoDescriptor != null) {
+					label = beanDtoDescriptor.getLabelPlural().get();
+				}
+			}
+			builder.setComponentFactory(CapUiToolkit.workbenchToolkit().entityComponentFactory().create(applicationNode));
+		}
+
+		builder.setLabel(label);
 		builder.setTooltip(applicationNode.getDescription().get());
-		builder.setComponentFactory(CapUiToolkit.workbenchToolkit().entityComponentFactory().create(applicationNode));
-		for (final IEntityApplicationNode childEntityClass : applicationNode.getChildren()) {
-			builder.addChild(createNodeFromEntity(childEntityClass));
+
+		for (final IEntityApplicationNode childNode : applicationNode.getChildren()) {
+			builder.addChild(createNodeFromEntity(childNode));
 		}
 		return builder.build();
 	}

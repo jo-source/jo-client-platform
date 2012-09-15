@@ -150,8 +150,16 @@ final class DefaultBeanFactory implements IBeanFactory {
 		final Class<BEAN_TYPE> beanType,
 		final Object beanTypeId,
 		final Node node) {
-		return (BEAN_TYPE) Proxy.newProxyInstance(beanType.getClassLoader(), new Class[] {
-				beanType, INodeBean.class, IBeanPropertyMap.class}, new ProxyInvocationHandler(node, beanType, beanTypeId));
+		if (beanType != INodeBean.class) {
+			return (BEAN_TYPE) Proxy.newProxyInstance(beanType.getClassLoader(), new Class[] {
+					beanType, INodeBean.class, IBeanPropertyMap.class}, new ProxyInvocationHandler(node, beanType, beanTypeId));
+		}
+		else {
+			return (BEAN_TYPE) Proxy.newProxyInstance(
+					beanType.getClassLoader(),
+					new Class[] {beanType, IBeanPropertyMap.class},
+					new ProxyInvocationHandler(node, beanType, beanTypeId));
+		}
 	}
 
 	final class ProxyInvocationHandler implements InvocationHandler {
@@ -212,7 +220,7 @@ final class DefaultBeanFactory implements IBeanFactory {
 					return node.getProperty(IBean.VERSION_PROPERTY);
 				}
 				else {
-					return -1;
+					return -1L;
 				}
 			}
 			else if (isGetValueMethod(method)) {
