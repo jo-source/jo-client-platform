@@ -58,11 +58,14 @@ import org.jowidgets.cap.common.api.link.ILinkDataBuilder;
 import org.jowidgets.cap.common.api.link.ILinkDeletionBuilder;
 import org.jowidgets.cap.common.api.lookup.ILookUpToolkit;
 import org.jowidgets.cap.common.api.service.IBeanServicesProviderFactory;
+import org.jowidgets.cap.common.api.service.IEntityService;
+import org.jowidgets.cap.common.api.service.IEntityServiceCompositeBuilder;
 import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.common.api.sort.ISortFactory;
 import org.jowidgets.cap.common.api.validation.IBeanValidationResultListBuilder;
 import org.jowidgets.cap.common.api.validation.IBeanValidator;
 import org.jowidgets.i18n.tools.StaticMessage;
+import org.jowidgets.service.api.IRedundantServiceResolver;
 import org.jowidgets.util.Assert;
 
 public final class DefaultCapCommonToolkit implements ICapCommonToolkit {
@@ -74,6 +77,7 @@ public final class DefaultCapCommonToolkit implements ICapCommonToolkit {
 	private final IBeanDtoFilter beanDtoFilter;
 
 	private Validator beanValidator;
+	private EntityServiceResolverImpl entityServiceResolver;
 
 	public DefaultCapCommonToolkit() {
 		this.sortFactory = new SortFactoryImpl();
@@ -282,6 +286,19 @@ public final class DefaultCapCommonToolkit implements ICapCommonToolkit {
 	@Override
 	public <BEAN_TYPE> IExecutableCheckerCompositeBuilder<BEAN_TYPE> executableCheckerCompositeBuilder() {
 		return new ExecutableCheckerCompositeBuilderImpl<BEAN_TYPE>();
+	}
+
+	@Override
+	public IEntityServiceCompositeBuilder entityServiceCompositeBuilder() {
+		return new EntityServiceCompositeBuilderImpl();
+	}
+
+	@Override
+	public IRedundantServiceResolver<IEntityService> entityServiceResolver() {
+		if (entityServiceResolver == null) {
+			entityServiceResolver = new EntityServiceResolverImpl();
+		}
+		return entityServiceResolver;
 	}
 
 }

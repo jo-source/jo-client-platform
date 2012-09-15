@@ -26,7 +26,7 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.impl;
+package org.jowidgets.cap.common.impl;
 
 import java.util.Collections;
 import java.util.LinkedList;

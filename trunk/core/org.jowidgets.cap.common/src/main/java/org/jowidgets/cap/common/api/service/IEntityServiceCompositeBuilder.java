@@ -26,7 +26,7 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.api.entity;
+package org.jowidgets.cap.common.api.service;
 
 import org.jowidgets.cap.common.api.service.IEntityService;
 

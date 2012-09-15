@@ -26,16 +26,29 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.api.entity;
+package org.jowidgets.cap.common.impl;
 
-import org.jowidgets.cap.service.api.CapServiceToolkit;
+import java.util.Collection;
 
-public final class EntityServiceComposite {
+import org.jowidgets.cap.common.api.service.EntityServiceComposite;
+import org.jowidgets.cap.common.api.service.IEntityService;
+import org.jowidgets.cap.common.api.service.IEntityServiceCompositeBuilder;
+import org.jowidgets.service.api.IRedundantServiceResolver;
+import org.jowidgets.service.api.IServiceId;
 
-	private EntityServiceComposite() {}
+final class EntityServiceResolverImpl implements IRedundantServiceResolver<IEntityService> {
 
-	public static IEntityServiceCompositeBuilder builder() {
-		return CapServiceToolkit.entityServiceCompositeBuilder();
+	@Override
+	public IServiceId<IEntityService> getServiceId() {
+		return IEntityService.ID;
 	}
 
+	@Override
+	public IEntityService resolve(final Collection<IEntityService> services) {
+		final IEntityServiceCompositeBuilder builder = EntityServiceComposite.builder();
+		for (final IEntityService entityService : services) {
+			builder.add(entityService);
+		}
+		return builder.build();
+	}
 }

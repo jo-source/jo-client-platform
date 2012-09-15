@@ -56,11 +56,14 @@ import org.jowidgets.cap.common.api.link.ILinkDataBuilder;
 import org.jowidgets.cap.common.api.link.ILinkDeletionBuilder;
 import org.jowidgets.cap.common.api.lookup.ILookUpToolkit;
 import org.jowidgets.cap.common.api.service.IBeanServicesProviderFactory;
+import org.jowidgets.cap.common.api.service.IEntityService;
+import org.jowidgets.cap.common.api.service.IEntityServiceCompositeBuilder;
 import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.common.api.sort.ISortFactory;
 import org.jowidgets.cap.common.api.validation.IBeanValidationResultListBuilder;
 import org.jowidgets.cap.common.api.validation.IBeanValidator;
 import org.jowidgets.cap.common.impl.DefaultCapCommonToolkit;
+import org.jowidgets.service.api.IRedundantServiceResolver;
 
 public final class CapCommonToolkit {
 
@@ -221,5 +224,13 @@ public final class CapCommonToolkit {
 
 	public static <BEAN_TYPE> IExecutableCheckerCompositeBuilder<BEAN_TYPE> executableCheckerCompositeBuilder() {
 		return getInstance().executableCheckerCompositeBuilder();
+	}
+
+	public static IEntityServiceCompositeBuilder entityServiceCompositeBuilder() {
+		return getInstance().entityServiceCompositeBuilder();
+	}
+
+	public static IRedundantServiceResolver<IEntityService> entityServiceResolver() {
+		return getInstance().entityServiceResolver();
 	}
 }
