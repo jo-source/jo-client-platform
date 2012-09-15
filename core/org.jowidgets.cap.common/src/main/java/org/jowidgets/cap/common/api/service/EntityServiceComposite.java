@@ -26,33 +26,16 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.impl;
+package org.jowidgets.cap.common.api.service;
 
-import java.util.LinkedList;
-import java.util.List;
+import org.jowidgets.cap.common.api.CapCommonToolkit;
 
-import org.jowidgets.cap.common.api.service.IEntityService;
-import org.jowidgets.cap.service.api.entity.IEntityServiceCompositeBuilder;
-import org.jowidgets.util.Assert;
+public final class EntityServiceComposite {
 
-final class EntityServiceCompositeBuilderImpl implements IEntityServiceCompositeBuilder {
+	private EntityServiceComposite() {}
 
-	private final List<IEntityService> services;
-
-	EntityServiceCompositeBuilderImpl() {
-		this.services = new LinkedList<IEntityService>();
-	}
-
-	@Override
-	public IEntityServiceCompositeBuilder add(final IEntityService entityService) {
-		Assert.paramNotNull(entityService, "entityService");
-		services.add(entityService);
-		return this;
-	}
-
-	@Override
-	public IEntityService build() {
-		return new EntityServiceCompositeImpl(services);
+	public static IEntityServiceCompositeBuilder builder() {
+		return CapCommonToolkit.entityServiceCompositeBuilder();
 	}
 
 }

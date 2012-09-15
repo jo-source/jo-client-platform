@@ -55,10 +55,13 @@ import org.jowidgets.cap.common.api.link.ILinkDataBuilder;
 import org.jowidgets.cap.common.api.link.ILinkDeletionBuilder;
 import org.jowidgets.cap.common.api.lookup.ILookUpToolkit;
 import org.jowidgets.cap.common.api.service.IBeanServicesProviderFactory;
+import org.jowidgets.cap.common.api.service.IEntityService;
+import org.jowidgets.cap.common.api.service.IEntityServiceCompositeBuilder;
 import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.common.api.sort.ISortFactory;
 import org.jowidgets.cap.common.api.validation.IBeanValidationResultListBuilder;
 import org.jowidgets.cap.common.api.validation.IBeanValidator;
+import org.jowidgets.service.api.IRedundantServiceResolver;
 
 public interface ICapCommonToolkit {
 
@@ -142,5 +145,9 @@ public interface ICapCommonToolkit {
 	IBeanValidationResultListBuilder beanValidationResultListBuilder();
 
 	<BEAN_TYPE> IExecutableCheckerCompositeBuilder<BEAN_TYPE> executableCheckerCompositeBuilder();
+
+	IEntityServiceCompositeBuilder entityServiceCompositeBuilder();
+
+	IRedundantServiceResolver<IEntityService> entityServiceResolver();
 
 }

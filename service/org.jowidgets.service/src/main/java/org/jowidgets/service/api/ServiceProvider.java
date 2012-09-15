@@ -28,12 +28,15 @@
 
 package org.jowidgets.service.api;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.Set;
 
@@ -43,6 +46,7 @@ public final class ServiceProvider {
 
 	private static CompositeServiceProviderHolder compositeServiceProviderHolder;
 	private static List<IServiceProviderDecoratorHolder> serviceProviderDecorators;
+	private static Map<IServiceId<?>, IRedundantServiceResolver<?>> redundantServiceResolvers;
 
 	private ServiceProvider() {}
 
@@ -56,6 +60,19 @@ public final class ServiceProvider {
 		final List<IServiceProviderDecoratorHolder> decorators = getServiceProviderDecorators();
 		decorators.add(decorator);
 		sortDecorators(decorators);
+	}
+
+	public static synchronized void registerRedundantServiceResolver(final IRedundantServiceResolver<?> resolver) {
+		Assert.paramNotNull(resolver, "resolver");
+		Assert.paramNotNull(resolver.getServiceId(), "resolver.getServiceId()");
+		final Map<IServiceId<?>, IRedundantServiceResolver<?>> serviceResolvers = getRedunantServiceResolvers();
+		final IServiceId<?> serviceId = resolver.getServiceId();
+		if (!serviceResolvers.containsKey(serviceId)) {
+			serviceResolvers.put(serviceId, resolver);
+		}
+		else {
+			throw new IllegalStateException("There is already a service resolver registred for the id '" + serviceId + "'");
+		}
 	}
 
 	private static synchronized CompositeServiceProviderHolder getCompositeServiceProviderHolder() {
@@ -104,6 +121,41 @@ public final class ServiceProvider {
 		return serviceProviderDecorators;
 	}
 
+	private static Map<IServiceId<?>, IRedundantServiceResolver<?>> getRedunantServiceResolvers() {
+		if (redundantServiceResolvers == null) {
+			redundantServiceResolvers = createRedunantServiceResolvers();
+		}
+		return redundantServiceResolvers;
+	}
+
+	@SuppressWarnings("rawtypes")
+	private static Map<IServiceId<?>, IRedundantServiceResolver<?>> createRedunantServiceResolvers() {
+		final Map<IServiceId<?>, IRedundantServiceResolver<?>> result = new HashMap<IServiceId<?>, IRedundantServiceResolver<?>>();
+
+		final ServiceLoader<IRedundantServiceResolver> service = ServiceLoader.load(IRedundantServiceResolver.class);
+		if (service != null) {
+			final Iterator<IRedundantServiceResolver> iterator = service.iterator();
+			while (iterator.hasNext()) {
+				final IRedundantServiceResolver serviceResolver = iterator.next();
+				final IServiceId serviceId = serviceResolver.getServiceId();
+				if (serviceId != null) {
+					if (!result.containsKey(serviceId)) {
+						result.put(serviceId, serviceResolver);
+					}
+					else {
+						throw new IllegalStateException("There is already a service resolver registred for the id '"
+							+ serviceId
+							+ "'");
+					}
+				}
+				else {
+					throw new IllegalStateException("The registered service resolver has no service id.");
+				}
+			}
+		}
+		return result;
+	}
+
 	private static List<IServiceProviderDecoratorHolder> createServiceProviderDecorators() {
 		final List<IServiceProviderDecoratorHolder> result = getRegisteredDecorators();
 		sortDecorators(result);
@@ -148,27 +200,46 @@ public final class ServiceProvider {
 				@Override
 				public Set<IServiceId<?>> getAvailableServices() {
 					final Set<IServiceId<?>> result = new HashSet<IServiceId<?>>();
-					for (final IServiceProviderHolder serviceToolkit : serviceProviderHolders) {
-						result.addAll(serviceToolkit.getServiceProvider().getAvailableServices());
+					for (final IServiceProviderHolder serviceProviderHolder : serviceProviderHolders) {
+						result.addAll(serviceProviderHolder.getServiceProvider().getAvailableServices());
 					}
 					return result;
 				}
 
+				@SuppressWarnings({"rawtypes", "unchecked"})
 				@Override
 				public <SERVICE_TYPE> SERVICE_TYPE get(final IServiceId<SERVICE_TYPE> id) {
-					for (final IServiceProviderHolder serviceToolkit : serviceProviderHolders) {
-						final IServiceProvider provider = serviceToolkit.getServiceProvider();
+					final Collection<SERVICE_TYPE> result = new LinkedList<SERVICE_TYPE>();
+					for (final IServiceProviderHolder serviceProviderHolder : serviceProviderHolders) {
+						final IServiceProvider provider = serviceProviderHolder.getServiceProvider();
 						if (provider.getAvailableServices().contains(id)) {
-							return provider.get(id);
+							result.add(provider.get(id));
 						}
 					}
-					return null;
+					if (result.size() == 0) {
+						return null;
+					}
+					else if (result.size() == 1) {
+						return result.iterator().next();
+					}
+					else {
+						final IRedundantServiceResolver resolver = getRedunantServiceResolvers().get(id);
+						if (resolver != null) {
+							return (SERVICE_TYPE) resolver.resolve(result);
+						}
+						else {
+							throw new IllegalStateException("There is more than one service registered for the id'"
+								+ id
+								+ "'. Register the '"
+								+ IRedundantServiceResolver.class
+								+ "' do revolve the conflict");
+						}
+					}
 				}
 			};
 		}
 
 		void add(final IServiceProviderHolder holder) {
-			//TODO proof: service must not be available more than once
 			serviceProviderHolders.add(holder);
 		}
 

@@ -116,20 +116,20 @@ final class EntityServiceDecoratorProviderImpl implements IServicesDecoratorProv
 		@Override
 		protected Object invokeSyncSignature(final Method method, final Object[] args, final IExecutionCallback executionCallback) throws Throwable {
 			try {
-				final Object entityId = args[0];
-				final EntityInfo entityInfo = getEntityInfo(entityId);
-				if (method.getName().equals(GET_DESCRIPTOR_METHOD_NAME)) {
-					return entityInfo.getDescriptor();
+				if (args != null) {
+					final Object entityId = args[0];
+					final EntityInfo entityInfo = getEntityInfo(entityId);
+					if (method.getName().equals(GET_DESCRIPTOR_METHOD_NAME)) {
+						return entityInfo.getDescriptor();
+					}
+					else if (method.getName().equals(GET_BEAN_SERVICES_METHOD_NAME)) {
+						return entityInfo.getBeanServices();
+					}
+					else if (method.getName().equals(GET_ENTITY_LINKS_METHOD_NAME)) {
+						return entityInfo.getEntityLinks();
+					}
 				}
-				else if (method.getName().equals(GET_BEAN_SERVICES_METHOD_NAME)) {
-					return entityInfo.getBeanServices();
-				}
-				else if (method.getName().equals(GET_ENTITY_LINKS_METHOD_NAME)) {
-					return entityInfo.getEntityLinks();
-				}
-				else {
-					return method.invoke(original, args);
-				}
+				return method.invoke(original, args);
 			}
 			catch (final Throwable e) {
 				throw e;
