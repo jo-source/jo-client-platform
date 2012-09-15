@@ -32,6 +32,7 @@ import org.jowidgets.cap.common.api.entity.IEntityApplicationNode;
 import org.jowidgets.cap.common.api.service.IEntityApplicationService;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.entity.IEntityApplicationServiceBuilder;
+import org.jowidgets.i18n.api.IMessage;
 
 public class EntityApplicationServiceBuilder implements IEntityApplicationServiceBuilder {
 
@@ -42,8 +43,27 @@ public class EntityApplicationServiceBuilder implements IEntityApplicationServic
 	}
 
 	@Override
-	public final IEntityApplicationService build() {
-		return builder.build();
+	public IEntityApplicationServiceBuilder setLabel(final IMessage label) {
+		builder.setLabel(label);
+		return this;
+	}
+
+	@Override
+	public IEntityApplicationServiceBuilder setDescription(final IMessage description) {
+		builder.setDescription(description);
+		return this;
+	}
+
+	@Override
+	public IEntityApplicationServiceBuilder setLabel(final String label) {
+		builder.setLabel(label);
+		return this;
+	}
+
+	@Override
+	public IEntityApplicationServiceBuilder setDescription(final String description) {
+		builder.setDescription(description);
+		return this;
 	}
 
 	@Override
@@ -56,6 +76,11 @@ public class EntityApplicationServiceBuilder implements IEntityApplicationServic
 	public final IEntityApplicationServiceBuilder addNode(final Object entityId) {
 		builder.addNode(entityId);
 		return this;
+	}
+
+	@Override
+	public final IEntityApplicationService build() {
+		return builder.build();
 	}
 
 }

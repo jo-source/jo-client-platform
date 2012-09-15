@@ -31,6 +31,7 @@ package org.jowidgets.cap.common.api.service;
 import java.util.Collection;
 
 import org.jowidgets.cap.common.api.entity.IEntityApplicationNode;
+import org.jowidgets.i18n.api.IMessage;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.tools.ServiceId;
 
@@ -41,5 +42,9 @@ public interface IEntityApplicationService {
 		IEntityApplicationService.class);
 
 	Collection<IEntityApplicationNode> getApplicationNodes();
+
+	IMessage getLabel();
+
+	IMessage getDescription();
 
 }

@@ -30,12 +30,21 @@ package org.jowidgets.cap.service.api.entity;
 
 import org.jowidgets.cap.common.api.entity.IEntityApplicationNode;
 import org.jowidgets.cap.common.api.service.IEntityApplicationService;
+import org.jowidgets.i18n.api.IMessage;
 
 public interface IEntityApplicationServiceBuilder {
 
 	IEntityApplicationServiceBuilder addNode(IEntityApplicationNode node);
 
 	IEntityApplicationServiceBuilder addNode(Object entityId);
+
+	IEntityApplicationServiceBuilder setLabel(IMessage label);
+
+	IEntityApplicationServiceBuilder setDescription(IMessage description);
+
+	IEntityApplicationServiceBuilder setLabel(String label);
+
+	IEntityApplicationServiceBuilder setDescription(String description);
 
 	IEntityApplicationService build();
 

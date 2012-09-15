@@ -48,9 +48,9 @@ class EntityComponentMasterDetailLayout {
 
 	private final ILayout layout;
 
-	EntityComponentMasterDetailLayout(final IEntityApplicationNode entityClass) {
+	EntityComponentMasterDetailLayout(final IEntityApplicationNode applicationNode) {
 		final ILayoutBuilder builder = new LayoutBuilder();
-		builder.setId(DEFAULT_LAYOUT_ID).setLayoutContainer(createMasterDetailSplit(entityClass));
+		builder.setId(DEFAULT_LAYOUT_ID).setLayoutContainer(createMasterDetailSplit(applicationNode));
 		this.layout = builder.build();
 	}
 
@@ -58,25 +58,31 @@ class EntityComponentMasterDetailLayout {
 		return layout;
 	}
 
-	private ISplitLayoutBuilder createMasterDetailSplit(final IEntityApplicationNode entityClass) {
+	private ISplitLayoutBuilder createMasterDetailSplit(final IEntityApplicationNode applicationNode) {
 		final ISplitLayoutBuilder result = new SplitLayoutBuilder();
 		result.setVertical().setWeight(0.5).setResizeFirst();
-		result.setFirstContainer(createMasterFolder(entityClass));
-		result.setSecondContainer(createDetailFolder(entityClass));
+		result.setFirstContainer(createMasterFolder(applicationNode));
+		result.setSecondContainer(createDetailFolder(applicationNode));
 		return result;
 	}
 
-	private IFolderLayoutBuilder createMasterFolder(final IEntityApplicationNode entityClass) {
+	private IFolderLayoutBuilder createMasterFolder(final IEntityApplicationNode applicationNode) {
 		final IFolderLayoutBuilder result = new FolderLayoutBuilder(MASTER_FOLDER_ID);
 		result.setViewsCloseable(false);
-		result.addView(EntityComponent.ROOT_TABLE_VIEW_ID, entityClass.getLabel(), entityClass.getDescription());
+		result.addView(
+				EntityComponent.ROOT_TABLE_VIEW_ID,
+				applicationNode.getLabel().get(),
+				applicationNode.getDescription().get());
 		return result;
 	}
 
-	private IFolderLayoutBuilder createDetailFolder(final IEntityApplicationNode entityClass) {
+	private IFolderLayoutBuilder createDetailFolder(final IEntityApplicationNode applicationNode) {
 		final IFolderLayoutBuilder result = new FolderLayoutBuilder(DETAIL_FOLDER_ID);
 		result.setViewsCloseable(false);
-		result.addView(EntityDetailView.ID, entityClass.getLabel() + " " + DETAIL_STRING.get(), entityClass.getDescription());
+		result.addView(
+				EntityDetailView.ID,
+				applicationNode.getLabel().get() + " " + DETAIL_STRING.get(),
+				applicationNode.getDescription().get());
 		return result;
 	}
 

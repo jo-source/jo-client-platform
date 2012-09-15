@@ -35,6 +35,8 @@ import java.util.List;
 
 import org.jowidgets.cap.common.api.entity.IEntityApplicationNode;
 import org.jowidgets.cap.common.api.entity.IEntityApplicationNodeBuilder;
+import org.jowidgets.i18n.api.IMessage;
+import org.jowidgets.i18n.tools.StaticMessage;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.builder.AbstractSingleUseBuilder;
 
@@ -44,11 +46,13 @@ final class EntityApplicationNodeBuilderImpl extends AbstractSingleUseBuilder<IE
 	private final Collection<IEntityApplicationNode> children;
 
 	private Object id;
-	private String label;
-	private String description;
+	private IMessage label;
+	private IMessage description;
 
 	EntityApplicationNodeBuilderImpl() {
 		this.children = new LinkedList<IEntityApplicationNode>();
+		this.label = new StaticMessage();
+		this.description = new StaticMessage();
 	}
 
 	@Override
@@ -59,17 +63,31 @@ final class EntityApplicationNodeBuilderImpl extends AbstractSingleUseBuilder<IE
 	}
 
 	@Override
-	public IEntityApplicationNodeBuilder setLabel(final String label) {
+	public IEntityApplicationNodeBuilder setLabel(final IMessage label) {
+		Assert.paramNotNull(label, "label");
 		checkExhausted();
 		this.label = label;
 		return this;
 	}
 
 	@Override
-	public IEntityApplicationNodeBuilder setDescription(final String description) {
+	public IEntityApplicationNodeBuilder setDescription(final IMessage description) {
+		Assert.paramNotNull(description, "description");
 		checkExhausted();
 		this.description = description;
 		return this;
+	}
+
+	@Override
+	public IEntityApplicationNodeBuilder setLabel(final String label) {
+		checkExhausted();
+		return setLabel(new StaticMessage(label));
+	}
+
+	@Override
+	public IEntityApplicationNodeBuilder setDescription(final String description) {
+		checkExhausted();
+		return setDescription(new StaticMessage(description));
 	}
 
 	@Override
