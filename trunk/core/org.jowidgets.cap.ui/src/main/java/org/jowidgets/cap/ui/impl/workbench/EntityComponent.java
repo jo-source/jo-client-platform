@@ -38,7 +38,7 @@ import org.jowidgets.api.model.item.IToolBarItemModel;
 import org.jowidgets.api.model.item.IToolBarModel;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
-import org.jowidgets.cap.common.api.entity.IEntityClass;
+import org.jowidgets.cap.common.api.entity.IEntityApplicationNode;
 import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
 import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
@@ -84,21 +84,21 @@ class EntityComponent extends AbstractComponent implements IComponent {
 	EntityComponent(
 		final IComponentNodeModel componentNodeModel,
 		final IComponentContext componentContext,
-		final IEntityClass entityClass) {
+		final IEntityApplicationNode entityClass) {
 
 		this.entityService = ServiceProvider.getService(IEntityService.ID);
 		if (entityService == null) {
 			throw new IllegalStateException("No entity service found");
 		}
 
-		final Class<Object> beanType = getBeanType(entityClass.getId());
-		this.entityTypeId = EntityTypeId.create(entityClass.getId(), beanType);
-		this.tableModel = CapUiToolkit.beanTableModelBuilder(entityClass.getId(), beanType).build();
+		final Class<Object> beanType = getBeanType(entityClass.getEntityId());
+		this.entityTypeId = EntityTypeId.create(entityClass.getEntityId(), beanType);
+		this.tableModel = CapUiToolkit.beanTableModelBuilder(entityClass.getEntityId(), beanType).build();
 		this.dataModelActions = getDataModelActions(componentNodeModel);
 		this.linkCreatorActions = new LinkedList<IAction>();
 		this.treeMenuInterceptor = new TreeMenuInterceptor();
 
-		final List<IEntityLinkDescriptor> entityLinks = entityService.getEntityLinks(entityClass.getId());
+		final List<IEntityLinkDescriptor> entityLinks = entityService.getEntityLinks(entityClass.getEntityId());
 		if (entityLinks != null && !entityLinks.isEmpty()) {
 			this.relationTreeModel = createRelationTreeModel(tableModel, entityClass);
 			for (final IEntityLinkDescriptor link : entityLinks) {
@@ -131,8 +131,8 @@ class EntityComponent extends AbstractComponent implements IComponent {
 		return null;
 	}
 
-	private IBeanRelationTreeModel<?> createRelationTreeModel(final IBeanTableModel<?> parentModel, final IEntityClass entityClass) {
-		final Object id = entityClass.getId();
+	private IBeanRelationTreeModel<?> createRelationTreeModel(final IBeanTableModel<?> parentModel, final IEntityApplicationNode entityClass) {
+		final Object id = entityClass.getEntityId();
 		final Class<?> beanType = getBeanType(id);
 		final IBeanRelationTreeModelBuilder<?> builder = CapUiToolkit.beanRelationTreeModelBuilder(id, beanType);
 		builder.setParentSelectionAsReader(parentModel, LinkType.SELECTION_ALL);

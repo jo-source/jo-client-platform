@@ -29,7 +29,7 @@
 package org.jowidgets.cap.ui.impl.workbench;
 
 import org.jowidgets.api.toolkit.Toolkit;
-import org.jowidgets.cap.common.api.entity.IEntityClass;
+import org.jowidgets.cap.common.api.entity.IEntityApplicationNode;
 import org.jowidgets.cap.ui.api.addons.widgets.IBeanRelationGraphBluePrint;
 import org.jowidgets.i18n.api.IMessage;
 import org.jowidgets.workbench.api.ILayout;
@@ -52,7 +52,7 @@ final class EntityComponentMasterDetailLinksDetailLayout {
 
 	private final ILayout layout;
 
-	EntityComponentMasterDetailLinksDetailLayout(final IEntityClass entityClass) {
+	EntityComponentMasterDetailLinksDetailLayout(final IEntityApplicationNode entityClass) {
 		final ILayoutBuilder builder = new LayoutBuilder();
 		builder.setId(DEFAULT_LAYOUT_ID).setLayoutContainer(createMainSplit(entityClass));
 		this.layout = builder.build();
@@ -62,7 +62,7 @@ final class EntityComponentMasterDetailLinksDetailLayout {
 		return layout;
 	}
 
-	private ISplitLayoutBuilder createMainSplit(final IEntityClass entityClass) {
+	private ISplitLayoutBuilder createMainSplit(final IEntityApplicationNode entityClass) {
 		final ISplitLayoutBuilder result = new SplitLayoutBuilder();
 		result.setVertical().setWeight(0.5).setResizeFirst();
 		result.setFirstContainer(createMasterFolder(entityClass));
@@ -70,14 +70,14 @@ final class EntityComponentMasterDetailLinksDetailLayout {
 		return result;
 	}
 
-	private IFolderLayoutBuilder createMasterFolder(final IEntityClass entityClass) {
+	private IFolderLayoutBuilder createMasterFolder(final IEntityApplicationNode entityClass) {
 		final IFolderLayoutBuilder result = new FolderLayoutBuilder(MASTER_FOLDER_ID);
 		result.setViewsCloseable(false);
 		result.addView(EntityComponent.ROOT_TABLE_VIEW_ID, entityClass.getLabel(), entityClass.getDescription()); //$NON-NLS-1$
 		return result;
 	}
 
-	private ISplitLayoutBuilder createLinkedMasterDetailSplit(final IEntityClass entityClass) {
+	private ISplitLayoutBuilder createLinkedMasterDetailSplit(final IEntityApplicationNode entityClass) {
 		final ISplitLayoutBuilder result = new SplitLayoutBuilder();
 		result.setHorizontal().setWeight(0.33).setResizeSecond();
 		result.setFirstContainer(createLinkedMasterFolder(entityClass));
@@ -85,14 +85,14 @@ final class EntityComponentMasterDetailLinksDetailLayout {
 		return result;
 	}
 
-	private IFolderLayoutBuilder createLinkedMasterFolder(final IEntityClass entityClass) {
+	private IFolderLayoutBuilder createLinkedMasterFolder(final IEntityApplicationNode entityClass) {
 		final IFolderLayoutBuilder result = new FolderLayoutBuilder(LINKED_MASTER_FOLDER_ID);
 		result.setViewsCloseable(false);
 		result.addView(EntityRelationTreeView.ID, entityClass.getLabel() + " " + LINKS_STRING.get(), entityClass.getDescription());
 		return result;
 	}
 
-	private IFolderLayoutBuilder createLinkedDetailFolder(final IEntityClass entityClass) {
+	private IFolderLayoutBuilder createLinkedDetailFolder(final IEntityApplicationNode entityClass) {
 		final IFolderLayoutBuilder result = new FolderLayoutBuilder(LINKED_DETAIL_FOLDER_ID);
 		result.setViewsCloseable(false);
 		result.addView(EntityRelationTreeDetailView.ID, EntityRelationTreeDetailView.DEFAULT_LABEL.get());

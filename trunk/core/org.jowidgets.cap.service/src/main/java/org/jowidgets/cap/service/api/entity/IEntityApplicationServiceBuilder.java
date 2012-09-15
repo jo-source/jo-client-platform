@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,27 +26,17 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.impl.workbench;
+package org.jowidgets.cap.service.api.entity;
 
 import org.jowidgets.cap.common.api.entity.IEntityApplicationNode;
-import org.jowidgets.cap.ui.api.workbench.IEntityComponentFactory;
-import org.jowidgets.workbench.api.IComponent;
-import org.jowidgets.workbench.api.IComponentContext;
-import org.jowidgets.workbench.toolkit.api.IComponentFactory;
-import org.jowidgets.workbench.toolkit.api.IComponentNodeModel;
+import org.jowidgets.cap.common.api.service.IEntityApplicationService;
 
-final class EntityComponentFactoryImpl implements IEntityComponentFactory {
+public interface IEntityApplicationServiceBuilder {
 
-	EntityComponentFactoryImpl() {}
+	IEntityApplicationServiceBuilder addNode(IEntityApplicationNode node);
 
-	@Override
-	public IComponentFactory create(final IEntityApplicationNode entityClass) {
-		return new IComponentFactory() {
-			@Override
-			public IComponent createComponent(final IComponentNodeModel nodeModel, final IComponentContext context) {
-				return new EntityComponent(nodeModel, context, entityClass);
-			}
-		};
-	}
+	IEntityApplicationServiceBuilder addNode(Object entityId);
+
+	IEntityApplicationService build();
 
 }

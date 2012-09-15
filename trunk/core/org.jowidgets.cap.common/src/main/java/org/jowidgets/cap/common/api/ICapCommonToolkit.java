@@ -45,7 +45,7 @@ import org.jowidgets.cap.common.api.bean.IProperty;
 import org.jowidgets.cap.common.api.bean.IPropertyBuilder;
 import org.jowidgets.cap.common.api.bean.IPropertyValidatorBuilder;
 import org.jowidgets.cap.common.api.bean.IStaticValueRangeFactory;
-import org.jowidgets.cap.common.api.entity.IEntityClassBuilder;
+import org.jowidgets.cap.common.api.entity.IEntityApplicationNodeBuilder;
 import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptorBuilder;
 import org.jowidgets.cap.common.api.entity.IEntityLinkPropertiesBuilder;
 import org.jowidgets.cap.common.api.execution.IExecutableCheckerCompositeBuilder;
@@ -62,7 +62,7 @@ import org.jowidgets.cap.common.api.validation.IBeanValidator;
 
 public interface ICapCommonToolkit {
 
-	IEntityClassBuilder entityClassBuilder();
+	IEntityApplicationNodeBuilder entityApplicationNodeBuilder();
 
 	IEntityLinkPropertiesBuilder entityLinkPropertiesBuilder();
 

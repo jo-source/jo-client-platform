@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,38 +26,15 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.tools.entity;
+package org.jowidgets.cap.common.api.entity;
 
-import java.util.Collection;
+import org.jowidgets.cap.common.api.CapCommonToolkit;
 
-import org.jowidgets.cap.common.api.entity.IEntityClass;
-import org.jowidgets.cap.common.api.service.IEntityClassProviderService;
-import org.jowidgets.cap.service.api.CapServiceToolkit;
-import org.jowidgets.cap.service.api.entity.IEntityClassProviderServiceBuilder;
+public final class EntityApplicationNode {
 
-public class EntityClassProviderServiceBuilder implements IEntityClassProviderServiceBuilder {
+	private EntityApplicationNode() {}
 
-	private final IEntityClassProviderServiceBuilder builder;
-
-	public EntityClassProviderServiceBuilder() {
-		this.builder = CapServiceToolkit.entityClassProviderServiceBuilder();
+	public static IEntityApplicationNodeBuilder builder() {
+		return CapCommonToolkit.entityApplicationNodeBuilder();
 	}
-
-	@Override
-	public final IEntityClassProviderServiceBuilder setEntityClasses(final Collection<? extends IEntityClass> classes) {
-		builder.setEntityClasses(classes);
-		return this;
-	}
-
-	@Override
-	public final IEntityClassProviderServiceBuilder addEntityClass(final IEntityClass entityClass) {
-		builder.addEntityClass(entityClass);
-		return this;
-	}
-
-	@Override
-	public final IEntityClassProviderService build() {
-		return builder.build();
-	}
-
 }
