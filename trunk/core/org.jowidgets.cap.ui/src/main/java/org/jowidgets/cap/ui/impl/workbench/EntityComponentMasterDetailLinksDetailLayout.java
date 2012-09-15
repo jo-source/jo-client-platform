@@ -52,9 +52,9 @@ final class EntityComponentMasterDetailLinksDetailLayout {
 
 	private final ILayout layout;
 
-	EntityComponentMasterDetailLinksDetailLayout(final IEntityApplicationNode entityClass) {
+	EntityComponentMasterDetailLinksDetailLayout(final IEntityApplicationNode applicationNode) {
 		final ILayoutBuilder builder = new LayoutBuilder();
-		builder.setId(DEFAULT_LAYOUT_ID).setLayoutContainer(createMainSplit(entityClass));
+		builder.setId(DEFAULT_LAYOUT_ID).setLayoutContainer(createMainSplit(applicationNode));
 		this.layout = builder.build();
 	}
 
@@ -62,18 +62,21 @@ final class EntityComponentMasterDetailLinksDetailLayout {
 		return layout;
 	}
 
-	private ISplitLayoutBuilder createMainSplit(final IEntityApplicationNode entityClass) {
+	private ISplitLayoutBuilder createMainSplit(final IEntityApplicationNode applicationNode) {
 		final ISplitLayoutBuilder result = new SplitLayoutBuilder();
 		result.setVertical().setWeight(0.5).setResizeFirst();
-		result.setFirstContainer(createMasterFolder(entityClass));
-		result.setSecondContainer(createLinkedMasterDetailSplit(entityClass));
+		result.setFirstContainer(createMasterFolder(applicationNode));
+		result.setSecondContainer(createLinkedMasterDetailSplit(applicationNode));
 		return result;
 	}
 
-	private IFolderLayoutBuilder createMasterFolder(final IEntityApplicationNode entityClass) {
+	private IFolderLayoutBuilder createMasterFolder(final IEntityApplicationNode applicationNode) {
 		final IFolderLayoutBuilder result = new FolderLayoutBuilder(MASTER_FOLDER_ID);
 		result.setViewsCloseable(false);
-		result.addView(EntityComponent.ROOT_TABLE_VIEW_ID, entityClass.getLabel(), entityClass.getDescription()); //$NON-NLS-1$
+		result.addView(
+				EntityComponent.ROOT_TABLE_VIEW_ID,
+				applicationNode.getLabel().get(),
+				applicationNode.getDescription().get());
 		return result;
 	}
 
@@ -85,14 +88,17 @@ final class EntityComponentMasterDetailLinksDetailLayout {
 		return result;
 	}
 
-	private IFolderLayoutBuilder createLinkedMasterFolder(final IEntityApplicationNode entityClass) {
+	private IFolderLayoutBuilder createLinkedMasterFolder(final IEntityApplicationNode applicationNode) {
 		final IFolderLayoutBuilder result = new FolderLayoutBuilder(LINKED_MASTER_FOLDER_ID);
 		result.setViewsCloseable(false);
-		result.addView(EntityRelationTreeView.ID, entityClass.getLabel() + " " + LINKS_STRING.get(), entityClass.getDescription());
+		result.addView(
+				EntityRelationTreeView.ID,
+				applicationNode.getLabel().get() + " " + LINKS_STRING.get(),
+				applicationNode.getDescription().get());
 		return result;
 	}
 
-	private IFolderLayoutBuilder createLinkedDetailFolder(final IEntityApplicationNode entityClass) {
+	private IFolderLayoutBuilder createLinkedDetailFolder(final IEntityApplicationNode applicationNode) {
 		final IFolderLayoutBuilder result = new FolderLayoutBuilder(LINKED_DETAIL_FOLDER_ID);
 		result.setViewsCloseable(false);
 		result.addView(EntityRelationTreeDetailView.ID, EntityRelationTreeDetailView.DEFAULT_LABEL.get());

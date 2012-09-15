@@ -35,6 +35,8 @@ import org.jowidgets.cap.common.api.entity.EntityApplicationNode;
 import org.jowidgets.cap.common.api.entity.IEntityApplicationNode;
 import org.jowidgets.cap.common.api.service.IEntityApplicationService;
 import org.jowidgets.cap.service.api.entity.IEntityApplicationServiceBuilder;
+import org.jowidgets.i18n.api.IMessage;
+import org.jowidgets.i18n.tools.StaticMessage;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.builder.AbstractSingleUseBuilder;
 
@@ -44,8 +46,13 @@ final class EntityApplicationServiceBuilderImpl extends AbstractSingleUseBuilder
 
 	private final List<IEntityApplicationNode> nodes;
 
+	private IMessage label;
+	private IMessage description;
+
 	EntityApplicationServiceBuilderImpl() {
 		this.nodes = new LinkedList();
+		this.label = new StaticMessage();
+		this.description = new StaticMessage();
 	}
 
 	@Override
@@ -63,8 +70,34 @@ final class EntityApplicationServiceBuilderImpl extends AbstractSingleUseBuilder
 	}
 
 	@Override
+	public IEntityApplicationServiceBuilder setLabel(final IMessage label) {
+		Assert.paramNotNull(label, "label");
+		checkExhausted();
+		this.label = label;
+		return this;
+	}
+
+	@Override
+	public IEntityApplicationServiceBuilder setDescription(final IMessage description) {
+		Assert.paramNotNull(description, "description");
+		checkExhausted();
+		this.description = description;
+		return this;
+	}
+
+	@Override
+	public IEntityApplicationServiceBuilder setLabel(final String label) {
+		return setLabel(new StaticMessage(label));
+	}
+
+	@Override
+	public IEntityApplicationServiceBuilder setDescription(final String description) {
+		return setDescription(new StaticMessage(description));
+	}
+
+	@Override
 	protected IEntityApplicationService doBuild() {
-		return new EntityApplicationServiceImpl(nodes);
+		return new EntityApplicationServiceImpl(label, description, nodes);
 	}
 
 }

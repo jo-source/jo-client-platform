@@ -28,13 +28,19 @@
 
 package org.jowidgets.cap.common.api.entity;
 
+import org.jowidgets.i18n.api.IMessage;
+
 public interface IEntityApplicationNodeBuilder {
 
 	IEntityApplicationNodeBuilder setEntityId(Object entityId);
 
 	IEntityApplicationNodeBuilder setLabel(String label);
 
-	IEntityApplicationNodeBuilder setDescription(final String description);
+	IEntityApplicationNodeBuilder setDescription(String description);
+
+	IEntityApplicationNodeBuilder setLabel(IMessage label);
+
+	IEntityApplicationNodeBuilder setDescription(IMessage description);
 
 	IEntityApplicationNodeBuilder addNode(IEntityApplicationNode node);
 

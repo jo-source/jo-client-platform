@@ -113,14 +113,14 @@ final class EntityComponentNodesFactoryImpl implements IEntityComponentNodesFact
 		}
 	}
 
-	private IComponentNodeModel createNodeFromEntity(final IEntityApplicationNode entityClass) {
+	private IComponentNodeModel createNodeFromEntity(final IEntityApplicationNode applicationNode) {
 		final IComponentNodeModelBuilder builder = new ComponentNodeModelBuilder();
 		//TODO MG the id of workbench parts should be an object
-		builder.setId(entityClass.getEntityId().toString());
-		builder.setLabel(entityClass.getLabel());
-		builder.setTooltip(entityClass.getDescription());
-		builder.setComponentFactory(CapUiToolkit.workbenchToolkit().entityComponentFactory().create(entityClass));
-		for (final IEntityApplicationNode childEntityClass : entityClass.getChildren()) {
+		builder.setId(applicationNode.getEntityId().toString());
+		builder.setLabel(applicationNode.getLabel().get());
+		builder.setTooltip(applicationNode.getDescription().get());
+		builder.setComponentFactory(CapUiToolkit.workbenchToolkit().entityComponentFactory().create(applicationNode));
+		for (final IEntityApplicationNode childEntityClass : applicationNode.getChildren()) {
 			builder.addChild(createNodeFromEntity(childEntityClass));
 		}
 		return builder.build();

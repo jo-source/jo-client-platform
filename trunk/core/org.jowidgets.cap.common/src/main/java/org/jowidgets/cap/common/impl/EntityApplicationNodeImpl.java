@@ -35,20 +35,21 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.jowidgets.cap.common.api.entity.IEntityApplicationNode;
+import org.jowidgets.i18n.api.IMessage;
 
 final class EntityApplicationNodeImpl implements IEntityApplicationNode, Serializable {
 
 	private static final long serialVersionUID = -2241187136589714302L;
 
 	private final Object id;
-	private final String label;
-	private final String description;
+	private final IMessage label;
+	private final IMessage description;
 	private final List<IEntityApplicationNode> children;
 
 	EntityApplicationNodeImpl(
 		final Object entityId,
-		final String label,
-		final String description,
+		final IMessage label,
+		final IMessage description,
 		final Collection<IEntityApplicationNode> children) {
 		this.id = entityId;
 		this.label = label;
@@ -62,12 +63,12 @@ final class EntityApplicationNodeImpl implements IEntityApplicationNode, Seriali
 	}
 
 	@Override
-	public String getLabel() {
+	public IMessage getLabel() {
 		return label;
 	}
 
 	@Override
-	public String getDescription() {
+	public IMessage getDescription() {
 		return description;
 	}
 

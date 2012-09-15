@@ -35,14 +35,29 @@ import java.util.List;
 
 import org.jowidgets.cap.common.api.entity.IEntityApplicationNode;
 import org.jowidgets.cap.common.api.service.IEntityApplicationService;
+import org.jowidgets.i18n.api.IMessage;
 
 public final class EntityApplicationServiceImpl implements IEntityApplicationService {
 
+	private final IMessage label;
+	private final IMessage description;
 	private final List<IEntityApplicationNode> nodes;
 
-	EntityApplicationServiceImpl(final Collection<IEntityApplicationNode> nodes) {
+	EntityApplicationServiceImpl(final IMessage label, final IMessage description, final Collection<IEntityApplicationNode> nodes) {
 		super();
+		this.label = label;
+		this.description = description;
 		this.nodes = Collections.unmodifiableList(new LinkedList<IEntityApplicationNode>(nodes));
+	}
+
+	@Override
+	public IMessage getLabel() {
+		return label;
+	}
+
+	@Override
+	public IMessage getDescription() {
+		return description;
 	}
 
 	@Override
