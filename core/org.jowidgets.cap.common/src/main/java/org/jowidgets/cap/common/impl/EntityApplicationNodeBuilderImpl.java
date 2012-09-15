@@ -28,85 +28,69 @@
 
 package org.jowidgets.cap.common.impl;
 
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.jowidgets.cap.common.api.entity.IEntityClass;
+import org.jowidgets.cap.common.api.entity.IEntityApplicationNode;
+import org.jowidgets.cap.common.api.entity.IEntityApplicationNodeBuilder;
+import org.jowidgets.util.Assert;
+import org.jowidgets.util.builder.AbstractSingleUseBuilder;
 
-final class EntityClassImpl implements IEntityClass, Serializable {
+final class EntityApplicationNodeBuilderImpl extends AbstractSingleUseBuilder<IEntityApplicationNode> implements
+		IEntityApplicationNodeBuilder {
 
-	private static final long serialVersionUID = -2241187136589714302L;
+	private final Collection<IEntityApplicationNode> children;
 
-	private final Object id;
-	private final String label;
-	private final String description;
-	private final List<IEntityClass> subClasses;
+	private Object id;
+	private String label;
+	private String description;
 
-	@SuppressWarnings({"rawtypes", "unchecked"})
-	EntityClassImpl(final Object id, final String label, final String description, final Collection subClasses) {
+	EntityApplicationNodeBuilderImpl() {
+		this.children = new LinkedList<IEntityApplicationNode>();
+	}
+
+	@Override
+	public IEntityApplicationNodeBuilder setEntityId(final Object id) {
+		checkExhausted();
 		this.id = id;
+		return this;
+	}
+
+	@Override
+	public IEntityApplicationNodeBuilder setLabel(final String label) {
+		checkExhausted();
 		this.label = label;
+		return this;
+	}
+
+	@Override
+	public IEntityApplicationNodeBuilder setDescription(final String description) {
+		checkExhausted();
 		this.description = description;
-		this.subClasses = Collections.unmodifiableList(new LinkedList<IEntityClass>(subClasses));
+		return this;
 	}
 
 	@Override
-	public Object getId() {
-		return id;
+	public IEntityApplicationNodeBuilder addNode(final IEntityApplicationNode node) {
+		Assert.paramNotNull(node, "node");
+		checkExhausted();
+		children.add(node);
+		return this;
 	}
 
 	@Override
-	public String getLabel() {
-		return label;
+	public IEntityApplicationNodeBuilder addNode(final Object childEntityId) {
+		Assert.paramNotNull(childEntityId, "childEntityId");
+		final List<IEntityApplicationNode> nodeChildren = Collections.emptyList();
+		children.add(new EntityApplicationNodeImpl(childEntityId, null, null, nodeChildren));
+		return this;
 	}
 
 	@Override
-	public String getDescription() {
-		return description;
-	}
-
-	@Override
-	public List<IEntityClass> getSubClasses() {
-		return subClasses;
-	}
-
-	@Override
-	public String toString() {
-		return "EntityClassImpl [id=" + id + ", label=" + label + "]";
-	}
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(final Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (obj == null) {
-			return false;
-		}
-		if (getClass() != obj.getClass()) {
-			return false;
-		}
-		final EntityClassImpl other = (EntityClassImpl) obj;
-		if (id == null) {
-			if (other.id != null) {
-				return false;
-			}
-		}
-		else if (!id.equals(other.id)) {
-			return false;
-		}
-		return true;
+	protected IEntityApplicationNode doBuild() {
+		return new EntityApplicationNodeImpl(id, label, description, children);
 	}
 
 }

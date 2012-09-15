@@ -28,11 +28,11 @@
 
 package org.jowidgets.cap.ui.api.workbench;
 
-import org.jowidgets.cap.common.api.entity.IEntityClass;
+import org.jowidgets.cap.common.api.entity.IEntityApplicationNode;
 import org.jowidgets.workbench.toolkit.api.IComponentFactory;
 
 public interface IEntityComponentFactory {
 
-	IComponentFactory create(IEntityClass entityClass);
+	IComponentFactory create(IEntityApplicationNode entityApplicationNode);
 
 }

@@ -30,8 +30,8 @@ package org.jowidgets.cap.ui.api.workbench;
 
 import java.util.List;
 
-import org.jowidgets.cap.common.api.entity.IEntityClass;
-import org.jowidgets.cap.common.api.service.IEntityClassProviderService;
+import org.jowidgets.cap.common.api.entity.IEntityApplicationNode;
+import org.jowidgets.cap.common.api.service.IEntityApplicationService;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.workbench.toolkit.api.IComponentNodeModel;
 
@@ -39,11 +39,11 @@ public interface IEntityComponentNodesFactory {
 
 	List<IComponentNodeModel> createNodes();
 
-	List<IComponentNodeModel> createNodes(IServiceId<IEntityClassProviderService> id);
+	List<IComponentNodeModel> createNodes(IServiceId<IEntityApplicationService> id);
 
-	List<IComponentNodeModel> createNodes(IEntityClassProviderService entityClassProviderService);
+	List<IComponentNodeModel> createNodes(IEntityApplicationService entityApplicationService);
 
-	IComponentNodeModel createNode(IEntityClass entityClass);
+	IComponentNodeModel createNode(IEntityApplicationNode entityApplicationNode);
 
 	IComponentNodeModel createNode(Object entityId);
 

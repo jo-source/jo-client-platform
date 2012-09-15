@@ -28,14 +28,15 @@
 
 package org.jowidgets.cap.ui.impl.workbench;
 
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
-import org.jowidgets.cap.common.api.entity.IEntityClass;
-import org.jowidgets.cap.common.api.entity.IEntityClassBuilder;
-import org.jowidgets.cap.common.api.service.IEntityClassProviderService;
+import org.jowidgets.cap.common.api.entity.IEntityApplicationNode;
+import org.jowidgets.cap.common.api.entity.IEntityApplicationNodeBuilder;
+import org.jowidgets.cap.common.api.service.IEntityApplicationService;
 import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.plugin.IEntityComponentNodesFactoryPlugin;
@@ -55,32 +56,32 @@ final class EntityComponentNodesFactoryImpl implements IEntityComponentNodesFact
 
 	@Override
 	public List<IComponentNodeModel> createNodes() {
-		return createNodes(IEntityClassProviderService.ID);
+		return createNodes(IEntityApplicationService.ID);
 	}
 
 	@Override
-	public List<IComponentNodeModel> createNodes(final IServiceId<IEntityClassProviderService> id) {
+	public List<IComponentNodeModel> createNodes(final IServiceId<IEntityApplicationService> id) {
 		return createNodes(ServiceProvider.getService(id));
 	}
 
 	@Override
-	public List<IComponentNodeModel> createNodes(final IEntityClassProviderService entityClassProviderService) {
-		Assert.paramNotNull(entityClassProviderService, "entityClassProviderService");
+	public List<IComponentNodeModel> createNodes(final IEntityApplicationService entityApplicationService) {
+		Assert.paramNotNull(entityApplicationService, "entityApplicationService");
 
 		final List<IComponentNodeModel> result = new LinkedList<IComponentNodeModel>();
 
-		List<IEntityClass> entities = entityClassProviderService.getEntities();
+		Collection<IEntityApplicationNode> entities = entityApplicationService.getApplicationNodes();
 		for (final IEntityComponentNodesFactoryPlugin plugin : PluginProvider.getPlugins(IEntityComponentNodesFactoryPlugin.ID)) {
 			entities = plugin.modify(entities);
 		}
-		for (final IEntityClass entityClass : entities) {
+		for (final IEntityApplicationNode entityClass : entities) {
 			result.add(createNodeFromEntity(entityClass));
 		}
 		return result;
 	}
 
 	@Override
-	public IComponentNodeModel createNode(final IEntityClass entityClass) {
+	public IComponentNodeModel createNode(final IEntityApplicationNode entityClass) {
 		Assert.paramNotNull(entityClass, "entityClass");
 		return createNodeFromEntity(entityClass);
 	}
@@ -94,10 +95,10 @@ final class EntityComponentNodesFactoryImpl implements IEntityComponentNodesFact
 			if (beanDtoDescriptor != null) {
 				final String labelPlural = beanDtoDescriptor.getLabelPlural().get();
 				if (!EmptyCheck.isEmpty(labelPlural)) {
-					final IEntityClassBuilder entityClassBuilder = CapCommonToolkit.entityClassBuilder();
-					entityClassBuilder.setId(entityId).setLabel(labelPlural);
-					entityClassBuilder.setDescription(beanDtoDescriptor.getDescription().get());
-					return createNodeFromEntity(entityClassBuilder.build());
+					final IEntityApplicationNodeBuilder applicationNodeBuilder = CapCommonToolkit.entityApplicationNodeBuilder();
+					applicationNodeBuilder.setEntityId(entityId).setLabel(labelPlural);
+					applicationNodeBuilder.setDescription(beanDtoDescriptor.getDescription().get());
+					return createNodeFromEntity(applicationNodeBuilder.build());
 				}
 				else {
 					throw new IllegalArgumentException("The was no label plural found for the entityId '" + entityId + "'");
@@ -112,14 +113,14 @@ final class EntityComponentNodesFactoryImpl implements IEntityComponentNodesFact
 		}
 	}
 
-	private IComponentNodeModel createNodeFromEntity(final IEntityClass entityClass) {
+	private IComponentNodeModel createNodeFromEntity(final IEntityApplicationNode entityClass) {
 		final IComponentNodeModelBuilder builder = new ComponentNodeModelBuilder();
 		//TODO MG the id of workbench parts should be an object
-		builder.setId(entityClass.getId().toString());
+		builder.setId(entityClass.getEntityId().toString());
 		builder.setLabel(entityClass.getLabel());
 		builder.setTooltip(entityClass.getDescription());
 		builder.setComponentFactory(CapUiToolkit.workbenchToolkit().entityComponentFactory().create(entityClass));
-		for (final IEntityClass childEntityClass : entityClass.getSubClasses()) {
+		for (final IEntityApplicationNode childEntityClass : entityClass.getChildren()) {
 			builder.addChild(createNodeFromEntity(childEntityClass));
 		}
 		return builder.build();

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,60 +26,16 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.api.entity;
+package org.jowidgets.cap.service.api.entity;
 
-import java.util.Collection;
+import org.jowidgets.cap.service.api.CapServiceToolkit;
 
-public interface IEntityClassBuilder {
+public final class EntityApplicationService {
 
-	/**
-	 * Sets the id of the class. This id must be unique for all classes in the same context.
-	 * The id must not be null.
-	 * 
-	 * @param the id to set
-	 * @return the builder
-	 */
-	IEntityClassBuilder setId(Object id);
+	private EntityApplicationService() {}
 
-	/**
-	 * Sets the label of the class, never null
-	 * 
-	 * @param the label to set
-	 * @return the builder
-	 */
-	IEntityClassBuilder setLabel(String label);
-
-	/**
-	 * Sets the decription, may be null
-	 * 
-	 * @param description The description to set
-	 * @return the builder
-	 */
-	IEntityClassBuilder setDescription(final String description);
-
-	/**
-	 * Sets the sub classes of this class, may be empty but not null.
-	 * By default, an empty List is set.
-	 * 
-	 * @param subClasses The sub clases to set
-	 * @return the builder
-	 */
-	IEntityClassBuilder setSubClasses(Collection<? extends IEntityClass> subClasses);
-
-	/**
-	 * Adds a sub class to this class
-	 * 
-	 * @param subClass The sub class to add
-	 * @return the builder
-	 */
-	IEntityClassBuilder addSubClass(IEntityClass subClass);
-
-	/**
-	 * Builds the entity class. This builder is a single use builder so this
-	 * method could only be invoked once
-	 * 
-	 * @return The builded entity class
-	 */
-	IEntityClass build();
+	public static IEntityApplicationServiceBuilder builder() {
+		return CapServiceToolkit.entityApplicationServiceBuilder();
+	}
 
 }

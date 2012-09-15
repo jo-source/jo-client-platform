@@ -28,26 +28,26 @@
 
 package org.jowidgets.cap.service.impl;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.jowidgets.cap.common.api.entity.IEntityClass;
-import org.jowidgets.cap.common.api.service.IEntityClassProviderService;
+import org.jowidgets.cap.common.api.entity.IEntityApplicationNode;
+import org.jowidgets.cap.common.api.service.IEntityApplicationService;
 
-public final class EntityClassProviderServiceImpl implements IEntityClassProviderService {
+public final class EntityApplicationServiceImpl implements IEntityApplicationService {
 
-	private final List<IEntityClass> entityClasses;
+	private final List<IEntityApplicationNode> nodes;
 
-	@SuppressWarnings({"rawtypes", "unchecked"})
-	EntityClassProviderServiceImpl(final List entityClasses) {
+	EntityApplicationServiceImpl(final Collection<IEntityApplicationNode> nodes) {
 		super();
-		this.entityClasses = Collections.unmodifiableList(new LinkedList<IEntityClass>(entityClasses));
+		this.nodes = Collections.unmodifiableList(new LinkedList<IEntityApplicationNode>(nodes));
 	}
 
 	@Override
-	public List<IEntityClass> getEntities() {
-		return entityClasses;
+	public List<IEntityApplicationNode> getApplicationNodes() {
+		return nodes;
 	}
 
 }

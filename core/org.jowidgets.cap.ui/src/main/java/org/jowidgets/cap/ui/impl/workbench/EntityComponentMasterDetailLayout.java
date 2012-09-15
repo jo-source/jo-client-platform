@@ -28,7 +28,7 @@
 
 package org.jowidgets.cap.ui.impl.workbench;
 
-import org.jowidgets.cap.common.api.entity.IEntityClass;
+import org.jowidgets.cap.common.api.entity.IEntityApplicationNode;
 import org.jowidgets.i18n.api.IMessage;
 import org.jowidgets.workbench.api.ILayout;
 import org.jowidgets.workbench.toolkit.api.IFolderLayoutBuilder;
@@ -48,7 +48,7 @@ class EntityComponentMasterDetailLayout {
 
 	private final ILayout layout;
 
-	EntityComponentMasterDetailLayout(final IEntityClass entityClass) {
+	EntityComponentMasterDetailLayout(final IEntityApplicationNode entityClass) {
 		final ILayoutBuilder builder = new LayoutBuilder();
 		builder.setId(DEFAULT_LAYOUT_ID).setLayoutContainer(createMasterDetailSplit(entityClass));
 		this.layout = builder.build();
@@ -58,7 +58,7 @@ class EntityComponentMasterDetailLayout {
 		return layout;
 	}
 
-	private ISplitLayoutBuilder createMasterDetailSplit(final IEntityClass entityClass) {
+	private ISplitLayoutBuilder createMasterDetailSplit(final IEntityApplicationNode entityClass) {
 		final ISplitLayoutBuilder result = new SplitLayoutBuilder();
 		result.setVertical().setWeight(0.5).setResizeFirst();
 		result.setFirstContainer(createMasterFolder(entityClass));
@@ -66,14 +66,14 @@ class EntityComponentMasterDetailLayout {
 		return result;
 	}
 
-	private IFolderLayoutBuilder createMasterFolder(final IEntityClass entityClass) {
+	private IFolderLayoutBuilder createMasterFolder(final IEntityApplicationNode entityClass) {
 		final IFolderLayoutBuilder result = new FolderLayoutBuilder(MASTER_FOLDER_ID);
 		result.setViewsCloseable(false);
 		result.addView(EntityComponent.ROOT_TABLE_VIEW_ID, entityClass.getLabel(), entityClass.getDescription());
 		return result;
 	}
 
-	private IFolderLayoutBuilder createDetailFolder(final IEntityClass entityClass) {
+	private IFolderLayoutBuilder createDetailFolder(final IEntityApplicationNode entityClass) {
 		final IFolderLayoutBuilder result = new FolderLayoutBuilder(DETAIL_FOLDER_ID);
 		result.setViewsCloseable(false);
 		result.addView(EntityDetailView.ID, entityClass.getLabel() + " " + DETAIL_STRING.get(), entityClass.getDescription());

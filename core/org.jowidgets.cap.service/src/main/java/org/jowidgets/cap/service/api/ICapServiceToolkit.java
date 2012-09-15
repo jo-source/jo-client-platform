@@ -45,7 +45,7 @@ import org.jowidgets.cap.service.api.bean.IBeanPropertyMap;
 import org.jowidgets.cap.service.api.decorator.IDecoratorProviderFactory;
 import org.jowidgets.cap.service.api.entity.IBeanEntityServiceBuilder;
 import org.jowidgets.cap.service.api.entity.IBeanServicesProviderBuilder;
-import org.jowidgets.cap.service.api.entity.IEntityClassProviderServiceBuilder;
+import org.jowidgets.cap.service.api.entity.IEntityApplicationServiceBuilder;
 import org.jowidgets.cap.service.api.entity.IEntityServiceBuilder;
 import org.jowidgets.cap.service.api.entity.IEntityServiceCompositeBuilder;
 import org.jowidgets.cap.service.api.executor.IExecutorServiceBuilder;
@@ -66,7 +66,7 @@ public interface ICapServiceToolkit {
 
 	<BEAN_TYPE extends IBean> ILinkServicesBuilder<BEAN_TYPE> linkServicesBuilder();
 
-	IEntityClassProviderServiceBuilder entityClassProviderServiceBuilder();
+	IEntityApplicationServiceBuilder entityApplicationServiceBuilder();
 
 	IBeanServicesProviderBuilder beanServicesProviderBuilder(
 		IServiceRegistry registry,

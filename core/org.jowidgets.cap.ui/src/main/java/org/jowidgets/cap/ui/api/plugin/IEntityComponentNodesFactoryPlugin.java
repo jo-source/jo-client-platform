@@ -28,15 +28,15 @@
 
 package org.jowidgets.cap.ui.api.plugin;
 
-import java.util.List;
+import java.util.Collection;
 
-import org.jowidgets.cap.common.api.entity.IEntityClass;
+import org.jowidgets.cap.common.api.entity.IEntityApplicationNode;
 import org.jowidgets.plugin.api.IPluginId;
 
 public interface IEntityComponentNodesFactoryPlugin {
 
 	IPluginId<IEntityComponentNodesFactoryPlugin> ID = new IPluginId<IEntityComponentNodesFactoryPlugin>() {};
 
-	List<IEntityClass> modify(List<IEntityClass> classes);
+	Collection<IEntityApplicationNode> modify(Collection<IEntityApplicationNode> nodes);
 
 }

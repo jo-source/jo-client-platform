@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,19 +26,20 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.api.entity;
+package org.jowidgets.cap.common.api.entity;
 
-import java.util.Collection;
+public interface IEntityApplicationNodeBuilder {
 
-import org.jowidgets.cap.common.api.entity.IEntityClass;
-import org.jowidgets.cap.common.api.service.IEntityClassProviderService;
+	IEntityApplicationNodeBuilder setEntityId(Object entityId);
 
-public interface IEntityClassProviderServiceBuilder {
+	IEntityApplicationNodeBuilder setLabel(String label);
 
-	IEntityClassProviderServiceBuilder setEntityClasses(Collection<? extends IEntityClass> classes);
+	IEntityApplicationNodeBuilder setDescription(final String description);
 
-	IEntityClassProviderServiceBuilder addEntityClass(IEntityClass entityClass);
+	IEntityApplicationNodeBuilder addNode(IEntityApplicationNode node);
 
-	IEntityClassProviderService build();
+	IEntityApplicationNodeBuilder addNode(Object childEntityId);
+
+	IEntityApplicationNode build();
 
 }

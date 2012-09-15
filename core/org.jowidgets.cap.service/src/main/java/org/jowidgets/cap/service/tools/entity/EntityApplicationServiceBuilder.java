@@ -26,72 +26,36 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.impl;
+package org.jowidgets.cap.service.tools.entity;
 
-import java.util.Collection;
-import java.util.LinkedList;
+import org.jowidgets.cap.common.api.entity.IEntityApplicationNode;
+import org.jowidgets.cap.common.api.service.IEntityApplicationService;
+import org.jowidgets.cap.service.api.CapServiceToolkit;
+import org.jowidgets.cap.service.api.entity.IEntityApplicationServiceBuilder;
 
-import org.jowidgets.cap.common.api.entity.IEntityClass;
-import org.jowidgets.cap.common.api.entity.IEntityClassBuilder;
-import org.jowidgets.util.Assert;
-import org.jowidgets.util.builder.AbstractSingleUseBuilder;
+public class EntityApplicationServiceBuilder implements IEntityApplicationServiceBuilder {
 
-final class EntityClassBuilderImpl extends AbstractSingleUseBuilder<IEntityClass> implements IEntityClassBuilder {
+	private final IEntityApplicationServiceBuilder builder;
 
-	@SuppressWarnings("rawtypes")
-	private final Collection subClasses;
-
-	private Object id;
-	private String label;
-	private String description;
-
-	EntityClassBuilderImpl() {
-		this.subClasses = new LinkedList<IEntityClass>();
+	public EntityApplicationServiceBuilder() {
+		this.builder = CapServiceToolkit.entityApplicationServiceBuilder();
 	}
 
 	@Override
-	public IEntityClassBuilder setId(final Object id) {
-		checkExhausted();
-		this.id = id;
+	public final IEntityApplicationService build() {
+		return builder.build();
+	}
+
+	@Override
+	public final IEntityApplicationServiceBuilder addNode(final IEntityApplicationNode node) {
+		builder.addNode(node);
 		return this;
 	}
 
 	@Override
-	public IEntityClassBuilder setLabel(final String label) {
-		checkExhausted();
-		this.label = label;
+	public final IEntityApplicationServiceBuilder addNode(final Object entityId) {
+		builder.addNode(entityId);
 		return this;
-	}
-
-	@Override
-	public IEntityClassBuilder setDescription(final String description) {
-		checkExhausted();
-		this.description = description;
-		return this;
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public IEntityClassBuilder setSubClasses(final Collection<? extends IEntityClass> subClasses) {
-		Assert.paramNotNull(subClasses, "subClasses");
-		checkExhausted();
-		this.subClasses.clear();
-		this.subClasses.addAll(subClasses);
-		return this;
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public IEntityClassBuilder addSubClass(final IEntityClass subClass) {
-		Assert.paramNotNull(subClass, "subClass");
-		checkExhausted();
-		subClasses.add(subClass);
-		return this;
-	}
-
-	@Override
-	protected IEntityClass doBuild() {
-		return new EntityClassImpl(id, label, description, subClasses);
 	}
 
 }

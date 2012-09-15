@@ -28,46 +28,43 @@
 
 package org.jowidgets.cap.service.impl;
 
-import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.jowidgets.cap.common.api.entity.IEntityClass;
-import org.jowidgets.cap.common.api.service.IEntityClassProviderService;
-import org.jowidgets.cap.service.api.entity.IEntityClassProviderServiceBuilder;
+import org.jowidgets.cap.common.api.entity.EntityApplicationNode;
+import org.jowidgets.cap.common.api.entity.IEntityApplicationNode;
+import org.jowidgets.cap.common.api.service.IEntityApplicationService;
+import org.jowidgets.cap.service.api.entity.IEntityApplicationServiceBuilder;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.builder.AbstractSingleUseBuilder;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
-final class EntityClassProviderServiceBuilderImpl extends AbstractSingleUseBuilder<IEntityClassProviderService> implements
-		IEntityClassProviderServiceBuilder {
+final class EntityApplicationServiceBuilderImpl extends AbstractSingleUseBuilder<IEntityApplicationService> implements
+		IEntityApplicationServiceBuilder {
 
-	private final List classes;
+	private final List<IEntityApplicationNode> nodes;
 
-	EntityClassProviderServiceBuilderImpl() {
-		this.classes = new LinkedList();
+	EntityApplicationServiceBuilderImpl() {
+		this.nodes = new LinkedList();
 	}
 
 	@Override
-	public IEntityClassProviderServiceBuilder setEntityClasses(final Collection<? extends IEntityClass> classes) {
-		Assert.paramNotNull(classes, "classes");
+	public IEntityApplicationServiceBuilder addNode(final IEntityApplicationNode node) {
+		Assert.paramNotNull(node, "node");
 		checkExhausted();
-		this.classes.clear();
-		this.classes.addAll(classes);
+		nodes.add(node);
 		return this;
 	}
 
 	@Override
-	public IEntityClassProviderServiceBuilder addEntityClass(final IEntityClass entityClass) {
-		Assert.paramNotNull(entityClass, "entityClass");
-		checkExhausted();
-		this.classes.add(entityClass);
-		return this;
+	public IEntityApplicationServiceBuilder addNode(final Object entityId) {
+		Assert.paramNotNull(entityId, "entityId");
+		return addNode(EntityApplicationNode.builder().setEntityId(entityId).build());
 	}
 
 	@Override
-	protected IEntityClassProviderService doBuild() {
-		return new EntityClassProviderServiceImpl(classes);
+	protected IEntityApplicationService doBuild() {
+		return new EntityApplicationServiceImpl(nodes);
 	}
 
 }

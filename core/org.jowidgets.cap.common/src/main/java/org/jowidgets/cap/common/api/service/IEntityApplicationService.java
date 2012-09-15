@@ -28,18 +28,18 @@
 
 package org.jowidgets.cap.common.api.service;
 
-import java.util.List;
+import java.util.Collection;
 
-import org.jowidgets.cap.common.api.entity.IEntityClass;
+import org.jowidgets.cap.common.api.entity.IEntityApplicationNode;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.tools.ServiceId;
 
-public interface IEntityClassProviderService {
+public interface IEntityApplicationService {
 
-	IServiceId<IEntityClassProviderService> ID = new ServiceId<IEntityClassProviderService>(
-		IEntityClassProviderService.class.getName(),
-		IEntityClassProviderService.class);
+	IServiceId<IEntityApplicationService> ID = new ServiceId<IEntityApplicationService>(
+		IEntityApplicationService.class.getName(),
+		IEntityApplicationService.class);
 
-	List<IEntityClass> getEntities();
+	Collection<IEntityApplicationNode> getApplicationNodes();
 
 }
