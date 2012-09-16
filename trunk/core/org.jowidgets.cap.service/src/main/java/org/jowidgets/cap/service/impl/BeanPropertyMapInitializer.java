@@ -71,7 +71,9 @@ final class BeanPropertyMapInitializer implements IBeanInitializer<IBeanProperty
 
 		//set the values
 		for (final String propertyName : propertyNames) {
-			bean.setValue(propertyName, beanData.getValue(propertyName));
+			if (!IBean.ID_PROPERTY.equals(propertyName) && !IBean.VERSION_PROPERTY.equals(propertyName)) {
+				bean.setValue(propertyName, beanData.getValue(propertyName));
+			}
 		}
 
 		//plugin after invocation
