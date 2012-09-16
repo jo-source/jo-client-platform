@@ -29,7 +29,6 @@
 package org.jowidgets.cap.service.api;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.jowidgets.cap.common.api.bean.IBean;
@@ -126,11 +125,11 @@ public final class CapServiceToolkit {
 		return getInstance().beanPropertyMap(entityTypeId);
 	}
 
-	public static IBeanDtoFactory<IBeanPropertyMap> beanPropertyMapDtoFactory(final List<String> propertyNames) {
+	public static IBeanDtoFactory<IBeanPropertyMap> beanPropertyMapDtoFactory(final Collection<String> propertyNames) {
 		return getInstance().beanPropertyMapDtoFactory(propertyNames);
 	}
 
-	public static IBeanInitializer<IBeanPropertyMap> beanPropertyMapInitializer(final List<String> propertyNames) {
+	public static IBeanInitializer<IBeanPropertyMap> beanPropertyMapInitializer(final Collection<String> propertyNames) {
 		return getInstance().beanPropertyMapInitializer(propertyNames);
 	}
 

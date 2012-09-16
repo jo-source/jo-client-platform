@@ -215,6 +215,10 @@ final class DefaultBeanFactory implements IBeanFactory {
 			else if (isGetIdMethod(method)) {
 				return getProperty(node, IBean.ID_PROPERTY);
 			}
+			else if (isSetIdMethod(method)) {
+				setProperty(node, IBean.ID_PROPERTY, args[0]);
+				return null;
+			}
 			else if (isGetVersionMethod(method)) {
 				if (node.hasProperty(IBean.VERSION_PROPERTY)) {
 					return node.getProperty(IBean.VERSION_PROPERTY);
@@ -325,6 +329,16 @@ final class DefaultBeanFactory implements IBeanFactory {
 			if (method.getName().equals("getId")) {
 				final Class<?>[] parameterTypes = method.getParameterTypes();
 				if (EmptyCheck.isEmpty(parameterTypes)) {
+					return true;
+				}
+			}
+			return false;
+		}
+
+		private boolean isSetIdMethod(final Method method) {
+			if (method.getName().equals("setId")) {
+				final Class<?>[] parameterTypes = method.getParameterTypes();
+				if (parameterTypes != null && parameterTypes.length == 1) {
 					return true;
 				}
 			}

@@ -29,6 +29,7 @@
 package org.jowidgets.cap.service.impl;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -53,10 +54,15 @@ import org.jowidgets.cap.service.api.entity.IEntityServiceBuilder;
 import org.jowidgets.cap.service.api.executor.IExecutorServiceBuilder;
 import org.jowidgets.cap.service.api.factory.IBeanServiceFactory;
 import org.jowidgets.cap.service.api.link.ILinkServicesBuilder;
+import org.jowidgets.cap.service.api.plugin.IBeanDtoConversionProviderPlugin;
 import org.jowidgets.cap.service.api.refresh.IRefreshServiceBuilder;
 import org.jowidgets.cap.service.api.updater.IUpdaterServiceBuilder;
+import org.jowidgets.plugin.api.IPluginProperties;
+import org.jowidgets.plugin.api.PluginProperties;
+import org.jowidgets.plugin.api.PluginProvider;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.api.IServiceRegistry;
+import org.jowidgets.util.Assert;
 import org.jowidgets.util.concurrent.DaemonThreadFactory;
 
 public final class DefaultCapServiceToolkit implements ICapServiceToolkit {
@@ -110,7 +116,99 @@ public final class DefaultCapServiceToolkit implements ICapServiceToolkit {
 	public <BEAN_TYPE extends IBean> IBeanDtoFactory<BEAN_TYPE> dtoFactory(
 		final Class<? extends BEAN_TYPE> beanType,
 		final Collection<String> propertyNames) {
-		return new BeanDtoFactoryImpl<BEAN_TYPE>(beanType, propertyNames);
+
+		IBeanDtoFactory<BEAN_TYPE> result = dtoFactoryImpl(beanType, propertyNames);
+
+		final IPluginProperties properties = PluginProperties.create(
+				IBeanDtoConversionProviderPlugin.BEAN_TYPE_PROPERTY_KEY,
+				beanType);
+
+		final List<IBeanDtoConversionProviderPlugin> plugins;
+		plugins = PluginProvider.getPlugins(IBeanDtoConversionProviderPlugin.ID, properties);
+		for (final IBeanDtoConversionProviderPlugin plugin : plugins) {
+			result = plugin.dtoFactory(beanType, propertyNames, result);
+		}
+
+		return result;
+	}
+
+	@SuppressWarnings("unchecked")
+	private <BEAN_TYPE extends IBean> IBeanDtoFactory<BEAN_TYPE> dtoFactoryImpl(
+		final Class<? extends BEAN_TYPE> beanType,
+		final Collection<String> propertyNames) {
+		Assert.paramNotNull(beanType, "beanType");
+		if (IBeanPropertyMap.class == beanType) {
+			return (IBeanDtoFactory<BEAN_TYPE>) beanPropertyMapDtoFactory(propertyNames);
+		}
+		else {
+			return new BeanDtoFactoryImpl<BEAN_TYPE>(beanType, propertyNames);
+		}
+	}
+
+	@Override
+	public <BEAN_TYPE extends IBean> IBeanInitializer<BEAN_TYPE> beanInitializer(
+		final Class<? extends BEAN_TYPE> beanType,
+		final Collection<String> propertyNames) {
+		Assert.paramNotNull(beanType, "beanType");
+		IBeanInitializer<BEAN_TYPE> result = beanInitializerImpl(beanType, propertyNames);
+
+		final IPluginProperties properties = PluginProperties.create(
+				IBeanDtoConversionProviderPlugin.BEAN_TYPE_PROPERTY_KEY,
+				beanType);
+
+		final List<IBeanDtoConversionProviderPlugin> plugins;
+		plugins = PluginProvider.getPlugins(IBeanDtoConversionProviderPlugin.ID, properties);
+		for (final IBeanDtoConversionProviderPlugin plugin : plugins) {
+			result = plugin.beanInitializer(beanType, propertyNames, result);
+		}
+
+		return result;
+	}
+
+	@SuppressWarnings("unchecked")
+	private <BEAN_TYPE extends IBean> IBeanInitializer<BEAN_TYPE> beanInitializerImpl(
+		final Class<? extends BEAN_TYPE> beanType,
+		final Collection<String> propertyNames) {
+		Assert.paramNotNull(beanType, "beanType");
+		if (IBeanPropertyMap.class == beanType) {
+			return (IBeanInitializer<BEAN_TYPE>) beanPropertyMapInitializer(propertyNames);
+		}
+		else {
+			return new BeanInitializerImpl<BEAN_TYPE>(beanType, propertyNames);
+		}
+	}
+
+	@Override
+	public <BEAN_TYPE extends IBean> IBeanModifier<BEAN_TYPE> beanModifier(
+		final Class<? extends BEAN_TYPE> beanType,
+		final Collection<String> propertyNames) {
+
+		IBeanModifier<BEAN_TYPE> result = beanModifierImpl(beanType, propertyNames);
+
+		final IPluginProperties properties = PluginProperties.create(
+				IBeanDtoConversionProviderPlugin.BEAN_TYPE_PROPERTY_KEY,
+				beanType);
+
+		final List<IBeanDtoConversionProviderPlugin> plugins;
+		plugins = PluginProvider.getPlugins(IBeanDtoConversionProviderPlugin.ID, properties);
+		for (final IBeanDtoConversionProviderPlugin plugin : plugins) {
+			result = plugin.beanModifier(beanType, propertyNames, result);
+		}
+
+		return result;
+	}
+
+	@SuppressWarnings("unchecked")
+	private <BEAN_TYPE extends IBean> IBeanModifier<BEAN_TYPE> beanModifierImpl(
+		final Class<? extends BEAN_TYPE> beanType,
+		final Collection<String> propertyNames) {
+		Assert.paramNotNull(beanType, "beanType");
+		if (IBeanPropertyMap.class == beanType) {
+			return (IBeanModifier<BEAN_TYPE>) beanPropertyMapModifier();
+		}
+		else {
+			return new BeanModifierImpl<BEAN_TYPE>(beanType, propertyNames);
+		}
 	}
 
 	@Override
@@ -121,20 +219,6 @@ public final class DefaultCapServiceToolkit implements ICapServiceToolkit {
 	@Override
 	public IBeanDtoCollectionFilter beanDtoCollectionFilter() {
 		return beanDtoFilter;
-	}
-
-	@Override
-	public <BEAN_TYPE extends IBean> IBeanInitializer<BEAN_TYPE> beanInitializer(
-		final Class<? extends BEAN_TYPE> beanType,
-		final Collection<String> propertyNames) {
-		return new BeanInitializerImpl<BEAN_TYPE>(beanType, propertyNames);
-	}
-
-	@Override
-	public <BEAN_TYPE extends IBean> IBeanModifier<BEAN_TYPE> beanModifier(
-		final Class<? extends BEAN_TYPE> beanType,
-		final Collection<String> propertyNames) {
-		return new BeanModifierImpl<BEAN_TYPE>(beanType, propertyNames);
 	}
 
 	@Override
