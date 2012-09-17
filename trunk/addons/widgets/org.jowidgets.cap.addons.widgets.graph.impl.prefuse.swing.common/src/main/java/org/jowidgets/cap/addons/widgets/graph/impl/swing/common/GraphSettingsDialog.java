@@ -31,13 +31,16 @@ package org.jowidgets.cap.addons.widgets.graph.impl.swing.common;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
+import org.jowidgets.api.widgets.IButton;
 import org.jowidgets.api.widgets.IInputField;
 import org.jowidgets.api.widgets.IScrollComposite;
 import org.jowidgets.api.widgets.ISlider;
 import org.jowidgets.api.widgets.blueprint.ISliderBluePrint;
 import org.jowidgets.api.widgets.blueprint.ITextLabelBluePrint;
 import org.jowidgets.common.types.Dimension;
+import org.jowidgets.common.widgets.controller.IActionListener;
 import org.jowidgets.common.widgets.controller.IInputListener;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
 import org.jowidgets.tools.layout.MigLayoutFactory;
@@ -63,6 +66,7 @@ final class GraphSettingsDialog extends JoFrame {
 			Messages.getString("GraphSettingsDialog.barneshuttheta")};
 	private static final String[] DISPLAY_PERCENT_PARAMETER = {"SpringCoefficient", "DragCoefficient", "BarnesHutTheta"};
 	private static final Map<String, Float> MODIFIED_VALUES = new HashMap<String, Float>();
+	private static final Map<ISlider, Integer> DEFAULT_SLIDER_SETTINGS = new HashMap<ISlider, Integer>();
 
 	GraphSettingsDialog(final ForceSimulator forceSimulator) {
 		super(Messages.getString("GraphSettingsDialog.settings"));
@@ -99,6 +103,24 @@ final class GraphSettingsDialog extends JoFrame {
 			}
 			initializeForceComponent(content, paramNames, forces[i]);
 		}
+		createDefaultSetterButton(content);
+	}
+
+	private void createDefaultSetterButton(final IScrollComposite content) {
+		final IButton btn = content.add(
+				BPF.button("Reset settings", "Set settings to default"),
+				"growx, w 0::100, gapy 20, span3, align right");
+		btn.addActionListener(new IActionListener() {
+
+			@Override
+			public void actionPerformed() {
+				final Set<ISlider> sliders = DEFAULT_SLIDER_SETTINGS.keySet();
+				for (final ISlider slider : sliders) {
+					slider.setValue(DEFAULT_SLIDER_SETTINGS.get(slider));
+				}
+			}
+		});
+
 	}
 
 	private void initializeForceComponent(final IScrollComposite content, final String[] parameterNames, final Force force) {
@@ -131,12 +153,14 @@ final class GraphSettingsDialog extends JoFrame {
 		content.add(labelBp.setText(description), "sg lg");
 		final ISliderBluePrint sliderBp = BPF.slider();
 		final ISlider slider;
+		final int defaultValue;
 
 		IInputField<Integer> inputField;
 		if (Arrays.asList(DISPLAY_PERCENT_PARAMETER).contains(forceParameter)) {
 			sliderBp.setMaximum(100).setMinimum(0).setTickSpacing(5);
 			slider = content.add(sliderBp, "growx, w 0::");
-			slider.setValue((int) (100 / max * value));
+			defaultValue = (int) (100 / max * value);
+			slider.setValue(defaultValue);
 
 			inputField = content.add(BPF.inputFieldIntegerNumber(), "growx, w 0::, split2");
 			content.add(BPF.label().setText("%"), "wrap");
@@ -146,12 +170,14 @@ final class GraphSettingsDialog extends JoFrame {
 		else {
 			sliderBp.setMaximum((int) max).setMinimum((int) min).setTickSpacing((int) (max - min) / 20);
 			slider = content.add(sliderBp, "growx, w 0::");
-			slider.setValue((int) value);
+			defaultValue = (int) value;
+			slider.setValue(defaultValue);
 
 			inputField = content.add(BPF.inputFieldIntegerNumber(), "growx, w 0::, wrap");
 			inputField.setValue((int) value);
 			displayPercent = false;
 		}
+		DEFAULT_SLIDER_SETTINGS.put(slider, defaultValue);
 
 		inputField.addInputListener(new ParameterListener(
 			slider,

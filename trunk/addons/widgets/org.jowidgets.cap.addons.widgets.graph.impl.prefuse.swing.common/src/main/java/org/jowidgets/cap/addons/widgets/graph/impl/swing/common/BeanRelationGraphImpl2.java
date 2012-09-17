@@ -425,6 +425,7 @@ class BeanRelationGraphImpl2<CHILD_BEAN_TYPE> extends ControlWrapper implements 
 				graph.clear();
 				onBeansChanged(root);
 				vis.run("color");
+				vis.run("filter");
 			}
 
 		}
@@ -444,6 +445,7 @@ class BeanRelationGraphImpl2<CHILD_BEAN_TYPE> extends ControlWrapper implements 
 				onBeansChanged(relationNodeModel);
 				vis.run("layout");
 				vis.run("color");
+				vis.run("filter");
 			}
 		}
 	}
@@ -652,7 +654,7 @@ class BeanRelationGraphImpl2<CHILD_BEAN_TYPE> extends ControlWrapper implements 
 			vis.removeAction("layout");
 
 			final ForceDirectedLayout fdl = new ForceDirectedLayout("graph", true);
-			fdl.setForceSimulator(setForces());
+			fdl.setForceSimulator(forceSimulator != null ? forceSimulator : setForces());
 
 			final ActionList layout = new ActionList(Activity.INFINITY);
 			layout.add(fdl);
