@@ -97,7 +97,6 @@ import prefuse.action.animate.QualityControlAnimator;
 import prefuse.action.animate.VisibilityAnimator;
 import prefuse.action.assignment.ColorAction;
 import prefuse.action.assignment.FontAction;
-import prefuse.action.filter.VisibilityFilter;
 import prefuse.action.layout.CollapsedSubtreeLayout;
 import prefuse.action.layout.Layout;
 import prefuse.action.layout.graph.ForceDirectedLayout;
@@ -117,8 +116,6 @@ import prefuse.data.Edge;
 import prefuse.data.Graph;
 import prefuse.data.Node;
 import prefuse.data.Schema;
-import prefuse.data.expression.Predicate;
-import prefuse.data.expression.parser.ExpressionParser;
 import prefuse.data.tuple.TupleSet;
 import prefuse.render.DefaultRendererFactory;
 import prefuse.render.ImageFactory;
@@ -175,10 +172,8 @@ class BeanRelationGraphImpl2<CHILD_BEAN_TYPE> extends ControlWrapper implements 
 	private int maxNodeCount = MAX_NODE_COUNT_DEFAULT;
 	private int groupCount;
 
-	private final NodeVisibilityFilter visFilter;
-
+	private final ExpandLevelVisibilityFilter expandLevelVisibilityFilter;
 	private final EdgeAction edgeFilter;
-
 	private final NodeVisibilityAction nodeFilter;
 
 	BeanRelationGraphImpl2(
@@ -201,24 +196,20 @@ class BeanRelationGraphImpl2<CHILD_BEAN_TYPE> extends ControlWrapper implements 
 		graph.addColumn("level", Integer.class);
 		graph.addColumn("expanded", Boolean.class);
 		graph.addColumn("position", Point.class);
+		graph.addColumn("visible", Boolean.class);
 
 		vis = new Visualization();
 		vis.addGraph(GRAPH, graph);
 		vis.setInteractive(EDGES, null, false);
 		vis.setInteractive(NODES, null, true);
 
-		//		final SearchQueryBinding searchQ = new SearchQueryBinding(graph, "type");
-		//		final AndPredicate filter = new AndPredicate(searchQ.getPredicate());
-
-		final Predicate p = (Predicate) ExpressionParser.parse("level <= " + autoExpandLevel);
-
 		final ActionList filter = new ActionList();
-		visFilter = new NodeVisibilityFilter(GRAPH, p);
+		expandLevelVisibilityFilter = new ExpandLevelVisibilityFilter(GRAPH);
 		edgeFilter = new EdgeAction();
 		nodeFilter = new NodeVisibilityAction();
-		filter.add(visFilter);
-		filter.add(edgeFilter);
+		filter.add(expandLevelVisibilityFilter);
 		filter.add(nodeFilter);
+		filter.add(edgeFilter);
 
 		final ActionList color = new ActionList();
 		color.add(new ColorAction(NODES, VisualItem.STROKECOLOR, 0));
@@ -255,7 +246,7 @@ class BeanRelationGraphImpl2<CHILD_BEAN_TYPE> extends ControlWrapper implements 
 
 		display = new Display(vis);
 		display.setHighQuality(true);
-		//		display.addControlListener(new FocusControl(1));
+		display.addControlListener(new FocusControl(1));
 		display.addControlListener(new DragControl());
 		display.addControlListener(new PanControl());
 		display.addControlListener(new ZoomControl());
@@ -277,14 +268,18 @@ class BeanRelationGraphImpl2<CHILD_BEAN_TYPE> extends ControlWrapper implements 
 										entry.getKey(),
 										entityType);
 								childRelationModel.loadIfNotYetDone();
-
+								//loadChildren(childRelationModel);
 							}
 
 							beanRelationNodeModel.loadIfNotYetDone();
 							break;
 						}
 					}
-
+					//expand or contract tree!
+					contractExpandNode(node);
+					vis.run("color");
+					nodeFilter.run();
+					edgeFilter.run();
 				}
 			}
 		});
@@ -320,6 +315,46 @@ class BeanRelationGraphImpl2<CHILD_BEAN_TYPE> extends ControlWrapper implements 
 		toolbar.setModel(initToolBar());
 
 		relationTreeModel.getRoot().addBeanListModelListener(new RootModelListener());
+
+	}
+
+	@SuppressWarnings("unused")
+	private void loadChildren(final IBeanRelationNodeModel<Object, Object> beanRelationNodeModel) {
+		for (final IEntityTypeId<Object> entityType : beanRelationNodeModel.getChildRelations()) {
+			for (int i = 0; i < beanRelationNodeModel.getChildRelations().size(); i++) {
+				final IBeanRelationNodeModel<Object, Object> childRelationModel = relationTreeModel.getNode(
+						beanRelationNodeModel.getChildEntityTypeId(),
+						beanRelationNodeModel.getBean(i),
+						entityType);
+				childRelationModel.loadIfNotYetDone();
+			}
+		}
+	}
+
+	private void contractExpandNode(final Node node) {
+
+		final int childCount = node.getChildCount();
+
+		if ((Boolean) node.get("expanded")) {
+			for (int i = 0; i < childCount; i++) {
+				final Node child = node.getChild(i);
+				if ((Boolean) child.get("expanded")) {
+					contractExpandNode(child);
+				}
+				child.set("visible", false);
+				child.set("expanded", false);
+			}
+			node.set("expanded", false);
+		}
+		else if (!(Boolean) node.get("expanded")) {
+			for (int i = 0; i < childCount; i++) {
+				final Node child = node.getChild(i);
+				//				contractExpandNode(child);
+				child.set("visible", true);
+				child.set("expanded", false);
+			}
+			node.set("expanded", true);
+		}
 	}
 
 	private static Schema createDecoratorSchema() {
@@ -344,6 +379,8 @@ class BeanRelationGraphImpl2<CHILD_BEAN_TYPE> extends ControlWrapper implements 
 				addBeanToGraph(bean, i + nodeMap.size(), relationNodeModel);
 			}
 		}
+		nodeFilter.run();
+		edgeFilter.run();
 	}
 
 	private void addBeanToGraph(
@@ -390,6 +427,7 @@ class BeanRelationGraphImpl2<CHILD_BEAN_TYPE> extends ControlWrapper implements 
 			}
 		}
 
+		childNode.set("visible", true);
 		renderNodeShape(nodeGroup, childNode);
 		renderNode(childNode, bean, renderer);
 
@@ -415,6 +453,7 @@ class BeanRelationGraphImpl2<CHILD_BEAN_TYPE> extends ControlWrapper implements 
 
 		private RootModelListener() {
 			this.root = relationTreeModel.getRoot();
+
 		}
 
 		@SuppressWarnings("unchecked")
@@ -425,7 +464,7 @@ class BeanRelationGraphImpl2<CHILD_BEAN_TYPE> extends ControlWrapper implements 
 				graph.clear();
 				onBeansChanged(root);
 				vis.run("color");
-				vis.run("filter");
+				//				vis.run("filter");
 			}
 
 		}
@@ -851,25 +890,32 @@ class BeanRelationGraphImpl2<CHILD_BEAN_TYPE> extends ControlWrapper implements 
 			final TupleSet nodes = vis.getGroup(NODES);
 			final Iterator<?> node = nodes.tuples();
 			while (node.hasNext()) {
-				final VisualItem test = (VisualItem) node.next();
-				//CHECKSTYLE:OFF
-				System.out.println(test.get("name") + " | " + test.get("level") + " | " + test.get("expanded"));
-				//CHECKSTYLE:ON
+				final Node result = (Node) node.next();
+				final VisualItem test = (VisualItem) result;
+				test.setVisible((Boolean) result.get("visible"));
 			}
 		}
 	}
 
-	private class NodeVisibilityFilter extends VisibilityFilter {
+	private class ExpandLevelVisibilityFilter extends GroupAction {
 
-		public NodeVisibilityFilter(final String group, final Predicate p) {
-			super(group, p);
+		public ExpandLevelVisibilityFilter(final String group) {
+			super(group);
 		}
 
 		@Override
 		public void run(final double frac) {
-			final Predicate p = (Predicate) ExpressionParser.parse("level <= " + autoExpandLevel);
-			this.setPredicate(p);
-			super.run(frac);
+			final TupleSet nodes = vis.getGroup(NODES);
+			final Iterator<?> node = nodes.tuples();
+			while (node.hasNext()) {
+				final Node result = (Node) node.next();
+				if ((Integer) result.get("level") <= autoExpandLevel) {
+					result.set("visible", true);
+				}
+				else {
+					result.set("visible", false);
+				}
+			}
 		}
 
 	}
