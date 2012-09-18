@@ -103,13 +103,12 @@ final class GraphSettingsDialog extends JoFrame {
 			}
 			initializeForceComponent(content, paramNames, forces[i]);
 		}
+		content.add(BPF.separator(), "growx, span3, gapy20,wrap");
 		createDefaultSetterButton(content);
 	}
 
 	private void createDefaultSetterButton(final IScrollComposite content) {
-		final IButton btn = content.add(
-				BPF.button("Reset settings", "Set settings to default"),
-				"growx, w 0::100, gapy 20, span3, align right");
+		final IButton btn = content.add(BPF.button("Reset", "Set settings to default"), "growx, w 0::75, span3, align right");
 		btn.addActionListener(new IActionListener() {
 
 			@Override
