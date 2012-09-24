@@ -65,7 +65,7 @@ public class ExpandedShapeRenderer extends LabelRenderer {
 		notExpandedIcon = initializeIcons(CapIcons.NODE_EXPANDED);
 
 		this.setHorizontalPadding(10);
-		this.setVerticalPadding(5);
+		this.setVerticalPadding(2);
 	}
 
 	private Image initializeIcons(final IImageConstant iconImage) {
@@ -128,9 +128,9 @@ public class ExpandedShapeRenderer extends LabelRenderer {
 		gradientColor = new GradientPaint(
 			shape.getBounds().x + shape.getBounds().width / 2,
 			shape.getBounds().y,
-			Color.white,
+			lightenFillColor(item.getFillColor()),
 			shape.getBounds().x + shape.getBounds().width / 2,
-			shape.getBounds().y + shape.getBounds().height,
+			shape.getBounds().y + shape.getBounds().height / 2,
 			ColorLib.getColor(item.getFillColor()),
 			false);
 		g.setPaint(gradientColor);
@@ -301,6 +301,11 @@ public class ExpandedShapeRenderer extends LabelRenderer {
 					shape.getY() - shape.getHeight(),
 					shape);
 		}
+	}
+
+	private Color lightenFillColor(final int fillColor) {
+		final float[] hsv = Color.RGBtoHSB(ColorLib.red(fillColor), ColorLib.green(fillColor), ColorLib.blue(fillColor), null);
+		return ColorLib.getColor(ColorLib.hsb(hsv[0], hsv[1] * 0.1f, 0.9f));
 	}
 
 	private void renderImage(
