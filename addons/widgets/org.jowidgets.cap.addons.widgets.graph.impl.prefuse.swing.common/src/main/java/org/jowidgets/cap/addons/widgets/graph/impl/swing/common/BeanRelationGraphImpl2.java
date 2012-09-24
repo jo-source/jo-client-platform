@@ -61,9 +61,6 @@ import org.jowidgets.api.widgets.IFrame;
 import org.jowidgets.api.widgets.IToolBar;
 import org.jowidgets.api.widgets.blueprint.IComboBoxSelectionBluePrint;
 import org.jowidgets.api.widgets.blueprint.IInputFieldBluePrint;
-import org.jowidgets.cap.addons.widgets.graph.impl.swing.common.action.EdgeVisibilityAction;
-import org.jowidgets.cap.addons.widgets.graph.impl.swing.common.action.NodeVisibilityAction;
-import org.jowidgets.cap.addons.widgets.graph.impl.swing.common.action.TreeRootAction;
 import org.jowidgets.cap.ui.api.addons.widgets.IBeanRelationGraph;
 import org.jowidgets.cap.ui.api.addons.widgets.IBeanRelationGraphSetupBuilder;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
@@ -148,12 +145,12 @@ class BeanRelationGraphImpl2<CHILD_BEAN_TYPE> extends ControlWrapper implements 
 	private static final String EDGE_DECORATORS = "edgeDeco";
 	private static final String GRAPH_NODES_GROUP = "graph.nodes.group";
 	private static final Schema DECORATOR_SCHEMA = createDecoratorSchema();
+	private int autoExpandLevel;
 
 	private final IBeanRelationTreeModel<CHILD_BEAN_TYPE> relationTreeModel;
 	private final Map<IBeanProxy<Object>, Node> nodeMap;
 	private final Map<Class<Object>, String> entityGroupMap;
 	private final HashMap<IBeanProxy<Object>, IBeanRelationNodeModel<Object, Object>> beanRelationMap;
-	private final HashMap<IBeanRelationNodeModel<Object, Object>, IBeanProxy<Object>> beanRelationMapReverse;
 
 	private final Visualization vis;
 	private final Graph graph;
@@ -161,8 +158,6 @@ class BeanRelationGraphImpl2<CHILD_BEAN_TYPE> extends ControlWrapper implements 
 
 	private final LabelEdgeLayout labelEdgeLayout;
 	private final ImageFactory imageFactory;
-
-	private int autoExpandLevel;
 
 	private ForceSimulator forceSimulator;
 
@@ -185,7 +180,6 @@ class BeanRelationGraphImpl2<CHILD_BEAN_TYPE> extends ControlWrapper implements 
 		nodeMap = new HashMap<IBeanProxy<Object>, Node>();
 		entityGroupMap = new HashMap<Class<Object>, String>();
 		beanRelationMap = new HashMap<IBeanProxy<Object>, IBeanRelationNodeModel<Object, Object>>();
-		beanRelationMapReverse = new HashMap<IBeanRelationNodeModel<Object, Object>, IBeanProxy<Object>>();
 
 		autoExpandLevel = setup.getAutoExpandLevel();
 
@@ -352,6 +346,7 @@ class BeanRelationGraphImpl2<CHILD_BEAN_TYPE> extends ControlWrapper implements 
 			for (int i = 0; i < childCount; i++) {
 				final Node childNode = node.getChild(i);
 				childNode.set("visible", true);
+				childNode.set("expanded", false);
 			}
 
 			node.set("expanded", true);
@@ -401,7 +396,6 @@ class BeanRelationGraphImpl2<CHILD_BEAN_TYPE> extends ControlWrapper implements 
 			childNode.set("expanded", false);
 			childNode.set("isParent", false);
 			beanRelationMap.put(bean, beanRelationNodeModel);
-			beanRelationMapReverse.put(beanRelationNodeModel, bean);
 		}
 
 		if (entityGroupMap.get(beanRelationNodeModel.getChildBeanType()) == null) {
@@ -440,6 +434,9 @@ class BeanRelationGraphImpl2<CHILD_BEAN_TYPE> extends ControlWrapper implements 
 		if (parentNode != null) {
 			if (parentNode.getChildCount() >= 1) {
 				parentNode.set("isParent", true);
+			}
+			else {
+				parentNode.set("isParent", false);
 			}
 		}
 
@@ -569,7 +566,7 @@ class BeanRelationGraphImpl2<CHILD_BEAN_TYPE> extends ControlWrapper implements 
 		model.addItem(textField);
 		model.addSeparator();
 
-		model.addTextLabel("ExpandLevel");
+		model.addTextLabel("Expand Level");
 		final IComboBoxSelectionBluePrint<Integer> comboBoxExpandLevelBp = BPF.comboBoxSelectionIntegerNumber().setElements(
 				0,
 				1,
