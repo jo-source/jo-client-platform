@@ -140,7 +140,7 @@ class BeanRelationGraphImpl2<CHILD_BEAN_TYPE> extends ControlWrapper implements 
 	private static final int MAX_NODE_COUNT_DEFAULT = 100;
 
 	private static final int[] NODE_COLORS = new int[] {
-			ColorLib.gray(200), ColorLib.rgba(135, 206, 250, 255), ColorLib.rgba(7, 162, 28, 255),
+			ColorLib.gray(180), ColorLib.rgba(105, 176, 220, 255), ColorLib.rgba(7, 162, 28, 255),
 			ColorLib.rgba(0, 255, 127, 255), ColorLib.rgba(240, 230, 140, 255), ColorLib.rgba(220, 220, 220, 255),
 			ColorLib.rgba(222, 127, 0, 255), ColorLib.rgba(222, 127, 227, 255), ColorLib.rgba(218, 191, 113, 255),
 			ColorLib.rgba(99, 241, 113, 255), ColorLib.rgba(99, 241, 113, 255), ColorLib.rgba(45, 84, 187, 255)};
@@ -265,8 +265,9 @@ class BeanRelationGraphImpl2<CHILD_BEAN_TYPE> extends ControlWrapper implements 
 										beanRelationNodeModel.getChildEntityTypeId(),
 										entry.getKey(),
 										entityType);
-								childRelationModel.loadIfNotYetDone();
-								loadChildren(childRelationModel);
+								if (childRelationModel.loadIfNotYetDone()) {
+									loadChildren(childRelationModel);
+								}
 							}
 
 							beanRelationNodeModel.loadIfNotYetDone();
