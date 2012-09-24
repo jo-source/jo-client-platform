@@ -40,14 +40,12 @@ public final class IconDisplayFormat implements IDisplayFormat {
 
 	@Override
 	public String getName() {
-		//TODO SP i18n
-		return "Icon";
+		return Messages.getString("IconDisplayFormat.icon"); //$NON-NLS-1$
 	}
 
 	@Override
 	public String getDescription() {
-		//TODO SP i18n
-		return "Shows the value as an icon";
+		return Messages.getString("IconDisplayFormat.description"); //$NON-NLS-1$
 	}
 
 	@Override

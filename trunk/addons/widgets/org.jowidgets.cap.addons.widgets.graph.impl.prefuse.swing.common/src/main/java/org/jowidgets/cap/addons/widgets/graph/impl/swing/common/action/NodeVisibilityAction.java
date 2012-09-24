@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, grossmann
+ * Copyright (c) 2012, sapalm
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,25 +26,40 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.addons.widgets.graph.impl.swing.common;
+package org.jowidgets.cap.addons.widgets.graph.impl.swing.common.action;
 
-import org.jowidgets.i18n.api.IMessage;
-import org.jowidgets.i18n.api.IMessageProvider;
-import org.jowidgets.i18n.api.MessageProvider;
+import java.util.Iterator;
 
-final class Messages {
+import org.jowidgets.cap.addons.widgets.graph.impl.swing.common.BeanRelationGraphDefaults;
 
-	private static final IMessageProvider MESSAGE_PROVIDER = MessageProvider.create(
-			"org.jowidgets.cap.addons.widgets.graph.impl.swing.common.messages",
-			Messages.class);
+import prefuse.Visualization;
+import prefuse.action.GroupAction;
+import prefuse.data.Node;
+import prefuse.data.tuple.TupleSet;
+import prefuse.visual.VisualItem;
 
-	private Messages() {}
+public class NodeVisibilityAction extends GroupAction {
 
-	public static String getString(final String key) {
-		return MESSAGE_PROVIDER.getString(key);
+	private final Visualization vis;
+
+	public NodeVisibilityAction(final Visualization vis) {
+		super();
+		this.vis = vis;
 	}
 
-	public static IMessage getMessage(final String key) {
-		return MESSAGE_PROVIDER.getMessage(key);
+	@Override
+	public void run(final double frac) {
+		final TupleSet nodes = vis.getGroup(BeanRelationGraphDefaults.NODES);
+		final Iterator<?> node = nodes.tuples();
+		while (node.hasNext()) {
+			final Node result = (Node) node.next();
+			final VisualItem visualItem = (VisualItem) result;
+			if (result.getParent() != null) {
+				if (!(Boolean) result.getParent().get("expanded")) {
+					result.set("visible", false);
+				}
+			}
+			visualItem.setVisible((Boolean) result.get("visible"));
+		}
 	}
 }
