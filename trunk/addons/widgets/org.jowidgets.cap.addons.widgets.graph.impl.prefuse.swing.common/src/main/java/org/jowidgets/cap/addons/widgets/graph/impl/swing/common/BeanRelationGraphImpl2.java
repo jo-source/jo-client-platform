@@ -153,6 +153,7 @@ class BeanRelationGraphImpl2<CHILD_BEAN_TYPE> extends ControlWrapper implements 
 	private final Map<IBeanProxy<Object>, Node> nodeMap;
 	private final Map<Class<Object>, String> entityGroupMap;
 	private final HashMap<IBeanProxy<Object>, IBeanRelationNodeModel<Object, Object>> beanRelationMap;
+	private final HashMap<IBeanRelationNodeModel<Object, Object>, IBeanProxy<Object>> beanRelationMapReverse;
 
 	private final Visualization vis;
 	private final Graph graph;
@@ -184,6 +185,7 @@ class BeanRelationGraphImpl2<CHILD_BEAN_TYPE> extends ControlWrapper implements 
 		nodeMap = new HashMap<IBeanProxy<Object>, Node>();
 		entityGroupMap = new HashMap<Class<Object>, String>();
 		beanRelationMap = new HashMap<IBeanProxy<Object>, IBeanRelationNodeModel<Object, Object>>();
+		beanRelationMapReverse = new HashMap<IBeanRelationNodeModel<Object, Object>, IBeanProxy<Object>>();
 
 		autoExpandLevel = setup.getAutoExpandLevel();
 
@@ -265,9 +267,8 @@ class BeanRelationGraphImpl2<CHILD_BEAN_TYPE> extends ControlWrapper implements 
 										beanRelationNodeModel.getChildEntityTypeId(),
 										entry.getKey(),
 										entityType);
-								if (childRelationModel.loadIfNotYetDone()) {
-									loadChildren(childRelationModel);
-								}
+								childRelationModel.loadIfNotYetDone();
+								loadChildren(childRelationModel);
 							}
 
 							beanRelationNodeModel.loadIfNotYetDone();
@@ -319,7 +320,7 @@ class BeanRelationGraphImpl2<CHILD_BEAN_TYPE> extends ControlWrapper implements 
 	private void loadChildren(final IBeanRelationNodeModel<Object, Object> beanRelationNodeModel) {
 
 		for (final IEntityTypeId<Object> entityType : beanRelationNodeModel.getChildRelations()) {
-			final int childRelations = beanRelationNodeModel.getChildRelations().size();
+			final int childRelations = beanRelationNodeModel.getSize();
 			for (int i = 0; i < childRelations; i++) {
 				final IBeanRelationNodeModel<Object, Object> childRelationModel = relationTreeModel.getNode(
 						beanRelationNodeModel.getChildEntityTypeId(),
@@ -400,6 +401,7 @@ class BeanRelationGraphImpl2<CHILD_BEAN_TYPE> extends ControlWrapper implements 
 			childNode.set("expanded", false);
 			childNode.set("isParent", false);
 			beanRelationMap.put(bean, beanRelationNodeModel);
+			beanRelationMapReverse.put(beanRelationNodeModel, bean);
 		}
 
 		if (entityGroupMap.get(beanRelationNodeModel.getChildBeanType()) == null) {
@@ -436,7 +438,7 @@ class BeanRelationGraphImpl2<CHILD_BEAN_TYPE> extends ControlWrapper implements 
 		renderNode(childNode, bean, renderer);
 
 		if (parentNode != null) {
-			if ((Integer) parentNode.get("level") < (Integer) childNode.get("level")) {
+			if (parentNode.getChildCount() >= 1) {
 				parentNode.set("isParent", true);
 			}
 		}
