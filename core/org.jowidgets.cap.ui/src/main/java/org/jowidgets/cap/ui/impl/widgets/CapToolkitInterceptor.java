@@ -103,6 +103,8 @@ final class CapToolkitInterceptor implements IToolkitInterceptor {
 		registerImage(registry, CapIcons.GRAPH_LETTERING, "graph_lettering.png");
 		registerImage(registry, CapIcons.GRAPH_SETTINGS, "graph_settings.gif");
 		registerImage(registry, CapIcons.GRAPH_SNAPSHOT, "graph_snapshot.png");
+		registerImage(registry, CapIcons.NODE_EXPANDED, "node_expanded.png");
+		registerImage(registry, CapIcons.NODE_CONTRACTED, "node_contracted.png");
 	}
 
 	private void registerImage(final IImageRegistry registry, final IImageConstant imageConstant, final String relPath) {

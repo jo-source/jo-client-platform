@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, grossmann
+ * Copyright (c) 2012, sapalm
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,25 +26,46 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.addons.widgets.graph.impl.swing.common;
+package org.jowidgets.cap.addons.widgets.graph.impl.swing.common.action;
 
-import org.jowidgets.i18n.api.IMessage;
-import org.jowidgets.i18n.api.IMessageProvider;
-import org.jowidgets.i18n.api.MessageProvider;
+import java.util.Iterator;
 
-final class Messages {
+import prefuse.Visualization;
+import prefuse.action.GroupAction;
+import prefuse.data.Graph;
+import prefuse.data.Node;
+import prefuse.data.tuple.TupleSet;
 
-	private static final IMessageProvider MESSAGE_PROVIDER = MessageProvider.create(
-			"org.jowidgets.cap.addons.widgets.graph.impl.swing.common.messages",
-			Messages.class);
+public class TreeRootAction extends GroupAction {
 
-	private Messages() {}
+	private final Visualization vis;
 
-	public static String getString(final String key) {
-		return MESSAGE_PROVIDER.getString(key);
+	public TreeRootAction(final String graphGroup, final Visualization vis) {
+		super(graphGroup);
+		this.vis = vis;
 	}
 
-	public static IMessage getMessage(final String key) {
-		return MESSAGE_PROVIDER.getMessage(key);
+	@Override
+	public void run(final double frac) {
+		final TupleSet focus = vis.getGroup(Visualization.FOCUS_ITEMS);
+		if (focus == null || focus.getTupleCount() == 0) {
+			return;
+		}
+		final Graph g = (Graph) vis.getGroup(m_group);
+		final Node node = getFirstContainingNode(g, focus);
+		if (node != null) {
+			g.getSpanningTree(node);
+		}
+	}
+
+	private Node getFirstContainingNode(final Graph graph, final TupleSet focus) {
+		final Iterator<?> iterator = focus.tuples();
+		while (iterator.hasNext()) {
+			final Node node = (Node) iterator.next();
+			if (graph.containsTuple(node)) {
+				return node;
+			}
+		}
+		return null;
 	}
 }
