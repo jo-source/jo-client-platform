@@ -64,7 +64,7 @@ public class ExpandedShapeRenderer extends LabelRenderer {
 		expandedIcon = initializeIcons(CapIcons.NODE_CONTRACTED);
 		notExpandedIcon = initializeIcons(CapIcons.NODE_EXPANDED);
 
-		this.setHorizontalPadding(10);
+		this.setHorizontalPadding(25);
 		this.setVerticalPadding(2);
 	}
 
@@ -282,23 +282,19 @@ public class ExpandedShapeRenderer extends LabelRenderer {
 
 		//render (+) or (-) if isParent and expanded
 		if ((Boolean) item.get("isParent") && !(Boolean) item.get("expanded")) {
-			renderImage(
-					g,
-					useInt,
-					expandedIcon,
-					size,
-					shape.getX() + shape.getWidth() - 25,
-					shape.getY() - shape.getHeight(),
+			renderImage(g, useInt, expandedIcon, size,
+			//					shape.getX() + shape.getWidth() - 25,
+					shape.getX() + shape.getHeight() / 3,
+					//					shape.getY() - shape.getHeight(),
+					shape.getY(),
 					shape);
 		}
 		else if ((Boolean) item.get("isParent") && (Boolean) item.get("expanded")) {
-			renderImage(
-					g,
-					useInt,
-					notExpandedIcon,
-					size,
-					shape.getX() + shape.getWidth() - 25,
-					shape.getY() - shape.getHeight(),
+			renderImage(g, useInt, notExpandedIcon, size,
+			//					shape.getX() + shape.getWidth() - 25,
+					shape.getX() + shape.getHeight() / 3,
+					//					shape.getY() - shape.getHeight(),
+					shape.getY(),
 					shape);
 		}
 	}

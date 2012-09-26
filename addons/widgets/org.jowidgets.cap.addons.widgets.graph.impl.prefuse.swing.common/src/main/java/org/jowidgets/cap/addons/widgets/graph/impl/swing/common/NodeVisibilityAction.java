@@ -47,7 +47,7 @@ class NodeVisibilityAction extends GroupAction {
 
 	@Override
 	public void run(final double frac) {
-		final TupleSet nodes = vis.getGroup(BeanRelationGraphDefaults.NODES);
+		final TupleSet nodes = vis.getGroup(BeanRelationGraphImpl.NODES);
 		final Iterator<?> node = nodes.tuples();
 		while (node.hasNext()) {
 			final Node result = (Node) node.next();
@@ -56,6 +56,9 @@ class NodeVisibilityAction extends GroupAction {
 				if (!(Boolean) result.getParent().get("expanded")) {
 					result.set("visible", false);
 				}
+			}
+			if (result.getChildCount() == 0) {
+				result.set("isParent", false);
 			}
 			visualItem.setVisible((Boolean) result.get("visible"));
 		}
