@@ -48,6 +48,9 @@ public final class SecurityContext {
 		if (securityContext instanceof IPrincipal<?>) {
 			return ((IPrincipal<?>) securityContext);
 		}
+		else if (securityContext == null) {
+			throw new IllegalStateException("Security Context is not set!");
+		}
 		else {
 			throw new IllegalStateException("Security Context has wrong type. '"
 				+ IPrincipal.class
