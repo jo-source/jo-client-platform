@@ -32,6 +32,7 @@ import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Font;
 import java.awt.Image;
+import java.awt.Point;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
@@ -54,12 +55,12 @@ import org.jowidgets.api.command.ICommandExecutor;
 import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.api.model.item.ICheckedItemModel;
 import org.jowidgets.api.model.item.IToolBarModel;
+import org.jowidgets.api.threads.IUiThreadAccess;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.widgets.IComposite;
 import org.jowidgets.api.widgets.IFrame;
 import org.jowidgets.api.widgets.IToolBar;
 import org.jowidgets.api.widgets.blueprint.IComboBoxSelectionBluePrint;
-import org.jowidgets.api.widgets.blueprint.IDialogBluePrint;
 import org.jowidgets.api.widgets.blueprint.IInputFieldBluePrint;
 import org.jowidgets.cap.ui.api.addons.widgets.IBeanRelationGraph;
 import org.jowidgets.cap.ui.api.addons.widgets.IBeanRelationGraphSetupBuilder;
@@ -73,9 +74,7 @@ import org.jowidgets.cap.ui.api.types.IEntityTypeId;
 import org.jowidgets.cap.ui.tools.model.BeanListModelListenerAdapter;
 import org.jowidgets.common.image.IImageConstant;
 import org.jowidgets.common.image.IImageHandle;
-import org.jowidgets.common.types.Dimension;
 import org.jowidgets.common.types.Orientation;
-import org.jowidgets.common.types.Position;
 import org.jowidgets.common.widgets.controller.IInputListener;
 import org.jowidgets.common.widgets.controller.IItemStateListener;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
@@ -90,6 +89,7 @@ import org.jowidgets.util.IConverter;
 import prefuse.Constants;
 import prefuse.Display;
 import prefuse.Visualization;
+import prefuse.action.Action;
 import prefuse.action.ActionList;
 import prefuse.action.GroupAction;
 import prefuse.action.RepaintAction;
@@ -118,7 +118,6 @@ import prefuse.data.Edge;
 import prefuse.data.Graph;
 import prefuse.data.Node;
 import prefuse.data.Schema;
-import prefuse.data.expression.parser.ExpressionParser;
 import prefuse.data.tuple.TupleSet;
 import prefuse.render.DefaultRendererFactory;
 import prefuse.render.ImageFactory;
@@ -130,7 +129,6 @@ import prefuse.util.force.DragForce;
 import prefuse.util.force.ForceSimulator;
 import prefuse.util.force.NBodyForce;
 import prefuse.util.force.SpringForce;
-import prefuse.util.ui.JForcePanel;
 import prefuse.visual.DecoratorItem;
 import prefuse.visual.VisualItem;
 import prefuse.visual.expression.InGroupPredicate;
@@ -138,24 +136,25 @@ import prefuse.visual.sort.TreeDepthItemSorter;
 
 class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements IBeanRelationGraph<CHILD_BEAN_TYPE> {
 
+	public static final String GRAPH = "graph";
+	public static final String NODES = "graph.nodes";
+	public static final String EDGES = "graph.edges";
+
 	private static final int MAX_NODE_COUNT_DEFAULT = 100;
 
 	private static final int[] NODE_COLORS = new int[] {
-			ColorLib.gray(200), ColorLib.rgba(135, 206, 250, 255), ColorLib.rgba(95, 158, 160, 255),
+			ColorLib.gray(180), ColorLib.rgba(105, 176, 220, 255), ColorLib.rgba(7, 162, 28, 255),
 			ColorLib.rgba(0, 255, 127, 255), ColorLib.rgba(240, 230, 140, 255), ColorLib.rgba(220, 220, 220, 255),
 			ColorLib.rgba(222, 127, 0, 255), ColorLib.rgba(222, 127, 227, 255), ColorLib.rgba(218, 191, 113, 255),
 			ColorLib.rgba(99, 241, 113, 255), ColorLib.rgba(99, 241, 113, 255), ColorLib.rgba(45, 84, 187, 255)};
 
-	private static final String NODES = "graph.nodes";
-	private static final String EDGES = "graph.edges";
 	private static final String EDGE_DECORATORS = "edgeDeco";
-
+	private static final String GRAPH_NODES_GROUP = "graph.nodes.group";
 	private static final Schema DECORATOR_SCHEMA = createDecoratorSchema();
 
-	private final IConverter<IComposite, Container> awtConverter;
+	private static int autoExpandLevel;
 
 	private final IBeanRelationTreeModel<CHILD_BEAN_TYPE> relationTreeModel;
-
 	private final Map<IBeanProxy<Object>, Node> nodeMap;
 	private final Map<Class<Object>, String> entityGroupMap;
 	private final HashMap<IBeanProxy<Object>, IBeanRelationNodeModel<Object, Object>> beanRelationMap;
@@ -170,10 +169,13 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 	private ForceSimulator forceSimulator;
 
 	private IFrame dialog;
-	private Position dialogPosition;
 
 	private int maxNodeCount = MAX_NODE_COUNT_DEFAULT;
 	private int groupCount;
+
+	private final EdgeVisibilityAction edgeFilter;
+	private final NodeVisibilityAction nodeFilter;
+	private final IUiThreadAccess uiThreadAccess;
 
 	BeanRelationGraphImpl(
 		final IComposite composite,
@@ -181,41 +183,56 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		final IBeanRelationGraphSetupBuilder<CHILD_BEAN_TYPE, ?> setup) {
 		super(composite);
 
-		this.awtConverter = awtConverter;
+		uiThreadAccess = Toolkit.getUiThreadAccess();
+
 		relationTreeModel = setup.getModel();
 		nodeMap = new HashMap<IBeanProxy<Object>, Node>();
 		entityGroupMap = new HashMap<Class<Object>, String>();
 		beanRelationMap = new HashMap<IBeanProxy<Object>, IBeanRelationNodeModel<Object, Object>>();
 
+		autoExpandLevel = setup.getAutoExpandLevel();
+
 		graph = new Graph();
 		graph.addColumn("name", String.class);
 		graph.addColumn("image", Image.class);
 		graph.addColumn("type", String.class);
+		graph.addColumn("level", Integer.class);
+		graph.addColumn("expanded", Boolean.class);
+		graph.addColumn("position", Point.class);
+		graph.addColumn("visible", Boolean.class);
+		graph.addColumn("isParent", Boolean.class);
 
 		vis = new Visualization();
-		vis.addGraph("graph", graph);
+		vis.addGraph(GRAPH, graph);
 		vis.setInteractive(EDGES, null, false);
 		vis.setInteractive(NODES, null, true);
 
+		final Action expand = new ExpandLevelVisibilityAction(GRAPH);
+
+		final ActionList filter = new ActionList();
+		edgeFilter = new EdgeVisibilityAction(vis);
+		nodeFilter = new NodeVisibilityAction(vis);
+		filter.add(nodeFilter);
+		filter.add(edgeFilter);
+
 		final ActionList color = new ActionList();
-		color.add(new ColorAction(NODES, VisualItem.FILLCOLOR, ColorLib.rgb(255, 255, 255)));
 		color.add(new ColorAction(NODES, VisualItem.STROKECOLOR, 0));
 		color.add(new ColorAction(NODES, VisualItem.TEXTCOLOR, ColorLib.rgb(0, 0, 0)));
 		color.add(new FontAction(NODES, new Font("Tahoma", Font.BOLD, 10)));
 		color.add(new ColorAction(EDGES, VisualItem.FILLCOLOR, ColorLib.gray(200)));
 		color.add(new ColorAction(EDGES, VisualItem.STROKECOLOR, ColorLib.gray(200)));
 
-		final ColorAction fill2 = new ColorAction(NODES, VisualItem.FILLCOLOR, ColorLib.gray(200));
+		final ColorAction fill = new ColorAction(NODES, VisualItem.FILLCOLOR);
 		for (int index = 0; index < NODE_COLORS.length; index++) {
-			fill2.add(ExpressionParser.predicate("type == 'graph.nodes.group" + index + "'"), NODE_COLORS[index]);
+			fill.add("type == '" + GRAPH_NODES_GROUP + index + "'", NODE_COLORS[index]);
 		}
-		fill2.add("_highlight", ColorLib.rgb(255, 200, 125));
-		color.add(fill2);
+		color.add(fill);
 
 		vis.putAction("color", color);
+		vis.putAction("filter", filter);
+		vis.putAction("expand", expand);
 
-		final LabelRenderer renderer = new LabelRenderer("name", "image");
-		renderer.setRoundedCorner(8, 8);
+		final ExpandedShapeRenderer renderer = new ExpandedShapeRenderer("name", "image");
 		renderer.setHorizontalAlignment(Constants.CENTER);
 		renderer.setVerticalAlignment(Constants.CENTER);
 
@@ -233,7 +250,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 
 		display = new Display(vis);
 		display.setHighQuality(true);
-		display.addControlListener(new FocusControl(1));
+		//		display.addControlListener(new FocusControl(1));
 		display.addControlListener(new DragControl());
 		display.addControlListener(new PanControl());
 		display.addControlListener(new ZoomControl());
@@ -255,11 +272,15 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 										entry.getKey(),
 										entityType);
 								childRelationModel.loadIfNotYetDone();
+								loadChildren(childRelationModel);
 							}
+
 							beanRelationNodeModel.loadIfNotYetDone();
 							break;
 						}
 					}
+					contractExpandNode(node);
+					vis.run("color");
 
 				}
 			}
@@ -285,7 +306,6 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 				if ((e.getChangeFlags() & HierarchyEvent.SHOWING_CHANGED) != 0) {
 					if (!swingContainer.isShowing()) {
 						if (dialog != null) {
-							dialogPosition = dialog.getPosition();
 							dialog.setVisible(false);
 							dialog.dispose();
 						}
@@ -297,6 +317,51 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		toolbar.setModel(initToolBar());
 
 		relationTreeModel.getRoot().addBeanListModelListener(new RootModelListener());
+
+	}
+
+	private void loadChildren(final IBeanRelationNodeModel<Object, Object> beanRelationNodeModel) {
+
+		for (final IEntityTypeId<Object> entityType : beanRelationNodeModel.getChildRelations()) {
+			final int childRelations = beanRelationNodeModel.getSize();
+			for (int i = 0; i < childRelations; i++) {
+				final IBeanRelationNodeModel<Object, Object> childRelationModel = relationTreeModel.getNode(
+						beanRelationNodeModel.getChildEntityTypeId(),
+						beanRelationNodeModel.getBean(i),
+						entityType);
+				childRelationModel.loadIfNotYetDone();
+			}
+		}
+	}
+
+	private void contractExpandNode(final Node node) {
+
+		final int childCount = node.getChildCount();
+		final Node[] children = new Node[childCount];
+
+		if ((Boolean) node.get("expanded")) {
+			for (int i = 0; i < childCount; i++) {
+				final Node childNode = node.getChild(i);
+				children[i] = childNode;
+				if ((Boolean) childNode.get("expanded")) {
+					contractExpandNode(childNode);
+				}
+				childNode.set("visible", false);
+				childNode.set("expanded", false);
+			}
+			node.set("expanded", false);
+		}
+		else if (!(Boolean) node.get("expanded")) {
+			for (int i = 0; i < childCount; i++) {
+				final Node childNode = node.getChild(i);
+				childNode.set("visible", true);
+				childNode.set("expanded", false);
+			}
+
+			node.set("expanded", true);
+		}
+		nodeFilter.run();
+		edgeFilter.run();
 	}
 
 	private static Schema createDecoratorSchema() {
@@ -314,12 +379,15 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 	}
 
 	private void onBeansChanged(final IBeanRelationNodeModel<Object, Object> relationNodeModel) {
+
 		for (int i = 0; i < relationNodeModel.getSize(); i++) {
 			final IBeanProxy<Object> bean = relationNodeModel.getBean(i);
 			if (graph.getNodeCount() < maxNodeCount && !(bean.isDummy())) {
 				addBeanToGraph(bean, i + nodeMap.size(), relationNodeModel);
 			}
 		}
+		nodeFilter.run();
+		edgeFilter.run();
 	}
 
 	private void addBeanToGraph(
@@ -328,29 +396,30 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		final IBeanRelationNodeModel<Object, Object> beanRelationNodeModel) {
 
 		final IBeanProxyLabelRenderer<Object> renderer = beanRelationNodeModel.getChildRenderer();
-
 		Node childNode = nodeMap.get(bean);
 
 		if (nodeMap.get(bean) == null) {
 			childNode = graph.addNode();
 			nodeMap.put(bean, childNode);
+			childNode.set("visible", true);
+			childNode.set("expanded", false);
+			childNode.set("isParent", false);
 			beanRelationMap.put(bean, beanRelationNodeModel);
 		}
 
 		if (entityGroupMap.get(beanRelationNodeModel.getChildBeanType()) == null) {
-			entityGroupMap.put(beanRelationNodeModel.getChildBeanType(), "graph.nodes.group" + groupCount);
-			if (groupCount < NODE_COLORS.length) {
-				groupCount++;
-			}
-			else {
-				groupCount = 0;
-			}
+			entityGroupMap.put(beanRelationNodeModel.getChildBeanType(), GRAPH_NODES_GROUP + groupCount);
+			groupCount = (groupCount < NODE_COLORS.length) ? ++groupCount : 0;
 		}
 
 		final String nodeGroup = entityGroupMap.get(beanRelationNodeModel.getChildBeanType());
 
 		final Node parentNode = nodeMap.get(beanRelationNodeModel.getParentBean());
+
 		if (parentNode != null && (!bean.isDummy())) {
+
+			parentNode.set("visible", true);
+
 			if (graph.getEdge(parentNode, childNode) == null && graph.getEdge(childNode, parentNode) == null) {
 
 				final Edge edge = graph.addEdge(parentNode, childNode);
@@ -365,12 +434,20 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 					final String previousString = (String) graph.getEdge(parentNode, childNode).get("name");
 					graph.getEdge(parentNode, childNode).set("name", previousString + " / " + beanRelationNodeModel.getText());
 				}
-
 			}
 		}
 
 		renderNodeShape(nodeGroup, childNode);
 		renderNode(childNode, bean, renderer);
+
+		if (parentNode != null) {
+			if (parentNode.getChildCount() >= 1) {
+				parentNode.set("isParent", true);
+			}
+			else {
+				parentNode.set("isParent", false);
+			}
+		}
 
 		for (final IEntityTypeId<Object> childEntityTypeId : beanRelationNodeModel.getChildRelations()) {
 			final IBeanRelationNodeModel<Object, Object> childRelationNodeModel = relationTreeModel.getNode(
@@ -394,6 +471,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 
 		private RootModelListener() {
 			this.root = relationTreeModel.getRoot();
+
 		}
 
 		@SuppressWarnings("unchecked")
@@ -403,6 +481,8 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 			synchronized (vis) {
 				graph.clear();
 				onBeansChanged(root);
+				vis.run("color");
+				vis.run("filter");
 			}
 
 		}
@@ -422,14 +502,15 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 				onBeansChanged(relationNodeModel);
 				vis.run("layout");
 				vis.run("color");
+				vis.run("filter");
 			}
 		}
 	}
 
 	private void renderNode(final Node node, final IBeanProxy<Object> bean, final IBeanProxyLabelRenderer<Object> renderer) {
 		if (!bean.isDummy()) {
-			renderIcon(node, bean, renderer);
 			renderNodeWithLabel(node, renderer.getLabel(bean));
+			renderIcon(node, bean, renderer);
 		}
 
 	}
@@ -462,9 +543,9 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 	}
 
 	private ForceSimulator setForces() {
-		final SpringForce springForce = new SpringForce(5.95E-5F, 120);
+		final SpringForce springForce = new SpringForce(1E-4f, 120);
 		final NBodyForce nBodyForce = new NBodyForce(-10, 320, 0);
-		final DragForce dragForce = new DragForce(0.100f);
+		final DragForce dragForce = new DragForce(0.1f);
 
 		forceSimulator = new ForceSimulator();
 		forceSimulator.addForce(dragForce);
@@ -495,19 +576,45 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		model.addItem(textField);
 		model.addSeparator();
 
+		model.addTextLabel("Expand Level");
+
+		final IComboBoxSelectionBluePrint<Integer> comboBoxExpandLevelBp = BPF.comboBoxSelectionIntegerNumber().setElements(
+				0,
+				1,
+				2,
+				3,
+				4,
+				5);
+		final InputControlItemModel<Integer> comboBoxExpandLevel = new InputControlItemModel<Integer>(comboBoxExpandLevelBp, 30);
+		comboBoxExpandLevel.addInputListener(new IInputListener() {
+
+			@Override
+			public void inputChanged() {
+				if (comboBoxExpandLevel.getValue() != null) {
+					autoExpandLevel = comboBoxExpandLevel.getValue();
+					vis.run("expand");
+					vis.run("filter");
+					display.repaint();
+				}
+			}
+		});
+		comboBoxExpandLevel.setValue(getAutoExpandLevel());
+		model.addItem(comboBoxExpandLevel);
+
+		model.addSeparator();
+
 		final IActionBuilder settingsDialogActionBuilder = actionBF.create();
 		settingsDialogActionBuilder.setIcon(CapIcons.GRAPH_SETTINGS);
 		settingsDialogActionBuilder.setCommand(new ICommandExecutor() {
 			@Override
 			public void execute(final IExecutionContext executionContext) throws Exception {
 				if (dialog == null) {
-					dialog = getControlDialog();
+					dialog = new GraphSettingsDialog(forceSimulator);
 				}
-				else {
-					dialog.setVisible(true);
-				}
+				dialog.setVisible(true);
 			}
 		});
+
 		final ICommandAction settingsDialogAction = settingsDialogActionBuilder.build();
 
 		final IComboBoxSelectionBluePrint<GraphLayout> comboBoxBp = BPF.comboBoxSelection(GraphLayout.values());
@@ -546,23 +653,27 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 
 			@Override
 			public void itemStateChanged() {
-				if (on) {
-					checkItemModel.setText(Messages.getMessage("BeanRelationGraphImpl.animation.on").get());
-					vis.setValue(NODES, null, VisualItem.FIXED, true);
-					vis.setValue(EDGES, null, VisualItem.FIXED, true);
+				synchronized (vis) {
+					if (on) {
+						checkItemModel.setText(Messages.getMessage("BeanRelationGraphImpl.animation.on").get());
+						vis.setValue(NODES, null, VisualItem.FIXED, true);
+						vis.setValue(EDGES, null, VisualItem.FIXED, true);
+					}
+					else {
+						checkItemModel.setText(Messages.getMessage("BeanRelationGraphImpl.animation.off").get());
+						vis.setValue(NODES, null, VisualItem.FIXED, false);
+						vis.setValue(EDGES, null, VisualItem.FIXED, false);
+					}
+					on = !on;
 				}
-				else {
-					checkItemModel.setText(Messages.getMessage("BeanRelationGraphImpl.animation.off").get());
-					vis.setValue(NODES, null, VisualItem.FIXED, false);
-					vis.setValue(EDGES, null, VisualItem.FIXED, false);
-				}
-				on = !on;
 			}
 		});
 
 		model.addSeparator();
 
 		model.addAction(settingsDialogAction);
+
+		model.addSeparator();
 		final ICheckedItemModel edgeCheckedItem = model.addCheckedItem("Edge Label");
 		edgeCheckedItem.setIcon(CapIcons.GRAPH_LETTERING);
 		edgeCheckedItem.setSelected(false);
@@ -602,7 +713,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 			vis.removeAction("layout");
 
 			final ForceDirectedLayout fdl = new ForceDirectedLayout("graph", true);
-			fdl.setForceSimulator(setForces());
+			fdl.setForceSimulator(forceSimulator != null ? forceSimulator : setForces());
 
 			final ActionList layout = new ActionList(Activity.INFINITY);
 			layout.add(fdl);
@@ -612,6 +723,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 			vis.putAction("layout", layout);
 			vis.run("layout");
 			vis.run("color");
+
 		}
 	}
 
@@ -637,11 +749,11 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 			vis.removeAction("layout");
 
 			final ActionList layout = new ActionList(Activity.INFINITY);
-			final RadialTreeLayout treeLayout = new RadialTreeLayout("graph");
+			final RadialTreeLayout treeLayout = new RadialTreeLayout(GRAPH);
 			layout.add(treeLayout);
 			layout.add(new RepaintAction(vis));
-			layout.add(new TreeRootAction("graph"));
-			final CollapsedSubtreeLayout subLayout = new CollapsedSubtreeLayout("graph");
+			layout.add(new TreeRootAction(GRAPH, vis));
+			final CollapsedSubtreeLayout subLayout = new CollapsedSubtreeLayout(GRAPH);
 			layout.add(subLayout);
 
 			layout.add(labelEdgeLayout);
@@ -649,12 +761,12 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 			final ActionList animate = new ActionList(1250);
 			animate.setPacingFunction(new SlowInSlowOutPacer());
 			animate.add(new QualityControlAnimator());
-			animate.add(new VisibilityAnimator("graph"));
+			animate.add(new VisibilityAnimator(GRAPH));
 			animate.add(new PolarLocationAnimator(NODES, "linear"));
 			animate.add(new ColorAnimator(NODES));
 			animate.add(new RepaintAction());
 
-			display.setItemSorter(new TreeDepthItemSorter());
+			display.setItemSorter(new TreeDepthItemSorter(true));
 
 			vis.putAction("animate", animate);
 			vis.putAction("layout", layout);
@@ -666,57 +778,15 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 
 	private static void renderNodeWithLabel(final Node node, final ILabelModel label) {
 		node.set("name", label.getText());
+		node.set("level", node.getDepth());
 	}
 
-	private IFrame getControlDialog() {
-		final IDialogBluePrint dialogBP = BPF.dialog().setModal(false);
-		dialogBP.setMinPackSize(new Dimension(300, 300));
-
-		final IFrame childWindow = Toolkit.getActiveWindow().createChildWindow(dialogBP);
-		childWindow.setLayout(MigLayoutFactory.growingInnerCellLayout());
-
-		final IComposite composite = childWindow.add(BPF.composite(), MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
-
-		final Container panel = awtConverter.convert(composite);
-		panel.setLayout(new BorderLayout());
-		panel.add(new JForcePanel(forceSimulator), BorderLayout.CENTER);
-
-		if (dialogPosition != null) {
-			childWindow.setPosition(dialogPosition);
-		}
-		childWindow.setVisible(true);
-
-		return childWindow;
+	public static int getAutoExpandLevel() {
+		return autoExpandLevel;
 	}
 
-	private class TreeRootAction extends GroupAction {
-		public TreeRootAction(final String graphGroup) {
-			super(graphGroup);
-		}
-
-		@Override
-		public void run(final double frac) {
-			final TupleSet focus = vis.getGroup(Visualization.FOCUS_ITEMS);
-			if (focus == null || focus.getTupleCount() == 0) {
-				return;
-			}
-			final Graph g = (Graph) vis.getGroup(m_group);
-			final Node node = getFirstContainingNode(g, focus);
-			if (node != null) {
-				g.getSpanningTree(node);
-			}
-		}
-
-		private Node getFirstContainingNode(final Graph graph, final TupleSet focus) {
-			final Iterator<?> iterator = focus.tuples();
-			while (iterator.hasNext()) {
-				final Node node = (Node) iterator.next();
-				if (graph.containsTuple(node)) {
-					return node;
-				}
-			}
-			return null;
-		}
+	public IUiThreadAccess getUiThreadAccess() {
+		return uiThreadAccess;
 	}
 
 	private final class LabelEdgeLayout extends Layout {
@@ -777,6 +847,70 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 				throw new UnsupportedFlavorException(flavor);
 			}
 			return image;
+		}
+	}
+
+	private class ExpandLevelVisibilityAction extends GroupAction {
+
+		public ExpandLevelVisibilityAction(final String group) {
+			super(group);
+		}
+
+		@Override
+		public void run(final double frac) {
+			final TupleSet nodes = vis.getGroup(NODES);
+			final Iterator<?> node = nodes.tuples();
+			while (node.hasNext()) {
+				final VisualItem result = (VisualItem) node.next();
+				if ((Integer) result.get("level") <= autoExpandLevel) {
+					result.set("visible", true);
+
+					final IBeanRelationNodeModel<Object, Object> beanRelationNodeModel = getBeanRelationNodeModelFromNode((Node) result.getSourceTuple());
+					if (beanRelationNodeModel != null) {
+						loadChildrenInUIThread(beanRelationNodeModel);
+
+					}
+
+					if ((Integer) result.get("level") < autoExpandLevel) {
+						result.set("expanded", true);
+
+					}
+					else {
+						result.set("expanded", false);
+					}
+				}
+				else {
+					result.set("visible", false);
+				}
+			}
+		}
+
+		private void loadChildrenInUIThread(final IBeanRelationNodeModel<Object, Object> beanRelationNodeModel) {
+			if (!getUiThreadAccess().isUiThread()) {
+				getUiThreadAccess().invokeLater(new Runnable() {
+
+					@Override
+					public void run() {
+						loadChildren(beanRelationNodeModel);
+						beanRelationNodeModel.loadIfNotYetDone();
+					}
+				});
+			}
+			else {
+				loadChildren(beanRelationNodeModel);
+			}
+
+		}
+
+		private IBeanRelationNodeModel<Object, Object> getBeanRelationNodeModelFromNode(final Node result) {
+			for (final Entry<IBeanProxy<Object>, Node> entry : nodeMap.entrySet()) {
+				if (entry.getValue() == result) {
+					final IBeanRelationNodeModel<Object, Object> beanRelationNodeModel = beanRelationMap.get(entry.getKey());
+					return beanRelationNodeModel;
+				}
+			}
+			return null;
+
 		}
 	}
 

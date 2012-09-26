@@ -33,14 +33,10 @@ import org.jowidgets.cap.ui.api.addons.widgets.IBeanRelationGraphSetupBuilder;
 
 public final class BeanRelationGraphDefaults implements IDefaultInitializer<IBeanRelationGraphSetupBuilder<?, ?>> {
 
-	public static final String GRAPH = "graph";
-	public static final String NODES = "graph.nodes";
-	public static final String EDGES = "graph.edges";
-
 	@Override
 	public void initialize(final IBeanRelationGraphSetupBuilder<?, ?> setup) {
 		setup.setBorder(false);
-		setup.setAutoExpandLevel(2);
+		setup.setAutoExpandLevel(1);
 		setup.setAutoSelection(false);
 	}
 }
