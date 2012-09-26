@@ -121,7 +121,6 @@ import prefuse.data.Schema;
 import prefuse.data.tuple.TupleSet;
 import prefuse.render.DefaultRendererFactory;
 import prefuse.render.ImageFactory;
-import prefuse.render.LabelRenderer;
 import prefuse.util.ColorLib;
 import prefuse.util.FontLib;
 import prefuse.util.PrefuseLib;
@@ -240,7 +239,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		renderer.setImageFactory(imageFactory);
 		final DefaultRendererFactory rendererFactory = new DefaultRendererFactory(renderer);
 		vis.setRendererFactory(rendererFactory);
-		rendererFactory.add(new InGroupPredicate(EDGE_DECORATORS), new LabelRenderer("name"));
+		rendererFactory.add(new InGroupPredicate(EDGE_DECORATORS), new EdgeRenderer("name"));
 
 		vis.addDecorators(EDGE_DECORATORS, EDGES, DECORATOR_SCHEMA);
 
@@ -423,16 +422,21 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 			if (graph.getEdge(parentNode, childNode) == null && graph.getEdge(childNode, parentNode) == null) {
 
 				final Edge edge = graph.addEdge(parentNode, childNode);
+				edge.set("visible", false);
 				edge.set("name", beanRelationNodeModel.getText());
 			}
 			else {
 				if (graph.getEdge(childNode, parentNode) != null) {
 					final String previousString = (String) graph.getEdge(childNode, parentNode).get("name");
-					graph.getEdge(childNode, parentNode).set("name", previousString + " / " + beanRelationNodeModel.getText());
+					if (!previousString.contains("/") && !previousString.equals(beanRelationNodeModel.getText())) {
+						graph.getEdge(childNode, parentNode).set("name", previousString + " / " + beanRelationNodeModel.getText());
+					}
 				}
 				else if (graph.getEdge(parentNode, childNode) != null) {
 					final String previousString = (String) graph.getEdge(parentNode, childNode).get("name");
-					graph.getEdge(parentNode, childNode).set("name", previousString + " / " + beanRelationNodeModel.getText());
+					if (!previousString.contains("/") && !previousString.equals(beanRelationNodeModel.getText())) {
+						graph.getEdge(parentNode, childNode).set("name", previousString + " / " + beanRelationNodeModel.getText());
+					}
 				}
 			}
 		}
@@ -507,12 +511,42 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		}
 	}
 
+	@SuppressWarnings("unused")
+	private class BeanModelListener extends BeanListModelListenerAdapter<Object> {
+		private final IBeanRelationNodeModel<Object, Object> relationNodeModel;
+		private final int level;
+
+		public BeanModelListener(final IBeanRelationNodeModel<Object, Object> relationNodeModel, final int level) {
+			this.relationNodeModel = relationNodeModel;
+			this.level = level;
+		}
+
+		@Override
+		public void beansChanged() {
+			onBeansChanged(relationNodeModel);
+			if (level >= 0) {
+				if (!getUiThreadAccess().isUiThread()) {
+					getUiThreadAccess().invokeLater(new Runnable() {
+						@Override
+						public void run() {
+
+							loadChildren(relationNodeModel);
+						}
+					});
+				}
+				else {
+					loadChildren(relationNodeModel);
+				}
+			}
+		}
+
+	}
+
 	private void renderNode(final Node node, final IBeanProxy<Object> bean, final IBeanProxyLabelRenderer<Object> renderer) {
 		if (!bean.isDummy()) {
 			renderNodeWithLabel(node, renderer.getLabel(bean));
 			renderIcon(node, bean, renderer);
 		}
-
 	}
 
 	private void renderIcon(final Node node, final IBeanProxy<Object> bean, final IBeanProxyLabelRenderer<Object> renderer) {
@@ -682,6 +716,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 			@Override
 			public void itemStateChanged() {
 				labelEdgeLayout.setEdgesVisible(edgeCheckedItem.isSelected());
+				vis.repaint();
 			}
 		});
 
@@ -867,7 +902,19 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 
 					final IBeanRelationNodeModel<Object, Object> beanRelationNodeModel = getBeanRelationNodeModelFromNode((Node) result.getSourceTuple());
 					if (beanRelationNodeModel != null) {
-						loadChildrenInUIThread(beanRelationNodeModel);
+
+						if (!getUiThreadAccess().isUiThread()) {
+							getUiThreadAccess().invokeLater(new Runnable() {
+								@Override
+								public void run() {
+
+									loadChildren(beanRelationNodeModel);
+								}
+							});
+						}
+						else {
+							loadChildren(beanRelationNodeModel);
+						}
 
 					}
 
@@ -883,23 +930,6 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 					result.set("visible", false);
 				}
 			}
-		}
-
-		private void loadChildrenInUIThread(final IBeanRelationNodeModel<Object, Object> beanRelationNodeModel) {
-			if (!getUiThreadAccess().isUiThread()) {
-				getUiThreadAccess().invokeLater(new Runnable() {
-
-					@Override
-					public void run() {
-						loadChildren(beanRelationNodeModel);
-						beanRelationNodeModel.loadIfNotYetDone();
-					}
-				});
-			}
-			else {
-				loadChildren(beanRelationNodeModel);
-			}
-
 		}
 
 		private IBeanRelationNodeModel<Object, Object> getBeanRelationNodeModelFromNode(final Node result) {
@@ -931,6 +961,5 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		public String toString() {
 			return label;
 		}
-
 	}
 }

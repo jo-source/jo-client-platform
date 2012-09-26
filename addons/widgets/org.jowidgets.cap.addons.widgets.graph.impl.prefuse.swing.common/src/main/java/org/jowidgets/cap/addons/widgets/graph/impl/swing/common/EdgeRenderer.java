@@ -28,42 +28,23 @@
 
 package org.jowidgets.cap.addons.widgets.graph.impl.swing.common;
 
-import java.util.Iterator;
+import java.awt.Graphics2D;
 
-import prefuse.Visualization;
-import prefuse.action.GroupAction;
-import prefuse.data.Edge;
-import prefuse.data.tuple.TupleSet;
+import prefuse.render.LabelRenderer;
 import prefuse.visual.VisualItem;
 
-class EdgeVisibilityAction extends GroupAction {
+class EdgeRenderer extends LabelRenderer {
 
-	private final Visualization vis;
+	public EdgeRenderer(final String name) {
 
-	public EdgeVisibilityAction(final Visualization vis) {
-		super();
-		this.vis = vis;
+		super(name);
+
 	}
 
 	@Override
-	public void run(final double frac) {
-		final TupleSet edges = vis.getGroup(BeanRelationGraphImpl.EDGES);
-		final Iterator<?> edge = edges.tuples();
-		while (edge.hasNext()) {
-			final Edge test = (Edge) edge.next();
-
-			final VisualItem childNode = (VisualItem) test.getTargetNode();
-			final VisualItem parentNode = (VisualItem) test.getSourceNode();
-			final VisualItem result = (VisualItem) test;
-
-			if (!childNode.isVisible() || !parentNode.isVisible()) {
-				result.setVisible(false);
-				test.set("visible", false);
-			}
-			else {
-				result.setVisible(true);
-				test.set("visible", true);
-			}
+	public void render(final Graphics2D g, final VisualItem item) {
+		if ((Boolean) item.get("visible")) {
+			super.render(g, item);
 		}
 	}
 }
