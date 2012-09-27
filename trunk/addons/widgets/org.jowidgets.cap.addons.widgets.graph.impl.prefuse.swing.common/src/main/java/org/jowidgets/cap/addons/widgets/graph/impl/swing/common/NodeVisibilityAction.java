@@ -60,7 +60,9 @@ class NodeVisibilityAction extends GroupAction {
 			if (result.getChildCount() == 0) {
 				result.set("isParent", false);
 			}
-			visualItem.setVisible((Boolean) result.get("visible"));
+			if ((Boolean) result.get("visible") != null) {
+				visualItem.setVisible((Boolean) result.get("visible"));
+			}
 		}
 	}
 }

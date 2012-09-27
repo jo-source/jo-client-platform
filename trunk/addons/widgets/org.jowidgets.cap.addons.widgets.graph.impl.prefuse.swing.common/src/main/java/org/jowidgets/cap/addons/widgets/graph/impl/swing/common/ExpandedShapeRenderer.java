@@ -36,7 +36,6 @@ import java.awt.Image;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.RectangularShape;
-import java.awt.geom.RoundRectangle2D;
 import java.net.URL;
 
 import org.jowidgets.api.toolkit.Toolkit;
@@ -66,6 +65,7 @@ public class ExpandedShapeRenderer extends LabelRenderer {
 
 		this.setHorizontalPadding(25);
 		this.setVerticalPadding(2);
+		this.setRoundedCorner(8, 8);
 	}
 
 	private Image initializeIcons(final IImageConstant iconImage) {
@@ -95,30 +95,30 @@ public class ExpandedShapeRenderer extends LabelRenderer {
 	protected Shape getRawShape(final VisualItem item) {
 		final Shape shape = super.getRawShape(item);
 
-		final Shape newShape;
+		//		final Shape newShape;
 
-		if ((Boolean) item.get("isParent")) {
-			newShape = new RoundRectangle2D.Double();
-			((RoundRectangle2D) newShape).setRoundRect(
-					shape.getBounds().x,
-					shape.getBounds().y,
-					shape.getBounds().width,
-					shape.getBounds().height,
-					8,
-					8);
-
-		}
-		else {
-			newShape = new RoundRectangle2D.Double();
-			((RoundRectangle2D) newShape).setRoundRect(
-					shape.getBounds().x,
-					shape.getBounds().y,
-					shape.getBounds().width,
-					shape.getBounds().height,
-					8,
-					8);
-		}
-		return newShape;
+		//		if ((Boolean) item.get("isParent")) {
+		//			newShape = new RoundRectangle2D.Double();
+		//			((RoundRectangle2D) newShape).setRoundRect(
+		//					shape.getBounds().x,
+		//					shape.getBounds().y,
+		//					shape.getBounds().width,
+		//					shape.getBounds().height,
+		//					8,
+		//					8);
+		//
+		//		}
+		//		else {
+		//			newShape = new RoundRectangle2D.Double();
+		//			((RoundRectangle2D) newShape).setRoundRect(
+		//					shape.getBounds().x,
+		//					shape.getBounds().y,
+		//					shape.getBounds().width,
+		//					shape.getBounds().height,
+		//					8,
+		//					8);
+		//		}
+		return shape;
 	}
 
 	@Override
