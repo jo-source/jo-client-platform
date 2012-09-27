@@ -113,8 +113,8 @@ public final class DefaultCapCommonToolkit implements ICapCommonToolkit {
 	}
 
 	@Override
-	public IBeanDtoBuilder dtoBuilder(final Object entityTypeId) {
-		return new BeanDtoBuilderImpl(entityTypeId);
+	public IBeanDtoBuilder dtoBuilder(final Object beanTypeId) {
+		return new BeanDtoBuilderImpl(beanTypeId);
 	}
 
 	@Override
