@@ -267,10 +267,14 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 			@Override
 			public void itemClicked(final VisualItem item, final MouseEvent e) {
 				if ((Boolean) item.get("isParent")) {
-					if ((e.getX() > (item.getBounds().getX() + 1))
-						&& e.getX() < (item.getBounds().getX() + 19)
-						&& e.getY() > item.getBounds().getY()
-						&& e.getY() < item.getBounds().getY() + 18) {
+
+					if ((e.getX() > (item.getBounds().getX() * display.getScale() + (1 * display.getScale()) - display.getDisplayX()))
+						&& (e.getX()) < (item.getBounds().getX() * display.getScale() + (18 * display.getScale()) - display.getDisplayX())
+						&& (e.getY()) > item.getBounds().getY() * display.getScale() - display.getDisplayY()
+						&& (e.getY()) < item.getBounds().getY()
+							* display.getScale()
+							+ (18 * display.getScale())
+							- display.getDisplayY()) {
 
 						final int row = item.getRow();
 						final Node node = graph.getNode(row);
@@ -436,7 +440,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		if (parentNode != null && (!bean.isDummy())) {
 
 			parentNode.set("visible", true);
-			//			parentNode.set("expanded", true);
+			//parentNode.set("expanded", true);
 
 			if (graph.getEdge(parentNode, childNode) == null && graph.getEdge(childNode, parentNode) == null) {
 
@@ -504,9 +508,9 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 			synchronized (vis) {
 				graph.clear();
 				onBeansChanged(root);
-				vis.run("expand");
 				vis.run("color");
 				vis.run("filter");
+				vis.run("expand");
 
 			}
 		}
