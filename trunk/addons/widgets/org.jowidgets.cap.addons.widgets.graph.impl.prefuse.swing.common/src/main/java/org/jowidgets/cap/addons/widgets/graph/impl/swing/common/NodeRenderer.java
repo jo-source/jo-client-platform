@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.addons.widgets.graph.impl.swing.common;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.GradientPaint;
@@ -49,7 +50,7 @@ import prefuse.render.LabelRenderer;
 import prefuse.util.ColorLib;
 import prefuse.visual.VisualItem;
 
-public class NodeRenderer extends LabelRenderer {
+class NodeRenderer extends LabelRenderer {
 
 	private GradientPaint gradientColor;
 	private final AffineTransform transform;
@@ -97,7 +98,7 @@ public class NodeRenderer extends LabelRenderer {
 		final Shape shape = super.getRawShape(item);
 
 		//		final Shape newShape;
-
+		//
 		//		if ((Boolean) item.get("isParent")) {
 		//			newShape = new RoundRectangle2D.Double();
 		//			((RoundRectangle2D) newShape).setRoundRect(
@@ -119,11 +120,13 @@ public class NodeRenderer extends LabelRenderer {
 		//					8,
 		//					8);
 		//		}
+
 		return shape;
 	}
 
 	@Override
 	public void render(final Graphics2D g, final VisualItem item) {
+
 		final RectangularShape shape = (RectangularShape) getShape(item);
 
 		gradientColor = new GradientPaint(
@@ -136,6 +139,11 @@ public class NodeRenderer extends LabelRenderer {
 			false);
 		g.setPaint(gradientColor);
 		g.fill(shape);
+		if ((Boolean) item.get("marked")) {
+			g.setStroke(new BasicStroke(2));
+			g.setPaint(Color.black);
+			g.draw(shape);
+		}
 
 		final String text = m_text;
 		final Image img = getImage(item);

@@ -144,6 +144,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 
 	private static final int MAX_NODE_COUNT_DEFAULT = 100;
 	private static final int MAX_LABELTEXT_LENGTH = 40;
+	private static final int EXPAND_ICON_SIZE = 18;
 
 	private static final int[] NODE_COLORS = new int[] {
 			ColorLib.gray(180), ColorLib.rgba(105, 176, 220, 255), ColorLib.rgba(191, 112, 97, 255),
@@ -155,6 +156,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 	private static final Schema DECORATOR_SCHEMA = createDecoratorSchema();
 
 	private static int autoExpandLevel;
+	private static Node markedNode;
 
 	private final IBeanRelationTreeModel<CHILD_BEAN_TYPE> relationTreeModel;
 	private final Map<IBeanProxy<Object>, Node> nodeMap;
@@ -208,6 +210,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		graph.addColumn("visible", Boolean.class);
 		graph.addColumn("filtered", Boolean.class);
 		graph.addColumn("isParent", Boolean.class);
+		graph.addColumn("marked", Boolean.class);
 
 		vis = new Visualization();
 		vis.addGraph(GRAPH, graph);
@@ -215,6 +218,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		vis.setInteractive(NODES, null, true);
 
 		final Action expand = new ExpandLevelVisibilityAction(GRAPH);
+		final Action marked = new NodeMarkedAction(vis);
 
 		final ActionList filter = new ActionList();
 		edgeFilter = new EdgeVisibilityAction(vis);
@@ -238,6 +242,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		vis.putAction("color", color);
 		vis.putAction("filter", filter);
 		vis.putAction("expand", expand);
+		vis.putAction("marked", marked);
 
 		final NodeRenderer renderer = new NodeRenderer("name", "image");
 		renderer.setHorizontalAlignment(Constants.CENTER);
@@ -266,38 +271,45 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		display.addControlListener(new FocusControl(NODES, 1) {
 			@Override
 			public void itemClicked(final VisualItem item, final MouseEvent e) {
-				if ((Boolean) item.get("isParent")) {
 
-					if ((e.getX() > (item.getBounds().getX() * display.getScale() + (1 * display.getScale()) - display.getDisplayX()))
-						&& (e.getX()) < (item.getBounds().getX() * display.getScale() + (18 * display.getScale()) - display.getDisplayX())
-						&& (e.getY()) > item.getBounds().getY() * display.getScale() - display.getDisplayY()
-						&& (e.getY()) < item.getBounds().getY()
-							* display.getScale()
-							+ (18 * display.getScale())
-							- display.getDisplayY()) {
+				final int row = item.getRow();
+				final Node node = graph.getNode(row);
+				final double scale = display.getScale();
 
-						final int row = item.getRow();
-						final Node node = graph.getNode(row);
-						for (final Entry<IBeanProxy<Object>, Node> entry : nodeMap.entrySet()) {
-							if (entry.getValue() == node) {
-								final IBeanRelationNodeModel<Object, Object> beanRelationNodeModel = beanRelationMap.get(entry.getKey());
-								for (final IEntityTypeId<Object> entityType : beanRelationNodeModel.getChildRelations()) {
-									final IBeanRelationNodeModel<Object, Object> childRelationModel = relationTreeModel.getNode(
-											beanRelationNodeModel.getChildEntityTypeId(),
-											entry.getKey(),
-											entityType);
-									childRelationModel.loadIfNotYetDone();
-									loadChildren(childRelationModel);
-								}
-								beanRelationNodeModel.loadIfNotYetDone();
-								break;
+				if ((Boolean) item.get("isParent")
+					&& (e.getX() > (item.getBounds().getX() * scale + (1 * scale) - display.getDisplayX()))
+					&& (e.getX()) < (item.getBounds().getX() * scale + (EXPAND_ICON_SIZE * scale) - display.getDisplayX())
+					&& (e.getY()) > item.getBounds().getY() * scale - display.getDisplayY()
+					&& (e.getY()) < item.getBounds().getY() * scale + (EXPAND_ICON_SIZE * scale) - display.getDisplayY()) {
+
+					for (final Entry<IBeanProxy<Object>, Node> entry : nodeMap.entrySet()) {
+						if (entry.getValue() == node) {
+							final IBeanRelationNodeModel<Object, Object> beanRelationNodeModel = beanRelationMap.get(entry.getKey());
+							for (final IEntityTypeId<Object> entityType : beanRelationNodeModel.getChildRelations()) {
+								final IBeanRelationNodeModel<Object, Object> childRelationModel = relationTreeModel.getNode(
+										beanRelationNodeModel.getChildEntityTypeId(),
+										entry.getKey(),
+										entityType);
+								childRelationModel.loadIfNotYetDone();
+								loadChildren(childRelationModel);
 							}
+							beanRelationNodeModel.loadIfNotYetDone();
+							break;
 						}
-						contractExpandNode(node);
-						nodeFilter.run();
-						edgeFilter.run();
 					}
+					contractExpandNode(node);
+					nodeFilter.run();
+					edgeFilter.run();
 				}
+				else if ((Boolean) node.get("marked")) {
+					node.set("marked", false);
+					markedNode = null;
+				}
+				else {
+					node.set("marked", true);
+					markedNode = node;
+				}
+				vis.run("marked");
 			}
 		});
 
@@ -424,6 +436,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 			childNode.set("visible", true);
 			childNode.set("expanded", false);
 			childNode.set("isParent", false);
+			childNode.set("marked", false);
 			beanRelationMap.put(bean, beanRelationNodeModel);
 		}
 
@@ -635,6 +648,10 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 
 	public int getGroupCount() {
 		return this.groupCount;
+	}
+
+	public static Node getMarkedNode() {
+		return markedNode;
 	}
 
 	private ForceSimulator setForces() {
