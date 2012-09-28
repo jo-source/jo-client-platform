@@ -51,18 +51,21 @@ class EdgeVisibilityAction extends GroupAction {
 		final Iterator<?> edge = edges.tuples();
 		while (edge.hasNext()) {
 			final Edge test = (Edge) edge.next();
+			if (test != null) {
+				if (test.getTargetNode() != null) {
+					final VisualItem childNode = (VisualItem) test.getTargetNode();
+					final VisualItem parentNode = (VisualItem) test.getSourceNode();
+					final VisualItem result = (VisualItem) test;
 
-			final VisualItem childNode = (VisualItem) test.getTargetNode();
-			final VisualItem parentNode = (VisualItem) test.getSourceNode();
-			final VisualItem result = (VisualItem) test;
-
-			if (!childNode.isVisible() || !parentNode.isVisible()) {
-				result.setVisible(false);
-				test.set("visible", false);
-			}
-			else {
-				result.setVisible(true);
-				test.set("visible", true);
+					if (!childNode.isVisible() || !parentNode.isVisible()) {
+						result.setVisible(false);
+						test.set("visible", false);
+					}
+					else {
+						result.setVisible(true);
+						test.set("visible", true);
+					}
+				}
 			}
 		}
 	}

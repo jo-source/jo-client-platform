@@ -52,7 +52,8 @@ class NodeVisibilityAction extends GroupAction {
 		while (node.hasNext()) {
 			final Node result = (Node) node.next();
 			final VisualItem visualItem = (VisualItem) result;
-			if (result.getParent() != null) {
+			//			result.set("visible", result.get("filtered"));
+			if (result != null && result.getParent() != null) {
 				if (!(Boolean) result.getParent().get("expanded")) {
 					result.set("visible", false);
 				}
