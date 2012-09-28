@@ -143,10 +143,10 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 	public static final String GRAPH_NODES_GROUP = "graph.nodes.group";
 
 	private static final int MAX_NODE_COUNT_DEFAULT = 100;
-	private static final int MAX_LABELTEXT_LENGTH = 10;
+	private static final int MAX_LABELTEXT_LENGTH = 40;
 
 	private static final int[] NODE_COLORS = new int[] {
-			ColorLib.gray(180), ColorLib.rgba(105, 176, 220, 255), ColorLib.rgba(192, 31, 0, 255),
+			ColorLib.gray(180), ColorLib.rgba(105, 176, 220, 255), ColorLib.rgba(191, 112, 97, 255),
 			ColorLib.rgba(7, 162, 28, 255), ColorLib.rgba(192, 210, 0, 255), ColorLib.rgba(147, 129, 186, 255),
 			ColorLib.rgba(217, 123, 82, 255), ColorLib.rgba(222, 127, 227, 255), ColorLib.rgba(239, 215, 143, 255),
 			ColorLib.rgba(99, 241, 113, 255), ColorLib.rgba(79, 124, 36, 255), ColorLib.rgba(45, 84, 187, 255)};
@@ -257,37 +257,42 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 
 		display = new Display(vis);
 		display.setHighQuality(true);
-		//		display.addControlListener(new FocusControl(1));
 		display.addControlListener(new DragControl());
 		display.addControlListener(new PanControl());
 		display.addControlListener(new ZoomControl());
 		display.addControlListener(new WheelZoomControl());
 		display.addControlListener(new ZoomToFitControl());
 		display.addControlListener(new NeighborHighlightControl());
-		display.addControlListener(new FocusControl(NODES, 2) {
+		display.addControlListener(new FocusControl(NODES, 1) {
 			@Override
 			public void itemClicked(final VisualItem item, final MouseEvent e) {
-				if (e.getClickCount() == 2) {
-					final int row = item.getRow();
-					final Node node = graph.getNode(row);
-					for (final Entry<IBeanProxy<Object>, Node> entry : nodeMap.entrySet()) {
-						if (entry.getValue() == node) {
-							final IBeanRelationNodeModel<Object, Object> beanRelationNodeModel = beanRelationMap.get(entry.getKey());
-							for (final IEntityTypeId<Object> entityType : beanRelationNodeModel.getChildRelations()) {
-								final IBeanRelationNodeModel<Object, Object> childRelationModel = relationTreeModel.getNode(
-										beanRelationNodeModel.getChildEntityTypeId(),
-										entry.getKey(),
-										entityType);
-								childRelationModel.loadIfNotYetDone();
-								loadChildren(childRelationModel);
+				if ((Boolean) item.get("isParent")) {
+					if ((e.getX() > (item.getBounds().getX() + 1))
+						&& e.getX() < (item.getBounds().getX() + 19)
+						&& e.getY() > item.getBounds().getY()
+						&& e.getY() < item.getBounds().getY() + 18) {
+
+						final int row = item.getRow();
+						final Node node = graph.getNode(row);
+						for (final Entry<IBeanProxy<Object>, Node> entry : nodeMap.entrySet()) {
+							if (entry.getValue() == node) {
+								final IBeanRelationNodeModel<Object, Object> beanRelationNodeModel = beanRelationMap.get(entry.getKey());
+								for (final IEntityTypeId<Object> entityType : beanRelationNodeModel.getChildRelations()) {
+									final IBeanRelationNodeModel<Object, Object> childRelationModel = relationTreeModel.getNode(
+											beanRelationNodeModel.getChildEntityTypeId(),
+											entry.getKey(),
+											entityType);
+									childRelationModel.loadIfNotYetDone();
+									loadChildren(childRelationModel);
+								}
+								beanRelationNodeModel.loadIfNotYetDone();
+								break;
 							}
-							beanRelationNodeModel.loadIfNotYetDone();
-							break;
 						}
+						contractExpandNode(node);
+						nodeFilter.run();
+						edgeFilter.run();
 					}
-					contractExpandNode(node);
-					nodeFilter.run();
-					edgeFilter.run();
 				}
 			}
 		});
@@ -592,6 +597,11 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		}
 	}
 
+	private void switchNodeAnimation(final boolean animate) {
+		vis.setValue(NODES, null, VisualItem.FIXED, animate);
+		vis.setValue(EDGES, null, VisualItem.FIXED, animate);
+	}
+
 	private void renderIcon(final Node node, final IBeanProxy<Object> bean, final IBeanProxyLabelRenderer<Object> renderer) {
 		final IImageConstant icon = renderer.getLabel(bean).getIcon();
 		if (icon != null) {
@@ -720,7 +730,6 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 					settingsDialogAction.setEnabled(false);
 					initRadialTreeLayout();
 				}
-
 			}
 		});
 		comboBox.setValue(GraphLayout.FORCE_DIRECTED_LAYOUT);
@@ -754,13 +763,11 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 				synchronized (vis) {
 					if (on) {
 						checkItemModel.setText(Messages.getMessage("BeanRelationGraphImpl.animation.on").get());
-						vis.setValue(NODES, null, VisualItem.FIXED, true);
-						vis.setValue(EDGES, null, VisualItem.FIXED, true);
+						switchNodeAnimation(true);
 					}
 					else {
 						checkItemModel.setText(Messages.getMessage("BeanRelationGraphImpl.animation.off").get());
-						vis.setValue(NODES, null, VisualItem.FIXED, false);
-						vis.setValue(EDGES, null, VisualItem.FIXED, false);
+						switchNodeAnimation(false);
 					}
 					on = !on;
 				}
@@ -812,7 +819,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		synchronized (vis) {
 			vis.removeAction("layout");
 
-			final ForceDirectedLayout forceDirectedLayout = new ForceDirectedLayout("graph", true);
+			final ForceDirectedLayout forceDirectedLayout = new ForceDirectedLayout(GRAPH, true);
 			forceDirectedLayout.setForceSimulator(forceSimulator != null ? forceSimulator : setForces());
 
 			final ActionList layout = new ActionList(Activity.INFINITY);
@@ -831,7 +838,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		vis.removeAction("layout");
 		synchronized (vis) {
 			final ActionList layout = new ActionList(Activity.INFINITY);
-			final NodeLinkTreeLayout nodeLinkTreeLayout = new NodeLinkTreeLayout("graph", Constants.ORIENT_LEFT_RIGHT, 50, 5, 10);
+			final NodeLinkTreeLayout nodeLinkTreeLayout = new NodeLinkTreeLayout(GRAPH, Constants.ORIENT_LEFT_RIGHT, 50, 5, 10);
 			nodeLinkTreeLayout.setRootNodeOffset(10);
 			layout.add(nodeLinkTreeLayout);
 			layout.add(labelEdgeLayout);
@@ -872,10 +879,10 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 
 			vis.putAction("animate", animate);
 			vis.putAction("layout", layout);
-			vis.alwaysRunAfter("layout", "animate");
-			vis.run("layout");
-			vis.run("color");
 		}
+		vis.alwaysRunAfter("layout", "animate");
+		vis.run("layout");
+		vis.run("color");
 	}
 
 	private static void renderNodeWithLabel(final Node node, final ILabelModel label) {
