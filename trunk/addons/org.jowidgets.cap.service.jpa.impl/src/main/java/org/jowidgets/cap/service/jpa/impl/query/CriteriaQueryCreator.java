@@ -70,11 +70,15 @@ import org.jowidgets.cap.common.api.filter.IFilter;
 import org.jowidgets.cap.common.api.filter.IPropertyFilter;
 import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.common.api.sort.SortOrder;
+import org.jowidgets.cap.service.jpa.api.plugin.ICustomFilterPredicateCreatorPlugin;
 import org.jowidgets.cap.service.jpa.api.query.ICustomFilterPredicateCreator;
 import org.jowidgets.cap.service.jpa.api.query.IPredicateCreator;
 import org.jowidgets.cap.service.jpa.api.query.IPropertyFilterPredicateCreator;
 import org.jowidgets.cap.service.jpa.api.query.IQueryCreator;
 import org.jowidgets.cap.service.jpa.api.query.QueryPath;
+import org.jowidgets.plugin.api.IPluginPropertiesBuilder;
+import org.jowidgets.plugin.api.PluginProperties;
+import org.jowidgets.plugin.api.PluginProvider;
 import org.jowidgets.util.Assert;
 
 final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE> {
@@ -229,7 +233,7 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 		}
 		else if (filter instanceof ICustomFilter) {
 			final ICustomFilter customFilter = (ICustomFilter) filter;
-			final ICustomFilterPredicateCreator<PARAM_TYPE> customFilterPredicateCreator = customFilterPredicateCreators.get(customFilter.getFilterType());
+			final ICustomFilterPredicateCreator<PARAM_TYPE> customFilterPredicateCreator = getCustomFilterPredicateCreator(customFilter);
 			if (customFilterPredicateCreator != null) {
 				final Predicate predicate;
 				predicate = customFilterPredicateCreator.createPredicate(
@@ -247,6 +251,21 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 		else {
 			throw new IllegalArgumentException("unsupported filter type: " + filter.getClass().getName());
 		}
+	}
+
+	@SuppressWarnings({"rawtypes", "unchecked"})
+	private ICustomFilterPredicateCreator<PARAM_TYPE> getCustomFilterPredicateCreator(final ICustomFilter customFilter) {
+		ICustomFilterPredicateCreator<PARAM_TYPE> result = customFilterPredicateCreators.get(customFilter.getFilterType());
+		final IPluginPropertiesBuilder propertiesBuilder = PluginProperties.builder();
+		propertiesBuilder.add(ICustomFilterPredicateCreatorPlugin.FILTER_TYPE_PROPERTY_KEY, customFilter.getFilterType());
+		propertiesBuilder.add(ICustomFilterPredicateCreatorPlugin.BEAN_TYPE_PROPERTY_KEY, beanType);
+		final List<ICustomFilterPredicateCreatorPlugin<Object>> plugins = PluginProvider.getPlugins(
+				ICustomFilterPredicateCreatorPlugin.ID,
+				propertiesBuilder.build());
+		for (final ICustomFilterPredicateCreatorPlugin plugin : plugins) {
+			result = plugin.getPredicateCreator(result);
+		}
+		return result;
 	}
 
 	private Predicate createBooleanFilterPredicate(
