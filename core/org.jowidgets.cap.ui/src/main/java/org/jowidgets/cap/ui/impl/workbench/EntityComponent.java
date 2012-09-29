@@ -131,7 +131,9 @@ class EntityComponent extends AbstractComponent implements IComponent {
 		return null;
 	}
 
-	private IBeanRelationTreeModel<?> createRelationTreeModel(final IBeanTableModel<?> parentModel, final IEntityApplicationNode entityClass) {
+	private IBeanRelationTreeModel<?> createRelationTreeModel(
+		final IBeanTableModel<?> parentModel,
+		final IEntityApplicationNode entityClass) {
 		final Object id = entityClass.getEntityId();
 		final Class<?> beanType = getBeanType(id);
 		final IBeanRelationTreeModelBuilder<?> builder = CapUiToolkit.beanRelationTreeModelBuilder(id, beanType);

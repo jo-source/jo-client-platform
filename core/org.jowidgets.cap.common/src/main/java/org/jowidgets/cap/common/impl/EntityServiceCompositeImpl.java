@@ -36,6 +36,7 @@ import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
 import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
 import org.jowidgets.cap.common.api.service.IBeanServicesProvider;
 import org.jowidgets.cap.common.api.service.IEntityService;
+import org.jowidgets.util.EmptyCheck;
 
 public final class EntityServiceCompositeImpl implements IEntityService {
 
@@ -71,7 +72,7 @@ public final class EntityServiceCompositeImpl implements IEntityService {
 	public List<IEntityLinkDescriptor> getEntityLinks(final Object entityId) {
 		for (final IEntityService service : services) {
 			final List<IEntityLinkDescriptor> result = service.getEntityLinks(entityId);
-			if (result != null) {
+			if (!EmptyCheck.isEmpty(result)) {
 				return result;
 			}
 		}
