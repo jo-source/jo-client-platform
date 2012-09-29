@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,25 +26,27 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.plugin;
+package org.jowidgets.cap.ui.tools.execution;
 
-import org.jowidgets.api.model.item.IMenuModel;
-import org.jowidgets.cap.ui.api.widgets.IBeanTable;
-import org.jowidgets.plugin.api.IPluginId;
-import org.jowidgets.plugin.api.IPluginProperties;
-import org.jowidgets.util.ITypedKey;
+import java.util.List;
 
-public interface IBeanTableMenuContributionPlugin<BEAN_TYPE> {
+import org.jowidgets.api.command.IExecutionContext;
+import org.jowidgets.cap.common.api.bean.IBeanDto;
+import org.jowidgets.cap.ui.api.model.IDataModel;
+import org.jowidgets.util.Assert;
 
-	IPluginId<IBeanTableMenuContributionPlugin<?>> ID = new IPluginId<IBeanTableMenuContributionPlugin<?>>() {};
+public final class ReloadDataModelExecutionInterceptor extends ExecutionInterceptorAdapter<List<IBeanDto>> {
 
-	ITypedKey<Object> ENTITIY_ID_PROPERTY_KEY = new ITypedKey<Object>() {};
-	ITypedKey<Class<?>> BEAN_TYPE_PROPERTY_KEY = new ITypedKey<Class<?>>() {};
+	private final IDataModel model;
 
-	IMenuModel getCellMenu(IPluginProperties properties, IBeanTable<BEAN_TYPE> table);
+	public ReloadDataModelExecutionInterceptor(final IDataModel model) {
+		Assert.paramNotNull(model, "model");
+		this.model = model;
+	}
 
-	IMenuModel getHeaderMenu(IPluginProperties properties, IBeanTable<BEAN_TYPE> table);
-
-	IMenuModel getTableMenu(IPluginProperties properties, IBeanTable<BEAN_TYPE> table);
+	@Override
+	public void afterExecutionSuccess(final IExecutionContext executionContext, final List<IBeanDto> result) {
+		model.load();
+	}
 
 }

@@ -236,6 +236,7 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 		this.cellMenuInterceptor = bluePrint.getCellMenuInterceptor();
 
 		addMenusFromPlugins(
+				model.getBeanType(),
 				model.getEntityId(),
 				pluggedTablePopupMenuModell,
 				pluggedCellPopupMenuModel,
@@ -410,6 +411,7 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 
 	@SuppressWarnings({"rawtypes", "unchecked"})
 	private void addMenusFromPlugins(
+		final Class<BEAN_TYPE> beanType,
 		final Object entityId,
 		final IMenuModel menuModel,
 		final IMenuModel cellMenuModel,
@@ -417,6 +419,7 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 
 		final IPluginPropertiesBuilder propBuilder = PluginToolkit.pluginPropertiesBuilder();
 		propBuilder.add(IBeanTableMenuContributionPlugin.ENTITIY_ID_PROPERTY_KEY, entityId);
+		propBuilder.add(IBeanTableMenuContributionPlugin.BEAN_TYPE_PROPERTY_KEY, beanType);
 		final IPluginProperties properties = propBuilder.build();
 
 		final List<IBeanTableMenuContributionPlugin<?>> plugins = PluginProvider.getPlugins(

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,25 +26,29 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.plugin;
+package org.jowidgets.cap.ui.tools.plugin;
 
 import org.jowidgets.api.model.item.IMenuModel;
+import org.jowidgets.cap.ui.api.plugin.IBeanTableMenuContributionPlugin;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
-import org.jowidgets.plugin.api.IPluginId;
 import org.jowidgets.plugin.api.IPluginProperties;
-import org.jowidgets.util.ITypedKey;
+import org.jowidgets.tools.model.item.MenuModel;
 
-public interface IBeanTableMenuContributionPlugin<BEAN_TYPE> {
+public class BeanTableMenuContributionPluginAdapter<BEAN_TYPE> implements IBeanTableMenuContributionPlugin<BEAN_TYPE> {
 
-	IPluginId<IBeanTableMenuContributionPlugin<?>> ID = new IPluginId<IBeanTableMenuContributionPlugin<?>>() {};
+	@Override
+	public IMenuModel getCellMenu(final IPluginProperties properties, final IBeanTable<BEAN_TYPE> table) {
+		return new MenuModel();
+	}
 
-	ITypedKey<Object> ENTITIY_ID_PROPERTY_KEY = new ITypedKey<Object>() {};
-	ITypedKey<Class<?>> BEAN_TYPE_PROPERTY_KEY = new ITypedKey<Class<?>>() {};
+	@Override
+	public IMenuModel getHeaderMenu(final IPluginProperties properties, final IBeanTable<BEAN_TYPE> table) {
+		return new MenuModel();
+	}
 
-	IMenuModel getCellMenu(IPluginProperties properties, IBeanTable<BEAN_TYPE> table);
-
-	IMenuModel getHeaderMenu(IPluginProperties properties, IBeanTable<BEAN_TYPE> table);
-
-	IMenuModel getTableMenu(IPluginProperties properties, IBeanTable<BEAN_TYPE> table);
+	@Override
+	public IMenuModel getTableMenu(final IPluginProperties properties, final IBeanTable<BEAN_TYPE> table) {
+		return new MenuModel();
+	}
 
 }
