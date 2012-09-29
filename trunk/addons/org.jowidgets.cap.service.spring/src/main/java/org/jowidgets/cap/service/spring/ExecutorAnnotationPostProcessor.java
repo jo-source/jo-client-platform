@@ -229,10 +229,7 @@ public final class ExecutorAnnotationPostProcessor implements BeanPostProcessor,
 			return new IBeanListExecutor<IBean, Object>() {
 				@SuppressWarnings("unchecked")
 				@Override
-				public List<IBean> execute(
-					List<? extends IBean> data,
-					final Object parameter,
-					final IExecutionCallback executionCallback) {
+				public List<IBean> execute(List<IBean> data, final Object parameter, final IExecutionCallback executionCallback) {
 
 					if (voidMethod) {
 						data = new ArrayList<IBean>(data);
@@ -259,7 +256,7 @@ public final class ExecutorAnnotationPostProcessor implements BeanPostProcessor,
 
 					final Object result = ReflectionUtils.invokeMethod(method, beanFactory.getBean(beanName), args);
 					if (voidMethod) {
-						return (List<IBean>) data;
+						return data;
 					}
 					if (result instanceof IBean) {
 						return Collections.singletonList((IBean) result);
