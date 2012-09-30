@@ -29,9 +29,12 @@
 package org.jowidgets.cap.ui.impl.workbench;
 
 import org.jowidgets.api.toolkit.Toolkit;
+import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
 import org.jowidgets.cap.common.api.entity.IEntityApplicationNode;
+import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.ui.api.addons.widgets.IBeanRelationGraphBluePrint;
 import org.jowidgets.i18n.api.IMessage;
+import org.jowidgets.service.api.ServiceProvider;
 import org.jowidgets.workbench.api.ILayout;
 import org.jowidgets.workbench.toolkit.api.IFolderLayoutBuilder;
 import org.jowidgets.workbench.toolkit.api.ILayoutBuilder;
@@ -75,7 +78,7 @@ final class EntityComponentMasterDetailLinksDetailLayout {
 		result.setViewsCloseable(false);
 		result.addView(
 				EntityComponent.ROOT_TABLE_VIEW_ID,
-				applicationNode.getLabel().get(),
+				getEntityLabel(applicationNode, true),
 				applicationNode.getDescription().get());
 		return result;
 	}
@@ -93,7 +96,7 @@ final class EntityComponentMasterDetailLinksDetailLayout {
 		result.setViewsCloseable(false);
 		result.addView(
 				EntityRelationTreeView.ID,
-				applicationNode.getLabel().get() + " " + LINKS_STRING.get(),
+				getEntityLabel(applicationNode, false) + " " + LINKS_STRING.get(),
 				applicationNode.getDescription().get());
 		return result;
 	}
@@ -111,6 +114,22 @@ final class EntityComponentMasterDetailLinksDetailLayout {
 	@SuppressWarnings("unchecked")
 	private boolean hasBeanRelationGraphImpl() {
 		return Toolkit.getWidgetFactory().getFactory(IBeanRelationGraphBluePrint.class) != null;
+	}
+
+	private static String getEntityLabel(final IEntityApplicationNode applicationNode, final boolean plural) {
+		final IEntityService entityService = ServiceProvider.getService(IEntityService.ID);
+		if (entityService != null) {
+			final IBeanDtoDescriptor descriptor = entityService.getDescriptor(applicationNode.getEntityId());
+			if (descriptor != null) {
+				if (plural) {
+					return descriptor.getLabelPlural().get();
+				}
+				else {
+					return descriptor.getLabelSingular().get();
+				}
+			}
+		}
+		return applicationNode.getLabel().get();
 	}
 
 }
