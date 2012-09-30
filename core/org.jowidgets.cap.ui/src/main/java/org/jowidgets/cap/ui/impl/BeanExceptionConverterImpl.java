@@ -171,7 +171,7 @@ final class BeanExceptionConverterImpl implements IBeanExceptionConverter {
 		final DeletedBeanException exception) {
 		String message = exception.getUserMessage();
 		if (message == null) {
-			if (bean.getId().equals(exception.getBeanId())) {
+			if (exception.getBeanId() == null || bean.getId().equals(exception.getBeanId())) {
 				message = DELETED_DATA.get();
 			}
 			else {
