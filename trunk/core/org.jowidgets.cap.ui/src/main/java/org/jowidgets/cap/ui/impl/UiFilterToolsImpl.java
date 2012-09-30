@@ -28,9 +28,12 @@
 
 package org.jowidgets.cap.ui.impl;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.jowidgets.cap.common.api.filter.BooleanOperator;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
@@ -213,6 +216,56 @@ final class UiFilterToolsImpl implements IUiFilterTools {
 		}
 		else if (sourceFilter instanceof IUiCustomFilter<?>) {
 			return propertyName.equals(((IUiCustomFilter<?>) sourceFilter).getPropertyName());
+		}
+		else {
+			throw new IllegalArgumentException("The source filter type '"
+				+ sourceFilter.getClass().getName()
+				+ "' is not supported");
+		}
+	}
+
+	@Override
+	public boolean hasPropertyFilters(final IUiFilter sourceFilter, final String... ignoredProperties) {
+		Assert.paramNotNull(sourceFilter, "sourceFilter");
+		final Set<String> ignored = new HashSet<String>();
+		if (ignoredProperties != null) {
+			ignored.addAll(Arrays.asList(ignoredProperties));
+		}
+		if (sourceFilter instanceof IUiBooleanFilter) {
+			final IUiBooleanFilter booleanSourceFilter = (IUiBooleanFilter) sourceFilter;
+			for (final IUiFilter subSourceFilter : booleanSourceFilter.getFilters()) {
+				if (hasPropertyFilters(subSourceFilter, ignoredProperties)) {
+					return true;
+				}
+			}
+			return false;
+		}
+		else if (sourceFilter instanceof IUiArithmeticFilter<?>) {
+			final String propertyName = ((IUiArithmeticFilter<?>) sourceFilter).getPropertyName();
+			if (ignored.contains(propertyName)) {
+				return false;
+			}
+			else {
+				return true;
+			}
+		}
+		else if (sourceFilter instanceof IUiArithmeticPropertyFilter<?>) {
+			final String propertyName = ((IUiArithmeticPropertyFilter<?>) sourceFilter).getPropertyName();
+			if (ignored.contains(propertyName)) {
+				return false;
+			}
+			else {
+				return true;
+			}
+		}
+		else if (sourceFilter instanceof IUiCustomFilter<?>) {
+			final String propertyName = ((IUiCustomFilter<?>) sourceFilter).getPropertyName();
+			if (ignored.contains(propertyName)) {
+				return false;
+			}
+			else {
+				return true;
+			}
 		}
 		else {
 			throw new IllegalArgumentException("The source filter type '"

@@ -78,6 +78,16 @@ public interface IUiFilterTools {
 	boolean isPropertyFiltered(IUiFilter sourceFilter, String propertyName);
 
 	/**
+	 * Determines if a filter has property filters except the given ones
+	 * 
+	 * @param sourceFilter The filter to search for property filters
+	 * @param ignoredProperties The property that should not be considered
+	 * 
+	 * @return True if property filters except the ignored filters exists, false otherwise
+	 */
+	boolean hasPropertyFilters(IUiFilter sourceFilter, String... ignoredProperties);
+
+	/**
 	 * Gets a human readable string representation of the given filter.
 	 * 
 	 * @param filter The filter to get the string representation for
