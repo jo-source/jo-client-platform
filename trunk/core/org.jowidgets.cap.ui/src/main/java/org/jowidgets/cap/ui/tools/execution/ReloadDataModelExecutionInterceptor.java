@@ -28,14 +28,11 @@
 
 package org.jowidgets.cap.ui.tools.execution;
 
-import java.util.List;
-
 import org.jowidgets.api.command.IExecutionContext;
-import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.ui.api.model.IDataModel;
 import org.jowidgets.util.Assert;
 
-public final class ReloadDataModelExecutionInterceptor extends ExecutionInterceptorAdapter<List<IBeanDto>> {
+public final class ReloadDataModelExecutionInterceptor<RESULT_TYPE> extends ExecutionInterceptorAdapter<RESULT_TYPE> {
 
 	private final IDataModel model;
 
@@ -45,7 +42,7 @@ public final class ReloadDataModelExecutionInterceptor extends ExecutionIntercep
 	}
 
 	@Override
-	public void afterExecutionSuccess(final IExecutionContext executionContext, final List<IBeanDto> result) {
+	public void afterExecutionSuccess(final IExecutionContext executionContext, final RESULT_TYPE result) {
 		model.load();
 	}
 
