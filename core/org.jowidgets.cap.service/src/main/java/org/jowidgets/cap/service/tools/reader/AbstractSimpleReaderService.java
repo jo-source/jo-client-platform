@@ -59,7 +59,10 @@ public abstract class AbstractSimpleReaderService<BEAN_TYPE extends IBean, PARAM
 		this.beanFactory = beanFactory;
 	}
 
-	protected abstract List<? extends BEAN_TYPE> getAllBeans(List<? extends IBeanKey> parentBeans, PARAM_TYPE parameter);
+	protected abstract List<? extends BEAN_TYPE> getAllBeans(
+		List<? extends IBeanKey> parentBeans,
+		PARAM_TYPE parameter,
+		final IExecutionCallback executionCallback);
 
 	@Override
 	public final List<IBeanDto> read(
@@ -72,13 +75,13 @@ public abstract class AbstractSimpleReaderService<BEAN_TYPE extends IBean, PARAM
 		final IExecutionCallback executionCallback) {
 
 		if (filter == null && (sortedProperties == null || sortedProperties.size() == 0)) {
-			final Collection<? extends BEAN_TYPE> beans = getBeans(parentBeans, parameter, firstRow, maxRows);
+			final Collection<? extends BEAN_TYPE> beans = getBeans(parentBeans, parameter, firstRow, maxRows, executionCallback);
 			return BeanDtoFactoryHelper.createDtos(beanFactory, beans, executionCallback);
 		}
 		else {
 			List<IBeanDto> result = BeanDtoFactoryHelper.createDtos(
 					beanFactory,
-					getAllBeans(parentBeans, parameter),
+					getAllBeans(parentBeans, parameter, executionCallback),
 					executionCallback);
 
 			if (filter != null) {
@@ -105,12 +108,12 @@ public abstract class AbstractSimpleReaderService<BEAN_TYPE extends IBean, PARAM
 		final IExecutionCallback executionCallback) {
 
 		if (filter == null) {
-			return Integer.valueOf(getAllBeans(parentBeans, parameter).size());
+			return Integer.valueOf(getAllBeans(parentBeans, parameter, executionCallback).size());
 		}
 		else {
 			final List<IBeanDto> result = BeanDtoFactoryHelper.createDtos(
 					beanFactory,
-					getAllBeans(parentBeans, parameter),
+					getAllBeans(parentBeans, parameter, executionCallback),
 					executionCallback);
 			return Integer.valueOf(CapServiceToolkit.beanDtoCollectionFilter().filter(result, filter, executionCallback).size());
 		}
@@ -120,8 +123,9 @@ public abstract class AbstractSimpleReaderService<BEAN_TYPE extends IBean, PARAM
 		final List<? extends IBeanKey> parentBeans,
 		final PARAM_TYPE parameter,
 		final int firstRow,
-		final int maxRows) {
-		final List<? extends BEAN_TYPE> result = getAllBeans(parentBeans, parameter);
+		final int maxRows,
+		final IExecutionCallback executionCallback) {
+		final List<? extends BEAN_TYPE> result = getAllBeans(parentBeans, parameter, executionCallback);
 		if (result.size() >= firstRow) {
 			return new LinkedList<BEAN_TYPE>(result.subList(firstRow, Math.min(firstRow + maxRows, result.size())));
 		}

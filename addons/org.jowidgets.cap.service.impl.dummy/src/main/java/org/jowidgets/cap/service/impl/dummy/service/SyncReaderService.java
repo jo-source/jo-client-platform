@@ -32,6 +32,7 @@ import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
+import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.cap.service.impl.dummy.datastore.IEntityData;
 import org.jowidgets.cap.service.tools.reader.AbstractSimpleReaderService;
@@ -46,7 +47,10 @@ final class SyncReaderService<BEAN_TYPE extends IBean> extends AbstractSimpleRea
 	}
 
 	@Override
-	protected List<? extends IBean> getAllBeans(final List<? extends IBeanKey> parentBeans, final Void parameter) {
+	protected List<? extends IBean> getAllBeans(
+		final List<? extends IBeanKey> parentBeans,
+		final Void parameter,
+		final IExecutionCallback executionCallback) {
 		return data.getAllData();
 	}
 
@@ -55,7 +59,8 @@ final class SyncReaderService<BEAN_TYPE extends IBean> extends AbstractSimpleRea
 		final List<? extends IBeanKey> parentBeans,
 		final Void parameter,
 		final int firstRow,
-		final int maxRows) {
+		final int maxRows,
+		final IExecutionCallback executionCallback) {
 		return data.getAllData(firstRow, maxRows);
 	}
 

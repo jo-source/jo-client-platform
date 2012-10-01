@@ -29,16 +29,13 @@
 package org.jowidgets.cap.service.neo4j.api;
 
 import org.jowidgets.cap.common.api.bean.IBean;
-import org.neo4j.graphdb.Direction;
-import org.neo4j.graphdb.RelationshipType;
+import org.neo4j.graphdb.traversal.TraversalDescription;
 
-public interface IRelatedReaderServiceBuilder<BEAN_TYPE extends IBean, PARAM_TYPE> extends
-		INeo4JReaderServiceBuilder<IRelatedReaderServiceBuilder<BEAN_TYPE, PARAM_TYPE>, BEAN_TYPE, PARAM_TYPE> {
+public interface ITraversalReaderServiceBuilder<BEAN_TYPE extends IBean, PARAM_TYPE> extends
+		INeo4JReaderServiceBuilder<ITraversalReaderServiceBuilder<BEAN_TYPE, PARAM_TYPE>, BEAN_TYPE, PARAM_TYPE> {
 
-	IRelatedReaderServiceBuilder<BEAN_TYPE, PARAM_TYPE> setParentBeanTypeId(Object parentBeanTypeId);
+	ITraversalReaderServiceBuilder<BEAN_TYPE, PARAM_TYPE> setParentBeanTypeId(Object parentBeanTypeId);
 
-	IRelatedReaderServiceBuilder<BEAN_TYPE, PARAM_TYPE> addRelation(RelationshipType relationshipType, Direction direction);
-
-	IRelatedReaderServiceBuilder<BEAN_TYPE, PARAM_TYPE> setRelated(boolean related);
+	ITraversalReaderServiceBuilder<BEAN_TYPE, PARAM_TYPE> setTraversalDescription(TraversalDescription traversalDescription);
 
 }

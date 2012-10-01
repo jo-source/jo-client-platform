@@ -28,8 +28,10 @@
 
 package org.jowidgets.cap.service.neo4J.impl;
 
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
@@ -38,40 +40,46 @@ import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.cap.service.neo4j.api.GraphDBConfig;
 import org.jowidgets.cap.service.neo4j.api.IBeanFactory;
+import org.jowidgets.cap.service.neo4j.api.NodeAccess;
 import org.jowidgets.cap.service.tools.reader.AbstractSimpleReaderService;
 import org.jowidgets.util.Assert;
 import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
-import org.neo4j.graphdb.index.Index;
+import org.neo4j.graphdb.traversal.TraversalDescription;
 
 //TODO MG this implementation is not made for production use
-final class SyncNeo4JSimpleReaderServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE> extends
+final class SyncNeo4JSimpleTraversalReaderServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE> extends
 		AbstractSimpleReaderService<BEAN_TYPE, PARAM_TYPE> {
 
 	private final Class<? extends BEAN_TYPE> beanType;
+	private final Object parentBeanTypeId;
 	private final Object beanTypeId;
 	private final String beanTypeIdString;
-	private final Index<Node> nodeIndex;
-	private final Index<Relationship> relationshipIndex;
 	private final String beanTypePropertyName;
 	private final IBeanFactory beanFactory;
+	private final TraversalDescription traversalDescription;
 
-	SyncNeo4JSimpleReaderServiceImpl(
+	SyncNeo4JSimpleTraversalReaderServiceImpl(
+		final Object parentBeanTypeId,
 		final Class<? extends BEAN_TYPE> beanType,
 		final Object beanTypeId,
+		final TraversalDescription traversalDescription,
 		final IBeanDtoFactory<BEAN_TYPE> beanFactory) {
+
 		super(beanFactory);
+
+		Assert.paramNotNull(parentBeanTypeId, "parentBeanTypeId");
 		Assert.paramNotNull(beanType, "beanType");
 		Assert.paramNotNull(beanTypeId, "beanTypeId");
 		Assert.paramNotNull(beanFactory, "beanFactory");
+		Assert.paramNotNull(traversalDescription, "traversalDescription");
 
+		this.parentBeanTypeId = parentBeanTypeId;
 		this.beanType = beanType;
 		this.beanTypeId = beanTypeId;
 		this.beanTypeIdString = BeanTypeIdUtil.toString(beanTypeId);
+		this.traversalDescription = traversalDescription;
 
 		this.beanFactory = GraphDBConfig.getBeanFactory();
-		this.nodeIndex = GraphDBConfig.getNodeIndex();
-		this.relationshipIndex = GraphDBConfig.getRelationshipIndex();
 		this.beanTypePropertyName = GraphDBConfig.getBeanTypePropertyName();
 	}
 
@@ -80,24 +88,21 @@ final class SyncNeo4JSimpleReaderServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE
 		final List<? extends IBeanKey> parentBeans,
 		final PARAM_TYPE parameter,
 		final IExecutionCallback executionCallback) {
-		final List<BEAN_TYPE> result = new LinkedList<BEAN_TYPE>();
-
-		if (beanFactory.isNodeBean(beanType, beanTypeId)) {
-			for (final Node node : nodeIndex.get(beanTypePropertyName, beanTypeIdString)) {
-				CapServiceToolkit.checkCanceled(executionCallback);
-				result.add(beanFactory.createNodeBean(beanType, beanTypeId, node));
+		final Set<BEAN_TYPE> result = new LinkedHashSet<BEAN_TYPE>();
+		for (final IBeanKey beanKey : parentBeans) {
+			CapServiceToolkit.checkCanceled(executionCallback);
+			final Node parentNode = NodeAccess.findNode(parentBeanTypeId, beanKey.getId());
+			if (parentNode != null) {
+				for (final Node resultNode : traversalDescription.traverse(parentNode).nodes()) {
+					CapServiceToolkit.checkCanceled(executionCallback);
+					if (resultNode.hasProperty(beanTypePropertyName)
+						&& beanTypeIdString.equals(resultNode.getProperty(beanTypePropertyName))) {
+						result.add(beanFactory.createNodeBean(beanType, beanTypeId, resultNode));
+					}
+				}
 			}
 		}
-		else if (beanFactory.isRelationshipBean(beanType, beanTypeId)) {
-			for (final Relationship relationship : relationshipIndex.get(beanTypePropertyName, beanTypeIdString)) {
-				CapServiceToolkit.checkCanceled(executionCallback);
-				result.add(beanFactory.createRelationshipBean(beanType, beanTypeId, relationship));
-			}
-		}
-		else {
-			throw new IllegalStateException("The bean type '" + beanType + "' is neither a node bean nor a relationship bean.");
-		}
-
-		return result;
+		return new LinkedList<BEAN_TYPE>(result);
 	}
+
 }

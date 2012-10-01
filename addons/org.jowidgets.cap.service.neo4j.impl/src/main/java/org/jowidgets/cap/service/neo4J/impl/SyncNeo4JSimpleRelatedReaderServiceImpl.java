@@ -38,6 +38,8 @@ import java.util.Set;
 
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
+import org.jowidgets.cap.common.api.execution.IExecutionCallback;
+import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.cap.service.neo4j.api.GraphDBConfig;
 import org.jowidgets.cap.service.neo4j.api.IBeanFactory;
@@ -94,22 +96,29 @@ final class SyncNeo4JSimpleRelatedReaderServiceImpl<BEAN_TYPE extends IBean, PAR
 	}
 
 	@Override
-	protected List<? extends BEAN_TYPE> getAllBeans(final List<? extends IBeanKey> parentBeans, final PARAM_TYPE parameter) {
+	protected List<? extends BEAN_TYPE> getAllBeans(
+		final List<? extends IBeanKey> parentBeans,
+		final PARAM_TYPE parameter,
+		final IExecutionCallback executionCallback) {
 		if (related) {
-			return getAllRelatedBeans(parentBeans);
+			return getAllRelatedBeans(parentBeans, executionCallback);
 		}
 		else {
-			return getAllUnrelatedBeans(parentBeans);
+			return getAllUnrelatedBeans(parentBeans, executionCallback);
 		}
 	}
 
-	private List<? extends BEAN_TYPE> getAllRelatedBeans(final List<? extends IBeanKey> parentBeans) {
+	private List<? extends BEAN_TYPE> getAllRelatedBeans(
+		final List<? extends IBeanKey> parentBeans,
+		final IExecutionCallback executionCallback) {
 		final Set<BEAN_TYPE> result = new LinkedHashSet<BEAN_TYPE>();
 
 		for (final IBeanKey beanKey : parentBeans) {
+			CapServiceToolkit.checkCanceled(executionCallback);
 			final Node parentNode = NodeAccess.findNode(parentBeanTypeId, beanKey.getId());
 			if (parentNode != null) {
-				for (final Tuple<Node, Relationship> tuple : getAllRelatedNodes(parentNode)) {
+				for (final Tuple<Node, Relationship> tuple : getAllRelatedNodes(parentNode, executionCallback)) {
+					CapServiceToolkit.checkCanceled(executionCallback);
 					result.add(beanFactory.createRelatedNodeBean(beanType, beanTypeId, tuple.getFirst(), tuple.getSecond()));
 				}
 			}
@@ -118,20 +127,21 @@ final class SyncNeo4JSimpleRelatedReaderServiceImpl<BEAN_TYPE extends IBean, PAR
 		return new LinkedList<BEAN_TYPE>(result);
 	}
 
-	private List<Tuple<Node, Relationship>> getAllRelatedNodes(final Node parentNode) {
+	private List<Tuple<Node, Relationship>> getAllRelatedNodes(final Node parentNode, final IExecutionCallback executionCallback) {
 		final List<Tuple<Node, Relationship>> parentNodes = new LinkedList<Tuple<Node, Relationship>>();
 		parentNodes.add(new Tuple<Node, Relationship>(parentNode, null));
-		return getAllRelatedNodes(parentNodes, path.iterator());
+		return getAllRelatedNodes(parentNodes, path.iterator(), executionCallback);
 	}
 
 	private List<Tuple<Node, Relationship>> getAllRelatedNodes(
 		final List<Tuple<Node, Relationship>> parentNodes,
-		final Iterator<Tuple<RelationshipType, Direction>> iterator) {
+		final Iterator<Tuple<RelationshipType, Direction>> iterator,
+		final IExecutionCallback executionCallback) {
 
 		if (iterator.hasNext()) {
-			final List<Tuple<Node, Relationship>> nodes = getAllRelatedNodes(parentNodes, iterator.next());
+			final List<Tuple<Node, Relationship>> nodes = getAllRelatedNodes(parentNodes, iterator.next(), executionCallback);
 			if (iterator.hasNext()) {
-				return getAllRelatedNodes(nodes, iterator);
+				return getAllRelatedNodes(nodes, iterator, executionCallback);
 			}
 			else {
 				return nodes;
@@ -143,24 +153,30 @@ final class SyncNeo4JSimpleRelatedReaderServiceImpl<BEAN_TYPE extends IBean, PAR
 
 	private List<Tuple<Node, Relationship>> getAllRelatedNodes(
 		final List<Tuple<Node, Relationship>> parentNodes,
-		final Tuple<RelationshipType, Direction> relation) {
+		final Tuple<RelationshipType, Direction> relation,
+		final IExecutionCallback executionCallback) {
 		final List<Tuple<Node, Relationship>> result = new LinkedList<Tuple<Node, Relationship>>();
 		final RelationshipType relationshipType = relation.getFirst();
 		final Direction direction = relation.getSecond();
 		for (final Tuple<Node, Relationship> parentNodeTuple : parentNodes) {
+			CapServiceToolkit.checkCanceled(executionCallback);
 			final Node parentNode = parentNodeTuple.getFirst();
 			for (final Relationship relationship : parentNode.getRelationships(direction, relationshipType)) {
+				CapServiceToolkit.checkCanceled(executionCallback);
 				result.add(new Tuple<Node, Relationship>(relationship.getOtherNode(parentNode), relationship));
 			}
 		}
 		return result;
 	}
 
-	private List<? extends BEAN_TYPE> getAllUnrelatedBeans(final List<? extends IBeanKey> parentBeans) {
+	private List<? extends BEAN_TYPE> getAllUnrelatedBeans(
+		final List<? extends IBeanKey> parentBeans,
+		final IExecutionCallback executionCallback) {
 		final List<BEAN_TYPE> result = new LinkedList<BEAN_TYPE>();
 		if (beanFactory.isNodeBean(beanType, beanTypeId)) {
 			for (final Node node : nodeIndex.get(beanTypePropertyName, beanTypeIdString)) {
-				if (!isRelatedWith(node, parentBeans)) {
+				CapServiceToolkit.checkCanceled(executionCallback);
+				if (!isRelatedWith(node, parentBeans, executionCallback)) {
 					result.add(beanFactory.createNodeBean(beanType, beanTypeId, node));
 				}
 			}
@@ -171,12 +187,16 @@ final class SyncNeo4JSimpleRelatedReaderServiceImpl<BEAN_TYPE extends IBean, PAR
 		return result;
 	}
 
-	private boolean isRelatedWith(final Node node, final List<? extends IBeanKey> parentBeans) {
+	private boolean isRelatedWith(
+		final Node node,
+		final List<? extends IBeanKey> parentBeans,
+		final IExecutionCallback executionCallback) {
 		final Object nodeId = node.getProperty(IBean.ID_PROPERTY);
 		for (final IBeanKey beanKey : parentBeans) {
 			final Node parentNode = NodeAccess.findNode(parentBeanTypeId, beanKey.getId());
 			if (parentNode != null) {
-				for (final Tuple<Node, Relationship> tuple : getAllRelatedNodes(parentNode)) {
+				for (final Tuple<Node, Relationship> tuple : getAllRelatedNodes(parentNode, executionCallback)) {
+					CapServiceToolkit.checkCanceled(executionCallback);
 					if (nodeId.equals(tuple.getFirst().getProperty(IBean.ID_PROPERTY))) {
 						return true;
 					}
@@ -185,5 +205,4 @@ final class SyncNeo4JSimpleRelatedReaderServiceImpl<BEAN_TYPE extends IBean, PAR
 		}
 		return false;
 	}
-
 }

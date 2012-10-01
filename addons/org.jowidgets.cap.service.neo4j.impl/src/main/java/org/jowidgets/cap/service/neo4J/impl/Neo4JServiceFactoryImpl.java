@@ -40,6 +40,7 @@ import org.jowidgets.cap.service.api.creator.ICreatorServiceBuilder;
 import org.jowidgets.cap.service.api.deleter.IDeleterServiceBuilder;
 import org.jowidgets.cap.service.neo4j.api.INeo4JServiceFactory;
 import org.jowidgets.cap.service.neo4j.api.IRelatedReaderServiceBuilder;
+import org.jowidgets.cap.service.neo4j.api.ITraversalReaderServiceBuilder;
 import org.jowidgets.cap.service.tools.factory.AbstractBeanServiceFactory;
 import org.jowidgets.util.IAdapterFactory;
 import org.neo4j.graphdb.Direction;
@@ -83,7 +84,17 @@ final class Neo4JServiceFactoryImpl extends AbstractBeanServiceFactory implement
 	}
 
 	@Override
-	public <BEAN_TYPE extends IBean, PARAM_TYPE> IReaderService<PARAM_TYPE> readerService(
+	public <BEAN_TYPE extends IBean, PARAM_TYPE> ITraversalReaderServiceBuilder<BEAN_TYPE, PARAM_TYPE> traversalReaderServiceBuilder() {
+		return new TraversalReaderServiceBuilderImpl<BEAN_TYPE, PARAM_TYPE>();
+	}
+
+	@Override
+	public <BEAN_TYPE extends IBean, PARAM_TYPE> IRelatedReaderServiceBuilder<BEAN_TYPE, PARAM_TYPE> relatedReaderServiceBuilder() {
+		return new RelatedReaderServiceBuilderImpl<BEAN_TYPE, PARAM_TYPE>();
+	}
+
+	@Override
+	public <BEAN_TYPE extends IBean, PARAM_TYPE> IReaderService<PARAM_TYPE> relatedService(
 		final Object parentBeanTypeId,
 		final Class<? extends BEAN_TYPE> beanType,
 		final Object beanTypeId,
@@ -104,7 +115,7 @@ final class Neo4JServiceFactoryImpl extends AbstractBeanServiceFactory implement
 	}
 
 	@Override
-	public <BEAN_TYPE extends IBean, PARAM_TYPE> IReaderService<PARAM_TYPE> readerService(
+	public <BEAN_TYPE extends IBean, PARAM_TYPE> IReaderService<PARAM_TYPE> relatedReaderService(
 		final Object parentBeanTypeId,
 		final Class<? extends BEAN_TYPE> beanType,
 		final Object beanTypeId,
@@ -112,7 +123,7 @@ final class Neo4JServiceFactoryImpl extends AbstractBeanServiceFactory implement
 		final Direction direction,
 		final boolean related,
 		final Collection<String> propertyNames) {
-		return readerService(
+		return relatedService(
 				parentBeanTypeId,
 				beanType,
 				beanTypeId,
@@ -123,19 +134,14 @@ final class Neo4JServiceFactoryImpl extends AbstractBeanServiceFactory implement
 	}
 
 	@Override
-	public <BEAN_TYPE extends IBean, PARAM_TYPE> IReaderService<PARAM_TYPE> readerService(
+	public <BEAN_TYPE extends IBean, PARAM_TYPE> IReaderService<PARAM_TYPE> relatedReaderService(
 		final Object parentBeanTypeId,
 		final Class<? extends BEAN_TYPE> beanType,
 		final RelationshipType relationshipType,
 		final Direction direction,
 		final boolean related,
 		final Collection<String> propertyNames) {
-		return readerService(parentBeanTypeId, beanType, beanType, relationshipType, direction, related, propertyNames);
-	}
-
-	@Override
-	public <BEAN_TYPE extends IBean, PARAM_TYPE> IRelatedReaderServiceBuilder<BEAN_TYPE, PARAM_TYPE> relatedReaderServiceBuilder() {
-		return new RelatedReaderServiceBuilderImpl<BEAN_TYPE, PARAM_TYPE>();
+		return relatedReaderService(parentBeanTypeId, beanType, beanType, relationshipType, direction, related, propertyNames);
 	}
 
 }
