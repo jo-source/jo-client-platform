@@ -124,12 +124,21 @@ final class RelatedReaderServiceBuilderImpl<BEAN_TYPE extends IBean, PARAM_TYPE>
 		}
 	}
 
+	private Object getBeanTypeId() {
+		if (beanTypeId != null) {
+			return beanTypeId;
+		}
+		else {
+			return beanType;
+		}
+	}
+
 	@Override
 	public IReaderService<PARAM_TYPE> build() {
 		final SyncNeo4JSimpleRelatedReaderServiceImpl<BEAN_TYPE, PARAM_TYPE> result = new SyncNeo4JSimpleRelatedReaderServiceImpl<BEAN_TYPE, PARAM_TYPE>(
 			parentBeanTypeId,
 			beanType,
-			beanTypeId,
+			getBeanTypeId(),
 			path,
 			related,
 			getBeanDtoFactory());
