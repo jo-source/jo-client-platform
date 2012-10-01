@@ -26,19 +26,48 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.neo4j.api;
+package org.jowidgets.cap.service.neo4J.impl;
 
 import org.jowidgets.cap.common.api.bean.IBean;
-import org.neo4j.graphdb.Direction;
-import org.neo4j.graphdb.RelationshipType;
+import org.jowidgets.cap.service.api.adapter.ISyncReaderService;
+import org.jowidgets.cap.service.neo4j.api.ITraversalReaderServiceBuilder;
+import org.jowidgets.util.Assert;
+import org.neo4j.graphdb.traversal.TraversalDescription;
+import org.neo4j.kernel.Traversal;
 
-public interface IRelatedReaderServiceBuilder<BEAN_TYPE extends IBean, PARAM_TYPE> extends
-		INeo4JReaderServiceBuilder<IRelatedReaderServiceBuilder<BEAN_TYPE, PARAM_TYPE>, BEAN_TYPE, PARAM_TYPE> {
+final class TraversalReaderServiceBuilderImpl<BEAN_TYPE extends IBean, PARAM_TYPE> extends
+		AbstractNeo4JReaderServiceBuilderImpl<ITraversalReaderServiceBuilder<BEAN_TYPE, PARAM_TYPE>, BEAN_TYPE, PARAM_TYPE> implements
+		ITraversalReaderServiceBuilder<BEAN_TYPE, PARAM_TYPE> {
 
-	IRelatedReaderServiceBuilder<BEAN_TYPE, PARAM_TYPE> setParentBeanTypeId(Object parentBeanTypeId);
+	private Object parentBeanTypeId;
+	private TraversalDescription traversalDescription;
 
-	IRelatedReaderServiceBuilder<BEAN_TYPE, PARAM_TYPE> addRelation(RelationshipType relationshipType, Direction direction);
+	TraversalReaderServiceBuilderImpl() {
+		this.traversalDescription = Traversal.description();
+	}
 
-	IRelatedReaderServiceBuilder<BEAN_TYPE, PARAM_TYPE> setRelated(boolean related);
+	@Override
+	public ITraversalReaderServiceBuilder<BEAN_TYPE, PARAM_TYPE> setParentBeanTypeId(final Object parentBeanTypeId) {
+		this.parentBeanTypeId = parentBeanTypeId;
+		return this;
+	}
+
+	@Override
+	public ITraversalReaderServiceBuilder<BEAN_TYPE, PARAM_TYPE> setTraversalDescription(
+		final TraversalDescription traversalDescription) {
+		Assert.paramNotNull(traversalDescription, "traversalDescription");
+		this.traversalDescription = traversalDescription;
+		return this;
+	}
+
+	@Override
+	protected ISyncReaderService<PARAM_TYPE> doBuild() {
+		return new SyncNeo4JSimpleTraversalReaderServiceImpl<BEAN_TYPE, PARAM_TYPE>(
+			parentBeanTypeId,
+			getBeanType(),
+			getBeanTypeId(),
+			traversalDescription,
+			getBeanDtoFactory());
+	}
 
 }

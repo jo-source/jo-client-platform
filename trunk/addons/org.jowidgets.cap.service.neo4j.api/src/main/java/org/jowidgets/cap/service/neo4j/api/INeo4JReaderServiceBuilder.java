@@ -28,17 +28,22 @@
 
 package org.jowidgets.cap.service.neo4j.api;
 
+import java.util.Collection;
+
 import org.jowidgets.cap.common.api.bean.IBean;
-import org.neo4j.graphdb.Direction;
-import org.neo4j.graphdb.RelationshipType;
+import org.jowidgets.cap.common.api.service.IReaderService;
+import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 
-public interface IRelatedReaderServiceBuilder<BEAN_TYPE extends IBean, PARAM_TYPE> extends
-		INeo4JReaderServiceBuilder<IRelatedReaderServiceBuilder<BEAN_TYPE, PARAM_TYPE>, BEAN_TYPE, PARAM_TYPE> {
+public interface INeo4JReaderServiceBuilder<BUILDER_TYPE extends INeo4JReaderServiceBuilder<?, ?, ?>, BEAN_TYPE extends IBean, PARAM_TYPE> {
 
-	IRelatedReaderServiceBuilder<BEAN_TYPE, PARAM_TYPE> setParentBeanTypeId(Object parentBeanTypeId);
+	BUILDER_TYPE setBeanType(Class<? extends BEAN_TYPE> beanType);
 
-	IRelatedReaderServiceBuilder<BEAN_TYPE, PARAM_TYPE> addRelation(RelationshipType relationshipType, Direction direction);
+	BUILDER_TYPE setBeanTypeId(Object beanTypeId);
 
-	IRelatedReaderServiceBuilder<BEAN_TYPE, PARAM_TYPE> setRelated(boolean related);
+	BUILDER_TYPE setBeanDtoFactory(IBeanDtoFactory<BEAN_TYPE> beanDtoFactory);
+
+	BUILDER_TYPE setBeanDtoFactory(final Collection<String> propertyNames);
+
+	IReaderService<PARAM_TYPE> build();
 
 }

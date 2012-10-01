@@ -28,33 +28,25 @@
 
 package org.jowidgets.cap.service.neo4J.impl;
 
-import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IBean;
-import org.jowidgets.cap.common.api.service.IReaderService;
-import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.adapter.ISyncReaderService;
-import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.cap.service.neo4j.api.IRelatedReaderServiceBuilder;
 import org.jowidgets.util.Assert;
-import org.jowidgets.util.IAdapterFactory;
 import org.jowidgets.util.Tuple;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.RelationshipType;
 
-final class RelatedReaderServiceBuilderImpl<BEAN_TYPE extends IBean, PARAM_TYPE> implements
+final class RelatedReaderServiceBuilderImpl<BEAN_TYPE extends IBean, PARAM_TYPE> extends
+		AbstractNeo4JReaderServiceBuilderImpl<IRelatedReaderServiceBuilder<BEAN_TYPE, PARAM_TYPE>, BEAN_TYPE, PARAM_TYPE> implements
 		IRelatedReaderServiceBuilder<BEAN_TYPE, PARAM_TYPE> {
 
 	private final List<Tuple<RelationshipType, Direction>> path;
 
 	private Object parentBeanTypeId;
-	private Class<? extends BEAN_TYPE> beanType;
-	private Object beanTypeId;
 	private boolean related;
-	private IBeanDtoFactory<BEAN_TYPE> beanDtoFactory;
-	private Collection<String> beanDtoFactoryProperties;
 
 	RelatedReaderServiceBuilderImpl() {
 		this.path = new LinkedList<Tuple<RelationshipType, Direction>>();
@@ -64,18 +56,6 @@ final class RelatedReaderServiceBuilderImpl<BEAN_TYPE extends IBean, PARAM_TYPE>
 	@Override
 	public IRelatedReaderServiceBuilder<BEAN_TYPE, PARAM_TYPE> setParentBeanTypeId(final Object parentBeanTypeId) {
 		this.parentBeanTypeId = parentBeanTypeId;
-		return this;
-	}
-
-	@Override
-	public IRelatedReaderServiceBuilder<BEAN_TYPE, PARAM_TYPE> setBeanType(final Class<? extends BEAN_TYPE> beanType) {
-		this.beanType = beanType;
-		return this;
-	}
-
-	@Override
-	public IRelatedReaderServiceBuilder<BEAN_TYPE, PARAM_TYPE> setBeanTypeId(final Object beanTypeId) {
-		this.beanTypeId = beanTypeId;
 		return this;
 	}
 
@@ -96,56 +76,14 @@ final class RelatedReaderServiceBuilderImpl<BEAN_TYPE extends IBean, PARAM_TYPE>
 	}
 
 	@Override
-	public IRelatedReaderServiceBuilder<BEAN_TYPE, PARAM_TYPE> setBeanDtoFactory(final IBeanDtoFactory<BEAN_TYPE> beanDtoFactory) {
-		Assert.paramNotNull(beanDtoFactory, "beanDtoFactory");
-		this.beanDtoFactory = beanDtoFactory;
-		this.beanDtoFactoryProperties = null;
-		return this;
-	}
-
-	@Override
-	public IRelatedReaderServiceBuilder<BEAN_TYPE, PARAM_TYPE> setBeanDtoFactory(final Collection<String> propertyNames) {
-		Assert.paramNotNull(propertyNames, "propertyNames");
-		this.beanDtoFactoryProperties = propertyNames;
-		return this;
-	}
-
-	private IBeanDtoFactory<BEAN_TYPE> getBeanDtoFactory() {
-		if (beanDtoFactory == null) {
-			if (beanDtoFactoryProperties != null && beanType != null) {
-				return CapServiceToolkit.dtoFactory(beanType, beanDtoFactoryProperties);
-			}
-			else {
-				return null;
-			}
-		}
-		else {
-			return beanDtoFactory;
-		}
-	}
-
-	private Object getBeanTypeId() {
-		if (beanTypeId != null) {
-			return beanTypeId;
-		}
-		else {
-			return beanType;
-		}
-	}
-
-	@Override
-	public IReaderService<PARAM_TYPE> build() {
-		final SyncNeo4JSimpleRelatedReaderServiceImpl<BEAN_TYPE, PARAM_TYPE> result = new SyncNeo4JSimpleRelatedReaderServiceImpl<BEAN_TYPE, PARAM_TYPE>(
+	protected ISyncReaderService<PARAM_TYPE> doBuild() {
+		return new SyncNeo4JSimpleRelatedReaderServiceImpl<BEAN_TYPE, PARAM_TYPE>(
 			parentBeanTypeId,
-			beanType,
+			getBeanType(),
 			getBeanTypeId(),
 			path,
 			related,
 			getBeanDtoFactory());
-
-		final IAdapterFactory<IReaderService<PARAM_TYPE>, ISyncReaderService<PARAM_TYPE>> adapterFactory;
-		adapterFactory = CapServiceToolkit.adapterFactoryProvider().reader();
-		return adapterFactory.createAdapter(result);
 	}
 
 }

@@ -39,7 +39,11 @@ import org.neo4j.graphdb.RelationshipType;
 
 public interface INeo4JServiceFactory extends IBeanServiceFactory {
 
-	<BEAN_TYPE extends IBean, PARAM_TYPE> IReaderService<PARAM_TYPE> readerService(
+	<BEAN_TYPE extends IBean, PARAM_TYPE> ITraversalReaderServiceBuilder<BEAN_TYPE, PARAM_TYPE> traversalReaderServiceBuilder();
+
+	<BEAN_TYPE extends IBean, PARAM_TYPE> IRelatedReaderServiceBuilder<BEAN_TYPE, PARAM_TYPE> relatedReaderServiceBuilder();
+
+	<BEAN_TYPE extends IBean, PARAM_TYPE> IReaderService<PARAM_TYPE> relatedService(
 		Object parentBeanTypeId,
 		Class<? extends BEAN_TYPE> beanType,
 		Object beanTypeId,
@@ -48,7 +52,7 @@ public interface INeo4JServiceFactory extends IBeanServiceFactory {
 		boolean related,
 		IBeanDtoFactory<BEAN_TYPE> beanDtoFactory);
 
-	<BEAN_TYPE extends IBean, PARAM_TYPE> IReaderService<PARAM_TYPE> readerService(
+	<BEAN_TYPE extends IBean, PARAM_TYPE> IReaderService<PARAM_TYPE> relatedReaderService(
 		Object parentBeanTypeId,
 		Class<? extends BEAN_TYPE> beanType,
 		Object beanTypeId,
@@ -57,14 +61,12 @@ public interface INeo4JServiceFactory extends IBeanServiceFactory {
 		boolean related,
 		Collection<String> propertyNames);
 
-	<BEAN_TYPE extends IBean, PARAM_TYPE> IReaderService<PARAM_TYPE> readerService(
+	<BEAN_TYPE extends IBean, PARAM_TYPE> IReaderService<PARAM_TYPE> relatedReaderService(
 		Object parentBeanTypeId,
 		Class<? extends BEAN_TYPE> beanType,
 		RelationshipType relationshipType,
 		Direction direction,
 		boolean related,
 		Collection<String> propertyNames);
-
-	<BEAN_TYPE extends IBean, PARAM_TYPE> IRelatedReaderServiceBuilder<BEAN_TYPE, PARAM_TYPE> relatedReaderServiceBuilder();
 
 }
