@@ -39,6 +39,7 @@ import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.cap.service.api.creator.ICreatorServiceBuilder;
 import org.jowidgets.cap.service.api.deleter.IDeleterServiceBuilder;
 import org.jowidgets.cap.service.neo4j.api.INeo4JServiceFactory;
+import org.jowidgets.cap.service.neo4j.api.IRelatedReaderServiceBuilder;
 import org.jowidgets.cap.service.tools.factory.AbstractBeanServiceFactory;
 import org.jowidgets.util.IAdapterFactory;
 import org.neo4j.graphdb.Direction;
@@ -91,19 +92,15 @@ final class Neo4JServiceFactoryImpl extends AbstractBeanServiceFactory implement
 		final boolean related,
 		final IBeanDtoFactory<BEAN_TYPE> beanDtoFactory) {
 
-		final ISyncReaderService<PARAM_TYPE> result;
-		result = new SyncNeo4JSimpleRelatedReaderServiceImpl<BEAN_TYPE, PARAM_TYPE>(
-			parentBeanTypeId,
-			beanType,
-			beanTypeId,
-			relationshipType,
-			direction,
-			related,
-			beanDtoFactory);
+		final IRelatedReaderServiceBuilder<BEAN_TYPE, PARAM_TYPE> builder = relatedReaderServiceBuilder();
+		builder.setParentBeanTypeId(parentBeanTypeId);
+		builder.setBeanType(beanType);
+		builder.setBeanTypeId(beanTypeId);
+		builder.addRelation(relationshipType, direction);
+		builder.setRelated(related);
+		builder.setBeanDtoFactory(beanDtoFactory);
 
-		final IAdapterFactory<IReaderService<PARAM_TYPE>, ISyncReaderService<PARAM_TYPE>> adapterFactory;
-		adapterFactory = CapServiceToolkit.adapterFactoryProvider().reader();
-		return adapterFactory.createAdapter(result);
+		return builder.build();
 	}
 
 	@Override
@@ -134,6 +131,11 @@ final class Neo4JServiceFactoryImpl extends AbstractBeanServiceFactory implement
 		final boolean related,
 		final Collection<String> propertyNames) {
 		return readerService(parentBeanTypeId, beanType, beanType, relationshipType, direction, related, propertyNames);
+	}
+
+	@Override
+	public <BEAN_TYPE extends IBean, PARAM_TYPE> IRelatedReaderServiceBuilder<BEAN_TYPE, PARAM_TYPE> relatedReaderServiceBuilder() {
+		return new RelatedReaderServiceBuilderImpl<BEAN_TYPE, PARAM_TYPE>();
 	}
 
 }

@@ -28,6 +28,9 @@
 
 package org.jowidgets.cap.service.neo4J.impl;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -41,6 +44,7 @@ import org.jowidgets.cap.service.neo4j.api.IBeanFactory;
 import org.jowidgets.cap.service.neo4j.api.NodeAccess;
 import org.jowidgets.cap.service.tools.reader.AbstractSimpleReaderService;
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.Tuple;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
@@ -58,16 +62,14 @@ final class SyncNeo4JSimpleRelatedReaderServiceImpl<BEAN_TYPE extends IBean, PAR
 	private final Index<Node> nodeIndex;
 	private final String beanTypePropertyName;
 	private final IBeanFactory beanFactory;
-	private final RelationshipType relationshipType;
-	private final Direction direction;
+	private final Collection<Tuple<RelationshipType, Direction>> path;
 	private final boolean related;
 
 	SyncNeo4JSimpleRelatedReaderServiceImpl(
 		final Object parentBeanTypeId,
 		final Class<? extends BEAN_TYPE> beanType,
 		final Object beanTypeId,
-		final RelationshipType relationshipType,
-		final Direction direction,
+		final Collection<Tuple<RelationshipType, Direction>> path,
 		final boolean related,
 		final IBeanDtoFactory<BEAN_TYPE> beanFactory) {
 
@@ -77,15 +79,13 @@ final class SyncNeo4JSimpleRelatedReaderServiceImpl<BEAN_TYPE extends IBean, PAR
 		Assert.paramNotNull(beanType, "beanType");
 		Assert.paramNotNull(beanTypeId, "beanTypeId");
 		Assert.paramNotNull(beanFactory, "beanFactory");
-		Assert.paramNotNull(relationshipType, "relationshipType");
-		Assert.paramNotNull(direction, "direction");
+		Assert.paramNotNull(path, "relationshipType");
 
 		this.parentBeanTypeId = parentBeanTypeId;
 		this.beanType = beanType;
 		this.beanTypeId = beanTypeId;
 		this.beanTypeIdString = BeanTypeIdUtil.toString(beanTypeId);
-		this.relationshipType = relationshipType;
-		this.direction = direction;
+		this.path = new LinkedList<Tuple<RelationshipType, Direction>>(path);
 		this.related = related;
 
 		this.beanFactory = GraphDBConfig.getBeanFactory();
@@ -109,17 +109,51 @@ final class SyncNeo4JSimpleRelatedReaderServiceImpl<BEAN_TYPE extends IBean, PAR
 		for (final IBeanKey beanKey : parentBeans) {
 			final Node parentNode = NodeAccess.findNode(parentBeanTypeId, beanKey.getId());
 			if (parentNode != null) {
-				for (final Relationship relationship : parentNode.getRelationships(direction, relationshipType)) {
-					result.add(beanFactory.createRelatedNodeBean(
-							beanType,
-							beanTypeId,
-							relationship.getOtherNode(parentNode),
-							relationship));
+				for (final Tuple<Node, Relationship> tuple : getAllRelatedNodes(parentNode)) {
+					result.add(beanFactory.createRelatedNodeBean(beanType, beanTypeId, tuple.getFirst(), tuple.getSecond()));
 				}
 			}
 		}
 
 		return new LinkedList<BEAN_TYPE>(result);
+	}
+
+	private List<Tuple<Node, Relationship>> getAllRelatedNodes(final Node parentNode) {
+		final List<Tuple<Node, Relationship>> parentNodes = new LinkedList<Tuple<Node, Relationship>>();
+		parentNodes.add(new Tuple<Node, Relationship>(parentNode, null));
+		return getAllRelatedNodes(parentNodes, path.iterator());
+	}
+
+	private List<Tuple<Node, Relationship>> getAllRelatedNodes(
+		final List<Tuple<Node, Relationship>> parentNodes,
+		final Iterator<Tuple<RelationshipType, Direction>> iterator) {
+
+		if (iterator.hasNext()) {
+			final List<Tuple<Node, Relationship>> nodes = getAllRelatedNodes(parentNodes, iterator.next());
+			if (iterator.hasNext()) {
+				return getAllRelatedNodes(nodes, iterator);
+			}
+			else {
+				return nodes;
+			}
+		}
+
+		return Collections.emptyList();
+	}
+
+	private List<Tuple<Node, Relationship>> getAllRelatedNodes(
+		final List<Tuple<Node, Relationship>> parentNodes,
+		final Tuple<RelationshipType, Direction> relation) {
+		final List<Tuple<Node, Relationship>> result = new LinkedList<Tuple<Node, Relationship>>();
+		final RelationshipType relationshipType = relation.getFirst();
+		final Direction direction = relation.getSecond();
+		for (final Tuple<Node, Relationship> parentNodeTuple : parentNodes) {
+			final Node parentNode = parentNodeTuple.getFirst();
+			for (final Relationship relationship : parentNode.getRelationships(direction, relationshipType)) {
+				result.add(new Tuple<Node, Relationship>(relationship.getOtherNode(parentNode), relationship));
+			}
+		}
+		return result;
 	}
 
 	private List<? extends BEAN_TYPE> getAllUnrelatedBeans(final List<? extends IBeanKey> parentBeans) {
@@ -142,8 +176,8 @@ final class SyncNeo4JSimpleRelatedReaderServiceImpl<BEAN_TYPE extends IBean, PAR
 		for (final IBeanKey beanKey : parentBeans) {
 			final Node parentNode = NodeAccess.findNode(parentBeanTypeId, beanKey.getId());
 			if (parentNode != null) {
-				for (final Relationship relationship : parentNode.getRelationships(direction, relationshipType)) {
-					if (nodeId.equals(relationship.getOtherNode(parentNode).getProperty(IBean.ID_PROPERTY))) {
+				for (final Tuple<Node, Relationship> tuple : getAllRelatedNodes(parentNode)) {
+					if (nodeId.equals(tuple.getFirst().getProperty(IBean.ID_PROPERTY))) {
 						return true;
 					}
 				}

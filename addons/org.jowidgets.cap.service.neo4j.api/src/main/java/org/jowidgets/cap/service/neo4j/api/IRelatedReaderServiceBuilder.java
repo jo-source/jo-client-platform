@@ -33,38 +33,25 @@ import java.util.Collection;
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
-import org.jowidgets.cap.service.api.factory.IBeanServiceFactory;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.RelationshipType;
 
-public interface INeo4JServiceFactory extends IBeanServiceFactory {
+public interface IRelatedReaderServiceBuilder<BEAN_TYPE extends IBean, PARAM_TYPE> {
 
-	<BEAN_TYPE extends IBean, PARAM_TYPE> IReaderService<PARAM_TYPE> readerService(
-		Object parentBeanTypeId,
-		Class<? extends BEAN_TYPE> beanType,
-		Object beanTypeId,
-		RelationshipType relationshipType,
-		Direction direction,
-		boolean related,
-		IBeanDtoFactory<BEAN_TYPE> beanDtoFactory);
+	IRelatedReaderServiceBuilder<BEAN_TYPE, PARAM_TYPE> setParentBeanTypeId(Object parentBeanTypeId);
 
-	<BEAN_TYPE extends IBean, PARAM_TYPE> IReaderService<PARAM_TYPE> readerService(
-		Object parentBeanTypeId,
-		Class<? extends BEAN_TYPE> beanType,
-		Object beanTypeId,
-		RelationshipType relationshipType,
-		Direction direction,
-		boolean related,
-		Collection<String> propertyNames);
+	IRelatedReaderServiceBuilder<BEAN_TYPE, PARAM_TYPE> setBeanType(Class<? extends BEAN_TYPE> beanType);
 
-	<BEAN_TYPE extends IBean, PARAM_TYPE> IReaderService<PARAM_TYPE> readerService(
-		Object parentBeanTypeId,
-		Class<? extends BEAN_TYPE> beanType,
-		RelationshipType relationshipType,
-		Direction direction,
-		boolean related,
-		Collection<String> propertyNames);
+	IRelatedReaderServiceBuilder<BEAN_TYPE, PARAM_TYPE> setBeanTypeId(Object beanTypeId);
 
-	<BEAN_TYPE extends IBean, PARAM_TYPE> IRelatedReaderServiceBuilder<BEAN_TYPE, PARAM_TYPE> relatedReaderServiceBuilder();
+	IRelatedReaderServiceBuilder<BEAN_TYPE, PARAM_TYPE> addRelation(RelationshipType relationshipType, Direction direction);
+
+	IRelatedReaderServiceBuilder<BEAN_TYPE, PARAM_TYPE> setRelated(boolean related);
+
+	IRelatedReaderServiceBuilder<BEAN_TYPE, PARAM_TYPE> setBeanDtoFactory(IBeanDtoFactory<BEAN_TYPE> beanDtoFactory);
+
+	IRelatedReaderServiceBuilder<BEAN_TYPE, PARAM_TYPE> setBeanDtoFactory(final Collection<String> propertyNames);
+
+	IReaderService<PARAM_TYPE> build();
 
 }
