@@ -71,8 +71,8 @@ final class BeanDtoComparatorImpl implements Comparator<IBeanDto> {
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	private int compareWithCast(final IBeanDto firstBeanDto, final IBeanDto secondBeanDto, int result, final String propertyName) {
-		final Object firstValue = firstBeanDto.getValue(propertyName);
-		final Object secondValue = secondBeanDto.getValue(propertyName);
+		final Object firstValue = getComparableValue(firstBeanDto.getValue(propertyName));
+		final Object secondValue = getComparableValue(secondBeanDto.getValue(propertyName));
 		if (firstValue != null && secondValue != null) {
 			if (firstValue instanceof Comparable<?> && secondValue instanceof Comparable<?>) {
 				result = ((Comparable) firstValue).compareTo(secondValue);
@@ -92,4 +92,23 @@ final class BeanDtoComparatorImpl implements Comparator<IBeanDto> {
 		}
 		return result;
 	}
+
+	private Object getComparableValue(final Object object) {
+		if (object instanceof Comparable<?>) {
+			return object;
+		}
+		else if (object instanceof Collection<?>) {
+			final Collection<?> collection = (Collection<?>) object;
+			if (collection.isEmpty()) {
+				return null;
+			}
+			else {
+				return collection.iterator().next();
+			}
+		}
+		else {
+			return object;
+		}
+	}
+
 }
