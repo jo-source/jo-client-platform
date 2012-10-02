@@ -30,6 +30,8 @@ package org.jowidgets.cap.addons.widgets.graph.impl.swing.common;
 
 import java.util.Iterator;
 
+import org.jowidgets.cap.addons.widgets.graph.impl.swing.common.BeanRelationGraphImpl.Expand;
+
 import prefuse.Visualization;
 import prefuse.action.GroupAction;
 import prefuse.data.Node;
@@ -54,11 +56,22 @@ class NodeVisibilityAction extends GroupAction {
 			final VisualItem visualItem = (VisualItem) result;
 			//			result.set("visible", result.get("filtered"));
 			if (result != null && result.getParent() != null) {
-				if (!(Boolean) result.getParent().get("expanded")) {
+				if (result.getParent().get("expanded") == Expand.NOT) {
+					//					final Iterator<?> neighbor = result.inNeighbors();
+					//					boolean visible = false;
+					//					while (neighbor.hasNext()) {
+					//						final Node next = (Node) neighbor.next();
+					//						if ((Boolean) next.get("isParent")
+					//							&& next != result.getParent()
+					//							&& (Boolean) next.get("visible")
+					//							&& (Boolean) next.get("expanded")) {
+					//							visible = true;
+					//						}
+					//					}
 					result.set("visible", false);
 				}
 			}
-			if (result.getChildCount() == 0) {
+			if (result.getChildCount() == 0 && result.getOutDegree() <= 1) {
 				result.set("isParent", false);
 			}
 			if ((Boolean) result.get("visible") != null) {
