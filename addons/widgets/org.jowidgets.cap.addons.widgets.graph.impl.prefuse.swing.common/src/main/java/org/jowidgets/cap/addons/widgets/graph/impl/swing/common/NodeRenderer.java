@@ -40,6 +40,7 @@ import java.awt.geom.RectangularShape;
 import java.net.URL;
 
 import org.jowidgets.api.toolkit.Toolkit;
+import org.jowidgets.cap.addons.widgets.graph.impl.swing.common.BeanRelationGraphImpl.Expand;
 import org.jowidgets.cap.ui.api.icons.CapIcons;
 import org.jowidgets.common.image.IImageConstant;
 import org.jowidgets.common.image.IImageHandle;
@@ -64,7 +65,7 @@ class NodeRenderer extends LabelRenderer {
 		expandedIcon = initializeIcons(CapIcons.NODE_CONTRACTED);
 		notExpandedIcon = initializeIcons(CapIcons.NODE_EXPANDED);
 
-		this.setHorizontalPadding(20);
+		this.setHorizontalPadding(35);
 		this.setVerticalPadding(2);
 		this.setRoundedCorner(8, 8);
 
@@ -290,11 +291,15 @@ class NodeRenderer extends LabelRenderer {
 		}
 
 		//render (+) or (-) if isParent and expanded
-		if ((Boolean) item.get("isParent") && !(Boolean) item.get("expanded")) {
-			renderImage(g, useInt, expandedIcon, size, shape.getX() + 1, shape.getY(), shape);
+		if ((Boolean) item.get("isParent") && item.get("expanded") == Expand.NOT) {
+			renderImage(g, useInt, expandedIcon, size, shape.getX(), shape.getY(), shape);
 		}
-		else if ((Boolean) item.get("isParent") && (Boolean) item.get("expanded")) {
-			renderImage(g, useInt, notExpandedIcon, size, shape.getX() + 1, shape.getY(), shape);
+		else if ((Boolean) item.get("isParent") && item.get("expanded") == Expand.FULL) {
+			renderImage(g, useInt, notExpandedIcon, size, shape.getX(), shape.getY(), shape);
+		}
+		else if ((Boolean) item.get("isParent") && item.get("expanded") == Expand.PARTIALLY) {
+			renderImage(g, useInt, notExpandedIcon, size, shape.getX(), shape.getY(), shape);
+			renderImage(g, useInt, expandedIcon, size, shape.getX() + 16, shape.getY(), shape);
 		}
 	}
 
