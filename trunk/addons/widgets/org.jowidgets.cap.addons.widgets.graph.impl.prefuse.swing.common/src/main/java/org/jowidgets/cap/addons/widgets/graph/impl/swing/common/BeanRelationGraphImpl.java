@@ -282,18 +282,6 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 
 				final double scale = display.getScale();
 
-				System.out.println("OUT = "
-					+ node.getOutDegree()
-					+ " : IN = "
-					+ node.getInDegree()
-					+ " : Children = "
-					+ node.getChildCount());
-
-				final Iterator<?> children = node.children();
-				while (children.hasNext()) {
-					System.out.println(children.next());
-				}
-
 				if ((Boolean) item.get("isParent")) {
 
 					if (item.get("expanded") == Expand.PARTIALLY) {
@@ -662,7 +650,6 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 				graph.clear();
 				onBeansChanged(root);
 				vis.run("color");
-				//				vis.run("filter");
 				vis.runAfter("filter", "expand");
 
 			}
