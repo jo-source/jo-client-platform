@@ -31,6 +31,8 @@ package org.jowidgets.cap.service.hibernate.impl;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -40,6 +42,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 
 import org.hibernate.Session;
+import org.hibernate.jdbc.Work;
 import org.jowidgets.cap.common.api.exception.ServiceCanceledException;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IExecutionCallbackListener;
@@ -205,7 +208,6 @@ final class CancelServicesDecoratorProviderImpl implements IServicesDecoratorPro
 
 		}
 
-		@SuppressWarnings("deprecation")
 		private void checkCanceled() {
 			final Session canceledSession = canceledSessionHolder.get();
 			if (canceledSession != null && canceledSession.isOpen()) {
@@ -216,7 +218,12 @@ final class CancelServicesDecoratorProviderImpl implements IServicesDecoratorPro
 					//another session.
 					//To avoid this, the connection will be rolled back. This only
 					//works if the release mode (hibernate.connection.release_mode) is set to 'on_close'
-					canceledSession.connection().rollback();
+					canceledSession.doWork(new Work() {
+						@Override
+						public void execute(final Connection connection) throws SQLException {
+							connection.rollback();
+						}
+					});
 				}
 				catch (final Exception e) {
 					//this exception can be ignored, because the service was already canceled
