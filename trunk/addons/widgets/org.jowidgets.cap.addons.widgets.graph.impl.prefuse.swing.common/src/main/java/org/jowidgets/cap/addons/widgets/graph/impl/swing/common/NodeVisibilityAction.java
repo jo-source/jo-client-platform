@@ -55,27 +55,30 @@ class NodeVisibilityAction extends GroupAction {
 			final Node result = (Node) node.next();
 			final VisualItem visualItem = (VisualItem) result;
 			//			result.set("visible", result.get("filtered"));
-			if (result != null && result.getParent() != null) {
-				if (result.getParent().get("expanded") == Expand.NOT) {
-					//					final Iterator<?> neighbor = result.inNeighbors();
-					//					boolean visible = false;
-					//					while (neighbor.hasNext()) {
-					//						final Node next = (Node) neighbor.next();
-					//						if ((Boolean) next.get("isParent")
-					//							&& next != result.getParent()
-					//							&& (Boolean) next.get("visible")
-					//							&& (Boolean) next.get("expanded")) {
-					//							visible = true;
-					//						}
-					//					}
-					result.set("visible", false);
+			if (result != null) {
+				if (result.getParent() != null) {
+
+					if (result.getParent().get("expanded") == Expand.NOT) {
+						//					final Iterator<?> neighbor = result.inNeighbors();
+						//					boolean visible = false;
+						//					while (neighbor.hasNext()) {
+						//						final Node next = (Node) neighbor.next();
+						//						if ((Boolean) next.get("isParent")
+						//							&& next != result.getParent()
+						//							&& (Boolean) next.get("visible")
+						//							&& (Boolean) next.get("expanded")) {
+						//							visible = true;
+						//						}
+						//					}
+						result.set("visible", false);
+					}
 				}
-			}
-			if (result.getChildCount() == 0 && result.getOutDegree() <= 1) {
-				result.set("isParent", false);
-			}
-			if ((Boolean) result.get("visible") != null) {
-				visualItem.setVisible((Boolean) result.get("visible"));
+				if (result.getChildCount() == 0 && result.getOutDegree() <= 1) {
+					result.set("isParent", false);
+				}
+				if ((Boolean) result.get("visible") != null) {
+					visualItem.setVisible((Boolean) result.get("visible"));
+				}
 			}
 		}
 	}
