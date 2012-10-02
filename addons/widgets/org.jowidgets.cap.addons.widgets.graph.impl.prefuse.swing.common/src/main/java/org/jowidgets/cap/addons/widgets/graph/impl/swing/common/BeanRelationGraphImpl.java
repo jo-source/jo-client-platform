@@ -282,32 +282,35 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 
 				final double scale = display.getScale();
 
+				System.out.println("OUT = "
+					+ node.getOutDegree()
+					+ " : IN = "
+					+ node.getInDegree()
+					+ " : Children = "
+					+ node.getChildCount());
+
+				final Iterator<?> children = node.children();
+				while (children.hasNext()) {
+					System.out.println(children.next());
+				}
+
 				if ((Boolean) item.get("isParent")) {
 
 					if (item.get("expanded") == Expand.PARTIALLY) {
-						if ((e.getX() > (item.getBounds().getX() * scale + (1 * scale) - display.getDisplayX()))
-							&& (e.getX()) < (item.getBounds().getX() * scale + (EXPAND_ICON_SIZE * scale) - display.getDisplayX())
-							&& (e.getY()) > item.getBounds().getY() * scale - display.getDisplayY()
-							&& (e.getY()) < item.getBounds().getY() * scale + (EXPAND_ICON_SIZE * scale) - display.getDisplayY()) {
+						if (checkExpandIconHit(false, item, e, scale)) {
 							item.set("expanded", Expand.FULL);
 							loadModel(node);
 							return;
 
 						}
-						else if ((e.getX() > (item.getBounds().getX() * scale + ((1 * scale) + EXPAND_ICON_SIZE) - display.getDisplayX()))
-							&& (e.getX()) < (item.getBounds().getX() * scale + ((EXPAND_ICON_SIZE * scale) + EXPAND_ICON_SIZE) - display.getDisplayX())
-							&& (e.getY()) > item.getBounds().getY() * scale - display.getDisplayY()
-							&& (e.getY()) < item.getBounds().getY() * scale + (EXPAND_ICON_SIZE * scale) - display.getDisplayY()) {
+						else if (checkExpandIconHit(true, item, e, scale)) {
 							item.set("expanded", Expand.NOT);
 							loadModel(node);
 							return;
 						}
 					}
 					else if (item.get("expanded") == Expand.FULL || item.get("expanded") == Expand.NOT) {
-						if ((e.getX() > (item.getBounds().getX() * scale + (1 * scale) - display.getDisplayX()))
-							&& (e.getX()) < (item.getBounds().getX() * scale + (EXPAND_ICON_SIZE * scale) - display.getDisplayX())
-							&& (e.getY()) > item.getBounds().getY() * scale - display.getDisplayY()
-							&& (e.getY()) < item.getBounds().getY() * scale + (EXPAND_ICON_SIZE * scale) - display.getDisplayY()) {
+						if (checkExpandIconHit(false, item, e, scale)) {
 							loadModel(node);
 							return;
 						}
@@ -358,6 +361,21 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 
 		relationTreeModel.getRoot().addBeanListModelListener(new RootModelListener());
 
+	}
+
+	private boolean checkExpandIconHit(
+		final boolean partiallyExpanded,
+		final VisualItem item,
+		final MouseEvent e,
+		final double scale) {
+		final double addition = (partiallyExpanded) ? EXPAND_ICON_SIZE : 0;
+		final boolean result = ((e.getX() > (item.getBounds().getX() * scale + ((1 * scale) + addition) - display.getDisplayX()))
+			&& (e.getX()) < (item.getBounds().getX() * scale + ((EXPAND_ICON_SIZE * scale) + addition) - display.getDisplayX())
+			&& (e.getY()) > item.getBounds().getY() * scale - display.getDisplayY() && (e.getY()) < item.getBounds().getY()
+			* scale
+			+ (EXPAND_ICON_SIZE * scale)
+			- display.getDisplayY());
+		return result;
 	}
 
 	private void loadModel(final Node node) {
@@ -602,7 +620,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		renderNode(childNode, bean, renderer);
 
 		if (parentNode != null) {
-			if ((parentNode.getChildCount() >= 1 || parentNode.getOutDegree() > 1)
+			if ((parentNode.getChildCount() >= 1 || parentNode.getOutDegree() > 1 || parentNode.getInDegree() > 1)
 				&& (parentNode.getChild(0) != (childNode.getParent()))) {
 				parentNode.set("isParent", true);
 			}
@@ -644,8 +662,8 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 				graph.clear();
 				onBeansChanged(root);
 				vis.run("color");
-				vis.run("filter");
-				vis.run("expand");
+				//				vis.run("filter");
+				vis.runAfter("filter", "expand");
 
 			}
 		}
@@ -972,7 +990,6 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 			vis.putAction("layout", layout);
 			vis.run("layout");
 			vis.run("color");
-
 		}
 	}
 
@@ -988,9 +1005,9 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 			layout.add(new RepaintAction(vis));
 
 			vis.putAction("layout", layout);
+			vis.run("layout");
+			vis.run("color");
 		}
-		vis.run("layout");
-		vis.run("color");
 	}
 
 	private void initRadialTreeLayout() {
@@ -1021,10 +1038,10 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 
 			vis.putAction("animate", animate);
 			vis.putAction("layout", layout);
+			vis.alwaysRunAfter("layout", "animate");
+			vis.run("layout");
+			vis.run("color");
 		}
-		vis.alwaysRunAfter("layout", "animate");
-		vis.run("layout");
-		vis.run("color");
 	}
 
 	private static void renderNodeWithLabel(final Node node, final ILabelModel label) {
@@ -1072,7 +1089,6 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 					decorator.setVisible(false);
 				}
 			}
-
 		}
 
 		private void setEdgesVisible(final boolean visible) {
@@ -1158,7 +1174,6 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 				}
 			}
 			return null;
-
 		}
 	}
 
