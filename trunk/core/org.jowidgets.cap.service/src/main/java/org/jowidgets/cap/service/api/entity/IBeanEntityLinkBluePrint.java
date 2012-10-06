@@ -91,6 +91,8 @@ public interface IBeanEntityLinkBluePrint {
 	 * If the link will be set to symmetric, the default deleter service will also try to delete
 	 * the reverse link, e.g. if 'a' should be unlinked with 'b', 'b' will also be unlinked from 'a'.
 	 * 
+	 * Remark: The symmetric property should only be used on self references.
+	 * 
 	 * @param symmetric If true the links is symmetric, false otherwise
 	 * 
 	 * @return This blue print
