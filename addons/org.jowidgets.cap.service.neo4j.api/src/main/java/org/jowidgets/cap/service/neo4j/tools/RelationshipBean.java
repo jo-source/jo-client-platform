@@ -60,6 +60,14 @@ public class RelationshipBean extends PropertyContainerBean implements IRelation
 	}
 
 	protected void setStartNodeId(final Object beanTypeId, final RelationshipType relationshipType, final Object id) {
+		setStartNodeId(beanTypeId, relationshipType, getClass(), id);
+	}
+
+	protected void setStartNodeId(
+		final Object beanTypeId,
+		final RelationshipType relationshipType,
+		final Object relationBeanTypeId,
+		final Object id) {
 		Assert.paramNotNull(beanTypeId, "beanTypeId");
 		Assert.paramNotNull(relationshipType, "relationshipType");
 		Assert.paramNotNull(id, "id");
@@ -70,7 +78,7 @@ public class RelationshipBean extends PropertyContainerBean implements IRelation
 		}
 		final Node endNode = getEndNode();
 		if (endNode != null) {
-			createRelationship(getClass(), relationshipType, startNode, endNode);
+			createRelationship(relationBeanTypeId, relationshipType, startNode, endNode);
 			tempStartNode = null;
 			tempEndNode = null;
 		}
@@ -80,6 +88,14 @@ public class RelationshipBean extends PropertyContainerBean implements IRelation
 	}
 
 	protected void setEndNodeId(final Object beanTypeId, final RelationshipType relationshipType, final Object id) {
+		setEndNodeId(beanTypeId, relationshipType, getClass(), id);
+	}
+
+	protected void setEndNodeId(
+		final Object beanTypeId,
+		final RelationshipType relationshipType,
+		final Object relationBeanTypeId,
+		final Object id) {
 		Assert.paramNotNull(beanTypeId, "beanTypeId");
 		Assert.paramNotNull(relationshipType, "relationshipType");
 		Assert.paramNotNull(id, "id");
@@ -90,7 +106,7 @@ public class RelationshipBean extends PropertyContainerBean implements IRelation
 		}
 		final Node startNode = getStartNode();
 		if (startNode != null) {
-			createRelationship(getClass(), relationshipType, startNode, endNode);
+			createRelationship(relationBeanTypeId, relationshipType, startNode, endNode);
 			tempStartNode = null;
 			tempEndNode = null;
 		}
