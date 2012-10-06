@@ -37,6 +37,7 @@ import org.jowidgets.cap.service.api.bean.IBeanInitializer;
 import org.jowidgets.cap.service.api.bean.IBeanModifier;
 import org.jowidgets.cap.service.api.plugin.IBeanDtoConversionProviderPlugin;
 import org.jowidgets.cap.service.neo4j.api.INodeBean;
+import org.jowidgets.cap.service.neo4j.api.IRelationshipBean;
 
 final class BeanDtoToNodeConversionProviderPlugin implements IBeanDtoConversionProviderPlugin {
 
@@ -46,7 +47,7 @@ final class BeanDtoToNodeConversionProviderPlugin implements IBeanDtoConversionP
 		final Class<? extends BEAN_TYPE> beanType,
 		final Collection<String> propertyNames,
 		final IBeanDtoFactory<BEAN_TYPE> original) {
-		if (INodeBean.class.isAssignableFrom(beanType)) {
+		if (INodeBean.class.isAssignableFrom(beanType) || IRelationshipBean.class.isAssignableFrom(beanType)) {
 			return (IBeanDtoFactory<BEAN_TYPE>) CapServiceToolkit.beanPropertyMapDtoFactory(propertyNames);
 		}
 		else {
@@ -60,7 +61,7 @@ final class BeanDtoToNodeConversionProviderPlugin implements IBeanDtoConversionP
 		final Class<? extends BEAN_TYPE> beanType,
 		final Collection<String> propertyNames,
 		final IBeanInitializer<BEAN_TYPE> original) {
-		if (INodeBean.class.isAssignableFrom(beanType)) {
+		if (INodeBean.class.isAssignableFrom(beanType) || IRelationshipBean.class.isAssignableFrom(beanType)) {
 			return (IBeanInitializer<BEAN_TYPE>) CapServiceToolkit.beanPropertyMapInitializer(propertyNames);
 		}
 		else {
@@ -74,7 +75,7 @@ final class BeanDtoToNodeConversionProviderPlugin implements IBeanDtoConversionP
 		final Class<? extends BEAN_TYPE> beanType,
 		final Collection<String> propertyNames,
 		final IBeanModifier<BEAN_TYPE> original) {
-		if (INodeBean.class.isAssignableFrom(beanType)) {
+		if (INodeBean.class.isAssignableFrom(beanType) || IRelationshipBean.class.isAssignableFrom(beanType)) {
 			return (IBeanModifier<BEAN_TYPE>) CapServiceToolkit.beanPropertyMapModifier();
 		}
 		else {
