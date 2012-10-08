@@ -34,6 +34,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.bean.Cardinality;
 import org.jowidgets.cap.common.api.bean.IProperty;
 import org.jowidgets.cap.common.api.bean.IPropertyBuilder;
@@ -110,6 +111,11 @@ final class PropertyBuilder implements IPropertyBuilder {
 	@Override
 	public IPropertyBuilder setValueRange(final Object... values) {
 		return setValueRange(Arrays.asList(values));
+	}
+
+	@Override
+	public IPropertyBuilder setLookUpValueRange(final Object lookUpId) {
+		return setValueRange(CapCommonToolkit.lookUpToolkit().lookUpValueRange(lookUpId));
 	}
 
 	@Override
