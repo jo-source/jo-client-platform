@@ -86,6 +86,8 @@ public interface IPropertyBuilder {
 
 	IPropertyBuilder setValueRange(Object... values);
 
+	IPropertyBuilder setLookUpValueRange(Object lookUpId);
+
 	IPropertyBuilder setDefaultValue(Object value);
 
 	IPropertyBuilder setSortable(boolean sortable);
