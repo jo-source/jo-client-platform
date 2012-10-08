@@ -47,7 +47,6 @@ class EntityRelationGraphView extends AbstractView {
 		final IContainer container = context.getContainer();
 		container.setLayout(MigLayoutFactory.growingInnerCellLayout());
 		final IBeanRelationGraphBluePrint<?> beanRelationGraphBp = GraphBPF.beanRelationGraph(parentModel);
-		beanRelationGraphBp.setAutoExpandLevel(1);
 		container.add(beanRelationGraphBp, MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
 	}
 
