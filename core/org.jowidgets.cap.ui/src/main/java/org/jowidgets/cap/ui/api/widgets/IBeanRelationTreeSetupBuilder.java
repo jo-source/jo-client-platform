@@ -33,6 +33,7 @@ import org.jowidgets.api.widgets.descriptor.setup.IComponentSetup;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationNodeModel;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeMenuInterceptor;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeModel;
+import org.jowidgets.cap.ui.api.types.RelationRenderingPolicy;
 import org.jowidgets.common.image.IImageConstant;
 import org.jowidgets.common.types.SelectionPolicy;
 import org.jowidgets.common.widgets.descriptor.setup.mandatory.Mandatory;
@@ -65,6 +66,8 @@ public interface IBeanRelationTreeSetupBuilder<CHILD_BEAN_TYPE> extends
 
 	IBeanRelationTreeSetupBuilder<CHILD_BEAN_TYPE> setRenderRootRelation(boolean renderRootRelation);
 
+	IBeanRelationTreeSetupBuilder<CHILD_BEAN_TYPE> setRelationRenderingPolicy(RelationRenderingPolicy policy);
+
 	@Mandatory
 	IBeanRelationTreeModel<CHILD_BEAN_TYPE> getModel();
 
@@ -93,5 +96,7 @@ public interface IBeanRelationTreeSetupBuilder<CHILD_BEAN_TYPE> extends
 	IFilter<IBeanRelationNodeModel<Object, Object>> getChildRelationFilter();
 
 	IBeanRelationTreeMenuInterceptor getMenuInterceptor();
+
+	RelationRenderingPolicy getRelationRenderingPolicy();
 
 }

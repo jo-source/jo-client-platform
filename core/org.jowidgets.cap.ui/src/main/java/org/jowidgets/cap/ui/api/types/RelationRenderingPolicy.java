@@ -26,22 +26,20 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.impl.widgets;
+package org.jowidgets.cap.ui.api.types;
 
-import org.jowidgets.api.widgets.blueprint.defaults.IDefaultInitializer;
-import org.jowidgets.cap.ui.api.types.RelationRenderingPolicy;
-import org.jowidgets.cap.ui.api.widgets.IBeanRelationTreeBluePrint;
-import org.jowidgets.common.types.SelectionPolicy;
+public enum RelationRenderingPolicy {
 
-final class BeanRelationTreeDefaults implements IDefaultInitializer<IBeanRelationTreeBluePrint<?>> {
-	@Override
-	public void initialize(final IBeanRelationTreeBluePrint<?> bluePrint) {
-		bluePrint.setSelectionPolicy(SelectionPolicy.SINGLE_SELECTION);
-		bluePrint.setRenderRootRelation(false);
-		bluePrint.setContentScrolled(true);
-		bluePrint.setRelationRenderingPolicy(RelationRenderingPolicy.RENDER_ALL_RELATIONS);
-		bluePrint.setAutoSelection(true);
-		bluePrint.setAutoExpandLevel(0);
-		bluePrint.setExpansionCacheEnabled(true);
-	}
+	/** All relations will be rendered in the same manner **/
+	RENDER_ALL_RELATIONS,
+
+	/** Empty relations will be grayed */
+	GREY_EMPTY_RELATIONS,
+
+	//	/** Empty relations will be hidden */ not supported yet
+	//	HIDE_EMPTY_RELATIONS,
+
+	//	/** No relation will be rendered */ not supported yet
+	//	HIDE_ALL_RELATIONS
+
 }

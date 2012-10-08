@@ -72,6 +72,7 @@ import org.jowidgets.cap.ui.api.tree.IBeanRelationNodeModel;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeMenuInterceptor;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeModel;
 import org.jowidgets.cap.ui.api.types.IEntityTypeId;
+import org.jowidgets.cap.ui.api.types.RelationRenderingPolicy;
 import org.jowidgets.cap.ui.api.widgets.IBeanRelationTree;
 import org.jowidgets.cap.ui.api.widgets.IBeanRelationTreeBluePrint;
 import org.jowidgets.cap.ui.tools.bean.SingleBeanSelectionProvider;
@@ -109,6 +110,7 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 	private final Map<ITreeNode, Tuple<IBeanRelationNodeModel<Object, Object>, IBeanProxy<Object>>> nodesMap;
 	private final LinkedHashSet<ExpandedNodeKey> expandedNodesCache;
 	private final boolean expansionCacheEnabled;
+	private final RelationRenderingPolicy relationRenderingPolicy;
 
 	BeanRelationTreeImpl(final ITree tree, IBeanRelationTreeBluePrint<CHILD_BEAN_TYPE> bluePrint) {
 		super(tree);
@@ -122,6 +124,7 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 		this.childRelationFilter = bluePrint.getChildRelationFilter();
 		this.expansionCacheEnabled = bluePrint.getExpansionCacheEnabled();
 		this.menuInterceptor = bluePrint.getMenuInterceptor();
+		this.relationRenderingPolicy = bluePrint.getRelationRenderingPolicy();
 		this.nodesMap = new HashMap<ITreeNode, Tuple<IBeanRelationNodeModel<Object, Object>, IBeanProxy<Object>>>();
 		this.expandedNodesCache = new LinkedHashSet<ExpandedNodeKey>();
 
@@ -170,6 +173,22 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 		final ITreeContainer treeContainer,
 		final IBeanRelationNodeModel<Object, Object> relationNodeModel,
 		final IMenuModel nodeMenu) {
+
+		if (RelationRenderingPolicy.GREY_EMPTY_RELATIONS == relationRenderingPolicy) {
+			final ITreeContainer parentContainer = treeContainer.getParentContainer();
+			if (parentContainer != null && treeContainer instanceof ITreeNode) {
+				final Tuple<IBeanRelationNodeModel<Object, Object>, IBeanProxy<Object>> tuple = nodesMap.get(treeContainer);
+				if (tuple != null && tuple.getSecond() == null) {
+					if (relationNodeModel.getSize() == 0) {
+						((ITreeNode) treeContainer).setForegroundColor(Colors.DISABLED);
+					}
+					else {
+						((ITreeNode) treeContainer).setForegroundColor(null);
+					}
+				}
+			}
+		}
+
 		final int oldSize = treeContainer.getChildren().size();
 
 		final int headMatching = getHeadMatchingLength(treeContainer, relationNodeModel);
