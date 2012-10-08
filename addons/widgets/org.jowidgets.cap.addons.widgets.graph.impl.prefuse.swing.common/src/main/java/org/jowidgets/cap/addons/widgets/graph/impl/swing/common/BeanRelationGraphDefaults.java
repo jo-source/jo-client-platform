@@ -36,7 +36,7 @@ public final class BeanRelationGraphDefaults implements IDefaultInitializer<IBea
 	@Override
 	public void initialize(final IBeanRelationGraphSetupBuilder<?, ?> setup) {
 		setup.setBorder(false);
-		setup.setAutoExpandLevel(1);
+		setup.setAutoExpandLevel(0);
 		setup.setAutoSelection(false);
 	}
 }
