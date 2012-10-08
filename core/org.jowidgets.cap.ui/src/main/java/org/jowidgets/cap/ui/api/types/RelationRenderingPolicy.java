@@ -39,7 +39,7 @@ public enum RelationRenderingPolicy {
 	//	/** Empty relations will be hidden */ not supported yet
 	//	HIDE_EMPTY_RELATIONS,
 
-	//	/** No relation will be rendered */ not supported yet
-	//	HIDE_ALL_RELATIONS
+	//	/** No relation will be rendered, the elements will be rendered directly under is parent bean */ not supported yet
+	//	DO_NOT_RENDER_RELATIONS
 
 }
