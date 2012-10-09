@@ -42,6 +42,8 @@ public interface ILookUpToolkit {
 
 	ILookUpEntry lookUpEntry(Object key, Object value, String description);
 
+	ILookUpEntry lookUpEntry(Object key, Object value, String description, boolean valid);
+
 	ILookUpEntry lookUpEntry(Object key, Object value);
 
 	ILookUpValueRangeBuilder lookUpValueRangeBuilder();

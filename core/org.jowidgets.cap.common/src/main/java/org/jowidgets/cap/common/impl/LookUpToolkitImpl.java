@@ -73,6 +73,11 @@ final class LookUpToolkitImpl implements ILookUpToolkit {
 	}
 
 	@Override
+	public ILookUpEntry lookUpEntry(final Object key, final Object value, final String description, final boolean valid) {
+		return lookUpEntryBuilder().setKey(key).setValue(value).setDescription(description).setValid(valid).build();
+	}
+
+	@Override
 	public ILookUpEntry lookUpEntry(final Object key, final Object value) {
 		return lookUpEntryBuilder().setKey(key).setValue(value).build();
 	}
