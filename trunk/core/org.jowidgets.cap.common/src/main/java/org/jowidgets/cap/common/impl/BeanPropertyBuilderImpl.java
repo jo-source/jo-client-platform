@@ -37,6 +37,8 @@ import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Collection;
 
+import javax.validation.constraints.NotNull;
+
 import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.bean.Cardinality;
 import org.jowidgets.cap.common.api.bean.IBeanPropertyBuilder;
@@ -113,6 +115,14 @@ final class BeanPropertyBuilderImpl implements IBeanPropertyBuilder {
 			if (propertyDescriptor.getName().equals(propertyName)) {
 				final Class<?> propertyType = propertyDescriptor.getPropertyType();
 				propertyBuilder.setValueType(propertyType);
+				if (propertyDescriptor.getReadMethod() != null
+					&& propertyDescriptor.getReadMethod().isAnnotationPresent(NotNull.class)) {
+					propertyBuilder.setMandatory(true);
+				}
+				if (propertyDescriptor.getWriteMethod() != null
+					&& propertyDescriptor.getWriteMethod().isAnnotationPresent(NotNull.class)) {
+					propertyBuilder.setMandatory(true);
+				}
 				if (boolean.class.isAssignableFrom(propertyType)) {
 					propertyBuilder.setDefaultValue(false);
 				}
