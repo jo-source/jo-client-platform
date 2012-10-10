@@ -142,7 +142,7 @@ class NodeRenderer extends LabelRenderer {
 		g.fill(shape);
 		if ((Boolean) item.get("marked")) {
 			g.setStroke(new BasicStroke(2));
-			g.setPaint(Color.black);
+			g.setPaint(Color.DARK_GRAY);
 			g.draw(shape);
 		}
 

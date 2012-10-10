@@ -165,6 +165,7 @@ final class GraphSettingsDialog extends JoFrame {
 			content.add(BPF.label().setText("%"), "wrap");
 			inputField.setValue((int) (slider.getValue()));
 			displayPercent = true;
+			useForce(displayPercent, param, force, min, slider, step);
 		}
 		else {
 			sliderBp.setMaximum((int) max).setMinimum((int) min).setTickSpacing((int) (max - min) / 20);
@@ -175,6 +176,7 @@ final class GraphSettingsDialog extends JoFrame {
 			inputField = content.add(BPF.inputFieldIntegerNumber(), "growx, w 0::, wrap");
 			inputField.setValue((int) value);
 			displayPercent = false;
+			useForce(displayPercent, param, force, min, slider, step);
 		}
 		DEFAULT_SLIDER_SETTINGS.put(slider, defaultValue);
 
@@ -238,12 +240,8 @@ final class GraphSettingsDialog extends JoFrame {
 			if (type == Listener.SLIDER) {
 
 				inputField.setValue((int) slider.getValue());
-				if (percent) {
-					force.setParameter(param, (float) (min + slider.getValue() * step));
-				}
-				else {
-					force.setParameter(param, slider.getValue());
-				}
+				useForce(percent, param, force, min, slider, step);
+
 			}
 
 			if (type == Listener.INPUTFIELD) {
@@ -257,6 +255,21 @@ final class GraphSettingsDialog extends JoFrame {
 				}
 			}
 
+		}
+	}
+
+	private void useForce(
+		final boolean percent,
+		final int param,
+		final Force force,
+		final double min,
+		final ISlider slider,
+		final double step) {
+		if (percent) {
+			force.setParameter(param, (float) (min + slider.getValue() * step));
+		}
+		else {
+			force.setParameter(param, slider.getValue());
 		}
 	}
 
