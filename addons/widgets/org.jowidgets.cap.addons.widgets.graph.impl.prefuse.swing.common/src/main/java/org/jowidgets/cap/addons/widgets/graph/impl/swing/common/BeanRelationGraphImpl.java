@@ -595,7 +595,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		if (entityGroupMap.get(beanRelationNodeModel.getChildBeanType()) == null) {
 			entityGroupMap.put(beanRelationNodeModel.getChildBeanType(), GRAPH_NODES_GROUP + groupCount);
 			groupNames.put(GRAPH_NODES_GROUP + groupCount, beanRelationNodeModel.getText());
-			groupCount = (groupCount < NODE_COLORS.length) ? ++groupCount : 0;
+			groupCount = (groupCount < NODE_COLORS.length - 1) ? ++groupCount : 0;
 		}
 
 		final String nodeGroup = entityGroupMap.get(beanRelationNodeModel.getChildBeanType());
