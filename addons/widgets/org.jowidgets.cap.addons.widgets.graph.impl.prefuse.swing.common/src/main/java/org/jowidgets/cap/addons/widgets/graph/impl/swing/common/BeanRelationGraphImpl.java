@@ -167,6 +167,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 	private final HashMap<IBeanProxy<Object>, IBeanRelationNodeModel<Object, Object>> beanRelationMap;
 	private final HashMap<String, String> groupNames;
 	private final List<Node> expandedNodesCache;
+	private final Map<IBeanRelationNodeModel<Object, Object>, Boolean> expandMapResult;
 
 	private final Visualization vis;
 	private final Graph graph;
@@ -177,6 +178,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 
 	private ForceSimulator forceSimulator;
 
+	private ICheckedItemModel animationChecker;
 	private IFrame dialog;
 	//	private GroupFilterDialog groupFilterDialog;
 
@@ -186,6 +188,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 	private final EdgeVisibilityAction edgeFilter;
 	private final NodeVisibilityAction nodeFilter;
 	private final IUiThreadAccess uiThreadAccess;
+	private InputControlItemModel<Integer> maxNodeTextField;
 
 	BeanRelationGraphImpl(
 		final IComposite composite,
@@ -200,9 +203,11 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		entityGroupMap = new HashMap<Class<Object>, String>();
 		beanRelationMap = new HashMap<IBeanProxy<Object>, IBeanRelationNodeModel<Object, Object>>();
 		groupNames = new HashMap<String, String>();
-		this.expandedNodesCache = new LinkedList<Node>();
+		expandedNodesCache = new LinkedList<Node>();
+		expandMapResult = new HashMap<IBeanRelationNodeModel<Object, Object>, Boolean>();
 
 		autoExpandLevel = setup.getAutoExpandLevel();
+		animationChecker = null;
 
 		graph = new Graph();
 		graph.addColumn("name", String.class);
@@ -228,6 +233,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		final ActionList filter = new ActionList();
 		edgeFilter = new EdgeVisibilityAction(vis);
 		nodeFilter = new NodeVisibilityAction(vis);
+
 		filter.add(nodeFilter);
 		filter.add(edgeFilter);
 
@@ -351,6 +357,39 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 
 	}
 
+	private Set<Node> getOutlinedNodes(final Node node) {
+
+		//		final Iterator<?> inNode = node.inNeighbors();
+		final Iterator<?> outNode = node.outNeighbors();
+		final Iterator<?> children = node.children();
+		final Set<Node> outs = new LinkedHashSet<Node>();
+		Set<Node> kids = new LinkedHashSet<Node>();
+		//		Set<Node> ins = new LinkedHashSet<Node>();
+
+		while (outNode.hasNext()) {
+			final Node out = (Node) outNode.next();
+			outs.add(out);
+		}
+		while (children.hasNext()) {
+			final Node child = (Node) children.next();
+			kids.add(child);
+		}
+		//		while (inNode.hasNext()) {
+		//			final Node in = (Node) inNode.next();
+		//			if (in != node.getParent()) {
+		//				ins.add(in);
+		//			}
+		//		}
+		outs.addAll(kids);
+		//		outs.addAll(ins);
+		kids.clear();
+		//		ins.clear();
+		//		ins = null;
+		kids = null;
+
+		return outs;
+	}
+
 	private boolean checkExpandIconHit(
 		final boolean partiallyExpanded,
 		final VisualItem item,
@@ -376,7 +415,9 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 							entry.getKey(),
 							entityType);
 					childRelationModel.loadIfNotYetDone();
-					loadChildren(childRelationModel);
+					if (graph.getNodeCount() <= maxNodeCount) {
+						loadChildren(childRelationModel);
+					}
 				}
 				beanRelationNodeModel.loadIfNotYetDone();
 				break;
@@ -399,7 +440,9 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 						beanRelationNodeModel.getChildEntityTypeId(),
 						beanRelationNodeModel.getBean(i),
 						entityType);
-				childRelationModel.loadIfNotYetDone();
+				if (!childRelationModel.loadIfNotYetDone()) {
+					onBeansChanged(childRelationModel);
+				}
 				childList.add(childRelationModel);
 			}
 		}
@@ -408,29 +451,11 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 
 	private void contractExpandNode(final Node node) {
 
-		final Iterator<?> outNode = node.outNeighbors();
-		final Iterator<?> children = node.children();
-
-		Set<Node> outs = new LinkedHashSet<Node>();
-		Set<Node> kids = new LinkedHashSet<Node>();
-
-		while (outNode.hasNext()) {
-			final Node out = (Node) outNode.next();
-			outs.add(out);
-		}
-
-		while (children.hasNext()) {
-			final Node child = (Node) children.next();
-			kids.add(child);
-		}
-
-		outs.addAll(kids);
-		kids.clear();
-		kids = null;
+		Set<Node> nodes = getOutlinedNodes(node);
 
 		if (node.get("expanded") == Expand.FULL) {
 
-			final Iterator<?> result = outs.iterator();
+			final Iterator<?> result = nodes.iterator();
 			while (result.hasNext()) {
 				final Node out = (Node) result.next();
 
@@ -447,7 +472,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		}
 
 		else if (node.get("expanded") == Expand.NOT) {
-			final Iterator<?> result = outs.iterator();
+			final Iterator<?> result = nodes.iterator();
 			while (result.hasNext()) {
 				final Node out = (Node) result.next();
 				if (out != node.getParent()) {
@@ -459,8 +484,8 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 			node.set("expanded", Expand.FULL);
 		}
 
-		outs.clear();
-		outs = null;
+		nodes.clear();
+		nodes = null;
 
 		vis.run("color");
 		vis.run("filter");
@@ -608,8 +633,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		renderNode(childNode, bean, renderer);
 
 		if (parentNode != null) {
-			if ((parentNode.getChildCount() >= 1 || parentNode.getOutDegree() > 1 || parentNode.getInDegree() > 1)
-				&& (parentNode.getChild(0) != (childNode.getParent()))) {
+			if (getOutlinedNodes(parentNode).size() >= 1) {
 				parentNode.set("isParent", true);
 			}
 			else {
@@ -625,6 +649,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 			final ChildModelListener childModelListener = new ChildModelListener(childRelationNodeModel);
 			childRelationNodeModel.addBeanListModelListener(childModelListener);
 		}
+
 	}
 
 	private void renderNodeShape(final String nodeGroup, final Node childNode) {
@@ -651,7 +676,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 				onBeansChanged(root);
 				vis.run("color");
 				vis.runAfter("filter", "expand");
-
+				vis.runAfter("filter", "expand");
 			}
 		}
 	}
@@ -666,6 +691,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 
 		@Override
 		public void beansChanged() {
+
 			synchronized (vis) {
 				onBeansChanged(relationNodeModel);
 				vis.run("layout");
@@ -677,6 +703,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 
 	private class ExpandLevelNodeListener extends BeanListModelListenerAdapter<Object> {
 		private final IBeanRelationNodeModel<Object, Object> relationNodeModel;
+		@SuppressWarnings("unused")
 		private final int level;
 
 		public ExpandLevelNodeListener(final IBeanRelationNodeModel<Object, Object> relationNodeModel, final int level) {
@@ -686,49 +713,74 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 
 		@Override
 		public void beansChanged() {
-			onBeansChanged(relationNodeModel);
-			if (level >= 0) {
-				if (!getUiThreadAccess().isUiThread()) {
-					getUiThreadAccess().invokeLater(new Runnable() {
-						@Override
-						public void run() {
-							addExpandLevelNodeListenerToChildren(relationNodeModel, level, 1);
-						}
-					});
-				}
-				else {
-					addExpandLevelNodeListenerToChildren(relationNodeModel, level, 1);
-				}
 
-				for (final Entry<IBeanProxy<Object>, IBeanRelationNodeModel<Object, Object>> entry : beanRelationMap.entrySet()) {
-					if (entry.getValue() == relationNodeModel) {
-						final Node result = nodeMap.get(entry.getKey());
-						if (result != null
-							&& (Integer) result.get("level") != null
-							&& (Integer) result.get("level") < autoExpandLevel) {
-							result.set("expanded", Expand.FULL);
+			if (!getUiThreadAccess().isUiThread()) {
+				getUiThreadAccess().invokeLater(new Runnable() {
+					@Override
+					public void run() {
+						//						addExpandLevelNodeListenerToChildren(relationNodeModel, level, 1);
+						for (final Entry<IBeanRelationNodeModel<Object, Object>, Boolean> entry : expandMapResult.entrySet()) {
+							if (entry.getKey().equals(relationNodeModel)) {
+								entry.setValue(true);
+								break;
+							}
 						}
-						else {
-							result.set("expanded", Expand.NOT);
-						}
+					}
+				});
+			}
+			else {
+				//				addExpandLevelNodeListenerToChildren(relationNodeModel, level, 1);
+				for (final Entry<IBeanRelationNodeModel<Object, Object>, Boolean> entry : expandMapResult.entrySet()) {
+					if (entry.getKey().equals(relationNodeModel)) {
+						entry.setValue(true);
+						break;
 					}
 				}
 			}
+
+			//
+			//			for (final Entry<IBeanProxy<Object>, IBeanRelationNodeModel<Object, Object>> entry : beanRelationMap.entrySet()) {
+			//				if (entry.getValue() == relationNodeModel) {
+			//					final Node result = nodeMap.get(entry.getKey());
+			//					if (result != null
+			//						&& (Integer) result.get("level") != null
+			//						&& (Integer) result.get("level") < autoExpandLevel) {
+			//						result.set("expanded", Expand.FULL);
+			//					}
+			//					else {
+			//						result.set("expanded", Expand.NOT);
+			//					}
+			//				}
+			//			}
 		}
+
 	}
 
 	private void addExpandLevelNodeListenerToChildren(
 		final IBeanRelationNodeModel<Object, Object> beanRelationNodeModel,
-		final int parentValue,
-		final int diff) {
-		final List<IBeanRelationNodeModel<Object, Object>> childList = loadChildren(beanRelationNodeModel);
-		final Iterator<IBeanRelationNodeModel<Object, Object>> iterator = childList.iterator();
-		final int decreaseLevel = parentValue - diff;
-		if (decreaseLevel > 0) {
-			while (iterator.hasNext()) {
-				final IBeanRelationNodeModel<Object, Object> childRelation = iterator.next();
-				final ExpandLevelNodeListener expandListener = new ExpandLevelNodeListener(childRelation, decreaseLevel);
-				childRelation.addBeanListModelListener(expandListener);
+		final int parentValue) {
+
+		final int decreaseLevel = parentValue;
+		if (decreaseLevel >= 0) {
+			for (final IEntityTypeId<Object> entityType : beanRelationNodeModel.getChildRelations()) {
+				final int childRelations = beanRelationNodeModel.getSize();
+				for (int i = 0; i < childRelations; i++) {
+					final IBeanRelationNodeModel<Object, Object> childRelationModel = relationTreeModel.getNode(
+							beanRelationNodeModel.getChildEntityTypeId(),
+							beanRelationNodeModel.getBean(i),
+							entityType);
+					if (!expandMapResult.containsKey(childRelationModel)
+						&& !childRelationModel.equals(relationTreeModel.getRoot())) {
+						final ExpandLevelNodeListener expandListener = new ExpandLevelNodeListener(
+							childRelationModel,
+							decreaseLevel);
+						childRelationModel.addBeanListModelListener(expandListener);
+						expandMapResult.put(childRelationModel, false);
+						if (!childRelationModel.loadIfNotYetDone()) {
+							onBeansChanged(childRelationModel);
+						}
+					}
+				}
 			}
 		}
 	}
@@ -781,9 +833,9 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 	}
 
 	private ForceSimulator setForces() {
-		final SpringForce springForce = new SpringForce(1E-4f, 120);
+		final SpringForce springForce = new SpringForce(1E-4f, 250);
 		final NBodyForce nBodyForce = new NBodyForce(-10, 320, 0);
-		final DragForce dragForce = new DragForce(0.1f);
+		final DragForce dragForce = new DragForce(0.03f);
 
 		forceSimulator = new ForceSimulator();
 		forceSimulator.addForce(dragForce);
@@ -800,18 +852,18 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		model.addTextLabel(Messages.getString("BeanRelationGraphImpl.max.nodecount") + " ");
 
 		final IInputFieldBluePrint<Integer> textFieldBP = BPF.inputFieldIntegerNumber().setMaxLength(3).setValue(maxNodeCount);
-		final InputControlItemModel<Integer> textField = new InputControlItemModel<Integer>(textFieldBP, 30);
-		textField.addInputListener(new IInputListener() {
+		maxNodeTextField = new InputControlItemModel<Integer>(textFieldBP, 30);
+		maxNodeTextField.addInputListener(new IInputListener() {
 
 			@Override
 			public void inputChanged() {
-				if (textField.getValue() != null) {
-					maxNodeCount = textField.getValue();
+				if (maxNodeTextField.getValue() != null) {
+					maxNodeCount = maxNodeTextField.getValue();
 					relationTreeModel.load();
 				}
 			}
 		});
-		model.addItem(textField);
+		model.addItem(maxNodeTextField);
 		model.addSeparator();
 
 		model.addTextLabel("Expand Level" + " ");
@@ -864,38 +916,32 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 
 			@Override
 			public void inputChanged() {
+
 				final GraphLayout value = comboBox.getValue();
 				if (GraphLayout.FORCE_DIRECTED_LAYOUT == value) {
 					settingsDialogAction.setEnabled(true);
 					initForceDLayout();
 				}
 				else if (GraphLayout.NODE_TREE_LINK_LAYOUT == value) {
+					if (animationChecker != null) {
+						animationChecker.setSelected(false);
+					}
 					settingsDialogAction.setEnabled(false);
 					initNodeLinkLayout();
+					//					comboBox.setValue(GraphLayout.FORCE_DIRECTED_LAYOUT);
 				}
 				else if (GraphLayout.RADIAL_TREE_LAYOUT == value) {
+					if (animationChecker != null) {
+						animationChecker.setSelected(false);
+					}
 					settingsDialogAction.setEnabled(false);
 					initRadialTreeLayout();
+					//					comboBox.setValue(GraphLayout.FORCE_DIRECTED_LAYOUT);
 				}
 			}
 		});
 		comboBox.setValue(GraphLayout.FORCE_DIRECTED_LAYOUT);
 		model.addItem(comboBox);
-
-		//		GroupFilterCheckBox
-		//		final IActionBuilder groupFilterActionBuilder = actionBF.create();
-		//		groupFilterActionBuilder.setIcon(IconsSmall.SETTINGS);
-		//		groupFilterActionBuilder.setCommand(new ICommandExecutor() {
-		//			@Override
-		//			public void execute(final IExecutionContext executionContext) throws Exception {
-		//				if (groupFilterDialog == null) {
-		//					groupFilterDialog = new GroupFilterDialog(vis, groupNames);
-		//				}
-		//				groupFilterDialog.setVisible(true);
-		//				groupFilterDialog = null;
-		//			}
-		//		});
-		//		final ICommandAction groupFilterAction = groupFilterActionBuilder.build();
 
 		//AnimationCheckedItem
 		final ICheckedItemModel checkItemModel = model.addCheckedItem(
@@ -920,6 +966,22 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 				}
 			}
 		});
+		animationChecker = checkItemModel;
+
+		//GroupFilterCheckBox
+		//		final IActionBuilder groupFilterActionBuilder = actionBF.create();
+		//		groupFilterActionBuilder.setIcon(IconsSmall.SETTINGS);
+		//		groupFilterActionBuilder.setCommand(new ICommandExecutor() {
+		//			@Override
+		//			public void execute(final IExecutionContext executionContext) throws Exception {
+		//				if (groupFilterDialog == null) {
+		//					groupFilterDialog = new GroupFilterDialog(vis, groupNames);
+		//				}
+		//				groupFilterDialog.setVisible(true);
+		//				groupFilterDialog = null;
+		//			}
+		//		});
+		//		final ICommandAction groupFilterAction = groupFilterActionBuilder.build();
 
 		model.addSeparator();
 
@@ -972,7 +1034,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 			final ActionList layout = new ActionList(Activity.INFINITY);
 			layout.add(forceDirectedLayout);
 			layout.add(labelEdgeLayout);
-			layout.add(new RepaintAction());
+			layout.add(new RepaintAction(vis));
 
 			vis.putAction("layout", layout);
 			vis.run("layout");
@@ -981,20 +1043,20 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 	}
 
 	private void initNodeLinkLayout() {
-		vis.removeAction("layout");
 		synchronized (vis) {
+			vis.removeAction("layout");
 			final ActionList layout = new ActionList(Activity.INFINITY);
-			final NodeLinkTreeLayout nodeLinkTreeLayout = new NodeLinkTreeLayout(GRAPH, Constants.ORIENT_LEFT_RIGHT, 50, 5, 10);
+			final NodeLinkTreeLayout nodeLinkTreeLayout = new NodeLinkTreeLayout(GRAPH);//, Constants.ORIENT_LEFT_RIGHT, 50, 5, 10);
 			nodeLinkTreeLayout.setRootNodeOffset(10);
 			layout.add(nodeLinkTreeLayout);
 			layout.add(labelEdgeLayout);
-
 			layout.add(new RepaintAction(vis));
-
 			vis.putAction("layout", layout);
+
 			vis.run("layout");
 			vis.run("color");
 		}
+
 	}
 
 	private void initRadialTreeLayout() {
@@ -1029,6 +1091,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 			vis.run("layout");
 			vis.run("color");
 		}
+
 	}
 
 	private static void renderNodeWithLabel(final Node node, final ILabelModel label) {
@@ -1117,40 +1180,64 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 
 		@Override
 		public void run(final double frac) {
+
 			final TupleSet nodes = vis.getGroup(NODES);
 			final Iterator<?> node = nodes.tuples();
+			final List<Node> lastNodes = new LinkedList<Node>();
+			int highestLevel = 0;
 			while (node.hasNext()) {
-				final VisualItem result = (VisualItem) node.next();
-				if ((Integer) result.get("level") <= autoExpandLevel) {
-					result.set("visible", true);
-					final IBeanRelationNodeModel<Object, Object> beanRelationNodeModel = getBeanRelationNodeModelFromNode((Node) result.getSourceTuple());
-					if (beanRelationNodeModel != null) {
-						final int level = (Integer) result.get("level");
 
+				final VisualItem result = (VisualItem) node.next();
+				if (getOutlinedNodes((Node) result.getSourceTuple()).size() == 0) {
+					final int nodeLevel = result.get("level") != null ? (Integer) result.get("level") : autoExpandLevel;
+					highestLevel = (highestLevel <= nodeLevel ? nodeLevel : highestLevel);
+					lastNodes.add((Node) result);
+				}
+
+				if ((Integer) result.get("level") < autoExpandLevel) {
+					result.set("expanded", Expand.FULL);
+				}
+				else {
+					result.set("expanded", Expand.NOT);
+				}
+
+				if ((Integer) result.get("level") > autoExpandLevel) {
+					result.set("visible", false);
+				}
+				else {
+					result.set("visible", true);
+				}
+			}
+			final Iterator<Node> itLastNodes = lastNodes.iterator();
+			while (itLastNodes.hasNext()) {
+				final Node end = itLastNodes.next();
+				if ((Integer) (end.get("level")) < highestLevel) {
+					itLastNodes.remove();
+				}
+			}
+
+			if (highestLevel <= autoExpandLevel) {
+				final Iterator<?> itSecond = lastNodes.iterator();
+				while (itSecond.hasNext()) {
+					final VisualItem second = (VisualItem) itSecond.next();
+					final IBeanRelationNodeModel<Object, Object> beanRelationNodeModel = getBeanRelationNodeModelFromNode((Node) second.getSourceTuple());
+					if (beanRelationNodeModel != null) {
+						final int level = (Integer) second.get("level");
 						if (!getUiThreadAccess().isUiThread()) {
 							getUiThreadAccess().invokeLater(new Runnable() {
 								@Override
 								public void run() {
-									addExpandLevelNodeListenerToChildren(beanRelationNodeModel, autoExpandLevel, level);
+									addExpandLevelNodeListenerToChildren(beanRelationNodeModel, autoExpandLevel - level);
 								}
 							});
 						}
 						else {
-							addExpandLevelNodeListenerToChildren(beanRelationNodeModel, autoExpandLevel, level);
+							addExpandLevelNodeListenerToChildren(beanRelationNodeModel, autoExpandLevel - level);
 						}
 					}
-
-					if ((Integer) result.get("level") < autoExpandLevel) {
-						result.set("expanded", Expand.FULL);
-					}
-					else {
-						result.set("expanded", Expand.NOT);
-					}
-				}
-				else {
-					result.set("visible", false);
 				}
 			}
+			expandMapResult.clear();
 		}
 
 		private IBeanRelationNodeModel<Object, Object> getBeanRelationNodeModelFromNode(final Node result) {
