@@ -123,7 +123,7 @@ final class SyncNeo4JCreatorServiceImpl<BEAN_TYPE extends IBean> implements ISyn
 		if (executableChecker != null) {
 			final IExecutableState checkResult = executableChecker.getExecutableState(bean);
 			if (checkResult != null && !checkResult.isExecutable()) {
-				throw new ExecutableCheckException(bean.getId(), checkResult.getReason());
+				throw new ExecutableCheckException(bean.getId(), "Executable check failed", checkResult.getReason());
 			}
 		}
 	}
