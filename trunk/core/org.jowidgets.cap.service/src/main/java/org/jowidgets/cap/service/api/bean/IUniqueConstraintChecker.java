@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,29 +26,31 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.api.exception;
+package org.jowidgets.cap.service.api.bean;
 
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedList;
 
-public class UniqueConstraintViolationException extends ServiceException {
+import org.jowidgets.cap.common.api.bean.IBeanData;
+import org.jowidgets.cap.common.api.bean.IBeanModification;
+import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 
-	private static final long serialVersionUID = -7579908469741974763L;
+public interface IUniqueConstraintChecker {
 
-	private final Collection<String> propertyNames;
+	/**
+	 * Checks if the creation of the beans data violates a unique constraint, if so, a UniqueConstraintViolationException
+	 * will be thrown.
+	 * 
+	 * @param beansData The beans data that should be created
+	 * @param executionCallback The execution callback of the service request
+	 */
+	void checkCreation(final Collection<? extends IBeanData> beansData, final IExecutionCallback executionCallback);
 
-	public UniqueConstraintViolationException(final String... propertyNames) {
-		this(Arrays.asList(propertyNames));
-	}
-
-	public UniqueConstraintViolationException(final Collection<String> propertyNames) {
-		super("Unique constraint violated");
-		this.propertyNames = Collections.unmodifiableList(new LinkedList<String>(propertyNames));
-	}
-
-	public Collection<String> getPropertyNames() {
-		return propertyNames;
-	}
+	/**
+	 * Checks if the update of the beans will violate a unique constraint, if so, a UniqueConstraintViolationException
+	 * will be thrown.
+	 * 
+	 * @param modifications The modifications that should be done
+	 * @param executionCallback The execution callback of the service request
+	 */
+	void checkUpdate(Collection<? extends IBeanModification> modifications, final IExecutionCallback executionCallback);
 }
