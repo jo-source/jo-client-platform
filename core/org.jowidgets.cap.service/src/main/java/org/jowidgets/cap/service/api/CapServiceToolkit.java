@@ -42,6 +42,8 @@ import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.cap.service.api.bean.IBeanInitializer;
 import org.jowidgets.cap.service.api.bean.IBeanModifier;
 import org.jowidgets.cap.service.api.bean.IBeanPropertyMap;
+import org.jowidgets.cap.service.api.bean.IUniqueConstraintChecker;
+import org.jowidgets.cap.service.api.bean.IUniqueConstraintCheckerBuilder;
 import org.jowidgets.cap.service.api.decorator.IDecoratorProviderFactory;
 import org.jowidgets.cap.service.api.entity.IBeanEntityServiceBuilder;
 import org.jowidgets.cap.service.api.entity.IBeanServicesProviderBuilder;
@@ -173,5 +175,27 @@ public final class CapServiceToolkit {
 
 	public static void checkCanceled(final IExecutionCallback executionCallback) {
 		getInstance().checkCanceled(executionCallback);
+	}
+
+	public static IUniqueConstraintCheckerBuilder uniqueConstraintCheckerBuilder(
+		final IBeanServiceFactory serviceFactory,
+		final Class<? extends IBean> beanType,
+		final Object beanTypeId) {
+		return getInstance().uniqueConstraintCheckerBuilder(serviceFactory, beanType, beanTypeId);
+	}
+
+	public static IUniqueConstraintChecker uniqueConstraintChecker(
+		final IBeanServiceFactory serviceFactory,
+		final Class<? extends IBean> beanType,
+		final Object beanTypeId,
+		final String... propertyNames) {
+		return getInstance().uniqueConstraintChecker(serviceFactory, beanType, beanTypeId, propertyNames);
+	}
+
+	public static IUniqueConstraintChecker uniqueConstraintChecker(
+		final IBeanServiceFactory serviceFactory,
+		final Class<? extends IBean> beanType,
+		final String... propertyNames) {
+		return getInstance().uniqueConstraintChecker(serviceFactory, beanType, propertyNames);
 	}
 }

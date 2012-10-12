@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,29 +26,18 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.api.exception;
+package org.jowidgets.cap.service.api.bean;
 
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedList;
 
-public class UniqueConstraintViolationException extends ServiceException {
+public interface IUniqueConstraintCheckerBuilder {
 
-	private static final long serialVersionUID = -7579908469741974763L;
+	IUniqueConstraintCheckerBuilder setProperties(Collection<String> propertyNames);
 
-	private final Collection<String> propertyNames;
+	IUniqueConstraintCheckerBuilder setProperties(String... propertyNames);
 
-	public UniqueConstraintViolationException(final String... propertyNames) {
-		this(Arrays.asList(propertyNames));
-	}
+	IUniqueConstraintCheckerBuilder addProperty(String propertyName);
 
-	public UniqueConstraintViolationException(final Collection<String> propertyNames) {
-		super("Unique constraint violated");
-		this.propertyNames = Collections.unmodifiableList(new LinkedList<String>(propertyNames));
-	}
+	IUniqueConstraintChecker build();
 
-	public Collection<String> getPropertyNames() {
-		return propertyNames;
-	}
 }
