@@ -175,10 +175,17 @@ final class Neo4JServicesDecoratorProviderImpl implements IServicesDecoratorProv
 
 				@Override
 				public void exception(final Throwable exception) {
-					resultCallback.exception(decorateException(exception, executionCallback));
-					if (tx != null) {
-						tx.failure();
+					try {
+						if (tx != null) {
+							tx.failure();
+						}
 					}
+					finally {
+						if (tx != null) {
+							tx.finish();
+						}
+					}
+					resultCallback.exception(decorateException(exception, executionCallback));
 				}
 
 			};
