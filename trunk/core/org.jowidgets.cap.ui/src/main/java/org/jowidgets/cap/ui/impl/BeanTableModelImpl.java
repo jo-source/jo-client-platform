@@ -2569,6 +2569,8 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		private void setResult(final List<IBeanDto> resultBeanDtos) {
 			final List<IBeanProxy<BEAN_TYPE>> selectedBeans = getSelectedBeans();
 
+			final List<IBeanProxy<BEAN_TYPE>> createdBeans = new LinkedList<IBeanProxy<BEAN_TYPE>>();
+
 			boolean dataChanged = false;
 			final Iterator<IBeanDto> newDataIterator = resultBeanDtos.iterator();
 			for (int pageIndex = startPageIndex; pageIndex <= endPageIndex; pageIndex++) {
@@ -2587,7 +2589,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 						if (oldBeanProxy == null || !oldBeanProxy.getId().equals(newBean.getId())) {
 							final int rowNr = pageOffset + i;
 							final IBeanProxy<BEAN_TYPE> newBeanProxy = createBeanProxy(newBean);
-							beansStateTracker.register(newBeanProxy);
+							createdBeans.add(newBeanProxy);
 							newBeanProxy.addPropertyChangeListener(new PropertyChangeListener() {
 								@Override
 								public void propertyChange(final PropertyChangeEvent evt) {
@@ -2653,6 +2655,10 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 					removePage(pageIndex);
 				}
 				maxPageIndex = endPageIndex;
+
+				for (final IBeanProxy<BEAN_TYPE> createdBean : createdBeans) {
+					beansStateTracker.register(createdBean);
+				}
 
 				dataModel.fireDataChanged();
 				beanListModelObservable.fireBeansChanged();
