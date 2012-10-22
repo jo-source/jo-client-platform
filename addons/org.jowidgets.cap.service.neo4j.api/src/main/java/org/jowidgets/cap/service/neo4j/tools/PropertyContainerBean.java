@@ -33,6 +33,7 @@ import java.util.Date;
 import org.jowidgets.cap.service.neo4j.api.GraphDBConfig;
 import org.jowidgets.cap.service.neo4j.api.IPropertyContainerBean;
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.NullCompatibleEquivalence;
 import org.neo4j.graphdb.PropertyContainer;
 
 public class PropertyContainerBean implements IPropertyContainerBean {
@@ -112,6 +113,29 @@ public class PropertyContainerBean implements IPropertyContainerBean {
 	protected void setPropertyContainer(final PropertyContainer propertyContainer) {
 		Assert.paramNotNull(propertyContainer, "propertyContainer");
 		this.propertyContainer = propertyContainer;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((getId() == null) ? 0 : getId().hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(final Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (!(obj instanceof PropertyContainerBean)) {
+			return false;
+		}
+		final PropertyContainerBean other = (PropertyContainerBean) obj;
+		return NullCompatibleEquivalence.equals(getId(), other.getId());
 	}
 
 }
