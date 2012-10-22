@@ -67,7 +67,8 @@ final class TraversalReaderServiceBuilderImpl<BEAN_TYPE extends IBean, PARAM_TYP
 			getBeanType(),
 			getBeanTypeId(),
 			traversalDescription,
-			getBeanDtoFactory());
+			getBeanDtoFactory(),
+			getFilters());
 	}
 
 }

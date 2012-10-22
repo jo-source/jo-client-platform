@@ -39,6 +39,7 @@ import java.util.Set;
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
+import org.jowidgets.cap.common.api.filter.IFilter;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.cap.service.neo4j.api.GraphDBConfig;
@@ -73,9 +74,10 @@ final class SyncNeo4JSimpleRelatedReaderServiceImpl<BEAN_TYPE extends IBean, PAR
 		final Object beanTypeId,
 		final Collection<Tuple<RelationshipType, Direction>> path,
 		final boolean related,
-		final IBeanDtoFactory<BEAN_TYPE> beanFactory) {
+		final IBeanDtoFactory<BEAN_TYPE> beanFactory,
+		final Collection<IFilter> additionalFilters) {
 
-		super(beanFactory);
+		super(beanFactory, additionalFilters);
 
 		Assert.paramNotNull(parentBeanTypeId, "parentBeanTypeId");
 		Assert.paramNotNull(beanType, "beanType");

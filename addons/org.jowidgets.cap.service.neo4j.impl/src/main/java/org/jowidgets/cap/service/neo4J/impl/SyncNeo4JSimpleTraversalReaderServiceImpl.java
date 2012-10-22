@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.service.neo4J.impl;
 
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -36,6 +37,7 @@ import java.util.Set;
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
+import org.jowidgets.cap.common.api.filter.IFilter;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.cap.service.neo4j.api.GraphDBConfig;
@@ -63,9 +65,10 @@ final class SyncNeo4JSimpleTraversalReaderServiceImpl<BEAN_TYPE extends IBean, P
 		final Class<? extends BEAN_TYPE> beanType,
 		final Object beanTypeId,
 		final TraversalDescription traversalDescription,
-		final IBeanDtoFactory<BEAN_TYPE> beanFactory) {
+		final IBeanDtoFactory<BEAN_TYPE> beanFactory,
+		final Collection<IFilter> additionalFilters) {
 
-		super(beanFactory);
+		super(beanFactory, additionalFilters);
 
 		Assert.paramNotNull(parentBeanTypeId, "parentBeanTypeId");
 		Assert.paramNotNull(beanType, "beanType");
