@@ -28,25 +28,9 @@
 
 package org.jowidgets.cap.service.neo4j.api;
 
-import java.util.Collection;
-
 import org.jowidgets.cap.common.api.bean.IBean;
-import org.jowidgets.cap.common.api.filter.IFilter;
-import org.jowidgets.cap.common.api.service.IReaderService;
-import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 
-public interface INeo4JReaderServiceBuilder<BUILDER_TYPE extends INeo4JReaderServiceBuilder<?, ?, ?>, BEAN_TYPE extends IBean, PARAM_TYPE> {
-
-	BUILDER_TYPE setBeanType(Class<? extends BEAN_TYPE> beanType);
-
-	BUILDER_TYPE setBeanTypeId(Object beanTypeId);
-
-	BUILDER_TYPE setBeanDtoFactory(IBeanDtoFactory<BEAN_TYPE> beanDtoFactory);
-
-	BUILDER_TYPE setBeanDtoFactory(final Collection<String> propertyNames);
-
-	BUILDER_TYPE addFilter(IFilter filter);
-
-	IReaderService<PARAM_TYPE> build();
+public interface INeo4JReaderServiceBuilder<BEAN_TYPE extends IBean, PARAM_TYPE> extends
+		IAbstractNeo4JReaderServiceBuilder<INeo4JReaderServiceBuilder<BEAN_TYPE, PARAM_TYPE>, BEAN_TYPE, PARAM_TYPE> {
 
 }

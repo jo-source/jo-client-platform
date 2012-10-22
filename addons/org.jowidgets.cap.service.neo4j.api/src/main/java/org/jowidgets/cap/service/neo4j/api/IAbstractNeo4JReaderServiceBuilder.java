@@ -31,44 +31,22 @@ package org.jowidgets.cap.service.neo4j.api;
 import java.util.Collection;
 
 import org.jowidgets.cap.common.api.bean.IBean;
+import org.jowidgets.cap.common.api.filter.IFilter;
 import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
-import org.jowidgets.cap.service.api.factory.IBeanServiceFactory;
-import org.neo4j.graphdb.Direction;
-import org.neo4j.graphdb.RelationshipType;
 
-public interface INeo4JServiceFactory extends IBeanServiceFactory {
+public interface IAbstractNeo4JReaderServiceBuilder<BUILDER_TYPE extends IAbstractNeo4JReaderServiceBuilder<?, ?, ?>, BEAN_TYPE extends IBean, PARAM_TYPE> {
 
-	<BEAN_TYPE extends IBean, PARAM_TYPE> INeo4JReaderServiceBuilder<BEAN_TYPE, PARAM_TYPE> readerServiceBuilder();
+	BUILDER_TYPE setBeanType(Class<? extends BEAN_TYPE> beanType);
 
-	<BEAN_TYPE extends IBean, PARAM_TYPE> ITraversalReaderServiceBuilder<BEAN_TYPE, PARAM_TYPE> traversalReaderServiceBuilder();
+	BUILDER_TYPE setBeanTypeId(Object beanTypeId);
 
-	<BEAN_TYPE extends IBean, PARAM_TYPE> IRelatedReaderServiceBuilder<BEAN_TYPE, PARAM_TYPE> relatedReaderServiceBuilder();
+	BUILDER_TYPE setBeanDtoFactory(IBeanDtoFactory<BEAN_TYPE> beanDtoFactory);
 
-	<BEAN_TYPE extends IBean, PARAM_TYPE> IReaderService<PARAM_TYPE> relatedService(
-		Object parentBeanTypeId,
-		Class<? extends BEAN_TYPE> beanType,
-		Object beanTypeId,
-		RelationshipType relationshipType,
-		Direction direction,
-		boolean related,
-		IBeanDtoFactory<BEAN_TYPE> beanDtoFactory);
+	BUILDER_TYPE setBeanDtoFactory(final Collection<String> propertyNames);
 
-	<BEAN_TYPE extends IBean, PARAM_TYPE> IReaderService<PARAM_TYPE> relatedReaderService(
-		Object parentBeanTypeId,
-		Class<? extends BEAN_TYPE> beanType,
-		Object beanTypeId,
-		RelationshipType relationshipType,
-		Direction direction,
-		boolean related,
-		Collection<String> propertyNames);
+	BUILDER_TYPE addFilter(IFilter filter);
 
-	<BEAN_TYPE extends IBean, PARAM_TYPE> IReaderService<PARAM_TYPE> relatedReaderService(
-		Object parentBeanTypeId,
-		Class<? extends BEAN_TYPE> beanType,
-		RelationshipType relationshipType,
-		Direction direction,
-		boolean related,
-		Collection<String> propertyNames);
+	IReaderService<PARAM_TYPE> build();
 
 }

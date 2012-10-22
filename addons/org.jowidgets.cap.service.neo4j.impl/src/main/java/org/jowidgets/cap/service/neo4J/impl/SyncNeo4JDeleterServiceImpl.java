@@ -131,7 +131,7 @@ final class SyncNeo4JDeleterServiceImpl implements ISyncDeleterService {
 
 		private void deleteNode(final Node node) {
 			//TODO MG this is a aspect and should be configurable
-			for (final Relationship relationship : node.getRelationships(Direction.OUTGOING)) {
+			for (final Relationship relationship : node.getRelationships(Direction.BOTH)) {
 				relationship.delete();
 			}
 			nodeIndex.remove(node);

@@ -46,6 +46,7 @@ import org.jowidgets.cap.service.neo4j.api.NodeAccess;
 import org.jowidgets.cap.service.tools.reader.AbstractSimpleReaderService;
 import org.jowidgets.util.Assert;
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.index.Index;
 import org.neo4j.graphdb.traversal.TraversalDescription;
 
 //TODO MG this implementation is not made for production use
@@ -57,8 +58,10 @@ final class SyncNeo4JSimpleTraversalReaderServiceImpl<BEAN_TYPE extends IBean, P
 	private final Object beanTypeId;
 	private final String beanTypeIdString;
 	private final String beanTypePropertyName;
+	private final Index<Node> nodeIndex;
 	private final IBeanFactory beanFactory;
 	private final Collection<TraversalDescription> traversalDescriptions;
+	private final boolean related;
 
 	SyncNeo4JSimpleTraversalReaderServiceImpl(
 		final Object parentBeanTypeId,
@@ -66,7 +69,8 @@ final class SyncNeo4JSimpleTraversalReaderServiceImpl<BEAN_TYPE extends IBean, P
 		final Object beanTypeId,
 		final Collection<TraversalDescription> traversalDescriptions,
 		final IBeanDtoFactory<BEAN_TYPE> beanFactory,
-		final Collection<IFilter> additionalFilters) {
+		final Collection<IFilter> additionalFilters,
+		final boolean related) {
 
 		super(beanFactory, additionalFilters);
 
@@ -81,13 +85,48 @@ final class SyncNeo4JSimpleTraversalReaderServiceImpl<BEAN_TYPE extends IBean, P
 		this.beanTypeId = beanTypeId;
 		this.beanTypeIdString = BeanTypeIdUtil.toString(beanTypeId);
 		this.traversalDescriptions = new LinkedList<TraversalDescription>(traversalDescriptions);
+		this.related = related;
 
 		this.beanFactory = GraphDBConfig.getBeanFactory();
+		this.nodeIndex = GraphDBConfig.getNodeIndex();
 		this.beanTypePropertyName = GraphDBConfig.getBeanTypePropertyName();
 	}
 
 	@Override
 	protected List<? extends BEAN_TYPE> getAllBeans(
+		final List<? extends IBeanKey> parentBeans,
+		final PARAM_TYPE parameter,
+		final IExecutionCallback executionCallback) {
+		if (related) {
+			return new LinkedList<BEAN_TYPE>(getAllRelatedBeans(parentBeans, parameter, executionCallback));
+		}
+		else {
+			return new LinkedList<BEAN_TYPE>(getAllUnrelatedBeans(parentBeans, parameter, executionCallback));
+		}
+	}
+
+	private Set<? extends BEAN_TYPE> getAllUnrelatedBeans(
+		final List<? extends IBeanKey> parentBeans,
+		final PARAM_TYPE parameter,
+		final IExecutionCallback executionCallback) {
+		if (beanFactory.isNodeBean(beanType, beanTypeId)) {
+			final Set<BEAN_TYPE> result = new LinkedHashSet<BEAN_TYPE>();
+			final Set<? extends BEAN_TYPE> relatedBeans = getAllRelatedBeans(parentBeans, parameter, executionCallback);
+			for (final Node node : nodeIndex.get(beanTypePropertyName, beanTypeIdString)) {
+				final BEAN_TYPE bean = beanFactory.createNodeBean(beanType, beanTypeId, node);
+				CapServiceToolkit.checkCanceled(executionCallback);
+				if (!relatedBeans.contains(bean)) {
+					result.add(bean);
+				}
+			}
+			return result;
+		}
+		else {
+			throw new IllegalStateException("The bean type '" + beanType + "' is not a node bean.");
+		}
+	}
+
+	private Set<? extends BEAN_TYPE> getAllRelatedBeans(
 		final List<? extends IBeanKey> parentBeans,
 		final PARAM_TYPE parameter,
 		final IExecutionCallback executionCallback) {
@@ -107,7 +146,7 @@ final class SyncNeo4JSimpleTraversalReaderServiceImpl<BEAN_TYPE extends IBean, P
 				}
 			}
 		}
-		return new LinkedList<BEAN_TYPE>(result);
+		return result;
 	}
 
 }

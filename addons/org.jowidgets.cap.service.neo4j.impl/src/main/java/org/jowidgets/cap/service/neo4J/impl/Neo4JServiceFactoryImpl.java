@@ -38,6 +38,7 @@ import org.jowidgets.cap.service.api.bean.IBeanAccess;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.cap.service.api.creator.ICreatorServiceBuilder;
 import org.jowidgets.cap.service.api.deleter.IDeleterServiceBuilder;
+import org.jowidgets.cap.service.neo4j.api.INeo4JReaderServiceBuilder;
 import org.jowidgets.cap.service.neo4j.api.INeo4JServiceFactory;
 import org.jowidgets.cap.service.neo4j.api.IRelatedReaderServiceBuilder;
 import org.jowidgets.cap.service.neo4j.api.ITraversalReaderServiceBuilder;
@@ -60,6 +61,11 @@ final class Neo4JServiceFactoryImpl extends AbstractBeanServiceFactory implement
 		final Class<? extends BEAN_TYPE> beanType,
 		final Object beanTypeId) {
 		return new Neo4JCreatorServiceBuilderImpl<BEAN_TYPE>(beanType, beanTypeId);
+	}
+
+	@Override
+	public <BEAN_TYPE extends IBean, PARAM_TYPE> INeo4JReaderServiceBuilder<BEAN_TYPE, PARAM_TYPE> readerServiceBuilder() {
+		return new Neo4JReaderServiceBuilderImpl<BEAN_TYPE, PARAM_TYPE>();
 	}
 
 	@Override
