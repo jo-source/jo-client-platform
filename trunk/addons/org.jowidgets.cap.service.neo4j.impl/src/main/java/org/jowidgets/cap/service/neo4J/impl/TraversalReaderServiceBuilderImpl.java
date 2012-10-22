@@ -28,22 +28,27 @@
 
 package org.jowidgets.cap.service.neo4J.impl;
 
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.service.api.adapter.ISyncReaderService;
 import org.jowidgets.cap.service.neo4j.api.ITraversalReaderServiceBuilder;
 import org.jowidgets.util.Assert;
 import org.neo4j.graphdb.traversal.TraversalDescription;
-import org.neo4j.kernel.Traversal;
+
+import scala.actors.threadpool.Arrays;
 
 final class TraversalReaderServiceBuilderImpl<BEAN_TYPE extends IBean, PARAM_TYPE> extends
 		AbstractNeo4JReaderServiceBuilderImpl<ITraversalReaderServiceBuilder<BEAN_TYPE, PARAM_TYPE>, BEAN_TYPE, PARAM_TYPE> implements
 		ITraversalReaderServiceBuilder<BEAN_TYPE, PARAM_TYPE> {
 
 	private Object parentBeanTypeId;
-	private TraversalDescription traversalDescription;
+	private final List<TraversalDescription> traversalDescriptions;
 
 	TraversalReaderServiceBuilderImpl() {
-		this.traversalDescription = Traversal.description();
+		this.traversalDescriptions = new LinkedList<TraversalDescription>();
 	}
 
 	@Override
@@ -53,10 +58,36 @@ final class TraversalReaderServiceBuilderImpl<BEAN_TYPE extends IBean, PARAM_TYP
 	}
 
 	@Override
+	public ITraversalReaderServiceBuilder<BEAN_TYPE, PARAM_TYPE> setTraversalDescriptions(
+		final Collection<TraversalDescription> traversalDescriptions) {
+		Assert.paramNotNull(traversalDescriptions, "traversalDescriptions");
+		this.traversalDescriptions.clear();
+		this.traversalDescriptions.addAll(traversalDescriptions);
+		return this;
+	}
+
+	@Override
+	public ITraversalReaderServiceBuilder<BEAN_TYPE, PARAM_TYPE> setTraversalDescriptions(
+		final TraversalDescription[] traversalDescriptions) {
+		Assert.paramNotNull(traversalDescriptions, "traversalDescriptions");
+		@SuppressWarnings("unchecked")
+		final List<TraversalDescription> descriptionsList = Arrays.asList(traversalDescriptions);
+		return setTraversalDescriptions(descriptionsList);
+	}
+
+	@Override
 	public ITraversalReaderServiceBuilder<BEAN_TYPE, PARAM_TYPE> setTraversalDescription(
 		final TraversalDescription traversalDescription) {
 		Assert.paramNotNull(traversalDescription, "traversalDescription");
-		this.traversalDescription = traversalDescription;
+		this.traversalDescriptions.clear();
+		return addTraversalDescription(traversalDescription);
+	}
+
+	@Override
+	public ITraversalReaderServiceBuilder<BEAN_TYPE, PARAM_TYPE> addTraversalDescription(
+		final TraversalDescription traversalDescription) {
+		Assert.paramNotNull(traversalDescription, "traversalDescription");
+		this.traversalDescriptions.add(traversalDescription);
 		return this;
 	}
 
@@ -66,7 +97,7 @@ final class TraversalReaderServiceBuilderImpl<BEAN_TYPE extends IBean, PARAM_TYP
 			parentBeanTypeId,
 			getBeanType(),
 			getBeanTypeId(),
-			traversalDescription,
+			traversalDescriptions,
 			getBeanDtoFactory(),
 			getFilters());
 	}

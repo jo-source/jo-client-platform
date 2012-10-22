@@ -58,13 +58,13 @@ final class SyncNeo4JSimpleTraversalReaderServiceImpl<BEAN_TYPE extends IBean, P
 	private final String beanTypeIdString;
 	private final String beanTypePropertyName;
 	private final IBeanFactory beanFactory;
-	private final TraversalDescription traversalDescription;
+	private final Collection<TraversalDescription> traversalDescriptions;
 
 	SyncNeo4JSimpleTraversalReaderServiceImpl(
 		final Object parentBeanTypeId,
 		final Class<? extends BEAN_TYPE> beanType,
 		final Object beanTypeId,
-		final TraversalDescription traversalDescription,
+		final Collection<TraversalDescription> traversalDescriptions,
 		final IBeanDtoFactory<BEAN_TYPE> beanFactory,
 		final Collection<IFilter> additionalFilters) {
 
@@ -74,13 +74,13 @@ final class SyncNeo4JSimpleTraversalReaderServiceImpl<BEAN_TYPE extends IBean, P
 		Assert.paramNotNull(beanType, "beanType");
 		Assert.paramNotNull(beanTypeId, "beanTypeId");
 		Assert.paramNotNull(beanFactory, "beanFactory");
-		Assert.paramNotNull(traversalDescription, "traversalDescription");
+		Assert.paramNotNull(traversalDescriptions, "traversalDescriptions");
 
 		this.parentBeanTypeId = parentBeanTypeId;
 		this.beanType = beanType;
 		this.beanTypeId = beanTypeId;
 		this.beanTypeIdString = BeanTypeIdUtil.toString(beanTypeId);
-		this.traversalDescription = traversalDescription;
+		this.traversalDescriptions = new LinkedList<TraversalDescription>(traversalDescriptions);
 
 		this.beanFactory = GraphDBConfig.getBeanFactory();
 		this.beanTypePropertyName = GraphDBConfig.getBeanTypePropertyName();
@@ -96,11 +96,13 @@ final class SyncNeo4JSimpleTraversalReaderServiceImpl<BEAN_TYPE extends IBean, P
 			CapServiceToolkit.checkCanceled(executionCallback);
 			final Node parentNode = NodeAccess.findNode(parentBeanTypeId, beanKey.getId());
 			if (parentNode != null) {
-				for (final Node resultNode : traversalDescription.traverse(parentNode).nodes()) {
-					CapServiceToolkit.checkCanceled(executionCallback);
-					if (resultNode.hasProperty(beanTypePropertyName)
-						&& beanTypeIdString.equals(resultNode.getProperty(beanTypePropertyName))) {
-						result.add(beanFactory.createNodeBean(beanType, beanTypeId, resultNode));
+				for (final TraversalDescription traversalDescription : traversalDescriptions) {
+					for (final Node resultNode : traversalDescription.traverse(parentNode).nodes()) {
+						CapServiceToolkit.checkCanceled(executionCallback);
+						if (resultNode.hasProperty(beanTypePropertyName)
+							&& beanTypeIdString.equals(resultNode.getProperty(beanTypePropertyName))) {
+							result.add(beanFactory.createNodeBean(beanType, beanTypeId, resultNode));
+						}
 					}
 				}
 			}
