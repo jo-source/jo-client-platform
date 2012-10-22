@@ -57,6 +57,7 @@ import org.jowidgets.cap.ui.api.bean.IBeanMessageBuilder;
 import org.jowidgets.cap.ui.api.bean.IBeanPropertyValidator;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
+import org.jowidgets.cap.ui.api.command.ICreatorInterceptor;
 import org.jowidgets.cap.ui.api.execution.BeanModificationStatePolicy;
 import org.jowidgets.cap.ui.api.execution.BeanSelectionPolicy;
 import org.jowidgets.cap.ui.api.execution.IExecutionInterceptor;
@@ -84,6 +85,7 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 	private final ExecutionObservable<List<IBeanDto>> executionObservable;
 	private final Map<String, Object> defaultValues;
 	private final Collection<IAttribute<?>> attributes;
+	private final List<ICreatorInterceptor<BEAN_TYPE>> creatorInterceptors;
 
 	private Rectangle dialogBounds;
 
@@ -97,7 +99,8 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 		final boolean anySelection,
 		final ICreatorService creatorService,
 		final IBeanExceptionConverter exceptionConverter,
-		final List<IExecutionInterceptor<List<IBeanDto>>> executionInterceptors) {
+		final List<IExecutionInterceptor<List<IBeanDto>>> executionInterceptors,
+		final List<ICreatorInterceptor<BEAN_TYPE>> creatorInterceptors) {
 
 		Assert.paramNotNull(beanType, "beanType");
 		Assert.paramNotNull(model, "model");
@@ -109,6 +112,7 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 		Assert.paramNotNull(creatorService, "creatorService");
 		Assert.paramNotNull(exceptionConverter, "exceptionConverter");
 		Assert.paramNotNull(executionInterceptors, "executionInterceptors");
+		Assert.paramNotNull(creatorInterceptors, "creatorInterceptors");
 
 		this.enabledChecker = new BeanSelectionProviderEnabledChecker<BEAN_TYPE>(
 			model,
@@ -121,6 +125,7 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 
 		this.beanFactory = CapUiToolkit.beanProxyFactory(beanType);
 		this.executionObservable = new ExecutionObservable<List<IBeanDto>>(executionInterceptors);
+		this.creatorInterceptors = new LinkedList<ICreatorInterceptor<BEAN_TYPE>>(creatorInterceptors);
 
 		this.model = model;
 		this.beanFormBp = beanFormBp;
@@ -160,7 +165,13 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 			return;
 		}
 
-		final IBeanProxy<BEAN_TYPE> bean = beanFactory.createTransientProxy(attributes, defaultValues);
+		IBeanProxy<BEAN_TYPE> bean = beanFactory.createTransientProxy(attributes, defaultValues);
+		for (final ICreatorInterceptor<BEAN_TYPE> interceptor : creatorInterceptors) {
+			interceptor.onBeanInitialized(bean);
+		}
+		if (bean.hasModifications()) {
+			bean = bean.createUnmodifiedCopy();
+		}
 		for (final IBeanPropertyValidator<BEAN_TYPE> validator : beanPropertyValidators) {
 			bean.addBeanPropertyValidator(validator);
 		}

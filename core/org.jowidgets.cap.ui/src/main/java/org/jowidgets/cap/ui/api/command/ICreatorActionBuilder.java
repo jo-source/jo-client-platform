@@ -75,6 +75,8 @@ public interface ICreatorActionBuilder<BEAN_TYPE> extends ICapActionBuilder<ICre
 
 	ICreatorActionBuilder<BEAN_TYPE> setExceptionConverter(IBeanExceptionConverter exceptionConverter);
 
+	ICreatorActionBuilder<BEAN_TYPE> addCreatorInterceptor(ICreatorInterceptor<BEAN_TYPE> interceptor);
+
 	ICreatorActionBuilder<BEAN_TYPE> addExecutionInterceptor(IExecutionInterceptor<List<IBeanDto>> interceptor);
 
 }
