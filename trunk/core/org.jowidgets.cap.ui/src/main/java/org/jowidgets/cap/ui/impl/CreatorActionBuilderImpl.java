@@ -45,6 +45,7 @@ import org.jowidgets.cap.ui.api.bean.BeanExceptionConverter;
 import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
 import org.jowidgets.cap.ui.api.bean.IBeanPropertyValidator;
 import org.jowidgets.cap.ui.api.command.ICreatorActionBuilder;
+import org.jowidgets.cap.ui.api.command.ICreatorInterceptor;
 import org.jowidgets.cap.ui.api.execution.IExecutionInterceptor;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.plugin.IServiceActionDecoratorPlugin;
@@ -68,6 +69,7 @@ final class CreatorActionBuilderImpl<BEAN_TYPE> extends AbstractCapActionBuilder
 	private final IBeanListModel<BEAN_TYPE> model;
 	private final List<IEnabledChecker> enabledCheckers;
 	private final List<IExecutionInterceptor<List<IBeanDto>>> executionInterceptors;
+	private final List<ICreatorInterceptor<BEAN_TYPE>> creatorInterceptors;
 	private final List<IBeanPropertyValidator<BEAN_TYPE>> beanPropertyValidators;
 	private boolean anySelection;
 
@@ -89,6 +91,7 @@ final class CreatorActionBuilderImpl<BEAN_TYPE> extends AbstractCapActionBuilder
 		this.executionInterceptors = new LinkedList<IExecutionInterceptor<List<IBeanDto>>>();
 		this.exceptionConverter = BeanExceptionConverter.get();
 		this.beanPropertyValidators = new LinkedList<IBeanPropertyValidator<BEAN_TYPE>>();
+		this.creatorInterceptors = new LinkedList<ICreatorInterceptor<BEAN_TYPE>>();
 
 		this.anySelection = true;
 
@@ -181,6 +184,14 @@ final class CreatorActionBuilderImpl<BEAN_TYPE> extends AbstractCapActionBuilder
 	}
 
 	@Override
+	public ICreatorActionBuilder<BEAN_TYPE> addCreatorInterceptor(final ICreatorInterceptor<BEAN_TYPE> interceptor) {
+		checkExhausted();
+		Assert.paramNotNull(interceptor, "interceptor");
+		creatorInterceptors.add(interceptor);
+		return this;
+	}
+
+	@Override
 	public ICreatorActionBuilder<BEAN_TYPE> setExceptionConverter(final IBeanExceptionConverter exceptionConverter) {
 		checkExhausted();
 		Assert.paramNotNull(exceptionConverter, "exceptionConverter");
@@ -257,7 +268,8 @@ final class CreatorActionBuilderImpl<BEAN_TYPE> extends AbstractCapActionBuilder
 			anySelection,
 			creatorService,
 			exceptionConverter,
-			executionInterceptors);
+			executionInterceptors,
+			creatorInterceptors);
 
 		final IActionBuilder builder = getBuilder();
 		builder.setCommand((ICommand) command);
