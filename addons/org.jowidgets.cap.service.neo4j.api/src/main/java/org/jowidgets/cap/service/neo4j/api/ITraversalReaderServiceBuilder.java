@@ -28,6 +28,8 @@
 
 package org.jowidgets.cap.service.neo4j.api;
 
+import java.util.Collection;
+
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.neo4j.graphdb.traversal.TraversalDescription;
 
@@ -36,6 +38,13 @@ public interface ITraversalReaderServiceBuilder<BEAN_TYPE extends IBean, PARAM_T
 
 	ITraversalReaderServiceBuilder<BEAN_TYPE, PARAM_TYPE> setParentBeanTypeId(Object parentBeanTypeId);
 
+	ITraversalReaderServiceBuilder<BEAN_TYPE, PARAM_TYPE> setTraversalDescriptions(
+		Collection<TraversalDescription> traversalDescriptions);
+
+	ITraversalReaderServiceBuilder<BEAN_TYPE, PARAM_TYPE> setTraversalDescriptions(TraversalDescription[] traversalDescriptions);
+
 	ITraversalReaderServiceBuilder<BEAN_TYPE, PARAM_TYPE> setTraversalDescription(TraversalDescription traversalDescription);
+
+	ITraversalReaderServiceBuilder<BEAN_TYPE, PARAM_TYPE> addTraversalDescription(TraversalDescription traversalDescription);
 
 }
