@@ -30,6 +30,7 @@ package org.jowidgets.cap.service.neo4J.impl;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -174,17 +175,29 @@ final class SyncNeo4JSimpleRelatedReaderServiceImpl<BEAN_TYPE extends IBean, PAR
 	private List<? extends BEAN_TYPE> getAllUnrelatedBeans(
 		final List<? extends IBeanKey> parentBeans,
 		final IExecutionCallback executionCallback) {
+		final Set<Object> parentBeanIds = getParentBeanIds(parentBeans);
 		final List<BEAN_TYPE> result = new LinkedList<BEAN_TYPE>();
 		if (beanFactory.isNodeBean(beanType, beanTypeId)) {
 			for (final Node node : nodeIndex.get(beanTypePropertyName, beanTypeIdString)) {
 				CapServiceToolkit.checkCanceled(executionCallback);
 				if (!isRelatedWith(node, parentBeans, executionCallback)) {
-					result.add(beanFactory.createNodeBean(beanType, beanTypeId, node));
+					final BEAN_TYPE bean = beanFactory.createNodeBean(beanType, beanTypeId, node);
+					if (!parentBeanIds.contains(bean.getId())) {
+						result.add(bean);
+					}
 				}
 			}
 		}
 		else {
 			throw new IllegalStateException("The bean type '" + beanType + "' is not a node bean.");
+		}
+		return result;
+	}
+
+	private Set<Object> getParentBeanIds(final List<? extends IBeanKey> parentBeans) {
+		final Set<Object> result = new HashSet<Object>();
+		for (final IBeanKey key : parentBeans) {
+			result.add(key.getId());
 		}
 		return result;
 	}
