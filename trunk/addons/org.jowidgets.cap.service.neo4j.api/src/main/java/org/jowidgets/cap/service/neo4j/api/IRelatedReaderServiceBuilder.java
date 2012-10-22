@@ -33,7 +33,7 @@ import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.RelationshipType;
 
 public interface IRelatedReaderServiceBuilder<BEAN_TYPE extends IBean, PARAM_TYPE> extends
-		INeo4JReaderServiceBuilder<IRelatedReaderServiceBuilder<BEAN_TYPE, PARAM_TYPE>, BEAN_TYPE, PARAM_TYPE> {
+		IAbstractNeo4JReaderServiceBuilder<IRelatedReaderServiceBuilder<BEAN_TYPE, PARAM_TYPE>, BEAN_TYPE, PARAM_TYPE> {
 
 	IRelatedReaderServiceBuilder<BEAN_TYPE, PARAM_TYPE> setParentBeanTypeId(Object parentBeanTypeId);
 

@@ -28,12 +28,14 @@
 
 package org.jowidgets.cap.service.neo4J.impl;
 
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
+import org.jowidgets.cap.common.api.filter.IFilter;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.cap.service.neo4j.api.GraphDBConfig;
@@ -60,7 +62,15 @@ final class SyncNeo4JSimpleReaderServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE
 		final Class<? extends BEAN_TYPE> beanType,
 		final Object beanTypeId,
 		final IBeanDtoFactory<BEAN_TYPE> beanFactory) {
-		super(beanFactory);
+		this(beanType, beanTypeId, beanFactory, null);
+	}
+
+	SyncNeo4JSimpleReaderServiceImpl(
+		final Class<? extends BEAN_TYPE> beanType,
+		final Object beanTypeId,
+		final IBeanDtoFactory<BEAN_TYPE> beanFactory,
+		final Collection<IFilter> additionalFilters) {
+		super(beanFactory, additionalFilters);
 		Assert.paramNotNull(beanType, "beanType");
 		Assert.paramNotNull(beanTypeId, "beanTypeId");
 		Assert.paramNotNull(beanFactory, "beanFactory");

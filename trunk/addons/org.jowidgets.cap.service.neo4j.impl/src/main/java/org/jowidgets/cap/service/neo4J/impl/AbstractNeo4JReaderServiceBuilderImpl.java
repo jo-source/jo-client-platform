@@ -38,12 +38,12 @@ import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.adapter.ISyncReaderService;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
-import org.jowidgets.cap.service.neo4j.api.INeo4JReaderServiceBuilder;
+import org.jowidgets.cap.service.neo4j.api.IAbstractNeo4JReaderServiceBuilder;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.IAdapterFactory;
 
-abstract class AbstractNeo4JReaderServiceBuilderImpl<BUILDER_TYPE extends INeo4JReaderServiceBuilder<?, ?, ?>, BEAN_TYPE extends IBean, PARAM_TYPE> implements
-		INeo4JReaderServiceBuilder<BUILDER_TYPE, BEAN_TYPE, PARAM_TYPE> {
+abstract class AbstractNeo4JReaderServiceBuilderImpl<BUILDER_TYPE extends IAbstractNeo4JReaderServiceBuilder<?, ?, ?>, BEAN_TYPE extends IBean, PARAM_TYPE> implements
+		IAbstractNeo4JReaderServiceBuilder<BUILDER_TYPE, BEAN_TYPE, PARAM_TYPE> {
 
 	private final List<IFilter> filters;
 

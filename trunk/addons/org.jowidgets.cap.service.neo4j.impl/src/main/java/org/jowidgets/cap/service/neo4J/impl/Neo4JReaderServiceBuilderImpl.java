@@ -26,27 +26,23 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.neo4j.api;
-
-import java.util.Collection;
+package org.jowidgets.cap.service.neo4J.impl;
 
 import org.jowidgets.cap.common.api.bean.IBean;
-import org.neo4j.graphdb.traversal.TraversalDescription;
+import org.jowidgets.cap.service.api.adapter.ISyncReaderService;
+import org.jowidgets.cap.service.neo4j.api.INeo4JReaderServiceBuilder;
 
-public interface ITraversalReaderServiceBuilder<BEAN_TYPE extends IBean, PARAM_TYPE> extends
-		IAbstractNeo4JReaderServiceBuilder<ITraversalReaderServiceBuilder<BEAN_TYPE, PARAM_TYPE>, BEAN_TYPE, PARAM_TYPE> {
+final class Neo4JReaderServiceBuilderImpl<BEAN_TYPE extends IBean, PARAM_TYPE> extends
+		AbstractNeo4JReaderServiceBuilderImpl<INeo4JReaderServiceBuilder<BEAN_TYPE, PARAM_TYPE>, BEAN_TYPE, PARAM_TYPE> implements
+		INeo4JReaderServiceBuilder<BEAN_TYPE, PARAM_TYPE> {
 
-	ITraversalReaderServiceBuilder<BEAN_TYPE, PARAM_TYPE> setParentBeanTypeId(Object parentBeanTypeId);
-
-	ITraversalReaderServiceBuilder<BEAN_TYPE, PARAM_TYPE> setTraversalDescriptions(
-		Collection<TraversalDescription> traversalDescriptions);
-
-	ITraversalReaderServiceBuilder<BEAN_TYPE, PARAM_TYPE> setTraversalDescriptions(TraversalDescription[] traversalDescriptions);
-
-	ITraversalReaderServiceBuilder<BEAN_TYPE, PARAM_TYPE> setTraversalDescription(TraversalDescription traversalDescription);
-
-	ITraversalReaderServiceBuilder<BEAN_TYPE, PARAM_TYPE> addTraversalDescription(TraversalDescription traversalDescription);
-
-	ITraversalReaderServiceBuilder<BEAN_TYPE, PARAM_TYPE> setRelated(boolean related);
+	@Override
+	ISyncReaderService<PARAM_TYPE> doBuild() {
+		return new SyncNeo4JSimpleReaderServiceImpl<BEAN_TYPE, PARAM_TYPE>(
+			getBeanType(),
+			getBeanTypeId(),
+			getBeanDtoFactory(),
+			getFilters());
+	}
 
 }

@@ -44,10 +44,12 @@ final class TraversalReaderServiceBuilderImpl<BEAN_TYPE extends IBean, PARAM_TYP
 		ITraversalReaderServiceBuilder<BEAN_TYPE, PARAM_TYPE> {
 
 	private Object parentBeanTypeId;
+	private boolean related;
 	private final List<TraversalDescription> traversalDescriptions;
 
 	TraversalReaderServiceBuilderImpl() {
 		this.traversalDescriptions = new LinkedList<TraversalDescription>();
+		this.related = true;
 	}
 
 	@Override
@@ -90,6 +92,12 @@ final class TraversalReaderServiceBuilderImpl<BEAN_TYPE extends IBean, PARAM_TYP
 	}
 
 	@Override
+	public ITraversalReaderServiceBuilder<BEAN_TYPE, PARAM_TYPE> setRelated(final boolean related) {
+		this.related = related;
+		return this;
+	}
+
+	@Override
 	protected ISyncReaderService<PARAM_TYPE> doBuild() {
 		return new SyncNeo4JSimpleTraversalReaderServiceImpl<BEAN_TYPE, PARAM_TYPE>(
 			parentBeanTypeId,
@@ -97,7 +105,8 @@ final class TraversalReaderServiceBuilderImpl<BEAN_TYPE extends IBean, PARAM_TYP
 			getBeanTypeId(),
 			traversalDescriptions,
 			getBeanDtoFactory(),
-			getFilters());
+			getFilters(),
+			related);
 	}
 
 }
