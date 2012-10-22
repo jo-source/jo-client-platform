@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.service.neo4J.impl;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -37,8 +38,6 @@ import org.jowidgets.cap.service.api.adapter.ISyncReaderService;
 import org.jowidgets.cap.service.neo4j.api.ITraversalReaderServiceBuilder;
 import org.jowidgets.util.Assert;
 import org.neo4j.graphdb.traversal.TraversalDescription;
-
-import scala.actors.threadpool.Arrays;
 
 final class TraversalReaderServiceBuilderImpl<BEAN_TYPE extends IBean, PARAM_TYPE> extends
 		AbstractNeo4JReaderServiceBuilderImpl<ITraversalReaderServiceBuilder<BEAN_TYPE, PARAM_TYPE>, BEAN_TYPE, PARAM_TYPE> implements
@@ -70,7 +69,6 @@ final class TraversalReaderServiceBuilderImpl<BEAN_TYPE extends IBean, PARAM_TYP
 	public ITraversalReaderServiceBuilder<BEAN_TYPE, PARAM_TYPE> setTraversalDescriptions(
 		final TraversalDescription[] traversalDescriptions) {
 		Assert.paramNotNull(traversalDescriptions, "traversalDescriptions");
-		@SuppressWarnings("unchecked")
 		final List<TraversalDescription> descriptionsList = Arrays.asList(traversalDescriptions);
 		return setTraversalDescriptions(descriptionsList);
 	}
