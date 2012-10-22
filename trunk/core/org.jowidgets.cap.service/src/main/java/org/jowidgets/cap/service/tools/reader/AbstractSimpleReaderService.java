@@ -32,10 +32,13 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
+import org.jowidgets.cap.common.api.filter.BooleanOperator;
+import org.jowidgets.cap.common.api.filter.IBooleanFilterBuilder;
 import org.jowidgets.cap.common.api.filter.IFilter;
 import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
@@ -43,6 +46,7 @@ import org.jowidgets.cap.service.api.adapter.ISyncReaderService;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.cap.service.tools.bean.BeanDtoFactoryHelper;
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.EmptyCheck;
 
 /**
  * An abstract implementation of the reader service that uses in memory sorting and filtering. This can only be used
@@ -53,10 +57,23 @@ import org.jowidgets.util.Assert;
 public abstract class AbstractSimpleReaderService<BEAN_TYPE extends IBean, PARAM_TYPE> implements ISyncReaderService<PARAM_TYPE> {
 
 	private final IBeanDtoFactory<? extends BEAN_TYPE> beanFactory;
+	private final Collection<IFilter> additionalFilters;
 
 	protected AbstractSimpleReaderService(final IBeanDtoFactory<? extends BEAN_TYPE> beanFactory) {
+		this(beanFactory, null);
+	}
+
+	protected AbstractSimpleReaderService(
+		final IBeanDtoFactory<? extends BEAN_TYPE> beanFactory,
+		final Collection<IFilter> additionalFilters) {
 		Assert.paramNotNull(beanFactory, "beanFactory");
 		this.beanFactory = beanFactory;
+		if (!EmptyCheck.isEmpty(additionalFilters)) {
+			this.additionalFilters = new LinkedList<IFilter>(additionalFilters);
+		}
+		else {
+			this.additionalFilters = null;
+		}
 	}
 
 	protected abstract List<? extends BEAN_TYPE> getAllBeans(
@@ -74,7 +91,9 @@ public abstract class AbstractSimpleReaderService<BEAN_TYPE extends IBean, PARAM
 		final PARAM_TYPE parameter,
 		final IExecutionCallback executionCallback) {
 
-		if (filter == null && (sortedProperties == null || sortedProperties.size() == 0)) {
+		final IFilter decoratedFilter = getDecoratedFilter(filter);
+
+		if (decoratedFilter == null && (sortedProperties == null || sortedProperties.size() == 0)) {
 			final Collection<? extends BEAN_TYPE> beans = getBeans(parentBeans, parameter, firstRow, maxRows, executionCallback);
 			return BeanDtoFactoryHelper.createDtos(beanFactory, beans, executionCallback);
 		}
@@ -84,8 +103,8 @@ public abstract class AbstractSimpleReaderService<BEAN_TYPE extends IBean, PARAM
 					getAllBeans(parentBeans, parameter, executionCallback),
 					executionCallback);
 
-			if (filter != null) {
-				result = CapServiceToolkit.beanDtoCollectionFilter().filter(result, filter, executionCallback);
+			if (decoratedFilter != null) {
+				result = CapServiceToolkit.beanDtoCollectionFilter().filter(result, decoratedFilter, executionCallback);
 			}
 			if (sortedProperties != null && sortedProperties.size() > 0) {
 				result = CapServiceToolkit.beanDtoCollectionSorter().sort(result, sortedProperties, executionCallback);
@@ -107,7 +126,9 @@ public abstract class AbstractSimpleReaderService<BEAN_TYPE extends IBean, PARAM
 		final PARAM_TYPE parameter,
 		final IExecutionCallback executionCallback) {
 
-		if (filter == null) {
+		final IFilter decoratedFilter = getDecoratedFilter(filter);
+
+		if (decoratedFilter == null) {
 			return Integer.valueOf(getAllBeans(parentBeans, parameter, executionCallback).size());
 		}
 		else {
@@ -115,7 +136,7 @@ public abstract class AbstractSimpleReaderService<BEAN_TYPE extends IBean, PARAM
 					beanFactory,
 					getAllBeans(parentBeans, parameter, executionCallback),
 					executionCallback);
-			return Integer.valueOf(CapServiceToolkit.beanDtoCollectionFilter().filter(result, filter, executionCallback).size());
+			return Integer.valueOf(CapServiceToolkit.beanDtoCollectionFilter().filter(result, decoratedFilter, executionCallback).size());
 		}
 	}
 
@@ -134,4 +155,23 @@ public abstract class AbstractSimpleReaderService<BEAN_TYPE extends IBean, PARAM
 		}
 	}
 
+	IFilter getDecoratedFilter(final IFilter filter) {
+		if (EmptyCheck.isEmpty(additionalFilters)) {
+			return filter;
+		}
+		else if (additionalFilters.size() == 1 && filter == null) {
+			return additionalFilters.iterator().next();
+		}
+		else {
+			final IBooleanFilterBuilder builder = CapCommonToolkit.filterFactory().booleanFilterBuilder();
+			builder.setOperator(BooleanOperator.AND);
+			for (final IFilter additionalFilter : additionalFilters) {
+				builder.addFilter(additionalFilter);
+			}
+			if (filter != null) {
+				builder.addFilter(filter);
+			}
+			return builder.build();
+		}
+	}
 }

@@ -29,8 +29,11 @@
 package org.jowidgets.cap.service.neo4J.impl;
 
 import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IBean;
+import org.jowidgets.cap.common.api.filter.IFilter;
 import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.adapter.ISyncReaderService;
@@ -42,10 +45,16 @@ import org.jowidgets.util.IAdapterFactory;
 abstract class AbstractNeo4JReaderServiceBuilderImpl<BUILDER_TYPE extends INeo4JReaderServiceBuilder<?, ?, ?>, BEAN_TYPE extends IBean, PARAM_TYPE> implements
 		INeo4JReaderServiceBuilder<BUILDER_TYPE, BEAN_TYPE, PARAM_TYPE> {
 
+	private final List<IFilter> filters;
+
 	private Class<? extends BEAN_TYPE> beanType;
 	private Object beanTypeId;
 	private IBeanDtoFactory<BEAN_TYPE> beanDtoFactory;
 	private Collection<String> beanDtoFactoryProperties;
+
+	AbstractNeo4JReaderServiceBuilderImpl() {
+		this.filters = new LinkedList<IFilter>();
+	}
 
 	abstract ISyncReaderService<PARAM_TYPE> doBuild();
 
@@ -80,6 +89,14 @@ abstract class AbstractNeo4JReaderServiceBuilderImpl<BUILDER_TYPE extends INeo4J
 		return (BUILDER_TYPE) this;
 	}
 
+	@SuppressWarnings("unchecked")
+	@Override
+	public BUILDER_TYPE addFilter(final IFilter filter) {
+		Assert.paramNotNull(filter, "filter");
+		filters.add(filter);
+		return (BUILDER_TYPE) this;
+	}
+
 	protected final IBeanDtoFactory<BEAN_TYPE> getBeanDtoFactory() {
 		if (beanDtoFactory == null) {
 			if (beanDtoFactoryProperties != null && beanType != null) {
@@ -105,6 +122,10 @@ abstract class AbstractNeo4JReaderServiceBuilderImpl<BUILDER_TYPE extends INeo4J
 		else {
 			return beanType;
 		}
+	}
+
+	protected final List<IFilter> getFilters() {
+		return filters;
 	}
 
 	@Override

@@ -83,7 +83,8 @@ final class RelatedReaderServiceBuilderImpl<BEAN_TYPE extends IBean, PARAM_TYPE>
 			getBeanTypeId(),
 			path,
 			related,
-			getBeanDtoFactory());
+			getBeanDtoFactory(),
+			getFilters());
 	}
 
 }
