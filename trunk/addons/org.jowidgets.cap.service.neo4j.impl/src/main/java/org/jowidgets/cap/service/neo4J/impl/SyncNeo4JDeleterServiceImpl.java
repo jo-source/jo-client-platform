@@ -39,6 +39,7 @@ import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.adapter.ISyncDeleterService;
 import org.jowidgets.cap.service.api.adapter.ISyncExecutorService;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
+import org.jowidgets.cap.service.api.deleter.IDeleterServiceInterceptor;
 import org.jowidgets.cap.service.api.executor.IBeanExecutor;
 import org.jowidgets.cap.service.api.executor.IExecutorServiceBuilder;
 import org.jowidgets.cap.service.neo4j.api.GraphDBConfig;
@@ -52,7 +53,7 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.index.Index;
 
-final class SyncNeo4JDeleterServiceImpl implements ISyncDeleterService {
+final class SyncNeo4JDeleterServiceImpl<BEAN_TYPE extends IBean> implements ISyncDeleterService {
 
 	private final ISyncExecutorService<Void> executorService;
 	private final IBeanFactory beanFactory;
@@ -60,17 +61,18 @@ final class SyncNeo4JDeleterServiceImpl implements ISyncDeleterService {
 	private final Index<Relationship> relationshipIndex;
 
 	SyncNeo4JDeleterServiceImpl(
-		final IBeanAccess<? extends IBean> beanAccess,
-		final IExecutableChecker<? extends IBean> executableChecker,
+		final IBeanAccess<BEAN_TYPE> beanAccess,
+		final IExecutableChecker<BEAN_TYPE> executableChecker,
+		final IDeleterServiceInterceptor<BEAN_TYPE> interceptor,
 		final boolean allowDeletedData,
 		final boolean allowStaleData) {
 
-		final IExecutorServiceBuilder<IBean, Void> executorServiceBuilder = CapServiceToolkit.executorServiceBuilder(beanAccess);
+		final IExecutorServiceBuilder<BEAN_TYPE, Void> executorServiceBuilder = CapServiceToolkit.executorServiceBuilder(beanAccess);
 		if (executableChecker != null) {
 			executorServiceBuilder.setExecutableChecker(executableChecker);
 		}
 		executorServiceBuilder.setAllowDeletedBeans(allowDeletedData).setAllowStaleBeans(allowStaleData);
-		executorServiceBuilder.setExecutor(new DeleteExecutor(beanAccess, allowDeletedData));
+		executorServiceBuilder.setExecutor(new DeleteExecutor(beanAccess, allowDeletedData, interceptor));
 		this.executorService = executorServiceBuilder.buildSyncService();
 		this.beanFactory = GraphDBConfig.getBeanFactory();
 		this.nodeIndex = GraphDBConfig.getNodeIndex();
@@ -82,21 +84,27 @@ final class SyncNeo4JDeleterServiceImpl implements ISyncDeleterService {
 		executorService.execute(beanKeys, null, executionCallback);
 	}
 
-	private final class DeleteExecutor implements IBeanExecutor<IBean, Void> {
+	private final class DeleteExecutor implements IBeanExecutor<BEAN_TYPE, Void> {
 
-		private final Class<? extends IBean> beanType;
+		private final Class<? extends BEAN_TYPE> beanType;
 		private final Object beanTypeId;
 		private final boolean allowDeletedData;
+		private final IDeleterServiceInterceptor<BEAN_TYPE> interceptor;
 
-		public DeleteExecutor(final IBeanAccess<? extends IBean> beanAccess, final boolean allowDeletedData) {
+		public DeleteExecutor(
+			final IBeanAccess<BEAN_TYPE> beanAccess,
+			final boolean allowDeletedData,
+			final IDeleterServiceInterceptor<BEAN_TYPE> interceptor) {
 			this.beanType = beanAccess.getBeanType();
 			this.beanTypeId = beanAccess.getBeanTypeId();
 			this.allowDeletedData = allowDeletedData;
+			this.interceptor = interceptor;
 		}
 
 		@Override
-		public IBean execute(final IBean data, final Void parameter, final IExecutionCallback executionCallback) {
+		public BEAN_TYPE execute(final BEAN_TYPE data, final Void parameter, final IExecutionCallback executionCallback) {
 			CapServiceToolkit.checkCanceled(executionCallback);
+			interceptor.beforeDelete(data, executionCallback);
 			if (data instanceof INodeBean) {
 				deleteNode(((INodeBean) data).getNode());
 			}
@@ -132,6 +140,7 @@ final class SyncNeo4JDeleterServiceImpl implements ISyncDeleterService {
 		private void deleteNode(final Node node) {
 			//TODO MG this is a aspect and should be configurable
 			for (final Relationship relationship : node.getRelationships(Direction.BOTH)) {
+				relationshipIndex.remove(relationship);
 				relationship.delete();
 			}
 			nodeIndex.remove(node);

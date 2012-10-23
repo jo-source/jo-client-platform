@@ -26,32 +26,13 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.jpa.impl;
+package org.jowidgets.cap.service.api.deleter;
 
 import org.jowidgets.cap.common.api.bean.IBean;
-import org.jowidgets.cap.common.api.service.IDeleterService;
-import org.jowidgets.cap.service.api.CapServiceToolkit;
-import org.jowidgets.cap.service.api.adapter.ISyncDeleterService;
-import org.jowidgets.cap.service.api.bean.IBeanAccess;
-import org.jowidgets.cap.service.tools.deleter.AbstractDeleterServiceBuilder;
+import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 
-final class JpaDeleterServiceBuilderImpl<BEAN_TYPE extends IBean> extends AbstractDeleterServiceBuilder<BEAN_TYPE> {
+public interface IDeleterServiceInterceptor<BEAN_TYPE extends IBean> {
 
-	private final IBeanAccess<BEAN_TYPE> beanAccess;
+	void beforeDelete(BEAN_TYPE bean, IExecutionCallback executionCallback);
 
-	public JpaDeleterServiceBuilderImpl(final IBeanAccess<BEAN_TYPE> beanAccess) {
-		super();
-		this.beanAccess = beanAccess;
-	}
-
-	@Override
-	public IDeleterService build() {
-		final ISyncDeleterService result = new SyncJpaDeleterServiceImpl<BEAN_TYPE>(
-			beanAccess,
-			getExecutableChecker(),
-			getInterceptor(),
-			isAllowDeletedBeans(),
-			isAllowStaleBeans());
-		return CapServiceToolkit.adapterFactoryProvider().deleter().createAdapter(result);
-	}
 }

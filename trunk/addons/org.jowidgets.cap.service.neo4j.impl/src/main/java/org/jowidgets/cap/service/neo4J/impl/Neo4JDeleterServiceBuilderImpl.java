@@ -45,9 +45,10 @@ final class Neo4JDeleterServiceBuilderImpl<BEAN_TYPE extends IBean> extends Abst
 
 	@Override
 	public IDeleterService build() {
-		final ISyncDeleterService result = new SyncNeo4JDeleterServiceImpl(
+		final ISyncDeleterService result = new SyncNeo4JDeleterServiceImpl<BEAN_TYPE>(
 			beanAccess,
 			getExecutableChecker(),
+			getInterceptor(),
 			isAllowDeletedBeans(),
 			isAllowStaleBeans());
 		return CapServiceToolkit.adapterFactoryProvider().deleter().createAdapter(result);
