@@ -38,28 +38,31 @@ import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.adapter.ISyncDeleterService;
 import org.jowidgets.cap.service.api.adapter.ISyncExecutorService;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
+import org.jowidgets.cap.service.api.deleter.IDeleterServiceInterceptor;
 import org.jowidgets.cap.service.api.executor.IBeanExecutor;
 import org.jowidgets.cap.service.api.executor.IExecutorServiceBuilder;
 
-final class SyncJpaDeleterServiceImpl implements ISyncDeleterService {
+final class SyncJpaDeleterServiceImpl<BEAN_TYPE extends IBean> implements ISyncDeleterService {
 
 	private final ISyncExecutorService<Void> executorService;
 
 	SyncJpaDeleterServiceImpl(
-		final IBeanAccess<? extends IBean> beanAccess,
-		final IExecutableChecker<? extends IBean> executableChecker,
+		final IBeanAccess<BEAN_TYPE> beanAccess,
+		final IExecutableChecker<BEAN_TYPE> executableChecker,
+		final IDeleterServiceInterceptor<BEAN_TYPE> interceptor,
 		final boolean allowDeletedData,
 		final boolean allowStaleData) {
 
-		final IExecutorServiceBuilder<IBean, Void> executorServiceBuilder = CapServiceToolkit.executorServiceBuilder(beanAccess);
+		final IExecutorServiceBuilder<BEAN_TYPE, Void> executorServiceBuilder = CapServiceToolkit.executorServiceBuilder(beanAccess);
 		if (executableChecker != null) {
 			executorServiceBuilder.setExecutableChecker(executableChecker);
 		}
 		executorServiceBuilder.setAllowDeletedBeans(allowDeletedData).setAllowStaleBeans(allowStaleData);
-		executorServiceBuilder.setExecutor(new IBeanExecutor<IBean, Void>() {
+		executorServiceBuilder.setExecutor(new IBeanExecutor<BEAN_TYPE, Void>() {
 			@Override
-			public IBean execute(final IBean data, final Void parameter, final IExecutionCallback executionCallback) {
+			public BEAN_TYPE execute(final BEAN_TYPE data, final Void parameter, final IExecutionCallback executionCallback) {
 				CapServiceToolkit.checkCanceled(executionCallback);
+				interceptor.beforeDelete(data, executionCallback);
 				EntityManagerProvider.get().remove(data);
 				CapServiceToolkit.checkCanceled(executionCallback);
 				return null;

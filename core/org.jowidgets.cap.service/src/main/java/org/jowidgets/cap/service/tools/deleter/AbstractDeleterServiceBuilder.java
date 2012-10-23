@@ -35,18 +35,22 @@ import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.execution.ExecutableCheckerComposite;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.execution.IExecutableCheckerCompositeBuilder;
+import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.service.api.deleter.IDeleterServiceBuilder;
+import org.jowidgets.cap.service.api.deleter.IDeleterServiceInterceptor;
 import org.jowidgets.util.Assert;
 
 public abstract class AbstractDeleterServiceBuilder<BEAN_TYPE extends IBean> implements IDeleterServiceBuilder<BEAN_TYPE> {
 
 	private final List<IExecutableChecker<? extends BEAN_TYPE>> executableCheckers;
+	private final List<IDeleterServiceInterceptor<BEAN_TYPE>> interceptors;
 
 	private boolean allowDeletedBeans;
 	private boolean allowStaleBeans;
 
 	public AbstractDeleterServiceBuilder() {
 		this.executableCheckers = new LinkedList<IExecutableChecker<? extends BEAN_TYPE>>();
+		this.interceptors = new LinkedList<IDeleterServiceInterceptor<BEAN_TYPE>>();
 		this.allowDeletedBeans = true;
 		this.allowStaleBeans = true;
 	}
@@ -80,6 +84,13 @@ public abstract class AbstractDeleterServiceBuilder<BEAN_TYPE extends IBean> imp
 		return this;
 	}
 
+	@Override
+	public IDeleterServiceBuilder<BEAN_TYPE> addDeleterInterceptor(final IDeleterServiceInterceptor<BEAN_TYPE> interceptor) {
+		Assert.paramNotNull(interceptor, "interceptor");
+		interceptors.add(interceptor);
+		return this;
+	}
+
 	@SuppressWarnings("unchecked")
 	protected IExecutableChecker<BEAN_TYPE> getExecutableChecker() {
 		if (executableCheckers.size() == 1) {
@@ -95,6 +106,15 @@ public abstract class AbstractDeleterServiceBuilder<BEAN_TYPE extends IBean> imp
 		}
 	}
 
+	protected IDeleterServiceInterceptor<BEAN_TYPE> getInterceptor() {
+		if (interceptors.size() == 1) {
+			return interceptors.iterator().next();
+		}
+		else {
+			return new DeleterServiceInterceptorComposite(interceptors);
+		}
+	}
+
 	protected boolean isAllowDeletedBeans() {
 		return allowDeletedBeans;
 	}
@@ -103,4 +123,20 @@ public abstract class AbstractDeleterServiceBuilder<BEAN_TYPE extends IBean> imp
 		return allowStaleBeans;
 	}
 
+	private final class DeleterServiceInterceptorComposite implements IDeleterServiceInterceptor<BEAN_TYPE> {
+
+		private final List<IDeleterServiceInterceptor<BEAN_TYPE>> interceptors;
+
+		private DeleterServiceInterceptorComposite(final List<IDeleterServiceInterceptor<BEAN_TYPE>> interceptors) {
+			this.interceptors = new LinkedList<IDeleterServiceInterceptor<BEAN_TYPE>>(interceptors);
+		}
+
+		@Override
+		public void beforeDelete(final BEAN_TYPE bean, final IExecutionCallback executionCallback) {
+			for (final IDeleterServiceInterceptor<BEAN_TYPE> interceptor : interceptors) {
+				interceptor.beforeDelete(bean, executionCallback);
+			}
+		}
+
+	}
 }

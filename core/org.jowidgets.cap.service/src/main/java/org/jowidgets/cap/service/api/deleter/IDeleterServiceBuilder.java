@@ -42,6 +42,8 @@ public interface IDeleterServiceBuilder<BEAN_TYPE extends IBean> {
 
 	IDeleterServiceBuilder<BEAN_TYPE> setAllowStaleBeans(boolean allowStaleBeans);
 
+	IDeleterServiceBuilder<BEAN_TYPE> addDeleterInterceptor(IDeleterServiceInterceptor<BEAN_TYPE> interceptor);
+
 	IDeleterService build();
 
 }
