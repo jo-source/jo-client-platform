@@ -28,48 +28,46 @@
 
 package org.jowidgets.cap.addons.widgets.graph.impl.swing.common;
 
-import java.util.Iterator;
+import java.util.HashMap;
+import java.util.Map;
 
-import org.jowidgets.cap.addons.widgets.graph.impl.swing.common.BeanRelationGraphImpl.Expand;
+import org.jowidgets.api.widgets.IScrollComposite;
+import org.jowidgets.common.types.Dimension;
+import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
+import org.jowidgets.tools.layout.MigLayoutFactory;
+import org.jowidgets.tools.powo.JoFrame;
+import org.jowidgets.tools.widgets.blueprint.BPF;
 
 import prefuse.Visualization;
-import prefuse.action.GroupAction;
-import prefuse.data.Node;
-import prefuse.data.tuple.TupleSet;
-import prefuse.visual.VisualItem;
 
-class NodeVisibilityAction extends GroupAction {
+final class BeanGraphSettingsDialog extends JoFrame {
 
-	private final Visualization vis;
+	private final BeanGraphAttributeListImpl beanGraphAttributeListImpl;
 
-	public NodeVisibilityAction(final Visualization vis) {
-		super();
-		this.vis = vis;
+	public BeanGraphSettingsDialog(
+		final Visualization vis,
+		final Map<Class<Object>, Boolean> groupMap,
+		final HashMap<String, Boolean> edgeVisibilityMap) {
+		super("Group Visibility");
+
+		setLayout(MigLayoutFactory.growingInnerCellLayout());
+		setMinPackSize(new Dimension(300, 300));
+
+		final IScrollComposite content = add(BPF.scrollComposite(), MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
+		content.setLayout(new MigLayoutDescriptor("[0::][grow, 50::]", ""));
+
+		beanGraphAttributeListImpl = new BeanGraphAttributeListImpl(vis, content.add(
+				BPF.compositeWithBorder(),
+				"grow, wrap, span, w 0::, h 0::"), groupMap, edgeVisibilityMap);
+
 	}
 
-	@Override
-	public void run(final double frac) {
-		final TupleSet nodes = vis.getGroup(BeanRelationGraphImpl.NODES);
-		final Iterator<?> node = nodes.tuples();
-		while (node.hasNext()) {
-			final Node result = (Node) node.next();
-			final VisualItem visualItem = (VisualItem) result;
-			if (result != null) {
+	public Map<Class<Object>, Boolean> updateGroupMap() {
+		return beanGraphAttributeListImpl.getGroupMap();
+	}
 
-				if (result.getParent() != null) {
-					if (result.getParent().get("expanded") == Expand.NOT) {
-						result.set("visible", false);
-					}
-				}
-				if (result.getChildCount() == 0 && result.getOutDegree() <= 1) {
-					result.set("isParent", false);
-				}
-
-				if ((Boolean) result.get("visible") != null) {
-					visualItem.setVisible((Boolean) result.get("visible"));
-				}
-			}
-		}
+	public HashMap<String, Boolean> updateEdgeMap() {
+		return beanGraphAttributeListImpl.getEdgeMap();
 	}
 
 }

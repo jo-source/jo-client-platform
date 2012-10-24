@@ -28,10 +28,7 @@
 
 package org.jowidgets.cap.addons.widgets.graph.impl.swing.common;
 
-import java.util.HashMap;
 import java.util.Iterator;
-
-import org.jowidgets.cap.addons.widgets.graph.impl.swing.common.BeanRelationGraphImpl.Expand;
 
 import prefuse.Visualization;
 import prefuse.action.GroupAction;
@@ -40,56 +37,40 @@ import prefuse.data.Node;
 import prefuse.data.tuple.TupleSet;
 import prefuse.visual.VisualItem;
 
-class EdgeVisibilityAction extends GroupAction {
+public class RemoveStandaloneNodesAction extends GroupAction {
 
 	private final Visualization vis;
-	private HashMap<String, Boolean> edgeMap;
 
-	public EdgeVisibilityAction(final HashMap<String, Boolean> edgeVisibilityGroup, final Visualization vis) {
+	public RemoveStandaloneNodesAction(final Visualization vis) {
 		super();
 		this.vis = vis;
-		this.edgeMap = edgeVisibilityGroup;
 	}
 
 	@Override
 	public void run(final double frac) {
+		synchronized (m_vis) {
+			final TupleSet nodes = vis.getGroup(BeanRelationGraphImpl.NODES);
+			final Iterator<?> node = nodes.tuples();
+			while (node.hasNext()) {
+				final Node result = (Node) node.next();
+				final VisualItem visualItem = (VisualItem) result;
 
-		final TupleSet edges = vis.getGroup(BeanRelationGraphImpl.EDGES);
-		final Iterator<?> edge = edges.tuples();
-		while (edge.hasNext()) {
-			final Edge test = (Edge) edge.next();
-			if (test != null) {
-				if (test.getTargetNode() != null) {
-					final Node childNode = test.getTargetNode();
-					final Node parentNode = test.getSourceNode();
-
-					final VisualItem result = (VisualItem) test;
-
-					if ((Boolean) parentNode.get("visible")
-						&& parentNode.get("expanded") == Expand.FULL
-						&& edgeMap != null
-						&& edgeMap.containsKey(test.get("name"))) {
-						test.set("visible", edgeMap.get(test.get("name")));
-					}
-
-					else if (!(Boolean) childNode.get("visible") || !(Boolean) parentNode.get("visible")) {
-						test.set("visible", false);
-					}
-					else if (edgeMap != null) {
-						if (edgeMap.containsKey(test.get("name"))) {
-							test.set("visible", edgeMap.get(test.get("name")));
-						}
-						else {
-							test.set("visible", true);
-						}
-					}
-					result.setVisible((Boolean) test.get("visible"));
+				if (result.getParent() != null) {
+					result.set("visible", removeStandaloneNodes(result));
+					visualItem.setVisible((Boolean) result.get("visible"));
 				}
 			}
+
 		}
 	}
 
-	public void updateEdgeMap(final HashMap<String, Boolean> edgeMap) {
-		this.edgeMap = edgeMap;
+	private boolean removeStandaloneNodes(final Node node) {
+		boolean result = false;
+		final Iterator<?> edges = node.edges();
+		while (edges.hasNext()) {
+			result = (Boolean) (((Edge) (edges.next())).get("visible")) ? true : result;
+		}
+		return result;
 	}
+
 }
