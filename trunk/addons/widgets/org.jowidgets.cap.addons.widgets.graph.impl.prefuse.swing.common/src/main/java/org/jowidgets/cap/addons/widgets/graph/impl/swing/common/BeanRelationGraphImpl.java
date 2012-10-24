@@ -58,6 +58,7 @@ import org.jowidgets.api.command.IActionBuilderFactory;
 import org.jowidgets.api.command.ICommandAction;
 import org.jowidgets.api.command.ICommandExecutor;
 import org.jowidgets.api.command.IExecutionContext;
+import org.jowidgets.api.image.IconsSmall;
 import org.jowidgets.api.model.item.ICheckedItemModel;
 import org.jowidgets.api.model.item.IToolBarModel;
 import org.jowidgets.api.threads.IUiThreadAccess;
@@ -161,10 +162,13 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 
 	private static int autoExpandLevel;
 	private static Node markedNode;
+	private static BeanGraphSettingsDialog settingsDialog;
 
 	private final IBeanRelationTreeModel<CHILD_BEAN_TYPE> relationTreeModel;
 	private final Map<IBeanProxy<Object>, Node> nodeMap;
 	private final Map<Class<Object>, String> entityGroupMap;
+	private Map<Class<Object>, Boolean> groupVisibilityMap;
+	private HashMap<String, Boolean> edgeVisibilityMap;
 	private final HashMap<IBeanProxy<Object>, IBeanRelationNodeModel<Object, Object>> beanRelationMap;
 	private final HashMap<String, String> groupNames;
 	private final List<Node> expandedNodesCache;
@@ -181,13 +185,13 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 
 	private ICheckedItemModel animationChecker;
 	private IFrame dialog;
-	//	private GroupFilterDialog groupFilterDialog;
 
 	private int maxNodeCount = MAX_NODE_COUNT_DEFAULT;
 	private int groupCount;
 
 	private final EdgeVisibilityAction edgeFilter;
 	private final NodeVisibilityAction nodeFilter;
+	private final RemoveStandaloneNodesAction removeStandaloneNodesFilter;
 	private final IUiThreadAccess uiThreadAccess;
 	private InputControlItemModel<Integer> maxNodeTextField;
 
@@ -202,6 +206,8 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		relationTreeModel = setup.getModel();
 		nodeMap = new HashMap<IBeanProxy<Object>, Node>();
 		entityGroupMap = new HashMap<Class<Object>, String>();
+		groupVisibilityMap = new HashMap<Class<Object>, Boolean>();
+		edgeVisibilityMap = new HashMap<String, Boolean>();
 		beanRelationMap = new HashMap<IBeanProxy<Object>, IBeanRelationNodeModel<Object, Object>>();
 		groupNames = new HashMap<String, String>();
 		expandedNodesCache = new LinkedList<Node>();
@@ -209,6 +215,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 
 		autoExpandLevel = setup.getAutoExpandLevel();
 		animationChecker = null;
+		settingsDialog = null;
 
 		graph = new Graph();
 		graph.addColumn("name", String.class);
@@ -219,7 +226,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		graph.addColumn("expanded", Expand.class);
 		graph.addColumn("position", Point.class);
 		graph.addColumn("visible", Boolean.class);
-		graph.addColumn("filtered", Boolean.class);
+		graph.addColumn("beanrelation", Object.class);
 		graph.addColumn("isParent", Boolean.class);
 		graph.addColumn("marked", Boolean.class);
 
@@ -232,11 +239,13 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		final Action marked = new NodeMarkedAction(vis);
 
 		final ActionList filter = new ActionList();
-		edgeFilter = new EdgeVisibilityAction(vis);
 		nodeFilter = new NodeVisibilityAction(vis);
+		edgeFilter = new EdgeVisibilityAction(edgeVisibilityMap, vis);
+		removeStandaloneNodesFilter = new RemoveStandaloneNodesAction(vis);
 
 		filter.add(nodeFilter);
 		filter.add(edgeFilter);
+		filter.add(removeStandaloneNodesFilter);
 
 		final ActionList color = new ActionList();
 		color.add(new ColorAction(NODES, VisualItem.STROKECOLOR, 0));
@@ -322,6 +331,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 				}
 				synchronized (vis) {
 					vis.run("marked");
+					vis.run("filter");
 				}
 			}
 		});
@@ -416,8 +426,9 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 			}
 		}
 		contractExpandNode(node);
-		nodeFilter.run();
-		edgeFilter.run();
+		synchronized (vis) {
+			vis.run("filter");
+		}
 	}
 
 	private List<IBeanRelationNodeModel<Object, Object>> loadChildren(
@@ -453,16 +464,19 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 				final Node out = (Node) result.next();
 
 				if (out != node.getParent()) {
-					if (out.get("expanded") == Expand.FULL || out.get("expanded") == Expand.PARTIALLY) {
-						out.set("expanded", Expand.FULL);
+					if (out.get("expanded") == Expand.FULL) {
+						out.set("expanded", out.get("expanded"));
 						contractExpandNode(out);
 					}
+					else if (out.get("expanded") == Expand.PARTIALLY) {
+						out.set("expanded", out.get("expanded"));
+					}
+
 					out.set("visible", false);
 					out.set("expanded", Expand.NOT);
 					contractParentNodes(out);
 				}
 			}
-
 			node.set("expanded", Expand.NOT);
 		}
 
@@ -472,13 +486,13 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 				final Node out = (Node) result.next();
 				if (out != node.getParent()) {
 					out.set("visible", true);
-					out.set("expanded", Expand.NOT);
+					out.set("expanded", out.get("expanded") == Expand.PARTIALLY ? Expand.PARTIALLY : Expand.NOT);
 				}
-				expandParents(out);
-
 				if (expandedNodesCache.contains(out)) {
 					contractExpandNode(out);
 				}
+				expandParents(out);
+
 			}
 			node.set("expanded", Expand.FULL);
 		}
@@ -522,7 +536,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 			while (children.hasNext()) {
 				final Node child = (Node) children.next();
 				if (node != child) {
-					full = (Boolean) child.get("visible") ? full : false;
+					full = !(Boolean) child.get("visible") ? false : full;
 				}
 			}
 			if (full) {
@@ -579,7 +593,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		final IBeanRelationNodeModel<Object, Object> beanRelationNodeModel) {
 
 		final IBeanProxyLabelRenderer<Object> renderer = beanRelationNodeModel.getChildRenderer();
-		Node childNode = nodeMap.get(bean);
+		final Node childNode;
 
 		if (nodeMap.get(bean) == null) {
 			childNode = graph.addNode();
@@ -590,13 +604,17 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 			childNode.set("marked", false);
 			beanRelationMap.put(bean, beanRelationNodeModel);
 		}
+		else {
+			childNode = nodeMap.get(bean);
+		}
 
 		if (entityGroupMap.get(beanRelationNodeModel.getChildBeanType()) == null) {
 			entityGroupMap.put(beanRelationNodeModel.getChildBeanType(), GRAPH_NODES_GROUP + groupCount);
+			groupVisibilityMap.put(beanRelationNodeModel.getChildBeanType(), true);
 			groupNames.put(GRAPH_NODES_GROUP + groupCount, beanRelationNodeModel.getText());
 			groupCount = (groupCount < NODE_COLORS.length - 1) ? ++groupCount : 0;
 		}
-
+		childNode.set("beanrelation", beanRelationNodeModel.getChildBeanType());
 		final String nodeGroup = entityGroupMap.get(beanRelationNodeModel.getChildBeanType());
 
 		final Node parentNode = nodeMap.get(beanRelationNodeModel.getParentBean());
@@ -604,13 +622,13 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		if (parentNode != null && (!bean.isDummy())) {
 
 			parentNode.set("visible", true);
-			//parentNode.set("expanded", true);
 
 			if (graph.getEdge(parentNode, childNode) == null && graph.getEdge(childNode, parentNode) == null) {
 
 				final Edge edge = graph.addEdge(parentNode, childNode);
 				edge.set("visible", false);
 				edge.set("name", beanRelationNodeModel.getText());
+				edgeVisibilityMap.put((String) edge.get("name"), true);
 			}
 			else {
 				if (graph.getEdge(childNode, parentNode) != null) {
@@ -618,18 +636,36 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 					if (!previousString.contains("/") && !previousString.equals(beanRelationNodeModel.getText())) {
 						graph.getEdge(childNode, parentNode).set("name", previousString + " / " + beanRelationNodeModel.getText());
 					}
+					if (edgeVisibilityMap.containsKey(previousString)) {
+						final boolean result = edgeVisibilityMap.get(previousString);
+						edgeVisibilityMap.remove(previousString);
+						edgeVisibilityMap.put((String) graph.getEdge(childNode, parentNode).get("name"), result);
+					}
+					else {
+						edgeVisibilityMap.put(previousString, true);
+					}
 				}
 				else if (graph.getEdge(parentNode, childNode) != null) {
 					final String previousString = (String) graph.getEdge(parentNode, childNode).get("name");
 					if (!previousString.contains("/") && !previousString.equals(beanRelationNodeModel.getText())) {
 						graph.getEdge(parentNode, childNode).set("name", previousString + " / " + beanRelationNodeModel.getText());
 					}
+					if (edgeVisibilityMap.containsKey(previousString)) {
+						final boolean result = edgeVisibilityMap.get(previousString);
+						edgeVisibilityMap.remove(previousString);
+						edgeVisibilityMap.put((String) graph.getEdge(parentNode, childNode).get("name"), result);
+					}
+					else {
+						edgeVisibilityMap.put(previousString, true);
+					}
 				}
 			}
 		}
 
-		renderNodeShape(nodeGroup, childNode);
-		renderNode(childNode, bean, renderer);
+		if ((Boolean) childNode.get("visible")) {
+			renderNodeShape(nodeGroup, childNode);
+			renderNode(childNode, bean, renderer);
+		}
 
 		if (parentNode != null) {
 			if (getOutlinedNodes(parentNode).size() >= 1) {
@@ -863,6 +899,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 				if (maxNodeTextField.getValue() != null) {
 					maxNodeCount = maxNodeTextField.getValue();
 					relationTreeModel.load();
+
 				}
 			}
 		});
@@ -933,7 +970,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 					}
 					settingsDialogAction.setEnabled(false);
 					initNodeLinkLayout();
-					//					comboBox.setValue(GraphLayout.FORCE_DIRECTED_LAYOUT);
+					//comboBox.setValue(GraphLayout.FORCE_DIRECTED_LAYOUT);
 				}
 				else if (GraphLayout.RADIAL_TREE_LAYOUT == value) {
 					if (animationChecker != null) {
@@ -941,7 +978,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 					}
 					settingsDialogAction.setEnabled(false);
 					initRadialTreeLayout();
-					//					comboBox.setValue(GraphLayout.FORCE_DIRECTED_LAYOUT);
+					//comboBox.setValue(GraphLayout.FORCE_DIRECTED_LAYOUT);
 				}
 			}
 		});
@@ -973,25 +1010,30 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		});
 		animationChecker = checkItemModel;
 
-		//GroupFilterCheckBox
-		//		final IActionBuilder groupFilterActionBuilder = actionBF.create();
-		//		groupFilterActionBuilder.setIcon(IconsSmall.SETTINGS);
-		//		groupFilterActionBuilder.setCommand(new ICommandExecutor() {
-		//			@Override
-		//			public void execute(final IExecutionContext executionContext) throws Exception {
-		//				if (groupFilterDialog == null) {
-		//					groupFilterDialog = new GroupFilterDialog(vis, groupNames);
-		//				}
-		//				groupFilterDialog.setVisible(true);
-		//				groupFilterDialog = null;
-		//			}
-		//		});
-		//		final ICommandAction groupFilterAction = groupFilterActionBuilder.build();
+		final IActionBuilder groupFilterActionBuilder = actionBF.create();
+		groupFilterActionBuilder.setIcon(IconsSmall.SETTINGS);
+		groupFilterActionBuilder.setCommand(new ICommandExecutor() {
+			@Override
+			public void execute(final IExecutionContext executionContext) throws Exception {
+				if (settingsDialog != null) {
+					settingsDialog.setVisible(false);
+					settingsDialog.removeAll();
+					settingsDialog.dispose();
+					settingsDialog = null;
+				}
+				settingsDialog = new BeanGraphSettingsDialog(vis, groupVisibilityMap, edgeVisibilityMap);
+
+				settingsDialog.setVisible(true);
+				groupVisibilityMap = settingsDialog.updateGroupMap();
+				edgeVisibilityMap = settingsDialog.updateEdgeMap();
+			}
+		});
+		final ICommandAction groupFilterAction = groupFilterActionBuilder.build();
 
 		model.addSeparator();
 
 		model.addAction(settingsDialogAction);
-		//		model.addAction(groupFilterAction);
+		model.addAction(groupFilterAction);
 
 		model.addSeparator();
 		final ICheckedItemModel edgeCheckedItem = model.addCheckedItem("Edge Label");
@@ -1053,7 +1095,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		synchronized (vis) {
 			vis.removeAction("layout");
 			final ActionList layout = new ActionList(Activity.INFINITY);
-			final NodeLinkTreeLayout nodeLinkTreeLayout = new NodeLinkTreeLayout(GRAPH);//, Constants.ORIENT_LEFT_RIGHT, 50, 5, 10);
+			final NodeLinkTreeLayout nodeLinkTreeLayout = new NodeLinkTreeLayout(GRAPH);
 			nodeLinkTreeLayout.setRootNodeOffset(10);
 			layout.add(nodeLinkTreeLayout);
 			layout.add(labelEdgeLayout);
@@ -1090,7 +1132,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 			animate.add(new ColorAnimator(NODES));
 			animate.add(new RepaintAction());
 
-			display.setItemSorter(new TreeDepthItemSorter(true));
+			display.setItemSorter(new TreeDepthItemSorter(false));
 
 			vis.putAction("animate", animate);
 			vis.putAction("layout", layout);
