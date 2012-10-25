@@ -28,32 +28,54 @@
 
 package org.jowidgets.cap.remoting.client;
 
-import org.jowidgets.cap.common.api.execution.IExecutionCallback;
-import org.jowidgets.cap.common.api.execution.IUserQuestionCallback;
 import org.jowidgets.cap.common.api.execution.UserQuestionResult;
+import org.jowidgets.cap.remoting.common.IInputStreamRequest;
 import org.jowidgets.cap.remoting.common.UserQuestionRequest;
 import org.jowidgets.invocation.service.common.api.IInterimRequestCallback;
 import org.jowidgets.invocation.service.common.api.IInterimResponseCallback;
 import org.jowidgets.util.Assert;
 
-final class UserQuestionRequestCallback implements IInterimRequestCallback<UserQuestionRequest, UserQuestionResult> {
+final class GenericInterimRequestCallback implements IInterimRequestCallback<Object, Object> {
 
-	private final IExecutionCallback executionCallback;
+	private final IInterimRequestCallback<UserQuestionRequest, UserQuestionResult> userQuestionRequestCallback;
+	private final InputStreamRequestCallback inputStreamRequestCallback;
 
-	UserQuestionRequestCallback(final IExecutionCallback executionCallback) {
-		Assert.paramNotNull(executionCallback, "executionCallback");
-		this.executionCallback = executionCallback;
+	public GenericInterimRequestCallback(
+		final IInterimRequestCallback<UserQuestionRequest, UserQuestionResult> userQuestionRequestCallback,
+		final InputStreamRequestCallback inputStreamRequestCallback) {
+		this.userQuestionRequestCallback = userQuestionRequestCallback;
+		this.inputStreamRequestCallback = inputStreamRequestCallback;
 	}
 
+	@SuppressWarnings({"rawtypes", "unchecked"})
 	@Override
-	public void request(final IInterimResponseCallback<UserQuestionResult> callback, final UserQuestionRequest request) {
-		executionCallback.userQuestion(request.getUserQuestion(), new IUserQuestionCallback() {
-			@Override
-			public void questionAnswered(final UserQuestionResult result) {
-				callback.response(result);
-			}
-		});
+	public void request(final IInterimResponseCallback callback, final Object request) {
+		Assert.paramNotNull(callback, "callback");
+		Assert.paramNotNull(request, "request");
 
+		if (request instanceof UserQuestionRequest) {
+			userQuestionRequest(callback, (UserQuestionRequest) request);
+		}
+		else if (request instanceof IInputStreamRequest) {
+			inputStreamRequest(callback, (IInputStreamRequest) request);
+		}
+		else {
+			throw new IllegalArgumentException("Request type '" + request.getClass().getName() + "' is not supported.");
+		}
+	}
+
+	private void userQuestionRequest(
+		final IInterimResponseCallback<UserQuestionResult> callback,
+		final UserQuestionRequest request) {
+		if (userQuestionRequestCallback != null) {
+			userQuestionRequestCallback.request(callback, request);
+		}
+	}
+
+	private void inputStreamRequest(final IInterimResponseCallback<UserQuestionResult> callback, final IInputStreamRequest request) {
+		if (inputStreamRequestCallback != null) {
+			inputStreamRequestCallback.request(callback, request);
+		}
 	}
 
 }

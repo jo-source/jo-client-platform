@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,34 +26,14 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.remoting.client;
+package org.jowidgets.cap.remoting.common;
 
-import org.jowidgets.cap.common.api.execution.IExecutionCallback;
-import org.jowidgets.cap.common.api.execution.IUserQuestionCallback;
-import org.jowidgets.cap.common.api.execution.UserQuestionResult;
-import org.jowidgets.cap.remoting.common.UserQuestionRequest;
-import org.jowidgets.invocation.service.common.api.IInterimRequestCallback;
-import org.jowidgets.invocation.service.common.api.IInterimResponseCallback;
-import org.jowidgets.util.Assert;
+import java.io.IOException;
 
-final class UserQuestionRequestCallback implements IInterimRequestCallback<UserQuestionRequest, UserQuestionResult> {
+public interface IInputStreamResponse {
 
-	private final IExecutionCallback executionCallback;
+	IOException getException();
 
-	UserQuestionRequestCallback(final IExecutionCallback executionCallback) {
-		Assert.paramNotNull(executionCallback, "executionCallback");
-		this.executionCallback = executionCallback;
-	}
-
-	@Override
-	public void request(final IInterimResponseCallback<UserQuestionResult> callback, final UserQuestionRequest request) {
-		executionCallback.userQuestion(request.getUserQuestion(), new IUserQuestionCallback() {
-			@Override
-			public void questionAnswered(final UserQuestionResult result) {
-				callback.response(result);
-			}
-		});
-
-	}
+	boolean hasExcpetion();
 
 }

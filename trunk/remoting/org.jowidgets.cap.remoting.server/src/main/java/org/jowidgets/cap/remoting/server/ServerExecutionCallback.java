@@ -44,6 +44,7 @@ import org.jowidgets.cap.common.api.execution.IExecutionCallbackListener;
 import org.jowidgets.cap.common.api.execution.IUserQuestionCallback;
 import org.jowidgets.cap.common.api.execution.UserQuestionResult;
 import org.jowidgets.cap.remoting.common.Progress;
+import org.jowidgets.cap.remoting.common.UserQuestionRequest;
 import org.jowidgets.invocation.service.common.api.ICancelListener;
 import org.jowidgets.invocation.service.common.api.IInterimRequestCallback;
 import org.jowidgets.invocation.service.common.api.IInterimResponseCallback;
@@ -53,8 +54,8 @@ import org.jowidgets.util.ValueHolder;
 
 final class ServerExecutionCallback implements IExecutionCallback {
 
-	private final IInterimResponseCallback<Progress> interimResponseCallback;
-	private final IInterimRequestCallback<String, UserQuestionResult> interimRequestCallback;
+	private final IInterimResponseCallback<Object> interimResponseCallback;
+	private final IInterimRequestCallback<Object, Object> interimRequestCallback;
 	private final Set<IExecutionCallbackListener> executionCallbackListeners;
 
 	private final ScheduledExecutorService scheduledExecutorService;
@@ -73,8 +74,8 @@ final class ServerExecutionCallback implements IExecutionCallback {
 		final ScheduledExecutorService scheduledExecutorService,
 		final long progressDelay,
 		final IInvocationCallback<Object> invocationCallback,
-		final IInterimResponseCallback<Progress> interimResponseCallback,
-		final IInterimRequestCallback<String, UserQuestionResult> interimRequestCallback) {
+		final IInterimResponseCallback<Object> interimResponseCallback,
+		final IInterimRequestCallback<Object, Object> interimRequestCallback) {
 
 		Assert.paramNotNull(scheduledExecutorService, "scheduledExecutorService");
 		Assert.paramNotNull(invocationCallback, "invocationCallback");
@@ -144,16 +145,17 @@ final class ServerExecutionCallback implements IExecutionCallback {
 		final Lock lock = new ReentrantLock();
 		final Condition condition = lock.newCondition();
 
-		interimRequestCallback.request(new IInterimResponseCallback<UserQuestionResult>() {
+		interimRequestCallback.request(new IInterimResponseCallback<Object>() {
 			@Override
-			public void response(final UserQuestionResult response) {
-				result.set(response);
+			public void response(final Object response) {
+				final UserQuestionResult userQuestionResult = (UserQuestionResult) response;
+				result.set(userQuestionResult);
 				lock.lock();
 				condition.signal();
 				lock.unlock();
 			}
 
-		}, question);
+		}, new UserQuestionRequest(question));
 
 		lock.lock();
 		condition.awaitUninterruptibly();
@@ -164,12 +166,13 @@ final class ServerExecutionCallback implements IExecutionCallback {
 
 	@Override
 	public void userQuestion(final String question, final IUserQuestionCallback callback) {
-		interimRequestCallback.request(new IInterimResponseCallback<UserQuestionResult>() {
+		interimRequestCallback.request(new IInterimResponseCallback<Object>() {
 			@Override
-			public void response(final UserQuestionResult response) {
-				callback.questionAnswered(response);
+			public void response(final Object response) {
+				final UserQuestionResult userQuestionResult = (UserQuestionResult) response;
+				callback.questionAnswered(userQuestionResult);
 			}
-		}, question);
+		}, new UserQuestionRequest(question));
 	}
 
 	@Override

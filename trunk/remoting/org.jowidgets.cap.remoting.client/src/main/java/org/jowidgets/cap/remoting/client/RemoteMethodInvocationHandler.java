@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.remoting.client;
 
+import java.io.InputStream;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
@@ -37,6 +38,7 @@ import org.jowidgets.cap.common.api.execution.UserQuestionResult;
 import org.jowidgets.cap.remoting.common.CapInvocationMethodNames;
 import org.jowidgets.cap.remoting.common.Progress;
 import org.jowidgets.cap.remoting.common.RemoteInvocationParameter;
+import org.jowidgets.cap.remoting.common.UserQuestionRequest;
 import org.jowidgets.invocation.service.client.api.IInvocationServiceClient;
 import org.jowidgets.invocation.service.client.api.InvocationServiceClientToolkit;
 import org.jowidgets.invocation.service.common.api.IInterimRequestCallback;
@@ -45,6 +47,7 @@ import org.jowidgets.invocation.service.common.api.IInvocationCallback;
 import org.jowidgets.invocation.service.common.api.IMethodInvocationService;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.io.IoUtils;
 
 final class RemoteMethodInvocationHandler implements InvocationHandler {
 
@@ -93,17 +96,29 @@ final class RemoteMethodInvocationHandler implements InvocationHandler {
 
 		final IResultCallback<Object> resultCallback = getResultCallback(parameterTypes, args);
 		final IExecutionCallback executionCallback = getExecutionCallback(parameterTypes, args);
+		final InputStream inputStream = getInputStream(parameterTypes, args);
 
 		final IInterimResponseCallback<Progress> interimResponseCallback;
-		final IInterimRequestCallback<String, UserQuestionResult> interimRequestCallback;
+		final IInterimRequestCallback<UserQuestionRequest, UserQuestionResult> userQuestionRequestCallback;
 		if (executionCallback != null) {
 			interimResponseCallback = new ProgressResponseCallback(executionCallback);
-			interimRequestCallback = new UserQuestionRequestCallback(executionCallback);
+			userQuestionRequestCallback = new UserQuestionRequestCallback(executionCallback);
 		}
 		else {
 			interimResponseCallback = new DummyProgressResponseCallback();
-			interimRequestCallback = new DummyUserQuestionRequestCallback(resultCallback);
+			userQuestionRequestCallback = new DummyUserQuestionRequestCallback(resultCallback);
 		}
+
+		final InputStreamRequestCallback inputStreamRequestCallback;
+		if (inputStream != null) {
+			inputStreamRequestCallback = new InputStreamRequestCallback(inputStream);
+		}
+		else {
+			inputStreamRequestCallback = null;
+		}
+		final GenericInterimRequestCallback interimRequestCallback = new GenericInterimRequestCallback(
+			userQuestionRequestCallback,
+			inputStreamRequestCallback);
 
 		final RemoteInvocationParameter parameter = new RemoteInvocationParameter(
 			serviceId,
@@ -112,43 +127,56 @@ final class RemoteMethodInvocationHandler implements InvocationHandler {
 			getFilteredArgs(args));
 
 		if (resultCallback != null) {
-			invokeAsync(resultCallback, interimResponseCallback, interimRequestCallback, parameter, executionCallback);
+			invokeAsync(
+					resultCallback,
+					interimResponseCallback,
+					interimRequestCallback,
+					parameter,
+					executionCallback,
+					inputStream);
 			return null;
 		}
 		else {
-			return invokeSync(interimResponseCallback, interimRequestCallback, parameter, executionCallback);
+			return invokeSync(interimResponseCallback, interimRequestCallback, parameter, executionCallback, inputStream);
 		}
 	}
 
 	private Object invokeSync(
 		final IInterimResponseCallback<Progress> interimResponseCallback,
-		final IInterimRequestCallback<String, UserQuestionResult> interimRequestCallback,
+		final GenericInterimRequestCallback interimRequestCallback,
 		final RemoteInvocationParameter parameter,
-		final IExecutionCallback executionCallback) {
+		final IExecutionCallback executionCallback,
+		final InputStream inputStream) {
 
 		final SyncInvocationCallback<Object> syncInvocationCallback = new SyncInvocationCallback<Object>(executionCallback);
 		invokeMethod(syncInvocationCallback, interimResponseCallback, interimRequestCallback, parameter);
-		return syncInvocationCallback.getResultSynchronious();
+		final Object result = syncInvocationCallback.getResultSynchronious();
+		IoUtils.tryCloseSilent(inputStream);
+		return result;
 	}
 
 	private void invokeAsync(
 		final IResultCallback<Object> resultCallback,
 		final IInterimResponseCallback<Progress> interimResponseCallback,
-		final IInterimRequestCallback<String, UserQuestionResult> interimRequestCallback,
+		final GenericInterimRequestCallback interimRequestCallback,
 		final RemoteInvocationParameter parameter,
-		final IExecutionCallback executionCallback) {
+		final IExecutionCallback executionCallback,
+		final InputStream inputStream) {
 
-		final IInvocationCallback<Object> invocationCallback = new InvocationCallback<Object>(resultCallback, executionCallback);
+		final IInvocationCallback<Object> invocationCallback = new InvocationCallback<Object>(
+			resultCallback,
+			executionCallback,
+			inputStream);
 		invokeMethod(invocationCallback, interimResponseCallback, interimRequestCallback, parameter);
 	}
 
 	private void invokeMethod(
 		final IInvocationCallback<Object> invocationCallback,
 		final IInterimResponseCallback<Progress> interimResponseCallback,
-		final IInterimRequestCallback<String, UserQuestionResult> interimRequestCallback,
+		final GenericInterimRequestCallback interimRequestCallback,
 		final RemoteInvocationParameter parameter) {
 
-		final IMethodInvocationService<Object, Progress, String, UserQuestionResult, RemoteInvocationParameter> methodService;
+		final IMethodInvocationService<Object, Progress, Object, Object, RemoteInvocationParameter> methodService;
 		methodService = invocationServiceClient.getMethodService(CapInvocationMethodNames.GENERIC_REMOTE_METHOD_NAME);
 		methodService.invoke(invocationCallback, interimResponseCallback, interimRequestCallback, parameter);
 	}
@@ -164,10 +192,15 @@ final class RemoteMethodInvocationHandler implements InvocationHandler {
 		return (IExecutionCallback) (index != -1 ? args[index] : null);
 	}
 
-	private int getFirstMatchingIndex(final Class<?> interfaceType, final Class<?>[] paramTypes) {
+	private InputStream getInputStream(final Class<?>[] parameterTypes, final Object[] args) {
+		final int index = getFirstMatchingIndex(InputStream.class, parameterTypes);
+		return (InputStream) (index != -1 ? args[index] : null);
+	}
+
+	private int getFirstMatchingIndex(final Class<?> type, final Class<?>[] paramTypes) {
 		if (paramTypes != null) {
 			for (int i = 0; i < paramTypes.length; i++) {
-				if (interfaceType.isAssignableFrom(paramTypes[i])) {
+				if (type.isAssignableFrom(paramTypes[i])) {
 					return i;
 				}
 			}
@@ -185,7 +218,7 @@ final class RemoteMethodInvocationHandler implements InvocationHandler {
 		if (args != null) {
 			final Object[] result = new Object[args.length];
 			for (int i = 0; i < args.length; i++) {
-				if (args[i] instanceof IResultCallback || args[i] instanceof IExecutionCallback) {
+				if (args[i] instanceof IResultCallback || args[i] instanceof IExecutionCallback || args[i] instanceof InputStream) {
 					result[i] = null;
 				}
 				else {

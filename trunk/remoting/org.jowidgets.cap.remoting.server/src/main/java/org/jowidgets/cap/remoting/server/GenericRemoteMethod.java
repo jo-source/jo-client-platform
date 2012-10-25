@@ -28,13 +28,12 @@
 
 package org.jowidgets.cap.remoting.server;
 
+import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
-import org.jowidgets.cap.common.api.execution.UserQuestionResult;
-import org.jowidgets.cap.remoting.common.Progress;
 import org.jowidgets.cap.remoting.common.RemoteInvocationParameter;
 import org.jowidgets.invocation.service.common.api.IInterimRequestCallback;
 import org.jowidgets.invocation.service.common.api.IInterimResponseCallback;
@@ -42,8 +41,7 @@ import org.jowidgets.invocation.service.common.api.IInvocationCallback;
 import org.jowidgets.invocation.service.common.api.IMethodInvocationService;
 import org.jowidgets.service.api.ServiceProvider;
 
-final class GenericRemoteMethod implements
-		IMethodInvocationService<Object, Progress, String, UserQuestionResult, RemoteInvocationParameter> {
+final class GenericRemoteMethod implements IMethodInvocationService<Object, Object, Object, Object, RemoteInvocationParameter> {
 
 	private final long progressDelay;
 	private final ScheduledExecutorService scheduledExecutorService;
@@ -56,8 +54,8 @@ final class GenericRemoteMethod implements
 	@Override
 	public void invoke(
 		final IInvocationCallback<Object> invocationCallback,
-		final IInterimResponseCallback<Progress> interimResponseCallback,
-		final IInterimRequestCallback<String, UserQuestionResult> interimRequestCallback,
+		final IInterimResponseCallback<Object> interimResponseCallback,
+		final IInterimRequestCallback<Object, Object> interimRequestCallback,
 		final RemoteInvocationParameter parameter) {
 		try {
 			final Object service = ServiceProvider.getService(parameter.getServiceId());
@@ -93,8 +91,8 @@ final class GenericRemoteMethod implements
 		final Object service,
 		final Method method,
 		final IInvocationCallback<Object> invocationCallback,
-		final IInterimResponseCallback<Progress> interimResponseCallback,
-		final IInterimRequestCallback<String, UserQuestionResult> interimRequestCallback,
+		final IInterimResponseCallback<Object> interimResponseCallback,
+		final IInterimRequestCallback<Object, Object> interimRequestCallback,
 		final RemoteInvocationParameter parameter) throws Exception {
 
 		final Class<?>[] parameterTypes = parameter.getParameterTypes();
@@ -110,6 +108,24 @@ final class GenericRemoteMethod implements
 				interimRequestCallback);
 		}
 
+		if (parameterTypes != null) {
+			boolean hasInputStream = false;
+			for (int i = 0; i < parameterTypes.length; i++) {
+				if (InputStream.class.isAssignableFrom(parameterTypes[i])) {
+					if (!hasInputStream) {
+						arguments[i] = new ServerInputStream(interimRequestCallback);
+						hasInputStream = true;
+					}
+					else {
+						throw new IllegalArgumentException(
+							"Only one InputStream is allowed as parameter of a remote method at the moment. "
+								+ "Feel free to write a patch that allows more than one input stream or "
+								+ "collections of input streams.");
+					}
+				}
+			}
+		}
+
 		final int resultCallbackIndex = getFirstMatchingIndex(IResultCallback.class, parameterTypes);
 		if (resultCallbackIndex == -1) {
 			final Object result = method.invoke(service, arguments);
@@ -121,10 +137,10 @@ final class GenericRemoteMethod implements
 		}
 	}
 
-	private int getFirstMatchingIndex(final Class<?> interfaceType, final Class<?>[] paramTypes) {
+	private int getFirstMatchingIndex(final Class<?> type, final Class<?>[] paramTypes) {
 		if (paramTypes != null) {
 			for (int i = 0; i < paramTypes.length; i++) {
-				if (interfaceType.isAssignableFrom(paramTypes[i])) {
+				if (type.isAssignableFrom(paramTypes[i])) {
 					return i;
 				}
 			}
