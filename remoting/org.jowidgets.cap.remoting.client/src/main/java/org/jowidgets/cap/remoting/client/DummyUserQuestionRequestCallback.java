@@ -30,10 +30,11 @@ package org.jowidgets.cap.remoting.client;
 
 import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.execution.UserQuestionResult;
+import org.jowidgets.cap.remoting.common.UserQuestionRequest;
 import org.jowidgets.invocation.service.common.api.IInterimRequestCallback;
 import org.jowidgets.invocation.service.common.api.IInterimResponseCallback;
 
-final class DummyUserQuestionRequestCallback implements IInterimRequestCallback<String, UserQuestionResult> {
+final class DummyUserQuestionRequestCallback implements IInterimRequestCallback<UserQuestionRequest, UserQuestionResult> {
 
 	private final IResultCallback<?> resultCallback;
 
@@ -42,7 +43,7 @@ final class DummyUserQuestionRequestCallback implements IInterimRequestCallback<
 	}
 
 	@Override
-	public void request(final IInterimResponseCallback<UserQuestionResult> callback, final String request) {
+	public void request(final IInterimResponseCallback<UserQuestionResult> callback, final UserQuestionRequest request) {
 		callback.response(UserQuestionResult.NO);
 		if (resultCallback != null) {
 			resultCallback.exception(new RuntimeException(

@@ -28,20 +28,28 @@
 
 package org.jowidgets.cap.remoting.client;
 
+import java.io.InputStream;
+
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IExecutionCallbackListener;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.invocation.service.common.api.ICancelListener;
 import org.jowidgets.invocation.service.common.api.IInvocationCallback;
+import org.jowidgets.util.io.IoUtils;
 
 final class InvocationCallback<RESULT_TYPE> implements IInvocationCallback<RESULT_TYPE> {
 
 	private final IResultCallback<RESULT_TYPE> resultCallback;
 	private final IExecutionCallback executionCallback;
+	private final InputStream inputStream;
 
-	InvocationCallback(final IResultCallback<RESULT_TYPE> resultCallback, final IExecutionCallback executionCallback) {
+	InvocationCallback(
+		final IResultCallback<RESULT_TYPE> resultCallback,
+		final IExecutionCallback executionCallback,
+		final InputStream inputStream) {
 		this.resultCallback = resultCallback;
 		this.executionCallback = executionCallback;
+		this.inputStream = inputStream;
 	}
 
 	@Override
@@ -58,6 +66,9 @@ final class InvocationCallback<RESULT_TYPE> implements IInvocationCallback<RESUL
 
 	@Override
 	public void finished(final RESULT_TYPE result) {
+		if (inputStream != null) {
+			IoUtils.tryCloseSilent(inputStream);
+		}
 		if (resultCallback != null) {
 			resultCallback.finished(result);
 		}
@@ -68,6 +79,9 @@ final class InvocationCallback<RESULT_TYPE> implements IInvocationCallback<RESUL
 
 	@Override
 	public void exeption(final Throwable exception) {
+		if (inputStream != null) {
+			IoUtils.tryCloseSilent(inputStream);
+		}
 		if (resultCallback != null) {
 			resultCallback.exception(exception);
 		}

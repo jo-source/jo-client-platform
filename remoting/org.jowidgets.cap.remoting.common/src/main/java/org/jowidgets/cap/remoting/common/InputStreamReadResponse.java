@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,34 +26,40 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.remoting.client;
+package org.jowidgets.cap.remoting.common;
 
-import org.jowidgets.cap.common.api.execution.IExecutionCallback;
-import org.jowidgets.cap.common.api.execution.IUserQuestionCallback;
-import org.jowidgets.cap.common.api.execution.UserQuestionResult;
-import org.jowidgets.cap.remoting.common.UserQuestionRequest;
-import org.jowidgets.invocation.service.common.api.IInterimRequestCallback;
-import org.jowidgets.invocation.service.common.api.IInterimResponseCallback;
-import org.jowidgets.util.Assert;
+import java.io.IOException;
 
-final class UserQuestionRequestCallback implements IInterimRequestCallback<UserQuestionRequest, UserQuestionResult> {
+public final class InputStreamReadResponse extends AbstractInputStreamResponse {
 
-	private final IExecutionCallback executionCallback;
+	private static final long serialVersionUID = -3555909048292516581L;
 
-	UserQuestionRequestCallback(final IExecutionCallback executionCallback) {
-		Assert.paramNotNull(executionCallback, "executionCallback");
-		this.executionCallback = executionCallback;
+	private final byte[] bytes;
+	private final int bytesRead;
+
+	public InputStreamReadResponse(final IOException ioException) {
+		super(ioException);
+		this.bytes = null;
+		this.bytesRead = -1;
 	}
 
-	@Override
-	public void request(final IInterimResponseCallback<UserQuestionResult> callback, final UserQuestionRequest request) {
-		executionCallback.userQuestion(request.getUserQuestion(), new IUserQuestionCallback() {
-			@Override
-			public void questionAnswered(final UserQuestionResult result) {
-				callback.response(result);
-			}
-		});
+	public InputStreamReadResponse() {
+		this(new byte[0], -1);
+	}
 
+	public InputStreamReadResponse(final byte[] bytes, final int bytesRead) {
+		this.bytes = bytes;
+		this.bytesRead = bytesRead;
+	}
+
+	public byte[] getBytes() throws IOException {
+		checkException();
+		return bytes;
+	}
+
+	public int getBytesRead() throws IOException {
+		checkException();
+		return bytesRead;
 	}
 
 }
