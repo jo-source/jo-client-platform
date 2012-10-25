@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.remoting.server;
 
+import java.io.BufferedInputStream;
 import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.util.concurrent.ScheduledExecutorService;
@@ -113,7 +114,7 @@ final class GenericRemoteMethod implements IMethodInvocationService<Object, Obje
 			for (int i = 0; i < parameterTypes.length; i++) {
 				if (InputStream.class.isAssignableFrom(parameterTypes[i])) {
 					if (!hasInputStream) {
-						arguments[i] = new ServerInputStream(interimRequestCallback);
+						arguments[i] = new BufferedInputStream(new ServerInputStream(interimRequestCallback), 1024000);
 						hasInputStream = true;
 					}
 					else {
