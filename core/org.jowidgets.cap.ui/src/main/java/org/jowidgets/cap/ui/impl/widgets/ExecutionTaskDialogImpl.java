@@ -50,11 +50,13 @@ import org.jowidgets.util.Assert;
 
 class ExecutionTaskDialogImpl extends WindowWrapper implements IExecutionTaskDialog {
 
-	private final IExecutionTask executionTask;
 	private final ITextLabel description;
 	private final IProgressBar progressBar;
 	private final IButton cancelButton;
 	private final boolean autoDispose;
+	private final ExecutionTaskListener executionTaskListener;
+
+	private IExecutionTask executionTask;
 
 	ExecutionTaskDialogImpl(final IFrame frame, final IExecutionTaskDialogBluePrint bluePrint) {
 		super(frame);
@@ -74,7 +76,9 @@ class ExecutionTaskDialogImpl extends WindowWrapper implements IExecutionTaskDia
 		cancelButtonBp.setSetup(bluePrint.getCancelButton());
 		this.cancelButton = frame.add(cancelButtonBp, "alignx r, aligny b, w 60::");
 
-		executionTask.addExecutionTaskListener(new ExecutionTaskListener());
+		this.executionTaskListener = new ExecutionTaskListener();
+
+		executionTask.addExecutionTaskListener(executionTaskListener);
 		cancelButton.addActionListener(new CancelButtonListener());
 
 		addWindowListener(new WindowCloseListener());
@@ -105,6 +109,16 @@ class ExecutionTaskDialogImpl extends WindowWrapper implements IExecutionTaskDia
 		progressBar.setMaximum(100);
 		progressBar.setProgress(0);
 		setButtonToOk(message);
+	}
+
+	@Override
+	public void setExecutionTask(final IExecutionTask executionTask) {
+		Assert.paramNotNull(executionTask, "executionTask");
+		if (this.executionTask != executionTask) {
+			this.executionTask.removeExecutionTaskListener(executionTaskListener);
+			this.executionTask = executionTask;
+			this.executionTask.addExecutionTaskListener(executionTaskListener);
+		}
 	}
 
 	private void setButtonToOk(final String message) {

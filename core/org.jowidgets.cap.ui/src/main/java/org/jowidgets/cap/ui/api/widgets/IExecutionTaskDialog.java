@@ -29,11 +29,14 @@
 package org.jowidgets.cap.ui.api.widgets;
 
 import org.jowidgets.api.widgets.IWindow;
+import org.jowidgets.cap.ui.api.execution.IExecutionTask;
 
 public interface IExecutionTaskDialog extends IWindow {
 
 	void executionFinished(String message);
 
 	void executionError(String message);
+
+	void setExecutionTask(IExecutionTask executionTask);
 
 }
