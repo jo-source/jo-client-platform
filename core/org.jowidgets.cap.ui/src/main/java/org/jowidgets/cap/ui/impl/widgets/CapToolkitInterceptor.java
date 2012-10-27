@@ -108,7 +108,7 @@ final class CapToolkitInterceptor implements IToolkitInterceptor {
 	}
 
 	private void registerImage(final IImageRegistry registry, final IImageConstant imageConstant, final String relPath) {
-		final URL url = getClass().getClassLoader().getResource("icons/" + relPath);
+		final URL url = getClass().getClassLoader().getResource("org/jowidgets/cap/ui/icons/" + relPath);
 		registry.registerImageConstant(imageConstant, url);
 	}
 
