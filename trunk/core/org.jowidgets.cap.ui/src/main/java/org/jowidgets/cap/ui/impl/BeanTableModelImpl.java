@@ -2611,7 +2611,12 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 						final boolean changed = oldBeanProxy != null;
 						dataChanged = dataChanged || changed;
 						pageChanged = pageChanged || changed;
-						break;
+						if (oldBeanProxy != null) {
+							beansStateTracker.unregister(oldBeanProxy);
+						}
+						else {
+							break;
+						}
 					}
 				}
 
