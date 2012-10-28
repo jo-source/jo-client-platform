@@ -37,12 +37,12 @@ import java.awt.Image;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.RectangularShape;
-import java.net.URL;
 
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.cap.addons.widgets.graph.impl.swing.common.BeanRelationGraphImpl.Expand;
 import org.jowidgets.cap.ui.api.icons.CapIcons;
 import org.jowidgets.common.image.IImageConstant;
+import org.jowidgets.common.image.IImageDescriptor;
 import org.jowidgets.common.image.IImageHandle;
 import org.jowidgets.spi.impl.swing.common.image.SwingImageRegistry;
 
@@ -77,14 +77,14 @@ class NodeRenderer extends LabelRenderer {
 			final IImageHandle imageHandle = Toolkit.getImageRegistry().getImageHandle(icon);
 			if (imageHandle != null) {
 				final Object image = imageHandle.getImage();
-				final URL imageUrl = imageHandle.getImageUrl();
+				final IImageDescriptor imageDescriptor = imageHandle.getImageDescriptor();
 				if (image instanceof Image) {
 					return (Image) image;
 				}
-				else if (imageUrl != null) {
+				else if (imageDescriptor != null) {
 					IImageHandle awtImageHandle = SwingImageRegistry.getInstance().getImageHandle(icon);
 					if (awtImageHandle == null) {
-						SwingImageRegistry.getInstance().registerImageConstant(icon, imageUrl);
+						SwingImageRegistry.getInstance().registerImageConstant(icon, imageDescriptor);
 						awtImageHandle = SwingImageRegistry.getInstance().getImageHandle(icon);
 					}
 					return (Image) awtImageHandle.getImage();
