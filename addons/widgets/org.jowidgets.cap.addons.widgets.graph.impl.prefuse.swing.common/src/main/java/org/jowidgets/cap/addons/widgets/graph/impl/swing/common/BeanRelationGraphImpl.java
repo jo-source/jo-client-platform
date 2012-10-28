@@ -42,7 +42,6 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -79,6 +78,7 @@ import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeModel;
 import org.jowidgets.cap.ui.api.types.IEntityTypeId;
 import org.jowidgets.cap.ui.tools.model.BeanListModelListenerAdapter;
 import org.jowidgets.common.image.IImageConstant;
+import org.jowidgets.common.image.IImageDescriptor;
 import org.jowidgets.common.image.IImageHandle;
 import org.jowidgets.common.types.Orientation;
 import org.jowidgets.common.widgets.controller.IInputListener;
@@ -842,14 +842,14 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 			final IImageHandle imageHandle = Toolkit.getImageRegistry().getImageHandle(icon);
 			if (imageHandle != null) {
 				final Object image = imageHandle.getImage();
-				final URL imageUrl = imageHandle.getImageUrl();
+				final IImageDescriptor imageDescriptor = imageHandle.getImageDescriptor();
 				if (image instanceof Image) {
 					renderIcon(node, (Image) image);
 				}
-				else if (imageUrl != null) {
+				else if (imageDescriptor != null) {
 					IImageHandle awtImageHandle = SwingImageRegistry.getInstance().getImageHandle(icon);
 					if (awtImageHandle == null) {
-						SwingImageRegistry.getInstance().registerImageConstant(icon, imageUrl);
+						SwingImageRegistry.getInstance().registerImageConstant(icon, imageDescriptor);
 						awtImageHandle = SwingImageRegistry.getInstance().getImageHandle(icon);
 					}
 					renderIcon(node, (Image) awtImageHandle.getImage());
