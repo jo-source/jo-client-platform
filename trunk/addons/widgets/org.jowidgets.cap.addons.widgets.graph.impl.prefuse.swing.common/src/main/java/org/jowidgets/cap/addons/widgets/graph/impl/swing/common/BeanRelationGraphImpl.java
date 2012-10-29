@@ -99,7 +99,6 @@ import prefuse.action.Action;
 import prefuse.action.ActionList;
 import prefuse.action.GroupAction;
 import prefuse.action.RepaintAction;
-import prefuse.action.animate.ColorAnimator;
 import prefuse.action.animate.PolarLocationAnimator;
 import prefuse.action.animate.QualityControlAnimator;
 import prefuse.action.animate.VisibilityAnimator;
@@ -195,6 +194,9 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 	private final IUiThreadAccess uiThreadAccess;
 	private InputControlItemModel<Integer> maxNodeTextField;
 	private RadialTreeLayout radialTreeLayout;
+	private NodeLinkTreeLayout nodeLinkTreeLayout;
+	private ActionList animate;
+	private ActionList layout;
 
 	BeanRelationGraphImpl(
 		final IComposite composite,
@@ -259,6 +261,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 			fill.add("type == '" + GRAPH_NODES_GROUP + index + "'", NODE_COLORS[index]);
 		}
 		color.add(fill);
+		color.add(new RepaintAction(vis));
 
 		vis.putAction("color", color);
 		vis.putAction("filter", filter);
@@ -329,10 +332,9 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 					node.set("marked", true);
 					markedNode = node;
 				}
-				synchronized (vis) {
-					vis.run("marked");
-					vis.run("filter");
-				}
+				vis.run("marked");
+				vis.run("filter");
+				runLayout();
 			}
 		});
 
@@ -499,10 +501,6 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 
 		nodes.clear();
 		nodes = null;
-		synchronized (vis) {
-			runLayout();
-			vis.run("filter");
-		}
 	}
 
 	private void contractParentNodes(final Node node) {
@@ -709,7 +707,6 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 			synchronized (vis) {
 				graph.clear();
 				onBeansChanged(root);
-				vis.runAfter("filter", "expand");
 				vis.runAfter("filter", "expand");
 			}
 		}
@@ -945,7 +942,6 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 			}
 		});
 
-		//SettingsDialog
 		final ICommandAction settingsDialogAction = settingsDialogActionBuilder.build();
 
 		final IComboBoxSelectionBluePrint<GraphLayout> comboBoxBp = BPF.comboBoxSelection(GraphLayout.values());
@@ -956,7 +952,6 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 
 			@Override
 			public void inputChanged() {
-
 				final GraphLayout value = comboBox.getValue();
 				if (GraphLayout.FORCE_DIRECTED_LAYOUT == value) {
 					settingsDialogAction.setEnabled(true);
@@ -976,7 +971,6 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		comboBox.setValue(GraphLayout.FORCE_DIRECTED_LAYOUT);
 		model.addItem(comboBox);
 
-		//AnimationCheckedItem
 		final ICheckedItemModel checkItemModel = model.addCheckedItem(
 				CapIcons.GRAPH_ANIMATION,
 				Messages.getMessage("BeanRelationGraphImpl.animation.on").get());
@@ -1033,8 +1027,9 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 
 			@Override
 			public void itemStateChanged() {
-				labelEdgeLayout.setEdgesVisible(edgeCheckedItem.isSelected());
 				synchronized (vis) {
+					labelEdgeLayout.setEdgesVisible(edgeCheckedItem.isSelected());
+					labelEdgeLayout.run();
 					vis.repaint();
 				}
 			}
@@ -1066,14 +1061,30 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 	private void initForceDLayout() {
 		synchronized (vis) {
 			vis.removeAction("layout");
+			layout = null;
+			radialTreeLayout = null;
+			nodeLinkTreeLayout = null;
 
 			final ForceDirectedLayout forceDirectedLayout = new ForceDirectedLayout(GRAPH, true);
 			forceDirectedLayout.setForceSimulator(forceSimulator != null ? forceSimulator : setForces());
 
-			final ActionList layout = new ActionList(Activity.INFINITY);
+			layout = new ActionList(Activity.INFINITY);
 			layout.add(forceDirectedLayout);
 			layout.add(labelEdgeLayout);
 			layout.add(new RepaintAction(vis));
+
+			if (animate == null) {
+				animate = new ActionList(1250);
+				animate.setPacingFunction(new SlowInSlowOutPacer());
+				animate.add(new QualityControlAnimator());
+				animate.add(new VisibilityAnimator(GRAPH));
+				animate.add(new PolarLocationAnimator(GRAPH, "linear"));
+				//animate.add(new ColorAnimator(GRAPH));
+				animate.add(new RepaintAction(vis));
+				final CollapsedSubtreeLayout subLayout = new CollapsedSubtreeLayout(GRAPH);
+				animate.add(subLayout);
+				vis.putAction("animate", animate);
+			}
 
 			vis.putAction("layout", layout);
 
@@ -1084,10 +1095,13 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 	private void initNodeLinkLayout() {
 		synchronized (vis) {
 			vis.removeAction("layout");
+			layout = null;
+			radialTreeLayout = null;
 		}
-		final ActionList layout = new ActionList(ACTIVITY_DEFAULT_TIME);
-		final NodeLinkTreeLayout nodeLinkTreeLayout = new NodeLinkTreeLayout(GRAPH);
-		nodeLinkTreeLayout.setRootNodeOffset(10);
+		layout = new ActionList(ACTIVITY_DEFAULT_TIME);
+		nodeLinkTreeLayout = new NodeLinkTreeLayout(GRAPH);
+		nodeLinkTreeLayout.setRootNodeOffset(120);
+		updateAnchor(nodeLinkTreeLayout);
 		layout.add(nodeLinkTreeLayout);
 		layout.add(labelEdgeLayout);
 		layout.add(new RepaintAction(vis));
@@ -1099,30 +1113,21 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 	private void initRadialTreeLayout() {
 		synchronized (vis) {
 			vis.removeAction("layout");
+			layout = null;
+			radialTreeLayout = null;
+			nodeLinkTreeLayout = null;
 
-			final ActionList layout = new ActionList(ACTIVITY_DEFAULT_TIME);
+			layout = new ActionList(ACTIVITY_DEFAULT_TIME);
 			radialTreeLayout = new RadialTreeLayout(GRAPH);
 			radialTreeLayout.setAutoScale(false);
-			radialTreeLayout.setRadiusIncrement(radialTreeLayout.getRadiusIncrement() * 2);
+			radialTreeLayout.setRadiusIncrement(120);
 			layout.add(radialTreeLayout);
-			//						layout.add(new RepaintAction(vis));
 			layout.add(new TreeRootAction(GRAPH, vis));
-			final CollapsedSubtreeLayout subLayout = new CollapsedSubtreeLayout(GRAPH);
-			layout.add(subLayout);
-
 			layout.add(labelEdgeLayout);
-
-			final ActionList animate = new ActionList(1250);
-			animate.setPacingFunction(new SlowInSlowOutPacer());
-			animate.add(new QualityControlAnimator());
-			animate.add(new VisibilityAnimator(GRAPH));
-			animate.add(new PolarLocationAnimator(NODES, "linear"));
-			animate.add(new ColorAnimator(NODES));
-			animate.add(new RepaintAction(vis));
+			layout.add(new RepaintAction(vis));
 
 			display.setItemSorter(new TreeDepthItemSorter(false));
 
-			vis.putAction("animate", animate);
 			vis.putAction("layout", layout);
 
 			runLayout();
@@ -1130,12 +1135,28 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 
 	}
 
-	private void runLayout() {
-		vis.run("layout");
-		if (radialTreeLayout != null) {
+	private void updateAnchor(final NodeLinkTreeLayout nlt) {
+		nlt.setLayoutAnchor(new Point(display.getX(), display.getY()));
+	}
+
+	private void updateAnchor(final RadialTreeLayout rlt) {
+		rlt.setLayoutAnchor(new Point(display.getX(), display.getY()));
+	}
+
+	public void runLayout() {
+		if (display != null) {
+
+			if (radialTreeLayout != null) {
+				updateAnchor(radialTreeLayout);
+			}
+			if (nodeLinkTreeLayout != null) {
+				updateAnchor(nodeLinkTreeLayout);
+			}
+
+			vis.run("layout");
 			vis.run("animate");
+			vis.run("color");
 		}
-		vis.run("color");
 	}
 
 	private static void renderNodeWithLabel(final Node node, final ILabelModel label) {
