@@ -121,20 +121,28 @@ final class BeanListExecutionHelper<BEAN_TYPE> {
 	}
 
 	void afterExecution(final List<IBeanProxy<BEAN_TYPE>> executedBeans, final List<IBeanDto> result) {
+
 		if (result != null) {
 			if (transientSourceBeans) {
+				//The execution tasks must be cleared before the transient update occurs
+				//because after the update the beans have different id's
+				clearExecutionTasks(executedBeans);
 				updateTransientBeans(executedBeans, result);
 			}
 			else {
 				updateBeans(executedBeans, result);
+				clearExecutionTasks(executedBeans);
 			}
 		}
-		//clear the execution task
-		for (final IBeanProxy<BEAN_TYPE> bean : executedBeans) {
-			bean.setExecutionTask(null);
-		}
+
 		if (fireBeansChanged) {
 			listModel.fireBeansChanged();
+		}
+	}
+
+	private void clearExecutionTasks(final List<IBeanProxy<BEAN_TYPE>> executedBeans) {
+		for (final IBeanProxy<BEAN_TYPE> bean : executedBeans) {
+			bean.setExecutionTask(null);
 		}
 	}
 
