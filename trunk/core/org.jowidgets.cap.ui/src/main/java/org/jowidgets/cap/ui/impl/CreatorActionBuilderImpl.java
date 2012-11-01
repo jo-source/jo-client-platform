@@ -52,13 +52,13 @@ import org.jowidgets.cap.ui.api.plugin.IServiceActionDecoratorPlugin;
 import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
 import org.jowidgets.common.types.Modifier;
 import org.jowidgets.common.types.VirtualKey;
+import org.jowidgets.i18n.api.MessageReplacer;
 import org.jowidgets.plugin.api.IPluginProperties;
 import org.jowidgets.plugin.api.PluginProperties;
 import org.jowidgets.plugin.api.PluginProvider;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.api.ServiceProvider;
 import org.jowidgets.service.tools.ServiceId;
-import org.jowidgets.tools.message.MessageReplacer;
 import org.jowidgets.util.Assert;
 
 final class CreatorActionBuilderImpl<BEAN_TYPE> extends AbstractCapActionBuilderImpl<ICreatorActionBuilder<BEAN_TYPE>> implements

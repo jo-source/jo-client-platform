@@ -79,6 +79,7 @@ import org.jowidgets.common.widgets.descriptor.IWidgetDescriptor;
 import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
 import org.jowidgets.i18n.api.IMessage;
+import org.jowidgets.i18n.api.MessageReplacer;
 import org.jowidgets.tools.command.ActionBuilder;
 import org.jowidgets.tools.controller.InputObservable;
 import org.jowidgets.tools.converter.AbstractConverter;
@@ -1936,7 +1937,7 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 			final Visibility visibility = Visibility.getValue(visibleCount, invisibleCount);
 			if (Visibility.PARTIAL.equals(visibility)) {
 				setSelected(true);
-				setToolTipText(Toolkit.getMessageReplacer().replace(
+				setToolTipText(MessageReplacer.replace(
 						VISIBLE_HIDDEN.get(),
 						String.valueOf(visibleCount),
 						String.valueOf(invisibleCount)));

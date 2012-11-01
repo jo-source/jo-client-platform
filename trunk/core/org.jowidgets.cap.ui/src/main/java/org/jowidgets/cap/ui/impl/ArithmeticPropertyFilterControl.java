@@ -51,7 +51,7 @@ import org.jowidgets.cap.ui.api.filter.IUiFilterFactory;
 import org.jowidgets.common.widgets.controller.IInputListener;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
 import org.jowidgets.i18n.api.IMessage;
-import org.jowidgets.tools.message.MessageReplacer;
+import org.jowidgets.i18n.api.MessageReplacer;
 import org.jowidgets.tools.validation.MandatoryValidator;
 import org.jowidgets.tools.widgets.wrapper.AbstractInputControl;
 import org.jowidgets.util.Assert;
@@ -178,7 +178,7 @@ public class ArithmeticPropertyFilterControl<ELEMENT_VALUE_TYPE> extends
 	protected IValidationResult createValidationResult() {
 		if (combo1 != null && combo1.getElements().isEmpty() || combo2 != null && combo2.getElements().isEmpty()) {
 			final String message = MessageReplacer.replace(NO_ATTRIBUTE_COULD_BE_COMPARED_WITH.get(), attribute.getCurrentLabel());
-			return ValidationResult.infoError(message); //$NON-NLS-1$ //$NON-NLS-2$
+			return ValidationResult.infoError(message);
 		}
 		return ValidationResult.ok();
 
