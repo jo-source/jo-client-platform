@@ -29,6 +29,7 @@
 package org.jowidgets.cap.remoting.client;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IExecutionCallbackListener;
@@ -41,15 +42,15 @@ final class InvocationCallback<RESULT_TYPE> implements IInvocationCallback<RESUL
 
 	private final IResultCallback<RESULT_TYPE> resultCallback;
 	private final IExecutionCallback executionCallback;
-	private final InputStream inputStream;
+	private final ArrayList<InputStream> inputStreams;
 
 	InvocationCallback(
 		final IResultCallback<RESULT_TYPE> resultCallback,
 		final IExecutionCallback executionCallback,
-		final InputStream inputStream) {
+		final ArrayList<InputStream> inputStreams) {
 		this.resultCallback = resultCallback;
 		this.executionCallback = executionCallback;
-		this.inputStream = inputStream;
+		this.inputStreams = inputStreams;
 	}
 
 	@Override
@@ -66,7 +67,7 @@ final class InvocationCallback<RESULT_TYPE> implements IInvocationCallback<RESUL
 
 	@Override
 	public void finished(final RESULT_TYPE result) {
-		if (inputStream != null) {
+		for (final InputStream inputStream : inputStreams) {
 			IoUtils.tryCloseSilent(inputStream);
 		}
 		if (resultCallback != null) {
@@ -79,7 +80,7 @@ final class InvocationCallback<RESULT_TYPE> implements IInvocationCallback<RESUL
 
 	@Override
 	public void exeption(final Throwable exception) {
-		if (inputStream != null) {
+		for (final InputStream inputStream : inputStreams) {
 			IoUtils.tryCloseSilent(inputStream);
 		}
 		if (resultCallback != null) {

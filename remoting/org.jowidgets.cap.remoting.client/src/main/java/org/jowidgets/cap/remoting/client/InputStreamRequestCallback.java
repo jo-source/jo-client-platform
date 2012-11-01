@@ -30,6 +30,7 @@ package org.jowidgets.cap.remoting.client;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 
 import org.jowidgets.cap.remoting.common.IInputStreamRequest;
 import org.jowidgets.cap.remoting.common.IInputStreamResponse;
@@ -53,11 +54,11 @@ import org.jowidgets.util.Assert;
 
 final class InputStreamRequestCallback implements IInterimRequestCallback<IInputStreamRequest, IInputStreamResponse> {
 
-	private final InputStream inputStream;
+	private final ArrayList<InputStream> inputStreams;
 
-	InputStreamRequestCallback(final InputStream inputStream) {
-		Assert.paramNotNull(inputStream, "inputStream");
-		this.inputStream = inputStream;
+	InputStreamRequestCallback(final ArrayList<InputStream> inputStreams) {
+		Assert.paramNotEmpty(inputStreams, "inputStreams");
+		this.inputStreams = inputStreams;
 	}
 
 	@SuppressWarnings({"rawtypes", "unchecked"})
@@ -98,7 +99,7 @@ final class InputStreamRequestCallback implements IInterimRequestCallback<IInput
 		final IInterimResponseCallback<InputStreamAvailableResponse> responseCallback,
 		final InputStreamAvailableRequest request) {
 		try {
-			final int available = inputStream.available();
+			final int available = inputStreams.get(request.getIndex()).available();
 			responseCallback.response(new InputStreamAvailableResponse(available));
 		}
 		catch (final IOException e) {
@@ -110,7 +111,7 @@ final class InputStreamRequestCallback implements IInterimRequestCallback<IInput
 		final IInterimResponseCallback<InputStreamCloseResponse> responseCallback,
 		final InputStreamCloseRequest request) {
 		try {
-			inputStream.close();
+			inputStreams.get(request.getIndex()).close();
 			responseCallback.response(new InputStreamCloseResponse());
 		}
 		catch (final IOException e) {
@@ -121,14 +122,14 @@ final class InputStreamRequestCallback implements IInterimRequestCallback<IInput
 	private void inputStreamMarkRequest(
 		final IInterimResponseCallback<InputStreamMarkResponse> responseCallback,
 		final InputStreamMarkRequest request) {
-		inputStream.mark(request.getReadlimit());
+		inputStreams.get(request.getIndex()).mark(request.getReadlimit());
 		responseCallback.response(new InputStreamMarkResponse());
 	}
 
 	private void inputStreamMarkSupportedRequest(
 		final IInterimResponseCallback<InputStreamMarkSupportedResponse> responseCallback,
 		final InputStreamMarkSupportedRequest request) {
-		responseCallback.response(new InputStreamMarkSupportedResponse(inputStream.markSupported()));
+		responseCallback.response(new InputStreamMarkSupportedResponse(inputStreams.get(request.getIndex()).markSupported()));
 	}
 
 	private void inputStreamReadRequest(
@@ -136,7 +137,7 @@ final class InputStreamRequestCallback implements IInterimRequestCallback<IInput
 		final InputStreamReadRequest request) {
 		final byte[] bytes = new byte[request.getLength()];
 		try {
-			final int readBytes = inputStream.read(bytes);
+			final int readBytes = inputStreams.get(request.getIndex()).read(bytes);
 			if (readBytes == -1) {
 				responseCallback.response(new InputStreamReadResponse());
 			}
@@ -160,7 +161,7 @@ final class InputStreamRequestCallback implements IInterimRequestCallback<IInput
 		final IInterimResponseCallback<InputStreamResetResponse> responseCallback,
 		final InputStreamResetRequest request) {
 		try {
-			inputStream.reset();
+			inputStreams.get(request.getIndex()).reset();
 			responseCallback.response(new InputStreamResetResponse());
 		}
 		catch (final IOException e) {
@@ -172,7 +173,7 @@ final class InputStreamRequestCallback implements IInterimRequestCallback<IInput
 		final IInterimResponseCallback<InputStreamSkipResponse> responseCallback,
 		final InputStreamSkipRequest request) {
 		try {
-			responseCallback.response(new InputStreamSkipResponse(inputStream.skip(request.getSkip())));
+			responseCallback.response(new InputStreamSkipResponse(inputStreams.get(request.getIndex()).skip(request.getSkip())));
 		}
 		catch (final IOException e) {
 			responseCallback.response(new InputStreamSkipResponse(e));

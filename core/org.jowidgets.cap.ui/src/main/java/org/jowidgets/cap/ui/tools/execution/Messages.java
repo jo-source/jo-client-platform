@@ -26,25 +26,25 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.remoting.common;
+package org.jowidgets.cap.ui.tools.execution;
 
-import java.io.Serializable;
+import org.jowidgets.i18n.api.IMessage;
+import org.jowidgets.i18n.api.IMessageProvider;
+import org.jowidgets.i18n.api.MessageProvider;
 
-import org.jowidgets.util.Assert;
+final class Messages {
 
-public final class UserQuestionRequest implements Serializable {
+	private static final IMessageProvider MESSAGE_PROVIDER = MessageProvider.create(
+			"org.jowidgets.cap.ui.tools.execution.messages",
+			Messages.class);
 
-	private static final long serialVersionUID = -3555909048292516581L;
+	private Messages() {}
 
-	private final String userQuestion;
-
-	public UserQuestionRequest(final String userQuestion) {
-		Assert.paramNotEmpty(userQuestion, "userQuestion");
-		this.userQuestion = userQuestion;
+	public static String getString(final String key) {
+		return MESSAGE_PROVIDER.getString(key);
 	}
 
-	public String getUserQuestion() {
-		return userQuestion;
+	public static IMessage getMessage(final String key) {
+		return MESSAGE_PROVIDER.getMessage(key);
 	}
-
 }

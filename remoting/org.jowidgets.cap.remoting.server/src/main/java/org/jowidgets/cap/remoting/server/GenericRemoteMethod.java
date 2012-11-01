@@ -28,19 +28,21 @@
 
 package org.jowidgets.cap.remoting.server;
 
-import java.io.BufferedInputStream;
 import java.io.InputStream;
 import java.lang.reflect.Method;
+import java.util.Collection;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
+import org.jowidgets.cap.remoting.common.InputStreamDummy;
 import org.jowidgets.cap.remoting.common.RemoteInvocationParameter;
 import org.jowidgets.invocation.service.common.api.IInterimRequestCallback;
 import org.jowidgets.invocation.service.common.api.IInterimResponseCallback;
 import org.jowidgets.invocation.service.common.api.IInvocationCallback;
 import org.jowidgets.invocation.service.common.api.IMethodInvocationService;
 import org.jowidgets.service.api.ServiceProvider;
+import org.jowidgets.util.io.LazyBufferedInputStream;
 
 final class GenericRemoteMethod implements IMethodInvocationService<Object, Object, Object, Object, RemoteInvocationParameter> {
 
@@ -88,6 +90,7 @@ final class GenericRemoteMethod implements IMethodInvocationService<Object, Obje
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public void invokeMethodOnService(
 		final Object service,
 		final Method method,
@@ -110,18 +113,50 @@ final class GenericRemoteMethod implements IMethodInvocationService<Object, Obje
 		}
 
 		if (parameterTypes != null) {
-			boolean hasInputStream = false;
+			int inputStreamIndex = 0;
 			for (int i = 0; i < parameterTypes.length; i++) {
 				if (InputStream.class.isAssignableFrom(parameterTypes[i])) {
-					if (!hasInputStream) {
-						arguments[i] = new BufferedInputStream(new ServerInputStream(interimRequestCallback), 1024000);
-						hasInputStream = true;
+					arguments[i] = createServerInputStream(inputStreamIndex, interimRequestCallback);
+					inputStreamIndex++;
+				}
+				else if (InputStream[].class.isAssignableFrom(parameterTypes[i])) {
+					final InputStreamDummy[] inputStreamDummies = (InputStreamDummy[]) arguments[i];
+					if (inputStreamDummies != null) {
+						final InputStream[] inputStreams = new InputStream[inputStreamDummies.length];
+						for (int j = 0; j < inputStreams.length; j++) {
+							if (inputStreamDummies[j] != null) {
+								inputStreams[j] = createServerInputStream(inputStreamIndex, interimRequestCallback);
+								inputStreamIndex++;
+							}
+						}
+						arguments[i] = inputStreams;
 					}
-					else {
-						throw new IllegalArgumentException(
-							"Only one InputStream is allowed as parameter of a remote method at the moment. "
-								+ "Feel free to write a patch that allows more than one input stream or "
-								+ "collections of input streams.");
+				}
+				else if (Collection.class.isAssignableFrom(parameterTypes[i])) {
+					final Collection<?> collection = (Collection<?>) arguments[i];
+					if (collection != null && isIterableOfType(collection, InputStreamDummy.class)) {
+						Collection<InputStream> inputStreams;
+						try {
+							inputStreams = collection.getClass().newInstance();
+						}
+						catch (final Exception e) {
+							throw new IllegalArgumentException(
+								"Collections that holds input streams must have a public default constructor",
+								e);
+						}
+						for (final Object element : collection) {
+							if (element instanceof InputStreamDummy) {
+								inputStreams.add(createServerInputStream(inputStreamIndex, interimRequestCallback));
+								inputStreamIndex++;
+							}
+							else if (element == null) {
+								inputStreams.add(null);
+							}
+							else {
+								throw new IllegalArgumentException("Collections with mixed types must not contain InputStreams");
+							}
+						}
+						arguments[i] = inputStreams;
 					}
 				}
 			}
@@ -136,6 +171,26 @@ final class GenericRemoteMethod implements IMethodInvocationService<Object, Obje
 			arguments[resultCallbackIndex] = new ServerResultCallback(invocationCallback);
 			method.invoke(service, arguments);
 		}
+	}
+
+	private boolean isIterableOfType(final Iterable<?> iterable, final Class<?> type) {
+		for (final Object element : iterable) {
+			if (element != null) {
+				if (type.isAssignableFrom(element.getClass())) {
+					return true;
+				}
+				else {
+					return false;
+				}
+			}
+		}
+		return false;
+	}
+
+	private InputStream createServerInputStream(
+		final int inputStreamIndex,
+		final IInterimRequestCallback<Object, Object> interimRequestCallback) {
+		return new LazyBufferedInputStream(new ServerInputStream(inputStreamIndex, interimRequestCallback), 1024000);
 	}
 
 	private int getFirstMatchingIndex(final Class<?> type, final Class<?>[] paramTypes) {

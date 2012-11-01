@@ -31,11 +31,14 @@ package org.jowidgets.cap.remoting.client;
 import java.io.InputStream;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collection;
 
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.execution.UserQuestionResult;
 import org.jowidgets.cap.remoting.common.CapInvocationMethodNames;
+import org.jowidgets.cap.remoting.common.InputStreamDummy;
 import org.jowidgets.cap.remoting.common.Progress;
 import org.jowidgets.cap.remoting.common.RemoteInvocationParameter;
 import org.jowidgets.cap.remoting.common.UserQuestionRequest;
@@ -47,6 +50,7 @@ import org.jowidgets.invocation.service.common.api.IInvocationCallback;
 import org.jowidgets.invocation.service.common.api.IMethodInvocationService;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.EmptyCheck;
 import org.jowidgets.util.io.IoUtils;
 
 final class RemoteMethodInvocationHandler implements InvocationHandler {
@@ -96,7 +100,7 @@ final class RemoteMethodInvocationHandler implements InvocationHandler {
 
 		final IResultCallback<Object> resultCallback = getResultCallback(parameterTypes, args);
 		final IExecutionCallback executionCallback = getExecutionCallback(parameterTypes, args);
-		final InputStream inputStream = getInputStream(parameterTypes, args);
+		final ArrayList<InputStream> inputStreams = getInputStreams(parameterTypes, args);
 
 		final IInterimResponseCallback<Progress> interimResponseCallback;
 		final IInterimRequestCallback<UserQuestionRequest, UserQuestionResult> userQuestionRequestCallback;
@@ -110,8 +114,8 @@ final class RemoteMethodInvocationHandler implements InvocationHandler {
 		}
 
 		final InputStreamRequestCallback inputStreamRequestCallback;
-		if (inputStream != null) {
-			inputStreamRequestCallback = new InputStreamRequestCallback(inputStream);
+		if (!EmptyCheck.isEmpty(inputStreams)) {
+			inputStreamRequestCallback = new InputStreamRequestCallback(inputStreams);
 		}
 		else {
 			inputStreamRequestCallback = null;
@@ -124,7 +128,7 @@ final class RemoteMethodInvocationHandler implements InvocationHandler {
 			serviceId,
 			method.getName(),
 			parameterTypes,
-			getFilteredArgs(args));
+			getFilteredArgs(args, parameterTypes));
 
 		if (resultCallback != null) {
 			invokeAsync(
@@ -133,11 +137,11 @@ final class RemoteMethodInvocationHandler implements InvocationHandler {
 					interimRequestCallback,
 					parameter,
 					executionCallback,
-					inputStream);
+					inputStreams);
 			return null;
 		}
 		else {
-			return invokeSync(interimResponseCallback, interimRequestCallback, parameter, executionCallback, inputStream);
+			return invokeSync(interimResponseCallback, interimRequestCallback, parameter, executionCallback, inputStreams);
 		}
 	}
 
@@ -146,12 +150,14 @@ final class RemoteMethodInvocationHandler implements InvocationHandler {
 		final GenericInterimRequestCallback interimRequestCallback,
 		final RemoteInvocationParameter parameter,
 		final IExecutionCallback executionCallback,
-		final InputStream inputStream) {
+		final ArrayList<InputStream> inputStreams) {
 
 		final SyncInvocationCallback<Object> syncInvocationCallback = new SyncInvocationCallback<Object>(executionCallback);
 		invokeMethod(syncInvocationCallback, interimResponseCallback, interimRequestCallback, parameter);
 		final Object result = syncInvocationCallback.getResultSynchronious();
-		IoUtils.tryCloseSilent(inputStream);
+		for (final InputStream inputStream : inputStreams) {
+			IoUtils.tryCloseSilent(inputStream);
+		}
 		return result;
 	}
 
@@ -161,12 +167,12 @@ final class RemoteMethodInvocationHandler implements InvocationHandler {
 		final GenericInterimRequestCallback interimRequestCallback,
 		final RemoteInvocationParameter parameter,
 		final IExecutionCallback executionCallback,
-		final InputStream inputStream) {
+		final ArrayList<InputStream> inputStreams) {
 
 		final IInvocationCallback<Object> invocationCallback = new InvocationCallback<Object>(
 			resultCallback,
 			executionCallback,
-			inputStream);
+			inputStreams);
 		invokeMethod(invocationCallback, interimResponseCallback, interimRequestCallback, parameter);
 	}
 
@@ -192,9 +198,34 @@ final class RemoteMethodInvocationHandler implements InvocationHandler {
 		return (IExecutionCallback) (index != -1 ? args[index] : null);
 	}
 
-	private InputStream getInputStream(final Class<?>[] parameterTypes, final Object[] args) {
-		final int index = getFirstMatchingIndex(InputStream.class, parameterTypes);
-		return (InputStream) (index != -1 ? args[index] : null);
+	private ArrayList<InputStream> getInputStreams(final Class<?>[] parameterTypes, final Object[] args) {
+		final ArrayList<InputStream> result = new ArrayList<InputStream>();
+		if (parameterTypes != null) {
+			for (int i = 0; i < parameterTypes.length; i++) {
+				if (InputStream.class.isAssignableFrom(parameterTypes[i])) {
+					result.add((InputStream) args[i]);
+				}
+				else if (InputStream[].class.isAssignableFrom(parameterTypes[i])) {
+					final InputStream[] inputStreams = (InputStream[]) args[i];
+					if (inputStreams != null) {
+						for (final InputStream element : inputStreams) {
+							result.add(element);
+						}
+					}
+				}
+				else if (Iterable.class.isAssignableFrom(parameterTypes[i])) {
+					final Iterable<?> iterable = (Iterable<?>) args[i];
+					if (iterable != null) {
+						for (final Object element : iterable) {
+							if (element instanceof InputStream) {
+								result.add((InputStream) element);
+							}
+						}
+					}
+				}
+			}
+		}
+		return result;
 	}
 
 	private int getFirstMatchingIndex(final Class<?> type, final Class<?>[] paramTypes) {
@@ -212,17 +243,76 @@ final class RemoteMethodInvocationHandler implements InvocationHandler {
 	 * Filter the callback arguments
 	 * 
 	 * @param args The args to filter
+	 * @param parameterTypes
 	 * @return the filtered args
 	 */
-	private Object[] getFilteredArgs(final Object[] args) {
+	@SuppressWarnings("unchecked")
+	private Object[] getFilteredArgs(final Object[] args, final Class<?>[] parameterTypes) {
 		if (args != null) {
 			final Object[] result = new Object[args.length];
 			for (int i = 0; i < args.length; i++) {
-				if (args[i] instanceof IResultCallback || args[i] instanceof IExecutionCallback || args[i] instanceof InputStream) {
+				final Object object = args[i];
+				if (object instanceof IResultCallback<?>) {
 					result[i] = null;
 				}
+				else if (object instanceof IExecutionCallback) {
+					result[i] = null;
+				}
+				else if (object instanceof InputStream) {
+					result[i] = new InputStreamDummy();
+				}
+				else if (InputStream[].class.isAssignableFrom(parameterTypes[i])) {
+					final InputStream[] inputStreams = (InputStream[]) object;
+					if (inputStreams != null) {
+						final InputStreamDummy[] inputStreamDummies = new InputStreamDummy[inputStreams.length];
+						for (int j = 0; j < inputStreams.length; j++) {
+							if (inputStreams[j] != null) {
+								inputStreamDummies[j] = new InputStreamDummy();
+							}
+							else {
+								inputStreamDummies[j] = null;
+							}
+						}
+						result[i] = inputStreamDummies;
+					}
+					else {
+						result[i] = null;
+					}
+				}
+				else if (Iterable.class.isAssignableFrom(parameterTypes[i])) {
+					final Iterable<?> iterable = (Iterable<?>) object;
+					if (iterable != null && isIterableOfType(iterable, InputStream.class)) {
+						if (!Collection.class.isAssignableFrom(parameterTypes[i])) {
+							throw new IllegalArgumentException("Iterables that hold InputStreams must be Collections");
+						}
+						Collection<InputStreamDummy> inputStreamDummies;
+						try {
+							inputStreamDummies = (Collection<InputStreamDummy>) iterable.getClass().newInstance();
+						}
+						catch (final Exception e) {
+							throw new IllegalArgumentException(
+								"Collections that holds input streams must have a public default constructor",
+								e);
+						}
+						for (final Object element : iterable) {
+							if (element instanceof InputStream) {
+								inputStreamDummies.add(new InputStreamDummy());
+							}
+							else if (element != null) {
+								throw new IllegalArgumentException("Collections with mixed types must not contain InputStreams");
+							}
+							else {
+								inputStreamDummies.add(null);
+							}
+						}
+						result[i] = inputStreamDummies;
+					}
+					else {
+						result[i] = object;
+					}
+				}
 				else {
-					result[i] = args[i];
+					result[i] = object;
 				}
 			}
 			return result;
@@ -231,4 +321,19 @@ final class RemoteMethodInvocationHandler implements InvocationHandler {
 			return new Object[0];
 		}
 	}
+
+	private boolean isIterableOfType(final Iterable<?> iterable, final Class<?> type) {
+		for (final Object element : iterable) {
+			if (element != null) {
+				if (type.isAssignableFrom(element.getClass())) {
+					return true;
+				}
+				else {
+					return false;
+				}
+			}
+		}
+		return false;
+	}
+
 }

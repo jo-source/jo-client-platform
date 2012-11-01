@@ -26,25 +26,35 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.remoting.common;
+package org.jowidgets.cap.ui.tools.execution;
 
-import java.io.Serializable;
+import java.util.List;
 
-import org.jowidgets.util.Assert;
+import org.jowidgets.api.command.IExecutionContext;
+import org.jowidgets.api.toolkit.Toolkit;
+import org.jowidgets.cap.ui.api.bean.IBeanProxy;
+import org.jowidgets.cap.ui.api.execution.IExecutor;
+import org.jowidgets.i18n.api.IMessage;
 
-public final class UserQuestionRequest implements Serializable {
+public abstract class AbstractSingleBeanExecutor<BEAN_TYPE, PARAMETER_TYPE> implements IExecutor<BEAN_TYPE, PARAMETER_TYPE> {
 
-	private static final long serialVersionUID = -3555909048292516581L;
+	private static final IMessage SELECTION_MISMATCH = Messages.getMessage("AbstractSingleBeanExecutor.selectionMismatch");
 
-	private final String userQuestion;
-
-	public UserQuestionRequest(final String userQuestion) {
-		Assert.paramNotEmpty(userQuestion, "userQuestion");
-		this.userQuestion = userQuestion;
+	@Override
+	public final void execute(
+		final IExecutionContext executionContext,
+		final List<IBeanProxy<BEAN_TYPE>> beans,
+		final PARAMETER_TYPE defaultParameter) throws Exception {
+		if (beans != null && beans.size() == 1) {
+			execute(executionContext, beans.iterator().next(), defaultParameter);
+		}
+		else {
+			Toolkit.getMessagePane().showError(executionContext, SELECTION_MISMATCH.get());
+		}
 	}
 
-	public String getUserQuestion() {
-		return userQuestion;
-	}
-
+	protected abstract void execute(
+		IExecutionContext executionContext,
+		IBeanProxy<BEAN_TYPE> bean,
+		PARAMETER_TYPE defaultParameter) throws Exception;
 }
