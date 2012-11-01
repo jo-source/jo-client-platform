@@ -30,21 +30,8 @@ package org.jowidgets.cap.remoting.common;
 
 import java.io.Serializable;
 
-import org.jowidgets.util.Assert;
+public final class InputStreamDummy implements Serializable {
 
-public final class UserQuestionRequest implements Serializable {
-
-	private static final long serialVersionUID = -3555909048292516581L;
-
-	private final String userQuestion;
-
-	public UserQuestionRequest(final String userQuestion) {
-		Assert.paramNotEmpty(userQuestion, "userQuestion");
-		this.userQuestion = userQuestion;
-	}
-
-	public String getUserQuestion() {
-		return userQuestion;
-	}
+	private static final long serialVersionUID = -4156369468095736513L;
 
 }

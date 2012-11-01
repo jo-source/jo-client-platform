@@ -86,6 +86,7 @@ class ExecutionTaskDialogImpl extends WindowWrapper implements IExecutionTaskDia
 
 	@Override
 	public void executionFinished(String message) {
+		executionTask.removeExecutionTaskListener(executionTaskListener);
 		if (message == null) {
 			//TODO SP i18n
 			message = "Finished";
@@ -99,6 +100,7 @@ class ExecutionTaskDialogImpl extends WindowWrapper implements IExecutionTaskDia
 
 	@Override
 	public void executionError(String message) {
+		executionTask.removeExecutionTaskListener(executionTaskListener);
 		if (message == null) {
 			//TODO SP i18n
 			message = "Error";

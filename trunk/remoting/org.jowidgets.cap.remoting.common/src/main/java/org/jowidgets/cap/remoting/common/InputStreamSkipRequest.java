@@ -30,13 +30,14 @@ package org.jowidgets.cap.remoting.common;
 
 import java.io.Serializable;
 
-public final class InputStreamSkipRequest implements IInputStreamRequest, Serializable {
+public final class InputStreamSkipRequest extends AbstractInputStreamRequest implements IInputStreamRequest, Serializable {
 
 	private static final long serialVersionUID = -3555909048292516581L;
 
 	private final long skip;
 
-	public InputStreamSkipRequest(final long skip) {
+	public InputStreamSkipRequest(final int index, final long skip) {
+		super(index);
 		this.skip = skip;
 	}
 

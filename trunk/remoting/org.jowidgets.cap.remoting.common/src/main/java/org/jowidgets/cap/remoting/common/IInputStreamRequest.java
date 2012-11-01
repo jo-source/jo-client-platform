@@ -30,4 +30,6 @@ package org.jowidgets.cap.remoting.common;
 
 public interface IInputStreamRequest {
 
+	int getIndex();
+
 }

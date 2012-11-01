@@ -50,10 +50,12 @@ import org.jowidgets.util.Assert;
 
 final class ServerInputStream extends InputStream {
 
+	private final int index;
 	private final IInterimRequestCallback<Object, Object> interimRequestCallback;
 
-	ServerInputStream(final IInterimRequestCallback<Object, Object> interimRequestCallback) {
+	ServerInputStream(final int index, final IInterimRequestCallback<Object, Object> interimRequestCallback) {
 		Assert.paramNotNull(interimRequestCallback, "interimRequestCallback");
+		this.index = index;
 		this.interimRequestCallback = interimRequestCallback;
 	}
 
@@ -77,7 +79,7 @@ final class ServerInputStream extends InputStream {
 	@Override
 	public int read(final byte[] b, final int off, final int len) throws IOException {
 		final SyncInterimResponseCallback<Object> responseCallback = new SyncInterimResponseCallback<Object>();
-		interimRequestCallback.request(responseCallback, new InputStreamReadRequest(len));
+		interimRequestCallback.request(responseCallback, new InputStreamReadRequest(index, len));
 		final InputStreamReadResponse response = (InputStreamReadResponse) responseCallback.getResponseSynchronious();
 		final byte[] resultBytes = response.getBytes();
 		for (int i = 0; i < resultBytes.length; i++) {
@@ -89,7 +91,7 @@ final class ServerInputStream extends InputStream {
 	@Override
 	public long skip(final long n) throws IOException {
 		final SyncInterimResponseCallback<Object> responseCallback = new SyncInterimResponseCallback<Object>();
-		interimRequestCallback.request(responseCallback, new InputStreamSkipRequest(n));
+		interimRequestCallback.request(responseCallback, new InputStreamSkipRequest(index, n));
 		final InputStreamSkipResponse response = (InputStreamSkipResponse) responseCallback.getResponseSynchronious();
 		return response.getSkipped();
 	}
@@ -97,7 +99,7 @@ final class ServerInputStream extends InputStream {
 	@Override
 	public int available() throws IOException {
 		final SyncInterimResponseCallback<Object> responseCallback = new SyncInterimResponseCallback<Object>();
-		interimRequestCallback.request(responseCallback, new InputStreamAvailableRequest());
+		interimRequestCallback.request(responseCallback, new InputStreamAvailableRequest(index));
 		final InputStreamAvailableResponse response = (InputStreamAvailableResponse) responseCallback.getResponseSynchronious();
 		return response.getAvailable();
 	}
@@ -105,7 +107,7 @@ final class ServerInputStream extends InputStream {
 	@Override
 	public void close() throws IOException {
 		final SyncInterimResponseCallback<Object> responseCallback = new SyncInterimResponseCallback<Object>();
-		interimRequestCallback.request(responseCallback, new InputStreamCloseRequest());
+		interimRequestCallback.request(responseCallback, new InputStreamCloseRequest(index));
 		final InputStreamCloseResponse response = (InputStreamCloseResponse) responseCallback.getResponseSynchronious();
 		if (response.hasExcpetion()) {
 			throw response.getException();
@@ -115,14 +117,14 @@ final class ServerInputStream extends InputStream {
 	@Override
 	public synchronized void mark(final int readlimit) {
 		final SyncInterimResponseCallback<Object> responseCallback = new SyncInterimResponseCallback<Object>();
-		interimRequestCallback.request(responseCallback, new InputStreamMarkRequest(readlimit));
+		interimRequestCallback.request(responseCallback, new InputStreamMarkRequest(index, readlimit));
 		responseCallback.getResponseSynchronious();
 	}
 
 	@Override
 	public synchronized void reset() throws IOException {
 		final SyncInterimResponseCallback<Object> responseCallback = new SyncInterimResponseCallback<Object>();
-		interimRequestCallback.request(responseCallback, new InputStreamResetRequest());
+		interimRequestCallback.request(responseCallback, new InputStreamResetRequest(index));
 		final InputStreamResetResponse response = (InputStreamResetResponse) responseCallback.getResponseSynchronious();
 		if (response.hasExcpetion()) {
 			throw response.getException();
@@ -132,7 +134,7 @@ final class ServerInputStream extends InputStream {
 	@Override
 	public boolean markSupported() {
 		final SyncInterimResponseCallback<Object> responseCallback = new SyncInterimResponseCallback<Object>();
-		interimRequestCallback.request(responseCallback, new InputStreamMarkSupportedRequest());
+		interimRequestCallback.request(responseCallback, new InputStreamMarkSupportedRequest(index));
 		final InputStreamMarkSupportedResponse response = (InputStreamMarkSupportedResponse) responseCallback.getResponseSynchronious();
 		return response.isMarkSupported();
 	}

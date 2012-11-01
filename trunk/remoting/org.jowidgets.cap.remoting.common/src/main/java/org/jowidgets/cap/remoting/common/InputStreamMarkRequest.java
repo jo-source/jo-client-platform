@@ -30,13 +30,14 @@ package org.jowidgets.cap.remoting.common;
 
 import java.io.Serializable;
 
-public final class InputStreamMarkRequest implements IInputStreamRequest, Serializable {
+public final class InputStreamMarkRequest extends AbstractInputStreamRequest implements IInputStreamRequest, Serializable {
 
 	private static final long serialVersionUID = -3555909048292516581L;
 
 	private final int readlimit;
 
-	public InputStreamMarkRequest(final int readlimit) {
+	public InputStreamMarkRequest(final int index, final int readlimit) {
+		super(index);
 		this.readlimit = readlimit;
 	}
 

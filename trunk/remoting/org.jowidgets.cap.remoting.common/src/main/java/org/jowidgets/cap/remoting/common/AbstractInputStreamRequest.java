@@ -30,21 +30,19 @@ package org.jowidgets.cap.remoting.common;
 
 import java.io.Serializable;
 
-import org.jowidgets.util.Assert;
-
-public final class UserQuestionRequest implements Serializable {
+abstract class AbstractInputStreamRequest implements IInputStreamRequest, Serializable {
 
 	private static final long serialVersionUID = -3555909048292516581L;
 
-	private final String userQuestion;
+	private final int index;
 
-	public UserQuestionRequest(final String userQuestion) {
-		Assert.paramNotEmpty(userQuestion, "userQuestion");
-		this.userQuestion = userQuestion;
+	AbstractInputStreamRequest(final int index) {
+		this.index = index;
 	}
 
-	public String getUserQuestion() {
-		return userQuestion;
+	@Override
+	public int getIndex() {
+		return index;
 	}
 
 }
