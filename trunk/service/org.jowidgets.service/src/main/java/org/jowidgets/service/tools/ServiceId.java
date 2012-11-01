@@ -40,12 +40,21 @@ public final class ServiceId<SERVICE_TYPE> implements IServiceId<SERVICE_TYPE>, 
 	private final Object id;
 	private final Class<? extends SERVICE_TYPE> serviceType;
 
+	public ServiceId(final Class<?> serviceType) {
+		this(getIdFromServiceType(serviceType), serviceType);
+	}
+
 	@SuppressWarnings("unchecked")
 	public ServiceId(final Object id, final Class<?> serviceType) {
 		Assert.paramNotNull(serviceType, "serviceType");
 		Assert.paramNotNull(id, "id");
 		this.serviceType = (Class<? extends SERVICE_TYPE>) serviceType;
 		this.id = id;
+	}
+
+	private static String getIdFromServiceType(final Class<?> serviceType) {
+		Assert.paramNotNull(serviceType, "serviceType");
+		return serviceType.getClass().getName();
 	}
 
 	@SuppressWarnings("unchecked")
