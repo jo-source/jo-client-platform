@@ -36,7 +36,7 @@ import org.jowidgets.cap.ui.api.filter.IUiConfigurableFilter;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.i18n.api.IMessage;
-import org.jowidgets.tools.message.MessageReplacer;
+import org.jowidgets.i18n.api.MessageReplacer;
 
 final class BeanTableAddCustomFilterCommandExecutor extends AbstractBeanTableAddFilterCommandExecutor {
 

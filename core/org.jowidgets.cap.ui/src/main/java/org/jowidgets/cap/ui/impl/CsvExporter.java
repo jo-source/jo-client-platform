@@ -48,7 +48,7 @@ import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IControlPanelProvider;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.table.ICsvExportParameter;
-import org.jowidgets.tools.message.MessageReplacer;
+import org.jowidgets.i18n.api.MessageReplacer;
 
 final class CsvExporter {
 

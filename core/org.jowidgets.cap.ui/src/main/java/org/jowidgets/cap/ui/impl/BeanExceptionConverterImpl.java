@@ -49,7 +49,7 @@ import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
 import org.jowidgets.cap.ui.api.bean.IBeanMessage;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.i18n.api.IMessage;
-import org.jowidgets.tools.message.MessageReplacer;
+import org.jowidgets.i18n.api.MessageReplacer;
 import org.jowidgets.util.EmptyCheck;
 import org.jowidgets.util.StringUtils;
 
