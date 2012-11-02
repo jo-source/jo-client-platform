@@ -134,6 +134,9 @@ final class BeanListExecutionHelper<BEAN_TYPE> {
 				clearExecutionTasks(executedBeans);
 			}
 		}
+		else {
+			clearExecutionTasks(executedBeans);
+		}
 
 		if (fireBeansChanged) {
 			listModel.fireBeansChanged();
