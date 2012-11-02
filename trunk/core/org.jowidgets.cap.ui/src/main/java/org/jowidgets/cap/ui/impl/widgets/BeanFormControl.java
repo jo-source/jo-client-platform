@@ -441,7 +441,7 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 		resetValidation();
 		resetModificationState();
 		if (bean != null && !bean.isDummy()) {
-			final Set<String> properties = controls.keySet();
+			final Set<String> properties = attributes.keySet();
 			for (final IExternalBeanValidatorListener listener : externalValidatorListeners) {
 				listener.validationConditionsChanged(this, properties);
 			}
@@ -541,6 +541,7 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 		boolean validationChanged = false;
 		IValidationResult validationResult = ValidationResult.ok();
 		final IInputControl<?> control = controls.get(propertyName);
+		final String propertyLabel = getLabel(propertyName);
 		if (bean != null && control != null && EmptyCompatibleEquivalence.equals(control.getValue(), bean.getValue(propertyName))) {
 			validationResult = control.validate();
 			//only use the bean validation result, if the control is valid
@@ -561,7 +562,7 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 					hasHint = true;
 				}
 				else {
-					validationResults.put(propertyName, validationResult.withContext(getLabel(propertyName)));
+					validationResults.put(propertyName, validationResult.withContext(propertyLabel));
 					hasMessage = validationResult.getWorstFirst().getType() != MessageType.OK;
 				}
 				validationChanged = true;
@@ -580,13 +581,27 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 				}
 			}
 		}
+		else if (bean != null && control == null) {
+			//change the validation map, if the worst first changed
+			validationResult = parentValidationResult;
+			final IValidationResult lastResult = validationResults.get(propertyName);
+			if (lastResult == null || !validationResult.getWorstFirst().equals(lastResult.getWorstFirst())) {
+				if (propertyLabel != null) {
+					validationResults.put(propertyName, validationResult.withContext(propertyLabel));
+				}
+				else {
+					validationResults.put(propertyName, validationResult);
+				}
+				validationChanged = true;
+			}
+		}
 		if (validationChanged) {
 			final IValidationResult newValidationResult = validationResult;
 			return new IBeanValidationResult() {
 
 				@Override
 				public IValidationResult getValidationResult() {
-					return newValidationResult.withContext(getLabel(propertyName));
+					return newValidationResult.withContext(propertyLabel);
 				}
 
 				@Override
@@ -619,7 +634,13 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 
 	private String getLabel(final String propertyName) {
 		Assert.paramNotNull(propertyName, "propertyName");
-		return attributes.get(propertyName).getCurrentLabel();
+		final IAttribute<Object> attribute = attributes.get(propertyName);
+		if (attribute != null) {
+			return attribute.getCurrentLabel();
+		}
+		else {
+			return null;
+		}
 	}
 
 	private final class BeanFormControlFactory implements IBeanFormControlFactory {
