@@ -88,6 +88,16 @@ public interface IBeanDtoDescriptorBuilder {
 	 */
 	IBeanDtoDescriptorBuilder setRenderingPattern(String pattern);
 
+	/**
+	 * Sets an icon descriptor that will be used to render the bean.
+	 * 
+	 * To make that work in the ui, there must be an icon resolver registered in the ui
+	 * for that descriptor type.
+	 * 
+	 * @return The icon descriptor or null
+	 */
+	IBeanDtoDescriptorBuilder setIconDescriptor(Object iconDescriptor);
+
 	IBeanDtoDescriptorBuilder addValidator(IBeanValidator<?> validator);
 
 	IBeanPropertyBluePrint addProperty(String propertyName);

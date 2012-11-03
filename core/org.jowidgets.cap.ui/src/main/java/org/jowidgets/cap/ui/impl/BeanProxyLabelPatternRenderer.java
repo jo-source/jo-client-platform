@@ -43,7 +43,9 @@ import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IControlPanelProvider;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyLabelRenderer;
+import org.jowidgets.cap.ui.api.image.ImageResolver;
 import org.jowidgets.cap.ui.api.model.ILabelModel;
+import org.jowidgets.common.image.IImageConstant;
 import org.jowidgets.i18n.api.MessageReplacer;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.EmptyCheck;
@@ -52,12 +54,20 @@ import org.jowidgets.util.ITypedKey;
 final class BeanProxyLabelPatternRenderer<BEAN_TYPE> implements IBeanProxyLabelRenderer<BEAN_TYPE> {
 
 	private final String replacerPattern;
+	private final IImageConstant icon;
 	private final Set<String> propertyDependencies;
 	private final Set<? extends ITypedKey<?>> customPropertyDependencies;
 	private final Map<String, IObjectLabelConverter<Object>> converterMap;
 
-	@SuppressWarnings({"rawtypes", "unchecked"})
 	BeanProxyLabelPatternRenderer(final String pattern, final Collection<? extends IAttribute<?>> attributes) {
+		this(pattern, null, attributes);
+	}
+
+	@SuppressWarnings({"rawtypes", "unchecked"})
+	BeanProxyLabelPatternRenderer(
+		final String pattern,
+		final Object imageDescriptor,
+		final Collection<? extends IAttribute<?>> attributes) {
 		Assert.paramNotNull(attributes, "attributes");
 		final HashSet<String> propertyDeps = new LinkedHashSet<String>();
 		this.propertyDependencies = Collections.unmodifiableSet(propertyDeps);
@@ -92,6 +102,12 @@ final class BeanProxyLabelPatternRenderer<BEAN_TYPE> implements IBeanProxyLabelR
 		else {
 			replacerPattern = null;
 		}
+		if (imageDescriptor != null) {
+			icon = ImageResolver.resolve(imageDescriptor);
+		}
+		else {
+			icon = null;
+		}
 		this.converterMap = new HashMap<String, IObjectLabelConverter<Object>>();
 		if (!EmptyCheck.isEmpty(replacerPattern)) {
 			for (final IAttribute attribute : attributes) {
@@ -115,7 +131,7 @@ final class BeanProxyLabelPatternRenderer<BEAN_TYPE> implements IBeanProxyLabelR
 	@Override
 	public ILabelModel getLabel(final IBeanProxy<BEAN_TYPE> bean) {
 		if (EmptyCheck.isEmpty(replacerPattern)) {
-			return new LabelModelImpl(bean.getId().toString());
+			return new LabelModelImpl(bean.getId().toString(), icon);
 		}
 		else if (bean != null && bean.isDummy()) {
 			return new LabelModelImpl("...");
@@ -142,7 +158,7 @@ final class BeanProxyLabelPatternRenderer<BEAN_TYPE> implements IBeanProxyLabelR
 				}
 				parameters.add(parameter);
 			}
-			return new LabelModelImpl(MessageReplacer.replace(replacerPattern, parameters));
+			return new LabelModelImpl(MessageReplacer.replace(replacerPattern, parameters), icon);
 		}
 	}
 

@@ -47,6 +47,10 @@ final class LabelModelImpl implements ILabelModel {
 		this(text, null, null);
 	}
 
+	LabelModelImpl(final String text, final IImageConstant icon) {
+		this(text, null, icon);
+	}
+
 	LabelModelImpl(final String text, final String description, final IImageConstant icon) {
 		this(text, description, icon, null, null, null, null);
 	}

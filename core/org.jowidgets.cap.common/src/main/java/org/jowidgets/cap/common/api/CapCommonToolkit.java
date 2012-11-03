@@ -170,6 +170,26 @@ public final class CapCommonToolkit {
 				beanValidators);
 	}
 
+	public static IBeanDtoDescriptor dtoDescriptor(
+		final Collection<IProperty> properties,
+		final Collection<ISort> defaultSorting,
+		final String labelSingular,
+		final String labelPlural,
+		final String description,
+		final String renderingPattern,
+		final Object iconDescriptor,
+		final Collection<? extends IBeanValidator<?>> beanValidators) {
+		return getInstance().dtoDescriptor(
+				properties,
+				defaultSorting,
+				labelSingular,
+				labelPlural,
+				description,
+				renderingPattern,
+				iconDescriptor,
+				beanValidators);
+	}
+
 	public static IBeanServicesProviderFactory beanServicesProviderFactory() {
 		return getInstance().beanServicesProviderFactory();
 	}
