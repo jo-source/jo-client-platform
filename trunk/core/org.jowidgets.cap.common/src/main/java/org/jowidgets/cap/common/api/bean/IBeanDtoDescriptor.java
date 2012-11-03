@@ -84,7 +84,7 @@ public interface IBeanDtoDescriptor {
 	IMessage getDescription();
 
 	/**
-	 * Gets a pattern that could be used to render instances of the bean.
+	 * Gets a pattern that can be used to render instances of the bean.
 	 * The pattern may contain property variables starting and ending with $.
 	 * The $ symbol could be escaped with a $ symbol
 	 * 
@@ -100,5 +100,15 @@ public interface IBeanDtoDescriptor {
 	 * @return The rendering pattern or null
 	 */
 	IMessage getRenderingPattern();
+
+	/**
+	 * Gets an icon descriptor that can be used to render the bean.
+	 * 
+	 * To make that work in the ui, there must be an icon resolver registered in the ui
+	 * for that descriptor type.
+	 * 
+	 * @return The icon descriptor or null
+	 */
+	Object getIconDescriptor();
 
 }

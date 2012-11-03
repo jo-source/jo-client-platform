@@ -57,6 +57,7 @@ final class BeanDtoDescriptorBuilderImpl implements IBeanDtoDescriptorBuilder {
 	private IMessage labelPlural;
 	private IMessage description;
 	private IMessage renderingPattern;
+	private Object iconDescriptor;
 
 	BeanDtoDescriptorBuilderImpl(final Class<?> beanType) {
 		this.beanType = beanType;
@@ -116,6 +117,12 @@ final class BeanDtoDescriptorBuilderImpl implements IBeanDtoDescriptorBuilder {
 	}
 
 	@Override
+	public IBeanDtoDescriptorBuilder setIconDescriptor(final Object iconDescriptor) {
+		this.iconDescriptor = iconDescriptor;
+		return this;
+	}
+
+	@Override
 	public IBeanDtoDescriptorBuilder setDefaultSorting(final ISort... defaultSorting) {
 		Assert.paramNotNull(defaultSorting, "defaultSorting");
 		setDefaultSorting(Arrays.asList(defaultSorting));
@@ -157,6 +164,7 @@ final class BeanDtoDescriptorBuilderImpl implements IBeanDtoDescriptorBuilder {
 			labelPlural,
 			description,
 			renderingPattern,
+			iconDescriptor,
 			properties,
 			defaultSorting,
 			beanValidators);

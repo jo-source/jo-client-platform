@@ -165,7 +165,11 @@ class BeanRelationNodeModelBluePrint<CHILD_BEAN_TYPE, INSTANCE_TYPE> extends
 				if (dtoDescriptor != null) {
 					final String renderingPattern = dtoDescriptor.getRenderingPattern().get();
 					if (!EmptyCheck.isEmpty(renderingPattern)) {
-						return new BeanProxyLabelPatternRenderer<CHILD_BEAN_TYPE>(renderingPattern, getAttributes());
+						final Object iconDescriptor = dtoDescriptor.getIconDescriptor();
+						return new BeanProxyLabelPatternRenderer<CHILD_BEAN_TYPE>(
+							renderingPattern,
+							iconDescriptor,
+							getAttributes());
 					}
 				}
 			}
