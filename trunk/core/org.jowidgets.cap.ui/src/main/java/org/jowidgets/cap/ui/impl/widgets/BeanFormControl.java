@@ -68,6 +68,7 @@ import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IControlPanelProvider;
 import org.jowidgets.cap.ui.api.bean.BeanMessageType;
 import org.jowidgets.cap.ui.api.bean.IBeanMessage;
+import org.jowidgets.cap.ui.api.bean.IBeanMessageStateListener;
 import org.jowidgets.cap.ui.api.bean.IBeanProcessStateListener;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyListener;
@@ -138,6 +139,7 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 	private final Map<String, IValidationResult> validationResults;
 	private final PropertyChangeListener propertyChangeListenerBinding;
 	private final IBeanProcessStateListener<BEAN_TYPE> beanProcessStateListener;
+	private final IBeanMessageStateListener<BEAN_TYPE> beanMessageStateListener;
 	private final IBeanProxyListener<BEAN_TYPE> beanProxyListener;
 	private final IExecutionTaskListener executionTaskListener;
 	private final LabelWaitChangeListener labelWaitChangeListener;
@@ -198,6 +200,7 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 		this.validationResults = new LinkedHashMap<String, IValidationResult>();
 		this.propertyChangeListenerBinding = new BeanPropertyChangeListenerBinding();
 		this.beanProcessStateListener = new BeanProcessStateListener();
+		this.beanMessageStateListener = new BeanMessageStateListener();
 		this.beanProxyListener = new BeanProxyListener();
 		this.executionTaskListener = new ExecutionTaskListener();
 		this.labelWaitChangeListener = new LabelWaitChangeListener();
@@ -267,6 +270,7 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 		if (this.bean != null) {
 			this.bean.removePropertyChangeListener(propertyChangeListenerBinding);
 			this.bean.removeProcessStateListener(beanProcessStateListener);
+			this.bean.removeMessageStateListener(beanMessageStateListener);
 			this.bean.removeBeanProxyListener(beanProxyListener);
 			this.bean.unregisterExternalValidator(this);
 			unregisterExecutionTaskListener(this.bean);
@@ -280,6 +284,7 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 		if (this.bean != null) {
 			this.bean.removePropertyChangeListener(propertyChangeListenerBinding);
 			this.bean.removeProcessStateListener(beanProcessStateListener);
+			this.bean.removeMessageStateListener(beanMessageStateListener);
 			this.bean.removeBeanProxyListener(beanProxyListener);
 			this.bean.unregisterExternalValidator(this);
 			unregisterExecutionTaskListener(this.bean);
@@ -328,6 +333,7 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 			}
 			bean.addPropertyChangeListener(propertyChangeListenerBinding);
 			bean.addProcessStateListener(beanProcessStateListener);
+			bean.addMessageStateListener(beanMessageStateListener);
 			bean.addBeanProxyListener(beanProxyListener);
 			bean.registerExternalValidator(this);
 		}
@@ -445,6 +451,7 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 			for (final IExternalBeanValidatorListener listener : externalValidatorListeners) {
 				listener.validationConditionsChanged(this, properties);
 			}
+			setValidationCacheDirty();
 		}
 	}
 
@@ -938,6 +945,13 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 				setValidationCacheDirty();
 			}
 
+		}
+	}
+
+	private final class BeanMessageStateListener implements IBeanMessageStateListener<BEAN_TYPE> {
+		@Override
+		public void messageStateChanged(final IBeanProxy<BEAN_TYPE> bean) {
+			setValidationCacheDirty();
 		}
 	}
 
