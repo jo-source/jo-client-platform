@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -28,21 +28,15 @@
 
 package org.jowidgets.cap.ui.api.control;
 
-import org.jowidgets.cap.common.api.lookup.ILookUpValueRange;
+import org.jowidgets.cap.ui.api.CapUiToolkit;
 
-public interface IInputControlSupportRegistry {
+public final class InputControlProvider {
 
-	<ELEMENT_VALUE_TYPE> IInputControlSupport<ELEMENT_VALUE_TYPE> getControls(Class<? extends ELEMENT_VALUE_TYPE> type);
+	private InputControlProvider() {}
 
-	<ELEMENT_VALUE_TYPE> IInputControlSupport<ELEMENT_VALUE_TYPE> getControls(ILookUpValueRange valueRange);
+	public static <ELEMENT_VALUE_TYPE> IInputControlProviderBuilder<ELEMENT_VALUE_TYPE> builder(
+		final Class<ELEMENT_VALUE_TYPE> elementValueType) {
+		return CapUiToolkit.inputControlProviderBuilder(elementValueType);
+	}
 
-	void setControls(Object lookUpId, final IInputControlSupport<?> controlSupport);
-
-	<ELEMENT_VALUE_TYPE> void setControls(
-		Class<? extends ELEMENT_VALUE_TYPE> type,
-		IInputControlSupport<ELEMENT_VALUE_TYPE> controlSupport);
-
-	<ELEMENT_VALUE_TYPE> void setControl(
-		Class<? extends ELEMENT_VALUE_TYPE> type,
-		IInputControlProvider<ELEMENT_VALUE_TYPE> controlProvider);
 }

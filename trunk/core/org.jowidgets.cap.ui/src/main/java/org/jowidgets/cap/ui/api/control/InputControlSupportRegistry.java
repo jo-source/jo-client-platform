@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -29,20 +29,39 @@
 package org.jowidgets.cap.ui.api.control;
 
 import org.jowidgets.cap.common.api.lookup.ILookUpValueRange;
+import org.jowidgets.cap.ui.api.CapUiToolkit;
 
-public interface IInputControlSupportRegistry {
+public final class InputControlSupportRegistry {
 
-	<ELEMENT_VALUE_TYPE> IInputControlSupport<ELEMENT_VALUE_TYPE> getControls(Class<? extends ELEMENT_VALUE_TYPE> type);
+	private InputControlSupportRegistry() {}
 
-	<ELEMENT_VALUE_TYPE> IInputControlSupport<ELEMENT_VALUE_TYPE> getControls(ILookUpValueRange valueRange);
+	public static IInputControlSupportRegistry getInstance() {
+		return CapUiToolkit.inputControlRegistry();
+	}
 
-	void setControls(Object lookUpId, final IInputControlSupport<?> controlSupport);
+	public static <ELEMENT_VALUE_TYPE> IInputControlSupport<ELEMENT_VALUE_TYPE> getControls(
+		final Class<? extends ELEMENT_VALUE_TYPE> type) {
+		return getInstance().getControls(type);
+	}
 
-	<ELEMENT_VALUE_TYPE> void setControls(
-		Class<? extends ELEMENT_VALUE_TYPE> type,
-		IInputControlSupport<ELEMENT_VALUE_TYPE> controlSupport);
+	public static <ELEMENT_VALUE_TYPE> IInputControlSupport<ELEMENT_VALUE_TYPE> getControls(final ILookUpValueRange valueRange) {
+		return getInstance().getControls(valueRange);
+	}
 
-	<ELEMENT_VALUE_TYPE> void setControl(
-		Class<? extends ELEMENT_VALUE_TYPE> type,
-		IInputControlProvider<ELEMENT_VALUE_TYPE> controlProvider);
+	public static void setControls(final Object lookUpId, final IInputControlSupport<?> controlSupport) {
+		getInstance().setControls(lookUpId, controlSupport);
+	}
+
+	public static <ELEMENT_VALUE_TYPE> void setControls(
+		final Class<? extends ELEMENT_VALUE_TYPE> type,
+		final IInputControlSupport<ELEMENT_VALUE_TYPE> controlSupport) {
+		getInstance().setControls(type, controlSupport);
+	}
+
+	public static <ELEMENT_VALUE_TYPE> void setControl(
+		final Class<? extends ELEMENT_VALUE_TYPE> type,
+		final IInputControlProvider<ELEMENT_VALUE_TYPE> controlProvider) {
+		getInstance().setControl(type, controlProvider);
+	}
+
 }

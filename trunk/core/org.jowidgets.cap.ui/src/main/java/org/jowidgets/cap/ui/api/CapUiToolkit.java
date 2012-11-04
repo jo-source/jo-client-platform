@@ -45,6 +45,8 @@ import org.jowidgets.cap.ui.api.bean.IBeanProxyLabelRenderer;
 import org.jowidgets.cap.ui.api.bean.IBeansStateTracker;
 import org.jowidgets.cap.ui.api.command.ICapActionFactory;
 import org.jowidgets.cap.ui.api.control.IDisplayFormatFactory;
+import org.jowidgets.cap.ui.api.control.IInputControlProviderBuilder;
+import org.jowidgets.cap.ui.api.control.IInputControlSupportBuilder;
 import org.jowidgets.cap.ui.api.control.IInputControlSupportRegistry;
 import org.jowidgets.cap.ui.api.converter.ICapConverterFactory;
 import org.jowidgets.cap.ui.api.decorator.IUiServiceDecoratorProviderFactory;
@@ -119,6 +121,15 @@ public final class CapUiToolkit {
 
 	public static IInputControlSupportRegistry inputControlRegistry() {
 		return getInstance().inputControlRegistry();
+	}
+
+	public static <ELEMENT_VALUE_TYPE> IInputControlProviderBuilder<ELEMENT_VALUE_TYPE> inputControlProviderBuilder(
+		final Class<ELEMENT_VALUE_TYPE> elementValueType) {
+		return getInstance().inputControlProviderBuilder(elementValueType);
+	}
+
+	public static <ELEMENT_VALUE_TYPE> IInputControlSupportBuilder<ELEMENT_VALUE_TYPE> inputControlSupportBuilder() {
+		return getInstance().inputControlSupportBuilder();
 	}
 
 	public static IAttributeToolkit attributeToolkit() {
