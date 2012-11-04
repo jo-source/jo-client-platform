@@ -48,6 +48,7 @@ final class EntityApplicationNodeBuilderImpl extends AbstractSingleUseBuilder<IE
 	private Object id;
 	private IMessage label;
 	private IMessage description;
+	private Object iconDescriptor;
 
 	EntityApplicationNodeBuilderImpl() {
 		this.children = new LinkedList<IEntityApplicationNode>();
@@ -91,6 +92,13 @@ final class EntityApplicationNodeBuilderImpl extends AbstractSingleUseBuilder<IE
 	}
 
 	@Override
+	public IEntityApplicationNodeBuilder setIconDescriptor(final Object iconDescriptor) {
+		checkExhausted();
+		this.iconDescriptor = iconDescriptor;
+		return this;
+	}
+
+	@Override
 	public IEntityApplicationNodeBuilder addNode(final IEntityApplicationNode node) {
 		Assert.paramNotNull(node, "node");
 		checkExhausted();
@@ -102,13 +110,13 @@ final class EntityApplicationNodeBuilderImpl extends AbstractSingleUseBuilder<IE
 	public IEntityApplicationNodeBuilder addNode(final Object childEntityId) {
 		Assert.paramNotNull(childEntityId, "childEntityId");
 		final List<IEntityApplicationNode> nodeChildren = Collections.emptyList();
-		children.add(new EntityApplicationNodeImpl(childEntityId, null, null, nodeChildren));
+		children.add(new EntityApplicationNodeImpl(childEntityId, null, null, null, nodeChildren));
 		return this;
 	}
 
 	@Override
 	protected IEntityApplicationNode doBuild() {
-		return new EntityApplicationNodeImpl(id, label, description, children);
+		return new EntityApplicationNodeImpl(id, label, description, iconDescriptor, children);
 	}
 
 }

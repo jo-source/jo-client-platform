@@ -44,16 +44,19 @@ final class EntityApplicationNodeImpl implements IEntityApplicationNode, Seriali
 	private final Object id;
 	private final IMessage label;
 	private final IMessage description;
+	private final Object iconDescriptor;
 	private final List<IEntityApplicationNode> children;
 
 	EntityApplicationNodeImpl(
 		final Object entityId,
 		final IMessage label,
 		final IMessage description,
+		final Object iconDescriptor,
 		final Collection<IEntityApplicationNode> children) {
 		this.id = entityId;
 		this.label = label;
 		this.description = description;
+		this.iconDescriptor = iconDescriptor;
 		this.children = Collections.unmodifiableList(new LinkedList<IEntityApplicationNode>(children));
 	}
 
@@ -70,6 +73,11 @@ final class EntityApplicationNodeImpl implements IEntityApplicationNode, Seriali
 	@Override
 	public IMessage getDescription() {
 		return description;
+	}
+
+	@Override
+	public Object getIconDescriptor() {
+		return iconDescriptor;
 	}
 
 	@Override

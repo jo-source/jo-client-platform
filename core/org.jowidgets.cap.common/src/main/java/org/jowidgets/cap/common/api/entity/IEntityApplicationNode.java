@@ -52,6 +52,16 @@ public interface IEntityApplicationNode {
 	IMessage getDescription();
 
 	/**
+	 * Gets an icon descriptor for the node
+	 * 
+	 * To make that work in the ui, there must be an icon resolver registered in the ui
+	 * for that descriptor type.
+	 * 
+	 * @return The icon descriptor or null
+	 */
+	Object getIconDescriptor();
+
+	/**
 	 * @return The children of the node
 	 */
 	Collection<IEntityApplicationNode> getChildren();

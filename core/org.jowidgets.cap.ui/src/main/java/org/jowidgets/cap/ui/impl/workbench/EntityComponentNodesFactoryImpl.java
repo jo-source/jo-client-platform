@@ -39,6 +39,7 @@ import org.jowidgets.cap.common.api.entity.IEntityApplicationNodeBuilder;
 import org.jowidgets.cap.common.api.service.IEntityApplicationService;
 import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
+import org.jowidgets.cap.ui.api.image.ImageResolver;
 import org.jowidgets.cap.ui.api.plugin.IEntityComponentNodesFactoryPlugin;
 import org.jowidgets.cap.ui.api.workbench.IEntityComponentNodesFactory;
 import org.jowidgets.plugin.api.PluginProvider;
@@ -98,6 +99,7 @@ final class EntityComponentNodesFactoryImpl implements IEntityComponentNodesFact
 					final IEntityApplicationNodeBuilder applicationNodeBuilder = CapCommonToolkit.entityApplicationNodeBuilder();
 					applicationNodeBuilder.setEntityId(entityId).setLabel(labelPlural);
 					applicationNodeBuilder.setDescription(beanDtoDescriptor.getDescription().get());
+					applicationNodeBuilder.setIconDescriptor(beanDtoDescriptor.getIconDescriptor());
 					return createNodeFromEntity(applicationNodeBuilder.build());
 				}
 				else {
@@ -117,17 +119,21 @@ final class EntityComponentNodesFactoryImpl implements IEntityComponentNodesFact
 		final IComponentNodeModelBuilder builder = new ComponentNodeModelBuilder();
 		final Object entityId = applicationNode.getEntityId();
 		String label = applicationNode.getLabel().get();
+		Object iconDescriptor = applicationNode.getIconDescriptor();
 		if (entityId == null) {
 			builder.setId(label);
 		}
 		else {
 			//TODO MG the id of workbench parts should be an object
 			builder.setId(entityId.toString());
-			if (EmptyCheck.isEmpty(label)) {
-				final IEntityService entityService = ServiceProvider.getService(IEntityService.ID);
-				final IBeanDtoDescriptor beanDtoDescriptor = entityService.getDescriptor(entityId);
-				if (beanDtoDescriptor != null) {
+			final IEntityService entityService = ServiceProvider.getService(IEntityService.ID);
+			final IBeanDtoDescriptor beanDtoDescriptor = entityService.getDescriptor(entityId);
+			if (beanDtoDescriptor != null) {
+				if (EmptyCheck.isEmpty(label)) {
 					label = beanDtoDescriptor.getLabelPlural().get();
+				}
+				if (iconDescriptor == null) {
+					iconDescriptor = beanDtoDescriptor.getIconDescriptor();
 				}
 			}
 			builder.setComponentFactory(CapUiToolkit.workbenchToolkit().entityComponentFactory().create(applicationNode));
@@ -135,6 +141,9 @@ final class EntityComponentNodesFactoryImpl implements IEntityComponentNodesFact
 
 		builder.setLabel(label);
 		builder.setTooltip(applicationNode.getDescription().get());
+		if (iconDescriptor != null) {
+			builder.setIcon(ImageResolver.resolve(iconDescriptor));
+		}
 
 		for (final IEntityApplicationNode childNode : applicationNode.getChildren()) {
 			builder.addChild(createNodeFromEntity(childNode));

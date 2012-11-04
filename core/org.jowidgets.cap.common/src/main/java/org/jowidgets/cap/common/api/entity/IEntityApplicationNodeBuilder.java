@@ -42,6 +42,8 @@ public interface IEntityApplicationNodeBuilder {
 
 	IEntityApplicationNodeBuilder setDescription(IMessage description);
 
+	IEntityApplicationNodeBuilder setIconDescriptor(Object iconDescriptor);
+
 	IEntityApplicationNodeBuilder addNode(IEntityApplicationNode node);
 
 	IEntityApplicationNodeBuilder addNode(Object childEntityId);
