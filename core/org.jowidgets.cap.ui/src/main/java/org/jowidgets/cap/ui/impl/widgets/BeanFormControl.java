@@ -809,9 +809,14 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 			else {
 				controlCreator = controlPanel.getControlCreator();
 			}
-			//if (controlCreator == null && controlPanel.getObjectLabelConverter() != null) {
-			//TODO MG add readonly input field (must be added to jo widgets
-			//}
+			if (controlCreator == null && controlPanel.getObjectLabelConverter() != null) {
+				return new ICustomWidgetCreator<IInputControl<Object>>() {
+					@Override
+					public IInputControl<Object> create(final ICustomWidgetFactory widgetFactory) {
+						return widgetFactory.create(BPF.inputField(controlPanel.getObjectLabelConverter()));
+					}
+				};
+			}
 
 			return controlCreator;
 		}

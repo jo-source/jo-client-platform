@@ -29,10 +29,13 @@
 package org.jowidgets.cap.ui.impl;
 
 import org.jowidgets.api.convert.IConverter;
+import org.jowidgets.api.convert.IObjectLabelConverter;
+import org.jowidgets.api.convert.IStringObjectConverter;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.cap.common.api.bean.IValueRange;
 import org.jowidgets.cap.ui.api.control.DisplayFormat;
 import org.jowidgets.cap.ui.api.control.IDisplayFormat;
+import org.jowidgets.tools.converter.ObjectStringObjectLabelConverterAdapter;
 
 final class ControlProviderBooleanShort extends AbstractControlProviderBoolean {
 
@@ -45,9 +48,18 @@ final class ControlProviderBooleanShort extends AbstractControlProviderBoolean {
 		return DisplayFormat.SHORT;
 	}
 
-	@Override
-	public IConverter<Boolean> getConverter(final IValueRange valueRange) {
+	private IConverter<Boolean> getConverter(final IValueRange valueRange) {
 		return Toolkit.getConverterProvider().boolShort();
+	}
+
+	@Override
+	public IObjectLabelConverter<Boolean> getObjectLabelConverter(final IValueRange valueRange) {
+		return new ObjectStringObjectLabelConverterAdapter<Boolean>(getConverter(valueRange));
+	}
+
+	@Override
+	public IStringObjectConverter<Boolean> getStringObjectConverter(final IValueRange valueRange) {
+		return getConverter(valueRange);
 	}
 
 }

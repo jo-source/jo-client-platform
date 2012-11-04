@@ -30,21 +30,38 @@ package org.jowidgets.cap.ui.impl.widgets;
 
 import java.util.Collection;
 
+import org.jowidgets.api.convert.IConverter;
+import org.jowidgets.api.convert.IObjectStringConverter;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.widgets.IInputControl;
 import org.jowidgets.api.widgets.blueprint.ICollectionInputFieldBluePrint;
 import org.jowidgets.cap.ui.api.widgets.ILookUpCollectionInputFieldBluePrint;
 import org.jowidgets.common.widgets.factory.IWidgetFactory;
 import org.jowidgets.tools.widgets.blueprint.BPF;
+import org.jowidgets.util.Assert;
 
 final class LookUpCollectionInputFieldFactory implements
 		IWidgetFactory<IInputControl<Collection<Object>>, ILookUpCollectionInputFieldBluePrint<Object>> {
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public IInputControl<Collection<Object>> create(
 		final Object parentUiReference,
 		final ILookUpCollectionInputFieldBluePrint<Object> descriptor) {
-		final ICollectionInputFieldBluePrint<Object> bluePrint = BPF.collectionInputField(descriptor.getConverter());
+		Assert.paramNotNull(descriptor.getConverter(), "descriptor.getConverter()");
+
+		final Object converter = descriptor.getConverter();
+		final ICollectionInputFieldBluePrint<Object> bluePrint;
+		if (converter instanceof IConverter<?>) {
+			bluePrint = BPF.collectionInputField((IConverter<Object>) converter);
+		}
+		else if (converter instanceof IObjectStringConverter<?>) {
+			bluePrint = BPF.collectionInputField((IObjectStringConverter<Object>) converter);
+		}
+		else {
+			throw new IllegalArgumentException("Converter type '" + converter.getClass().getName() + "' is not supoorted");
+		}
+
 		bluePrint.setSetup(descriptor);
 		final IInputControl<Collection<Object>> inputControl = Toolkit.getWidgetFactory().create(parentUiReference, bluePrint);
 		return new LookUpCollectionInputFieldImpl(inputControl, descriptor);

@@ -30,7 +30,8 @@ package org.jowidgets.cap.ui.api.control;
 
 import java.util.Collection;
 
-import org.jowidgets.api.convert.IConverter;
+import org.jowidgets.api.convert.IObjectLabelConverter;
+import org.jowidgets.api.convert.IStringObjectConverter;
 import org.jowidgets.api.widgets.IInputControl;
 import org.jowidgets.cap.common.api.bean.IValueRange;
 import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
@@ -39,14 +40,18 @@ public interface IInputControlProvider<ELEMENT_VALUE_TYPE> {
 
 	IDisplayFormat getDisplayFormat();
 
-	IConverter<ELEMENT_VALUE_TYPE> getConverter(IValueRange valueRange);
+	IObjectLabelConverter<ELEMENT_VALUE_TYPE> getObjectLabelConverter(IValueRange valueRange);
+
+	IStringObjectConverter<ELEMENT_VALUE_TYPE> getStringObjectConverter(IValueRange valueRange);
 
 	ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> getControlCreator(
-		IConverter<ELEMENT_VALUE_TYPE> converter,
+		IObjectLabelConverter<ELEMENT_VALUE_TYPE> objectLabelConverter,
+		IStringObjectConverter<ELEMENT_VALUE_TYPE> stringObjectConverter,
 		IValueRange valueRange);
 
 	ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> getCollectionControlCreator(
 		ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> elementControlCreator,
-		IConverter<ELEMENT_VALUE_TYPE> converter,
+		IObjectLabelConverter<ELEMENT_VALUE_TYPE> objectLabelConverter,
+		IStringObjectConverter<ELEMENT_VALUE_TYPE> stringObjectConverter,
 		IValueRange valueRange);
 }

@@ -49,8 +49,7 @@ import org.jowidgets.cap.ui.api.control.IInputControlProvider;
 import org.jowidgets.cap.ui.api.control.IInputControlSupport;
 import org.jowidgets.cap.ui.api.filter.IFilterSupport;
 import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
-import org.jowidgets.tools.converter.AbstractObjectLabelConverter;
-import org.jowidgets.tools.converter.Converter;
+import org.jowidgets.tools.converter.ObjectStringObjectLabelConverterAdapter;
 import org.jowidgets.util.Assert;
 
 final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> {
@@ -230,21 +229,7 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 
 	private IObjectLabelConverter<ELEMENT_VALUE_TYPE> getObjectLabelConverter() {
 		if (objectLabelConverter == null) {
-			final IObjectStringConverter<ELEMENT_VALUE_TYPE> objStringConverter = getObjectStringConverter();
-
-			objectLabelConverter = new AbstractObjectLabelConverter<ELEMENT_VALUE_TYPE>() {
-
-				@Override
-				public String convertToString(final ELEMENT_VALUE_TYPE value) {
-					return objStringConverter.convertToString(value);
-				}
-
-				@Override
-				public String getDescription(final ELEMENT_VALUE_TYPE value) {
-					return objStringConverter.getDescription(value);
-				}
-
-			};
+			objectLabelConverter = new ObjectStringObjectLabelConverterAdapter<ELEMENT_VALUE_TYPE>(getObjectStringConverter());
 		}
 		return objectLabelConverter;
 	}
@@ -272,7 +257,10 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 			}
 
 			if (defaultControl != null) {
-				controlCreator = defaultControl.getControlCreator(getConverter(defaultControl), valueRange);
+				controlCreator = defaultControl.getControlCreator(
+						getObjectLabelConverter(defaultControl),
+						getStringObjectConverter(defaultControl),
+						valueRange);
 			}
 		}
 		return controlCreator;
@@ -321,7 +309,8 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 		if (defaultControl != null) {
 			return defaultControl.getCollectionControlCreator(
 					getControlCreator(defaultControl),
-					getConverter(defaultControl),
+					getObjectLabelConverter(defaultControl),
+					getStringObjectConverter(defaultControl),
 					valueRange);
 		}
 		else {
@@ -347,19 +336,39 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 		return null;
 	}
 
-	private IConverter<ELEMENT_VALUE_TYPE> getConverter(final IInputControlProvider<ELEMENT_VALUE_TYPE> defaultControl) {
-		if (objectLabelConverter == null && stringObjectConverter == null) {
-			return defaultControl.getConverter(valueRange);
+	private IStringObjectConverter<ELEMENT_VALUE_TYPE> getStringObjectConverter(
+		final IInputControlProvider<ELEMENT_VALUE_TYPE> defaultControl) {
+		if (stringObjectConverter == null) {
+			return defaultControl.getStringObjectConverter(valueRange);
 		}
 		else {
-			return new Converter<ELEMENT_VALUE_TYPE>(getObjectLabelConverter(), getStringObjectConverter());
+			return getStringObjectConverter();
+		}
+	}
+
+	private IObjectLabelConverter<ELEMENT_VALUE_TYPE> getObjectLabelConverter(
+		final IInputControlProvider<ELEMENT_VALUE_TYPE> defaultControl) {
+		if (objectLabelConverter == null) {
+			final IObjectLabelConverter<ELEMENT_VALUE_TYPE> defaultControlObjectLabelConverter = defaultControl.getObjectLabelConverter(valueRange);
+			if (defaultControlObjectLabelConverter != null) {
+				return defaultControlObjectLabelConverter;
+			}
+			else {
+				return getObjectLabelConverter();
+			}
+		}
+		else {
+			return getObjectLabelConverter();
 		}
 	}
 
 	private ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> getControlCreator(
 		final IInputControlProvider<ELEMENT_VALUE_TYPE> defaultControl) {
 		if (controlCreator == null) {
-			return defaultControl.getControlCreator(getConverter(defaultControl), valueRange);
+			return defaultControl.getControlCreator(
+					getObjectLabelConverter(defaultControl),
+					getStringObjectConverter(defaultControl),
+					valueRange);
 		}
 		else {
 			return controlCreator;

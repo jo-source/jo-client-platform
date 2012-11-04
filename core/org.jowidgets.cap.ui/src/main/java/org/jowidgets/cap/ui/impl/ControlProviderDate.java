@@ -31,10 +31,13 @@ package org.jowidgets.cap.ui.impl;
 import java.util.Date;
 
 import org.jowidgets.api.convert.IConverter;
+import org.jowidgets.api.convert.IObjectLabelConverter;
+import org.jowidgets.api.convert.IStringObjectConverter;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.cap.common.api.bean.IValueRange;
 import org.jowidgets.cap.ui.api.control.DateDisplayFormat;
 import org.jowidgets.cap.ui.api.control.IDisplayFormat;
+import org.jowidgets.tools.converter.ObjectStringObjectLabelConverterAdapter;
 
 final class ControlProviderDate extends ControlProviderDefault<Date> {
 
@@ -47,9 +50,18 @@ final class ControlProviderDate extends ControlProviderDefault<Date> {
 		return DateDisplayFormat.DATE;
 	}
 
-	@Override
-	public IConverter<Date> getConverter(final IValueRange valueRange) {
+	private IConverter<Date> getConverter(final IValueRange valueRange) {
 		return Toolkit.getConverterProvider().date();
+	}
+
+	@Override
+	public IObjectLabelConverter<Date> getObjectLabelConverter(final IValueRange valueRange) {
+		return new ObjectStringObjectLabelConverterAdapter<Date>(getConverter(valueRange));
+	}
+
+	@Override
+	public IStringObjectConverter<Date> getStringObjectConverter(final IValueRange valueRange) {
+		return getConverter(valueRange);
 	}
 
 }
