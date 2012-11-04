@@ -28,21 +28,31 @@
 
 package org.jowidgets.cap.ui.api.control;
 
-import org.jowidgets.cap.common.api.lookup.ILookUpValueRange;
+import java.util.Collection;
 
-public interface IInputControlSupportRegistry {
+import org.jowidgets.api.convert.IConverter;
+import org.jowidgets.api.convert.IObjectLabelConverter;
+import org.jowidgets.api.convert.IStringObjectConverter;
+import org.jowidgets.api.widgets.IInputControl;
+import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
 
-	<ELEMENT_VALUE_TYPE> IInputControlSupport<ELEMENT_VALUE_TYPE> getControls(Class<? extends ELEMENT_VALUE_TYPE> type);
+public interface IInputControlProviderBuilder<ELEMENT_VALUE_TYPE> {
 
-	<ELEMENT_VALUE_TYPE> IInputControlSupport<ELEMENT_VALUE_TYPE> getControls(ILookUpValueRange valueRange);
+	IInputControlProviderBuilder<ELEMENT_VALUE_TYPE> setDisplayFormat(IDisplayFormat displayFormat);
 
-	void setControls(Object lookUpId, final IInputControlSupport<?> controlSupport);
+	IInputControlProviderBuilder<ELEMENT_VALUE_TYPE> setObjectLabelConverter(IObjectLabelConverter<ELEMENT_VALUE_TYPE> converter);
 
-	<ELEMENT_VALUE_TYPE> void setControls(
-		Class<? extends ELEMENT_VALUE_TYPE> type,
-		IInputControlSupport<ELEMENT_VALUE_TYPE> controlSupport);
+	IInputControlProviderBuilder<ELEMENT_VALUE_TYPE> setStringObjectConverter(IStringObjectConverter<ELEMENT_VALUE_TYPE> converter);
 
-	<ELEMENT_VALUE_TYPE> void setControl(
-		Class<? extends ELEMENT_VALUE_TYPE> type,
-		IInputControlProvider<ELEMENT_VALUE_TYPE> controlProvider);
+	IInputControlProviderBuilder<ELEMENT_VALUE_TYPE> setConverter(IConverter<ELEMENT_VALUE_TYPE> converter);
+
+	IInputControlProviderBuilder<ELEMENT_VALUE_TYPE> setControlCreator(
+		ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> controlCreator);
+
+	IInputControlProviderBuilder<ELEMENT_VALUE_TYPE> setCollectionControlCreator(
+		ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> controlCreator);
+
+	IInputControlSupport<ELEMENT_VALUE_TYPE> buildInputControlSupport();
+
+	IInputControlProvider<ELEMENT_VALUE_TYPE> build();
 }

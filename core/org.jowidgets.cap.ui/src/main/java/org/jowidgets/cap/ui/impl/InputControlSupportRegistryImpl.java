@@ -35,8 +35,11 @@ import java.util.Map;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.cap.common.api.lookup.ILookUpProperty;
 import org.jowidgets.cap.common.api.lookup.ILookUpValueRange;
+import org.jowidgets.cap.ui.api.control.IInputControlProvider;
 import org.jowidgets.cap.ui.api.control.IInputControlSupport;
+import org.jowidgets.cap.ui.api.control.IInputControlSupportBuilder;
 import org.jowidgets.cap.ui.api.control.IInputControlSupportRegistry;
+import org.jowidgets.cap.ui.api.control.InputControlSupport;
 import org.jowidgets.util.Assert;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
@@ -109,6 +112,17 @@ final class InputControlSupportRegistryImpl implements IInputControlSupportRegis
 		Assert.paramNotNull(lookUpId, "lookUpId");
 		Assert.paramNotNull(controlSupport, "controlSupport");
 		map.put(lookUpId, controlSupport);
+	}
+
+	@Override
+	public <ELEMENT_VALUE_TYPE> void setControl(
+		final Class<? extends ELEMENT_VALUE_TYPE> type,
+		final IInputControlProvider<ELEMENT_VALUE_TYPE> controlProvider) {
+		Assert.paramNotNull(type, "type");
+		Assert.paramNotNull(controlProvider, "controlProvider");
+		final IInputControlSupportBuilder<ELEMENT_VALUE_TYPE> builder = InputControlSupport.builder();
+		builder.addControl(controlProvider);
+		setControls(type, builder.build());
 	}
 
 }

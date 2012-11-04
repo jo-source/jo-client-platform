@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,23 +26,40 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.control;
+package org.jowidgets.cap.ui.impl;
 
-import org.jowidgets.cap.common.api.lookup.ILookUpValueRange;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 
-public interface IInputControlSupportRegistry {
+import org.jowidgets.cap.ui.api.control.IDisplayFormat;
+import org.jowidgets.cap.ui.api.control.IInputControlProvider;
+import org.jowidgets.cap.ui.api.control.IInputControlSupport;
+import org.jowidgets.util.Assert;
 
-	<ELEMENT_VALUE_TYPE> IInputControlSupport<ELEMENT_VALUE_TYPE> getControls(Class<? extends ELEMENT_VALUE_TYPE> type);
+final class InputControlSupportImpl<ELEMENT_VALUE_TYPE> implements IInputControlSupport<ELEMENT_VALUE_TYPE> {
 
-	<ELEMENT_VALUE_TYPE> IInputControlSupport<ELEMENT_VALUE_TYPE> getControls(ILookUpValueRange valueRange);
+	private final IDisplayFormat defaultDisplayFormat;
+	private final List<IInputControlProvider<ELEMENT_VALUE_TYPE>> controls;
 
-	void setControls(Object lookUpId, final IInputControlSupport<?> controlSupport);
+	public InputControlSupportImpl(
+		final IDisplayFormat defaultDisplayFormat,
+		final List<IInputControlProvider<ELEMENT_VALUE_TYPE>> controls) {
+		Assert.paramNotNull(defaultDisplayFormat, "defaultDisplayFormat");
+		Assert.paramNotEmpty(controls, "controls");
 
-	<ELEMENT_VALUE_TYPE> void setControls(
-		Class<? extends ELEMENT_VALUE_TYPE> type,
-		IInputControlSupport<ELEMENT_VALUE_TYPE> controlSupport);
+		this.defaultDisplayFormat = defaultDisplayFormat;
+		this.controls = Collections.unmodifiableList(new LinkedList<IInputControlProvider<ELEMENT_VALUE_TYPE>>(controls));
+	}
 
-	<ELEMENT_VALUE_TYPE> void setControl(
-		Class<? extends ELEMENT_VALUE_TYPE> type,
-		IInputControlProvider<ELEMENT_VALUE_TYPE> controlProvider);
+	@Override
+	public IDisplayFormat getDefaultDisplayFormat() {
+		return defaultDisplayFormat;
+	}
+
+	@Override
+	public List<IInputControlProvider<ELEMENT_VALUE_TYPE>> getControls() {
+		return controls;
+	}
+
 }
