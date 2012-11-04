@@ -31,6 +31,8 @@ package org.jowidgets.cap.ui.impl;
 import java.util.Collection;
 
 import org.jowidgets.api.convert.IConverter;
+import org.jowidgets.api.convert.IObjectLabelConverter;
+import org.jowidgets.api.convert.IStringObjectConverter;
 import org.jowidgets.api.widgets.IInputControl;
 import org.jowidgets.api.widgets.blueprint.builder.IInputComponentSetupBuilder;
 import org.jowidgets.cap.common.api.bean.IStaticValueRange;
@@ -45,6 +47,8 @@ import org.jowidgets.cap.ui.api.widgets.ILookUpComboBoxSelectionBluePrint;
 import org.jowidgets.cap.ui.tools.validation.ValueRangeValidator;
 import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
 import org.jowidgets.common.widgets.factory.ICustomWidgetFactory;
+import org.jowidgets.tools.converter.Converter;
+import org.jowidgets.tools.converter.ObjectStringObjectLabelConverterAdapter;
 import org.jowidgets.tools.widgets.blueprint.BPF;
 import org.jowidgets.util.Assert;
 
@@ -69,38 +73,60 @@ class ControlProviderLookUpDefault<ELEMENT_VALUE_TYPE> implements IInputControlP
 	}
 
 	@Override
-	public IConverter<ELEMENT_VALUE_TYPE> getConverter(final IValueRange valueRange) {
+	public IObjectLabelConverter<ELEMENT_VALUE_TYPE> getObjectLabelConverter(final IValueRange valueRange) {
 		Assert.paramHasType(valueRange, ILookUpValueRange.class, "valueRange");
+		return new ObjectStringObjectLabelConverterAdapter<ELEMENT_VALUE_TYPE>(getConverter(valueRange));
+	}
+
+	@Override
+	public IStringObjectConverter<ELEMENT_VALUE_TYPE> getStringObjectConverter(final IValueRange valueRange) {
+		Assert.paramHasType(valueRange, ILookUpValueRange.class, "valueRange");
+		return getConverter(valueRange);
+	}
+
+	private IConverter<ELEMENT_VALUE_TYPE> getConverter(final IValueRange valueRange) {
 		return CapUiToolkit.converterFactory().lookUpConverter(lookUpId, lookUpProperty);
 	}
 
 	@Override
 	public ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> getControlCreator(
-		final IConverter<ELEMENT_VALUE_TYPE> converter,
+		final IObjectLabelConverter<ELEMENT_VALUE_TYPE> objectLabelConverter,
+		final IStringObjectConverter<ELEMENT_VALUE_TYPE> stringObjectConverter,
 		final IValueRange valueRange) {
-		Assert.paramNotNull(converter, "converter");
+		Assert.paramNotNull(objectLabelConverter, "objectLabelConverter");
+		Assert.paramNotNull(stringObjectConverter, "stringObjectConverter");
 		Assert.paramHasType(valueRange, ILookUpValueRange.class, "valueRange");
+
+		final IConverter<ELEMENT_VALUE_TYPE> converter = new Converter<ELEMENT_VALUE_TYPE>(
+			objectLabelConverter,
+			stringObjectConverter);
 
 		return new ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>>() {
 			@Override
 			public IInputControl<ELEMENT_VALUE_TYPE> create(final ICustomWidgetFactory widgetFactory) {
 				final ILookUpComboBoxSelectionBluePrint<ELEMENT_VALUE_TYPE> bluePrint;
+
 				bluePrint = CapUiToolkit.bluePrintFactory().lookUpComboBox(lookUpId, converter);
 				addValueRangeValidator(bluePrint, valueRange);
 				return widgetFactory.create(bluePrint);
 			}
 		};
-
 	}
 
 	@Override
 	public ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> getCollectionControlCreator(
 		final ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> elementControlCreator,
-		final IConverter<ELEMENT_VALUE_TYPE> converter,
+		final IObjectLabelConverter<ELEMENT_VALUE_TYPE> objectLabelConverter,
+		final IStringObjectConverter<ELEMENT_VALUE_TYPE> stringObjectConverter,
 		final IValueRange valueRange) {
 		Assert.paramNotNull(elementControlCreator, "elementControlCreator");
-		Assert.paramNotNull(converter, "converter");
+		Assert.paramNotNull(objectLabelConverter, "objectLabelConverter");
+		Assert.paramNotNull(stringObjectConverter, "stringObjectConverter");
 		Assert.paramHasType(valueRange, ILookUpValueRange.class, "valueRange");
+
+		final IConverter<ELEMENT_VALUE_TYPE> converter = new Converter<ELEMENT_VALUE_TYPE>(
+			objectLabelConverter,
+			stringObjectConverter);
 
 		return new ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>>() {
 			@Override

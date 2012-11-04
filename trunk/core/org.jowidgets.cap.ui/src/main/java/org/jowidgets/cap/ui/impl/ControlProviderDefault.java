@@ -32,7 +32,9 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.jowidgets.api.convert.IConverter;
+import org.jowidgets.api.convert.IObjectLabelConverter;
+import org.jowidgets.api.convert.IObjectStringConverter;
+import org.jowidgets.api.convert.IStringObjectConverter;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.widgets.IInputControl;
 import org.jowidgets.api.widgets.blueprint.ICollectionInputFieldBluePrint;
@@ -51,6 +53,8 @@ import org.jowidgets.cap.ui.api.control.IInputControlSupport;
 import org.jowidgets.cap.ui.tools.validation.ValueRangeValidator;
 import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
 import org.jowidgets.common.widgets.factory.ICustomWidgetFactory;
+import org.jowidgets.tools.converter.Converter;
+import org.jowidgets.tools.converter.ObjectStringObjectLabelConverterAdapter;
 import org.jowidgets.util.Assert;
 
 class ControlProviderDefault<ELEMENT_VALUE_TYPE> implements
@@ -71,27 +75,53 @@ class ControlProviderDefault<ELEMENT_VALUE_TYPE> implements
 	}
 
 	@Override
-	public IConverter<ELEMENT_VALUE_TYPE> getConverter(final IValueRange valueRange) {
+	public IObjectLabelConverter<ELEMENT_VALUE_TYPE> getObjectLabelConverter(final IValueRange valueRange) {
 		Assert.paramHasType(valueRange, IStaticValueRange.class, "valueRange");
-		return Toolkit.getConverterProvider().getConverter(elementValueType);
+		return Toolkit.getConverterProvider().getObjectLabelConverter(elementValueType);
+	}
+
+	@Override
+	public IStringObjectConverter<ELEMENT_VALUE_TYPE> getStringObjectConverter(final IValueRange valueRange) {
+		Assert.paramHasType(valueRange, IStaticValueRange.class, "valueRange");
+		return Toolkit.getConverterProvider().getStringObjectConverter(elementValueType);
 	}
 
 	@Override
 	public ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> getControlCreator(
-		final IConverter<ELEMENT_VALUE_TYPE> converter,
+		final IObjectLabelConverter<ELEMENT_VALUE_TYPE> objectLabelConverter,
+		final IStringObjectConverter<ELEMENT_VALUE_TYPE> stringObjectConverter,
 		final IValueRange valueRange) {
 		Assert.paramHasType(valueRange, IStaticValueRange.class, "valueRange");
-		return getControlCreator(converter, (IStaticValueRange) valueRange);
+		return getControlCreator(objectLabelConverter, stringObjectConverter, (IStaticValueRange) valueRange);
 	}
 
 	private ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> getControlCreator(
-		final IConverter<ELEMENT_VALUE_TYPE> converter,
+		final IObjectLabelConverter<ELEMENT_VALUE_TYPE> objectLabelConverter,
+		final IStringObjectConverter<ELEMENT_VALUE_TYPE> stringObjectConverter,
 		final IStaticValueRange valueRange) {
+
+		final IObjectLabelConverter<ELEMENT_VALUE_TYPE> objectLabelConverterNotNull;
+		if (objectLabelConverter != null) {
+			objectLabelConverterNotNull = objectLabelConverter;
+		}
+		else {
+			final IObjectStringConverter<ELEMENT_VALUE_TYPE> objectStringConverter = Toolkit.getConverterProvider().toStringConverter();
+			objectLabelConverterNotNull = new ObjectStringObjectLabelConverterAdapter<ELEMENT_VALUE_TYPE>(objectStringConverter);
+		}
+
 		if (valueRange.getValues().isEmpty()) {
+			final IInputFieldBluePrint<ELEMENT_VALUE_TYPE> inputFieldBp;
+			if (stringObjectConverter != null) {
+				inputFieldBp = bpf.inputField(new Converter<ELEMENT_VALUE_TYPE>(
+					objectLabelConverterNotNull,
+					stringObjectConverter));
+			}
+			else {
+				inputFieldBp = bpf.inputField(objectLabelConverterNotNull);
+			}
 			return new ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>>() {
 				@Override
 				public IInputControl<ELEMENT_VALUE_TYPE> create(final ICustomWidgetFactory widgetFactory) {
-					final IInputFieldBluePrint<ELEMENT_VALUE_TYPE> inputFieldBp = bpf.inputField(converter);
 					addValueRangeValidator(inputFieldBp, valueRange);
 					return widgetFactory.create(inputFieldBp);
 				}
@@ -102,14 +132,17 @@ class ControlProviderDefault<ELEMENT_VALUE_TYPE> implements
 				@SuppressWarnings("unchecked")
 				@Override
 				public IInputControl<ELEMENT_VALUE_TYPE> create(final ICustomWidgetFactory widgetFactory) {
-					if (valueRange.isOpen()) {
+					if (valueRange.isOpen() && stringObjectConverter != null) {
+						final Converter<ELEMENT_VALUE_TYPE> converter = new Converter<ELEMENT_VALUE_TYPE>(
+							objectLabelConverterNotNull,
+							stringObjectConverter);
 						final IComboBoxBluePrint<ELEMENT_VALUE_TYPE> comboBp = bpf.comboBox(converter);
 						addValueRangeValidator(comboBp, valueRange);
 						comboBp.setElements((List<ELEMENT_VALUE_TYPE>) valueRange.getValues());
 						return widgetFactory.create(comboBp);
 					}
 					else {
-						final IComboBoxSelectionBluePrint<ELEMENT_VALUE_TYPE> comboBp = bpf.comboBoxSelection(converter);
+						final IComboBoxSelectionBluePrint<ELEMENT_VALUE_TYPE> comboBp = bpf.comboBoxSelection(objectLabelConverterNotNull);
 						addValueRangeValidator(comboBp, valueRange);
 						comboBp.setElements((List<ELEMENT_VALUE_TYPE>) valueRange.getValues());
 						comboBp.setLenient(true);
@@ -123,21 +156,45 @@ class ControlProviderDefault<ELEMENT_VALUE_TYPE> implements
 	@Override
 	public ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> getCollectionControlCreator(
 		final ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> elementControlCreator,
-		final IConverter<ELEMENT_VALUE_TYPE> converter,
+		final IObjectLabelConverter<ELEMENT_VALUE_TYPE> objectLabelConverter,
+		final IStringObjectConverter<ELEMENT_VALUE_TYPE> stringObjectConverter,
 		final IValueRange valueRange) {
 		Assert.paramHasType(valueRange, IStaticValueRange.class, "valueRange");
-		return getCollectionControlCreator(elementControlCreator, converter, (IStaticValueRange) valueRange);
+		return getCollectionControlCreator(
+				elementControlCreator,
+				objectLabelConverter,
+				stringObjectConverter,
+				(IStaticValueRange) valueRange);
 	}
 
 	private ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> getCollectionControlCreator(
 		final ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> elementControlCreator,
-		final IConverter<ELEMENT_VALUE_TYPE> converter,
+		final IObjectLabelConverter<ELEMENT_VALUE_TYPE> objectLabelConverter,
+		final IStringObjectConverter<ELEMENT_VALUE_TYPE> stringObjectConverter,
 		final IStaticValueRange valueRange) {
+
+		final IObjectLabelConverter<ELEMENT_VALUE_TYPE> objectLabelConverterNotNull;
+		if (objectLabelConverter != null) {
+			objectLabelConverterNotNull = objectLabelConverter;
+		}
+		else {
+			final IObjectStringConverter<ELEMENT_VALUE_TYPE> objectStringConverter = Toolkit.getConverterProvider().toStringConverter();
+			objectLabelConverterNotNull = new ObjectStringObjectLabelConverterAdapter<ELEMENT_VALUE_TYPE>(objectStringConverter);
+		}
+
+		final ICollectionInputFieldBluePrint<ELEMENT_VALUE_TYPE> inputFieldBp;
+		if (stringObjectConverter != null) {
+			inputFieldBp = bpf.collectionInputField(new Converter<ELEMENT_VALUE_TYPE>(
+				objectLabelConverterNotNull,
+				stringObjectConverter));
+		}
+		else {
+			inputFieldBp = bpf.collectionInputField(objectLabelConverterNotNull);
+		}
 
 		return new ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>>() {
 			@Override
 			public IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>> create(final ICustomWidgetFactory widgetFactory) {
-				final ICollectionInputFieldBluePrint<ELEMENT_VALUE_TYPE> inputFieldBp = bpf.collectionInputField(converter);
 				if (!valueRange.isOpen()) {
 					inputFieldBp.setElementValidator(new ValueRangeValidator<ELEMENT_VALUE_TYPE>(valueRange));
 				}

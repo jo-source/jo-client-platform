@@ -33,7 +33,8 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.jowidgets.api.convert.IConverter;
+import org.jowidgets.api.convert.IObjectLabelConverter;
+import org.jowidgets.api.convert.IStringObjectConverter;
 import org.jowidgets.api.widgets.IInputControl;
 import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.bean.Cardinality;
@@ -407,19 +408,23 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 
 			if (controlSupport != null) {
 				for (final IInputControlProvider<ELEMENT_VALUE_TYPE> controlProvider : controlSupport.getControls()) {
-					final IConverter<ELEMENT_VALUE_TYPE> converter = controlProvider.getConverter(valueRange);
+					final IObjectLabelConverter<ELEMENT_VALUE_TYPE> objectLabelConverter = controlProvider.getObjectLabelConverter(valueRange);
+					final IStringObjectConverter<ELEMENT_VALUE_TYPE> stringObjectConverter = controlProvider.getStringObjectConverter(valueRange);
 					final ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> elementControlCreator = controlProvider.getControlCreator(
-							converter,
+							objectLabelConverter,
+							stringObjectConverter,
 							valueRange);
 					final ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> collectionControlCreator;
 					collectionControlCreator = controlProvider.getCollectionControlCreator(
 							elementControlCreator,
-							converter,
+							objectLabelConverter,
+							stringObjectConverter,
 							valueRange);
 
 					final IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> builder = createControlPanelProviderBuilder();
 					builder.setDisplayFormat(controlProvider.getDisplayFormat());
-					builder.setConverter(converter);
+					builder.setObjectLabelConverter(objectLabelConverter);
+					builder.setStringObjectConverter(stringObjectConverter);
 					builder.setControlCreator(elementControlCreator);
 					builder.setFilterCollectionControlCreator(collectionControlCreator);
 					if (Collection.class.isAssignableFrom(valueType)

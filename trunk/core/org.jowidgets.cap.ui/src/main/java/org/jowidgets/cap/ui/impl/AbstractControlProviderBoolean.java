@@ -28,7 +28,8 @@
 
 package org.jowidgets.cap.ui.impl;
 
-import org.jowidgets.api.convert.IConverter;
+import org.jowidgets.api.convert.IObjectLabelConverter;
+import org.jowidgets.api.convert.IStringObjectConverter;
 import org.jowidgets.api.widgets.IInputControl;
 import org.jowidgets.api.widgets.blueprint.IComboBoxSelectionBluePrint;
 import org.jowidgets.cap.common.api.bean.IValueRange;
@@ -47,12 +48,13 @@ abstract class AbstractControlProviderBoolean extends ControlProviderDefault<Boo
 
 	@Override
 	public ICustomWidgetCreator<IInputControl<Boolean>> getControlCreator(
-		final IConverter<Boolean> converter,
+		final IObjectLabelConverter<Boolean> objectLabelConverter,
+		final IStringObjectConverter<Boolean> stringObjectConverter,
 		final IValueRange valueRange) {
 		return new ICustomWidgetCreator<IInputControl<Boolean>>() {
 			@Override
 			public IInputControl<Boolean> create(final ICustomWidgetFactory widgetFactory) {
-				final IComboBoxSelectionBluePrint<Boolean> cmbBp = BPF.comboBoxSelection(converter);
+				final IComboBoxSelectionBluePrint<Boolean> cmbBp = BPF.comboBoxSelection(objectLabelConverter);
 				if (nullable) {
 					cmbBp.setElements(null, Boolean.TRUE, Boolean.FALSE);
 				}
