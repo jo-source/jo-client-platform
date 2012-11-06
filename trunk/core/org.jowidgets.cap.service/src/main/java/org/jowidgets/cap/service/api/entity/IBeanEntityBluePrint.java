@@ -215,7 +215,7 @@ public interface IBeanEntityBluePrint {
 	IBeanEntityBluePrint setDeleterService(ISyncDeleterService deleterService);
 
 	/**
-	 * Convenience method to set the updater service and creator service to null
+	 * Convenience method to set the updater service, creator service and deleter service to null
 	 * 
 	 * @return This builder
 	 */
