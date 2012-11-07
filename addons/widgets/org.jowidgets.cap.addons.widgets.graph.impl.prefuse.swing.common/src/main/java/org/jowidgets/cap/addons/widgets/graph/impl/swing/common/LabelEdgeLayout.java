@@ -31,6 +31,7 @@ package org.jowidgets.cap.addons.widgets.graph.impl.swing.common;
 import java.awt.geom.Rectangle2D;
 import java.util.Iterator;
 
+import prefuse.Visualization;
 import prefuse.action.layout.Layout;
 import prefuse.visual.DecoratorItem;
 import prefuse.visual.VisualItem;
@@ -38,15 +39,17 @@ import prefuse.visual.VisualItem;
 class LabelEdgeLayout extends Layout {
 
 	private boolean edgesVisible;
+	private final Visualization vis;
 
-	LabelEdgeLayout() {
+	LabelEdgeLayout(final Visualization vis) {
 		super(BeanRelationGraphImpl.EDGE_DECORATORS);
+		this.vis = vis;
 		edgesVisible = true;
 	}
 
 	@Override
 	public void run(final double frac) {
-		final Iterator<?> iterator = m_vis.items(m_group);
+		final Iterator<?> iterator = vis.items(m_group);
 		while (iterator.hasNext()) {
 			final DecoratorItem decorator = (DecoratorItem) iterator.next();
 			if (edgesVisible) {
