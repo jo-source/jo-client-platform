@@ -45,18 +45,19 @@ class RemoveStandaloneNodesAction extends GroupAction {
 	@Override
 	public void run(final double frac) {
 		synchronized (m_vis) {
-			final TupleSet nodes = m_vis.getGroup(BeanRelationGraphImpl.NODES);
-			final Iterator<?> node = nodes.tuples();
-			while (node.hasNext()) {
-				final Node result = (Node) node.next();
-				final VisualItem visualItem = (VisualItem) result;
+			if (m_vis != null) {
+				final TupleSet nodes = m_vis.getGroup(BeanRelationGraphImpl.NODES);
+				final Iterator<?> node = nodes.tuples();
+				while (node.hasNext()) {
+					final Node result = (Node) node.next();
+					final VisualItem visualItem = (VisualItem) result;
 
-				if (result.getParent() != null) {
-					result.set("visible", removeStandaloneNodes(result));
-					visualItem.setVisible((Boolean) result.get("visible"));
+					if (result.getParent() != null) {
+						result.set("visible", removeStandaloneNodes(result));
+						visualItem.setVisible((Boolean) result.get("visible"));
+					}
 				}
 			}
-
 		}
 	}
 
