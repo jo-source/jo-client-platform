@@ -30,23 +30,19 @@ package org.jowidgets.cap.addons.widgets.graph.impl.swing.common;
 
 import java.util.Iterator;
 
-import prefuse.Visualization;
 import prefuse.action.GroupAction;
 import prefuse.data.Node;
 import prefuse.data.tuple.TupleSet;
 
-public class NodeMarkedAction extends GroupAction {
+class NodeMarkedAction extends GroupAction {
 
-	private final Visualization vis;
-
-	public NodeMarkedAction(final Visualization vis) {
+	NodeMarkedAction() {
 		super();
-		this.vis = vis;
 	}
 
 	@Override
 	public void run(final double frac) {
-		final TupleSet nodes = vis.getGroup(BeanRelationGraphImpl.NODES);
+		final TupleSet nodes = m_vis.getGroup(BeanRelationGraphImpl.NODES);
 		final Iterator<?> node = nodes.tuples();
 		while (node.hasNext()) {
 			final Node result = (Node) node.next();

@@ -28,45 +28,43 @@
 
 package org.jowidgets.cap.addons.widgets.graph.impl.swing.common;
 
+import java.awt.geom.Rectangle2D;
 import java.util.Iterator;
 
-import org.jowidgets.cap.addons.widgets.graph.impl.swing.common.BeanRelationGraphImpl.Expand;
-
-import prefuse.action.GroupAction;
-import prefuse.data.Node;
-import prefuse.data.tuple.TupleSet;
+import prefuse.action.layout.Layout;
+import prefuse.visual.DecoratorItem;
 import prefuse.visual.VisualItem;
 
-class NodeVisibilityAction extends GroupAction {
+class LabelEdgeLayout extends Layout {
 
-	NodeVisibilityAction() {
-		super();
+	private boolean edgesVisible;
+
+	LabelEdgeLayout() {
+		super(BeanRelationGraphImpl.EDGE_DECORATORS);
+		edgesVisible = true;
 	}
 
 	@Override
 	public void run(final double frac) {
-		final TupleSet nodes = m_vis.getGroup(BeanRelationGraphImpl.NODES);
-		final Iterator<?> node = nodes.tuples();
-		while (node.hasNext()) {
-			final Node result = (Node) node.next();
-			final VisualItem visualItem = (VisualItem) result;
-			if (result != null) {
-
-				if (result.getParent() != null) {
-					if (result.getParent().get("expanded") == Expand.NOT) {
-						result.set("visible", false);
-
-					}
-				}
-				if (result.getChildCount() == 0 && result.getOutDegree() <= 1) {
-					result.set("isParent", false);
-				}
-
-				if ((Boolean) result.get("visible") != null) {
-					visualItem.setVisible((Boolean) result.get("visible"));
-				}
+		final Iterator<?> iterator = m_vis.items(m_group);
+		while (iterator.hasNext()) {
+			final DecoratorItem decorator = (DecoratorItem) iterator.next();
+			if (edgesVisible) {
+				decorator.setVisible(true);
+				final VisualItem decoratedItem = decorator.getDecoratedItem();
+				final Rectangle2D bounds = decoratedItem.getBounds();
+				final double x = bounds.getCenterX();
+				final double y = bounds.getCenterY();
+				setX(decorator, null, x);
+				setY(decorator, null, y);
+			}
+			else {
+				decorator.setVisible(false);
 			}
 		}
 	}
 
+	public void setEdgesVisible(final boolean visible) {
+		edgesVisible = visible;
+	}
 }
