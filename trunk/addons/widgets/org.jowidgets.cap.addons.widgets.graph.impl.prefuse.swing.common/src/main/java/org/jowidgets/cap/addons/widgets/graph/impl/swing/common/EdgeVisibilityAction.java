@@ -33,7 +33,6 @@ import java.util.Iterator;
 
 import org.jowidgets.cap.addons.widgets.graph.impl.swing.common.BeanRelationGraphImpl.Expand;
 
-import prefuse.Visualization;
 import prefuse.action.GroupAction;
 import prefuse.data.Edge;
 import prefuse.data.Node;
@@ -42,19 +41,17 @@ import prefuse.visual.VisualItem;
 
 class EdgeVisibilityAction extends GroupAction {
 
-	private final Visualization vis;
 	private HashMap<String, Boolean> edgeMap;
 
-	public EdgeVisibilityAction(final HashMap<String, Boolean> edgeVisibilityGroup, final Visualization vis) {
+	EdgeVisibilityAction(final HashMap<String, Boolean> edgeVisibilityGroup) {
 		super();
-		this.vis = vis;
 		this.edgeMap = edgeVisibilityGroup;
 	}
 
 	@Override
 	public void run(final double frac) {
 
-		final TupleSet edges = vis.getGroup(BeanRelationGraphImpl.EDGES);
+		final TupleSet edges = m_vis.getGroup(BeanRelationGraphImpl.EDGES);
 		final Iterator<?> edge = edges.tuples();
 		while (edge.hasNext()) {
 			final Edge test = (Edge) edge.next();
