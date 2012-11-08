@@ -36,6 +36,7 @@ import org.jowidgets.api.convert.IConverter;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.widgets.blueprint.factory.IBluePrintFactory;
 import org.jowidgets.cap.common.api.lookup.ILookUpProperty;
+import org.jowidgets.cap.common.api.lookup.LookUpProperty;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionObservable;
@@ -266,6 +267,12 @@ final class CapApiBluePrintFactory implements ICapApiBluePrintFactory {
 		return lookUpComboBox(lookUpId, converter);
 	}
 
+	@Override
+	public <KEY_TYPE> ILookUpComboBoxSelectionBluePrint<KEY_TYPE> lookUpComboBox(final Object lookUpId) {
+		Assert.paramNotNull(lookUpId, "lookUpId");
+		return lookUpComboBox(lookUpId, LookUpProperty.create());
+	}
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public <KEY_TYPE> ILookUpCollectionInputFieldBluePrint<KEY_TYPE> lookUpCollectionInputField(
@@ -280,7 +287,6 @@ final class CapApiBluePrintFactory implements ICapApiBluePrintFactory {
 	public <KEY_TYPE> ILookUpCollectionInputFieldBluePrint<KEY_TYPE> lookUpCollectionInputField(
 		final Object lookUpId,
 		final ILookUpProperty lookUpProperty) {
-
 		final IConverter<KEY_TYPE> converter = CapUiToolkit.converterFactory().lookUpConverter(lookUpId, lookUpProperty);
 		return lookUpCollectionInputField(lookUpId, converter);
 	}

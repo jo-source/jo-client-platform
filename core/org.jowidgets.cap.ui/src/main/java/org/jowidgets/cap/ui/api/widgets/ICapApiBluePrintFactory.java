@@ -92,6 +92,8 @@ public interface ICapApiBluePrintFactory {
 
 	<KEY_TYPE> ILookUpComboBoxSelectionBluePrint<KEY_TYPE> lookUpComboBox(Object lookUpId, ILookUpProperty lookUpProperty);
 
+	<KEY_TYPE> ILookUpComboBoxSelectionBluePrint<KEY_TYPE> lookUpComboBox(Object lookUpId);
+
 	<KEY_TYPE> ILookUpCollectionInputFieldBluePrint<KEY_TYPE> lookUpCollectionInputField(
 		Object lookUpId,
 		IConverter<KEY_TYPE> converter);
