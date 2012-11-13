@@ -44,6 +44,14 @@ public final class Neo4JServiceToolkitImpl implements INeo4JServiceToolkit {
 	private ITransactionTemplate transactionTemplate;
 
 	@Override
+	public void reset() {
+		serviceFactory = null;
+		nodeAccess = null;
+		relationshipAccess = null;
+		transactionTemplate = null;
+	}
+
+	@Override
 	public INeo4JServiceFactory serviceFactory() {
 		if (serviceFactory == null) {
 			serviceFactory = new Neo4JServiceFactoryImpl();

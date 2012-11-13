@@ -45,7 +45,7 @@ public final class GraphDBConfig {
 
 	public static synchronized void initialize(final IGraphDBConfig instance) {
 		Assert.paramNotNull(instance, "instance");
-		if (instance != null) {
+		if (GraphDBConfig.instance == null) {
 			GraphDBConfig.instance = instance;
 		}
 		else {
