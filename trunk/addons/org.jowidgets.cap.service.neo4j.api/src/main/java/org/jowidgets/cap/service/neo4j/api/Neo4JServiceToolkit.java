@@ -42,7 +42,7 @@ public final class Neo4JServiceToolkit {
 
 	public static synchronized void initialize(final INeo4JServiceToolkit instance) {
 		Assert.paramNotNull(instance, "instance");
-		if (instance != null) {
+		if (Neo4JServiceToolkit.instance == null) {
 			Neo4JServiceToolkit.instance = instance;
 		}
 		else {
@@ -55,6 +55,10 @@ public final class Neo4JServiceToolkit {
 			createInstance();
 		}
 		return instance;
+	}
+
+	public static void reset() {
+		getInstance().reset();
 	}
 
 	public static INeo4JServiceFactory serviceFactory() {

@@ -32,6 +32,8 @@ import org.jowidgets.cap.service.api.transaction.ITransactionTemplate;
 
 public interface INeo4JServiceToolkit {
 
+	void reset();
+
 	INeo4JServiceFactory serviceFactory();
 
 	IGraphDBConfigBuilder graphDBConfigBuilder();
