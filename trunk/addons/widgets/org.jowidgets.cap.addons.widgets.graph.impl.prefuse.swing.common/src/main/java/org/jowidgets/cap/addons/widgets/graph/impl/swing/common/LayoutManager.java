@@ -29,6 +29,8 @@
 package org.jowidgets.cap.addons.widgets.graph.impl.swing.common;
 
 import java.awt.Point;
+import java.util.Iterator;
+import java.util.LinkedList;
 
 import org.jowidgets.cap.addons.widgets.graph.impl.swing.common.BeanRelationGraphImpl.GraphLayout;
 
@@ -44,6 +46,7 @@ import prefuse.util.force.DragForce;
 import prefuse.util.force.ForceSimulator;
 import prefuse.util.force.NBodyForce;
 import prefuse.util.force.SpringForce;
+import prefuse.visual.VisualItem;
 
 class LayoutManager {
 
@@ -88,12 +91,69 @@ class LayoutManager {
 		return layout;
 	}
 
+	public void assignNodes(final boolean first) {
+		final Iterator<?> iterator = vis.visibleItems("graph.nodes");
+		final LinkedList<VisualItem> boundaries = new LinkedList<VisualItem>();
+		while (iterator.hasNext()) {
+			final VisualItem item = (VisualItem) iterator.next();
+			final Iterator<VisualItem> it = boundaries.iterator();
+			while (it.hasNext()) {
+				final VisualItem elem = it.next();
+				if (item.getBounds().intersects(elem.getBounds())) {
+					double diffX = 0;
+					double diffY = 0;
+					if (item.getX() > elem.getX()) {
+						diffX = (elem.getX() + (elem.getBounds().getWidth() / 2))
+							- (item.getX() - (item.getBounds().getWidth() / 2));
+					}
+					else if (item.getX() < elem.getX()) {
+						diffX = (item.getX() + (item.getBounds().getWidth() / 2))
+							- (elem.getX() - (elem.getBounds().getWidth() / 2));
+					}
+
+					if (item.getY() > elem.getY()) {
+						diffY = (elem.getY() + (elem.getBounds().getHeight() / 2))
+							- (item.getY() - (item.getBounds().getHeight() / 2));
+
+					}
+					else if (item.getY() < elem.getY()) {
+						diffY = (item.getY() + (item.getBounds().getHeight() / 2))
+							- (elem.getY() - (elem.getBounds().getHeight() / 2));
+					}
+
+					if (diffX < diffY || diffX == 0.0) {
+						if (item.getX() >= elem.getX()) {
+							item.setX(item.getX() + diffX);
+						}
+						else {
+							item.setX(item.getX() - diffX);
+						}
+					}
+					else if (diffX > diffY || diffY == 0.0) {
+						if (item.getY() > elem.getY()) {
+							item.setY(item.getY() + diffY);
+						}
+						else {
+							item.setY(item.getY() - diffY);
+						}
+					}
+				}
+			}
+			boundaries.add(item);
+		}
+		boundaries.clear();
+		vis.repaint();
+		if (first) {
+			assignNodes(false);
+		}
+	}
+
 	private ActionList initRadialTreeLayout() {
 
 		layout = new ActionList(Activity.DEFAULT_STEP_TIME);
-		radialTreeLayout = new RadialTreeLayout("graph", 100);
+		radialTreeLayout = new RadialTreeLayout("graph", 200);
 		radialTreeLayout.setAutoScale(false);
-		radialTreeLayout.setRadiusIncrement(120);
+
 		layout.add(new TreeRootAction("graph", vis));
 		layout.add(radialTreeLayout);
 		layout.add(labelEdgeLayout);

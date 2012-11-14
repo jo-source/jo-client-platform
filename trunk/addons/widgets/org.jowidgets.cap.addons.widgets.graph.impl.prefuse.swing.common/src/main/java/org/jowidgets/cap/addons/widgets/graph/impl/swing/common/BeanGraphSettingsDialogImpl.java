@@ -33,7 +33,6 @@ import java.util.Map;
 
 import org.jowidgets.api.widgets.IScrollComposite;
 import org.jowidgets.common.types.Dimension;
-import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
 import org.jowidgets.tools.layout.MigLayoutFactory;
 import org.jowidgets.tools.powo.JoFrame;
 import org.jowidgets.tools.widgets.blueprint.BPF;
@@ -51,13 +50,13 @@ final class BeanGraphSettingsDialog extends JoFrame {
 		super("Group Visibility");
 
 		setLayout(MigLayoutFactory.growingInnerCellLayout());
-		setMinPackSize(new Dimension(300, 300));
 
 		final IScrollComposite content = add(BPF.scrollComposite(), MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
-		content.setLayout(new MigLayoutDescriptor("[0::][grow, 50::]", ""));
+		content.setLayout(MigLayoutFactory.growingInnerCellLayout());
+		content.setPreferredSize(new Dimension(300, 300));
 
 		beanGraphAttributeListImpl = new BeanGraphAttributeListImpl(vis, content.add(
-				BPF.compositeWithBorder(),
+				BPF.composite(),
 				"grow, wrap, span, w 0::, h 0::"), groupMap, edgeVisibilityMap);
 
 	}
