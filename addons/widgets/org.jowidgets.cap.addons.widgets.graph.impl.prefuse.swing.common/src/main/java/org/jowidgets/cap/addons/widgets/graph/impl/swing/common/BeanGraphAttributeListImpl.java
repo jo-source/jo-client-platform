@@ -91,23 +91,24 @@ public class BeanGraphAttributeListImpl extends CompositeWrapper {
 
 		final ITableLayoutBuilder builder = Toolkit.getLayoutFactoryProvider().tableLayoutBuilder();
 		builder.columnCount(2);
-		builder.gap(10);
+		builder.gap(15);
 		builder.verticalGap(4);
 
 		builder.alignment(1, Alignment.CENTER);
-		builder.fixedColumnWidth(0, 150);
-		builder.fixedColumnWidth(1, 50);
+		builder.fixedColumnWidth(0, 200);
+		builder.fixedColumnWidth(1, 100);
 
 		this.attributeLayoutManager = builder.build();
 		attributeLayoutManager.beginLayout();
 
-		this.setLayout(new MigLayoutDescriptor("hidemode 2", "[grow]", "[grow, 0::]0[grow, 0::]"));
+		this.setLayout(new MigLayoutDescriptor("hidemode 2", "[grow, 0::]", "[grow,0::]0[grow,0::]"));
 
 		final IBluePrintFactory bpf = Toolkit.getBluePrintFactory();
 
 		new AttributeHeaderComposite(add(bpf.composite(), "grow, wrap"));
 
 		//		initializeGroups(this, groupMap, bpf);
+
 		initializeGroups(this, edgeVisibilityMap, bpf);
 
 		attributeLayoutManager.endLayout();
@@ -134,10 +135,10 @@ public class BeanGraphAttributeListImpl extends CompositeWrapper {
 		final BeanGraphAttributeListImpl content,
 		final HashMap<String, Boolean> edgeVisibilityMap,
 		final IBluePrintFactory bpf) {
-		new AllAttributeComposite(add(bpf.composite(), "grow, wrap"));
+		new AllAttributeComposite(content.add(bpf.composite(), "grow, wrap"));
 		row = !row;
 		for (final Entry<String, Boolean> entry : edgeVisibilityMap.entrySet()) {
-			new AttributeEdgeComposite(add(bpf.composite(), "grow, wrap"), entry.getKey(), entry.getValue(), row);
+			new AttributeEdgeComposite(content.add(bpf.composite(), "grow, wrap"), entry.getKey(), entry.getValue(), row);
 			row = !row;
 		}
 	}
@@ -167,7 +168,14 @@ public class BeanGraphAttributeListImpl extends CompositeWrapper {
 	private void updateAllCheckBoxes(final boolean selected) {
 		final Iterator<ICheckBox> it = allCheckBoxes.iterator();
 		while (it.hasNext()) {
-			it.next().setSelected(selected);
+			synchronized (vis) {
+
+				it.next().setSelected(selected);
+				vis.run("filter");
+				vis.run("layout");
+				vis.run("animate");
+				vis.run("color");
+			}
 		}
 
 	}
@@ -212,6 +220,9 @@ public class BeanGraphAttributeListImpl extends CompositeWrapper {
 						}
 					}
 					vis.run("filter");
+					vis.run("layout");
+					vis.run("animate");
+					vis.run("color");
 				}
 			});
 		}
@@ -234,6 +245,7 @@ public class BeanGraphAttributeListImpl extends CompositeWrapper {
 
 				@Override
 				public void inputChanged() {
+
 					synchronized (vis) {
 
 						for (final Entry<String, Boolean> entry : edgeMap.entrySet()) {
@@ -242,6 +254,9 @@ public class BeanGraphAttributeListImpl extends CompositeWrapper {
 							}
 						}
 						vis.run("filter");
+						vis.run("layout");
+						vis.run("animate");
+						vis.run("color");
 					}
 				}
 			});

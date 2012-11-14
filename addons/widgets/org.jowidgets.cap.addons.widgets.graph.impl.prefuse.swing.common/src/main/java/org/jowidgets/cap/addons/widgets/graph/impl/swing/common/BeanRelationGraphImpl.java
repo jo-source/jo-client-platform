@@ -78,6 +78,7 @@ import org.jowidgets.cap.ui.tools.model.BeanListModelListenerAdapter;
 import org.jowidgets.common.image.IImageConstant;
 import org.jowidgets.common.image.IImageDescriptor;
 import org.jowidgets.common.image.IImageHandle;
+import org.jowidgets.common.types.Dimension;
 import org.jowidgets.common.types.Orientation;
 import org.jowidgets.common.widgets.controller.IInputListener;
 import org.jowidgets.common.widgets.controller.IItemStateListener;
@@ -93,15 +94,18 @@ import org.jowidgets.util.IConverter;
 import prefuse.Constants;
 import prefuse.Display;
 import prefuse.Visualization;
+import prefuse.action.Action;
 import prefuse.action.ActionList;
 import prefuse.action.GroupAction;
 import prefuse.action.RepaintAction;
-import prefuse.action.animate.PolarLocationAnimator;
+import prefuse.action.animate.LocationAnimator;
 import prefuse.action.animate.QualityControlAnimator;
 import prefuse.action.animate.VisibilityAnimator;
 import prefuse.action.assignment.ColorAction;
 import prefuse.action.assignment.FontAction;
 import prefuse.action.layout.CollapsedSubtreeLayout;
+import prefuse.activity.Activity;
+import prefuse.activity.ActivityAdapter;
 import prefuse.activity.SlowInSlowOutPacer;
 import prefuse.controls.DragControl;
 import prefuse.controls.FocusControl;
@@ -156,6 +160,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 	private Map<Class<Object>, Boolean> groupVisibilityMap;
 	private HashMap<String, Boolean> edgeVisibilityMap;
 	private final HashMap<IBeanProxy<Object>, IBeanRelationNodeModel<Object, Object>> beanRelationMap;
+	private final HashMap<Object, IBeanRelationNodeModel<Object, Object>> listenerMap;
 	private final HashMap<String, String> groupNames;
 	private final List<Node> expandedNodesCache;
 	private Set<IBeanRelationNodeModel<Object, Object>> expandMapResult;
@@ -199,6 +204,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		groupVisibilityMap = new HashMap<Class<Object>, Boolean>();
 		edgeVisibilityMap = new HashMap<String, Boolean>();
 		beanRelationMap = new HashMap<IBeanProxy<Object>, IBeanRelationNodeModel<Object, Object>>();
+		listenerMap = new HashMap<Object, IBeanRelationNodeModel<Object, Object>>();
 		groupNames = new HashMap<String, String>();
 		expandedNodesCache = new LinkedList<Node>();
 		expandMapResult = new HashSet<IBeanRelationNodeModel<Object, Object>>();
@@ -218,6 +224,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		graph.addColumn("beanrelation", Object.class);
 		graph.addColumn("isParent", Boolean.class);
 		graph.addColumn("marked", Boolean.class);
+		graph.addColumn("assigned", Integer.class);
 
 		vis = new Visualization();
 		vis.addGraph(GRAPH, graph);
@@ -268,7 +275,19 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		layoutManager = new LayoutManager(vis);
 		layoutManager.getLabelEdgeLayout().setEdgesVisible(false);
 		activeLayout = layoutManager.getLayout(GraphLayout.FORCE_DIRECTED_LAYOUT);
-		vis.putAction("animate", initializeAnimationList());
+		final Action anim = vis.putAction("animate", initializeAnimationList());
+		anim.addActivityListener(new ActivityAdapter() {
+
+			@Override
+			public void activityFinished(final Activity a) {
+				if (layoutManager != null) {
+					if (activeLayout != GraphLayout.FORCE_DIRECTED_LAYOUT) {
+						layoutManager.assignNodes(true);
+					}
+				}
+			}
+
+		});
 
 		display = new Display(vis);
 		display.setHighQuality(true);
@@ -372,7 +391,8 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 			animation.add(new VisibilityAnimator(GRAPH));
 			animation.add(new QualityControlAnimator());
 			animation.add(subLayout);
-			animation.add(new PolarLocationAnimator(GRAPH, "linear"));
+			animation.add(new LocationAnimator());
+			//			animation.add(new PolarLocationAnimator(GRAPH, "linear"));
 			animation.add(new RepaintAction());
 		}
 		return animation;
@@ -582,8 +602,10 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 
 		for (int i = 0; i < relationNodeModel.getSize(); i++) {
 			final IBeanProxy<Object> bean = relationNodeModel.getBean(i);
-			if (graph.getNodeCount() < maxNodeCount && !(bean.isDummy())) {
-				addBeanToGraph(bean, i + nodeMap.size(), relationNodeModel);
+			synchronized (graph) {
+				if (graph.getNodeCount() < maxNodeCount && !(bean.isDummy())) {
+					addBeanToGraph(bean, i + nodeMap.size(), relationNodeModel);
+				}
 			}
 		}
 		runLayout(true);
@@ -604,6 +626,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 			childNode.set("expanded", Expand.NOT);
 			childNode.set("isParent", false);
 			childNode.set("marked", false);
+			childNode.set("assigned", 0);
 			beanRelationMap.put(bean, beanRelationNodeModel);
 		}
 		else {
@@ -690,8 +713,11 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 					beanRelationNodeModel.getChildEntityTypeId(),
 					bean,
 					childEntityTypeId);
-			final ChildModelListener childModelListener = new ChildModelListener(childRelationNodeModel);
-			childRelationNodeModel.addBeanListModelListener(childModelListener);
+			if (!listenerMap.containsKey(childRelationNodeModel.getChildEntityId())) {
+				final ChildModelListener childModelListener = new ChildModelListener(childRelationNodeModel);
+				childRelationNodeModel.addBeanListModelListener(childModelListener);
+				listenerMap.put(childRelationNodeModel.getChildEntityId(), childRelationNodeModel);
+			}
 		}
 	}
 
@@ -714,6 +740,8 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		public void beansChanged() {
 			if (nodeMap.size() != 0) {
 				nodeMap.clear();
+				listenerMap.clear();
+
 				synchronized (vis) {
 					graph.clear();
 					layoutManager.resetLayout();
@@ -739,7 +767,6 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 			synchronized (vis) {
 				runLayout(true);
 				filters.run();
-
 			}
 		}
 	}
@@ -950,17 +977,11 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 			@Override
 			public void inputChanged() {
 				final GraphLayout value = comboBox.getValue();
-				if (GraphLayout.FORCE_DIRECTED_LAYOUT == value) {
-					settingsDialogAction.setEnabled(true);
-					activeLayout = layoutManager.getLayout(GraphLayout.FORCE_DIRECTED_LAYOUT);
-				}
-				else if (GraphLayout.NODE_TREE_LINK_LAYOUT == value) {
-					settingsDialogAction.setEnabled(false);
-					activeLayout = layoutManager.getLayout(GraphLayout.NODE_TREE_LINK_LAYOUT);
-				}
-				else if (GraphLayout.RADIAL_TREE_LAYOUT == value) {
-					settingsDialogAction.setEnabled(false);
-					activeLayout = layoutManager.getLayout(GraphLayout.RADIAL_TREE_LAYOUT);
+				for (final GraphLayout elem : GraphLayout.values()) {
+					if (elem == value) {
+						settingsDialogAction.setEnabled(elem.equals(GraphLayout.FORCE_DIRECTED_LAYOUT));
+						activeLayout = layoutManager.getLayout(elem);
+					}
 				}
 				if (layoutManager.getLabelEdgeLayout() != null) {
 					layoutManager.getLabelEdgeLayout().run();
@@ -1008,6 +1029,8 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 				}
 				settingsDialog = new BeanGraphSettingsDialog(vis, groupVisibilityMap, edgeVisibilityMap);
 
+				settingsDialog.setMinPackSize(new Dimension(400, 300));
+				settingsDialog.setMaxPackSize(new Dimension(400, 300));
 				settingsDialog.setVisible(true);
 				groupVisibilityMap = settingsDialog.updateGroupMap();
 				edgeVisibilityMap = settingsDialog.updateEdgeMap();
@@ -1066,7 +1089,9 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 					layoutManager.updateAnchorPoint(activeLayout, display);
 				}
 				vis.run("layout");
+
 				if (animation != null) {
+
 					vis.run("animate");
 				}
 				color.run();
