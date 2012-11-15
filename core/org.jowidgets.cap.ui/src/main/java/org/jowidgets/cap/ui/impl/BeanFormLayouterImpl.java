@@ -68,12 +68,10 @@ final class BeanFormLayouterImpl implements IBeanFormLayouter {
 
 		final int validationLabelHeight = layout.getValidationLabelHeight();
 		final StringBuilder rowConstraints = new StringBuilder();
-		rowConstraints.append("0");
 		if (mainValidationLabel != null) {
 			rowConstraints.append("[" + validationLabelHeight + "::]");
 		}
 		rowConstraints.append("[grow, 0::]");
-		rowConstraints.append("0");
 
 		container.setLayout(new MigLayoutDescriptor("[grow, 0::]", rowConstraints.toString()));
 
