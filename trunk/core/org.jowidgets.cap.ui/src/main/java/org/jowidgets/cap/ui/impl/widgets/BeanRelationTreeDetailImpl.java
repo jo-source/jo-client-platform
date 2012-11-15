@@ -113,7 +113,7 @@ final class BeanRelationTreeDetailImpl<CHILD_BEAN_TYPE> extends ControlWrapper i
 		composite.setLayout(new MigLayoutDescriptor("hidemode 3", "0[grow, 0::]0", "0[grow, 0::]0"));
 
 		this.beanFormContainer = composite.add(BPF.composite(), MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
-		beanFormContainer.setLayout(MigLayoutFactory.growingCellLayout());
+		beanFormContainer.setLayout(MigLayoutFactory.growingInnerCellLayout());
 		beanFormContainer.add(cbpf.beanSelectionForm(treeModel), MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
 
 		this.tableContainer = composite.add(BPF.composite(), MigLayoutFactory.GROWING_CELL_CONSTRAINTS);

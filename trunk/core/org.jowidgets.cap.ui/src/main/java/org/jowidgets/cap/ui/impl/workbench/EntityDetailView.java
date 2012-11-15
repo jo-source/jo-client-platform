@@ -41,7 +41,7 @@ class EntityDetailView extends AbstractView {
 
 	EntityDetailView(final IViewContext context, final IBeanTableModel<?> parentModel) {
 		final IContainer container = context.getContainer();
-		container.setLayout(MigLayoutFactory.growingCellLayout());
+		container.setLayout(MigLayoutFactory.growingInnerCellLayout());
 		container.add(CapUiToolkit.bluePrintFactory().beanSelectionForm(parentModel), MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
 	}
 
