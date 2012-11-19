@@ -34,7 +34,6 @@ import org.jowidgets.cap.addons.widgets.graph.impl.swing.common.BeanRelationGrap
 
 import prefuse.action.GroupAction;
 import prefuse.data.Node;
-import prefuse.data.tuple.TupleSet;
 import prefuse.visual.VisualItem;
 
 class NodeVisibilityAction extends GroupAction {
@@ -45,25 +44,29 @@ class NodeVisibilityAction extends GroupAction {
 
 	@Override
 	public void run(final double frac) {
-		final TupleSet nodes = m_vis.getGroup(BeanRelationGraphImpl.NODES);
-		final Iterator<?> node = nodes.tuples();
-		while (node.hasNext()) {
-			final Node result = (Node) node.next();
-			final VisualItem visualItem = (VisualItem) result;
-			if (result != null) {
+		synchronized (m_vis) {
 
-				if (result.getParent() != null) {
-					if (result.getParent().get("expanded") == Expand.NOT) {
-						result.set("visible", false);
+			//		final TupleSet nodes = m_vis.getGroup(BeanRelationGraphImpl.NODES);
+			//		final Iterator<?> node = nodes.tuples();
+			final Iterator<?> node = m_vis.visibleItems("graph.nodes");
+			while (node.hasNext()) {
+				final Node result = (Node) node.next();
+				final VisualItem visualItem = (VisualItem) result;
+				if (result != null) {
 
+					if (result.getParent() != null) {
+						if (result.getParent().get("expanded") == Expand.NOT) {
+							result.set("visible", false);
+
+						}
 					}
-				}
-				if (result.getChildCount() == 0 && result.getOutDegree() <= 1) {
-					result.set("isParent", false);
-				}
+					//				if (result.getChildCount() == 0 && result.getOutDegree() <= 1) {
+					//					result.set("isParent", false);
+					//				}
 
-				if ((Boolean) result.get("visible") != null) {
-					visualItem.setVisible((Boolean) result.get("visible"));
+					if ((Boolean) result.get("visible") != null) {
+						visualItem.setVisible((Boolean) result.get("visible"));
+					}
 				}
 			}
 		}
