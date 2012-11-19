@@ -160,7 +160,6 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 	private Map<Class<Object>, Boolean> groupVisibilityMap;
 	private HashMap<String, Boolean> edgeVisibilityMap;
 	private final HashMap<IBeanProxy<Object>, IBeanRelationNodeModel<Object, Object>> beanRelationMap;
-	private final HashMap<Object, IBeanRelationNodeModel<Object, Object>> listenerMap;
 	private final HashMap<String, String> groupNames;
 	private final List<Node> expandedNodesCache;
 	private Set<IBeanRelationNodeModel<Object, Object>> expandMapResult;
@@ -204,7 +203,6 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		groupVisibilityMap = new HashMap<Class<Object>, Boolean>();
 		edgeVisibilityMap = new HashMap<String, Boolean>();
 		beanRelationMap = new HashMap<IBeanProxy<Object>, IBeanRelationNodeModel<Object, Object>>();
-		listenerMap = new HashMap<Object, IBeanRelationNodeModel<Object, Object>>();
 		groupNames = new HashMap<String, String>();
 		expandedNodesCache = new LinkedList<Node>();
 		expandMapResult = new HashSet<IBeanRelationNodeModel<Object, Object>>();
@@ -436,6 +434,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 	}
 
 	private void loadModel(final Node node) {
+
 		for (final Entry<IBeanProxy<Object>, Node> entry : nodeMap.entrySet()) {
 			if (entry.getValue() == node) {
 				final IBeanRelationNodeModel<Object, Object> beanRelationNodeModel = beanRelationMap.get(entry.getKey());
@@ -713,12 +712,10 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 					beanRelationNodeModel.getChildEntityTypeId(),
 					bean,
 					childEntityTypeId);
-			if (!listenerMap.containsKey(childRelationNodeModel.getChildEntityId())) {
-				final ChildModelListener childModelListener = new ChildModelListener(childRelationNodeModel);
-				childRelationNodeModel.addBeanListModelListener(childModelListener);
-				listenerMap.put(childRelationNodeModel.getChildEntityId(), childRelationNodeModel);
-			}
+			final ChildModelListener childModelListener = new ChildModelListener(childRelationNodeModel);
+			childRelationNodeModel.addBeanListModelListener(childModelListener);
 		}
+
 	}
 
 	private void renderNodeShape(final String nodeGroup, final Node childNode) {
@@ -740,7 +737,6 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		public void beansChanged() {
 			if (nodeMap.size() != 0) {
 				nodeMap.clear();
-				listenerMap.clear();
 
 				synchronized (vis) {
 					graph.clear();
@@ -1053,7 +1049,6 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 			public void itemStateChanged() {
 				synchronized (vis) {
 					layoutManager.getLabelEdgeLayout().setEdgesVisible(edgeCheckedItem.isSelected());
-					layoutManager.getLabelEdgeLayout().run();
 					vis.repaint();
 				}
 			}
