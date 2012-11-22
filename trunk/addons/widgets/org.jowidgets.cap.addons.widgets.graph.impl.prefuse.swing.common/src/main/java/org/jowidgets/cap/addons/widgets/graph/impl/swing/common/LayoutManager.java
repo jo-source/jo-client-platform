@@ -91,6 +91,20 @@ class LayoutManager {
 		return layout;
 	}
 
+	private ActionList initRadialTreeLayout() {
+
+		layout = new ActionList(Activity.DEFAULT_STEP_TIME);
+		radialTreeLayout = new RadialTreeLayout("graph", 200);
+		radialTreeLayout.setAutoScale(false);
+
+		layout.add(new TreeRootAction("graph", vis));
+		layout.add(radialTreeLayout);
+		layout.add(labelEdgeLayout);
+		layout.add(new RepaintAction(vis));
+		return layout;
+
+	}
+
 	public void assignNodes(final boolean first) {
 		final Iterator<?> iterator = vis.visibleItems("graph.nodes");
 		final LinkedList<VisualItem> boundaries = new LinkedList<VisualItem>();
@@ -146,20 +160,6 @@ class LayoutManager {
 		if (first) {
 			assignNodes(false);
 		}
-	}
-
-	private ActionList initRadialTreeLayout() {
-
-		layout = new ActionList(Activity.DEFAULT_STEP_TIME);
-		radialTreeLayout = new RadialTreeLayout("graph", 200);
-		radialTreeLayout.setAutoScale(false);
-
-		layout.add(new TreeRootAction("graph", vis));
-		layout.add(radialTreeLayout);
-		layout.add(labelEdgeLayout);
-		layout.add(new RepaintAction(vis));
-		return layout;
-
 	}
 
 	private ForceSimulator setForces() {
