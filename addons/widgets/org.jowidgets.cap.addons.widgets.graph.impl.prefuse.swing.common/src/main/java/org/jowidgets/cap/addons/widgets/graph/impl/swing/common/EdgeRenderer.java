@@ -47,4 +47,5 @@ class EdgeRenderer extends LabelRenderer {
 			super.render(g, item);
 		}
 	}
+
 }
