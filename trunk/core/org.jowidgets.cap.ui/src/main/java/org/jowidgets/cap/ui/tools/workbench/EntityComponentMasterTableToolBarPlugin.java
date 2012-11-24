@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,27 +26,41 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.impl.workbench;
+package org.jowidgets.cap.ui.tools.workbench;
 
-import org.jowidgets.cap.common.api.entity.IEntityApplicationNode;
-import org.jowidgets.cap.ui.api.workbench.IEntityComponentFactory;
-import org.jowidgets.workbench.api.IComponent;
-import org.jowidgets.workbench.api.IComponentContext;
-import org.jowidgets.workbench.toolkit.api.IComponentFactory;
-import org.jowidgets.workbench.toolkit.api.IComponentNodeModel;
+import java.util.Collection;
 
-final class EntityComponentFactoryImpl implements IEntityComponentFactory {
+import org.jowidgets.api.command.IAction;
+import org.jowidgets.api.model.item.IMenuModel;
+import org.jowidgets.api.model.item.IToolBarModel;
+import org.jowidgets.cap.ui.api.plugin.IEntityComponentMasterTableViewPlugin;
+import org.jowidgets.cap.ui.api.widgets.IBeanTable;
+import org.jowidgets.plugin.api.IPluginProperties;
+import org.jowidgets.workbench.api.IViewContext;
 
-	EntityComponentFactoryImpl() {}
+public final class EntityComponentMasterTableToolBarPlugin implements IEntityComponentMasterTableViewPlugin {
 
 	@Override
-	public IComponentFactory create(final IEntityApplicationNode applicationNode) {
-		return new IComponentFactory() {
-			@Override
-			public IComponent createComponent(final IComponentNodeModel nodeModel, final IComponentContext context) {
-				return new EntityComponent(nodeModel, context, applicationNode);
+	public void onCreate(
+		final IPluginProperties properties,
+		final IViewContext context,
+		final IBeanTable<?> table,
+		final Collection<IAction> linkCreatorActions) {
+
+		final IToolBarModel toolBar = context.getToolBar();
+		if (table.getDefaultCreatorAction() != null) {
+			toolBar.addAction(table.getDefaultCreatorAction());
+		}
+		if (linkCreatorActions.size() == 1) {
+			toolBar.addAction(linkCreatorActions.iterator().next());
+		}
+		else {
+			final IMenuModel toolBarMenu = context.getToolBarMenu();
+			for (final IAction action : linkCreatorActions) {
+				toolBarMenu.addAction(action);
 			}
-		};
+		}
+
 	}
 
 }

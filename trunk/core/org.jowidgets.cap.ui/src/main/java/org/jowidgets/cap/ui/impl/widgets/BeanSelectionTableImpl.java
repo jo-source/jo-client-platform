@@ -34,6 +34,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.model.item.ICheckedItemModel;
 import org.jowidgets.api.model.item.IMenuModel;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
@@ -478,6 +479,16 @@ final class BeanSelectionTableImpl<BEAN_TYPE> extends AbstractInputControl<List<
 	@Override
 	public Interval<Integer> getVisibleRows() {
 		return table.getVisibleRows();
+	}
+
+	@Override
+	public IAction getDefaultCreatorAction() {
+		return table.getDefaultCreatorAction();
+	}
+
+	@Override
+	public IAction getDefaultDeleterAction() {
+		return table.getDefaultDeleterAction();
 	}
 
 }

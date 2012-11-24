@@ -29,15 +29,21 @@
 package org.jowidgets.cap.ui.impl.workbench;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.model.item.IMenuModel;
 import org.jowidgets.api.widgets.IContainer;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
+import org.jowidgets.cap.ui.api.plugin.IEntityComponentMasterTableViewPlugin;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
 import org.jowidgets.i18n.api.IMessage;
+import org.jowidgets.plugin.api.IPluginProperties;
+import org.jowidgets.plugin.api.IPluginPropertiesBuilder;
+import org.jowidgets.plugin.api.PluginProperties;
+import org.jowidgets.plugin.api.PluginProvider;
 import org.jowidgets.tools.layout.MigLayoutFactory;
 import org.jowidgets.workbench.api.IViewContext;
 import org.jowidgets.workbench.tools.AbstractView;
@@ -53,6 +59,18 @@ class EntityTableView extends AbstractView {
 
 		final IBeanTableBluePrint<?> tableBp = CapUiToolkit.bluePrintFactory().beanTable(tableModel);
 		final IBeanTable<?> table = container.add(tableBp, MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
+
+		final IPluginPropertiesBuilder propBuilder = PluginProperties.builder();
+		propBuilder.add(IEntityComponentMasterTableViewPlugin.BEAN_TYPE_PROPERTY_KEY, tableModel.getBeanType());
+		propBuilder.add(IEntityComponentMasterTableViewPlugin.ENTITIY_ID_PROPERTY_KEY, tableModel.getEntityId());
+		final IPluginProperties pluginProperties = propBuilder.build();
+
+		final List<IEntityComponentMasterTableViewPlugin> plugins = PluginProvider.getPlugins(
+				IEntityComponentMasterTableViewPlugin.ID,
+				pluginProperties);
+		for (final IEntityComponentMasterTableViewPlugin plugin : plugins) {
+			plugin.onCreate(pluginProperties, context, table, linkCreatorActions);
+		}
 
 		addLinkActions(table, linkCreatorActions);
 
