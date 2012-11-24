@@ -84,23 +84,23 @@ class EntityComponent extends AbstractComponent implements IComponent {
 	EntityComponent(
 		final IComponentNodeModel componentNodeModel,
 		final IComponentContext componentContext,
-		final IEntityApplicationNode entityClass) {
+		final IEntityApplicationNode applicationNode) {
 
 		this.entityService = ServiceProvider.getService(IEntityService.ID);
 		if (entityService == null) {
 			throw new IllegalStateException("No entity service found");
 		}
 
-		final Class<Object> beanType = getBeanType(entityClass.getEntityId());
-		this.entityTypeId = EntityTypeId.create(entityClass.getEntityId(), beanType);
-		this.tableModel = CapUiToolkit.beanTableModelBuilder(entityClass.getEntityId(), beanType).build();
+		final Class<Object> beanType = getBeanType(applicationNode.getEntityId());
+		this.entityTypeId = EntityTypeId.create(applicationNode.getEntityId(), beanType);
+		this.tableModel = CapUiToolkit.beanTableModelBuilder(applicationNode.getEntityId(), beanType).build();
 		this.dataModelActions = getDataModelActions(componentNodeModel);
 		this.linkCreatorActions = new LinkedList<IAction>();
 		this.treeMenuInterceptor = new TreeMenuInterceptor();
 
-		final List<IEntityLinkDescriptor> entityLinks = entityService.getEntityLinks(entityClass.getEntityId());
+		final List<IEntityLinkDescriptor> entityLinks = entityService.getEntityLinks(applicationNode.getEntityId());
 		if (entityLinks != null && !entityLinks.isEmpty()) {
-			this.relationTreeModel = createRelationTreeModel(tableModel, entityClass);
+			this.relationTreeModel = createRelationTreeModel(tableModel, applicationNode);
 			for (final IEntityLinkDescriptor link : entityLinks) {
 				if (link.getLinkCreatorService() != null) {
 					final IAction linkCreatorAction = createLinkCreatorAction(link);
@@ -109,11 +109,11 @@ class EntityComponent extends AbstractComponent implements IComponent {
 					}
 				}
 			}
-			componentContext.setLayout(new EntityComponentMasterDetailLinksDetailLayout(entityClass).getLayout());
+			componentContext.setLayout(new EntityComponentMasterRelationTreeDetailLayout(applicationNode).getLayout());
 		}
 		else {
 			this.relationTreeModel = null;
-			componentContext.setLayout(new EntityComponentMasterDetailLayout(entityClass).getLayout());
+			componentContext.setLayout(new EntityComponentMasterDetailLayout(applicationNode).getLayout());
 		}
 	}
 

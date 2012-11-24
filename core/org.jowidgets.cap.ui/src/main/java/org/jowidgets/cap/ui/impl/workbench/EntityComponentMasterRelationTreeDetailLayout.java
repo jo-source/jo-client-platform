@@ -43,7 +43,7 @@ import org.jowidgets.workbench.tools.FolderLayoutBuilder;
 import org.jowidgets.workbench.tools.LayoutBuilder;
 import org.jowidgets.workbench.tools.SplitLayoutBuilder;
 
-final class EntityComponentMasterDetailLinksDetailLayout {
+final class EntityComponentMasterRelationTreeDetailLayout {
 
 	public static final String DEFAULT_LAYOUT_ID = "DEFAULT_LAYOUT_ID";
 	public static final String MASTER_FOLDER_ID = "MASTER_FOLDER_ID";
@@ -55,7 +55,7 @@ final class EntityComponentMasterDetailLinksDetailLayout {
 
 	private final ILayout layout;
 
-	EntityComponentMasterDetailLinksDetailLayout(final IEntityApplicationNode applicationNode) {
+	EntityComponentMasterRelationTreeDetailLayout(final IEntityApplicationNode applicationNode) {
 		final ILayoutBuilder builder = new LayoutBuilder();
 		builder.setId(DEFAULT_LAYOUT_ID).setLayoutContainer(createMainSplit(applicationNode));
 		this.layout = builder.build();

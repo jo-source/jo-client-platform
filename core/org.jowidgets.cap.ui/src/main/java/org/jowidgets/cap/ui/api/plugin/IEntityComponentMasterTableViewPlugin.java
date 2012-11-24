@@ -26,27 +26,28 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.impl.workbench;
+package org.jowidgets.cap.ui.api.plugin;
 
-import org.jowidgets.cap.common.api.entity.IEntityApplicationNode;
-import org.jowidgets.cap.ui.api.workbench.IEntityComponentFactory;
-import org.jowidgets.workbench.api.IComponent;
-import org.jowidgets.workbench.api.IComponentContext;
-import org.jowidgets.workbench.toolkit.api.IComponentFactory;
-import org.jowidgets.workbench.toolkit.api.IComponentNodeModel;
+import java.util.Collection;
 
-final class EntityComponentFactoryImpl implements IEntityComponentFactory {
+import org.jowidgets.api.command.IAction;
+import org.jowidgets.cap.ui.api.widgets.IBeanTable;
+import org.jowidgets.plugin.api.IPluginId;
+import org.jowidgets.plugin.api.IPluginProperties;
+import org.jowidgets.util.ITypedKey;
+import org.jowidgets.workbench.api.IViewContext;
 
-	EntityComponentFactoryImpl() {}
+public interface IEntityComponentMasterTableViewPlugin {
 
-	@Override
-	public IComponentFactory create(final IEntityApplicationNode applicationNode) {
-		return new IComponentFactory() {
-			@Override
-			public IComponent createComponent(final IComponentNodeModel nodeModel, final IComponentContext context) {
-				return new EntityComponent(nodeModel, context, applicationNode);
-			}
-		};
-	}
+	IPluginId<IEntityComponentMasterTableViewPlugin> ID = new IPluginId<IEntityComponentMasterTableViewPlugin>() {};
+
+	ITypedKey<Object> ENTITIY_ID_PROPERTY_KEY = new ITypedKey<Object>() {};
+	ITypedKey<Class<?>> BEAN_TYPE_PROPERTY_KEY = new ITypedKey<Class<?>>() {};
+
+	void onCreate(
+		IPluginProperties properties,
+		final IViewContext context,
+		final IBeanTable<?> table,
+		final Collection<IAction> linkCreatorActions);
 
 }

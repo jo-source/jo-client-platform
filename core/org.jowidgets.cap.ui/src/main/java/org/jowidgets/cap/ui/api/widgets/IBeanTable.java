@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.ui.api.widgets;
 
+import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.model.item.ICheckedItemModel;
 import org.jowidgets.api.model.item.IMenuModel;
 import org.jowidgets.api.widgets.ITable;
@@ -49,6 +50,10 @@ public interface IBeanTable<BEAN_TYPE> extends ITable {
 	IMenuModel getCellPopMenu();
 
 	IMenuModel getHeaderPopMenu();
+
+	IAction getDefaultCreatorAction();
+
+	IAction getDefaultDeleterAction();
 
 	void showSettingsDialog();
 

@@ -724,6 +724,16 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 	}
 
 	@Override
+	public IAction getDefaultCreatorAction() {
+		return creatorAction;
+	}
+
+	@Override
+	public IAction getDefaultDeleterAction() {
+		return deleteAction;
+	}
+
+	@Override
 	public void showSettingsDialog() {
 		final IBeanTableSettingsDialog dialog = getSettingsDialog();
 		final IBeanTableSettings settings = dialog.show();
