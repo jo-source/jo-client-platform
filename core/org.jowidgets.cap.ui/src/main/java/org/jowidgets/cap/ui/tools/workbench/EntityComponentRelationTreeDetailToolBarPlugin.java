@@ -31,30 +31,28 @@ package org.jowidgets.cap.ui.tools.workbench;
 import java.util.Collection;
 
 import org.jowidgets.api.command.IAction;
-import org.jowidgets.api.model.item.IMenuModel;
 import org.jowidgets.api.model.item.IToolBarModel;
-import org.jowidgets.cap.ui.api.plugin.IEntityComponentMasterTableViewPlugin;
+import org.jowidgets.cap.ui.api.plugin.IEntityComponentRelationTreeDetailViewPlugin;
+import org.jowidgets.cap.ui.api.widgets.IBeanRelationTree;
+import org.jowidgets.cap.ui.api.widgets.IBeanRelationTreeDetail;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.plugin.api.IPluginProperties;
 import org.jowidgets.workbench.api.IViewContext;
 
-public final class EntityComponentMasterTableToolBarPlugin implements IEntityComponentMasterTableViewPlugin {
+public final class EntityComponentRelationTreeDetailToolBarPlugin implements IEntityComponentRelationTreeDetailViewPlugin {
 
 	@Override
 	public void onInitialize(
 		final IPluginProperties properties,
 		final IViewContext context,
-		final IBeanTable<?> table,
+		final IBeanTable<?> rootTable,
+		final IBeanRelationTree<?> relationTree,
+		final IBeanRelationTreeDetail<?> relationTreeDetail,
 		final Collection<IAction> linkCreatorActions) {
 
 		final IToolBarModel toolBar = context.getToolBar();
-		if (table.getDefaultCreatorAction() != null) {
-			toolBar.addAction(table.getDefaultCreatorAction());
-		}
-
-		final IMenuModel toolBarMenu = context.getToolBarMenu();
-		for (final IAction action : linkCreatorActions) {
-			toolBarMenu.addAction(action);
+		if (relationTree.getAddAction() != null) {
+			toolBar.addAction(relationTree.getAddAction());
 		}
 
 	}

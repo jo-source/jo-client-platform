@@ -28,11 +28,14 @@
 
 package org.jowidgets.cap.ui.api.widgets;
 
+import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.widgets.IControl;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeModel;
 
 public interface IBeanRelationTree<CHILD_BEAN_TYPE> extends IControl {
 
 	IBeanRelationTreeModel<CHILD_BEAN_TYPE> getModel();
+
+	IAction getAddAction();
 
 }

@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.ui.api.widgets;
 
+import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.widgets.blueprint.builder.IComponentSetupBuilder;
 import org.jowidgets.api.widgets.descriptor.setup.IComponentSetup;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationNodeModel;
@@ -68,6 +69,8 @@ public interface IBeanRelationTreeSetupBuilder<CHILD_BEAN_TYPE> extends
 
 	IBeanRelationTreeSetupBuilder<CHILD_BEAN_TYPE> setRelationRenderingPolicy(RelationRenderingPolicy policy);
 
+	IBeanRelationTreeSetupBuilder<CHILD_BEAN_TYPE> setRootCreatorAction(IAction action);
+
 	@Mandatory
 	IBeanRelationTreeModel<CHILD_BEAN_TYPE> getModel();
 
@@ -98,5 +101,7 @@ public interface IBeanRelationTreeSetupBuilder<CHILD_BEAN_TYPE> extends
 	IBeanRelationTreeMenuInterceptor getMenuInterceptor();
 
 	RelationRenderingPolicy getRelationRenderingPolicy();
+
+	IAction getRootCreatorAction();
 
 }
