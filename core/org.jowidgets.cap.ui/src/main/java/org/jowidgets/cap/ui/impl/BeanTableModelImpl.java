@@ -1004,6 +1004,30 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	}
 
 	@Override
+	public int getBeanIndex(final IBeanProxy<BEAN_TYPE> beanToFind) {
+		Assert.paramNotNull(beanToFind, "beanToFind");
+		for (final Entry<Integer, ArrayList<IBeanProxy<BEAN_TYPE>>> entry : data.entrySet()) {
+			final int page = entry.getKey().intValue();
+			int elementIndex = 0;
+			for (final IBeanProxy<BEAN_TYPE> bean : entry.getValue()) {
+				if (beanToFind.equals(bean)) {
+					return page * pageSize + elementIndex;
+				}
+				elementIndex++;
+			}
+		}
+		for (final IBeanProxy<BEAN_TYPE> bean : addedData) {
+			int elementIndex = 0;
+			if (beanToFind.equals(bean)) {
+				final int dataRowCount = dataModel.getDataRowCount();
+				return dataRowCount + elementIndex;
+			}
+			elementIndex++;
+		}
+		return -1;
+	}
+
+	@Override
 	public void addBean(final IBeanProxy<BEAN_TYPE> bean) {
 		Assert.paramNotNull(bean, "bean");
 		addBeanImpl(bean, true);
@@ -2368,12 +2392,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 					page.add(beanProxy);
 					beansStateTracker.register(beanProxy);
 					final int rowNr = pageOffset + index;
-					beanProxy.addPropertyChangeListener(new PropertyChangeListener() {
-						@Override
-						public void propertyChange(final PropertyChangeEvent evt) {
-							dataModel.fireRowsChanged(new int[] {rowNr});
-						}
-					});
+					beanProxy.addPropertyChangeListener(new BeanPropertyChangeListener(rowNr));
 					index++;
 				}
 				else {
@@ -2477,6 +2496,34 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 				resultCallback.exception(exception);
 			}
 		}
+	}
+
+	private class BeanPropertyChangeListener implements PropertyChangeListener {
+
+		private int rowIndex;
+
+		public BeanPropertyChangeListener(final int rowIndex) {
+			this.rowIndex = rowIndex;
+		}
+
+		@Override
+		public void propertyChange(final PropertyChangeEvent evt) {
+			@SuppressWarnings("unchecked")
+			final IBeanProxy<BEAN_TYPE> source = (IBeanProxy<BEAN_TYPE>) evt.getSource();
+			final IBeanProxy<BEAN_TYPE> beanAtIndex = getBean(rowIndex);
+			if (!NullCompatibleEquivalence.equals(source, beanAtIndex)) {
+				rowIndex = getBeanIndex(source);
+			}
+			if (rowIndex != -1) {
+				dataModel.fireRowsChanged(new int[] {rowIndex});
+			}
+			else {
+				if (!source.isDisposed()) {
+					source.removePropertyChangeListener(this);
+				}
+			}
+		}
+
 	}
 
 	private class BackgroundPageLoader {
@@ -2590,12 +2637,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 							final int rowNr = pageOffset + i;
 							final IBeanProxy<BEAN_TYPE> newBeanProxy = createBeanProxy(newBean);
 							createdBeans.add(newBeanProxy);
-							newBeanProxy.addPropertyChangeListener(new PropertyChangeListener() {
-								@Override
-								public void propertyChange(final PropertyChangeEvent evt) {
-									dataModel.fireRowsChanged(new int[] {rowNr});
-								}
-							});
+							newBeanProxy.addPropertyChangeListener(new BeanPropertyChangeListener(rowNr));
 							if (oldBeanProxy != null) {
 								beansStateTracker.unregister(oldBeanProxy);
 							}

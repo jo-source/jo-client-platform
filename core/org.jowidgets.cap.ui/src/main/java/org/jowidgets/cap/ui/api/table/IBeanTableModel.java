@@ -73,6 +73,15 @@ public interface IBeanTableModel<BEAN_TYPE> extends IDataModel, IBeanListModel<B
 	 */
 	String getEntityLabelPlural();
 
+	/**
+	 * Gets the index of the given bean or -1 if the bean is not a element of the table
+	 * 
+	 * @param bean The bean to get the index for
+	 * 
+	 * @return The index of the bean or -1 if the bean is not a element of the table
+	 */
+	int getBeanIndex(IBeanProxy<BEAN_TYPE> bean);
+
 	int getPageCount();
 
 	void loadScheduled(int delayMillis);
