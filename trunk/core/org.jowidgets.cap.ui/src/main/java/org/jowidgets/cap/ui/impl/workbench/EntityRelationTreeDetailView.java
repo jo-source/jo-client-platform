@@ -28,13 +28,25 @@
 
 package org.jowidgets.cap.ui.impl.workbench;
 
+import java.util.Collection;
+import java.util.List;
+
+import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.widgets.IContainer;
 import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
+import org.jowidgets.cap.ui.api.plugin.IEntityComponentRelationTreeDetailViewPlugin;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
-import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeModel;
+import org.jowidgets.cap.ui.api.widgets.IBeanRelationTree;
+import org.jowidgets.cap.ui.api.widgets.IBeanRelationTreeDetail;
 import org.jowidgets.cap.ui.api.widgets.IBeanRelationTreeDetailBluePrint;
+import org.jowidgets.cap.ui.api.widgets.IBeanTable;
+import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
 import org.jowidgets.i18n.api.IMessage;
+import org.jowidgets.plugin.api.IPluginProperties;
+import org.jowidgets.plugin.api.IPluginPropertiesBuilder;
+import org.jowidgets.plugin.api.PluginProperties;
+import org.jowidgets.plugin.api.PluginProvider;
 import org.jowidgets.service.api.ServiceProvider;
 import org.jowidgets.tools.layout.MigLayoutFactory;
 import org.jowidgets.workbench.api.IViewContext;
@@ -46,21 +58,50 @@ final class EntityRelationTreeDetailView extends AbstractView {
 	public static final IMessage DEFAULT_LABEL = Messages.getMessage("EntityRelationTreeDetailView.details");
 
 	private final IEntityService entityService;
+	private final IViewContext context;
 
-	EntityRelationTreeDetailView(
-		final IViewContext context,
-		final IBeanTableModel<Object> rootTableModel,
-		final IBeanRelationTreeModel<?> treeModel) {
+	private boolean intialized;
+
+	EntityRelationTreeDetailView(final IViewContext context) {
+
+		this.context = context;
 
 		this.entityService = ServiceProvider.getService(IEntityService.ID);
 		if (entityService == null) {
 			throw new IllegalStateException("No entity service found");
 		}
 
-		final IContainer container = context.getContainer();
-		container.setLayout(MigLayoutFactory.growingInnerCellLayout());
-		final IBeanRelationTreeDetailBluePrint<?> treeDetailBp = CapUiToolkit.bluePrintFactory().beanRelationTreeDetail(treeModel);
+		this.intialized = false;
+	}
 
-		container.add(treeDetailBp, MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
+	void initialize(
+		final IBeanTable<?> rootTable,
+		final IBeanRelationTree<?> relationTree,
+		final Collection<IAction> linkCreatorActions) {
+		if (!intialized) {
+			final IContainer container = context.getContainer();
+			container.setLayout(MigLayoutFactory.growingInnerCellLayout());
+			final ICapApiBluePrintFactory cbpf = CapUiToolkit.bluePrintFactory();
+			final IBeanRelationTreeDetailBluePrint<?> treeDetailBp = cbpf.beanRelationTreeDetail(relationTree.getModel());
+
+			final IBeanRelationTreeDetail<?> relationTreeDetail = container.add(
+					treeDetailBp,
+					MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
+
+			final IBeanTableModel<?> rootTableModel = rootTable.getModel();
+			final IPluginPropertiesBuilder propBuilder = PluginProperties.builder();
+			propBuilder.add(IEntityComponentRelationTreeDetailViewPlugin.BEAN_TYPE_PROPERTY_KEY, rootTableModel.getBeanType());
+			propBuilder.add(IEntityComponentRelationTreeDetailViewPlugin.ENTITIY_ID_PROPERTY_KEY, rootTableModel.getEntityId());
+			final IPluginProperties pluginProperties = propBuilder.build();
+
+			final List<IEntityComponentRelationTreeDetailViewPlugin> plugins = PluginProvider.getPlugins(
+					IEntityComponentRelationTreeDetailViewPlugin.ID,
+					pluginProperties);
+			for (final IEntityComponentRelationTreeDetailViewPlugin plugin : plugins) {
+				plugin.onInitialize(pluginProperties, context, rootTable, relationTree, relationTreeDetail, linkCreatorActions);
+			}
+
+			intialized = true;
+		}
 	}
 }

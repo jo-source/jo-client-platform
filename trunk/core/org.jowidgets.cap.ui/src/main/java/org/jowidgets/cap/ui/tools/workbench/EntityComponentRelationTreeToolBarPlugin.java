@@ -33,23 +33,25 @@ import java.util.Collection;
 import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.model.item.IMenuModel;
 import org.jowidgets.api.model.item.IToolBarModel;
-import org.jowidgets.cap.ui.api.plugin.IEntityComponentMasterTableViewPlugin;
+import org.jowidgets.cap.ui.api.plugin.IEntityComponentRelationTreeViewPlugin;
+import org.jowidgets.cap.ui.api.widgets.IBeanRelationTree;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.plugin.api.IPluginProperties;
 import org.jowidgets.workbench.api.IViewContext;
 
-public final class EntityComponentMasterTableToolBarPlugin implements IEntityComponentMasterTableViewPlugin {
+public final class EntityComponentRelationTreeToolBarPlugin implements IEntityComponentRelationTreeViewPlugin {
 
 	@Override
 	public void onInitialize(
 		final IPluginProperties properties,
 		final IViewContext context,
-		final IBeanTable<?> table,
+		final IBeanTable<?> rootTable,
+		final IBeanRelationTree<?> relationTree,
 		final Collection<IAction> linkCreatorActions) {
 
 		final IToolBarModel toolBar = context.getToolBar();
-		if (table.getDefaultCreatorAction() != null) {
-			toolBar.addAction(table.getDefaultCreatorAction());
+		if (relationTree.getAddAction() != null) {
+			toolBar.addAction(relationTree.getAddAction());
 		}
 
 		final IMenuModel toolBarMenu = context.getToolBarMenu();

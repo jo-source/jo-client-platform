@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, grossmann
+ * Copyright (c) 2011, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,37 +26,32 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.tools.workbench;
+package org.jowidgets.cap.ui.api.plugin;
 
 import java.util.Collection;
 
 import org.jowidgets.api.command.IAction;
-import org.jowidgets.api.model.item.IMenuModel;
-import org.jowidgets.api.model.item.IToolBarModel;
-import org.jowidgets.cap.ui.api.plugin.IEntityComponentMasterTableViewPlugin;
+import org.jowidgets.cap.ui.api.widgets.IBeanRelationTree;
+import org.jowidgets.cap.ui.api.widgets.IBeanRelationTreeDetail;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
+import org.jowidgets.plugin.api.IPluginId;
 import org.jowidgets.plugin.api.IPluginProperties;
+import org.jowidgets.util.ITypedKey;
 import org.jowidgets.workbench.api.IViewContext;
 
-public final class EntityComponentMasterTableToolBarPlugin implements IEntityComponentMasterTableViewPlugin {
+public interface IEntityComponentRelationTreeDetailViewPlugin {
 
-	@Override
-	public void onInitialize(
-		final IPluginProperties properties,
+	IPluginId<IEntityComponentRelationTreeDetailViewPlugin> ID = new IPluginId<IEntityComponentRelationTreeDetailViewPlugin>() {};
+
+	ITypedKey<Object> ENTITIY_ID_PROPERTY_KEY = new ITypedKey<Object>() {};
+	ITypedKey<Class<?>> BEAN_TYPE_PROPERTY_KEY = new ITypedKey<Class<?>>() {};
+
+	void onInitialize(
+		IPluginProperties properties,
 		final IViewContext context,
-		final IBeanTable<?> table,
-		final Collection<IAction> linkCreatorActions) {
-
-		final IToolBarModel toolBar = context.getToolBar();
-		if (table.getDefaultCreatorAction() != null) {
-			toolBar.addAction(table.getDefaultCreatorAction());
-		}
-
-		final IMenuModel toolBarMenu = context.getToolBarMenu();
-		for (final IAction action : linkCreatorActions) {
-			toolBarMenu.addAction(action);
-		}
-
-	}
+		final IBeanTable<?> rootTable,
+		final IBeanRelationTree<?> relationTree,
+		final IBeanRelationTreeDetail<?> relationTreeDetail,
+		final Collection<IAction> linkCreatorActions);
 
 }

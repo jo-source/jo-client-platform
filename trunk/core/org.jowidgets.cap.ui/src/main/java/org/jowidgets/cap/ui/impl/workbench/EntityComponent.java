@@ -79,7 +79,9 @@ class EntityComponent extends AbstractComponent implements IComponent {
 	private final IEntityTypeId<Object> entityTypeId;
 	private final IBeanRelationTreeMenuInterceptor treeMenuInterceptor;
 
-	private EntityRelationTreeDetailView relationTreeDetail;
+	private EntityTableView entityTableView;
+	private EntityRelationTreeDetailView relationTreeDetailView;
+	private EntityRelationTreeView relationTreeView;
 
 	EntityComponent(
 		final IComponentNodeModel componentNodeModel,
@@ -145,10 +147,20 @@ class EntityComponent extends AbstractComponent implements IComponent {
 	@Override
 	public IView createView(final String viewId, final IViewContext context) {
 		if (ROOT_TABLE_VIEW_ID.equals(viewId)) {
-			return new EntityTableView(context, tableModel, linkCreatorActions);
+			if (entityTableView != null) {
+				throw new IllegalStateException(ROOT_TABLE_VIEW_ID + " can only be used once in layout");
+			}
+			entityTableView = new EntityTableView(context, tableModel, linkCreatorActions);
+			doPreInitialize();
+			return entityTableView;
 		}
 		else if (EntityRelationTreeView.ID.equals(viewId)) {
-			return new EntityRelationTreeView(context, relationTreeModel, treeMenuInterceptor);
+			if (relationTreeView != null) {
+				throw new IllegalStateException(EntityRelationTreeView.ID + " can only be used once in layout");
+			}
+			relationTreeView = new EntityRelationTreeView(context);
+			doPreInitialize();
+			return relationTreeView;
 		}
 		else if (EntityRelationGraphView.ID.equals(viewId)) {
 			return new EntityRelationGraphView(context, relationTreeModel);
@@ -157,14 +169,24 @@ class EntityComponent extends AbstractComponent implements IComponent {
 			return new EntityDetailView(context, tableModel);
 		}
 		else if (EntityRelationTreeDetailView.ID.equals(viewId)) {
-			if (relationTreeDetail != null) {
-				throw new IllegalStateException("BeanRelationTreeDetail could only be used once in layout");
+			if (relationTreeDetailView != null) {
+				throw new IllegalStateException(EntityRelationTreeDetailView.ID + " can only be used once in layout");
 			}
-			relationTreeDetail = new EntityRelationTreeDetailView(context, tableModel, relationTreeModel);
-			return relationTreeDetail;
+			relationTreeDetailView = new EntityRelationTreeDetailView(context);
+			doPreInitialize();
+			return relationTreeDetailView;
 		}
 		else {
 			throw new IllegalArgumentException("View id '" + viewId + "' is not known.");
+		}
+	}
+
+	private void doPreInitialize() {
+		if (relationTreeDetailView != null && relationTreeView != null && entityTableView != null) {
+			relationTreeDetailView.initialize(entityTableView.getTable(), relationTreeView.getTree(), linkCreatorActions);
+		}
+		if (relationTreeView != null && entityTableView != null) {
+			relationTreeView.initialize(entityTableView.getTable(), relationTreeModel, treeMenuInterceptor, linkCreatorActions);
 		}
 	}
 

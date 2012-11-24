@@ -42,9 +42,15 @@ import java.util.Set;
 
 import org.jowidgets.api.color.Colors;
 import org.jowidgets.api.command.IAction;
+import org.jowidgets.api.command.IActionChangeListener;
+import org.jowidgets.api.command.IActionChangeObservable;
+import org.jowidgets.api.command.IExceptionHandler;
+import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.api.controller.IDisposeListener;
 import org.jowidgets.api.controller.ITreeSelectionEvent;
 import org.jowidgets.api.controller.ITreeSelectionListener;
+import org.jowidgets.api.image.IconsSmall;
+import org.jowidgets.api.model.item.IMenuItemModel;
 import org.jowidgets.api.model.item.IMenuModel;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.widgets.ITree;
@@ -77,19 +83,25 @@ import org.jowidgets.cap.ui.api.widgets.IBeanRelationTree;
 import org.jowidgets.cap.ui.api.widgets.IBeanRelationTreeBluePrint;
 import org.jowidgets.cap.ui.tools.bean.SingleBeanSelectionProvider;
 import org.jowidgets.cap.ui.tools.model.BeanListModelListenerAdapter;
+import org.jowidgets.common.image.IImageConstant;
+import org.jowidgets.common.types.Accelerator;
 import org.jowidgets.common.types.Markup;
+import org.jowidgets.common.types.Modifier;
 import org.jowidgets.common.types.SelectionPolicy;
+import org.jowidgets.common.types.VirtualKey;
 import org.jowidgets.i18n.api.IMessage;
 import org.jowidgets.plugin.api.IPluginProperties;
 import org.jowidgets.plugin.api.IPluginPropertiesBuilder;
 import org.jowidgets.plugin.api.PluginProperties;
 import org.jowidgets.plugin.api.PluginProvider;
 import org.jowidgets.service.api.ServiceProvider;
+import org.jowidgets.tools.command.ActionChangeObservable;
 import org.jowidgets.tools.controller.TreeNodeAdapter;
 import org.jowidgets.tools.model.item.MenuModel;
 import org.jowidgets.tools.widgets.wrapper.ControlWrapper;
 import org.jowidgets.util.EmptyCheck;
 import org.jowidgets.util.IFilter;
+import org.jowidgets.util.NullCompatibleEquivalence;
 import org.jowidgets.util.Tuple;
 
 final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements IBeanRelationTree<CHILD_BEAN_TYPE> {
@@ -108,9 +120,13 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 	private final boolean treeMultiSelection;
 	private final int autoExpandLevel;
 	private final Map<ITreeNode, Tuple<IBeanRelationNodeModel<Object, Object>, IBeanProxy<Object>>> nodesMap;
+	private final Map<ITreeNode, IAction> nodeActionMap;
 	private final LinkedHashSet<ExpandedNodeKey> expandedNodesCache;
 	private final boolean expansionCacheEnabled;
 	private final RelationRenderingPolicy relationRenderingPolicy;
+	private final IAction rootCreatorAction;
+
+	private final AddAction addAction;
 
 	BeanRelationTreeImpl(final ITree tree, IBeanRelationTreeBluePrint<CHILD_BEAN_TYPE> bluePrint) {
 		super(tree);
@@ -125,11 +141,18 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 		this.expansionCacheEnabled = bluePrint.getExpansionCacheEnabled();
 		this.menuInterceptor = bluePrint.getMenuInterceptor();
 		this.relationRenderingPolicy = bluePrint.getRelationRenderingPolicy();
+		this.rootCreatorAction = bluePrint.getRootCreatorAction();
 		this.nodesMap = new HashMap<ITreeNode, Tuple<IBeanRelationNodeModel<Object, Object>, IBeanProxy<Object>>>();
+		this.nodeActionMap = new HashMap<ITreeNode, IAction>();
 		this.expandedNodesCache = new LinkedHashSet<ExpandedNodeKey>();
 
 		tree.addTreeSelectionListener(new TreeSelectionListener());
 		treeModel.getRoot().addBeanListModelListener(new RootModelListener());
+
+		this.addAction = new AddAction();
+		addAction.setCurrentAction(rootCreatorAction);
+
+		tree.addTreeSelectionListener(new CurrentAddActionSelectionListener());
 	}
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
@@ -160,6 +183,7 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 	@Override
 	public void dispose() {
 		nodesMap.clear();
+		nodeActionMap.clear();
 		expandedNodesCache.clear();
 		super.dispose();
 	}
@@ -167,6 +191,11 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 	@Override
 	public IBeanRelationTreeModel<CHILD_BEAN_TYPE> getModel() {
 		return treeModel;
+	}
+
+	@Override
+	public IAction getAddAction() {
+		return addAction;
 	}
 
 	private void onBeansChanged(
@@ -354,20 +383,28 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 		}
 	}
 
-	private IMenuModel createRelationNodeMenus(final IBeanRelationNodeModel<Object, Object> relationNodeModel) {
-		final IMenuModel result = new MenuModel();
+	private IAction createRelationNodeCreateAction(final IBeanRelationNodeModel<Object, Object> relationNodeModel) {
 		final IEntityService entityService = ServiceProvider.getService(IEntityService.ID);
 		if (entityService != null) {
 			final List<IEntityLinkDescriptor> links = entityService.getEntityLinks(relationNodeModel.getParentEntityId());
 			for (final IEntityLinkDescriptor link : links) {
 				if (relationNodeModel.getChildEntityId().equals(link.getLinkedEntityId())) {
-					final IAction linkCreatorAction = createLinkCreatorAction(relationNodeModel, link);
-					if (linkCreatorAction != null) {
-						result.addAction(linkCreatorAction);
-					}
+					return createLinkCreatorAction(relationNodeModel, link);
 				}
 			}
 		}
+		return null;
+	}
+
+	private IMenuModel createRelationNodeMenus(
+		final IBeanRelationNodeModel<Object, Object> relationNodeModel,
+		final IAction linkCreatorAction) {
+		final IMenuModel result = new MenuModel();
+
+		if (linkCreatorAction != null) {
+			result.addAction(linkCreatorAction);
+		}
+
 		if (menuInterceptor != null) {
 			return menuInterceptor.relationMenu(relationNodeModel, result);
 		}
@@ -401,8 +438,19 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 		return null;
 	}
 
-	private IMenuModel createNodeMenus(final IBeanRelationNodeModel<Object, Object> relationNodeModel) {
+	private IMenuModel createNodeMenus(
+		final IBeanRelationNodeModel<Object, Object> relationNodeModel,
+		final IMenuModel relationMenu) {
 		final IMenuModel result = new MenuModel();
+
+		boolean needSeparator = false;
+
+		if (relationMenu.getChildren().size() > 0) {
+			for (final IMenuItemModel item : relationMenu.getChildren()) {
+				result.addItem(item);
+			}
+			needSeparator = true;
+		}
 
 		final IEntityService entityService = ServiceProvider.getService(IEntityService.ID);
 		if (entityService != null) {
@@ -413,6 +461,10 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 					if (childEntityId.equals(link.getLinkedEntityId())) {
 						final IAction linkDeleterAction = createLinkDeleterAction(relationNodeModel, link);
 						if (linkDeleterAction != null) {
+							if (needSeparator) {
+								result.addSeparator();
+								needSeparator = false;
+							}
 							result.addAction(linkDeleterAction);
 						}
 					}
@@ -420,6 +472,10 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 			}
 			final IAction deleterAction = createDeleterAction(relationNodeModel);
 			if (deleterAction != null) {
+				if (needSeparator) {
+					result.addSeparator();
+					needSeparator = false;
+				}
 				result.addAction(deleterAction);
 			}
 		}
@@ -721,6 +777,7 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 		@Override
 		public void onDispose() {
 			nodesMap.remove(node);
+			nodeActionMap.remove(node);
 			node.setPopupMenu(null);
 		}
 	}
@@ -766,13 +823,15 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 						childRelationNode.addDisposeListener(new TreeNodeDisposeListener(childRelationNode));
 
 						//create the menu for the relation node
-						final IMenuModel relationMenu = createRelationNodeMenus(childRelationNodeModel);
+						final IAction createAction = createRelationNodeCreateAction(childRelationNodeModel);
+						final IMenuModel relationMenu = createRelationNodeMenus(childRelationNodeModel, createAction);
 						if (relationMenu.getChildren().size() > 0) {
 							childRelationNode.setPopupMenu(relationMenu);
 						}
+						nodeActionMap.put(childRelationNode, createAction);
 
 						//create the menu for the nodes
-						final IMenuModel nodesMenu = createNodeMenus(childRelationNodeModel);
+						final IMenuModel nodesMenu = createNodeMenus(childRelationNodeModel, relationMenu);
 
 						if (expansionCacheEnabled) {
 							childRelationNode.addTreeNodeListener(new TreeNodeExpansionTrackingListener(childRelationNode));
@@ -795,6 +854,37 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 				node.removeNode(0);
 			}
 		}
+	}
+
+	private final class CurrentAddActionSelectionListener implements ITreeSelectionListener {
+
+		@Override
+		public void selectionChanged(final ITreeSelectionEvent event) {
+			final ITreeNode selected = event.getFirstSelected();
+			if (selected != null) {
+				if (selected.getParent() == null) {
+					addAction.setCurrentAction(rootCreatorAction);
+				}
+				else {
+					final Tuple<IBeanRelationNodeModel<Object, Object>, IBeanProxy<Object>> tuple = nodesMap.get(selected);
+					if (tuple != null) {
+						if (tuple.getSecond() == null) {// is a relation node
+							addAction.setCurrentAction(nodeActionMap.get(selected));
+						}
+						else {
+							addAction.setCurrentAction(nodeActionMap.get(selected.getParent()));
+						}
+					}
+					else {
+						addAction.setCurrentAction(null);
+					}
+				}
+			}
+			else {
+				addAction.setCurrentAction(null);
+			}
+		}
+
 	}
 
 	private final class TreeNodeExpansionTrackingListener extends TreeNodeAdapter {
@@ -882,6 +972,168 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 		@Override
 		public String toString() {
 			return "ExpandedNodeKey [path=" + path + "]";
+		}
+
+	}
+
+	private class AddAction extends ActionChangeObservable implements IAction, IExceptionHandler, IActionChangeObservable {
+
+		private final ActionChangeListener actionChangeListener;
+
+		private IAction currentAction;
+
+		AddAction() {
+			this.actionChangeListener = new ActionChangeListener();
+		}
+
+		private void setCurrentAction(final IAction currentAction) {
+			String lastText = null;
+			String lastTooltip = null;
+			IImageConstant lastIcon = null;
+			Boolean lastEnabled = null;
+
+			if (this.currentAction != null) {
+				lastText = this.currentAction.getText();
+				lastTooltip = this.currentAction.getToolTipText();
+				lastIcon = this.currentAction.getIcon();
+				lastEnabled = Boolean.valueOf(this.currentAction.isEnabled());
+				final IActionChangeObservable changeObservable = this.currentAction.getActionChangeObservable();
+				if (changeObservable != null) {
+					changeObservable.removeActionChangeListener(actionChangeListener);
+				}
+			}
+
+			this.currentAction = currentAction;
+
+			String text = null;
+			String tooltip = null;
+			IImageConstant icon = null;
+			Boolean enabled = null;
+
+			if (this.currentAction != null) {
+				text = currentAction.getText();
+				tooltip = currentAction.getToolTipText();
+				icon = currentAction.getIcon();
+				enabled = Boolean.valueOf(currentAction.isEnabled());
+				final IActionChangeObservable changeObservable = currentAction.getActionChangeObservable();
+				if (changeObservable != null) {
+					changeObservable.addActionChangeListener(actionChangeListener);
+				}
+			}
+
+			if (!NullCompatibleEquivalence.equals(lastText, text)) {
+				fireTextChanged();
+			}
+			if (!NullCompatibleEquivalence.equals(lastTooltip, tooltip)) {
+				fireToolTipTextChanged();
+			}
+			if (!NullCompatibleEquivalence.equals(lastIcon, icon)) {
+				fireIconChanged();
+			}
+			if (!NullCompatibleEquivalence.equals(lastEnabled, enabled)) {
+				fireEnabledChanged();
+			}
+		}
+
+		@Override
+		public String getText() {
+			if (currentAction != null) {
+				return currentAction.getText();
+			}
+			else {
+				//TODO i18n
+				return "Add";
+			}
+		}
+
+		@Override
+		public String getToolTipText() {
+			if (currentAction != null) {
+				return currentAction.getToolTipText();
+			}
+			else {
+				//TODO i18n
+				return "Add not possible in this context";
+			}
+		}
+
+		@Override
+		public IImageConstant getIcon() {
+			if (currentAction != null) {
+				return currentAction.getIcon();
+			}
+			else {
+				return IconsSmall.ADD;
+			}
+		}
+
+		@Override
+		public Character getMnemonic() {
+			return null;
+		}
+
+		@Override
+		public Accelerator getAccelerator() {
+			return new Accelerator(VirtualKey.N, Modifier.CTRL);
+		}
+
+		@Override
+		public boolean isEnabled() {
+			if (currentAction != null) {
+				return currentAction.isEnabled();
+			}
+			return false;
+		}
+
+		@Override
+		public void execute(final IExecutionContext actionEvent) throws Exception {
+			if (currentAction != null) {
+				currentAction.execute(actionEvent);
+			}
+		}
+
+		@Override
+		public IExceptionHandler getExceptionHandler() {
+			return this;
+		}
+
+		@Override
+		public IActionChangeObservable getActionChangeObservable() {
+			return this;
+		}
+
+		@Override
+		public void handleException(final IExecutionContext executionContext, final Exception exception) throws Exception {
+			if (currentAction != null) {
+				final IExceptionHandler exceptionHandler = currentAction.getExceptionHandler();
+				if (exceptionHandler != null) {
+					exceptionHandler.handleException(executionContext, exception);
+				}
+			}
+		}
+
+		private class ActionChangeListener implements IActionChangeListener {
+
+			@Override
+			public void textChanged() {
+				fireTextChanged();
+			}
+
+			@Override
+			public void toolTipTextChanged() {
+				fireToolTipTextChanged();
+			}
+
+			@Override
+			public void iconChanged() {
+				fireIconChanged();
+			}
+
+			@Override
+			public void enabledChanged() {
+				fireEnabledChanged();
+			}
+
 		}
 
 	}

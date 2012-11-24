@@ -44,7 +44,7 @@ public interface IEntityComponentMasterTableViewPlugin {
 	ITypedKey<Object> ENTITIY_ID_PROPERTY_KEY = new ITypedKey<Object>() {};
 	ITypedKey<Class<?>> BEAN_TYPE_PROPERTY_KEY = new ITypedKey<Class<?>>() {};
 
-	void onCreate(
+	void onInitialize(
 		IPluginProperties properties,
 		final IViewContext context,
 		final IBeanTable<?> table,

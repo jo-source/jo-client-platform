@@ -52,13 +52,15 @@ class EntityTableView extends AbstractView {
 
 	private static final IMessage ADD = Messages.getMessage("EntityTableView.add");
 
+	private final IBeanTable<?> table;
+
 	EntityTableView(final IViewContext context, final IBeanTableModel<?> tableModel, final Collection<IAction> linkCreatorActions) {
 
 		final IContainer container = context.getContainer();
 		container.setLayout(MigLayoutFactory.growingInnerCellLayout());
 
 		final IBeanTableBluePrint<?> tableBp = CapUiToolkit.bluePrintFactory().beanTable(tableModel);
-		final IBeanTable<?> table = container.add(tableBp, MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
+		this.table = container.add(tableBp, MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
 
 		final IPluginPropertiesBuilder propBuilder = PluginProperties.builder();
 		propBuilder.add(IEntityComponentMasterTableViewPlugin.BEAN_TYPE_PROPERTY_KEY, tableModel.getBeanType());
@@ -69,7 +71,7 @@ class EntityTableView extends AbstractView {
 				IEntityComponentMasterTableViewPlugin.ID,
 				pluginProperties);
 		for (final IEntityComponentMasterTableViewPlugin plugin : plugins) {
-			plugin.onCreate(pluginProperties, context, table, linkCreatorActions);
+			plugin.onInitialize(pluginProperties, context, table, linkCreatorActions);
 		}
 
 		addLinkActions(table, linkCreatorActions);
@@ -85,6 +87,10 @@ class EntityTableView extends AbstractView {
 		for (final IAction action : actions) {
 			menu.addAction(action);
 		}
+	}
+
+	IBeanTable<?> getTable() {
+		return table;
 	}
 
 }
