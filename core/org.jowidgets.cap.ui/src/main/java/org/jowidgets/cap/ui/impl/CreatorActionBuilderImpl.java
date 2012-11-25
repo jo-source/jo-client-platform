@@ -53,7 +53,7 @@ import org.jowidgets.cap.ui.api.image.ImageResolver;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.plugin.IServiceActionDecoratorPlugin;
 import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
-import org.jowidgets.common.image.IImageProvider;
+import org.jowidgets.common.image.IImageConstant;
 import org.jowidgets.common.types.Modifier;
 import org.jowidgets.common.types.VirtualKey;
 import org.jowidgets.i18n.api.MessageReplacer;
@@ -111,9 +111,9 @@ final class CreatorActionBuilderImpl<BEAN_TYPE> extends AbstractCapActionBuilder
 				if (descriptor != null) {
 					final Object icon = descriptor.getCreateIconDescriptor();
 					if (icon != null) {
-						final IImageProvider imageProvider = ImageResolver.resolve(icon);
-						if (imageProvider != null) {
-							setIcon(imageProvider);
+						final IImageConstant imageConstant = ImageResolver.resolve(icon);
+						if (imageConstant != null) {
+							setIcon(imageConstant);
 						}
 					}
 				}

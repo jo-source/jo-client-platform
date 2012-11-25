@@ -51,7 +51,7 @@ import org.jowidgets.cap.ui.api.icons.CapIcons;
 import org.jowidgets.cap.ui.api.image.ImageResolver;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.plugin.IServiceActionDecoratorPlugin;
-import org.jowidgets.common.image.IImageProvider;
+import org.jowidgets.common.image.IImageConstant;
 import org.jowidgets.i18n.api.MessageReplacer;
 import org.jowidgets.plugin.api.IPluginProperties;
 import org.jowidgets.plugin.api.PluginProperties;
@@ -109,9 +109,9 @@ final class LinkDeleterActionBuilderImpl<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> ext
 					setLinkedEntityLabelPlural(descriptor.getLabelPlural().get());
 					final Object icon = descriptor.getDeleteLinkIconDescriptor();
 					if (icon != null) {
-						final IImageProvider imageProvider = ImageResolver.resolve(icon);
-						if (imageProvider != null) {
-							setIcon(imageProvider);
+						final IImageConstant imageConstant = ImageResolver.resolve(icon);
+						if (imageConstant != null) {
+							setIcon(imageConstant);
 						}
 					}
 				}

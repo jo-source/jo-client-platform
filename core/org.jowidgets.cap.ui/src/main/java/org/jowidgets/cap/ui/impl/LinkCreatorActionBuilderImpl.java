@@ -74,7 +74,7 @@ import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
 import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
 import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
-import org.jowidgets.common.image.IImageProvider;
+import org.jowidgets.common.image.IImageConstant;
 import org.jowidgets.i18n.api.MessageReplacer;
 import org.jowidgets.plugin.api.IPluginProperties;
 import org.jowidgets.plugin.api.PluginProperties;
@@ -214,9 +214,9 @@ final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKA
 					}
 					final Object icon = descriptor.getCreateLinkIconDescriptor();
 					if (icon != null) {
-						final IImageProvider imageProvider = ImageResolver.resolve(icon);
-						if (imageProvider != null) {
-							setIcon(imageProvider);
+						final IImageConstant imageConstant = ImageResolver.resolve(icon);
+						if (imageConstant != null) {
+							setIcon(imageConstant);
 						}
 					}
 				}

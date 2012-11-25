@@ -28,10 +28,10 @@
 
 package org.jowidgets.cap.ui.api.image;
 
-import org.jowidgets.common.image.IImageProvider;
+import org.jowidgets.common.image.IImageConstant;
 
 public interface IImageResolver<DESCRIPTOR_TYPE> {
 
-	IImageProvider resolve(DESCRIPTOR_TYPE imageDescriptor);
+	IImageConstant resolve(DESCRIPTOR_TYPE imageDescriptor);
 
 }
