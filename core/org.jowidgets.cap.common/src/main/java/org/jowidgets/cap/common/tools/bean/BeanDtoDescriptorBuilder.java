@@ -105,6 +105,16 @@ public class BeanDtoDescriptorBuilder implements IBeanDtoDescriptorBuilder {
 	}
 
 	@Override
+	public IBeanDtoDescriptorBuilder setCreateLinkIconDescriptor(final Object iconDescriptor) {
+		return this.builder.setCreateLinkIconDescriptor(iconDescriptor);
+	}
+
+	@Override
+	public IBeanDtoDescriptorBuilder setDeleteLinkIconDescriptor(final Object iconDescriptor) {
+		return this.builder.setDeleteLinkIconDescriptor(iconDescriptor);
+	}
+
+	@Override
 	public IBeanDtoDescriptorBuilder setValidators(final Collection<? extends IBeanValidator<?>> validators) {
 		return this.builder.setValidators(validators);
 	}

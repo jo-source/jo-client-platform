@@ -62,6 +62,8 @@ final class BeanDtoDescriptorBuilderImpl implements IBeanDtoDescriptorBuilder {
 	private Object iconDescriptor;
 	private Object createIconDescriptor;
 	private Object deleteIconDescriptor;
+	private Object createLinkIconDescriptor;
+	private Object deleteLinkIconDescriptor;
 
 	BeanDtoDescriptorBuilderImpl() {
 		this(IBeanDto.class);
@@ -144,6 +146,18 @@ final class BeanDtoDescriptorBuilderImpl implements IBeanDtoDescriptorBuilder {
 	}
 
 	@Override
+	public IBeanDtoDescriptorBuilder setCreateLinkIconDescriptor(final Object iconDescriptor) {
+		this.createLinkIconDescriptor = iconDescriptor;
+		return this;
+	}
+
+	@Override
+	public IBeanDtoDescriptorBuilder setDeleteLinkIconDescriptor(final Object iconDescriptor) {
+		this.deleteLinkIconDescriptor = iconDescriptor;
+		return this;
+	}
+
+	@Override
 	public IBeanDtoDescriptorBuilder setDefaultSorting(final ISort... defaultSorting) {
 		Assert.paramNotNull(defaultSorting, "defaultSorting");
 		setDefaultSorting(Arrays.asList(defaultSorting));
@@ -221,6 +235,8 @@ final class BeanDtoDescriptorBuilderImpl implements IBeanDtoDescriptorBuilder {
 			iconDescriptor,
 			createIconDescriptor,
 			deleteIconDescriptor,
+			createLinkIconDescriptor,
+			deleteLinkIconDescriptor,
 			props,
 			defaultSorting,
 			beanValidators);

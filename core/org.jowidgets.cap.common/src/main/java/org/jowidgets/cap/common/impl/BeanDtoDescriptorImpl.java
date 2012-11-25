@@ -55,6 +55,8 @@ final class BeanDtoDescriptorImpl implements IBeanDtoDescriptor, Serializable {
 	private final Object iconDescriptor;
 	private final Object createIconDescriptor;
 	private final Object deleteIconDescriptor;
+	private final Object createLinkIconDescriptor;
+	private final Object deleteLinkIconDescriptor;
 	private final List<IProperty> unodifiableProperties;
 	private final Set<IBeanValidator<?>> unmodifieableBeanValidators;
 	private final List<ISort> unmodifieableDefaultSorting;
@@ -68,6 +70,8 @@ final class BeanDtoDescriptorImpl implements IBeanDtoDescriptor, Serializable {
 		final Object iconDescriptor,
 		final Object createIconDescriptor,
 		final Object deleteIconDescriptor,
+		final Object createLinkIconDescriptor,
+		final Object deleteLinkIconDescriptor,
 		final Collection<IProperty> properties,
 		final Collection<ISort> defaultSorting,
 		final Collection<? extends IBeanValidator<?>> beanValidators) {
@@ -99,6 +103,8 @@ final class BeanDtoDescriptorImpl implements IBeanDtoDescriptor, Serializable {
 		this.iconDescriptor = iconDescriptor;
 		this.createIconDescriptor = createIconDescriptor;
 		this.deleteIconDescriptor = deleteIconDescriptor;
+		this.createLinkIconDescriptor = createLinkIconDescriptor;
+		this.deleteLinkIconDescriptor = deleteLinkIconDescriptor;
 		this.unodifiableProperties = Collections.unmodifiableList(new LinkedList<IProperty>(properties));
 		this.unmodifieableDefaultSorting = Collections.unmodifiableList(new LinkedList<ISort>(defaultSorting));
 		this.unmodifieableBeanValidators = Collections.unmodifiableSet(new LinkedHashSet<IBeanValidator<?>>(beanValidators));
@@ -157,6 +163,16 @@ final class BeanDtoDescriptorImpl implements IBeanDtoDescriptor, Serializable {
 	@Override
 	public Object getDeleteIconDescriptor() {
 		return deleteIconDescriptor;
+	}
+
+	@Override
+	public Object getCreateLinkIconDescriptor() {
+		return createLinkIconDescriptor;
+	}
+
+	@Override
+	public Object getDeleteLinkIconDescriptor() {
+		return deleteLinkIconDescriptor;
 	}
 
 }

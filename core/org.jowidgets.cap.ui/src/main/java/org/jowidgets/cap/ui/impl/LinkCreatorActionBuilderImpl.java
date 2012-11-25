@@ -65,6 +65,7 @@ import org.jowidgets.cap.ui.api.execution.BeanModificationStatePolicy;
 import org.jowidgets.cap.ui.api.execution.IExecutionInterceptor;
 import org.jowidgets.cap.ui.api.form.IBeanFormLayout;
 import org.jowidgets.cap.ui.api.icons.CapIcons;
+import org.jowidgets.cap.ui.api.image.ImageResolver;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.model.LinkType;
 import org.jowidgets.cap.ui.api.plugin.IServiceActionDecoratorPlugin;
@@ -73,6 +74,7 @@ import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
 import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
 import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
+import org.jowidgets.common.image.IImageProvider;
 import org.jowidgets.i18n.api.MessageReplacer;
 import org.jowidgets.plugin.api.IPluginProperties;
 import org.jowidgets.plugin.api.PluginProperties;
@@ -209,6 +211,13 @@ final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKA
 				if (descriptor != null) {
 					if (!EmptyCheck.isEmpty(descriptor.getLabelPlural())) {
 						setLinkedEntityLabelPlural(descriptor.getLabelPlural().get());
+					}
+					final Object icon = descriptor.getCreateLinkIconDescriptor();
+					if (icon != null) {
+						final IImageProvider imageProvider = ImageResolver.resolve(icon);
+						if (imageProvider != null) {
+							setIcon(imageProvider);
+						}
 					}
 				}
 			}
