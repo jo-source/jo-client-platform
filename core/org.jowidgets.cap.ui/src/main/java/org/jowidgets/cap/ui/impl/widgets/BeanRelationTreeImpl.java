@@ -72,6 +72,7 @@ import org.jowidgets.cap.ui.api.command.ICapActionFactory;
 import org.jowidgets.cap.ui.api.command.IDeleterActionBuilder;
 import org.jowidgets.cap.ui.api.command.ILinkCreatorActionBuilder;
 import org.jowidgets.cap.ui.api.command.ILinkDeleterActionBuilder;
+import org.jowidgets.cap.ui.api.image.ImageResolver;
 import org.jowidgets.cap.ui.api.model.ILabelModel;
 import org.jowidgets.cap.ui.api.plugin.IBeanRelationTreePlugin;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationNodeModel;
@@ -84,6 +85,7 @@ import org.jowidgets.cap.ui.api.widgets.IBeanRelationTreeBluePrint;
 import org.jowidgets.cap.ui.tools.bean.SingleBeanSelectionProvider;
 import org.jowidgets.cap.ui.tools.model.BeanListModelListenerAdapter;
 import org.jowidgets.common.image.IImageConstant;
+import org.jowidgets.common.image.IImageProvider;
 import org.jowidgets.common.types.Accelerator;
 import org.jowidgets.common.types.Markup;
 import org.jowidgets.common.types.Modifier;
@@ -533,6 +535,13 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 					if (descriptor != null) {
 						builder.setEntityLabelPlural(descriptor.getLabelPlural().get());
 						builder.setEntityLabelSingular(descriptor.getLabelSingular().get());
+						final Object icon = descriptor.getDeleteIconDescriptor();
+						if (icon != null) {
+							final IImageProvider imageProvider = ImageResolver.resolve(icon);
+							if (imageProvider != null) {
+								builder.setIcon(imageProvider);
+							}
+						}
 					}
 					if (menuInterceptor != null) {
 						builder = menuInterceptor.deleterActionBuilder(relationNodeModel, builder);
