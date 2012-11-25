@@ -38,7 +38,9 @@ import org.jowidgets.api.command.ICommand;
 import org.jowidgets.api.command.IEnabledChecker;
 import org.jowidgets.api.image.IconsSmall;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
+import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
 import org.jowidgets.cap.common.api.service.ICreatorService;
+import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.bean.BeanExceptionConverter;
@@ -47,9 +49,11 @@ import org.jowidgets.cap.ui.api.bean.IBeanPropertyValidator;
 import org.jowidgets.cap.ui.api.command.ICreatorActionBuilder;
 import org.jowidgets.cap.ui.api.command.ICreatorInterceptor;
 import org.jowidgets.cap.ui.api.execution.IExecutionInterceptor;
+import org.jowidgets.cap.ui.api.image.ImageResolver;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.plugin.IServiceActionDecoratorPlugin;
 import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
+import org.jowidgets.common.image.IImageProvider;
 import org.jowidgets.common.types.Modifier;
 import org.jowidgets.common.types.VirtualKey;
 import org.jowidgets.i18n.api.MessageReplacer;
@@ -99,6 +103,22 @@ final class CreatorActionBuilderImpl<BEAN_TYPE> extends AbstractCapActionBuilder
 		setToolTipText(Messages.getString("CreatorActionBuilder.create_data_set_tooltip"));
 		setAccelerator(VirtualKey.N, Modifier.CTRL);
 		setIcon(IconsSmall.ADD);
+
+		if (entityId != null) {
+			final IEntityService entityService = ServiceProvider.getService(IEntityService.ID);
+			if (entityService != null) {
+				final IBeanDtoDescriptor descriptor = entityService.getDescriptor(entityId);
+				if (descriptor != null) {
+					final Object icon = descriptor.getCreateIconDescriptor();
+					if (icon != null) {
+						final IImageProvider imageProvider = ImageResolver.resolve(icon);
+						if (imageProvider != null) {
+							setIcon(imageProvider);
+						}
+					}
+				}
+			}
+		}
 	}
 
 	@Override

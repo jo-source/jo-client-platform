@@ -64,7 +64,6 @@ import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.common.api.sort.ISortFactory;
 import org.jowidgets.cap.common.api.validation.IBeanValidationResultListBuilder;
 import org.jowidgets.cap.common.api.validation.IBeanValidator;
-import org.jowidgets.i18n.tools.StaticMessage;
 import org.jowidgets.service.api.IRedundantServiceResolver;
 import org.jowidgets.util.Assert;
 
@@ -139,8 +138,14 @@ public final class DefaultCapCommonToolkit implements ICapCommonToolkit {
 		final String labelPlural,
 		final String description) {
 		Assert.paramNotNull(properties, "properties");
-		return new BeanDtoDescriptorImpl(new StaticMessage(labelSingular), new StaticMessage(labelPlural), new StaticMessage(
-			description), properties);
+
+		final IBeanDtoDescriptorBuilder builder = dtoDescriptorBuilder();
+		builder.setLabelSingular(labelSingular);
+		builder.setLabelPlural(labelPlural);
+		builder.setDescription(description);
+		builder.setProperties(properties);
+
+		return builder.build();
 	}
 
 	@Override
@@ -150,7 +155,15 @@ public final class DefaultCapCommonToolkit implements ICapCommonToolkit {
 		final String labelPlural,
 		final String description,
 		final Collection<? extends IBeanValidator<?>> validators) {
-		return new BeanDtoDescriptorImpl(IBeanDto.class, labelSingular, labelPlural, description, properties, validators);
+
+		final IBeanDtoDescriptorBuilder builder = dtoDescriptorBuilder();
+		builder.setLabelSingular(labelSingular);
+		builder.setLabelPlural(labelPlural);
+		builder.setDescription(description);
+		builder.setProperties(properties);
+		builder.setValidators(validators);
+
+		return builder.build();
 	}
 
 	@Override
@@ -161,14 +174,16 @@ public final class DefaultCapCommonToolkit implements ICapCommonToolkit {
 		final String description,
 		final String renderingPattern,
 		final Collection<? extends IBeanValidator<?>> validators) {
-		return new BeanDtoDescriptorImpl(
-			IBeanDto.class,
-			labelSingular,
-			labelPlural,
-			description,
-			renderingPattern,
-			properties,
-			validators);
+
+		final IBeanDtoDescriptorBuilder builder = dtoDescriptorBuilder();
+		builder.setLabelSingular(labelSingular);
+		builder.setLabelPlural(labelPlural);
+		builder.setDescription(description);
+		builder.setRenderingPattern(renderingPattern);
+		builder.setProperties(properties);
+		builder.setValidators(validators);
+
+		return builder.build();
 	}
 
 	@Override
@@ -180,42 +195,27 @@ public final class DefaultCapCommonToolkit implements ICapCommonToolkit {
 		final String description,
 		final String renderingPattern,
 		final Collection<? extends IBeanValidator<?>> validators) {
-		return new BeanDtoDescriptorImpl(
-			IBeanDto.class,
-			labelSingular,
-			labelPlural,
-			description,
-			renderingPattern,
-			properties,
-			defaultSorting,
-			validators);
-	}
 
-	@Override
-	public IBeanDtoDescriptor dtoDescriptor(
-		final Collection<IProperty> properties,
-		final Collection<ISort> defaultSorting,
-		final String labelSingular,
-		final String labelPlural,
-		final String description,
-		final String renderingPattern,
-		final Object iconDescriptor,
-		final Collection<? extends IBeanValidator<?>> validators) {
-		return new BeanDtoDescriptorImpl(
-			IBeanDto.class,
-			labelSingular,
-			labelPlural,
-			description,
-			renderingPattern,
-			iconDescriptor,
-			properties,
-			defaultSorting,
-			validators);
+		final IBeanDtoDescriptorBuilder builder = dtoDescriptorBuilder();
+		builder.setLabelSingular(labelSingular);
+		builder.setLabelPlural(labelPlural);
+		builder.setDescription(description);
+		builder.setRenderingPattern(renderingPattern);
+		builder.setProperties(properties);
+		builder.setValidators(validators);
+		builder.setDefaultSorting(defaultSorting);
+
+		return builder.build();
 	}
 
 	@Override
 	public IBeanDtoDescriptorBuilder dtoDescriptorBuilder(final Class<?> beanType) {
 		return new BeanDtoDescriptorBuilderImpl(beanType);
+	}
+
+	@Override
+	public IBeanDtoDescriptorBuilder dtoDescriptorBuilder() {
+		return new BeanDtoDescriptorBuilderImpl();
 	}
 
 	@Override

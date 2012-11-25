@@ -114,6 +114,10 @@ public final class CapCommonToolkit {
 		return getInstance().dtoDescriptorBuilder(beanType);
 	}
 
+	public static IBeanDtoDescriptorBuilder dtoDescriptorBuilder() {
+		return getInstance().dtoDescriptorBuilder();
+	}
+
 	public static IBeanDtoDescriptor dtoDescriptor(final List<IProperty> properties) {
 		return getInstance().dtoDescriptor(properties);
 	}
@@ -167,26 +171,6 @@ public final class CapCommonToolkit {
 				labelPlural,
 				description,
 				renderingPattern,
-				beanValidators);
-	}
-
-	public static IBeanDtoDescriptor dtoDescriptor(
-		final Collection<IProperty> properties,
-		final Collection<ISort> defaultSorting,
-		final String labelSingular,
-		final String labelPlural,
-		final String description,
-		final String renderingPattern,
-		final Object iconDescriptor,
-		final Collection<? extends IBeanValidator<?>> beanValidators) {
-		return getInstance().dtoDescriptor(
-				properties,
-				defaultSorting,
-				labelSingular,
-				labelPlural,
-				description,
-				renderingPattern,
-				iconDescriptor,
 				beanValidators);
 	}
 

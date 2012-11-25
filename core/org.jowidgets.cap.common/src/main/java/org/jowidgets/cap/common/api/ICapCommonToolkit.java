@@ -83,6 +83,8 @@ public interface ICapCommonToolkit {
 
 	IBeanDtoDescriptorBuilder dtoDescriptorBuilder(Class<?> beanType);
 
+	IBeanDtoDescriptorBuilder dtoDescriptorBuilder();
+
 	//TODO MG allow to build generic / untyped descriptors with help of a builder to avoid n*m factory methods 
 	IBeanDtoDescriptor dtoDescriptor(Collection<IProperty> properties);
 
@@ -116,16 +118,6 @@ public interface ICapCommonToolkit {
 		String labelPlural,
 		String description,
 		String renderingPattern,
-		Collection<? extends IBeanValidator<?>> beanValidators);
-
-	IBeanDtoDescriptor dtoDescriptor(
-		Collection<IProperty> properties,
-		Collection<ISort> defaultSorting,
-		String labelSingular,
-		String labelPlural,
-		String description,
-		String renderingPattern,
-		Object iconDescriptor,
 		Collection<? extends IBeanValidator<?>> beanValidators);
 
 	IBeanServicesProviderFactory beanServicesProviderFactory();

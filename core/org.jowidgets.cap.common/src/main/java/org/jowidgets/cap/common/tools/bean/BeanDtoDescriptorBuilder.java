@@ -34,6 +34,7 @@ import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptorBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanPropertyBluePrint;
+import org.jowidgets.cap.common.api.bean.IProperty;
 import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.common.api.validation.IBeanValidator;
 import org.jowidgets.i18n.api.IMessage;
@@ -91,6 +92,26 @@ public class BeanDtoDescriptorBuilder implements IBeanDtoDescriptorBuilder {
 	@Override
 	public IBeanDtoDescriptorBuilder setIconDescriptor(final Object iconDescriptor) {
 		return this.builder.setIconDescriptor(iconDescriptor);
+	}
+
+	@Override
+	public IBeanDtoDescriptorBuilder setCreateIconDescriptor(final Object iconDescriptor) {
+		return this.builder.setCreateIconDescriptor(iconDescriptor);
+	}
+
+	@Override
+	public IBeanDtoDescriptorBuilder setDeleteIconDescriptor(final Object iconDescriptor) {
+		return this.builder.setDeleteIconDescriptor(iconDescriptor);
+	}
+
+	@Override
+	public IBeanDtoDescriptorBuilder setValidators(final Collection<? extends IBeanValidator<?>> validators) {
+		return this.builder.setValidators(validators);
+	}
+
+	@Override
+	public IBeanDtoDescriptorBuilder setProperties(final Collection<? extends IProperty> properties) {
+		return this.builder.setProperties(properties);
 	}
 
 	@Override
