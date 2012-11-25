@@ -36,7 +36,7 @@ import org.jowidgets.cap.ui.api.command.IDeleterActionBuilder;
 import org.jowidgets.cap.ui.api.image.ImageResolver;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
-import org.jowidgets.common.image.IImageProvider;
+import org.jowidgets.common.image.IImageConstant;
 import org.jowidgets.service.api.ServiceProvider;
 
 final class BeanTableDeleterActionBuilderFactory {
@@ -58,9 +58,9 @@ final class BeanTableDeleterActionBuilderFactory {
 				if (descriptor != null) {
 					final Object icon = descriptor.getDeleteIconDescriptor();
 					if (icon != null) {
-						final IImageProvider imageProvider = ImageResolver.resolve(icon);
-						if (imageProvider != null) {
-							builder.setIcon(imageProvider);
+						final IImageConstant imageConstant = ImageResolver.resolve(icon);
+						if (imageConstant != null) {
+							builder.setIcon(imageConstant);
 						}
 					}
 				}

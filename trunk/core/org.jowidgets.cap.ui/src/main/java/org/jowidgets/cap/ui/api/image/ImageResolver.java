@@ -33,7 +33,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.jowidgets.common.image.IImageProvider;
+import org.jowidgets.common.image.IImageConstant;
 import org.jowidgets.util.Assert;
 
 public final class ImageResolver {
@@ -61,7 +61,7 @@ public final class ImageResolver {
 		return IMAGE_RESOLVER_COMPOSITE;
 	}
 
-	public static IImageProvider resolve(final Object imageDescriptor) {
+	public static IImageConstant resolve(final Object imageDescriptor) {
 		return getInstance().resolve(imageDescriptor);
 	}
 
@@ -69,15 +69,15 @@ public final class ImageResolver {
 
 		@SuppressWarnings({"rawtypes", "unchecked"})
 		@Override
-		public IImageProvider resolve(final Object imageDescriptor) {
+		public IImageConstant resolve(final Object imageDescriptor) {
 			Assert.paramNotNull(imageDescriptor, "imageDescriptor");
 
 			final List<IImageResolver<?>> resolvers = RESOLVERS.get(imageDescriptor.getClass());
 			if (resolvers != null) {
 				for (final IImageResolver resolver : resolvers) {
-					final IImageProvider imageProvider = resolver.resolve(imageDescriptor);
-					if (imageProvider != null) {
-						return imageProvider;
+					final IImageConstant imageConstant = resolver.resolve(imageDescriptor);
+					if (imageConstant != null) {
+						return imageConstant;
 					}
 				}
 			}
