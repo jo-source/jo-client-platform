@@ -124,6 +124,30 @@ public interface IBeanDtoDescriptorBuilder {
 	 */
 	IBeanDtoDescriptorBuilder setDeleteIconDescriptor(Object iconDescriptor);
 
+	/**
+	 * Sets an icon descriptor that will be used to render the create link action.
+	 * 
+	 * To make that work in the ui, there must be an icon resolver registered in the ui
+	 * for that descriptor type.
+	 * 
+	 * @param iconDescriptor The descriptor to set
+	 * 
+	 * @return The icon descriptor or null
+	 */
+	IBeanDtoDescriptorBuilder setCreateLinkIconDescriptor(Object iconDescriptor);
+
+	/**
+	 * Sets an icon descriptor that will be used to render the delete link action.
+	 * 
+	 * To make that work in the ui, there must be an icon resolver registered in the ui
+	 * for that descriptor type.
+	 * 
+	 * @param iconDescriptor The descriptor to set
+	 * 
+	 * @return The icon descriptor or null
+	 */
+	IBeanDtoDescriptorBuilder setDeleteLinkIconDescriptor(Object iconDescriptor);
+
 	IBeanDtoDescriptorBuilder addValidator(IBeanValidator<?> validator);
 
 	IBeanDtoDescriptorBuilder setValidators(Collection<? extends IBeanValidator<?>> validators);

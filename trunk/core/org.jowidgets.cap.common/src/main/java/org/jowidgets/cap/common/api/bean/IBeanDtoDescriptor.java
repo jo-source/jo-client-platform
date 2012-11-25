@@ -131,4 +131,24 @@ public interface IBeanDtoDescriptor {
 	 */
 	Object getDeleteIconDescriptor();
 
+	/**
+	 * Gets an icon descriptor that will be used to render the create link action.
+	 * 
+	 * To make that work in the ui, there must be an icon resolver registered in the ui
+	 * for that descriptor type.
+	 * 
+	 * @return The icon descriptor or null
+	 */
+	Object getCreateLinkIconDescriptor();
+
+	/**
+	 * Gets an icon descriptor that will be used to render the delete link action.
+	 * 
+	 * To make that work in the ui, there must be an icon resolver registered in the ui
+	 * for that descriptor type.
+	 * 
+	 * @return The icon descriptor or null
+	 */
+	Object getDeleteLinkIconDescriptor();
+
 }
