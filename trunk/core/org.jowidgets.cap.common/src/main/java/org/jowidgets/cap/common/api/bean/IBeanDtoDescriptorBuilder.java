@@ -94,11 +94,41 @@ public interface IBeanDtoDescriptorBuilder {
 	 * To make that work in the ui, there must be an icon resolver registered in the ui
 	 * for that descriptor type.
 	 * 
+	 * @param iconDescriptor The descriptor to set
+	 * 
 	 * @return The icon descriptor or null
 	 */
 	IBeanDtoDescriptorBuilder setIconDescriptor(Object iconDescriptor);
 
+	/**
+	 * Sets an icon descriptor that will be used to render the creator action.
+	 * 
+	 * To make that work in the ui, there must be an icon resolver registered in the ui
+	 * for that descriptor type.
+	 * 
+	 * @param iconDescriptor The descriptor to set
+	 * 
+	 * @return The icon descriptor or null
+	 */
+	IBeanDtoDescriptorBuilder setCreateIconDescriptor(Object iconDescriptor);
+
+	/**
+	 * Sets an icon descriptor that will be used to render the delete action.
+	 * 
+	 * To make that work in the ui, there must be an icon resolver registered in the ui
+	 * for that descriptor type.
+	 * 
+	 * @param iconDescriptor The descriptor to set
+	 * 
+	 * @return The icon descriptor or null
+	 */
+	IBeanDtoDescriptorBuilder setDeleteIconDescriptor(Object iconDescriptor);
+
 	IBeanDtoDescriptorBuilder addValidator(IBeanValidator<?> validator);
+
+	IBeanDtoDescriptorBuilder setValidators(Collection<? extends IBeanValidator<?>> validators);
+
+	IBeanDtoDescriptorBuilder setProperties(Collection<? extends IProperty> properties);
 
 	IBeanPropertyBluePrint addProperty(String propertyName);
 

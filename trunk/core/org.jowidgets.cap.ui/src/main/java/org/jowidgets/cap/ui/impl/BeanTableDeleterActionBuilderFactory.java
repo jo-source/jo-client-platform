@@ -28,11 +28,16 @@
 
 package org.jowidgets.cap.ui.impl;
 
+import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
+import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.command.ICapActionFactory;
 import org.jowidgets.cap.ui.api.command.IDeleterActionBuilder;
+import org.jowidgets.cap.ui.api.image.ImageResolver;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
+import org.jowidgets.common.image.IImageProvider;
+import org.jowidgets.service.api.ServiceProvider;
 
 final class BeanTableDeleterActionBuilderFactory {
 
@@ -45,6 +50,23 @@ final class BeanTableDeleterActionBuilderFactory {
 		builder.setEntityLabelSingular(model.getEntityLabelSingular());
 		builder.setEntityLabelPlural(model.getEntityLabelPlural());
 		builder.setDeleterService(model.getDeleterService());
+		final Object entityId = model.getEntityId();
+		if (entityId != null) {
+			final IEntityService entityService = ServiceProvider.getService(IEntityService.ID);
+			if (entityService != null) {
+				final IBeanDtoDescriptor descriptor = entityService.getDescriptor(entityId);
+				if (descriptor != null) {
+					final Object icon = descriptor.getDeleteIconDescriptor();
+					if (icon != null) {
+						final IImageProvider imageProvider = ImageResolver.resolve(icon);
+						if (imageProvider != null) {
+							builder.setIcon(imageProvider);
+						}
+					}
+				}
+			}
+		}
+
 		return builder;
 	}
 

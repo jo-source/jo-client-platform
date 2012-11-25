@@ -36,7 +36,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
 import org.jowidgets.cap.common.api.bean.IProperty;
 import org.jowidgets.cap.common.api.sort.ISort;
@@ -48,164 +47,18 @@ final class BeanDtoDescriptorImpl implements IBeanDtoDescriptor, Serializable {
 
 	private static final long serialVersionUID = 4875055093925862277L;
 
-	private static final List<ISort> EMPTY_SORT = Collections.emptyList();
-
 	private final Class<?> beanType;
 	private final IMessage labelSingular;
 	private final IMessage labelPlural;
 	private final IMessage description;
 	private final IMessage renderingPattern;
 	private final Object iconDescriptor;
+	private final Object createIconDescriptor;
+	private final Object deleteIconDescriptor;
 	private final List<IProperty> unodifiableProperties;
 	private final Set<IBeanValidator<?>> unmodifieableBeanValidators;
 	private final List<ISort> unmodifieableDefaultSorting;
 
-	@SuppressWarnings({"unchecked", "rawtypes"})
-	BeanDtoDescriptorImpl(final Collection<IProperty> properties) {
-		this(
-			IBeanDto.class,
-			new StaticMessage(null),
-			new StaticMessage(null),
-			new StaticMessage(null),
-			properties,
-			(Set) Collections.emptySet());
-	}
-
-	BeanDtoDescriptorImpl(
-		final String labelSingular,
-		final String labelPlural,
-		final String description,
-		final Collection<IProperty> properties) {
-		this(new StaticMessage(labelSingular), new StaticMessage(labelPlural), new StaticMessage(description), properties);
-	}
-
-	BeanDtoDescriptorImpl(
-		final Class<?> beanType,
-		final String labelSingular,
-		final String labelPlural,
-		final String description,
-		final Collection<IProperty> properties,
-		final Collection<? extends IBeanValidator<?>> beanValidators) {
-		this(
-			beanType,
-			new StaticMessage(labelSingular),
-			new StaticMessage(labelPlural),
-			new StaticMessage(description),
-			properties,
-			beanValidators);
-	}
-
-	BeanDtoDescriptorImpl(
-		final Class<?> beanType,
-		final String labelSingular,
-		final String labelPlural,
-		final String description,
-		final String renderingPattern,
-		final Collection<IProperty> properties,
-		final Collection<? extends IBeanValidator<?>> beanValidators) {
-		this(
-			beanType,
-			new StaticMessage(labelSingular),
-			new StaticMessage(labelPlural),
-			new StaticMessage(description),
-			new StaticMessage(renderingPattern),
-			properties,
-			beanValidators);
-	}
-
-	BeanDtoDescriptorImpl(
-		final Class<?> beanType,
-		final String labelSingular,
-		final String labelPlural,
-		final String description,
-		final String renderingPattern,
-		final Collection<IProperty> properties,
-		final Collection<ISort> defaultSorting,
-		final Collection<? extends IBeanValidator<?>> beanValidators) {
-		this(
-			beanType,
-			new StaticMessage(labelSingular),
-			new StaticMessage(labelPlural),
-			new StaticMessage(description),
-			new StaticMessage(renderingPattern),
-			properties,
-			defaultSorting,
-			beanValidators);
-	}
-
-	BeanDtoDescriptorImpl(
-		final Class<?> beanType,
-		final String labelSingular,
-		final String labelPlural,
-		final String description,
-		final String renderingPattern,
-		final Object iconDescriptor,
-		final Collection<IProperty> properties,
-		final Collection<ISort> defaultSorting,
-		final Collection<? extends IBeanValidator<?>> beanValidators) {
-		this(
-			beanType,
-			new StaticMessage(labelSingular),
-			new StaticMessage(labelPlural),
-			new StaticMessage(description),
-			new StaticMessage(renderingPattern),
-			iconDescriptor,
-			properties,
-			defaultSorting,
-			beanValidators);
-	}
-
-	@SuppressWarnings({"unchecked", "rawtypes"})
-	BeanDtoDescriptorImpl(
-		final IMessage labelSingular,
-		final IMessage labelPlural,
-		final IMessage description,
-		final Collection<IProperty> properties) {
-		this(IBeanDto.class, labelSingular, labelPlural, description, properties, (Set) Collections.emptySet());
-	}
-
-	BeanDtoDescriptorImpl(
-		final Class<?> beanType,
-		final IMessage labelSingular,
-		final IMessage labelPlural,
-		final IMessage description,
-		final Collection<IProperty> properties,
-		final Collection<? extends IBeanValidator<?>> beanValidators) {
-		this(beanType, labelSingular, labelPlural, description, null, properties, beanValidators);
-	}
-
-	BeanDtoDescriptorImpl(
-		final Class<?> beanType,
-		final IMessage labelSingular,
-		final IMessage labelPlural,
-		final IMessage description,
-		final IMessage renderingPattern,
-		final Collection<IProperty> properties,
-		final Collection<? extends IBeanValidator<?>> beanValidators) {
-		this(beanType, labelSingular, labelPlural, description, renderingPattern, properties, EMPTY_SORT, beanValidators);
-	}
-
-	BeanDtoDescriptorImpl(
-		final Class<?> beanType,
-		final IMessage labelSingular,
-		final IMessage labelPlural,
-		final IMessage description,
-		final IMessage renderingPattern,
-		final Collection<IProperty> properties,
-		final Collection<ISort> defaultSorting,
-		final Collection<? extends IBeanValidator<?>> beanValidators) {
-		this(
-			beanType,
-			labelSingular,
-			labelPlural,
-			description,
-			renderingPattern,
-			null,
-			properties,
-			defaultSorting,
-			beanValidators);
-	}
-
 	BeanDtoDescriptorImpl(
 		final Class<?> beanType,
 		final IMessage labelSingular,
@@ -213,6 +66,8 @@ final class BeanDtoDescriptorImpl implements IBeanDtoDescriptor, Serializable {
 		final IMessage description,
 		final IMessage renderingPattern,
 		final Object iconDescriptor,
+		final Object createIconDescriptor,
+		final Object deleteIconDescriptor,
 		final Collection<IProperty> properties,
 		final Collection<ISort> defaultSorting,
 		final Collection<? extends IBeanValidator<?>> beanValidators) {
@@ -242,6 +97,8 @@ final class BeanDtoDescriptorImpl implements IBeanDtoDescriptor, Serializable {
 			this.renderingPattern = new StaticMessage();
 		}
 		this.iconDescriptor = iconDescriptor;
+		this.createIconDescriptor = createIconDescriptor;
+		this.deleteIconDescriptor = deleteIconDescriptor;
 		this.unodifiableProperties = Collections.unmodifiableList(new LinkedList<IProperty>(properties));
 		this.unmodifieableDefaultSorting = Collections.unmodifiableList(new LinkedList<ISort>(defaultSorting));
 		this.unmodifieableBeanValidators = Collections.unmodifiableSet(new LinkedHashSet<IBeanValidator<?>>(beanValidators));
@@ -290,6 +147,16 @@ final class BeanDtoDescriptorImpl implements IBeanDtoDescriptor, Serializable {
 	@Override
 	public Object getIconDescriptor() {
 		return iconDescriptor;
+	}
+
+	@Override
+	public Object getCreateIconDescriptor() {
+		return createIconDescriptor;
+	}
+
+	@Override
+	public Object getDeleteIconDescriptor() {
+		return deleteIconDescriptor;
 	}
 
 }

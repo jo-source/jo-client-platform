@@ -35,6 +35,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptorBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanPropertyBluePrint;
@@ -50,6 +51,7 @@ final class BeanDtoDescriptorBuilderImpl implements IBeanDtoDescriptorBuilder {
 
 	private final Class<?> beanType;
 	private final List<BeanPropertyBluePrintImpl> bluePrints;
+	private final List<IProperty> properties;
 	private final List<ISort> defaultSorting;
 	private final Set<IBeanValidator<?>> beanValidators;
 
@@ -58,10 +60,17 @@ final class BeanDtoDescriptorBuilderImpl implements IBeanDtoDescriptorBuilder {
 	private IMessage description;
 	private IMessage renderingPattern;
 	private Object iconDescriptor;
+	private Object createIconDescriptor;
+	private Object deleteIconDescriptor;
+
+	BeanDtoDescriptorBuilderImpl() {
+		this(IBeanDto.class);
+	}
 
 	BeanDtoDescriptorBuilderImpl(final Class<?> beanType) {
 		this.beanType = beanType;
 		this.bluePrints = new LinkedList<BeanPropertyBluePrintImpl>();
+		this.properties = new LinkedList<IProperty>();
 		this.beanValidators = new LinkedHashSet<IBeanValidator<?>>();
 		this.defaultSorting = new LinkedList<ISort>();
 
@@ -123,6 +132,18 @@ final class BeanDtoDescriptorBuilderImpl implements IBeanDtoDescriptorBuilder {
 	}
 
 	@Override
+	public IBeanDtoDescriptorBuilder setCreateIconDescriptor(final Object iconDescriptor) {
+		this.createIconDescriptor = iconDescriptor;
+		return this;
+	}
+
+	@Override
+	public IBeanDtoDescriptorBuilder setDeleteIconDescriptor(final Object iconDescriptor) {
+		this.deleteIconDescriptor = iconDescriptor;
+		return this;
+	}
+
+	@Override
 	public IBeanDtoDescriptorBuilder setDefaultSorting(final ISort... defaultSorting) {
 		Assert.paramNotNull(defaultSorting, "defaultSorting");
 		setDefaultSorting(Arrays.asList(defaultSorting));
@@ -145,19 +166,52 @@ final class BeanDtoDescriptorBuilderImpl implements IBeanDtoDescriptorBuilder {
 	}
 
 	@Override
+	public IBeanDtoDescriptorBuilder setValidators(final Collection<? extends IBeanValidator<?>> validators) {
+		Assert.paramNotNull(validators, "validators");
+		this.beanValidators.clear();
+		this.beanValidators.addAll(validators);
+		return this;
+	}
+
+	@Override
 	public IBeanPropertyBluePrint addProperty(final String propertyName) {
 		Assert.paramNotEmpty(propertyName, "propertyName");
+		if (!properties.isEmpty()) {
+			throw new IllegalStateException("After properties was set with setProperties(), no properties can be added. "
+				+ "Feel free to create a patch that fixes this issue.");
+		}
+		if (IBeanDto.class.isAssignableFrom(beanType)) {
+			throw new IllegalStateException("Bean property blueprints can not be used for generic bean type '"
+				+ IBeanDto.class
+				+ "'. Uses setProperties instead");
+		}
 		final BeanPropertyBluePrintImpl bluePrint = new BeanPropertyBluePrintImpl(beanType, propertyName);
 		bluePrints.add(bluePrint);
 		return bluePrint;
 	}
 
 	@Override
+	public IBeanDtoDescriptorBuilder setProperties(final Collection<? extends IProperty> properties) {
+		Assert.paramNotNull(properties, "properties");
+		bluePrints.clear();
+		this.properties.clear();
+		this.properties.addAll(properties);
+		return this;
+	}
+
+	@Override
 	public IBeanDtoDescriptor build() {
-		final List<IProperty> properties = new LinkedList<IProperty>();
-		for (final BeanPropertyBluePrintImpl bluePrint : bluePrints) {
-			properties.add(bluePrint.build());
+		final List<IProperty> props;
+		if (!bluePrints.isEmpty()) {
+			props = new LinkedList<IProperty>();
+			for (final BeanPropertyBluePrintImpl bluePrint : bluePrints) {
+				props.add(bluePrint.build());
+			}
 		}
+		else {
+			props = properties;
+		}
+
 		return new BeanDtoDescriptorImpl(
 			beanType,
 			labelSingular,
@@ -165,7 +219,9 @@ final class BeanDtoDescriptorBuilderImpl implements IBeanDtoDescriptorBuilder {
 			description,
 			renderingPattern,
 			iconDescriptor,
-			properties,
+			createIconDescriptor,
+			deleteIconDescriptor,
+			props,
 			defaultSorting,
 			beanValidators);
 	}
