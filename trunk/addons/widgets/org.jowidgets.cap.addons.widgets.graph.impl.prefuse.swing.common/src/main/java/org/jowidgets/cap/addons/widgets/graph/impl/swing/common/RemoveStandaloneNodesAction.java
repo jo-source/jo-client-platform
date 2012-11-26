@@ -33,7 +33,6 @@ import java.util.Iterator;
 import prefuse.action.GroupAction;
 import prefuse.data.Edge;
 import prefuse.data.Node;
-import prefuse.data.tuple.TupleSet;
 import prefuse.visual.VisualItem;
 
 class RemoveStandaloneNodesAction extends GroupAction {
@@ -46,8 +45,9 @@ class RemoveStandaloneNodesAction extends GroupAction {
 	public void run(final double frac) {
 		synchronized (m_vis) {
 			if (m_vis != null) {
-				final TupleSet nodes = m_vis.getGroup(BeanRelationGraphImpl.NODES);
-				final Iterator<?> node = nodes.tuples();
+				//				final TupleSet nodes = m_vis.getGroup(BeanRelationGraphImpl.NODES);
+				//				final Iterator<?> node = nodes.tuples();
+				final Iterator<?> node = m_vis.visibleItems(BeanRelationGraphImpl.NODES);
 				while (node.hasNext()) {
 					final Node result = (Node) node.next();
 					final VisualItem visualItem = (VisualItem) result;

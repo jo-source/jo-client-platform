@@ -49,15 +49,17 @@ class EdgeVisibilityAction extends GroupAction {
 	@Override
 	public void run(final double frac) {
 
-		final TupleSet edges = m_vis.getGroup(BeanRelationGraphImpl.EDGES);
-		final Iterator<?> edge = edges.tuples();
-		while (edge.hasNext()) {
-			final Edge test = (Edge) edge.next();
-			if (test != null) {
+		synchronized (m_vis) {
+			final TupleSet edges = m_vis.getGroup(BeanRelationGraphImpl.EDGES);
+			final Iterator<?> edge = edges.tuples();
+			while (edge.hasNext()) {
+				final Edge test = (Edge) edge.next();
+				if (test != null) {
 
-				final VisualItem result = (VisualItem) test;
-				result.setVisible((Boolean) test.get("visible"));
+					final VisualItem result = (VisualItem) test;
+					result.setVisible((Boolean) test.get("visible"));
 
+				}
 			}
 		}
 	}
