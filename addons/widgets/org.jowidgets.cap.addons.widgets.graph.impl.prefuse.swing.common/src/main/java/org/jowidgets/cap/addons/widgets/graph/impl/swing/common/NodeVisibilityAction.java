@@ -45,20 +45,17 @@ class NodeVisibilityAction extends GroupAction {
 	@Override
 	public void run(final double frac) {
 		synchronized (m_vis) {
-
 			final TupleSet nodes = m_vis.getGroup(BeanRelationGraphImpl.NODES);
 			final Iterator<?> node = nodes.tuples();
 			while (node.hasNext()) {
 				final Node result = (Node) node.next();
 				final VisualItem visualItem = (VisualItem) result;
 				if (result != null) {
-
 					if (result.getParent() != null) {
-						@SuppressWarnings("unchecked")
-						final Iterator<Edge> inEdges = result.inEdges();
+						final Iterator<?> inEdges = result.inEdges();
 						boolean visible = false;
 						while (inEdges.hasNext()) {
-							final Edge parent = inEdges.next();
+							final Edge parent = (Edge) inEdges.next();
 							visible = (Boolean) parent.get("visible") ? true : visible;
 						}
 						result.set("visible", visible);
