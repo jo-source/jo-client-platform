@@ -39,6 +39,7 @@ import org.jowidgets.api.widgets.IScrollComposite;
 import org.jowidgets.api.widgets.ISlider;
 import org.jowidgets.api.widgets.blueprint.ISliderBluePrint;
 import org.jowidgets.api.widgets.blueprint.ITextLabelBluePrint;
+import org.jowidgets.cap.addons.widgets.graph.impl.swing.common.BeanRelationGraphImpl.GraphLayout;
 import org.jowidgets.common.types.Dimension;
 import org.jowidgets.common.widgets.controller.IActionListener;
 import org.jowidgets.common.widgets.controller.IInputListener;
@@ -68,41 +69,51 @@ final class GraphSettingsDialog extends JoFrame {
 	private static final Map<String, Float> MODIFIED_VALUES = new HashMap<String, Float>();
 	private static final Map<ISlider, Integer> DEFAULT_SLIDER_SETTINGS = new HashMap<ISlider, Integer>();
 
-	GraphSettingsDialog(final ForceSimulator forceSimulator) {
+	GraphSettingsDialog(final GraphLayout type, final ForceSimulator forceSimulator) {
 		super(Messages.getString("GraphSettingsDialog.settings"));
 
 		setLayout(MigLayoutFactory.growingInnerCellLayout());
-
-		setMinPackSize(new Dimension(300, 300));
-		initializeOwnValues();
+		setMinPackSize(new Dimension(400, 100));
 
 		final IScrollComposite content = add(BPF.scrollComposite(), MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
-
 		content.setLayout(new MigLayoutDescriptor("[0::][grow, 150::][right, 50!]", ""));
 
-		final Force[] forces = forceSimulator.getForces();
-		for (int i = 0; i < forces.length; i++) {
-			String[] paramNames = null;
-			final String forceName = forces[i].getClass().getSimpleName();
-			if (forceName.equals(SpringForce.class.getSimpleName())) {
-				paramNames = SPRING_FORCE;
-			}
-			else if (forceName.equals(DragForce.class.getSimpleName())) {
-				paramNames = DRAG_FORCE;
-			}
-			else if (forceName.equals(NBodyForce.class.getSimpleName())) {
-				paramNames = NBODY_FORCE;
-			}
-			else {
-				final String[] parameterNames = new String[forces[i].getParameterCount() + 1];
-				parameterNames[0] = forces[i].getClass().getSimpleName();
-				for (int j = 0; j < forces[i].getParameterCount(); j++) {
-					parameterNames[j + 1] = forces[i].getParameterName(j);
+		switch (type) {
+			case FORCE_DIRECTED_LAYOUT:
+				initializeOwnValues();
+
+				final Force[] forces = forceSimulator.getForces();
+				for (int i = 0; i < forces.length; i++) {
+					String[] paramNames = null;
+					final String forceName = forces[i].getClass().getSimpleName();
+					if (forceName.equals(SpringForce.class.getSimpleName())) {
+						paramNames = SPRING_FORCE;
+					}
+					else if (forceName.equals(DragForce.class.getSimpleName())) {
+						paramNames = DRAG_FORCE;
+					}
+					else if (forceName.equals(NBodyForce.class.getSimpleName())) {
+						paramNames = NBODY_FORCE;
+					}
+					else {
+						final String[] parameterNames = new String[forces[i].getParameterCount() + 1];
+						parameterNames[0] = forces[i].getClass().getSimpleName();
+						for (int j = 0; j < forces[i].getParameterCount(); j++) {
+							parameterNames[j + 1] = forces[i].getParameterName(j);
+						}
+						paramNames = parameterNames;
+					}
+					initializeForceComponent(content, paramNames, forces[i], GraphLayout.FORCE_DIRECTED_LAYOUT);
 				}
-				paramNames = parameterNames;
-			}
-			initializeForceComponent(content, paramNames, forces[i]);
+				break;
+			case RADIAL_TREE_LAYOUT:
+				initializeForceComponent(content, new String[] {"Radius"}, null, GraphLayout.RADIAL_TREE_LAYOUT);
+				break;
+			default:
+				break;
+
 		}
+
 		content.add(BPF.separator(), "growx, span3, gapy20,wrap");
 		createDefaultSetterButton(content);
 	}
@@ -122,11 +133,72 @@ final class GraphSettingsDialog extends JoFrame {
 
 	}
 
-	private void initializeForceComponent(final IScrollComposite content, final String[] parameterNames, final Force force) {
+	private void initializeForceComponent(
+		final IScrollComposite content,
+		final String[] parameterNames,
+		final Force force,
+		final GraphLayout type) {
 		content.add(BPF.textSeparator(parameterNames[0]).alignLeft().setStrong(), "growx, w 0::, span, gapy 20, wrap");
-		for (int j = 0; j < force.getParameterCount(); j++) {
-			createSliderComponent(content, force, j, parameterNames[1 + j]);
+		if (force != null) {
+			for (int j = 0; j < force.getParameterCount(); j++) {
+				createSliderComponent(content, force, j, parameterNames[1 + j]);
+			}
 		}
+		else {
+			switch (type) {
+				case RADIAL_TREE_LAYOUT:
+					createSliderComponent(content, 200, parameterNames[0]);
+					break;
+				default:
+					break;
+			}
+		}
+	}
+
+	private void createSliderComponent(final IScrollComposite content, final int defaultValue, final String description) {
+
+		final int max = 500;
+		final int min = 0;
+
+		final ITextLabelBluePrint labelBp = BPF.textLabel().alignRight();
+
+		content.add(labelBp.setText(description), "sg lg");
+		final ISliderBluePrint sliderBp = BPF.slider();
+		final ISlider slider;
+		final int defaultVal = defaultValue;
+
+		sliderBp.setMaximum(max).setMinimum(min).setTickSpacing(10);
+		slider = content.add(sliderBp, "growx, w 0::");
+		slider.setValue(defaultVal);
+
+		IInputField<Integer> inputField;
+		inputField = content.add(BPF.inputFieldIntegerNumber(), "growx, w 0::, wrap");
+		inputField.setValue((int) (slider.getValue()));
+
+		final int step = (max - min) / 100;
+
+		DEFAULT_SLIDER_SETTINGS.put(slider, defaultValue);
+
+		inputField.addInputListener(new ParameterListener(
+			slider,
+			inputField,
+			null,
+			0,
+			step,
+			min,
+			false,
+			Listener.INPUTFIELD,
+			GraphLayout.RADIAL_TREE_LAYOUT));
+		slider.addInputListener(new ParameterListener(
+			slider,
+			inputField,
+			null,
+			0,
+			step,
+			min,
+			false,
+			Listener.SLIDER,
+			GraphLayout.RADIAL_TREE_LAYOUT));
 	}
 
 	private void createSliderComponent(
@@ -188,7 +260,8 @@ final class GraphSettingsDialog extends JoFrame {
 			step,
 			min,
 			displayPercent,
-			Listener.INPUTFIELD));
+			Listener.INPUTFIELD,
+			GraphLayout.FORCE_DIRECTED_LAYOUT));
 		slider.addInputListener(new ParameterListener(
 			slider,
 			inputField,
@@ -197,7 +270,8 @@ final class GraphSettingsDialog extends JoFrame {
 			step,
 			min,
 			displayPercent,
-			Listener.SLIDER));
+			Listener.SLIDER,
+			GraphLayout.FORCE_DIRECTED_LAYOUT));
 	}
 
 	//Define own values with syntax : ForceParameterName_(MIN | MAX | DEFAULT)
@@ -215,6 +289,7 @@ final class GraphSettingsDialog extends JoFrame {
 		private final int param;
 		private final boolean percent;
 		private final Listener type;
+		private final GraphLayout layout;
 
 		public ParameterListener(
 			final ISlider slider,
@@ -224,7 +299,8 @@ final class GraphSettingsDialog extends JoFrame {
 			final double step,
 			final double min,
 			final boolean percent,
-			final Listener type) {
+			final Listener type,
+			final GraphLayout layout) {
 			this.slider = slider;
 			this.inputField = inputField;
 			this.step = step;
@@ -233,6 +309,7 @@ final class GraphSettingsDialog extends JoFrame {
 			this.param = param;
 			this.percent = percent;
 			this.type = type;
+			this.layout = layout;
 		}
 
 		@Override
@@ -240,7 +317,19 @@ final class GraphSettingsDialog extends JoFrame {
 			if (type == Listener.SLIDER) {
 
 				inputField.setValue((int) slider.getValue());
-				useForce(percent, param, force, min, slider, step);
+				if (force != null) {
+					useForce(percent, param, force, min, slider, step);
+				}
+				switch (layout) {
+					case RADIAL_TREE_LAYOUT:
+						//TODO UPDATE LAYOUT
+						//						updateLayout();
+
+						break;
+
+					default:
+						break;
+				}
 
 			}
 
