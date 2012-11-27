@@ -50,11 +50,19 @@ import org.jowidgets.tools.widgets.blueprint.BPF;
 
 import prefuse.util.force.DragForce;
 import prefuse.util.force.Force;
-import prefuse.util.force.ForceSimulator;
 import prefuse.util.force.NBodyForce;
 import prefuse.util.force.SpringForce;
 
 final class GraphSettingsDialog extends JoFrame {
+
+	private static final int NODE_LINK_DISTANCE_MAX = 300;
+	private static final int NODE_LINK_DISTANCE_MIN = 0;
+
+	private static final int RADIAL_RADIUS_MAX = 500;
+	private static final int RADIAL_RADIUS_MIN = 0;
+
+	private static final String[] NODE_LINK_DISTANCES = {"Level distance", "Neighbor distance", "Subtree distance"};
+	private static final String[] RADIAL_RADIUS_DISTANCES = {"Radius distance"};
 
 	private static final String[] SPRING_FORCE = {
 			Messages.getString("GraphSettingsDialog.spring_force"), Messages.getString("GraphSettingsDialog.spring_coefficient"),
@@ -69,9 +77,12 @@ final class GraphSettingsDialog extends JoFrame {
 	private static final Map<String, Float> MODIFIED_VALUES = new HashMap<String, Float>();
 	private static final Map<ISlider, Integer> DEFAULT_SLIDER_SETTINGS = new HashMap<ISlider, Integer>();
 
-	GraphSettingsDialog(final GraphLayout type, final ForceSimulator forceSimulator) {
+	private final LayoutManager layoutManager;
+
+	GraphSettingsDialog(final GraphLayout type, final LayoutManager layoutManager) {
 		super(Messages.getString("GraphSettingsDialog.settings"));
 
+		this.layoutManager = layoutManager;
 		setLayout(MigLayoutFactory.growingInnerCellLayout());
 		setMinPackSize(new Dimension(400, 100));
 
@@ -82,7 +93,7 @@ final class GraphSettingsDialog extends JoFrame {
 			case FORCE_DIRECTED_LAYOUT:
 				initializeOwnValues();
 
-				final Force[] forces = forceSimulator.getForces();
+				final Force[] forces = layoutManager.getForceSimulator().getForces();
 				for (int i = 0; i < forces.length; i++) {
 					String[] paramNames = null;
 					final String forceName = forces[i].getClass().getSimpleName();
@@ -107,11 +118,20 @@ final class GraphSettingsDialog extends JoFrame {
 				}
 				break;
 			case RADIAL_TREE_LAYOUT:
-				initializeForceComponent(content, new String[] {"Radius"}, null, GraphLayout.RADIAL_TREE_LAYOUT);
+				initializeForceComponent(content, "Radius", layoutManager.getRadialRadius(), 0, GraphLayout.RADIAL_TREE_LAYOUT);
+				break;
+			case NODE_TREE_LINK_LAYOUT:
+				for (int i = 0; i < layoutManager.getNodeLinkedForces().length; i++) {
+					initializeForceComponent(
+							content,
+							layoutManager.getNodeLinkedForces()[i],
+							layoutManager.getNodeLinkedDistances()[i],
+							i,
+							GraphLayout.NODE_TREE_LINK_LAYOUT);
+				}
 				break;
 			default:
 				break;
-
 		}
 
 		content.add(BPF.separator(), "growx, span3, gapy20,wrap");
@@ -135,6 +155,25 @@ final class GraphSettingsDialog extends JoFrame {
 
 	private void initializeForceComponent(
 		final IScrollComposite content,
+		final String parameterName,
+		final double defaultValue,
+		final int forceNumber,
+		final GraphLayout layout) {
+		content.add(BPF.textSeparator(parameterName).alignLeft().setStrong(), "growx, w 0::, span, gapy 20, wrap");
+		switch (layout) {
+			case RADIAL_TREE_LAYOUT:
+				createSliderComponent(content, defaultValue, forceNumber, GraphLayout.RADIAL_TREE_LAYOUT);
+				break;
+			case NODE_TREE_LINK_LAYOUT:
+				createSliderComponent(content, defaultValue, forceNumber, GraphLayout.NODE_TREE_LINK_LAYOUT);
+				break;
+			default:
+				break;
+		}
+	}
+
+	private void initializeForceComponent(
+		final IScrollComposite content,
 		final String[] parameterNames,
 		final Force force,
 		final GraphLayout type) {
@@ -144,28 +183,39 @@ final class GraphSettingsDialog extends JoFrame {
 				createSliderComponent(content, force, j, parameterNames[1 + j]);
 			}
 		}
-		else {
-			switch (type) {
-				case RADIAL_TREE_LAYOUT:
-					createSliderComponent(content, 200, parameterNames[0]);
-					break;
-				default:
-					break;
-			}
-		}
 	}
 
-	private void createSliderComponent(final IScrollComposite content, final int defaultValue, final String description) {
+	private void createSliderComponent(
+		final IScrollComposite content,
+		final double defaultValue,
+		final int forceNumber,
+		final GraphLayout layout) {
 
-		final int max = 500;
-		final int min = 0;
+		int max = 0;
+		int min = 0;
+		String description = null;
+
+		switch (layout) {
+			case RADIAL_TREE_LAYOUT:
+				max = RADIAL_RADIUS_MAX;
+				min = RADIAL_RADIUS_MIN;
+				description = RADIAL_RADIUS_DISTANCES[forceNumber];
+				break;
+			case NODE_TREE_LINK_LAYOUT:
+				max = NODE_LINK_DISTANCE_MAX;
+				min = NODE_LINK_DISTANCE_MIN;
+				description = NODE_LINK_DISTANCES[forceNumber];
+				break;
+			default:
+				break;
+		}
 
 		final ITextLabelBluePrint labelBp = BPF.textLabel().alignRight();
 
 		content.add(labelBp.setText(description), "sg lg");
 		final ISliderBluePrint sliderBp = BPF.slider();
 		final ISlider slider;
-		final int defaultVal = defaultValue;
+		final int defaultVal = (int) defaultValue;
 
 		sliderBp.setMaximum(max).setMinimum(min).setTickSpacing(10);
 		slider = content.add(sliderBp, "growx, w 0::");
@@ -177,28 +227,28 @@ final class GraphSettingsDialog extends JoFrame {
 
 		final int step = (max - min) / 100;
 
-		DEFAULT_SLIDER_SETTINGS.put(slider, defaultValue);
+		DEFAULT_SLIDER_SETTINGS.put(slider, defaultVal);
 
 		inputField.addInputListener(new ParameterListener(
 			slider,
 			inputField,
 			null,
-			0,
+			forceNumber,
 			step,
 			min,
 			false,
 			Listener.INPUTFIELD,
-			GraphLayout.RADIAL_TREE_LAYOUT));
+			layout));
 		slider.addInputListener(new ParameterListener(
 			slider,
 			inputField,
 			null,
-			0,
+			forceNumber,
 			step,
 			min,
 			false,
 			Listener.SLIDER,
-			GraphLayout.RADIAL_TREE_LAYOUT));
+			layout));
 	}
 
 	private void createSliderComponent(
@@ -322,11 +372,22 @@ final class GraphSettingsDialog extends JoFrame {
 				}
 				switch (layout) {
 					case RADIAL_TREE_LAYOUT:
-						//TODO UPDATE LAYOUT
-						//						updateLayout();
+						layoutManager.setRadialRadius(slider.getValue());
+						layoutManager.runActiveLayout();
 
 						break;
-
+					case NODE_TREE_LINK_LAYOUT:
+						if (param == 0) {
+							layoutManager.setNodeLinkedDistance(slider.getValue());
+						}
+						else if (param == 1) {
+							layoutManager.setNodeLinkedNeighborDistance(slider.getValue());
+						}
+						else if (param == 2) {
+							layoutManager.setNodeLinkedSubtreeDistance(slider.getValue());
+						}
+						layoutManager.runActiveLayout();
+						break;
 					default:
 						break;
 				}
@@ -343,7 +404,6 @@ final class GraphSettingsDialog extends JoFrame {
 					}
 				}
 			}
-
 		}
 	}
 
@@ -366,5 +426,4 @@ final class GraphSettingsDialog extends JoFrame {
 		INPUTFIELD,
 		SLIDER;
 	}
-
 }

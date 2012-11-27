@@ -34,6 +34,7 @@ import java.util.LinkedList;
 
 import org.jowidgets.cap.addons.widgets.graph.impl.swing.common.BeanRelationGraphImpl.GraphLayout;
 
+import prefuse.Constants;
 import prefuse.Display;
 import prefuse.Visualization;
 import prefuse.action.ActionList;
@@ -83,7 +84,10 @@ class LayoutManager {
 
 	private ActionList initNodeLinkLayout() {
 		layout = new ActionList(Activity.DEFAULT_STEP_TIME);
-		nodeLinkTreeLayout = new NodeLinkTreeLayout("graph");
+		nodeLinkTreeLayout = new NodeLinkTreeLayout("graph", Constants.ORIENT_LEFT_RIGHT, nodeLinkTreeLayout != null
+				? nodeLinkTreeLayout.getDepthSpacing() : 50, nodeLinkTreeLayout != null
+				? nodeLinkTreeLayout.getBreadthSpacing() : 5, nodeLinkTreeLayout != null
+				? nodeLinkTreeLayout.getSubtreeSpacing() : 25);
 		nodeLinkTreeLayout.setRootNodeOffset(120);
 		layout.add(nodeLinkTreeLayout);
 		layout.add(labelEdgeLayout);
@@ -94,7 +98,8 @@ class LayoutManager {
 	private ActionList initRadialTreeLayout() {
 
 		layout = new ActionList(Activity.DEFAULT_STEP_TIME);
-		radialTreeLayout = new RadialTreeLayout("graph", 200);
+		radialTreeLayout = new RadialTreeLayout("graph", radialTreeLayout != null
+				? (int) radialTreeLayout.getRadiusIncrement() : 200);
 		radialTreeLayout.setAutoScale(false);
 
 		layout.add(new TreeRootAction("graph", vis));
@@ -235,5 +240,39 @@ class LayoutManager {
 
 	public ForceSimulator getForceSimulator() {
 		return this.forceSimulator;
+	}
+
+	public void setRadialRadius(final double radius) {
+		this.radialTreeLayout.setRadiusIncrement(radius);
+	}
+
+	public double getRadialRadius() {
+		return this.radialTreeLayout.getRadiusIncrement();
+	}
+
+	public void setNodeLinkedDistance(final double distance) {
+		this.nodeLinkTreeLayout.setDepthSpacing(distance);
+	}
+
+	public void setNodeLinkedNeighborDistance(final double distance) {
+		this.nodeLinkTreeLayout.setBreadthSpacing(distance);
+	}
+
+	public void setNodeLinkedSubtreeDistance(final double distance) {
+		this.nodeLinkTreeLayout.setSubtreeSpacing(distance);
+	}
+
+	public double[] getNodeLinkedDistances() {
+		return new double[] {
+				this.nodeLinkTreeLayout.getDepthSpacing(), this.nodeLinkTreeLayout.getBreadthSpacing(),
+				this.nodeLinkTreeLayout.getSubtreeSpacing()};
+	}
+
+	public String[] getNodeLinkedForces() {
+		return new String[] {"Level", "Neighbor", "Subtree"};
+	}
+
+	public void runActiveLayout() {
+		this.vis.run("layout");
 	}
 }
