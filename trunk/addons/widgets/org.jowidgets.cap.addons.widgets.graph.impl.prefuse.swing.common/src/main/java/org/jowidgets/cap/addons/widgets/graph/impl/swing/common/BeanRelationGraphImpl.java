@@ -103,7 +103,6 @@ import prefuse.action.animate.QualityControlAnimator;
 import prefuse.action.animate.VisibilityAnimator;
 import prefuse.action.assignment.ColorAction;
 import prefuse.action.assignment.FontAction;
-import prefuse.action.layout.CollapsedSubtreeLayout;
 import prefuse.activity.Activity;
 import prefuse.activity.ActivityAdapter;
 import prefuse.activity.SlowInSlowOutPacer;
@@ -402,11 +401,11 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 	private ActionList initializeAnimationList() {
 		if (animation == null) {
 			animation = new ActionList(1250);
-			final CollapsedSubtreeLayout subLayout = new CollapsedSubtreeLayout(GRAPH);
+			//			final CollapsedSubtreeLayout subLayout = new CollapsedSubtreeLayout(GRAPH);
 			animation.setPacingFunction(new SlowInSlowOutPacer());
 			animation.add(new VisibilityAnimator(GRAPH));
 			animation.add(new QualityControlAnimator());
-			animation.add(subLayout);
+			//			animation.add(subLayout);
 			animation.add(new LocationAnimator());
 			animation.add(new RepaintAction());
 		}
@@ -451,7 +450,6 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 	}
 
 	private void loadModel(final Node node) {
-
 		for (final Entry<IBeanProxy<Object>, Node> entry : nodeMap.entrySet()) {
 			if (entry.getValue() == node) {
 				final IBeanRelationNodeModel<Object, Object> beanRelationNodeModel = beanRelationMap.get(entry.getKey());
@@ -461,7 +459,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 							entry.getKey(),
 							entityType);
 					childRelationModel.loadIfNotYetDone();
-					if (getVisibleNodeCount() <= maxNodeCount) {
+					if (graph.getNodeCount() <= maxNodeCount) {
 						loadChildren(childRelationModel);
 					}
 				}
@@ -508,7 +506,6 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 				setNeighborEdges(elem, false);
 				checkExpandLevel(elem);
 			}
-			return;
 		}
 
 		else if (node.get("expanded") == Expand.NOT) {
@@ -710,8 +707,11 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		}
 
 		if ((Boolean) childNode.get("visible")) {
-			renderNodeShape(nodeGroup, childNode);
-			renderNode(childNode, bean, renderer);
+			synchronized (vis) {
+				renderNodeShape(nodeGroup, childNode);
+				renderNode(childNode, bean, renderer);
+
+			}
 		}
 
 		if (parentNode != null) {
@@ -791,7 +791,6 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 			this.level = level;
 		}
 
-		//TODO FIX MAXNODECOUNT
 		@Override
 		public void beansChanged() {
 			if (level >= 0) {
@@ -916,6 +915,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		return markedNode;
 	}
 
+	//TODO SP INITTOOLBAR
 	private IToolBarModel initToolBar() {
 		final IActionBuilderFactory actionBF = Toolkit.getActionBuilderFactory();
 		final ToolBarModel model = new ToolBarModel();
@@ -931,10 +931,10 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 				if (maxNodeTextField.getValue() != null) {
 					maxNodeCount = maxNodeTextField.getValue();
 					relationTreeModel.load();
-
 				}
 			}
 		});
+
 		model.addItem(maxNodeTextField);
 		model.addSeparator();
 
@@ -992,7 +992,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 				final GraphLayout value = comboBox.getValue();
 				for (final GraphLayout elem : GraphLayout.values()) {
 					if (elem == value) {
-						settingsDialogAction.setEnabled(true);//elem.equals(GraphLayout.FORCE_DIRECTED_LAYOUT));
+						settingsDialogAction.setEnabled(true);
 						activeLayout = layoutManager.getLayout(elem);
 					}
 				}
@@ -1049,13 +1049,12 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 				edgeVisibilityMap = settingsDialog.updateEdgeMap();
 			}
 		});
-		@SuppressWarnings("unused")
 		final ICommandAction groupFilterAction = groupFilterActionBuilder.build();
 
 		model.addSeparator();
 
 		model.addAction(settingsDialogAction);
-		//		model.addAction(groupFilterAction);
+		model.addAction(groupFilterAction);
 
 		model.addSeparator();
 		final ICheckedItemModel edgeCheckedItem = model.addCheckedItem("Edge Label");
@@ -1067,7 +1066,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 			public void itemStateChanged() {
 				synchronized (vis) {
 					layoutManager.getLabelEdgeLayout().setEdgesVisible(edgeCheckedItem.isSelected());
-					vis.repaint();
+					runLayout(true);
 				}
 			}
 		});
@@ -1097,7 +1096,6 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 
 	public void runLayout(final boolean updateAnchor) {
 		synchronized (vis) {
-			//			if (display != null && vis != null) {
 			if (graph.getTupleCount() > 0) {
 				if (updateAnchor) {
 					layoutManager.updateAnchorPoint(activeLayout, display);
@@ -1132,16 +1130,17 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		return autoExpandLevel;
 	}
 
+	@SuppressWarnings("unused")
 	private int getVisibleNodeCount() {
-
-		int count = 0;
-		final Iterator<?> it = vis.visibleItems(NODES);
-		while (it.hasNext()) {
-			count++;
-			it.next();
+		synchronized (vis) {
+			int count = 0;
+			final Iterator<?> it = vis.visibleItems(NODES);
+			while (it.hasNext()) {
+				count++;
+				it.next();
+			}
+			return count;
 		}
-
-		return count;
 	}
 
 	public IUiThreadAccess getUiThreadAccess() {
