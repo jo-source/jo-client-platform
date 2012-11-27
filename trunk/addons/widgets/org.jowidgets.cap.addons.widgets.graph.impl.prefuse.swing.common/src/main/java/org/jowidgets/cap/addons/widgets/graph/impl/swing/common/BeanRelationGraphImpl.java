@@ -972,7 +972,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 			@Override
 			public void execute(final IExecutionContext executionContext) throws Exception {
 				if (dialog == null) {
-					dialog = new GraphSettingsDialog(activeLayout, layoutManager.getForceSimulator());
+					dialog = new GraphSettingsDialog(activeLayout, layoutManager);
 				}
 				dialog.setVisible(true);
 				dialog = null;
@@ -992,7 +992,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 				final GraphLayout value = comboBox.getValue();
 				for (final GraphLayout elem : GraphLayout.values()) {
 					if (elem == value) {
-						settingsDialogAction.setEnabled(elem.equals(GraphLayout.FORCE_DIRECTED_LAYOUT));
+						settingsDialogAction.setEnabled(true);//elem.equals(GraphLayout.FORCE_DIRECTED_LAYOUT));
 						activeLayout = layoutManager.getLayout(elem);
 					}
 				}
