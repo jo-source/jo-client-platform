@@ -216,16 +216,15 @@ final class GraphSettingsDialog extends JoFrame {
 		final ISliderBluePrint sliderBp = BPF.slider();
 		final ISlider slider;
 		final int defaultVal = (int) defaultValue;
+		final int step = (max - min) / 100;
 
-		sliderBp.setMaximum(max).setMinimum(min).setTickSpacing(10);
+		sliderBp.setMaximum(max).setMinimum(min).setTickSpacing((max - min) / 20);
 		slider = content.add(sliderBp, "growx, w 0::");
 		slider.setValue(defaultVal);
 
 		IInputField<Integer> inputField;
 		inputField = content.add(BPF.inputFieldIntegerNumber(), "growx, w 0::, wrap");
 		inputField.setValue((int) (slider.getValue()));
-
-		final int step = (max - min) / 100;
 
 		DEFAULT_SLIDER_SETTINGS.put(slider, defaultVal);
 
