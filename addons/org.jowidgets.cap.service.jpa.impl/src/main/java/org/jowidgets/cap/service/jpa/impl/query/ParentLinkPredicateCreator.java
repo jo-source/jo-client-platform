@@ -30,6 +30,7 @@ package org.jowidgets.cap.service.jpa.impl.query;
 
 import java.util.List;
 
+import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.From;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
@@ -41,6 +42,7 @@ import javax.persistence.metamodel.SingularAttribute;
 import javax.persistence.metamodel.Type;
 
 import org.jowidgets.cap.common.api.bean.IBean;
+import org.jowidgets.cap.service.jpa.tools.entity.EntityManagerProvider;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.EmptyCheck;
 
@@ -55,7 +57,8 @@ final class ParentLinkPredicateCreator<PARAMETER_TYPE> {
 
 	Predicate createPredicate(final Root<?> bean, final List<Object> parentBeanIds) {
 		if (EmptyCheck.isEmpty(parentBeanIds)) {
-			return bean.get(IBean.ID_PROPERTY).in(-1);
+			final CriteriaBuilder criteriaBuilder = EntityManagerProvider.get().getCriteriaBuilder();
+			return criteriaBuilder.isTrue(criteriaBuilder.literal(Boolean.FALSE));
 		}
 		else {
 			return getParentPath(bean).get(IBean.ID_PROPERTY).in(parentBeanIds);
