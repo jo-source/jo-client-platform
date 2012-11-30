@@ -36,6 +36,9 @@ public enum RelationRenderingPolicy {
 	/** Empty relations will be grayed */
 	GREY_EMPTY_RELATIONS,
 
+	/** Empty relations that are readonly will be hidden, other empty relations will be grayed */
+	HIDE_EMPTY_READONLY_RELATIONS,
+
 	//	/** Empty relations will be hidden */ not supported yet
 	//	HIDE_EMPTY_RELATIONS,
 

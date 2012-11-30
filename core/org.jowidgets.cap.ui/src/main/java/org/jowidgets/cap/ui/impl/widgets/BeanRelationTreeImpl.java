@@ -204,13 +204,21 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 		final IBeanRelationNodeModel<Object, Object> relationNodeModel,
 		final IMenuModel nodeMenu) {
 
-		if (RelationRenderingPolicy.GREY_EMPTY_RELATIONS == relationRenderingPolicy) {
+		if (RelationRenderingPolicy.GREY_EMPTY_RELATIONS == relationRenderingPolicy
+			|| RelationRenderingPolicy.HIDE_EMPTY_READONLY_RELATIONS == relationRenderingPolicy) {
 			final ITreeContainer parentContainer = treeContainer.getParentContainer();
 			if (parentContainer != null && treeContainer instanceof ITreeNode) {
 				final Tuple<IBeanRelationNodeModel<Object, Object>, IBeanProxy<Object>> tuple = nodesMap.get(treeContainer);
 				if (tuple != null && tuple.getSecond() == null) {
 					if (relationNodeModel.getSize() == 0) {
-						((ITreeNode) treeContainer).setForegroundColor(Colors.DISABLED);
+						if (nodeMenu.getChildren().size() == 0
+							&& RelationRenderingPolicy.HIDE_EMPTY_READONLY_RELATIONS == relationRenderingPolicy) {
+							parentContainer.removeNode((ITreeNode) treeContainer);
+							return;
+						}
+						else {
+							((ITreeNode) treeContainer).setForegroundColor(Colors.DISABLED);
+						}
 					}
 					else {
 						((ITreeNode) treeContainer).setForegroundColor(null);
@@ -704,7 +712,7 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 
 	private final class ChildModelListener extends BeanListModelListenerAdapter<Object> {
 
-		private final ITreeContainer parentNode;
+		private final ITreeNode parentNode;
 		private final IBeanRelationNodeModel<Object, Object> relationNodeModel;
 		private final IMenuModel nodeMenu;
 
@@ -719,8 +727,14 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 
 		@Override
 		public void beansChanged() {
-			onBeansChanged(parentNode, relationNodeModel, nodeMenu);
+			if (!parentNode.isDisposed()) {
+				onBeansChanged(parentNode, relationNodeModel, nodeMenu);
+			}
+			else {
+				relationNodeModel.removeBeanListModelListener(this);
+			}
 		}
+
 	}
 
 	private final class PropertyChangedRenderingListener implements PropertyChangeListener {
