@@ -96,33 +96,7 @@ class NodeRenderer extends LabelRenderer {
 
 	@Override
 	protected Shape getRawShape(final VisualItem item) {
-		final Shape shape = super.getRawShape(item);
-
-		//		final Shape newShape;
-		//
-		//		if ((Boolean) item.get("isParent")) {
-		//			newShape = new RoundRectangle2D.Double();
-		//			((RoundRectangle2D) newShape).setRoundRect(
-		//					shape.getBounds().x,
-		//					shape.getBounds().y,
-		//					shape.getBounds().width,
-		//					shape.getBounds().height,
-		//					8,
-		//					8);
-		//
-		//		}
-		//		else {
-		//			newShape = new RoundRectangle2D.Double();
-		//			((RoundRectangle2D) newShape).setRoundRect(
-		//					shape.getBounds().x,
-		//					shape.getBounds().y,
-		//					shape.getBounds().width,
-		//					shape.getBounds().height,
-		//					8,
-		//					8);
-		//		}
-
-		return shape;
+		return super.getRawShape(item);
 	}
 
 	@Override
