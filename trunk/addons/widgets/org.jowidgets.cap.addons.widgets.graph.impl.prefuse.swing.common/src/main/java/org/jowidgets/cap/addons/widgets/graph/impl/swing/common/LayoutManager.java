@@ -59,6 +59,7 @@ class LayoutManager {
 
 	private NodeLinkTreeLayout nodeLinkTreeLayout;
 	private RadialTreeLayout radialTreeLayout;
+	private ForceDirectedLayout forceDirectedLayout;
 
 	private Point anchorPoint;
 
@@ -70,7 +71,7 @@ class LayoutManager {
 
 	private ActionList initForceDLayout() {
 
-		final ForceDirectedLayout forceDirectedLayout = new ForceDirectedLayout("graph", true);
+		forceDirectedLayout = new ForceDirectedLayout("graph", true);
 		forceDirectedLayout.setForceSimulator(forceSimulator != null ? forceSimulator : setForces());
 
 		layout = new ActionList(Activity.INFINITY);
@@ -189,6 +190,7 @@ class LayoutManager {
 				radialTreeLayout.setLayoutAnchor(anchorPoint);
 				break;
 			default:
+				forceDirectedLayout.setLayoutAnchor(anchorPoint);
 				break;
 		}
 	}
@@ -204,6 +206,8 @@ class LayoutManager {
 					+ (display.getHeight() / 2));
 				break;
 			default:
+				anchorPoint = new Point((int) display.getDisplayX() + (display.getWidth() / 2), (int) display.getDisplayY()
+					+ (display.getHeight() / 2));
 				break;
 		}
 	}

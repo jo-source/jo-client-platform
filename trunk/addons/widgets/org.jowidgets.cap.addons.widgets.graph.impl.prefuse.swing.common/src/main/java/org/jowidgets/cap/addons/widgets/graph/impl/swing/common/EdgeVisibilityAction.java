@@ -30,6 +30,9 @@ package org.jowidgets.cap.addons.widgets.graph.impl.swing.common;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map.Entry;
+
+import org.jowidgets.cap.addons.widgets.graph.impl.swing.common.BeanRelationGraphImpl.Expand;
 
 import prefuse.action.GroupAction;
 import prefuse.data.Edge;
@@ -38,12 +41,11 @@ import prefuse.visual.VisualItem;
 
 class EdgeVisibilityAction extends GroupAction {
 
-	@SuppressWarnings("unused")
-	private HashMap<String, Boolean> edgeMap;
+	private HashMap<String, Boolean> edgeVisibilityMap;
 
 	EdgeVisibilityAction(final HashMap<String, Boolean> edgeVisibilityGroup) {
 		super();
-		this.edgeMap = edgeVisibilityGroup;
+		this.edgeVisibilityMap = edgeVisibilityGroup;
 	}
 
 	@Override
@@ -51,20 +53,32 @@ class EdgeVisibilityAction extends GroupAction {
 
 		synchronized (m_vis) {
 			final TupleSet edges = m_vis.getGroup(BeanRelationGraphImpl.EDGES);
-			final Iterator<?> edge = edges.tuples();
-			while (edge.hasNext()) {
-				final Edge test = (Edge) edge.next();
-				if (test != null) {
+			final Iterator<?> iterEdge = edges.tuples();
+			while (iterEdge.hasNext()) {
+				final Edge edge = (Edge) iterEdge.next();
+				if (edge != null) {
 
-					final VisualItem result = (VisualItem) test;
-					result.setVisible((Boolean) test.get("visible"));
+					if (edge.getSourceNode().get("expanded") != Expand.NOT) {
+						synchronized (edgeVisibilityMap) {
+							for (final Entry<String, Boolean> entry : edgeVisibilityMap.entrySet()) {
+								if (edge.get("name").equals(entry.getKey())) {
+									edge.set("visible", entry.getValue());
+									final VisualItem visualItem = (VisualItem) edge;
+									visualItem.setVisible((Boolean) edge.get("visible"));
+								}
+							}
 
+						}
+					}
+
+					final VisualItem result = (VisualItem) edge;
+					result.setVisible((Boolean) edge.get("visible"));
 				}
 			}
 		}
 	}
 
 	public void updateEdgeMap(final HashMap<String, Boolean> edgeMap) {
-		this.edgeMap = edgeMap;
+		this.edgeVisibilityMap = edgeMap;
 	}
 }

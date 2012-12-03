@@ -49,20 +49,23 @@ class LabelEdgeLayout extends Layout {
 
 	@Override
 	public void run(final double frac) {
-		final Iterator<?> iterator = vis.items(m_group);
-		while (iterator.hasNext()) {
-			final DecoratorItem decorator = (DecoratorItem) iterator.next();
-			if (edgesVisible) {
-				decorator.setVisible(true);
-				final VisualItem decoratedItem = decorator.getDecoratedItem();
-				final Rectangle2D bounds = decoratedItem.getBounds();
-				final double x = bounds.getCenterX();
-				final double y = bounds.getCenterY();
-				setX(decorator, null, x);
-				setY(decorator, null, y);
-			}
-			else {
-				decorator.setVisible(false);
+		synchronized (vis) {
+
+			final Iterator<?> iterator = vis.items(m_group);
+			while (iterator.hasNext()) {
+				final DecoratorItem decorator = (DecoratorItem) iterator.next();
+				if (edgesVisible) {
+					decorator.setVisible(true);
+					final VisualItem decoratedItem = decorator.getDecoratedItem();
+					final Rectangle2D bounds = decoratedItem.getBounds();
+					final double x = bounds.getCenterX();
+					final double y = bounds.getCenterY();
+					setX(decorator, null, x);
+					setY(decorator, null, y);
+				}
+				else {
+					decorator.setVisible(false);
+				}
 			}
 		}
 	}

@@ -43,31 +43,45 @@ class RemoveStandaloneNodesAction extends GroupAction {
 
 	@Override
 	public void run(final double frac) {
+
 		synchronized (m_vis) {
 			if (m_vis != null) {
-				//				final TupleSet nodes = m_vis.getGroup(BeanRelationGraphImpl.NODES);
-				//				final Iterator<?> node = nodes.tuples();
-				final Iterator<?> node = m_vis.visibleItems(BeanRelationGraphImpl.NODES);
-				while (node.hasNext()) {
-					final Node result = (Node) node.next();
-					final VisualItem visualItem = (VisualItem) result;
 
-					if (result.getParent() != null) {
-						result.set("visible", removeStandaloneNodes(result));
-						visualItem.setVisible((Boolean) result.get("visible"));
+				final Iterator<?> iterEdges = m_vis.visibleItems(BeanRelationGraphImpl.EDGES);
+				while (iterEdges.hasNext()) {
+					final Edge edge = (Edge) iterEdges.next();
+					if (!(Boolean) edge.getSourceNode().get("visible")) {
+						edge.set("visible", false);
+						final VisualItem visualItem = (VisualItem) edge;
+						visualItem.setVisible((Boolean) edge.get("visible"));
+					}
+				}
+
+				final Iterator<?> iterNodes = m_vis.visibleItems(BeanRelationGraphImpl.NODES);
+				while (iterNodes.hasNext()) {
+					final Node node = (Node) iterNodes.next();
+					final Iterator<?> itNodes = node.inNeighbors();
+					boolean visible = true;
+					while (itNodes.hasNext()) {
+						final Node parent = (Node) itNodes.next();
+						visible = !(Boolean) parent.get("visible") ? false : visible;
+					}
+					node.set("visible", visible);
+					final VisualItem visualItem = (VisualItem) node;
+					visualItem.setVisible((Boolean) node.get("visible"));
+				}
+
+				final Iterator<?> itEdges = m_vis.visibleItems(BeanRelationGraphImpl.EDGES);
+				while (itEdges.hasNext()) {
+					final Edge edge = (Edge) itEdges.next();
+					if (!(Boolean) edge.getSourceNode().get("visible") || !(Boolean) edge.getTargetNode().get("visible")) {
+						edge.set("visible", false);
+						final VisualItem visualItem = (VisualItem) edge;
+						visualItem.setVisible((Boolean) edge.get("visible"));
 					}
 				}
 			}
 		}
-	}
-
-	private boolean removeStandaloneNodes(final Node node) {
-		boolean result = false;
-		final Iterator<?> edges = node.edges();
-		while (edges.hasNext()) {
-			result = (Boolean) (((Edge) (edges.next())).get("visible")) ? true : result;
-		}
-		return result;
 	}
 
 }
