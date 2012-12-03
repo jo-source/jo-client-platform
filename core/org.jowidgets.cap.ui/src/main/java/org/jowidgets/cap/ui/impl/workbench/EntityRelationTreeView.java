@@ -76,8 +76,6 @@ class EntityRelationTreeView extends AbstractView {
 			final IBeanRelationTreeBluePrint<?> beanRelationTreeBp = CapUiToolkit.bluePrintFactory().beanRelationTree(parentModel);
 			beanRelationTreeBp.setRootCreatorAction(rootTable.getDefaultCreatorAction());
 			beanRelationTreeBp.addMenuInterceptor(treeMenuInterceptor);
-
-			beanRelationTreeBp.setAutoExpandLevel(2);
 			this.tree = container.add(beanRelationTreeBp, MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
 
 			final IBeanTableModel<?> rootTableModel = rootTable.getModel();
