@@ -75,6 +75,7 @@ import org.jowidgets.cap.ui.api.command.ILinkDeleterActionBuilder;
 import org.jowidgets.cap.ui.api.image.ImageResolver;
 import org.jowidgets.cap.ui.api.model.ILabelModel;
 import org.jowidgets.cap.ui.api.plugin.IBeanRelationTreePlugin;
+import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationNodeModel;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeMenuInterceptor;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeModel;
@@ -212,6 +213,8 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 				if (tuple != null && tuple.getSecond() == null) {
 					if (relationNodeModel.getSize() == 0) {
 						if (nodeMenu.getChildren().size() == 0
+							&& relationNodeModel.getFilter(IBeanTableModel.UI_FILTER_ID) == null
+							&& relationNodeModel.getFilter(IBeanTableModel.UI_SEARCH_FILTER_ID) == null
 							&& RelationRenderingPolicy.HIDE_EMPTY_READONLY_RELATIONS == relationRenderingPolicy) {
 							parentContainer.removeNode((ITreeNode) treeContainer);
 							return;
