@@ -504,7 +504,13 @@ final class BeanTableMenuFactoryImpl<BEAN_TYPE> implements IBeanTableMenuFactory
 
 	@Override
 	public IAction editFilterAction(final IBeanTableModel<BEAN_TYPE> model) {
-		return editFilterActionBuilder(model).build();
+		final IActionBuilder builder = editFilterActionBuilder(model);
+		if (builder != null) {
+			return builder.build();
+		}
+		else {
+			return null;
+		}
 	}
 
 	@Override
