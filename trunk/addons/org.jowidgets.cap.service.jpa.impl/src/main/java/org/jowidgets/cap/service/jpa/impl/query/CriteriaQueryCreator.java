@@ -29,6 +29,7 @@
 package org.jowidgets.cap.service.jpa.impl.query;
 
 import java.beans.PropertyDescriptor;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
@@ -71,6 +72,7 @@ import org.jowidgets.cap.common.api.filter.IPropertyFilter;
 import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.common.api.sort.SortOrder;
 import org.jowidgets.cap.service.jpa.api.plugin.ICustomFilterPredicateCreatorPlugin;
+import org.jowidgets.cap.service.jpa.api.query.FilterParameterConverter;
 import org.jowidgets.cap.service.jpa.api.query.ICustomFilterPredicateCreator;
 import org.jowidgets.cap.service.jpa.api.query.IPredicateCreator;
 import org.jowidgets.cap.service.jpa.api.query.IPropertyFilterPredicateCreator;
@@ -80,6 +82,7 @@ import org.jowidgets.plugin.api.IPluginPropertiesBuilder;
 import org.jowidgets.plugin.api.PluginProperties;
 import org.jowidgets.plugin.api.PluginProvider;
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.IConverter;
 
 final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE> {
 
@@ -386,7 +389,7 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 
 	private Predicate createArithmeticFilterPredicate(
 		final CriteriaBuilder criteriaBuilder,
-		final Root<?> bean,
+		final Root<?> root,
 		final AbstractQuery<?> query,
 		final IArithmeticFilter filter,
 		final Path<?> path,
@@ -394,23 +397,64 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 
 		switch (filter.getOperator()) {
 			case BETWEEN:
-				return createBetweenPredicate(criteriaBuilder, filter, path, doFilterInversion);
+				return createBetweenPredicate(
+						criteriaBuilder,
+						getFilterParameterConverter(root, filter.getPropertyName()),
+						filter,
+						path,
+						doFilterInversion);
 			case GREATER:
-				return createGreaterPredicate(criteriaBuilder, filter, path, doFilterInversion);
+				return createGreaterPredicate(
+						criteriaBuilder,
+						getFilterParameterConverter(root, filter.getPropertyName()),
+						filter,
+						path,
+						doFilterInversion);
 			case GREATER_EQUAL:
-				return createGreaterEqualPredicate(criteriaBuilder, filter, path, doFilterInversion);
+				return createGreaterEqualPredicate(
+						criteriaBuilder,
+						getFilterParameterConverter(root, filter.getPropertyName()),
+						filter,
+						path,
+						doFilterInversion);
 			case LESS:
-				return createLessPredicate(criteriaBuilder, filter, path, doFilterInversion);
+				return createLessPredicate(
+						criteriaBuilder,
+						getFilterParameterConverter(root, filter.getPropertyName()),
+						filter,
+						path,
+						doFilterInversion);
 			case LESS_EQUAL:
-				return createLessEqualPredicate(criteriaBuilder, filter, path, doFilterInversion);
+				return createLessEqualPredicate(
+						criteriaBuilder,
+						getFilterParameterConverter(root, filter.getPropertyName()),
+						filter,
+						path,
+						doFilterInversion);
 			case EQUAL:
-				return createEqualPredicate(criteriaBuilder, filter, path, doFilterInversion);
+				return createEqualPredicate(
+						criteriaBuilder,
+						getFilterParameterConverter(root, filter.getPropertyName()),
+						filter,
+						path,
+						doFilterInversion);
 			case EMPTY:
 				return createEmptyPredicate(criteriaBuilder, filter, path, doFilterInversion);
 			case CONTAINS_ANY:
-				return createContainsAnyPredicate(criteriaBuilder, filter, path, doFilterInversion);
+				return createContainsAnyPredicate(
+						criteriaBuilder,
+						getFilterParameterConverter(root, filter.getPropertyName()),
+						filter,
+						path,
+						doFilterInversion);
 			case CONTAINS_ALL:
-				return createContainsAllPredicate(criteriaBuilder, query, filter, path, doFilterInversion);
+				return createContainsAllPredicate(
+						criteriaBuilder,
+						getFilterParameterConverter(root, filter.getPropertyName()),
+						query,
+						filter,
+						path,
+						doFilterInversion);
 			default:
 				throw new IllegalArgumentException("unsupported operator: " + filter.getOperator());
 		}
@@ -419,61 +463,66 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 	@SuppressWarnings("unchecked")
 	private Predicate createBetweenPredicate(
 		final CriteriaBuilder criteriaBuilder,
+		final IConverter<Object, Object> converter,
 		final IArithmeticFilter filter,
 		final Path<?> path,
 		final boolean doFilterInversion) {
 		final Predicate result = criteriaBuilder.between(
 				(Expression<Comparable<Object>>) path,
-				criteriaBuilder.literal((Comparable<Object>) filter.getParameters()[0]),
-				criteriaBuilder.literal((Comparable<Object>) filter.getParameters()[1]));
+				criteriaBuilder.literal((Comparable<Object>) getParameter(filter, 0, converter)),
+				criteriaBuilder.literal((Comparable<Object>) getParameter(filter, 1, converter)));
 		return invertPredicateIfNeeded(criteriaBuilder, result, filter, doFilterInversion);
 	}
 
 	@SuppressWarnings("unchecked")
 	private Predicate createGreaterPredicate(
 		final CriteriaBuilder criteriaBuilder,
+		final IConverter<Object, Object> converter,
 		final IArithmeticFilter filter,
 		final Path<?> path,
 		final boolean doFilterInversion) {
 		final Predicate result = criteriaBuilder.greaterThan(
 				(Expression<Comparable<Object>>) path,
-				criteriaBuilder.literal((Comparable<Object>) filter.getParameters()[0]));
+				criteriaBuilder.literal((Comparable<Object>) getParameter(filter, 0, converter)));
 		return invertPredicateIfNeeded(criteriaBuilder, result, filter, doFilterInversion);
 	}
 
 	@SuppressWarnings("unchecked")
 	private Predicate createGreaterEqualPredicate(
 		final CriteriaBuilder criteriaBuilder,
+		final IConverter<Object, Object> converter,
 		final IArithmeticFilter filter,
 		final Path<?> path,
 		final boolean doFilterInversion) {
 		final Predicate result = criteriaBuilder.greaterThanOrEqualTo(
 				(Expression<Comparable<Object>>) path,
-				criteriaBuilder.literal((Comparable<Object>) filter.getParameters()[0]));
+				criteriaBuilder.literal((Comparable<Object>) getParameter(filter, 0, converter)));
 		return invertPredicateIfNeeded(criteriaBuilder, result, filter, doFilterInversion);
 	}
 
 	@SuppressWarnings("unchecked")
 	private Predicate createLessPredicate(
 		final CriteriaBuilder criteriaBuilder,
+		final IConverter<Object, Object> converter,
 		final IArithmeticFilter filter,
 		final Path<?> path,
 		final boolean doFilterInversion) {
 		final Predicate result = criteriaBuilder.lessThan(
 				(Expression<Comparable<Object>>) path,
-				criteriaBuilder.literal((Comparable<Object>) filter.getParameters()[0]));
+				criteriaBuilder.literal((Comparable<Object>) getParameter(filter, 0, converter)));
 		return invertPredicateIfNeeded(criteriaBuilder, result, filter, doFilterInversion);
 	}
 
 	@SuppressWarnings("unchecked")
 	private Predicate createLessEqualPredicate(
 		final CriteriaBuilder criteriaBuilder,
+		final IConverter<Object, Object> converter,
 		final IArithmeticFilter filter,
 		final Path<?> path,
 		final boolean doFilterInversion) {
 		final Predicate result = criteriaBuilder.lessThanOrEqualTo(
 				(Expression<Comparable<Object>>) path,
-				criteriaBuilder.literal((Comparable<Object>) filter.getParameters()[0]));
+				criteriaBuilder.literal((Comparable<Object>) getParameter(filter, 0, converter)));
 		return invertPredicateIfNeeded(criteriaBuilder, result, filter, doFilterInversion);
 	}
 
@@ -511,10 +560,11 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 
 	private Predicate createEqualPredicate(
 		final CriteriaBuilder criteriaBuilder,
+		final IConverter<Object, Object> converter,
 		final IArithmeticFilter filter,
 		final Path<?> path,
 		final boolean doFilterInversion) {
-		return createEqualPredicate(criteriaBuilder, filter, path, doFilterInversion, filter.getParameters()[0]);
+		return createEqualPredicate(criteriaBuilder, filter, path, doFilterInversion, getParameter(filter, 0, converter));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -567,6 +617,7 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 	@SuppressWarnings("unchecked")
 	private Predicate createContainsAnyPredicate(
 		final CriteriaBuilder criteriaBuilder,
+		final IConverter<Object, Object> converter,
 		final IArithmeticFilter filter,
 		final Path<?> path,
 		final boolean doFilterInversion) {
@@ -576,7 +627,8 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 			final Predicate[] predicates = new Predicate[filter.getParameters().length];
 			final Collection<String> newParams = new HashSet<String>();
 			int index = 0;
-			for (final Object param : filter.getParameters()) {
+			for (Object param : filter.getParameters()) {
+				param = getConvertedParameter(param, converter);
 				final String paramString = (String) param;
 				if (paramString.contains("*") || paramString.contains("%")) {
 					havePlaceholder = true;
@@ -602,19 +654,20 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 			}
 		}
 		else {
-			return invertPredicateIfNeeded(criteriaBuilder, path.in(filter.getParameters()), filter, doFilterInversion);
+			return invertPredicateIfNeeded(criteriaBuilder, path.in(getParameters(filter, converter)), filter, doFilterInversion);
 		}
 	}
 
 	@SuppressWarnings("unchecked")
 	private Predicate createContainsAllPredicate(
 		final CriteriaBuilder criteriaBuilder,
+		final IConverter<Object, Object> converter,
 		final AbstractQuery<?> query,
 		final IArithmeticFilter filter,
 		final Path<?> path,
 		final boolean doFilterInversion) {
 
-		final Collection<?> params = Arrays.asList(filter.getParameters());
+		final Collection<?> params = Arrays.asList(getParameters(filter, converter));
 		final Collection<Object> newParams = new HashSet<Object>();
 		final boolean toUpper = caseInsensitive && path.getJavaType() == String.class;
 		for (final Object p : params) {
@@ -649,6 +702,33 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 		}
 	}
 
+	private Object[] getParameters(final IArithmeticFilter filter, final IConverter<Object, Object> converter) {
+		final Object[] source = filter.getParameters();
+		if (source != null && converter != null) {
+			final Object[] result = new Object[source.length];
+			for (int i = 0; i < source.length; i++) {
+				result[i] = getConvertedParameter(source[i], converter);
+			}
+			return result;
+		}
+		else {
+			return source;
+		}
+	}
+
+	private Object getParameter(final IArithmeticFilter filter, final int index, final IConverter<Object, Object> converter) {
+		return getConvertedParameter(filter.getParameters()[index], converter);
+	}
+
+	private Object getConvertedParameter(final Object parameter, final IConverter<Object, Object> converter) {
+		if (converter != null) {
+			return converter.convert(parameter);
+		}
+		else {
+			return parameter;
+		}
+	}
+
 	private Path<?> getPath(final Root<?> bean, final String propertyName) {
 		try {
 			return bean.get(propertyName);
@@ -665,7 +745,7 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 	}
 
 	private Path<?> getJoinQueryPath(final Root<?> bean, final String propertyName) {
-		final QueryPath queryPath = getQueryPath(bean, propertyName);
+		final QueryPath queryPath = getQueryPathAnno(bean, propertyName);
 		if (queryPath != null) {
 			Path<?> parentPath = bean;
 			Type<?> type = bean.getModel();
@@ -694,7 +774,7 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 	}
 
 	private boolean isJoinQueryPath(final Root<?> bean, final String propertyName) {
-		final QueryPath queryPath = getQueryPath(bean, propertyName);
+		final QueryPath queryPath = getQueryPathAnno(bean, propertyName);
 		if (queryPath != null) {
 			for (final String pathSegment : queryPath.path()) {
 				Path<?> path = bean;
@@ -739,14 +819,41 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 		return null;
 	}
 
-	private QueryPath getQueryPath(final Root<?> bean, final String propertyName) {
-		final Class<?> beanClass = bean.getJavaType();
+	private QueryPath getQueryPathAnno(final Root<?> root, final String propertyName) {
+		return getAnnotation(root, propertyName, QueryPath.class);
+	}
+
+	@SuppressWarnings("unchecked")
+	private IConverter<Object, Object> getFilterParameterConverter(final Root<?> root, final String propertyName) {
+		final FilterParameterConverter converterAnno = getFilterParameterConverterAnno(root, propertyName);
+		if (converterAnno != null) {
+			try {
+				return converterAnno.value().newInstance();
+			}
+			catch (final Exception e) {
+				throw new RuntimeException("Can not create converter defined in FilterParameterConverter annotation", e);
+			}
+		}
+		else {
+			return null;
+		}
+	}
+
+	private FilterParameterConverter getFilterParameterConverterAnno(final Root<?> root, final String propertyName) {
+		return getAnnotation(root, propertyName, FilterParameterConverter.class);
+	}
+
+	private <ANNOTATION_TYPE extends Annotation> ANNOTATION_TYPE getAnnotation(
+		final Root<?> root,
+		final String propertyName,
+		final Class<ANNOTATION_TYPE> annotation) {
+		final Class<?> beanClass = root.getJavaType();
 		try {
 			final PropertyDescriptor descriptor = new PropertyDescriptor(propertyName, beanClass, "is"
 				+ propertyName.substring(0, 1).toUpperCase(Locale.ENGLISH)
 				+ propertyName.substring(1), null);
 			final Method readMethod = descriptor.getReadMethod();
-			return readMethod.getAnnotation(QueryPath.class);
+			return readMethod.getAnnotation(annotation);
 		}
 		catch (final Exception e) {
 			return null;
