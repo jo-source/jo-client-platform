@@ -253,7 +253,12 @@ final class BeanEntityServiceBuilderImpl extends EntityServiceBuilderImpl implem
 		@Override
 		public IBeanEntityBluePrint setCreatorService(final ISyncCreatorService creatorService) {
 			checkExhausted();
-			return setCreatorService(CapServiceToolkit.adapterFactoryProvider().creator().createAdapter(creatorService));
+			if (creatorService != null) {
+				return setCreatorService(CapServiceToolkit.adapterFactoryProvider().creator().createAdapter(creatorService));
+			}
+			else {
+				return setCreatorService((ICreatorService) null);
+			}
 		}
 
 		@Override
@@ -307,7 +312,13 @@ final class BeanEntityServiceBuilderImpl extends EntityServiceBuilderImpl implem
 		@Override
 		public IBeanEntityBluePrint setDeleterService(final ISyncDeleterService deleterService) {
 			checkExhausted();
-			return setDeleterService(CapServiceToolkit.adapterFactoryProvider().deleter().createAdapter(deleterService));
+			if (deleterService != null) {
+				setDeleterService(CapServiceToolkit.adapterFactoryProvider().deleter().createAdapter(deleterService));
+			}
+			else {
+				setDeleterService((IDeleterService) null);
+			}
+			return this;
 		}
 
 		@Override

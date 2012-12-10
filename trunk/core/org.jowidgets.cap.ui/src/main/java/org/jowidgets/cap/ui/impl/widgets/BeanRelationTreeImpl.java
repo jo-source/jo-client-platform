@@ -212,7 +212,7 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 				final Tuple<IBeanRelationNodeModel<Object, Object>, IBeanProxy<Object>> tuple = nodesMap.get(treeContainer);
 				if (tuple != null && tuple.getSecond() == null) {
 					if (relationNodeModel.getSize() == 0) {
-						if (nodeMenu.getChildren().size() == 0
+						if (!hasVisibleItems(nodeMenu)
 							&& relationNodeModel.getFilter(IBeanTableModel.UI_FILTER_ID) == null
 							&& relationNodeModel.getFilter(IBeanTableModel.UI_SEARCH_FILTER_ID) == null
 							&& RelationRenderingPolicy.HIDE_EMPTY_READONLY_RELATIONS == relationRenderingPolicy) {
@@ -261,6 +261,15 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 			final ITreeNode treeNode = (ITreeNode) treeContainer;
 			treeNode.setExpanded(true);
 		}
+	}
+
+	private boolean hasVisibleItems(final IMenuModel model) {
+		for (final IMenuItemModel item : model.getChildren()) {
+			if (item.isVisible()) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private int getHeadMatchingLength(
