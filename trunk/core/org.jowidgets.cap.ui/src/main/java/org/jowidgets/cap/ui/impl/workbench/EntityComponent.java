@@ -55,6 +55,7 @@ import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeModel;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeModelBuilder;
 import org.jowidgets.cap.ui.api.types.EntityTypeId;
 import org.jowidgets.cap.ui.api.types.IEntityTypeId;
+import org.jowidgets.cap.ui.api.workbench.IEntityComponent;
 import org.jowidgets.cap.ui.tools.execution.BeanTableRefreshInterceptor;
 import org.jowidgets.cap.ui.tools.execution.ExecutionInterceptorAdapter;
 import org.jowidgets.cap.ui.tools.tree.BeanRelationTreeMenuInterceptorAdapter;
@@ -67,7 +68,7 @@ import org.jowidgets.workbench.api.IViewContext;
 import org.jowidgets.workbench.toolkit.api.IComponentNodeModel;
 import org.jowidgets.workbench.tools.AbstractComponent;
 
-class EntityComponent extends AbstractComponent implements IComponent {
+class EntityComponent extends AbstractComponent implements IComponent, IEntityComponent {
 
 	static final String ROOT_TABLE_VIEW_ID = EntityComponent.class.getName() + "_ROOT_TABLE_VIEW";
 
@@ -179,6 +180,11 @@ class EntityComponent extends AbstractComponent implements IComponent {
 		else {
 			throw new IllegalArgumentException("View id '" + viewId + "' is not known.");
 		}
+	}
+
+	@Override
+	public IBeanTableModel<Object> getRootModel() {
+		return tableModel;
 	}
 
 	private void doPreInitialize() {
