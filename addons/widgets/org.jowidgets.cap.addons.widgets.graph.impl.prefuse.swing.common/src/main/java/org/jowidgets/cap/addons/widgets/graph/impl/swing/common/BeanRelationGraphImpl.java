@@ -61,7 +61,6 @@ import org.jowidgets.api.model.item.IToolBarModel;
 import org.jowidgets.api.threads.IUiThreadAccess;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.widgets.IComposite;
-import org.jowidgets.api.widgets.IFrame;
 import org.jowidgets.api.widgets.IToolBar;
 import org.jowidgets.api.widgets.blueprint.IComboBoxSelectionBluePrint;
 import org.jowidgets.api.widgets.blueprint.IInputFieldBluePrint;
@@ -80,10 +79,12 @@ import org.jowidgets.common.image.IImageDescriptor;
 import org.jowidgets.common.image.IImageHandle;
 import org.jowidgets.common.types.Dimension;
 import org.jowidgets.common.types.Orientation;
+import org.jowidgets.common.types.Position;
 import org.jowidgets.common.widgets.controller.IInputListener;
 import org.jowidgets.common.widgets.controller.IItemStateListener;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
 import org.jowidgets.spi.impl.swing.common.image.SwingImageRegistry;
+import org.jowidgets.tools.controller.ComponentAdapter;
 import org.jowidgets.tools.layout.MigLayoutFactory;
 import org.jowidgets.tools.model.item.InputControlItemModel;
 import org.jowidgets.tools.model.item.ToolBarModel;
@@ -151,7 +152,11 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 
 	private static int autoExpandLevel;
 	private static Node markedNode;
+
 	private static BeanGraphSettingsDialog settingsDialog;
+	private static Position settingsDialogPosition = null;
+	private GraphSettingsDialog layoutSettingsDialog;
+	private Position layoutSettingsDialogPosition = null;
 
 	private final IBeanRelationTreeModel<CHILD_BEAN_TYPE> relationTreeModel;
 	private final Map<IBeanProxy<Object>, Node> nodeMap;
@@ -168,8 +173,6 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 	private final Display display;
 
 	private final ImageFactory imageFactory;
-
-	private IFrame dialog;
 
 	private int maxNodeCount = MAX_NODE_COUNT_DEFAULT;
 	private int groupCount;
@@ -219,6 +222,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		graph.addColumn("type", String.class);
 		graph.addColumn("level", Integer.class);
 		graph.addColumn("expanded", Expand.class);
+		graph.addColumn("layouted", Boolean.class);
 		graph.addColumn("visible", Boolean.class);
 		graph.addColumn("beanrelation", Object.class);
 		graph.addColumn("isParent", Boolean.class);
@@ -249,6 +253,16 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		filters.add(edgeFilter);
 		filters.add(nodeFilter);
 		filters.add(removeStandaloneNodesFilter);
+		//		filters.addActivityListener(new ActivityAdapter() {
+		//			@Override
+		//			public void activityFinished(final Activity a) {
+		//				if (settingsDialog != null) {
+		//					if (settingsDialog.isVisible()) {
+		//						openUpdateEdgeVisibilityDialog();
+		//					}
+		//				}
+		//			}
+		//		});
 
 		color = new ActionList();
 		color.add(new ColorAction(NODES, VisualItem.TEXTCOLOR, ColorLib.rgb(0, 0, 0)));
@@ -298,7 +312,18 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 
 		display = new Display(vis);
 		display.setHighQuality(true);
-		display.addControlListener(new DragControl());
+		display.addControlListener(new DragControl() {
+
+			@Override
+			public void itemDragged(final VisualItem item, final MouseEvent e) {
+				super.itemDragged(item, e);
+				item.set("layouted", false);
+				if (layoutManager.getLabelEdgeLayout() != null) {
+					layoutManager.getLabelEdgeLayout().run();
+				}
+			}
+
+		});
 		display.addControlListener(new PanControl());
 		display.addControlListener(new ZoomControl());
 		display.addControlListener(new WheelZoomControl());
@@ -355,6 +380,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 				vis.run("marked");
 				runFilter();
 				runLayout(true);
+
 			}
 
 		});
@@ -385,9 +411,9 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 					else if (!swingContainer.isShowing()) {
 						relationTreeModel.getRoot().removeBeanListModelListener(rootModelListener);
 						relationTreeModel.getRoot().fireBeansChanged();
-						if (dialog != null) {
-							dialog.setVisible(false);
-							dialog.dispose();
+						if (layoutSettingsDialog != null) {
+							layoutSettingsDialog.setVisible(false);
+							layoutSettingsDialog.dispose();
 						}
 					}
 				}
@@ -636,13 +662,13 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 
 		if (nodeMap.get(bean) == null) {
 			synchronized (vis) {
-
 				childNode = graph.addNode();
 				nodeMap.put(bean, childNode);
 				childNode.set("visible", true);
 				childNode.set("expanded", Expand.NOT);
 				childNode.set("isParent", false);
 				childNode.set("marked", false);
+				childNode.set("layouted", true);
 				beanRelationMap.put(bean, beanRelationNodeModel);
 			}
 		}
@@ -666,46 +692,27 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 			parentNode.set("visible", true);
 
 			synchronized (vis) {
-				synchronized (edgeVisibilityMap) {
-					if (graph.getEdge(parentNode, childNode) == null && graph.getEdge(childNode, parentNode) == null) {
+				if (graph.getEdge(parentNode, childNode) == null && graph.getEdge(childNode, parentNode) == null) {
 
-						final Edge edge = graph.addEdge(parentNode, childNode);
-						edge.set("visible", false);
-						edge.set("name", beanRelationNodeModel.getText());
-						edgeVisibilityMap.put((String) edge.get("name"), true);
-					}
-					else {
-						if (graph.getEdge(childNode, parentNode) != null) {
-							final String previousString = (String) graph.getEdge(childNode, parentNode).get("name");
-							if (!previousString.contains("/") && !previousString.equals(beanRelationNodeModel.getText())) {
-								graph.getEdge(childNode, parentNode).set(
-										"name",
-										previousString + " / " + beanRelationNodeModel.getText());
-							}
-							if (edgeVisibilityMap.containsKey(previousString)) {
-								final boolean result = edgeVisibilityMap.get(previousString);
-								edgeVisibilityMap.remove(previousString);
-								edgeVisibilityMap.put((String) graph.getEdge(childNode, parentNode).get("name"), result);
-							}
-							else {
-								edgeVisibilityMap.put(previousString, true);
-							}
+					final Edge edge = graph.addEdge(parentNode, childNode);
+					edge.set("visible", false);
+					edge.set("name", beanRelationNodeModel.getText());
+				}
+				else {
+					if (graph.getEdge(childNode, parentNode) != null) {
+						final String previousString = (String) graph.getEdge(childNode, parentNode).get("name");
+						if (!previousString.contains("/") && !previousString.equals(beanRelationNodeModel.getText())) {
+							graph.getEdge(childNode, parentNode).set(
+									"name",
+									previousString + " / " + beanRelationNodeModel.getText());
 						}
-						else if (graph.getEdge(parentNode, childNode) != null) {
-							final String previousString = (String) graph.getEdge(parentNode, childNode).get("name");
-							if (!previousString.contains("/") && !previousString.equals(beanRelationNodeModel.getText())) {
-								graph.getEdge(parentNode, childNode).set(
-										"name",
-										previousString + " / " + beanRelationNodeModel.getText());
-							}
-							if (edgeVisibilityMap.containsKey(previousString)) {
-								final boolean result = edgeVisibilityMap.get(previousString);
-								edgeVisibilityMap.remove(previousString);
-								edgeVisibilityMap.put((String) graph.getEdge(parentNode, childNode).get("name"), result);
-							}
-							else {
-								edgeVisibilityMap.put(previousString, true);
-							}
+					}
+					else if (graph.getEdge(parentNode, childNode) != null) {
+						final String previousString = (String) graph.getEdge(parentNode, childNode).get("name");
+						if (!previousString.contains("/") && !previousString.equals(beanRelationNodeModel.getText())) {
+							graph.getEdge(parentNode, childNode).set(
+									"name",
+									previousString + " / " + beanRelationNodeModel.getText());
 						}
 					}
 				}
@@ -783,9 +790,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		@Override
 		public void beansChanged() {
 			if (onBeansChanged(relationNodeModel)) {
-				synchronized (vis) {
-					runFilter();
-				}
+				runFilter();
 			}
 		}
 	}
@@ -803,7 +808,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		public void beansChanged() {
 			if (level >= 0) {
 				if (checkFullyLoaded()) {
-					synchronized (vis) {
+					synchronized (expandMapResult) {
 						expandMapResult.clear();
 						vis.run("expand");
 					}
@@ -964,9 +969,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 				if (comboBoxExpandLevel.getValue() != null) {
 					autoExpandLevel = comboBoxExpandLevel.getValue();
 					runLayout(true);
-					synchronized (vis) {
-						vis.run("expand");
-					}
+					vis.run("expand");
 				}
 			}
 		});
@@ -979,11 +982,8 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		settingsDialogActionBuilder.setCommand(new ICommandExecutor() {
 			@Override
 			public void execute(final IExecutionContext executionContext) throws Exception {
-				if (dialog == null) {
-					dialog = new GraphSettingsDialog(activeLayout, layoutManager);
-				}
-				dialog.setVisible(true);
-				dialog = null;
+
+				openUpdateLayoutSettingsDialog();
 			}
 		});
 
@@ -1009,6 +1009,12 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 				}
 				layoutManager.assignAnchorPoint(display, activeLayout);
 				runLayout(true);
+
+				if (layoutSettingsDialog != null) {
+					layoutSettingsDialog.setVisible(false);
+					layoutSettingsDialog.dispose();
+					layoutSettingsDialog = null;
+				}
 			}
 		});
 		comboBox.setValue(GraphLayout.FORCE_DIRECTED_LAYOUT);
@@ -1023,17 +1029,15 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 
 			@Override
 			public void itemStateChanged() {
-				synchronized (vis) {
-					if (on) {
-						checkItemModel.setText(Messages.getMessage("BeanRelationGraphImpl.animation.on").get());
-						switchNodeAnimation(true);
-					}
-					else {
-						checkItemModel.setText(Messages.getMessage("BeanRelationGraphImpl.animation.off").get());
-						switchNodeAnimation(false);
-					}
-					on = !on;
+				if (on) {
+					checkItemModel.setText(Messages.getMessage("BeanRelationGraphImpl.animation.on").get());
+					switchNodeAnimation(true);
 				}
+				else {
+					checkItemModel.setText(Messages.getMessage("BeanRelationGraphImpl.animation.off").get());
+					switchNodeAnimation(false);
+				}
+				on = !on;
 			}
 		});
 
@@ -1042,19 +1046,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		groupFilterActionBuilder.setCommand(new ICommandExecutor() {
 			@Override
 			public void execute(final IExecutionContext executionContext) throws Exception {
-				if (settingsDialog != null) {
-					settingsDialog.setVisible(false);
-					settingsDialog.removeAll();
-					settingsDialog.dispose();
-					settingsDialog = null;
-				}
-				settingsDialog = new BeanGraphSettingsDialog(vis, groupVisibilityMap, edgeVisibilityMap);
-
-				settingsDialog.setMinPackSize(new Dimension(400, 300));
-				settingsDialog.setMaxPackSize(new Dimension(400, 300));
-				settingsDialog.setVisible(true);
-				groupVisibilityMap = settingsDialog.updateGroupMap();
-				edgeVisibilityMap = settingsDialog.updateEdgeMap();
+				openUpdateEdgeVisibilityDialog();
 			}
 		});
 		final ICommandAction groupFilterAction = groupFilterActionBuilder.build();
@@ -1072,10 +1064,8 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 
 			@Override
 			public void itemStateChanged() {
-				synchronized (vis) {
-					layoutManager.getLabelEdgeLayout().setEdgesVisible(edgeCheckedItem.isSelected());
-					runLayout(true);
-				}
+				layoutManager.getLabelEdgeLayout().setEdgesVisible(edgeCheckedItem.isSelected());
+				runLayout(true);
 			}
 		});
 
@@ -1100,6 +1090,74 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		model.addAction(screenShotAction);
 
 		return model;
+	}
+
+	private void openUpdateEdgeVisibilityDialog() {
+		if (settingsDialog != null) {
+			settingsDialog.setVisible(false);
+			settingsDialog.removeAll();
+			settingsDialog.dispose();
+			settingsDialog = null;
+		}
+		updateEdgeVisibilityMap();
+		settingsDialog = new BeanGraphSettingsDialog(vis, groupVisibilityMap, edgeVisibilityMap, settingsDialogPosition);
+		settingsDialog.addComponentListener(new ComponentAdapter() {
+
+			@Override
+			public void positionChanged() {
+				settingsDialogPosition = settingsDialog.getPosition();
+			}
+		});
+
+		settingsDialog.setMinPackSize(new Dimension(400, 100));
+		settingsDialog.setMaxPackSize(new Dimension(400, 300));
+		settingsDialog.setVisible(true);
+		groupVisibilityMap = settingsDialog.updateGroupMap();
+		edgeVisibilityMap = settingsDialog.updateEdgeMap();
+	}
+
+	private void openUpdateLayoutSettingsDialog() {
+		if (layoutSettingsDialog != null) {
+			layoutSettingsDialog.setVisible(false);
+			layoutSettingsDialog.removeAll();
+			layoutSettingsDialog.dispose();
+			layoutSettingsDialog = null;
+		}
+
+		layoutSettingsDialog = new GraphSettingsDialog(activeLayout, layoutManager, layoutSettingsDialogPosition);
+		layoutSettingsDialog.addComponentListener(new ComponentAdapter() {
+
+			@Override
+			public void positionChanged() {
+				layoutSettingsDialogPosition = layoutSettingsDialog.getPosition();
+			}
+		});
+		layoutSettingsDialog.setVisible(true);
+
+	}
+
+	private void updateEdgeVisibilityMap() {
+		synchronized (edgeVisibilityMap) {
+			final HashMap<String, Boolean> updatedEdgeVisibilityMap = new HashMap<String, Boolean>();
+			final Iterator<?> itVisEdges = vis.visibleItems(EDGES);
+			while (itVisEdges.hasNext()) {
+				final String key = (String) ((Edge) itVisEdges.next()).get("name");
+				if (edgeVisibilityMap.containsKey(key)) {
+					updatedEdgeVisibilityMap.put(key, edgeVisibilityMap.get(key));
+				}
+				else {
+					updatedEdgeVisibilityMap.put(key, true);
+				}
+			}
+
+			for (final Entry<String, Boolean> entry : edgeVisibilityMap.entrySet()) {
+				if (entry.getValue() == Boolean.FALSE) {
+					updatedEdgeVisibilityMap.put(entry.getKey(), entry.getValue());
+				}
+			}
+			edgeVisibilityMap.clear();
+			edgeVisibilityMap.putAll(updatedEdgeVisibilityMap);
+		}
 	}
 
 	public void runLayout(final boolean updateAnchor) {
