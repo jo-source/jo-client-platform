@@ -67,7 +67,6 @@ class EdgeVisibilityAction extends GroupAction {
 									visualItem.setVisible((Boolean) edge.get("visible"));
 								}
 							}
-
 						}
 					}
 

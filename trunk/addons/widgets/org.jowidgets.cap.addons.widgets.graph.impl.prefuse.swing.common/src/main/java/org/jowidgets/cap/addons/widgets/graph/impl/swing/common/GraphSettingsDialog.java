@@ -41,6 +41,7 @@ import org.jowidgets.api.widgets.blueprint.ISliderBluePrint;
 import org.jowidgets.api.widgets.blueprint.ITextLabelBluePrint;
 import org.jowidgets.cap.addons.widgets.graph.impl.swing.common.BeanRelationGraphImpl.GraphLayout;
 import org.jowidgets.common.types.Dimension;
+import org.jowidgets.common.types.Position;
 import org.jowidgets.common.widgets.controller.IActionListener;
 import org.jowidgets.common.widgets.controller.IInputListener;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
@@ -79,8 +80,14 @@ final class GraphSettingsDialog extends JoFrame {
 
 	private final LayoutManager layoutManager;
 
-	GraphSettingsDialog(final GraphLayout type, final LayoutManager layoutManager) {
+	GraphSettingsDialog(final GraphLayout type, final LayoutManager layoutManager, final Position position) {
 		super(Messages.getString("GraphSettingsDialog.settings"));
+
+		if (position != null) {
+			setPosition(position);
+		}
+
+		DEFAULT_SLIDER_SETTINGS.clear();
 
 		this.layoutManager = layoutManager;
 		setLayout(MigLayoutFactory.growingInnerCellLayout());

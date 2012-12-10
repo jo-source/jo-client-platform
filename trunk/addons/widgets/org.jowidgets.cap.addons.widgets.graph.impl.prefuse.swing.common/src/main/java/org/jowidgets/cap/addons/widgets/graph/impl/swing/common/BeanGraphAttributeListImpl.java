@@ -96,7 +96,7 @@ public class BeanGraphAttributeListImpl extends CompositeWrapper {
 
 		builder.alignment(1, Alignment.CENTER);
 		builder.fixedColumnWidth(0, 200);
-		builder.fixedColumnWidth(1, 100);
+		builder.fixedColumnWidth(1, 50);
 
 		this.attributeLayoutManager = builder.build();
 		attributeLayoutManager.beginLayout();
@@ -169,7 +169,6 @@ public class BeanGraphAttributeListImpl extends CompositeWrapper {
 		final Iterator<ICheckBox> it = allCheckBoxes.iterator();
 		while (it.hasNext()) {
 			synchronized (vis) {
-
 				it.next().setSelected(selected);
 				vis.run("filter");
 				vis.run("layout");
@@ -177,7 +176,6 @@ public class BeanGraphAttributeListImpl extends CompositeWrapper {
 				vis.run("color");
 			}
 		}
-
 	}
 
 	private final class AttributeHeaderComposite extends ContainerWrapper {
