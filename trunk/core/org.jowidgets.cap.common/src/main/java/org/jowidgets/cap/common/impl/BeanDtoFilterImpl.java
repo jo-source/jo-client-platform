@@ -588,6 +588,7 @@ final class BeanDtoFilterImpl implements IBeanDtoFilter {
 					break;
 
 				case '_':
+				case '?':
 					regex.append('.');
 					break;
 
