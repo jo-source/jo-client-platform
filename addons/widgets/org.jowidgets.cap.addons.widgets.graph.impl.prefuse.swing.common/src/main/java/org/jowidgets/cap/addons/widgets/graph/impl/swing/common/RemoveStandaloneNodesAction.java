@@ -52,19 +52,24 @@ class RemoveStandaloneNodesAction extends GroupAction {
 					final Edge edge = (Edge) iterEdges.next();
 					if (!(Boolean) edge.getSourceNode().get("visible")) {
 						edge.set("visible", false);
-						final VisualItem visualItem = (VisualItem) edge;
-						visualItem.setVisible((Boolean) edge.get("visible"));
+						edge.getTargetNode().set("visible", false);
 					}
+
+					final VisualItem visualItem = (VisualItem) edge;
+					visualItem.setVisible((Boolean) edge.get("visible"));
 				}
 
 				final Iterator<?> iterNodes = m_vis.visibleItems(BeanRelationGraphImpl.NODES);
 				while (iterNodes.hasNext()) {
 					final Node node = (Node) iterNodes.next();
-					final Iterator<?> itNodes = node.inNeighbors();
-					boolean visible = true;
+					if (node.getParent() == null) {
+						continue;
+					}
+					final Iterator<?> itNodes = node.inEdges();
+					boolean visible = false;
 					while (itNodes.hasNext()) {
-						final Node parent = (Node) itNodes.next();
-						visible = !(Boolean) parent.get("visible") ? false : visible;
+						final Edge parent = (Edge) itNodes.next();
+						visible = (Boolean) parent.get("visible") ? true : visible;
 					}
 					node.set("visible", visible);
 					final VisualItem visualItem = (VisualItem) node;

@@ -137,16 +137,17 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 	public static final String GRAPH_NODES_GROUP = "graph.nodes.group";
 	public static final String EDGE_DECORATORS = "edgeDeco";
 
+	public static final Map<String, int[]> GROUP_COLOR_MAP = new HashMap<String, int[]>();;
+
 	private static final int MAX_NODE_COUNT_DEFAULT = 100;
 	private static final int MAX_LABELTEXT_LENGTH = 40;
 	private static final int EXPAND_ICON_SIZE = 18;
 	private static final int MAX_EXPANDED_NODES_CACHE = 500;
 
-	private static final int[] NODE_COLORS = new int[] {
-			ColorLib.gray(180), ColorLib.rgba(105, 176, 220, 255), ColorLib.rgba(191, 112, 97, 255),
-			ColorLib.rgba(7, 162, 28, 255), ColorLib.rgba(192, 210, 0, 255), ColorLib.rgba(147, 129, 186, 255),
-			ColorLib.rgba(217, 123, 82, 255), ColorLib.rgba(222, 127, 227, 255), ColorLib.rgba(239, 215, 143, 255),
-			ColorLib.rgba(99, 241, 113, 255), ColorLib.rgba(79, 124, 36, 255), ColorLib.rgba(45, 84, 187, 255)};
+	private static final int[][] NODE_COLORS = new int[][] {
+			{180, 180, 180, 255}, {105, 176, 220, 255}, {191, 112, 97, 255}, {7, 162, 28, 255}, {192, 210, 0, 255},
+			{147, 129, 186, 255}, {217, 123, 82, 255}, {222, 127, 227, 255}, {239, 215, 143, 255}, {99, 241, 113, 255},
+			{79, 124, 36, 255}, {45, 84, 187, 255}};
 
 	private static final Schema DECORATOR_SCHEMA = createDecoratorSchema();
 
@@ -161,10 +162,9 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 	private final IBeanRelationTreeModel<CHILD_BEAN_TYPE> relationTreeModel;
 	private final Map<IBeanProxy<Object>, Node> nodeMap;
 	private final Map<Class<Object>, String> entityGroupMap;
-	private Map<Class<Object>, Boolean> groupVisibilityMap;
+	private Map<String, Boolean> groupVisibilityMap;
 	private HashMap<String, Boolean> edgeVisibilityMap;
 	private final HashMap<IBeanProxy<Object>, IBeanRelationNodeModel<Object, Object>> beanRelationMap;
-	private final HashMap<String, String> groupNames;
 	private final List<Node> expandedNodesCache;
 	private Set<IBeanRelationNodeModel<Object, Object>> expandMapResult;
 
@@ -188,6 +188,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 	private ActionList color;
 	private ExpandLevelVisibilityAction expand;
 	private NodeMarkedAction marked;
+	//	private GroupFilterAction groupFilterAction;
 	private LayoutManager layoutManager;
 	private GraphLayout activeLayout;
 	private InputControlItemModel<Integer> comboBoxExpandLevel;
@@ -204,10 +205,9 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		relationTreeModel = setup.getModel();
 		nodeMap = new HashMap<IBeanProxy<Object>, Node>();
 		entityGroupMap = new HashMap<Class<Object>, String>();
-		groupVisibilityMap = new HashMap<Class<Object>, Boolean>();
+		groupVisibilityMap = new HashMap<String, Boolean>();
 		edgeVisibilityMap = new HashMap<String, Boolean>();
 		beanRelationMap = new HashMap<IBeanProxy<Object>, IBeanRelationNodeModel<Object, Object>>();
-		groupNames = new HashMap<String, String>();
 		expandedNodesCache = new LinkedList<Node>();
 		expandMapResult = new HashSet<IBeanRelationNodeModel<Object, Object>>();
 
@@ -224,7 +224,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		graph.addColumn("expanded", Expand.class);
 		graph.addColumn("layouted", Boolean.class);
 		graph.addColumn("visible", Boolean.class);
-		graph.addColumn("beanrelation", Object.class);
+		graph.addColumn("beanrelation", String.class);
 		graph.addColumn("isParent", Boolean.class);
 		graph.addColumn("marked", Boolean.class);
 		graph.addColumn("filtered", Boolean.class);
@@ -244,13 +244,15 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 
 		});
 		marked = new NodeMarkedAction();
+		//		groupFilterAction = new GroupFilterAction(vis, groupVisibilityMap);
 
 		filters = new ActionList();
-		nodeFilter = new NodeVisibilityAction();
+		nodeFilter = new NodeVisibilityAction(groupVisibilityMap);
 		edgeFilter = new EdgeVisibilityAction(edgeVisibilityMap);
 		removeStandaloneNodesFilter = new RemoveStandaloneNodesAction();
 
 		filters.add(edgeFilter);
+		//		filters.add(groupFilterAction);
 		filters.add(nodeFilter);
 		filters.add(removeStandaloneNodesFilter);
 		//		filters.addActivityListener(new ActivityAdapter() {
@@ -272,7 +274,9 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 
 		final ColorAction fill = new ColorAction(NODES, VisualItem.FILLCOLOR);
 		for (int index = 0; index < NODE_COLORS.length; index++) {
-			fill.add("type == '" + GRAPH_NODES_GROUP + index + "'", NODE_COLORS[index]);
+			fill.add(
+					"type == '" + GRAPH_NODES_GROUP + index + "'",
+					ColorLib.rgba(NODE_COLORS[index][0], NODE_COLORS[index][1], NODE_COLORS[index][2], NODE_COLORS[index][3]));
 		}
 		color.add(fill);
 
@@ -519,8 +523,6 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		return childList;
 	}
 
-	//TODO CONTRACT
-
 	private void contractExpandNodes(final Node node) {
 		if (node.get("expanded") == Expand.FULL) {
 
@@ -678,11 +680,11 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 
 		if (entityGroupMap.get(beanRelationNodeModel.getChildBeanType()) == null) {
 			entityGroupMap.put(beanRelationNodeModel.getChildBeanType(), GRAPH_NODES_GROUP + groupCount);
-			groupVisibilityMap.put(beanRelationNodeModel.getChildBeanType(), true);
-			groupNames.put(GRAPH_NODES_GROUP + groupCount, beanRelationNodeModel.getText());
+			groupVisibilityMap.put(beanRelationNodeModel.getChildBeanType().getSimpleName(), true);
+			GROUP_COLOR_MAP.put(beanRelationNodeModel.getChildBeanType().getSimpleName(), NODE_COLORS[groupCount]);
 			groupCount = (groupCount < NODE_COLORS.length - 1) ? ++groupCount : 0;
 		}
-		childNode.set("beanrelation", beanRelationNodeModel.getChildBeanType());
+		childNode.set("beanrelation", beanRelationNodeModel.getChildBeanType().getSimpleName());
 		final String nodeGroup = entityGroupMap.get(beanRelationNodeModel.getChildBeanType());
 
 		final Node parentNode = nodeMap.get(beanRelationNodeModel.getParentBean());
@@ -1099,7 +1101,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 			settingsDialog.dispose();
 			settingsDialog = null;
 		}
-		updateEdgeVisibilityMap();
+		updateVisibilityMaps();
 		settingsDialog = new BeanGraphSettingsDialog(vis, groupVisibilityMap, edgeVisibilityMap, settingsDialogPosition);
 		settingsDialog.addComponentListener(new ComponentAdapter() {
 
@@ -1136,7 +1138,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 
 	}
 
-	private void updateEdgeVisibilityMap() {
+	private void updateVisibilityMaps() {
 		synchronized (edgeVisibilityMap) {
 			final HashMap<String, Boolean> updatedEdgeVisibilityMap = new HashMap<String, Boolean>();
 			final Iterator<?> itVisEdges = vis.visibleItems(EDGES);
@@ -1157,6 +1159,28 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 			}
 			edgeVisibilityMap.clear();
 			edgeVisibilityMap.putAll(updatedEdgeVisibilityMap);
+		}
+
+		synchronized (groupVisibilityMap) {
+			final Map<String, Boolean> updatedGroupVisibilityMap = new HashMap<String, Boolean>();
+			final Iterator<?> itVisNodes = vis.visibleItems(NODES);
+			while (itVisNodes.hasNext()) {
+				final String key = (String) ((Node) itVisNodes.next()).get("beanrelation");
+				if (groupVisibilityMap.containsKey(key)) {
+					updatedGroupVisibilityMap.put(key, groupVisibilityMap.get(key));
+				}
+				else {
+					updatedGroupVisibilityMap.put(key, true);
+				}
+			}
+
+			for (final Entry<String, Boolean> entry : groupVisibilityMap.entrySet()) {
+				if (entry.getValue() == Boolean.FALSE) {
+					updatedGroupVisibilityMap.put(entry.getKey(), entry.getValue());
+				}
+			}
+			groupVisibilityMap.clear();
+			groupVisibilityMap.putAll(updatedGroupVisibilityMap);
 		}
 	}
 

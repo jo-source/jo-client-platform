@@ -57,6 +57,9 @@ import org.jowidgets.tools.widgets.wrapper.CompositeWrapper;
 import org.jowidgets.tools.widgets.wrapper.ContainerWrapper;
 
 import prefuse.Visualization;
+import prefuse.data.expression.Predicate;
+import prefuse.data.expression.parser.ExpressionParser;
+import prefuse.visual.tuple.TableNodeItem;
 
 public class BeanGraphAttributeListImpl extends CompositeWrapper {
 
@@ -73,7 +76,7 @@ public class BeanGraphAttributeListImpl extends CompositeWrapper {
 
 	private final ITableLayout attributeLayoutManager;
 	private final Visualization vis;
-	private final Map<Class<Object>, Boolean> groupMap;
+	private final Map<String, Boolean> groupMap;
 	private final HashMap<String, Boolean> edgeMap;
 	private final List<ICheckBox> allCheckBoxes = new LinkedList<ICheckBox>();
 	private boolean row = true;
@@ -81,8 +84,9 @@ public class BeanGraphAttributeListImpl extends CompositeWrapper {
 	public BeanGraphAttributeListImpl(
 		final Visualization vis,
 		final IComposite container,
-		final Map<Class<Object>, Boolean> groupMap,
-		final HashMap<String, Boolean> edgeVisibilityMap) {
+		final Map<String, Boolean> groupMap,
+		final HashMap<String, Boolean> edgeVisibilityMap,
+		final FilterType type) {
 		super(container);
 
 		this.groupMap = groupMap;
@@ -107,9 +111,16 @@ public class BeanGraphAttributeListImpl extends CompositeWrapper {
 
 		new AttributeHeaderComposite(add(bpf.composite(), "grow, wrap"));
 
-		//		initializeGroups(this, groupMap, bpf);
-
-		initializeGroups(this, edgeVisibilityMap, bpf);
+		switch (type) {
+			case RELATIONS:
+				initializeGroups(this, edgeVisibilityMap, bpf);
+				break;
+			case GROUPS:
+				initializeGroups(this, groupMap, bpf);
+				break;
+			default:
+				break;
+		}
 
 		attributeLayoutManager.endLayout();
 		attributeLayoutManager.validate();
@@ -121,22 +132,23 @@ public class BeanGraphAttributeListImpl extends CompositeWrapper {
 		setPreferredSize(new Dimension(prefSize.getWidth(), prefSize.getHeight()));
 	}
 
-	//	private void initializeGroups(
-	//		final BeanGraphAttributeListImpl content,
-	//		final Map<Class<Object>, Boolean> groupMap,
-	//		final IBluePrintFactory bpf) {
-	//
-	//		for (final Entry<Class<Object>, Boolean> entry : groupMap.entrySet()) {
-	//			new AttributeGroupComposite(add(bpf.composite(), "grow, wrap"), entry.getKey(), entry.getValue(), row = !row);
-	//		}
-	//	}
+	private void initializeGroups(
+		final BeanGraphAttributeListImpl content,
+		final Map<String, Boolean> groupMap,
+		final IBluePrintFactory bpf) {
+		row = !row;
+		for (final Entry<String, Boolean> entry : groupMap.entrySet()) {
+			new AttributeGroupComposite(add(bpf.composite(), "grow, wrap"), entry.getKey(), entry.getValue(), row);
+			row = !row;
+		}
+	}
 
 	private void initializeGroups(
 		final BeanGraphAttributeListImpl content,
 		final HashMap<String, Boolean> edgeVisibilityMap,
 		final IBluePrintFactory bpf) {
-		new AllAttributeComposite(content.add(bpf.composite(), "grow, wrap"));
 		row = !row;
+		new AllAttributeComposite(content.add(bpf.composite(), "grow, wrap"));
 		for (final Entry<String, Boolean> entry : edgeVisibilityMap.entrySet()) {
 			new AttributeEdgeComposite(content.add(bpf.composite(), "grow, wrap"), entry.getKey(), entry.getValue(), row);
 			row = !row;
@@ -150,6 +162,7 @@ public class BeanGraphAttributeListImpl extends CompositeWrapper {
 		public AllAttributeComposite(final IContainer container) {
 			super(container);
 			setBackgroundColor(row ? ATTRIBUTE_GROUP_BACKGROUND : Colors.WHITE);
+			row = !row;
 			setLayout(attributeLayoutManager.rowBuilder().build());
 			add(LABEL_ALL.setText("All"));
 			checkBox = add(CHECK_BOCK_PB);
@@ -190,21 +203,18 @@ public class BeanGraphAttributeListImpl extends CompositeWrapper {
 		}
 	}
 
-	@SuppressWarnings("unused")
 	private final class AttributeGroupComposite extends ContainerWrapper {
 
 		private final ICheckBox checkBox;
 
-		public AttributeGroupComposite(
-			final IContainer container,
-			final Class<Object> key,
-			final boolean selected,
-			final boolean row) {
+		public AttributeGroupComposite(final IContainer container, final String key, final boolean selected, final boolean row) {
 			super(container);
-			setBackgroundColor(row ? ATTRIBUTE_GROUP_BACKGROUND : Colors.WHITE);
+			//			setBackgroundColor(row ? ATTRIBUTE_GROUP_BACKGROUND : Colors.WHITE);
+			final int[] color = BeanRelationGraphImpl.GROUP_COLOR_MAP.get(key);
+			setBackgroundColor(new ColorValue(color[0], color[1], color[2]));
 			setLayout(attributeLayoutManager.rowBuilder().build());
 
-			add(LABEL_GROUP.setText(key.getSimpleName()).setAlignment(AlignmentHorizontal.LEFT));
+			add(LABEL_GROUP.setText(key).setAlignment(AlignmentHorizontal.LEFT));
 			checkBox = add(CHECK_BOCK_PB);
 			checkBox.setSelected(selected);
 			checkBox.addInputListener(new IInputListener() {
@@ -212,11 +222,20 @@ public class BeanGraphAttributeListImpl extends CompositeWrapper {
 				@Override
 				public void inputChanged() {
 
-					for (final Entry<Class<Object>, Boolean> entry : groupMap.entrySet()) {
+					for (final Entry<String, Boolean> entry : groupMap.entrySet()) {
 						if (key.equals(entry.getKey())) {
 							entry.setValue(checkBox.isSelected());
+
+							final String query = "beanrelation = '" + entry.getKey() + "'";
+							final Predicate predicate = (Predicate) ExpressionParser.parse(query);
+							final Iterator<?> iterator = vis.items(BeanRelationGraphImpl.NODES, predicate);
+							while (iterator.hasNext()) {
+								final TableNodeItem item = (TableNodeItem) iterator.next();
+								item.set("filtered", entry.getValue());
+							}
 						}
 					}
+
 					vis.run("filter");
 					vis.run("layout");
 					vis.run("animate");
@@ -261,12 +280,18 @@ public class BeanGraphAttributeListImpl extends CompositeWrapper {
 		}
 	}
 
-	public Map<Class<Object>, Boolean> getGroupMap() {
+	public Map<String, Boolean> getGroupMap() {
 		return groupMap;
 	}
 
 	public HashMap<String, Boolean> getEdgeMap() {
 		return this.edgeMap;
+	}
+
+	enum FilterType {
+
+		RELATIONS,
+		GROUPS;
 	}
 
 }

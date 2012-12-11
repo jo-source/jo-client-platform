@@ -30,7 +30,6 @@ package org.jowidgets.cap.addons.widgets.graph.impl.swing.common;
 
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map.Entry;
 
 import org.jowidgets.cap.addons.widgets.graph.impl.swing.common.BeanRelationGraphImpl.Expand;
 
@@ -60,12 +59,11 @@ class EdgeVisibilityAction extends GroupAction {
 
 					if (edge.getSourceNode().get("expanded") != Expand.NOT) {
 						synchronized (edgeVisibilityMap) {
-							for (final Entry<String, Boolean> entry : edgeVisibilityMap.entrySet()) {
-								if (edge.get("name").equals(entry.getKey())) {
-									edge.set("visible", entry.getValue());
-									final VisualItem visualItem = (VisualItem) edge;
-									visualItem.setVisible((Boolean) edge.get("visible"));
-								}
+
+							if (edgeVisibilityMap.containsKey(edge.get("name"))) {
+								edge.set("visible", edgeVisibilityMap.get(edge.get("name")));
+								final VisualItem visualItem = (VisualItem) edge;
+								visualItem.setVisible((Boolean) edge.get("visible"));
 							}
 						}
 					}
