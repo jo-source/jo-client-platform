@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.ui.impl.widgets;
 
+import org.jowidgets.api.types.AutoPackPolicy;
 import org.jowidgets.api.widgets.blueprint.defaults.IDefaultInitializer;
 import org.jowidgets.cap.ui.api.types.AutoScrollPolicy;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableSetupBuilder;
@@ -46,6 +47,7 @@ final class BeanTableDefaults implements IDefaultInitializer<IBeanTableSetupBuil
 		bluePrint.setSearchFilterToolbarVisible(false);
 		bluePrint.setAutoUpdateInterval(1);
 		bluePrint.setAutoScrollPolicy(AutoScrollPolicy.OFF);
+		bluePrint.setAutoPackPolicy(AutoPackPolicy.OFF);
 		bluePrint.setAutoUpdateConfigurable(false);
 	}
 }

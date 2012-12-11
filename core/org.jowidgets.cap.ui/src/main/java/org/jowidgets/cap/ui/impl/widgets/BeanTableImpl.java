@@ -50,6 +50,7 @@ import org.jowidgets.api.model.item.IMenuModel;
 import org.jowidgets.api.model.item.ISeparatorItemModel;
 import org.jowidgets.api.threads.IUiThreadAccess;
 import org.jowidgets.api.toolkit.Toolkit;
+import org.jowidgets.api.types.AutoPackPolicy;
 import org.jowidgets.api.widgets.IComposite;
 import org.jowidgets.api.widgets.IPopupMenu;
 import org.jowidgets.api.widgets.ITable;
@@ -81,6 +82,7 @@ import org.jowidgets.cap.ui.api.widgets.IBeanTableSettingsDialog;
 import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
 import org.jowidgets.cap.ui.api.widgets.IPopupMenuListener;
 import org.jowidgets.cap.ui.api.widgets.ITableMenuCreationInterceptor;
+import org.jowidgets.cap.ui.tools.model.BeanListModelListenerAdapter;
 import org.jowidgets.common.types.Dimension;
 import org.jowidgets.common.types.IVetoable;
 import org.jowidgets.common.types.Interval;
@@ -159,6 +161,7 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 	private final AutoUpdateRunnable autoUpdateRunnable;
 	private final boolean isAutoUpdateConfigurable;
 	private final ICheckedItemModel autoUpdateItemModel;
+	private final AutoPackPolicy autoPackPolicy;
 
 	private IAction creatorAction;
 	private IAction deleteAction;
@@ -178,6 +181,7 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 		}
 
 		this.model = bluePrint.getModel();
+		this.autoPackPolicy = bluePrint.getAutoPackPolicy();
 
 		final IComposite mainComposite;
 		if (model.getReaderService() == null) {
@@ -379,6 +383,11 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 		this.autoScrollPolicy = bluePrint.getAutoScrollPolicy();
 		this.autoUpdateExecutorService = Executors.newScheduledThreadPool(1, new DaemonThreadFactory());
 		this.autoUpdateRunnable = new AutoUpdateRunnable();
+
+		if (AutoPackPolicy.OFF != autoPackPolicy) {
+			model.addBeanListModelListener(new AutoPackListener());
+		}
+
 	}
 
 	private void modifyBeanTableBpByPlugins(final Object entityId, final IBeanTableBluePrint<BEAN_TYPE> beanTableBp) {
@@ -1005,6 +1014,16 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 				else {
 					sortModel.setOrToggleCurrentProperty(propertyName);
 				}
+			}
+		}
+	}
+
+	private class AutoPackListener extends BeanListModelListenerAdapter<BEAN_TYPE> {
+		@Override
+		public void beansChanged() {
+			table.pack();
+			if (AutoPackPolicy.ONCE == autoPackPolicy) {
+				model.removeBeanListModelListener(this);
 			}
 		}
 	}
