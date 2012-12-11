@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.ui.api.widgets;
 
+import org.jowidgets.api.types.AutoPackPolicy;
 import org.jowidgets.api.widgets.blueprint.builder.IComponentSetupBuilder;
 import org.jowidgets.api.widgets.descriptor.setup.IComponentSetup;
 import org.jowidgets.cap.ui.api.table.IBeanTableMenuInterceptor;
@@ -90,6 +91,8 @@ public interface IBeanTableSetupBuilder<BEAN_TYPE> extends
 	 */
 	IBeanTableSetupBuilder<BEAN_TYPE> setAutoScrollPolicy(AutoScrollPolicy autoScrollPolicy);
 
+	IBeanTableSetupBuilder<BEAN_TYPE> setAutoPackPolicy(AutoPackPolicy autoPackPolicy);
+
 	@Mandatory
 	TableSelectionPolicy getSelectionPolicy();
 
@@ -126,5 +129,8 @@ public interface IBeanTableSetupBuilder<BEAN_TYPE> extends
 
 	@Mandatory
 	AutoScrollPolicy getAutoScrollPolicy();
+
+	@Mandatory
+	AutoPackPolicy getAutoPackPolicy();
 
 }
