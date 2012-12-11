@@ -1113,16 +1113,6 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 	}
 
 	@Override
-	public void pack(final TablePackPolicy policy) {
-		table.pack(policy);
-	}
-
-	@Override
-	public void pack(final int columnIndex, final TablePackPolicy policy) {
-		table.pack(columnIndex, policy);
-	}
-
-	@Override
 	public void addTableCellPopupDetectionListener(final ITableCellPopupDetectionListener listener) {
 		table.addTableCellPopupDetectionListener(listener);
 	}
@@ -1180,6 +1170,16 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 	@Override
 	public void pack(final int columnIndex) {
 		table.pack(columnIndex);
+	}
+
+	@Override
+	public void pack(final TablePackPolicy policy) {
+		table.pack(policy);
+	}
+
+	@Override
+	public void pack(final int columnIndex, final TablePackPolicy policy) {
+		table.pack(columnIndex, policy);
 	}
 
 	@Override
