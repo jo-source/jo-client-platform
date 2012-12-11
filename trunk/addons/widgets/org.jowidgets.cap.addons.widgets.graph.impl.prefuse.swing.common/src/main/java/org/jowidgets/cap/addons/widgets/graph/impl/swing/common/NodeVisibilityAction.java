@@ -29,6 +29,7 @@
 package org.jowidgets.cap.addons.widgets.graph.impl.swing.common;
 
 import java.util.Iterator;
+import java.util.Map;
 
 import prefuse.action.GroupAction;
 import prefuse.data.Edge;
@@ -38,8 +39,11 @@ import prefuse.visual.VisualItem;
 
 class NodeVisibilityAction extends GroupAction {
 
-	NodeVisibilityAction() {
+	private final Map<String, Boolean> groupVisibilityMap;
+
+	NodeVisibilityAction(final Map<String, Boolean> groupMap) {
 		super();
+		this.groupVisibilityMap = groupMap;
 	}
 
 	@Override
@@ -58,6 +62,18 @@ class NodeVisibilityAction extends GroupAction {
 							final Edge parent = (Edge) inEdges.next();
 							visible = (Boolean) parent.get("visible") ? true : visible;
 						}
+
+						if ((visible) || result.get("filtered") != null && !(Boolean) result.get("filtered")) {
+							synchronized (groupVisibilityMap) {
+								if (groupVisibilityMap.containsKey(result.get("beanrelation"))) {
+									visible = groupVisibilityMap.get(result.get("beanrelation"));
+									if (visible) {
+										result.set("filtered", null);
+									}
+								}
+							}
+						}
+
 						result.set("visible", visible);
 					}
 

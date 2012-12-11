@@ -32,6 +32,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.jowidgets.api.widgets.IScrollComposite;
+import org.jowidgets.api.widgets.ITabFolder;
+import org.jowidgets.api.widgets.ITabItem;
+import org.jowidgets.cap.addons.widgets.graph.impl.swing.common.BeanGraphAttributeListImpl.FilterType;
 import org.jowidgets.common.types.Dimension;
 import org.jowidgets.common.types.Position;
 import org.jowidgets.tools.layout.MigLayoutFactory;
@@ -42,36 +45,51 @@ import prefuse.Visualization;
 
 final class BeanGraphSettingsDialog extends JoFrame {
 
-	private final BeanGraphAttributeListImpl beanGraphAttributeListImpl;
+	private final BeanGraphAttributeListImpl beanGraphAttributeListImplRelations;
+	private final BeanGraphAttributeListImpl beanGraphAttributeListImplGroup;
 
 	public BeanGraphSettingsDialog(
 		final Visualization vis,
-		final Map<Class<Object>, Boolean> groupMap,
+		final Map<String, Boolean> groupMap,
 		final HashMap<String, Boolean> edgeVisibilityMap,
 		final Position position) {
-		super("Group Visibility");
+		super("Filter");
 
-		setLayout(MigLayoutFactory.growingInnerCellLayout());
+		setLayout(MigLayoutFactory.growingCellLayout());
 		if (position != null) {
 			setPosition(position);
 		}
 
 		final IScrollComposite content = add(BPF.scrollComposite(), MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
 		content.setLayout(MigLayoutFactory.growingInnerCellLayout());
-		content.setPreferredSize(new Dimension(300, 300));
+		content.setPreferredSize(new Dimension(400, 100));
 
-		beanGraphAttributeListImpl = new BeanGraphAttributeListImpl(vis, content.add(
+		final ITabFolder tabFolder = content.add(BPF.tabFolder().setTabsCloseable(false));
+
+		final ITabItem item1 = tabFolder.addItem(BPF.tabItem());
+		item1.setText("RelationFilter");
+		final ITabItem item2 = tabFolder.addItem(BPF.tabItem());
+		item2.setText("GroupFilter");
+
+		item1.setLayout(MigLayoutFactory.growingInnerCellLayout());
+		item2.setLayout(MigLayoutFactory.growingInnerCellLayout());
+
+		beanGraphAttributeListImplRelations = new BeanGraphAttributeListImpl(vis, item1.add(
 				BPF.composite(),
-				"grow, wrap, span, w 0::, h 0::"), groupMap, edgeVisibilityMap);
+				"grow, wrap, span, w 0:360:, h 0::"), groupMap, edgeVisibilityMap, FilterType.RELATIONS);
+
+		beanGraphAttributeListImplGroup = new BeanGraphAttributeListImpl(vis, item2.add(
+				BPF.composite(),
+				"grow, wrap, span, w 0:360:, h 0::"), groupMap, edgeVisibilityMap, FilterType.GROUPS);
 
 	}
 
-	public Map<Class<Object>, Boolean> updateGroupMap() {
-		return beanGraphAttributeListImpl.getGroupMap();
+	public Map<String, Boolean> updateGroupMap() {
+		return beanGraphAttributeListImplGroup.getGroupMap();
 	}
 
 	public HashMap<String, Boolean> updateEdgeMap() {
-		return beanGraphAttributeListImpl.getEdgeMap();
+		return beanGraphAttributeListImplRelations.getEdgeMap();
 	}
 
 }
