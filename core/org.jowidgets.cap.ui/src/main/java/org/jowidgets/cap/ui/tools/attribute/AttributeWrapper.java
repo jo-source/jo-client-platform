@@ -187,6 +187,21 @@ public class AttributeWrapper<ELEMENT_VALUE_TYPE> implements IAttribute<ELEMENT_
 	}
 
 	@Override
+	public IControlPanelProvider<ELEMENT_VALUE_TYPE> getCurrentFilterControlPanel(final IFilterType filterType) {
+		return original.getCurrentFilterControlPanel(filterType);
+	}
+
+	@Override
+	public IControlPanelProvider<ELEMENT_VALUE_TYPE> getCurrentIncludingFilterControlPanel(final IFilterType filterType) {
+		return original.getCurrentIncludingFilterControlPanel(filterType);
+	}
+
+	@Override
+	public IControlPanelProvider<ELEMENT_VALUE_TYPE> getCurrentIncludingFilterControlPanel() {
+		return original.getCurrentIncludingFilterControlPanel();
+	}
+
+	@Override
 	public boolean isVisible() {
 		return original.isVisible();
 	}

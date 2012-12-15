@@ -31,7 +31,6 @@ package org.jowidgets.cap.ui.impl;
 import java.util.Collection;
 
 import org.jowidgets.api.convert.IConverter;
-import org.jowidgets.api.convert.IConverterProvider;
 import org.jowidgets.api.convert.IObjectLabelConverter;
 import org.jowidgets.api.convert.IObjectStringConverter;
 import org.jowidgets.api.convert.IStringObjectConverter;
@@ -46,11 +45,15 @@ import org.jowidgets.cap.ui.api.attribute.IControlPanelProviderBuilder;
 import org.jowidgets.cap.ui.api.control.DisplayFormat;
 import org.jowidgets.cap.ui.api.control.IDisplayFormat;
 import org.jowidgets.cap.ui.api.control.IInputControlProvider;
+import org.jowidgets.cap.ui.api.control.IInputControlProviderBuilder;
 import org.jowidgets.cap.ui.api.control.IInputControlSupport;
+import org.jowidgets.cap.ui.api.control.InputControlProvider;
 import org.jowidgets.cap.ui.api.filter.IFilterSupport;
 import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
 import org.jowidgets.tools.converter.ObjectStringObjectLabelConverterAdapter;
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.maybe.IMaybe;
+import org.jowidgets.util.maybe.Some;
 
 final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> {
 
@@ -62,19 +65,20 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 	private final Cardinality cardinality;
 
 	private Class<?> valueType;
-	private Class<? extends ELEMENT_VALUE_TYPE> elementValueType;
+	private Class<ELEMENT_VALUE_TYPE> elementValueType;
 
 	private Object displayFormatId;
 	private String displayFormatName;
 	private String displayFormatDescription;
-	private IObjectLabelConverter<ELEMENT_VALUE_TYPE> objectLabelConverter;
-	private IObjectStringConverter<ELEMENT_VALUE_TYPE> objectStringConverter;
-	private IStringObjectConverter<ELEMENT_VALUE_TYPE> stringObjectConverter;
-	private IFilterSupport<?> filterSupport;
-	private ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> controlCreator;
-	private ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> collectionControlCreator;
-	private ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> filterCollectionControlCreator;
+	private IMaybe<IObjectLabelConverter<ELEMENT_VALUE_TYPE>> objectLabelConverter;
+	private IMaybe<IObjectStringConverter<ELEMENT_VALUE_TYPE>> objectStringConverter;
+	private IMaybe<IStringObjectConverter<ELEMENT_VALUE_TYPE>> stringObjectConverter;
+	private IMaybe<IFilterSupport<?>> filterSupport;
+	private IMaybe<ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>>> controlCreator;
+	private IMaybe<ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>>> collectionControlCreator;
+	private IMaybe<ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>>> filterCollectionControlCreator;
 
+	@SuppressWarnings("unchecked")
 	ControlPanelProviderBuilderImpl(
 		final String propertyName,
 		final Class<? extends ELEMENT_VALUE_TYPE> elementValueType,
@@ -86,9 +90,10 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 			throw new IllegalArgumentException("The parameter 'elementValueType' must not be a 'Collection'");
 		}
 		this.valueType = elementValueType;
-		this.elementValueType = elementValueType;
+		this.elementValueType = (Class<ELEMENT_VALUE_TYPE>) elementValueType;
 	}
 
+	@SuppressWarnings("unchecked")
 	ControlPanelProviderBuilderImpl(
 		final String propertyName,
 		final Class<?> valueType,
@@ -99,7 +104,7 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 		Assert.paramNotNull(valueType, "valueType");
 		Assert.paramNotNull(elementValueType, "elementValueType");
 		this.valueType = valueType;
-		this.elementValueType = elementValueType;
+		this.elementValueType = (Class<ELEMENT_VALUE_TYPE>) elementValueType;
 	}
 
 	private ControlPanelProviderBuilderImpl(final String propertyName, final IValueRange valueRange, final Cardinality cardinality) {
@@ -148,7 +153,7 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 	public IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> setObjectLabelConverter(
 		final IObjectLabelConverter objectLabelConverter) {
 		this.objectStringConverter = null;
-		this.objectLabelConverter = objectLabelConverter;
+		this.objectLabelConverter = new Some(objectLabelConverter);
 		return this;
 	}
 
@@ -156,36 +161,41 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 	@Override
 	public IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> setObjectLabelConverter(
 		final IObjectStringConverter objectStringConverter) {
-		this.objectLabelConverter = null;
-		this.objectStringConverter = objectStringConverter;
+		if (objectStringConverter instanceof IObjectLabelConverter<?>) {
+			setObjectLabelConverter((IObjectLabelConverter<?>) objectStringConverter);
+		}
+		else {
+			this.objectLabelConverter = null;
+			this.objectStringConverter = new Some(objectStringConverter);
+		}
 		return null;
 	}
 
 	@Override
 	public IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> setStringObjectConverter(
 		final IStringObjectConverter<ELEMENT_VALUE_TYPE> stringObjectConverter) {
-		this.stringObjectConverter = stringObjectConverter;
+		this.stringObjectConverter = new Some<IStringObjectConverter<ELEMENT_VALUE_TYPE>>(stringObjectConverter);
 		return this;
 	}
 
 	@SuppressWarnings({"rawtypes", "unchecked"})
 	@Override
 	public IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> setConverter(final IConverter converter) {
-		this.objectLabelConverter = null;
-		this.objectStringConverter = converter;
-		this.stringObjectConverter = converter;
+		setObjectLabelConverter(converter);
+		setStringObjectConverter(converter);
 		return this;
 	}
 
 	@Override
 	public IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> setFilterSupport(final IFilterSupport<?> filterSupport) {
-		this.filterSupport = filterSupport;
+		this.filterSupport = new Some<IFilterSupport<?>>(filterSupport);
 		return this;
 	}
 
 	@Override
 	public IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> setFilterSupport(
 		final IConverter<ELEMENT_VALUE_TYPE> elementValueConverter) {
+		Assert.paramNotNull(elementValueConverter, "elementValueConverter");
 		setFilterSupport(CapUiToolkit.filterToolkit().filterSupport(
 				propertyName,
 				valueType,
@@ -200,7 +210,8 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 	@Override
 	public IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> setControlCreator(
 		final ICustomWidgetCreator<? extends IInputControl<? extends ELEMENT_VALUE_TYPE>> controlCreator) {
-		this.controlCreator = (ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>>) controlCreator;
+		this.controlCreator = new Some<ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>>>(
+			(ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>>) controlCreator);
 		return this;
 	}
 
@@ -208,7 +219,7 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 	@Override
 	public IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> setCollectionControlCreator(
 		final ICustomWidgetCreator collectionControlCreator) {
-		this.collectionControlCreator = collectionControlCreator;
+		this.collectionControlCreator = new Some(collectionControlCreator);
 		return this;
 	}
 
@@ -216,34 +227,125 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 	@Override
 	public IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> setFilterCollectionControlCreator(
 		final ICustomWidgetCreator collectionControlCreator) {
-		this.filterCollectionControlCreator = collectionControlCreator;
+		this.filterCollectionControlCreator = new Some(collectionControlCreator);
 		return this;
 	}
 
 	private IObjectStringConverter<ELEMENT_VALUE_TYPE> getObjectStringConverter() {
 		if (objectStringConverter == null) {
-			objectStringConverter = Toolkit.getConverterProvider().getObjectStringConverter(elementValueType);
+			return Toolkit.getConverterProvider().getObjectStringConverter(elementValueType);
 		}
-		return objectStringConverter;
+		else {
+			return objectStringConverter.getValue();
+		}
 	}
 
 	private IObjectLabelConverter<ELEMENT_VALUE_TYPE> getObjectLabelConverter() {
 		if (objectLabelConverter == null) {
-			objectLabelConverter = new ObjectStringObjectLabelConverterAdapter<ELEMENT_VALUE_TYPE>(getObjectStringConverter());
+			final IObjectStringConverter<ELEMENT_VALUE_TYPE> objStringConv = getObjectStringConverter();
+			if (objStringConv != null) {
+				return new ObjectStringObjectLabelConverterAdapter<ELEMENT_VALUE_TYPE>(objStringConv);
+			}
+			else {
+				return null;
+			}
 		}
-		return objectLabelConverter;
+		else {
+			return objectLabelConverter.getValue();
+		}
 	}
 
 	protected IStringObjectConverter<ELEMENT_VALUE_TYPE> getStringObjectConverter() {
 		if (stringObjectConverter == null) {
-			final IConverterProvider converterProvider = Toolkit.getConverterProvider();
-			stringObjectConverter = converterProvider.getConverter(elementValueType);
+			return Toolkit.getConverterProvider().getConverter(elementValueType);
 		}
-		return stringObjectConverter;
+		else {
+			return stringObjectConverter.getValue();
+		}
 	}
 
 	private ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> getControlCreator() {
 		if (controlCreator == null) {
+			if (stringObjectConverter != null || objectStringConverter != null || objectLabelConverter != null) {
+				final IInputControlProviderBuilder<ELEMENT_VALUE_TYPE> builder = InputControlProvider.builder(elementValueType);
+				final IObjectLabelConverter<ELEMENT_VALUE_TYPE> objLabelConverter = getObjectLabelConverter();
+				final IStringObjectConverter<ELEMENT_VALUE_TYPE> stringObjConverter = getStringObjectConverter();
+				builder.setObjectLabelConverter(objLabelConverter);
+				builder.setStringObjectConverter(stringObjConverter);
+				return builder.build().getControlCreator(objLabelConverter, stringObjConverter, valueRange);
+			}
+			else {
+				final IInputControlProvider<ELEMENT_VALUE_TYPE> defaultControl;
+
+				if (valueRange instanceof ILookUpValueRange) {
+					final IInputControlSupport<ELEMENT_VALUE_TYPE> controls;
+					controls = CapUiToolkit.inputControlRegistry().getControls((ILookUpValueRange) valueRange);
+					defaultControl = getDefaultControl(controls);
+				}
+				else {
+					defaultControl = getDefaultControl(CapUiToolkit.inputControlRegistry().getControls(elementValueType));
+				}
+
+				if (defaultControl != null) {
+					return defaultControl.getControlCreator(
+							getObjectLabelConverter(defaultControl),
+							getStringObjectConverter(defaultControl),
+							valueRange);
+				}
+				else {
+					return null;
+				}
+			}
+		}
+		else {
+			return controlCreator.getValue();
+		}
+	}
+
+	private ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> getCollectionControlCreator() {
+		if (collectionControlCreator == null) {
+			final ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> collectionCreator;
+			collectionCreator = createCollectionControlCreator();
+			final ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> elementCreator = getControlCreator();
+			if (Collection.class.isAssignableFrom(valueType)
+				&& Cardinality.LESS_OR_EQUAL_ONE == cardinality
+				&& collectionCreator != null
+				&& elementCreator != null) {
+				return new CombinedCollectionControlCreator<ELEMENT_VALUE_TYPE>(elementCreator, collectionCreator);
+			}
+			else {
+				return collectionCreator;
+			}
+		}
+		else {
+			return collectionControlCreator.getValue();
+		}
+	}
+
+	private ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> getFilterCollectionControlCreator() {
+		if (filterCollectionControlCreator == null) {
+			return createCollectionControlCreator();
+		}
+		else {
+			return filterCollectionControlCreator.getValue();
+		}
+	}
+
+	private ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> createCollectionControlCreator() {
+		if (stringObjectConverter != null || objectStringConverter != null || objectLabelConverter != null) {
+			final IInputControlProviderBuilder<ELEMENT_VALUE_TYPE> builder = InputControlProvider.builder(elementValueType);
+			final IObjectLabelConverter<ELEMENT_VALUE_TYPE> objLabelConverter = getObjectLabelConverter();
+			final IStringObjectConverter<ELEMENT_VALUE_TYPE> stringObjConverter = getStringObjectConverter();
+			builder.setObjectLabelConverter(objLabelConverter);
+			builder.setStringObjectConverter(stringObjConverter);
+			final IInputControlProvider<ELEMENT_VALUE_TYPE> inputControlProvider = builder.build();
+			return inputControlProvider.getCollectionControlCreator(
+					getControlCreator(),
+					objLabelConverter,
+					stringObjConverter,
+					valueRange);
+		}
+		else {
 
 			final IInputControlProvider<ELEMENT_VALUE_TYPE> defaultControl;
 
@@ -257,64 +359,15 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 			}
 
 			if (defaultControl != null) {
-				controlCreator = defaultControl.getControlCreator(
+				return defaultControl.getCollectionControlCreator(
+						getControlCreator(defaultControl),
 						getObjectLabelConverter(defaultControl),
 						getStringObjectConverter(defaultControl),
 						valueRange);
 			}
-		}
-		return controlCreator;
-	}
-
-	private ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> getCollectionControlCreator() {
-		if (collectionControlCreator == null) {
-			final ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> collectionCreator;
-			collectionCreator = createCollectionControlCreator();
-			final ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> elementCreator = getControlCreator();
-			if (Collection.class.isAssignableFrom(valueType)
-				&& Cardinality.LESS_OR_EQUAL_ONE == cardinality
-				&& collectionCreator != null
-				&& elementCreator != null) {
-				collectionControlCreator = new CombinedCollectionControlCreator<ELEMENT_VALUE_TYPE>(
-					elementCreator,
-					collectionCreator);
-			}
 			else {
-				collectionControlCreator = collectionCreator;
+				return null;
 			}
-		}
-		return collectionControlCreator;
-	}
-
-	private ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> getFilterCollectionControlCreator() {
-		if (filterCollectionControlCreator == null) {
-			filterCollectionControlCreator = createCollectionControlCreator();
-		}
-		return filterCollectionControlCreator;
-	}
-
-	private ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> createCollectionControlCreator() {
-
-		final IInputControlProvider<ELEMENT_VALUE_TYPE> defaultControl;
-
-		if (valueRange instanceof ILookUpValueRange) {
-			final IInputControlSupport<ELEMENT_VALUE_TYPE> controls;
-			controls = CapUiToolkit.inputControlRegistry().getControls((ILookUpValueRange) valueRange);
-			defaultControl = getDefaultControl(controls);
-		}
-		else {
-			defaultControl = getDefaultControl(CapUiToolkit.inputControlRegistry().getControls(elementValueType));
-		}
-
-		if (defaultControl != null) {
-			return defaultControl.getCollectionControlCreator(
-					getControlCreator(defaultControl),
-					getObjectLabelConverter(defaultControl),
-					getStringObjectConverter(defaultControl),
-					valueRange);
-		}
-		else {
-			return null;
 		}
 
 	}
@@ -371,22 +424,31 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 					valueRange);
 		}
 		else {
-			return controlCreator;
+			return controlCreator.getValue();
 		}
 	}
 
 	private IFilterSupport<?> getFilterSupport() {
 		if (filterSupport == null) {
-			filterSupport = CapUiToolkit.filterToolkit().filterSupport(
-					propertyName,
-					valueType,
-					elementValueType,
-					valueRange,
-					cardinality,
-					getControlCreator(),
-					getFilterCollectionControlCreator());
+			final ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> contrCreator = getControlCreator();
+			final ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> filterCollectionContrCreator = getFilterCollectionControlCreator();
+			if (contrCreator != null && filterCollectionContrCreator != null) {
+				return CapUiToolkit.filterToolkit().filterSupport(
+						propertyName,
+						valueType,
+						elementValueType,
+						valueRange,
+						cardinality,
+						contrCreator,
+						filterCollectionContrCreator);
+			}
+			else {
+				return null;
+			}
 		}
-		return filterSupport;
+		else {
+			return filterSupport.getValue();
+		}
 	}
 
 	@Override

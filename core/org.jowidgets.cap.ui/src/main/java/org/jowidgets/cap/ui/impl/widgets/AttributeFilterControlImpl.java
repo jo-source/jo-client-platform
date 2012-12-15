@@ -371,7 +371,7 @@ final class AttributeFilterControlImpl extends AbstractInputControl<IUiConfigura
 	@SuppressWarnings("unchecked")
 	private IFilterPanelProvider<IOperator> getFilterPanelProvider(final IAttribute<?> attribute, final IFilterType filterType) {
 
-		final IControlPanelProvider<?> controlPanel = attribute.getCurrentControlPanel();
+		final IControlPanelProvider<?> controlPanel = attribute.getCurrentFilterControlPanel(filterType);
 
 		if (controlPanel == null) {
 			throw new IllegalStateException("No filter control panel provider found for the attribute '"
