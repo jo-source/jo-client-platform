@@ -72,10 +72,17 @@ class ControlProviderLookUpDefault<ELEMENT_VALUE_TYPE> implements IInputControlP
 		return displayFormat;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public IObjectLabelConverter<ELEMENT_VALUE_TYPE> getObjectLabelConverter(final IValueRange valueRange) {
 		Assert.paramHasType(valueRange, ILookUpValueRange.class, "valueRange");
-		return new ObjectStringObjectLabelConverterAdapter<ELEMENT_VALUE_TYPE>(getConverter(valueRange));
+		final IConverter<ELEMENT_VALUE_TYPE> converter = getConverter(valueRange);
+		if (converter instanceof IObjectLabelConverter) {
+			return (IObjectLabelConverter<ELEMENT_VALUE_TYPE>) converter;
+		}
+		else {
+			return new ObjectStringObjectLabelConverterAdapter<ELEMENT_VALUE_TYPE>(getConverter(valueRange));
+		}
 	}
 
 	@Override

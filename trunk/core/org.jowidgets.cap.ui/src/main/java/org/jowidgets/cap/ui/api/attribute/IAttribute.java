@@ -92,6 +92,12 @@ public interface IAttribute<ELEMENT_VALUE_TYPE> extends IChangeObservable {
 
 	IFilterPanelProvider<IOperator> getFilterPanelProvider(IFilterType filterType);
 
+	IControlPanelProvider<ELEMENT_VALUE_TYPE> getCurrentFilterControlPanel(IFilterType filterType);
+
+	IControlPanelProvider<ELEMENT_VALUE_TYPE> getCurrentIncludingFilterControlPanel(IFilterType filterType);
+
+	IControlPanelProvider<ELEMENT_VALUE_TYPE> getCurrentIncludingFilterControlPanel();
+
 	boolean isVisible();
 
 	IDisplayFormat getDisplayFormat();

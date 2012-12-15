@@ -30,8 +30,10 @@ package org.jowidgets.cap.ui.impl;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.jowidgets.api.convert.IObjectLabelConverter;
 import org.jowidgets.cap.common.api.bean.Cardinality;
@@ -46,10 +48,12 @@ import org.jowidgets.cap.ui.api.control.IDisplayFormat;
 import org.jowidgets.cap.ui.api.filter.IFilterPanelProvider;
 import org.jowidgets.cap.ui.api.filter.IFilterSupport;
 import org.jowidgets.cap.ui.api.filter.IFilterType;
+import org.jowidgets.cap.ui.api.filter.IIncludingFilterFactory;
 import org.jowidgets.common.types.AlignmentHorizontal;
 import org.jowidgets.i18n.api.IMessage;
 import org.jowidgets.i18n.tools.StaticMessage;
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.NullCompatibleEquivalence;
 import org.jowidgets.util.event.ChangeObservable;
 import org.jowidgets.util.event.IChangeListener;
 import org.jowidgets.validation.IValidator;
@@ -338,19 +342,95 @@ final class AttributeImpl<ELEMENT_VALUE_TYPE> implements IAttribute<ELEMENT_VALU
 
 	@Override
 	public List<IFilterType> getSupportedFilterTypes() {
-		final List<IFilterType> result = new LinkedList<IFilterType>();
+		final Set<IFilterType> result = new LinkedHashSet<IFilterType>();
 		for (final IControlPanelProvider<ELEMENT_VALUE_TYPE> controlPanelProvider : controlPanels) {
 			final IFilterSupport<?> filterSupport = controlPanelProvider.getFilterSupport();
 			if (filterSupport != null) {
 				for (final IFilterPanelProvider<?> filterPanelProvider : filterSupport.getFilterPanels()) {
 					final IFilterType filterType = filterPanelProvider.getType();
-					if (!result.contains(filterType)) {
-						result.add(filterType);
+					result.add(filterType);
+				}
+			}
+		}
+		return new LinkedList<IFilterType>(result);
+	}
+
+	@Override
+	public IControlPanelProvider<ELEMENT_VALUE_TYPE> getCurrentIncludingFilterControlPanel() {
+		return getCurrentIncludingFilterControlPanelImpl(null);
+	}
+
+	@Override
+	public IControlPanelProvider<ELEMENT_VALUE_TYPE> getCurrentIncludingFilterControlPanel(final IFilterType filterType) {
+		Assert.paramNotNull(filterType, "filterType");
+		return getCurrentIncludingFilterControlPanelImpl(filterType);
+	}
+
+	private IControlPanelProvider<ELEMENT_VALUE_TYPE> getCurrentIncludingFilterControlPanelImpl(final IFilterType filterType) {
+		final IControlPanelProvider<ELEMENT_VALUE_TYPE> current = getCurrentControlPanel();
+		if (hasIncludingFilterTypeSupport(current, filterType)) {
+			return current;
+		}
+		else {
+			for (final IControlPanelProvider<ELEMENT_VALUE_TYPE> controlPanel : controlPanels) {
+				if (hasIncludingFilterTypeSupport(controlPanel, filterType)) {
+					return controlPanel;
+				}
+			}
+		}
+		return null;
+	}
+
+	private boolean hasIncludingFilterTypeSupport(
+		final IControlPanelProvider<ELEMENT_VALUE_TYPE> controlPanel,
+		final IFilterType filterType) {
+		if (controlPanel != null) {
+			final IFilterSupport<Object> filterSupport = controlPanel.getFilterSupport();
+			if (filterSupport != null) {
+				final IIncludingFilterFactory<Object> includingFilterFactory = filterSupport.getIncludingFilterFactory();
+				if (includingFilterFactory != null) {
+					if (filterType != null) {
+						return filterType.equals(includingFilterFactory.getFilterType());
+					}
+					else {
+						return true;
 					}
 				}
 			}
 		}
-		return result;
+		return false;
+	}
+
+	@Override
+	public IControlPanelProvider<ELEMENT_VALUE_TYPE> getCurrentFilterControlPanel(final IFilterType filterType) {
+		final IControlPanelProvider<ELEMENT_VALUE_TYPE> current = getCurrentControlPanel();
+		if (hasFilterTypeSupport(current, filterType)) {
+			return current;
+		}
+		else {
+			for (final IControlPanelProvider<ELEMENT_VALUE_TYPE> controlPanel : controlPanels) {
+				if (hasFilterTypeSupport(controlPanel, filterType)) {
+					return controlPanel;
+				}
+			}
+		}
+		return null;
+	}
+
+	private boolean hasFilterTypeSupport(
+		final IControlPanelProvider<ELEMENT_VALUE_TYPE> controlPanel,
+		final IFilterType filterType) {
+		if (controlPanel != null) {
+			final IFilterSupport<Object> filterSupport = controlPanel.getFilterSupport();
+			if (filterSupport != null) {
+				for (final IFilterPanelProvider<?> filterPanel : filterSupport.getFilterPanels()) {
+					if (NullCompatibleEquivalence.equals(filterType, filterPanel.getType())) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
 	}
 
 	@Override

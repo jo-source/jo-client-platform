@@ -37,6 +37,7 @@ import org.jowidgets.api.command.IExceptionHandler;
 import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.cap.common.api.filter.IOperator;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
+import org.jowidgets.cap.ui.api.attribute.IControlPanelProvider;
 import org.jowidgets.cap.ui.api.filter.IFilterPanelProvider;
 import org.jowidgets.cap.ui.api.filter.IFilterSupport;
 import org.jowidgets.cap.ui.api.filter.IIncludingFilterFactory;
@@ -145,11 +146,14 @@ abstract class AbstractBeanTableAddFilterCommandExecutor implements ICommand, IC
 		final IAttribute<Object> attribute = model.getAttribute(columnIndex);
 		if (attribute != null) {
 			final Object value = model.getValue(rowIndex, columnIndex);
-			final IFilterSupport<Object> filterSupport = attribute.getCurrentControlPanel().getFilterSupport();
-			if (filterSupport != null) {
-				final IIncludingFilterFactory<Object> includingFilterFactory = filterSupport.getIncludingFilterFactory();
-				if (includingFilterFactory != null) {
-					return includingFilterFactory.getIncludingFilter(value);
+			final IControlPanelProvider<Object> controlPanel = attribute.getCurrentIncludingFilterControlPanel();
+			if (controlPanel != null) {
+				final IFilterSupport<Object> filterSupport = controlPanel.getFilterSupport();
+				if (filterSupport != null) {
+					final IIncludingFilterFactory<Object> includingFilterFactory = filterSupport.getIncludingFilterFactory();
+					if (includingFilterFactory != null) {
+						return includingFilterFactory.getIncludingFilter(value);
+					}
 				}
 			}
 		}

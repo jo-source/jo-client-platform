@@ -34,6 +34,7 @@ import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.image.IconsSmall;
 import org.jowidgets.api.model.item.IMenuItemModel;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
+import org.jowidgets.cap.ui.api.attribute.IControlPanelProvider;
 import org.jowidgets.cap.ui.api.filter.IFilterSupport;
 import org.jowidgets.cap.ui.api.filter.IFilterType;
 import org.jowidgets.cap.ui.api.filter.IIncludingFilterFactory;
@@ -85,17 +86,30 @@ final class BeanTableCellFilterMenuModel<BEAN_TYPE> extends MenuModel {
 	}
 
 	private static boolean hasIncludingFilterSupport(final IAttribute<?> attribute) {
-		final IFilterSupport<Object> filterSupport = attribute.getCurrentControlPanel().getFilterSupport();
-		if (filterSupport != null) {
-			return filterSupport.getIncludingFilterFactory() != null;
+		for (final IControlPanelProvider<?> controlPanel : attribute.getControlPanels()) {
+			final IFilterSupport<Object> filterSupport = controlPanel.getFilterSupport();
+			if (filterSupport != null && filterSupport.getIncludingFilterFactory() != null) {
+				return true;
+			}
 		}
 		return false;
 	}
 
 	private static boolean hasCustomFilterSupport(final IAttribute<?> attribute) {
-		final IFilterSupport<Object> filterSupport = attribute.getCurrentControlPanel().getFilterSupport();
-		final IIncludingFilterFactory<Object> includingFilterFactory = filterSupport.getIncludingFilterFactory();
-		return attribute.getSupportedFilterTypes().contains(includingFilterFactory.getFilterType());
+		for (final IControlPanelProvider<?> controlPanel : attribute.getControlPanels()) {
+			final IFilterSupport<Object> filterSupport = controlPanel.getFilterSupport();
+			if (filterSupport != null) {
+				final IIncludingFilterFactory<Object> includingFilterFactory = filterSupport.getIncludingFilterFactory();
+				if (includingFilterFactory != null) {
+					if (attribute.getSupportedFilterTypes().contains(includingFilterFactory.getFilterType())) {
+						return true;
+					}
+				}
+				return true;
+			}
+		}
+		return false;
+
 	}
 
 	private void tryAddAction(final IAction action) {
