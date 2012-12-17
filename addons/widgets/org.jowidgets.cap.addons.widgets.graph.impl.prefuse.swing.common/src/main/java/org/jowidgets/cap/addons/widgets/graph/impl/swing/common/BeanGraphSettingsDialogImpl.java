@@ -66,19 +66,19 @@ final class BeanGraphSettingsDialog extends JoFrame {
 
 		final ITabFolder tabFolder = content.add(BPF.tabFolder().setTabsCloseable(false));
 
-		final ITabItem item1 = tabFolder.addItem(BPF.tabItem());
-		item1.setText("RelationFilter");
-		final ITabItem item2 = tabFolder.addItem(BPF.tabItem());
-		item2.setText("GroupFilter");
+		final ITabItem itemGroupFilter = tabFolder.addItem(BPF.tabItem());
+		itemGroupFilter.setText("GroupFilter");
+		final ITabItem itemRelationFilter = tabFolder.addItem(BPF.tabItem());
+		itemRelationFilter.setText("RelationFilter");
 
-		item1.setLayout(MigLayoutFactory.growingInnerCellLayout());
-		item2.setLayout(MigLayoutFactory.growingInnerCellLayout());
+		itemRelationFilter.setLayout(MigLayoutFactory.growingInnerCellLayout());
+		itemGroupFilter.setLayout(MigLayoutFactory.growingInnerCellLayout());
 
-		beanGraphAttributeListImplRelations = new BeanGraphAttributeListImpl(vis, item1.add(
+		beanGraphAttributeListImplRelations = new BeanGraphAttributeListImpl(vis, itemRelationFilter.add(
 				BPF.composite(),
 				"grow, wrap, span, w 0:360:, h 0::"), groupMap, edgeVisibilityMap, FilterType.RELATIONS);
 
-		beanGraphAttributeListImplGroup = new BeanGraphAttributeListImpl(vis, item2.add(
+		beanGraphAttributeListImplGroup = new BeanGraphAttributeListImpl(vis, itemGroupFilter.add(
 				BPF.composite(),
 				"grow, wrap, span, w 0:360:, h 0::"), groupMap, edgeVisibilityMap, FilterType.GROUPS);
 
