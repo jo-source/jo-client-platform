@@ -43,10 +43,12 @@ import prefuse.action.layout.graph.ForceDirectedLayout;
 import prefuse.action.layout.graph.NodeLinkTreeLayout;
 import prefuse.action.layout.graph.RadialTreeLayout;
 import prefuse.activity.Activity;
+import prefuse.data.Node;
 import prefuse.util.force.DragForce;
 import prefuse.util.force.ForceSimulator;
 import prefuse.util.force.NBodyForce;
 import prefuse.util.force.SpringForce;
+import prefuse.visual.NodeItem;
 import prefuse.visual.VisualItem;
 
 class LayoutManager {
@@ -112,6 +114,12 @@ class LayoutManager {
 	}
 
 	public void assignNodes(final boolean first) {
+
+		//TODO FIX LATER
+		//		if (first) {
+		//			setFixedPosition();
+		//		}
+
 		final Iterator<?> iterator = vis.visibleItems("graph.nodes");
 		final LinkedList<VisualItem> boundaries = new LinkedList<VisualItem>();
 		while (iterator.hasNext()) {
@@ -166,6 +174,20 @@ class LayoutManager {
 		if (first) {
 			assignNodes(false);
 		}
+	}
+
+	@SuppressWarnings("unused")
+	private void setFixedPosition() {
+		final Iterator<?> iteratorVisNodes = vis.visibleItems(BeanRelationGraphImpl.NODES);
+		while (iteratorVisNodes.hasNext()) {
+			final Node node = (Node) iteratorVisNodes.next();
+			if (node.get("position") != null) {
+				final VisualItem item = (VisualItem) node;
+				item.setX(((Point) node.get("position")).x);
+				item.setY(((Point) node.get("position")).y);
+			}
+		}
+		vis.repaint();
 	}
 
 	private ForceSimulator setForces() {
@@ -238,6 +260,14 @@ class LayoutManager {
 		this.layout = null;
 	}
 
+	public void resetNodePositions() {
+		final Iterator<?> iterator = vis.items(BeanRelationGraphImpl.NODES);
+		while (iterator.hasNext()) {
+			final Node node = (Node) iterator.next();
+			node.set("position", null);
+		}
+	}
+
 	public LabelEdgeLayout getLabelEdgeLayout() {
 		return this.labelEdgeLayout;
 	}
@@ -252,6 +282,14 @@ class LayoutManager {
 
 	public double getRadialRadius() {
 		return this.radialTreeLayout.getRadiusIncrement();
+	}
+
+	public void setNodeLinkLayoutRoot(final Node node) {
+		this.nodeLinkTreeLayout.setLayoutRoot((NodeItem) node);
+	}
+
+	public void setRadialTreeLayoutRoot(final Node node) {
+		this.radialTreeLayout.setLayoutRoot((NodeItem) node);
 	}
 
 	public void setNodeLinkedDistance(final double distance) {
