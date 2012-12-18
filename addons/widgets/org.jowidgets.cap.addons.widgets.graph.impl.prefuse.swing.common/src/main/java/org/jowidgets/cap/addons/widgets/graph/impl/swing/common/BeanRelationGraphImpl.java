@@ -155,8 +155,6 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 	private static final Schema DECORATOR_SCHEMA = createDecoratorSchema();
 
 	private static int autoExpandLevel;
-	@SuppressWarnings("unused")
-	private static int expandCounter;
 	private static NodeItem markedNode;
 
 	private static BeanGraphSettingsDialog settingsDialog;
@@ -217,7 +215,6 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		expandMapResult = new HashSet<IBeanRelationNodeModel<Object, Object>>();
 
 		autoExpandLevel = setup.getAutoExpandLevel();
-		expandCounter = 0;
 		settingsDialog = null;
 		rootModelListener = new RootModelListener();
 
@@ -832,12 +829,6 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 			if (level >= 0) {
 				synchronized (expandMapResult) {
 					if (checkFullyLoaded()) {
-						//						if (expandCounter != level) {
-						//							expandCounter = level;
-						//						}
-						//						else {
-						//							return;
-						//						}
 						expandMapResult.clear();
 						vis.run("expand");
 					}
@@ -1308,6 +1299,8 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 
 	private class ExpandLevelVisibilityAction extends GroupAction {
 
+		private final List<Node> formerLastNodes = new LinkedList<Node>();
+
 		public ExpandLevelVisibilityAction(final String group) {
 			super(group);
 		}
@@ -1353,8 +1346,18 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 					}
 				}
 
-				//TODO write method to check if beanrelmodel of lastnodes already loaded and no childs
-				//________________________________________________
+				if (formerLastNodes.size() == 0) {
+					formerLastNodes.addAll(lastNodes);
+				}
+				else {
+					if (formerLastNodes.equals(lastNodes)) {
+						return;
+					}
+					else {
+						formerLastNodes.clear();
+						formerLastNodes.addAll(lastNodes);
+					}
+				}
 
 				if ((highestLevel <= autoExpandLevel) && graph.getNodeCount() < maxNodeCount) {
 					final Iterator<?> itSecond = lastNodes.iterator();
