@@ -235,7 +235,6 @@ public class BeanGraphAttributeListImpl extends CompositeWrapper {
 							}
 						}
 					}
-
 					vis.run("filter");
 					vis.run("layout");
 					vis.run("animate");
