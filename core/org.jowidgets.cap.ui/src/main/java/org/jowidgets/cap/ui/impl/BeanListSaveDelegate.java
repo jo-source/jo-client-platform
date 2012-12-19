@@ -155,7 +155,7 @@ final class BeanListSaveDelegate<BEAN_TYPE> {
 	private IBeanData createBeanData(final IBeanProxy<BEAN_TYPE> bean) {
 		final IBeanDataBuilder builder = CapCommonToolkit.beanDataBuilder();
 		for (final String propertyName : propertyNames) {
-			if (propertyName != IBean.ID_PROPERTY) {
+			if (propertyName != IBean.ID_PROPERTY && !IBeanProxy.ALL_META_ATTRIBUTES.contains(propertyName)) {
 				builder.setProperty(propertyName, bean.getValue(propertyName));
 			}
 		}
