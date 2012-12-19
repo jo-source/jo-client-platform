@@ -232,7 +232,7 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 		final IBeanDataBuilder builder = CapCommonToolkit.beanDataBuilder();
 		for (final IAttribute<?> attribute : attributes) {
 			final String propertyName = attribute.getPropertyName();
-			if (propertyName != IBean.ID_PROPERTY) {
+			if (propertyName != IBean.ID_PROPERTY && !IBeanProxy.ALL_META_ATTRIBUTES.contains(propertyName)) {
 				builder.setProperty(propertyName, bean.getValue(propertyName));
 			}
 		}
