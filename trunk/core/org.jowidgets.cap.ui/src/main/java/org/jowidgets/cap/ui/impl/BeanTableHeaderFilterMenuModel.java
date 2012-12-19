@@ -64,7 +64,8 @@ final class BeanTableHeaderFilterMenuModel<BEAN_TYPE> extends MenuModel {
 			tryAddAction(menuFactory.deleteColumnFiltersAction(model, columnIndex));
 			addSeparator();
 		}
-		tryAddAction(menuFactory.editFilterAction(model));
+		//TODO MG comment in after edit filter action was implemented
+		//tryAddAction(menuFactory.editFilterAction(model));
 		tryAddAction(menuFactory.deleteFilterAction(model));
 		addSeparator();
 		tryAddItem(table.getFilterToolbarItemModel());
