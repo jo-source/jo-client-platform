@@ -78,7 +78,8 @@ final class BeanTableCellFilterMenuModel<BEAN_TYPE> extends MenuModel {
 			}
 			addSeparator();
 		}
-		tryAddAction(menuFactory.editFilterAction(model));
+		//TODO MG comment in after edit filter action was implemented
+		//tryAddAction(menuFactory.editFilterAction(model));
 		tryAddAction(menuFactory.deleteFilterAction(model));
 		addSeparator();
 		tryAddItem(table.getFilterToolbarItemModel());

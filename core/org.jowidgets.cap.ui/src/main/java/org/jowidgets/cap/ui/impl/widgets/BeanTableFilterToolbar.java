@@ -76,7 +76,8 @@ final class BeanTableFilterToolbar<BEAN_TYPE> {
 		closeButtonBp.setToolTipText(closeButtonTooltip);
 		final IToolBarButton closeButton = toolBar.addItem(closeButtonBp);
 
-		toolBar.addAction(menuFactory.editFilterAction(model));
+		//TODO MG comment in after edit filter action was implemented
+		//toolBar.addAction(menuFactory.editFilterAction(model));
 		toolBar.addAction(menuFactory.deleteFilterAction(model));
 
 		toolBar.pack();

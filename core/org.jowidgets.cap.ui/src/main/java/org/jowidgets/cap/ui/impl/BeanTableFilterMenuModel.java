@@ -43,7 +43,8 @@ final class BeanTableFilterMenuModel<BEAN_TYPE> extends MenuModel {
 
 		final IBeanTableModel<BEAN_TYPE> model = table.getModel();
 
-		tryAddAction(menuFactory.editFilterAction(model));
+		//TODO MG comment in after edit filter action was implemented
+		//tryAddAction(menuFactory.editFilterAction(model));
 		tryAddAction(menuFactory.deleteFilterAction(model));
 		addSeparator();
 		tryAddItem(table.getFilterToolbarItemModel());
