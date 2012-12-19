@@ -42,7 +42,7 @@ final class BeanDialogFactory implements IWidgetFactory<IBeanDialog<Object>, IBe
 	public IBeanDialog<Object> create(final Object parentUiReference, final IBeanDialogBluePrint<Object> beanDialogBp) {
 		final IDialogBluePrint dialogBp = BPF.dialog();
 		dialogBp.setSetup(beanDialogBp);
-		final IFrame dialog = Toolkit.getWidgetFactory().create(dialogBp);
+		final IFrame dialog = Toolkit.getWidgetFactory().create(parentUiReference, dialogBp);
 		return new BeanDialogImpl<Object>(dialog, beanDialogBp);
 	}
 
