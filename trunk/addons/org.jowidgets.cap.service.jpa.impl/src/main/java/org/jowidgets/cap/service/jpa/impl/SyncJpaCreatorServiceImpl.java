@@ -28,36 +28,21 @@
 
 package org.jowidgets.cap.service.jpa.impl;
 
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-
 import javax.persistence.EntityManager;
 
 import org.jowidgets.cap.common.api.bean.IBean;
-import org.jowidgets.cap.common.api.bean.IBeanData;
-import org.jowidgets.cap.common.api.bean.IBeanDto;
-import org.jowidgets.cap.common.api.exception.BeanValidationException;
-import org.jowidgets.cap.common.api.exception.ExecutableCheckException;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
-import org.jowidgets.cap.common.api.execution.IExecutableState;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
-import org.jowidgets.cap.common.api.validation.IBeanValidationResult;
 import org.jowidgets.cap.common.api.validation.IBeanValidator;
-import org.jowidgets.cap.common.tools.validation.BeanValidationResultUtil;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
-import org.jowidgets.cap.service.api.adapter.ISyncCreatorService;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.cap.service.api.bean.IBeanInitializer;
+import org.jowidgets.cap.service.tools.creator.AbstractSyncCreatorServiceImpl;
 import org.jowidgets.util.Assert;
 
-final class SyncJpaCreatorServiceImpl<BEAN_TYPE extends IBean> implements ISyncCreatorService {
+final class SyncJpaCreatorServiceImpl<BEAN_TYPE extends IBean> extends AbstractSyncCreatorServiceImpl<BEAN_TYPE> {
 
 	private final Class<? extends BEAN_TYPE> beanType;
-	private final IBeanDtoFactory<BEAN_TYPE> dtoFactory;
-	private final IBeanInitializer<BEAN_TYPE> beanInitializer;
-	private final IExecutableChecker<BEAN_TYPE> executableChecker;
-	private final IBeanValidator<BEAN_TYPE> beanValidator;
 
 	SyncJpaCreatorServiceImpl(
 		final Class<? extends BEAN_TYPE> beanType,
@@ -66,71 +51,27 @@ final class SyncJpaCreatorServiceImpl<BEAN_TYPE extends IBean> implements ISyncC
 		final IExecutableChecker<BEAN_TYPE> executableChecker,
 		final IBeanValidator<BEAN_TYPE> beanValidator) {
 
+		super(beanType, dtoFactory, beanInitializer, executableChecker, beanValidator);
 		Assert.paramNotNull(beanType, "beanType");
-		Assert.paramNotNull(dtoFactory, "dtoFactory");
-		Assert.paramNotNull(beanInitializer, "beanInitializer");
-
 		this.beanType = beanType;
-		this.dtoFactory = dtoFactory;
-		this.beanInitializer = beanInitializer;
-		this.executableChecker = executableChecker;
-		this.beanValidator = beanValidator;
 	}
 
 	@Override
-	public List<IBeanDto> create(final Collection<? extends IBeanData> beansData, final IExecutionCallback executionCallback) {
-		final List<IBeanDto> result = new LinkedList<IBeanDto>();
-		for (final IBeanData beanData : beansData) {
-			final BEAN_TYPE bean;
-			try {
-				bean = beanType.newInstance();
-			}
-			catch (final InstantiationException e) {
-				throw new RuntimeException(e);
-			}
-			catch (final IllegalAccessException e) {
-				throw new RuntimeException(e);
-			}
-			final EntityManager entityManager = EntityManagerProvider.get();
-
-			CapServiceToolkit.checkCanceled(executionCallback);
-			beanInitializer.initialize(bean, beanData);
-
-			checkExecutableStates(bean);
-			validate(bean);
-
-			CapServiceToolkit.checkCanceled(executionCallback);
-
-			if (bean.getId() == null) {
-				entityManager.persist(bean);
-			}
-
-			CapServiceToolkit.checkCanceled(executionCallback);
-
-			entityManager.flush();
-
-			result.add(dtoFactory.createDto(bean));
+	protected BEAN_TYPE createBean(final IExecutionCallback executionCallback) {
+		try {
+			return beanType.newInstance();
 		}
-		return result;
-	}
-
-	private void checkExecutableStates(final BEAN_TYPE bean) {
-		if (executableChecker != null) {
-			final IExecutableState checkResult = executableChecker.getExecutableState(bean);
-			if (checkResult != null && !checkResult.isExecutable()) {
-				throw new ExecutableCheckException(bean.getId(), checkResult.getReason());
-			}
+		catch (final Exception e) {
+			throw new RuntimeException(e);
 		}
 	}
 
-	private void validate(final BEAN_TYPE bean) {
-		if (beanValidator != null) {
-			final Collection<IBeanValidationResult> validationResults = beanValidator.validate(bean);
-			final IBeanValidationResult worstFirst = BeanValidationResultUtil.getWorstFirst(validationResults);
-			if (worstFirst != null && !worstFirst.getValidationResult().isValid()) {
-				throw new BeanValidationException(bean.getId(), worstFirst);
-			}
-		}
+	@Override
+	protected void persistBean(final BEAN_TYPE bean, final IExecutionCallback executionCallback) {
+		final EntityManager entityManager = EntityManagerProvider.get();
+		entityManager.persist(bean);
+		CapServiceToolkit.checkCanceled(executionCallback);
+		entityManager.flush();
 	}
 
 }

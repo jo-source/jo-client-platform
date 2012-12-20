@@ -50,13 +50,20 @@ import org.jowidgets.cap.common.api.validation.IBeanValidator;
 import org.jowidgets.cap.common.tools.validation.BeanValidationResultUtil;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.adapter.ISyncExecutorService;
+import org.jowidgets.cap.service.api.bean.BeanUpdateInterceptor;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
+import org.jowidgets.cap.service.api.bean.IBeanUpdateInterceptor;
 import org.jowidgets.cap.service.api.executor.IBeanExecutor;
 import org.jowidgets.cap.service.api.executor.IBeanListExecutor;
+import org.jowidgets.cap.service.api.plugin.IBeanUpdateInterceptorPlugin;
 import org.jowidgets.cap.service.tools.bean.BeanDtoFactoryHelper;
+import org.jowidgets.plugin.api.IPluginPropertiesBuilder;
+import org.jowidgets.plugin.api.PluginProvider;
+import org.jowidgets.plugin.api.PluginToolkit;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.EmptyCheck;
+import org.jowidgets.util.reflection.AnnotationCache;
 
 public final class SyncExecutorServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE> implements ISyncExecutorService<PARAM_TYPE> {
 
@@ -68,10 +75,11 @@ public final class SyncExecutorServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE> 
 	private final boolean allowStaleBeans;
 
 	private final IBeanDtoFactory<BEAN_TYPE> dtoFactory;
+	private final IBeanUpdateInterceptor<BEAN_TYPE> updateInterceptor;
+	private final Collection<IBeanUpdateInterceptorPlugin<BEAN_TYPE>> updateInterceptorPlugins;
 
 	@SuppressWarnings("unchecked")
 	SyncExecutorServiceImpl(
-		final Class<? extends BEAN_TYPE> beanType,
 		final IBeanAccess<? extends BEAN_TYPE> beanAccess,
 		final Object executor,
 		final IExecutableChecker<? extends BEAN_TYPE> executableChecker,
@@ -80,8 +88,8 @@ public final class SyncExecutorServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE> 
 		final boolean allowDeletedBeans,
 		final boolean allowStaleBeans) {
 
-		Assert.paramNotNull(beanType, "beanType");
 		Assert.paramNotNull(beanAccess, "beanAccess");
+		Assert.paramNotNull(beanAccess.getBeanType(), "beanAccess.getBeanType()");
 		Assert.paramNotNull(executor, "executor");
 		Assert.paramNotNull(dtoFactory, "dtoFactory");
 
@@ -93,6 +101,36 @@ public final class SyncExecutorServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE> 
 		this.allowStaleBeans = allowStaleBeans;
 
 		this.dtoFactory = dtoFactory;
+		this.updateInterceptor = createInterceptor(beanAccess.getBeanType());
+		this.updateInterceptorPlugins = createUpdateInterceptorPlugins(beanAccess.getBeanType());
+	}
+
+	@SuppressWarnings("unchecked")
+	private IBeanUpdateInterceptor<BEAN_TYPE> createInterceptor(final Class<? extends IBean> beanType) {
+		final BeanUpdateInterceptor annotation = AnnotationCache.getTypeAnnotationFromHierarchy(
+				beanType,
+				BeanUpdateInterceptor.class);
+		if (annotation != null) {
+			final Class<? extends IBeanUpdateInterceptor<?>> value = annotation.value();
+			if (value != null) {
+				try {
+					return (IBeanUpdateInterceptor<BEAN_TYPE>) value.newInstance();
+				}
+				catch (final Exception e) {
+					throw new RuntimeException(e);
+				}
+			}
+		}
+		return null;
+	}
+
+	@SuppressWarnings({"rawtypes", "unchecked"})
+	private Collection<IBeanUpdateInterceptorPlugin<BEAN_TYPE>> createUpdateInterceptorPlugins(
+		final Class<? extends IBean> beanType) {
+		final IPluginPropertiesBuilder propBuilder = PluginToolkit.pluginPropertiesBuilder();
+		propBuilder.add(IBeanUpdateInterceptorPlugin.BEAN_TYPE_PROPERTY_KEY, beanType);
+		final List result = PluginProvider.getPlugins(IBeanUpdateInterceptorPlugin.ID, propBuilder.build());
+		return result;
 	}
 
 	@Override
@@ -169,15 +207,16 @@ public final class SyncExecutorServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE> 
 		final PARAM_TYPE parameter,
 		final IExecutionCallback executionCallback) {
 
+		beforeUpdate(beans);
 		if (executableChecker != null) {
 			checkExecutableStates(beans, executionCallback);
 		}
-
 		final IBeanListExecutor<BEAN_TYPE, PARAM_TYPE> beanCollectionExecutor = (IBeanListExecutor<BEAN_TYPE, PARAM_TYPE>) executor;
 		final List<? extends BEAN_TYPE> executionResult = beanCollectionExecutor.execute(beans, parameter, executionCallback);
 		CapServiceToolkit.checkCanceled(executionCallback);
 		validate(beans);
 		beanAccess.flush();
+		afterUpdate(executionResult);
 		return BeanDtoFactoryHelper.createDtos(dtoFactory, executionResult);
 	}
 
@@ -187,6 +226,7 @@ public final class SyncExecutorServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE> 
 		final PARAM_TYPE parameter,
 		final IExecutionCallback executionCallback) {
 
+		beforeUpdate(beans);
 		final IBeanExecutor<BEAN_TYPE, PARAM_TYPE> beanExecutor = (IBeanExecutor<BEAN_TYPE, PARAM_TYPE>) executor;
 
 		final List<BEAN_TYPE> executionResultList = new LinkedList<BEAN_TYPE>();
@@ -205,12 +245,34 @@ public final class SyncExecutorServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE> 
 		}
 		validate(beans);
 		beanAccess.flush();
+		afterUpdate(executionResultList);
+		return BeanDtoFactoryHelper.createDtos(dtoFactory, executionResultList);
+	}
 
-		final List<IBeanDto> result = new LinkedList<IBeanDto>();
-		for (final BEAN_TYPE executionResult : executionResultList) {
-			result.add(dtoFactory.createDto(executionResult));
+	private void beforeUpdate(final Collection<? extends BEAN_TYPE> beans) {
+		if (updateInterceptor != null) {
+			for (final BEAN_TYPE bean : beans) {
+				updateInterceptor.beforeUpdate(bean);
+			}
 		}
-		return result;
+		for (final IBeanUpdateInterceptorPlugin<BEAN_TYPE> plugin : updateInterceptorPlugins) {
+			for (final BEAN_TYPE bean : beans) {
+				plugin.beforeUpdate(bean);
+			}
+		}
+	}
+
+	private void afterUpdate(final Collection<? extends BEAN_TYPE> beans) {
+		if (updateInterceptor != null) {
+			for (final BEAN_TYPE bean : beans) {
+				updateInterceptor.afterUpdate(bean);
+			}
+		}
+		for (final IBeanUpdateInterceptorPlugin<BEAN_TYPE> plugin : updateInterceptorPlugins) {
+			for (final BEAN_TYPE bean : beans) {
+				plugin.afterUpdate(bean);
+			}
+		}
 	}
 
 	private void validate(final Collection<BEAN_TYPE> beans) {

@@ -249,7 +249,6 @@ final class ExecutorServiceBuilderImpl<BEAN_TYPE extends IBean, PARAM_TYPE> impl
 		}
 
 		return new SyncExecutorServiceImpl<BEAN_TYPE, PARAM_TYPE>(
-			beanType,
 			beanAccess,
 			executor,
 			getExecutableChecker(),

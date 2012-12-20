@@ -28,39 +28,23 @@
 
 package org.jowidgets.cap.service.neo4J.impl;
 
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-
 import org.jowidgets.cap.common.api.bean.IBean;
-import org.jowidgets.cap.common.api.bean.IBeanData;
-import org.jowidgets.cap.common.api.bean.IBeanDto;
-import org.jowidgets.cap.common.api.exception.BeanValidationException;
-import org.jowidgets.cap.common.api.exception.ExecutableCheckException;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
-import org.jowidgets.cap.common.api.execution.IExecutableState;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
-import org.jowidgets.cap.common.api.validation.IBeanValidationResult;
 import org.jowidgets.cap.common.api.validation.IBeanValidator;
-import org.jowidgets.cap.common.tools.validation.BeanValidationResultUtil;
-import org.jowidgets.cap.service.api.CapServiceToolkit;
-import org.jowidgets.cap.service.api.adapter.ISyncCreatorService;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.cap.service.api.bean.IBeanInitializer;
 import org.jowidgets.cap.service.neo4j.api.GraphDBConfig;
 import org.jowidgets.cap.service.neo4j.api.IBeanFactory;
 import org.jowidgets.cap.service.neo4j.api.NodeAccess;
 import org.jowidgets.cap.service.neo4j.api.RelationshipAccess;
+import org.jowidgets.cap.service.tools.creator.AbstractSyncCreatorServiceImpl;
 import org.jowidgets.util.Assert;
 
-final class SyncNeo4JCreatorServiceImpl<BEAN_TYPE extends IBean> implements ISyncCreatorService {
+final class SyncNeo4JCreatorServiceImpl<BEAN_TYPE extends IBean> extends AbstractSyncCreatorServiceImpl<BEAN_TYPE> {
 
 	private final Class<? extends BEAN_TYPE> beanType;
 	private final Object beanTypeId;
-	private final IBeanDtoFactory<BEAN_TYPE> dtoFactory;
-	private final IBeanInitializer<BEAN_TYPE> beanInitializer;
-	private final IExecutableChecker<BEAN_TYPE> executableChecker;
-	private final IBeanValidator<BEAN_TYPE> beanValidator;
 	private final IBeanFactory beanFactory;
 
 	SyncNeo4JCreatorServiceImpl(
@@ -71,40 +55,19 @@ final class SyncNeo4JCreatorServiceImpl<BEAN_TYPE extends IBean> implements ISyn
 		final IExecutableChecker<BEAN_TYPE> executableChecker,
 		final IBeanValidator<BEAN_TYPE> beanValidator) {
 
+		super(beanType, dtoFactory, beanInitializer, executableChecker, beanValidator);
+
 		Assert.paramNotNull(beanType, "beanType");
 		Assert.paramNotNull(beanTypeId, "beanTypeId");
-		Assert.paramNotNull(dtoFactory, "dtoFactory");
-		Assert.paramNotNull(beanInitializer, "beanInitializer");
 
 		this.beanType = beanType;
 		this.beanTypeId = beanTypeId;
-		this.dtoFactory = dtoFactory;
-		this.beanInitializer = beanInitializer;
-		this.executableChecker = executableChecker;
-		this.beanValidator = beanValidator;
 
 		this.beanFactory = GraphDBConfig.getBeanFactory();
 	}
 
 	@Override
-	public List<IBeanDto> create(final Collection<? extends IBeanData> beansData, final IExecutionCallback executionCallback) {
-		final List<IBeanDto> result = new LinkedList<IBeanDto>();
-		for (final IBeanData beanData : beansData) {
-
-			final BEAN_TYPE bean = createBean();
-
-			CapServiceToolkit.checkCanceled(executionCallback);
-			beanInitializer.initialize(bean, beanData);
-
-			checkExecutableStates(bean);
-			validate(bean);
-
-			result.add(dtoFactory.createDto(bean));
-		}
-		return result;
-	}
-
-	private BEAN_TYPE createBean() {
+	protected BEAN_TYPE createBean(final IExecutionCallback executionCallback) {
 		if (beanFactory.isNodeBean(beanType, beanTypeId)) {
 			return beanFactory.createNodeBean(beanType, beanTypeId, NodeAccess.createNewNode(beanTypeId));
 		}
@@ -119,23 +82,9 @@ final class SyncNeo4JCreatorServiceImpl<BEAN_TYPE extends IBean> implements ISyn
 		}
 	}
 
-	private void checkExecutableStates(final BEAN_TYPE bean) {
-		if (executableChecker != null) {
-			final IExecutableState checkResult = executableChecker.getExecutableState(bean);
-			if (checkResult != null && !checkResult.isExecutable()) {
-				throw new ExecutableCheckException(bean.getId(), "Executable check failed", checkResult.getReason());
-			}
-		}
-	}
-
-	private void validate(final BEAN_TYPE bean) {
-		if (beanValidator != null) {
-			final Collection<IBeanValidationResult> validationResults = beanValidator.validate(bean);
-			final IBeanValidationResult worstFirst = BeanValidationResultUtil.getWorstFirst(validationResults);
-			if (worstFirst != null && !worstFirst.getValidationResult().isValid()) {
-				throw new BeanValidationException(bean.getId(), worstFirst);
-			}
-		}
+	@Override
+	protected void persistBean(final BEAN_TYPE bean, final IExecutionCallback executionCallback) {
+		// Nothing to do
 	}
 
 }
