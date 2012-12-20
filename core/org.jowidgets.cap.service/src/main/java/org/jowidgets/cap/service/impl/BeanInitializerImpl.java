@@ -65,7 +65,9 @@ final class BeanInitializerImpl<BEAN_TYPE extends IBean> implements IBeanInitial
 			final BeanInfo beanInfo = Introspector.getBeanInfo(beanType);
 			for (final PropertyDescriptor propertyDescriptor : beanInfo.getPropertyDescriptors()) {
 				final String propertyName = propertyDescriptor.getName();
-				if (propertyNames.contains(propertyName) && !propertyName.equals("version") && !propertyName.equals("id")) {
+				if (propertyNames.contains(propertyName)
+					&& !propertyName.equals(IBean.VERSION_PROPERTY)
+					&& !propertyName.equals(IBean.ID_PROPERTY)) {
 					final Method writeMethod = propertyDescriptor.getWriteMethod();
 					if (writeMethod != null) {
 						unsortedMap.put(propertyName, propertyDescriptor.getWriteMethod());
