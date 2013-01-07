@@ -28,9 +28,13 @@
 
 package org.jowidgets.cap.service.neo4J.impl;
 
+import java.util.Map;
+import java.util.WeakHashMap;
+
 import org.jowidgets.cap.service.neo4j.api.IBeanFactory;
 import org.jowidgets.cap.service.neo4j.api.IGraphDBConfig;
 import org.jowidgets.cap.service.neo4j.api.IIdGenerator;
+import org.jowidgets.util.Assert;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
@@ -38,12 +42,26 @@ import org.neo4j.graphdb.index.Index;
 
 final class GraphDbConfigImpl implements IGraphDBConfig {
 
+	private static final Map<GraphDatabaseService, Object> AUTO_SHUTDOWN_DATABASE_SERVICES = new WeakHashMap<GraphDatabaseService, Object>();
+
+	static {
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			@Override
+			public void run() {
+				for (final GraphDatabaseService graphDbService : AUTO_SHUTDOWN_DATABASE_SERVICES.keySet()) {
+					graphDbService.shutdown();
+				}
+			}
+		});
+	}
+
 	private final GraphDatabaseService graphDb;
 	private final Index<Node> nodeIndex;
 	private final Index<Relationship> relationshipIndex;
 	private final IBeanFactory beanFactory;
 	private final String beanTypePropertyName;
 	private final IIdGenerator idGenerator;
+	private final boolean autoShutdown;
 
 	GraphDbConfigImpl(
 		final GraphDatabaseService graphDb,
@@ -54,7 +72,10 @@ final class GraphDbConfigImpl implements IGraphDBConfig {
 		final String beanTypePropertyName,
 		final IIdGenerator idGenerator) {
 
+		Assert.paramNotNull(graphDb, "graphDb");
+
 		this.graphDb = graphDb;
+		this.autoShutdown = autoShuttdown;
 		this.nodeIndex = nodeIndex;
 		this.relationshipIndex = relationshipIndex;
 		this.beanFactory = beanFactory;
@@ -62,17 +83,8 @@ final class GraphDbConfigImpl implements IGraphDBConfig {
 		this.idGenerator = idGenerator;
 
 		if (autoShuttdown) {
-			registerShutdownHook(graphDb);
+			AUTO_SHUTDOWN_DATABASE_SERVICES.put(graphDb, null);
 		}
-	}
-
-	private static void registerShutdownHook(final GraphDatabaseService graphDb) {
-		Runtime.getRuntime().addShutdownHook(new Thread() {
-			@Override
-			public void run() {
-				graphDb.shutdown();
-			}
-		});
 	}
 
 	@Override
@@ -103,6 +115,15 @@ final class GraphDbConfigImpl implements IGraphDBConfig {
 	@Override
 	public IIdGenerator getIdGenerator() {
 		return idGenerator;
+	}
+
+	@Override
+	protected void finalize() throws Throwable {
+		if (autoShutdown) {
+			AUTO_SHUTDOWN_DATABASE_SERVICES.remove(graphDb);
+			graphDb.shutdown();
+		}
+		super.finalize();
 	}
 
 }
