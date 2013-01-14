@@ -125,8 +125,8 @@ public class BeanGraphAttributeListImpl extends CompositeWrapper {
 		attributeLayoutManager.endLayout();
 		attributeLayoutManager.validate();
 
-		final Dimension minSize = super.getMinSize();
-		setMinSize(new Dimension(minSize.getWidth(), minSize.getHeight()));
+		//		final Dimension minSize = super.getMinSize();
+		//		setMinSize(new Dimension(minSize.getWidth(), minSize.getHeight()));
 
 		final Dimension prefSize = super.getPreferredSize();
 		setPreferredSize(new Dimension(prefSize.getWidth(), prefSize.getHeight()));

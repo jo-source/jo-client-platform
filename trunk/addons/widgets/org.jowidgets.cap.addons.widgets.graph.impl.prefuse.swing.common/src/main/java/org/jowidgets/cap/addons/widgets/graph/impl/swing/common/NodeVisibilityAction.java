@@ -73,7 +73,6 @@ class NodeVisibilityAction extends GroupAction {
 								}
 							}
 						}
-
 						result.set("visible", visible);
 					}
 
