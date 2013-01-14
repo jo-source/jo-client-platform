@@ -49,7 +49,6 @@ class EdgeVisibilityAction extends GroupAction {
 
 	@Override
 	public void run(final double frac) {
-
 		synchronized (m_vis) {
 			final TupleSet edges = m_vis.getGroup(BeanRelationGraphImpl.EDGES);
 			final Iterator<?> iterEdge = edges.tuples();
