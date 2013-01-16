@@ -361,21 +361,21 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 					if (item.get("expanded") == Expand.PARTIALLY) {
 						if (checkExpandIconHit(false, item, e, scale)) {
 							item.set("expanded", Expand.FULL);
-							loadModel(node);
+							loadModel(node, true);
 							runFilter();
 							return;
 
 						}
 						else if (checkExpandIconHit(true, item, e, scale)) {
 							item.set("expanded", Expand.NOT);
-							loadModel(node);
+							loadModel(node, true);
 							runFilter();
 							return;
 						}
 					}
 					else if (item.get("expanded") == Expand.FULL || item.get("expanded") == Expand.NOT) {
 						if (checkExpandIconHit(false, item, e, scale)) {
-							loadModel(node);
+							loadModel(node, true);
 							runFilter();
 							return;
 						}
@@ -560,7 +560,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		return result;
 	}
 
-	private void loadModel(final Node node) {
+	private void loadModel(final Node node, final boolean contract) {
 		for (final Entry<IBeanProxy<Object>, Node> entry : nodeMap.entrySet()) {
 			if (entry.getValue() == node) {
 				final IBeanRelationNodeModel<Object, Object> beanRelationNodeModel = beanRelationMap.get(entry.getKey());
@@ -569,18 +569,29 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 							beanRelationNodeModel.getChildEntityTypeId(),
 							entry.getKey(),
 							entityType);
-					childRelationModel.loadIfNotYetDone();
-					if (graph.getNodeCount() <= maxNodeCount) {
-						loadChildren(childRelationModel);
+
+					if (!beanRelationMap.containsValue(childRelationModel)
+						&& !childRelationModel.equals(relationTreeModel.getRoot())
+						&& !childRelationModel.hasExecutions()) {
+						if (!childRelationModel.loadIfNotYetDone() && graph.getNodeCount() <= maxNodeCount) {
+							childRelationModel.fireBeansChanged();
+						}
+
+						//					childRelationModel.loadIfNotYetDone();
+						//					if (!childRelationModel.loadIfNotYetDone() && graph.getNodeCount() <= maxNodeCount) {
+						//						loadChildren(childRelationModel);
 					}
 				}
 				beanRelationNodeModel.loadIfNotYetDone();
 				break;
 			}
 		}
-		contractExpandNodes(node);
+		if (contract) {
+			contractExpandNodes(node);
+		}
 	}
 
+	@SuppressWarnings("unused")
 	private List<IBeanRelationNodeModel<Object, Object>> loadChildren(
 		final IBeanRelationNodeModel<?, Object> beanRelationNodeModel) {
 
@@ -593,8 +604,10 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 						beanRelationNodeModel.getChildEntityTypeId(),
 						beanRelationNodeModel.getBean(i),
 						entityType);
-				if (!childRelationModel.loadIfNotYetDone()) {
-					onBeansChanged(childRelationModel);
+				if (!childRelationModel.loadIfNotYetDone() && graph.getNodeCount() <= maxNodeCount) {
+					if (!beanRelationMap.containsValue(childRelationModel)) {
+						onBeansChanged(childRelationModel);
+					}
 				}
 				childList.add(childRelationModel);
 			}
@@ -602,7 +615,6 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		return childList;
 	}
 
-	//TODO SP fix method.. recursive fail
 	private void contractExpandNodes(final Node node) {
 		if (node.get("expanded") == Expand.FULL) {
 
@@ -624,6 +636,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 			final Iterator<Node> iteratorNodes = outNodes.iterator();
 			while (iteratorNodes.hasNext()) {
 				final Node elem = iteratorNodes.next();
+				loadModel(elem, false);
 				setNeighborEdges(elem, true);
 				checkExpandLevel(elem);
 			}
@@ -1394,7 +1407,6 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 
 		@Override
 		public void run(final double frac) {
-
 			synchronized (vis) {
 
 				final TupleSet nodes = vis.getGroup(NODES);
