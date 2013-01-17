@@ -21,6 +21,16 @@
 			<artifactId>org.jowidgets.spi.impl.rwt</artifactId>
 			<version>${jowidgets.version}</version>
 		</dependency>
+		<dependency>
+            <groupId>org.eclipse</groupId>
+            <artifactId>org.eclipse.rap.rwt</artifactId>
+            <version>1.4.2.20120213-1324</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse</groupId>
+            <artifactId>org.eclipse.rap.rwt.q07</artifactId>
+            <version>1.4.2.20120213-1324</version>
+        </dependency>
 	</dependencies>
 	
 </project>
