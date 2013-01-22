@@ -120,7 +120,7 @@ public abstract class AbstractSimpleReaderService<BEAN_TYPE extends IBean, PARAM
 	}
 
 	@Override
-	public final Integer count(
+	public Integer count(
 		final List<? extends IBeanKey> parentBeans,
 		final IFilter filter,
 		final PARAM_TYPE parameter,
