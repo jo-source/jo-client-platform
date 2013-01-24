@@ -62,7 +62,7 @@ public final class HibernateServiceToolkit {
 		return getInstance().exceptionDecorator();
 	}
 
-	public static ICancelServicesDecoratorProviderBuilder serviceDecoratorProviderBuilder(final String persistenceUnitName) {
+	public static ICancelServicesDecoratorProviderBuilder cancelServiceDecoratorProviderBuilder(final String persistenceUnitName) {
 		return getInstance().cancelServiceDecoratorProviderBuilder(persistenceUnitName);
 	}
 
