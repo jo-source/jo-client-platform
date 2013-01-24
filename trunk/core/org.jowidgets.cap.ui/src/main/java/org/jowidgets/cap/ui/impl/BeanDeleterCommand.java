@@ -41,29 +41,41 @@ import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.api.threads.IUiThreadAccess;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.types.QuestionResult;
+import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.execution.IExecutionCallbackListener;
 import org.jowidgets.cap.common.api.service.IDeleterService;
+import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
 import org.jowidgets.cap.ui.api.bean.IBeanKeyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
+import org.jowidgets.cap.ui.api.bean.IBeanProxyLabelRenderer;
+import org.jowidgets.cap.ui.api.bean.IBeanSelection;
 import org.jowidgets.cap.ui.api.execution.BeanMessageStatePolicy;
 import org.jowidgets.cap.ui.api.execution.BeanModificationStatePolicy;
 import org.jowidgets.cap.ui.api.execution.BeanSelectionPolicy;
 import org.jowidgets.cap.ui.api.execution.IExecutionInterceptor;
 import org.jowidgets.cap.ui.api.execution.IExecutionTask;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
+import org.jowidgets.cap.ui.api.plugin.IBeanProxyLabelRendererPlugin;
 import org.jowidgets.cap.ui.tools.execution.AbstractUiResultCallback;
 import org.jowidgets.i18n.api.IMessage;
 import org.jowidgets.i18n.api.MessageReplacer;
+import org.jowidgets.plugin.api.IPluginProperties;
+import org.jowidgets.plugin.api.IPluginPropertiesBuilder;
+import org.jowidgets.plugin.api.PluginProperties;
+import org.jowidgets.plugin.api.PluginProvider;
+import org.jowidgets.service.api.ServiceProvider;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.EmptyCheck;
+import org.jowidgets.util.IDecorator;
 
 final class BeanDeleterCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
 
 	private static final IMessage SINGLE_DELETION_CONFIRM = Messages.getMessage("BeanDeleterCommand.single_deletion_confirm_message");
+	private static final IMessage SINGLE_DELETION_PATTERN_CONFIRM = Messages.getMessage("BeanDeleterCommand.single_deletion_pattern_confirm_message");
 	private static final IMessage MULTI_DELETION_CONFIRM = Messages.getMessage("BeanDeleterCommand.multi_deletion_confirm_message");
 	private static final IMessage CAN_NOT_BE_UNDONE = Messages.getMessage("BeanDeleterCommand.can_not_be_undone");
 	private static final IMessage NOTHING_SELECTED = Messages.getMessage("BeanDeleterCommand.nothing_selected");
@@ -134,15 +146,15 @@ final class BeanDeleterCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 			return;
 		}
 
-		final ArrayList<Integer> selection = model.getSelection();
+		final IBeanSelection<BEAN_TYPE> beanSelection = model.getBeanSelection();
 
-		if (selection == null || selection.size() == 0) {
+		if (beanSelection == null || beanSelection.getSelection().size() == 0) {
 			Toolkit.getMessagePane().showWarning(executionContext, NOTHING_SELECTED.get());
 			return;
 		}
 
 		if (deletionConfirmDialog) {
-			if (!showDeletionConfirmDialog(executionContext, selection.size())) {
+			if (!showDeletionConfirmDialog(executionContext, beanSelection)) {
 				return;
 			}
 		}
@@ -153,8 +165,7 @@ final class BeanDeleterCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 		final List<IBeanKey> beanKeys = new LinkedList<IBeanKey>();
 		final List<IBeanProxy<BEAN_TYPE>> beans = new LinkedList<IBeanProxy<BEAN_TYPE>>();
 
-		for (final Integer index : selection) {
-			final IBeanProxy<BEAN_TYPE> bean = model.getBean(index.intValue());
+		for (final IBeanProxy<BEAN_TYPE> bean : beanSelection.getSelection()) {
 			if (bean != null && !bean.isDummy() && !bean.isTransient()) {
 				bean.setExecutionTask(executionTask);
 				beanKeys.add(beanKeyFactory.createKey(bean));
@@ -180,6 +191,7 @@ final class BeanDeleterCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 		});
 
 		if (autoSelection) {
+			final ArrayList<Integer> selection = model.getSelection();
 			if (!EmptyCheck.isEmpty(selection)) {
 				final int newSelectionIndex = selection.get(selection.size() - 1) + 1;
 				if (newSelectionIndex >= 0 && newSelectionIndex < model.getSize()) {
@@ -192,18 +204,25 @@ final class BeanDeleterCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 		deleterService.delete(new ResultCallback(executionContext, beans), beanKeys, executionTask);
 	}
 
-	private boolean showDeletionConfirmDialog(final IExecutionContext executionContext, final int selectionCount) {
+	private boolean showDeletionConfirmDialog(final IExecutionContext executionContext, final IBeanSelection<BEAN_TYPE> selection) {
 		final QuestionResult questionResult = Toolkit.getQuestionPane().askYesNoQuestion(
 				executionContext,
-				getConfirmationMessage(selectionCount),
+				getConfirmationMessage(selection),
 				QuestionResult.YES);
 		return questionResult == QuestionResult.YES;
 	}
 
-	private String getConfirmationMessage(final int selectionCount) {
+	private String getConfirmationMessage(final IBeanSelection<BEAN_TYPE> selection) {
 		final StringBuilder result = new StringBuilder();
+		final int selectionCount = selection.getSelection().size();
 		if (selectionCount == 1) {
-			result.append(SINGLE_DELETION_CONFIRM.get());
+			final String beanLabel = getBeanLabel(selection);
+			if (!EmptyCheck.isEmpty(beanLabel)) {
+				result.append(MessageReplacer.replace(SINGLE_DELETION_PATTERN_CONFIRM.get(), beanLabel));
+			}
+			else {
+				result.append(SINGLE_DELETION_CONFIRM.get());
+			}
 		}
 		else {
 			result.append(MessageReplacer.replace(MULTI_DELETION_CONFIRM.get(), "" + selectionCount));
@@ -211,6 +230,63 @@ final class BeanDeleterCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 		result.append("\n");
 		result.append(CAN_NOT_BE_UNDONE.get());
 		return result.toString();
+	}
+
+	private String getBeanLabel(final IBeanSelection<BEAN_TYPE> selection) {
+		final IBeanProxyLabelRenderer<BEAN_TYPE> renderer = getRenderer(selection);
+		if (renderer != null) {
+			return renderer.getLabel(selection.getFirstSelected()).getText();
+		}
+		else {
+			return null;
+		}
+	}
+
+	private IBeanProxyLabelRenderer<BEAN_TYPE> getRenderer(final IBeanSelection<BEAN_TYPE> selection) {
+		final IBeanProxyLabelRenderer<BEAN_TYPE> renderer = getPatternBasedRenderer(selection);
+		if (renderer != null) {
+			return getPluginDecoratedRenderer(selection.getEntityId(), selection.getBeanType(), renderer);
+		}
+		else {
+			return null;
+		}
+	}
+
+	private IBeanProxyLabelRenderer<BEAN_TYPE> getPatternBasedRenderer(final IBeanSelection<BEAN_TYPE> selection) {
+		final IEntityService entityService = ServiceProvider.getService(IEntityService.ID);
+		if (entityService != null) {
+			final IBeanDtoDescriptor dtoDescriptor = entityService.getDescriptor(selection.getEntityId());
+			if (dtoDescriptor != null) {
+				final String renderingPattern = dtoDescriptor.getRenderingPattern().get();
+				if (!EmptyCheck.isEmpty(renderingPattern)) {
+					final Object iconDescriptor = dtoDescriptor.getIconDescriptor();
+					return new BeanProxyLabelPatternRenderer<BEAN_TYPE>(
+						renderingPattern,
+						iconDescriptor,
+						selection.getFirstSelected().getAttributes());
+				}
+			}
+		}
+		return null;
+	}
+
+	@SuppressWarnings({"rawtypes", "unchecked"})
+	private IBeanProxyLabelRenderer<BEAN_TYPE> getPluginDecoratedRenderer(
+		final Object entityId,
+		final Class<?> beanType,
+		final IBeanProxyLabelRenderer<BEAN_TYPE> renderer) {
+		final IPluginPropertiesBuilder propertiesBuilder = PluginProperties.builder();
+		propertiesBuilder.add(IBeanProxyLabelRendererPlugin.ENTITIY_ID_PROPERTY_KEY, entityId);
+		propertiesBuilder.add(IBeanProxyLabelRendererPlugin.BEAN_TYPE_PROPERTY_KEY, beanType);
+		final IPluginProperties properties = propertiesBuilder.build();
+		IBeanProxyLabelRenderer result = renderer;
+		for (final IBeanProxyLabelRendererPlugin plugin : PluginProvider.getPlugins(IBeanProxyLabelRendererPlugin.ID, properties)) {
+			final IDecorator<IBeanProxyLabelRenderer<?>> decorator = plugin.getRendererDecorator(properties);
+			if (decorator != null) {
+				result = decorator.decorate(result);
+			}
+		}
+		return result;
 	}
 
 	private final class ResultCallback extends AbstractUiResultCallback<Void> {
