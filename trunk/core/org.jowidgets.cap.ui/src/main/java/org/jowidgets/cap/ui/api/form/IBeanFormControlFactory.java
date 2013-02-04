@@ -87,7 +87,7 @@ public interface IBeanFormControlFactory {
 	/**
 	 * @return The default max width or null if unbound
 	 */
-	Integer getMaxWidthDeafult();
+	Integer getMaxWidthDefault();
 
 	/**
 	 * @return The save button or null, if no save button exists

@@ -158,7 +158,7 @@ final class BeanFormLayouterImpl implements IBeanFormLayouter {
 		final Integer width = layout.getPrefWidth();
 		Integer maxWidth = layout.getMaxWidth();
 		if (maxWidth == null) {
-			maxWidth = controlFactory.getMaxWidthDeafult();
+			maxWidth = controlFactory.getMaxWidthDefault();
 		}
 		final StringBuilder result = new StringBuilder("w ");
 		result.append(minWidth != null ? minWidth.intValue() : "0");
