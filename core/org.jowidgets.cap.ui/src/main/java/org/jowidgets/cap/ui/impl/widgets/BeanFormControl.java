@@ -698,7 +698,7 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 		}
 
 		@Override
-		public Integer getMaxWidthDeafult() {
+		public Integer getMaxWidthDefault() {
 			return maxWidthDefault;
 		}
 
