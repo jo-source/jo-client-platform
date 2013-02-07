@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, grossmann
+ * Copyright (c) 2013, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,35 +26,23 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.form;
+package org.jowidgets.cap.common.api.bean;
 
-import org.jowidgets.cap.ui.api.CapUiToolkit;
+import org.jowidgets.i18n.api.IMessage;
 
-public final class BeanFormToolkit {
+public interface IBeanFormInfoDescriptorBuilder {
 
-	private BeanFormToolkit() {}
+	IBeanFormInfoDescriptorBuilder setHeader(IMessage header);
 
-	public static IBeanFormToolkit instance() {
-		return CapUiToolkit.beanFormToolkit();
-	}
+	IBeanFormInfoDescriptorBuilder setHeader(String header);
 
-	public static IBeanFormLayoutBuilder layoutBuilder() {
-		return instance().layoutBuilder();
-	}
+	IBeanFormInfoDescriptorBuilder setText(IMessage text);
 
-	public static IBeanFormGroupBuilder groupBuilder() {
-		return instance().groupBuilder();
-	}
+	IBeanFormInfoDescriptorBuilder setText(String text);
 
-	public static IBeanFormPropertyBuilder propertyBuilder() {
-		return instance().propertyBuilder();
-	}
+	IBeanFormInfoDescriptorBuilder setHeaderIconDescriptor(Object icon);
 
-	public static IBeanFormLayouter layouter(final IBeanFormLayout layout) {
-		return instance().layouter(layout);
-	}
+	IBeanFormInfoDescriptorBuilder setExpanded(boolean expanded);
 
-	public static IBeanFormInfoBuilder infoBuilder() {
-		return instance().infoBuilder();
-	}
+	IBeanFormInfoDescriptor build();
 }

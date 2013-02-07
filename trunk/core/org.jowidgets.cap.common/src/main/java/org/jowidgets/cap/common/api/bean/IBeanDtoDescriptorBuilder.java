@@ -88,6 +88,24 @@ public interface IBeanDtoDescriptorBuilder {
 	 */
 	IBeanDtoDescriptorBuilder setRenderingPattern(String pattern);
 
+	IBeanDtoDescriptorBuilder setCreateFormInfo(IBeanFormInfoDescriptor info);
+
+	IBeanDtoDescriptorBuilder setCreateFormInfo(IMessage infoText);
+
+	IBeanDtoDescriptorBuilder setCreateFormInfo(String infoText);
+
+	IBeanDtoDescriptorBuilder setEditFormInfo(IBeanFormInfoDescriptor info);
+
+	IBeanDtoDescriptorBuilder setEditFormInfo(IMessage infoText);
+
+	IBeanDtoDescriptorBuilder setEditFormInfo(String infoText);
+
+	IBeanDtoDescriptorBuilder setFormInfo(IBeanFormInfoDescriptor info);
+
+	IBeanDtoDescriptorBuilder setFormInfo(IMessage infoText);
+
+	IBeanDtoDescriptorBuilder setFormInfo(String infoText);
+
 	/**
 	 * Sets an icon descriptor that will be used to render the bean.
 	 * 

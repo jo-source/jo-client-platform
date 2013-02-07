@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, grossmann
+ * Copyright (c) 2013, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -28,33 +28,33 @@
 
 package org.jowidgets.cap.ui.api.form;
 
-import org.jowidgets.cap.ui.api.CapUiToolkit;
+import org.jowidgets.common.color.IColorConstant;
+import org.jowidgets.common.types.Insets;
+import org.jowidgets.common.types.Markup;
 
-public final class BeanFormToolkit {
+public interface IBeanFormLayouterBuilder {
 
-	private BeanFormToolkit() {}
+	IBeanFormLayouterBuilder setBorder(boolean border);
 
-	public static IBeanFormToolkit instance() {
-		return CapUiToolkit.beanFormToolkit();
-	}
+	IBeanFormLayouterBuilder setHeaderBorder(boolean border);
 
-	public static IBeanFormLayoutBuilder layoutBuilder() {
-		return instance().layoutBuilder();
-	}
+	IBeanFormLayouterBuilder setContentBorder(boolean border);
 
-	public static IBeanFormGroupBuilder groupBuilder() {
-		return instance().groupBuilder();
-	}
+	IBeanFormLayouterBuilder setHeaderTextMarkup(Markup markup);
 
-	public static IBeanFormPropertyBuilder propertyBuilder() {
-		return instance().propertyBuilder();
-	}
+	IBeanFormLayouterBuilder setHeaderTextColor(IColorConstant color);
 
-	public static IBeanFormLayouter layouter(final IBeanFormLayout layout) {
-		return instance().layouter(layout);
-	}
+	IBeanFormLayouterBuilder setHeaderBackgroundColor(IColorConstant color);
 
-	public static IBeanFormInfoBuilder infoBuilder() {
-		return instance().infoBuilder();
-	}
+	IBeanFormLayouterBuilder setContentTextColor(IColorConstant color);
+
+	IBeanFormLayouterBuilder setContentTextMarkup(Markup markup);
+
+	IBeanFormLayouterBuilder setContentBackgroundColor(IColorConstant color);
+
+	IBeanFormLayouterBuilder setInsets(Insets insets);
+
+	IBeanFormLayouterBuilder setContentInsets(Insets insets);
+
+	IBeanFormLayouter build();
 }

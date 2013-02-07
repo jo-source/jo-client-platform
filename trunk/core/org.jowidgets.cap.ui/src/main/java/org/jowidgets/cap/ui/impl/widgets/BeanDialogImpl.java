@@ -59,7 +59,7 @@ class BeanDialogImpl<BEAN_TYPE> extends WindowWrapper implements IBeanDialog<BEA
 
 		this.okPressed = false;
 
-		frame.setLayout(new MigLayoutDescriptor("[grow, 0::]", "[grow, 0::][]"));
+		frame.setLayout(new MigLayoutDescriptor("0[grow, 0::]0", "0[grow, 0::][]0"));
 		final IBeanFormBluePrint<BEAN_TYPE> beanFormBp = CapUiToolkit.bluePrintFactory().beanForm();
 		beanFormBp.setSetup(bluePrint.getBeanForm());
 		beanFormBp.setSaveAction(null).setUndoAction(null);

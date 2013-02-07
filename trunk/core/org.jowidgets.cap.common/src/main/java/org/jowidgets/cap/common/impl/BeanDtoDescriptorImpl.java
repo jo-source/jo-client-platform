@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
+import org.jowidgets.cap.common.api.bean.IBeanFormInfoDescriptor;
 import org.jowidgets.cap.common.api.bean.IProperty;
 import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.common.api.validation.IBeanValidator;
@@ -60,6 +61,8 @@ final class BeanDtoDescriptorImpl implements IBeanDtoDescriptor, Serializable {
 	private final List<IProperty> unodifiableProperties;
 	private final Set<IBeanValidator<?>> unmodifieableBeanValidators;
 	private final List<ISort> unmodifieableDefaultSorting;
+	private final IBeanFormInfoDescriptor createFormInfo;
+	private final IBeanFormInfoDescriptor editFormInfo;
 
 	BeanDtoDescriptorImpl(
 		final Class<?> beanType,
@@ -74,6 +77,8 @@ final class BeanDtoDescriptorImpl implements IBeanDtoDescriptor, Serializable {
 		final Object deleteLinkIconDescriptor,
 		final Collection<IProperty> properties,
 		final Collection<ISort> defaultSorting,
+		final IBeanFormInfoDescriptor createFormInfo,
+		final IBeanFormInfoDescriptor editFormInfo,
 		final Collection<? extends IBeanValidator<?>> beanValidators) {
 		this.beanType = beanType;
 		if (labelSingular != null) {
@@ -100,6 +105,8 @@ final class BeanDtoDescriptorImpl implements IBeanDtoDescriptor, Serializable {
 		else {
 			this.renderingPattern = new StaticMessage();
 		}
+		this.createFormInfo = createFormInfo;
+		this.editFormInfo = editFormInfo;
 		this.iconDescriptor = iconDescriptor;
 		this.createIconDescriptor = createIconDescriptor;
 		this.deleteIconDescriptor = deleteIconDescriptor;
@@ -143,6 +150,16 @@ final class BeanDtoDescriptorImpl implements IBeanDtoDescriptor, Serializable {
 	@Override
 	public IMessage getDescription() {
 		return description;
+	}
+
+	@Override
+	public IBeanFormInfoDescriptor getCreateModeFormInfo() {
+		return createFormInfo;
+	}
+
+	@Override
+	public IBeanFormInfoDescriptor getEditModeFormInfo() {
+		return editFormInfo;
 	}
 
 	@Override

@@ -41,6 +41,7 @@ import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanDtoBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptorBuilder;
+import org.jowidgets.cap.common.api.bean.IBeanFormInfoDescriptorBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanKeyBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanModificationBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanPropertyBuilder;
@@ -109,6 +110,11 @@ public final class DefaultCapCommonToolkit implements ICapCommonToolkit {
 	@Override
 	public IBeanPropertyBuilder beanPropertyBuilder(final Class<?> beanType, final String propertyName) {
 		return new BeanPropertyBuilderImpl(beanType, propertyName);
+	}
+
+	@Override
+	public IBeanFormInfoDescriptorBuilder beanFormInfoDescriptorBuilder() {
+		return new BeanFormInfoDescriptorBuilderImpl();
 	}
 
 	@Override

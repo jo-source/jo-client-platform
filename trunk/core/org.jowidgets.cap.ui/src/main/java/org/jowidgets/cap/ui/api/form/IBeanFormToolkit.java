@@ -28,6 +28,8 @@
 
 package org.jowidgets.cap.ui.api.form;
 
+import org.jowidgets.cap.common.api.bean.IBeanFormInfoDescriptor;
+
 public interface IBeanFormToolkit {
 
 	IBeanFormLayoutBuilder layoutBuilder();
@@ -36,6 +38,42 @@ public interface IBeanFormToolkit {
 
 	IBeanFormPropertyBuilder propertyBuilder();
 
+	/**
+	 * Creates an layouter for an defined layout. The layouter layouts the full bean form
+	 * with beanFormInfo (if exists), validation label and scrollbars (if exists)
+	 * 
+	 * @param layout The layout to get the layouter for
+	 * 
+	 * @return The layouter, never null
+	 */
 	IBeanFormLayouter layouter(IBeanFormLayout layout);
+
+	/**
+	 * Gets an layouter builder for an defined layout.
+	 * 
+	 * @param layout The layout to get the builder for
+	 * 
+	 * @return The builder, never null
+	 */
+	IBeanFormLayouterBuilder layouterBuilder(IBeanFormLayout layout);
+
+	/**
+	 * Creates a layouter that layouts only the content of the form (with buttons, if defined)
+	 * 
+	 * @param layout The layout to get the layouter for
+	 * 
+	 * @return The layouter, never null
+	 */
+	IBeanFormLayouter contentLayouter(IBeanFormLayout layout);
+
+	IBeanFormInfoBuilder infoBuilder();
+
+	/**
+	 * Returns the bean form info for the descriptor, or null if the descriptor is null
+	 * 
+	 * @param descriptor The descriptor to get the info for
+	 * @return The info or null, if the descriptor is null
+	 */
+	IBeanFormInfo info(IBeanFormInfoDescriptor descriptor);
 
 }

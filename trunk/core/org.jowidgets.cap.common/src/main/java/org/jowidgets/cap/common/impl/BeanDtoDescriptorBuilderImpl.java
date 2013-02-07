@@ -35,9 +35,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import org.jowidgets.cap.common.api.bean.BeanFormInfoDescriptor;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptorBuilder;
+import org.jowidgets.cap.common.api.bean.IBeanFormInfoDescriptor;
 import org.jowidgets.cap.common.api.bean.IBeanPropertyBluePrint;
 import org.jowidgets.cap.common.api.bean.IProperty;
 import org.jowidgets.cap.common.api.sort.ISort;
@@ -59,6 +61,8 @@ final class BeanDtoDescriptorBuilderImpl implements IBeanDtoDescriptorBuilder {
 	private IMessage labelPlural;
 	private IMessage description;
 	private IMessage renderingPattern;
+	private IBeanFormInfoDescriptor createFormInfo;
+	private IBeanFormInfoDescriptor editFormInfo;
 	private Object iconDescriptor;
 	private Object createIconDescriptor;
 	private Object deleteIconDescriptor;
@@ -124,6 +128,59 @@ final class BeanDtoDescriptorBuilderImpl implements IBeanDtoDescriptorBuilder {
 	@Override
 	public IBeanDtoDescriptorBuilder setRenderingPattern(final String renderingPattern) {
 		this.renderingPattern = new StaticMessage(renderingPattern);
+		return this;
+	}
+
+	@Override
+	public IBeanDtoDescriptorBuilder setCreateFormInfo(final IBeanFormInfoDescriptor info) {
+		this.createFormInfo = info;
+		return this;
+	}
+
+	@Override
+	public IBeanDtoDescriptorBuilder setCreateFormInfo(final IMessage infoText) {
+		return setCreateFormInfo(BeanFormInfoDescriptor.create(infoText));
+	}
+
+	@Override
+	public IBeanDtoDescriptorBuilder setCreateFormInfo(final String infoText) {
+		return setCreateFormInfo(BeanFormInfoDescriptor.create(infoText));
+	}
+
+	@Override
+	public IBeanDtoDescriptorBuilder setEditFormInfo(final IBeanFormInfoDescriptor info) {
+		this.editFormInfo = info;
+		return this;
+	}
+
+	@Override
+	public IBeanDtoDescriptorBuilder setEditFormInfo(final IMessage infoText) {
+		return setEditFormInfo(BeanFormInfoDescriptor.create(infoText));
+	}
+
+	@Override
+	public IBeanDtoDescriptorBuilder setEditFormInfo(final String infoText) {
+		return setEditFormInfo(BeanFormInfoDescriptor.create(infoText));
+	}
+
+	@Override
+	public IBeanDtoDescriptorBuilder setFormInfo(final IBeanFormInfoDescriptor info) {
+		setCreateFormInfo(info);
+		setEditFormInfo(info);
+		return this;
+	}
+
+	@Override
+	public IBeanDtoDescriptorBuilder setFormInfo(final IMessage infoText) {
+		setCreateFormInfo(infoText);
+		setEditFormInfo(infoText);
+		return this;
+	}
+
+	@Override
+	public IBeanDtoDescriptorBuilder setFormInfo(final String infoText) {
+		setCreateFormInfo(infoText);
+		setEditFormInfo(infoText);
 		return this;
 	}
 
@@ -239,6 +296,8 @@ final class BeanDtoDescriptorBuilderImpl implements IBeanDtoDescriptorBuilder {
 			deleteLinkIconDescriptor,
 			props,
 			defaultSorting,
+			createFormInfo,
+			editFormInfo,
 			beanValidators);
 	}
 

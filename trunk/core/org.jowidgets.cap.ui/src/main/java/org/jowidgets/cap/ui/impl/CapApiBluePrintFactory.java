@@ -41,6 +41,7 @@ import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionObservable;
 import org.jowidgets.cap.ui.api.execution.IExecutionTask;
+import org.jowidgets.cap.ui.api.form.BeanFormInfo;
 import org.jowidgets.cap.ui.api.model.ISingleBeanModel;
 import org.jowidgets.cap.ui.api.tabfolder.IBeanTabFolderModel;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
@@ -170,16 +171,14 @@ final class CapApiBluePrintFactory implements ICapApiBluePrintFactory {
 		return bluePrintFactory.bluePrint(IBeanFormBluePrint.class);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public <BEAN_TYPE> IBeanFormBluePrint<BEAN_TYPE> beanForm(final Object entityId) {
-		final Class<?> beanType = EntityServiceHelper.getBeanType(entityId);
 		final List<IAttribute<Object>> attributes = EntityServiceHelper.createAttributes(entityId);
 		if (attributes != null) {
 			return beanForm(entityId, attributes);
 		}
 		else {
-			return bluePrintFactory.bluePrint(IBeanFormBluePrint.class).setEntityId(entityId).setBeanType(beanType);
+			return beanForm(entityId, null);
 		}
 	}
 
@@ -198,6 +197,8 @@ final class CapApiBluePrintFactory implements ICapApiBluePrintFactory {
 		result.setEntityId(entityId);
 		result.setBeanType((Class<BEAN_TYPE>) EntityServiceHelper.getBeanType(entityId));
 		result.setAttributes(attributes);
+		result.setCreateFormInfo(BeanFormInfo.create(EntityServiceHelper.getCreateFormInfo(entityId)));
+		result.setEditFormInfo(BeanFormInfo.create(EntityServiceHelper.getEditFormInfo(entityId)));
 		return result;
 	}
 

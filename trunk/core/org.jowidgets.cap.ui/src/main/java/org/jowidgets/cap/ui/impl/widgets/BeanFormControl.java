@@ -77,6 +77,7 @@ import org.jowidgets.cap.ui.api.bean.IExternalBeanValidatorListener;
 import org.jowidgets.cap.ui.api.execution.IExecutionTask;
 import org.jowidgets.cap.ui.api.execution.IExecutionTaskListener;
 import org.jowidgets.cap.ui.api.form.IBeanFormControlFactory;
+import org.jowidgets.cap.ui.api.form.IBeanFormInfo;
 import org.jowidgets.cap.ui.api.form.IBeanFormLayout;
 import org.jowidgets.cap.ui.api.form.IBeanFormLayouter;
 import org.jowidgets.cap.ui.api.form.IBeanFormToolkit;
@@ -86,7 +87,6 @@ import org.jowidgets.cap.ui.tools.bean.BeanProxyListenerAdapter;
 import org.jowidgets.cap.ui.tools.execution.ExecutionTaskAdapter;
 import org.jowidgets.common.color.IColorConstant;
 import org.jowidgets.common.types.AlignmentHorizontal;
-import org.jowidgets.common.types.Dimension;
 import org.jowidgets.common.types.Markup;
 import org.jowidgets.common.widgets.controller.IInputListener;
 import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
@@ -128,6 +128,7 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 
 	private final IValidationLabelSetup propertyValidationLabelSetup;
 	private final IInputComponentValidationLabelSetup mainValidationLabelSetup;
+	private final IBeanFormInfo beanFormInfo;
 	private final boolean scrollbarsAllowed;
 	private final Integer maxWidthDefault;
 
@@ -147,6 +148,7 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 
 	private final IAction saveAction;
 	private final IAction undoAction;
+	private final Collection<IProvider<IAction>> customActions;
 
 	private IComposite validationLabelContainer;
 	private IInputComponentValidationLabel mainValidationLabel;
@@ -170,8 +172,10 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 		final String inputHint,
 		final IInputComponentValidationLabelSetup mainValidationLabelSetup,
 		final IValidationLabelSetup propertyValidationLabelSetup,
+		final IBeanFormInfo beanFormInfo,
 		final IProvider<IAction> undoAction,
 		final IProvider<IAction> saveAction,
+		final Collection<? extends IProvider<IAction>> customActions,
 		final boolean createMode) {
 
 		super(composite);
@@ -187,9 +191,14 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 		this.inputHint = inputHint;
 		this.propertyValidationLabelSetup = propertyValidationLabelSetup;
 		this.mainValidationLabelSetup = mainValidationLabelSetup;
+		this.beanFormInfo = beanFormInfo;
 
 		this.saveAction = saveAction != null ? saveAction.get() : null;
 		this.undoAction = undoAction != null ? undoAction.get() : null;
+		this.customActions = new LinkedList<IProvider<IAction>>();
+		if (customActions != null) {
+			this.customActions.addAll(customActions);
+		}
 
 		this.attributes = new HashMap<String, IAttribute<Object>>();
 		this.controls = new LinkedHashMap<String, IInputControl<Object>>();
@@ -660,15 +669,15 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 					public IControl create(final ICustomWidgetFactory widgetFactory) {
 						validationLabelContainer = widgetFactory.create(BPF.composite());
 						validationLabelContainer.setLayout(new MigLayoutDescriptor("hidemode 3", "0[grow, 0::]0", "0[0::]0"));
-						mainValidationLabel = validationLabelContainer.add(getMainValidationLabelBp(), "growx, w 30::, h 20::");
-						mainValidationLabel.setMinSize(new Dimension(20, 20));
+						mainValidationLabel = validationLabelContainer.add(getMainValidationLabelBp(), "growx, w 30::");
+						//mainValidationLabel.setMinSize(new Dimension(20, 20));
 
 						final ILabelBluePrint processStateLabelBp = BPF.label();
 						processStateLabelBp.setMarkup(Markup.EMPHASIZED);
 						processStateLabelBp.setColor(Colors.STRONG);
 						processStateLabelBp.setIcon(IconsSmall.WAIT_1);
-						processStateLabel = validationLabelContainer.add(processStateLabelBp, "growx, w 30::, h 20::");
-						processStateLabel.setMinSize(new Dimension(20, 20));
+						processStateLabel = validationLabelContainer.add(processStateLabelBp, "growx, w 30::");
+						//processStateLabel.setMinSize(new Dimension(20, 20));
 						processStateLabel.setVisible(false);
 
 						return validationLabelContainer;
@@ -700,6 +709,11 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 		@Override
 		public Integer getMaxWidthDefault() {
 			return maxWidthDefault;
+		}
+
+		@Override
+		public IBeanFormInfo getBeanFormInfo() {
+			return beanFormInfo;
 		}
 
 		@Override
@@ -768,13 +782,24 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 		}
 
 		@Override
-		public ICustomWidgetCreator<? extends IControl> createSaveButton() {
-			return createButton(saveAction);
-		}
-
-		@Override
-		public ICustomWidgetCreator<? extends IControl> createUndoButton() {
-			return createButton(undoAction);
+		public Collection<ICustomWidgetCreator<? extends IControl>> createButtons() {
+			final List<ICustomWidgetCreator<? extends IControl>> result = new LinkedList<ICustomWidgetCreator<? extends IControl>>();
+			ICustomWidgetCreator<? extends IControl> button;
+			for (final IProvider<IAction> action : customActions) {
+				button = createButton(action.get());
+				if (button != null) {
+					result.add(button);
+				}
+			}
+			button = createButton(saveAction);
+			if (button != null) {
+				result.add(button);
+			}
+			button = createButton(undoAction);
+			if (button != null) {
+				result.add(button);
+			}
+			return result;
 		}
 
 		private IInputComponentValidationLabelBluePrint getMainValidationLabelBp() {

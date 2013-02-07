@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2013, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,64 +26,74 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.impl;
+package org.jowidgets.cap.common.impl;
 
 import org.jowidgets.cap.common.api.bean.IBeanFormInfoDescriptor;
-import org.jowidgets.cap.ui.api.form.IBeanFormGroupBuilder;
-import org.jowidgets.cap.ui.api.form.IBeanFormInfo;
-import org.jowidgets.cap.ui.api.form.IBeanFormInfoBuilder;
-import org.jowidgets.cap.ui.api.form.IBeanFormLayout;
-import org.jowidgets.cap.ui.api.form.IBeanFormLayoutBuilder;
-import org.jowidgets.cap.ui.api.form.IBeanFormLayouter;
-import org.jowidgets.cap.ui.api.form.IBeanFormLayouterBuilder;
-import org.jowidgets.cap.ui.api.form.IBeanFormPropertyBuilder;
-import org.jowidgets.cap.ui.api.form.IBeanFormToolkit;
+import org.jowidgets.cap.common.api.bean.IBeanFormInfoDescriptorBuilder;
+import org.jowidgets.i18n.api.IMessage;
+import org.jowidgets.i18n.tools.StaticMessage;
 
-final class BeanFormToolkitImpl implements IBeanFormToolkit {
+final class BeanFormInfoDescriptorBuilderImpl implements IBeanFormInfoDescriptorBuilder {
 
-	@Override
-	public IBeanFormLayoutBuilder layoutBuilder() {
-		return new BeanFormLayoutBuilderImpl();
+	private IMessage header;
+	private IMessage text;
+	private Object headerIcon;
+	private boolean expanded;
+
+	BeanFormInfoDescriptorBuilderImpl() {
+		this.expanded = false;
+		//TODO i18n
+		this.header = new StaticMessage("Information");
+		this.text = new StaticMessage();
 	}
 
 	@Override
-	public IBeanFormGroupBuilder groupBuilder() {
-		return new BeanFormGroupBuilderImpl();
-	}
-
-	@Override
-	public IBeanFormPropertyBuilder propertyBuilder() {
-		return new BeanFormPropertyBuilderImpl();
-	}
-
-	@Override
-	public IBeanFormLayouter layouter(final IBeanFormLayout layout) {
-		return layouterBuilder(layout).build();
-	}
-
-	@Override
-	public IBeanFormLayouterBuilder layouterBuilder(final IBeanFormLayout layout) {
-		return new BeanFormLayouterBuilderImpl(layout);
-	}
-
-	@Override
-	public IBeanFormLayouter contentLayouter(final IBeanFormLayout layout) {
-		return new BeanFormContentLayouter(layout);
-	}
-
-	@Override
-	public IBeanFormInfoBuilder infoBuilder() {
-		return new BeanFormInfoBuilderImpl();
-	}
-
-	@Override
-	public IBeanFormInfo info(final IBeanFormInfoDescriptor descriptor) {
-		if (descriptor != null) {
-			return infoBuilder().setDescriptor(descriptor).build();
+	public IBeanFormInfoDescriptorBuilder setHeader(final IMessage header) {
+		if (header != null) {
+			this.header = header;
 		}
 		else {
-			return null;
+			this.header = new StaticMessage();
 		}
+		return this;
+	}
+
+	@Override
+	public IBeanFormInfoDescriptorBuilder setHeader(final String header) {
+		return setHeader(new StaticMessage(header));
+	}
+
+	@Override
+	public IBeanFormInfoDescriptorBuilder setText(final IMessage text) {
+		if (text != null) {
+			this.text = text;
+		}
+		else {
+			this.text = new StaticMessage();
+		}
+		return this;
+	}
+
+	@Override
+	public IBeanFormInfoDescriptorBuilder setText(final String text) {
+		return setText(new StaticMessage(text));
+	}
+
+	@Override
+	public IBeanFormInfoDescriptorBuilder setHeaderIconDescriptor(final Object icon) {
+		this.headerIcon = icon;
+		return this;
+	}
+
+	@Override
+	public IBeanFormInfoDescriptorBuilder setExpanded(final boolean expanded) {
+		this.expanded = expanded;
+		return this;
+	}
+
+	@Override
+	public IBeanFormInfoDescriptor build() {
+		return new BeanFormInfoDescriptorImpl(header, text, headerIcon, expanded);
 	}
 
 }

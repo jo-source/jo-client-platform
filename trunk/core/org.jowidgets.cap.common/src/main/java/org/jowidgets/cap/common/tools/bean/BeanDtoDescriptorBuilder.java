@@ -33,6 +33,7 @@ import java.util.Collection;
 import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptorBuilder;
+import org.jowidgets.cap.common.api.bean.IBeanFormInfoDescriptor;
 import org.jowidgets.cap.common.api.bean.IBeanPropertyBluePrint;
 import org.jowidgets.cap.common.api.bean.IProperty;
 import org.jowidgets.cap.common.api.sort.ISort;
@@ -77,6 +78,51 @@ public class BeanDtoDescriptorBuilder implements IBeanDtoDescriptorBuilder {
 	@Override
 	public IBeanDtoDescriptorBuilder setDescription(final String description) {
 		return this.builder.setDescription(description);
+	}
+
+	@Override
+	public IBeanDtoDescriptorBuilder setCreateFormInfo(final IBeanFormInfoDescriptor info) {
+		return this.builder.setCreateFormInfo(info);
+	}
+
+	@Override
+	public IBeanDtoDescriptorBuilder setCreateFormInfo(final IMessage infoText) {
+		return this.builder.setCreateFormInfo(infoText);
+	}
+
+	@Override
+	public IBeanDtoDescriptorBuilder setCreateFormInfo(final String infoText) {
+		return this.builder.setCreateFormInfo(infoText);
+	}
+
+	@Override
+	public IBeanDtoDescriptorBuilder setEditFormInfo(final IBeanFormInfoDescriptor info) {
+		return this.builder.setEditFormInfo(info);
+	}
+
+	@Override
+	public IBeanDtoDescriptorBuilder setEditFormInfo(final IMessage infoText) {
+		return this.builder.setEditFormInfo(infoText);
+	}
+
+	@Override
+	public IBeanDtoDescriptorBuilder setEditFormInfo(final String infoText) {
+		return this.builder.setEditFormInfo(infoText);
+	}
+
+	@Override
+	public IBeanDtoDescriptorBuilder setFormInfo(final IBeanFormInfoDescriptor info) {
+		return this.builder.setFormInfo(info);
+	}
+
+	@Override
+	public IBeanDtoDescriptorBuilder setFormInfo(final IMessage infoText) {
+		return this.builder.setFormInfo(infoText);
+	}
+
+	@Override
+	public IBeanDtoDescriptorBuilder setFormInfo(final String infoText) {
+		return this.builder.setFormInfo(infoText);
 	}
 
 	@Override

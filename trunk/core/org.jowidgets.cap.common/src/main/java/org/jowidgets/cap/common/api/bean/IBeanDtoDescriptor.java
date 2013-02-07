@@ -112,6 +112,20 @@ public interface IBeanDtoDescriptor {
 	Object getIconDescriptor();
 
 	/**
+	 * Gets a bean form info for the create mode.
+	 * 
+	 * @return The bean form info for the create mode or null, if no info should be shown in create forms
+	 */
+	IBeanFormInfoDescriptor getCreateModeFormInfo();
+
+	/**
+	 * Gets a bean form info for the edit mode.
+	 * 
+	 * @return The bean form info for the edit mode or null, if no info should be shown in edit forms
+	 */
+	IBeanFormInfoDescriptor getEditModeFormInfo();
+
+	/**
 	 * Gets an icon descriptor that will be used to render the creator action.
 	 * 
 	 * To make that work in the ui, there must be an icon resolver registered in the ui

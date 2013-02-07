@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, grossmann
+ * Copyright (c) 2013, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -28,33 +28,25 @@
 
 package org.jowidgets.cap.ui.api.form;
 
-import org.jowidgets.cap.ui.api.CapUiToolkit;
+import org.jowidgets.cap.common.api.bean.IBeanFormInfoDescriptor;
+import org.jowidgets.common.image.IImageConstant;
+import org.jowidgets.i18n.api.IMessage;
 
-public final class BeanFormToolkit {
+public interface IBeanFormInfoBuilder {
 
-	private BeanFormToolkit() {}
+	IBeanFormInfoBuilder setHeader(IMessage header);
 
-	public static IBeanFormToolkit instance() {
-		return CapUiToolkit.beanFormToolkit();
-	}
+	IBeanFormInfoBuilder setHeader(String header);
 
-	public static IBeanFormLayoutBuilder layoutBuilder() {
-		return instance().layoutBuilder();
-	}
+	IBeanFormInfoBuilder setText(IMessage text);
 
-	public static IBeanFormGroupBuilder groupBuilder() {
-		return instance().groupBuilder();
-	}
+	IBeanFormInfoBuilder setText(String text);
 
-	public static IBeanFormPropertyBuilder propertyBuilder() {
-		return instance().propertyBuilder();
-	}
+	IBeanFormInfoBuilder setHeaderIcon(IImageConstant icon);
 
-	public static IBeanFormLayouter layouter(final IBeanFormLayout layout) {
-		return instance().layouter(layout);
-	}
+	IBeanFormInfoBuilder setExpanded(boolean expanded);
 
-	public static IBeanFormInfoBuilder infoBuilder() {
-		return instance().infoBuilder();
-	}
+	IBeanFormInfoBuilder setDescriptor(IBeanFormInfoDescriptor descriptor);
+
+	IBeanFormInfo build();
 }

@@ -29,6 +29,7 @@
 package org.jowidgets.cap.ui.impl.widgets;
 
 import org.jowidgets.api.color.Colors;
+import org.jowidgets.api.image.IconsSmall;
 import org.jowidgets.api.widgets.blueprint.IInputComponentValidationLabelBluePrint;
 import org.jowidgets.api.widgets.blueprint.defaults.IDefaultInitializer;
 import org.jowidgets.cap.ui.api.Messages;
@@ -63,6 +64,7 @@ final class BeanFormDefaults implements IDefaultInitializer<IBeanFormBluePrint<?
 		};
 		editModeValidationLabel.setInitialValidationDecorator(editModeValidationDecorator);
 		editModeValidationLabel.setUnmodifiedValidationDecorator(editModeValidationDecorator);
+		editModeValidationLabel.setEmptyIcon(IconsSmall.OK_GREYED);
 		bluePrint.setEditModeValidationLabel(editModeValidationLabel);
 
 		final IInputComponentValidationLabelBluePrint createModeValidationLabel = BPF.inputComponentValidationLabel();

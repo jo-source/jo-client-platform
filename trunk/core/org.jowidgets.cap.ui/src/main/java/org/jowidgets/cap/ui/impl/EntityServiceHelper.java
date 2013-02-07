@@ -31,6 +31,7 @@ package org.jowidgets.cap.ui.impl;
 import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
+import org.jowidgets.cap.common.api.bean.IBeanFormInfoDescriptor;
 import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
@@ -63,6 +64,22 @@ final class EntityServiceHelper {
 			if (entityService != null) {
 				return entityService.getDescriptor(entityId);
 			}
+		}
+		return null;
+	}
+
+	static IBeanFormInfoDescriptor getCreateFormInfo(final Object entityId) {
+		final IBeanDtoDescriptor dtoDescriptor = getDtoDescriptor(entityId);
+		if (dtoDescriptor != null) {
+			return dtoDescriptor.getCreateModeFormInfo();
+		}
+		return null;
+	}
+
+	static IBeanFormInfoDescriptor getEditFormInfo(final Object entityId) {
+		final IBeanDtoDescriptor dtoDescriptor = getDtoDescriptor(entityId);
+		if (dtoDescriptor != null) {
+			return dtoDescriptor.getEditModeFormInfo();
 		}
 		return null;
 	}

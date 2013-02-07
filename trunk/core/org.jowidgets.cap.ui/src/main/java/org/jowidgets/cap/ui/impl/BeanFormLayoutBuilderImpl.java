@@ -42,7 +42,6 @@ import org.jowidgets.cap.ui.api.form.IBeanFormGroupBuilder;
 import org.jowidgets.cap.ui.api.form.IBeanFormLayout;
 import org.jowidgets.cap.ui.api.form.IBeanFormLayoutBuilder;
 import org.jowidgets.cap.ui.api.form.IBeanFormPropertyBuilder;
-import org.jowidgets.common.types.Border;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.NullCompatibleEquivalence;
 
@@ -64,8 +63,6 @@ final class BeanFormLayoutBuilderImpl implements IBeanFormLayoutBuilder {
 	private int validationLabelHeight;
 
 	private int columnCount;
-
-	private Border contentBorder;
 
 	BeanFormLayoutBuilderImpl() {
 		this.groups = new LinkedList<IBeanFormGroup>();
@@ -147,12 +144,6 @@ final class BeanFormLayoutBuilderImpl implements IBeanFormLayoutBuilder {
 	}
 
 	@Override
-	public IBeanFormLayoutBuilder setContentBorder(final Border border) {
-		this.contentBorder = border;
-		return this;
-	}
-
-	@Override
 	public IBeanFormLayoutBuilder addGroup(final IBeanFormGroup group) {
 		Assert.paramNotNull(group, "group");
 		groups.add(group);
@@ -219,8 +210,7 @@ final class BeanFormLayoutBuilderImpl implements IBeanFormLayoutBuilder {
 			controlMinWidths,
 			controlPrefWidths,
 			controlMaxWidths,
-			validationLabelHeight,
-			contentBorder);
+			validationLabelHeight);
 	}
 
 	private IBeanFormPropertyBuilder getPropertyBuilder() {

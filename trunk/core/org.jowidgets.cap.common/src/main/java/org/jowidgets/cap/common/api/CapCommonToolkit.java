@@ -39,6 +39,7 @@ import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanDtoBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptorBuilder;
+import org.jowidgets.cap.common.api.bean.IBeanFormInfoDescriptorBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanKeyBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanModificationBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanPropertyBuilder;
@@ -88,6 +89,10 @@ public final class CapCommonToolkit {
 
 	public static IEntityLinkDescriptorBuilder entityLinkDescriptorBuilder() {
 		return getInstance().entityLinkDescriptorBuilder();
+	}
+
+	public static IBeanFormInfoDescriptorBuilder beanFormInfoDescriptorBuilder() {
+		return getInstance().beanFormInfoDescriptorBuilder();
 	}
 
 	public static IPropertyBuilder propertyBuilder() {

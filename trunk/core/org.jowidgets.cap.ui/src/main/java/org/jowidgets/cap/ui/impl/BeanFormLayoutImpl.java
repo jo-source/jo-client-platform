@@ -36,7 +36,6 @@ import java.util.Map;
 
 import org.jowidgets.cap.ui.api.form.IBeanFormGroup;
 import org.jowidgets.cap.ui.api.form.IBeanFormLayout;
-import org.jowidgets.common.types.Border;
 
 final class BeanFormLayoutImpl implements IBeanFormLayout {
 
@@ -52,7 +51,6 @@ final class BeanFormLayoutImpl implements IBeanFormLayout {
 	private final Integer width;
 	private final Integer maxWidth;
 	private final int validationLabelHeight;
-	private final Border contentBorder;
 
 	BeanFormLayoutImpl(
 		final int columnCount,
@@ -66,8 +64,7 @@ final class BeanFormLayoutImpl implements IBeanFormLayout {
 		final Map<Integer, Integer> controlMinWidths,
 		final Map<Integer, Integer> controlPrefWidths,
 		final Map<Integer, Integer> controlMaxWidth,
-		final int validationLabelHeight,
-		final Border contentBorder) {
+		final int validationLabelHeight) {
 
 		this.columnCount = columnCount;
 		this.groups = Collections.unmodifiableList(new LinkedList<IBeanFormGroup>(groups));
@@ -81,7 +78,6 @@ final class BeanFormLayoutImpl implements IBeanFormLayout {
 		this.controlPrefWidths = new HashMap<Integer, Integer>(controlPrefWidths);
 		this.controlMaxWidths = new HashMap<Integer, Integer>(controlMaxWidth);
 		this.validationLabelHeight = validationLabelHeight;
-		this.contentBorder = contentBorder;
 	}
 
 	@Override
@@ -140,11 +136,6 @@ final class BeanFormLayoutImpl implements IBeanFormLayout {
 	@Override
 	public int getValidationLabelHeight() {
 		return validationLabelHeight;
-	}
-
-	@Override
-	public Border getContentBorder() {
-		return contentBorder;
 	}
 
 	@Override

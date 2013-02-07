@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, grossmann
+ * Copyright (c) 2013, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -28,33 +28,34 @@
 
 package org.jowidgets.cap.ui.api.form;
 
+import org.jowidgets.cap.common.api.bean.IBeanFormInfoDescriptor;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
+import org.jowidgets.i18n.api.IMessage;
 
-public final class BeanFormToolkit {
+public final class BeanFormInfo {
 
-	private BeanFormToolkit() {}
+	private BeanFormInfo() {}
 
-	public static IBeanFormToolkit instance() {
-		return CapUiToolkit.beanFormToolkit();
+	public static IBeanFormInfo create(final String message) {
+		return builder().setText(message).build();
 	}
 
-	public static IBeanFormLayoutBuilder layoutBuilder() {
-		return instance().layoutBuilder();
+	public static IBeanFormInfo create(final IMessage message) {
+		return builder().setText(message).build();
 	}
 
-	public static IBeanFormGroupBuilder groupBuilder() {
-		return instance().groupBuilder();
+	/**
+	 * Returns the bean form info for the descriptor, or null if the descriptor is null
+	 * 
+	 * @param descriptor The descriptor to get the info for
+	 * @return The info or null, if the descriptor is null
+	 */
+	public static IBeanFormInfo create(final IBeanFormInfoDescriptor descriptor) {
+		return CapUiToolkit.beanFormToolkit().info(descriptor);
 	}
 
-	public static IBeanFormPropertyBuilder propertyBuilder() {
-		return instance().propertyBuilder();
+	public static IBeanFormInfoBuilder builder() {
+		return CapUiToolkit.beanFormToolkit().infoBuilder();
 	}
 
-	public static IBeanFormLayouter layouter(final IBeanFormLayout layout) {
-		return instance().layouter(layout);
-	}
-
-	public static IBeanFormInfoBuilder infoBuilder() {
-		return instance().infoBuilder();
-	}
 }
