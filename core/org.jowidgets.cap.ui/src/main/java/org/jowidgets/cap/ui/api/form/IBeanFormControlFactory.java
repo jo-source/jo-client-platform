@@ -28,6 +28,8 @@
 
 package org.jowidgets.cap.ui.api.form;
 
+import java.util.Collection;
+
 import org.jowidgets.api.widgets.IControl;
 import org.jowidgets.api.widgets.ITextLabel;
 import org.jowidgets.common.types.AlignmentHorizontal;
@@ -90,13 +92,13 @@ public interface IBeanFormControlFactory {
 	Integer getMaxWidthDefault();
 
 	/**
-	 * @return The save button or null, if no save button exists
+	 * @return The bean form info or null, if no info exists
 	 */
-	ICustomWidgetCreator<? extends IControl> createSaveButton();
+	IBeanFormInfo getBeanFormInfo();
 
 	/**
-	 * @return The undo button or null, if no undo button exists
+	 * @return A collection of buttons or an empty list if no buttons are available, never null.
 	 */
-	ICustomWidgetCreator<? extends IControl> createUndoButton();
+	Collection<ICustomWidgetCreator<? extends IControl>> createButtons();
 
 }

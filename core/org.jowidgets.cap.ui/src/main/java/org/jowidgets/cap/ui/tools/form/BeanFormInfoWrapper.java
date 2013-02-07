@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, grossmann
+ * Copyright (c) 2013, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,35 +26,40 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.form;
+package org.jowidgets.cap.ui.tools.form;
 
-import org.jowidgets.cap.ui.api.CapUiToolkit;
+import org.jowidgets.cap.ui.api.form.IBeanFormInfo;
+import org.jowidgets.common.image.IImageConstant;
+import org.jowidgets.i18n.api.IMessage;
+import org.jowidgets.util.Assert;
 
-public final class BeanFormToolkit {
+public class BeanFormInfoWrapper implements IBeanFormInfo {
 
-	private BeanFormToolkit() {}
+	private final IBeanFormInfo original;
 
-	public static IBeanFormToolkit instance() {
-		return CapUiToolkit.beanFormToolkit();
+	public BeanFormInfoWrapper(final IBeanFormInfo original) {
+		Assert.paramNotNull(original, "original");
+		this.original = original;
 	}
 
-	public static IBeanFormLayoutBuilder layoutBuilder() {
-		return instance().layoutBuilder();
+	@Override
+	public IMessage getHeader() {
+		return original.getHeader();
 	}
 
-	public static IBeanFormGroupBuilder groupBuilder() {
-		return instance().groupBuilder();
+	@Override
+	public IMessage getText() {
+		return original.getText();
 	}
 
-	public static IBeanFormPropertyBuilder propertyBuilder() {
-		return instance().propertyBuilder();
+	@Override
+	public IImageConstant getHeaderIcon() {
+		return original.getHeaderIcon();
 	}
 
-	public static IBeanFormLayouter layouter(final IBeanFormLayout layout) {
-		return instance().layouter(layout);
+	@Override
+	public boolean isExpanded() {
+		return original.isExpanded();
 	}
 
-	public static IBeanFormInfoBuilder infoBuilder() {
-		return instance().infoBuilder();
-	}
 }

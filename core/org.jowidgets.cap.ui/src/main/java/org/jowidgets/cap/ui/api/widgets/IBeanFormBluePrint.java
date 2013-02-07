@@ -36,6 +36,7 @@ import org.jowidgets.api.widgets.descriptor.setup.IComponentSetup;
 import org.jowidgets.api.widgets.descriptor.setup.IInputComponentValidationLabelSetup;
 import org.jowidgets.api.widgets.descriptor.setup.IValidationLabelSetup;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
+import org.jowidgets.cap.ui.api.form.IBeanFormInfo;
 import org.jowidgets.cap.ui.api.form.IBeanFormLayouter;
 import org.jowidgets.common.color.IColorConstant;
 import org.jowidgets.common.types.Border;
@@ -104,11 +105,17 @@ public interface IBeanFormBluePrint<BEAN_TYPE> extends
 
 	IBeanFormBluePrint<BEAN_TYPE> setCreateModeInputHint(String hint);
 
+	IBeanFormBluePrint<BEAN_TYPE> setCreateFormInfo(IBeanFormInfo info);
+
+	IBeanFormBluePrint<BEAN_TYPE> setEditFormInfo(IBeanFormInfo info);
+
 	IBeanFormBluePrint<BEAN_TYPE> setCreateModeForegroundColor(IColorConstant editModeColor);
 
 	IBeanFormBluePrint<BEAN_TYPE> setSaveAction(IProvider<IAction> saveAction);
 
 	IBeanFormBluePrint<BEAN_TYPE> setUndoAction(IProvider<IAction> undoAction);
+
+	IBeanFormBluePrint<BEAN_TYPE> setCustomActions(Collection<? extends IProvider<IAction>> actions);
 
 	Object getEntityId();
 
@@ -134,6 +141,10 @@ public interface IBeanFormBluePrint<BEAN_TYPE> extends
 
 	Border getBorder();
 
+	IBeanFormInfo getCreateFormInfo();
+
+	IBeanFormInfo getEditFormInfo();
+
 	IInputComponentValidationLabelSetup getEditModeValidationLabel();
 
 	IInputComponentValidationLabelSetup getCreateModeValidationLabel();
@@ -153,6 +164,8 @@ public interface IBeanFormBluePrint<BEAN_TYPE> extends
 	IProvider<IAction> getSaveAction();
 
 	IProvider<IAction> getUndoAction();
+
+	Collection<IProvider<IAction>> getCustomActions();
 
 	IValidationLabelSetup getPropertyValidationLabel();
 

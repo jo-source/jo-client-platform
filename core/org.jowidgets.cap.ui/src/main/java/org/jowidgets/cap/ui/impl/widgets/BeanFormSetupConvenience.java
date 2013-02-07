@@ -29,12 +29,16 @@
 package org.jowidgets.cap.ui.impl.widgets;
 
 import java.util.Collection;
+import java.util.LinkedList;
 
+import org.jowidgets.api.command.IAction;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.form.IBeanFormLayouter;
 import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanFormSetupConvenience;
 import org.jowidgets.tools.widgets.blueprint.convenience.AbstractSetupBuilderConvenience;
+import org.jowidgets.util.Assert;
+import org.jowidgets.util.IProvider;
 
 final class BeanFormSetupConvenience extends AbstractSetupBuilderConvenience<IBeanFormBluePrint<Object>> implements
 		IBeanFormSetupConvenience<Object, IBeanFormBluePrint<Object>> {
@@ -53,6 +57,30 @@ final class BeanFormSetupConvenience extends AbstractSetupBuilderConvenience<IBe
 		builder.setEditModeAttributes(attributes);
 		builder.setCreateModeAttributes(attributes);
 		return builder;
+	}
+
+	@Override
+	public IBeanFormBluePrint<Object> addCustomAction(final IProvider<IAction> action) {
+		Assert.paramNotNull(action, "action");
+		final IBeanFormBluePrint<Object> builder = getBuilder();
+		Collection<IProvider<IAction>> actions = builder.getCustomActions();
+		if (actions == null) {
+			actions = new LinkedList<IProvider<IAction>>();
+		}
+		actions.add(action);
+		builder.setCustomActions(actions);
+		return builder;
+	}
+
+	@Override
+	public IBeanFormBluePrint<Object> addCustomAction(final IAction action) {
+		Assert.paramNotNull(action, "action");
+		return addCustomAction(new IProvider<IAction>() {
+			@Override
+			public IAction get() {
+				return action;
+			}
+		});
 	}
 
 }

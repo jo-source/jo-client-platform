@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, grossmann
+ * Copyright (c) 2013, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -28,33 +28,37 @@
 
 package org.jowidgets.cap.ui.api.form;
 
-import org.jowidgets.cap.ui.api.CapUiToolkit;
+import org.jowidgets.common.image.IImageConstant;
+import org.jowidgets.i18n.api.IMessage;
 
-public final class BeanFormToolkit {
+public interface IBeanFormInfo {
 
-	private BeanFormToolkit() {}
+	/**
+	 * Gets the header of the form info
+	 * 
+	 * @return The header, never null (but getHeader().get() may return null)
+	 */
+	IMessage getHeader();
 
-	public static IBeanFormToolkit instance() {
-		return CapUiToolkit.beanFormToolkit();
-	}
+	/**
+	 * Gets the info text of the form info
+	 * 
+	 * @return The info text, never null
+	 */
+	IMessage getText();
 
-	public static IBeanFormLayoutBuilder layoutBuilder() {
-		return instance().layoutBuilder();
-	}
+	/**
+	 * Gets an icon for the info (e.g. help or info icon)
+	 * 
+	 * @return The icon or null
+	 */
+	IImageConstant getHeaderIcon();
 
-	public static IBeanFormGroupBuilder groupBuilder() {
-		return instance().groupBuilder();
-	}
+	/**
+	 * Determines if the info text is expanded by default
+	 * 
+	 * @return True if expanded, false otherwise
+	 */
+	boolean isExpanded();
 
-	public static IBeanFormPropertyBuilder propertyBuilder() {
-		return instance().propertyBuilder();
-	}
-
-	public static IBeanFormLayouter layouter(final IBeanFormLayout layout) {
-		return instance().layouter(layout);
-	}
-
-	public static IBeanFormInfoBuilder infoBuilder() {
-		return instance().infoBuilder();
-	}
 }

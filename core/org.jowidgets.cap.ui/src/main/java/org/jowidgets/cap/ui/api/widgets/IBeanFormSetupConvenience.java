@@ -29,13 +29,19 @@ package org.jowidgets.cap.ui.api.widgets;
 
 import java.util.Collection;
 
+import org.jowidgets.api.command.IAction;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.form.IBeanFormLayouter;
+import org.jowidgets.util.IProvider;
 
 public interface IBeanFormSetupConvenience<BEAN_TYPE, INSTANCE_TYPE> {
 
 	INSTANCE_TYPE setLayouter(IBeanFormLayouter layouter);
 
 	INSTANCE_TYPE setAttributes(Collection<? extends IAttribute<?>> attributes);
+
+	INSTANCE_TYPE addCustomAction(IProvider<IAction> action);
+
+	INSTANCE_TYPE addCustomAction(IAction action);
 
 }
