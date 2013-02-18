@@ -20,7 +20,7 @@
 
 		<dependency>
 			<groupId>org.jowidgets</groupId>
-			<artifactId>org.jowidgets.spi.impl.rwt</artifactId>
+			<artifactId>org.jowidgets.spi.impl.rwt.legacy</artifactId>
 			<version>${jowidgets.version}</version>
 		</dependency>
 
