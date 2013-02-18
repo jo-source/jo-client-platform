@@ -50,6 +50,7 @@ class EdgeVisibilityAction extends GroupAction {
 	@Override
 	public void run(final double frac) {
 		synchronized (m_vis) {
+
 			final TupleSet edges = m_vis.getGroup(BeanRelationGraphImpl.EDGES);
 			final Iterator<?> iterEdge = edges.tuples();
 			while (iterEdge.hasNext()) {
@@ -58,11 +59,15 @@ class EdgeVisibilityAction extends GroupAction {
 
 					if (edge.getSourceNode().get("expanded") != Expand.NOT) {
 						synchronized (edgeVisibilityMap) {
-
 							if (edgeVisibilityMap.containsKey(edge.get("name"))) {
 								edge.set("visible", edgeVisibilityMap.get(edge.get("name")));
 								final VisualItem visualItem = (VisualItem) edge;
 								visualItem.setVisible((Boolean) edge.get("visible"));
+								if (!(Boolean) edge.get("visible")) {
+									edge.getTargetNode().set("visible", false);
+									final VisualItem targetNodeVisualItem = (VisualItem) edge.getTargetNode();
+									targetNodeVisualItem.setVisible(false);
+								}
 							}
 						}
 					}

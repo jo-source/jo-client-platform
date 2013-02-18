@@ -49,6 +49,7 @@ class NodeVisibilityAction extends GroupAction {
 	@Override
 	public void run(final double frac) {
 		synchronized (m_vis) {
+
 			final TupleSet nodes = m_vis.getGroup(BeanRelationGraphImpl.NODES);
 			final Iterator<?> node = nodes.tuples();
 			while (node.hasNext()) {
@@ -62,13 +63,12 @@ class NodeVisibilityAction extends GroupAction {
 							final Edge parent = (Edge) inEdges.next();
 							visible = (Boolean) parent.get("visible") ? true : visible;
 						}
-
-						if ((visible) || result.get("filtered") != null && !(Boolean) result.get("filtered")) {
+						if (result.get("filtered") != null) {
 							synchronized (groupVisibilityMap) {
 								if (groupVisibilityMap.containsKey(result.get("beanrelation"))) {
 									visible = groupVisibilityMap.get(result.get("beanrelation"));
 									if (visible) {
-										result.set("filtered", null);
+										result.set("filtered", true);
 									}
 								}
 							}

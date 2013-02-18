@@ -53,6 +53,12 @@ import prefuse.visual.VisualItem;
 
 class LayoutManager {
 
+	private static final int DEFAULT_RADIALLAYOUT_RADIUS = 200;
+	private static final int DEFAULT_NODELINKLAYOUT_DEPTH = 50;
+	private static final int DEFAULT_NODELINKLAYOUT_BREADTH = 5;
+	private static final int DEFAULT_NODELINKLAYOUT_SUBTREE = 25;
+	private static final int DEFAULT_NODELINKLAYOUT_ROOTNODEOFFSET = 120;
+
 	private final LabelEdgeLayout labelEdgeLayout;
 
 	private final Visualization vis;
@@ -75,7 +81,6 @@ class LayoutManager {
 
 		forceDirectedLayout = new ForceDirectedLayout("graph", true);
 		forceDirectedLayout.setForceSimulator(forceSimulator != null ? forceSimulator : setForces());
-
 		layout = new ActionList(Activity.INFINITY);
 		layout.add(forceDirectedLayout);
 		layout.add(labelEdgeLayout);
@@ -88,10 +93,10 @@ class LayoutManager {
 	private ActionList initNodeLinkLayout() {
 		layout = new ActionList(Activity.DEFAULT_STEP_TIME);
 		nodeLinkTreeLayout = new NodeLinkTreeLayout("graph", Constants.ORIENT_LEFT_RIGHT, nodeLinkTreeLayout != null
-				? nodeLinkTreeLayout.getDepthSpacing() : 50, nodeLinkTreeLayout != null
-				? nodeLinkTreeLayout.getBreadthSpacing() : 5, nodeLinkTreeLayout != null
-				? nodeLinkTreeLayout.getSubtreeSpacing() : 25);
-		nodeLinkTreeLayout.setRootNodeOffset(120);
+				? nodeLinkTreeLayout.getDepthSpacing() : DEFAULT_NODELINKLAYOUT_DEPTH, nodeLinkTreeLayout != null
+				? nodeLinkTreeLayout.getBreadthSpacing() : DEFAULT_NODELINKLAYOUT_BREADTH, nodeLinkTreeLayout != null
+				? nodeLinkTreeLayout.getSubtreeSpacing() : DEFAULT_NODELINKLAYOUT_SUBTREE);
+		nodeLinkTreeLayout.setRootNodeOffset(DEFAULT_NODELINKLAYOUT_ROOTNODEOFFSET);
 		layout.add(nodeLinkTreeLayout);
 		layout.add(labelEdgeLayout);
 		layout.add(new RepaintAction(vis));
@@ -102,7 +107,7 @@ class LayoutManager {
 
 		layout = new ActionList(Activity.DEFAULT_STEP_TIME);
 		radialTreeLayout = new RadialTreeLayout("graph", radialTreeLayout != null
-				? (int) radialTreeLayout.getRadiusIncrement() : 200);
+				? (int) radialTreeLayout.getRadiusIncrement() : DEFAULT_RADIALLAYOUT_RADIUS);
 		radialTreeLayout.setAutoScale(false);
 
 		layout.add(new TreeRootAction("graph", vis));
@@ -114,11 +119,6 @@ class LayoutManager {
 	}
 
 	public void assignNodes(final boolean first) {
-
-		//TODO FIX LATER
-		//		if (first) {
-		//			setFixedPosition();
-		//		}
 
 		final Iterator<?> iterator = vis.visibleItems("graph.nodes");
 		final LinkedList<VisualItem> boundaries = new LinkedList<VisualItem>();

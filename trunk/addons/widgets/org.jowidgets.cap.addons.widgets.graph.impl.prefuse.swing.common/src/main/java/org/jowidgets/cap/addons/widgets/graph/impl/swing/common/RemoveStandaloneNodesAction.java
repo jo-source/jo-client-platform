@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.addons.widgets.graph.impl.swing.common;
 
+import java.util.HashMap;
 import java.util.Iterator;
 
 import prefuse.action.GroupAction;
@@ -37,13 +38,12 @@ import prefuse.visual.VisualItem;
 
 class RemoveStandaloneNodesAction extends GroupAction {
 
-	RemoveStandaloneNodesAction() {
+	RemoveStandaloneNodesAction(final HashMap<String, Boolean> groupMap) {
 		super();
 	}
 
 	@Override
 	public void run(final double frac) {
-
 		synchronized (m_vis) {
 			if (m_vis != null) {
 
@@ -88,5 +88,4 @@ class RemoveStandaloneNodesAction extends GroupAction {
 			}
 		}
 	}
-
 }

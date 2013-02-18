@@ -74,25 +74,27 @@ public class BeanGraphAttributeListImpl extends CompositeWrapper {
 			AlignmentHorizontal.LEFT);
 	private static final ICheckBoxBluePrint CHECK_BOCK_PB = Toolkit.getBluePrintFactory().checkBox().alignCenter();
 
-	private final ITableLayout attributeLayoutManager;
+	private ITableLayout attributeLayoutManager;
 	private final Visualization vis;
-	private final Map<String, Boolean> groupMap;
-	private final HashMap<String, Boolean> edgeMap;
+	private final HashMap<String, Boolean> filterMap;
 	private final List<ICheckBox> allCheckBoxes = new LinkedList<ICheckBox>();
 	private boolean row = true;
 
 	public BeanGraphAttributeListImpl(
 		final Visualization vis,
 		final IComposite container,
-		final Map<String, Boolean> groupMap,
-		final HashMap<String, Boolean> edgeVisibilityMap,
+		final HashMap<String, Boolean> filterMap,
 		final FilterType type) {
 		super(container);
 
-		this.groupMap = groupMap;
-		this.edgeMap = edgeVisibilityMap;
+		this.filterMap = filterMap;
 		this.vis = vis;
 
+		buildAttributeList(filterMap, type);
+
+	}
+
+	public void buildAttributeList(final Map<String, Boolean> filterMap, final FilterType type) {
 		final ITableLayoutBuilder builder = Toolkit.getLayoutFactoryProvider().tableLayoutBuilder();
 		builder.columnCount(2);
 		builder.gap(15);
@@ -111,22 +113,10 @@ public class BeanGraphAttributeListImpl extends CompositeWrapper {
 
 		new AttributeHeaderComposite(add(bpf.composite(), "grow, wrap"));
 
-		switch (type) {
-			case RELATIONS:
-				initializeGroups(this, edgeVisibilityMap, bpf);
-				break;
-			case GROUPS:
-				initializeGroups(this, groupMap, bpf);
-				break;
-			default:
-				break;
-		}
+		initializeGroups(this, filterMap, bpf, type);
 
 		attributeLayoutManager.endLayout();
 		attributeLayoutManager.validate();
-
-		//		final Dimension minSize = super.getMinSize();
-		//		setMinSize(new Dimension(minSize.getWidth(), minSize.getHeight()));
 
 		final Dimension prefSize = super.getPreferredSize();
 		setPreferredSize(new Dimension(prefSize.getWidth(), prefSize.getHeight()));
@@ -134,24 +124,26 @@ public class BeanGraphAttributeListImpl extends CompositeWrapper {
 
 	private void initializeGroups(
 		final BeanGraphAttributeListImpl content,
-		final Map<String, Boolean> groupMap,
-		final IBluePrintFactory bpf) {
+		final Map<String, Boolean> filterMap,
+		final IBluePrintFactory bpf,
+		final FilterType type) {
 		row = !row;
-		for (final Entry<String, Boolean> entry : groupMap.entrySet()) {
-			new AttributeGroupComposite(add(bpf.composite(), "grow, wrap"), entry.getKey(), entry.getValue(), row);
-			row = !row;
-		}
-	}
-
-	private void initializeGroups(
-		final BeanGraphAttributeListImpl content,
-		final HashMap<String, Boolean> edgeVisibilityMap,
-		final IBluePrintFactory bpf) {
-		row = !row;
-		new AllAttributeComposite(content.add(bpf.composite(), "grow, wrap"));
-		for (final Entry<String, Boolean> entry : edgeVisibilityMap.entrySet()) {
-			new AttributeEdgeComposite(content.add(bpf.composite(), "grow, wrap"), entry.getKey(), entry.getValue(), row);
-			row = !row;
+		switch (type) {
+			case GROUPS:
+				for (final Entry<String, Boolean> entry : filterMap.entrySet()) {
+					new AttributeGroupComposite(add(bpf.composite(), "grow, wrap"), entry.getKey(), entry.getValue(), row);
+					row = !row;
+				}
+				break;
+			case RELATIONS:
+				new AllAttributeComposite(content.add(bpf.composite(), "grow, wrap"));
+				for (final Entry<String, Boolean> entry : filterMap.entrySet()) {
+					new AttributeEdgeComposite(content.add(bpf.composite(), "grow, wrap"), entry.getKey(), entry.getValue(), row);
+					row = !row;
+				}
+				break;
+			default:
+				break;
 		}
 	}
 
@@ -173,21 +165,20 @@ public class BeanGraphAttributeListImpl extends CompositeWrapper {
 				public void inputChanged() {
 					updateAllCheckBoxes(checkBox.isSelected());
 				}
-
 			});
 		}
 	}
 
 	private void updateAllCheckBoxes(final boolean selected) {
+
 		final Iterator<ICheckBox> it = allCheckBoxes.iterator();
 		while (it.hasNext()) {
-			synchronized (vis) {
-				it.next().setSelected(selected);
-				vis.run("filter");
-				vis.run("layout");
-				vis.run("animate");
-				vis.run("color");
-			}
+			it.next().setSelected(selected);
+		}
+		synchronized (vis) {
+			vis.run("filter");
+			vis.run("layout");
+			vis.run("color");
 		}
 	}
 
@@ -209,7 +200,6 @@ public class BeanGraphAttributeListImpl extends CompositeWrapper {
 
 		public AttributeGroupComposite(final IContainer container, final String key, final boolean selected, final boolean row) {
 			super(container);
-			//			setBackgroundColor(row ? ATTRIBUTE_GROUP_BACKGROUND : Colors.WHITE);
 			final int[] color = BeanRelationGraphImpl.GROUP_COLOR_MAP.get(key);
 			setBackgroundColor(new ColorValue(color[0], color[1], color[2]));
 			setLayout(attributeLayoutManager.rowBuilder().build());
@@ -221,8 +211,7 @@ public class BeanGraphAttributeListImpl extends CompositeWrapper {
 
 				@Override
 				public void inputChanged() {
-
-					for (final Entry<String, Boolean> entry : groupMap.entrySet()) {
+					for (final Entry<String, Boolean> entry : filterMap.entrySet()) {
 						if (key.equals(entry.getKey())) {
 							entry.setValue(checkBox.isSelected());
 
@@ -237,7 +226,6 @@ public class BeanGraphAttributeListImpl extends CompositeWrapper {
 					}
 					vis.run("filter");
 					vis.run("layout");
-					vis.run("animate");
 					vis.run("color");
 				}
 			});
@@ -262,29 +250,21 @@ public class BeanGraphAttributeListImpl extends CompositeWrapper {
 				@Override
 				public void inputChanged() {
 
-					synchronized (vis) {
-
-						for (final Entry<String, Boolean> entry : edgeMap.entrySet()) {
-							if (key.equals(entry.getKey())) {
-								entry.setValue(checkBox.isSelected());
-							}
+					for (final Entry<String, Boolean> entry : filterMap.entrySet()) {
+						if (key.equals(entry.getKey())) {
+							entry.setValue(checkBox.isSelected());
 						}
-						vis.run("filter");
-						vis.run("layout");
-						vis.run("animate");
-						vis.run("color");
 					}
+					vis.run("filter");
+					vis.run("layout");
+					vis.run("color");
 				}
 			});
 		}
 	}
 
-	public Map<String, Boolean> getGroupMap() {
-		return groupMap;
-	}
-
-	public HashMap<String, Boolean> getEdgeMap() {
-		return this.edgeMap;
+	public HashMap<String, Boolean> getFilterMap() {
+		return filterMap;
 	}
 
 	enum FilterType {
