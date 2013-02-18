@@ -29,13 +29,11 @@
 package org.jowidgets.cap.addons.widgets.graph.impl.swing.common;
 
 import java.util.HashMap;
-import java.util.Map;
 
 import org.jowidgets.api.widgets.IScrollComposite;
 import org.jowidgets.api.widgets.ITabFolder;
 import org.jowidgets.api.widgets.ITabItem;
 import org.jowidgets.cap.addons.widgets.graph.impl.swing.common.BeanGraphAttributeListImpl.FilterType;
-import org.jowidgets.common.types.Dimension;
 import org.jowidgets.common.types.Position;
 import org.jowidgets.tools.layout.MigLayoutFactory;
 import org.jowidgets.tools.powo.JoFrame;
@@ -45,51 +43,96 @@ import prefuse.Visualization;
 
 final class BeanGraphSettingsDialog extends JoFrame {
 
-	private final BeanGraphAttributeListImpl beanGraphAttributeListImplRelations;
-	private final BeanGraphAttributeListImpl beanGraphAttributeListImplGroup;
+	//	private final BeanGraphAttributeListImpl beanGraphAttributeListImplRelations;
+	private final BeanGraphAttributeListImpl beanGraphAttributeListImplGroups;
+	private final HashMap<String, Boolean> groupVisibilityMap;
+	private ITabFolder tabFolder;
+	private final Visualization vis;
 
 	public BeanGraphSettingsDialog(
 		final Visualization vis,
-		final Map<String, Boolean> groupMap,
+		final HashMap<String, Boolean> groupMap,
 		final HashMap<String, Boolean> edgeVisibilityMap,
-		final Position position) {
+		final Position position,
+		final int filterTabIndex) {
 		super("Filter");
-
+		this.groupVisibilityMap = groupMap;
+		this.vis = vis;
 		setLayout(MigLayoutFactory.growingCellLayout());
 		if (position != null) {
 			setPosition(position);
 		}
 
-		final IScrollComposite content = add(BPF.scrollComposite(), MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
-		content.setLayout(MigLayoutFactory.growingInnerCellLayout());
-		content.setPreferredSize(new Dimension(400, 100));
+		beanGraphAttributeListImplGroups = initializeTabFolder(filterTabIndex);
+	}
 
-		final ITabFolder tabFolder = content.add(BPF.tabFolder().setTabsCloseable(false));
+	private BeanGraphAttributeListImpl initializeTabFolder(final int filterTabIndex) {
+		tabFolder = add(BPF.tabFolder().setTabsCloseable(false), MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
 
 		final ITabItem itemGroupFilter = tabFolder.addItem(BPF.tabItem());
 		itemGroupFilter.setText("GroupFilter");
-		final ITabItem itemRelationFilter = tabFolder.addItem(BPF.tabItem());
-		itemRelationFilter.setText("RelationFilter");
-
-		itemRelationFilter.setLayout(MigLayoutFactory.growingInnerCellLayout());
 		itemGroupFilter.setLayout(MigLayoutFactory.growingInnerCellLayout());
+		final IScrollComposite contentGroup = itemGroupFilter.add(
+				BPF.scrollComposite(),
+				MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
+		contentGroup.setLayout(MigLayoutFactory.growingInnerCellLayout());
 
-		beanGraphAttributeListImplRelations = new BeanGraphAttributeListImpl(vis, itemRelationFilter.add(
+		//		final ITabItem itemRelationFilter = tabFolder.addItem(BPF.tabItem());
+		//		itemRelationFilter.setText("RelationFilter");
+		//		itemRelationFilter.setLayout(MigLayoutFactory.growingInnerCellLayout());
+		//		final IScrollComposite contentRelations = itemRelationFilter.add(
+		//				BPF.scrollComposite(),
+		//				MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
+		//		contentRelations.setLayout(MigLayoutFactory.growingInnerCellLayout());
+
+		//		beanGraphAttributeListImplRelations = new BeanGraphAttributeListImpl(vis, contentRelations.add(
+		//				BPF.composite(),
+		//				"aligny top, growx,  w 0::, h 0::"), edgeVisibilityMap, FilterType.RELATIONS);
+
+		final BeanGraphAttributeListImpl beanGraphAttributeListImplGroup = new BeanGraphAttributeListImpl(vis, contentGroup.add(
 				BPF.composite(),
-				"grow, wrap, span, w 0:360:, h 0::"), groupMap, edgeVisibilityMap, FilterType.RELATIONS);
+				"aligny top, growx,  w 0::, h 0::"), groupVisibilityMap, FilterType.GROUPS);
 
-		beanGraphAttributeListImplGroup = new BeanGraphAttributeListImpl(vis, itemGroupFilter.add(
-				BPF.composite(),
-				"grow, wrap, span, w 0:360:, h 0::"), groupMap, edgeVisibilityMap, FilterType.GROUPS);
+		tabFolder.setSelectedItem((getFilterTabByIndex(filterTabIndex) != null)
+				? getFilterTabByIndex(filterTabIndex).getIndex() : 0);
 
+		return beanGraphAttributeListImplGroup;
 	}
 
-	public Map<String, Boolean> updateGroupMap() {
-		return beanGraphAttributeListImplGroup.getGroupMap();
+	public HashMap<String, Boolean> updateGroupMap() {
+		return beanGraphAttributeListImplGroups.getFilterMap();
 	}
 
-	public HashMap<String, Boolean> updateEdgeMap() {
-		return beanGraphAttributeListImplRelations.getEdgeMap();
+	//	public HashMap<String, Boolean> updateEdgeMap() {
+	//		return beanGraphAttributeListImplRelations.getFilterMap();
+	//	}
+
+	public int getOpenFilterTab() {
+		return tabFolder.getSelectedIndex();
 	}
 
+	enum FilterTab {
+
+		GROUP(0),
+		RELATIONS(1);
+
+		private final int index;
+
+		private FilterTab(final int index) {
+			this.index = index;
+		}
+
+		public int getIndex() {
+			return index;
+		}
+	}
+
+	public FilterTab getFilterTabByIndex(final int index) {
+		for (final FilterTab filterTab : FilterTab.values()) {
+			if (filterTab.getIndex() == index) {
+				return filterTab;
+			}
+		}
+		return null;
+	}
 }

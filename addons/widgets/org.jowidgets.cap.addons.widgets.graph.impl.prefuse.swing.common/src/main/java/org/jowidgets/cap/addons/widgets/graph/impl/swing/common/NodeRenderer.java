@@ -102,7 +102,6 @@ class NodeRenderer extends LabelRenderer {
 	@Override
 	public void render(final Graphics2D g, final VisualItem item) {
 		final RectangularShape shape = (RectangularShape) getShape(item);
-
 		gradientColor = new GradientPaint(
 			shape.getBounds().x + shape.getBounds().width / 2,
 			shape.getBounds().y,
