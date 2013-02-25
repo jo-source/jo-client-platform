@@ -45,6 +45,7 @@ import org.jowidgets.plugin.api.PluginProvider;
 import org.jowidgets.plugin.api.PluginToolkit;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.EmptyCheck;
+import org.jowidgets.util.NullCompatibleComparison;
 import org.jowidgets.util.NullCompatibleEquivalence;
 
 final class BeanDtoFilterImpl implements IBeanDtoFilter {
@@ -424,14 +425,11 @@ final class BeanDtoFilterImpl implements IBeanDtoFilter {
 	}
 
 	@SuppressWarnings("unchecked")
-	private boolean isLessToObject(final Object object, final Object value) {
-		if (value != null) {
-			final Comparable<Object> cvalue = (Comparable<Object>) value;
-			return cvalue.compareTo(object) < 0;
-		}
-		else {
-			return false;
-		}
+	// TODO: MR refactor dirty use of generic types: If the types are not comparable, there will be nasty runtime exceptions
+	private <COMPARABLE_TYPE extends Comparable<COMPARABLE_TYPE>> boolean isLessToObject(final Object object, final Object value) {
+		final COMPARABLE_TYPE cvalue = (COMPARABLE_TYPE) value;
+		final COMPARABLE_TYPE cobject = (COMPARABLE_TYPE) object;
+		return NullCompatibleComparison.compareTo(cvalue, cobject) < 0;
 	}
 
 	private boolean isLessToObject(final Object object, final Collection<?> values) {
@@ -484,14 +482,13 @@ final class BeanDtoFilterImpl implements IBeanDtoFilter {
 	}
 
 	@SuppressWarnings("unchecked")
-	private boolean isGreaterToObject(final Object object, final Object value) {
-		if (value != null) {
-			final Comparable<Object> cvalue = (Comparable<Object>) value;
-			return cvalue.compareTo(object) > 0;
-		}
-		else {
-			return false;
-		}
+	// TODO: MR refactor dirty use of generic types: If the types are not comparable, there will be nasty runtime exceptions
+	private <COMPARABLE_TYPE extends Comparable<COMPARABLE_TYPE>> boolean isGreaterToObject(
+		final Object object,
+		final Object value) {
+		final COMPARABLE_TYPE cvalue = (COMPARABLE_TYPE) value;
+		final COMPARABLE_TYPE cobject = (COMPARABLE_TYPE) object;
+		return NullCompatibleComparison.compareTo(cvalue, cobject) > 0;
 	}
 
 	private boolean isGreaterToObject(final Object object, final Collection<?> values) {
