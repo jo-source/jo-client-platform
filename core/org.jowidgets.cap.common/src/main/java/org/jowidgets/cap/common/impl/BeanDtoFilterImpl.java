@@ -424,11 +424,10 @@ final class BeanDtoFilterImpl implements IBeanDtoFilter {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
-	// TODO: MR refactor dirty use of generic types: If the types are not comparable, there will be nasty runtime exceptions
-	private <COMPARABLE_TYPE extends Comparable<COMPARABLE_TYPE>> boolean isLessToObject(final Object object, final Object value) {
-		final COMPARABLE_TYPE cvalue = (COMPARABLE_TYPE) value;
-		final COMPARABLE_TYPE cobject = (COMPARABLE_TYPE) object;
+	@SuppressWarnings({"rawtypes", "unchecked"})
+	private boolean isLessToObject(final Object object, final Object value) {
+		final Comparable cvalue = (Comparable) value;
+		final Comparable cobject = (Comparable) object;
 		return NullCompatibleComparison.compareTo(cvalue, cobject) < 0;
 	}
 
@@ -481,13 +480,10 @@ final class BeanDtoFilterImpl implements IBeanDtoFilter {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
-	// TODO: MR refactor dirty use of generic types: If the types are not comparable, there will be nasty runtime exceptions
-	private <COMPARABLE_TYPE extends Comparable<COMPARABLE_TYPE>> boolean isGreaterToObject(
-		final Object object,
-		final Object value) {
-		final COMPARABLE_TYPE cvalue = (COMPARABLE_TYPE) value;
-		final COMPARABLE_TYPE cobject = (COMPARABLE_TYPE) object;
+	@SuppressWarnings({"rawtypes", "unchecked"})
+	private boolean isGreaterToObject(final Object object, final Object value) {
+		final Comparable cvalue = (Comparable) value;
+		final Comparable cobject = (Comparable) object;
 		return NullCompatibleComparison.compareTo(cvalue, cobject) > 0;
 	}
 
