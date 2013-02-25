@@ -2511,7 +2511,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			@SuppressWarnings("unchecked")
 			final IBeanProxy<BEAN_TYPE> source = (IBeanProxy<BEAN_TYPE>) evt.getSource();
 			final IBeanProxy<BEAN_TYPE> beanAtIndex = getBean(rowIndex);
-			if (!NullCompatibleEquivalence.equals(source, beanAtIndex)) {
+			if (beanAtIndex == null || !NullCompatibleEquivalence.equals(source, beanAtIndex)) {
 				rowIndex = getBeanIndex(source);
 			}
 			if (rowIndex != -1) {
