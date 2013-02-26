@@ -119,6 +119,7 @@ final class AttributeFilterControlImpl extends AbstractInputControl<IUiConfigura
 		this.cmbNot = composite.add(comboBoxNotBp());
 		cmbNot.addInputListener(inputListener);
 		cmbNot.addValidationConditionListener(validationConditionListener);
+		cmbNot.setVisible(true);
 
 		this.cmbOperator = composite.add(comboBoxOperatorBp());
 
@@ -344,12 +345,9 @@ final class AttributeFilterControlImpl extends AbstractInputControl<IUiConfigura
 			if (!invertibale) {
 				cmbNot.setValue(Boolean.FALSE);
 			}
-			final boolean wasVisible = cmbNot.isVisible();
-			if (wasVisible != invertibale) {
-				getWidget().layoutBegin();
-				cmbNot.setVisible(invertibale);
-				getWidget().layoutEnd();
-			}
+			getWidget().layoutBegin();
+			cmbNot.setVisible(invertibale);
+			getWidget().layoutEnd();
 		}
 	}
 
