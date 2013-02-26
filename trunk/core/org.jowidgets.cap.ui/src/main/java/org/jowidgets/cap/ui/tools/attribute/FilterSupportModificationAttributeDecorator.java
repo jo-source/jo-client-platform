@@ -85,6 +85,17 @@ public final class FilterSupportModificationAttributeDecorator {
 		}
 
 		@Override
+		public IControlPanelProvider<Object> getCurrentFilterControlPanel(final IFilterType filterType) {
+			final IControlPanelProvider<Object> original = super.getCurrentFilterControlPanel(filterType);
+			if (original != null) {
+				return new DecoratedControlPanelProvider(original, modificator);
+			}
+			else {
+				return null;
+			}
+		}
+
+		@Override
 		public IControlPanelProvider<Object> getCurrentControlPanel() {
 			final IControlPanelProvider<Object> original = super.getCurrentControlPanel();
 			if (original != null) {
