@@ -40,7 +40,7 @@ class TreeRootAction extends GroupAction {
 
 	private final Visualization vis;
 
-	public TreeRootAction(final String graphGroup, final Visualization vis) {
+	TreeRootAction(final String graphGroup, final Visualization vis) {
 		super(graphGroup);
 		this.vis = vis;
 	}

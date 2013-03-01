@@ -58,8 +58,7 @@ class NodeRenderer extends LabelRenderer {
 	private final Image expandedIcon;
 	private final Image notExpandedIcon;
 
-	public NodeRenderer(final String name, final String image) {
-
+	NodeRenderer(final String name, final String image) {
 		super(name, image);
 		transform = new AffineTransform();
 		expandedIcon = initializeIcons(CapIcons.NODE_CONTRACTED);
@@ -68,7 +67,6 @@ class NodeRenderer extends LabelRenderer {
 		this.setHorizontalPadding(35);
 		this.setVerticalPadding(2);
 		this.setRoundedCorner(8, 8);
-
 	}
 
 	private Image initializeIcons(final IImageConstant iconImage) {

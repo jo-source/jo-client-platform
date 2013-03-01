@@ -70,7 +70,7 @@ class LabelEdgeLayout extends Layout {
 		}
 	}
 
-	public void setEdgesVisible(final boolean visible) {
+	void setEdgesVisible(final boolean visible) {
 		edgesVisible = visible;
 	}
 }

@@ -33,6 +33,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import org.jowidgets.cap.addons.widgets.graph.impl.swing.common.BeanRelationGraphImpl.GraphLayout;
+import org.jowidgets.util.Assert;
 
 import prefuse.Constants;
 import prefuse.Display;
@@ -60,66 +61,84 @@ class LayoutManager {
 	private static final int DEFAULT_NODELINKLAYOUT_ROOTNODEOFFSET = 120;
 
 	private final LabelEdgeLayout labelEdgeLayout;
-
 	private final Visualization vis;
-	private ForceSimulator forceSimulator;
-	private ActionList layout;
+	private final NodeLinkTreeLayout nodeLinkTreeLayout;
 
-	private NodeLinkTreeLayout nodeLinkTreeLayout;
-	private RadialTreeLayout radialTreeLayout;
+	private final RadialTreeLayout radialTreeLayout;
 	private ForceDirectedLayout forceDirectedLayout;
 
 	private Point anchorPoint;
+	private final ForceSimulator forceSimulator;
 
 	LayoutManager(final Visualization vis) {
+		Assert.paramNotNull(vis, "vis");
 		this.vis = vis;
-		forceSimulator = setForces();
 		labelEdgeLayout = new LabelEdgeLayout(vis);
+		forceSimulator = createForceSimulator();
+		nodeLinkTreeLayout = createNodeLinkTreeLayout();
+		radialTreeLayout = createRadialTreeLayout();
+		forceDirectedLayout = createForceDirectedLayout(forceSimulator);
 	}
 
-	private ActionList initForceDLayout() {
+	private static NodeLinkTreeLayout createNodeLinkTreeLayout() {
+		final NodeLinkTreeLayout result = new NodeLinkTreeLayout(
+			"graph",
+			Constants.ORIENT_LEFT_RIGHT,
+			DEFAULT_NODELINKLAYOUT_DEPTH,
+			DEFAULT_NODELINKLAYOUT_BREADTH,
+			DEFAULT_NODELINKLAYOUT_SUBTREE);
+		result.setRootNodeOffset(DEFAULT_NODELINKLAYOUT_ROOTNODEOFFSET);
+		return result;
+	}
 
+	private static RadialTreeLayout createRadialTreeLayout() {
+		final RadialTreeLayout result = new RadialTreeLayout("graph", DEFAULT_RADIALLAYOUT_RADIUS);
+		result.setAutoScale(false);
+		return result;
+	}
+
+	private static ForceDirectedLayout createForceDirectedLayout(final ForceSimulator forceSimulator) {
+		final ForceDirectedLayout result = new ForceDirectedLayout("graph", true);
+		result.setForceSimulator(forceSimulator);
+		return result;
+	}
+
+	private static ForceSimulator createForceSimulator() {
+		final ForceSimulator result = new ForceSimulator();
+		result.addForce(new DragForce(0.03f));
+		result.addForce(new NBodyForce(-10, 320, 0));
+		result.addForce(new SpringForce(1E-4f, 250));
+		return result;
+	}
+
+	private ActionList createForceDLayoutActionList() {
 		forceDirectedLayout = new ForceDirectedLayout("graph", true);
-		forceDirectedLayout.setForceSimulator(forceSimulator != null ? forceSimulator : setForces());
-		layout = new ActionList(Activity.INFINITY);
-		layout.add(forceDirectedLayout);
-		layout.add(labelEdgeLayout);
-		layout.add(new RepaintAction(vis));
-
-		return layout;
-
+		forceDirectedLayout.setForceSimulator(forceSimulator);
+		final ActionList result = new ActionList(Activity.INFINITY);
+		result.add(forceDirectedLayout);
+		result.add(labelEdgeLayout);
+		result.add(new RepaintAction(vis));
+		return result;
 	}
 
-	private ActionList initNodeLinkLayout() {
-		layout = new ActionList(Activity.DEFAULT_STEP_TIME);
-		nodeLinkTreeLayout = new NodeLinkTreeLayout("graph", Constants.ORIENT_LEFT_RIGHT, nodeLinkTreeLayout != null
-				? nodeLinkTreeLayout.getDepthSpacing() : DEFAULT_NODELINKLAYOUT_DEPTH, nodeLinkTreeLayout != null
-				? nodeLinkTreeLayout.getBreadthSpacing() : DEFAULT_NODELINKLAYOUT_BREADTH, nodeLinkTreeLayout != null
-				? nodeLinkTreeLayout.getSubtreeSpacing() : DEFAULT_NODELINKLAYOUT_SUBTREE);
-		nodeLinkTreeLayout.setRootNodeOffset(DEFAULT_NODELINKLAYOUT_ROOTNODEOFFSET);
-		layout.add(nodeLinkTreeLayout);
-		layout.add(labelEdgeLayout);
-		layout.add(new RepaintAction(vis));
-		return layout;
+	private ActionList createNodeLinkLayoutActionList() {
+		final ActionList result = new ActionList(Activity.DEFAULT_STEP_TIME);
+		result.add(nodeLinkTreeLayout);
+		result.add(labelEdgeLayout);
+		result.add(new RepaintAction(vis));
+		return result;
 	}
 
-	private ActionList initRadialTreeLayout() {
-
-		layout = new ActionList(Activity.DEFAULT_STEP_TIME);
-		radialTreeLayout = new RadialTreeLayout("graph", radialTreeLayout != null
-				? (int) radialTreeLayout.getRadiusIncrement() : DEFAULT_RADIALLAYOUT_RADIUS);
-		radialTreeLayout.setAutoScale(false);
-
-		layout.add(new TreeRootAction("graph", vis));
-		layout.add(radialTreeLayout);
-		layout.add(labelEdgeLayout);
-		layout.add(new RepaintAction(vis));
-		return layout;
-
+	private ActionList createRadialTreeLayoutActionList() {
+		final ActionList result = new ActionList(Activity.DEFAULT_STEP_TIME);
+		result.add(new TreeRootAction("graph", vis));
+		result.add(radialTreeLayout);
+		result.add(labelEdgeLayout);
+		result.add(new RepaintAction(vis));
+		return result;
 	}
 
-	public void assignNodes(final boolean first) {
-
+	void assignNodes(final boolean first) {
 		final Iterator<?> iterator = vis.visibleItems("graph.nodes");
 		final LinkedList<VisualItem> boundaries = new LinkedList<VisualItem>();
 		while (iterator.hasNext()) {
@@ -190,20 +209,7 @@ class LayoutManager {
 		vis.repaint();
 	}
 
-	private ForceSimulator setForces() {
-		final SpringForce springForce = new SpringForce(1E-4f, 250);
-		final NBodyForce nBodyForce = new NBodyForce(-10, 320, 0);
-		final DragForce dragForce = new DragForce(0.03f);
-
-		forceSimulator = new ForceSimulator();
-		forceSimulator.addForce(dragForce);
-		forceSimulator.addForce(nBodyForce);
-		forceSimulator.addForce(springForce);
-
-		return forceSimulator;
-	}
-
-	public void updateAnchorPoint(final GraphLayout type, final Display display) {
+	void updateAnchorPoint(final GraphLayout type, final Display display) {
 		switch (type) {
 			case NODE_TREE_LINK_LAYOUT:
 				nodeLinkTreeLayout.setLayoutAnchor(anchorPoint);
@@ -217,7 +223,7 @@ class LayoutManager {
 		}
 	}
 
-	public void assignAnchorPoint(final Display display, final GraphLayout layout) {
+	void assignAnchorPoint(final Display display, final GraphLayout layout) {
 		switch (layout) {
 			case RADIAL_TREE_LAYOUT:
 				anchorPoint = new Point((int) display.getDisplayX() + (display.getWidth() / 2), (int) display.getDisplayY()
@@ -234,18 +240,19 @@ class LayoutManager {
 		}
 	}
 
-	public GraphLayout getLayout(final GraphLayout type) {
+	void setLayout(final GraphLayout type) {
 		synchronized (vis) {
 			vis.removeAction("layout");
+			final ActionList layout;
 			switch (type) {
 				case FORCE_DIRECTED_LAYOUT:
-					layout = initForceDLayout();
+					layout = createForceDLayoutActionList();
 					break;
 				case NODE_TREE_LINK_LAYOUT:
-					layout = initNodeLinkLayout();
+					layout = createNodeLinkLayoutActionList();
 					break;
 				case RADIAL_TREE_LAYOUT:
-					layout = initRadialTreeLayout();
+					layout = createRadialTreeLayoutActionList();
 					break;
 				default:
 					layout = null;
@@ -253,14 +260,9 @@ class LayoutManager {
 			}
 			vis.putAction("layout", layout);
 		}
-		return type;
 	}
 
-	public void resetLayout() {
-		this.layout = null;
-	}
-
-	public void resetNodePositions() {
+	void resetNodePositions() {
 		final Iterator<?> iterator = vis.items(BeanRelationGraphImpl.NODES);
 		while (iterator.hasNext()) {
 			final Node node = (Node) iterator.next();
@@ -268,53 +270,53 @@ class LayoutManager {
 		}
 	}
 
-	public LabelEdgeLayout getLabelEdgeLayout() {
+	LabelEdgeLayout getLabelEdgeLayout() {
 		return this.labelEdgeLayout;
 	}
 
-	public ForceSimulator getForceSimulator() {
+	ForceSimulator getForceSimulator() {
 		return this.forceSimulator;
 	}
 
-	public void setRadialRadius(final double radius) {
+	void setRadialRadius(final double radius) {
 		this.radialTreeLayout.setRadiusIncrement(radius);
 	}
 
-	public double getRadialRadius() {
+	double getRadialRadius() {
 		return this.radialTreeLayout.getRadiusIncrement();
 	}
 
-	public void setNodeLinkLayoutRoot(final Node node) {
+	void setNodeLinkLayoutRoot(final Node node) {
 		this.nodeLinkTreeLayout.setLayoutRoot((NodeItem) node);
 	}
 
-	public void setRadialTreeLayoutRoot(final Node node) {
+	void setRadialTreeLayoutRoot(final Node node) {
 		this.radialTreeLayout.setLayoutRoot((NodeItem) node);
 	}
 
-	public void setNodeLinkedDistance(final double distance) {
+	void setNodeLinkedDistance(final double distance) {
 		this.nodeLinkTreeLayout.setDepthSpacing(distance);
 	}
 
-	public void setNodeLinkedNeighborDistance(final double distance) {
+	void setNodeLinkedNeighborDistance(final double distance) {
 		this.nodeLinkTreeLayout.setBreadthSpacing(distance);
 	}
 
-	public void setNodeLinkedSubtreeDistance(final double distance) {
+	void setNodeLinkedSubtreeDistance(final double distance) {
 		this.nodeLinkTreeLayout.setSubtreeSpacing(distance);
 	}
 
-	public double[] getNodeLinkedDistances() {
+	double[] getNodeLinkedDistances() {
 		return new double[] {
 				this.nodeLinkTreeLayout.getDepthSpacing(), this.nodeLinkTreeLayout.getBreadthSpacing(),
 				this.nodeLinkTreeLayout.getSubtreeSpacing()};
 	}
 
-	public String[] getNodeLinkedForces() {
+	String[] getNodeLinkedForces() {
 		return new String[] {"Level", "Neighbor", "Subtree"};
 	}
 
-	public void runActiveLayout() {
+	void runActiveLayout() {
 		this.vis.run("layout");
 	}
 }

@@ -78,7 +78,7 @@ class EdgeVisibilityAction extends GroupAction {
 		}
 	}
 
-	public void updateEdgeMap(final HashMap<String, Boolean> edgeMap) {
+	void updateEdgeMap(final HashMap<String, Boolean> edgeMap) {
 		this.edgeVisibilityMap = edgeMap;
 	}
 }

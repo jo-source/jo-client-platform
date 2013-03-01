@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, David Bauknecht
+ * Copyright (c) 2012, David Bauknecht, Samuel Palm
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -137,13 +137,11 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 	public static final String GRAPH_NODES_GROUP = "graph.nodes.group";
 	public static final String EDGE_DECORATORS = "edgeDeco";
 
-	public static final Map<String, int[]> GROUP_COLOR_MAP = new HashMap<String, int[]>();;
-	public static final int[][] NODE_COLORS = new int[][] {
+	private static final int[][] NODE_COLORS = new int[][] {
 			{180, 180, 180, 255}, {105, 176, 220, 255}, {191, 112, 97, 255}, {7, 162, 28, 255}, {192, 210, 0, 255},
 			{147, 129, 186, 255}, {217, 123, 82, 255}, {222, 127, 227, 255}, {239, 215, 143, 255}, {99, 241, 113, 255},
 			{79, 124, 36, 255}, {45, 84, 187, 255}};
 
-	private static boolean filterActIsRunning = false;
 	private static final int MAX_NODE_COUNT_DEFAULT = 100;
 	private static final int MAX_LABELTEXT_LENGTH = 40;
 	private static final int EXPAND_ICON_SIZE = 18;
@@ -154,13 +152,6 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 
 	private static final Schema DECORATOR_SCHEMA = createDecoratorSchema();
 
-	private static NodeItem markedNode;
-
-	private static BeanGraphSettingsDialog settingsDialog;
-	private static Position settingsDialogPosition = null;
-	private GraphSettingsDialog layoutSettingsDialog;
-	private Position layoutSettingsDialogPosition = null;
-
 	private final IBeanRelationTreeModel<CHILD_BEAN_TYPE> relationTreeModel;
 	private final Map<IBeanProxy<Object>, Node> nodeMap;
 	private final Map<Class<Object>, String> entityGroupMap;
@@ -170,32 +161,33 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 	private final List<Node> expandedNodesCache;
 	private final Set<IBeanRelationNodeModel<Object, Object>> childModelListenerSet;
 	private final Set<IBeanRelationNodeModel<Object, Object>> expandMapResult;
+	private final Map<String, int[]> groupColorMap;
 
 	private final Visualization vis;
 	private final Graph graph;
 	private final Display display;
-
 	private final ImageFactory imageFactory;
-
-	private int maxNodeCount = MAX_NODE_COUNT_DEFAULT;
-	private int groupCount;
-
-	private int autoExpandLevel;
-
 	private final IUiThreadAccess uiThreadAccess;
-	private InputControlItemModel<Integer> maxNodeTextField;
-
-	private ExpandLevelVisibilityAction expand;
-
-	private RootModelListener rootModelListener;
-
 	private final ActionManager actionManager;
 	private final LayoutManager layoutManager;
-	private GraphLayout activeLayout;
 	private final EdgeRenderer edgeRenderer;
+
+	private BeanGraphSettingsDialog settingsDialog;
+	private Position settingsDialogPosition;
+	private GraphSettingsDialog layoutSettingsDialog;
+	private Position layoutSettingsDialogPosition;
 
 	private InputControlItemModel<Integer> comboBoxExpandLevel;
 	private JLabel nodeCountLabel;
+	private boolean filterActionRunning;
+	private NodeItem markedNode;
+	private int maxNodeCount;
+	private int groupCount;
+	private InputControlItemModel<Integer> maxNodeTextField;
+	private AutoExpandLevelVisibilityAction expand;
+	private RootModelListener rootModelListener;
+	private GraphLayout activeLayout;
+	private int autoExpandLevel;
 
 	BeanRelationGraphImpl(
 		final IComposite composite,
@@ -205,6 +197,9 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 
 		uiThreadAccess = Toolkit.getUiThreadAccess();
 
+		filterActionRunning = false;
+		maxNodeCount = MAX_NODE_COUNT_DEFAULT;
+		groupColorMap = new HashMap<String, int[]>();
 		relationTreeModel = setup.getModel();
 		nodeMap = new HashMap<IBeanProxy<Object>, Node>();
 		entityGroupMap = new HashMap<Class<Object>, String>();
@@ -252,7 +247,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 
 		layoutManager = new LayoutManager(vis);
 		layoutManager.getLabelEdgeLayout().setEdgesVisible(false);
-		activeLayout = layoutManager.getLayout(GraphLayout.FORCE_DIRECTED_LAYOUT);
+		setLayout(GraphLayout.FORCE_DIRECTED_LAYOUT);
 
 		final NodeRenderer renderer = new NodeRenderer("name", "image");
 		renderer.setHorizontalAlignment(Constants.CENTER);
@@ -300,7 +295,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 			}
 		});
 
-		actionManager = new ActionManager(vis, groupVisibilityMap, edgeVisibilityMap);
+		actionManager = new ActionManager(this, vis, groupVisibilityMap, edgeVisibilityMap, NODE_COLORS);
 		initializeActions();
 
 		final Container swingContainer = awtConverter.convert(content);
@@ -328,6 +323,11 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 
 		toolbar.setModel(initToolBar());
 
+	}
+
+	private void setLayout(final GraphLayout layout) {
+		activeLayout = layout;
+		layoutManager.setLayout(layout);
 	}
 
 	private void initializeDisplayControlListener() {
@@ -413,7 +413,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 	};
 
 	private void initializeActions() {
-		expand = new ExpandLevelVisibilityAction(NODES);
+		expand = new AutoExpandLevelVisibilityAction(NODES);
 		vis.putAction("expand", expand);
 
 		actionManager.getFilterActionList().addActivityListener(new ActivityAdapter() {
@@ -421,7 +421,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 			@Override
 			public void activityFinished(final Activity a) {
 				runLayout(true);
-				filterActIsRunning = false;
+				filterActionRunning = false;
 			}
 		});
 		actionManager.getAnimationActionList().addActivityListener(new ActivityAdapter() {
@@ -712,7 +712,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		if (entityGroupMap.get(beanRelationNodeModel.getChildBeanType()) == null) {
 			entityGroupMap.put(beanRelationNodeModel.getChildBeanType(), GRAPH_NODES_GROUP + groupCount);
 			groupVisibilityMap.put(beanRelationNodeModel.getChildBeanType().getSimpleName(), true);
-			GROUP_COLOR_MAP.put(beanRelationNodeModel.getChildBeanType().getSimpleName(), NODE_COLORS[groupCount]);
+			groupColorMap.put(beanRelationNodeModel.getChildBeanType().getSimpleName(), NODE_COLORS[groupCount]);
 			groupCount = (groupCount < NODE_COLORS.length - 1) ? ++groupCount : 0;
 		}
 		childNode.set("beanrelation", beanRelationNodeModel.getChildBeanType().getSimpleName());
@@ -809,7 +809,6 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 					childModelListenerSet.clear();
 					graph.clear();
 					expandMapResult.clear();
-					layoutManager.resetLayout();
 					comboBoxExpandLevel.setValue(autoExpandLevel);
 				}
 			}
@@ -957,11 +956,11 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		node.set("image", awtImage);
 	}
 
-	public int getGroupCount() {
+	int getGroupCount() {
 		return this.groupCount;
 	}
 
-	public static Node getMarkedNode() {
+	Node getMarkedNode() {
 		return markedNode;
 	}
 
@@ -1030,23 +1029,16 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		comboBoxBp.setAutoCompletion(false);
 		final InputControlItemModel<GraphLayout> comboBox = new InputControlItemModel<GraphLayout>(comboBoxBp, 130);
 		comboBox.addInputListener(new IInputListener() {
-
 			@Override
 			public void inputChanged() {
 				layoutManager.resetNodePositions();
-				final GraphLayout value = comboBox.getValue();
-				for (final GraphLayout elem : GraphLayout.values()) {
-					if (elem == value) {
-						settingsDialogAction.setEnabled(true);
-						activeLayout = layoutManager.getLayout(elem);
-					}
-				}
+				settingsDialogAction.setEnabled(true);
+				setLayout(comboBox.getValue());
 				if (layoutManager.getLabelEdgeLayout() != null) {
 					layoutManager.getLabelEdgeLayout().run();
 				}
 				layoutManager.assignAnchorPoint(display, activeLayout);
 				runLayout(true);
-
 				if (layoutSettingsDialog != null) {
 					layoutSettingsDialog.setVisible(false);
 					layoutSettingsDialog.dispose();
@@ -1142,7 +1134,8 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 			groupVisibilityMap,
 			edgeVisibilityMap,
 			settingsDialogPosition,
-			filterTabIndex);
+			filterTabIndex,
+			groupColorMap);
 		settingsDialog.addComponentListener(new ComponentAdapter() {
 
 			@Override
@@ -1239,9 +1232,9 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 
 	public void runFilter() {
 		if (graph.getTupleCount() > 0) {
-			if (!filterActIsRunning) {
+			if (!filterActionRunning) {
 				vis.run("filter");
-				filterActIsRunning = true;
+				filterActionRunning = true;
 			}
 		}
 	}
@@ -1308,12 +1301,12 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		}
 	}
 
-	private class ExpandLevelVisibilityAction extends GroupAction {
+	private class AutoExpandLevelVisibilityAction extends GroupAction {
 
 		private final List<Node> formerLastNodes = new LinkedList<Node>();
 		private final List<Node> lastNodes = new LinkedList<Node>();
 
-		public ExpandLevelVisibilityAction(final String group) {
+		public AutoExpandLevelVisibilityAction(final String group) {
 			super(group);
 		}
 

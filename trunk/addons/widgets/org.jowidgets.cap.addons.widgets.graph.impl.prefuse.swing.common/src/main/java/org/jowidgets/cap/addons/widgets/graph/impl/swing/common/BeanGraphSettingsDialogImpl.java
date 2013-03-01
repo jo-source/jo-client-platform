@@ -29,7 +29,9 @@
 package org.jowidgets.cap.addons.widgets.graph.impl.swing.common;
 
 import java.util.HashMap;
+import java.util.Map;
 
+import org.jowidgets.api.widgets.IComposite;
 import org.jowidgets.api.widgets.IScrollComposite;
 import org.jowidgets.api.widgets.ITabFolder;
 import org.jowidgets.api.widgets.ITabItem;
@@ -46,18 +48,22 @@ final class BeanGraphSettingsDialog extends JoFrame {
 	//	private final BeanGraphAttributeListImpl beanGraphAttributeListImplRelations;
 	private final BeanGraphAttributeListImpl beanGraphAttributeListImplGroups;
 	private final HashMap<String, Boolean> groupVisibilityMap;
-	private ITabFolder tabFolder;
+	private final Map<String, int[]> groupColorMap;
 	private final Visualization vis;
 
-	public BeanGraphSettingsDialog(
+	private ITabFolder tabFolder;
+
+	BeanGraphSettingsDialog(
 		final Visualization vis,
 		final HashMap<String, Boolean> groupMap,
 		final HashMap<String, Boolean> edgeVisibilityMap,
 		final Position position,
-		final int filterTabIndex) {
+		final int filterTabIndex,
+		final Map<String, int[]> groupColorMap) {
 		super("Filter");
 		this.groupVisibilityMap = groupMap;
 		this.vis = vis;
+		this.groupColorMap = groupColorMap;
 		setLayout(MigLayoutFactory.growingCellLayout());
 		if (position != null) {
 			setPosition(position);
@@ -89,9 +95,13 @@ final class BeanGraphSettingsDialog extends JoFrame {
 		//				BPF.composite(),
 		//				"aligny top, growx,  w 0::, h 0::"), edgeVisibilityMap, FilterType.RELATIONS);
 
-		final BeanGraphAttributeListImpl beanGraphAttributeListImplGroup = new BeanGraphAttributeListImpl(vis, contentGroup.add(
-				BPF.composite(),
-				"aligny top, growx,  w 0::, h 0::"), groupVisibilityMap, FilterType.GROUPS);
+		final IComposite content = contentGroup.add(BPF.composite(), "aligny top, growx,  w 0::, h 0::");
+		final BeanGraphAttributeListImpl beanGraphAttributeListImplGroup = new BeanGraphAttributeListImpl(
+			vis,
+			content,
+			groupVisibilityMap,
+			FilterType.GROUPS,
+			groupColorMap);
 
 		tabFolder.setSelectedItem((getFilterTabByIndex(filterTabIndex) != null)
 				? getFilterTabByIndex(filterTabIndex).getIndex() : 0);

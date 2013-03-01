@@ -33,12 +33,10 @@ import java.awt.Graphics2D;
 import prefuse.render.LabelRenderer;
 import prefuse.visual.VisualItem;
 
-class EdgeRenderer extends LabelRenderer {
+final class EdgeRenderer extends LabelRenderer {
 
-	public EdgeRenderer(final String name) {
-
+	EdgeRenderer(final String name) {
 		super(name);
-
 	}
 
 	@Override

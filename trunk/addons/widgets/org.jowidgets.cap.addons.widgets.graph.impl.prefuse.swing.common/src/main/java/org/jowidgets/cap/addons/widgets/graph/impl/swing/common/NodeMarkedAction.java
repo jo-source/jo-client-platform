@@ -36,8 +36,11 @@ import prefuse.data.tuple.TupleSet;
 
 class NodeMarkedAction extends GroupAction {
 
-	NodeMarkedAction() {
+	private final BeanRelationGraphImpl<?> beanRelationGraph;
+
+	NodeMarkedAction(final BeanRelationGraphImpl<?> beanRelationGraph) {
 		super();
+		this.beanRelationGraph = beanRelationGraph;
 	}
 
 	@Override
@@ -48,8 +51,8 @@ class NodeMarkedAction extends GroupAction {
 			final Node result = (Node) node.next();
 			result.set("marked", false);
 		}
-		if (BeanRelationGraphImpl.getMarkedNode() != null) {
-			BeanRelationGraphImpl.getMarkedNode().set("marked", true);
+		if (beanRelationGraph.getMarkedNode() != null) {
+			beanRelationGraph.getMarkedNode().set("marked", true);
 		}
 	}
 }
