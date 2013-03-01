@@ -53,6 +53,7 @@ import org.jowidgets.common.types.Dimension;
 import org.jowidgets.common.types.Markup;
 import org.jowidgets.common.widgets.controller.IInputListener;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
+import org.jowidgets.tools.widgets.blueprint.BPF;
 import org.jowidgets.tools.widgets.wrapper.CompositeWrapper;
 import org.jowidgets.tools.widgets.wrapper.ContainerWrapper;
 
@@ -61,34 +62,35 @@ import prefuse.data.expression.Predicate;
 import prefuse.data.expression.parser.ExpressionParser;
 import prefuse.visual.tuple.TableNodeItem;
 
-public class BeanGraphAttributeListImpl extends CompositeWrapper {
+final class BeanGraphAttributeListImpl extends CompositeWrapper {
 
 	private static final IColorConstant ATTRIBUTE_HEADER_BACKGROUND = new ColorValue(6, 27, 95);
 	private static final IColorConstant ATTRIBUTE_GROUP_BACKGROUND = new ColorValue(200, 220, 255);
 
-	private static final ITextLabelBluePrint LABEL_HEADER = Toolkit.getBluePrintFactory().textLabel().setColor(Colors.WHITE).setMarkup(
-			Markup.STRONG).alignCenter();
-	private static final ITextLabelBluePrint LABEL_ALL = Toolkit.getBluePrintFactory().textLabel().setAlignment(
-			AlignmentHorizontal.LEFT).setMarkup(Markup.STRONG);
-	private static final ITextLabelBluePrint LABEL_GROUP = Toolkit.getBluePrintFactory().textLabel().setAlignment(
-			AlignmentHorizontal.LEFT);
-	private static final ICheckBoxBluePrint CHECK_BOCK_PB = Toolkit.getBluePrintFactory().checkBox().alignCenter();
+	private static final ITextLabelBluePrint LABEL_HEADER = BPF.textLabel().setColor(Colors.WHITE).setMarkup(Markup.STRONG).alignCenter();
+	private static final ITextLabelBluePrint LABEL_ALL = BPF.textLabel().alignLeft().setMarkup(Markup.STRONG);
+	private static final ITextLabelBluePrint LABEL_GROUP = BPF.textLabel().setAlignment(AlignmentHorizontal.LEFT);
+	private static final ICheckBoxBluePrint CHECK_BOCK_PB = BPF.checkBox().alignCenter();
 
-	private ITableLayout attributeLayoutManager;
 	private final Visualization vis;
 	private final HashMap<String, Boolean> filterMap;
 	private final List<ICheckBox> allCheckBoxes = new LinkedList<ICheckBox>();
-	private boolean row = true;
+	private final Map<String, int[]> groupColorMap;
 
-	public BeanGraphAttributeListImpl(
+	private boolean row = true;
+	private ITableLayout attributeLayoutManager;
+
+	BeanGraphAttributeListImpl(
 		final Visualization vis,
 		final IComposite container,
 		final HashMap<String, Boolean> filterMap,
-		final FilterType type) {
+		final FilterType type,
+		final Map<String, int[]> groupColorMap) {
 		super(container);
 
 		this.filterMap = filterMap;
 		this.vis = vis;
+		this.groupColorMap = groupColorMap;
 
 		buildAttributeList(filterMap, type);
 
@@ -200,7 +202,7 @@ public class BeanGraphAttributeListImpl extends CompositeWrapper {
 
 		public AttributeGroupComposite(final IContainer container, final String key, final boolean selected, final boolean row) {
 			super(container);
-			final int[] color = BeanRelationGraphImpl.GROUP_COLOR_MAP.get(key);
+			final int[] color = groupColorMap.get(key);
 			setBackgroundColor(new ColorValue(color[0], color[1], color[2]));
 			setLayout(attributeLayoutManager.rowBuilder().build());
 

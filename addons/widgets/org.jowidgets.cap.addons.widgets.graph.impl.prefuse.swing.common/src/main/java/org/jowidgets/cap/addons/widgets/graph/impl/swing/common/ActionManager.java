@@ -43,7 +43,7 @@ import prefuse.activity.SlowInSlowOutPacer;
 import prefuse.util.ColorLib;
 import prefuse.visual.VisualItem;
 
-public class ActionManager {
+final class ActionManager {
 
 	private final ActionList filterActionList;
 	private final ActionList neighborHighlightActionList;
@@ -54,10 +54,12 @@ public class ActionManager {
 
 	private ColorAction nodeColor;
 
-	public ActionManager(
+	ActionManager(
+		final BeanRelationGraphImpl<?> beanRelationGraph,
 		final Visualization vis,
 		final HashMap<String, Boolean> groupVisibilityMap,
-		final HashMap<String, Boolean> edgeVisibilityMap) {
+		final HashMap<String, Boolean> edgeVisibilityMap,
+		final int[][] nodeColors) {
 
 		filterActionList = new ActionList();
 		initializeFilterActionList(groupVisibilityMap, edgeVisibilityMap);
@@ -66,12 +68,12 @@ public class ActionManager {
 		initializeHighlightActionList();
 
 		colorActionList = new ActionList();
-		initializeColorActionList();
+		initializeColorActionList(nodeColors);
 
 		animationActionList = new ActionList(1250);
 		initializeAnimationActionList();
 
-		nodeMarkedAction = new NodeMarkedAction();
+		nodeMarkedAction = new NodeMarkedAction(beanRelationGraph);
 
 		vis.putAction("filter", filterActionList);
 		vis.putAction("color", colorActionList);
@@ -80,7 +82,7 @@ public class ActionManager {
 		vis.putAction("marked", nodeMarkedAction);
 	}
 
-	public void handleNeighborHighlighingAtFixedNodes(final boolean fix) {
+	void handleNeighborHighlighingAtFixedNodes(final boolean fix) {
 		if (fix) {
 			neighborHighlightActionList.remove(nodeColor);
 		}
@@ -89,19 +91,19 @@ public class ActionManager {
 		}
 	}
 
-	public boolean neighborActionIsRunning() {
+	boolean neighborActionIsRunning() {
 		return this.neighborHighlightActionList.isRunning();
 	}
 
-	public ActionList getAnimationActionList() {
+	ActionList getAnimationActionList() {
 		return this.animationActionList;
 	}
 
-	public ActionList getNeighborHighlightActionList() {
+	ActionList getNeighborHighlightActionList() {
 		return this.neighborHighlightActionList;
 	}
 
-	public ActionList getFilterActionList() {
+	ActionList getFilterActionList() {
 		return this.filterActionList;
 	}
 
@@ -112,18 +114,16 @@ public class ActionManager {
 		animationActionList.add(new RepaintAction());
 	}
 
-	private void initializeColorActionList() {
+	private void initializeColorActionList(final int[][] nodeColors) {
 		colorActionList.add(new ColorAction(BeanRelationGraphImpl.NODES, VisualItem.TEXTCOLOR, ColorLib.rgb(0, 0, 0)));
 		colorActionList.add(new FontAction(BeanRelationGraphImpl.NODES, new Font("Tahoma", Font.BOLD, 11)));
 		colorActionList.add(new ColorAction(BeanRelationGraphImpl.EDGES, VisualItem.STROKECOLOR, ColorLib.gray(200)));
 
 		final ColorAction fill = new ColorAction("graph.nodes", VisualItem.FILLCOLOR, ColorLib.rgb(200, 200, 255));
-		for (int index = 0; index < BeanRelationGraphImpl.NODE_COLORS.length; index++) {
-			fill.add("type == '" + BeanRelationGraphImpl.GRAPH_NODES_GROUP + index + "'", ColorLib.rgba(
-					BeanRelationGraphImpl.NODE_COLORS[index][0],
-					BeanRelationGraphImpl.NODE_COLORS[index][1],
-					BeanRelationGraphImpl.NODE_COLORS[index][2],
-					BeanRelationGraphImpl.NODE_COLORS[index][3]));
+		for (int index = 0; index < nodeColors.length; index++) {
+			fill.add(
+					"type == '" + BeanRelationGraphImpl.GRAPH_NODES_GROUP + index + "'",
+					ColorLib.rgba(nodeColors[index][0], nodeColors[index][1], nodeColors[index][2], nodeColors[index][3]));
 		}
 		colorActionList.add(fill);
 	}

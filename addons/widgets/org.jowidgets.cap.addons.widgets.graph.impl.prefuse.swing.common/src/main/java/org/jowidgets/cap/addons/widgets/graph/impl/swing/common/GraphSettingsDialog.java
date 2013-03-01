@@ -63,18 +63,23 @@ final class GraphSettingsDialog extends JoFrame {
 	private static final int RADIAL_RADIUS_MIN = 0;
 
 	private static final String[] NODE_LINK_DISTANCES = {"Level distance", "Neighbor distance", "Subtree distance"};
+
 	private static final String[] RADIAL_RADIUS_DISTANCES = {"Radius distance"};
 
 	private static final String[] SPRING_FORCE = {
 			Messages.getString("GraphSettingsDialog.spring_force"), Messages.getString("GraphSettingsDialog.spring_coefficient"),
 			Messages.getString("GraphSettingsDialog.default_spring_length")};
+
 	private static final String[] DRAG_FORCE = {
 			Messages.getString("GraphSettingsDialog.drag_force"), Messages.getString("GraphSettingsDialog.drag_coefficient")};
+
 	private static final String[] NBODY_FORCE = {
 			Messages.getString("GraphSettingsDialog.nbody_force"),
 			Messages.getString("GraphSettingsDialog.gravitational_constant"), Messages.getString("GraphSettingsDialog.distance"),
 			Messages.getString("GraphSettingsDialog.barneshuttheta")};
+
 	private static final String[] DISPLAY_PERCENT_PARAMETER = {"SpringCoefficient", "DragCoefficient", "BarnesHutTheta"};
+
 	private static final Map<String, Float> MODIFIED_VALUES = new HashMap<String, Float>();
 	private static final Map<ISlider, Integer> DEFAULT_SLIDER_SETTINGS = new HashMap<ISlider, Integer>();
 
