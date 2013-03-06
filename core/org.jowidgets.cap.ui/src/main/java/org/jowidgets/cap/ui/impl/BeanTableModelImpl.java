@@ -578,6 +578,11 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	}
 
 	@Override
+	public IBeanSelectionProvider<Object> getParent() {
+		return parent;
+	}
+
+	@Override
 	public boolean isDisposed() {
 		return disposed;
 	}
