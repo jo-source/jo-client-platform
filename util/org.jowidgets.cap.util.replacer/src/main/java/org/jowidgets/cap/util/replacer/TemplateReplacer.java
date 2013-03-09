@@ -53,7 +53,7 @@ public final class TemplateReplacer {
 
 	public static void main(final String[] args) throws Exception {
 		copyAndReplace(
-				new String[] {"C:/projects/jocap-samples/eclipse/template/sample1/modules", "C:/TEMP/myapp/modules"},
+				new String[] {"C:/projects/jocap-samples/template/sample1/modules", "C:/TEMP/myapp/modules"},
 				createConfig());
 	}
 
@@ -80,7 +80,7 @@ public final class TemplateReplacer {
 				"org.jowidgets.service.api.IServiceProviderHolder"}, IOCase.INSENSITIVE);
 		config.setModififyFilesFilter(modifyFilesFilter);
 
-		config.setJavaHeader("/* \n * Copyright (c) 2011 \n */");
+		config.setJavaHeader("/* \n * Copyright (c) 2013 \n */");
 
 		config.setParentPomVersion("0.0.1-SNAPSHOT");
 		return config;
