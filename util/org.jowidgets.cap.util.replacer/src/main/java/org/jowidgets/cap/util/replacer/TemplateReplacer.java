@@ -53,7 +53,7 @@ public final class TemplateReplacer {
 
 	public static void main(final String[] args) throws Exception {
 		copyAndReplace(
-				new String[] {"C:/projects/jocap-samples/template/sample1/modules", "C:/TEMP/myapp/modules"},
+				new String[] {"C:/projects/jocap-samples/template/sample1/modules", "C:/projects/myproject/modules"},
 				createConfig());
 	}
 
@@ -61,23 +61,26 @@ public final class TemplateReplacer {
 		final ReplacementConfig config = new ReplacementConfig();
 
 		final Set<Tuple<String, String>> replacements = new HashSet<Tuple<String, String>>();
+		replacements.add(new Tuple<String, String>("TemplateSample1", "MyApp"));
 		replacements.add(new Tuple<String, String>("Sample1", "MyApp"));
 		replacements.add(new Tuple<String, String>("sample1", "myapp"));
-		replacements.add(new Tuple<String, String>("<vendor>jowidgets.org</vendor>", "<vendor>myorg.com</vendor>"));
+		replacements.add(new Tuple<String, String>("<vendor>jowidgets.org</vendor>", "<vendor>myorg.de</vendor>"));
 
 		config.setReplacements(replacements);
 
 		final Set<Tuple<String[], String[]>> packageReplacements = new HashSet<Tuple<String[], String[]>>();
 
 		final String[] packageReplacementSource = new String[] {"org", "jowidgets", "samples", "template", "sample1"};
-		final String[] packageReplacementDestination = new String[] {"com", "myorg", "myapp"};
+		final String[] packageReplacementDestination = new String[] {"de", "myorg", "myapp"};
 		packageReplacements.add(new Tuple<String[], String[]>(packageReplacementSource, packageReplacementDestination));
 		config.setPackageReplacements(packageReplacements);
 
-		final IOFileFilter modifyFilesFilter = new SuffixFileFilter(new String[] {
-				"java", "project", "xml", "MF", "htm", "html", "jnlp", "template.vm",
-				"org.jowidgets.cap.ui.api.login.ILoginService", "org.jowidgets.security.api.IAuthenticationService",
-				"org.jowidgets.service.api.IServiceProviderHolder"}, IOCase.INSENSITIVE);
+		final IOFileFilter modifyFilesFilter = new SuffixFileFilter(
+			new String[] {
+					"java", "project", "xml", "MF", "htm", "html", "jnlp", "template.vm",
+					"org.jowidgets.cap.ui.api.login.ILoginService", "org.jowidgets.security.api.IAuthenticationService",
+					"org.jowidgets.security.api.IAuthorizationService", "org.jowidgets.service.api.IServiceProviderHolder"},
+			IOCase.INSENSITIVE);
 		config.setModififyFilesFilter(modifyFilesFilter);
 
 		config.setJavaHeader("/* \n * Copyright (c) 2013 \n */");
@@ -123,7 +126,9 @@ public final class TemplateReplacer {
 		pathReplacements.addAll(replacements);
 		pathReplacements = getSortedReplacements(pathReplacements);
 
-		final IOFileFilter directoryFilter = FileFilterUtils.makeSVNAware(FileFilterUtils.notFileFilter(FileFilterUtils.nameFileFilter("target")));
+		final IOFileFilter targetFilter = FileFilterUtils.notFileFilter(FileFilterUtils.nameFileFilter("target"));
+		final IOFileFilter directoryFilter = FileFilterUtils.makeSVNAware(targetFilter);
+
 		final IOFileFilter pomFileFilter = FileFilterUtils.nameFileFilter("pom.xml", IOCase.INSENSITIVE);
 		final IOFileFilter javaFileFilter = FileFilterUtils.suffixFileFilter("java", IOCase.INSENSITIVE);
 
@@ -285,8 +290,17 @@ public final class TemplateReplacer {
 
 	private static Collection<File> list(final File dir, final IOFileFilter dirFilter) {
 		final Collection<File> result = new LinkedList<File>();
+
+		final IOFileFilter projectFilter = FileFilterUtils.notFileFilter(FileFilterUtils.nameFileFilter(".project"));
+		final IOFileFilter classpathFilter = FileFilterUtils.notFileFilter(FileFilterUtils.nameFileFilter(".classpath"));
+		final IOFileFilter checkstyleFilter = FileFilterUtils.notFileFilter(FileFilterUtils.nameFileFilter(".checkstyle"));
+		final IOFileFilter excludeFilesFilter = FileFilterUtils.and(projectFilter, classpathFilter, checkstyleFilter);
+
 		final IOFileFilter noDirsFilter = FileFilterUtils.notFileFilter(DirectoryFileFilter.INSTANCE);
-		listRecursive(result, dir, FileFilterUtils.or(noDirsFilter, dirFilter));
+
+		final IOFileFilter fileFilter = FileFilterUtils.and(excludeFilesFilter, FileFilterUtils.or(noDirsFilter, dirFilter));
+
+		listRecursive(result, dir, fileFilter);
 		return result;
 	}
 
