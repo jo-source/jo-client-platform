@@ -142,14 +142,14 @@ final class AttributeToolkitImpl implements IAttributeToolkit {
 	@SuppressWarnings("unchecked")
 	@Override
 	public IAttributeBuilder<Object> createMetaAttributeBuilder(final String propertyName) {
-		Assert.paramNotNull(propertyName, "propertyName"); //$NON-NLS-1$
+		Assert.paramNotNull(propertyName, "propertyName");
 
 		if (IBeanProxy.META_PROPERTY_PROGRESS.equals(propertyName)) {
 			@SuppressWarnings("rawtypes")
 			final IAttributeBuilder builder = new AttributeBuilderImpl(String.class);
 			builder.setPropertyName(IBeanProxy.META_PROPERTY_PROGRESS);
-			builder.setLabel(Messages.getString("AttributeToolkitImpl.progress")); //$NON-NLS-1$
-			builder.setDescription(Messages.getString("AttributeToolkitImpl.progress_description")); //$NON-NLS-1$
+			builder.setLabel(Messages.getString("AttributeToolkitImpl.progress"));
+			builder.setDescription(Messages.getString("AttributeToolkitImpl.progress_description"));
 			builder.setEditable(false).setSortable(false).setFilterable(false);
 			return builder;
 		}
@@ -157,14 +157,12 @@ final class AttributeToolkitImpl implements IAttributeToolkit {
 			@SuppressWarnings("rawtypes")
 			final IAttributeBuilder builder = new AttributeBuilderImpl(List.class, IBeanMessage.class);
 			builder.setPropertyName(IBeanProxy.META_PROPERTY_MESSAGES);
-			builder.setLabel(Messages.getString("AttributeToolkitImpl.messages")); //$NON-NLS-1$
-			builder.setDescription(Messages.getString("AttributeToolkitImpl.messages_description")); //$NON-NLS-1$
+			builder.setLabel(Messages.getString("AttributeToolkitImpl.messages"));
+			builder.setDescription(Messages.getString("AttributeToolkitImpl.messages_description"));
 			builder.setEditable(false).setSortable(false).setFilterable(false);
-			builder.setControlPanel().setObjectLabelConverter(new BeanMessageLabelConverter());
-
 			return builder;
 		}
-		throw new IllegalArgumentException("The meta property name '" + propertyName + "' is not known"); //$NON-NLS-1$ //$NON-NLS-2$
+		throw new IllegalArgumentException("The meta property name '" + propertyName + "' is not known");
 	}
 
 	@Override

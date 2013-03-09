@@ -33,6 +33,7 @@ import java.util.List;
 
 import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
+import org.jowidgets.cap.common.api.service.ICreatorService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.command.ICapActionFactory;
@@ -69,7 +70,11 @@ final class BeanTableCreatorActionBuilderFactory {
 
 		builder.setBeanPropertyValidators(model.getBeanPropertyValidators());
 		builder.setEntityLabelSingular(model.getEntityLabelSingular());
-		builder.setCreatorService(model.getCreatorService());
+
+		final ICreatorService creatorService = model.getCreatorService();
+		if (creatorService != null) {
+			builder.setCreatorService(creatorService);
+		}
 
 		//Bean form must have all attributes because a later pluged layouter may use them
 		final IBeanFormBluePrint<BEAN_TYPE> beanFormBp = CapUiToolkit.bluePrintFactory().beanForm(

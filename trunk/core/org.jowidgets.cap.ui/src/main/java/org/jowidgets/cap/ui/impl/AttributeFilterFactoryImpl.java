@@ -36,11 +36,15 @@ import java.util.Set;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IAttributeFilter;
 import org.jowidgets.cap.ui.api.attribute.IAttributeFilterFactory;
+import org.jowidgets.cap.ui.api.bean.IBeanProxy;
+import org.jowidgets.cap.ui.tools.attribute.BlackListAttributesFilter;
 import org.jowidgets.util.Assert;
 
 final class AttributeFilterFactoryImpl implements IAttributeFilterFactory {
 
 	private static final IAttributeFilter ACCEPT_EDIATBLE_FILTER = createAcceptEditableFilter();
+
+	private static final IAttributeFilter META_ATTRIBUTES_FILTER = createMetaAttributesFilter();
 
 	AttributeFilterFactoryImpl() {}
 
@@ -53,9 +57,18 @@ final class AttributeFilterFactoryImpl implements IAttributeFilterFactory {
 		};
 	}
 
+	private static IAttributeFilter createMetaAttributesFilter() {
+		return new BlackListAttributesFilter(IBeanProxy.ALL_META_ATTRIBUTES);
+	}
+
 	@Override
 	public IAttributeFilter acceptEdiableFilter() {
 		return ACCEPT_EDIATBLE_FILTER;
+	}
+
+	@Override
+	public IAttributeFilter metaAttributesFilter() {
+		return META_ATTRIBUTES_FILTER;
 	}
 
 	@Override

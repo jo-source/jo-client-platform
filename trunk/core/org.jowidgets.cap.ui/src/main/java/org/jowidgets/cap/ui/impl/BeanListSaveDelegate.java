@@ -166,7 +166,7 @@ final class BeanListSaveDelegate<BEAN_TYPE> {
 		final Set<IBeanProxy<BEAN_TYPE>> modifiedBeans = beansStateTracker.getMasterBeansToUpdate();
 		if (!EmptyCheck.isEmpty(modifiedBeans)) {
 			if (updaterService == null) {
-				throw new IllegalStateException("No updater service set. Could not update modfied beans");
+				throw new IllegalStateException("No updater service set. Can not update modified beans");
 			}
 
 			final BeanListExecutionHelper<BEAN_TYPE> executionHelper = new BeanListExecutionHelper<BEAN_TYPE>(

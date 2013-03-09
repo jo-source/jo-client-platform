@@ -173,13 +173,7 @@ final class CapApiBluePrintFactory implements ICapApiBluePrintFactory {
 
 	@Override
 	public <BEAN_TYPE> IBeanFormBluePrint<BEAN_TYPE> beanForm(final Object entityId) {
-		final List<IAttribute<Object>> attributes = EntityServiceHelper.createAttributes(entityId);
-		if (attributes != null) {
-			return beanForm(entityId, attributes);
-		}
-		else {
-			return beanForm(entityId, null);
-		}
+		return beanFormInternal(entityId, EntityServiceHelper.createAttributes(entityId));
 	}
 
 	@Override
@@ -187,12 +181,18 @@ final class CapApiBluePrintFactory implements ICapApiBluePrintFactory {
 		return beanForm(null, attributes);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public <BEAN_TYPE> IBeanFormBluePrint<BEAN_TYPE> beanForm(
 		final Object entityId,
 		final Collection<? extends IAttribute<?>> attributes) {
 		Assert.paramNotNull(attributes, "attributes");
+		return beanFormInternal(entityId, attributes);
+	}
+
+	@SuppressWarnings("unchecked")
+	private <BEAN_TYPE> IBeanFormBluePrint<BEAN_TYPE> beanFormInternal(
+		final Object entityId,
+		final Collection<? extends IAttribute<?>> attributes) {
 		final IBeanFormBluePrint<BEAN_TYPE> result = beanForm();
 		result.setEntityId(entityId);
 		result.setBeanType((Class<BEAN_TYPE>) EntityServiceHelper.getBeanType(entityId));

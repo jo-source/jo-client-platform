@@ -26,22 +26,18 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.attribute;
+package org.jowidgets.cap.ui.tools.attribute;
 
-import java.util.Collection;
+import org.jowidgets.cap.ui.api.CapUiToolkit;
+import org.jowidgets.cap.ui.api.attribute.IAttributeFilter;
 
-public interface IAttributeFilterFactory {
+public final class MetaAttributesFilter {
 
-	IAttributeFilter acceptEdiableFilter();
+	private static final IAttributeFilter INSTANCE = CapUiToolkit.attributeToolkit().attributeFilterFactory().metaAttributesFilter();
 
-	IAttributeFilter whiteListFilter(String... propertyNames);
+	private MetaAttributesFilter() {}
 
-	IAttributeFilter whiteListFilter(Collection<String> propertyNames);
-
-	IAttributeFilter blackListFilter(String... propertyNames);
-
-	IAttributeFilter blackListFilter(Collection<String> propertyNames);
-
-	IAttributeFilter metaAttributesFilter();
-
+	public static IAttributeFilter getInstance() {
+		return INSTANCE;
+	}
 }
