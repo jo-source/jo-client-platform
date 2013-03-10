@@ -126,6 +126,9 @@ final class BeanPropertyBuilderImpl implements IBeanPropertyBuilder {
 				if (boolean.class.isAssignableFrom(propertyType)) {
 					propertyBuilder.setDefaultValue(false);
 				}
+				if (Enum.class.isAssignableFrom(propertyType)) {
+					propertyBuilder.setValueRange(propertyType.getEnumConstants());
+				}
 				if (!Collection.class.isAssignableFrom(propertyType)) {
 					propertyBuilder.setElementValueType(propertyType);
 					propertyBuilder.setSortable(propertyType.isPrimitive() || Comparable.class.isAssignableFrom(propertyType));
