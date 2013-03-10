@@ -36,6 +36,8 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
@@ -127,7 +129,10 @@ final class BeanPropertyBuilderImpl implements IBeanPropertyBuilder {
 					propertyBuilder.setDefaultValue(false);
 				}
 				if (Enum.class.isAssignableFrom(propertyType)) {
-					propertyBuilder.setValueRange(propertyType.getEnumConstants());
+					final List<Object> values = new LinkedList<Object>();
+					values.add(null);
+					values.addAll(Arrays.asList(propertyType.getEnumConstants()));
+					propertyBuilder.setValueRange(values);
 				}
 				if (!Collection.class.isAssignableFrom(propertyType)) {
 					propertyBuilder.setElementValueType(propertyType);
