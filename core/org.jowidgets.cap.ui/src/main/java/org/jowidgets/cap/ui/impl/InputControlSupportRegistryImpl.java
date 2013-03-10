@@ -72,7 +72,7 @@ final class InputControlSupportRegistryImpl implements IInputControlSupportRegis
 		final Class<? extends ELEMENT_VALUE_TYPE> type) {
 		Assert.paramNotNull(type, "type");
 		IInputControlSupport result = map.get(type);
-		if (result == null && Toolkit.getConverterProvider().getConverter(type) != null) {
+		if (result == null) {
 			result = new ControlProviderDefault<ELEMENT_VALUE_TYPE>(type);
 		}
 		return result;

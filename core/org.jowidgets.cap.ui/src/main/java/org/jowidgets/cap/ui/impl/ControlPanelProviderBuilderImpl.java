@@ -45,9 +45,7 @@ import org.jowidgets.cap.ui.api.attribute.IControlPanelProviderBuilder;
 import org.jowidgets.cap.ui.api.control.DisplayFormat;
 import org.jowidgets.cap.ui.api.control.IDisplayFormat;
 import org.jowidgets.cap.ui.api.control.IInputControlProvider;
-import org.jowidgets.cap.ui.api.control.IInputControlProviderBuilder;
 import org.jowidgets.cap.ui.api.control.IInputControlSupport;
-import org.jowidgets.cap.ui.api.control.InputControlProvider;
 import org.jowidgets.cap.ui.api.filter.IFilterSupport;
 import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
 import org.jowidgets.tools.converter.ObjectStringObjectLabelConverterAdapter;
@@ -266,35 +264,15 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 
 	private ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> getControlCreator() {
 		if (controlCreator == null) {
-			if (stringObjectConverter != null || objectStringConverter != null || objectLabelConverter != null) {
-				final IInputControlProviderBuilder<ELEMENT_VALUE_TYPE> builder = InputControlProvider.builder(elementValueType);
-				final IObjectLabelConverter<ELEMENT_VALUE_TYPE> objLabelConverter = getObjectLabelConverter();
-				final IStringObjectConverter<ELEMENT_VALUE_TYPE> stringObjConverter = getStringObjectConverter();
-				builder.setObjectLabelConverter(objLabelConverter);
-				builder.setStringObjectConverter(stringObjConverter);
-				return builder.build().getControlCreator(objLabelConverter, stringObjConverter, valueRange);
+			final IInputControlProvider<ELEMENT_VALUE_TYPE> defaultControl = createDefaultControlProvider();
+			if (defaultControl != null) {
+				return defaultControl.getControlCreator(
+						getObjectLabelConverter(defaultControl),
+						getStringObjectConverter(defaultControl),
+						valueRange);
 			}
 			else {
-				final IInputControlProvider<ELEMENT_VALUE_TYPE> defaultControl;
-
-				if (valueRange instanceof ILookUpValueRange) {
-					final IInputControlSupport<ELEMENT_VALUE_TYPE> controls;
-					controls = CapUiToolkit.inputControlRegistry().getControls((ILookUpValueRange) valueRange);
-					defaultControl = getDefaultControl(controls);
-				}
-				else {
-					defaultControl = getDefaultControl(CapUiToolkit.inputControlRegistry().getControls(elementValueType));
-				}
-
-				if (defaultControl != null) {
-					return defaultControl.getControlCreator(
-							getObjectLabelConverter(defaultControl),
-							getStringObjectConverter(defaultControl),
-							valueRange);
-				}
-				else {
-					return null;
-				}
+				return null;
 			}
 		}
 		else {
@@ -332,44 +310,28 @@ final class ControlPanelProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements ICont
 	}
 
 	private ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> createCollectionControlCreator() {
-		if (stringObjectConverter != null || objectStringConverter != null || objectLabelConverter != null) {
-			final IInputControlProviderBuilder<ELEMENT_VALUE_TYPE> builder = InputControlProvider.builder(elementValueType);
-			final IObjectLabelConverter<ELEMENT_VALUE_TYPE> objLabelConverter = getObjectLabelConverter();
-			final IStringObjectConverter<ELEMENT_VALUE_TYPE> stringObjConverter = getStringObjectConverter();
-			builder.setObjectLabelConverter(objLabelConverter);
-			builder.setStringObjectConverter(stringObjConverter);
-			final IInputControlProvider<ELEMENT_VALUE_TYPE> inputControlProvider = builder.build();
-			return inputControlProvider.getCollectionControlCreator(
-					getControlCreator(),
-					objLabelConverter,
-					stringObjConverter,
+		final IInputControlProvider<ELEMENT_VALUE_TYPE> defaultControl = createDefaultControlProvider();
+		if (defaultControl != null) {
+			return defaultControl.getCollectionControlCreator(
+					getControlCreator(defaultControl),
+					getObjectLabelConverter(defaultControl),
+					getStringObjectConverter(defaultControl),
 					valueRange);
 		}
 		else {
-
-			final IInputControlProvider<ELEMENT_VALUE_TYPE> defaultControl;
-
-			if (valueRange instanceof ILookUpValueRange) {
-				final IInputControlSupport<ELEMENT_VALUE_TYPE> controls;
-				controls = CapUiToolkit.inputControlRegistry().getControls((ILookUpValueRange) valueRange);
-				defaultControl = getDefaultControl(controls);
-			}
-			else {
-				defaultControl = getDefaultControl(CapUiToolkit.inputControlRegistry().getControls(elementValueType));
-			}
-
-			if (defaultControl != null) {
-				return defaultControl.getCollectionControlCreator(
-						getControlCreator(defaultControl),
-						getObjectLabelConverter(defaultControl),
-						getStringObjectConverter(defaultControl),
-						valueRange);
-			}
-			else {
-				return null;
-			}
+			return null;
 		}
+	}
 
+	private IInputControlProvider<ELEMENT_VALUE_TYPE> createDefaultControlProvider() {
+		if (valueRange instanceof ILookUpValueRange) {
+			final IInputControlSupport<ELEMENT_VALUE_TYPE> controls;
+			controls = CapUiToolkit.inputControlRegistry().getControls((ILookUpValueRange) valueRange);
+			return getDefaultControl(controls);
+		}
+		else {
+			return getDefaultControl(CapUiToolkit.inputControlRegistry().getControls(elementValueType));
+		}
 	}
 
 	private IInputControlProvider<ELEMENT_VALUE_TYPE> getDefaultControl(final IInputControlSupport<ELEMENT_VALUE_TYPE> controls) {
