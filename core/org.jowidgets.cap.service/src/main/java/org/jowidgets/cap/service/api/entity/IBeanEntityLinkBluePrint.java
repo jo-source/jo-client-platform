@@ -37,7 +37,7 @@ import org.jowidgets.service.api.IServiceId;
 public interface IBeanEntityLinkBluePrint {
 
 	/**
-	 * The entity id of the link (mandatory)
+	 * The entity id of the link
 	 * 
 	 * @param id The entity id of the link
 	 * 
