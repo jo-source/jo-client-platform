@@ -83,7 +83,7 @@ public interface IProperty {
 
 	/**
 	 * @return If the value type is a collection, the type of the elements will be returned, else the value type will be returned.
-	 *         Result is never null an is never an instance of collection (wrapped collections must be unwrapped).
+	 *         Result is never null and is never an instance of collection (wrapped collections must be unwrapped).
 	 */
 	Class<?> getElementValueType();
 

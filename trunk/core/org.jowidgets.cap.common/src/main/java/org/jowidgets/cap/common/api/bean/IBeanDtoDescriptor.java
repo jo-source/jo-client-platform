@@ -90,11 +90,11 @@ public interface IBeanDtoDescriptor {
 	 * 
 	 * Example:
 	 * 
-	 * $name$($country$, $age$, $$$acount$)
+	 * $name$($country$, $age$, $$$account$)
 	 * 
 	 * leads to labels like
 	 * 
-	 * Michael(Germany, 40, $1000)
+	 * Michael(Germany, 41, $1000)
 	 * Peter(France, 28, $200)
 	 * 
 	 * @return The rendering pattern or null
