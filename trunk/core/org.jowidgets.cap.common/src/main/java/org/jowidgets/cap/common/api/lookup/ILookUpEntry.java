@@ -66,7 +66,7 @@ public interface ILookUpEntry {
 	 * new data sets. However there are old data sets, where this currencies was
 	 * valid and should be displayed.
 	 * 
-	 * @return true id the entry is valid, false otherwise
+	 * @return true if the entry is valid, false otherwise
 	 */
 	boolean isValid();
 }

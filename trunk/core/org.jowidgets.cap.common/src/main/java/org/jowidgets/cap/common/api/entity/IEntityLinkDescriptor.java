@@ -36,7 +36,7 @@ public interface IEntityLinkDescriptor {
 	/**
 	 * Gets the id of the entity that holds the link
 	 * 
-	 * @return The entity id that hold the link, never null
+	 * @return The entity id that hold the link
 	 */
 	Object getLinkEntityId();
 
