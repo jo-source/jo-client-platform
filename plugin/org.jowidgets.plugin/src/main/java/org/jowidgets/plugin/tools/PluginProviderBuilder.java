@@ -44,7 +44,7 @@ public class PluginProviderBuilder implements IPluginProviderBuilder {
 	}
 
 	@Override
-	public final <SERVICE_TYPE> void addPlugin(final IPluginId<? extends SERVICE_TYPE> id, final SERVICE_TYPE service) {
+	public final <PLUGIN_TYPE> void addPlugin(final IPluginId<? extends PLUGIN_TYPE> id, final PLUGIN_TYPE service) {
 		builder.addPlugin(id, service);
 	}
 
