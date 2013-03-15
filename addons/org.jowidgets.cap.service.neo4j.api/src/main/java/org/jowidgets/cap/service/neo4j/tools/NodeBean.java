@@ -28,22 +28,13 @@
 
 package org.jowidgets.cap.service.neo4j.tools;
 
-import org.jowidgets.cap.service.neo4j.api.GraphDBConfig;
 import org.jowidgets.cap.service.neo4j.api.INodeBean;
 import org.neo4j.graphdb.Node;
 
 public class NodeBean extends PropertyContainerBean implements INodeBean {
 
-	private final String beanTypePropertyName;
-
 	public NodeBean(final Node node) {
 		super(node);
-		this.beanTypePropertyName = GraphDBConfig.getBeanTypePropertyName();
-	}
-
-	@Override
-	public String getBeanType() {
-		return (String) getProperty(beanTypePropertyName);
 	}
 
 	@Override
