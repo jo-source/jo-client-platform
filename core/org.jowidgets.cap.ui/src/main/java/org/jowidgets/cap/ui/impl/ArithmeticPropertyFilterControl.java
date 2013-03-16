@@ -53,6 +53,7 @@ import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
 import org.jowidgets.i18n.api.IMessage;
 import org.jowidgets.i18n.api.MessageReplacer;
 import org.jowidgets.tools.validation.MandatoryValidator;
+import org.jowidgets.tools.widgets.blueprint.BPF;
 import org.jowidgets.tools.widgets.wrapper.AbstractInputControl;
 import org.jowidgets.util.Assert;
 import org.jowidgets.validation.IValidationConditionListener;
@@ -159,12 +160,22 @@ public class ArithmeticPropertyFilterControl<ELEMENT_VALUE_TYPE> extends
 
 			@Override
 			public String convertToString(final IAttribute<?> value) {
-				return value.getCurrentLabel();
+				if (value != null) {
+					return value.getCurrentLabel();
+				}
+				else {
+					return null;
+				}
 			}
 
 			@Override
 			public String getDescription(final IAttribute<?> value) {
-				return value.getDescription().get();
+				if (value != null) {
+					return value.getDescription().get();
+				}
+				else {
+					return null;
+				}
 			}
 		};
 	}
@@ -285,7 +296,7 @@ public class ArithmeticPropertyFilterControl<ELEMENT_VALUE_TYPE> extends
 
 	private IComboBoxSelectionBluePrint<IAttribute<?>> comboBoxBluePrint(final List<IAttribute<?>> attributes) {
 		final IComboBoxSelectionBluePrint<IAttribute<?>> result;
-		result = Toolkit.getBluePrintFactory().comboBoxSelection(ATTRIBUTE_CONVERTER);
+		result = BPF.comboBoxSelection(ATTRIBUTE_CONVERTER);
 		result.setElements(attributes).autoSelectionOn();
 		return result;
 	}
