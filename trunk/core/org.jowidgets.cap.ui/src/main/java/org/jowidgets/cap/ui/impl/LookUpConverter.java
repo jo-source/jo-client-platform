@@ -42,6 +42,7 @@ import org.jowidgets.common.mask.ITextMask;
 import org.jowidgets.common.verify.IInputVerifier;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.EmptyCheck;
+import org.jowidgets.util.NullCompatibleEquivalence;
 import org.jowidgets.validation.IValidationResult;
 import org.jowidgets.validation.IValidator;
 import org.jowidgets.validation.ValidationResult;
@@ -57,6 +58,7 @@ final class LookUpConverter<KEY_TYPE> implements IConverter<KEY_TYPE> {
 	private final ILookUpAccess lookUpAccess;
 
 	private boolean onLoad;
+	private Object lastUnkownKey;
 
 	LookUpConverter(final Object lookUpId, final ILookUpProperty lookUpProperty) {
 		this(lookUpId, lookUpProperty.getName(), Toolkit.getConverterProvider().getConverter(lookUpProperty.getValueType()));
@@ -150,12 +152,15 @@ final class LookUpConverter<KEY_TYPE> implements IConverter<KEY_TYPE> {
 				return valueConverter.convertToString(value);
 			}
 			else if (!onLoad) {
-				uiThreadAccess.invokeLater(new Runnable() {
-					@Override
-					public void run() {
-						CapUiToolkit.lookUpCache().clearCache(lookUpId);
-					}
-				});
+				if (!NullCompatibleEquivalence.equals(key, lastUnkownKey)) {
+					lastUnkownKey = key;
+					uiThreadAccess.invokeLater(new Runnable() {
+						@Override
+						public void run() {
+							CapUiToolkit.lookUpCache().clearCache(lookUpId);
+						}
+					});
+				}
 
 				return Messages.getString("LookUpConverter.unknown_look_up_key");
 			}
