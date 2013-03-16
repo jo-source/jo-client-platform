@@ -183,6 +183,7 @@ final class BeanFormLayouterImpl implements IBeanFormLayouter {
 			expandCompositeBp.setExpanded(true);
 			expandCompositeBp.setCustomHeader(mainValidationLabel);
 			final IExpandComposite expandComposite = parent.add(expandCompositeBp, MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
+			expandComposite.setLayout(MigLayoutFactory.growingInnerCellLayout());
 			expandComposite.setEnabled(false);
 			outerContainer = expandComposite;
 		}
@@ -196,7 +197,7 @@ final class BeanFormLayouterImpl implements IBeanFormLayouter {
 			innerContainer = outerContainer.add(BPF.scrollComposite(), MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
 		}
 		else {
-			innerContainer = outerContainer;
+			innerContainer = outerContainer.add(BPF.composite(), MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
 		}
 		final String cc = contentInsets.getLeft() + "[grow, 0::]" + contentInsets.getRight();
 		final String rc = contentInsets.getTop() + "[]" + contentInsets.getBottom();
