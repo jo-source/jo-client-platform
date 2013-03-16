@@ -104,7 +104,7 @@ final class BeanTabFolderSetupConvenience extends AbstractSetupBuilderConvenienc
 			final ICapApiBluePrintFactory cbpf = CapUiToolkit.bluePrintFactory();
 			final IBeanFormBluePrint<Object> bluePrintCopy = cbpf.beanForm(beanFormBp.getEntityId());
 			bluePrintCopy.setSetup(beanFormBp);
-			tab.setLayout(MigLayoutFactory.growingCellLayout());
+			tab.setLayout(MigLayoutFactory.growingInnerCellLayout());
 			beanForm = tab.add(bluePrintCopy, MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
 			beanForm.setValue(bean);
 			tab.layoutEnd();
