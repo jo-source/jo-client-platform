@@ -164,7 +164,7 @@ final class BeanLinkPanelImpl<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> extends
 				content = container;
 			}
 
-			content.setLayout(new MigLayoutDescriptor("[grow, 0::]", "0[]0[]0[]0"));
+			content.setLayout(new MigLayoutDescriptor("0[grow, 0::]0", "0[]0[]0[]0"));
 			final IBeanFormBluePrint<LINK_BEAN_TYPE> modifiedLinkFormBp = createModifiedFormBp(linkFormBp);
 			if (scrolledContent) {
 				modifiedLinkFormBp.setScrollbarsAllowed(false);
@@ -179,7 +179,7 @@ final class BeanLinkPanelImpl<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> extends
 			this.linkableForm = content.add(modifiedLinkableFormBp, "growx, w 0::");
 		}
 		else {
-			container.setLayout(new MigLayoutDescriptor("[grow, 0::]", "[grow, 0::]"));
+			container.setLayout(new MigLayoutDescriptor("0[grow, 0::]0", "0[grow, 0::]0"));
 			if (linkFormBp != null) {
 				this.linkForm = container.add(createModifiedFormBp(linkFormBp), "growx, w 0::, growy, h 0::");
 			}
