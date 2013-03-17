@@ -222,6 +222,11 @@ final class BeanSelectionTableImpl<BEAN_TYPE> extends AbstractInputControl<List<
 	}
 
 	@Override
+	public boolean isEditable() {
+		return table.isEnabled();
+	}
+
+	@Override
 	public IBeanTableModel<BEAN_TYPE> getModel() {
 		return table.getModel();
 	}

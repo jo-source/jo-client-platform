@@ -72,9 +72,12 @@ final class BeanFormImpl<BEAN_TYPE> extends ControlWrapper implements IBeanForm<
 	private final IBeanProxyListener<BEAN_TYPE> beanProxyListener;
 
 	private IBeanProxy<BEAN_TYPE> bean;
+	private boolean editable;
 
 	BeanFormImpl(final IComposite composite, final IBeanFormBluePrint<BEAN_TYPE> bluePrint) {
 		super(composite);
+
+		this.editable = true;
 
 		final Object entityId = bluePrint.getEntityId();
 		final Class<BEAN_TYPE> beanType = bluePrint.getBeanType();
@@ -260,8 +263,14 @@ final class BeanFormImpl<BEAN_TYPE> extends ControlWrapper implements IBeanForm<
 
 	@Override
 	public void setEditable(final boolean editable) {
+		this.editable = editable;
 		editForm.setEditable(editable);
 		createForm.setEditable(editable);
+	}
+
+	@Override
+	public boolean isEditable() {
+		return editable;
 	}
 
 	@Override
