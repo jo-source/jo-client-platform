@@ -133,7 +133,6 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 	private final Integer maxWidthDefault;
 
 	private final Map<String, IInputControl<Object>> controls;
-	private final Map<String, IColorConstant> backgroundColors;
 	private final Map<String, IInputListener> bindingListeners;
 	private final Map<String, IValidationConditionListener> validationListeners;
 	private final Map<String, IValidationResultLabel> validationLabels;
@@ -155,6 +154,7 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 	private ILabel processStateLabel;
 
 	private IBeanProxy<BEAN_TYPE> bean;
+	private boolean editable;
 
 	@SuppressWarnings("unchecked")
 	BeanFormControl(
@@ -200,9 +200,9 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 			this.customActions.addAll(customActions);
 		}
 
+		this.editable = true;
 		this.attributes = new HashMap<String, IAttribute<Object>>();
 		this.controls = new LinkedHashMap<String, IInputControl<Object>>();
-		this.backgroundColors = new HashMap<String, IColorConstant>();
 		this.bindingListeners = new HashMap<String, IInputListener>();
 		this.validationListeners = new HashMap<String, IValidationConditionListener>();
 		this.validationLabels = new HashMap<String, IValidationResultLabel>();
@@ -307,36 +307,23 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 		if (bean == null || bean.isDummy()) {
 			for (final Entry<String, IInputControl<Object>> entry : controls.entrySet()) {
 				final IInputControl<Object> control = entry.getValue();
-				final IAttribute<?> attribute = attributes.get(entry.getKey());
+				final String propertyName = entry.getKey();
 				control.setValue(null);
 				control.setEnabled(false);
-				if (mandatoryBackgroundColor != null && attribute.isMandatory()) {
-					control.setBackgroundColor(null);
-				}
+				setBackgroundColor(control, propertyName);
 			}
 		}
 		else {
 			for (final Entry<String, IInputControl<Object>> entry : controls.entrySet()) {
-				final IAttribute<?> attribute = attributes.get(entry.getKey());
-				final String propertyName = attribute.getPropertyName();
+				final String propertyName = entry.getKey();
 				final IInputControl<Object> control = entry.getValue();
+				final IAttribute<?> attribute = attributes.get(propertyName);
 				control.removeInputListener(bindingListeners.get(propertyName));
 				control.removeValidationConditionListener(validationListeners.get(propertyName));
 				control.setValue(bean.getValue(entry.getKey()));
 				control.setEnabled(!bean.hasExecution());
-				if (mandatoryBackgroundColor != null && attribute.isMandatory() && attribute.isEditable()) {
-					if (bean.hasExecution()) {
-						control.setBackgroundColor(null);
-					}
-					else {
-						control.setBackgroundColor(mandatoryBackgroundColor);
-					}
-				}
-				else if (mandatoryBackgroundColor != null && attribute.isMandatory()) {
-					control.setBackgroundColor(backgroundColors.get(entry.getKey()));
-				}
-
 				control.setEditable(attribute.isEditable() && !bean.hasExecution());
+				setBackgroundColor(control, propertyName);
 				control.addInputListener(bindingListeners.get(propertyName));
 				control.addValidationConditionListener(validationListeners.get(propertyName));
 			}
@@ -347,6 +334,20 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 			bean.registerExternalValidator(this);
 		}
 		validateAllProperties();
+	}
+
+	private void setBackgroundColor(final IInputControl<Object> control, final String propertyName) {
+		if (mandatoryBackgroundColor != null) {
+			final IAttribute<?> attribute = attributes.get(propertyName);
+			if (attribute.isMandatory()) {
+				if (bean == null || bean.isDummy() || !control.isEditable()) {
+					control.setBackgroundColor(null);
+				}
+				else {
+					control.setBackgroundColor(mandatoryBackgroundColor);
+				}
+			}
+		}
 	}
 
 	private void setForegroundColors(final IBeanProxy<BEAN_TYPE> bean) {
@@ -471,9 +472,18 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 
 	@Override
 	public void setEditable(final boolean editable) {
-		for (final IInputControl<Object> control : controls.values()) {
+		this.editable = editable;
+		for (final Entry<String, IInputControl<Object>> entry : controls.entrySet()) {
+			final String propertyName = entry.getKey();
+			final IInputControl<Object> control = entry.getValue();
 			control.setEditable(editable);
+			setBackgroundColor(control, propertyName);
 		}
+	}
+
+	@Override
+	public boolean isEditable() {
+		return editable;
 	}
 
 	@Override
@@ -738,13 +748,10 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 							if (mandatoryValidator != null && isMandatory(propertyName)) {
 								result.addValidator(mandatoryValidator);
 							}
-
-							backgroundColors.put(propertyName, result.getBackgroundColor());
 							result.setEnabled(false);
 							bindingListeners.put(propertyName, new BindingListener(propertyName, result));
 							validationListeners.put(propertyName, new ValidationConditionListener(propertyName));
 							controls.put(propertyName, result);
-
 							return result;
 						}
 					};
@@ -948,18 +955,12 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 		public void processStateChanged(final IBeanProxy<BEAN_TYPE> bean) {
 			if (BeanFormControl.this.bean != null && BeanFormControl.this.bean == bean) {
 				for (final Entry<String, IInputControl<Object>> entry : controls.entrySet()) {
-					final IAttribute<?> attribute = attributes.get(entry.getKey());
+					final String propertyName = entry.getKey();
 					final IInputControl<Object> control = entry.getValue();
+					final IAttribute<?> attribute = attributes.get(propertyName);
 					control.setEnabled(!bean.hasExecution());
-					if (mandatoryBackgroundColor != null && attribute.isMandatory()) {
-						if (bean.hasExecution()) {
-							control.setBackgroundColor(null);
-						}
-						else {
-							control.setBackgroundColor(mandatoryBackgroundColor);
-						}
-					}
 					control.setEditable(attribute.isEditable() && !bean.hasExecution());
+					setBackgroundColor(control, propertyName);
 				}
 				resetValidation();
 				setForegroundColors(BeanFormControl.this.bean);

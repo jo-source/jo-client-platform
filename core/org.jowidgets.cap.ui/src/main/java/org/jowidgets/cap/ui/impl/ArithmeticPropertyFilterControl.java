@@ -84,6 +84,8 @@ public class ArithmeticPropertyFilterControl<ELEMENT_VALUE_TYPE> extends
 
 	private ArithmeticOperator operator;
 
+	private boolean editable;
+
 	ArithmeticPropertyFilterControl(
 		final String propertyName,
 		final IOperatorProvider<ArithmeticOperator> operatorProvider,
@@ -91,6 +93,8 @@ public class ArithmeticPropertyFilterControl<ELEMENT_VALUE_TYPE> extends
 		final IAttributeFilter attributeFilter,
 		final IComposite composite) {
 		super(composite);
+
+		this.editable = true;
 
 		this.propertyName = propertyName;
 		this.attributesMap = getAttributesMap((List<IAttribute<?>>) attributes);
@@ -290,8 +294,14 @@ public class ArithmeticPropertyFilterControl<ELEMENT_VALUE_TYPE> extends
 
 	@Override
 	public void setEditable(final boolean editable) {
+		this.editable = editable;
 		setEditable(combo1, editable);
 		setEditable(combo2, editable);
+	}
+
+	@Override
+	public boolean isEditable() {
+		return editable;
 	}
 
 	private IComboBoxSelectionBluePrint<IAttribute<?>> comboBoxBluePrint(final List<IAttribute<?>> attributes) {

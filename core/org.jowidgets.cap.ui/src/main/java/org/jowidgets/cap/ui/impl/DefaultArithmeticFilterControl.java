@@ -76,6 +76,8 @@ public class DefaultArithmeticFilterControl<ELEMENT_VALUE_TYPE> extends Abstract
 
 	private ArithmeticOperator operator;
 
+	private boolean editable;
+
 	DefaultArithmeticFilterControl(
 		final String propertyName,
 		final Class<?> elementValueType,
@@ -84,6 +86,8 @@ public class DefaultArithmeticFilterControl<ELEMENT_VALUE_TYPE> extends Abstract
 		final ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> collectionControlCreator,
 		final IComposite composite) {
 		super(composite);
+
+		this.editable = true;
 
 		this.propertyName = propertyName;
 		this.elementValueType = elementValueType;
@@ -264,9 +268,15 @@ public class DefaultArithmeticFilterControl<ELEMENT_VALUE_TYPE> extends Abstract
 
 	@Override
 	public void setEditable(final boolean editable) {
+		this.editable = editable;
 		setEditable(control1, editable);
 		setEditable(control2, editable);
 		setEditable(collectionControl, editable);
+	}
+
+	@Override
+	public boolean isEditable() {
+		return editable;
 	}
 
 	private Object[] getParameters() {

@@ -91,10 +91,14 @@ final class BeanLinkPanelImpl<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> extends
 
 	private IBeanProxy<LINKABLE_BEAN_TYPE> createdLinkableBean;
 
+	private boolean editable;
+
 	public BeanLinkPanelImpl(
 		final IComposite composite,
 		final IBeanLinkPanelBluePrint<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> bluePrint) {
 		super(composite);
+
+		this.editable = true;
 
 		this.beanFilterListener = new BeanFilterListener();
 
@@ -396,6 +400,7 @@ final class BeanLinkPanelImpl<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> extends
 
 	@Override
 	public void setEditable(final boolean editable) {
+		this.editable = editable;
 		if (linkForm != null) {
 			linkForm.setEditable(editable);
 		}
@@ -405,6 +410,11 @@ final class BeanLinkPanelImpl<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> extends
 		if (linkableTable != null) {
 			linkableTable.setEditable(editable);
 		}
+	}
+
+	@Override
+	public boolean isEditable() {
+		return editable;
 	}
 
 	private void doFilter(final IBeanProxy<LINKABLE_BEAN_TYPE> bean) {

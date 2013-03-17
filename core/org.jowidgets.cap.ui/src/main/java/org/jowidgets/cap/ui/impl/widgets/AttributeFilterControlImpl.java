@@ -84,7 +84,7 @@ final class AttributeFilterControlImpl extends AbstractInputControl<IUiConfigura
 		super(composite);
 		this.attributes = bluePrint.getAttributes();
 		this.attributesMap = createAttributesMap(attributes);
-		this.editable = true;
+		this.editable = bluePrint.isEditable();
 
 		this.inputListener = new IInputListener() {
 			@Override
@@ -125,6 +125,10 @@ final class AttributeFilterControlImpl extends AbstractInputControl<IUiConfigura
 
 		cmbOperator.addInputListener(operatorListener);
 		cmbOperator.addValidationConditionListener(validationConditionListener);
+
+		if (!bluePrint.isEditable()) {
+			setEditable(editable);
+		}
 	}
 
 	private static IComboBoxSelectionBluePrint<IOperator> comboBoxOperatorBp() {
@@ -337,6 +341,11 @@ final class AttributeFilterControlImpl extends AbstractInputControl<IUiConfigura
 		if (filterControl != null) {
 			filterControl.setEditable(editable);
 		}
+	}
+
+	@Override
+	public boolean isEditable() {
+		return editable;
 	}
 
 	private void setCmbNotEnabledByOperator(final IOperator operator) {
