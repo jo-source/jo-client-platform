@@ -194,6 +194,7 @@ final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKA
 					linkableModelBuilder = CapUiToolkit.beanTableModelBuilder(linkableEntityId, linkableType);
 					linkableModelBuilder.setParent(source, LinkType.SELECTION_ALL);
 					linkableModelBuilder.setAutoSelection(false);
+					linkableModelBuilder.setClearOnEmptyParentBeans(false);
 					final IBeanTableModel linkableModel = linkableModelBuilder.build();
 					setLinkableTable(cbpf.beanTable(linkableModel));
 					setLinkableBeanPropertyValidators(linkableModel.getBeanPropertyValidators());

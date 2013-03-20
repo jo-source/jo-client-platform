@@ -232,8 +232,8 @@ final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BE
 		});
 
 		final List<ILinkData> linkData = new LinkedList<ILinkData>();
-		for (final IBeanProxy<SOURCE_BEAN_TYPE> bean : selection) {
-			bean.setExecutionTask(executionTask);
+		for (final IBeanProxy<SOURCE_BEAN_TYPE> sourceBean : selection) {
+			sourceBean.setExecutionTask(executionTask);
 
 			//direct link
 			if (beanLink.getLinkableBeans().isEmpty() && destinationProperties == null) {
@@ -241,7 +241,7 @@ final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BE
 				if (beanLink.getLinkBean() != null) {
 					setBeanData(beanLink.getLinkBean(), linkBeanBuilder);
 				}
-				linkBeanBuilder.setProperty(sourceProperties.getForeignKeyPropertyName(), bean.getId());
+				linkBeanBuilder.setProperty(sourceProperties.getForeignKeyPropertyName(), sourceBean.getId());
 				final ILinkDataBuilder linkDataBuilder = LinkData.builder();
 				linkDataBuilder.setLinkData(linkBeanBuilder.build());
 				linkData.add(linkDataBuilder.build());
@@ -249,15 +249,18 @@ final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BE
 			else {
 				for (final IBeanProxy<LINKABLE_BEAN_TYPE> linkableBean : beanLink.getLinkableBeans()) {
 					final IBeanDataBuilder linkBeanBuilder = CapCommonToolkit.beanDataBuilder();
+					final ILinkDataBuilder linkDataBuilder = LinkData.builder();
 					if (beanLink.getLinkBean() != null) {
 						setBeanData(beanLink.getLinkBean(), linkBeanBuilder);
 					}
-					linkBeanBuilder.setProperty(sourceProperties.getForeignKeyPropertyName(), bean.getId());
-
-					final ILinkDataBuilder linkDataBuilder = LinkData.builder();
+					if (sourceBean.isTransient()) {
+						linkDataBuilder.setSourceData(sourceBean.getBeanData());
+					}
+					else {
+						linkBeanBuilder.setProperty(sourceProperties.getForeignKeyPropertyName(), sourceBean.getId());
+					}
 
 					if (linkableBean.isTransient()) {
-						linkDataBuilder.setLinkData(linkBeanBuilder.build());
 						linkDataBuilder.setLinkableData(linkableBean.getBeanData());
 					}
 					else if (destinationProperties != null) {

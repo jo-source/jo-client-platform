@@ -134,7 +134,7 @@ final class BeanListSaveDelegate<BEAN_TYPE> {
 				true,
 				fireBeansChanged);
 
-			for (final List<IBeanProxy<BEAN_TYPE>> preparedBeans : executionHelper.prepareExecutions()) {
+			for (final List<IBeanProxy<BEAN_TYPE>> preparedBeans : executionHelper.prepareExecutions(true)) {
 				if (preparedBeans.size() > 0) {
 					final IExecutionTask executionTask = preparedBeans.get(0).getExecutionTask();
 					if (executionTask != null) {
@@ -178,7 +178,7 @@ final class BeanListSaveDelegate<BEAN_TYPE> {
 				false,
 				fireBeansChanged);
 
-			for (final List<IBeanProxy<BEAN_TYPE>> preparedBeans : executionHelper.prepareExecutions()) {
+			for (final List<IBeanProxy<BEAN_TYPE>> preparedBeans : executionHelper.prepareExecutions(false)) {
 				if (preparedBeans.size() > 0) {
 					final IExecutionTask executionTask = preparedBeans.get(0).getExecutionTask();
 					if (executionTask != null) {

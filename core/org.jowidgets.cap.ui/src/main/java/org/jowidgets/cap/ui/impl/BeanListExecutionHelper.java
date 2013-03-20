@@ -74,7 +74,7 @@ final class BeanListExecutionHelper<BEAN_TYPE> {
 		this.fireBeansChanged = fireBeansChanged;
 	}
 
-	List<List<IBeanProxy<BEAN_TYPE>>> prepareExecutions() {
+	List<List<IBeanProxy<BEAN_TYPE>>> prepareExecutions(final boolean allowTransient) {
 		final List<List<IBeanProxy<BEAN_TYPE>>> result = new LinkedList<List<IBeanProxy<BEAN_TYPE>>>();
 
 		if (BeanExecutionPolicy.BATCH == beanExecutionPolicy) {
@@ -82,7 +82,7 @@ final class BeanListExecutionHelper<BEAN_TYPE> {
 			final List<IBeanProxy<BEAN_TYPE>> subList = new LinkedList<IBeanProxy<BEAN_TYPE>>();
 			result.add(subList);
 			for (final IBeanProxy<BEAN_TYPE> bean : beans) {
-				if (bean.getExecutionTask() == null) {
+				if (bean.getExecutionTask() == null && !bean.isDummy() && (allowTransient || !bean.isTransient())) {
 					bean.setExecutionTask(executionTask);
 					subList.add(bean);
 				}
@@ -92,7 +92,7 @@ final class BeanListExecutionHelper<BEAN_TYPE> {
 			for (final IBeanProxy<BEAN_TYPE> bean : beans) {
 				final List<IBeanProxy<BEAN_TYPE>> subList = new LinkedList<IBeanProxy<BEAN_TYPE>>();
 				result.add(subList);
-				if (bean.getExecutionTask() == null) {
+				if (bean.getExecutionTask() == null && !bean.isDummy() && (allowTransient || !bean.isTransient())) {
 					final IExecutionTask executionTask = createExecutionTask();
 					bean.setExecutionTask(executionTask);
 					subList.add(bean);
