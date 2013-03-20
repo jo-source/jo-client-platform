@@ -152,7 +152,7 @@ final class ExecutorCommand implements ICommand, ICommandExecutor {
 			false,
 			true);
 
-		final List<List<IBeanProxy<?>>> preparedExecutions = executionHelper.prepareExecutions();
+		final List<List<IBeanProxy<?>>> preparedExecutions = executionHelper.prepareExecutions(false);
 		executionObservable.fireAfterExecutionPrepared(executionContext);
 
 		for (final List<IBeanProxy<?>> preparedBeans : preparedExecutions) {

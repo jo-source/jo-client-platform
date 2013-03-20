@@ -127,6 +127,7 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 	private final boolean expansionCacheEnabled;
 	private final RelationRenderingPolicy relationRenderingPolicy;
 	private final IAction rootCreatorAction;
+	private final ITreeSelectionListener treeSelectionListener;
 
 	private final AddAction addAction;
 
@@ -148,7 +149,8 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 		this.nodeActionMap = new HashMap<ITreeNode, IAction>();
 		this.expandedNodesCache = new LinkedHashSet<ExpandedNodeKey>();
 
-		tree.addTreeSelectionListener(new TreeSelectionListener());
+		this.treeSelectionListener = new TreeSelectionListener();
+		tree.addTreeSelectionListener(treeSelectionListener);
 		treeModel.getRoot().addBeanListModelListener(new RootModelListener());
 
 		this.addAction = new AddAction();
