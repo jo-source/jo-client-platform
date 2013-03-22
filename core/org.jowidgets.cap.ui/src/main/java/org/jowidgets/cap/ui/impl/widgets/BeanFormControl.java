@@ -122,6 +122,7 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 	private final IDecorator<String> mandatoryLabelDecorator;
 	private final IColorConstant mandatoryBackgroundColor;
 	private final IColorConstant foregroundColor;
+	private final IColorConstant modifiedForegroundColor;
 	private final IValidator<Object> mandatoryValidator;
 	private final String inputHint;
 	private final Map<String, IAttribute<Object>> attributes;
@@ -168,6 +169,7 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 		final IDecorator<String> manadtoryLabelDecorator,
 		final IColorConstant mandatoryBackgroundColor,
 		final IColorConstant foregroundColor,
+		final IColorConstant modifiedForegroundColor,
 		final IValidator<Object> manadtoryValidator,
 		final String inputHint,
 		final IInputComponentValidationLabelSetup mainValidationLabelSetup,
@@ -187,6 +189,7 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 		this.mandatoryLabelDecorator = manadtoryLabelDecorator;
 		this.mandatoryBackgroundColor = mandatoryBackgroundColor;
 		this.foregroundColor = foregroundColor;
+		this.modifiedForegroundColor = modifiedForegroundColor;
 		this.mandatoryValidator = manadtoryValidator;
 		this.inputHint = inputHint;
 		this.propertyValidationLabelSetup = propertyValidationLabelSetup;
@@ -303,7 +306,6 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 		updateExecutionTaskText(this.bean);
 		registerExecutionTaskListener(this.bean);
 		setValidationLabelsVisibility(this.bean);
-		setForegroundColors(this.bean);
 		if (bean == null || bean.isDummy()) {
 			for (final Entry<String, IInputControl<Object>> entry : controls.entrySet()) {
 				final IInputControl<Object> control = entry.getValue();
@@ -311,6 +313,7 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 				control.setValue(null);
 				control.setEnabled(false);
 				setBackgroundColor(control, propertyName);
+				setForeground(bean, propertyName, control);
 			}
 		}
 		else {
@@ -324,6 +327,7 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 				control.setEnabled(!bean.hasExecution());
 				control.setEditable(attribute.isEditable() && !bean.hasExecution());
 				setBackgroundColor(control, propertyName);
+				setForeground(bean, propertyName, control);
 				control.addInputListener(bindingListeners.get(propertyName));
 				control.addValidationConditionListener(validationListeners.get(propertyName));
 			}
@@ -350,8 +354,8 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 		}
 	}
 
-	private void setForegroundColors(final IBeanProxy<BEAN_TYPE> bean) {
-		for (final IInputControl<Object> control : controls.values()) {
+	private void setForeground(final IBeanProxy<BEAN_TYPE> bean, final String propertyName, final IInputControl<Object> control) {
+		if (control != null) {
 			if (bean == null || bean.isDummy()) {
 				control.setForegroundColor(null);
 			}
@@ -360,6 +364,9 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 			}
 			else if (bean.hasWarnings()) {
 				control.setForegroundColor(Colors.WARNING);
+			}
+			else if (modifiedForegroundColor != null && !bean.isTransient() && bean.isModified(propertyName)) {
+				control.setForegroundColor(modifiedForegroundColor);
 			}
 			else if (foregroundColor != null) {
 				control.setForegroundColor(foregroundColor);
@@ -910,9 +917,9 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 
 		@Override
 		public void propertyChange(final PropertyChangeEvent evt) {
+			final String propertyName = evt.getPropertyName();
+			final IInputControl<Object> control = controls.get(propertyName);
 			if (bean != null) {
-				final String propertyName = evt.getPropertyName();
-				final IInputControl<Object> control = controls.get(propertyName);
 				if (control != null) {
 					control.removeInputListener(bindingListeners.get(propertyName));
 					bean.removePropertyChangeListener(propertyChangeListenerBinding);
@@ -922,8 +929,8 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 					bean.addPropertyChangeListener(propertyChangeListenerBinding);
 					control.addInputListener(bindingListeners.get(propertyName));
 				}
-
 			}
+			setForeground(bean, propertyName, control);
 		}
 	}
 
@@ -946,6 +953,7 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 				bean.addPropertyChangeListener(propertyChangeListenerBinding);
 				control.addInputListener(bindingListeners.get(propertyName));
 			}
+			setForeground(bean, propertyName, control);
 			fireInputChanged();
 		}
 	}
@@ -961,9 +969,9 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 					control.setEnabled(!bean.hasExecution());
 					control.setEditable(attribute.isEditable() && !bean.hasExecution());
 					setBackgroundColor(control, propertyName);
+					setForeground(bean, propertyName, control);
 				}
 				resetValidation();
-				setForegroundColors(BeanFormControl.this.bean);
 				setValidationLabelsVisibility(BeanFormControl.this.bean);
 				updateExecutionTaskText(BeanFormControl.this.bean);
 				final IExecutionTask executionTask = bean.getExecutionTask();
