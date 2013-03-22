@@ -48,6 +48,7 @@ final class BeanFormDefaults implements IDefaultInitializer<IBeanFormBluePrint<?
 	public void initialize(final IBeanFormBluePrint<?> bluePrint) {
 		bluePrint.setAutoResetValidation(true);
 		bluePrint.setCreateModeForegroundColor(Colors.GREEN);
+		bluePrint.setModifiedForegroundColor(Colors.STRONG);
 		bluePrint.setScrollbarsAllowed(true);
 		final IInputComponentValidationLabelBluePrint editModeValidationLabel = BPF.inputComponentValidationLabel();
 		final IDecorator<IValidationResult> editModeValidationDecorator = new IDecorator<IValidationResult>() {

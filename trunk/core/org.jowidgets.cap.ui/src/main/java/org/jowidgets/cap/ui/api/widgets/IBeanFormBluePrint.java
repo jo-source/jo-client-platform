@@ -109,7 +109,11 @@ public interface IBeanFormBluePrint<BEAN_TYPE> extends
 
 	IBeanFormBluePrint<BEAN_TYPE> setEditFormInfo(IBeanFormInfo info);
 
-	IBeanFormBluePrint<BEAN_TYPE> setCreateModeForegroundColor(IColorConstant editModeColor);
+	IBeanFormBluePrint<BEAN_TYPE> setCreateModeForegroundColor(IColorConstant color);
+
+	IBeanFormBluePrint<BEAN_TYPE> setEditModeForegroundColor(IColorConstant color);
+
+	IBeanFormBluePrint<BEAN_TYPE> setModifiedForegroundColor(IColorConstant color);
 
 	IBeanFormBluePrint<BEAN_TYPE> setSaveAction(IProvider<IAction> saveAction);
 
@@ -160,6 +164,10 @@ public interface IBeanFormBluePrint<BEAN_TYPE> extends
 	String getCreateModeInputHint();
 
 	IColorConstant getCreateModeForegroundColor();
+
+	IColorConstant getEditModeForegroundColor();
+
+	IColorConstant getModifiedForegroundColor();
 
 	IProvider<IAction> getSaveAction();
 
