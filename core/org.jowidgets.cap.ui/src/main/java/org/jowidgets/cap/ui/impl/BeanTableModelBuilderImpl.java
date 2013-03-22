@@ -29,6 +29,7 @@
 package org.jowidgets.cap.ui.impl;
 
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
@@ -37,6 +38,7 @@ import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.ui.api.plugin.IBeanTableModelBuilderPlugin;
 import org.jowidgets.cap.ui.api.sort.ISortModelConfig;
+import org.jowidgets.cap.ui.api.table.IBeanTableCellRenderer;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
 import org.jowidgets.cap.ui.api.table.IReaderParameterProvider;
@@ -56,6 +58,8 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> extends
 
 	private static final int DEFAULT_PAGE_SIZE = 1000;
 
+	private final List<IBeanTableCellRenderer<BEAN_TYPE>> cellRenderers;
+
 	private String entityLabelSingular;
 	private String entityLabelPlural;
 
@@ -72,6 +76,8 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> extends
 		super(entityId, beanType);
 		Assert.paramNotNull(entityId, "entityId");
 		Assert.paramNotNull(beanType, "beanType");
+
+		this.cellRenderers = new LinkedList<IBeanTableCellRenderer<BEAN_TYPE>>();
 
 		this.autoRefreshSelection = false;
 		this.autoRowCount = true;
@@ -184,6 +190,13 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> extends
 		return this;
 	}
 
+	@Override
+	public IBeanTableModelBuilder<BEAN_TYPE> addCellRenderer(final IBeanTableCellRenderer<BEAN_TYPE> renderer) {
+		Assert.paramNotNull(renderer, "renderer");
+		cellRenderers.add(renderer);
+		return this;
+	}
+
 	private String getEntityLabelSingular() {
 		if (EmptyCheck.isEmpty(entityLabelSingular)) {
 			entityLabelSingular = Messages.getString("BeanTableModelBuilderImpl.dataset");
@@ -245,7 +258,8 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> extends
 			clearOnEmptyFilter,
 			getClearOnEmptyParentBeans(),
 			pageSize,
-			getBeanProxyContext());
+			getBeanProxyContext(),
+			cellRenderers);
 	}
 
 }
