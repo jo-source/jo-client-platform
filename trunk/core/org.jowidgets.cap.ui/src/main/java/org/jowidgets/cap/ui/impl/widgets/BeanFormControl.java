@@ -570,8 +570,8 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 		final String propertyLabel = getLabel(propertyName);
 		if (bean != null && control != null && EmptyCompatibleEquivalence.equals(control.getValue(), bean.getValue(propertyName))) {
 			validationResult = control.validate();
-			//only use the bean validation result, if the control is valid
-			if (validationResult.isValid()) {
+			//use the parent result if the control result is valid and the parent result is not valid
+			if (validationResult.isValid() && !parentValidationResult.isValid()) {
 				validationResult = parentValidationResult;
 			}
 
