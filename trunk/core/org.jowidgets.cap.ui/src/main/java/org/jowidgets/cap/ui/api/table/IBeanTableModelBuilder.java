@@ -83,6 +83,8 @@ public interface IBeanTableModelBuilder<BEAN_TYPE> extends IBeanModelBuilder<BEA
 
 	IBeanTableModelBuilder<BEAN_TYPE> setPageSize(int pageSize);
 
+	IBeanTableModelBuilder<BEAN_TYPE> addCellRenderer(IBeanTableCellRenderer<BEAN_TYPE> renderer);
+
 	IBeanTableModel<BEAN_TYPE> build();
 
 }

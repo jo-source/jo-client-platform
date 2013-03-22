@@ -120,6 +120,7 @@ import org.jowidgets.cap.ui.api.plugin.IBeanTableModelPlugin;
 import org.jowidgets.cap.ui.api.sort.IPropertySort;
 import org.jowidgets.cap.ui.api.sort.ISortModel;
 import org.jowidgets.cap.ui.api.sort.ISortModelConfig;
+import org.jowidgets.cap.ui.api.table.IBeanTableCellRenderer;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.table.IBeanTableModelConfig;
 import org.jowidgets.cap.ui.api.table.IBeanTableModelConfigBuilder;
@@ -139,6 +140,7 @@ import org.jowidgets.plugin.api.PluginToolkit;
 import org.jowidgets.tools.controller.TableDataModelAdapter;
 import org.jowidgets.tools.model.table.AbstractTableDataModel;
 import org.jowidgets.tools.model.table.DefaultTableColumnBuilder;
+import org.jowidgets.tools.model.table.TableCellBluePrint;
 import org.jowidgets.tools.model.table.TableCellBuilder;
 import org.jowidgets.tools.model.table.TableModel;
 import org.jowidgets.util.Assert;
@@ -263,7 +265,8 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		final boolean clearOnEmptyFilter,
 		final boolean clearOnEmptyParentBeans,
 		final int pageSize,
-		final IBeanProxyContext beanProxyContext) {
+		final IBeanProxyContext beanProxyContext,
+		final List<IBeanTableCellRenderer<BEAN_TYPE>> cellRenderers) {
 
 		//arguments checks
 		Assert.paramNotNull(entityId, "entityId");
@@ -361,7 +364,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 		//model creation
 		this.columnModel = createColumnModel(attributes);
-		this.dataModel = new DataModel();
+		this.dataModel = new DataModel(cellRenderers);
 		dataModel.addDataModelListener(tableDataModelListener);
 		this.tableModel = new TableModel(columnModel, dataModel);
 
@@ -1688,7 +1691,13 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		beanSelectionObservable.fireBeanSelectionEvent(this, beanType, entityId, getSelectedBeans());
 	}
 
-	private class DataModel extends AbstractTableDataModel {
+	private final class DataModel extends AbstractTableDataModel {
+
+		private final List<IBeanTableCellRenderer<BEAN_TYPE>> cellRenderers;
+
+		private DataModel(final List<IBeanTableCellRenderer<BEAN_TYPE>> cellRenderers) {
+			this.cellRenderers = new LinkedList<IBeanTableCellRenderer<BEAN_TYPE>>(cellRenderers);
+		}
 
 		@Override
 		public int getRowCount() {
@@ -1728,7 +1737,8 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 					return new TableCellBuilder().build();
 				}
 				else {
-					return createAddedBeanCell(rowIndex, columnIndex, bean);
+					final ITableCellBuilder cellBuilder = createAddedBeanCellBuilder(rowIndex, columnIndex, bean);
+					return applyRenderers(cellBuilder, bean, attribute, rowIndex, columnIndex, true);
 				}
 			}
 			else if (page == null) {
@@ -1748,7 +1758,8 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 					return createDummyCell(rowIndex, columnIndex, null, attribute);
 				}
 				else if (!bean.isDummy()) {
-					return createCell(rowIndex, columnIndex, bean);
+					final ITableCellBuilder cellBuilder = createCellBuilder(rowIndex, columnIndex, bean);
+					return applyRenderers(cellBuilder, bean, attribute, rowIndex, columnIndex, false);
 				}
 				else {
 					return createDummyCell(rowIndex, columnIndex, bean, attribute);
@@ -1789,12 +1800,15 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			}
 		}
 
-		private ITableCell createCell(final int rowIndex, final int columnIndex, final IBeanProxy<BEAN_TYPE> bean) {
-			return createCellBuilder(rowIndex, columnIndex, bean, false).build();
+		private ITableCellBuilder createCellBuilder(final int rowIndex, final int columnIndex, final IBeanProxy<BEAN_TYPE> bean) {
+			return createCellBuilder(rowIndex, columnIndex, bean, false);
 		}
 
-		private ITableCell createAddedBeanCell(final int rowIndex, final int columnIndex, final IBeanProxy<BEAN_TYPE> bean) {
-			return createCellBuilder(rowIndex, columnIndex, bean, true).build();
+		private ITableCellBuilder createAddedBeanCellBuilder(
+			final int rowIndex,
+			final int columnIndex,
+			final IBeanProxy<BEAN_TYPE> bean) {
+			return createCellBuilder(rowIndex, columnIndex, bean, true);
 		}
 
 		private ITableCellBuilder createCellBuilder(
@@ -1955,6 +1969,26 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 				cellBuilder.setBackgroundColor(Colors.DEFAULT_TABLE_EVEN_BACKGROUND_COLOR);
 			}
 			return cellBuilder;
+		}
+
+		private ITableCell applyRenderers(
+			final ITableCellBuilder builder,
+			final IBeanProxy<BEAN_TYPE> bean,
+			final IAttribute<Object> attribute,
+			final int rowIndex,
+			final int columnIndex,
+			final boolean addedBean) {
+			for (final IBeanTableCellRenderer<BEAN_TYPE> renderer : cellRenderers) {
+				renderer.render(
+						new TableCellBluePrint(builder),
+						builder.build(),
+						bean,
+						attribute,
+						rowIndex,
+						columnIndex,
+						addedBean);
+			}
+			return builder.build();
 		}
 	}
 
