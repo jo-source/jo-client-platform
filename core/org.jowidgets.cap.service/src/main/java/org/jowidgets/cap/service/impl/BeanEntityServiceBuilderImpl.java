@@ -827,6 +827,12 @@ final class BeanEntityServiceBuilderImpl extends EntityServiceBuilderImpl implem
 			if (sourcePrebuild != null) {
 				builder.setSourceCreatorService(sourcePrebuild.getCreatorService());
 				builder.setSourceDeleterService(sourcePrebuild.getDeleterService());
+
+				final Class<? extends IBean> sourceBeanType = sourcePrebuild.getBeanType();
+				final Object sourceBeanTypeId = sourcePrebuild.getBeanTypeId();
+
+				builder.setSourceBeanAccess(beanServiceFactory.beanAccess(sourceBeanType, sourceBeanTypeId));
+				builder.setSourceDtoFactory(sourceBeanType, sourcePrebuild.getPropertyNames());
 			}
 
 			final BeanEntityPreBuild linkPrebuild = prebuilds.get(linkEntityId);

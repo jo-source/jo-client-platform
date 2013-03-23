@@ -96,8 +96,8 @@ public final class DefaultCapServiceToolkit implements ICapServiceToolkit {
 	}
 
 	@Override
-	public <BEAN_TYPE extends IBean> ILinkServicesBuilder<BEAN_TYPE> linkServicesBuilder() {
-		return new LinkServicesBuilderImpl<BEAN_TYPE>();
+	public <SOURCE_BEAN_TYPE extends IBean, LINKED_BEAN_TYPE extends IBean> ILinkServicesBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> linkServicesBuilder() {
+		return new LinkServicesBuilderImpl<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE>();
 	}
 
 	@Override

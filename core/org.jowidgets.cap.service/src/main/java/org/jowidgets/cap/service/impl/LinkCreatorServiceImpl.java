@@ -31,30 +31,35 @@ package org.jowidgets.cap.service.impl;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanData;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.entity.IEntityLinkProperties;
+import org.jowidgets.cap.common.api.exception.BeanException;
 import org.jowidgets.cap.common.api.exception.DeletedBeanException;
 import org.jowidgets.cap.common.api.exception.ServiceException;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
-import org.jowidgets.cap.common.api.link.ILinkData;
+import org.jowidgets.cap.common.api.link.ILinkCreation;
 import org.jowidgets.cap.common.api.service.ICreatorService;
 import org.jowidgets.cap.common.api.service.ILinkCreatorService;
-import org.jowidgets.cap.common.tools.bean.BeanKey;
 import org.jowidgets.cap.common.tools.execution.SyncResultCallback;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.EmptyCheck;
 
-final class LinkCreatorServiceImpl<LINKED_BEAN_TYPE extends IBean> implements ILinkCreatorService {
+final class LinkCreatorServiceImpl<SOURCE_BEAN_TYPE extends IBean, LINKED_BEAN_TYPE extends IBean> implements ILinkCreatorService {
 
+	private final IBeanAccess<SOURCE_BEAN_TYPE> sourceBeanAccess;
+	private final IBeanDtoFactory<SOURCE_BEAN_TYPE> sourceDtoFactory;
 	private final Class<? extends IBean> linkBeanType;
 	private final IBeanAccess<LINKED_BEAN_TYPE> linkedBeanAccess;
 	private final IBeanDtoFactory<LINKED_BEAN_TYPE> linkedDtoFactory;
@@ -66,6 +71,8 @@ final class LinkCreatorServiceImpl<LINKED_BEAN_TYPE extends IBean> implements IL
 	private final IEntityLinkProperties destinationProperties;
 
 	LinkCreatorServiceImpl(
+		final IBeanAccess<SOURCE_BEAN_TYPE> sourceBeanAccess,
+		final IBeanDtoFactory<SOURCE_BEAN_TYPE> sourceDtoFactory,
 		final Class<? extends IBean> linkBeanType,
 		final IBeanAccess<LINKED_BEAN_TYPE> linkedBeanAccess,
 		final IBeanDtoFactory<LINKED_BEAN_TYPE> linkedDtoFactory,
@@ -75,13 +82,16 @@ final class LinkCreatorServiceImpl<LINKED_BEAN_TYPE extends IBean> implements IL
 		final IEntityLinkProperties sourceProperties,
 		final IEntityLinkProperties destinationProperties) {
 
+		Assert.paramNotNull(sourceBeanAccess, "sourceBeanAccess");
+		Assert.paramNotNull(sourceDtoFactory, "sourceDtoFactory");
 		Assert.paramNotNull(linkBeanType, "linkBeanType");
 		Assert.paramNotNull(linkedBeanAccess, "linkedBeanAccess");
 		Assert.paramNotNull(linkedDtoFactory, "linkedDtoFactory");
 		Assert.paramNotNull(sourceProperties, "sourceProperties");
 
+		this.sourceBeanAccess = sourceBeanAccess;
+		this.sourceDtoFactory = sourceDtoFactory;
 		this.linkBeanType = linkBeanType;
-
 		this.linkedBeanAccess = linkedBeanAccess;
 		this.linkedDtoFactory = linkedDtoFactory;
 		this.sourceCreatorService = sourceCreatorService;
@@ -94,76 +104,119 @@ final class LinkCreatorServiceImpl<LINKED_BEAN_TYPE extends IBean> implements IL
 	@Override
 	public void create(
 		final IResultCallback<List<IBeanDto>> linkedBeansResult,
-		final Collection<? extends ILinkData> links,
+		final Collection<? extends ILinkCreation> links,
 		final IExecutionCallback executionCallback) {
 		try {
-			final List<IBeanDto> linkedBeans = createSyncImpl(links, executionCallback);
-			linkedBeansResult.finished(linkedBeans);
+			linkedBeansResult.finished(createSyncImpl(links, executionCallback));
 		}
 		catch (final Exception exception) {
 			linkedBeansResult.exception(exception);
 		}
 	}
 
-	private List<IBeanDto> createSyncImpl(final Collection<? extends ILinkData> links, final IExecutionCallback executionCallback) {
+	private List<IBeanDto> createSyncImpl(
+		final Collection<? extends ILinkCreation> links,
+		final IExecutionCallback executionCallback) {
 
+		final Set<IBeanDto> result = new LinkedHashSet<IBeanDto>();
+
+		for (final ILinkCreation link : links) {
+			CapServiceToolkit.checkCanceled(executionCallback);
+			result.addAll(createLinks(link, executionCallback));
+		}
+
+		return new LinkedList<IBeanDto>(result);
+	}
+
+	private List<IBeanDto> createLinks(final ILinkCreation link, final IExecutionCallback executionCallback) {
 		final List<IBeanDto> result = new LinkedList<IBeanDto>();
 
-		for (final ILinkData link : links) {
-			CapServiceToolkit.checkCanceled(executionCallback);
-			final IBeanDto createdLinkedBean = createLink(link, executionCallback);
-			if (createdLinkedBean != null) {
-				result.add(createdLinkedBean);
+		final List<IBeanDto> sourceBeans = getBeans(link.getSourceBeans(), sourceBeanAccess, sourceDtoFactory, executionCallback);
+		sourceBeans.addAll(createBeans(link.getTransientSourceBeans(), sourceCreatorService, executionCallback));
+
+		final List<IBeanDto> linkedBeans = getBeans(
+				link.getLinkableBeans(),
+				linkedBeanAccess,
+				linkedDtoFactory,
+				executionCallback);
+		linkedBeans.addAll(createBeans(link.getTransientLinkableBeans(), linkableCreatorService, executionCallback));
+
+		for (final IBeanDto sourceBean : sourceBeans) {
+			if (EmptyCheck.isEmpty(linkedBeans) && destinationProperties == null) {//direct link
+				result.add(createLink(sourceBean, null, link.getAdditionalLinkProperties(), executionCallback));
 			}
 			else {
-				throw new ServiceException("Could not create link for '" + link + "'");
+				for (final IBeanDto linkedBean : linkedBeans) {
+					result.add(createLink(sourceBean, linkedBean, link.getAdditionalLinkProperties(), executionCallback));
+				}
 			}
 		}
 
 		return result;
 	}
 
-	private IBeanDto createLink(final ILinkData link, final IExecutionCallback executionCallback) {
+	private IBeanDto createLink(
+		final IBeanDto sourceBean,
+		final IBeanDto linkedBean,
+		final IBeanData additionalProperties,
+		final IExecutionCallback executionCallback) {
 
-		final IBeanDto createdSourceBean = createBean(link.getSourceData(), sourceCreatorService, executionCallback);
-		final IBeanDto createdLinkableBean = createBean(link.getLinkableData(), linkableCreatorService, executionCallback);
+		final IBeanData decoratedBeanData = new DecoratedLinkBeanData(additionalProperties, linkedBean, sourceBean);
+		final IBeanDto linkBean = createBean(decoratedBeanData, linkCreatorService, executionCallback);
 
-		final IBeanDto createdLinkBean;
-		final IBeanData linkData = link.getLinkData();
-		if (linkData != null) {
-			final IBeanData decoratedBeanData = new DecoratedBeanData(linkData, createdLinkableBean, createdSourceBean);
-			createdLinkBean = createBean(decoratedBeanData, linkCreatorService, executionCallback);
+		if (linkBean == null) {
+			throw new ServiceException("Can not create link for source: "
+				+ sourceBean
+				+ ", linked: "
+				+ linkedBean
+				+ ", additional properties: "
+				+ additionalProperties
+				+ ".");
+		}
+
+		if (linkBeanType.equals(linkedBeanAccess.getBeanType()) && linkedBean == null) {
+			return linkBean;
 		}
 		else {
-			createdLinkBean = null;
+			return linkedBean;
 		}
-		if (linkBeanType.equals(linkedBeanAccess.getBeanType())) {
-			return readLinkBeanAsLinkedBean(createdLinkBean, executionCallback);
-		}
-		else if (createdLinkBean != null) {
-			return readLinkedBean(createdLinkBean, executionCallback);
-		}
-		return null;
 	}
 
-	private IBeanDto readLinkedBean(final IBeanDto createdLinkBean, final IExecutionCallback executionCallback) {
-		return readLinkedBean(createdLinkBean.getValue(destinationProperties.getForeignKeyPropertyName()), executionCallback);
+	private <BEAN_TYPE extends IBean> List<IBeanDto> getBeans(
+		final Collection<IBeanKey> beanKeys,
+		final IBeanAccess<BEAN_TYPE> beanAccess,
+		final IBeanDtoFactory<BEAN_TYPE> dtoFactory,
+		final IExecutionCallback executionCallback) {
+
+		final List<IBeanDto> result = new LinkedList<IBeanDto>();
+		for (final IBeanKey beanKey : beanKeys) {
+			CapServiceToolkit.checkCanceled(executionCallback);
+			final List<IBeanKey> singletonList = Collections.singletonList(beanKey);
+			final List<BEAN_TYPE> beans = beanAccess.getBeans(singletonList, executionCallback);
+			if (!EmptyCheck.isEmpty(beans) && beans.size() == 1) {
+				final BEAN_TYPE bean = beans.iterator().next();
+				result.add(dtoFactory.createDto(bean));
+			}
+			else if (!EmptyCheck.isEmpty(beans) && beans.size() > 1) {
+				throw new BeanException(beanKey.getId(), "More than one bean found for the key '" + beanKey + "'");
+			}
+			else {
+				throw new DeletedBeanException(beanKey.getId());
+			}
+
+		}
+		return result;
 	}
 
-	private IBeanDto readLinkBeanAsLinkedBean(final IBeanDto createdLinkBean, final IExecutionCallback executionCallback) {
-		return readLinkedBean(createdLinkBean.getId(), executionCallback);
-	}
-
-	private IBeanDto readLinkedBean(final Object id, final IExecutionCallback executionCallback) {
-		CapServiceToolkit.checkCanceled(executionCallback);
-		final IBeanKey beanKey = new BeanKey(id, 0);
-		final List<LINKED_BEAN_TYPE> beans = linkedBeanAccess.getBeans(Collections.singleton(beanKey), executionCallback);
-		if (beans.size() > 0) {
-			return linkedDtoFactory.createDto(beans.iterator().next());
+	private List<IBeanDto> createBeans(
+		final Collection<IBeanData> beanDatas,
+		final ICreatorService creatorService,
+		final IExecutionCallback executionCallback) {
+		final List<IBeanDto> result = new LinkedList<IBeanDto>();
+		for (final IBeanData beanData : beanDatas) {
+			result.add(createBean(beanData, creatorService, executionCallback));
 		}
-		else {
-			throw new DeletedBeanException(id);
-		}
+		return result;
 	}
 
 	private IBeanDto createBean(
@@ -176,6 +229,7 @@ final class LinkCreatorServiceImpl<LINKED_BEAN_TYPE extends IBean> implements IL
 			creatorService.create(resultCallback, Collections.singleton(beanData), executionCallback);
 			final List<IBeanDto> result = resultCallback.getResultSynchronious();
 			if (result.size() == 1) {
+				CapServiceToolkit.checkCanceled(executionCallback);
 				return result.iterator().next();
 			}
 			else {
@@ -186,40 +240,31 @@ final class LinkCreatorServiceImpl<LINKED_BEAN_TYPE extends IBean> implements IL
 		return null;
 	}
 
-	private final class DecoratedBeanData implements IBeanData, Serializable {
+	private final class DecoratedLinkBeanData implements IBeanData, Serializable {
 
 		private static final long serialVersionUID = -651044571313906726L;
 
 		private final IBeanData original;
 
-		private final Object sourceId;
-		private final Object linkedId;
-		private final IBeanDto createdLinkedBean;
-		private final IBeanDto createdSourceBean;
+		private final IBeanDto sourceBean;
+		private final IBeanDto linkedBean;
 
-		private DecoratedBeanData(final IBeanData original, final IBeanDto createdLinkedBean, final IBeanDto createdSourceBean) {
+		private DecoratedLinkBeanData(final IBeanData original, final IBeanDto createdLinkedBean, final IBeanDto createdSourceBean) {
 			this.original = original;
-			this.sourceId = original.getValue(sourceProperties.getForeignKeyPropertyName());
-			if (destinationProperties != null) {
-				this.linkedId = original.getValue(destinationProperties.getForeignKeyPropertyName());
-			}
-			else {
-				linkedId = null;
-			}
-			this.createdLinkedBean = createdLinkedBean;
-			this.createdSourceBean = createdSourceBean;
+			this.linkedBean = createdLinkedBean;
+			this.sourceBean = createdSourceBean;
 		}
 
 		@Override
 		public Object getValue(final String propertyName) {
 			if (sourceProperties.getForeignKeyPropertyName().equals(propertyName)) {
-				if (sourceId == null && createdSourceBean != null) {
-					return createdSourceBean.getValue(sourceProperties.getKeyPropertyName());
+				if (sourceBean != null) {
+					return sourceBean.getValue(sourceProperties.getKeyPropertyName());
 				}
 			}
 			if (destinationProperties != null && destinationProperties.getForeignKeyPropertyName().equals(propertyName)) {
-				if (linkedId == null && createdLinkedBean != null) {
-					return createdLinkedBean.getValue(destinationProperties.getKeyPropertyName());
+				if (linkedBean != null) {
+					return linkedBean.getValue(destinationProperties.getKeyPropertyName());
 				}
 			}
 			return original.getValue(propertyName);

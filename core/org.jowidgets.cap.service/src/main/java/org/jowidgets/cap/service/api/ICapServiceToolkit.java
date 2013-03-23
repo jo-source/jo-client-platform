@@ -63,7 +63,7 @@ public interface ICapServiceToolkit {
 
 	IBeanEntityServiceBuilder beanEntityServiceBuilder(IBeanServiceFactory beanServiceFactory, IServiceRegistry serviceRegistry);
 
-	<BEAN_TYPE extends IBean> ILinkServicesBuilder<BEAN_TYPE> linkServicesBuilder();
+	<SOURCE_BEAN_TYPE extends IBean, LINKED_BEAN_TYPE extends IBean> ILinkServicesBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> linkServicesBuilder();
 
 	IEntityApplicationServiceBuilder entityApplicationServiceBuilder();
 

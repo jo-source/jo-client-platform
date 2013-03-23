@@ -35,6 +35,7 @@ import java.util.Set;
 
 import org.jowidgets.cap.common.api.bean.IBeanData;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
+import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.bean.IBeanModification;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.execution.IExecutionTask;
@@ -92,6 +93,8 @@ public interface IBeanProxy<BEAN_TYPE> extends
 	void redoModifications();
 
 	IBeanData getBeanData();
+
+	IBeanKey getBeanKey();
 
 	IBeanDto getBeanDto();
 

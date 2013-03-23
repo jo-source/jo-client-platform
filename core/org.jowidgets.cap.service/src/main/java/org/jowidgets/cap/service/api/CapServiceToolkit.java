@@ -81,7 +81,7 @@ public final class CapServiceToolkit {
 		return getInstance().beanEntityServiceBuilder(beanServiceFactory, serviceRegistry);
 	}
 
-	public static <BEAN_TYPE extends IBean> ILinkServicesBuilder<BEAN_TYPE> linkServicesBuilder() {
+	public static <SOURCE_BEAN_TYPE extends IBean, LINKED_BEAN_TYPE extends IBean> ILinkServicesBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> linkServicesBuilder() {
 		return getInstance().linkServicesBuilder();
 	}
 

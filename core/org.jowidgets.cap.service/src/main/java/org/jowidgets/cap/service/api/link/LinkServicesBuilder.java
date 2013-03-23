@@ -35,7 +35,7 @@ public final class LinkServicesBuilder {
 
 	private LinkServicesBuilder() {}
 
-	public static <BEAN_TYPE extends IBean> ILinkServicesBuilder<BEAN_TYPE> create() {
+	public static <SOURCE_BEAN_TYPE extends IBean, LINKED_BEAN_TYPE extends IBean> ILinkServicesBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> create() {
 		return CapServiceToolkit.linkServicesBuilder();
 	}
 

@@ -28,31 +28,41 @@
 
 package org.jowidgets.cap.common.api.link;
 
+import java.util.Collection;
+
 import org.jowidgets.cap.common.api.bean.IBeanData;
+import org.jowidgets.cap.common.api.bean.IBeanKey;
 
-public interface ILinkDataBuilder {
-
-	/**
-	 * @param beanData The data for the source bean if a new bean should be created, else null
-	 * 
-	 * @return This builder
-	 */
-	ILinkDataBuilder setSourceData(IBeanData beanData);
-
-	/**
-	 * @param beanData The data of the link, never null.
-	 * 
-	 * @return This builder
-	 */
-	ILinkDataBuilder setLinkData(IBeanData beanData);
+/**
+ * A LinkCreation defines a set of links where each source bean (transient or persistent) should be
+ * linked with each linkable bean (transient or persistent). Each link may have additional properties
+ * that will be set on the link bean.
+ */
+public interface ILinkCreation {
 
 	/**
-	 * @param beanData The data for the linkable bean if a new linkable bean should be created, else null
-	 * 
-	 * @return This builder
+	 * @return The keys of the source beans that should be linked, may be empty but not null
 	 */
-	ILinkDataBuilder setLinkableData(IBeanData beanData);
+	Collection<IBeanKey> getSourceBeans();
 
-	ILinkData build();
+	/**
+	 * @return The bean data for the source beans that should be created, may be empty but not null
+	 */
+	Collection<IBeanData> getTransientSourceBeans();
+
+	/**
+	 * @return The additional properties for each created link, may be null if no additional properties are defined
+	 */
+	IBeanData getAdditionalLinkProperties();
+
+	/**
+	 * @return The keys of the linkable beans that should be linked, may be empty but not null
+	 */
+	Collection<IBeanKey> getLinkableBeans();
+
+	/**
+	 * @return The bean data for the linkable beans that should be created, may be empty but not null
+	 */
+	Collection<IBeanData> getTransientLinkableBeans();
 
 }

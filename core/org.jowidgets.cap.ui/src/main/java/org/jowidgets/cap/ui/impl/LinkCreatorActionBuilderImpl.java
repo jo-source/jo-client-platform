@@ -43,7 +43,6 @@ import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
 import org.jowidgets.cap.common.api.bean.IProperty;
-import org.jowidgets.cap.common.api.entity.EntityLinkProperties;
 import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
 import org.jowidgets.cap.common.api.entity.IEntityLinkProperties;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
@@ -95,8 +94,6 @@ final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKA
 	private final List<IBeanPropertyValidator<LINK_BEAN_TYPE>> linkBeanPropertyValidators;
 	private final List<IBeanPropertyValidator<LINKABLE_BEAN_TYPE>> linkableBeanPropertyValidators;
 
-	private IEntityLinkProperties sourceProperties;
-	private IEntityLinkProperties destinationProperties;
 	private ILinkCreatorService linkCreatorService;
 	private IBeanSelectionProvider<SOURCE_BEAN_TYPE> source;
 	private boolean sourceMultiSelection;
@@ -121,8 +118,9 @@ final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKA
 
 		setSource(source);
 
-		setSourceProperties(linkDescriptor.getSourceProperties());
-		setDestinationProperties(linkDescriptor.getDestinationProperties());
+		final IEntityLinkProperties sourceProperties = linkDescriptor.getSourceProperties();
+		final IEntityLinkProperties destinationProperties = linkDescriptor.getDestinationProperties();
+
 		setLinkCreatorService(linkDescriptor.getLinkCreatorService());
 
 		final ICapApiBluePrintFactory cbpf = CapUiToolkit.bluePrintFactory();
@@ -437,39 +435,6 @@ final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKA
 	}
 
 	@Override
-	public ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> setSourceProperties(
-		final IEntityLinkProperties properties) {
-		checkExhausted();
-		Assert.paramNotNull(properties, "properties");
-		this.sourceProperties = properties;
-		return this;
-	}
-
-	@Override
-	public ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> setSourceProperties(
-		final String keyPropertyName,
-		final String foreignKeyPropertyName) {
-		checkExhausted();
-		return setSourceProperties(EntityLinkProperties.create(keyPropertyName, foreignKeyPropertyName));
-	}
-
-	@Override
-	public ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> setDestinationProperties(
-		final IEntityLinkProperties properties) {
-		checkExhausted();
-		this.destinationProperties = properties;
-		return this;
-	}
-
-	@Override
-	public ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> setDestinationProperties(
-		final String keyPropertyName,
-		final String foreignKeyPropertyName) {
-		checkExhausted();
-		return setDestinationProperties(EntityLinkProperties.create(keyPropertyName, foreignKeyPropertyName));
-	}
-
-	@Override
 	public ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> addEnabledChecker(
 		final IEnabledChecker enabledChecker) {
 		checkExhausted();
@@ -537,8 +502,6 @@ final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKA
 	private IAction buildAction() {
 		setDefaultTextIfNecessary();
 		final ICommand command = new BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE>(
-			sourceProperties,
-			destinationProperties,
 			linkCreatorService,
 			source,
 			sourceSelectionAutoRefresh,

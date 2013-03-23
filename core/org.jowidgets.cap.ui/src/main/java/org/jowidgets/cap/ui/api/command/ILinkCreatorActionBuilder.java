@@ -32,7 +32,6 @@ import java.util.List;
 
 import org.jowidgets.api.command.IEnabledChecker;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
-import org.jowidgets.cap.common.api.entity.IEntityLinkProperties;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.service.ILinkCreatorService;
 import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
@@ -109,20 +108,6 @@ public interface ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LIN
 
 	ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> addLinkableBeanPropertyValidator(
 		IBeanPropertyValidator<LINKABLE_BEAN_TYPE> validator);
-
-	ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> setSourceProperties(
-		IEntityLinkProperties properties);
-
-	ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> setSourceProperties(
-		String keyPropertyName,
-		String foreignKeyPropertyName);
-
-	ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> setDestinationProperties(
-		IEntityLinkProperties properties);
-
-	ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> setDestinationProperties(
-		String keyPropertyName,
-		String foreignKeyPropertyName);
 
 	ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> addEnabledChecker(
 		IEnabledChecker enabledChecker);

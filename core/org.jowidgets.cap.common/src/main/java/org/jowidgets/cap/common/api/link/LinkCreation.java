@@ -26,39 +26,16 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.impl;
+package org.jowidgets.cap.common.api.link;
 
-import org.jowidgets.cap.common.api.bean.IBeanData;
-import org.jowidgets.cap.common.api.link.ILinkData;
-import org.jowidgets.cap.common.api.link.ILinkDataBuilder;
+import org.jowidgets.cap.common.api.CapCommonToolkit;
 
-final class LinkDataBuilderImpl implements ILinkDataBuilder {
+public final class LinkCreation {
 
-	private IBeanData sourceData;
-	private IBeanData linkData;
-	private IBeanData linkableData;
+	private LinkCreation() {}
 
-	@Override
-	public ILinkDataBuilder setSourceData(final IBeanData beanData) {
-		this.sourceData = beanData;
-		return this;
-	}
-
-	@Override
-	public ILinkDataBuilder setLinkData(final IBeanData beanData) {
-		this.linkData = beanData;
-		return this;
-	}
-
-	@Override
-	public ILinkDataBuilder setLinkableData(final IBeanData beanData) {
-		this.linkableData = beanData;
-		return this;
-	}
-
-	@Override
-	public ILinkData build() {
-		return new LinkDataImpl(sourceData, linkData, linkableData);
+	public static ILinkCreationBuilder builder() {
+		return CapCommonToolkit.linkCreationBuilder();
 	}
 
 }
