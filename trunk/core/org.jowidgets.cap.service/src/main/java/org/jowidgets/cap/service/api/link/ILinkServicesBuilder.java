@@ -40,31 +40,39 @@ import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 
-public interface ILinkServicesBuilder<LINKED_BEAN_TYPE extends IBean> {
+public interface ILinkServicesBuilder<SOURCE_BEAN_TYPE extends IBean, LINKED_BEAN_TYPE extends IBean> {
 
-	ILinkServicesBuilder<LINKED_BEAN_TYPE> setLinkBeanType(Class<? extends IBean> beanType);
+	ILinkServicesBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> setSourceBeanAccess(IBeanAccess<SOURCE_BEAN_TYPE> beanAccess);
 
-	ILinkServicesBuilder<LINKED_BEAN_TYPE> setLinkedBeanAccess(IBeanAccess<LINKED_BEAN_TYPE> beanAccess);
+	ILinkServicesBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> setSourceDtoFactory(IBeanDtoFactory<SOURCE_BEAN_TYPE> dtoFactory);
 
-	ILinkServicesBuilder<LINKED_BEAN_TYPE> setLinkedDtoFactory(IBeanDtoFactory<LINKED_BEAN_TYPE> dtoFactory);
+	ILinkServicesBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> setSourceDtoFactory(
+		Class<? extends SOURCE_BEAN_TYPE> beanType,
+		Collection<String> propertyNames);
 
-	ILinkServicesBuilder<LINKED_BEAN_TYPE> setLinkedDtoFactory(
+	ILinkServicesBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> setLinkBeanType(Class<? extends IBean> beanType);
+
+	ILinkServicesBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> setLinkedBeanAccess(IBeanAccess<LINKED_BEAN_TYPE> beanAccess);
+
+	ILinkServicesBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> setLinkedDtoFactory(IBeanDtoFactory<LINKED_BEAN_TYPE> dtoFactory);
+
+	ILinkServicesBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> setLinkedDtoFactory(
 		Class<? extends LINKED_BEAN_TYPE> beanType,
 		Collection<String> propertyNames);
 
-	ILinkServicesBuilder<LINKED_BEAN_TYPE> setSourceCreatorService(ICreatorService creatorService);
+	ILinkServicesBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> setSourceCreatorService(ICreatorService creatorService);
 
-	ILinkServicesBuilder<LINKED_BEAN_TYPE> setSourceDeleterService(IDeleterService deleterService);
+	ILinkServicesBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> setSourceDeleterService(IDeleterService deleterService);
 
-	ILinkServicesBuilder<LINKED_BEAN_TYPE> setAllLinksReaderService(IReaderService<Void> readerService);
+	ILinkServicesBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> setAllLinksReaderService(IReaderService<Void> readerService);
 
-	ILinkServicesBuilder<LINKED_BEAN_TYPE> setLinkCreatorService(ICreatorService creatorService);
+	ILinkServicesBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> setLinkCreatorService(ICreatorService creatorService);
 
-	ILinkServicesBuilder<LINKED_BEAN_TYPE> setLinkDeleterService(IDeleterService deleterService);
+	ILinkServicesBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> setLinkDeleterService(IDeleterService deleterService);
 
-	ILinkServicesBuilder<LINKED_BEAN_TYPE> setLinkableCreatorService(ICreatorService creatorService);
+	ILinkServicesBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> setLinkableCreatorService(ICreatorService creatorService);
 
-	ILinkServicesBuilder<LINKED_BEAN_TYPE> setLinkableDeleterService(IDeleterService creatorService);
+	ILinkServicesBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> setLinkableDeleterService(IDeleterService creatorService);
 
 	/**
 	 * Sets the symmetric property, the default a 'false'
@@ -79,19 +87,23 @@ public interface ILinkServicesBuilder<LINKED_BEAN_TYPE extends IBean> {
 	 * 
 	 * @return This builder
 	 */
-	ILinkServicesBuilder<LINKED_BEAN_TYPE> setSymmetric(boolean symmetric);
+	ILinkServicesBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> setSymmetric(boolean symmetric);
 
-	ILinkServicesBuilder<LINKED_BEAN_TYPE> setSourceProperties(IEntityLinkProperties properties);
+	ILinkServicesBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> setSourceProperties(IEntityLinkProperties properties);
 
-	ILinkServicesBuilder<LINKED_BEAN_TYPE> setSourceProperties(String keyPropertyName, String foreignKeyPropertyname);
+	ILinkServicesBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> setSourceProperties(
+		String keyPropertyName,
+		String foreignKeyPropertyname);
 
-	ILinkServicesBuilder<LINKED_BEAN_TYPE> setSourceProperties(String foreignKeyPropertyName);
+	ILinkServicesBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> setSourceProperties(String foreignKeyPropertyName);
 
-	ILinkServicesBuilder<LINKED_BEAN_TYPE> setDestinationProperties(IEntityLinkProperties properties);
+	ILinkServicesBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> setDestinationProperties(IEntityLinkProperties properties);
 
-	ILinkServicesBuilder<LINKED_BEAN_TYPE> setDestinationProperties(String keyPropertyName, String foreignKeyPropertyname);
+	ILinkServicesBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> setDestinationProperties(
+		String keyPropertyName,
+		String foreignKeyPropertyname);
 
-	ILinkServicesBuilder<LINKED_BEAN_TYPE> setDestinationProperties(String foreignKeyPropertyName);
+	ILinkServicesBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> setDestinationProperties(String foreignKeyPropertyName);
 
 	ILinkCreatorService buildCreatorService();
 

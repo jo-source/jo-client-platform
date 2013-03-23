@@ -33,6 +33,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.jowidgets.api.command.ICommand;
 import org.jowidgets.api.command.ICommandExecutor;
@@ -41,17 +42,13 @@ import org.jowidgets.api.command.IExceptionHandler;
 import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.api.threads.IUiThreadAccess;
 import org.jowidgets.api.toolkit.Toolkit;
-import org.jowidgets.cap.common.api.CapCommonToolkit;
-import org.jowidgets.cap.common.api.bean.IBean;
-import org.jowidgets.cap.common.api.bean.IBeanDataBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
-import org.jowidgets.cap.common.api.entity.IEntityLinkProperties;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.execution.IExecutionCallbackListener;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
-import org.jowidgets.cap.common.api.link.ILinkData;
-import org.jowidgets.cap.common.api.link.ILinkDataBuilder;
-import org.jowidgets.cap.common.api.link.LinkData;
+import org.jowidgets.cap.common.api.link.ILinkCreation;
+import org.jowidgets.cap.common.api.link.ILinkCreationBuilder;
+import org.jowidgets.cap.common.api.link.LinkCreation;
 import org.jowidgets.cap.common.api.service.ILinkCreatorService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
@@ -87,8 +84,6 @@ final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BE
 	private static final IMessage NOTHING_SELECTED = Messages.getMessage("BeanLinkCreatorCommand.nothing_selected");
 	private static final IMessage SHORT_ERROR = Messages.getMessage("BeanLinkCreatorCommand.short_error_message");
 
-	private final IEntityLinkProperties sourceProperties;
-	private final IEntityLinkProperties destinationProperties;
 	private final ILinkCreatorService linkCreatorService;
 	private final IBeanSelectionProvider<SOURCE_BEAN_TYPE> source;
 	private final IBeanListModel<LINKABLE_BEAN_TYPE> linkedModel;
@@ -108,8 +103,6 @@ final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BE
 	private Rectangle dialogBounds;
 
 	BeanLinkCreatorCommand(
-		final IEntityLinkProperties sourceProperties,
-		final IEntityLinkProperties destinationProperties,
 		final ILinkCreatorService linkCreatorService,
 		final IBeanSelectionProvider<SOURCE_BEAN_TYPE> source,
 		final boolean sourceSelectionAutoRefresh,
@@ -130,7 +123,6 @@ final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BE
 		final List<IExecutionInterceptor<List<IBeanDto>>> executionInterceptors,
 		final IBeanExceptionConverter exceptionConverter) {
 
-		Assert.paramNotNull(sourceProperties, "sourceProperties");
 		Assert.paramNotNull(linkCreatorService, "linkCreatorService");
 		Assert.paramNotNull(sourceModificationPolicy, "sourceModificationPolicy");
 		Assert.paramNotNull(sourceMessageStatePolicy, "sourceMessageStatePolicy");
@@ -150,8 +142,6 @@ final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BE
 			false);
 
 		this.source = source;
-		this.sourceProperties = sourceProperties;
-		this.destinationProperties = destinationProperties;
 		this.linkCreatorService = linkCreatorService;
 		this.linkedModel = linkedModel;
 		this.linkBeanType = linkBeanType;
@@ -231,52 +221,38 @@ final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BE
 			}
 		});
 
-		final List<ILinkData> linkData = new LinkedList<ILinkData>();
-		for (final IBeanProxy<SOURCE_BEAN_TYPE> sourceBean : selection) {
-			sourceBean.setExecutionTask(executionTask);
+		final ILinkCreationBuilder linkCreationBuilder = LinkCreation.builder();
 
-			//direct link
-			if (beanLink.getLinkableBeans().isEmpty() && destinationProperties == null) {
-				final IBeanDataBuilder linkBeanBuilder = CapCommonToolkit.beanDataBuilder();
-				if (beanLink.getLinkBean() != null) {
-					setBeanData(beanLink.getLinkBean(), linkBeanBuilder);
-				}
-				linkBeanBuilder.setProperty(sourceProperties.getForeignKeyPropertyName(), sourceBean.getId());
-				final ILinkDataBuilder linkDataBuilder = LinkData.builder();
-				linkDataBuilder.setLinkData(linkBeanBuilder.build());
-				linkData.add(linkDataBuilder.build());
+		//add the source beans
+		for (final IBeanProxy<SOURCE_BEAN_TYPE> sourceBean : selection) {
+			if (sourceBean.isTransient()) {
+				linkCreationBuilder.addTransientSourceBean(sourceBean.getBeanData());
 			}
 			else {
-				for (final IBeanProxy<LINKABLE_BEAN_TYPE> linkableBean : beanLink.getLinkableBeans()) {
-					final IBeanDataBuilder linkBeanBuilder = CapCommonToolkit.beanDataBuilder();
-					final ILinkDataBuilder linkDataBuilder = LinkData.builder();
-					if (beanLink.getLinkBean() != null) {
-						setBeanData(beanLink.getLinkBean(), linkBeanBuilder);
-					}
-					if (sourceBean.isTransient()) {
-						linkDataBuilder.setSourceData(sourceBean.getBeanData());
-					}
-					else {
-						linkBeanBuilder.setProperty(sourceProperties.getForeignKeyPropertyName(), sourceBean.getId());
-					}
-
-					if (linkableBean.isTransient()) {
-						linkDataBuilder.setLinkableData(linkableBean.getBeanData());
-					}
-					else if (destinationProperties != null) {
-						linkBeanBuilder.setProperty(destinationProperties.getForeignKeyPropertyName(), linkableBean.getId());
-					}
-					linkDataBuilder.setLinkData(linkBeanBuilder.build());
-
-					linkData.add(linkDataBuilder.build());
-				}
+				linkCreationBuilder.addSourceBean(sourceBean.getBeanKey());
 			}
 		}
 
+		//add the linkable beans
+		for (final IBeanProxy<LINKABLE_BEAN_TYPE> linkableBean : beanLink.getLinkableBeans()) {
+			if (linkableBean.isTransient()) {
+				linkCreationBuilder.addTransientLinkableBean(linkableBean.getBeanData());
+			}
+			else {
+				linkCreationBuilder.addLinkableBean(linkableBean.getBeanKey());
+			}
+		}
+
+		//set the additional properties
+		final IBeanProxy<LINK_BEAN_TYPE> linkBean = beanLink.getLinkBean();
+		if (linkBean != null) {
+			linkCreationBuilder.setAdditionalLinkProperties(linkBean.getBeanData());
+		}
+
+		final Set<ILinkCreation> linkCreations = Collections.singleton(linkCreationBuilder.build());
+
 		executionObservable.fireAfterExecutionPrepared(executionContext);
-
-		linkCreatorService.create(createResultCallback(selection, executionContext), linkData, executionTask);
-
+		linkCreatorService.create(createResultCallback(selection, executionContext), linkCreations, executionTask);
 	}
 
 	private IResultCallback<List<IBeanDto>> createResultCallback(
@@ -311,14 +287,6 @@ final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BE
 				return MessageReplacer.replace(SHORT_ERROR.get(), actionText);
 			}
 		};
-	}
-
-	private void setBeanData(final IBeanProxy<?> bean, final IBeanDataBuilder builder) {
-		for (final String propertyName : bean.getProperties()) {
-			if (!bean.isTransient() || !propertyName.equals(IBean.ID_PROPERTY)) {
-				builder.setProperty(propertyName, bean.getValue(propertyName));
-			}
-		}
 	}
 
 	private IBeanLink<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> getBeanLink(final IExecutionContext executionContext) {

@@ -34,7 +34,7 @@ import java.util.List;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
-import org.jowidgets.cap.common.api.link.ILinkData;
+import org.jowidgets.cap.common.api.link.ILinkCreation;
 
 public interface ILinkCreatorService {
 
@@ -47,6 +47,6 @@ public interface ILinkCreatorService {
 	 */
 	void create(
 		IResultCallback<List<IBeanDto>> linkedBeansResult,
-		Collection<? extends ILinkData> links,
+		Collection<? extends ILinkCreation> links,
 		IExecutionCallback executionCallback);
 }

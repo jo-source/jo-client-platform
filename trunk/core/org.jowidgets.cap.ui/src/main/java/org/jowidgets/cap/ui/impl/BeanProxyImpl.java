@@ -50,6 +50,8 @@ import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanData;
 import org.jowidgets.cap.common.api.bean.IBeanDataBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
+import org.jowidgets.cap.common.api.bean.IBeanKey;
+import org.jowidgets.cap.common.api.bean.IBeanKeyBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanModification;
 import org.jowidgets.cap.common.api.bean.IBeanModificationBuilder;
 import org.jowidgets.cap.common.api.validation.IBeanValidationResult;
@@ -376,6 +378,15 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 				builder.setProperty(propertyName, getValue(propertyName));
 			}
 		}
+		return builder.build();
+	}
+
+	@Override
+	public IBeanKey getBeanKey() {
+		checkDisposed();
+		final IBeanKeyBuilder builder = CapCommonToolkit.beanKeyBuilder();
+		builder.setId(getId());
+		builder.setVersion(getVersion());
 		return builder.build();
 	}
 

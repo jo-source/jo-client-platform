@@ -35,7 +35,7 @@ import java.util.List;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
-import org.jowidgets.cap.common.api.link.ILinkData;
+import org.jowidgets.cap.common.api.link.ILinkCreation;
 import org.jowidgets.cap.common.api.service.ILinkCreatorService;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.api.ServiceProvider;
@@ -57,7 +57,7 @@ final class LinkCreatorServiceProxy implements ILinkCreatorService, Serializable
 	@Override
 	public void create(
 		final IResultCallback<List<IBeanDto>> linkedBeansResult,
-		final Collection<? extends ILinkData> links,
+		final Collection<? extends ILinkCreation> links,
 		final IExecutionCallback executionCallback) {
 		getOriginal().create(linkedBeansResult, links, executionCallback);
 	}

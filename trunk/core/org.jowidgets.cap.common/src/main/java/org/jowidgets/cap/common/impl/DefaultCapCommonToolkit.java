@@ -55,7 +55,7 @@ import org.jowidgets.cap.common.api.entity.IEntityLinkPropertiesBuilder;
 import org.jowidgets.cap.common.api.execution.IExecutableCheckerCompositeBuilder;
 import org.jowidgets.cap.common.api.filter.IBeanDtoFilter;
 import org.jowidgets.cap.common.api.filter.IFilterFactory;
-import org.jowidgets.cap.common.api.link.ILinkDataBuilder;
+import org.jowidgets.cap.common.api.link.ILinkCreationBuilder;
 import org.jowidgets.cap.common.api.link.ILinkDeletionBuilder;
 import org.jowidgets.cap.common.api.lookup.ILookUpToolkit;
 import org.jowidgets.cap.common.api.service.IBeanServicesProviderFactory;
@@ -302,8 +302,8 @@ public final class DefaultCapCommonToolkit implements ICapCommonToolkit {
 	}
 
 	@Override
-	public ILinkDataBuilder linkDataBuilder() {
-		return new LinkDataBuilderImpl();
+	public ILinkCreationBuilder linkCreationBuilder() {
+		return new LinkCreationBuilderImpl();
 	}
 
 	@Override
