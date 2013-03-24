@@ -30,10 +30,12 @@ package org.jowidgets.cap.ui.impl.widgets;
 
 import java.net.URL;
 
+import org.jowidgets.api.convert.IConverterProvider;
 import org.jowidgets.api.image.IconsSmall;
 import org.jowidgets.api.toolkit.IToolkit;
 import org.jowidgets.api.toolkit.IToolkitInterceptor;
 import org.jowidgets.api.widgets.blueprint.factory.IBluePrintFactory;
+import org.jowidgets.cap.common.api.dto.IDocument;
 import org.jowidgets.cap.ui.api.icons.CapIcons;
 import org.jowidgets.cap.ui.api.widgets.IAttributeFilterControlBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanDialogBluePrint;
@@ -68,6 +70,7 @@ final class CapToolkitInterceptor implements IToolkitInterceptor {
 		registerIcons(toolkit);
 		addDefaultsInitializer(toolkit);
 		setBuilderConvenience(toolkit);
+		registerConverter(toolkit);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -110,6 +113,11 @@ final class CapToolkitInterceptor implements IToolkitInterceptor {
 	private void registerImage(final IImageRegistry registry, final IImageConstant imageConstant, final String relPath) {
 		final URL url = getClass().getClassLoader().getResource("org/jowidgets/cap/ui/icons/" + relPath);
 		registry.registerImageConstant(imageConstant, url);
+	}
+
+	private void registerConverter(final IToolkit toolkit) {
+		final IConverterProvider converterProvider = toolkit.getConverterProvider();
+		converterProvider.register(IDocument.class, new DocumentConverter());
 	}
 
 	private void addDefaultsInitializer(final IToolkit toolkit) {
