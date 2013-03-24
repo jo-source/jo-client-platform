@@ -41,6 +41,7 @@ import org.jowidgets.plugin.api.IPluginProvider;
 import org.jowidgets.plugin.api.IPluginProviderBuilder;
 import org.jowidgets.plugin.api.PluginToolkit;
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.EmptyCheck;
 import org.jowidgets.util.ITypedKey;
 import org.jowidgets.util.Tuple;
 import org.jowidgets.util.builder.AbstractSingleUseBuilder;
@@ -90,14 +91,17 @@ final class PluginProviderBuilderImpl extends AbstractSingleUseBuilder<IPluginPr
 		final PLUGIN_TYPE plugin,
 		final ITypedKey<PROPERTY_VALUE_TYPE> key,
 		final PROPERTY_VALUE_TYPE... propertyValues) {
-		Assert.paramNotEmpty(propertyValues, "propertyValues");
 
-		final IPluginFilterBuilder filterBuilder = PluginToolkit.pluginFilterBuilderOr();
-		for (final PROPERTY_VALUE_TYPE propertyValue : propertyValues) {
-			filterBuilder.addCondition(key, propertyValue);
+		if (EmptyCheck.isEmpty(propertyValues)) {
+			addPlugin(id, plugin);
 		}
-
-		addPlugin(id, plugin, filterBuilder.build());
+		else {
+			final IPluginFilterBuilder filterBuilder = PluginToolkit.pluginFilterBuilderOr();
+			for (final PROPERTY_VALUE_TYPE propertyValue : propertyValues) {
+				filterBuilder.addCondition(key, propertyValue);
+			}
+			addPlugin(id, plugin, filterBuilder.build());
+		}
 	}
 
 	private static IPluginFilter createAcceptionAllFilter() {
