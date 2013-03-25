@@ -38,4 +38,6 @@ public interface IBeanRelationTree<CHILD_BEAN_TYPE> extends IControl {
 
 	IAction getAddAction();
 
+	void clearSelection();
+
 }
