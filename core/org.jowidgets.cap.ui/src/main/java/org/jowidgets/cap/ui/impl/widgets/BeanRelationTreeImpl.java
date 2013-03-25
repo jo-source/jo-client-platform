@@ -202,6 +202,11 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 		return addAction;
 	}
 
+	@Override
+	public void clearSelection() {
+		getWidget().clearSelection();
+	}
+
 	private void onBeansChanged(
 		final ITreeContainer treeContainer,
 		final IBeanRelationNodeModel<Object, Object> relationNodeModel,
