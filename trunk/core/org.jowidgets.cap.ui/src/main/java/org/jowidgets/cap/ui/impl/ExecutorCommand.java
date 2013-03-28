@@ -59,20 +59,22 @@ import org.jowidgets.cap.ui.api.execution.IParameterProvider;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.i18n.api.IMessage;
 import org.jowidgets.i18n.api.MessageReplacer;
+import org.jowidgets.util.IFilter;
 import org.jowidgets.util.ValueHolder;
 import org.jowidgets.util.maybe.IMaybe;
 import org.jowidgets.util.maybe.Nothing;
 import org.jowidgets.util.maybe.Some;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
-final class ExecutorCommand implements ICommand, ICommandExecutor {
+final class ExecutorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
 
 	private static final IMessage SHORT_ERROR = Messages.getMessage("ExecutorCommand.short_error_message");
 
 	private final BeanSelectionProviderEnabledChecker enabledChecker;
 
-	private final IBeanListModel<Object> listModel;
+	private final IBeanListModel<BEAN_TYPE> listModel;
 	private final List<Object> parameterProviders;
+	private final IFilter<IBeanProxy<BEAN_TYPE>> selectionFilter;
 	private final ExecutionObservable<List<IBeanDto>> executionObservable;
 	private final BeanExecutionPolicy beanListExecutionPolicy;
 
@@ -81,7 +83,8 @@ final class ExecutorCommand implements ICommand, ICommandExecutor {
 	private final IBeanExceptionConverter beanExceptionConverter;
 
 	ExecutorCommand(
-		final IBeanListModel listModel,
+		final IBeanListModel<BEAN_TYPE> listModel,
+		final IFilter<IBeanProxy<BEAN_TYPE>> selectionFilter,
 		final BeanExecutionPolicy beanListExecutionPolicy,
 		final BeanSelectionPolicy beanSelectionPolicy,
 		final BeanModificationStatePolicy beanModificationStatePolicy,
@@ -108,6 +111,7 @@ final class ExecutorCommand implements ICommand, ICommandExecutor {
 		this.beanListExecutionPolicy = beanListExecutionPolicy;
 		this.beanExceptionConverter = beanExceptionConverter;
 		this.parameterProviders = parameterProviders;
+		this.selectionFilter = selectionFilter;
 		this.executionObservable = new ExecutionObservable<List<IBeanDto>>(executionInterceptors);
 		this.defaultParameter = defaultParameter;
 		this.executor = executor;
@@ -137,8 +141,8 @@ final class ExecutorCommand implements ICommand, ICommandExecutor {
 
 		final List<IBeanProxy> beans = new LinkedList<IBeanProxy>();
 		for (final Integer index : listModel.getSelection()) {
-			final IBeanProxy<Object> bean = listModel.getBean(index.intValue());
-			if (bean != null && !bean.isDummy()) {
+			final IBeanProxy<BEAN_TYPE> bean = listModel.getBean(index.intValue());
+			if (bean != null && !bean.isDummy() && selectionFilter.accept(bean)) {
 				beans.add(bean);
 			}
 		}

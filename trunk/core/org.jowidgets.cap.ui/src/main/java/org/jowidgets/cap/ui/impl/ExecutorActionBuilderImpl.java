@@ -66,6 +66,8 @@ import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.api.ServiceProvider;
 import org.jowidgets.service.tools.ServiceId;
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.Filter;
+import org.jowidgets.util.IFilter;
 import org.jowidgets.util.IProvider;
 import org.jowidgets.util.maybe.IMaybe;
 import org.jowidgets.util.maybe.Nothing;
@@ -79,6 +81,7 @@ final class ExecutorActionBuilderImpl<BEAN_TYPE, PARAM_TYPE> extends
 	private final List<IExecutableChecker<Object>> executableCheckers;
 	private final List<IEnabledChecker> enabledCheckers;
 	private final List<Object> parameterProviders;
+	private final List<IFilter<IBeanProxy<BEAN_TYPE>>> selectionFilters;
 	private final List<IExecutionInterceptor<List<IBeanDto>>> executionInterceptors;
 
 	private PARAM_TYPE defaultParameter;
@@ -96,6 +99,7 @@ final class ExecutorActionBuilderImpl<BEAN_TYPE, PARAM_TYPE> extends
 		this.enabledCheckers = new LinkedList<IEnabledChecker>();
 		this.parameterProviders = new LinkedList<Object>();
 		this.executionInterceptors = new LinkedList<IExecutionInterceptor<List<IBeanDto>>>();
+		this.selectionFilters = new LinkedList<IFilter<IBeanProxy<BEAN_TYPE>>>();
 
 		this.beanSelectionPolicy = BeanSelectionPolicy.SINGLE_SELECTION;
 		this.beanModificationStatePolicy = BeanModificationStatePolicy.NO_MODIFICATION;
@@ -200,6 +204,13 @@ final class ExecutorActionBuilderImpl<BEAN_TYPE, PARAM_TYPE> extends
 				return result;
 			}
 		});
+		return this;
+	}
+
+	@Override
+	public IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> addSelectionFilter(final IFilter<IBeanProxy<BEAN_TYPE>> filter) {
+		Assert.paramNotNull(filter, "filter");
+		this.selectionFilters.add(filter);
 		return this;
 	}
 
@@ -346,8 +357,9 @@ final class ExecutorActionBuilderImpl<BEAN_TYPE, PARAM_TYPE> extends
 	}
 
 	private IAction buildAction() {
-		final ExecutorCommand command = new ExecutorCommand(
+		final ExecutorCommand<BEAN_TYPE> command = new ExecutorCommand<BEAN_TYPE>(
 			listModel,
+			Filter.and(selectionFilters),
 			beanListExecutionPolicy,
 			beanSelectionPolicy,
 			beanModificationStatePolicy,
