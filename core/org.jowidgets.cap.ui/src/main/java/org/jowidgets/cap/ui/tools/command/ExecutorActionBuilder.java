@@ -40,6 +40,7 @@ import org.jowidgets.cap.common.api.service.IExecutorService;
 import org.jowidgets.cap.common.api.service.IParameterProviderService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
+import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.command.IExecutorActionBuilder;
 import org.jowidgets.cap.ui.api.execution.BeanExecutionPolicy;
 import org.jowidgets.cap.ui.api.execution.BeanMessageStatePolicy;
@@ -54,6 +55,7 @@ import org.jowidgets.common.types.Accelerator;
 import org.jowidgets.common.types.Modifier;
 import org.jowidgets.common.types.VirtualKey;
 import org.jowidgets.service.api.IServiceId;
+import org.jowidgets.util.IFilter;
 
 public class ExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> implements IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> {
 
@@ -136,6 +138,11 @@ public class ExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> implements IExecutorAc
 	public final IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> addParameterProvider(
 		final IServiceId<IParameterProviderService<PARAM_TYPE>> parameterProviderService) {
 		return original.addParameterProvider(parameterProviderService);
+	}
+
+	@Override
+	public IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> addSelectionFilter(final IFilter<IBeanProxy<BEAN_TYPE>> filter) {
+		return original.addSelectionFilter(filter);
 	}
 
 	@Override

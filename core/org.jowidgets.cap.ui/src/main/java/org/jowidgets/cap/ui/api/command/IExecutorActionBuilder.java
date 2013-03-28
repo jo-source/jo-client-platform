@@ -38,6 +38,7 @@ import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.service.IExecutorService;
 import org.jowidgets.cap.common.api.service.IParameterProviderService;
 import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
+import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.execution.BeanExecutionPolicy;
 import org.jowidgets.cap.ui.api.execution.BeanMessageStatePolicy;
 import org.jowidgets.cap.ui.api.execution.BeanModificationStatePolicy;
@@ -46,6 +47,7 @@ import org.jowidgets.cap.ui.api.execution.IExecutionInterceptor;
 import org.jowidgets.cap.ui.api.execution.IExecutor;
 import org.jowidgets.cap.ui.api.execution.IParameterProvider;
 import org.jowidgets.service.api.IServiceId;
+import org.jowidgets.util.IFilter;
 
 public interface IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> extends
 		ICapActionBuilder<IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE>> {
@@ -63,6 +65,8 @@ public interface IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> extends
 
 	IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> addParameterProvider(
 		IServiceId<IParameterProviderService<PARAM_TYPE>> parameterProviderService);
+
+	IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> addSelectionFilter(IFilter<IBeanProxy<BEAN_TYPE>> filter);
 
 	IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> setExecutor(IExecutor<BEAN_TYPE, PARAM_TYPE> executor);
 
