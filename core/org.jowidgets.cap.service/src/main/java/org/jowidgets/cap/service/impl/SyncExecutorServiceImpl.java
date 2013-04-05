@@ -211,8 +211,8 @@ public final class SyncExecutorServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE> 
 		if (executableChecker != null) {
 			checkExecutableStates(beans, executionCallback);
 		}
-		final IBeanListExecutor<BEAN_TYPE, PARAM_TYPE> beanCollectionExecutor = (IBeanListExecutor<BEAN_TYPE, PARAM_TYPE>) executor;
-		final List<? extends BEAN_TYPE> executionResult = beanCollectionExecutor.execute(beans, parameter, executionCallback);
+		final IBeanListExecutor<BEAN_TYPE, PARAM_TYPE> listExecutor = (IBeanListExecutor<BEAN_TYPE, PARAM_TYPE>) executor;
+		final List<? extends BEAN_TYPE> executionResult = listExecutor.execute(beans, parameter, executionCallback);
 		CapServiceToolkit.checkCanceled(executionCallback);
 		validate(beans);
 		beanAccess.flush();
@@ -230,19 +230,33 @@ public final class SyncExecutorServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE> 
 		final IBeanExecutor<BEAN_TYPE, PARAM_TYPE> beanExecutor = (IBeanExecutor<BEAN_TYPE, PARAM_TYPE>) executor;
 
 		final List<BEAN_TYPE> executionResultList = new LinkedList<BEAN_TYPE>();
-		for (final BEAN_TYPE bean : beans) {
+		if (EmptyCheck.isEmpty(beans)) {
 			if (executableChecker != null) {
-				checkExecutableState(bean, executionCallback);
+				checkExecutableState(null, executionCallback);
 			}
-			final BEAN_TYPE executionResult = beanExecutor.execute(bean, parameter, executionCallback);
+			final BEAN_TYPE executionResult = beanExecutor.execute(null, parameter, executionCallback);
 			CapServiceToolkit.checkCanceled(executionCallback);
 
 			if (executionResult != null) {
 				executionResultList.add(executionResult);
-
 			}
 			CapServiceToolkit.checkCanceled(executionCallback);
 		}
+		else {
+			for (final BEAN_TYPE bean : beans) {
+				if (executableChecker != null) {
+					checkExecutableState(bean, executionCallback);
+				}
+				final BEAN_TYPE executionResult = beanExecutor.execute(bean, parameter, executionCallback);
+				CapServiceToolkit.checkCanceled(executionCallback);
+
+				if (executionResult != null) {
+					executionResultList.add(executionResult);
+				}
+				CapServiceToolkit.checkCanceled(executionCallback);
+			}
+		}
+
 		validate(beans);
 		beanAccess.flush();
 		afterUpdate(executionResultList);
