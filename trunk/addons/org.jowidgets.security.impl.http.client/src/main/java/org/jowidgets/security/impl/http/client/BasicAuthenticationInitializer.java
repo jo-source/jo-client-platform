@@ -61,13 +61,13 @@ public final class BasicAuthenticationInitializer implements IHttpRequestInitial
 		final String user;
 		final String pwd;
 		synchronized (this) {
-			user = this.username;
-			pwd = this.password;
+			user = this.username != null ? this.username : "";
+			pwd = this.password != null ? this.password : "";
 		}
-		if (user != null && pwd != null) {
-			final String credentials = user + ":" + pwd;
-			final String encodedCredentials = Base64.encodeBase64String(StringUtils.getBytesUtf8(credentials));
-			httpRequest.setHeader("Authorization", "Basic " + encodedCredentials);
-		}
+
+		final String credentials = user + ":" + pwd;
+		final String encodedCredentials = Base64.encodeBase64String(StringUtils.getBytesUtf8(credentials));
+		httpRequest.setHeader("Authorization", "Basic " + encodedCredentials);
+
 	}
 }
