@@ -71,15 +71,19 @@ public final class BasicAuthenticationFilter implements Filter {
 				credentials = credentials.substring(credentials.indexOf(' ') + 1);
 				credentials = new String(Base64.decodeBase64(credentials), "UTF-8");
 				final int i = credentials.indexOf(':');
-				if (i > 0) {
-					final String username = credentials.substring(0, i);
-					final String password = credentials.substring(i + 1);
-					Object principal = AuthenticationService.authenticate(new DefaultCredentials(username, password));
+				final String username = credentials.substring(0, i);
+				final String password;
+				if (credentials.length() > i) {
+					password = credentials.substring(i + 1);
+				}
+				else {
+					password = "";
+				}
+				Object principal = AuthenticationService.authenticate(new DefaultCredentials(username, password));
+				if (principal != null) {
+					principal = AuthorizationService.authorize(principal);
 					if (principal != null) {
-						principal = AuthorizationService.authorize(principal);
-						if (principal != null) {
-							SecurityContextHolder.setSecurityContext(principal);
-						}
+						SecurityContextHolder.setSecurityContext(principal);
 					}
 				}
 			}
