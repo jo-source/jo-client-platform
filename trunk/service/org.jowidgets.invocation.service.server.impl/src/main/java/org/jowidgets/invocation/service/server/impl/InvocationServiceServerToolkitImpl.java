@@ -28,29 +28,46 @@
 
 package org.jowidgets.invocation.service.server.impl;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.jowidgets.invocation.server.api.InvocationServerToolkit;
 import org.jowidgets.invocation.service.server.api.IInvocationServiceServerRegistry;
 import org.jowidgets.invocation.service.server.api.IInvocationServiceServerToolkit;
+import org.jowidgets.util.Assert;
 
 public final class InvocationServiceServerToolkitImpl implements IInvocationServiceServerToolkit {
 
-	private final CancelServiceImpl cancelService;
-	private final ResponseServiceImpl userQuestionResultService;
-	private final IInvocationServiceServerRegistry serverRegistry;
+	private final Map<Object, InvocationServiceServerRegistryImpl> registries;
 
 	public InvocationServiceServerToolkitImpl() {
-		this.cancelService = new CancelServiceImpl();
-		InvocationServerToolkit.getRegistry().register(cancelService);
-
-		this.userQuestionResultService = new ResponseServiceImpl();
-		InvocationServerToolkit.getRegistry().register(userQuestionResultService);
-
-		this.serverRegistry = new InvocationServiceServerRegistryImpl(cancelService, userQuestionResultService);
+		this.registries = new HashMap<Object, InvocationServiceServerRegistryImpl>();
 	}
 
 	@Override
-	public IInvocationServiceServerRegistry getServiceRegistry() {
-		return serverRegistry;
+	public IInvocationServiceServerRegistry getServiceRegistry(final Object brokerId) {
+		Assert.paramNotNull(brokerId, "brokerId");
+		InvocationServiceServerRegistryImpl result = registries.get(brokerId);
+		if (result == null) {
+			result = createServiceRegistry(brokerId);
+		}
+		return result;
+	}
+
+	private synchronized InvocationServiceServerRegistryImpl createServiceRegistry(final Object brokerId) {
+		InvocationServiceServerRegistryImpl result = registries.get(brokerId);
+		if (result == null) {
+			final CancelServiceImpl cancelService = new CancelServiceImpl();
+			InvocationServerToolkit.getRegistry(brokerId).register(cancelService);
+
+			final ResponseServiceImpl userQuestionResultService = new ResponseServiceImpl();
+			InvocationServerToolkit.getRegistry(brokerId).register(userQuestionResultService);
+
+			result = new InvocationServiceServerRegistryImpl(brokerId, cancelService, userQuestionResultService);
+
+			registries.put(brokerId, result);
+		}
+		return result;
 	}
 
 }

@@ -42,9 +42,12 @@ final class InvocationServiceServerRegistryImpl implements IInvocationServiceSer
 	private final CancelServiceImpl cancelService;
 	private final ResponseServiceImpl responseService;
 
-	InvocationServiceServerRegistryImpl(final CancelServiceImpl cancelService, final ResponseServiceImpl responseService) {
-		this.invocationServer = InvocationServerToolkit.getServer();
-		this.invocationServerServiceRegistry = InvocationServerToolkit.getRegistry();
+	InvocationServiceServerRegistryImpl(
+		final Object brokerId,
+		final CancelServiceImpl cancelService,
+		final ResponseServiceImpl responseService) {
+		this.invocationServer = InvocationServerToolkit.getServer(brokerId);
+		this.invocationServerServiceRegistry = InvocationServerToolkit.getRegistry(brokerId);
 		this.cancelService = cancelService;
 		this.responseService = responseService;
 	}

@@ -36,14 +36,17 @@ final class InvocationServiceClientBuilderImpl implements IInvocationServiceClie
 
 	private static final long DEFAULT_TIMEOUT = 900000;//15 minutes
 
+	private final Object brokerId;
 	private final InvocationCallbackServiceImpl invocationCallbackService;
 
 	private long defaulTimeout;
 
-	InvocationServiceClientBuilderImpl(final InvocationCallbackServiceImpl invocationCallbackService) {
+	InvocationServiceClientBuilderImpl(final Object brokerId, final InvocationCallbackServiceImpl invocationCallbackService) {
+		Assert.paramNotNull(brokerId, "brokerId");
 		Assert.paramNotNull(invocationCallbackService, "invocationCallbackService");
-		this.defaulTimeout = DEFAULT_TIMEOUT;
+		this.brokerId = brokerId;
 		this.invocationCallbackService = invocationCallbackService;
+		this.defaulTimeout = DEFAULT_TIMEOUT;
 	}
 
 	@Override
@@ -54,7 +57,7 @@ final class InvocationServiceClientBuilderImpl implements IInvocationServiceClie
 
 	@Override
 	public IInvocationServiceClient build() {
-		return new InvocationServiceClientImpl(invocationCallbackService, defaulTimeout);
+		return new InvocationServiceClientImpl(brokerId, invocationCallbackService, defaulTimeout);
 	}
 
 }

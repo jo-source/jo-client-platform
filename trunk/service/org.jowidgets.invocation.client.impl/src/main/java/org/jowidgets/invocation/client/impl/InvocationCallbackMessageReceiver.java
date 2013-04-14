@@ -28,6 +28,8 @@
 
 package org.jowidgets.invocation.client.impl;
 
+import org.jowidgets.invocation.client.api.IInvocationClient;
+import org.jowidgets.invocation.client.api.IInvocationClientServiceRegistry;
 import org.jowidgets.invocation.common.impl.AcknowledgeMessage;
 import org.jowidgets.invocation.common.impl.ExceptionMessage;
 import org.jowidgets.invocation.common.impl.FinishedMessage;
@@ -36,7 +38,7 @@ import org.jowidgets.invocation.common.impl.InterimResponseMessage;
 import org.jowidgets.message.api.IMessageChannel;
 import org.jowidgets.message.api.IMessageReceiver;
 
-public class InvocationCallbackMessageReceiver implements IMessageReceiver {
+final class InvocationCallbackMessageReceiver implements IMessageReceiver {
 
 	private final InvocationClientServiceRegistryImpl invocationClientServiceRegistry;
 	private final InvocationClientImpl invocationClient;
@@ -72,4 +74,13 @@ public class InvocationCallbackMessageReceiver implements IMessageReceiver {
 			invocationClientServiceRegistry.onInterimRequest((InterimRequestMessage) message);
 		}
 	}
+
+	IInvocationClientServiceRegistry getInvocationClientServiceRegistry() {
+		return invocationClientServiceRegistry;
+	}
+
+	IInvocationClient getInvocationClient() {
+		return invocationClient;
+	}
+
 }

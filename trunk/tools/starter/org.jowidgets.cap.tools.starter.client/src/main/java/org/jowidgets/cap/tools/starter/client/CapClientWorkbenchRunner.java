@@ -28,7 +28,7 @@
 
 package org.jowidgets.cap.tools.starter.client;
 
-import org.jowidgets.invocation.common.impl.MessageBrokerId;
+import org.jowidgets.cap.remoting.common.RemotingBrokerId;
 import org.jowidgets.message.api.IExceptionCallback;
 import org.jowidgets.message.api.MessageToolkit;
 import org.jowidgets.message.impl.http.client.IMessageBroker;
@@ -66,13 +66,13 @@ public class CapClientWorkbenchRunner implements IWorkbenchRunner {
 
 	private void initializeMessaging() {
 		if (!messagingInitialized) {
-			final MessageBrokerBuilder builder = new MessageBrokerBuilder(MessageBrokerId.INVOCATION_IMPL_BROKER_ID);
+			final MessageBrokerBuilder builder = new MessageBrokerBuilder(RemotingBrokerId.DEFAULT_BROKER_ID);
 			builder.setUrl(System.getProperty("server.url", serverDefaultHost));
 			builder.setHttpRequestInitializer(BasicAuthenticationInitializer.getInstance());
 			final IMessageBroker messageBroker = builder.build();
 			MessageToolkit.addChannelBroker(messageBroker);
 			MessageToolkit.addReceiverBroker(messageBroker);
-			MessageToolkit.addExceptionCallback(MessageBrokerId.INVOCATION_IMPL_BROKER_ID, new IExceptionCallback() {
+			MessageToolkit.addExceptionCallback(RemotingBrokerId.DEFAULT_BROKER_ID, new IExceptionCallback() {
 				@Override
 				public void exception(final Throwable throwable) {
 					//CHECKSTYLE:OFF

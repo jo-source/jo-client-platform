@@ -52,26 +52,26 @@ public final class TemplateReplacer {
 	private TemplateReplacer() {}
 
 	public static void main(final String[] args) throws Exception {
-		copyAndReplace(
-				new String[] {"C:/projects/jocap-samples/template/sample1/modules", "C:/projects/myproject/modules"},
-				createConfig());
+		copyAndReplace(new String[] {
+				"C:/projects/jocap-samples/eclipse/template/sample1/modules",
+				"C:/projects/jocap-samples/eclipse/mongodb/sample1/modules"}, createConfig());
 	}
 
 	private static ReplacementConfig createConfig() {
 		final ReplacementConfig config = new ReplacementConfig();
 
 		final Set<Tuple<String, String>> replacements = new HashSet<Tuple<String, String>>();
-		replacements.add(new Tuple<String, String>("TemplateSample1", "MyApp"));
-		replacements.add(new Tuple<String, String>("Sample1", "MyApp"));
-		replacements.add(new Tuple<String, String>("sample1", "myapp"));
-		replacements.add(new Tuple<String, String>("<vendor>jowidgets.org</vendor>", "<vendor>myorg.de</vendor>"));
+		replacements.add(new Tuple<String, String>("TemplateSample1", "MongodbSample1"));
+		replacements.add(new Tuple<String, String>("Sample1", "Sample1"));
+		replacements.add(new Tuple<String, String>("sample1", "sample1"));
+		//replacements.add(new Tuple<String, String>("<vendor>jowidgets.org</vendor>", "<vendor>myorg.de</vendor>"));
 
 		config.setReplacements(replacements);
 
 		final Set<Tuple<String[], String[]>> packageReplacements = new HashSet<Tuple<String[], String[]>>();
 
 		final String[] packageReplacementSource = new String[] {"org", "jowidgets", "samples", "template", "sample1"};
-		final String[] packageReplacementDestination = new String[] {"de", "myorg", "myapp"};
+		final String[] packageReplacementDestination = new String[] {"org", "jowidgets", "samples", "mongodb", "sample1"};
 		packageReplacements.add(new Tuple<String[], String[]>(packageReplacementSource, packageReplacementDestination));
 		config.setPackageReplacements(packageReplacements);
 
@@ -83,7 +83,7 @@ public final class TemplateReplacer {
 			IOCase.INSENSITIVE);
 		config.setModififyFilesFilter(modifyFilesFilter);
 
-		config.setJavaHeader("/* \n * Copyright (c) 2013 \n */");
+		//config.setJavaHeader("/* \n * Copyright (c) 2013 \n */");
 
 		config.setParentPomVersion("0.0.1-SNAPSHOT");
 		return config;

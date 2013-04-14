@@ -32,6 +32,8 @@ import org.jowidgets.invocation.common.impl.AcknowledgeMessage;
 import org.jowidgets.invocation.common.impl.CancelMessage;
 import org.jowidgets.invocation.common.impl.MethodInvocationMessage;
 import org.jowidgets.invocation.common.impl.ResponseMessage;
+import org.jowidgets.invocation.server.api.IInvocationServer;
+import org.jowidgets.invocation.server.api.IInvocationServerServiceRegistry;
 import org.jowidgets.message.api.IExceptionCallback;
 import org.jowidgets.message.api.IMessageChannel;
 import org.jowidgets.message.api.IMessageReceiver;
@@ -75,4 +77,13 @@ final class InvocationServerMessageReceiver implements IMessageReceiver {
 			invocationServerServiceRegistry.onResponse((ResponseMessage) message);
 		}
 	}
+
+	IInvocationServer getInvocationServer() {
+		return invocationServer;
+	}
+
+	IInvocationServerServiceRegistry getInvocationServerServiceRegistry() {
+		return invocationServerServiceRegistry;
+	}
+
 }

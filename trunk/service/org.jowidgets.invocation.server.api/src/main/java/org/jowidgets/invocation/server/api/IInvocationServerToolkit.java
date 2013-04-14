@@ -30,8 +30,8 @@ package org.jowidgets.invocation.server.api;
 
 public interface IInvocationServerToolkit {
 
-	IInvocationServer getServer();
+	IInvocationServer getServer(Object brokerId);
 
-	IInvocationServerServiceRegistry getServerRegistry();
+	IInvocationServerServiceRegistry getServerRegistry(Object brokerId);
 
 }

@@ -74,12 +74,12 @@ public final class InvocationServiceClientToolkit {
 		return toolkit;
 	}
 
-	public static IInvocationServiceClient getClient() {
-		return getInstance().getClient();
+	public static IInvocationServiceClient getClient(final Object brokerId) {
+		return getInstance().getClient(brokerId);
 	}
 
-	public static IInvocationServiceClientBuilder getClientBuilder() {
-		return getInstance().getClientBuilder();
+	public static IInvocationServiceClientBuilder getClientBuilder(final Object brokerId) {
+		return getInstance().getClientBuilder(brokerId);
 	}
 
 }

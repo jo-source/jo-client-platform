@@ -52,7 +52,7 @@ public final class MessageServlet extends HttpServlet implements IMessageReceive
 	private static final long serialVersionUID = 1L;
 	private static final String CONNECTION_ATTRIBUTE_NAME = MessageServlet.class.getName() + "#connection";
 
-	private final String brokerId;
+	private final Object brokerId;
 	private final List<IExecutionInterceptor<Object>> executionInterceptors = new LinkedList<IExecutionInterceptor<Object>>();
 
 	private long pollInterval = 10000;
@@ -61,7 +61,7 @@ public final class MessageServlet extends HttpServlet implements IMessageReceive
 			new DaemonThreadFactory());
 	private volatile IMessageReceiver receiver;
 
-	public MessageServlet(final String brokerId) {
+	public MessageServlet(final Object brokerId) {
 		super();
 		this.brokerId = brokerId;
 	}

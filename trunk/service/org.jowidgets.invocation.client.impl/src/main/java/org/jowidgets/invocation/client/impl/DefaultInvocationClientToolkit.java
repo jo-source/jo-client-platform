@@ -28,37 +28,53 @@
 
 package org.jowidgets.invocation.client.impl;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.jowidgets.invocation.client.api.IInvocationClient;
 import org.jowidgets.invocation.client.api.IInvocationClientServiceRegistry;
 import org.jowidgets.invocation.client.api.IInvocationClientToolkit;
-import org.jowidgets.invocation.common.impl.MessageBrokerId;
-import org.jowidgets.message.api.IMessageReceiver;
 import org.jowidgets.message.api.MessageToolkit;
+import org.jowidgets.util.Assert;
 
 public final class DefaultInvocationClientToolkit implements IInvocationClientToolkit {
 
-	private final InvocationClientServiceRegistryImpl invocationClientServiceRegistry;
-	private final InvocationClientImpl invocationClient;
+	private final Map<Object, InvocationCallbackMessageReceiver> receivers;
 
 	public DefaultInvocationClientToolkit() {
-		this.invocationClientServiceRegistry = new InvocationClientServiceRegistryImpl();
-		this.invocationClient = new InvocationClientImpl(invocationClientServiceRegistry);
-
-		final IMessageReceiver messageReceiver = new InvocationCallbackMessageReceiver(
-			invocationClient,
-			invocationClientServiceRegistry);
-
-		MessageToolkit.setReceiver(MessageBrokerId.INVOCATION_IMPL_BROKER_ID, messageReceiver);
+		this.receivers = new HashMap<Object, InvocationCallbackMessageReceiver>();
 	}
 
 	@Override
-	public IInvocationClient getClient() {
-		return invocationClient;
+	public IInvocationClient getClient(final Object brokerId) {
+		Assert.paramNotNull(brokerId, "brokerId");
+		return getMessageReceiver(brokerId).getInvocationClient();
 	}
 
 	@Override
-	public IInvocationClientServiceRegistry getClientRegistry() {
-		return invocationClientServiceRegistry;
+	public IInvocationClientServiceRegistry getClientRegistry(final Object brokerId) {
+		Assert.paramNotNull(brokerId, "brokerId");
+		return getMessageReceiver(brokerId).getInvocationClientServiceRegistry();
 	}
 
+	private InvocationCallbackMessageReceiver getMessageReceiver(final Object brokerId) {
+		Assert.paramNotNull(brokerId, "brokerId");
+		InvocationCallbackMessageReceiver result = receivers.get(brokerId);
+		if (result == null) {
+			result = createMessageReceiver(brokerId);
+		}
+		return result;
+	}
+
+	private synchronized InvocationCallbackMessageReceiver createMessageReceiver(final Object brokerId) {
+		InvocationCallbackMessageReceiver result = receivers.get(brokerId);
+		if (result == null) {
+			final InvocationClientServiceRegistryImpl invocationClientServiceRegistry = new InvocationClientServiceRegistryImpl();
+			final InvocationClientImpl invocationClient = new InvocationClientImpl(brokerId, invocationClientServiceRegistry);
+			result = new InvocationCallbackMessageReceiver(invocationClient, invocationClientServiceRegistry);
+			receivers.put(brokerId, result);
+			MessageToolkit.setReceiver(brokerId, result);
+		}
+		return result;
+	}
 }

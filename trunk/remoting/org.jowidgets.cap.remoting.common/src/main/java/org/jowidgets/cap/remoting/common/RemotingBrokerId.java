@@ -26,13 +26,12 @@
  * DAMAGE.
  */
 
-package org.jowidgets.invocation.common.impl;
+package org.jowidgets.cap.remoting.common;
 
-public final class MessageBrokerId {
+public final class RemotingBrokerId {
 
-	// TODO MG,HRW review: having two separate ids for server and client would allow running the invocation stuff without remoting
-	public static final String INVOCATION_IMPL_BROKER_ID = MessageBrokerId.class.getName() + "_INVOCATION_IMPL_BROKER_ID";
+	public static final String DEFAULT_BROKER_ID = RemotingBrokerId.class.getName() + "DEFAULT_REMOTING_BROKER_ID";
 
-	private MessageBrokerId() {}
+	private RemotingBrokerId() {}
 
 }

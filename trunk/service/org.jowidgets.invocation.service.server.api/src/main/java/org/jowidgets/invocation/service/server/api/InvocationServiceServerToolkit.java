@@ -74,7 +74,7 @@ public final class InvocationServiceServerToolkit {
 		return toolkit;
 	}
 
-	public static IInvocationServiceServerRegistry getRegistry() {
-		return getInstance().getServiceRegistry();
+	public static IInvocationServiceServerRegistry getRegistry(final Object brokerId) {
+		return getInstance().getServiceRegistry(brokerId);
 	}
 }
