@@ -32,13 +32,26 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.jowidgets.cap.remoting.common.CapInvocationMethodNames;
+import org.jowidgets.cap.remoting.common.RemotingBrokerId;
 import org.jowidgets.invocation.service.server.api.IInvocationServiceServerRegistry;
 import org.jowidgets.invocation.service.server.api.InvocationServiceServerToolkit;
+import org.jowidgets.util.Assert;
 import org.jowidgets.util.concurrent.DaemonThreadFactory;
 
-public class CapServerServicePublisher {
+public final class CapServerServicePublisher {
 
 	private static final long DEFAULT_PROGRESS_DELAY = 500;
+
+	private final Object brokerId;
+
+	public CapServerServicePublisher() {
+		this(RemotingBrokerId.DEFAULT_BROKER_ID);
+	}
+
+	public CapServerServicePublisher(final Object brokerId) {
+		Assert.paramNotNull(brokerId, "brokerId");
+		this.brokerId = brokerId;
+	}
 
 	public void publishServices() {
 		publishServices(Executors.newScheduledThreadPool(50, new DaemonThreadFactory()), DEFAULT_PROGRESS_DELAY);
@@ -46,7 +59,7 @@ public class CapServerServicePublisher {
 
 	public void publishServices(final ScheduledExecutorService progressExecutor, final long progressDelay) {
 
-		final IInvocationServiceServerRegistry registry = InvocationServiceServerToolkit.getRegistry();
+		final IInvocationServiceServerRegistry registry = InvocationServiceServerToolkit.getRegistry(brokerId);
 
 		registry.register(CapInvocationMethodNames.SERVICE_LOCATOR_METHOD_NAME, new ServiceLocatorMethod());
 		registry.register(CapInvocationMethodNames.GENERIC_REMOTE_METHOD_NAME, new GenericRemoteMethod(

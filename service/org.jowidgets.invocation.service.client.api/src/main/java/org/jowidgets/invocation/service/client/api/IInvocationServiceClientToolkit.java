@@ -30,8 +30,8 @@ package org.jowidgets.invocation.service.client.api;
 
 public interface IInvocationServiceClientToolkit {
 
-	IInvocationServiceClient getClient();
+	IInvocationServiceClient getClient(Object brokerId);
 
-	IInvocationServiceClientBuilder getClientBuilder();
+	IInvocationServiceClientBuilder getClientBuilder(Object brokerId);
 
 }

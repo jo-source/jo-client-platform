@@ -28,28 +28,50 @@
 
 package org.jowidgets.invocation.service.client.impl;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.jowidgets.invocation.client.api.InvocationClientToolkit;
 import org.jowidgets.invocation.service.client.api.IInvocationServiceClient;
 import org.jowidgets.invocation.service.client.api.IInvocationServiceClientBuilder;
 import org.jowidgets.invocation.service.client.api.IInvocationServiceClientToolkit;
+import org.jowidgets.util.Assert;
 
 public final class InvocationServiceClientToolkitImpl implements IInvocationServiceClientToolkit {
 
-	private final InvocationCallbackServiceImpl invocationCallbackService;
+	private final Map<Object, InvocationCallbackServiceImpl> callbackServices;
 
 	public InvocationServiceClientToolkitImpl() {
-		this.invocationCallbackService = new InvocationCallbackServiceImpl();
-		InvocationClientToolkit.getRegistry().register(invocationCallbackService);
+		this.callbackServices = new HashMap<Object, InvocationCallbackServiceImpl>();
 	}
 
 	@Override
-	public IInvocationServiceClient getClient() {
-		return getClientBuilder().build();
+	public IInvocationServiceClient getClient(final Object brokerId) {
+		return getClientBuilder(brokerId).build();
 	}
 
 	@Override
-	public IInvocationServiceClientBuilder getClientBuilder() {
-		return new InvocationServiceClientBuilderImpl(invocationCallbackService);
+	public IInvocationServiceClientBuilder getClientBuilder(final Object brokerId) {
+		return new InvocationServiceClientBuilderImpl(brokerId, getInvocationCallbackService(brokerId));
+	}
+
+	private InvocationCallbackServiceImpl getInvocationCallbackService(final Object brokerId) {
+		Assert.paramNotNull(brokerId, "brokerId");
+		InvocationCallbackServiceImpl result = callbackServices.get(brokerId);
+		if (result == null) {
+			result = createInvocationCallbackService(brokerId);
+		}
+		return result;
+	}
+
+	private synchronized InvocationCallbackServiceImpl createInvocationCallbackService(final Object brokerId) {
+		InvocationCallbackServiceImpl result = callbackServices.get(brokerId);
+		if (result == null) {
+			result = new InvocationCallbackServiceImpl(brokerId);
+			InvocationClientToolkit.getRegistry(brokerId).register(result);
+			callbackServices.put(brokerId, result);
+		}
+		return result;
 	}
 
 }

@@ -28,35 +28,53 @@
 
 package org.jowidgets.invocation.server.impl;
 
-import org.jowidgets.invocation.common.impl.MessageBrokerId;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.jowidgets.invocation.server.api.IInvocationServer;
 import org.jowidgets.invocation.server.api.IInvocationServerServiceRegistry;
 import org.jowidgets.invocation.server.api.IInvocationServerToolkit;
-import org.jowidgets.message.api.IMessageReceiver;
 import org.jowidgets.message.api.MessageToolkit;
+import org.jowidgets.util.Assert;
 
 public final class DefaultInvocationServerToolkit implements IInvocationServerToolkit {
 
-	private final InvocationServerServiceRegistryImpl invocationServerServiceRegistry;
-	private final InvocationServerImpl invocationServer;
+	private final Map<Object, InvocationServerMessageReceiver> messageReceivers;
 
 	public DefaultInvocationServerToolkit() {
-		this.invocationServer = new InvocationServerImpl();
-		this.invocationServerServiceRegistry = new InvocationServerServiceRegistryImpl();
-		final IMessageReceiver messageReceiver = new InvocationServerMessageReceiver(
-			invocationServer,
-			invocationServerServiceRegistry);
-		MessageToolkit.setReceiver(MessageBrokerId.INVOCATION_IMPL_BROKER_ID, messageReceiver);
+		this.messageReceivers = new HashMap<Object, InvocationServerMessageReceiver>();
 	}
 
 	@Override
-	public IInvocationServer getServer() {
-		return invocationServer;
+	public IInvocationServer getServer(final Object brokerId) {
+		Assert.paramNotNull(brokerId, "brokerId");
+		return getMessageReceiver(brokerId).getInvocationServer();
 	}
 
 	@Override
-	public IInvocationServerServiceRegistry getServerRegistry() {
-		return invocationServerServiceRegistry;
+	public IInvocationServerServiceRegistry getServerRegistry(final Object brokerId) {
+		return getMessageReceiver(brokerId).getInvocationServerServiceRegistry();
+	}
+
+	private InvocationServerMessageReceiver getMessageReceiver(final Object brokerId) {
+		Assert.paramNotNull(brokerId, "brokerId");
+		InvocationServerMessageReceiver result = messageReceivers.get(brokerId);
+		if (result == null) {
+			result = createMessageReceiver(brokerId);
+		}
+		return result;
+	}
+
+	private synchronized InvocationServerMessageReceiver createMessageReceiver(final Object brokerId) {
+		InvocationServerMessageReceiver messageReceiver = messageReceivers.get(brokerId);
+		if (messageReceiver == null) {
+			final InvocationServerImpl invocationServer = new InvocationServerImpl(brokerId);
+			final InvocationServerServiceRegistryImpl invocationServerServiceRegistry = new InvocationServerServiceRegistryImpl();
+			messageReceiver = new InvocationServerMessageReceiver(invocationServer, invocationServerServiceRegistry);
+			messageReceivers.put(brokerId, messageReceiver);
+			MessageToolkit.setReceiver(brokerId, messageReceiver);
+		}
+		return messageReceiver;
 	}
 
 }

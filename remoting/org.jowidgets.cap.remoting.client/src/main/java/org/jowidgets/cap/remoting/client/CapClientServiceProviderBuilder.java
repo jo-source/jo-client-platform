@@ -38,32 +38,34 @@ import org.jowidgets.invocation.service.client.api.InvocationServiceClientToolki
 import org.jowidgets.invocation.service.common.api.IMethodInvocationService;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.tools.ServiceProviderBuilder;
+import org.jowidgets.util.Assert;
 
 final class CapClientServiceProviderBuilder extends ServiceProviderBuilder {
 
-	CapClientServiceProviderBuilder() {
+	CapClientServiceProviderBuilder(final Object brokerId) {
 		super();
-		final IInvocationServiceClient invocationServiceClient = InvocationServiceClientToolkit.getClient();
+		Assert.paramNotNull(brokerId, "brokerId");
+		final IInvocationServiceClient invocationServiceClient = InvocationServiceClientToolkit.getClient(brokerId);
 		final IMethodInvocationService<Set<? extends IServiceId<?>>, Void, Void, Void, Void> methodService;
 		methodService = invocationServiceClient.getMethodService(CapInvocationMethodNames.SERVICE_LOCATOR_METHOD_NAME);
 		final SyncInvocationCallback<Set<? extends IServiceId<?>>> invocationCallback = new SyncInvocationCallback<Set<? extends IServiceId<?>>>();
 		methodService.invoke(invocationCallback, null, null, null);
-		addServices(invocationCallback.getResultSynchronious());
+		addServices(brokerId, invocationCallback.getResultSynchronious());
 	}
 
-	private void addServices(final Set<? extends IServiceId<?>> serviceIds) {
+	private void addServices(final Object brokerId, final Set<? extends IServiceId<?>> serviceIds) {
 		for (final IServiceId<?> serviceId : serviceIds) {
-			addService(serviceId);
+			addService(brokerId, serviceId);
 		}
 	}
 
-	private void addService(final IServiceId<?> serviceId) {
-		addService(serviceId, getService(serviceId));
+	private void addService(final Object brokerId, final IServiceId<?> serviceId) {
+		addService(serviceId, getService(serviceId, brokerId));
 	}
 
-	private Object getService(final IServiceId<?> serviceId) {
+	private Object getService(final IServiceId<?> serviceId, final Object brokerId) {
 		final Class<?> serviceType = serviceId.getServiceType();
-		final InvocationHandler invocationHandler = new RemoteMethodInvocationHandler(serviceId);
+		final InvocationHandler invocationHandler = new RemoteMethodInvocationHandler(brokerId, serviceId);
 		return Proxy.newProxyInstance(serviceType.getClassLoader(), new Class[] {serviceType}, invocationHandler);
 	}
 }

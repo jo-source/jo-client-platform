@@ -36,7 +36,6 @@ import org.jowidgets.invocation.common.api.ICancelService;
 import org.jowidgets.invocation.common.api.IMethod;
 import org.jowidgets.invocation.common.api.IResponseService;
 import org.jowidgets.invocation.common.impl.CancelMessage;
-import org.jowidgets.invocation.common.impl.MessageBrokerId;
 import org.jowidgets.invocation.common.impl.MethodInvocationMessage;
 import org.jowidgets.invocation.common.impl.ResponseMessage;
 import org.jowidgets.message.api.IMessageChannel;
@@ -55,13 +54,14 @@ class InvocationClientImpl implements IInvocationClient {
 	private final InvocationClientServiceRegistryImpl invocationClientServiceRegistry;
 	private final IMessageChannel messageChannel;
 
-	InvocationClientImpl(final InvocationClientServiceRegistryImpl invocationClientServiceRegistry) {
+	InvocationClientImpl(final Object brokerId, final InvocationClientServiceRegistryImpl invocationClientServiceRegistry) {
+		Assert.paramNotNull(brokerId, "brokerId");
 		this.invokedInvocations = new ConcurrentHashMap<Object, TimeStampedObject<Object>>();
 		this.canceledInvocations = new ConcurrentHashMap<Object, TimeStampedObject<Object>>();
 		this.acknowledgedInvocations = new ConcurrentHashMap<Object, TimeStampedObject<IMessageChannel>>();
 		this.interimRequests = new ConcurrentHashMap<Object, TimeStampedObject<Tuple<Object, IMessageChannel>>>();
 
-		this.messageChannel = MessageToolkit.getChannel(MessageBrokerId.INVOCATION_IMPL_BROKER_ID);
+		this.messageChannel = MessageToolkit.getChannel(brokerId);
 		this.invocationClientServiceRegistry = invocationClientServiceRegistry;
 	}
 

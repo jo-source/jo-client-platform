@@ -33,7 +33,7 @@ import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.FilterMapping;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
-import org.jowidgets.invocation.common.impl.MessageBrokerId;
+import org.jowidgets.cap.remoting.common.RemotingBrokerId;
 import org.jowidgets.message.api.IExceptionCallback;
 import org.jowidgets.message.api.MessageToolkit;
 import org.jowidgets.security.impl.http.server.BasicAuthenticationFilter;
@@ -44,7 +44,7 @@ public final class CapServerStarter {
 	private CapServerStarter() {}
 
 	public static void startServer() throws Exception {
-		MessageToolkit.addExceptionCallback(MessageBrokerId.INVOCATION_IMPL_BROKER_ID, new IExceptionCallback() {
+		MessageToolkit.addExceptionCallback(RemotingBrokerId.DEFAULT_BROKER_ID, new IExceptionCallback() {
 			@Override
 			public void exception(final Throwable throwable) {
 				//CHECKSTYLE:OFF

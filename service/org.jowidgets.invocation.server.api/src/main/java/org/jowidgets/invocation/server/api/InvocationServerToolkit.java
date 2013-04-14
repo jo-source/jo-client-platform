@@ -72,11 +72,11 @@ public final class InvocationServerToolkit {
 		return toolkit;
 	}
 
-	public static IInvocationServer getServer() {
-		return getInstance().getServer();
+	public static IInvocationServer getServer(final Object brokerId) {
+		return getInstance().getServer(brokerId);
 	}
 
-	public static IInvocationServerServiceRegistry getRegistry() {
-		return getInstance().getServerRegistry();
+	public static IInvocationServerServiceRegistry getRegistry(final Object brokerId) {
+		return getInstance().getServerRegistry(brokerId);
 	}
 }

@@ -40,12 +40,16 @@ import org.jowidgets.invocation.service.common.api.ICancelListener;
 import org.jowidgets.invocation.service.common.api.IInterimRequestCallback;
 import org.jowidgets.invocation.service.common.api.IInterimResponseCallback;
 import org.jowidgets.invocation.service.common.api.IInvocationCallback;
+import org.jowidgets.util.Assert;
 
 final class InvocationCallbackServiceImpl implements IInvocationCallbackService {
 
 	private final Map<Object, InvocationContext> invocationContexts;
+	private final Object brokerId;
 
-	InvocationCallbackServiceImpl() {
+	InvocationCallbackServiceImpl(final Object brokerId) {
+		Assert.paramNotNull(brokerId, "brokerId");
+		this.brokerId = brokerId;
 		this.invocationContexts = new ConcurrentHashMap<Object, InvocationContext>();
 	}
 
@@ -64,7 +68,7 @@ final class InvocationCallbackServiceImpl implements IInvocationCallbackService 
 			final IInterimResponseCallback<Object> resultCallback = new IInterimResponseCallback<Object>() {
 				@Override
 				public void response(final Object response) {
-					InvocationClientToolkit.getClient().getResponseService().response(requestId, response);
+					InvocationClientToolkit.getClient(brokerId).getResponseService().response(requestId, response);
 				}
 			};
 			context.getInterimRequestCallback().request(resultCallback, request);

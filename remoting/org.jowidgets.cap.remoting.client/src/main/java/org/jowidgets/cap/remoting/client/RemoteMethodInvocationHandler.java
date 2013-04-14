@@ -58,10 +58,10 @@ final class RemoteMethodInvocationHandler implements InvocationHandler {
 	private final IServiceId<?> serviceId;
 	private final IInvocationServiceClient invocationServiceClient;
 
-	RemoteMethodInvocationHandler(final IServiceId<?> serviceId) {
+	RemoteMethodInvocationHandler(final Object brokerId, final IServiceId<?> serviceId) {
 		Assert.paramNotNull(serviceId, "serviceId");
 		this.serviceId = serviceId;
-		this.invocationServiceClient = InvocationServiceClientToolkit.getClient();
+		this.invocationServiceClient = InvocationServiceClientToolkit.getClient(brokerId);
 	}
 
 	@Override
