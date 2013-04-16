@@ -38,13 +38,25 @@ import org.jowidgets.message.api.IExceptionCallback;
 import org.jowidgets.message.api.MessageToolkit;
 import org.jowidgets.security.impl.http.server.BasicAuthenticationFilter;
 import org.jowidgets.security.impl.http.server.SecurityRemotingServlet;
+import org.jowidgets.util.Assert;
 
 public final class CapServerStarter {
+
+	private static final int DEFAULT_PORT = 8080;
 
 	private CapServerStarter() {}
 
 	public static void startServer() throws Exception {
-		MessageToolkit.addExceptionCallback(RemotingBrokerId.DEFAULT_BROKER_ID, new IExceptionCallback() {
+		startServer(RemotingBrokerId.DEFAULT_BROKER_ID, DEFAULT_PORT);
+	}
+
+	public static void startServer(final String brokerId) throws Exception {
+		startServer(brokerId, DEFAULT_PORT);
+	}
+
+	public static void startServer(final String brokerId, final int port) throws Exception {
+		Assert.paramNotNull(brokerId, "brokerId");
+		MessageToolkit.addExceptionCallback(brokerId, new IExceptionCallback() {
 			@Override
 			public void exception(final Throwable throwable) {
 				//CHECKSTYLE:OFF
@@ -52,9 +64,9 @@ public final class CapServerStarter {
 				//CHECKSTYLE:ON
 			}
 		});
-		final Server server = new Server(8080);
+		final Server server = new Server(port);
 		final ServletContextHandler root = new ServletContextHandler(ServletContextHandler.SESSIONS);
-		root.addServlet(new ServletHolder(new SecurityRemotingServlet()), "/");
+		root.addServlet(new ServletHolder(new SecurityRemotingServlet(brokerId)), "/");
 		root.addFilter(new FilterHolder(new BasicAuthenticationFilter()), "/", FilterMapping.DEFAULT);
 		server.setHandler(root);
 		server.start();

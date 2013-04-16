@@ -31,6 +31,7 @@ package org.jowidgets.security.impl.http.server;
 import java.io.IOException;
 
 import javax.servlet.GenericServlet;
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -41,37 +42,65 @@ import org.jowidgets.message.api.IExceptionCallback;
 import org.jowidgets.message.api.MessageToolkit;
 import org.jowidgets.message.impl.http.server.MessageServlet;
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.EmptyCheck;
 
 public final class SecurityRemotingServlet extends GenericServlet {
 
+	public static final String BROKER_ID_PARAMETER_NAME = "brokerId";
+
 	private static final long serialVersionUID = 1L;
 
-	private final MessageServlet messageServlet;
+	private MessageServlet messageServlet;
+
+	private String brokerId;
 
 	public SecurityRemotingServlet() {
 		this(RemotingBrokerId.DEFAULT_BROKER_ID);
 	}
 
-	public SecurityRemotingServlet(final Object brokerId) {
+	public SecurityRemotingServlet(final String brokerId) {
 		Assert.paramNotNull(brokerId, "brokerId");
-		messageServlet = new MessageServlet(brokerId);
-		messageServlet.addExecutionInterceptor(new SecurityExecutionInterceptor());
-		messageServlet.addExecutionInterceptor(new CurrentRequestExecutionInterceptor());
-		MessageToolkit.addReceiverBroker(messageServlet);
-		MessageToolkit.addExceptionCallback(brokerId, new IExceptionCallback() {
-			@Override
-			public void exception(final Throwable throwable) {
-				//CHECKSTYLE:OFF
-				throwable.printStackTrace();
-				//CHECKSTYLE:ON
-			}
-		});
-		new CapServerServicePublisher(brokerId).publishServices();
+		this.brokerId = brokerId;
+	}
+
+	@Override
+	public void init(final ServletConfig servletConfig) throws ServletException {
+		super.init(servletConfig);
+		final String brokerIdParameter = servletConfig.getInitParameter(BROKER_ID_PARAMETER_NAME);
+		if (!EmptyCheck.isEmpty(brokerIdParameter)) {
+			brokerId = brokerIdParameter;
+		}
 	}
 
 	@Override
 	public void service(final ServletRequest req, final ServletResponse res) throws ServletException, IOException {
-		messageServlet.service(req, res);
+		getMessageServlet().service(req, res);
+	}
+
+	private MessageServlet getMessageServlet() {
+		if (messageServlet == null) {
+			createMessageServlet();
+		}
+		return messageServlet;
+	}
+
+	private synchronized MessageServlet createMessageServlet() {
+		if (messageServlet == null) {
+			messageServlet = new MessageServlet(brokerId);
+			messageServlet.addExecutionInterceptor(new SecurityExecutionInterceptor());
+			messageServlet.addExecutionInterceptor(new CurrentRequestExecutionInterceptor());
+			MessageToolkit.addReceiverBroker(messageServlet);
+			MessageToolkit.addExceptionCallback(brokerId, new IExceptionCallback() {
+				@Override
+				public void exception(final Throwable throwable) {
+					//CHECKSTYLE:OFF
+					throwable.printStackTrace();
+					//CHECKSTYLE:ON
+				}
+			});
+			new CapServerServicePublisher(brokerId).publishServices();
+		}
+		return messageServlet;
 	}
 
 }
