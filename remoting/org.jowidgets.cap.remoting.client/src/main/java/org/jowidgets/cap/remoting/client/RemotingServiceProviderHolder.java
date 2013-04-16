@@ -31,14 +31,14 @@ package org.jowidgets.cap.remoting.client;
 import org.jowidgets.cap.remoting.common.RemotingBrokerId;
 import org.jowidgets.service.tools.DefaultServiceProviderHolder;
 
-public class ServiceProviderHolder extends DefaultServiceProviderHolder {
+public class RemotingServiceProviderHolder extends DefaultServiceProviderHolder {
 
-	public ServiceProviderHolder() {
+	public RemotingServiceProviderHolder() {
 		this(RemotingBrokerId.DEFAULT_BROKER_ID);
 	}
 
-	public ServiceProviderHolder(final Object brokerId) {
-		super(new CapClientServiceProviderBuilder(brokerId));
+	public RemotingServiceProviderHolder(final Object brokerId) {
+		super(new RemotingServiceProviderBuilder(brokerId));
 	}
 
 }

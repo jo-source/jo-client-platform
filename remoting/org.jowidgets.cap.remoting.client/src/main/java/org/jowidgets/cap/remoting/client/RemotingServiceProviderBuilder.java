@@ -40,9 +40,9 @@ import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.tools.ServiceProviderBuilder;
 import org.jowidgets.util.Assert;
 
-final class CapClientServiceProviderBuilder extends ServiceProviderBuilder {
+final class RemotingServiceProviderBuilder extends ServiceProviderBuilder {
 
-	CapClientServiceProviderBuilder(final Object brokerId) {
+	RemotingServiceProviderBuilder(final Object brokerId) {
 		super();
 		Assert.paramNotNull(brokerId, "brokerId");
 		final IInvocationServiceClient invocationServiceClient = InvocationServiceClientToolkit.getClient(brokerId);
