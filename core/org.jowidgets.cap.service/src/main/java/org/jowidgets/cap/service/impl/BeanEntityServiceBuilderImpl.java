@@ -34,6 +34,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.jowidgets.cap.common.api.bean.Cardinality;
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptorBuilder;
@@ -595,6 +596,7 @@ final class BeanEntityServiceBuilderImpl extends EntityServiceBuilderImpl implem
 		private Object linkBeanTypeId;
 		private Object linkedEntityId;
 		private Object linkableEntityId;
+		private Cardinality linkedCardinality;
 		private IEntityLinkProperties sourceProperties;
 		private IEntityLinkProperties destinationProperties;
 		private IMaybe<IServiceId<ILinkCreatorService>> creatorService;
@@ -638,6 +640,12 @@ final class BeanEntityServiceBuilderImpl extends EntityServiceBuilderImpl implem
 		public IBeanEntityLinkBluePrint setLinkableEntityId(final Object id) {
 			checkExhausted();
 			this.linkableEntityId = id;
+			return this;
+		}
+
+		@Override
+		public IBeanEntityLinkBluePrint setLinkedCardinality(final Cardinality cardinality) {
+			this.linkedCardinality = cardinality;
 			return this;
 		}
 
@@ -728,7 +736,13 @@ final class BeanEntityServiceBuilderImpl extends EntityServiceBuilderImpl implem
 					+ linkedEntityId);
 			}
 			final IEntityLinkDescriptorBuilder builder = EntityLinkDescriptor.builder();
+
 			builder.setLinkEntityId(linkEntityId).setLinkedEntityId(linkedEntityId).setLinkableEntityId(linkableEntityId);
+
+			if (linkedCardinality != null) {
+				builder.setLinkedCardinality(linkedCardinality);
+			}
+
 			builder.setSourceProperties(sourceProperties);
 			builder.setDestinationProperties(destinationProperties);
 
@@ -737,7 +751,7 @@ final class BeanEntityServiceBuilderImpl extends EntityServiceBuilderImpl implem
 					builder.setLinkCreatorService(creatorService.getValue());
 				}
 			}
-			else if (sourceProperties != null) {
+			else if (sourceProperties != null || destinationProperties != null) {
 				builder.setLinkCreatorService(createCreatorService(prebuilds));
 			}
 			if (deleterService != null) {
@@ -745,7 +759,7 @@ final class BeanEntityServiceBuilderImpl extends EntityServiceBuilderImpl implem
 					builder.setLinkDeleterService(deleterService.getValue());
 				}
 			}
-			else if (sourceProperties != null) {
+			else if (sourceProperties != null || destinationProperties != null) {
 				builder.setLinkDeleterService(createDeleterService(prebuilds));
 			}
 			return builder.build();

@@ -1129,6 +1129,16 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		}
 	}
 
+	@Override
+	public void removeAllBeans() {
+		final List<IBeanProxy<BEAN_TYPE>> beansToRemove = new LinkedList<IBeanProxy<BEAN_TYPE>>();
+		for (final List<IBeanProxy<BEAN_TYPE>> page : data.values()) {
+			beansToRemove.addAll(page);
+		}
+		beansToRemove.addAll(addedData);
+		removeBeans(beansToRemove);
+	}
+
 	private List<IBeanProxy<BEAN_TYPE>> removeBeansImpl(final Iterable<? extends IBeanDto> beans, final boolean fireEvents) {
 		Assert.paramNotNull(beans, "beans");
 		//data structure must rebuild, so do not load until this happens

@@ -44,6 +44,7 @@ final class BeanTableDefaults implements IDefaultInitializer<IBeanTableSetupBuil
 		bluePrint.setDefaultMenus(true);
 		bluePrint.setDefaultCreatorAction(true);
 		bluePrint.setDefaultDeleterAction(true);
+		bluePrint.setEditable(true);
 		bluePrint.setSearchFilterToolbarVisible(false);
 		bluePrint.setAutoUpdateInterval(1);
 		bluePrint.setAutoScrollPolicy(AutoScrollPolicy.OFF);

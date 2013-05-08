@@ -39,6 +39,7 @@ import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.command.IActionBuilder;
 import org.jowidgets.api.command.ICommand;
 import org.jowidgets.api.command.IEnabledChecker;
+import org.jowidgets.cap.common.api.bean.Cardinality;
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
@@ -74,12 +75,12 @@ import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
 import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
 import org.jowidgets.common.image.IImageConstant;
+import org.jowidgets.common.types.TableSelectionPolicy;
 import org.jowidgets.i18n.api.MessageReplacer;
 import org.jowidgets.plugin.api.IPluginProperties;
 import org.jowidgets.plugin.api.PluginProperties;
 import org.jowidgets.plugin.api.PluginProvider;
 import org.jowidgets.service.api.ServiceProvider;
-import org.jowidgets.util.ArrayUtils;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.EmptyCheck;
 import org.jowidgets.util.IFactory;
@@ -87,6 +88,8 @@ import org.jowidgets.util.IFactory;
 final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> extends
 		AbstractCapActionBuilderImpl<ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE>> implements
 		ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> {
+
+	private final Cardinality linkedCardinality;
 
 	private final List<IExecutableChecker<SOURCE_BEAN_TYPE>> sourceExecutableCheckers;
 	private final List<IEnabledChecker> enabledCheckers;
@@ -101,7 +104,7 @@ final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKA
 	private BeanModificationStatePolicy sourceModificationPolicy;
 	private BeanMessageStatePolicy sourceMessageStatePolicy;
 	private IBeanListModel<LINKABLE_BEAN_TYPE> linkedModel;
-	private String linkedEntityLabelPlural;
+	private String linkedEntityLabel;
 	private Class<? extends LINK_BEAN_TYPE> linkBeanType;
 	private IFactory<IBeanProxy<LINK_BEAN_TYPE>> linkDefaultFactory;
 	private Class<? extends LINKABLE_BEAN_TYPE> linkableBeanType;
@@ -112,7 +115,7 @@ final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKA
 
 	@SuppressWarnings({"rawtypes", "unchecked"})
 	LinkCreatorActionBuilderImpl(final IBeanSelectionProvider<SOURCE_BEAN_TYPE> source, final IEntityLinkDescriptor linkDescriptor) {
-		this();
+		this(linkDescriptor.getLinkedCardinality());
 		Assert.paramNotNull(source, "source");
 		Assert.paramNotNull(linkDescriptor, "linkDescriptor");
 
@@ -120,6 +123,9 @@ final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKA
 
 		final IEntityLinkProperties sourceProperties = linkDescriptor.getSourceProperties();
 		final IEntityLinkProperties destinationProperties = linkDescriptor.getDestinationProperties();
+
+		final boolean directLink = (sourceProperties != null && destinationProperties == null)
+			|| (sourceProperties == null && destinationProperties != null);
 
 		setLinkCreatorService(linkDescriptor.getLinkCreatorService());
 
@@ -149,18 +155,27 @@ final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKA
 							return proxyFactory.createTransientProxy(attributes, defaultValues);
 						}
 					});
-					if (hasAdditionalProperties(descriptor, linkDescriptor)) {
+
+					if (hasAdditionalProperties(descriptor, linkDescriptor)
+					//is not direct link or has no linkable entity id
+						&& (!directLink || linkDescriptor.getLinkableEntityId() == null)) {
 						final IBeanFormBluePrint beanFormBp = cbpf.beanForm(linkEntityId, attributes);
+
 						final List<IAttribute<Object>> filteredAttributes;
+						final List<String> attributesToFilter = new LinkedList<String>();
+						if (sourceProperties != null) {
+							attributesToFilter.add(sourceProperties.getForeignKeyPropertyName());
+						}
 						if (destinationProperties != null) {
-							filteredAttributes = getFilteredAttributes(
-									attributes,
-									sourceProperties.getForeignKeyPropertyName(),
-									destinationProperties.getForeignKeyPropertyName());
+							attributesToFilter.add(destinationProperties.getForeignKeyPropertyName());
+						}
+						if (!EmptyCheck.isEmpty(attributesToFilter)) {
+							filteredAttributes = getFilteredAttributes(attributes, attributesToFilter);
 						}
 						else {
-							filteredAttributes = getFilteredAttributes(attributes, sourceProperties.getForeignKeyPropertyName());
+							filteredAttributes = attributes;
 						}
+
 						final IBeanFormLayout layout = CapUiToolkit.beanFormToolkit().layoutBuilder().addGroups(
 								filteredAttributes).build();
 						beanFormBp.setLayouter(CapUiToolkit.beanFormToolkit().layouter(layout));
@@ -194,12 +209,20 @@ final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKA
 					linkableModelBuilder.setAutoSelection(false);
 					linkableModelBuilder.setClearOnEmptyParentBeans(false);
 					final IBeanTableModel linkableModel = linkableModelBuilder.build();
-					setLinkableTable(cbpf.beanTable(linkableModel));
+					final IBeanTableBluePrint linkableTableBp = cbpf.beanTable(linkableModel);
+					linkableTableBp.setEditable(false);
+					if (Cardinality.GREATER_OR_EQUAL_ZERO.equals(linkedCardinality)) {
+						linkableTableBp.setSelectionPolicy(TableSelectionPolicy.MULTI_ROW_SELECTION);
+					}
+					else {
+						linkableTableBp.setSelectionPolicy(TableSelectionPolicy.SINGLE_ROW_SELECTION);
+					}
+					setLinkableTable(linkableTableBp);
 					setLinkableBeanPropertyValidators(linkableModel.getBeanPropertyValidators());
 
 					//this may be overridden when linked entity id will be extracted
 					if (!EmptyCheck.isEmpty(descriptor.getLabelPlural().get())) {
-						setLinkedEntityLabelPlural(descriptor.getLabelPlural().get());
+						setLinkedEntityLabel(descriptor.getLabelPlural().get());
 					}
 				}
 			}
@@ -208,8 +231,13 @@ final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKA
 			if (linkedEntityId != null) {
 				final IBeanDtoDescriptor descriptor = entityService.getDescriptor(linkedEntityId);
 				if (descriptor != null) {
-					if (!EmptyCheck.isEmpty(descriptor.getLabelPlural())) {
-						setLinkedEntityLabelPlural(descriptor.getLabelPlural().get());
+					if (Cardinality.GREATER_OR_EQUAL_ZERO.equals(linkedCardinality)
+						&& !EmptyCheck.isEmpty(descriptor.getLabelPlural())) {
+						setLinkedEntityLabel(descriptor.getLabelPlural().get());
+					}
+					else if (Cardinality.LESS_OR_EQUAL_ONE.equals(linkedCardinality)
+						&& !EmptyCheck.isEmpty(descriptor.getLabelSingular())) {
+						setLinkedEntityLabel(descriptor.getLabelSingular().get());
 					}
 					final Object icon = descriptor.getCreateLinkIconDescriptor();
 					if (icon != null) {
@@ -228,7 +256,13 @@ final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKA
 	}
 
 	LinkCreatorActionBuilderImpl() {
+		this(Cardinality.GREATER_OR_EQUAL_ZERO);
+	}
+
+	LinkCreatorActionBuilderImpl(final Cardinality linkedCardinality) {
 		super();
+		Assert.paramNotNull(linkedCardinality, "linkedCardinality");
+		this.linkedCardinality = linkedCardinality;
 		this.sourceExecutableCheckers = new LinkedList<IExecutableChecker<SOURCE_BEAN_TYPE>>();
 		this.enabledCheckers = new LinkedList<IEnabledChecker>();
 		this.executionInterceptors = new LinkedList<IExecutionInterceptor<List<IBeanDto>>>();
@@ -252,8 +286,7 @@ final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKA
 
 	private static List<IAttribute<Object>> getFilteredAttributes(
 		final Collection<IAttribute<Object>> attributes,
-		final String... filteredProperties) {
-		final Set<String> blackList = ArrayUtils.toSet(filteredProperties);
+		final Collection<String> blackList) {
 		final List<IAttribute<Object>> result = new LinkedList<IAttribute<Object>>();
 		for (final IAttribute<Object> attribute : attributes) {
 			if (!blackList.contains(attribute.getPropertyName())) {
@@ -267,7 +300,9 @@ final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKA
 		final Set<String> ignoreProperties = new HashSet<String>();
 		ignoreProperties.add(IBean.ID_PROPERTY);
 		ignoreProperties.add(IBean.VERSION_PROPERTY);
-		ignoreProperties.add(linkDescriptor.getSourceProperties().getForeignKeyPropertyName());
+		if (linkDescriptor.getSourceProperties() != null) {
+			ignoreProperties.add(linkDescriptor.getSourceProperties().getForeignKeyPropertyName());
+		}
 		if (linkDescriptor.getDestinationProperties() != null) {
 			ignoreProperties.add(linkDescriptor.getDestinationProperties().getForeignKeyPropertyName());
 		}
@@ -332,10 +367,9 @@ final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKA
 	}
 
 	@Override
-	public ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> setLinkedEntityLabelPlural(
-		final String label) {
+	public ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> setLinkedEntityLabel(final String label) {
 		checkExhausted();
-		this.linkedEntityLabelPlural = label;
+		this.linkedEntityLabel = label;
 		return this;
 	}
 
@@ -470,11 +504,19 @@ final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKA
 	}
 
 	private void setDefaultTextIfNecessary() {
-		if (EmptyCheck.isEmpty(getText()) && !EmptyCheck.isEmpty(linkedEntityLabelPlural)) {
-			final String message = Messages.getString("LinkCreatorActionBuilderImpl.link_var");
-			setText(MessageReplacer.replace(message, linkedEntityLabelPlural));
+		if (EmptyCheck.isEmpty(getText()) && !EmptyCheck.isEmpty(linkedEntityLabel)) {
+			final String message;
+			if (Cardinality.GREATER_OR_EQUAL_ZERO.equals(linkedCardinality)) {
+				message = Messages.getString("LinkCreatorActionBuilderImpl.add");
+			}
+			else if (Cardinality.LESS_OR_EQUAL_ONE.equals(linkedCardinality)) {
+				message = Messages.getString("LinkCreatorActionBuilderImpl.set");
+			}
+			else {
+				return;
+			}
+			setText(MessageReplacer.replace(message, linkedEntityLabel));
 		}
-
 	}
 
 	@Override
@@ -510,6 +552,7 @@ final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKA
 			sourceMessageStatePolicy,
 			sourceExecutableCheckers,
 			linkedModel,
+			linkedCardinality,
 			linkBeanType,
 			linkBeanForm,
 			linkDefaultFactory,

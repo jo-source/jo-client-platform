@@ -48,7 +48,7 @@ public interface ILinkDeletion {
 	IBeanKey getDestinationKey();
 
 	/**
-	 * @return True if the destination should be deleted too (not relevant for direct links, they will be deleted always)
+	 * @return True if the destination should be deleted too
 	 */
 	boolean deleteDestination();
 }

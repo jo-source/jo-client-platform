@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.common.api.entity;
 
+import org.jowidgets.cap.common.api.bean.Cardinality;
 import org.jowidgets.cap.common.api.service.ILinkCreatorService;
 import org.jowidgets.cap.common.api.service.ILinkDeleterService;
 
@@ -54,27 +55,32 @@ public interface IEntityLinkDescriptor {
 	Object getLinkedEntityId();
 
 	/**
-	 * Gets the id of the entity that is linkable (indirectly) with the source. If the link is a direct link
+	 * Gets the id of the entity that is linkable with the source. If the link is a (weak) direct link
 	 * or if the link is readonly, null will be returned.
 	 * 
 	 * Reading objects of that type gets all objects that could be potentially linked with the given source object
 	 * (e.g. all objects that are not currently linked)
 	 * 
-	 * @return The entity id that is linkable or null, if the link is directly or readonly
+	 * @return The entity id that is linkable or null, if the link is directly (weak) or readonly
 	 */
 	Object getLinkableEntityId();
 
 	/**
+	 * @return The cardinality of the linked entities.
+	 */
+	Cardinality getLinkedCardinality();
+
+	/**
 	 * Gets the link properties of the link source.
 	 * 
-	 * @return The link properties of the link source or null if link is readonly
+	 * @return The link properties of the link source or null for direct or readonly links
 	 */
 	IEntityLinkProperties getSourceProperties();
 
 	/**
 	 * Gets the link properties of the link destination.
 	 * 
-	 * @return The link properties of the link destination or null for direct links
+	 * @return The link properties of the link destination or null for direct or readonly links
 	 */
 	IEntityLinkProperties getDestinationProperties();
 
@@ -87,4 +93,5 @@ public interface IEntityLinkDescriptor {
 	 * @return The deleter service or null if the link is readonly
 	 */
 	ILinkDeleterService getLinkDeleterService();
+
 }

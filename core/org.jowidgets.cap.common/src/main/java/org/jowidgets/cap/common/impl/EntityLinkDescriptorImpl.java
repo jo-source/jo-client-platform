@@ -30,6 +30,7 @@ package org.jowidgets.cap.common.impl;
 
 import java.io.Serializable;
 
+import org.jowidgets.cap.common.api.bean.Cardinality;
 import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
 import org.jowidgets.cap.common.api.entity.IEntityLinkProperties;
 import org.jowidgets.cap.common.api.service.ILinkCreatorService;
@@ -45,6 +46,7 @@ final class EntityLinkDescriptorImpl implements IEntityLinkDescriptor, Serializa
 	private final Object linkEntityId;
 	private final Object linkedEntityId;
 	private final Object linkableEntityId;
+	private final Cardinality linkedCardinality;
 	private final IEntityLinkProperties sourceProperties;
 	private final IEntityLinkProperties destinationProperties;
 	private final IServiceId<ILinkCreatorService> creatorServiceId;
@@ -54,6 +56,7 @@ final class EntityLinkDescriptorImpl implements IEntityLinkDescriptor, Serializa
 		final Object linkTypeId,
 		final Object linkedTypeId,
 		final Object linkableTypeId,
+		final Cardinality linkedCardinality,
 		final IEntityLinkProperties sourceProperties,
 		final IEntityLinkProperties destinationProperties,
 		final IServiceId<ILinkCreatorService> creatorServiceId,
@@ -64,6 +67,7 @@ final class EntityLinkDescriptorImpl implements IEntityLinkDescriptor, Serializa
 		this.linkEntityId = linkTypeId;
 		this.linkedEntityId = linkedTypeId;
 		this.linkableEntityId = linkableTypeId;
+		this.linkedCardinality = linkedCardinality;
 		this.sourceProperties = sourceProperties;
 		this.destinationProperties = destinationProperties;
 		this.creatorServiceId = creatorServiceId;
@@ -83,6 +87,11 @@ final class EntityLinkDescriptorImpl implements IEntityLinkDescriptor, Serializa
 	@Override
 	public Object getLinkableEntityId() {
 		return linkableEntityId;
+	}
+
+	@Override
+	public Cardinality getLinkedCardinality() {
+		return linkedCardinality;
 	}
 
 	@Override

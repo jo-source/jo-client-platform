@@ -586,6 +586,14 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 		removeBeansImpl(beans, true);
 	}
 
+	@Override
+	public void removeAllBeans() {
+		final List<IBeanProxy<CHILD_BEAN_TYPE>> beansToRemove = new LinkedList<IBeanProxy<CHILD_BEAN_TYPE>>();
+		beansToRemove.addAll(data);
+		beansToRemove.addAll(addedData);
+		removeBeans(beansToRemove);
+	}
+
 	private void removeBeansImpl(final Iterable<? extends IBeanProxy<CHILD_BEAN_TYPE>> beans, final boolean fireBeansChanged) {
 		Assert.paramNotNull(beans, "beans");
 		tryToCanceLoader();

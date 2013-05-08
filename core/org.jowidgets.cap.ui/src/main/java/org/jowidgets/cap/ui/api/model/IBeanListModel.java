@@ -43,6 +43,8 @@ public interface IBeanListModel<BEAN_TYPE> extends IBeanListModelObservable<BEAN
 
 	void removeBeans(Iterable<? extends IBeanProxy<BEAN_TYPE>> beans);
 
+	void removeAllBeans();
+
 	void addBean(IBeanProxy<BEAN_TYPE> bean);
 
 	IBeanProxy<BEAN_TYPE> addBeanDto(IBeanDto beanDto);
