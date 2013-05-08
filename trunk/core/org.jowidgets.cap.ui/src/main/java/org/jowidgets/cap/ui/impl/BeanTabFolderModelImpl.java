@@ -581,6 +581,11 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 		removeBeansImpl(beans, true);
 	}
 
+	@Override
+	public void removeAllBeans() {
+		clear();
+	}
+
 	private void removeBeansImpl(final Iterable<? extends IBeanProxy<BEAN_TYPE>> beans, final boolean fireBeansChanged) {
 		Assert.paramNotNull(beans, "beans");
 		tryToCanceLoader();

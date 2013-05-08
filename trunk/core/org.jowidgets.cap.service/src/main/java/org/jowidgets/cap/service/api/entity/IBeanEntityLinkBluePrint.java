@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.service.api.entity;
 
+import org.jowidgets.cap.common.api.bean.Cardinality;
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.entity.IEntityLinkProperties;
 import org.jowidgets.cap.common.api.service.ILinkCreatorService;
@@ -81,6 +82,17 @@ public interface IBeanEntityLinkBluePrint {
 	 * @return This blue print
 	 */
 	IBeanEntityLinkBluePrint setLinkableEntityId(Object id);
+
+	/**
+	 * Sets the cardinality of the linked entities.
+	 * The default value is Cardinality.GREATER_OR_EQUAL_ZERO, except if the source properties are null and
+	 * the destination properties are not. This implies a direct link, where the link entity is the source and
+	 * hold the the key of the linked object. In this case, the default cardinality is Cardinality.LESS_OR_EQUAL_ONE.
+	 * 
+	 * @param cardinality The cardinality to set
+	 * @return This builder
+	 */
+	IBeanEntityLinkBluePrint setLinkedCardinality(Cardinality cardinality);
 
 	/**
 	 * Sets the symmetric property, the default a 'false'

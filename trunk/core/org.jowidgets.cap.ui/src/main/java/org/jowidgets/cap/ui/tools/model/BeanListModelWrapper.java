@@ -82,6 +82,11 @@ public class BeanListModelWrapper<BEAN_TYPE> implements IBeanListModel<BEAN_TYPE
 	}
 
 	@Override
+	public void removeAllBeans() {
+		beanListModel.removeAllBeans();
+	}
+
+	@Override
 	public void addBean(final IBeanProxy<BEAN_TYPE> bean) {
 		beanListModel.addBean(bean);
 	}

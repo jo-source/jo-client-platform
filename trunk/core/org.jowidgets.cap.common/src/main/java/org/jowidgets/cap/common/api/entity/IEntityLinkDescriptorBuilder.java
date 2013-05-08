@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.common.api.entity;
 
+import org.jowidgets.cap.common.api.bean.Cardinality;
 import org.jowidgets.cap.common.api.service.ILinkCreatorService;
 import org.jowidgets.cap.common.api.service.ILinkDeleterService;
 import org.jowidgets.service.api.IServiceId;
@@ -39,6 +40,8 @@ public interface IEntityLinkDescriptorBuilder {
 	IEntityLinkDescriptorBuilder setLinkedEntityId(Object id);
 
 	IEntityLinkDescriptorBuilder setLinkableEntityId(Object id);
+
+	IEntityLinkDescriptorBuilder setLinkedCardinality(Cardinality cardinality);
 
 	IEntityLinkDescriptorBuilder setSourceProperties(IEntityLinkProperties properties);
 

@@ -178,7 +178,6 @@ final class LinkServicesBuilderImpl<SOURCE_BEAN_TYPE extends IBean, LINKED_BEAN_
 
 	@Override
 	public ILinkServicesBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> setSourceProperties(final IEntityLinkProperties properties) {
-		Assert.paramNotNull(properties, "properties");
 		this.sourceProperties = properties;
 		return this;
 	}

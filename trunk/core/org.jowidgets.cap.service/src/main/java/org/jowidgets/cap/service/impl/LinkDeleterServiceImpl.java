@@ -75,7 +75,6 @@ final class LinkDeleterServiceImpl implements ILinkDeleterService {
 		final IEntityLinkProperties destinationProperties) {
 
 		Assert.paramNotNull(linkDeleterService, "linkDeleterService");
-		Assert.paramNotNull(sourceProperties, "sourceProperties");
 
 		this.linkReaderService = linkReaderService;
 		this.sourceDeleterService = sourceDeleterService;
@@ -131,7 +130,7 @@ final class LinkDeleterServiceImpl implements ILinkDeleterService {
 		}
 
 		if (!linkReaderFilterBuilder.isEmpty()) {
-			deleteLinks(linkReaderFilterBuilder.build(), linksDeletions.size() * 2, executionCallback);
+			deleteLinks(linkReaderFilterBuilder.build(), linksDeletions.size() * 10, executionCallback);
 		}
 
 		if (linkedDeleterService != null) {

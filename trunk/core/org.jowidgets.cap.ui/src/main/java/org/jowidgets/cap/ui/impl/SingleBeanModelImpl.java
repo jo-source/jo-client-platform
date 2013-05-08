@@ -474,6 +474,11 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 	}
 
 	@Override
+	public void removeAllBeans() {
+		setBean(null);
+	}
+
+	@Override
 	public void addBean(final IBeanProxy<BEAN_TYPE> bean) {
 		Assert.paramNotNull(bean, "bean");
 		if (this.bean == null) {

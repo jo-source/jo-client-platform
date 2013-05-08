@@ -93,6 +93,8 @@ public interface IBeanTableSetupBuilder<BEAN_TYPE> extends
 
 	IBeanTableSetupBuilder<BEAN_TYPE> setAutoPackPolicy(AutoPackPolicy autoPackPolicy);
 
+	IBeanTableSetupBuilder<BEAN_TYPE> setEditable(boolean editable);
+
 	@Mandatory
 	TableSelectionPolicy getSelectionPolicy();
 
@@ -108,9 +110,14 @@ public interface IBeanTableSetupBuilder<BEAN_TYPE> extends
 	@Mandatory
 	boolean hasDefaultMenus();
 
+	@Mandatory
 	boolean hasDefaultCreatorAction();
 
+	@Mandatory
 	boolean hasDefaultDeleterAction();
+
+	@Mandatory
+	boolean isEditable();
 
 	ITableMenuCreationInterceptor<BEAN_TYPE> getHeaderMenuInterceptor();
 

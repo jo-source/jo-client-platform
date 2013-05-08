@@ -213,6 +213,7 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 
 		final ITableBluePrint tableBp = BPF.table(model.getTableModel());
 		tableBp.setSetup(bluePrint);
+		tableBp.setSelectionPolicy(bluePrint.getSelectionPolicy());
 
 		final IComposite contentComposite = mainComposite.add(BPF.composite(), MigLayoutFactory.GROWING_CELL_CONSTRAINTS
 			+ ", wrap");

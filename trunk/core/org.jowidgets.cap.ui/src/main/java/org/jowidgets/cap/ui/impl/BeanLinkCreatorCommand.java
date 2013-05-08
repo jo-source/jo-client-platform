@@ -42,6 +42,7 @@ import org.jowidgets.api.command.IExceptionHandler;
 import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.api.threads.IUiThreadAccess;
 import org.jowidgets.api.toolkit.Toolkit;
+import org.jowidgets.cap.common.api.bean.Cardinality;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.execution.IExecutionCallbackListener;
@@ -87,6 +88,7 @@ final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BE
 	private final ILinkCreatorService linkCreatorService;
 	private final IBeanSelectionProvider<SOURCE_BEAN_TYPE> source;
 	private final IBeanListModel<LINKABLE_BEAN_TYPE> linkedModel;
+	private final Cardinality linkedCardinality;
 	private final Class<? extends LINK_BEAN_TYPE> linkBeanType;
 	private final IBeanFormBluePrint<LINK_BEAN_TYPE> linkBeanForm;
 	private final IFactory<IBeanProxy<LINK_BEAN_TYPE>> linkDefaultFactory;
@@ -111,6 +113,7 @@ final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BE
 		final BeanMessageStatePolicy sourceMessageStatePolicy,
 		final List<IExecutableChecker<SOURCE_BEAN_TYPE>> sourceExecutableCheckers,
 		final IBeanListModel<LINKABLE_BEAN_TYPE> linkedModel,
+		final Cardinality linkedCardinality,
 		final Class<? extends LINK_BEAN_TYPE> linkBeanType,
 		final IBeanFormBluePrint<LINK_BEAN_TYPE> linkBeanForm,
 		final IFactory<IBeanProxy<LINK_BEAN_TYPE>> linkDefaultFactory,
@@ -131,6 +134,7 @@ final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BE
 		Assert.paramNotNull(exceptionConverter, "exceptionConverter");
 		Assert.paramNotNull(linkBeanPropertyValidators, "linkBeanPropertyValidators");
 		Assert.paramNotNull(linkableBeanPropertyValidators, "linkableBeanPropertyValidators");
+		Assert.paramNotNull(linkedCardinality, "linkedCardinality");
 
 		this.enabledChecker = new BeanSelectionProviderEnabledChecker<SOURCE_BEAN_TYPE>(
 			source,
@@ -144,6 +148,7 @@ final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BE
 		this.source = source;
 		this.linkCreatorService = linkCreatorService;
 		this.linkedModel = linkedModel;
+		this.linkedCardinality = linkedCardinality;
 		this.linkBeanType = linkBeanType;
 		this.linkBeanForm = linkBeanForm;
 		this.linkDefaultFactory = linkDefaultFactory;
@@ -266,9 +271,13 @@ final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BE
 					bean.setExecutionTask(null);
 				}
 				if (linkedModel != null) {
+					if (Cardinality.LESS_OR_EQUAL_ONE.equals(linkedCardinality)) {
+						linkedModel.removeAllBeans();
+					}
 					for (final IBeanDto resultBean : result) {
 						linkedModel.addBeanDto(resultBean);
 					}
+
 				}
 				executionObservable.fireAfterExecutionSuccess(executionContext, result);
 			}

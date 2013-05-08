@@ -29,6 +29,7 @@
 package org.jowidgets.cap.common.impl;
 
 import org.jowidgets.cap.common.api.CapCommonToolkit;
+import org.jowidgets.cap.common.api.bean.Cardinality;
 import org.jowidgets.cap.common.api.entity.EntityLinkProperties;
 import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
 import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptorBuilder;
@@ -44,12 +45,11 @@ final class EntityLinkDescriptorBuilderImpl implements IEntityLinkDescriptorBuil
 	private Object linkEntityId;
 	private Object linkedEntityId;
 	private Object linkableEntityId;
+	private Cardinality linkedCardinality;
 	private IEntityLinkProperties sourceProperties;
 	private IEntityLinkProperties destinationProperties;
 	private IServiceId<ILinkCreatorService> creatorServiceId;
 	private IServiceId<ILinkDeleterService> deleterServiceId;
-
-	EntityLinkDescriptorBuilderImpl() {}
 
 	@Override
 	public IEntityLinkDescriptorBuilder setLinkEntityId(final Object id) {
@@ -67,6 +67,13 @@ final class EntityLinkDescriptorBuilderImpl implements IEntityLinkDescriptorBuil
 	@Override
 	public IEntityLinkDescriptorBuilder setLinkableEntityId(final Object id) {
 		this.linkableEntityId = id;
+		return this;
+	}
+
+	@Override
+	public IEntityLinkDescriptorBuilder setLinkedCardinality(final Cardinality cardinality) {
+		Assert.paramNotNull(cardinality, "cardinality");
+		this.linkedCardinality = cardinality;
 		return this;
 	}
 
@@ -126,12 +133,25 @@ final class EntityLinkDescriptorBuilderImpl implements IEntityLinkDescriptorBuil
 		return builder.build();
 	}
 
+	private Cardinality getLinkedCardinality() {
+		if (linkedCardinality != null) {
+			return linkedCardinality;
+		}
+		else if (sourceProperties == null && destinationProperties != null) {
+			return Cardinality.LESS_OR_EQUAL_ONE;
+		}
+		else {
+			return Cardinality.GREATER_OR_EQUAL_ZERO;
+		}
+	}
+
 	@Override
 	public IEntityLinkDescriptor build() {
 		return new EntityLinkDescriptorImpl(
 			linkEntityId,
 			linkedEntityId,
 			linkableEntityId,
+			getLinkedCardinality(),
 			sourceProperties,
 			destinationProperties,
 			creatorServiceId,
