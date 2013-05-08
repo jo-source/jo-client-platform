@@ -751,7 +751,9 @@ final class BeanEntityServiceBuilderImpl extends EntityServiceBuilderImpl implem
 					builder.setLinkCreatorService(creatorService.getValue());
 				}
 			}
-			else if (sourceProperties != null || destinationProperties != null) {
+			else if ((sourceProperties != null && destinationProperties != null) //standard links
+				|| (sourceProperties != null && destinationProperties == null) // direct links
+				|| (sourceProperties == null && destinationProperties != null && linkableEntityId != null)) {//direct inverse links
 				builder.setLinkCreatorService(createCreatorService(prebuilds));
 			}
 			if (deleterService != null) {
