@@ -34,9 +34,12 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.jowidgets.cap.common.api.CapCommonToolkit;
+import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.entity.IEntityLinkProperties;
+import org.jowidgets.cap.common.api.exception.BeanException;
+import org.jowidgets.cap.common.api.exception.DeletedBeanException;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.filter.ArithmeticFilter;
@@ -53,10 +56,16 @@ import org.jowidgets.cap.common.api.service.ILinkDeleterService;
 import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.common.tools.execution.SyncResultCallback;
+import org.jowidgets.cap.service.api.CapServiceToolkit;
+import org.jowidgets.cap.service.api.bean.IBeanAccess;
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.EmptyCheck;
+import org.jowidgets.util.reflection.BeanUtils;
 
-final class LinkDeleterServiceImpl implements ILinkDeleterService {
+final class LinkDeleterServiceImpl<SOURCE_BEAN_TYPE extends IBean, LINKED_BEAN_TYPE extends IBean> implements ILinkDeleterService {
 
+	private final IBeanAccess<SOURCE_BEAN_TYPE> sourceBeanAccess;
+	private final IBeanAccess<LINKED_BEAN_TYPE> linkedBeanAccess;
 	private final IReaderService<Void> linkReaderService;
 	private final IDeleterService sourceDeleterService;
 	private final IDeleterService linkDeleterService;
@@ -66,6 +75,8 @@ final class LinkDeleterServiceImpl implements ILinkDeleterService {
 	private final IEntityLinkProperties destinationProperties;
 
 	LinkDeleterServiceImpl(
+		final IBeanAccess<SOURCE_BEAN_TYPE> sourceBeanAccess,
+		final IBeanAccess<LINKED_BEAN_TYPE> linkedBeanAccess,
 		final IReaderService<Void> linkReaderService,
 		final IDeleterService sourceDeleterService,
 		final IDeleterService linkDeleterService,
@@ -76,6 +87,12 @@ final class LinkDeleterServiceImpl implements ILinkDeleterService {
 
 		Assert.paramNotNull(linkDeleterService, "linkDeleterService");
 
+		if (sourceProperties == null && destinationProperties == null) {
+			throw new IllegalArgumentException("There are neither source nor destination properties set!");
+		}
+
+		this.sourceBeanAccess = sourceBeanAccess;
+		this.linkedBeanAccess = linkedBeanAccess;
 		this.linkReaderService = linkReaderService;
 		this.sourceDeleterService = sourceDeleterService;
 		this.linkDeleterService = linkDeleterService;
@@ -103,6 +120,24 @@ final class LinkDeleterServiceImpl implements ILinkDeleterService {
 		final Collection<? extends ILinkDeletion> linksDeletions,
 		final IExecutionCallback executionCallback) {
 
+		if (sourceProperties != null && destinationProperties != null) {
+			deleteStandardLinks(linksDeletions, executionCallback);
+		}
+		else if (sourceProperties != null && destinationProperties == null) {
+			deleteDirectLinks(linksDeletions, executionCallback);
+		}
+		else if (sourceProperties == null && destinationProperties != null) {
+			deleteInverseDirectLinks(linksDeletions, executionCallback);
+		}
+		else {// sourceProperties == null && destinationProperties == null)
+			throw new IllegalStateException("There are neither source nor destination properties set!");
+		}
+	}
+
+	private void deleteStandardLinks(
+		final Collection<? extends ILinkDeletion> linksDeletions,
+		final IExecutionCallback executionCallback) {
+
 		final List<IBeanKey> sourceKeys = new LinkedList<IBeanKey>();
 		final List<IBeanKey> destinationKeys = new LinkedList<IBeanKey>();
 
@@ -118,14 +153,13 @@ final class LinkDeleterServiceImpl implements ILinkDeleterService {
 			if (linkDeletion.deleteSource()) {
 				sourceKeys.add(sourceKey);
 			}
-			if (linkDeletion.deleteDestination() || linkDeleterService == linkedDeleterService || destinationProperties == null) {
+			if (linkDeletion.deleteDestination()) {
 				destinationKeys.add(destinationKey);
 			}
-			if (linkDeleterService != linkedDeleterService && destinationProperties != null) {
-				linkReaderFilterBuilder.addFilter(createLinkFilter(sourceKey, destinationKey));
-				if (symmetric) {
-					linkReaderFilterBuilder.addFilter(createLinkFilter(destinationKey, sourceKey));
-				}
+
+			linkReaderFilterBuilder.addFilter(createLinkFilter(sourceKey, destinationKey));
+			if (symmetric) {
+				linkReaderFilterBuilder.addFilter(createLinkFilter(destinationKey, sourceKey));
 			}
 		}
 
@@ -133,15 +167,8 @@ final class LinkDeleterServiceImpl implements ILinkDeleterService {
 			deleteLinks(linkReaderFilterBuilder.build(), linksDeletions.size() * 10, executionCallback);
 		}
 
-		if (linkedDeleterService != null) {
-			deleteKeys(destinationKeys, linkedDeleterService, executionCallback);
-		}
-		else if (linkDeleterService != null && destinationProperties == null) {
-			deleteKeys(destinationKeys, linkDeleterService, executionCallback);
-		}
-
+		deleteKeys(destinationKeys, linkedDeleterService, executionCallback);
 		deleteKeys(sourceKeys, sourceDeleterService, executionCallback);
-
 	}
 
 	private void deleteLinks(final IFilter filter, final int maxRows, final IExecutionCallback executionCallback) {
@@ -190,6 +217,45 @@ final class LinkDeleterServiceImpl implements ILinkDeleterService {
 		builder.setOperator(ArithmeticOperator.EQUAL);
 		builder.setParameter(key.getId());
 		return builder.build();
+	}
+
+	private void deleteDirectLinks(
+		final Collection<? extends ILinkDeletion> linksDeletions,
+		final IExecutionCallback executionCallback) {
+		for (final ILinkDeletion linkDeletion : linksDeletions) {
+			final IBeanKey destinationKey = linkDeletion.getDestinationKey();
+			resetDirectLink(sourceProperties, destinationKey, linkedBeanAccess, executionCallback);
+		}
+	}
+
+	private void deleteInverseDirectLinks(
+		final Collection<? extends ILinkDeletion> linksDeletions,
+		final IExecutionCallback executionCallback) {
+		for (final ILinkDeletion linkDeletion : linksDeletions) {
+			final IBeanKey sourceKey = linkDeletion.getSourceKey();
+			resetDirectLink(destinationProperties, sourceKey, sourceBeanAccess, executionCallback);
+		}
+	}
+
+	private <BEAN_TYPE extends IBean> void resetDirectLink(
+		final IEntityLinkProperties linkProperties,
+		final IBeanKey beanKey,
+		final IBeanAccess<BEAN_TYPE> beanAccess,
+		final IExecutionCallback executionCallback) {
+
+		CapServiceToolkit.checkCanceled(executionCallback);
+		final List<IBeanKey> singletonList = Collections.singletonList(beanKey);
+		final List<BEAN_TYPE> beans = beanAccess.getBeans(singletonList, executionCallback);
+		if (!EmptyCheck.isEmpty(beans) && beans.size() == 1) {
+			final BEAN_TYPE bean = beans.iterator().next();
+			BeanUtils.setProperty(bean, linkProperties.getForeignKeyPropertyName(), null);
+		}
+		else if (!EmptyCheck.isEmpty(beans) && beans.size() > 1) {
+			throw new BeanException(beanKey.getId(), "More than one bean found for the key '" + beanKey + "'");
+		}
+		else {
+			throw new DeletedBeanException(beanKey.getId());
+		}
 	}
 
 }

@@ -29,7 +29,6 @@
 package org.jowidgets.cap.service.impl;
 
 import java.io.Serializable;
-import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -56,7 +55,7 @@ import org.jowidgets.cap.service.api.bean.IBeanAccess;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.EmptyCheck;
-import org.jowidgets.util.reflection.IntrospectionCache;
+import org.jowidgets.util.reflection.BeanUtils;
 
 final class LinkCreatorServiceImpl<SOURCE_BEAN_TYPE extends IBean, LINKED_BEAN_TYPE extends IBean> implements ILinkCreatorService {
 
@@ -301,7 +300,7 @@ final class LinkCreatorServiceImpl<SOURCE_BEAN_TYPE extends IBean, LINKED_BEAN_T
 				final BEAN_TYPE bean = beans.iterator().next();
 				if (linkedBean != null && linkProperties != null) {
 					final Object sourceKey = linkedBean.getValue(linkProperties.getKeyPropertyName());
-					setProperty(bean, linkProperties.getForeignKeyPropertyName(), sourceKey);
+					BeanUtils.setProperty(bean, linkProperties.getForeignKeyPropertyName(), sourceKey);
 				}
 				result.add(dtoFactory.createDto(bean));
 			}
@@ -345,27 +344,6 @@ final class LinkCreatorServiceImpl<SOURCE_BEAN_TYPE extends IBean, LINKED_BEAN_T
 		}
 
 		return null;
-	}
-
-	private static void setProperty(final Object bean, final String propertyName, final Object value) {
-		Assert.paramNotNull(bean, "bean");
-		Assert.paramNotNull(propertyName, "propertyName");
-		final Method writeMethod = IntrospectionCache.getWriteMethodFromHierarchy(bean.getClass(), propertyName);
-		if (writeMethod != null) {
-			try {
-				writeMethod.invoke(bean, value);
-			}
-			catch (final Exception e) {
-				throw new RuntimeException(e);
-			}
-		}
-		else {
-			throw new IllegalArgumentException("No write method found for property '"
-				+ propertyName
-				+ "' on bean '"
-				+ bean
-				+ "'.");
-		}
 	}
 
 	private List<IBeanDto> createDirectLinkBeans(

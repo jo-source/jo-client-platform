@@ -230,7 +230,9 @@ final class LinkServicesBuilderImpl<SOURCE_BEAN_TYPE extends IBean, LINKED_BEAN_
 
 	@Override
 	public ILinkDeleterService buildDeleterService() {
-		return new LinkDeleterServiceImpl(
+		return new LinkDeleterServiceImpl<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE>(
+			sourceBeanAccess,
+			linkedBeanAccess,
 			linkReaderService,
 			sourceDeleterService,
 			linkDeleterService,
