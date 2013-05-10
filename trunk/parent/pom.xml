@@ -59,6 +59,19 @@
 			</snapshots>
 		</repository>
 	</repositories>
+	
+	<pluginRepositories>
+		<pluginRepository>
+			<id>jowidgets</id>
+			<url>http://jowidgets.org/maven2/</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</pluginRepository>
+    </pluginRepositories>
 
 	<build>
 		<extensions>
