@@ -29,6 +29,7 @@
 package org.jowidgets.cap.ui.impl.widgets;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -1748,15 +1749,16 @@ final class BeanTableAttributeListImpl extends CompositeWrapper {
 
 		@Override
 		// only set Elements is list has changed to avoid flickering
-		public void setElements(final List<? extends TYPE> elements) {
-			final List<TYPE> currentElements = getElements();
+		public void setElements(final Collection<? extends TYPE> elements) {
+			final List<TYPE> newElements = new ArrayList<TYPE>(elements);
+			final List<TYPE> currentElements = new ArrayList<TYPE>(getElements());
 			boolean changed = false;
 			if (elements.size() != currentElements.size()) {
 				changed = true;
 			}
 			else {
 				for (int i = 0; i < elements.size(); i++) {
-					if (!NullCompatibleEquivalence.equals(elements.get(i), currentElements.get(i))) {
+					if (!NullCompatibleEquivalence.equals(newElements.get(i), currentElements.get(i))) {
 						changed = true;
 						break;
 					}
