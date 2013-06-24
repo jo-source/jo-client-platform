@@ -55,7 +55,7 @@ import org.jowidgets.util.Tuple;
 
 final class JpaServicesDecoratorProviderImpl implements IServicesDecoratorProvider {
 
-	private final EntityManagerFactory entityManagerFactory;
+	private final String persistenceUnitName;
 	private final Set<Class<?>> entityManagerServices;
 	private final Set<Class<?>> transactionalServices;
 	private final List<IDecorator<Throwable>> exceptionDecorators;
@@ -76,13 +76,7 @@ final class JpaServicesDecoratorProviderImpl implements IServicesDecoratorProvid
 		Assert.paramNotNull(exceptionDecorators, "exceptionDecorators");
 		Assert.paramNotNull(exceptionLogger, "exceptionLogger");
 
-		this.entityManagerFactory = EntityManagerFactoryProvider.get(persistenceUnitName);
-		if (entityManagerFactory == null && !entityManagerServices.isEmpty()) {
-			throw new IllegalArgumentException("Could not create an EntityManagerFactory for persistence unit name '"
-				+ persistenceUnitName
-				+ "'.");
-		}
-
+		this.persistenceUnitName = persistenceUnitName;
 		this.entityManagerServices = new HashSet<Class<?>>(entityManagerServices);
 		this.transactionalServices = new HashSet<Class<?>>(transactionalServices);
 		this.exceptionDecorators = new LinkedList<IDecorator<Throwable>>(exceptionDecorators);
@@ -115,6 +109,16 @@ final class JpaServicesDecoratorProviderImpl implements IServicesDecoratorProvid
 	@Override
 	public int getOrder() {
 		return order;
+	}
+
+	private EntityManagerFactory getEntityManagerFactory() {
+		final EntityManagerFactory result = EntityManagerFactoryProvider.get(persistenceUnitName);
+		if (result == null) {
+			throw new IllegalArgumentException("Could not create an EntityManagerFactory for persistence unit name '"
+				+ persistenceUnitName
+				+ "'.");
+		}
+		return result;
 	}
 
 	private final class JpaInvocationHandler extends AbstractCapServiceInvocationHandler {
@@ -282,7 +286,7 @@ final class JpaServicesDecoratorProviderImpl implements IServicesDecoratorProvid
 			boolean created = false;
 			EntityManager entityManager = EntityManagerHolder.get();
 			if (entityManagerService && entityManager == null) {
-				entityManager = entityManagerFactory.createEntityManager();
+				entityManager = getEntityManagerFactory().createEntityManager();
 				EntityManagerHolder.set(entityManager);
 				created = true;
 			}
