@@ -22,13 +22,7 @@
 	</scm>
 
 	<modules>
-		<module>../core/parent</module>
-		<module>../remoting/parent</module>
-		<module>../plugin/org.jowidgets.plugin</module>
-		<module>../service/parent</module>
-		<module>../addons/parent</module>
-		<module>../tools/parent</module>
-		<module>../util/parent</module>
+		<module>../modules/parent</module>
 	</modules>
 
 	<distributionManagement>
