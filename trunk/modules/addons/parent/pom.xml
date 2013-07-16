@@ -29,6 +29,9 @@
 		<module>../org.jowidgets.cap.security.ui</module>
 		<module>../org.jowidgets.cap.security.ui.plugin</module>
 		<module>../org.jowidgets.plugin.spring</module>
+		<module>../org.jowidgets.cap.addons.widgets.graph.impl.prefuse.swt</module>
+		<module>../org.jowidgets.cap.addons.widgets.graph.impl.prefuse.swing</module>
+		<module>../org.jowidgets.cap.addons.widgets.graph.impl.prefuse.swing.common</module>
 		<module>../plugins/parent</module>
 		<module>../widgets/parent</module>
 	</modules>
