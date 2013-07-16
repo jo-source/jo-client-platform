@@ -15,13 +15,13 @@
 	
 		<dependency>
 			<groupId>org.jowidgets</groupId>
-			<artifactId>org.jowidgets.cap.security.common.bundle</artifactId>
+			<artifactId>org.jowidgets.cap.security.common</artifactId>
 			<version>0.23.0-SNAPSHOT</version>
 		</dependency>
 		
 		<dependency>
 			<groupId>org.jowidgets</groupId>
-			<artifactId>org.jowidgets.cap.security.common.bundle</artifactId>
+			<artifactId>org.jowidgets.cap.security.common</artifactId>
 			<version>0.23.0-SNAPSHOT</version>
 			<type>jar</type>
 			<classifier>sources</classifier>
@@ -36,7 +36,7 @@
 				<artifactId>maven-bundle-plugin</artifactId>
 				<configuration>
 					<instructions>
-						<Embed-Dependency>org.jowidgets.cap.security.common.bundle;inline=true</Embed-Dependency>
+						<Embed-Dependency>org.jowidgets.cap.security.common;inline=true</Embed-Dependency>
 						<Require-Bundle>org.jowidgets.cap.common.bundle,org.jowidgets.security.bundle,org.jowidgets.util.bundle</Require-Bundle>
 					</instructions>
 				</configuration>
