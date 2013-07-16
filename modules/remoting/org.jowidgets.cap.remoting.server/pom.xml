@@ -11,34 +11,25 @@
 	</parent>
 
 	<dependencies>
+	
 	   <dependency>
             <groupId>org.jowidgets</groupId>
             <artifactId>org.jowidgets.service</artifactId>
             <version>0.23.0-SNAPSHOT</version>
         </dependency>
+		
         <dependency>
             <groupId>org.jowidgets</groupId>
             <artifactId>org.jowidgets.cap.remoting.common</artifactId>
             <version>0.23.0-SNAPSHOT</version>
         </dependency>
+		
         <dependency>
             <groupId>org.jowidgets</groupId>
             <artifactId>org.jowidgets.invocation.service.server.api</artifactId>
             <version>0.23.0-SNAPSHOT</version>
         </dependency>
+		
     </dependencies>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-                <configuration>
-                    <instructions>
-                        <Require-Bundle>org.jowidgets.cap.remoting.common</Require-Bundle>
-                    </instructions>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
 </project>

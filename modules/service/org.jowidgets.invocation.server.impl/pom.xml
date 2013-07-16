@@ -11,34 +11,25 @@
 	</parent>
 
 	<dependencies>
+	
         <dependency>
             <groupId>org.jowidgets</groupId>
             <artifactId>org.jowidgets.invocation.server.api</artifactId>
             <version>0.23.0-SNAPSHOT</version>
         </dependency>
+		
         <dependency>
             <groupId>org.jowidgets</groupId>
             <artifactId>org.jowidgets.message.api</artifactId>
             <version>0.23.0-SNAPSHOT</version>
         </dependency>
+		
 		<dependency>
             <groupId>org.jowidgets</groupId>
             <artifactId>org.jowidgets.invocation.common.impl</artifactId>
             <version>0.23.0-SNAPSHOT</version>
         </dependency>
+		
     </dependencies>
-
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.felix</groupId>
-				<artifactId>maven-bundle-plugin</artifactId>
-				<configuration>
-					<instructions>
-						<Require-Bundle>org.jowidgets.invocation.server.api, org.jowidgets.message.api, org.jowidgets.invocation.common.impl</Require-Bundle>
-					</instructions>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
+	
 </project>

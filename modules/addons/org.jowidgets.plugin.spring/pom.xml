@@ -11,6 +11,7 @@
 	</parent>
 
 	<dependencies>
+	
 		<dependency>
 			<groupId>org.jowidgets</groupId>
 			<artifactId>org.jowidgets.plugin</artifactId>
@@ -39,18 +40,5 @@
 		</dependency>
 
 	</dependencies>
-
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.felix</groupId>
-				<artifactId>maven-bundle-plugin</artifactId>
-				<configuration>
-					<instructions>
-						<Require-Bundle>org.jowidgets.plugin</Require-Bundle>
-					</instructions>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
+	
 </project>
