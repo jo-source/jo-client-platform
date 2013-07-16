@@ -1,0 +1,94 @@
+<project
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>org.jowidgets</groupId>
+	<artifactId>org.jowidgets.cap.core.feature</artifactId>
+	<packaging>eclipse-feature</packaging>
+
+	<parent>
+		<groupId>org.jowidgets</groupId>
+		<artifactId>org.jowidgets.cap.features.parent</artifactId>
+		<version>0.23.0-SNAPSHOT</version>
+		<relativePath>../parent/pom.xml</relativePath>
+	</parent>
+ 	
+	<dependencies>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.cap.common.bundle</artifactId>
+			<version>0.23.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.cap.service.bundle</artifactId>
+			<version>0.23.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.cap.ui.bundle</artifactId>
+			<version>0.23.0-SNAPSHOT</version>
+		</dependency>	
+		
+		<!-- jo-client-platform dependencies -->
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.service.bundle</artifactId>
+			<version>0.23.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.plugin.bundle</artifactId>
+			<version>0.23.0-SNAPSHOT</version>
+		</dependency>
+		
+		<!-- jowidgets dependencies -->
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.util.bundle</artifactId>
+			<version>${jowidgets.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.i18n.bundle</artifactId>
+			<version>${jowidgets.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.validation.bundle</artifactId>
+			<version>${jowidgets.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.common.bundle</artifactId>
+			<version>${jowidgets.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.api.bundle</artifactId>
+			<version>${jowidgets.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.tools.bundle</artifactId>
+			<version>${jowidgets.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.workbench.api.bundle</artifactId>
+			<version>${jowidgets.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.workbench.tools.bundle</artifactId>
+			<version>${jowidgets.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.workbench.toolkit.api.bundle</artifactId>
+			<version>${jowidgets.version}</version>
+		</dependency>
+		
+	</dependencies>
+
+</project>

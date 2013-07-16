@@ -37,7 +37,7 @@
 				<configuration>
 					<instructions>
 						<Embed-Dependency>org.jowidgets.cap.common;inline=true</Embed-Dependency>
-						<Require-Bundle>org.jowidgets.service.bundle,org.jowidgets.plugin.bundle,org.jowidgets.i18n.bundle,org.jowidgets.validation.impl.bundle</Require-Bundle>
+						<Require-Bundle>org.jowidgets.service.bundle,org.jowidgets.plugin.bundle,org.jowidgets.i18n.bundle,org.jowidgets.validation.bundle</Require-Bundle>
 					</instructions>
 				</configuration>
 			</plugin>
