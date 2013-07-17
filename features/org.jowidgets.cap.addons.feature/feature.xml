@@ -136,6 +136,27 @@
          unpack="false"/>
 	
 	<plugin
+         id="org.jowidgets.message.impl.akka.bundle"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+	
+	<plugin
+         id="org.jowidgets.message.impl.http.client.bundle"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+		 
+	<plugin
+         id="org.jowidgets.message.impl.http.server.bundle"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+	
+	<plugin
          id="org.jowidgets.plugin.spring.bundle"
          download-size="0"
          install-size="0"
@@ -155,5 +176,6 @@
          install-size="0"
          version="0.0.0"
          unpack="false"/>
+
 	
 </feature>
