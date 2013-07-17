@@ -393,6 +393,11 @@
 		</dependency>
 		<dependency>
 			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.workbench.impl.bundle</artifactId>
+			<version>${jowidgets.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
 			<artifactId>org.jowidgets.spi.bundle</artifactId>
 			<version>${jowidgets.version}</version>
 		</dependency>
@@ -419,6 +424,16 @@
 		<dependency>
 			<groupId>org.jowidgets</groupId>
 			<artifactId>org.jowidgets.spi.impl.swing.addons.bundle</artifactId>
+			<version>${jowidgets.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.spi.impl.rwt.bundle</artifactId>
+			<version>${jowidgets.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.spi.impl.rwt.legacy.bundle</artifactId>
 			<version>${jowidgets.version}</version>
 		</dependency>
 		<dependency>
@@ -484,6 +499,7 @@
 		<module>../org.jowidgets.cap.remoting.feature</module>
 		<module>../org.jowidgets.cap.service.feature</module>
 		<module>../org.jowidgets.cap.thirdparty.feature</module>
+		<module>../org.jowidgets.cap.tools.feature</module>
 	</modules>
 	
 	<build>
