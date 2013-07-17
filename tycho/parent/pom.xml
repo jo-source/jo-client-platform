@@ -493,7 +493,7 @@
 	</dependencies>
 
 	<modules>
-	    <module>../features/parent</module>
+	    <module>../features/parent/</module>
 	</modules>
 	
 	<build>
