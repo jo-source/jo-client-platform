@@ -16,6 +16,9 @@
 		<module>../org.jowidgets.cap.addons.widgets.graph.impl.prefuse.swing.bundle</module>
 		<module>../org.jowidgets.cap.addons.widgets.graph.impl.prefuse.swing.common.bundle</module>
 		<module>../org.jowidgets.cap.addons.plugins.beanform.document.bundle</module>
+		<module>../org.jowidgets.message.impl.http.client.bundle</module>	
+		<module>../org.jowidgets.message.impl.http.server.bundle</module>
+		<module>../org.jowidgets.message.impl.akka.bundle</module>	
 		<module>../org.jowidgets.cap.service.jpa.api.bundle</module>
 		<module>../org.jowidgets.cap.service.jpa.impl.bundle</module>	
 		<module>../org.jowidgets.cap.service.hibernate.bundle</module>
