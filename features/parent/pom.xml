@@ -482,6 +482,7 @@
 		<module>../org.jowidgets.cap.addons.feature</module>
 		<module>../org.jowidgets.cap.plugin.feature</module>
 		<module>../org.jowidgets.cap.remoting.feature</module>
+		<module>../org.jowidgets.cap.service.feature</module>
 	</modules>
 	
 	<build>
