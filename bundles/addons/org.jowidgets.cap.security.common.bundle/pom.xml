@@ -38,6 +38,7 @@
 					<instructions>
 						<Embed-Dependency>org.jowidgets.cap.security.common;inline=true</Embed-Dependency>
 						<Require-Bundle>org.jowidgets.cap.common.bundle,org.jowidgets.security.bundle,org.jowidgets.util.bundle</Require-Bundle>
+						<SPI-Consumer>*</SPI-Consumer>
 					</instructions>
 				</configuration>
 			</plugin>
