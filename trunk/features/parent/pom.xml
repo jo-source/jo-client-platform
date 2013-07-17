@@ -480,6 +480,8 @@
 	<modules>
 	    <module>../org.jowidgets.cap.core.feature</module>
 		<module>../org.jowidgets.cap.addons.feature</module>
+		<module>../org.jowidgets.cap.plugin.feature</module>
+		<module>../org.jowidgets.cap.remoting.feature</module>
 	</modules>
 	
 	<build>
