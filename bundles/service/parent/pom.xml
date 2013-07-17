@@ -15,10 +15,7 @@
 	<modules>
 		<module>../org.jowidgets.service.bundle</module>
 		<module>../org.jowidgets.security.bundle</module>
-		<module>../org.jowidgets.message.api.bundle</module>
-		<module>../org.jowidgets.message.impl.http.client.bundle</module>	
-		<module>../org.jowidgets.message.impl.http.server.bundle</module>
-		<module>../org.jowidgets.message.impl.akka.bundle</module>			
+		<module>../org.jowidgets.message.api.bundle</module>		
 		<module>../org.jowidgets.message.impl.socket.bundle</module>	
 		<module>../org.jowidgets.invocation.common.api.bundle</module>	
 		<module>../org.jowidgets.invocation.client.api.bundle</module>
