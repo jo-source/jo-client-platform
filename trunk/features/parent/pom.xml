@@ -51,29 +51,431 @@
 	</repositories>
 	
 	<dependencies>
-		<!-- THIRD PARTY -->
+		<!-- jo-client-platform addons dependencies -->		
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.cap.addons.plugins.beanform.document.bundle</artifactId>
+			<version>0.23.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.cap.addons.widgets.graph.impl.prefuse.swing.bundle</artifactId>
+			<version>0.23.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.cap.addons.widgets.graph.impl.prefuse.swing.common.bundle</artifactId>
+			<version>0.23.0-SNAPSHOT</version>
+		</dependency>	
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.cap.addons.widgets.graph.impl.prefuse.swt.bundle</artifactId>
+			<version>0.23.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.cap.security.common.bundle</artifactId>
+			<version>0.23.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.cap.security.service.bundle</artifactId>
+			<version>0.23.0-SNAPSHOT</version>
+		</dependency>	
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.cap.security.service.plugin.bundle</artifactId>
+			<version>0.23.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.cap.security.ui.bundle</artifactId>
+			<version>0.23.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.cap.security.ui.plugin.bundle</artifactId>
+			<version>0.23.0-SNAPSHOT</version>
+		</dependency>	
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.cap.service.hibernate.bundle</artifactId>
+			<version>0.23.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.cap.service.hibernate.oracle.bundle</artifactId>
+			<version>0.23.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.cap.service.impl.dummy.bundle</artifactId>
+			<version>0.23.0-SNAPSHOT</version>
+		</dependency>	
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.cap.service.jpa.api.bundle</artifactId>
+			<version>0.23.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.cap.service.jpa.impl.bundle</artifactId>
+			<version>0.23.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.cap.service.neo4j.api.bundle</artifactId>
+			<version>0.23.0-SNAPSHOT</version>
+		</dependency>	
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.cap.service.neo4j.impl.bundle</artifactId>
+			<version>0.23.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.cap.service.spring.bundle</artifactId>
+			<version>0.23.0-SNAPSHOT</version>
+		</dependency>	
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.plugin.spring.bundle</artifactId>
+			<version>0.23.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.security.impl.http.client.bundle</artifactId>
+			<version>0.23.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.security.impl.http.server.bundle</artifactId>
+			<version>0.23.0-SNAPSHOT</version>
+		</dependency>
+		
+		
+		<!-- jo-client-platform core dependencies -->
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.cap.common.bundle</artifactId>
+			<version>0.23.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.cap.service.bundle</artifactId>
+			<version>0.23.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.cap.ui.bundle</artifactId>
+			<version>0.23.0-SNAPSHOT</version>
+		</dependency>
+		
+		<!-- jo-client-platform plugin dependencies -->
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.plugin.bundle</artifactId>
+			<version>0.23.0-SNAPSHOT</version>
+		</dependency>
+		
+		<!-- jo-client-platform remoting dependencies -->
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.cap.remoting.client.bundle</artifactId>
+			<version>0.23.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.cap.remoting.common.bundle</artifactId>
+			<version>0.23.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.cap.remoting.server.bundle</artifactId>
+			<version>0.23.0-SNAPSHOT</version>
+		</dependency>
+		
+		<!-- jo-client-platform service dependencies -->
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.invocation.client.api.bundle</artifactId>
+			<version>0.23.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.invocation.client.impl.bundle</artifactId>
+			<version>0.23.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.invocation.common.api.bundle</artifactId>
+			<version>0.23.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.invocation.common.impl.bundle</artifactId>
+			<version>0.23.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.invocation.server.api.bundle</artifactId>
+			<version>0.23.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.invocation.server.impl.bundle</artifactId>
+			<version>0.23.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.invocation.service.client.api.bundle</artifactId>
+			<version>0.23.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.invocation.service.client.impl.bundle</artifactId>
+			<version>0.23.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.invocation.service.common.api.bundle</artifactId>
+			<version>0.23.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.invocation.service.server.api.bundle</artifactId>
+			<version>0.23.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.invocation.service.server.impl.bundle</artifactId>
+			<version>0.23.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.message.api.bundle</artifactId>
+			<version>0.23.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.message.impl.akka.bundle</artifactId>
+			<version>0.23.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.message.impl.http.client.bundle</artifactId>
+			<version>0.23.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.message.impl.http.server.bundle</artifactId>
+			<version>0.23.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.message.impl.socket.bundle</artifactId>
+			<version>0.23.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.security.bundle</artifactId>
+			<version>0.23.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.service.bundle</artifactId>
+			<version>0.23.0-SNAPSHOT</version>
+		</dependency>
+		
+		<!-- jo-client-platform tools dependencies -->
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.cap.tools.starter.client.bundle</artifactId>
+			<version>0.23.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.cap.tools.starter.server.bundle</artifactId>
+			<version>0.23.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.cap.tools.starter.standalone.bundle</artifactId>
+			<version>0.23.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.cap.tools.starter.standalone.common.bundle</artifactId>
+			<version>0.23.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.cap.tools.starter.webapp.rwt.bundle</artifactId>
+			<version>0.23.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.cap.tools.starter.webapp.rwt.legacy.bundle</artifactId>
+			<version>0.23.0-SNAPSHOT</version>
+		</dependency>
+		
+		<!-- jo-client-platform util dependencies -->
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.cap.util.ddl.bundle</artifactId>
+			<version>0.23.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.cap.util.replacer.bundle</artifactId>
+			<version>0.23.0-SNAPSHOT</version>
+		</dependency>
+	
+		<!-- jowidgets dependencies -->
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.util.bundle</artifactId>
+			<version>${jowidgets.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.i18n.bundle</artifactId>
+			<version>${jowidgets.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.validation.bundle</artifactId>
+			<version>${jowidgets.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.common.bundle</artifactId>
+			<version>${jowidgets.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.test.common.bundle</artifactId>
+			<version>${jowidgets.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.api.bundle</artifactId>
+			<version>${jowidgets.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.test.api.bundle</artifactId>
+			<version>${jowidgets.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.impl.bundle</artifactId>
+			<version>${jowidgets.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.tools.bundle</artifactId>
+			<version>${jowidgets.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.workbench.api.bundle</artifactId>
+			<version>${jowidgets.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.workbench.tools.bundle</artifactId>
+			<version>${jowidgets.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.workbench.toolkit.api.bundle</artifactId>
+			<version>${jowidgets.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.spi.bundle</artifactId>
+			<version>${jowidgets.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.test.spi.bundle</artifactId>
+			<version>${jowidgets.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.spi.impl.common.bundle</artifactId>
+			<version>${jowidgets.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.spi.impl.swing.common.bundle</artifactId>
+			<version>${jowidgets.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.spi.impl.swt.common.bundle</artifactId>
+			<version>${jowidgets.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.spi.impl.swing.addons.bundle</artifactId>
+			<version>${jowidgets.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.addons.widgets.browser.api.bundle</artifactId>
+			<version>${jowidgets.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.addons.bridge.swt.awt.bundle</artifactId>
+			<version>${jowidgets.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.spi.impl.bridge.swt.awt.common.bundle</artifactId>
+			<version>${jowidgets.version}</version>
+		</dependency>
+	
+	
+		<!-- THIRD PARTY dependencies -->
 		<dependency>
 			<groupId>net.miginfocom.miglayout</groupId>
 			<artifactId>net.miginfocom.miglayout.swt.bundle</artifactId>
 			<version>3.7.3.1</version>
 		</dependency>
-		
 		<dependency>
 			<groupId>net.miginfocom.miglayout</groupId>
 			<artifactId>net.miginfocom.miglayout.swing.bundle</artifactId>
 			<version>3.7.3.1</version>
 		</dependency>
-		
 		<dependency>
 			<groupId>javax.validation</groupId>
 			<artifactId>com.springsource.javax.validation</artifactId>
 			<version>1.0.0.GA</version>
+		</dependency>
+		<dependency>
+			<groupId>org.prefuse</groupId>
+			<artifactId>org.prefuse.bundle</artifactId>
+			<version>2007.10.21</version>
+		</dependency>
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>org.hibernate.entitymanager.bundle</artifactId>
+			<version>3.6.8.Final</version>
+		</dependency>
+		<dependency>
+			<groupId>org.neo4j</groupId>
+			<artifactId>org.neo4j.bundle</artifactId>
+			<version>1.7.2</version>
 		</dependency>
 		
 	</dependencies>
 
 	<modules>
 	    <module>../org.jowidgets.cap.core.feature</module>
+		<module>../org.jowidgets.cap.addons.feature</module>
 	</modules>
 	
 	<build>

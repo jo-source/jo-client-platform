@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
     id="org.jowidgets.cap.core.feature"
-    label="jowidgets addons feature"
+    label="jo-client-platform core feature"
     version="0.23.0.qualifier">
 
 	<description url="http://www.example.com/description">
