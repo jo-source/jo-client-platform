@@ -39,6 +39,7 @@
 						<Embed-Dependency>org.jowidgets.cap.ui;inline=true</Embed-Dependency>
 						<Require-Bundle>org.jowidgets.service.bundle,org.jowidgets.cap.common.bundle,org.jowidgets.tools.bundle,org.jowidgets.workbench.tools.bundle</Require-Bundle>
 						<SPI-Consumer>*</SPI-Consumer>
+						<SPI-Provider>*</SPI-Provider>
 					</instructions>
 				</configuration>
 			</plugin>

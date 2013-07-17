@@ -38,6 +38,7 @@
 					<instructions>
 						<Embed-Dependency>org.jowidgets.cap.addons.widgets.graph.impl.prefuse.swt;inline=true</Embed-Dependency>
 						<Require-Bundle>org.jowidgets.cap.addons.widgets.graph.impl.prefuse.swing.common.bundle,org.jowidgets.addons.bridge.swt.awt.bundle</Require-Bundle>
+						<SPI-Provider>*</SPI-Provider>
 					</instructions>
 				</configuration>
 			</plugin>
