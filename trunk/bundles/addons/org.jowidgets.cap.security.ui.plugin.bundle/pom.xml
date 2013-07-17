@@ -38,6 +38,7 @@
 					<instructions>
 						<Embed-Dependency>org.jowidgets.cap.security.ui.plugin;inline=true</Embed-Dependency>
 						<Require-Bundle>org.jowidgets.cap.security.ui.bundle</Require-Bundle>
+						<SPI-Provider>*</SPI-Provider>
 					</instructions>
 				</configuration>
 			</plugin>

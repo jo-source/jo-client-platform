@@ -38,6 +38,7 @@
 					<instructions>
 						<Embed-Dependency>org.jowidgets.cap.service.neo4j.impl;inline=true</Embed-Dependency>
 						<Require-Bundle>org.jowidgets.cap.service.neo4j.api.bundle</Require-Bundle>
+						<SPI-Provider>*</SPI-Provider>
 					</instructions>
 				</configuration>
 			</plugin>

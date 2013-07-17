@@ -38,6 +38,7 @@
 					<instructions>
 						<Embed-Dependency>org.jowidgets.invocation.service.client.impl;inline=true</Embed-Dependency>
 						<Require-Bundle>org.jowidgets.util.bundle,org.jowidgets.invocation.service.client.api.bundle,org.jowidgets.invocation.client.api.bundle</Require-Bundle>
+						<SPI-Provider>*</SPI-Provider>
 					</instructions>
 				</configuration>
 			</plugin>

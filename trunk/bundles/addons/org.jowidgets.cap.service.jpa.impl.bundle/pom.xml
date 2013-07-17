@@ -38,6 +38,7 @@
 					<instructions>
 						<Embed-Dependency>org.jowidgets.cap.service.jpa.impl;inline=true</Embed-Dependency>
 						<Require-Bundle>org.jowidgets.util.bundle,org.jowidgets.cap.service.jpa.api.bundle</Require-Bundle>
+						<SPI-Provider>*</SPI-Provider>
 					</instructions>
 				</configuration>
 			</plugin>
