@@ -38,6 +38,7 @@
 					<instructions>
 						<Embed-Dependency>org.jowidgets.service;inline=true</Embed-Dependency>
 						<Require-Bundle>org.jowidgets.util.bundle</Require-Bundle>
+						<SPI-Consumer>*</SPI-Consumer>
 					</instructions>
 				</configuration>
 			</plugin>
