@@ -15,6 +15,7 @@
 	    <module>../org.prefuse.bundle</module>
 		<module>../org.hibernate.entitymanager.bundle</module>
 		<module>../org.neo4j.bundle</module>
+		<module>../org.apache.httpcomponents.httpclient.bundle</module>
 		<module>../se.scalablesolutions.akka.actor.bundle</module>
 	</modules>
 
