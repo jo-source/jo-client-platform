@@ -483,6 +483,7 @@
 		<module>../org.jowidgets.cap.plugin.feature</module>
 		<module>../org.jowidgets.cap.remoting.feature</module>
 		<module>../org.jowidgets.cap.service.feature</module>
+		<module>../org.jowidgets.cap.thirdparty.feature</module>
 	</modules>
 	
 	<build>
