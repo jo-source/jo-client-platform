@@ -28,7 +28,7 @@
 		<module>../thirdparty/parent</module>
 	</modules>
 
-		<build>
+	<build>
 		<plugins>
 			
 			<plugin>
