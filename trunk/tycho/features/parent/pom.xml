@@ -20,6 +20,7 @@
 		<module>../org.jowidgets.cap.thirdparty.feature</module>
 		<module>../org.jowidgets.cap.tools.feature</module>
 		<module>../org.jowidgets.cap.util.feature</module>
+		<module>../org.jowidgets.cap.all.feature</module>
 	</modules>
 
 </project>
