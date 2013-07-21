@@ -37,7 +37,7 @@
 				<configuration>
 					<instructions>
 						<Embed-Dependency>org.jowidgets.cap.security.ui;inline=true</Embed-Dependency>
-						<Require-Bundle>org.jowidgets.cap.security.common.bundle,org.jowidgets.cap.ui.bundle,org.jowidgets.security.bundle</Require-Bundle>
+						<Require-Bundle>org.jowidgets.cap.security.common.bundle,org.jowidgets.cap.ui.bundle,org.jowidgets.security.bundle,org.jowidgets.classloading.api.bundle</Require-Bundle>
 						<SPI-Consumer>*</SPI-Consumer>
 					</instructions>
 				</configuration>

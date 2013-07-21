@@ -37,6 +37,7 @@
 				<configuration>
 					<instructions>
 						<Embed-Dependency>org.jowidgets.message.api;inline=true</Embed-Dependency>
+						<Require-Bundle>org.jowidgets.classloading.api.bundle</Require-Bundle>
 						<SPI-Consumer>*</SPI-Consumer>
 					</instructions>
 				</configuration>
