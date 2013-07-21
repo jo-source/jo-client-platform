@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
 
@@ -11,12 +12,12 @@
 		<version>0.23.0-SNAPSHOT</version>
 		<relativePath>../../parent/pom.xml</relativePath>
 	</parent>
-	
+
 	<properties>
 		<maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
 		<osgi-version-qualifier>${maven.build.timestamp}</osgi-version-qualifier>
 	</properties>
-	
+
 	<modules>
 		<module>../core/parent</module>
 		<module>../remoting/parent</module>
@@ -30,17 +31,16 @@
 
 	<build>
 		<plugins>
-			
+
 			<plugin>
 				<artifactId>maven-jar-plugin</artifactId>
-				<version>2.4</version>
 				<configuration>
 					<archive>
 						<manifestFile>META-INF/MANIFEST.MF</manifestFile>
 					</archive>
 				</configuration>
 			</plugin>
-			
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-clean-plugin</artifactId>
@@ -56,10 +56,10 @@
 						</fileset>
 					</filesets>
 				</configuration>
-			</plugin>	
-				
+			</plugin>
+
 		</plugins>
-		
+
 		<pluginManagement>
 			<plugins>
 				<plugin>
@@ -88,32 +88,32 @@
 			</plugins>
 		</pluginManagement>
 	</build>
-	
+
 	<profiles>
-	    <profile>
-	      <activation>
-	        <property>
-	          <name>m2e.version</name>
-	        </property>
-	      </activation>
-	      <properties>
-	        <osgi-version-qualifier>qualifier</osgi-version-qualifier>
-	      </properties>
-	      <build>
-	        <pluginManagement>
-	          <plugins>
-	            <plugin>
-	              <groupId>org.apache.felix</groupId>
-	              <artifactId>maven-bundle-plugin</artifactId>
-	              <configuration>
-	                  <!-- PDE does not honour custom manifest location -->
-	                <manifestLocation>META-INF</manifestLocation>
-	              </configuration>
-	            </plugin>
-	          </plugins>
-	        </pluginManagement>
-	      </build>
-	    </profile>
- 	</profiles>
+		<profile>
+			<activation>
+				<property>
+					<name>m2e.version</name>
+				</property>
+			</activation>
+			<properties>
+				<osgi-version-qualifier>qualifier</osgi-version-qualifier>
+			</properties>
+			<build>
+				<pluginManagement>
+					<plugins>
+						<plugin>
+							<groupId>org.apache.felix</groupId>
+							<artifactId>maven-bundle-plugin</artifactId>
+							<configuration>
+								<!-- PDE does not honour custom manifest location -->
+								<manifestLocation>META-INF</manifestLocation>
+							</configuration>
+						</plugin>
+					</plugins>
+				</pluginManagement>
+			</build>
+		</profile>
+	</profiles>
 
 </project>

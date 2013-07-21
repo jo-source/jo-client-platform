@@ -445,6 +445,11 @@
 			<artifactId>org.jowidgets.spi.impl.bridge.swt.awt.common.bundle</artifactId>
 			<version>${jowidgets.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.classloading.api.bundle</artifactId>
+			<version>${jowidgets.version}</version>
+		</dependency>
 	
 	
 		<!-- THIRD PARTY dependencies -->
