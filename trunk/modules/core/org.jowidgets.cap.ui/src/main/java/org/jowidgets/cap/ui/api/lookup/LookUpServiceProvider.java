@@ -32,6 +32,7 @@ import java.util.Iterator;
 import java.util.ServiceLoader;
 
 import org.jowidgets.cap.common.api.service.ILookUpService;
+import org.jowidgets.classloading.api.SharedClassLoader;
 import org.jowidgets.service.api.ServiceProvider;
 import org.jowidgets.service.tools.ServiceId;
 import org.jowidgets.util.Assert;
@@ -59,7 +60,9 @@ public final class LookUpServiceProvider {
 	}
 
 	private static ILookUpServiceProvider createInstance() {
-		final ServiceLoader<ILookUpServiceProvider> toolkitProviderLoader = ServiceLoader.load(ILookUpServiceProvider.class);
+		final ServiceLoader<ILookUpServiceProvider> toolkitProviderLoader = ServiceLoader.load(
+				ILookUpServiceProvider.class,
+				SharedClassLoader.getCompositeClassLoader());
 		final Iterator<ILookUpServiceProvider> iterator = toolkitProviderLoader.iterator();
 
 		final ILookUpServiceProvider result;

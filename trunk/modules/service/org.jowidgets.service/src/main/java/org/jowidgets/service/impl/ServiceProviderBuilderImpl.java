@@ -38,6 +38,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.ServiceLoader;
 
+import org.jowidgets.classloading.api.SharedClassLoader;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.api.IServiceProvider;
 import org.jowidgets.service.api.IServiceProviderBuilder;
@@ -103,7 +104,9 @@ final class ServiceProviderBuilderImpl extends AbstractSingleUseBuilder<IService
 
 	private List<IServicesDecoratorProvider> getRegisteredServicesDecorators() {
 		final List<IServicesDecoratorProvider> result = new LinkedList<IServicesDecoratorProvider>();
-		final ServiceLoader<IServicesDecoratorProvider> widgetServiceLoader = ServiceLoader.load(IServicesDecoratorProvider.class);
+		final ServiceLoader<IServicesDecoratorProvider> widgetServiceLoader = ServiceLoader.load(
+				IServicesDecoratorProvider.class,
+				SharedClassLoader.getCompositeClassLoader());
 		if (widgetServiceLoader != null) {
 			final Iterator<IServicesDecoratorProvider> iterator = widgetServiceLoader.iterator();
 			while (iterator.hasNext()) {

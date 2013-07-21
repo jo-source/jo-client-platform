@@ -32,6 +32,7 @@ import java.util.Iterator;
 import java.util.ServiceLoader;
 
 import org.jowidgets.cap.service.api.transaction.ITransactionTemplate;
+import org.jowidgets.classloading.api.SharedClassLoader;
 import org.jowidgets.util.Assert;
 
 public final class Neo4JServiceToolkit {
@@ -87,7 +88,9 @@ public final class Neo4JServiceToolkit {
 
 	private static synchronized void createInstance() {
 		if (instance == null) {
-			final ServiceLoader<INeo4JServiceToolkit> serviceLoader = ServiceLoader.load(INeo4JServiceToolkit.class);
+			final ServiceLoader<INeo4JServiceToolkit> serviceLoader = ServiceLoader.load(
+					INeo4JServiceToolkit.class,
+					SharedClassLoader.getCompositeClassLoader());
 			final Iterator<INeo4JServiceToolkit> iterator = serviceLoader.iterator();
 
 			if (!iterator.hasNext()) {

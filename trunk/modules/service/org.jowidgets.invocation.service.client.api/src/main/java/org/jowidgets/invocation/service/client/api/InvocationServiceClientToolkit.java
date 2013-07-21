@@ -31,6 +31,8 @@ package org.jowidgets.invocation.service.client.api;
 import java.util.Iterator;
 import java.util.ServiceLoader;
 
+import org.jowidgets.classloading.api.SharedClassLoader;
+
 public final class InvocationServiceClientToolkit {
 
 	private static IInvocationServiceClientToolkit toolkit;
@@ -53,7 +55,9 @@ public final class InvocationServiceClientToolkit {
 
 	public static synchronized IInvocationServiceClientToolkit getInstance() {
 		if (toolkit == null) {
-			final ServiceLoader<IInvocationServiceClientToolkit> toolkitProviderLoader = ServiceLoader.load(IInvocationServiceClientToolkit.class);
+			final ServiceLoader<IInvocationServiceClientToolkit> toolkitProviderLoader = ServiceLoader.load(
+					IInvocationServiceClientToolkit.class,
+					SharedClassLoader.getCompositeClassLoader());
 			final Iterator<IInvocationServiceClientToolkit> iterator = toolkitProviderLoader.iterator();
 
 			if (!iterator.hasNext()) {

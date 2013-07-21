@@ -40,6 +40,7 @@ import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.Set;
 
+import org.jowidgets.classloading.api.SharedClassLoader;
 import org.jowidgets.util.Assert;
 
 public final class ServiceProvider {
@@ -78,7 +79,9 @@ public final class ServiceProvider {
 	private static synchronized CompositeServiceProviderHolder getCompositeServiceProviderHolder() {
 		if (compositeServiceProviderHolder == null) {
 			compositeServiceProviderHolder = new CompositeServiceProviderHolder();
-			final ServiceLoader<IServiceProviderHolder> widgetServiceLoader = ServiceLoader.load(IServiceProviderHolder.class);
+			final ServiceLoader<IServiceProviderHolder> widgetServiceLoader = ServiceLoader.load(
+					IServiceProviderHolder.class,
+					SharedClassLoader.getCompositeClassLoader());
 			final Iterator<IServiceProviderHolder> iterator = widgetServiceLoader.iterator();
 			while (iterator.hasNext()) {
 				compositeServiceProviderHolder.add(iterator.next());
@@ -132,7 +135,9 @@ public final class ServiceProvider {
 	private static Map<IServiceId<?>, IRedundantServiceResolver<?>> createRedunantServiceResolvers() {
 		final Map<IServiceId<?>, IRedundantServiceResolver<?>> result = new HashMap<IServiceId<?>, IRedundantServiceResolver<?>>();
 
-		final ServiceLoader<IRedundantServiceResolver> service = ServiceLoader.load(IRedundantServiceResolver.class);
+		final ServiceLoader<IRedundantServiceResolver> service = ServiceLoader.load(
+				IRedundantServiceResolver.class,
+				SharedClassLoader.getCompositeClassLoader());
 		if (service != null) {
 			final Iterator<IRedundantServiceResolver> iterator = service.iterator();
 			while (iterator.hasNext()) {
@@ -164,7 +169,9 @@ public final class ServiceProvider {
 
 	private static List<IServiceProviderDecoratorHolder> getRegisteredDecorators() {
 		final List<IServiceProviderDecoratorHolder> result = new LinkedList<IServiceProviderDecoratorHolder>();
-		final ServiceLoader<IServiceProviderDecoratorHolder> service = ServiceLoader.load(IServiceProviderDecoratorHolder.class);
+		final ServiceLoader<IServiceProviderDecoratorHolder> service = ServiceLoader.load(
+				IServiceProviderDecoratorHolder.class,
+				SharedClassLoader.getCompositeClassLoader());
 		if (service != null) {
 			final Iterator<IServiceProviderDecoratorHolder> iterator = service.iterator();
 			while (iterator.hasNext()) {

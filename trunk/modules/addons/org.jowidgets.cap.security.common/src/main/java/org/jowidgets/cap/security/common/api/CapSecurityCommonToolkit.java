@@ -32,6 +32,7 @@ import java.util.Iterator;
 import java.util.ServiceLoader;
 
 import org.jowidgets.cap.security.common.impl.CapSecurityCommonToolkitImpl;
+import org.jowidgets.classloading.api.SharedClassLoader;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.util.Assert;
 
@@ -107,7 +108,9 @@ public final class CapSecurityCommonToolkit {
 
 	private static synchronized void createInstance() {
 		if (instance == null) {
-			final ServiceLoader<ICapSecurityCommonToolkit> serviceLoader = ServiceLoader.load(ICapSecurityCommonToolkit.class);
+			final ServiceLoader<ICapSecurityCommonToolkit> serviceLoader = ServiceLoader.load(
+					ICapSecurityCommonToolkit.class,
+					SharedClassLoader.getCompositeClassLoader());
 			final Iterator<ICapSecurityCommonToolkit> iterator = serviceLoader.iterator();
 
 			if (!iterator.hasNext()) {

@@ -31,6 +31,7 @@ package org.jowidgets.security.api;
 import java.util.Iterator;
 import java.util.ServiceLoader;
 
+import org.jowidgets.classloading.api.SharedClassLoader;
 import org.jowidgets.security.tools.DefaultPrincipal;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
@@ -50,7 +51,9 @@ public final class AuthenticationService {
 	}
 
 	private static IAuthenticationService createAuthenticationService() {
-		final ServiceLoader<IAuthenticationService> serviceLoader = ServiceLoader.load(IAuthenticationService.class);
+		final ServiceLoader<IAuthenticationService> serviceLoader = ServiceLoader.load(
+				IAuthenticationService.class,
+				SharedClassLoader.getCompositeClassLoader());
 		final Iterator<IAuthenticationService> iterator = serviceLoader.iterator();
 		if (iterator.hasNext()) {
 			final IAuthenticationService result = iterator.next();

@@ -37,6 +37,7 @@ import org.jowidgets.cap.security.ui.impl.CapSecurityUiToolkitImpl;
 import org.jowidgets.cap.ui.api.plugin.IBeanFormPlugin;
 import org.jowidgets.cap.ui.api.plugin.IBeanRelationTreePlugin;
 import org.jowidgets.cap.ui.api.plugin.IServiceActionDecoratorPlugin;
+import org.jowidgets.classloading.api.SharedClassLoader;
 import org.jowidgets.common.widgets.descriptor.IWidgetDescriptor;
 import org.jowidgets.common.widgets.factory.IWidgetFactory;
 import org.jowidgets.service.api.IServiceProviderDecoratorHolder;
@@ -122,7 +123,9 @@ public final class CapSecurityUiToolkit {
 
 	private static synchronized void createInstance() {
 		if (instance == null) {
-			final ServiceLoader<ICapSecurityUiToolkit> serviceLoader = ServiceLoader.load(ICapSecurityUiToolkit.class);
+			final ServiceLoader<ICapSecurityUiToolkit> serviceLoader = ServiceLoader.load(
+					ICapSecurityUiToolkit.class,
+					SharedClassLoader.getCompositeClassLoader());
 			final Iterator<ICapSecurityUiToolkit> iterator = serviceLoader.iterator();
 
 			if (!iterator.hasNext()) {

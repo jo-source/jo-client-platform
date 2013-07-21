@@ -35,6 +35,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ServiceLoader;
 
+import org.jowidgets.classloading.api.SharedClassLoader;
 import org.jowidgets.util.Assert;
 
 public final class PluginProvider {
@@ -62,7 +63,9 @@ public final class PluginProvider {
 	private static synchronized CompositePluginProviderHolder getCompositePluginProviderHolder() {
 		if (compositePluginProviderHolder == null) {
 			compositePluginProviderHolder = new CompositePluginProviderHolder();
-			final ServiceLoader<IPluginProviderHolder> serviceLoader = ServiceLoader.load(IPluginProviderHolder.class);
+			final ServiceLoader<IPluginProviderHolder> serviceLoader = ServiceLoader.load(
+					IPluginProviderHolder.class,
+					SharedClassLoader.getCompositeClassLoader());
 			final Iterator<IPluginProviderHolder> iterator = serviceLoader.iterator();
 			while (iterator.hasNext()) {
 				compositePluginProviderHolder.add(iterator.next());

@@ -31,6 +31,7 @@ package org.jowidgets.security.api;
 import java.util.Iterator;
 import java.util.ServiceLoader;
 
+import org.jowidgets.classloading.api.SharedClassLoader;
 import org.jowidgets.security.impl.DefaultSecurityContextHolder;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
@@ -57,7 +58,9 @@ public final class SecurityContextHolder {
 	}
 
 	private static ISecurityContextHolder createSecurityContextHolder() {
-		final ServiceLoader<ISecurityContextHolder> serviceLoader = ServiceLoader.load(ISecurityContextHolder.class);
+		final ServiceLoader<ISecurityContextHolder> serviceLoader = ServiceLoader.load(
+				ISecurityContextHolder.class,
+				SharedClassLoader.getCompositeClassLoader());
 		final Iterator<ISecurityContextHolder> iterator = serviceLoader.iterator();
 		if (iterator.hasNext()) {
 			final ISecurityContextHolder result = iterator.next();
