@@ -32,6 +32,7 @@ import java.util.Iterator;
 import java.util.ServiceLoader;
 
 import org.jowidgets.cap.service.hibernate.impl.HibernateServiceToolkitImpl;
+import org.jowidgets.classloading.api.SharedClassLoader;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.IDecorator;
 
@@ -68,7 +69,9 @@ public final class HibernateServiceToolkit {
 
 	private static synchronized void createInstance() {
 		if (instance == null) {
-			final ServiceLoader<IHibernateServiceToolkit> serviceLoader = ServiceLoader.load(IHibernateServiceToolkit.class);
+			final ServiceLoader<IHibernateServiceToolkit> serviceLoader = ServiceLoader.load(
+					IHibernateServiceToolkit.class,
+					SharedClassLoader.getCompositeClassLoader());
 			final Iterator<IHibernateServiceToolkit> iterator = serviceLoader.iterator();
 
 			if (!iterator.hasNext()) {

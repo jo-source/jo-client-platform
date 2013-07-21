@@ -19,6 +19,12 @@
 		</dependency>
 
 		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.classloading.api</artifactId>
+			<version>${jowidgets.version}</version>
+		</dependency>
+
+		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-entitymanager</artifactId>
 			<version>3.6.8.Final</version>

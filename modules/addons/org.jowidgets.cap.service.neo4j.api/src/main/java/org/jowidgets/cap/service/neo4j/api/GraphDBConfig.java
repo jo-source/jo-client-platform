@@ -31,6 +31,7 @@ package org.jowidgets.cap.service.neo4j.api;
 import java.util.Iterator;
 import java.util.ServiceLoader;
 
+import org.jowidgets.classloading.api.SharedClassLoader;
 import org.jowidgets.util.Assert;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
@@ -90,7 +91,9 @@ public final class GraphDBConfig {
 
 	private static synchronized void createInstance() {
 		if (instance == null) {
-			final ServiceLoader<IGraphDBConfig> serviceLoader = ServiceLoader.load(IGraphDBConfig.class);
+			final ServiceLoader<IGraphDBConfig> serviceLoader = ServiceLoader.load(
+					IGraphDBConfig.class,
+					SharedClassLoader.getCompositeClassLoader());
 			final Iterator<IGraphDBConfig> iterator = serviceLoader.iterator();
 
 			if (!iterator.hasNext()) {

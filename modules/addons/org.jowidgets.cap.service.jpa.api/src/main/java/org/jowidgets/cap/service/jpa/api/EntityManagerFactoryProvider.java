@@ -36,6 +36,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
+import org.jowidgets.classloading.api.SharedClassLoader;
 import org.jowidgets.util.Assert;
 
 public final class EntityManagerFactoryProvider {
@@ -67,7 +68,9 @@ public final class EntityManagerFactoryProvider {
 
 	private static synchronized void createInstance() {
 		if (instance == null) {
-			final ServiceLoader<IEntityManagerFactoryProvider> serviceLoader = ServiceLoader.load(IEntityManagerFactoryProvider.class);
+			final ServiceLoader<IEntityManagerFactoryProvider> serviceLoader = ServiceLoader.load(
+					IEntityManagerFactoryProvider.class,
+					SharedClassLoader.getCompositeClassLoader());
 			final Iterator<IEntityManagerFactoryProvider> iterator = serviceLoader.iterator();
 
 			if (!iterator.hasNext()) {

@@ -31,6 +31,8 @@ package org.jowidgets.cap.ui.api.login;
 import java.util.Iterator;
 import java.util.ServiceLoader;
 
+import org.jowidgets.classloading.api.SharedClassLoader;
+
 public final class LoginService {
 
 	private static final ILoginService INSTANCE = createInstance();
@@ -46,7 +48,9 @@ public final class LoginService {
 	}
 
 	private static ILoginService createInstance() {
-		final ServiceLoader<ILoginService> serviceLoader = ServiceLoader.load(ILoginService.class);
+		final ServiceLoader<ILoginService> serviceLoader = ServiceLoader.load(
+				ILoginService.class,
+				SharedClassLoader.getCompositeClassLoader());
 		final Iterator<ILoginService> iterator = serviceLoader.iterator();
 		if (iterator.hasNext()) {
 			final ILoginService result = iterator.next();

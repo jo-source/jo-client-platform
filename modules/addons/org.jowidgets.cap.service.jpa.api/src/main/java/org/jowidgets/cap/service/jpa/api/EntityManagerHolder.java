@@ -33,6 +33,7 @@ import java.util.ServiceLoader;
 
 import javax.persistence.EntityManager;
 
+import org.jowidgets.classloading.api.SharedClassLoader;
 import org.jowidgets.util.Assert;
 
 public final class EntityManagerHolder {
@@ -68,7 +69,9 @@ public final class EntityManagerHolder {
 
 	private static synchronized void createInstance() {
 		if (instance == null) {
-			final ServiceLoader<IEntityManagerHolder> serviceLoader = ServiceLoader.load(IEntityManagerHolder.class);
+			final ServiceLoader<IEntityManagerHolder> serviceLoader = ServiceLoader.load(
+					IEntityManagerHolder.class,
+					SharedClassLoader.getCompositeClassLoader());
 			final Iterator<IEntityManagerHolder> iterator = serviceLoader.iterator();
 
 			if (!iterator.hasNext()) {

@@ -32,6 +32,7 @@ import java.util.Iterator;
 import java.util.ServiceLoader;
 
 import org.jowidgets.cap.common.api.bean.IBean;
+import org.jowidgets.classloading.api.SharedClassLoader;
 import org.jowidgets.util.Assert;
 
 public final class JpaQueryToolkit {
@@ -64,7 +65,9 @@ public final class JpaQueryToolkit {
 
 	private static synchronized void createInstance() {
 		if (instance == null) {
-			final ServiceLoader<IJpaQueryToolkit> serviceLoader = ServiceLoader.load(IJpaQueryToolkit.class);
+			final ServiceLoader<IJpaQueryToolkit> serviceLoader = ServiceLoader.load(
+					IJpaQueryToolkit.class,
+					SharedClassLoader.getCompositeClassLoader());
 			final Iterator<IJpaQueryToolkit> iterator = serviceLoader.iterator();
 
 			if (!iterator.hasNext()) {

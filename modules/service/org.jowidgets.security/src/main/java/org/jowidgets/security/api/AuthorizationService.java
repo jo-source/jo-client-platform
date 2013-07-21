@@ -31,6 +31,8 @@ package org.jowidgets.security.api;
 import java.util.Iterator;
 import java.util.ServiceLoader;
 
+import org.jowidgets.classloading.api.SharedClassLoader;
+
 @SuppressWarnings({"rawtypes", "unchecked"})
 public final class AuthorizationService {
 
@@ -48,7 +50,9 @@ public final class AuthorizationService {
 	}
 
 	private static IAuthorizationService createAuthorizationService() {
-		final ServiceLoader<IAuthorizationService> serviceLoader = ServiceLoader.load(IAuthorizationService.class);
+		final ServiceLoader<IAuthorizationService> serviceLoader = ServiceLoader.load(
+				IAuthorizationService.class,
+				SharedClassLoader.getCompositeClassLoader());
 		final Iterator<IAuthorizationService> iterator = serviceLoader.iterator();
 		if (iterator.hasNext()) {
 			final IAuthorizationService result = iterator.next();

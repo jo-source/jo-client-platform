@@ -11,11 +11,18 @@
 	</parent>
 
 	<dependencies>
+	
 	    <dependency>
             <groupId>org.jowidgets</groupId>
             <artifactId>org.jowidgets.util</artifactId>
             <version>${jowidgets.version}</version>
         </dependency>
+        
+        <dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.classloading.api</artifactId>
+			<version>${jowidgets.version}</version>
+		</dependency>
 	</dependencies>
 
 </project>

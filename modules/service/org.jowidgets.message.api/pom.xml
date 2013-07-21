@@ -9,5 +9,13 @@
 		<version>0.23.0-SNAPSHOT</version>
 		<relativePath>../parent/pom.xml</relativePath>
 	</parent>
+	
+	<dependencies>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.classloading.api</artifactId>
+			<version>${jowidgets.version}</version>
+		</dependency>
+	</dependencies>
 
 </project>

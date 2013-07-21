@@ -35,6 +35,8 @@ import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.jowidgets.classloading.api.SharedClassLoader;
+
 public final class MessageToolkit {
 
 	private static final IMessageToolkit INSTANCE = new MessageToolkitImpl();
@@ -113,7 +115,9 @@ public final class MessageToolkit {
 
 	private static Map<Object, IMessageChannel> getChannels() {
 		final Map<Object, IMessageChannel> result = new ConcurrentHashMap<Object, IMessageChannel>();
-		final ServiceLoader<IMessageChannelBroker> widgetServiceLoader = ServiceLoader.load(IMessageChannelBroker.class);
+		final ServiceLoader<IMessageChannelBroker> widgetServiceLoader = ServiceLoader.load(
+				IMessageChannelBroker.class,
+				SharedClassLoader.getCompositeClassLoader());
 		final Iterator<IMessageChannelBroker> iterator = widgetServiceLoader.iterator();
 		while (iterator.hasNext()) {
 			final IMessageChannelBroker messageChannelBroker = iterator.next();
@@ -124,7 +128,9 @@ public final class MessageToolkit {
 
 	private static Map<Object, IMessageReceiverBroker> getReceivers() {
 		final Map<Object, IMessageReceiverBroker> result = new ConcurrentHashMap<Object, IMessageReceiverBroker>();
-		final ServiceLoader<IMessageReceiverBroker> widgetServiceLoader = ServiceLoader.load(IMessageReceiverBroker.class);
+		final ServiceLoader<IMessageReceiverBroker> widgetServiceLoader = ServiceLoader.load(
+				IMessageReceiverBroker.class,
+				SharedClassLoader.getCompositeClassLoader());
 		final Iterator<IMessageReceiverBroker> iterator = widgetServiceLoader.iterator();
 		while (iterator.hasNext()) {
 			final IMessageReceiverBroker messageReceiverBroker = iterator.next();
