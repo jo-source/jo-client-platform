@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.ObjectStreamClass;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
@@ -46,11 +47,13 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ByteArrayEntity;
+import org.jowidgets.classloading.api.SharedClassLoader;
 import org.jowidgets.message.api.IExceptionCallback;
 import org.jowidgets.message.api.IMessageChannel;
 import org.jowidgets.message.api.IMessageReceiver;
 import org.jowidgets.message.api.MessageToolkit;
 import org.jowidgets.util.concurrent.DaemonThreadFactory;
+import org.jowidgets.util.io.IoUtils;
 
 final class MessageBroker implements IMessageBroker, IMessageChannel {
 
@@ -208,13 +211,13 @@ final class MessageBroker implements IMessageBroker, IMessageChannel {
 					final HttpEntity entity = response.getEntity();
 					if (entity != null) {
 						final InputStream is = entity.getContent();
+						final ObjectInputStream ois = new SharedClassLoadingObjectInputStream(is);
 						try {
 							final StatusLine statusLine = response.getStatusLine();
 							if (statusLine.getStatusCode() != 200) {
 								throw new IOException("Invalid HTTP response: " + statusLine);
 							}
 							sessionInitialized.countDown();
-							final ObjectInputStream ois = new ObjectInputStream(is);
 							final int num = ois.readInt();
 							for (int i = 0; i < num; i++) {
 								try {
@@ -234,7 +237,8 @@ final class MessageBroker implements IMessageBroker, IMessageChannel {
 							}
 						}
 						finally {
-							is.close();
+							IoUtils.tryCloseSilent(ois);
+							IoUtils.tryCloseSilent(is);
 						}
 					}
 				}
@@ -247,6 +251,25 @@ final class MessageBroker implements IMessageBroker, IMessageChannel {
 		catch (final InterruptedException e) {
 			Thread.currentThread().interrupt();
 		}
+	}
+
+	private final class SharedClassLoadingObjectInputStream extends ObjectInputStream {
+
+		private SharedClassLoadingObjectInputStream(final InputStream in) throws IOException {
+			super(in);
+		}
+
+		@Override
+		protected Class<?> resolveClass(final ObjectStreamClass objectStreamClass) throws IOException, ClassNotFoundException {
+			try {
+				return SharedClassLoader.getCompositeClassLoader().loadClass(objectStreamClass.getName());
+			}
+			catch (final Exception e) {
+				//no exception handling, some objectStreamClasses like 'long' won't be found by classloaders
+				return super.resolveClass(objectStreamClass);
+			}
+		}
+
 	}
 
 }
