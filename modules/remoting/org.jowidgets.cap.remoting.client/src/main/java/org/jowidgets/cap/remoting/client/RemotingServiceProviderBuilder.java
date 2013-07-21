@@ -33,6 +33,7 @@ import java.lang.reflect.Proxy;
 import java.util.Set;
 
 import org.jowidgets.cap.remoting.common.CapInvocationMethodNames;
+import org.jowidgets.cap.remoting.common.RemotingBrokerId;
 import org.jowidgets.invocation.service.client.api.IInvocationServiceClient;
 import org.jowidgets.invocation.service.client.api.InvocationServiceClientToolkit;
 import org.jowidgets.invocation.service.common.api.IMethodInvocationService;
@@ -40,9 +41,13 @@ import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.tools.ServiceProviderBuilder;
 import org.jowidgets.util.Assert;
 
-final class RemotingServiceProviderBuilder extends ServiceProviderBuilder {
+public final class RemotingServiceProviderBuilder extends ServiceProviderBuilder {
 
-	RemotingServiceProviderBuilder(final Object brokerId) {
+	public RemotingServiceProviderBuilder() {
+		this(RemotingBrokerId.DEFAULT_BROKER_ID);
+	}
+
+	public RemotingServiceProviderBuilder(final Object brokerId) {
 		super();
 		Assert.paramNotNull(brokerId, "brokerId");
 		final IInvocationServiceClient invocationServiceClient = InvocationServiceClientToolkit.getClient(brokerId);
