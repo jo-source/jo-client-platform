@@ -29,6 +29,10 @@
          version="0.0.0"/>
 		 
 	<includes
+         id="org.jowidgets.cap.plugins.feature"
+         version="0.0.0"/>
+		 
+	<includes
          id="org.jowidgets.cap.remoting.feature"
          version="0.0.0"/>
 	

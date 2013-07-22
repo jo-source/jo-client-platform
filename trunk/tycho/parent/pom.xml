@@ -507,11 +507,17 @@
 			<artifactId>org.apache.httpcomponents.httpclient.bundle</artifactId>
 			<version>4.1.1</version>
 		</dependency>
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>com.springsource.org.hibernate.validator</artifactId>
+			<version>4.2.0.Final</version>
+		</dependency>
 		
 	</dependencies>
 
 	<modules>
 	    <module>../features/parent/</module>
+		<module>../plugins/parent/</module>
 	</modules>
 	
 	<build>
@@ -534,14 +540,14 @@
 				<groupId>${tycho-provider}</groupId>
 				<artifactId>tycho-p2-repository-plugin</artifactId>
 				<version>${tycho-version}</version>
-			</plugin>
+			</plugin>		
 			<plugin>
 				<groupId>${tycho-provider}</groupId>
 				<artifactId>target-platform-configuration</artifactId>
 				<version>${tycho-version}</version>
 				<configuration>
 					<pomDependencies>consider</pomDependencies>
-					<environments><!-- required for testing on Jenkins -->
+					<environments>required for testing on Jenkins
 						<environment>
 							<ws>win32</ws>
 							<os>win32</os>
@@ -554,7 +560,7 @@
 						</environment>
 					</environments>
 				</configuration>
-			</plugin>
+			</plugin> 
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-source-plugin</artifactId>
