@@ -283,6 +283,16 @@
 		<!-- jo-client-platform tools dependencies -->
 		<dependency>
 			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.cap.tools.starter.client.login.bundle</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.cap.tools.starter.client.remoting.bundle</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
 			<artifactId>org.jowidgets.cap.tools.starter.client.bundle</artifactId>
 			<version>${project.version}</version>
 		</dependency>
@@ -450,7 +460,11 @@
 			<artifactId>org.jowidgets.classloading.api.bundle</artifactId>
 			<version>${jowidgets.version}</version>
 		</dependency>
-	
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.beanvalidation.bootstrap.api.bundle</artifactId>
+			<version>${jowidgets.version}</version>
+		</dependency>
 	
 		<!-- THIRD PARTY dependencies -->
 		<dependency>

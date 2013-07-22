@@ -1,7 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<artifactId>org.jowidgets.cap.tools.starter.client.bundle</artifactId>
+	<artifactId>org.jowidgets.cap.tools.starter.client.remoting.bundle</artifactId>
 	<packaging>bundle</packaging>
 
 	<parent>
@@ -15,13 +15,13 @@
 	
 		<dependency>
 			<groupId>org.jowidgets</groupId>
-			<artifactId>org.jowidgets.cap.tools.starter.client</artifactId>
+			<artifactId>org.jowidgets.cap.tools.starter.client.remoting</artifactId>
 			<version>0.23.0-SNAPSHOT</version>
 		</dependency>
 		
 		<dependency>
 			<groupId>org.jowidgets</groupId>
-			<artifactId>org.jowidgets.cap.tools.starter.client</artifactId>
+			<artifactId>org.jowidgets.cap.tools.starter.client.remoting</artifactId>
 			<version>0.23.0-SNAPSHOT</version>
 			<type>jar</type>
 			<classifier>sources</classifier>
@@ -36,8 +36,8 @@
 				<artifactId>maven-bundle-plugin</artifactId>
 				<configuration>
 					<instructions>
-						<Embed-Dependency>org.jowidgets.cap.tools.starter.client;inline=true</Embed-Dependency>
-						<Require-Bundle>org.jowidgets.cap.tools.starter.client.remoting.bundle,org.jowidgets.cap.tools.starter.client.login.bundle,org.jowidgets.impl.bundle,org.jowidgets.workbench.impl.bundle</Require-Bundle>
+						<Embed-Dependency>org.jowidgets.cap.tools.starter.client.remoting;inline=true</Embed-Dependency>
+						<Require-Bundle>org.jowidgets.cap.remoting.client.bundle,org.jowidgets.invocation.service.client.impl.bundle,org.jowidgets.invocation.client.impl.bundle,org.jowidgets.security.impl.http.client.bundle</Require-Bundle>
 						<SPI-Provider>*</SPI-Provider>
 					</instructions>
 				</configuration>

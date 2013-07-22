@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, H.Westphal
+ * Copyright (c) 2011, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,34 +26,37 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.tools.starter.client;
+package org.jowidgets.cap.tools.starter.client.login;
 
-import org.jowidgets.cap.tools.starter.client.remoting.MessagingInitializer;
-import org.jowidgets.workbench.api.IWorkbenchConfigurationService;
-import org.jowidgets.workbench.api.IWorkbenchFactory;
-import org.jowidgets.workbench.api.IWorkbenchRunner;
-import org.jowidgets.workbench.impl.WorkbenchRunner;
+import org.jowidgets.api.login.ILoginInterceptor;
+import org.jowidgets.cap.common.api.service.IAuthorizationProviderService;
+import org.jowidgets.cap.ui.tools.AbstractLoginService;
+import org.jowidgets.common.image.IImageConstant;
+import org.jowidgets.security.impl.http.client.BasicAuthenticationLoginInterceptor;
+import org.jowidgets.service.api.IServiceId;
 
-public class CapClientWorkbenchRunner implements IWorkbenchRunner {
+public abstract class AbstractBasicAuthenticationRemoteLoginService extends AbstractLoginService {
 
-	private final IWorkbenchRunner workbenchRunner;
-	private final MessagingInitializer messagingInitializer;
-
-	public CapClientWorkbenchRunner(final String serverDefaultHost) {
-		this.workbenchRunner = new WorkbenchRunner();
-		this.messagingInitializer = new MessagingInitializer(serverDefaultHost);
+	public AbstractBasicAuthenticationRemoteLoginService(final String loginLabel) {
+		super(loginLabel);
 	}
+
+	public AbstractBasicAuthenticationRemoteLoginService(final IImageConstant logo) {
+		super(logo);
+	}
+
+	public AbstractBasicAuthenticationRemoteLoginService(final IImageConstant logo, final boolean decoratedLoginDialog) {
+		super(logo, decoratedLoginDialog);
+	}
+
+	public AbstractBasicAuthenticationRemoteLoginService(final String loginLabel, final boolean decoratedLoginDialog) {
+		super(loginLabel, decoratedLoginDialog);
+	}
+
+	protected abstract IServiceId<? extends IAuthorizationProviderService<?>> getAuthorizationProviderServiceId();
 
 	@Override
-	public final void run(final IWorkbenchFactory workbenchFactory) {
-		messagingInitializer.initializeMessaging();
-		workbenchRunner.run(workbenchFactory);
+	public final ILoginInterceptor createLoginInterceptor() {
+		return new BasicAuthenticationLoginInterceptor(getAuthorizationProviderServiceId());
 	}
-
-	@Override
-	public final void run(final IWorkbenchFactory workbenchFactory, final IWorkbenchConfigurationService configurationService) {
-		messagingInitializer.initializeMessaging();
-		workbenchRunner.run(workbenchFactory, configurationService);
-	}
-
 }
