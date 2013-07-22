@@ -31,10 +31,9 @@ package org.jowidgets.cap.common.impl;
 import java.util.Collection;
 import java.util.Comparator;
 
-import javax.validation.Validation;
-import javax.validation.ValidationException;
 import javax.validation.Validator;
 
+import org.jowidgets.beanvalidation.bootstrap.api.BeanValidatorFactory;
 import org.jowidgets.cap.common.api.ICapCommonToolkit;
 import org.jowidgets.cap.common.api.bean.IBeanDataBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
@@ -282,16 +281,7 @@ public final class DefaultCapCommonToolkit implements ICapCommonToolkit {
 	@Override
 	public Validator beanValidator() {
 		if (beanValidator == null) {
-			try {
-				beanValidator = Validation.buildDefaultValidatorFactory().getValidator();
-			}
-			catch (final ValidationException e) {
-				//TODO MG change error handling (maybe ignore)
-				//CHECKSTYLE:OFF
-				e.printStackTrace();
-				//CHECKSTYLE:ON
-				throw e;
-			}
+			beanValidator = BeanValidatorFactory.create();
 		}
 		return beanValidator;
 	}

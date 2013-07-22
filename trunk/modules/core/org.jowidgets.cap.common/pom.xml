@@ -36,6 +36,12 @@
             <version>${jowidgets.version}</version>
         </dependency>
         
+        <dependency>
+            <groupId>org.jowidgets</groupId>
+            <artifactId>org.jowidgets.beanvalidation.bootstrap.api</artifactId>
+            <version>${jowidgets.version}</version>
+        </dependency>
+        
 		<dependency>
             <groupId>javax.validation</groupId>
             <artifactId>validation-api</artifactId>
