@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, H.Westphal
+ * Copyright (c) 2013, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,34 +26,42 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.tools.starter.client;
+package org.jowidgets.cap.tools.starter.client.remoting;
 
-import org.jowidgets.cap.tools.starter.client.remoting.MessagingInitializer;
-import org.jowidgets.workbench.api.IWorkbenchConfigurationService;
-import org.jowidgets.workbench.api.IWorkbenchFactory;
-import org.jowidgets.workbench.api.IWorkbenchRunner;
-import org.jowidgets.workbench.impl.WorkbenchRunner;
+import org.jowidgets.cap.remoting.common.RemotingBrokerId;
+import org.jowidgets.message.api.IExceptionCallback;
+import org.jowidgets.message.api.MessageToolkit;
+import org.jowidgets.message.impl.http.client.IMessageBroker;
+import org.jowidgets.message.impl.http.client.MessageBrokerBuilder;
+import org.jowidgets.security.impl.http.client.BasicAuthenticationInitializer;
 
-public class CapClientWorkbenchRunner implements IWorkbenchRunner {
+public class MessagingInitializer {
 
-	private final IWorkbenchRunner workbenchRunner;
-	private final MessagingInitializer messagingInitializer;
+	private final String serverDefaultHost;
+	private boolean messagingInitialized;
 
-	public CapClientWorkbenchRunner(final String serverDefaultHost) {
-		this.workbenchRunner = new WorkbenchRunner();
-		this.messagingInitializer = new MessagingInitializer(serverDefaultHost);
+	public MessagingInitializer(final String serverDefaultHost) {
+		this.serverDefaultHost = serverDefaultHost;
+		this.messagingInitialized = false;
 	}
 
-	@Override
-	public final void run(final IWorkbenchFactory workbenchFactory) {
-		messagingInitializer.initializeMessaging();
-		workbenchRunner.run(workbenchFactory);
+	public synchronized void initializeMessaging() {
+		if (!messagingInitialized) {
+			final MessageBrokerBuilder builder = new MessageBrokerBuilder(RemotingBrokerId.DEFAULT_BROKER_ID);
+			builder.setUrl(System.getProperty("server.url", serverDefaultHost));
+			builder.setHttpRequestInitializer(BasicAuthenticationInitializer.getInstance());
+			final IMessageBroker messageBroker = builder.build();
+			MessageToolkit.addChannelBroker(messageBroker);
+			MessageToolkit.addReceiverBroker(messageBroker);
+			MessageToolkit.addExceptionCallback(RemotingBrokerId.DEFAULT_BROKER_ID, new IExceptionCallback() {
+				@Override
+				public void exception(final Throwable throwable) {
+					//CHECKSTYLE:OFF
+					throwable.printStackTrace();
+					//CHECKSTYLE:ON
+				}
+			});
+			messagingInitialized = true;
+		}
 	}
-
-	@Override
-	public final void run(final IWorkbenchFactory workbenchFactory, final IWorkbenchConfigurationService configurationService) {
-		messagingInitializer.initializeMessaging();
-		workbenchRunner.run(workbenchFactory, configurationService);
-	}
-
 }

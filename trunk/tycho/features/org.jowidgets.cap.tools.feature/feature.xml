@@ -17,6 +17,20 @@
 	</license>
 
 	<plugin
+         id="org.jowidgets.cap.tools.starter.client.login.bundle"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+		 
+	<plugin
+         id="org.jowidgets.cap.tools.starter.client.remoting.bundle"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+		 
+	<plugin
          id="org.jowidgets.cap.tools.starter.client.bundle"
          download-size="0"
          install-size="0"

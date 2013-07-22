@@ -28,14 +28,10 @@
 
 package org.jowidgets.cap.tools.starter.client;
 
-import org.jowidgets.api.login.ILoginInterceptor;
-import org.jowidgets.cap.common.api.service.IAuthorizationProviderService;
-import org.jowidgets.cap.ui.tools.AbstractLoginService;
+import org.jowidgets.cap.tools.starter.client.login.AbstractBasicAuthenticationRemoteLoginService;
 import org.jowidgets.common.image.IImageConstant;
-import org.jowidgets.security.impl.http.client.BasicAuthenticationLoginInterceptor;
-import org.jowidgets.service.api.IServiceId;
 
-public abstract class AbstractRemoteLoginService extends AbstractLoginService {
+public abstract class AbstractRemoteLoginService extends AbstractBasicAuthenticationRemoteLoginService {
 
 	public AbstractRemoteLoginService(final String loginLabel) {
 		super(loginLabel);
@@ -53,10 +49,4 @@ public abstract class AbstractRemoteLoginService extends AbstractLoginService {
 		super(loginLabel, decoratedLoginDialog);
 	}
 
-	protected abstract IServiceId<? extends IAuthorizationProviderService<?>> getAuthorizationProviderServiceId();
-
-	@Override
-	public ILoginInterceptor createLoginInterceptor() {
-		return new BasicAuthenticationLoginInterceptor(getAuthorizationProviderServiceId());
-	}
 }
