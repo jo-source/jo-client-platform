@@ -20,11 +20,6 @@
 			<version>3.6.8.Final</version>
 		</dependency>
 		<dependency>
-            <groupId>org.hibernate.javax.persistence</groupId>
-            <artifactId>hibernate-jpa-2.0-api</artifactId>
-            <version>1.0.1.Final</version>
-        </dependency>
-		<dependency>
 			<groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
             <version>3.6.8.Final</version>
@@ -136,7 +131,7 @@
 					<instructions>
 						<Export-Package>*</Export-Package>
 						<Import-Package>!javax.security.jacc,!com.sun.*,!sun.*,!oracle.xml.*,*</Import-Package>
-						<Embed-Dependency>hibernate-entitymanager;inline=true,hibernate-core;inline=true,cglib;inline=true,javassist;inline=true,hibernate-commons-annotations;inline=true,hibernate-jpa-2.0-api;inline=true,jacc;inline=true,antlr;inline=true,dom4j;inline=true,jaxme-api;inline=true,jaxen;inline=true,xsdlib;inline=true,relaxngDatatype;inline=true,pull-parser;inline=true,xpp3;inline=true,stax-api;inline=true,xml-apis;inline=true,dom4j;inline=true,jdom;inline=true,xmlParserAPIs;inline=true,xercesImpl;inline=true,xom;inline=true;slf4j-api;inline=true</Embed-Dependency>
+						<Embed-Dependency>hibernate-entitymanager;inline=true,hibernate-core;inline=true,cglib;inline=true,javassist;inline=true,hibernate-commons-annotations;inline=true,jacc;inline=true,antlr;inline=true,dom4j;inline=true,jaxme-api;inline=true,jaxen;inline=true,xsdlib;inline=true,relaxngDatatype;inline=true,pull-parser;inline=true,xpp3;inline=true,stax-api;inline=true,xml-apis;inline=true,dom4j;inline=true,jdom;inline=true,xmlParserAPIs;inline=true,xercesImpl;inline=true,xom;inline=true;slf4j-api;inline=true</Embed-Dependency>
 						<Embed-Transitive>true</Embed-Transitive>
 						<version>3.6.8.Final</version>
 					</instructions>
