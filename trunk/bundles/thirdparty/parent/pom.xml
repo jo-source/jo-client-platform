@@ -12,7 +12,8 @@
 	</parent>
 
 	<modules>
-	    <module>../org.prefuse.bundle</module>
+	    <module>../org.prefuse.bundle</module>	
+		<module>../org.hibernate.javax.persistence.hibernate.jpa.2.0.api.bundle</module>
 		<module>../org.hibernate.entitymanager.bundle</module>
 		<module>../org.neo4j.bundle</module>
 		<module>../org.apache.httpcomponents.httpclient.bundle</module>
