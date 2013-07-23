@@ -488,6 +488,11 @@
 			<version>2007.10.21</version>
 		</dependency>
 		<dependency>
+			<groupId>org.hibernate.javax.persistence</groupId>
+			<artifactId>org.hibernate.javax.persistence.hibernate.jpa.2.0.api.bundle</artifactId>
+			<version>1.0.1.Final</version>
+		</dependency>
+		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>org.hibernate.entitymanager.bundle</artifactId>
 			<version>3.6.8.Final</version>
