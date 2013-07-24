@@ -24,10 +24,10 @@
          unpack="false"/>
 		 
 	<plugin
-         id="org.hibernate.javax.persistence.hibernate.jpa.2.0.api.bundle"
+         id="com.springsource.javax.persistence"
          download-size="0"
          install-size="0"
-         version="1.0.1.Final"
+         version="2.0.0.Beta1"
          unpack="false"/>
 		 
 	<plugin
