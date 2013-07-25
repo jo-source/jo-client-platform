@@ -57,12 +57,5 @@
          install-size="0"
          version="4.1.1"
          unpack="false"/>
-		 
-	<plugin
-         id="com.springsource.javax.validation"
-         download-size="0"
-         install-size="0"
-         version="1.0.0.GA"
-         unpack="false"/>
 	
 </feature>
