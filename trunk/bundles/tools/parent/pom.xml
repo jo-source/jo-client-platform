@@ -14,8 +14,6 @@
 	<modules>
 		<module>../org.jowidgets.cap.tools.starter.standalone.common.bundle</module>
 		<module>../org.jowidgets.cap.tools.starter.standalone.bundle</module>	
-		<module>../org.jowidgets.cap.tools.starter.webapp.rwt.bundle</module>
-		<module>../org.jowidgets.cap.tools.starter.webapp.rwt.legacy.bundle</module>
 		<module>../org.jowidgets.cap.tools.starter.client.remoting.bundle</module>	
 		<module>../org.jowidgets.cap.tools.starter.client.login.bundle</module>
 		<module>../org.jowidgets.cap.tools.starter.client.bundle</module>	

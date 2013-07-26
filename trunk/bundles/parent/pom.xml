@@ -26,7 +26,6 @@
 		<module>../addons/parent</module>
 		<module>../tools/parent</module>
 		<module>../util/parent</module>
-		<module>../thirdparty/parent</module>
 	</modules>
 
 	<build>
