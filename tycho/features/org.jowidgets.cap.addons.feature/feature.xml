@@ -2,7 +2,7 @@
 <feature
     id="org.jowidgets.cap.addons.feature"
     label="jo-client-platform addons feature"
-    version="0.23.0.qualifier">
+    version="0.23.0">
 
 	<description url="http://www.example.com/description">
 		Feature that holds all cap addons bundles
