@@ -18,7 +18,6 @@
 		<module>../org.jowidgets.cap.plugins.feature</module>
 		<module>../org.jowidgets.cap.remoting.feature</module>
 		<module>../org.jowidgets.cap.service.feature</module>
-		<module>../org.jowidgets.cap.thirdparty.feature</module>
 		<module>../org.jowidgets.cap.tools.feature</module>
 		<module>../org.jowidgets.cap.util.feature</module>
 		<module>../org.jowidgets.cap.all.feature</module>
