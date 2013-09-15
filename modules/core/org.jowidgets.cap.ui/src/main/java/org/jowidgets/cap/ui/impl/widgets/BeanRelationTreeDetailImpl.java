@@ -65,7 +65,6 @@ import org.jowidgets.cap.ui.api.widgets.IBeanRelationTreeDetailBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableLifecycleInterceptor;
-import org.jowidgets.cap.ui.api.widgets.IBeanTableSetupBuilder;
 import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
 import org.jowidgets.cap.ui.tools.bean.SingleBeanSelectionProvider;
 import org.jowidgets.cap.ui.tools.execution.ExecutionInterceptorAdapter;
@@ -320,7 +319,7 @@ final class BeanRelationTreeDetailImpl<CHILD_BEAN_TYPE> extends ControlWrapper i
 
 	private void fireOnTableCreate(
 		final IBeanRelationNodeModel<Object, Object> relationNode,
-		final IBeanTableSetupBuilder<Object> builder) {
+		final IBeanTableBluePrint<Object> builder) {
 		for (final IBeanTableLifecycleInterceptor<Object> interceptor : new LinkedList<IBeanTableLifecycleInterceptor<Object>>(
 			tableLifecycleInterceptors)) {
 			interceptor.onTableCreate(relationNode, builder);

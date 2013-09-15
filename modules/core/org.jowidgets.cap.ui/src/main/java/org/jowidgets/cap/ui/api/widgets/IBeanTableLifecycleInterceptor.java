@@ -38,7 +38,7 @@ public interface IBeanTableLifecycleInterceptor<BEAN_TYPE> {
 
 	void afterModelCreated(IBeanRelationNodeModel<Object, Object> relationNode, IBeanTableModel<BEAN_TYPE> model);
 
-	void onTableCreate(IBeanRelationNodeModel<Object, Object> relationNode, IBeanTableSetupBuilder<BEAN_TYPE> builder);
+	void onTableCreate(IBeanRelationNodeModel<Object, Object> relationNode, IBeanTableSetupBuilder<?, BEAN_TYPE> builder);
 
 	void afterTableCreated(IBeanRelationNodeModel<Object, Object> relationNode, IBeanTable<BEAN_TYPE> table);
 

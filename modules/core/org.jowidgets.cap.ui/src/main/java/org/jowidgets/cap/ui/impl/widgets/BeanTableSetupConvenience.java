@@ -34,13 +34,13 @@ import org.jowidgets.cap.ui.api.widgets.IBeanTableSetupConvenience;
 import org.jowidgets.tools.widgets.blueprint.convenience.AbstractSetupBuilderConvenience;
 import org.jowidgets.util.Assert;
 
-final class BeanTableSetupConvenience extends AbstractSetupBuilderConvenience<IBeanTableSetupBuilder<Object>> implements
-		IBeanTableSetupConvenience<IBeanTableSetupBuilder<Object>, Object> {
+final class BeanTableSetupConvenience extends AbstractSetupBuilderConvenience<IBeanTableSetupBuilder<?, Object>> implements
+		IBeanTableSetupConvenience<IBeanTableSetupBuilder<?, Object>, Object> {
 
 	@Override
-	public IBeanTableSetupBuilder<Object> addMenuInterceptor(final IBeanTableMenuInterceptor<Object> addedInterceptor) {
+	public IBeanTableSetupBuilder<?, Object> addMenuInterceptor(final IBeanTableMenuInterceptor<Object> addedInterceptor) {
 		Assert.paramNotNull(addedInterceptor, "addedInterceptor");
-		final IBeanTableSetupBuilder<Object> builder = getBuilder();
+		final IBeanTableSetupBuilder<?, Object> builder = getBuilder();
 		final IBeanTableMenuInterceptor<Object> currentInterceptor = builder.getMenuInterceptor();
 		builder.setMenuInterceptor(BeanTableMenuInterceptorComposite.create(currentInterceptor, addedInterceptor));
 		return builder;
