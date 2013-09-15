@@ -889,6 +889,12 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 		setAutoUpdateInterval(config.getAutoUpdateInterval());
 	}
 
+	@Override
+	public void dispose() {
+		stopAutoUpdateModeImpl();
+		super.dispose();
+	}
+
 	private IDecorator<IAction> createDecorator(final boolean header) {
 		return new IDecorator<IAction>() {
 			@Override
@@ -940,6 +946,10 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 			uiThreadAccess.invokeLater(new Runnable() {
 				@Override
 				public void run() {
+					if (isDisposed()) {
+						stopAutoUpdateModeImpl();
+						return;
+					}
 					final IResultCallback<Void> resultCallback = new ResultCallbackAdapter<Void>() {
 						@Override
 						public void finished(final Void result) {
