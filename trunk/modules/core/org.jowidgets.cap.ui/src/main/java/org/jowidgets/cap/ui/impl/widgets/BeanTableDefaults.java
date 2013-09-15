@@ -34,10 +34,10 @@ import org.jowidgets.cap.ui.api.types.AutoScrollPolicy;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableSetupBuilder;
 import org.jowidgets.common.types.TableSelectionPolicy;
 
-final class BeanTableDefaults implements IDefaultInitializer<IBeanTableSetupBuilder<?>> {
+final class BeanTableDefaults implements IDefaultInitializer<IBeanTableSetupBuilder<?, ?>> {
 
 	@Override
-	public void initialize(final IBeanTableSetupBuilder<?> bluePrint) {
+	public void initialize(final IBeanTableSetupBuilder<?, ?> bluePrint) {
 		bluePrint.setSelectionPolicy(TableSelectionPolicy.MULTI_ROW_SELECTION);
 		bluePrint.setColumnsMoveable(true);
 		bluePrint.setColumnsResizeable(true);

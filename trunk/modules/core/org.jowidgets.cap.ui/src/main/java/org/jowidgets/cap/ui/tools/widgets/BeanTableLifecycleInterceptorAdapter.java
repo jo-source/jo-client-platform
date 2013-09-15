@@ -50,7 +50,7 @@ public class BeanTableLifecycleInterceptorAdapter<BEAN_TYPE> implements IBeanTab
 	@Override
 	public void onTableCreate(
 		final IBeanRelationNodeModel<Object, Object> relationNode,
-		final IBeanTableSetupBuilder<BEAN_TYPE> builder) {}
+		final IBeanTableSetupBuilder<?, BEAN_TYPE> builder) {}
 
 	@Override
 	public void afterTableCreated(final IBeanRelationNodeModel<Object, Object> relationNode, final IBeanTable<BEAN_TYPE> table) {}

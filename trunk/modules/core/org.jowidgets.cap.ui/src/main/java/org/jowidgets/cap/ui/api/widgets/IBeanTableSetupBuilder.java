@@ -37,32 +37,32 @@ import org.jowidgets.cap.ui.api.types.AutoScrollPolicy;
 import org.jowidgets.common.types.TableSelectionPolicy;
 import org.jowidgets.common.widgets.descriptor.setup.mandatory.Mandatory;
 
-public interface IBeanTableSetupBuilder<BEAN_TYPE> extends
+public interface IBeanTableSetupBuilder<INSTANCE_TYPE extends IBeanTableSetupBuilder<?, BEAN_TYPE>, BEAN_TYPE> extends
 		IComponentSetup,
-		IComponentSetupBuilder<IBeanTableSetupBuilder<BEAN_TYPE>>,
-		IBeanTableSetupConvenience<IBeanTableSetupBuilder<BEAN_TYPE>, BEAN_TYPE> {
+		IComponentSetupBuilder<INSTANCE_TYPE>,
+		IBeanTableSetupConvenience<INSTANCE_TYPE, BEAN_TYPE> {
 
-	IBeanTableSetupBuilder<BEAN_TYPE> setModel(IBeanTableModel<BEAN_TYPE> model);
+	INSTANCE_TYPE setModel(IBeanTableModel<BEAN_TYPE> model);
 
-	IBeanTableSetupBuilder<BEAN_TYPE> setSelectionPolicy(TableSelectionPolicy selectionPolicy);
+	INSTANCE_TYPE setSelectionPolicy(TableSelectionPolicy selectionPolicy);
 
-	IBeanTableSetupBuilder<BEAN_TYPE> setColumnsMoveable(boolean columnsMoveable);
+	INSTANCE_TYPE setColumnsMoveable(boolean columnsMoveable);
 
-	IBeanTableSetupBuilder<BEAN_TYPE> setColumnsResizeable(boolean columnsResizeable);
+	INSTANCE_TYPE setColumnsResizeable(boolean columnsResizeable);
 
-	IBeanTableSetupBuilder<BEAN_TYPE> setDefaultMenus(boolean defaultMenus);
+	INSTANCE_TYPE setDefaultMenus(boolean defaultMenus);
 
-	IBeanTableSetupBuilder<BEAN_TYPE> setDefaultCreatorAction(boolean creatorAction);
+	INSTANCE_TYPE setDefaultCreatorAction(boolean creatorAction);
 
-	IBeanTableSetupBuilder<BEAN_TYPE> setDefaultDeleterAction(boolean deleterAction);
+	INSTANCE_TYPE setDefaultDeleterAction(boolean deleterAction);
 
-	IBeanTableSetupBuilder<BEAN_TYPE> setHeaderMenuInterceptor(ITableMenuCreationInterceptor<BEAN_TYPE> interceptor);
+	INSTANCE_TYPE setHeaderMenuInterceptor(ITableMenuCreationInterceptor<BEAN_TYPE> interceptor);
 
-	IBeanTableSetupBuilder<BEAN_TYPE> setCellMenuInterceptor(ITableMenuCreationInterceptor<BEAN_TYPE> interceptor);
+	INSTANCE_TYPE setCellMenuInterceptor(ITableMenuCreationInterceptor<BEAN_TYPE> interceptor);
 
-	IBeanTableSetupBuilder<BEAN_TYPE> setMenuInterceptor(IBeanTableMenuInterceptor<BEAN_TYPE> interceptor);
+	INSTANCE_TYPE setMenuInterceptor(IBeanTableMenuInterceptor<BEAN_TYPE> interceptor);
 
-	IBeanTableSetupBuilder<BEAN_TYPE> setSearchFilterToolbarVisible(boolean visible);
+	INSTANCE_TYPE setSearchFilterToolbarVisible(boolean visible);
 
 	/**
 	 * Determines if the auto update settings can be configured by the user
@@ -71,7 +71,7 @@ public interface IBeanTableSetupBuilder<BEAN_TYPE> extends
 	 * 
 	 * @return This builder
 	 */
-	IBeanTableSetupBuilder<BEAN_TYPE> setAutoUpdateConfigurable(boolean configurable);
+	INSTANCE_TYPE setAutoUpdateConfigurable(boolean configurable);
 
 	/**
 	 * Sets the interval for the auto update in milliseconds
@@ -80,7 +80,7 @@ public interface IBeanTableSetupBuilder<BEAN_TYPE> extends
 	 * 
 	 * @return This builder
 	 */
-	IBeanTableSetupBuilder<BEAN_TYPE> setAutoUpdateInterval(int autoUpdateInterval);
+	INSTANCE_TYPE setAutoUpdateInterval(int autoUpdateInterval);
 
 	/**
 	 * Sets the auto scroll policy that will be used after auto update changed the data
@@ -89,11 +89,11 @@ public interface IBeanTableSetupBuilder<BEAN_TYPE> extends
 	 * 
 	 * @return This builder
 	 */
-	IBeanTableSetupBuilder<BEAN_TYPE> setAutoScrollPolicy(AutoScrollPolicy autoScrollPolicy);
+	INSTANCE_TYPE setAutoScrollPolicy(AutoScrollPolicy autoScrollPolicy);
 
-	IBeanTableSetupBuilder<BEAN_TYPE> setAutoPackPolicy(AutoPackPolicy autoPackPolicy);
+	INSTANCE_TYPE setAutoPackPolicy(AutoPackPolicy autoPackPolicy);
 
-	IBeanTableSetupBuilder<BEAN_TYPE> setEditable(boolean editable);
+	INSTANCE_TYPE setEditable(boolean editable);
 
 	@Mandatory
 	TableSelectionPolicy getSelectionPolicy();

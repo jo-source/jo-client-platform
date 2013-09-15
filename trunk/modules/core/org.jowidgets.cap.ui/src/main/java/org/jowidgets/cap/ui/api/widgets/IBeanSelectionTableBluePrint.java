@@ -36,7 +36,7 @@ import org.jowidgets.common.widgets.descriptor.setup.mandatory.Mandatory;
 import org.jowidgets.validation.IValidator;
 
 public interface IBeanSelectionTableBluePrint<BEAN_TYPE> extends
-		IBeanTableSetupBuilder<BEAN_TYPE>,
+		IBeanTableSetupBuilder<IBeanSelectionTableBluePrint<BEAN_TYPE>, BEAN_TYPE>,
 		IWidgetDescriptor<IBeanSelectionTable<BEAN_TYPE>> {
 
 	IBeanSelectionTableBluePrint<BEAN_TYPE> setValidator(IValidator<List<IBeanProxy<BEAN_TYPE>>> validator);

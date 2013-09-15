@@ -31,7 +31,7 @@ package org.jowidgets.cap.ui.api.widgets;
 import org.jowidgets.common.widgets.descriptor.IWidgetDescriptor;
 
 public interface IBeanTableBluePrint<BEAN_TYPE> extends
-		IBeanTableSetupBuilder<BEAN_TYPE>,
+		IBeanTableSetupBuilder<IBeanTableBluePrint<BEAN_TYPE>, BEAN_TYPE>,
 		IWidgetDescriptor<IBeanTable<BEAN_TYPE>> {
 
 }
