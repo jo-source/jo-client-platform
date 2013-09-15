@@ -1,0 +1,40 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>org.jowidgets.cap.bundles.addons.parent</artifactId>
+	<packaging>pom</packaging>
+	
+	<parent>
+		<groupId>org.jowidgets</groupId>
+		<artifactId>org.jowidgets.cap.bundles.parent</artifactId>
+		<version>0.24.0</version>
+		<relativePath>../../parent/pom.xml</relativePath>
+	</parent>
+	
+	<modules>
+		<module>../org.jowidgets.cap.addons.widgets.graph.impl.prefuse.swt.bundle</module>
+		<module>../org.jowidgets.cap.addons.widgets.graph.impl.prefuse.swing.bundle</module>
+		<module>../org.jowidgets.cap.addons.widgets.graph.impl.prefuse.swing.common.bundle</module>
+		<module>../org.jowidgets.cap.addons.plugins.beanform.document.bundle</module>
+		<module>../org.jowidgets.message.impl.http.client.bundle</module>	
+		<module>../org.jowidgets.message.impl.http.server.bundle</module>
+		<module>../org.jowidgets.message.impl.akka.bundle</module>	
+		<module>../org.jowidgets.cap.service.jpa.api.bundle</module>
+		<module>../org.jowidgets.cap.service.jpa.impl.bundle</module>	
+		<module>../org.jowidgets.cap.service.hibernate.bundle</module>
+		<module>../org.jowidgets.cap.service.hibernate.oracle.bundle</module>
+		<module>../org.jowidgets.cap.service.neo4j.api.bundle</module>
+		<module>../org.jowidgets.cap.service.neo4j.impl.bundle</module>	
+		<module>../org.jowidgets.cap.service.impl.dummy.bundle</module>
+		<module>../org.jowidgets.cap.service.spring.bundle</module>
+		<module>../org.jowidgets.security.impl.http.client.bundle</module>
+		<module>../org.jowidgets.security.impl.http.server.bundle</module>
+		<module>../org.jowidgets.cap.security.common.bundle</module>
+		<module>../org.jowidgets.cap.security.service.bundle</module>
+		<module>../org.jowidgets.cap.security.service.plugin.bundle</module>
+		<module>../org.jowidgets.cap.security.ui.bundle</module>
+		<module>../org.jowidgets.cap.security.ui.plugin.bundle</module>
+		<module>../org.jowidgets.plugin.spring.bundle</module>
+	</modules>
+
+</project>
