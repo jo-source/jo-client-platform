@@ -16,9 +16,9 @@
 	</properties>
 
 	<scm>
-		<connection>scm:svn:http://jo-client-platform.googlecode.com/svn/trunk/</connection>
-		<developerConnection>scm:svn:https://jo-client-platform.googlecode.com/svn/trunk/parent</developerConnection>
-		<url>http://jo-client-platform.googlecode.com/svn/trunk/</url>
+		<connection>scm:svn:http://jo-client-platform.googlecode.com/svn/branches/0.24.0-RC/</connection>
+		<developerConnection>scm:svn:https://jo-client-platform.googlecode.com/svn/branches/0.24.0-RC/parent</developerConnection>
+		<url>http://jo-client-platform.googlecode.com/svn/branches/0.24.0-RC/</url>
 	</scm>
 
 	<modules>
